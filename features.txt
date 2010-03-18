@@ -1,4 +1,243 @@
-Feature List
-------------
+/---------------------\
+|    Feature List     |
+\---------------------/
+
+I. GROUPED LIST
+
+1. Acquaman
+   --> Sample Manipulation/Feedback
+   --> User Data Environment
+   --> Beamline Status
+   --> Scan Configuration
+   --> Scan Monitor
+   --> Scripting
+   --> Workflow
+   --> Errors   (*In conjunction with Dataman)
+   --> Security (*In conjunction with Dataman)
+
+2. Dataman
+   --> Incoming Data
+   --> Outgoing Data
+   --> Importing Data
+   --> Exporting Data
+   --> Catalog/Alblum
+   --> Log Book
+   --> Calibration
+   --> Processing
+   --> Errors   (*In conjunction with Acquaman)
+   --> Security (*In conjunction with Acquaman)
+
+3. Scan/Scan Controller
+   --> Classes/Models
+   --> Database Backend
+   --> Scan Types
+   --> Data
+   --> Channels
+   --> Metadata
+   --> Math Options for Channels
+
+4. Scan Editor
+   --> Metadata Representation
+   --> Display Plot
+   --> Display Plot Options
+   --> Properties Window
+   --> Editor Save/SaveAs/Checks
 
 
+II. DETAILED LISTS
+
+1.1 Sample Manipulation/Feedback
+   --> Camera Interface
+     --> Click to move or click to set scan point (or accomodate both)
+   --> Load Guidance
+     --> Red light/green light workflow page
+     --> Opportunity to collect metadata (Sample plate number, samples, etc.)
+
+1.2 User Data Environment
+   --> Automate as much as possible
+     --> Can (should?) we accomodate those who want to "place" raw data?
+   --> Across user accounts/permit numbers? Talk to IT & Users' Office.
+   --> Decouple storage of raw data, database, and model/view
+
+1.3 Beamline Status
+   --> NEED: Beamline (Photon) Energy, Beam On/Off & feedback, Beam diagnostics(?)
+   --> Upper left corner (?), small screen realestate footprint
+   --> Launchable window/tab with more info
+   --> Experiment/scan type dependent(?)
+
+1.4 Scan Configuration
+   --> "Manual" or "Beamline" configuration page (all current settings available)
+   --> Wizard configuration pages for optimization & info collect
+   --> Time estimation for scans (or multiple scans) (could reimpliment Ken's code)
+   --> Manual or Wizard choice leads either directly to indirectly to all settings page
+   --> Queuing multiple scans (Go Button and Add to Workflow Button)
+   --> Scan Range: element edge (list or periodic table), user defined favorite, beamline favorite, manual entry
+   --> Resolution/Flux: grating, slit + PREDICTOR/SUGGESTOR (learned or programmed?)
+   --> Detector Selection: Diagnostics/Setup/Optimization for detectors (when to re-optimize?)
+   --> Other: EPU, temperature, angle, etc...
+
+1.5 Scan Monitor
+   --> Now playing page/window (is a scan editor) (dockable or standalone)
+     --> Configurables: Put new scan in new editor OR last editor; auto launch editor window OR go to now playing
+   --> Workflow/brew page
+
+1.6 Scripting
+   --> Raw scripting access to classes
+     --> Beamline control, scan
+     --> Protect as God Mode?
+   --> Assisted
+     --> Convenience calls
+     --> Force all user scripting to be Workflow Action Objects(?)
+   --> Auto-completion
+   --> Console window/page
+   --> Scripts can call scripts
+   --> Create features and combos (WE use to make advanced features like 2D scanning)
+   --> Create wrappers (auto-pause on beam loss) (can hide from users, wrap all scans?)
+
+1.7 Workflow
+   --> Steps:
+     --> Load Samples
+       --> Automated guidance, checklists, stop/go lights, beamline feedback, pictures, videos (?)
+       --> Move between transfer and measure positions
+     --> Optimize beam position
+       --> Camera as visual light feedback (short term use crosshair, long term have 3D beam tracking)
+       --> Picoammeter + slit + beamline flux profile
+     --> Scan Type Selection
+     --> Quick Edge Check
+       --> Element edge or eV region quick scan
+     --> Scan Config
+     --> Scan Feedback
+       --> to Dataman & scan editor
+       --> Endpoint adjustment: front (?), back
+     --> Scan End
+       --> Save scan/info
+       --> Autosave unless stopped
+     --> Next Sample/Action
+       --> Provide notification, auto-precede after some time
+   --> Scan Queue
+     --> Queue up scans/actions: new {ScanType}, new movement, run script
+     --> Disply like download manager
+       --> List in queue, info (metadata and completion %)
+       --> Buttons: See all actions/See only scans
+   --> Workflow Action Items
+     --> Inputs/Outputs
+     --> Preconditions/Errors/User Instructions
+     --> SubActions
+
+1.8 Errors
+   --> Errors on beamline status (not code errors)
+     --> motor move failure, limit switch, etc...
+     --> pressure, temperature, waterflow, valve problems
+   --> Propogate warnings/notifications/error messages to user
+
+1.9 Security
+   --> Permissions
+     --> RW on own data and own configurations/scripts
+     --> R on beamline configurations/scripts
+     --> R on public data library
+   --> Talk with IT/Users' Office about multiple accounts and permits
+
+2.0 Incoming Data
+   --> Storing scalars
+   --> Storing spectra (PGT, XEOL, RIXS)
+   --> Getting dacq library output handler to make scan instances
+
+2.1 Outgoing Data
+   --> Scalars to database
+   --> Spectra to database
+   --> Channels
+     --> Handling scalars
+     --> Handling spectra
+     --> Channel math
+   --> Joining scans/channels for multi-dimensionality
+
+2.2 Importing Data
+   --> Old data plugins
+     --> CLS format
+     --> APS format
+   --> Generic plugin creator/handler
+   --> Importing reference spectra
+
+2.3 Exporting Data
+   --> Direct raw data (writing new files or displaying where they are?)
+   --> Channel data to file
+   --> Whole scans & multiple scans (joined scans?)
+   --> Arbitrary output formats (plugin creator/handler)
+
+2.4 Catalog/Alblum
+   --> Organize model
+     --> Run --> Run # --> (Sample Plate?) --> Scan
+     --> Experiment --> Experiment # --> (Sample Plate?) --> Scan
+   --> Views:
+     --> Tree-table (with metadata columns)
+     --> Thumbnail gallery
+     --> Columns with preview pane
+   --> Sorting/Organizing/Searching
+     --> on metadata: date, time, sample, file name, experiment, ranges, position, etc...
+   --> Heirarchy
+     --> Public Data Set
+       --> Reviewed and open to public
+       --> User's submitted
+     --> User's Data
+       --> Runs
+         --> Most recent to least recent list
+           --> Scans
+       --> Experiments
+         --> User defined naming and order
+           --> Scans
+   --> Sidebar gets tree view without table (no scan level or metadata)
+
+2.5 Log Book
+   --> Available as a different view on the model
+   --> Allow for nice printing
+   --> Additional notation and markup?
+
+2.6 Calibration
+   --> Public Library
+     --> Importing from
+     --> Exporting to
+   --> Reference Spectra
+     --> scanned in Acquaman
+     --> collected elsewhere
+   --> Channel math
+     --> X-shifting, vertical scaling
+
+2.7 Processing
+   --> Scans & Channels
+     --> Simple math: add, subtract, multiply, divide by scalar or channel
+     --> Advanced math: differentiate, integrate, background normalize
+     --> Creating channels from data columns
+     --> Creating channels from other channels in the same scan
+     --> Creating channels from other channels in other scans
+   --> Joining scans
+     --> Manual versions: select group and join based on new degree of freedom
+     --> Automated versions
+       --> select group and join, Dataman guesses the new degree of freedom
+       --> select predefined scan type that results in joined data (2D mapping)
+   --> General scripting
+     --> Do XES binning?
+     --> Plugin architecture?
+
+3.0 Classes/Model
+
+3.1 Database Backend
+
+3.2 Scan Types
+
+3.3 Data
+
+3.4 Channels
+
+3.5 Metadata
+
+3.6 Math for Channels
+
+4.1 Metadata Representation
+
+4.2 Display Plot
+
+4.3 Display Plot Options
+
+4.4 Properties Window
+
+4.5 Editor Save/SaveAs/Checks
