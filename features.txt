@@ -154,7 +154,7 @@ II. DETAILED LISTS
 2.2 Importing Data
    --> Old data plugins
      --> CLS format
-     --> APS format
+     --> ALS format
    --> Generic plugin creator/handler
    --> Importing reference spectra
 
