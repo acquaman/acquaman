@@ -219,25 +219,113 @@ II. DETAILED LISTS
      --> Plugin architecture?
 
 3.0 Classes/Model
+   --> Scan Class: representation of data, channels, and metadata
+     --> has real (raw) data in "columns"
+     --> has user manipulated data in "channels"
+   --> Scan Configuration Class: represents a scan to be run/is running
+     --> decouple from underlying library/scan routine
+     --> populated from scan configuration window
+     --> controls stepping and detector/data acquisition
 
 3.1 Database Backend
+   --> Start with data stored in home directory, and one database per user
+   --> Move to one central database, use interface as security layer
+   --> Start with user ID as part of database, easier to move to single database that way
 
 3.2 Scan Types
+   --> Subclass Scan so new class can interpret data collected and show default channels
+   --> Scan Configuration subclassing not likely needed
+   --> XAS Scan, XEOL Scan, XES Scan, etc...
 
 3.3 Data
+   --> Raw data stored in "columns"
+   --> Will need to handle at least 2D data (SDD, XEOL, XES)
+   --> Written to file
+   --> Written to database (WHEN?)
 
 3.4 Channels
+   --> Manipulated dat stored in "channels"
+   --> Made of:
+     --> columns in same scan
+     --> channels in same scan
+     --> channels in other scans
 
 3.5 Metadata
+   --> Scan name (user defined)
+   --> Sample name (should we make a sample object?)
+   --> Start time
+   --> Comments
+   --> Manipulator position
+   --> Sample plate (object?)
+   --> Run #, Experiment Name(s), Sample Set, etc...
 
 3.6 Math for Channels
+   --> Easy math:
+     --> Scalar/Channel: add, subtract, multiply, divide
+     --> Normalize maximum
+   --> Medium:
+     --> Differentiation, integration
+     --> Interpolation
+     --> Normalize to channel, function, to baseline, to a peak
 
 4.1 Metadata Representation
+   --> As READ or READ/WRITE widgets based on properties in scan class
+   --> Default list:
+     -->
+   --> Layout based on scan type?
+   --> How to layout if list is long?
 
 4.2 Display Plot
+   --> On the fly/realtime update
+   --> Load from alblum
+   --> Load from recent
+   --> Views:
+     --> Tabbed: 
+       --> each channel type (TEY, TFY, XES, etc) has a tab (like BL graph)
+       --> buttons are exclusive (cannot have many selected)
+       --> with only one scan get only one channel
+       --> with more than one scan get the selected channel overplotted from every valid scan
+     --> Overplot:
+       --> all selected channel types are overplotted
+       --> buttons are togglable (can have many selected at any time)
+     --> MultiGraph Channel:
+       --> each channel type in different sub-plotter (if have TEY, TFY, and XES then have three sub-plotters)
+       --> main plotter window divided into sections
+     --> MultiGraph Scan:
+       --> each scan in differ sub-plotter with all selected channels overplotted
+   --> More/Less button:
+     --> Less: (Default) shows only side to side list of all channel types
+     --> More: shows side to side list of all channel types with vertical list of scans
 
 4.3 Display Plot Options
+   --> Mouse wheel:
+     --> Zoom in/out on plot window canvas
+     --> Scroll through channels when a channel selected (?)
+   --> Left click to select channel
+   --> Right click for mena:
+     --> On window canvas: waterfall, autoscale, match peaks
+     --> On channel: display/source properties, remove channel
 
 4.4 Properties Window
+   --> Math/Source Window:
+     --> Gives math options in text box with auto-complete
+     --> Left side populated with channels and scan axis channel
+     --> Develop combobox of channels for math option text box
+     --> Develop add combobox for "[" auto-completion
+     --> Add icon to manually add combobox
+     --> Channel selection, deletion, adding (?)
+     --> Develop slider for scalar values with live-update to plot window
+     --> Develop auto-calibration routines
+   --> Display Window:
+     --> Color, line, and marker options
+     --> Offset and scale
+     --> Default setting for channel (if available) and return to default
 
 4.5 Editor Save/SaveAs/Checks
+   --> Editor CHANGES the scan channels
+   --> Need to save changes
+   --> Can do a SAVE AS (?)
+     --> would all save as be like children of original scan (some relationship?)
+   --> check for saving before closing window OR removing scan
+   --> check to see if multiple copies are open in different editors
+     --> time stamping on this open versus last save, etc...
