@@ -1,6 +1,28 @@
-/---------------------\
-|    Feature List     |
-\---------------------/
+/-----------------------------\
+|      Week of March 22       |
+\-----------------------------/
+
+Boots:
+   --> Plotting finished
+   --> Database backend
+     --> file locking
+   --> Scan object
+     --> one demo class - XES ALS
+     --> import, export
+   --> Preliminary view of database
+     --> see what we've got
+
+David:
+   --> Scan Configuration & Scan Controller Classes
+     --> import and link dacq library
+     --> subclass controller for dacq library
+   --> UI Shells
+     --> get skeletons
+     --> refine feature list
+
+/-----------------------------\
+|        Feature List         |
+\-----------------------------/
 
 I. GROUPED LIST
 
