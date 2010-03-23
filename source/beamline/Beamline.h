@@ -127,7 +127,7 @@
 
 
 #define BEAMLINE_RINGCURRENT_PVNAME "PCT1402-01:mA:fbk"
-
+//#define BEAMLINE_RINGCURRENT_PVNAME "dave:Energy"
 
 
 class Beamline : public Control {

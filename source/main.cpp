@@ -2,10 +2,14 @@
 #include "ui/MainWindow.h"
 
 #include "beamline/Beamline.h"
+//#include "acquaman/ScanController.h"
+//#include "acquaman/DacqScanController.h"
 
 
 int main(int argc, char *argv[])
 {
+//    ScanController *myScan;
+//    myScan = new DacqScanController();
 	
 	QApplication app(argc, argv);
 	app.setApplicationName("reixsdaq");
