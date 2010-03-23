@@ -1,9 +1,11 @@
 #ifndef BEAMLINE_H_
 #define BEAMLINE_H_
 
+#include "Settings.h"
+#include "PVNames.h"
+
 #include <QObject>
 #include <QList>
-
 #include "Control.h"
 #include "AmpDetector.h"
 #include "DiagnosticPaddle.h"
@@ -16,7 +18,8 @@
 
 
 
-/* This class is a software-representation of the controllable aspects of the whole beamline.
+/* [This is comment is really old. ignore...]
+ * This class is a software-representation of the controllable aspects of the whole beamline.
  * It's a singleton class so only one instace should ever exist in the program.
  * The objects reachable through the beamline are:
  * 
@@ -123,11 +126,6 @@
  * 
  * 
  * */
-
-
-
-#define BEAMLINE_RINGCURRENT_PVNAME "PCT1402-01:mA:fbk"
-//#define BEAMLINE_RINGCURRENT_PVNAME "dave:Energy"
 
 
 class Beamline : public Control {

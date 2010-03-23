@@ -16,7 +16,8 @@ linux-g++ {
 }
 QT += core \
     phonon \
-    network
+    network \
+    sql
 TARGET = 
 DEPENDPATH += . \
     source
@@ -67,6 +68,9 @@ HEADERS += source/beamline/DiagnosticPaddle.h \
     source/ui/NumericControl.h \
     source/dataman/Scan.h \
     source/dataman/Channel.h \
+    source/beamline/PVNames.h \
+    source/Settings.h \
+    source/dataman/Database.h \
     source/acquaman/ScanController.h \
     source/acquaman/ScanConfiguration.h \
     source/acquaman/DacqScanController.h \
@@ -117,6 +121,9 @@ SOURCES += source/beamline/DiagnosticPaddle.cpp \
     source/ui/NumericControl.cpp \
     source/dataman/Scan.cpp \
     source/dataman/Channel.cpp \
+    source/beamline/PVNames.cpp \
+    source/Settings.cpp \
+    source/dataman/Database.cpp \
     source/acquaman/ScanController.cpp \
     source/acquaman/ScanConfiguration.cpp \
     source/acquaman/DacqScanController.cpp \

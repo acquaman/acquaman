@@ -48,6 +48,7 @@ public:
 		connect(this->hxpd_move, SIGNAL(clicked()), this, SLOT(onMoveSent()));
 
 		NumericControl* nc = new NumericControl(Beamline::bl()->spectrometer()->hexapod()->x(), placeHolder);
+                Q_UNUSED(nc);
 
 	}
 	

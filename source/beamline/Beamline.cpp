@@ -5,7 +5,7 @@ Beamline* Beamline::instance_ = 0;
 
 Beamline::Beamline() : Control("beamline", "n/a") {
 	
-        ringCurrent_ = new ReadOnlyPVControl("ringCurrent", BEAMLINE_RINGCURRENT_PVNAME, "", this);
+    ringCurrent_ = new ReadOnlyPVControl("ringCurrent", PVNames::ringCurrent, "", this);
         children_ << ringCurrent_;
 
 		spectrometer_ = new Spectrometer("spectrometer", this);
