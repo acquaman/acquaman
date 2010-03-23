@@ -66,7 +66,9 @@ HEADERS += source/beamline/DiagnosticPaddle.h \
     source/dataman/Channel.h \
     source/beamline/PVNames.h \
     source/Settings.h \
-    source/dataman/Database.h
+    source/dataman/Database.h \
+    source/acquaman/ScanController.h \
+    source/acquaman/ScanConfiguration.h
 FORMS += source/ui/AbsorptionScanController.ui \
     source/ui/ConnectionSettings.ui \
     source/ui/EmissionScanController.ui \
@@ -98,5 +100,8 @@ SOURCES += source/beamline/DiagnosticPaddle.cpp \
     source/dataman/Channel.cpp \
     source/beamline/PVNames.cpp \
     source/Settings.cpp \
-    source/dataman/Database.cpp
+    source/dataman/Database.cpp \
+    source/acquaman/ScanController.cpp \
+    source/acquaman/ScanConfiguration.cpp
+
 RESOURCES = source/icons/icons.qrc
