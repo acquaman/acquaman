@@ -4,7 +4,7 @@ QString PVNames::ringCurrent;
 
 /// Load settings from disk:
 void PVNames::load() {
-    QSettings settings(QSettings::IniFormat, QSettings::SystemScope, "mbdc", "AcquamanProcessVariables");
+	QSettings settings(QSettings::IniFormat, QSettings::SystemScope, "Acquaman", "AcquamanProcessVariables");
 
     // All settings variables are loaded here from disk. Default values must be provided -- they will be used if the particular setting doesn't exist yet.
     // Don't forget to add here if you add new user options.
@@ -18,7 +18,7 @@ void PVNames::load() {
 
 /// Save settings to disk:
 void PVNames::save() {
-    QSettings settings(QSettings::IniFormat, QSettings::SystemScope, "mbdc", "AcquamanProcessVariables");
+	QSettings settings(QSettings::IniFormat, QSettings::SystemScope, "Acquaman", "AcquamanProcessVariables");
 
     // All settings variables are saved here to the user-specific file.
     // Don't forget to add here if you add new user options.

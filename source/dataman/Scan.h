@@ -6,6 +6,8 @@
 #include <QDateTime>
 #include "Channel.h"
 
+#include "dataman/Database.h"
+
 class Scan : public QObject
 {
 Q_OBJECT
@@ -22,7 +24,7 @@ public:
     explicit Scan(QObject *parent = 0);
 
     /// Returns scan's unique id
-    QString id() const { return id_;}
+	int id() const { return id_;}
     /// Returns scan's user given name
     QString name() const { return name_;}
     /// Returns scan's appended number
@@ -42,7 +44,8 @@ public:
     Channel* channel(QString name);
     /// Return specified channel by index: (returns 0 if not found)
     Channel* channel(size_t index) { if(index < (size_t)ch_.count() ) return ch_.at(index); else return 0; }
-
+	/// Return a comma-separated list if all channel names (Used for channel hints in database)
+	QString channelNames() const;
 
 signals:
     /// Emitted when comments string changed
@@ -80,9 +83,16 @@ public slots:
     bool deleteChannel(const QString& channelName);
     bool deleteChannel(size_t index);
 
+	/// Load yourself from the database. (returns true on success)
+	/// Detailed subclasses of Scan must re-implement this to retrieve all of their unique data fields.
+		/// When doing so, always call the parent class implemention first.
+	virtual bool loadFromDb(Database* db, int id, bool fromPublic = false);
+	/// Store or update self in the database. (returns true on success)
+	/// Detailed subclasses of Scan must re-implement this to store all of their unique data.
+		/// When doing so, always call the parent class implemention first.
+	virtual bool storeToDb(Database* db, bool toPublic = false);
+
 protected:
-    /// Unique scan name
-    QString id_;
 
     /// List of channels
     QList<Channel*> ch_;
@@ -97,6 +107,18 @@ protected:
     QString comments_;
     /// Start time of original scan
     QDateTime startTime_;
+
+private:
+	/// Unique scan name
+	int id_;
+
 };
+
+
+/// This global function enables using the insertion operator to add scans to the database
+///		ex: *Database::db() << myScan
+/// Because Scan::storeToDb() is virtual, this version can be used properly for all sub-types of Scans.
+Database& operator<<(Database& db, Scan& s);
+
 
 #endif // SCAN_H

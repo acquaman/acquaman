@@ -102,7 +102,7 @@ ProcessVariable::ProcessVariable(const QString& pvName, bool autoMonitor, QObjec
 		
 		// register ourself to the support class:
 		ProcessVariableHeartbeat::registerPV(chid_, this);
-		qDebug() << QString("ProcessVariable: Creating ProcessVariable %1").arg(pvName);
+		// qDebug() << QString("ProcessVariable: Creating ProcessVariable %1").arg(pvName);
 
 	}
 	
@@ -116,7 +116,7 @@ ProcessVariable::ProcessVariable(const QString& pvName, bool autoMonitor, QObjec
 
 ProcessVariable::~ProcessVariable() {
 	
-	qDebug() << QString("deleting ProcessVariable %1.").arg(pvName());
+	// qDebug() << QString("deleting ProcessVariable %1.").arg(pvName());
 
 	emit disconnected();
 	emit connected(false);

@@ -1,5 +1,9 @@
 #include "Settings.h"
 
+#include <QDir>
+// Needed for getenv():
+#include <cstdlib>
+
 #include <QDebug>
 /// User Settings:
 // ========================================
@@ -23,22 +27,23 @@ QString UserSettings::userName;
 
 /// Load settings from disk:
 void UserSettings::load() {
-    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "mbdc", "Acquaman");
+	QSettings settings(QSettings::IniFormat, QSettings::UserScope, "Acquaman", "Acquaman");
 
     // All settings variables are loaded here from disk. Default values must be provided -- they will be used if the particular setting doesn't exist yet.
     // Don't forget to add here if you add new user options.
 
     // variable = settings.value(key, defaultValue).toType();
 
-    userDataFolder = settings.value("userDataFolder", "~/data/").toString();
+	userDataFolder = settings.value("userDataFolder", QDir::homePath() + "/acquamanData/").toString();
+	// TODO: warn here if doesn't exist?
     userDatabaseFilename = settings.value("userDatabaseFilename", "userdata.db").toString();
 
-    userName = settings.value("userName", "Jimbo Jones").toString();
+	userName = settings.value("userName", getenv("USER") ).toString();
 }
 
 /// Save settings to disk:
 void UserSettings::save() {
-    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "mbdc", "Acquaman");
+	QSettings settings(QSettings::IniFormat, QSettings::UserScope, "Acquaman", "Acquaman");
 
     // All settings variables are saved here to the user-specific file.
     // Don't forget to add here if you add new user options.
@@ -65,7 +70,7 @@ QString Settings::publicDatabaseFilename;
 
 /// Load settings from disk:
 void Settings::load() {
-    QSettings settings(QSettings::IniFormat, QSettings::SystemScope, "mbdc", "Acquaman");
+	QSettings settings(QSettings::IniFormat, QSettings::SystemScope, "Acquaman", "Acquaman");
 
     // All settings variables are loaded here from disk. Default values must be provided -- they will be used if the particular setting doesn't exist yet.
     // Don't forget to add here if you add new user options.
@@ -79,7 +84,7 @@ void Settings::load() {
 
 /// Save settings to disk:
 void Settings::save() {
-    QSettings settings(QSettings::IniFormat, QSettings::SystemScope, "mbdc", "Acquaman");
+	QSettings settings(QSettings::IniFormat, QSettings::SystemScope, "Acquaman", "Acquaman");
 
     // All settings variables are saved here to the user-specific file.
     // Don't forget to add here if you add new user options.
