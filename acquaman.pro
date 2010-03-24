@@ -91,7 +91,8 @@ HEADERS += source/beamline/DiagnosticPaddle.h \
     source/acquaman/dacq3_2/OutputHandler/acqFactory.h \
     source/acquaman/dacq3_2/OutputHandler/acqFileStream.h \
     source/acquaman/dacq3_2/qepicsadvacq.h \
-    source/acquaman/dacq3_2/acqLibHelper.h
+    source/acquaman/dacq3_2/acqLibHelper.h \
+    source/acquaman/XASScanConfiguration.h
 FORMS += source/ui/AbsorptionScanController.ui \
     source/ui/ConnectionSettings.ui \
     source/ui/EmissionScanController.ui \
@@ -150,5 +151,6 @@ SOURCES += source/beamline/DiagnosticPaddle.cpp \
     source/acquaman/dacq3_2/OutputHandler/acqFactory.cpp \
     source/acquaman/dacq3_2/OutputHandler/acqFileStream.cpp \
     source/acquaman/dacq3_2/qepicsadvacq.cpp \
-    source/acquaman/dacq3_2/acqLibHelper.c
+    source/acquaman/dacq3_2/acqLibHelper.c \
+    source/acquaman/XASScanConfiguration.cpp
 RESOURCES = source/icons/icons.qrc

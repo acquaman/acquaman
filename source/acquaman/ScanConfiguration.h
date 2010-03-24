@@ -2,102 +2,45 @@
 #define SCANCONFIGURATION_H
 
 #include <QObject>
-#include <QMap>
-#include <QDateTime>
 
 class ScanConfiguration : public QObject
 {
 Q_OBJECT
+
+Q_PROPERTY(QString fileName READ fileName WRITE setFileName)
+Q_PROPERTY(QString filePath READ filePath WRITE setFilePath)
 /*
-Q_PROPERTY(QString id READ id)
-Q_PROPERTY(QString name READ name WRITE setName)
 Q_PROPERTY(int number READ number WRITE setNumber)
 Q_PROPERTY(QString sampleName READ sampleName WRITE setSampleName)
 Q_PROPERTY(QString comments READ comments WRITE setComments NOTIFY commentsChanged)
 Q_PROPERTY(QDateTime startTime READ startTime WRITE setStartTime)
-
 */
+
 public:
     explicit ScanConfiguration(QObject *parent = 0);
-/*
-    /// Returns scan's unique id
-    QString id() const { return id_;}
-    /// Returns scan's user given name
-    QString name() const { return name_;}
-    /// Returns scan's appended number
-    int number() const { return number_;}
-    /// Returns name of sample
-    QString sampleName() const { return sampleName_;}
-    /// Returns comments for scan
-    QString comments() const { return comments_;}
-    /// Returns original start time
-    QDateTime startTime() const {return startTime_;}
-    /// Returns the full scan name: number appended to name
-    QString fullName() const {return QString("%1%2").arg(name_).arg(number_); }
 
-    /// Return number of available channels
-    int numChannels() const { return ch_.count();}
-    /// Returns specified channel by name: (returns 0 if not found)
-    Channel* channel(QString name);
-    /// Return specified channel by index: (returns 0 if not found)
-    Channel* channel(size_t index) { if(index < (size_t)ch_.count() ) return ch_.at(index); else return 0; }
+    /// Returns the name of the file to save raw data in
+    QString fileName() const { return fileName_;}
+    /// Returns the path to save the raw data file to
+    QString filePath() const { return filePath_; }
 
-
+    /*
 signals:
     /// Emitted when comments string changed
     void commentsChanged(const QString &);
 */
-/*
-  Belongs in scan controller
-    /// Scan has started
-    void started();
-    /// Scan completed
-    void finished();
-    /// Scan canceled by user
-    void cancelled();
-    /// Scan paused
-    void paused();
-    /// Scan resumed
-    void resumed();
-    /// Time left in scan
-    void timeRemaining(double seconds);
-*/
-/*
-public slots:
-    /// Sets user given name
-    void setName(const QString &name) { name_ = name;}
-    /// Sets appended number
-    void setNumber(int number) { number_ = number;}
-    /// Sets name of sample
-    void setSampleName(const QString &sampleName) { sampleName_ = sampleName;}
-    /// Sets comments for scan
-    void setComments(const QString &comments) { comments_ = comments; }
-    /// Sets original start time
-    void setStartTime(const QDateTime &startTime) { startTime_ = startTime;}
 
-    /// Delete a channel from scan:
-    bool deleteChannel(Channel* channel);
-    bool deleteChannel(const QString& channelName);
-    bool deleteChannel(size_t index);
+public slots:
+    /// Sets the file name
+    void setFileName(const QString &fileName) { fileName_ = fileName; }
+    /// Sets the file path
+    void setFilePath(const QString &filePath) { filePath_ = filePath; }
 
 protected:
-    /// Unique scan name
-    QString id_;
-
-    /// List of channels
-    QList<Channel*> ch_;
-
-    /// User defined scan name
-    QString name_;
-    /// Number to be appended to scan name
-    int number_;
-    /// Sample name
-    QString sampleName_;
-    /// Commments for scan
-    QString comments_;
-    /// Start time of original scan
-    QDateTime startTime_;
-*/
+    /// File name
+    QString fileName_;
+    /// File path
+    QString filePath_;
 };
 
 #endif // SCANCONFIGURATION_H
