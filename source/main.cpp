@@ -5,13 +5,18 @@
 
 #include "beamline/PVNames.h"
 #include "beamline/Beamline.h"
+//#include "acquaman/ScanController.h"
+//#include "acquaman/DacqScanController.h"
 #include "dataman/Database.h"
 
 // debug only:
 #include "dataman/Scan.h"
 
+
 int main(int argc, char *argv[])
 {
+//    ScanController *myScan;
+//    myScan = new DacqScanController();
 	
 	/// Program Startup:
 	// =================================

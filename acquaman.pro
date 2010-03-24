@@ -36,6 +36,10 @@ linux-g++ {
     QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
 }
 
+# include and library paths for libxml:
+INCLUDEPATH += /usr/include/libxml2
+LIBS += -lxml2
+
 # Input
 HEADERS += source/beamline/DiagnosticPaddle.h \
     source/beamline/LoadLock.h \
@@ -68,7 +72,26 @@ HEADERS += source/beamline/DiagnosticPaddle.h \
     source/Settings.h \
     source/dataman/Database.h \
     source/acquaman/ScanController.h \
-    source/acquaman/ScanConfiguration.h
+    source/acquaman/ScanConfiguration.h \
+    source/acquaman/DacqScanController.h \
+    source/acquaman/dacq3_2/epicsConnect.main.h \
+    source/acquaman/dacq3_2/epicsConnect.h \
+    source/acquaman/dacq3_2/acquisitionLib.main.h \
+    source/acquaman/dacq3_2/acquisitionLib.internal.h \
+    source/acquaman/dacq3_2/acquisitionLib.h \
+    source/acquaman/dacq3_2/acqDataHandler.h \
+    source/acquaman/dacq3_2/qepicsacqlocal.h \
+    source/acquaman/dacq3_2/qepicsacqclass.h \
+    source/acquaman/dacq3_2/OutputHandler/acqTextOutput.h \
+    source/acquaman/dacq3_2/factoryQtTemplate.h \
+    source/acquaman/dacq3_2/displayAlias.h \
+    source/acquaman/dacq3_2/OutputHandler/acqBaseOutput.h \
+    source/acquaman/dacq3_2/OutputHandler/acqProperties.h \
+    source/acquaman/dacq3_2/OutputHandler/acqBaseStream.h \
+    source/acquaman/dacq3_2/OutputHandler/acqFactory.h \
+    source/acquaman/dacq3_2/OutputHandler/acqFileStream.h \
+    source/acquaman/dacq3_2/qepicsadvacq.h \
+    source/acquaman/dacq3_2/acqLibHelper.h
 FORMS += source/ui/AbsorptionScanController.ui \
     source/ui/ConnectionSettings.ui \
     source/ui/EmissionScanController.ui \
@@ -102,6 +125,30 @@ SOURCES += source/beamline/DiagnosticPaddle.cpp \
     source/Settings.cpp \
     source/dataman/Database.cpp \
     source/acquaman/ScanController.cpp \
-    source/acquaman/ScanConfiguration.cpp
-
+    source/acquaman/ScanConfiguration.cpp \
+    source/acquaman/DacqScanController.cpp \
+    source/acquaman/dacq3_2/xmlWrite.cpp \
+    source/acquaman/dacq3_2/xmlRead.cpp \
+    source/acquaman/dacq3_2/update.c \
+    source/acquaman/dacq3_2/macro.c \
+    source/acquaman/dacq3_2/connector.c \
+    source/acquaman/dacq3_2/channel_hash.c \
+    source/acquaman/dacq3_2/channel.c \
+    source/acquaman/dacq3_2/acqMotor.c \
+    source/acquaman/dacq3_2/acqMonitor.c \
+    source/acquaman/dacq3_2/acqMessage.c \
+    source/acquaman/dacq3_2/acqLoad.c \
+    source/acquaman/dacq3_2/acqExtern.c \
+    source/acquaman/dacq3_2/acqActSetup.c \
+    source/acquaman/dacq3_2/acqAction.c \
+    source/acquaman/dacq3_2/qepicsacqlocal.cpp \
+    source/acquaman/dacq3_2/qepicsacqclass.cpp \
+    source/acquaman/dacq3_2/OutputHandler/acqTextOutput.cpp \
+    source/acquaman/dacq3_2/displayAlias.cpp \
+    source/acquaman/dacq3_2/OutputHandler/acqBaseOutput.cpp \
+    source/acquaman/dacq3_2/OutputHandler/acqBaseStream.cpp \
+    source/acquaman/dacq3_2/OutputHandler/acqFactory.cpp \
+    source/acquaman/dacq3_2/OutputHandler/acqFileStream.cpp \
+    source/acquaman/dacq3_2/qepicsadvacq.cpp \
+    source/acquaman/dacq3_2/acqLibHelper.c
 RESOURCES = source/icons/icons.qrc

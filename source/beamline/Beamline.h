@@ -128,8 +128,6 @@
  * */
 
 
-
-
 class Beamline : public Control {
 	
 	Q_OBJECT
