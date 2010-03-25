@@ -9,8 +9,7 @@ macx {
     PHONON_INCLUDE_DIR = /Library/Frameworks/phonon.framework/Versions/Current/Headers
 }
 
-# needed for malloc.h, but breaks Qt...
-# INCLUDEPATH += /usr/include/sys/
+
 linux-g++ { 
     EPICS_INCLUDE_DIRS = /home/reixs/beamline/programming/epics/base/include \
         /home/reixs/beamline/programming/epics/base/include/os/Linux
@@ -99,6 +98,7 @@ HEADERS += source/beamline/DiagnosticPaddle.h \
     source/acquaman/dacq3_2/acqLibHelper.h \
     source/acquaman/XASScanConfiguration.h \
     source/beamline/SGMBeamline.h \
+    source/beamline/ControlState.h
 FORMS += source/ui/AbsorptionScanController.ui \
     source/ui/ConnectionSettings.ui \
     source/ui/EmissionScanController.ui \
@@ -129,8 +129,9 @@ SOURCES += source/beamline/DiagnosticPaddle.cpp \
     source/dataman/Scan.cpp \
     source/dataman/SChannel.cpp \
     source/beamline/PVNames.cpp \
-    source/Settings.cpp \
     source/dataman/Database.cpp \
+	source/dataman/DbObject.cpp \
+	source/Settings.cpp \
     source/acquaman/ScanController.cpp \
     source/acquaman/ScanConfiguration.cpp \
     source/acquaman/DacqScanController.cpp \
@@ -160,5 +161,5 @@ SOURCES += source/beamline/DiagnosticPaddle.cpp \
     source/acquaman/dacq3_2/acqLibHelper.c \
     source/acquaman/XASScanConfiguration.cpp \
     source/beamline/SGMBeamline.cpp \
-    source/dataman/DbObject.cpp
+    source/beamline/ControlState.cpp
 RESOURCES = source/icons/icons.qrc

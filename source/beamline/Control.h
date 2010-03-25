@@ -43,6 +43,12 @@ public:
 	// Provides a list of controls that are sub-controls of this control:
 	QList<Control*> children() { return children_; }
 	int numChildren() { return children_.count(); }
+        /// Retreive a specific child control from the list by index
+        Control* child(size_t index){
+            if(index < (size_t)children_.count())
+                return children_.at(index);
+            return NULL;
+        }
 
 	// This value defines how close the final position must be to the move target, for the move to have succeeded.
 	virtual double tolerance() { return -1; }
@@ -81,6 +87,9 @@ public slots:
 	};
 	// This is used to cancel a move. Must reimplement for actual controls
 	virtual void stop() {};
+        /// Add a child to the control
+        void addChild(Control *control) { children_ << control;}
+        bool setStateList(const QMap<QString, double> controlList, unsigned int errorLevel = 0);
 
 signals:
 	// Announce changes in "completingMove()". These only apply to moves started by a move()... ie: they don't occur when another system causes the control to change.
@@ -131,6 +140,8 @@ protected slots:
 	virtual void onMoveFailed() {
 		emit moveFailed();
 	}
+
+        bool searchSetChildren(QMap<QString, double> *controlList, QMap<QString, Control*> *executeList, unsigned int errorLevel);
 
 private: // subclasses should use the protected methods to access these, to ensure signal delivery.
 	int state_;
