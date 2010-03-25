@@ -44,6 +44,7 @@ signals:
 public slots:
     void vomit();
     bool restore(Control *ctrl);
+    bool restoreList(Control *ctrl, QList<QString> *maskList);
 
 protected:
 //    QList< QPair<QString, QString> > state_;
@@ -52,6 +53,7 @@ protected:
     QList< QPair<int, ControlState*> > subState_;
 
     bool searchChildren(Control *ctrl);
+    bool restoreListInternal(Control * ctrl, QList<QString> *maskList = NULL, bool useList = FALSE);
 };
 
 #endif // CONTROLSTATE_H

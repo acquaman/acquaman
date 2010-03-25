@@ -20,6 +20,7 @@ public:
     ReadOnlyPVControl* ringCurrent() const { return ringCurrent_; }
     PVControl* energy() const { return energy_;}
     PVControl* exitSlitGap() const { return exitSlitGap_;}
+    ReadOnlyPVControl* m4() const { return m4_;}
 
 protected:
     // Singleton implementation:
@@ -32,6 +33,7 @@ protected:
     ReadOnlyPVControl* ringCurrent_;
     PVControl *energy_;
     PVControl *exitSlitGap_;
+    ReadOnlyPVControl* m4_;
 };
 
 #endif // SGMBEAMLINE_H

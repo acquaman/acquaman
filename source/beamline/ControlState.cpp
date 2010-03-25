@@ -61,18 +61,28 @@ void ControlState::vomit()
     }
 }
 
-bool ControlState::restore(Control *ctrl)
+bool ControlState::restore(Control *ctrl){
+    restoreListInternal(ctrl);
+}
+
+bool ControlState::restoreList(Control *ctrl, QList<QString> *maskList){
+    restoreListInternal(ctrl, maskList, TRUE);
+}
+
+bool ControlState::restoreListInternal(Control *ctrl, QList<QString> *maskList, bool useList)
 {
     if(ctrl->objectName() != name_)
         return FALSE;
     for(int x = 0; x < state_.count(); x++){
-        if( (state_.at(x)->should() == 2) && (ctrl->child(x)->canMove()) && ( fabs(state_.at(x)->value()-ctrl->child(x)->value()) > state_.at(x)->tolerance() ) ){
+        if( (!useList || maskList->contains(state_.at(x)->name())) && (state_.at(x)->should() == 2) && (ctrl->child(x)->canMove()) && ( fabs(state_.at(x)->value()-ctrl->child(x)->value()) > state_.at(x)->tolerance() ) ){
             qDebug() << "I want to restore " << state_.at(x)->name() << " from " << ctrl->child(x)->value() << " to " << state_.at(x)->value() << " exceeding tolerance " << state_.at(x)->tolerance();
+            qDebug() << "So, do it...";
+            ctrl->child(x)->move(state_.at(x)->value());
         }
         for(int y = 0; y < subState_.count(); y++){
             if(subState_.at(y).first == x){
                 qDebug() << "||\nV";
-                subState_.at(y).second->restore(ctrl->child(x));
+                subState_.at(y).second->restoreListInternal(ctrl->child(x), maskList, useList);
                 qDebug() << "";
             }
         }

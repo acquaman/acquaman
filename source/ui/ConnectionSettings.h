@@ -59,9 +59,33 @@ public:
                 connect(SGMBeamline::sgm()->energy(), SIGNAL(unitsChanged(const QString&)), hxpd_units, SLOT(setText(const QString&)));
                 connect(SGMBeamline::sgm()->energy(), SIGNAL(moving(bool)), hxpd_moving, SLOT(setChecked(bool)));
                 connect(this->hxpd_move, SIGNAL(clicked()), this, SLOT(onMoveSent()));
+
                 connect(this->hxpd_save, SIGNAL(clicked()), this, SLOT(onSaveRequested()));
                 connect(this->hxpd_restore, SIGNAL(clicked()), this, SLOT(onRestoreRequested()));
+                connect(this->energy_restore, SIGNAL(clicked()), this, SLOT(onEnergyRestoreRequested()));
 
+                connect(SGMBeamline::sgm()->m4(), SIGNAL(valueChanged(double)), m4_read, SLOT(setValue(double)));
+                connect(SGMBeamline::sgm()->m4(), SIGNAL(connected(bool)), m4_read, SLOT(setEnabled(bool)));
+                connect(SGMBeamline::sgm()->m4(), SIGNAL(unitsChanged(QString)), m4_units, SLOT(setText(QString)));
+                connect(SGMBeamline::sgm()->m4(), SIGNAL(moving(bool)), m4_moving, SLOT(setChecked(bool)));
+
+                connect(SGMBeamline::sgm()->m4()->child(0), SIGNAL(valueChanged(double)), m4inboard_read, SLOT(setValue(double)));
+                connect(SGMBeamline::sgm()->m4()->child(0), SIGNAL(connected(bool)), m4inboard_read, SLOT(setEnabled(bool)));
+                connect(SGMBeamline::sgm()->m4()->child(0), SIGNAL(unitsChanged(QString)), m4inboard_units, SLOT(setText(QString)));
+                connect(SGMBeamline::sgm()->m4()->child(0), SIGNAL(moving(bool)), m4inboard_moving, SLOT(setChecked(bool)));
+                connect(this->m4inboard_move, SIGNAL(clicked()), this, SLOT(onM4InboardMoveSent()));
+
+                connect(SGMBeamline::sgm()->m4()->child(1), SIGNAL(valueChanged(double)), m4outboard_read, SLOT(setValue(double)));
+                connect(SGMBeamline::sgm()->m4()->child(1), SIGNAL(connected(bool)), m4outboard_read, SLOT(setEnabled(bool)));
+                connect(SGMBeamline::sgm()->m4()->child(1), SIGNAL(unitsChanged(QString)), m4outboard_units, SLOT(setText(QString)));
+                connect(SGMBeamline::sgm()->m4()->child(1), SIGNAL(moving(bool)), m4outboard_moving, SLOT(setChecked(bool)));
+                connect(this->m4outboard_move, SIGNAL(clicked()), this, SLOT(onM4OutboardMoveSent()));
+
+                connect(SGMBeamline::sgm()->m4()->child(2), SIGNAL(valueChanged(double)), m4downstream_read, SLOT(setValue(double)));
+                connect(SGMBeamline::sgm()->m4()->child(2), SIGNAL(connected(bool)), m4downstream_read, SLOT(setEnabled(bool)));
+                connect(SGMBeamline::sgm()->m4()->child(2), SIGNAL(unitsChanged(QString)), m4downstream_units, SLOT(setText(QString)));
+                connect(SGMBeamline::sgm()->m4()->child(2), SIGNAL(moving(bool)), m4downstream_moving, SLOT(setChecked(bool)));
+                connect(this->m4downstream_move, SIGNAL(clicked()), this, SLOT(onM4DownstreamMoveSent()));
 
 		NumericControl* nc = new NumericControl(Beamline::bl()->spectrometer()->hexapod()->x(), placeHolder);
                 Q_UNUSED(nc);
@@ -81,6 +105,18 @@ public slots:
             SGMBeamline::sgm()->energy()->move(hxpd_x_set->value());
 	}
 
+        void onM4InboardMoveSent(){
+            SGMBeamline::sgm()->m4()->child(0)->move(m4inboard_set->value());
+        }
+
+        void onM4OutboardMoveSent(){
+            SGMBeamline::sgm()->m4()->child(1)->move(m4outboard_set->value());
+        }
+
+        void onM4DownstreamMoveSent(){
+            SGMBeamline::sgm()->m4()->child(2)->move(m4downstream_set->value());
+        }
+
         void onSaveRequested(){
             if(csTest)
                 delete [] csTest;
@@ -91,6 +127,14 @@ public slots:
         void onRestoreRequested(){
             if(csTest)
                 csTest->restore(SGMBeamline::sgm());
+        }
+
+        void onEnergyRestoreRequested(){
+            if(csTest){
+                QList<QString> energyList;
+                energyList << "energy";
+                csTest->restoreList(SGMBeamline::sgm(), &energyList);
+            }
         }
 	
 protected:
