@@ -30,7 +30,7 @@ typedef struct acqMaster acqMaster_t;
 #include <epicsMutex.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <malloc.h>
+// MB removed to build on mac os x: #include <malloc.h>
 #include <string.h>
 
 #include "acqDataHandler.h"

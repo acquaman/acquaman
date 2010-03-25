@@ -1,4 +1,4 @@
-#include "Channel.h"
+#include "SChannel.h"
 
 // Forward declaration of Scan
 #include "Scan.h"

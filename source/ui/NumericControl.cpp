@@ -86,6 +86,7 @@ void NumericControl::onEditStart() {
 	}
 	
 	bool ok;
+
 	dialog_->setDoubleValue(control_->value());
 	dialog_->setDoubleMaximum(control_->maximumValue());
 	dialog_->setDoubleMinimum(control_->minimumValue());

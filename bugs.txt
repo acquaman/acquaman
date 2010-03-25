@@ -1,3 +1,8 @@
 Bugs List
 ---------
 
+> analyze, test, and cleanup the move___ and moving() properties and signals in beamline/Control.  Develop more explicit notification system.
+
+> replace all qDebug() with our own error/logging notification system.
+
+

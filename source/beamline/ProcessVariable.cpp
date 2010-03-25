@@ -428,12 +428,12 @@ DoubleProcessVariable::DoubleProcessVariable(const QString& pvName, bool autoMon
 }	
 
 /* evenArgs:
-void            *usr;   /* user argument supplied with request
-chanId          chid;   /* channel id
-long            type;   /* the type of the item returned
-long            count;  /* the element count of the item returned
-const void      *dbr;   /* a pointer to the item returned
-int             status; /* ECA_XXX status of the requested op from the server
+void            *usr;   user argument supplied with request
+chanId          chid;   channel id
+long            type;   the type of the item returned
+long            count;  the element count of the item returned
+const void      *dbr;   a pointer to the item returned
+int             status; ECA_XXX status of the requested op from the server
 */
 
 void DoubleProcessVariable::valueChangedCB(struct event_handler_args eventArgs) {
