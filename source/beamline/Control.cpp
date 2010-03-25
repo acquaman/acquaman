@@ -120,9 +120,11 @@ void PVControl::onPVConnected(bool) {
 
 	int state = Control::NotConnected;
 	if( readPV_->canRead() )
-		state |= Control::CanMeasure;
+            state = Control::CanMeasure;
+//		state |= Control::CanMeasure;
 	if (writePV_->canWrite() )
-		state |= Control::CanMove;
+            state = Control::CanMove;
+//		state |= Control::CanMove;
 
 	setState(state);
 }
