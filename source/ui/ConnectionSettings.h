@@ -31,6 +31,7 @@ public:
 		
 //                qDebug() << "Energy value is " << SGMBeamline::sgm()->energy()->value() << " and slit value is " << SGMBeamline::sgm()->exitSlitGap()->value();
                 ControlState *csTest = new ControlState(SGMBeamline::sgm(), this);
+                csTest->vomit();
 
                 connect(Beamline::bl()->ringCurrent(), SIGNAL(valueChanged(double)), doubleSpinBox, SLOT(setValue(double)));
 		// TODO: connect(Beamline::bl()->ringCurrent(), SIGNAL(pvError(int)), this, SLOT(onEpicsError(int)));
@@ -58,11 +59,14 @@ public:
                 connect(SGMBeamline::sgm()->energy(), SIGNAL(unitsChanged(const QString&)), hxpd_units, SLOT(setText(const QString&)));
                 connect(SGMBeamline::sgm()->energy(), SIGNAL(moving(bool)), hxpd_moving, SLOT(setChecked(bool)));
                 connect(this->hxpd_move, SIGNAL(clicked()), this, SLOT(onMoveSent()));
+                connect(this->hxpd_save, SIGNAL(clicked()), this, SLOT(onSaveRequested()));
+                connect(this->hxpd_restore, SIGNAL(clicked()), this, SLOT(onRestoreRequested()));
 
 
 		NumericControl* nc = new NumericControl(Beamline::bl()->spectrometer()->hexapod()->x(), placeHolder);
                 Q_UNUSED(nc);
 
+                csTest = NULL;
 	}
 	
 public slots:
@@ -75,10 +79,22 @@ public slots:
 	void onMoveSent() {
 //		Beamline::bl()->spectrometer()->hexapod()->x()->move(hxpd_x_set->value());
             SGMBeamline::sgm()->energy()->move(hxpd_x_set->value());
-            ControlState *csTest = new ControlState(SGMBeamline::sgm(), this);
-            csTest->vomit();
 	}
+
+        void onSaveRequested(){
+            if(csTest)
+                delete [] csTest;
+            csTest = new ControlState(SGMBeamline::sgm(), this);
+            csTest->vomit();
+        }
+
+        void onRestoreRequested(){
+            if(csTest)
+                csTest->restore(SGMBeamline::sgm());
+        }
 	
+protected:
+    ControlState *csTest;
 };
 
 #endif
