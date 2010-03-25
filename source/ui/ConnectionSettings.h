@@ -5,6 +5,8 @@
 #include "ui_ConnectionSettings.h"
 
 #include "beamline/Beamline.h"
+#include "beamline/SGMBeamline.h"
+#include "beamline/ControlState.h"
 #include "ui/NumericControl.h"
 
 class ConnectionSettings : public QWidget, private Ui::ConnectionSettings {
@@ -27,12 +29,14 @@ public:
 		connect(ringI1, SIGNAL(connected(bool)), spinBox, SLOT(setEnabled(bool)));
 		*/
 		
-		
-		connect(Beamline::bl()->ringCurrent(), SIGNAL(valueChanged(double)), doubleSpinBox, SLOT(setValue(double)));
+//                qDebug() << "Energy value is " << SGMBeamline::sgm()->energy()->value() << " and slit value is " << SGMBeamline::sgm()->exitSlitGap()->value();
+                ControlState *csTest = new ControlState(SGMBeamline::sgm(), this);
+
+                connect(Beamline::bl()->ringCurrent(), SIGNAL(valueChanged(double)), doubleSpinBox, SLOT(setValue(double)));
 		// TODO: connect(Beamline::bl()->ringCurrent(), SIGNAL(pvError(int)), this, SLOT(onEpicsError(int)));
 		connect(Beamline::bl()->ringCurrent(), SIGNAL(connected(bool)), doubleSpinBox, SLOT(setEnabled(bool)));
 		connect(Beamline::bl()->ringCurrent(), SIGNAL(unitsChanged(const QString&)), unitLabel, SLOT(setText(const QString&)));
-		
+
 		/*
 		StringProcessVariable* ringI3 = new StringProcessVariable("PCT1402-01:mA:fbk", 1, this);
 		connect(ringI3, SIGNAL(valueChanged(const QString&)), lineEdit, SLOT(setText(const QString&)));
@@ -40,12 +44,21 @@ public:
 		connect(ringI3, SIGNAL(connected(bool)), lineEdit, SLOT(setEnabled(bool)));
 		*/
 
+                /*
 		connect(Beamline::bl()->spectrometer()->hexapod()->x(), SIGNAL(valueChanged(double)), hxpd_x_read, SLOT(setValue(double)));
 		// TODO: errors. connect(Beamline::bl()->spectrometer()->hexapod()->x(), SIGNAL(pvError(int)), this, SLOT(onEpicsError(int)));
 		connect(Beamline::bl()->spectrometer()->hexapod()->x(), SIGNAL(connected(bool)), hxpd_x_read, SLOT(setEnabled(bool)));
 		connect(Beamline::bl()->spectrometer()->hexapod()->x(), SIGNAL(unitsChanged(const QString&)), hxpd_units, SLOT(setText(const QString&)));
 		connect(Beamline::bl()->spectrometer()->hexapod()->x(), SIGNAL(moving(bool)), hxpd_moving, SLOT(setChecked(bool)));
 		connect(this->hxpd_move, SIGNAL(clicked()), this, SLOT(onMoveSent()));
+                */
+
+                connect(SGMBeamline::sgm()->energy(), SIGNAL(valueChanged(double)), hxpd_x_read, SLOT(setValue(double)));
+                connect(SGMBeamline::sgm()->energy(), SIGNAL(connected(bool)), hxpd_x_read, SLOT(setEnabled(bool)));
+                connect(SGMBeamline::sgm()->energy(), SIGNAL(unitsChanged(const QString&)), hxpd_units, SLOT(setText(const QString&)));
+                connect(SGMBeamline::sgm()->energy(), SIGNAL(moving(bool)), hxpd_moving, SLOT(setChecked(bool)));
+                connect(this->hxpd_move, SIGNAL(clicked()), this, SLOT(onMoveSent()));
+
 
 		NumericControl* nc = new NumericControl(Beamline::bl()->spectrometer()->hexapod()->x(), placeHolder);
                 Q_UNUSED(nc);
@@ -60,7 +73,8 @@ public slots:
 	}
 
 	void onMoveSent() {
-		Beamline::bl()->spectrometer()->hexapod()->x()->move(hxpd_x_set->value());
+//		Beamline::bl()->spectrometer()->hexapod()->x()->move(hxpd_x_set->value());
+            SGMBeamline::sgm()->energy()->move(hxpd_x_set->value());
 	}
 	
 };
