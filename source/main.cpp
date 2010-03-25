@@ -8,6 +8,7 @@
 //#include "acquaman/ScanController.h"
 //#include "acquaman/DacqScanController.h"
 #include "dataman/Database.h"
+#include "dataman/DbLoader.h"
 
 // debug only:
 #include "dataman/Scan.h"
@@ -63,6 +64,26 @@ int main(int argc, char *argv[])
 
 	qDebug() << "What is the type of object at id 1?" << Database::userdb()->scanType(1);
 	qDebug() << "What is the type of object at id 201?" << Database::userdb()->scanType(201);
+
+	// Use the powerful anyType loader to load from the database:
+	DbObject* loadedObject = DbLoader::createAndLoad(Database::userdb(), 1);
+	// this loaded all the details of the Scan object, even though you have a DbObject pointer
+	// Can ask for it's type using
+	qDebug() << "loaded database object @ id=1 dynamically; his type is: " << loadedObject->type();
+	// If you want, convert to a Scan using qt's dynamic cast:
+	Scan* loadedScan = qobject_cast<Scan*>(loadedObject);
+	if(loadedScan)
+		qDebug() << "Dynamic object was a Scan... his sampleName is" << loadedScan->sampleName();
+	else
+		qDebug() << "Dynamically loaded an object, but it's not a Scan.";
+
+	// But all this is silly if you already know the type of the object.  Just do:
+	Scan newScan2;
+	qDebug() << "Attempting to load scan at ID 2. Found it: " << newScan2.loadFromDb(Database::userdb(), 2);
+	qDebug() << "scan at id 2: comment is: " << newScan2.comments();
+	qDebug() << "scan at id 2: dateTime is: " << newScan2.dateTime();
+	qDebug() << "scan at id 2: id is: " << newScan2.id();
+
 	// End of database insert / search testing
 	// =====================================
 

@@ -69,11 +69,13 @@ HEADERS += source/beamline/DiagnosticPaddle.h \
     source/beamline/Beamline.h \
     source/beamline/Control.h \
     source/ui/NumericControl.h \
+	source/dataman/DbObject.h \
     source/dataman/Scan.h \
     source/dataman/SChannel.h \
     source/beamline/PVNames.h \
-    source/Settings.h \
     source/dataman/Database.h \
+	source/dataman/DbLoader.h \
+	source/Settings.h \
     source/acquaman/ScanController.h \
     source/acquaman/ScanConfiguration.h \
     source/acquaman/DacqScanController.h \
@@ -97,7 +99,6 @@ HEADERS += source/beamline/DiagnosticPaddle.h \
     source/acquaman/dacq3_2/acqLibHelper.h \
     source/acquaman/XASScanConfiguration.h \
     source/beamline/SGMBeamline.h \
-    source/dataman/DbObject.h
 FORMS += source/ui/AbsorptionScanController.ui \
     source/ui/ConnectionSettings.ui \
     source/ui/EmissionScanController.ui \

@@ -101,6 +101,10 @@ public:
 	bool ensureTable(const QString& tableName, const QStringList& columnNames, const QStringList& columnTypes);
 
 
+signals:
+	/// Emitted when an object is inserted or modified. Contains the id of the inserted or modified object.
+	void updated(int id);
+
 protected:
 	/// Access the QSqlDatabase object for this connection.
 	QSqlDatabase qdb() { return QSqlDatabase::database(connectionName_); }

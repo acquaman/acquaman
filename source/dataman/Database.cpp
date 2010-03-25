@@ -108,7 +108,7 @@ int Database::insertOrUpdate(int id, const QString& table, const QStringList& co
 
 	// Prepare the query. Todo: sanitize column names and table name. (Can't use binding because it's not an expression here)
 	QSqlQuery query(db);
-	query.prepare(QString("INSERT OR REPLACE INTO '%1' (id, %2) VALUES (%3)").arg(table).arg(cols).arg(colPlaceholders));
+	query.prepare(QString("INSERT OR REPLACE INTO %1 (id, %2) VALUES (%3)").arg(table).arg(cols).arg(colPlaceholders));
 
 	// If we have a unique id already, use that (This will update ourself in the DB)
 	if(id > 0)
@@ -131,8 +131,10 @@ int Database::insertOrUpdate(int id, const QString& table, const QStringList& co
 	// If we don't have one, set the unique id for this object (now that the database has established it)
 	if(id < 1) {
 		QVariant lastId = query.lastInsertId();
-		if(lastId.isValid())
+		if(lastId.isValid()) {
+			emit updated(lastId.toInt());
 			return lastId.toInt();
+		}
 		else {
 			qDebug() << "Database: insert succeeded, but could not get lastId after insert. This should never happen...";
 			return 0;
@@ -162,12 +164,16 @@ bool Database::retrieve(int id, const QString& table, const QStringList& colName
 	// Create the list of columns:
 	QString cols = colNames.join(", ");	// this will become something like "name, number, sampleName, comments, startTime"
 	// Prepare the query. Todo: sanitize column names and table name. (Can't use binding because it's not an expression here)
-	q.prepare(QString("SELECT (%1) FROM '%2' WHERE id = ?").arg(cols).arg(table));
-	q.bindValue(0, id);
+	q.prepare(QString("SELECT %1 FROM %2 WHERE id = ?").arg(cols).arg(table));
+	q.bindValue(0,id);
 
-	// run query and return true if succeeded at finding id:
-	if(q.exec() && q.first()) {
-
+	// run query. Did it succeed?
+	if(!q.exec()) {
+		qDebug() << "Database: retrieve query failed: " << q.executedQuery() << "Last error:" << q.lastError();
+		return false;
+	}
+	// If we found a record at this id:
+	if(q.first()) {
 		// copy columns to return values:
 		for(int i=0; i<values.count(); i++)
 			*(values.at(i)) = q.value(i);
@@ -175,10 +181,11 @@ bool Database::retrieve(int id, const QString& table, const QStringList& colName
 		q.finish();
 		return true;
 	}
-
+	// else: didn't find this id.  That's normal if it's not there; just return false.
 	else {
 		return false;
 	}
+
 }
 
 
