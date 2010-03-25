@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include <QList>
-#include <QMap>
+#include <QPair>
 #include <qdebug.h>
 #include "Control.h"
 
@@ -16,11 +16,13 @@ public:
 signals:
 
 public slots:
+    void vomit();
 
 protected:
-    QList< QMap<QString, QString> > state_;
+    QList< QPair<QString, QString> > state_;
+    QList< QPair<int, ControlState*> > subState_;
 
-    void searchChildren(Control *ctrl);
+    bool searchChildren(Control *ctrl);
 };
 
 #endif // CONTROLSTATE_H

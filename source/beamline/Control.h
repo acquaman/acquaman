@@ -47,6 +47,7 @@ public:
         Control* child(size_t index){
             if(index < (size_t)children_.count())
                 return children_.at(index);
+            return NULL;
         }
 
 	// This value defines how close the final position must be to the move target, for the move to have succeeded.

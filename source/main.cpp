@@ -5,6 +5,8 @@
 
 #include "beamline/PVNames.h"
 #include "beamline/Beamline.h"
+#include "beamline/SGMBeamline.h"
+#include "beamline/ControlState.h"
 //#include "acquaman/ScanController.h"
 //#include "acquaman/DacqScanController.h"
 #include "dataman/Database.h"
@@ -70,7 +72,11 @@ int main(int argc, char *argv[])
 	/// Program Shutdown:
 	// =================================
 	// Make sure we release/clean-up the beamline interface
+        ControlState *blTest = new ControlState(Beamline::bl(), Beamline::bl());
+        blTest->vomit();
 	Beamline::releaseBl();
+        ControlState *csTest = new ControlState(SGMBeamline::sgm(), SGMBeamline::sgm());
+        csTest->vomit();
 	// Close down connection to the user Database
 	Database::releaseUserDb();
 

@@ -75,6 +75,8 @@ public slots:
 	void onMoveSent() {
 //		Beamline::bl()->spectrometer()->hexapod()->x()->move(hxpd_x_set->value());
             SGMBeamline::sgm()->energy()->move(hxpd_x_set->value());
+            ControlState *csTest = new ControlState(SGMBeamline::sgm(), this);
+            csTest->vomit();
 	}
 	
 };
