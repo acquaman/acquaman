@@ -3,8 +3,20 @@
 
 #include <QDebug>
 
-Scan::Scan(QObject *parent) : QObject(parent), DbStorable() {
+// static dbColumnNames (each instance has same)
+QStringList Scan::dbColumnNames_;
 
+Scan::Scan(QObject *parent) : QObject(parent) {
+	id_ = 0;
+	// Insert if not filled already:
+	if(dbColumnNames_.count() == 0) {
+		dbColumnNames_ << "name";
+		dbColumnNames_ << "number";
+		dbColumnNames_ << "sampleName";
+		dbColumnNames_ << "comments";
+		dbColumnNames_ << "startTime";
+		dbColumnNames_ << "channels";
+	}
 }
 
 
@@ -49,54 +61,61 @@ QString Scan::channelNames() const {
 }
 
 
-/// Provide access to a property, indexed by column:
-QVariant Scan::dbValue(int colNumber) const {
-	switch(colNumber) {
-		case 0: return name(); break;
-		case 1: return number(); break;
-		case 2: return sampleName(); break;
-		case 3: return comments(); break;
-		case 4: return startTime(); break;
-		case 5: return channelNames(); break;
-		default: return QVariant(QVariant::Int); break;	// return "NULL" value
-	}
-}
 
-/// Set a property, indexed by column:
-void Scan::dbSetValue(int colNumber, const QVariant& value) {
-	switch(colNumber) {
-		case 0: setName(value.toString()); break;
-		case 1: setNumber(value.toInt()); break;
-		case 2: setSampleName(value.toString()); break;
-		case 3: setComments(value.toString()); break;
-		case 4: setStartTime(value.toDateTime()); break;
-		case 5: break;	// TODO: what to do about setting channel names? These are read-only in the main db table.
-		default: break;
-	}
-}
 
 
 #include "dataman/Database.h"
 
 /// This member function updates a scan in the database (if it exists already), otherwise it adds it to the database.
-// TODO: we require the following behaviour from the database:
-	// - column name id is a unique row index within the table
-	// - if id = NULL is inserted, a new row will be created and given the next available unique id
-	// - id numbering starts at 1
-	// - INSERT OR REPLACE operation exists (enforces unique id)
-	// - Scan Objects (ex: new scans) have their id() field set to <1, unless they've been retrieved from the database, in which case they have id() = id
+
+	// - Scan Objects (ex: new scans) have their id() field set to <1, unless they've been retrieved from the database, in which case they have id() = [valid database key]
 	// Watch out: by creating a scan and giving it id() = [some arbitrary positive number]; you'll destroy data in the db.
 
 bool Scan::storeToDb(Database* db) {
 
-	return db->insertOrUpdate(*this);
+	QList<const QVariant*> values;
+	QVariant v1(name());
+	QVariant v2(number());
+	QVariant v3(sampleName());
+	QVariant v4(comments());
+	QVariant v5(startTime());
+	QVariant v6(channelNames());
+	values << &v1 << &v2 << &v3 << &v4 << &v5 << &v6;
+
+	int retVal = db->insertOrUpdate(id(),"scanTable", dbColumnNames_, values);
+
+	if(retVal > 0) {
+		id_ = retVal;
+		return true;
+	}
+	else {
+		return false;
+	}
+
 }
 
 
-/// load a scan into 'destination' based on unique id.
-bool Scan::loadFromDb(Database* db, int id) {
+/// load a scan (set its properties) by retrieving it based on id.
+bool Scan::loadFromDb(Database* db, int sourceId) {
 
-	return db->retrieve(*this, id);
+	// Provide memory storage for return value:
+	QList<QVariant*> values;
+	QVariant v1, v2, v3, v4, v5, v6;
+	values << &v1 << &v2 << &v3 << &v4 << &v5 << &v6;
+
+	if( db->retrieve( sourceId,"scanTable", dbColumnNames_, values) ) {
+		id_ = sourceId;
+		setName(v1.toString());
+		setNumber(v2.toInt());
+		setSampleName(v3.toString());
+		setComments(v4.toString());
+		setStartTime(v5.toDateTime());
+		// v6 ignored; channel names are read-only.
+		return true;
+	}
+	else {
+		return false;
+	}
 
 }
 

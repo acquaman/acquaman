@@ -4,13 +4,12 @@
 #include <QObject>
 #include <QMap>
 #include <QDateTime>
+#include <QStringList>
 #include "SChannel.h"
 
-#include "dataman/DbStorable.h"
 #include "dataman/Database.h"
 
-class Scan : public QObject, public DbStorable
-{
+class Scan : public QObject {
 Q_OBJECT
 Q_PROPERTY(QString id READ id)
 Q_PROPERTY(QString name READ name WRITE setName)
@@ -25,7 +24,7 @@ public:
     explicit Scan(QObject *parent = 0);
 
     /// Returns scan's unique id
-	int id() const { return dbId(); }
+	int id() const { return id_; }
     /// Returns scan's user given name
     QString name() const { return name_;}
     /// Returns scan's appended number
@@ -58,8 +57,20 @@ public:
 	/// The name of the table that will store the object's properties:
 	static QString dbTableName() { return "scanTable"; }	// todo: move into system settings?
 	/// A list of the column names required to store the object's properties. (note: the key column 'id' is always included; don't specify it here.)
-	static QStringList dbColumnNames() { QStringList rl; rl << "name"; rl << "number"; rl << "sampleName"; rl << "comments"; rl << "startTime"; rl << "channels"; return rl; }
+	static const QStringList& dbColumnNames() {
+		// Insert if not filled already:
+		if(dbColumnNames_.count() == 0) {
+			dbColumnNames_ << "name";
+			dbColumnNames_ << "number";
+			dbColumnNames_ << "sampleName";
+			dbColumnNames_ << "comments";
+			dbColumnNames_ << "startTime";
+			dbColumnNames_ << "channels";
+		}
+		return dbColumnNames_;
+	}
 	/// A list of the column types recommended to store the object's properties. (note: this must have the same number of items and correspond to dbColumnNames())
+	// TODO: store for permanent?
 	static QStringList dbColumnTypes() { QStringList rl; rl << "TEXT"; rl << "INTEGER"; rl<< "TEXT";		rl << "TEXT";	   rl << "TEXT";		rl << "TEXT"; return rl; }
 
 	/// Section 2: These set and get methods are used by the database to store and retrieve an object:
@@ -130,6 +141,10 @@ protected:
     QString comments_;
     /// Start time of original scan
     QDateTime startTime_;
+
+private:
+	int id_;
+	static QStringList dbColumnNames_;
 
 };
 

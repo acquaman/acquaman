@@ -79,8 +79,16 @@ void Database::releasePublicDb() {
 	}
 }
 
-/// Inserting or updating objects in the database:
-bool Database::insertOrUpdate(DbStorable& object) {
+/// Inserting or updating objects in the database.
+/*! id is the object's row in the database (for updates), or 0 (for inserts).
+	table is the database table name
+	colNames is a list of the column names that the values will be inserted under
+	values is a list of constant pointers to QVariants that provide the values to insert.
+	(Note that the const and const& arguments are designed to prevent memory copies, so this should be fast.)
+	Return value: (IMPORTANT) returns the id of the row that was inserted into or updated, or 0 on failure.
+	When inserting new objects, make sure to set their id to the return value afterwards, otherwise they will be duplicated on next insert.
+*/
+int Database::insertOrUpdate(int id, const QString& table, const QStringList& colNames, const QList<const QVariant*>& values) {
 
 	QSqlDatabase db = qdb();
 
@@ -89,70 +97,70 @@ bool Database::insertOrUpdate(DbStorable& object) {
 		return false;
 	}
 
-	// start a transaction
-	db.transaction();
 
 	// Create the list of columns:
-	QStringList colList = object.dbColumnNames();
-
-	QString cols = colList.join(", ");	// this will become something like "name, number, sampleName, comments, startTime"
+	QString cols = colNames.join(", ");	// this will become something like "name, number, sampleName, comments, startTime"
 	QString colPlaceholders;
-	for(int i=0; i<colList.count()+2; i++)
+	for(int i=0; i<colNames.count()+1; i++)
 		colPlaceholders.append("?, ");
 	colPlaceholders.chop(2);	// remove trailing ", " from "?, ?, ?, ?, ...?, "
-	// placeholders will become something like "?, ?, ?, ?, ?, ?", with enough ? for each column name + id + className (which we'll be adding to the front)
-
-	QString table = object.dbTableName();
+	// placeholders will become something like "?, ?, ?, ?, ?, ?", with enough ? for each column name + the id
 
 	// Prepare the query. Todo: sanitize column names and table name. (Can't use binding because it's not an expression here)
 	QSqlQuery query(db);
-	query.prepare(QString("INSERT OR REPLACE INTO '%1' (id, className, %2) VALUES (%3)").arg(table).arg(cols).arg(colPlaceholders));
+	query.prepare(QString("INSERT OR REPLACE INTO '%1' (id, %2) VALUES (%3)").arg(table).arg(cols).arg(colPlaceholders));
 
 	// If we have a unique id already, use that (This will update ourself in the DB)
-	if(object.dbId() > 0)
-		query.bindValue(0, object.dbId());
+	if(id > 0)
+		query.bindValue(0, id);
 	// Otherwise, use NULL for the id. (This will create a new one.)
 	else
 		query.bindValue(0, QVariant(QVariant::Int));
 
 	// Bind remaining values
-	query.bindValue(1, object.dbClassName());
-	for(int i=2; i<colList.count()+2; i++)
-		query.bindValue(i, object.dbValue(i));
+	for(int i=0; i<colNames.count(); i++)
+		query.bindValue(i+1, *(values.at(i)));
 
-	// Query failed:
+	// Run query. Query failed?
 	if(!query.exec()) {
 		qDebug() << "Database: saving failed; could not execute query: " << query.executedQuery();
-		return false;
+		return 0;
 	}
 	// Query succeeded.
-	else {
-		// If we don't have one, set the unique id for this object (now that the database has established it)
-		if(object.dbId() < 1) {
-			QVariant lastId = query.lastInsertId();
-			if(lastId.isValid())
-				object.dbSetId(lastId.toInt());
-			else {
-				qDebug() << "Database: insert succeeded, but could not get lastId after insert. This should never happen...";
-			}
+
+	// If we don't have one, set the unique id for this object (now that the database has established it)
+	if(id < 1) {
+		QVariant lastId = query.lastInsertId();
+		if(lastId.isValid())
+			return lastId.toInt();
+		else {
+			qDebug() << "Database: insert succeeded, but could not get lastId after insert. This should never happen...";
+			return 0;
 		}
 	}
-	// end transaction
-	db.commit();
+	// else (we already had an id, which was used for successful insert:
+	else {
+		return id;
+	}
 
-	return true;
+
 }
 
-/// retrieve an object from the database. (Create the object first; it will be modified to reflect its state in the database)
-bool Database::retrieve(DbStorable& object, int id) {
+/// retrieve object information from the database.
+/*! id is the object's row in the database.
+	table is the database table name
+	colNames is a list of the column names that the values will be retrieved from
+	values is a list of pointers to QVariants that will be modified with the retrived values.
+	(Note that the const and & arguments are designed to prevent memory copies, so this should be fast.)
+	Return value: returns true on success.
+*/
+bool Database::retrieve(int id, const QString& table, const QStringList& colNames, const QList<QVariant*>& values) {
 
 	// create a query on our database connection:
 	QSqlQuery q( qdb() );
 
 	// Create the list of columns:
-	QStringList colList = object.dbColumnNames();
-	QString cols = colList.join(", ");	// this will become something like "name, number, sampleName, comments, startTime"
-	QString table = object.dbTableName();
+	QString cols = colNames.join(", ");	// this will become something like "name, number, sampleName, comments, startTime"
 	// Prepare the query. Todo: sanitize column names and table name. (Can't use binding because it's not an expression here)
 	q.prepare(QString("SELECT (%1) FROM '%2' WHERE id = ?").arg(cols).arg(table));
 	q.bindValue(0, id);
@@ -160,9 +168,9 @@ bool Database::retrieve(DbStorable& object, int id) {
 	// run query and return true if succeeded at finding id:
 	if(q.exec() && q.first()) {
 
-		object.dbSetId(id);
-		for(int i=0; i<colList.count(); i++)
-			object.dbSetValue(i, q.value(i));
+		// copy columns to return values:
+		for(int i=0; i<values.count(); i++)
+			*(values.at(i)) = q.value(i);
 
 		q.finish();
 		return true;
@@ -172,6 +180,11 @@ bool Database::retrieve(DbStorable& object, int id) {
 		return false;
 	}
 }
+
+
+
+
+
 
 /// Return a list of all the objects (by id) that match 'value' in a certain column {name, number, sample name, comment field, start time (rounded to second), or set of channels}
 /// ex: Database::db()->objectsMatching(Database::Name, "Carbon60"), or Database::db()->scansMatching(Database::StartTime, QDateTime::currentDateTime())
