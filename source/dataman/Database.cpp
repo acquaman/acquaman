@@ -197,11 +197,11 @@ QList<int> Database::scansMatching(const QString& colName, const QVariant& value
 
 	// For date/times, we want a resolution of one minute to count as a match
 	if(value.type() == QVariant::DateTime)
-		q.prepare(QString("SELECT id FROM scanTable WHERE '%1' BETWEEN datetime(:val, '-1 minute') AND datetime(:val, '+1 minute')").arg(colName));
+		q.prepare(QString("SELECT id FROM scanTable WHERE %1 BETWEEN datetime(:val, '-1 minute') AND datetime(:val, '+1 minute')").arg(colName));
 	else
-		q.prepare(QString("SELECT id FROM scanTable WHERE '%1' = '?'").arg(colName));
+		q.prepare(QString("SELECT id FROM scanTable WHERE %1 = :val").arg(colName));
 
-	q.bindValue(0, value);
+	q.bindValue(":val", value);
 	q.exec();
 
 	while(q.next()) {
@@ -222,9 +222,9 @@ QList<int> Database::scansContaining(const QString& colName, const QVariant& val
 	QSqlQuery q( qdb() );
 	// Todo: we're just searching the scanTable here... how to search all tables?
 
-	q.prepare(QString("SELECT id FROM scanTable WHERE '%1' LIKE ('%' || ? || '%')").arg(colName));
+	q.prepare(QString("SELECT id FROM scanTable WHERE %1 LIKE ('%' || :val || '%')").arg(colName));
 
-	q.bindValue(0, value);
+	q.bindValue(":val", value);
 	q.exec();
 
 	while(q.next()) {
@@ -242,7 +242,7 @@ bool Database::ensureTable(const QString& tableName, const QStringList& columnNa
 
 	QString qs = "CREATE TABLE IF NOT EXISTS ";
 	qs.append(tableName);
-	qs.append("(id INTEGER PRIMARY KEY ASC, className TEXT, ");
+	qs.append("(id INTEGER PRIMARY KEY ASC, ");
 	for(int i=0; i<columnNames.count(); i++) {
 		qs.append(columnNames.at(i));
 		qs.append(" ");
