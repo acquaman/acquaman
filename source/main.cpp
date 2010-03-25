@@ -28,8 +28,8 @@ int main(int argc, char *argv[])
 	UserSettings::load();
 	PVNames::load();
 
-	// Open up the database:
-	Database::db();
+	// Open up the user database, and ensure tables loaded as required for Scan storage:
+	Database::userdb()->ensureTable(Scan::dbTableName(), Scan::dbColumnNames(), Scan::dbColumnTypes());
 
 	//Create the main tab window:
 	// Memory management: all QObjects are children of this guy...will be deleted when he goes out of scope.
@@ -48,17 +48,17 @@ int main(int argc, char *argv[])
 	jimbo.setComments("This is\n a three-line\n comment!");
 	jimbo.setStartTime(QDateTime::currentDateTime());
 	// Save (or update) jimbo in the database
-	(*Database::db()) << jimbo;
+	*Database::userdb() << jimbo;
 
 	qDebug() << "Jimbo inserted into db.  Jimbo's new id:" << jimbo.id();
 
-	QList<int> jimboIds = Database::db()->scansMatching(Database::Name, "myFirstScan");
+	QList<int> jimboIds = Database::userdb()->scansMatching("name", "myFirstScan");
 	qDebug() << "matching myFirstScan: Found this many: " << jimboIds.count();
 
-	jimboIds = Database::db()->scansMatching(Database::Name, "First");
+	jimboIds = Database::userdb()->scansMatching("name", "First");
 	qDebug() << "matching First: Found this many: " << jimboIds.count();
 
-	jimboIds = Database::db()->scansContaining(Database::Name, "First");
+	jimboIds = Database::userdb()->scansContaining("name", "First");
 	qDebug() << "containing First: Found this many: " << jimboIds.count();
 	// End of database insert / search testing
 	// =====================================
@@ -72,8 +72,8 @@ int main(int argc, char *argv[])
 	// =================================
 	// Make sure we release/clean-up the beamline interface
 	Beamline::releaseBl();
-	// Close down connection to the Database
-	Database::releaseDb();
+	// Close down connection to the user Database
+	Database::releaseUserDb();
 
 	// Debug only: store settings to files to ensure created:
 	// Not recommended for future... if anything changes these variables in memory, will be stored permanently

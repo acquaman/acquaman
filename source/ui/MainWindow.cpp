@@ -1,12 +1,13 @@
 #include "MainWindow.h"
+
 #include "acquaman/ScanController.h"
 #include "acquaman/DacqScanController.h"
 
 MainWindow::MainWindow(QWidget* parent) : QWidget(parent) {
 	
 
-    ScanController *myScan;
-    myScan = new DacqScanController(this);
+	ScanController *myScan;
+	myScan = new DacqScanController(this);
 	
 	// setWindowFlags(Qt::FramelessWindowHint);
 	// showMaximized();

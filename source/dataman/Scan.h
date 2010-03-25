@@ -4,11 +4,12 @@
 #include <QObject>
 #include <QMap>
 #include <QDateTime>
-#include "Channel.h"
+#include "SChannel.h"
 
+#include "dataman/DbStorable.h"
 #include "dataman/Database.h"
 
-class Scan : public QObject
+class Scan : public QObject, public DbStorable
 {
 Q_OBJECT
 Q_PROPERTY(QString id READ id)
@@ -24,7 +25,7 @@ public:
     explicit Scan(QObject *parent = 0);
 
     /// Returns scan's unique id
-	int id() const { return id_;}
+	int id() const { return dbId(); }
     /// Returns scan's user given name
     QString name() const { return name_;}
     /// Returns scan's appended number
@@ -46,6 +47,28 @@ public:
     Channel* channel(size_t index) { if(index < (size_t)ch_.count() ) return ch_.at(index); else return 0; }
 	/// Return a comma-separated list if all channel names (Used for channel hints in database)
 	QString channelNames() const;
+
+
+	/// Implementation of DbStorable. This allows us to be stored in the database.
+	// ===================================
+	/// Section 1: These static methods define the database structure for the object:
+
+	/// A unique description of the class name for identifying db objects by type
+	static QString dbClassName() { return Scan::staticMetaObject.className(); }
+	/// The name of the table that will store the object's properties:
+	static QString dbTableName() { return "scanTable"; }	// todo: move into system settings?
+	/// A list of the column names required to store the object's properties. (note: the key column 'id' is always included; don't specify it here.)
+	static QStringList dbColumnNames() { QStringList rl; rl << "name"; rl << "number"; rl << "sampleName"; rl << "comments"; rl << "startTime"; rl << "channels"; return rl; }
+	/// A list of the column types recommended to store the object's properties. (note: this must have the same number of items and correspond to dbColumnNames())
+	static QStringList dbColumnTypes() { QStringList rl; rl << "TEXT"; rl << "INTEGER"; rl<< "TEXT";		rl << "TEXT";	   rl << "TEXT";		rl << "TEXT"; return rl; }
+
+	/// Section 2: These set and get methods are used by the database to store and retrieve an object:
+
+	/// Provide access to a property, indexed by column:
+	QVariant dbValue(int colNumber) const;
+	/// Set a property, indexed by column:
+	void dbSetValue(int colNumber, const QVariant& value);
+	// ======================================
 
 signals:
     /// Emitted when comments string changed
@@ -86,11 +109,11 @@ public slots:
 	/// Load yourself from the database. (returns true on success)
 	/// Detailed subclasses of Scan must re-implement this to retrieve all of their unique data fields.
 		/// When doing so, always call the parent class implemention first.
-	virtual bool loadFromDb(Database* db, int id, bool fromPublic = false);
+	virtual bool loadFromDb(Database* db, int id);
 	/// Store or update self in the database. (returns true on success)
 	/// Detailed subclasses of Scan must re-implement this to store all of their unique data.
 		/// When doing so, always call the parent class implemention first.
-	virtual bool storeToDb(Database* db, bool toPublic = false);
+	virtual bool storeToDb(Database* db);
 
 protected:
 
@@ -107,10 +130,6 @@ protected:
     QString comments_;
     /// Start time of original scan
     QDateTime startTime_;
-
-private:
-	/// Unique scan name
-	int id_;
 
 };
 

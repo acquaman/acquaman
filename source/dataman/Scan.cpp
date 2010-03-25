@@ -3,9 +3,8 @@
 
 #include <QDebug>
 
-Scan::Scan(QObject *parent) : QObject(parent) {
-	// Scans have their unique id initialized to 0 (invalid/not stored in DB)
-	id_ = 0;
+Scan::Scan(QObject *parent) : QObject(parent), DbStorable() {
+
 }
 
 
@@ -40,19 +39,44 @@ bool Scan::deleteChannel(size_t index) {
         return false;
 }
 
+/// Return comma-separated list of channel names currently available
 QString Scan::channelNames() const {
-	QString names;
+	QStringList names;
 	foreach(Channel* ch, ch_) {
-		names.append(ch->name() + ",");
+		names << ch->name();
 	}
-	return names;
+	return names.join(",");
 }
 
 
+/// Provide access to a property, indexed by column:
+QVariant Scan::dbValue(int colNumber) const {
+	switch(colNumber) {
+		case 0: return name(); break;
+		case 1: return number(); break;
+		case 2: return sampleName(); break;
+		case 3: return comments(); break;
+		case 4: return startTime(); break;
+		case 5: return channelNames(); break;
+		default: return QVariant(QVariant::Int); break;	// return "NULL" value
+	}
+}
 
-#include <QSqlDatabase>
-#include <QSqlDriver>
-#include <QSqlQuery>
+/// Set a property, indexed by column:
+void Scan::dbSetValue(int colNumber, const QVariant& value) {
+	switch(colNumber) {
+		case 0: setName(value.toString()); break;
+		case 1: setNumber(value.toInt()); break;
+		case 2: setSampleName(value.toString()); break;
+		case 3: setComments(value.toString()); break;
+		case 4: setStartTime(value.toDateTime()); break;
+		case 5: break;	// TODO: what to do about setting channel names? These are read-only in the main db table.
+		default: break;
+	}
+}
+
+
+#include "dataman/Database.h"
 
 /// This member function updates a scan in the database (if it exists already), otherwise it adds it to the database.
 // TODO: we require the following behaviour from the database:
@@ -63,98 +87,16 @@ QString Scan::channelNames() const {
 	// - Scan Objects (ex: new scans) have their id() field set to <1, unless they've been retrieved from the database, in which case they have id() = id
 	// Watch out: by creating a scan and giving it id() = [some arbitrary positive number]; you'll destroy data in the db.
 
-bool Scan::storeToDb(Database* db, bool toPublic) {
+bool Scan::storeToDb(Database* db) {
 
-	QSqlDatabase qdb;
-
-	if(toPublic)
-		qdb = db->publicDb();
-	else
-		qdb = db->userDb();
-
-	if (!qdb.driver()->hasFeature(QSqlDriver::QuerySize)) {
-		qDebug() << "Scan-Database (temp comment): missing the query size feature...";
-	}
-
-	if(!qdb.isOpen()) {
-		qDebug() << "Scan-Database: saving failed; database is not open.";
-		return false;
-	}
-
-	// start a transaction
-	qdb.transaction();
-
-	// prepare the query:
-	QSqlQuery query(qdb);
-	query.prepare("INSERT OR REPLACE INTO scanTable (id, name, number, sampleName, comments, startTime, channels)"
-				  "VALUES (:id, :name, :number, :sampleName, :comments, :startTime, :channels)");
-
-	// If we have a unique id already, use that (will update ourself in the DB)
-	if(id_ > 0)
-		query.bindValue(":id", id_);
-	// Otherwise, use NULL for the :id. (This will create a new one.)
-	else
-		query.bindValue(":id", QVariant(QVariant::Int));
-
-	// Bind remaining values
-	query.bindValue(":name", name());
-	query.bindValue(":number", number());
-	query.bindValue(":sampleName", sampleName());
-	query.bindValue(":comments", comments());
-	query.bindValue(":startTime", startTime());
-	query.bindValue(":channels", channelNames());
-
-
-	// Query failed:
-	if(!query.exec()) {
-		qDebug() << "Scan-Database: saving failed; could not execute query: " << query.executedQuery();
-		return false;
-	}
-	// Query succeeded.
-	else {
-		// If we don't have one, set the unique id for this scan (now that the database has established it)
-		if(id_ < 1) {
-			QVariant lastId = query.lastInsertId();
-			if(lastId.isValid())
-				id_ = lastId.toInt();
-			else {
-				qDebug() << "Scan-Database: insert succeeded, but could not get lastId after insert. This should never happen...";
-			}
-		}
-	}
-	// end transaction
-	qdb.commit();
-
-	return true;
+	return db->insertOrUpdate(*this);
 }
 
 
 /// load a scan into 'destination' based on unique id.
-bool Scan::loadFromDb(Database* db, int id, bool fromPublic) {
-	QSqlDatabase qdb;
+bool Scan::loadFromDb(Database* db, int id) {
 
-	if(fromPublic)
-		qdb = db->publicDb();
-	else
-		qdb = db->userDb();
-
-	QSqlQuery q(qdb);
-	q.prepare(QString("SELECT (id, name, number, sampleName, comments, startTime) FROM scanTable WHERE id = %1").arg(id));
-	if(q.exec() && q.first()) {
-
-		id_ = id;
-		setName(q.value(1).toString());
-		setNumber(q.value(2).toInt());
-		setSampleName(q.value(3).toString());
-		setComments(q.value(4).toString());
-		setStartTime(q.value(5).toDateTime());
-		q.finish();
-		return true;
-	}
-
-	else {
-		return false;
-	}
+	return db->retrieve(*this, id);
 
 }
 
