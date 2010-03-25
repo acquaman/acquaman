@@ -1,5 +1,47 @@
 #include "Control.h"
 
+bool Control::setStateList(const QMap<QString, double> controlList, unsigned int errorLevel){
+    QMap<QString, double> *tmpList = new QMap<QString, double>(controlList);
+    QMap<QString, Control*> *executeList = new QMap<QString, Control*>();
+    searchSetChildren(tmpList, executeList, errorLevel);
+    if(tmpList->count() > 0 && (errorLevel & 0x1) )
+        return FALSE;
+    QMap<QString, double>::const_iterator i = controlList.constBegin();
+     while (i != controlList.constEnd()) {
+         if(!tmpList->contains(i.key()) && fabs(i.value() - executeList->value(i.key())->value()) > executeList->value(i.key())->tolerance() )
+             executeList->value(i.key())->move(i.value());
+//             qDebug() << "Name is " << i.key() << " value should be " << i.value() << " value is " << executeList->value(i.key())->value();
+         ++i;
+     }
+    return TRUE;
+}
+
+bool Control::searchSetChildren(QMap<QString, double> *controlList, QMap<QString, Control*> *executeList, unsigned int errorLevel){
+    Control *tmpCtrl = NULL;
+    for(int x = 0; x < numChildren(); x++){
+        tmpCtrl = child(x);
+        if(controlList->contains(tmpCtrl->objectName())){
+            if(!tmpCtrl->shouldMove() && (errorLevel & 0x4) )
+                return FALSE;
+            if(!tmpCtrl->canMove() && (errorLevel & 0x2) )
+                return FALSE;
+            if(tmpCtrl->shouldMove() && tmpCtrl->canMove()){
+                qDebug() << "Found one, moving " << tmpCtrl->objectName() << " to " << controlList->value(tmpCtrl->objectName());
+//                if(fabs(tmpCtrl->value() - controlList->value(tmpCtrl->objectName())) > tmpCtrl->tolerance())
+                executeList->insert(tmpCtrl->objectName(), tmpCtrl);
+//                    tmpCtrl->move(controlList->value(tmpCtrl->objectName()));
+//                else
+//                    qDebug() << "Just wait, already there, no move needed";
+                controlList->remove(tmpCtrl->objectName());
+            }
+        }
+        for(int y = 0; y < tmpCtrl->numChildren(); y++){
+            tmpCtrl->searchSetChildren(controlList, executeList, errorLevel);
+        }
+    }
+    return TRUE;
+}
+
 ReadOnlyPVControl::ReadOnlyPVControl(const QString& name, const QString& readPVname, const QString& movingPVname, QObject* parent) : Control(name, "?", parent), wasMoving_(false) {
 
 	readPV_ = new DoubleProcessVariable(readPVname, true, this);

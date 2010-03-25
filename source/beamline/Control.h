@@ -89,6 +89,7 @@ public slots:
 	virtual void stop() {};
         /// Add a child to the control
         void addChild(Control *control) { children_ << control;}
+        bool setStateList(const QMap<QString, double> controlList, unsigned int errorLevel = 0);
 
 signals:
 	// Announce changes in "completingMove()". These only apply to moves started by a move()... ie: they don't occur when another system causes the control to change.
@@ -139,6 +140,8 @@ protected slots:
 	virtual void onMoveFailed() {
 		emit moveFailed();
 	}
+
+        bool searchSetChildren(QMap<QString, double> *controlList, QMap<QString, Control*> *executeList, unsigned int errorLevel);
 
 private: // subclasses should use the protected methods to access these, to ensure signal delivery.
 	int state_;

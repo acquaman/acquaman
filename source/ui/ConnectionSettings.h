@@ -63,6 +63,7 @@ public:
                 connect(this->hxpd_save, SIGNAL(clicked()), this, SLOT(onSaveRequested()));
                 connect(this->hxpd_restore, SIGNAL(clicked()), this, SLOT(onRestoreRequested()));
                 connect(this->energy_restore, SIGNAL(clicked()), this, SLOT(onEnergyRestoreRequested()));
+                connect(this->setlist, SIGNAL(clicked()), this, SLOT(onSetListRequested()));
 
                 connect(SGMBeamline::sgm()->m4(), SIGNAL(valueChanged(double)), m4_read, SLOT(setValue(double)));
                 connect(SGMBeamline::sgm()->m4(), SIGNAL(connected(bool)), m4_read, SLOT(setEnabled(bool)));
@@ -130,11 +131,23 @@ public slots:
         }
 
         void onEnergyRestoreRequested(){
-            if(csTest){
+           if(csTest){
                 QList<QString> energyList;
                 energyList << "energy";
                 csTest->restoreList(SGMBeamline::sgm(), &energyList);
             }
+        }
+
+        void onSetListRequested(){
+            QMap<QString, double> myList;
+            myList["energy"] = 227.27;
+            myList["M4Outboard"] = 12.12;
+            myList["yourFace"] = 666;
+            int errLevel = this->setlist_errorLevel->value();
+            if(SGMBeamline::sgm()->setStateList(myList, errLevel))
+                qDebug() << "Success with error level of " << errLevel;
+            else
+                qDebug() << "Failure with error level of " << errLevel;
         }
 	
 protected:
