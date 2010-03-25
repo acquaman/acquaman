@@ -74,6 +74,9 @@ public:
     /// This is the public database filename:
     static QString publicDatabaseFilename;
 
+	/// This is the name of the root database table that will store all objects
+	static QString dbObjectTableName;
+
 
 
     /// Load settings from disk:

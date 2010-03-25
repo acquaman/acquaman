@@ -3,20 +3,15 @@
 
 #include <QObject>
 #include <QMap>
-#include <QDateTime>
-#include <QStringList>
 #include "SChannel.h"
 
-#include "dataman/Database.h"
+#include "dataman/DbObject.h"
 
-class Scan : public QObject {
+class Scan : public DbObject {
 Q_OBJECT
-Q_PROPERTY(QString id READ id)
-Q_PROPERTY(QString name READ name WRITE setName)
-Q_PROPERTY(int number READ number WRITE setNumber)
+
 Q_PROPERTY(QString sampleName READ sampleName WRITE setSampleName)
 Q_PROPERTY(QString comments READ comments WRITE setComments NOTIFY commentsChanged)
-Q_PROPERTY(QDateTime startTime READ startTime WRITE setStartTime)
 
 friend void Channel::addToScan(Scan& destination);
 
@@ -24,19 +19,16 @@ public:
     explicit Scan(QObject *parent = 0);
 
     /// Returns scan's unique id
-	int id() const { return id_; }
-    /// Returns scan's user given name
-    QString name() const { return name_;}
-    /// Returns scan's appended number
-    int number() const { return number_;}
+	// use DbObject::id()
+
     /// Returns name of sample
     QString sampleName() const { return sampleName_;}
     /// Returns comments for scan
     QString comments() const { return comments_;}
     /// Returns original start time
-    QDateTime startTime() const {return startTime_;}
+	// use DbObject::dateTime();
     /// Returns the full scan name: number appended to name
-    QString fullName() const {return QString("%1%2").arg(name_).arg(number_); }
+	QString fullName() const {return QString("%1%2").arg(name()).arg(number()); }
 
     /// Return number of available channels
     int numChannels() const { return ch_.count();}
@@ -44,41 +36,32 @@ public:
     Channel* channel(QString name);
     /// Return specified channel by index: (returns 0 if not found)
     Channel* channel(size_t index) { if(index < (size_t)ch_.count() ) return ch_.at(index); else return 0; }
-	/// Return a comma-separated list if all channel names (Used for channel hints in database)
+	/// Return a comma-separated list of all channel names (Used for channel hints in database)
 	QString channelNames() const;
 
 
-	/// Implementation of DbStorable. This allows us to be stored in the database.
-	// ===================================
-	/// Section 1: These static methods define the database structure for the object:
 
-	/// A unique description of the class name for identifying db objects by type
-	static QString dbClassName() { return Scan::staticMetaObject.className(); }
+
+	/// These functions provide support for storing and retrieving from the database.
+	// ===================================
+
 	/// The name of the table that will store the object's properties:
 	static QString dbTableName() { return "scanTable"; }	// todo: move into system settings?
+
 	/// A list of the column names required to store the object's properties. (note: the key column 'id' is always included; don't specify it here.)
 	static const QStringList& dbColumnNames() {
 		// Insert if not filled already:
-		if(dbColumnNames_.count() == 0) {
-			dbColumnNames_ << "name";
-			dbColumnNames_ << "number";
-			dbColumnNames_ << "sampleName";
-			dbColumnNames_ << "comments";
-			dbColumnNames_ << "startTime";
-			dbColumnNames_ << "channels";
+		if(dbColumnNames_.isEmpty()) {
+			dbColumnNames_ = QString("sampleName,comments,channels").split(',');
 		}
 		return dbColumnNames_;
 	}
 	/// A list of the column types recommended to store the object's properties. (note: this must have the same number of items and correspond to dbColumnNames())
-	// TODO: store for permanent?
-	static QStringList dbColumnTypes() { QStringList rl; rl << "TEXT"; rl << "INTEGER"; rl<< "TEXT";		rl << "TEXT";	   rl << "TEXT";		rl << "TEXT"; return rl; }
+	static QStringList dbColumnTypes() { return QString("TEXT,TEXT,TEXT").split(','); }
+	/// A static function to make sure the database is ready to hold us:
+	/// When re-implementing, make sure to call base-class implementation first.
+	static void dbPrepareTables(Database* db) { DbObject::dbPrepareTables(db); db->ensureTable(dbTableName(), dbColumnNames(), dbColumnTypes()); }
 
-	/// Section 2: These set and get methods are used by the database to store and retrieve an object:
-
-	/// Provide access to a property, indexed by column:
-	QVariant dbValue(int colNumber) const;
-	/// Set a property, indexed by column:
-	void dbSetValue(int colNumber, const QVariant& value);
 	// ======================================
 
 signals:
@@ -101,16 +84,13 @@ signals:
 */
 
 public slots:
-    /// Sets user given name
-    void setName(const QString &name) { name_ = name;}
-    /// Sets appended number
-    void setNumber(int number) { number_ = number;}
+
     /// Sets name of sample
     void setSampleName(const QString &sampleName) { sampleName_ = sampleName;}
     /// Sets comments for scan
     void setComments(const QString &comments) { comments_ = comments; /* TODO: necessary? emit commentsChanged(comments_);*/ }
     /// Sets original start time
-    void setStartTime(const QDateTime &startTime) { startTime_ = startTime;}
+	// use setDateTime() in DbObject
 
     /// Delete a channel from scan:
     bool deleteChannel(Channel* channel);
@@ -131,28 +111,18 @@ protected:
     /// List of channels
     QList<Channel*> ch_;
 
-    /// User defined scan name
-    QString name_;
-    /// Number to be appended to scan name
-    int number_;
     /// Sample name
     QString sampleName_;
     /// Commments for scan
     QString comments_;
-    /// Start time of original scan
-    QDateTime startTime_;
 
 private:
-	int id_;
+	/// List of column names required to have in DB:
 	static QStringList dbColumnNames_;
 
 };
 
 
-/// This global function enables using the insertion operator to add scans to the database
-///		ex: *Database::db() << myScan
-/// Because Scan::storeToDb() is virtual, this version can be used properly for all sub-types of Scans.
-Database& operator<<(Database& db, Scan& s);
 
 
 #endif // SCAN_H

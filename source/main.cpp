@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
 	PVNames::load();
 
 	// Open up the user database, and ensure tables loaded as required for Scan storage:
-	Database::userdb()->ensureTable(Scan::dbTableName(), Scan::dbColumnNames(), Scan::dbColumnTypes());
+	Scan::dbPrepareTables(Database::userdb());
 
 	//Create the main tab window:
 	// Memory management: all QObjects are children of this guy...will be deleted when he goes out of scope.
@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
 	jimbo.setNumber(3);
 	jimbo.setSampleName("Carbon_60");
 	jimbo.setComments("This is\n a three-line\n comment!");
-	jimbo.setStartTime(QDateTime::currentDateTime());
+	jimbo.setDateTime(QDateTime::currentDateTime());
 	// Save (or update) jimbo in the database
 	*Database::userdb() << jimbo;
 
@@ -60,6 +60,9 @@ int main(int argc, char *argv[])
 
 	jimboIds = Database::userdb()->scansContaining("name", "First");
 	qDebug() << "containing First: Found this many: " << jimboIds.count();
+
+	qDebug() << "What is the type of object at id 1?" << Database::userdb()->scanType(1);
+	qDebug() << "What is the type of object at id 201?" << Database::userdb()->scanType(201);
 	// End of database insert / search testing
 	// =====================================
 

@@ -11,6 +11,16 @@ Boots:
      --> import, export
    --> Preliminary view of database
      --> see what we've got
+===============================
+Control upgrades:
+	- Control::addChild and child(size_t index)?
+	- parent controls: propagating moving signals to parents?
+	- PVControl::movingPV compare with values
+	- two categories of moving
+	- tolerance: separate handling?
+	- separate units for measure and move? (Assumption: NO. linked to represent same value.
+
+
 
 David:
    --> Scan Configuration & Scan Controller Classes
