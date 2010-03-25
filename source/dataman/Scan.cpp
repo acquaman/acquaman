@@ -6,17 +6,9 @@
 // static dbColumnNames (each instance has same)
 QStringList Scan::dbColumnNames_;
 
-Scan::Scan(QObject *parent) : QObject(parent) {
-	id_ = 0;
-	// Insert if not filled already:
-	if(dbColumnNames_.count() == 0) {
-		dbColumnNames_ << "name";
-		dbColumnNames_ << "number";
-		dbColumnNames_ << "sampleName";
-		dbColumnNames_ << "comments";
-		dbColumnNames_ << "startTime";
-		dbColumnNames_ << "channels";
-	}
+Scan::Scan(QObject *parent) : DbObject(parent) {
+	// Ensure the static (class-wide) dbColumnNames_ has already been filled:
+	dbColumnNames();
 }
 
 
@@ -61,11 +53,6 @@ QString Scan::channelNames() const {
 }
 
 
-
-
-
-#include "dataman/Database.h"
-
 /// This member function updates a scan in the database (if it exists already), otherwise it adds it to the database.
 
 	// - Scan Objects (ex: new scans) have their id() field set to <1, unless they've been retrieved from the database, in which case they have id() = [valid database key]
@@ -73,24 +60,20 @@ QString Scan::channelNames() const {
 
 bool Scan::storeToDb(Database* db) {
 
-	QList<const QVariant*> values;
-	QVariant v1(name());
-	QVariant v2(number());
-	QVariant v3(sampleName());
-	QVariant v4(comments());
-	QVariant v5(startTime());
-	QVariant v6(channelNames());
-	values << &v1 << &v2 << &v3 << &v4 << &v5 << &v6;
-
-	int retVal = db->insertOrUpdate(id(),"scanTable", dbColumnNames_, values);
-
-	if(retVal > 0) {
-		id_ = retVal;
-		return true;
-	}
-	else {
+	// Always call base class implementation first.
+	// Return false if it fails.
+	if( !DbObject::storeToDb(db) )
 		return false;
-	}
+
+	QList<const QVariant*> values;
+
+	QVariant v1(sampleName());
+	QVariant v2(comments());
+	QVariant v3(channelNames());
+	values << &v1 << &v2 << &v3;
+
+	// If this returns with a positive id, it's succeeded.
+	return ( db->insertOrUpdate(id(), dbTableName(), dbColumnNames_, values) > 0);
 
 }
 
@@ -98,32 +81,25 @@ bool Scan::storeToDb(Database* db) {
 /// load a scan (set its properties) by retrieving it based on id.
 bool Scan::loadFromDb(Database* db, int sourceId) {
 
+	// always call the base class implementation first. This retrieves/loads all the base-class properties.
+	// return false if it fails:
+	if( !DbObject::loadFromDb(db, sourceId))
+		return false;
+
 	// Provide memory storage for return value:
 	QList<QVariant*> values;
-	QVariant v1, v2, v3, v4, v5, v6;
-	values << &v1 << &v2 << &v3 << &v4 << &v5 << &v6;
+	QVariant v1, v2, v3;
+	values << &v1 << &v2 << &v3;
 
-	if( db->retrieve( sourceId,"scanTable", dbColumnNames_, values) ) {
-		id_ = sourceId;
-		setName(v1.toString());
-		setNumber(v2.toInt());
-		setSampleName(v3.toString());
-		setComments(v4.toString());
-		setStartTime(v5.toDateTime());
-		// v6 ignored; channel names are read-only.
+	if( db->retrieve( sourceId, dbTableName(), dbColumnNames_, values) ) {
+		setSampleName(v1.toString());
+		setComments(v2.toString());
+		// v3 ignored; channel names are read-only.
 		return true;
 	}
 	else {
 		return false;
 	}
-
 }
 
-/// This global function enables using the insertion operator to add scans to the database
-///		ex: *Database::db() << myScan
-/// Because Scan::storeToDb() is virtual, this version can be used properly for all sub-types of Scans.
-Database& operator<<(Database& db, Scan& s) {
-	s.storeToDb(&db);
-	return db;
-}
 

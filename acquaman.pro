@@ -9,8 +9,7 @@ macx {
     PHONON_INCLUDE_DIR = /Library/Frameworks/phonon.framework/Versions/Current/Headers
 }
 
-# needed for malloc.h, but breaks Qt...
-# INCLUDEPATH += /usr/include/sys/
+
 linux-g++ { 
     EPICS_INCLUDE_DIRS = /home/reixs/beamline/programming/epics/base/include \
         /home/reixs/beamline/programming/epics/base/include/os/Linux
@@ -69,11 +68,13 @@ HEADERS += source/beamline/DiagnosticPaddle.h \
     source/beamline/Beamline.h \
     source/beamline/Control.h \
     source/ui/NumericControl.h \
+	source/dataman/DbObject.h \
     source/dataman/Scan.h \
     source/dataman/SChannel.h \
     source/beamline/PVNames.h \
-    source/Settings.h \
     source/dataman/Database.h \
+	source/dataman/DbLoader.h \
+	source/Settings.h \
     source/acquaman/ScanController.h \
     source/acquaman/ScanConfiguration.h \
     source/acquaman/DacqScanController.h \
@@ -128,8 +129,9 @@ SOURCES += source/beamline/DiagnosticPaddle.cpp \
     source/dataman/Scan.cpp \
     source/dataman/SChannel.cpp \
     source/beamline/PVNames.cpp \
-    source/Settings.cpp \
     source/dataman/Database.cpp \
+	source/dataman/DbObject.cpp \
+	source/Settings.cpp \
     source/acquaman/ScanController.cpp \
     source/acquaman/ScanConfiguration.cpp \
     source/acquaman/DacqScanController.cpp \

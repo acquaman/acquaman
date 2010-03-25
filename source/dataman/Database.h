@@ -7,6 +7,8 @@
 #include <QSqlError>
 #include <QSqlQuery>
 
+#include <QMap>
+
 
 /*! This class encapsulates all access to the user's metadata.  It is a singleton class like Beamline, except that it can provide
 	access to either the user's private database object or the public database object.
@@ -92,9 +94,16 @@ public:
 	/// ex: Database::db()->scansContaining(Database::Name, "Carbon60") could return Scans with names Carbon60_alpha and bCarbon60_gamma
 	QList<int> scansContaining(const QString& colName, const QVariant& value);
 
+	/// Return the type of an object stored at 'id'. (Returns empty string if not found.)
+	QString scanType(int id);
+
 	/// Database admin / temporary testing only:
 	bool ensureTable(const QString& tableName, const QStringList& columnNames, const QStringList& columnTypes);
 
+
+signals:
+	/// Emitted when an object is inserted or modified. Contains the id of the inserted or modified object.
+	void updated(int id);
 
 protected:
 	/// Access the QSqlDatabase object for this connection.
@@ -110,6 +119,9 @@ private:
 	/// Internal instance pointers
 	static Database* userInstance_;
 	static Database* publicInstance_;
+
+	// given a column name key, allows lookup of the table containing that column:
+	QMap<QString,QString> columns2tables;
 
 
 };

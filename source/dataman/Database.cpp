@@ -108,7 +108,7 @@ int Database::insertOrUpdate(int id, const QString& table, const QStringList& co
 
 	// Prepare the query. Todo: sanitize column names and table name. (Can't use binding because it's not an expression here)
 	QSqlQuery query(db);
-	query.prepare(QString("INSERT OR REPLACE INTO '%1' (id, %2) VALUES (%3)").arg(table).arg(cols).arg(colPlaceholders));
+	query.prepare(QString("INSERT OR REPLACE INTO %1 (id, %2) VALUES (%3)").arg(table).arg(cols).arg(colPlaceholders));
 
 	// If we have a unique id already, use that (This will update ourself in the DB)
 	if(id > 0)
@@ -131,8 +131,10 @@ int Database::insertOrUpdate(int id, const QString& table, const QStringList& co
 	// If we don't have one, set the unique id for this object (now that the database has established it)
 	if(id < 1) {
 		QVariant lastId = query.lastInsertId();
-		if(lastId.isValid())
+		if(lastId.isValid()) {
+			emit updated(lastId.toInt());
 			return lastId.toInt();
+		}
 		else {
 			qDebug() << "Database: insert succeeded, but could not get lastId after insert. This should never happen...";
 			return 0;
@@ -162,12 +164,16 @@ bool Database::retrieve(int id, const QString& table, const QStringList& colName
 	// Create the list of columns:
 	QString cols = colNames.join(", ");	// this will become something like "name, number, sampleName, comments, startTime"
 	// Prepare the query. Todo: sanitize column names and table name. (Can't use binding because it's not an expression here)
-	q.prepare(QString("SELECT (%1) FROM '%2' WHERE id = ?").arg(cols).arg(table));
-	q.bindValue(0, id);
+	q.prepare(QString("SELECT %1 FROM %2 WHERE id = ?").arg(cols).arg(table));
+	q.bindValue(0,id);
 
-	// run query and return true if succeeded at finding id:
-	if(q.exec() && q.first()) {
-
+	// run query. Did it succeed?
+	if(!q.exec()) {
+		qDebug() << "Database: retrieve query failed: " << q.executedQuery() << "Last error:" << q.lastError();
+		return false;
+	}
+	// If we found a record at this id:
+	if(q.first()) {
 		// copy columns to return values:
 		for(int i=0; i<values.count(); i++)
 			*(values.at(i)) = q.value(i);
@@ -175,10 +181,11 @@ bool Database::retrieve(int id, const QString& table, const QStringList& colName
 		q.finish();
 		return true;
 	}
-
+	// else: didn't find this id.  That's normal if it's not there; just return false.
 	else {
 		return false;
 	}
+
 }
 
 
@@ -190,53 +197,80 @@ bool Database::retrieve(int id, const QString& table, const QStringList& colName
 /// ex: Database::db()->objectsMatching(Database::Name, "Carbon60"), or Database::db()->scansMatching(Database::StartTime, QDateTime::currentDateTime())
 QList<int> Database::scansMatching(const QString& colName, const QVariant& value) {
 
+	// return value: list of id's that match
 	QList<int> rl;
 
-	QSqlQuery q( qdb() );
-	// Todo: we're just searching the scanTable here... how to search all tables?
+	// We've been given a column name. Figure out what table this could be in:
+	QStringList tables = columns2tables.values(colName);
 
-	// For date/times, we want a resolution of one minute to count as a match
-	if(value.type() == QVariant::DateTime)
-		q.prepare(QString("SELECT id FROM scanTable WHERE %1 BETWEEN datetime(:val, '-1 minute') AND datetime(:val, '+1 minute')").arg(colName));
-	else
-		q.prepare(QString("SELECT id FROM scanTable WHERE %1 = :val").arg(colName));
+	// Note: we're searching ALL the tables that have a column with this name...
+	foreach(QString table, tables) {
 
-	q.bindValue(":val", value);
-	q.exec();
+		QSqlQuery q( qdb() );
+		// Todo: we're just searching the scanTable here... how to search all tables?
 
-	while(q.next()) {
-		rl << q.value(0).toInt();
+		// For date/times, we want a resolution of one minute to count as a match
+		if(value.type() == QVariant::DateTime)
+			q.prepare(QString("SELECT id FROM %1 WHERE %2 BETWEEN datetime(:val, '-1 minute') AND datetime(:val, '+1 minute')").arg(table).arg(colName));
+		else
+			q.prepare(QString("SELECT id FROM %1 WHERE %2 = :val").arg(table).arg(colName));
+
+		q.bindValue(":val", value);
+		q.exec();
+
+		while(q.next()) {
+			rl << q.value(0).toInt();
+		}
+		q.finish();
 	}
-	q.finish();
 
 	return rl;
 }
 
 
-/// Return a list of all the Scans (by id) that contain 'value' in a certain column {name, number, sample name, comment field, start time (rounded to second), or set of channels}
+/// Return a list of all the Scans (by id) that contain 'value' in a certain column
 /// ex: Database::db()->scansContaining(Database::Name, "Carbon60") could return Scans with names Carbon60_alpha and bCarbon60_gamma
 QList<int> Database::scansContaining(const QString& colName, const QVariant& value) {
 
 	QList<int> rl;
 
-	QSqlQuery q( qdb() );
-	// Todo: we're just searching the scanTable here... how to search all tables?
+	// We've been given a column name. Figure out what table this could be in:
+	QStringList tables = columns2tables.values(colName);
 
-	q.prepare(QString("SELECT id FROM scanTable WHERE %1 LIKE ('%' || :val || '%')").arg(colName));
+	// Note: we're searching ALL the tables that have a column with this name.
+	foreach(QString table, tables) {
 
-	q.bindValue(":val", value);
-	q.exec();
+		QSqlQuery q( qdb() );
+		// Todo: we're just searching the scanTable here... how to search all tables?
 
-	while(q.next()) {
-		rl << q.value(0).toInt();
+		q.prepare(QString("SELECT id FROM %1 WHERE %2 LIKE ('%' || :val || '%')").arg(table).arg(colName));
+
+		q.bindValue(":val", value);
+		q.exec();
+
+		while(q.next()) {
+			rl << q.value(0).toInt();
+		}
+		q.finish();
 	}
-	q.finish();
 
 	return rl;
 }
 
 /// Database admin / temporary testing only:
 bool Database::ensureTable(const QString& tableName, const QStringList& columnNames, const QStringList& columnTypes) {
+
+	if(columnNames.count() != columnTypes.count()) {
+		qDebug() << "Database: could not create table: invalid structure. Different number of column names and types.\n  Names:" << columnNames << "\n  Types:" << columnTypes;
+		return false;
+	}
+
+	// Maintain a mapping from column names to tables...
+	// Given a column names, this will let us search in the right table for it. (Used by scansMatching, scansContaining...)
+	foreach(QString colName, columnNames) {
+		columns2tables.insertMulti(colName, tableName);
+	}
+
 	// todo: sanitize all inputs...
 	QSqlQuery q(qdb());
 
@@ -258,5 +292,25 @@ bool Database::ensureTable(const QString& tableName, const QStringList& columnNa
 	else {
 		qDebug() << "Database: error creating table using query: " << qs;
 		return false;
+	}
+}
+
+/// Return the type of an object stored at 'id'. (Returns empty string if not found.)
+QString Database::scanType(int id) {
+	// create a query on our database connection:
+	QSqlQuery q( qdb() );
+
+	// Prepare the query. Todo: sanitize name?
+	q.prepare(QString("SELECT type FROM %1 WHERE id = ?").arg(Settings::dbObjectTableName));
+	q.bindValue(0, id);
+
+	// run query and return true if succeeded at finding id:
+	if(q.exec() && q.first()) {
+
+		return q.value(0).toString();
+	}
+
+	else {
+		return "";
 	}
 }
