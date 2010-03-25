@@ -54,7 +54,9 @@ public:
 	// This indicates the current ability / connection status of this control. Unconnected controls can't do anything; CanMeasure can read values; CanMove can set values.
 	int state() { return state_; }
 	bool canMeasure() { return state_ & CanMeasure; }
+        virtual bool shouldMeasure() { return FALSE;}
 	bool canMove() { return state_ & CanMove; }
+        virtual bool shouldMove() { return FALSE;}
 
 	// This indicates whether the control is currently being adjusted. The default implementation checks whether any of the children are moving.
 	virtual bool isMoving() {
@@ -171,6 +173,7 @@ public:
 	// Additional public functions:
 	QString readPVName() { return readPV_->pvName(); }
 	QString movingPVName() { return (movingPV_) ? movingPV_->pvName() : QString(""); }
+        bool shouldMeasure() { return TRUE;}
 
 
 signals:	// These are specialized to report on PV channel connection status.  You should be free to ignore them and use the interface defined in Control::.
@@ -221,6 +224,7 @@ public:
 	virtual bool isConnected() { return readPV_->canRead() && writePV_->canWrite(); }
 	virtual double minimumValue() { return writePV_->lowerControlLimit(); }
 	virtual double maximumValue() { return writePV_->upperControlLimit(); }
+        bool shouldMove() { return TRUE;}
 
 	// Reimplemented public slots:
 public slots:
