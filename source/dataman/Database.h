@@ -7,7 +7,6 @@
 #include <QSqlError>
 #include <QSqlQuery>
 
-#include "dataman/DbStorable.h"
 
 /*! This class encapsulates all access to the user's metadata.  It is a singleton class like Beamline, except that it can provide
 	access to either the user's private database object or the public database object.
@@ -63,10 +62,26 @@ public:
 	static void releaseUserDb();
 	static void releasePublicDb();
 
-	/// Inserting or updating objects in the database:
-	bool insertOrUpdate(DbStorable& object);
+	/// Inserting or updating objects in the database.
+	/*! id is the object's row in the database (for updates), or 0 (for inserts).
+		table is the database table name
+		colNames is a list of the column names that the values will be inserted under
+		values is a list of constant references to QVariants that provide the values to insert.
+		(Note that the const and const& arguments are designed to prevent memory copies, so this should be fast.)
+		Return value: (IMPORTANT) returns the id of the row that was inserted into or updated, or 0 on failure.
+		When inserting new objects, make sure to set their id to the return value afterwards, otherwise they will be duplicated on next insert.
+	*/
+	int insertOrUpdate(int id, const QString& table, const QStringList& colNames, const QList<const QVariant*>& values);
+
 	/// retrieve an object from the database. (Create the object first; it will be modified to reflect its state in the database)
-	bool retrieve(DbStorable& object, int id);
+	/*! id is the object's row in the database.
+		table is the database table name
+		colNames is a list of the column names that the values will be retrieved from
+		values is a list of references to QVariants that will be modified with the retrived values.
+		(Note that the const and & arguments are designed to prevent memory copies, so this should be fast.)
+		Return value: returns true on success.
+	*/
+	bool retrieve(int id, const QString& table, const QStringList& colNames, const QList<QVariant*>& values);
 
 
 	/// Return a list of all the Scans (by id) that match 'value' in a certain column {name, number, sample name, comment field, start time (rounded to second), or set of channels}
