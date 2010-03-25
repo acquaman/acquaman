@@ -14,8 +14,12 @@ Boots:
 
 David:
    --> Scan Configuration & Scan Controller Classes
-     --> import and link dacq library
+~/     --> import and link dacq library
      --> subclass controller for dacq library
+       --> subclass further for example XAS controller
+   --> ControlState Class
+~/     --> save state, restore
+     --> set, save to file, load from file
    --> UI Shells
      --> get skeletons
      --> refine feature list
