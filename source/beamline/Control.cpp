@@ -5,6 +5,14 @@
 /// errorLevel specifies what constitutes an error (shouldn't move it, can't move it, can't find it)
 /// any error causes NO MOVEMENTS to occur
 bool Control::setStateList(const QMap<QString, double> controlList, unsigned int errorLevel){
+
+    if(errorLevel & 0x4)
+        qDebug() << "Fail on shouldn't";
+    if(errorLevel & 0x2)
+        qDebug() << "Fail on can't";
+    if(errorLevel & 0x1)
+        qDebug() << "Fail on unfound";
+
     // Copy of the QMap to pass around, remove found instances from it
     QMap<QString, double> *tmpList = new QMap<QString, double>(controlList);
     // New list of name and pointer to Control to add found instances to
@@ -32,7 +40,9 @@ bool Control::searchSetChildren(QMap<QString, double> *controlList, QMap<QString
     // Insert in the list of executable instances, remove from the "unfounds" list
     for(int x = 0; x < numChildren(); x++){
         tmpCtrl = child(x);
+        qDebug() << "Inspecting " << tmpCtrl->objectName();
         if(controlList->contains(tmpCtrl->objectName())){
+            qDebug() << "Checking against " << tmpCtrl->objectName() << " should " << tmpCtrl->shouldMove() << " can " << tmpCtrl->canMove();
             if(!tmpCtrl->shouldMove() && (errorLevel & 0x4) )
                 return FALSE;
             if(!tmpCtrl->canMove() && (errorLevel & 0x2) )
@@ -42,10 +52,12 @@ bool Control::searchSetChildren(QMap<QString, double> *controlList, QMap<QString
                 controlList->remove(tmpCtrl->objectName());
             }
         }
-        // Call recursively on all grandchildren
-        for(int y = 0; y < tmpCtrl->numChildren(); y++){
-            tmpCtrl->searchSetChildren(controlList, executeList, errorLevel);
-        }
+        // Call recursively on all grandchildren (CHECK TO SEE IF NO CHILDREN?, SAVE A CALL)
+ //       for(int y = 0; y < tmpCtrl->numChildren(); y++){
+        if(tmpCtrl->numChildren() > 0)
+            if(!tmpCtrl->searchSetChildren(controlList, executeList, errorLevel))
+                return FALSE;
+ //       }
     }
     return TRUE;
 }
