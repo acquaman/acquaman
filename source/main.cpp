@@ -17,7 +17,6 @@ int main(int argc, char *argv[])
 {
 //    ScanController *myScan;
 //    myScan = new DacqScanController();
-	
 	/// Program Startup:
 	// =================================
 	QApplication app(argc, argv);
