@@ -1,11 +1,20 @@
 #include "Control.h"
 
+/// Set the control object's children (and grandchildren, etc) based on a QMap of QString and double pairs
+/// QString is the name of the child (as in child's objectName) and value is the desired move position
+/// errorLevel specifies what constitutes an error (shouldn't move it, can't move it, can't find it)
+/// any error causes NO MOVEMENTS to occur
 bool Control::setStateList(const QMap<QString, double> controlList, unsigned int errorLevel){
+    // Copy of the QMap to pass around, remove found instances from it
     QMap<QString, double> *tmpList = new QMap<QString, double>(controlList);
+    // New list of name and pointer to Control to add found instances to
     QMap<QString, Control*> *executeList = new QMap<QString, Control*>();
+    // Start search
     searchSetChildren(tmpList, executeList, errorLevel);
+    // Check if there are any unfound instances and flag as error if necessary
     if(tmpList->count() > 0 && (errorLevel & 0x1) )
         return FALSE;
+    // Run through original list. If it's not in "unfounds" list and if it's outside the tolerance, move it to the specified position
     QMap<QString, double>::const_iterator i = controlList.constBegin();
      while (i != controlList.constEnd()) {
          if(!tmpList->contains(i.key()) && fabs(i.value() - executeList->value(i.key())->value()) > executeList->value(i.key())->tolerance() )
@@ -16,8 +25,11 @@ bool Control::setStateList(const QMap<QString, double> controlList, unsigned int
     return TRUE;
 }
 
+/// Used internally by setStateList, called recursively.
 bool Control::searchSetChildren(QMap<QString, double> *controlList, QMap<QString, Control*> *executeList, unsigned int errorLevel){
     Control *tmpCtrl = NULL;
+    // Run through all the children, check for shouldn't move and can't move errors
+    // Insert in the list of executable instances, remove from the "unfounds" list
     for(int x = 0; x < numChildren(); x++){
         tmpCtrl = child(x);
         if(controlList->contains(tmpCtrl->objectName())){
@@ -26,15 +38,11 @@ bool Control::searchSetChildren(QMap<QString, double> *controlList, QMap<QString
             if(!tmpCtrl->canMove() && (errorLevel & 0x2) )
                 return FALSE;
             if(tmpCtrl->shouldMove() && tmpCtrl->canMove()){
-                qDebug() << "Found one, moving " << tmpCtrl->objectName() << " to " << controlList->value(tmpCtrl->objectName());
-//                if(fabs(tmpCtrl->value() - controlList->value(tmpCtrl->objectName())) > tmpCtrl->tolerance())
                 executeList->insert(tmpCtrl->objectName(), tmpCtrl);
-//                    tmpCtrl->move(controlList->value(tmpCtrl->objectName()));
-//                else
-//                    qDebug() << "Just wait, already there, no move needed";
                 controlList->remove(tmpCtrl->objectName());
             }
         }
+        // Call recursively on all grandchildren
         for(int y = 0; y < tmpCtrl->numChildren(); y++){
             tmpCtrl->searchSetChildren(controlList, executeList, errorLevel);
         }

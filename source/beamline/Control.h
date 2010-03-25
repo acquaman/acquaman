@@ -89,6 +89,7 @@ public slots:
 	virtual void stop() {};
         /// Add a child to the control
         void addChild(Control *control) { children_ << control;}
+        /// Set the control object's children (and grandchildren, etc) based on a QMap of QString and double values
         bool setStateList(const QMap<QString, double> controlList, unsigned int errorLevel = 0);
 
 signals:
@@ -141,6 +142,7 @@ protected slots:
 		emit moveFailed();
 	}
 
+        /// Used internally by setStateList, called recursively. MIGHT NEED TO BE VIRTUAL for reimplementation in child classes
         bool searchSetChildren(QMap<QString, double> *controlList, QMap<QString, Control*> *executeList, unsigned int errorLevel);
 
 private: // subclasses should use the protected methods to access these, to ensure signal delivery.
