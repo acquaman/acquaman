@@ -1,5 +1,5 @@
 #include "ProcessVariable.h"
-
+#include <float.h>
 #include <QDebug>
 
 ///////////////////////////////
@@ -84,7 +84,9 @@ ProcessVariable::ProcessVariable(const QString& pvName, bool autoMonitor, QObjec
 
 	// Initialize information in ctrlValue_:
 	strcpy(ctrlValue_.units, "?");
-	ctrlValue_.lower_alarm_limit = ctrlValue_.lower_ctrl_limit = ctrlValue_.upper_alarm_limit = ctrlValue_.upper_ctrl_limit = 0;
+	// Limits are initialized to the widest possible range at the start. Is this safe? Don't know what else to use, until we find out.
+	ctrlValue_.lower_alarm_limit = ctrlValue_.lower_ctrl_limit = -DBL_MAX;
+	ctrlValue_.upper_alarm_limit = ctrlValue_.upper_ctrl_limit = DBL_MAX;
 	// TODO: enable other fields of ctrlValue_ for people that want it.
 
 	try {
