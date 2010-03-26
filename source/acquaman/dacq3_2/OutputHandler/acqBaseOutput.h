@@ -3,8 +3,9 @@
  * All rights reserved
  */
 
-#if !defined(ACQBASEOUTPUT_H)
-#define ACQBASEOUTPUT_H 1
+//#if !defined(ACQBASEOUTPUT_H)
+#ifndef DACQLIB_ACQBASEOUTPUT_H
+#define DACQLIB_ACQBASEOUTPUT_H 1
 
 #include "../acqDataHandler.h"
 #include <stdio.h>

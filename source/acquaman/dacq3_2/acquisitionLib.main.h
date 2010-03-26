@@ -60,7 +60,8 @@
 #endif /* ACQLIB_VERSION */
 
 /* if no inclusion occured, provide a default entry */
-#if !defined(ACQUISITIONLIB_H)
+//#if !defined(ACQUISITIONLIB_H)
+#ifndef DACQLIB_ACQUISITIONLIB_H
 #if defined(ACQLIB_VERSION)
 #warning "Unknown acquisition library version number, using default"
 #endif

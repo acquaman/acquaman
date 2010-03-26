@@ -1,5 +1,5 @@
-#ifndef QEPICSADVACQ_H
-#define QEPICSADVACQ_H
+#ifndef DACQLIB_QEPICSADVACQ_H
+#define DACQLIB_QEPICSADVACQ_H
 
 #include "acquisitionLib.h"
 #include "acqLibHelper.h"

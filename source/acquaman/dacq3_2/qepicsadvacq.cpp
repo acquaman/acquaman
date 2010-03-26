@@ -1,5 +1,5 @@
-#ifndef QEPICSADVACQ_CPP
-#define QEPICSADVACQ_CPP
+//#ifndef QEPICSADVACQ_CPP
+//#define QEPICSADVACQ_CPP
 
 #include "qepicsadvacq.h"
 #include <iostream>
@@ -764,5 +764,5 @@ void QEpicsAdvAcq::spit()
 }
 
 
-#endif
+//#endif
 

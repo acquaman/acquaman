@@ -5,8 +5,8 @@
 //
 //
 
-#ifndef QEPICSACQCLASS_H
-#define QEPICSACQCLASS_H
+#ifndef DACQLIB_QEPICSACQCLASS_H
+#define DACQLIB_QEPICSACQCLASS_H
 #include <qobject.h>
 #include <qlabel.h>
 #include <math.h>

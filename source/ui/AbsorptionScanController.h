@@ -1,5 +1,5 @@
-#ifndef AbsorptionScanController_H
-#define AbsorptionScanController_H
+#ifndef ACQMAN_AbsorptionScanController_H
+#define ACQMAN_AbsorptionScanController_H
 
 #include <QtGui>
 #include "ui_AbsorptionScanController.h"

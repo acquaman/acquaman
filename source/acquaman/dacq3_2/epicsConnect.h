@@ -7,8 +7,9 @@
  *
  */
 
-#if !defined(CHANNEL_H)
-#define CHANNEL_H 1
+//#if !defined(CHANNEL_H)
+#ifndef DACQLIB_CHANNEL_H
+#define DACQLIB_CHANNEL_H 1
 
 #include <cadef.h>
 

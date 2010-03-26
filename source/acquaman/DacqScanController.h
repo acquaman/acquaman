@@ -1,16 +1,21 @@
-#ifndef DACQSCANCONTROLLER_H
-#define DACQSCANCONTROLLER_H
+#ifndef ACQMAN_DACQSCANCONTROLLER_H
+#define ACQMAN_DACQSCANCONTROLLER_H
 
 #include "ScanController.h"
-#include "dacq3_2/acquisitionLib.h"
-#include "dacq3_2/qepicsacqlocal.h"
+//#include "beamline/SGMBeamline.h"
+
+//#include "dacq3_2/acquisitionLib.h"
+//#include "beamline/SGMBeamline.h"
+//#include "dacq3_2/qepicsacqlocal.h"
+//#include "beamline/SGMBeamline.h"
+
 #include "dacq3_2/OutputHandler/acqFactory.h"
 #include "dacq3_2/qepicsadvacq.h"
-//#include "dacq/acquisitionLib.h"
-//#include "dacq/qepicsacqlocal.h"
+//#include "beamline/SGMBeamline.h"
 
 class DacqScanController : public ScanController
 {
+Q_OBJECT
 public:
     DacqScanController(QObject *parent = 0);
 

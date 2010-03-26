@@ -9,8 +9,8 @@
 //		named in string2.
 //
 
-#ifndef QDISPLAYALIAS_H
-#define QDISPLAYALIAS_H 1
+#ifndef DACQLIB_QDISPLAYALIAS_H
+#define DACQLIB_QDISPLAYALIAS_H 1
 
 #include <qobject.h>
 #include "epicsConnect.h"

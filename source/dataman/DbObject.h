@@ -1,5 +1,5 @@
-#ifndef DBOBJECT_H
-#define DBOBJECT_H
+#ifndef ACQMAN_DBOBJECT_H
+#define ACQMAN_DBOBJECT_H
 
 #include <QObject>
 #include <QDateTime>

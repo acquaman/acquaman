@@ -1,5 +1,5 @@
-#ifndef NUMERICCONTROL_H
-#define NUMERICCONTROL_H
+#ifndef ACQMAN_NUMERICCONTROL_H
+#define ACQMAN_NUMERICCONTROL_H
 
 #include <QFrame>
 #include <QDialog>

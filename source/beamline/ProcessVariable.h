@@ -1,5 +1,5 @@
-#ifndef PROCESSVARIABLE_H_
-#define PROCESSVARIABLE_H_
+#ifndef ACQMAN_PROCESSVARIABLE_H_
+#define ACQMAN_PROCESSVARIABLE_H_
 
 #include <cadef.h>
 

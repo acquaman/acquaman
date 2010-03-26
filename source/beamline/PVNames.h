@@ -1,5 +1,5 @@
-#ifndef PVNAMES_H
-#define PVNAMES_H
+#ifndef ACQMAN_PVNAMES_H
+#define ACQMAN_PVNAMES_H
 
 #include <QSettings>
 #include <QString>

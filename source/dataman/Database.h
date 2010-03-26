@@ -1,5 +1,5 @@
-#ifndef DATABASE_H
-#define DATABASE_H
+#ifndef ACQMAN_DATABASE_H
+#define ACQMAN_DATABASE_H
 
 #include "Settings.h"
 #include <QObject>

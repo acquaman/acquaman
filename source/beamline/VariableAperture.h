@@ -1,5 +1,5 @@
-#ifndef VARIABLEAPERTURE_H_
-#define VARIABLEAPERTURE_H_
+#ifndef ACQMAN_VARIABLEAPERTURE_H_
+#define ACQMAN_VARIABLEAPERTURE_H_
 
 class VariableAperture
 {

@@ -1,5 +1,5 @@
-#ifndef SAMPLEHOLDER_H_
-#define SAMPLEHOLDER_H_
+#ifndef ACQMAN_SAMPLEHOLDER_H_
+#define ACQMAN_SAMPLEHOLDER_H_
 
 class SampleHolder
 {

@@ -1,5 +1,5 @@
-#ifndef MONO_H_
-#define MONO_H_
+#ifndef ACQMAN_MONO_H_
+#define ACQMAN_MONO_H_
 
 class Mono
 {

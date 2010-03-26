@@ -1,5 +1,5 @@
-#ifndef ExpAlbum_H
-#define ExpAlbum_H
+#ifndef ACQMAN_ExpAlbum_H
+#define ACQMAN_ExpAlbum_H
 
 #include <QtGui>
 #include "ui_ExpAlbum.h"

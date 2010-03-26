@@ -1,8 +1,8 @@
-#ifndef SETTINGS_H
-#define SETTINGS_H
+#ifndef ACQMAN_SETTINGS_H
+#define ACQMAN_SETTINGS_H
 
-#ifndef GLOBALOPTIONS_H
-#define GLOBALOPTIONS_H
+#ifndef ACQMAN_GLOBALOPTIONS_H
+#define ACQMAN_GLOBALOPTIONS_H
 
 #include <QSettings>
 #include <QString>

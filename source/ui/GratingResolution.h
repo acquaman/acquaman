@@ -1,5 +1,5 @@
-#ifndef GratingResolution_H
-#define GratingResolution_H
+#ifndef ACQMAN_GratingResolution_H
+#define ACQMAN_GratingResolution_H
 
 #include <QtGui>
 #include "ui_GratingResolution.h"

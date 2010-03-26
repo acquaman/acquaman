@@ -1,5 +1,5 @@
-#ifndef BEAMLINE_H_
-#define BEAMLINE_H_
+#ifndef ACQMAN_BEAMLINE_H_
+#define ACQMAN_BEAMLINE_H_
 
 #include "Settings.h"
 #include "PVNames.h"

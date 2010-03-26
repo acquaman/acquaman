@@ -1,5 +1,5 @@
-#ifndef CHANNEL_H
-#define CHANNEL_H
+#ifndef ACQMAN_CHANNEL_H
+#define ACQMAN_CHANNEL_H
 
 #include <QObject>
 class Scan;

@@ -1,5 +1,5 @@
-#ifndef SamplePositions_H
-#define SamplePositions_H
+#ifndef ACQMAN_SamplePositions_H
+#define ACQMAN_SamplePositions_H
 
 #include "ui_SamplePositions.h"
 #include "CamWidget.h"

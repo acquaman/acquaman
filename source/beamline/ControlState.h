@@ -1,5 +1,5 @@
-#ifndef CONTROLSTATE_H
-#define CONTROLSTATE_H
+#ifndef ACQMAN_CONTROLSTATE_H
+#define ACQMAN_CONTROLSTATE_H
 
 #include <QObject>
 #include <QList>

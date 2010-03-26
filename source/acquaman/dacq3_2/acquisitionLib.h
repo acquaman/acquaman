@@ -6,8 +6,15 @@
  *    data structures for acquisition control.
  */
 
-#if !defined(ACQUISITIONLIB_H)
-#define ACQUISITIONLIB_H 1
+/**/
+//#if !defined(ACQUISITIONLIB_H)
+#ifndef DACQLIB_ACQUISITIONLIB_H
+#define DACQLIB_ACQUISITIONLIB_H 1
+/**/
+/*
+#ifndef ACQUISITIONLIB_H
+#define ACQUISITIONLIB_H
+*/
 
 #include "acqDataHandler.h"
 
@@ -33,7 +40,7 @@ typedef struct acqMaster acqMaster_t;
 // MB removed to build on mac os x: #include <malloc.h>
 #include <string.h>
 
-#include "acqDataHandler.h"
+//?#include "acqDataHandler.h"
 
 #if defined(__cplusplus)
 extern "C" {

@@ -1,5 +1,5 @@
-#ifndef PeriodicTable_H
-#define PeriodicTable_H
+#ifndef ACQMAN_PeriodicTable_H
+#define ACQMAN_PeriodicTable_H
 
 #include "ui_PeriodicTable.h"
 

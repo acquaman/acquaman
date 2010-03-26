@@ -1,5 +1,5 @@
-#ifndef AMPDETECTOR_H_
-#define AMPDETECTOR_H_
+#ifndef ACQMAN_AMPDETECTOR_H_
+#define ACQMAN_AMPDETECTOR_H_
 //boots is a nerd
 class AmpDetector
 {

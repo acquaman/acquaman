@@ -1,3 +1,6 @@
+#ifndef DACQLIB_ACQHELPER_H
+#define DACQLIB_ACQHELPER_H
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -9,4 +12,6 @@ int addIndexEventPv( acqEvent_t *ev, int index, char *name, int norecord, char *
 
 #ifdef __cplusplus
 }
+#endif
+
 #endif

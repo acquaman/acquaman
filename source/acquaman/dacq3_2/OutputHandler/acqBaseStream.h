@@ -1,8 +1,9 @@
 // Copyright 2008 Canadian Light Source, Inc. All Rights Reserved
 //
 
-#if !defined(ACQ_BASE_STREAM_H)
-#define ACQ_BASE_STREAM_H 1
+//#if !defined(ACQ_BASE_STREAM_H)
+#ifndef DACQLIB_ACQ_BASE_STREAM_H
+#define DACQLIB_ACQ_BASE_STREAM_H 1
 #include <string>
 #include "acqProperties.h"
 

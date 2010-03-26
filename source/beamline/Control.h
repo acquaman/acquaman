@@ -1,5 +1,5 @@
-#ifndef CONTROL_H
-#define CONTROL_H
+#ifndef ACQMAN_CONTROL_H
+#define ACQMAN_CONTROL_H
 
 /* TODO first thing friday morning:
 

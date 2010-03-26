@@ -6,8 +6,9 @@
  *    data structure for registering output methods
  */
 
-#if !defined(ACQ_DATA_HANDLER_H)
-#define ACQ_DATA_HANDLER_H 1
+//#if !defined(ACQ_DATA_HANDLER_H)
+#ifndef DACQLIB_ACQ_DATA_HANDLER_H
+#define DACQLIB_ACQ_DATA_HANDLER_H 1
 
 /**
  ** data stream handler that gets registered with the acquisition master, and used by the

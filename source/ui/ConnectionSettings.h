@@ -1,5 +1,5 @@
-#ifndef ConnectionSettings_H
-#define ConnectionSettings_H
+#ifndef ACQMAN_ConnectionSettings_H
+#define ACQMAN_ConnectionSettings_H
 
 #include <QtGui>
 #include "ui_ConnectionSettings.h"

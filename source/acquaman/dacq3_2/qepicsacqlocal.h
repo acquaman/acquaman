@@ -5,8 +5,8 @@
 //
 //
 
-#ifndef QEPICSACQ_H
-#define QEPICSACQ_H
+#ifndef DACQLIB_QEPICSACQ_H
+#define DACQLIB_QEPICSACQ_H
 #include <qwidget.h>
 #include <qlabel.h>
 #include <qtimer.h>

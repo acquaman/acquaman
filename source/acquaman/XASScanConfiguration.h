@@ -1,5 +1,5 @@
-#ifndef XASSCANCONFIGURATION_H
-#define XASSCANCONFIGURATION_H
+#ifndef ACQMAN_XASSCANCONFIGURATION_H
+#define ACQMAN_XASSCANCONFIGURATION_H
 
 #include <QObject>
 #include "ScanConfiguration.h"

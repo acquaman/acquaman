@@ -1,5 +1,5 @@
-#ifndef ProtocolViewer_H
-#define ProtocolViewer_H
+#ifndef ACQMAN_ProtocolViewer_H
+#define ACQMAN_ProtocolViewer_H
 
 #include <QtGui>
 #include "ui_ProtocolViewer.h"

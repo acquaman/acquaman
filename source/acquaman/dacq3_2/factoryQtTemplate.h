@@ -1,3 +1,6 @@
+#ifndef DACQLIB_FACTORYQTTEMPLATE_H
+#define DACQLIB_FACTORYQTTEMPLATE_H
+
 #include <map>
 #include <iterator>
 
@@ -45,3 +48,5 @@ public:
 				return rval; 
 			};
 };
+
+#endif

@@ -1,5 +1,5 @@
-#ifndef SGMBEAMLINE_H
-#define SGMBEAMLINE_H
+#ifndef ACQMAN_SGMBEAMLINE_H
+#define ACQMAN_SGMBEAMLINE_H
 
 #include "Control.h"
 #include "PVNames.h"

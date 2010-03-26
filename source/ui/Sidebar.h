@@ -1,5 +1,5 @@
-#ifndef SIDEBAR_H
-#define SIDEBAR_H
+#ifndef ACQMAN_SIDEBAR_H
+#define ACQMAN_SIDEBAR_H
 
 #include <QFrame>
 #include <QPushButton>

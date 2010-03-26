@@ -1,5 +1,5 @@
-#ifndef LOADLOCK_H_
-#define LOADLOCK_H_
+#ifndef ACQMAN_LOADLOCK_H_
+#define ACQMAN_LOADLOCK_H_
 
 class LoadLock
 {

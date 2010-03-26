@@ -1,5 +1,5 @@
-#ifndef Scheduler_H
-#define Scheduler_H
+#ifndef ACQMAN_Scheduler_H
+#define ACQMAN_Scheduler_H
 
 #include "ui_Scheduler.h"
 

@@ -1,5 +1,5 @@
-#ifndef CAMWIDGET_H_
-#define CAMWIDGET_H_
+#ifndef ACQMAN_CAMWIDGET_H_
+#define ACQMAN_CAMWIDGET_H_
 
 #include <QWidget>
 #include <QComboBox>

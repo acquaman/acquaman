@@ -4,8 +4,9 @@
  * In a C++ only world, these would be private entries.
  */
 
-#if !defined(ACQUISITIONLIB_INTERNAL_H)
-#define ACQUISITIONLIB_INTERNAL_H 1
+//#if !defined(ACQUISITIONLIB_INTERNAL_H)
+#ifndef DACQLIB_ACQUISITIONLIB_INTERNAL_H
+#define DACQLIB_ACQUISITIONLIB_INTERNAL_H 1
 #include "acquisitionLib.h"
 
 #define CONNECT_VALID(CONP) ((CONP&&CONP->chan)?(CONP->chan->chan->valid):0)

@@ -1,5 +1,5 @@
-#ifndef DIAGNOSTICPADDLE_H_
-#define DIAGNOSTICPADDLE_H_
+#ifndef ACQMAN_DIAGNOSTICPADDLE_H_
+#define ACQMAN_DIAGNOSTICPADDLE_H_
 
 class DiagnosticPaddle
 {

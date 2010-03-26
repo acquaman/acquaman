@@ -1,5 +1,5 @@
-#ifndef DBLOADER_H
-#define DBLOADER_H
+#ifndef ACQMAN_DBLOADER_H
+#define ACQMAN_DBLOADER_H
 
 #include "dataman/DbObject.h"
 #include "dataman/Scan.h"

@@ -6,8 +6,9 @@
  *
  */
 
-#if !defined(ACQTEXTOUTPUT_H)
-#define ACQTEXTOUTPUT_H 1
+//#if !defined(ACQTEXTOUTPUT_H)
+#ifndef DACQLIB_ACQTEXTOUTPUT_H
+#define DACQLIB_ACQTEXTOUTPUT_H 1
 //#include "acqDataHandler.h"
 #include "../acqDataHandler.h"
 

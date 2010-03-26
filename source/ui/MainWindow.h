@@ -1,5 +1,5 @@
-#ifndef MainWindow_H
-#define MainWindow_H
+#ifndef ACQMAN_MainWindow_H
+#define ACQMAN_MainWindow_H
 
 #include <QtGui>
 #include "Sidebar.h"

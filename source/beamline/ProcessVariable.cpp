@@ -180,16 +180,16 @@ void ProcessVariable::connectionChangedCB(struct connection_handler_args connArg
 
 	emit connectionStateChanged( ca_state(connArgs.chid) );
 
-	/*
-	 *  cs_ - `channel state'
-	 *
-	 *  cs_never_conn       valid chid, IOC not found
-	 *  cs_prev_conn        valid chid, IOC was found, but unavailable
-	 *  cs_conn             valid chid, IOC was found, still available
-	 *  cs_closed           channel deleted by user
-	 *
-	 * Missing... What state is it when IOC not found, connect times out?
-	 */
+        //
+         //  cs_ - `channel state'
+         //
+         //  cs_never_conn       valid chid, IOC not found
+         //  cs_prev_conn        valid chid, IOC was found, but unavailable
+         //  cs_conn             valid chid, IOC was found, still available
+         //  cs_closed           channel deleted by user
+         //
+         // Missing... What state is it when IOC not found, connect times out?
+         //
 
 	if( ca_state(connArgs.chid) == cs_conn && connArgs.op == CA_OP_CONN_UP) {
 		emit connected(true);
@@ -246,11 +246,11 @@ void ProcessVariable::onConnectionTimeout() {
 
 bool ProcessVariable::startMonitoring() {
 	
-	/* Not necessary. Connection status is checked by ca_create_subs:
-	if( ca_state(chid_) != cs_conn) {
-		qDebug(QString("Error starting ProcessVariable monitoring: channel not connected: %1").arg(pvName());
-		return false;
-	} */
+        // Not necessary. Connection status is checked by ca_create_subs:
+        //if( ca_state(chid_) != cs_conn) {
+        //	qDebug(QString("Error starting ProcessVariable monitoring: channel not connected: %1").arg(pvName());
+        //	return false;
+        //}
 		
 	lastError_ = ca_create_subscription(dataType(), numElements(), chid_, DBE_VALUE | DBE_LOG | DBE_ALARM, PVValueChangedCBWrapper, this, &evid_ );
 	if(lastError_ != ECA_NORMAL) {
@@ -269,11 +269,11 @@ void ProcessVariable::stopMonitoring() {
 
 bool ProcessVariable::requestValue(int num) {
 	
-	/* Not necessary. Connection status is checked by ca_array_get_callback:
-	if(ca_state(chid_) != cs_conn) {
-		qDebug(QString("Error requesting value: channel not connected: %1").arg(pvName()));
-		return false;
-	} */
+        // Not necessary. Connection status is checked by ca_array_get_callback:
+        //if(ca_state(chid_) != cs_conn) {
+        //	qDebug(QString("Error requesting value: channel not connected: %1").arg(pvName()));
+        //	return false;
+        //}
 	
 	lastError_ = ca_array_get_callback(dataType(), num, chid_, PVValueChangedCBWrapper, this);
 	if(lastError_ != ECA_NORMAL) {
@@ -357,17 +357,17 @@ void ProcessVariable::setValues(const QStringList& setpoints) {
 
 }
 
-/*
- * 		
-DBR_CHAR  	dbr_char_t  	8 bit character
-DBR_SHORT 	dbr_short_t 	16 bit integer
-DBR_ENUM 	dbr_enum_t 	16 bit unsigned integer
-DBR_LONG 	dbr_long_t 	32 bit signed integer
-DBR_FLOAT 	dbr_float_t 	32 bit IEEE floating point
-DBR_DOUBLE 	dbr_double_t 	64 bit IEEE floating point
-DBR_STRING 	dbr_string_t 	40 character string
-		
- */
+//
+//
+//DBR_CHAR  	dbr_char_t  	8 bit character
+//DBR_SHORT 	dbr_short_t 	16 bit integer
+//DBR_ENUM 	dbr_enum_t 	16 bit unsigned integer
+//DBR_LONG 	dbr_long_t 	32 bit signed integer
+//DBR_FLOAT 	dbr_float_t 	32 bit IEEE floating point
+//DBR_DOUBLE 	dbr_double_t 	64 bit IEEE floating point
+//DBR_STRING 	dbr_string_t 	40 character string
+//
+//
 
 ///////////////////////////////////
 // IntProcessVariable
@@ -435,14 +435,14 @@ DoubleProcessVariable::DoubleProcessVariable(const QString& pvName, bool autoMon
 	connect(this, SIGNAL(valueChanged(double)), this, SIGNAL(valueChanged()));
 }	
 
-/* evenArgs:
-void            *usr;   user argument supplied with request
-chanId          chid;   channel id
-long            type;   the type of the item returned
-long            count;  the element count of the item returned
-const void      *dbr;   a pointer to the item returned
-int             status; ECA_XXX status of the requested op from the server
-*/
+// evenArgs:
+//void            *usr;   user argument supplied with request
+//chanId          chid;   channel id
+//long            type;   the type of the item returned
+//long            count;  the element count of the item returned
+//const void      *dbr;   a pointer to the item returned
+//int             status; ECA_XXX status of the requested op from the server
+//
 
 void DoubleProcessVariable::valueChangedCB(struct event_handler_args eventArgs) {
 	
@@ -533,5 +533,3 @@ void StringProcessVariable::valueChangedCB(struct event_handler_args eventArgs) 
 	}
 	
 }
-
- 

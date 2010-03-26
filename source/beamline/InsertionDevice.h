@@ -1,5 +1,5 @@
-#ifndef INSERTIONDEVICE_H_
-#define INSERTIONDEVICE_H_
+#ifndef ACQMAN_INSERTIONDEVICE_H_
+#define ACQMAN_INSERTIONDEVICE_H_
 
 class InsertionDevice
 {

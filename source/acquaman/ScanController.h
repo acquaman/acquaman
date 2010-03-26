@@ -1,5 +1,5 @@
-#ifndef SCANCONTROLLER_H
-#define SCANCONTROLLER_H
+#ifndef ACQMAN_SCANCONTROLLER_H
+#define ACQMAN_SCANCONTROLLER_H
 
 #include <QObject>
 #include <QMap>

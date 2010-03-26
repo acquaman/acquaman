@@ -1,5 +1,5 @@
-#ifndef BOTTOMBAR_H
-#define BOTTOMBAR_H
+#ifndef ACQMAN_BOTTOMBAR_H
+#define ACQMAN_BOTTOMBAR_H
 
 #include <QtGui/QWidget>
 #include "ui_BottomBar.h"

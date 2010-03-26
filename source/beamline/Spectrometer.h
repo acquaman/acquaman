@@ -1,5 +1,5 @@
-#ifndef SPECTROMETER_H_
-#define SPECTROMETER_H_
+#ifndef ACQMAN_SPECTROMETER_H_
+#define ACQMAN_SPECTROMETER_H_
 
 #include "Control.h"
 

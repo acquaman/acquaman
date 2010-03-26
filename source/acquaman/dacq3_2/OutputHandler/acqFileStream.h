@@ -1,4 +1,5 @@
-
+#ifndef DACQLIB_ACQFILESTREAM_H
+#define DACQLIB_ACQFILESTREAM_H
 // Copyright 2008 Canadian Light Source, Inc. All Rights Reserved
 //
 #include <string>
@@ -54,3 +55,5 @@ extern "C" {
 #define PROP_FILE_PATH "File Path"
 #define PROP_SEQUENCE_NUMBER "Sequence Number"
 #define PROP_OUTPUT_FILE "Output File"
+
+#endif

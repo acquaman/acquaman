@@ -1,5 +1,5 @@
-#ifndef EmissionScanController_H
-#define EmissionScanController_H
+#ifndef ACQMAN_EmissionScanController_H
+#define ACQMAN_EmissionScanController_H
 
 #include <QtGui>
 #include "ui_EmissionScanController.h"

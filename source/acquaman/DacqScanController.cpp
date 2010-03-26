@@ -3,6 +3,7 @@
 
 DacqScanController::DacqScanController(QObject *parent)
 {
+    /*
     running_ = FALSE;
     paused_ = FALSE;
     cancelled_ = FALSE;
@@ -11,10 +12,11 @@ DacqScanController::DacqScanController(QObject *parent)
     connect(advAcq_, SIGNAL(onStart()), this, SLOT(onStart()));
     connect(advAcq_, SIGNAL(onStop()), this, SLOT(onStop()));
     connect(advAcq_, SIGNAL(onPause(int)), this, SLOT(onPause(int)));
-
-    /*
+    */
+    /**/
     qDebug() << "Start of dacqscancontroller constructor";
 
+    /*
     acqMaster_t *master;
     master = new_acqMaster();
     acq_file_load("myScan.cfg", master);
@@ -23,6 +25,7 @@ DacqScanController::DacqScanController(QObject *parent)
     qDebug() << "with values of " << sp->acqControlList[0].startVal << " " << sp->acqControlList[0].deltaVal << " " << sp->acqControlList[0].finalVal;
     if( Standby_mode(master) == 1 && Run_mode(master) == 0)
         startMonitorTask(master);
+    */
 
     QEpicsAcqLocal *lAcq = new QEpicsAcqLocal();
     QEpicsAdvAcq *myAcq = new QEpicsAdvAcq(lAcq);
@@ -36,18 +39,18 @@ DacqScanController::DacqScanController(QObject *parent)
 
     for(int x = 0; x < myAcq->getNumRegions(); x++)
         qDebug() << "Start is " << myAcq->getStrStart(x) << " delta is " << myAcq->getStrDelta(x) << " end is " << myAcq->getStrEnd(x);
-    myAcq->setStart(0, 27);
+    myAcq->setStart(0, 285);
     myAcq->setDelta(0, 0.1);
-    myAcq->setEnd(0, 28);
+    myAcq->setEnd(0, 286);
     for(int x = 0; x < myAcq->getNumRegions(); x++)
         qDebug() << "Start is " << myAcq->getStrStart(x) << " delta is " << myAcq->getStrDelta(x) << " end is " << myAcq->getStrEnd(x);
-    myAcq->addRegion(1, 28.3, 0.3, 31, 1);
+    myAcq->addRegion(1, 286.3, 0.3, 289, 1);
     for(int x = 0; x < myAcq->getNumRegions(); x++)
         qDebug() << "Start is " << myAcq->getStrStart(x) << " delta is " << myAcq->getStrDelta(x) << " end is " << myAcq->getStrEnd(x);
     myAcq->Start();
 
     qDebug() << "end of dacqscancontroller constructor";
-    */
+    /**/
 }
 
 /// Sets a new scan configuration
