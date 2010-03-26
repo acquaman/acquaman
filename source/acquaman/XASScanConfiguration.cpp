@@ -2,6 +2,7 @@
 
 XASScanConfiguration::XASScanConfiguration(QObject *parent) : ScanConfiguration(parent)
 {
+    qDebug() << "Trying 1.0 " << setExitSlitGap(1.0) << " trying 19.0 " << setExitSlitGap(19.0) << "Trying 500 " << setExitSlitGap(500);
 }
 
 double XASScanConfiguration::start(size_t index) const
