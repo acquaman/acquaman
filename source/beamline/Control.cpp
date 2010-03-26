@@ -157,7 +157,7 @@ void PVControl::move(double value) {
 }
 
 void PVControl::stop() {
-
+	/// TODOTODOTODO!
 }
 
 void PVControl::onConnectionTimeout() {
