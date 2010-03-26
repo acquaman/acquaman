@@ -3,7 +3,7 @@
 
 DacqScanController::DacqScanController(QObject *parent)
 {
-    /*
+
     running_ = FALSE;
     paused_ = FALSE;
     cancelled_ = FALSE;
@@ -12,11 +12,10 @@ DacqScanController::DacqScanController(QObject *parent)
     connect(advAcq_, SIGNAL(onStart()), this, SLOT(onStart()));
     connect(advAcq_, SIGNAL(onStop()), this, SLOT(onStop()));
     connect(advAcq_, SIGNAL(onPause(int)), this, SLOT(onPause(int)));
-    */
-    /**/
-    qDebug() << "Start of dacqscancontroller constructor";
 
     /*
+    qDebug() << "Start of dacqscancontroller constructor";
+
     acqMaster_t *master;
     master = new_acqMaster();
     acq_file_load("myScan.cfg", master);
@@ -26,7 +25,7 @@ DacqScanController::DacqScanController(QObject *parent)
     if( Standby_mode(master) == 1 && Run_mode(master) == 0)
         startMonitorTask(master);
     */
-
+    /*
     QEpicsAcqLocal *lAcq = new QEpicsAcqLocal();
     QEpicsAdvAcq *myAcq = new QEpicsAdvAcq(lAcq);
     myAcq->setConfigFile("myScan.cfg");
@@ -50,7 +49,7 @@ DacqScanController::DacqScanController(QObject *parent)
     myAcq->Start();
 
     qDebug() << "end of dacqscancontroller constructor";
-    /**/
+    */
 }
 
 /// Sets a new scan configuration

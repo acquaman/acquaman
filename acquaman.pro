@@ -97,7 +97,8 @@ HEADERS += source/beamline/DiagnosticPaddle.h \
     source/acquaman/XASScanConfiguration.h \
     source/beamline/SGMBeamline.h \
     source/beamline/ControlState.h \
-    source/acquaman/XASDacqScanController.h
+    source/acquaman/XASDacqScanController.h \
+    source/ErrorMonitor.h
 FORMS += source/ui/AbsorptionScanController.ui \
     source/ui/ConnectionSettings.ui \
     source/ui/EmissionScanController.ui \
@@ -161,5 +162,6 @@ SOURCES += source/beamline/DiagnosticPaddle.cpp \
     source/acquaman/XASScanConfiguration.cpp \
     source/beamline/SGMBeamline.cpp \
     source/beamline/ControlState.cpp \
-    source/acquaman/XASDacqScanController.cpp
+    source/acquaman/XASDacqScanController.cpp \
+    source/ErrorMonitor.cpp
 RESOURCES = source/icons/icons.qrc

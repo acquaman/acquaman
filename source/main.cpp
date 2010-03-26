@@ -15,6 +15,8 @@
 // debug only:
 #include "dataman/Scan.h"
 
+#include "ErrorMonitor.h"
+
 
 int main(int argc, char *argv[])
 {
@@ -88,6 +90,7 @@ int main(int argc, char *argv[])
 	// End of database insert / search testing
 	// =====================================
 
+	ErrorMon::report(ErrorReport(0, ErrorReport::Serious, -3, "Fuck off, dave."));
 
 	/// Program Run-loop:
 	// =================================

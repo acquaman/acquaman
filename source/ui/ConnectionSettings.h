@@ -109,10 +109,7 @@ public:
 
                 csTest = NULL;
 
-				// more crap in Connection settings. TODOTODOTOD get outta here!
-				QSystemTrayIcon* sicon = new QSystemTrayIcon();
-				sicon->show();
-				sicon->showMessage("Fuck off, Dave!", "Isn't this cool?", QSystemTrayIcon::Information, 5000);
+
 
 	}
 	
