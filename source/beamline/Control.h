@@ -54,7 +54,11 @@ public:
 	virtual double tolerance() { return -1; }
 	// This represents the current value/position of the control. Must reimplement for actual controls.
 	virtual double value() { return -1; }
-	// Indicates a "fully-functional" control.
+	// this is the "setpoint": the last place the control was told to go:
+	virtual double setpoint() { return -1; }
+	// this indicates whether a control is "in position" (ie: its value is within tolerance of the setpoint)
+	virtual bool inPosition() { return fabs(value()-setpoint()) < tolerance(); }
+	// Indicates a "fully-functional" control, ready for action
 	virtual bool isConnected() { return false; }
 
 	// This indicates the current ability / connection status of this control. Unconnected controls can't do anything; CanMeasure can read values; CanMove can set values.
@@ -178,7 +182,7 @@ public:
 
 	// Reimplemented Public Functions:
 	virtual double value() { return readPV_->lastValue(); }
-	virtual bool isMoving() { if(movingPV_) return movingPV_->lastValue() || Control::isMoving(); else return Control::isMoving(); }
+	virtual bool isMoving() { if(movingPV_) return movingPV_->lastValue(); else return Control::isMoving(); }
 	virtual bool isConnected() { return readPV_->canRead(); }
 	virtual double minimumValue() { return readPV_->lowerAlarmValue(); }
 	virtual double maximumValue() { return readPV_->upperAlarmValue(); }
@@ -237,8 +241,10 @@ public:
 	virtual bool isConnected() { return readPV_->canRead() && writePV_->canWrite(); }
 	virtual double minimumValue() { return writePV_->lowerControlLimit(); }
 	virtual double maximumValue() { return writePV_->upperControlLimit(); }
-        bool valueOutOfRange(double value) { return (value > maximumValue() || value< minimumValue() ) ? TRUE : FALSE;}
-        bool shouldMove() { return TRUE;}
+	bool valueOutOfRange(double value) { return (value > maximumValue() || value< minimumValue() ) ? TRUE : FALSE;}
+	bool shouldMove() { return TRUE;}
+	// this is the "setpoint": the last place the control was told to go:
+	virtual double setpoint() { return writePV_->lastValue(); }
 
 	// Reimplemented public slots:
 public slots:
