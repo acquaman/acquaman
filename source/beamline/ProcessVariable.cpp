@@ -397,6 +397,12 @@ void IntProcessVariable::valueChangedCB(struct event_handler_args eventArgs) {
 	// Is this control information coming back?
 	if(eventArgs.type == DBR_CTRL_DOUBLE) {
 		memcpy(&ctrlValue_, eventArgs.dbr, sizeof(ctrlValue_));
+		// TODO: Think about this more. If the record's DRV_HIGH and DRV_LOW limits haven't been set, we're receiving them as max(0), min(0).
+		// That's a problem, because it pins our minValue() and maxValue() to 0.
+		if(ctrlValue_.lower_ctrl_limit == 0 && ctrlValue_.upper_alarm_limit == 0) {
+			ctrlValue_.lower_alarm_limit = ctrlValue_.lower_ctrl_limit = -DBL_MAX;
+			ctrlValue_.upper_alarm_limit = ctrlValue_.upper_ctrl_limit = DBL_MAX;
+		}
 		emit initialized();
 	}
 
@@ -452,6 +458,12 @@ void DoubleProcessVariable::valueChangedCB(struct event_handler_args eventArgs) 
 	// Is this control information coming back?
 	if(eventArgs.type == DBR_CTRL_DOUBLE) {
 		memcpy(&ctrlValue_, eventArgs.dbr, sizeof(ctrlValue_));
+		// TODO: Think about this more. If the record's DRV_HIGH and DRV_LOW limits haven't been set, we're receiving them as max(0), min(0).
+		// That's a problem, because it pins our minValue() and maxValue() to 0.
+		if(ctrlValue_.lower_ctrl_limit == 0 && ctrlValue_.upper_alarm_limit == 0) {
+			ctrlValue_.lower_alarm_limit = ctrlValue_.lower_ctrl_limit = -DBL_MAX;
+			ctrlValue_.upper_alarm_limit = ctrlValue_.upper_ctrl_limit = DBL_MAX;
+		}
 		emit initialized();
 	}
 
@@ -499,6 +511,12 @@ void StringProcessVariable::valueChangedCB(struct event_handler_args eventArgs) 
 	// Is this control information coming back?
 	if(eventArgs.type == DBR_CTRL_DOUBLE) {
 		memcpy(&ctrlValue_, eventArgs.dbr, sizeof(ctrlValue_));
+		// TODO: Think about this more. If the record's DRV_HIGH and DRV_LOW limits haven't been set, we're receiving them as max(0), min(0).
+		// That's a problem, because it pins our minValue() and maxValue() to 0.
+		if(ctrlValue_.lower_ctrl_limit == 0 && ctrlValue_.upper_alarm_limit == 0) {
+			ctrlValue_.lower_alarm_limit = ctrlValue_.lower_ctrl_limit = -DBL_MAX;
+			ctrlValue_.upper_alarm_limit = ctrlValue_.upper_ctrl_limit = DBL_MAX;
+		}
 		emit initialized();
 	}
 
