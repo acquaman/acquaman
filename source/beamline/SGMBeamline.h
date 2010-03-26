@@ -24,6 +24,9 @@ public:
     PVControl* exitSlitGap() const { return exitSlitGap_;}
     ReadOnlyPVControl* m4() const { return m4_;}
     PVControl* grating() const { return grating_;}
+    PVControl* undulatorTracking() const { return undulatorTracking_;}
+    PVControl* monoTracking() const { return monoTracking_;}
+    PVControl* exitSlitTracking() const { return exitSlitTracking_;}
 
 protected:
     // Singleton implementation:
@@ -38,6 +41,9 @@ protected:
     PVControl *exitSlitGap_;
     ReadOnlyPVControl* m4_;
     PVControl *grating_;
+    PVControl *undulatorTracking_;
+    PVControl *monoTracking_;
+    PVControl *exitSlitTracking_;
 };
 
 #endif // SGMBEAMLINE_H

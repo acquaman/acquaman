@@ -27,6 +27,12 @@ SGMBeamline::SGMBeamline() : Control("SGMBeamline", "n/a") {
     addChild(m4_);
     grating_ = new PVControl("grating", "dave:Energy:mono:grating", "dave:Energy:mono:grating", "dave:Energy:mono:grating:moving", -1, this);
     addChild(grating_);
+    undulatorTracking_ = new PVControl("undulatorTracking", "dave:Energy:undulator:tracking", "dave:Energy:undulator:tracking", "", -1, this);
+    addChild(undulatorTracking_);
+    monoTracking_ = new PVControl("monoTracking", "dave:Energy:mono:tracking", "dave:Energy:mono:tracking", "", -1, this);
+    addChild(monoTracking_);
+    exitSlitTracking_ = new PVControl("exitSlitTracking", "dave:Energy:exitSlit:tracking", "dave:Energy:exitSlit:tracking", "", -1, this);
+    addChild(exitSlitTracking_);
 }
 
 SGMBeamline::~SGMBeamline()
