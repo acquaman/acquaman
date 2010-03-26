@@ -24,20 +24,31 @@ Q_PROPERTY(double delta READ delta WRITE setDelta)
 Q_PROPERTY(double end READ end WRITE setEnd)
 
 public:
-XASRegion(QObject *parent = 0) : QObject(parent) {;}
+XASRegion(QObject *parent = 0) : QObject(parent) {bl_ = SGMBeamline::sgm();}
     double start() const { return start_;}
     double delta() const { return delta_;}
     double end() const { return end_;}
 
 public slots:
-    void setStart(double start) { start_ = start;}
+    bool setStart(double start) {
+        if(bl_->energy()->valueOutOfRange(start))
+            return FALSE;
+        start_ = start;
+        return TRUE;
+    }
     void setDelta(double delta) { delta_ = delta;}
-    void setEnd(double end) { end_ = end;}
+    bool setEnd(double end) {
+        if(bl_->energy()->valueOutOfRange(end))
+            return FALSE;
+        end_ = end;
+        return TRUE;
+    }
 
 protected:
     double start_;
     double delta_;
     double end_;
+    SGMBeamline *bl_;
 };
 
 class XASScanConfiguration : public ScanConfiguration
