@@ -8,6 +8,7 @@
 #include "beamline/SGMBeamline.h"
 #include "beamline/ControlState.h"
 #include "ui/NumericControl.h"
+#include "acquaman/XASScanConfiguration.h"
 
 class ConnectionSettings : public QWidget, private Ui::ConnectionSettings {
 	
@@ -54,16 +55,16 @@ public:
 		connect(this->hxpd_move, SIGNAL(clicked()), this, SLOT(onMoveSent()));
                 */
 
+                connect(this->hxpd_save, SIGNAL(clicked()), this, SLOT(onSaveRequested()));
+                connect(this->hxpd_restore, SIGNAL(clicked()), this, SLOT(onRestoreRequested()));
+                connect(this->energy_restore, SIGNAL(clicked()), this, SLOT(onEnergyRestoreRequested()));
+                connect(this->setlist, SIGNAL(clicked()), this, SLOT(onSetListRequested()));
+                /*
                 connect(SGMBeamline::sgm()->energy(), SIGNAL(valueChanged(double)), hxpd_x_read, SLOT(setValue(double)));
                 connect(SGMBeamline::sgm()->energy(), SIGNAL(connected(bool)), hxpd_x_read, SLOT(setEnabled(bool)));
                 connect(SGMBeamline::sgm()->energy(), SIGNAL(unitsChanged(const QString&)), hxpd_units, SLOT(setText(const QString&)));
                 connect(SGMBeamline::sgm()->energy(), SIGNAL(moving(bool)), hxpd_moving, SLOT(setChecked(bool)));
                 connect(this->hxpd_move, SIGNAL(clicked()), this, SLOT(onMoveSent()));
-
-                connect(this->hxpd_save, SIGNAL(clicked()), this, SLOT(onSaveRequested()));
-                connect(this->hxpd_restore, SIGNAL(clicked()), this, SLOT(onRestoreRequested()));
-                connect(this->energy_restore, SIGNAL(clicked()), this, SLOT(onEnergyRestoreRequested()));
-                connect(this->setlist, SIGNAL(clicked()), this, SLOT(onSetListRequested()));
 
                 connect(SGMBeamline::sgm()->m4(), SIGNAL(valueChanged(double)), m4_read, SLOT(setValue(double)));
                 connect(SGMBeamline::sgm()->m4(), SIGNAL(connected(bool)), m4_read, SLOT(setEnabled(bool)));
@@ -87,11 +88,24 @@ public:
                 connect(SGMBeamline::sgm()->m4()->child(2), SIGNAL(unitsChanged(QString)), m4downstream_units, SLOT(setText(QString)));
                 connect(SGMBeamline::sgm()->m4()->child(2), SIGNAL(moving(bool)), m4downstream_moving, SLOT(setChecked(bool)));
                 connect(this->m4downstream_move, SIGNAL(clicked()), this, SLOT(onM4DownstreamMoveSent()));
+                */
 
 		NumericControl* nc = new NumericControl(Beamline::bl()->spectrometer()->hexapod()->x(), placeHolder);
                 Q_UNUSED(nc);
                 NumericControl *nc2 = new NumericControl(SGMBeamline::sgm()->grating(), gratingHolder);
                 Q_UNUSED(nc2);
+                NumericControl *nc3 = new NumericControl(SGMBeamline::sgm()->energy(), energyHolder);
+                Q_UNUSED(nc3);
+                NumericControl *nc4 = new NumericControl(SGMBeamline::sgm()->exitSlitGap(), slitGapHolder);
+                Q_UNUSED(nc4);
+                NumericControl *nc5 = new NumericControl(SGMBeamline::sgm()->m4(), m4Holder);
+                Q_UNUSED(nc5);
+                NumericControl *nc6 = new NumericControl(SGMBeamline::sgm()->m4()->child(0), m4InboardHolder);
+                Q_UNUSED(nc6);
+                NumericControl *nc7 = new NumericControl(SGMBeamline::sgm()->m4()->child(1), m4OutboardHolder);
+                Q_UNUSED(nc7);
+                NumericControl *nc8 = new NumericControl(SGMBeamline::sgm()->m4()->child(2), m4DownstreamHolder);
+                Q_UNUSED(nc8);
 
                 csTest = NULL;
 
@@ -111,26 +125,25 @@ public slots:
 
 	void onMoveSent() {
 //		Beamline::bl()->spectrometer()->hexapod()->x()->move(hxpd_x_set->value());
-            SGMBeamline::sgm()->energy()->move(hxpd_x_set->value());
+            //SGMBeamline::sgm()->energy()->move(hxpd_x_set->value());
 	}
 
         void onM4InboardMoveSent(){
-            SGMBeamline::sgm()->m4()->child(0)->move(m4inboard_set->value());
+            //SGMBeamline::sgm()->m4()->child(0)->move(m4inboard_set->value());
         }
 
         void onM4OutboardMoveSent(){
-            SGMBeamline::sgm()->m4()->child(1)->move(m4outboard_set->value());
+            //SGMBeamline::sgm()->m4()->child(1)->move(m4outboard_set->value());
         }
 
         void onM4DownstreamMoveSent(){
-            SGMBeamline::sgm()->m4()->child(2)->move(m4downstream_set->value());
+            //SGMBeamline::sgm()->m4()->child(2)->move(m4downstream_set->value());
         }
 
         void onSaveRequested(){
-            if(csTest)
-                delete [] csTest;
             csTest = new ControlState(SGMBeamline::sgm(), this);
             csTest->vomit();
+            XASScanConfiguration *xasSC = new XASScanConfiguration(this);
         }
 
         void onRestoreRequested(){
