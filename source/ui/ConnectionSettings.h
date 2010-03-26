@@ -90,6 +90,8 @@ public:
 
 		NumericControl* nc = new NumericControl(Beamline::bl()->spectrometer()->hexapod()->x(), placeHolder);
                 Q_UNUSED(nc);
+                NumericControl *nc2 = new NumericControl(SGMBeamline::sgm()->grating(), gratingHolder);
+                Q_UNUSED(nc2);
 
                 csTest = NULL;
 

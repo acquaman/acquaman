@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include "ScanConfiguration.h"
+#include "beamline/SGMBeamline.h"
 
 /*
   FIX ME UP! I want to be able to have elastic regions ... start value is last end plus this delta.
@@ -48,6 +49,8 @@ public:
     double delta(size_t index) const;
     double end(size_t index) const;
     XASRegion* region(size_t index) const;
+    double exitSlitGap() const { return exitSlitGap_;}
+    SGMBeamline::sgmGrating grating() const { return grating_;}
 
 public slots:
     bool setStart(size_t index, double start);
@@ -57,9 +60,13 @@ public slots:
     bool addRegion(size_t index, XASRegion *region);
     bool addRegion(size_t index, double start, double delta, double end);
     bool deleteRegion(size_t index);
+    bool setExitSlitGap(double exitSlitGap);
+    bool setGrating(SGMBeamline::sgmGrating grating) {grating_ = grating; return TRUE;}
 
 protected:
     QList<XASRegion*> regions_;
+    double exitSlitGap_;
+    SGMBeamline::sgmGrating grating_;
 };
 
 #endif // XASSCANCONFIGURATION_H

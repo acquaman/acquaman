@@ -9,6 +9,8 @@ class SGMBeamline : public Control
     Q_OBJECT
 
 public:
+    enum sgmGrating {low=0, medium=1, high=2};
+
     static SGMBeamline* sgm();		// singleton-class accessor
     static void releaseSGM();	// releases memory for Beamline
 
@@ -21,6 +23,7 @@ public:
     PVControl* energy() const { return energy_;}
     PVControl* exitSlitGap() const { return exitSlitGap_;}
     ReadOnlyPVControl* m4() const { return m4_;}
+    PVControl* grating() const { return grating_;}
 
 protected:
     // Singleton implementation:
@@ -34,6 +37,7 @@ protected:
     PVControl *energy_;
     PVControl *exitSlitGap_;
     ReadOnlyPVControl* m4_;
+    PVControl *grating_;
 };
 
 #endif // SGMBEAMLINE_H

@@ -101,3 +101,10 @@ bool XASScanConfiguration::deleteRegion(size_t index)
     }
     return FALSE;
 }
+
+bool XASScanConfiguration::setExitSlitGap(double exitSlitGap){
+    if(SGMBeamline::sgm()->exitSlitGap()->valueOutOfRange(exitSlitGap))
+        return FALSE;
+    exitSlitGap_ = exitSlitGap;
+    return TRUE;
+}

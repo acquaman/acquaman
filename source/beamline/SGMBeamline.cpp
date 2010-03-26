@@ -25,6 +25,8 @@ SGMBeamline::SGMBeamline() : Control("SGMBeamline", "n/a") {
     m4_->addChild(m4outboard);
     m4_->addChild(m4downstream);
     addChild(m4_);
+    grating_ = new PVControl("grating", "dave:Energy:mono:grating", "dave:Energy:mono:grating", "dave:Energy:mono:grating:moving", -1, this);
+    addChild(grating_);
 }
 
 SGMBeamline::~SGMBeamline()

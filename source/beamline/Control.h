@@ -237,6 +237,7 @@ public:
 	virtual bool isConnected() { return readPV_->canRead() && writePV_->canWrite(); }
 	virtual double minimumValue() { return writePV_->lowerControlLimit(); }
 	virtual double maximumValue() { return writePV_->upperControlLimit(); }
+        bool valueOutOfRange(double value) { return (value > maximumValue() || value< minimumValue() ) ? TRUE : FALSE;}
         bool shouldMove() { return TRUE;}
 
 	// Reimplemented public slots:

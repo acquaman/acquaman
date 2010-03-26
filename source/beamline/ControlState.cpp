@@ -22,7 +22,9 @@ bool ControlState::searchChildren(Control *ctrl)
         tmpValue = tmpCtrl->value();
         tmpTolerance = tmpCtrl->tolerance();
         tmpCan = tmpCtrl->state();
-        tmpShould = tmpCtrl->shouldMeasure() ? (tmpCtrl->shouldMove() ? 2 : 1) : 0;
+//        tmpShould = tmpCtrl->shouldMeasure() ? (tmpCtrl->shouldMove() ? 2 : 1) : 0;
+        tmpShould = tmpCtrl->shouldMeasure() ? 1 : 0;
+        tmpShould |= tmpCtrl->shouldMove() ? 2 : 0;
         tmpStatus = new ControlStatus(tmpName, tmpCan, tmpShould, tmpValue, tmpTolerance, this);
         state_.append( tmpStatus );
         if(tmpCtrl->numChildren() > 0 ){
@@ -62,11 +64,11 @@ void ControlState::vomit()
 }
 
 bool ControlState::restore(Control *ctrl){
-    restoreListInternal(ctrl);
+    return restoreListInternal(ctrl);
 }
 
 bool ControlState::restoreList(Control *ctrl, QList<QString> *maskList){
-    restoreListInternal(ctrl, maskList, TRUE);
+    return restoreListInternal(ctrl, maskList, TRUE);
 }
 
 bool ControlState::restoreListInternal(Control *ctrl, QList<QString> *maskList, bool useList)
@@ -74,7 +76,7 @@ bool ControlState::restoreListInternal(Control *ctrl, QList<QString> *maskList, 
     if(ctrl->objectName() != name_)
         return FALSE;
     for(int x = 0; x < state_.count(); x++){
-        if( (!useList || maskList->contains(state_.at(x)->name())) && (state_.at(x)->should() == 2) && (ctrl->child(x)->canMove()) && ( fabs(state_.at(x)->value()-ctrl->child(x)->value()) > state_.at(x)->tolerance() ) ){
+        if( (!useList || maskList->contains(state_.at(x)->name())) && (state_.at(x)->should() == 3) && (ctrl->child(x)->canMove()) && ( fabs(state_.at(x)->value()-ctrl->child(x)->value()) > state_.at(x)->tolerance() ) ){
             qDebug() << "I want to restore " << state_.at(x)->name() << " from " << ctrl->child(x)->value() << " to " << state_.at(x)->value() << " exceeding tolerance " << state_.at(x)->tolerance();
             qDebug() << "So, do it...";
             ctrl->child(x)->move(state_.at(x)->value());
