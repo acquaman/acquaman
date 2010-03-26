@@ -62,6 +62,9 @@ public:
     XASRegion* region(size_t index) const;
     double exitSlitGap() const { return exitSlitGap_;}
     SGMBeamline::sgmGrating grating() const { return grating_;}
+    bool undulatorTracking() { return undulatorTracking_;}
+    bool monoTracking() { return monoTracking_;}
+    bool exitSlitTracking() { return exitSlitTracking_;}
 
 public slots:
     bool setStart(size_t index, double start);
@@ -73,11 +76,17 @@ public slots:
     bool deleteRegion(size_t index);
     bool setExitSlitGap(double exitSlitGap);
     bool setGrating(SGMBeamline::sgmGrating grating) {grating_ = grating; return TRUE;}
+    bool setUndulatorTracking(bool track){undulatorTracking_ = track; return TRUE;}
+    bool setMonoTracking(bool track){monoTracking_ = track; return TRUE;}
+    bool setExitSlitTracking(bool track){exitSlitTracking_ = track; return TRUE;}
 
 protected:
     QList<XASRegion*> regions_;
     double exitSlitGap_;
     SGMBeamline::sgmGrating grating_;
+    bool undulatorTracking_;
+    bool monoTracking_;
+    bool exitSlitTracking_;
 };
 
 #endif // XASSCANCONFIGURATION_H
