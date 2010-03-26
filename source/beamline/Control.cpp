@@ -18,7 +18,8 @@ bool Control::setStateList(const QMap<QString, double> controlList, unsigned int
     // New list of name and pointer to Control to add found instances to
     QMap<QString, Control*> *executeList = new QMap<QString, Control*>();
     // Start search
-    searchSetChildren(tmpList, executeList, errorLevel);
+    if(!searchSetChildren(tmpList, executeList, errorLevel))
+        return FALSE;
     // Check if there are any unfound instances and flag as error if necessary
     if(tmpList->count() > 0 && (errorLevel & 0x1) )
         return FALSE;
@@ -45,7 +46,7 @@ bool Control::searchSetChildren(QMap<QString, double> *controlList, QMap<QString
             qDebug() << "Checking against " << tmpCtrl->objectName() << " should " << tmpCtrl->shouldMove() << " can " << tmpCtrl->canMove();
             if(!tmpCtrl->shouldMove() && (errorLevel & 0x4) )
                 return FALSE;
-            if(!tmpCtrl->canMove() && (errorLevel & 0x2) )
+            if(!tmpCtrl->canMove() && tmpCtrl->shouldMove() && (errorLevel & 0x2) )
                 return FALSE;
             if(tmpCtrl->shouldMove() && tmpCtrl->canMove()){
                 executeList->insert(tmpCtrl->objectName(), tmpCtrl);

@@ -150,6 +150,7 @@ public slots:
             myList["M4Outboard"] = 12.12;
             myList["yourFace"] = 666;
             myList["mono"] = 2020;
+            myList["exitSlitGap"] = 1985;
             int errLevel = this->setlist_errorLevel->value();
             if(SGMBeamline::sgm()->setStateList(myList, errLevel))
                 qDebug() << "Success with error level of " << errLevel;
