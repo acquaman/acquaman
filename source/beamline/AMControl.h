@@ -404,6 +404,8 @@ isMoving() means:		a move() has been issued, the completionTimeout() hasn't occu
 moveSucceeded() means:	after a move() has been issued, the value entered tolerance before the completionTimeout() occurred
 moveFailed() means:		after starting a move, the completionTimeout() occurred before the value reached tolerance
 
+Since we don't have a way to determine if the control is actually moving, this class introduces a completionTimeout(). If the value doesn't reach within tolerance() of setpoint() within a certain time, the move will fail.  One limitation is that if the control overshoots the setpoint, we can't tell the difference between this, and a successful move that rises later.  See AMPVwStatusControl for more sophisticated move completion testing.
+
 For these to make sense, make sure to use intelligent values for the tolerance and the timeout.  The default (AMCONTROL_TOLERANCE_DONT_CARE) will result in moves completing right away, regardless of where they get to.
 
 Most useful members for using this class:
@@ -419,6 +421,9 @@ isMoving() or moveInProgress()
 moveStarted()
 moveSucceeded()
 moveFailed(int)
+
+completionTimeout()
+setCompletionTimeout()
 
 
 */
@@ -448,6 +453,7 @@ public:
 
 	// Additional public functions:
 	QString writePVName() const { return writePV_->pvName(); }
+	double completionTimeout() { return completionTimeout_; }
 
 public slots:
 	/// Reimplemented public slots:
@@ -457,6 +463,9 @@ public slots:
 
 	/// Stop a move in progress:
 	virtual void stop() {}	// TODO TODO TODO
+
+	/// set the completion timeout:
+	void setCompletionTimeout(double seconds) { completionTimeout_ = seconds; }
 
 
 
@@ -492,15 +501,97 @@ protected slots:
 	/// This is called when a PV channel connects or disconnects
 	void onPVConnected(bool connected);
 
-	/// This is called when there is a PV channel error:
-	void onPVError(int error);
-
-	/// This is used to handle the timeout of a move: [done]
+	/// This is used to handle the timeout of a move
 	void onCompletionTimeout();
 
-	/// This is used to check every new value, to see if we entered tolerance: [done]
+	/// This is used to check every new value, to see if we entered tolerance
 	void onNewFeedbackValue(double val);
 
+
+};
+
+/// This class provides an AMControl that can measure a feedback process variable, and monitor a second PV that provides a moving indicator.
+/*!
+The Control interface should be inherited to implement real-world control devices.  The exact meaning of the properties might change depending on the physical device and its capabilities.  As a useful example, we've provided a set of real controls with different levels of capability that implement Epics Process-Variable type connections.
+
+This class measures values using a single Process Variable.  It cannot be used to set values, but it watches another Process Variable to see if the control is moving.  An example usage would be monitoring the "beamline energy" PV that is common on most beamlines.
+
+isMoving means that the (integer) numeric value of the isMovingPV is equal to the isMovingValue provided by the programmer in the constructor.  (For example, on the SGM beamline, the beamline energy's "moving" process variable defines:
+{0 = stopped, 1 = moving, 2 = at limit, 3 = forced stop}
+In this case, the programmer would specify isMovingValue = 1.
+
+In other cases, an isMovingPV could provide a set of bit-flags, where only one of the bits indicates moving.  To handle this situation, you can also provide an isMovingMask that is applied to the PV's value before the comparison.  The default isMovingMask = 0xffffffff (AMCONTROL_MOVING_MASK_NONE).  For example, if the isMovingPV value is a bit-flag
+{bit 3: CW limit} {bit 2: CCW limit} {bit 1: moving} {bit 0: motor power on}
+then you could specify an isMovingMask of (1<<1).
+
+
+The unique behavior is defined as:
+
+isConnected means:		the feedback process variable and moving-status process variable are connected.
+isMoving() means:		(moving-status PV's current value & isMovingMask) == isMovingValue
+moveSucceeded() means:	[never happens]
+moveFailed() means:		[happens on any attempted move; can't do that!]
+
+Most useful members for using this class:
+
+value()
+name()
+isConnected()
+isMoving()
+valueChanged()
+
+signals:
+movingChanged()
+
+*/
+
+#define AMCONTROL_MOVING_MASK_NONE 0xffffffff
+
+class AMReadOnlyPVwStatusControl : public AMReadOnlyPVControl {
+
+	Q_OBJECT
+
+public:
+	AMReadOnlyPVwStatusControl(const QString& name, const QString& readPVname, const QString& movingPVname, int isMovingValue = 1, quint32 isMovingMask = AMCONTROL_MOVING_MASK_NONE, QObject* parent = 0);
+
+	/// Reimplemented Public Functions:
+	virtual bool isConnected() const { return canMeasure() && movingPV_->canRead(); }
+
+	/// The movingPV now provides our moving status. (Masked with isMovingMask and compared to isMovingValue)
+	virtual bool isMoving() { return ( int(movingPV_->lastValue() & isMovingMask_) == isMovingValue_); }
+
+	/// Additional public functions:
+	QString movingPVName() { return movingPV_->pvName(); }
+
+
+
+signals:
+	/// These are specialized to report on PV channel connection status.  You should be free to ignore them and use the interface defined in Control::.
+	void movingConnectionTimeoutOccurred();
+
+protected:
+	/// This PV is used to watch the moving status
+	AMIntProcessVariable* movingPV_;
+
+	/// This is the value of the movingPV that indicates "moving == true"
+	int isMovingValue_;
+	quint32 isMovingMask_;
+
+	/// This is used to detect changes in the moving/not-moving status
+	bool wasMoving_;
+
+protected slots:
+
+	/// override this if you want custom handling if any PV fails to connect.
+	// Since the units come from the read-PV, we need the readPV for that.
+	// All connection timeouts cause us to be not connected.
+	void onConnectionTimeout() { if(sender() == readPV_) { setUnits("?"); } emit connected(false); }
+
+	/// This is called when a PV channel connects or disconnects
+	void onPVConnected(bool connected);
+
+	/// This is called whenever there is an update from the move status PV
+	void onMovingChanged(int isMovingValue);
 
 };
 

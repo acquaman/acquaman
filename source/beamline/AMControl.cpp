@@ -63,6 +63,9 @@ bool AMControl::searchSetChildren(QMap<QString, double> *controlList, QMap<QStri
 	return true;
 }
 
+/// Class AMReadOnlyPVControl
+///////////////////////////////////////
+
 AMReadOnlyPVControl::AMReadOnlyPVControl(const QString& name, const QString& readPVname, QObject* parent) : AMControl(name, "?", parent)  {
 
 	readPV_ = new AMDoubleProcessVariable(readPVname, true, this);
@@ -75,19 +78,10 @@ AMReadOnlyPVControl::AMReadOnlyPVControl(const QString& name, const QString& rea
 
 	connect(readPV_, SIGNAL(initialized()), this, SLOT(onReadPVInitialized()));
 
-	/* reuse for wStatus:
-	if(movingPVname != "") {
-		movingPV_ = new IntProcessVariable(movingPVname, true, this);
-		connect(movingPV_, SIGNAL(valueChanged(int)), this, SLOT(onMovingChanged(int)));
-	}
-	else
-		movingPV_ = 0;
-		*/
-
 }
 
 // This is written out fully (rather than simply connected SIGNALs to SIGNALs
-// So that we can override it in ReadWritePVControl.
+// So that we can override it in other AMPVControls with multiple PVs.
 void AMReadOnlyPVControl::onPVConnected(bool) {
 
 	// For the read-only control, just having the readPV is enough to be connected or disconnected.
@@ -98,20 +92,11 @@ void AMReadOnlyPVControl::onPVConnected(bool) {
 
 void AMReadOnlyPVControl::onPVError(int error) {
 	// TODO: figure out how to handle this best.
-	qDebug() << QString("Process Variable error %1: %2.").arg(readPV_->pvName()).arg(error);
+	// For now, just report it.
+	AMProcessVariable* source = qobject_cast<AMProcessVariable*>(sender());
+	if(source)
+		qDebug() << QString("Process Variable error %1: %2.").arg(source->pvName()).arg(error);
 }
-
-/* reuse for wStatus:
-void AMReadOnlyPVControl::onMovingChanged(int isMoving) {
-	emit moving(isMoving);
-
-	if(wasMoving_ && !isMoving)
-		onMoveEnded();
-	if(!wasMoving_ && isMoving)
-		onMoveStarted();
-
-	wasMoving_ = isMoving;
-}*/
 
 void AMReadOnlyPVControl::onReadPVInitialized() {
 	setUnits(readPV_->units());	// copy over the new unit string
@@ -186,7 +171,7 @@ void AMPVControl::move(double setpoint) {
 }
 
 /// This is used to check every new value, to see if we entered tolerance:
-void AMPVControl::onNewFeedbackValue(double val) {
+void AMPVControl::onNewFeedbackValue(double) {
 
 	// If we're not in the middle of a move, don't really care about changing values.
 	if(!mip_)
@@ -232,109 +217,72 @@ void AMPVControl::onCompletionTimeout() {
 /// This is called when a PV channel connects or disconnects
 void AMPVControl::onPVConnected(bool) {
 
-	// we'll receive this when either one connects or disconnects.
+	// we'll receive this when any PV connects or disconnects.
+
 	// We need both connected to count as connected. That's not hard to figure out.
 	// But, we should do some change detection so that if we're already disconnected,
-	// we don't re-emit disconnected. (Or, emit disconnected after the first PV connects)
+	// we don't re-emit disconnected. (Or, emit disconnected after the first PV connects and the second hasn't come up yet)
+
+	bool nowConnected = isConnected();
 
 	// Losing the connection:
-	if(wasConnected_ && !isConnected() ) {
-		emit connected(wasConnected_ = false);
+	if(wasConnected_ && !nowConnected ) {
+		emit connected(wasConnected_ = nowConnected);
 	}
 
 	// gaining the connection:
-	if(!wasConnected_ && isConnected() ) {
-		emit connected(wasConnected_ = true);
+	if(!wasConnected_ && nowConnected ) {
+		emit connected(wasConnected_ = nowConnected);
 	}
 }
 
-/// This is called when there is a PV channel error:
-void AMPVControl::onPVError(int error) {
-	// TODO: handle this better
-	if(sender() == readPV_)
-		qDebug() << QString("ProcessVariable error %1: %2.").arg(readPV_->pvName()).arg(error);
-	if(sender() == writePV_)
-		qDebug() << QString("ProcessVariable error %1: %2.").arg(writePV_->pvName()).arg(error);
-}
+/// Class AMReadOnlyPVwStatusControl
+///////////////////////////////////////
 
-/*
+AMReadOnlyPVwStatusControl::AMReadOnlyPVwStatusControl(const QString& name, const QString& readPVname, const QString& movingPVname, int isMovingValue, quint32 isMovingMask, QObject* parent)
+	: AMReadOnlyPVControl(name, readPVname, parent)
+{
+	// Initializing:
+	isMovingValue_ = isMovingValue;
+	isMovingMask_ = isMovingMask;
+	wasMoving_ = false;
 
-PVControl::PVControl(const QString& name, const QString& readPVname, const QString& writePVname, const QString& movingPVname, double tolerance, QObject* parent) : ReadOnlyPVControl(name, readPVname, movingPVname, parent) {
-
-	tolerance_ = tolerance;
-
-	writePV_ = new DoubleProcessVariable(writePVname, true, this);
-	// TODO: check if this failed to connect channel. Also, handle disconnects/breakdowns.
-	// connect(writePV_, SIGNAL(valueChanged(double)), this, SIGNAL(valueChanged(double)));
-	connect(writePV_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
-	connect(writePV_, SIGNAL(error(int)), this, SLOT(onPVError(int)));
-	connect(writePV_, SIGNAL(connectionTimeout()), this, SIGNAL(writeConnectionTimeout()));
-	connect(writePV_, SIGNAL(connectionTimeout()), this, SLOT(onConnectionTimeout()));
-
-	// TODO: actually moving; write failed-->moveFailed; sort out signals.
-	// TODO: decide if monitoring the set value is desireable (notif. that you exceeded limits?)
-}
-
-void PVControl::move(double value) {
-
-	//onMoveStarted(); TODO: flag this manually if we have no connection from the movingPV_?
-
-	moveTarget_ = value;
-	// QString stringVersion = QString("%1").arg(moveTarget_, -1, 'e', 4);
-
-	if( canMove() ) {
-		writePV_->setValue(moveTarget_);
-		qDebug() << QString("Moving %1 to %2").arg(writePV_->pvName()).arg(moveTarget_);
-	}
-	else {
-		qDebug() << QString("Could not move %1 to %2").arg(writePV_->pvName()).arg(value);
-		onMoveFailed();
-	}
-
+	// Create the movingPV and hook it up:
+	movingPV_ = new AMIntProcessVariable(movingPVname, true, this);
+	connect(movingPV_, SIGNAL(valueChanged(int)), this, SLOT(onMovingChanged(int)));
+	connect(movingPV_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
+	connect(movingPV_, SIGNAL(error(int)), this, SLOT(onPVError(int)));
+	connect(movingPV_, SIGNAL(connectionTimeout()), this, SIGNAL(movingConnectionTimeoutOccurred()));
+	connect(movingPV_, SIGNAL(connectionTimeout()), this, SLOT(onConnectionTimeout()));
 
 }
 
-void PVControl::stop() {
-	/// TODOTODOTODO!
+/// This is called when a PV channel connects or disconnects
+void AMReadOnlyPVwStatusControl::onPVConnected(bool) {
+	bool nowConnected = isConnected();
+
+	// Due change detection so that we don't emit disconnected() when already disconnected()...
+	// This could happen when the first PV connects but the move PV hasn't come up yet.
+
+	// disconnected:
+	if(wasConnected_ && !nowConnected)
+		emit connected(wasConnected_ = nowConnected);
+
+	// connection gained:
+	if(!wasConnected_ && nowConnected)
+		emit connected(wasConnected_ = nowConnected);
 }
 
-void PVControl::onConnectionTimeout() {
-	if(sender() == readPV_) {
-		emit readConnectionTimeout();
-		setState( state() & ~Control::CanMeasure );	// Disable CanMeasure flag
-		emit connected(false);						// Not having a readPV_ makes us disconnected.
-	}
-	if(sender() == writePV_) {
-		emit writeConnectionTimeout();
-		setState( state() & ~Control::CanMove );	// disable CanMove flag
-		emit connected(false);						// Not having a writePV_ makes us disconnected.
-	}
+/// This is called whenever there is an update from the move status PV
+/// In it we simply do change detection of the moving status, and emit signals if it has changed.
+void AMReadOnlyPVwStatusControl::onMovingChanged(int movingValue) {
+
+	bool nowMoving = ( int(movingValue & isMovingMask_) == isMovingValue_);
+
+	if(wasMoving_ && !nowMoving)
+		emit movingChanged(wasMoving_ = nowMoving);
+
+	if(!wasMoving_ && nowMoving)
+		emit movingChanged(wasMoving_ = nowMoving);
 }
 
-void PVControl::onPVConnected(bool) {
-	// This will happen if either the readPV_ or writePV_ connects, or disconnects. That makes lots of cases.
-	// We can distinguish based on sender() == readPV_ or sender() == writePV_. But we don't have to.
-
-	// Let's just check using our isConnected() function, which guarantees that we can read from readPV_ and write to writePV_.
-	// It will re-check for connection status on these two PVs.
-	emit connected( this->isConnected() );
-
-	int state = Control::NotConnected;
-	if( readPV_->canRead() )
-//            state = Control::CanMeasure;
-				state |= Control::CanMeasure;
-	if (writePV_->canWrite() )
-//            state = Control::CanMove;
-				state |= Control::CanMove;
-
-	setState(state);
-}
-
-void PVControl::onPVError(int error) {
-	// TODO
-	if(sender() == readPV_)
-		qDebug() << QString("ProcessVariable error %1: %2.").arg(readPV_->pvName()).arg(error);
-	if(sender() == writePV_)
-		qDebug() << QString("ProcessVariable error %1: %2.").arg(writePV_->pvName()).arg(error);
-}
-*/
