@@ -4,11 +4,11 @@
 #include <QtGui>
 #include "ui_ConnectionSettings.h"
 
-#include "beamline/Beamline.h"
-#include "beamline/SGMBeamline.h"
-#include "beamline/ControlState.h"
+#include "beamline/AMBeamline.h"
+#include "beamline/AMSGMBeamline.h"
+#include "beamline/AMControlState.h"
 #include "ui/NumericControl.h"
-#include "acquaman/XASScanConfiguration.h"
+#include "acquaman/AMXASScanConfiguration.h"
 
 class ConnectionSettings : public QWidget, private Ui::ConnectionSettings {
 	

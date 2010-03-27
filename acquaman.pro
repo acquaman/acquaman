@@ -41,14 +41,14 @@ INCLUDEPATH += /usr/include/libxml2
 LIBS += -lxml2
 
 # Input
-HEADERS += source/beamline/DiagnosticPaddle.h \
-    source/beamline/LoadLock.h \
-    source/beamline/SampleHolder.h \
-    source/beamline/AmpDetector.h \
-    source/beamline/Spectrometer.h \
-    source/beamline/Mono.h \
-    source/beamline/VariableAperture.h \
-    source/beamline/InsertionDevice.h \
+HEADERS += source/beamline/AMDiagnosticPaddle.h \
+    source/beamline/AMLoadLock.h \
+    source/beamline/AMSampleHolder.h \
+    source/beamline/AMAmpDetector.h \
+    source/beamline/AMSpectrometer.h \
+    source/beamline/AMMono.h \
+    source/beamline/AMVariableAperture.h \
+    source/beamline/AMInsertionDevice.h \
     source/ui/AbsorptionScanController.h \
     source/ui/ConnectionSettings.h \
     source/ui/EmissionScanController.h \
@@ -62,20 +62,20 @@ HEADERS += source/beamline/DiagnosticPaddle.h \
     source/ui/BottomBar.h \
     source/ui/Sidebar.h \
     source/ui/CamWidget.h \
-    source/beamline/ProcessVariable.h \
-    source/beamline/Beamline.h \
-    source/beamline/Control.h \
+    source/beamline/AMProcessVariable.h \
+    source/beamline/AMBeamline.h \
+    source/beamline/AMControl.h \
     source/ui/NumericControl.h \
-    source/dataman/DbObject.h \
-    source/dataman/Scan.h \
-    source/dataman/SChannel.h \
-    source/beamline/PVNames.h \
-    source/dataman/Database.h \
-    source/dataman/DbLoader.h \
-    source/Settings.h \
-    source/acquaman/ScanController.h \
-    source/acquaman/ScanConfiguration.h \
-    source/acquaman/DacqScanController.h \
+    source/dataman/AMDbObject.h \
+    source/dataman/AMScan.h \
+    source/dataman/AMChannel.h \
+    source/beamline/AMPVNames.h \
+    source/dataman/AMDatabase.h \
+    source/dataman/AMDbLoader.h \
+    source/AMSettings.h \
+    source/acquaman/AMScanController.h \
+    source/acquaman/AMScanConfiguration.h \
+    source/acquaman/AMDacqScanController.h \
     source/acquaman/dacq3_2/epicsConnect.main.h \
     source/acquaman/dacq3_2/epicsConnect.h \
     source/acquaman/dacq3_2/acquisitionLib.main.h \
@@ -94,11 +94,11 @@ HEADERS += source/beamline/DiagnosticPaddle.h \
     source/acquaman/dacq3_2/OutputHandler/acqFileStream.h \
     source/acquaman/dacq3_2/qepicsadvacq.h \
     source/acquaman/dacq3_2/acqLibHelper.h \
-    source/acquaman/XASScanConfiguration.h \
-    source/beamline/SGMBeamline.h \
-    source/beamline/ControlState.h \
-    source/acquaman/XASDacqScanController.h \
-    source/ErrorMonitor.h
+    source/acquaman/AMXASScanConfiguration.h \
+    source/beamline/AMSGMBeamline.h \
+    source/beamline/AMControlState.h \
+    source/acquaman/AMXASDacqScanController.h \
+    source/AMErrorMonitor.h
 FORMS += source/ui/AbsorptionScanController.ui \
     source/ui/ConnectionSettings.ui \
     source/ui/EmissionScanController.ui \
@@ -109,32 +109,32 @@ FORMS += source/ui/AbsorptionScanController.ui \
     source/ui/SamplePositions.ui \
     source/ui/Scheduler.ui \
     source/ui/BottomBar.ui
-SOURCES += source/beamline/DiagnosticPaddle.cpp \
-    source/beamline/LoadLock.cpp \
-    source/beamline/SampleHolder.cpp \
-    source/beamline/AmpDetector.cpp \
-    source/beamline/Spectrometer.cpp \
-    source/beamline/Mono.cpp \
-    source/beamline/VariableAperture.cpp \
-    source/beamline/InsertionDevice.cpp \
+SOURCES += source/beamline/AMDiagnosticPaddle.cpp \
+    source/beamline/AMLoadLock.cpp \
+    source/beamline/AMSampleHolder.cpp \
+    source/beamline/AMAmpDetector.cpp \
+    source/beamline/AMSpectrometer.cpp \
+    source/beamline/AMMono.cpp \
+    source/beamline/AMVariableAperture.cpp \
+    source/beamline/AMInsertionDevice.cpp \
     source/ui/SamplePositions.cpp \
     source/ui/BottomBar.cpp \
     source/ui/CamWidget.cpp \
     source/ui/MainWindow.cpp \
     source/main.cpp \
-    source/beamline/ProcessVariable.cpp \
-    source/beamline/Beamline.cpp \
-    source/beamline/Control.cpp \
+    source/beamline/AMProcessVariable.cpp \
+    source/beamline/AMBeamline.cpp \
+    source/beamline/AMControl.cpp \
     source/ui/NumericControl.cpp \
-    source/dataman/Scan.cpp \
-    source/dataman/SChannel.cpp \
-    source/beamline/PVNames.cpp \
-    source/dataman/Database.cpp \
-    source/dataman/DbObject.cpp \
-    source/Settings.cpp \
-    source/acquaman/ScanController.cpp \
-    source/acquaman/ScanConfiguration.cpp \
-    source/acquaman/DacqScanController.cpp \
+    source/dataman/AMScan.cpp \
+    source/dataman/AMChannel.cpp \
+    source/beamline/AMPVNames.cpp \
+    source/dataman/AMDatabase.cpp \
+    source/dataman/AMDbObject.cpp \
+    source/AMSettings.cpp \
+    source/acquaman/AMScanController.cpp \
+    source/acquaman/AMScanConfiguration.cpp \
+    source/acquaman/AMDacqScanController.cpp \
     source/acquaman/dacq3_2/xmlWrite.cpp \
     source/acquaman/dacq3_2/xmlRead.cpp \
     source/acquaman/dacq3_2/update.c \
@@ -159,9 +159,9 @@ SOURCES += source/beamline/DiagnosticPaddle.cpp \
     source/acquaman/dacq3_2/OutputHandler/acqFileStream.cpp \
     source/acquaman/dacq3_2/qepicsadvacq.cpp \
     source/acquaman/dacq3_2/acqLibHelper.c \
-    source/acquaman/XASScanConfiguration.cpp \
-    source/beamline/SGMBeamline.cpp \
-    source/beamline/ControlState.cpp \
-    source/acquaman/XASDacqScanController.cpp \
-    source/ErrorMonitor.cpp
+    source/acquaman/AMXASScanConfiguration.cpp \
+    source/beamline/AMSGMBeamline.cpp \
+    source/beamline/AMControlState.cpp \
+    source/acquaman/AMXASDacqScanController.cpp \
+    source/AMErrorMonitor.cpp
 RESOURCES = source/icons/icons.qrc

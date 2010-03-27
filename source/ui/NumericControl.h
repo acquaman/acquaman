@@ -4,7 +4,7 @@
 #include <QFrame>
 #include <QDialog>
 
-#include "beamline/Control.h"
+#include "beamline/AMControl.h"
 
 class QLabel;
 class QDoubleSpinBox;

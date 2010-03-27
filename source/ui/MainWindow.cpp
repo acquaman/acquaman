@@ -1,7 +1,7 @@
 #include "MainWindow.h"
 
-#include "acquaman/ScanController.h"
-#include "acquaman/DacqScanController.h"
+#include "acquaman/AMScanController.h"
+#include "acquaman/AMDacqScanController.h"
 
 MainWindow::MainWindow(QWidget* parent) : QWidget(parent) {
 	

@@ -1,20 +1,20 @@
 #include <QApplication>
-#include "Settings.h"
+#include "AMSettings.h"
 
 #include "ui/MainWindow.h"
 
-#include "beamline/PVNames.h"
-#include "beamline/Beamline.h"
-#include "beamline/SGMBeamline.h"
-#include "beamline/ControlState.h"
-#include "acquaman/XASDacqScanController.h"
-#include "dataman/Database.h"
-#include "dataman/DbLoader.h"
+#include "beamline/AMPVNames.h"
+#include "beamline/AMBeamline.h"
+#include "beamline/AMSGMBeamline.h"
+#include "beamline/AMControlState.h"
+#include "acquaman/AMXASDacqScanController.h"
+#include "dataman/AMDatabase.h"
+#include "dataman/AMDbLoader.h"
 
 // debug only:
-#include "dataman/Scan.h"
+#include "dataman/AMScan.h"
 
-#include "ErrorMonitor.h"
+#include "AMErrorMonitor.h"
 
 
 int main(int argc, char *argv[])
