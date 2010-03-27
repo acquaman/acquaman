@@ -7,8 +7,7 @@
 #include "beamline/Beamline.h"
 #include "beamline/SGMBeamline.h"
 #include "beamline/ControlState.h"
-//#include "acquaman/ScanController.h"
-//#include "acquaman/DacqScanController.h"
+#include "acquaman/XASDacqScanController.h"
 #include "dataman/Database.h"
 #include "dataman/DbLoader.h"
 
@@ -98,6 +97,9 @@ int main(int argc, char *argv[])
 
 	/// Program Shutdown:
 	// =================================
+
+        //XASScanConfiguration *xasCfg = new
+
 	// Make sure we release/clean-up the beamline interface
 	Beamline::releaseBl();
 	// Close down connection to the user Database

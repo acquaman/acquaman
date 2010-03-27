@@ -9,7 +9,7 @@ class SGMBeamline : public Control
     Q_OBJECT
 
 public:
-    enum sgmGrating {low=0, medium=1, high=2};
+    enum sgmGrating {lowGrating=0, mediumGrating=1, highGrating=2};
 
     static SGMBeamline* sgm();		// singleton-class accessor
     static void releaseSGM();	// releases memory for Beamline

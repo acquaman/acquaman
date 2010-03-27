@@ -2,16 +2,9 @@
 #define ACQMAN_DACQSCANCONTROLLER_H
 
 #include "ScanController.h"
-//#include "beamline/SGMBeamline.h"
-
-//#include "dacq3_2/acquisitionLib.h"
-//#include "beamline/SGMBeamline.h"
-//#include "dacq3_2/qepicsacqlocal.h"
-//#include "beamline/SGMBeamline.h"
 
 #include "dacq3_2/OutputHandler/acqFactory.h"
 #include "dacq3_2/qepicsadvacq.h"
-//#include "beamline/SGMBeamline.h"
 
 class DacqScanController : public ScanController
 {
