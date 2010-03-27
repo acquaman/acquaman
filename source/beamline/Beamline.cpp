@@ -1,32 +1,32 @@
 #include "Beamline.h"
 
-Beamline* Beamline::instance_ = 0;
+AMBeamline* AMBeamline::instance_ = 0;
 
 
-Beamline::Beamline() : Control("beamline", "n/a") {
+AMBeamline::AMBeamline() : AMControl("beamline", "n/a") {
 	
-    ringCurrent_ = new ReadOnlyPVControl("ringCurrent", PVNames::ringCurrent, "", this);
+    ringCurrent_ = new AMReadOnlyPVControl("ringCurrent", AMPVNames::ringCurrent, "", this);
         children_ << ringCurrent_;
 
-		spectrometer_ = new Spectrometer("spectrometer", this);
+                spectrometer_ = new AMSpectrometer("spectrometer", this);
 		children_ << spectrometer_;
 	
 }
 
-Beamline::~Beamline()
+AMBeamline::~AMBeamline()
 {
 }
 
-Beamline* Beamline::bl() {
+AMBeamline* AMBeamline::bl() {
 
 	if(instance_ == 0)
-		instance_ = new Beamline();
+                instance_ = new AMBeamline();
 		
 	return instance_;	
 	
 }
 
-void Beamline::releaseBl() {
+void AMBeamline::releaseBl() {
 
 	if(instance_) {
 		delete instance_;

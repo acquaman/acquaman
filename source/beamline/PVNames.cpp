@@ -1,9 +1,9 @@
 #include "PVNames.h"
 
-QString PVNames::ringCurrent;
+QString AMPVNames::ringCurrent;
 
 /// Load settings from disk:
-void PVNames::load() {
+void AMPVNames::load() {
 	QSettings settings(QSettings::IniFormat, QSettings::SystemScope, "Acquaman", "AcquamanProcessVariables");
 
     // All settings variables are loaded here from disk. Default values must be provided -- they will be used if the particular setting doesn't exist yet.
@@ -17,7 +17,7 @@ void PVNames::load() {
 }
 
 /// Save settings to disk:
-void PVNames::save() {
+void AMPVNames::save() {
 	QSettings settings(QSettings::IniFormat, QSettings::SystemScope, "Acquaman", "AcquamanProcessVariables");
 
     // All settings variables are saved here to the user-specific file.

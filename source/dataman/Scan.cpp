@@ -4,9 +4,9 @@
 #include <QDebug>
 
 // static dbColumnNames (each instance has same)
-QStringList Scan::dbColumnNames_;
+QStringList AMScan::dbColumnNames_;
 
-Scan::Scan(QObject *parent) : DbObject(parent) {
+AMScan::AMScan(QObject *parent) : AMDbObject(parent) {
 	// Ensure the static (class-wide) dbColumnNames_ has already been filled:
 	dbColumnNames();
 }
@@ -15,9 +15,9 @@ Scan::Scan(QObject *parent) : DbObject(parent) {
 
 /// Returns specified channel by name: (returns 0 if not found)
 /// Warning: this will only return the first one if multiple channels with the same name
-Channel* Scan::channel(QString name) {
+AMChannel* AMScan::channel(QString name) {
 
-    foreach(Channel* ch, ch_) {
+    foreach(AMChannel* ch, ch_) {
         if(ch->name() == name)
             return ch;
     }
@@ -26,15 +26,15 @@ Channel* Scan::channel(QString name) {
 
 
 /// Delete a channel from scan: (All return true on success)
-bool Scan::deleteChannel(Channel* channel) {
+bool AMScan::deleteChannel(AMChannel* channel) {
     return ch_.removeOne(channel);
 }
 
-bool Scan::deleteChannel(const QString& channelName) {
+bool AMScan::deleteChannel(const QString& channelName) {
     return deleteChannel(channel(channelName));
 }
 
-bool Scan::deleteChannel(size_t index) {
+bool AMScan::deleteChannel(size_t index) {
     if(index < (size_t)ch_.count()) {
         ch_.removeAt(index);
         return true;
@@ -44,9 +44,9 @@ bool Scan::deleteChannel(size_t index) {
 }
 
 /// Return comma-separated list of channel names currently available
-QString Scan::channelNames() const {
+QString AMScan::channelNames() const {
 	QStringList names;
-	foreach(Channel* ch, ch_) {
+        foreach(AMChannel* ch, ch_) {
 		names << ch->name();
 	}
 	return names.join(",");
@@ -55,14 +55,14 @@ QString Scan::channelNames() const {
 
 /// This member function updates a scan in the database (if it exists already), otherwise it adds it to the database.
 
-	// - Scan Objects (ex: new scans) have their id() field set to <1, unless they've been retrieved from the database, in which case they have id() = [valid database key]
+        // - AMScan Objects (ex: new scans) have their id() field set to <1, unless they've been retrieved from the database, in which case they have id() = [valid database key]
 	// Watch out: by creating a scan and giving it id() = [some arbitrary positive number]; you'll destroy data in the db.
 
-bool Scan::storeToDb(Database* db) {
+bool AMScan::storeToDb(AMDatabase* db) {
 
 	// Always call base class implementation first.
 	// Return false if it fails.
-	if( !DbObject::storeToDb(db) )
+        if( !AMDbObject::storeToDb(db) )
 		return false;
 
 	QList<const QVariant*> values;
@@ -79,11 +79,11 @@ bool Scan::storeToDb(Database* db) {
 
 
 /// load a scan (set its properties) by retrieving it based on id.
-bool Scan::loadFromDb(Database* db, int sourceId) {
+bool AMScan::loadFromDb(AMDatabase* db, int sourceId) {
 
 	// always call the base class implementation first. This retrieves/loads all the base-class properties.
 	// return false if it fails:
-	if( !DbObject::loadFromDb(db, sourceId))
+        if( !AMDbObject::loadFromDb(db, sourceId))
 		return false;
 
 	// Provide memory storage for return value:

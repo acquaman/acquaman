@@ -1,16 +1,16 @@
 #include "XASScanConfiguration.h"
 
-XASScanConfiguration::XASScanConfiguration(QObject *parent) : ScanConfiguration(parent)
+AMXASScanConfiguration::AMXASScanConfiguration(QObject *parent) : AMScanConfiguration(parent)
 {
-    setExitSlitGap(SGMBeamline::sgm()->exitSlitGap()->value());
-    setGrating((SGMBeamline::sgm()->grating()->value() < 1) ? SGMBeamline::lowGrating : ((SGMBeamline::sgm()->grating()->value() < 2) ? SGMBeamline::mediumGrating : SGMBeamline::highGrating));
-//    setGrating(SGMBeamline::sgm()->grating()->value());
-    setUndulatorTracking(SGMBeamline::sgm()->undulatorTracking()->value());
-    setMonoTracking(SGMBeamline::sgm()->monoTracking()->value());
-    setExitSlitTracking(SGMBeamline::sgm()->exitSlitTracking()->value());
+    setExitSlitGap(AMSGMBeamline::sgm()->exitSlitGap()->value());
+    setGrating((AMSGMBeamline::sgm()->grating()->value() < 1) ? AMSGMBeamline::lowGrating : ((AMSGMBeamline::sgm()->grating()->value() < 2) ? AMSGMBeamline::mediumGrating : AMSGMBeamline::highGrating));
+//    setGrating(AMSGMBeamline::sgm()->grating()->value());
+    setUndulatorTracking(AMSGMBeamline::sgm()->undulatorTracking()->value());
+    setMonoTracking(AMSGMBeamline::sgm()->monoTracking()->value());
+    setExitSlitTracking(AMSGMBeamline::sgm()->exitSlitTracking()->value());
 }
 
-double XASScanConfiguration::start(size_t index) const
+double AMXASScanConfiguration::start(size_t index) const
 {
     XASRegion *xasr = region(index);
     if(xasr)
@@ -18,7 +18,7 @@ double XASScanConfiguration::start(size_t index) const
     return -1;
 }
 
-double XASScanConfiguration::delta(size_t index) const
+double AMXASScanConfiguration::delta(size_t index) const
 {
     XASRegion *xasr = region(index);
     if(xasr)
@@ -26,7 +26,7 @@ double XASScanConfiguration::delta(size_t index) const
     return -1;
 }
 
-double XASScanConfiguration::end(size_t index) const
+double AMXASScanConfiguration::end(size_t index) const
 {
     XASRegion *xasr = region(index);
     if(xasr)
@@ -34,14 +34,14 @@ double XASScanConfiguration::end(size_t index) const
     return -1;
 }
 
-XASRegion* XASScanConfiguration::region(size_t index) const
+XASRegion* AMXASScanConfiguration::region(size_t index) const
 {
     if(index < (size_t)regions_.count())
         return regions_.at(index);
     return NULL;
 }
 
-bool XASScanConfiguration::setStart(size_t index, double start)
+bool AMXASScanConfiguration::setStart(size_t index, double start)
 {
     if(index < (size_t)regions_.count()){
         XASRegion* xasr = regions_.at(index);
@@ -51,7 +51,7 @@ bool XASScanConfiguration::setStart(size_t index, double start)
     return FALSE;
 }
 
-bool XASScanConfiguration::setDelta(size_t index, double delta)
+bool AMXASScanConfiguration::setDelta(size_t index, double delta)
 {
     if(index < (size_t)regions_.count()){
         XASRegion* xasr = regions_.at(index);
@@ -61,7 +61,7 @@ bool XASScanConfiguration::setDelta(size_t index, double delta)
     return FALSE;
 }
 
-bool XASScanConfiguration::setEnd(size_t index, double end)
+bool AMXASScanConfiguration::setEnd(size_t index, double end)
 {
     if(index < (size_t)regions_.count()){
         XASRegion* xasr = regions_.at(index);
@@ -71,7 +71,7 @@ bool XASScanConfiguration::setEnd(size_t index, double end)
     return FALSE;
 }
 
-bool XASScanConfiguration::setRegion(size_t index, XASRegion *region)
+bool AMXASScanConfiguration::setRegion(size_t index, XASRegion *region)
 {
     if(index < (size_t)regions_.count()){
         XASRegion *xasr = regions_.at(index);
@@ -81,7 +81,7 @@ bool XASScanConfiguration::setRegion(size_t index, XASRegion *region)
     return FALSE;
 }
 
-bool XASScanConfiguration::addRegion(size_t index, XASRegion *region)
+bool AMXASScanConfiguration::addRegion(size_t index, XASRegion *region)
 {
     if(index <= (size_t)regions_.count()){
         regions_.insert(index, region);
@@ -90,7 +90,7 @@ bool XASScanConfiguration::addRegion(size_t index, XASRegion *region)
     return FALSE;
 }
 
-bool XASScanConfiguration::addRegion(size_t index, double start, double delta, double end)
+bool AMXASScanConfiguration::addRegion(size_t index, double start, double delta, double end)
 {
     XASRegion *xasr = new XASRegion(this);
     xasr->setStart(start);
@@ -99,7 +99,7 @@ bool XASScanConfiguration::addRegion(size_t index, double start, double delta, d
     return addRegion(index, xasr);
 }
 
-bool XASScanConfiguration::deleteRegion(size_t index)
+bool AMXASScanConfiguration::deleteRegion(size_t index)
 {
     if(index < (size_t)regions_.count()){
         regions_.removeAt(index);
@@ -108,8 +108,8 @@ bool XASScanConfiguration::deleteRegion(size_t index)
     return FALSE;
 }
 
-bool XASScanConfiguration::setExitSlitGap(double exitSlitGap){
-    if(SGMBeamline::sgm()->exitSlitGap()->valueOutOfRange(exitSlitGap))
+bool AMXASScanConfiguration::setExitSlitGap(double exitSlitGap){
+    if(AMSGMBeamline::sgm()->exitSlitGap()->valueOutOfRange(exitSlitGap))
         return FALSE;
     exitSlitGap_ = exitSlitGap;
     return TRUE;

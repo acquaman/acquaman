@@ -1,7 +1,7 @@
 #include "DacqScanController.h"
 #include <qdebug.h>
 
-DacqScanController::DacqScanController(QObject *parent)
+AMDacqScanController::AMDacqScanController(QObject *parent)
 {
 
     running_ = FALSE;
@@ -53,25 +53,25 @@ DacqScanController::DacqScanController(QObject *parent)
 }
 
 /// Sets a new scan configuration
-void DacqScanController::newConfigurationLoad(ScanConfiguration &cfg)
+void AMDacqScanController::newConfigurationLoad(AMScanConfiguration &cfg)
 {
 }
 
 /// Cancel scan if currently running or paused
-void DacqScanController::cancel()
+void AMDacqScanController::cancel()
 {
     advAcq_->Stop();
     cancelled_ = TRUE;
     emit cancelled();
 }
 
-void DacqScanController::onStart()
+void AMDacqScanController::onStart()
 {
     running_ = TRUE;
     emit started();
 }
 
-void DacqScanController::onStop()
+void AMDacqScanController::onStop()
 {
     running_ = FALSE;
     if(cancelled_)
@@ -80,7 +80,7 @@ void DacqScanController::onStop()
         emit finished();
 }
 
-void DacqScanController::onPause(int mode)
+void AMDacqScanController::onPause(int mode)
 {
     if(mode == 0){
         paused_ = TRUE;

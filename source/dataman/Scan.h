@@ -7,16 +7,16 @@
 
 #include "dataman/DbObject.h"
 
-class Scan : public DbObject {
+class AMScan : public AMDbObject {
 Q_OBJECT
 
 Q_PROPERTY(QString sampleName READ sampleName WRITE setSampleName)
 Q_PROPERTY(QString comments READ comments WRITE setComments NOTIFY commentsChanged)
 
-friend void Channel::addToScan(Scan& destination);
+friend void AMChannel::addToScan(AMScan& destination);
 
 public:
-    explicit Scan(QObject *parent = 0);
+    explicit AMScan(QObject *parent = 0);
 
     /// Returns scan's unique id
 	// use DbObject::id()
@@ -33,9 +33,9 @@ public:
     /// Return number of available channels
     int numChannels() const { return ch_.count();}
     /// Returns specified channel by name: (returns 0 if not found)
-    Channel* channel(QString name);
+    AMChannel* channel(QString name);
     /// Return specified channel by index: (returns 0 if not found)
-    Channel* channel(size_t index) { if(index < (size_t)ch_.count() ) return ch_.at(index); else return 0; }
+    AMChannel* channel(size_t index) { if(index < (size_t)ch_.count() ) return ch_.at(index); else return 0; }
 	/// Return a comma-separated list of all channel names (Used for channel hints in database)
 	QString channelNames() const;
 
@@ -60,7 +60,7 @@ public:
 	static QStringList dbColumnTypes() { return QString("TEXT,TEXT,TEXT").split(','); }
 	/// A static function to make sure the database is ready to hold us:
 	/// When re-implementing, make sure to call base-class implementation first.
-	static void dbPrepareTables(Database* db) { DbObject::dbPrepareTables(db); db->ensureTable(dbTableName(), dbColumnNames(), dbColumnTypes()); }
+        static void dbPrepareTables(AMDatabase* db) { AMDbObject::dbPrepareTables(db); db->ensureTable(dbTableName(), dbColumnNames(), dbColumnTypes()); }
 
 	// ======================================
 
@@ -69,15 +69,15 @@ signals:
     void commentsChanged(const QString &);
 /*
   Belongs in scan controller
-    /// Scan has started
+    /// AMScan has started
     void started();
-    /// Scan completed
+    /// AMScan completed
     void finished();
-    /// Scan canceled by user
+    /// AMScan canceled by user
     void cancelled();
-    /// Scan paused
+    /// AMScan paused
     void paused();
-    /// Scan resumed
+    /// AMScan resumed
     void resumed();
     /// Time left in scan
     void timeRemaining(double seconds);
@@ -93,23 +93,23 @@ public slots:
 	// use setDateTime() in DbObject
 
     /// Delete a channel from scan:
-    bool deleteChannel(Channel* channel);
+    bool deleteChannel(AMChannel* channel);
     bool deleteChannel(const QString& channelName);
     bool deleteChannel(size_t index);
 
 	/// Load yourself from the database. (returns true on success)
-	/// Detailed subclasses of Scan must re-implement this to retrieve all of their unique data fields.
+        /// Detailed subclasses of AMScan must re-implement this to retrieve all of their unique data fields.
 		/// When doing so, always call the parent class implemention first.
-	virtual bool loadFromDb(Database* db, int id);
+        virtual bool loadFromDb(AMDatabase* db, int id);
 	/// Store or update self in the database. (returns true on success)
-	/// Detailed subclasses of Scan must re-implement this to store all of their unique data.
+        /// Detailed subclasses of AMScan must re-implement this to store all of their unique data.
 		/// When doing so, always call the parent class implemention first.
-	virtual bool storeToDb(Database* db);
+        virtual bool storeToDb(AMDatabase* db);
 
 protected:
 
     /// List of channels
-    QList<Channel*> ch_;
+    QList<AMChannel*> ch_;
 
     /// Sample name
     QString sampleName_;

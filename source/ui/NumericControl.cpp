@@ -8,7 +8,7 @@
 #include <QHBoxLayout>
 #include <QLabel>
 
-NumericControl::NumericControl(Control* control, QWidget *parent) :
+NumericControl::NumericControl(AMControl* control, QWidget *parent) :
 	QFrame(parent)
 {
 	setObjectName("NumericControl");

@@ -2,57 +2,57 @@
 
 #include <QSystemTrayIcon>
 
-ErrorMon* ErrorMon::instance_ = 0;
+AMErrorMon* AMErrorMon::instance_ = 0;
 
-ErrorMon::ErrorMon() : QObject() {
-	qRegisterMetaType<ErrorReport>("ErrorReport");
+AMErrorMon::AMErrorMon() : QObject() {
+        qRegisterMetaType<AMErrorReport>("AMErrorReport");
 	sicon_ = new QSystemTrayIcon();
 	sicon_->show();
 }
 
 
 /// Subscribe to all errors from object 'originator'
-void ErrorMon::subscribeToObjectI(QObject* originator, QObject* notifyMe, const char* errorSlot) {
+void AMErrorMon::subscribeToObjectI(QObject* originator, QObject* notifyMe, const char* errorSlot) {
 	// Remember that this
 
 }
 
 /// Subscribe to all errors from this class:
-void ErrorMon::subscribeToClassI(const QString& className, QObject* notifyMe, const char* errorSlot) {
+void AMErrorMon::subscribeToClassI(const QString& className, QObject* notifyMe, const char* errorSlot) {
 
 }
 
 /// Subscribe to all errors that have code 'errorCode'
-void ErrorMon::subscribeToCodeI(int errorCode, QObject* notifyMe, const char* errorSlot) {
+void AMErrorMon::subscribeToCodeI(int errorCode, QObject* notifyMe, const char* errorSlot) {
 
 }
 
 /// Unsubscribe from everything:
-void ErrorMon::unsubscribeI(QObject* notifyMe) {
+void AMErrorMon::unsubscribeI(QObject* notifyMe) {
 
 }
 
 
 
 /// Report an error:
-void ErrorMon::reportI(const ErrorReport& e) {
+void AMErrorMon::reportI(const AMErrorReport& e) {
 	// Chapter 1: Emit signals:
 	emit error(e);
 
 	QString className = "[]";
 
 	switch(e.level) {
-	case ErrorReport::Information: emit information(e);
+        case AMErrorReport::Information: emit information(e);
 		break;
-	case ErrorReport::Alert: emit alert(e);
+        case AMErrorReport::Alert: emit alert(e);
 		break;
-	case ErrorReport::Serious:
+        case AMErrorReport::Serious:
 		emit serious(e);
 		if(e.source)
 			className = e.source->metaObject()->className();
 		sicon_->showMessage(QString("Error in %1: (%2)").arg(className).arg(e.errorCode), e.description, QSystemTrayIcon::Critical, 5000);
 		break;
-	case ErrorReport::Debug: emit debug(e);
+        case AMErrorReport::Debug: emit debug(e);
 		break;
 	}
 
@@ -75,7 +75,7 @@ void ErrorMon::reportI(const ErrorReport& e) {
 	// If the object is in the same thread, it's delivered right away.  If in different threads, it's queued into the event loop.
 	for(int i=0; i< targets.count(); i++) {
 		QPair<QObject*, QString>& target = targets[i];
-		target.first->metaObject()->invokeMethod( target.first, target.second.toAscii().data(), Q_ARG(ErrorReport, e));
+                target.first->metaObject()->invokeMethod( target.first, target.second.toAscii().data(), Q_ARG(AMErrorReport, e));
 	}
 	
 

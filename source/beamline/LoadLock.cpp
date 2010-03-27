@@ -1,9 +1,9 @@
 #include "LoadLock.h"
 
-LoadLock::LoadLock()
+AMLoadLock::AMLoadLock()
 {
 }
 
-LoadLock::~LoadLock()
+AMLoadLock::~AMLoadLock()
 {
 }

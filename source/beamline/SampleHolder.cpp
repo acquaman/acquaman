@@ -1,9 +1,9 @@
 #include "SampleHolder.h"
 
-SampleHolder::SampleHolder()
+AMSampleHolder::AMSampleHolder()
 {
 }
 
-SampleHolder::~SampleHolder()
+AMSampleHolder::~AMSampleHolder()
 {
 }

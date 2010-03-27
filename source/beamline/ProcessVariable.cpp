@@ -3,13 +3,13 @@
 #include <QDebug>
 
 ///////////////////////////////
-// ProcessVariableHeartbeat
+// AMProcessVariableHeartbeat
 ///////////////////////////////
 
-ProcessVariableHeartbeat* ProcessVariableHeartbeat::instance_ = 0;
+AMProcessVariableHeartbeat* AMProcessVariableHeartbeat::instance_ = 0;
 
 // constructor: initializes channel access, starts the ca_poll timer, and installs us as the global exception handler.
-ProcessVariableHeartbeat::ProcessVariableHeartbeat() : QObject() {
+AMProcessVariableHeartbeat::AMProcessVariableHeartbeat() : QObject() {
 	
 		qDebug("Starting up channel access..."); 
 		int lastError = ca_context_create(ca_disable_preemptive_callback);
@@ -25,17 +25,17 @@ ProcessVariableHeartbeat::ProcessVariableHeartbeat() : QObject() {
 }
 
 // standard singleton-pattern getInstance() method.
-ProcessVariableHeartbeat* ProcessVariableHeartbeat::getInstance() {
+AMProcessVariableHeartbeat* AMProcessVariableHeartbeat::getInstance() {
 	
 	if (instance_ == 0)  { // is it the first call?  
-	  instance_ = new ProcessVariableHeartbeat(); // create sole instance
+          instance_ = new AMProcessVariableHeartbeat(); // create sole instance
 	}
 	
 	return instance_;
 }
 	
-// the implementation of ProcessVariableHeartbeat::removePV():
-void ProcessVariableHeartbeat::removePVImplementation(chid c) { 
+// the implementation of AMProcessVariableHeartbeat::removePV():
+void AMProcessVariableHeartbeat::removePVImplementation(chid c) {
 	
 	// unregister this channel:
 	map_.remove(int(c));
@@ -52,7 +52,7 @@ void ProcessVariableHeartbeat::removePVImplementation(chid c) {
 	}
  }
 
-void ProcessVariableHeartbeat::PVExceptionCB(struct exception_handler_args args) {
+void AMProcessVariableHeartbeat::PVExceptionCB(struct exception_handler_args args) {
 	
 	// If there's a specific channel, pass it on to the channel's exception handler:
 	if(args.chid && getInstance()->map_.contains(int(args.chid)) ) {
@@ -65,7 +65,7 @@ void ProcessVariableHeartbeat::PVExceptionCB(struct exception_handler_args args)
 	else {
 		
 		char buf[512];
-		sprintf ( buf, "ProcessVariableHeartbeat: Epics exception: %s - with request op=%d data type=%s count=%d", args.ctx, (int)args.op, dbr_type_to_text ( args.type ), (int)args.count );
+                sprintf ( buf, "AMProcessVariableHeartbeat: Epics exception: %s - with request op=%d data type=%s count=%d", args.ctx, (int)args.op, dbr_type_to_text ( args.type ), (int)args.count );
         qDebug() << buf;
         ca_signal ( args.stat, buf );
 	}
@@ -74,9 +74,9 @@ void ProcessVariableHeartbeat::PVExceptionCB(struct exception_handler_args args)
 
 	
 
-ProcessVariable::ProcessVariable(const QString& pvName, bool autoMonitor, QObject* parent, int timeoutMs) : QObject(parent), shouldBeMonitoring_(autoMonitor) {
+AMProcessVariable::AMProcessVariable(const QString& pvName, bool autoMonitor, QObject* parent, int timeoutMs) : QObject(parent), shouldBeMonitoring_(autoMonitor) {
 
-	setObjectName("ProcessVariable_"+pvName);
+        setObjectName("AMProcessVariable_"+pvName);
 
 	// Install convenience signal generators:
 	connect(this, SIGNAL(error(int)), this, SLOT(signalForwardOnError(int)));
@@ -91,7 +91,7 @@ ProcessVariable::ProcessVariable(const QString& pvName, bool autoMonitor, QObjec
 
 	try {
 
-		ProcessVariableHeartbeat::ensureChannelAccess();
+                AMProcessVariableHeartbeat::ensureChannelAccess();
 		
 		// attempt to search/connect:
 		lastError_ = ca_create_channel (pvName.toAscii().constData(), PVConnectionChangedCBWrapper, this, CA_PRIORITY_DEFAULT, &chid_ );
@@ -103,22 +103,22 @@ ProcessVariable::ProcessVariable(const QString& pvName, bool autoMonitor, QObjec
 		startupTimer_.start(timeoutMs);
 		
 		// register ourself to the support class:
-		ProcessVariableHeartbeat::registerPV(chid_, this);
-		// qDebug() << QString("ProcessVariable: Creating ProcessVariable %1").arg(pvName);
+                AMProcessVariableHeartbeat::registerPV(chid_, this);
+                // qDebug() << QString("AMProcessVariable: Creating AMProcessVariable %1").arg(pvName);
 
 	}
 	
 	catch(int s) {
 		
-		qDebug() << QString("ProcessVariable: Error initializing ProcessVariable: %1: %2").arg(pvName).arg(ca_message(lastError_));
+                qDebug() << QString("AMProcessVariable: Error initializing AMProcessVariable: %1: %2").arg(pvName).arg(ca_message(lastError_));
 		emit error(s);
 	}
 }
 
 
-ProcessVariable::~ProcessVariable() {
+AMProcessVariable::~AMProcessVariable() {
 	
-	// qDebug() << QString("deleting ProcessVariable %1.").arg(pvName());
+        // qDebug() << QString("deleting AMProcessVariable %1.").arg(pvName());
 
 	emit disconnected();
 	emit connected(false);
@@ -129,34 +129,34 @@ ProcessVariable::~ProcessVariable() {
 	ca_clear_channel(chid_);
 	
 	// deregister ourself from the support class:
-	ProcessVariableHeartbeat::removePV(chid_);
+        AMProcessVariableHeartbeat::removePV(chid_);
 
 }
 
 // Wrapper functions to deliver the callbacks to the class instances:
 ////////////////////
-void ProcessVariable::PVConnectionChangedCBWrapper(struct connection_handler_args connArgs) {
+void AMProcessVariable::PVConnectionChangedCBWrapper(struct connection_handler_args connArgs) {
 
 	// dig the instance pointer out of the puser field of the chid (inside connArgs)
-	ProcessVariable* myPV = reinterpret_cast<ProcessVariable*>( ca_puser(connArgs.chid) );
+        AMProcessVariable* myPV = reinterpret_cast<AMProcessVariable*>( ca_puser(connArgs.chid) );
 	if(myPV)
 		myPV->connectionChangedCB(connArgs);
 
 }
 
-void ProcessVariable::PVValueChangedCBWrapper(struct event_handler_args eventArgs) {
+void AMProcessVariable::PVValueChangedCBWrapper(struct event_handler_args eventArgs) {
 
 	// dig the instance pointer out of the puser field of the chid (inside connArgs)
-	ProcessVariable* myPV = reinterpret_cast<ProcessVariable*>( ca_puser(eventArgs.chid) );
+        AMProcessVariable* myPV = reinterpret_cast<AMProcessVariable*>( ca_puser(eventArgs.chid) );
 	if(myPV)
 		myPV->valueChangedCB(eventArgs);
 
 }
 
-void ProcessVariable::PVPutRequestCBWrapper(struct event_handler_args eventArgs) {
+void AMProcessVariable::PVPutRequestCBWrapper(struct event_handler_args eventArgs) {
 
 	// dig the instance pointer out of the puser field of the chid (inside connArgs)
-	ProcessVariable* myPV = reinterpret_cast<ProcessVariable*>( ca_puser(eventArgs.chid) );
+        AMProcessVariable* myPV = reinterpret_cast<AMProcessVariable*>( ca_puser(eventArgs.chid) );
 	if(myPV)
 		myPV->putRequestCB(eventArgs);
 
@@ -166,17 +166,17 @@ void ProcessVariable::PVPutRequestCBWrapper(struct event_handler_args eventArgs)
 
 // Callbacks for events:
 /////////////////////
-void ProcessVariable::exceptionCB(struct exception_handler_args args) {
+void AMProcessVariable::exceptionCB(struct exception_handler_args args) {
 	
 	// One thing for sure:
 	emit error(lastError_ = args.stat);
 	
-	qDebug() << QString("ProcessVariable: EPICS exception: %1\n  Operation: %2\n  Channel: %3\n  Data type: %4\n  Count: %5\n\n  Epics says: %6\n").arg(ca_message(args.stat)).arg(args.op).arg(pvName()).arg(dbr_type_to_text ( args.type )).arg(args.count).arg(args.ctx);
+        qDebug() << QString("AMProcessVariable: EPICS exception: %1\n  Operation: %2\n  Channel: %3\n  Data type: %4\n  Count: %5\n\n  Epics says: %6\n").arg(ca_message(args.stat)).arg(args.op).arg(pvName()).arg(dbr_type_to_text ( args.type )).arg(args.count).arg(args.ctx);
 	ca_signal( args.stat, args.ctx );	
 	
 }
 
-void ProcessVariable::connectionChangedCB(struct connection_handler_args connArgs) {
+void AMProcessVariable::connectionChangedCB(struct connection_handler_args connArgs) {
 
 	emit connectionStateChanged( ca_state(connArgs.chid) );
 
@@ -201,7 +201,7 @@ void ProcessVariable::connectionChangedCB(struct connection_handler_args connArg
 		// Request some information about the PV (units, control limits, etc.). Requesting as DBR_CTRL_DOUBLE because this gives the most information.
 		lastError_ = ca_get_callback(DBR_CTRL_DOUBLE, chid_, PVValueChangedCBWrapper, this);
 		if(lastError_ != ECA_NORMAL) {
-			qDebug() << QString("ProcessVariable: Error while trying to request value: %1: %2").arg(pvName()).arg(ca_message(lastError_));
+                        qDebug() << QString("AMProcessVariable: Error while trying to request value: %1: %2").arg(pvName()).arg(ca_message(lastError_));
 			emit error(lastError_);
 		}
 
@@ -218,22 +218,22 @@ void ProcessVariable::connectionChangedCB(struct connection_handler_args connArg
 }
 
 
-void ProcessVariable::putRequestCB(struct event_handler_args eventArgs) {
+void AMProcessVariable::putRequestCB(struct event_handler_args eventArgs) {
 
 	emit putRequestReturned(eventArgs.status);
 
 	if(eventArgs.status != ECA_NORMAL) {
-		qDebug() << QString("ProcessVariable: Error in put request: %1: %2").arg(pvName()).arg(ca_message(eventArgs.status));
+                qDebug() << QString("AMProcessVariable: Error in put request: %1: %2").arg(pvName()).arg(ca_message(eventArgs.status));
 		emit error(lastError_ = eventArgs.status);
 	}
 
 }
 
-void ProcessVariable::onConnectionTimeout() {
+void AMProcessVariable::onConnectionTimeout() {
 
 	// If we haven't connected by now:
 	if(this->connectionState() != cs_conn) {
-		qDebug() << QString("ProcessVariable: channel connect timed out for %1").arg(pvName());
+                qDebug() << QString("AMProcessVariable: channel connect timed out for %1").arg(pvName());
 		startupTimer_.stop();
 		emit connectionTimeout();
 	}
@@ -244,17 +244,17 @@ void ProcessVariable::onConnectionTimeout() {
 ///////////////////
 
 
-bool ProcessVariable::startMonitoring() {
+bool AMProcessVariable::startMonitoring() {
 	
         // Not necessary. Connection status is checked by ca_create_subs:
         //if( ca_state(chid_) != cs_conn) {
-        //	qDebug(QString("Error starting ProcessVariable monitoring: channel not connected: %1").arg(pvName());
+        //	qDebug(QString("Error starting AMProcessVariable monitoring: channel not connected: %1").arg(pvName());
         //	return false;
         //}
 		
 	lastError_ = ca_create_subscription(dataType(), numElements(), chid_, DBE_VALUE | DBE_LOG | DBE_ALARM, PVValueChangedCBWrapper, this, &evid_ );
 	if(lastError_ != ECA_NORMAL) {
-		qDebug() << QString("ProcessVariable: Error starting monitoring: %1: %2").arg(pvName()).arg(ca_message(lastError_));
+                qDebug() << QString("AMProcessVariable: Error starting monitoring: %1: %2").arg(pvName()).arg(ca_message(lastError_));
 		emit error(lastError_);
 		return false;
 	}
@@ -262,12 +262,12 @@ bool ProcessVariable::startMonitoring() {
 	return true;
 }
 
-void ProcessVariable::stopMonitoring() {
+void AMProcessVariable::stopMonitoring() {
 	
 	ca_clear_subscription(evid_);
 }
 
-bool ProcessVariable::requestValue(int num) {
+bool AMProcessVariable::requestValue(int num) {
 	
         // Not necessary. Connection status is checked by ca_array_get_callback:
         //if(ca_state(chid_) != cs_conn) {
@@ -277,7 +277,7 @@ bool ProcessVariable::requestValue(int num) {
 	
 	lastError_ = ca_array_get_callback(dataType(), num, chid_, PVValueChangedCBWrapper, this);
 	if(lastError_ != ECA_NORMAL) {
-		qDebug() << QString("ProcessVariable: Error while trying to request value: %1: %2").arg(pvName()).arg(ca_message(lastError_));
+                qDebug() << QString("AMProcessVariable: Error while trying to request value: %1: %2").arg(pvName()).arg(ca_message(lastError_));
     	emit error(lastError_);
     	return false;
 	}	
@@ -285,47 +285,47 @@ bool ProcessVariable::requestValue(int num) {
 	return true;
 }
 
-void ProcessVariable::setValue(int value) {
+void AMProcessVariable::setValue(int value) {
 
 	dbr_long_t setpoint = value;
 
 	lastError_ = ca_put_callback( DBR_LONG, chid_, &setpoint, PVPutRequestCBWrapper, this );
 	if(lastError_ != ECA_NORMAL) {
-		qDebug() << QString("ProcessVariable: Error while trying to put value: %1: %2").arg(pvName()).arg(ca_message(lastError_));
+                qDebug() << QString("AMProcessVariable: Error while trying to put value: %1: %2").arg(pvName()).arg(ca_message(lastError_));
 		emit error(lastError_);
 	}
 }
 
-void ProcessVariable::setValues(dbr_long_t setpoints[], int num) {
+void AMProcessVariable::setValues(dbr_long_t setpoints[], int num) {
 
 	lastError_ = ca_array_put_callback( DBR_LONG, num, chid_, setpoints, PVPutRequestCBWrapper, this );
 	if(lastError_ != ECA_NORMAL) {
-		qDebug() << QString("ProcessVariable: Error while trying to put values: %1: %2").arg(pvName()).arg(ca_message(lastError_));
+                qDebug() << QString("AMProcessVariable: Error while trying to put values: %1: %2").arg(pvName()).arg(ca_message(lastError_));
 		emit error(lastError_);
 	}
 }
 
-void ProcessVariable::setValue(double value) {
+void AMProcessVariable::setValue(double value) {
 
 	dbr_double_t setpoint = value;
 
 	lastError_ = ca_put_callback( DBR_DOUBLE, chid_, &setpoint, PVPutRequestCBWrapper, this );
 	if(lastError_ != ECA_NORMAL) {
-		qDebug() << QString("Error while trying to put ProcessVariable value: %1: %2").arg(pvName()).arg(ca_message(lastError_));
+                qDebug() << QString("Error while trying to put AMProcessVariable value: %1: %2").arg(pvName()).arg(ca_message(lastError_));
 		emit error(lastError_);
 	}
 }
 
-void ProcessVariable::setValues(dbr_double_t setpoints[], int num) {
+void AMProcessVariable::setValues(dbr_double_t setpoints[], int num) {
 
 	lastError_ = ca_array_put_callback( DBR_DOUBLE, num, chid_, setpoints, PVPutRequestCBWrapper, this );
 	if(lastError_ != ECA_NORMAL) {
-		qDebug() << QString("Error while trying to put ProcessVariable values: %1: %2").arg(pvName()).arg(ca_message(lastError_));
+                qDebug() << QString("Error while trying to put AMProcessVariable values: %1: %2").arg(pvName()).arg(ca_message(lastError_));
 		emit error(lastError_);
 	}
 }
 
-void ProcessVariable::setValue(const QString& value) {
+void AMProcessVariable::setValue(const QString& value) {
 
 	dbr_string_t setpoint;
 	QByteArray d1 = value.toAscii();
@@ -333,13 +333,13 @@ void ProcessVariable::setValue(const QString& value) {
 
 	lastError_ = ca_put_callback( DBR_STRING, chid_, setpoint, PVPutRequestCBWrapper, this );
 	if(lastError_ != ECA_NORMAL) {
-		qDebug() << QString("Error while trying to put ProcessVariable value: %1: %2").arg(pvName()).arg(ca_message(lastError_));
+                qDebug() << QString("Error while trying to put AMProcessVariable value: %1: %2").arg(pvName()).arg(ca_message(lastError_));
 		emit error(lastError_);
 	}
 }
 
 // TODO: not sure if this is right...
-void ProcessVariable::setValues(const QStringList& setpoints) {
+void AMProcessVariable::setValues(const QStringList& setpoints) {
 
 	QList<QByteArray> asciiData;	// will hold the ascii form of our strings
 	const char** stringArray = new const char*[setpoints.size()];		// an array of strings (array of char*... ie: char**) which ca_array_put_callback requires.
@@ -351,7 +351,7 @@ void ProcessVariable::setValues(const QStringList& setpoints) {
 
 	lastError_ = ca_array_put_callback( DBR_STRING, setpoints.size(), chid_, stringArray, PVPutRequestCBWrapper, this );
 	if(lastError_ != ECA_NORMAL) {
-		qDebug() << QString("Error while trying to put ProcessVariable values: %1: %2").arg(pvName()).arg(ca_message(lastError_));
+                qDebug() << QString("Error while trying to put AMProcessVariable values: %1: %2").arg(pvName()).arg(ca_message(lastError_));
 		emit error(lastError_);
 	}
 
@@ -370,10 +370,10 @@ void ProcessVariable::setValues(const QStringList& setpoints) {
 //
 
 ///////////////////////////////////
-// IntProcessVariable
+// AMIntProcessVariable
 ///////////////////////////////////
 
-IntProcessVariable::IntProcessVariable(const QString& pvName, bool autoMonitor, QObject* parent, int connectionTimeoutMs) : ProcessVariable(pvName, autoMonitor, parent, connectionTimeoutMs) {
+AMIntProcessVariable::AMIntProcessVariable(const QString& pvName, bool autoMonitor, QObject* parent, int connectionTimeoutMs) : AMProcessVariable(pvName, autoMonitor, parent, connectionTimeoutMs) {
 
 	// TODO: Any specific initialization?
 	
@@ -384,7 +384,7 @@ IntProcessVariable::IntProcessVariable(const QString& pvName, bool autoMonitor, 
 
 }	
 
-void IntProcessVariable::valueChangedCB(struct event_handler_args eventArgs) {	
+void AMIntProcessVariable::valueChangedCB(struct event_handler_args eventArgs) {
 	if( (lastError_ = eventArgs.status) != ECA_NORMAL) {
 		qDebug() << QString("Error in value-changed callback: %1: %2").arg(pvName()).arg(ca_message(lastError_));
 		emit error(lastError_);
@@ -423,10 +423,10 @@ void IntProcessVariable::valueChangedCB(struct event_handler_args eventArgs) {
 
 
 ///////////////////////////////////
-// DoubleProcessVariable
+// AMDoubleProcessVariable
 ///////////////////////////////////
 
-DoubleProcessVariable::DoubleProcessVariable(const QString& pvName, bool autoMonitor, QObject* parent, int connectionTimeoutMs) : ProcessVariable(pvName, autoMonitor, parent, connectionTimeoutMs) {
+AMDoubleProcessVariable::AMDoubleProcessVariable(const QString& pvName, bool autoMonitor, QObject* parent, int connectionTimeoutMs) : AMProcessVariable(pvName, autoMonitor, parent, connectionTimeoutMs) {
 
 	// TODO: Any specific initialization?
 	
@@ -444,7 +444,7 @@ DoubleProcessVariable::DoubleProcessVariable(const QString& pvName, bool autoMon
 //int             status; ECA_XXX status of the requested op from the server
 //
 
-void DoubleProcessVariable::valueChangedCB(struct event_handler_args eventArgs) {
+void AMDoubleProcessVariable::valueChangedCB(struct event_handler_args eventArgs) {
 	
 	if( (lastError_ = eventArgs.status) != ECA_NORMAL) {
 		qDebug() << QString("Error within value-changed callback: %1: %2").arg(pvName()).arg(ca_message(lastError_));
@@ -483,10 +483,10 @@ void DoubleProcessVariable::valueChangedCB(struct event_handler_args eventArgs) 
 
 
 ///////////////////////////////////
-// StringProcessVariable
+// AMStringProcessVariable
 ///////////////////////////////////
 
-StringProcessVariable::StringProcessVariable(const QString& pvName, bool autoMonitor, QObject* parent, int connectionTimeoutMs) : ProcessVariable(pvName, autoMonitor, parent, connectionTimeoutMs) {
+AMStringProcessVariable::AMStringProcessVariable(const QString& pvName, bool autoMonitor, QObject* parent, int connectionTimeoutMs) : AMProcessVariable(pvName, autoMonitor, parent, connectionTimeoutMs) {
 
 	// TODO: Any specific initialization?
 	
@@ -497,7 +497,7 @@ StringProcessVariable::StringProcessVariable(const QString& pvName, bool autoMon
 
 	
 	
-void StringProcessVariable::valueChangedCB(struct event_handler_args eventArgs) {
+void AMStringProcessVariable::valueChangedCB(struct event_handler_args eventArgs) {
 	
 	if( (lastError_ = eventArgs.status) != ECA_NORMAL) {
 		qDebug() << QString("Error in value-changed callback: %1: %2").arg(pvName()).arg(ca_message(lastError_));

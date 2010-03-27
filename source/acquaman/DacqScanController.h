@@ -6,15 +6,15 @@
 #include "dacq3_2/OutputHandler/acqFactory.h"
 #include "dacq3_2/qepicsadvacq.h"
 
-class DacqScanController : public ScanController
+class AMDacqScanController : public AMScanController
 {
 Q_OBJECT
 public:
-    DacqScanController(QObject *parent = 0);
+    AMDacqScanController(QObject *parent = 0);
 
 public slots:
     /// Sets a new scan configuration
-    virtual void newConfigurationLoad(ScanConfiguration &cfg);
+    virtual void newConfigurationLoad(AMScanConfiguration &cfg);
     /// Start scan running if not currently running or paused
     virtual void start(){ advAcq_->Start();}
     /// Cancel scan if currently running or paused

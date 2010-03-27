@@ -14,33 +14,33 @@
 #define EPICS_CA_CONN_TIMEOUT_MS 1000
 
 ///////////////////////////////
-// ProcessVariableHeartbeat
+// AMProcessVariableHeartbeat
 ///////////////////////////////
 
-// Singleton support class for ProcessVariables.  Manages global-context Channel Access business:
+// Singleton support class for AMProcessVariables.  Manages global-context Channel Access business:
 // 1) Calls ca_poll on a timer, and
-// 2) Maintains a map between chid's and ProcessVariable objects, so he can route exceptions.
+// 2) Maintains a map between chid's and AMProcessVariable objects, so he can route exceptions.
 
 // Automatically creates himself when needed, and deletes himself when no longer necessary...
 
 #define PV_HEARTBEAT_MS 48
 
-class ProcessVariable;
+class AMProcessVariable;
 
-class ProcessVariableHeartbeat : public QObject {
+class AMProcessVariableHeartbeat : public QObject {
 	
 	Q_OBJECT
 	
 public:
 	
-	// ProcessVariables must call this FIRST in their constructor.
+        // AMProcessVariables must call this FIRST in their constructor.
 	// Ensures that channel access is initialized, timer is running, etc.
 	static void ensureChannelAccess() { getInstance(); }
 	
 	// Once they have a chid, they should call this to make sure they receive exceptions routed properly:
-	static void registerPV(chid c, ProcessVariable* pv) { getInstance()->map_.insert(int(c), pv); }
+        static void registerPV(chid c, AMProcessVariable* pv) { getInstance()->map_.insert(int(c), pv); }
 	
-	// ProcessVariables must call this in their destructor.
+        // AMProcessVariables must call this in their destructor.
 	static void removePV(chid c) { getInstance()->removePVImplementation(c); }
 	
 	// This is the exception handler: 
@@ -49,12 +49,12 @@ public:
 protected:
 
 	// constructor: starts the ca_poll timer and installs us as the global exception handler.
-	ProcessVariableHeartbeat();
+        AMProcessVariableHeartbeat();
 	
 	// standard singleton-pattern getInstance() method.
-	static ProcessVariableHeartbeat* getInstance();
+        static AMProcessVariableHeartbeat* getInstance();
 	
-	// the implementation of ProcessVariableHeartbeat::removePV():
+        // the implementation of AMProcessVariableHeartbeat::removePV():
 	void removePVImplementation(chid c);
 	
 	// Timer event handler: calls ca_poll()
@@ -62,8 +62,8 @@ protected:
 	
 	
 
-	static ProcessVariableHeartbeat* instance_;
-	QHash<int, ProcessVariable*> map_;
+        static AMProcessVariableHeartbeat* instance_;
+        QHash<int, AMProcessVariable*> map_;
 	int timerId_;
 
 };
@@ -71,15 +71,15 @@ protected:
 
 
 
-class ProcessVariable : public QObject {
+class AMProcessVariable : public QObject {
 	
 	Q_OBJECT
 	
 public:
-	friend class ProcessVariableHeartbeat;
+        friend class AMProcessVariableHeartbeat;
 
-	ProcessVariable(const QString& pvName, bool autoMonitor = 0, QObject* parent = 0, int connectionTimeoutMs = EPICS_CA_CONN_TIMEOUT_MS);
-	virtual ~ProcessVariable();	
+        AMProcessVariable(const QString& pvName, bool autoMonitor = 0, QObject* parent = 0, int connectionTimeoutMs = EPICS_CA_CONN_TIMEOUT_MS);
+        virtual ~AMProcessVariable();
 	
 	// access functions:
 	unsigned numElements() { return ca_element_count(chid_); }
@@ -173,8 +173,8 @@ protected:
 	evid evid_;	// event ID
 	
 	// TODO: thread-safe protect with Mutex
-	static int channelReferenceCount_;	// a global reference count used to clean up ca_context_destroy when last ProcessVariable is destroyed.
-	static ProcessVariableHeartbeat* heartBeat_;	// we create a single ProcessVariableHeartbeat to call ca_poll while ProcessVariables exist.
+        static int channelReferenceCount_;	// a global reference count used to clean up ca_context_destroy when last AMProcessVariable is destroyed.
+        static AMProcessVariableHeartbeat* heartBeat_;	// we create a single AMProcessVariableHeartbeat to call ca_poll while AMProcessVariables exist.
 		
 	bool shouldBeMonitoring_;
 	
@@ -189,18 +189,18 @@ protected:
 
 
 
-// Implementations of ProcessVariables:
+// Implementations of AMProcessVariables:
 
 ///////////////////////////////////
-// IntProcessVariable
+// AMIntProcessVariable
 ///////////////////////////////////
 
-class IntProcessVariable : public ProcessVariable {
+class AMIntProcessVariable : public AMProcessVariable {
 
 	Q_OBJECT
 	
 public:
-	IntProcessVariable(const QString& pvName, bool autoMonitor = 0, QObject* parent = 0, int connectionTimeoutMs = EPICS_CA_CONN_TIMEOUT_MS);
+        AMIntProcessVariable(const QString& pvName, bool autoMonitor = 0, QObject* parent = 0, int connectionTimeoutMs = EPICS_CA_CONN_TIMEOUT_MS);
 	
 	// read stored value (values... if array)
 	int lastValue() { return values_[0]; }
@@ -224,15 +224,15 @@ signals:
 };
 
 ///////////////////////////////////
-// DoubleProcessVariable
+// AMDoubleProcessVariable
 ///////////////////////////////////
 
-class DoubleProcessVariable : public ProcessVariable {
+class AMDoubleProcessVariable : public AMProcessVariable {
 
 	Q_OBJECT
 	
 public:
-	DoubleProcessVariable(const QString& pvName, bool autoMonitor = 0, QObject* parent = 0, int connectionTimeoutMs = EPICS_CA_CONN_TIMEOUT_MS);
+        AMDoubleProcessVariable(const QString& pvName, bool autoMonitor = 0, QObject* parent = 0, int connectionTimeoutMs = EPICS_CA_CONN_TIMEOUT_MS);
 	
 	// read stored value (values... if array)
 	double lastValue() { return values_[0]; }
@@ -256,15 +256,15 @@ signals:
 };
 
 ///////////////////////////////////
-// StringProcessVariable
+// AMStringProcessVariable
 ///////////////////////////////////
 
-class StringProcessVariable : public ProcessVariable {
+class AMStringProcessVariable : public AMProcessVariable {
 
 	Q_OBJECT
 	
 public:
-	StringProcessVariable(const QString& pvName, bool autoMonitor = 0, QObject* parent = 0, int connectionTimeoutMs = EPICS_CA_CONN_TIMEOUT_MS);
+        AMStringProcessVariable(const QString& pvName, bool autoMonitor = 0, QObject* parent = 0, int connectionTimeoutMs = EPICS_CA_CONN_TIMEOUT_MS);
 	
 	// read stored value (values... if array)
 	QString lastValue() { return values_[0]; }

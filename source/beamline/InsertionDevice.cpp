@@ -1,9 +1,9 @@
 #include "InsertionDevice.h"
 
-InsertionDevice::InsertionDevice()
+AMInsertionDevice::AMInsertionDevice()
 {
 }
 
-InsertionDevice::~InsertionDevice()
+AMInsertionDevice::~AMInsertionDevice()
 {
 }

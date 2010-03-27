@@ -14,11 +14,11 @@
 	access to either the user's private database object or the public database object.
 
 	Access the database object via public static functions:
-	Database::userdb()
+        AMDatabase::userdb()
 	or
-	Database::publicdb()
+        AMDatabase::publicdb()
 
-	Database Table Structure
+        AMDatabase Table Structure
 	========================
 	The main table stores only basic meta-data for each scan (as defined in Scan class.)
 	Subclasses that provide more information are stored in separate tables (one for each layer of subclassing).
@@ -50,15 +50,15 @@
 */
 
 
-class Database : QObject {
+class AMDatabase : QObject {
     Q_OBJECT
 
 public:
 
 	/// Get access to the user's database. (The constructor is private... This is the only way to access it.)
-	static Database* userdb();
+        static AMDatabase* userdb();
 	/// Get access to the public database. (The constructor is private... this is the only way in.)
-	static Database* publicdb();
+        static AMDatabase* publicdb();
 
 	/// Free the database resources if no longer needed
 	static void releaseUserDb();
@@ -87,17 +87,17 @@ public:
 
 
 	/// Return a list of all the Scans (by id) that match 'value' in a certain column {name, number, sample name, comment field, start time (rounded to second), or set of channels}
-	/// ex: Database::db()->objectsMatching(Database::Name, "Carbon60"), or Database::db()->scansMatching(Database::StartTime, QDateTime::currentDateTime())
+        /// ex: AMDatabase::db()->objectsMatching(AMDatabase::Name, "Carbon60"), or AMDatabase::db()->scansMatching(AMDatabase::StartTime, QDateTime::currentDateTime())
 	QList<int> scansMatching(const QString& colName, const QVariant& value);
 
 	/// Return a list of all the Scans (by id) that contain 'value' in a certain column {name, number, sample name, comment field, start time (rounded to second), or set of channels}
-	/// ex: Database::db()->scansContaining(Database::Name, "Carbon60") could return Scans with names Carbon60_alpha and bCarbon60_gamma
+        /// ex: AMDatabase::db()->scansContaining(AMDatabase::Name, "Carbon60") could return Scans with names Carbon60_alpha and bCarbon60_gamma
 	QList<int> scansContaining(const QString& colName, const QVariant& value);
 
 	/// Return the type of an object stored at 'id'. (Returns empty string if not found.)
 	QString scanType(int id);
 
-	/// Database admin / temporary testing only:
+        /// AMDatabase admin / temporary testing only:
 	bool ensureTable(const QString& tableName, const QStringList& columnNames, const QStringList& columnTypes);
 
 
@@ -106,19 +106,19 @@ signals:
 	void updated(int id);
 
 protected:
-	/// Access the QSqlDatabase object for this connection.
-	QSqlDatabase qdb() { return QSqlDatabase::database(connectionName_); }
+        /// Access the QSqlAMDatabase object for this connection.
+        QSqlDatabase qdb() { return QSqlDatabase::database(connectionName_); }
 
 
 private:
 	/// Constructor is private.  ConnectionName is a unique connection name (program-wide) for this database. dbAccessString provides the database-engine specific connection details.
 		/// (For the current SQLITE database, dbAccessString is just the path to the database file.)
-	Database(const QString& connectionName, const QString& dbAccessString);
+        AMDatabase(const QString& connectionName, const QString& dbAccessString);
 	QString connectionName_;
 
 	/// Internal instance pointers
-	static Database* userInstance_;
-	static Database* publicInstance_;
+        static AMDatabase* userInstance_;
+        static AMDatabase* publicInstance_;
 
 	// given a column name key, allows lookup of the table containing that column:
 	QMap<QString,QString> columns2tables;

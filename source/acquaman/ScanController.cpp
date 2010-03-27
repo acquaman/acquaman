@@ -1,33 +1,33 @@
 #include "ScanController.h"
 
-ScanController::ScanController(QObject *parent) :
+AMScanController::AMScanController(QObject *parent) :
     QObject(parent)
 {
 }
 
 /*
 /// Sets a new scan configuration
-void ScanController::newConfigurationLoad(ScanConfiguration &cfg)
+void AMScanController::newConfigurationLoad(ScanConfiguration &cfg)
 {
 }
 
 /// Start scan running if not currently running or paused
-void ScanController::start()
+void AMScanController::start()
 {
 }
 
 /// Cancel scan if currently running or paused
-void ScanController::cancel()
+void AMScanController::cancel()
 {
 }
 
 /// Pause scan if currently running
-void ScanController::pause()
+void AMScanController::pause()
 {
 }
 
 /// Resume scan if currently paused
-void ScanController::resume()
+void AMScanController::resume()
 {
 }
 */

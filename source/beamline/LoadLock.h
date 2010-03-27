@@ -1,11 +1,11 @@
 #ifndef ACQMAN_LOADLOCK_H_
 #define ACQMAN_LOADLOCK_H_
 
-class LoadLock
+class AMLoadLock
 {
 public:
-	LoadLock();
-	virtual ~LoadLock();
+        AMLoadLock();
+        virtual ~AMLoadLock();
 };
 
 #endif /*LOADLOCK_H_*/

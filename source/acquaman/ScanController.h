@@ -6,7 +6,7 @@
 #include <QDateTime>
 #include "ScanConfiguration.h"
 
-class ScanController : public QObject
+class AMScanController : public QObject
 {
 Q_OBJECT
 Q_PROPERTY(bool running READ isRunning)
@@ -21,10 +21,10 @@ Q_PROPERTY(QDateTime startTime READ startTime WRITE setStartTime)
 */
 
 public:
-    explicit ScanController(QObject *parent = 0);
+    explicit AMScanController(QObject *parent = 0);
 
     /// Returns the scan configuration for this controller
-    ScanConfiguration* configuration(){return cfg_;}
+    AMScanConfiguration* configuration(){return cfg_;}
     /// Returns true if the scan is running but not paused
     bool isRunning() const {return running_ && !paused_;}
     /// Convenience call, returns true if the scan is not running
@@ -51,7 +51,7 @@ signals:
 
 public slots:
     /// Sets a new scan configuration
-    virtual void newConfigurationLoad(ScanConfiguration &cfg) = 0;
+    virtual void newConfigurationLoad(AMScanConfiguration &cfg) = 0;
     /// Start scan running if not currently running or paused
     virtual void start() = 0;
     /// Cancel scan if currently running or paused
@@ -64,7 +64,7 @@ public slots:
 
 protected:
     /// Configuration for this scan
-    ScanConfiguration *cfg_;
+    AMScanConfiguration *cfg_;
     /// Holds whether this scan is currently running
     bool running_;
     /// Holds whether this scan is currently paused

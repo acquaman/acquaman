@@ -23,7 +23,7 @@
  * It's a singleton class so only one instace should ever exist in the program.
  * The objects reachable through the beamline are:
  * 
- * Beamline
+ * AMBeamline
  * 
  * 		property: ringCurrent
  * 
@@ -128,64 +128,64 @@
  * */
 
 
-class Beamline : public Control {
+class AMBeamline : public AMControl {
 	
 	Q_OBJECT
 	
 public:
-	static Beamline* bl();		// singleton-class accessor
-	static void releaseBl();	// releases memory for Beamline
+        static AMBeamline* bl();		// singleton-class accessor
+        static void releaseBl();	// releases memory for AMBeamline
 	
-	virtual ~Beamline();
+        virtual ~AMBeamline();
 	
-	// What does this Beamline have? (These objects will be useful in the scripting world too!)
+        // What does this AMBeamline have? (These objects will be useful in the scripting world too!)
 	///////////////////////////////////
 	
-	ReadOnlyPVControl* ringCurrent() const			{ return ringCurrent_; }
+        AMReadOnlyPVControl* ringCurrent() const			{ return ringCurrent_; }
 	//	double ringCurrent() const								{ return ringCurrentPV_->lastValue(); }
 	
-	InsertionDevice* reixsID() const						{ return reixsID_; }
-	InsertionDevice* smID() const							{ return smID_; }
+        AMInsertionDevice* reixsID() const						{ return reixsID_; }
+        AMInsertionDevice* smID() const							{ return smID_; }
 	
-	Control* variableAperture() const				{ return variableAperture_; }
-	Mono* mono() const										{ return mono_; }
-	Spectrometer* spectrometer() const						{ return spectrometer_; }
+        AMControl* variableAperture() const				{ return variableAperture_; }
+        AMMono* mono() const										{ return mono_; }
+        AMSpectrometer* spectrometer() const						{ return spectrometer_; }
 	
-	AmpDetector* meshCurrent() const						{ return xasDetectors_[0]; }
-	AmpDetector* electronYield() const						{ return xasDetectors_[1]; }
-	AmpDetector* fluorescenceYield() const					{ return xasDetectors_[2]; }
+        AMAmpDetector* meshCurrent() const						{ return xasDetectors_[0]; }
+        AMAmpDetector* electronYield() const						{ return xasDetectors_[1]; }
+        AMAmpDetector* fluorescenceYield() const					{ return xasDetectors_[2]; }
 	
-	const QList<AmpDetector*>& xasDetectorsAvailable() const{ return xasDetectors_; }
+        const QList<AMAmpDetector*>& xasDetectorsAvailable() const{ return xasDetectors_; }
 	
-	Control* sampleHolder() const						{ return sampleHolder_; }
-	Control* loadLock() const								{ return loadLock_; }
+        AMControl* sampleHolder() const						{ return sampleHolder_; }
+        AMControl* loadLock() const								{ return loadLock_; }
 	
-	Control* diagnosticPaddle(int num) const		{ return diagnosticPaddles_[num % diagnosticPaddles_.size()]; }
+        AMControl* diagnosticPaddle(int num) const		{ return diagnosticPaddles_[num % diagnosticPaddles_.size()]; }
 	
 	
 	
 protected:
 	// Singleton implementation:
-	Beamline();					// protected constructor... only access through Beamline::bl()
-	static Beamline* instance_;
+        AMBeamline();					// protected constructor... only access through AMBeamline::bl()
+        static AMBeamline* instance_;
 	
 	// Parts of this beamline:
 	///////////////////////////////
 	
-	ReadOnlyPVControl* ringCurrent_;
+        AMReadOnlyPVControl* ringCurrent_;
 	
-	InsertionDevice* reixsID_, *smID_;
+        AMInsertionDevice* reixsID_, *smID_;
 	
-	Control* variableAperture_;
-	Mono* mono_;
-	Spectrometer* spectrometer_;
+        AMControl* variableAperture_;
+        AMMono* mono_;
+        AMSpectrometer* spectrometer_;
 	
-	QList<AmpDetector*> xasDetectors_;
+        QList<AMAmpDetector*> xasDetectors_;
 	
-	Control* sampleHolder_;
-	Control* loadLock_;
+        AMControl* sampleHolder_;
+        AMControl* loadLock_;
 	
-	QList<Control*> diagnosticPaddles_;
+        QList<AMControl*> diagnosticPaddles_;
 	
 	
 };

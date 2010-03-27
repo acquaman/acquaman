@@ -1,9 +1,9 @@
 #include "AmpDetector.h"
 
-AmpDetector::AmpDetector()
+AMAmpDetector::AMAmpDetector()
 {
 }
 
-AmpDetector::~AmpDetector()
+AMAmpDetector::~AMAmpDetector()
 {
 }

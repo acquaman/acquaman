@@ -1,6 +1,6 @@
 #include "ScanConfiguration.h"
 
-ScanConfiguration::ScanConfiguration(QObject *parent) :
+AMScanConfiguration::AMScanConfiguration(QObject *parent) :
     QObject(parent)
 {
 }

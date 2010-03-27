@@ -47,7 +47,7 @@ class NumericControl : public QFrame
 {
 Q_OBJECT
 public:
-	explicit NumericControl(Control* control, QWidget *parent = 0);
+        explicit NumericControl(AMControl* control, QWidget *parent = 0);
 
 signals:
 	void moveRequested(double);
@@ -66,7 +66,7 @@ protected slots:
 	void onEditStart();
 
 protected:
-	Control* control_;
+        AMControl* control_;
 	QLabel* valueLabel_;
 	QLabel* unitsLabel_;
 	StyledInputDialog* dialog_;

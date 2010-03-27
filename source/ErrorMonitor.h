@@ -17,12 +17,12 @@ class QSystemTrayIcon;
 	Debug: Way more information than you wanted to know. (You can turn this off.)
 */
 
-class ErrorReport {
+class AMErrorReport {
 
 public:
 	enum Level {Information, Alert, Serious, Debug} ;
 
-	ErrorReport(QObject* src=0, Level l=Alert, int code=0, const QString& desc = "") : source(src), level(l), errorCode(code), description(desc) {}
+        AMErrorReport(QObject* src=0, Level l=Alert, int code=0, const QString& desc = "") : source(src), level(l), errorCode(code), description(desc) {}
 
 	QObject* source;
 	Level level;
@@ -30,18 +30,18 @@ public:
 	QString description;
 };
 
-Q_DECLARE_METATYPE(ErrorReport)
+Q_DECLARE_METATYPE(AMErrorReport)
 
 
-class ErrorMon : public QObject {
+class AMErrorMon : public QObject {
 
 Q_OBJECT
 
 public:
 	/// By centralizing all error reporting in one place, it makes it possible for any object to subscribe to receive notification
 	/// of errors created anywhere in the program.  You can request to receive errors from a specific object instance, class, or error code.
-	/// Subscribers must provide the name of an error-handling slot that looks like: void errorSlot(ErrorReport e);
-		/// Whenever an error happens, that slot will be called with an ErrorReport containing the relevant information.
+        /// Subscribers must provide the name of an error-handling slot that looks like: void errorSlot(AMErrorReport e);
+                /// Whenever an error happens, that slot will be called with an AMErrorReport containing the relevant information.
 
 	/// Subscribe to all errors from object 'originator'
 	void subscribeToObjectI(QObject* originator, QObject* notifyMe, const char* errorSlot);
@@ -72,29 +72,29 @@ public:
 
 
 	/// Report an error:
-	static void report(const ErrorReport& e) {
+        static void report(const AMErrorReport& e) {
 		mon()->reportI(e);
 	}
 
 	/// Get access to the single instance of this class:
-	static ErrorMon* mon() {
+        static AMErrorMon* mon() {
 		if(!instance_)
-			instance_ = new ErrorMon();
+                        instance_ = new AMErrorMon();
 		return instance_;
 	}
 
 signals:
 	// emitted for all errors:
-	void error(const ErrorReport& e);
+        void error(const AMErrorReport& e);
 	/// Emitted for each individual level:
-	void information(const ErrorReport& e);
-	void alert(const ErrorReport& e);
-	void serious(const ErrorReport& e);
-	void debug(const ErrorReport& e);
+        void information(const AMErrorReport& e);
+        void alert(const AMErrorReport& e);
+        void serious(const AMErrorReport& e);
+        void debug(const AMErrorReport& e);
 
 public slots:
 	/// Report an error:
-	void reportI(const ErrorReport& e);
+        void reportI(const AMErrorReport& e);
 
 protected:
 	QMap<QObject*, QPair<QObject*, QString> > objectSubs_;
@@ -103,9 +103,9 @@ protected:
 
 private:
 	// Singleton class.  Private Constructor:
-	explicit ErrorMon();
+        explicit AMErrorMon();
 
-	static ErrorMon* instance_;
+        static AMErrorMon* instance_;
 
 	QSystemTrayIcon* sicon_;
 };

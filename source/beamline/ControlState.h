@@ -7,11 +7,11 @@
 #include <qdebug.h>
 #include "Control.h"
 
-class ControlStatus : public QObject
+class AMControlStatus : public QObject
 {
 Q_OBJECT
 public:
-    explicit ControlStatus(QString name = "", int can = 0, int should = 0, double value = -1, double tolerance = 0, QObject *parent = 0) : QObject(parent){
+    explicit AMControlStatus(QString name = "", int can = 0, int should = 0, double value = -1, double tolerance = 0, QObject *parent = 0) : QObject(parent){
         name_ = name;
         can_ = can;
         should_ = should;
@@ -33,27 +33,27 @@ protected:
     double tolerance_;
 };
 
-class ControlState : public QObject
+class AMControlState : public QObject
 {
 Q_OBJECT
 public:
-    explicit ControlState(Control *ctrl, QObject *parent = 0);
+    explicit AMControlState(AMControl *ctrl, QObject *parent = 0);
 
 signals:
 
 public slots:
     void vomit();
-    bool restore(Control *ctrl);
-    bool restoreList(Control *ctrl, QList<QString> *maskList);
+    bool restore(AMControl *ctrl);
+    bool restoreList(AMControl *ctrl, QList<QString> *maskList);
 
 protected:
 //    QList< QPair<QString, QString> > state_;
     QString name_;
-    QList<ControlStatus*> state_;
-    QList< QPair<int, ControlState*> > subState_;
+    QList<AMControlStatus*> state_;
+    QList< QPair<int, AMControlState*> > subState_;
 
-    bool searchChildren(Control *ctrl);
-    bool restoreListInternal(Control * ctrl, QList<QString> *maskList = NULL, bool useList = FALSE);
+    bool searchChildren(AMControl *ctrl);
+    bool restoreListInternal(AMControl * ctrl, QList<QString> *maskList = NULL, bool useList = FALSE);
 };
 
 #endif // CONTROLSTATE_H

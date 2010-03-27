@@ -24,7 +24,7 @@ Q_PROPERTY(double delta READ delta WRITE setDelta)
 Q_PROPERTY(double end READ end WRITE setEnd)
 
 public:
-XASRegion(QObject *parent = 0) : QObject(parent) {bl_ = SGMBeamline::sgm();}
+XASRegion(QObject *parent = 0) : QObject(parent) {bl_ = AMSGMBeamline::sgm();}
     double start() const { return start_;}
     double delta() const { return delta_;}
     double end() const { return end_;}
@@ -48,20 +48,20 @@ protected:
     double start_;
     double delta_;
     double end_;
-    SGMBeamline *bl_;
+    AMSGMBeamline *bl_;
 };
 
-class XASScanConfiguration : public ScanConfiguration
+class AMXASScanConfiguration : public AMScanConfiguration
 {
     Q_OBJECT
 public:
-    XASScanConfiguration(QObject *parent = 0);
+    AMXASScanConfiguration(QObject *parent = 0);
     double start(size_t index) const;
     double delta(size_t index) const;
     double end(size_t index) const;
     XASRegion* region(size_t index) const;
     double exitSlitGap() const { return exitSlitGap_;}
-    SGMBeamline::sgmGrating grating() const { return grating_;}
+    AMSGMBeamline::sgmGrating grating() const { return grating_;}
     bool undulatorTracking() { return undulatorTracking_;}
     bool monoTracking() { return monoTracking_;}
     bool exitSlitTracking() { return exitSlitTracking_;}
@@ -75,7 +75,7 @@ public slots:
     bool addRegion(size_t index, double start, double delta, double end);
     bool deleteRegion(size_t index);
     bool setExitSlitGap(double exitSlitGap);
-    bool setGrating(SGMBeamline::sgmGrating grating) {grating_ = grating; return TRUE;}
+    bool setGrating(AMSGMBeamline::sgmGrating grating) {grating_ = grating; return TRUE;}
     bool setUndulatorTracking(bool track){undulatorTracking_ = track; return TRUE;}
     bool setMonoTracking(bool track){monoTracking_ = track; return TRUE;}
     bool setExitSlitTracking(bool track){exitSlitTracking_ = track; return TRUE;}
@@ -83,7 +83,7 @@ public slots:
 protected:
     QList<XASRegion*> regions_;
     double exitSlitGap_;
-    SGMBeamline::sgmGrating grating_;
+    AMSGMBeamline::sgmGrating grating_;
     bool undulatorTracking_;
     bool monoTracking_;
     bool exitSlitTracking_;

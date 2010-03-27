@@ -5,11 +5,11 @@
 #include "XASScanConfiguration.h"
 #include "beamline/SGMBeamline.h"
 
-class XASDacqScanController : public DacqScanController
+class AMXASDacqScanController : public AMDacqScanController
 {
 Q_OBJECT
 public:
-    explicit XASDacqScanController(XASScanConfiguration *xasSCfg, QObject *parent = 0);
+    explicit AMXASDacqScanController(AMXASScanConfiguration *xasSCfg, QObject *parent = 0);
 
     bool isInitialized() { return initialized_;}
 

@@ -1,11 +1,11 @@
 #ifndef ACQMAN_INSERTIONDEVICE_H_
 #define ACQMAN_INSERTIONDEVICE_H_
 
-class InsertionDevice
+class AMInsertionDevice
 {
 public:
-	InsertionDevice();
-	virtual ~InsertionDevice();
+        AMInsertionDevice();
+        virtual ~AMInsertionDevice();
 };
 
 #endif /*INSERTIONDEVICE_H_*/

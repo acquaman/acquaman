@@ -13,20 +13,20 @@
 // ========================================
 
 /// Data storage root folder:
-QString UserSettings::userDataFolder;
+QString AMUserSettings::userDataFolder;
 /// name of user database
-QString UserSettings::userDatabaseFilename;
+QString AMUserSettings::userDatabaseFilename;
 
 /// 2. User Information:
 // ========================================
 
 /// User name:
-QString UserSettings::userName;
+QString AMUserSettings::userName;
 
 
 
 /// Load settings from disk:
-void UserSettings::load() {
+void AMUserSettings::load() {
 	QSettings settings(QSettings::IniFormat, QSettings::UserScope, "Acquaman", "Acquaman");
 
     // All settings variables are loaded here from disk. Default values must be provided -- they will be used if the particular setting doesn't exist yet.
@@ -42,7 +42,7 @@ void UserSettings::load() {
 }
 
 /// Save settings to disk:
-void UserSettings::save() {
+void AMUserSettings::save() {
 	QSettings settings(QSettings::IniFormat, QSettings::UserScope, "Acquaman", "Acquaman");
 
     // All settings variables are saved here to the user-specific file.
@@ -64,14 +64,14 @@ void UserSettings::save() {
 // ========================================
 
 /// This is where public (archived/reviewed) data is stored, system-wide
-QString Settings::publicDataFolder;
+QString AMSettings::publicDataFolder;
 /// This is the public database filename:
-QString Settings::publicDatabaseFilename;
+QString AMSettings::publicDatabaseFilename;
 /// Root database table:
-QString Settings::dbObjectTableName;
+QString AMSettings::dbObjectTableName;
 
 /// Load settings from disk:
-void Settings::load() {
+void AMSettings::load() {
 	QSettings settings(QSettings::IniFormat, QSettings::SystemScope, "Acquaman", "Acquaman");
 
     // All settings variables are loaded here from disk. Default values must be provided -- they will be used if the particular setting doesn't exist yet.
@@ -85,7 +85,7 @@ void Settings::load() {
 }
 
 /// Save settings to disk:
-void Settings::save() {
+void AMSettings::save() {
 	QSettings settings(QSettings::IniFormat, QSettings::SystemScope, "Acquaman", "Acquaman");
 
     // All settings variables are saved here to the user-specific file.

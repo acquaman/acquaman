@@ -1,9 +1,9 @@
 #include "DbObject.h"
 
 // static dbColumnNames (each instance has same)
-QStringList DbObject::dbColumnNames_;
+QStringList AMDbObject::dbColumnNames_;
 
-DbObject::DbObject(QObject *parent) : QObject(parent) {
+AMDbObject::AMDbObject(QObject *parent) : QObject(parent) {
 	id_ = 0;
 	// Ensure the static (class-wide) dbColumnNames_ has already been filled:
 	dbColumnNames();
@@ -14,7 +14,7 @@ DbObject::DbObject(QObject *parent) : QObject(parent) {
 	// - New Objects have their id() field set to <1, unless they've been retrieved from the database, in which case they have id() = [valid database key]
 	// Watch out: by creating a new object and giving it id() = [some arbitrary positive number]; you'll destroy data in the db.
 
-bool DbObject::storeToDb(Database* db) {
+bool AMDbObject::storeToDb(AMDatabase* db) {
 
 	QList<const QVariant*> values;
 	QVariant v0(type());
@@ -34,8 +34,8 @@ bool DbObject::storeToDb(Database* db) {
 	}
 }
 
-/// load a DbObject (set its properties) by retrieving it based on id.
-bool DbObject::loadFromDb(Database* db, int sourceId) {
+/// load a AMDbObject (set its properties) by retrieving it based on id.
+bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 
 	// Provide memory storage for return value:
 	QList<QVariant*> values;
@@ -60,8 +60,8 @@ bool DbObject::loadFromDb(Database* db, int sourceId) {
 
 /// This global function enables using the insertion operator to add objects to the database
 ///		ex: *Database::db() << myScan
-/// Because DbObject::storeToDb() is virtual, this version can be used properly for all sub-types of DbObject.
-Database& operator<<(Database& db, DbObject& s) {
+/// Because AMDbObject::storeToDb() is virtual, this version can be used properly for all sub-types of AMDbObject.
+AMDatabase& operator<<(AMDatabase& db, AMDbObject& s) {
 	s.storeToDb(&db);
 	return db;
 }

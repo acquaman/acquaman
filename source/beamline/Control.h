@@ -21,17 +21,17 @@
 
 #include <cmath>
 
-// A "Control" is the basic parent class for all setable/measurable beamline quantities/objects
-// Every Control can have it's own value, as well as act as a parent for other controls.
+// A "AMControl" is the basic parent class for all setable/measurable beamline quantities/objects
+// Every AMControl can have it's own value, as well as act as a parent for other controls.
 // This parent class should be re-implemented for anything useful; it's not really helpful on its own, other than as an aggregate of many controls.
-class Control : public QObject {
+class AMControl : public QObject {
 
 	Q_OBJECT
 public:
 
 	enum StateFlags {NotConnected=0, CanMeasure=1, CanMove=2};
 
-	Control(const QString& name, const QString& units = "n/a", QObject* parent = 0) : QObject(parent), units_(units) {
+        AMControl(const QString& name, const QString& units = "n/a", QObject* parent = 0) : QObject(parent), units_(units) {
 		setObjectName(name);
 		moveTarget_ = 0;
 		state_ = NotConnected;
@@ -41,10 +41,10 @@ public:
 	}
 
 	// Provides a list of controls that are sub-controls of this control:
-	QList<Control*> children() { return children_; }
+        QList<AMControl*> children() { return children_; }
 	int numChildren() { return children_.count(); }
         /// Retreive a specific child control from the list by index
-        Control* child(size_t index){
+        AMControl* child(size_t index){
             if(index < (size_t)children_.count())
                 return children_.at(index);
             return NULL;
@@ -71,7 +71,7 @@ public:
 	// This indicates whether the control is currently being adjusted. The default implementation checks whether any of the children are moving.
 	virtual bool isMoving() {
 		bool isMoving = false;
-		foreach(Control* c, children_) {
+                foreach(AMControl* c, children_) {
 			isMoving |= c->isMoving();
 		}
 		return isMoving;
@@ -92,7 +92,7 @@ public slots:
 	// This is used to cancel a move. Must reimplement for actual controls
 	virtual void stop() {};
         /// Add a child to the control
-        void addChild(Control *control) { children_ << control;}
+        void addChild(AMControl *control) { children_ << control;}
         /// Set the control object's children (and grandchildren, etc) based on a QMap of QString and double values
         bool setStateList(const QMap<QString, double> controlList, unsigned int errorLevel = 0);
 
@@ -121,7 +121,7 @@ signals:
 
 
 protected:
-	QList<Control*> children_;
+        QList<AMControl*> children_;
 	double moveTarget_;
 
 
@@ -147,7 +147,7 @@ protected slots:
 	}
 
         /// Used internally by setStateList, called recursively. MIGHT NEED TO BE VIRTUAL for reimplementation in child classes
-        bool searchSetChildren(QMap<QString, double> *controlList, QMap<QString, Control*> *executeList, unsigned int errorLevel);
+        bool searchSetChildren(QMap<QString, double> *controlList, QMap<QString, AMControl*> *executeList, unsigned int errorLevel);
 
 private: // subclasses should use the protected methods to access these, to ensure signal delivery.
 	int state_;
@@ -173,16 +173,16 @@ TODO:
 - check/handle channel disconnects and failures to connect
 - access process variable names
 */
-class ReadOnlyPVControl : public Control {
+class AMReadOnlyPVControl : public AMControl {
 
 	Q_OBJECT
 
 public:
-	ReadOnlyPVControl(const QString& name, const QString& readPVname, const QString& movingPVname = "", QObject* parent = 0);
+        AMReadOnlyPVControl(const QString& name, const QString& readPVname, const QString& movingPVname = "", QObject* parent = 0);
 
 	// Reimplemented Public Functions:
 	virtual double value() { return readPV_->lastValue(); }
-	virtual bool isMoving() { if(movingPV_) return movingPV_->lastValue(); else return Control::isMoving(); }
+        virtual bool isMoving() { if(movingPV_) return movingPV_->lastValue(); else return AMControl::isMoving(); }
 	virtual bool isConnected() { return readPV_->canRead(); }
 	virtual double minimumValue() { return readPV_->lowerAlarmValue(); }
 	virtual double maximumValue() { return readPV_->upperAlarmValue(); }
@@ -197,8 +197,8 @@ signals:	// These are specialized to report on PV channel connection status.  Yo
 	void readConnectionTimeout();
 
 protected:
-	DoubleProcessVariable* readPV_;
-	IntProcessVariable* movingPV_;
+        AMDoubleProcessVariable* readPV_;
+        AMIntProcessVariable* movingPV_;
 
 	// This is used to detect changes in the moving/not-moving status
 	bool wasMoving_;
@@ -209,7 +209,7 @@ protected slots:
 
 	// override this if you want custom handling if the readPV fails to connect.
 	// You can also monitor the readConnectionTimeout() signal.
-	virtual void onConnectionTimeout() { setState(Control::NotConnected); setUnits("?"); emit connected(false); emit readConnectionTimeout(); }
+        virtual void onConnectionTimeout() { setState(AMControl::NotConnected); setUnits("?"); emit connected(false); emit readConnectionTimeout(); }
 
 	// This is called when a PV channel connects or disconnects
 	virtual void onPVConnected(bool connected);
@@ -229,12 +229,12 @@ protected slots:
 		moveEnded()
 		moveFailed()
 */
-class PVControl : public ReadOnlyPVControl {
+class AMPVControl : public AMReadOnlyPVControl {
 
 	Q_OBJECT
 
 public:
-	PVControl(const QString& name, const QString& readPVname, const QString& writePVname, const QString& movingPVname = "", double tolerance = 0.01, QObject* parent = 0);
+        AMPVControl(const QString& name, const QString& readPVname, const QString& writePVname, const QString& movingPVname = "", double tolerance = 0.01, QObject* parent = 0);
 
 	// Reimplemented public functions:
 	virtual double tolerance() { return tolerance_; }
@@ -256,7 +256,7 @@ public slots:
 signals:
 	void writeConnectionTimeout();
 
-	// Adapts the "connected()", "disconnected()", etc. signals from ReadOnlyPVControl. For example, connected() indicates that both readPVConnected() and writePVConnected() happened. disconnected() is given if either one disconnects.
+        // Adapts the "connected()", "disconnected()", etc. signals from AMReadOnlyPVControl. For example, connected() indicates that both readPVConnected() and writePVConnected() happened. disconnected() is given if either one disconnects.
 protected slots:
 
 	// override this if you want custom handling if the readPV fails to connect.
@@ -270,8 +270,8 @@ protected slots:
 
 
 protected:
-	DoubleProcessVariable* writePV_;
-	IntProcessVariable* stopPV_;
+        AMDoubleProcessVariable* writePV_;
+        AMIntProcessVariable* stopPV_;
 	double tolerance_;
 
 };

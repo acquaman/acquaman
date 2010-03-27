@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-class ScanConfiguration : public QObject
+class AMScanConfiguration : public QObject
 {
 Q_OBJECT
 
@@ -17,7 +17,7 @@ Q_PROPERTY(QDateTime startTime READ startTime WRITE setStartTime)
 */
 
 public:
-    explicit ScanConfiguration(QObject *parent = 0);
+    explicit AMScanConfiguration(QObject *parent = 0);
 
     /// Returns the name of the file to save raw data in
     QString fileName() const { return fileName_;}

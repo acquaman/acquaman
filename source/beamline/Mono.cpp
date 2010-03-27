@@ -1,9 +1,9 @@
 #include "Mono.h"
 
-Mono::Mono()
+AMMono::AMMono()
 {
 }
 
-Mono::~Mono()
+AMMono::~AMMono()
 {
 }

@@ -30,14 +30,14 @@ public:
 		connect(ringI1, SIGNAL(connected(bool)), spinBox, SLOT(setEnabled(bool)));
 		*/
 		
-//                qDebug() << "Energy value is " << SGMBeamline::sgm()->energy()->value() << " and slit value is " << SGMBeamline::sgm()->exitSlitGap()->value();
-                ControlState *csTest = new ControlState(SGMBeamline::sgm(), this);
+//                qDebug() << "Energy value is " << AMSGMBeamline::sgm()->energy()->value() << " and slit value is " << AMSGMBeamline::sgm()->exitSlitGap()->value();
+                AMControlState *csTest = new AMControlState(AMSGMBeamline::sgm(), this);
                 csTest->vomit();
 
-                connect(Beamline::bl()->ringCurrent(), SIGNAL(valueChanged(double)), doubleSpinBox, SLOT(setValue(double)));
-		// TODO: connect(Beamline::bl()->ringCurrent(), SIGNAL(pvError(int)), this, SLOT(onEpicsError(int)));
-		connect(Beamline::bl()->ringCurrent(), SIGNAL(connected(bool)), doubleSpinBox, SLOT(setEnabled(bool)));
-		connect(Beamline::bl()->ringCurrent(), SIGNAL(unitsChanged(const QString&)), unitLabel, SLOT(setText(const QString&)));
+                connect(AMBeamline::bl()->ringCurrent(), SIGNAL(valueChanged(double)), doubleSpinBox, SLOT(setValue(double)));
+                // TODO: connect(AMBeamline::bl()->ringCurrent(), SIGNAL(pvError(int)), this, SLOT(onEpicsError(int)));
+                connect(AMBeamline::bl()->ringCurrent(), SIGNAL(connected(bool)), doubleSpinBox, SLOT(setEnabled(bool)));
+                connect(AMBeamline::bl()->ringCurrent(), SIGNAL(unitsChanged(const QString&)), unitLabel, SLOT(setText(const QString&)));
 
 		/*
 		StringProcessVariable* ringI3 = new StringProcessVariable("PCT1402-01:mA:fbk", 1, this);
@@ -47,11 +47,11 @@ public:
 		*/
 
                 /*
-		connect(Beamline::bl()->spectrometer()->hexapod()->x(), SIGNAL(valueChanged(double)), hxpd_x_read, SLOT(setValue(double)));
-		// TODO: errors. connect(Beamline::bl()->spectrometer()->hexapod()->x(), SIGNAL(pvError(int)), this, SLOT(onEpicsError(int)));
-		connect(Beamline::bl()->spectrometer()->hexapod()->x(), SIGNAL(connected(bool)), hxpd_x_read, SLOT(setEnabled(bool)));
-		connect(Beamline::bl()->spectrometer()->hexapod()->x(), SIGNAL(unitsChanged(const QString&)), hxpd_units, SLOT(setText(const QString&)));
-		connect(Beamline::bl()->spectrometer()->hexapod()->x(), SIGNAL(moving(bool)), hxpd_moving, SLOT(setChecked(bool)));
+                connect(AMBeamline::bl()->spectrometer()->hexapod()->x(), SIGNAL(valueChanged(double)), hxpd_x_read, SLOT(setValue(double)));
+                // TODO: errors. connect(AMBeamline::bl()->spectrometer()->hexapod()->x(), SIGNAL(pvError(int)), this, SLOT(onEpicsError(int)));
+                connect(AMBeamline::bl()->spectrometer()->hexapod()->x(), SIGNAL(connected(bool)), hxpd_x_read, SLOT(setEnabled(bool)));
+                connect(AMBeamline::bl()->spectrometer()->hexapod()->x(), SIGNAL(unitsChanged(const QString&)), hxpd_units, SLOT(setText(const QString&)));
+                connect(AMBeamline::bl()->spectrometer()->hexapod()->x(), SIGNAL(moving(bool)), hxpd_moving, SLOT(setChecked(bool)));
 		connect(this->hxpd_move, SIGNAL(clicked()), this, SLOT(onMoveSent()));
                 */
 
@@ -60,51 +60,51 @@ public:
                 connect(this->energy_restore, SIGNAL(clicked()), this, SLOT(onEnergyRestoreRequested()));
                 connect(this->setlist, SIGNAL(clicked()), this, SLOT(onSetListRequested()));
                 /*
-                connect(SGMBeamline::sgm()->energy(), SIGNAL(valueChanged(double)), hxpd_x_read, SLOT(setValue(double)));
-                connect(SGMBeamline::sgm()->energy(), SIGNAL(connected(bool)), hxpd_x_read, SLOT(setEnabled(bool)));
-                connect(SGMBeamline::sgm()->energy(), SIGNAL(unitsChanged(const QString&)), hxpd_units, SLOT(setText(const QString&)));
-                connect(SGMBeamline::sgm()->energy(), SIGNAL(moving(bool)), hxpd_moving, SLOT(setChecked(bool)));
+                connect(AMSGMBeamline::sgm()->energy(), SIGNAL(valueChanged(double)), hxpd_x_read, SLOT(setValue(double)));
+                connect(AMSGMBeamline::sgm()->energy(), SIGNAL(connected(bool)), hxpd_x_read, SLOT(setEnabled(bool)));
+                connect(AMSGMBeamline::sgm()->energy(), SIGNAL(unitsChanged(const QString&)), hxpd_units, SLOT(setText(const QString&)));
+                connect(AMSGMBeamline::sgm()->energy(), SIGNAL(moving(bool)), hxpd_moving, SLOT(setChecked(bool)));
                 connect(this->hxpd_move, SIGNAL(clicked()), this, SLOT(onMoveSent()));
 
-                connect(SGMBeamline::sgm()->m4(), SIGNAL(valueChanged(double)), m4_read, SLOT(setValue(double)));
-                connect(SGMBeamline::sgm()->m4(), SIGNAL(connected(bool)), m4_read, SLOT(setEnabled(bool)));
-                connect(SGMBeamline::sgm()->m4(), SIGNAL(unitsChanged(QString)), m4_units, SLOT(setText(QString)));
-                connect(SGMBeamline::sgm()->m4(), SIGNAL(moving(bool)), m4_moving, SLOT(setChecked(bool)));
+                connect(AMSGMBeamline::sgm()->m4(), SIGNAL(valueChanged(double)), m4_read, SLOT(setValue(double)));
+                connect(AMSGMBeamline::sgm()->m4(), SIGNAL(connected(bool)), m4_read, SLOT(setEnabled(bool)));
+                connect(AMSGMBeamline::sgm()->m4(), SIGNAL(unitsChanged(QString)), m4_units, SLOT(setText(QString)));
+                connect(AMSGMBeamline::sgm()->m4(), SIGNAL(moving(bool)), m4_moving, SLOT(setChecked(bool)));
 
-                connect(SGMBeamline::sgm()->m4()->child(0), SIGNAL(valueChanged(double)), m4inboard_read, SLOT(setValue(double)));
-                connect(SGMBeamline::sgm()->m4()->child(0), SIGNAL(connected(bool)), m4inboard_read, SLOT(setEnabled(bool)));
-                connect(SGMBeamline::sgm()->m4()->child(0), SIGNAL(unitsChanged(QString)), m4inboard_units, SLOT(setText(QString)));
-                connect(SGMBeamline::sgm()->m4()->child(0), SIGNAL(moving(bool)), m4inboard_moving, SLOT(setChecked(bool)));
+                connect(AMSGMBeamline::sgm()->m4()->child(0), SIGNAL(valueChanged(double)), m4inboard_read, SLOT(setValue(double)));
+                connect(AMSGMBeamline::sgm()->m4()->child(0), SIGNAL(connected(bool)), m4inboard_read, SLOT(setEnabled(bool)));
+                connect(AMSGMBeamline::sgm()->m4()->child(0), SIGNAL(unitsChanged(QString)), m4inboard_units, SLOT(setText(QString)));
+                connect(AMSGMBeamline::sgm()->m4()->child(0), SIGNAL(moving(bool)), m4inboard_moving, SLOT(setChecked(bool)));
                 connect(this->m4inboard_move, SIGNAL(clicked()), this, SLOT(onM4InboardMoveSent()));
 
-                connect(SGMBeamline::sgm()->m4()->child(1), SIGNAL(valueChanged(double)), m4outboard_read, SLOT(setValue(double)));
-                connect(SGMBeamline::sgm()->m4()->child(1), SIGNAL(connected(bool)), m4outboard_read, SLOT(setEnabled(bool)));
-                connect(SGMBeamline::sgm()->m4()->child(1), SIGNAL(unitsChanged(QString)), m4outboard_units, SLOT(setText(QString)));
-                connect(SGMBeamline::sgm()->m4()->child(1), SIGNAL(moving(bool)), m4outboard_moving, SLOT(setChecked(bool)));
+                connect(AMSGMBeamline::sgm()->m4()->child(1), SIGNAL(valueChanged(double)), m4outboard_read, SLOT(setValue(double)));
+                connect(AMSGMBeamline::sgm()->m4()->child(1), SIGNAL(connected(bool)), m4outboard_read, SLOT(setEnabled(bool)));
+                connect(AMSGMBeamline::sgm()->m4()->child(1), SIGNAL(unitsChanged(QString)), m4outboard_units, SLOT(setText(QString)));
+                connect(AMSGMBeamline::sgm()->m4()->child(1), SIGNAL(moving(bool)), m4outboard_moving, SLOT(setChecked(bool)));
                 connect(this->m4outboard_move, SIGNAL(clicked()), this, SLOT(onM4OutboardMoveSent()));
 
-                connect(SGMBeamline::sgm()->m4()->child(2), SIGNAL(valueChanged(double)), m4downstream_read, SLOT(setValue(double)));
-                connect(SGMBeamline::sgm()->m4()->child(2), SIGNAL(connected(bool)), m4downstream_read, SLOT(setEnabled(bool)));
-                connect(SGMBeamline::sgm()->m4()->child(2), SIGNAL(unitsChanged(QString)), m4downstream_units, SLOT(setText(QString)));
-                connect(SGMBeamline::sgm()->m4()->child(2), SIGNAL(moving(bool)), m4downstream_moving, SLOT(setChecked(bool)));
+                connect(AMSGMBeamline::sgm()->m4()->child(2), SIGNAL(valueChanged(double)), m4downstream_read, SLOT(setValue(double)));
+                connect(AMSGMBeamline::sgm()->m4()->child(2), SIGNAL(connected(bool)), m4downstream_read, SLOT(setEnabled(bool)));
+                connect(AMSGMBeamline::sgm()->m4()->child(2), SIGNAL(unitsChanged(QString)), m4downstream_units, SLOT(setText(QString)));
+                connect(AMSGMBeamline::sgm()->m4()->child(2), SIGNAL(moving(bool)), m4downstream_moving, SLOT(setChecked(bool)));
                 connect(this->m4downstream_move, SIGNAL(clicked()), this, SLOT(onM4DownstreamMoveSent()));
                 */
 
-		NumericControl* nc = new NumericControl(Beamline::bl()->spectrometer()->hexapod()->x(), placeHolder);
+                NumericControl* nc = new NumericControl(AMBeamline::bl()->spectrometer()->hexapod()->x(), placeHolder);
                 Q_UNUSED(nc);
-                NumericControl *nc2 = new NumericControl(SGMBeamline::sgm()->grating(), gratingHolder);
+                NumericControl *nc2 = new NumericControl(AMSGMBeamline::sgm()->grating(), gratingHolder);
                 Q_UNUSED(nc2);
-                NumericControl *nc3 = new NumericControl(SGMBeamline::sgm()->energy(), energyHolder);
+                NumericControl *nc3 = new NumericControl(AMSGMBeamline::sgm()->energy(), energyHolder);
                 Q_UNUSED(nc3);
-                NumericControl *nc4 = new NumericControl(SGMBeamline::sgm()->exitSlitGap(), slitGapHolder);
+                NumericControl *nc4 = new NumericControl(AMSGMBeamline::sgm()->exitSlitGap(), slitGapHolder);
                 Q_UNUSED(nc4);
-                NumericControl *nc5 = new NumericControl(SGMBeamline::sgm()->m4(), m4Holder);
+                NumericControl *nc5 = new NumericControl(AMSGMBeamline::sgm()->m4(), m4Holder);
                 Q_UNUSED(nc5);
-                NumericControl *nc6 = new NumericControl(SGMBeamline::sgm()->m4()->child(0), m4InboardHolder);
+                NumericControl *nc6 = new NumericControl(AMSGMBeamline::sgm()->m4()->child(0), m4InboardHolder);
                 Q_UNUSED(nc6);
-                NumericControl *nc7 = new NumericControl(SGMBeamline::sgm()->m4()->child(1), m4OutboardHolder);
+                NumericControl *nc7 = new NumericControl(AMSGMBeamline::sgm()->m4()->child(1), m4OutboardHolder);
                 Q_UNUSED(nc7);
-                NumericControl *nc8 = new NumericControl(SGMBeamline::sgm()->m4()->child(2), m4DownstreamHolder);
+                NumericControl *nc8 = new NumericControl(AMSGMBeamline::sgm()->m4()->child(2), m4DownstreamHolder);
                 Q_UNUSED(nc8);
 
                 csTest = NULL;
@@ -116,43 +116,43 @@ public:
 public slots:
 	void onEpicsError(int errCode) {
 		
-		textBrowser->append( DoubleProcessVariable::errorString(errCode));
+                textBrowser->append( AMDoubleProcessVariable::errorString(errCode));
 		
 	}
 
 	void onMoveSent() {
-//		Beamline::bl()->spectrometer()->hexapod()->x()->move(hxpd_x_set->value());
-            //SGMBeamline::sgm()->energy()->move(hxpd_x_set->value());
+//		AMBeamline::bl()->spectrometer()->hexapod()->x()->move(hxpd_x_set->value());
+            //AMSGMBeamline::sgm()->energy()->move(hxpd_x_set->value());
 	}
 
         void onM4InboardMoveSent(){
-            //SGMBeamline::sgm()->m4()->child(0)->move(m4inboard_set->value());
+            //AMSGMBeamline::sgm()->m4()->child(0)->move(m4inboard_set->value());
         }
 
         void onM4OutboardMoveSent(){
-            //SGMBeamline::sgm()->m4()->child(1)->move(m4outboard_set->value());
+            //AMSGMBeamline::sgm()->m4()->child(1)->move(m4outboard_set->value());
         }
 
         void onM4DownstreamMoveSent(){
-            //SGMBeamline::sgm()->m4()->child(2)->move(m4downstream_set->value());
+            //AMSGMBeamline::sgm()->m4()->child(2)->move(m4downstream_set->value());
         }
 
         void onSaveRequested(){
-            csTest = new ControlState(SGMBeamline::sgm(), this);
+            csTest = new AMControlState(AMSGMBeamline::sgm(), this);
             csTest->vomit();
-            XASScanConfiguration *xasSC = new XASScanConfiguration(this);
+            AMXASScanConfiguration *xasSC = new AMXASScanConfiguration(this);
         }
 
         void onRestoreRequested(){
             if(csTest)
-                csTest->restore(SGMBeamline::sgm());
+                csTest->restore(AMSGMBeamline::sgm());
         }
 
         void onEnergyRestoreRequested(){
            if(csTest){
                 QList<QString> energyList;
                 energyList << "energy";
-                csTest->restoreList(SGMBeamline::sgm(), &energyList);
+                csTest->restoreList(AMSGMBeamline::sgm(), &energyList);
             }
         }
 
@@ -164,14 +164,14 @@ public slots:
             myList["mono"] = 2020;
             myList["exitSlitGap"] = 1985;
             int errLevel = this->setlist_errorLevel->value();
-            if(SGMBeamline::sgm()->setStateList(myList, errLevel))
+            if(AMSGMBeamline::sgm()->setStateList(myList, errLevel))
                 qDebug() << "Success with error level of " << errLevel;
             else
                 qDebug() << "Failure with error level of " << errLevel;
         }
 	
 protected:
-    ControlState *csTest;
+    AMControlState *csTest;
 };
 
 #endif

@@ -1,9 +1,9 @@
 #include "DiagnosticPaddle.h"
 
-DiagnosticPaddle::DiagnosticPaddle()
+AMDiagnosticPaddle::AMDiagnosticPaddle()
 {
 }
 
-DiagnosticPaddle::~DiagnosticPaddle()
+AMDiagnosticPaddle::~AMDiagnosticPaddle()
 {
 }

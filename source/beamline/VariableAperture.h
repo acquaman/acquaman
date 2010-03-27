@@ -1,11 +1,11 @@
 #ifndef ACQMAN_VARIABLEAPERTURE_H_
 #define ACQMAN_VARIABLEAPERTURE_H_
 
-class VariableAperture
+class AMVariableAperture
 {
 public:
-	VariableAperture();
-	virtual ~VariableAperture();
+        AMVariableAperture();
+        virtual ~AMVariableAperture();
 };
 
 #endif /*VARIABLEAPERTURE_H_*/

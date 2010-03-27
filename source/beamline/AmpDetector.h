@@ -1,11 +1,11 @@
 #ifndef ACQMAN_AMPDETECTOR_H_
 #define ACQMAN_AMPDETECTOR_H_
 //boots is a nerd
-class AmpDetector
+class AMAmpDetector
 {
 public:
-	AmpDetector();
-	virtual ~AmpDetector();
+        AMAmpDetector();
+        virtual ~AMAmpDetector();
 };
 
 #endif /*AMPDETECTOR_H_*/

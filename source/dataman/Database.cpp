@@ -5,72 +5,72 @@
 #include <QStringList>
 
 /// Internal instance pointers
-Database* Database::userInstance_ = 0;
-Database* Database::publicInstance_ = 0;
+AMDatabase* AMDatabase::userInstance_ = 0;
+AMDatabase* AMDatabase::publicInstance_ = 0;
 
-// This constructor is protected; only access is through Database::db()
-Database::Database(const QString& connectionName, const QString& dbAccessString) :
+// This constructor is protected; only access is through AMDatabase::db()
+AMDatabase::AMDatabase(const QString& connectionName, const QString& dbAccessString) :
 		QObject(),
 		connectionName_(connectionName) {
 
 	// Initialize the database:
-	QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", connectionName_);
-	db.setDatabaseName(dbAccessString);
+        QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", connectionName_);
+        db.setDatabaseName(dbAccessString);
 	bool ok = db.open();
 
 	if(ok) {
-		qDebug() << "Database: connection established to database:" << connectionName_;
+                qDebug() << "AMDatabase: connection established to database:" << connectionName_;
 	}
 	else {
 		// todo: error handling
-		qDebug() << "Database: error connecting to database (access " << dbAccessString << "): " << db.lastError();
+                qDebug() << "AMDatabase: error connecting to database (access " << dbAccessString << "): " << db.lastError();
 	}
 
 }
 
 /// Access (or create, if it doesn't exist) the user database [static]
-Database* Database::userdb() {
+AMDatabase* AMDatabase::userdb() {
 
 	if(userInstance_ == 0) {
 
 		// Attempt to create user's data folder, only if it doesn't exist:
-		QDir userDataDir(UserSettings::userDataFolder);
+                QDir userDataDir(AMUserSettings::userDataFolder);
 		if(!userDataDir.exists()) {
-			qDebug() << "Database: alert: creating new user data folder " << UserSettings::userDataFolder;
-			if(!userDataDir.mkpath(UserSettings::userDataFolder))
-				qDebug() << "Database: error: could not create user data folder " << UserSettings::userDataFolder;
+                        qDebug() << "AMDatabase: alert: creating new user data folder " << AMUserSettings::userDataFolder;
+                        if(!userDataDir.mkpath(AMUserSettings::userDataFolder))
+                                qDebug() << "AMDatabase: error: could not create user data folder " << AMUserSettings::userDataFolder;
 		}
 
-		// create a new Database object for the user database:
-		QString filename = UserSettings::userDataFolder + UserSettings::userDatabaseFilename;
-		userInstance_ = new Database("user", filename);
+                // create a new AMDatabase object for the user database:
+                QString filename = AMUserSettings::userDataFolder + AMUserSettings::userDatabaseFilename;
+                userInstance_ = new AMDatabase("user", filename);
 
 	}
 	return userInstance_;
 }
 
 /// Access (or create, if it doesn't exist) the public database [static]
-Database* Database::publicdb() {
+AMDatabase* AMDatabase::publicdb() {
 
 	if(publicInstance_ == 0) {
 
-		// create a new Database object for the public database:
-		QString filename = Settings::publicDataFolder + Settings::publicDatabaseFilename;
-		publicInstance_ = new Database("public", filename);
+                // create a new AMDatabase object for the public database:
+                QString filename = AMSettings::publicDataFolder + AMSettings::publicDatabaseFilename;
+                publicInstance_ = new AMDatabase("public", filename);
 
 	}
 	return publicInstance_;
 }
 
 /// Shut down database connections and free database resources [static]
-void Database::releaseUserDb() {
+void AMDatabase::releaseUserDb() {
 	if(userInstance_) {
 		userInstance_->qdb().close();
 		delete userInstance_;
 		userInstance_ = 0;
 	}
 }
-void Database::releasePublicDb() {
+void AMDatabase::releasePublicDb() {
 	if(publicInstance_) {
 		publicInstance_->qdb().close();
 
@@ -88,12 +88,12 @@ void Database::releasePublicDb() {
 	Return value: (IMPORTANT) returns the id of the row that was inserted into or updated, or 0 on failure.
 	When inserting new objects, make sure to set their id to the return value afterwards, otherwise they will be duplicated on next insert.
 */
-int Database::insertOrUpdate(int id, const QString& table, const QStringList& colNames, const QList<const QVariant*>& values) {
+int AMDatabase::insertOrUpdate(int id, const QString& table, const QStringList& colNames, const QList<const QVariant*>& values) {
 
-	QSqlDatabase db = qdb();
+        QSqlDatabase db = qdb();
 
 	if(!db.isOpen()) {
-		qDebug() << "Database: saving failed; database is not open.";
+                qDebug() << "AMDatabase: saving failed; database is not open.";
 		return false;
 	}
 
@@ -123,7 +123,7 @@ int Database::insertOrUpdate(int id, const QString& table, const QStringList& co
 
 	// Run query. Query failed?
 	if(!query.exec()) {
-		qDebug() << "Database: saving failed; could not execute query: " << query.executedQuery();
+                qDebug() << "AMDatabase: saving failed; could not execute query: " << query.executedQuery();
 		return 0;
 	}
 	// Query succeeded.
@@ -136,7 +136,7 @@ int Database::insertOrUpdate(int id, const QString& table, const QStringList& co
 			return lastId.toInt();
 		}
 		else {
-			qDebug() << "Database: insert succeeded, but could not get lastId after insert. This should never happen...";
+                        qDebug() << "AMDatabase: insert succeeded, but could not get lastId after insert. This should never happen...";
 			return 0;
 		}
 	}
@@ -156,7 +156,7 @@ int Database::insertOrUpdate(int id, const QString& table, const QStringList& co
 	(Note that the const and & arguments are designed to prevent memory copies, so this should be fast.)
 	Return value: returns true on success.
 */
-bool Database::retrieve(int id, const QString& table, const QStringList& colNames, const QList<QVariant*>& values) {
+bool AMDatabase::retrieve(int id, const QString& table, const QStringList& colNames, const QList<QVariant*>& values) {
 
 	// create a query on our database connection:
 	QSqlQuery q( qdb() );
@@ -169,7 +169,7 @@ bool Database::retrieve(int id, const QString& table, const QStringList& colName
 
 	// run query. Did it succeed?
 	if(!q.exec()) {
-		qDebug() << "Database: retrieve query failed: " << q.executedQuery() << "Last error:" << q.lastError();
+                qDebug() << "AMDatabase: retrieve query failed: " << q.executedQuery() << "Last error:" << q.lastError();
 		return false;
 	}
 	// If we found a record at this id:
@@ -194,8 +194,8 @@ bool Database::retrieve(int id, const QString& table, const QStringList& colName
 
 
 /// Return a list of all the objects (by id) that match 'value' in a certain column {name, number, sample name, comment field, start time (rounded to second), or set of channels}
-/// ex: Database::db()->objectsMatching(Database::Name, "Carbon60"), or Database::db()->scansMatching(Database::StartTime, QDateTime::currentDateTime())
-QList<int> Database::scansMatching(const QString& colName, const QVariant& value) {
+/// ex: AMDatabase::db()->objectsMatching(AMDatabase::Name, "Carbon60"), or AMDatabase::db()->scansMatching(AMDatabase::StartTime, QDateTime::currentDateTime())
+QList<int> AMDatabase::scansMatching(const QString& colName, const QVariant& value) {
 
 	// return value: list of id's that match
 	QList<int> rl;
@@ -229,8 +229,8 @@ QList<int> Database::scansMatching(const QString& colName, const QVariant& value
 
 
 /// Return a list of all the Scans (by id) that contain 'value' in a certain column
-/// ex: Database::db()->scansContaining(Database::Name, "Carbon60") could return Scans with names Carbon60_alpha and bCarbon60_gamma
-QList<int> Database::scansContaining(const QString& colName, const QVariant& value) {
+/// ex: AMDatabase::db()->scansContaining(AMDatabase::Name, "Carbon60") could return Scans with names Carbon60_alpha and bCarbon60_gamma
+QList<int> AMDatabase::scansContaining(const QString& colName, const QVariant& value) {
 
 	QList<int> rl;
 
@@ -257,11 +257,11 @@ QList<int> Database::scansContaining(const QString& colName, const QVariant& val
 	return rl;
 }
 
-/// Database admin / temporary testing only:
-bool Database::ensureTable(const QString& tableName, const QStringList& columnNames, const QStringList& columnTypes) {
+/// AMDatabase admin / temporary testing only:
+bool AMDatabase::ensureTable(const QString& tableName, const QStringList& columnNames, const QStringList& columnTypes) {
 
 	if(columnNames.count() != columnTypes.count()) {
-		qDebug() << "Database: could not create table: invalid structure. Different number of column names and types.\n  Names:" << columnNames << "\n  Types:" << columnTypes;
+                qDebug() << "AMDatabase: could not create table: invalid structure. Different number of column names and types.\n  Names:" << columnNames << "\n  Types:" << columnTypes;
 		return false;
 	}
 
@@ -290,18 +290,18 @@ bool Database::ensureTable(const QString& tableName, const QStringList& columnNa
 		return true;
 	}
 	else {
-		qDebug() << "Database: error creating table using query: " << qs;
+                qDebug() << "AMDatabase: error creating table using query: " << qs;
 		return false;
 	}
 }
 
 /// Return the type of an object stored at 'id'. (Returns empty string if not found.)
-QString Database::scanType(int id) {
+QString AMDatabase::scanType(int id) {
 	// create a query on our database connection:
 	QSqlQuery q( qdb() );
 
 	// Prepare the query. Todo: sanitize name?
-	q.prepare(QString("SELECT type FROM %1 WHERE id = ?").arg(Settings::dbObjectTableName));
+        q.prepare(QString("SELECT type FROM %1 WHERE id = ?").arg(AMSettings::dbObjectTableName));
 	q.bindValue(0, id);
 
 	// run query and return true if succeeded at finding id:

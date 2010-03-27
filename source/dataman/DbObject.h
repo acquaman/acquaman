@@ -11,7 +11,7 @@
 	/// - a user-chosen "name" and "number"
 	/// - a date/time stamp
 
-class DbObject : public QObject
+class AMDbObject : public QObject
 {
 Q_OBJECT
 Q_PROPERTY(QString id READ id)
@@ -21,7 +21,7 @@ Q_PROPERTY(QDateTime dateTime READ dateTime WRITE setDateTime)
 
 
 public:
-    explicit DbObject(QObject *parent = 0);
+    explicit AMDbObject(QObject *parent = 0);
 
 	/// Returns scan's unique id
 	int id() const { return id_; }
@@ -42,7 +42,7 @@ public:
 	QString type() { return this->metaObject()->className(); }	// metaObject() is virtual, so this will produce the class name of the most detailed subclass.
 
 	/// The name of the table that will store the object's properties:
-	static QString dbTableName() { return Settings::dbObjectTableName; }
+        static QString dbTableName() { return AMSettings::dbObjectTableName; }
 
 	/// A list of the column names required to store the object's properties. (note: the key column 'id' is always included; don't specify it here.)
 	static const QStringList& dbColumnNames() {
@@ -57,7 +57,7 @@ public:
 
 	/// A static function to make sure the database is ready to hold us:
 	/// When re-implementing, make sure to call base-class implementation first.
-	static void dbPrepareTables(Database* db) { db->ensureTable(dbTableName(), dbColumnNames(), dbColumnTypes()); }
+        static void dbPrepareTables(AMDatabase* db) { db->ensureTable(dbTableName(), dbColumnNames(), dbColumnTypes()); }
 	// ======================================
 
 signals:
@@ -73,11 +73,11 @@ public slots:
 	/// Load yourself from the database. (returns true on success)
 	/// Detailed subclasses of Scan must re-implement this to retrieve all of their unique data fields.
 		/// When doing so, always call the parent class implemention first.
-	virtual bool loadFromDb(Database* db, int id);
+        virtual bool loadFromDb(AMDatabase* db, int id);
 	/// Store or update self in the database. (returns true on success)
 	/// Detailed subclasses of Scan must re-implement this to store all of their unique data.
 		/// When doing so, always call the parent class implemention first.
-	virtual bool storeToDb(Database* db);
+        virtual bool storeToDb(AMDatabase* db);
 
 private:
 	/// User defined scan name
@@ -96,6 +96,6 @@ private:
 /// This global function enables using the insertion operator to add scans to the database
 ///		ex: *Database::db() << myScan
 /// Because Scan::storeToDb() is virtual, this version can be used properly for all sub-types of Scans.
-Database& operator<<(Database& db, DbObject& s);
+AMDatabase& operator<<(AMDatabase& db, AMDbObject& s);
 
 #endif // DBOBJECT_H

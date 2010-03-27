@@ -1,16 +1,16 @@
 #include "XASDacqScanController.h"
 
-XASDacqScanController::XASDacqScanController(XASScanConfiguration *xasSCfg, QObject *parent) :
-    DacqScanController(parent)
+AMXASDacqScanController::AMXASDacqScanController(AMXASScanConfiguration *xasSCfg, QObject *parent) :
+    AMDacqScanController(parent)
 {
     initialized_ = FALSE;
     cfg_ = xasSCfg;
 }
 
-void XASDacqScanController::initialize(){
-    SGMBeamline::sgm()->exitSlitGap()->move( ((XASScanConfiguration*)cfg_)->exitSlitGap() );
-    SGMBeamline::sgm()->grating()->move( ((XASScanConfiguration*)cfg_)->grating() );
-    SGMBeamline::sgm()->undulatorTracking()->move( ((XASScanConfiguration*)cfg_)->undulatorTracking() );
-    SGMBeamline::sgm()->monoTracking()->move( ((XASScanConfiguration*)cfg_)->monoTracking() );
-    SGMBeamline::sgm()->exitSlitTracking()->move( ((XASScanConfiguration*)cfg_)->exitSlitTracking() );
+void AMXASDacqScanController::initialize(){
+    AMSGMBeamline::sgm()->exitSlitGap()->move( ((AMXASScanConfiguration*)cfg_)->exitSlitGap() );
+    AMSGMBeamline::sgm()->grating()->move( ((AMXASScanConfiguration*)cfg_)->grating() );
+    AMSGMBeamline::sgm()->undulatorTracking()->move( ((AMXASScanConfiguration*)cfg_)->undulatorTracking() );
+    AMSGMBeamline::sgm()->monoTracking()->move( ((AMXASScanConfiguration*)cfg_)->monoTracking() );
+    AMSGMBeamline::sgm()->exitSlitTracking()->move( ((AMXASScanConfiguration*)cfg_)->exitSlitTracking() );
 }

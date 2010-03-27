@@ -4,7 +4,7 @@
 /// QString is the name of the child (as in child's objectName) and value is the desired move position
 /// errorLevel specifies what constitutes an error (shouldn't move it, can't move it, can't find it)
 /// any error causes NO MOVEMENTS to occur
-bool Control::setStateList(const QMap<QString, double> controlList, unsigned int errorLevel){
+bool AMControl::setStateList(const QMap<QString, double> controlList, unsigned int errorLevel){
 
     if(errorLevel & 0x4)
         qDebug() << "Fail on shouldn't";
@@ -15,8 +15,8 @@ bool Control::setStateList(const QMap<QString, double> controlList, unsigned int
 
     // Copy of the QMap to pass around, remove found instances from it
     QMap<QString, double> *tmpList = new QMap<QString, double>(controlList);
-    // New list of name and pointer to Control to add found instances to
-    QMap<QString, Control*> *executeList = new QMap<QString, Control*>();
+    // New list of name and pointer to AMControl to add found instances to
+    QMap<QString, AMControl*> *executeList = new QMap<QString, AMControl*>();
     // Start search
     if(!searchSetChildren(tmpList, executeList, errorLevel))
         return FALSE;
@@ -35,8 +35,8 @@ bool Control::setStateList(const QMap<QString, double> controlList, unsigned int
 }
 
 /// Used internally by setStateList, called recursively.
-bool Control::searchSetChildren(QMap<QString, double> *controlList, QMap<QString, Control*> *executeList, unsigned int errorLevel){
-    Control *tmpCtrl = NULL;
+bool AMControl::searchSetChildren(QMap<QString, double> *controlList, QMap<QString, AMControl*> *executeList, unsigned int errorLevel){
+    AMControl *tmpCtrl = NULL;
     // Run through all the children, check for shouldn't move and can't move errors
     // Insert in the list of executable instances, remove from the "unfounds" list
     for(int x = 0; x < numChildren(); x++){
@@ -63,9 +63,9 @@ bool Control::searchSetChildren(QMap<QString, double> *controlList, QMap<QString
     return TRUE;
 }
 
-ReadOnlyPVControl::ReadOnlyPVControl(const QString& name, const QString& readPVname, const QString& movingPVname, QObject* parent) : Control(name, "?", parent), wasMoving_(false) {
+AMReadOnlyPVControl::AMReadOnlyPVControl(const QString& name, const QString& readPVname, const QString& movingPVname, QObject* parent) : AMControl(name, "?", parent), wasMoving_(false) {
 
-	readPV_ = new DoubleProcessVariable(readPVname, true, this);
+        readPV_ = new AMDoubleProcessVariable(readPVname, true, this);
 	// TODO: check if this failed to connect channel. Also, handle disconnects/breakdowns.
 	connect(readPV_, SIGNAL(valueChanged(double)), this, SIGNAL(valueChanged(double)));
 	connect(readPV_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
@@ -77,7 +77,7 @@ ReadOnlyPVControl::ReadOnlyPVControl(const QString& name, const QString& readPVn
 	connect(readPV_, SIGNAL(initialized()), this, SLOT(onReadPVInitialized()));
 
 	if(movingPVname != "") {
-		movingPV_ = new IntProcessVariable(movingPVname, true, this);
+                movingPV_ = new AMIntProcessVariable(movingPVname, true, this);
 		connect(movingPV_, SIGNAL(valueChanged(int)), this, SLOT(onMovingChanged(int)));
 	}
 	else
@@ -87,25 +87,25 @@ ReadOnlyPVControl::ReadOnlyPVControl(const QString& name, const QString& readPVn
 
 // This is written out fully (rather than simply connected SIGNALs to SIGNALs
 // So that we can override it in ReadWritePVControl.
-void ReadOnlyPVControl::onPVConnected(bool) {
+void AMReadOnlyPVControl::onPVConnected(bool) {
 
 	// For the read-only control, just having the readPV is enough to be connected or disconnected.
 	emit connected( isConnected() );
 
 	if(isConnected()) {
-		setState(Control::CanMeasure);
+                setState(AMControl::CanMeasure);
 	}
 	else {
-		setState(Control::NotConnected);
+                setState(AMControl::NotConnected);
 	}
 }
 
-void ReadOnlyPVControl::onPVError(int error) {
+void AMReadOnlyPVControl::onPVError(int error) {
 	// TODO: figure out how to handle this best.
 	qDebug() << QString("Process Variable error %1: %2.").arg(readPV_->pvName()).arg(error);
 }
 
-void ReadOnlyPVControl::onMovingChanged(int isMoving) {
+void AMReadOnlyPVControl::onMovingChanged(int isMoving) {
 	emit moving(isMoving);
 
 	if(wasMoving_ && !isMoving)
@@ -116,16 +116,16 @@ void ReadOnlyPVControl::onMovingChanged(int isMoving) {
 	wasMoving_ = isMoving;
 }
 
-void ReadOnlyPVControl::onReadPVInitialized() {
+void AMReadOnlyPVControl::onReadPVInitialized() {
 	setUnits(readPV_->units());	// copy over the new unit string
-	qDebug() << QString("ReadOnlyPVControl: read PV initialized correctly.");
+        qDebug() << QString("AMReadOnlyPVControl: read PV initialized correctly.");
 }
 
-PVControl::PVControl(const QString& name, const QString& readPVname, const QString& writePVname, const QString& movingPVname, double tolerance, QObject* parent) : ReadOnlyPVControl(name, readPVname, movingPVname, parent) {
+AMPVControl::AMPVControl(const QString& name, const QString& readPVname, const QString& writePVname, const QString& movingPVname, double tolerance, QObject* parent) : AMReadOnlyPVControl(name, readPVname, movingPVname, parent) {
 
 	tolerance_ = tolerance;
 
-	writePV_ = new DoubleProcessVariable(writePVname, true, this);
+        writePV_ = new AMDoubleProcessVariable(writePVname, true, this);
 	// TODO: check if this failed to connect channel. Also, handle disconnects/breakdowns.
 	// connect(writePV_, SIGNAL(valueChanged(double)), this, SIGNAL(valueChanged(double)));
 	connect(writePV_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
@@ -137,7 +137,7 @@ PVControl::PVControl(const QString& name, const QString& readPVname, const QStri
 	// TODO: decide if monitoring the set value is desireable (notif. that you exceeded limits?)
 }
 
-void PVControl::move(double value) {
+void AMPVControl::move(double value) {
 
 	//onMoveStarted(); TODO: flag this manually if we have no connection from the movingPV_?
 
@@ -156,24 +156,24 @@ void PVControl::move(double value) {
 
 }
 
-void PVControl::stop() {
+void AMPVControl::stop() {
 	/// TODOTODOTODO!
 }
 
-void PVControl::onConnectionTimeout() {
+void AMPVControl::onConnectionTimeout() {
 	if(sender() == readPV_) {
 		emit readConnectionTimeout();
-		setState( state() & ~Control::CanMeasure );	// Disable CanMeasure flag
+                setState( state() & ~AMControl::CanMeasure );	// Disable CanMeasure flag
 		emit connected(false);						// Not having a readPV_ makes us disconnected.
 	}
 	if(sender() == writePV_) {
 		emit writeConnectionTimeout();
-		setState( state() & ~Control::CanMove );	// disable CanMove flag
+                setState( state() & ~AMControl::CanMove );	// disable CanMove flag
 		emit connected(false);						// Not having a writePV_ makes us disconnected.
 	}
 }
 
-void PVControl::onPVConnected(bool) {
+void AMPVControl::onPVConnected(bool) {
 	// This will happen if either the readPV_ or writePV_ connects, or disconnects. That makes lots of cases.
 	// We can distinguish based on sender() == readPV_ or sender() == writePV_. But we don't have to.
 
@@ -181,18 +181,18 @@ void PVControl::onPVConnected(bool) {
 	// It will re-check for connection status on these two PVs.
 	emit connected( this->isConnected() );
 
-	int state = Control::NotConnected;
+        int state = AMControl::NotConnected;
 	if( readPV_->canRead() )
 //            state = Control::CanMeasure;
-                state |= Control::CanMeasure;
+                state |= AMControl::CanMeasure;
 	if (writePV_->canWrite() )
 //            state = Control::CanMove;
-                state |= Control::CanMove;
+                state |= AMControl::CanMove;
 
 	setState(state);
 }
 
-void PVControl::onPVError(int error) {
+void AMPVControl::onPVError(int error) {
 	// TODO
 	if(sender() == readPV_)
 		qDebug() << QString("ProcessVariable error %1: %2.").arg(readPV_->pvName()).arg(error);

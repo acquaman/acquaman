@@ -1,9 +1,9 @@
 #include "VariableAperture.h"
 
-VariableAperture::VariableAperture()
+AMVariableAperture::AMVariableAperture()
 {
 }
 
-VariableAperture::~VariableAperture()
+AMVariableAperture::~AMVariableAperture()
 {
 }

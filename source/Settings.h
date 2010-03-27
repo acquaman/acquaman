@@ -8,17 +8,17 @@
 #include <QString>
 
 /*! This file encapsulates user settings/options and beamline settings that are persistent over many runs of the program.
-   User-specific settings are stored under the UserSettings namespace.  They can be different for each user account.
+   User-specific settings are stored under the AMUserAMSettings namespace.  They can be different for each user account.
 
-   Program-wide settings are stored under the Settings namespace.
+   Program-wide settings are stored under the AMSettings namespace.
     For clean organization, we store process variable name definitions separately in their own namespace, inside beamline/ProcessVariables.h
 
-    Settings are loaded from config. files by calling
+    AMSettings are loaded from config. files by calling
    load(), and pushed out to the file with save().  Load() is normally called from main() before
-   the program starts running, and save() when the Settings view gets hit with OK or Apply (todo... that Settings view).
+   the program starts running, and save() when the AMSettings view gets hit with OK or Apply (todo... that AMSettings view).
 
    Accessing an option variable is simple and easy:
-        UserSettings::userDataFolder or Settings::publicDatabaseFilename or PVNames::ringCurrent
+        AMUserAMSettings::userDataFolder or AMSettings::publicDatabaseFilename or PVNames::ringCurrent
 
    However, that convenience is balanced out by the awkwardness of setting up these settings...
    They need to be written down in four places:
@@ -35,7 +35,7 @@
 
    */
 
-class UserSettings {
+class AMUserSettings {
 public:
     /// 1. Database and storage:
     // ========================================
@@ -60,7 +60,7 @@ public:
 
 };
 
-class Settings {
+class AMSettings {
 public:
     /// 1. Process Variable name definitions should go into beamline/PVNames.h instead...
     // ========================================

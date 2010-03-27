@@ -1,11 +1,11 @@
 #ifndef ACQMAN_MONO_H_
 #define ACQMAN_MONO_H_
 
-class Mono
+class AMMono
 {
 public:
-	Mono();
-	virtual ~Mono();
+        AMMono();
+        virtual ~AMMono();
 };
 
 #endif /*MONO_H_*/
