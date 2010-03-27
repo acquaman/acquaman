@@ -5,9 +5,9 @@
 #include <QString>
 #include <QList>
 #include <QPair>
-#include "ProcessVariable.h"
+#include "AMProcessVariable.h"
 #include <QDebug>
-
+#include <QTimer>
 #include <cmath>
 
 /// A "AMControl" is an abstract representation of all basic scientific quantities that can be adjusted (controlled) or measured.
@@ -27,7 +27,7 @@
   QString name(): A descriptive (and hopefully unique) name for this Control
 
   bool isConnected(): indicates that the control is hooked up and operating correctly; ready for use.
-  signal: connectedChanged(bool isConnected): emitted for changes in isConnected()
+  signal: connected(bool isConnected): emitted for changes in isConnected()
 
   bool shouldMeasure(): this control should be capable of reporting it's current value, assuming that it's connected.
   bool shouldMove(): this control should be capable of being adjusted, assuming that it's connected.
@@ -164,10 +164,10 @@ public:
 	/// This enum type is used to describe the reason for a move failure:
 	enum FailureExplanation { NotConnectedFailure = 1, ToleranceFailure, OtherFailure };
 
-	AMControl(const QString& name, const QString& units = "n/a", double tolerance = AMCONTROL_TOLERANCE_DONT_CARE, QObject* parent = 0) : QObject(parent), units_(units) {
+	AMControl(const QString& name, const QString& units = "n/a", QObject* parent = 0) : QObject(parent), units_(units) {
 		setObjectName(name);
 		wasConnected_ = false;
-		tolerance_ = tolerance;
+		tolerance_ = AMCONTROL_TOLERANCE_DONT_CARE;
 	}
 
 	/// One additional feature of Controls is the ability to logically group sets of sub-controls together.  (For example, a Monochromator control could consist of a Grating angle control, exit slit position control, and grating selector.)  Every Control therefore has a list of subcontrols:
@@ -257,6 +257,7 @@ The Control abstraction provides two different properties (and associated signal
 	virtual QPair<double,double> range() const { return QPair<double,double>(minimumValue(), maximumValue()); }
 	virtual double minimumValue() const { return -1; }
 	virtual double maximumValue() const { return -1; }
+	bool valueOutOfRange(double value) { return (value > maximumValue() || value< minimumValue() ) ? TRUE : FALSE;}
 
 public slots:
 	/// This is used to set the control.  Must reimplement for actual controls
@@ -297,7 +298,7 @@ signals:
 	void unitsChanged(const QString& units);
 
 	/// Announces changes in isConnected().  Emitted (true) when full functionality is achieved. // Emitted (false) when full functionality is lost. Full functionality can be decided by the subclasses.
-	void connectedChanged(bool);
+	void connected(bool);
 
 
 protected:
@@ -344,7 +345,7 @@ class AMReadOnlyPVControl : public AMControl {
 	Q_OBJECT
 
 public:
-	AMReadOnlyPVControl(const QString& name, const QString& readPVname, double tolerance = AMCONTROL_TOLERANCE_DONT_CARE, QObject* parent = 0);
+	AMReadOnlyPVControl(const QString& name, const QString& readPVname, QObject* parent = 0);
 
 	/// Reimplemented Public Functions:
 	virtual double value() const { return readPV_->lastValue(); }
@@ -367,7 +368,7 @@ signals:	// These are specialized to report on PV channel connection status.  Yo
 	void readConnectionTimeoutOccurred();
 
 protected:
-	DoubleProcessVariable* readPV_;
+	AMDoubleProcessVariable* readPV_;
 	// reuse for wStatus: IntProcessVariable* movingPV_;
 
 	// This is used to detect changes in the moving/not-moving status
@@ -466,7 +467,7 @@ signals:
 
 protected:
 	/// Used for the setpoint:
-	DoubleProcessVariable* writePV_;
+	AMDoubleProcessVariable* writePV_;
 
 	/// Used to detect completion timeouts:
 	QTimer completionTimer_;

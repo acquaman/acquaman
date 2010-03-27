@@ -1,10 +1,10 @@
-#include "Control.h"
+#include "AMControl.h"
 
 /// Set the control object's children (and grandchildren, etc) based on a QMap of QString and double pairs
 /// QString is the name of the child (as in child's objectName) and value is the desired move position
 /// errorLevel specifies what constitutes an error (shouldn't move it, can't move it, can't find it)
 /// any error causes NO MOVEMENTS to occur
-bool AMControl::setStateList(const QMap<QString, double> controlList, unsigned int errorLevel){
+bool AMControl::setState(const QMap<QString, double> controlList, unsigned int errorLevel){
 
 	if(errorLevel & 0x4)
 		qDebug() << "Fail on shouldn't";
@@ -63,9 +63,9 @@ bool AMControl::searchSetChildren(QMap<QString, double> *controlList, QMap<QStri
 	return true;
 }
 
-AMReadOnlyPVControl::AMReadOnlyPVControl(const QString& name, const QString& readPVname, double tolerance, QObject* parent) : AMControl(name, "?", tolerance, parent),  {
+AMReadOnlyPVControl::AMReadOnlyPVControl(const QString& name, const QString& readPVname, QObject* parent) : AMControl(name, "?", parent)  {
 
-	readPV_ = new DoubleProcessVariable(readPVname, true, this);
+	readPV_ = new AMDoubleProcessVariable(readPVname, true, this);
 
 	connect(readPV_, SIGNAL(valueChanged(double)), this, SIGNAL(valueChanged(double)));
 	connect(readPV_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
@@ -120,8 +120,10 @@ void AMReadOnlyPVControl::onReadPVInitialized() {
 
 
 AMPVControl::AMPVControl(const QString& name, const QString& readPVname, const QString& writePVname, double tolerance, double completionTimeoutSeconds, QObject* parent)
-	: AMReadOnlyPVControl(name, readPVname, tolerance, parent)
+	: AMReadOnlyPVControl(name, readPVname, parent)
 {
+	setTolerance(tolerance);
+
 	//not moving yet:
 	mip_ = false;
 
@@ -138,7 +140,7 @@ AMPVControl::AMPVControl(const QString& name, const QString& readPVname, const Q
 	connect(&completionTimer_, SIGNAL(timeout()), this, SLOT(onCompletionTimeout()));
 
 	// process variable:
-	writePV_ = new DoubleProcessVariable(movePVName, true, this);
+	writePV_ = new AMDoubleProcessVariable(writePVname, true, this);
 	connect(writePV_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
 	connect(writePV_, SIGNAL(error(int)), this, SLOT(onPVError(int)));
 	connect(writePV_, SIGNAL(connectionTimeout()), this, SIGNAL(writeConnectionTimeoutOccurred()));
@@ -150,7 +152,7 @@ AMPVControl::AMPVControl(const QString& name, const QString& readPVname, const Q
 
 /// Start a move to the value setpoint:
 // todo: figure out if dave and tom want handling for already-moving... (practical example: HV supply)
-virtual void AMPVControl::move(double setpoint) {
+void AMPVControl::move(double setpoint) {
 
 	// new move target:
 	setpoint_ = setpoint;
@@ -160,8 +162,8 @@ virtual void AMPVControl::move(double setpoint) {
 
 	if( canMove() ) {
 		// Issue the move
-		writePV_->setValue(moveTarget_);
-		qDebug() << QString("Moving %1 to %2").arg(writePV_->pvName()).arg(moveTarget_);
+		writePV_->setValue(setpoint_);
+		qDebug() << QString("Moving %1 to %2").arg(writePV_->pvName()).arg(setpoint_);
 
 		// We're now moving! Let's hope this hoofedinkus makes it...
 		mip_ = true;
@@ -173,7 +175,7 @@ virtual void AMPVControl::move(double setpoint) {
 		completionTimer_.start(completionTimeout_*1000.0);
 	}
 	else {
-		qDebug() << QString("Could not move %1 to %2").arg(writePV_->pvName()).arg(value);
+		qDebug() << QString("Could not move %1 to %2").arg(writePV_->pvName()).arg(setpoint_);
 
 		// Notify the failure right away:
 		emit moveFailed(AMControl::NotConnectedFailure);
@@ -214,7 +216,7 @@ void AMPVControl::onCompletionTimeout() {
 
 	// No matter what, this move is over:
 	mip_ = false;
-	completionTimer_.stop;
+	completionTimer_.stop();
 
 	// Did we make it?
 	if( inPosition() ) {
@@ -228,7 +230,7 @@ void AMPVControl::onCompletionTimeout() {
 
 
 /// This is called when a PV channel connects or disconnects
-void AMPVControl::onPVConnected(bool connected) {
+void AMPVControl::onPVConnected(bool) {
 
 	// we'll receive this when either one connects or disconnects.
 	// We need both connected to count as connected. That's not hard to figure out.
