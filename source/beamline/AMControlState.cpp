@@ -21,7 +21,7 @@ bool AMControlState::searchChildren(AMControl *ctrl)
         tmpName = tmpCtrl->objectName();
         tmpValue = tmpCtrl->value();
         tmpTolerance = tmpCtrl->tolerance();
-        tmpCan = tmpCtrl->state();
+		tmpCan = (tmpCtrl->canMeasure() & 1) | (tmpCtrl->canMove() & 2);	// TODO TODO TODO
 //        tmpShould = tmpCtrl->shouldMeasure() ? (tmpCtrl->shouldMove() ? 2 : 1) : 0;
         tmpShould = tmpCtrl->shouldMeasure() ? 1 : 0;
         tmpShould |= tmpCtrl->shouldMove() ? 2 : 0;

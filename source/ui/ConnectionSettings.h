@@ -51,7 +51,7 @@ public:
                 // TODO: errors. connect(AMBeamline::bl()->spectrometer()->hexapod()->x(), SIGNAL(pvError(int)), this, SLOT(onEpicsError(int)));
                 connect(AMBeamline::bl()->spectrometer()->hexapod()->x(), SIGNAL(connected(bool)), hxpd_x_read, SLOT(setEnabled(bool)));
                 connect(AMBeamline::bl()->spectrometer()->hexapod()->x(), SIGNAL(unitsChanged(const QString&)), hxpd_units, SLOT(setText(const QString&)));
-                connect(AMBeamline::bl()->spectrometer()->hexapod()->x(), SIGNAL(moving(bool)), hxpd_moving, SLOT(setChecked(bool)));
+				connect(AMBeamline::bl()->spectrometer()->hexapod()->x(), SIGNAL(movingChanged(bool)), hxpd_moving, SLOT(setChecked(bool)));
 		connect(this->hxpd_move, SIGNAL(clicked()), this, SLOT(onMoveSent()));
                 */
 
@@ -63,30 +63,30 @@ public:
                 connect(AMSGMBeamline::sgm()->energy(), SIGNAL(valueChanged(double)), hxpd_x_read, SLOT(setValue(double)));
                 connect(AMSGMBeamline::sgm()->energy(), SIGNAL(connected(bool)), hxpd_x_read, SLOT(setEnabled(bool)));
                 connect(AMSGMBeamline::sgm()->energy(), SIGNAL(unitsChanged(const QString&)), hxpd_units, SLOT(setText(const QString&)));
-                connect(AMSGMBeamline::sgm()->energy(), SIGNAL(moving(bool)), hxpd_moving, SLOT(setChecked(bool)));
+				connect(AMSGMBeamline::sgm()->energy(), SIGNAL(movingChanged(bool)), hxpd_moving, SLOT(setChecked(bool)));
                 connect(this->hxpd_move, SIGNAL(clicked()), this, SLOT(onMoveSent()));
 
                 connect(AMSGMBeamline::sgm()->m4(), SIGNAL(valueChanged(double)), m4_read, SLOT(setValue(double)));
                 connect(AMSGMBeamline::sgm()->m4(), SIGNAL(connected(bool)), m4_read, SLOT(setEnabled(bool)));
                 connect(AMSGMBeamline::sgm()->m4(), SIGNAL(unitsChanged(QString)), m4_units, SLOT(setText(QString)));
-                connect(AMSGMBeamline::sgm()->m4(), SIGNAL(moving(bool)), m4_moving, SLOT(setChecked(bool)));
+				connect(AMSGMBeamline::sgm()->m4(), SIGNAL(movingChanged(bool)), m4_moving, SLOT(setChecked(bool)));
 
                 connect(AMSGMBeamline::sgm()->m4()->child(0), SIGNAL(valueChanged(double)), m4inboard_read, SLOT(setValue(double)));
                 connect(AMSGMBeamline::sgm()->m4()->child(0), SIGNAL(connected(bool)), m4inboard_read, SLOT(setEnabled(bool)));
                 connect(AMSGMBeamline::sgm()->m4()->child(0), SIGNAL(unitsChanged(QString)), m4inboard_units, SLOT(setText(QString)));
-                connect(AMSGMBeamline::sgm()->m4()->child(0), SIGNAL(moving(bool)), m4inboard_moving, SLOT(setChecked(bool)));
+				connect(AMSGMBeamline::sgm()->m4()->child(0), SIGNAL(movingChanged(bool)), m4inboard_moving, SLOT(setChecked(bool)));
                 connect(this->m4inboard_move, SIGNAL(clicked()), this, SLOT(onM4InboardMoveSent()));
 
                 connect(AMSGMBeamline::sgm()->m4()->child(1), SIGNAL(valueChanged(double)), m4outboard_read, SLOT(setValue(double)));
                 connect(AMSGMBeamline::sgm()->m4()->child(1), SIGNAL(connected(bool)), m4outboard_read, SLOT(setEnabled(bool)));
                 connect(AMSGMBeamline::sgm()->m4()->child(1), SIGNAL(unitsChanged(QString)), m4outboard_units, SLOT(setText(QString)));
-                connect(AMSGMBeamline::sgm()->m4()->child(1), SIGNAL(moving(bool)), m4outboard_moving, SLOT(setChecked(bool)));
+				connect(AMSGMBeamline::sgm()->m4()->child(1), SIGNAL(movingChanged(bool)), m4outboard_moving, SLOT(setChecked(bool)));
                 connect(this->m4outboard_move, SIGNAL(clicked()), this, SLOT(onM4OutboardMoveSent()));
 
                 connect(AMSGMBeamline::sgm()->m4()->child(2), SIGNAL(valueChanged(double)), m4downstream_read, SLOT(setValue(double)));
                 connect(AMSGMBeamline::sgm()->m4()->child(2), SIGNAL(connected(bool)), m4downstream_read, SLOT(setEnabled(bool)));
                 connect(AMSGMBeamline::sgm()->m4()->child(2), SIGNAL(unitsChanged(QString)), m4downstream_units, SLOT(setText(QString)));
-                connect(AMSGMBeamline::sgm()->m4()->child(2), SIGNAL(moving(bool)), m4downstream_moving, SLOT(setChecked(bool)));
+				connect(AMSGMBeamline::sgm()->m4()->child(2), SIGNAL(movingChanged(bool)), m4downstream_moving, SLOT(setChecked(bool)));
                 connect(this->m4downstream_move, SIGNAL(clicked()), this, SLOT(onM4DownstreamMoveSent()));
                 */
 
@@ -170,7 +170,7 @@ public slots:
             myList["mono"] = 2020;
             myList["exitSlitGap"] = 1985;
             int errLevel = this->setlist_errorLevel->value();
-            if(AMSGMBeamline::sgm()->setStateList(myList, errLevel))
+			if(AMSGMBeamline::sgm()->setState(myList, errLevel))
                 qDebug() << "Success with error level of " << errLevel;
             else
                 qDebug() << "Failure with error level of " << errLevel;

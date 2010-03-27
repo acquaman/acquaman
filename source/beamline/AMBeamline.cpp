@@ -5,7 +5,7 @@ AMBeamline* AMBeamline::instance_ = 0;
 
 AMBeamline::AMBeamline() : AMControl("beamline", "n/a") {
 	
-    ringCurrent_ = new AMReadOnlyPVControl("ringCurrent", AMPVNames::ringCurrent, "", this);
+	ringCurrent_ = new AMReadOnlyPVControl("ringCurrent", AMPVNames::ringCurrent, this);
         children_ << ringCurrent_;
 
                 spectrometer_ = new AMSpectrometer("spectrometer", this);

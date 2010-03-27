@@ -43,7 +43,7 @@ NumericControl::NumericControl(AMControl* control, QWidget *parent) :
 		connect(control_, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged(double)));
 		connect(control_, SIGNAL(unitsChanged(QString)), this, SLOT(onUnitsChanged(QString)));
 		connect(control_, SIGNAL(connected(bool)), this, SLOT(setHappy(bool)));
-		connect(control_, SIGNAL(moving(bool)), this, SLOT(onMotion(bool)));
+		connect(control_, SIGNAL(movingChanged(bool)), this, SLOT(onMotion(bool)));
 	}
 	connect(this, SIGNAL(clicked()), this, SLOT(onEditStart()));
 	
