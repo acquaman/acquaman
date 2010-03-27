@@ -98,7 +98,8 @@ HEADERS += source/beamline/AMDiagnosticPaddle.h \
     source/beamline/AMSGMBeamline.h \
     source/beamline/AMControlState.h \
     source/acquaman/AMXASDacqScanController.h \
-    source/AMErrorMonitor.h
+    source/AMErrorMonitor.h \
+    source/beamline/AMControlSet.h
 FORMS += source/ui/AbsorptionScanController.ui \
     source/ui/ConnectionSettings.ui \
     source/ui/EmissionScanController.ui \
@@ -163,5 +164,6 @@ SOURCES += source/beamline/AMDiagnosticPaddle.cpp \
     source/beamline/AMSGMBeamline.cpp \
     source/beamline/AMControlState.cpp \
     source/acquaman/AMXASDacqScanController.cpp \
-    source/AMErrorMonitor.cpp
+    source/AMErrorMonitor.cpp \
+    source/beamline/AMControlSet.cpp
 RESOURCES = source/icons/icons.qrc

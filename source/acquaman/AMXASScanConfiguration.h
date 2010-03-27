@@ -54,7 +54,7 @@ protected:
 class AMXASScanConfiguration : public AMScanConfiguration
 {
     Q_OBJECT
-public:
+public:    
     AMXASScanConfiguration(QObject *parent = 0);
     double start(size_t index) const;
     double delta(size_t index) const;
