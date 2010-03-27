@@ -64,7 +64,7 @@ HEADERS += source/beamline/DiagnosticPaddle.h \
     source/ui/CamWidget.h \
     source/beamline/ProcessVariable.h \
     source/beamline/Beamline.h \
-    source/beamline/Control.h \
+	source/beamline/AMControl.h \
     source/ui/NumericControl.h \
     source/dataman/DbObject.h \
     source/dataman/Scan.h \
@@ -124,7 +124,7 @@ SOURCES += source/beamline/DiagnosticPaddle.cpp \
     source/main.cpp \
     source/beamline/ProcessVariable.cpp \
     source/beamline/Beamline.cpp \
-    source/beamline/Control.cpp \
+	source/beamline/AMControl.cpp \
     source/ui/NumericControl.cpp \
     source/dataman/Scan.cpp \
     source/dataman/SChannel.cpp \
