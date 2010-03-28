@@ -52,10 +52,10 @@ AMDacqScanController::AMDacqScanController(QObject *parent)
     */
 }
 
-/// Sets a new scan configuration
-void AMDacqScanController::newConfigurationLoad(AMScanConfiguration &cfg)
-{
-}
+///// Sets a new scan configuration
+//void AMDacqScanController::newConfigurationLoad(AMScanConfiguration &cfg)
+//{
+//}
 
 /// Cancel scan if currently running or paused
 void AMDacqScanController::cancel()

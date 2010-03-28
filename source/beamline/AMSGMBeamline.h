@@ -21,15 +21,15 @@ public:
     // What does this Beamline have? (These objects will be useful in the scripting world too!)
     ///////////////////////////////////
 
-    AMReadOnlyPVControl* ringCurrent() const { return ringCurrent_; }
-    AMPVControl* energy() const { return energy_;}
-    AMPVControl* exitSlitGap() const { return exitSlitGap_;}
-    AMReadOnlyPVControl* m4() const { return m4_;}
-    AMPVControl* grating() const { return grating_;}
-    AMPVControl* harmonic() const { return harmonic_;}
-    AMPVControl* undulatorTracking() const { return undulatorTracking_;}
-    AMPVControl* monoTracking() const { return monoTracking_;}
-    AMPVControl* exitSlitTracking() const { return exitSlitTracking_;}
+	AMControl* ringCurrent() const { return ringCurrent_; }
+	AMControl* energy() const { return energy_;}
+	AMControl* exitSlitGap() const { return exitSlitGap_;}
+	AMControl* m4() const { return m4_;}
+	AMControl* grating() const { return grating_;}
+        AMControl* harmonic() const { return harmonic_;}
+	AMControl* undulatorTracking() const { return undulatorTracking_;}
+	AMControl* monoTracking() const { return monoTracking_;}
+	AMControl* exitSlitTracking() const { return exitSlitTracking_;}
 
     bool energyValidForSettings(sgmGrating grating, sgmHarmonic harmonic, double energy);
     bool energyRangeValidForSettings(sgmGrating grating, sgmHarmonic harmonic, double minEnergy, double maxEnergy);
@@ -42,15 +42,15 @@ protected:
     // Parts of this beamline:
     ///////////////////////////////
 
-    AMReadOnlyPVControl* ringCurrent_;
-    AMPVControl *energy_;
-    AMPVControl *exitSlitGap_;
-    AMReadOnlyPVControl* m4_;
-    AMPVControl *grating_;
-    AMPVControl *harmonic_;
-    AMPVControl *undulatorTracking_;
-    AMPVControl *monoTracking_;
-    AMPVControl *exitSlitTracking_;
+        AMControl *ringCurrent_;
+	AMControl *energy_;
+	AMControl *exitSlitGap_;
+        AMControl *m4_;
+	AMControl *grating_;
+        AMControl *harmonic_;
+	AMControl *undulatorTracking_;
+	AMControl *monoTracking_;
+	AMControl *exitSlitTracking_;
 };
 
 class AMSGMFluxOptimization : public AMControlOptimization

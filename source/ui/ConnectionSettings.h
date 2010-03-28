@@ -146,11 +146,14 @@ public slots:
 
         void onRestoreRequested(){
             AMXASScanConfiguration *xasCfg = new AMXASScanConfiguration(AMSGMBeamline::sgm());
-            xasCfg->addRegion(0, 200, 1, 2000);
+            xasCfg->addRegion(0, 250, 1, 260);
             xasCfg->setExitSlitGap(15);
             xasCfg->setGrating(AMSGMBeamline::mediumGrating);
             AMXASDacqScanController *xasCtrl = new AMXASDacqScanController(xasCfg, AMSGMBeamline::sgm());
             xasCtrl->initialize();
+            xasCtrl->start();
+
+            /*
             AMSGMFluxOptimization firstTry;
             QList<QVariant> flux1, flux2, flux3, flux4;
             flux1 << 250.0 << 0 << 1;
@@ -171,7 +174,7 @@ public slots:
             QMap<double, double> map7 = firstTry.curve(flux3, xasCfg->regions());
             QMap<double, double> map8 = firstTry.curve(flux4, xasCfg->regions());
 
-            /**/
+
             for(int x = 200; x < 2000; x++)
                 qDebug() << (double)x
                         <<  map1[(double)x]
@@ -182,7 +185,7 @@ public slots:
                         << map6[(double)x]
                         << map7[(double)x]
                         << map8[(double)x];
-            /**/
+            */
 
 /*            QMap<double, double>::const_iterator i = firstMap.constBegin();
             while (i != firstMap.constEnd()) {

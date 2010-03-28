@@ -6,8 +6,8 @@
 MainWindow::MainWindow(QWidget* parent) : QWidget(parent) {
 	
 
-        AMScanController *myScan;
-        myScan = new AMDacqScanController(this);
+        //AMScanController *myScan;
+        //myScan = new AMDacqScanController(this);
 	
 	// setWindowFlags(Qt::FramelessWindowHint);
 	// showMaximized();
