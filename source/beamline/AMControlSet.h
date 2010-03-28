@@ -3,7 +3,10 @@
 
 #include <QObject>
 #include <QList>
-#include "AMControl.h"
+#include <QMap>
+#include <QVariant>
+//#include "acquaman/AMScanConfiguration.h"
+#include "acquaman/AMRegion.h"
 
 class AMControlSet : public QObject
 {
@@ -19,18 +22,38 @@ signals:
 
 public slots:
     void setName(const QString &name) { name_ = name;}
-    bool addControl(AMControl* ctrl) {
-        if(ctrls_.contains(ctrl))
-            return false;
-        ctrls_.append(ctrl);
-        return true;
-    }
-    bool removeControl(AMControl* ctrl) { return ctrls_.removeOne(ctrl);}
+    bool addControl(AMControl* ctrl);
+    bool removeControl(AMControl* ctrl);
 
 protected:
     QString name_;
     QList<AMControl*> ctrls_;
+};
 
+class AMControlOptimization : public QObject
+{
+    Q_OBJECT
+public:
+    AMControlOptimization(QObject *parent=0) : QObject(parent){;}
+
+    QString name() const { return name_;}
+    virtual QMap<double, double> curve(QList<QVariant> stateParameters, QList<AMRegion*> contextParameters);
+
+public slots:
+    void setName(const QString &name) { name_ = name;}
+
+protected:
+    QString name_;
+};
+
+class AMControlOptimizationSet : public AMControlSet
+{
+    Q_OBJECT
+public:
+    explicit AMControlOptimizationSet(QObject *parent=0) : AMControlSet(parent){;}
+
+protected:
+    QList<AMControlOptimization*> outputs_;
 };
 
 #endif // AMCONTROLSET_H

@@ -141,15 +141,56 @@ public slots:
             csTest = new AMControlState(AMSGMBeamline::sgm(), this);
             csTest->vomit();
             AMXASScanConfiguration *xasSC = new AMXASScanConfiguration(this);
+            Q_UNUSED(xasSC);
         }
 
         void onRestoreRequested(){
             AMXASScanConfiguration *xasCfg = new AMXASScanConfiguration(AMSGMBeamline::sgm());
-            xasCfg->addRegion(0, 250, 0.1, 251);
+            xasCfg->addRegion(0, 200, 1, 2000);
             xasCfg->setExitSlitGap(15);
             xasCfg->setGrating(AMSGMBeamline::mediumGrating);
             AMXASDacqScanController *xasCtrl = new AMXASDacqScanController(xasCfg, AMSGMBeamline::sgm());
             xasCtrl->initialize();
+            AMSGMFluxOptimization firstTry;
+            QList<QVariant> flux1, flux2, flux3, flux4;
+            flux1 << 250.0 << 0 << 1;
+            flux2 << 250.0 << 1 << 1;
+            flux3 << 250.0 << 2 << 1;
+            flux4 << 250.0 << 2 << 3;
+            qDebug() << " BEFORE EVERYTHING " << xasCfg->regions().at(0)->start() << " " << xasCfg->regions().at(0)->delta() << " " << xasCfg->regions().at(0)->end();
+            QMap<double, double> map1 = firstTry.curve(flux1, xasCfg->regions());
+            QMap<double, double> map2 = firstTry.curve(flux2, xasCfg->regions());
+            QMap<double, double> map3 = firstTry.curve(flux3, xasCfg->regions());
+            QMap<double, double> map4 = firstTry.curve(flux4, xasCfg->regions());
+            flux1[0] = 100.0;
+            flux2[0] = 100.0;
+            flux3[0] = 100.0;
+            flux4[0] = 100.0;
+            QMap<double, double> map5 = firstTry.curve(flux1, xasCfg->regions());
+            QMap<double, double> map6 = firstTry.curve(flux2, xasCfg->regions());
+            QMap<double, double> map7 = firstTry.curve(flux3, xasCfg->regions());
+            QMap<double, double> map8 = firstTry.curve(flux4, xasCfg->regions());
+
+            /**/
+            for(int x = 200; x < 2000; x++)
+                qDebug() << (double)x
+                        <<  map1[(double)x]
+                        << map2[(double)x]
+                        << map3[(double)x]
+                        << map4[(double)x]
+                        << map5[(double)x]
+                        << map6[(double)x]
+                        << map7[(double)x]
+                        << map8[(double)x];
+            /**/
+
+/*            QMap<double, double>::const_iterator i = firstMap.constBegin();
+            while (i != firstMap.constEnd()) {
+                qDebug() << i.key() << " " << i.value();
+                ++i;
+            }
+*/
+
             if(csTest)
                 csTest->restore(AMSGMBeamline::sgm());
         }

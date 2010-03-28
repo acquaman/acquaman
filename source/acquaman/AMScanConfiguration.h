@@ -2,6 +2,7 @@
 #define ACQMAN_SCANCONFIGURATION_H
 
 #include <QObject>
+#include "AMRegion.h"
 
 class AMScanConfiguration : public QObject
 {

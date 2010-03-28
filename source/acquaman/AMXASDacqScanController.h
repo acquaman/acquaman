@@ -3,7 +3,7 @@
 
 #include "AMDacqScanController.h"
 #include "AMXASScanConfiguration.h"
-#include "beamline/AMSGMBeamline.h"
+//#include "beamline/AMSGMBeamline.h"
 
 class AMXASDacqScanController : public AMDacqScanController
 {

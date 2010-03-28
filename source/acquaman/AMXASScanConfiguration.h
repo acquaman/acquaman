@@ -16,41 +16,6 @@ public:
 };
 */
 
-class XASRegion : public QObject
-{
-Q_OBJECT
-Q_PROPERTY(double start READ start WRITE setStart)
-Q_PROPERTY(double delta READ delta WRITE setDelta)
-Q_PROPERTY(double end READ end WRITE setEnd)
-
-public:
-XASRegion(QObject *parent = 0) : QObject(parent) {bl_ = AMSGMBeamline::sgm();}
-    double start() const { return start_;}
-    double delta() const { return delta_;}
-    double end() const { return end_;}
-
-public slots:
-    bool setStart(double start) {
-        if(bl_->energy()->valueOutOfRange(start))
-            return FALSE;
-        start_ = start;
-        return TRUE;
-    }
-    void setDelta(double delta) { delta_ = delta;}
-    bool setEnd(double end) {
-        if(bl_->energy()->valueOutOfRange(end))
-            return FALSE;
-        end_ = end;
-        return TRUE;
-    }
-
-protected:
-    double start_;
-    double delta_;
-    double end_;
-    AMSGMBeamline *bl_;
-};
-
 class AMXASScanConfiguration : public AMScanConfiguration
 {
     Q_OBJECT
@@ -59,7 +24,9 @@ public:
     double start(size_t index) const;
     double delta(size_t index) const;
     double end(size_t index) const;
-    XASRegion* region(size_t index) const;
+    AMXASRegion* region(size_t index) const;
+    QList<AMXASRegion*> regions() { return regions_;}
+
     double exitSlitGap() const { return exitSlitGap_;}
     AMSGMBeamline::sgmGrating grating() const { return grating_;}
     bool undulatorTracking() { return undulatorTracking_;}
@@ -70,8 +37,8 @@ public slots:
     bool setStart(size_t index, double start);
     bool setDelta(size_t index, double delta);
     bool setEnd(size_t index, double end);
-    bool setRegion(size_t index, XASRegion *region);
-    bool addRegion(size_t index, XASRegion *region);
+    bool setRegion(size_t index, AMXASRegion *region);
+    bool addRegion(size_t index, AMXASRegion *region);
     bool addRegion(size_t index, double start, double delta, double end);
     bool deleteRegion(size_t index);
     bool setExitSlitGap(double exitSlitGap);
@@ -81,7 +48,8 @@ public slots:
     bool setExitSlitTracking(bool track){exitSlitTracking_ = track; return TRUE;}
 
 protected:
-    QList<XASRegion*> regions_;
+    QList<AMXASRegion*> regions_;
+    QList<AMControlSet*> groups_;
     double exitSlitGap_;
     AMSGMBeamline::sgmGrating grating_;
     bool undulatorTracking_;
