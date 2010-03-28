@@ -82,7 +82,7 @@ bool setState(QMap<QString, double> namesAndValues);
 
 These properties are defined as the general characteristics that all Controls are expected to have, regardless of the actual hardware or connection method. (For example, they should be equally useful for representing Process Variables in an Epics-based control system, devices connected directly via TCP-IP or serial lines, or off-site hoofadinkuses interfaced using smoke signals or bongo drums.)
 
-The Control interface should be inherited to implement real-world control devices.  The exact meaning of the properties might change depending on the physical device and its capabilities.  As a useful example, we've provided a set of real controls with different levels of capability that implement Epics Process-Variable type connections:
+The AMControl interface should be inherited to implement real-world control devices.  The exact meaning of the properties might change depending on the physical device and its capabilities.  As a useful example, we've provided a set of real controls with different levels of capability that implement Epics Process-Variable type connections:
 
 Class Name					Description
 ===============================================================================
@@ -162,7 +162,7 @@ class AMControl : public QObject {
 public:
 
 	/// This enum type is used to describe the reason for a move failure:
-	enum FailureExplanation { NotConnectedFailure = 1, ToleranceFailure, OtherFailure };
+	enum FailureExplanation { NotConnectedFailure = 1, ToleranceFailure, TimeoutFailure, OtherFailure };
 
 	AMControl(const QString& name, const QString& units = "n/a", QObject* parent = 0) : QObject(parent), units_(units) {
 		setObjectName(name);
@@ -257,7 +257,7 @@ The Control abstraction provides two different properties (and associated signal
 	virtual QPair<double,double> range() const { return QPair<double,double>(minimumValue(), maximumValue()); }
 	virtual double minimumValue() const { return -1; }
 	virtual double maximumValue() const { return -1; }
-	bool valueOutOfRange(double value) { return (value > maximumValue() || value< minimumValue() ) ? TRUE : FALSE;}
+	bool valueOutOfRange(double value) const { return (value > maximumValue() || value< minimumValue() ) ? TRUE : FALSE;}
 
 public slots:
 	/// This is used to set the control.  Must reimplement for actual controls
@@ -321,7 +321,7 @@ private: // subclasses should use the protected methods to access these, to ensu
 
 /// This class provides an AMControl with measure-only capability, based on an Epics Process Variable implementation.
 /*!
-The Control interface should be inherited to implement real-world control devices.  The exact meaning of the properties might change depending on the physical device and its capabilities.  As a useful example, we've provided a set of real controls with different levels of capability that implement Epics Process-Variable type connections.
+The AMControl interface should be inherited to implement real-world control devices.  The exact meaning of the properties might change depending on the physical device and its capabilities.  As a useful example, we've provided a set of real controls with different levels of capability that implement Epics Process-Variable type connections.
 
 This class measures values using a single Process Variable.  It cannot be used to set values.  An example usage would be measuring the storage ring current.  There is no way to decide whether the control is "moving" or not (How do you define if the ring current is "moving"?), so this behavior is undefined.
 
@@ -394,7 +394,7 @@ protected slots:
 
 /// This class provides an AMControl with measure and move capability, based on an Epics Process Variable implementation.
 /*!
-The Control interface should be inherited to implement real-world control devices.  The exact meaning of the properties might change depending on the physical device and its capabilities.  As a useful example, we've provided a set of real controls with different levels of capability that implement Epics Process-Variable type connections.
+The AMControl interface should be inherited to implement real-world control devices.  The exact meaning of the properties might change depending on the physical device and its capabilities.  As a useful example, we've provided a set of real controls with different levels of capability that implement Epics Process-Variable type connections.
 
 This class measures values using one Process Variable, and writes out a setpoint using another.  An example usage would be setting and monitoring a high-voltage bias power supply.  There is no explicit way to decide whether the control is "moving" or not, so we define it like this:
 
@@ -432,7 +432,7 @@ class AMPVControl : public AMReadOnlyPVControl {
 	Q_OBJECT
 
 public:
-	AMPVControl(const QString& name, const QString& readPVname, const QString& writePVname, double tolerance = AMCONTROL_TOLERANCE_DONT_CARE, double completionTimeoutSeconds = 10.0, QObject* parent = 0);
+	AMPVControl(const QString& name, const QString& readPVname, const QString& writePVname, QObject* parent = 0, double tolerance = AMCONTROL_TOLERANCE_DONT_CARE, double completionTimeoutSeconds = 10.0);
 
 	/// Reimplemented Public Functions:
 
@@ -453,7 +453,7 @@ public:
 
 	// Additional public functions:
 	QString writePVName() const { return writePV_->pvName(); }
-	double completionTimeout() { return completionTimeout_; }
+	double completionTimeout() const { return completionTimeout_; }
 
 public slots:
 	/// Reimplemented public slots:
@@ -512,7 +512,7 @@ protected slots:
 
 /// This class provides an AMControl that can measure a feedback process variable, and monitor a second PV that provides a moving indicator.
 /*!
-The Control interface should be inherited to implement real-world control devices.  The exact meaning of the properties might change depending on the physical device and its capabilities.  As a useful example, we've provided a set of real controls with different levels of capability that implement Epics Process-Variable type connections.
+The AMControl interface should be inherited to implement real-world control devices.  The exact meaning of the properties might change depending on the physical device and its capabilities.  As a useful example, we've provided a set of real controls with different levels of capability that implement Epics Process-Variable type connections.
 
 This class measures values using a single Process Variable.  It cannot be used to set values, but it watches another Process Variable to see if the control is moving.  An example usage would be monitoring the "beamline energy" PV that is common on most beamlines.
 
@@ -552,16 +552,16 @@ class AMReadOnlyPVwStatusControl : public AMReadOnlyPVControl {
 	Q_OBJECT
 
 public:
-	AMReadOnlyPVwStatusControl(const QString& name, const QString& readPVname, const QString& movingPVname, int isMovingValue = 1, quint32 isMovingMask = AMCONTROL_MOVING_MASK_NONE, QObject* parent = 0);
+	AMReadOnlyPVwStatusControl(const QString& name, const QString& readPVname, const QString& movingPVname, QObject* parent = 0, int isMovingValue = 1, quint32 isMovingMask = AMCONTROL_MOVING_MASK_NONE);
 
 	/// Reimplemented Public Functions:
 	virtual bool isConnected() const { return canMeasure() && movingPV_->canRead(); }
 
 	/// The movingPV now provides our moving status. (Masked with isMovingMask and compared to isMovingValue)
-	virtual bool isMoving() { return ( int(movingPV_->lastValue() & isMovingMask_) == isMovingValue_); }
+	virtual bool isMoving() const { return ( int(movingPV_->lastValue() & isMovingMask_) == isMovingValue_); }
 
 	/// Additional public functions:
-	QString movingPVName() { return movingPV_->pvName(); }
+	QString movingPVName() const { return movingPV_->pvName(); }
 
 
 
@@ -592,6 +592,122 @@ protected slots:
 
 	/// This is called whenever there is an update from the move status PV
 	void onMovingChanged(int isMovingValue);
+
+};
+
+
+/// This class provides an AMControl that can measure a feedback process variable, move it using a setpoint process variable, and monitor a third PV that provides a "isMoving" indicator.
+/*!
+The AMControl interface should be inherited to implement real-world control devices.  The exact meaning of the properties might change depending on the physical device and its capabilities.  As a useful example, we've provided a set of real controls with different levels of capability that implement Epics Process-Variable type connections.
+
+This class measures values using one Process Variable (PV), and moves them to setpoints using a second PV.  It also watches third Process Variable to see if the control is moving.  An example usage would be controlling the "beamline energy" PV that is common on most beamlines.  Most importantly, it adds a working move() instruction, and reports shouldMove() = true.
+
+isMoving() has the same meaning as for AMReadOnlyPVwStatusControl.  However, this class adds the moveInProgress() property to indicate of one of "your" moves -- a move triggered by this software -- is executing, as well as the moveStarted, moveSucceeded, and moveFailed(explanation) signals that accompany changes of moveInProgress().
+
+Because we can monitor the moving status, it's possible to detect a situation where a stubborn device didn't respond to even our most polite move() instruction.  The moveStartTimeout() lets you set a time period withing which the device must start isMoving() after a move() instruction.  Failure to do so results in a moveFailed() signal.
+
+
+
+
+The unique behavior is defined as:
+
+isConnected means:		the feedback process variable, setpoint PV, and moving-status PV are connected.
+isMoving() means:		(moving-status PV's current value & isMovingMask) == isMovingValue
+moveStarted() means:	after a move(), isMoving() became true withine moveStartTimeout()
+moveSucceeded() means:	after a move(), the isMoving() went back to stopped, and the value() was within tolerance() of setpoint()
+moveFailed() means:		after a move(), either
+		-isMoving() did not start within moveStartTimeout(), or
+		- when isMoving() went back to stopped, the required tolerance was not met.
+
+Most useful members for using this class:
+
+value()
+name()
+isConnected()
+isMoving()
+valueChanged()
+
+move()
+moveInProgress()
+
+signals:
+movingChanged()
+moveStarted()
+moveFailed()
+moveSucceeded()
+
+*/
+
+#define AMCONTROL_MOVING_MASK_NONE 0xffffffff
+
+class AMPVwStatusControl : public AMReadOnlyPVwStatusControl {
+
+	Q_OBJECT
+
+public:
+	AMPVwStatusControl(const QString& name, const QString& readPVname, const QString& writePVname, const QString& movingPVname, QObject* parent = 0, double tolerance = AMCONTROL_TOLERANCE_DONT_CARE, double moveStartTimeoutSeconds = 10.0, int isMovingValue = 1, quint32 isMovingMask = AMCONTROL_MOVING_MASK_NONE);
+
+	/// Reimplemented Public Functions:
+	/// Indicates that all three process variables are ready for action:
+	virtual bool isConnected() const { return canMeasure() && canMove() && movingPV_->canRead(); }
+	/// Indicates that a move (that you requested) is currently completing... hasn't reached destination, and hasn't time'd out.
+	virtual bool moveInProgress() const { return mip_ && AMReadOnlyPVwStatusControl::isMoving(); }	// mip_ will be true as soon as move() is requested.  moveInProgress() isn't happening until the device starts moving as well.)
+	/// Indicates that this control currently can cause moves:
+	virtual bool canMove() const { return writePV_->canWrite(); }
+	/// Theoretically, if we're connected, this control type should be able to move:
+	virtual bool shouldMove() const { return true; }
+
+	/// Control range is set by the epics control limits of the setpoint process variable:
+	virtual double minimumValue() const { return writePV_->lowerControlLimit(); }
+	virtual double maximumValue() const { return writePV_->upperControlLimit(); }
+
+	/// This is the target of the last requested move:
+	virtual double setpoint() const { return setpoint_; }
+
+
+	// Additional public functions:
+	QString writePVName() const { return writePV_->pvName(); }
+	double moveStartTimeout() { return moveStartTimeout_; }
+
+public slots:
+	/// Reimplemented public slots:
+
+	/// Start a move to the value setpoint:
+	virtual void move(double setpoint);
+
+	/// Stop a move in progress:
+	virtual void stop() {}	// TODO TODO TODO
+
+	/// set the completion timeout:
+	void setMoveStartTimeout(double seconds) { moveStartTimeout_ = seconds; }
+
+signals:
+	/// These are specialized to report on PV channel connection status.  You should be free to ignore them and use the interface defined in Control::.
+	void writeConnectionTimeoutOccurred();
+
+protected:
+	/// This PV is used for the setpoint:
+	AMDoubleProcessVariable* writePV_;
+
+	/// Used to detect moveStart timeouts:
+	QTimer moveStartTimer_;
+	double moveStartTimeout_;
+
+	/// used internally to track whether we're moving:
+	bool mip_;
+
+	/// the target of our attempted move:
+	double setpoint_;
+
+protected slots:
+
+	/// This is used to handle the timeout of a move start:
+	void onMoveStartTimeout();
+
+	/// This is used to add our own move tracking signals when isMoving() changes:
+	void onIsMovingChanged(bool);
+
+
 
 };
 

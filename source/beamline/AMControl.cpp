@@ -66,7 +66,8 @@ bool AMControl::searchSetChildren(QMap<QString, double> *controlList, QMap<QStri
 /// Class AMReadOnlyPVControl
 ///////////////////////////////////////
 
-AMReadOnlyPVControl::AMReadOnlyPVControl(const QString& name, const QString& readPVname, QObject* parent) : AMControl(name, "?", parent)  {
+AMReadOnlyPVControl::AMReadOnlyPVControl(const QString& name, const QString& readPVname, QObject* parent)
+	: AMControl(name, "?", parent)  {
 
 	readPV_ = new AMDoubleProcessVariable(readPVname, true, this);
 
@@ -104,7 +105,7 @@ void AMReadOnlyPVControl::onReadPVInitialized() {
 }
 
 
-AMPVControl::AMPVControl(const QString& name, const QString& readPVname, const QString& writePVname, double tolerance, double completionTimeoutSeconds, QObject* parent)
+AMPVControl::AMPVControl(const QString& name, const QString& readPVname, const QString& writePVname, QObject* parent, double tolerance, double completionTimeoutSeconds)
 	: AMReadOnlyPVControl(name, readPVname, parent)
 {
 	setTolerance(tolerance);
@@ -209,7 +210,7 @@ void AMPVControl::onCompletionTimeout() {
 	}
 	// Didn't make it into position:
 	else {
-		emit moveFailed(AMControl::ToleranceFailure);
+		emit moveFailed(AMControl::TimeoutFailure);
 	}
 }
 
@@ -239,7 +240,7 @@ void AMPVControl::onPVConnected(bool) {
 /// Class AMReadOnlyPVwStatusControl
 ///////////////////////////////////////
 
-AMReadOnlyPVwStatusControl::AMReadOnlyPVwStatusControl(const QString& name, const QString& readPVname, const QString& movingPVname, int isMovingValue, quint32 isMovingMask, QObject* parent)
+AMReadOnlyPVwStatusControl::AMReadOnlyPVwStatusControl(const QString& name, const QString& readPVname, const QString& movingPVname, QObject* parent, int isMovingValue, quint32 isMovingMask)
 	: AMReadOnlyPVControl(name, readPVname, parent)
 {
 	// Initializing:
@@ -286,3 +287,79 @@ void AMReadOnlyPVwStatusControl::onMovingChanged(int movingValue) {
 		emit movingChanged(wasMoving_ = nowMoving);
 }
 
+AMPVwStatusControl::AMPVwStatusControl(const QString& name, const QString& readPVname, const QString& writePVname, const QString& movingPVname, QObject* parent, double tolerance, double moveStartTimeoutSeconds, int isMovingValue, quint32 isMovingMask)
+	: AMReadOnlyPVwStatusControl(name, readPVname, movingPVname, parent, isMovingValue, isMovingMask) {
+
+	// Initialize:
+	mip_ = false;
+	setTolerance(tolerance);
+	setpoint_ = 0;
+	moveStartTimeout_ = moveStartTimeoutSeconds;
+
+	// create new setpoint PV
+	writePV_ = new AMDoubleProcessVariable(writePVname, true, this);
+	// connect:
+	connect(writePV_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
+	connect(writePV_, SIGNAL(error(int)), this, SLOT(onPVError(int)));
+	connect(writePV_, SIGNAL(connectionTimeout()), this, SIGNAL(writeConnectionTimeoutOccurred()));
+	connect(writePV_, SIGNAL(connectionTimeout()), this, SLOT(onConnectionTimeout()));
+
+	// connect the timer to the timeout handler:
+	connect(&moveStartTimer_, SIGNAL(timeout()), this, SLOT(onMoveStartTimeout()));
+
+	// watch out for the changes in the device moving:
+	connect(this, SIGNAL(movingChanged(bool)), this, SLOT(onIsMovingChanged(bool)));
+
+}
+
+/// Start a move to the value setpoint:
+void AMPVwStatusControl::move(double setpoint) {
+	// This is our new target:
+	setpoint_ = setpoint;
+	// Issue the move command:
+	writePV_->setValue(setpoint_);
+	// Flag that "our" move started:
+	mip_ = true;
+	// start the timer to check if our move failed to start:
+	moveStartTimer_.start(moveStartTimeout_*1000.0);
+
+}
+
+/// This is used to handle the timeout of a move start:
+void AMPVwStatusControl::onMoveStartTimeout() {
+
+	moveStartTimer_.stop();
+
+	// This is only meaningful if one of our moves is in progress.
+	if(mip_) {
+		// The move didn't start within our allowed start period. That counts as a move failed.
+		emit moveFailed(AMControl::TimeoutFailure);
+		// give up on this move:
+		mip_ = false;
+	}
+}
+
+/// This is used to add our own move tracking signals when isMoving() changes.
+//This slot will only be accessed on _changes_ in isMoving()
+void AMPVwStatusControl::onIsMovingChanged(bool isMoving) {
+	// if we requested one of our moves, and moving just started:
+	if(mip_ && isMoving) {
+		// This is great... the device started moving within the timeout:
+		emit moveStarted();
+		// disable the moveStartTimer; we don't need it anymore
+		moveStartTimer_.stop();
+	}
+
+	// If one of our moves was running, and we stopped moving:
+	if(mip_ && !isMoving) {
+		// That's the end of our move
+		mip_ = false;
+
+		// Check if we succeeded...
+		if(inPosition())
+			emit moveSucceeded();
+		else
+			emit moveFailed(AMControl::ToleranceFailure);
+	}
+
+}
