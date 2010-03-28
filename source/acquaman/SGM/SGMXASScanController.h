@@ -1,13 +1,13 @@
 #ifndef AMSGMXASSCANCONTROLLER_H
 #define AMSGMXASSCANCONTROLLER_H
 
-#include "beamline/AMSGMBeamline.h"
+#include "beamline/SGMBeamline.h"
 #include "AMXASScanConfiguration.h"
 
-class AMSGMXASScanController
+class SGMXASScanController
 {
 public:
-    AMSGMXASScanController(AMXASScanConfiguration *cfg);
+    SGMXASScanController(AMXASScanConfiguration *cfg);
 
     bool isBeamlineInitialized() { return beamlineInitialized_;}
     virtual bool beamlineInitialize();

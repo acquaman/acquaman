@@ -3,16 +3,16 @@
 
 #include "AMDacqScanController.h"
 //#include "AMXASScanConfiguration.h"
-#include "AMSGMXASScanController.h"
-//#include "beamline/AMSGMBeamline.h"
+#include "SGMXASScanController.h"
+//#include "beamline/SGMBeamline.h"
 
-class AMXASDacqScanController : public AMDacqScanController, public AMSGMXASScanController
+class SGMXASDacqScanController : public AMDacqScanController, public SGMXASScanController
 {
 Q_OBJECT
 public:
-    explicit AMXASDacqScanController(AMXASScanConfiguration *xasSCfg, QObject *parent = 0);
+    explicit SGMXASDacqScanController(AMXASScanConfiguration *xasSCfg, QObject *parent = 0);
 
-//    bool isInitialized() { return initialized_;}
+    bool isInitialized() { return (initialized_ && beamlineInitialized_);}
 
 signals:
     void initialized();
@@ -28,9 +28,6 @@ public slots:
         advAcq_->setEnd(0, xasSCfg_->end(0));
         AMDacqScanController::start();
     }
-
-//protected:
-//    bool initialized_;
 };
 
 #endif // XASDACQSCANCONTROLLER_H

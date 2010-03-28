@@ -4,6 +4,17 @@
 #include <QObject>
 #include "beamline/AMControl.h"
 
+/*
+  FIX ME UP! I want to be able to have elastic regions ... start value is last end plus this delta.
+class ContinuousRegion
+{
+public:
+    ContinuousRegion(){};
+    double startVal_;
+    QList<double> values_;
+};
+*/
+
 class AMRegion: public QObject
 {
 Q_OBJECT

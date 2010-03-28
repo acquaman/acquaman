@@ -5,7 +5,7 @@
 #include "AMPVNames.h"
 #include "AMControlSet.h"
 
-class AMSGMBeamline : public AMControl
+class SGMBeamline : public AMControl
 {
     Q_OBJECT
 
@@ -13,10 +13,10 @@ public:
     enum sgmGrating {lowGrating=0, mediumGrating=1, highGrating=2};
     enum sgmHarmonic {firstHarmonic=1, thirdHarmonic=3};
 
-    static AMSGMBeamline* sgm();		// singleton-class accessor
+    static SGMBeamline* sgm();		// singleton-class accessor
     static void releaseSGM();	// releases memory for Beamline
 
-    virtual ~AMSGMBeamline();
+    virtual ~SGMBeamline();
 
     // What does this Beamline have? (These objects will be useful in the scripting world too!)
     ///////////////////////////////////
@@ -36,8 +36,8 @@ public:
 
 protected:
     // Singleton implementation:
-    AMSGMBeamline();					// protected constructor... only access through Beamline::bl()
-    static AMSGMBeamline* instance_;
+    SGMBeamline();					// protected constructor... only access through Beamline::bl()
+    static SGMBeamline* instance_;
 
     // Parts of this beamline:
     ///////////////////////////////
@@ -53,11 +53,11 @@ protected:
 	AMControl *exitSlitTracking_;
 };
 
-class AMSGMFluxOptimization : public AMControlOptimization
+class SGMFluxOptimization : public AMControlOptimization
 {
     Q_OBJECT
 public:
-    AMSGMFluxOptimization(QObject *parent=0);
+    SGMFluxOptimization(QObject *parent=0);
 
     QMap<double, double> curve(QList<QVariant> stateParameters, QList<AMXASRegion*> contextParameters);
 

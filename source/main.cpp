@@ -5,7 +5,7 @@
 
 #include "beamline/AMPVNames.h"
 #include "beamline/AMBeamline.h"
-#include "beamline/AMSGMBeamline.h"
+#include "beamline/SGMBeamline.h"
 #include "beamline/AMControlState.h"
 //#include "acquaman/AMXASDacqScanController.h"
 #include "dataman/AMDatabase.h"

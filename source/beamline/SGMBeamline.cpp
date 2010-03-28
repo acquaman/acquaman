@@ -1,9 +1,9 @@
-#include "AMSGMBeamline.h"
+#include "SGMBeamline.h"
 
-AMSGMBeamline* AMSGMBeamline::instance_ = 0;
+SGMBeamline* SGMBeamline::instance_ = 0;
 
 
-AMSGMBeamline::AMSGMBeamline() : AMControl("AMSGMBeamline", "n/a") {
+SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 
     ringCurrent_ = new AMReadOnlyPVControl("ringCurrent", AMPVNames::ringCurrent, this);
     addChild(ringCurrent_);
@@ -42,11 +42,11 @@ AMSGMBeamline::AMSGMBeamline() : AMControl("AMSGMBeamline", "n/a") {
     addChild(exitSlitTracking_);
 }
 
-AMSGMBeamline::~AMSGMBeamline()
+SGMBeamline::~SGMBeamline()
 {
 }
 
-bool AMSGMBeamline::energyValidForSettings(sgmGrating grating, sgmHarmonic harmonic, double energy){
+bool SGMBeamline::energyValidForSettings(sgmGrating grating, sgmHarmonic harmonic, double energy){
     if( (grating == 0) && (harmonic == 1) && (energy > 240) && (energy < 750) )
         return true;
     else if( (grating == 1) && (harmonic == 1) && (energy > 440) && (energy < 1200) )
@@ -59,7 +59,7 @@ bool AMSGMBeamline::energyValidForSettings(sgmGrating grating, sgmHarmonic harmo
         return false;
 }
 
-bool AMSGMBeamline::energyRangeValidForSettings(sgmGrating grating, sgmHarmonic harmonic, double minEnergy, double maxEnergy){
+bool SGMBeamline::energyRangeValidForSettings(sgmGrating grating, sgmHarmonic harmonic, double minEnergy, double maxEnergy){
     if( (grating == 0) && (harmonic == 1) && (maxEnergy > 240) && (minEnergy < 750) )
         return true;
     else if( (grating == 1) && (harmonic == 1) && (maxEnergy > 440) && (minEnergy < 1200) )
@@ -72,16 +72,16 @@ bool AMSGMBeamline::energyRangeValidForSettings(sgmGrating grating, sgmHarmonic 
         return false;
 }
 
-AMSGMBeamline* AMSGMBeamline::sgm() {
+SGMBeamline* SGMBeamline::sgm() {
 
         if(instance_ == 0)
-                instance_ = new AMSGMBeamline();
+                instance_ = new SGMBeamline();
 
         return instance_;
 
 }
 
-void AMSGMBeamline::releaseSGM() {
+void SGMBeamline::releaseSGM() {
 
         if(instance_) {
                 delete instance_;
@@ -92,11 +92,11 @@ void AMSGMBeamline::releaseSGM() {
 
 
 
-AMSGMFluxOptimization::AMSGMFluxOptimization(QObject *parent) : AMControlOptimization(parent) {
+SGMFluxOptimization::SGMFluxOptimization(QObject *parent) : AMControlOptimization(parent) {
     name_ = "SGMFlux";
 }
 
-QMap<double, double> AMSGMFluxOptimization::curve(QList<QVariant> stateParameters, QList<AMXASRegion*> contextParameters){
+QMap<double, double> SGMFluxOptimization::curve(QList<QVariant> stateParameters, QList<AMXASRegion*> contextParameters){
     double _maxenergy = maximumEnergy(contextParameters);
     double _minenergy = minimumEnergy(contextParameters);
     double _maxflux = 0;
@@ -104,9 +104,9 @@ QMap<double, double> AMSGMFluxOptimization::curve(QList<QVariant> stateParameter
     double _maximum = 0;
     double _minimum = 1;
     double _slit = stateParameters.at(0).toDouble();
-    AMSGMBeamline::sgmGrating _grating = (AMSGMBeamline::sgmGrating)stateParameters.at(1).toInt();
-    AMSGMBeamline::sgmHarmonic _harmonic = (AMSGMBeamline::sgmHarmonic)stateParameters.at(2).toInt();
-    if(!AMSGMBeamline::sgm()->energyRangeValidForSettings(_grating, _harmonic, _minenergy, _maxenergy))
+    SGMBeamline::sgmGrating _grating = (SGMBeamline::sgmGrating)stateParameters.at(1).toInt();
+    SGMBeamline::sgmHarmonic _harmonic = (SGMBeamline::sgmHarmonic)stateParameters.at(2).toInt();
+    if(!SGMBeamline::sgm()->energyRangeValidForSettings(_grating, _harmonic, _minenergy, _maxenergy))
     {
     }
     else if((_harmonic == 3) && (_grating == 2)){
@@ -117,19 +117,19 @@ QMap<double, double> AMSGMFluxOptimization::curve(QList<QVariant> stateParameter
         _minimum = 1100;
     }
     else{
-        if( (_grating == 0) && AMSGMBeamline::sgm()->energyRangeValidForSettings(_grating, _harmonic, _minenergy, _maxenergy) ){
+        if( (_grating == 0) && SGMBeamline::sgm()->energyRangeValidForSettings(_grating, _harmonic, _minenergy, _maxenergy) ){
             _maxflux = 5.75;
             _minflux = 0.5;
             _maximum = 475;
             _minimum = 200;
         }
-        else if( (_grating == 1) && AMSGMBeamline::sgm()->energyRangeValidForSettings(_grating, _harmonic, _minenergy, _maxenergy) ){
+        else if( (_grating == 1) && SGMBeamline::sgm()->energyRangeValidForSettings(_grating, _harmonic, _minenergy, _maxenergy) ){
             _maxflux = 3.25;
             _minflux = 0.5;
             _maximum = 815;
             _minimum = 450;
         }
-        else if( (_grating == 2) && AMSGMBeamline::sgm()->energyRangeValidForSettings(_grating, _harmonic, _minenergy, _maxenergy) ){
+        else if( (_grating == 2) && SGMBeamline::sgm()->energyRangeValidForSettings(_grating, _harmonic, _minenergy, _maxenergy) ){
             _maxflux = 1.1;
             _minflux = 0.5;
             _maximum = 1075;
@@ -143,13 +143,13 @@ QMap<double, double> AMSGMFluxOptimization::curve(QList<QVariant> stateParameter
         tmpDelta = contextParameters.at(x)->delta();
         tmpEnd = contextParameters.at(x)->end();
         for( double y = tmpStart; ((tmpDelta > 0) ? (y <= tmpEnd) : (y >= tmpEnd)); y += tmpDelta ){
-            rCurve[y] = !AMSGMBeamline::sgm()->energyValidForSettings(_grating, _harmonic, y) ? 0.0 : (_slit/62500)*(500-_slit)* ( ((_minflux-_maxflux)/((_minimum-_maximum)*(_minimum-_maximum)))*(y-_maximum)*(y-_maximum)+_maxflux );
+            rCurve[y] = !SGMBeamline::sgm()->energyValidForSettings(_grating, _harmonic, y) ? 0.0 : (_slit/62500)*(500-_slit)* ( ((_minflux-_maxflux)/((_minimum-_maximum)*(_minimum-_maximum)))*(y-_maximum)*(y-_maximum)+_maxflux );
         }
     }
     return rCurve;
 }
 
-double AMSGMFluxOptimization::maximumEnergy(QList<AMXASRegion*> regions){
+double SGMFluxOptimization::maximumEnergy(QList<AMXASRegion*> regions){
     double curMax = 240;
     if(regions.count() == 0)
         return -1;
@@ -160,7 +160,7 @@ double AMSGMFluxOptimization::maximumEnergy(QList<AMXASRegion*> regions){
     return curMax;
 }
 
-double AMSGMFluxOptimization::minimumEnergy(QList<AMXASRegion*> regions){
+double SGMFluxOptimization::minimumEnergy(QList<AMXASRegion*> regions){
     double curMin = 2000;
     if(regions.count() == 0)
         return -1;

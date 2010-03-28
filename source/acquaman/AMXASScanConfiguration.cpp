@@ -3,14 +3,13 @@
 AMXASScanConfiguration::AMXASScanConfiguration(QObject *parent) : AMScanConfiguration(parent)
 {
     QList<AMControl*> fluxresList;
-    fluxresList << AMSGMBeamline::sgm()->exitSlitGap() << AMSGMBeamline::sgm()->grating() << AMSGMBeamline::sgm()->harmonic();
- /*   setExitSlitGap(AMSGMBeamline::sgm()->exitSlitGap()->value());
-    setGrating((AMSGMBeamline::sgm()->grating()->value() < 1) ? AMSGMBeamline::lowGrating : ((AMSGMBeamline::sgm()->grating()->value() < 2) ? AMSGMBeamline::mediumGrating : AMSGMBeamline::highGrating));
-//    setGrating(AMSGMBeamline::sgm()->grating()->value());
-    setUndulatorTracking(AMSGMBeamline::sgm()->undulatorTracking()->value());
-    setMonoTracking(AMSGMBeamline::sgm()->monoTracking()->value());
-    setExitSlitTracking(AMSGMBeamline::sgm()->exitSlitTracking()->value());
-*/
+    fluxresList << SGMBeamline::sgm()->exitSlitGap() << SGMBeamline::sgm()->grating() << SGMBeamline::sgm()->harmonic();
+    setExitSlitGap(SGMBeamline::sgm()->exitSlitGap()->value());
+    setGrating((SGMBeamline::sgm()->grating()->value() < 1) ? SGMBeamline::lowGrating : ((SGMBeamline::sgm()->grating()->value() < 2) ? SGMBeamline::mediumGrating : SGMBeamline::highGrating));
+    setUndulatorTracking(SGMBeamline::sgm()->undulatorTracking()->value());
+    setMonoTracking(SGMBeamline::sgm()->monoTracking()->value());
+    setExitSlitTracking(SGMBeamline::sgm()->exitSlitTracking()->value());
+
 }
 
 double AMXASScanConfiguration::start(size_t index) const
@@ -95,7 +94,7 @@ bool AMXASScanConfiguration::addRegion(size_t index, AMXASRegion *region)
 
 bool AMXASScanConfiguration::addRegion(size_t index, double start, double delta, double end)
 {
-    AMXASRegion *xasr = new AMXASRegion(AMSGMBeamline::sgm()->energy(), this);
+    AMXASRegion *xasr = new AMXASRegion(SGMBeamline::sgm()->energy(), this);
     xasr->setStart(start);
     xasr->setDelta(delta);
     xasr->setEnd(end);
@@ -112,7 +111,7 @@ bool AMXASScanConfiguration::deleteRegion(size_t index)
 }
 
 bool AMXASScanConfiguration::setExitSlitGap(double exitSlitGap){
-    if(AMSGMBeamline::sgm()->exitSlitGap()->valueOutOfRange(exitSlitGap))
+    if(SGMBeamline::sgm()->exitSlitGap()->valueOutOfRange(exitSlitGap))
         return FALSE;
     exitSlitGap_ = exitSlitGap;
     return TRUE;
