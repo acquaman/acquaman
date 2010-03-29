@@ -73,11 +73,11 @@ public slots:
 	/// Load yourself from the database. (returns true on success)
 	/// Detailed subclasses of Scan must re-implement this to retrieve all of their unique data fields.
 		/// When doing so, always call the parent class implemention first.
-        virtual bool loadFromDb(AMDatabase* db, int id);
+	virtual bool loadFromDb(AMDatabase* db, int id);
 	/// Store or update self in the database. (returns true on success)
 	/// Detailed subclasses of Scan must re-implement this to store all of their unique data.
 		/// When doing so, always call the parent class implemention first.
-        virtual bool storeToDb(AMDatabase* db);
+	virtual bool storeToDb(AMDatabase* db);
 
 private:
 	/// User defined scan name

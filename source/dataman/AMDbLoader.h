@@ -15,7 +15,7 @@ public:
 	/// If no object exists at that id, a null pointer is returned.
 	/// Memory management: the new object will become a child of 'parent'.
 	/// If you pass in a pointer to a QString 'type', it will be filled with the type of the object that was created.
-        static AMDbObject* createAndLoad(AMDatabase* db, int id, QObject* parent = 0, QString* type = 0) {
+	static AMDbObject* createAndLoad(AMDatabase* db, int id, QObject* parent = 0, QString* type = 0) {
 		// Get the type of the object that lives here:
 		QString realType = db->scanType(id);
 
@@ -23,15 +23,15 @@ public:
 		if(type)
 			*type = realType;
 
-                AMDbObject* returnObject = 0;
+		AMDbObject* returnObject = 0;
 
 		// List of type possiblities starts here:
-		if(realType == "DbObject") {
-                        returnObject = new AMDbObject(parent);
+		if(realType == "AMDbObject") {
+			returnObject = new AMDbObject(parent);
 			returnObject->loadFromDb(db, id);
 		}
-		else if(realType == "Scan") {
-                        returnObject = new AMScan(parent);
+		else if(realType == "AMScan") {
+			returnObject = new AMScan(parent);
 			returnObject->loadFromDb(db, id);
 		}
 		// Add additional subclasses here:
