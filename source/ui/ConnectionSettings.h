@@ -116,7 +116,7 @@ public:
 public slots:
 	void onEpicsError(int errCode) {
 		
-                textBrowser->append( AMDoubleProcessVariable::errorString(errCode));
+				textBrowser->append( AMProcessVariable::errorString(errCode));
 		
 	}
 

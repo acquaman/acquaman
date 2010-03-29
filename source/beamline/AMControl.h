@@ -354,8 +354,8 @@ public:
 	virtual bool canMeasure() const { return readPV_->canRead(); }
 	virtual bool shouldMeasure() const { return true; }
 
-	virtual double minimumValue() const { return readPV_->lowerAlarmValue(); }
-	virtual double maximumValue() const { return readPV_->upperAlarmValue(); }
+	virtual double minimumValue() const { return readPV_->lowerGraphicalLimit(); }
+	virtual double maximumValue() const { return readPV_->upperGraphicalLimit(); }
 
 
 	// Additional public functions:
@@ -368,7 +368,7 @@ signals:	// These are specialized to report on PV channel connection status.  Yo
 	void readConnectionTimeoutOccurred();
 
 protected:
-	AMDoubleProcessVariable* readPV_;
+	AMProcessVariable* readPV_;
 	// reuse for wStatus: IntProcessVariable* movingPV_;
 
 	// This is used to detect changes in the moving/not-moving status
@@ -476,7 +476,7 @@ signals:
 
 protected:
 	/// Used for the setpoint:
-	AMDoubleProcessVariable* writePV_;
+	AMProcessVariable* writePV_;
 
 	/// Used to detect completion timeouts:
 	QTimer completionTimer_;
@@ -558,7 +558,7 @@ public:
 	virtual bool isConnected() const { return canMeasure() && movingPV_->canRead(); }
 
 	/// The movingPV now provides our moving status. (Masked with isMovingMask and compared to isMovingValue)
-	virtual bool isMoving() const { return ( int(movingPV_->lastValue() & isMovingMask_) == isMovingValue_); }
+	virtual bool isMoving() const { return ( int(movingPV_->getInt() & isMovingMask_) == isMovingValue_); }
 
 	/// Additional public functions:
 	QString movingPVName() const { return movingPV_->pvName(); }
@@ -571,7 +571,7 @@ signals:
 
 protected:
 	/// This PV is used to watch the moving status
-	AMIntProcessVariable* movingPV_;
+	AMProcessVariable* movingPV_;
 
 	/// This is the value of the movingPV that indicates "moving == true"
 	int isMovingValue_;
@@ -687,7 +687,7 @@ signals:
 
 protected:
 	/// This PV is used for the setpoint:
-	AMDoubleProcessVariable* writePV_;
+	AMProcessVariable* writePV_;
 
 	/// Used to detect moveStart timeouts:
 	QTimer moveStartTimer_;

@@ -69,7 +69,7 @@ bool AMControl::searchSetChildren(QMap<QString, double> *controlList, QMap<QStri
 AMReadOnlyPVControl::AMReadOnlyPVControl(const QString& name, const QString& readPVname, QObject* parent)
 	: AMControl(name, "?", parent)  {
 
-	readPV_ = new AMDoubleProcessVariable(readPVname, true, this);
+	readPV_ = new AMProcessVariable(readPVname, true, this);
 
 	connect(readPV_, SIGNAL(valueChanged(double)), this, SIGNAL(valueChanged(double)));
 	connect(readPV_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
@@ -126,7 +126,7 @@ AMPVControl::AMPVControl(const QString& name, const QString& readPVname, const Q
 	connect(&completionTimer_, SIGNAL(timeout()), this, SLOT(onCompletionTimeout()));
 
 	// process variable:
-	writePV_ = new AMDoubleProcessVariable(writePVname, true, this);
+	writePV_ = new AMProcessVariable(writePVname, false, this);
 	connect(writePV_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
 	connect(writePV_, SIGNAL(error(int)), this, SLOT(onPVError(int)));
 	connect(writePV_, SIGNAL(connectionTimeout()), this, SIGNAL(writeConnectionTimeoutOccurred()));
@@ -249,7 +249,7 @@ AMReadOnlyPVwStatusControl::AMReadOnlyPVwStatusControl(const QString& name, cons
 	wasMoving_ = false;
 
 	// Create the movingPV and hook it up:
-	movingPV_ = new AMIntProcessVariable(movingPVname, true, this);
+	movingPV_ = new AMProcessVariable(movingPVname, true, this);
 	connect(movingPV_, SIGNAL(valueChanged(int)), this, SLOT(onMovingChanged(int)));
 	connect(movingPV_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
 	connect(movingPV_, SIGNAL(error(int)), this, SLOT(onPVError(int)));
@@ -297,7 +297,7 @@ AMPVwStatusControl::AMPVwStatusControl(const QString& name, const QString& readP
 	moveStartTimeout_ = moveStartTimeoutSeconds;
 
 	// create new setpoint PV
-	writePV_ = new AMDoubleProcessVariable(writePVname, true, this);
+	writePV_ = new AMProcessVariable(writePVname, false, this);
 	// connect:
 	connect(writePV_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
 	connect(writePV_, SIGNAL(error(int)), this, SLOT(onPVError(int)));
