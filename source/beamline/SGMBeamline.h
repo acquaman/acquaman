@@ -1,20 +1,22 @@
 #ifndef ACQMAN_SGMBEAMLINE_H
 #define ACQMAN_SGMBEAMLINE_H
 
-#include "AMControl.h"
+//#include "AMControl.h"
 #include "AMPVNames.h"
+#include "AMControlSet.h"
 
-class AMSGMBeamline : public AMControl
+class SGMBeamline : public AMControl
 {
     Q_OBJECT
 
 public:
     enum sgmGrating {lowGrating=0, mediumGrating=1, highGrating=2};
+    enum sgmHarmonic {firstHarmonic=1, thirdHarmonic=3};
 
-    static AMSGMBeamline* sgm();		// singleton-class accessor
+    static SGMBeamline* sgm();		// singleton-class accessor
     static void releaseSGM();	// releases memory for Beamline
 
-    virtual ~AMSGMBeamline();
+    virtual ~SGMBeamline();
 
     // What does this Beamline have? (These objects will be useful in the scripting world too!)
     ///////////////////////////////////
@@ -24,26 +26,44 @@ public:
 	AMControl* exitSlitGap() const { return exitSlitGap_;}
 	AMControl* m4() const { return m4_;}
 	AMControl* grating() const { return grating_;}
+        AMControl* harmonic() const { return harmonic_;}
 	AMControl* undulatorTracking() const { return undulatorTracking_;}
 	AMControl* monoTracking() const { return monoTracking_;}
 	AMControl* exitSlitTracking() const { return exitSlitTracking_;}
 
+    bool energyValidForSettings(sgmGrating grating, sgmHarmonic harmonic, double energy);
+    bool energyRangeValidForSettings(sgmGrating grating, sgmHarmonic harmonic, double minEnergy, double maxEnergy);
+
 protected:
     // Singleton implementation:
-    AMSGMBeamline();					// protected constructor... only access through Beamline::bl()
-    static AMSGMBeamline* instance_;
+    SGMBeamline();					// protected constructor... only access through Beamline::bl()
+    static SGMBeamline* instance_;
 
     // Parts of this beamline:
     ///////////////////////////////
 
-	AMControl* ringCurrent_;
+        AMControl *ringCurrent_;
 	AMControl *energy_;
 	AMControl *exitSlitGap_;
-	AMControl* m4_;
+        AMControl *m4_;
 	AMControl *grating_;
+        AMControl *harmonic_;
 	AMControl *undulatorTracking_;
 	AMControl *monoTracking_;
 	AMControl *exitSlitTracking_;
 };
 
-#endif // SGMBEAMLINE_H
+class SGMFluxOptimization : public AMControlOptimization
+{
+    Q_OBJECT
+public:
+    SGMFluxOptimization(QObject *parent=0);
+
+    QMap<double, double> curve(QList<QVariant> stateParameters, QList<AMXASRegion*> contextParameters);
+
+protected:
+    double maximumEnergy(QList<AMXASRegion*> regions);
+    double minimumEnergy(QList<AMXASRegion*> regions);
+};
+
+#endif // ACQMAN_SGMBEAMLINE_H

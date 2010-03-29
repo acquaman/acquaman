@@ -56,4 +56,4 @@ protected:
     bool restoreListInternal(AMControl * ctrl, QList<QString> *maskList = NULL, bool useList = FALSE);
 };
 
-#endif // CONTROLSTATE_H
+#endif // ACQMAN_CONTROLSTATE_H

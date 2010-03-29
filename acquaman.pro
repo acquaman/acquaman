@@ -95,10 +95,15 @@ HEADERS += source/beamline/AMDiagnosticPaddle.h \
     source/acquaman/dacq3_2/qepicsadvacq.h \
     source/acquaman/dacq3_2/acqLibHelper.h \
     source/acquaman/AMXASScanConfiguration.h \
-    source/beamline/AMSGMBeamline.h \
+    source/beamline/SGMBeamline.h \
     source/beamline/AMControlState.h \
-    source/acquaman/AMXASDacqScanController.h \
-    source/AMErrorMonitor.h
+    source/acquaman/SGM/SGMXASDacqScanController.h \
+    source/AMErrorMonitor.h \
+    source/beamline/AMControlSet.h \
+    source/acquaman/AMRegion.h \
+    source/acquaman/SGM/SGMXASScanController.h \
+    source/acquaman/SGM/SGMXASScanConfiguration.h \
+    source/acquaman/SGM/SGMScanConfiguration.h
 FORMS += source/ui/AbsorptionScanController.ui \
     source/ui/ConnectionSettings.ui \
     source/ui/EmissionScanController.ui \
@@ -160,8 +165,13 @@ SOURCES += source/beamline/AMDiagnosticPaddle.cpp \
     source/acquaman/dacq3_2/qepicsadvacq.cpp \
     source/acquaman/dacq3_2/acqLibHelper.c \
     source/acquaman/AMXASScanConfiguration.cpp \
-    source/beamline/AMSGMBeamline.cpp \
+    source/beamline/SGMBeamline.cpp \
     source/beamline/AMControlState.cpp \
-    source/acquaman/AMXASDacqScanController.cpp \
-    source/AMErrorMonitor.cpp
+    source/acquaman/SGM/SGMXASDacqScanController.cpp \
+    source/AMErrorMonitor.cpp \
+    source/beamline/AMControlSet.cpp \
+    source/acquaman/AMRegion.cpp \
+    source/acquaman/SGM/SGMXASScanController.cpp \
+    source/acquaman/SGM/SGMXASScanConfiguration.cpp \
+    source/acquaman/SGM/SGMScanConfiguration.cpp
 RESOURCES = source/icons/icons.qrc

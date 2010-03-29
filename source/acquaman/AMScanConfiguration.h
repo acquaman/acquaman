@@ -2,6 +2,7 @@
 #define ACQMAN_SCANCONFIGURATION_H
 
 #include <QObject>
+#include "AMRegion.h"
 
 class AMScanConfiguration : public QObject
 {
@@ -43,4 +44,4 @@ protected:
     QString filePath_;
 };
 
-#endif // SCANCONFIGURATION_H
+#endif // ACQMAN_SCANCONFIGURATION_H

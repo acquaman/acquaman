@@ -27,4 +27,4 @@ public:
     static void save();
 };
 
-#endif // PVNAMES_H
+#endif // ACQMAN_PVNAMES_H

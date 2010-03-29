@@ -8,4 +8,4 @@ public:
         virtual ~AMVariableAperture();
 };
 
-#endif /*VARIABLEAPERTURE_H_*/
+#endif /*ACQMAN_VARIABLEAPERTURE_H_*/

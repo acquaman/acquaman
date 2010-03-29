@@ -8,4 +8,4 @@ public:
         virtual ~AMSampleHolder();
 };
 
-#endif /*SAMPLEHOLDER_H_*/
+#endif /*ACQMAN_SAMPLEHOLDER_H_*/

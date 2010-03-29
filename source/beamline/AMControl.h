@@ -168,6 +168,9 @@ public:
 		setObjectName(name);
 		wasConnected_ = false;
 		tolerance_ = AMCONTROL_TOLERANCE_DONT_CARE;
+
+                // Dave playing
+                discrete_ = false;
 	}
 
 	/// One additional feature of Controls is the ability to logically group sets of sub-controls together.  (For example, a Monochromator control could consist of a Grating angle control, exit slit position control, and grating selector.)  Every Control therefore has a list of subcontrols:
@@ -259,6 +262,9 @@ The Control abstraction provides two different properties (and associated signal
 	virtual double maximumValue() const { return -1; }
 	bool valueOutOfRange(double value) const { return (value > maximumValue() || value< minimumValue() ) ? TRUE : FALSE;}
 
+        // Dave playing
+        bool discrete() { return discrete_;}
+
 public slots:
 	/// This is used to set the control.  Must reimplement for actual controls
 	virtual void move(double setpoint) {
@@ -274,6 +280,9 @@ public slots:
 
 	/// Move all of the AMControl's children (and grandchildren, etc) based on a QMap of Control Names and setpoint values
 	bool setState(const QMap<QString, double> controlList, unsigned int errorLevel = 0);
+
+        // Dave playing
+        void setDiscrete(bool discrete) { discrete_ = discrete;}
 
 signals:
 	/// Announce changes of a moveInProgress(). These only apply to moves started by a local move() command... ie: they don't occur when another system causes the control to change its value.
@@ -316,6 +325,9 @@ protected slots:
 private: // subclasses should use the protected methods to access these, to ensure signal generation.
 	bool tolerance_;
 	QString units_;
+
+        // Dave playing around
+        bool discrete_;
 
 };
 

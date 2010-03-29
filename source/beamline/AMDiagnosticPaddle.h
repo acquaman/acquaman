@@ -8,4 +8,4 @@ public:
         virtual ~AMDiagnosticPaddle();
 };
 
-#endif /*DIAGNOSTICPADDLE_H_*/
+#endif /*ACQMAN_DIAGNOSTICPADDLE_H_*/

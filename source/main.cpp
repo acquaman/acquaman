@@ -5,9 +5,9 @@
 
 #include "beamline/AMPVNames.h"
 #include "beamline/AMBeamline.h"
-#include "beamline/AMSGMBeamline.h"
+#include "beamline/SGMBeamline.h"
 #include "beamline/AMControlState.h"
-#include "acquaman/AMXASDacqScanController.h"
+//#include "acquaman/AMXASDacqScanController.h"
 #include "dataman/AMDatabase.h"
 #include "dataman/AMDbLoader.h"
 
@@ -97,8 +97,6 @@ int main(int argc, char *argv[])
 
 	/// Program Shutdown:
 	// =================================
-
-        //XASScanConfiguration *xasCfg = new
 
 	// Make sure we release/clean-up the beamline interface
         AMBeamline::releaseBl();

@@ -8,4 +8,4 @@ public:
         virtual ~AMLoadLock();
 };
 
-#endif /*LOADLOCK_H_*/
+#endif /*ACQMAN_LOADLOCK_H_*/
