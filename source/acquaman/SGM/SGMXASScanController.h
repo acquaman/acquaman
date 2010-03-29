@@ -2,7 +2,7 @@
 #define AMSGMXASSCANCONTROLLER_H
 
 #include "beamline/SGMBeamline.h"
-#include "AMXASScanConfiguration.h"
+#include "SGMXASScanConfiguration.h"
 
 class SGMXASScanController
 {

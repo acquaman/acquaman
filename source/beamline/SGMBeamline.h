@@ -66,4 +66,4 @@ protected:
     double minimumEnergy(QList<AMXASRegion*> regions);
 };
 
-#endif // SGMBEAMLINE_H
+#endif // ACQMAN_SGMBEAMLINE_H

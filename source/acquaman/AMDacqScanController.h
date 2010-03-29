@@ -48,4 +48,4 @@ protected slots:
     void onPause(int mode);
 };
 
-#endif // DACQSCANCONTROLLER_H
+#endif // ACQMAN_DACQSCANCONTROLLER_H

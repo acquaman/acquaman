@@ -289,4 +289,4 @@ signals:
 };
 
 
-#endif /*PROCESSVARIABLE_H_*/
+#endif /*ACQMAN_PROCESSVARIABLE_H_*/

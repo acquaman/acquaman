@@ -2,14 +2,19 @@
 
 AMXASScanConfiguration::AMXASScanConfiguration(QObject *parent) : AMScanConfiguration(parent)
 {
+
+    /*
     QList<AMControl*> fluxresList;
     fluxresList << SGMBeamline::sgm()->exitSlitGap() << SGMBeamline::sgm()->grating() << SGMBeamline::sgm()->harmonic();
+    */
+
+    /*
     setExitSlitGap(SGMBeamline::sgm()->exitSlitGap()->value());
     setGrating((SGMBeamline::sgm()->grating()->value() < 1) ? SGMBeamline::lowGrating : ((SGMBeamline::sgm()->grating()->value() < 2) ? SGMBeamline::mediumGrating : SGMBeamline::highGrating));
     setUndulatorTracking(SGMBeamline::sgm()->undulatorTracking()->value());
     setMonoTracking(SGMBeamline::sgm()->monoTracking()->value());
     setExitSlitTracking(SGMBeamline::sgm()->exitSlitTracking()->value());
-
+    */
 }
 
 double AMXASScanConfiguration::start(size_t index) const
@@ -92,6 +97,7 @@ bool AMXASScanConfiguration::addRegion(size_t index, AMXASRegion *region)
     return FALSE;
 }
 
+/*
 bool AMXASScanConfiguration::addRegion(size_t index, double start, double delta, double end)
 {
     AMXASRegion *xasr = new AMXASRegion(SGMBeamline::sgm()->energy(), this);
@@ -100,6 +106,7 @@ bool AMXASScanConfiguration::addRegion(size_t index, double start, double delta,
     xasr->setEnd(end);
     return addRegion(index, xasr);
 }
+*/
 
 bool AMXASScanConfiguration::deleteRegion(size_t index)
 {
@@ -108,11 +115,4 @@ bool AMXASScanConfiguration::deleteRegion(size_t index)
         return TRUE;
     }
     return FALSE;
-}
-
-bool AMXASScanConfiguration::setExitSlitGap(double exitSlitGap){
-    if(SGMBeamline::sgm()->exitSlitGap()->valueOutOfRange(exitSlitGap))
-        return FALSE;
-    exitSlitGap_ = exitSlitGap;
-    return TRUE;
 }

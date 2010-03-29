@@ -8,4 +8,4 @@ public:
         virtual ~AMInsertionDevice();
 };
 
-#endif /*INSERTIONDEVICE_H_*/
+#endif /*ACQMAN_INSERTIONDEVICE_H_*/

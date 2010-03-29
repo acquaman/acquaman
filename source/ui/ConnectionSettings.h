@@ -8,7 +8,7 @@
 #include "beamline/SGMBeamline.h"
 #include "beamline/AMControlState.h"
 #include "ui/NumericControl.h"
-#include "acquaman/SGMXASDacqScanController.h"
+#include "acquaman/SGM/SGMXASDacqScanController.h"
 
 class ConnectionSettings : public QWidget, private Ui::ConnectionSettings {
 	
@@ -143,7 +143,7 @@ public slots:
         }
 
         void onRestoreRequested(){
-            AMXASScanConfiguration *xasCfg = new AMXASScanConfiguration(SGMBeamline::sgm());
+            SGMXASScanConfiguration *xasCfg = new SGMXASScanConfiguration(SGMBeamline::sgm());
             xasCfg->addRegion(0, 250, 1, 260);
             xasCfg->setExitSlitGap(15);
             xasCfg->setGrating(SGMBeamline::mediumGrating);

@@ -44,4 +44,4 @@ protected:
     QString filePath_;
 };
 
-#endif // SCANCONFIGURATION_H
+#endif // ACQMAN_SCANCONFIGURATION_H

@@ -74,4 +74,4 @@ protected:
     bool initialized_;
 };
 
-#endif // SCANCONTROLLER_H
+#endif // ACQMAN_SCANCONTROLLER_H

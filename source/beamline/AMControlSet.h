@@ -1,5 +1,5 @@
-#ifndef AMCONTROLSET_H
-#define AMCONTROLSET_H
+#ifndef ACQMAN_AMCONTROLSET_H
+#define ACQMAN_AMCONTROLSET_H
 
 #include <QObject>
 #include <QList>
@@ -56,4 +56,4 @@ protected:
     QList<AMControlOptimization*> outputs_;
 };
 
-#endif // AMCONTROLSET_H
+#endif // ACQMAN_AMCONTROLSET_H

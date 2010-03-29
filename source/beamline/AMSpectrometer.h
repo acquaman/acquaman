@@ -48,4 +48,4 @@ protected:
 
 };
 
-#endif /*SPECTROMETER_H_*/
+#endif /*ACQMAN_SPECTROMETER_H_*/

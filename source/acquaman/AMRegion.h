@@ -1,5 +1,5 @@
-#ifndef AMREGION_H
-#define AMREGION_H
+#ifndef ACQMAN_AMREGION_H
+#define ACQMAN_AMREGION_H
 
 #include <QObject>
 #include "beamline/AMControl.h"
@@ -70,4 +70,4 @@ public slots:
     bool setControl(AMControl *ctrl){Q_UNUSED(ctrl); return false;}
 };
 
-#endif // AMREGION_H
+#endif // ACQMAN_AMREGION_H

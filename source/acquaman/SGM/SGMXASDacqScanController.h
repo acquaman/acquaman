@@ -1,7 +1,7 @@
-#ifndef XASDACQSCANCONTROLLER_H
-#define XASDACQSCANCONTROLLER_H
+#ifndef ACQMAN_SGMXASDACQSCANCONTROLLER_H
+#define ACQMAN_SGMXASDACQSCANCONTROLLER_H
 
-#include "AMDacqScanController.h"
+#include "acquaman/AMDacqScanController.h"
 //#include "AMXASScanConfiguration.h"
 #include "SGMXASScanController.h"
 //#include "beamline/SGMBeamline.h"
@@ -30,4 +30,4 @@ public slots:
     }
 };
 
-#endif // XASDACQSCANCONTROLLER_H
+#endif // ACQMAN_SGMXASDACQSCANCONTROLLER_H

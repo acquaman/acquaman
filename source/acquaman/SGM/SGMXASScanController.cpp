@@ -6,11 +6,11 @@ SGMXASScanController::SGMXASScanController(AMXASScanConfiguration *cfg){
 }
 
 bool SGMXASScanController::beamlineInitialize(){
-    SGMBeamline::sgm()->exitSlitGap()->move( ((AMXASScanConfiguration*)xasSCfg_)->exitSlitGap() );
-    SGMBeamline::sgm()->grating()->move( ((AMXASScanConfiguration*)xasSCfg_)->grating() );
-    SGMBeamline::sgm()->undulatorTracking()->move( ((AMXASScanConfiguration*)xasSCfg_)->undulatorTracking() );
-    SGMBeamline::sgm()->monoTracking()->move( ((AMXASScanConfiguration*)xasSCfg_)->monoTracking() );
-    SGMBeamline::sgm()->exitSlitTracking()->move( ((AMXASScanConfiguration*)xasSCfg_)->exitSlitTracking() );
+    SGMBeamline::sgm()->exitSlitGap()->move( ((SGMXASScanConfiguration*)xasSCfg_)->exitSlitGap() );
+    SGMBeamline::sgm()->grating()->move( ((SGMXASScanConfiguration*)xasSCfg_)->grating() );
+    SGMBeamline::sgm()->undulatorTracking()->move( ((SGMXASScanConfiguration*)xasSCfg_)->undulatorTracking() );
+    SGMBeamline::sgm()->monoTracking()->move( ((SGMXASScanConfiguration*)xasSCfg_)->monoTracking() );
+    SGMBeamline::sgm()->exitSlitTracking()->move( ((SGMXASScanConfiguration*)xasSCfg_)->exitSlitTracking() );
     beamlineInitialized_ = true;
     return beamlineInitialized_;
 }

@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include "AMScanConfiguration.h"
-#include "beamline/SGMBeamline.h"
+//#include "beamline/SGMBeamline.h"
 
 class AMXASScanConfiguration : public AMScanConfiguration
 {
@@ -16,34 +16,18 @@ public:
     AMXASRegion* region(size_t index) const;
     QList<AMXASRegion*> regions() { return regions_;}
 
-    double exitSlitGap() const { return exitSlitGap_;}
-    SGMBeamline::sgmGrating grating() const { return grating_;}
-    bool undulatorTracking() { return undulatorTracking_;}
-    bool monoTracking() { return monoTracking_;}
-    bool exitSlitTracking() { return exitSlitTracking_;}
-
 public slots:
     bool setStart(size_t index, double start);
     bool setDelta(size_t index, double delta);
     bool setEnd(size_t index, double end);
     bool setRegion(size_t index, AMXASRegion *region);
-    bool addRegion(size_t index, AMXASRegion *region);
-    bool addRegion(size_t index, double start, double delta, double end);
+    virtual bool addRegion(size_t index, AMXASRegion *region);
+    virtual bool addRegion(size_t index, double start, double delta, double end) = 0;
     bool deleteRegion(size_t index);
-    bool setExitSlitGap(double exitSlitGap);
-    bool setGrating(SGMBeamline::sgmGrating grating) {grating_ = grating; return TRUE;}
-    bool setUndulatorTracking(bool track){undulatorTracking_ = track; return TRUE;}
-    bool setMonoTracking(bool track){monoTracking_ = track; return TRUE;}
-    bool setExitSlitTracking(bool track){exitSlitTracking_ = track; return TRUE;}
 
 protected:
     QList<AMXASRegion*> regions_;
-    QList<AMControlSet*> groups_;
-    double exitSlitGap_;
-    SGMBeamline::sgmGrating grating_;
-    bool undulatorTracking_;
-    bool monoTracking_;
-    bool exitSlitTracking_;
+//    QList<AMControlSet*> groups_;
 };
 
-#endif // XASSCANCONFIGURATION_H
+#endif // ACQMAN_XASSCANCONFIGURATION_H

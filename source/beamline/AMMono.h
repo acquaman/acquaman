@@ -8,4 +8,4 @@ public:
         virtual ~AMMono();
 };
 
-#endif /*MONO_H_*/
+#endif /*ACQMAN_MONO_H_*/
