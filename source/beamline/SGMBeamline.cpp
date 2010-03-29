@@ -26,19 +26,19 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
     m4_->addChild(m4downstream);
     addChild(m4_);
     grating_ = new AMPVwStatusControl("grating", "dave:Energy:mono:grating", "dave:Energy:mono:grating", "dave:Energy:mono:grating:moving", this, 0.1);
-    grating_->setDiscrete(true);
+	//grating_->setDiscrete(true);
     addChild(grating_);
     harmonic_ = new AMPVwStatusControl("harmonic", "dave:Energy:undulator:harmonic", "dave:Energy:undulator:harmonic", "dave:Energy:undulator:harmonic:moving", this, 0.1);
-    harmonic_->setDiscrete(true);
+	//harmonic_->setDiscrete(true);
     addChild(harmonic_);
     undulatorTracking_ = new AMPVControl("undulatorTracking", "dave:Energy:undulator:tracking", "dave:Energy:undulator:tracking", this, 0.1);
-    undulatorTracking_->setDiscrete(true);
+	//undulatorTracking_->setDiscrete(true);
     addChild(undulatorTracking_);
     monoTracking_ = new AMPVControl("monoTracking", "dave:Energy:mono:tracking", "dave:Energy:mono:tracking", this, 0.1, 10);
-    monoTracking_->setDiscrete(true);
+	//monoTracking_->setDiscrete(true);
     addChild(monoTracking_);
     exitSlitTracking_ = new AMPVControl("exitSlitTracking", "dave:Energy:exitSlit:tracking", "dave:Energy:exitSlit:tracking", this, 0.1);
-    exitSlitTracking_->setDiscrete(true);
+	//exitSlitTracking_->setDiscrete(true);
     addChild(exitSlitTracking_);
 }
 

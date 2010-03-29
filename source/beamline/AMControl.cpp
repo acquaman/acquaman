@@ -101,6 +101,7 @@ void AMReadOnlyPVControl::onPVError(int error) {
 
 void AMReadOnlyPVControl::onReadPVInitialized() {
 	setUnits(readPV_->units());	// copy over the new unit string
+	setEnumStates(readPV_->enumStrings());	// todo: for subclasses, what to do if readPV and writePV have different number of enum states? Protect against invalid access somehow...
 	qDebug() << QString("ReadOnlyPVControl: read PV initialized correctly.");
 }
 

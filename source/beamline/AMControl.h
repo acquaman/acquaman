@@ -168,9 +168,6 @@ public:
 		setObjectName(name);
 		wasConnected_ = false;
 		tolerance_ = AMCONTROL_TOLERANCE_DONT_CARE;
-
-                // Dave playing
-                discrete_ = false;
 	}
 
 	/// One additional feature of Controls is the ability to logically group sets of sub-controls together.  (For example, a Monochromator control could consist of a Grating angle control, exit slit position control, and grating selector.)  Every Control therefore has a list of subcontrols:
@@ -262,8 +259,12 @@ The Control abstraction provides two different properties (and associated signal
 	virtual double maximumValue() const { return -1; }
 	bool valueOutOfRange(double value) const { return (value > maximumValue() || value< minimumValue() ) ? TRUE : FALSE;}
 
-        // Dave playing
-        bool discrete() { return discrete_;}
+	/// Some controls are discrete... They only provide specific discrete states/choices (For example, the grating selector on most beamlines: Grating 1, Grating 2, Grating 3). This is how you can tell:  (Note that this may not be valid the instant you create the control.  Watch for enumChanges(const QStringList& newEnumNames).)
+	bool isEnum() const { return (enumNames_.count() > 0); }
+	/// If it is discrete, this gives you a list of descriptions for each state. (They match with numerical values 0, 1, 2, ...)
+	QStringList enumNames() const { return enumNames_; }
+	/// If it is discrete, this tells you how many options/states are available:
+	unsigned enumCount() const { return enumNames_.count(); }	// TODO: there could be problems if you use a feedback PV and a setpoint PV with different number of enum choices. How to handle this?
 
 public slots:
 	/// This is used to set the control.  Must reimplement for actual controls
@@ -281,8 +282,6 @@ public slots:
 	/// Move all of the AMControl's children (and grandchildren, etc) based on a QMap of Control Names and setpoint values
 	bool setState(const QMap<QString, double> controlList, unsigned int errorLevel = 0);
 
-        // Dave playing
-        void setDiscrete(bool discrete) { discrete_ = discrete;}
 
 signals:
 	/// Announce changes of a moveInProgress(). These only apply to moves started by a local move() command... ie: they don't occur when another system causes the control to change its value.
@@ -305,6 +304,8 @@ signals:
 	void valueChanged(double newValue);
 	/// Announces when the unit string text has changed. Necessary because we might not know this until after a delayed control connects.
 	void unitsChanged(const QString& units);
+	/// Announces when the number or descriptions of discrete states changes.  Necessary because we might not know this when the Control is first created.
+	void enumChanges(const QStringList& enumStateNames);
 
 	/// Announces changes in isConnected().  Emitted (true) when full functionality is achieved. // Emitted (false) when full functionality is lost. Full functionality can be decided by the subclasses.
 	void connected(bool);
@@ -318,6 +319,8 @@ protected:
 protected slots:
 	/// This is used internally to set the unit text:
 	virtual void setUnits(const QString& units) { units_ = units; emit unitsChanged(units_); }
+	/// This is used internally to flag whether a Control is labelled isEnum(), and add the names for each state. If it IS a discrete control (enumStateNames != 0), then the tolerance is set to a value less than 1.  This makes sense when the values must be integer (discrete) values.
+	virtual void setEnumStates(const QStringList& enumStateNames) { enumNames_ = enumStateNames; if(enumNames_.count() > 0) {setTolerance(0.1);} emit enumChanges(enumNames_); }
 
 	/// Used internally by setStateList, called recursively. MIGHT NEED TO BE VIRTUAL for reimplementation in child classes
 	bool searchSetChildren(QMap<QString, double> *controlList, QMap<QString, AMControl*> *executeList, unsigned int errorLevel);
@@ -325,9 +328,7 @@ protected slots:
 private: // subclasses should use the protected methods to access these, to ensure signal generation.
 	bool tolerance_;
 	QString units_;
-
-        // Dave playing around
-        bool discrete_;
+	QStringList enumNames_;
 
 };
 
