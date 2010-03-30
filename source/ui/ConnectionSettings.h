@@ -59,6 +59,8 @@ public:
                 connect(this->hxpd_restore, SIGNAL(clicked()), this, SLOT(onRestoreRequested()));
                 connect(this->energy_restore, SIGNAL(clicked()), this, SLOT(onEnergyRestoreRequested()));
                 connect(this->setlist, SIGNAL(clicked()), this, SLOT(onSetListRequested()));
+                connect(this->setupScanButton, SIGNAL(clicked()), this, SLOT(onSetupScan()));
+                connect(this->scanButton, SIGNAL(clicked()), this, SLOT(onStartScan()));
                 /*
                 connect(SGMBeamline::sgm()->energy(), SIGNAL(valueChanged(double)), hxpd_x_read, SLOT(setValue(double)));
                 connect(SGMBeamline::sgm()->energy(), SIGNAL(connected(bool)), hxpd_x_read, SLOT(setEnabled(bool)));
@@ -106,11 +108,44 @@ public:
                 Q_UNUSED(nc7);
                 NumericControl *nc8 = new NumericControl(SGMBeamline::sgm()->m4()->child(2), m4DownstreamHolder);
                 Q_UNUSED(nc8);
+                NumericControl *nc9 = new NumericControl(SGMBeamline::sgm()->undulatorTracking(), uTrackHolder);
+                Q_UNUSED(nc9);
+                NumericControl *nc10 = new NumericControl(SGMBeamline::sgm()->monoTracking(), mTrackHolder);
+                Q_UNUSED(nc10);
+                NumericControl *nc11 = new NumericControl(SGMBeamline::sgm()->exitSlitTracking(), eTrackHolder);
+                Q_UNUSED(nc11);
+
+//                slitGapDoubleSpinBox->setMaximum(SGMBeamline::sgm()->exitSlitGap()->maximumValue());
+//                slitGapDoubleSpinBox->setMinimum(SGMBeamline::sgm()->exitSlitGap()->minimumValue());
+                slitGapDoubleSpinBox->setMaximum(250);
+                slitGapDoubleSpinBox->setMinimum(5);
+
+
+
+ //               undulatorTrackingSpinBox->setMaximum(SGMBeamline::sgm()->undulatorTracking()->maximumValue());
+ //               undulatorTrackingSpinBox->setMinimum(SGMBeamline::sgm()->undulatorTracking()->minimumValue());
+                undulatorTrackingSpinBox->setMaximum(1);
+                undulatorTrackingSpinBox->setMinimum(0);
+
+
+//                monoTrackingSpinBox->setMaximum(SGMBeamline::sgm()->monoTracking()->maximumValue());
+//                monoTrackingSpinBox->setMinimum(SGMBeamline::sgm()->monoTracking()->minimumValue());
+                monoTrackingSpinBox->setMaximum(1);
+                monoTrackingSpinBox->setMinimum(0);
+
+//                exitSlitTrackingSpinBox->setMaximum(SGMBeamline::sgm()->exitSlitTracking()->maximumValue());
+//                exitSlitTrackingSpinBox->setMinimum(SGMBeamline::sgm()->exitSlitTracking()->minimumValue());
+                exitSlitTrackingSpinBox->setMaximum(1);
+                exitSlitTrackingSpinBox->setMinimum(0);
+
+//                gratingSpinBox->setMaximum(SGMBeamline::sgm()->grating()->maximumValue());
+//                gratingSpinBox->setMinimum(SGMBeamline::sgm()->grating()->minimumValue());
+                gratingSpinBox->setMaximum(2);
+                gratingSpinBox->setMinimum(0);
 
                 csTest = NULL;
-
-
-
+				cfg = NULL;
+				ctrl = NULL;
 	}
 	
 public slots:
@@ -143,13 +178,16 @@ public slots:
         }
 
         void onRestoreRequested(){
+/*
             SGMXASScanConfiguration *xasCfg = new SGMXASScanConfiguration(SGMBeamline::sgm());
             xasCfg->addRegion(0, 250, 1, 260);
             xasCfg->setExitSlitGap(15);
             xasCfg->setGrating(SGMBeamline::mediumGrating);
             SGMXASDacqScanController *xasCtrl = new SGMXASDacqScanController(xasCfg, SGMBeamline::sgm());
+
             xasCtrl->initialize();
             xasCtrl->start();
+*/
 
             /*
             SGMFluxOptimization firstTry;
@@ -217,9 +255,60 @@ public slots:
             else
                 qDebug() << "Failure with error level of " << errLevel;
         }
+
+        void onSetupScan(){
+			if(!SGMBeamline::sgm()->isConnected())
+				return;
+			if(!cfg){
+				cfg = new SGMXASScanConfiguration(SGMBeamline::sgm());
+				((SGMXASScanConfiguration*)cfg)->addRegion(0, 250, 1, 370);
+
+				slitGapDoubleSpinBox->setValue(((SGMXASScanConfiguration*)cfg)->exitSlitGap());
+				connect(slitGapDoubleSpinBox, SIGNAL(valueChanged(double)), cfg, SLOT(setExitSlitGap(double)));
+				connect(cfg, SIGNAL(exitSlitGapChanged(double)), slitGapDoubleSpinBox, SLOT(setValue(double)));
+
+				undulatorTrackingSpinBox->setValue(((SGMXASScanConfiguration*)cfg)->undulatorTracking());
+				connect(undulatorTrackingSpinBox, SIGNAL(valueChanged(int)), cfg, SLOT(setUndulatorTracking(int)));
+				connect(cfg, SIGNAL(undulatorTrackingChanged(int)), undulatorTrackingSpinBox, SLOT(setValue(int)));
+
+				monoTrackingSpinBox->setValue(((SGMXASScanConfiguration*)cfg)->monoTracking());
+				connect(monoTrackingSpinBox, SIGNAL(valueChanged(int)), cfg, SLOT(setUndulatorTracking(int)));
+				connect(cfg, SIGNAL(monoTrackingChanged(int)), monoTrackingSpinBox, SLOT(setValue(int)));
+
+				exitSlitTrackingSpinBox->setValue(((SGMXASScanConfiguration*)cfg)->exitSlitTracking());
+				connect(exitSlitTrackingSpinBox, SIGNAL(valueChanged(int)), cfg, SLOT(setUndulatorTracking(int)));
+				connect(cfg, SIGNAL(exitSlitTrackingChanged(int)), exitSlitTrackingSpinBox, SLOT(setValue(int)));
+
+				ctrl = new SGMXASDacqScanController(((SGMXASScanConfiguration*)cfg), SGMBeamline::sgm());
+				connect(ctrl, SIGNAL(progress(double,double)), this, SIGNAL(scanProgress(double,double)));
+                return;
+            }
+        }
+
+        void onStartScan(){
+            if(!SGMBeamline::sgm()->isConnected())
+                return;
+			if(!cfg)
+                onSetupScan();
+			ctrl->initialize();
+			ctrl->start();
+        }
+
+        void onStopScan(){
+			if(ctrl && ctrl->isRunning()){
+				ctrl->cancel();
+            }
+        }
 	
+signals:
+	void scanProgress(double elapsed, double total);
+
 protected:
     AMControlState *csTest;
+	AMScanConfiguration *cfg;
+	AMScanController *ctrl;
+//    SGMXASScanConfiguration *xasCfg;
+//    SGMXASDacqScanController *xasCtrl;
 };
 
 #endif

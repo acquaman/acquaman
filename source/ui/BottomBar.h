@@ -2,6 +2,8 @@
 #define ACQMAN_BOTTOMBAR_H
 
 #include <QtGui/QWidget>
+#include <QTime>
+#include <QDebug>
 #include "ui_BottomBar.h"
 
 
@@ -9,15 +11,16 @@ class BottomBar : public QWidget, private Ui::BottomBarClass {
     Q_OBJECT
 
 public:
-    BottomBar(QWidget *parent = 0);
+	BottomBar(QWidget *parent = 0);
+
     ~BottomBar();
 
 public slots:
-	void updateScanProgress(int /*secondsElapsed*/, int /*secondsTotal*/) {}
+	void updateScanProgress(double secondsElapsed, double secondsTotal);
 	void enableScanInProgressButtons() {}		// enables restartScan, stopScan, pauseScan
 	
 protected:
-	void makeConnections() {}	// TODO
+        void makeConnections();	// TODO
 	
 protected slots:
     // TODO

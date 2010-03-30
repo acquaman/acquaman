@@ -87,6 +87,11 @@ MainWindow::MainWindow(QWidget* parent) : QWidget(parent) {
 	////////////////////////////////
 	
 	bottomBar_ = new BottomBar();
+
+        connect(bottomBar_, SIGNAL(pauseScanIssued()), connectionSettings_, SLOT(onStartScan()) );
+        connect(bottomBar_, SIGNAL(stopScanIssued()), connectionSettings_, SLOT(onStopScan()) );
+		connect(connectionSettings_, SIGNAL(scanProgress(double,double)), bottomBar_, SLOT(updateScanProgress(double,double)));
+
 	// make connections for bottomBar...
 	
 	////////////////////////////////

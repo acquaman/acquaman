@@ -48,6 +48,7 @@ signals:
     void resumed();
     /// Time left in scan
     void timeRemaining(double seconds);
+	void progress(double elapsed, double total);
 
 
 public slots:

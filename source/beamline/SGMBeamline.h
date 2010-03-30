@@ -21,6 +21,12 @@ public:
     // What does this Beamline have? (These objects will be useful in the scripting world too!)
     ///////////////////////////////////
 
+    bool isConnected() const {
+        for(int x = 0; x < numChildren(); x++)
+            if(!children_.at(x)->isConnected())
+                return false;
+        return true;
+    }
 	AMControl* ringCurrent() const { return ringCurrent_; }
 	AMControl* energy() const { return energy_;}
 	AMControl* exitSlitGap() const { return exitSlitGap_;}
