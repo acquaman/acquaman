@@ -33,7 +33,7 @@ public:
 Q_DECLARE_METATYPE(AMErrorReport)
 
 
-/// This class provides a system-wide error and notification manager.  Other classes can report errors from anywhere using AMErrorMon::report(AMErrorReport()).
+/// This class provides a system-wide error and notification manager.  Other classes can report errors from anywhere using AMErrorMon::report(AMErrorReport).
 /*! By centralizing all error reporting in one place, it makes it possible for any object to subscribe to receive notification of errors created anywhere in the program.  You can request to receive errors from a specific object instance, class, or error code.
 Subscribers must provide the name of an error-handling slot that looks like: <code>void errorSlot(AMErrorReport e)</code>.  Whenever an error happens, that slot will be called with an AMErrorReport containing the relevant information.
 
@@ -46,40 +46,42 @@ These three versions will notify the subscribing object whenever an error is gen
 
 When subscribing to receive these notifications, the subscribing object must provide the name of the slot that will be called when the matching error occurs.  This slot must take one argument: an AMErrorReport.
 For example, supposer that <code>MySweetObject* myObject</code> wants to subscribe to all notifications with the error code 42.  It must have a slot that looks like:
-<code>
+
+\code
 class MySweetObject : public QObject {
 Q_OBJECT
 public slots:
 void handleError42sSlot(AMErrorReport e);
 void handleStinkyClassErrors(AMErrorReport e);
 }
-</code>
+\endcode
 
 and it can then subscribe as:
-<code>
+
+\code
 MySweetObject* myObject = new MySweetObject();
 AMErrorMon::subscribeToCode(42, myObject, "handleError42sSlot");
-</code>
+\endcode
 
 Now whenever any error with code 42 is reported anywhere within the program, myObject's slot will be called.  The AMErrorReport structure will provide information on who originated the error, the level of seriousness, and a nice description of it.
 
 The same object can subscribe to different errors and send then to different slots. For example, we could also request all errors from any StinkyClass objects:
 
-<code>
+\code
 AMErrorMon::subscribeToClass("StinkyClass", myObject, "handleStinkyClassErrors");
-</code>
+\endcode
 
 Unsubscribing from errors is also possible:
 
-<code>
+\code
 AMErrorMon::unsubscribe(myObject, "handleError42sSlot")
-</code>
+\endcode
 
 will remove any subscriptions that would have called the \c handleError42sSlot(AMErrorCode) slot within myObject.  To unsubscribe yourself completely (all slots), use
 
-<code>
+\code
 AMErrorMon::unsubscribe(myObject);
-</code>
+\endcode
 
 \todo What happens if an object is deleted after subscribing?
 \note All of the functions in this class are thread-safe, and can be called from any thread.  Notifications will also be delivered to any thread, using Qt's queued slot-calling mechanism when the subscribing object is in a different thread than the ErrorMon. (This is why slots must be used, instead of callback functions.)
