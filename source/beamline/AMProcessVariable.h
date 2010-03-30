@@ -329,8 +329,6 @@ protected:
 	/// Event ID for subscriptions (monitoring)
 	evid evid_;
 
-
-
 	/// Request that we start monitoring right away:
 	bool shouldBeMonitoring_;
 	/// true after the channel connects and we receive the control information:
