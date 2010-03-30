@@ -50,7 +50,7 @@ AMStatusView::AMStatusView(QWidget *parent) : QWidget(parent)
 	detailText_ = new QTextEdit();
 	detailText_->setReadOnly(true);
 
-	popup_ = new QDialog(this, Qt::Dialog | Qt::FramelessWindowHint);
+	popup_ = new AMHidingDialog(this, Qt::Dialog | Qt::FramelessWindowHint);
 	popup_->setGeometry(0, 0, AMSTATUSVIEW_LOG_WIDTH, AMSTATUSVIEW_LOG_HEIGHT);
 	//popup_->setGraphicsEffect();
 	QHBoxLayout* hl2 = new QHBoxLayout();
