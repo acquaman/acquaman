@@ -93,25 +93,25 @@ class AMErrorMon : public QObject {
 
 public:
 
-	/// Subscribe to all errors from object 'originator'
+	/// Subscribe to all errors from object \p originator
 	static void subscribeToObject(QObject* originator, QObject* notifyMe, const char* errorSlot) {
 		mon()->subscribeToObjectI(originator, notifyMe, errorSlot);
 	}
 
 
-	/// Subscribe to all errors from this class:
+	/// Subscribe to all errors from any object of class \p className
 	static void subscribeToClass(const QString& className, QObject* notifyMe, const char* errorSlot) {
 		mon()->subscribeToClassI(className, notifyMe, errorSlot);
 	}
 
 
-	/// Subscribe to all errors that have code 'errorCode'
+	/// Subscribe to all errors that have code \p errorCode
 	static void subscribeToCode(int errorCode, QObject* notifyMe, const char* errorSlot) {
 		mon()->subscribeToCodeI(errorCode, notifyMe, errorSlot);
 	}
 
 
-	/// Unsubscribe the \c notifyMe object from all subscriptions that would call \c errorSlot. If \c errorSlot==0, it unsubscribes notifyMe from everything.
+	/// Unsubscribe the \c notifyMe object from all subscriptions that would call \c errorSlot. If \c errorSlot==0, it unsubscribes \p notifyMe from everything.
 	static void unsubscribe(QObject* notifyMe, const char* errorSlot = 0) {
 		mon()->unsubscribeI(notifyMe, errorSlot);
 	}
@@ -129,19 +129,19 @@ public:
 
 
 signals:
-	/// emitted for all errors:
+	/// emitted for all errors
 	void error(const AMErrorReport& e);
-	/// Emitted for all information notifications:
+	/// Emitted for all information notifications
 	void information(const AMErrorReport& e);
-	/// Emitted for all alert notifications:
+	/// Emitted for all alert notifications
 	void alert(const AMErrorReport& e);
-	/// Emitted for all serious notifications:
+	/// Emitted for all serious notifications
 	void serious(const AMErrorReport& e);
-	/// Emitted for all debug notifications. Can be disabled by calling enableDebugNotifications(false);
+	/// Emitted for all debug notifications. Can be disabled by calling enableDebugNotifications(false).
 	void debug(const AMErrorReport& e);
 
 public slots:
-	/// Report an error:
+	/// Report an error
 	void reportI(const AMErrorReport& e);
 
 protected:
@@ -149,7 +149,7 @@ protected:
 	/// Subscribe to all errors from object 'originator'
 	void subscribeToObjectI(QObject* originator, QObject* notifyMe, const char* errorSlot);
 
-	/// Subscribe to all errors from this class:
+	/// Subscribe to all errors from this class
 	void subscribeToClassI(const QString& className, QObject* notifyMe, const char* errorSlot);
 
 	/// Subscribe to all errors that have code 'errorCode'
@@ -158,7 +158,7 @@ protected:
 	/// Unsubscribe the \c notifyMe object from all subscriptions that would call \c errorSlot. If \c errorSlot==0, it unsubscribes notifyMe from everything.
 	void unsubscribeI(QObject* notifyMe, const char* errorSlot = 0);
 
-	/// Get access to the single instance of this class:
+	/// Get access to the single instance of this class
 	static AMErrorMon* mon() {
 		if(!instance_)
 			instance_ = new AMErrorMon();
@@ -182,7 +182,7 @@ private:
 	/// SystemTrayIcon object used to display serious error notifications very visibly on-screen.
 	QSystemTrayIcon* sicon_;
 
-	/// Whether we display debug messages:
+	/// Whether we display debug messages
 	bool debugEnabled_;
 };
 

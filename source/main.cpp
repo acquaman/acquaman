@@ -11,6 +11,12 @@
 
   \section programmerDocIntro For Programmers...
 
+  \section miscJunk For Boots and Dave...
+  \subsection todo Misc. Todos
+
+  \todo check out QFlags and figure out where to standardize flags
+
+
   */
 
 
