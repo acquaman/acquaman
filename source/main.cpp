@@ -114,7 +114,9 @@ int main(int argc, char *argv[])
 	// End of database insert / search testing
 	// =====================================
 
-	AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -3, "Watch out, Acquaman!"));
+	AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -2, "Watch out, Acquaman!"));
+	AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -3, "Watch out, Acquaman! The sky is exploding again!"));
+//	AMErrorMon::report(AMErrorReport(0, AMErrorReport::Information, -1, "Now is the winter of our discontent."));
 
 	/// Program Run-loop:
 	// =================================
