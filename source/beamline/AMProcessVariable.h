@@ -307,9 +307,8 @@ protected:
 
 	/// \name Static wrapper functions
 	/// These are needed because we can't specify a member function as a callback.
-	/*!
-	  (Member functions don't have fixed permanent memory addresses.)  We carry the payload of which instance to call in the puser field of the event_handler_args.)
-	  */
+	/// (Member functions don't have fixed permanent memory addresses.)  We carry the payload of which instance to call in the puser field of the event_handler_args.)
+
 	//@{
 	/// on changes to connection status
 	static void PVConnectionChangedCBWrapper(struct connection_handler_args connArgs);
