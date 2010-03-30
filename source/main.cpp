@@ -16,6 +16,7 @@
 
   \todo check out QFlags and figure out where to standardize flags
 
+  \todo cooler notifications: http://blog.mpathirage.com/2009/09/12/using-libnotify-in-ubuntu-9-04/
 
   */
 
@@ -113,7 +114,7 @@ int main(int argc, char *argv[])
 	// End of database insert / search testing
 	// =====================================
 
-	AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -3, "Fuck off, dave."));
+	AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -3, "Watch out, Acquaman!"));
 
 	/// Program Run-loop:
 	// =================================

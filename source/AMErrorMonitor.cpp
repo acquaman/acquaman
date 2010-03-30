@@ -7,8 +7,9 @@ AMErrorMon* AMErrorMon::instance_ = 0;
 
 AMErrorMon::AMErrorMon() : QObject() {
 	qRegisterMetaType<AMErrorReport>("AMErrorReport");
-	sicon_ = new QSystemTrayIcon();
+	sicon_ = new QSystemTrayIcon(QIcon(":/utilities-system-monitor.png"), this);
 	sicon_->show();
+
 
 	/// don't display debug notifications by default:
 	debugEnabled_ = false;

@@ -3,7 +3,7 @@
 
 #include <QtGui/QWidget>
 #include "ui_BottomBar.h"
-
+#include "AMStatusView.h"
 
 class BottomBar : public QWidget, private Ui::BottomBarClass {
     Q_OBJECT
@@ -18,6 +18,8 @@ public slots:
 	
 protected:
 	void makeConnections() {}	// TODO
+
+	AMStatusView* statusView_;
 	
 protected slots:
     // TODO

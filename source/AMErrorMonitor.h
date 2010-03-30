@@ -127,6 +127,13 @@ public:
 		mon()->debugEnabled_ = debugEnabled;
 	}
 
+	/// Get access to the single instance of this class
+	static AMErrorMon* mon() {
+		if(!instance_)
+			instance_ = new AMErrorMon();
+		return instance_;
+	}
+
 
 signals:
 	/// emitted for all errors
@@ -157,13 +164,6 @@ protected:
 
 	/// Unsubscribe the \c notifyMe object from all subscriptions that would call \c errorSlot. If \c errorSlot==0, it unsubscribes notifyMe from everything.
 	void unsubscribeI(QObject* notifyMe, const char* errorSlot = 0);
-
-	/// Get access to the single instance of this class
-	static AMErrorMon* mon() {
-		if(!instance_)
-			instance_ = new AMErrorMon();
-		return instance_;
-	}
 
 	/// Maps subscriptions from originating objects to <Object, Slot> recipients.
 	QMap<QObject*, QPair<QObject*, QString> > objectSubs_;
