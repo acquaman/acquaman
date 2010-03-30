@@ -14,64 +14,78 @@
 
 #define EPICS_CA_CONN_TIMEOUT_MS 1000
 
+/**
+  \addtogroup control
+  @{
+  */
+
+
 ///////////////////////////////
 // AMProcessVariableHeartbeat
 ///////////////////////////////
 
-// Singleton support class for AMProcessVariables.  Manages global-context Channel Access business:
-// 1) Calls ca_poll on a timer, and
-// 2) Maintains a map between chid's and AMProcessVariable objects, so he can route exceptions.
 
-// Automatically creates himself when needed, and deletes himself when no longer necessary...
 
+/// Poll the epics channel-access layer every PV_HEARTBEAT_MS milliseconds
 #define PV_HEARTBEAT_MS 48
 
 class AMProcessVariable;
 
+/// This class provides support to all AMProcessVariables, by setting up a channel-access context and handling signal delivery. You should never need to use it directly.
+/*!
+ Singleton support class for AMProcessVariables.  Manages global-context Channel Access business:
+ -# Calls ca_poll on a timer, and
+ -# Maintains a map between chid's and AMProcessVariable objects, so he can route exceptions.
+
+ Automatically creates himself when needed, and deletes himself when no longer necessary...
+  */
 class AMProcessVariableHeartbeat : public QObject {
 
 	Q_OBJECT
 
 public:
 
-	// AMProcessVariables must call this FIRST in their constructor.
-	// Ensures that channel access is initialized, timer is running, etc.
+	/// AMProcessVariables must call this FIRST in their constructor.
+
+	/// Ensures that channel access is initialized, timer is running, etc.
 	static void ensureChannelAccess() { getInstance(); }
 
-	// Once they have a chid, they should call this to make sure they receive exceptions routed properly:
+	/// Once they have a chid, they should call this to make sure they receive exceptions routed properly:
 	static void registerPV(chid c, AMProcessVariable* pv) { getInstance()->map_.insert(int(c), pv); }
 
-	// AMProcessVariables must call this in their destructor.
+	/// AMProcessVariables must call this in their destructor to de-register.
 	static void removePV(chid c) { getInstance()->removePVImplementation(c); }
 
-	// This is the exception handler:
+	/// This is the global epics channel-access exception handler:
 	static void PVExceptionCB(struct exception_handler_args args);
 
 protected:
 
-	// constructor: starts the ca_poll timer and installs us as the global exception handler.
+	/// constructor: starts the ca_poll timer and installs us as the global exception handler.
 	AMProcessVariableHeartbeat();
 
-	// standard singleton-pattern getInstance() method.
+	/// singleton class. Use getInstance() method to access.
 	static AMProcessVariableHeartbeat* getInstance();
 
-	// the implementation of AMProcessVariableHeartbeat::removePV():
+	/// the implementation of AMProcessVariableHeartbeat::removePV():
 	void removePVImplementation(chid c);
 
-	// Timer event handler: calls ca_poll()
+	/// Timer event handler: calls ca_poll()
 	void timerEvent(QTimerEvent*) { ca_poll(); }
 
 
-
+	/// singleton class instance variable
 	static AMProcessVariableHeartbeat* instance_;
+	/// Mapping from \c chid channel-id's to process variable objects
 	QHash<int, AMProcessVariable*> map_;
+	/// ID of the timer
 	int timerId_;
 
 };
 
 
 
-
+/// This class encapsulates a connection to an EPICS channel-access Process Variable
 class AMProcessVariable : public QObject {
 
 	Q_OBJECT
@@ -79,13 +93,23 @@ class AMProcessVariable : public QObject {
 public:
 
 	/// Process variables (PVs) might represent one of 4 meaningful data types for the programmer.  The type is determined automatically when the PV connects, and available from dataType().  Regardless of the inherent data type, you can set the value from any data type (see setValue(double), setValue(int), setValue(const QString&).
-	// Internally, these match the corresponding epics chtype DBF_XXXX values)
-	enum PVDataType { Unconnected = TYPENOTCONN, Integer = DBF_LONG, Enum = DBF_ENUM, FloatingPoint = DBF_DOUBLE, String = DBF_STRING };
-
+	/*! Internally, these match the corresponding epics \c chtype DBF_XXXX values defined in db_access.h)
+	  */
+	enum PVDataType { Unconnected = TYPENOTCONN, ///< Type of PV's before they are connected. We don't know!
+					  Integer = DBF_LONG,	///< Simplifies all integer types (short, long, char) to this
+					  Enum = DBF_ENUM,		///< Represents integer type having discrete options/states.
+					  FloatingPoint = DBF_DOUBLE, ///< Simplifies all floating-point types (double and float) to this
+					  String = DBF_STRING		///< Used for records that can only be accessed as a string.
+					};
 
 	friend class AMProcessVariableHeartbeat;
 
-	/// Constructor: pvName is the process variable name.  If autoMonitor = true, we'll start monitoring the channel as soon as we connect.  If you want to be notified if we fail to connect within a certain time, connectionTimeoutMs lets you set the timeout.  Default is one second, defined in EPICS_CA_CONN_TIMEOUT_MS.
+	/// Constructor
+	/*! \param pvName is the process variable channel-access name.
+		\param autoMonitor If autoMonitor = true, we'll start monitoring the channel as soon as we connect.
+		\param connectionTimeoutMs sets the timeout if you want to be notified if we fail to connect within a certain period.  Default is one second, defined in EPICS_CA_CONN_TIMEOUT_MS.
+		\param parent QObject parent class pointer
+		*/
 	AMProcessVariable(const QString& pvName, bool autoMonitor = 0, QObject* parent = 0, int connectionTimeoutMs = EPICS_CA_CONN_TIMEOUT_MS);
 
 	/// Destructor frees all resources, especially the automatically-managed creation of one AMProcessVariableHeartbeat whenever there are AMProcessVariables in use.
@@ -113,9 +137,13 @@ public:
 	double lastValue(unsigned index = 0) const;
 
 	/// Returns the most recent array values of the PV. (Will be empty unless this PV's dataType() is Integer or Enum)
-	// This is fast because it doesn't require a memory copy, thanks to Qt's implicit sharing on QVectors and other container types
+
+	/// This is fast because it doesn't require a memory copy, thanks to Qt's implicit sharing on QVectors and other container types.
 	QVector<int> lastIntegerValues() const { return data_int_; }
+
 	/// Returns the most recent array values of the PV. (Will be empty unless this PV's dataType() is FloatingPoint)
+
+	/// This is fast because it doesn't require a memory copy, thanks to Qt's implicit sharing on QVectors and other container types.
 	QVector<double> lastFloatingPointValues() const { return data_dbl_; }
 
 	/// error reporting: returns the last error code that occurred:
@@ -123,19 +151,40 @@ public:
 	/// Returns a string explanation of a particular error code:
 	static QString errorString(int errorCode) { return QString(ca_message(errorCode)); }
 
-	// For compatibility with QEpicsConnect:
-	////////////////////////////////////
+	/// \name Functions provided for backwards compatibility with QEpicsConnect:
+	/// These functions retrieve the most recent value (or for array PVs, the most recent value at a given index).
+	/*! All three are valid regardless of the inherent dataType() of the channel.  If the native datatype() is String, getInt() will attempt to convert the string to an integer.
+		*/
+	//@{
 
-	/// These functions retrieve the most recent value (or for array PVs, the most recent value at a given index). All three are valid regardless of the inherent dataType() of the channel.
+	/// return the most recent value at \c index, as an integer.
+	/*! This is valid regardless of the inherent dataType() of the channel.  If the native datatype() is String, getInt() will attempt to convert the string to an integer.
+		If the index is out of range, will return -1.
+		*/
 	int getInt(unsigned index = 0) const;
+
+	/// return the most recent value at \c index, as a double.
+
+	/*! This is valid regardless of the inherent dataType() of the channel.  If the native datatype() is String, getDouble() will attempt to convert the string to a double.
+		If the index is out of range, will return -1.
+		This is just a synonym for lastValue(int index).
+		*/
 	double getDouble(unsigned index = 0) const { return lastValue(index); }
-	/// Provides a string representation of the data.  Rather useful for handling many situations: It provides messages if the array index is out of range, or if the process variable isn't connected.  For numeric dataType()s (Integer and FloatingPoint), it returns a string representation of them.  For Enum types, it will return the string name for the option when the string names are available, otherwise it gives a string version of the integer value.
+
+	/// Provides a string representation of the data at \c index.
+	/*! Rather useful for handling many situations:
+
+	- It provides messages if the array index is out of range, or if the process variable isn't connected.
+	- For numeric dataType()s (Integer and FloatingPoint), it returns a string representation of them.
+	- For Enum types, it will return the string name for the option when the string names are available, otherwise it gives a string version of the integer value.
+	*/
 	QString getString(unsigned index = 0) const;
 
-	/// Provided for name-compatibility with QEpicsConnect:
+	/// Provided for name-compatibility with QEpicsConnect. Synonym for isConnected().
 	bool isValid() const { return isConnected(); }
-	/// Provided for name-compatibility with QEpicsConnect:
+	/// Provided for name-compatibility with QEpicsConnect. Synonym for lastError().
 	int getStatus() const { return lastError(); }
+	//@}
 
 public slots:
 
@@ -158,7 +207,9 @@ public slots:
 
 	////////////////////////////////////
 public:
-	/// These functions provide detailed information about the channel. (The are only valid after the initialized() signal. )
+	/// \name Control Group Information
+	/// These functions provide detailed information about the channel. (The are only meaningful after the initialized() signal.)
+	//@{
 	/// Provides the units for this PV, as known to epics.
 	QString units() const { return units_; }
 
@@ -179,20 +230,27 @@ public:
 	QStringList enumStrings() const { return enumStrings_; }
 	/// Provides the number of choices for an Enum ProcessVariable:
 	unsigned enumCount() const { return enumStrings_.count(); }
+	//@}
 
 	// ignoring alarms for now:
 	// double upperAlarmValue() const { return ctrlValue_.upper_alarm_limit; }
 	// double lowerAlarmValue() const { return ctrlValue_.lower_alarm_limit; }
 
-	/// This indicates the simplified data type that best represents this ProcessVariable. (Either Integer, Enum, FloatingPoint, or String.) Returns Unconnected == -1 if we haven't figured it out yet.
+	/// This indicates the simplified data type that best represents this ProcessVariable.
+	/*! (Either Integer, Enum, FloatingPoint, or String.)
+
+		Returns Unconnected == -1 if we haven't figured it out yet.
+		*/
 	PVDataType dataType() const { return ourType_; }
 
 signals:
 	/// Emits connected(true) when connection is established; connected(false) when lost.
 	void connected(bool);
-	/// Convenience: same signal without the argument, if you only care about one situation.  connected() goes with connected(true); disconnected() == connected(false);
+	/// Convenience: same signal without the argument. Implies connected(true)
 	void connected();
+	/// Implies connected(false);
 	void disconnected();
+
 
 	/// connection status changed. The new state is channel_state. Provides more detail than connected(bool).
 	void connectionStateChanged(enum channel_state);
@@ -211,38 +269,57 @@ signals:
 	/// Convenience: the same error() signal, with a string explanation
 	void error(const QString&);
 
-	/// These signals are emitted when new values arrive. valueChanged() always happens.  valueChanged(int) and valueChanged(double) are emitted for all numeric types.
-	void valueChanged();
-	void valueChanged(int);	// emitted for all numeric values
-	void valueChanged(double); // emitted for all numeric values
+	/// \name Value Monitoring
+	/// These signals are emitted when new values arrive.
+	/*! valueChanged() always happens. valueChanged(int) and valueChanged(double) are emitted for all numeric types. For performance reasons, valueChanged(string) is only emitted if the natural type is a string type or enum type.
+	  */
+	//@{
+	void valueChanged();	///< emitted whenever a new value arrives
+	void valueChanged(int);	///< emitted for all numeric values
+	void valueChanged(double); ///< emitted for all numeric values
 	/// for performance reasons, valueChanged(string) is only emitted if the natural type is a string type or enum type.
 	void valueChanged(const QString&);
+	//@}
 
 	/// Emitted when a write-request comes back as completed or failed.
 	void putRequestReturned(int status);
 
 protected slots:
-	/// Emitted when a connection timeout occurs (PV fails to connect)
+	/// Runs when a connection timeout occurs (PV fails to connect)
 	void onConnectionTimeout();
 
-	/// these are simply here to generate the error(QString) and connected()/disconnected() signals, from error(int) and connected(bool)
+	/// these are simply here to generate the error(QString) signals, from error(int)
 	void signalForwardOnError(int errorCode) { emit error(errorString(errorCode)); }
+	/// these are simply here to generate the connected()/disconnected() signals, from connected(bool)
 	void signalForwardOnConnected(bool isConnected) { if(isConnected) emit connected(); else emit disconnected(); }
 
 protected:
 
-	/// Callbacks:
+	/// \name Callbacks:
+	/// These member functions are called to notify ProcessVariables of new data or connection-state changes.
+	//@{
 	void connectionChangedCB(struct connection_handler_args connArgs);	///< called when connection status changes. Emits connected()/disconnected().
 	void valueChangedCB(struct event_handler_args eventArgs);		///< callled when the value changes.  Emits valueChanged().
 	void controlInfoCB(struct event_handler_args eventArgs);		///< callled when control-information arives.  Emits initialized().
 	void putRequestCB(struct event_handler_args eventArgs);				///< called when a put request returns. Emits putRequestReturned(int status).
 	void exceptionCB(struct exception_handler_args exceptArgs);			///< called when an epics exception occurs.  Emits error(int status).
+	//@}
 
-	/// Static wrapper functions are needed because we can't specify a member function as a callback. (Member functions don't have fixed permanent memory addresses.)  We carry the payload of which instance to call in the puser field of the event_handler_args.
+	/// \name Static wrapper functions
+	/// These are needed because we can't specify a member function as a callback.
+	/*!
+	  (Member functions don't have fixed permanent memory addresses.)  We carry the payload of which instance to call in the puser field of the event_handler_args.)
+	  */
+	//@{
+	/// on changes to connection status
 	static void PVConnectionChangedCBWrapper(struct connection_handler_args connArgs);
+	/// on receiving monitors or value updates
 	static void PVValueChangedCBWrapper(struct event_handler_args eventArgs);
+	/// on receiving control group information
 	static void PVControlInfoCBWrapper(struct event_handler_args eventArgs);
+	/// on receiving confirmation of put requests
 	static void PVPutRequestCBWrapper(struct event_handler_args eventArgs);
+	//@}
 
 	/// A convenience function to map an epics type (ex: from ca_field_type) to our simplified types:
 	static PVDataType serverType2ourType(chtype serverType);
@@ -252,9 +329,6 @@ protected:
 	/// Event ID for subscriptions (monitoring)
 	evid evid_;
 
-	// TODO: thread-safe protect with Mutex if using multi-threaded...
-	static int channelReferenceCount_;	///< a global reference count used to clean up ca_context_destroy when last AMProcessVariable is destroyed.
-	static AMProcessVariableHeartbeat* heartBeat_;	///< we create a single AMProcessVariableHeartbeat to call ca_poll while AMProcessVariables exist.
 
 	/// Request that we start monitoring right away:
 	bool shouldBeMonitoring_;
@@ -264,12 +338,15 @@ protected:
 	/// Last error experienced.
 	int lastError_;
 
-	/// Stores control information:
+	/// \name Control Group Storage
+	/// Storage of information on the PV's type and description.
+	//@{
 	QString units_;
 	int precision_;
 	double upperLimit_, lowerLimit_;	// control (driven range) limits
 	double upperGraphLimit_, lowerGraphLimit_; // visual graphing range
 	QStringList enumStrings_;
+	//@}
 
 	/// This timer used to detect connection timeouts:
 	QTimer startupTimer_;
@@ -279,11 +356,18 @@ protected:
 	/// Datatype used by AMProcessVariable's memory storage:
 	PVDataType ourType_;
 
+	//@{
 	/// Our actual data storage: (only one of these will be used at a time, once we find out the channel type)
 	QVector<double> data_dbl_;
 	QVector<int> data_int_;
 	QStringList data_str_;
+	//@}
 
 };
+
+/**
+  \addtogroup control
+  @}
+  */
 
 #endif /*PROCESSVARIABLE_H_*/
