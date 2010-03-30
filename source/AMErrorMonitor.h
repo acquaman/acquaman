@@ -33,12 +33,12 @@ public:
 Q_DECLARE_METATYPE(AMErrorReport)
 
 
-/// This class provides a system-wide error and notification manager.  Other classes can report errors from anywhere using AMErrorMon::report(AMErrorReport).
+/// This class provides a system-wide error and notification manager.  Other classes can report errors from anywhere using AMErrorMon::report(AMErrorReport()).
 /*! By centralizing all error reporting in one place, it makes it possible for any object to subscribe to receive notification of errors created anywhere in the program.  You can request to receive errors from a specific object instance, class, or error code.
 Subscribers must provide the name of an error-handling slot that looks like: <code>void errorSlot(AMErrorReport e)</code>.  Whenever an error happens, that slot will be called with an AMErrorReport containing the relevant information.
 
 
-Classes can also subscribe to be notified when specific errors or notifications occur, using AMErrorMon::subscribeToObject, AMErrorMon::subscribeToClass, and AMErrorMon::subscribeToCode.
+Classes can also subscribe to be notified when specific errors or notifications occur, using AMErrorMon::subscribeToObject(), AMErrorMon::subscribeToClass(), and AMErrorMon::subscribeToCode().
 These three versions will notify the subscribing object whenever an error is generated:
 - by a specific object instance (subscribeToObject)
 - by any member of a specific class (subscribeToClass), or
