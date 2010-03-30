@@ -342,8 +342,8 @@ protected:
 	//@{
 	QString units_;
 	int precision_;
-	double upperLimit_, lowerLimit_;	// control (driven range) limits
-	double upperGraphLimit_, lowerGraphLimit_; // visual graphing range
+	double upperLimit_, lowerLimit_;	///< control (driven range) limits
+	double upperGraphLimit_, lowerGraphLimit_; ///< visual graphing range
 	QStringList enumStrings_;
 	//@}
 
