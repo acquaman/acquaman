@@ -350,6 +350,7 @@ protected:
 	/// This timer used to detect connection timeouts:
 	QTimer startupTimer_;
 
+
 	/// Datatype used by the epics ioc:
 	chtype serverType_;
 	/// Datatype used by AMProcessVariable's memory storage:
