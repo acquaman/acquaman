@@ -281,7 +281,6 @@ signals:
 	void valueChanged(const QString&);
 	//@}
 
-
 	/// Emitted when a write-request comes back as completed or failed.
 	void putRequestReturned(int status);
 
