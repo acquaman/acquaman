@@ -12,6 +12,7 @@ AMDacqScanController::AMDacqScanController(QObject *parent)
     connect(advAcq_, SIGNAL(onStart()), this, SLOT(onStart()));
     connect(advAcq_, SIGNAL(onStop()), this, SLOT(onStop()));
     connect(advAcq_, SIGNAL(onPause(int)), this, SLOT(onPause(int)));
+	connect(advAcq_, SIGNAL(sendCompletion(int)), this, SLOT(onSendCompletion(int)));
 
     /*
     qDebug() << "Start of dacqscancontroller constructor";
@@ -68,6 +69,7 @@ void AMDacqScanController::cancel()
 void AMDacqScanController::onStart()
 {
     running_ = TRUE;
+	startTime_.start();
     emit started();
 }
 
@@ -90,4 +92,11 @@ void AMDacqScanController::onPause(int mode)
         paused_ = FALSE;
         emit resumed();
     }
+}
+
+void AMDacqScanController::onSendCompletion(int completion){
+	double tc = ((double)startTime_.elapsed())/1000;
+	double remaining = (completion != 0) ? (100*tc)/((double)completion) - tc : tc*100000;
+	emit timeRemaining(remaining);
+	emit progress(tc, tc+remaining);
 }

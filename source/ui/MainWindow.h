@@ -42,8 +42,6 @@ protected:
 	PeriodicTable* periodicTable_;
 	ProtocolViewer* protocolViewer_;
 	ExpAlbum* expAlbum_;
-	
-	
 };
 
 

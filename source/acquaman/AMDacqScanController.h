@@ -1,6 +1,8 @@
 #ifndef ACQMAN_DACQSCANCONTROLLER_H
 #define ACQMAN_DACQSCANCONTROLLER_H
 
+#include <QTime>
+
 #include "AMScanController.h"
 #include "qdebug.h"
 
@@ -19,7 +21,6 @@ public slots:
     /// Start scan running if not currently running or paused
     virtual void start(){
         if(initialized_){
-            qDebug() << "Good to go!";
             acqBaseOutput *abop = acqOutputHandlerFactory::new_acqOutput("SimpleText", "File");
             if( abop)
             {
@@ -41,11 +42,13 @@ public slots:
 protected:
     QEpicsAdvAcq *advAcq_;
     bool cancelled_;
+	QTime startTime_;
 
 protected slots:
     void onStart();
     void onStop();
     void onPause(int mode);
+	void onSendCompletion(int completion);
 };
 
 #endif // ACQMAN_DACQSCANCONTROLLER_H

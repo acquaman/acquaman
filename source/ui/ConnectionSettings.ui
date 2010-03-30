@@ -13,13 +13,13 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
-   <item>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
       <string>Connection Settings</string>
      </property>
-     <layout class="QFormLayout" name="formLayout">
+     <layout class="QGridLayout" name="gridLayout_2">
       <item row="0" column="0">
        <widget class="QLabel" name="label">
         <property name="text">
@@ -27,7 +27,7 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
+      <item row="0" column="1" colspan="2">
        <layout class="QHBoxLayout" name="horizontalLayout_4">
         <item>
          <widget class="QLineEdit" name="lineEdit"/>
@@ -62,7 +62,7 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
+      <item row="1" column="1" colspan="2">
        <layout class="QHBoxLayout" name="horizontalLayout_13">
         <item>
          <widget class="QSpinBox" name="spinBox">
@@ -100,7 +100,7 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="1">
+      <item row="2" column="1" colspan="2">
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
          <widget class="QDoubleSpinBox" name="doubleSpinBox">
@@ -137,10 +137,10 @@
         </property>
        </widget>
       </item>
-      <item row="3" column="1">
+      <item row="3" column="1" colspan="2">
        <widget class="QTextBrowser" name="textBrowser"/>
       </item>
-      <item row="4" column="1">
+      <item row="4" column="1" colspan="2">
        <widget class="QWidget" name="placeHolder" native="true">
         <property name="minimumSize">
          <size>
@@ -150,124 +150,424 @@
         </property>
        </widget>
       </item>
-      <item row="5" column="0">
-       <widget class="QLabel" name="hxpd_label">
-        <property name="text">
-         <string>energy</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="1">
-       <widget class="QWidget" name="energyHolder" native="true">
+      <item row="5" column="0" colspan="2">
+       <widget class="QGroupBox" name="groupBox_3">
         <property name="minimumSize">
          <size>
-          <width>0</width>
-          <height>40</height>
+          <width>300</width>
+          <height>360</height>
          </size>
         </property>
+        <property name="title">
+         <string>Control</string>
+        </property>
+        <widget class="QWidget" name="gratingHolder" native="true">
+         <property name="geometry">
+          <rect>
+           <x>160</x>
+           <y>310</y>
+           <width>121</width>
+           <height>40</height>
+          </rect>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>120</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="baseSize">
+          <size>
+           <width>120</width>
+           <height>0</height>
+          </size>
+         </property>
+        </widget>
+        <widget class="QLabel" name="hxpd_label_7">
+         <property name="geometry">
+          <rect>
+           <x>9</x>
+           <y>310</y>
+           <width>49</width>
+           <height>17</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Grating</string>
+         </property>
+        </widget>
+        <widget class="QWidget" name="slitGapHolder" native="true">
+         <property name="geometry">
+          <rect>
+           <x>160</x>
+           <y>80</y>
+           <width>121</width>
+           <height>40</height>
+          </rect>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>120</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="baseSize">
+          <size>
+           <width>120</width>
+           <height>0</height>
+          </size>
+         </property>
+        </widget>
+        <widget class="QWidget" name="m4DownstreamHolder" native="true">
+         <property name="geometry">
+          <rect>
+           <x>160</x>
+           <y>264</y>
+           <width>121</width>
+           <height>40</height>
+          </rect>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>120</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="baseSize">
+          <size>
+           <width>120</width>
+           <height>0</height>
+          </size>
+         </property>
+        </widget>
+        <widget class="QLabel" name="hxpd_label_3">
+         <property name="geometry">
+          <rect>
+           <x>9</x>
+           <y>126</y>
+           <width>21</width>
+           <height>17</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>M4</string>
+         </property>
+        </widget>
+        <widget class="QWidget" name="m4Holder" native="true">
+         <property name="geometry">
+          <rect>
+           <x>160</x>
+           <y>126</y>
+           <width>121</width>
+           <height>40</height>
+          </rect>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>120</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="baseSize">
+          <size>
+           <width>120</width>
+           <height>0</height>
+          </size>
+         </property>
+        </widget>
+        <widget class="QLabel" name="hxpd_label_6">
+         <property name="geometry">
+          <rect>
+           <x>9</x>
+           <y>264</y>
+           <width>107</width>
+           <height>17</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>M4 Downstream</string>
+         </property>
+        </widget>
+        <widget class="QWidget" name="m4InboardHolder" native="true">
+         <property name="geometry">
+          <rect>
+           <x>160</x>
+           <y>172</y>
+           <width>121</width>
+           <height>40</height>
+          </rect>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>120</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="baseSize">
+          <size>
+           <width>120</width>
+           <height>0</height>
+          </size>
+         </property>
+        </widget>
+        <widget class="QWidget" name="m4OutboardHolder" native="true">
+         <property name="geometry">
+          <rect>
+           <x>160</x>
+           <y>218</y>
+           <width>121</width>
+           <height>40</height>
+          </rect>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>120</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="baseSize">
+          <size>
+           <width>120</width>
+           <height>0</height>
+          </size>
+         </property>
+        </widget>
+        <widget class="QLabel" name="hxpd_label">
+         <property name="geometry">
+          <rect>
+           <x>9</x>
+           <y>34</y>
+           <width>46</width>
+           <height>17</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>energy</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="hxpd_label_2">
+         <property name="geometry">
+          <rect>
+           <x>9</x>
+           <y>80</y>
+           <width>49</width>
+           <height>17</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>slit gap</string>
+         </property>
+        </widget>
+        <widget class="QWidget" name="energyHolder" native="true">
+         <property name="geometry">
+          <rect>
+           <x>160</x>
+           <y>34</y>
+           <width>121</width>
+           <height>40</height>
+          </rect>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>120</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="baseSize">
+          <size>
+           <width>120</width>
+           <height>0</height>
+          </size>
+         </property>
+        </widget>
+        <widget class="QLabel" name="hxpd_label_4">
+         <property name="geometry">
+          <rect>
+           <x>9</x>
+           <y>172</y>
+           <width>74</width>
+           <height>17</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>M4 Inboard</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="hxpd_label_5">
+         <property name="geometry">
+          <rect>
+           <x>9</x>
+           <y>218</y>
+           <width>85</width>
+           <height>17</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>M4 Outboard</string>
+         </property>
+        </widget>
        </widget>
       </item>
-      <item row="6" column="0">
-       <widget class="QLabel" name="hxpd_label_2">
-        <property name="text">
-         <string>slit gap</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="1">
-       <widget class="QWidget" name="slitGapHolder" native="true">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>40</height>
-         </size>
-        </property>
-       </widget>
-      </item>
-      <item row="7" column="0">
-       <widget class="QLabel" name="hxpd_label_3">
-        <property name="text">
-         <string>M4</string>
-        </property>
-       </widget>
-      </item>
-      <item row="7" column="1">
-       <widget class="QWidget" name="m4Holder" native="true">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>40</height>
-         </size>
-        </property>
-       </widget>
-      </item>
-      <item row="8" column="0">
-       <widget class="QLabel" name="hxpd_label_4">
-        <property name="text">
-         <string>M4 Inboard</string>
-        </property>
-       </widget>
-      </item>
-      <item row="8" column="1">
-       <widget class="QWidget" name="m4InboardHolder" native="true">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>40</height>
-         </size>
-        </property>
-       </widget>
-      </item>
-      <item row="9" column="0">
-       <widget class="QLabel" name="hxpd_label_5">
-        <property name="text">
-         <string>M4 Outboard</string>
-        </property>
-       </widget>
-      </item>
-      <item row="9" column="1">
-       <widget class="QWidget" name="m4OutboardHolder" native="true">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>40</height>
-         </size>
-        </property>
-       </widget>
-      </item>
-      <item row="10" column="0">
-       <widget class="QLabel" name="hxpd_label_6">
-        <property name="text">
-         <string>M4 Downstream</string>
-        </property>
-       </widget>
-      </item>
-      <item row="10" column="1">
-       <widget class="QWidget" name="m4DownstreamHolder" native="true">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>40</height>
-         </size>
-        </property>
-       </widget>
-      </item>
-      <item row="11" column="0">
-       <widget class="QLabel" name="hxpd_label_7">
-        <property name="text">
-         <string>Grating</string>
-        </property>
-       </widget>
-      </item>
-      <item row="11" column="1">
-       <widget class="QWidget" name="gratingHolder" native="true">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>40</height>
-         </size>
-        </property>
-       </widget>
+      <item row="5" column="2">
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <widget class="QGroupBox" name="groupBox_2">
+          <property name="title">
+           <string>Scanning</string>
+          </property>
+          <layout class="QFormLayout" name="formLayout">
+           <item row="0" column="0">
+            <widget class="QLabel" name="hxpd_label_8">
+             <property name="text">
+              <string>slit gap</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QDoubleSpinBox" name="slitGapDoubleSpinBox"/>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="hxpd_label_9">
+             <property name="text">
+              <string>Undulator Tracking</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QSpinBox" name="undulatorTrackingSpinBox"/>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="hxpd_label_10">
+             <property name="text">
+              <string>Mono Tracking</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QSpinBox" name="monoTrackingSpinBox"/>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="hxpd_label_11">
+             <property name="text">
+              <string>Exit Slit Tracking</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QSpinBox" name="exitSlitTrackingSpinBox"/>
+           </item>
+           <item row="4" column="0">
+            <widget class="QLabel" name="hxpd_label_12">
+             <property name="text">
+              <string>Grating</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="QSpinBox" name="gratingSpinBox"/>
+           </item>
+           <item row="5" column="0">
+            <widget class="QPushButton" name="setupScanButton">
+             <property name="text">
+              <string>Setup</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="1">
+            <widget class="QPushButton" name="scanButton">
+             <property name="text">
+              <string>Scan</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="groupBox_4">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>160</height>
+           </size>
+          </property>
+          <property name="title">
+           <string>Tracking</string>
+          </property>
+          <layout class="QFormLayout" name="formLayout_2">
+           <item row="0" column="0">
+            <widget class="QLabel" name="hxpd_label_13">
+             <property name="text">
+              <string>Undulator</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QWidget" name="uTrackHolder" native="true">
+             <property name="minimumSize">
+              <size>
+               <width>120</width>
+               <height>40</height>
+              </size>
+             </property>
+             <property name="baseSize">
+              <size>
+               <width>120</width>
+               <height>0</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="hxpd_label_14">
+             <property name="text">
+              <string>Mono</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QWidget" name="mTrackHolder" native="true">
+             <property name="minimumSize">
+              <size>
+               <width>120</width>
+               <height>40</height>
+              </size>
+             </property>
+             <property name="baseSize">
+              <size>
+               <width>120</width>
+               <height>0</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="hxpd_label_15">
+             <property name="text">
+              <string>Exit Slit</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QWidget" name="eTrackHolder" native="true">
+             <property name="minimumSize">
+              <size>
+               <width>120</width>
+               <height>40</height>
+              </size>
+             </property>
+             <property name="baseSize">
+              <size>
+               <width>120</width>
+               <height>0</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </widget>
