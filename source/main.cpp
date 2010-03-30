@@ -1,3 +1,20 @@
+/*!
+
+  \mainpage Acquaman: The Comic-book Hero of Synchrotron Science since 2011
+
+  \section intro What is Acquaman?
+
+  Acquaman is a fausome framework used for the <em>acqu</em>isition and <em>man</em>agement of experimental data.  It is used initially on the SGM and REIXS beamlines at the Canadian Light Source.
+
+  \section For Beamline users...
+
+
+  \section For Programmers...
+
+  */
+
+
+
 #include <QApplication>
 #include "AMSettings.h"
 
