@@ -11,6 +11,24 @@
 
   \section programmerDocIntro For Programmers...
 
+  \subsection Architecture and Modules
+  \image html architecture.png "Architecture of the Acquaman Framework"
+
+  The Acquaman framework is divided into 6 modules that group related functionality.  The dependency of the modules is shown in the Architecture diagram: each block makes use of the components directly below it.
+
+  \b Modules
+  - \c beamline : Control interface to the actual beamline hardware
+  - \c acquaman : Manages setting up and executing scans
+  - \c dataman : Responsible for the representation (top layer), and storage and retrieval (bottom layer) of experimental data.
+  - \c workflow : A program-wide system for scheduling and running a series of "user-level" actions
+  - \c script : Provides the advanced user with powerful and direct access to the beamline, acquaman, and dataman layers
+  - \c ui : Contains all user-interface widgets
+
+  Some rules:
+	- Any classes from the QtGui Qt module are used only in the ui module.
+	- ...
+
+
   \section miscJunk For Boots and Dave...
   \subsection todo Misc. Todos
 
