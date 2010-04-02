@@ -12,7 +12,7 @@ class AMControlSet : public QObject
 {
 Q_OBJECT
 public:
-    explicit AMControlSet(QObject *parent = 0);
+	explicit AMControlSet(QObject *parent = 0);
 
     QString name() const { return name_;}
     //const QList<const AMControl*> controls() const { return ctrls_;}
@@ -51,6 +51,8 @@ class AMControlOptimizationSet : public AMControlSet
     Q_OBJECT
 public:
     explicit AMControlOptimizationSet(QObject *parent=0) : AMControlSet(parent){;}
+
+	void addOptimization(AMControlOptimization *optimization){ outputs_.append(optimization) ;}
 
 protected:
     QList<AMControlOptimization*> outputs_;

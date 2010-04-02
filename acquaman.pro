@@ -105,7 +105,9 @@ HEADERS += source/beamline/AMDiagnosticPaddle.h \
     source/acquaman/SGM/SGMXASScanController.h \
     source/acquaman/SGM/SGMXASScanConfiguration.h \
     source/acquaman/SGM/SGMScanConfiguration.h \
-    source/ui/AMStatusView.h
+    source/ui/AMStatusView.h \
+    source/ui/SGMXASScanConfigurationViewer.h \
+    source/ui/AMControlSetView.h
 FORMS += source/ui/AbsorptionScanController.ui \
     source/ui/ConnectionSettings.ui \
     source/ui/EmissionScanController.ui \
@@ -115,7 +117,8 @@ FORMS += source/ui/AbsorptionScanController.ui \
     source/ui/ProtocolViewer.ui \
     source/ui/SamplePositions.ui \
     source/ui/Scheduler.ui \
-    source/ui/BottomBar.ui
+    source/ui/BottomBar.ui \
+    source/ui/SGMXASScanConfigurationViewer.ui
 SOURCES += source/beamline/AMDiagnosticPaddle.cpp \
     source/beamline/AMLoadLock.cpp \
     source/beamline/AMSampleHolder.cpp \
@@ -176,5 +179,7 @@ SOURCES += source/beamline/AMDiagnosticPaddle.cpp \
     source/acquaman/SGM/SGMXASScanController.cpp \
     source/acquaman/SGM/SGMXASScanConfiguration.cpp \
     source/acquaman/SGM/SGMScanConfiguration.cpp \
-    source/ui/AMStatusView.cpp
+    source/ui/AMStatusView.cpp \
+    source/ui/SGMXASScanConfigurationViewer.cpp \
+    source/ui/AMControlSetView.cpp
 RESOURCES = source/icons/icons.qrc

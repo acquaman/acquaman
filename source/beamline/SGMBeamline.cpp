@@ -40,6 +40,14 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
     exitSlitTracking_ = new AMPVControl("exitSlitTracking", "dave:Energy:exitSlit:tracking", "dave:Energy:exitSlit:tracking", this, 0.1);
 	//exitSlitTracking_->setDiscrete(true);
     addChild(exitSlitTracking_);
+
+	fluxOptimization_ = new SGMFluxOptimization(this);
+	fluxResolutionSet_ = new AMControlOptimizationSet(this);
+	fluxResolutionSet_->addControl(grating_);
+	fluxResolutionSet_->addControl(harmonic_);
+	fluxResolutionSet_->addControl(exitSlitGap_);
+	((AMControlOptimizationSet*)fluxResolutionSet_)->addOptimization(fluxOptimization_);
+
 }
 
 SGMBeamline::~SGMBeamline()

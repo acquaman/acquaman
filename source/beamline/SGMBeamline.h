@@ -37,6 +37,8 @@ public:
 	AMControl* monoTracking() const { return monoTracking_;}
 	AMControl* exitSlitTracking() const { return exitSlitTracking_;}
 
+	AMControlSet* fluxResolutionSet() const { return fluxResolutionSet_;}
+
     bool energyValidForSettings(sgmGrating grating, sgmHarmonic harmonic, double energy);
     bool energyRangeValidForSettings(sgmGrating grating, sgmHarmonic harmonic, double minEnergy, double maxEnergy);
 
@@ -48,15 +50,18 @@ protected:
     // Parts of this beamline:
     ///////////////////////////////
 
-        AMControl *ringCurrent_;
+	AMControl *ringCurrent_;
 	AMControl *energy_;
 	AMControl *exitSlitGap_;
-        AMControl *m4_;
+	AMControl *m4_;
 	AMControl *grating_;
-        AMControl *harmonic_;
+	AMControl *harmonic_;
 	AMControl *undulatorTracking_;
 	AMControl *monoTracking_;
 	AMControl *exitSlitTracking_;
+
+	AMControlOptimization *fluxOptimization_;
+	AMControlSet *fluxResolutionSet_;
 };
 
 class SGMFluxOptimization : public AMControlOptimization
