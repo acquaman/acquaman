@@ -32,13 +32,13 @@ public:
 		openAnime_ = NULL;
 		closeAnime_ = NULL;
 		setMouseTracking(true);
-
+/*
 		fr_ = new QFrame(this, 0);
 		vl_ = new QVBoxLayout(fr_);
 		fr_->setLayout(vl_);
 		vl_->addStretch(1);
 		vl_->setDirection(QBoxLayout::BottomToTop);
-
+*/
 		sa_ = NULL;
 
 /*		sa_ = new QScrollArea(this);
@@ -82,7 +82,7 @@ public:
 
 	void setAnimes(QPropertyAnimation* openAnime, QPropertyAnimation* closeAnime){ openAnime_ = openAnime; closeAnime_ = closeAnime;}
 	void append(QString msg, int level){
-		QHBoxLayout *layout = new QHBoxLayout(this);
+		QHBoxLayout *layout;
 		QString iconMsg = "";
 		QString iconPixmap = "";
 		switch(level) {
@@ -105,34 +105,53 @@ public:
 			iconPixmap = ":/applications-development.png";
 			break;
 		}
-		QLabel *localIcon = new QLabel(iconMsg);
-		localIcon->setPixmap(QPixmap(iconPixmap));
-		layout->addWidget(localIcon);
-		setFixedWidth(250);
-		QLabel *text = new QLabel(msg);
-		layout->addWidget(text);
-		layout->addStretch(1);
-		layout->addStrut(32);
-		layout->setMargin(0);
-		vl_->addLayout(layout);
-		
 
-		if(vl_->children().count() >= 5)
-		{
-			sa_ = new QScrollArea(this);
-			sa_->setFixedWidth(250);
-			sa_->setBackgroundRole(QPalette::Dark);
-			sa_->setAlignment(Qt::AlignLeft);
-			sa_->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-//			sa_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-			QFrame *lfr_ = fr_;
-			sa_->setWidget(lfr_);
+		// OKAY, from here on in this is a severe hack. Why, because ScrollArea is a biotch
+		//  Turns out that when I just tried to make a scroll area in the constructor and
+		//  add the frame it would never update. So then, if I put the scrollArea stuff in
+		//  here (which would be a hack anyway) it somehow brutalizes succesive drawings of
+		//  the frame (the message layouts get squeezed until you can't read them). This is
+		//  likely the MOST WASTEFUL algorithm possible, but it's the only one I could figure
+		//  out that will draw successive messages properly ... I hope that someone can come
+		//  around and fix it, cause it's pissing me off.
+		// That, and all of this should be migrated to the cpp, cause the header is now a
+		//  mile long ... my bust.
+		mems_.append(QPair<QString, QString>(msg, iconPixmap));
 
-			hl_ = new QHBoxLayout(this);
-			hl_->addWidget(sa_);
-			hl_->setMargin(0);
-			this->setLayout(hl_);
+		fr_ = new QFrame(this, 0);
+		vl_ = new QVBoxLayout(fr_);
+		QLabel *localIcon;
+		QLabel *text;
+		for(int x = 0; x < mems_.count(); x++){
+			layout = new QHBoxLayout(this);
+			localIcon = new QLabel("trying");
+			localIcon->setPixmap(QPixmap(mems_.at(x).second));
+			layout->addWidget(localIcon);
+			setFixedWidth(250);
+			text = new QLabel(mems_.at(x).first);
+			layout->addWidget(text);
+			layout->addStretch(1);
+			layout->addStrut(32);
+			layout->setMargin(0);
+			vl_->addLayout(layout);
 		}
+		fr_->setLayout(vl_);
+		vl_->addStretch(1);
+		vl_->setDirection(QBoxLayout::BottomToTop);
+		
+		sa_ = new QScrollArea(this);
+		sa_->setFixedWidth(250);
+		sa_->setBackgroundRole(QPalette::Dark);
+		sa_->setAlignment(Qt::AlignLeft);
+		sa_->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+			sa_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+		QFrame *lfr_ = fr_;
+		sa_->setWidget(lfr_);
+
+		hl_ = new QHBoxLayout(this);
+		hl_->addWidget(sa_);
+		hl_->setMargin(0);
+		this->setLayout(hl_);
 
 	}
 	void setStartHeight(int startHeight){ startHeight_ = startHeight;}
@@ -179,7 +198,7 @@ protected:
 	QPropertyAnimation *openAnime_;
 	QPropertyAnimation *closeAnime_;
 	QVBoxLayout *vl_;
-	QList<QHBoxLayout*> mems_;
+	QList<QPair<QString, QString> > mems_;
 	QFrame *fr_;
 	QScrollArea *sa_;
 	QHBoxLayout *hl_;
