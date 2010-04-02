@@ -9,6 +9,7 @@ class Test1: public QObject
 	Q_OBJECT
 private slots:
 
+
 	// This runs before any of the private slots (test cases) get run:
 	void initTestCase()
 	{
