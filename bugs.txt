@@ -5,4 +5,4 @@ Bugs List
 
 > replace all qDebug() with our own error/logging notification system.
 
-
+>> errorMon popup needs to have the drawing algorithm fixed ... and the code needs to be migrated from the .h to the .cpp file ... just tried of working on it.
