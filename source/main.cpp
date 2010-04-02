@@ -12,9 +12,9 @@
   \section programmerDocIntro For Programmers...
 
   \subsection architecture Architecture and Modules
-  \image html architecture.png "Architecture of the Acquaman Framework"
+  \image html architecture.png "Figure 1: Architecture of the Acquaman Framework"
 
-  The Acquaman framework is divided into 6 modules that group related functionality.  The dependency of the modules is shown in the Architecture diagram: each block makes use of the components directly below it.
+  The Acquaman framework is divided into 6 modules that group related functionality.  The dependency of the modules is shown in Figure 1: each block makes use of the components directly below it.
 
   \b Modules
   - \c beamline : Control interface to the actual beamline hardware
