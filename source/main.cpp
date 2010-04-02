@@ -11,7 +11,7 @@
 
   \section programmerDocIntro For Programmers...
 
-  \subsection Architecture and Modules
+  \subsection architecture Architecture and Modules
   \image html architecture.png "Architecture of the Acquaman Framework"
 
   The Acquaman framework is divided into 6 modules that group related functionality.  The dependency of the modules is shown in the Architecture diagram: each block makes use of the components directly below it.
