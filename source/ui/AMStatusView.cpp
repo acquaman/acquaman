@@ -50,6 +50,10 @@ AMStatusView::AMStatusView(QWidget *parent) : QWidget(parent)
 	detailText_ = new QTextEdit();
 	detailText_->setReadOnly(true);
 
+	openAnime = NULL;
+	open2Anime = NULL;
+	closeAnime = NULL;
+
 	popup_ = new AMHidingDialog(this, Qt::Dialog | Qt::FramelessWindowHint);
 	popup_->setGeometry(0, 0, AMSTATUSVIEW_LOG_WIDTH, AMSTATUSVIEW_LOG_HEIGHT);
 	//popup_->setGraphicsEffect();
@@ -57,6 +61,16 @@ AMStatusView::AMStatusView(QWidget *parent) : QWidget(parent)
 	hl2->setMargin(0);
 	hl2->addWidget(detailText_);
 	popup_->setLayout(hl2);
+
+	/*
+	animation = new QPropertyAnimation(popup_, "geometry");
+	animation->setDuration(1000);
+	animation->setEasingCurve(QEasingCurve::OutInSine);
+
+	animation2 = new QPropertyAnimation(popup_, "geometry");
+	animation2->setDuration(1000);
+	animation2->setEasingCurve(QEasingCurve::OutInSine);
+	*/
 
 }
 
