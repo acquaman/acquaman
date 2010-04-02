@@ -61,17 +61,6 @@ AMStatusView::AMStatusView(QWidget *parent) : QWidget(parent)
 	hl2->setMargin(0);
 	hl2->addWidget(detailText_);
 	popup_->setLayout(hl2);
-
-	/*
-	animation = new QPropertyAnimation(popup_, "geometry");
-	animation->setDuration(1000);
-	animation->setEasingCurve(QEasingCurve::OutInSine);
-
-	animation2 = new QPropertyAnimation(popup_, "geometry");
-	animation2->setDuration(1000);
-	animation2->setEasingCurve(QEasingCurve::OutInSine);
-	*/
-
 }
 
 /// Handles any errors that are logged using AMErrorMon::report(AMErrorCode())
@@ -119,7 +108,8 @@ void AMStatusView::onAnyError(AMErrorReport e) {
 		shortText_->setText(msg);
 
 	/// Log to detail window:
-	detailText_->append(QString("\n\n%1: %2").arg(QDateTime::currentDateTime().toString("ddd hh:mmap")).arg(msg));
+//	detailText_->append(QString("\n\n%1: %2").arg(QDateTime::currentDateTime().toString("ddd hh:mmap")).arg(msg));
+	popup_->append(msg, e.level);
 
 }
 
