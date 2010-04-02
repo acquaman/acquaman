@@ -1,5 +1,5 @@
 # #####################################################################
-# QMake project file for reixsdaq.  			January 2010. mark.boots@usask.ca
+# QMake project file for acquaman-module unit tests.  			March 2010. mark.boots@usask.ca
 # Note: Set EPICS_INCLUDE_DIRS, EPICS_LIB_DIR, and PHONON_INCLUDE_DIR correctly for platform
 # #####################################################################
 macx { 
@@ -18,12 +18,17 @@ QT += core \
     phonon \
     network \
     sql
-TARGET = Acquaman
-DESTDIR = build
+
+CONFIG += qtestlib
+
+TARGET = test-acquaman
+DESTDIR = ../../build
 DEPENDPATH += . \
-    source
+    ../../ \
+    ../../source
 INCLUDEPATH += . \
-    source
+    ../../ \
+    ../../source
 INCLUDEPATH += $$EPICS_INCLUDE_DIRS
 INCLUDEPATH += $$PHONON_INCLUDE_DIR
 
@@ -50,29 +55,9 @@ HEADERS += source/beamline/AMDiagnosticPaddle.h \
     source/beamline/AMMono.h \
     source/beamline/AMVariableAperture.h \
     source/beamline/AMInsertionDevice.h \
-    source/ui/AbsorptionScanController.h \
-    source/ui/ConnectionSettings.h \
-    source/ui/EmissionScanController.h \
-    source/ui/ExpAlbum.h \
-    source/ui/GratingResolution.h \
-    source/ui/MainWindow.h \
-    source/ui/PeriodicTable.h \
-    source/ui/ProtocolViewer.h \
-    source/ui/SamplePositions.h \
-    source/ui/Scheduler.h \
-    source/ui/BottomBar.h \
-    source/ui/Sidebar.h \
-    source/ui/CamWidget.h \
     source/beamline/AMProcessVariable.h \
     source/beamline/AMBeamline.h \
     source/beamline/AMControl.h \
-    source/ui/NumericControl.h \
-    source/dataman/AMDbObject.h \
-    source/dataman/AMScan.h \
-    source/dataman/AMChannel.h \
-    source/beamline/AMPVNames.h \
-    source/dataman/AMDatabase.h \
-    source/dataman/AMDbLoader.h \
     source/AMSettings.h \
     source/acquaman/AMScanController.h \
     source/acquaman/AMScanConfiguration.h \
@@ -104,18 +89,10 @@ HEADERS += source/beamline/AMDiagnosticPaddle.h \
     source/acquaman/AMRegion.h \
     source/acquaman/SGM/SGMXASScanController.h \
     source/acquaman/SGM/SGMXASScanConfiguration.h \
-    source/acquaman/SGM/SGMScanConfiguration.h \
-    source/ui/AMStatusView.h
-FORMS += source/ui/AbsorptionScanController.ui \
-    source/ui/ConnectionSettings.ui \
-    source/ui/EmissionScanController.ui \
-    source/ui/ExpAlbum.ui \
-    source/ui/GratingResolution.ui \
-    source/ui/PeriodicTable.ui \
-    source/ui/ProtocolViewer.ui \
-    source/ui/SamplePositions.ui \
-    source/ui/Scheduler.ui \
-    source/ui/BottomBar.ui
+	source/acquaman/SGM/SGMScanConfiguration.h
+
+# FORMS   +=
+
 SOURCES += source/beamline/AMDiagnosticPaddle.cpp \
     source/beamline/AMLoadLock.cpp \
     source/beamline/AMSampleHolder.cpp \
@@ -124,20 +101,10 @@ SOURCES += source/beamline/AMDiagnosticPaddle.cpp \
     source/beamline/AMMono.cpp \
     source/beamline/AMVariableAperture.cpp \
     source/beamline/AMInsertionDevice.cpp \
-    source/ui/SamplePositions.cpp \
-    source/ui/BottomBar.cpp \
-    source/ui/CamWidget.cpp \
-    source/ui/MainWindow.cpp \
-    source/main.cpp \
     source/beamline/AMProcessVariable.cpp \
     source/beamline/AMBeamline.cpp \
     source/beamline/AMControl.cpp \
-    source/ui/NumericControl.cpp \
-    source/dataman/AMScan.cpp \
-    source/dataman/AMChannel.cpp \
     source/beamline/AMPVNames.cpp \
-    source/dataman/AMDatabase.cpp \
-    source/dataman/AMDbObject.cpp \
     source/AMSettings.cpp \
     source/acquaman/AMScanController.cpp \
     source/acquaman/AMScanConfiguration.cpp \
@@ -176,5 +143,4 @@ SOURCES += source/beamline/AMDiagnosticPaddle.cpp \
     source/acquaman/SGM/SGMXASScanController.cpp \
     source/acquaman/SGM/SGMXASScanConfiguration.cpp \
     source/acquaman/SGM/SGMScanConfiguration.cpp \
-    source/ui/AMStatusView.cpp
-RESOURCES = source/icons/icons.qrc
+    tests.cpp
