@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'tests.cpp'
 **
-** Created: Fri Apr 2 04:06:00 2010
+** Created: Sat Apr 3 02:27:54 2010
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.6.2)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -16,13 +16,13 @@
 #endif
 
 QT_BEGIN_MOC_NAMESPACE
-static const uint qt_meta_data_Test1[] = {
+static const uint qt_meta_data_TestDataman[] = {
 
  // content:
        4,       // revision
        0,       // classname
        0,    0, // classinfo
-       3,   14, // methods
+       7,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -30,41 +30,50 @@ static const uint qt_meta_data_Test1[] = {
        0,       // signalCount
 
  // slots: signature, parameters, type, tag, flags
-       7,    6,    6,    6, 0x08,
-      22,    6,    6,    6, 0x08,
-      40,    6,    6,    6, 0x08,
+      13,   12,   12,   12, 0x08,
+      28,   12,   12,   12, 0x08,
+      46,   12,   12,   12, 0x08,
+      84,   12,   12,   12, 0x08,
+     123,   12,   12,   12, 0x08,
+     157,   12,   12,   12, 0x08,
+     192,   12,   12,   12, 0x08,
 
        0        // eod
 };
 
-static const char qt_meta_stringdata_Test1[] = {
-    "Test1\0\0initTestCase()\0cleanupTestCase()\0"
-    "dbInsertRetrieve()\0"
+static const char qt_meta_stringdata_TestDataman[] = {
+    "TestDataman\0\0initTestCase()\0"
+    "cleanupTestCase()\0"
+    "insertAMDbObject_retrieveStatically()\0"
+    "insertAMDbObject_retrieveDynamically()\0"
+    "insertAMScan_retrieveStatically()\0"
+    "insertAMScan_retrieveDynamically()\0"
+    "insertAMScan_search()\0"
 };
 
-const QMetaObject Test1::staticMetaObject = {
-    { &QObject::staticMetaObject, qt_meta_stringdata_Test1,
-      qt_meta_data_Test1, 0 }
+const QMetaObject TestDataman::staticMetaObject = {
+    { &QObject::staticMetaObject, qt_meta_stringdata_TestDataman,
+      qt_meta_data_TestDataman, 0 }
 };
 
 #ifdef Q_NO_DATA_RELOCATION
-const QMetaObject &Test1::getStaticMetaObject() { return staticMetaObject; }
+const QMetaObject &TestDataman::getStaticMetaObject() { return staticMetaObject; }
 #endif //Q_NO_DATA_RELOCATION
 
-const QMetaObject *Test1::metaObject() const
+const QMetaObject *TestDataman::metaObject() const
 {
     return QObject::d_ptr->metaObject ? QObject::d_ptr->metaObject : &staticMetaObject;
 }
 
-void *Test1::qt_metacast(const char *_clname)
+void *TestDataman::qt_metacast(const char *_clname)
 {
     if (!_clname) return 0;
-    if (!strcmp(_clname, qt_meta_stringdata_Test1))
-        return static_cast<void*>(const_cast< Test1*>(this));
+    if (!strcmp(_clname, qt_meta_stringdata_TestDataman))
+        return static_cast<void*>(const_cast< TestDataman*>(this));
     return QObject::qt_metacast(_clname);
 }
 
-int Test1::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
+int TestDataman::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
 {
     _id = QObject::qt_metacall(_c, _id, _a);
     if (_id < 0)
@@ -73,10 +82,14 @@ int Test1::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         switch (_id) {
         case 0: initTestCase(); break;
         case 1: cleanupTestCase(); break;
-        case 2: dbInsertRetrieve(); break;
+        case 2: insertAMDbObject_retrieveStatically(); break;
+        case 3: insertAMDbObject_retrieveDynamically(); break;
+        case 4: insertAMScan_retrieveStatically(); break;
+        case 5: insertAMScan_retrieveDynamically(); break;
+        case 6: insertAMScan_search(); break;
         default: ;
         }
-        _id -= 3;
+        _id -= 7;
     }
     return _id;
 }

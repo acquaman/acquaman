@@ -4,13 +4,16 @@
 #include "dataman/AMDbLoader.h"
 #include "AMSettings.h"
 
-class Test1: public QObject
+/// This class contains all of the unit tests for the dataman module.
+/*! Each private slot corresponds to one test (which can actually contain several individual unit tests.)  The initTestCase() function is run before any of the tests, and the cleanupTestCase is run after all of them finish.
+  */
+class TestDataman: public QObject
 {
 	Q_OBJECT
 private slots:
 
 
-	// This runs before any of the private slots (test cases) get run:
+	/// This runs before any of the private slots (test cases) get run. It loads the settings and prepares the database tables as required for each Scan object that gets tested.
 	void initTestCase()
 	{
 		AMSettings::load();
@@ -18,94 +21,196 @@ private slots:
 		AMScan::dbPrepareTables(AMDatabase::userdb());
 	}
 
+	/// This is run after all tests are complete.
 	void cleanupTestCase()
-	 { qDebug("called after all tests complete"); }
+	 {
+		AMDatabase::releaseUserDb();
+	}
 
 
-	// A test (or bunch of tests, actually...)
-	void dbInsertRetrieve() {
-		/// testing database inserts
-		// =================================
-		AMScan jimbo;
-		// generate unique name:
+	/// Test inserts of DbObjects into the database, and confirm all values loaded back with DbObject::loadFromDb().
+	void insertAMDbObject_retrieveStatically() {
+		AMDbObject dbo;
+
+		// generate unique name, and set properties:
+		qDebug() << "Generating DbObject with unique properties.";
 		QString uniqueName = QDateTime::currentDateTime().toString("ddddMMddhh:mm:ss.zzz");
-		jimbo.setName("myTestScan" + uniqueName);
-		jimbo.setNumber(3);
-		jimbo.setSampleName("Carbon_60");
-		jimbo.setComments("This is\n a three-line\n comment!");
-		jimbo.setDateTime(QDateTime::currentDateTime());
-		// Save (or update) jimbo in the database
-		*AMDatabase::userdb() << jimbo;
+		dbo.setName("myTestDbObject" + uniqueName);
+		dbo.setDateTime(QDateTime::currentDateTime());
+		dbo.setNumber(42);
 
-		qDebug() << "Testing insert into database: non-zero id?" << jimbo.id();
-		QVERIFY(jimbo.id() > 0);	// check that insert succeeded.
+		// Insert into db:
+		*AMDatabase::userdb() << dbo;
+
+		// Was it inserted succesfully?
+		qDebug() << "Testing DbObject insert into database: id should not be 0:" << dbo.id();
+		QVERIFY(dbo.id() > 0);	// check that insert succeeded.
+
+		// Load same scan back:
+		AMDbObject dbo2;
+		dbo2.loadFromDb(AMDatabase::userdb(), dbo.id());
+		qDebug() << "Retrieving DbObject out of database: comparing all parameters with original:";
+		QCOMPARE(dbo2.id(), dbo.id());
+		QCOMPARE(dbo2.name(), dbo.name());
+		QCOMPARE(dbo2.number(), dbo.number());
+		QCOMPARE(dbo2.dateTime().toString("yyyy MM/dd hh:mm:ss"), dbo.dateTime().toString("yyyy MM/dd hh:mm:ss"));
+	}
+
+	/// Test inserts of DbObjects into database, and confirm all values loaded back with dynamic loader:
+	void insertAMDbObject_retrieveDynamically() {
+		AMDbObject dbo;
+
+		// generate unique name, and set properties:
+		qDebug() << "Generating DbObject with unique properties.";
+		QString uniqueName = QDateTime::currentDateTime().toString("ddddMMddhh:mm:ss.zzz");
+		dbo.setName("myTestDbObject" + uniqueName);
+		dbo.setDateTime(QDateTime::currentDateTime());
+		dbo.setNumber(42);
+
+		// Insert into db:
+		*AMDatabase::userdb() << dbo;
+
+		// Was it inserted succesfully?
+		qDebug() << "Testing DbObject insert into database: id should not be 0:" << dbo.id();
+		QVERIFY(dbo.id() > 0);	// check that insert succeeded.
+
+		// Load same scan back:
+		AMDbObject* dbo2 = 0;
+		QString typeString;
+		dbo2 = AMDbLoader::createAndLoad(AMDatabase::userdb(), dbo.id(),this, &typeString);
+
+		qDebug() << "Type of retrieved object should be AMDbObject: " << typeString;
+		QCOMPARE(typeString, QString("AMDbObject"));
+
+		qDebug() << "Confirming object was dynamically loaded: pointer is: " << dbo2;
+		QVERIFY(dbo2 != 0);
+
+		qDebug() << "Retrieved DbObject out of database: comparing all parameters with original:";
+		QCOMPARE(dbo2->id(), dbo.id());
+		QCOMPARE(dbo2->name(), dbo.name());
+		QCOMPARE(dbo2->number(), dbo.number());
+		QCOMPARE(dbo2->dateTime().toString("yyyy MM/dd hh:mm:ss"), dbo.dateTime().toString("yyyy MM/dd hh:mm:ss"));
+	}
+
+	/// Test inserts of AMScan into the database, and confirm all values loaded back with DbObject::loadFromDb().
+	void insertAMScan_retrieveStatically() {
+		AMScan dbo;
+
+		// generate unique name, and set properties:
+		qDebug() << "Generating AMScan with unique properties.";
+		QString uniqueName = QDateTime::currentDateTime().toString("ddddMMddhh:mm:ss.zzz");
+		dbo.setName("myTestAMScan" + uniqueName);
+		dbo.setDateTime(QDateTime::currentDateTime());
+		dbo.setNumber(42);
+		dbo.setSampleName("mySampleName" + uniqueName);
+		dbo.setComments("my Comments\n"+uniqueName);
+
+		// Insert into db:
+		*AMDatabase::userdb() << dbo;
+
+		// Was it inserted succesfully?
+		qDebug() << "Testing AMScan insert into database: id should not be 0:" << dbo.id();
+		QVERIFY(dbo.id() > 0);	// check that insert succeeded.
+
+		// Load same scan back:
+		AMScan dbo2;
+		dbo2.loadFromDb(AMDatabase::userdb(), dbo.id());
+		qDebug() << "Retrieving AMScan out of database: comparing all parameters with original:";
+		QCOMPARE(dbo2.id(), dbo.id());
+		QCOMPARE(dbo2.name(), dbo.name());
+		QCOMPARE(dbo2.number(), dbo.number());
+		QCOMPARE(dbo2.dateTime().toString("yyyy MM/dd hh:mm:ss"), dbo.dateTime().toString("yyyy MM/dd hh:mm:ss"));
+		QCOMPARE(dbo2.sampleName(), dbo.sampleName());
+		QCOMPARE(dbo2.comments(), dbo.comments());
+	}
+
+	/// Test inserts of AMScan into database, and confirm all values loaded back with dynamic loader:
+	void insertAMScan_retrieveDynamically() {
+		AMScan dbo;
+
+		// generate unique name, and set properties:
+		qDebug() << "Generating AMScan with unique properties.";
+		QString uniqueName = QDateTime::currentDateTime().toString("ddddMMddhh:mm:ss.zzz");
+		dbo.setName("myTestAMScan" + uniqueName);
+		dbo.setDateTime(QDateTime::currentDateTime());
+		dbo.setNumber(42);
+		dbo.setSampleName("mySampleName" + uniqueName);
+		dbo.setComments("my Comments\n"+uniqueName);
+
+		// Insert into db:
+		*AMDatabase::userdb() << dbo;
+
+		// Was it inserted succesfully?
+		qDebug() << "Testing AMScan insert into database: id should not be 0:" << dbo.id();
+		QVERIFY(dbo.id() > 0);	// check that insert succeeded.
+
+		// Load same scan back:
+		AMDbObject* dbo2d = 0;
+		QString typeString;
+		dbo2d = AMDbLoader::createAndLoad(AMDatabase::userdb(), dbo.id(),this, &typeString);
+
+		qDebug() << "Type of retrieved object should be AMScan: " << typeString;
+		QCOMPARE(typeString, QString("AMScan"));
+
+		qDebug() << "Confirming object was dynamically loaded: pointer is: " << dbo2d;
+		QVERIFY(dbo2d != 0);
+		qDebug() << "Confirming dynamically loaded object is an AMScan: pointer is: " << dbo2d;
+		AMScan* dbo2 = qobject_cast<AMScan*>(dbo2d);
+		QVERIFY(dbo2 != 0);
+
+		// Load same scan back:
+		qDebug() << "Retrieving AMScan out of database: comparing all parameters with original:";
+		QCOMPARE(dbo2->id(), dbo.id());
+		QCOMPARE(dbo2->name(), dbo.name());
+		QCOMPARE(dbo2->number(), dbo.number());
+		QCOMPARE(dbo2->dateTime().toString("yyyy MM/dd hh:mm:ss"), dbo.dateTime().toString("yyyy MM/dd hh:mm:ss"));
+		QCOMPARE(dbo2->sampleName(), dbo.sampleName());
+		QCOMPARE(dbo2->comments(), dbo.comments());
+	}
+
+	/// Test inserts of AMScan into the database, and confirm all values loaded back with DbObject::loadFromDb().
+	void insertAMScan_search() {
+		AMScan dbo;
+
+		// generate unique name, and set properties:
+		qDebug() << "Generating AMScan with unique properties.";
+		QString uniqueName = QDateTime::currentDateTime().toString("ddddMMddhh:mm:ss.zzz");
+		dbo.setName("myTestAMScan" + uniqueName);
+		dbo.setDateTime(QDateTime::currentDateTime());
+		dbo.setNumber(QDateTime::currentDateTime().toTime_t());
+		dbo.setSampleName("mySampleName" + uniqueName);
+		dbo.setComments("my Comments\n"+uniqueName);
+
+		// Insert into db:
+		*AMDatabase::userdb() << dbo;
+
+		// Was it inserted succesfully?
+		qDebug() << "Testing AMScan insert into database: id should not be 0:" << dbo.id();
+		QVERIFY(dbo.id() > 0);	// check that insert succeeded.
+
+		QList<int> lr;
+		// Check: all columns: scans matching should be 1:
+		qDebug() << "Checking scansMatching finds one matching for each column.";
+		//lr = AMDatabase::userdb()->scansMatching("id", dbo.id());
+		//QCOMPARE(lr.count(), 1);
+		lr = AMDatabase::userdb()->scansMatching("name", dbo.name());
+		QCOMPARE(lr.count(), 1);
+		lr = AMDatabase::userdb()->scansMatching("number", dbo.number());
+		QCOMPARE(lr.count(), 1);
+		lr = AMDatabase::userdb()->scansMatching("sampleName", dbo.sampleName());
+		QCOMPARE(lr.count(), 1);
+		lr = AMDatabase::userdb()->scansMatching("comments", dbo.comments());
+		QCOMPARE(lr.count(), 1);
+		lr = AMDatabase::userdb()->scansMatching("dateTime", dbo.dateTime());
+		/// \todo check for 1-minute tolerance on date-time...
+		QCOMPARE(lr.count(), 1);
 
 
-		QList<int> jimboIds = AMDatabase::userdb()->scansMatching("name", jimbo.name());
-		qDebug() << "Testing for scans with name matching" << jimbo.name() << ". Found: " << jimboIds.count();
-		QCOMPARE(jimboIds.count(), 1);	// should not be 0 (insert failed)
 
-		jimboIds = AMDatabase::userdb()->scansMatching("name", uniqueName);
-		qDebug() << "testing for scans matching section of unique name. Should be 0:" << jimboIds.count();
-		QCOMPARE(jimboIds.count(), 0);	// should not match any
-
-		jimboIds = AMDatabase::userdb()->scansContaining("name", uniqueName);
-		qDebug() << "Testing for scans containing section of unique name. Should find 1:" << jimboIds.count();
-		QCOMPARE(jimboIds.count(), 1);	// should only match one
-
-		qDebug() << "Testing type of object with userdb()->scanType()" << AMDatabase::userdb()->scanType(jimbo.id());
-		QCOMPARE(AMDatabase::userdb()->scanType(jimbo.id()), jimbo.type());
-
-		qDebug() << "Testing type of nonexistent object:" << AMDatabase::userdb()->scanType(1223982323);
-		QCOMPARE(AMDatabase::userdb()->scanType(1223982323), QString(""));	// should not be found.
-
-		// Use the powerful anyType loader to load from the database:
-		AMDbObject* loadedObject = AMDbLoader::createAndLoad(AMDatabase::userdb(), jimbo.id());
-		qDebug() << "test loading from database: createAndLoad(): not zero?" << loadedObject;
-		QVERIFY(loadedObject != 0);	// should have found it
-
-		// Can ask for it's type using
-		if(loadedObject) {
-			qDebug() << "loaded database object @ id dynamically; his type is: " << loadedObject->type();
-			QCOMPARE(loadedObject->type(), jimbo.type());
-		}
-		// If you want, convert to a Scan using qt's dynamic cast:
-		AMScan* loadedScan = qobject_cast<AMScan*>(loadedObject);
-		if(loadedScan) {
-			qDebug() << "Dynamic object was a Scan... his sampleName is" << loadedScan->sampleName();
-			QVERIFY(loadedScan != 0);
-			qDebug() << "checking for matching retrieved scan parameters in AMScan:";
-			QCOMPARE(loadedScan->sampleName(), jimbo.sampleName());
-			QCOMPARE(loadedScan->comments(), jimbo.comments());
-			QCOMPARE(loadedScan->channelNames(), jimbo.channelNames());
-			qDebug() << "checking for matching retrieved scan parameters in DbObject:";
-			QCOMPARE(loadedScan->id(), jimbo.id());
-			QCOMPARE(loadedScan->dateTime().toString("yyyy MM/dd hh:mm:ss"), jimbo.dateTime().toString("yyyy MM/dd hh:mm:ss"));
-			QCOMPARE(loadedScan->number(), jimbo.number());
-			QCOMPARE(loadedScan->name(), jimbo.name());
-		}
-		else {
-			qDebug() << "Dynamically loaded an object, but it's not a Scan.";
-			QVERIFY(false);	// this should never happen
-		}
-
-		// But all this is silly if you already know the type of the object.  Just do:
-		AMScan newScan2;
-		qDebug() << "Attempting to load scan at last id. Found it: " << newScan2.loadFromDb(AMDatabase::userdb(), jimbo.id());
-		qDebug() << "scan at last id: comment is: " << newScan2.comments();
-		QCOMPARE(newScan2.comments(), jimbo.comments());
-		qDebug() << "dateTime is: " << newScan2.dateTime();
-		QCOMPARE(newScan2.sampleName(), jimbo.sampleName());
-		qDebug() << "id is: " << newScan2.id();
-		qDebug() << "check for all parameters in AMScan to match:";
-		QCOMPARE(newScan2.id(), jimbo.id());
-		QCOMPARE(newScan2.dateTime().toString("yyyy MM/dd hh:mm:ss"), jimbo.dateTime().toString("yyyy MM/dd hh:mm:ss"));
-		QCOMPARE(newScan2.channelNames(), jimbo.channelNames());
-		QCOMPARE(newScan2.number(), jimbo.number());
-		QCOMPARE(newScan2.name(), jimbo.name());
 
 	}
+
 };
 
-QTEST_MAIN(Test1)
+QTEST_MAIN(TestDataman)
 #include "tests.moc"
