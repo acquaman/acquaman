@@ -15,6 +15,7 @@ public:
     double end(size_t index) const;
     AMXASRegion* region(size_t index) const;
     QList<AMXASRegion*> regions() { return regions_;}
+	QList<AMXASRegion*>* regionsPtr() { return &regions_;}
 
 public slots:
     bool setStart(size_t index, double start);

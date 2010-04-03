@@ -40,6 +40,9 @@ MainWindow::MainWindow(QWidget* parent) : QWidget(parent) {
 	
 	absorptionScanController_ = new AbsorptionScanController(stackWidget_);
 	stackWidget_->addWidget(absorptionScanController_);
+
+	sxscViewer_ = new SGMXASScanConfigurationViewer(stackWidget_);
+	stackWidget_->addWidget(sxscViewer_);
 	
 	emissionScanController_ = new EmissionScanController(stackWidget_);
 	stackWidget_->addWidget(emissionScanController_);
@@ -71,6 +74,7 @@ MainWindow::MainWindow(QWidget* parent) : QWidget(parent) {
 	sidebar_->addCategory("Scan Setup");
 	sidebar_->addLink("Absorption Scan", absorptionScanController_, "Scan Setup", -1, QIcon(":/utilities-system-monitor.png"));
 	sidebar_->addLink("Emission Scan", emissionScanController_, "Scan Setup", -1, QIcon(":/multimedia-volume-control.png"));
+	sidebar_->addLink("David Scan", sxscViewer_, "Scan Setup", -1, QIcon(":/utilities-system-monitor.png"));
 
 	sidebar_->addCategory("Experiment Tools");
 	sidebar_->addLink("Scheduler (Brew)", scheduler_, "Experiment Tools", -1, QIcon(":/user-away.png"));

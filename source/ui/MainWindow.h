@@ -8,6 +8,7 @@
 #include "SamplePositions.h"
 #include "GratingResolution.h"
 #include "AbsorptionScanController.h"
+#include "SGMXASScanConfigurationViewer.h"
 #include "EmissionScanController.h"
 #include "Scheduler.h"
 #include "PeriodicTable.h"
@@ -42,6 +43,7 @@ protected:
 	PeriodicTable* periodicTable_;
 	ProtocolViewer* protocolViewer_;
 	ExpAlbum* expAlbum_;
+	SGMXASScanConfigurationViewer *sxscViewer_;
 };
 
 

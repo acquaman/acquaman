@@ -6,7 +6,7 @@ AMControlSet::AMControlSet(QObject *parent) :
 }
 
 bool AMControlSet::addControl(AMControl* ctrl) {
-    if(ctrls_.contains(ctrl))
+	if(ctrls_.contains(ctrl))
         return false;
     ctrls_.append(ctrl);
     return true;
