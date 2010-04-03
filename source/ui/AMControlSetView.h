@@ -6,12 +6,14 @@
 #include <QGroupBox>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
+#include <QFormLayout>
 #include <QLabel>
 #include <QAbstractSpinBox>
 #include <QDoubleSpinBox>
 #include <QSpinBox>
 
-class AMControlSetView : public QWidget
+//class AMControlSetView : public QWidget
+class AMControlSetView : public QGroupBox
 {
 Q_OBJECT
 public:
@@ -22,7 +24,7 @@ signals:
 public slots:
 
 protected:
-	QGroupBox *gb_;
+//	QGroupBox *gb_;
 	QHBoxLayout *ml_;
 	AMControlSet *viewSet_;
 };

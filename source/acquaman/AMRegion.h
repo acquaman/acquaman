@@ -2,6 +2,8 @@
 #define ACQMAN_AMREGION_H
 
 #include <QObject>
+#include <QAbstractTableModel>
+#include <QList>
 #include "beamline/AMControl.h"
 
 /*
@@ -68,6 +70,111 @@ public slots:
         return TRUE;
     }
     bool setControl(AMControl *ctrl){Q_UNUSED(ctrl); return false;}
+};
+
+class AMXASRegionModel : public QAbstractTableModel
+{
+	Q_OBJECT
+
+public:
+	AMXASRegionModel(QList<AMXASRegion*> *regions, QObject *parent = 0) : QAbstractTableModel(parent) {
+		regions_ = regions;
+	}
+
+	int rowCount(const QModelIndex & /*parent*/) const { return regions_->count(); }
+	int columnCount(const QModelIndex & /*parent*/) const { return 3; }
+
+	QVariant data(const QModelIndex &index, int role) const {
+
+		// Invalid index:
+		if(!index.isValid())
+			return QVariant();
+
+		// We only answer to Qt::DisplayRole right now
+		if(role != Qt::DisplayRole)
+			return QVariant();
+
+		// Out of range: (Just checking for too big.  isValid() checked for < 0)
+		if(index.row() >= regions_->count())
+			return QVariant();
+		// Return Start:
+		if(index.column() == 0)
+			return regions_->at(index.row())->start() ;
+		// Return Delta:
+		if(index.column() == 1)
+			return regions_->at(index.row())->delta() ;
+		if(index.column() == 2)
+			return regions_->at(index.row())->end() ;
+
+		// Anything else:
+		return QVariant();
+	}
+
+	QVariant headerData(int section, Qt::Orientation orientation, int role) const {
+
+		if (role != Qt::DisplayRole) return QVariant();
+
+		// Vertical headers:
+		if(orientation == Qt::Vertical) {
+			return section;
+		}
+
+		// Horizontal Headers: (Column labels)
+		else {
+			if(section == 0)
+				return "Start";
+			if(section == 1)
+				return "Delta";
+			if(section == 2)
+				return "End";
+		}
+		return QVariant();
+	}
+
+	bool setData(const QModelIndex &index, const QVariant &value, int role) {
+
+		if (index.isValid()  && index.row() < regions_->count() && role == Qt::EditRole) {
+
+			bool conversionOK;
+			double dval = value.toDouble(&conversionOK);
+			if(!conversionOK)
+				return false;
+
+			// Setting a start value?
+			if(index.column() == 0) {
+				regions_->at(index.row())->setStart(dval);
+				emit dataChanged(index, index);
+				return true;
+			}
+			// Setting a delta value?
+			if(index.column() == 1) {
+				regions_->at(index.row())->setDelta(dval);
+				emit dataChanged(index, index);
+				return true;
+			}
+			// Setting an end value?
+			if(index.column() == 1) {
+				regions_->at(index.row())->setEnd(dval);
+				emit dataChanged(index, index);
+				return true;
+			}
+		}
+		return false;	// no value set
+	}
+
+	// This allows editing of values within range (for ex: in a QTableView)
+	Qt::ItemFlags flags(const QModelIndex &index) const {
+
+		Qt::ItemFlags flags;
+		if (index.isValid() && index.row() < regions_->count() && index.column()<3)
+			flags = Qt::ItemIsEditable | Qt::ItemIsSelectable | Qt::ItemIsEnabled;
+		return flags;
+	}
+
+private:
+//	void setupModelData(const QStringList &lines, TreeItem *parent);
+
+	QList<AMXASRegion*> *regions_;
 };
 
 #endif // ACQMAN_AMREGION_H

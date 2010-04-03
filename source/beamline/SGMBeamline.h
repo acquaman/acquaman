@@ -32,12 +32,13 @@ public:
 	AMControl* exitSlitGap() const { return exitSlitGap_;}
 	AMControl* m4() const { return m4_;}
 	AMControl* grating() const { return grating_;}
-        AMControl* harmonic() const { return harmonic_;}
+	AMControl* harmonic() const { return harmonic_;}
 	AMControl* undulatorTracking() const { return undulatorTracking_;}
 	AMControl* monoTracking() const { return monoTracking_;}
 	AMControl* exitSlitTracking() const { return exitSlitTracking_;}
 
 	AMControlSet* fluxResolutionSet() const { return fluxResolutionSet_;}
+	AMControlSet* trackingSet() const { return trackingSet_;}
 
     bool energyValidForSettings(sgmGrating grating, sgmHarmonic harmonic, double energy);
     bool energyRangeValidForSettings(sgmGrating grating, sgmHarmonic harmonic, double minEnergy, double maxEnergy);
@@ -61,7 +62,10 @@ protected:
 	AMControl *exitSlitTracking_;
 
 	AMControlOptimization *fluxOptimization_;
+	AMControlOptimization *resolutionOptimization_;
 	AMControlSet *fluxResolutionSet_;
+
+	AMControlSet *trackingSet_;
 };
 
 class SGMFluxOptimization : public AMControlOptimization
@@ -75,6 +79,19 @@ public:
 protected:
     double maximumEnergy(QList<AMXASRegion*> regions);
     double minimumEnergy(QList<AMXASRegion*> regions);
+};
+
+class SGMResolutionOptimization : public AMControlOptimization
+{
+	Q_OBJECT
+public:
+	SGMResolutionOptimization(QObject *parent=0);
+
+	QMap<double, double> curve(QList<QVariant> stateParameters, QList<AMXASRegion*> contextParameters);
+
+protected:
+	double maximumEnergy(QList<AMXASRegion*> regions);
+	double minimumEnergy(QList<AMXASRegion*> regions);
 };
 
 #endif // ACQMAN_SGMBEAMLINE_H

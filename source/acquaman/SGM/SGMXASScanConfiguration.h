@@ -11,6 +11,7 @@ public:
     SGMXASScanConfiguration(QObject *parent=0);
 
 	AMControlSet *fluxResolutionSet() const { return fluxResolutionSet_;}
+	AMControlSet *trackingSet() const { return trackingSet_;}
 
 public slots:
     virtual bool addRegion(size_t index, AMXASRegion *region) {return AMXASScanConfiguration::addRegion(index, region);}
@@ -35,6 +36,7 @@ signals:
 
 protected:
 	AMControlSet *fluxResolutionSet_;
+	AMControlSet *trackingSet_;
 
 };
 

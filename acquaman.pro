@@ -107,7 +107,8 @@ HEADERS += source/beamline/AMDiagnosticPaddle.h \
     source/acquaman/SGM/SGMScanConfiguration.h \
     source/ui/AMStatusView.h \
     source/ui/SGMXASScanConfigurationViewer.h \
-    source/ui/AMControlSetView.h
+    source/ui/AMControlSetView.h \
+    source/ui/AMXASRegionsView.h
 FORMS += source/ui/AbsorptionScanController.ui \
     source/ui/ConnectionSettings.ui \
     source/ui/EmissionScanController.ui \
@@ -181,5 +182,6 @@ SOURCES += source/beamline/AMDiagnosticPaddle.cpp \
     source/acquaman/SGM/SGMScanConfiguration.cpp \
     source/ui/AMStatusView.cpp \
     source/ui/SGMXASScanConfigurationViewer.cpp \
-    source/ui/AMControlSetView.cpp
+    source/ui/AMControlSetView.cpp \
+    source/ui/AMXASRegionsView.cpp
 RESOURCES = source/icons/icons.qrc
