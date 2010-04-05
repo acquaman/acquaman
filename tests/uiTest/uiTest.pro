@@ -190,5 +190,7 @@ SOURCES += source/beamline/AMDiagnosticPaddle.cpp \
     source/ui/AMStatusView.cpp \
     source/ui/SGMXASScanConfigurationViewer.cpp \
     source/ui/AMControlSetView.cpp \
-    source/ui/AMXASRegionsView.cpp
+    source/ui/AMXASRegionsView.cpp \
+    tests.cpp
+
 RESOURCES = source/icons/icons.qrc
