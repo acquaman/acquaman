@@ -202,7 +202,7 @@ private slots:
 		lr = AMDatabase::userdb()->scansMatching("comments", dbo.comments());
 		QCOMPARE(lr.count(), 1);
 		lr = AMDatabase::userdb()->scansMatching("dateTime", dbo.dateTime());
-		/// \todo check for 1-minute tolerance on date-time...
+		/// \todo check for 1-minute tolerance on date-time... This fails...
 		QCOMPARE(lr.count(), 1);
 
 
