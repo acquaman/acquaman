@@ -1,6 +1,5 @@
 #include "AMXASRegionsView.h"
 
-
 /// Creates buttons for add and delete region.
 /// Defines a new model and views using table view.
 /// Adds all items to form layout.
