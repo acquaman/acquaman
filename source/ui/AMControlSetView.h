@@ -12,7 +12,14 @@
 #include <QDoubleSpinBox>
 #include <QSpinBox>
 
-//class AMControlSetView : public QWidget
+/// An AMControlSetView is a means of generating a default view for AMControlSet
+/*!
+  Inheriting from QGroupBox, the AMControlSetView displays the contents of an AMControlSet in a group box.
+  Simplying calling the constructor while passing an AMControlSet allows the AMControlSetView to:
+  - set the title of the group box from the name of the AMControlSet; and,
+  - generate a label for each AMControl in the AMControlSet from the objectName() function; and,
+  - generate a spin box (integer for enums and double for all others) for each AMControl in the AMControlSet.
+  */
 class AMControlSetView : public QGroupBox
 {
 Q_OBJECT
@@ -24,7 +31,6 @@ signals:
 public slots:
 
 protected:
-//	QGroupBox *gb_;
 	QHBoxLayout *ml_;
 	AMControlSet *viewSet_;
 };
