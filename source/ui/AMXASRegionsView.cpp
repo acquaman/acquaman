@@ -1,8 +1,9 @@
 #include "AMXASRegionsView.h"
 
-/// Creates buttons for add and delete region. \todo Connect add and delete to something.
+/// Creates buttons for add and delete region.
 /// Defines a new model and views using table view.
 /// Adds all items to form layout.
+/// \todo Connect add and delete to something.
 AMXASRegionsView::AMXASRegionsView(QList<AMXASRegion*> *regions, QWidget *parent) :
     QWidget(parent)
 {
