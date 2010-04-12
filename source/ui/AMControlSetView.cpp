@@ -1,5 +1,8 @@
 #include "AMControlSetView.h"
 
+/// Set the title of the group box based on the name() function of the AMControlSet
+/// Loop through the list of AMControls in the AMControlSet and create an appropriate spinbox.
+/// Add the spin box and a label (from the AMControl objectName() function) and add to an internal form layout.
 AMControlSetView::AMControlSetView(AMControlSet *viewSet, QWidget *parent) :
 	QGroupBox(parent)
 {
