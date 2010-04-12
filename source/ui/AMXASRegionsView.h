@@ -32,9 +32,13 @@ signals:
 public slots:
 
 protected:
+	/// The table view used to interact with the group of AMXASRegion.
 	QTableView *tv_;
+	/// Button to add a region. \todo Figure out interface and hook up to something.
 	QPushButton *addButton_;
+	/// Button to delete a region. \todo Figure out interface and hook up to something.
 	QPushButton *deleteButton_;
+	/// The model created from the AMXASRegion group to be used with the table view.
 	AMXASRegionModel *rm_;
 };
 
