@@ -24,6 +24,7 @@ public:
 	/// Constructor
 	/*!
 	  \param regions Pointer to a QList of AMXASRegions. Can be easily retreived using regionsPtr() function on an AMXASScanConfiguration or child.
+	  \param parent Pointer to QWidget to act as parent.
 	  */
 	explicit AMXASRegionsView(QList<AMXASRegion*> *regions, QWidget *parent = 0);
 
