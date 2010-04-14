@@ -26,6 +26,7 @@ Q_OBJECT
 public:
 	/// Constructor
 	/*! \param viewSet Pointer to the AMControlSet to view.
+	  \param parent Pointer to QWidget to act as parent.
 	  */
 	explicit AMControlSetView(AMControlSet *viewSet, QWidget *parent = 0);
 
