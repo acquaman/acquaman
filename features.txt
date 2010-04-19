@@ -3,21 +3,25 @@
 \-----------------------------/
 
 Boots:
-   --> Plotting finished
-   --> Database backend
-     --> file locking
-   --> Scan object
-     --> one demo class - XES ALS
-     --> import, export
-   --> Preliminary view of database
-     --> see what we've got
+D   --> Plotting finished
+D   --> Database backend
+     --> file locking (multiple instances of program running... same DB?)
+D   --> Scan object
+     --> one demo class - SGM XAS*
+     --> import, export*
+   --> Preliminary view of database*
+     --> see what we've got* (thumbnails, tables, data management views)
+
 ===============================
+
+
+
 Control upgrades:
-	- Control::addChild and child(size_t index)?
-	- parent controls: propagating moving signals to parents?
-	- PVControl::movingPV compare with values
-	- two categories of moving
-	- tolerance: separate handling?
+D	- Control::addChild and child(size_t index)?
+D	- parent controls: propagating moving signals to parents?
+D	- PVControl::movingPV compare with values
+D	- two categories of moving
+D	- tolerance: separate handling?
 	- separate units for measure and move? (Assumption: NO. linked to represent same value.
 
 
