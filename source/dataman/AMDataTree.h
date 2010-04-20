@@ -11,36 +11,38 @@ typedef AMNumericType double;
 
 /// This class is an attempt at supporting arbitrary-dimensionality data for AMScan objects, while maintaining simple (programmer-easy) and fast (high-performance) access to the data.
 /*! Data must have a principal column (usually the "x" axis or main independent variable), and the values stored in this column must be true data values.
-	The dataset can have an arbitrary number of additional columns (ex: "tey_raw", "tfy_raw", and "sddSpectrums").  These columns can contain single datapoints (y_) OR links to separate AMDataTables containing higher-dimensional data (yD_).
+The dataset can have an arbitrary number of additional columns (ex: "tey_raw", "tfy_raw", and "sddSpectrums").  These columns can contain single datapoints (stored in \c y_) OR links to separate AMDataTables containing higher-dimensional data (stored in \c yD_).
 
-	For example, in the case of typical absorption scan data taken on the SGM beamline, "tey_raw" and "tfy_raw" would be columns of numbers stored in y_ and accessed (at least internally) as:
+For example, in the case of typical absorption scan data taken on the SGM beamline, "tey_raw" and "tfy_raw" would be columns of numbers stored in y_ and accessed as:
 \code
 AMDataTree myXasData;
-// The 6th element in the "tey" column:
+## The 6th element in the "tey" column:
 printf( "(%d, %d)", myXasData.x(5), myXasData.value("tey", 5) );
 \endcode
 
-	However, all of the datapoints in the "sddSpectrums" column would actually be links to other AMDataTables.  (In the case of the SDD (silicon drift detector), the linked tables would contain an x column (pixel value or energy value) and a y column of intensities.)
-	Internally...
-\code
-//     v----------------------------------------- A vector of AMDataTrees (number of elements = count()
-//                  v---------------------------- The tree for the SDD spectrum at the 6th data point (corresponding to an energy of myXasData.x_[5])
-//                             v----------------- It has one column, the sdd detector intensities (across 1024 energy pixels)
-//                                          v----- The intensity of the middle pixel of the SDD spectrum. (Finally, a #)
-yD_("sddSpectrums", 5)->y_["sddIntensity"][512]
-\endcode
-
-	Externally, access would look like:
+However, all of the datapoints in the "sddSpectrums" column would actually be links to other AMDataTables.  (In the case of the SDD (silicon drift detector), the linked tables would contain an x column (pixel value or energy value) and a y column of intensities.)
+Externally, an actual data value would be accessed as:
 \code
 myXasData.more("sddSpectrums", 5)->value("sddIntensities", 512);
 \endcode
 
+Internally...
+\code
+##     v----------------------------------------- A vector of AMDataTrees (number of elements = count()
+##                  v---------------------------- The tree for the SDD spectrum at the 6th data point (corresponding to an energy of myXasData.x_[5])
+##                             v----------------- It has one column, the sdd detector intensities (across 1024 energy pixels)
+##                                          v----- The intensity of the middle pixel of the SDD spectrum. (Finally, a #)
+yD_("sddSpectrums", 5)->y_["sddIntensity"][512]
+\endcode
 
-	The number of datapoints (whether actual values or AMDataTable links) in any column must be count().
 
-	\todo Figure out memory management for subtrees. What happens if they're shared? Can they be shared?  Destroy subtrees in destructor? Note that QHashs and QVectors are implicitly shared... Can copy them without memory allocation as long as not changed.
-	\todo copy and assignment operators
-	*/
+
+
+The number of datapoints (whether actual values or AMDataTable links) in any column must be count().
+
+\todo Figure out memory management for subtrees. What happens if they're shared? Can they be shared?  Destroy subtrees in destructor? Note that QHashs and QVectors are implicitly shared... Can copy them without memory allocation as long as not changed.
+\todo copy and assignment operators
+*/
 
 class AMDataTree {
 
