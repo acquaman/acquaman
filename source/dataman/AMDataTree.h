@@ -14,25 +14,25 @@ typedef AMNumericType double;
 	The dataset can have an arbitrary number of additional columns (ex: "tey_raw", "tfy_raw", and "sddSpectrums").  These columns can contain single datapoints (y_) OR links to separate AMDataTables containing higher-dimensional data (yD_).
 
 	For example, in the case of typical absorption scan data taken on the SGM beamline, "tey_raw" and "tfy_raw" would be columns of numbers stored in y_ and accessed (at least internally) as:
-	<code>
+	\code
 	AMDataTree myXasData;
 	// The 6th element in the "tey" column:
 	printf( "(%d, %d)", myXasData.x(5), myXasData.value("tey", 5) );
-	</code>
+	\endcode
 
 	However, all of the datapoints in the "sddSpectrums" column would actually be links to other AMDataTables.  (In the case of the SDD (silicon drift detector), the linked tables would contain an x column (pixel value or energy value) and a y column of intensities.)
 	Internally...
-	<code>
+	\code
 	//     v----------------------------------------- A vector of AMDataTrees (number of elements = count()
 	//                  v---------------------------- The tree for the SDD spectrum at the 6th data point (corresponding to an energy of myXasData.x_[5])
 	//                             v----------------- It has one column, the sdd detector intensities (across 1024 energy pixels)
 	//                                          v----- The intensity of the middle pixel of the SDD spectrum. (Finally, a #)
 	yD_("sddSpectrums", 5)->y_["sddIntensity"][512]
-	</code>
+	\endcode
 	Externally, access would look like:
-	<code>
+	\code
 	myXasData.more("sddSpectrums", 5)->value("sddIntensities", 512);
-	</code>
+	\endcode
 
 
 	The number of datapoints (whether actual values or AMDataTable links) in any column must be count().
@@ -106,14 +106,14 @@ public:
 
 	/// Access a pointer to higher-dimensional data tree. Returns 0 if column not found or index out of range.
 	/*! The tree returned is a read-only pointer. Make a copy using the copy constructor or assignment operator if you need to change the data in it.
-		<code>
+		\code
 		AMDataTree myTopTree;
 		AMDataTree* readOnlySubtree = myTopTree.more("sddSpectrums, 42);
 
 		AMDataTree modifySubtree(*readOnlySubtree);
 		// or...
 		AMDataTree modifySubtree = *readOnlySubtree;
-		</code>
+		\endcode
 		*/
 	const AMDataTree* const more(const QString& columnName, unsigned i) const {
 
