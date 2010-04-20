@@ -7,7 +7,7 @@
 #include <QVector>
 
 /// The type of (numeric?) data stored. We're taking the overhead of using doubles for everything, for the simplicity of being able to accurately hold any numeric type.
-typedef AMNumericType double;
+typedef double AMNumericType;
 
 /// This class is an attempt at supporting arbitrary-dimensionality data for AMScan objects, while maintaining simple (programmer-easy) and fast (high-performance) access to the data.
 /*! Data must have a principal column (usually the "x" axis or main independent variable), and the values stored in this column must be true data values.
@@ -16,7 +16,7 @@ The dataset can have an arbitrary number of additional columns (ex: "tey_raw", "
 For example, in the case of typical absorption scan data taken on the SGM beamline, "tey_raw" and "tfy_raw" would be columns of numbers stored in y_ and accessed as:
 \code
 AMDataTree myXasData;
-## The 6th element in the "tey" column: ##
+/// The 6th element in the "tey" column:
 printf( "(%d, %d)", myXasData.x(5), myXasData.value("tey", 5) );
 \endcode
 
@@ -28,10 +28,10 @@ myXasData.more("sddSpectrums", 5)->value("sddIntensities", 512);
 
 Internally...
 \code
-##     v----------------------------------------- A vector of AMDataTrees (number of elements = count() ##
-##                  v---------------------------- The tree for the SDD spectrum at the 6th data point (corresponding to an energy of myXasData.x_[5]) ##
-##                             v----------------- It has one column, the sdd detector intensities (across 1024 energy pixels) ##
-##                                          v----- The intensity of the middle pixel of the SDD spectrum. (Finally, a number!) ##
+///    v----------------------------------------- A vector of AMDataTrees (number of elements = count()
+///                 v---------------------------- The tree for the SDD spectrum at the 6th data point (corresponding to an energy of myXasData.x_[5])
+///                            v----------------- It has one column, the sdd detector intensities (across 1024 energy pixels)
+///                                         v----- The intensity of the middle pixel of the SDD spectrum. (Finally, a number!)
 yD_("sddSpectrums", 5)->y_["sddIntensity"][512]
 \endcode
 
@@ -74,7 +74,7 @@ public:
 
 		if(i >= count()) {
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -1, "AMDataTree: accessed value out of range. Returning an (incorrect) default value."));
-			return AMDataType();
+			return AMNumericType();
 		}
 
 		if(hasXValues_)
@@ -89,7 +89,7 @@ public:
 
 		if(i >= count()) {
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -1, "AMDataTree: accessed value out of range. Returning an (incorrect) default value."));
-			return AMDataType();
+			return AMNumericType();
 		}
 
 		if(y_.contains(columnName))
@@ -100,11 +100,11 @@ public:
 
 		if(yD_.contains(columnName)) {
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -2, "AMDataTree: accessed multi-dimensional data as a single value. Returning an (incorrect) default value."));
-			return AMDataType();
+			return AMNumericType();
 		}
 
 		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -3, "AMDataTree: accessed non-existent data column. Returning an (incorrect) default value."));
-		return AMDataType();
+		return AMNumericType();
 	}
 
 	/// Access a pointer to higher-dimensional data tree. Returns 0 if column not found or index out of range.
@@ -118,7 +118,7 @@ public:
 		AMDataTree modifySubtree = *readOnlySubtree;
 		\endcode
 		*/
-	const AMDataTree* const more(const QString& columnName, unsigned i) const {
+	const AMDataTree* more(const QString& columnName, unsigned i) const {
 
 		if(i >= count()) {
 			return 0;
