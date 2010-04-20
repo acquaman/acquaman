@@ -3,11 +3,58 @@
 
 #include "AMErrorMonitor.h"
 
+ #include <QSharedData>
 #include <QHash>
 #include <QVector>
 
 /// The type of (numeric?) data stored. We're taking the overhead of using doubles for everything, for the simplicity of being able to accurately hold any numeric type.
 typedef double AMNumericType;
+
+/// This class is a protected support class for AMDataTree, enabling the "implicit sharing" (or "copy-on-write") of data trees.  This makes copying a tree (and passing it by value) fast until a deep copy is actually required.
+class AMDataTreeProtectedData : public QSharedData
+{
+  public:
+	/// Default constructor
+	AMDataTreeProtectedData(unsigned count = 0, bool hasXValues = false) {
+		count_ = count;
+		if( (hasXValues_ = hasXValues) ) {
+			x_.resize(count_);
+		}
+	}
+	/// Required copy constructor for deep copies.  Although this is a "deep copy" at the AMDataTree level, the column vectors (QHash, QVector) in x_, and y_ also take advantage of implicit sharing, so they are copied quickly.
+	AMDataTreeProtectedData(const AMDataTreeProtectedData &other)
+		: QSharedData(other),
+		  count_(other.count_),
+		  x_(other.x_),
+		  xName_(other.xName_),
+		  hasXValues_(other.hasXValues_),
+		  y_(other.y_),
+		  yD_(other.yD_)	///< wrong
+	{
+		/// \todo here: deep copies of subtrees. (recursive?)
+	}
+
+	~AMDataTreeProtectedData() {
+		/// \todo If we allocated subtrees trees, deletes them.
+	}
+
+	// Internal data:
+	//////////////////////////////
+	/// The number of datapoints (in any column) of this dataset
+	int count_;
+
+	/// The x values: values in the principal column of the dataset. Must be bare numbers.
+	QVector<AMNumericType> x_;
+	/// The name of the principal column (the independent variable that you scanned). ex: "eV" or "temp"
+	QString xName_;
+	/// Sometimes (for example: evenly spaced data, or pixel data) the index is all we need for an x-axis; there's no need to store actual x-axis values in memory. In this case, hasXValues_ = false.
+	bool hasXValues_;
+
+	/// A <columnName, columnData> map of the dependent data columns. The keys are the column names (ex: "tey", "tfy", "etc"). The values are a vector containing count() datapoints. These are single data points; higher-dimensionality data is stored in yD_;
+	QHash< QString, QVector<AMNumericType> > y_;
+	/// Higher-dimensional data is represented by referencing another AMDataTree for each datapoint.
+	QHash< QString, QVector<AMDataTree*> > yD_;
+};
 
 /// This class is an attempt at supporting arbitrary-dimensionality data for AMScan objects, while maintaining simple (programmer-easy) and fast (high-performance) access to the data.
 /*! Data must have a principal column (usually the "x" axis or main independent variable), and the values stored in this column must be true data values.
@@ -49,36 +96,52 @@ class AMDataTree {
 public:
 	/// Constructor. Creates a tree with just a single (x) column. If it has explicit x values (specify hasXValues = true), space is allocated but no initialization is done; all the x values will be 0.
 	explicit AMDataTree(unsigned count = 0, bool hasXValues = false) {
-		count_ = count;
 
-		if( (hasXValues_ = hasXValues) ) {
-			x_.resize(count_);
-		}
+		d_ = new AMDataTreeProtectedData(count, hasXValues);
 
 	}
 
-	/// \todo Copy constructor. Thanks to Qt's implicit sharing within container classes, this is very fast. The "copy-on-write" method is used: both AMDataTrees will share the same data in memory until one of them needs to modify it. (Need to figure out allocation scheme for subtrees.)
+	/// Copy constructor. It implements implicit sharing, so this can be fast.
+	/*!	The "copy-on-write" method is used: both AMDataTrees will share the same data columns in memory until one of them needs to modify it.
 
+
+Consider the scenario of myXASData with an x column (eV), one y column (tey), and higher-dimension column of sddSpectrum. The sddSpectrum  subtrees each have an x- and y-column.
+
+\code
+copyXASData = myXASData;
+(the column vectors eV and tey are shared implicitly.)
+(the column of subtree pointers is shared implicitly, and with no changes. Both copyXASData and myXASData's sddSpectrum pointers are pointing to the same subtrees.)
+
+copyXASData.more("sddSpectrums",5)->setValue("y", 512, 49.3);
+(Now, we need to make a copy of the sddSpectrum subtree #5, with the new value 49.3 at index 512 in its 'y' column. This causes a deep copy of the 'y' column in the subtree; since the data is modified, it can't be implicitly shared anymore.)
+(We also need to change the pointer in the sddSpectrums column (at index 5) to point to this new subtree. This causes a deep copy of the sddSpectrums column.)
+
+*/
+	AMDataTree(const AMDataTree& other)
+		: d_ (other.d_)
+	{
+
+	}
 
 	/// \todo Assignment operator. (Ditto on the implicit sharing.) Need to figure out allocation of subtrees.
-	
+
 
 	// Constant (access) member functions:
 	////////////////////////////////////////
 
 	/// The number of datapoints in each column
-	unsigned count() const { return count_; }
+	unsigned count() const { return d_->count_; }
 
 	/// Access the primary column by index
 	AMNumericType x(unsigned i) const {
 
-		if(i >= count()) {
+		if(i >= d_->count()) {
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -1, "AMDataTree: accessed value out of range. Returning an (incorrect) default value."));
 			return AMNumericType();
 		}
 
-		if(hasXValues_)
-			return x_.at(i);
+		if(d_->hasXValues_)
+			return d_->x_.at(i);
 		else
 			return i;
 	}
@@ -87,18 +150,18 @@ public:
 	/// Access the value in any column by name and index
 	AMNumericType value(const QString& columnName, unsigned i) const {
 
-		if(i >= count()) {
+		if(i >= d_->count()) {
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -1, "AMDataTree: accessed value out of range. Returning an (incorrect) default value."));
 			return AMNumericType();
 		}
 
-		if(y_.contains(columnName))
-			return y_[columnName].at(i);
+		if(d_->y_.contains(columnName))
+			return d_->y_[columnName].at(i);
 
-		if(columnName == xName_)
-			return x_.at(i);
+		if(columnName == d_->xName_)
+			return d_->x_.at(i);
 
-		if(yD_.contains(columnName)) {
+		if(d_->yD_.contains(columnName)) {
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -2, "AMDataTree: accessed multi-dimensional data as a single value. Returning an (incorrect) default value."));
 			return AMNumericType();
 		}
@@ -120,12 +183,12 @@ public:
 		*/
 	const AMDataTree* more(const QString& columnName, unsigned i) const {
 
-		if(i >= count()) {
+		if(i >= d_->count()) {
 			return 0;
 		}
 
-		if(yD_.contains(columnName)) {
-			return yD_[columnName].at(i);
+		if(d_->yD_.contains(columnName)) {
+			return d_->yD_[columnName].at(i);
 		}
 
 		return 0;
@@ -147,20 +210,8 @@ signals:
 public slots:
 
 protected:
-	/// The number of datapoints (in any column) of this dataset
-	int count_;
-	
-	/// The x values: values in the principal column of the dataset. Must be bare numbers.
-	QVector<AMNumericType> x_;
-	/// The name of the principal column (the independent variable that you scanned). ex: "eV" or "temp"
-	QString xName_;
-	/// Sometimes (for example: evenly spaced data, or pixel data) the index is all we need for an x-axis; there's no need to store actual x-axis values in memory. In this case, hasXValues_ = false.
-	bool hasXValues_;
-	
-	/// A <columnName, columnData> map of the dependent data columns. The keys are the column names (ex: "tey", "tfy", "etc"). The values are a vector containing count() datapoints. These are single data points; higher-dimensionality data is stored in yD_;
-	QHash< QString, QVector<AMNumericType> > y_;
-	/// Higher-dimensional data is represented by referencing another AMDataTree for each datapoint.
-	QHash< QString, QVector<AMDataTree*> > yD_;
+	/// Implicit shared pointer to actual member data:
+	QSharedDataPointer<AMDataTreeProtectedData> d_;
 	
 };
 
