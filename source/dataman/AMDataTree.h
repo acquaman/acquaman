@@ -16,7 +16,7 @@ The dataset can have an arbitrary number of additional columns (ex: "tey_raw", "
 For example, in the case of typical absorption scan data taken on the SGM beamline, "tey_raw" and "tfy_raw" would be columns of numbers stored in y_ and accessed as:
 \code
 AMDataTree myXasData;
-## The 6th element in the "tey" column:
+## The 6th element in the "tey" column: ##
 printf( "(%d, %d)", myXasData.x(5), myXasData.value("tey", 5) );
 \endcode
 
@@ -28,10 +28,10 @@ myXasData.more("sddSpectrums", 5)->value("sddIntensities", 512);
 
 Internally...
 \code
-##     v----------------------------------------- A vector of AMDataTrees (number of elements = count()
-##                  v---------------------------- The tree for the SDD spectrum at the 6th data point (corresponding to an energy of myXasData.x_[5])
-##                             v----------------- It has one column, the sdd detector intensities (across 1024 energy pixels)
-##                                          v----- The intensity of the middle pixel of the SDD spectrum. (Finally, a #)
+##     v----------------------------------------- A vector of AMDataTrees (number of elements = count() ##
+##                  v---------------------------- The tree for the SDD spectrum at the 6th data point (corresponding to an energy of myXasData.x_[5]) ##
+##                             v----------------- It has one column, the sdd detector intensities (across 1024 energy pixels) ##
+##                                          v----- The intensity of the middle pixel of the SDD spectrum. (Finally, a number!) ##
 yD_("sddSpectrums", 5)->y_["sddIntensity"][512]
 \endcode
 
