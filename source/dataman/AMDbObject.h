@@ -10,6 +10,13 @@
 /*! It provides a database id, handling of inserts/retrieves, and very basic metadata that should be common to everything you might want to store:
 - a user-chosen "name" and "number"
 - a date/time stamp
+
+\todo Write more complete documentation.
+
+<b>Notes for subclassing AMDbObject, to create more detailed storable data types:</b>
+- Must re-implement loadFromDb() and storeToDb()
+- Must re-implement dbColumnNames(), dbColumnTypes(), dbTableName(), and dbPrepareTables if using them in loadFromDb() and storeToDb().
+
 */
 
 class AMDbObject : public QObject

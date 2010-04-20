@@ -3,10 +3,18 @@
 
 #include <QObject>
 #include <QMap>
-#include "AMChannel.h"
+#include "dataman/AMChannel.h"
 
+#include "dataman/AMDataTree.h"
 #include "dataman/AMDbObject.h"
 
+/// This class is the base of all objects that represent beamline scan data (for ex: XAS scans over eV, XES detector-image "scans" over detector eV, etc.)
+/*! It provides the following:
+	- adds a "sampleName()" and a "comments()" field to the basic AMDbObject
+		- demonstrates how to subclass AMDbObject to store more detailed information in the database
+	- provides a list of pointers to a Scan's "channels",
+	\todo complete documentation
+  */
 class AMScan : public AMDbObject {
 Q_OBJECT
 
@@ -16,9 +24,10 @@ Q_PROPERTY(QString comments READ comments WRITE setComments NOTIFY commentsChang
 friend void AMChannel::addToScan(AMScan& destination);
 
 public:
+	/// default constructor
     explicit AMScan(QObject *parent = 0);
 
-    /// Returns scan's unique id
+	// Returns scan's unique id
 	// use DbObject::id()
 
     /// Returns name of sample
