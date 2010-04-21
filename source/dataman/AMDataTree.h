@@ -11,15 +11,7 @@
 /// The type of (numeric?) data stored. We're taking the overhead of using doubles for everything, for the simplicity of being able to accurately hold any numeric type.
 typedef double AMNumericType;
 
-/*
-/// This class is a protected support class for AMDataTree, enabling the "implicit sharing" (or "copy-on-write") of data trees.  This makes copying a tree (and passing it by value) fast until a deep copy is actually required.
-class AMDataTreeProtectedData : public QSharedData
-{
-  public:
 
-
-
-};*/
 
 /// This class is an attempt at supporting arbitrary-dimensionality data for AMScan objects, while maintaining simple (programmer-easy) and fast (high-performance) access to the data.
 /*! Data must have a principal column (usually the "x" axis or main independent variable), and the values stored in this column must be true data values.
