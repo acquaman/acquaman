@@ -35,7 +35,9 @@ printf( "(%d, %d)", myXasData.x(5), myXasData.value("tey", 5) );
 However, all of the datapoints in the "sddSpectrums" column would actually be links to other AMDataTables.  (In the case of the SDD (silicon drift detector), the linked tables would contain an x column (pixel value or energy value) and a y column of intensities.)
 Externally, an actual data value would be accessed as:
 \code
-myXasData.more("sddSpectrums", 5)->value("sddIntensities", 512);
+myXasData.deeper("sddSpectrums", 5)->value("sddIntensities", 512);
+OR
+(*myXasData.deeperColumn("sddSpectrums"))[5]->value("sddIntensities", 512);
 \endcode
 
 Internally...
@@ -52,8 +54,7 @@ yD_("sddSpectrums", 5)->y_["sddIntensity"][512]
 
 The number of datapoints (whether actual values or AMDataTable links) in any column must be count().
 
-\todo Figure out memory management for subtrees. What happens if they're shared? Can they be shared?  Destroy subtrees in destructor? Note that QHashs and QVectors are implicitly shared... Can copy them without memory allocation as long as not changed.
-\todo copy and assignment operators
+
 */
 
 class AMDataTree : public QSharedData {
@@ -81,7 +82,7 @@ copyXASData = myXASData;
 (the column vectors eV and tey are shared implicitly.)
 (the column of subtree pointers is shared implicitly, and with no changes. Both copyXASData and myXASData's sddSpectrum pointers are pointing to the same subtrees.)
 
-copyXASData.more("sddSpectrums",5)->setValue("y", 512, 49.3);
+copyXASData.deeper("sddSpectrums",5)->setValue("y", 512, 49.3);
 (Now, we need to make a copy of the sddSpectrum subtree #5, with the new value 49.3 at index 512 in its 'y' column. This causes a deep copy of the 'y' column in the subtree; since the data is modified, it can't be implicitly shared anymore.)
 (We also need to change the pointer in the sddSpectrums column (at index 5) to point to this new subtree. This causes a deep copy of the sddSpectrums column.)
 
@@ -115,9 +116,6 @@ copyXASData.more("sddSpectrums",5)->setValue("y", 512, 49.3);
 	}
 
 
-
-
-	/// \todo Assignment operator. (Ditto on the implicit sharing.) Need to figure out allocation of subtrees.
 
 
 	// Constant (access) member functions:
@@ -168,28 +166,28 @@ copyXASData.more("sddSpectrums",5)->setValue("y", 512, 49.3);
 		return AMNumericType();
 	}
 
-	/// Iterating through a column using value() is slow because of the column lookup by name at each step. The [] operator is overloaded to return a constant reference to the internal vectors.  If the column doesn't exist, an empty column of that name gets created, so be careful that this is what you want..
-	const QVector<AMNumericType>& operator[](const QString& columnName) {
+	/// Iterating through a column using value() is slow because of the column lookup by name at each step. The [] operator is overloaded to return a constant reference to the internal vectors.  If the column doesn't exist, it returns the primary column, which is guaranteed to exist.
+	const QVector<AMNumericType>& column(const QString& columnName) const {
 
-		if(y_.contains(columnName))
-			return y_[columnName];
+		if(y_.contains(columnName)) {
+			QVector<AMNumericType>& retVal = y_[columnName];	// we need to make sure we get the reference to the vector, not an implicit copy of the vector.
+			return retVal;
+		}
 
 		if(columnName == xName_)
 			return x_;
 
-		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -3, "AMDataTree: accessed a non-existent data column. I'm creating a column with this name. (Be sure this is what you want...)"));
-		this->createColumn(columnName);
-		return y_[columnName];
+		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -3, "AMDataTree: accessed a non-existent data column. I'm returning the primary column. This probably isn't what you want."));
+		return x_;
 	}
 
 
-	/// Access a pointer to higher-dimensional data tree. If the index is out of range, the first entry is used (and an error message is logged.)  If the column doesn't exist, a default column gets created; be sure this is what you want.
-	/*! The tree returned is a read-only reference.  The overloaded version of this function returns a non-const reference you can use for modifying trees. However, it could force a deep copy of the tree, if it is shared.
+	/// Access a pointer to higher-dimensional data tree. Returns 0 if column not found or index out of range.
+	/*! The tree returned is a read-only pointer.  The overloaded version of this function returns a non-const pointer you can use for modifying trees. However, it could force a deep copy of the tree, it it's shared.
 		*/
-	const AMDataTree& more(const QString& columnName, unsigned i) const {
+	const AMDataTree* deeper(const QString& columnName, unsigned i) const {
 
 		if(i >= count()) {
-			i = 0;
 			return 0;
 		}
 
@@ -200,7 +198,7 @@ copyXASData.more("sddSpectrums",5)->setValue("y", 512, 49.3);
 		return 0;
 	}
 
-	AMDataTree* more(const QString& columnName, unsigned i) {
+	AMDataTree* deeper(const QString& columnName, unsigned i) {
 
 		if(i >= count()) {
 			return 0;
@@ -211,8 +209,26 @@ copyXASData.more("sddSpectrums",5)->setValue("y", 512, 49.3);
 		}
 
 		return 0;
-
 	}
+
+	const QVector<QSharedDataPointer<AMDataTree> >* deeperColumn(const QString& columnName) const {
+
+		if(yD_.contains(columnName)) {
+			return &(yD_[columnName]);
+		}
+
+		return 0;
+	}
+
+	QVector<QSharedDataPointer<AMDataTree> >* deeperColumn(const QString& columnName) {
+
+		if(yD_.contains(columnName)) {
+			return &(yD_[columnName]);
+		}
+
+		return 0;
+	}
+
 
 	// Non-constant (modifier) member functions:
 	////////////////////////////////////////
@@ -315,10 +331,12 @@ protected:
 	/// Sometimes (for example: evenly spaced data, or pixel data) the index is all we need for an x-axis; there's no need to store actual x-axis values in memory. In this case, hasXValues_ = false.
 	bool hasXValues_;
 
-	/// A <columnName, columnData> map of the dependent data columns. The keys are the column names (ex: "tey", "tfy", "etc"). The values are a vector containing count() datapoints. These are single data points; higher-dimensionality data is stored in yD_;
-	QHash< QString, QVector<AMNumericType> > y_;
+	/// A <columnName, columnData> map of the dependent data columns. The keys are the column names (ex: "tey", "tfy", "etc"). The values are a vector containing count() datapoints. These are single data points; higher-dimensionality data is stored in yD_.
+	/*! \note Implementation details: These need to be mutable so that we can access the non-const QHash::operator[] overload which returns a reference to the value, from our const member functions. (Unfortunately, because it creates a new value for  keys which don't exist, it's not const.)
+	  */
+	mutable QHash< QString, QVector<AMNumericType> > y_;
 	/// Higher-dimensional data is represented by pointing to another AMDataTree for each datapoint.
-	QHash< QString, QVector< QSharedDataPointer<AMDataTree> > > yD_;
+	mutable QHash< QString, QVector< QSharedDataPointer<AMDataTree> > > yD_;
 
 };
 
