@@ -214,13 +214,12 @@ private slots:
 
 	/// Test of insert and retrieval from AMDataTree.
 	/*!
-	  First example is a typical set of XAS data from SGM: energy, tey, tfy, and an SDD spectra for each datapoint
+	  First example is a typical set of XAS data from SGM: energy, tey, and an SDD spectra for each datapoint
 	  - create with count of 5 datapoints
 	  - fill primary column with energy values: 410.1, 410.2, 410.3, 410.4, 411.0 (use setX() and setValue("eV"))
-	  - fill tey column with energy^2; fill tfy column with energy^3
+	  - fill tey column with energy^2
 	  - attempt to write beyond range of tey data
-	  - create AMDataTrees for each SDD spectra
-	  - insert 5 AMDataTrees
+	  - create column of AMDataTrees for each SDD spectra
 	  - retrieve all values and check for matching
 	  */
 	void insertAMDataTree1() {

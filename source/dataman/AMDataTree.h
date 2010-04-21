@@ -258,6 +258,7 @@ copyXASData.more("sddSpectrums",5)->setValue("y", 512, 49.3);
 
 	/// Create a new subtree column. All of the subtrees will be created with the given count and primary axis details, but no data.
 	/*! \note This will allocate memory for the new trees. However, reference counting is implemented so that they will be deleted automatically when the column vector (and the QSharedDataPointers within it) are deleted.
+	  \todo do we want to allow passing in a ready-made tree to use as the example? Could save time/memory because the extra columns will already be there, allowing us to take advantage of more implicit sharing.
 	  */
 	void createSubtreeColumn(const QString& newSubtreeColumnName, unsigned subTreeCount = 0, const QString& xColumnName = "x", bool hasXValues = false) {
 
