@@ -1,6 +1,7 @@
 #ifndef ACQMAN_SCAN_H
 #define ACQMAN_SCAN_H
 
+
 #include <QObject>
 #include <QMap>
 #include "dataman/AMChannel.h"
