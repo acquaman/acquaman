@@ -7,12 +7,15 @@ macx {
         /Users/mboots/dev/epics/14-11/base/include/os/Darwin
     EPICS_LIB_DIR = /Users/mboots/dev/epics/14-11/base/lib/darwin-x86
     PHONON_INCLUDE_DIR = /Library/Frameworks/phonon.framework/Versions/Current/Headers
+	MPLOT_INCLUDE_DIR = /Users/mboots/dev/MPlot/src
 }
 linux-g++ { 
     EPICS_INCLUDE_DIRS = /home/reixs/beamline/programming/epics/base/include \
         /home/reixs/beamline/programming/epics/base/include/os/Linux
     EPICS_LIB_DIR = /home/reixs/beamline/programming/epics/base/lib/linux-x86
     PHONON_INCLUDE_DIR = /usr/include/qt4/phonon
+# include path for MPlot library (header-files only)
+	MPLOT_INCLUDE_DIR = /home/reixs/beamline/programming/MPlot/src
 }
 QT += core \
     phonon \
@@ -26,6 +29,7 @@ INCLUDEPATH += . \
     source
 INCLUDEPATH += $$EPICS_INCLUDE_DIRS
 INCLUDEPATH += $$PHONON_INCLUDE_DIR
+INCLUDEPATH += $$MPLOT_INCLUDE_DIR
 
 # Epics channel access linking:
 LIBS += -L$$EPICS_LIB_DIR
@@ -40,9 +44,6 @@ linux-g++ {
 # include and library paths for libxml:
 INCLUDEPATH += /usr/include/libxml2
 LIBS += -lxml2
-
-# include path for MPlot library (header-files only)
-INCLUDEPATH += /home/reixs/beamline/programming/MPlot/src
 
 # Input
 HEADERS += source/beamline/AMDiagnosticPaddle.h \

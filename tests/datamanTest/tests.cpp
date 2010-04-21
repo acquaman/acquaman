@@ -1,8 +1,10 @@
+#include "AMSettings.h"
 #include <QtTest/QtTest>
 #include "dataman/AMDatabase.h"
 #include "dataman/AMScan.h"
 #include "dataman/AMDbLoader.h"
-#include "AMSettings.h"
+#include "dataman/AMDataTree.h"
+
 
 /// This class contains all of the unit tests for the dataman module.
 /*! Each private slot corresponds to one test (which can actually contain several individual unit tests.)  The initTestCase() function is run before any of the tests, and the cleanupTestCase is run after all of them finish.
@@ -204,6 +206,132 @@ private slots:
 		lr = AMDatabase::userdb()->scansMatching("dateTime", dbo.dateTime());
 		/// \todo check for 1-minute tolerance on date-time... This fails...
 		QCOMPARE(lr.count(), 1);
+
+
+
+
+	}
+
+	/// Test of insert and retrieval from AMDataTree.
+	/*!
+	  First example is a typical set of XAS data from SGM: energy, tey, tfy, and an SDD spectra for each datapoint
+	  - create with count of 5 datapoints
+	  - fill primary column with energy values: 410.1, 410.2, 410.3, 410.4, 411.0 (use setX() and setValue("eV"))
+	  - fill tey column with energy^2; fill tfy column with energy^3
+	  - attempt to write beyond range of tey data
+	  - create AMDataTrees for each SDD spectra
+	  - insert 5 AMDataTrees
+	  - retrieve all values and check for matching
+	  */
+	void insertAMDataTree1() {
+
+		qDebug() << "Testing creation and inserts of primary column values into data tree.";
+
+		AMDataTree t1(5, "eV", true);
+		t1.setX(0, 410.1);
+		t1.setX(1, 410.2);
+		t1.setValue(2, "eV", 410.3);
+		t1.setValue(3, "eV", 410.4);
+		t1.setX(4, 411);
+
+		QCOMPARE(t1.xName(), QString("eV"));
+		QCOMPARE(t1.count(), (unsigned)5);
+		QCOMPARE(t1.x(0), 410.1);
+		QCOMPARE(t1.value("eV", 0), 410.1);
+		QCOMPARE(t1.x(1), 410.2);
+		QCOMPARE(t1.x(2), 410.3);
+		QCOMPARE(t1.value("eV",3), 410.4);
+		QCOMPARE(t1.x(4), 411.0);
+		QCOMPARE(t1.setX(500, 1.2345), false);	// index out of range
+		QCOMPARE(t1.setValue(500, "eV", 1.2345), false); //index out of range
+		QCOMPARE(t1.setValue(2, "nonexistentColumn", 1.2345), false); //non-existent column
+
+		qDebug() << "Testing creation of data tree with no explicit x values.";
+		AMDataTree t2(5, "eV", false);
+		QCOMPARE(t2.setX(0, 410.7), false);	// should fail
+		QCOMPARE(t2.setValue(2, "eV", 410.7), false);	// should fail
+		QCOMPARE(t2.x(0), 0.0);
+		QCOMPARE(t2.x(4), 4.0);
+		QCOMPARE(t2.x(28), 0.0);	// out of range; should return default-constructed value (0 for double)
+
+		qDebug() << "Testing copying simple trees, count=5, not even x values.";
+		AMDataTree t2Copy(t2);
+		QCOMPARE(t2Copy.x(0), 0.0);
+		QCOMPARE(t2Copy.x(4), 4.0);
+		QCOMPARE(t2Copy.count(), (unsigned)5);
+		QCOMPARE(t2Copy.x(5100), 0.0);// out of range; should return default value (and log error message)
+
+		qDebug() << "Testing copying simple trees, count = 5, with just x values.";
+		AMDataTree t1Copy(t1);
+		QCOMPARE(t1Copy.xName(), t1.xName());
+		for(unsigned i=0; i<t1Copy.count(); i++) {
+			QCOMPARE(t1Copy.x(i), t1.x(i));
+			QCOMPARE(t1Copy.value("eV", i), t1.value("eV", i));
+		}
+		qDebug() << "attempting changing data values and causing deep copy of x-column data.";
+		t1Copy.setValue(3, "eV", 300.2);
+		t1Copy.setX(4, 400.2);
+		QCOMPARE(t1Copy.x(0), t1.x(0));
+		QCOMPARE(t1Copy.x(1), t1.x(1));
+		QCOMPARE(t1Copy.x(2), t1.x(2));
+		QCOMPARE(t1Copy.x(3), 300.2);
+		QCOMPARE(t1Copy.x(4), 400.2);
+		t1.setX(0, -31.2);
+		QCOMPARE(t1.x(0), -31.2);
+		QCOMPARE(t1Copy.x(0), 410.1);	// after changing original, t1Copy should still have first original value.
+
+		qDebug() << "Adding a second column and checking insert/retrieves";
+		t1.createColumn("tey");
+		for(unsigned i=0; i<t1.count(); i++)
+			QCOMPARE(t1.setValue(i, "tey", t1.x(i)*t1.x(i) ), true);	// tey = eV^2
+		for(unsigned i=0; i<t1.count(); i++)
+			QCOMPARE(t1.value("tey", i), t1.x(i)*t1.x(i) );
+
+		QCOMPARE(t1.setValue(300, "tey", 1.234), false);	// insert out-of-range should fail
+		QCOMPARE(t1.setValue(0, "teyeee", 1.234), false);	// invalid column
+
+		qDebug() << "inserting subtrees with a count of 1024, x-axis values named 'sddEV', and going from 200 to 1300";
+		t1.createSubtreeColumn("sddSpectrum", 1024, "sddEV", true);
+		// insert the x-axis values for each subtree...
+		for(unsigned i=0; i<t1.count(); i++)
+			for(unsigned j=0; j<t1.more("sddSpectrum", i)->count(); j++)
+				QCOMPARE( t1.more("sddSpectrum", i)->setValue(j, "sddEV", 200+j*(1300.0-200.0)/1024.0), true);	// check for successful insert.
+
+		// check for correct values:
+		for(unsigned i=0; i<t1.count(); i++)
+			for(unsigned j=0; j<t1.more("sddSpectrum", i)->count(); j++)
+				QCOMPARE( t1.more("sddSpectrum", i)->value("sddEV", j),  200+j*(1300.0-200.0)/1024.0);	// check for successful retrieve.
+
+		qDebug() << "copying the multi-level tree to t1Copy, using assignment operator.";
+		t1Copy = t1;
+		// check for correct values:
+		for(unsigned i=0; i<t1Copy.count(); i++)
+			for(unsigned j=0; j<t1Copy.more("sddSpectrum", i)->count(); j++)
+				QCOMPARE( t1Copy.more("sddSpectrum", i)->value("sddEV", j),  200+j*(1300.0-200.0)/1024.0);	// check for successful retrieve.
+
+		qDebug() << "changing a value int t1Copy, at top-index 3, subtree index 512 in one of the trees; causes deep copies to be made. Checking for change to occur.";
+
+		t1Copy.more("sddSpectrum", 3)->setValue(512, "sddEV", -1.0);
+		// check for correct values within copy, even after modifications.
+		for(unsigned i=0; i<t1Copy.count(); i++)
+			for(unsigned j=0; j<t1Copy.more("sddSpectrum", i)->count(); j++) {
+				if(i==3 && j==512)
+					QCOMPARE( t1Copy.more("sddSpectrum", i)->value("sddEV", j),  -1.0);
+				else
+					QCOMPARE( t1Copy.more("sddSpectrum", i)->value("sddEV", j),  200+j*(1300.0-200.0)/1024.0);	// check for successful retrieve.
+			}
+		qDebug() << "modified value is:" << t1Copy.more("sddSpectrum", 3)->value("sddEV", 512);
+
+
+		qDebug() << "checking that original tree is unaffected by changes to the copy.";
+		// check for correct values within original tree, even after modifications.
+		for(unsigned i=0; i<t1.count(); i++)
+			for(unsigned j=0; j<t1.more("sddSpectrum", i)->count(); j++) {
+				QCOMPARE( t1.more("sddSpectrum", i)->value("sddEV", j),  200+j*(1300.0-200.0)/1024.0);
+			}
+
+		qDebug() << "original value is:" << t1.more("sddSpectrum", 3)->value("sddEV", 512);
+
 
 
 
