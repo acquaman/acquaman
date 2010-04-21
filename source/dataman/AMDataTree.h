@@ -168,15 +168,28 @@ copyXASData.more("sddSpectrums",5)->setValue("y", 512, 49.3);
 		return AMNumericType();
 	}
 
-	/// \todo access a vector by column name, using ["colName"] bracket overloading.
-	/// \todo acecss a vector of subtrees by column name, using ?
+	/// Iterating through a column using value() is slow because of the column lookup by name at each step. The [] operator is overloaded to return a constant reference to the internal vectors.  If the column doesn't exist, an empty column of that name gets created, so be careful that this is what you want..
+	const QVector<AMNumericType>& operator[](const QString& columnName) {
 
-	/// Access a pointer to higher-dimensional data tree. Returns 0 if column not found or index out of range.
-	/*! The tree returned is a read-only pointer.  The overloaded version of this function returns a non-const pointer you can use for modifying trees. However, it could force a deep copy of the tree, it it's shared.
+		if(y_.contains(columnName))
+			return y_[columnName];
+
+		if(columnName == xName_)
+			return x_;
+
+		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -3, "AMDataTree: accessed a non-existent data column. I'm creating a column with this name. (Be sure this is what you want...)"));
+		this->createColumn(columnName);
+		return y_[columnName];
+	}
+
+
+	/// Access a pointer to higher-dimensional data tree. If the index is out of range, the first entry is used (and an error message is logged.)  If the column doesn't exist, a default column gets created; be sure this is what you want.
+	/*! The tree returned is a read-only reference.  The overloaded version of this function returns a non-const reference you can use for modifying trees. However, it could force a deep copy of the tree, if it is shared.
 		*/
-	const AMDataTree* more(const QString& columnName, unsigned i) const {
+	const AMDataTree& more(const QString& columnName, unsigned i) const {
 
 		if(i >= count()) {
+			i = 0;
 			return 0;
 		}
 
@@ -194,7 +207,7 @@ copyXASData.more("sddSpectrums",5)->setValue("y", 512, 49.3);
 		}
 
 		if(yD_.contains(columnName)) {
-			return yD_[columnName][i].data(); // For the modifiable version, this ends up calling detach(), creating a deep copy of the tree.
+			return yD_[columnName][i].data(); // For the modifiable version, the non-const call to data() ends up calling detach(), creating a deep copy of the tree.
 		}
 
 		return 0;
@@ -308,5 +321,7 @@ protected:
 	QHash< QString, QVector< QSharedDataPointer<AMDataTree> > > yD_;
 
 };
+
+
 
 #endif // AMDATATREE_H

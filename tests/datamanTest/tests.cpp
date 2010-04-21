@@ -12,7 +12,7 @@
 class TestDataman: public QObject
 {
 	Q_OBJECT
-private slots:
+	private slots:
 
 
 	/// This runs before any of the private slots (test cases) get run. It loads the settings and prepares the database tables as required for each Scan object that gets tested.
@@ -25,7 +25,7 @@ private slots:
 
 	/// This is run after all tests are complete.
 	void cleanupTestCase()
-	 {
+	{
 		AMDatabase::releaseUserDb();
 	}
 
@@ -217,6 +217,7 @@ private slots:
 	  First example is a typical set of XAS data from SGM: energy, tey, and an SDD spectra for each datapoint
 	  - create with count of 5 datapoints
 	  - fill primary column with energy values: 410.1, 410.2, 410.3, 410.4, 411.0 (use setX() and setValue("eV"))
+	  - test retrieval using all methods: .x(i), .value("colName", i), ["colName"][i]
 	  - fill tey column with energy^2
 	  - attempt to write beyond range of tey data
 	  - create column of AMDataTrees for each SDD spectra
@@ -237,9 +238,11 @@ private slots:
 		QCOMPARE(t1.count(), (unsigned)5);
 		QCOMPARE(t1.x(0), 410.1);
 		QCOMPARE(t1.value("eV", 0), 410.1);
+		QCOMPARE(t1["eV"][0], 410.1);
 		QCOMPARE(t1.x(1), 410.2);
 		QCOMPARE(t1.x(2), 410.3);
 		QCOMPARE(t1.value("eV",3), 410.4);
+		QCOMPARE(t1["eV"][3], 410.4);
 		QCOMPARE(t1.x(4), 411.0);
 		QCOMPARE(t1.setX(500, 1.2345), false);	// index out of range
 		QCOMPARE(t1.setValue("eV", 500, 1.2345), false); //index out of range
@@ -283,8 +286,10 @@ private slots:
 		t1.createColumn("tey");
 		for(unsigned i=0; i<t1.count(); i++)
 			QCOMPARE(t1.setValue("tey", i, t1.x(i)*t1.x(i) ), true);	// tey = eV^2
-		for(unsigned i=0; i<t1.count(); i++)
+		for(unsigned i=0; i<t1.count(); i++) {
 			QCOMPARE(t1.value("tey", i), t1.x(i)*t1.x(i) );
+			QCOMPARE(t1["tey"][i], t1.x(i)*t1.x(i) );
+		}
 
 		QCOMPARE(t1.setValue("tey", 300, 1.234), false);	// insert out-of-range should fail
 		QCOMPARE(t1.setValue("teyeee", 0, 1.234), false);	// invalid column
@@ -314,11 +319,11 @@ private slots:
 		// check for correct values within copy, even after modifications.
 		for(unsigned i=0; i<t1Copy2.count(); i++)
 			for(unsigned j=0; j<t1Copy2.more("sddSpectrum", i)->count(); j++) {
-				if(i==3 && j==512)
-					QCOMPARE( t1Copy2.more("sddSpectrum", i)->value("sddEV", j),  -1.0);
-				else
-					QCOMPARE( t1Copy2.more("sddSpectrum", i)->value("sddEV", j),  200+j*(1300.0-200.0)/1024.0);	// check for successful retrieve.
-			}
+			if(i==3 && j==512)
+				QCOMPARE( t1Copy2.more("sddSpectrum", i)->value("sddEV", j),  -1.0);
+			else
+				QCOMPARE( t1Copy2.more("sddSpectrum", i)->value("sddEV", j),  200+j*(1300.0-200.0)/1024.0);	// check for successful retrieve.
+		}
 		qDebug() << "modified value is:" << t1Copy2.more("sddSpectrum", 3)->value("sddEV", 512);
 
 
@@ -326,8 +331,9 @@ private slots:
 		// check for correct values within original tree, even after modifications.
 		for(unsigned i=0; i<t1.count(); i++)
 			for(unsigned j=0; j<t1.more("sddSpectrum", i)->count(); j++) {
-				QCOMPARE( t1.more("sddSpectrum", i)->value("sddEV", j),  200+j*(1300.0-200.0)/1024.0);
-			}
+			QCOMPARE( t1.more("sddSpectrum", i)->value("sddEV", j),  200+j*(1300.0-200.0)/1024.0);
+			QCOMPARE( (*t1.more("sddSpectrum", i))["sddEV"][j],  200+j*(1300.0-200.0)/1024.0);
+		}
 
 		qDebug() << "original value is:" << t1.more("sddSpectrum", 3)->value("sddEV", 512);
 
@@ -335,8 +341,10 @@ private slots:
 		t1Copy2 = t1;
 		// check for correct values:
 		for(unsigned i=0; i<t1Copy2.count(); i++)
-			for(unsigned j=0; j<t1Copy2.more("sddSpectrum", i)->count(); j++)
-				QCOMPARE( t1Copy2.more("sddSpectrum", i)->value("sddEV", j),  200+j*(1300.0-200.0)/1024.0);	// check for successful retrieve.
+			for(unsigned j=0; j<t1Copy2.more("sddSpectrum", i)->count(); j++) {
+			QCOMPARE( t1Copy2.more("sddSpectrum", i)->value("sddEV", j),  200+j*(1300.0-200.0)/1024.0);	// check for successful retrieve.
+			QCOMPARE( (*t1Copy2.more("sddSpectrum", i))["sddEV"][j],  200+j*(1300.0-200.0)/1024.0);	// check for successful retrieve.
+		}
 
 		qDebug() << "changing a value int t1Copy2, at top-index 3, subtree index 512 in one of the trees; causes deep copies to be made. Checking for change to occur.";
 
@@ -344,10 +352,14 @@ private slots:
 		// check for correct values within copy, even after modifications.
 		for(unsigned i=0; i<t1Copy2.count(); i++)
 			for(unsigned j=0; j<t1Copy2.more("sddSpectrum", i)->count(); j++) {
-				if(i==3 && j==512)
+				if(i==3 && j==512) {
 					QCOMPARE( t1Copy2.more("sddSpectrum", i)->value("sddEV", j),  -1.0);
-				else
+					QCOMPARE( (*t1Copy2.more("sddSpectrum", i))["sddEV"][j],  -1.0);
+				}
+				else {
 					QCOMPARE( t1Copy2.more("sddSpectrum", i)->value("sddEV", j),  200+j*(1300.0-200.0)/1024.0);	// check for successful retrieve.
+					QCOMPARE( (*t1Copy2.more("sddSpectrum", i))["sddEV"][j],  200+j*(1300.0-200.0)/1024.0);	// check for successful retrieve.
+				}
 			}
 		qDebug() << "modified value is:" << t1Copy2.more("sddSpectrum", 3)->value("sddEV", 512);
 
@@ -357,6 +369,7 @@ private slots:
 		for(unsigned i=0; i<t1.count(); i++)
 			for(unsigned j=0; j<t1.more("sddSpectrum", i)->count(); j++) {
 				QCOMPARE( t1.more("sddSpectrum", i)->value("sddEV", j),  200+j*(1300.0-200.0)/1024.0);
+				QCOMPARE( (*t1.more("sddSpectrum", i))["sddEV"][j],  200+j*(1300.0-200.0)/1024.0);
 			}
 
 		qDebug() << "original value is:" << t1.more("sddSpectrum", 3)->value("sddEV", 512);
