@@ -218,7 +218,7 @@ copyXASData.more("sddSpectrums",5)->setValue("y", 512, 49.3);
 
 
 	/// set an arbitrary data value:
-	bool setValue(unsigned i, const QString& columnName, AMNumericType newValue) {
+	bool setValue(const QString& columnName, unsigned i, AMNumericType newValue) {
 
 		if(i >= count()) {
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -1, "AMDataTree: attempted modifying a value out of range. Not successful."));
@@ -264,10 +264,15 @@ copyXASData.more("sddSpectrums",5)->setValue("y", 512, 49.3);
 		/// create the vector of subtree pointers:
 		QVector<QSharedDataPointer<AMDataTree> > newVect(count());
 
-		/// create the trees, and store the shared-pointer references.
+		/// Old way: create the trees, and store the shared-pointer references.
+		/*
 		for(unsigned i=0; i<count(); i++) {
 			newVect[i] = new AMDataTree(subTreeCount, xColumnName, hasXValues);
-		}
+		}*/
+		/// New way: create one tree to use for all datapoints in the column, which will be implicitly shared until modified.
+		QSharedDataPointer<AMDataTree> newTree(new AMDataTree(subTreeCount, xColumnName, hasXValues));
+		for(unsigned i=0; i<count(); i++)
+			newVect[i] = newTree;
 
 		/// insert the new vector under this column name.
 		yD_.insert(newSubtreeColumnName, newVect);
