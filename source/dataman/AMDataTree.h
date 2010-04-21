@@ -12,7 +12,6 @@
 typedef double AMNumericType;
 
 
-
 /// This class is an attempt at supporting arbitrary-dimensionality data for AMScan objects, while maintaining simple (programmer-easy) and fast (high-performance) access to the data.
 /*! Data must have a principal column (usually the "x" axis or main independent variable), and the values stored in this column must be true data values.
 The dataset can have an arbitrary number of additional columns (ex: "tey_raw", "tfy_raw", and "sddSpectrums").  These columns can contain single datapoints (stored in \c y_) OR links to separate AMDataTables containing higher-dimensional data (stored in \c yD_).
@@ -42,13 +41,8 @@ yD_("sddSpectrums", 5)->y_["sddIntensity"][512]
 \endcode
 
 
-
-
 The number of datapoints (whether actual values or AMDataTable links) in any column must be count().
-
-
 */
-
 class AMDataTree : public QSharedData {
 
 public:
