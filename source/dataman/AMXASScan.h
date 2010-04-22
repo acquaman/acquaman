@@ -7,7 +7,7 @@
 /// This is a practical subclass of AMScan which provides the details to represent a very basic absorption scan (ex: eV setpoints and readings from 0-dimensional detectors such as the sample current (TEY) and fluorescence yield (TFY).
 /*! blah blah blah
 	\todo detailed doc.
-	\sa AMXASSpectrumScan for scans which include 1D data (such as the SGM's silicon drift detector) for every eV datapoint.
+	See AMXASSpectrumScan for scans which include 1D data (such as the SGM's silicon drift detector) for every eV datapoint.
   */
 class AMXASScan : public AMScan {
 Q_OBJECT
