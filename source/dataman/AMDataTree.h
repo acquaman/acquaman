@@ -289,11 +289,10 @@ copyXASData.deeper("sddSpectrums",5)->setValue("y", 512, 49.3);
 		y_.insert(newColumnName, QVector<AMNumericType>(count()));
 	}
 
-	/// Create a new subtree column. All of the subtrees will be created with the given count and primary axis details, but no data.
+	/// Create a new subtree column. All of the subtrees will be created with the given count, and implicit copies of \c treeFiller will be used as a "prototype" to initialize the trees in the column. (as long as count() isn't 0).  It's okay to use 'new AMDataTree(...)' without worrying about freeing the memory; once added to the column, shared reference counting will start from 1, and the prototype subtree will be deleted when no longer required.
 	/*! \note This will allocate memory for the new trees. However, reference counting is implemented so that they will be deleted automatically when the column vector (and the QSharedDataPointers within it) are deleted.
-	  \todo do we want to allow passing in a ready-made tree to use as the example? Could save time/memory because the extra columns will already be there, allowing us to take advantage of more implicit sharing.
 	  */
-	void createSubtreeColumn(const QString& newSubtreeColumnName, unsigned subTreeCount = 0, const QString& xColumnName = "x", bool hasXValues = false) {
+	void createSubtreeColumn(const QString& newSubtreeColumnName, AMDataTree* treeFiller) {
 
 		/// create the vector of subtree pointers:
 		QVector<QSharedDataPointer<AMDataTree> > newVect(count());
@@ -304,13 +303,95 @@ copyXASData.deeper("sddSpectrums",5)->setValue("y", 512, 49.3);
 			newVect[i] = new AMDataTree(subTreeCount, xColumnName, hasXValues);
 		}*/
 		/// New way: create one tree to use for all datapoints in the column, which will be implicitly shared until modified.
-		QSharedDataPointer<AMDataTree> newTree(new AMDataTree(subTreeCount, xColumnName, hasXValues));
+		QSharedDataPointer<AMDataTree> newTree(treeFiller);
 		for(unsigned i=0; i<count(); i++)
 			newVect[i] = newTree;
 
 		/// insert the new vector under this column name.
 		yD_.insert(newSubtreeColumnName, newVect);
 
+	}
+
+
+	/// Appending a new datapoint to each column is a common operation (for ex: a mono move and absorption measurement has just completed in an XAS scan.)
+	/*! This function increases the count() by 1 and appends a datapoint to each column. It sets the value of the primary column datapoint to \c newValue. (If hasXValues() is false, the \c newValue is ignored.)
+
+	Use setValue() or setLastValue() to fill in the remaining columns, otherwise they will contain default values.
+
+	If there are columns of subtrees, the default value of the new subtree is a copy of the most recent subtree. (At least until you change it.) (Exception: if count() is 0, there are no trees to emulate, so a default subtree is created.)
+
+	\test
+	*/
+	void append(const AMNumericType& newValue = 0) {
+
+		// count_ is now one ahead of every column's size.
+		count_++;
+
+		// append to primary column. (As long as we hasXValues_.)
+		if(hasXValues_)
+			x_ << newValue;
+
+		// append default values to all the other data columns:
+		QMutableHashIterator<QString, QVector<AMNumericType> > i(y_);
+		while(i.hasNext()) {
+			i.next();
+			i.value() << AMNumericType();
+		}
+
+		// append subtree copies (or, if this is the first, a default subtree) to all the subtree columns.
+		QMutableHashIterator< QString, QVector< QSharedDataPointer<AMDataTree> > >  iD(yD_);
+		while(iD.hasNext()) {
+			iD.next();
+			// are we the first? append default subtree
+			if(count_ == 1)
+				iD.value() << QSharedDataPointer<AMDataTree>(new AMDataTree());
+			// otherwise append a copy of the latest tree.
+			else
+				iD.value() << iD.value()[count_ - 2];
+		}
+
+	}
+
+	/// This a convenience function, equivalent to setValue(colName, count()-1, newValue). It's useful when filling extra columns after append(). \test
+	void setLastValue(const QString& colName, const AMNumericType& newValue = 0) {
+
+		setValue(colName, count_ - 1, newValue);
+
+	}
+
+	/// You cannot set column names, because the column names are the method used to access columns. However, the primary axis channel name (set in constructor) can be changed.
+	/*! \note Beware, this might mess up your buddies who are using setValue("xOld", 3, 1.234).
+	  */
+	void setXName(const QString& newColName) {
+		xName_ = newColName;
+	}
+
+	/// clears all of the data in the tree. The count() will become 0, but all of the columns will remain.
+	void clear() {
+		x_.clear();
+
+		// iterate through all of the columns and empty them
+		QMutableHashIterator<QString, QVector<AMNumericType> > i(y_);
+		while(i.hasNext()) {
+			i.next();
+			i.value().clear();
+		}
+
+		// iterate through all of the subtree columns and empty them.
+		QMutableHashIterator< QString, QVector< QSharedDataPointer<AMDataTree> > >  iD(yD_);
+		while(iD.hasNext()) {
+			iD.next();
+			iD.value().clear();
+		}
+
+	}
+
+	/// clears all of the data in the tree, and removes all of the columns.
+	void removeAll() {
+		x_.clear();
+		y_.clear();
+		yD_.clear();
+		count_ = 0;
 	}
 
 

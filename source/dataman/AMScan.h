@@ -8,6 +8,7 @@
 
 #include "dataman/AMDataTree.h"
 #include "dataman/AMDbObject.h"
+#include "dataman/AMDataTree.h"
 
 /// This class is the base of all objects that represent beamline scan data (for ex: XAS scans over eV, XES detector-image "scans" over detector eV, etc.)
 /*! It provides the following:
@@ -50,7 +51,8 @@ public:
 	QString channelNames() const;
 
 
-
+	/// the number of datapoints in the scan:
+	unsigned count() const { return d_.count(); }
 
 	/// These functions provide support for storing and retrieving from the database.
 	// ===================================
@@ -77,6 +79,8 @@ public:
 signals:
     /// Emitted when comments string changed
     void commentsChanged(const QString &);
+	/// Emitted when data changes / new data accepted
+	void updated(AMScan* me);
 /*
   Belongs in scan controller
     /// AMScan has started
@@ -125,6 +129,9 @@ protected:
     QString sampleName_;
     /// Commments for scan
     QString comments_;
+
+	/// raw data storage. All scans will have one of these, but the contents and structure will vary.
+	AMDataTree d_;
 
 private:
 	/// List of column names required to have in DB:
