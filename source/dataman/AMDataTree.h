@@ -42,7 +42,16 @@ yD_("sddSpectrums", 5)->y_["sddIntensity"][512]
 
 
 The number of datapoints (whether actual values or AMDataTable links) in any column must be count().
+
+\todo Ideas for cleaning API and increasing performance, while restricting non-const access to the internal vectors...
+	- AMDataTreeIterator (directions: next, prev, nextColumn, prevColumn, deeper, higher.
+			- setColumn(), hasValue() (actual or higher-D data?)
+	- set a current column as active column; use for value() and setValue()
+	- expression templates?
+
 */
+
+/// Why isn't this class documented?
 class AMDataTree : public QSharedData {
 
 public:
@@ -65,10 +74,13 @@ Consider the scenario of myXASData with an x column (eV), one y column (tey), an
 
 \code
 copyXASData = myXASData;
+\endcode
 (the column vectors eV and tey are shared implicitly.)
 (the column of subtree pointers is shared implicitly, and with no changes. Both copyXASData and myXASData's sddSpectrum pointers are pointing to the same subtrees.)
 
+\code
 copyXASData.deeper("sddSpectrums",5)->setValue("y", 512, 49.3);
+\endcode
 (Now, we need to make a copy of the sddSpectrum subtree #5, with the new value 49.3 at index 512 in its 'y' column. This causes a deep copy of the 'y' column in the subtree; since the data is modified, it can't be implicitly shared anymore.)
 (We also need to change the pointer in the sddSpectrums column (at index 5) to point to this new subtree. This causes a deep copy of the sddSpectrums column.)
 
@@ -110,7 +122,7 @@ copyXASData.deeper("sddSpectrums",5)->setValue("y", 512, 49.3);
 	/// The number of datapoints in each column
 	unsigned count() const { return count_; }
 
-	/// Access the primary column by index
+	/// Access the primary column values by index
 	AMNumericType x(unsigned i) const {
 
 		if(i >= count()) {
@@ -124,6 +136,7 @@ copyXASData.deeper("sddSpectrums",5)->setValue("y", 512, 49.3);
 			return i;
 	}
 
+	/// The name of the primary column
 	QString xName() const {
 		return xName_;
 	}
@@ -152,7 +165,10 @@ copyXASData.deeper("sddSpectrums",5)->setValue("y", 512, 49.3);
 		return AMNumericType();
 	}
 
-	/// Iterating through a column using value() is slow because of the column lookup by name at each step. The [] operator is overloaded to return a constant reference to the internal vectors.  If the column doesn't exist, it returns the primary column, which is guaranteed to exist.
+	/// Iterating through a column using value() is slow because of the column name lookup at each step. This can be used to access a reference to an entire column of data. (The data is stored internally within a QVector.)
+	/*! \note If the name of the column \c columnName does not exist, it logs an error message and returns the primary column.
+		\todo Determine if an overloaded version allowing non-const access to the internal vector is wise. (ie: "If you want to change the data in the column, use the overloaded form of this function to return a non-const reference.")
+	  */
 	const QVector<AMNumericType>& column(const QString& columnName) const {
 
 		if(y_.contains(columnName)) {
@@ -168,7 +184,7 @@ copyXASData.deeper("sddSpectrums",5)->setValue("y", 512, 49.3);
 	}
 
 
-	/// Access a pointer to higher-dimensional data tree. Returns 0 if column not found or index out of range.
+	/// Access a pointer to a higher-dimensional data tree. Returns 0 if column not found or index out of range.
 	/*! The tree returned is a read-only pointer.  The overloaded version of this function returns a non-const pointer you can use for modifying trees. However, it could force a deep copy of the tree, it it's shared.
 		*/
 	const AMDataTree* deeper(const QString& columnName, unsigned i) const {
@@ -184,6 +200,7 @@ copyXASData.deeper("sddSpectrums",5)->setValue("y", 512, 49.3);
 		return 0;
 	}
 
+	/// Overloaded version allowing non-const access to the subtree
 	AMDataTree* deeper(const QString& columnName, unsigned i) {
 
 		if(i >= count()) {
@@ -197,6 +214,7 @@ copyXASData.deeper("sddSpectrums",5)->setValue("y", 512, 49.3);
 		return 0;
 	}
 
+	/// Returns an entire column of subtrees
 	const QVector<QSharedDataPointer<AMDataTree> >* deeperColumn(const QString& columnName) const {
 
 		if(yD_.contains(columnName)) {
