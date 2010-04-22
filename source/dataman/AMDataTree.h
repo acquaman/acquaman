@@ -359,6 +359,41 @@ copyXASData.deeper("sddSpectrums",5)->setValue("y", 512, 49.3);
 
 	}
 
+	/// You cannot set column names, because the column names are the method used to access columns. However, the primary axis channel name (set in constructor) can be changed.
+	/*! \note Beware, this might mess up your buddies who are using setValue("xOld", 3, 1.234).
+	  */
+	void setXName(const QString& newColName) {
+		xName_ = newColName;
+	}
+
+	/// clears all of the data in the tree. The count() will become 0, but all of the columns will remain.
+	void clear() {
+		x_.clear();
+
+		// iterate through all of the columns and empty them
+		QMutableHashIterator<QString, QVector<AMNumericType> > i(y_);
+		while(i.hasNext()) {
+			i.next();
+			i.value().clear();
+		}
+
+		// iterate through all of the subtree columns and empty them.
+		QMutableHashIterator< QString, QVector< QSharedDataPointer<AMDataTree> > >  iD(yD_);
+		while(iD.hasNext()) {
+			iD.next();
+			iD.value().clear();
+		}
+
+	}
+
+	/// clears all of the data in the tree, and removes all of the columns.
+	void removeAll() {
+		x_.clear();
+		y_.clear();
+		yD_.clear();
+		count_ = 0;
+	}
+
 
 
 

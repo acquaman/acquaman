@@ -6,7 +6,10 @@
 // static dbColumnNames (each instance has same)
 QStringList AMScan::dbColumnNames_;
 
-AMScan::AMScan(QObject *parent) : AMDbObject(parent) {
+AMScan::AMScan(QObject *parent)
+	: AMDbObject(parent),
+	d_(0, "x", true)
+{
 	// Ensure the static (class-wide) dbColumnNames_ has already been filled:
 	dbColumnNames();
 }

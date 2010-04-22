@@ -4,6 +4,7 @@
 #include "dataman/AMScan.h"
 #include "dataman/AMDbLoader.h"
 #include "dataman/AMDataTree.h"
+#include "dataman/AMXASScan.h"
 
 
 /// This class contains all of the unit tests for the dataman module.
@@ -641,6 +642,18 @@ class TestDataman: public QObject
 
 
 
+	}
+
+
+	/// test loading an AMXASScan from legacy SGM data:
+	void loadAMXASScan() {
+		AMXASScan s1;
+		/// \todo move this into proper storage location in data dir.
+		qDebug() << "loading sgm data from file and checking for proper read";
+		QVERIFY(s1.loadFromSGMLegacyFile("/home/reixs/Desktop/BaFe2As2_As_1.dat"));
+		QCOMPARE(s1.count(), unsigned(401));
+		QCOMPARE(s1.comments(), QString("0.916667"));
+		QCOMPARE(s1.dateTime().toTime_t(), uint(1269078719));
 	}
 
 };
