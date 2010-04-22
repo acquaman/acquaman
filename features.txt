@@ -20,6 +20,22 @@ C) Let them evaluate us
 
 =====================================================================
 
+pre-A)
+[context? introductions?]
+
+>> (D) Tell me about yourself
+
+>> What got you intersted in this job?
+
+>> Biggest strength / biggest weakness
+
+>> How well do you deal with different types of ppl
+
+[foreshadow questions, but subtle]
+>> How do you work with someone with more experience than you?
+
+>> How well do you adapt to new situations / how confident?
+
 A) The job:
 
 	Motivation:
@@ -31,20 +47,23 @@ A) The job:
 		- familiar with one experimental technique (our own)... but there's more
 		- users are unique (different needs, different modes of operation)
 
-	Concept:
+	Concept: [as an experiment]
 		plant like a spy
 			( - helpful spy)
 			( - partner with many different users / techniques)
 		
 		1) Do experiments with users
-		2) Understand experimental process. (stress entirety, from beginning to end (not just beamtime))
+		2) Understand them, and their experimental process. (stress entirety, from beginning to end (not just beamtime))
 		3) ??? [for you to figure out]
 		4) deliver (high quality, lots of) ideas and requirements for super-helpful software
 
 		aside: become the expert on the team in this area
 
+	
 
-	Also:
+	Also, lame logistical details:
+		- salary
+		- employed by Phys. dept.
 		- Alex providing funding for this; can call for help on reixs beamline if some bolts really need wrenches, important short-term priorities, etc.
 
 
@@ -54,28 +73,46 @@ B) Evaluation questions:
 
 	1 - friendly and helpful interactions on the beamlines; effective relationships with people vastly more experienced
 
+>> Based on that, what do you think are the "keys to the job"?
 
+	>> What does that actually look like (daily basis)
+	>> / How would you approach the task?
 
+	>> When observing the scientists, what are you looking for? What cues?
 
+	>> Put in their shoes / inside their minds: What are some things that could be going through their heads?
+
+	>> What are some ideas to keep track of your learnings?
 
 
 	2 - excited about science
 
+>> How do you learn?
 
+>> What's most interesting thingy you've learned this year / past years?
+
+>> Read any interesting science lately?
 
 
 
 
 	3 - skilled communicator (verbal, written)
 
+>> wide-open: Tell me about a suggestion you've made.
 
-
-
+>> wide-open: How do you rank your communication skills?
 
 
 	4 - on it like a mother f
 
+>> what motivates to do good job?
 
+>> What do you want to get out of a summer job?
+	>> (cont'd) describe dream job
+
+>> What are gonna be the trouble-spots / challenges inherent?
+
+>> What's something you've done that you're really proud of?
 
 
 
@@ -86,7 +123,16 @@ B) Evaluation questions:
 		* bonus code wizardry
 
 
+>> What do you know about:
+	- coding
+	- OOP design
+	- software development process
 
+>> What are some things that often (could) go wrong on a big software project?
+
+>> Honest: Do you enjoy sitting at a computer and writing code?
+
+>> What makes a good developer?
 
 
 
