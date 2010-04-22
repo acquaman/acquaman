@@ -295,7 +295,7 @@ class TestDataman: public QObject
 		QCOMPARE(t1.setValue("teyeee", 0, 1.234), false);	// invalid column
 
 		qDebug() << "inserting subtrees with a count of 1024, x-axis values named 'sddEV', and going from 200 to 1300";
-		t1.createSubtreeColumn("sddSpectrum", 1024, "sddEV", true);
+		t1.createSubtreeColumn("sddSpectrum", new AMDataTree(1024, "sddEV", true));
 		// insert the x-axis values for each subtree...
 		for(unsigned i=0; i<t1.count(); i++)
 			for(unsigned j=0; j<t1.deeper	("sddSpectrum", i)->count(); j++)
@@ -451,7 +451,7 @@ class TestDataman: public QObject
 		QCOMPARE(t1.setValue("teyeee", 0, 1.234), false);	// invalid column
 
 		qDebug() << "inserting subtrees with a count of 1024, x-axis values named 'sddEV', and going from 200 to 1300";
-		t1.createSubtreeColumn("sddSpectrum", 1024, "sddEV", true);
+		t1.createSubtreeColumn("sddSpectrum", new AMDataTree(1024, "sddEV", true));
 		// insert the x-axis values for each subtree...
 		for(unsigned i=0; i<t1.count(); i++)
 			for(unsigned j=0; j<(*t1.deeperColumn("sddSpectrum"))[i]->count(); j++)
@@ -531,6 +531,114 @@ class TestDataman: public QObject
 		}
 
 		qDebug() << "original value is:" << (*t1.deeperColumn("sddSpectrum"))[3]->value("sddEV", 512);
+
+
+	}
+
+
+
+	/// test append() to datatrees without subtrees:
+	void appendAMDataTree() {
+
+		qDebug() << "creating empty tree t1, no x values:";
+		AMDataTree t1(0, "x", false);
+		QCOMPARE(t1.count(), (unsigned)0);
+		qDebug() << "appending 1 value";
+		t1.append(3);
+		QCOMPARE(t1.count(), (unsigned)1);
+		QCOMPARE(t1.x(0), 0.0);	// since we don't have explicit x values, should be 0.
+		qDebug() << "appending another value";
+		t1.append(42);
+		QCOMPARE(t1.count(), (unsigned)2);
+		QCOMPARE(t1.x(1), 1.0);	// since we don't have explicit x values, should be 1.
+
+		qDebug() << "creating new tree, with actual x values.";
+		t1 = AMDataTree(0, "x", true);
+		QCOMPARE(t1.count(), (unsigned)0);
+		qDebug() << "appending 1 value";
+		t1.append(3);
+		QCOMPARE(t1.count(), (unsigned)1);
+		QCOMPARE(t1.x(0), 3.);
+		qDebug() << "appending another value";
+		t1.append(42);
+		QCOMPARE(t1.count(), (unsigned)2);
+		QCOMPARE(t1.x(1), 42.);
+		qDebug() << "testing setLastValue()";
+		t1.setLastValue("x", -1.234);
+		QCOMPARE(t1.x(1), -1.234);
+
+		qDebug() << "creating new tree, with x and y columns.";
+		t1 = AMDataTree(0, "x", true);
+		t1.createColumn("y");
+		QCOMPARE(t1.count(), (unsigned)0);
+		qDebug() << "appending 1 value";
+		t1.append(3);
+		QCOMPARE(t1.value("y", 0), AMNumericType());	// should be default-constructed value for now
+		t1.setLastValue("y", 3*3.);
+		QCOMPARE(t1.count(), (unsigned)1);
+		QCOMPARE(t1.x(0), 3.);
+		QCOMPARE(t1.value("y", 0), 3*3.);
+		qDebug() << "appending another value";
+		t1.append(42);
+		t1.setLastValue("y", 42*42.);
+		QCOMPARE(t1.count(), (unsigned)2);
+		QCOMPARE(t1.x(1), 42.);
+		QCOMPARE(t1.value("y", 1), 42*42.);
+		qDebug() << "testing setLastValue()";
+		t1.setLastValue("y", -1.234);
+		QCOMPARE(t1.column("y")[1], -1.234);
+
+		qDebug() << "creating new tree, with x and y columns and initially 1 value.";
+		t1 = AMDataTree(1, "x", true);
+		t1.createColumn("y");
+		QCOMPARE(t1.count(), (unsigned)1);
+		qDebug() << "appending 1 value";
+		t1.append(3);
+		QCOMPARE(t1.value("y", 1), AMNumericType());	// should be default-constructed value for now
+		t1.setLastValue("y", 3*3.);
+		QCOMPARE(t1.count(), (unsigned)2);
+		QCOMPARE(t1.x(1), 3.);
+		QCOMPARE(t1.value("y", 1), 3*3.);
+		qDebug() << "appending another value";
+		t1.append(42);
+		t1.setLastValue("y", 42*42.);
+		QCOMPARE(t1.count(), (unsigned)3);
+		QCOMPARE(t1.x(2), 42.);
+		QCOMPARE(t1.value("y", 2), 42*42.);
+		qDebug() << "testing setLastValue()";
+		t1.setLastValue("y", -1.234);
+		QCOMPARE(t1.column("y")[2], -1.234);
+
+
+
+		qDebug() << "creating new empty tree, with x and y columns and subtree of count 5 (meaningless)";
+		t1 = AMDataTree(0, "x", true);
+		t1.createColumn("y");
+		t1.createSubtreeColumn("s1", new AMDataTree(5, "s1_x", true));
+		QCOMPARE(t1.count(), (unsigned)0);
+		qDebug() << "appending 1 value";
+		t1.append(3);
+		QCOMPARE(t1.deeper("s1", 0)->count(), unsigned(0));	// because the top tree count was 0, there were no copies made of the prototype tree, and a default tree was inserted.
+		QCOMPARE(t1.deeper("s1", 0)->xName(), AMDataTree().xName()); // because the top tree count was 0, there were no copies made of the prototype tree, and a default tree was inserted.
+
+		qDebug() << "creating new tree, count 1, with x and y columns and subtree of count 5";
+		t1 = AMDataTree(1, "x", true);
+		t1.createColumn("y");
+		t1.createSubtreeColumn("s1", new AMDataTree(5, "s1_x", true));
+		QCOMPARE(t1.count(), (unsigned)1);
+		QCOMPARE(t1.deeper("s1", 0)->count(), unsigned(5));	// confirm creation of prototype tree
+		QCOMPARE(t1.deeper("s1", 0)->xName(), QString("s1_x")); // confirm creation of prototype tree
+		for(unsigned i=0; i<5; i++)
+			t1.deeper("s1",0)->setX(i, i+2.3);
+		for(unsigned i=0; i<5; i++)
+			QCOMPARE(t1.deeper("s1", 0)->x(i), i+2.3);
+		qDebug() << "appending 2nd value. Subtree at i=0 should be copied into i=1";
+		t1.append(3);
+		QCOMPARE(t1.deeper("s1", 1)->count(), unsigned(5));	// confirm copying of prototype tree
+		QCOMPARE(t1.deeper("s1", 1)->xName(), QString("s1_x")); // confirm copying of prototype tree
+		for(unsigned i=0; i<5; i++)
+			QCOMPARE(t1.deeper("s1", 1)->x(i), i+2.3);
+
 
 
 	}
