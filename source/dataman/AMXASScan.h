@@ -37,6 +37,7 @@ public:
 
 	/// \todo append new data values... (from outside, or inside the class?)
 	/// \todo clear data? (allow from outside the class?)
+	/// \todo some way to encapsulate a bunch of information about detectors: units, detailed comment on where it comes from, whether to show or hide by default in user-facing views.
 
 signals:
 	// inherits updated(AMScan*)
