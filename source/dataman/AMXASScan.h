@@ -24,14 +24,19 @@ public:
 		return true;
 	}
 
-	/// the number of datapoints in the scan:
-	unsigned count() const { return d_.count(); }
-
 	/// load from SGM legacy file format (this may or may not be permanent; might want a general loading system)
 	bool loadFromSGMLegacyFile(const QString& filepath);
 
 	/// save to SGM legacy file format (this may or may not be permanent; might want a general loading system)
 	bool saveToSGMLegacyFile(const QString& filepath) const;
+
+	/// the detectors (raw data columns) available within this scan. Does not include the primary column (eV), which is always present.
+	QStringList detectors() const { return detectors_; }
+
+	/// \todo access will be through channels which can access the AMDataTree raw columns (d_). Until channels are done, there's no way to peek inside.
+
+	/// \todo append new data values... (from outside, or inside the class?)
+	/// \todo clear data? (allow from outside the class?)
 
 signals:
 	// inherits updated(AMScan*)

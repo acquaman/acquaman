@@ -51,7 +51,8 @@ public:
 	QString channelNames() const;
 
 
-
+	/// the number of datapoints in the scan:
+	unsigned count() const { return d_.count(); }
 
 	/// These functions provide support for storing and retrieving from the database.
 	// ===================================
