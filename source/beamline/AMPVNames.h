@@ -1,10 +1,14 @@
 #ifndef ACQMAN_PVNAMES_H
 #define ACQMAN_PVNAMES_H
 
+#include "AMErrorMonitor.h"
+
 #include <QSettings>
 #include <QString>
 
-/*! This namespace provides definitions for all Process Variable names that we use/reference.  They are read from a configuration file on program startup,
+#include "AMBiHash.h"
+
+/*! This class provides definitions for all Process Variable names that we use/reference.  They are read from a configuration file on program startup,
     but defaults are provided here in case the file is missing/not created yet.  AMPVNames can also be stored from memory to disk with save(), but this
     should rarely be used. (Maybe by the developers for creating the file, but that's it ; )
 
@@ -16,8 +20,23 @@ class AMPVNames {
 public:
     /// 1. Process Variable name definitions.
     // ========================================
-    /// Ring current
-    static QString ringCurrent;
+
+	/// lookup a PV name based on its meaningful name. Returns a null and empty QString if not found.
+	static QString toPV(const QString& meaningfulName) {
+		QString retval = d_.valueF(meaningfulName);
+		if(retval.isEmpty())
+			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -1, "AMPVNames: I couldn't find the PV name you were looking for."));
+		return retval;
+	}
+
+	/// reverse-lookup; a meaningful name from a PV. Returns a null and empty QString if not found.
+	static QString fromPV(const QString& pvName) {
+		QString retval = d_.valueR(pvName);
+		if(retval.isEmpty())
+			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -1, "AMPVNames: I couldn't find a name for that PV."));
+		return retval;
+	}
+
 
 
     /// Load settings from disk:
@@ -25,6 +44,11 @@ public:
 
     /// Save settings to disk:
     static void save();
+
+protected:
+	/// Provides lookup from a meaningful name to a PV name:
+	static AMBiHash<QString, QString> d_;
+
 };
 
 #endif // ACQMAN_PVNAMES_H

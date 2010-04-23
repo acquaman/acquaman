@@ -115,7 +115,13 @@ HEADERS += source/beamline/AMDiagnosticPaddle.h \
     source/ui/AMStatusView.h \
     source/ui/SGMXASScanConfigurationViewer.h \
     source/ui/AMControlSetView.h \
-    source/ui/AMXASRegionsView.h
+	source/ui/AMXASRegionsView.h \
+	source/AMBiHash.h \
+	source/dataman/AMXASScan.h \
+	source/dataman/SGMLegacyFileImporter.h \
+	source/dataman/AMDataTree.h \
+	source/dataman/AMDataTreeColumn.h
+
 FORMS += source/ui/AbsorptionScanController.ui \
     source/ui/ConnectionSettings.ui \
     source/ui/EmissionScanController.ui \
@@ -191,6 +197,8 @@ SOURCES += source/beamline/AMDiagnosticPaddle.cpp \
     source/ui/SGMXASScanConfigurationViewer.cpp \
     source/ui/AMControlSetView.cpp \
     source/ui/AMXASRegionsView.cpp \
+	source/dataman/AMXASScan.cpp \
+	source/dataman/SGMLegacyFileImporter.cpp \
     tests.cpp
 
 RESOURCES = source/icons/icons.qrc

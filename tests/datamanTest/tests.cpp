@@ -5,7 +5,9 @@
 #include "dataman/AMDbLoader.h"
 #include "dataman/AMDataTree.h"
 #include "dataman/AMXASScan.h"
+#include "dataman/SGMLegacyFileImporter.h"
 
+#include <QSettings>
 
 /// This class contains all of the unit tests for the dataman module.
 /*! Each private slot corresponds to one test (which can actually contain several individual unit tests.)  The initTestCase() function is run before any of the tests, and the cleanupTestCase is run after all of them finish.
@@ -648,12 +650,18 @@ class TestDataman: public QObject
 	/// test loading an AMXASScan from legacy SGM data:
 	void loadAMXASScan() {
 		AMXASScan s1;
+		SGMLegacyFileImporter s1Loader(&s1);
 		/// \todo move this into proper storage location in data dir.
-		qDebug() << "loading sgm data from file and checking for proper read";
-		QVERIFY(s1.loadFromSGMLegacyFile("/home/reixs/Desktop/BaFe2As2_As_1.dat"));
+		QString fileName = AMUserSettings::userDataFolder + "001.dat";
+		qDebug() << "loading sgm data from file and checking for proper read:" << fileName;
+		QVERIFY(s1Loader.loadFromFile(fileName));
 		QCOMPARE(s1.count(), unsigned(401));
 		QCOMPARE(s1.comments(), QString("0.916667"));
 		QCOMPARE(s1.dateTime().toTime_t(), uint(1269078719));
+		qDebug() << "s1 raw data columns ('detectors')" << s1.detectors();
+
+		QSettings settings(QSettings::IniFormat, QSettings::SystemScope, "Acquaman", "Acquaman");
+		qDebug() << "global settings filename:" << settings.fileName();
 	}
 
 };
