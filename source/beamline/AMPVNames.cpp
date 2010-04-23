@@ -1,17 +1,18 @@
 #include "AMPVNames.h"
 
-QString AMPVNames::ringCurrent;
+/// forward- and reverse-enabled lookup of keyValue/keyValue pairs
+AMBiHash<QString, QString> AMPVNames::d_;
 
-/// Load settings from disk:
+
+/// Load settings from disk.  You must specify all PVs here, along with default values to use if they're not found in the config file.  However, changes to the PV names can be done through the config file without rebuilding Acquaman.
 void AMPVNames::load() {
 	QSettings settings(QSettings::IniFormat, QSettings::SystemScope, "Acquaman", "AcquamanProcessVariables");
 
     // All settings variables are loaded here from disk. Default values must be provided -- they will be used if the particular setting doesn't exist yet.
-    // Don't forget to add here if you add new user options.
 
-    // variable = settings.value(key, defaultValue).toType();
 
-    ringCurrent = settings.value("ringCurrent", "PCT1402-01:mA:fbk").toString();
+	d_.set("ringCurrent", settings.value("ringCurrent", "PCT1402-01:mA:fbk").toString());
+	d_.set("beamlineEnergy", settings.value("beamlineEnergy", "BL1611-ID-1:Energy").toString());
 
 
 }
@@ -20,9 +21,12 @@ void AMPVNames::load() {
 void AMPVNames::save() {
 	QSettings settings(QSettings::IniFormat, QSettings::SystemScope, "Acquaman", "AcquamanProcessVariables");
 
-    // All settings variables are saved here to the user-specific file.
-    // Don't forget to add here if you add new user options.
+	// All settings variables are saved here to the system-specific file.
 
-    settings.setValue("ringCurrent", ringCurrent);
+	QHashIterator<QString, QString> i = d_.iterator();
+	while(i.hasNext()) {
+		i.next();
+		settings.setValue(i.key(), i.value());
+	}
 
 }

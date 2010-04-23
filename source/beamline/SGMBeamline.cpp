@@ -5,7 +5,7 @@ SGMBeamline* SGMBeamline::instance_ = 0;
 
 SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 
-    ringCurrent_ = new AMReadOnlyPVControl("ringCurrent", AMPVNames::ringCurrent, this);
+	ringCurrent_ = new AMReadOnlyPVControl("ringCurrent", AMPVNames::toPV("ringCurrent"), this);
     addChild(ringCurrent_);
     energy_ = new AMPVwStatusControl("energy", "dave:Energy", "dave:Energy", "dave:Energy:moving", this, 0.01);
     AMReadOnlyPVwStatusControl *mono = new AMReadOnlyPVwStatusControl("mono", "dave:Energy:mono", "dave:Energy:mono:moving", energy_);

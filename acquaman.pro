@@ -7,15 +7,16 @@ macx {
         /Users/mboots/dev/epics/14-11/base/include/os/Darwin
     EPICS_LIB_DIR = /Users/mboots/dev/epics/14-11/base/lib/darwin-x86
     PHONON_INCLUDE_DIR = /Library/Frameworks/phonon.framework/Versions/Current/Headers
-	MPLOT_INCLUDE_DIR = /Users/mboots/dev/MPlot/src
+    MPLOT_INCLUDE_DIR = /Users/mboots/dev/MPlot/src
 }
 linux-g++ { 
     EPICS_INCLUDE_DIRS = /home/reixs/beamline/programming/epics/base/include \
         /home/reixs/beamline/programming/epics/base/include/os/Linux
     EPICS_LIB_DIR = /home/reixs/beamline/programming/epics/base/lib/linux-x86
     PHONON_INCLUDE_DIR = /usr/include/qt4/phonon
-# include path for MPlot library (header-files only)
-	MPLOT_INCLUDE_DIR = /home/reixs/beamline/programming/MPlot/src
+    
+    # include path for MPlot library (header-files only)
+    MPLOT_INCLUDE_DIR = /home/reixs/beamline/programming/MPlot/src
 }
 QT += core \
     phonon \
@@ -114,7 +115,9 @@ HEADERS += source/beamline/AMDiagnosticPaddle.h \
     source/ui/AMControlSetView.h \
     source/ui/AMXASRegionsView.h \
     source/dataman/AMXASScan.h \
-    source/dataman/AMDataTree.h
+    source/dataman/AMDataTree.h \
+    source/AMBiHash.h \
+	source/dataman/SGMLegacyFileImporter.h
 FORMS += source/ui/AbsorptionScanController.ui \
     source/ui/ConnectionSettings.ui \
     source/ui/EmissionScanController.ui \
@@ -190,5 +193,6 @@ SOURCES += source/beamline/AMDiagnosticPaddle.cpp \
     source/ui/SGMXASScanConfigurationViewer.cpp \
     source/ui/AMControlSetView.cpp \
     source/ui/AMXASRegionsView.cpp \
-    source/dataman/AMXASScan.cpp
+    source/dataman/AMXASScan.cpp \
+	source/dataman/SGMLegacyFileImporter.cpp
 RESOURCES = source/icons/icons.qrc

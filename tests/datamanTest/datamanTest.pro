@@ -54,8 +54,10 @@ HEADERS += source/dataman/AMDbObject.h \
     source/dataman/AMDatabase.h \
     source/dataman/AMDbLoader.h \
     source/AMSettings.h \
+	source/AMBiHash.h \
 	source/AMErrorMonitor.h \
 	source/dataman/AMXASScan.h \
+	source/dataman/SGMLegacyFileImporter.h \
 	source/dataman/AMDataTree.h
 
 SOURCES += source/dataman/AMScan.cpp \
@@ -66,5 +68,6 @@ SOURCES += source/dataman/AMScan.cpp \
     source/AMSettings.cpp \
 	source/AMErrorMonitor.cpp \
 	source/dataman/AMXASScan.cpp \
+	source/dataman/SGMLegacyFileImporter.cpp \
     tests.cpp
 

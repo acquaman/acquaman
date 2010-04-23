@@ -1,8 +1,6 @@
 #ifndef ACQMAN_SETTINGS_H
 #define ACQMAN_SETTINGS_H
 
-#ifndef ACQMAN_GLOBALOPTIONS_H
-#define ACQMAN_GLOBALOPTIONS_H
 
 #include <QSettings>
 #include <QString>
@@ -30,8 +28,16 @@
    TODO: Should we make these QObject properties, and then we don't have to add lines to save() and load() manually when adding new variables?
 
     Storage locations: on Mac OS X, storage is at:
-        /Library/Preferences/Qt/mbdc/Acquaman.ini for system-wide stuff
-        ~/.config/mbdc/Acquaman.ini for user-specific
+		- /Library/Preferences/Qt/Acquaman/Acquaman.ini for system-wide stuff
+		- ~/.config/Acquaman/Acquaman.ini for user-specific
+
+	On linux, storage is at:
+		- /etc/xdg/Acquaman/Acquaman.ini (system-wide)
+		- /home/user/.config/Acquaman/Acquaman.ini (user-specific)
+
+	\todo Problem: on linux (Ubuntu 9), don't have permission to access this folder. Results not getting saved.
+
+
 
    */
 
@@ -89,7 +95,6 @@ public:
 
 
 
-#endif // GLOBALOPTIONS_H
 
 
 #endif // SETTINGS_H
