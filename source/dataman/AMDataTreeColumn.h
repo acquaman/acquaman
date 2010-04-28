@@ -388,10 +388,10 @@ public:
 
 
 	AMNumericType& operator[] ( int i ) {
-		if(maxIndex_ == i)
-			maxIndex_ = -1;
-		if(minIndex_ == i)
-			minIndex_ = -1;
+		// this reference can be used to change values, possibly creating a new max or new min at this index. Therefore, to be safe, both max and min trackers are now invalid.
+
+		maxIndex_ = minIndex_ = -1;
+		// for better max/min tracking performance, use setValue(AMNumericType value, int i) instead.
 
 		return QVector<AMNumericType>::operator[](i);
 	}
@@ -401,6 +401,25 @@ public:
 	// here we trivially call the base implementation
 	AMNumericType operator[] ( int i ) const  {
 		return QVector<AMNumericType>::operator[](i);
+	}
+
+	/// This method of changing values is preferred over using operator[], because it can maintain the max and min tracking as valid.
+	void setValue(const AMNumericType& value, int i) {
+
+		// if we're replacing what used to be the max, and this value is smaller, we don't know who the max is anymore.
+		if(i == maxIndex_ && value < at(maxIndex_) )
+			maxIndex_ = -1;
+		if(i == minIndex_ && value > at(minIndex_) )
+			minIndex_ = -1;
+
+		// if we're tracking the maximum, and this value is larger, it becomes the new maximum
+		if(maxIndex_>=0 && value > at(maxIndex_) )
+			maxIndex_ = i;
+		if(minIndex_>=0 && value < at(minIndex_) )
+			minIndex_ = i;
+
+		QVector<AMNumericType>::operator[](i) = value;
+
 	}
 
 	//////////////////////////////////
