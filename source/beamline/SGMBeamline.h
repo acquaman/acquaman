@@ -7,26 +7,26 @@
 
 class SGMBeamline : public AMControl
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
-    enum sgmGrating {lowGrating=0, mediumGrating=1, highGrating=2};
-    enum sgmHarmonic {firstHarmonic=1, thirdHarmonic=3};
+	enum sgmGrating {lowGrating=0, mediumGrating=1, highGrating=2};
+	enum sgmHarmonic {firstHarmonic=1, thirdHarmonic=3};
 
-    static SGMBeamline* sgm();		// singleton-class accessor
-    static void releaseSGM();	// releases memory for Beamline
+	static SGMBeamline* sgm();		// singleton-class accessor
+	static void releaseSGM();	// releases memory for Beamline
 
-    virtual ~SGMBeamline();
+	virtual ~SGMBeamline();
 
-    // What does this Beamline have? (These objects will be useful in the scripting world too!)
-    ///////////////////////////////////
+	// What does this Beamline have? (These objects will be useful in the scripting world too!)
+	///////////////////////////////////
 
-    bool isConnected() const {
-        for(int x = 0; x < numChildren(); x++)
-            if(!children_.at(x)->isConnected())
-                return false;
-        return true;
-    }
+	bool isConnected() const {
+		for(int x = 0; x < numChildren(); x++)
+			if(!children_.at(x)->isConnected())
+				return false;
+		return true;
+	}
 	AMControl* ringCurrent() const { return ringCurrent_; }
 	AMControl* energy() const { return energy_;}
 	AMControl* exitSlitGap() const { return exitSlitGap_;}
@@ -40,16 +40,16 @@ public:
 	AMControlSet* fluxResolutionSet() const { return fluxResolutionSet_;}
 	AMControlSet* trackingSet() const { return trackingSet_;}
 
-    bool energyValidForSettings(sgmGrating grating, sgmHarmonic harmonic, double energy);
-    bool energyRangeValidForSettings(sgmGrating grating, sgmHarmonic harmonic, double minEnergy, double maxEnergy);
+	bool energyValidForSettings(sgmGrating grating, sgmHarmonic harmonic, double energy);
+	bool energyRangeValidForSettings(sgmGrating grating, sgmHarmonic harmonic, double minEnergy, double maxEnergy);
 
 protected:
-    // Singleton implementation:
-    SGMBeamline();					// protected constructor... only access through Beamline::bl()
-    static SGMBeamline* instance_;
+	// Singleton implementation:
+	SGMBeamline();					// protected constructor... only access through Beamline::bl()
+	static SGMBeamline* instance_;
 
-    // Parts of this beamline:
-    ///////////////////////////////
+	// Parts of this beamline:
+	///////////////////////////////
 
 	AMControl *ringCurrent_;
 	AMControl *energy_;
@@ -70,15 +70,17 @@ protected:
 
 class SGMFluxOptimization : public AMControlOptimization
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    SGMFluxOptimization(QObject *parent=0);
+	SGMFluxOptimization(QObject *parent=0);
 
-    QMap<double, double> curve(QList<QVariant> stateParameters, QList<AMXASRegion*> contextParameters);
+//	virtual QMap<double, double> curve(QList<QVariant> stateParameters, QList<AMXASRegion*> contextParameters);
+	virtual QMap<double, double> curve(QList<QVariant> stateParameters, QList<AMRegion*> contextParameters);
+
 
 protected:
-    double maximumEnergy(QList<AMXASRegion*> regions);
-    double minimumEnergy(QList<AMXASRegion*> regions);
+	double maximumEnergy(QList<AMRegion*> regions);
+	double minimumEnergy(QList<AMRegion*> regions);
 };
 
 class SGMResolutionOptimization : public AMControlOptimization

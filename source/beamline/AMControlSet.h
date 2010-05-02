@@ -97,6 +97,10 @@ public:
 
 	/// Adds an AMControlOptimization to the set.
 	void addOptimization(AMControlOptimization *optimization){ outputs_.append(optimization) ;}
+	QMap<double, double> curveAt(size_t index, QList<QVariant> stateParameters, QList<AMRegion*> contextParameters){
+		qDebug() << "Running reg curve on " << index << " who is " << outputs_.at(index)->name();
+		return outputs_.at(index)->curve(stateParameters, contextParameters);
+	}
 
 protected:
 	/// Internal list of AMControlOptimization.

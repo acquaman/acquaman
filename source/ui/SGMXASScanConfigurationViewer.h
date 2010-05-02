@@ -8,6 +8,19 @@
 #include <QVBoxLayout>
 #include "acquaman/SGM/SGMXASScanConfiguration.h"
 
+/*
+#include "../MPlot/src/MPlot/MPlotWidget.h"
+#include "../MPlot/src/MPlot/MPlotSeriesData.h"
+#include "../MPlot/src/MPlot/MPlotSeries.h"
+#include "../MPlot/src/MPlot/MPlotImageData.h"
+#include "../MPlot/src/MPlot/MPlotImage.h"
+#include "../MPlot/src/MPlot/MPlotTools.h"
+
+#include <QTableView>
+#include <QPen>
+#include <QBrush>
+*/
+
 class SGMXASScanConfigurationViewer : public QWidget, private Ui::SGMXASScanConfigurationViewer {
 Q_OBJECT
 public:
@@ -22,12 +35,21 @@ public slots:
 	void setScanConfiguration(AMScanConfiguration *cfg){
 		cfg_ = cfg;
 		SGMXASScanConfiguration *sxsc = (SGMXASScanConfiguration*)cfg_;
-		sxsc->addRegion(0, 250, 1, 260);
-		sxsc->addRegion(1, 260.5, 0.5, 265);
-		sxsc->addRegion(2, 265.1, 0.1, 266);
+		sxsc->addRegion(0, 500, 1, 560);
+		sxsc->addRegion(1, 560.5, 0.5, 620);
+		sxsc->addRegion(2, 620.1, 0.1, 700);
+
 //		setFluxResolutionSet(sxsc->fluxResolutionSet());
 		regionsView_ = new AMXASRegionsView(sxsc->regionsPtr(), this);
-		fluxResolutionView_ = new AMControlSetView(sxsc->fluxResolutionSet(), this);
+		fluxResolutionView_ = new AMControlOptimizationSetView((AMControlOptimizationSet*)(sxsc->fluxResolutionSet()), this);
+		QList<AMXASRegion*> oldRegions = sxsc->regions();
+		QList<AMRegion*> newRegions;
+		AMRegion* tmpRegion;
+		for(int x = 0; x < oldRegions.count(); x++){
+			tmpRegion = oldRegions.at(x);
+			newRegions << tmpRegion;
+		}
+		fluxResolutionView_->onRegionsUpdate(newRegions);
 		trackingView_ = new AMControlSetView(sxsc->trackingSet(), this);
 		delete doLayoutButton;
 		delete layout();
@@ -54,7 +76,7 @@ protected slots:
 protected:
 	AMScanConfiguration *cfg_;
 	AMXASRegionsView *regionsView_;
-	AMControlSetView *fluxResolutionView_;
+	AMControlOptimizationSetView *fluxResolutionView_;
 	AMControlSetView *trackingView_;
 	QVBoxLayout vl_;
 };
