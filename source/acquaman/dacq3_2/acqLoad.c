@@ -249,7 +249,7 @@ input_configuration(FILE *fp , acqMaster_t *master)
 	reuse_line = 0;
 	inputState = IN_UNKNOWN;
 	debugFlag = master->acqDebug;
-	
+
 	for(;;)
 	{
 		il = input_line(fp);
@@ -261,7 +261,7 @@ input_configuration(FILE *fp , acqMaster_t *master)
 
 		if( strcmp( il, "#") == 0)	/* exact match to 'comment only' */
 			continue;
-		
+
 		switch( inputState)
 		{
 			case IN_UNKNOWN:
@@ -337,7 +337,7 @@ input_configuration(FILE *fp , acqMaster_t *master)
 					ctls.controlPV = NULL;
 					offset++;
 				}
-					
+
 				if (gobble(il, "start:%lg%n", &ctls.startVal, &offset) == 0)
 				{
 					if (gobble(il, "start:\"%[^\"]\"%n", startbuf, &offset) != 0)
@@ -437,7 +437,7 @@ input_configuration(FILE *fp , acqMaster_t *master)
 					new_acqAction_nextOutput( &sc->actions[idx], master);
 					break;
 				}
-				
+
 				continue;
 			}
 			inputState = IN_UNKNOWN;
@@ -543,7 +543,7 @@ input_configuration(FILE *fp , acqMaster_t *master)
 			continue;
 		}
 	}
-	
+
 }
 
 static int
