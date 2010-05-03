@@ -132,7 +132,7 @@ HEADERS += source/beamline/AMDiagnosticPaddle.h \
     ../MPlot/src/MPlot/MPlotSeriesData.h \
     ../MPlot/src/MPlot/MPlotTools.h \
     ../MPlot/src/MPlot/MPlotWidget.h \
-    source/acquaman/dacq3_2/AMAcqScanOutput.h
+    source/acquaman/AMAcqScanOutput.h
 FORMS += source/ui/AbsorptionScanController.ui \
     source/ui/ConnectionSettings.ui \
     source/ui/EmissionScanController.ui \
@@ -210,5 +210,5 @@ SOURCES += source/beamline/AMDiagnosticPaddle.cpp \
     source/ui/AMXASRegionsView.cpp \
     source/dataman/AMXASScan.cpp \
     source/dataman/SGMLegacyFileImporter.cpp \
-    source/acquaman/dacq3_2/AMAcqScanOutput.cpp
+    source/acquaman/AMAcqScanOutput.cpp
 RESOURCES = source/icons/icons.qrc

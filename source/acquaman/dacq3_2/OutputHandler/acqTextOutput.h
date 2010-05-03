@@ -48,7 +48,8 @@ enum toh_outputState { TOH_INIT, TOH_EMPTY, TOH_HAS_CONTENT };
 class acqTextOutput : public acqBaseOutput {
 public:
 	enum spectrumFileEnum { SF_DEFAULT, SF_BINARY, SF_TEXT };
-private:
+//private:
+public:
 	string comment;			// this gets inserted into the file header
 	string delimiter;		// output delimiter in text files
 	int needDelimiter;		// true when the next output should be preceded by a delimiter
@@ -62,7 +63,7 @@ public:
 
 	string const &getComment() { return comment; };
 	string const &getDelimiter() { return delimiter; } ;
-	
+
 	// using the file path and template, generate the
 	// next sequence number to be used.
 	bool getVerbose() {return verbose; };
@@ -82,7 +83,7 @@ public:
 	static int userComment( acqKey_t key, const char * commentString);
 	static int eventFlags(acqKey_t key, int eventno, const char *flags);
 	static int pvFlags( acqKey_t key, int eventno, int pvno, const char *flags);
-	
+
 	int sendOutputLine(const char * format, ...);
 	// routines to output file header sections
 	virtual int fileHeaderStart();
@@ -126,7 +127,7 @@ protected:
 
 		// WARNING: this points to some memory that can get reallocated!
 		acqOutputColumn *colp;		// pointer to matching structure from baseHandler
-		
+
 		std::map<std::string,std::string> pvproperties;
 		unsigned int first, last;
 		int ready;
@@ -145,7 +146,7 @@ protected:
 			return &evp->column[pvID];
 		return NULL;
 	};
-			
+
 };
 
 #endif
