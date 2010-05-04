@@ -133,11 +133,17 @@ int main(int argc, char *argv[])
 	// =====================================
 
 	AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -2, "Watch out, Acquaman!"));
+	qDebug() << "Testing 1";
 	AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -3, "Watch out, Acquaman! The sky is exploding again!"));
+	qDebug() << "Testing 2";
 	AMErrorMon::report(AMErrorReport(0, AMErrorReport::Information, -1, "Now is the winter of our discontent."));
+	qDebug() << "Testing 3";
 	AMErrorMon::report(AMErrorReport(0, AMErrorReport::Information, -1, "Acquaman: Practical and safe."));
+	qDebug() << "Testing 4";
 	AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -3, "Acquaman! Watch out for your grill!"));
+	qDebug() << "Testing 5";
 	AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -2, "Acquaman: For kids."));
+	qDebug() << "Testing 6";
 
 
 	/// Program Run-loop:

@@ -2,11 +2,14 @@
 #define ACQMAN_DACQSCANCONTROLLER_H
 
 #include <QTime>
+#include <QStringList>
 
 #include "AMScanController.h"
 #include "qdebug.h"
 
 #include "dacq3_2/OutputHandler/acqFactory.h"
+#include "AMAcqScanOutput.h"
+#include "dataman/AMXASScan.h"
 #include "dacq3_2/qepicsadvacq.h"
 
 class AMDacqScanController : public AMScanController
@@ -27,6 +30,10 @@ public slots:
 			{
 				acqRegisterOutputHandler( advAcq_->getMaster(), (acqKey_t) abop, &abop->handler);                // register the handler with the acquisition
 				abop->setProperty( "File Template", "daveData.%03d.dat");                           // set the file name to be recorded to
+				QStringList scanDetectors;
+				scanDetectors << "eV" << "eV Fbk" << "reading";
+				AMXASScan *scan = new AMXASScan(scanDetectors);
+				((AMAcqScanOutput*)abop)->setScan(scan);
 			}
 			advAcq_->Start();
 		}
