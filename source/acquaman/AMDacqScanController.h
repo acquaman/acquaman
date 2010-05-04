@@ -31,9 +31,9 @@ public slots:
 				acqRegisterOutputHandler( advAcq_->getMaster(), (acqKey_t) abop, &abop->handler);                // register the handler with the acquisition
 				abop->setProperty( "File Template", "daveData.%03d.dat");                           // set the file name to be recorded to
 				QStringList scanDetectors;
-				scanDetectors << "eV" << "eV Fbk" << "reading";
-				AMXASScan *scan = new AMXASScan(scanDetectors);
-				((AMAcqScanOutput*)abop)->setScan(scan);
+				scanDetectors << "eV Fbk" << "reading";
+				curScan_ = new AMXASScan(scanDetectors);
+				((AMAcqScanOutput*)abop)->setScan(curScan_);
 			}
 			advAcq_->Start();
 		}
@@ -51,6 +51,7 @@ protected:
 	QEpicsAdvAcq *advAcq_;
 	bool cancelled_;
 	QTime startTime_;
+	AMXASScan *curScan_;
 
 protected slots:
 	void onStart();

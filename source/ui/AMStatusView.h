@@ -82,6 +82,8 @@ public:
 
 	void setAnimes(QPropertyAnimation* openAnime, QPropertyAnimation* closeAnime){ openAnime_ = openAnime; closeAnime_ = closeAnime;}
 	void append(QString msg, int level){
+		if(this->layout() != 0)
+			delete this->layout();
 		QHBoxLayout *layout;
 		QString iconMsg = "";
 		QString iconPixmap = "";
@@ -118,12 +120,14 @@ public:
 		//  mile long ... my bust.
 		mems_.append(QPair<QString, QString>(msg, iconPixmap));
 
-		fr_ = new QFrame(this, 0);
+//		fr_ = new QFrame(this, 0);
+		fr_ = new QFrame(NULL, 0);
 		vl_ = new QVBoxLayout(fr_);
 		QLabel *localIcon;
 		QLabel *text;
 		for(int x = 0; x < mems_.count(); x++){
-			layout = new QHBoxLayout(this);
+//			layout = new QHBoxLayout(this);
+			layout = new QHBoxLayout();
 			localIcon = new QLabel("trying");
 			localIcon->setPixmap(QPixmap(mems_.at(x).second));
 			layout->addWidget(localIcon);
@@ -138,13 +142,15 @@ public:
 		fr_->setLayout(vl_);
 		vl_->addStretch(1);
 		vl_->setDirection(QBoxLayout::BottomToTop);
-		
-		sa_ = new QScrollArea(this);
+
+//		sa_ = new QScrollArea(this);
+		sa_ = new QScrollArea();
 		sa_->setFixedWidth(250);
 		sa_->setBackgroundRole(QPalette::Dark);
 		sa_->setAlignment(Qt::AlignLeft);
 		sa_->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-			sa_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+		sa_->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+//			sa_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 		QFrame *lfr_ = fr_;
 		sa_->setWidget(lfr_);
 
@@ -211,7 +217,7 @@ class AMStatusView : public QWidget
 Q_OBJECT
 public:
 	/// Constructor
-    explicit AMStatusView(QWidget *parent = 0);
+	explicit AMStatusView(QWidget *parent = 0);
 
 
 signals:

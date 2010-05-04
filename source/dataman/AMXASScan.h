@@ -47,6 +47,7 @@ protected:
 
 	friend class SGMLegacyFileImporter;
 	friend class AMAcqScanOutput;
+	friend class AMDacqScanController;
 
 };
 

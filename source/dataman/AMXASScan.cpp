@@ -1,16 +1,20 @@
 #include "AMXASScan.h"
-
+#include <qdebug.h>
 
 AMXASScan::AMXASScan(const QStringList& detectors, QObject *parent)
-	: AMScan(parent),
-	detectors_(detectors)
+	: AMScan(parent)
 {
 	// setup default columns in data structure:
 	d_.setXName("eV");
 
 	// create columns for each detector (ex: "tey", "tfy", "urinalWaterTemp", etc.)
-	foreach(QString detect, detectors_)
-		addDetector(detect);
+	qDebug() << "READY FOR DETECTORS";
+	foreach(QString detect, detectors){
+		if(addDetector(detect))
+			qDebug() << "Success adding detector " << detect;
+		else
+			qDebug() << "FAILED adding detector " << detect;
+	}
 
 
 }

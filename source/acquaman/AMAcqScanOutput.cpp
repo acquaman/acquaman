@@ -202,6 +202,7 @@ int AMAcqScanOutput::startRecord( acqKey_t key, int eventno)
 		qDebug() << "NEW READINGS";
 		to->dataDelayList_.clear();
 		to->dataDelay_ = true;
+		qDebug() << "Detectors are " << to->scan_->detectors();
 		return 1;
 }
 
@@ -265,7 +266,7 @@ int AMAcqScanOutput::putValue( acqKey_t key, int eventno, int pvno, const void *
 
 	if(!to->dataDelay_){
 		qDebug() << "Delaying done, entering " << dataVal << " at " << pvno;
-		to->scan_->d_.setLastValue(pvno, dataVal);
+		to->scan_->d_.setLastValue(pvno-1, dataVal);
 		qDebug() << "Done with " << dataVal << " at " << pvno;
 	}
 	else if( (pvno != 0) && (eventno == 1) ){
@@ -284,7 +285,7 @@ int AMAcqScanOutput::putValue( acqKey_t key, int eventno, int pvno, const void *
 		QMap<int, double>::const_iterator i = to->dataDelayList_.constBegin();
 		while (i != to->dataDelayList_.constEnd()) {
 			qDebug() << "Undelaying " << i.value() << " at " << i.key();
-			to->scan_->d_.setLastValue(i.key(), i.value());
+			to->scan_->d_.setLastValue(i.key()-1, i.value());
 			qDebug() << "Done undelaying " << i.value() << " at " << i.key();
 //			 cout << i.key() << ": " << i.value() << endl;
 			++i;

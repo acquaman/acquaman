@@ -321,7 +321,7 @@ copyXASData.deeper("sddSpectrums",5)->setValue("y", 512, 49.3);
 			return true;
 		}
 		else {
-			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -1, "AMDataTree: attempted modifying a value out of range. Not successful."));
+			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -1, "AMDataTree: attempted modifying a value out of range. Not successful(X)."));
 			return false;
 		}
 	}
@@ -331,7 +331,7 @@ copyXASData.deeper("sddSpectrums",5)->setValue("y", 512, 49.3);
 	bool setValue(unsigned columnIndex, unsigned i, AMNumericType newValue) {
 
 		if(i >= count()) {
-			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -1, "AMDataTree: attempted modifying a value out of range. Not successful."));
+			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -1, "AMDataTree: attempted modifying a value out of range. Not successful(VI1)."));
 			return false;
 		}
 
@@ -341,7 +341,7 @@ copyXASData.deeper("sddSpectrums",5)->setValue("y", 512, 49.3);
 		}
 
 
-		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -3, "AMDataTree: attempted modifying non-existent data column. Not successful."));
+		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -3, "AMDataTree: attempted modifying non-existent data column. Not successful(VI2)."));
 		return false;
 
 	}
@@ -359,11 +359,11 @@ copyXASData.deeper("sddSpectrums",5)->setValue("y", 512, 49.3);
 		}
 
 		if(yDNames_.contains(columnName)) {
-			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -2, "AMDataTree: attempted modifying multi-dimensional data as a single value. Not successful."));
+			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -2, "AMDataTree: attempted modifying multi-dimensional data as a single value. Not successful(VS1)."));
 			return false;
 		}
 
-		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -3, "AMDataTree: attempted modifying non-existent data column. Not successful."));
+		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -3, "AMDataTree: attempted modifying non-existent data column. Not successful(VS2)."));
 		return false;
 
 	}
