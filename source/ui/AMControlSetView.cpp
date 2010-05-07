@@ -190,7 +190,7 @@ AMControlOptimizationSetView::AMControlOptimizationSetView(AMControlOptimization
 //		plotWindow->show();
    // 5. (continued) More fun with marker shapes... Testing changes after a plot is created:
    //////////////////
-   series1->setMarker(MPlotMarkerShape::Cross, 24, QPen(QColor(Qt::yellow), 0));
+   series1->setMarker(MPlotMarkerShape::Cross, 24, QPen(QColor(Qt::yellow), 0)) ;
 //   series1->setMarkerSize(24);
 //   series1->setMarkerPen(QPen(QColor(Qt::yellow), 0));
    // 12: Testing plot tools: MPlotPlotSelectorTool:

@@ -101,13 +101,35 @@ bool AMXASRegionModel::setData(const QModelIndex &index, const QVariant &value, 
 			return true;
 		}
 		// Setting an end value?
-		if(index.column() == 1) {
+		if(index.column() == 2) {
 			regions_->at(index.row())->setEnd(dval);
 			emit dataChanged(index, index);
 			return true;
 		}
 	}
 	return false;	// no value set
+}
+
+bool AMXASRegionModel::insertRows(int position, int rows, const QModelIndex &index){
+	qDebug() << "Doing insertRows in model";
+	if (/*index.isValid()  &&*/ index.row() <= regions_->count() /*&& role == Qt::EditRole*/ && beamlineEnergy_) {
+		qDebug() << "Passed validity test in model insert";
+		beginInsertRows(QModelIndex(), position, position+rows-1);
+
+		AMXASRegion *tmpRegion;
+		for (int row = 0; row < rows; ++row) {
+			tmpRegion = new AMXASRegion(beamlineEnergy_, this);
+			regions_->insert(position, tmpRegion);
+//			stringList.insert(position, "");
+		}
+
+		endInsertRows();
+		return true;
+	}
+	if(!index.isValid())
+		qDebug() << "Failed index is valid";
+	qDebug() << "Failed validity test in model insert";
+	return false;
 }
 
 /// Returns the appropriate flags for an index, which are always the same if the index is valid.

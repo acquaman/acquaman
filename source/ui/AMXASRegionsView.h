@@ -29,8 +29,17 @@ public:
 	explicit AMXASRegionsView(QList<AMXASRegion*> *regions, QWidget *parent = 0);
 
 signals:
+	void addRegionClicked();
 
 public slots:
+	void setBeamlineEnergy(AMControl *beamlineEnergy){rm_->setBeamlineEnergy(beamlineEnergy);}
+	bool addRegion(int index, double start, double delta, double end){
+		qDebug() << "Setting region in view with model";
+		rm_->insertRows(index, 1);
+		rm_->setData(rm_->index(index, 0), start, Qt::EditRole);
+		rm_->setData(rm_->index(index, 1), delta, Qt::EditRole);
+		rm_->setData(rm_->index(index, 2), end, Qt::EditRole);
+	}
 
 protected:
 	/// The table view used to interact with the group of AMXASRegion.

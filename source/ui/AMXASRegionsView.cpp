@@ -5,7 +5,7 @@
 /// Adds all items to form layout.
 /// \todo Connect add and delete to something.
 AMXASRegionsView::AMXASRegionsView(QList<AMXASRegion*> *regions, QWidget *parent) :
-    QWidget(parent)
+	QWidget(parent)
 {
 	this->setMaximumSize(400, 400);
 	addButton_ = new QPushButton("Add Region", this);
@@ -21,4 +21,5 @@ AMXASRegionsView::AMXASRegionsView(QList<AMXASRegion*> *regions, QWidget *parent
 	fl_->addRow(tv_);
 	fl_->addRow(hl_);
 	setLayout(fl_);
+	connect(addButton_, SIGNAL(clicked()), this, SIGNAL(addRegionClicked()));
 }

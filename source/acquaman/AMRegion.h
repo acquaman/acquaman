@@ -104,6 +104,7 @@ public:
 	/// Constructor, pass a pointer to a list of AMXASRegions to set up the model. Such a list can be easily returned with regionsPtr() function in AMXASScanConfiguration class.
 	AMXASRegionModel(QList<AMXASRegion*> *regions, QObject *parent = 0) : QAbstractTableModel(parent) {
 		regions_ = regions;
+		beamlineEnergy_ = NULL;
 	}
 
 	/// Returns the number of regions in the list to generate the number of rows in a table or list
@@ -116,12 +117,19 @@ public:
 	QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 	/// Sets the data value at an index (row and column). Only valid role is Qt::DisplayRole right now.
 	bool setData(const QModelIndex &index, const QVariant &value, int role);
+	bool insertRows(int position, int rows, const QModelIndex &index = QModelIndex());
 	/// This allows editing of values within range (for ex: in a QTableView)
 	Qt::ItemFlags flags(const QModelIndex &index) const;
+
+	QList<AMXASRegion*> *regions(){return regions_;}
+
+public slots:
+	void setBeamlineEnergy(AMControl* beamlineEnergy){beamlineEnergy_ = beamlineEnergy;}
 
 private:
 	/// Internal pointer to the list of AMXASRegion.
 	QList<AMXASRegion*> *regions_;
+	AMControl *beamlineEnergy_;
 };
 
 #endif // ACQMAN_AMREGION_H

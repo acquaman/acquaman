@@ -28,6 +28,7 @@ Q_OBJECT
 public:
 		SGMXASScanConfigurationViewer(QWidget *parent = 0) : QWidget(parent){
 			setupUi(this);
+			cfg_ = NULL;
 			connect(doLayoutButton, SIGNAL(clicked()), this, SLOT(onDoLayout()));
 		}
 
@@ -36,6 +37,20 @@ signals:
 	void scanControllerReady(AMScanController *xasCtrl);
 
 public slots:
+	void onAddRegionClicked(){
+		if(!cfg_)
+			return;
+		SGMXASScanConfiguration *sxsc = (SGMXASScanConfiguration*)cfg_;
+		qDebug() << "Trying to add region via button\n";
+		for(int x = 0; x < sxsc->regions().count(); x++)
+			qDebug() << "Region " << x << ": " << sxsc->region(x)->start() << " " << sxsc->region(x)->delta() << " " << sxsc->region(x)->end();
+//		sxsc->addRegion(sxsc->regions().count(), 500, 1, 510);
+		regionsView_->addRegion(sxsc->regions().count(), 500, 1, 510);
+		qDebug() << "After trying to add region via button\n";
+		for(int x = 0; x < sxsc->regions().count(); x++)
+			qDebug() << "Region " << x << ": " << sxsc->region(x)->start() << " " << sxsc->region(x)->delta() << " " << sxsc->region(x)->end();
+	}
+
 	void setScanConfiguration(AMScanConfiguration *cfg){
 		cfg_ = cfg;
 		SGMXASScanConfiguration *sxsc = (SGMXASScanConfiguration*)cfg_;
@@ -49,6 +64,8 @@ public slots:
 
 //		setFluxResolutionSet(sxsc->fluxResolutionSet());
 		regionsView_ = new AMXASRegionsView(sxsc->regionsPtr(), this);
+		regionsView_->setBeamlineEnergy(SGMBeamline::sgm()->energy());
+		connect(regionsView_, SIGNAL(addRegionClicked()), this, SLOT(onAddRegionClicked()));
 		fluxResolutionView_ = new AMControlOptimizationSetView((AMControlOptimizationSet*)(sxsc->fluxResolutionSet()), this);
 		QList<AMXASRegion*> oldRegions = sxsc->regions();
 		QList<AMRegion*> newRegions;
@@ -94,9 +111,7 @@ protected slots:
 		qDebug() << "I want to say scan controller is ready";
 		emit scanControllerReady((AMScanController*)xasCtrl);
 
-//		ctrl = new SGMXASDacqScanController(((SGMXASScanConfiguration*)cfg), SGMBeamline::sgm());
 		connect(xasCtrl, SIGNAL(progress(double,double)), this, SIGNAL(scanProgress(double,double)));
-//		return;
 
 		xasCtrl->initialize();
 		xasCtrl->start();
