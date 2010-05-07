@@ -147,11 +147,12 @@ AMControlOptimizationSetView::AMControlOptimizationSetView(AMControlOptimization
 	series2->setLinePen( greenFat );
 	// Marker size and shape: (always set shape before size/pen/brush)
 	 // series2->setMarkerShape(MPlotMarkerShape::StarCircle);
-	series2->setMarkerShape(MPlotMarkerShape::None);
-	series2->setMarkerSize(12);
+	series2->setMarker(MPlotMarkerShape::None);
+//	series2->setMarkerShape(MPlotMarkerShape::None);
+//	series2->setMarkerSize(12);
 	// Can also configure the marker pen and brush:
-	series2->setMarkerPen(pinkSkinny);
-	series2->setMarkerBrush(QBrush(QColor(Qt::black)));
+//	series2->setMarkerPen(pinkSkinny);
+//	series2->setMarkerBrush(QBrush(QColor(Qt::black)));
 	// Gridlines:
 	// plot->axisRight()->showGrid(true);
 	// plot->axisRight()->setGridPen(greenFat);
@@ -189,9 +190,9 @@ AMControlOptimizationSetView::AMControlOptimizationSetView(AMControlOptimization
 //		plotWindow->show();
    // 5. (continued) More fun with marker shapes... Testing changes after a plot is created:
    //////////////////
-   series1->setMarkerShape(MPlotMarkerShape::Cross);
-   series1->setMarkerSize(24);
-   series1->setMarkerPen(QPen(QColor(Qt::yellow), 0));
+   series1->setMarker(MPlotMarkerShape::Cross, 24, QPen(QColor(Qt::yellow), 0));
+//   series1->setMarkerSize(24);
+//   series1->setMarkerPen(QPen(QColor(Qt::yellow), 0));
    // 12: Testing plot tools: MPlotPlotSelectorTool:
    // DragZoomerTools need to be added first ("on the bottom") so they don't steal everyone else's mouse events
    MPlotDragZoomerTool *dzTool = new MPlotDragZoomerTool();

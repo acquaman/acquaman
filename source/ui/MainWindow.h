@@ -17,22 +17,27 @@
 #include "BottomBar.h"
 
 class MainWindow : public QWidget {
-	
+
 	Q_OBJECT
-	
+
 public:
 	MainWindow(QWidget* parent = 0);
 	~MainWindow() {};
 
+public slots:
+	void setCurrentScanConfigurationViewer(SGMXASScanConfigurationViewer *currentScanConfigurationViewer);
+
+protected slots:
+	void onScanControllerReady(AMScanController *scanController);
 
 protected:
-	
+
 	Sidebar* sidebar_;
 	BottomBar* bottomBar_;
-	
+
 	QStackedWidget* stackWidget_;
-	
-	
+
+
 	// Main full-screen widgets:
 	ConnectionSettings* connectionSettings_;
 	SamplePositions* samplePositions_;
@@ -44,6 +49,8 @@ protected:
 	ProtocolViewer* protocolViewer_;
 	ExpAlbum* expAlbum_;
 	SGMXASScanConfigurationViewer *sxscViewer_;
+
+	SGMXASScanConfigurationViewer *currentScanConfigurationViewer_;
 };
 
 

@@ -5,8 +5,10 @@
 #include "ui_SGMXASScanConfigurationViewer.h"
 #include "AMControlSetView.h"
 #include "AMXASRegionsView.h"
+#include <QPushButton>
 #include <QVBoxLayout>
 #include "acquaman/SGM/SGMXASScanConfiguration.h"
+#include "acquaman/SGM/SGMXASDacqScanController.h"
 
 /*
 #include "../MPlot/src/MPlot/MPlotWidget.h"
@@ -30,14 +32,20 @@ public:
 		}
 
 signals:
+	void scanProgress(double elapsed, double total);
+	void scanControllerReady(AMScanController *xasCtrl);
 
 public slots:
 	void setScanConfiguration(AMScanConfiguration *cfg){
 		cfg_ = cfg;
 		SGMXASScanConfiguration *sxsc = (SGMXASScanConfiguration*)cfg_;
-		sxsc->addRegion(0, 500, 1, 560);
-		sxsc->addRegion(1, 560.5, 0.5, 620);
-		sxsc->addRegion(2, 620.1, 0.1, 700);
+		sxsc->addRegion(0, 270, 1, 280);
+		sxsc->addRegion(1, 280.25, 0.25, 290);
+		sxsc->addRegion(2, 290, 1, 320);
+/*		sxsc->addRegion(0, 620, 1, 630);
+		sxsc->addRegion(1, 630.5, 0.5, 640);
+		sxsc->addRegion(2, 640, 3, 700);
+		*/
 
 //		setFluxResolutionSet(sxsc->fluxResolutionSet());
 		regionsView_ = new AMXASRegionsView(sxsc->regionsPtr(), this);
@@ -51,11 +59,17 @@ public slots:
 		}
 		fluxResolutionView_->onRegionsUpdate(newRegions);
 		trackingView_ = new AMControlSetView(sxsc->trackingSet(), this);
+		startScanButton_ = new QPushButton();
+		startScanButton_->setText("Start Scan");
+		startScanButton_->setMaximumWidth(200);
+		connect(startScanButton_, SIGNAL(clicked()), this, SLOT(onStartScanClicked()));
+		disconnect(doLayoutButton, SIGNAL(clicked()), this, SLOT(onDoLayout()));
 		delete doLayoutButton;
 		delete layout();
 		vl_.addWidget(regionsView_);
 		vl_.addWidget(fluxResolutionView_);
 		vl_.addWidget(trackingView_);
+		vl_.addWidget(startScanButton_);
 		this->setLayout(&vl_);
 	}
 
@@ -69,8 +83,23 @@ public slots:
 
 protected slots:
 	void onDoLayout(){
+		if(!SGMBeamline::sgm()->isConnected())
+			return;
 		AMScanConfiguration *sxsc = new SGMXASScanConfiguration(this);
 		setScanConfiguration(sxsc);
+	}
+
+	void onStartScanClicked(){
+		SGMXASDacqScanController *xasCtrl = new SGMXASDacqScanController((SGMXASScanConfiguration*)cfg_, SGMBeamline::sgm());
+		qDebug() << "I want to say scan controller is ready";
+		emit scanControllerReady((AMScanController*)xasCtrl);
+
+//		ctrl = new SGMXASDacqScanController(((SGMXASScanConfiguration*)cfg), SGMBeamline::sgm());
+		connect(xasCtrl, SIGNAL(progress(double,double)), this, SIGNAL(scanProgress(double,double)));
+//		return;
+
+		xasCtrl->initialize();
+		xasCtrl->start();
 	}
 
 protected:
@@ -78,6 +107,7 @@ protected:
 	AMXASRegionsView *regionsView_;
 	AMControlOptimizationSetView *fluxResolutionView_;
 	AMControlSetView *trackingView_;
+	QPushButton *startScanButton_;
 	QVBoxLayout vl_;
 };
 

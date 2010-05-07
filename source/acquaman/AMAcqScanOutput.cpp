@@ -35,6 +35,7 @@ acqKey_t new_AMAcqScanOutput(void)
 	return (acqKey_t )to;
 }
 
+/*
 ///
 // output the file header prefix.
 ///
@@ -157,6 +158,7 @@ int AMAcqScanOutput::fileHeaderDescribeEvents()
 		}
 		return 1;
 }
+*/
 
 // put out flagged header entries: event ID, timestamps, comment prefix ...
 int AMAcqScanOutput::startRecord( acqKey_t key, int eventno)
@@ -165,6 +167,12 @@ int AMAcqScanOutput::startRecord( acqKey_t key, int eventno)
 		acqOutputEvent_t *event;
 		struct timeval curTime;
 
+//tx		acqTextOutput *to = (acqTextOutput *)key;
+//tx		acqOutputEvent_t *event;
+		const char *prefix = "";
+//tx		struct timeval curTime;
+
+		/*XML STUFF
 		//DEBUG(to) printf("startRecord(%p, %d)\n", key, eventno);
 		// flag that some output is occuring
 		to->outputState = TOH_HAS_CONTENT;
@@ -199,10 +207,56 @@ int AMAcqScanOutput::startRecord( acqKey_t key, int eventno)
 				to->sendOutputLine( "<datum n=%d>%.6f</datum>", to->outputCol++, timeDiff(curTime, evpr->prevTime) );
 		}
 		evpr->prevTime = curTime;
+		END XML STUFF*/
+
 		qDebug() << "NEW READINGS";
 		to->dataDelayList_.clear();
 		to->dataDelay_ = true;
 		qDebug() << "Detectors are " << to->scan_->detectors();
+//		return 1;
+
+
+
+		//DEBUG(to) printf("startRecord(%p, %d)\n", key, eventno);
+		// flag that some output is occuring
+		to->outputState = TOH_HAS_CONTENT;
+		event = to->find_event_number(eventno);
+		if( event == NULL || ! to->isReady() )
+			return -1;
+		eventPrivate *evpr;
+		evpr = (eventPrivate *)event->private_data;
+		if( evpr == NULL)
+			return 0;
+
+		gettimeofday( &curTime, 0);
+
+		if( evpr->commentPrefix)
+		{
+			to->sendOutputLine( "# ");
+		}
+		if( evpr->putEventID)
+		{
+			to->sendOutputLine( "%s%d", prefix, eventno);
+			prefix = to->delimiter.c_str();
+		}
+		if( evpr->timeStamp)
+		{
+			to->sendOutputLine( "%s%.6f", prefix, doubleTime(curTime));
+			prefix = to->delimiter.c_str();
+		}
+		if( evpr->rel0TimeStamp)
+		{
+			to->sendOutputLine( "%s%.6f", prefix, timeDiff(curTime, evpr->startTime) );
+			prefix = to->delimiter.c_str();
+		}
+		if( evpr->relTimeStamp)
+		{
+			to->sendOutputLine( "%s%.6f", prefix, timeDiff(curTime, evpr->prevTime) );
+			prefix = to->delimiter.c_str();
+		}
+		evpr->prevTime = curTime;
+		if( *prefix)
+			to->needDelimiter = TRUE;
 		return 1;
 }
 
@@ -210,11 +264,22 @@ int AMAcqScanOutput::endRecord( acqKey_t key, int eventno)
 {
 		AMAcqScanOutput *to = (AMAcqScanOutput *)key;
 
+		/*XML STUFF
 		//DEBUG(to) printf("endRecord(%p)\n", key);
 		to->sendOutputLine( "</event>\n");
 		to->acq_flush();
+		END XML STUFF*/
 
-		qDebug() << "DONE READING\n\n";
+//		qDebug() << "DONE READING\n\n";
+//		return 1;
+
+//		acqTextOutput *to = (acqTextOutput *)key;
+
+		//DEBUG(to) printf("endRecord(%p)\n", key);
+		to->sendOutputLine( "\n");
+		to->acq_flush();
+		to->needDelimiter = 0;
+
 		return 1;
 }
 int AMAcqScanOutput::putValue( acqKey_t key, int eventno, int pvno, const void *value, int count)
@@ -341,7 +406,7 @@ int AMAcqScanOutput::putValue( acqKey_t key, int eventno, int pvno, const void *
 int AMAcqScanOutput::shutdown( acqKey_t key)
 {
 		AMAcqScanOutput *to = (AMAcqScanOutput *)key;
-		to->sendOutputLine( "</body>\n");
+//XML STUFF		to->sendOutputLine( "</body>\n");
 		to->acqTextOutput::shutdown(key);
 		return 0;
 }

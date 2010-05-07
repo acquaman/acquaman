@@ -24,7 +24,7 @@ public slots:
 	/// Start scan running if not currently running or paused
 	virtual void start(){
 		if(initialized_){
-//            acqBaseOutput *abop = acqOutputHandlerFactory::new_acqOutput("SimpleText", "File");
+		//	acqBaseOutput *abop = acqOutputHandlerFactory::new_acqOutput("SimpleText", "File");
 			acqBaseOutput *abop = acqOutputHandlerFactory::new_acqOutput("AMScan", "File");
 			if( abop)
 			{

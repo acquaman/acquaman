@@ -179,6 +179,7 @@ public slots:
 
 		void onRestoreRequested(){
 
+			/*
 			qDebug() << "Doing scan?";
 
 			SGMXASScanConfiguration *xasCfg = new SGMXASScanConfiguration(SGMBeamline::sgm());
@@ -189,6 +190,7 @@ public slots:
 
 			xasCtrl->initialize();
 			xasCtrl->start();
+			*/
 
 
 			/*

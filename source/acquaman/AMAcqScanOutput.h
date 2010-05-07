@@ -43,12 +43,12 @@ public:
 	void setScan(AMXASScan *scan){scan_ = scan;}
 
 	// routines to output file header sections, over-riding the functions from the acqTextOutput Class
-	virtual int fileHeaderStart();
-	virtual int fileHeaderComment();
-	virtual int fileHeaderVerboseEvents();
-	virtual int fileHeaderTerseEvents();
-	virtual int fileHeaderDescribeEvents();
-	virtual int fileHeaderEnd();
+//	virtual int fileHeaderStart();
+//	virtual int fileHeaderComment();
+//	virtual int fileHeaderVerboseEvents();
+//	virtual int fileHeaderTerseEvents();
+//	virtual int fileHeaderDescribeEvents();
+//	virtual int fileHeaderEnd();
 
 	// overriding the setProperty function allows us to implement our own properties.
 	virtual void setProperty(const std::string, const std::string);
