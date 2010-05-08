@@ -113,7 +113,7 @@ class AMRegionsList : public QObject
 Q_OBJECT
 
 public:
-	AMRegionsList(QObject *parent = 0);
+	AMRegionsList(QObject *parent = 0, bool setup = true);
 
 	/// Returns the start value of the region refered to by index. If an invalid index is given, returns -1 (not a valid energy value).
 	double start(size_t index) const;
@@ -146,8 +146,8 @@ public slots:
 
 private slots:
 	bool setRegion(size_t index, AMRegion *region){;}
-	/// Adds a region into position refered to by index and renumbers subsequent regions accordingly. Returns true if successful, returns false if the index is invalid.
-	virtual bool addRegion(size_t index, AMRegion *region){;}
+//	/// Adds a region into position refered to by index and renumbers subsequent regions accordingly. Returns true if successful, returns false if the index is invalid.
+//	virtual bool addRegion(size_t index, AMRegion *region){;}
 
 protected:
 	/// Holds the list of AMXASRegion pointers.
@@ -231,9 +231,16 @@ class AMXASRegionsList : public AMRegionsList{
 Q_OBJECT
 
 public:
-	AMXASRegionsList(QObject *parent = 0) : AMRegionsList(parent) {qDebug() << "Running XASRegionsList constructor"; }//setupModel();}
+	AMXASRegionsList(QObject *parent = 0, bool setup = true) : AMRegionsList(parent, false) {
+		qDebug() << "Running XASRegionsList constructor";
+		if(setup)
+			setupModel();
+}
 
 	virtual bool setupModel();
+
+public slots:
+	virtual void setEnergyControl(AMControl* energyControl){defaultControl_ = energyControl; ((AMXASRegionsListModel*)regions_)->setEnergyControl(energyControl);}
 
 protected:
 //	AMXASRegionsListModel *regions_;

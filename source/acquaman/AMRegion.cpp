@@ -155,12 +155,13 @@ Qt::ItemFlags AMRegionsListModel::flags(const QModelIndex &index) const{
 	return flags;
 }
 
-AMRegionsList::AMRegionsList(QObject *parent) : QObject(parent){
+AMRegionsList::AMRegionsList(QObject *parent, bool setup) : QObject(parent){
 	qDebug() << "Running RegionsList constructor";
 	defaultControl_ = NULL;
 //	regions_ = new AMRegionsListModel(this);
 	regions_ = NULL;
-//	setupModel();
+	if(setup)
+		setupModel();
 }
 
 /// Returns the start value of the region refered to by index. If an invalid index is given, returns -1 (not a valid energy value).
@@ -186,8 +187,10 @@ double AMRegionsList::end(size_t index) const{
 }
 
 bool AMRegionsList::addRegion(size_t index, double start, double delta, double end){
+	qDebug() << "Doing addRegion in AMRegionsList";
 	if(!defaultControl_)
-		return false;
+		{qDebug() << "And failed default control test"; return false;}
+	qDebug() << "And passed default control test";
 	bool retVal;
 	regions_->insertRows(index, 1);
 	retVal = setStart(index, start) && setDelta(index, delta) && setEnd(index, end);

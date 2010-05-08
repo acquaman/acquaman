@@ -26,13 +26,14 @@ public:
 	  \param regions Pointer to a QList of AMXASRegions. Can be easily retreived using regionsPtr() function on an AMXASScanConfiguration or child.
 	  \param parent Pointer to QWidget to act as parent.
 	  */
-	explicit AMXASRegionsView(QList<AMXASRegion*> *regions, QWidget *parent = 0);
+//	explicit AMXASRegionsView(QList<AMXASRegion*> *regions, QWidget *parent = 0);
+	explicit AMXASRegionsView(AMXASRegionsList *regions, QWidget *parent = 0);
 
 signals:
 	void addRegionClicked();
 
 public slots:
-	void setBeamlineEnergy(AMControl *beamlineEnergy){rm_->setBeamlineEnergy(beamlineEnergy);}
+	void setBeamlineEnergy(AMControl *beamlineEnergy){regions_->setEnergyControl(beamlineEnergy);}//rm_->setBeamlineEnergy(beamlineEnergy);}
 	bool addRegion(int index, double start, double delta, double end){
 		qDebug() << "Setting region in view with model";
 //		regions_->addRegion(regions_->count(), 550, 1, 560);

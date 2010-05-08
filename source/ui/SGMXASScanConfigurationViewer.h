@@ -42,20 +42,25 @@ public slots:
 			return;
 		SGMXASScanConfiguration *sxsc = (SGMXASScanConfiguration*)cfg_;
 		qDebug() << "Trying to add region via button\n";
-		for(int x = 0; x < sxsc->regions().count(); x++)
-			qDebug() << "Region " << x << ": " << sxsc->region(x)->start() << " " << sxsc->region(x)->delta() << " " << sxsc->region(x)->end();
+		for(int x = 0; x < sxsc->count(); x++)
+			qDebug() << "Region " << x << ": " << sxsc->start(x) << " " << sxsc->delta(x) << " " << sxsc->end(x);
+//			qDebug() << "Region " << x << ": " << sxsc->region(x)->start() << " " << sxsc->region(x)->delta() << " " << sxsc->region(x)->end();
 //		sxsc->addRegion(sxsc->regions().count(), 500, 1, 510);
-		regionsView_->addRegion(sxsc->regions().count(), 500, 1, 510);
+		regionsView_->addRegion(sxsc->count(), 500, 1, 510);
 		qDebug() << "After trying to add region via button\n";
-		for(int x = 0; x < sxsc->regions().count(); x++)
-			qDebug() << "Region " << x << ": " << sxsc->region(x)->start() << " " << sxsc->region(x)->delta() << " " << sxsc->region(x)->end();
+		for(int x = 0; x < sxsc->count(); x++)
+			qDebug() << "Region " << x << ": " << sxsc->start(x) << " " << sxsc->delta(x) << " " << sxsc->end(x);
+//			qDebug() << "Region " << x << ": " << sxsc->region(x)->start() << " " << sxsc->region(x)->delta() << " " << sxsc->region(x)->end();
 	}
 
 	void setScanConfiguration(AMScanConfiguration *cfg){
 		cfg_ = cfg;
 		SGMXASScanConfiguration *sxsc = (SGMXASScanConfiguration*)cfg_;
+		qDebug() << "\nAdding first region";
 		sxsc->addRegion(0, 270, 1, 280);
+		qDebug() << "\nAdding second region";
 		sxsc->addRegion(1, 280.25, 0.25, 290);
+		qDebug() << "\nAdding third region";
 		sxsc->addRegion(2, 290, 1, 320);
 /*		sxsc->addRegion(0, 620, 1, 630);
 		sxsc->addRegion(1, 630.5, 0.5, 640);
@@ -63,10 +68,14 @@ public slots:
 		*/
 
 //		setFluxResolutionSet(sxsc->fluxResolutionSet());
+		/*DAVID
 		regionsView_ = new AMXASRegionsView(sxsc->regionsPtr(), this);
+		*/
+		regionsView_ = new AMXASRegionsView(sxsc->regions(), this);
 		regionsView_->setBeamlineEnergy(SGMBeamline::sgm()->energy());
 		connect(regionsView_, SIGNAL(addRegionClicked()), this, SLOT(onAddRegionClicked()));
 		fluxResolutionView_ = new AMControlOptimizationSetView((AMControlOptimizationSet*)(sxsc->fluxResolutionSet()), this);
+		/*DAVID
 		QList<AMXASRegion*> oldRegions = sxsc->regions();
 		QList<AMRegion*> newRegions;
 		AMRegion* tmpRegion;
@@ -75,6 +84,7 @@ public slots:
 			newRegions << tmpRegion;
 		}
 		fluxResolutionView_->onRegionsUpdate(newRegions);
+		*/
 		trackingView_ = new AMControlSetView(sxsc->trackingSet(), this);
 		startScanButton_ = new QPushButton();
 		startScanButton_->setText("Start Scan");

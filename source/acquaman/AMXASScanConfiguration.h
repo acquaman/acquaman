@@ -24,12 +24,14 @@ public:
 	double delta(size_t index) const;
 	/// Returns the end value of the region refered to by index. If an invalid index is given, returns -1 (not a valid energy value).
 	double end(size_t index) const;
+	int count() const { return regions_->count();}
 	/// Returns a pointer to the region refered to by index. If an invalid index is given, returns NULL.
 	AMXASRegion* region(size_t index) const;
-	/// Returns a copy of the QList of regions.
-	QList<AMXASRegion*> regions() { return regions_;}
-	/// Returns a pointer to the QList of regions.
-	QList<AMXASRegion*>* regionsPtr() { return &regions_;}
+	AMXASRegionsList* regions() {return regions_;}
+//	/// Returns a copy of the QList of regions.
+//	QList<AMXASRegion*> regions() { return regions_;}
+//	/// Returns a pointer to the QList of regions.
+//	QList<AMXASRegion*>* regionsPtr() { return &regions_;}
 
 public slots:
 	/// Sets the start value of the region refered to by index. Returns true if sucessful, returns false if the index is invalid or the energy is out of range.
@@ -50,7 +52,8 @@ public slots:
 
 protected:
 	/// Holds the list of AMXASRegion pointers.
-	QList<AMXASRegion*> regions_;
+//	QList<AMXASRegion*> regions_;
+	AMXASRegionsList *regions_;
 
 //    QList<AMControlSet*> groups_;
 };

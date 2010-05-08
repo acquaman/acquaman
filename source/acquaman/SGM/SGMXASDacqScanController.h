@@ -24,7 +24,7 @@ public slots:
 		advAcq_->setConfigFile("/home/reixs/beamline/programming/acquaman/myScan.cfg");
 		//advAcq_->clearRegions();
 		//advAcq_->addRegion(0, xasSCfg_->start(0), xasSCfg_->delta(0), xasSCfg_->end(0), 1.0 );
-		for(int x = 0; x < xasSCfg_->regions().count(); x++){
+		for(int x = 0; x < xasSCfg_->count(); x++){
 			if(advAcq_->getNumRegions() == x)
 				advAcq_->addRegion(x, xasSCfg_->start(x), xasSCfg_->delta(x), xasSCfg_->end(x), 1);
 			else{
