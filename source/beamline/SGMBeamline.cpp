@@ -112,7 +112,7 @@ SGMFluxOptimization::SGMFluxOptimization(QObject *parent) : AMControlOptimizatio
 	name_ = "SGMFlux";
 }
 
-QMap<double, double> SGMFluxOptimization::curve(QList<QVariant> stateParameters, QList<AMRegion*> contextParameters){
+QMap<double, double> SGMFluxOptimization::curve(QList<QVariant> stateParameters, AMRegionsList* contextParameters){
 	qDebug() << "Running flux curve";
 	double _maxenergy = maximumEnergy(contextParameters);
 	double _minenergy = minimumEnergy(contextParameters);
@@ -155,10 +155,10 @@ QMap<double, double> SGMFluxOptimization::curve(QList<QVariant> stateParameters,
 	}
 	QMap<double, double> rCurve;
 	double tmpStart, tmpEnd, tmpDelta;
-	for( int x = 0; x < contextParameters.count(); x++){
-		tmpStart = contextParameters.at(x)->start();
-		tmpDelta = contextParameters.at(x)->delta();
-		tmpEnd = contextParameters.at(x)->end();
+	for( int x = 0; x < contextParameters->count(); x++){
+		tmpStart = contextParameters->start(x);
+		tmpDelta = contextParameters->delta(x);
+		tmpEnd = contextParameters->end(x);
 		for( double y = tmpStart; ((tmpDelta > 0) ? (y <= tmpEnd) : (y >= tmpEnd)); y += tmpDelta ){
 			rCurve[y] = !SGMBeamline::sgm()->energyValidForSettings(_grating, _harmonic, y) ? 0.0 : (_slit/62500)*(500-_slit)* ( ((_minflux-_maxflux)/((_minimum-_maximum)*(_minimum-_maximum)))*(y-_maximum)*(y-_maximum)+_maxflux );
 		}
@@ -166,24 +166,24 @@ QMap<double, double> SGMFluxOptimization::curve(QList<QVariant> stateParameters,
 	return rCurve;
 }
 
-double SGMFluxOptimization::maximumEnergy(QList<AMRegion*> regions){
+double SGMFluxOptimization::maximumEnergy(AMRegionsList* regions){
 	double curMax = 240;
-	if(regions.count() == 0)
+	if(regions->count() == 0)
 		return -1;
-	for(int x = 0; x < regions.count(); x++){
-		curMax = (regions.at(x)->start() > curMax ? regions.at(x)->start() : curMax);
-		curMax = (regions.at(x)->end() > curMax ? regions.at(x)->end() : curMax);
+	for(int x = 0; x < regions->count(); x++){
+		curMax = (regions->start(x) > curMax ? regions->start(x) : curMax);
+		curMax = (regions->end(x) > curMax ? regions->end(x) : curMax);
 	}
 	return curMax;
 }
 
-double SGMFluxOptimization::minimumEnergy(QList<AMRegion*> regions){
+double SGMFluxOptimization::minimumEnergy(AMRegionsList* regions){
 	double curMin = 2000;
-	if(regions.count() == 0)
+	if(regions->count() == 0)
 		return -1;
-	for(int x = 0; x < regions.count(); x++){
-		curMin = (regions.at(x)->start() < curMin ? regions.at(x)->start() : curMin);
-		curMin = (regions.at(x)->end() < curMin ? regions.at(x)->end() : curMin);
+	for(int x = 0; x < regions->count(); x++){
+		curMin = (regions->start(x) < curMin ? regions->start(x) : curMin);
+		curMin = (regions->end(x) < curMin ? regions->end(x) : curMin);
 	}
 	return curMin;
 }
@@ -193,7 +193,7 @@ SGMResolutionOptimization::SGMResolutionOptimization(QObject *parent) : AMContro
 	name_ = "SGMResolution";
 }
 
-QMap<double, double> SGMResolutionOptimization::curve(QList<QVariant> stateParameters, QList<AMXASRegion*> contextParameters){
+QMap<double, double> SGMResolutionOptimization::curve(QList<QVariant> stateParameters, AMRegionsList* contextParameters){
 	double _maxenergy = maximumEnergy(contextParameters);
 	double _minenergy = minimumEnergy(contextParameters);
 	double _maxflux = 0;
@@ -240,10 +240,10 @@ QMap<double, double> SGMResolutionOptimization::curve(QList<QVariant> stateParam
 	}
 	QMap<double, double> rCurve;
 	double tmpStart, tmpEnd, tmpDelta;
-	for( int x = 0; x < contextParameters.count(); x++){
-		tmpStart = contextParameters.at(x)->start();
-		tmpDelta = contextParameters.at(x)->delta();
-		tmpEnd = contextParameters.at(x)->end();
+	for( int x = 0; x < contextParameters->count(); x++){
+		tmpStart = contextParameters->start(x);
+		tmpDelta = contextParameters->delta(x);
+		tmpEnd = contextParameters->end(x);
 		for( double y = tmpStart; ((tmpDelta > 0) ? (y <= tmpEnd) : (y >= tmpEnd)); y += tmpDelta ){
 // FIX NEGATIVES!!!
 //            rCurve[y] = !SGMBeamline::sgm()->energyValidForSettings(_grating, _harmonic, y) ? 0.0 : (_slit/62500)*(500-_slit)* ( ((_minflux-_maxflux)/((_minimum-_maximum)*(_minimum-_maximum)))*(y-_maximum)*(y-_maximum)+_maxflux );
@@ -253,24 +253,24 @@ QMap<double, double> SGMResolutionOptimization::curve(QList<QVariant> stateParam
 	return rCurve;
 }
 
-double SGMResolutionOptimization::maximumEnergy(QList<AMXASRegion*> regions){
+double SGMResolutionOptimization::maximumEnergy(AMRegionsList* regions){
 	double curMax = 240;
-	if(regions.count() == 0)
+	if(regions->count() == 0)
 		return -1;
-	for(int x = 0; x < regions.count(); x++){
-		curMax = (regions.at(x)->start() > curMax ? regions.at(x)->start() : curMax);
-		curMax = (regions.at(x)->end() > curMax ? regions.at(x)->end() : curMax);
+	for(int x = 0; x < regions->count(); x++){
+		curMax = (regions->start(x) > curMax ? regions->start(x) : curMax);
+		curMax = (regions->end(x) > curMax ? regions->end(x) : curMax);
 	}
 	return curMax;
 }
 
-double SGMResolutionOptimization::minimumEnergy(QList<AMXASRegion*> regions){
+double SGMResolutionOptimization::minimumEnergy(AMRegionsList* regions){
 	double curMin = 2000;
-	if(regions.count() == 0)
+	if(regions->count() == 0)
 		return -1;
-	for(int x = 0; x < regions.count(); x++){
-		curMin = (regions.at(x)->start() < curMin ? regions.at(x)->start() : curMin);
-		curMin = (regions.at(x)->end() < curMin ? regions.at(x)->end() : curMin);
+	for(int x = 0; x < regions->count(); x++){
+		curMin = (regions->start(x) < curMin ? regions->start(x) : curMin);
+		curMin = (regions->end(x) < curMin ? regions->end(x) : curMin);
 	}
 	return curMin;
 }

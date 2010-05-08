@@ -58,20 +58,13 @@ public:
 	AMControlOptimizationSetView(AMControlOptimizationSet *viewSet, QWidget *parent = 0);
 
 public slots:
-	void onRegionsUpdate(QList<AMRegion*> contextParams){
+	void onRegionsUpdate(AMRegionsList* contextParams){
 		QList<QVariant> stateParams, stateParams2;
 		stateParams << 250.0 << 0 << 1;
 		stateParams2 << 250.0 << 1 << 1;
-//		QList<AMRegion*> contextParams;
-//		AMRegion *myRegion = new AMRegion();
-//		myRegion->setStart(500);
-//		myRegion->setDelta(1);
-//		myRegion->setEnd(700);
-//		contextParams << myRegion;
 		QMap<double, double> map1 = ((AMControlOptimizationSet*)viewSet_)->curveAt(0, stateParams, contextParams);
 		QMap<double, double> map2 = ((AMControlOptimizationSet*)viewSet_)->curveAt(0, stateParams2, contextParams);
 
-		qDebug() << "Count is " << map1.count();
 		QMap<double, double>::const_iterator i = map1.constBegin();
 		while (i != map1.constEnd()) {
 //			qDebug() << i.key() << " " << i.value();
@@ -90,7 +83,6 @@ public slots:
 protected:
 	MPlotRealtimeModel *data1;
 	MPlotRealtimeModel *data2;
-//	AMControlOptimizationSet *viewSet_;
 };
 
 #endif // AMCONTROLSETVIEW_H

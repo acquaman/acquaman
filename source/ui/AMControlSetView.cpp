@@ -8,7 +8,6 @@ AMControlSetView::AMControlSetView(AMControlSet *viewSet, QWidget *parent) :
 {
 	viewSet_ = viewSet;
 	setTitle(viewSet->name());
-//	QFormLayout *fl = new QFormLayout(this);
 	QFormLayout *fl = new QFormLayout();
 	QAbstractSpinBox *tmpASB;
 	AMControl *tmpCtrl;
@@ -29,10 +28,8 @@ AMControlSetView::AMControlSetView(AMControlSet *viewSet, QWidget *parent) :
 		fl->addRow(tmpCtrl->objectName(), tmpASB);
 	}
 
-//	setLayout(fl);
 	hl_ = new QHBoxLayout(this);
 	hl_->addLayout(fl);
-//	hl->addWidget(plotWindow);
 	setLayout(hl_);
 	setFixedSize(517, 200);
 }

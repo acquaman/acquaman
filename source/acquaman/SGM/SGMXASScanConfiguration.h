@@ -14,8 +14,7 @@ public:
 	AMControlSet *trackingSet() const { return trackingSet_;}
 
 public slots:
-//    virtual bool addRegion(size_t index, AMXASRegion *region) {return AMXASScanConfiguration::addRegion(index, region);}
-	virtual bool addRegion(size_t index, double start, double delta, double end);
+	virtual bool addRegion(size_t index, double start, double delta, double end) { return regions_->addRegion(index, start, delta, end);}
 
 	bool setExitSlitGap(double exitSlitGap) { bool rVal = SGMScanConfiguration::setExitSlitGap(exitSlitGap); emit exitSlitGapChanged(exitSlitGap); return rVal; }
 	bool setGrating(SGMBeamline::sgmGrating grating) { bool rVal = SGMScanConfiguration::setGrating(grating); emit gratingChanged(grating); return rVal; }

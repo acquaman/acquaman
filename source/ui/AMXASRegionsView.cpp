@@ -13,20 +13,8 @@ AMXASRegionsView::AMXASRegionsView(AMXASRegionsList *regions, QWidget *parent) :
 	QHBoxLayout *hl_ = new QHBoxLayout();
 	hl_->addWidget(addButton_);
 	hl_->addWidget(deleteButton_);
-//	rm_ = new AMXASRegionModel(regions, this);
-//	regions_ = new AMXASRegionsList(this);
 	regions_ = regions;
-	qDebug() << "CONSTRUCTOR SHOULD BE DONE\n\n";
-	/*DAVID*/
-//	regions_->setupModel();
-	/*DAVID
-	regions_->setDefaultControl(regions->at(0)->control());
-	regions_->addRegion(0, 250, 1, 260);
-	regions_->addRegion(1, 260.5, 0.5, 270);
-	regions_->addRegion(2, 271, 1, 280);
-	*/
 	tv_ = new QTableView(this);
-//	tv_->setModel(rm_);
 	tv_->setModel(regions_->model());
 	tv_->resize(tv_->sizeHint());
 	QFormLayout *fl_ = new QFormLayout(this);

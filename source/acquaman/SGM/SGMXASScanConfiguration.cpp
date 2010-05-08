@@ -13,14 +13,3 @@ SGMXASScanConfiguration::SGMXASScanConfiguration(QObject *parent) : AMXASScanCon
 	emit exitSlitTrackingChanged(exitSlitTracking_);
 }
 
-bool SGMXASScanConfiguration::addRegion(size_t index, double start, double delta, double end)
-{
-	qDebug() << "Calling add region in scan cfg";
-	return regions_->addRegion(index, start, delta, end);
-	/*
-	AMXASRegion *xasr = new AMXASRegion(SGMBeamline::sgm()->energy(), this);
-	if(!xasr->setStart(start) || !xasr->setDelta(delta) || !xasr->setEnd(end))
-		return false;
-	return addRegion(index, xasr);
-	*/
-}

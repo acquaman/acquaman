@@ -19,43 +19,30 @@ public:
 	/// Constructor, needs only a pointer to a QObject to act as a parent.
 	AMXASScanConfiguration(QObject *parent = 0);
 	/// Returns the start value of the region refered to by index. If an invalid index is given, returns -1 (not a valid energy value).
-	double start(size_t index) const;
+	double start(size_t index) const { return regions_->start(index);}
 	/// Returns the delta value of the region refered to by index. If an invalid index is given, returns 0 (not a valid delta value).
-	double delta(size_t index) const;
+	double delta(size_t index) const { return regions_->delta(index);}
 	/// Returns the end value of the region refered to by index. If an invalid index is given, returns -1 (not a valid energy value).
-	double end(size_t index) const;
+	double end(size_t index) const { return regions_->end(index);}
 	int count() const { return regions_->count();}
-	/// Returns a pointer to the region refered to by index. If an invalid index is given, returns NULL.
-	AMXASRegion* region(size_t index) const;
-	AMXASRegionsList* regions() {return regions_;}
-//	/// Returns a copy of the QList of regions.
-//	QList<AMXASRegion*> regions() { return regions_;}
-//	/// Returns a pointer to the QList of regions.
-//	QList<AMXASRegion*>* regionsPtr() { return &regions_;}
+	AMXASRegionsList* regions() { return regions_;}
 
 public slots:
 	/// Sets the start value of the region refered to by index. Returns true if sucessful, returns false if the index is invalid or the energy is out of range.
-	bool setStart(size_t index, double start);
+	bool setStart(size_t index, double start) { return regions_->setStart(index, start);}
 	/// Sets the delta value of the region refered to by index. Returns true if sucessful, return false if the index is invalid or the delta is 0.
-	bool setDelta(size_t index, double delta);
+	bool setDelta(size_t index, double delta) { return regions_->setDelta(index, delta);}
 	/// Sets the end value of the region refered to by index. Returns true if succesful, returns false if the index is invalid or the energy is out of range.
-	bool setEnd(size_t index, double end);
-	/// Sets the region refered to by index. Returns true if successful, returns false if the index is invalid or the region pointer is NULL.
-	bool setRegion(size_t index, AMXASRegion *region);
-	/// Adds a region into position refered to by index and renumbers subsequent regions accordingly. Returns true if successful, returns false if the index is invalid.
-	virtual bool addRegion(size_t index, AMXASRegion *region);
+	bool setEnd(size_t index, double end) { return regions_->setEnd(index, end);}
 	/// Pure virtual function. Should be implemented in beamline specific subclasses as a convenience function for above.
 	/// Creates a new region using start, delta, and end values then calls addRegion(index, *region).
 	virtual bool addRegion(size_t index, double start, double delta, double end) = 0;
 	/// Deletes the region refered to by index and renumbers subsequent regions accordingly. Returns true if successful, return false if index is invalid.
-	bool deleteRegion(size_t index);
+	bool deleteRegion(size_t index) { return regions_->deleteRegion(index);}
 
 protected:
 	/// Holds the list of AMXASRegion pointers.
-//	QList<AMXASRegion*> regions_;
 	AMXASRegionsList *regions_;
-
-//    QList<AMControlSet*> groups_;
 };
 
 #endif // ACQMAN_XASSCANCONFIGURATION_H

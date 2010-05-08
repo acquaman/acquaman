@@ -74,13 +74,12 @@ class SGMFluxOptimization : public AMControlOptimization
 public:
 	SGMFluxOptimization(QObject *parent=0);
 
-//	virtual QMap<double, double> curve(QList<QVariant> stateParameters, QList<AMXASRegion*> contextParameters);
-	virtual QMap<double, double> curve(QList<QVariant> stateParameters, QList<AMRegion*> contextParameters);
+	virtual QMap<double, double> curve(QList<QVariant> stateParameters, AMRegionsList* contextParameters);
 
 
 protected:
-	double maximumEnergy(QList<AMRegion*> regions);
-	double minimumEnergy(QList<AMRegion*> regions);
+	double maximumEnergy(AMRegionsList* regions);
+	double minimumEnergy(AMRegionsList* regions);
 };
 
 class SGMResolutionOptimization : public AMControlOptimization
@@ -89,11 +88,11 @@ class SGMResolutionOptimization : public AMControlOptimization
 public:
 	SGMResolutionOptimization(QObject *parent=0);
 
-	QMap<double, double> curve(QList<QVariant> stateParameters, QList<AMXASRegion*> contextParameters);
+	QMap<double, double> curve(QList<QVariant> stateParameters, AMRegionsList* contextParameters);
 
 protected:
-	double maximumEnergy(QList<AMXASRegion*> regions);
-	double minimumEnergy(QList<AMXASRegion*> regions);
+	double maximumEnergy(AMRegionsList* regions);
+	double minimumEnergy(AMRegionsList* regions);
 };
 
 #endif // ACQMAN_SGMBEAMLINE_H
