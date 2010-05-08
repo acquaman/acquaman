@@ -51,6 +51,7 @@ public slots:
 protected:
 	/// Holds the list of AMXASRegion pointers.
 	QList<AMXASRegion*> regions_;
+
 //    QList<AMControlSet*> groups_;
 };
 

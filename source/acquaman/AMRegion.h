@@ -48,7 +48,7 @@ public:
 public slots:
 	/// Sets the start value from the double passed in. Does not affect the AMControl directly.
 	/// \todo A check on the limits of the AMControl?
-	virtual bool setStart(double start) { start_ = start; return TRUE;}
+	virtual bool setStart(double start) { start_ = start; qDebug() << "Trying setStart in AMRegion"; return TRUE;}
 	/// Sets the delta value from the double passed in. The value MUST BE non-zero, or function will return false. Does not affect the AMControl direclty.
 	virtual bool setDelta(double delta);
 	/// Sets the end value from the double passed in. Does not affect the AMControl directly.
@@ -67,6 +67,104 @@ protected:
 	/// AMControl for the region to step through.
 	AMControl *ctrl_;
 };
+
+/*
+  *
+  *		Attempting to refactor
+  *
+  */
+
+class AMRegionsListModel : public QAbstractTableModel
+{
+	Q_OBJECT
+
+public:
+	/// Constructor, pass a pointer to a list of AMXASRegions to set up the model. Such a list can be easily returned with regionsPtr() function in AMXASScanConfiguration class.
+	AMRegionsListModel(QObject *parent = 0);
+
+	/// Returns the number of regions in the list to generate the number of rows in a table or list
+	int rowCount(const QModelIndex & /*parent*/) const { return regions_->count(); }
+	/// Returns "3" statically. There are always three fields in the region: start, delta, and end.
+	int columnCount(const QModelIndex & /*parent*/) const { return 4; }
+	/// Retrieves the data from an index (row and column) and returns as a QVariant. Only valid role is Qt::DisplayRole right now.
+	QVariant data(const QModelIndex &index, int role) const;
+	/// Retrieves the header data for a column or row and returns as a QVariant. Only valid role is Qt::DisplayRole right now.
+	QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+	/// Sets the data value at an index (row and column). Only valid role is Qt::DisplayRole right now.
+	bool setData(const QModelIndex &index, const QVariant &value, int role);
+	bool insertRows(int position, int rows, const QModelIndex &index = QModelIndex());
+	bool removeRows(int position, int rows, const QModelIndex &index = QModelIndex());
+	/// This allows editing of values within range (for ex: in a QTableView)
+	Qt::ItemFlags flags(const QModelIndex &index) const;
+
+	QList<AMRegion*> *regions(){return regions_;}
+
+public slots:
+	void setDefaultControl(AMControl* defaultControl){defaultControl_ = defaultControl;}
+
+protected:
+	/// Internal pointer to the list of AMXASRegion.
+	QList<AMRegion*> *regions_;
+	AMControl *defaultControl_;
+};
+
+class AMRegionsList : public QObject
+{
+Q_OBJECT
+
+public:
+	AMRegionsList(QObject *parent = 0);
+
+	/// Returns the start value of the region refered to by index. If an invalid index is given, returns -1 (not a valid energy value).
+	double start(size_t index) const;
+	/// Returns the delta value of the region refered to by index. If an invalid index is given, returns 0 (not a valid delta value).
+	double delta(size_t index) const;
+	/// Returns the end value of the region refered to by index. If an invalid index is given, returns -1 (not a valid energy value).
+	double end(size_t index) const;
+	AMRegionsListModel* model(){return regions_;}
+	int count(){return regions_->rowCount(QModelIndex());}
+
+	virtual bool setupModel();
+
+public slots:
+	/// Sets the start value of the region refered to by index. Returns true if sucessful, returns false if the index is invalid or the energy is out of range.
+	bool setStart(size_t index, double start){ return regions_->setData(regions_->index(index, 1), start, Qt::EditRole);}
+
+	/// Sets the delta value of the region refered to by index. Returns true if sucessful, return false if the index is invalid or the delta is 0.
+	bool setDelta(size_t index, double delta){ return regions_->setData(regions_->index(index, 2), delta, Qt::EditRole);}
+
+	/// Sets the end value of the region refered to by index. Returns true if succesful, returns false if the index is invalid or the energy is out of range.
+	bool setEnd(size_t index, double end){ return regions_->setData(regions_->index(index, 3), end, Qt::EditRole);}
+
+	/// Pure virtual function. Should be implemented in beamline specific subclasses as a convenience function for above.
+	/// Creates a new region using start, delta, and end values then calls addRegion(index, *region).
+	virtual bool addRegion(size_t index, double start, double delta, double end);
+
+	/// Deletes the region refered to by index and renumbers subsequent regions accordingly. Returns true if successful, return false if index is invalid.
+	bool deleteRegion(size_t index){ return regions_->removeRows(index, 1);}
+	void setDefaultControl(AMControl* defaultControl){defaultControl_ = defaultControl; regions_->setDefaultControl(defaultControl);}
+
+private slots:
+	bool setRegion(size_t index, AMRegion *region){;}
+	/// Adds a region into position refered to by index and renumbers subsequent regions accordingly. Returns true if successful, returns false if the index is invalid.
+	virtual bool addRegion(size_t index, AMRegion *region){;}
+
+protected:
+	/// Holds the list of AMXASRegion pointers.
+//	QList<AMRegion*> regions_;
+	AMControl *defaultControl_;
+	AMRegionsListModel *regions_;
+
+//	virtual bool setupModel();
+	/// Returns a pointer to the region refered to by index. If an invalid index is given, returns NULL.
+	AMRegion* region(size_t index) const;
+};
+
+/*
+  *
+  *
+  *
+  */
 
 /// AMXASRegion is an impementation of AMRegion designed to scan energy regions; therefore, the AMControl is passed into the constructor and must be a beamline energy control.
 /*!
@@ -96,6 +194,66 @@ public slots:
   Simply pass a pointer to a list of AMXASRegion into the constructor and the model will be automatically set up.
   \todo Move this up one level to ALL AMRegions and/or combine with the AMScanConfiguration classes (so they can be the model direclty).
   */
+
+class AMXASRegionsListModel : public AMRegionsListModel{
+Q_OBJECT
+
+public:
+	AMXASRegionsListModel(QObject *parent = 0) : AMRegionsListModel(parent) {qDebug() << "Running XASRegionsListModel constructor";}
+
+//	/// Returns the number of regions in the list to generate the number of rows in a table or list
+//	int rowCount(const QModelIndex & /*parent*/) const { return regions_->count(); }
+//	/// Returns "3" statically. There are always three fields in the region: start, delta, and end.
+//	int columnCount(const QModelIndex & /*parent*/) const { return 4; }
+//	/// Retrieves the data from an index (row and column) and returns as a QVariant. Only valid role is Qt::DisplayRole right now.
+//	QVariant data(const QModelIndex &index, int role) const;
+//	/// Retrieves the header data for a column or row and returns as a QVariant. Only valid role is Qt::DisplayRole right now.
+//	QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+//	/// Sets the data value at an index (row and column). Only valid role is Qt::DisplayRole right now.
+//	bool setData(const QModelIndex &index, const QVariant &value, int role);
+	bool insertRows(int position, int rows, const QModelIndex &index = QModelIndex());
+//	bool removeRows(int position, int rows, const QModelIndex &index = QModelIndex());
+//	/// This allows editing of values within range (for ex: in a QTableView)
+//	Qt::ItemFlags flags(const QModelIndex &index) const;
+
+//
+//	QList<AMXASRegion*> *regions(){return regions_;}
+//
+
+public slots:
+	void setEnergyControl(AMControl* energyControl){setDefaultControl(energyControl);}
+
+protected:
+//	QList<AMXASRegion*> *regions_;
+};
+
+class AMXASRegionsList : public AMRegionsList{
+Q_OBJECT
+
+public:
+	AMXASRegionsList(QObject *parent = 0) : AMRegionsList(parent) {qDebug() << "Running XASRegionsList constructor"; }//setupModel();}
+
+	virtual bool setupModel();
+
+protected:
+//	AMXASRegionsListModel *regions_;
+
+//	virtual bool setupModel();
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 class AMXASRegionModel : public QAbstractTableModel
 {
 	Q_OBJECT
@@ -128,6 +286,7 @@ public slots:
 
 private:
 	/// Internal pointer to the list of AMXASRegion.
+
 	QList<AMXASRegion*> *regions_;
 	AMControl *beamlineEnergy_;
 };

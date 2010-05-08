@@ -35,10 +35,11 @@ public slots:
 	void setBeamlineEnergy(AMControl *beamlineEnergy){rm_->setBeamlineEnergy(beamlineEnergy);}
 	bool addRegion(int index, double start, double delta, double end){
 		qDebug() << "Setting region in view with model";
-		rm_->insertRows(index, 1);
-		rm_->setData(rm_->index(index, 0), start, Qt::EditRole);
-		rm_->setData(rm_->index(index, 1), delta, Qt::EditRole);
-		rm_->setData(rm_->index(index, 2), end, Qt::EditRole);
+//		regions_->addRegion(regions_->count(), 550, 1, 560);
+		regions_->addRegion(regions_->count(), 100, 1, 120);
+	}
+	bool deleteRegion(){
+		regions_->deleteRegion(regions_->count()-1);
 	}
 
 protected:
@@ -50,6 +51,7 @@ protected:
 	QPushButton *deleteButton_;
 	/// The model created from the AMXASRegion group to be used with the table view.
 	AMXASRegionModel *rm_;
+	AMXASRegionsList *regions_;
 };
 
 #endif // AMXASREGIONSVIEW_H
