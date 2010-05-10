@@ -132,7 +132,17 @@ HEADERS += source/beamline/AMDiagnosticPaddle.h \
     ../MPlot/src/MPlot/MPlotSeriesData.h \
     ../MPlot/src/MPlot/MPlotTools.h \
     ../MPlot/src/MPlot/MPlotWidget.h \
-    source/acquaman/AMAcqScanOutput.h
+    source/acquaman/AMAcqScanOutput.h \
+    source/muParser/muParserTokenReader.h \
+    source/muParser/muParserToken.h \
+    source/muParser/muParserStack.h \
+    source/muParser/muParserFixes.h \
+    source/muParser/muParserError.h \
+    source/muParser/muParserDef.h \
+    source/muParser/muParserCallback.h \
+    source/muParser/muParserBytecode.h \
+    source/muParser/muParserBase.h \
+    source/muParser/muParser.h
 FORMS += source/ui/AbsorptionScanController.ui \
     source/ui/ConnectionSettings.ui \
     source/ui/EmissionScanController.ui \
@@ -210,5 +220,12 @@ SOURCES += source/beamline/AMDiagnosticPaddle.cpp \
     source/ui/AMXASRegionsView.cpp \
     source/dataman/AMXASScan.cpp \
     source/dataman/SGMLegacyFileImporter.cpp \
-    source/acquaman/AMAcqScanOutput.cpp
+    source/acquaman/AMAcqScanOutput.cpp \
+    source/muParser/muParserTokenReader.cpp \
+    source/muParser/muParserError.cpp \
+    source/muParser/muParserCallback.cpp \
+    source/muParser/muParserBytecode.cpp \
+    source/muParser/muParserBase.cpp \
+    source/muParser/muParser.cpp
 RESOURCES = source/icons/icons.qrc
+OTHER_FILES += source/muParser/README.txt
