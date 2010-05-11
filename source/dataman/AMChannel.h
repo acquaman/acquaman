@@ -35,7 +35,7 @@ signals:
     void nameChanged(QString);
 
 public slots:
-    /// Set channel name:
+	/// Set channel name: ( \bug should this be allowed? how would it change the name used to access this channel within the scan?)
     void setName(const QString& newName) { name_ = newName; }
 	/// Set the expression:
 	bool setExpression(const QString& expression);
