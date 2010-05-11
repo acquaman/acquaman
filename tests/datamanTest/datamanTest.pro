@@ -18,9 +18,7 @@ QT += core \
     phonon \
     network \
     sql
-
 CONFIG += qtestlib
-
 TARGET = test-dataman
 DESTDIR = ../../build
 DEPENDPATH += . \
@@ -54,21 +52,35 @@ HEADERS += source/dataman/AMDbObject.h \
     source/dataman/AMDatabase.h \
     source/dataman/AMDbLoader.h \
     source/AMSettings.h \
-	source/AMBiHash.h \
-	source/AMErrorMonitor.h \
-	source/dataman/AMXASScan.h \
-	source/dataman/SGMLegacyFileImporter.h \
-	source/dataman/AMDataTree.h \
-	source/dataman/AMDataTreeColumn.h
-
+    source/AMBiHash.h \
+    source/AMErrorMonitor.h \
+    source/dataman/AMXASScan.h \
+    source/dataman/SGMLegacyFileImporter.h \
+    source/dataman/AMDataTree.h \
+    source/dataman/AMDataTreeColumn.h \
+    ../../source/muParser/muParserTokenReader.h \
+    ../../source/muParser/muParserToken.h \
+    ../../source/muParser/muParserStack.h \
+    ../../source/muParser/muParserFixes.h \
+    ../../source/muParser/muParserError.h \
+    ../../source/muParser/muParserDef.h \
+    ../../source/muParser/muParserCallback.h \
+    ../../source/muParser/muParserBytecode.h \
+    ../../source/muParser/muParserBase.h \
+    ../../source/muParser/muParser.h
 SOURCES += source/dataman/AMScan.cpp \
     source/dataman/AMChannel.cpp \
     source/beamline/AMPVNames.cpp \
     source/dataman/AMDatabase.cpp \
     source/dataman/AMDbObject.cpp \
     source/AMSettings.cpp \
-	source/AMErrorMonitor.cpp \
-	source/dataman/AMXASScan.cpp \
-	source/dataman/SGMLegacyFileImporter.cpp \
-    tests.cpp
-
+    source/AMErrorMonitor.cpp \
+    source/dataman/AMXASScan.cpp \
+    source/dataman/SGMLegacyFileImporter.cpp \
+    tests.cpp \
+    ../../source/muParser/muParserTokenReader.cpp \
+    ../../source/muParser/muParserError.cpp \
+    ../../source/muParser/muParserCallback.cpp \
+    ../../source/muParser/muParserBytecode.cpp \
+    ../../source/muParser/muParserBase.cpp \
+    ../../source/muParser/muParser.cpp

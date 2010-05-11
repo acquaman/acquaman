@@ -22,9 +22,9 @@ class AMErrorReport {
 public:
 	enum Level {Information, Alert, Serious, Debug} ;
 
-	AMErrorReport(QObject* src=0, Level l=Alert, int code=0, const QString& desc = "") : source(src), level(l), errorCode(code), description(desc) {}
+	AMErrorReport(const QObject* src=0, Level l=Alert, int code=0, const QString& desc = "") : source(src), level(l), errorCode(code), description(desc) {}
 
-	QObject* source;
+	const QObject* source;
 	Level level;
 	int errorCode;
 	QString description;
@@ -94,7 +94,7 @@ class AMErrorMon : public QObject {
 public:
 
 	/// Subscribe to all errors from object \p originator
-	static void subscribeToObject(QObject* originator, QObject* notifyMe, const char* errorSlot) {
+	static void subscribeToObject(const QObject* originator, QObject* notifyMe, const char* errorSlot) {
 		mon()->subscribeToObjectI(originator, notifyMe, errorSlot);
 	}
 
@@ -154,7 +154,7 @@ public slots:
 protected:
 
 	/// Subscribe to all errors from object 'originator'
-	void subscribeToObjectI(QObject* originator, QObject* notifyMe, const char* errorSlot);
+	void subscribeToObjectI(const QObject* originator, QObject* notifyMe, const char* errorSlot);
 
 	/// Subscribe to all errors from this class
 	void subscribeToClassI(const QString& className, QObject* notifyMe, const char* errorSlot);
@@ -166,7 +166,7 @@ protected:
 	void unsubscribeI(QObject* notifyMe, const char* errorSlot = 0);
 
 	/// Maps subscriptions from originating objects to <Object, Slot> recipients.
-	QMap<QObject*, QPair<QObject*, QString> > objectSubs_;
+	QMap<const QObject*, QPair<QObject*, QString> > objectSubs_;
 	/// Maps subs. from originating classes to <Object, Slot> recipients.
 	QMap<QString, QPair<QObject*, QString> > classSubs_;
 	/// Maps subs. from error codes to <QObject, Slot> recipients.

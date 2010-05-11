@@ -47,14 +47,35 @@ bool AMScan::deleteChannel(size_t index) {
 }
 
 /// Return comma-separated list of channel names currently available
-QString AMScan::channelNames() const {
+QStringList AMScan::channelNames() const {
 	QStringList names;
         foreach(AMChannel* ch, ch_) {
 		names << ch->name();
 	}
-	return names.join(",");
+	return names;
 }
 
+
+/// create a new channel. The channel becomes a child object of this scan.
+/*
+void AMScan::addChannel(AMChannel* channel) {
+	ch_ << channel;
+	channel->setParent(this);
+}*/
+
+/// create a new channel. The channel is created as a child object of this scan.
+bool AMScan::addChannel(const QString& chName, const QString& expression) {
+
+	if(channelNames().contains(chName))
+		return false;
+
+	ch_ << new AMChannel(this, chName, expression);
+	return true;
+}
+
+
+// DBObject database implementation:
+///////////////////////////////
 
 /// This member function updates a scan in the database (if it exists already), otherwise it adds it to the database.
 
@@ -72,7 +93,7 @@ bool AMScan::storeToDb(AMDatabase* db) {
 
 	QVariant v1(sampleName());
 	QVariant v2(comments());
-	QVariant v3(channelNames());
+	QVariant v3(channelNames().join(","));
 	values << &v1 << &v2 << &v3;
 
 	// If this returns with a positive id, it's succeeded.

@@ -5,6 +5,7 @@
 
 #include <QSharedData>
 #include <QHash>
+#include <QStringList>
 
 #include "dataman/AMDataTreeColumn.h"
 
@@ -124,6 +125,18 @@ copyXASData.deeper("sddSpectrums",5)->setValue("y", 512, 49.3);
 
 	/// The number of datapoints in each column
 	unsigned count() const { return count_; }
+
+	/// the number of (normal, data-valued columns), NOT including the x-column!
+	unsigned numYColumns() const { return y_.count(); }
+
+	/// the names of the (normal, data-valued columms), NOT including the x-column. (Use xName() to get the name of the x-column)
+	QStringList yColumnNames() const {
+		QStringList rv;
+		for(int i=0; i<y_.count(); i++)
+			rv << y_.at(i).name();
+		return rv;
+	}
+
 
 	/// Access the primary column values by index
 	AMNumericType x(unsigned i) const {

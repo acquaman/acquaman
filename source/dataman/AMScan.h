@@ -23,14 +23,14 @@ Q_OBJECT
 Q_PROPERTY(QString sampleName READ sampleName WRITE setSampleName)
 Q_PROPERTY(QString comments READ comments WRITE setComments NOTIFY commentsChanged)
 
-friend void AMChannel::addToScan(AMScan& destination);
-
 public:
 	/// default constructor
     explicit AMScan(QObject *parent = 0);
 
 	// Returns scan's unique id
 	// use DbObject::id()
+
+/// \todo copy constructor and assignment operator: handle channels as children
 
     /// Returns name of sample
     QString sampleName() const { return sampleName_;}
@@ -48,7 +48,12 @@ public:
     /// Return specified channel by index: (returns 0 if not found)
     AMChannel* channel(size_t index) { if(index < (size_t)ch_.count() ) return ch_.at(index); else return 0; }
 	/// Return a comma-separated list of all channel names (Used for channel hints in database)
-	QString channelNames() const;
+	QStringList channelNames() const;
+
+	/// create a new channel. The channel becomes a child object of this scan.
+	// not allowed. prevents enforcement of unique names.  void addChannel(AMChannel* channel);
+	/// create a new channel. The channel is created as a child object of this scan.
+	bool addChannel(const QString& chName, const QString& expression);
 
 
 	/// the number of datapoints in the scan:
@@ -132,6 +137,8 @@ protected:
 
 	/// raw data storage. All scans will have one of these, but the contents and structure will vary.
 	AMDataTree d_;
+	/// Allow channels to access the datatree:
+	friend AMDataTree* AMChannel::dataTree() const;
 
 private:
 	/// List of column names required to have in DB:

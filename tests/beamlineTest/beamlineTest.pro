@@ -18,9 +18,7 @@ QT += core \
     phonon \
     network \
     sql
-
 CONFIG += qtestlib
-
 TARGET = test-beamline
 DESTDIR = ../../build
 DEPENDPATH += . \
@@ -66,8 +64,21 @@ HEADERS += source/beamline/AMDiagnosticPaddle.h \
     source/beamline/AMControlState.h \
     source/AMErrorMonitor.h \
     source/beamline/AMControlSet.h \
-
-
+    source/acquaman/AMRegion.h \
+    source/dataman/AMXASScan.h \
+    source/dataman/AMScan.h \
+    source/dataman/AMDbObject.h \
+    ../../source/dataman/AMChannel.h \
+    ../../source/muParser/muParserTokenReader.h \
+    ../../source/muParser/muParserToken.h \
+    ../../source/muParser/muParserStack.h \
+    ../../source/muParser/muParserFixes.h \
+    ../../source/muParser/muParserError.h \
+    ../../source/muParser/muParserDef.h \
+    ../../source/muParser/muParserCallback.h \
+    ../../source/muParser/muParserBytecode.h \
+    ../../source/muParser/muParserBase.h \
+    ../../source/muParser/muParser.h
 SOURCES += source/beamline/AMDiagnosticPaddle.cpp \
     source/beamline/AMLoadLock.cpp \
     source/beamline/AMSampleHolder.cpp \
@@ -85,5 +96,16 @@ SOURCES += source/beamline/AMDiagnosticPaddle.cpp \
     source/beamline/AMControlState.cpp \
     source/AMErrorMonitor.cpp \
     source/beamline/AMControlSet.cpp \
-    tests.cpp
-
+    tests.cpp \
+    source/dataman/AMXASScan.cpp \
+    source/acquaman/AMRegion.cpp \
+    source/dataman/AMScan.cpp \
+    source/dataman/AMDbObject.cpp \
+    ../../source/dataman/AMDatabase.cpp \
+    ../../source/dataman/AMChannel.cpp \
+    ../../source/muParser/muParserTokenReader.cpp \
+    ../../source/muParser/muParserError.cpp \
+    ../../source/muParser/muParserCallback.cpp \
+    ../../source/muParser/muParserBytecode.cpp \
+    ../../source/muParser/muParserBase.cpp \
+    ../../source/muParser/muParser.cpp

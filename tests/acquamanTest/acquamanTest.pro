@@ -18,9 +18,7 @@ QT += core \
     phonon \
     network \
     sql
-
 CONFIG += qtestlib
-
 TARGET = test-acquaman
 DESTDIR = ../../build
 DEPENDPATH += . \
@@ -89,10 +87,24 @@ HEADERS += source/beamline/AMDiagnosticPaddle.h \
     source/acquaman/AMRegion.h \
     source/acquaman/SGM/SGMXASScanController.h \
     source/acquaman/SGM/SGMXASScanConfiguration.h \
-	source/acquaman/SGM/SGMScanConfiguration.h
+    source/acquaman/SGM/SGMScanConfiguration.h \
+    ../../source/dataman/AMXASScan.h \
+    ../../source/dataman/AMScan.h \
+    ../../source/dataman/AMDbObject.h \
+    ../../source/dataman/AMDatabase.h \
+    ../../source/dataman/AMChannel.h \
+    ../../source/muParser/muParserTokenReader.h \
+    ../../source/muParser/muParserToken.h \
+    ../../source/muParser/muParserStack.h \
+    ../../source/muParser/muParserFixes.h \
+    ../../source/muParser/muParserError.h \
+    ../../source/muParser/muParserDef.h \
+    ../../source/muParser/muParserCallback.h \
+    ../../source/muParser/muParserBytecode.h \
+    ../../source/muParser/muParserBase.h \
+    ../../source/muParser/muParser.h
 
 # FORMS   +=
-
 SOURCES += source/beamline/AMDiagnosticPaddle.cpp \
     source/beamline/AMLoadLock.cpp \
     source/beamline/AMSampleHolder.cpp \
@@ -143,4 +155,15 @@ SOURCES += source/beamline/AMDiagnosticPaddle.cpp \
     source/acquaman/SGM/SGMXASScanController.cpp \
     source/acquaman/SGM/SGMXASScanConfiguration.cpp \
     source/acquaman/SGM/SGMScanConfiguration.cpp \
-    tests.cpp
+    tests.cpp \
+    ../../source/dataman/AMXASScan.cpp \
+    ../../source/dataman/AMScan.cpp \
+    ../../source/dataman/AMDbObject.cpp \
+    ../../source/dataman/AMDatabase.cpp \
+    ../../source/dataman/AMChannel.cpp \
+    ../../source/muParser/muParserTokenReader.cpp \
+    ../../source/muParser/muParserError.cpp \
+    ../../source/muParser/muParserCallback.cpp \
+    ../../source/muParser/muParserBytecode.cpp \
+    ../../source/muParser/muParserBase.cpp \
+    ../../source/muParser/muParser.cpp

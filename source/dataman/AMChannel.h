@@ -2,6 +2,10 @@
 #define ACQMAN_CHANNEL_H
 
 #include <QObject>
+#include <muParser/muParser.h>
+
+#include "dataman/AMDataTree.h"
+
 class AMScan;
 
 class AMChannel : public QObject
@@ -10,10 +14,22 @@ Q_OBJECT
 Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
 
 public:
-    explicit AMChannel(AMScan &parent, QString name);
+	explicit AMChannel(AMScan* scan, const QString& name, const QString& expression);
 
     /// AMChannel name: (ex: "tey", "tfy_io", etc.)
     QString name() const { return name_; }
+
+	/// The scan that owns this channel
+	AMScan* scan() const { return scan_; }
+
+	/// the expression currently set for this channel
+	QString expression() const { return QString::fromStdString(parser_.GetExpr()); }
+
+	/// the number of accessible values in this series
+	unsigned count() const { return dataTree()->count(); }
+
+	/// the value of this channel at index \c p
+	double value(unsigned p) const;
 
 signals:
     void nameChanged(QString);
@@ -21,14 +37,24 @@ signals:
 public slots:
     /// Set channel name:
     void setName(const QString& newName) { name_ = newName; }
+	/// Set the expression:
+	bool setExpression(const QString& expression);
 
 protected:
     QString name_;
+	mu::Parser parser_;
+	AMScan* scan_;
+	mutable QVector<double> varStorage_;
 
+
+	/// clears the parser variables and sets them to the names of the raw data columns
+	bool setVariablesFromDataColumns();
 
 public:
-    /// Adds ourself to the scan (TODO: Don't call this! Should not be public)
-    void addToScan(AMScan& destination);
+	/// access the data tree from scan object. \todo Should not be public. Why does it need to be to compile?  [friend of AMScan]
+	AMDataTree* dataTree() const;
+
+
 };
 
 #endif // CHANNEL_H

@@ -17,7 +17,7 @@ AMErrorMon::AMErrorMon() : QObject() {
 
 
 /// Subscribe to all errors from object 'originator'
-void AMErrorMon::subscribeToObjectI(QObject* originator, QObject* notifyMe, const char* errorSlot) {
+void AMErrorMon::subscribeToObjectI(const QObject* originator, QObject* notifyMe, const char* errorSlot) {
 	/// \test Unit test insertions
 	objectSubs_.insertMulti(originator, QPair<QObject*,QString>(notifyMe, errorSlot));
 
@@ -41,7 +41,7 @@ void AMErrorMon::unsubscribeI(QObject* notifyMe, const char* errorSlot) {
 	/// \test unit test removals (all cases)
 
 	// Iterate through all object subscriptions
-	QMutableMapIterator<QObject*, QPair<QObject*,QString> > i(objectSubs_);
+	QMutableMapIterator<const QObject*, QPair<QObject*,QString> > i(objectSubs_);
 	while(i.hasNext()) {
 		i.next();
 		if( (notifyMe==i.value().first) && (errorSlot==0 || errorSlot==i.value().second) )

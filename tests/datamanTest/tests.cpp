@@ -660,8 +660,18 @@ class TestDataman: public QObject
 		QCOMPARE(s1.dateTime().toTime_t(), uint(1269078719));
 		qDebug() << "s1 raw data columns ('detectors')" << s1.detectors();
 
-		QSettings settings(QSettings::IniFormat, QSettings::SystemScope, "Acquaman", "Acquaman");
-		qDebug() << "global settings filename:" << settings.fileName();
+
+		QVERIFY(s1.addChannel("const5", "3+2"));	// simplest formula for a channel
+		QCOMPARE(s1.channel("const5")->value(0), 5.0);
+
+		// verify auto-created channels (inside loadFromFile())
+		QVERIFY(s1.channel("tey_n") != 0);
+		QCOMPARE(s1.channel("tey_n")->expression().trimmed(), QString("tey/I0").trimmed());
+
+		QVERIFY(s1.channel("tey_n")->setExpression("tey/I0"));
+		// test math parser:
+		for(int i=0; i<s1.channel("tey_n")->count(); i++)
+			QCOMPARE(s1.channel("tey_n")->value(i), s1.channel("tey_n")->dataTree()->value("tey", i)/s1.channel("tey_n")->dataTree()->value("I0", i));
 	}
 
 };

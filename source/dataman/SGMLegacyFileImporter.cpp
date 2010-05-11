@@ -39,7 +39,8 @@ bool SGMLegacyFileImporter::loadFromFile(const QString& filepath) {
 
 \
 	// Start reading the file. look for comment line.
-	while( !fs.atEnd() && fs.readLine() != QString("# COMMENT"));
+	while( !fs.atEnd() && fs.readLine() != QString("# COMMENT"))
+		;
 	if(fs.atEnd()) {
 		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -2, "SGMLegacyFileImporter parse error while loading scan data from file. Missing comment."));
 		return false;	// bad format; missing the comment string
@@ -139,6 +140,17 @@ bool SGMLegacyFileImporter::loadFromFile(const QString& filepath) {
 	scan_->legacyIntegrationTime_ = integrationTime;
 	scan_->legacyGrating_ = grating;
 
+
+	/// \todo defaults for what channels to create?
+	scan_->addChannel("eV", "eV");
+	if(colNames1.contains("tey"))
+		scan_->addChannel("tey_raw", "tey");
+	if(colNames1.contains("tfy"))
+		scan_->addChannel("tfy_raw", "tfy");
+	if(colNames1.contains("tey") && colNames1.contains("I0"))
+		scan_->addChannel("tey_n", "tey/I0");
+	if(colNames1.contains("tfy") && colNames1.contains("I0"))
+		scan_->addChannel("tfy_n", "tfy/I0");
 
 	scan_->notifyUpdated();
 

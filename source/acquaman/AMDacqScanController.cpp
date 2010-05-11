@@ -88,7 +88,7 @@ void AMDacqScanController::onStop()
 		qDebug() << curScan_->detectors().count() << " columns";
 		qDebug() << curScan_->d_.count() << " rows";
 
-		for(int x = 0; x < curScan_->d_.count(); x++){
+		for(int x = 0; unsigned(x) < curScan_->d_.count(); x++){
 			qDebug() << "Starting row " << x;
 			for(int y = 0; y < curScan_->detectors().count(); y++)
 				qDebug() << "Value is " << curScan_->d_.value(y, x);

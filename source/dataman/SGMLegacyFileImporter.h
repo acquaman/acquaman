@@ -36,7 +36,7 @@ public:
 	/// load from SGM legacy file format
 	bool loadFromFile(const QString& filepath);
 
-	/// save to SGM legacy file format (UNIMPLEMENTED)
+	/// save to SGM legacy file format (\todo UNIMPLEMENTED)
 	bool saveToFile(const QString& filepath) {
 		return false;
 	}
