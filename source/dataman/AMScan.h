@@ -50,8 +50,6 @@ public:
 	/// Return a comma-separated list of all channel names (Used for channel hints in database)
 	QStringList channelNames() const;
 
-	/// create a new channel. The channel becomes a child object of this scan.
-	// not allowed. prevents enforcement of unique names.  void addChannel(AMChannel* channel);
 	/// create a new channel. The channel is created as a child object of this scan.
 	bool addChannel(const QString& chName, const QString& expression);
 

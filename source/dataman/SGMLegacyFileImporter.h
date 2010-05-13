@@ -38,6 +38,7 @@ public:
 
 	/// save to SGM legacy file format (\todo UNIMPLEMENTED)
 	bool saveToFile(const QString& filepath) {
+		Q_UNUSED(filepath)
 		return false;
 	}
 

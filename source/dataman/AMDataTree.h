@@ -3,16 +3,20 @@
 
 #include "AMErrorMonitor.h"
 
+#include <QObject>
 #include <QSharedData>
 #include <QHash>
 #include <QStringList>
 
 #include "dataman/AMDataTreeColumn.h"
+#include "AMObservable.h"
 
 class AMDataTree;
 
 /// The type of a vector of subtrees looks complicated. This is a simplification typedef.
 typedef QVector<QSharedDataPointer<AMDataTree> > AMDataTreeSubtreeColumn;
+
+
 
 /// This class is an attempt at supporting arbitrary-dimensionality data for AMScan objects, while maintaining simple (programmer-easy) and fast (high-performance) access to the data.
 /*! Data must have a principal column (usually the "x" axis or main independent variable), and the values stored in this column must be true data values.
@@ -51,14 +55,16 @@ The number of datapoints (whether actual values or AMDataTable links) in any col
 	- set a current column as active column; use for value() and setValue()
 	- expression templates?
 
+	AMDataTree implements the AMObservable interface.  It will AMObservable::Emit() messages when a column changes, using the \c code for the number of the y column (or -1 for the x column.)  (It puts "columnChanged" into the \c msg string.)  You can pickup these messages if you are an AMObserver and you call AMObservable::addObserver(yourself) with \c yourself.
 */
 
-class AMDataTree : public QSharedData {
+class AMDataTree : public QSharedData, public AMObservable {
+
 
 public:
 	/// Constructor. Creates a tree with just a single (x) column. If it has explicit x values (specify hasXValues = true), space is allocated but no initialization is done; all the x values will be 0.
 	explicit AMDataTree(unsigned count = 0, const QString& xColumnName = "x", bool hasXValues = false)
-		:x_(xColumnName)
+		: QSharedData(), x_(xColumnName)
 	{
 
 		count_ = count;
@@ -88,7 +94,7 @@ copyXASData.deeper("sddSpectrums",5)->setValue("y", 512, 49.3);
 
 */
 	AMDataTree(const AMDataTree &other)
-		: QSharedData(other),
+		: QSharedData(other), AMObservable(other),
 		count_(other.count_),
 		x_(other.x_),
 		hasXValues_(other.hasXValues_),
@@ -97,6 +103,7 @@ copyXASData.deeper("sddSpectrums",5)->setValue("y", 512, 49.3);
 		yD_(other.yD_),	///< wrong?
 		yDNames_(other.yDNames_)
 	{
+
 		/// \note: the deep copies required of the subtrees are handled by the QSharedDataPointers pointing to them inside yD_.)
 	}
 
@@ -109,6 +116,7 @@ copyXASData.deeper("sddSpectrums",5)->setValue("y", 512, 49.3);
 		  yNames_ = other.yNames_;
 		  yDNames_ = other.yDNames_;
 		  yD_ = other.yD_;
+		  observers_ = other.observers_;
 		  return *this;
 	   }
 
@@ -324,6 +332,7 @@ copyXASData.deeper("sddSpectrums",5)->setValue("y", 512, 49.3);
 	}
 
 
+
 	// Non-constant (modifier) member functions:
 	////////////////////////////////////////
 
@@ -331,6 +340,7 @@ copyXASData.deeper("sddSpectrums",5)->setValue("y", 512, 49.3);
 	bool setX(unsigned i, AMNumericType newValue) {
 		if(hasXValues_ && i < count()) {
 			x_[i] = newValue;
+			Emit(-1, "columnChanged");
 			return true;
 		}
 		else {
@@ -350,6 +360,7 @@ copyXASData.deeper("sddSpectrums",5)->setValue("y", 512, 49.3);
 
 		if((int)columnIndex < y_.count()) {
 			y_[columnIndex][i] = newValue;
+			Emit(columnIndex, "columnChanged");
 			return true;
 		}
 
@@ -445,6 +456,8 @@ copyXASData.deeper("sddSpectrums",5)->setValue("y", 512, 49.3);
 				yD_[i] << yD_[i][count_ - 2];
 		}
 
+		Emit(-1, "columnChanged");
+
 	}
 
 	/// This a convenience function, equivalent to setValue(colIndex, count()-1, newValue). It's useful when filling extra columns after append(). \test
@@ -473,17 +486,22 @@ copyXASData.deeper("sddSpectrums",5)->setValue("y", 512, 49.3);
 		x_.clear();
 
 		// iterate through all of the columns and empty them
-		for(int i=0; i<y_.count(); i++)
+		for(int i=0; i<y_.count(); i++) {
 			y_[i].clear();
+		}
 
 		// iterate through all of the subtree columns and empty them.
 		for(int i=0; i<yD_.count(); i++)
 			yD_[i].clear();
 
+		for(int i=-1; i<y_.count(); i++)
+			Emit(i, "columnChanged");
+
 	}
 
 	/// clears all of the data in the tree, and removes all of the columns.
 	void removeAll() {
+
 		x_.clear();
 		y_.clear();
 		yD_.clear();
@@ -492,9 +510,6 @@ copyXASData.deeper("sddSpectrums",5)->setValue("y", 512, 49.3);
 
 
 
-
-
-signals:
 
 public slots:
 

@@ -7,12 +7,16 @@ macx {
         /Users/mboots/dev/epics/14-11/base/include/os/Darwin
     EPICS_LIB_DIR = /Users/mboots/dev/epics/14-11/base/lib/darwin-x86
     PHONON_INCLUDE_DIR = /Library/Frameworks/phonon.framework/Versions/Current/Headers
+    MPLOT_INCLUDE_DIR = /Users/mboots/dev/MPlot/src
 }
 linux-g++ { 
     EPICS_INCLUDE_DIRS = /home/reixs/beamline/programming/epics/base/include \
         /home/reixs/beamline/programming/epics/base/include/os/Linux
     EPICS_LIB_DIR = /home/reixs/beamline/programming/epics/base/lib/linux-x86
     PHONON_INCLUDE_DIR = /usr/include/qt4/phonon
+    
+    # include path for MPlot library (header-files only)
+    MPLOT_INCLUDE_DIR = /home/reixs/beamline/programming/MPlot/src
 }
 QT += core \
     phonon \
@@ -29,6 +33,7 @@ INCLUDEPATH += . \
     ../../source
 INCLUDEPATH += $$EPICS_INCLUDE_DIRS
 INCLUDEPATH += $$PHONON_INCLUDE_DIR
+INCLUDEPATH += $$MPLOT_INCLUDE_DIR
 
 # Epics channel access linking:
 LIBS += -L$$EPICS_LIB_DIR
@@ -102,7 +107,24 @@ HEADERS += source/beamline/AMDiagnosticPaddle.h \
     ../../source/muParser/muParserCallback.h \
     ../../source/muParser/muParserBytecode.h \
     ../../source/muParser/muParserBase.h \
-    ../../source/muParser/muParser.h
+    ../../source/muParser/muParser.h \
+    ../../../MPlot/src/MPlot/MPlotWidget.h \
+    ../../../MPlot/src/MPlot/MPlotTools.h \
+    ../../../MPlot/src/MPlot/MPlotSeriesData.h \
+    ../../../MPlot/src/MPlot/MPlotSeries.h \
+    ../../../MPlot/src/MPlot/MPlotPoint.h \
+    ../../../MPlot/src/MPlot/MPlotMarker.h \
+    ../../../MPlot/src/MPlot/MPlotLegend.h \
+    ../../../MPlot/src/MPlot/MPlotItem.h \
+    ../../../MPlot/src/MPlot/MPlotImageData.h \
+    ../../../MPlot/src/MPlot/MPlotImage.h \
+    ../../../MPlot/src/MPlot/MPlotColorMap.h \
+    ../../../MPlot/src/MPlot/MPlotAxis.h \
+    ../../../MPlot/src/MPlot/MPlotAbstractTool.h \
+    ../../../MPlot/src/MPlot/MPlot.h \
+    ../../source/dataman/AMDataTree.h \
+    ../../source/AMObserver.h \
+    ../../source/AMObservable.h
 
 # FORMS   +=
 SOURCES += source/beamline/AMDiagnosticPaddle.cpp \
@@ -166,4 +188,5 @@ SOURCES += source/beamline/AMDiagnosticPaddle.cpp \
     ../../source/muParser/muParserCallback.cpp \
     ../../source/muParser/muParserBytecode.cpp \
     ../../source/muParser/muParserBase.cpp \
-    ../../source/muParser/muParser.cpp
+    ../../source/muParser/muParser.cpp \
+    ../../source/AMObservable.cpp

@@ -30,8 +30,8 @@ public:
 	typedef QVector<AMNumericType>::reference reference;
 	typedef QVector<AMNumericType>::iterator iterator;
 
-	/// constructor (TODOTODOTOD remove default argument once QHash storage done)
-	AMDataTreeColumn(const QString& name = "x", const QString& description = QString(), const QString& units = QString(), unsigned size = 0)
+	/// constructor
+	AMDataTreeColumn(const QString& name, const QString& description = QString(), const QString& units = QString(), unsigned size = 0)
 		: QVector<AMNumericType>(size),
 		name_(name),
 		description_(description),

@@ -113,7 +113,7 @@ void StyledInputDialog::resizeEvent(QResizeEvent *  event )
 	QDialog::resizeEvent(event);
 
 
-	int side = qMin(width(), height());
+	//int side = qMin(width(), height());
 	// Create a rounded-rectangle mask to shape this window:
 	QPainterPath path;
 	path.addRoundedRect(0, 0, width(), height(), 14, 14);

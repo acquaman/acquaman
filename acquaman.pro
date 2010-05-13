@@ -142,7 +142,9 @@ HEADERS += source/beamline/AMDiagnosticPaddle.h \
     source/muParser/muParserCallback.h \
     source/muParser/muParserBytecode.h \
     source/muParser/muParserBase.h \
-    source/muParser/muParser.h
+    source/muParser/muParser.h \
+    source/AMObservable.h \
+    source/AMObserver.h
 FORMS += source/ui/AbsorptionScanController.ui \
     source/ui/ConnectionSettings.ui \
     source/ui/EmissionScanController.ui \
@@ -226,6 +228,7 @@ SOURCES += source/beamline/AMDiagnosticPaddle.cpp \
     source/muParser/muParserCallback.cpp \
     source/muParser/muParserBytecode.cpp \
     source/muParser/muParserBase.cpp \
-    source/muParser/muParser.cpp
+    source/muParser/muParser.cpp \
+    source/AMObservable.cpp
 RESOURCES = source/icons/icons.qrc
 OTHER_FILES += source/muParser/README.txt

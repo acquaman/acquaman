@@ -8,12 +8,9 @@ AMXASScan::AMXASScan(const QStringList& detectors, QObject *parent)
 	d_.setXName("eV");
 
 	// create columns for each detector (ex: "tey", "tfy", "urinalWaterTemp", etc.)
-	qDebug() << "READY FOR DETECTORS";
-	foreach(QString detect, detectors){
-		if(addDetector(detect))
-			qDebug() << "Success adding detector " << detect;
-		else
-			qDebug() << "FAILED adding detector " << detect;
+
+	foreach(QString detect, detectors) {
+		addDetector(detect);
 	}
 
 
