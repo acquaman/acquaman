@@ -23,7 +23,7 @@ public:
 	explicit AMChannel(AMScan* scan, const QString& name, const QString& expression, const QString& xExpression = "");
 
 	virtual ~AMChannel() {
-		dataTree()->removeObserver(this);
+		dataTree()->observable()->removeObserver(this);
 	}
 
     /// AMChannel name: (ex: "tey", "tfy_io", etc.)

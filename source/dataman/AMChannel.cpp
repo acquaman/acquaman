@@ -16,7 +16,7 @@ AMChannel::AMChannel(AMScan* scan, const QString& name, const QString& expressio
 
 	defaultX_ = true;
 
-	dataTree()->addObserver(this);
+	dataTree()->observable()->addObserver(this);
 
 	parser_.DefineNameChars("0123456789_:"
 						   "abcdefghijklmnopqrstuvwxyz"

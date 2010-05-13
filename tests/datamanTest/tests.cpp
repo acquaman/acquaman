@@ -676,7 +676,7 @@ class TestDataman: public QObject
 			QCOMPARE(s1.channel("tfy_n")->value(i), s1.channel("tfy_n")->dataTree()->value("tfy", i)/s1.channel("tfy_n")->dataTree()->value("I0", i));
 	}
 
-/*
+
 	/// Using test file 001.dat, tests AMChannel expressions (setting expression, setting xExpression, using default xExpression, evaluating expressions, setting and evaluating invalid expressions)
 	void testAMChannel() {
 		AMXASScan s1;
@@ -727,7 +727,8 @@ class TestDataman: public QObject
 		for(int i=0; (unsigned)i<c1->count(); i++)
 			QCOMPARE(c1->x(i), 0.0);
 
-	}*/
+		/// \todo Test Observer/Observable signals
+	}
 
 };
 

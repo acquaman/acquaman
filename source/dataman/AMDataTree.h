@@ -55,10 +55,10 @@ The number of datapoints (whether actual values or AMDataTable links) in any col
 	- set a current column as active column; use for value() and setValue()
 	- expression templates?
 
-	AMDataTree implements the AMObservable interface.  It will AMObservable::Emit() messages when a column changes, using the \c code for the number of the y column (or -1 for the x column.)  (It puts "columnChanged" into the \c msg string.)  You can pickup these messages if you are an AMObserver and you call AMObservable::addObserver(yourself) with \c yourself.
+	AMDataTree has an observable() member that implements the AMObservable interface.  It will AMObservable::observable_.Emit() messages when a column changes, using the \c code for the number of the y column (or -1 for the x column.)  (It puts "columnChanged" into the \c msg string.)  You can pickup these messages if you are an AMObserver and you call observable()->addObserver(yourself) with \c yourself.
 */
 
-class AMDataTree : public QSharedData, public AMObservable {
+class AMDataTree : public QSharedData {
 
 
 public:
@@ -94,14 +94,15 @@ copyXASData.deeper("sddSpectrums",5)->setValue("y", 512, 49.3);
 
 */
 	AMDataTree(const AMDataTree &other)
-		: QSharedData(other), AMObservable(other),
+		: QSharedData(other),
 		count_(other.count_),
 		x_(other.x_),
 		hasXValues_(other.hasXValues_),
 		y_(other.y_),
 		yNames_(other.yNames_),
 		yD_(other.yD_),	///< wrong?
-		yDNames_(other.yDNames_)
+		yDNames_(other.yDNames_),
+		observable_(other.observable_)
 	{
 
 		/// \note: the deep copies required of the subtrees are handled by the QSharedDataPointers pointing to them inside yD_.)
@@ -116,7 +117,7 @@ copyXASData.deeper("sddSpectrums",5)->setValue("y", 512, 49.3);
 		  yNames_ = other.yNames_;
 		  yDNames_ = other.yDNames_;
 		  yD_ = other.yD_;
-		  observers_ = other.observers_;
+		  observable_ = other.observable_;
 		  return *this;
 	   }
 
@@ -332,6 +333,7 @@ copyXASData.deeper("sddSpectrums",5)->setValue("y", 512, 49.3);
 	}
 
 
+	AMObservable* observable() const { return &observable_; }
 
 	// Non-constant (modifier) member functions:
 	////////////////////////////////////////
@@ -340,7 +342,7 @@ copyXASData.deeper("sddSpectrums",5)->setValue("y", 512, 49.3);
 	bool setX(unsigned i, AMNumericType newValue) {
 		if(hasXValues_ && i < count()) {
 			x_[i] = newValue;
-			Emit(-1, "columnChanged");
+			observable_.Emit(-1, "columnChanged");
 			return true;
 		}
 		else {
@@ -360,7 +362,7 @@ copyXASData.deeper("sddSpectrums",5)->setValue("y", 512, 49.3);
 
 		if((int)columnIndex < y_.count()) {
 			y_[columnIndex][i] = newValue;
-			Emit(columnIndex, "columnChanged");
+			observable_.Emit(columnIndex, "columnChanged");
 			return true;
 		}
 
@@ -456,7 +458,7 @@ copyXASData.deeper("sddSpectrums",5)->setValue("y", 512, 49.3);
 				yD_[i] << yD_[i][count_ - 2];
 		}
 
-		Emit(-1, "columnChanged");
+		observable_.Emit(-1, "columnChanged");
 
 	}
 
@@ -495,7 +497,7 @@ copyXASData.deeper("sddSpectrums",5)->setValue("y", 512, 49.3);
 			yD_[i].clear();
 
 		for(int i=-1; i<y_.count(); i++)
-			Emit(i, "columnChanged");
+			observable_.Emit(i, "columnChanged");
 
 	}
 
@@ -536,6 +538,8 @@ protected:
 	QList<AMDataTreeSubtreeColumn> yD_;
 	/// used to lookup subtree column indices based on column names
 	QHash<QString, int> yDNames_;
+
+	mutable AMObservable observable_;
 
 
 };
