@@ -1,5 +1,3 @@
-// small change to demonstrate commits
-
 /*!
 
   \mainpage Acquaman: The Comic-book Hero of Synchrotron Science since 2011
