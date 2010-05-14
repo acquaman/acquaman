@@ -6,11 +6,10 @@
 
 #include <QDebug>
 
-AMChannel::AMChannel(AMScan* scan, const QString& name, const QString& expression, const QString& xExpression) : QObject(scan)
+AMChannel::AMChannel(AMScan* scan, const QString& name, const QString& expression, const QString& xExpression) : QObject(scan), AMObserver(), MPlotAbstractSeriesData()
 {
     name_ = name;
 	scan_ = scan;
-	seriesData_ = new AMChannelSeriesData(this, this);
 
 	min_ = max_ = minX_ = maxX_ = -1;
 
@@ -289,19 +288,23 @@ void AMChannel::searchMaxX() const {
 			maxX_ = i;
 }
 
-void AMChannel::onObservableChanged(AMObservable* source, int colIndex, const char* msg) {
+/// We observe AMDataTrees.  They Emit(3, "columnChanged", columnIndex) whenever values in a column change.
+void AMChannel::onObservableChanged(AMObservable* source, int code, const char* msg, int colIndex) {
 	Q_UNUSED(source)
+	Q_UNUSED(msg)
 
-	if( QString(msg) != QString("columnChanged") )
+	if( code != 3 || QString(msg) != QString("columnChanged") )
 		return;
 
 	// colIndex will be -1 if the x-data column changed, or the y-column index.
 	if(usedColumnIndices_.contains(colIndex)) {
 		min_ = max_ = -1;
 		emit updated();
+		Emit(0, "dataChanged");
 	}
 	if(usedColumnIndicesX_.contains(colIndex)) {
 		minX_ = maxX_ = -1;
 		emit updated();
+		Emit(0, "dataChanged");
 	}
 }

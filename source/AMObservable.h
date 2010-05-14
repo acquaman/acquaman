@@ -3,7 +3,7 @@
 
 #include <QList>
 
-class AMObserver;
+#include "AMObserver.h"
 
 class AMObservable {
 
@@ -30,7 +30,11 @@ public:
   }
 
   /// send an update message to all subscribers. (use the arguments for whatever you want, but be careful ; )
-  virtual void Emit(int code, const char* msg = "");
+  virtual void Emit(int code, const char* msg = "", int payload = 0) {
+	  foreach(AMObserver* observer, observers_)
+		  observer->onObservableChanged(this, code, msg, payload);
+  }
+
 
 protected:
 

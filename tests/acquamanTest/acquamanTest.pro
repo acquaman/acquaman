@@ -188,5 +188,4 @@ SOURCES += source/beamline/AMDiagnosticPaddle.cpp \
     ../../source/muParser/muParserCallback.cpp \
     ../../source/muParser/muParserBytecode.cpp \
     ../../source/muParser/muParserBase.cpp \
-    ../../source/muParser/muParser.cpp \
-    ../../source/AMObservable.cpp
+	../../source/muParser/muParser.cpp

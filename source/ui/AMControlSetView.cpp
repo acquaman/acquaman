@@ -81,8 +81,6 @@ AMControlOptimizationSetView::AMControlOptimizationSetView(AMControlOptimization
 //	MPlotRealtimeModel *data1 = new MPlotRealtimeModel();
 //	MPlotRealtimeModel *data2 = new MPlotRealtimeModel();
 	// These class wrap MPlotRealtimeModel so that they can be used as plot series data.
-	MPlotRealtimeModelSeriesData *sdata1 = new MPlotRealtimeModelSeriesData(*data1);
-	MPlotRealtimeModelSeriesData *sdata2 = new MPlotRealtimeModelSeriesData(*data2);
 
 	/*
 	QList<AMRegion*> contextParams;
@@ -127,13 +125,13 @@ AMControlOptimizationSetView::AMControlOptimizationSetView(AMControlOptimization
 	////////////////////////////////////////////////////
 	MPlotSeriesBasic *series1 = new MPlotSeriesBasic();
 	MPlotSeriesBasic *series2 = new MPlotSeriesBasic();
-	series1->setObjectName("series1");
-	series2->setObjectName("series2");
+	series1->setName("series1");
+	series2->setName("series2");
 	// Enable to plot on the right axis instead of the left axis
 	// series1->setYAxisTarget(MPlotAxis::Right);
 	// connect this plot series as a view on its model (data1, data2)
-	series1->setModel(sdata1);
-	series2->setModel(sdata2);
+	series1->setModel(data1);
+	series2->setModel(data2);
 	// 5. Configure look of the plots:
 	//////////////////////////////////////
 	QPen redSkinny(QBrush(QColor(Qt::red)), 1);	// red, 1pts wide

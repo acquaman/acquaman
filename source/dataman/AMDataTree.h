@@ -55,7 +55,7 @@ The number of datapoints (whether actual values or AMDataTable links) in any col
 	- set a current column as active column; use for value() and setValue()
 	- expression templates?
 
-	AMDataTree has an observable() member that implements the AMObservable interface.  It will AMObservable::observable_.Emit() messages when a column changes, using the \c code for the number of the y column (or -1 for the x column.)  (It puts "columnChanged" into the \c msg string.)  You can pickup these messages if you are an AMObserver and you call observable()->addObserver(yourself) with \c yourself.
+	AMDataTree has an observable() member that implements the AMObservable interface.  It will AMObservable::observable_.Emit() messages when a column changes, using \c code 3 and \c payload for the number of the y column (or -1 for the x column.)  (It puts "columnChanged" into the \c msg string.)  You can pickup these messages if you are an AMObserver and you call observable()->addObserver(yourself) with \c yourself.
 */
 
 class AMDataTree : public QSharedData {
@@ -342,7 +342,7 @@ copyXASData.deeper("sddSpectrums",5)->setValue("y", 512, 49.3);
 	bool setX(unsigned i, AMNumericType newValue) {
 		if(hasXValues_ && i < count()) {
 			x_[i] = newValue;
-			observable_.Emit(-1, "columnChanged");
+			observable_.Emit(3, "columnChanged", -1);
 			return true;
 		}
 		else {
@@ -362,7 +362,7 @@ copyXASData.deeper("sddSpectrums",5)->setValue("y", 512, 49.3);
 
 		if((int)columnIndex < y_.count()) {
 			y_[columnIndex][i] = newValue;
-			observable_.Emit(columnIndex, "columnChanged");
+			observable_.Emit(3, "columnChanged", columnIndex);
 			return true;
 		}
 
@@ -458,7 +458,7 @@ copyXASData.deeper("sddSpectrums",5)->setValue("y", 512, 49.3);
 				yD_[i] << yD_[i][count_ - 2];
 		}
 
-		observable_.Emit(-1, "columnChanged");
+		observable_.Emit(3, "columnChanged", -1);
 
 	}
 
@@ -497,7 +497,7 @@ copyXASData.deeper("sddSpectrums",5)->setValue("y", 512, 49.3);
 			yD_[i].clear();
 
 		for(int i=-1; i<y_.count(); i++)
-			observable_.Emit(i, "columnChanged");
+			observable_.Emit(3, "columnChanged", i);
 
 	}
 
