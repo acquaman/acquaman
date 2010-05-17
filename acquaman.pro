@@ -230,7 +230,6 @@ SOURCES += source/beamline/AMDiagnosticPaddle.cpp \
     source/muParser/muParserBytecode.cpp \
     source/muParser/muParserBase.cpp \
     source/muParser/muParser.cpp \
-    source/AMObservable.cpp \
     source/acquaman/AMRegionsList.cpp
 RESOURCES = source/icons/icons.qrc
 OTHER_FILES += source/muParser/README.txt
