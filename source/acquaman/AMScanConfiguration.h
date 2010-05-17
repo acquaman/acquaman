@@ -2,7 +2,8 @@
 #define ACQMAN_SCANCONFIGURATION_H
 
 #include <QObject>
-#include "AMRegion.h"
+//#include "AMRegion.h"
+#include "AMRegionsList.h"
 
 /// An AMScanConfiguration is the abstract parent class of all scan configurations.
 /*!

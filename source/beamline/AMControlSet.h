@@ -6,7 +6,8 @@
 #include <QMap>
 #include <QVariant>
 //#include "acquaman/AMScanConfiguration.h"
-#include "acquaman/AMRegion.h"
+//#include "acquaman/AMRegion.h"
+#include "acquaman/AMRegionsList.h"
 
 /// An AMControlSet is designed to hold a logical group of controls.
 /*!
