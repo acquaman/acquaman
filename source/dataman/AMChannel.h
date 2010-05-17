@@ -12,10 +12,9 @@
 #include "AMObserver.h"
 
 class AMScan;
-class AMChannelSeriesData;
 
 /// An AMChannel is a way of looking at raw data associated with a particular AMScan, as a 2D (or x-y data point) series.  The y-values of the channel can be set as any mathematical expression where the variables are the names of columns in the raw data (setExpression()).  The x-values can come directly from the x-data column (by default) or from a similar mathematical expression (setXExpression()).
-class AMChannel : public QObject, public AMObserver {
+class AMChannel : public QObject, public AMObserver, public MPlotAbstractSeriesData {
 Q_OBJECT
 Q_PROPERTY(QString name READ name)
 
@@ -41,9 +40,10 @@ public:
 	unsigned count() const { return dataTree()->count(); }
 
 	/// the (y) value of this channel at index \c p
-	double value(unsigned p) const;
+	virtual double value(unsigned p) const;
+	virtual double y(unsigned p) const { return value(p); }
 	/// the x value of this channel at index \c p
-	double x(unsigned p) const;
+	virtual double x(unsigned p) const;
 
 	/// Returns true if both expressions are set to valid expressions; the value() and x() will be what you asked for.
 	bool isValid() const { return isValid_ && isValidX_; }
@@ -52,14 +52,24 @@ public:
 	QString errorMsg() const;
 	QString longErrorMsg() const;
 
-	/// returns this channel's AMChannelSeriesData, which can be used for plotting within MPlot
-	AMChannelSeriesData* seriesData() { return seriesData_; }
 
 	/// returns the min/max values.  Warning: use only when count() >= 1.  Do not call on an empty channel. (\todo : the data tree columns already track min/max in an optimized way.  Is there any way to benefit from this, with an arbitrary expression?)
 	double min() const { if(min_ == -1) searchMin(); return value(min_); }
 	double max() const { if(min_ == -1) searchMax(); return value(max_); }
 	double minX() const { if(minX_ == -1) searchMinX(); return x(minX_); }
 	double maxX() const { if(maxX_ == -1) searchMaxX(); return x(maxX_); }
+
+	virtual QRectF boundingRect() const {
+		if(count() == 0)
+			return QRectF();
+		else {
+			double mins = min();
+			double maxs = max();
+			double minXs = minX();
+			double maxXs = maxX();
+			return QRectF(QPointF(minXs, mins), QSizeF(maxXs-minXs, maxs-mins));
+		}
+	}
 
 signals:
 	/// \todo emit error messages and eror codes?
@@ -76,7 +86,7 @@ public slots:
 
 	/// Implementing AMObserver requirements:
 public:
-	virtual void onObservableChanged(AMObservable* source, int code, const char* msg);
+	virtual void onObservableChanged(AMObservable* source, int code, const char* msg, int payload = 0);
 
 protected:
 	/// Name of this channel (Cannot be changed; used to retrieve channels from a scan with AMScan::channel(). )
@@ -103,8 +113,6 @@ protected:
 	/// used to remember if the expressions were set successfully:
 	bool isValid_, isValidX_;
 
-	/// pointer to represetntation
-	AMChannelSeriesData* seriesData_;
 
 	/// max, min index tracking:
 	mutable int min_, max_, minX_, maxX_;
@@ -122,50 +130,7 @@ public:
 
 };
 
-class AMChannelSeriesData : public MPlotAbstractSeriesData {
-	Q_OBJECT
 
-public:
-	AMChannelSeriesData(AMChannel* channel, QObject* parent = 0) : MPlotAbstractSeriesData(parent) {
-		channel_ = channel;
-		connect(channel_, SIGNAL(updated()), this, SLOT(onFwdDataChanged()));
-	}
-
-	// Return the x-value (y-value) at index:
-	virtual double x(unsigned index) const { return channel_->x(index); }
-	virtual double y(unsigned index) const { return channel_->value(index); }
-
-	// Return the number of elements
-	virtual unsigned count() const { return channel_->count(); }
-
-
-	// Return the bounds of the data (the rectangle containing the max/min x- and y-values)
-	virtual QRectF boundingRect() const {
-		if(channel_->count() == 0)
-			return QRectF();
-		else {
-			double min = channel_->min();
-			double max = channel_->max();
-			double minX = channel_->minX();
-			double maxX = channel_->maxX();
-			return QRectF(QPointF(minX, min), QSizeF(maxX-minX, max-min));
-		}
-	}
-
-signals:
-	// Emit this when the data has been changed (will trigger a plot update)
-	// The arguments let you specify the range of data that has been changed (inclusive)
-	// To force an update of the entire plot, specify fromIndex > toIndex.
-	void dataChanged(unsigned fromIndex, unsigned toIndex);
-
-protected slots:
-	void onFwdDataChanged() {
-		emit dataChanged(1,0);
-	}
-
-protected:
-	AMChannel* channel_;
-};
 
 
 #endif // CHANNEL_H
