@@ -4,6 +4,8 @@
 #include <QTime>
 #include <QStringList>
 
+#include "AMErrorMonitor.h"
+
 #include "AMScanController.h"
 #include "qdebug.h"
 
@@ -31,14 +33,17 @@ public slots:
 				acqRegisterOutputHandler( advAcq_->getMaster(), (acqKey_t) abop, &abop->handler);                // register the handler with the acquisition
 				abop->setProperty( "File Template", "daveData.%03d.dat");                           // set the file name to be recorded to
 				QStringList scanDetectors;
-				scanDetectors << "eV Fbk" << "reading";
+				scanDetectors << "eV_Fbk" << "reading";
 				curScan_ = new AMXASScan(scanDetectors);
+				curScan_->addChannel("eV", "eV");
+				curScan_->addChannel("TEY", "reading");
+				curScan_->addChannel("Jitter", "eV_Fbk");
 				((AMAcqScanOutput*)abop)->setScan(curScan_);
 			}
 			advAcq_->Start();
 		}
 		else
-			qDebug() << "Hold your horses!";
+			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -1, "AMDacqScanController: attempted start on uninitialized controller."));
 	}
 	/// Cancel scan if currently running or paused
 	virtual void cancel();

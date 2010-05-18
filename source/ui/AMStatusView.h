@@ -259,7 +259,6 @@ protected:
 		QPoint d = QPoint(-popup_->geometry().width()/2 + geometry().width()/2, geometry().height());
 		popup_->move( mapToGlobal(d) );
 		int initVal = popup_->geometry().y();
-		qDebug() << "Suggested " << popup_->sizeHint().height() << " " << popup_->minimumSizeHint().height();
 		int startHeight = popup_->minimumSizeHint().height();
 		popup_->setStartHeight(startHeight);
 		openAnime->setStartValue(QRect(popup_->geometry().x(), initVal-startHeight, popup_->geometry().width(), startHeight));

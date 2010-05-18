@@ -30,7 +30,6 @@ public:
 
 	/// Returns the name defined for the control set.
 	QString name() const { return name_;}
-	//const QList<const AMControl*> controls() const { return ctrls_;}
 	/// Returns the QList of AMControl pointers that currently comprise the controls in the set.
 	QList<AMControl*> controls() { return ctrls_;}
 
@@ -72,7 +71,6 @@ public:
 	QString name() const { return name_;}
 	/// Returns a QMap to represent the output to optimize. Can be thought of as x-y pairs for a graph.
 	/// The context parameters allow only the necessary region to be returned.
-//	virtual QMap<double, double> curve(QList<QVariant> stateParameters, QList<AMRegion*> contextParameters);
 	virtual QMap<double, double> curve(QList<QVariant> stateParameters, AMRegionsList* contextParameters);
 
 public slots:
@@ -99,9 +97,7 @@ public:
 
 	/// Adds an AMControlOptimization to the set.
 	void addOptimization(AMControlOptimization *optimization){ outputs_.append(optimization) ;}
-//	QMap<double, double> curveAt(size_t index, QList<QVariant> stateParameters, QList<AMRegion*> contextParameters){
 	QMap<double, double> curveAt(size_t index, QList<QVariant> stateParameters, AMRegionsList* contextParameters){
-		qDebug() << "Running reg curve on " << index << " who is " << outputs_.at(index)->name();
 		return outputs_.at(index)->curve(stateParameters, contextParameters);
 	}
 

@@ -1,7 +1,6 @@
 #include "AMRegionsList.h"
 
 AMRegionsList::AMRegionsList(QObject *parent, bool setup) : QObject(parent){
-	qDebug() << "Running RegionsList constructor";
 	defaultControl_ = NULL;
 //	regions_ = new AMRegionsListModel(this);
 	regions_ = NULL;
@@ -32,10 +31,8 @@ double AMRegionsList::end(size_t index) const{
 }
 
 bool AMRegionsList::addRegion(size_t index, double start, double delta, double end){
-	qDebug() << "Doing addRegion in AMRegionsList";
 	if(!defaultControl_)
-		{qDebug() << "And failed default control test"; return false;}
-	qDebug() << "And passed default control test";
+		return false;
 	bool retVal;
 	regions_->insertRows(index, 1);
 	retVal = setStart(index, start) && setDelta(index, delta) && setEnd(index, end);
@@ -45,7 +42,6 @@ bool AMRegionsList::addRegion(size_t index, double start, double delta, double e
 }
 
 bool AMRegionsList::setupModel(){
-	qDebug() << "SETTING UP A REGIONSLISTMODEL";
 	regions_ = new AMRegionsListModel(this);
 	if(regions_)
 		return true;
@@ -53,7 +49,6 @@ bool AMRegionsList::setupModel(){
 }
 
 bool AMXASRegionsList::setupModel(){
-	qDebug() << "SETTING UP A XASREGIONSLISTMODEL";
 	regions_ = new AMXASRegionsListModel(this);
 	if(regions_)
 		return true;

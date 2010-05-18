@@ -1,6 +1,13 @@
 #include "AMDacqScanController.h"
 #include <qdebug.h>
 
+#include "../MPlot/src/MPlot/MPlotWidget.h"
+#include "../MPlot/src/MPlot/MPlotSeriesData.h"
+#include "../MPlot/src/MPlot/MPlotSeries.h"
+#include "../MPlot/src/MPlot/MPlotImageData.h"
+#include "../MPlot/src/MPlot/MPlotImage.h"
+#include "../MPlot/src/MPlot/MPlotTools.h"
+
 AMDacqScanController::AMDacqScanController(QObject *parent)
 {
 
@@ -16,43 +23,6 @@ AMDacqScanController::AMDacqScanController(QObject *parent)
 
 	curScan_ = NULL;
 
-	/*
-	qDebug() << "Start of dacqscancontroller constructor";
-
-	acqMaster_t *master;
-	master = new_acqMaster();
-	acq_file_load("myScan.cfg", master);
-	acqScan_t *sp = first_acqScan(master);
-//    getValue(sp->scanName, "start", x)
-	qDebug() << "with values of " << sp->acqControlList[0].startVal << " " << sp->acqControlList[0].deltaVal << " " << sp->acqControlList[0].finalVal;
-	if( Standby_mode(master) == 1 && Run_mode(master) == 0)
-		startMonitorTask(master);
-	*/
-	/*
-	QEpicsAcqLocal *lAcq = new QEpicsAcqLocal();
-	QEpicsAdvAcq *myAcq = new QEpicsAdvAcq(lAcq);
-	myAcq->setConfigFile("myScan.cfg");
-	acqBaseOutput *abop = acqOutputHandlerFactory::new_acqOutput("SimpleText", "File");
-	if( abop)
-	{
-		acqRegisterOutputHandler( myAcq->getMaster(), (acqKey_t) abop, &abop->handler);                // register the handler with the acquisition
-		abop->setProperty( "File Template", "daveData.%03d.dat");                           // set the file name to be recorded to
-	}
-
-	for(int x = 0; x < myAcq->getNumRegions(); x++)
-		qDebug() << "Start is " << myAcq->getStrStart(x) << " delta is " << myAcq->getStrDelta(x) << " end is " << myAcq->getStrEnd(x);
-	myAcq->setStart(0, 285);
-	myAcq->setDelta(0, 0.1);
-	myAcq->setEnd(0, 286);
-	for(int x = 0; x < myAcq->getNumRegions(); x++)
-		qDebug() << "Start is " << myAcq->getStrStart(x) << " delta is " << myAcq->getStrDelta(x) << " end is " << myAcq->getStrEnd(x);
-	myAcq->addRegion(1, 286.3, 0.3, 289, 1);
-	for(int x = 0; x < myAcq->getNumRegions(); x++)
-		qDebug() << "Start is " << myAcq->getStrStart(x) << " delta is " << myAcq->getStrDelta(x) << " end is " << myAcq->getStrEnd(x);
-	myAcq->Start();
-
-	qDebug() << "end of dacqscancontroller constructor";
-	*/
 }
 
 ///// Sets a new scan configuration
@@ -84,7 +54,7 @@ void AMDacqScanController::onStop()
 		emit finished();
 
 	if(curScan_){
-		qDebug() << "Starting to print scan data for";
+		qDebug() << "END OF SCAN\n\n\nStarting to print scan data for";
 		qDebug() << curScan_->detectors().count() << " columns";
 		qDebug() << curScan_->d_.count() << " rows";
 
@@ -94,6 +64,25 @@ void AMDacqScanController::onStop()
 				qDebug() << "Value is " << curScan_->d_.value(y, x);
 			qDebug() << "Done row\n";
 		}
+
+		MPlotWidget *plotWindow = new MPlotWidget();
+		MPlot *plot = new MPlot();
+		plotWindow->setPlot(plot);
+
+		MPlotSeriesBasic *series1;
+//		for(int y = 0; y < curScan_->numChannels(); y++){
+		for(int y = 1; y < 2; y++){
+			series1 = new MPlotSeriesBasic();
+			MPlotRealtimeModel *data1 = new MPlotRealtimeModel();
+			for(int x = 0; x < curScan_->channel(y)->count(); x++)
+				data1->insertPointBack(curScan_->channel(y)->x(x), curScan_->channel(y)->y(x));
+			series1->setModel(data1);
+			plot->addItem(series1);
+		}
+
+		plot->setScalePadding(5);
+		plot->enableAutoScale(MPlotAxis::Left | MPlotAxis::Bottom);
+		plotWindow->show();
 	}
 
 }

@@ -150,7 +150,7 @@ bool SGMLegacyFileImporter::loadFromFile(const QString& filepath) {
 	if(colNames1.contains("tey") && colNames1.contains("I0"))
 		scan_->addChannel("tey_n", "tey/I0");
 	if(colNames1.contains("tfy") && colNames1.contains("I0"))
-		scan_->addChannel("tfy_n", "tfy/I0");
+		scan_->addChannel("tfy_n", "-1*tfy/I0");
 
 	scan_->notifyUpdated();
 

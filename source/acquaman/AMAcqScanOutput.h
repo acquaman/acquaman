@@ -23,6 +23,13 @@ acqKey_t new_AMAcqScanOutput(void);
 #include <qmap.h>
 #include <string>
 
+#include "../MPlot/src/MPlot/MPlotWidget.h"
+#include "../MPlot/src/MPlot/MPlotSeriesData.h"
+#include "../MPlot/src/MPlot/MPlotSeries.h"
+#include "../MPlot/src/MPlot/MPlotImageData.h"
+#include "../MPlot/src/MPlot/MPlotImage.h"
+#include "../MPlot/src/MPlot/MPlotTools.h"
+
 
 class AMAcqScanOutput : public acqTextOutput
 {
@@ -67,6 +74,11 @@ private:
 	AMXASScan *scan_;
 	QMap<int, double> dataDelayList_;
 	bool dataDelay_;
+
+	MPlotWidget *plotWindow;
+	MPlot *plot;
+	MPlotSeriesBasic *series1;
+	MPlotRealtimeModel *data1;
 };
 
 #endif /* __cplusplus */
