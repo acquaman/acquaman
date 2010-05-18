@@ -56,7 +56,6 @@ Q_OBJECT
 
 public:
 	AMXASRegionsList(QObject *parent = 0, bool setup = true) : AMRegionsList(parent, false) {
-		qDebug() << "Running XASRegionsList constructor";
 		if(setup)
 			setupModel();
 }

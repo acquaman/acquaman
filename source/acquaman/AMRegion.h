@@ -48,7 +48,7 @@ public:
 public slots:
 	/// Sets the start value from the double passed in. Does not affect the AMControl directly.
 	/// \todo A check on the limits of the AMControl?
-	virtual bool setStart(double start) { start_ = start; qDebug() << "Trying setStart in AMRegion"; return TRUE;}
+	virtual bool setStart(double start) { start_ = start; return TRUE;}
 	/// Sets the delta value from the double passed in. The value MUST BE non-zero, or function will return false. Does not affect the AMControl direclty.
 	virtual bool setDelta(double delta);
 	/// Sets the end value from the double passed in. Does not affect the AMControl directly.
@@ -135,7 +135,7 @@ class AMXASRegionsListModel : public AMRegionsListModel{
 Q_OBJECT
 
 public:
-	AMXASRegionsListModel(QObject *parent = 0) : AMRegionsListModel(parent) {qDebug() << "Running XASRegionsListModel constructor";}
+	AMXASRegionsListModel(QObject *parent = 0) : AMRegionsListModel(parent) {}
 
 	bool insertRows(int position, int rows, const QModelIndex &index = QModelIndex());
 

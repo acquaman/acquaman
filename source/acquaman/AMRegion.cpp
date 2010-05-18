@@ -16,7 +16,6 @@ bool AMRegion::setDelta(double delta) {
 AMRegionsListModel::AMRegionsListModel(QObject *parent) : QAbstractTableModel(parent) {
 	regions_ = new QList<AMRegion*>();
 	defaultControl_ = NULL;
-	qDebug() << "Running RegionsListModel constructor";
 }
 
 QVariant AMRegionsListModel::data(const QModelIndex &index, int role) const{
@@ -112,7 +111,6 @@ bool AMRegionsListModel::setData(const QModelIndex &index, const QVariant &value
 }
 
 bool AMRegionsListModel::insertRows(int position, int rows, const QModelIndex &index){
-	qDebug() << "Doing insertRows in RegionsListModel";
 	if (index.row() <= regions_->count() && defaultControl_) {
 		beginInsertRows(QModelIndex(), position, position+rows-1);
 
@@ -131,7 +129,6 @@ bool AMRegionsListModel::insertRows(int position, int rows, const QModelIndex &i
 }
 
 bool AMRegionsListModel::removeRows(int position, int rows, const QModelIndex &index){
-	qDebug() << "Doing removeRows in model";
 	if (index.row() < regions_->count()) {
 		beginRemoveRows(QModelIndex(), position, position+rows-1);
 
@@ -157,10 +154,8 @@ Qt::ItemFlags AMRegionsListModel::flags(const QModelIndex &index) const{
 
 /// Sets the start value from the double passed in. Makes sure the energy is within the allowable range, otherwise returns false.
 bool AMXASRegion::setStart(double start) {
-	qDebug() << "Trying setStart in AMXASRegion";
 	if(ctrl_->valueOutOfRange(start))
-	{qDebug() << "In AMXASRegion setStart it's bad"; return FALSE;}
-	qDebug() << "In AMXASRegion setStart it's good";
+		return FALSE;
 	start_ = start;
 	return TRUE;
 }
@@ -174,7 +169,6 @@ bool AMXASRegion::setEnd(double end) {
 }
 
 bool AMXASRegionsListModel::insertRows(int position, int rows, const QModelIndex &index){
-	qDebug() << "Doing insertRows in XASRegionsListModel";
 	if (index.row() <= regions_->count() && defaultControl_) {
 		beginInsertRows(QModelIndex(), position, position+rows-1);
 

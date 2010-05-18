@@ -16,6 +16,18 @@ AMAcqScanOutput::AMAcqScanOutput(){
 	handler.pvValue_cb = putValue;
 	handler.shutdown_cb = shutdown;
 	dataDelay_ = true;
+
+	plotWindow = new MPlotWidget();
+	plot = new MPlot();
+	plotWindow->setPlot(plot);
+	series1 = new MPlotSeriesBasic();
+	data1 = new MPlotRealtimeModel();
+	series1->setModel(data1);
+	plot->addItem(series1);
+	plot->setScalePadding(5);
+	plot->enableAutoScale(MPlotAxis::Left | MPlotAxis::Bottom);
+	plotWindow->resize(450, 450);
+	plotWindow->show();
 }
 
 AMAcqScanOutput::~AMAcqScanOutput(){
@@ -209,10 +221,10 @@ int AMAcqScanOutput::startRecord( acqKey_t key, int eventno)
 		evpr->prevTime = curTime;
 		END XML STUFF*/
 
-		qDebug() << "NEW READINGS";
 		to->dataDelayList_.clear();
 		to->dataDelay_ = true;
-		qDebug() << "Detectors are " << to->scan_->detectors();
+
+
 //		return 1;
 
 
@@ -270,7 +282,6 @@ int AMAcqScanOutput::endRecord( acqKey_t key, int eventno)
 		to->acq_flush();
 		END XML STUFF*/
 
-//		qDebug() << "DONE READING\n\n";
 //		return 1;
 
 //		acqTextOutput *to = (acqTextOutput *)key;
@@ -284,7 +295,6 @@ int AMAcqScanOutput::endRecord( acqKey_t key, int eventno)
 }
 int AMAcqScanOutput::putValue( acqKey_t key, int eventno, int pvno, const void *value, int count)
 {
-	qDebug() << "putValue has eventno: " << eventno << " pvno: " << pvno << " and count: " << count;
 	AMAcqScanOutput *to = (AMAcqScanOutput *)key;
 	ScanPVPrivate *pvpr = (ScanPVPrivate *)to->pvInfo[makeuid(eventno, pvno)];
 	if(pvpr){
@@ -297,110 +307,57 @@ int AMAcqScanOutput::putValue( acqKey_t key, int eventno, int pvno, const void *
 	switch( pvpr->colp->columnType)
 	{
 	case DBF_STRING:
-		qDebug() << "It's a string: " << (char *)value;
 		break;
 	case DBF_ENUM:	// ENUM support is difficult if the value may be passed through multiple
 			// processes before being handled. It is the responsibility of the inheriting class
 			// to determine how to convert enums to strings, probably with support from the
 			// calling program.
+		break;
 	case DBF_SHORT:
-		qDebug() << "It's a short: " << *(short *)value;
 		dataVal = (double)*(short *)value;
 		break;
 	case DBF_FLOAT:
-		qDebug() << "It's a float: " << *(float *)value;
 		dataVal = (double)*(float *)value;
 		break;
 	case DBF_CHAR:
-		qDebug() << "It's a char: " << *(char *)value;
 		dataVal = (double)*(char *)value;
 		break;
 	case DBF_LONG:
-		qDebug() << "It's a long: " << *(long *)value;
 		dataVal = (double)*(long *)value;
 		break;
 	case DBF_DOUBLE:
-		qDebug() << "It's a double: " << *(double *)value;
 		dataVal = *(double *)value;
 		break;
 	default:
-//					handlerSignal(acqBaseOutput_BadType);
 		return -1;
 	}
 
 
 	if(!to->dataDelay_){
-		qDebug() << "Delaying done, entering " << dataVal << " at " << pvno;
 		to->scan_->d_.setLastValue(pvno-1, dataVal);
-		qDebug() << "Done with " << dataVal << " at " << pvno;
+		if(pvno == 2)
+			to->data1->insertPointBack(to->scan_->d_.x(to->scan_->d_.count()-1), dataVal);
 	}
 	else if( (pvno != 0) && (eventno == 1) ){
-		qDebug() << "Still delaying for " << dataVal << " at " << pvno;
 		to->dataDelayList_[pvno] = dataVal;
-		qDebug() << "Done with " << dataVal << " delayed at " << pvno;
 	}
 	else if( (pvno == 0) && (eventno == 1) ){
 		to->dataDelay_ = false;
 
-		qDebug() << "Found ev " << dataVal << " at " << pvno;
 		// append a new datapoint to the data tree (supply primary eV value here)
 		to->scan_->d_.append(dataVal);	// insert eV
-		qDebug() << "Done with ev " << dataVal << " at " << pvno;
 
 		QMap<int, double>::const_iterator i = to->dataDelayList_.constBegin();
 		while (i != to->dataDelayList_.constEnd()) {
-			qDebug() << "Undelaying " << i.value() << " at " << i.key();
 			to->scan_->d_.setLastValue(i.key()-1, i.value());
-			qDebug() << "Done undelaying " << i.value() << " at " << i.key();
-//			 cout << i.key() << ": " << i.value() << endl;
+			if(i.key() == 2)
+				to->data1->insertPointBack(dataVal, i.value());
 			++i;
 		}
 	}
 
 
 	return 0;
-
-/*
-		AMAcqScanOutput *to = (AMAcqScanOutput *)key;
-		acqOutputColumn_t *col;
-		acqOutputEvent_t *event;
-		char result[100];
-		pvPrivate *pvpr;
-		eventPrivate *evpr;
-
-		//DEBUG(to) printf("putValue( %p, %d, %d, %p, %d)\n", key, eventno, pvno, value, count);
-		event = to->find_event_number(eventno);
-		if( event == NULL )
-				return -1;
-		if( pvno < 0 || pvno >= event->nColumn)
-				return -1;
-		col = &event->column[pvno];
-		pvpr = (pvPrivate *)col->private_data;
-		evpr = (eventPrivate *)event->private_data;
-
-		//
-		// normal value
-		//
-		if( value == NULL)
-		{
-				to->sendOutputLine( "<datum n=%d connect=fail></datum>\n", to->outputCol++);
-				return 1;
-		}
-		to->sendOutputLine( "<datum n=%d>", to->outputCol++);
-		for(int i=0; i < count; i++)
-		{
-			qDebug() << "Looping in putValue on count " << count;
-				if (to->value_to_string(value, col->columnType, pvpr->format, result, sizeof result) < 0)
-				{
-						to->sendOutputLine( "<Error/>");
-						continue;
-				}
-				to->sendOutputLine( "%s%s", result,(i<count-1?" ":""));
-
-		}
-		to->sendOutputLine( "</datum>\n");
-		return 1;
-*/
 }
 
 int AMAcqScanOutput::shutdown( acqKey_t key)
@@ -434,41 +391,6 @@ int AMAcqScanOutput::ScanPVPrivate::output(acqKey_t key, int dataType, const voi
 			to->sendOutputLine( "<No Connection>");
 			to->needDelimiter = true;
 			continue;
-		}
-		qDebug() << "Trying to switch on type";
-		switch( dataType)
-		{
-		case DBF_STRING:
-			qDebug() << "It's a string: " << (char *)value;
-//					strncpy( result, (char *)value, result_max);
-			break;
-		case DBF_ENUM:	// ENUM support is difficult if the value may be passed through multiple
-				// processes before being handled. It is the responsibility of the inheriting class
-				// to determine how to convert enums to strings, probably with support from the
-				// calling program.
-		case DBF_SHORT:
-			qDebug() << "It's a short: " << *(short *)value;
-//					snprintf(result, result_max, format?format:"%d", *(short *)value);
-			break;
-		case DBF_FLOAT:
-			qDebug() << "It's a float: " << *(float *)value;
-//					snprintf(result, result_max, format?format:"%g", *(float *)value);
-			break;
-		case DBF_CHAR:
-			qDebug() << "It's a char: " << *(char *)value;
-//					snprintf(result, result_max, format?format:"%d", *(char *)value);
-			break;
-		case DBF_LONG:
-			qDebug() << "It's a long: " << *(long *)value;
-//					snprintf(result, result_max, format?format:"%ld", *(long *)value);
-			break;
-		case DBF_DOUBLE:
-			qDebug() << "It's a double: " << *(double *)value;
-//					snprintf(result, result_max, format?format:"%g", *(double *)value);
-			break;
-		default:
-//					handlerSignal(acqBaseOutput_BadType);
-			return -1;
 		}
 
 		if (to->value_to_string(value, dataType, format, result, sizeof result) < 0)

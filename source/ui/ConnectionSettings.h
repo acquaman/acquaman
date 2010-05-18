@@ -9,6 +9,14 @@
 #include "beamline/AMControlState.h"
 #include "ui/NumericControl.h"
 #include "acquaman/SGM/SGMXASDacqScanController.h"
+#include "dataman/SGMLegacyFileImporter.h"
+
+#include "../MPlot/src/MPlot/MPlotWidget.h"
+#include "../MPlot/src/MPlot/MPlotSeriesData.h"
+#include "../MPlot/src/MPlot/MPlotSeries.h"
+#include "../MPlot/src/MPlot/MPlotImageData.h"
+#include "../MPlot/src/MPlot/MPlotImage.h"
+#include "../MPlot/src/MPlot/MPlotTools.h"
 
 class ConnectionSettings : public QWidget, private Ui::ConnectionSettings {
 
@@ -30,7 +38,6 @@ public:
 		connect(ringI1, SIGNAL(connected(bool)), spinBox, SLOT(setEnabled(bool)));
 		*/
 
-//                qDebug() << "Energy value is " << SGMBeamline::sgm()->energy()->value() << " and slit value is " << SGMBeamline::sgm()->exitSlitGap()->value();
 				AMControlState *csTest = new AMControlState(SGMBeamline::sgm(), this);
 				csTest->vomit();
 
@@ -61,36 +68,6 @@ public:
 				connect(this->setlist, SIGNAL(clicked()), this, SLOT(onSetListRequested()));
 				connect(this->setupScanButton, SIGNAL(clicked()), this, SLOT(onSetupScan()));
 				connect(this->scanButton, SIGNAL(clicked()), this, SLOT(onStartScan()));
-				/*
-				connect(SGMBeamline::sgm()->energy(), SIGNAL(valueChanged(double)), hxpd_x_read, SLOT(setValue(double)));
-				connect(SGMBeamline::sgm()->energy(), SIGNAL(connected(bool)), hxpd_x_read, SLOT(setEnabled(bool)));
-				connect(SGMBeamline::sgm()->energy(), SIGNAL(unitsChanged(const QString&)), hxpd_units, SLOT(setText(const QString&)));
-								connect(SGMBeamline::sgm()->energy(), SIGNAL(movingChanged(bool)), hxpd_moving, SLOT(setChecked(bool)));
-				connect(this->hxpd_move, SIGNAL(clicked()), this, SLOT(onMoveSent()));
-
-				connect(SGMBeamline::sgm()->m4(), SIGNAL(valueChanged(double)), m4_read, SLOT(setValue(double)));
-				connect(SGMBeamline::sgm()->m4(), SIGNAL(connected(bool)), m4_read, SLOT(setEnabled(bool)));
-				connect(SGMBeamline::sgm()->m4(), SIGNAL(unitsChanged(QString)), m4_units, SLOT(setText(QString)));
-								connect(SGMBeamline::sgm()->m4(), SIGNAL(movingChanged(bool)), m4_moving, SLOT(setChecked(bool)));
-
-				connect(SGMBeamline::sgm()->m4()->child(0), SIGNAL(valueChanged(double)), m4inboard_read, SLOT(setValue(double)));
-				connect(SGMBeamline::sgm()->m4()->child(0), SIGNAL(connected(bool)), m4inboard_read, SLOT(setEnabled(bool)));
-				connect(SGMBeamline::sgm()->m4()->child(0), SIGNAL(unitsChanged(QString)), m4inboard_units, SLOT(setText(QString)));
-								connect(SGMBeamline::sgm()->m4()->child(0), SIGNAL(movingChanged(bool)), m4inboard_moving, SLOT(setChecked(bool)));
-				connect(this->m4inboard_move, SIGNAL(clicked()), this, SLOT(onM4InboardMoveSent()));
-
-				connect(SGMBeamline::sgm()->m4()->child(1), SIGNAL(valueChanged(double)), m4outboard_read, SLOT(setValue(double)));
-				connect(SGMBeamline::sgm()->m4()->child(1), SIGNAL(connected(bool)), m4outboard_read, SLOT(setEnabled(bool)));
-				connect(SGMBeamline::sgm()->m4()->child(1), SIGNAL(unitsChanged(QString)), m4outboard_units, SLOT(setText(QString)));
-								connect(SGMBeamline::sgm()->m4()->child(1), SIGNAL(movingChanged(bool)), m4outboard_moving, SLOT(setChecked(bool)));
-				connect(this->m4outboard_move, SIGNAL(clicked()), this, SLOT(onM4OutboardMoveSent()));
-
-				connect(SGMBeamline::sgm()->m4()->child(2), SIGNAL(valueChanged(double)), m4downstream_read, SLOT(setValue(double)));
-				connect(SGMBeamline::sgm()->m4()->child(2), SIGNAL(connected(bool)), m4downstream_read, SLOT(setEnabled(bool)));
-				connect(SGMBeamline::sgm()->m4()->child(2), SIGNAL(unitsChanged(QString)), m4downstream_units, SLOT(setText(QString)));
-								connect(SGMBeamline::sgm()->m4()->child(2), SIGNAL(movingChanged(bool)), m4downstream_moving, SLOT(setChecked(bool)));
-				connect(this->m4downstream_move, SIGNAL(clicked()), this, SLOT(onM4DownstreamMoveSent()));
-				*/
 
 				NumericControl* nc = new NumericControl(AMBeamline::bl()->spectrometer()->hexapod()->x(), placeHolder);
 				Q_UNUSED(nc);
@@ -115,31 +92,21 @@ public:
 				NumericControl *nc11 = new NumericControl(SGMBeamline::sgm()->exitSlitTracking(), eTrackHolder);
 				Q_UNUSED(nc11);
 
-//                slitGapDoubleSpinBox->setMaximum(SGMBeamline::sgm()->exitSlitGap()->maximumValue());
-//                slitGapDoubleSpinBox->setMinimum(SGMBeamline::sgm()->exitSlitGap()->minimumValue());
 				slitGapDoubleSpinBox->setMaximum(250);
 				slitGapDoubleSpinBox->setMinimum(5);
 
 
 
- //               undulatorTrackingSpinBox->setMaximum(SGMBeamline::sgm()->undulatorTracking()->maximumValue());
- //               undulatorTrackingSpinBox->setMinimum(SGMBeamline::sgm()->undulatorTracking()->minimumValue());
 				undulatorTrackingSpinBox->setMaximum(1);
 				undulatorTrackingSpinBox->setMinimum(0);
 
 
-//                monoTrackingSpinBox->setMaximum(SGMBeamline::sgm()->monoTracking()->maximumValue());
-//                monoTrackingSpinBox->setMinimum(SGMBeamline::sgm()->monoTracking()->minimumValue());
 				monoTrackingSpinBox->setMaximum(1);
 				monoTrackingSpinBox->setMinimum(0);
 
-//                exitSlitTrackingSpinBox->setMaximum(SGMBeamline::sgm()->exitSlitTracking()->maximumValue());
-//                exitSlitTrackingSpinBox->setMinimum(SGMBeamline::sgm()->exitSlitTracking()->minimumValue());
 				exitSlitTrackingSpinBox->setMaximum(1);
 				exitSlitTrackingSpinBox->setMinimum(0);
 
-//                gratingSpinBox->setMaximum(SGMBeamline::sgm()->grating()->maximumValue());
-//                gratingSpinBox->setMinimum(SGMBeamline::sgm()->grating()->minimumValue());
 				gratingSpinBox->setMaximum(2);
 				gratingSpinBox->setMinimum(0);
 
@@ -179,60 +146,40 @@ public slots:
 
 		void onRestoreRequested(){
 
-			/*
-			qDebug() << "Doing scan?";
+			AMXASScan *s1 = new AMXASScan();
+			SGMLegacyFileImporter *s1Loader = new SGMLegacyFileImporter(s1);
+			if(!s1Loader->loadFromFile("/home/reixs/beamline/programming/acquaman/devUserData/001.dat"))
+					qDebug() << "FAIL WHALE!";
 
-			SGMXASScanConfiguration *xasCfg = new SGMXASScanConfiguration(SGMBeamline::sgm());
-			xasCfg->addRegion(0, 250, 1, 260);
-			xasCfg->setExitSlitGap(15);
-			xasCfg->setGrating(SGMBeamline::mediumGrating);
-			SGMXASDacqScanController *xasCtrl = new SGMXASDacqScanController(xasCfg, SGMBeamline::sgm());
+			MPlotWidget *plotWindow = new MPlotWidget();
+			MPlot *plot = new MPlot();
+			plotWindow->setPlot(plot);
 
-			xasCtrl->initialize();
-			xasCtrl->start();
-			*/
+			/**********************************
+			  HEY BOOTS
+			  Uncomment the next three lines to try with the channel in the scan.
+			  Comment out the loop to get rid of that method (and the declaration before it).
+			  To get this to run, go to the Connection Settings page and click the Restore button (not the Restore Energy button).
+			  Peace, good luck.
+			  **********************************/
 
+//			MPlotSeriesBasic *series1 = new MPlotSeriesBasic();
+//			series1->setModel(s1->channel(1));
+//			plot->addItem(series1);
 
-			/*
-			SGMFluxOptimization firstTry;
-			QList<QVariant> flux1, flux2, flux3, flux4;
-			flux1 << 250.0 << 0 << 1;
-			flux2 << 250.0 << 1 << 1;
-			flux3 << 250.0 << 2 << 1;
-			flux4 << 250.0 << 2 << 3;
-			qDebug() << " BEFORE EVERYTHING " << xasCfg->regions().at(0)->start() << " " << xasCfg->regions().at(0)->delta() << " " << xasCfg->regions().at(0)->end();
-			QMap<double, double> map1 = firstTry.curve(flux1, xasCfg->regions());
-			QMap<double, double> map2 = firstTry.curve(flux2, xasCfg->regions());
-			QMap<double, double> map3 = firstTry.curve(flux3, xasCfg->regions());
-			QMap<double, double> map4 = firstTry.curve(flux4, xasCfg->regions());
-			flux1[0] = 100.0;
-			flux2[0] = 100.0;
-			flux3[0] = 100.0;
-			flux4[0] = 100.0;
-			QMap<double, double> map5 = firstTry.curve(flux1, xasCfg->regions());
-			QMap<double, double> map6 = firstTry.curve(flux2, xasCfg->regions());
-			QMap<double, double> map7 = firstTry.curve(flux3, xasCfg->regions());
-			QMap<double, double> map8 = firstTry.curve(flux4, xasCfg->regions());
-
-
-			for(int x = 200; x < 2000; x++)
-				qDebug() << (double)x
-						<<  map1[(double)x]
-						<< map2[(double)x]
-						<< map3[(double)x]
-						<< map4[(double)x]
-						<< map5[(double)x]
-						<< map6[(double)x]
-						<< map7[(double)x]
-						<< map8[(double)x];
-			*/
-
-/*            QMap<double, double>::const_iterator i = firstMap.constBegin();
-			while (i != firstMap.constEnd()) {
-				qDebug() << i.key() << " " << i.value();
-				++i;
+			MPlotSeriesBasic *series1;
+			for(int y = 3; y < s1->numChannels(); y++){
+				series1 = new MPlotSeriesBasic();
+				MPlotRealtimeModel *data1 = new MPlotRealtimeModel();
+				for(int x = 0; x < s1->channel(y)->count(); x++)
+					data1->insertPointBack(s1->channel(y)->x(x), s1->channel(y)->y(x));
+				series1->setModel(data1);
+				plot->addItem(series1);
 			}
-*/
+
+			plot->setScalePadding(5);
+			plot->enableAutoScale(MPlotAxis::Left | MPlotAxis::Bottom);
+			plotWindow->show();
 
 //			if(csTest)
 //				csTest->restore(SGMBeamline::sgm());

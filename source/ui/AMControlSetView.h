@@ -67,14 +67,12 @@ public slots:
 
 		QMap<double, double>::const_iterator i = map1.constBegin();
 		while (i != map1.constEnd()) {
-//			qDebug() << i.key() << " " << i.value();
 			data1->insertPointBack(i.key(), i.value());
 			++i;
 		}
 
 		i = map2.constBegin();
 		while (i != map2.constEnd()) {
-//			qDebug() << i.key() << " " << i.value();
 			data2->insertPointBack(i.key(), i.value());
 			++i;
 		}
