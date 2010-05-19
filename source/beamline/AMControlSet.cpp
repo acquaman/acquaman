@@ -27,3 +27,22 @@ QMap<double, double> AMControlOptimization::curve(QList<QVariant> stateParameter
 	Q_UNUSED(contextParameters);
 	return noMap;
 }
+
+
+AMDetectorSet::AMDetectorSet(QObject *parent) :
+	QObject(parent)
+{
+}
+
+/// Returns false if the AMControl to be added is already in the list; otherwise adds the control and returns true.
+bool AMDetectorSet::addDetector(AMDetector* detector) {
+	if(detectors_.contains(detector))
+		return false;
+	detectors_.append(detector);
+	return true;
+}
+
+/// Returns false if the AMControl to be removed is not present; otherwise removes the control and returns true.
+bool AMDetectorSet::removeDetector(AMDetector* detector) {
+	return detectors_.removeOne(detector);
+}

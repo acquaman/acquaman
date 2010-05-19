@@ -3,7 +3,9 @@
 
 //#include "AMControl.h"
 #include "AMPVNames.h"
+#include "AMDetector.h"
 #include "AMControlSet.h"
+
 
 class SGMBeamline : public AMControl
 {
@@ -60,12 +62,20 @@ protected:
 	AMControl *undulatorTracking_;
 	AMControl *monoTracking_;
 	AMControl *exitSlitTracking_;
+	AMControl *tey_;
+	AMControl *tfy_;
+	AMControl *pgt_;
+
+	AMDetector *teyDetector_;
+	AMDetector *tfyDetector_;
+	AMDetector *pgtDetector_;
 
 	AMControlOptimization *fluxOptimization_;
 	AMControlOptimization *resolutionOptimization_;
 	AMControlSet *fluxResolutionSet_;
 
 	AMControlSet *trackingSet_;
+	AMDetectorSet *XASDetectors_;
 };
 
 class SGMFluxOptimization : public AMControlOptimization

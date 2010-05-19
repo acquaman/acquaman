@@ -56,12 +56,12 @@ void AMDacqScanController::onStop()
 	if(curScan_){
 		qDebug() << "END OF SCAN\n\n\nStarting to print scan data for";
 		qDebug() << curScan_->detectors().count() << " columns";
-		qDebug() << curScan_->d_.count() << " rows";
+		qDebug() << curScan_->d_->count() << " rows";
 
-		for(int x = 0; unsigned(x) < curScan_->d_.count(); x++){
+		for(int x = 0; unsigned(x) < curScan_->d_->count(); x++){
 			qDebug() << "Starting row " << x;
 			for(int y = 0; y < curScan_->detectors().count(); y++)
-				qDebug() << "Value is " << curScan_->d_.value(y, x);
+				qDebug() << "Value is " << curScan_->d_->value(y, x);
 			qDebug() << "Done row\n";
 		}
 
@@ -71,14 +71,14 @@ void AMDacqScanController::onStop()
 
 		MPlotSeriesBasic *series1;
 //		for(int y = 0; y < curScan_->numChannels(); y++){
-		for(int y = 1; y < 2; y++){
+		for(int y = 2; y < 5; y++){
 			series1 = new MPlotSeriesBasic();
-			MPlotRealtimeModel *data1 = new MPlotRealtimeModel();
-			for(int x = 0; (unsigned)x < curScan_->channel(y)->count(); x++)
-				data1->insertPointBack(curScan_->channel(y)->x(x), curScan_->channel(y)->y(x));
-			series1->setModel(data1);
+
+			qDebug() << "Plotting " << curScan_->channel(y)->name();
+			series1->setModel(curScan_->channel(y));
 			plot->addItem(series1);
 		}
+
 
 		plot->setScalePadding(5);
 		plot->enableAutoScale(MPlotAxis::Left | MPlotAxis::Bottom);

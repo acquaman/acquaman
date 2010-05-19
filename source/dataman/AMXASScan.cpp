@@ -5,7 +5,7 @@ AMXASScan::AMXASScan(const QStringList& detectors, QObject *parent)
 	: AMScan(parent)
 {
 	// setup default columns in data structure:
-	d_.setXName("eV");
+	d_->setXName("eV");
 
 	// create columns for each detector (ex: "tey", "tfy", "urinalWaterTemp", etc.)
 
@@ -21,7 +21,7 @@ bool AMXASScan::addDetector(const QString& uniqueDetectorName) {
 	if(detectors_.contains(uniqueDetectorName))
 		return false;
 	detectors_ << uniqueDetectorName;
-	d_.createColumn(uniqueDetectorName);
+	d_->createColumn(uniqueDetectorName);
 	return true;
 }
 

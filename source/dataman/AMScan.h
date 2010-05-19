@@ -55,7 +55,7 @@ public:
 
 
 	/// the number of datapoints in the scan:
-	unsigned count() const { return d_.count(); }
+	unsigned count() const { return d_->count(); }
 
 	/// These functions provide support for storing and retrieving from the database.
 	// ===================================
@@ -134,13 +134,18 @@ protected:
     QString comments_;
 
 	/// raw data storage. All scans will have one of these, but the contents and structure will vary.
-	AMDataTree d_;
+	AMDataTree* d_;
+
+
 	/// Allow channels to access the datatree:
 	friend AMDataTree* AMChannel::dataTree() const;
 
 private:
 	/// List of column names required to have in DB:
 	static QStringList dbColumnNames_;
+
+	/// This is used to maintain a reference count of 1 on the implicitly shared AMDataTree d_, and delete d_ when this (dshared_) goes out of scope
+	QSharedDataPointer<AMDataTree> dshared_;
 
 };
 

@@ -126,7 +126,8 @@ HEADERS += source/beamline/AMDiagnosticPaddle.h \
     ../../source/dataman/AMDataTree.h \
     ../../source/AMObserver.h \
     ../../source/AMObservable.h \
-    ../../../MPlot/src/MPlot/MPlotSceneAndView.h
+	../../../MPlot/src/MPlot/MPlotSceneAndView.h \
+	source/beamline/AMDetector.h
 
 # FORMS   +=
 SOURCES += source/beamline/AMDiagnosticPaddle.cpp \
@@ -191,4 +192,5 @@ SOURCES += source/beamline/AMDiagnosticPaddle.cpp \
     ../../source/muParser/muParserCallback.cpp \
     ../../source/muParser/muParserBytecode.cpp \
     ../../source/muParser/muParserBase.cpp \
-    ../../source/muParser/muParser.cpp
+	../../source/muParser/muParser.cpp \
+	source/beamline/AMDetector.cpp

@@ -8,7 +8,7 @@
 
 AMChannel::AMChannel(AMScan* scan, const QString& name, const QString& expression, const QString& xExpression) : QObject(scan), AMObserver(), MPlotAbstractSeriesData()
 {
-    name_ = name;
+	name_ = name;
 	scan_ = scan;
 
 	min_ = max_ = minX_ = maxX_ = -1;
@@ -220,7 +220,7 @@ bool AMChannel::setVariablesFromDataColumns() {
 
 
 AMDataTree* AMChannel::dataTree() const {
-	return &(scan()->d_);
+	return (scan()->d_);
 }
 
 QString AMChannel::errorMsg() const {
@@ -302,7 +302,7 @@ void AMChannel::onObservableChanged(AMObservable* source, int code, const char* 
 		emit updated();
 		Emit(0, "dataChanged");
 	}
-	if(usedColumnIndicesX_.contains(colIndex)) {
+	if(usedColumnIndicesX_.contains(colIndex) || (defaultX_ && (colIndex == -1))) {
 		minX_ = maxX_ = -1;
 		emit updated();
 		Emit(0, "dataChanged");
