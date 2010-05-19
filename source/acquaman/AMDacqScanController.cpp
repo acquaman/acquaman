@@ -74,7 +74,7 @@ void AMDacqScanController::onStop()
 		for(int y = 1; y < 2; y++){
 			series1 = new MPlotSeriesBasic();
 			MPlotRealtimeModel *data1 = new MPlotRealtimeModel();
-			for(int x = 0; x < curScan_->channel(y)->count(); x++)
+			for(int x = 0; (unsigned)x < curScan_->channel(y)->count(); x++)
 				data1->insertPointBack(curScan_->channel(y)->x(x), curScan_->channel(y)->y(x));
 			series1->setModel(data1);
 			plot->addItem(series1);
