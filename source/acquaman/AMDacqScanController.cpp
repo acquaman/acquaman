@@ -71,15 +71,21 @@ void AMDacqScanController::onStop()
 
 		MPlotSeriesBasic *series1;
 //		for(int y = 0; y < curScan_->numChannels(); y++){
-		for(int y = 1; y < 2; y++){
+		for(int y = 2; y < 5; y++){
 			series1 = new MPlotSeriesBasic();
-			MPlotRealtimeModel *data1 = new MPlotRealtimeModel();
-			for(int x = 0; x < curScan_->channel(y)->count(); x++)
-				data1->insertPointBack(curScan_->channel(y)->x(x), curScan_->channel(y)->y(x));
-			series1->setModel(data1);
+	//		MPlotRealtimeModel *data1 = new MPlotRealtimeModel();
+	//		for(int x = 0; x < curScan_->channel(y)->count(); x++)
+	//			data1->insertPointBack(curScan_->channel(y)->x(x), curScan_->channel(y)->y(x));
+	//		series1->setModel(data1);
+			qDebug() << "Plotting " << curScan_->channel(y)->name();
+			series1->setModel(curScan_->channel(y));
 			plot->addItem(series1);
 		}
 
+
+//		series1 = new MPlotSeriesBasic();
+//		series1->setModel(curScan_->channel(1));
+//		plot->addItem(series1);
 		plot->setScalePadding(5);
 		plot->enableAutoScale(MPlotAxis::Left | MPlotAxis::Bottom);
 		plotWindow->show();

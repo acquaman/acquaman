@@ -101,7 +101,8 @@ HEADERS += source/beamline/AMDiagnosticPaddle.h \
 	../../../MPlot/src/MPlot/MPlot.h \
 	../../source/dataman/AMDataTree.h \
 	../../source/AMObserver.h \
-	../../source/AMObservable.h
+	../../source/AMObservable.h \
+	source/beamline/AMDetector.h
 SOURCES += source/beamline/AMDiagnosticPaddle.cpp \
 	source/beamline/AMLoadLock.cpp \
 	source/beamline/AMSampleHolder.cpp \
@@ -132,4 +133,5 @@ SOURCES += source/beamline/AMDiagnosticPaddle.cpp \
 	../../source/muParser/muParserCallback.cpp \
 	../../source/muParser/muParserBytecode.cpp \
 	../../source/muParser/muParserBase.cpp \
-	../../source/muParser/muParser.cpp
+	../../source/muParser/muParser.cpp \
+	source/beamline/AMDetector.cpp

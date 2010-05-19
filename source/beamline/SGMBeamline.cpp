@@ -40,6 +40,12 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	exitSlitTracking_ = new AMPVControl("exitSlitTracking", "dave:Energy:exitSlit:tracking", "dave:Energy:exitSlit:tracking", this, 0.1);
 	//exitSlitTracking_->setDiscrete(true);
 	addChild(exitSlitTracking_);
+	tey_ = new AMReadOnlyPVControl("tey", "dave:TEY", this);
+	teyDetector_ = new AMSingleControlDetector(tey_->name(), tey_, this);
+	tfy_ = new AMReadOnlyPVControl("tfy", "dave:TFY", this);
+	tfyDetector_ = new AMSingleControlDetector(tfy_->name(), tfy_, this);
+	pgt_ = new AMReadOnlyPVControl("pgt", "dave:PGT", this);
+	pgtDetector_ = new AMSingleControlDetector(pgt_->name(), pgt_, this);
 
 	fluxOptimization_ = new SGMFluxOptimization(this);
 	resolutionOptimization_ = new SGMResolutionOptimization(this);
@@ -55,6 +61,12 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	trackingSet_->addControl(undulatorTracking_);
 	trackingSet_->addControl(monoTracking_);
 	trackingSet_->addControl(exitSlitTracking_);
+
+	XASDetectors_ = new AMDetectorSet(this);
+	XASDetectors_->setName("XAS Detectors");
+	XASDetectors_->addDetector(teyDetector_);
+	XASDetectors_->addDetector(tfyDetector_);
+	XASDetectors_->addDetector(pgtDetector_);
 
 }
 

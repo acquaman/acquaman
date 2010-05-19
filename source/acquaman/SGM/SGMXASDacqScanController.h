@@ -28,11 +28,14 @@ public slots:
 			if(advAcq_->getNumRegions() == x)
 				advAcq_->addRegion(x, xasSCfg_->start(x), xasSCfg_->delta(x), xasSCfg_->end(x), 1);
 			else{
+				qDebug() << "Setting start, delta, end in controller start loop";
 				advAcq_->setStart(x, xasSCfg_->start(x));
 				advAcq_->setDelta(x, xasSCfg_->delta(x));
 				advAcq_->setEnd(x, xasSCfg_->end(x));
+				qDebug() << "Done setting start, delta, end in controller start loop";
 			}
 		}
+		qDebug() << "Done SGMXAS controller start loop";
 		AMDacqScanController::start();
 	}
 };

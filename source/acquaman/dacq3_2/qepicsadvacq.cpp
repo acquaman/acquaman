@@ -315,13 +315,18 @@ bool QEpicsAdvAcq::addRegion(int region, double start, double delta, double end,
 		return FALSE;
 	else
 	{
-		QString ipv;
+		QString ipv = "";
 		if( (uregion != _regions.count()) && (region != 0) )
 			tmpOffset = _regions.at(region)->_offset;
-		if((sp->acqControlList[region-tmpOffset]).controlPV != NULL )
-			ipv = (sp->acqControlList[region-tmpOffset]).controlPV;
-		else
-			ipv = _regions.at(region-1)->_pv;
+		/* CHECK THIS OUT DAVE:
+		   Killing the not NULL part only going with the last region idea ... is this good?
+		   Don't delete this comment
+		if((sp->acqControlList[region-tmpOffset]).controlPV != NULL ){
+			qDebug() << "Claims NOT NULL in no name addRegion"; ipv = (sp->acqControlList[region-tmpOffset]).controlPV;}
+		else{
+			qDebug() << "Claims IS NULL in no name addRegion"; ipv = _regions.at(region-1)->_pv;}
+		*/
+		ipv = _regions.at(region-1)->_pv;
 		return addRegion(region, ipv, start, delta, end, intTime);
 /*
 		char* PVNAME = const_cast<char*>(_regions.at(region)->_pv.ascii());
@@ -541,10 +546,11 @@ void QEpicsAdvAcq::setPV(int region, QString pvname)
 
 void QEpicsAdvAcq::setStart(int region, double start)
 {
-	qDebug() << "It says region " << region << " I have " << _regions.count();
+	qDebug() << "Start of advAcq::setStart - It says region " << region << " I have " << _regions.count();
 	_regions.at(region)->_start = start;
 	if(_regions.at(region)->_enable)
 		setValue(sp->scanName, "start", region-_regions.at(region)->_offset, start);
+	qDebug() << "End of advAcq::setStart";
 }
 
 void QEpicsAdvAcq::setStrStart(int region, QString start)

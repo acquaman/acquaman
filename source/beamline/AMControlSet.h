@@ -8,6 +8,7 @@
 //#include "acquaman/AMScanConfiguration.h"
 //#include "acquaman/AMRegion.h"
 #include "acquaman/AMRegionsList.h"
+#include "AMDetector.h"
 
 /// An AMControlSet is designed to hold a logical group of controls.
 /*!
@@ -104,6 +105,37 @@ public:
 protected:
 	/// Internal list of AMControlOptimization.
 	QList<AMControlOptimization*> outputs_;
+};
+
+
+class AMDetectorSet : public QObject
+{
+Q_OBJECT
+public:
+	/// Constructor, only needs a QObject to act as a parent.
+	explicit AMDetectorSet(QObject *parent = 0);
+
+	/// Returns the name defined for the control set.
+	QString name() const { return name_;}
+	/// Returns the QList of AMControl pointers that currently comprise the controls in the set.
+	QList<AMDetector*> detectors() { return detectors_;}
+
+signals:
+
+public slots:
+	/// Sets the name of the control set.
+	void setName(const QString &name) { name_ = name;}
+	/// Adds an AMControl to the control set. Returns true if the addition was successful. Failure could result from adding the same AMControl twice.
+	bool addDetector(AMDetector* detector);
+	/// Removes an AMControl from the control set. Returns true if the removal was successful. Failure could result from removing an AMControl not in the set.
+	bool removeDetector(AMDetector* detector);
+
+protected:
+	/// Holds the name of the control set. Should be descriptive of the logical relationship.
+	/// AMControlSetView will use this value as the title of the group box being displayed.
+	QString name_;
+	/// Local list of AMControl pointers, which represent the controls in the set.
+	QList<AMDetector*> detectors_;
 };
 
 #endif // ACQMAN_AMCONTROLSET_H

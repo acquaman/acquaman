@@ -22,12 +22,16 @@ AMAcqScanOutput::AMAcqScanOutput(){
 	plotWindow->setPlot(plot);
 	series1 = new MPlotSeriesBasic();
 	data1 = new MPlotRealtimeModel();
+
+	/*
 	series1->setModel(data1);
+//	series1->setModel(scan_->channel(1));
 	plot->addItem(series1);
 	plot->setScalePadding(5);
 	plot->enableAutoScale(MPlotAxis::Left | MPlotAxis::Bottom);
 	plotWindow->resize(450, 450);
 	plotWindow->show();
+	*/
 }
 
 AMAcqScanOutput::~AMAcqScanOutput(){
