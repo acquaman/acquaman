@@ -148,7 +148,7 @@ public slots:
 
 			AMXASScan *s1 = new AMXASScan();
 			SGMLegacyFileImporter *s1Loader = new SGMLegacyFileImporter(s1);
-			if(!s1Loader->loadFromFile("/home/reixs/beamline/programming/acquaman/devUserData/001.dat"))
+			if(!s1Loader->loadFromFile(AMUserSettings::userDataFolder + "001.dat"))
 					qDebug() << "FAIL WHALE!";
 
 			MPlotWidget *plotWindow = new MPlotWidget();
@@ -161,12 +161,23 @@ public slots:
 			  Comment out the loop to get rid of that method (and the declaration before it).
 			  To get this to run, go to the Connection Settings page and click the Restore button (not the Restore Energy button).
 			  Peace, good luck.
+
+			  HEY DAVID
+			  Fixed... should be good to go now.  AMChannel:max() had a copy-paste bug:
+
+			  old:
+			  double max() const { if(min_ == -1) searchMax(); return value(max_); }
+
+			  should be:
+			  double max() const { if(max_ == -1) searchMax(); return value(max_); }
 			  **********************************/
 
-//			MPlotSeriesBasic *series1 = new MPlotSeriesBasic();
-//			series1->setModel(s1->channel(1));
-//			plot->addItem(series1);
+			MPlotSeriesBasic *series1 = new MPlotSeriesBasic();
+			plot->addItem(series1);
+			series1->setModel(s1->channel(3));
 
+
+/*
 			MPlotSeriesBasic *series1;
 			for(int y = 3; y < s1->numChannels(); y++){
 				series1 = new MPlotSeriesBasic();
@@ -176,7 +187,7 @@ public slots:
 				series1->setModel(data1);
 				plot->addItem(series1);
 			}
-
+*/
 			plot->setScalePadding(5);
 			plot->enableAutoScale(MPlotAxis::Left | MPlotAxis::Bottom);
 			plotWindow->show();

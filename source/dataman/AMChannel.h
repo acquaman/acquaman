@@ -55,7 +55,7 @@ public:
 
 	/// returns the min/max values.  Warning: use only when count() >= 1.  Do not call on an empty channel. (\todo : the data tree columns already track min/max in an optimized way.  Is there any way to benefit from this, with an arbitrary expression?)
 	double min() const { if(min_ == -1) searchMin(); return value(min_); }
-	double max() const { if(min_ == -1) searchMax(); return value(max_); }
+	double max() const { if(max_ == -1) searchMax(); return value(max_); }
 	double minX() const { if(minX_ == -1) searchMinX(); return x(minX_); }
 	double maxX() const { if(maxX_ == -1) searchMaxX(); return x(maxX_); }
 
