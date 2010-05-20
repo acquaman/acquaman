@@ -11,7 +11,7 @@
   Algorithmically, data acquisition has two distinct phases: configuring a scan and running a scan.
   Although the distinction may be subtle it is a key observation. This can be noted directly as a user could configure a scan that they never decided to run.
   Furthermore, programatically, there is a separation between what information needs to be collected to specify the particular scan to run and the way in which the scan is actually executed.
-  That is, with proper interfacing, two different sacnning libraries could perform the same scan - and collect, essentially, the same data - by using the same scan configuration.
+  That is, with proper interfacing, two different scanning libraries could perform the same scan - and collect, essentially, the same data - by using the same scan configuration.
 
   Additionally, there will be many scan configuration implementation classes. Each technique, on each beamline will require a different implementation.
   For example, one might consider the SGM and REIXS beamlines, where both are capable of doing absorption spectroscopy (XAS) and emission spectroscopy (XES).

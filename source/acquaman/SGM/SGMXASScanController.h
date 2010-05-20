@@ -3,18 +3,23 @@
 
 #include "beamline/SGMBeamline.h"
 #include "SGMXASScanConfiguration.h"
+#include "dataman/AMXASScan.h"
 
 class SGMXASScanController
 {
 public:
-    SGMXASScanController(AMXASScanConfiguration *cfg);
+	SGMXASScanController(SGMXASScanConfiguration *cfg);
 
-    bool isBeamlineInitialized() { return beamlineInitialized_;}
-    virtual bool beamlineInitialize();
+	bool isBeamlineInitialized() { return beamlineInitialized_;}
+	virtual bool beamlineInitialize();
 
 protected:
-    AMXASScanConfiguration *xasSCfg_;
-    bool beamlineInitialized_;
+	SGMXASScanConfiguration *specificCfg_;
+	bool beamlineInitialized_;
+	AMXASScan *scan_;
+
+private:
+	SGMXASScanConfiguration *pCfg_;
 };
 
 #endif // AMSGMXASSCANCONTROLLER_H

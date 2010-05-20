@@ -29,6 +29,10 @@ public:
 	/// Constructor, only needs a QObject to act as a parent.
 	explicit AMControlSet(QObject *parent = 0);
 
+	~AMControlSet(){
+		ctrls_.clear();
+	}
+
 	/// Returns the name defined for the control set.
 	QString name() const { return name_;}
 	/// Returns the QList of AMControl pointers that currently comprise the controls in the set.
@@ -96,6 +100,10 @@ public:
 	/// Constructor, only requires a QObject pointer as a parent.
 	explicit AMControlOptimizationSet(QObject *parent=0) : AMControlSet(parent){;}
 
+	~AMControlOptimizationSet(){
+		outputs_.clear();
+	}
+
 	/// Adds an AMControlOptimization to the set.
 	void addOptimization(AMControlOptimization *optimization){ outputs_.append(optimization) ;}
 	QMap<double, double> curveAt(size_t index, QList<QVariant> stateParameters, AMRegionsList* contextParameters){
@@ -114,6 +122,10 @@ Q_OBJECT
 public:
 	/// Constructor, only needs a QObject to act as a parent.
 	explicit AMDetectorSet(QObject *parent = 0);
+
+	~AMDetectorSet(){
+		detectors_.clear();
+	}
 
 	/// Returns the name defined for the control set.
 	QString name() const { return name_;}

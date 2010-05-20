@@ -41,10 +41,13 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	//exitSlitTracking_->setDiscrete(true);
 	addChild(exitSlitTracking_);
 	tey_ = new AMReadOnlyPVControl("tey", "dave:TEY", this);
+	addChild(tey_);
 	teyDetector_ = new AMSingleControlDetector(tey_->name(), tey_, this);
 	tfy_ = new AMReadOnlyPVControl("tfy", "dave:TFY", this);
+	addChild(tfy_);
 	tfyDetector_ = new AMSingleControlDetector(tfy_->name(), tfy_, this);
 	pgt_ = new AMReadOnlyPVControl("pgt", "dave:PGT", this);
+	addChild(pgt_);
 	pgtDetector_ = new AMSingleControlDetector(pgt_->name(), pgt_, this);
 
 	fluxOptimization_ = new SGMFluxOptimization(this);
@@ -72,6 +75,41 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 
 SGMBeamline::~SGMBeamline()
 {
+	qDebug() << "Starting SGMBeamline destructor";
+	delete XASDetectors_;
+	delete trackingSet_;
+	delete fluxResolutionSet_;
+
+	delete fluxOptimization_;
+	delete resolutionOptimization_;
+
+	delete pgtDetector_;
+	delete tfyDetector_;
+	delete teyDetector_;
+
+	delete pgt_;
+	delete tfy_;
+	delete tey_;
+	delete exitSlitTracking_;
+	delete monoTracking_;
+	delete undulatorTracking_;
+	delete harmonic_;
+	delete grating_;
+//	for(int x = m4_->numChildren(); x > 0; x--)
+//		if( (m4_->child(x)->name() == "M4Inboard") || (m4_->child(x)->name() == "M4Outboard") || (m4_->child(x)->name() == "M4Downstream") )
+//			delete m4_->child(x);
+	delete m4_->child(2);
+	delete m4_->child(1);
+	delete m4_->child(0);
+	delete m4_;
+	delete exitSlitGap_;
+	delete energy_->child(2);
+	delete energy_->child(1);
+	delete energy_->child(0);
+	delete energy_;
+	delete ringCurrent_;
+
+	qDebug() << "SGMBeamline destructor finished";
 }
 
 bool SGMBeamline::energyValidForSettings(sgmGrating grating, sgmHarmonic harmonic, double energy){

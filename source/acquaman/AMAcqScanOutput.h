@@ -3,7 +3,8 @@
 
 #include "acquaman/dacq3_2/acqDataHandler.h"
 //#include "acqDataHandler.h"
-#include "dataman/AMXASScan.h"
+//#include "dataman/AMXASScan.h"
+#include "dataman/AMScan.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -47,7 +48,7 @@ public:
 	virtual ~AMAcqScanOutput();
 	// we need a static function to be called by the factory operator.
 	static acqBaseOutput *new_AMAcqScanOutput();
-	void setScan(AMXASScan *scan){
+	void setScan(AMScan *scan){
 		scan_ = scan;
 	//	series1->setModel(data1);
 		series1->setModel(scan_->channel(2));
@@ -80,7 +81,7 @@ protected:
 
 private:
 	int outputCol;
-	AMXASScan *scan_;
+	AMScan *scan_;
 	QMap<int, double> dataDelayList_;
 	bool dataDelay_;
 

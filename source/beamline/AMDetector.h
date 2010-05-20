@@ -28,7 +28,7 @@ class AMSingleControlDetector : public AMDetector
 Q_OBJECT
 public:
 	AMSingleControlDetector(QString name, AMControl *control, QObject *parent = 0);// : AMDetector(name, parent) {control_ = control;}
-	~AMSingleControlDetector(){;}
+	~AMSingleControlDetector(){ control_ = NULL;}
 
 protected:
 	AMControl *control_;

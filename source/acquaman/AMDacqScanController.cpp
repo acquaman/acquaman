@@ -8,8 +8,9 @@
 #include "../MPlot/src/MPlot/MPlotImage.h"
 #include "../MPlot/src/MPlot/MPlotTools.h"
 
-AMDacqScanController::AMDacqScanController(QObject *parent)
+AMDacqScanController::AMDacqScanController(AMScanConfiguration *cfg, QObject *parent) : AMScanController(cfg, parent)
 {
+	pCfg_ = cfg;
 
 	running_ = FALSE;
 	paused_ = FALSE;
@@ -54,6 +55,7 @@ void AMDacqScanController::onStop()
 		emit finished();
 
 	if(curScan_){
+/*
 		qDebug() << "END OF SCAN\n\n\nStarting to print scan data for";
 		qDebug() << curScan_->detectors().count() << " columns";
 		qDebug() << curScan_->d_.count() << " rows";
@@ -64,6 +66,7 @@ void AMDacqScanController::onStop()
 				qDebug() << "Value is " << curScan_->d_.value(y, x);
 			qDebug() << "Done row\n";
 		}
+		*/
 
 		MPlotWidget *plotWindow = new MPlotWidget();
 		MPlot *plot = new MPlot();

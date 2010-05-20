@@ -149,6 +149,7 @@ int main(int argc, char *argv[])
 
 	// Make sure we release/clean-up the beamline interface
 	AMBeamline::releaseBl();
+	SGMBeamline::releaseSGM();
 	// Close down connection to the user Database
 	AMDatabase::releaseUserDb();
 

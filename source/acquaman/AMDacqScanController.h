@@ -11,14 +11,13 @@
 
 #include "dacq3_2/OutputHandler/acqFactory.h"
 #include "AMAcqScanOutput.h"
-#include "dataman/AMXASScan.h"
 #include "dacq3_2/qepicsadvacq.h"
 
 class AMDacqScanController : public AMScanController
 {
 Q_OBJECT
 public:
-	AMDacqScanController(QObject *parent = 0);
+	AMDacqScanController(AMScanConfiguration *cfg, QObject *parent = 0);
 
 public slots:
 //    /// Sets a new scan configuration
@@ -33,19 +32,19 @@ public slots:
 			{
 				acqRegisterOutputHandler( advAcq_->getMaster(), (acqKey_t) abop, &abop->handler);                // register the handler with the acquisition
 				abop->setProperty( "File Template", "daveData.%03d.dat");                           // set the file name to be recorded to
-				QStringList scanDetectors;
-				scanDetectors << "eV_Fbk" << "reading" << "tfy" << "pgt";
-				curScan_ = new AMXASScan(scanDetectors);
-				curScan_->addChannel("eV", "eV");
-				curScan_->addChannel("Jitter", "eV_Fbk");
-				curScan_->addChannel("TEY", "reading");
-				curScan_->addChannel("TFY", "tfy");
-				curScan_->addChannel("PGT", "pgt");
 				((AMAcqScanOutput*)abop)->setScan(curScan_);
+				qDebug() << "Just before sending start to library in dacq controller start";
+				advAcq_->Start();
+				qDebug() << "Just after sending start to library in dacq controller start";
 			}
+			else
+				AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -1, "AMDacqScanController: could not create output handler."));
+			/*
+			  Moved into abop check, why was it out here?
 			qDebug() << "Just before sending start to library in dacq controller start";
 			advAcq_->Start();
 			qDebug() << "Just after sending start to library in dacq controller start";
+			*/
 		}
 		else
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -1, "AMDacqScanController: attempted start on uninitialized controller."));
@@ -61,13 +60,16 @@ protected:
 	QEpicsAdvAcq *advAcq_;
 	bool cancelled_;
 	QTime startTime_;
-	AMXASScan *curScan_;
+	AMScan *curScan_;
 
 protected slots:
 	void onStart();
 	void onStop();
 	void onPause(int mode);
 	void onSendCompletion(int completion);
+
+private:
+	AMScanConfiguration *pCfg_;
 };
 
 #endif // ACQMAN_DACQSCANCONTROLLER_H
