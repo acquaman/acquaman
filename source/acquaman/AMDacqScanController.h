@@ -3,6 +3,7 @@
 
 #include <QTime>
 #include <QStringList>
+#include <QDir>
 
 #include "AMErrorMonitor.h"
 
@@ -24,18 +25,17 @@ public slots:
 //    virtual void newConfigurationLoad(AMScanConfiguration &cfg);
 	/// Start scan running if not currently running or paused
 	virtual void start(){
-		qDebug() << "Start of dacq controller start";
 		if(initialized_){
 		//	acqBaseOutput *abop = acqOutputHandlerFactory::new_acqOutput("SimpleText", "File");
 			acqBaseOutput *abop = acqOutputHandlerFactory::new_acqOutput("AMScan", "File");
 			if( abop)
 			{
 				acqRegisterOutputHandler( advAcq_->getMaster(), (acqKey_t) abop, &abop->handler);                // register the handler with the acquisition
-				abop->setProperty( "File Template", "daveData.%03d.dat");                           // set the file name to be recorded to
-				((AMAcqScanOutput*)abop)->setScan(curScan_);
-				qDebug() << "Just before sending start to library in dacq controller start";
+				abop->setProperty( "File Template", pCfg_()->fileName().toStdString());
+				abop->setProperty( "File Path", pCfg_()->filePath().toStdString());
+
+				((AMAcqScanOutput*)abop)->setScan(pScan_());
 				advAcq_->Start();
-				qDebug() << "Just after sending start to library in dacq controller start";
 			}
 			else
 				AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -1, "AMDacqScanController: could not create output handler."));
@@ -60,7 +60,7 @@ protected:
 	QEpicsAdvAcq *advAcq_;
 	bool cancelled_;
 	QTime startTime_;
-	AMScan *curScan_;
+//	AMScan *curScan_;
 
 protected slots:
 	void onStart();
@@ -69,7 +69,11 @@ protected slots:
 	void onSendCompletion(int completion);
 
 private:
-	AMScanConfiguration *pCfg_;
+	AMScanConfiguration **_pCfg_;
+	AMScan **_pScan_;
+
+	AMScanConfiguration *pCfg_() { return *_pCfg_;}
+	AMScan *pScan_() { return *_pScan_;}
 };
 
 #endif // ACQMAN_DACQSCANCONTROLLER_H

@@ -11,6 +11,7 @@
 #include <QAbstractSpinBox>
 #include <QDoubleSpinBox>
 #include <QSpinBox>
+#include <QCheckBox>
 
 #include "../MPlot/src/MPlot/MPlotWidget.h"
 #include "../MPlot/src/MPlot/MPlotSeriesData.h"
@@ -81,6 +82,16 @@ public slots:
 protected:
 	MPlotRealtimeModel *data1;
 	MPlotRealtimeModel *data2;
+};
+
+class AMDetectorSetView : public QGroupBox
+{
+	Q_OBJECT
+public:
+	AMDetectorSetView(AMDetectorSet *viewSet, QWidget *parent = 0);
+protected:
+	AMDetectorSet *viewSet_;
+	QHBoxLayout *hl_;
 };
 
 #endif // AMCONTROLSETVIEW_H

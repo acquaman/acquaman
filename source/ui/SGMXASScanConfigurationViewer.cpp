@@ -6,6 +6,9 @@ SGMXASScanConfigurationViewer::SGMXASScanConfigurationViewer(QWidget *parent)  :
 	connect(doLayoutButton, SIGNAL(clicked()), this, SLOT(onDoLayout()));
 }
 
+SGMXASScanConfigurationViewer::~SGMXASScanConfigurationViewer(){
+}
+
 void SGMXASScanConfigurationViewer::onAddRegionClicked(){
 	if(!cfg_)
 		return;
@@ -27,13 +30,15 @@ void SGMXASScanConfigurationViewer::onAddRegionClicked(){
 void SGMXASScanConfigurationViewer::setScanConfiguration(AMScanConfiguration *cfg){
 	cfg_ = cfg;
 	SGMXASScanConfiguration *sxsc = (SGMXASScanConfiguration*)cfg_;
-/*
+	sxsc->setFileName("daveData.%03d.dat");
+	sxsc->setFilePath(AMUserSettings::userDataFolder);
+/**/
 	sxsc->addRegion(0, 280, 0.5, 290);
-*//**/
+/**//*
 	sxsc->addRegion(0, 270, 1, 280);
 	sxsc->addRegion(1, 280.25, 0.25, 290);
 	sxsc->addRegion(2, 290, 1, 320);
-/**//*
+*//*
 	sxsc->addRegion(0, 600, 1, 650);
 	sxsc->addRegion(1, 650.5, 0.5, 690);
 	sxsc->addRegion(2, 692, 2, 720);
@@ -45,6 +50,7 @@ void SGMXASScanConfigurationViewer::setScanConfiguration(AMScanConfiguration *cf
 	fluxResolutionView_->onRegionsUpdate(sxsc->regions());
 
 	trackingView_ = new AMControlSetView(sxsc->trackingSet(), this);
+	detectorView_ = new AMDetectorSetView(sxsc->detectorSet(), this);
 	startScanButton_ = new QPushButton();
 	startScanButton_->setText("Start Scan");
 	startScanButton_->setMaximumWidth(200);
@@ -55,6 +61,7 @@ void SGMXASScanConfigurationViewer::setScanConfiguration(AMScanConfiguration *cf
 	vl_.addWidget(regionsView_);
 	vl_.addWidget(fluxResolutionView_);
 	vl_.addWidget(trackingView_);
+	vl_.addWidget(detectorView_);
 	vl_.addWidget(startScanButton_);
 	this->setLayout(&vl_);
 }

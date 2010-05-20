@@ -28,6 +28,7 @@ public:
 	  \param parent Pointer to QWidget to act as parent.
 	  */
 	explicit AMXASRegionsView(AMXASRegionsList *regions, QWidget *parent = 0);
+	~AMXASRegionsView();
 
 signals:
 	void addRegionClicked();

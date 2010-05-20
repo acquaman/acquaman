@@ -3,7 +3,8 @@
 SGMXASDacqScanController::SGMXASDacqScanController(SGMXASScanConfiguration *cfg, QObject *parent) :
 		AMDacqScanController(cfg, parent) , SGMXASScanController(cfg)
 {
-	pCfg_ = cfg;
+	_pCfg_ = &specificCfg_;
+	_pScan_ = &specificScan_;
 }
 
 void SGMXASDacqScanController::initialize(){

@@ -29,14 +29,15 @@ QString AMUserSettings::userName;
 void AMUserSettings::load() {
 	QSettings settings(QSettings::IniFormat, QSettings::UserScope, "Acquaman", "Acquaman");
 
-    // All settings variables are loaded here from disk. Default values must be provided -- they will be used if the particular setting doesn't exist yet.
-    // Don't forget to add here if you add new user options.
+	// All settings variables are loaded here from disk. Default values must be provided -- they will be used if the particular setting doesn't exist yet.
+	// Don't forget to add here if you add new user options.
 
-    // variable = settings.value(key, defaultValue).toType();
+	// variable = settings.value(key, defaultValue).toType();
 
-	userDataFolder = settings.value("userDataFolder", QDir::homePath() + "/acquamanData/").toString();
+//	userDataFolder = settings.value("userDataFolder", QDir::homePath() + "/acquamanData/").toString();
+	userDataFolder = settings.value("userDataFolder", QDir::homePath() + "/beamline/programming/acquaman/devUserData").toString();
 	// TODO: warn here if doesn't exist?
-    userDatabaseFilename = settings.value("userDatabaseFilename", "userdata.db").toString();
+	userDatabaseFilename = settings.value("userDatabaseFilename", "userdata.db").toString();
 
 	userName = settings.value("userName", getenv("USER") ).toString();
 }
@@ -45,13 +46,13 @@ void AMUserSettings::load() {
 void AMUserSettings::save() {
 	QSettings settings(QSettings::IniFormat, QSettings::UserScope, "Acquaman", "Acquaman");
 
-    // All settings variables are saved here to the user-specific file.
-    // Don't forget to add here if you add new user options.
+	// All settings variables are saved here to the user-specific file.
+	// Don't forget to add here if you add new user options.
 
-    settings.setValue("userDataFolder", userDataFolder);
-    settings.setValue("userDatabaseFilename", userDatabaseFilename);
+	settings.setValue("userDataFolder", userDataFolder);
+	settings.setValue("userDatabaseFilename", userDatabaseFilename);
 
-    settings.setValue("userName", userName);
+	settings.setValue("userName", userName);
 }
 
 
@@ -74,13 +75,13 @@ QString AMSettings::dbObjectTableName;
 void AMSettings::load() {
 	QSettings settings(QSettings::IniFormat, QSettings::SystemScope, "Acquaman", "Acquaman");
 
-    // All settings variables are loaded here from disk. Default values must be provided -- they will be used if the particular setting doesn't exist yet.
-    // Don't forget to add here if you add new user options.
+	// All settings variables are loaded here from disk. Default values must be provided -- they will be used if the particular setting doesn't exist yet.
+	// Don't forget to add here if you add new user options.
 
-    // variable = settings.value(key, defaultValue).toType();
+	// variable = settings.value(key, defaultValue).toType();
 
-    publicDataFolder = settings.value("publicDataFolder", "/home/acquaman/data/").toString();
-    publicDatabaseFilename = settings.value("publicDatabaseFilename", "publicdata.db").toString();
+	publicDataFolder = settings.value("publicDataFolder", "/home/acquaman/data/").toString();
+	publicDatabaseFilename = settings.value("publicDatabaseFilename", "publicdata.db").toString();
 	dbObjectTableName = settings.value("dbObjectTableName", "dbObjectTable").toString();
 }
 
@@ -88,10 +89,10 @@ void AMSettings::load() {
 void AMSettings::save() {
 	QSettings settings(QSettings::IniFormat, QSettings::SystemScope, "Acquaman", "Acquaman");
 
-    // All settings variables are saved here to the user-specific file.
-    // Don't forget to add here if you add new user options.
+	// All settings variables are saved here to the user-specific file.
+	// Don't forget to add here if you add new user options.
 
-    settings.setValue("publicDataFolder", publicDataFolder);
-    settings.setValue("publicDatabaseFilename", publicDatabaseFilename);
+	settings.setValue("publicDataFolder", publicDataFolder);
+	settings.setValue("publicDatabaseFilename", publicDatabaseFilename);
 	settings.setValue("dbObjectTableName", dbObjectTableName);
 }

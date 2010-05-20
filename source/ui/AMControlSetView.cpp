@@ -202,3 +202,24 @@ AMControlOptimizationSetView::AMControlOptimizationSetView(AMControlOptimization
 //	setLayout(hl);
 	setFixedSize(517, 200);
 }
+
+AMDetectorSetView::AMDetectorSetView(AMDetectorSet *viewSet, QWidget *parent) :
+		QGroupBox(parent)
+{
+	viewSet_ = viewSet;
+	setTitle(viewSet->name());
+	QFormLayout *fl = new QFormLayout();
+	QCheckBox *tmpBox;
+	AMDetector *tmpDetector;
+	for(int x = 0; x < viewSet_->detectors().count(); x++){
+		tmpDetector = viewSet_->detectors().at(x);
+		tmpBox = new QCheckBox(this);
+		tmpBox->setChecked(TRUE);
+		fl->addRow(tmpDetector->name(), tmpBox);
+	}
+
+	hl_ = new QHBoxLayout(this);
+	hl_->addLayout(fl);
+	setLayout(hl_);
+	setFixedSize(517, 200);
+}

@@ -41,6 +41,7 @@ public:
 
 	AMControlSet* fluxResolutionSet() const { return fluxResolutionSet_;}
 	AMControlSet* trackingSet() const { return trackingSet_;}
+	AMDetectorSet* XASDetectors() const { return XASDetectors_;}
 
 	bool energyValidForSettings(sgmGrating grating, sgmHarmonic harmonic, double energy);
 	bool energyRangeValidForSettings(sgmGrating grating, sgmHarmonic harmonic, double minEnergy, double maxEnergy);

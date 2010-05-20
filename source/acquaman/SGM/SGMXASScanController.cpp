@@ -1,7 +1,8 @@
 #include "SGMXASScanController.h"
 
 SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
-	specificCfg_ = pCfg_ = cfg;
+	specificCfg_ = cfg;
+	_pCfg_ = & specificCfg_;
 	beamlineInitialized_ = false;
 
 	QStringList scanDetectors;
@@ -11,21 +12,22 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 	  YOU NEW'D THE SCAN ... SOMEONE ELSE HAS TO TAKE OWNERSHIP OF IT FOR DELETION
 	  opts: function call, new in scan viewer ...
 	  */
-	scan_ = new AMXASScan(scanDetectors);
-	scan_->setName("Dave's Scan");
-	scan_->addChannel("eV", "eV");
-	scan_->addChannel("Jitter", "eV_Fbk");
-	scan_->addChannel("TEY", "reading");
-	scan_->addChannel("TFY", "tfy");
-	scan_->addChannel("PGT", "pgt");
+	specificScan_ = new AMXASScan(scanDetectors);
+	_pScan_ = &specificScan_;
+	pScan_()->setName("Dave's Scan");
+	pScan_()->addChannel("eV", "eV");
+	pScan_()->addChannel("Jitter", "eV_Fbk");
+	pScan_()->addChannel("TEY", "reading");
+	pScan_()->addChannel("TFY", "tfy");
+	pScan_()->addChannel("PGT", "pgt");
 }
 
 bool SGMXASScanController::beamlineInitialize(){
-	SGMBeamline::sgm()->exitSlitGap()->move( pCfg_->exitSlitGap() );
-	SGMBeamline::sgm()->grating()->move( pCfg_->grating() );
-	SGMBeamline::sgm()->undulatorTracking()->move( pCfg_->undulatorTracking() );
-	SGMBeamline::sgm()->monoTracking()->move( pCfg_->monoTracking() );
-	SGMBeamline::sgm()->exitSlitTracking()->move( pCfg_->exitSlitTracking() );
+	SGMBeamline::sgm()->exitSlitGap()->move( pCfg_()->exitSlitGap() );
+	SGMBeamline::sgm()->grating()->move( pCfg_()->grating() );
+	SGMBeamline::sgm()->undulatorTracking()->move( pCfg_()->undulatorTracking() );
+	SGMBeamline::sgm()->monoTracking()->move( pCfg_()->monoTracking() );
+	SGMBeamline::sgm()->exitSlitTracking()->move( pCfg_()->exitSlitTracking() );
 	beamlineInitialized_ = true;
 	return beamlineInitialized_;
 }

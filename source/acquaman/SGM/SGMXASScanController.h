@@ -16,10 +16,14 @@ public:
 protected:
 	SGMXASScanConfiguration *specificCfg_;
 	bool beamlineInitialized_;
-	AMXASScan *scan_;
+	AMXASScan *specificScan_;
 
 private:
-	SGMXASScanConfiguration *pCfg_;
+	SGMXASScanConfiguration **_pCfg_;
+	AMXASScan **_pScan_;
+
+	SGMXASScanConfiguration* pCfg_() { return *_pCfg_;}
+	AMXASScan* pScan_() { return *_pScan_;}
 };
 
 #endif // AMSGMXASSCANCONTROLLER_H

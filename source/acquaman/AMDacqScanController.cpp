@@ -10,7 +10,8 @@
 
 AMDacqScanController::AMDacqScanController(AMScanConfiguration *cfg, QObject *parent) : AMScanController(cfg, parent)
 {
-	pCfg_ = cfg;
+	_pCfg_ = &generalCfg_;
+	_pScan_ = &generalScan_;
 
 	running_ = FALSE;
 	paused_ = FALSE;
@@ -21,9 +22,6 @@ AMDacqScanController::AMDacqScanController(AMScanConfiguration *cfg, QObject *pa
 	connect(advAcq_, SIGNAL(onStop()), this, SLOT(onStop()));
 	connect(advAcq_, SIGNAL(onPause(int)), this, SLOT(onPause(int)));
 	connect(advAcq_, SIGNAL(sendCompletion(int)), this, SLOT(onSendCompletion(int)));
-
-	curScan_ = NULL;
-
 }
 
 ///// Sets a new scan configuration
@@ -54,7 +52,7 @@ void AMDacqScanController::onStop()
 	else
 		emit finished();
 
-	if(curScan_){
+	if(pScan_()){
 /*
 		qDebug() << "END OF SCAN\n\n\nStarting to print scan data for";
 		qDebug() << curScan_->detectors().count() << " columns";
@@ -77,8 +75,8 @@ void AMDacqScanController::onStop()
 		for(int y = 2; y < 5; y++){
 			series1 = new MPlotSeriesBasic();
 
-			qDebug() << "Plotting " << curScan_->channel(y)->name();
-			series1->setModel(curScan_->channel(y));
+			qDebug() << "Plotting " << pScan_()->channel(y)->name();
+			series1->setModel(pScan_()->channel(y));
 			plot->addItem(series1);
 		}
 

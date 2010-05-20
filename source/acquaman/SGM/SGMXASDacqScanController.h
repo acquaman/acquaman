@@ -20,30 +20,27 @@ signals:
 public slots:
 	void initialize();
 	void start(){
-//		advAcq_->setConfigFile("myScan.cfg");
 		advAcq_->setConfigFile("/home/reixs/beamline/programming/acquaman/myScan.cfg");
 		//advAcq_->clearRegions();
-		//advAcq_->addRegion(0, xasSCfg_->start(0), xasSCfg_->delta(0), xasSCfg_->end(0), 1.0 );
-		for(int x = 0; x < pCfg_->count(); x++){
+		for(int x = 0; x < pCfg_()->count(); x++){
 			if(advAcq_->getNumRegions() == x)
-				advAcq_->addRegion(x, pCfg_->start(x), pCfg_->delta(x), pCfg_->end(x), 1);
+				advAcq_->addRegion(x, pCfg_()->start(x), pCfg_()->delta(x), pCfg_()->end(x), 1);
 			else{
-				qDebug() << "Setting start, delta, end in controller start loop";
-				advAcq_->setStart(x, pCfg_->start(x));
-				advAcq_->setDelta(x, pCfg_->delta(x));
-				advAcq_->setEnd(x, pCfg_->end(x));
-				qDebug() << "Done setting start, delta, end in controller start loop";
+				advAcq_->setStart(x, pCfg_()->start(x));
+				advAcq_->setDelta(x, pCfg_()->delta(x));
+				advAcq_->setEnd(x, pCfg_()->end(x));
 			}
 		}
-		qDebug() << "Done SGMXAS controller start loop";
-		generalScan_ = scan_;
-//		AMScanController::spitPrivate();
-		curScan_ = scan_;
+		generalScan_ = specificScan_;
 		AMDacqScanController::start();
 	}
 
 private:
-	SGMXASScanConfiguration *pCfg_;
+	SGMXASScanConfiguration **_pCfg_;
+	AMXASScan **_pScan_;
+
+	SGMXASScanConfiguration *pCfg_() { return *_pCfg_;}
+	AMXASScan* pScan_() { return *_pScan_;}
 };
 
 #endif // ACQMAN_SGMXASDACQSCANCONTROLLER_H

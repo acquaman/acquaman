@@ -3,8 +3,9 @@
 AMScanController::AMScanController(AMScanConfiguration *cfg, QObject *parent) :
 	QObject(parent)
 {
-	generalCfg_ = pCfg_ = cfg;
+	generalCfg_ = cfg;
+	_pCfg_ = & generalCfg_;
 	generalScan_ = NULL;
-//	pScan_ = &generalScan_;
+	_pScan_ = &generalScan_;
 }
 
