@@ -92,7 +92,7 @@ bool SGMLegacyFileImporter::loadFromFile(const QString& filepath) {
 	}
 
 	// ensure raw data columns exist:
-	scan_->d_.removeAll();	// remove all non-pricipal columns
+	scan_->d_->removeAll();	// remove all non-pricipal columns
 	foreach(QString colName, colNames1) {
 		if(colName != "eV" && colName != "Event-ID")
 			scan_->addDetector(colName);
@@ -107,12 +107,12 @@ bool SGMLegacyFileImporter::loadFromFile(const QString& filepath) {
 		if(line.startsWith("1,") && (lp = line.split(',')).count() == colNames1.count() ) {
 
 			// append a new datapoint to the data tree (supply primary eV value here)
-			scan_->d_.append(lp.at(eVIndex).toDouble());	// insert eV
+			scan_->d_->append(lp.at(eVIndex).toDouble());	// insert eV
 
 			// add all columns (but ignore the first (Event-ID) and the eV column)
 			for(int i=1; i<colNames1.count(); i++) {
 				if(i!=eVIndex)
-					scan_->d_.setLastValue(colNames1.at(i), lp.at(i).toDouble());
+					scan_->d_->setLastValue(colNames1.at(i), lp.at(i).toDouble());
 			}
 		}
 

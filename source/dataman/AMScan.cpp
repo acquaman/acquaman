@@ -7,9 +7,12 @@
 QStringList AMScan::dbColumnNames_;
 
 AMScan::AMScan(QObject *parent)
-	: AMDbObject(parent),
-	d_(0, "x", true)
+	: AMDbObject(parent)
 {
+
+	// created a new top-level data tree (not shared with anyone). Assigning it to dshared_ gives it a reference count of 1. The tree will be automatically deleted when dshared_ goes out of scope (ie: when dshared_ gets deleted, moving the reference count to 0.)
+	dshared_ = d_ = new AMDataTree(0, "x", true);
+
 	// Ensure the static (class-wide) dbColumnNames_ has already been filled:
 	dbColumnNames();
 }
@@ -63,7 +66,7 @@ void AMScan::addChannel(AMChannel* channel) {
 	channel->setParent(this);
 }*/
 
-/// create a new channel. The channel is created as a child object of this scan.
+/// create a new channel. The channel is created with a QObject parent of 0, but will be owned and deleted by this Scan.
 bool AMScan::addChannel(const QString& chName, const QString& expression) {
 
 	if(channelNames().contains(chName))

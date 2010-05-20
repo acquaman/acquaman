@@ -338,9 +338,9 @@ int AMAcqScanOutput::putValue( acqKey_t key, int eventno, int pvno, const void *
 
 
 	if(!to->dataDelay_){
-		to->scan_->d_.setLastValue(pvno-1, dataVal);
+		to->scan_->d_->setLastValue(pvno-1, dataVal);
 		if(pvno == 2)
-			to->data1->insertPointBack(to->scan_->d_.x(to->scan_->d_.count()-1), dataVal);
+			to->data1->insertPointBack(to->scan_->d_->x(to->scan_->d_->count()-1), dataVal);
 	}
 	else if( (pvno != 0) && (eventno == 1) ){
 		to->dataDelayList_[pvno] = dataVal;
@@ -349,11 +349,11 @@ int AMAcqScanOutput::putValue( acqKey_t key, int eventno, int pvno, const void *
 		to->dataDelay_ = false;
 
 		// append a new datapoint to the data tree (supply primary eV value here)
-		to->scan_->d_.append(dataVal);	// insert eV
+		to->scan_->d_->append(dataVal);	// insert eV
 
 		QMap<int, double>::const_iterator i = to->dataDelayList_.constBegin();
 		while (i != to->dataDelayList_.constEnd()) {
-			to->scan_->d_.setLastValue(i.key()-1, i.value());
+			to->scan_->d_->setLastValue(i.key()-1, i.value());
 			if(i.key() == 2)
 				to->data1->insertPointBack(dataVal, i.value());
 			++i;

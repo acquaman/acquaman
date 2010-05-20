@@ -6,7 +6,7 @@
 
 #include <QDebug>
 
-AMChannel::AMChannel(AMScan* scan, const QString& name, const QString& expression, const QString& xExpression) : QObject(scan), AMObserver(), MPlotAbstractSeriesData()
+AMChannel::AMChannel(AMScan* scan, const QString& name, const QString& expression, const QString& xExpression) : QObject(), AMObserver(), MPlotAbstractSeriesData()
 {
 	name_ = name;
 	scan_ = scan;
@@ -220,7 +220,7 @@ bool AMChannel::setVariablesFromDataColumns() {
 
 
 AMDataTree* AMChannel::dataTree() const {
-	return &(scan()->d_);
+	return (scan()->d_);
 }
 
 QString AMChannel::errorMsg() const {

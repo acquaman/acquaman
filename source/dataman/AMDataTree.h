@@ -75,6 +75,7 @@ public:
 	}
 
 
+
 /// Copy constructor used by QSharedDataPointer::clone() when duplicating trees. Although this is a "deep copy" at the AMDataTree level, the column vectors (QList, AMDataTreeColumn) in x_, and y_ also take advantage of implicit sharing, so they are copied quickly.
 /*!	The "copy-on-write" method is used: both AMDataTrees will share the same data columns in memory until one of them needs to modify it.
 

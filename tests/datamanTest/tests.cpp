@@ -667,13 +667,13 @@ class TestDataman: public QObject
 		QVERIFY(s1.channel("tey_raw"));
 		QVERIFY(s1.channel("tfy_raw"));
 		QCOMPARE(s1.channel("tey_n")->expression().trimmed(), QString("tey/I0").trimmed());
-		QCOMPARE(s1.channel("tfy_n")->expression().trimmed(), QString("tfy/I0").trimmed());
+		QCOMPARE(s1.channel("tfy_n")->expression().trimmed(), QString("-1*tfy/I0").trimmed());
 		// test math parser:
 		for(int i=0; (unsigned)i<s1.channel("tey_n")->count(); i++)
 			QCOMPARE(s1.channel("tey_n")->value(i), s1.channel("tey_n")->dataTree()->value("tey", i)/s1.channel("tey_n")->dataTree()->value("I0", i));
 		// test math parser:
 		for(int i=0; (unsigned)i<s1.channel("tfy_n")->count(); i++)
-			QCOMPARE(s1.channel("tfy_n")->value(i), s1.channel("tfy_n")->dataTree()->value("tfy", i)/s1.channel("tfy_n")->dataTree()->value("I0", i));
+			QCOMPARE(s1.channel("tfy_n")->value(i), -s1.channel("tfy_n")->dataTree()->value("tfy", i)/s1.channel("tfy_n")->dataTree()->value("I0", i));
 	}
 
 
