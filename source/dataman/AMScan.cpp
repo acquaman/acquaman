@@ -66,7 +66,7 @@ void AMScan::addChannel(AMChannel* channel) {
 	channel->setParent(this);
 }*/
 
-/// create a new channel. The channel is created as a child object of this scan.
+/// create a new channel. The channel is created with a QObject parent of 0, but will be owned and deleted by this Scan.
 bool AMScan::addChannel(const QString& chName, const QString& expression) {
 
 	if(channelNames().contains(chName))
