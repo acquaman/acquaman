@@ -30,6 +30,15 @@ AMChannel* AMScan::channel(QString name) {
     return 0;
 }
 
+const AMChannel* AMScan::channel(QString name) const {
+	foreach(AMChannel* ch, ch_) {
+		if(ch->name() == name)
+			return ch;
+	}
+	return 0;
+}
+
+
 
 /// Delete a channel from scan: (All return true on success)
 bool AMScan::deleteChannel(AMChannel* channel) {

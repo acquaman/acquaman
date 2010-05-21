@@ -158,6 +158,11 @@ public slots:
 
 			AMScanView* sv = new AMScanView();
 			sv->show();
+			sv->changeViewMode(AMScanView::MultiScans);
+			sv->addScan(s1);
+			sv->changeViewMode(AMScanView::MultiChannels);
+			sv->addScan(s1);
+
 
 //			if(csTest)
 //				csTest->restore(SGMBeamline::sgm());

@@ -51,8 +51,10 @@ public:
 	int numChannels() const { return ch_.count();}
 	/// Returns specified channel by name: (returns 0 if not found)
 	AMChannel* channel(QString name);
+	const AMChannel* channel(QString name) const;
 	/// Return specified channel by index: (returns 0 if not found)
 	AMChannel* channel(size_t index) { if(index < (size_t)ch_.count() ) return ch_.at(index); else return 0; }
+	const AMChannel* channel(size_t index) const { if(index < (size_t)ch_.count() ) return ch_.at(index); else return 0; }
 	/// Return a comma-separated list of all channel names (Used for channel hints in database)
 	QStringList channelNames() const;
 
