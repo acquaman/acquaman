@@ -20,7 +20,14 @@ signals:
 public slots:
 	void initialize();
 	void start(){
-		advAcq_->setConfigFile("/home/reixs/beamline/programming/acquaman/myScan.cfg");
+		advAcq_->setConfigFile("/home/reixs/beamline/programming/acquaman/devConfigurationFiles/defaultEnergy.cfg");
+		foreach(QString str, pScan_()->detectors()){
+			qDebug() << "Trying to add detector " << str << " to .cfg file as " << SGMBeamline::sgm()->pvName(str) << " in slot " << advAcq_->getNumRecords();
+			if(advAcq_->addRecord(advAcq_->getNumRecords(), SGMBeamline::sgm()->pvName(str), true, false, 0))
+				qDebug() << "Added successfully";
+			else
+				qDebug() << "Add failed";
+		}
 		//advAcq_->clearRegions();
 		for(int x = 0; x < pCfg_()->count(); x++){
 			if(advAcq_->getNumRegions() == x)

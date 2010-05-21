@@ -42,6 +42,14 @@ public:
 	  */
 	explicit AMControlSetView(AMControlSet *viewSet, QWidget *parent = 0);
 
+	QWidget* boxByName(const QString &name){
+		return controlBoxes_.at(viewSet_->indexOf(name));
+	}
+
+	QWidget* boxAt(int row){
+		return controlBoxes_.at(row);
+	}
+
 signals:
 
 public slots:
@@ -49,6 +57,7 @@ public slots:
 protected:
 	/// Pointer to the AMControlSet which is the subject of this view.
 	AMControlSet *viewSet_;
+	QList<QWidget*> controlBoxes_;
 	QHBoxLayout *hl_;
 };
 
@@ -89,8 +98,18 @@ class AMDetectorSetView : public QGroupBox
 	Q_OBJECT
 public:
 	AMDetectorSetView(AMDetectorSet *viewSet, QWidget *parent = 0);
+
+	QWidget* boxByName(const QString &name){
+		return detectorBoxes_.at(viewSet_->indexOf(name));
+	}
+
+	QWidget* boxAt(int row){
+		return detectorBoxes_.at(row);
+	}
+
 protected:
 	AMDetectorSet *viewSet_;
+	QList<QWidget*> detectorBoxes_;
 	QHBoxLayout *hl_;
 };
 

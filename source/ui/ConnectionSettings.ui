@@ -406,6 +406,41 @@
           <string>M4 Outboard</string>
          </property>
         </widget>
+        <widget class="QLabel" name="hxpd_label_16">
+         <property name="geometry">
+          <rect>
+           <x>20</x>
+           <y>360</y>
+           <width>61</width>
+           <height>17</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Harmonic</string>
+         </property>
+        </widget>
+        <widget class="QWidget" name="harmonicHolder" native="true">
+         <property name="geometry">
+          <rect>
+           <x>160</x>
+           <y>360</y>
+           <width>121</width>
+           <height>40</height>
+          </rect>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>120</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="baseSize">
+          <size>
+           <width>120</width>
+           <height>0</height>
+          </size>
+         </property>
+        </widget>
        </widget>
       </item>
       <item row="5" column="2">

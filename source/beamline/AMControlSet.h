@@ -35,8 +35,12 @@ public:
 
 	/// Returns the name defined for the control set.
 	QString name() const { return name_;}
-	/// Returns the QList of AMControl pointers that currently comprise the controls in the set.
-	QList<AMControl*> controls() { return ctrls_;}
+//	/// Returns the QList of AMControl pointers that currently comprise the controls in the set.
+//	QList<AMControl*> controls() { return ctrls_;}
+	int count() { return ctrls_.count();}
+	AMControl* controlAt(int index) { return ctrls_.at(index);}
+	int indexOf(const QString &name);
+	AMControl* controlByName(const QString &name);
 
 signals:
 
@@ -129,8 +133,15 @@ public:
 
 	/// Returns the name defined for the control set.
 	QString name() const { return name_;}
-	/// Returns the QList of AMControl pointers that currently comprise the controls in the set.
-	QList<AMDetector*> detectors() { return detectors_;}
+//	/// Returns the QList of AMControl pointers that currently comprise the controls in the set.
+//	QList<AMDetector*> detectors() { return detectors_;}
+	int count() { return detectors_.count();}
+	AMDetector* detectorAt(int index) { return detectors_.at(index);}
+	int indexOf(const QString &name);
+	AMDetector* detectorByName(const QString &name);
+//	QList<bool> defaultDetectors() { return defaultDetectors_;}
+	bool isDefaultAt(int index) { return defaultDetectors_.at(index);}
+	bool isDefaultByName(const QString &name);
 
 signals:
 
@@ -138,7 +149,7 @@ public slots:
 	/// Sets the name of the control set.
 	void setName(const QString &name) { name_ = name;}
 	/// Adds an AMControl to the control set. Returns true if the addition was successful. Failure could result from adding the same AMControl twice.
-	bool addDetector(AMDetector* detector);
+	bool addDetector(AMDetector* detector, bool defaultDetector = false);
 	/// Removes an AMControl from the control set. Returns true if the removal was successful. Failure could result from removing an AMControl not in the set.
 	bool removeDetector(AMDetector* detector);
 
@@ -148,6 +159,7 @@ protected:
 	QString name_;
 	/// Local list of AMControl pointers, which represent the controls in the set.
 	QList<AMDetector*> detectors_;
+	QList<bool> defaultDetectors_;
 };
 
 #endif // ACQMAN_AMCONTROLSET_H

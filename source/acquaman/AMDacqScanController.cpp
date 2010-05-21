@@ -72,7 +72,8 @@ void AMDacqScanController::onStop()
 
 		MPlotSeriesBasic *series1;
 //		for(int y = 0; y < curScan_->numChannels(); y++){
-		for(int y = 2; y < 5; y++){
+		int maxChannels = pScan_()->numChannels();
+		for(int y = 2; y < maxChannels; y++){
 			series1 = new MPlotSeriesBasic();
 
 			qDebug() << "Plotting " << pScan_()->channel(y)->name();

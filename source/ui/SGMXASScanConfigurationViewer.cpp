@@ -48,9 +48,19 @@ void SGMXASScanConfigurationViewer::setScanConfiguration(AMScanConfiguration *cf
 	connect(regionsView_, SIGNAL(addRegionClicked()), this, SLOT(onAddRegionClicked()));
 	fluxResolutionView_ = new AMControlOptimizationSetView((AMControlOptimizationSet*)(sxsc->fluxResolutionSet()), this);
 	fluxResolutionView_->onRegionsUpdate(sxsc->regions());
+	connect( ((QSpinBox*)(fluxResolutionView_->boxByName("grating"))), SIGNAL(valueChanged(int)), sxsc, SLOT(setGrating(int)) );
+	((QSpinBox*)(fluxResolutionView_->boxByName("harmonic")))->setSingleStep(2);
+	connect( ((QSpinBox*)(fluxResolutionView_->boxByName("harmonic"))), SIGNAL(valueChanged(int)), sxsc, SLOT(setHarmonic(int)) );
+	connect( ((QDoubleSpinBox*)(fluxResolutionView_->boxByName("exitSlitGap"))), SIGNAL(valueChanged(double)), sxsc, SLOT(setExitSlitGap(double)) );
 
 	trackingView_ = new AMControlSetView(sxsc->trackingSet(), this);
+	connect( ((QSpinBox*)(trackingView_->boxByName("undulatorTracking"))), SIGNAL(valueChanged(int)), sxsc, SLOT(setUndulatorTracking(int)) );
+	connect( ((QSpinBox*)(trackingView_->boxByName("monoTracking"))), SIGNAL(valueChanged(int)), sxsc, SLOT(setMonoTracking(int)) );
+	connect( ((QSpinBox*)(trackingView_->boxByName("exitSlitTracking"))), SIGNAL(valueChanged(int)), sxsc, SLOT(setExitSlitTracking(int)) );
 	detectorView_ = new AMDetectorSetView(sxsc->detectorSet(), this);
+	connect( ((QCheckBox*)(detectorView_->boxByName("tey"))), SIGNAL(stateChanged(int)), sxsc, SLOT(setUsingTEY(int)) );
+	connect( ((QCheckBox*)(detectorView_->boxByName("tfy"))), SIGNAL(stateChanged(int)), sxsc, SLOT(setUsingTFY(int)) );
+	connect( ((QCheckBox*)(detectorView_->boxByName("pgt"))), SIGNAL(stateChanged(int)), sxsc, SLOT(setUsingPGT(int)) );
 	startScanButton_ = new QPushButton();
 	startScanButton_->setText("Start Scan");
 	startScanButton_->setMaximumWidth(200);

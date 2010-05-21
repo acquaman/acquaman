@@ -11,8 +11,9 @@ AMControlSetView::AMControlSetView(AMControlSet *viewSet, QWidget *parent) :
 	QFormLayout *fl = new QFormLayout();
 	QAbstractSpinBox *tmpASB;
 	AMControl *tmpCtrl;
-	for(int x = 0; x < viewSet_->controls().count(); x++){
-		tmpCtrl = viewSet_->controls().at(x);
+//	for(int x = 0; x < viewSet_->controls().count(); x++){
+	for(int x = 0; x < viewSet_->count(); x++){
+		tmpCtrl = viewSet_->controlAt(x);
 		if(tmpCtrl->isEnum()){
 			tmpASB = new QSpinBox(this);
 			((QSpinBox*)tmpASB)->setValue(tmpCtrl->value());
@@ -26,6 +27,7 @@ AMControlSetView::AMControlSetView(AMControlSet *viewSet, QWidget *parent) :
 			((QDoubleSpinBox*)tmpASB)->setMinimum(tmpCtrl->minimumValue());
 		}
 		fl->addRow(tmpCtrl->objectName(), tmpASB);
+		controlBoxes_.append(tmpASB);
 	}
 
 	hl_ = new QHBoxLayout(this);
@@ -211,11 +213,13 @@ AMDetectorSetView::AMDetectorSetView(AMDetectorSet *viewSet, QWidget *parent) :
 	QFormLayout *fl = new QFormLayout();
 	QCheckBox *tmpBox;
 	AMDetector *tmpDetector;
-	for(int x = 0; x < viewSet_->detectors().count(); x++){
-		tmpDetector = viewSet_->detectors().at(x);
+	for(int x = 0; x < viewSet_->count(); x++){
+		tmpDetector = viewSet_->detectorAt(x);
 		tmpBox = new QCheckBox(this);
-		tmpBox->setChecked(TRUE);
+//		tmpBox->setChecked(viewSet_->defaultDetectors().at(x));
+		tmpBox->setChecked(viewSet_->isDefaultAt(x));
 		fl->addRow(tmpDetector->name(), tmpBox);
+		detectorBoxes_.append(tmpBox);
 	}
 
 	hl_ = new QHBoxLayout(this);

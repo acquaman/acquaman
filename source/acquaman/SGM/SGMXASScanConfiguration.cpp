@@ -14,3 +14,13 @@ SGMXASScanConfiguration::SGMXASScanConfiguration(QObject *parent) : AMXASScanCon
 	emit exitSlitTrackingChanged(exitSlitTracking_);
 }
 
+QStringList SGMXASScanConfiguration::usingDetectors() const{
+	QStringList usingDetectors;
+	if(usingTEY_)
+		usingDetectors << "tey";
+	if(usingTFY_)
+		usingDetectors << "tfy";
+	if(usingPGT_)
+		usingDetectors << "pgt";
+	return usingDetectors;
+}
