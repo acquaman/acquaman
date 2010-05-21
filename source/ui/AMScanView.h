@@ -9,6 +9,7 @@
 #include <QToolButton>
 #include <QLayout>
 #include <QButtonGroup>
+#include <QStringList>
 
 #include "MPlot/MPlot.h"
 #include "MPlot/MPlotSceneAndView.h"
@@ -17,24 +18,7 @@
 
 class AMScanViewScanBar : public QWidget {
 public:
-	explicit AMScanViewScanBar(const QString& scanName = QString(), QWidget* parent = 0)
-		: QWidget(parent)
-	{
-		QHBoxLayout* hl = new QHBoxLayout();
-		nameLabel_ = new QLabel(scanName);
-		hl->addWidget(nameLabel_);
-		hl->addStretch(0.25);
-
-		chButtonLayout_ = new QHBoxLayout();
-		hl->addLayout(chButtonLayout_);
-		hl->addStretch(1);
-
-		closeButton_ = new QToolButton();
-		closeButton_->setText("X");
-		hl->addWidget(closeButton_);
-
-		setLayout(hl);
-	}
+	explicit AMScanViewScanBar(const AMScan* source = 0, QWidget* parent = 0);
 
 	// ui components:
 	QLabel* nameLabel_;
@@ -48,21 +32,28 @@ class AMScanViewModeBar : public QWidget {
 public:
 	explicit AMScanViewModeBar(QWidget* parent = 0);
 
-	QToolButton* tabButton_, *overplotButton_, *multiScansButton_, *multiChannelsButton_, *plusButton_, *subtractButton_;
+	QToolButton* plusButton_, *subtractButton_;
+	QButtonGroup* modeButtons_;
 
 };
 
+class AMScanViewChannelEntry {
+public:
+	AMScanViewChannelEntry() { visible = true; plotSeries = 0; destinationPlot = -1; }
+	bool visible;
+	MPlotSeriesBasic* plotSeries;
+	int destinationPlot;
+};
+
 class AMScanViewEntry {
+public:
+	AMScanViewEntry() { scan = 0; scanBar = 0; primaryChannel = 0; }
+
 	// pointer to the scan itself
-	AMScan* scan;
+	const AMScan* scan;
 	// scan->channelNames() could be useful
 
-	// for the set of channels: which are visible?
-	QList<bool> channelVisible;
-	// for the list of channels: the MPlotSeriesBasic used to display each
-	QList<MPlotSeriesBasic*> plotSeries;
-	// for the list of channels: the index of the plot in the view that is currently housing this series
-	QList<int> destinationPlot;
+	QList<AMScanViewChannelEntry> chList;
 
 	// A GUI element that exists for each channel, used to toggle which channels are visible
 	AMScanViewScanBar* scanBar;
@@ -78,6 +69,9 @@ public:
 	AMScanViewMainWidget(QWidget* parent = 0) : MPlotSceneAndView(parent) {
 		graphicsWidget_ = new QGraphicsWidget();
 		this->scene()->addItem(graphicsWidget_);
+		QPalette p = graphicsWidget_->palette();
+		p.setColor(QPalette::Window, QColor(Qt::red));
+		graphicsWidget_->setPalette(p);
 	}
 
 
@@ -103,7 +97,7 @@ class AMScanView : public QWidget
 {
 Q_OBJECT
 public:
-	enum ViewMode { Tabs, OverPlot, MultiScans, MultiChannels };
+	enum ViewMode { Invalid = -1, Tabs = 0, OverPlot, MultiScans, MultiChannels };
 
     explicit AMScanView(QWidget *parent = 0);
 
@@ -111,10 +105,23 @@ signals:
 
 public slots:
 
+	/// change the view mode (newMode is a ViewMode enum: 0 for one channel at a time; 1 for channels overplotted; 2 for one plot per scan; 2 for one plot per channel.
+	void changeViewMode(int newMode);
+
+	/// add a scan to the view:
+	void addScan(const AMScan* scan);
+
 protected:
+
+	/// helper function: remove all plot series:
+	void removeAllPlotSeries();
+	/// helper function: find out how many unique channels there are, and populate channelNames_;
+	void uniqueChannelSearch();
+
 	// ui components:
 	QList<MPlotGW*> plots_;
 	QGraphicsGridLayout* glayout_;
+	int width_, rc_, cc_;// layout locations: width (num cols), rowcounter, columncounter.
 
 	QVBoxLayout* barLayout_;
 
@@ -124,10 +131,13 @@ protected:
 	QList<AMScanViewEntry> scans_;
 	ViewMode mode_;
 
+	QStringList channelNames_;
+
 	// build UI
 	void setupUI();
 	// setup all UI event-handling connections
 	void makeConnections();
+
 
 
 };

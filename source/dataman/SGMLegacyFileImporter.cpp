@@ -1,4 +1,5 @@
 #include "SGMLegacyFileImporter.h"
+#include <QDir>
 
 AMBiHash<QString, QString> SGMLegacyFileImporter::columns2pvNames_;
 
@@ -8,6 +9,7 @@ AMBiHash<QString, QString> SGMLegacyFileImporter::columns2pvNames_;
 #include <QDateTime>
 #include "dataman/AMXASScan.h"
 
+#include <QDebug>
 
 /// load from SGM legacy file format (this may or may not be permanent; might want a general loading system)
 bool SGMLegacyFileImporter::loadFromFile(const QString& filepath) {
@@ -142,7 +144,7 @@ bool SGMLegacyFileImporter::loadFromFile(const QString& filepath) {
 
 
 	/// \todo defaults for what channels to create?
-	scan_->addChannel("eV", "eV");
+	// scan_->addChannel("eV", "eV");
 	if(colNames1.contains("tey"))
 		scan_->addChannel("tey_raw", "tey");
 	if(colNames1.contains("tfy"))
@@ -151,6 +153,11 @@ bool SGMLegacyFileImporter::loadFromFile(const QString& filepath) {
 		scan_->addChannel("tey_n", "tey/I0");
 	if(colNames1.contains("tfy") && colNames1.contains("I0"))
 		scan_->addChannel("tfy_n", "-1*tfy/I0");
+
+	// what should we name this scan?
+	QString name = QDir::fromNativeSeparators(filepath);
+	name = name.split(QChar('/')).last();
+	scan_->setName(name);
 
 	scan_->notifyUpdated();
 
