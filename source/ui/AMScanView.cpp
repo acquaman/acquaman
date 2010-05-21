@@ -103,6 +103,8 @@ AMScanView::AMScanView(QWidget *parent) :
     QWidget(parent)
 {
 	mode_ = Invalid;
+	width_ = 1;
+	rc_ = cc_ = 0;
 
 	setupUI();
 	makeConnections();
@@ -117,6 +119,7 @@ void AMScanView::setupUI() {
 	vl->setSpacing(6);
 
 	AMScanViewMainWidget* mw = new AMScanViewMainWidget();
+	mw->setMinimumSize(120,120);
 
 	vl->addWidget(mw);
 
