@@ -477,6 +477,30 @@ bool QEpicsAdvAcq::addRecord(int record, QString pv, bool enable, bool spectrum,
 	return TRUE;
 }
 
+bool QEpicsAdvAcq::appendRecord(QString pv, bool enable, bool spectrum, int mode)
+{
+	acqEvent_t *ev;
+	ev = first_acqEvent(_acq->getMaster());
+	if(!ev || !ev->numPvList )
+		return FALSE;
+	char* PVNAME = const_cast<char*>(pv.toAscii().data());
+
+
+	switch(mode)
+	{
+		case 0:{
+			addEventPv( ev, strdup(PVNAME), !enable, "%g", useCurrent, spectrum );
+			break;}
+		case 1:{
+			addEventPv( ev, strdup(PVNAME), !enable, "%g", usePvGet, spectrum );
+			break;}
+		case 2:{
+			addEventPv( ev, strdup(PVNAME), !enable, "%g", waitForMonitor, spectrum );
+			break;}
+	}
+	return TRUE;
+}
+
 bool QEpicsAdvAcq::deleteRecord(int record)
 {
 	acqEvent_t *ev;

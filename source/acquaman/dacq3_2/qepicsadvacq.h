@@ -87,6 +87,7 @@ class QEpicsAdvAcq : public QObject
 		bool clearRegions();
 		bool addRecord(int record);
 		bool addRecord(int record, QString pv, bool enable, bool spectrum, int mode);
+		bool appendRecord(QString pv, bool enable, bool spectrum, int mode);
 		bool deleteRecord(int record);
 
 		void setValidateInputFn( QString (*newValidateInput)(QEpicsAdvAcq *acq, int region, QString field, QString input, QString &error) ){ validateInput = newValidateInput;}
