@@ -131,6 +131,8 @@ public:
 };
 
 
+Q_DECLARE_METATYPE(AMChannel*)
+
 
 
 #endif // CHANNEL_H

@@ -663,7 +663,6 @@ class TestDataman: public QObject
 
 		QVERIFY(s1.channel("tey_n"));
 		QVERIFY(s1.channel("tfy_n"));
-		QVERIFY(s1.channel("eV"));
 		QVERIFY(s1.channel("tey_raw"));
 		QVERIFY(s1.channel("tfy_raw"));
 		QCOMPARE(s1.channel("tey_n")->expression().trimmed(), QString("tey/I0").trimmed());

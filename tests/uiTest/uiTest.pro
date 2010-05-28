@@ -7,21 +7,22 @@ macx {
         /Users/mboots/dev/epics/14-11/base/include/os/Darwin
     EPICS_LIB_DIR = /Users/mboots/dev/epics/14-11/base/lib/darwin-x86
     PHONON_INCLUDE_DIR = /Library/Frameworks/phonon.framework/Versions/Current/Headers
+    MPLOT_INCLUDE_DIR = /Users/mboots/dev/MPlot/src
 }
 linux-g++ { 
     EPICS_INCLUDE_DIRS = /home/reixs/beamline/programming/epics/base/include \
         /home/reixs/beamline/programming/epics/base/include/os/Linux
     EPICS_LIB_DIR = /home/reixs/beamline/programming/epics/base/lib/linux-x86
     PHONON_INCLUDE_DIR = /usr/include/qt4/phonon
+    
+    # include path for MPlot library (header-files only)
+    MPLOT_INCLUDE_DIR = /home/reixs/beamline/programming/MPlot/src
 }
 QT += core \
     phonon \
     network \
     sql
-
-
 CONFIG += qtestlib
-
 TARGET = test-ui
 DESTDIR = ../../build
 DEPENDPATH += . \
@@ -30,9 +31,9 @@ DEPENDPATH += . \
 INCLUDEPATH += . \
     ../../ \
     ../../source
-
 INCLUDEPATH += $$EPICS_INCLUDE_DIRS
 INCLUDEPATH += $$PHONON_INCLUDE_DIR
+INCLUDEPATH += $$MPLOT_INCLUDE_DIR
 
 # Epics channel access linking:
 LIBS += -L$$EPICS_LIB_DIR
@@ -49,8 +50,65 @@ INCLUDEPATH += /usr/include/libxml2
 LIBS += -lxml2
 
 # Input
-HEADERS +=
-FORMS +=
-SOURCES += tests.cpp
-
+HEADERS += ../../source/AMSettings.h \
+    ../../source/dataman/SGMLegacyFileImporter.h \
+    ../../source/dataman/AMXASScan.h \
+    ../../source/dataman/AMScan.h \
+    ../../source/dataman/AMDbObject.h \
+    ../../source/dataman/AMDbLoader.h \
+    ../../source/dataman/AMDataTreeColumn.h \
+    ../../source/dataman/AMDataTree.h \
+    ../../source/dataman/AMDatabase.h \
+    ../../source/dataman/AMChannel.h \
+    ../../source/ui/AMScanView.h \
+    ../../../MPlot/src/MPlot/MPlotWidget.h \
+    ../../../MPlot/src/MPlot/MPlotTools.h \
+    ../../../MPlot/src/MPlot/MPlotSeriesData.h \
+    ../../../MPlot/src/MPlot/MPlotSeries.h \
+    ../../../MPlot/src/MPlot/MPlotSceneAndView.h \
+    ../../../MPlot/src/MPlot/MPlotPoint.h \
+    ../../../MPlot/src/MPlot/MPlotObserver.h \
+    ../../../MPlot/src/MPlot/MPlotObservable.h \
+    ../../../MPlot/src/MPlot/MPlotMarker.h \
+    ../../../MPlot/src/MPlot/MPlotLegend.h \
+    ../../../MPlot/src/MPlot/MPlotItem.h \
+    ../../../MPlot/src/MPlot/MPlotImageData.h \
+    ../../../MPlot/src/MPlot/MPlotImage.h \
+    ../../../MPlot/src/MPlot/MPlotColorMap.h \
+    ../../../MPlot/src/MPlot/MPlotAxis.h \
+    ../../../MPlot/src/MPlot/MPlotAbstractTool.h \
+    ../../../MPlot/src/MPlot/MPlot.h \
+    ../../source/AMUserOptions.h \
+    ../../source/AMSettings.h \
+    ../../source/AMObserver.h \
+    ../../source/AMObservable.h \
+    ../../source/AMErrorMonitor.h \
+    ../../source/AMBiHash.h \
+    ../../source/muParser/muParserTokenReader.h \
+    ../../source/muParser/muParserToken.h \
+    ../../source/muParser/muParserStack.h \
+    ../../source/muParser/muParserFixes.h \
+    ../../source/muParser/muParserError.h \
+    ../../source/muParser/muParserDef.h \
+    ../../source/muParser/muParserCallback.h \
+    ../../source/muParser/muParserBytecode.h \
+    ../../source/muParser/muParserBase.h \
+    ../../source/muParser/muParser.h
+FORMS += 
+SOURCES += tests.cpp \
+    ../../source/dataman/SGMLegacyFileImporter.cpp \
+    ../../source/dataman/AMXASScan.cpp \
+    ../../source/dataman/AMScan.cpp \
+    ../../source/dataman/AMDbObject.cpp \
+    ../../source/dataman/AMDatabase.cpp \
+    ../../source/dataman/AMChannel.cpp \
+    ../../source/ui/AMScanView.cpp \
+    ../../source/AMSettings.cpp \
+    ../../source/AMErrorMonitor.cpp \
+    ../../source/muParser/muParserTokenReader.cpp \
+    ../../source/muParser/muParserError.cpp \
+    ../../source/muParser/muParserCallback.cpp \
+    ../../source/muParser/muParserBytecode.cpp \
+    ../../source/muParser/muParserBase.cpp \
+    ../../source/muParser/muParser.cpp
 RESOURCES = source/icons/icons.qrc
