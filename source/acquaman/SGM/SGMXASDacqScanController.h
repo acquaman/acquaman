@@ -20,13 +20,23 @@ signals:
 public slots:
 	void initialize();
 	void start(){
+		bool loadSuccess;
 		if(pScan_()->detectors().contains("pgt"))
-			advAcq_->setConfigFile("/home/reixs/beamline/programming/acquaman/devConfigurationFiles/pgt.cfg");
+			loadSuccess = advAcq_->setConfigFile("/home/reixs/beamline/programming/acquaman/devConfigurationFiles/pgt.cfg");
 		else
-			advAcq_->setConfigFile("/home/reixs/beamline/programming/acquaman/devConfigurationFiles/defaultEnergy.cfg");
+			loadSuccess = advAcq_->setConfigFile("/home/reixs/beamline/programming/acquaman/devConfigurationFiles/defaultEnergy.cfg");
+		if(!loadSuccess){
+			qDebug() << "LIBRARY FAILED TO LOAD CONFIG FILE";
+			return;
+		}
 
 		foreach(QString str, pScan_()->detectors()){
-			if(advAcq_->appendRecord(SGMBeamline::sgm()->pvName(str), true, false, 0));
+			if(str == SGMBeamline::sgm()->pgtDetector()->name())
+			{advAcq_->appendRecord(SGMBeamline::sgm()->pvName(str), true, true, 0);qDebug() << "Adding " << str << " as spectrum";}
+			else
+			{advAcq_->appendRecord(SGMBeamline::sgm()->pvName(str), true, false, 0);qDebug() << "Adding " << str << " as normal";}
+//				if(advAcq_->appendRecord(SGMBeamline::sgm()->pvName(str), true, false, 0));
+			advAcq_->saveConfigFile("/home/reixs/acquamanData/test.cfg");
 		}
 		qDebug() << "Using config file: " << advAcq_->getConfigFile();
 		//advAcq_->clearRegions();

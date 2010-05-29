@@ -26,7 +26,7 @@ public slots:
 protected slots:
 	void onDoLayout(){
 		if(!SGMBeamline::sgm()->isConnected())
-			return;
+		{qDebug() << "SGM not connected"; return;}
 		AMScanConfiguration *sxsc = new SGMXASScanConfiguration(this);
 		setScanConfiguration(sxsc);
 	}

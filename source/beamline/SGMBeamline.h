@@ -27,7 +27,7 @@ public:
 	bool isConnected() const {
 		for(int x = 0; x < numChildren(); x++)
 			if(!children_.at(x)->isConnected())
-				return false;
+			{qDebug() << "Died on " << x; return false;}
 		return true;
 	}
 

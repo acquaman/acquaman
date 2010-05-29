@@ -12,6 +12,7 @@
 
 #include "dacq3_2/OutputHandler/acqFactory.h"
 #include "AMAcqScanOutput.h"
+#include "AMAcqScanSpectrumOutput.h"
 #include "dacq3_2/qepicsadvacq.h"
 
 class AMDacqScanController : public AMScanController
@@ -27,14 +28,17 @@ public slots:
 	virtual void start(){
 		if(initialized_){
 		//	acqBaseOutput *abop = acqOutputHandlerFactory::new_acqOutput("SimpleText", "File");
-			acqBaseOutput *abop = acqOutputHandlerFactory::new_acqOutput("AMScan", "File");
+		//	acqBaseOutput *abop = acqOutputHandlerFactory::new_acqOutput("AMScan", "File");
+		//	acqBaseOutput *abop = acqOutputHandlerFactory::new_acqOutput("Text", "File");
+			acqBaseOutput *abop = acqOutputHandlerFactory::new_acqOutput("AMScanSpectrum", "File");
 			if( abop)
 			{
 				acqRegisterOutputHandler( advAcq_->getMaster(), (acqKey_t) abop, &abop->handler);                // register the handler with the acquisition
 				abop->setProperty( "File Template", pCfg_()->fileName().toStdString());
 				abop->setProperty( "File Path", pCfg_()->filePath().toStdString());
 
-				((AMAcqScanOutput*)abop)->setScan(pScan_());
+				qDebug() << "Just before set scan for spectrumOutput";
+				((AMAcqScanSpectrumOutput*)abop)->setScan(pScan_());
 				advAcq_->Start();
 			}
 			else

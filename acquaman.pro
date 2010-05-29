@@ -98,6 +98,7 @@ HEADERS += source/beamline/AMDiagnosticPaddle.h \
     source/acquaman/dacq3_2/OutputHandler/acqBaseStream.h \
     source/acquaman/dacq3_2/OutputHandler/acqFactory.h \
     source/acquaman/dacq3_2/OutputHandler/acqFileStream.h \
+    source/acquaman/dacq3_2/OutputHandler/acqTextSpectrumOutput.h \
     source/acquaman/dacq3_2/qepicsadvacq.h \
     source/acquaman/dacq3_2/acqLibHelper.h \
     source/acquaman/AMXASScanConfiguration.h \
@@ -147,8 +148,9 @@ HEADERS += source/beamline/AMDiagnosticPaddle.h \
     source/AMObserver.h \
     source/acquaman/AMRegionsList.h \
     source/ui/AMScanView.h \
-	../MPlot/src/MPlot/MPlotSceneAndView.h \
-    source/beamline/AMDetector.h
+    ../MPlot/src/MPlot/MPlotSceneAndView.h \
+    source/beamline/AMDetector.h \
+    source/acquaman/AMAcqScanSpectrumOutput.h
 FORMS += source/ui/AbsorptionScanController.ui \
     source/ui/ConnectionSettings.ui \
     source/ui/EmissionScanController.ui \
@@ -208,6 +210,7 @@ SOURCES += source/beamline/AMDiagnosticPaddle.cpp \
     source/acquaman/dacq3_2/OutputHandler/acqBaseStream.cpp \
     source/acquaman/dacq3_2/OutputHandler/acqFactory.cpp \
     source/acquaman/dacq3_2/OutputHandler/acqFileStream.cpp \
+    source/acquaman/dacq3_2/OutputHandler/acqTextSpectrumOutput.cpp \
     source/acquaman/dacq3_2/qepicsadvacq.cpp \
     source/acquaman/dacq3_2/acqLibHelper.c \
     source/acquaman/AMXASScanConfiguration.cpp \
@@ -234,7 +237,8 @@ SOURCES += source/beamline/AMDiagnosticPaddle.cpp \
     source/muParser/muParserBase.cpp \
     source/muParser/muParser.cpp \
     source/acquaman/AMRegionsList.cpp \
-	source/ui/AMScanView.cpp \
-	source/beamline/AMDetector.cpp
+    source/ui/AMScanView.cpp \
+    source/beamline/AMDetector.cpp \
+    source/acquaman/AMAcqScanSpectrumOutput.cpp
 RESOURCES = source/icons/icons.qrc
 OTHER_FILES += source/muParser/README.txt

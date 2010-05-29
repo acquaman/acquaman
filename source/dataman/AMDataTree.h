@@ -8,6 +8,8 @@
 #include <QHash>
 #include <QStringList>
 
+#include <QDebug>
+
 #include "dataman/AMDataTreeColumn.h"
 #include "AMObservable.h"
 
@@ -397,8 +399,10 @@ copyXASData.deeper("sddSpectrums",5)->setValue("y", 512, 49.3);
 
 	/// Create a new column of actual data. The column will have the right size (count()), but uninitialized data.  Returns the columnIndex of the new column.
 	unsigned createColumn(const QString& newColumnName, const QString& description = QString(), const QString& units = QString()) {
+		qDebug() << "Trying to create and append column";
 		y_.append( AMDataTreeColumn(newColumnName, description, units, count()) );
 		yNames_[newColumnName] = y_.count() - 1;
+		qDebug() << "The column count is " << y_.count() << " so index will be 1 less";
 		return y_.count() - 1;
 	}
 

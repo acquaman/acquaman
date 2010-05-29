@@ -484,18 +484,20 @@ bool QEpicsAdvAcq::appendRecord(QString pv, bool enable, bool spectrum, int mode
 	if(!ev || !ev->numPvList )
 		return FALSE;
 	char* PVNAME = const_cast<char*>(pv.toAscii().data());
-
+	char* FORMAT = "%g";
+	if(spectrum)
+		FORMAT = "%ld";
 
 	switch(mode)
 	{
 		case 0:{
-			addEventPv( ev, strdup(PVNAME), !enable, "%g", useCurrent, spectrum );
+			addEventPv( ev, strdup(PVNAME), !enable, FORMAT, useCurrent, spectrum );
 			break;}
 		case 1:{
-			addEventPv( ev, strdup(PVNAME), !enable, "%g", usePvGet, spectrum );
+			addEventPv( ev, strdup(PVNAME), !enable, FORMAT, usePvGet, spectrum );
 			break;}
 		case 2:{
-			addEventPv( ev, strdup(PVNAME), !enable, "%g", waitForMonitor, spectrum );
+			addEventPv( ev, strdup(PVNAME), !enable, FORMAT, waitForMonitor, spectrum );
 			break;}
 	}
 	return TRUE;
@@ -511,17 +513,18 @@ bool QEpicsAdvAcq::deleteRecord(int record)
 	return TRUE;
 }
 
-void QEpicsAdvAcq::buildFromConfig()
+bool QEpicsAdvAcq::buildFromConfig()
 {
 //    acqFile_t *acqf = _acq->getMaster()->acqFile;
+	qDebug() << "Called buildFromConfig";
 	sp = first_acqScan(_acq->getMaster());
 //    if(sp == NULL || acqf == NULL)
 	if(sp == NULL)
-		return;
+		return false;
 	while(_regions.count() > 0)
 		delete _regions.takeAt(_regions.count()-1);
 	if ( sp->numControlPV == 1 && sp->acqControlList->controlPV == NULL )
-		return;
+		return false;
 	QEpicsAcqRegion *tempRegion;
 	QString pv;
 	double start, delta, end, intTime;
@@ -543,6 +546,7 @@ void QEpicsAdvAcq::buildFromConfig()
 	}
 
 	makeEmptyCTLS();
+	return true;
 }
 
 void QEpicsAdvAcq::makeEmptyCTLS()

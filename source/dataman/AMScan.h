@@ -149,6 +149,7 @@ protected:
 	friend AMDataTree* AMChannel::dataTree() const;
 
 	friend class AMAcqScanOutput;
+	friend class AMAcqScanSpectrumOutput;
 	friend class AMDacqScanController;
 
 private:

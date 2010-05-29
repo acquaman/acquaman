@@ -21,7 +21,8 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 	pScan_()->setName("Dave's Scan");
 	pScan_()->addChannel("eV", "eV");
 	foreach(QString str, scanDetectors){
-		pScan_()->addChannel(str.toUpper(), str);
+		if(str != SGMBeamline::sgm()->pgtDetector()->name())
+			pScan_()->addChannel(str.toUpper(), str);
 	}
 
 //	pScan_()->addChannel("eV", "eV");

@@ -4,7 +4,8 @@ SGMBeamline* SGMBeamline::instance_ = 0;
 
 
 SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
-	amNames2pvNames_.set("energy", "dave:Energy");
+//	amNames2pvNames_.set("energy", "dave:Energy");
+	amNames2pvNames_.set("energy", "reixsHost:Energy");
 	amNames2pvNames_.set("eV_Fbk", "dave:Energy:fbk");
 	amNames2pvNames_.set("mono", "dave:Energy:mono");
 	amNames2pvNames_.set("undulator", "dave:Energy:undulator");
@@ -19,9 +20,12 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	amNames2pvNames_.set("undulatorTracking", "dave:Energy:undulator:tracking");
 	amNames2pvNames_.set("monoTracking", "dave:Energy:mono:tracking");
 	amNames2pvNames_.set("exitSlitTracking", "dave:Energy:exitSlit:tracking");
-	amNames2pvNames_.set("tey", "dave:TEY");
-	amNames2pvNames_.set("tfy", "dave:TFY");
-	amNames2pvNames_.set("pgt", "dave:PGT");
+//	amNames2pvNames_.set("tey", "dave:TEY");
+	amNames2pvNames_.set("tey", "reixsHost:tey");
+//	amNames2pvNames_.set("tfy", "dave:TFY");
+	amNames2pvNames_.set("tfy", "reixsHost:tfy");
+//	amNames2pvNames_.set("pgt", "dave:PGT");
+	amNames2pvNames_.set("pgt", "reixsHost:sdd:spectrum");
 
 	ringCurrent_ = new AMReadOnlyPVControl("ringCurrent", AMPVNames::toPV("ringCurrent"), this);
 	addChild(ringCurrent_);

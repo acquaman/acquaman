@@ -304,6 +304,10 @@ class TestDataman: public QObject
 			for(unsigned j=0; j<t1.deeper	("sddSpectrum", i)->count(); j++)
 				QCOMPARE( t1.deeper("sddSpectrum", i)->setValue("sddEV", j, 200+j*(1300.0-200.0)/1024.0), true);	// check for successful insert.
 
+		t1.deeper("sddSpectrum", 0)->createColumn("sddCount");
+		for(unsigned i=0; i<t1.deeper("sddSpectrum", 0)->count(); i++)
+			t1.deeper("sddSpectrum", 0)->setValue("sddCount", i, i);
+
 		// check for correct values:
 		for(unsigned i=0; i<t1.count(); i++)
 			for(unsigned j=0; j<t1.deeper("sddSpectrum", i)->count(); j++)
