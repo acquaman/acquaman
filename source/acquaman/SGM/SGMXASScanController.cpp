@@ -24,8 +24,10 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 		if(str != SGMBeamline::sgm()->pgtDetector()->name())
 			pScan_()->addChannel(str.toUpper(), str);
 		else
-			pScan_()->addChannel("PGT_COUNTS", "pgt->pgtCounts");
+			pScan_()->addChannel("PGT_COUNTS", "pgt.pgtCounts[199]");
 	}
+	pScan_()->addChannel("pgtTest1", "pgt.pgtCounts[4]");
+	pScan_()->addChannel("pgtTest2", "pgt[6].pgtCounts");
 
 //	pScan_()->addChannel("eV", "eV");
 //	pScan_()->addChannel("Jitter", "eV_Fbk");

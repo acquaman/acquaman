@@ -6,6 +6,58 @@
 
 #include <QDebug>
 
+double* AddVariable(const char *a_szName, void *a_pUserData)
+{
+	qDebug() << "Sent variable? " << a_szName;
+	QString fullVariable(a_szName);
+	QStringList variableBreakdownBlanks = fullVariable.split('.');
+	QStringList variableBreakdown = fullVariable.split('.', QString::SkipEmptyParts);
+	if( (variableBreakdownBlanks.count() != variableBreakdown.count()) || ( (variableBreakdown.count() != 1) && (variableBreakdown.count() != 2) ) ){
+		// NEED TO THROW ERROR HERE
+		qDebug() << "Fuck me, " << fullVariable << " is messed up in counts " << variableBreakdown.count() << " " << variableBreakdownBlanks.count();
+		qDebug() << variableBreakdown;
+		qDebug() << variableBreakdownBlanks;
+		throw mu::Parser::exception_type(_T("not a valid variable."));
+		return NULL;
+	}
+	AMChannel *ch = ((AMChannel*)a_pUserData);
+	AMParVar *tmpVar = new AMParVar();
+	if(variableBreakdown.count() == 2){
+		QRegExp rx("\\[(\\d+)\\]$");
+		bool firstHas = variableBreakdown.at(0).contains(rx) || variableBreakdown.at(0).contains("[");
+		bool secondHas = variableBreakdown.at(1).contains(rx) || variableBreakdown.at(1).contains("[");
+		if( (firstHas && secondHas) || (!firstHas && !secondHas) ){
+			// NEED TO THROW ERROR HERE
+			qDebug() << "Fuck me, " << fullVariable << " is messed up in []s" << firstHas << " " << secondHas;
+			throw mu::Parser::exception_type(_T("not a valid variable."));
+			return NULL;
+		}
+		tmpVar->indexer = rx.cap(1).toInt();
+		QString tmpCol = variableBreakdown.at(1);
+		QString tmpST = variableBreakdown.at(0);
+		if(firstHas){
+			tmpVar->level = 0;
+			tmpST.remove(rx);
+		}
+		else{
+			tmpVar->level = 1;
+			tmpCol.remove(rx);
+		}
+		tmpVar->colName = tmpCol;
+		tmpVar->stName = tmpST;
+	}
+	else
+		tmpVar->colName = variableBreakdown.at(0);
+	double *varSpace = ch->addVariable(tmpVar);
+	if(varSpace == NULL){
+		qDebug() << "Fuck me, " << fullVariable << " is messed up in names";
+		throw mu::Parser::exception_type(_T("not a valid variable."));
+		return NULL;
+	}
+	qDebug() << "Trying to return address " << varSpace;
+	return varSpace;
+}
+
 AMChannel::AMChannel(AMScan* scan, const QString& name, const QString& expression, const QString& xExpression) : QObject(), AMObserver(), MPlotAbstractSeriesData()
 {
 	name_ = name;
@@ -17,16 +69,19 @@ AMChannel::AMChannel(AMScan* scan, const QString& name, const QString& expressio
 
 	dataTree()->observable()->addObserver(this);
 
-	parser_.DefineNameChars("0123456789_:->"
+	parser_.DefineNameChars("0123456789_:.[]"
 						   "abcdefghijklmnopqrstuvwxyz"
 						   "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-	parserX_.DefineNameChars("0123456789_:->"
+	parserX_.DefineNameChars("0123456789_:.[]"
 						   "abcdefghijklmnopqrstuvwxyz"
 						   "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
 	//parser_.DefineOprtChars("abcdefghijklmnopqrstuvwxyz"
 	//					   "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 		//				   "+-*^/?<>=#!$%&|~'_");
 	//parser_.DefineInfixOprtChars("/+-*^?<>=#!$%&|~'_");
+	varStorage_.reserve(25);
+	parser_.SetVarFactory(AddVariable, (void*)(this));
+	parserX_.SetVarFactory(AddVariable, (void*)(this));
 
 	setExpression(expression);
 	setXExpression(xExpression);
@@ -58,6 +113,7 @@ bool AMChannel::setExpression(const QString& expression) {
 
 	// optimization section: We need to copy the raw data columns into varStorage_ when evaluating. Let's figure out exactly which columns we need to copy, by seeing which variables are used.
 
+	/* Doing in addVariable
 	// Get the map with the variables
 	mu::varmap_type usedvar = parser_.GetUsedVar();
 	usedColumnIndices_.clear();
@@ -77,6 +133,7 @@ bool AMChannel::setExpression(const QString& expression) {
 	}
 	std::cout << "\n";
 	fflush(stdout);
+	*/
 
 	isValid_ = true;
 	return true;
@@ -113,6 +170,7 @@ bool AMChannel::setXExpression(const QString& xExpression) {
 
 	// optimization section: We need to copy the raw data columns into varStorage_ when evaluating. Let's figure out exactly which columns we need to copy, by seeing which variables are used.
 
+	/* Doing in addVariable
 	// Get the map with the variables
 	mu::varmap_type usedvar = parserX_.GetUsedVar();
 	usedColumnIndicesX_.clear();
@@ -126,6 +184,7 @@ bool AMChannel::setXExpression(const QString& xExpression) {
 		// Since varStorage[0] is the x-column, and varStorage[i] is the (i-1)'th y-column, subtracting 1 will give us (-1) for the x-column, or the actual column index of the y-data column.
 		usedColumnIndicesX_ << (varStorageIndex-1);
 	}
+	*/
 
 	isValidX_ = true;
 	return true;
@@ -135,6 +194,33 @@ double AMChannel::value(unsigned p) const {
 
 	AMDataTree* t = dataTree();
 
+	AMParVar *tmpVar;
+	for(int i=0; i<varLookUps_.count(); i++){
+		tmpVar = varLookUps_.at(i);
+		if( (tmpVar->indexer == -1) && (tmpVar->level == -1) ){
+			if(tmpVar->isX)
+			{varStorage_[tmpVar->vectorIndex] = t->x(p);qDebug() << "At time0: " << t->x(p);}
+			else
+			{varStorage_[tmpVar->vectorIndex] = t->value(tmpVar->colName, p);qDebug() << "At time1: " << t->value(tmpVar->colName, p);}
+		}
+		else{
+			if(tmpVar->isX){
+				if(tmpVar->level == 0)
+				{varStorage_[tmpVar->vectorIndex] = t->deeper(tmpVar->stName, tmpVar->indexer)->x(p);qDebug() << "At time2: " << t->deeper(tmpVar->stName, tmpVar->indexer)->x(p);}
+				else
+				{varStorage_[tmpVar->vectorIndex] = t->deeper(tmpVar->stName, p)->x(tmpVar->indexer);qDebug() << "At time3: " << t->deeper(tmpVar->stName, p)->x(tmpVar->indexer);}
+			}
+			else{
+				if(tmpVar->level == 0)
+				{varStorage_[tmpVar->vectorIndex] = t->deeper(tmpVar->stName, tmpVar->indexer)->value(tmpVar->colName, p);qDebug() << "At time4: " << t->deeper(tmpVar->stName, tmpVar->indexer)->value(tmpVar->colName, p);}
+				else
+				{varStorage_[tmpVar->vectorIndex] = t->deeper(tmpVar->stName, p)->value(tmpVar->colName, tmpVar->indexer);qDebug() << "At time5: " << t->deeper(tmpVar->stName, p)->value(tmpVar->colName, tmpVar->indexer);}
+			}
+		}
+		qDebug() << "tmpVar: " << tmpVar->stName << tmpVar->colName << tmpVar->isX << tmpVar->vectorIndex << tmpVar->indexer << tmpVar->level;
+		qDebug() << "Tried writing index: " << tmpVar->vectorIndex << " value: " << varStorage_[tmpVar->vectorIndex];
+	}
+	/*
 	// Copy the raw data column values into varStorage_.
 	// optimization: only copy the columns we actually use, based on the indices in usedColumnIndices_
 	foreach(int usedCol, usedColumnIndices_) {
@@ -151,6 +237,7 @@ double AMChannel::value(unsigned p) const {
 			}
 		}
 	}
+	*/
 
 	/* Prior to optimization:
 	varStorage_[0] = t->x(p);
@@ -206,7 +293,7 @@ double AMChannel::x(unsigned p) const {
 
 
 bool AMChannel::setVariablesFromDataColumns() {
-
+/*
 	parser_.ClearVar();
 	parserX_.ClearVar();
 
@@ -216,7 +303,7 @@ bool AMChannel::setVariablesFromDataColumns() {
 	QStringList ySubs;
 	QString baseName;
 	for(int i=0; i<dataTree()->ySubtreeNames().count(); i++){
-		baseName = dataTree()->ySubtreeNames().at(i) + "->";
+		baseName = dataTree()->ySubtreeNames().at(i) + ".";
 		ySubs << baseName + dataTree()->prototype(i)->xName();
 		for(int j=0; j<dataTree()->prototype(i)->yColumnNames().count(); j++)
 			ySubs << baseName + dataTree()->prototype(i)->yColumnNames().at(j);
@@ -242,7 +329,7 @@ bool AMChannel::setVariablesFromDataColumns() {
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, e.GetCode(), explanation));
 		return false;
 	}
-
+*/
 	return true;
 }
 
@@ -321,6 +408,7 @@ void AMChannel::onObservableChanged(AMObservable* source, int code, const char* 
 	Q_UNUSED(source)
 	Q_UNUSED(msg)
 
+	qDebug() << "dataTree emits " << code << QString(msg) << colIndex << " for " << usedColumnIndices_ << " and defaultX " << defaultX_;
 	if( code != 3 || QString(msg) != QString("columnChanged") )
 		return;
 
