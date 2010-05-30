@@ -91,6 +91,7 @@ int AMAcqScanSpectrumOutput::putValue( acqKey_t key, int eventno, int pvno, cons
 
 
 	double dataVal;
+	double specMax = 0;
 	QList<double> spectraVal;
 
 	if(!pvpr->isSpectrum){
@@ -155,30 +156,39 @@ int AMAcqScanSpectrumOutput::putValue( acqKey_t key, int eventno, int pvno, cons
 			}
 //			spectraVal[x+1] = dataVal;
 			spectraVal.append(dataVal);
+			if(dataVal > specMax)
+				specMax = dataVal;
 			value = (char  *)value + pvpr->colp->dataSize;
 		}
 	}
 
 	qDebug() << "Currently dataDelay is " << to->dataDelay_ << " and pvno is " << pvno << " and eventno is " << eventno;
-	if(pvno != 0)
+	if(pvno != 0){
 		if(!pvpr->isSpectrum)
 			qDebug() << "Looking at column " << to->scan_->d_->yColumnNames().at(pvno-1);
+		else
+			qDebug() << "Looking at subtree column " << to->scan_->d_->ySubtreeNames().at(0);
+	}
+
 	if(!to->dataDelay_){
 		if(!pvpr->isSpectrum)
 			to->scan_->d_->setLastValue(pvno-1, dataVal);
 		else{
+//			double normDiv = specMax/240;
+//			double disp;
+//			std::cout << "Max is " << specMax << " so Normalizer is " << normDiv << "\n";
 			QStringList myList = to->scan_->d_->deeper(0, to->scan_->d_->count()-1)->yColumnNames();
 			qDebug() << "Count for spectrum would be " << spectraVal.count() << " 0th column is " << myList;
 			for(int x = 0; x < spectraVal.count(); x++){
-////		for(int x = 0; x < 64; x++){
 //				to->scan_->d_->deeper(pvno-1, to->scan_->d_->count()-1)->setValue(0, x, spectraVal[x]);
-////			to->scan_->d_->deeper(0, to->scan_->d_->count()-1)->setValue(0, x, spectraVal[x]);
-				std::cout << spectraVal[x] << " (" << to->scan_->d_->deeper(0, to->scan_->d_->count()-1)->count() << ") ";
-				fflush(stdout);
-//				qDebug() << "Spectrum immediate setting tCol " << pvno-1 << " tRow " << to->scan_->d_->count()-1 << " deeper index " << x << " and value " << spectraVal[x];
+				to->scan_->d_->deeper(0, to->scan_->d_->count()-1)->setValue(0, x, spectraVal[x]);
+//				disp = to->scan_->d_->deeper(0, to->scan_->d_->count()-1)->value(0, x)/normDiv;
+//				printf("%04d", x);
+//				for(int y = 0; y < floor(disp); y++)
+//					std::cout << " ";
+//				std::cout << "x\n";
+//				fflush(stdout);
 			}
-			std::cout << "\nOver\n";
-			fflush(stdout);
 		}
 		if(pvno == 2)
 			to->data1->insertPointBack(to->scan_->d_->x(to->scan_->d_->count()-1), dataVal);
@@ -219,7 +229,5 @@ int AMAcqScanSpectrumOutput::putValue( acqKey_t key, int eventno, int pvno, cons
 			++dI;
 		}
 	}
-	cout << "Totally done put call\n";
-	fflush(stdout);
 	return 0;
 }

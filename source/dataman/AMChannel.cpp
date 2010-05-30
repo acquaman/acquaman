@@ -17,10 +17,10 @@ AMChannel::AMChannel(AMScan* scan, const QString& name, const QString& expressio
 
 	dataTree()->observable()->addObserver(this);
 
-	parser_.DefineNameChars("0123456789_:"
+	parser_.DefineNameChars("0123456789_:->"
 						   "abcdefghijklmnopqrstuvwxyz"
 						   "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-	parserX_.DefineNameChars("0123456789_:"
+	parserX_.DefineNameChars("0123456789_:->"
 						   "abcdefghijklmnopqrstuvwxyz"
 						   "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
 	//parser_.DefineOprtChars("abcdefghijklmnopqrstuvwxyz"
@@ -64,13 +64,19 @@ bool AMChannel::setExpression(const QString& expression) {
 
 	mu::varmap_type::const_iterator item = usedvar.begin();
 
+	std::cout << "\n\nVARIABLES\n";
+	fflush(stdout);
 	// Query the used variables.  item->second is a pointer to the variable, so (item->second - varStorage_.data()) is the index within varStorage_.
 	for (; item!=usedvar.end(); ++item)
 	{
+		std::cout << "Used variable: " << item->first;
+		fflush(stdout);
 		int varStorageIndex = (int)( item->second - varStorage_.data() );
 		// Since varStorage[0] is the x-column, and varStorage[i] is the (i-1)'th y-column, subtracting 1 will give us (-1) for the x-column, or the actual column index of the y-data column.
 		usedColumnIndices_ << (varStorageIndex-1);
 	}
+	std::cout << "\n";
+	fflush(stdout);
 
 	isValid_ = true;
 	return true;
@@ -134,8 +140,16 @@ double AMChannel::value(unsigned p) const {
 	foreach(int usedCol, usedColumnIndices_) {
 		if(usedCol == -1)
 			varStorage_[0] = t->x(p);
-		else
-			varStorage_[usedCol+1] = t->value(usedCol, p);
+		else{
+			if(usedCol < t->numYColumns())
+				varStorage_[usedCol+1] = t->value(usedCol, p);
+			else{
+				if(usedCol == t->numYColumns())
+					varStorage_[usedCol+1] = t->deeper(0, p)->x(199);
+				else
+					varStorage_[usedCol+1] = t->deeper(0, p)->value(0, 199);
+			}
+		}
 	}
 
 	/* Prior to optimization:
@@ -199,15 +213,29 @@ bool AMChannel::setVariablesFromDataColumns() {
 	// add all of the raw data column names as allowed variables in the expression parser
 		// the values from the columns will be buffered in varStorage_ for evaluation.
 	QStringList ycols = dataTree()->yColumnNames();
+	QStringList ySubs;
+	QString baseName;
+	for(int i=0; i<dataTree()->ySubtreeNames().count(); i++){
+		baseName = dataTree()->ySubtreeNames().at(i) + "->";
+		ySubs << baseName + dataTree()->prototype(i)->xName();
+		for(int j=0; j<dataTree()->prototype(i)->yColumnNames().count(); j++)
+			ySubs << baseName + dataTree()->prototype(i)->yColumnNames().at(j);
+	}
+	ycols.append(ySubs);
 	varStorage_.resize(ycols.count()+1);
 
 	try {
+		std::cout << "Allowable variables are: \n";
 		parser_.DefineVar(dataTree()->xName().toStdString(), varStorage_.data() );
+		std::cout << dataTree()->xName().toStdString() << "\n";
 		parserX_.DefineVar(dataTree()->xName().toStdString(), varStorage_.data() );
 		for(int i=0; i<ycols.count(); i++) {
 			parser_.DefineVar(ycols.at(i).toStdString(), varStorage_.data()+1+i);
+			std::cout << ycols.at(i).toStdString() << "\n";
 			parserX_.DefineVar(ycols.at(i).toStdString(), varStorage_.data()+1+i);
 		}
+		std::cout << "\n";
+		fflush(stdout);
 	}
 	catch(mu::Parser::exception_type &e) {
 		QString explanation = QString("AMChannel (setting variables): %1.").arg(QString::fromStdString(e.GetMsg()));

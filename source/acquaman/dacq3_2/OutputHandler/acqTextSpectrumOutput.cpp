@@ -217,8 +217,6 @@ int acqTextSpectrumOutput::endRecord( acqKey_t key, int eventno)
 		to->needSpectrumDelimiter = 0;
 	}
 
-	std::cout << "Done end record call\n";
-	fflush(stdout);
 	return 0;
 }
 string

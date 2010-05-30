@@ -23,6 +23,8 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 	foreach(QString str, scanDetectors){
 		if(str != SGMBeamline::sgm()->pgtDetector()->name())
 			pScan_()->addChannel(str.toUpper(), str);
+		else
+			pScan_()->addChannel("PGT_COUNTS", "pgt->pgtCounts");
 	}
 
 //	pScan_()->addChannel("eV", "eV");
