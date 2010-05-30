@@ -78,6 +78,8 @@ private:
 
 	AMScanConfiguration *pCfg_() { return *_pCfg_;}
 	AMScan *pScan_() { return *_pScan_;}
+
+	void play2d();
 };
 
 #endif // ACQMAN_DACQSCANCONTROLLER_H

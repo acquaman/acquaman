@@ -23,8 +23,16 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 	foreach(QString str, scanDetectors){
 		if(str != SGMBeamline::sgm()->pgtDetector()->name())
 			pScan_()->addChannel(str.toUpper(), str);
-		else
-			pScan_()->addChannel("PGT_COUNTS", "pgt.pgtCounts[199]");
+		else{
+//			pScan_()->addChannel("PGT_COUNTS", "pgt.pgtCounts[199]");
+
+			QString indexer = "";
+			for(int x = 0; x < 1024; x++){
+				indexer.setNum(x);
+				pScan_()->addChannel("PGT_COUNTS"+indexer, "pgt.pgtCounts["+indexer+"]");
+			}
+
+		}
 	}
 	pScan_()->addChannel("pgtTest1", "pgt.pgtCounts[130]");
 	pScan_()->addChannel("pgtTest2", "pgt[130].pgtCounts");

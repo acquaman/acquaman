@@ -8,7 +8,7 @@
 
 double* AddVariable(const char *a_szName, void *a_pUserData)
 {
-	qDebug() << "Sent variable? " << a_szName;
+	//qDebug() << "Sent variable? " << a_szName;
 	QString fullVariable(a_szName);
 	QStringList variableBreakdownBlanks = fullVariable.split('.');
 	QStringList variableBreakdown = fullVariable.split('.', QString::SkipEmptyParts);
@@ -54,13 +54,13 @@ double* AddVariable(const char *a_szName, void *a_pUserData)
 		throw mu::Parser::exception_type(_T("not a valid variable."));
 		return NULL;
 	}
-	qDebug() << "Trying to return address " << varSpace;
+	//qDebug() << "Trying to return address " << varSpace;
 	return varSpace;
 }
 
 double* AddVariableX(const char *a_szName, void *a_pUserData)
 {
-	qDebug() << "Sent variable? " << a_szName;
+	//qDebug() << "Sent variable? " << a_szName;
 	QString fullVariable(a_szName);
 	QStringList variableBreakdownBlanks = fullVariable.split('.');
 	QStringList variableBreakdown = fullVariable.split('.', QString::SkipEmptyParts);
@@ -107,7 +107,7 @@ double* AddVariableX(const char *a_szName, void *a_pUserData)
 		throw mu::Parser::exception_type(_T("not a valid variable."));
 		return NULL;
 	}
-	qDebug() << "Trying to return address " << varSpace;
+	//qDebug() << "Trying to return address " << varSpace;
 	return varSpace;
 }
 
@@ -252,26 +252,26 @@ double AMChannel::value(unsigned p) const {
 		tmpVar = varLookUps_.at(i);
 		if( (tmpVar->indexer == -1) && (tmpVar->level == -1) ){
 			if(tmpVar->isX)
-			{varStorage_[tmpVar->vectorIndex] = t->x(p);qDebug() << "At time0: " << t->x(p);}
+			{varStorage_[tmpVar->vectorIndex] = t->x(p);}//qDebug() << "At time0: " << t->x(p);}
 			else
-			{varStorage_[tmpVar->vectorIndex] = t->value(tmpVar->colName, p);qDebug() << "At time1: " << t->value(tmpVar->colName, p);}
+			{varStorage_[tmpVar->vectorIndex] = t->value(tmpVar->colName, p);}//qDebug() << "At time1: " << t->value(tmpVar->colName, p);}
 		}
 		else{
 			if(tmpVar->isX){
 				if(tmpVar->level == 0)
-				{varStorage_[tmpVar->vectorIndex] = t->deeper(tmpVar->stName, tmpVar->indexer)->x(p);qDebug() << "At time2: " << t->deeper(tmpVar->stName, tmpVar->indexer)->x(p);}
+				{varStorage_[tmpVar->vectorIndex] = t->deeper(tmpVar->stName, tmpVar->indexer)->x(p);}//qDebug() << "At time2: " << t->deeper(tmpVar->stName, tmpVar->indexer)->x(p);}
 				else
-				{varStorage_[tmpVar->vectorIndex] = t->deeper(tmpVar->stName, p)->x(tmpVar->indexer);qDebug() << "At time3: " << t->deeper(tmpVar->stName, p)->x(tmpVar->indexer);}
+				{varStorage_[tmpVar->vectorIndex] = t->deeper(tmpVar->stName, p)->x(tmpVar->indexer);}//qDebug() << "At time3: " << t->deeper(tmpVar->stName, p)->x(tmpVar->indexer);}
 			}
 			else{
 				if(tmpVar->level == 0)
-				{varStorage_[tmpVar->vectorIndex] = t->deeper(tmpVar->stName, tmpVar->indexer)->value(tmpVar->colName, p);qDebug() << "At time4: " << t->deeper(tmpVar->stName, tmpVar->indexer)->value(tmpVar->colName, p);}
+				{varStorage_[tmpVar->vectorIndex] = t->deeper(tmpVar->stName, tmpVar->indexer)->value(tmpVar->colName, p);}//qDebug() << "At time4: " << t->deeper(tmpVar->stName, tmpVar->indexer)->value(tmpVar->colName, p);}
 				else
-				{varStorage_[tmpVar->vectorIndex] = t->deeper(tmpVar->stName, p)->value(tmpVar->colName, tmpVar->indexer);qDebug() << "At time5: " << t->deeper(tmpVar->stName, p)->value(tmpVar->colName, tmpVar->indexer);}
+				{varStorage_[tmpVar->vectorIndex] = t->deeper(tmpVar->stName, p)->value(tmpVar->colName, tmpVar->indexer);}//qDebug() << "At time5: " << t->deeper(tmpVar->stName, p)->value(tmpVar->colName, tmpVar->indexer);}
 			}
 		}
-		qDebug() << "tmpVar: " << tmpVar->stName << tmpVar->colName << tmpVar->isX << tmpVar->vectorIndex << tmpVar->indexer << tmpVar->level;
-		qDebug() << "Tried writing index: " << tmpVar->vectorIndex << " value: " << varStorage_[tmpVar->vectorIndex];
+		//qDebug() << "tmpVar: " << tmpVar->stName << tmpVar->colName << tmpVar->isX << tmpVar->vectorIndex << tmpVar->indexer << tmpVar->level;
+		//qDebug() << "Tried writing index: " << tmpVar->vectorIndex << " value: " << varStorage_[tmpVar->vectorIndex];
 	}
 	/*
 	// Copy the raw data column values into varStorage_.
@@ -317,11 +317,11 @@ double AMChannel::x(unsigned p) const {
 
 	// default x: just return the x column value
 	if(defaultX_){
-		qDebug() << "Just returning default X";
+		//qDebug() << "Just returning default X";
 		return t->x(p);
 	}
 
-	qDebug() << "Not returning default X";
+	//qDebug() << "Not returning default X";
 	// evaluate value using the x-expression parser
 
 	// Copy the raw data column values into varStorage_.
@@ -436,35 +436,35 @@ QString AMChannel::longErrorMsg() const {
 
 void AMChannel::searchMin() const {
 	min_ = 0;
-	qDebug() << "\nStart searching min";
+//	qDebug() << "\nStart searching min";
 	for(int i=1; (unsigned)i<count(); i++)
 		if(value(i) < value(min_))
 			min_ = i;
-	qDebug() << "Done searching min\n";
+//	qDebug() << "Done searching min\n";
 }
 void AMChannel::searchMax() const {
 	max_ = 0;
-	qDebug() << "\nStart searching max";
+//	qDebug() << "\nStart searching max";
 	for(int i=1; (unsigned)i<count(); i++)
 		if(value(i)>value(max_))
 			max_ = i;
-	qDebug() << "Done searching max\n";
+//	qDebug() << "Done searching max\n";
 }
 void AMChannel::searchMinX() const {
 	minX_ = 0;
-	qDebug() << "\nStart searching minX";
+//	qDebug() << "\nStart searching minX";
 	for(int i=1; (unsigned)i<count(); i++)
 		if(x(i)<x(minX_))
 			minX_ = i;
-	qDebug() << "Done searching minX\n";
+//	qDebug() << "Done searching minX\n";
 }
 void AMChannel::searchMaxX() const {
 	maxX_ = 0;
-	qDebug() << "\nStart searching maxX";
+//	qDebug() << "\nStart searching maxX";
 	for(int i=1; (unsigned)i<count(); i++)
 		if(x(i)>x(maxX_))
 			maxX_ = i;
-	qDebug() << "Done searching maxX\n";
+//	qDebug() << "Done searching maxX\n";
 }
 
 /// We observe AMDataTrees.  They Emit(3, "columnChanged", columnIndex) whenever values in a column change.
@@ -472,7 +472,7 @@ void AMChannel::onObservableChanged(AMObservable* source, int code, const char* 
 	Q_UNUSED(source)
 	Q_UNUSED(msg)
 
-	qDebug() << "dataTree emits " << code << QString(msg) << colIndex << " for " << usedColumnIndices_ << " and defaultX " << defaultX_;
+//	qDebug() << "dataTree emits " << code << QString(msg) << colIndex << " for " << usedColumnIndices_ << " and defaultX " << defaultX_;
 	if( code != 3 || QString(msg) != QString("columnChanged") )
 		return;
 
