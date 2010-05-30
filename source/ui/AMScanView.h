@@ -16,9 +16,107 @@
 #include "dataman/AMScan.h"
 
 
-class AMScanViewScanBar : public QWidget {
+/// Meta-data information for channels, not contained within AMChannel, that is required by the AMScanSetModel
+class AMScanSetModelChannelMetaData {
 public:
-	explicit AMScanViewScanBar(const AMScan* source = 0, QWidget* parent = 0);
+	AMScanSetModelChannelMetaData(const QColor& Color = nextColor(), double Priority = 1, const QPen& LinePen = QPen(), bool Visible = true)
+		: color(Color),
+		priority(Priority),
+		linePen(LinePen),
+		visible(Visible) {}
+
+	QColor color;
+	double priority;
+	QPen linePen;
+	bool visible;
+
+	static QColor nextColor() {
+		static int i = 0;
+
+		switch(i++ % 12) {
+		case 0: return QColor(255, 0, 128);
+		case 1: return QColor(0, 128, 255);
+		case 2: return QColor(128, 255, 0);
+		case 3: return QColor(255, 128, 0);
+		case 4: return QColor(128, 0, 255);
+		case 5: return QColor(0, 0, 255);
+		case 6: return QColor(0, 128, 0);
+		case 7: return QColor(255, 255, 0);
+		case 8: return QColor(255, 0, 0);
+		case 9: return QColor(0, 64, 128);
+		case 10: return QColor(128, 64, 0);
+		case 11: default: return QColor(128, 0, 64);
+		}
+	}
+
+};
+
+/// This class provides a standard Qt model for a set of AMScans, with the 2nd level in the tree containing their AMChannels.
+/*! Roles:
+	Qt::DisplayRole: QString			- the name of the scan or channel
+	Qt::DecorationRole: QColor			- line/display color
+	Qt::TooltipRole: QString			- detailed information
+	Qt::CheckStateRole: Qt::CheckState	- whether visible or not. (Qt::Checked or Qt::Unchecked)
+	Qt::UserRole or AMScanSetModel::PointerRole: AMScan* or AMChannel*	- the pointer to the object
+	AMScanSetModel::PriorityRole: double- used for ordering (lowest to highest). Negative values are displayed in "exclusive" views.
+	AMScanSetModel::LinePenRole: QPen	- pen used for drawing in scans
+
+
+	*/
+
+class AMScanSetModel : public QAbstractItemModel {
+	Q_OBJECT
+
+	enum ItemDataRoles { PointerRole = Qt::UserRole, PriorityRole, LinePenRole };
+
+public:
+	AMScanSetModel(QObject* parent = 0) : QAbstractItemModel(parent) {}
+
+	QModelIndex index ( int row, int column, const QModelIndex & parent = QModelIndex() ) const;
+
+	QModelIndex parent ( const QModelIndex & index ) const;
+
+	Qt::ItemFlags flags ( const QModelIndex & index ) const;
+
+	QVariant data ( const QModelIndex & index, int role = Qt::DisplayRole ) const;
+
+	QVariant headerData ( int section, Qt::Orientation orientation, int role = Qt::DisplayRole ) const;
+
+	int rowCount ( const QModelIndex & parent = QModelIndex() ) const;
+
+	int columnCount ( const QModelIndex & parent = QModelIndex() ) const;
+	bool hasChildren ( const QModelIndex & parent = QModelIndex() ) const;
+
+	/// returns the index (or row) of an AMScan in the top-level. returns -1 if not found.
+	int indexOf(AMScan* scan) const;
+
+	// Resizable Interface:
+
+	// Add a scan to this model.  The AMScan must exist elsewhere, for the lifetime that it is added to the model.  Model does not take ownership of the scan.
+	void addScan(AMScan* newScan);
+
+	// removes an AMScan from this model. Does not delete the scan.  Call this before deleting a scan that has been added to the model.
+	bool removeScan(AMScan* removeMe);
+
+protected slots:
+	// the AMChannelListModel is a standard Qt model, but it guarantees that only one channel will be added at a time, and it will be added at the end of all rows(channels).
+	void onChannelAboutToBeAdded(const QModelIndex& parent, int start, int end);
+
+	void onChannelAdded(const QModelIndex& parent, int start, int end);
+
+	void onChannelAboutToBeRemoved(const QModelIndex& parent, int start, int end);
+	void onChannelRemoved(const QModelIndex& parent, int start, int end);
+
+protected:
+	QList<AMScan*> scans_;
+	QList<const AMChannelListModel*> scanChannelLists_;
+	QList<QList<AMScanSetModelChannelMetaData> > channels_;
+
+};
+
+class AMChannelSelectorBar : public QWidget {
+public:
+	explicit AMChannelSelectorBar(const AMScan* source = 0, QWidget* parent = 0);
 
 	// ui components:
 	QLabel* nameLabel_;
@@ -56,7 +154,7 @@ public:
 	QList<AMScanViewChannelEntry> chList;
 
 	// A GUI element that exists for each channel, used to toggle which channels are visible
-	AMScanViewScanBar* scanBar;
+	AMChannelSelectorBar* scanBar;
 
 	// in tab mode, where only one channel is plotted: use this one:
 	int primaryChannel;

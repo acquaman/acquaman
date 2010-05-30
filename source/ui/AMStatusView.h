@@ -250,7 +250,7 @@ protected:
 			openAnime->setDuration(1000);
 			openAnime->setEasingCurve(QEasingCurve::OutInSine);
 			QPropertyAnimation *closeAnime = new QPropertyAnimation(popup_, "myGeometry");
-			closeAnime->setDuration(1000);
+			closeAnime->setDuration(500);
 			closeAnime->setEasingCurve(QEasingCurve::OutInSine);
 			popup_->setAnimes(openAnime, closeAnime);
 		}

@@ -3,6 +3,35 @@
 
 #include <QDebug>
 
+/// Returns specified channel by name: (returns 0 if not found)
+/// Warning: this will only return the first one if multiple channels with the same name
+AMChannel* AMChannelListModel::channel(const QString& name) {
+
+	foreach(AMChannel* ch, ch_) {
+		if(ch->name() == name)
+			return ch;
+	}
+	return 0;
+}
+
+const AMChannel* AMChannelListModel::channel(const QString& name) const {
+	foreach(AMChannel* ch, ch_) {
+		if(ch->name() == name)
+			return ch;
+	}
+	return 0;
+}
+
+/// Return comma-separated list of channel names currently available
+QStringList AMChannelListModel::channelNames() const {
+	QStringList names;
+	foreach(AMChannel* ch, ch_) {
+		names << ch->name();
+	}
+	return names;
+}
+
+
 // static dbColumnNames (each instance has same)
 QStringList AMScan::dbColumnNames_;
 
@@ -19,61 +48,25 @@ AMScan::AMScan(QObject *parent)
 
 
 
-/// Returns specified channel by name: (returns 0 if not found)
-/// Warning: this will only return the first one if multiple channels with the same name
-AMChannel* AMScan::channel(QString name) {
 
-    foreach(AMChannel* ch, ch_) {
-        if(ch->name() == name)
-            return ch;
-    }
-    return 0;
-}
-
-const AMChannel* AMScan::channel(QString name) const {
-	foreach(AMChannel* ch, ch_) {
-		if(ch->name() == name)
-			return ch;
-	}
-	return 0;
-}
 
 
 
 /// Delete a channel from scan: (All return true on success)
 bool AMScan::deleteChannel(AMChannel* channel) {
-    return ch_.removeOne(channel);
+	return ch_.deleteChannel(ch_.indexOf(channel));
 }
 
 bool AMScan::deleteChannel(const QString& channelName) {
-    return deleteChannel(channel(channelName));
+	return deleteChannel(ch_.channel(channelName));
 }
 
-bool AMScan::deleteChannel(size_t index) {
-    if(index < (size_t)ch_.count()) {
-        ch_.removeAt(index);
-        return true;
-    }
-    else
-        return false;
-}
-
-/// Return comma-separated list of channel names currently available
-QStringList AMScan::channelNames() const {
-	QStringList names;
-        foreach(AMChannel* ch, ch_) {
-		names << ch->name();
-	}
-	return names;
+bool AMScan::deleteChannel(unsigned index) {
+	return ch_.deleteChannel(index);
 }
 
 
-/// create a new channel. The channel becomes a child object of this scan.
-/*
-void AMScan::addChannel(AMChannel* channel) {
-	ch_ << channel;
-	channel->setParent(this);
-}*/
+
 
 /// create a new channel. The channel is created with a QObject parent of 0, but will be owned and deleted by this Scan.
 bool AMScan::addChannel(const QString& chName, const QString& expression) {
@@ -81,7 +74,7 @@ bool AMScan::addChannel(const QString& chName, const QString& expression) {
 	if(channelNames().contains(chName))
 		return false;
 
-	ch_ << new AMChannel(this, chName, expression);
+	ch_.addChannel(new AMChannel(this, chName, expression));
 	return true;
 }
 
