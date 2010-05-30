@@ -26,8 +26,8 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 		else
 			pScan_()->addChannel("PGT_COUNTS", "pgt.pgtCounts[199]");
 	}
-	pScan_()->addChannel("pgtTest1", "pgt.pgtCounts[4]");
-	pScan_()->addChannel("pgtTest2", "pgt[6].pgtCounts");
+	pScan_()->addChannel("pgtTest1", "pgt.pgtCounts[130]");
+	pScan_()->addChannel("pgtTest2", "pgt[130].pgtCounts");
 
 //	pScan_()->addChannel("eV", "eV");
 //	pScan_()->addChannel("Jitter", "eV_Fbk");

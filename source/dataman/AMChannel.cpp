@@ -58,6 +58,59 @@ double* AddVariable(const char *a_szName, void *a_pUserData)
 	return varSpace;
 }
 
+double* AddVariableX(const char *a_szName, void *a_pUserData)
+{
+	qDebug() << "Sent variable? " << a_szName;
+	QString fullVariable(a_szName);
+	QStringList variableBreakdownBlanks = fullVariable.split('.');
+	QStringList variableBreakdown = fullVariable.split('.', QString::SkipEmptyParts);
+	if( (variableBreakdownBlanks.count() != variableBreakdown.count()) || ( (variableBreakdown.count() != 1) && (variableBreakdown.count() != 2) ) ){
+		// NEED TO THROW ERROR HERE
+		qDebug() << "Fuck me, " << fullVariable << " is messed up in counts " << variableBreakdown.count() << " " << variableBreakdownBlanks.count();
+		qDebug() << variableBreakdown;
+		qDebug() << variableBreakdownBlanks;
+		throw mu::Parser::exception_type(_T("not a valid variable."));
+		return NULL;
+	}
+	AMChannel *ch = ((AMChannel*)a_pUserData);
+	AMParVar *tmpVar = new AMParVar();
+	tmpVar->isXExpression = true;
+	if(variableBreakdown.count() == 2){
+		QRegExp rx("\\[(\\d+)\\]$");
+		bool firstHas = variableBreakdown.at(0).contains(rx) || variableBreakdown.at(0).contains("[");
+		bool secondHas = variableBreakdown.at(1).contains(rx) || variableBreakdown.at(1).contains("[");
+		if( (firstHas && secondHas) || (!firstHas && !secondHas) ){
+			// NEED TO THROW ERROR HERE
+			qDebug() << "Fuck me, " << fullVariable << " is messed up in []s" << firstHas << " " << secondHas;
+			throw mu::Parser::exception_type(_T("not a valid variable."));
+			return NULL;
+		}
+		tmpVar->indexer = rx.cap(1).toInt();
+		QString tmpCol = variableBreakdown.at(1);
+		QString tmpST = variableBreakdown.at(0);
+		if(firstHas){
+			tmpVar->level = 0;
+			tmpST.remove(rx);
+		}
+		else{
+			tmpVar->level = 1;
+			tmpCol.remove(rx);
+		}
+		tmpVar->colName = tmpCol;
+		tmpVar->stName = tmpST;
+	}
+	else
+		tmpVar->colName = variableBreakdown.at(0);
+	double *varSpace = ch->addVariable(tmpVar);
+	if(varSpace == NULL){
+		qDebug() << "Fuck me, " << fullVariable << " is messed up in names";
+		throw mu::Parser::exception_type(_T("not a valid variable."));
+		return NULL;
+	}
+	qDebug() << "Trying to return address " << varSpace;
+	return varSpace;
+}
+
 AMChannel::AMChannel(AMScan* scan, const QString& name, const QString& expression, const QString& xExpression) : QObject(), AMObserver(), MPlotAbstractSeriesData()
 {
 	name_ = name;
@@ -81,7 +134,7 @@ AMChannel::AMChannel(AMScan* scan, const QString& name, const QString& expressio
 	//parser_.DefineInfixOprtChars("/+-*^?<>=#!$%&|~'_");
 	varStorage_.reserve(25);
 	parser_.SetVarFactory(AddVariable, (void*)(this));
-	parserX_.SetVarFactory(AddVariable, (void*)(this));
+	parserX_.SetVarFactory(AddVariableX, (void*)(this));
 
 	setExpression(expression);
 	setXExpression(xExpression);
@@ -263,9 +316,12 @@ double AMChannel::x(unsigned p) const {
 	AMDataTree* t = dataTree();
 
 	// default x: just return the x column value
-	if(defaultX_)
+	if(defaultX_){
+		qDebug() << "Just returning default X";
 		return t->x(p);
+	}
 
+	qDebug() << "Not returning default X";
 	// evaluate value using the x-expression parser
 
 	// Copy the raw data column values into varStorage_.
@@ -380,27 +436,35 @@ QString AMChannel::longErrorMsg() const {
 
 void AMChannel::searchMin() const {
 	min_ = 0;
+	qDebug() << "\nStart searching min";
 	for(int i=1; (unsigned)i<count(); i++)
 		if(value(i) < value(min_))
 			min_ = i;
+	qDebug() << "Done searching min\n";
 }
 void AMChannel::searchMax() const {
 	max_ = 0;
+	qDebug() << "\nStart searching max";
 	for(int i=1; (unsigned)i<count(); i++)
 		if(value(i)>value(max_))
 			max_ = i;
+	qDebug() << "Done searching max\n";
 }
 void AMChannel::searchMinX() const {
 	minX_ = 0;
+	qDebug() << "\nStart searching minX";
 	for(int i=1; (unsigned)i<count(); i++)
 		if(x(i)<x(minX_))
 			minX_ = i;
+	qDebug() << "Done searching minX\n";
 }
 void AMChannel::searchMaxX() const {
 	maxX_ = 0;
+	qDebug() << "\nStart searching maxX";
 	for(int i=1; (unsigned)i<count(); i++)
 		if(x(i)>x(maxX_))
 			maxX_ = i;
+	qDebug() << "Done searching maxX\n";
 }
 
 /// We observe AMDataTrees.  They Emit(3, "columnChanged", columnIndex) whenever values in a column change.

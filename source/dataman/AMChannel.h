@@ -23,6 +23,7 @@ public:
 		level = -1;
 		vectorIndex = -1;
 		isX = false;
+		isXExpression = false;
 	}
 
 	QString colName;
@@ -31,6 +32,7 @@ public:
 	int level;
 	int vectorIndex;
 	bool isX;
+	bool isXExpression;
 };
 
 /// An AMChannel is a way of looking at raw data associated with a particular AMScan, as a 2D (or x-y data point) series.  The y-values of the channel can be set as any mathematical expression where the variables are the names of columns in the raw data (setExpression()).  The x-values can come directly from the x-data column (by default) or from a similar mathematical expression (setXExpression()).
@@ -83,12 +85,22 @@ public:
 		if(parVar->stName == ""){
 			if( !((dataTree()->xName() == parVar->colName) || dataTree()->yColumnNames().contains(parVar->colName) ) )
 				return NULL;
-			if( dataTree()->xName() == parVar->colName ){
-				usedColumnIndices_ << -1;
-				parVar->isX = true;
+			if(parVar->isXExpression){
+				if( dataTree()->xName() == parVar->colName ){
+					usedColumnIndicesX_ << -1;
+					parVar->isX = true;
+				}
+				else
+					usedColumnIndicesX_ << dataTree()->yColumnNames().indexOf(parVar->colName);
 			}
-			else
-				usedColumnIndices_ << dataTree()->yColumnNames().indexOf(parVar->colName);
+			else{
+				if( dataTree()->xName() == parVar->colName ){
+					usedColumnIndices_ << -1;
+					parVar->isX = true;
+				}
+				else
+					usedColumnIndices_ << dataTree()->yColumnNames().indexOf(parVar->colName);
+			}
 		}
 		else{
 			if( !dataTree()->ySubtreeNames().contains(parVar->stName) || !( (dataTree()->prototype(parVar->stName)->xName() == parVar->colName) || dataTree()->prototype(parVar->stName)->yColumnNames().contains(parVar->colName) ) )

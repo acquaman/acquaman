@@ -152,7 +152,7 @@ copyXASData.deeper("sddSpectrums",5)->setValue("y", 512, 49.3);
 
 	QStringList ySubtreeNames() const {
 		QStringList rv;
-		for(int i=0; i<yDNames_.count(); i++)
+		for(unsigned i=0; i<yDNames_.count(); i++)
 			rv << yDNames_.valueR(i);
 		return rv;
 	}
