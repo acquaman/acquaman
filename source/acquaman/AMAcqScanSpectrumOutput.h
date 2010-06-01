@@ -38,7 +38,7 @@ public:
 	// by over-writing these functions, we can change what happens when they're called back.
 	// these must be manually over-written when the class creator is called.
 	static int startRecord( acqKey_t key, int eventno);
-//	static int endRecord( acqKey_t key, int eventno);
+	static int endRecord( acqKey_t key, int eventno);
 	static int putValue( acqKey_t key, int eventno, int pvno, const void *value, int count);
 
 	AMAcqScanSpectrumOutput();
@@ -48,7 +48,8 @@ public:
 		qDebug() << "In spectrumOutput set scan";
 		scan_ = scan;
 	//	series1->setModel(data1);
-		series1->setModel(scan_->channel(2));
+		series1->setModel(scan_->channel("TEY"));
+//		series2->setModel(scan->channel("tfy"));
 		plot->addItem(series1);
 		plot->setScalePadding(5);
 		plot->enableAutoScale(MPlotAxis::Left | MPlotAxis::Bottom);
@@ -61,11 +62,14 @@ private:
 	AMScan *scan_;
 	QMap<int, double> dataDelayList_;
 	QMap<int, QList<double> > spectraDelayList_;
+	QHash<int, int> pvnoToColumn_;
+	int colNo_, specColNo_;
+	bool lockHash_;
 	bool dataDelay_;
 
 	MPlotWidget *plotWindow;
 	MPlot *plot;
-	MPlotSeriesBasic *series1;
+	MPlotSeriesBasic *series1, *series2, *series3;
 	MPlotRealtimeModel *data1;
 };
 

@@ -8,6 +8,7 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 	QStringList scanDetectors;
 //	scanDetectors << "eV_Fbk" << "reading" << "tfy" << "pgt";
 	scanDetectors = pCfg_()->usingDetectors();
+	scanDetectors.prepend("I0");
 	scanDetectors.prepend("eV_Fbk");
 
 	qDebug() << "CURRENT DETECTORS ARE " << scanDetectors;
@@ -23,19 +24,19 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 	foreach(QString str, scanDetectors){
 		if(str != SGMBeamline::sgm()->pgtDetector()->name())
 			pScan_()->addChannel(str.toUpper(), str);
-		else{
+//		else{
 //			pScan_()->addChannel("PGT_COUNTS", "pgt.pgtCounts[199]");
-
-			QString indexer = "";
-			for(int x = 0; x < 1024; x++){
-				indexer.setNum(x);
-				pScan_()->addChannel("PGT_COUNTS"+indexer, "pgt.pgtCounts["+indexer+"]");
-			}
-
-		}
+//		}
 	}
+	pScan_()->addChannel("bigTeyNorm", "10000*tey/I0");
 	pScan_()->addChannel("pgtTest1", "pgt.pgtCounts[130]");
 	pScan_()->addChannel("pgtTest2", "pgt[130].pgtCounts");
+	QString indexer = "";
+	for(int x = 0; x < 1024; x++){
+		indexer.setNum(x);
+		pScan_()->addChannel("PGT_COUNTS"+indexer, "pgt.pgtCounts["+indexer+"]");
+//				pScan_()->addChannel("PGT_COUNTS"+indexer, "pgt["+indexer+"].pgtCounts");
+	}
 
 //	pScan_()->addChannel("eV", "eV");
 //	pScan_()->addChannel("Jitter", "eV_Fbk");

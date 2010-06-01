@@ -26,6 +26,7 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	amNames2pvNames_.set("tfy", "reixsHost:tfy");
 //	amNames2pvNames_.set("pgt", "dave:PGT");
 	amNames2pvNames_.set("pgt", "reixsHost:sdd:spectrum");
+	amNames2pvNames_.set("I0", "reixsHost:I0");
 
 	ringCurrent_ = new AMReadOnlyPVControl("ringCurrent", AMPVNames::toPV("ringCurrent"), this);
 	addChild(ringCurrent_);

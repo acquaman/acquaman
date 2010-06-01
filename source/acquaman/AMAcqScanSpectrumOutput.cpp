@@ -12,10 +12,13 @@ static acqOutputHandlerFactoryRegister registerMe( "AMScanSpectrum", AMAcqScanSp
 AMAcqScanSpectrumOutput::AMAcqScanSpectrumOutput() : acqTextSpectrumOutput()
 {
 	handler.startRecord_cb = startRecord;
-//	handler.endRecord_cb = endRecord;
+	handler.endRecord_cb = endRecord;
 	handler.nextOutput_cb = nextOutput;
 	handler.pvValue_cb = putValue;
 	dataDelay_ = true;
+	lockHash_ = false;
+	colNo_ = 0;
+	specColNo_ = 0;
 
 	plotWindow = new MPlotWidget();
 	plot = new MPlot();
@@ -62,11 +65,11 @@ int AMAcqScanSpectrumOutput::startRecord( acqKey_t key, int eventno)
 	return 0;
 }
 
-/*
+
 int AMAcqScanSpectrumOutput::endRecord( acqKey_t key, int eventno)
 {
 	AMAcqScanSpectrumOutput *to = (AMAcqScanSpectrumOutput *)key;
-
+/*
 	acqTextOutput::endRecord( key, eventno);
 
 	if( to->spectrumStream && to->needSpectrumDelimiter )	// only true if there is a spectrum file in text format
@@ -75,10 +78,15 @@ int AMAcqScanSpectrumOutput::endRecord( acqKey_t key, int eventno)
 		to->spectrumStream->flush();
 		to->needSpectrumDelimiter = 0;
 	}
-
 	return 0;
-}
 */
+	if( (eventno == 1) && !to->lockHash_ )
+		to->lockHash_ = true;
+
+	return acqTextSpectrumOutput::endRecord(key, eventno);
+
+}
+
 
 int AMAcqScanSpectrumOutput::putValue( acqKey_t key, int eventno, int pvno, const void *value, int count)
 {
@@ -89,6 +97,13 @@ int AMAcqScanSpectrumOutput::putValue( acqKey_t key, int eventno, int pvno, cons
 		pvpr->output(key, pvpr->colp->columnType, value, count);
 	}
 
+	if( (eventno == 1) && (pvno != 0) && !to->lockHash_){
+		if(pvpr->isSpectrum)
+			to->pvnoToColumn_[pvno] = to->specColNo_++;
+		else
+			to->pvnoToColumn_[pvno] = to->colNo_++;
+		qDebug() << pvno << " goes to " << to->pvnoToColumn_[pvno];
+	}
 
 	double dataVal;
 	double specMax = 0;
@@ -165,14 +180,15 @@ int AMAcqScanSpectrumOutput::putValue( acqKey_t key, int eventno, int pvno, cons
 	qDebug() << "Currently dataDelay is " << to->dataDelay_ << " and pvno is " << pvno << " and eventno is " << eventno;
 	if(pvno != 0){
 		if(!pvpr->isSpectrum)
-			qDebug() << "Looking at column " << to->scan_->d_->yColumnNames().at(pvno-1);
+			qDebug() << "Looking at column " << to->scan_->d_->yColumnNames().at(to->pvnoToColumn_[pvno]);
 		else
-			qDebug() << "Looking at subtree column " << to->scan_->d_->ySubtreeNames().at(0);
+			qDebug() << "Looking at subtree column " << to->scan_->d_->ySubtreeNames().at(to->pvnoToColumn_[pvno]);
 	}
 
 	if(!to->dataDelay_){
 		if(!pvpr->isSpectrum)
-			to->scan_->d_->setLastValue(pvno-1, dataVal);
+			to->scan_->d_->setLastValue(to->pvnoToColumn_[pvno], dataVal);
+//			to->scan_->d_->setLastValue(pvno-1, dataVal);
 		else{
 //			double normDiv = specMax/240;
 //			double disp;
@@ -181,7 +197,8 @@ int AMAcqScanSpectrumOutput::putValue( acqKey_t key, int eventno, int pvno, cons
 			qDebug() << "Count for spectrum would be " << spectraVal.count() << " 0th column is " << myList;
 			for(int x = 0; x < spectraVal.count(); x++){
 //				to->scan_->d_->deeper(pvno-1, to->scan_->d_->count()-1)->setValue(0, x, spectraVal[x]);
-				to->scan_->d_->deeper(0, to->scan_->d_->count()-1)->setValue(0, x, spectraVal[x]);
+//				to->scan_->d_->deeper(0, to->scan_->d_->count()-1)->setValue(0, x, spectraVal[x]);
+				to->scan_->d_->deeper(to->pvnoToColumn_[pvno], to->scan_->d_->count()-1)->setValue(0, x, spectraVal[x]);
 //				disp = to->scan_->d_->deeper(0, to->scan_->d_->count()-1)->value(0, x)/normDiv;
 //				printf("%04d", x);
 //				for(int y = 0; y < floor(disp); y++)

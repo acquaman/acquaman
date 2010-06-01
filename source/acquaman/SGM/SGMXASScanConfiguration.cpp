@@ -18,9 +18,11 @@ QStringList SGMXASScanConfiguration::usingDetectors() const{
 	QStringList usingDetectors;
 	if(usingTEY_)
 		usingDetectors << "tey";
-	if(usingTFY_)
-		usingDetectors << "tfy";
+//	if(usingTFY_)
+//		usingDetectors << "tfy";
 	if(usingPGT_)
 		usingDetectors << "pgt";
+	if(usingTFY_)
+		usingDetectors << "tfy";
 	return usingDetectors;
 }
