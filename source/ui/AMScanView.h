@@ -13,120 +13,88 @@
 
 #include "MPlot/MPlot.h"
 #include "MPlot/MPlotSceneAndView.h"
-#include "dataman/AMScan.h"
 
+#include "dataman/AMScanSetModel.h"
 
-/// Meta-data information for channels, not contained within AMChannel, that is required by the AMScanSetModel
-class AMScanSetModelChannelMetaData {
-public:
-	AMScanSetModelChannelMetaData(const QColor& Color = nextColor(), double Priority = 1, const QPen& LinePen = QPen(), bool Visible = true)
-		: color(Color),
-		priority(Priority),
-		linePen(LinePen),
-		visible(Visible) {}
+class AMScanViewChannelSelector;
 
-	QColor color;
-	double priority;
-	QPen linePen;
-	bool visible;
-
-	static QColor nextColor() {
-		static int i = 0;
-
-		switch(i++ % 12) {
-		case 0: return QColor(255, 0, 128);
-		case 1: return QColor(0, 128, 255);
-		case 2: return QColor(128, 255, 0);
-		case 3: return QColor(255, 128, 0);
-		case 4: return QColor(128, 0, 255);
-		case 5: return QColor(0, 0, 255);
-		case 6: return QColor(0, 128, 0);
-		case 7: return QColor(255, 255, 0);
-		case 8: return QColor(255, 0, 0);
-		case 9: return QColor(0, 64, 128);
-		case 10: return QColor(128, 64, 0);
-		case 11: default: return QColor(128, 0, 64);
-		}
-	}
-
-};
-
-/// This class provides a standard Qt model for a set of AMScans, with the 2nd level in the tree containing their AMChannels.
-/*! Roles:
-	Qt::DisplayRole: QString			- the name of the scan or channel
-	Qt::DecorationRole: QColor			- line/display color
-	Qt::TooltipRole: QString			- detailed information
-	Qt::CheckStateRole: Qt::CheckState	- whether visible or not. (Qt::Checked or Qt::Unchecked)
-	Qt::UserRole or AMScanSetModel::PointerRole: AMScan* or AMChannel*	- the pointer to the object
-	AMScanSetModel::PriorityRole: double- used for ordering (lowest to highest). Negative values are displayed in "exclusive" views.
-	AMScanSetModel::LinePenRole: QPen	- pen used for drawing in scans
-
-
-	*/
-
-class AMScanSetModel : public QAbstractItemModel {
+/// This GUI class is a helper for AMScanViewChannelSelector.  It handles a channel-viewer for a single Scan.
+class AMScanViewScanBar : public QFrame {
 	Q_OBJECT
-
-	enum ItemDataRoles { PointerRole = Qt::UserRole, PriorityRole, LinePenRole };
-
 public:
-	AMScanSetModel(QObject* parent = 0) : QAbstractItemModel(parent) {}
-
-	QModelIndex index ( int row, int column, const QModelIndex & parent = QModelIndex() ) const;
-
-	QModelIndex parent ( const QModelIndex & index ) const;
-
-	Qt::ItemFlags flags ( const QModelIndex & index ) const;
-
-	QVariant data ( const QModelIndex & index, int role = Qt::DisplayRole ) const;
-
-	QVariant headerData ( int section, Qt::Orientation orientation, int role = Qt::DisplayRole ) const;
-
-	int rowCount ( const QModelIndex & parent = QModelIndex() ) const;
-
-	int columnCount ( const QModelIndex & parent = QModelIndex() ) const;
-	bool hasChildren ( const QModelIndex & parent = QModelIndex() ) const;
-
-	/// returns the index (or row) of an AMScan in the top-level. returns -1 if not found.
-	int indexOf(AMScan* scan) const;
-
-	// Resizable Interface:
-
-	// Add a scan to this model.  The AMScan must exist elsewhere, for the lifetime that it is added to the model.  Model does not take ownership of the scan.
-	void addScan(AMScan* newScan);
-
-	// removes an AMScan from this model. Does not delete the scan.  Call this before deleting a scan that has been added to the model.
-	bool removeScan(AMScan* removeMe);
-
-protected slots:
-	// the AMChannelListModel is a standard Qt model, but it guarantees that only one channel will be added at a time, and it will be added at the end of all rows(channels).
-	void onChannelAboutToBeAdded(const QModelIndex& parent, int start, int end);
-
-	void onChannelAdded(const QModelIndex& parent, int start, int end);
-
-	void onChannelAboutToBeRemoved(const QModelIndex& parent, int start, int end);
-	void onChannelRemoved(const QModelIndex& parent, int start, int end);
+	explicit AMScanViewScanBar(AMScanSetModel* model, int scanIndex, QWidget* parent = 0);
 
 protected:
-	QList<AMScan*> scans_;
-	QList<const AMChannelListModel*> scanChannelLists_;
-	QList<QList<AMScanSetModelChannelMetaData> > channels_;
-
-};
-
-class AMChannelSelectorBar : public QWidget {
-public:
-	explicit AMChannelSelectorBar(const AMScan* source = 0, QWidget* parent = 0);
-
-	// ui components:
+	/// ui components:
 	QLabel* nameLabel_;
 	QButtonGroup chButtons_;
 	QToolButton* closeButton_;
 	QHBoxLayout* chButtonLayout_;
 
+	/// Index of "our" scan in the model:
+	int scanIndex_;
+	/// Connected model:
+	AMScanSetModel* model_;
+
+
+protected slots:
+	/// after a scan or channel is added in the model
+	void onRowInserted(const QModelIndex& parent, int start, int end);
+	/// before a scan or channel is deleted in the model:
+	void onRowAboutToBeRemoved(const QModelIndex& parent, int start, int end);
+	/// after a scan or channel is deleted in the model:
+	void onRowRemoved(const QModelIndex& parent, int start, int end);
+	/// when data changes:
+	void onModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight);
+	/// when one of the channel toggles is clicked:
+	void onChannelButtonClicked(int id);
+	/// when the close (remove) button is clicked
+	void onCloseButtonClicked();
+
+
+	friend class AMScanViewChannelSelector;
 };
 
-class AMScanViewModeBar : public QWidget {
+/// This GUI class is a view on an AMScanSetModel.  It shows each scan in a horizontal bar, with checkable buttons for each channel.
+class AMScanViewChannelSelector : public QWidget {
+	Q_OBJECT
+
+public:
+	explicit AMScanViewChannelSelector(AMScanSetModel* model = 0, QWidget* parent = 0);
+	void setModel(AMScanSetModel* model);
+
+protected slots:
+	/// after a scan or channel is added in the model
+	void onRowInserted(const QModelIndex& parent, int start, int end);
+
+	/// before a scan or channel is deleted in the model:
+	void onRowAboutToBeRemoved(const QModelIndex& parent, int start, int end);
+
+	/// after a scan or channel is deleted in the model:
+	void onRowRemoved(const QModelIndex& parent, int start, int end) {
+		Q_UNUSED(parent)
+		Q_UNUSED(start)
+		Q_UNUSED(end)
+		/// \todo Anything needed here?
+	}
+
+	/// when data within the model changes. Possibilities we care about: nothing. (All handled within AMScanViewScanBars.)
+	void onModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight) {
+		Q_UNUSED(topLeft)
+		Q_UNUSED(bottomRight)
+	}
+
+protected:
+	QList<AMScanViewScanBar*> scanBars_;
+	QVBoxLayout* barLayout_;
+	AMScanSetModel* model_;
+
+
+};
+
+/// Contains the GUI buttons used by AMScanView to switch between different view modes
+class AMScanViewModeBar : public QFrame {
+	Q_OBJECT
 public:
 	explicit AMScanViewModeBar(QWidget* parent = 0);
 
@@ -135,31 +103,8 @@ public:
 
 };
 
-class AMScanViewChannelEntry {
-public:
-	AMScanViewChannelEntry() { visible = true; plotSeries = 0; destinationPlot = -1; }
-	bool visible;
-	MPlotSeriesBasic* plotSeries;
-	int destinationPlot;
-};
 
-class AMScanViewEntry {
-public:
-	AMScanViewEntry() { scan = 0; scanBar = 0; primaryChannel = 0; }
-
-	// pointer to the scan itself
-	const AMScan* scan;
-	// scan->channelNames() could be useful
-
-	QList<AMScanViewChannelEntry> chList;
-
-	// A GUI element that exists for each channel, used to toggle which channels are visible
-	AMChannelSelectorBar* scanBar;
-
-	// in tab mode, where only one channel is plotted: use this one:
-	int primaryChannel;
-};
-
+/// A GUI class that provides a QGraphicsWidget inside the scene, that scales with the size of the scene/view
 class AMScanViewMainWidget : public MPlotSceneAndView {
 	Q_OBJECT
 public:
@@ -167,9 +112,9 @@ public:
 	AMScanViewMainWidget(QWidget* parent = 0) : MPlotSceneAndView(parent) {
 		graphicsWidget_ = new QGraphicsWidget();
 		this->scene()->addItem(graphicsWidget_);
-		QPalette p = graphicsWidget_->palette();
-		p.setColor(QPalette::Window, QColor(Qt::red));
-		graphicsWidget_->setPalette(p);
+		//QPalette p = graphicsWidget_->palette();
+		//p.setColor(QPalette::Window, QColor(Qt::red));
+		//graphicsWidget_->setPalette(p);
 	}
 
 
@@ -191,6 +136,9 @@ protected:
 	}
 };
 
+class AMScanViewInternal;
+
+/// A GUI class that provides a several different ways to view a set of scans.  It maintains an internal AMScanSetModel, and a variety of different AMScanViewInternal views can be shown within it.
 class AMScanView : public QWidget
 {
 Q_OBJECT
@@ -198,6 +146,9 @@ public:
 	enum ViewMode { Invalid = -1, Tabs = 0, OverPlot, MultiScans, MultiChannels };
 
     explicit AMScanView(QWidget *parent = 0);
+
+	/// returns the AMScanSetModel used internally to hold the scans/channels.
+	AMScanSetModel* model() const { return scansModel_; }
 
 signals:
 
@@ -207,29 +158,29 @@ public slots:
 	void changeViewMode(int newMode);
 
 	/// add a scan to the view:
-	void addScan(const AMScan* scan);
+	void addScan(AMScan* scan);
+	/// remove a scan from the view:
+	void removeScan(AMScan* scan);
 
 protected:
 
-	/// helper function: remove all plot series:
-	void removeAllPlotSeries();
-	/// helper function: find out how many unique channels there are, and populate channelNames_;
-	void uniqueChannelSearch();
+	AMScanSetModel* scansModel_;
+
+	/// List of the different views available
+	QList<AMScanViewInternal*> views_;
+	/// current view mode
+	ViewMode mode_;
 
 	// ui components:
-	QList<MPlotGW*> plots_;
 	QGraphicsGridLayout* glayout_;
 	int width_, rc_, cc_;// layout locations: width (num cols), rowcounter, columncounter.
 
-	QVBoxLayout* barLayout_;
+
 
 	AMScanViewModeBar* modeBar_;
+	AMScanViewChannelSelector* scanBars_;
 
-	// data components:
-	QList<AMScanViewEntry> scans_;
-	ViewMode mode_;
 
-	QStringList channelNames_;
 
 	// build UI
 	void setupUI();
