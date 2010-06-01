@@ -34,11 +34,18 @@ private slots:
 	// tests creation/deletion of scans and channels within an AMScanSetModel (using a standard QTreeView to watch)
 	void testAMScanSetModel() {
 
-		AMScanSetModel model;
+
+
+		AMScanView sv;
+		sv.show();
+
+		AMScanSetModel* model = sv.model();
 
 		QTreeView tree;
 		tree.show();
-		tree.setModel(&model);
+		tree.setModel(model);
+
+
 
 
 
@@ -46,7 +53,7 @@ private slots:
 
 		AMXASScan s1;
 		s1.setName("scan1");
-		model.addScan(&s1);
+		model->addScan(&s1);
 
 
 		QTest::qWait(2000);
@@ -78,7 +85,7 @@ private slots:
 		QTest::qWait(2000);
 
 
-		QVERIFY(model.removeScan(&s1));
+		QVERIFY(model->removeScan(&s1));
 
 
 		QTest::qWait(2000);

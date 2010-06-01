@@ -12,6 +12,7 @@
 #include "dataman/AMDbObject.h"
 #include "dataman/AMDataTree.h"
 
+#include "AMBiHash.h"
 
 /// This helper class is a Qt standard model for the list of channels in an AMScan.  This provides a standardized way for views that need to see the channels, and be notified before and after channels are added/removed.
 class AMChannelListModel : public QAbstractListModel {
@@ -46,15 +47,32 @@ public:
 
 
 	/// returns a list of channel names currently stored
-	QStringList channelNames() const;
+	QStringList channelNames() const {
+		QStringList names;
+		foreach(AMChannel* ch, ch_) {
+			names << ch->name();
+		}
+		return names;
+	}
 
 	/// Returns specified channel by name: (returns 0 if not found)
-	AMChannel* channel(const QString& name);
-	const AMChannel* channel(const QString& name) const;
+	AMChannel* channel(const QString& name) {
+		if(name2chIndex_.containsF(name))
+			return ch_.at(name2chIndex_.valueF(name));
+		else
+			return 0;
+	}
+
+	const AMChannel* channel(const QString& name) const {
+		if(name2chIndex_.containsF(name))
+			return ch_.at(name2chIndex_.valueF(name));
+		else
+			return 0;
+	}
 
 	/// Return specified channel by index: (returns 0 if not found)
-	AMChannel* channel(unsigned index) { if(index < (unsigned)ch_.count() ) return ch_.at(index); else return 0; }
-	const AMChannel* channel(unsigned index) const { if(index < (unsigned)ch_.count() ) return ch_.at(index); else return 0; }
+	AMChannel* channel(int index) { if((unsigned)index < (unsigned)ch_.count() ) return ch_.at(index); else return 0; }
+	const AMChannel* channel(int index) const { if((unsigned)index < (unsigned)ch_.count() ) return ch_.at(index); else return 0; }
 
 	/// Returns the index of a channel, or -1 if not here:
 	int indexOf(AMChannel* channel) const {
@@ -63,6 +81,7 @@ public:
 
 	void addChannel(AMChannel* newChannel) {
 		beginInsertRows(QModelIndex(), ch_.count(), ch_.count());
+		name2chIndex_.set(newChannel->name(), ch_.count());
 		ch_.append(newChannel);
 		endInsertRows();
 	}
@@ -72,6 +91,7 @@ public:
 			return false;
 
 		beginRemoveRows(QModelIndex(), index, index);
+		name2chIndex_.removeR(index);
 		AMChannel* deleteMe = ch_.takeAt(index);
 		endRemoveRows();
 		delete deleteMe;
@@ -82,6 +102,7 @@ public:
 protected:
 
 	QList<AMChannel*> ch_;
+	AMBiHash<QString, int> name2chIndex_;
 };
 
 /// This class is the base of all objects that represent beamline scan data (for ex: XAS scans over eV, XES detector-image "scans" over detector eV, etc.)

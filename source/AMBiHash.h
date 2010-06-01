@@ -45,6 +45,18 @@ public:
 		rev_[key2] = key1;
 	}
 
+	/// remove based on the forward (first) key
+	void removeF(const T1& key1) {
+		rev_.remove(fwd_[key1]);
+		fwd_.remove(key1);
+	}
+
+	/// remove based on the reverse (second) key
+	void removeR(const T2& key2) {
+		fwd_.remove(rev_[key2]);
+		rev_.remove(key2);
+	}
+
 	/// Returns a QHashIterator that will allow traversing the whole set of pairs
 	QHashIterator<T1, T2> iterator() const {
 		QHashIterator<T1, T2> i(fwd_);
