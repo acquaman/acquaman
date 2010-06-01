@@ -5,6 +5,7 @@ SGMXASScanConfiguration::SGMXASScanConfiguration(QObject *parent) : AMXASScanCon
 	regions_->setEnergyControl(SGMBeamline::sgm()->energy());
 	fluxResolutionSet_ = SGMBeamline::sgm()->fluxResolutionSet();
 	trackingSet_ = SGMBeamline::sgm()->trackingSet();
+	XASDetectors_ = SGMBeamline::sgm()->XASDetectors();
 	qDebug() << "Gap: " << exitSlitGap_ << " grating " << grating_ << " utrack " << undulatorTracking_ << " mtrack " << monoTracking_ << " xtrack " << exitSlitTracking_;
 	emit exitSlitGapChanged(exitSlitGap_);
 	emit gratingChanged(grating_);
@@ -13,3 +14,15 @@ SGMXASScanConfiguration::SGMXASScanConfiguration(QObject *parent) : AMXASScanCon
 	emit exitSlitTrackingChanged(exitSlitTracking_);
 }
 
+QStringList SGMXASScanConfiguration::usingDetectors() const{
+	QStringList usingDetectors;
+	if(usingTEY_)
+		usingDetectors << "tey";
+//	if(usingTFY_)
+//		usingDetectors << "tfy";
+	if(usingPGT_)
+		usingDetectors << "pgt";
+	if(usingTFY_)
+		usingDetectors << "tfy";
+	return usingDetectors;
+}

@@ -3,6 +3,7 @@
 
 #include <QTime>
 #include <QStringList>
+#include <QDir>
 
 #include "AMErrorMonitor.h"
 
@@ -11,6 +12,7 @@
 
 #include "dacq3_2/OutputHandler/acqFactory.h"
 #include "AMAcqScanOutput.h"
+#include "AMAcqScanSpectrumOutput.h"
 #include "dacq3_2/qepicsadvacq.h"
 
 class AMDacqScanController : public AMScanController
@@ -24,18 +26,20 @@ public slots:
 //    virtual void newConfigurationLoad(AMScanConfiguration &cfg);
 	/// Start scan running if not currently running or paused
 	virtual void start(){
-		qDebug() << "Start of dacq controller start";
 		if(initialized_){
 		//	acqBaseOutput *abop = acqOutputHandlerFactory::new_acqOutput("SimpleText", "File");
-			acqBaseOutput *abop = acqOutputHandlerFactory::new_acqOutput("AMScan", "File");
+		//	acqBaseOutput *abop = acqOutputHandlerFactory::new_acqOutput("AMScan", "File");
+		//	acqBaseOutput *abop = acqOutputHandlerFactory::new_acqOutput("Text", "File");
+			acqBaseOutput *abop = acqOutputHandlerFactory::new_acqOutput("AMScanSpectrum", "File");
 			if( abop)
 			{
 				acqRegisterOutputHandler( advAcq_->getMaster(), (acqKey_t) abop, &abop->handler);                // register the handler with the acquisition
-				abop->setProperty( "File Template", "daveData.%03d.dat");                           // set the file name to be recorded to
-				((AMAcqScanOutput*)abop)->setScan(curScan_);
-				qDebug() << "Just before sending start to library in dacq controller start";
+				abop->setProperty( "File Template", pCfg_()->fileName().toStdString());
+				abop->setProperty( "File Path", pCfg_()->filePath().toStdString());
+
+				qDebug() << "Just before set scan for spectrumOutput";
+				((AMAcqScanSpectrumOutput*)abop)->setScan(pScan_());
 				advAcq_->Start();
-				qDebug() << "Just after sending start to library in dacq controller start";
 			}
 			else
 				AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -1, "AMDacqScanController: could not create output handler."));
@@ -60,7 +64,7 @@ protected:
 	QEpicsAdvAcq *advAcq_;
 	bool cancelled_;
 	QTime startTime_;
-	AMScan *curScan_;
+//	AMScan *curScan_;
 
 protected slots:
 	void onStart();
@@ -69,7 +73,13 @@ protected slots:
 	void onSendCompletion(int completion);
 
 private:
-	AMScanConfiguration *pCfg_;
+	AMScanConfiguration **_pCfg_;
+	AMScan **_pScan_;
+
+	AMScanConfiguration *pCfg_() { return *_pCfg_;}
+	AMScan *pScan_() { return *_pScan_;}
+
+	void play2d();
 };
 
 #endif // ACQMAN_DACQSCANCONTROLLER_H

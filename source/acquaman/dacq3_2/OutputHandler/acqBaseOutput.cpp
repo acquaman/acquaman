@@ -17,7 +17,7 @@ static eventDataHandler_t defaultAcqBaseOutput = {
 	resume_cb:		acqBaseOutput::nullFunction,
 	stop_cb:		acqBaseOutput::nullFunction,
 	shutdown_cb:		acqBaseOutput::nullFunction,
-	
+
 	startpass_cb:		(int(*)(void *,int)) acqBaseOutput::nullFunction,
 	endpass_cb:		acqBaseOutput::nullFunction,
 	startrepeat_cb:		(int(*)(void *,int)) acqBaseOutput::nullFunction,
@@ -505,7 +505,7 @@ acqBaseOutput::takeApart(const std::string s, const char *whitespace)
 
 //
 // currently, this creates a new property if it isn't already defined.
-// 
+//
 void acqBaseOutput::setPropertyValue( const std::string aname, const std::string avalue)
 {
 
@@ -577,12 +577,12 @@ const std::string acqBaseOutput::getPropertyList()
 		names += idx->first + ",";
 	return names;
 }
-	
+
 bool acqBaseOutput::validProperty(const std::string aname)
 {
 	if( propertyList.find(aname) != propertyList.end() )
 		return true;
-	
+
 	if( bsp)
 		return( bsp->validProperty(aname) );
 	return false;
@@ -590,8 +590,8 @@ bool acqBaseOutput::validProperty(const std::string aname)
 
 void acqBaseOutput::defProperty(std::string propname, std::string possibleEnums)
 {
-       if( !validProperty( propname))
-                propertyList[propname] = new property(possibleEnums);
+	   if( !validProperty( propname))
+				propertyList[propname] = new property(possibleEnums);
 }
 
 int

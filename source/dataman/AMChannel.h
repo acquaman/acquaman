@@ -13,6 +13,28 @@
 
 class AMScan;
 
+class AMParVar
+{
+public:
+	AMParVar(){
+		colName = "";
+		stName = "";
+		indexer = -1;
+		level = -1;
+		vectorIndex = -1;
+		isX = false;
+		isXExpression = false;
+	}
+
+	QString colName;
+	QString stName;
+	int indexer;
+	int level;
+	int vectorIndex;
+	bool isX;
+	bool isXExpression;
+};
+
 /// An AMChannel is a way of looking at raw data associated with a particular AMScan, as a 2D (or x-y data point) series.  The y-values of the channel can be set as any mathematical expression where the variables are the names of columns in the raw data (setExpression()).  The x-values can come directly from the x-data column (by default) or from a similar mathematical expression (setXExpression()).
 class AMChannel : public QObject, public AMObserver, public MPlotAbstractSeriesData {
 Q_OBJECT
@@ -25,8 +47,8 @@ public:
 		dataTree()->observable()->removeObserver(this);
 	}
 
-    /// AMChannel name: (ex: "tey", "tfy_io", etc.)
-    QString name() const { return name_; }
+	/// AMChannel name: (ex: "tey", "tfy_io", etc.)
+	QString name() const { return name_; }
 
 	/// The scan that owns this channel
 	AMScan* scan() const { return scan_; }
@@ -59,6 +81,41 @@ public:
 	double minX() const { if(minX_ == -1) searchMinX(); return x(minX_); }
 	double maxX() const { if(maxX_ == -1) searchMaxX(); return x(maxX_); }
 
+	double* addVariable(AMParVar *parVar){
+		if(parVar->stName == ""){
+			if( !((dataTree()->xName() == parVar->colName) || dataTree()->yColumnNames().contains(parVar->colName) ) )
+				return NULL;
+			if(parVar->isXExpression){
+				if( dataTree()->xName() == parVar->colName ){
+					usedColumnIndicesX_ << -1;
+					parVar->isX = true;
+				}
+				else
+					usedColumnIndicesX_ << dataTree()->yColumnNames().indexOf(parVar->colName);
+			}
+			else{
+				if( dataTree()->xName() == parVar->colName ){
+					usedColumnIndices_ << -1;
+					parVar->isX = true;
+				}
+				else
+					usedColumnIndices_ << dataTree()->yColumnNames().indexOf(parVar->colName);
+			}
+		}
+		else{
+			if( !dataTree()->ySubtreeNames().contains(parVar->stName) || !( (dataTree()->prototype(parVar->stName)->xName() == parVar->colName) || dataTree()->prototype(parVar->stName)->yColumnNames().contains(parVar->colName) ) )
+				return NULL;
+			if( dataTree()->prototype(parVar->stName)->xName() == parVar->colName )
+				parVar->isX = true;
+		}
+		if(varStorage_.capacity() == varLookUps_.count())
+			varStorage_.resize((int)(1.5*varStorage_.capacity()));
+		parVar->vectorIndex = varLookUps_.count();
+		varLookUps_.append(parVar);
+		varStorage_.append(0);
+		return varStorage_.data()+parVar->vectorIndex;
+	}
+
 	virtual QRectF boundingRect() const {
 		if(count() == 0)
 			return QRectF();
@@ -90,7 +147,7 @@ public:
 
 protected:
 	/// Name of this channel (Cannot be changed; used to retrieve channels from a scan with AMScan::channel(). )
-    QString name_;
+	QString name_;
 
 	/// Math expression parsers for evaluating channel values. parserX_ is used only if defaultX_ == false.
 	mu::Parser parser_, parserX_;
@@ -100,6 +157,8 @@ protected:
 
 	/// The math expression parser gets optimized into bytecode, as long as the variable targets are not changed.  Therefore, this buffer holds the variable targets for the expression parser. The raw data column values are copied into here whenever value() is accessed.  The first element is the raw data x-column; remaining elements are the y columns of the raw data.
 	mutable QVector<double> varStorage_;
+
+	QList<AMParVar*> varLookUps_;
 
 	/// If defaultX_ == true, the raw data x-column is used directly for the x() value. (Faster performance than using an xExpression().)
 	bool defaultX_;

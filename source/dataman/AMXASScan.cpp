@@ -21,7 +21,16 @@ bool AMXASScan::addDetector(const QString& uniqueDetectorName) {
 	if(detectors_.contains(uniqueDetectorName))
 		return false;
 	detectors_ << uniqueDetectorName;
-	d_->createColumn(uniqueDetectorName);
+	qDebug() << "Adding column for " << uniqueDetectorName;
+	if(uniqueDetectorName != "pgt")
+		d_->createColumn(uniqueDetectorName);
+	else{
+		qDebug() << "CREATING 1024 SUBTREE FOR PGT";
+		AMDataTree *tmpTree = new AMDataTree(1024, "pgtEV", true);
+		tmpTree->createColumn("pgtCounts");
+		d_->createSubtreeColumn(uniqueDetectorName, tmpTree);
+		qDebug() << "Subx is " << tmpTree->xName() << " Suby0 is " << tmpTree->yColumnNames().at(0);
+	}
 	return true;
 }
 

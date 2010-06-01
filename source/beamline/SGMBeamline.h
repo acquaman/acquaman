@@ -5,6 +5,7 @@
 #include "AMPVNames.h"
 #include "AMDetector.h"
 #include "AMControlSet.h"
+#include "AMBiHash.h"
 
 
 class SGMBeamline : public AMControl
@@ -26,9 +27,13 @@ public:
 	bool isConnected() const {
 		for(int x = 0; x < numChildren(); x++)
 			if(!children_.at(x)->isConnected())
-				return false;
+			{qDebug() << "Died on " << x; return false;}
 		return true;
 	}
+
+	QString pvName(const QString &amName) const { return amNames2pvNames_.valueF(amName);}
+	QString amName(const QString &pvName) const { return amNames2pvNames_.valueR(pvName);}
+
 	AMControl* ringCurrent() const { return ringCurrent_; }
 	AMControl* energy() const { return energy_;}
 	AMControl* exitSlitGap() const { return exitSlitGap_;}
@@ -38,9 +43,13 @@ public:
 	AMControl* undulatorTracking() const { return undulatorTracking_;}
 	AMControl* monoTracking() const { return monoTracking_;}
 	AMControl* exitSlitTracking() const { return exitSlitTracking_;}
+	AMDetector* teyDetector() const { return teyDetector_;}
+	AMDetector* tfyDetector() const { return tfyDetector_;}
+	AMDetector* pgtDetector() const { return pgtDetector_;}
 
 	AMControlSet* fluxResolutionSet() const { return fluxResolutionSet_;}
 	AMControlSet* trackingSet() const { return trackingSet_;}
+	AMDetectorSet* XASDetectors() const { return XASDetectors_;}
 
 	bool energyValidForSettings(sgmGrating grating, sgmHarmonic harmonic, double energy);
 	bool energyRangeValidForSettings(sgmGrating grating, sgmHarmonic harmonic, double minEnergy, double maxEnergy);
@@ -76,6 +85,8 @@ protected:
 
 	AMControlSet *trackingSet_;
 	AMDetectorSet *XASDetectors_;
+
+	AMBiHash<QString, QString> amNames2pvNames_;
 };
 
 class SGMFluxOptimization : public AMControlOptimization

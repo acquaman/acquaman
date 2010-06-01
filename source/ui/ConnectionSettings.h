@@ -94,6 +94,8 @@ public:
 				Q_UNUSED(nc10);
 				NumericControl *nc11 = new NumericControl(SGMBeamline::sgm()->exitSlitTracking(), eTrackHolder);
 				Q_UNUSED(nc11);
+				NumericControl *nc12 = new NumericControl(SGMBeamline::sgm()->harmonic(), harmonicHolder);
+				Q_UNUSED(nc12);
 
 				slitGapDoubleSpinBox->setMaximum(250);
 				slitGapDoubleSpinBox->setMinimum(5);

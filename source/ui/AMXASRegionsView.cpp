@@ -24,3 +24,9 @@ AMXASRegionsView::AMXASRegionsView(AMXASRegionsList *regions, QWidget *parent) :
 	connect(addButton_, SIGNAL(clicked()), this, SIGNAL(addRegionClicked()));
 	connect(deleteButton_, SIGNAL(clicked()), this, SLOT(deleteRegion()));
 }
+
+AMXASRegionsView::~AMXASRegionsView(){
+	disconnect(addButton_, SIGNAL(clicked()), this, SIGNAL(addRegionClicked()));
+	disconnect(deleteButton_, SIGNAL(clicked()), this, SLOT(deleteRegion()));
+	regions_ = NULL;
+}

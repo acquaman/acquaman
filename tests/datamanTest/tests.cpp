@@ -304,6 +304,13 @@ class TestDataman: public QObject
 			for(unsigned j=0; j<t1.deeper	("sddSpectrum", i)->count(); j++)
 				QCOMPARE( t1.deeper("sddSpectrum", i)->setValue("sddEV", j, 200+j*(1300.0-200.0)/1024.0), true);	// check for successful insert.
 
+		t1.deeper("sddSpectrum", 0)->createColumn("sddCount");
+		for(unsigned i=0; i<t1.deeper("sddSpectrum", 0)->count(); i++)
+			t1.deeper("sddSpectrum", 0)->setValue("sddCount", i, i);
+
+		qDebug() << "David's check: " << t1.deeper("sddSpectrum", 0)->yColumnNames().count();
+		qDebug() << "David's check: " << t1.deeper("sddSpectrum", 0)->yColumnNames();
+
 		// check for correct values:
 		for(unsigned i=0; i<t1.count(); i++)
 			for(unsigned j=0; j<t1.deeper("sddSpectrum", i)->count(); j++)
@@ -621,8 +628,10 @@ class TestDataman: public QObject
 		QCOMPARE(t1.count(), (unsigned)0);
 		//qDebug() << "appending 1 value";
 		t1.append(3);
-		QCOMPARE(t1.deeper("s1", 0)->count(), unsigned(0));	// because the top tree count was 0, there were no copies made of the prototype tree, and a default tree was inserted.
-		QCOMPARE(t1.deeper("s1", 0)->xName(), AMDataTree().xName()); // because the top tree count was 0, there were no copies made of the prototype tree, and a default tree was inserted.
+//DC		QCOMPARE(t1.deeper("s1", 0)->count(), unsigned(0));	// because the top tree count was 0, there were no copies made of the prototype tree, and a default tree was inserted.
+//DC		QCOMPARE(t1.deeper("s1", 0)->xName(), AMDataTree().xName()); // because the top tree count was 0, there were no copies made of the prototype tree, and a default tree was inserted.
+		QCOMPARE(t1.deeper("s1", 0)->count(), unsigned(5));	// because the top tree count was 0, prototype tree was delayed until an append occurred.
+		QCOMPARE(t1.deeper("s1", 0)->xName(), QString("s1_x")); // because the top tree count was 0, prototype tree was delayed until an append occurred.
 
 		//qDebug() << "creating new tree, count 1, with x and y columns and subtree of count 5";
 		t1 = AMDataTree(1, "x", true);

@@ -87,6 +87,7 @@ class QEpicsAdvAcq : public QObject
 		bool clearRegions();
 		bool addRecord(int record);
 		bool addRecord(int record, QString pv, bool enable, bool spectrum, int mode);
+		bool appendRecord(QString pv, bool enable, bool spectrum, int mode);
 		bool deleteRecord(int record);
 
 		void setValidateInputFn( QString (*newValidateInput)(QEpicsAdvAcq *acq, int region, QString field, QString input, QString &error) ){ validateInput = newValidateInput;}
@@ -115,7 +116,13 @@ class QEpicsAdvAcq : public QObject
 		bool setQuickInputs(QString inputs);
 		void saveConfigFile(const QString &infile){char* SAVEFILE = const_cast<char*>(infile.toAscii().data()); acq_file_save_as(strdup(SAVEFILE), getMaster());}
 
-	void setConfigFile( const QString &filename) { _acq->setConfigFile(filename); buildFromConfig(); emit onConfigLoaded();}
+		bool setConfigFile( const QString &filename) {
+			_acq->setConfigFile(filename);
+			bool retVal = buildFromConfig();
+			if(retVal)
+				emit onConfigLoaded();
+			return retVal;
+		}
 		void Start() { _acq->Start(); }
 		void Pause(int mode) { _acq->Pause(mode); }
 		void Stop() { _acq->Stop(); }
@@ -161,7 +168,7 @@ class QEpicsAdvAcq : public QObject
 		acqScan_t *sp;
 		acqControl_t ctls;
 
-		void buildFromConfig();
+		bool buildFromConfig();
 		void makeEmptyCTLS();
 
 		QString (*validateInput)(QEpicsAdvAcq *acq, int region, QString field, QString input, QString &error);

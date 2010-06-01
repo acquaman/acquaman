@@ -14,6 +14,7 @@ class SGMXASScanConfigurationViewer : public QWidget, private Ui::SGMXASScanConf
 Q_OBJECT
 public:
 		SGMXASScanConfigurationViewer(QWidget *parent = 0);
+		~SGMXASScanConfigurationViewer();
 
 signals:
 	void scanControllerReady(AMScanController *xasCtrl);
@@ -25,7 +26,7 @@ public slots:
 protected slots:
 	void onDoLayout(){
 		if(!SGMBeamline::sgm()->isConnected())
-			return;
+		{qDebug() << "SGM not connected"; return;}
 		AMScanConfiguration *sxsc = new SGMXASScanConfiguration(this);
 		setScanConfiguration(sxsc);
 	}
@@ -42,6 +43,7 @@ protected:
 	AMXASRegionsView *regionsView_;
 	AMControlOptimizationSetView *fluxResolutionView_;
 	AMControlSetView *trackingView_;
+	AMDetectorSetView *detectorView_;
 	QPushButton *startScanButton_;
 	QVBoxLayout vl_;
 };

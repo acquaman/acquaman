@@ -4,49 +4,84 @@ SGMBeamline* SGMBeamline::instance_ = 0;
 
 
 SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
+//	amNames2pvNames_.set("energy", "dave:Energy");
+	amNames2pvNames_.set("energy", "reixsHost:Energy");
+	amNames2pvNames_.set("eV_Fbk", "dave:Energy:fbk");
+	amNames2pvNames_.set("mono", "dave:Energy:mono");
+	amNames2pvNames_.set("undulator", "dave:Energy:undulator");
+	amNames2pvNames_.set("exitSlit", "dave:Energy:exitSlit");
+	amNames2pvNames_.set("exitSlitGap", "dave:Slit");
+	amNames2pvNames_.set("M4", "dave:M4");
+	amNames2pvNames_.set("M4Inboard", "dave:M4:inboard");
+	amNames2pvNames_.set("M4Outboard", "dave:M4:outboard");
+	amNames2pvNames_.set("M4Downstream", "dave:M4:downstream");
+	amNames2pvNames_.set("grating", "dave:Energy:mono:grating");
+	amNames2pvNames_.set("harmonic", "dave:Energy:undulator:harmonic");
+	amNames2pvNames_.set("undulatorTracking", "dave:Energy:undulator:tracking");
+	amNames2pvNames_.set("monoTracking", "dave:Energy:mono:tracking");
+	amNames2pvNames_.set("exitSlitTracking", "dave:Energy:exitSlit:tracking");
+//	amNames2pvNames_.set("tey", "dave:TEY");
+	amNames2pvNames_.set("tey", "reixsHost:tey");
+//	amNames2pvNames_.set("tfy", "dave:TFY");
+	amNames2pvNames_.set("tfy", "reixsHost:tfy");
+//	amNames2pvNames_.set("pgt", "dave:PGT");
+	amNames2pvNames_.set("pgt", "reixsHost:sdd:spectrum");
+	amNames2pvNames_.set("I0", "reixsHost:I0");
 
 	ringCurrent_ = new AMReadOnlyPVControl("ringCurrent", AMPVNames::toPV("ringCurrent"), this);
 	addChild(ringCurrent_);
-	energy_ = new AMPVwStatusControl("energy", "dave:Energy", "dave:Energy", "dave:Energy:moving", this, 0.01);
-	AMReadOnlyPVwStatusControl *mono = new AMReadOnlyPVwStatusControl("mono", "dave:Energy:mono", "dave:Energy:mono:moving", energy_);
-	AMReadOnlyPVwStatusControl *undulator = new AMReadOnlyPVwStatusControl("undulator", "dave:Energy:undulator", "dave:Energy:undulator:moving", energy_);
-	AMReadOnlyPVwStatusControl *exitSlit = new AMReadOnlyPVwStatusControl("exitSlit", "dave:Energy:exitSlit", "dave:Energy:exitSlit:moving", energy_);
+	QString sgmPVName = amNames2pvNames_.valueF("energy");
+	energy_ = new AMPVwStatusControl("energy", sgmPVName, sgmPVName, sgmPVName+":moving", this, 0.01);
+	sgmPVName = amNames2pvNames_.valueF("mono");
+	AMReadOnlyPVwStatusControl *mono = new AMReadOnlyPVwStatusControl("mono", sgmPVName, sgmPVName+":moving", energy_);
+	sgmPVName = amNames2pvNames_.valueF("undulator");
+	AMReadOnlyPVwStatusControl *undulator = new AMReadOnlyPVwStatusControl("undulator", sgmPVName, sgmPVName+":moving", energy_);
+	sgmPVName = amNames2pvNames_.valueF("exitSlit");
+	AMReadOnlyPVwStatusControl *exitSlit = new AMReadOnlyPVwStatusControl("exitSlit", sgmPVName, sgmPVName+":moving", energy_);
 	energy_->addChild(mono);
 	energy_->addChild(undulator);
 	energy_->addChild(exitSlit);
 	addChild(energy_);
-	exitSlitGap_ = new AMPVwStatusControl("exitSlitGap", "dave:Slit", "dave:Slit", "dave:Slit:moving", this, 0.1);
+	sgmPVName = amNames2pvNames_.valueF("exitSlitGap");
+	exitSlitGap_ = new AMPVwStatusControl("exitSlitGap", sgmPVName, sgmPVName, sgmPVName+":moving", this, 0.1);
 	addChild(exitSlitGap_);
-	m4_ = new AMReadOnlyPVwStatusControl("M4", "dave:M4", "dave:M4:moving", this);
-	AMPVwStatusControl *m4inboard = new AMPVwStatusControl("M4Inboard", "dave:M4:inboard", "dave:M4:inboard", "dave:M4:inboard:moving", this, 0.1);
-	AMPVwStatusControl *m4outboard = new AMPVwStatusControl("M4Outboard", "dave:M4:outboard", "dave:M4:outboard", "dave:M4:outboard:moving", this, 0.1);
-	AMPVwStatusControl *m4downstream = new AMPVwStatusControl("M4Downstream", "dave:M4:downstream", "dave:M4:downstream", "dave:M4:downstream:moving", this, 0.1);
+	sgmPVName = amNames2pvNames_.valueF("M4");
+	m4_ = new AMReadOnlyPVwStatusControl("M4", sgmPVName, sgmPVName+":moving", this);
+	sgmPVName = amNames2pvNames_.valueF("M4Inboard");
+	AMPVwStatusControl *m4inboard = new AMPVwStatusControl("M4Inboard", sgmPVName, sgmPVName, sgmPVName+":moving", this, 0.1);
+	sgmPVName = amNames2pvNames_.valueF("M4Outboard");
+	AMPVwStatusControl *m4outboard = new AMPVwStatusControl("M4Outboard", sgmPVName, sgmPVName, sgmPVName+":moving", this, 0.1);
+	sgmPVName = amNames2pvNames_.valueF("M4Downstream");
+	AMPVwStatusControl *m4downstream = new AMPVwStatusControl("M4Downstream", sgmPVName, sgmPVName, sgmPVName+":moving", this, 0.1);
 	m4_->addChild(m4inboard);
 	m4_->addChild(m4outboard);
 	m4_->addChild(m4downstream);
 	addChild(m4_);
-	grating_ = new AMPVwStatusControl("grating", "dave:Energy:mono:grating", "dave:Energy:mono:grating", "dave:Energy:mono:grating:moving", this, 0.1);
-	//grating_->setDiscrete(true);
+	sgmPVName = amNames2pvNames_.valueF("grating");
+	grating_ = new AMPVwStatusControl("grating", sgmPVName, sgmPVName, sgmPVName+":moving", this, 0.1);
 	addChild(grating_);
-	harmonic_ = new AMPVwStatusControl("harmonic", "dave:Energy:undulator:harmonic", "dave:Energy:undulator:harmonic", "dave:Energy:undulator:harmonic:moving", this, 0.1);
-	//harmonic_->setDiscrete(true);
+	sgmPVName = amNames2pvNames_.valueF("harmonic");
+	harmonic_ = new AMPVwStatusControl("harmonic", sgmPVName, sgmPVName, sgmPVName+":moving", this, 0.1);
 	addChild(harmonic_);
-	undulatorTracking_ = new AMPVControl("undulatorTracking", "dave:Energy:undulator:tracking", "dave:Energy:undulator:tracking", this, 0.1);
-	//undulatorTracking_->setDiscrete(true);
+	sgmPVName = amNames2pvNames_.valueF("undulatorTracking");
+	undulatorTracking_ = new AMPVControl("undulatorTracking", sgmPVName, sgmPVName, this, 0.1);
 	addChild(undulatorTracking_);
-	monoTracking_ = new AMPVControl("monoTracking", "dave:Energy:mono:tracking", "dave:Energy:mono:tracking", this, 0.1, 10);
-	//monoTracking_->setDiscrete(true);
+	sgmPVName = amNames2pvNames_.valueF("monoTracking");
+	monoTracking_ = new AMPVControl("monoTracking", sgmPVName, sgmPVName, this, 0.1, 10);
 	addChild(monoTracking_);
-	exitSlitTracking_ = new AMPVControl("exitSlitTracking", "dave:Energy:exitSlit:tracking", "dave:Energy:exitSlit:tracking", this, 0.1);
-	//exitSlitTracking_->setDiscrete(true);
+	sgmPVName = amNames2pvNames_.valueF("exitSlitTracking");
+	exitSlitTracking_ = new AMPVControl("exitSlitTracking", sgmPVName, sgmPVName, this, 0.1);
 	addChild(exitSlitTracking_);
-	tey_ = new AMReadOnlyPVControl("tey", "dave:TEY", this);
+	sgmPVName = amNames2pvNames_.valueF("tey");
+	tey_ = new AMReadOnlyPVControl("tey", sgmPVName, this);
 	addChild(tey_);
 	teyDetector_ = new AMSingleControlDetector(tey_->name(), tey_, this);
-	tfy_ = new AMReadOnlyPVControl("tfy", "dave:TFY", this);
+	sgmPVName = amNames2pvNames_.valueF("tfy");
+	tfy_ = new AMReadOnlyPVControl("tfy", sgmPVName, this);
 	addChild(tfy_);
 	tfyDetector_ = new AMSingleControlDetector(tfy_->name(), tfy_, this);
-	pgt_ = new AMReadOnlyPVControl("pgt", "dave:PGT", this);
+	sgmPVName = amNames2pvNames_.valueF("pgt");
+	pgt_ = new AMReadOnlyPVControl("pgt", sgmPVName, this);
 	addChild(pgt_);
 	pgtDetector_ = new AMSingleControlDetector(pgt_->name(), pgt_, this);
 
@@ -67,49 +102,14 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 
 	XASDetectors_ = new AMDetectorSet(this);
 	XASDetectors_->setName("XAS Detectors");
-	XASDetectors_->addDetector(teyDetector_);
-	XASDetectors_->addDetector(tfyDetector_);
-	XASDetectors_->addDetector(pgtDetector_);
+	XASDetectors_->addDetector(teyDetector_, true);
+	XASDetectors_->addDetector(tfyDetector_, true);
+	XASDetectors_->addDetector(pgtDetector_, false);
 
 }
 
 SGMBeamline::~SGMBeamline()
 {
-	qDebug() << "Starting SGMBeamline destructor";
-	delete XASDetectors_;
-	delete trackingSet_;
-	delete fluxResolutionSet_;
-
-	delete fluxOptimization_;
-	delete resolutionOptimization_;
-
-	delete pgtDetector_;
-	delete tfyDetector_;
-	delete teyDetector_;
-
-	delete pgt_;
-	delete tfy_;
-	delete tey_;
-	delete exitSlitTracking_;
-	delete monoTracking_;
-	delete undulatorTracking_;
-	delete harmonic_;
-	delete grating_;
-//	for(int x = m4_->numChildren(); x > 0; x--)
-//		if( (m4_->child(x)->name() == "M4Inboard") || (m4_->child(x)->name() == "M4Outboard") || (m4_->child(x)->name() == "M4Downstream") )
-//			delete m4_->child(x);
-	delete m4_->child(2);
-	delete m4_->child(1);
-	delete m4_->child(0);
-	delete m4_;
-	delete exitSlitGap_;
-	delete energy_->child(2);
-	delete energy_->child(1);
-	delete energy_->child(0);
-	delete energy_;
-	delete ringCurrent_;
-
-	qDebug() << "SGMBeamline destructor finished";
 }
 
 bool SGMBeamline::energyValidForSettings(sgmGrating grating, sgmHarmonic harmonic, double energy){

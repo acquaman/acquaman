@@ -76,11 +76,12 @@ protected:
 	bool paused_;
 	bool initialized_;
 
-	void spitPrivate(){qDebug() << "General is " << generalScan_->name(); qDebug() << "Private is " << (*pScan_)->name() ;}
-
 private:
-	AMScanConfiguration *pCfg_;
-	AMScan **pScan_;
+	AMScanConfiguration **_pCfg_;
+	AMScan **_pScan_;
+
+	AMScanConfiguration* pCfg_() { return *_pCfg_;}
+	AMScan* pScan_() {return *_pScan_;}
 };
 
 #endif // ACQMAN_SCANCONTROLLER_H

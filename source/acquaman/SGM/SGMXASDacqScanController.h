@@ -20,30 +20,45 @@ signals:
 public slots:
 	void initialize();
 	void start(){
-//		advAcq_->setConfigFile("myScan.cfg");
-		advAcq_->setConfigFile("/home/reixs/beamline/programming/acquaman/myScan.cfg");
+		bool loadSuccess;
+		if(pScan_()->detectors().contains("pgt"))
+			loadSuccess = advAcq_->setConfigFile("/home/reixs/beamline/programming/acquaman/devConfigurationFiles/pgt.cfg");
+		else
+			loadSuccess = advAcq_->setConfigFile("/home/reixs/beamline/programming/acquaman/devConfigurationFiles/defaultEnergy.cfg");
+		if(!loadSuccess){
+			qDebug() << "LIBRARY FAILED TO LOAD CONFIG FILE";
+			return;
+		}
+
+		foreach(QString str, pScan_()->detectors()){
+			if(str == SGMBeamline::sgm()->pgtDetector()->name())
+			{advAcq_->appendRecord(SGMBeamline::sgm()->pvName(str), true, true, 0);qDebug() << "Adding " << str << " as spectrum";}
+			else
+			{advAcq_->appendRecord(SGMBeamline::sgm()->pvName(str), true, false, 0);qDebug() << "Adding " << str << " as normal";}
+//				if(advAcq_->appendRecord(SGMBeamline::sgm()->pvName(str), true, false, 0));
+			advAcq_->saveConfigFile("/home/reixs/acquamanData/test.cfg");
+		}
+		qDebug() << "Using config file: " << advAcq_->getConfigFile();
 		//advAcq_->clearRegions();
-		//advAcq_->addRegion(0, xasSCfg_->start(0), xasSCfg_->delta(0), xasSCfg_->end(0), 1.0 );
-		for(int x = 0; x < pCfg_->count(); x++){
+		for(int x = 0; x < pCfg_()->count(); x++){
 			if(advAcq_->getNumRegions() == x)
-				advAcq_->addRegion(x, pCfg_->start(x), pCfg_->delta(x), pCfg_->end(x), 1);
+				advAcq_->addRegion(x, pCfg_()->start(x), pCfg_()->delta(x), pCfg_()->end(x), 1);
 			else{
-				qDebug() << "Setting start, delta, end in controller start loop";
-				advAcq_->setStart(x, pCfg_->start(x));
-				advAcq_->setDelta(x, pCfg_->delta(x));
-				advAcq_->setEnd(x, pCfg_->end(x));
-				qDebug() << "Done setting start, delta, end in controller start loop";
+				advAcq_->setStart(x, pCfg_()->start(x));
+				advAcq_->setDelta(x, pCfg_()->delta(x));
+				advAcq_->setEnd(x, pCfg_()->end(x));
 			}
 		}
-		qDebug() << "Done SGMXAS controller start loop";
-		generalScan_ = scan_;
-//		AMScanController::spitPrivate();
-		curScan_ = scan_;
+		generalScan_ = specificScan_;
 		AMDacqScanController::start();
 	}
 
 private:
-	SGMXASScanConfiguration *pCfg_;
+	SGMXASScanConfiguration **_pCfg_;
+	AMXASScan **_pScan_;
+
+	SGMXASScanConfiguration *pCfg_() { return *_pCfg_;}
+	AMXASScan* pScan_() { return *_pScan_;}
 };
 
 #endif // ACQMAN_SGMXASDACQSCANCONTROLLER_H
