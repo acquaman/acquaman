@@ -1,261 +1,6 @@
 #include "AMScanView.h"
 #include <QGraphicsWidget>
 
-QModelIndex AMScanSetModel::index ( int row, int column, const QModelIndex & parent ) const {
-	// top level:
-	if(!parent.isValid()) {
-		if(column == 0 && row < scans_.count())
-			return createIndex(row, column, -1);	// id of -1 in a model index indicates a Scan-level index. Row is the index of the scan.
-		else
-			return QModelIndex();
-	}
-
-	// Parent is a scan-level index
-	else if(parent.internalId() == -1 && parent.column() == 0 && parent.row() < scans_.count() ) {
-		if(column == 0 && row < scans_.at(parent.row())->numChannels() )
-			return createIndex(row, column, parent.row() );
-		else
-			return QModelIndex();
-	}
-
-	// anything else (For parent-indices that correspond to channels, there are no children indices)
-	return QModelIndex();
-}
-
-QModelIndex AMScanSetModel::parent ( const QModelIndex & index ) const {
-
-	// scan-level indices: parent is the top level
-	if(index.internalId() == -1)
-		return QModelIndex();
-
-	// if index is a channel level index: internalId is the index of its parent scan, which becomes the row in the parent index.
-	if(index.isValid() && index.column() == 0 && index.internalId() >=0 && index.internalId() < scans_.count() )
-		return createIndex(index.internalId(), 0, -1);
-
-	return QModelIndex();
-}
-
-Qt::ItemFlags AMScanSetModel::flags ( const QModelIndex & index ) const  {
-
-	// Scans:
-	if(index.internalId() == -1)
-		return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
-
-	// Channels:
-	if(index.internalId() >= 0)
-		return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
-
-	return Qt::NoItemFlags;
-}
-
-QVariant AMScanSetModel::data ( const QModelIndex & index, int role) const {
-	if(!index.isValid())
-		return QVariant();
-
-	// scan-level index:
-	if(index.internalId() == -1 && index.row() < scans_.count() && index.column() == 0) {
-		AMScan* scan = scans_.at(index.row());
-
-		switch(role) {
-		case Qt::DisplayRole:
-			return scan->name();
-			break;
-		case Qt::DecorationRole:
-			return QVariant();
-			break;
-		case Qt::ToolTipRole:
-			return QString("%1 (%2): %3").arg(scan->name()).arg(scan->sampleName()).arg(scan->dateTime().toString());
-			break;
-		case Qt::CheckStateRole:
-			return QVariant();	/// \todo For now... No checking/unchecking scans.
-			break;
-		case Qt::UserRole:
-			return qVariantFromValue(scan);
-			break;
-		default:
-			return QVariant();
-			break;
-		}
-	}
-
-
-	// channel-level index:
-	if(index.internalId() >= 0 && index.internalId() < scans_.count() ) {
-		AMScan* scan = scans_.at(index.internalId());
-
-		if(index.row() < scan->numChannels() && index.column() == 0) {
-			AMChannel* channel = scan->channel(index.row());
-
-			switch(role) {
-			case Qt::DisplayRole:
-				return channel->name();
-				break;
-			case Qt::DecorationRole:
-				return channels_.at(index.internalId()).at(index.row()).color;
-				break;
-			case Qt::ToolTipRole:
-				return QString("%1 (%2): %3").arg(channel->name()).arg(scan->name()).arg(channel->expression());
-				break;
-			case Qt::CheckStateRole:
-				return channels_.at(index.internalId()).at(index.row()).visible ? Qt::Checked : Qt::Unchecked;
-				break;
-			case Qt::UserRole:
-				return qVariantFromValue(channel);
-				break;
-			case PriorityRole:
-				return channels_.at(index.internalId()).at(index.row()).priority;
-				break;
-			case LinePenRole:
-				return channels_.at(index.internalId()).at(index.row()).linePen;
-			default:
-				return QVariant();
-				break;
-			}
-		}
-	}
-
-	return QVariant();
-}
-
-QVariant AMScanSetModel::headerData ( int section, Qt::Orientation orientation, int role ) const {
-	if(role != Qt::DisplayRole)
-		return QVariant();
-	if(orientation == Qt::Horizontal)
-		return QString("Channel");
-	if(orientation == Qt::Vertical)
-		return QVariant(section);
-	return QVariant();
-}
-
-int AMScanSetModel::rowCount ( const QModelIndex & parent ) const  {
-	// top level: return number of scans
-	if(!parent.isValid())
-		return scans_.count();
-
-	// scan-level: return number of channels:
-	if(parent.internalId() == -1 && parent.row() < scans_.count())
-		return scans_.at(parent.row())->numChannels();
-
-	return 0;
-}
-
-int AMScanSetModel::columnCount ( const QModelIndex & parent ) const {
-	Q_UNUSED(parent)
-
-	return 1;
-}
-
-bool AMScanSetModel::hasChildren ( const QModelIndex & parent  ) const {
-	// scans have children.
-	if(parent.internalId() == -1)
-		return true;
-	// channels don't.
-	else
-		return false;
-}
-
-
-/// returns the index (or row) of an AMScan in the top-level. returns -1 if not found.
-int AMScanSetModel::indexOf(AMScan* scan) const {
-	return scans_.indexOf(scan);
-}
-
-
-// Resizable Interface:
-
-// Add a scan to this model.  The AMScan must exist elsewhere, for the lifetime that it is added to the model.  Model does not take ownership of the scan.
-void AMScanSetModel::addScan(AMScan* newScan) {
-	beginInsertRows(QModelIndex(), scans_.count(), scans_.count());
-	scans_.append(newScan);
-	scanChannelLists_.append(newScan->channelList());
-
-	QList<AMScanSetModelChannelMetaData> chs;
-	for(int i=0; i<newScan->numChannels(); i++)
-		chs.append(AMScanSetModelChannelMetaData());
-	channels_.append(chs);
-
-	/// \todo hook up signals from newScan->channelList to catch channel creation and deletion
-	connect(newScan->channelList(), SIGNAL(rowsAboutToBeInserted(QModelIndex, int, int)), this, SLOT(onChannelAboutToBeAdded(QModelIndex, int, int)));
-	connect(newScan->channelList(), SIGNAL(rowsInserted(QModelIndex, int, int)), this, SLOT(onChannelAdded(QModelIndex, int, int)));
-	connect(newScan->channelList(), SIGNAL(rowsAboutToBeRemoved(QModelIndex, int, int)), this, SLOT(onChannelAboutToBeRemoved(QModelIndex, int, int)));
-	connect(newScan->channelList(), SIGNAL(rowsRemoved(QModelIndex, int, int)), this, SLOT(onChannelRemoved(QModelIndex, int, int)));
-	endInsertRows();
-}
-
-// removes an AMScan from this model. Does not delete the scan.  Call this before deleting a scan that has been added to the model.
-bool AMScanSetModel::removeScan(AMScan* removeMe) {
-	int index = scans_.indexOf(removeMe);
-
-	if(index != -1) {
-		beginRemoveRows(QModelIndex(), index, index);
-		scans_.removeAt(index);
-		scanChannelLists_.removeAt(index);
-		channels_.removeAt(index);
-		endRemoveRows();
-		return true;
-	}
-	else
-		return false;
-}
-
-
-// the AMChannelListModel is a standard Qt model, but it guarantees that only one channel will be added at a time, and it will be added at the end of all rows(channels).
-void AMScanSetModel::onChannelAboutToBeAdded(const QModelIndex& parent, int start, int end) {
-
-	Q_UNUSED(parent)
-
-	AMChannelListModel* source = qobject_cast<AMChannelListModel*>(sender());
-
-	int scanIndex = scanChannelLists_.indexOf(source);
-	if(scanIndex == -1)
-		return;
-
-	beginInsertRows(index(scanIndex,0), start, end);
-
-}
-
-void AMScanSetModel::onChannelAdded(const QModelIndex& parent, int start, int end) {
-
-	Q_UNUSED(parent)
-
-	AMChannelListModel* source = qobject_cast<AMChannelListModel*>(sender());
-	int scanIndex = scanChannelLists_.indexOf(source);
-	if(scanIndex == -1)
-		return;
-
-	for(int i=start; i<=end; i++)
-		channels_[scanIndex].insert(i, AMScanSetModelChannelMetaData());
-
-	endInsertRows();
-}
-
-void AMScanSetModel::onChannelAboutToBeRemoved(const QModelIndex& parent, int start, int end) {
-
-	Q_UNUSED(parent)
-
-	AMChannelListModel* source = qobject_cast<AMChannelListModel*>(sender());
-	int scanIndex = scanChannelLists_.indexOf(source);
-	if(scanIndex == -1)
-		return;
-
-	beginRemoveRows(index(scanIndex,0), start, end);
-}
-
-void AMScanSetModel::onChannelRemoved(const QModelIndex& parent, int start, int end) {
-
-	Q_UNUSED(parent)
-
-	AMChannelListModel* source = qobject_cast<AMChannelListModel*>(sender());
-	int scanIndex = scanChannelLists_.indexOf(source);
-	if(scanIndex == -1)
-		return;
-
-	for(int i=end; i>=start; i--)
-		channels_[scanIndex].removeAt(i);
-
-
-	endRemoveRows();
-}
 
 
 AMScanViewScanBar::AMScanViewScanBar(AMScanSetModel* model, int scanIndex, QWidget* parent)
@@ -270,6 +15,7 @@ AMScanViewScanBar::AMScanViewScanBar(AMScanSetModel* model, int scanIndex, QWidg
 		"border-bottom: 1px solid black;"
 		"}");
 
+	chButtons_.setExclusive(false);
 
 	AMScan* source = model->scanAt(scanIndex_);
 
@@ -312,11 +58,14 @@ AMScanViewScanBar::AMScanViewScanBar(AMScanSetModel* model, int scanIndex, QWidg
 
 	connect(&chButtons_, SIGNAL(buttonClicked(int)), this, SLOT(onChannelButtonClicked(int)));
 
+	connect(closeButton_, SIGNAL(clicked()), this, SLOT(onCloseButtonClicked()));
+
 }
+
 
 void AMScanViewScanBar::onRowInserted(const QModelIndex& parent, int start, int end) {
 	// not for us...
-	if(parent.internalId() != -1 && parent.row() != scanIndex_) {
+	if(parent.internalId() != -1 || parent.row() != scanIndex_) {
 		return;
 	}
 
@@ -336,7 +85,10 @@ void AMScanViewScanBar::onRowInserted(const QModelIndex& parent, int start, int 
 
 /// before a scan or channel is deleted in the model:
 void AMScanViewScanBar::onRowAboutToBeRemoved(const QModelIndex& parent, int start, int end) {
-	if(parent.internalId() != -1 && parent.row() != scanIndex_) {
+	Q_UNUSED(end)
+
+	// check if this isn't one of our channels being deleted.
+	if(parent.internalId() != -1 || parent.row() != scanIndex_) {
 		return;
 	}
 
@@ -348,16 +100,31 @@ void AMScanViewScanBar::onRowAboutToBeRemoved(const QModelIndex& parent, int sta
 }
 
 /// after a scan or channel is deleted in the model:
-void AMScanViewScanBar::onRowRemoved(const QModelIndex& parent, int start, int end) {}
-/// when data changes:
-void AMScanViewScanBar::onModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight) {
-	if(topLeft.internalId() != scanIndex_)
-		return;
+void AMScanViewScanBar::onRowRemoved(const QModelIndex& parent, int start, int end) {
+	Q_UNUSED(parent)
+	Q_UNUSED(start)
+	Q_UNUSED(end)
+}
 
-	int channelIndex = topLeft.row();
-	AMChannel* channel = model_->data(topLeft, AMScanSetModel::PointerRole).value<AMChannel*>();
-	chButtons_.button(channelIndex)->setText(channel->name());
-	chButtons_.button(channelIndex)->setChecked(model_->data(topLeft, Qt::CheckStateRole).value<bool>());
+/// when model data changes.  Possibilities we care about: scan name, and channels visible/not visible.
+void AMScanViewScanBar::onModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight) {
+
+	Q_UNUSED(bottomRight)
+
+	// changes to our scan:
+	if(topLeft.internalId() == -1 && topLeft.row() == scanIndex_) {
+
+		nameLabel_->setText(model_->scanAt(scanIndex_)->name());
+	}
+
+	// changes to one of our channels:
+	if(topLeft.internalId() == scanIndex_) {
+
+		int channelIndex = topLeft.row();
+		AMChannel* channel = model_->channelAt(scanIndex_, channelIndex);
+		chButtons_.button(channelIndex)->setText(channel->name());
+		chButtons_.button(channelIndex)->setChecked(model_->data(topLeft, Qt::CheckStateRole).value<bool>());
+	}
 }
 
 void AMScanViewScanBar::onChannelButtonClicked(int id) {
@@ -365,6 +132,37 @@ void AMScanViewScanBar::onChannelButtonClicked(int id) {
 	model_->setData(model_->indexForChannel(scanIndex_, id), QVariant(visible), Qt::CheckStateRole);
 }
 
+/// after a scan or channel is added in the model
+void AMScanViewChannelSelector::onRowInserted(const QModelIndex& parent, int start, int end) {
+
+	Q_UNUSED(end)
+
+	// top-level: inserting a scan:
+	if(!parent.isValid()) {
+		AMScanViewScanBar* bar = new AMScanViewScanBar(model_, start);
+		barLayout_->insertWidget(start, bar);
+		scanBars_.insert(start, bar);
+	}
+
+	// otherwise, inserting a channel. Handled separately by our AMScanViewScanBar's
+}
+
+/// before a scan or channel is deleted in the model:
+void AMScanViewChannelSelector::onRowAboutToBeRemoved(const QModelIndex& parent, int start, int end) {
+	Q_UNUSED(end)
+	// invalid (top-level) parent: means we're removing a scan
+	if(!parent.isValid()){
+		delete scanBars_.takeAt(start);
+		// all the scans above this one need to move their scan index down:
+		for(int i=start; i<scanBars_.count(); i++)
+			scanBars_[i]->scanIndex_--;
+	}
+}
+
+
+void AMScanViewScanBar::onCloseButtonClicked() {
+	model_->removeScan(model_->scanAt(scanIndex_));
+}
 
 AMScanViewModeBar::AMScanViewModeBar(QWidget* parent)
 	: QFrame(parent)

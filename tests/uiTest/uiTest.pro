@@ -93,7 +93,8 @@ HEADERS += ../../source/AMSettings.h \
     ../../source/muParser/muParserCallback.h \
     ../../source/muParser/muParserBytecode.h \
     ../../source/muParser/muParserBase.h \
-    ../../source/muParser/muParser.h
+    ../../source/muParser/muParser.h \
+    ../../source/dataman/AMScanSetModel.h
 FORMS += 
 SOURCES += tests.cpp \
     ../../source/dataman/SGMLegacyFileImporter.cpp \
@@ -110,5 +111,6 @@ SOURCES += tests.cpp \
     ../../source/muParser/muParserCallback.cpp \
     ../../source/muParser/muParserBytecode.cpp \
     ../../source/muParser/muParserBase.cpp \
-    ../../source/muParser/muParser.cpp
+    ../../source/muParser/muParser.cpp \
+    ../../source/dataman/AMScanSetModel.cpp
 RESOURCES = source/icons/icons.qrc

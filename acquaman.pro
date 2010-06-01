@@ -150,7 +150,8 @@ HEADERS += source/beamline/AMDiagnosticPaddle.h \
     source/ui/AMScanView.h \
     ../MPlot/src/MPlot/MPlotSceneAndView.h \
     source/beamline/AMDetector.h \
-    source/acquaman/AMAcqScanSpectrumOutput.h
+    source/acquaman/AMAcqScanSpectrumOutput.h \
+    source/dataman/AMScanSetModel.h
 FORMS += source/ui/AbsorptionScanController.ui \
     source/ui/ConnectionSettings.ui \
     source/ui/EmissionScanController.ui \
@@ -239,6 +240,7 @@ SOURCES += source/beamline/AMDiagnosticPaddle.cpp \
     source/acquaman/AMRegionsList.cpp \
     source/ui/AMScanView.cpp \
     source/beamline/AMDetector.cpp \
-    source/acquaman/AMAcqScanSpectrumOutput.cpp
+    source/acquaman/AMAcqScanSpectrumOutput.cpp \
+    source/dataman/AMScanSetModel.cpp
 RESOURCES = source/icons/icons.qrc
 OTHER_FILES += source/muParser/README.txt

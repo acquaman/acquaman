@@ -89,7 +89,8 @@ HEADERS += source/dataman/AMDbObject.h \
     ../../../MPlot/src/MPlot/MPlot.h \
     ../../source/AMObserver.h \
     ../../source/AMObservable.h \
-    ../../../MPlot/src/MPlot/MPlotSceneAndView.h
+    ../../../MPlot/src/MPlot/MPlotSceneAndView.h \
+    ../../source/dataman/AMScanSetModel.h
 SOURCES += source/dataman/AMScan.cpp \
     source/dataman/AMChannel.cpp \
     source/beamline/AMPVNames.cpp \
@@ -105,4 +106,5 @@ SOURCES += source/dataman/AMScan.cpp \
     ../../source/muParser/muParserCallback.cpp \
     ../../source/muParser/muParserBytecode.cpp \
     ../../source/muParser/muParserBase.cpp \
-    ../../source/muParser/muParser.cpp
+    ../../source/muParser/muParser.cpp \
+    ../../source/dataman/AMScanSetModel.cpp

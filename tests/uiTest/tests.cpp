@@ -79,6 +79,15 @@ private slots:
 
 		QTest::qWait(4000);
 
+		AMXASScan s2;
+		s2.setName("scan 2!");
+		model->addScan(&s2);
+		s1Loader = s2;
+
+		QVERIFY(s1Loader.loadFromFile(fileName));
+
+		QTest::qWait(40000);
+
 		QVERIFY(s1.deleteChannel("const5"));
 
 
