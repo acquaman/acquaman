@@ -152,9 +152,9 @@ public slots:
 		void onRestoreRequested(){
 
 			AMXASScan *s1 = new AMXASScan();
-			SGMLegacyFileImporter *s1Loader = new SGMLegacyFileImporter(s1);
-			if(!s1Loader->loadFromFile(AMUserSettings::userDataFolder + "001.dat"))
-					qDebug() << "FAIL WHALE!";
+//			SGMLegacyFileImporter *s1Loader = new SGMLegacyFileImporter(s1);
+//			if(!s1Loader->loadFromFile(AMUserSettings::userDataFolder + "001.dat"))
+//					qDebug() << "FAIL WHALE!";
 
 
 

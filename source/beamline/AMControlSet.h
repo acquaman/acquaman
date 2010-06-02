@@ -8,7 +8,7 @@
 //#include "acquaman/AMScanConfiguration.h"
 //#include "acquaman/AMRegion.h"
 #include "acquaman/AMRegionsList.h"
-#include "AMDetector.h"
+#include "AMAbstractDetector.h"
 
 /// An AMControlSet is designed to hold a logical group of controls.
 /*!
@@ -120,25 +120,25 @@ protected:
 };
 
 
-class AMDetectorSet : public QObject
+class AMAbstractDetectorSet : public QObject
 {
 Q_OBJECT
 public:
 	/// Constructor, only needs a QObject to act as a parent.
-	explicit AMDetectorSet(QObject *parent = 0);
+	explicit AMAbstractDetectorSet(QObject *parent = 0);
 
-	~AMDetectorSet(){
+	~AMAbstractDetectorSet(){
 		detectors_.clear();
 	}
 
 	/// Returns the name defined for the control set.
 	QString name() const { return name_;}
 //	/// Returns the QList of AMControl pointers that currently comprise the controls in the set.
-//	QList<AMDetector*> detectors() { return detectors_;}
+//	QList<AMAbstractDetector*> detectors() { return detectors_;}
 	int count() { return detectors_.count();}
-	AMDetector* detectorAt(int index) { return detectors_.at(index);}
+	AMAbstractDetector* detectorAt(int index) { return detectors_.at(index);}
 	int indexOf(const QString &name);
-	AMDetector* detectorByName(const QString &name);
+	AMAbstractDetector* detectorByName(const QString &name);
 //	QList<bool> defaultDetectors() { return defaultDetectors_;}
 	bool isDefaultAt(int index) { return defaultDetectors_.at(index);}
 	bool isDefaultByName(const QString &name);
@@ -149,16 +149,16 @@ public slots:
 	/// Sets the name of the control set.
 	void setName(const QString &name) { name_ = name;}
 	/// Adds an AMControl to the control set. Returns true if the addition was successful. Failure could result from adding the same AMControl twice.
-	bool addDetector(AMDetector* detector, bool defaultDetector = false);
+	bool addDetector(AMAbstractDetector* detector, bool defaultDetector = false);
 	/// Removes an AMControl from the control set. Returns true if the removal was successful. Failure could result from removing an AMControl not in the set.
-	bool removeDetector(AMDetector* detector);
+	bool removeDetector(AMAbstractDetector* detector);
 
 protected:
 	/// Holds the name of the control set. Should be descriptive of the logical relationship.
 	/// AMControlSetView will use this value as the title of the group box being displayed.
 	QString name_;
 	/// Local list of AMControl pointers, which represent the controls in the set.
-	QList<AMDetector*> detectors_;
+	QList<AMAbstractDetector*> detectors_;
 	QList<bool> defaultDetectors_;
 };
 

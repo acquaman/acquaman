@@ -21,7 +21,7 @@ public slots:
 	void initialize();
 	void start(){
 		bool loadSuccess;
-		if(pScan_()->detectors().contains("pgt"))
+		if(pScan_()->detectorNames().contains("pgt"))
 			loadSuccess = advAcq_->setConfigFile("/home/reixs/beamline/programming/acquaman/devConfigurationFiles/pgt.cfg");
 		else
 			loadSuccess = advAcq_->setConfigFile("/home/reixs/beamline/programming/acquaman/devConfigurationFiles/defaultEnergy.cfg");
@@ -30,12 +30,18 @@ public slots:
 			return;
 		}
 
-		foreach(QString str, pScan_()->detectors()){
+//		foreach(QString str, pScan_()->detectors()){
+		foreach(const AMAbstractDetector *dtctr, pScan_()->detectors()){
+			if(dtctr->name() == SGMBeamline::sgm()->pgtDetector()->name())
+			{advAcq_->appendRecord(SGMBeamline::sgm()->pvName(dtctr->name()), true, true, 0);qDebug() << "Adding " << dtctr->name() << " as spectrum";}
+			else
+			{advAcq_->appendRecord(SGMBeamline::sgm()->pvName(dtctr->name()), true, false, 0);qDebug() << "Adding " << dtctr->name() << " as normal";}
+/*
 			if(str == SGMBeamline::sgm()->pgtDetector()->name())
 			{advAcq_->appendRecord(SGMBeamline::sgm()->pvName(str), true, true, 0);qDebug() << "Adding " << str << " as spectrum";}
 			else
 			{advAcq_->appendRecord(SGMBeamline::sgm()->pvName(str), true, false, 0);qDebug() << "Adding " << str << " as normal";}
-//				if(advAcq_->appendRecord(SGMBeamline::sgm()->pvName(str), true, false, 0));
+*/
 			advAcq_->saveConfigFile("/home/reixs/acquamanData/test.cfg");
 		}
 		qDebug() << "Using config file: " << advAcq_->getConfigFile();

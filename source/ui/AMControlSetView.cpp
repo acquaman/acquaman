@@ -205,14 +205,14 @@ AMControlOptimizationSetView::AMControlOptimizationSetView(AMControlOptimization
 	setFixedSize(517, 200);
 }
 
-AMDetectorSetView::AMDetectorSetView(AMDetectorSet *viewSet, QWidget *parent) :
+AMAbstractDetectorSetView::AMAbstractDetectorSetView(AMAbstractDetectorSet *viewSet, QWidget *parent) :
 		QGroupBox(parent)
 {
 	viewSet_ = viewSet;
 	setTitle(viewSet->name());
 	QFormLayout *fl = new QFormLayout();
 	QCheckBox *tmpBox;
-	AMDetector *tmpDetector;
+	AMAbstractDetector *tmpDetector;
 	for(int x = 0; x < viewSet_->count(); x++){
 		tmpDetector = viewSet_->detectorAt(x);
 		tmpBox = new QCheckBox(this);

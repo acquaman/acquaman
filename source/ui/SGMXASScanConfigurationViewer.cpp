@@ -57,7 +57,7 @@ void SGMXASScanConfigurationViewer::setScanConfiguration(AMScanConfiguration *cf
 	connect( ((QSpinBox*)(trackingView_->boxByName("undulatorTracking"))), SIGNAL(valueChanged(int)), sxsc, SLOT(setUndulatorTracking(int)) );
 	connect( ((QSpinBox*)(trackingView_->boxByName("monoTracking"))), SIGNAL(valueChanged(int)), sxsc, SLOT(setMonoTracking(int)) );
 	connect( ((QSpinBox*)(trackingView_->boxByName("exitSlitTracking"))), SIGNAL(valueChanged(int)), sxsc, SLOT(setExitSlitTracking(int)) );
-	detectorView_ = new AMDetectorSetView(sxsc->detectorSet(), this);
+	detectorView_ = new AMAbstractDetectorSetView(sxsc->detectorSet(), this);
 	connect( ((QCheckBox*)(detectorView_->boxByName("tey"))), SIGNAL(stateChanged(int)), sxsc, SLOT(setUsingTEY(int)) );
 	connect( ((QCheckBox*)(detectorView_->boxByName("tfy"))), SIGNAL(stateChanged(int)), sxsc, SLOT(setUsingTFY(int)) );
 	connect( ((QCheckBox*)(detectorView_->boxByName("pgt"))), SIGNAL(stateChanged(int)), sxsc, SLOT(setUsingPGT(int)) );
