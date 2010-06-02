@@ -136,7 +136,39 @@ protected:
 	}
 };
 
-class AMScanViewInternal;
+class AMScanView;
+
+/// This class is the interface for different view options inside an AMScanView.  They must be able to activate and deactivate themselves (ie: adding or removing their GUI elements from the master view's layout), and handle changes from the AMScanSet model (scans or channels added or removed).
+class AMScanViewInternal : public QObject {
+	Q_OBJECT
+public:
+	explicit AMScanViewInternal(AMScanView* masterView);
+
+public slots:
+
+	/// add our specific view elements to the AMScanView
+	virtual void activate() = 0;
+	/// remove our specific view elements from the AMScanView
+	virtual void deactivate() = 0;
+
+protected slots:
+	/// after a scan or channel is added in the model
+	virtual void onRowInserted(const QModelIndex& parent, int start, int end) = 0;
+	/// before a scan or channel is deleted in the model:
+	virtual void onRowAboutToBeRemoved(const QModelIndex& parent, int start, int end) = 0;
+	/// after a scan or channel is deleted in the model:
+	virtual void onRowRemoved(const QModelIndex& parent, int start, int end) = 0;
+	/// when data changes:
+	virtual void onModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight) = 0;
+
+protected:
+	AMScanView* masterView_;
+
+public:
+	/// returns the layout that should contain all of our GUI elements. (This should not be public; unfortunately it needs to be for the friend declaration in AMScanView.)
+	QGraphicsGridLayout* layout() const;
+	AMScanSetModel* model() const;
+};
 
 /// A GUI class that provides a several different ways to view a set of scans.  It maintains an internal AMScanSetModel, and a variety of different AMScanViewInternal views can be shown within it.
 class AMScanView : public QWidget
@@ -146,6 +178,7 @@ public:
 	enum ViewMode { Invalid = -1, Tabs = 0, OverPlot, MultiScans, MultiChannels };
 
     explicit AMScanView(QWidget *parent = 0);
+	virtual ~AMScanView();
 
 	/// returns the AMScanSetModel used internally to hold the scans/channels.
 	AMScanSetModel* model() const { return scansModel_; }
@@ -175,12 +208,8 @@ protected:
 	QGraphicsGridLayout* glayout_;
 	int width_, rc_, cc_;// layout locations: width (num cols), rowcounter, columncounter.
 
-
-
 	AMScanViewModeBar* modeBar_;
 	AMScanViewChannelSelector* scanBars_;
-
-
 
 	// build UI
 	void setupUI();
@@ -188,6 +217,90 @@ protected:
 	void makeConnections();
 
 
+	friend QGraphicsGridLayout* AMScanViewInternal::layout() const;
+};
+
+
+
+
+class AMScanViewExclusiveView : public AMScanViewInternal {
+	Q_OBJECT
+
+public:
+	explicit AMScanViewExclusiveView(AMScanView* masterView);
+
+	virtual ~AMScanViewExclusiveView();
+
+public slots:
+
+	/// add our specific view elements to the AMScanView
+	virtual void activate();
+	/// remove our specific view elements from the AMScanView
+	virtual void deactivate();
+
+protected slots:
+	/// after a scan or channel is added in the model
+	virtual void onRowInserted(const QModelIndex& parent, int start, int end);
+	/// before a scan or channel is deleted in the model:
+	virtual void onRowAboutToBeRemoved(const QModelIndex& parent, int start, int end);
+	/// after a scan or channel is deleted in the model:
+	virtual void onRowRemoved(const QModelIndex& parent, int start, int end);
+	/// when data changes:
+	virtual void onModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight);
+
+	/// when the model's "exclusive channel" changes. This is the one channel that we display for all of our scans (as long as they have it).
+	void onExclusiveChannelChanged(const QString& exclusiveChannel);
+
+protected:
+	/// A list of MPlotSeries*... one series for each scan.
+	QList<MPlotSeriesBasic*> plotSeries_;
+	/// Our plot.
+	MPlotGW* plot_;
+
+
+	/// Helper function to handle adding a scan (at row scanIndex in the model)
+	void addScan(int scanIndex);
+
+	/// Helper function to handle review a scan when a channel is added or the exclusive channel changes.
+	void reviewScan(int scanIndex);
+};
+
+
+class AMScanViewMultiView : public AMScanViewInternal {
+	Q_OBJECT
+
+public:
+	explicit AMScanViewMultiView(AMScanView* masterView);
+
+	virtual ~AMScanViewMultiView();
+
+public slots:
+
+	/// add our specific view elements to the AMScanView
+	virtual void activate();
+	/// remove our specific view elements from the AMScanView
+	virtual void deactivate();
+
+protected slots:
+	/// after a scan or channel is added in the model
+	virtual void onRowInserted(const QModelIndex& parent, int start, int end);
+	/// before a scan or channel is deleted in the model:
+	virtual void onRowAboutToBeRemoved(const QModelIndex& parent, int start, int end);
+	/// after a scan or channel is deleted in the model:
+	virtual void onRowRemoved(const QModelIndex& parent, int start, int end);
+	/// when data changes: (Things we care about: color, linePen, and visible)
+	virtual void onModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight);
+
+
+protected:
+	/// A list of a list of MPlotSeries*... In each scan, one for each channel
+	QList<QList<MPlotSeriesBasic*> > plotSeries_;
+	/// Our plot.
+	MPlotGW* plot_;
+
+
+	/// helper function: adds the scan at \c scanIndex
+	void addScan(int scanIndex);
 
 };
 

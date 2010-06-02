@@ -21,7 +21,7 @@ public:
 
 	/// common color used for plotting this channel
 	QColor color;
-	/// Priority level for this channel (used for ordering... lower numbers appear first.)  Only channels with a priority < 0 are shown in "exclusive" views.
+	/// Priority level for this channel (used for ordering... lower numbers appear first.)
 	double priority;
 	/// Pen used for this channel (dots, dashes, etc.)
 	QPen linePen;
@@ -63,7 +63,7 @@ public:
 
 	Qt::UserRole or AMScanSetModel::PointerRole: AMScan* or AMChannel*	- the pointer to the object
 
-	AMScanSetModel::PriorityRole: double- used for ordering (lowest to highest). Negative values are displayed in "exclusive" views.
+	AMScanSetModel::PriorityRole: double- used for ordering (lowest to highest).
 
 	AMScanSetModel::LinePenRole: QPen	- pen used for drawing in scans
 
@@ -111,6 +111,8 @@ public:
 
 	/// returns the row number of an AMScan in the top-level. returns -1 if not found.
 	int indexOf(AMScan* scan) const;
+	/// returns the row number of an AMChannel within an AMScan. Returns -1 if not found.
+	int indexOf(AMChannel* channel, AMScan* insideHere) const;
 
 	/// Shortcuts to accessing a scan pointer. (Can also retrieve using data() with an appropriate indexForScan() and the AMScanSetModel::PointerRole.)
 	AMScan* scanAt(int scanIndex) const {
@@ -144,6 +146,29 @@ public:
 	}
 
 
+	/// returns the name of an "exclusive" channel: one that might be preferred in exclusive views.  Returns empty string if an exclusive channel is not yet established.
+	QString exclusiveChannel() const { return exclusiveChannel_; }
+
+	bool setExclusiveChannel(const QString& exclusiveChannelName) {
+		if(allChannelNames().contains(exclusiveChannelName)) {
+			exclusiveChannel_ = exclusiveChannelName;
+			emit exclusiveChannelChanged(exclusiveChannel_);
+			return true;
+		}
+		else
+			return false;
+	}
+	/// returns a list of all channel names that exist (over all scans in the model). Warning: this is slow.  O(n), where n is the total number of channels in all scans.
+	/*! \todo Optimize with caching. */
+	QStringList allChannelNames() const {
+		QSet<QString> rv;
+		for(int si = 0; si<scans_.count(); si++)
+			for(int ci = 0; ci<scans_.at(si)->numChannels(); ci++)
+				rv << scans_.at(si)->channel(ci)->name();
+		return rv.toList();
+	}
+
+
 
 	// Resizable Interface:
 
@@ -162,11 +187,15 @@ public:
 	  Channels:
 		- Qt::DecorationRole (meta-data: sets color)
 		- Qt::CheckStateRole (meta-data: sets visible or not)
-		- AMScanSetModel::PriorityRole (meta-data: sets channel ordering / appearance in exclusive views)
+		- AMScanSetModel::PriorityRole (meta-data: sets channel ordering)
 		- AMScanSetModel::LinePenRole (meta-data: sets pen used for channel)
 
 	*/
 	bool setData ( const QModelIndex & index, const QVariant & value, int role = Qt::EditRole );
+
+signals:
+	void exclusiveChannelChanged(QString exclusiveChannelName);
+
 
 protected slots:
 	/// the AMChannelListModel is a standard Qt model, but it guarantees that only one channel will be added at a time, and it will be added at the end of all rows(channels).
@@ -183,6 +212,8 @@ protected:
 	QList<AMScan*> scans_;
 	QList<const AMChannelListModel*> scanChannelLists_;
 	QList<QList<AMScanSetModelChannelMetaData> > chMetaData_;
+
+	QString exclusiveChannel_;
 
 };
 
