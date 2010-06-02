@@ -296,6 +296,7 @@ AMScanView::AMScanView(QWidget *parent) :
 
 	views_ << new AMScanViewExclusiveView(this);
 	views_ << new AMScanViewMultiView(this);
+	views_ << new AMScanViewMultiScansView(this);
 
 	changeViewMode(Tabs);
 }
@@ -537,37 +538,6 @@ void AMScanView::makeConnections() {
 	// connect mode bar to changeViewMode:
 	connect(modeBar_->modeButtons_, SIGNAL(buttonClicked(int)), this, SLOT(changeViewMode(int)));
 }
-/*
-
-// removes all existing plotSeries from their plots.  This keeps the series alive; does not delete; only removes from parent plot so we can delete the parent plot.
-void AMScanView::removeAllPlotSeries() {
-
-	for(int j=0; j<scans_.count(); j++) {
-		AMScanViewEntry& scan = scans_[j];
-
-		for(int i=0; i<scan.chList.count(); i++) {
-			AMScanViewChannelEntry& ch = scan.chList[i];
-			if(ch.plotSeries && ch.destinationPlot >= 0) {
-				plots_[ch.destinationPlot]->plot()->removeItem(ch.plotSeries);
-				ch.destinationPlot = -1;
-			}
-		}
-	}
-}*/
-
-/*
-void AMScanView::uniqueChannelSearch() {
-
-	// unique channels:
-	QSet<QString> uchannels;
-
-	for(int j=0; j<scans_.count(); j++)
-		for(int i=0; i<scans_[j].scan->numChannels(); i++)
-			if(scans_[j].chList[i].visible && !uchannels.contains(scans_[j].scan->channel(i)->name()))
-				uchannels.insert(scans_[j].scan->channel(i)->name());
-
-	channelNames_ = uchannels.toList();
-}*/
 
 /// \todo: should scans held in the view be const or non-const?
 
@@ -825,9 +795,16 @@ void AMScanViewExclusiveView::onRowAboutToBeRemoved(const QModelIndex& parent, i
 	}
 }
 /// after a scan or channel is deleted in the model:
-void AMScanViewExclusiveView::onRowRemoved(const QModelIndex& parent, int start, int end) {}
+void AMScanViewExclusiveView::onRowRemoved(const QModelIndex& parent, int start, int end) {
+	Q_UNUSED(parent)
+	Q_UNUSED(start)
+	Q_UNUSED(end)
+}
 /// when data changes:
-void AMScanViewExclusiveView::onModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight) {}
+void AMScanViewExclusiveView::onModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight) {
+	Q_UNUSED(topLeft)
+	Q_UNUSED(bottomRight)
+}
 
 /// when the model's "exclusive channel" changes. This is the one channel that we display for all of our scans (as long as they have it).
 void AMScanViewExclusiveView::onExclusiveChannelChanged(const QString& exclusiveChannel) {
@@ -872,7 +849,7 @@ void AMScanViewExclusiveView::reviewScan(int scanIndex) {
 
 	// does this scan have the "exclusive" channel in it?
 	if(channel) {
-		qDebug() << "scan: " << scanIndex << "chanel: " << channelIndex;
+
 		if(plotSeries_.at(scanIndex) == 0) {
 			plotSeries_[scanIndex] = new MPlotSeriesBasic();
 			plot_->plot()->addItem(plotSeries_.at(scanIndex));
@@ -896,20 +873,20 @@ void AMScanViewExclusiveView::reviewScan(int scanIndex) {
 
 /// add our specific view elements to the AMScanView
 void AMScanViewExclusiveView::activate() {
-	layout()->addItem(plot_, 0, 0);
-
+	qDebug() << "layout count:" << layout()->count() << layout()->rowCount();
+	layout()->addItem(plot_, 0, 0, Qt::AlignCenter);
 }
 /// remove our specific view elements from the AMScanView
 void AMScanViewExclusiveView::deactivate() {
 
-	// this is unbelievable... No way to remove an item from a QGraphicsLayout without iterating through all items?  Where is QGraphicsLayout::removeItem(QGraphicsLayoutItem*) ?
-
 	plot_->scene()->removeItem(plot_);
 
-	for(int i=0; i<layout()->count(); i++)
-		if(layout()->itemAt(i) == plot_)
-			layout()->removeAt(i);
+	// this is unbelievable... No way to remove an item from a QGraphicsLayout without iterating through all items?  Where is QGraphicsLayout::removeItem(QGraphicsLayoutItem*) ?
 
+	for(int i=0; i<layout()->count(); i++)
+		layout()->removeAt(i);
+
+	layout()->invalidate();
 
 }
 
@@ -1034,7 +1011,11 @@ void AMScanViewMultiView::onRowAboutToBeRemoved(const QModelIndex& parent, int s
 	}
 }
 /// after a scan or channel is deleted in the model:
-void AMScanViewMultiView::onRowRemoved(const QModelIndex& parent, int start, int end) {}
+void AMScanViewMultiView::onRowRemoved(const QModelIndex& parent, int start, int end) {
+	Q_UNUSED(parent)
+	Q_UNUSED(start)
+	Q_UNUSED(end)
+}
 
 /// when data changes: (Things we care about: color, linePen, and visible)
 void AMScanViewMultiView::onModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight) {
@@ -1085,16 +1066,235 @@ void AMScanViewMultiView::onModelDataChanged(const QModelIndex& topLeft, const Q
 
 /// add our specific view elements to the AMScanView
 void AMScanViewMultiView::activate() {
-	layout()->addItem(plot_, 0, 0);
-
+	qDebug() << "layout count:" << layout()->count() << layout()->rowCount();
+	layout()->addItem(plot_, 0, 0, Qt::AlignCenter);
 }
 /// remove our specific view elements from the AMScanView
 void AMScanViewMultiView::deactivate() {
 
+	// this is unbelievable... No way to remove an item from a QGraphicsLayout without iterating through all items?  Where is QGraphicsLayout::removeItem(QGraphicsLayoutItem*) ?
+
 	plot_->scene()->removeItem(plot_);
 
 	for(int i=0; i<layout()->count(); i++)
-		if(layout()->itemAt(i) == plot_)
-			layout()->removeAt(i);
+		layout()->removeAt(i);
+
+	layout()->invalidate();
+
+}
+
+
+
+///////////////////////////////////////////////////
+
+AMScanViewMultiScansView::AMScanViewMultiScansView(AMScanView* masterView) : AMScanViewInternal(masterView) {
+
+	for(int si=0; si<model()->numScans(); si++) {
+		addScan(si);
+	}
+}
+
+void AMScanViewMultiScansView::addScan(int si) {
+
+	MPlotGW* plot;
+	plot = new MPlotGW();
+	plot->plot()->axisRight()->setTicks(0);
+	plot->plot()->axisBottom()->setTicks(4);
+	plot->plot()->axisLeft()->showGrid(false);
+	plot->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left);
+
+	plots_.insert(si, plot);
+
+	QList<MPlotSeriesBasic*> scanList;
+
+	for(int ci=0; ci<model()->scanAt(si)->numChannels(); ci++) {
+
+		AMChannel* ch = model()->channelAt(si, ci);
+		// if visible, create and append the list
+		if(model()->data(model()->indexForChannel(si, ci), Qt::CheckStateRole).value<bool>()) {
+
+			MPlotSeriesBasic* series = new MPlotSeriesBasic(ch);
+
+			series->setMarker(MPlotMarkerShape::None);
+			QPen pen = model()->data(model()->indexForChannel(si, ci), AMScanSetModel::LinePenRole).value<QPen>();
+			pen.setColor(model()->data(model()->indexForChannel(si, ci), Qt::DecorationRole).value<QColor>());
+			series->setLinePen(pen);
+
+			plots_[si]->plot()->addItem(series);
+			scanList << series;
+		}
+		else // otherwise, append null series
+			scanList << 0;
+	}
+	plotSeries_.insert(si, scanList);
+
+	// note: haven't yet added this new plot to the layout().  That's up to the caller.
+}
+
+AMScanViewMultiScansView::~AMScanViewMultiScansView() {
+
+	/* NOT necessary to delete all plotSeries. As long as they are added to a plot, they will be deleted when the plot is deleted (below).
+	for(int si=0; si<plotSeries_.count(); si++)
+		for(int ci=0; ci<model()->scanAt(si)->numChannels(); ci++)
+			if(plotSeries_[si][ci]) {
+				plots_[si]->plot()->removeItem(plotSeries_[si][ci]);
+				delete plotSeries_[si][ci];
+			}
+	*/
+
+
+	for(int pi=0; pi<plots_.count(); pi++)
+		delete plots_.at(pi);
+}
+
+
+
+void AMScanViewMultiScansView::onRowInserted(const QModelIndex& parent, int start, int end) {
+
+	// inserting a scan:
+	if(!parent.isValid()) {
+		for(int i=start; i<=end; i++)
+			addScan(i);
+
+		// quick hack to get the layout correct again:
+		deactivate();
+		activate();
+	}
+
+	// inserting a channel: (parent.row is the scanIndex, start-end are the channel indices)
+	else if(parent.internalId() == -1) {
+		int si = parent.row();
+		for(int ci=start; ci<=end; ci++) {
+
+			AMChannel* ch = model()->channelAt(si, ci);
+			// if visible, create and append to the list, and add to plot.
+			if(model()->data(model()->indexForChannel(si, ci), Qt::CheckStateRole).value<bool>()) {
+
+				MPlotSeriesBasic* series = new MPlotSeriesBasic(ch);
+
+				series->setMarker(MPlotMarkerShape::None);
+				QPen pen = model()->data(model()->indexForChannel(si, ci), AMScanSetModel::LinePenRole).value<QPen>();
+				pen.setColor(model()->data(model()->indexForChannel(si, ci), Qt::DecorationRole).value<QColor>());
+				series->setLinePen(pen);
+
+				plots_[si]->plot()->addItem(series);
+				plotSeries_[si].insert(ci, series);
+			}
+			else // otherwise, append null series
+				plotSeries_[si].insert(ci, 0);
+		}
+	}
+}
+/// before a scan or channel is deleted in the model:
+void AMScanViewMultiScansView::onRowAboutToBeRemoved(const QModelIndex& parent, int start, int end) {
+
+	// removing a scan: (start through end are the scan index)
+	if(!parent.isValid()) {
+		for(int si=end; si>=start; si--) {
+			for(int ci=0; ci<model()->scanAt(si)->numChannels(); ci++) {
+				if(plotSeries_[si][ci]) {
+					plots_[si]->plot()->removeItem(plotSeries_[si][ci]);
+					delete plotSeries_[si][ci];
+				}
+			}
+			plotSeries_.removeAt(si);
+			delete plots_.takeAt(si);
+		}
+		// quick hack to get our proper layout back:
+		deactivate();
+		activate();
+	}
+
+	// removing a channel. parent.row() is the scanIndex, and start - end are the channel indexes.
+	else if(parent.internalId() == -1) {
+		int si = parent.row();
+		for(int ci = end; ci>=start; ci--) {
+			if(plotSeries_[si][ci]) {
+				plots_[si]->plot()->removeItem(plotSeries_[si][ci]);
+				delete plotSeries_[si][ci];
+			}
+			plotSeries_[si].removeAt(ci);
+		}
+	}
+}
+/// after a scan or channel is deleted in the model:
+void AMScanViewMultiScansView::onRowRemoved(const QModelIndex& parent, int start, int end) {
+	Q_UNUSED(parent)
+	Q_UNUSED(start)
+	Q_UNUSED(end)
+}
+
+/// when data changes: (Things we care about: color, linePen, and visible)
+void AMScanViewMultiScansView::onModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight) {
+
+	// changes to a scan:
+	if(topLeft.internalId() == -1) {
+		// no changes that we really care about...
+
+	}
+
+	// changes to one of our channels: internalId is the scanIndex.  Channel index is from topLeft.row to bottomRight.row
+	else if((unsigned)topLeft.internalId() < (unsigned)model()->numScans()) {
+
+		int si = topLeft.internalId();
+		for(int ci=topLeft.row(); ci<=bottomRight.row(); ci++) {
+
+			// handle visibility changes:
+			bool visible = model()->data(model()->indexForChannel(si, ci), Qt::CheckStateRole).value<bool>();
+
+			MPlotSeriesBasic* series = plotSeries_[si][ci];
+
+			// need to create:
+			if(visible && series == 0) {
+				plotSeries_[si][ci] = series = new MPlotSeriesBasic(model()->channelAt(si, ci));
+				series->setMarker(MPlotMarkerShape::None);
+				plots_[si]->plot()->addItem(series);
+			}
+
+			// need to get rid of:
+			if(!visible && series) {
+				plots_[si]->plot()->removeItem(series);
+				delete series;
+				plotSeries_[si][ci] = 0;
+			}
+
+			// finally, apply color and linestyle changes, if visible:
+			if(visible) {
+				QPen pen = model()->data(model()->indexForChannel(si, ci), AMScanSetModel::LinePenRole).value<QPen>();
+				pen.setColor(model()->data(model()->indexForChannel(si, ci), Qt::DecorationRole).value<QColor>());
+				series->setLinePen(pen);
+			}
+		}
+	}
+}
+
+
+
+
+/// add our specific view elements to the AMScanView
+void AMScanViewMultiScansView::activate() {
+
+	int rc=0, cc=0, width = sqrt(plots_.count());
+
+	for(int pi=0; pi<plots_.count(); pi++) {
+		layout()->addItem(plots_.at(pi), rc, cc++, Qt::AlignCenter);
+		if(cc == width) {
+			rc++;
+			cc = 0;
+		}
+	}
+}
+/// remove our specific view elements from the AMScanView
+void AMScanViewMultiScansView::deactivate() {
+
+	for(int pi=0; pi<plots_.count(); pi++) {
+		MPlotGW* plot = plots_.at(pi);
+		if(plot->scene())
+			plot->scene()->removeItem(plot);
+	}
+
+	for(int li=0; li<layout()->count(); li++)
+		layout()->removeAt(li);
+	layout()->invalidate();
 
 }

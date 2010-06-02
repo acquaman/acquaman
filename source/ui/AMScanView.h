@@ -304,4 +304,44 @@ protected:
 
 };
 
+
+class AMScanViewMultiScansView : public AMScanViewInternal {
+	Q_OBJECT
+
+public:
+	explicit AMScanViewMultiScansView(AMScanView* masterView);
+
+	virtual ~AMScanViewMultiScansView();
+
+public slots:
+
+	/// add our specific view elements to the AMScanView
+	virtual void activate();
+	/// remove our specific view elements from the AMScanView
+	virtual void deactivate();
+
+protected slots:
+	/// after a scan or channel is added in the model
+	virtual void onRowInserted(const QModelIndex& parent, int start, int end);
+	/// before a scan or channel is deleted in the model:
+	virtual void onRowAboutToBeRemoved(const QModelIndex& parent, int start, int end);
+	/// after a scan or channel is deleted in the model:
+	virtual void onRowRemoved(const QModelIndex& parent, int start, int end);
+	/// when data changes: (Things we care about: color, linePen, and visible)
+	virtual void onModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight);
+
+
+protected:
+	/// A list of a list of MPlotSeries*... In each scan, one for each channel
+	QList<QList<MPlotSeriesBasic*> > plotSeries_;
+	/// Our plots
+	QList<MPlotGW*> plots_;
+
+
+	/// helper function: adds the scan at \c scanIndex
+	void addScan(int scanIndex);
+
+};
+
+
 #endif // AMSCANVIEW_H
