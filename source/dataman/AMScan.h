@@ -91,8 +91,18 @@ public:
 			return false;
 
 		beginRemoveRows(QModelIndex(), index, index);
+
+		// update the name-to-index lookup... Get rid of the current index, and get rid of the highest index, since everything will move down
 		name2chIndex_.removeR(index);
+		name2chIndex_.removeR(ch_.count()-1);
+
+		// remove from list
 		AMChannel* deleteMe = ch_.takeAt(index);
+
+		// in the name-to-index lookup, move everyone above this channel down
+		for(int i=index; i<ch_.count(); i++)
+			name2chIndex_.set(ch_.at(i)->name(), i);
+
 		endRemoveRows();
 		delete deleteMe;
 		return true;

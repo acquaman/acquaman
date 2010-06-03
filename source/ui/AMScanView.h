@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QGraphicsView>
 #include <QGraphicsWidget>
+#include <QGraphicsLinearLayout>
 #include <QGraphicsGridLayout>
 #include <QLabel>
 #include <QToolButton>
@@ -104,39 +105,82 @@ public:
 };
 
 
-/// A GUI class that provides a QGraphicsWidget inside the scene, that scales with the size of the scene/view
-class AMScanViewMainWidget : public MPlotSceneAndView {
+/// A GUI class that is a QGraphicsView, and provides a top-level QGraphicsWidget inside a scene.  It emits resized(const QSizeF& newSize) when the QGraphicsView widget is resized.
+class AMGraphicsViewAndWidget : public QGraphicsView {
 	Q_OBJECT
 public:
 
-	AMScanViewMainWidget(QWidget* parent = 0) : MPlotSceneAndView(parent) {
+	AMGraphicsViewAndWidget(QWidget* parent = 0) : QGraphicsView(parent) {
+
+		setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+		setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+		setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing /*| QPainter::HighQualityAntialiasing*/);
+
+		scene_ = new QGraphicsScene();
+		setScene(scene_);
+
 		graphicsWidget_ = new QGraphicsWidget();
-		this->scene()->addItem(graphicsWidget_);
-		//QPalette p = graphicsWidget_->palette();
-		//p.setColor(QPalette::Window, QColor(Qt::red));
-		//graphicsWidget_->setPalette(p);
+		graphicsWidget_->setGeometry(0,0,100,100);
+		scene_->addItem(graphicsWidget_);
+
 	}
 
 
-	virtual ~AMScanViewMainWidget() {
+	virtual ~AMGraphicsViewAndWidget() {
 		delete graphicsWidget_;
+		delete scene_;
 	}
 
 	QGraphicsWidget* graphicsWidget() const { return graphicsWidget_;}
 
+signals:
+	void resized(const QSizeF& newSize);
+
 protected:
+	QGraphicsScene* scene_;
 	QGraphicsWidget* graphicsWidget_;
 
 	// On resize events: notify the graphics widget to resize it.
 	virtual void resizeEvent ( QResizeEvent * event ) {
-		MPlotSceneAndView::resizeEvent(event);
 
-		graphicsWidget_->resize(event->size());
-		fitInView(graphicsWidget_, Qt::KeepAspectRatioByExpanding);
+		QGraphicsView::resizeEvent(event);
+		emit resized(QSizeF(event->size()));
 	}
 };
 
-class AMScanViewInternal;
+class AMScanView;
+
+/// This class is the interface for different view options inside an AMScanView.  They must be able to handle changes from the AMScanSet model (scans or channels added or removed).
+class AMScanViewInternal : public QGraphicsWidget {
+	Q_OBJECT
+public:
+	explicit AMScanViewInternal(AMScanView* masterView);
+
+public slots:
+
+	/// add our specific view elements to the AMScanView
+	//virtual void activate() = 0;
+	/// remove our specific view elements from the AMScanView
+	//virtual void deactivate() = 0;
+
+protected slots:
+	/// after a scan or channel is added in the model
+	virtual void onRowInserted(const QModelIndex& parent, int start, int end) = 0;
+	/// before a scan or channel is deleted in the model:
+	virtual void onRowAboutToBeRemoved(const QModelIndex& parent, int start, int end) = 0;
+	/// after a scan or channel is deleted in the model:
+	virtual void onRowRemoved(const QModelIndex& parent, int start, int end) = 0;
+	/// when data changes:
+	virtual void onModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight) = 0;
+
+protected:
+	AMScanView* masterView_;
+
+	AMScanSetModel* model() const;
+};
+
+#include <QPropertyAnimation>
 
 /// A GUI class that provides a several different ways to view a set of scans.  It maintains an internal AMScanSetModel, and a variety of different AMScanViewInternal views can be shown within it.
 class AMScanView : public QWidget
@@ -146,6 +190,7 @@ public:
 	enum ViewMode { Invalid = -1, Tabs = 0, OverPlot, MultiScans, MultiChannels };
 
     explicit AMScanView(QWidget *parent = 0);
+	virtual ~AMScanView();
 
 	/// returns the AMScanSetModel used internally to hold the scans/channels.
 	AMScanSetModel* model() const { return scansModel_; }
@@ -162,6 +207,9 @@ public slots:
 	/// remove a scan from the view:
 	void removeScan(AMScan* scan);
 
+protected slots:
+	void resizeViews();
+
 protected:
 
 	AMScanSetModel* scansModel_;
@@ -172,15 +220,14 @@ protected:
 	ViewMode mode_;
 
 	// ui components:
-	QGraphicsGridLayout* glayout_;
+	AMGraphicsViewAndWidget* gview_;
+	QGraphicsLinearLayout* glayout_;
 	int width_, rc_, cc_;// layout locations: width (num cols), rowcounter, columncounter.
-
-
 
 	AMScanViewModeBar* modeBar_;
 	AMScanViewChannelSelector* scanBars_;
 
-
+	QPropertyAnimation* modeAnim_;
 
 	// build UI
 	void setupUI();
@@ -190,5 +237,123 @@ protected:
 
 
 };
+
+
+
+
+class AMScanViewExclusiveView : public AMScanViewInternal {
+	Q_OBJECT
+
+public:
+	explicit AMScanViewExclusiveView(AMScanView* masterView);
+
+	virtual ~AMScanViewExclusiveView();
+
+public slots:
+
+protected slots:
+	/// after a scan or channel is added in the model
+	virtual void onRowInserted(const QModelIndex& parent, int start, int end);
+	/// before a scan or channel is deleted in the model:
+	virtual void onRowAboutToBeRemoved(const QModelIndex& parent, int start, int end);
+	/// after a scan or channel is deleted in the model:
+	virtual void onRowRemoved(const QModelIndex& parent, int start, int end);
+	/// when data changes:
+	virtual void onModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight);
+
+	/// when the model's "exclusive channel" changes. This is the one channel that we display for all of our scans (as long as they have it).
+	void onExclusiveChannelChanged(const QString& exclusiveChannel);
+
+protected:
+	/// A list of MPlotSeries*... one series for each scan.
+	QList<MPlotSeriesBasic*> plotSeries_;
+	/// Our plot.
+	MPlotGW* plot_;
+
+
+	/// Helper function to handle adding a scan (at row scanIndex in the model)
+	void addScan(int scanIndex);
+
+	/// Helper function to handle review a scan when a channel is added or the exclusive channel changes.
+	void reviewScan(int scanIndex);
+};
+
+
+class AMScanViewMultiView : public AMScanViewInternal {
+	Q_OBJECT
+
+public:
+	explicit AMScanViewMultiView(AMScanView* masterView);
+
+	virtual ~AMScanViewMultiView();
+
+public slots:
+
+
+protected slots:
+	/// after a scan or channel is added in the model
+	virtual void onRowInserted(const QModelIndex& parent, int start, int end);
+	/// before a scan or channel is deleted in the model:
+	virtual void onRowAboutToBeRemoved(const QModelIndex& parent, int start, int end);
+	/// after a scan or channel is deleted in the model:
+	virtual void onRowRemoved(const QModelIndex& parent, int start, int end);
+	/// when data changes: (Things we care about: color, linePen, and visible)
+	virtual void onModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight);
+
+
+protected:
+	/// A list of a list of MPlotSeries*... In each scan, one for each channel
+	QList<QList<MPlotSeriesBasic*> > plotSeries_;
+	/// Our plot.
+	MPlotGW* plot_;
+
+
+	/// helper function: adds the scan at \c scanIndex
+	void addScan(int scanIndex);
+
+};
+
+
+
+class AMScanViewMultiScansView : public AMScanViewInternal {
+	Q_OBJECT
+
+public:
+	explicit AMScanViewMultiScansView(AMScanView* masterView);
+
+	virtual ~AMScanViewMultiScansView();
+
+public slots:
+
+protected slots:
+	/// after a scan or channel is added in the model
+	virtual void onRowInserted(const QModelIndex& parent, int start, int end);
+	/// before a scan or channel is deleted in the model:
+	virtual void onRowAboutToBeRemoved(const QModelIndex& parent, int start, int end);
+	/// after a scan or channel is deleted in the model:
+	virtual void onRowRemoved(const QModelIndex& parent, int start, int end);
+	/// when data changes: (Things we care about: color, linePen, and visible)
+	virtual void onModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight);
+
+
+protected:
+	/// A list of a list of MPlotSeries*... In each scan, one for each channel
+	QList<QList<MPlotSeriesBasic*> > plotSeries_;
+	/// Our plots
+	QList<MPlotGW*> plots_;
+	/// A grid-layout within which to put our plots:
+	QGraphicsGridLayout* layout_;
+
+	/// true if the first plot in plots_ exists already, but isn't used:
+	bool firstPlotEmpty_;
+
+	/// helper function: adds the scan at \c scanIndex
+	void addScan(int scanIndex);
+
+	/// re-do the layout of our plots
+	void reLayout();
+
+};
+
 
 #endif // AMSCANVIEW_H
