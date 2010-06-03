@@ -121,6 +121,7 @@ public:
 		setScene(scene_);
 
 		graphicsWidget_ = new QGraphicsWidget();
+		graphicsWidget_->setGeometry(0,0,100,100);
 		scene_->addItem(graphicsWidget_);
 
 	}
@@ -179,6 +180,8 @@ protected:
 	AMScanSetModel* model() const;
 };
 
+#include <QPropertyAnimation>
+
 /// A GUI class that provides a several different ways to view a set of scans.  It maintains an internal AMScanSetModel, and a variety of different AMScanViewInternal views can be shown within it.
 class AMScanView : public QWidget
 {
@@ -224,10 +227,14 @@ protected:
 	AMScanViewModeBar* modeBar_;
 	AMScanViewChannelSelector* scanBars_;
 
+	QPropertyAnimation* modeAnim_;
+
 	// build UI
 	void setupUI();
 	// setup all UI event-handling connections
 	void makeConnections();
+
+
 
 };
 

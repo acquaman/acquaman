@@ -15,6 +15,7 @@ AMScanViewScanBar::AMScanViewScanBar(AMScanSetModel* model, int scanIndex, QWidg
 		"border-bottom: 1px solid black;"
 		"}");
 
+
 	chButtons_.setExclusive(false);
 
 	AMScan* source = model->scanAt(scanIndex_);
@@ -51,6 +52,8 @@ AMScanViewScanBar::AMScanViewScanBar(AMScanSetModel* model, int scanIndex, QWidg
 	hl->setSpacing(24);
 	setLayout(hl);
 
+	this->setAutoFillBackground(true);
+	ensurePolished();
 
 
 	connect(model, SIGNAL(rowsInserted(QModelIndex, int, int)), this, SLOT(onRowInserted(QModelIndex,int,int)));
@@ -292,7 +295,12 @@ AMScanView::AMScanView(QWidget *parent) :
 
 	scanBars_->setModel(scansModel_);
 
+	modeAnim_ = new QPropertyAnimation(gview_->graphicsWidget(), "geometry", this);
+	modeAnim_->setDuration(500);
+	modeAnim_->setEasingCurve(QEasingCurve::InOutQuad);
+
 	changeViewMode(Tabs);
+	resize(minimumSizeHint());
 }
 
 
@@ -348,7 +356,7 @@ void AMScanView::changeViewMode(int newMode) {
 
 	mode_ = (ViewMode)newMode;
 
-	gview_->centerOn(views_.at(mode_));
+	resizeViews();
 
 	// in case this was called programmatically (instead of by clicking on the button)... the mode button won't be set.  This will re-emit the mode-change signal, but this function will exit immediately on the second time because it's already in the correct mode.
 	modeBar_->modeButtons_->button(mode_)->setChecked(true);
@@ -360,16 +368,31 @@ void AMScanView::makeConnections() {
 	connect(modeBar_->modeButtons_, SIGNAL(buttonClicked(int)), this, SLOT(changeViewMode(int)));
 
 	// connect resize event from graphicsView to resize the stuff inside the view
-	connect(gview_, SIGNAL(resized(QSizeF)), this, SLOT(resizeViews()));
+	connect(gview_, SIGNAL(resized(QSizeF)), this, SLOT(resizeViews()), Qt::QueuedConnection);
 }
 
 void AMScanView::resizeViews() {
+
 	QSize viewSize = gview_->size();
 	QSizeF mainWidgetSize = QSizeF(viewSize.width()*views_.count(), viewSize.height());
-	//gview_->scene()->setSceneRect(QRectF(QPointF(0,0), mainWidgetSize));
-	gview_->graphicsWidget()->resize(mainWidgetSize);
-	if(mode_ != Invalid)
-		gview_->centerOn(views_.at(mode_));
+
+	gview_->setSceneRect(QRectF(QPointF(0,0), viewSize ));
+
+	QPointF pos;
+	if(mode_ == Invalid)
+		pos = QPointF(0,0);
+	else
+		pos = QPointF(-viewSize.width()*mode_, 0);
+
+	//gview_->graphicsWidget()->setGeometry(QRectF(pos, mainWidgetSize));
+
+
+	modeAnim_->stop();
+
+	modeAnim_->setStartValue(gview_->graphicsWidget()->geometry());
+	modeAnim_->setEndValue(QRectF(pos, mainWidgetSize));
+
+	modeAnim_->start();
 }
 
 /// \todo: should scans held in the view be const or non-const?
