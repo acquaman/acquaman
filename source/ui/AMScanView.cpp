@@ -224,10 +224,10 @@ AMScanViewModeBar::AMScanViewModeBar(QWidget* parent)
 	setLayout(hl);
 
 	setObjectName("AMScanViewModeBar");
-	setStyleSheet("QFrame#AMScanViewModeBar { "
+	/*setStyleSheet("QFrame#AMScanViewModeBar { "
 		"background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(81, 81, 81, 255), stop:0.494444 rgba(81, 81, 81, 255), stop:0.5 rgba(64, 64, 64, 255), stop:1 rgba(64, 64, 64, 255));"
 		"border-bottom: 1px solid black;"
-		"}");
+		"}");*/
 
 
 
@@ -300,7 +300,6 @@ AMScanView::AMScanView(QWidget *parent) :
 	modeAnim_->setEasingCurve(QEasingCurve::InOutQuad);
 
 	changeViewMode(Tabs);
-	resize(minimumSizeHint());
 }
 
 
@@ -768,6 +767,18 @@ AMScanViewMultiScansView::AMScanViewMultiScansView(AMScanView* masterView) : AMS
 	layout_->setContentsMargins(0,0,0,0);
 	setLayout(layout_);
 
+	// we need to have at least one plot, to fill our widget,  even if there are no scans.
+	MPlotGW* plot;
+	plot = new MPlotGW();
+	plot->plot()->axisRight()->setTicks(0);
+	plot->plot()->axisBottom()->setTicks(4);
+	plot->plot()->axisLeft()->showGrid(false);
+	plot->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left);
+
+	firstPlotEmpty_ = true;
+	plots_ << plot;
+
+	// add all of the scans we have already
 	for(int si=0; si<model()->numScans(); si++) {
 		addScan(si);
 	}
@@ -777,14 +788,20 @@ AMScanViewMultiScansView::AMScanViewMultiScansView(AMScanView* masterView) : AMS
 
 void AMScanViewMultiScansView::addScan(int si) {
 
-	MPlotGW* plot;
-	plot = new MPlotGW();
-	plot->plot()->axisRight()->setTicks(0);
-	plot->plot()->axisBottom()->setTicks(4);
-	plot->plot()->axisLeft()->showGrid(false);
-	plot->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left);
+	// create plot (unless we're inserting Scan 0 and an empty plot is ready for us)
+	if(si == 0 && firstPlotEmpty_) {
+		firstPlotEmpty_ = false;
+	}
+	else {
+		MPlotGW* plot;
+		plot = new MPlotGW();
+		plot->plot()->axisRight()->setTicks(0);
+		plot->plot()->axisBottom()->setTicks(4);
+		plot->plot()->axisLeft()->showGrid(false);
+		plot->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left);
 
-	plots_.insert(si, plot);
+		plots_.insert(si, plot);
+	}
 
 	QList<MPlotSeriesBasic*> scanList;
 
@@ -876,7 +893,12 @@ void AMScanViewMultiScansView::onRowAboutToBeRemoved(const QModelIndex& parent, 
 				}
 			}
 			plotSeries_.removeAt(si);
-			delete plots_.takeAt(si);
+			if(si == 0) {
+				firstPlotEmpty_ = true;
+			}
+			else {
+				delete plots_.takeAt(si);
+			}
 		}
 		reLayout();
 	}

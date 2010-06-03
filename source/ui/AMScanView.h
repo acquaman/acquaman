@@ -344,6 +344,8 @@ protected:
 	/// A grid-layout within which to put our plots:
 	QGraphicsGridLayout* layout_;
 
+	/// true if the first plot in plots_ exists already, but isn't used:
+	bool firstPlotEmpty_;
 
 	/// helper function: adds the scan at \c scanIndex
 	void addScan(int scanIndex);
