@@ -284,8 +284,6 @@ AMScanView::AMScanView(QWidget *parent) :
     QWidget(parent)
 {
 	mode_ = Invalid;
-	width_ = 1;
-	rc_ = cc_ = 0;
 
 	scansModel_ = new AMScanSetModel(this);
 
@@ -293,10 +291,6 @@ AMScanView::AMScanView(QWidget *parent) :
 	makeConnections();
 
 	scanBars_->setModel(scansModel_);
-
-	views_ << new AMScanViewExclusiveView(this);
-	views_ << new AMScanViewMultiView(this);
-	views_ << new AMScanViewMultiScansView(this);
 
 	changeViewMode(Tabs);
 }
@@ -312,10 +306,10 @@ void AMScanView::setupUI() {
 	vl->setMargin(6);
 	vl->setSpacing(6);
 
-	AMScanViewMainWidget* mw = new AMScanViewMainWidget();
-	mw->setMinimumSize(120,120);
+	gview_ = new AMGraphicsViewAndWidget();
+	gview_->setMinimumSize(400,300);
 
-	vl->addWidget(mw);
+	vl->addWidget(gview_);
 
 	scanBars_ = new AMScanViewChannelSelector();
 	vl->addWidget(scanBars_);
@@ -325,17 +319,19 @@ void AMScanView::setupUI() {
 
 	setLayout(vl);
 
+	// setup linear layout within main graphics area:
 
-	// setup grid layout within main plot area:
+	glayout_ = new QGraphicsLinearLayout();
+	glayout_->setSpacing(0);
+	glayout_->setContentsMargins(0,0,0,0);
+	gview_->graphicsWidget()->setLayout(glayout_);
 
-	glayout_ = new QGraphicsGridLayout();
-	glayout_->setSpacing(12);
-	glayout_->setContentsMargins(6,6,6,6);
-	mw->graphicsWidget()->setLayout(glayout_);
+	views_ << new AMScanViewExclusiveView(this);
+	views_ << new AMScanViewMultiView(this);
+	views_ << new AMScanViewMultiScansView(this);
 
-
-	// create views:
-	/// \todo !!!
+	for(int i=0; i<views_.count(); i++)
+		glayout_->addItem(views_.at(i));
 
 }
 
@@ -347,187 +343,12 @@ void AMScanView::changeViewMode(int newMode) {
 	if(newMode == mode_)
 		return;
 
-	/*
-	// if we're having to change the number of plots, we need to delete and remove all the plot series (otherwise some will be deleted with their plot parents)
-	removeAllPlotSeries();
-
-	// starting point for all: all series have been removed from their plots. However, an uncertain number of plots may still exist in the layout.
-
-	switch(newMode) {
-	case Tabs:
-		{
-			// remove plots until there is only one left:
-			while(plots_.count() > 1)
-				delete plots_.takeLast();
-
-			// add a plot if we don't have any yet.
-			if(plots_.count() == 0) {
-				plots_ << new MPlotGW();
-				plots_[0]->plot()->setScalePadding(5);
-				plots_[0]->plot()->enableAutoScale(MPlotAxis::Left | MPlotAxis::Bottom);
-				glayout_->addItem(plots_[0], 0, 0, Qt::AlignCenter);
-			}
-
-			// for all associated scans: add primary channel
-			for(int i=0; i<scans_.count(); i++) {
-				AMScanViewEntry& scan = scans_[i];
-
-
-				AMScanViewChannelEntry& ch = scan.chList[scan.primaryChannel];
-				if(ch.plotSeries == 0) {
-					ch.plotSeries = new MPlotSeriesBasic();
-				}
-				ch.plotSeries->setModel(scan.scan->channel(scan.primaryChannel));
-				plots_[0]->plot()->addItem(ch.plotSeries);
-				ch.destinationPlot = 0;
-				// todo: colorize?
-			}
-
-			mode_ = Tabs;
-		}
-		break;
-
-	case OverPlot:
-		{
-			// remove plots until there is only one left:
-			while(plots_.count() > 1)
-				delete plots_.takeLast();
-
-			// add a plot if we don't have any yet.
-			if(plots_.count() == 0) {
-				plots_ << new MPlotGW();
-				plots_[0]->plot()->setScalePadding(5);
-				plots_[0]->plot()->enableAutoScale(MPlotAxis::Left | MPlotAxis::Bottom);
-				glayout_->addItem(plots_[0], 0, 0, Qt::AlignCenter);
-			}
-
-			// for all associated scans: add all visible channels:
-			for(int j=0; j<scans_.count(); j++) {
-				AMScanViewEntry& scan = scans_[j];
-
-				for(int i=0; i<scan.chList.count(); i++) {
-					AMScanViewChannelEntry& ch = scan.chList[i];
-					if(ch.visible == false)
-						continue;
-					if(ch.plotSeries == 0) {
-						ch.plotSeries = new MPlotSeriesBasic();
-					}
-					ch.plotSeries->setModel(scan.scan->channel(i));
-					plots_[0]->plot()->addItem(ch.plotSeries);
-					ch.destinationPlot = 0;
-					// todo: colorize?
-				}
-			}
-
-			mode_ = OverPlot;
-		}
-		break;
-
-	// multi-scans mode: every scan is on a separate plot (every visible channel is shown). We need as many plots as there are scans.
-	case MultiScans:
-		{
-			// remove all plots:
-			while(!plots_.isEmpty() > 0)
-				delete plots_.takeLast();
-
-			width_ = sqrt(scans_.count());
-			rc_ = 0; cc_ = 0;
-			// add a plot if we don't have enough yet
-			while(plots_.count() < scans_.count()) {
-				MPlotGW* newPlot = new MPlotGW();
-				plots_ << newPlot;
-				newPlot->plot()->setScalePadding(5);
-				newPlot->plot()->enableAutoScale(MPlotAxis::Left | MPlotAxis::Bottom);
-				glayout_->addItem(newPlot, rc_, cc_++, Qt::AlignCenter);
-				if(cc_ == width_) {
-					rc_++;
-					cc_ = 0;
-				}
-			}
-
-			// for all associated scans: add all visible channels:
-			for(int j=0; j<scans_.count(); j++) {
-				AMScanViewEntry& scan = scans_[j];
-
-				for(int i=0; i<scan.chList.count(); i++) {
-					AMScanViewChannelEntry& ch = scan.chList[i];
-					if(ch.visible == false)
-						continue;
-					if(ch.plotSeries == 0) {
-						ch.plotSeries = new MPlotSeriesBasic();
-					}
-					ch.plotSeries->setModel(scan.scan->channel(i));
-					plots_[j]->plot()->addItem(ch.plotSeries);
-					ch.destinationPlot = j;
-					// todo: colorize?
-				}
-			}
-
-			mode_ = MultiScans;
-		}
-		break;
-
-	case MultiChannels:
-		{
-
-			// how many different channels are there?
-			uniqueChannelSearch();
-
-			// remove all plots:
-			while(!plots_.isEmpty() > 0)
-				delete plots_.takeLast();
-
-			width_ = sqrt(channelNames_.count());
-			rc_ = 0; cc_ = 0;
-			// add a plot if we don't have enough yet
-			while(plots_.count() < channelNames_.count()) {
-				MPlotGW* newPlot = new MPlotGW();
-				plots_ << newPlot;
-				newPlot->plot()->setScalePadding(5);
-				newPlot->plot()->enableAutoScale(MPlotAxis::Left | MPlotAxis::Bottom);
-				glayout_->addItem(newPlot, rc_, cc_++, Qt::AlignCenter);
-				if(cc_ == width_) {
-					rc_++;
-					cc_ = 0;
-				}
-			}
-
-			// for all associated scans: add all visible channels:
-			for(int j=0; j<scans_.count(); j++) {
-				AMScanViewEntry& scan = scans_[j];
-
-				for(int i=0; i<scan.chList.count(); i++) {
-					AMScanViewChannelEntry& ch = scan.chList[i];
-					if(ch.visible == false)
-						continue;
-					if(ch.plotSeries == 0) {
-						ch.plotSeries = new MPlotSeriesBasic();
-					}
-					ch.plotSeries->setModel(scan.scan->channel(i));
-					int plotIndex = channelNames_.indexOf(scan.scan->channel(i)->name());
-					plots_[plotIndex]->plot()->addItem(ch.plotSeries);
-					ch.destinationPlot = plotIndex;
-					// todo: colorize?
-				}
-			}
-
-			mode_ = MultiChannels;
-		}
-		break;
-	default:
-		break;
-	}*/
-
 	if(newMode < 0 || newMode >= views_.count())
 		return;
 
-	//deactivate the old view (if valid)
-	if(mode_ != Invalid)
-		views_.at(mode_)->deactivate();
+	mode_ = (ViewMode)newMode;
 
-	mode_ = (AMScanView::ViewMode)newMode;
-	views_.at(mode_)->activate();
-
+	gview_->centerOn(views_.at(mode_));
 
 	// in case this was called programmatically (instead of by clicking on the button)... the mode button won't be set.  This will re-emit the mode-change signal, but this function will exit immediately on the second time because it's already in the correct mode.
 	modeBar_->modeButtons_->button(mode_)->setChecked(true);
@@ -537,6 +358,18 @@ void AMScanView::makeConnections() {
 
 	// connect mode bar to changeViewMode:
 	connect(modeBar_->modeButtons_, SIGNAL(buttonClicked(int)), this, SLOT(changeViewMode(int)));
+
+	// connect resize event from graphicsView to resize the stuff inside the view
+	connect(gview_, SIGNAL(resized(QSizeF)), this, SLOT(resizeViews()));
+}
+
+void AMScanView::resizeViews() {
+	QSize viewSize = gview_->size();
+	QSizeF mainWidgetSize = QSizeF(viewSize.width()*views_.count(), viewSize.height());
+	//gview_->scene()->setSceneRect(QRectF(QPointF(0,0), mainWidgetSize));
+	gview_->graphicsWidget()->resize(mainWidgetSize);
+	if(mode_ != Invalid)
+		gview_->centerOn(views_.at(mode_));
 }
 
 /// \todo: should scans held in the view be const or non-const?
@@ -551,165 +384,10 @@ void AMScanView::removeScan(AMScan* scan) {
 	scansModel_->removeScan(scan);
 }
 
-/*
-void AMScanView::addScan(const AMScan* scan) {
-	AMScanViewEntry e;
-
-	e.scan = scan;
-	e.scanBar = new AMChannelSelectorBar(scan);
-	barLayout_->addWidget(e.scanBar);
-	// todo: hookup connections for clicks on channel buttons.
-
-	for(int i=0; i<scan->numChannels(); i++) {
-		AMScanViewChannelEntry ch;
-		// todo: defaults for which channels are visible, which aren't.
-		// todo: defaults for which is the primary channel.
-		e.chList.append(ch);
-	}
-
-
-
-	// insert handling depends on mode_ from here on:
-	switch(mode_) {
-	case Tabs:
-		{
-			AMScanViewChannelEntry& ch = e.chList[e.primaryChannel];
-			if(ch.plotSeries == 0) {
-				ch.plotSeries = new MPlotSeriesBasic();
-			}
-			ch.plotSeries->setModel(e.scan->channel(e.primaryChannel));
-			plots_[0]->plot()->addItem(ch.plotSeries);
-			ch.destinationPlot = 0;
-
-			scans_.append(e);
-			e.scanBar->chButtons_.button(e.primaryChannel)->setChecked(true);
-		}
-		break;
-
-	case OverPlot:
-		{
-			e.scanBar->chButtons_.setExclusive(false);
-
-			for(int i=0; i<e.chList.count(); i++) {
-				AMScanViewChannelEntry& ch = e.chList[i];
-				if(ch.visible == false) {
-					e.scanBar->chButtons_.button(i)->setChecked(false);
-					continue;
-				}
-				e.scanBar->chButtons_.button(i)->setChecked(true);
-				if(ch.plotSeries == 0) {
-					ch.plotSeries = new MPlotSeriesBasic();
-				}
-				ch.plotSeries->setModel(e.scan->channel(i));
-				plots_[0]->plot()->addItem(ch.plotSeries);
-				ch.destinationPlot = 0;
-				// todo: colorize?
-			}
-
-			scans_.append(e);
-		}
-		break;
-
-	case MultiScans:
-		{
-			e.scanBar->chButtons_.setExclusive(false);
-
-			// going to need one more plot...
-			MPlotGW* newPlot = new MPlotGW();
-			plots_ << newPlot;
-			newPlot->plot()->setScalePadding(5);
-			newPlot->plot()->enableAutoScale(MPlotAxis::Left | MPlotAxis::Bottom);
-			glayout_->addItem(newPlot, rc_, cc_++, Qt::AlignCenter);
-			if(cc_ == width_) {
-				rc_++;
-				cc_ = 0;
-			}
-
-
-			for(int i=0; i<e.chList.count(); i++) {
-				AMScanViewChannelEntry& ch = e.chList[i];
-				if(ch.visible == false) {
-					e.scanBar->chButtons_.button(i)->setChecked(false);
-					continue;
-				}
-				e.scanBar->chButtons_.button(i)->setChecked(true);
-				if(ch.plotSeries == 0) {
-					ch.plotSeries = new MPlotSeriesBasic();
-				}
-				ch.plotSeries->setModel(e.scan->channel(i));
-				plots_[plots_.count()-1]->plot()->addItem(ch.plotSeries);
-				ch.destinationPlot = plots_.count()-1;
-				// todo: colorize?
-			}
-
-			scans_.append(e);
-
-		}
-		break;
-
-	case MultiChannels:
-		{
-
-			e.scanBar->chButtons_.setExclusive(false);
-
-			// see if this introduces a new channel that we don't have already:
-			QSet<QString> newChannels = QSet<QString>::fromList(scan->channelNames());
-			for(int i=0; i<e.chList.count(); i++)
-				if(!e.chList[i].visible)
-					newChannels.remove(scan->channel(i)->name());
-
-			QSet<QString> oldChannels = QSet<QString>::fromList(channelNames_);
-			newChannels.subtract(oldChannels);
-			channelNames_.append(newChannels.toList());
-
-			foreach(QString newChannel, newChannels) {
-				MPlotGW* newPlot = new MPlotGW();
-				plots_ << newPlot;
-				newPlot->plot()->setScalePadding(5);
-				newPlot->plot()->enableAutoScale(MPlotAxis::Left | MPlotAxis::Bottom);
-				glayout_->addItem(newPlot, rc_, cc_++, Qt::AlignCenter);
-				// todo: problem where we don't recalcualte width. Will keep on adding with current width.
-				// fix by switching to flowlayout.
-				if(cc_ == width_) {
-					rc_++;
-					cc_ = 0;
-				}
-			}
-
-			// add all visible channels:
-
-			for(int i=0; i<e.chList.count(); i++) {
-				AMScanViewChannelEntry& ch = e.chList[i];
-				if(ch.visible == false) {
-					e.scanBar->chButtons_.button(i)->setChecked(false);
-					continue;
-				}
-				e.scanBar->chButtons_.button(i)->setChecked(true);
-				if(ch.plotSeries == 0) {
-					ch.plotSeries = new MPlotSeriesBasic();
-				}
-				ch.plotSeries->setModel(e.scan->channel(i));
-				int plotIndex = channelNames_.indexOf(e.scan->channel(i)->name());
-				plots_[plotIndex]->plot()->addItem(ch.plotSeries);
-				ch.destinationPlot = plotIndex;
-				// todo: colorize?
-			}
-
-			scans_.append(e);
-		}
-		break;
-
-	default:
-		changeViewMode(Tabs);
-		break;
-
-	}
-}*/
-
 
 
 AMScanViewInternal::AMScanViewInternal(AMScanView* masterView)
-	: QObject(masterView),
+	: QGraphicsWidget(),
 	masterView_(masterView) {
 
 	connect(model(), SIGNAL(rowsInserted(QModelIndex, int, int)), this, SLOT(onRowInserted(QModelIndex,int,int)));
@@ -718,8 +396,6 @@ AMScanViewInternal::AMScanViewInternal(AMScanView* masterView)
 	connect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(onModelDataChanged(QModelIndex,QModelIndex)));
 }
 
-
-QGraphicsGridLayout* AMScanViewInternal::layout() const { return masterView_->glayout_; }
 
 AMScanSetModel* AMScanViewInternal::model() const { return masterView_->model(); }
 
@@ -734,6 +410,12 @@ AMScanViewExclusiveView::AMScanViewExclusiveView(AMScanView* masterView) : AMSca
 	plot_->plot()->axisLeft()->showGrid(false);
 	plot_->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left);
 
+	QGraphicsLinearLayout* gl = new QGraphicsLinearLayout();
+	gl->setContentsMargins(0,0,0,0);
+	gl->setSpacing(0);
+	gl->addItem(plot_);
+	setLayout(gl);
+
 	// the list of plotSeries_ needs one element for each scan.
 	for(int scanIndex=0; scanIndex < model()->numScans(); scanIndex++) {
 		addScan(scanIndex);
@@ -743,11 +425,14 @@ AMScanViewExclusiveView::AMScanViewExclusiveView(AMScanView* masterView) : AMSca
 }
 
 AMScanViewExclusiveView::~AMScanViewExclusiveView() {
-	for(int i=0; i<plotSeries_.count(); i++)
+	// this isn't really necessary... PlotSeries's will be deleted by as children items of the plot.
+	/*
+	for(int i=0; i<plotSeries_.count(); i++) {
 		if(plotSeries_.at(i)) {
 			plot_->plot()->removeItem(plotSeries_.at(i));
 			delete plotSeries_.at(i);
 		}
+	}*/
 
 	delete plot_;
 }
@@ -871,26 +556,6 @@ void AMScanViewExclusiveView::reviewScan(int scanIndex) {
 }
 
 
-/// add our specific view elements to the AMScanView
-void AMScanViewExclusiveView::activate() {
-	qDebug() << "layout count:" << layout()->count() << layout()->rowCount();
-	layout()->addItem(plot_, 0, 0, Qt::AlignCenter);
-}
-/// remove our specific view elements from the AMScanView
-void AMScanViewExclusiveView::deactivate() {
-
-	plot_->scene()->removeItem(plot_);
-
-	// this is unbelievable... No way to remove an item from a QGraphicsLayout without iterating through all items?  Where is QGraphicsLayout::removeItem(QGraphicsLayoutItem*) ?
-
-	for(int i=0; i<layout()->count(); i++)
-		layout()->removeAt(i);
-
-	layout()->invalidate();
-
-}
-
-
 
 
 
@@ -903,6 +568,12 @@ AMScanViewMultiView::AMScanViewMultiView(AMScanView* masterView) : AMScanViewInt
 	plot_->plot()->axisBottom()->setTicks(4);
 	plot_->plot()->axisLeft()->showGrid(false);
 	plot_->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left);
+
+	QGraphicsLinearLayout* gl = new QGraphicsLinearLayout();
+	gl->setContentsMargins(0,0,0,0);
+	gl->setSpacing(0);
+	gl->addItem(plot_);
+	setLayout(gl);
 
 	// the list of plotSeries_ needs one list for each scan,
 	for(int si=0; si<model()->numScans(); si++) {
@@ -937,13 +608,13 @@ void AMScanViewMultiView::addScan(int si) {
 
 AMScanViewMultiView::~AMScanViewMultiView() {
 
+	/* Not necessary; deleting the plot should delete its children.
 	for(int si=0; si<plotSeries_.count(); si++)
 		for(int ci=0; ci<model()->scanAt(si)->numChannels(); ci++)
 			if(plotSeries_[si][ci]) {
 				plot_->plot()->removeItem(plotSeries_[si][ci]);
 				delete plotSeries_[si][ci];
-			}
-
+			}*/
 
 	delete plot_;
 }
@@ -1064,34 +735,21 @@ void AMScanViewMultiView::onModelDataChanged(const QModelIndex& topLeft, const Q
 
 
 
-/// add our specific view elements to the AMScanView
-void AMScanViewMultiView::activate() {
-	qDebug() << "layout count:" << layout()->count() << layout()->rowCount();
-	layout()->addItem(plot_, 0, 0, Qt::AlignCenter);
-}
-/// remove our specific view elements from the AMScanView
-void AMScanViewMultiView::deactivate() {
-
-	// this is unbelievable... No way to remove an item from a QGraphicsLayout without iterating through all items?  Where is QGraphicsLayout::removeItem(QGraphicsLayoutItem*) ?
-
-	plot_->scene()->removeItem(plot_);
-
-	for(int i=0; i<layout()->count(); i++)
-		layout()->removeAt(i);
-
-	layout()->invalidate();
-
-}
-
 
 
 ///////////////////////////////////////////////////
 
 AMScanViewMultiScansView::AMScanViewMultiScansView(AMScanView* masterView) : AMScanViewInternal(masterView) {
 
+	layout_ = new QGraphicsGridLayout();
+	layout_->setContentsMargins(0,0,0,0);
+	setLayout(layout_);
+
 	for(int si=0; si<model()->numScans(); si++) {
 		addScan(si);
 	}
+
+	reLayout();
 }
 
 void AMScanViewMultiScansView::addScan(int si) {
@@ -1128,7 +786,7 @@ void AMScanViewMultiScansView::addScan(int si) {
 	}
 	plotSeries_.insert(si, scanList);
 
-	// note: haven't yet added this new plot to the layout().  That's up to the caller.
+	// note: haven't yet added this new plot to the layout_.  That's up to reLayout();
 }
 
 AMScanViewMultiScansView::~AMScanViewMultiScansView() {
@@ -1139,8 +797,7 @@ AMScanViewMultiScansView::~AMScanViewMultiScansView() {
 			if(plotSeries_[si][ci]) {
 				plots_[si]->plot()->removeItem(plotSeries_[si][ci]);
 				delete plotSeries_[si][ci];
-			}
-	*/
+			}*/
 
 
 	for(int pi=0; pi<plots_.count(); pi++)
@@ -1156,9 +813,7 @@ void AMScanViewMultiScansView::onRowInserted(const QModelIndex& parent, int star
 		for(int i=start; i<=end; i++)
 			addScan(i);
 
-		// quick hack to get the layout correct again:
-		deactivate();
-		activate();
+		reLayout();
 	}
 
 	// inserting a channel: (parent.row is the scanIndex, start-end are the channel indices)
@@ -1200,9 +855,7 @@ void AMScanViewMultiScansView::onRowAboutToBeRemoved(const QModelIndex& parent, 
 			plotSeries_.removeAt(si);
 			delete plots_.takeAt(si);
 		}
-		// quick hack to get our proper layout back:
-		deactivate();
-		activate();
+		reLayout();
 	}
 
 	// removing a channel. parent.row() is the scanIndex, and start - end are the channel indexes.
@@ -1271,30 +924,19 @@ void AMScanViewMultiScansView::onModelDataChanged(const QModelIndex& topLeft, co
 
 
 
-/// add our specific view elements to the AMScanView
-void AMScanViewMultiScansView::activate() {
+/// re-do the layout
+void AMScanViewMultiScansView::reLayout() {
+
+	for(int li=0; li<layout_->count(); li++)
+		layout_->removeAt(li);
 
 	int rc=0, cc=0, width = sqrt(plots_.count());
 
 	for(int pi=0; pi<plots_.count(); pi++) {
-		layout()->addItem(plots_.at(pi), rc, cc++, Qt::AlignCenter);
+		layout_->addItem(plots_.at(pi), rc, cc++, Qt::AlignCenter);
 		if(cc == width) {
 			rc++;
 			cc = 0;
 		}
 	}
-}
-/// remove our specific view elements from the AMScanView
-void AMScanViewMultiScansView::deactivate() {
-
-	for(int pi=0; pi<plots_.count(); pi++) {
-		MPlotGW* plot = plots_.at(pi);
-		if(plot->scene())
-			plot->scene()->removeItem(plot);
-	}
-
-	for(int li=0; li<layout()->count(); li++)
-		layout()->removeAt(li);
-	layout()->invalidate();
-
 }

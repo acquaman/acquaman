@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QGraphicsView>
 #include <QGraphicsWidget>
+#include <QGraphicsLinearLayout>
 #include <QGraphicsGridLayout>
 #include <QLabel>
 #include <QToolButton>
@@ -104,42 +105,53 @@ public:
 };
 
 
-/// A GUI class that provides a QGraphicsWidget inside the scene, that scales with the size of the scene/view
-class AMScanViewMainWidget : public MPlotSceneAndView {
+/// A GUI class that is a QGraphicsView, and provides a top-level QGraphicsWidget inside a scene.  It emits resized(const QSizeF& newSize) when the QGraphicsView widget is resized.
+class AMGraphicsViewAndWidget : public QGraphicsView {
 	Q_OBJECT
 public:
 
-	AMScanViewMainWidget(QWidget* parent = 0) : MPlotSceneAndView(parent) {
+	AMGraphicsViewAndWidget(QWidget* parent = 0) : QGraphicsView(parent) {
+
+		setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+		setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+		setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing /*| QPainter::HighQualityAntialiasing*/);
+
+		scene_ = new QGraphicsScene();
+		setScene(scene_);
+
 		graphicsWidget_ = new QGraphicsWidget();
-		this->scene()->addItem(graphicsWidget_);
-		//QPalette p = graphicsWidget_->palette();
-		//p.setColor(QPalette::Window, QColor(Qt::red));
-		//graphicsWidget_->setPalette(p);
+		scene_->addItem(graphicsWidget_);
+
 	}
 
 
-	virtual ~AMScanViewMainWidget() {
+	virtual ~AMGraphicsViewAndWidget() {
 		delete graphicsWidget_;
+		delete scene_;
 	}
 
 	QGraphicsWidget* graphicsWidget() const { return graphicsWidget_;}
 
+signals:
+	void resized(const QSizeF& newSize);
+
 protected:
+	QGraphicsScene* scene_;
 	QGraphicsWidget* graphicsWidget_;
 
 	// On resize events: notify the graphics widget to resize it.
 	virtual void resizeEvent ( QResizeEvent * event ) {
-		MPlotSceneAndView::resizeEvent(event);
 
-		graphicsWidget_->resize(event->size());
-		fitInView(graphicsWidget_, Qt::KeepAspectRatioByExpanding);
+		QGraphicsView::resizeEvent(event);
+		emit resized(QSizeF(event->size()));
 	}
 };
 
 class AMScanView;
 
-/// This class is the interface for different view options inside an AMScanView.  They must be able to activate and deactivate themselves (ie: adding or removing their GUI elements from the master view's layout), and handle changes from the AMScanSet model (scans or channels added or removed).
-class AMScanViewInternal : public QObject {
+/// This class is the interface for different view options inside an AMScanView.  They must be able to handle changes from the AMScanSet model (scans or channels added or removed).
+class AMScanViewInternal : public QGraphicsWidget {
 	Q_OBJECT
 public:
 	explicit AMScanViewInternal(AMScanView* masterView);
@@ -147,9 +159,9 @@ public:
 public slots:
 
 	/// add our specific view elements to the AMScanView
-	virtual void activate() = 0;
+	//virtual void activate() = 0;
 	/// remove our specific view elements from the AMScanView
-	virtual void deactivate() = 0;
+	//virtual void deactivate() = 0;
 
 protected slots:
 	/// after a scan or channel is added in the model
@@ -164,9 +176,6 @@ protected slots:
 protected:
 	AMScanView* masterView_;
 
-public:
-	/// returns the layout that should contain all of our GUI elements. (This should not be public; unfortunately it needs to be for the friend declaration in AMScanView.)
-	QGraphicsGridLayout* layout() const;
 	AMScanSetModel* model() const;
 };
 
@@ -195,6 +204,9 @@ public slots:
 	/// remove a scan from the view:
 	void removeScan(AMScan* scan);
 
+protected slots:
+	void resizeViews();
+
 protected:
 
 	AMScanSetModel* scansModel_;
@@ -205,7 +217,8 @@ protected:
 	ViewMode mode_;
 
 	// ui components:
-	QGraphicsGridLayout* glayout_;
+	AMGraphicsViewAndWidget* gview_;
+	QGraphicsLinearLayout* glayout_;
 	int width_, rc_, cc_;// layout locations: width (num cols), rowcounter, columncounter.
 
 	AMScanViewModeBar* modeBar_;
@@ -216,8 +229,6 @@ protected:
 	// setup all UI event-handling connections
 	void makeConnections();
 
-
-	friend QGraphicsGridLayout* AMScanViewInternal::layout() const;
 };
 
 
@@ -232,11 +243,6 @@ public:
 	virtual ~AMScanViewExclusiveView();
 
 public slots:
-
-	/// add our specific view elements to the AMScanView
-	virtual void activate();
-	/// remove our specific view elements from the AMScanView
-	virtual void deactivate();
 
 protected slots:
 	/// after a scan or channel is added in the model
@@ -276,10 +282,6 @@ public:
 
 public slots:
 
-	/// add our specific view elements to the AMScanView
-	virtual void activate();
-	/// remove our specific view elements from the AMScanView
-	virtual void deactivate();
 
 protected slots:
 	/// after a scan or channel is added in the model
@@ -305,6 +307,7 @@ protected:
 };
 
 
+
 class AMScanViewMultiScansView : public AMScanViewInternal {
 	Q_OBJECT
 
@@ -314,11 +317,6 @@ public:
 	virtual ~AMScanViewMultiScansView();
 
 public slots:
-
-	/// add our specific view elements to the AMScanView
-	virtual void activate();
-	/// remove our specific view elements from the AMScanView
-	virtual void deactivate();
 
 protected slots:
 	/// after a scan or channel is added in the model
@@ -336,10 +334,15 @@ protected:
 	QList<QList<MPlotSeriesBasic*> > plotSeries_;
 	/// Our plots
 	QList<MPlotGW*> plots_;
+	/// A grid-layout within which to put our plots:
+	QGraphicsGridLayout* layout_;
 
 
 	/// helper function: adds the scan at \c scanIndex
 	void addScan(int scanIndex);
+
+	/// re-do the layout of our plots
+	void reLayout();
 
 };
 

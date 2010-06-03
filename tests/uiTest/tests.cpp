@@ -83,8 +83,12 @@ private slots:
 
 		QTest::qWait(4000);
 
+		QVERIFY(s1.deleteChannel("tfy_n"));
+
+		QTest::qWait(1000);
+
 		AMXASScan s2;
-		s2.setName("scan 2!");
+		s2.setName("scan 2");
 		model->addScan(&s2);
 		s1Loader = s2;
 
