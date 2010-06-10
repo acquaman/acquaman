@@ -1,141 +1,25 @@
-Interview outline (mark's version) : summer student
+
+Feature request: Robert Green:
 
 
-Interview objectives:
+Begin forwarded message:
 
-A) Communicate what the job is
-	(+ put them at ease / in their "natural" mode)
+From: Robert Green <robert.green@usask.ca>
+Date: May 7, 2010 8:44:06 AM CST
+To: Mark Boots <mark.boots@usask.ca>
+Subject: Re: need some beta-testing...
 
-B) Probe existing capacity and potential on the criteria:
-	1 - friendly and helpful interactions on the beamlines; effective relationships with people vastly more experienced
-	2 - excited about science
-	3 - skilled communicator (verbal, written)
-	4 - on it like a mother f
-	5 - coding abilities: understand process from reqs. to working software
-		* bonus code wizardry
+Hey Mark,
 
-C) Let them evaluate us
-	(+ list our commitments/responsibilities towards them)
+It works really good, I haven't seen any bugs/issues.
 
+I do have two ideas though:
 
-=====================================================================
+1.)  It would be nice if the cursors didn't move when you do the click/drag zoom.  I don't know how difficult that would be.  Maybe if you only move the cursors on a mouse release event, and only then if the mouse is in the same general area as when the button was pushed down?  Does that make sense?
 
-pre-A)
-[context? introductions?]
+2.)  This is just kind of a feature request.  Sometimes when I calibrate the detector angle, I space out the centroids of two peaks rather than their maxima.  The problem is I usually only estimate the centroid by eye.  Do you think it would be feasible to have the functionality where I could set the cursors on either side of a peak, and it would tell me where the centroid (half of the total integral between the cursors) is?
 
->> Tell me about yourself
-
->> What got you intersted in this job?
-
->> Biggest strength / biggest weakness
-
->> How well do you deal with different types of ppl
-
-
-[foreshadow questions, but subtle]
->> How do you work with someone with more experience than you?
-
->> How well do you adapt to new situations?
-	>> Would you describe yourself as a confident person?
-
-
-A) The job:
->> Motivation:
-	>> Reality: through software is how people control the machine/do experiments.
-	>> Traditionally: software built based on the machine, not based on the experimental process. Inefficient, confusing, awkward, frustrating, and/or slow.
-	>> Goal: make beamline science {better, faster, more} by providing best tools to support experimenters
-
->> Why not us/our user experience not enough:
-	>> familiar with one experimental technique (our own)... but there's more
-	>> users are unique (different needs, different modes of operation)
-
->>Concept: [as an experiment]
-	>> plant like a spy
-		>> ( - helpful spy)
-		>> ( - partner with many different users / techniques)
-		
-	>> 1) Do experiments with users
-	>> 2) Understand them, and their experimental process. (stress entirety, from beginning to end (not just beamtime))
-	>> 3) ??? [for you to figure out]
-	>> 4) deliver (high quality, lots of) ideas and requirements for super-helpful software
-
-	>> aside: become the expert on the team in this area
-
-	
-
->> Also, lame logistical details:
-	>> salary
-	>> employed by Phys. dept.
-	>> Alex providing funding for this; can call for help on reixs beamline if some bolts really need wrenches, important short-term priorities, etc.
-
-B) Evaluation questions:
-
-1 - friendly and helpful interactions on the beamlines; effective relationships with people vastly more experienced
->> Based on that, what do you think are the "keys to the job"?
-	>> What does that actually look like (daily basis)
-	>> / How would you approach the task?
-
->> When observing the scientists, what are you looking for? 
-	>> What cues?
-	>> Put in their shoes / inside their minds: What are some things that could be going through their heads?
-	>> What are some ideas to keep track of your observations?
-
-2 - excited about science
->> How do you learn?
-
->> What's most interesting thingy you've learned this year / past years?
-
->> Read any interesting science lately?
-
-
-3 - skilled communicator (verbal, written)
->> wide-open: Tell me about a suggestion you've made.
-
->> wide-open: How do you rank your communication skills?
-
-4 - on it like a mother f
->> what motivates to do good job?
-
->> What do you want to get out of a summer job?
-	>> (cont'd) describe dream job
-
->> What are gonna be the trouble-spots / challenges inherent?
-
->> What's something you've done that you're really proud of?
-
-5 - coding abilities: understand process from reqs. to working software
-		* bonus code wizardry
->> What do you know about:
-	>> coding
-	>> OOP design
-	>> software development process
-
->> What are some things that often (could) go wrong on a big software project?
-
->> Honest: Do you enjoy sitting at a computer and writing code?
-
->> What makes a good developer?
-
-C) Letting them evaluate us:
-1 - "supervising" style:
-	>> self-managed -> become one of team of three; trusted to be the expert in own area
-	>> our role: we setup the opportunities to do your job, you figure out how to do it
-		ex: provide logistics, context, support & advice, answer questions, be on the lookout for learning opportunities for you
-	>> once you're into it, trust you as our expert in this area.  Project ownership: this is your baby.
-
-2 - making sure that you've got as much as you can handle (not bored, confused about what to be doing)
-	>> if needed: more opportunities to work on assembling REIXS beamline, turning wrenches, hooking up cables, etc.
-
-3 - making sure that you're not in over your head (there to support on demand, give us feedback, call for a time-out whenever you need it)
-
-4 - provide help with goal setting (short-term, summer, and major goals).  Set clear expectations together (not confusing or conflicting everyday instructions, etc.)
-
-5 - we can do organizational support well (show examples of documentation system, git, etc.)
-
-
-
-
-
+I'll keep playing around with it and see if I come up with anything else.
 
 
 =============================================

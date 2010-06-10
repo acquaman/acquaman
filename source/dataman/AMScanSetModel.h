@@ -169,6 +169,17 @@ public:
 	}
 
 
+	/// returns a list of all channel names that exist and are visible in at least one scan. Warning: this is slow.  O(n), where n is the total number of channels in all scans.
+	/*! \todo Optimize with caching. */
+	QStringList visibleChannelNames() const {
+		QSet<QString> rv;
+		for(int si = 0; si<scans_.count(); si++)
+			for(int ci = 0; ci<scans_.at(si)->numChannels(); ci++)
+				if(chMetaData_.at(si).at(ci).visible)
+					rv << scans_.at(si)->channel(ci)->name();
+		return rv.toList();
+	}
+
 
 	// Resizable Interface:
 

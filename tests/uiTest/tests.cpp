@@ -5,6 +5,7 @@
 #include "dataman/SGMLegacyFileImporter.h"
 
 #include "ui/AMScanView.h"
+#include "ui/AMSidebar.h"
 
 #include <QTreeView>
 
@@ -30,6 +31,36 @@ private slots:
 		AMDatabase::releaseUserDb();
 	}
 
+
+	void testAMSidebar() {
+
+		AMSidebar b;
+		b.resize(200, 500);
+		b.show();
+
+		b.addLink("cat1", QVariant(), "Link1 Heavy", "", -0.1);
+		QTest::qWait(1000);
+		b.addLink("cat1", QVariant(), "Link 2 Heavier", "");
+		QTest::qWait(1000);
+		b.addLink("cat1", QVariant(QString("myPayload")), "Link3 light toDel", "", -3);
+		QTest::qWait(1000);
+		b.addLink("cat1", QVariant(), "Link4 mid", "", -2);
+
+		QTest::qWait(1000);
+
+		b.addCategory("cat2 - light", -1);
+
+		QTest::qWait(1000);
+
+		b.addCategory("cat 3");
+
+		QTest::qWait(1000);
+
+		b.deleteLink(QVariant(QString("myPayload")));
+
+		QTest::qWait(4000);
+
+	}
 
 	// tests creation/deletion of scans and channels within an AMScanSetModel (using a standard QTreeView to watch)
 	void testAMScanSetModel() {

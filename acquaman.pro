@@ -66,7 +66,7 @@ HEADERS += source/beamline/AMDiagnosticPaddle.h \
     source/ui/SamplePositions.h \
     source/ui/Scheduler.h \
     source/ui/BottomBar.h \
-    source/ui/Sidebar.h \
+    source/ui/AMSidebar.h \
     source/ui/CamWidget.h \
     source/beamline/AMProcessVariable.h \
     source/beamline/AMBeamline.h \
@@ -151,7 +151,8 @@ HEADERS += source/beamline/AMDiagnosticPaddle.h \
     ../MPlot/src/MPlot/MPlotSceneAndView.h \
     source/beamline/AMDetector.h \
     source/acquaman/AMAcqScanSpectrumOutput.h \
-    source/dataman/AMScanSetModel.h
+    source/dataman/AMScanSetModel.h \
+    source/ui/AMMainWindow.h
 FORMS += source/ui/AbsorptionScanController.ui \
     source/ui/ConnectionSettings.ui \
     source/ui/EmissionScanController.ui \
@@ -241,6 +242,8 @@ SOURCES += source/beamline/AMDiagnosticPaddle.cpp \
     source/ui/AMScanView.cpp \
     source/beamline/AMDetector.cpp \
     source/acquaman/AMAcqScanSpectrumOutput.cpp \
-    source/dataman/AMScanSetModel.cpp
+    source/dataman/AMScanSetModel.cpp \
+    source/ui/AMMainWindow.cpp \
+	source/ui/AMSidebar.cpp
 RESOURCES = source/icons/icons.qrc
 OTHER_FILES += source/muParser/README.txt
