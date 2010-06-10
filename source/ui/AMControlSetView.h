@@ -93,11 +93,11 @@ protected:
 	MPlotRealtimeModel *data2;
 };
 
-class AMDetectorSetView : public QGroupBox
+class AMAbstractDetectorSetView : public QGroupBox
 {
 	Q_OBJECT
 public:
-	AMDetectorSetView(AMDetectorSet *viewSet, QWidget *parent = 0);
+	AMAbstractDetectorSetView(AMAbstractDetectorSet *viewSet, QWidget *parent = 0);
 
 	QWidget* boxByName(const QString &name){
 		return detectorBoxes_.at(viewSet_->indexOf(name));
@@ -108,7 +108,7 @@ public:
 	}
 
 protected:
-	AMDetectorSet *viewSet_;
+	AMAbstractDetectorSet *viewSet_;
 	QList<QWidget*> detectorBoxes_;
 	QHBoxLayout *hl_;
 };

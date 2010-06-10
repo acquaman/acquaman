@@ -5,6 +5,22 @@ AMRegion::AMRegion(QObject *parent) :
 {
 }
 
+/// Sets the start value from the double passed in. Makes sure the energy is within the allowable range, otherwise returns false.
+bool AMRegion::setStart(double start) {
+	if(ctrl_->valueOutOfRange(start))
+		return FALSE;
+	start_ = start;
+	return TRUE;
+}
+
+/// Sets the end value from the double passed in. Makes sure the energy is within the allowable range, otherwise returns false.
+bool AMRegion::setEnd(double end) {
+	if(ctrl_->valueOutOfRange(end))
+		return FALSE;
+	end_ = end;
+	return TRUE;
+}
+
 /// Sets the delta value from the double passed in. Makes sure the value is non-zero, otherwise it returns false.
 bool AMRegion::setDelta(double delta) {
 	if(delta == 0)
@@ -152,6 +168,7 @@ Qt::ItemFlags AMRegionsListModel::flags(const QModelIndex &index) const{
 	return flags;
 }
 
+/*
 /// Sets the start value from the double passed in. Makes sure the energy is within the allowable range, otherwise returns false.
 bool AMXASRegion::setStart(double start) {
 	if(ctrl_->valueOutOfRange(start))
@@ -167,6 +184,7 @@ bool AMXASRegion::setEnd(double end) {
 	end_ = end;
 	return TRUE;
 }
+*/
 
 bool AMXASRegionsListModel::insertRows(int position, int rows, const QModelIndex &index){
 	if (index.row() <= regions_->count() && defaultControl_) {

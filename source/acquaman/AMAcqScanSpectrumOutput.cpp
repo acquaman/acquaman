@@ -91,7 +91,6 @@ int AMAcqScanSpectrumOutput::endRecord( acqKey_t key, int eventno)
 int AMAcqScanSpectrumOutput::putValue( acqKey_t key, int eventno, int pvno, const void *value, int count)
 {
 	AMAcqScanSpectrumOutput *to = (AMAcqScanSpectrumOutput *)key;
-	//ScanPVPrivate *pvpr = (ScanPVPrivate *)to->pvInfo[makeuid(eventno, pvno)];
 	acqTextSpectrumOutput::pvTSPrivate *pvpr = (acqTextSpectrumOutput::pvTSPrivate*)to->pvInfo[makeuid(eventno, pvno)];
 	if(pvpr){
 		pvpr->output(key, pvpr->colp->columnType, value, count);
@@ -139,8 +138,6 @@ int AMAcqScanSpectrumOutput::putValue( acqKey_t key, int eventno, int pvno, cons
 		}
 	}
 	else{
-//		spectraVal = (double *)malloc((count+1) * sizeof(double));
-//		spectraVal[0] = count;
 		for(int x = 0; x < count; x++){
 			switch( pvpr->colp->columnType)
 			{
@@ -169,7 +166,6 @@ int AMAcqScanSpectrumOutput::putValue( acqKey_t key, int eventno, int pvno, cons
 			default:
 				return -1;
 			}
-//			spectraVal[x+1] = dataVal;
 			spectraVal.append(dataVal);
 			if(dataVal > specMax)
 				specMax = dataVal;
@@ -188,23 +184,11 @@ int AMAcqScanSpectrumOutput::putValue( acqKey_t key, int eventno, int pvno, cons
 	if(!to->dataDelay_){
 		if(!pvpr->isSpectrum)
 			to->scan_->d_->setLastValue(to->pvnoToColumn_[pvno], dataVal);
-//			to->scan_->d_->setLastValue(pvno-1, dataVal);
 		else{
-//			double normDiv = specMax/240;
-//			double disp;
-//			std::cout << "Max is " << specMax << " so Normalizer is " << normDiv << "\n";
 			QStringList myList = to->scan_->d_->deeper(0, to->scan_->d_->count()-1)->yColumnNames();
 			qDebug() << "Count for spectrum would be " << spectraVal.count() << " 0th column is " << myList;
 			for(int x = 0; x < spectraVal.count(); x++){
-//				to->scan_->d_->deeper(pvno-1, to->scan_->d_->count()-1)->setValue(0, x, spectraVal[x]);
-//				to->scan_->d_->deeper(0, to->scan_->d_->count()-1)->setValue(0, x, spectraVal[x]);
 				to->scan_->d_->deeper(to->pvnoToColumn_[pvno], to->scan_->d_->count()-1)->setValue(0, x, spectraVal[x]);
-//				disp = to->scan_->d_->deeper(0, to->scan_->d_->count()-1)->value(0, x)/normDiv;
-//				printf("%04d", x);
-//				for(int y = 0; y < floor(disp); y++)
-//					std::cout << " ";
-//				std::cout << "x\n";
-//				fflush(stdout);
 			}
 		}
 		if(pvno == 2)

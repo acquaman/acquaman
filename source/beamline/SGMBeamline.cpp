@@ -4,9 +4,11 @@ SGMBeamline* SGMBeamline::instance_ = 0;
 
 
 SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
+	qDebug() << "In SGMBeamline constructor";
 //	amNames2pvNames_.set("energy", "dave:Energy");
 	amNames2pvNames_.set("energy", "reixsHost:Energy");
 	amNames2pvNames_.set("eV_Fbk", "dave:Energy:fbk");
+	amNames2pvNames_.set("eVFbk", "dave:Energy:fbk");
 	amNames2pvNames_.set("mono", "dave:Energy:mono");
 	amNames2pvNames_.set("undulator", "dave:Energy:undulator");
 	amNames2pvNames_.set("exitSlit", "dave:Energy:exitSlit");
@@ -83,7 +85,17 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	sgmPVName = amNames2pvNames_.valueF("pgt");
 	pgt_ = new AMReadOnlyPVControl("pgt", sgmPVName, this);
 	addChild(pgt_);
-	pgtDetector_ = new AMSingleControlDetector(pgt_->name(), pgt_, this);
+	QStringList pgtYElements;
+	pgtYElements << "pgtCounts";
+	pgtDetector_ = new AMSpectralOutputDetector(pgt_->name(), pgt_, 1024, "pgtEV", pgtYElements, this);
+	sgmPVName = amNames2pvNames_.valueF("I0");
+	i0_ = new AMReadOnlyPVControl("I0", sgmPVName, this);
+	addChild(i0_);
+	i0Detector_ = new AMSingleControlDetector(i0_->name(), i0_, this);
+	sgmPVName = amNames2pvNames_.valueF("eVFbk");
+	eVFbk_ = new AMReadOnlyPVControl("eVFbk", sgmPVName, this);
+	addChild(eVFbk_);
+	eVFbkDetector_ = new AMSingleControlDetector(eVFbk_->name(), eVFbk_, this);
 
 	fluxOptimization_ = new SGMFluxOptimization(this);
 	resolutionOptimization_ = new SGMResolutionOptimization(this);
@@ -100,7 +112,15 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	trackingSet_->addControl(monoTracking_);
 	trackingSet_->addControl(exitSlitTracking_);
 
-	XASDetectors_ = new AMDetectorSet(this);
+	allDetectors_ = new AMAbstractDetectorSet(this);
+	allDetectors_->setName("All Detectors");
+	allDetectors_->addDetector(i0Detector_, true);
+	allDetectors_->addDetector(eVFbkDetector_, true);
+	allDetectors_->addDetector(teyDetector_, true);
+	allDetectors_->addDetector(tfyDetector_, true);
+	allDetectors_->addDetector(pgtDetector_, false);
+
+	XASDetectors_ = new AMAbstractDetectorSet(this);
 	XASDetectors_->setName("XAS Detectors");
 	XASDetectors_->addDetector(teyDetector_, true);
 	XASDetectors_->addDetector(tfyDetector_, true);

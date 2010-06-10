@@ -60,9 +60,9 @@ signals:
 
 public slots:
 	/// Sets the file name
-	void setFileName(const QString &fileName) { fileName_ = fileName; }
+	bool setFileName(const QString &fileName) { fileName_ = fileName; return true;}
 	/// Sets the file path
-	void setFilePath(const QString &filePath) { filePath_ = filePath; }
+	bool setFilePath(const QString &filePath) { filePath_ = filePath; return true;}
 
 protected:
 	/// File name

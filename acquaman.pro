@@ -60,7 +60,6 @@ HEADERS += source/beamline/AMDiagnosticPaddle.h \
     source/ui/EmissionScanController.h \
     source/ui/ExpAlbum.h \
     source/ui/GratingResolution.h \
-    source/ui/MainWindow.h \
     source/ui/PeriodicTable.h \
     source/ui/ProtocolViewer.h \
     source/ui/SamplePositions.h \
@@ -152,7 +151,8 @@ HEADERS += source/beamline/AMDiagnosticPaddle.h \
     source/beamline/AMDetector.h \
     source/acquaman/AMAcqScanSpectrumOutput.h \
     source/dataman/AMScanSetModel.h \
-    source/ui/AMMainWindow.h
+	source/ui/AMMainWindow.h \
+    source/beamline/AMAbstractDetector.h
 FORMS += source/ui/AbsorptionScanController.ui \
     source/ui/ConnectionSettings.ui \
     source/ui/EmissionScanController.ui \
@@ -175,7 +175,6 @@ SOURCES += source/beamline/AMDiagnosticPaddle.cpp \
     source/ui/SamplePositions.cpp \
     source/ui/BottomBar.cpp \
     source/ui/CamWidget.cpp \
-    source/ui/MainWindow.cpp \
     source/main.cpp \
     source/beamline/AMProcessVariable.cpp \
     source/beamline/AMBeamline.cpp \
@@ -244,6 +243,7 @@ SOURCES += source/beamline/AMDiagnosticPaddle.cpp \
     source/acquaman/AMAcqScanSpectrumOutput.cpp \
     source/dataman/AMScanSetModel.cpp \
     source/ui/AMMainWindow.cpp \
-	source/ui/AMSidebar.cpp
+	source/ui/AMSidebar.cpp \
+    source/beamline/AMAbstractDetector.cpp
 RESOURCES = source/icons/icons.qrc
 OTHER_FILES += source/muParser/README.txt

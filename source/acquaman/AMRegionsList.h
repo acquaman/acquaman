@@ -20,6 +20,7 @@ public:
 	double end(size_t index) const;
 	AMRegionsListModel* model(){return regions_;}
 	int count(){return regions_->rowCount(QModelIndex());}
+	AMControl* defaultControl(){ return defaultControl_; }
 
 public slots:
 	/// Sets the start value of the region refered to by index. Returns true if sucessful, returns false if the index is invalid or the energy is out of range.
@@ -34,9 +35,14 @@ public slots:
 	/// Pure virtual function. Should be implemented in beamline specific subclasses as a convenience function for above.
 	/// Creates a new region using start, delta, and end values then calls addRegion(index, *region).
 	virtual bool addRegion(size_t index, double start, double delta, double end);
+	virtual bool appendRegion(double start, double delta, double end){ return addRegion(count(), start, delta, end);}
 
 	/// Deletes the region refered to by index and renumbers subsequent regions accordingly. Returns true if successful, return false if index is invalid.
-	bool deleteRegion(size_t index){ return regions_->removeRows(index, 1);}
+	bool deleteRegion(size_t index){
+		if(index > count())
+			return false;
+		return regions_->removeRows(index, 1);
+	}
 	void setDefaultControl(AMControl* defaultControl){defaultControl_ = defaultControl; regions_->setDefaultControl(defaultControl);}
 
 private slots:

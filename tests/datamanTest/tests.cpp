@@ -662,7 +662,7 @@ class TestDataman: public QObject
 		SGMLegacyFileImporter s1Loader(&s1);
 		/// \todo move this into proper storage location in data dir.
 		QString fileName = AMUserSettings::userDataFolder + "001.dat";
-		//qDebug() << "loading sgm data from file and checking for proper read:" << fileName;
+//		qDebug() << "loading sgm data from file and checking for proper read:" << fileName;
 		QVERIFY(s1Loader.loadFromFile(fileName));
 		QCOMPARE(s1.count(), unsigned(401));
 		QCOMPARE(s1.comments(), QString("0.916667"));
@@ -694,8 +694,6 @@ class TestDataman: public QObject
 		//qDebug() << "loading sgm data from file and checking for proper read:" << fileName;
 		QVERIFY(s1Loader.loadFromFile(fileName));
 
-
-
 		QVERIFY(s1.addChannel("const5", "3+2"));	// simplest formula for a channel
 		QCOMPARE(s1.channel("const5")->value(0), 5.0);
 		QCOMPARE(s1.channel("const5")->value(400), 5.0);
@@ -714,7 +712,6 @@ class TestDataman: public QObject
 		QVERIFY(c1->setXExpression());
 		for(int i=0; (unsigned)i<c1->count(); i++)
 			QCOMPARE(c1->x(i), c1->dataTree()->x(i));
-
 		// set the y expression and check values:
 		QVERIFY(c1->setExpression("tey/I0 + 4"));
 		for(int i=0; (unsigned)i<c1->count(); i++)

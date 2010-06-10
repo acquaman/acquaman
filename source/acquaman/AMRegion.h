@@ -48,12 +48,12 @@ public:
 public slots:
 	/// Sets the start value from the double passed in. Does not affect the AMControl directly.
 	/// \todo A check on the limits of the AMControl?
-	virtual bool setStart(double start) { start_ = start; return TRUE;}
+	virtual bool setStart(double start);// { start_ = start; return TRUE;}
 	/// Sets the delta value from the double passed in. The value MUST BE non-zero, or function will return false. Does not affect the AMControl direclty.
 	virtual bool setDelta(double delta);
 	/// Sets the end value from the double passed in. Does not affect the AMControl directly.
 	/// \todo A check on the limits of the AMControl?
-	virtual bool setEnd(double end) { end_ = end; return TRUE;}
+	virtual bool setEnd(double end);// { end_ = end; return TRUE;}
 	/// Sets the AMControl for the region.
 	virtual bool setControl(AMControl* ctrl) { ctrl_ = ctrl; return true;}
 
@@ -117,10 +117,10 @@ public:
 	AMXASRegion(AMControl* beamlineEnergy, QObject *parent = 0) : AMRegion(parent) {ctrl_ = beamlineEnergy;}
 
 public slots:
-	/// Sets the start value from the double passed in. Checks for the validity of the input. Does not affect the beamline energy directly.
-	bool setStart(double start);
-	/// Sets the end value from the double passed in. Checks for the validity of the input. Does not affect the beamline energy directly.
-	bool setEnd(double end);
+//	/// Sets the start value from the double passed in. Checks for the validity of the input. Does not affect the beamline energy directly.
+//	bool setStart(double start);
+//	/// Sets the end value from the double passed in. Checks for the validity of the input. Does not affect the beamline energy directly.
+//	bool setEnd(double end);
 	/// Castrated function, does nothing and returns false.
 	bool setControl(AMControl *ctrl){Q_UNUSED(ctrl); return false;}
 };

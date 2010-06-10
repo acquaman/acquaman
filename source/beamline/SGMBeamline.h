@@ -43,13 +43,16 @@ public:
 	AMControl* undulatorTracking() const { return undulatorTracking_;}
 	AMControl* monoTracking() const { return monoTracking_;}
 	AMControl* exitSlitTracking() const { return exitSlitTracking_;}
-	AMDetector* teyDetector() const { return teyDetector_;}
-	AMDetector* tfyDetector() const { return tfyDetector_;}
-	AMDetector* pgtDetector() const { return pgtDetector_;}
+	AMAbstractDetector* teyDetector() const { return teyDetector_;}
+	AMAbstractDetector* tfyDetector() const { return tfyDetector_;}
+	AMAbstractDetector* pgtDetector() const { return pgtDetector_;}
+	AMAbstractDetector* i0Detector() const { return i0Detector_;}
+	AMAbstractDetector* eVFbkDetector() const { return eVFbkDetector_;}
 
 	AMControlSet* fluxResolutionSet() const { return fluxResolutionSet_;}
 	AMControlSet* trackingSet() const { return trackingSet_;}
-	AMDetectorSet* XASDetectors() const { return XASDetectors_;}
+	AMAbstractDetectorSet* allDetectors() const { return allDetectors_;}
+	AMAbstractDetectorSet* XASDetectors() const { return XASDetectors_;}
 
 	bool energyValidForSettings(sgmGrating grating, sgmHarmonic harmonic, double energy);
 	bool energyRangeValidForSettings(sgmGrating grating, sgmHarmonic harmonic, double minEnergy, double maxEnergy);
@@ -74,17 +77,22 @@ protected:
 	AMControl *tey_;
 	AMControl *tfy_;
 	AMControl *pgt_;
+	AMControl *i0_;
+	AMControl *eVFbk_;
 
-	AMDetector *teyDetector_;
-	AMDetector *tfyDetector_;
-	AMDetector *pgtDetector_;
+	AMAbstractDetector *teyDetector_;
+	AMAbstractDetector *tfyDetector_;
+	AMAbstractDetector *pgtDetector_;
+	AMAbstractDetector *i0Detector_;
+	AMAbstractDetector *eVFbkDetector_;
 
 	AMControlOptimization *fluxOptimization_;
 	AMControlOptimization *resolutionOptimization_;
 	AMControlSet *fluxResolutionSet_;
 
 	AMControlSet *trackingSet_;
-	AMDetectorSet *XASDetectors_;
+	AMAbstractDetectorSet *allDetectors_;
+	AMAbstractDetectorSet *XASDetectors_;
 
 	AMBiHash<QString, QString> amNames2pvNames_;
 };

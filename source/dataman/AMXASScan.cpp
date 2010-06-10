@@ -1,7 +1,7 @@
 #include "AMXASScan.h"
 #include <qdebug.h>
 
-AMXASScan::AMXASScan(const QStringList& detectors, QObject *parent)
+AMXASScan::AMXASScan(const QList<AMAbstractDetector*> &detectors, QObject *parent)
 	: AMScan(parent)
 {
 	// setup default columns in data structure:
@@ -9,7 +9,7 @@ AMXASScan::AMXASScan(const QStringList& detectors, QObject *parent)
 
 	// create columns for each detector (ex: "tey", "tfy", "urinalWaterTemp", etc.)
 
-	foreach(QString detect, detectors) {
+	foreach(AMAbstractDetector *detect, detectors) {
 		addDetector(detect);
 	}
 
@@ -17,19 +17,28 @@ AMXASScan::AMXASScan(const QStringList& detectors, QObject *parent)
 }
 
 /// Add a new named detector (returns false if detector already exists)
-bool AMXASScan::addDetector(const QString& uniqueDetectorName) {
-	if(detectors_.contains(uniqueDetectorName))
+bool AMXASScan::addDetector(const AMAbstractDetector *uniqueDetector) {
+	if(detectorNames_.contains(uniqueDetector->name()))
 		return false;
-	detectors_ << uniqueDetectorName;
-	qDebug() << "Adding column for " << uniqueDetectorName;
-	if(uniqueDetectorName != "pgt")
-		d_->createColumn(uniqueDetectorName);
+	detectors_ << uniqueDetector;
+	detectorNames_ << uniqueDetector->name();
+	qDebug() << "Adding column for " << uniqueDetector->name();
+	if(!uniqueDetector->isSpectralOutput())
+		d_->createColumn(uniqueDetector->name());
 	else{
-		qDebug() << "CREATING 1024 SUBTREE FOR PGT";
-		AMDataTree *tmpTree = new AMDataTree(1024, "pgtEV", true);
-		tmpTree->createColumn("pgtCounts");
-		d_->createSubtreeColumn(uniqueDetectorName, tmpTree);
-		qDebug() << "Subx is " << tmpTree->xName() << " Suby0 is " << tmpTree->yColumnNames().at(0);
+		AMSpectralOutputDetector *specDtctr = (AMSpectralOutputDetector*)uniqueDetector;
+		qDebug() << "CREATING " << specDtctr->numSpectrumBins() << " SUBTREE FOR PGT";
+		AMDataTree *tmpTree;
+		if(specDtctr->xElementName().isEmpty())
+			tmpTree = new AMDataTree(specDtctr->numSpectrumBins(), "x", false);
+		else
+			tmpTree = new AMDataTree(specDtctr->numSpectrumBins(), "pgtEV", true);
+		for(int x = 0; x < specDtctr->yElementNames().count(); x++)
+			tmpTree->createColumn(specDtctr->yElementNames().at(x));
+		d_->createSubtreeColumn(specDtctr->name(), tmpTree);
+		qDebug() << "Subx is " << tmpTree->xName();
+		for(int x = 0; x < tmpTree->yColumnNames().count(); x++)
+			qDebug() << " Suby" << x << " is " << tmpTree->yColumnNames().at(x);
 	}
 	return true;
 }

@@ -5,11 +5,13 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 	_pCfg_ = & specificCfg_;
 	beamlineInitialized_ = false;
 
-	QStringList scanDetectors;
+	QList<AMAbstractDetector*> scanDetectors;
 //	scanDetectors << "eV_Fbk" << "reading" << "tfy" << "pgt";
 	scanDetectors = pCfg_()->usingDetectors();
-	scanDetectors.prepend("I0");
-	scanDetectors.prepend("eV_Fbk");
+//	scanDetectors.prepend("I0");
+	scanDetectors.prepend(SGMBeamline::sgm()->i0Detector());
+//	scanDetectors.prepend("eV_Fbk");
+	scanDetectors.prepend(SGMBeamline::sgm()->eVFbkDetector());
 
 	qDebug() << "CURRENT DETECTORS ARE " << scanDetectors;
 	/*
@@ -21,9 +23,13 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 	_pScan_ = &specificScan_;
 	pScan_()->setName("Dave's Scan");
 	pScan_()->addChannel("eV", "eV");
-	foreach(QString str, scanDetectors){
-		if(str != SGMBeamline::sgm()->pgtDetector()->name())
-			pScan_()->addChannel(str.toUpper(), str);
+//	foreach(QString str, scanDetectors){
+	foreach(AMAbstractDetector *dtctr, scanDetectors){
+		if(!dtctr->isSpectralOutput())
+			pScan_()->addChannel(dtctr->name().toUpper(), dtctr->name());
+
+//		if(str != SGMBeamline::sgm()->pgtDetector()->name())
+//			pScan_()->addChannel(str.toUpper(), str);
 //		else{
 //			pScan_()->addChannel("PGT_COUNTS", "pgt.pgtCounts[199]");
 //		}

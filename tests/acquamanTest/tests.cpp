@@ -1,18 +1,259 @@
+#include "AMSettings.h"
 #include <QtTest/QtTest>
+#include "beamline/SGMBeamline.h"
+#include "dataman/AMDatabase.h"
+#include "dataman/AMXASScan.h"
+#include "acquaman/SGM/SGMXASScanConfiguration.h"
 
-class Test1: public QObject
+class AcquamanTest: public QObject
 {
 	Q_OBJECT
 private slots:
 	void initTestCase()
-	{ qDebug("called before everything else"); }
-	void myFirstTest()
-	{ QVERIFY(1 == 1); }
-	void mySecondTest()
-	{ QVERIFY(1 != 2); }
+	{
+		AMSettings::load();
+		AMUserSettings::load();
+		AMPVNames::load();
+		AMScan::dbPrepareTables(AMDatabase::userdb());
+		SGMBeamline::sgm();
+		for(int x = 0; x < 8; x++){
+			qDebug() << "Waiting for connection to SGM Beamline";
+			QTest::qWait(250);
+		}
+		QVERIFY(SGMBeamline::sgm()->isConnected());
+	}
+
+	void testAMRegions()
+	{
+		AMRegionsList *rl1 = new AMRegionsList(this);
+		AMRegionsList *rl2 = new AMRegionsList(this);
+		// They should initialize to empty
+		QCOMPARE(rl1->count(), 0);
+		QCOMPARE(rl2->count(), 0);
+		AMRegionsListModel *rlm1 = rl1->model();
+		AMRegionsListModel *rlm2 = NULL;
+		// First model should be initialized but be empty
+		QCOMPARE(rlm1->rowCount(QModelIndex()), 0);
+		QCOMPARE((int)rlm2, NULL);
+
+		double start = 100;
+		double delta = 0.5;
+		double end = 200;
+		// Can't append until default control defined
+		QVERIFY(!rl1->appendRegion(start, delta, end));
+		QVERIFY(!rl2->appendRegion(start, delta, end));
+
+		// Set and confirm default control
+		rl1->setDefaultControl(SGMBeamline::sgm()->energy());
+		rl2->setDefaultControl(SGMBeamline::sgm()->energy());
+		QCOMPARE(rl1->defaultControl(), SGMBeamline::sgm()->energy());
+		QCOMPARE(rl2->defaultControl(), SGMBeamline::sgm()->energy());
+
+		// Can't append, value out of range
+		QVERIFY(!rl1->appendRegion(start, delta, end));
+		QVERIFY(!rl2->appendRegion(start, delta, end));
+
+		start = 250.1;
+		end = 300;
+
+		// Append and confirm
+		QVERIFY(rl1->appendRegion(start, delta, end));
+		QVERIFY(rl2->appendRegion(start, delta, end));
+		QCOMPARE(rl1->count(), 1);
+		QCOMPARE(rl2->count(), 1);
+		QCOMPARE(rl1->start(rl1->count()-1), start);
+		QCOMPARE(rl1->delta(rl1->count()-1), delta);
+		QCOMPARE(rl1->end(rl1->count()-1), end);
+		QCOMPARE(rl2->start(rl2->count()-1), start);
+		QCOMPARE(rl2->delta(rl2->count()-1), delta);
+		QCOMPARE(rl2->end(rl2->count()-1), end);
+
+		// Check model pointer
+		QCOMPARE(rlm1->data(rlm1->index(rl1->count()-1, 1), Qt::DisplayRole).toDouble(), start);
+		QCOMPARE(rlm1->data(rlm1->index(rl1->count()-1, 2), Qt::DisplayRole).toDouble(), delta);
+		QCOMPARE(rlm1->data(rlm1->index(rl1->count()-1, 3), Qt::DisplayRole).toDouble(), end);
+
+		// Test insertion
+		QList<double> starts, deltas, ends;
+		starts << start;
+		deltas << delta;
+		ends << end;
+		for(int x = 0; x < starts.count(); x++){
+			QCOMPARE(rl1->start(x), starts.at(x));
+			QCOMPARE(rlm1->data(rlm1->index(x, 1), Qt::DisplayRole).toDouble(), starts.at(x));
+			QCOMPARE(rl2->start(x), starts.at(x));
+			QCOMPARE(rl1->delta(x), deltas.at(x));
+			QCOMPARE(rlm1->data(rlm1->index(x, 2), Qt::DisplayRole).toDouble(), deltas.at(x));
+			QCOMPARE(rl2->delta(x), deltas.at(x));
+			QCOMPARE(rl1->end(x), ends.at(x));
+			QCOMPARE(rlm1->data(rlm1->index(x, 3), Qt::DisplayRole).toDouble(), ends.at(x));
+			QCOMPARE(rl2->end(x), ends.at(x));
+		}
+
+		delta = 0.1;
+		start = end + delta;
+		end = 350;
+		QVERIFY(rl1->appendRegion(start, delta, end));
+		QVERIFY(rl2->appendRegion(start, delta, end));
+		starts << start;
+		deltas << delta;
+		ends << end;
+		for(int x = 0; x < starts.count(); x++){
+			QCOMPARE(rl1->start(x), starts.at(x));
+			QCOMPARE(rlm1->data(rlm1->index(x, 1), Qt::DisplayRole).toDouble(), starts.at(x));
+			QCOMPARE(rl2->start(x), starts.at(x));
+			QCOMPARE(rl1->delta(x), deltas.at(x));
+			QCOMPARE(rlm1->data(rlm1->index(x, 2), Qt::DisplayRole).toDouble(), deltas.at(x));
+			QCOMPARE(rl2->delta(x), deltas.at(x));
+			QCOMPARE(rl1->end(x), ends.at(x));
+			QCOMPARE(rlm1->data(rlm1->index(x, 3), Qt::DisplayRole).toDouble(), ends.at(x));
+			QCOMPARE(rl2->end(x), ends.at(x));
+		}
+
+		start = 200;
+		delta = 1;
+		end = 250;
+		QVERIFY(rl1->addRegion(0, start, delta, end));
+		QVERIFY(rl2->addRegion(0, start, delta, end));
+		starts.prepend(start);
+		deltas.prepend(delta);
+		ends.prepend(end);
+		for(int x = 0; x < starts.count(); x++){
+			QCOMPARE(rl1->start(x), starts.at(x));
+			QCOMPARE(rlm1->data(rlm1->index(x, 1), Qt::DisplayRole).toDouble(), starts.at(x));
+			QCOMPARE(rl2->start(x), starts.at(x));
+			QCOMPARE(rl1->delta(x), deltas.at(x));
+			QCOMPARE(rlm1->data(rlm1->index(x, 2), Qt::DisplayRole).toDouble(), deltas.at(x));
+			QCOMPARE(rl2->delta(x), deltas.at(x));
+			QCOMPARE(rl1->end(x), ends.at(x));
+			QCOMPARE(rlm1->data(rlm1->index(x, 3), Qt::DisplayRole).toDouble(), ends.at(x));
+			QCOMPARE(rl2->end(x), ends.at(x));
+		}
+
+		start = 325;
+		delta = 0.25;
+		end = 700;
+		QVERIFY(rl1->addRegion(2, start, delta, end));
+		QVERIFY(rl2->addRegion(2, start, delta, end));
+		starts.insert(2, start);
+		deltas.insert(2, delta);
+		ends.insert(2, end);
+		for(int x = 0; x < starts.count(); x++){
+			QCOMPARE(rl1->start(x), starts.at(x));
+			QCOMPARE(rlm1->data(rlm1->index(x, 1), Qt::DisplayRole).toDouble(), starts.at(x));
+			QCOMPARE(rl2->start(x), starts.at(x));
+			QCOMPARE(rl1->delta(x), deltas.at(x));
+			QCOMPARE(rlm1->data(rlm1->index(x, 2), Qt::DisplayRole).toDouble(), deltas.at(x));
+			QCOMPARE(rl2->delta(x), deltas.at(x));
+			QCOMPARE(rl1->end(x), ends.at(x));
+			QCOMPARE(rlm1->data(rlm1->index(x, 3), Qt::DisplayRole).toDouble(), ends.at(x));
+			QCOMPARE(rl2->end(x), ends.at(x));
+		}
+
+		// Test altering individual start/delta/end
+		start = 201;
+		delta = 0.4;
+		end = 450;
+		QVERIFY(rl1->setStart(0, start));
+		QVERIFY(rl2->setStart(0, start));
+		starts[0] = start;
+		QVERIFY(rl1->setDelta(2, delta));
+		QVERIFY(rl2->setDelta(2, delta));
+		deltas[2] = delta;
+		QVERIFY(rl1->setEnd(1, end));
+		QVERIFY(rl2->setEnd(1, end));
+		ends[1] = end;
+		for(int x = 0; x < starts.count(); x++){
+			QCOMPARE(rl1->start(x), starts.at(x));
+			QCOMPARE(rlm1->data(rlm1->index(x, 1), Qt::DisplayRole).toDouble(), starts.at(x));
+			QCOMPARE(rl2->start(x), starts.at(x));
+			QCOMPARE(rl1->delta(x), deltas.at(x));
+			QCOMPARE(rlm1->data(rlm1->index(x, 2), Qt::DisplayRole).toDouble(), deltas.at(x));
+			QCOMPARE(rl2->delta(x), deltas.at(x));
+			QCOMPARE(rl1->end(x), ends.at(x));
+			QCOMPARE(rlm1->data(rlm1->index(x, 3), Qt::DisplayRole).toDouble(), ends.at(x));
+			QCOMPARE(rl2->end(x), ends.at(x));
+		}
+
+		//Test deletion
+		QVERIFY(rl1->deleteRegion(rl1->count()));
+		QVERIFY(rl2->deleteRegion(rl2->count()));
+		starts.removeAt(starts.count());
+		deltas.removeAt(deltas.count());
+		ends.removeAt(ends.count());
+		for(int x = 0; x < starts.count(); x++){
+			QCOMPARE(rl1->start(x), starts.at(x));
+			QCOMPARE(rlm1->data(rlm1->index(x, 1), Qt::DisplayRole).toDouble(), starts.at(x));
+			QCOMPARE(rl2->start(x), starts.at(x));
+			QCOMPARE(rl1->delta(x), deltas.at(x));
+			QCOMPARE(rlm1->data(rlm1->index(x, 2), Qt::DisplayRole).toDouble(), deltas.at(x));
+			QCOMPARE(rl2->delta(x), deltas.at(x));
+			QCOMPARE(rl1->end(x), ends.at(x));
+			QCOMPARE(rlm1->data(rlm1->index(x, 3), Qt::DisplayRole).toDouble(), ends.at(x));
+			QCOMPARE(rl2->end(x), ends.at(x));
+		}
+
+		// Can't delete out of bounds
+		QVERIFY(!rl1->deleteRegion(rl1->count()+1));
+		QVERIFY(!rl2->deleteRegion(rl2->count()+1));
+
+		QVERIFY(rl1->deleteRegion(2));
+		QVERIFY(rl2->deleteRegion(2));
+		starts.removeAt(2);
+		deltas.removeAt(2);
+		ends.removeAt(2);
+		for(int x = 0; x < starts.count(); x++){
+			QCOMPARE(rl1->start(x), starts.at(x));
+			QCOMPARE(rlm1->data(rlm1->index(x, 1), Qt::DisplayRole).toDouble(), starts.at(x));
+			QCOMPARE(rl2->start(x), starts.at(x));
+			QCOMPARE(rl1->delta(x), deltas.at(x));
+			QCOMPARE(rlm1->data(rlm1->index(x, 2), Qt::DisplayRole).toDouble(), deltas.at(x));
+			QCOMPARE(rl2->delta(x), deltas.at(x));
+			QCOMPARE(rl1->end(x), ends.at(x));
+			QCOMPARE(rlm1->data(rlm1->index(x, 3), Qt::DisplayRole).toDouble(), ends.at(x));
+			QCOMPARE(rl2->end(x), ends.at(x));
+		}
+
+	}
+
+	void scanConfigurations()
+	{
+		SGMXASScanConfiguration *sxsc = new SGMXASScanConfiguration(this);
+		// List of regions should be created but empty
+		QCOMPARE(sxsc->count(), 0);
+		// SGM components should be initialized and be the same as the current beamline values
+		QCOMPARE(sxsc->exitSlitGap(), SGMBeamline::sgm()->exitSlitGap()->value());
+		QCOMPARE(sxsc->grating(), (SGMBeamline::sgmGrating)SGMBeamline::sgm()->grating()->value());
+		QCOMPARE(sxsc->harmonic(), (SGMBeamline::sgmHarmonic)SGMBeamline::sgm()->harmonic()->value());
+		QCOMPARE(sxsc->undulatorTracking(), (bool)SGMBeamline::sgm()->undulatorTracking()->value());
+		QCOMPARE(sxsc->monoTracking(), (bool)SGMBeamline::sgm()->monoTracking()->value());
+		QCOMPARE(sxsc->exitSlitTracking(), (bool)SGMBeamline::sgm()->exitSlitTracking()->value());
+		// Should be using the SGM XAS Detectors, check that they are the same
+		AMAbstractDetectorSet *xasDetectors = SGMBeamline::sgm()->XASDetectors();
+		QList<AMAbstractDetector*> xasDefaultDetectors;
+		for(int x = 0; x < xasDetectors->count(); x++)
+			if(xasDetectors->isDefaultAt(x))
+				xasDefaultDetectors << xasDetectors->detectorAt(x);
+		for(int x = 0; x < xasDefaultDetectors.count(); x++)
+			QCOMPARE(sxsc->usingDetectors().at(x)->name(), xasDefaultDetectors.at(x)->name());
+		// Should be using SGM Flux/Resolution ControlSet
+		for(int x = 0; x < sxsc->fluxResolutionSet()->count(); x++)
+			QCOMPARE(sxsc->fluxResolutionSet()->controlAt(x)->name(), SGMBeamline::sgm()->fluxResolutionSet()->controlAt(x)->name());
+		// Should be using SGM Tracking ControlSet
+		for(int x = 0; x < sxsc->trackingSet()->count(); x++)
+			QCOMPARE(sxsc->trackingSet()->controlAt(x)->name(), SGMBeamline::sgm()->trackingSet()->controlAt(x)->name());
+		QString fileName = "testFile.%03d.dat";
+		QVERIFY(sxsc->setFileName(fileName));
+		QCOMPARE(sxsc->fileName(), fileName);
+		QVERIFY(sxsc->setFilePath(AMUserSettings::userDataFolder));
+		QCOMPARE(sxsc->filePath(), AMUserSettings::userDataFolder);
+	}
+
 	void cleanupTestCase()
-	{ qDebug("called after myFirstTest and mySecondTest"); }
+	{
+		AMDatabase::releaseUserDb();
+	}
 };
 
-QTEST_MAIN(Test1)
+QTEST_MAIN(AcquamanTest)
 #include "tests.moc"

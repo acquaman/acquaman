@@ -13,10 +13,6 @@ double* AddVariable(const char *a_szName, void *a_pUserData)
 	QStringList variableBreakdownBlanks = fullVariable.split('.');
 	QStringList variableBreakdown = fullVariable.split('.', QString::SkipEmptyParts);
 	if( (variableBreakdownBlanks.count() != variableBreakdown.count()) || ( (variableBreakdown.count() != 1) && (variableBreakdown.count() != 2) ) ){
-		// NEED TO THROW ERROR HERE
-		qDebug() << "Fuck me, " << fullVariable << " is messed up in counts " << variableBreakdown.count() << " " << variableBreakdownBlanks.count();
-		qDebug() << variableBreakdown;
-		qDebug() << variableBreakdownBlanks;
 		throw mu::Parser::exception_type(_T("not a valid variable."));
 		return NULL;
 	}
@@ -27,8 +23,6 @@ double* AddVariable(const char *a_szName, void *a_pUserData)
 		bool firstHas = variableBreakdown.at(0).contains(rx) || variableBreakdown.at(0).contains("[");
 		bool secondHas = variableBreakdown.at(1).contains(rx) || variableBreakdown.at(1).contains("[");
 		if( (firstHas && secondHas) || (!firstHas && !secondHas) ){
-			// NEED TO THROW ERROR HERE
-			qDebug() << "Fuck me, " << fullVariable << " is messed up in []s" << firstHas << " " << secondHas;
 			throw mu::Parser::exception_type(_T("not a valid variable."));
 			return NULL;
 		}
@@ -50,7 +44,6 @@ double* AddVariable(const char *a_szName, void *a_pUserData)
 		tmpVar->colName = variableBreakdown.at(0);
 	double *varSpace = ch->addVariable(tmpVar);
 	if(varSpace == NULL){
-		qDebug() << "Fuck me, " << fullVariable << " is messed up in names";
 		throw mu::Parser::exception_type(_T("not a valid variable."));
 		return NULL;
 	}
@@ -60,15 +53,11 @@ double* AddVariable(const char *a_szName, void *a_pUserData)
 
 double* AddVariableX(const char *a_szName, void *a_pUserData)
 {
-	//qDebug() << "Sent variable? " << a_szName;
+//	qDebug() << "Sent variable? " << a_szName;
 	QString fullVariable(a_szName);
 	QStringList variableBreakdownBlanks = fullVariable.split('.');
 	QStringList variableBreakdown = fullVariable.split('.', QString::SkipEmptyParts);
 	if( (variableBreakdownBlanks.count() != variableBreakdown.count()) || ( (variableBreakdown.count() != 1) && (variableBreakdown.count() != 2) ) ){
-		// NEED TO THROW ERROR HERE
-		qDebug() << "Fuck me, " << fullVariable << " is messed up in counts " << variableBreakdown.count() << " " << variableBreakdownBlanks.count();
-		qDebug() << variableBreakdown;
-		qDebug() << variableBreakdownBlanks;
 		throw mu::Parser::exception_type(_T("not a valid variable."));
 		return NULL;
 	}
@@ -80,8 +69,6 @@ double* AddVariableX(const char *a_szName, void *a_pUserData)
 		bool firstHas = variableBreakdown.at(0).contains(rx) || variableBreakdown.at(0).contains("[");
 		bool secondHas = variableBreakdown.at(1).contains(rx) || variableBreakdown.at(1).contains("[");
 		if( (firstHas && secondHas) || (!firstHas && !secondHas) ){
-			// NEED TO THROW ERROR HERE
-			qDebug() << "Fuck me, " << fullVariable << " is messed up in []s" << firstHas << " " << secondHas;
 			throw mu::Parser::exception_type(_T("not a valid variable."));
 			return NULL;
 		}
@@ -103,11 +90,10 @@ double* AddVariableX(const char *a_szName, void *a_pUserData)
 		tmpVar->colName = variableBreakdown.at(0);
 	double *varSpace = ch->addVariable(tmpVar);
 	if(varSpace == NULL){
-		qDebug() << "Fuck me, " << fullVariable << " is messed up in names";
 		throw mu::Parser::exception_type(_T("not a valid variable."));
 		return NULL;
 	}
-	//qDebug() << "Trying to return address " << varSpace;
+//	qDebug() << "Trying to return address " << varSpace;
 	return varSpace;
 }
 
@@ -321,9 +307,38 @@ double AMChannel::x(unsigned p) const {
 		return t->x(p);
 	}
 
+	AMParVar *tmpVar;
+	for(int i=0; i<varLookUps_.count(); i++){
+		tmpVar = varLookUps_.at(i);
+		if( (tmpVar->indexer == -1) && (tmpVar->level == -1) ){
+			if(tmpVar->isX)
+			{varStorage_[tmpVar->vectorIndex] = t->x(p);}//qDebug() << "At time0: " << t->x(p);}
+			else
+			{varStorage_[tmpVar->vectorIndex] = t->value(tmpVar->colName, p);}//qDebug() << "At time1: " << t->value(tmpVar->colName, p);}
+		}
+		else{
+			if(tmpVar->isX){
+				if(tmpVar->level == 0)
+				{varStorage_[tmpVar->vectorIndex] = t->deeper(tmpVar->stName, tmpVar->indexer)->x(p);}//qDebug() << "At time2: " << t->deeper(tmpVar->stName, tmpVar->indexer)->x(p);}
+				else
+				{varStorage_[tmpVar->vectorIndex] = t->deeper(tmpVar->stName, p)->x(tmpVar->indexer);}//qDebug() << "At time3: " << t->deeper(tmpVar->stName, p)->x(tmpVar->indexer);}
+			}
+			else{
+				if(tmpVar->level == 0)
+				{varStorage_[tmpVar->vectorIndex] = t->deeper(tmpVar->stName, tmpVar->indexer)->value(tmpVar->colName, p);}//qDebug() << "At time4: " << t->deeper(tmpVar->stName, tmpVar->indexer)->value(tmpVar->colName, p);}
+				else
+				{varStorage_[tmpVar->vectorIndex] = t->deeper(tmpVar->stName, p)->value(tmpVar->colName, tmpVar->indexer);}//qDebug() << "At time5: " << t->deeper(tmpVar->stName, p)->value(tmpVar->colName, tmpVar->indexer);}
+			}
+		}
+		//qDebug() << "tmpVar: " << tmpVar->stName << tmpVar->colName << tmpVar->isX << tmpVar->vectorIndex << tmpVar->indexer << tmpVar->level;
+		//qDebug() << "Tried writing index: " << tmpVar->vectorIndex << " value: " << varStorage_[tmpVar->vectorIndex];
+	}
+
+
 	//qDebug() << "Not returning default X";
 	// evaluate value using the x-expression parser
 
+	/*
 	// Copy the raw data column values into varStorage_.
 	// optimization: only copy the columns we actually use, based on the indices in usedColumnIndices_
 	foreach(int usedCol, usedColumnIndicesX_) {
@@ -332,6 +347,7 @@ double AMChannel::x(unsigned p) const {
 		else
 			varStorage_[usedCol+1] = t->value(usedCol, p);
 	}
+	*/
 
 	double rv;
 	try {

@@ -3,6 +3,7 @@
 
 
 #include "dataman/AMScan.h"
+#include "beamline/AMDetector.h"
 
 
 /// This is a practical subclass of AMScan which provides the details to represent a very basic absorption scan (ex: eV setpoints and readings from 0-dimensional detectors such as the sample current (TEY) and fluorescence yield (TFY).
@@ -15,13 +16,14 @@ class AMXASScan : public AMScan {
 Q_OBJECT
 public:
 	/// create a new XAS scan with the following named \c detectors. Each "detector" is a source of a datapoint, that will be stored/logged, available as a column of raw data, and accessible through channel(s).
-	explicit AMXASScan(const QStringList& detectors = QStringList(), QObject *parent = 0);
+	explicit AMXASScan(const QList<AMAbstractDetector*> &detectors = QList<AMAbstractDetector*>(), QObject *parent = 0);
 
 	/// the detectors (raw data columns) available within this scan. Does not include the primary column (eV), which is always present.
-	QStringList detectors() const { return detectors_; }
+	QStringList detectorNames() const { return detectorNames_; }
+	QList<const AMAbstractDetector*> detectors() const { return detectors_; }
 
 	/// Add a new named detector (returns false if detector already exists)
-	bool addDetector(const QString& uniqueDetectorName);
+	bool addDetector(const AMAbstractDetector* uniqueDetector);
 
 	/// \todo access will be through channels which can access the AMDataTree raw columns (d_). Until channels are done, there's no way to peek inside.
 
@@ -35,7 +37,8 @@ signals:
 public slots:
 
 protected:
-	QStringList detectors_;
+	QStringList detectorNames_;
+	QList<const AMAbstractDetector*> detectors_;
 
 	QString legacyGrating_;
 	QString legacyIntegrationTime_;

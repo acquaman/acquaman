@@ -2,6 +2,7 @@
 #define SGMLEGACYFILEIMPORTER_H
 
 #include "AMBiHash.h"
+#include "beamline/AMAbstractDetector.h"
 
 
 class AMXASScan;
@@ -29,6 +30,26 @@ public:
 			columns2pvNames_.set("integrationTime", "A1611I1:cont_interval");
 			columns2pvNames_.set("grating", "SG16114I1001:choice");
 			columns2pvNames_.set("time", "Absolute-Time-Stamp");
+		}
+		if(sgmLegacyDetectors_.count() == 0){
+			AMAbstractDetector *sgmDetector;
+			sgmDetector = new AMAbstractDetector("tey", false);
+			sgmLegacyDetectors_ << sgmDetector;
+			sgmLegacyDetectorNames_ << sgmDetector->name();
+			sgmDetector = new AMAbstractDetector("tfy", false);
+			sgmLegacyDetectors_ << sgmDetector;
+			sgmLegacyDetectorNames_ << sgmDetector->name();
+			QStringList yElementNames;
+			yElementNames << "count";
+			sgmDetector = new AMAbstractSpectralOutputDetector("pgt", 1024, "eV", yElementNames);
+			sgmLegacyDetectors_ << sgmDetector;
+			sgmLegacyDetectorNames_ << sgmDetector->name();
+			sgmDetector = new AMAbstractDetector("I0", false);
+			sgmLegacyDetectors_ << sgmDetector;
+			sgmLegacyDetectorNames_ << sgmDetector->name();
+			sgmDetector = new AMAbstractDetector("eVFbk", false);
+			sgmLegacyDetectors_ << sgmDetector;
+			sgmLegacyDetectorNames_ << sgmDetector->name();
 		}
 	}
 
@@ -75,6 +96,8 @@ protected:
 
 	/// A forward- and reverse-mapping from meaningful data column names to process variable strings
 	static AMBiHash<QString, QString> columns2pvNames_;
+	QList<AMAbstractDetector*> sgmLegacyDetectors_;
+	QStringList sgmLegacyDetectorNames_;
 };
 
 
