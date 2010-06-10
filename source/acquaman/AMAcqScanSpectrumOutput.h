@@ -45,7 +45,7 @@ public:
 	virtual ~AMAcqScanSpectrumOutput();
 	static acqBaseOutput *new_AMAcqScanSpectrumOutput();
 	void setScan(AMScan *scan){
-		qDebug() << "In spectrumOutput set scan";
+//		qDebug() << "In spectrumOutput set scan";
 		scan_ = scan;
 	//	series1->setModel(data1);
 		series1->setModel(scan_->channel("TEY"));

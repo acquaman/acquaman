@@ -21,6 +21,7 @@ public slots:
 	void initialize();
 	void start(){
 		bool loadSuccess;
+//		qDebug() << "Start of control Start()";
 		if(pScan_()->detectorNames().contains("pgt"))
 			loadSuccess = advAcq_->setConfigFile("/home/reixs/beamline/programming/acquaman/devConfigurationFiles/pgt.cfg");
 		else
@@ -56,7 +57,25 @@ public slots:
 			}
 		}
 		generalScan_ = specificScan_;
+//		qDebug() << "Just before calling AMDacqScanController::start() from SGMXASDacqScanController::start()";
 		AMDacqScanController::start();
+	}
+
+	void spit(){
+		QStringList row;
+		QString value;
+
+		for(int x = 0; x < pScan_()->count(); x++){
+			for(int y = 0; y < pScan_()->numChannels(); y++){
+				if(!pScan_()->channel(y)->name().contains("PGT_COUNTS")){
+					value.setNum(pScan_()->channel(y)->value(x));
+					row << value;
+				}
+			}
+			qDebug() << row;
+			row.clear();
+		}
+
 	}
 
 private:

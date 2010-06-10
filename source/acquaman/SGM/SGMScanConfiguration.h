@@ -17,7 +17,7 @@ public:
 
 	bool setExitSlitGap(double exitSlitGap);
 	bool setGrating(SGMBeamline::sgmGrating grating) {grating_ = grating; return true;}
-	bool setHarmonic(SGMBeamline::sgmHarmonic harmonic) { qDebug() << "Harmonic value is " << harmonic; harmonic_ = harmonic; return true;}
+	bool setHarmonic(SGMBeamline::sgmHarmonic harmonic) { harmonic_ = harmonic; return true;}
 	bool setUndulatorTracking(bool track){undulatorTracking_ = track; return true;}
 	bool setMonoTracking(bool track){monoTracking_ = track; return true;}
 	bool setExitSlitTracking(bool track){exitSlitTracking_ = track; return true;}

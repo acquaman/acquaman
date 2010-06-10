@@ -56,7 +56,7 @@ int AMAcqScanSpectrumOutput::startRecord( acqKey_t key, int eventno)
 	to->dataDelayList_.clear();
 	to->spectraDelayList_.clear();
 	to->dataDelay_ = true;
-	qDebug() << "In startRecord, just cleared lists";
+//	qDebug() << "In startRecord, just cleared lists";
 
 	to->recordCount++;
 	if( to->spectrumSplit == SS_BY_RECORD)
@@ -101,7 +101,7 @@ int AMAcqScanSpectrumOutput::putValue( acqKey_t key, int eventno, int pvno, cons
 			to->pvnoToColumn_[pvno] = to->specColNo_++;
 		else
 			to->pvnoToColumn_[pvno] = to->colNo_++;
-		qDebug() << pvno << " goes to " << to->pvnoToColumn_[pvno];
+//		qDebug() << pvno << " goes to " << to->pvnoToColumn_[pvno];
 	}
 
 	double dataVal;
@@ -173,13 +173,13 @@ int AMAcqScanSpectrumOutput::putValue( acqKey_t key, int eventno, int pvno, cons
 		}
 	}
 
-	qDebug() << "Currently dataDelay is " << to->dataDelay_ << " and pvno is " << pvno << " and eventno is " << eventno;
-	if(pvno != 0){
-		if(!pvpr->isSpectrum)
-			qDebug() << "Looking at column " << to->scan_->d_->yColumnNames().at(to->pvnoToColumn_[pvno]);
-		else
-			qDebug() << "Looking at subtree column " << to->scan_->d_->ySubtreeNames().at(to->pvnoToColumn_[pvno]);
-	}
+//	qDebug() << "Currently dataDelay is " << to->dataDelay_ << " and pvno is " << pvno << " and eventno is " << eventno;
+//	if(pvno != 0){
+//		if(!pvpr->isSpectrum)
+//			qDebug() << "Looking at column " << to->scan_->d_->yColumnNames().at(to->pvnoToColumn_[pvno]);
+//		else
+//			qDebug() << "Looking at subtree column " << to->scan_->d_->ySubtreeNames().at(to->pvnoToColumn_[pvno]);
+//	}
 
 	if(!to->dataDelay_){
 		if(!pvpr->isSpectrum)

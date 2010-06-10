@@ -26,23 +26,29 @@ public slots:
 //    virtual void newConfigurationLoad(AMScanConfiguration &cfg);
 	/// Start scan running if not currently running or paused
 	virtual void start(){
+//		qDebug() << "Start of AMDacqScanController::start()";
 		if(initialized_){
+			qDebug() << "AMDacqScanController claims initialized";
 		//	acqBaseOutput *abop = acqOutputHandlerFactory::new_acqOutput("SimpleText", "File");
 		//	acqBaseOutput *abop = acqOutputHandlerFactory::new_acqOutput("AMScan", "File");
 		//	acqBaseOutput *abop = acqOutputHandlerFactory::new_acqOutput("Text", "File");
 			acqBaseOutput *abop = acqOutputHandlerFactory::new_acqOutput("AMScanSpectrum", "File");
 			if( abop)
 			{
+//				qDebug() << "AMDacqScanController claims abop is good";
 				acqRegisterOutputHandler( advAcq_->getMaster(), (acqKey_t) abop, &abop->handler);                // register the handler with the acquisition
 				abop->setProperty( "File Template", pCfg_()->fileName().toStdString());
 				abop->setProperty( "File Path", pCfg_()->filePath().toStdString());
 
-				qDebug() << "Just before set scan for spectrumOutput";
+//				qDebug() << "Just before set scan for spectrumOutput";
 				((AMAcqScanSpectrumOutput*)abop)->setScan(pScan_());
+//				qDebug() << "Last thing before advAcq_->Start()";
 				advAcq_->Start();
 			}
-			else
+			else{
+//				qDebug() << "AMDacqScanController could not create abop";
 				AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -1, "AMDacqScanController: could not create output handler."));
+			}
 			/*
 			  Moved into abop check, why was it out here?
 			qDebug() << "Just before sending start to library in dacq controller start";

@@ -127,7 +127,7 @@ bool AMRegionsListModel::setData(const QModelIndex &index, const QVariant &value
 }
 
 bool AMRegionsListModel::insertRows(int position, int rows, const QModelIndex &index){
-	if (index.row() <= regions_->count() && defaultControl_) {
+	if (index.row() <= regions_->count() && position <= regions_->count() && defaultControl_) {
 		beginInsertRows(QModelIndex(), position, position+rows-1);
 
 		AMRegion *tmpRegion;
@@ -145,7 +145,7 @@ bool AMRegionsListModel::insertRows(int position, int rows, const QModelIndex &i
 }
 
 bool AMRegionsListModel::removeRows(int position, int rows, const QModelIndex &index){
-	if (index.row() < regions_->count()) {
+	if (index.row() < regions_->count() && position < regions_->count()) {
 		beginRemoveRows(QModelIndex(), position, position+rows-1);
 
 		for (int row = 0; row < rows; ++row) {
