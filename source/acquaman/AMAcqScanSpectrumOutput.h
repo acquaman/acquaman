@@ -5,6 +5,7 @@
 //#include "acqDataHandler.h"
 //#include "dataman/AMXASScan.h"
 #include "dataman/AMScan.h"
+#include "ui/AMScanView.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -45,7 +46,15 @@ public:
 	virtual ~AMAcqScanSpectrumOutput();
 	static acqBaseOutput *new_AMAcqScanSpectrumOutput();
 	void setScan(AMScan *scan){
-//		qDebug() << "In spectrumOutput set scan";
+		/**/
+		scan_ = scan;
+
+		sv = new AMScanView();
+		sv->show();
+		AMScanSetModel* model = sv->model();
+		model->addScan(scan_);
+		/**/
+		/*
 		scan_ = scan;
 	//	series1->setModel(data1);
 		series1->setModel(scan_->channel("TEY"));
@@ -55,6 +64,7 @@ public:
 		plot->enableAutoScale(MPlotAxis::Left | MPlotAxis::Bottom);
 		plotWindow->resize(450, 450);
 		plotWindow->show();
+		*/
 	}
 
 private:
@@ -71,6 +81,8 @@ private:
 	MPlot *plot;
 	MPlotSeriesBasic *series1, *series2, *series3;
 	MPlotRealtimeModel *data1;
+
+	AMScanView *sv;
 };
 
 #endif /* __cplusplus */

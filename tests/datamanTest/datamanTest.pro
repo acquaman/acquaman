@@ -88,6 +88,7 @@ HEADERS += source/dataman/AMDbObject.h \
 	../../../MPlot/src/MPlot/MPlotAxis.h \
 	../../../MPlot/src/MPlot/MPlotAbstractTool.h \
 	../../../MPlot/src/MPlot/MPlot.h \
+	../../../MPlot/src/MPlot/MPlotSceneAndView.h \
 	../../source/AMObserver.h \
 	../../source/AMObservable.h \
 	../../../MPlot/src/MPlot/MPlotSceneAndView.h \

@@ -186,7 +186,7 @@ int AMAcqScanSpectrumOutput::putValue( acqKey_t key, int eventno, int pvno, cons
 			to->scan_->d_->setLastValue(to->pvnoToColumn_[pvno], dataVal);
 		else{
 			QStringList myList = to->scan_->d_->deeper(0, to->scan_->d_->count()-1)->yColumnNames();
-			qDebug() << "Count for spectrum would be " << spectraVal.count() << " 0th column is " << myList;
+//			qDebug() << "Count for spectrum would be " << spectraVal.count() << " 0th column is " << myList;
 			for(int x = 0; x < spectraVal.count(); x++){
 				to->scan_->d_->deeper(to->pvnoToColumn_[pvno], to->scan_->d_->count()-1)->setValue(0, x, spectraVal[x]);
 			}

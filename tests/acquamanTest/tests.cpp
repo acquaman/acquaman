@@ -18,13 +18,6 @@ private slots:
 		AMScan::dbPrepareTables(AMDatabase::userdb());
 		SGMBeamline::sgm();
 		bool sgmConnected = false;
-		/*
-		for(int x = 0; x < 8; x++){
-			qDebug() << "Waiting for connection to SGM Beamline";
-			QTest::qWait(250);
-		}
-		QVERIFY(SGMBeamline::sgm()->isConnected());
-		*/
 		while(!sgmConnected){
 			if(SGMBeamline::sgm()->isConnected())
 				sgmConnected = true;
@@ -63,11 +56,9 @@ private slots:
 		QVERIFY(!rl1->appendRegion(start, delta, end));
 		QVERIFY(!rl2->appendRegion(start, delta, end));
 
-		qDebug() << "Count is " << rl1->count();
 		// Can't add, region out of range
 		QVERIFY(!rl1->addRegion(2, start, delta, end));
 		QVERIFY(!rl2->addRegion(2, start, delta, end));
-		qDebug() << "Count is " << rl1->count();
 
 		start = 250.1;
 		end = 300;
@@ -285,6 +276,7 @@ private slots:
 				xasDefaultDetectors << xasDetectors->detectorAt(x);
 		for(int x = 0; x < xasDefaultDetectors.count(); x++)
 			QCOMPARE(sxsc->usingDetectors().at(x)->name(), xasDefaultDetectors.at(x)->name());
+		QVERIFY(sxsc->setUsingPGT(1));
 		// Should be using SGM Flux/Resolution ControlSet
 		for(int x = 0; x < sxsc->fluxResolutionSet()->count(); x++)
 			QCOMPARE(sxsc->fluxResolutionSet()->controlAt(x)->name(), SGMBeamline::sgm()->fluxResolutionSet()->controlAt(x)->name());
@@ -296,10 +288,9 @@ private slots:
 		QCOMPARE(sxsc->fileName(), fileName);
 		QVERIFY(sxsc->setFilePath(AMUserSettings::userDataFolder));
 		QCOMPARE(sxsc->filePath(), AMUserSettings::userDataFolder);
-		QVERIFY(sxsc->addRegion(0, 800, 2, 1000));
+		QVERIFY(sxsc->addRegion(0, 930, 2, 980));
 
 		xasCtrl = new SGMXASDacqScanController(sxsc, SGMBeamline::sgm());
-		connect(xasCtrl, SIGNAL(finished()), this, SLOT(onControlFinished()));
 		xasCtrl->initialize();
 		xasCtrl->start();
 
@@ -308,16 +299,46 @@ private slots:
 		while(!scanDone){
 			if(xasCtrl->isStopped())
 				scanDone = true;
-			qDebug() << "Waiting on scan";
 			QTest::qWait(1000);
 		}
-		xasCtrl->spit();
-		QTest::qWait(5000);
-	}
 
-	void onControlFinished()
-	{
-		qDebug() << "I think control is finished based on signal";
+		QString filepath = "/home/reixs/beamline/programming/fkbl/fSGMApp/src/Calcium1_2.dat";
+		QFile f(filepath);
+		QVERIFY(f.open(QIODevice::ReadOnly));
+		QTextStream fs(&f);
+		QRegExp rx("^\\#");
+		QString line;
+		QStringList lp;
+		double eV;
+		QMap<double, QMap<QString, double> > data;
+		QMap<QString, double> rowData;
+		while( !fs.atEnd() && fs.readLine().contains(rx))
+			;
+		while( !fs.atEnd() ){
+			line = fs.readLine();
+			lp = line.split(',');
+			eV = lp.at(1).toDouble();
+			rowData["I0"] = lp.at(4).toDouble();
+			rowData["TEY"] = lp.at(5).toDouble();
+			rowData["TFY"] = lp.at(6).toDouble();
+			data[eV] = rowData;
+		}
+
+		AMXASScan *xs = xasCtrl->scan();
+		int evIndex = xs->indexOfChannel("eV");
+		int I0Index = xs->indexOfChannel("I0");
+		int teyIndex = xs->indexOfChannel("TEY");
+		int tfyIndex = xs->indexOfChannel("TFY");
+		for(int x = 0; x < xs->count(); x++){
+			eV = xs->channel(evIndex)->value(x);
+			rowData = data.value(eV);
+			QCOMPARE(xs->channel(I0Index)->value(x), rowData.value("I0"));
+			QCOMPARE(xs->channel(teyIndex)->value(x), rowData.value("TEY"));
+			QCOMPARE(xs->channel(tfyIndex)->value(x), rowData.value("TFY"));
+		}
+
+
+		QTest::qWait(5000);
 	}
 
 	void cleanupTestCase()

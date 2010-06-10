@@ -13,7 +13,7 @@
 #include <QStringList>
 
 #include "MPlot/MPlot.h"
-#include "MPlot/MPlotSceneAndView.h"
+//#include "MPlot/MPlotSceneAndView.h"
 
 #include "dataman/AMScanSetModel.h"
 
@@ -189,7 +189,7 @@ Q_OBJECT
 public:
 	enum ViewMode { Invalid = -1, Tabs = 0, OverPlot, MultiScans, MultiChannels };
 
-    explicit AMScanView(QWidget *parent = 0);
+	explicit AMScanView(QWidget *parent = 0);
 	virtual ~AMScanView();
 
 	/// returns the AMScanSetModel used internally to hold the scans/channels.

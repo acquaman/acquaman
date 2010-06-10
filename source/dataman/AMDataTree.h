@@ -494,11 +494,11 @@ copyXASData.deeper("sddSpectrums",5)->setValue("y", 512, 49.3);
 			// are we the first? append default subtree
 			if(count_ == 1){
 				if(prototypes_.at(i) == NULL){
-					qDebug() << "Prototype is NULL, prototype default tree";
+//					qDebug() << "Prototype is NULL, prototype default tree";
 					yD_[i] << QSharedDataPointer<AMDataTree>(new AMDataTree());
 				}
 				else{
-					qDebug() << "Prototype exists, using " << i;
+//					qDebug() << "Prototype exists, using " << i;
 					yD_[i] << QSharedDataPointer<AMDataTree>(prototypes_.at(i));
 				}
 			}

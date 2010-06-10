@@ -6,7 +6,6 @@ SGMXASScanConfiguration::SGMXASScanConfiguration(QObject *parent) : AMXASScanCon
 	fluxResolutionSet_ = SGMBeamline::sgm()->fluxResolutionSet();
 	trackingSet_ = SGMBeamline::sgm()->trackingSet();
 	XASDetectors_ = SGMBeamline::sgm()->XASDetectors();
-	qDebug() << "Gap: " << exitSlitGap_ << " grating " << grating_ << " utrack " << undulatorTracking_ << " mtrack " << monoTracking_ << " xtrack " << exitSlitTracking_;
 	emit exitSlitGapChanged(exitSlitGap_);
 	emit gratingChanged(grating_);
 	emit undulatorTrackingChanged(undulatorTracking_);

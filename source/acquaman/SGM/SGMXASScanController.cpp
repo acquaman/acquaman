@@ -13,7 +13,6 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 //	scanDetectors.prepend("eV_Fbk");
 	scanDetectors.prepend(SGMBeamline::sgm()->eVFbkDetector());
 
-	qDebug() << "CURRENT DETECTORS ARE " << scanDetectors;
 	/*
 	  BIG NOTE TO DAVE:
 	  YOU NEW'D THE SCAN ... SOMEONE ELSE HAS TO TAKE OWNERSHIP OF IT FOR DELETION
@@ -37,12 +36,15 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 	pScan_()->addChannel("bigTeyNorm", "10000*tey/I0");
 	pScan_()->addChannel("pgtTest1", "pgt.pgtCounts[130]");
 	pScan_()->addChannel("pgtTest2", "pgt[130].pgtCounts");
+
+	/*
 	QString indexer = "";
 	for(int x = 0; x < 1024; x++){
 		indexer.setNum(x);
 		pScan_()->addChannel("PGT_COUNTS"+indexer, "pgt.pgtCounts["+indexer+"]");
 //				pScan_()->addChannel("PGT_COUNTS"+indexer, "pgt["+indexer+"].pgtCounts");
 	}
+	*/
 
 //	pScan_()->addChannel("eV", "eV");
 //	pScan_()->addChannel("Jitter", "eV_Fbk");
@@ -52,10 +54,8 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 }
 
 bool SGMXASScanController::beamlineInitialize(){
-	qDebug() << "Initializing to slit gap: " << pCfg_()->exitSlitGap() << " und track: " << pCfg_()->undulatorTracking() << " mono track: " << pCfg_()->monoTracking() << " slit track: " << pCfg_()->exitSlitTracking();
 	SGMBeamline::sgm()->exitSlitGap()->move( pCfg_()->exitSlitGap() );
 	SGMBeamline::sgm()->grating()->move( pCfg_()->grating() );
-	qDebug() << "Trying to set harmonic to " << pCfg_()->harmonic();
 	SGMBeamline::sgm()->harmonic()->move( pCfg_()->harmonic());
 	SGMBeamline::sgm()->undulatorTracking()->move( pCfg_()->undulatorTracking() );
 	SGMBeamline::sgm()->monoTracking()->move( pCfg_()->monoTracking() );

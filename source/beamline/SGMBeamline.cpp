@@ -4,7 +4,6 @@ SGMBeamline* SGMBeamline::instance_ = 0;
 
 
 SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
-	qDebug() << "In SGMBeamline constructor";
 //	amNames2pvNames_.set("energy", "dave:Energy");
 	amNames2pvNames_.set("energy", "reixsHost:Energy");
 	amNames2pvNames_.set("eV_Fbk", "dave:Energy:fbk");
@@ -183,7 +182,6 @@ SGMFluxOptimization::SGMFluxOptimization(QObject *parent) : AMControlOptimizatio
 }
 
 QMap<double, double> SGMFluxOptimization::curve(QList<QVariant> stateParameters, AMRegionsList* contextParameters){
-	qDebug() << "Running flux curve";
 	double _maxenergy = maximumEnergy(contextParameters);
 	double _minenergy = minimumEnergy(contextParameters);
 	double _maxflux = 0;

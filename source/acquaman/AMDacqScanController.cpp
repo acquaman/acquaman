@@ -9,6 +9,8 @@
 #include "../MPlot/src/MPlot/MPlotImage.h"
 #include "../MPlot/src/MPlot/MPlotTools.h"
 
+#include "ui/AMScanView.h"
+
 AMDacqScanController::AMDacqScanController(AMScanConfiguration *cfg, QObject *parent) : AMScanController(cfg, parent)
 {
 	_pCfg_ = &generalCfg_;
@@ -67,7 +69,17 @@ void AMDacqScanController::onStop()
 		}
 		*/
 
+		/*
+		qDebug() << "Before scan view";
+		AMScanView *sv = new AMScanView();
+//		sv->show();
+		AMScanSetModel* model = sv->model();
+		model->addScan(pScan_());
+		sv->show();
+		qDebug() << "After scan view";
+		*/
 
+		/*
 		MPlotWidget *plotWindow = new MPlotWidget();
 		MPlot *plot = new MPlot();
 		plotWindow->setPlot(plot);
@@ -79,7 +91,7 @@ void AMDacqScanController::onStop()
 		for(int y = 2; y < maxChannels-1024; y++){
 			series1 = new MPlotSeriesBasic();
 
-			qDebug() << "Plotting " << pScan_()->channel(y)->name();
+//			qDebug() << "Plotting " << pScan_()->channel(y)->name();
 			series1->setModel(pScan_()->channel(y));
 			plot->addItem(series1);
 		}
@@ -89,9 +101,8 @@ void AMDacqScanController::onStop()
 		plot->enableAutoScale(MPlotAxis::Left | MPlotAxis::Bottom);
 		plotWindow->show();
 
-		qDebug() << "Called 2d plot" << QTime::currentTime().msec();
 		play2d();
-		qDebug() << "Done 2d plot" << QTime::currentTime().msec();
+		*/
 	}
 
 }

@@ -102,7 +102,7 @@ void AMReadOnlyPVControl::onPVError(int error) {
 void AMReadOnlyPVControl::onReadPVInitialized() {
 	setUnits(readPV_->units());	// copy over the new unit string
 	setEnumStates(readPV_->enumStrings());	// todo: for subclasses, what to do if readPV and writePV have different number of enum states? Protect against invalid access somehow...
-	qDebug() << QString("ReadOnlyPVControl: read PV initialized correctly.");
+//	qDebug() << QString("ReadOnlyPVControl: read PV initialized correctly.");
 }
 
 
@@ -150,7 +150,7 @@ void AMPVControl::move(double setpoint) {
 	if( canMove() ) {
 		// Issue the move
 		writePV_->setValue(setpoint_);
-		qDebug() << QString("Moving %1 to %2").arg(writePV_->pvName()).arg(setpoint_);
+//		qDebug() << QString("Moving %1 to %2").arg(writePV_->pvName()).arg(setpoint_);
 
 		// We're now moving! Let's hope this hoofedinkus makes it...
 		mip_ = true;

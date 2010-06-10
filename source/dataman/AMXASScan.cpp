@@ -22,12 +22,12 @@ bool AMXASScan::addDetector(const AMAbstractDetector *uniqueDetector) {
 		return false;
 	detectors_ << uniqueDetector;
 	detectorNames_ << uniqueDetector->name();
-	qDebug() << "Adding column for " << uniqueDetector->name();
+//	qDebug() << "Adding column for " << uniqueDetector->name();
 	if(!uniqueDetector->isSpectralOutput())
 		d_->createColumn(uniqueDetector->name());
 	else{
 		AMSpectralOutputDetector *specDtctr = (AMSpectralOutputDetector*)uniqueDetector;
-		qDebug() << "CREATING " << specDtctr->numSpectrumBins() << " SUBTREE FOR PGT";
+//		qDebug() << "CREATING " << specDtctr->numSpectrumBins() << " SUBTREE FOR PGT";
 		AMDataTree *tmpTree;
 		if(specDtctr->xElementName().isEmpty())
 			tmpTree = new AMDataTree(specDtctr->numSpectrumBins(), "x", false);
@@ -36,9 +36,9 @@ bool AMXASScan::addDetector(const AMAbstractDetector *uniqueDetector) {
 		for(int x = 0; x < specDtctr->yElementNames().count(); x++)
 			tmpTree->createColumn(specDtctr->yElementNames().at(x));
 		d_->createSubtreeColumn(specDtctr->name(), tmpTree);
-		qDebug() << "Subx is " << tmpTree->xName();
-		for(int x = 0; x < tmpTree->yColumnNames().count(); x++)
-			qDebug() << " Suby" << x << " is " << tmpTree->yColumnNames().at(x);
+//		qDebug() << "Subx is " << tmpTree->xName();
+//		for(int x = 0; x < tmpTree->yColumnNames().count(); x++)
+//			qDebug() << " Suby" << x << " is " << tmpTree->yColumnNames().at(x);
 	}
 	return true;
 }

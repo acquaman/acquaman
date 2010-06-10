@@ -43,10 +43,10 @@ QEpicsAdvAcq::QEpicsAdvAcq(QEpicsAcqLocal *acq)
 	connect(_acq, SIGNAL(onStart()), SIGNAL(onStart()));
 	connect(_acq, SIGNAL(onPause(int)), SIGNAL(onPause(int)));
 	connect(_acq, SIGNAL(onStop()), SIGNAL(onStop()));
-	connect(_acq, SIGNAL(onState(acqState)), SIGNAL(onState(acqState)));
+//	connect(_acq, SIGNAL(onState(acqState)), SIGNAL(onState(acqState)));
 	connect(_acq, SIGNAL(sendStatus(const QString&)), SIGNAL(sendStatus(const QString&)));
 	connect(_acq, SIGNAL(sendCompletion(int)), SIGNAL(sendCompletion(int)));
-	connect(_acq, SIGNAL(nextOutputFile(const QString&)), SIGNAL(nextOutputFile(const QString&)));
+//	connect(_acq, SIGNAL(nextOutputFile(const QString&)), SIGNAL(nextOutputFile(const QString&)));
 	connect(_acq, SIGNAL(changeRunNumber(int)), SIGNAL(changeRunNumber(int)));
 	connect(_acq, SIGNAL(sendMessage( const QString &)), SIGNAL(sendMessage(const QString&)));
 	connect(_acq, SIGNAL(sendOnelineMessage( const QString &)), SIGNAL(sendOnelineMessage(const QString &)));
@@ -516,7 +516,6 @@ bool QEpicsAdvAcq::deleteRecord(int record)
 bool QEpicsAdvAcq::buildFromConfig()
 {
 //    acqFile_t *acqf = _acq->getMaster()->acqFile;
-	qDebug() << "Called buildFromConfig";
 	sp = first_acqScan(_acq->getMaster());
 //    if(sp == NULL || acqf == NULL)
 	if(sp == NULL)
@@ -574,11 +573,9 @@ void QEpicsAdvAcq::setPV(int region, QString pvname)
 
 void QEpicsAdvAcq::setStart(int region, double start)
 {
-	qDebug() << "Start of advAcq::setStart - It says region " << region << " I have " << _regions.count();
 	_regions.at(region)->_start = start;
 	if(_regions.at(region)->_enable)
 		setValue(sp->scanName, "start", region-_regions.at(region)->_offset, start);
-	qDebug() << "End of advAcq::setStart";
 }
 
 void QEpicsAdvAcq::setStrStart(int region, QString start)
