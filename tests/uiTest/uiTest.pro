@@ -66,7 +66,6 @@ HEADERS += ../../source/AMSettings.h \
 	../../../MPlot/src/MPlot/MPlotTools.h \
 	../../../MPlot/src/MPlot/MPlotSeriesData.h \
 	../../../MPlot/src/MPlot/MPlotSeries.h \
-	../../../MPlot/src/MPlot/MPlotSceneAndView.h \
 	../../../MPlot/src/MPlot/MPlotPoint.h \
 	../../../MPlot/src/MPlot/MPlotObserver.h \
 	../../../MPlot/src/MPlot/MPlotObservable.h \
@@ -79,7 +78,6 @@ HEADERS += ../../source/AMSettings.h \
 	../../../MPlot/src/MPlot/MPlotAxis.h \
 	../../../MPlot/src/MPlot/MPlotAbstractTool.h \
 	../../../MPlot/src/MPlot/MPlot.h \
-	../../../MPlot/src/MPlot/MPlotSceneAndView.h \
 	../../source/AMUserOptions.h \
 	../../source/AMSettings.h \
 	../../source/AMObserver.h \

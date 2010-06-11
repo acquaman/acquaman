@@ -124,11 +124,9 @@ HEADERS += source/beamline/AMDiagnosticPaddle.h \
 	../../../MPlot/src/MPlot/MPlotAxis.h \
 	../../../MPlot/src/MPlot/MPlotAbstractTool.h \
 	../../../MPlot/src/MPlot/MPlot.h \
-	../../../MPlot/src/MPlot/MPlotSceneAndView.h \
 	../../source/dataman/AMDataTree.h \
 	../../source/AMObserver.h \
 	../../source/AMObservable.h \
-	../../../MPlot/src/MPlot/MPlotSceneAndView.h \
 	source/beamline/AMDetector.h \
 	source/acquaman/AMAcqScanSpectrumOutput.h \
 	source/ui/AMScanView.h \

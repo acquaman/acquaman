@@ -148,7 +148,6 @@ HEADERS += source/beamline/AMDiagnosticPaddle.h \
 	source/AMObserver.h \
 	source/acquaman/AMRegionsList.h \
 	source/ui/AMScanView.h \
-	../MPlot/src/MPlot/MPlotSceneAndView.h \
 	source/beamline/AMDetector.h \
 	source/acquaman/AMAcqScanSpectrumOutput.h \
 	source/dataman/AMScanSetModel.h \
