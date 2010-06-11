@@ -48,7 +48,13 @@ bool AMScan::addChannel(const QString& chName, const QString& expression) {
 	if(channelNames().contains(chName))
 		return false;
 
-	ch_.addChannel(new AMChannel(this, chName, expression));
+	AMChannel *tmpCh = new AMChannel(this, chName, expression);
+	if(!tmpCh->isValid()){
+		delete tmpCh;
+		return false;
+	}
+	ch_.addChannel(tmpCh);
+//	ch_.addChannel(new AMChannel(this, chName, expression));
 	return true;
 }
 
@@ -58,14 +64,14 @@ bool AMScan::addChannel(const QString& chName, const QString& expression) {
 
 /// This member function updates a scan in the database (if it exists already), otherwise it adds it to the database.
 
-        // - AMScan Objects (ex: new scans) have their id() field set to <1, unless they've been retrieved from the database, in which case they have id() = [valid database key]
+		// - AMScan Objects (ex: new scans) have their id() field set to <1, unless they've been retrieved from the database, in which case they have id() = [valid database key]
 	// Watch out: by creating a scan and giving it id() = [some arbitrary positive number]; you'll destroy data in the db.
 
 bool AMScan::storeToDb(AMDatabase* db) {
 
 	// Always call base class implementation first.
 	// Return false if it fails.
-        if( !AMDbObject::storeToDb(db) )
+		if( !AMDbObject::storeToDb(db) )
 		return false;
 
 	QList<const QVariant*> values;
@@ -86,7 +92,7 @@ bool AMScan::loadFromDb(AMDatabase* db, int sourceId) {
 
 	// always call the base class implementation first. This retrieves/loads all the base-class properties.
 	// return false if it fails:
-        if( !AMDbObject::loadFromDb(db, sourceId))
+		if( !AMDbObject::loadFromDb(db, sourceId))
 		return false;
 
 	// Provide memory storage for return value:

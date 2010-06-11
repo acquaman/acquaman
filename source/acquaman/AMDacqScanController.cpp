@@ -136,7 +136,7 @@ void AMDacqScanController::play2d()
 		chRef.setNum(yy);
 		chRef.prepend("PGT_COUNTS");
 		AMChannel* ch = pScan_()->channel(chRef);
-		for(int xx=0; xx<pScan_()->count(); xx++) {
+		for(uint xx=0; xx<pScan_()->count(); xx++) {
 			data2d->setZ(ch->value(xx), xx, yy);
 		}
 	}

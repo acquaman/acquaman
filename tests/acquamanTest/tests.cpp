@@ -329,7 +329,7 @@ private slots:
 		int I0Index = xs->indexOfChannel("I0");
 		int teyIndex = xs->indexOfChannel("TEY");
 		int tfyIndex = xs->indexOfChannel("TFY");
-		for(int x = 0; x < xs->count(); x++){
+		for(unsigned int x = 0; x < xs->count(); x++){
 			eV = xs->channel(evIndex)->value(x);
 			rowData = data.value(eV);
 			QCOMPARE(xs->channel(I0Index)->value(x), rowData.value("I0"));

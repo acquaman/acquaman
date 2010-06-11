@@ -86,11 +86,14 @@ public:
 		return ch_.indexOf(channel);
 	}
 
-	void addChannel(AMChannel* newChannel) {
+	bool addChannel(AMChannel* newChannel) {
+		if(!newChannel->isValid())
+			return false;
 		beginInsertRows(QModelIndex(), ch_.count(), ch_.count());
 		name2chIndex_.set(newChannel->name(), ch_.count());
 		ch_.append(newChannel);
 		endInsertRows();
+		return true;
 	}
 
 	bool deleteChannel(unsigned index) {

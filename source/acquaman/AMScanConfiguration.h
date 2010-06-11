@@ -46,17 +46,23 @@ public:
 	/// Returns the path to save the raw data file to
 	QString filePath() const { return filePath_; }
 
+	QList<QPair<QString, QString> > defaultChannels() const { return defaultChannels_; }
+
 public slots:
 	/// Sets the file name
 	bool setFileName(const QString &fileName) { fileName_ = fileName; return true;}
 	/// Sets the file path
 	bool setFilePath(const QString &filePath) { filePath_ = filePath; return true;}
 
+	bool setDefaultChannels(const QList<QPair<QString, QString> > &defaultChannels) { defaultChannels_ = defaultChannels; return true;}
+
 protected:
 	/// File name
 	QString fileName_;
 	/// File path
 	QString filePath_;
+
+	QList<QPair<QString, QString> > defaultChannels_;
 };
 
 #endif // ACQMAN_SCANCONFIGURATION_H
