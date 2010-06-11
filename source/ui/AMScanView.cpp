@@ -336,6 +336,7 @@ void AMScanView::setupUI() {
 	views_ << new AMScanViewExclusiveView(this);
 	views_ << new AMScanViewMultiView(this);
 	views_ << new AMScanViewMultiScansView(this);
+	views_ << new AMScanViewMultiChannelsView(this);
 
 	for(int i=0; i<views_.count(); i++)
 		glayout_->addItem(views_.at(i));
@@ -893,7 +894,8 @@ void AMScanViewMultiScansView::onRowAboutToBeRemoved(const QModelIndex& parent, 
 				}
 			}
 			plotSeries_.removeAt(si);
-			if(si == 0) {
+			// if this is the first plot, and its the only one left, need to leave it around but flagged as empty
+			if(si == 0 && plots_.count()==1) {
 				firstPlotEmpty_ = true;
 			}
 			else {
@@ -982,6 +984,350 @@ void AMScanViewMultiScansView::reLayout() {
 		if(cc == width) {
 			rc++;
 			cc = 0;
+		}
+	}
+}
+
+
+
+
+
+//////////////////////////////////////////////////
+
+AMScanViewMultiChannelsView::AMScanViewMultiChannelsView(AMScanView* masterView) : AMScanViewInternal(masterView) {
+
+	layout_ = new QGraphicsGridLayout();
+	layout_->setContentsMargins(0,0,0,0);
+	setLayout(layout_);
+
+	// we need to have at least one plot, to fill our widget,  even if there are no scans.
+	MPlotGW* plot;
+	plot = new MPlotGW();
+	plot->plot()->axisRight()->setTicks(0);
+	plot->plot()->axisBottom()->setTicks(4);
+	plot->plot()->axisLeft()->showGrid(false);
+	plot->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left);
+
+	firstPlotEmpty_ = true;
+	channelPlots_ << plot;
+
+	// add all of the scans we have already
+	for(int si=0; si<model()->numScans(); si++) {
+		addScan(si);
+	}
+
+	reLayout();
+}
+
+void AMScanViewMultiChannelsView::addScan(int si) {
+
+	// create plot (unless we're inserting Scan 0 and an empty plot is ready for us)
+	if(si == 0 && firstPlotEmpty_) {
+		firstPlotEmpty_ = false;
+	}
+	else {
+		MPlotGW* plot;
+		plot = new MPlotGW();
+		plot->plot()->axisRight()->setTicks(0);
+		plot->plot()->axisBottom()->setTicks(4);
+		plot->plot()->axisLeft()->showGrid(false);
+		plot->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left);
+
+		channelPlots_.insert(si, plot);
+	}
+
+	QList<MPlotSeriesBasic*> scanList;
+
+	for(int ci=0; ci<model()->scanAt(si)->numChannels(); ci++) {
+
+		AMChannel* ch = model()->channelAt(si, ci);
+		// if visible, create and append the list
+		if(model()->data(model()->indexForChannel(si, ci), Qt::CheckStateRole).value<bool>()) {
+
+			MPlotSeriesBasic* series = new MPlotSeriesBasic(ch);
+
+			series->setMarker(MPlotMarkerShape::None);
+			QPen pen = model()->data(model()->indexForChannel(si, ci), AMScanSetModel::LinePenRole).value<QPen>();
+			pen.setColor(model()->data(model()->indexForChannel(si, ci), Qt::DecorationRole).value<QColor>());
+			series->setLinePen(pen);
+
+			channelPlots_[si]->plot()->addItem(series);
+			scanList << series;
+		}
+		else // otherwise, append null series
+			scanList << 0;
+	}
+	plotSeries_.insert(si, scanList);
+
+	// note: haven't yet added this new plot to the layout_.  That's up to reLayout();
+}
+
+AMScanViewMultiChannelsView::~AMScanViewMultiChannelsView() {
+
+	/* NOT necessary to delete all plotSeries. As long as they are added to a plot, they will be deleted when the plot is deleted (below).
+	for(int si=0; si<plotSeries_.count(); si++)
+		for(int ci=0; ci<model()->scanAt(si)->numChannels(); ci++)
+			if(plotSeries_[si][ci]) {
+				channelPlots_[si]->plot()->removeItem(plotSeries_[si][ci]);
+				delete plotSeries_[si][ci];
+			}*/
+
+
+	for(int pi=0; pi<channelPlots_.count(); pi++)
+		delete channelPlots_.at(pi);
+}
+
+
+
+void AMScanViewMultiChannelsView::onRowInserted(const QModelIndex& parent, int start, int end) {
+
+	// inserting a scan:
+	if(!parent.isValid()) {
+		for(int i=start; i<=end; i++)
+			addScan(i);
+
+		reLayout();
+	}
+
+	// inserting a channel: (parent.row is the scanIndex, start-end are the channel indices)
+	else if(parent.internalId() == -1) {
+		int si = parent.row();
+		for(int ci=start; ci<=end; ci++) {
+
+			AMChannel* ch = model()->channelAt(si, ci);
+			// if visible, create and append to the list, and add to plot.
+			if(model()->data(model()->indexForChannel(si, ci), Qt::CheckStateRole).value<bool>()) {
+
+				MPlotSeriesBasic* series = new MPlotSeriesBasic(ch);
+
+				series->setMarker(MPlotMarkerShape::None);
+				QPen pen = model()->data(model()->indexForChannel(si, ci), AMScanSetModel::LinePenRole).value<QPen>();
+				pen.setColor(model()->data(model()->indexForChannel(si, ci), Qt::DecorationRole).value<QColor>());
+				series->setLinePen(pen);
+
+				channelPlots_[si]->plot()->addItem(series);
+				plotSeries_[si].insert(ci, series);
+			}
+			else // otherwise, append null series
+				plotSeries_[si].insert(ci, 0);
+		}
+	}
+}
+/// before a scan or channel is deleted in the model:
+void AMScanViewMultiChannelsView::onRowAboutToBeRemoved(const QModelIndex& parent, int start, int end) {
+
+	// removing a scan: (start through end are the scan index)
+	if(!parent.isValid()) {
+		for(int si=end; si>=start; si--) {
+			for(int ci=0; ci<model()->scanAt(si)->numChannels(); ci++) {
+				if(plotSeries_[si][ci]) {
+					channelPlots_[si]->plot()->removeItem(plotSeries_[si][ci]);
+					delete plotSeries_[si][ci];
+				}
+			}
+			plotSeries_.removeAt(si);
+			if(si == 0 && channelPlots_.count()==1) {
+				firstPlotEmpty_ = true;
+			}
+			else {
+				delete channelPlots_.takeAt(si);
+			}
+		}
+		reLayout();
+	}
+
+	// removing a channel. parent.row() is the scanIndex, and start - end are the channel indexes.
+	else if(parent.internalId() == -1) {
+		int si = parent.row();
+		for(int ci = end; ci>=start; ci--) {
+			if(plotSeries_[si][ci]) {
+				channelPlots_[si]->plot()->removeItem(plotSeries_[si][ci]);
+				delete plotSeries_[si][ci];
+			}
+			plotSeries_[si].removeAt(ci);
+		}
+	}
+}
+/// after a scan or channel is deleted in the model:
+void AMScanViewMultiChannelsView::onRowRemoved(const QModelIndex& parent, int start, int end) {
+	Q_UNUSED(parent)
+	Q_UNUSED(start)
+	Q_UNUSED(end)
+}
+
+/// when data changes: (Things we care about: color, linePen, and visible)
+void AMScanViewMultiChannelsView::onModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight) {
+
+	// changes to a scan:
+	if(topLeft.internalId() == -1) {
+		// no changes that we really care about...
+
+	}
+
+	// changes to one of our channels: internalId is the scanIndex.  Channel index is from topLeft.row to bottomRight.row
+	else if((unsigned)topLeft.internalId() < (unsigned)model()->numScans()) {
+
+		int si = topLeft.internalId();
+		for(int ci=topLeft.row(); ci<=bottomRight.row(); ci++) {
+
+			// handle visibility changes:
+			bool visible = model()->data(model()->indexForChannel(si, ci), Qt::CheckStateRole).value<bool>();
+
+			MPlotSeriesBasic* series = plotSeries_[si][ci];
+
+			// need to create:
+			if(visible && series == 0) {
+				plotSeries_[si][ci] = series = new MPlotSeriesBasic(model()->channelAt(si, ci));
+				series->setMarker(MPlotMarkerShape::None);
+				channelPlots_[si]->plot()->addItem(series);
+			}
+
+			// need to get rid of:
+			if(!visible && series) {
+				channelPlots_[si]->plot()->removeItem(series);
+				delete series;
+				plotSeries_[si][ci] = 0;
+			}
+
+			// finally, apply color and linestyle changes, if visible:
+			if(visible) {
+				QPen pen = model()->data(model()->indexForChannel(si, ci), AMScanSetModel::LinePenRole).value<QPen>();
+				pen.setColor(model()->data(model()->indexForChannel(si, ci), Qt::DecorationRole).value<QColor>());
+				series->setLinePen(pen);
+			}
+		}
+	}
+}
+
+
+
+
+/// re-do the layout
+void AMScanViewMultiChannelsView::reLayout() {
+
+	for(int li=0; li<layout_->count(); li++)
+		layout_->removeAt(li);
+
+	int rc=0, cc=0, width = sqrt(channelPlots_.count());
+
+	for(int pi=0; pi<channelPlots_.count(); pi++) {
+		layout_->addItem(channelPlots_.at(pi), rc, cc++, Qt::AlignCenter);
+		if(cc == width) {
+			rc++;
+			cc = 0;
+		}
+	}
+}
+
+
+/// when full list of channels in the model changes, we need to sync/match up our channel lists (channelNames_ and plots_) with the model list.
+/*! Here's what changes could have happened in the model list:
+	- channels added (one or multiple)
+	- channels removed (one or multiple)
+	- order changed
+
+	Assumptions:
+	- unique channel names (no duplicates)
+
+	Required outcome:
+	- final order the same in both lists
+	- keep entities whenever we already have them
+
+	Here's our sync algorithm:
+
+	- delete all in [us] not contained in [model]
+	// [us] is now the same or smaller than [model]
+	- iterate through [model] from i=0 onwards
+		- if( i >= us.count )
+			- append to us
+		- else if ( model[i] != us[i] )
+			- if ( us.contains(model[i]) )
+				- move it to i
+			- else
+				- us.insert at i
+
+*/
+
+
+// This function removes from the plot, deletes, and sets to 0 any AMPlotSeriesBasic(simple, expensive version)
+void AMScanViewMultiChannelsView::removePlotSeriesWithChannelName(const QString& channelName) {
+
+}
+
+void AMScanViewMultiChannelsView::reviewChannels() {
+
+	QStringList modelChannels = model()->visibleChannelNames();
+
+	// delete all in [us] not contained in [model]
+	for(int i=0; i<channelNames_.count(); i++) {
+		if(!modelChannels.contains(channelNames_.at(i))) {
+			// remove and delete any plotSeries_ with this channel name
+			for(int si=0; si<plotSeries_[i].count(); si++) {
+				if(plotSeries_[i][si]) {
+					channelPlots_[i]->plot()->removeItem(plotSeries_[i][si]);
+					delete plotSeries_[i][si];
+					plotSeries_[i][si] = 0;
+				}
+			}
+			// delete the plot, unless it's the first one and there are no others
+			if(i==0 && channelPlots_.count()==1)
+				firstPlotEmpty_ = true;
+			else
+				delete channelPlots_.takeAt(i);
+			// delete the entry in the channel names, remove, and decrement i since the old i will now be the next element
+			channelNames_.removeAt(i);
+			plotSeries_.removeAt(i);
+			i--;
+		}
+	}
+
+	// iterate through the model list from i=0 onwards:
+	for(int i=0; i<modelChannels.count(); i++) {
+
+		if(i >= channelNames_.count()) {
+			// append to our lists
+			channelNames_.insert(i, modelChannels.at(i));
+			if(i==0 && firstPlotEmpty_)
+				firstPlotEmpty_ = false;
+			else {
+				MPlotGW* plot;
+				plot = new MPlotGW();
+				plot->plot()->axisRight()->setTicks(0);
+				plot->plot()->axisBottom()->setTicks(4);
+				plot->plot()->axisLeft()->showGrid(false);
+				plot->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left);
+
+				channelPlots_.insert(i, plot);
+			}
+			plotSeries_.insert(i, QList<MPlotSeriesBasic*>() );
+
+		}
+
+		else if(channelNames_.at(i) != modelChannels.at(i)) {
+			// do we have it somewhere else? Move it
+			if(channelNames_.contains(modelChannels.at(i))) {
+				int oldLocation = channelNames_.indexOf(modelChannels.at(i));
+				channelNames_.move(oldLocation,i);
+				channelPlots_.move(oldLocation,i);
+				plotSeries_.move(oldLocation, i);
+			}
+			// otherwise create new and insert at i
+			else {
+				channelNames_.insert(i, modelChannels.at(i));
+				/// \todo plotSeries_.insert(i, emptyPlotSeriesList(model()->numScans()));
+				if(i==0 && firstPlotEmpty_)
+					firstPlotEmpty_ = false;
+				else {
+					MPlotGW* plot;
+					plot = new MPlotGW();
+					plot->plot()->axisRight()->setTicks(0);
+					plot->plot()->axisBottom()->setTicks(4);
+					plot->plot()->axisLeft()->showGrid(false);
+					plot->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left);
+
+					channelPlots_.insert(i, plot);
+				}
+			}
 		}
 	}
 }

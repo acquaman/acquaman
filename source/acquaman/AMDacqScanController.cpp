@@ -27,10 +27,6 @@ AMDacqScanController::AMDacqScanController(AMScanConfiguration *cfg, QObject *pa
 	connect(advAcq_, SIGNAL(sendCompletion(int)), this, SLOT(onSendCompletion(int)));
 }
 
-///// Sets a new scan configuration
-//void AMDacqScanController::newConfigurationLoad(AMScanConfiguration &cfg)
-//{
-//}
 
 /// Cancel scan if currently running or paused
 void AMDacqScanController::cancel()
@@ -56,19 +52,6 @@ void AMDacqScanController::onStop()
 		emit finished();
 
 	if(pScan_()){
-/*
-		qDebug() << "END OF SCAN\n\n\nStarting to print scan data for";
-		qDebug() << curScan_->detectors().count() << " columns";
-		qDebug() << curScan_->d_->count() << " rows";
-
-		for(int x = 0; unsigned(x) < curScan_->d_->count(); x++){
-			qDebug() << "Starting row " << x;
-			for(int y = 0; y < curScan_->detectors().count(); y++)
-				qDebug() << "Value is " << curScan_->d_->value(y, x);
-			qDebug() << "Done row\n";
-		}
-		*/
-
 		/*
 		qDebug() << "Before scan view";
 		AMScanView *sv = new AMScanView();

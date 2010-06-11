@@ -12,20 +12,10 @@ class AMScanController : public QObject
 Q_OBJECT
 Q_PROPERTY(bool running READ isRunning)
 Q_PROPERTY(bool paused READ isPaused)
-/*
-Q_PROPERTY(QString id READ id)
-Q_PROPERTY(QString name READ name WRITE setName)
-Q_PROPERTY(int number READ number WRITE setNumber)
-Q_PROPERTY(QString sampleName READ sampleName WRITE setSampleName)
-Q_PROPERTY(QString comments READ comments WRITE setComments NOTIFY commentsChanged)
-Q_PROPERTY(QDateTime startTime READ startTime WRITE setStartTime)
-*/
 
 public:
 	explicit AMScanController(AMScanConfiguration *cfg, QObject *parent = 0);
 
-//    /// Returns the scan configuration for this controller
-//    AMScanConfiguration* configuration(){return cfg_;}
 	/// Returns true if the scan is running but not paused
 	bool isRunning() const {return running_ && !paused_;}
 	/// Convenience call, returns true if the scan is not running
@@ -35,8 +25,6 @@ public:
 	bool isInitialized() const {return initialized_;}
 
 signals:
-//    /// New scan configuration is set
-//    void newConfigurationLoaded();
 	/// Scan has started
 	void started();
 	/// Scan completed
@@ -53,8 +41,6 @@ signals:
 
 
 public slots:
-//    /// Sets a new scan configuration
-//    virtual void newConfigurationLoad(AMScanConfiguration &cfg) = 0;
 	/// Start scan running if not currently running or paused
 	virtual void start() = 0;
 	/// Cancel scan if currently running or paused
@@ -67,7 +53,7 @@ public slots:
 
 
 protected:
-//    /// Configuration for this scan
+	/// Configuration for this scan
 	AMScanConfiguration *generalCfg_;
 	AMScan *generalScan_;
 	/// Holds whether this scan is currently running

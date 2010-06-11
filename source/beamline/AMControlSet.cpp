@@ -34,9 +34,7 @@ bool AMControlSet::removeControl(AMControl* ctrl) {
 }
 
 /// Default implementation returns an empty map. This function is the core of the implementation for subclasses.
-//QMap<double, double> AMControlOptimization::curve(QList<QVariant> stateParameters, QList<AMRegion*> contextParameters) {
 QMap<double, double> AMControlOptimization::curve(QList<QVariant> stateParameters, AMRegionsList* contextParameters) {
-	qDebug() << "I should never be doing this curve call";
 	QMap<double, double> noMap;
 	Q_UNUSED(stateParameters);
 	Q_UNUSED(contextParameters);

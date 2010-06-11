@@ -39,8 +39,6 @@ public slots:
 
 	/// Deletes the region refered to by index and renumbers subsequent regions accordingly. Returns true if successful, return false if index is invalid.
 	bool deleteRegion(size_t index){
-//		if(index > count())
-//			return false;
 		return regions_->removeRows(index, 1);
 	}
 	void setDefaultControl(AMControl* defaultControl){defaultControl_ = defaultControl; regions_->setDefaultControl(defaultControl);}

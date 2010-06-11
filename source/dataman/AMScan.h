@@ -206,21 +206,6 @@ signals:
 	void commentsChanged(const QString &);
 	/// Emitted when data changes / new data accepted
 	void updated(AMScan* me);
-/*
-  Belongs in scan controller
-	/// AMScan has started
-	void started();
-	/// AMScan completed
-	void finished();
-	/// AMScan canceled by user
-	void cancelled();
-	/// AMScan paused
-	void paused();
-	/// AMScan resumed
-	void resumed();
-	/// Time left in scan
-	void timeRemaining(double seconds);
-*/
 
 public slots:
 

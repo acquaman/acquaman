@@ -314,7 +314,6 @@ QMap<double, double> SGMResolutionOptimization::curve(QList<QVariant> stateParam
 		tmpEnd = contextParameters->end(x);
 		for( double y = tmpStart; ((tmpDelta > 0) ? (y <= tmpEnd) : (y >= tmpEnd)); y += tmpDelta ){
 // FIX NEGATIVES!!!
-//            rCurve[y] = !SGMBeamline::sgm()->energyValidForSettings(_grating, _harmonic, y) ? 0.0 : (_slit/62500)*(500-_slit)* ( ((_minflux-_maxflux)/((_minimum-_maximum)*(_minimum-_maximum)))*(y-_maximum)*(y-_maximum)+_maxflux );
 			rCurve[y] = !SGMBeamline::sgm()->energyValidForSettings(_grating, _harmonic, y) ? 0.0 : ((_minflux-_maxflux)/((_minimum-_maximum)*(_minimum-_maximum)))*(y-_maximum+_stateScalar*_slit)*(y-_maximum+_stateScalar*_slit)+(_slit*_maxflux)/(0.0243*_slit*_slit+0.415*_slit+3.4167);
 		}
 	}

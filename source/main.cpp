@@ -43,7 +43,7 @@
 #include <QApplication>
 #include "AMSettings.h"
 
-#include "ui/MainWindow.h"
+#include "ui/AMMainWindow.h"
 
 #include "beamline/AMPVNames.h"
 #include "beamline/AMBeamline.h"
@@ -53,16 +53,25 @@
 #include "dataman/AMDatabase.h"
 #include "dataman/AMDbLoader.h"
 
-// debug only:
-#include "dataman/AMScan.h"
+
+#include "ui/ConnectionSettings.h"
+#include "ui/SamplePositions.h"
+#include "ui/GratingResolution.h"
+#include "ui/AbsorptionScanController.h"
+#include "ui/SGMXASScanConfigurationViewer.h"
+#include "ui/EmissionScanController.h"
+#include "ui/Scheduler.h"
+#include "ui/PeriodicTable.h"
+#include "ui/ProtocolViewer.h"
+#include "ui/ExpAlbum.h"
+#include "ui/BottomBar.h"
 
 #include "AMErrorMonitor.h"
 
 
 int main(int argc, char *argv[])
 {
-	//    ScanController *myScan;
-	//    myScan = new DacqScanController();
+
 	/// Program Startup:
 	// =================================
 	QApplication app(argc, argv);
@@ -77,60 +86,47 @@ int main(int argc, char *argv[])
 	AMScan::dbPrepareTables(AMDatabase::userdb());
 
 	//Create the main tab window:
-	// Memory management: all QObjects are children of this guy...will be deleted when he goes out of scope.
-	MainWindow mw;
+	AMMainWindow mw;
+	mw.setWindowTitle("Acquaman");
+
+
+	/// \todo Move to MainWindowController:
+
+	mw.addPane(new ConnectionSettings(), "Beamline Control", "Dev Playground", ":/network-workgroup.png");
+	mw.addPane(new SamplePositions(), "Beamline Control", "Sample Positions", ":/system-software-update.png");
+	mw.addPane(new GratingResolution(), "Beamline Control", "Gratings and Resolution", ":/system-search.png");
+
+	mw.addPane(new AbsorptionScanController(), "Experiment Setup", "Absorption Scan", ":/utilities-system-monitor.png");
+	mw.addPane(new EmissionScanController(), "Experiment Setup", "Emission Scan", ":/multimedia-volume-control.png");
+
+	SGMXASScanConfigurationViewer* sxscViewer = new SGMXASScanConfigurationViewer();
+	mw.addPane(sxscViewer, "Experiment Setup", "David Scan", ":/utilities-system-monitor.png");
+	// connect(sxscViewer, SIGNAL(scanControllerReady(AMScanController*)), this, SLOT(onScanControllerReady(AMScanController*)));
+
+	mw.addPane(new Scheduler(), "Experiment Tools", "Scheduler", ":/user-away.png");
+	mw.addPane(new PeriodicTable(), "Experiment Tools", "Periodic Table", ":/applications-science.png");
+	mw.addPane(new ProtocolViewer(), "Experiment Tools", "Protocol", ":/accessories-text-editor.png");
+	mw.addPane(new ExpAlbum(), "Experiment Tools", "My Data", ":/system-file-manager.png");
+
+	/// end move to MainWindowController
+
+	BottomBar* b = new BottomBar();
+	mw.addBottomWidget(b);
+	/*
+void MainWindow::onScanControllerReady(AMScanController *scanController){
+	qDebug() << "\n\nScan controller is ready\n\n";
+	connect(bottomBar_, SIGNAL(pauseScanIssued()), scanController, SLOT(pause()));
+	connect(bottomBar_, SIGNAL(stopScanIssued()), scanController, SLOT(cancel()));
+	connect(scanController, SIGNAL(progress(double,double)), bottomBar_, SLOT(updateScanProgress(double,double)));
+}
+*/
+
+	// show main window
 	//mw.showFullScreen();
 	mw.show();
 
 	// app.setStyleSheet("QLabel {font: 16pt \"Lucida Grande\";}");
 
-	/// Temporary debug session: testing database inserts
-	// =================================
-	AMScan jimbo;
-	jimbo.setName("myFirstScan");
-	jimbo.setNumber(3);
-	jimbo.setSampleName("Carbon_60");
-	jimbo.setComments("This is\n a three-line\n comment!");
-	jimbo.setDateTime(QDateTime::currentDateTime());
-	// Save (or update) jimbo in the database
-	*AMDatabase::userdb() << jimbo;
-
-	qDebug() << "Jimbo inserted into db.  Jimbo's new id:" << jimbo.id();
-
-	QList<int> jimboIds = AMDatabase::userdb()->scansMatching("name", "myFirstScan");
-	qDebug() << "matching myFirstScan: Found this many: " << jimboIds.count();
-
-	jimboIds = AMDatabase::userdb()->scansMatching("name", "First");
-	qDebug() << "matching First: Found this many: " << jimboIds.count();
-
-	jimboIds = AMDatabase::userdb()->scansContaining("name", "First");
-	qDebug() << "containing First: Found this many: " << jimboIds.count();
-
-	qDebug() << "What is the type of object at id 1?" << AMDatabase::userdb()->scanType(1);
-	qDebug() << "What is the type of object at id 201?" << AMDatabase::userdb()->scanType(201);
-
-	// Use the powerful anyType loader to load from the database:
-	AMDbObject* loadedObject = AMDbLoader::createAndLoad(AMDatabase::userdb(), 1);
-	// this loaded all the details of the Scan object, even though you have a DbObject pointer
-	// Can ask for it's type using
-	if(loadedObject)
-		qDebug() << "loaded database object @ id=1 dynamically; his type is: " << loadedObject->type();
-	// If you want, convert to a Scan using qt's dynamic cast:
-	AMScan* loadedScan = qobject_cast<AMScan*>(loadedObject);
-	if(loadedScan)
-		qDebug() << "Dynamic object was a Scan... his sampleName is" << loadedScan->sampleName();
-	else
-		qDebug() << "Dynamically loaded an object, but it's not a Scan.";
-
-	// But all this is silly if you already know the type of the object.  Just do:
-	AMScan newScan2;
-	qDebug() << "Attempting to load scan at ID 2. Found it: " << newScan2.loadFromDb(AMDatabase::userdb(), 2);
-	qDebug() << "scan at id 2: comment is: " << newScan2.comments();
-	qDebug() << "scan at id 2: dateTime is: " << newScan2.dateTime();
-	qDebug() << "scan at id 2: id is: " << newScan2.id();
-
-	// End of database insert / search testing
-	// =====================================
 
 	AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -2, "Watch out, Acquaman!"));
 	AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -3, "Watch out, Acquaman! The sky is exploding again!"));

@@ -1,7 +1,6 @@
 #ifndef ACQMAN_SGMBEAMLINE_H
 #define ACQMAN_SGMBEAMLINE_H
 
-//#include "AMControl.h"
 #include "AMPVNames.h"
 #include "AMDetector.h"
 #include "AMControlSet.h"
@@ -20,9 +19,6 @@ public:
 	static void releaseSGM();	// releases memory for Beamline
 
 	virtual ~SGMBeamline();
-
-	// What does this Beamline have? (These objects will be useful in the scripting world too!)
-	///////////////////////////////////
 
 	bool isConnected() const {
 		for(int x = 0; x < numChildren(); x++)

@@ -354,5 +354,55 @@ protected:
 
 };
 
+class AMScanViewMultiChannelsView : public AMScanViewInternal {
+	Q_OBJECT
+
+public:
+	explicit AMScanViewMultiChannelsView(AMScanView* masterView);
+
+	virtual ~AMScanViewMultiChannelsView();
+
+public slots:
+
+protected slots:
+	/// after a scan or channel is added in the model
+	virtual void onRowInserted(const QModelIndex& parent, int start, int end);
+	/// before a scan or channel is deleted in the model:
+	virtual void onRowAboutToBeRemoved(const QModelIndex& parent, int start, int end);
+	/// after a scan or channel is deleted in the model:
+	virtual void onRowRemoved(const QModelIndex& parent, int start, int end);
+	/// when data changes: (Things we care about: color, linePen, and visible)
+	virtual void onModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight);
+
+
+protected:
+
+	/// Our plots (one for each channel)
+	QList<MPlotGW*> channelPlots_;
+	/// The channel (name) served by each plot in plots_
+	QList<QString> channelNames_;
+	/// and for each channel, a list of the MPlotSeries that are visible:
+	QList<QList<MPlotSeriesBasic*> > plotSeries_;
+
+
+	/// A grid-layout within which to put our plots:
+	QGraphicsGridLayout* layout_;
+
+	/// true if the first plot in plots_ exists already, but isn't used:
+	bool firstPlotEmpty_;
+
+	/// helper function: reviews the channels that exist, and ensures plots correspond:
+	void reviewChannels();
+
+	void removePlotSeriesWithChannelName(const QString& channelName); /// \todo
+
+	/// helper function: adds the scan at \c scanIndex
+	void addScan(int scanIndex);
+
+	/// re-do the layout of our plots
+	void reLayout();
+
+};
+
 
 #endif // AMSCANVIEW_H

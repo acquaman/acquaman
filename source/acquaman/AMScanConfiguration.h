@@ -36,12 +36,6 @@ Q_OBJECT
 Q_PROPERTY(QString fileName READ fileName WRITE setFileName)
 /// Holds the path to the directory where data will eventually be saved.
 Q_PROPERTY(QString filePath READ filePath WRITE setFilePath)
-/*
-Q_PROPERTY(int number READ number WRITE setNumber)
-Q_PROPERTY(QString sampleName READ sampleName WRITE setSampleName)
-Q_PROPERTY(QString comments READ comments WRITE setComments NOTIFY commentsChanged)
-Q_PROPERTY(QDateTime startTime READ startTime WRITE setStartTime)
-*/
 
 public:
 	/// Constructor, takes a pointer to a QObject as its parent
@@ -51,12 +45,6 @@ public:
 	QString fileName() const { return fileName_;}
 	/// Returns the path to save the raw data file to
 	QString filePath() const { return filePath_; }
-
-	/*
-signals:
-	/// Emitted when comments string changed
-	void commentsChanged(const QString &);
-*/
 
 public slots:
 	/// Sets the file name

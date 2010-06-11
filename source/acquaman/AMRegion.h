@@ -117,10 +117,6 @@ public:
 	AMXASRegion(AMControl* beamlineEnergy, QObject *parent = 0) : AMRegion(parent) {ctrl_ = beamlineEnergy;}
 
 public slots:
-//	/// Sets the start value from the double passed in. Checks for the validity of the input. Does not affect the beamline energy directly.
-//	bool setStart(double start);
-//	/// Sets the end value from the double passed in. Checks for the validity of the input. Does not affect the beamline energy directly.
-//	bool setEnd(double end);
 	/// Castrated function, does nothing and returns false.
 	bool setControl(AMControl *ctrl){Q_UNUSED(ctrl); return false;}
 };

@@ -17,11 +17,9 @@ QList<AMAbstractDetector*> SGMXASScanConfiguration::usingDetectors() const{
 	QList<AMAbstractDetector*> usingDetectors;
 	if(usingTEY_)
 		usingDetectors << XASDetectors_->detectorByName("tey");
-//	if(usingTFY_)
-//		usingDetectors << "tfy";
-	if(usingPGT_)
-		usingDetectors << XASDetectors_->detectorByName("pgt");
 	if(usingTFY_)
 		usingDetectors << XASDetectors_->detectorByName("tfy");
+	if(usingPGT_)
+		usingDetectors << XASDetectors_->detectorByName("pgt");
 	return usingDetectors;
 }

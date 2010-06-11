@@ -14,8 +14,6 @@ public:
 	QString name() const { return name_;}
 	bool isSpectralOutput() const { return isSpectralOutput_;}
 
-//signals:
-
 public slots:
 	bool setName(const QString &name) { name_ = name; return true;}
 

@@ -2,7 +2,6 @@
 
 AMRegionsList::AMRegionsList(QObject *parent, bool setup) : QObject(parent){
 	defaultControl_ = NULL;
-//	regions_ = new AMRegionsListModel(this);
 	regions_ = NULL;
 	if(setup)
 		setupModel();

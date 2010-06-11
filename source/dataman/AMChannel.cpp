@@ -8,7 +8,6 @@
 
 double* AddVariable(const char *a_szName, void *a_pUserData)
 {
-	//qDebug() << "Sent variable? " << a_szName;
 	QString fullVariable(a_szName);
 	QStringList variableBreakdownBlanks = fullVariable.split('.');
 	QStringList variableBreakdown = fullVariable.split('.', QString::SkipEmptyParts);
@@ -47,13 +46,11 @@ double* AddVariable(const char *a_szName, void *a_pUserData)
 		throw mu::Parser::exception_type(_T("not a valid variable."));
 		return NULL;
 	}
-	//qDebug() << "Trying to return address " << varSpace;
 	return varSpace;
 }
 
 double* AddVariableX(const char *a_szName, void *a_pUserData)
 {
-//	qDebug() << "Sent variable? " << a_szName;
 	QString fullVariable(a_szName);
 	QStringList variableBreakdownBlanks = fullVariable.split('.');
 	QStringList variableBreakdown = fullVariable.split('.', QString::SkipEmptyParts);
@@ -93,7 +90,6 @@ double* AddVariableX(const char *a_szName, void *a_pUserData)
 		throw mu::Parser::exception_type(_T("not a valid variable."));
 		return NULL;
 	}
-//	qDebug() << "Trying to return address " << varSpace;
 	return varSpace;
 }
 

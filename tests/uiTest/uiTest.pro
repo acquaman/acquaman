@@ -52,7 +52,6 @@ LIBS += -lxml2
 # Input
 HEADERS += ../../source/AMSettings.h \
 	../../source/dataman/SGMLegacyFileImporter.h \
-	../../source/beamline/AMAbstractDetector.h \
 	../../source/dataman/AMXASScan.h \
 	../../source/dataman/AMScan.h \
 	../../source/dataman/AMDbObject.h \
@@ -94,11 +93,11 @@ HEADERS += ../../source/AMSettings.h \
 	../../source/muParser/muParserBytecode.h \
 	../../source/muParser/muParserBase.h \
 	../../source/muParser/muParser.h \
-	../../source/dataman/AMScanSetModel.h
-FORMS +=
+	../../source/dataman/AMScanSetModel.h \
+	../../source/ui/AMSidebar.h \
+	../../source/beamline/AMAbstractDetector.h
 SOURCES += tests.cpp \
 	../../source/dataman/SGMLegacyFileImporter.cpp \
-	../../source/beamline/AMAbstractDetector.cpp \
 	../../source/dataman/AMXASScan.cpp \
 	../../source/dataman/AMScan.cpp \
 	../../source/dataman/AMDbObject.cpp \
@@ -113,5 +112,7 @@ SOURCES += tests.cpp \
 	../../source/muParser/muParserBytecode.cpp \
 	../../source/muParser/muParserBase.cpp \
 	../../source/muParser/muParser.cpp \
-	../../source/dataman/AMScanSetModel.cpp
+	../../source/dataman/AMScanSetModel.cpp \
+	../../source/ui/AMSidebar.cpp \
+	../../source/beamline/AMAbstractDetector.cpp
 RESOURCES = source/icons/icons.qrc

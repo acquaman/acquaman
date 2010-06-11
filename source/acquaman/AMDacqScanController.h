@@ -11,7 +11,6 @@
 #include "qdebug.h"
 
 #include "dacq3_2/OutputHandler/acqFactory.h"
-#include "AMAcqScanOutput.h"
 #include "AMAcqScanSpectrumOutput.h"
 #include "dacq3_2/qepicsadvacq.h"
 
@@ -27,9 +26,7 @@ public slots:
 	/// Start scan running if not currently running or paused
 	virtual void start(){
 		if(initialized_){
-		//	acqBaseOutput *abop = acqOutputHandlerFactory::new_acqOutput("SimpleText", "File");
 		//	acqBaseOutput *abop = acqOutputHandlerFactory::new_acqOutput("AMScan", "File");
-		//	acqBaseOutput *abop = acqOutputHandlerFactory::new_acqOutput("Text", "File");
 			acqBaseOutput *abop = acqOutputHandlerFactory::new_acqOutput("AMScanSpectrum", "File");
 			if( abop)
 			{
@@ -43,12 +40,6 @@ public slots:
 			else{
 				AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -1, "AMDacqScanController: could not create output handler."));
 			}
-			/*
-			  Moved into abop check, why was it out here?
-			qDebug() << "Just before sending start to library in dacq controller start";
-			advAcq_->Start();
-			qDebug() << "Just after sending start to library in dacq controller start";
-			*/
 		}
 		else
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -1, "AMDacqScanController: attempted start on uninitialized controller."));
@@ -64,7 +55,6 @@ protected:
 	QEpicsAdvAcq *advAcq_;
 	bool cancelled_;
 	QTime startTime_;
-//	AMScan *curScan_;
 
 protected slots:
 	void onStart();
