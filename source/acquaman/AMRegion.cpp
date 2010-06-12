@@ -3,6 +3,10 @@
 AMRegion::AMRegion(QObject *parent) :
 	QObject(parent)
 {
+	elasticStart_ = false;
+	elasticEnd_ = false;
+	initiatedStartAdjust_ = false;
+	initiatedEndAdjust_ = false;
 }
 
 /// Sets the start value from the double passed in. Makes sure the energy is within the allowable range, otherwise returns false.
@@ -10,6 +14,10 @@ bool AMRegion::setStart(double start) {
 	if(ctrl_->valueOutOfRange(start))
 		return FALSE;
 	start_ = start;
+	if(elasticStart_){
+		initiatedStartAdjust_ = true;
+		emit startChanged(start_);
+	}
 	return TRUE;
 }
 
@@ -18,6 +26,10 @@ bool AMRegion::setEnd(double end) {
 	if(ctrl_->valueOutOfRange(end))
 		return FALSE;
 	end_ = end;
+	if(elasticEnd_){
+		initiatedEndAdjust_ = true;
+	}
+		emit endChanged(end_);
 	return TRUE;
 }
 
@@ -27,6 +39,20 @@ bool AMRegion::setDelta(double delta) {
 		return false;
 	delta_ = delta;
 	return true;
+}
+
+bool AMRegion::adjustStart(double start){
+	if(initiatedStartAdjust_)
+		initiatedStartAdjust_ = false;
+	else
+		setStart(start);
+}
+
+bool AMRegion::adjustEnd(double end){
+	if(initiatedEndAdjust_)
+		initiatedEndAdjust_ = false;
+	else
+		setEnd(end);
 }
 
 AMRegionsListModel::AMRegionsListModel(QObject *parent) : QAbstractTableModel(parent) {
@@ -57,6 +83,10 @@ QVariant AMRegionsListModel::data(const QModelIndex &index, int role) const{
 		return regions_->at(index.row())->delta() ;
 	if(index.column() == 3)
 		return regions_->at(index.row())->end() ;
+	if(index.column() == 4)
+		return regions_->at(index.row())->elasticStart() ;
+	if(index.column() == 5)
+		return regions_->at(index.row())->elasticEnd() ;
 
 	// Anything else:
 	return QVariant();
@@ -82,6 +112,10 @@ QVariant AMRegionsListModel::headerData(int section, Qt::Orientation orientation
 			return "Delta";
 		if(section == 3)
 			return "End";
+		if(section == 4)
+			return "Elastic Start";
+		if(section == 5)
+			return "Elastic End";
 	}
 	return QVariant();
 }
@@ -91,8 +125,16 @@ bool AMRegionsListModel::setData(const QModelIndex &index, const QVariant &value
 
 	if (index.isValid()  && index.row() < regions_->count() && role == Qt::EditRole) {
 
-		bool conversionOK, retVal;
-		double dval = value.toDouble(&conversionOK);
+		bool conversionOK = false;
+		bool retVal;
+		double dval;
+		bool bval;
+		if(index.column() == 1 || index.column() == 2 || index.column() == 3)
+			dval  = value.toDouble(&conversionOK);
+		else if(index.column() == 4 || index.column() == 5){
+			bval = value.toBool();
+			conversionOK = true;
+		}
 		if(!conversionOK)
 			return false;
 
@@ -117,6 +159,18 @@ bool AMRegionsListModel::setData(const QModelIndex &index, const QVariant &value
 		// Setting an end value?
 		if(index.column() == 3) {
 			retVal = regions_->at(index.row())->setEnd(dval);
+			if(retVal)
+				emit dataChanged(index, index);
+			return retVal;
+		}
+		if(index.column() == 4) {
+			retVal = regions_->at(index.row())->setElasticStart(bval);
+			if(retVal)
+				emit dataChanged(index, index);
+			return retVal;
+		}
+		if(index.column() == 5) {
+			retVal = regions_->at(index.row())->setElasticEnd(bval);
 			if(retVal)
 				emit dataChanged(index, index);
 			return retVal;

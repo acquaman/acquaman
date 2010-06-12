@@ -3,10 +3,10 @@
 #include <QGraphicsItem>
 
 
-class ColorItem : public QGraphicsItem
+class RegionItem : public QGraphicsItem
 {
 public:
-	ColorItem(int width) : color(qrand() % 256, qrand() % 256, qrand() % 256)
+	RegionItem(int width) : color(qrand() % 256, qrand() % 256, qrand() % 256)
 	{
 		setToolTip(QString("QColor(%1, %2, %3)\n%4")
 				  .arg(color.red()).arg(color.green()).arg(color.blue())
@@ -89,7 +89,7 @@ private:
 AMXASRegionsView::AMXASRegionsView(AMXASRegionsList *regions, QWidget *parent) :
 	QWidget(parent)
 {
-	this->setMaximumSize(400, 600);
+	this->setMaximumSize(800, 600);
 	addButton_ = new QPushButton("Add Region", this);
 	deleteButton_ = new QPushButton("Delete Region", this);
 	QHBoxLayout *hl_ = new QHBoxLayout();
@@ -102,11 +102,11 @@ AMXASRegionsView::AMXASRegionsView(AMXASRegionsList *regions, QWidget *parent) :
 
 	qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
 	double range = regions_->maxEnergy() - regions_->minEnergy();
-	double ratio = range/390;
-	QGraphicsScene *scene = new QGraphicsScene(0, -10, 400, 20);
+	double ratio = range/740;
+	QGraphicsScene *scene = new QGraphicsScene(0, -10, 750, 20);
 	for (int i = 0; i < regions_->count(); ++i) {
 		qDebug() << "Width will be " << (int)floor((regions_->end(i)-regions_->start(i))/ratio) << " pos will be " << 5+(int)floor((regions_->start(i)-regions_->minEnergy())/ratio);
-		ColorItem *item = new ColorItem( (int)floor((regions_->end(i)-regions_->start(i))/ratio) );
+		RegionItem *item = new RegionItem( (int)floor((regions_->end(i)-regions_->start(i))/ratio) );
 		item->setPos( 10+(int)floor((regions_->start(i)-regions_->minEnergy())/ratio), 0);
 		scene->addItem(item);
 	}
@@ -117,7 +117,9 @@ AMXASRegionsView::AMXASRegionsView(AMXASRegionsList *regions, QWidget *parent) :
 	view->setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
 	view->setBackgroundBrush(QColor(230, 200, 167));
 	view->setWindowTitle("Drag and Drop Dave Test");
-	view->resize(400, 20);
+	view->resize(750, 20);
+	view->setMaximumHeight(40);
+	view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
 	QFormLayout *fl_ = new QFormLayout(this);
 	fl_->addRow(view);

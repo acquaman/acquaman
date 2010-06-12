@@ -36,6 +36,47 @@ bool AMRegionsList::addRegion(size_t index, double start, double delta, double e
 	if(!regions_->insertRows(index, 1))
 		return false;
 	retVal = setStart(index, start) && setDelta(index, delta) && setEnd(index, end);
+	if(retVal){
+		if( (index == 0) && (count() != 1) ){
+			regions_->setData(regions_->index(index, 5), true, Qt::EditRole);
+			regions_->setData(regions_->index(index+1, 4), true, Qt::EditRole);
+			connect(regions_->regions()->at(index), SIGNAL(endChanged(double)), regions_->regions()->at(index+1), SLOT(adjustStart(double)));
+			connect(regions_->regions()->at(index+1), SIGNAL(startChanged(double)), regions_->regions()->at(index), SLOT(adjustEnd(double)));
+		}
+		else if( (index == (count()-1)) && (count() != 1) ){
+			regions_->setData(regions_->index(index, 4), true, Qt::EditRole);
+			regions_->setData(regions_->index(index-1, 5), true, Qt::EditRole);
+			connect(regions_->regions()->at(index), SIGNAL(startChanged(double)), regions_->regions()->at(index-1), SLOT(adjustEnd(double)));
+			connect(regions_->regions()->at(index-1), SIGNAL(endChanged(double)), regions_->regions()->at(index), SLOT(adjustStart(double)));
+		}
+		else if(count() != 1){
+			if( regions_->data(regions_->index(index-1, 5), Qt::DisplayRole).toBool()){
+				regions_->setData(regions_->index(index+1, 4), false, Qt::EditRole);
+				regions_->setData(regions_->index(index-1, 5), false, Qt::EditRole);
+				disconnect(regions_->regions()->at(index-1), SIGNAL(endChanged(double)), regions_->regions()->at(index+1), SLOT(adjustStart(double)));
+				disconnect(regions_->regions()->at(index+1), SIGNAL(startChanged(double)), regions_->regions()->at(index-1), SLOT(adjustEnd(double)));
+			}
+			regions_->setData(regions_->index(index, 5), true, Qt::EditRole);
+			regions_->setData(regions_->index(index+1, 4), true, Qt::EditRole);
+			connect(regions_->regions()->at(index), SIGNAL(endChanged(double)), regions_->regions()->at(index+1), SLOT(adjustStart(double)));
+			connect(regions_->regions()->at(index+1), SIGNAL(startChanged(double)), regions_->regions()->at(index), SLOT(adjustEnd(double)));
+			regions_->setData(regions_->index(index, 4), true, Qt::EditRole);
+			regions_->setData(regions_->index(index-1, 5), true, Qt::EditRole);
+			connect(regions_->regions()->at(index), SIGNAL(startChanged(double)), regions_->regions()->at(index-1), SLOT(adjustEnd(double)));
+			connect(regions_->regions()->at(index-1), SIGNAL(endChanged(double)), regions_->regions()->at(index), SLOT(adjustStart(double)));
+		}
+
+		/*
+		if(index != 0){
+			regions_->setData(regions_->index(index, 4), true, Qt::EditRole);
+			regions_->setData(regions_->index(index-1, 5), true, Qt::EditRole);
+		}
+		if(index != (count()-1) ){
+			regions_->setData(regions_->index(index, 5), true, Qt::EditRole);
+			regions_->setData(regions_->index(index+1, 4), true, Qt::EditRole);
+		}
+		*/
+	}
 	if(!retVal)
 		regions_->removeRows(index, 1);
 	return retVal;

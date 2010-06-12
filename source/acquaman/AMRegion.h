@@ -44,6 +44,8 @@ public:
 	virtual double end() const { return end_;}
 	/// Returns a pointer the AMControl this region is operating on
 	virtual AMControl* control() const { return ctrl_;}
+	virtual bool elasticStart() const { return elasticStart_;}
+	virtual bool elasticEnd() const { return elasticEnd_;}
 
 public slots:
 	/// Sets the start value from the double passed in. Does not affect the AMControl directly.
@@ -54,8 +56,16 @@ public slots:
 	/// Sets the end value from the double passed in. Does not affect the AMControl directly.
 	/// \todo A check on the limits of the AMControl?
 	virtual bool setEnd(double end);// { end_ = end; return TRUE;}
+	virtual bool adjustStart(double start);
+	virtual bool adjustEnd(double end);
 	/// Sets the AMControl for the region.
 	virtual bool setControl(AMControl* ctrl) { ctrl_ = ctrl; return true;}
+	virtual bool setElasticStart(bool elastic) { elasticStart_ = elastic; return true;}
+	virtual bool setElasticEnd(bool elastic) { elasticEnd_ = elastic; return true;}
+
+signals:
+	void startChanged(double start);
+	void endChanged(double end);
 
 protected:
 	/// Value for the beginning of the region.
@@ -66,6 +76,10 @@ protected:
 	double end_;
 	/// AMControl for the region to step through.
 	AMControl *ctrl_;
+	bool elasticStart_;
+	bool elasticEnd_;
+	bool initiatedStartAdjust_;
+	bool initiatedEndAdjust_;
 };
 
 class AMRegionsListModel : public QAbstractTableModel
@@ -79,7 +93,7 @@ public:
 	/// Returns the number of regions in the list to generate the number of rows in a table or list
 	int rowCount(const QModelIndex & /*parent*/) const { return regions_->count(); }
 	/// Returns "3" statically. There are always three fields in the region: start, delta, and end.
-	int columnCount(const QModelIndex & /*parent*/) const { return 4; }
+	int columnCount(const QModelIndex & /*parent*/) const { return 6; }
 	/// Retrieves the data from an index (row and column) and returns as a QVariant. Only valid role is Qt::DisplayRole right now.
 	QVariant data(const QModelIndex &index, int role) const;
 	/// Retrieves the header data for a column or row and returns as a QVariant. Only valid role is Qt::DisplayRole right now.

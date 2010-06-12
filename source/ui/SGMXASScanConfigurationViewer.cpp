@@ -32,6 +32,8 @@ SGMXASScanConfigurationViewer::SGMXASScanConfigurationViewer(QWidget *parent)  :
 		sxsc->addRegion(0, 700, 5, 950);
 		sxsc->addRegion(1, 952, 2, 1000);
 		sxsc->addRegion(2, 1004, 4, 1100);
+
+		sxsc->addRegion(1, 850, 1, 970);
 		regionsView_ = new AMXASRegionsView(sxsc->regions(), this);
 		regionsView_->setBeamlineEnergy(SGMBeamline::sgm()->energy());
 		connect(regionsView_, SIGNAL(addRegionClicked()), this, SLOT(onAddRegionClicked()));
