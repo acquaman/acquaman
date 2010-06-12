@@ -66,6 +66,27 @@ public:
 
 public slots:
 	virtual void setEnergyControl(AMControl* energyControl){defaultControl_ = energyControl; ((AMXASRegionsListModel*)regions_)->setEnergyControl(energyControl);}
+	virtual double maxEnergy(){
+		double curMax = -1e12;
+		for(int x = 0; x < count(); x++){
+			if(start(x) > curMax)
+				curMax = start(x);
+			if(end(x) > curMax)
+				curMax = end(x);
+		}
+		return curMax;
+	}
+
+	virtual double minEnergy(){
+		double curMin = 1e12;
+		for(int x = 0; x < count(); x++){
+			if(start(x) < curMin)
+				curMin = start(x);
+			if(end(x) < curMin)
+				curMin = end(x);
+		}
+		return curMin;
+	}
 
 protected:
 	virtual bool setupModel();
