@@ -13,7 +13,6 @@
 #include <QStringList>
 
 #include "MPlot/MPlot.h"
-#include "MPlot/MPlotSceneAndView.h"
 
 #include "dataman/AMScanSetModel.h"
 

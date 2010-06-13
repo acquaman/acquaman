@@ -102,7 +102,6 @@ HEADERS += source/beamline/AMDiagnosticPaddle.h \
 	../../source/dataman/AMDataTree.h \
 	../../source/AMObserver.h \
 	../../source/AMObservable.h \
-	../../../MPlot/src/MPlot/MPlotSceneAndView.h \
 	source/beamline/AMDetector.h \
 	source/beamline/AMAbstractDetector.h
 SOURCES += source/beamline/AMDiagnosticPaddle.cpp \

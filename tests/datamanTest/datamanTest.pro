@@ -90,7 +90,6 @@ HEADERS += source/dataman/AMDbObject.h \
 	../../../MPlot/src/MPlot/MPlot.h \
 	../../source/AMObserver.h \
 	../../source/AMObservable.h \
-	../../../MPlot/src/MPlot/MPlotSceneAndView.h \
 	../../source/dataman/AMScanSetModel.h
 SOURCES += source/dataman/AMScan.cpp \
 	source/dataman/AMChannel.cpp \

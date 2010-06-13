@@ -33,14 +33,6 @@ AMDatabase* AMDatabase::userdb() {
 
 	if(userInstance_ == 0) {
 
-		// Attempt to create user's data folder, only if it doesn't exist:
-                QDir userDataDir(AMUserSettings::userDataFolder);
-		if(!userDataDir.exists()) {
-                        qDebug() << "AMDatabase: alert: creating new user data folder " << AMUserSettings::userDataFolder;
-                        if(!userDataDir.mkpath(AMUserSettings::userDataFolder))
-                                qDebug() << "AMDatabase: error: could not create user data folder " << AMUserSettings::userDataFolder;
-		}
-
                 // create a new AMDatabase object for the user database:
                 QString filename = AMUserSettings::userDataFolder + AMUserSettings::userDatabaseFilename;
                 userInstance_ = new AMDatabase("user", filename);

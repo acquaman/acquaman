@@ -19,11 +19,7 @@ QString AMUserSettings::userDatabaseFilename;
 
 /// 2. User Information:
 // ========================================
-
-/// User name:
 QString AMUserSettings::userName;
-
-
 
 /// Load settings from disk:
 void AMUserSettings::load() {
@@ -35,7 +31,7 @@ void AMUserSettings::load() {
 	// variable = settings.value(key, defaultValue).toType();
 
 //	userDataFolder = settings.value("userDataFolder", QDir::homePath() + "/acquamanData/").toString();
-	userDataFolder = settings.value("userDataFolder", QDir::homePath() + "/beamline/programming/acquaman/devUserData").toString();
+	userDataFolder = settings.value("userDataFolder", QDir::homePath() + "/beamline/programming/acquaman/devUserData/").toString();
 	// TODO: warn here if doesn't exist?
 	userDatabaseFilename = settings.value("userDatabaseFilename", "userdata.db").toString();
 
