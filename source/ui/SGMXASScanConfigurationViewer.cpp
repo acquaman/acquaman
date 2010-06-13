@@ -30,8 +30,8 @@ SGMXASScanConfigurationViewer::SGMXASScanConfigurationViewer(QWidget *parent)  :
 		sxsc->setFileName("daveData.%03d.dat");
 		sxsc->setFilePath(AMUserSettings::userDataFolder);
 		sxsc->addRegion(0, 700, 5, 950);
-		sxsc->addRegion(1, 952, 2, 1000);
-		sxsc->addRegion(2, 1004, 4, 1100);
+		sxsc->addRegion(1, 955, 2, 1000);
+		sxsc->addRegion(2, 1000, 4, 1100);
 
 		sxsc->addRegion(1, 850, 1, 970);
 		regionsView_ = new AMXASRegionsView(sxsc->regions(), this);
@@ -71,6 +71,7 @@ SGMXASScanConfigurationViewer::~SGMXASScanConfigurationViewer(){
 }
 
 void SGMXASScanConfigurationViewer::onAddRegionClicked(){
+/*
 	if(!cfg_)
 		return;
 	SGMXASScanConfiguration *sxsc = (SGMXASScanConfiguration*)cfg_;
@@ -86,5 +87,6 @@ void SGMXASScanConfigurationViewer::onAddRegionClicked(){
 		qDebug() << "Passed add invalid";
 	for(int x = 0; x < sxsc->count(); x++)
 		qDebug() << "Region " << x << ": " << sxsc->start(x) << " " << sxsc->delta(x) << " " << sxsc->end(x);
+*/
 }
 

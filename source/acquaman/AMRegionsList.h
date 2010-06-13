@@ -38,9 +38,7 @@ public slots:
 	virtual bool appendRegion(double start, double delta, double end){ return addRegion(count(), start, delta, end);}
 
 	/// Deletes the region refered to by index and renumbers subsequent regions accordingly. Returns true if successful, return false if index is invalid.
-	bool deleteRegion(size_t index){
-		return regions_->removeRows(index, 1);
-	}
+	bool deleteRegion(size_t index);
 	void setDefaultControl(AMControl* defaultControl){defaultControl_ = defaultControl; regions_->setDefaultControl(defaultControl);}
 
 private slots:

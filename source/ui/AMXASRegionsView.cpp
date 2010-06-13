@@ -89,7 +89,8 @@ private:
 AMXASRegionsView::AMXASRegionsView(AMXASRegionsList *regions, QWidget *parent) :
 	QWidget(parent)
 {
-	this->setMaximumSize(800, 600);
+	this->setMaximumSize(800, 300);
+	this->setMinimumSize(800, 300);
 	addButton_ = new QPushButton("Add Region", this);
 	deleteButton_ = new QPushButton("Delete Region", this);
 	QHBoxLayout *hl_ = new QHBoxLayout();
@@ -126,7 +127,10 @@ AMXASRegionsView::AMXASRegionsView(AMXASRegionsList *regions, QWidget *parent) :
 	fl_->addRow(tv_);
 	fl_->addRow(hl_);
 	setLayout(fl_);
-	connect(addButton_, SIGNAL(clicked()), this, SIGNAL(addRegionClicked()));
+	addRegionMenu_= NULL;
+	deleteRegionMenu_ = NULL;
+//	connect(addButton_, SIGNAL(clicked()), this, SIGNAL(addRegionClicked()));
+	connect(addButton_, SIGNAL(clicked()), this, SLOT(addRegion()));
 	connect(deleteButton_, SIGNAL(clicked()), this, SLOT(deleteRegion()));
 }
 

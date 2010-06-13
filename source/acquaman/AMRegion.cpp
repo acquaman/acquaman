@@ -42,17 +42,25 @@ bool AMRegion::setDelta(double delta) {
 }
 
 bool AMRegion::adjustStart(double start){
-	if(initiatedStartAdjust_)
+	if(initiatedStartAdjust_){
 		initiatedStartAdjust_ = false;
-	else
+	}
+	else{
 		setStart(start);
+		initiatedStartAdjust_= false;
+	}
+	return true;
 }
 
 bool AMRegion::adjustEnd(double end){
-	if(initiatedEndAdjust_)
+	if(initiatedEndAdjust_){
 		initiatedEndAdjust_ = false;
-	else
+	}
+	else{
 		setEnd(end);
+		initiatedEndAdjust_ = false;
+	}
+	return true;
 }
 
 AMRegionsListModel::AMRegionsListModel(QObject *parent) : QAbstractTableModel(parent) {
