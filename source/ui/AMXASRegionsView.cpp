@@ -1,18 +1,21 @@
 #include "AMXASRegionsView.h"
-#include <QtGui>
-#include <QGraphicsItem>
-
 
 class RegionItem : public QGraphicsItem
 {
 public:
-	RegionItem(int width) : color(qrand() % 256, qrand() % 256, qrand() % 256)
+	RegionItem(double start, double delta, double end, double min, double max, int pixRange) : color(qrand() % 256, qrand() % 256, qrand() % 256)
 	{
 		setToolTip(QString("QColor(%1, %2, %3)\n%4")
 				  .arg(color.red()).arg(color.green()).arg(color.blue())
 				  .arg("Click and drag this color onto the robot!"));
 		setCursor(Qt::OpenHandCursor);
-		width_ = width;
+		start_ = start;
+		delta_ = delta;
+		end_ = end;
+		min_ = min;
+		max_ = max;
+		pixRange_ = pixRange;
+		width_ = (int)floor( (end-start)/((max-min)/pixRange) );
 	}
 
 	QRectF boundingRect() const{
@@ -27,9 +30,12 @@ public:
 //		painter->drawRoundedRect(-(int)(0.5*width_), -15, width_, 30, 20, 20, Qt::RelativeSize);
 		painter->drawRoundedRect(0, -15, width_, 30, 1, 1, Qt::RelativeSize);
 		painter->setPen(QPen(Qt::black, 1));
-		painter->setBrush(QBrush(color));
+//		painter->setBrush(QBrush(color));
+		painter->setBrush(Qt::gray);
 //		painter->drawEllipse(-15, -15, 30, 30);
 		painter->drawRoundedRect(0, -15, width_, 30, 1, 1, Qt::RelativeSize);
+		QString deltaVal;
+		painter->drawText(width_/2, 0, deltaVal.setNum(delta_));
 	}
 
 protected:
@@ -80,6 +86,12 @@ protected:
 
 private:
 	QColor color;
+	double start_;
+	double delta_;
+	double end_;
+	double min_;
+	double max_;
+	int pixRange_;
 	int width_;
 };
 /// Creates buttons for add and delete region.
@@ -104,16 +116,17 @@ AMXASRegionsView::AMXASRegionsView(AMXASRegionsList *regions, QWidget *parent) :
 	qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
 	double range = regions_->maxEnergy() - regions_->minEnergy();
 	double ratio = range/740;
-	QGraphicsScene *scene = new QGraphicsScene(0, -10, 750, 20);
+	scene = new QGraphicsScene(0, -10, 750, 20);
 	for (int i = 0; i < regions_->count(); ++i) {
 		qDebug() << "Width will be " << (int)floor((regions_->end(i)-regions_->start(i))/ratio) << " pos will be " << 5+(int)floor((regions_->start(i)-regions_->minEnergy())/ratio);
-		RegionItem *item = new RegionItem( (int)floor((regions_->end(i)-regions_->start(i))/ratio) );
+//		RegionItem *item = new RegionItem( (int)floor((regions_->end(i)-regions_->start(i))/ratio) );
+		RegionItem *item = new RegionItem(regions_->start(i), regions_->delta(i), regions_->end(i), regions_->minEnergy(), regions_->maxEnergy(), 740);
 		item->setPos( 10+(int)floor((regions_->start(i)-regions_->minEnergy())/ratio), 0);
 		scene->addItem(item);
 	}
 
 	qDebug() << "Min is " << regions_->minEnergy() << " Max is " << regions_->maxEnergy();
-	QGraphicsView *view = new QGraphicsView(scene);
+	view = new QGraphicsView(scene);
 	view->setRenderHint(QPainter::Antialiasing);
 	view->setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
 	view->setBackgroundBrush(QColor(230, 200, 167));
@@ -132,10 +145,27 @@ AMXASRegionsView::AMXASRegionsView(AMXASRegionsList *regions, QWidget *parent) :
 //	connect(addButton_, SIGNAL(clicked()), this, SIGNAL(addRegionClicked()));
 	connect(addButton_, SIGNAL(clicked()), this, SLOT(addRegion()));
 	connect(deleteButton_, SIGNAL(clicked()), this, SLOT(deleteRegion()));
+	connect(regions_->model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(redrawRegionsLine(QModelIndex,QModelIndex)));
 }
 
 AMXASRegionsView::~AMXASRegionsView(){
 	disconnect(addButton_, SIGNAL(clicked()), this, SIGNAL(addRegionClicked()));
 	disconnect(deleteButton_, SIGNAL(clicked()), this, SLOT(deleteRegion()));
 	regions_ = NULL;
+}
+
+void AMXASRegionsView::redrawRegionsLine(QModelIndex topLeft, QModelIndex bottomRight){
+	qDebug() << "What did I just get? topLeft.row " << topLeft.row() << " topLeft.column " << topLeft.column() << " bottomRight.row " << bottomRight.row() << " bottomRight.column " << bottomRight.column();
+	if(topLeft.column() == 1 || topLeft.column() == 2){
+		scene->clear();
+		double range = regions_->maxEnergy() - regions_->minEnergy();
+		double ratio = range/740;
+		for (int i = 0; i < regions_->count(); ++i) {
+			qDebug() << "Width will be " << (int)floor((regions_->end(i)-regions_->start(i))/ratio) << " pos will be " << 5+(int)floor((regions_->start(i)-regions_->minEnergy())/ratio);
+//			RegionItem *item = new RegionItem( (int)floor((regions_->end(i)-regions_->start(i))/ratio) );
+			RegionItem *item = new RegionItem(regions_->start(i), regions_->delta(i), regions_->end(i), regions_->minEnergy(), regions_->maxEnergy(), 740);
+			item->setPos( 10+(int)floor((regions_->start(i)-regions_->minEnergy())/ratio), 0);
+			scene->addItem(item);
+		}
+	}
 }

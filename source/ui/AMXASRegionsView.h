@@ -8,6 +8,8 @@
 #include <QFormLayout>
 #include <QMenu>
 #include <QCursor>
+#include <QtGui>
+#include <QGraphicsItem>
 #include "acquaman/AMRegionsList.h"
 
 /// An AMXASRegionsView is a means of generating a default view for a group of AMXASRegion
@@ -129,9 +131,16 @@ public slots:
 		return retVal;
 	}
 
+protected slots:
+	void redrawRegionsLine(QModelIndex topLeft, QModelIndex bottomRight);
+
 protected:
 	/// The table view used to interact with the group of AMXASRegion.
 	QTableView *tv_;
+
+	QGraphicsScene *scene;
+	QGraphicsView *view;
+
 	/// Button to add a region. \todo Figure out interface and hook up to something.
 	QPushButton *addButton_;
 	/// Button to delete a region. \todo Figure out interface and hook up to something.
