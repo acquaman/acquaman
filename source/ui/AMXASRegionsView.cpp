@@ -35,7 +35,13 @@ public:
 //		painter->drawEllipse(-15, -15, 30, 30);
 		painter->drawRoundedRect(0, -15, width_, 30, 1, 1, Qt::RelativeSize);
 		QString deltaVal;
-		painter->drawText(width_/2, 0, deltaVal.setNum(delta_));
+		deltaVal.setNum(delta_);
+		QChar deltaChar(0x0394);
+		deltaVal.prepend(" = ");
+		deltaVal.prepend(deltaChar);
+		QRectF box(0, -15, width_, 30);
+		painter->drawText(box, Qt::AlignHCenter, deltaVal, &box);
+//		painter->drawText(width_/2, 0, deltaVal);
 	}
 
 protected:
@@ -94,6 +100,56 @@ private:
 	int pixRange_;
 	int width_;
 };
+
+class EnergyIndexItem : public QGraphicsItem
+{
+public:
+	EnergyIndexItem(double energy, double min, double max, int pixRange) : color(qrand() % 256, qrand() % 256, qrand() % 256)
+	{
+		setToolTip(QString("QColor(%1, %2, %3)\n%4")
+				  .arg(color.red()).arg(color.green()).arg(color.blue())
+				  .arg("Click and drag this color onto the robot!"));
+		setCursor(Qt::OpenHandCursor);
+		energy_ = energy;
+		min_ = min;
+		max_ = max;
+		pixRange_ = pixRange;
+		width_ = 33;
+		textBox_ = new QRectF(0, -15, width_, 30);
+//		width_ = (int)floor( (end-start)/((max-min)/pixRange) );
+	}
+
+	QRectF boundingRect() const{
+		return QRectF(textBox_->x(), textBox_->y(), textBox_->width(), textBox_->height());
+	}
+	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget){
+		Q_UNUSED(option);
+		Q_UNUSED(widget);
+		painter->setPen(Qt::NoPen);
+//		painter->setBrush(Qt::darkGray);
+//		painter->drawRoundedRect(0, -15, width_, 30, 1, 1, Qt::RelativeSize);
+		painter->setPen(QPen(Qt::black, 1));
+		painter->setBrush(Qt::gray);
+//		painter->drawRoundedRect(0, -15, width_, 30, 1, 1, Qt::RelativeSize);
+		QString energyVal;
+//		painter->drawText(0, 0, energyVal.setNum(energy_));
+		QRectF box(boundingRect());
+		qDebug() << "Before drawing " << textBox_->width();
+		painter->drawText(box, Qt::AlignHCenter, energyVal.setNum(energy_), textBox_);
+		qDebug() << "After drawing " << textBox_->height() << " vs " << boundingRect().width();
+		qDebug() << "Energy is " << energyVal << " width is " << boundingRect().width();
+	}
+
+private:
+	QColor color;
+	QRectF *textBox_;
+	double energy_;
+	double min_;
+	double max_;
+	int pixRange_;
+	int width_;
+};
+
 /// Creates buttons for add and delete region.
 /// Defines a new model and views using table view.
 /// Adds all items to form layout.
@@ -111,19 +167,34 @@ AMXASRegionsView::AMXASRegionsView(AMXASRegionsList *regions, QWidget *parent) :
 	regions_ = regions;
 	tv_ = new QTableView(this);
 	tv_->setModel(regions_->model());
+	tv_->hideColumn(0);
+	tv_->hideColumn(4);
+	tv_->hideColumn(5);
+	tv_->setMaximumWidth(400);
 	tv_->resize(tv_->sizeHint());
+	tv_->horizontalHeader()->setStretchLastSection(true);
+	int totalWidth = tv_->columnWidth(1) + tv_->columnWidth(2) + tv_->columnWidth(3);
+	tv_->setColumnWidth(1, 2*totalWidth/5);
+	tv_->setColumnWidth(3, 2*totalWidth/5);
+	tv_->setColumnWidth(2, totalWidth-tv_->columnWidth(1)-tv_->columnWidth(3));
 
 	qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
 	double range = regions_->maxEnergy() - regions_->minEnergy();
 	double ratio = range/740;
-	scene = new QGraphicsScene(0, -10, 750, 20);
+	scene = new QGraphicsScene(0, -10, 750, 40);
 	for (int i = 0; i < regions_->count(); ++i) {
 		qDebug() << "Width will be " << (int)floor((regions_->end(i)-regions_->start(i))/ratio) << " pos will be " << 5+(int)floor((regions_->start(i)-regions_->minEnergy())/ratio);
-//		RegionItem *item = new RegionItem( (int)floor((regions_->end(i)-regions_->start(i))/ratio) );
 		RegionItem *item = new RegionItem(regions_->start(i), regions_->delta(i), regions_->end(i), regions_->minEnergy(), regions_->maxEnergy(), 740);
 		item->setPos( 10+(int)floor((regions_->start(i)-regions_->minEnergy())/ratio), 0);
 		scene->addItem(item);
+		EnergyIndexItem *eItem = new EnergyIndexItem(regions_->start(i), regions_->minEnergy(), regions_->maxEnergy(), 740);
+		eItem->setPos(10+(int)floor((regions_->start(i)-regions_->minEnergy())/ratio), 30);
+		scene->addItem(eItem);
 	}
+	EnergyIndexItem *eItem = new EnergyIndexItem(regions_->end(regions_->count()-1), regions_->minEnergy(), regions_->maxEnergy(), 740);
+	qDebug() << "Want to offset by width of eItem? " << eItem->boundingRect().width();
+	eItem->setPos(10+(int)floor((regions_->end(regions_->count()-1)-regions_->minEnergy())/ratio) - eItem->boundingRect().width(), 30);
+	scene->addItem(eItem);
 
 	qDebug() << "Min is " << regions_->minEnergy() << " Max is " << regions_->maxEnergy();
 	view = new QGraphicsView(scene);
@@ -131,8 +202,8 @@ AMXASRegionsView::AMXASRegionsView(AMXASRegionsList *regions, QWidget *parent) :
 	view->setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
 	view->setBackgroundBrush(QColor(230, 200, 167));
 	view->setWindowTitle("Drag and Drop Dave Test");
-	view->resize(750, 20);
-	view->setMaximumHeight(40);
+	view->resize(750, 40);
+	view->setMaximumHeight(60);
 	view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
 	QFormLayout *fl_ = new QFormLayout(this);
@@ -156,7 +227,7 @@ AMXASRegionsView::~AMXASRegionsView(){
 
 void AMXASRegionsView::redrawRegionsLine(QModelIndex topLeft, QModelIndex bottomRight){
 	qDebug() << "What did I just get? topLeft.row " << topLeft.row() << " topLeft.column " << topLeft.column() << " bottomRight.row " << bottomRight.row() << " bottomRight.column " << bottomRight.column();
-	if(topLeft.column() == 1 || topLeft.column() == 2){
+	if(topLeft.column() == 1 || topLeft.column() == 2 || topLeft.column() == 3){
 		scene->clear();
 		double range = regions_->maxEnergy() - regions_->minEnergy();
 		double ratio = range/740;
@@ -166,6 +237,13 @@ void AMXASRegionsView::redrawRegionsLine(QModelIndex topLeft, QModelIndex bottom
 			RegionItem *item = new RegionItem(regions_->start(i), regions_->delta(i), regions_->end(i), regions_->minEnergy(), regions_->maxEnergy(), 740);
 			item->setPos( 10+(int)floor((regions_->start(i)-regions_->minEnergy())/ratio), 0);
 			scene->addItem(item);
+			EnergyIndexItem *eItem = new EnergyIndexItem(regions_->start(i), regions_->minEnergy(), regions_->maxEnergy(), 740);
+			eItem->setPos(10+(int)floor((regions_->start(i)-regions_->minEnergy())/ratio), 30);
+			scene->addItem(eItem);
 		}
+		EnergyIndexItem *eItem = new EnergyIndexItem(regions_->end(regions_->count()-1), regions_->minEnergy(), regions_->maxEnergy(), 740);
+		qDebug() << "Want to offset by width of eItem? " << eItem->boundingRect().width();
+		eItem->setPos(10+(int)floor((regions_->end(regions_->count()-1)-regions_->minEnergy())/ratio) - eItem->boundingRect().width(), 30);
+		scene->addItem(eItem);
 	}
 }
