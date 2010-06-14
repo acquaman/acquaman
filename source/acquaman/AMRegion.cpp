@@ -49,7 +49,6 @@ QVariant AMRegionsListModel::data(const QModelIndex &index, int role) const{
 	// Return Control:
 	if(index.column() == 0)
 		return QVariant(); // Doing nothing
-//			return regions_->at(index.row())->control();
 	// Return Start:
 	if(index.column() == 1)
 		return regions_->at(index.row())->start() ;
@@ -127,7 +126,7 @@ bool AMRegionsListModel::setData(const QModelIndex &index, const QVariant &value
 }
 
 bool AMRegionsListModel::insertRows(int position, int rows, const QModelIndex &index){
-	if (index.row() <= regions_->count() && defaultControl_) {
+	if (index.row() <= regions_->count() && position <= regions_->count() && defaultControl_) {
 		beginInsertRows(QModelIndex(), position, position+rows-1);
 
 		AMRegion *tmpRegion;
@@ -145,12 +144,11 @@ bool AMRegionsListModel::insertRows(int position, int rows, const QModelIndex &i
 }
 
 bool AMRegionsListModel::removeRows(int position, int rows, const QModelIndex &index){
-	if (index.row() < regions_->count()) {
+	if (index.row() < regions_->count() && position < regions_->count()) {
 		beginRemoveRows(QModelIndex(), position, position+rows-1);
 
 		for (int row = 0; row < rows; ++row) {
 			regions_->removeAt(position);
-//			stringList.insert(position, "");
 		}
 
 		endRemoveRows();
@@ -167,24 +165,6 @@ Qt::ItemFlags AMRegionsListModel::flags(const QModelIndex &index) const{
 		flags = Qt::ItemIsEditable | Qt::ItemIsSelectable | Qt::ItemIsEnabled;
 	return flags;
 }
-
-/*
-/// Sets the start value from the double passed in. Makes sure the energy is within the allowable range, otherwise returns false.
-bool AMXASRegion::setStart(double start) {
-	if(ctrl_->valueOutOfRange(start))
-		return FALSE;
-	start_ = start;
-	return TRUE;
-}
-
-/// Sets the end value from the double passed in. Makes sure the energy is within the allowable range, otherwise returns false.
-bool AMXASRegion::setEnd(double end) {
-	if(ctrl_->valueOutOfRange(end))
-		return FALSE;
-	end_ = end;
-	return TRUE;
-}
-*/
 
 bool AMXASRegionsListModel::insertRows(int position, int rows, const QModelIndex &index){
 	if (index.row() <= regions_->count() && defaultControl_) {

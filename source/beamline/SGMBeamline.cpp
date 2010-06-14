@@ -4,7 +4,6 @@ SGMBeamline* SGMBeamline::instance_ = 0;
 
 
 SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
-	qDebug() << "In SGMBeamline constructor";
 //	amNames2pvNames_.set("energy", "dave:Energy");
 	amNames2pvNames_.set("energy", "reixsHost:Energy");
 	amNames2pvNames_.set("eV_Fbk", "dave:Energy:fbk");
@@ -183,7 +182,6 @@ SGMFluxOptimization::SGMFluxOptimization(QObject *parent) : AMControlOptimizatio
 }
 
 QMap<double, double> SGMFluxOptimization::curve(QList<QVariant> stateParameters, AMRegionsList* contextParameters){
-	qDebug() << "Running flux curve";
 	double _maxenergy = maximumEnergy(contextParameters);
 	double _minenergy = minimumEnergy(contextParameters);
 	double _maxflux = 0;
@@ -316,7 +314,6 @@ QMap<double, double> SGMResolutionOptimization::curve(QList<QVariant> stateParam
 		tmpEnd = contextParameters->end(x);
 		for( double y = tmpStart; ((tmpDelta > 0) ? (y <= tmpEnd) : (y >= tmpEnd)); y += tmpDelta ){
 // FIX NEGATIVES!!!
-//            rCurve[y] = !SGMBeamline::sgm()->energyValidForSettings(_grating, _harmonic, y) ? 0.0 : (_slit/62500)*(500-_slit)* ( ((_minflux-_maxflux)/((_minimum-_maximum)*(_minimum-_maximum)))*(y-_maximum)*(y-_maximum)+_maxflux );
 			rCurve[y] = !SGMBeamline::sgm()->energyValidForSettings(_grating, _harmonic, y) ? 0.0 : ((_minflux-_maxflux)/((_minimum-_maximum)*(_minimum-_maximum)))*(y-_maximum+_stateScalar*_slit)*(y-_maximum+_stateScalar*_slit)+(_slit*_maxflux)/(0.0243*_slit*_slit+0.415*_slit+3.4167);
 		}
 	}

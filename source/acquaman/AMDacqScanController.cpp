@@ -9,6 +9,8 @@
 #include "../MPlot/src/MPlot/MPlotImage.h"
 #include "../MPlot/src/MPlot/MPlotTools.h"
 
+#include "ui/AMScanView.h"
+
 AMDacqScanController::AMDacqScanController(AMScanConfiguration *cfg, QObject *parent) : AMScanController(cfg, parent)
 {
 	_pCfg_ = &generalCfg_;
@@ -25,10 +27,6 @@ AMDacqScanController::AMDacqScanController(AMScanConfiguration *cfg, QObject *pa
 	connect(advAcq_, SIGNAL(sendCompletion(int)), this, SLOT(onSendCompletion(int)));
 }
 
-///// Sets a new scan configuration
-//void AMDacqScanController::newConfigurationLoad(AMScanConfiguration &cfg)
-//{
-//}
 
 /// Cancel scan if currently running or paused
 void AMDacqScanController::cancel()
@@ -54,20 +52,17 @@ void AMDacqScanController::onStop()
 		emit finished();
 
 	if(pScan_()){
-/*
-		qDebug() << "END OF SCAN\n\n\nStarting to print scan data for";
-		qDebug() << curScan_->detectors().count() << " columns";
-		qDebug() << curScan_->d_->count() << " rows";
-
-		for(int x = 0; unsigned(x) < curScan_->d_->count(); x++){
-			qDebug() << "Starting row " << x;
-			for(int y = 0; y < curScan_->detectors().count(); y++)
-				qDebug() << "Value is " << curScan_->d_->value(y, x);
-			qDebug() << "Done row\n";
-		}
+		/*
+		qDebug() << "Before scan view";
+		AMScanView *sv = new AMScanView();
+//		sv->show();
+		AMScanSetModel* model = sv->model();
+		model->addScan(pScan_());
+		sv->show();
+		qDebug() << "After scan view";
 		*/
 
-
+		/*
 		MPlotWidget *plotWindow = new MPlotWidget();
 		MPlot *plot = new MPlot();
 		plotWindow->setPlot(plot);
@@ -79,7 +74,7 @@ void AMDacqScanController::onStop()
 		for(int y = 2; y < maxChannels-1024; y++){
 			series1 = new MPlotSeriesBasic();
 
-			qDebug() << "Plotting " << pScan_()->channel(y)->name();
+//			qDebug() << "Plotting " << pScan_()->channel(y)->name();
 			series1->setModel(pScan_()->channel(y));
 			plot->addItem(series1);
 		}
@@ -89,9 +84,8 @@ void AMDacqScanController::onStop()
 		plot->enableAutoScale(MPlotAxis::Left | MPlotAxis::Bottom);
 		plotWindow->show();
 
-		qDebug() << "Called 2d plot" << QTime::currentTime().msec();
 		play2d();
-		qDebug() << "Done 2d plot" << QTime::currentTime().msec();
+		*/
 	}
 
 }
@@ -142,6 +136,7 @@ void AMDacqScanController::play2d()
 		chRef.setNum(yy);
 		chRef.prepend("PGT_COUNTS");
 		AMChannel* ch = pScan_()->channel(chRef);
+
 		for(int xx=0; (unsigned)xx<pScan_()->count(); xx++) {
 			data2d->setZ(ch->value(xx), xx, yy);
 		}

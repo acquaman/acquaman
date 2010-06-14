@@ -36,12 +36,6 @@ Q_OBJECT
 Q_PROPERTY(QString fileName READ fileName WRITE setFileName)
 /// Holds the path to the directory where data will eventually be saved.
 Q_PROPERTY(QString filePath READ filePath WRITE setFilePath)
-/*
-Q_PROPERTY(int number READ number WRITE setNumber)
-Q_PROPERTY(QString sampleName READ sampleName WRITE setSampleName)
-Q_PROPERTY(QString comments READ comments WRITE setComments NOTIFY commentsChanged)
-Q_PROPERTY(QDateTime startTime READ startTime WRITE setStartTime)
-*/
 
 public:
 	/// Constructor, takes a pointer to a QObject as its parent
@@ -52,11 +46,7 @@ public:
 	/// Returns the path to save the raw data file to
 	QString filePath() const { return filePath_; }
 
-	/*
-signals:
-	/// Emitted when comments string changed
-	void commentsChanged(const QString &);
-*/
+	QList<QPair<QString, QString> > defaultChannels() const { return defaultChannels_; }
 
 public slots:
 	/// Sets the file name
@@ -64,11 +54,15 @@ public slots:
 	/// Sets the file path
 	bool setFilePath(const QString &filePath) { filePath_ = filePath; return true;}
 
+	bool setDefaultChannels(const QList<QPair<QString, QString> > &defaultChannels) { defaultChannels_ = defaultChannels; return true;}
+
 protected:
 	/// File name
 	QString fileName_;
 	/// File path
 	QString filePath_;
+
+	QList<QPair<QString, QString> > defaultChannels_;
 };
 
 #endif // ACQMAN_SCANCONFIGURATION_H

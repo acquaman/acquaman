@@ -44,7 +44,13 @@ bool AMScan::addChannel(const QString& chName, const QString& expression) {
 	if(channelNames().contains(chName))
 		return false;
 
-	ch_.addChannel(new AMChannel(this, chName, expression));
+	AMChannel *tmpCh = new AMChannel(this, chName, expression);
+	if(!tmpCh->isValid()){
+		delete tmpCh;
+		return false;
+	}
+	ch_.addChannel(tmpCh);
+	//	ch_.addChannel(new AMChannel(this, chName, expression));
 	return true;
 }
 
@@ -52,7 +58,9 @@ bool AMScan::addChannel(const QString& chName, const QString& expression) {
 // DBObject database implementation:
 ///////////////////////////////
 
+
 #include "dataman/AMDatabaseDefinition.h"
+
 
 /// Store or update self in the database. (returns true on success)
 /*! Re-implemented from AMDbObject::storeToDb(), this version saves all of the meta data found for keys metaDataAllKeys(), as well as saving the channel names and channel formulas.

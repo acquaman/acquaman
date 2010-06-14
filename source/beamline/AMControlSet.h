@@ -35,8 +35,6 @@ public:
 
 	/// Returns the name defined for the control set.
 	QString name() const { return name_;}
-//	/// Returns the QList of AMControl pointers that currently comprise the controls in the set.
-//	QList<AMControl*> controls() { return ctrls_;}
 	int count() { return ctrls_.count();}
 	AMControl* controlAt(int index) { return ctrls_.at(index);}
 	int indexOf(const QString &name);
@@ -133,13 +131,10 @@ public:
 
 	/// Returns the name defined for the control set.
 	QString name() const { return name_;}
-//	/// Returns the QList of AMControl pointers that currently comprise the controls in the set.
-//	QList<AMAbstractDetector*> detectors() { return detectors_;}
 	int count() { return detectors_.count();}
 	AMAbstractDetector* detectorAt(int index) { return detectors_.at(index);}
 	int indexOf(const QString &name);
 	AMAbstractDetector* detectorByName(const QString &name);
-//	QList<bool> defaultDetectors() { return defaultDetectors_;}
 	bool isDefaultAt(int index) { return defaultDetectors_.at(index);}
 	bool isDefaultByName(const QString &name);
 

@@ -6,7 +6,22 @@ SGMXASScanConfiguration::SGMXASScanConfiguration(QObject *parent) : AMXASScanCon
 	fluxResolutionSet_ = SGMBeamline::sgm()->fluxResolutionSet();
 	trackingSet_ = SGMBeamline::sgm()->trackingSet();
 	XASDetectors_ = SGMBeamline::sgm()->XASDetectors();
-	qDebug() << "Gap: " << exitSlitGap_ << " grating " << grating_ << " utrack " << undulatorTracking_ << " mtrack " << monoTracking_ << " xtrack " << exitSlitTracking_;
+	QPair<QString, QString> tmpCh;
+	tmpCh.first = "eV";
+	tmpCh.second = "eV";
+	defaultChannels_.append(tmpCh);
+	tmpCh.first = "NormTEY";
+	tmpCh.second = "tey/I0";
+	defaultChannels_.append(tmpCh);
+	tmpCh.first = "NormTFY";
+	tmpCh.second = "tfy/I0";
+	defaultChannels_.append(tmpCh);
+	tmpCh.first = "PGT@130";
+	tmpCh.second = "pgt.pgtCounts[130]";
+	defaultChannels_.append(tmpCh);
+	tmpCh.first = "Nonsense";
+	tmpCh.second = "tf/I0+bacon";
+	defaultChannels_.append(tmpCh);
 	emit exitSlitGapChanged(exitSlitGap_);
 	emit gratingChanged(grating_);
 	emit undulatorTrackingChanged(undulatorTracking_);
@@ -18,11 +33,9 @@ QList<AMAbstractDetector*> SGMXASScanConfiguration::usingDetectors() const{
 	QList<AMAbstractDetector*> usingDetectors;
 	if(usingTEY_)
 		usingDetectors << XASDetectors_->detectorByName("tey");
-//	if(usingTFY_)
-//		usingDetectors << "tfy";
-	if(usingPGT_)
-		usingDetectors << XASDetectors_->detectorByName("pgt");
 	if(usingTFY_)
 		usingDetectors << XASDetectors_->detectorByName("tfy");
+	if(usingPGT_)
+		usingDetectors << XASDetectors_->detectorByName("pgt");
 	return usingDetectors;
 }

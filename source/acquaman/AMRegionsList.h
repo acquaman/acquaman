@@ -41,6 +41,7 @@ public slots:
 	bool deleteRegion(size_t index){
 		if((unsigned)index > (unsigned)count())
 			return false;
+
 		return regions_->removeRows(index, 1);
 	}
 	void setDefaultControl(AMControl* defaultControl){defaultControl_ = defaultControl; regions_->setDefaultControl(defaultControl);}

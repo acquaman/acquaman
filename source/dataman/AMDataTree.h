@@ -204,7 +204,6 @@ copyXASData.deeper("sddSpectrums",5)->setValue("y", 512, 49.3);
 		if(columnName == x_.name())
 			return x(i);
 
-//		if(yDNames_.contains(columnName)) {
 		if(yDNames_.containsF(columnName)) {
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -2, "AMDataTree: accessed multi-dimensional data as a single value. Returning an (incorrect) default value."));
 			return AMNumericType();
@@ -283,10 +282,8 @@ copyXASData.deeper("sddSpectrums",5)->setValue("y", 512, 49.3);
 		*/
 	const AMDataTree* deeper(const QString& columnName, unsigned i) const {
 
-//		if(yDNames_.contains(columnName)) {
 		if(yDNames_.containsF(columnName)) {
 			return deeper(yDNames_.valueF(columnName), i);
-//			return deeper(yDNames_.value(columnName), i);
 		}
 
 		return 0;
@@ -311,9 +308,7 @@ copyXASData.deeper("sddSpectrums",5)->setValue("y", 512, 49.3);
 	AMDataTree* deeper(const QString& columnName, unsigned i) {
 
 
-//		if(yDNames_.contains(columnName)) {
 		if(yDNames_.containsF(columnName)) {
-//			return deeper(yDNames_.value(columnName), i); // For the modifiable version, the non-const call to data() ends up calling detach(), creating a deep copy of the tree.
 			return deeper(yDNames_.valueF(columnName), i); // For the modifiable version, the non-const call to data() ends up calling detach(), creating a deep copy of the tree.
 		}
 
@@ -334,9 +329,7 @@ copyXASData.deeper("sddSpectrums",5)->setValue("y", 512, 49.3);
 	/// Returns an entire column of subtrees
 	const AMDataTreeSubtreeColumn* deeperColumn(const QString& columnName) const {
 
-//		if(yDNames_.contains(columnName)) {
 		if(yDNames_.containsF(columnName)) {
-//			return deeperColumn(yDNames_.value(columnName));
 			return deeperColumn(yDNames_.valueF(columnName));
 		}
 
@@ -354,9 +347,7 @@ copyXASData.deeper("sddSpectrums",5)->setValue("y", 512, 49.3);
 
 	AMDataTreeSubtreeColumn* deeperColumn(const QString& columnName) {
 
-//		if(yDNames_.contains(columnName)) {
 		if(yDNames_.containsF(columnName)) {
-//			return deeperColumn(yDNames_.value(columnName));
 			return deeperColumn(yDNames_.valueF(columnName));
 		}
 
@@ -446,21 +437,14 @@ copyXASData.deeper("sddSpectrums",5)->setValue("y", 512, 49.3);
 			newVect[i] = new AMDataTree(subTreeCount, xColumnName, hasXValues);
 		}*/
 		/// New way: create one tree to use for all datapoints in the column, which will be implicitly shared until modified.
-//		if(count() == 0){
 			prototypes_.append(treeFiller);
-//			qDebug() << "Master tree has no items, need to delay prototype";
-//		}
-//		else{
-//			qDebug() << "Master tree has items, prototyping now";
 			if(count() > 0){
 				QSharedDataPointer<AMDataTree> newTree(treeFiller);
 				for(unsigned i=0; i<count(); i++)
 					newVect[i] = newTree;
 		}
-//		}
 		/// insert the new vector under this column name.
 		yD_.append(newVect);
-//		yDNames_[newSubtreeColumnName] = yD_.count() - 1;
 		yDNames_.set(newSubtreeColumnName, yD_.count() - 1);
 
 	}
@@ -493,11 +477,9 @@ copyXASData.deeper("sddSpectrums",5)->setValue("y", 512, 49.3);
 			// are we the first? append default subtree
 			if(count_ == 1){
 				if(prototypes_.at(i) == NULL){
-					qDebug() << "Prototype is NULL, prototype default tree";
 					yD_[i] << QSharedDataPointer<AMDataTree>(new AMDataTree());
 				}
 				else{
-					qDebug() << "Prototype exists, using " << i;
 					yD_[i] << QSharedDataPointer<AMDataTree>(prototypes_.at(i));
 				}
 			}
@@ -588,7 +570,6 @@ protected:
 	QList<AMDataTree*> prototypes_;
 
 	/// used to lookup subtree column indices based on column names
-//	QHash<QString, int> yDNames_;
 	AMBiHash<QString, int> yDNames_;
 
 	mutable AMObservable observable_;

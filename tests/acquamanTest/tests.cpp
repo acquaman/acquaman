@@ -4,6 +4,7 @@
 #include "dataman/AMDatabase.h"
 #include "dataman/AMXASScan.h"
 #include "acquaman/SGM/SGMXASScanConfiguration.h"
+#include "acquaman/SGM/SGMXASDacqScanController.h"
 
 #include "dataman/AMFirstTimeController.h"
 #include "AMErrorMonitor.h"
@@ -22,8 +23,10 @@ private slots:
 
 
 		SGMBeamline::sgm();
-		for(int x = 0; x < 8; x++){
-			qDebug() << "Waiting for connection to SGM Beamline";
+		bool sgmConnected = false;
+		while(!sgmConnected){
+			if(SGMBeamline::sgm()->isConnected())
+				sgmConnected = true;
 			QTest::qWait(250);
 		}
 		QVERIFY(SGMBeamline::sgm()->isConnected());
@@ -58,6 +61,10 @@ private slots:
 		// Can't append, value out of range
 		QVERIFY(!rl1->appendRegion(start, delta, end));
 		QVERIFY(!rl2->appendRegion(start, delta, end));
+
+		// Can't add, region out of range
+		QVERIFY(!rl1->addRegion(2, start, delta, end));
+		QVERIFY(!rl2->addRegion(2, start, delta, end));
 
 		start = 250.1;
 		end = 300;
@@ -182,11 +189,11 @@ private slots:
 		}
 
 		//Test deletion
-		QVERIFY(rl1->deleteRegion(rl1->count()));
-		QVERIFY(rl2->deleteRegion(rl2->count()));
-		starts.removeAt(starts.count());
-		deltas.removeAt(deltas.count());
-		ends.removeAt(ends.count());
+		QVERIFY(rl1->deleteRegion(rl1->count()-1));
+		QVERIFY(rl2->deleteRegion(rl2->count()-1));
+		starts.removeAt(starts.count()-1);
+		deltas.removeAt(deltas.count()-1);
+		ends.removeAt(ends.count()-1);
 		for(int x = 0; x < starts.count(); x++){
 			QCOMPARE(rl1->start(x), starts.at(x));
 			QCOMPARE(rlm1->data(rlm1->index(x, 1), Qt::DisplayRole).toDouble(), starts.at(x));
@@ -200,8 +207,8 @@ private slots:
 		}
 
 		// Can't delete out of bounds
-		QVERIFY(!rl1->deleteRegion(rl1->count()+1));
-		QVERIFY(!rl2->deleteRegion(rl2->count()+1));
+		QVERIFY(!rl1->deleteRegion(rl1->count()));
+		QVERIFY(!rl2->deleteRegion(rl2->count()));
 
 		QVERIFY(rl1->deleteRegion(2));
 		QVERIFY(rl2->deleteRegion(2));
@@ -255,10 +262,98 @@ private slots:
 		QCOMPARE(sxsc->filePath(), AMUserSettings::userDataFolder);
 	}
 
+	void scanController()
+	{
+		SGMXASScanConfiguration *sxsc = new SGMXASScanConfiguration(this);
+		// List of regions should be created but empty
+		QCOMPARE(sxsc->count(), 0);
+		// SGM components should be initialized and be the same as the current beamline values
+		QCOMPARE(sxsc->exitSlitGap(), SGMBeamline::sgm()->exitSlitGap()->value());
+		QCOMPARE(sxsc->grating(), (SGMBeamline::sgmGrating)SGMBeamline::sgm()->grating()->value());
+		QCOMPARE(sxsc->harmonic(), (SGMBeamline::sgmHarmonic)SGMBeamline::sgm()->harmonic()->value());
+		QCOMPARE(sxsc->undulatorTracking(), (bool)SGMBeamline::sgm()->undulatorTracking()->value());
+		QCOMPARE(sxsc->monoTracking(), (bool)SGMBeamline::sgm()->monoTracking()->value());
+		QCOMPARE(sxsc->exitSlitTracking(), (bool)SGMBeamline::sgm()->exitSlitTracking()->value());
+		// Should be using the SGM XAS Detectors, check that they are the same
+		AMAbstractDetectorSet *xasDetectors = SGMBeamline::sgm()->XASDetectors();
+		QList<AMAbstractDetector*> xasDefaultDetectors;
+		for(int x = 0; x < xasDetectors->count(); x++)
+			if(xasDetectors->isDefaultAt(x))
+				xasDefaultDetectors << xasDetectors->detectorAt(x);
+		for(int x = 0; x < xasDefaultDetectors.count(); x++)
+			QCOMPARE(sxsc->usingDetectors().at(x)->name(), xasDefaultDetectors.at(x)->name());
+		QVERIFY(sxsc->setUsingPGT(1));
+		// Should be using SGM Flux/Resolution ControlSet
+		for(int x = 0; x < sxsc->fluxResolutionSet()->count(); x++)
+			QCOMPARE(sxsc->fluxResolutionSet()->controlAt(x)->name(), SGMBeamline::sgm()->fluxResolutionSet()->controlAt(x)->name());
+		// Should be using SGM Tracking ControlSet
+		for(int x = 0; x < sxsc->trackingSet()->count(); x++)
+			QCOMPARE(sxsc->trackingSet()->controlAt(x)->name(), SGMBeamline::sgm()->trackingSet()->controlAt(x)->name());
+		QString fileName = "testFile.%03d.dat";
+		QVERIFY(sxsc->setFileName(fileName));
+		QCOMPARE(sxsc->fileName(), fileName);
+		QVERIFY(sxsc->setFilePath(AMUserSettings::userDataFolder));
+		QCOMPARE(sxsc->filePath(), AMUserSettings::userDataFolder);
+		QVERIFY(sxsc->addRegion(0, 930, 2, 980));
+
+		xasCtrl = new SGMXASDacqScanController(sxsc, SGMBeamline::sgm());
+		xasCtrl->initialize();
+		xasCtrl->start();
+
+		QTest::qWait(1000);
+		bool scanDone = false;
+		while(!scanDone){
+			if(xasCtrl->isStopped())
+				scanDone = true;
+			QTest::qWait(1000);
+		}
+
+		QString filepath = "/home/reixs/beamline/programming/fkbl/fSGMApp/src/Calcium1_2.dat";
+		QFile f(filepath);
+		QVERIFY(f.open(QIODevice::ReadOnly));
+		QTextStream fs(&f);
+		QRegExp rx("^\\#");
+		QString line;
+		QStringList lp;
+		double eV;
+		QMap<double, QMap<QString, double> > data;
+		QMap<QString, double> rowData;
+		while( !fs.atEnd() && fs.readLine().contains(rx))
+			;
+		while( !fs.atEnd() ){
+			line = fs.readLine();
+			lp = line.split(',');
+			eV = lp.at(1).toDouble();
+			rowData["I0"] = lp.at(4).toDouble();
+			rowData["TEY"] = lp.at(5).toDouble();
+			rowData["TFY"] = lp.at(6).toDouble();
+			data[eV] = rowData;
+		}
+
+		AMXASScan *xs = xasCtrl->scan();
+		int evIndex = xs->indexOfChannel("eV");
+		int I0Index = xs->indexOfChannel("I0");
+		int teyIndex = xs->indexOfChannel("TEY");
+		int tfyIndex = xs->indexOfChannel("TFY");
+		for(unsigned int x = 0; x < xs->count(); x++){
+			eV = xs->channel(evIndex)->value(x);
+			rowData = data.value(eV);
+			QCOMPARE(xs->channel(I0Index)->value(x), rowData.value("I0"));
+			QCOMPARE(xs->channel(teyIndex)->value(x), rowData.value("TEY"));
+			QCOMPARE(xs->channel(tfyIndex)->value(x), rowData.value("TFY"));
+		}
+
+
+		QTest::qWait(5000);
+	}
+
 	void cleanupTestCase()
 	{
 		AMDatabase::releaseUserDb();
 	}
+
+private:
+	SGMXASDacqScanController *xasCtrl;
 };
 
 QTEST_MAIN(AcquamanTest)

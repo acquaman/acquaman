@@ -2,8 +2,6 @@
 #define AMACQSCANOUTPUT_H
 
 #include "acquaman/dacq3_2/acqDataHandler.h"
-//#include "acqDataHandler.h"
-//#include "dataman/AMXASScan.h"
 #include "dataman/AMScan.h"
 
 #if defined(__cplusplus)

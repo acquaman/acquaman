@@ -6,7 +6,6 @@
 #include <QPushButton>
 #include <QHBoxLayout>
 #include <QFormLayout>
-//#include "acquaman/AMRegion.h"
 #include "acquaman/AMRegionsList.h"
 
 /// An AMXASRegionsView is a means of generating a default view for a group of AMXASRegion

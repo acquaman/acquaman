@@ -80,6 +80,13 @@ public:
 			return 0;
 	}
 
+	int indexOfChannel(const QString& name) {
+		if(name2chIndex_.containsF(name))
+			return name2chIndex_.valueF(name);
+		else
+			 return 0;
+	}
+
 	/// Return specified channel by index: (returns 0 if not found)
 	AMChannel* channel(int index) { if((unsigned)index < (unsigned)ch_.count() ) return ch_.at(index); else return 0; }
 	const AMChannel* channel(int index) const { if((unsigned)index < (unsigned)ch_.count() ) return ch_.at(index); else return 0; }
@@ -89,11 +96,14 @@ public:
 		return ch_.indexOf(channel);
 	}
 
-	void addChannel(AMChannel* newChannel) {
+	bool addChannel(AMChannel* newChannel) {
+		if(!newChannel->isValid())
+			return false;
 		beginInsertRows(QModelIndex(), ch_.count(), ch_.count());
 		name2chIndex_.set(newChannel->name(), ch_.count());
 		ch_.append(newChannel);
 		endInsertRows();
+		return true;
 	}
 
 	bool deleteChannel(unsigned index) {
@@ -237,6 +247,7 @@ public:
 	/// Returns specified channel by name: (returns 0 if not found)
 	AMChannel* channel(const QString& name) { return ch_.channel(name); }
 	const AMChannel* channel(const QString& name) const { return ch_.channel(name); }
+	int indexOfChannel(const QString& name) { return ch_.indexOfChannel(name);}
 
 	/// Return specified channel by index: (returns 0 if not found)
 	AMChannel* channel(unsigned index) { return ch_.channel(index);  }
@@ -290,6 +301,7 @@ signals:
 	/// Time left in scan
 	void timeRemaining(double seconds);
 */
+
 
 
 

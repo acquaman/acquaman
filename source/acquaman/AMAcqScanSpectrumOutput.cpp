@@ -48,15 +48,12 @@ int AMAcqScanSpectrumOutput::startRecord( acqKey_t key, int eventno)
 {
 	AMAcqScanSpectrumOutput *to = (AMAcqScanSpectrumOutput *)key;
 
-//	DEBUG(to) printf("startRecord(%p, %d)\n", key, eventno);
-
 	// flag that some output is occuring
 	acqTextOutput::startRecord(key, eventno);
 
 	to->dataDelayList_.clear();
 	to->spectraDelayList_.clear();
 	to->dataDelay_ = true;
-	qDebug() << "In startRecord, just cleared lists";
 
 	to->recordCount++;
 	if( to->spectrumSplit == SS_BY_RECORD)
@@ -69,17 +66,6 @@ int AMAcqScanSpectrumOutput::startRecord( acqKey_t key, int eventno)
 int AMAcqScanSpectrumOutput::endRecord( acqKey_t key, int eventno)
 {
 	AMAcqScanSpectrumOutput *to = (AMAcqScanSpectrumOutput *)key;
-/*
-	acqTextOutput::endRecord( key, eventno);
-
-	if( to->spectrumStream && to->needSpectrumDelimiter )	// only true if there is a spectrum file in text format
-	{
-		to->sendSpectrumLine( "\n");
-		to->spectrumStream->flush();
-		to->needSpectrumDelimiter = 0;
-	}
-	return 0;
-*/
 	if( (eventno == 1) && !to->lockHash_ )
 		to->lockHash_ = true;
 
@@ -101,7 +87,6 @@ int AMAcqScanSpectrumOutput::putValue( acqKey_t key, int eventno, int pvno, cons
 			to->pvnoToColumn_[pvno] = to->specColNo_++;
 		else
 			to->pvnoToColumn_[pvno] = to->colNo_++;
-		qDebug() << pvno << " goes to " << to->pvnoToColumn_[pvno];
 	}
 
 	double dataVal;
@@ -173,20 +158,12 @@ int AMAcqScanSpectrumOutput::putValue( acqKey_t key, int eventno, int pvno, cons
 		}
 	}
 
-	qDebug() << "Currently dataDelay is " << to->dataDelay_ << " and pvno is " << pvno << " and eventno is " << eventno;
-	if(pvno != 0){
-		if(!pvpr->isSpectrum)
-			qDebug() << "Looking at column " << to->scan_->d_->yColumnNames().at(to->pvnoToColumn_[pvno]);
-		else
-			qDebug() << "Looking at subtree column " << to->scan_->d_->ySubtreeNames().at(to->pvnoToColumn_[pvno]);
-	}
 
 	if(!to->dataDelay_){
 		if(!pvpr->isSpectrum)
 			to->scan_->d_->setLastValue(to->pvnoToColumn_[pvno], dataVal);
 		else{
 			QStringList myList = to->scan_->d_->deeper(0, to->scan_->d_->count()-1)->yColumnNames();
-			qDebug() << "Count for spectrum would be " << spectraVal.count() << " 0th column is " << myList;
 			for(int x = 0; x < spectraVal.count(); x++){
 				to->scan_->d_->deeper(to->pvnoToColumn_[pvno], to->scan_->d_->count()-1)->setValue(0, x, spectraVal[x]);
 			}

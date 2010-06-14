@@ -2,7 +2,6 @@
 
 AMRegionsList::AMRegionsList(QObject *parent, bool setup) : QObject(parent){
 	defaultControl_ = NULL;
-//	regions_ = new AMRegionsListModel(this);
 	regions_ = NULL;
 	if(setup)
 		setupModel();
@@ -34,7 +33,8 @@ bool AMRegionsList::addRegion(size_t index, double start, double delta, double e
 	if(!defaultControl_)
 		return false;
 	bool retVal;
-	regions_->insertRows(index, 1);
+	if(!regions_->insertRows(index, 1))
+		return false;
 	retVal = setStart(index, start) && setDelta(index, delta) && setEnd(index, end);
 	if(!retVal)
 		regions_->removeRows(index, 1);
