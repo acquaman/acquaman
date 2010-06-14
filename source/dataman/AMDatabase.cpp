@@ -358,10 +358,12 @@ bool AMDatabase::ensureColumn(const QString& tableName, const QString& columnNam
 
 	q.prepare(QString("ALTER TABLE %1 ADD COLUMN %2 %3;").arg(tableName).arg(columnName).arg(columnType));
 
-	if(q.exec())
+	if(q.exec()) {
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, QString("Adding database column %1 to table %2.").arg(columnName).arg(tableName)));
 		return true;
+	}
 	else {
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, "Error adding database column. Maybe it's already there? Sql reply says: " + q.lastError().text()));
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, QString("Error adding database column %1 to table %2. Maybe it's already there? Sql reply says: %3").arg(columnName).arg(tableName).arg(q.lastError().text())));
 		return false;
 	}
 }

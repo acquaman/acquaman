@@ -3,6 +3,7 @@
 
 #include "dataman/AMDbObject.h"
 #include "dataman/AMScan.h"
+#include "dataman/AMXASScan.h"
 
 /// This class provides a way of loading an arbitrary object from the database, doing type inspection on it, and fully loading the extended object.
 /// It must know about all the types it can load, so this file must be updated when adding new scan types...
@@ -32,6 +33,10 @@ public:
 		}
 		else if(realType == "AMScan") {
 			returnObject = new AMScan(parent);
+			returnObject->loadFromDb(db, id);
+		}
+		else if (realType == "AMXASScan") {
+			returnObject = new AMXASScan(parent);
 			returnObject->loadFromDb(db, id);
 		}
 		// Add additional subclasses here:

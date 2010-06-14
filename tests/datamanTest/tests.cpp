@@ -661,6 +661,7 @@ class TestDataman: public QObject
 
 
 	/// test loading an AMXASScan from legacy SGM data. Also tests creation of default channels inside SGMLegacyFileImporter::loadFromFile(), and tests
+	/*
 	void loadAMXASScan() {
 		AMXASScan s1;
 		SGMLegacyFileImporter s1Loader(&s1);
@@ -739,7 +740,7 @@ class TestDataman: public QObject
 		/// \todo Test Observer/Observable signals
 
 
-	}
+	}*/
 
 
 };

@@ -61,6 +61,7 @@ bool AMScan::storeToDb(AMDatabase* db) {
 
 	// the base class version is good at saving all the values in the metaData_ hash. Let's just exploit that.
 	metaData_["channelNames"] = channelNames().join(AMDatabaseDefinition::stringListSeparator());
+	qDebug() << metaData_["channelNames"];
 	metaData_["channelExpressions"] = channelExpressions().join(AMDatabaseDefinition::stringListSeparator());
 
 	// Call the base class implementation
