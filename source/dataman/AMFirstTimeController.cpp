@@ -3,7 +3,7 @@
 
 AMFirstTimeController::AMFirstTimeController() {
 
-	bool isFirstTime;
+	bool isFirstTime = false;
 
 	// check for missing user settings:
 	QSettings s(QSettings::IniFormat, QSettings::UserScope, "Acquaman", "Acquaman");
@@ -69,48 +69,22 @@ void AMFirstTimeController::onFirstTime() {
 
 }
 
-/// This version of AMFirstTimeController::databaseInitialization() establishes version 1 of the database schema.
-#define AMDATABASE_VERSION 1
 
+
+#include <dataman/AMDatabaseDefinition.h>
 #include <dataman/AMXASScan.h>
 
 /// create structures and tables for a new user database, from scratch
 void AMFirstTimeController::databaseInitialization() {
 
-	/// \todo Handle situations where the proper tables exist, but aren't in the right format.
+	AMDatabaseDefinition::initializeDatabaseTables(AMDatabase::userdb());
 
-	AMDatabase::userdb()->ensureTable("ObjectTypes", QString("type,columnNames").split(','), QString("TEXT,TEXT").split(','));
-	AMDatabase::userdb()->ensureTable("Objects", QString("type,dateTime,name,number,runId").split(','), QString("TEXT,TEXT,TEXT,INTEGER,INTEGER").split(','));
-	AMDatabase::userdb()->ensureTable("Runs", QString("dateTime,name").split(','), QString("TEXT,TEXT").split(','));
-	AMDatabase::userdb()->ensureTable("Experiments", QString("dateTime,name").split(','), QString("TEXT,TEXT").split(','));
-	AMDatabase::userdb()->ensureTable("ExperimentEntries", QString("objectId,experimentId").split(','), QString("INTEGER,INTEGER").split(','));
-
-	AMDatabase::userdb()->ensureTable("DatabaseInformation", QString("key,value").split(','), QString("TEXT,TEXT").split(','));
-
-
-	// add userName and databaseVersion to DatabaseInformation
-	QVariant v1, v2;
-	QList<const QVariant*> vlist;
-	vlist << &v1 << &v2;
-
-	QStringList clist;
-	clist << "key" << "value";
-
-	v1.setValue(QString("userName"));
-	v2.setValue(AMUserSettings::userName);
-
-	AMDatabase::userdb()->insertOrUpdate(0, "DatabaseInformation", clist, vlist);
-
-	v1.setValue(QString("databaseVersion"));
-	v2.setValue(AMDATABASE_VERSION);
-	AMDatabase::userdb()->insertOrUpdate(0, "DatabaseInformation", clist, vlist);
-
-
-	/// for each type of scan object, ensure we have the columns to hold it.
-	/// AMXASScan:
-	foreach(AMMetaMetaData col, AMXASScan::metaDataKeys() ) {
-		AMDatabase::userdb()->ensureColumn("Objects", col.key, AMDatabase::metaType2DbType(col.type));
-	}
+	AMDbObject s1;
+	AMDatabaseDefinition::registerType(&s1, AMDatabase::userdb());
+	AMScan s2;
+	AMDatabaseDefinition::registerType(&s2, AMDatabase::userdb());
+	AMXASScan s3;
+	AMDatabaseDefinition::registerType(&s3, AMDatabase::userdb());
 
 }
 

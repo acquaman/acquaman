@@ -737,7 +737,10 @@ class TestDataman: public QObject
 			QCOMPARE(c1->x(i), 0.0);
 
 		/// \todo Test Observer/Observable signals
+
+
 	}
+
 
 };
 

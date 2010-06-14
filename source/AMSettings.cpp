@@ -64,8 +64,7 @@ void AMUserSettings::save() {
 QString AMSettings::publicDataFolder;
 /// This is the public database filename:
 QString AMSettings::publicDatabaseFilename;
-/// Root database table:
-QString AMSettings::dbObjectTableName;
+
 
 /// Load settings from disk:
 void AMSettings::load() {
@@ -78,7 +77,7 @@ void AMSettings::load() {
 
 	publicDataFolder = settings.value("publicDataFolder", "/home/acquaman/data/").toString();
 	publicDatabaseFilename = settings.value("publicDatabaseFilename", "publicdata.db").toString();
-	dbObjectTableName = settings.value("dbObjectTableName", "dbObjectTable").toString();
+
 }
 
 /// Save settings to disk:
@@ -90,5 +89,4 @@ void AMSettings::save() {
 
 	settings.setValue("publicDataFolder", publicDataFolder);
 	settings.setValue("publicDatabaseFilename", publicDatabaseFilename);
-	settings.setValue("dbObjectTableName", dbObjectTableName);
 }

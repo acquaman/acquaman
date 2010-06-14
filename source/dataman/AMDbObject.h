@@ -80,9 +80,9 @@ public:
 	/// Returns the available pieces of meta data for this type of object, excluding those inherited from base classes. (ie: own only)
 	static QList<AMMetaMetaData> metaDataUniqueKeys() {
 		QList<AMMetaMetaData> rv;
+		rv << AMMetaMetaData(QVariant::DateTime, "dateTime", true);
 		rv << AMMetaMetaData(QVariant::String, "name", true);
 		rv << AMMetaMetaData(QVariant::Int, "number", true);
-		rv << AMMetaMetaData(QVariant::DateTime, "dateTime", true);
 		return rv;
 	}
 
@@ -116,7 +116,7 @@ public:
 
 	/// The type (aka class name) of this object (corresponding to the type of the most detailed subclass)
 	/*! This will be stored in the database and used to figure out the real type of the object when loading*/
-	QString type() {
+	QString type() const{
 		// metaObject() is virtual, so this will produce the class name of the most detailed subclass.
 		return this->metaObject()->className();
 	}

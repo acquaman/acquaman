@@ -5,6 +5,8 @@
 
 #include "AMErrorMonitor.h"
 
+#include "dataman/AMDatabaseDefinition.h"
+
 /// Internal instance pointers
 AMDatabase* AMDatabase::userInstance_ = 0;
 AMDatabase* AMDatabase::publicInstance_ = 0;
@@ -246,29 +248,24 @@ QList<int> AMDatabase::scansMatching(const QString& colName, const QVariant& val
 	// return value: list of id's that match
 	QList<int> rl;
 
-	// We've been given a column name. Figure out what table this could be in:
-	QStringList tables = columns2tables.values(colName);
 
-	// Note: we're searching ALL the tables that have a column with this name...
-	foreach(QString table, tables) {
+	QString table = AMDatabaseDefinition::objectTableName();
 
-		QSqlQuery q( qdb() );
-		// Todo: we're just searching the scanTable here... how to search all tables?
+	QSqlQuery q( qdb() );
 
-		// For date/times, we want a resolution of one minute to count as a match
-		if(value.type() == QVariant::DateTime)
-			q.prepare(QString("SELECT id FROM %1 WHERE %2 BETWEEN datetime(:val, '-1 minute') AND datetime(:val, '+1 minute')").arg(table).arg(colName));
-		else
-			q.prepare(QString("SELECT id FROM %1 WHERE %2 = :val").arg(table).arg(colName));
+	// For date/times, we want a resolution of one minute to count as a match
+	if(value.type() == QVariant::DateTime)
+		q.prepare(QString("SELECT id FROM %1 WHERE %2 BETWEEN datetime(:val, '-1 minute') AND datetime(:val, '+1 minute')").arg(table).arg(colName));
+	else
+		q.prepare(QString("SELECT id FROM %1 WHERE %2 = :val").arg(table).arg(colName));
 
-		q.bindValue(":val", value);
-		q.exec();
+	q.bindValue(":val", value);
+	q.exec();
 
-		while(q.next()) {
-			rl << q.value(0).toInt();
-		}
-		q.finish();
+	while(q.next()) {
+		rl << q.value(0).toInt();
 	}
+	q.finish();
 
 	return rl;
 }
@@ -280,25 +277,20 @@ QList<int> AMDatabase::scansContaining(const QString& colName, const QVariant& v
 
 	QList<int> rl;
 
-	// We've been given a column name. Figure out what table this could be in:
-	QStringList tables = columns2tables.values(colName);
+	QString table = AMDatabaseDefinition::objectTableName();
 
-	// Note: we're searching ALL the tables that have a column with this name.
-	foreach(QString table, tables) {
+	QSqlQuery q( qdb() );
 
-		QSqlQuery q( qdb() );
-		// Todo: we're just searching the scanTable here... how to search all tables?
+	q.prepare(QString("SELECT id FROM %1 WHERE %2 LIKE ('%' || :val || '%')").arg(table).arg(colName));
 
-		q.prepare(QString("SELECT id FROM %1 WHERE %2 LIKE ('%' || :val || '%')").arg(table).arg(colName));
+	q.bindValue(":val", value);
+	q.exec();
 
-		q.bindValue(":val", value);
-		q.exec();
-
-		while(q.next()) {
-			rl << q.value(0).toInt();
-		}
-		q.finish();
+	while(q.next()) {
+		rl << q.value(0).toInt();
 	}
+	q.finish();
+
 
 	return rl;
 }
@@ -311,11 +303,6 @@ bool AMDatabase::ensureTable(const QString& tableName, const QStringList& column
 		return false;
 	}
 
-	// Maintain a mapping from column names to tables...
-	// Given a column names, this will let us search in the right table for it. (Used by scansMatching, scansContaining...)
-	foreach(QString colName, columnNames) {
-		columns2tables.insertMulti(colName, tableName);
-	}
 
 	// todo: sanitize all inputs...
 	QSqlQuery q(qdb());
@@ -347,7 +334,7 @@ QString AMDatabase::scanType(int id) {
 	QSqlQuery q( qdb() );
 
 	// Prepare the query. Todo: sanitize name?
-	q.prepare(QString("SELECT type FROM %1 WHERE id = ?").arg(AMSettings::dbObjectTableName));
+	q.prepare(QString("SELECT type FROM %1 WHERE id = ?").arg(AMDatabaseDefinition::objectTableName()));
 	q.bindValue(0, id);
 
 	// run query and return true if succeeded at finding id:

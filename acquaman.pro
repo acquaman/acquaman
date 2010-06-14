@@ -153,7 +153,8 @@ HEADERS += source/beamline/AMDiagnosticPaddle.h \
     source/ui/AMMainWindow.h \
     source/beamline/AMAbstractDetector.h \
     source/dataman/AMFirstTimeController.h \
-    source/ui/AMFirstTimeWidget.h
+    source/ui/AMFirstTimeWidget.h \
+    source/dataman/AMDatabaseDefinition.h
 FORMS += source/ui/AbsorptionScanController.ui \
     source/ui/ConnectionSettings.ui \
     source/ui/EmissionScanController.ui \

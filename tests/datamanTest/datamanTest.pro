@@ -92,7 +92,8 @@ HEADERS += source/dataman/AMDbObject.h \
     ../../source/AMObservable.h \
     ../../source/dataman/AMScanSetModel.h \
     ../../source/dataman/AMFirstTimeController.h \
-    ../../source/ui/AMFirstTimeWidget.h
+    ../../source/ui/AMFirstTimeWidget.h \
+    ../../source/dataman/AMDatabaseDefinition.h
 SOURCES += source/dataman/AMScan.cpp \
     source/dataman/AMChannel.cpp \
     source/beamline/AMPVNames.cpp \

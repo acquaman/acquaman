@@ -10,40 +10,16 @@
 #include <QMap>
 
 
-/*! This class encapsulates all access to the user's metadata.  It is a singleton class like Beamline, except that it can provide
-	access to either the user's private database object or the public database object.
+/*! This class encapsulates all access to the user's metadata database.  It is a singleton class like AMBeamline, except that it can provide access to either the user's private database object or the public database object.
 
 	Access the database object via public static functions:
-        AMDatabase::userdb()
-	or
-        AMDatabase::publicdb()
-
-        AMDatabase Table Structure
-	========================
-	The main table stores only basic meta-data for each scan (as defined in Scan class.)
-	Subclasses that provide more information are stored in separate tables (one for each layer of subclassing).
-	The detailed tables are linked to the main table using the Scan's unique id().
-	In all tables, this id() corresponds to id (the row index).
-
-	Main Table Columns:
-	-----------
-	id: intrinsic row ID		[INTEGER PRIMARY KEY]
-	name: user-given name		[TEXT]
-	number: user-given number	[INTEGER]
-	sampleName:					[TEXT]
-	comments:					[TEXT]
-	startTime:					[TEXT]
-	channels: list of channel names (comma-separated) [STRING]
-
-	(Note that we don't really need to know this information explicitly... All objects which can be
-	stored in the database provide dbColumnNames() and dbColumnTypes() to give us this information dynamically.)
+		- AMDatabase::userdb(), or
+		- AMDatabase::publicdb()
 
 
 
 
-
-
-
+	This class provides tools for accessing and working with a database.  (The actual schema -- or table layout -- for the user database is defined in AMDatabaseDefinition.)  The objective of this class is to cleanly encapsulate the useful SQL queries, and protect the database integrity by not allowing anyone direct access to run arbitrary queries.
 
 
 
@@ -91,11 +67,13 @@ public:
 	*/
 	int insertOrUpdate(int id, const QString& table, const QStringList& colNames, const QList<const QVariant*>& values);
 
+	/// changing single values in the database, at row \c id.
+	bool update(int id, const QString& table, const QString& column, const QVariant& value);
+
 	/// Changing single values in the database (where the id isn't known).  Will update all rows where the value in \c matchColumn is equal to \c matchValue. Will set the value in \c dataColumn to \c dataValue.
 	bool update(const QString& tableName, const QString& matchColumn, const QVariant& matchValue, const QString& dataColumn, const QVariant& dataValue);
 
-	/// changing single values in the database, at row \c id.
-	bool update(int id, const QString& table, const QString& column, const QVariant& value);
+
 
 
 	/// retrieve an object from the database. (Create the object first; it will be modified to reflect its state in the database)
@@ -145,8 +123,6 @@ private:
 	static AMDatabase* userInstance_;
 	static AMDatabase* publicInstance_;
 
-	// given a column name key, allows lookup of the table containing that column:
-	QMap<QString,QString> columns2tables;
 
 
 };

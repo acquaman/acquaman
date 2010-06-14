@@ -14,6 +14,8 @@
 
 #include "AMBiHash.h"
 
+
+
 /// This helper class is a Qt standard model for the list of channels in an AMScan.  This provides a standardized way for views that need to see the channels, and be notified before and after channels are added/removed.
 class AMChannelListModel : public QAbstractListModel {
 

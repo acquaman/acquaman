@@ -1,5 +1,5 @@
 #include "AMDbObject.h"
-
+#include "dataman/AMDatabaseDefinition.h"
 
 
 AMDbObject::AMDbObject(QObject *parent) : QObject(parent) {
@@ -28,7 +28,7 @@ bool AMDbObject::storeToDb(AMDatabase* db) {
 		values << &metaData_[md.key];
 	}
 
-	int retVal = db->insertOrUpdate(id(), "Objects", keys, values);
+	int retVal = db->insertOrUpdate(id(), AMDatabaseDefinition::objectTableName(), keys, values);
 
 	if(retVal > 0) {
 		id_ = retVal;
@@ -50,7 +50,7 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 		values << &metaData_[md.key];
 	}
 
-	if( db->retrieve( sourceId, "Objects", keys, values) ) {
+	if( db->retrieve( sourceId, AMDatabaseDefinition::objectTableName(), keys, values) ) {
 		id_ = sourceId;
 		foreach(QString key, keys)
 			emit metaDataChanged(key);
