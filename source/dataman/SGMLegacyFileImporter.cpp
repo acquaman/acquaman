@@ -145,16 +145,19 @@ bool SGMLegacyFileImporter::loadFromFile(const QString& filepath) {
 	scan_->legacyGrating_ = grating;
 
 
-	/// \todo defaults for what channels to create?
-	// scan_->addChannel("eV", "eV");
-	if(colNames1.contains("tey") && colNames1.contains("I0"))
-		scan_->addChannel("tey_n", "tey/I0");
-	if(colNames1.contains("tfy") && colNames1.contains("I0"))
-		scan_->addChannel("tfy_n", "-1*tfy/I0");
-	if(colNames1.contains("tey"))
-		scan_->addChannel("tey_raw", "tey");
-	if(colNames1.contains("tfy"))
-		scan_->addChannel("tfy_raw", "tfy");
+	// If the scan doesn't have any channels yet, it would be helpful to create some.
+	if(scan_->numChannels() == 0) {
+		/// \todo defaults for what channels to create?
+		// scan_->addChannel("eV", "eV");
+		if(colNames1.contains("tey") && colNames1.contains("I0"))
+			scan_->addChannel("tey_n", "tey/I0");
+		if(colNames1.contains("tfy") && colNames1.contains("I0"))
+			scan_->addChannel("tfy_n", "-1*tfy/I0");
+		if(colNames1.contains("tey"))
+			scan_->addChannel("tey_raw", "tey");
+		if(colNames1.contains("tfy"))
+			scan_->addChannel("tfy_raw", "tfy");
+	}
 
 
 	// what should we name this scan?
@@ -162,7 +165,7 @@ bool SGMLegacyFileImporter::loadFromFile(const QString& filepath) {
 	name = name.split(QChar('/')).last();
 	scan_->setName(name);
 
-	scan_->notifyUpdated();
+	scan_->onDataChanged();
 
 	return true;
 }

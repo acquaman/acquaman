@@ -46,13 +46,21 @@ public:
 	}
 
 
-	/// returns a list of channel names currently stored
+	/// returns a list of channel names currently stored.
 	QStringList channelNames() const {
 		QStringList names;
 		foreach(AMChannel* ch, ch_) {
 			names << ch->name();
 		}
 		return names;
+	}
+
+	/// returns a list of the channel expressions. (Channels are ordered the same as channelNames(). )
+	QStringList channelExpressions() const {
+		QStringList rv;
+		foreach(AMChannel* ch, ch_)
+			rv << ch->expression();
+		return rv;
 	}
 
 	/// Returns specified channel by name: (returns 0 if not found)
@@ -123,12 +131,17 @@ protected:
 	\todo complete documentation
   */
 class AMScan : public AMDbObject {
-Q_OBJECT
 
-Q_PROPERTY(QString sampleName READ sampleName WRITE setSampleName)
-Q_PROPERTY(QString comments READ comments WRITE setComments NOTIFY commentsChanged)
+	Q_OBJECT
+
+	Q_PROPERTY(QString sampleName READ sampleName WRITE setSampleName)
+	Q_PROPERTY(QString comments READ comments WRITE setComments NOTIFY commentsChanged)
 
 public:
+
+	// Constructors and Destructors
+	//////////////////////////////////
+
 	/// default constructor
 	explicit AMScan(QObject *parent = 0);
 
@@ -138,20 +151,85 @@ public:
 			ch_.deleteChannel(0);
 	}
 
-	// Returns scan's unique id
-	// use DbObject::id()
+	/// \todo copy constructor and assignment operator required, but not yet implemented. Do not copy. (implementation note: handle channels as children?)
 
-/// \todo copy constructor and assignment operator: handle channels as children
 
+
+
+	// Meta Data Elements
+	////////////////////////////////
 	/// Returns name of sample
-	QString sampleName() const { return sampleName_;}
+	QString sampleName() const { return metaData_["sampleName"].toString();}
 	/// Returns comments for scan
-	QString comments() const { return comments_;}
+	QString comments() const { return metaData_["comments"].toString();}
 	/// Returns original start time
 	// use DbObject::dateTime();
 	/// Returns the full scan name: number appended to name
 	QString fullName() const {return QString("%1%2").arg(name()).arg(number()); }
 
+
+
+
+	// Meta-data system
+	/////////////////////////////////////////////
+
+	/// Returns the available pieces of meta data for this type of object, including all inherited from base classes. (ie: own + base classes')
+	static QList<AMMetaMetaData> metaDataKeys() {
+		return AMDbObject::metaDataKeys() << metaDataUniqueKeys();
+	}
+
+	/// Returns the available pieces of meta data for this type of object, excluding those inherited from base classes. (ie: own only)
+	static QList<AMMetaMetaData> metaDataUniqueKeys() {
+		QList<AMMetaMetaData> rv;
+		rv << AMMetaMetaData(QVariant::String, "sampleName", true);
+		rv << AMMetaMetaData(QVariant::String, "comments", true);
+		rv << AMMetaMetaData(QVariant::StringList, "channelNames", false);
+		rv << AMMetaMetaData(QVariant::StringList, "channelExpressions", false);
+		return rv;
+	}
+
+	/// Returns all the available pieces of meta data for this type of object, by introspecting it's most detailed type. (ie: own + base classes' + subclasses')
+	virtual QList<AMMetaMetaData> metaDataAllKeys() const {
+		return this->metaDataKeys();
+	}
+
+	/// Returns the value of a piece of meta data. (Re-implemented from AMDbObject to catch channelNames or channelExpressions, which aren't found in the metaData_ hash.)
+	virtual QVariant metaData(const QString& key) const {
+
+		if(key == "channelNames") {
+			return channelNames();
+		}
+
+		if(key == "channelExpressions") {
+			return channelExpressions();
+		}
+
+		return AMDbObject::metaData(key);
+	}
+
+	/// set a meta data value. (Re-implemented from AMDbObject to catch channelNames or channelExpressions, which are not allowed to be set as metaData like this.)
+	virtual bool setMetaData(const QString& key, const QVariant& value) {
+
+		if(key == "channelNames" || key == "channelExpressions")
+			return false;
+
+		return AMDbObject::setMetaData(key, value);
+	}
+
+
+	// Database system
+	///////////////////////////////////////////
+	/// Load yourself from the database. (returns true on success)
+	/*! Re-implemented from AMDbObject, this version loads all of the meta data found for keys metaDataAllKeys(), and also restores the chanel names and channel formulas.*/
+	virtual bool loadFromDb(AMDatabase* db, int id);
+	/// Store or update self in the database. (returns true on success)
+	/*! Re-implemented from AMDbObject::storeToDb(), this version saves all of the meta data found for keys metaDataAllKeys(), as well as saving the channel names and channel formulas.
+	  */
+	virtual bool storeToDb(AMDatabase* db);
+
+
+	// Channel System
+	/////////////////////////////////
 	/// Return number of available channels
 	int numChannels() const { return ch_.rowCount(); }
 	/// Returns specified channel by name: (returns 0 if not found)
@@ -163,42 +241,39 @@ public:
 	const AMChannel* channel(unsigned index) const { return ch_.channel(index);  }
 	/// Return a comma-separated list of all channel names (Used for channel hints in database)
 	QStringList channelNames() const { return ch_.channelNames(); }
+	QStringList channelExpressions() const { return ch_.channelExpressions(); }
 
 	/// returns a standard Qt list model that can be used to view the channels and be notified of created/deleted channels
 	const AMChannelListModel* channelList() const { return &ch_; }
 
-
 	/// the number of datapoints in the scan:
 	unsigned count() const { return d_->count(); }
 
-	/// These functions provide support for storing and retrieving from the database.
-	// ===================================
 
-	/// The name of the table that will store the object's properties:
-	static QString dbTableName() { return "scanTable"; }	// todo: move into system settings?
 
-	/// A list of the column names required to store the object's properties. (note: the key column 'id' is always included; don't specify it here.)
-	static const QStringList& dbColumnNames() {
-		// Insert if not filled already:
-		if(dbColumnNames_.isEmpty()) {
-			dbColumnNames_ = QString("sampleName,comments,channels").split(',');
-		}
-		return dbColumnNames_;
-	}
-	/// A list of the column types recommended to store the object's properties. (note: this must have the same number of items and correspond to dbColumnNames())
-	static QStringList dbColumnTypes() { return QString("TEXT,TEXT,TEXT").split(','); }
-	/// A static function to make sure the database is ready to hold us:
-	/// When re-implementing, make sure to call base-class implementation first.
-		static void dbPrepareTables(AMDatabase* db) { AMDbObject::dbPrepareTables(db); db->ensureTable(dbTableName(), dbColumnNames(), dbColumnTypes()); }
+public slots:
 
-	// ======================================
+	/// Sets name of sample
+	void setSampleName(const QString &sampleName) { setMetaData("sampleName", sampleName); }
+	/// Sets comments for scan
+	void setComments(const QString &comments) { setMetaData("comments", comments); }
+	/// Sets original start time
+	// use setDateTime() in AMDbObject
+
+	/// create a new channel. The channel will be owned and deleted by the scan.
+	bool addChannel(const QString& chName, const QString& expression);
+
+	/// Delete a channel from scan:
+	bool deleteChannel(AMChannel* channel);
+	bool deleteChannel(const QString& channelName);
+	bool deleteChannel(unsigned index);
+
 
 signals:
-	/// Emitted when comments string changed
-	void commentsChanged(const QString &);
-	/// Emitted when data changes / new data accepted
-	void updated(AMScan* me);
-/*
+
+	/// Emitted when raw data changes / new data accepted
+	void dataChanged(AMScan* me);
+	/*
   Belongs in scan controller
 	/// AMScan has started
 	void started();
@@ -214,42 +289,18 @@ signals:
 	void timeRemaining(double seconds);
 */
 
-public slots:
-
-	/// Sets name of sample
-	void setSampleName(const QString &sampleName) { sampleName_ = sampleName;}
-	/// Sets comments for scan
-	void setComments(const QString &comments) { comments_ = comments; /* TODO: necessary? emit commentsChanged(comments_);*/ }
-	/// Sets original start time
-	// use setDateTime() in DbObject
-
-	/// create a new channel. The channel will be owned and deleted by the scan.
-	bool addChannel(const QString& chName, const QString& expression);
-
-	/// Delete a channel from scan:
-	bool deleteChannel(AMChannel* channel);
-	bool deleteChannel(const QString& channelName);
-	bool deleteChannel(unsigned index);
 
 
-	/// Load yourself from the database. (returns true on success)
-		/// Detailed subclasses of AMScan must re-implement this to retrieve all of their unique data fields.
-		/// When doing so, always call the parent class implemention first.
-		virtual bool loadFromDb(AMDatabase* db, int id);
-	/// Store or update self in the database. (returns true on success)
-		/// Detailed subclasses of AMScan must re-implement this to store all of their unique data.
-		/// When doing so, always call the parent class implemention first.
-		virtual bool storeToDb(AMDatabase* db);
+protected slots:
+	/// called by friends after finished updating / loading from file, etc.
+	void onDataChanged() {
+		emit dataChanged(this);
+	}
 
 protected:
 
 	/// List of channels
 	AMChannelListModel ch_;
-
-	/// Sample name
-	QString sampleName_;
-	/// Commments for scan
-	QString comments_;
 
 	/// raw data storage. All scans will have one of these, but the contents and structure will vary.
 	AMDataTree* d_;
@@ -263,8 +314,6 @@ protected:
 	friend class AMDacqScanController;
 
 private:
-	/// List of column names required to have in DB:
-	static QStringList dbColumnNames_;
 
 	/// This is used to maintain a reference count of 1 on the implicitly shared AMDataTree d_, and delete d_ when this (dshared_) goes out of scope
 	QSharedDataPointer<AMDataTree> dshared_;

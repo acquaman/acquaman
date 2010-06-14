@@ -95,7 +95,9 @@ HEADERS += ../../source/AMSettings.h \
     ../../source/muParser/muParser.h \
     ../../source/dataman/AMScanSetModel.h \
     ../../source/ui/AMSidebar.h \
-    ../../source/beamline/AMAbstractDetector.h
+    ../../source/beamline/AMAbstractDetector.h \
+    ../../source/dataman/AMFirstTimeController.h \
+    ../../source/ui/AMFirstTimeWidget.h
 FORMS += 
 SOURCES += tests.cpp \
     ../../source/dataman/SGMLegacyFileImporter.cpp \
@@ -115,5 +117,6 @@ SOURCES += tests.cpp \
     ../../source/muParser/muParser.cpp \
     ../../source/dataman/AMScanSetModel.cpp \
     ../../source/ui/AMSidebar.cpp \
-    ../../source/beamline/AMAbstractDetector.cpp
+    ../../source/beamline/AMAbstractDetector.cpp \
+    ../../source/dataman/AMFirstTimeController.cpp
 RESOURCES = source/icons/icons.qrc

@@ -1,5 +1,5 @@
 #include "AMFirstTimeController.h"
-
+#include <QStringList>
 
 AMFirstTimeController::AMFirstTimeController() {
 
@@ -69,6 +69,11 @@ void AMFirstTimeController::onFirstTime() {
 
 }
 
+/// This version of AMFirstTimeController::databaseInitialization() establishes version 1 of the database schema.
+#define AMDATABASE_VERSION 1
+
+#include <dataman/AMXASScan.h>
+
 /// create structures and tables for a new user database, from scratch
 void AMFirstTimeController::databaseInitialization() {
 
@@ -82,7 +87,30 @@ void AMFirstTimeController::databaseInitialization() {
 
 	AMDatabase::userdb()->ensureTable("DatabaseInformation", QString("key,value").split(','), QString("TEXT,TEXT").split(','));
 
-	/// \todo: generalize insertOrUpdate() to work with any table. then insertOrUpdate userName and databaseVersion into DatabaseInformation table.
+
+	// add userName and databaseVersion to DatabaseInformation
+	QVariant v1, v2;
+	QList<const QVariant*> vlist;
+	vlist << &v1 << &v2;
+
+	QStringList clist;
+	clist << "key" << "value";
+
+	v1.setValue(QString("userName"));
+	v2.setValue(AMUserSettings::userName);
+
+	AMDatabase::userdb()->insertOrUpdate(0, "DatabaseInformation", clist, vlist);
+
+	v1.setValue(QString("databaseVersion"));
+	v2.setValue(AMDATABASE_VERSION);
+	AMDatabase::userdb()->insertOrUpdate(0, "DatabaseInformation", clist, vlist);
+
+
+	/// for each type of scan object, ensure we have the columns to hold it.
+	/// AMXASScan:
+	foreach(AMMetaMetaData col, AMXASScan::metaDataKeys() ) {
+		AMDatabase::userdb()->ensureColumn("Objects", col.key, AMDatabase::metaType2DbType(col.type));
+	}
 
 }
 

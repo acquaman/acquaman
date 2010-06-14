@@ -2,6 +2,7 @@
 
 #include <QSystemTrayIcon>
 #include <QMutableMapIterator>
+#include <QDebug>
 
 AMErrorMon* AMErrorMon::instance_ = 0;
 
@@ -69,14 +70,38 @@ void AMErrorMon::unsubscribeI(QObject* notifyMe, const char* errorSlot) {
 /// Report an error:
 void AMErrorMon::reportI(const AMErrorReport& e) {
 
+	QString className;
+	if(e.source && e.source->metaObject())
+		className = e.source->metaObject()->className();
+
+	QString reportMessage = QString("in [%1]: %2 (code %3)").arg(className).arg(e.description).arg(e.errorCode);
+
+
+	// Chapter 0: If we're in debug mode, throw a qDebug() for everything:
+	if(debugEnabled_) {
+		switch(e.level) {
+		case AMErrorReport::Debug:
+			qDebug() << "Debug:" << reportMessage;
+			break;
+		case AMErrorReport::Information:
+			qDebug() << "Information:" << reportMessage;
+			break;
+		case AMErrorReport::Alert:
+			qDebug() << "Alert:" << reportMessage;
+			break;
+		case AMErrorReport::Serious:
+			qDebug() << "Serious:" << reportMessage;
+			break;
+		}
+	}
+
+
 	// Chapter 1: Emit signals, as long as it's not a debug message and debug is disabled.
 
 	if( e.level == AMErrorReport::Debug && !debugEnabled_)
 		; // do nothing
 	else
 		emit error(e);
-
-	QString className = "[]";
 
 	switch(e.level) {
 		case AMErrorReport::Information:
@@ -87,8 +112,6 @@ void AMErrorMon::reportI(const AMErrorReport& e) {
 			break;
         case AMErrorReport::Serious:
 			emit serious(e);
-			if(e.source)
-				className = e.source->metaObject()->className();
 			sicon_->showMessage(QString("Error in %1: (%2)").arg(className).arg(e.errorCode), e.description, QSystemTrayIcon::Critical, 5000);
 			break;
 		case AMErrorReport::Debug:

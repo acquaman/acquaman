@@ -5,16 +5,22 @@
 #include "dataman/AMXASScan.h"
 #include "acquaman/SGM/SGMXASScanConfiguration.h"
 
+#include "dataman/AMFirstTimeController.h"
+#include "AMErrorMonitor.h"
+
 class AcquamanTest: public QObject
 {
 	Q_OBJECT
 private slots:
 	void initTestCase()
 	{
+		AMErrorMon::enableDebugNotifications();
 		AMSettings::load();
 		AMUserSettings::load();
 		AMPVNames::load();
-		AMScan::dbPrepareTables(AMDatabase::userdb());
+		AMFirstTimeController();
+
+
 		SGMBeamline::sgm();
 		for(int x = 0; x < 8; x++){
 			qDebug() << "Waiting for connection to SGM Beamline";

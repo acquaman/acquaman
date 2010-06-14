@@ -4,11 +4,6 @@
 #include <QDebug>
 
 
-
-
-// static dbColumnNames (each instance has same)
-QStringList AMScan::dbColumnNames_;
-
 AMScan::AMScan(QObject *parent)
 	: AMDbObject(parent)
 {
@@ -16,8 +11,9 @@ AMScan::AMScan(QObject *parent)
 	// created a new top-level data tree (not shared with anyone). Assigning it to dshared_ gives it a reference count of 1. The tree will be automatically deleted when dshared_ goes out of scope (ie: when dshared_ gets deleted, moving the reference count to 0.)
 	dshared_ = d_ = new AMDataTree(0, "x", true);
 
-	// Ensure the static (class-wide) dbColumnNames_ has already been filled:
-	dbColumnNames();
+
+	metaData_["sampleName"] = QString();
+	metaData_["comments"] = QString();
 }
 
 
@@ -56,53 +52,53 @@ bool AMScan::addChannel(const QString& chName, const QString& expression) {
 // DBObject database implementation:
 ///////////////////////////////
 
-/// This member function updates a scan in the database (if it exists already), otherwise it adds it to the database.
-
-        // - AMScan Objects (ex: new scans) have their id() field set to <1, unless they've been retrieved from the database, in which case they have id() = [valid database key]
-	// Watch out: by creating a scan and giving it id() = [some arbitrary positive number]; you'll destroy data in the db.
-
+/// Store or update self in the database. (returns true on success)
+/*! Re-implemented from AMDbObject::storeToDb(), this version saves all of the meta data found for keys metaDataAllKeys(), as well as saving the channel names and channel formulas.
+  */
 bool AMScan::storeToDb(AMDatabase* db) {
 
-	// Always call base class implementation first.
+	// the base class version is good at saving all the values in the metaData_ hash. Let's just exploit that.
+	metaData_["channelNames"] = channelNames();
+	metaData_["channelExpressions"] = channelExpressions();
+
+	// Call the base class implementation
 	// Return false if it fails.
-        if( !AMDbObject::storeToDb(db) )
+	if( !AMDbObject::storeToDb(db) )
 		return false;
 
-	QList<const QVariant*> values;
+	// This was cheating... channelNames and channelExpressions aren't stored authoritatively in the metaData_. Let's get rid of them.
+	metaData_.remove("channelNames");
+	metaData_.remove("channelExpressions");
 
-	QVariant v1(sampleName());
-	QVariant v2(comments());
-	QVariant v3(channelNames().join(","));
-	values << &v1 << &v2 << &v3;
-
-	// If this returns with a positive id, it's succeeded.
-	return ( db->insertOrUpdate(id(), dbTableName(), dbColumnNames_, values) > 0);
-
+	return true;
 }
 
 
-/// load a scan (set its properties) by retrieving it based on id.
+/// Store or update self in the database. (returns true on success)
+/*! Re-implemented from AMDbObject::storeToDb(), this version saves all of the meta data found for keys metaDataAllKeys(), as well as saving the channel names and channel formulas.
+  */
 bool AMScan::loadFromDb(AMDatabase* db, int sourceId) {
 
 	// always call the base class implementation first. This retrieves/loads all the base-class properties.
 	// return false if it fails:
-        if( !AMDbObject::loadFromDb(db, sourceId))
+	if( !AMDbObject::loadFromDb(db, sourceId))
 		return false;
 
-	// Provide memory storage for return value:
-	QList<QVariant*> values;
-	QVariant v1, v2, v3;
-	values << &v1 << &v2 << &v3;
+	// clear the existing channels:
+	while(numChannels() != 0)
+		deleteChannel(numChannels()-1);
 
-	if( db->retrieve( sourceId, dbTableName(), dbColumnNames_, values) ) {
-		setSampleName(v1.toString());
-		setComments(v2.toString());
-		// v3 ignored; channel names are read-only.
-		return true;
-	}
-	else {
+	// retrieve channelNames and channelExpressions: they've been "accidentally" loaded into the hash by AMDbObject::loadFromDb().
+	QStringList chNames = metaData_.take("channelNames").toStringList();
+	QStringList chExpressions = metaData_.take("channelExpressions").toStringList();
+	if(chNames.count() != chExpressions.count()) {
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -1, "AMScan: couldn't restore saved channels. (The data was corrupted.)"));
 		return false;
 	}
+	for(int i=0; i<chNames.count(); i++)
+		addChannel(chNames[i], chExpressions[i]);
+
+	return true;
 }
 
 

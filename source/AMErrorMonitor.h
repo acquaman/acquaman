@@ -123,7 +123,7 @@ public:
 	}
 
 	/// Enable or disable debug-level notifications:
-	static void enableDebugNotifications(bool debugEnabled) {
+	static void enableDebugNotifications(bool debugEnabled = true) {
 		mon()->debugEnabled_ = debugEnabled;
 	}
 
