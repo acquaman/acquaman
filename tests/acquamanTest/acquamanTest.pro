@@ -27,10 +27,10 @@ TARGET = test-acquaman
 DESTDIR = ../../build
 DEPENDPATH += . \
     ../../ \
-	source
+	../../source
 INCLUDEPATH += . \
     ../../ \
-	source
+	../../source
 INCLUDEPATH += $$EPICS_INCLUDE_DIRS
 INCLUDEPATH += $$PHONON_INCLUDE_DIR
 INCLUDEPATH += $$MPLOT_INCLUDE_DIR
