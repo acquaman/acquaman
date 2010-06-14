@@ -2,7 +2,7 @@
 #define ACQMAN_CHANNEL_H
 
 #include <QObject>
-#include <muParser/muParser.h>
+#include "muParser/muParser.h"
 
 #include "MPlot/MPlotSeriesData.h"
 
