@@ -7,6 +7,9 @@
 #include "ui/AMScanView.h"
 #include "ui/AMSidebar.h"
 
+#include "dataman/AMFirstTimeController.h"
+#include "AMErrorMonitor.h"
+
 #include <QTreeView>
 
 class Test1: public QObject
@@ -19,9 +22,10 @@ private slots:
 	/// This runs before any of the private slots (test cases) get run. It loads the settings and prepares the database tables as required for each Scan object that gets tested.
 	void initTestCase()
 	{
+		AMErrorMon::enableDebugNotifications();
 		AMSettings::load();
 		AMUserSettings::load();
-		AMScan::dbPrepareTables(AMDatabase::userdb());
+		AMFirstTimeController();
 
 	}
 

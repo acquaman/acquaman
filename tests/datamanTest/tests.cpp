@@ -7,6 +7,9 @@
 #include "dataman/AMXASScan.h"
 #include "dataman/SGMLegacyFileImporter.h"
 
+#include "dataman/AMFirstTimeController.h"
+#include "AMErrorMonitor.h"
+
 #include <QSettings>
 
 /// This class contains all of the unit tests for the dataman module.
@@ -21,9 +24,10 @@ class TestDataman: public QObject
 	/// This runs before any of the private slots (test cases) get run. It loads the settings and prepares the database tables as required for each Scan object that gets tested.
 	void initTestCase()
 	{
+		AMErrorMon::enableDebugNotifications();
 		AMSettings::load();
 		AMUserSettings::load();
-		AMScan::dbPrepareTables(AMDatabase::userdb());
+		AMFirstTimeController();
 	}
 
 	/// This is run after all tests are complete.
@@ -657,6 +661,7 @@ class TestDataman: public QObject
 
 
 	/// test loading an AMXASScan from legacy SGM data. Also tests creation of default channels inside SGMLegacyFileImporter::loadFromFile(), and tests
+	/*
 	void loadAMXASScan() {
 		AMXASScan s1;
 		SGMLegacyFileImporter s1Loader(&s1);
@@ -733,7 +738,10 @@ class TestDataman: public QObject
 			QCOMPARE(c1->x(i), 0.0);
 
 		/// \todo Test Observer/Observable signals
-	}
+
+
+	}*/
+
 
 };
 

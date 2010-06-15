@@ -28,9 +28,9 @@ AMAcqScanOutput::~AMAcqScanOutput(){
 }
 
 acqBaseOutput *
-AMAcqScanOutput::new_AMAcqScanOutput()
+		AMAcqScanOutput::new_AMAcqScanOutput()
 {
-		return new AMAcqScanOutput;
+	return new AMAcqScanOutput;
 }
 
 /// C interface to the Constructor.
@@ -45,68 +45,70 @@ acqKey_t new_AMAcqScanOutput(void)
 // put out flagged header entries: event ID, timestamps, comment prefix ...
 int AMAcqScanOutput::startRecord( acqKey_t key, int eventno)
 {
-		AMAcqScanOutput *to = (AMAcqScanOutput *)key;
-		acqOutputEvent_t *event;
-		struct timeval curTime;
+	AMAcqScanOutput *to = (AMAcqScanOutput *)key;
+	acqOutputEvent_t *event;
+	struct timeval curTime;
 
-		const char *prefix = "";
+	const char *prefix = "";
 
 
-		to->dataDelayList_.clear();
-		to->dataDelay_ = true;
+	to->dataDelayList_.clear();
+	to->dataDelay_ = true;
 
-		// flag that some output is occuring
-		to->outputState = TOH_HAS_CONTENT;
-		event = to->find_event_number(eventno);
-		if( event == NULL || ! to->isReady() )
-			return -1;
-		eventPrivate *evpr;
-		evpr = (eventPrivate *)event->private_data;
-		if( evpr == NULL)
-			return 0;
+	// flag that some output is occuring
+	to->outputState = TOH_HAS_CONTENT;
+	event = to->find_event_number(eventno);
+	if( event == NULL || ! to->isReady() )
+		return -1;
+	eventPrivate *evpr;
+	evpr = (eventPrivate *)event->private_data;
+	if( evpr == NULL)
+		return 0;
 
-		gettimeofday( &curTime, 0);
+	gettimeofday( &curTime, 0);
 
-		if( evpr->commentPrefix)
-		{
-			to->sendOutputLine( "# ");
-		}
-		if( evpr->putEventID)
-		{
-			to->sendOutputLine( "%s%d", prefix, eventno);
-			prefix = to->delimiter.c_str();
-		}
-		if( evpr->timeStamp)
-		{
-			to->sendOutputLine( "%s%.6f", prefix, doubleTime(curTime));
-			prefix = to->delimiter.c_str();
-		}
-		if( evpr->rel0TimeStamp)
-		{
-			to->sendOutputLine( "%s%.6f", prefix, timeDiff(curTime, evpr->startTime) );
-			prefix = to->delimiter.c_str();
-		}
-		if( evpr->relTimeStamp)
-		{
-			to->sendOutputLine( "%s%.6f", prefix, timeDiff(curTime, evpr->prevTime) );
-			prefix = to->delimiter.c_str();
-		}
-		evpr->prevTime = curTime;
-		if( *prefix)
-			to->needDelimiter = TRUE;
-		return 1;
+	if( evpr->commentPrefix)
+	{
+		to->sendOutputLine( "# ");
+	}
+	if( evpr->putEventID)
+	{
+		to->sendOutputLine( "%s%d", prefix, eventno);
+		prefix = to->delimiter.c_str();
+	}
+	if( evpr->timeStamp)
+	{
+		to->sendOutputLine( "%s%.6f", prefix, doubleTime(curTime));
+		prefix = to->delimiter.c_str();
+	}
+	if( evpr->rel0TimeStamp)
+	{
+		to->sendOutputLine( "%s%.6f", prefix, timeDiff(curTime, evpr->startTime) );
+		prefix = to->delimiter.c_str();
+	}
+	if( evpr->relTimeStamp)
+	{
+		to->sendOutputLine( "%s%.6f", prefix, timeDiff(curTime, evpr->prevTime) );
+		prefix = to->delimiter.c_str();
+	}
+	evpr->prevTime = curTime;
+	if( *prefix)
+		to->needDelimiter = TRUE;
+	return 1;
 }
 
 int AMAcqScanOutput::endRecord( acqKey_t key, int eventno)
 {
-		AMAcqScanOutput *to = (AMAcqScanOutput *)key;
+	Q_UNUSED(eventno)
 
-		//DEBUG(to) printf("endRecord(%p)\n", key);
-		to->sendOutputLine( "\n");
-		to->acq_flush();
-		to->needDelimiter = 0;
+	AMAcqScanOutput *to = (AMAcqScanOutput *)key;
 
-		return 1;
+	//DEBUG(to) printf("endRecord(%p)\n", key);
+	to->sendOutputLine( "\n");
+	to->acq_flush();
+	to->needDelimiter = 0;
+
+	return 1;
 }
 int AMAcqScanOutput::putValue( acqKey_t key, int eventno, int pvno, const void *value, int count)
 {
@@ -124,9 +126,9 @@ int AMAcqScanOutput::putValue( acqKey_t key, int eventno, int pvno, const void *
 	case DBF_STRING:
 		break;
 	case DBF_ENUM:	// ENUM support is difficult if the value may be passed through multiple
-			// processes before being handled. It is the responsibility of the inheriting class
-			// to determine how to convert enums to strings, probably with support from the
-			// calling program.
+		// processes before being handled. It is the responsibility of the inheriting class
+		// to determine how to convert enums to strings, probably with support from the
+		// calling program.
 		break;
 	case DBF_SHORT:
 		dataVal = (double)*(short *)value;
@@ -177,14 +179,14 @@ int AMAcqScanOutput::putValue( acqKey_t key, int eventno, int pvno, const void *
 
 int AMAcqScanOutput::shutdown( acqKey_t key)
 {
-		AMAcqScanOutput *to = (AMAcqScanOutput *)key;
-		to->acqTextOutput::shutdown(key);
-		return 0;
+	AMAcqScanOutput *to = (AMAcqScanOutput *)key;
+	to->acqTextOutput::shutdown(key);
+	return 0;
 }
 
 void AMAcqScanOutput::setProperty( const std::string name , const std::string val)
 {
-		this->acqTextOutput::setProperty( name, val);
+	this->acqTextOutput::setProperty( name, val);
 }
 
 int AMAcqScanOutput::ScanPVPrivate::output(acqKey_t key, int dataType, const void *value, int count){

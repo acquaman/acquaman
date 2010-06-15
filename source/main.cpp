@@ -52,6 +52,7 @@
 //#include "acquaman/AMXASDacqScanController.h"
 #include "dataman/AMDatabase.h"
 #include "dataman/AMDbLoader.h"
+#include "dataman/AMFirstTimeController.h"
 
 
 #include "ui/ConnectionSettings.h"
@@ -83,8 +84,12 @@ int main(int argc, char *argv[])
 	AMUserSettings::load();
 	AMPVNames::load();
 
+
+	// ensure user data folder and database are ready for use
+	AMFirstTimeController();
+
 	// Open up the user database, and ensure tables loaded as required for Scan storage:
-	AMScan::dbPrepareTables(AMDatabase::userdb());
+	// AMScan::dbPrepareTables(AMDatabase::userdb());
 
 	//Create the main tab window:
 	AMMainWindow mw;
@@ -125,7 +130,6 @@ void MainWindow::onScanControllerReady(AMScanController *scanController){
 */
 
 	// show main window
-	//mw.showFullScreen();
 	mw.show();
 
 	// app.setStyleSheet("QLabel {font: 16pt \"Lucida Grande\";}");
@@ -154,9 +158,9 @@ void MainWindow::onScanControllerReady(AMScanController *scanController){
 
 	// Debug only: store settings to files to ensure created:
 	// Not recommended for future... if anything changes these variables in memory, will be stored permanently
-	AMSettings::save();
-	AMUserSettings::save();
-	AMPVNames::save();
+	//AMSettings::save();
+	//AMUserSettings::save();
+	//AMPVNames::save();
 
 	return retVal;
 }

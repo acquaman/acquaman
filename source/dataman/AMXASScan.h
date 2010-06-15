@@ -32,9 +32,11 @@ public:
 	/// \todo some way to encapsulate a bunch of information about detectors: units, detailed comment on where it comes from, whether to show or hide by default in user-facing views.
 
 signals:
-	// inherits updated(AMScan*)
+	// inherits dataChanged(AMScan*)
 
 public slots:
+
+protected slots:
 
 protected:
 	QStringList detectorNames_;
@@ -42,11 +44,6 @@ protected:
 
 	QString legacyGrating_;
 	QString legacyIntegrationTime_;
-
-	// called by friends after finished updating / loading from file, etc.
-	void notifyUpdated() {
-		emit updated(this);
-	}
 
 	friend class SGMLegacyFileImporter;
 

@@ -1,8 +1,11 @@
 #include "AMDatabase.h"
 
-#include <QDebug>
 #include <QDir>
 #include <QStringList>
+
+#include "AMErrorMonitor.h"
+
+#include "dataman/AMDatabaseDefinition.h"
 
 /// Internal instance pointers
 AMDatabase* AMDatabase::userInstance_ = 0;
@@ -14,16 +17,15 @@ AMDatabase::AMDatabase(const QString& connectionName, const QString& dbAccessStr
 		connectionName_(connectionName) {
 
 	// Initialize the database:
-        QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", connectionName_);
-        db.setDatabaseName(dbAccessString);
+	QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", connectionName_);
+	db.setDatabaseName(dbAccessString);
 	bool ok = db.open();
 
 	if(ok) {
-                qDebug() << "AMDatabase: connection established to database:" << connectionName_;
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, "Connection established to database " + connectionName_));
 	}
 	else {
-		// todo: error handling
-                qDebug() << "AMDatabase: error connecting to database (access " << dbAccessString << "): " << db.lastError();
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, -1, QString("error connecting to database (access %1). The SQL reply was: %2").arg(dbAccessString).arg(db.lastError().text())));
 	}
 
 }
@@ -33,17 +35,9 @@ AMDatabase* AMDatabase::userdb() {
 
 	if(userInstance_ == 0) {
 
-		// Attempt to create user's data folder, only if it doesn't exist:
-                QDir userDataDir(AMUserSettings::userDataFolder);
-		if(!userDataDir.exists()) {
-                        qDebug() << "AMDatabase: alert: creating new user data folder " << AMUserSettings::userDataFolder;
-                        if(!userDataDir.mkpath(AMUserSettings::userDataFolder))
-                                qDebug() << "AMDatabase: error: could not create user data folder " << AMUserSettings::userDataFolder;
-		}
-
-                // create a new AMDatabase object for the user database:
-                QString filename = AMUserSettings::userDataFolder + AMUserSettings::userDatabaseFilename;
-                userInstance_ = new AMDatabase("user", filename);
+		// create a new AMDatabase object for the user database:
+		QString filename = AMUserSettings::userDataFolder + AMUserSettings::userDatabaseFilename;
+		userInstance_ = new AMDatabase("user", filename);
 
 	}
 	return userInstance_;
@@ -54,9 +48,9 @@ AMDatabase* AMDatabase::publicdb() {
 
 	if(publicInstance_ == 0) {
 
-                // create a new AMDatabase object for the public database:
-                QString filename = AMSettings::publicDataFolder + AMSettings::publicDatabaseFilename;
-                publicInstance_ = new AMDatabase("public", filename);
+		// create a new AMDatabase object for the public database:
+		QString filename = AMSettings::publicDataFolder + AMSettings::publicDatabaseFilename;
+		publicInstance_ = new AMDatabase("public", filename);
 
 	}
 	return publicInstance_;
@@ -90,10 +84,10 @@ void AMDatabase::releasePublicDb() {
 */
 int AMDatabase::insertOrUpdate(int id, const QString& table, const QStringList& colNames, const QList<const QVariant*>& values) {
 
-        QSqlDatabase db = qdb();
+	QSqlDatabase db = qdb();
 
 	if(!db.isOpen()) {
-                qDebug() << "AMDatabase: saving failed; database is not open.";
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -2, "Could not save to database. (Database is not open.)"));
 		return false;
 	}
 
@@ -123,7 +117,7 @@ int AMDatabase::insertOrUpdate(int id, const QString& table, const QStringList& 
 
 	// Run query. Query failed?
 	if(!query.exec()) {
-                qDebug() << "AMDatabase: saving failed; could not execute query: " << query.executedQuery();
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -3, QString("database save failed. Could not execute query (%1). The SQL reply was: %2").arg(query.executedQuery()).arg(query.lastError().text())));
 		return 0;
 	}
 	// Query succeeded.
@@ -136,7 +130,7 @@ int AMDatabase::insertOrUpdate(int id, const QString& table, const QStringList& 
 			return lastId.toInt();
 		}
 		else {
-                        qDebug() << "AMDatabase: insert succeeded, but could not get lastId after insert. This should never happen...";
+			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, -4, "Database save completed, but could not get the last id after insert. This should never happen."));
 			return 0;
 		}
 	}
@@ -148,6 +142,60 @@ int AMDatabase::insertOrUpdate(int id, const QString& table, const QStringList& 
 
 }
 
+/// changing single values in the database, at row \c id.
+bool AMDatabase::update(int id, const QString& table, const QString& column, const QVariant& value) {
+
+	QSqlDatabase db = qdb();
+
+	if(!db.isOpen()) {
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -2, "Could not save to database. (Database is not open.)"));
+		return false;
+	}
+
+	// Prepare the query. Todo: sanitize column names and table name. (Can't use binding because it's not an expression here)
+	QSqlQuery query(db);
+	query.prepare(QString("UPDATE %1 SET %2 = ? WHERE id = ?").arg(table).arg(column));
+	query.bindValue(0, value);
+	query.bindValue(1, QVariant(id));
+
+	// Run query. Query failed?
+	if(!query.exec()) {
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -3, QString("database save failed. Could not execute query (%1). The SQL reply was: %2").arg(query.executedQuery()).arg(query.lastError().text())));
+		return false;
+	}
+	// Query succeeded.
+	emit updated(id);
+	return true;
+
+}
+
+
+/// Changing single values in the database (where the id isn't known).  Will update all rows where the value in \c matchColumn is equal to \c matchValue. Will set the value in \c dataColumn to \c dataValue.
+bool AMDatabase::update(const QString& tableName, const QString& matchColumn, const QVariant& matchValue, const QString& dataColumn, const QVariant& dataValue) {
+
+	QSqlDatabase db = qdb();
+
+	if(!db.isOpen()) {
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -2, "Could not save to database. (Database is not open.)"));
+		return false;
+	}
+
+	// Prepare the query. Todo: sanitize column names and table name. (Can't use binding because it's not an expression here)
+	QSqlQuery query(db);
+	query.prepare(QString("UPDATE %1 SET %2 = ? WHERE %3 = ?").arg(tableName).arg(dataColumn).arg(matchColumn));
+	query.bindValue(0, dataValue);
+	query.bindValue(1, matchValue);
+
+	// Run query. Query failed?
+	if(!query.exec()) {
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -3, QString("database save failed. Could not execute query (%1). The SQL reply was: %2").arg(query.executedQuery()).arg(query.lastError().text())));
+		return false;
+	}
+	// Query succeeded.
+	/// \todo figure out id, so can emit updated(id);
+	return true;
+
+}
 /// retrieve object information from the database.
 /*! id is the object's row in the database.
 	table is the database table name
@@ -169,7 +217,7 @@ bool AMDatabase::retrieve(int id, const QString& table, const QStringList& colNa
 
 	// run query. Did it succeed?
 	if(!q.exec()) {
-                qDebug() << "AMDatabase: retrieve query failed: " << q.executedQuery() << "Last error:" << q.lastError();
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -4, QString("database retrieve failed. Could not execute query (%1). The SQL reply was: %2").arg(q.executedQuery()).arg(q.lastError().text())));
 		return false;
 	}
 	// If we found a record at this id:
@@ -200,29 +248,24 @@ QList<int> AMDatabase::scansMatching(const QString& colName, const QVariant& val
 	// return value: list of id's that match
 	QList<int> rl;
 
-	// We've been given a column name. Figure out what table this could be in:
-	QStringList tables = columns2tables.values(colName);
 
-	// Note: we're searching ALL the tables that have a column with this name...
-	foreach(QString table, tables) {
+	QString table = AMDatabaseDefinition::objectTableName();
 
-		QSqlQuery q( qdb() );
-		// Todo: we're just searching the scanTable here... how to search all tables?
+	QSqlQuery q( qdb() );
 
-		// For date/times, we want a resolution of one minute to count as a match
-		if(value.type() == QVariant::DateTime)
-			q.prepare(QString("SELECT id FROM %1 WHERE %2 BETWEEN datetime(:val, '-1 minute') AND datetime(:val, '+1 minute')").arg(table).arg(colName));
-		else
-			q.prepare(QString("SELECT id FROM %1 WHERE %2 = :val").arg(table).arg(colName));
+	// For date/times, we want a resolution of one minute to count as a match
+	if(value.type() == QVariant::DateTime)
+		q.prepare(QString("SELECT id FROM %1 WHERE %2 BETWEEN datetime(:val, '-1 minute') AND datetime(:val, '+1 minute')").arg(table).arg(colName));
+	else
+		q.prepare(QString("SELECT id FROM %1 WHERE %2 = :val").arg(table).arg(colName));
 
-		q.bindValue(":val", value);
-		q.exec();
+	q.bindValue(":val", value);
+	q.exec();
 
-		while(q.next()) {
-			rl << q.value(0).toInt();
-		}
-		q.finish();
+	while(q.next()) {
+		rl << q.value(0).toInt();
 	}
+	q.finish();
 
 	return rl;
 }
@@ -234,25 +277,20 @@ QList<int> AMDatabase::scansContaining(const QString& colName, const QVariant& v
 
 	QList<int> rl;
 
-	// We've been given a column name. Figure out what table this could be in:
-	QStringList tables = columns2tables.values(colName);
+	QString table = AMDatabaseDefinition::objectTableName();
 
-	// Note: we're searching ALL the tables that have a column with this name.
-	foreach(QString table, tables) {
+	QSqlQuery q( qdb() );
 
-		QSqlQuery q( qdb() );
-		// Todo: we're just searching the scanTable here... how to search all tables?
+	q.prepare(QString("SELECT id FROM %1 WHERE %2 LIKE ('%' || :val || '%')").arg(table).arg(colName));
 
-		q.prepare(QString("SELECT id FROM %1 WHERE %2 LIKE ('%' || :val || '%')").arg(table).arg(colName));
+	q.bindValue(":val", value);
+	q.exec();
 
-		q.bindValue(":val", value);
-		q.exec();
-
-		while(q.next()) {
-			rl << q.value(0).toInt();
-		}
-		q.finish();
+	while(q.next()) {
+		rl << q.value(0).toInt();
 	}
+	q.finish();
+
 
 	return rl;
 }
@@ -261,15 +299,10 @@ QList<int> AMDatabase::scansContaining(const QString& colName, const QVariant& v
 bool AMDatabase::ensureTable(const QString& tableName, const QStringList& columnNames, const QStringList& columnTypes) {
 
 	if(columnNames.count() != columnTypes.count()) {
-                qDebug() << "AMDatabase: could not create table: invalid structure. Different number of column names and types.\n  Names:" << columnNames << "\n  Types:" << columnTypes;
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -5, QString("could not create table: invalid structure. Different number of column names and types. Names: %1. Types:%2").arg(columnNames.join(",")).arg(columnTypes.join(","))));
 		return false;
 	}
 
-	// Maintain a mapping from column names to tables...
-	// Given a column names, this will let us search in the right table for it. (Used by scansMatching, scansContaining...)
-	foreach(QString colName, columnNames) {
-		columns2tables.insertMulti(colName, tableName);
-	}
 
 	// todo: sanitize all inputs...
 	QSqlQuery q(qdb());
@@ -290,7 +323,7 @@ bool AMDatabase::ensureTable(const QString& tableName, const QStringList& column
 		return true;
 	}
 	else {
-                qDebug() << "AMDatabase: error creating table using query: " << qs;
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -6, QString("database table create failed. Could not execute query (%1). The SQL reply was: %2").arg(q.executedQuery()).arg(q.lastError().text())));
 		return false;
 	}
 }
@@ -301,7 +334,7 @@ QString AMDatabase::scanType(int id) {
 	QSqlQuery q( qdb() );
 
 	// Prepare the query. Todo: sanitize name?
-        q.prepare(QString("SELECT type FROM %1 WHERE id = ?").arg(AMSettings::dbObjectTableName));
+	q.prepare(QString("SELECT type FROM %1 WHERE id = ?").arg(AMDatabaseDefinition::objectTableName()));
 	q.bindValue(0, id);
 
 	// run query and return true if succeeded at finding id:
@@ -311,6 +344,26 @@ QString AMDatabase::scanType(int id) {
 	}
 
 	else {
-		return "";
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, -7, "could not find a scan at that id."));
+		return QString();
+	}
+}
+
+
+
+/// ensure that a given column (with \c columName and \c columnType) exists, in the table \c tableName.  \c columnType is an SQLite type ("TEXT" or "INTEGER" recommended).
+bool AMDatabase::ensureColumn(const QString& tableName, const QString& columnName, const QString& columnType) {
+
+	QSqlQuery q( qdb() );
+
+	q.prepare(QString("ALTER TABLE %1 ADD COLUMN %2 %3;").arg(tableName).arg(columnName).arg(columnType));
+
+	if(q.exec()) {
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, QString("Adding database column %1 to table %2.").arg(columnName).arg(tableName)));
+		return true;
+	}
+	else {
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, QString("Error adding database column %1 to table %2. Maybe it's already there? Sql reply says: %3").arg(columnName).arg(tableName).arg(q.lastError().text())));
+		return false;
 	}
 }

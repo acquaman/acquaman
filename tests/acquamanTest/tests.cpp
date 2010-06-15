@@ -6,16 +6,22 @@
 #include "acquaman/SGM/SGMXASScanConfiguration.h"
 #include "acquaman/SGM/SGMXASDacqScanController.h"
 
+#include "dataman/AMFirstTimeController.h"
+#include "AMErrorMonitor.h"
+
 class AcquamanTest: public QObject
 {
 	Q_OBJECT
 private slots:
 	void initTestCase()
 	{
+		AMErrorMon::enableDebugNotifications();
 		AMSettings::load();
 		AMUserSettings::load();
 		AMPVNames::load();
-		AMScan::dbPrepareTables(AMDatabase::userdb());
+		AMFirstTimeController();
+
+
 		SGMBeamline::sgm();
 		bool sgmConnected = false;
 		while(!sgmConnected){

@@ -305,6 +305,8 @@ void AMScanSetModel::onChannelAboutToBeRemoved(const QModelIndex& parent, int st
 void AMScanSetModel::onChannelRemoved(const QModelIndex& parent, int start, int end) {
 
 	Q_UNUSED(parent)
+	Q_UNUSED(start)
+	Q_UNUSED(end)
 
 	AMChannelListModel* source = qobject_cast<AMChannelListModel*>(sender());
 	int scanIndex = scanChannelLists_.indexOf(source);
