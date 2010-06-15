@@ -5,6 +5,7 @@
 #include "ui_SGMXASScanConfigurationViewer.h"
 #include "AMControlSetView.h"
 #include "AMXASRegionsView.h"
+#include "AMRegionsLineView.h"
 #include <QPushButton>
 #include <QVBoxLayout>
 #include "acquaman/SGM/SGMXASScanConfiguration.h"
@@ -34,6 +35,7 @@ protected slots:
 protected:
 	AMScanConfiguration *cfg_;
 	AMXASRegionsView *regionsView_;
+	AMRegionsLineView *regionsLineView_;
 	AMControlOptimizationSetView *fluxResolutionView_;
 	AMControlSetView *trackingView_;
 	AMAbstractDetectorSetView *detectorView_;

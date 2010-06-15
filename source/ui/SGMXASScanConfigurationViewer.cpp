@@ -34,6 +34,9 @@ SGMXASScanConfigurationViewer::SGMXASScanConfigurationViewer(QWidget *parent)  :
 		sxsc->addRegion(2, 1000, 4, 1100);
 
 		sxsc->addRegion(1, 850, 1, 970);
+
+		regionsLineView_ = new AMRegionsLineView(sxsc->regions(), this);
+
 		regionsView_ = new AMXASRegionsView(sxsc->regions(), this);
 		regionsView_->setBeamlineEnergy(SGMBeamline::sgm()->energy());
 		connect(regionsView_, SIGNAL(addRegionClicked()), this, SLOT(onAddRegionClicked()));
@@ -58,12 +61,14 @@ SGMXASScanConfigurationViewer::SGMXASScanConfigurationViewer(QWidget *parent)  :
 		connect(startScanButton_, SIGNAL(clicked()), this, SLOT(onStartScanClicked()));
 		delete doLayoutButton;
 		delete layout();
+		vl_.addWidget(regionsLineView_);
 		vl_.addWidget(regionsView_);
 		vl_.addWidget(fluxResolutionView_);
 		vl_.addWidget(trackingView_);
 		vl_.addWidget(detectorView_);
 		vl_.addWidget(startScanButton_);
 		this->setLayout(&vl_);
+		this->setMaximumSize(800, 800);
 	}
 }
 
