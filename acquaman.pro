@@ -47,7 +47,6 @@ INCLUDEPATH += /usr/include/libxml2
 LIBS += -lxml2
 
 # Input
-
 HEADERS +=	../MPlot/src/MPlot/MPlot.h	\
 	../MPlot/src/MPlot/MPlotAbstractTool.h	\
 	../MPlot/src/MPlot/MPlotAxis.h	\
@@ -141,6 +140,7 @@ HEADERS +=	../MPlot/src/MPlot/MPlot.h	\
 	source/ui/AMFirstTimeWidget.h	\
 	source/ui/AMMainWindow.h	\
 	source/ui/AMScanView.h	\
+	source/ui/AMScanConfigurationView.h \
 	source/ui/AMSidebar.h	\
 	source/ui/AMStatusView.h	\
 	source/ui/AMXASRegionsView.h	\
@@ -243,6 +243,7 @@ SOURCES +=	source/acquaman/AMAcqScanOutput.cpp	\
 	source/ui/AMControlSetView.cpp	\
 	source/ui/AMMainWindow.cpp	\
 	source/ui/AMScanView.cpp	\
+	source/ui/AMScanConfigurationView.cpp \
 	source/ui/AMSidebar.cpp	\
 	source/ui/AMStatusView.cpp	\
 	source/ui/AMXASRegionsView.cpp	\

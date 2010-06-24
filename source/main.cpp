@@ -59,6 +59,7 @@
 #include "ui/SamplePositions.h"
 #include "ui/GratingResolution.h"
 #include "ui/AbsorptionScanController.h"
+#include "ui/AMScanConfigurationView.h"
 #include "ui/SGMXASScanConfigurationViewer.h"
 #include "ui/EmissionScanController.h"
 #include "ui/Scheduler.h"
@@ -104,8 +105,10 @@ int main(int argc, char *argv[])
 	mw.addPane(new AbsorptionScanController(), "Experiment Setup", "Absorption Scan", ":/utilities-system-monitor.png");
 	mw.addPane(new EmissionScanController(), "Experiment Setup", "Emission Scan", ":/multimedia-volume-control.png");
 
-	SGMXASScanConfigurationViewer* sxscViewer = new SGMXASScanConfigurationViewer();
-	mw.addPane(sxscViewer, "Experiment Setup", "David Scan", ":/utilities-system-monitor.png");
+//	SGMXASScanConfigurationViewer* sxscViewer = new SGMXASScanConfigurationViewer();
+	AMScanConfigurationView *scanViewer = new AMScanConfigurationView();
+//	mw.addPane(sxscViewer, "Experiment Setup", "David Scan", ":/utilities-system-monitor.png");
+	mw.addPane(scanViewer, "Experiment Setup", "Scans", ":/utilities-system-monitor.png");
 	// connect(sxscViewer, SIGNAL(scanControllerReady(AMScanController*)), this, SLOT(onScanControllerReady(AMScanController*)));
 
 	mw.addPane(new Scheduler(), "Experiment Tools", "Scheduler", ":/user-away.png");

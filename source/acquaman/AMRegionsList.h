@@ -38,12 +38,7 @@ public slots:
 	virtual bool appendRegion(double start, double delta, double end){ return addRegion(count(), start, delta, end);}
 
 	/// Deletes the region refered to by index and renumbers subsequent regions accordingly. Returns true if successful, return false if index is invalid.
-	bool deleteRegion(size_t index){
-		if((unsigned)index > (unsigned)count())
-			return false;
-
-		return regions_->removeRows(index, 1);
-	}
+	bool deleteRegion(size_t index);
 	void setDefaultControl(AMControl* defaultControl){defaultControl_ = defaultControl; regions_->setDefaultControl(defaultControl);}
 
 private slots:
@@ -69,6 +64,27 @@ public:
 
 public slots:
 	virtual void setEnergyControl(AMControl* energyControl){defaultControl_ = energyControl; ((AMXASRegionsListModel*)regions_)->setEnergyControl(energyControl);}
+	virtual double maxEnergy(){
+		double curMax = -1e12;
+		for(int x = 0; x < count(); x++){
+			if(start(x) > curMax)
+				curMax = start(x);
+			if(end(x) > curMax)
+				curMax = end(x);
+		}
+		return curMax;
+	}
+
+	virtual double minEnergy(){
+		double curMin = 1e12;
+		for(int x = 0; x < count(); x++){
+			if(start(x) < curMin)
+				curMin = start(x);
+			if(end(x) < curMin)
+				curMin = end(x);
+		}
+		return curMin;
+	}
 
 protected:
 	virtual bool setupModel();
