@@ -67,6 +67,8 @@ public:
 	int number() const { return metaData_["number"].toInt();}
 	/// Returns creation time
 	QDateTime dateTime() const {return metaData_["dateTime"].toDateTime();}
+	/// Returns the id of the run containing this scan, or (-1) if not associated with a run. \todo return more useful run descriptive information
+	int runId() const { QVariant v = metaData_["runId"]; if(v.isNull()) return -1; else return v.toInt(); }
 
 
 	// Meta-data system
@@ -83,6 +85,7 @@ public:
 		rv << AMMetaMetaData(QVariant::DateTime, "dateTime", true);
 		rv << AMMetaMetaData(QVariant::String, "name", true);
 		rv << AMMetaMetaData(QVariant::Int, "number", true);
+		rv << AMMetaMetaData(QVariant::Int, "runId", false);
 		return rv;
 	}
 
@@ -140,6 +143,8 @@ public slots:
 	void setNumber(int number) { setMetaData("number", number);}
 	/// set the date/time:
 	void setDateTime(const QDateTime& dt) { setMetaData("dateTime", dt); }
+	/// associate this object with a particular run. Set to (-1) to dissociate with any run.  (Note: for now, it's the caller's responsibility to make sure the runId is valid.)
+	void setRunId(int runId) { if(runId < 0) metaData_["runId"] = QVariant(); else metaData_["runId"] = runId; }
 
 
 

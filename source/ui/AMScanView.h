@@ -158,11 +158,6 @@ public:
 
 public slots:
 
-	/// add our specific view elements to the AMScanView
-	//virtual void activate() = 0;
-	/// remove our specific view elements from the AMScanView
-	//virtual void deactivate() = 0;
-
 protected slots:
 	/// after a scan or channel is added in the model
 	virtual void onRowInserted(const QModelIndex& parent, int start, int end) = 0;
@@ -354,6 +349,7 @@ protected:
 
 };
 
+
 class AMScanViewMultiChannelsView : public AMScanViewInternal {
 	Q_OBJECT
 
@@ -377,27 +373,23 @@ protected slots:
 
 protected:
 
-	/// Our plots (one for each channel)
-	QList<MPlotGW*> channelPlots_;
-	/// The channel (name) served by each plot in plots_
-	QList<QString> channelNames_;
-	/// and for each channel, a list of the MPlotSeries that are visible:
-	QList<QList<MPlotSeriesBasic*> > plotSeries_;
+
+	/// Our plots (one for each channel), indexed by channel name
+	QMap<QString, MPlotGW*> channel2Plot_;
+	/// Our plot series, indexed by channel name and then by Scan pointer
+	QMap<QString, QHash<AMScan*, MPlotSeriesBasic*> > channelAndScan2Series_;
+	////////////////////
 
 
 	/// A grid-layout within which to put our plots:
 	QGraphicsGridLayout* layout_;
 
 	/// true if the first plot in plots_ exists already, but isn't used:
+	MPlotGW* firstPlot_;
 	bool firstPlotEmpty_;
 
-	/// helper function: reviews the channels that exist, and ensures plots correspond:
-	void reviewChannels();
-
-	void removePlotSeriesWithChannelName(const QString& channelName); /// \todo
-
-	/// helper function: adds the scan at \c scanIndex
-	void addScan(int scanIndex);
+	/// helper function: reviews the channels that exist/are visible, and ensures plots correspond. Returns true if channel plots were created or deleted (which would require a reLayout()).
+	bool reviewChannels();
 
 	/// re-do the layout of our plots
 	void reLayout();

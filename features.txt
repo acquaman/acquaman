@@ -1,3 +1,20 @@
+Random list (Mark - week of May 15)
+=============
+- scan runId's: who sets them, who maintains the runs in the Db, etc?
+- Experiments: objects, saving/examining from Db.
+- convert all qDebug() to AMErrorMon::report() [low priority]
+- AMXASScan: review Detector situation; fix bug to make sure AM
+- Write tests:
+	- AMXASScan save, restore
+	- channel expressions: save, restore
+	- AMDbObject::runId save, restore
+	- AMDbLoader: load AMXASScan
+	- AMScanSetModel: make sure beginRemoveRows and endRemoveRows are being called in nested pairs
+- Finish 4th view in AMScanView
+- Create exclusive button bar for AMScanView (exclusive channel mode)
+
+- !!! Demo day: table and thumbnail views for runs and their scans !!!
+
 
 Feature request: Robert Green:
 

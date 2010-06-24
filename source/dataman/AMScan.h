@@ -137,9 +137,10 @@ protected:
 
 /// This class is the base of all objects that represent beamline scan data (for ex: XAS scans over eV, XES detector-image "scans" over detector eV, etc.)
 /*! It provides the following:
-	- adds a "sampleName()" and a "comments()" field to the basic AMDbObject
-		- demonstrates how to subclass AMDbObject to store more detailed information in the database
-	- provides a list of pointers to a Scan's "channels",
+	- adds "sampleName()" and "comments()" meta-data to the basic AMDbObject
+		- demonstrates how to subclass AMDbObject to store additional meta-data in the database
+	- contains an AMDataTree, which is used to store columns of arbitrary-dimensional raw data
+	- provides a list of "channels", which are scientifically-meaningful ways to look at the raw data
 	\todo complete documentation
   */
 class AMScan : public AMDbObject {
