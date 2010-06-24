@@ -411,7 +411,7 @@ copyXASData.deeper("sddSpectrums",5)->setValue("y", 512, 49.3);
 			return false;
 		}
 
-		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -3, QString("AMDataTree: attempted modifying non-existent data column '%1'. Not successful(VS2).").arg(columnName)));
+		// AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -3, QString("AMDataTree: attempted modifying non-existent data column '%1'. Not successful(VS2).").arg(columnName)));
 		return false;
 
 	}

@@ -436,6 +436,7 @@ AMScanViewExclusiveView::AMScanViewExclusiveView(AMScanView* masterView) : AMSca
 
 	// create our main plot:
 	plot_ = new MPlotGW();
+	plot_->plot()->plotArea()->setBrush(QBrush(QColor(Qt::white)));
 	plot_->plot()->axisRight()->setTicks(0);
 	plot_->plot()->axisBottom()->setTicks(4);
 	plot_->plot()->axisLeft()->showGrid(false);
@@ -597,6 +598,7 @@ AMScanViewMultiView::AMScanViewMultiView(AMScanView* masterView) : AMScanViewInt
 
 	// create our main plot:
 	plot_ = new MPlotGW();
+	plot_->plot()->plotArea()->setBrush(QBrush(QColor(Qt::white)));
 	plot_->plot()->axisRight()->setTicks(0);
 	plot_->plot()->axisBottom()->setTicks(4);
 	plot_->plot()->axisLeft()->showGrid(false);
@@ -777,12 +779,14 @@ AMScanViewMultiScansView::AMScanViewMultiScansView(AMScanView* masterView) : AMS
 
 	layout_ = new QGraphicsGridLayout();
 	layout_->setContentsMargins(0,0,0,0);
+	layout_->setSpacing(0);
 	layout_->setSizePolicy(sizePolicy());
 	setLayout(layout_);
 
 	// we need to have at least one plot, to fill our widget,  even if there are no scans.
 	MPlotGW* plot;
 	plot = new MPlotGW();
+	plot->plot()->plotArea()->setBrush(QBrush(QColor(Qt::white)));
 	plot->plot()->axisRight()->setTicks(0);
 	plot->plot()->axisBottom()->setTicks(4);
 	plot->plot()->axisLeft()->showGrid(false);
@@ -808,6 +812,7 @@ void AMScanViewMultiScansView::addScan(int si) {
 	else {
 		MPlotGW* plot;
 		plot = new MPlotGW();
+		plot->plot()->plotArea()->setBrush(QBrush(QColor(Qt::white)));
 		plot->plot()->axisRight()->setTicks(0);
 		plot->plot()->axisBottom()->setTicks(4);
 		plot->plot()->axisLeft()->showGrid(false);
@@ -1010,12 +1015,13 @@ AMScanViewMultiChannelsView::AMScanViewMultiChannelsView(AMScanView* masterView)
 
 	layout_ = new QGraphicsGridLayout();
 	layout_->setContentsMargins(0,0,0,0);
-	qDebug() << "size policy:" << sizePolicy();
+	layout_->setSpacing(0);
 	layout_->setSizePolicy(sizePolicy());
 	setLayout(layout_);
 
 	// we need to have at least one plot, to fill our widget,  even if there are no scans.
 	firstPlot_ = new MPlotGW();
+	firstPlot_->plot()->plotArea()->setBrush(QBrush(QColor(Qt::white)));
 	firstPlot_->plot()->axisRight()->setTicks(0);
 	firstPlot_->plot()->axisBottom()->setTicks(4);
 	firstPlot_->plot()->axisLeft()->showGrid(false);
@@ -1158,6 +1164,9 @@ void AMScanViewMultiChannelsView::reLayout() {
 			cc = 0;
 		}
 	}
+
+	if(channel2Plot_.isEmpty())
+		layout_->addItem(firstPlot_, 0, 0, Qt::AlignCenter);
 }
 
 
@@ -1240,6 +1249,7 @@ bool AMScanViewMultiChannelsView::reviewChannels() {
 		}
 		else {
 			newPlot = new MPlotGW();
+			newPlot->plot()->plotArea()->setBrush(QBrush(QColor(Qt::white)));
 			newPlot->plot()->axisRight()->setTicks(0);
 			newPlot->plot()->axisBottom()->setTicks(4);
 			newPlot->plot()->axisLeft()->showGrid(false);
@@ -1251,8 +1261,19 @@ bool AMScanViewMultiChannelsView::reviewChannels() {
 	}
 
 
-	// now... for each channel plot, add any series that are missing. (note: don't need to worry about removing series that don't belong. That can only happens when scans are removed, or channels are deleted from scans, and we handle those cases in onRowAboutToBeRemoved(). )
+	// now... for each channel plot, add any series that are missing. Also need to remove any series that have had their visibility turned off...
 	foreach(QString channelName, modelChannels) {
+
+		// remove any existing series, that have had their visibility turned off...
+		foreach(AMScan* scan, channelAndScan2Series_[channelName].keys()) {
+			int si = model()->indexOf(scan);
+			int ci = scan->indexOfChannel(channelName);	// cheating (bad design... exploiting the fact that channel indexes are the same inside the scan as they are in our AMScanSetModel model().  Should really use: int ci = model()->indexOf(scan->channel(channelName), scan);
+			// if not visible, remove and delete series
+			if(!model()->data(model()->indexForChannel(si, ci), Qt::CheckStateRole).value<bool>()) {
+				channel2Plot_[channelName]->plot()->removeItem(channelAndScan2Series_[channelName][scan]);
+				delete channelAndScan2Series_[channelName].take(scan);
+			}
+		}
 
 		// loop through all scans, adding series to this plot if required...
 		for(int si=0; si<model()->numScans(); si++) {
@@ -1264,8 +1285,8 @@ bool AMScanViewMultiChannelsView::reviewChannels() {
 			// faster, but assumes channel indexes are the same in the scan's channelList model as in the AMScanSetModel. (true for now)
 			int ci = scan->indexOfChannel(channelName);
 
-			// if this scan contains this channel, and we don't have a series for it yet... make and add the new series
-			if(ci >= 0 && !channelAndScan2Series_[channelName].contains(scan)) {
+			// if this scan contains this channel, and it's visible, and we don't have a series for it yet... make and add the new series
+			if(ci >= 0 && model()->data(model()->indexForChannel(si, ci), Qt::CheckStateRole).value<bool>() && !channelAndScan2Series_[channelName].contains(scan)) {
 				MPlotSeriesBasic* series = new MPlotSeriesBasic(scan->channel(ci));
 
 				series->setMarker(MPlotMarkerShape::None);
@@ -1277,6 +1298,8 @@ bool AMScanViewMultiChannelsView::reviewChannels() {
 				channelAndScan2Series_[channelName].insert(scan, series);
 			}
 		}
+
+
 	}
 
 	return areChanges;

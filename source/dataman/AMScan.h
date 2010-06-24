@@ -84,7 +84,7 @@ public:
 		if(name2chIndex_.containsF(name))
 			return name2chIndex_.valueF(name);
 		else
-			 return 0;
+			 return -1;
 	}
 
 	/// Return specified channel by index: (returns 0 if not found)
@@ -99,9 +99,11 @@ public:
 	bool addChannel(AMChannel* newChannel) {
 		if(!newChannel->isValid())
 			return false;
+		qDebug() << "begin insert rows (channelList)";
 		beginInsertRows(QModelIndex(), ch_.count(), ch_.count());
-		name2chIndex_.set(newChannel->name(), ch_.count());
 		ch_.append(newChannel);
+		name2chIndex_.set(newChannel->name(), ch_.count()-1);
+		qDebug() << "end insert rows (channelList)";
 		endInsertRows();
 		return true;
 	}
