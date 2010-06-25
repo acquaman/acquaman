@@ -16,6 +16,7 @@ AMScanViewScanBar::AMScanViewScanBar(AMScanSetModel* model, int scanIndex, QWidg
 		"}");
 
 
+	exclusiveModeOn_ = false;
 	chButtons_.setExclusive(false);
 
 	AMScan* source = model->scanAt(scanIndex_);
@@ -38,6 +39,7 @@ AMScanViewScanBar::AMScanViewScanBar(AMScanSetModel* model, int scanIndex, QWidg
 			QColor color = model->data(model->indexForChannel(scanIndex, i), Qt::DecorationRole).value<QColor>();
 			cb->setStyleSheet(QString("color: rgba(%1, %2, %3, %4);").arg(color.red()).arg(color.green()).arg(color.blue()).arg(color.alpha()));
 			cb->setCheckable(true);
+			cb->setChecked(model->data(model->indexForChannel(scanIndex, i), Qt::CheckStateRole).value<bool>());
 			chButtons_.addButton(cb, i);
 			chButtonLayout_->addWidget(cb);
 		}
@@ -60,6 +62,7 @@ AMScanViewScanBar::AMScanViewScanBar(AMScanSetModel* model, int scanIndex, QWidg
 	connect(model, SIGNAL(rowsAboutToBeRemoved(QModelIndex, int, int)), this, SLOT(onRowAboutToBeRemoved(QModelIndex,int,int)));
 	connect(model, SIGNAL(rowsRemoved(QModelIndex, int, int)), this, SLOT(onRowRemoved(QModelIndex,int,int)));
 	connect(model, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(onModelDataChanged(QModelIndex,QModelIndex)));
+	connect(model, SIGNAL(exclusiveChannelChanged(QString)), this, SLOT(onExclusiveChannelChanged(QString)));
 
 	connect(&chButtons_, SIGNAL(buttonClicked(int)), this, SLOT(onChannelButtonClicked(int)));
 
@@ -74,6 +77,7 @@ void AMScanViewScanBar::onRowInserted(const QModelIndex& parent, int start, int 
 		return;
 	}
 
+
 	// it is for us... (parent index is our Scan, and it is a new channel)
 	AMScan* source = model_->scanAt(scanIndex_);
 	// note: AMScanSetModel guarantees only one row inserted at a time
@@ -85,12 +89,17 @@ void AMScanViewScanBar::onRowInserted(const QModelIndex& parent, int start, int 
 		cb->setStyleSheet(QString("color: rgba(%1, %2, %3, %4);").arg(color.red()).arg(color.green()).arg(color.blue()).arg(color.alpha()));
 		chButtons_.addButton(cb, i);
 		chButtonLayout_->insertWidget(i, cb);
-		cb->setChecked(model_->data(model_->index(i,0,parent), Qt::CheckStateRole).value<bool>());
+		if(exclusiveModeOn_)
+			cb->setChecked( (model_->exclusiveChannel() == source->channel(i)->name()) );
+		else
+			cb->setChecked(model_->data(model_->index(i,0,parent), Qt::CheckStateRole).value<bool>());
+
+		qDebug() << "added a channel. exclusiveModeOn is: " << exclusiveModeOn_ << ", channelName is:" << source->channel(i)->name() << ", exclusiveChannelName is:" << model_->exclusiveChannel();
 	}
 
 }
 
-/// before a scan or channel is deleted in the model:
+/// before a scan or channel is deleted in the model:  (\todo this one depends on the guarantee that only one row is removed at a time. fix to work with a general model.)
 void AMScanViewScanBar::onRowAboutToBeRemoved(const QModelIndex& parent, int start, int end) {
 	Q_UNUSED(end)
 
@@ -130,7 +139,11 @@ void AMScanViewScanBar::onModelDataChanged(const QModelIndex& topLeft, const QMo
 		int channelIndex = topLeft.row();
 		AMChannel* channel = model_->channelAt(scanIndex_, channelIndex);
 		chButtons_.button(channelIndex)->setText(channel->name());
-		chButtons_.button(channelIndex)->setChecked(model_->data(topLeft, Qt::CheckStateRole).value<bool>());
+		// setting visibility: depends on whether exclusiveMode is on or not
+		if(exclusiveModeOn_)
+			chButtons_.button(channelIndex)->setChecked( (model_->exclusiveChannel() == channel->name()) );
+		else
+			chButtons_.button(channelIndex)->setChecked(model_->data(topLeft, Qt::CheckStateRole).value<bool>());
 
 		QColor color = model_->data(model_->indexForChannel(scanIndex_, channelIndex), Qt::DecorationRole).value<QColor>();
 		chButtons_.button(channelIndex)->setStyleSheet(QString("color: rgba(%1, %2, %3, %4);").arg(color.red()).arg(color.green()).arg(color.blue()).arg(color.alpha()));
@@ -139,7 +152,109 @@ void AMScanViewScanBar::onModelDataChanged(const QModelIndex& topLeft, const QMo
 
 void AMScanViewScanBar::onChannelButtonClicked(int id) {
 	Qt::CheckState visible = chButtons_.button(id)->isChecked() ? Qt::Checked : Qt::Unchecked;
-	model_->setData(model_->indexForChannel(scanIndex_, id), QVariant(visible), Qt::CheckStateRole);
+	// in "exclusive" mode, when clicked down, set that channel as the exclusive channel
+	if(exclusiveModeOn_) {
+		if(visible == Qt::Checked)
+			model_->setExclusiveChannel(model_->channelAt(scanIndex_, id)->name());
+	}
+	else
+		model_->setData(model_->indexForChannel(scanIndex_, id), QVariant(visible), Qt::CheckStateRole);
+}
+
+
+void AMScanViewScanBar::onExclusiveChannelChanged(const QString &exclusiveChannelName) {
+	// when exclusive mode is on, set checked only when channel(button) name matches
+	if(exclusiveModeOn_) {
+		int numChannelButtons = chButtons_.buttons().count();
+		for(int ci=0; ci<numChannelButtons; ci++)
+			chButtons_.button(ci)->setChecked( (model_->channelAt(scanIndex_, ci)->name() == exclusiveChannelName) );
+	}
+}
+
+void AMScanViewScanBar::setExclusiveModeOn(bool exclusiveModeOn) {
+
+	// turning exclusiveMode on:
+	if(exclusiveModeOn && !exclusiveModeOn_) {
+		exclusiveModeOn_ = true;
+		int numChannelButtons = chButtons_.buttons().count();
+		for(int ci=0; ci<numChannelButtons; ci++) {
+			chButtons_.button(ci)->setChecked( (model_->channelAt(scanIndex_, ci)->name() == model_->exclusiveChannel()) );
+		}
+		//chButtons_.setExclusive(true);
+	}
+
+	// turning exclusiveMode off:
+	if(!exclusiveModeOn && exclusiveModeOn_) {
+		exclusiveModeOn_ = false;
+		//chButtons_.setExclusive(false);
+		int numChannelButtons = chButtons_.buttons().count();
+		for(int ci=0; ci<numChannelButtons; ci++) {
+			chButtons_.button(ci)->setChecked( model_->data(model_->indexForChannel(scanIndex_, ci), Qt::CheckStateRole).value<bool>() );
+		}
+	}
+}
+
+void AMScanViewScanBar::onCloseButtonClicked() {
+	model_->removeScan(model_->scanAt(scanIndex_));
+}
+
+
+
+
+
+
+
+
+
+
+
+
+AMScanViewChannelSelector::AMScanViewChannelSelector(AMScanSetModel* model, QWidget* parent)
+	: QWidget(parent) {
+	model_ = 0;
+	setModel(model);
+
+	barLayout_ = new QVBoxLayout();
+	barLayout_->setMargin(0);
+	barLayout_->setSpacing(0);
+	setLayout(barLayout_);
+
+	exclusiveModeOn_ = false;
+}
+
+
+void AMScanViewChannelSelector::setModel(AMScanSetModel* model) {
+	// remove anything associated with the old model:
+	if(model_) {
+
+		while(!scanBars_.isEmpty()) {
+			delete scanBars_.takeLast();
+		}
+
+		disconnect(model_, SIGNAL(rowsInserted(QModelIndex, int, int)), this, SLOT(onRowInserted(QModelIndex,int,int)));
+		disconnect(model_, SIGNAL(rowsRemoved(QModelIndex, int, int)), this, SLOT(onRowRemoved(QModelIndex,int,int)));
+		disconnect(model_, SIGNAL(rowsAboutToBeRemoved(QModelIndex, int, int)), this, SLOT(onRowAboutToBeRemoved(QModelIndex,int,int)));
+		disconnect(model_, SIGNAL(dataChanged(QModelIndex, QModelIndex)), this, SLOT(onModelDataChanged(QModelIndex, QModelIndex)));
+	}
+
+	model_ = model;
+
+	// add the new model, if it's valid.
+	if(model_) {
+		// add existing
+		for(int i=0; i<model_->numScans(); i++) {
+			AMScanViewScanBar* bar = new AMScanViewScanBar(model_, i);
+			barLayout_->addWidget(bar);
+			scanBars_ << bar;
+		}
+
+		// hookup signals:
+		connect(model_, SIGNAL(rowsInserted(QModelIndex, int, int)), this, SLOT(onRowInserted(QModelIndex,int,int)));
+		connect(model_, SIGNAL(rowsRemoved(QModelIndex, int, int)), this, SLOT(onRowRemoved(QModelIndex,int,int)));
+		connect(model_, SIGNAL(rowsAboutToBeRemoved(QModelIndex, int, int)), this, SLOT(onRowAboutToBeRemoved(QModelIndex,int,int)));
+		connect(model_, SIGNAL(dataChanged(QModelIndex, QModelIndex)), this, SLOT(onModelDataChanged(QModelIndex, QModelIndex)));
+
+	}
 }
 
 /// after a scan or channel is added in the model
@@ -150,6 +265,7 @@ void AMScanViewChannelSelector::onRowInserted(const QModelIndex& parent, int sta
 	// top-level: inserting a scan:
 	if(!parent.isValid()) {
 		AMScanViewScanBar* bar = new AMScanViewScanBar(model_, start);
+		bar->setExclusiveModeOn(exclusiveModeOn_);
 		barLayout_->insertWidget(start, bar);
 		scanBars_.insert(start, bar);
 	}
@@ -169,10 +285,26 @@ void AMScanViewChannelSelector::onRowAboutToBeRemoved(const QModelIndex& parent,
 	}
 }
 
-
-void AMScanViewScanBar::onCloseButtonClicked() {
-	model_->removeScan(model_->scanAt(scanIndex_));
+/// ScanBars have two behaviours.  When exclusiveMode is on, they only allow one channel to be "checked" or selected at a time, and tell the model to make this the exclusive channel.  Otherwise, they allows multiple channels within each Scan to be checked, and toggle the channels' visibility in the model.
+void AMScanViewChannelSelector::setExclusiveModeOn(bool exclusiveModeOn) {
+	exclusiveModeOn_ = exclusiveModeOn;
+	foreach(AMScanViewScanBar* bar, scanBars_) {
+		bar->setExclusiveModeOn(exclusiveModeOn);
+	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 AMScanViewModeBar::AMScanViewModeBar(QWidget* parent)
 	: QFrame(parent)
@@ -228,57 +360,9 @@ AMScanViewModeBar::AMScanViewModeBar(QWidget* parent)
 		"background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(81, 81, 81, 255), stop:0.494444 rgba(81, 81, 81, 255), stop:0.5 rgba(64, 64, 64, 255), stop:1 rgba(64, 64, 64, 255));"
 		"border-bottom: 1px solid black;"
 		"}");*/
-
-
-
-}
-
-AMScanViewChannelSelector::AMScanViewChannelSelector(AMScanSetModel* model, QWidget* parent)
-	: QWidget(parent) {
-	model_ = 0;
-	setModel(model);
-
-	barLayout_ = new QVBoxLayout();
-	barLayout_->setMargin(0);
-	barLayout_->setSpacing(0);
-	setLayout(barLayout_);
 }
 
 
-
-void AMScanViewChannelSelector::setModel(AMScanSetModel* model) {
-	// remove anything associated with the old model:
-	if(model_) {
-
-		while(!scanBars_.isEmpty()) {
-			delete scanBars_.takeLast();
-		}
-
-		disconnect(model_, SIGNAL(rowsInserted(QModelIndex, int, int)), this, SLOT(onRowInserted(QModelIndex,int,int)));
-		disconnect(model_, SIGNAL(rowsRemoved(QModelIndex, int, int)), this, SLOT(onRowRemoved(QModelIndex,int,int)));
-		disconnect(model_, SIGNAL(rowsAboutToBeRemoved(QModelIndex, int, int)), this, SLOT(onRowAboutToBeRemoved(QModelIndex,int,int)));
-		disconnect(model_, SIGNAL(dataChanged(QModelIndex, QModelIndex)), this, SLOT(onModelDataChanged(QModelIndex, QModelIndex)));
-	}
-
-	model_ = model;
-
-	// add the new model, if it's valid.
-	if(model_) {
-		// add existing
-		for(int i=0; i<model_->numScans(); i++) {
-			AMScanViewScanBar* bar = new AMScanViewScanBar(model_, i);
-			barLayout_->addWidget(bar);
-			scanBars_ << bar;
-		}
-
-		// hookup signals:
-		connect(model_, SIGNAL(rowsInserted(QModelIndex, int, int)), this, SLOT(onRowInserted(QModelIndex,int,int)));
-		connect(model_, SIGNAL(rowsRemoved(QModelIndex, int, int)), this, SLOT(onRowRemoved(QModelIndex,int,int)));
-		connect(model_, SIGNAL(rowsAboutToBeRemoved(QModelIndex, int, int)), this, SLOT(onRowAboutToBeRemoved(QModelIndex,int,int)));
-		connect(model_, SIGNAL(dataChanged(QModelIndex, QModelIndex)), this, SLOT(onModelDataChanged(QModelIndex, QModelIndex)));
-
-	}
-}
 
 
 
@@ -357,6 +441,7 @@ void AMScanView::changeViewMode(int newMode) {
 		return;
 
 	mode_ = (ViewMode)newMode;
+	scanBars_->setExclusiveModeOn( (mode_ == Tabs) );
 
 	resizeViews();
 

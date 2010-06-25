@@ -18,11 +18,15 @@
 
 class AMScanViewChannelSelector;
 
-/// This GUI class is a helper for AMScanViewChannelSelector.  It handles a channel-viewer for a single Scan.
+/// This GUI class is a helper for AMScanViewChannelSelector.  It diplays the available channels for a single Scan.
 class AMScanViewScanBar : public QFrame {
 	Q_OBJECT
 public:
 	explicit AMScanViewScanBar(AMScanSetModel* model, int scanIndex, QWidget* parent = 0);
+
+public slots:
+	/// The ScanBar has two behaviours.  When exclusiveMode is on, it only allows one channel to be "checked" or selected at a time, and tells the model to make this the exclusive channel.  Otherwise, it allows multiple channels to be checked, and toggles their visibility in the model.
+	void setExclusiveModeOn(bool exclusiveModeOn = true);
 
 protected:
 	/// ui components:
@@ -35,6 +39,8 @@ protected:
 	int scanIndex_;
 	/// Connected model:
 	AMScanSetModel* model_;
+	/// whether in exclusiveMode (ie: only one channel allowed) or not:
+	bool exclusiveModeOn_;
 
 
 protected slots:
@@ -46,10 +52,13 @@ protected slots:
 	void onRowRemoved(const QModelIndex& parent, int start, int end);
 	/// when data changes:
 	void onModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight);
+	/// when the model's exclusiveChannel is changed
+	void onExclusiveChannelChanged(const QString& exclusiveChannelName);
 	/// when one of the channel toggles is clicked:
 	void onChannelButtonClicked(int id);
 	/// when the close (remove) button is clicked
 	void onCloseButtonClicked();
+
 
 
 	friend class AMScanViewChannelSelector;
@@ -62,6 +71,10 @@ class AMScanViewChannelSelector : public QWidget {
 public:
 	explicit AMScanViewChannelSelector(AMScanSetModel* model = 0, QWidget* parent = 0);
 	void setModel(AMScanSetModel* model);
+
+public slots:
+	/// ScanBars have two behaviours.  When exclusiveMode is on, they only allow one channel to be "checked" or selected at a time, and tell the model to make this the exclusive channel.  Otherwise, they allows multiple channels within each Scan to be checked, and toggle the channels' visibility in the model.
+	void setExclusiveModeOn(bool exclusiveModeOn = true);
 
 protected slots:
 	/// after a scan or channel is added in the model
@@ -88,6 +101,7 @@ protected:
 	QList<AMScanViewScanBar*> scanBars_;
 	QVBoxLayout* barLayout_;
 	AMScanSetModel* model_;
+	bool exclusiveModeOn_;
 
 
 };
