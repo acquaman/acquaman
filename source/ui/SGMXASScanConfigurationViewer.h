@@ -37,6 +37,7 @@ protected:
 	AMXASRegionsView *regionsView_;
 	AMRegionsLineView *regionsLineView_;
 	AMControlOptimizationSetView *fluxResolutionView_;
+	AMCompactControlOptimizationSetView *fluxResolutionView2_;
 	AMControlSetView *trackingView_;
 	AMAbstractDetectorSetView *detectorView_;
 	QPushButton *startScanButton_;

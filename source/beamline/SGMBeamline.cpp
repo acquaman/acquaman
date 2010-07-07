@@ -97,13 +97,16 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	eVFbkDetector_ = new AMSingleControlDetector(eVFbk_->name(), eVFbk_, this);
 
 	fluxOptimization_ = new SGMFluxOptimization(this);
+	fluxOptimization_->setDescription("Flux");
 	resolutionOptimization_ = new SGMResolutionOptimization(this);
+	resolutionOptimization_->setDescription("Resolution");
 	fluxResolutionSet_ = new AMControlOptimizationSet(this);
 	fluxResolutionSet_->setName("Flux and Resolution");
 	fluxResolutionSet_->addControl(grating_);
 	fluxResolutionSet_->addControl(harmonic_);
 	fluxResolutionSet_->addControl(exitSlitGap_);
 	((AMControlOptimizationSet*)fluxResolutionSet_)->addOptimization(fluxOptimization_);
+	((AMControlOptimizationSet*)fluxResolutionSet_)->addOptimization(resolutionOptimization_);
 
 	trackingSet_ = new AMControlSet(this);
 	trackingSet_->setName("Tracking");

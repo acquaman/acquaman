@@ -76,6 +76,7 @@ public:
 
 	/// Returns the name of the optimization, likely hardcoded in the subclass.
 	QString name() const { return name_;}
+	QString description() const { return description_;}
 	/// Returns a QMap to represent the output to optimize. Can be thought of as x-y pairs for a graph.
 	/// The context parameters allow only the necessary region to be returned.
 	virtual QMap<double, double> curve(QList<QVariant> stateParameters, AMRegionsList* contextParameters);
@@ -83,10 +84,12 @@ public:
 public slots:
 	/// Sets the name of the optimization.
 	void setName(const QString &name) { name_ = name;}
+	void setDescription(const QString &description) { description_ = description;}
 
 protected:
 	/// Holds the name of the optimization.
 	QString name_;
+	QString description_;
 };
 
 /// An AMControlOptimizationSet is a combination of an AMControlSet (its parent class) and a list of AMControlOptimization.
@@ -108,6 +111,8 @@ public:
 
 	/// Adds an AMControlOptimization to the set.
 	void addOptimization(AMControlOptimization *optimization){ outputs_.append(optimization) ;}
+	const AMControlOptimization* optimizationAt(int index) const { return outputs_.at(index) ;}
+	int optimizationCount() const { return outputs_.count() ;}
 	QMap<double, double> curveAt(size_t index, QList<QVariant> stateParameters, AMRegionsList* contextParameters){
 		return outputs_.at(index)->curve(stateParameters, contextParameters);
 	}
