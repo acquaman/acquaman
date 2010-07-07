@@ -84,7 +84,7 @@ public:
 		if(name2chIndex_.containsF(name))
 			return name2chIndex_.valueF(name);
 		else
-			 return 0;
+			 return -1;
 	}
 
 	/// Return specified channel by index: (returns 0 if not found)
@@ -99,9 +99,11 @@ public:
 	bool addChannel(AMChannel* newChannel) {
 		if(!newChannel->isValid())
 			return false;
+		qDebug() << "begin insert rows (channelList)";
 		beginInsertRows(QModelIndex(), ch_.count(), ch_.count());
-		name2chIndex_.set(newChannel->name(), ch_.count());
 		ch_.append(newChannel);
+		name2chIndex_.set(newChannel->name(), ch_.count()-1);
+		qDebug() << "end insert rows (channelList)";
 		endInsertRows();
 		return true;
 	}
@@ -137,9 +139,10 @@ protected:
 
 /// This class is the base of all objects that represent beamline scan data (for ex: XAS scans over eV, XES detector-image "scans" over detector eV, etc.)
 /*! It provides the following:
-	- adds a "sampleName()" and a "comments()" field to the basic AMDbObject
-		- demonstrates how to subclass AMDbObject to store more detailed information in the database
-	- provides a list of pointers to a Scan's "channels",
+	- adds "sampleName()" and "comments()" meta-data to the basic AMDbObject
+		- demonstrates how to subclass AMDbObject to store additional meta-data in the database
+	- contains an AMDataTree, which is used to store columns of arbitrary-dimensional raw data
+	- provides a list of "channels", which are scientifically-meaningful ways to look at the raw data
 	\todo complete documentation
   */
 class AMScan : public AMDbObject {

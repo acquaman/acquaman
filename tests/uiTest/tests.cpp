@@ -35,7 +35,7 @@ private slots:
 		AMDatabase::releaseUserDb();
 	}
 
-
+/*
 	void testAMSidebar() {
 
 		AMSidebar b;
@@ -65,11 +65,8 @@ private slots:
 		QTest::qWait(4000);
 
 	}
-
-	// tests creation/deletion of scans and channels within an AMScanSetModel (using a standard QTreeView to watch)
+*/
 	void testAMScanSetModel() {
-
-
 
 		AMScanView sv;
 		sv.show();
@@ -80,16 +77,11 @@ private slots:
 		tree.show();
 		tree.setModel(model);
 
-
-
-
-
 		QTest::qWait(2000);
 
 		AMXASScan s1;
 		s1.setName("scan1");
 		model->addScan(&s1);
-
 
 		QTest::qWait(2000);
 
@@ -100,7 +92,7 @@ private slots:
 		QVERIFY(s1Loader.loadFromFile(fileName));
 
 
-		QTest::qWait(2000);
+		QTest::qWait(4000);
 
 
 		QVERIFY(s1.deleteChannel("tey_n"));
@@ -159,7 +151,7 @@ private slots:
 
 	}
 
-
+	/*
 	// tests creation/deletion of scans and channels within an AMScanSetModel (using a standard QTreeView to watch)
 	void testAMScanSetModel_Overplot() {
 
@@ -337,6 +329,140 @@ private slots:
 	}
 
 
+
+	void testAMScanSetModel_MultiChannels() {
+
+		AMScanView sv;
+		sv.show();
+		sv.changeViewMode(AMScanView::MultiChannels);
+
+		AMScanSetModel* model = sv.model();
+
+		QTreeView tree;
+		tree.show();
+		tree.setModel(model);
+
+
+
+
+
+		QTest::qWait(2000);
+
+		AMXASScan s1;
+		s1.setName("scan1");
+		model->addScan(&s1);
+
+
+		QTest::qWait(2000);
+
+
+		SGMLegacyFileImporter s1Loader(&s1);
+		QString fileName = AMUserSettings::userDataFolder + "001.dat";
+
+		QVERIFY(s1Loader.loadFromFile(fileName));
+
+
+		QTest::qWait(2000);
+
+
+		QVERIFY(s1.deleteChannel("tey_n"));
+
+
+		QTest::qWait(2000);
+
+
+		QVERIFY(s1.addChannel("const5", "1+2+2"));
+
+
+		QTest::qWait(4000);
+
+		model->setExclusiveChannel("tfy_n");
+
+		QTest::qWait(4000);
+
+		AMXASScan s2;
+		s2.setName("scan2");
+		model->addScan(&s2);
+		s1Loader = s2;
+
+		QVERIFY(s1Loader.loadFromFile(fileName));
+
+		QTest::qWait(2000);
+
+		model->setExclusiveChannel("const5");
+
+		QTest::qWait(4000);
+
+		model->setExclusiveChannel("tey_n");
+
+		QTest::qWait(4000);
+
+		QVERIFY(s2.deleteChannel("tey_raw"));
+
+
+
+
+		QTest::qWait(8000);
+
+		QVERIFY(s1.deleteChannel("const5"));
+
+
+		QTest::qWait(2000);
+
+
+		QVERIFY(model->removeScan(&s1));
+
+
+		QTest::qWait(2000);
+
+	}
+
+
+	// tests creation/deletion of scans and channels within an AMScanSetModel (using a standard QTreeView to watch)
+	void testAMScanSetModel_longTest() {
+
+		AMScanView sv;
+		sv.show();
+		sv.changeViewMode(AMScanView::MultiChannels);
+
+		AMScanSetModel* model = sv.model();
+
+		QTreeView tree;
+		tree.show();
+		tree.setModel(model);
+
+		QTest::qWait(2000);
+
+		AMXASScan s1;
+		s1.setName("scan1");
+		model->addScan(&s1);
+
+		QTest::qWait(2000);
+
+
+		SGMLegacyFileImporter s1Loader(&s1);
+		QString fileName = AMUserSettings::userDataFolder + "001.dat";
+
+		QVERIFY(s1Loader.loadFromFile(fileName));
+
+
+		QTest::qWait(2000);
+
+		AMXASScan s2;
+		s2.setName("scan 2");
+		model->addScan(&s2);
+		s1Loader = s2;
+
+		s1Loader.loadFromFile(fileName);
+
+		QTest::qWait(80000);
+
+		QVERIFY(model->removeScan(&s1));
+
+		QTest::qWait(80000);
+
+	}
+*/
 protected:
 };
 
