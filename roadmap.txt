@@ -1,0 +1,86 @@
+Acquaman: Beamline ACQUisition And data MANagement
+
+Feature Roadmap: July 2010
+Mark Boots, David Chevrier
+===========================
+
+
+beta1: Sept 1, 2010
+====================
+
+Acquisition
+=============
+- Beamline status quick-view (energy; light-on/light-off button and feedback; detector feedback: got signal(s)?)
+- Flux and resolution control (science-based information for monochromator and ID setup: controls grating, slit, ID harmonic, polarization; on REIXS: also spectrometer grating and slit as well)
+- Detector Configurations: TEY (dwell time), TFY (HV), SDD, XEOL, XES (low/hi-res mode, detector angle)
+
+- Sample Transfer walk-through
+- Sample management: 
+	- sample plates and memorized positions
+	- memorized samples associated with scans
+- Sample positioning:
+	- memorized positions for a sample on a sample plate
+	- video feedback with cross-hair (movable; not made out of scotch tape)
+	- XES position optimization (automatically aligns for highest detector signal)
+	
+- Scan Setup: XAS
+- Scan Setup: XES
+- Scan Setup: Wizard mode
+
+Visualization
+============
+- Plots, allowing:
+	- comparison of scans to other scans
+	- focus on different channels as desired: tey, tfy, (normalized/unnormalized), comparison with I0, etc.
+- titles and legends on plots
+- adjust line/color/style of plot series
+- adjust waterfall and scaling on plots
+- configure channels and arbitrary math expressions for each scan
+
+Data Management
+===============
+- Supported scan types: XAS Scan, XES Scan
+- scan editors: 2 specialized editors for XAS and XES
+- Data browser: 
+	- view by: table, table+thumbnail, and thumbnail view
+	- Group scans by: Run (when taken at facility), Experiment (free for user create/add; analogy is playlist or photo album)
+	- Organize by: date (header: Runs), scan type, sample, experiment, and arbitrary column
+- external import and export tools
+	- import: support existing file formats: SGM XAS, ALS XAS, ALS XES, general ascii columns	(auto-identify?)
+		ascii import: skip 'n' first lines, specify delimeters (preview?); prompt for missing meta-data. [must work in batch mode for large set of files]
+	- export: as ascii, .xls, and origin file formats. (choose channels & raw data columns to export; remember user-default settings)
+	
+- database storage and internal-data loaders for all scan types
+
+
+beta1.01: Extra features, hopefully included in b1
+===================================================
+- Periodic table with edge information (Use to start a coarse or fine scan)
+- Excel and Origin export: export channels as math formulas, not values
+- Channels: access data from other scans
+- Additional math functions in channel expressions (not strictly point-based: integration, differentiation, smoothing ...)
+- Drag-and-drop other scans into plots (show: recent scans, specific run, specific sample, specific experiment)
+
+
+b1.1
+===============================
+- Scription framework and user interface (script console, debugger, etc.)
+- General queue system (integrated with user workflow system)
+- Logbook (combine drag-and-dropped plot layouts with free notes and sketches)
+- Calibration tools
+- User-addable metadata
+- Improved 2D data handling: UI for slicing, cross-sectioning, and joining a series of 1D datasets into a 2D set
+- Native import handling for data files from PGM, HXMA, ...
+	- Auto-import based on user account info?
+- Multi-user database (online): enables sharing data with group members, collaborators, and public (if user chooses)
+- Calibration standards (in public database). Linked from periodic table: is this what my data should look like?
+
+
+b1.2
+================================
+- Refining scan ranges and re-starting new scans from within plot views
+- Integration with modeling and fitting tools (Athena/Artemis, IFFEFFIT/FEFF, FitIt/FDMNES, Crystal Field/Atomic Multiplet, etc.)
+- Advanced plot tools: view integrated area under a curve, peak fitting, centroid finding, ...
+- Sample chamber and beam 3D modeling: automatic beam cross-hair on sample video
+- Raster scanning and mapping support
+- Continuous sample motion for radiation-damage-sensitive samples
