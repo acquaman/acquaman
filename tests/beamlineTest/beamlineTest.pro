@@ -60,6 +60,8 @@ HEADERS += source/beamline/AMDiagnosticPaddle.h \
 	source/beamline/AMInsertionDevice.h \
 	source/beamline/AMProcessVariable.h \
 	source/beamline/AMBeamline.h \
+	source/beamline/AMBeamlineActionItem.h \
+	source/beamline/AMBeamlineControlAction.h \
 	source/beamline/AMControl.h \
 	source/beamline/AMPVNames.h \
 	source/dataman/AMDatabase.h \
@@ -114,6 +116,8 @@ SOURCES += source/beamline/AMDiagnosticPaddle.cpp \
 	source/beamline/AMInsertionDevice.cpp \
 	source/beamline/AMProcessVariable.cpp \
 	source/beamline/AMBeamline.cpp \
+	source/beamline/AMBeamlineActionItem.cpp \
+	source/beamline/AMBeamlineControlAction.cpp \
 	source/beamline/AMControl.cpp \
 	source/beamline/AMPVNames.cpp \
 	source/AMSettings.cpp \

@@ -2,34 +2,34 @@
 # QMake project file for acquaman-module unit tests.  			March 2010. mark.boots@usask.ca
 # Note: Set EPICS_INCLUDE_DIRS, EPICS_LIB_DIR, and PHONON_INCLUDE_DIR correctly for platform
 # #####################################################################
-macx { 
-    EPICS_INCLUDE_DIRS = /Users/mboots/dev/epics/14-11/base/include \
-        /Users/mboots/dev/epics/14-11/base/include/os/Darwin
-    EPICS_LIB_DIR = /Users/mboots/dev/epics/14-11/base/lib/darwin-x86
-    PHONON_INCLUDE_DIR = /Library/Frameworks/phonon.framework/Versions/Current/Headers
-    MPLOT_INCLUDE_DIR = /Users/mboots/dev/MPlot/src
+macx {
+	EPICS_INCLUDE_DIRS = /Users/mboots/dev/epics/14-11/base/include \
+		/Users/mboots/dev/epics/14-11/base/include/os/Darwin
+	EPICS_LIB_DIR = /Users/mboots/dev/epics/14-11/base/lib/darwin-x86
+	PHONON_INCLUDE_DIR = /Library/Frameworks/phonon.framework/Versions/Current/Headers
+	MPLOT_INCLUDE_DIR = /Users/mboots/dev/MPlot/src
 }
-linux-g++ { 
-    EPICS_INCLUDE_DIRS = /home/reixs/beamline/programming/epics/base/include \
-        /home/reixs/beamline/programming/epics/base/include/os/Linux
-    EPICS_LIB_DIR = /home/reixs/beamline/programming/epics/base/lib/linux-x86
-    PHONON_INCLUDE_DIR = /usr/include/qt4/phonon
-    
-    # include path for MPlot library (header-files only)
-    MPLOT_INCLUDE_DIR = /home/reixs/beamline/programming/MPlot/src
+linux-g++ {
+	EPICS_INCLUDE_DIRS = /home/reixs/beamline/programming/epics/base/include \
+		/home/reixs/beamline/programming/epics/base/include/os/Linux
+	EPICS_LIB_DIR = /home/reixs/beamline/programming/epics/base/lib/linux-x86
+	PHONON_INCLUDE_DIR = /usr/include/qt4/phonon
+
+	# include path for MPlot library (header-files only)
+	MPLOT_INCLUDE_DIR = /home/reixs/beamline/programming/MPlot/src
 }
 QT += core \
-    phonon \
-    network \
-    sql
+	phonon \
+	network \
+	sql
 CONFIG += qtestlib
 TARGET = test-acquaman
 DESTDIR = ../../build
 DEPENDPATH += . \
-    ../../ \
+	../../ \
 	../../source
 INCLUDEPATH += . \
-    ../../ \
+	../../ \
 	../../source
 INCLUDEPATH += $$EPICS_INCLUDE_DIRS
 INCLUDEPATH += $$PHONON_INCLUDE_DIR
@@ -38,11 +38,11 @@ INCLUDEPATH += $$MPLOT_INCLUDE_DIR
 # Epics channel access linking:
 LIBS += -L$$EPICS_LIB_DIR
 LIBS += -lca \
-    -lCom
+	-lCom
 macx:QMAKE_LFLAGS_RPATH += "$$EPICS_LIB_DIR"
-linux-g++ { 
-    QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
-    QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
+linux-g++ {
+	QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
+	QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
 }
 
 # include and library paths for libxml:
@@ -101,6 +101,8 @@ HEADERS +=	../MPlot/src/MPlot/MPlot.h	\
 	source/beamline/AMAbstractDetector.h	\
 	source/beamline/AMAmpDetector.h	\
 	source/beamline/AMBeamline.h	\
+	source/beamline/AMBeamlineActionItem.h \
+	source/beamline/AMBeamlineControlAction.h \
 	source/beamline/AMControl.h	\
 	source/beamline/AMControlSet.h	\
 	source/beamline/AMControlState.h	\
@@ -177,6 +179,8 @@ SOURCES +=	source/acquaman/AMAcqScanSpectrumOutput.cpp	\
 	source/beamline/AMAbstractDetector.cpp	\
 	source/beamline/AMAmpDetector.cpp	\
 	source/beamline/AMBeamline.cpp	\
+	source/beamline/AMBeamlineActionItem.cpp \
+	source/beamline/AMBeamlineControlAction.cpp \
 	source/beamline/AMControl.cpp	\
 	source/beamline/AMControlSet.cpp	\
 	source/beamline/AMControlState.cpp	\

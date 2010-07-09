@@ -156,7 +156,10 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
     source/ui/SamplePositions.h \
     source/ui/Scheduler.h \
     source/ui/SGMXASScanConfigurationViewer.h \
-    source/ui/AMRegionsLineView.h
+    source/ui/AMRegionsLineView.h \
+    source/beamline/AMBeamlineActionItem.h \
+    source/beamline/AMBeamlineControlAction.h \
+    source/ui/SGMSampleTransferView.h
 FORMS += source/ui/AbsorptionScanController.ui \
     source/ui/BottomBar.ui \
     source/ui/ConnectionSettings.ui \
@@ -251,6 +254,9 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
     source/ui/NumericControl.cpp \
     source/ui/SamplePositions.cpp \
     source/ui/SGMXASScanConfigurationViewer.cpp \
-    source/ui/AMRegionsLineView.cpp
+    source/ui/AMRegionsLineView.cpp \
+    source/beamline/AMBeamlineActionItem.cpp \
+    source/beamline/AMBeamlineControlAction.cpp \
+    source/ui/SGMSampleTransferView.cpp
 RESOURCES = source/icons/icons.qrc
 OTHER_FILES += source/muParser/README.txt

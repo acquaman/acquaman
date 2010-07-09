@@ -28,6 +28,7 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 //	amNames2pvNames_.set("pgt", "dave:PGT");
 	amNames2pvNames_.set("pgt", "reixsHost:sdd:spectrum");
 	amNames2pvNames_.set("I0", "reixsHost:I0");
+	amNames2pvNames_.set("loadlockPressure", "dave:Endstation:loadlock:pressure");
 
 	ringCurrent_ = new AMReadOnlyPVControl("ringCurrent", AMPVNames::toPV("ringCurrent"), this);
 	addChild(ringCurrent_);
@@ -61,6 +62,7 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	sgmPVName = amNames2pvNames_.valueF("grating");
 	grating_ = new AMPVwStatusControl("grating", sgmPVName, sgmPVName, sgmPVName+":moving", this, 0.1);
 	addChild(grating_);
+	gratingAction_ = new SGMGratingAction(grating_, this);
 	sgmPVName = amNames2pvNames_.valueF("harmonic");
 	harmonic_ = new AMPVwStatusControl("harmonic", sgmPVName, sgmPVName, sgmPVName+":moving", this, 0.1);
 	addChild(harmonic_);
@@ -95,6 +97,8 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	eVFbk_ = new AMReadOnlyPVControl("eVFbk", sgmPVName, this);
 	addChild(eVFbk_);
 	eVFbkDetector_ = new AMSingleControlDetector(eVFbk_->name(), eVFbk_, this);
+	sgmPVName = amNames2pvNames_.valueF("loadlockPressure");
+	loadlockPressure_ = new AMReadOnlyPVControl("loadlockPressure", sgmPVName, this);
 
 	fluxOptimization_ = new SGMFluxOptimization(this);
 	fluxOptimization_->setDescription("Flux");
@@ -128,6 +132,15 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	XASDetectors_->addDetector(tfyDetector_, true);
 	XASDetectors_->addDetector(pgtDetector_, false);
 
+	transferAction1_ = new SGMTransferAction1(this);
+	transferAction2_ = new SGMTransferAction2(this);
+	connect(transferAction1_, SIGNAL(succeeded()), transferAction2_, SLOT(start()));
+	connect(loadlockPressure_, SIGNAL(valueChanged(double)), transferAction2_, SLOT(checkValue(double)));
+	transferAction3_ = new SGMTransferAction3(this);
+	connect(transferAction2_, SIGNAL(succeeded()), transferAction3_, SLOT(start()));
+	transferAction4_ = new SGMTransferAction4(this);
+	connect(transferAction3_, SIGNAL(succeeded()), transferAction4_, SLOT(start()));
+
 }
 
 SGMBeamline::~SGMBeamline()
@@ -158,6 +171,32 @@ bool SGMBeamline::energyRangeValidForSettings(sgmGrating grating, sgmHarmonic ha
 		return true;
 	else
 		return false;
+}
+
+QList< QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic> > SGMBeamline::gratingHarmonicForEnergyRange(double minEnergy, double maxEnergy){
+	QList< QPair<sgmGrating, sgmHarmonic> > rVal;
+	if( (maxEnergy > 240) && (maxEnergy < 750) && (minEnergy > 240) && (minEnergy < 750) )
+		rVal.append(QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic>((SGMBeamline::sgmGrating)0, (SGMBeamline::sgmHarmonic)1 ));
+	if((maxEnergy > 440) && (maxEnergy < 1200) && (minEnergy > 440) && (minEnergy < 1200) )
+		rVal.append(QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic>((SGMBeamline::sgmGrating)1, (SGMBeamline::sgmHarmonic)1 ));
+	if( (maxEnergy > 800) && (maxEnergy < 1100) && (minEnergy > 800) && (minEnergy < 1100) )
+		rVal.append(QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic>((SGMBeamline::sgmGrating)2, (SGMBeamline::sgmHarmonic)1 ));
+	if( (maxEnergy > 1100) && (maxEnergy < 2000) && (minEnergy > 1100) && (minEnergy < 2000) )
+		rVal.append(QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic>((SGMBeamline::sgmGrating)2, (SGMBeamline::sgmHarmonic)3 ));
+	return rVal;
+}
+
+QPair<double, double> SGMBeamline::energyRangeForGratingHarmonic(SGMBeamline::sgmGrating grating, SGMBeamline::sgmHarmonic harmonic){
+	QPair<double, double> rVal;
+	if( (grating == 0) && (harmonic == 1) )
+		rVal = QPair<double, double>(240, 750);
+	else if( (grating == 1) && (harmonic == 1) )
+		rVal = QPair<double, double>(440, 1200);
+	else if( (grating == 2) && (harmonic == 1) )
+		rVal = QPair<double, double>(800, 1100);
+	else if( (grating == 2) && (harmonic == 3) )
+		rVal = QPair<double, double>(1100, 2000);
+	return rVal;
 }
 
 SGMBeamline* SGMBeamline::sgm() {
@@ -343,4 +382,13 @@ double SGMResolutionOptimization::minimumEnergy(AMRegionsList* regions){
 		curMin = (regions->end(x) < curMin ? regions->end(x) : curMin);
 	}
 	return curMin;
+}
+
+SGMGratingAction::SGMGratingAction(AMControl* grating, QObject *parent) :
+		AMBeamlineControlAction(grating, parent)
+{
+}
+
+void SGMGratingAction::start(){
+	((AMPVwStatusControl*)control_)->move(1);
 }
