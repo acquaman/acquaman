@@ -58,10 +58,18 @@ signals:
 	void completed();
 
 public slots:
+	virtual void startPane(){ initialize(); firstItem_->start();}
+
+private slots:
+	virtual void initialize();
+	virtual void prepareCompletion();
 
 protected:
 	QVBoxLayout *vl_;
 	QList<AMBeamlineActionItemView*> itemViews_;
+	AMBeamlineActionItem* firstItem_;
+	QLabel *completeLabel_;
+	QPushButton *completeButton_;
 	QGridLayout *mainLayout_;
 };
 

@@ -209,9 +209,10 @@ public:
 	}
 public slots:
 	void checkValue(double value){
-		qDebug() << "Checking on CCG";
+		bool rVal = false;
 		if(value > 1e-3)
-			emit ready(true);
+			rVal = true;
+		emit ready(rVal);
 	}
 };
 
@@ -240,8 +241,10 @@ public:
 	}
 public slots:
 	void checkValue(double value){
+		bool rVal = false;
 		if(value > 700)
-			emit ready(true);
+			rVal = true;
+		emit ready(rVal);
 	}
 };
 
@@ -278,8 +281,10 @@ public:
 	}
 public slots:
 	void checkValue(double value){
+		bool rVal = false;
 		if(value < 200)
-			emit ready(true);
+			rVal = true;
+		emit ready(rVal);
 	}
 };
 
@@ -300,8 +305,10 @@ public:
 	}
 public slots:
 	void checkValue(double value){
+		bool rVal = false;
 		if(value < 1e-4)
-			emit ready(true);
+			rVal = true;
+		emit ready(rVal);
 	}
 };
 
@@ -314,8 +321,10 @@ public:
 	}
 public slots:
 	void checkValue(double value){
-		if(value < 6.5e-6)
-			emit ready(true);
+		bool rVal = false;
+		if(value < 5e-6)
+			rVal = true;
+		emit ready(rVal);
 	}
 };
 

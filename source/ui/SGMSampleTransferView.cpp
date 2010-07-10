@@ -29,10 +29,12 @@ void SGMSampleTransferView::drawMain(){
 
 void SGMSampleTransferView::drawLoadlockOut(){
 	mainLayout_->setCurrentIndex(1);
+	loadlockOut_->startPane();
 }
 
 void SGMSampleTransferView::drawLoadlockIn(){
 	mainLayout_->setCurrentIndex(2);
+	loadlockIn_->startPane();
 }
 
 
@@ -54,11 +56,13 @@ SGMSampleTransferPaneView::SGMSampleTransferPaneView(QList<AMBeamlineActionItem*
 	vl_ = new QVBoxLayout();
 	mainLayout_ = new QGridLayout();
 	QList<AMBeamlineActionItem*> transferActions = items;
-	connect(transferActions.at(transferActions.count()-1), SIGNAL(succeeded()), this, SIGNAL(completed()));
+	//connect(transferActions.at(transferActions.count()-1), SIGNAL(succeeded()), this, SIGNAL(completed()));
+	connect(transferActions.at(transferActions.count()-1), SIGNAL(succeeded()), this, SLOT(prepareCompletion()));
 	AMBeamlineActionItemView *tmpView;
 	int maxMessage = 0;
 	int maxLight = 0;
 	int maxProceed = 0;
+	firstItem_ = transferActions.at(0);
 	for(int x = 0; x < transferActions.count(); x++){
 		tmpView = new AMBeamlineActionItemView(transferActions.at(x), this);
 		tmpView->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
@@ -70,12 +74,29 @@ SGMSampleTransferPaneView::SGMSampleTransferPaneView(QList<AMBeamlineActionItem*
 			maxLight = tmpView->lightHint();
 		if(tmpView->proceedHint() > maxProceed)
 			maxProceed = tmpView->proceedHint();
+		connect(this, SIGNAL(completed()), itemViews_.at(x), SLOT(initializeView()));
 	}
 	for(int x = 0; x < itemViews_.count(); x++){
 		itemViews_.at(x)->fixMessageSize(maxMessage);
 		itemViews_.at(x)->fixLightSize(maxLight);
 		itemViews_.at(x)->fixProceedSize(maxProceed);
 	}
+	completeLabel_ = new QLabel("");
+	initialize();
+	completeButton_ = new QPushButton("Return to Main Transfer Menu");
+	connect(completeButton_, SIGNAL(clicked()), this, SIGNAL(completed()));
+	QHBoxLayout *hl = new QHBoxLayout();
+	hl->addWidget(completeLabel_);
+	hl->addWidget(completeButton_);
+	vl_->addLayout(hl);
 	mainLayout_->addLayout(vl_, 0, 0, 1, 1, Qt::AlignLeft|Qt::AlignTop);
 	setLayout(mainLayout_);
+}
+
+void SGMSampleTransferPaneView::initialize(){
+	completeLabel_->setText("Procedure Incomplete");
+}
+
+void SGMSampleTransferPaneView::prepareCompletion(){
+	completeLabel_->setText("Procedure Finished");
 }

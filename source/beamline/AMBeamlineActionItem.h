@@ -50,6 +50,7 @@ public:
 	int proceedHint() { return proceed_->sizeHint().width(); }
 
 public slots:
+	virtual void initializeView();
 	virtual void onStart();
 	virtual void onReady(bool ready);
 	virtual void fixMessageSize(int width);
