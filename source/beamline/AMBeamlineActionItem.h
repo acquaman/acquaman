@@ -6,6 +6,7 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QPushButton>
+#include <QDebug>
 
 class AMBeamlineActionItem : public QObject
 {
@@ -15,6 +16,7 @@ public:
 	bool hasFeedback() { return hasFeedback_; }
 	AMBeamlineActionItem* previous() const { return previous_;}
 	AMBeamlineActionItem* next() const { return next_;}
+	QString message() const { return message_; }
 
 signals:
 	void started();
@@ -24,6 +26,8 @@ signals:
 
 public slots:
 	virtual void start() = 0;
+	bool setPrevious(AMBeamlineActionItem* previous){ previous_ = previous; }
+	bool setNext(AMBeamlineActionItem* next){ next_ = next; }
 
 protected:
 	bool start_;
@@ -31,6 +35,7 @@ protected:
 	bool fail_;
 	bool hasFeedback_;
 
+	QString message_;
 	AMBeamlineActionItem *previous_;
 	AMBeamlineActionItem *next_;
 };
@@ -40,6 +45,10 @@ class AMBeamlineActionItemView : public QWidget
 	Q_OBJECT
 public:
 	AMBeamlineActionItemView(AMBeamlineActionItem *item, QWidget *parent = 0);
+
+public slots:
+	virtual void onStart();
+	virtual void onReady(bool ready);
 
 protected:
 	AMBeamlineActionItem *item_;

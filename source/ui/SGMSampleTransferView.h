@@ -22,19 +22,9 @@ public slots:
 	void setAction4Success();
 
 protected:
+	QVBoxLayout *vl_;
+	QList<AMBeamlineActionItemView*> itemViews_;
 	QGridLayout *mainLayout_;
-	QLabel *action1Label_;
-	QLabel *action2Label_;
-	QLabel *action3Label_;
-	QLabel *action4Label_;
-	QPushButton *action1Proceed_;
-	QPushButton *action2Proceed_;
-	QPushButton *action3Proceed_;
-	QPushButton *action4Proceed_;
-	QPushButton *action1Light_;
-	QPushButton *action2Light_;
-	QPushButton *action3Light_;
-	QPushButton *action4Light_;
 };
 
 #endif // SGMSAMPLETRANSFERVIEW_H

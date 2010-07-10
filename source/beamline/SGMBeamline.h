@@ -172,12 +172,16 @@ class SGMTransferAction1 : public AMBeamlineActionItem
 {
 	Q_OBJECT
 public:
-	SGMTransferAction1(QObject *parent = 0) : AMBeamlineActionItem(parent){;}
+	SGMTransferAction1(QObject *parent = 0) : AMBeamlineActionItem(parent){
+		message_ = "Close the valve between the endstation and the loadlock";
+		hasFeedback_ = false;
+	}
 
 public slots:
 	void start(){
 		qDebug() << "First";
-		emit ready(true);
+		emit started();
+//		emit ready(true);
 	}
 };
 
@@ -185,17 +189,21 @@ class SGMTransferAction2 : public AMBeamlineActionItem
 {
 	Q_OBJECT
 public:
-	SGMTransferAction2(QObject *parent = 0) : AMBeamlineActionItem(parent){;}
+	SGMTransferAction2(QObject *parent = 0) : AMBeamlineActionItem(parent){
+		message_ = "Turn off the CCG";
+		hasFeedback_ = true;
+	}
 
 public slots:
 	void start(){
 		qDebug() << "Second";
-		emit ready(true);
+		emit started();
+		//emit ready(true);
 	}
 
 	void checkValue(double value){
 		if(value > 1e-3)
-			emit succeeded();
+			emit ready(true);
 	}
 };
 
@@ -203,12 +211,16 @@ class SGMTransferAction3 : public AMBeamlineActionItem
 {
 	Q_OBJECT
 public:
-	SGMTransferAction3(QObject *parent = 0) : AMBeamlineActionItem(parent){;}
+	SGMTransferAction3(QObject *parent = 0) : AMBeamlineActionItem(parent){
+		message_ = "Close the roughing pump valve";
+		hasFeedback_ = false;
+	}
 
 public slots:
 	void start(){
 		qDebug() << "Third";
-		emit ready(true);
+		emit started();
+		//emit ready(true);
 	}
 };
 
@@ -216,12 +228,16 @@ class SGMTransferAction4 : public AMBeamlineActionItem
 {
 	Q_OBJECT
 public:
-	SGMTransferAction4(QObject *parent = 0) : AMBeamlineActionItem(parent){;}
+	SGMTransferAction4(QObject *parent = 0) : AMBeamlineActionItem(parent){
+		message_ = "Turn off the turbo pump power";
+		hasFeedback_ = false;
+	}
 
 public slots:
 	void start(){
 		qDebug() << "Fourth";
-		emit ready(true);
+		emit started();
+		//emit ready(true);
 	}
 };
 

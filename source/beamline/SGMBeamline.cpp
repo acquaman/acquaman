@@ -134,12 +134,18 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 
 	transferAction1_ = new SGMTransferAction1(this);
 	transferAction2_ = new SGMTransferAction2(this);
-	connect(transferAction1_, SIGNAL(succeeded()), transferAction2_, SLOT(start()));
+//	connect(transferAction1_, SIGNAL(succeeded()), transferAction2_, SLOT(start()));
 	connect(loadlockPressure_, SIGNAL(valueChanged(double)), transferAction2_, SLOT(checkValue(double)));
 	transferAction3_ = new SGMTransferAction3(this);
-	connect(transferAction2_, SIGNAL(succeeded()), transferAction3_, SLOT(start()));
+//	connect(transferAction2_, SIGNAL(succeeded()), transferAction3_, SLOT(start()));
 	transferAction4_ = new SGMTransferAction4(this);
-	connect(transferAction3_, SIGNAL(succeeded()), transferAction4_, SLOT(start()));
+//	connect(transferAction3_, SIGNAL(succeeded()), transferAction4_, SLOT(start()));
+	transferAction1_->setNext(transferAction2_);
+	transferAction2_->setPrevious(transferAction1_);
+	transferAction2_->setNext(transferAction3_);
+	transferAction3_->setPrevious(transferAction2_);
+	transferAction3_->setNext(transferAction4_);
+	transferAction4_->setPrevious(transferAction3_);
 
 }
 

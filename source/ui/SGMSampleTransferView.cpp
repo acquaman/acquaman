@@ -3,7 +3,17 @@
 SGMSampleTransferView::SGMSampleTransferView(QWidget *parent) :
 	QWidget(parent)
 {
+	vl_ = new QVBoxLayout();
 	mainLayout_ = new QGridLayout();
+	QList<AMBeamlineActionItem*> transferActions = SGMBeamline::sgm()->transferActions();
+	AMBeamlineActionItemView *tmpView;
+	for(int x = 0; x < transferActions.count(); x++){
+		tmpView = new AMBeamlineActionItemView(transferActions.at(x), this);
+		tmpView->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+		vl_->addWidget(tmpView);
+	}
+	mainLayout_->addLayout(vl_, 0, 0, 1, 1, Qt::AlignLeft|Qt::AlignTop);
+	/*
 	action1Label_ = new QLabel("Close the valve between the endstation and the loadlock", this);
 	action2Label_ = new QLabel("Turn off the CCG", this);
 	action3Label_ = new QLabel("Close the roughing pump valve", this);
@@ -52,25 +62,26 @@ SGMSampleTransferView::SGMSampleTransferView(QWidget *parent) :
 	mainLayout_->addWidget(action2Proceed_, 1, 2, 1, 1, Qt::AlignHCenter);
 	mainLayout_->addWidget(action3Proceed_, 2, 2, 1, 1, Qt::AlignHCenter);
 	mainLayout_->addWidget(action4Proceed_, 3, 2, 1, 1, Qt::AlignHCenter);
+	*/
 	setLayout(mainLayout_);
 }
 
 void SGMSampleTransferView::setAction1Success(){
-	QString lightGoStyle = "QPushButton { background: green; border: 1px solid green; }";
-	action1Light_->setStyleSheet(lightGoStyle);
+//	QString lightGoStyle = "QPushButton { background: green; border: 1px solid green; }";
+//	action1Light_->setStyleSheet(lightGoStyle);
 }
 
 void SGMSampleTransferView::setAction2Success(){
-	QString lightGoStyle = "QPushButton { background: green; border: 1px solid green; }";
-	action2Light_->setStyleSheet(lightGoStyle);
+//	QString lightGoStyle = "QPushButton { background: green; border: 1px solid green; }";
+//	action2Light_->setStyleSheet(lightGoStyle);
 }
 
 void SGMSampleTransferView::setAction3Success(){
-	QString lightGoStyle = "QPushButton { background: green; border: 1px solid green; }";
-	action3Light_->setStyleSheet(lightGoStyle);
+//	QString lightGoStyle = "QPushButton { background: green; border: 1px solid green; }";
+//	action3Light_->setStyleSheet(lightGoStyle);
 }
 
 void SGMSampleTransferView::setAction4Success(){
-	QString lightGoStyle = "QPushButton { background: green; border: 1px solid green; }";
-	action4Light_->setStyleSheet(lightGoStyle);
+//	QString lightGoStyle = "QPushButton { background: green; border: 1px solid green; }";
+//	action4Light_->setStyleSheet(lightGoStyle);
 }
