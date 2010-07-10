@@ -56,7 +56,6 @@ SGMSampleTransferPaneView::SGMSampleTransferPaneView(QList<AMBeamlineActionItem*
 	vl_ = new QVBoxLayout();
 	mainLayout_ = new QGridLayout();
 	QList<AMBeamlineActionItem*> transferActions = items;
-	//connect(transferActions.at(transferActions.count()-1), SIGNAL(succeeded()), this, SIGNAL(completed()));
 	connect(transferActions.at(transferActions.count()-1), SIGNAL(succeeded()), this, SLOT(prepareCompletion()));
 	AMBeamlineActionItemView *tmpView;
 	int maxMessage = 0;
@@ -95,6 +94,8 @@ SGMSampleTransferPaneView::SGMSampleTransferPaneView(QList<AMBeamlineActionItem*
 
 void SGMSampleTransferPaneView::initialize(){
 	completeLabel_->setText("Procedure Incomplete");
+	for(int x = 0; x < itemViews_.count(); x++)
+		itemViews_.at(x)->initializeView();
 }
 
 void SGMSampleTransferPaneView::prepareCompletion(){
