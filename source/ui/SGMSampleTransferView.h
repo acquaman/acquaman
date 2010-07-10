@@ -3,9 +3,14 @@
 
 #include <QWidget>
 #include <QGridLayout>
+#include <QStackedLayout>
 #include <QLabel>
 #include <QPushButton>
+#include <QGroupBox>
 #include <beamline/SGMBeamline.h>
+
+class SGMSampleTransferPaneView;
+class SGMSampleTransferProceduresView;
 
 class SGMSampleTransferView : public QWidget
 {
@@ -16,10 +21,43 @@ public:
 signals:
 
 public slots:
-	void setAction1Success();
-	void setAction2Success();
-	void setAction3Success();
-	void setAction4Success();
+
+private slots:
+	void drawMain();
+	void drawLoadlockOut();
+	void drawLoadlockIn();
+
+protected:
+	QPushButton *loadlockOutButton_;
+	QPushButton *loadlockInButton_;
+	SGMSampleTransferPaneView *loadlockOut_;
+	SGMSampleTransferPaneView *loadlockIn_;
+	SGMSampleTransferProceduresView *transferBox_;
+	QStackedLayout *mainLayout_;
+};
+
+class SGMSampleTransferProceduresView : public QGroupBox
+{
+Q_OBJECT
+public:
+	SGMSampleTransferProceduresView(const QString &title, QList<QPushButton*> procedureButtons, QWidget *parent = 0);
+
+protected:
+	QVBoxLayout *vl_;
+	QList<QPushButton*> procedureButtons_;
+	QGridLayout *mainLayout_;
+};
+
+class SGMSampleTransferPaneView : public QGroupBox
+{
+Q_OBJECT
+public:
+	explicit SGMSampleTransferPaneView(QList<AMBeamlineActionItem*> items, const QString &title, QWidget *parent = 0);
+
+signals:
+	void completed();
+
+public slots:
 
 protected:
 	QVBoxLayout *vl_;

@@ -8,7 +8,7 @@ class AMBeamlineControlAction : public AMBeamlineActionItem
 {
 Q_OBJECT
 public:
-	AMBeamlineControlAction(AMControl *control, QObject *parent = 0);
+	AMBeamlineControlAction(AMControl *control, QString message = "", QObject *parent = 0);
 
 protected:
 	AMControl *control_;

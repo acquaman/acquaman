@@ -1,10 +1,12 @@
 #include "AMBeamlineActionItem.h"
 
-AMBeamlineActionItem::AMBeamlineActionItem(QObject *parent) :
+AMBeamlineActionItem::AMBeamlineActionItem(QString message, QObject *parent) :
 	QObject(parent)
 {
+	message_ = message;
 	previous_ = NULL;
 	next_ = NULL;
+	hasFeedback_ = false;
 }
 
 AMBeamlineActionItemView::AMBeamlineActionItemView(AMBeamlineActionItem *item, QWidget *parent) :
@@ -17,10 +19,8 @@ AMBeamlineActionItemView::AMBeamlineActionItemView(AMBeamlineActionItem *item, Q
 	message_->setWordWrap(true);
 	light_ = new QPushButton("", this);
 	light_->setEnabled(false);
-//	light_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
 	proceed_ = new QPushButton("Proceed", this);
 	proceed_->setEnabled(false);
-//	proceed_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
 	hl_->addWidget(message_);
 	hl_->addWidget(light_);
 	hl_->addWidget(proceed_);
@@ -28,14 +28,10 @@ AMBeamlineActionItemView::AMBeamlineActionItemView(AMBeamlineActionItem *item, Q
 
 	connect(item_, SIGNAL(started()), this, SLOT(onStart()));
 	connect(proceed_, SIGNAL(clicked()), item_, SIGNAL(succeeded()));
-	if(item_->previous()){
+	if(item_->previous())
 		connect(item_->previous(), SIGNAL(succeeded()), item_, SLOT(start()));
-		qDebug() << "Has previous, no need to start";
-	}
-	else{
-		qDebug() << "No previous, starting now";
+	else
 		item_->start();
-	}
 	QString masterStyle = "QPushButton { max-width: 72px }";
 	setStyleSheet(masterStyle);
 }
@@ -48,6 +44,7 @@ void AMBeamlineActionItemView::onStart(){
 	if(!item_->hasFeedback()){
 		light_->setStyleSheet(lightYieldStyle);
 		proceed_->setEnabled(true);
+		connect(proceed_, SIGNAL(clicked(bool)), this, SLOT(onReady(bool)));
 	}
 	else{
 		light_->setStyleSheet(lightStopStyle);
@@ -58,9 +55,27 @@ void AMBeamlineActionItemView::onStart(){
 void AMBeamlineActionItemView::onReady(bool ready){
 	QString lightStopStyle = "QPushButton { background: red; border: 1px solid red; }";
 	QString lightGoStyle = "QPushButton { background: green; border: 1px solid green; }";
-	if(ready)
-		light_->setStyleSheet(lightGoStyle);
-	else
-		light_->setStyleSheet(lightStopStyle);
-	proceed_->setEnabled(ready);
+	QString lightGoYieldStyle = "QPushButton { background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0.4 yellow, stop:1 green); border: 1px qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0.4 yellow, stop:1 green); }";
+	if(item_->hasFeedback()){
+		if(ready)
+			light_->setStyleSheet(lightGoStyle);
+		else
+			light_->setStyleSheet(lightStopStyle);
+		proceed_->setEnabled(ready);
+	}
+	else{
+		light_->setStyleSheet(lightGoYieldStyle);
+	}
+}
+
+void AMBeamlineActionItemView::fixMessageSize(int width){
+	message_->setMinimumWidth(width);
+}
+
+void AMBeamlineActionItemView::fixLightSize(int width){
+	light_->setMinimumWidth(width);
+}
+
+void AMBeamlineActionItemView::fixProceedSize(int width){
+	proceed_->setMinimumWidth(width);
 }

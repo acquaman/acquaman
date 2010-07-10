@@ -28,7 +28,8 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 //	amNames2pvNames_.set("pgt", "dave:PGT");
 	amNames2pvNames_.set("pgt", "reixsHost:sdd:spectrum");
 	amNames2pvNames_.set("I0", "reixsHost:I0");
-	amNames2pvNames_.set("loadlockPressure", "dave:Endstation:loadlock:pressure");
+	amNames2pvNames_.set("loadlockCCG", "dave:Endstation:loadlock:ccg");
+	amNames2pvNames_.set("loadlockTCG", "dave:Endstation:loadlock:tcg");
 
 	ringCurrent_ = new AMReadOnlyPVControl("ringCurrent", AMPVNames::toPV("ringCurrent"), this);
 	addChild(ringCurrent_);
@@ -97,8 +98,10 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	eVFbk_ = new AMReadOnlyPVControl("eVFbk", sgmPVName, this);
 	addChild(eVFbk_);
 	eVFbkDetector_ = new AMSingleControlDetector(eVFbk_->name(), eVFbk_, this);
-	sgmPVName = amNames2pvNames_.valueF("loadlockPressure");
-	loadlockPressure_ = new AMReadOnlyPVControl("loadlockPressure", sgmPVName, this);
+	sgmPVName = amNames2pvNames_.valueF("loadlockCCG");
+	loadlockCCG_ = new AMReadOnlyPVControl("loadlockCCG", sgmPVName, this);
+	sgmPVName = amNames2pvNames_.valueF("loadlockTCG");
+	loadlockTCG_ = new AMReadOnlyPVControl("loadlockTCG", sgmPVName, this);
 
 	fluxOptimization_ = new SGMFluxOptimization(this);
 	fluxOptimization_->setDescription("Flux");
@@ -134,19 +137,44 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 
 	transferAction1_ = new SGMTransferAction1(this);
 	transferAction2_ = new SGMTransferAction2(this);
-//	connect(transferAction1_, SIGNAL(succeeded()), transferAction2_, SLOT(start()));
-	connect(loadlockPressure_, SIGNAL(valueChanged(double)), transferAction2_, SLOT(checkValue(double)));
+	connect(loadlockCCG_, SIGNAL(valueChanged(double)), transferAction2_, SLOT(checkValue(double)));
 	transferAction3_ = new SGMTransferAction3(this);
-//	connect(transferAction2_, SIGNAL(succeeded()), transferAction3_, SLOT(start()));
 	transferAction4_ = new SGMTransferAction4(this);
-//	connect(transferAction3_, SIGNAL(succeeded()), transferAction4_, SLOT(start()));
+	transferAction5_ = new SGMTransferAction5(this);
+	connect(loadlockTCG_, SIGNAL(valueChanged(double)), transferAction5_, SLOT(checkValue(double)));
+	transferAction6_ = new SGMTransferAction6(this);
+
+	transferAction7_ = new SGMTransferAction7(this);
+	transferAction8_ = new SGMTransferAction8(this);
+	transferAction9_ = new SGMTransferAction9(this);
+	connect(loadlockTCG_, SIGNAL(valueChanged(double)), transferAction9_, SLOT(checkValue(double)));
+	transferAction10_ = new SGMTransferAction10(this);
+	transferAction11_ = new SGMTransferAction11(this);
+	connect(loadlockCCG_, SIGNAL(valueChanged(double)), transferAction11_, SLOT(checkValue(double)));
+	transferAction12_ = new SGMTransferAction12(this);
+	connect(loadlockCCG_, SIGNAL(valueChanged(double)), transferAction12_, SLOT(checkValue(double)));
+
 	transferAction1_->setNext(transferAction2_);
 	transferAction2_->setPrevious(transferAction1_);
 	transferAction2_->setNext(transferAction3_);
 	transferAction3_->setPrevious(transferAction2_);
 	transferAction3_->setNext(transferAction4_);
 	transferAction4_->setPrevious(transferAction3_);
+	transferAction4_->setNext(transferAction5_);
+	transferAction5_->setPrevious(transferAction4_);
+	transferAction5_->setNext(transferAction6_);
+	transferAction6_->setPrevious(transferAction5_);
 
+	transferAction7_->setNext(transferAction8_);
+	transferAction8_->setPrevious(transferAction7_);
+	transferAction8_->setNext(transferAction9_);
+	transferAction9_->setPrevious(transferAction8_);
+	transferAction9_->setNext(transferAction10_);
+	transferAction10_->setPrevious(transferAction9_);
+	transferAction10_->setNext(transferAction11_);
+	transferAction11_->setPrevious(transferAction10_);
+	transferAction11_->setNext(transferAction12_);
+	transferAction12_->setPrevious(transferAction11_);
 }
 
 SGMBeamline::~SGMBeamline()
@@ -391,7 +419,7 @@ double SGMResolutionOptimization::minimumEnergy(AMRegionsList* regions){
 }
 
 SGMGratingAction::SGMGratingAction(AMControl* grating, QObject *parent) :
-		AMBeamlineControlAction(grating, parent)
+		AMBeamlineControlAction(grating, "", parent)
 {
 }
 

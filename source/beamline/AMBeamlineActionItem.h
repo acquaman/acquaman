@@ -12,7 +12,7 @@ class AMBeamlineActionItem : public QObject
 {
 Q_OBJECT
 public:
-	explicit AMBeamlineActionItem(QObject *parent = 0);
+	explicit AMBeamlineActionItem(QString message = "", QObject *parent = 0);
 	bool hasFeedback() { return hasFeedback_; }
 	AMBeamlineActionItem* previous() const { return previous_;}
 	AMBeamlineActionItem* next() const { return next_;}
@@ -25,7 +25,7 @@ signals:
 	void failed(int explanation);
 
 public slots:
-	virtual void start() = 0;
+	virtual void start(){ emit started(); }
 	bool setPrevious(AMBeamlineActionItem* previous){ previous_ = previous; }
 	bool setNext(AMBeamlineActionItem* next){ next_ = next; }
 
@@ -45,10 +45,16 @@ class AMBeamlineActionItemView : public QWidget
 	Q_OBJECT
 public:
 	AMBeamlineActionItemView(AMBeamlineActionItem *item, QWidget *parent = 0);
+	int messageHint(){ return message_->sizeHint().width(); }
+	int lightHint(){ return light_->sizeHint().width(); }
+	int proceedHint() { return proceed_->sizeHint().width(); }
 
 public slots:
 	virtual void onStart();
 	virtual void onReady(bool ready);
+	virtual void fixMessageSize(int width);
+	virtual void fixLightSize(int width);
+	virtual void fixProceedSize(int width);
 
 protected:
 	AMBeamlineActionItem *item_;

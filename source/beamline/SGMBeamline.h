@@ -65,19 +65,33 @@ public:
 	AMAbstractDetector* pgtDetector() const { return pgtDetector_;}
 	AMAbstractDetector* i0Detector() const { return i0Detector_;}
 	AMAbstractDetector* eVFbkDetector() const { return eVFbkDetector_;}
-	AMControl* loadlockPressure() const { return loadlockPressure_;}
+	AMControl* loadlockCCG() const { return loadlockCCG_;}
+	AMControl* loadlockTCG() const { return loadlockTCG_;}
 
 	AMControlSet* fluxResolutionSet() const { return fluxResolutionSet_;}
 	AMControlSet* trackingSet() const { return trackingSet_;}
 	AMAbstractDetectorSet* allDetectors() const { return allDetectors_;}
 	AMAbstractDetectorSet* XASDetectors() const { return XASDetectors_;}
 
-	QList<AMBeamlineActionItem*> transferActions() const {
+	QList<AMBeamlineActionItem*> transferOutActions() const {
 		QList<AMBeamlineActionItem*> rVal;
 		rVal.append(transferAction1_);
 		rVal.append(transferAction2_);
 		rVal.append(transferAction3_);
 		rVal.append(transferAction4_);
+		rVal.append(transferAction5_);
+		rVal.append(transferAction6_);
+		return rVal;
+	}
+
+	QList<AMBeamlineActionItem*> transferInActions() const {
+		QList<AMBeamlineActionItem*> rVal;
+		rVal.append(transferAction7_);
+		rVal.append(transferAction8_);
+		rVal.append(transferAction9_);
+		rVal.append(transferAction10_);
+		rVal.append(transferAction11_);
+		rVal.append(transferAction12_);
 		return rVal;
 	}
 
@@ -113,7 +127,8 @@ protected:
 	AMControl *pgt_;
 	AMControl *i0_;
 	AMControl *eVFbk_;
-	AMControl *loadlockPressure_;
+	AMControl *loadlockCCG_;
+	AMControl *loadlockTCG_;
 
 	AMAbstractDetector *teyDetector_;
 	AMAbstractDetector *tfyDetector_;
@@ -133,6 +148,15 @@ protected:
 	AMBeamlineActionItem *transferAction2_;
 	AMBeamlineActionItem *transferAction3_;
 	AMBeamlineActionItem *transferAction4_;
+	AMBeamlineActionItem *transferAction5_;
+	AMBeamlineActionItem *transferAction6_;
+	AMBeamlineActionItem *transferAction7_;
+	AMBeamlineActionItem *transferAction8_;
+	AMBeamlineActionItem *transferAction9_;
+	AMBeamlineActionItem *transferAction10_;
+	AMBeamlineActionItem *transferAction11_;
+	AMBeamlineActionItem *transferAction12_;
+
 
 	AMBiHash<QString, QString> amNames2pvNames_;
 
@@ -172,16 +196,7 @@ class SGMTransferAction1 : public AMBeamlineActionItem
 {
 	Q_OBJECT
 public:
-	SGMTransferAction1(QObject *parent = 0) : AMBeamlineActionItem(parent){
-		message_ = "Close the valve between the endstation and the loadlock";
-		hasFeedback_ = false;
-	}
-
-public slots:
-	void start(){
-		qDebug() << "First";
-		emit started();
-//		emit ready(true);
+	SGMTransferAction1(QObject *parent = 0) : AMBeamlineActionItem("Close the valve between the endstation and the loadlock", parent){
 	}
 };
 
@@ -189,19 +204,12 @@ class SGMTransferAction2 : public AMBeamlineActionItem
 {
 	Q_OBJECT
 public:
-	SGMTransferAction2(QObject *parent = 0) : AMBeamlineActionItem(parent){
-		message_ = "Turn off the CCG";
+	SGMTransferAction2(QObject *parent = 0) : AMBeamlineActionItem("Turn off the CCG", parent){
 		hasFeedback_ = true;
 	}
-
 public slots:
-	void start(){
-		qDebug() << "Second";
-		emit started();
-		//emit ready(true);
-	}
-
 	void checkValue(double value){
+		qDebug() << "Checking on CCG";
 		if(value > 1e-3)
 			emit ready(true);
 	}
@@ -211,16 +219,7 @@ class SGMTransferAction3 : public AMBeamlineActionItem
 {
 	Q_OBJECT
 public:
-	SGMTransferAction3(QObject *parent = 0) : AMBeamlineActionItem(parent){
-		message_ = "Close the roughing pump valve";
-		hasFeedback_ = false;
-	}
-
-public slots:
-	void start(){
-		qDebug() << "Third";
-		emit started();
-		//emit ready(true);
+	SGMTransferAction3(QObject *parent = 0) : AMBeamlineActionItem("Close the roughing pump valve", parent){
 	}
 };
 
@@ -228,16 +227,95 @@ class SGMTransferAction4 : public AMBeamlineActionItem
 {
 	Q_OBJECT
 public:
-	SGMTransferAction4(QObject *parent = 0) : AMBeamlineActionItem(parent){
-		message_ = "Turn off the turbo pump power";
-		hasFeedback_ = false;
+	SGMTransferAction4(QObject *parent = 0) : AMBeamlineActionItem("Turn off the turbo pump power", parent){
 	}
+};
 
+class SGMTransferAction5 : public AMBeamlineActionItem
+{
+	Q_OBJECT
+public:
+	SGMTransferAction5(QObject *parent = 0) : AMBeamlineActionItem("Wait for loadlock to reach air pressure", parent){
+		hasFeedback_ = true;
+	}
 public slots:
-	void start(){
-		qDebug() << "Fourth";
-		emit started();
-		//emit ready(true);
+	void checkValue(double value){
+		if(value > 700)
+			emit ready(true);
+	}
+};
+
+class SGMTransferAction6 : public AMBeamlineActionItem
+{
+	Q_OBJECT
+public:
+	SGMTransferAction6(QObject *parent = 0) : AMBeamlineActionItem("Open loadlock port", parent){
+	}
+};
+
+class SGMTransferAction7 : public AMBeamlineActionItem
+{
+	Q_OBJECT
+public:
+	SGMTransferAction7(QObject *parent = 0) : AMBeamlineActionItem("Close loadlock port", parent){
+	}
+};
+
+class SGMTransferAction8 : public AMBeamlineActionItem
+{
+	Q_OBJECT
+public:
+	SGMTransferAction8(QObject *parent = 0) : AMBeamlineActionItem("Open the roughing pump valve", parent){
+	}
+};
+
+class SGMTransferAction9 : public AMBeamlineActionItem
+{
+	Q_OBJECT
+public:
+	SGMTransferAction9(QObject *parent = 0) : AMBeamlineActionItem("Wait for loadlock to reach rough vacuum", parent){
+		hasFeedback_ = true;
+	}
+public slots:
+	void checkValue(double value){
+		if(value < 200)
+			emit ready(true);
+	}
+};
+
+class SGMTransferAction10 : public AMBeamlineActionItem
+{
+	Q_OBJECT
+public:
+	SGMTransferAction10(QObject *parent = 0) : AMBeamlineActionItem("Turn on the turbo pump power", parent){
+	}
+};
+
+class SGMTransferAction11 : public AMBeamlineActionItem
+{
+	Q_OBJECT
+public:
+	SGMTransferAction11(QObject *parent = 0) : AMBeamlineActionItem("Turn on the CCG", parent){
+		hasFeedback_ = true;
+	}
+public slots:
+	void checkValue(double value){
+		if(value < 1e-4)
+			emit ready(true);
+	}
+};
+
+class SGMTransferAction12 : public AMBeamlineActionItem
+{
+	Q_OBJECT
+public:
+	SGMTransferAction12(QObject *parent = 0) : AMBeamlineActionItem("Wait for loadlock to reach high vacuum", parent){
+		hasFeedback_ = true;
+	}
+public slots:
+	void checkValue(double value){
+		if(value < 6.5e-6)
+			emit ready(true);
 	}
 };
 

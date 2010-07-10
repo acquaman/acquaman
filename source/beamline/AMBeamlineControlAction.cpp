@@ -1,7 +1,7 @@
 #include "AMBeamlineControlAction.h"
 
-AMBeamlineControlAction::AMBeamlineControlAction(AMControl *control, QObject *parent) :
-	AMBeamlineActionItem(parent)
+AMBeamlineControlAction::AMBeamlineControlAction(AMControl *control, QString message, QObject *parent) :
+	AMBeamlineActionItem(message, parent)
 {
 	control_ = control;
 	connect(control_, SIGNAL(moveStarted()), this, SIGNAL(started()));
