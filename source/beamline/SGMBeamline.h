@@ -73,7 +73,7 @@ public:
 	AMAbstractDetectorSet* allDetectors() const { return allDetectors_;}
 	AMAbstractDetectorSet* XASDetectors() const { return XASDetectors_;}
 
-	QList<AMBeamlineActionItem*> transferOutActions() const {
+	QList<AMBeamlineActionItem*> transferLoadlockOutActions() const {
 		QList<AMBeamlineActionItem*> rVal;
 		rVal.append(transferAction1_);
 		rVal.append(transferAction2_);
@@ -84,7 +84,7 @@ public:
 		return rVal;
 	}
 
-	QList<AMBeamlineActionItem*> transferInActions() const {
+	QList<AMBeamlineActionItem*> transferLoadlockInActions() const {
 		QList<AMBeamlineActionItem*> rVal;
 		rVal.append(transferAction7_);
 		rVal.append(transferAction8_);
@@ -92,6 +92,29 @@ public:
 		rVal.append(transferAction10_);
 		rVal.append(transferAction11_);
 		rVal.append(transferAction12_);
+		return rVal;
+	}
+
+	QList<AMBeamlineActionItem*> transferChamberOutActions() const {
+		QList<AMBeamlineActionItem*> rVal;
+		rVal.append(transferAction13_);
+		rVal.append(transferAction14_);
+		rVal.append(transferAction15_);
+		rVal.append(transferAction16_);
+		rVal.append(transferAction17_);
+		rVal.append(transferAction18_);
+		rVal.append(transferAction19_);
+		rVal.append(transferAction20_);
+		return rVal;
+	}
+
+	QList<AMBeamlineActionItem*> transferChamberInActions() const {
+		QList<AMBeamlineActionItem*> rVal;
+		rVal.append(transferAction21_);
+		rVal.append(transferAction22_);
+		rVal.append(transferAction23_);
+		rVal.append(transferAction24_);
+		rVal.append(transferAction25_);
 		return rVal;
 	}
 
@@ -156,6 +179,19 @@ protected:
 	AMBeamlineActionItem *transferAction10_;
 	AMBeamlineActionItem *transferAction11_;
 	AMBeamlineActionItem *transferAction12_;
+	AMBeamlineActionItem *transferAction13_;
+	AMBeamlineActionItem *transferAction14_;
+	AMBeamlineActionItem *transferAction15_;
+	AMBeamlineActionItem *transferAction16_;
+	AMBeamlineActionItem *transferAction17_;
+	AMBeamlineActionItem *transferAction18_;
+	AMBeamlineActionItem *transferAction19_;
+	AMBeamlineActionItem *transferAction20_;
+	AMBeamlineActionItem *transferAction21_;
+	AMBeamlineActionItem *transferAction22_;
+	AMBeamlineActionItem *transferAction23_;
+	AMBeamlineActionItem *transferAction24_;
+	AMBeamlineActionItem *transferAction25_;
 
 
 	AMBiHash<QString, QString> amNames2pvNames_;
@@ -325,6 +361,110 @@ public slots:
 		if(value < 5e-6)
 			rVal = true;
 		emit ready(rVal);
+	}
+};
+
+class SGMTransferAction13 : public AMBeamlineActionItem
+{
+	Q_OBJECT
+public:
+	SGMTransferAction13(QObject *parent = 0) : AMBeamlineActionItem("Close Endstation Vacuum Valve", parent){
+	}
+};
+
+class SGMTransferAction14 : public AMBeamlineActionItem
+{
+	Q_OBJECT
+public:
+	SGMTransferAction14(QObject *parent = 0) : AMBeamlineActionItem("Turn off Detector High Voltage", parent){
+	}
+};
+
+class SGMTransferAction15 : public AMBeamlineActionItem
+{
+	Q_OBJECT
+public:
+	SGMTransferAction15(QObject *parent = 0) : AMBeamlineActionItem("Retract Detectors", parent){
+	}
+};
+
+class SGMTransferAction16 : public AMBeamlineActionItem
+{
+	Q_OBJECT
+public:
+	SGMTransferAction16(QObject *parent = 0) : AMBeamlineActionItem("Move to Transfer Position", parent){
+	}
+};
+
+class SGMTransferAction17 : public AMBeamlineActionItem
+{
+	Q_OBJECT
+public:
+	SGMTransferAction17(QObject *parent = 0) : AMBeamlineActionItem("Confrim Loadlock at High Vacuum", parent){
+	}
+};
+
+class SGMTransferAction18 : public AMBeamlineActionItem
+{
+	Q_OBJECT
+public:
+	SGMTransferAction18(QObject *parent = 0) : AMBeamlineActionItem("Open Transfer Valve", parent){
+	}
+};
+
+class SGMTransferAction19 : public AMBeamlineActionItem
+{
+	Q_OBJECT
+public:
+	SGMTransferAction19(QObject *parent = 0) : AMBeamlineActionItem("Transfer Sample Out", parent){
+	}
+};
+
+class SGMTransferAction20 : public AMBeamlineActionItem
+{
+	Q_OBJECT
+public:
+	SGMTransferAction20(QObject *parent = 0) : AMBeamlineActionItem("Close Transfer Valve", parent){
+	}
+};
+
+class SGMTransferAction21 : public AMBeamlineActionItem
+{
+	Q_OBJECT
+public:
+	SGMTransferAction21(QObject *parent = 0) : AMBeamlineActionItem("Confirm Loadlock at High Vacuum", parent){
+	}
+};
+
+class SGMTransferAction22 : public AMBeamlineActionItem
+{
+	Q_OBJECT
+public:
+	SGMTransferAction22(QObject *parent = 0) : AMBeamlineActionItem("Open Transfer Valve", parent){
+	}
+};
+
+class SGMTransferAction23 : public AMBeamlineActionItem
+{
+	Q_OBJECT
+public:
+	SGMTransferAction23(QObject *parent = 0) : AMBeamlineActionItem("Transfer Sample In", parent){
+	}
+};
+
+class SGMTransferAction24 : public AMBeamlineActionItem
+{
+	Q_OBJECT
+public:
+	SGMTransferAction24(QObject *parent = 0) : AMBeamlineActionItem("Close Transfer Valve", parent){
+	}
+};
+
+class SGMTransferAction25 : public AMBeamlineActionItem
+{
+	Q_OBJECT
+public:
+	SGMTransferAction25(QObject *parent = 0) : AMBeamlineActionItem("Turn on Detector High Voltage", parent){
 	}
 };
 

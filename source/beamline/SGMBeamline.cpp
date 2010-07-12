@@ -154,6 +154,20 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	transferAction12_ = new SGMTransferAction12(this);
 	connect(loadlockCCG_, SIGNAL(valueChanged(double)), transferAction12_, SLOT(checkValue(double)));
 
+	transferAction13_ = new SGMTransferAction13(this);
+	transferAction14_ = new SGMTransferAction14(this);
+	transferAction15_ = new SGMTransferAction15(this);
+	transferAction16_ = new SGMTransferAction16(this);
+	transferAction17_ = new SGMTransferAction17(this);
+	transferAction18_ = new SGMTransferAction18(this);
+	transferAction19_ = new SGMTransferAction19(this);
+	transferAction20_ = new SGMTransferAction20(this);
+	transferAction21_ = new SGMTransferAction21(this);
+	transferAction22_ = new SGMTransferAction22(this);
+	transferAction23_ = new SGMTransferAction23(this);
+	transferAction24_ = new SGMTransferAction24(this);
+	transferAction25_ = new SGMTransferAction25(this);
+
 	transferAction1_->setNext(transferAction2_);
 	transferAction2_->setPrevious(transferAction1_);
 	transferAction2_->setNext(transferAction3_);
@@ -175,6 +189,30 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	transferAction11_->setPrevious(transferAction10_);
 	transferAction11_->setNext(transferAction12_);
 	transferAction12_->setPrevious(transferAction11_);
+
+	transferAction13_->setNext(transferAction14_);
+	transferAction14_->setPrevious(transferAction13_);
+	transferAction14_->setNext(transferAction15_);
+	transferAction15_->setPrevious(transferAction14_);
+	transferAction15_->setNext(transferAction16_);
+	transferAction16_->setPrevious(transferAction15_);
+	transferAction16_->setNext(transferAction17_);
+	transferAction17_->setPrevious(transferAction16_);
+	transferAction17_->setNext(transferAction18_);
+	transferAction18_->setPrevious(transferAction17_);
+	transferAction18_->setNext(transferAction19_);
+	transferAction19_->setPrevious(transferAction18_);
+	transferAction19_->setNext(transferAction20_);
+	transferAction20_->setPrevious(transferAction19_);
+
+	transferAction21_->setNext(transferAction22_);
+	transferAction22_->setPrevious(transferAction21_);
+	transferAction22_->setNext(transferAction23_);
+	transferAction23_->setPrevious(transferAction22_);
+	transferAction23_->setNext(transferAction24_);
+	transferAction24_->setPrevious(transferAction23_);
+	transferAction24_->setNext(transferAction25_);
+	transferAction25_->setPrevious(transferAction24_);
 }
 
 SGMBeamline::~SGMBeamline()

@@ -5,21 +5,46 @@ SGMSampleTransferView::SGMSampleTransferView(QWidget *parent) :
 {
 	mainLayout_ = new QStackedLayout();
 
-	loadlockOutButton_ = new QPushButton("Transfer sample out of loadlock");
-	loadlockInButton_ = new QPushButton("Transfer sample into loadlock");
-	QList<QPushButton*> buttons;
-	buttons.append(loadlockOutButton_);
-	buttons.append(loadlockInButton_);
-	transferBox_ = new SGMSampleTransferProceduresView("Transfer Procedures", buttons);
-	loadlockOut_ = new SGMSampleTransferPaneView(SGMBeamline::sgm()->transferOutActions(), "Transfer Out of Loadlock");
-	loadlockIn_ = new SGMSampleTransferPaneView(SGMBeamline::sgm()->transferInActions(), "Transfer Into Loadlock");
-	connect(loadlockOutButton_, SIGNAL(clicked()), this, SLOT(drawLoadlockOut()));
-	connect(loadlockInButton_, SIGNAL(clicked()), this, SLOT(drawLoadlockIn()));
-	connect(loadlockOut_, SIGNAL(completed()), this, SLOT(drawMain()));
-	connect(loadlockIn_, SIGNAL(completed()), this, SLOT(drawMain()));
+	QPushButton* tmpButton;
+	tmpButton = new QPushButton("Transfer sample out of loadlock");
+	transferButtons_.append(tmpButton);
+	tmpButton = new QPushButton("Transfer sample into loadlock");
+	transferButtons_.append(tmpButton);
+	tmpButton = new QPushButton("Transfer sample out of chamber");
+	transferButtons_.append(tmpButton);
+	tmpButton = new QPushButton("Transfer sample into chamber");
+	transferButtons_.append(tmpButton);
+
+	transferBox_ = new SGMSampleTransferProceduresView("Transfer Procedures", transferButtons_);
+	SGMSampleTransferPaneView* tmpPane;
+	tmpPane = new SGMSampleTransferPaneView(SGMBeamline::sgm()->transferLoadlockOutActions(), "Transfer Out of Loadlock");
+	transferPanes_.append(tmpPane);
+	tmpPane = new SGMSampleTransferPaneView(SGMBeamline::sgm()->transferLoadlockInActions(), "Transfer Into Loadlock");
+	transferPanes_.append(tmpPane);
+	tmpPane = new SGMSampleTransferPaneView(SGMBeamline::sgm()->transferChamberOutActions(), "Transfer Out of Chamber");
+	transferPanes_.append(tmpPane);
+	tmpPane = new SGMSampleTransferPaneView(SGMBeamline::sgm()->transferChamberInActions(), "Transfer Into Chamber");
+	transferPanes_.append(tmpPane);
+
 	mainLayout_->addWidget(transferBox_);
-	mainLayout_->addWidget(loadlockOut_);
-	mainLayout_->addWidget(loadlockIn_);
+	for(int x = 0; x < transferPanes_.count(); x++){
+		mainLayout_->addWidget(transferPanes_.at(x));
+		connect(transferPanes_.at(x), SIGNAL(completed()), this, SLOT(drawMain()));
+		switch(x){
+		case 0:
+			connect(transferButtons_.at(x), SIGNAL(clicked()), this, SLOT(drawIndex1()));
+			break;
+		case 1:
+			connect(transferButtons_.at(x), SIGNAL(clicked()), this, SLOT(drawIndex2()));
+			break;
+		case 2:
+			connect(transferButtons_.at(x), SIGNAL(clicked()), this, SLOT(drawIndex3()));
+			break;
+		case 3:
+			connect(transferButtons_.at(x), SIGNAL(clicked()), this, SLOT(drawIndex4()));
+			break;
+		}
+	}
 	setLayout(mainLayout_);
 }
 
@@ -27,15 +52,35 @@ void SGMSampleTransferView::drawMain(){
 	mainLayout_->setCurrentIndex(0);
 }
 
-void SGMSampleTransferView::drawLoadlockOut(){
+void SGMSampleTransferView::drawIndex1(){
 	mainLayout_->setCurrentIndex(1);
-	loadlockOut_->startPane();
+	transferPanes_.at(0)->startPane();
 }
 
-void SGMSampleTransferView::drawLoadlockIn(){
+void SGMSampleTransferView::drawIndex2(){
 	mainLayout_->setCurrentIndex(2);
-	loadlockIn_->startPane();
+	transferPanes_.at(1)->startPane();
 }
+
+void SGMSampleTransferView::drawIndex3(){
+	mainLayout_->setCurrentIndex(3);
+	transferPanes_.at(2)->startPane();
+}
+
+void SGMSampleTransferView::drawIndex4(){
+	mainLayout_->setCurrentIndex(4);
+	transferPanes_.at(3)->startPane();
+}
+
+//void SGMSampleTransferView::drawLoadlockOut(){
+//	mainLayout_->setCurrentIndex(1);
+//	loadlockOut_->startPane();
+//}
+
+//void SGMSampleTransferView::drawLoadlockIn(){
+//	mainLayout_->setCurrentIndex(2);
+//	loadlockIn_->startPane();
+//}
 
 
 SGMSampleTransferProceduresView::SGMSampleTransferProceduresView(const QString &title, QList<QPushButton*> procedureButtons, QWidget *parent) :

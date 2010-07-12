@@ -24,14 +24,20 @@ public slots:
 
 private slots:
 	void drawMain();
-	void drawLoadlockOut();
-	void drawLoadlockIn();
+//	void drawLoadlockOut();
+//	void drawLoadlockIn();
+	void drawIndex1();// { mainLayout_->setCurrentIndex(1); transferPanes_.at(0)->startPane();}
+	void drawIndex2();// { mainLayout_->setCurrentIndex(2); transferPanes_.at(1)->startPane();}
+	void drawIndex3();// { mainLayout_->setCurrentIndex(3); transferPanes_.at(2)->startPane();}
+	void drawIndex4();// { mainLayout_->setCurrentIndex(4); transferPanes_.at(3)->startPane();}
 
 protected:
-	QPushButton *loadlockOutButton_;
-	QPushButton *loadlockInButton_;
-	SGMSampleTransferPaneView *loadlockOut_;
-	SGMSampleTransferPaneView *loadlockIn_;
+//	QPushButton *loadlockOutButton_;
+//	QPushButton *loadlockInButton_;
+	QList<QPushButton*> transferButtons_;
+	QList<SGMSampleTransferPaneView*> transferPanes_;
+//	SGMSampleTransferPaneView *loadlockOut_;
+//	SGMSampleTransferPaneView *loadlockIn_;
 	SGMSampleTransferProceduresView *transferBox_;
 	QStackedLayout *mainLayout_;
 };

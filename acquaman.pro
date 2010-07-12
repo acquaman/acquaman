@@ -159,7 +159,9 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
     source/ui/AMRegionsLineView.h \
     source/beamline/AMBeamlineActionItem.h \
     source/beamline/AMBeamlineControlAction.h \
-    source/ui/SGMSampleTransferView.h
+    source/ui/SGMSampleTransferView.h \
+    source/ui/SGMSamplePositioner.h \
+    source/ui/AMCameraWidget.h
 FORMS += source/ui/AbsorptionScanController.ui \
     source/ui/BottomBar.ui \
     source/ui/ConnectionSettings.ui \
@@ -257,6 +259,8 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
     source/ui/AMRegionsLineView.cpp \
     source/beamline/AMBeamlineActionItem.cpp \
     source/beamline/AMBeamlineControlAction.cpp \
-    source/ui/SGMSampleTransferView.cpp
+    source/ui/SGMSampleTransferView.cpp \
+    source/ui/SGMSamplePositioner.cpp \
+    source/ui/AMCameraWidget.cpp
 RESOURCES = source/icons/icons.qrc
 OTHER_FILES += source/muParser/README.txt
