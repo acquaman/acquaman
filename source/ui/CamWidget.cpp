@@ -7,6 +7,7 @@
 
 #include <QDebug>
 
+
 CamWidget::CamWidget(const QString& cameraName, const QUrl& cameraAddress, QWidget* parent) : QWidget(parent) {
 	
 	// Setup UI:
@@ -17,7 +18,7 @@ CamWidget::CamWidget(const QString& cameraName, const QUrl& cameraAddress, QWidg
 	QHBoxLayout* hl1 = new QHBoxLayout();
 	
 	// VideoWidget takes up main space:
-	videoWidget_ = new Phonon::VideoWidget();
+	videoWidget_ = new AMCrosshairVideoWidget();
 	
 	vl1->addWidget(videoWidget_);
 	

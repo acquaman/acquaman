@@ -1,7 +1,7 @@
 #include "AMScanView.h"
 #include <QGraphicsWidget>
 
-
+#include <QScrollBar>
 
 AMScanViewScanBar::AMScanViewScanBar(AMScanSetModel* model, int scanIndex, QWidget* parent)
 	: QFrame(parent)
@@ -21,6 +21,10 @@ AMScanViewScanBar::AMScanViewScanBar(AMScanSetModel* model, int scanIndex, QWidg
 
 	AMScan* source = model->scanAt(scanIndex_);
 
+
+	// UI Setup:
+	///////////////////////
+
 	QHBoxLayout* hl = new QHBoxLayout();
 	nameLabel_ = new QLabel();
 	if(source)
@@ -29,9 +33,30 @@ AMScanViewScanBar::AMScanViewScanBar(AMScanSetModel* model, int scanIndex, QWidg
 	hl->addWidget(nameLabel_);
 	hl->addStretch(0.5);
 
+	scrollLayout_ = new QHBoxLayout();
+	scrollLayout_->setSpacing(0);
+	scrollLayout_->setContentsMargins(0,0,0,0);
+
+	scrollLeftButton_ = new QToolButton();
+	scrollLeftButton_->setArrowType(Qt::LeftArrow);
+	scrollLeftButton_->setAutoRepeat(true);
+	scrollRightButton_ = new QToolButton();
+	scrollRightButton_->setArrowType(Qt::RightArrow);
+	scrollRightButton_->setAutoRepeat(true);
+
+	scrollLayout_->addWidget(scrollLeftButton_);
+
+	scrollArea_ = new AMScrollArea();
+	scrollWidget_ = new AMSizeSignallingWidget();
+	scrollArea_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	scrollArea_->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	chButtonLayout_ = new QHBoxLayout();
 	chButtonLayout_->setSpacing(0);
-	hl->addLayout(chButtonLayout_);
+	chButtonLayout_->setContentsMargins(0,0,0,0);
+	chButtonLayout_->setSizeConstraint(QLayout::SetMinAndMaxSize);
+	//chButtonLayout_->setSizeConstraint(QLayout::SetFixedSize);
+	scrollWidget_->setLayout(chButtonLayout_);
+	//scrollWidget_->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	if(source) {
 		for(int i=0; i<source->numChannels(); i++) {
 			QToolButton* cb = new QToolButton();
@@ -44,6 +69,14 @@ AMScanViewScanBar::AMScanViewScanBar(AMScanSetModel* model, int scanIndex, QWidg
 			chButtonLayout_->addWidget(cb);
 		}
 	}
+	scrollArea_->setWidget(scrollWidget_);
+	connect(scrollWidget_, SIGNAL(resized(QSize)), this, SLOT(onScrollWidgetResized(QSize)));
+
+	scrollArea_->setFrameStyle(QFrame::NoFrame);
+	scrollArea_->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
+	scrollLayout_->addWidget(scrollArea_);
+	scrollLayout_->addWidget(scrollRightButton_);
+	hl->addLayout(scrollLayout_);
 	hl->addStretch(1);
 
 	closeButton_ = new QToolButton();
@@ -54,9 +87,11 @@ AMScanViewScanBar::AMScanViewScanBar(AMScanSetModel* model, int scanIndex, QWidg
 	hl->setSpacing(24);
 	setLayout(hl);
 
-	this->setAutoFillBackground(true);
-	ensurePolished();
+	//unnecessary: this->setAutoFillBackground(true);
+	//unnecessary: ensurePolished();
 
+
+	///
 
 	connect(model, SIGNAL(rowsInserted(QModelIndex, int, int)), this, SLOT(onRowInserted(QModelIndex,int,int)));
 	connect(model, SIGNAL(rowsAboutToBeRemoved(QModelIndex, int, int)), this, SLOT(onRowAboutToBeRemoved(QModelIndex,int,int)));
@@ -68,6 +103,17 @@ AMScanViewScanBar::AMScanViewScanBar(AMScanSetModel* model, int scanIndex, QWidg
 
 	connect(closeButton_, SIGNAL(clicked()), this, SLOT(onCloseButtonClicked()));
 
+	connect(scrollLeftButton_, SIGNAL(clicked()), this, SLOT(onScrollButtonClicked()));
+	connect(scrollRightButton_, SIGNAL(clicked()), this, SLOT(onScrollButtonClicked()));
+
+}
+
+void AMScanViewScanBar::onScrollButtonClicked() {
+	if(sender() == scrollLeftButton_)
+		scrollArea_->horizontalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepSub);
+
+	if(sender() == scrollRightButton_)
+		scrollArea_->horizontalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepAdd);
 }
 
 
