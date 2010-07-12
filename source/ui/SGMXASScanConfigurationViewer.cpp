@@ -34,15 +34,21 @@ SGMXASScanConfigurationViewer::SGMXASScanConfigurationViewer(QWidget *parent)  :
 		sxsc->addRegion(2, 1000, 4, 1100);
 
 		sxsc->addRegion(1, 850, 1, 970);
+
+		regionsLineView_ = new AMRegionsLineView(sxsc->regions(), this);
+
 		regionsView_ = new AMXASRegionsView(sxsc->regions(), this);
 		regionsView_->setBeamlineEnergy(SGMBeamline::sgm()->energy());
 		connect(regionsView_, SIGNAL(addRegionClicked()), this, SLOT(onAddRegionClicked()));
-		fluxResolutionView_ = new AMControlOptimizationSetView((AMControlOptimizationSet*)(sxsc->fluxResolutionSet()), this);
+/*		fluxResolutionView_ = new AMControlOptimizationSetView((AMControlOptimizationSet*)(sxsc->fluxResolutionSet()), this);
 		fluxResolutionView_->onRegionsUpdate(sxsc->regions());
 		connect( ((QSpinBox*)(fluxResolutionView_->boxByName("grating"))), SIGNAL(valueChanged(int)), sxsc, SLOT(setGrating(int)) );
 		((QSpinBox*)(fluxResolutionView_->boxByName("harmonic")))->setSingleStep(2);
 		connect( ((QSpinBox*)(fluxResolutionView_->boxByName("harmonic"))), SIGNAL(valueChanged(int)), sxsc, SLOT(setHarmonic(int)) );
 		connect( ((QDoubleSpinBox*)(fluxResolutionView_->boxByName("exitSlitGap"))), SIGNAL(valueChanged(double)), sxsc, SLOT(setExitSlitGap(double)) );
+*/
+		fluxResolutionView2_ = new AMCompactControlOptimizationSetView((AMControlOptimizationSet*)(sxsc->fluxResolutionSet()), this);
+
 
 		trackingView_ = new AMControlSetView(sxsc->trackingSet(), this);
 		connect( ((QSpinBox*)(trackingView_->boxByName("undulatorTracking"))), SIGNAL(valueChanged(int)), sxsc, SLOT(setUndulatorTracking(int)) );
@@ -58,12 +64,18 @@ SGMXASScanConfigurationViewer::SGMXASScanConfigurationViewer(QWidget *parent)  :
 		connect(startScanButton_, SIGNAL(clicked()), this, SLOT(onStartScanClicked()));
 		delete doLayoutButton;
 		delete layout();
+		vl_.setSpacing(0);
+		vl_.addWidget(regionsLineView_);
 		vl_.addWidget(regionsView_);
-		vl_.addWidget(fluxResolutionView_);
+		vl_.addSpacing(40);
+//		vl_.addWidget(fluxResolutionView_);
+		vl_.addWidget(fluxResolutionView2_);
 		vl_.addWidget(trackingView_);
 		vl_.addWidget(detectorView_);
 		vl_.addWidget(startScanButton_);
+		qDebug() << "Spacing " << vl_.spacing();
 		this->setLayout(&vl_);
+		this->setMaximumSize(800, 800);
 	}
 }
 

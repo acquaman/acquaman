@@ -75,6 +75,30 @@ bool AMRegionsList::addRegion(size_t index, double start, double delta, double e
 	return retVal;
 }
 
+bool AMRegionsList::addRegionSqueeze(size_t index){
+	double nextStart, nextEnd, prevStart, prevEnd;
+	double sensibleStart = 200;
+	double sensibleEnd = 2000;
+	if(count() == 0){
+		return addRegion(index, sensibleStart, 1, sensibleEnd);
+	}
+	else if(index == 0){
+		nextStart = start(index);
+		return addRegion(index, sensibleStart, 1, nextStart);
+	}
+	else if(index == count()){
+		prevEnd = end(index-1);
+		return addRegion(index, prevEnd, 1, sensibleEnd);
+	}
+	else{
+		prevStart = start(index-1);
+		prevEnd = end(index-1);
+		nextStart = start(index);
+		nextEnd = end(index);
+		return addRegion(index, prevStart+(prevEnd-prevStart)/2, 1, nextStart+(nextEnd-nextStart)/2 );
+	}
+}
+
 bool AMRegionsList::deleteRegion(size_t index){
 	if(count() == 0)
 		return false;
@@ -103,14 +127,21 @@ bool AMRegionsList::deleteRegion(size_t index){
 		regions_->setData(regions_->index(index+1, 4), true, Qt::EditRole);
 		connect(regions_->regions()->at(index-1), SIGNAL(endChanged(double)), regions_->regions()->at(index+1), SLOT(adjustStart(double)));
 		connect(regions_->regions()->at(index+1), SIGNAL(startChanged(double)), regions_->regions()->at(index-1), SLOT(adjustEnd(double)));
-//		regions_->regions()->at(index+1)->setStart(end);
-//		regions_->setData(regions_->index(index, 4), true, Qt::EditRole);
-//		regions_->setData(regions_->index(index-1, 5), true, Qt::EditRole);
-//		connect(regions_->regions()->at(index), SIGNAL(startChanged(double)), regions_->regions()->at(index-1), SLOT(adjustEnd(double)));
-//		connect(regions_->regions()->at(index-1), SIGNAL(endChanged(double)), regions_->regions()->at(index), SLOT(adjustStart(double)));
-//		regions_->regions()->at(index-1)->setEnd(start);
 	}
 	return regions_->removeRows(index, 1);
+}
+
+bool AMRegionsList::deleteRegionSqueeze(size_t index){
+	bool retVal = deleteRegion(index);
+	if(retVal){
+		if( (index != 0) && (index != count()) ){
+			double prevEnd, nextStart;
+			prevEnd = end(index-1);
+			nextStart = start(index);
+			setEnd(index-1, prevEnd+(nextStart-prevEnd)/2);
+		}
+	}
+	return retVal;
 }
 
 bool AMRegionsList::setupModel(){

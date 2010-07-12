@@ -7,10 +7,13 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QFormLayout>
+#include <QGridLayout>
 #include <QLabel>
 #include <QAbstractSpinBox>
 #include <QDoubleSpinBox>
 #include <QSpinBox>
+#include <QPushButton>
+#include <QSlider>
 #include <QCheckBox>
 
 #include "../MPlot/src/MPlot/MPlotWidget.h"
@@ -91,6 +94,26 @@ public slots:
 protected:
 	MPlotRealtimeModel *data1;
 	MPlotRealtimeModel *data2;
+};
+
+class AMCompactControlOptimizationSetView : public QGroupBox
+{
+	Q_OBJECT
+public:
+	AMCompactControlOptimizationSetView(AMControlSet *viewSet, QWidget *parent = 0);
+
+protected slots:
+	//bool launchDetails();
+	bool adjustSlider(int val);
+
+protected:
+	AMControlOptimizationSet *viewSet_;
+	QPushButton *launchDetailButton_;
+	QLabel *optValue_;
+	QList<QWidget*> controlBoxes_;
+	QHBoxLayout *hl_;
+	AMControlOptimizationSetView *detailView_;
+	double maxUpper, minUpper, maxLower, minLower;
 };
 
 class AMAbstractDetectorSetView : public QGroupBox

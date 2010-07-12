@@ -21,8 +21,9 @@ private slots:
 		AMPVNames::load();
 		AMFirstTimeController();
 
-
+		qDebug() << "Starting up SGM";
 		SGMBeamline::sgm();
+		qDebug() << "Created SGM";
 		bool sgmConnected = false;
 		while(!sgmConnected){
 			if(SGMBeamline::sgm()->isConnected())
@@ -30,6 +31,15 @@ private slots:
 			QTest::qWait(250);
 		}
 		QVERIFY(SGMBeamline::sgm()->isConnected());
+
+		qDebug() << "Prior to waiting";
+		QTest::qWait(2000);
+		qDebug() << "About to action grating";
+		SGMBeamline::sgm()->gratingAction()->start();
+		qDebug() << "After action grating";
+		QTest::qWait(5000);
+		SGMBeamline::sgm()->startTransfer();
+		qDebug() << "After final wait";
 	}
 
 	void testAMRegions()

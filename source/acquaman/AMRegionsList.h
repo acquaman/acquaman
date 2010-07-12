@@ -35,10 +35,12 @@ public slots:
 	/// Pure virtual function. Should be implemented in beamline specific subclasses as a convenience function for above.
 	/// Creates a new region using start, delta, and end values then calls addRegion(index, *region).
 	virtual bool addRegion(size_t index, double start, double delta, double end);
+	virtual bool addRegionSqueeze(size_t index);
 	virtual bool appendRegion(double start, double delta, double end){ return addRegion(count(), start, delta, end);}
 
 	/// Deletes the region refered to by index and renumbers subsequent regions accordingly. Returns true if successful, return false if index is invalid.
 	bool deleteRegion(size_t index);
+	bool deleteRegionSqueeze(size_t index);
 	void setDefaultControl(AMControl* defaultControl){defaultControl_ = defaultControl; regions_->setDefaultControl(defaultControl);}
 
 private slots:

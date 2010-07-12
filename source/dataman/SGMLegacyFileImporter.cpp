@@ -97,9 +97,14 @@ bool SGMLegacyFileImporter::loadFromFile(const QString& filepath) {
 	// ensure raw data columns exist:
 	scan_->d_->removeAll();	// remove all non-pricipal columns
 
+	AMAbstractDetector *sgmDetector;
 	foreach(QString colName, colNames1) {
 		if(colName != "eV" && colName != "Event-ID" && sgmLegacyDetectorNames_.contains(colName))
 			scan_->addDetector(sgmLegacyDetectors_.at(sgmLegacyDetectorNames_.indexOf(colName)));
+		else if(colName != "eV" && colName != "Event-ID"){
+			sgmDetector = new AMAbstractDetector(colName, false);
+			scan_->addDetector(sgmDetector);
+		}
 	}
 
 	// read all the data. Add to data columns or scan properties depending on the event-ID.

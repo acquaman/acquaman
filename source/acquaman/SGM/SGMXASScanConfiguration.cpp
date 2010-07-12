@@ -11,10 +11,10 @@ SGMXASScanConfiguration::SGMXASScanConfiguration(QObject *parent) : AMXASScanCon
 	tmpCh.second = "eV";
 	defaultChannels_.append(tmpCh);
 	tmpCh.first = "NormTEY";
-	tmpCh.second = "tey/I0";
+	tmpCh.second = "2000*tey/I0";
 	defaultChannels_.append(tmpCh);
 	tmpCh.first = "NormTFY";
-	tmpCh.second = "tfy/I0";
+	tmpCh.second = "-2000*tfy/I0";
 	defaultChannels_.append(tmpCh);
 	tmpCh.first = "PGT@130";
 	tmpCh.second = "pgt.pgtCounts[130]";

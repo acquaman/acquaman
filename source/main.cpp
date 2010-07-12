@@ -56,6 +56,8 @@
 
 
 #include "ui/ConnectionSettings.h"
+#include "ui/SGMSampleTransferView.h"
+#include "ui/SGMSamplePositioner.h"
 #include "ui/SamplePositions.h"
 #include "ui/GratingResolution.h"
 #include "ui/AbsorptionScanController.h"
@@ -99,6 +101,8 @@ int main(int argc, char *argv[])
 	/// \todo Move to MainWindowController:
 
 	mw.addPane(new ConnectionSettings(), "Beamline Control", "Dev Playground", ":/network-workgroup.png");
+	mw.addPane(new SGMSampleTransferView(), "Beamline Control", "SGM Sample Transfer", ":/system-software-update.png");
+	mw.addPane(new SGMSamplePositioner(), "Beamline Control", "SGM Sample Position", ":/system-software-update.png");
 	mw.addPane(new SamplePositions(), "Beamline Control", "Sample Positions", ":/system-software-update.png");
 	mw.addPane(new GratingResolution(), "Beamline Control", "Gratings and Resolution", ":/system-search.png");
 

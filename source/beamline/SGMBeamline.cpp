@@ -28,6 +28,8 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 //	amNames2pvNames_.set("pgt", "dave:PGT");
 	amNames2pvNames_.set("pgt", "reixsHost:sdd:spectrum");
 	amNames2pvNames_.set("I0", "reixsHost:I0");
+	amNames2pvNames_.set("loadlockCCG", "dave:Endstation:loadlock:ccg");
+	amNames2pvNames_.set("loadlockTCG", "dave:Endstation:loadlock:tcg");
 
 	ringCurrent_ = new AMReadOnlyPVControl("ringCurrent", AMPVNames::toPV("ringCurrent"), this);
 	addChild(ringCurrent_);
@@ -61,6 +63,7 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	sgmPVName = amNames2pvNames_.valueF("grating");
 	grating_ = new AMPVwStatusControl("grating", sgmPVName, sgmPVName, sgmPVName+":moving", this, 0.1);
 	addChild(grating_);
+	gratingAction_ = new SGMGratingAction(grating_, this);
 	sgmPVName = amNames2pvNames_.valueF("harmonic");
 	harmonic_ = new AMPVwStatusControl("harmonic", sgmPVName, sgmPVName, sgmPVName+":moving", this, 0.1);
 	addChild(harmonic_);
@@ -95,15 +98,22 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	eVFbk_ = new AMReadOnlyPVControl("eVFbk", sgmPVName, this);
 	addChild(eVFbk_);
 	eVFbkDetector_ = new AMSingleControlDetector(eVFbk_->name(), eVFbk_, this);
+	sgmPVName = amNames2pvNames_.valueF("loadlockCCG");
+	loadlockCCG_ = new AMReadOnlyPVControl("loadlockCCG", sgmPVName, this);
+	sgmPVName = amNames2pvNames_.valueF("loadlockTCG");
+	loadlockTCG_ = new AMReadOnlyPVControl("loadlockTCG", sgmPVName, this);
 
 	fluxOptimization_ = new SGMFluxOptimization(this);
+	fluxOptimization_->setDescription("Flux");
 	resolutionOptimization_ = new SGMResolutionOptimization(this);
+	resolutionOptimization_->setDescription("Resolution");
 	fluxResolutionSet_ = new AMControlOptimizationSet(this);
 	fluxResolutionSet_->setName("Flux and Resolution");
 	fluxResolutionSet_->addControl(grating_);
 	fluxResolutionSet_->addControl(harmonic_);
 	fluxResolutionSet_->addControl(exitSlitGap_);
 	((AMControlOptimizationSet*)fluxResolutionSet_)->addOptimization(fluxOptimization_);
+	((AMControlOptimizationSet*)fluxResolutionSet_)->addOptimization(resolutionOptimization_);
 
 	trackingSet_ = new AMControlSet(this);
 	trackingSet_->setName("Tracking");
@@ -125,6 +135,84 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	XASDetectors_->addDetector(tfyDetector_, true);
 	XASDetectors_->addDetector(pgtDetector_, false);
 
+	transferAction1_ = new SGMTransferAction1(this);
+	transferAction2_ = new SGMTransferAction2(this);
+	connect(loadlockCCG_, SIGNAL(valueChanged(double)), transferAction2_, SLOT(checkValue(double)));
+	transferAction3_ = new SGMTransferAction3(this);
+	transferAction4_ = new SGMTransferAction4(this);
+	transferAction5_ = new SGMTransferAction5(this);
+	connect(loadlockTCG_, SIGNAL(valueChanged(double)), transferAction5_, SLOT(checkValue(double)));
+	transferAction6_ = new SGMTransferAction6(this);
+
+	transferAction7_ = new SGMTransferAction7(this);
+	transferAction8_ = new SGMTransferAction8(this);
+	transferAction9_ = new SGMTransferAction9(this);
+	connect(loadlockTCG_, SIGNAL(valueChanged(double)), transferAction9_, SLOT(checkValue(double)));
+	transferAction10_ = new SGMTransferAction10(this);
+	transferAction11_ = new SGMTransferAction11(this);
+	connect(loadlockCCG_, SIGNAL(valueChanged(double)), transferAction11_, SLOT(checkValue(double)));
+	transferAction12_ = new SGMTransferAction12(this);
+	connect(loadlockCCG_, SIGNAL(valueChanged(double)), transferAction12_, SLOT(checkValue(double)));
+
+	transferAction13_ = new SGMTransferAction13(this);
+	transferAction14_ = new SGMTransferAction14(this);
+	transferAction15_ = new SGMTransferAction15(this);
+	transferAction16_ = new SGMTransferAction16(this);
+	transferAction17_ = new SGMTransferAction17(this);
+	transferAction18_ = new SGMTransferAction18(this);
+	transferAction19_ = new SGMTransferAction19(this);
+	transferAction20_ = new SGMTransferAction20(this);
+	transferAction21_ = new SGMTransferAction21(this);
+	transferAction22_ = new SGMTransferAction22(this);
+	transferAction23_ = new SGMTransferAction23(this);
+	transferAction24_ = new SGMTransferAction24(this);
+	transferAction25_ = new SGMTransferAction25(this);
+
+	transferAction1_->setNext(transferAction2_);
+	transferAction2_->setPrevious(transferAction1_);
+	transferAction2_->setNext(transferAction3_);
+	transferAction3_->setPrevious(transferAction2_);
+	transferAction3_->setNext(transferAction4_);
+	transferAction4_->setPrevious(transferAction3_);
+	transferAction4_->setNext(transferAction5_);
+	transferAction5_->setPrevious(transferAction4_);
+	transferAction5_->setNext(transferAction6_);
+	transferAction6_->setPrevious(transferAction5_);
+
+	transferAction7_->setNext(transferAction8_);
+	transferAction8_->setPrevious(transferAction7_);
+	transferAction8_->setNext(transferAction9_);
+	transferAction9_->setPrevious(transferAction8_);
+	transferAction9_->setNext(transferAction10_);
+	transferAction10_->setPrevious(transferAction9_);
+	transferAction10_->setNext(transferAction11_);
+	transferAction11_->setPrevious(transferAction10_);
+	transferAction11_->setNext(transferAction12_);
+	transferAction12_->setPrevious(transferAction11_);
+
+	transferAction13_->setNext(transferAction14_);
+	transferAction14_->setPrevious(transferAction13_);
+	transferAction14_->setNext(transferAction15_);
+	transferAction15_->setPrevious(transferAction14_);
+	transferAction15_->setNext(transferAction16_);
+	transferAction16_->setPrevious(transferAction15_);
+	transferAction16_->setNext(transferAction17_);
+	transferAction17_->setPrevious(transferAction16_);
+	transferAction17_->setNext(transferAction18_);
+	transferAction18_->setPrevious(transferAction17_);
+	transferAction18_->setNext(transferAction19_);
+	transferAction19_->setPrevious(transferAction18_);
+	transferAction19_->setNext(transferAction20_);
+	transferAction20_->setPrevious(transferAction19_);
+
+	transferAction21_->setNext(transferAction22_);
+	transferAction22_->setPrevious(transferAction21_);
+	transferAction22_->setNext(transferAction23_);
+	transferAction23_->setPrevious(transferAction22_);
+	transferAction23_->setNext(transferAction24_);
+	transferAction24_->setPrevious(transferAction23_);
+	transferAction24_->setNext(transferAction25_);
+	transferAction25_->setPrevious(transferAction24_);
 }
 
 SGMBeamline::~SGMBeamline()
@@ -155,6 +243,32 @@ bool SGMBeamline::energyRangeValidForSettings(sgmGrating grating, sgmHarmonic ha
 		return true;
 	else
 		return false;
+}
+
+QList< QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic> > SGMBeamline::gratingHarmonicForEnergyRange(double minEnergy, double maxEnergy){
+	QList< QPair<sgmGrating, sgmHarmonic> > rVal;
+	if( (maxEnergy > 240) && (maxEnergy < 750) && (minEnergy > 240) && (minEnergy < 750) )
+		rVal.append(QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic>((SGMBeamline::sgmGrating)0, (SGMBeamline::sgmHarmonic)1 ));
+	if((maxEnergy > 440) && (maxEnergy < 1200) && (minEnergy > 440) && (minEnergy < 1200) )
+		rVal.append(QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic>((SGMBeamline::sgmGrating)1, (SGMBeamline::sgmHarmonic)1 ));
+	if( (maxEnergy > 800) && (maxEnergy < 1100) && (minEnergy > 800) && (minEnergy < 1100) )
+		rVal.append(QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic>((SGMBeamline::sgmGrating)2, (SGMBeamline::sgmHarmonic)1 ));
+	if( (maxEnergy > 1100) && (maxEnergy < 2000) && (minEnergy > 1100) && (minEnergy < 2000) )
+		rVal.append(QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic>((SGMBeamline::sgmGrating)2, (SGMBeamline::sgmHarmonic)3 ));
+	return rVal;
+}
+
+QPair<double, double> SGMBeamline::energyRangeForGratingHarmonic(SGMBeamline::sgmGrating grating, SGMBeamline::sgmHarmonic harmonic){
+	QPair<double, double> rVal;
+	if( (grating == 0) && (harmonic == 1) )
+		rVal = QPair<double, double>(240, 750);
+	else if( (grating == 1) && (harmonic == 1) )
+		rVal = QPair<double, double>(440, 1200);
+	else if( (grating == 2) && (harmonic == 1) )
+		rVal = QPair<double, double>(800, 1100);
+	else if( (grating == 2) && (harmonic == 3) )
+		rVal = QPair<double, double>(1100, 2000);
+	return rVal;
 }
 
 SGMBeamline* SGMBeamline::sgm() {
@@ -340,4 +454,13 @@ double SGMResolutionOptimization::minimumEnergy(AMRegionsList* regions){
 		curMin = (regions->end(x) < curMin ? regions->end(x) : curMin);
 	}
 	return curMin;
+}
+
+SGMGratingAction::SGMGratingAction(AMControl* grating, QObject *parent) :
+		AMBeamlineControlAction(grating, "", parent)
+{
+}
+
+void SGMGratingAction::start(){
+	((AMPVwStatusControl*)control_)->move(1);
 }
