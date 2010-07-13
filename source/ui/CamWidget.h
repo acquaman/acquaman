@@ -9,6 +9,8 @@
 #include <QPaintEvent>
 #include <QPainter>
 
+#include <QDebug>
+
 /// A replacement for Phonon::VideoWidget that can display a cross-hair and emit signals when clicked in a specific position.
 
 class AMCrosshairVideoWidget : public Phonon::VideoWidget {
@@ -56,6 +58,7 @@ protected:
 		Phonon::VideoWidget::paintEvent(event);
 
 		if(crosshairVisible_) {
+			qDebug() << "drawing line...";
 			QPainter painter(this);
 			painter.setPen(crosshairPen_);
 			painter.drawLine(QPointF(width()*crosshairX_, 0), QPointF(width()*crosshairX_, height()));
@@ -64,7 +67,7 @@ protected:
 		}
 	}
 
-
+	//virtual void
 
 };
 

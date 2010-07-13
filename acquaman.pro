@@ -6,14 +6,12 @@ macx {
     EPICS_INCLUDE_DIRS = /Users/mboots/dev/epics/14-11/base/include \
         /Users/mboots/dev/epics/14-11/base/include/os/Darwin
     EPICS_LIB_DIR = /Users/mboots/dev/epics/14-11/base/lib/darwin-x86
-    PHONON_INCLUDE_DIR = /Library/Frameworks/phonon.framework/Versions/Current/Headers
     MPLOT_INCLUDE_DIR = /Users/mboots/dev/MPlot/src
 }
 linux-g++ { 
     EPICS_INCLUDE_DIRS = /home/reixs/beamline/programming/epics/base/include \
         /home/reixs/beamline/programming/epics/base/include/os/Linux
     EPICS_LIB_DIR = /home/reixs/beamline/programming/epics/base/lib/linux-x86
-    PHONON_INCLUDE_DIR = /usr/include/qt4/phonon
     
     # include path for MPlot library (header-files only)
     MPLOT_INCLUDE_DIR = /home/reixs/beamline/programming/MPlot/src
@@ -29,7 +27,6 @@ DEPENDPATH += . \
 INCLUDEPATH += . \
     source
 INCLUDEPATH += $$EPICS_INCLUDE_DIRS
-INCLUDEPATH += $$PHONON_INCLUDE_DIR
 INCLUDEPATH += $$MPLOT_INCLUDE_DIR
 
 # Epics channel access linking:
@@ -159,9 +156,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
     source/ui/AMRegionsLineView.h \
     source/beamline/AMBeamlineActionItem.h \
     source/beamline/AMBeamlineControlAction.h \
-    source/ui/SGMSampleTransferView.h \
-    source/ui/SGMSamplePositioner.h \
-    source/ui/AMCameraWidget.h
+	source/ui/SGMSampleTransferView.h
 FORMS += source/ui/AbsorptionScanController.ui \
     source/ui/BottomBar.ui \
     source/ui/ConnectionSettings.ui \
@@ -172,7 +167,8 @@ FORMS += source/ui/AbsorptionScanController.ui \
     source/ui/ProtocolViewer.ui \
     source/ui/SamplePositions.ui \
     source/ui/Scheduler.ui \
-    source/ui/SGMXASScanConfigurationViewer.ui
+	source/ui/SGMXASScanConfigurationViewer.ui \
+	source/ui/AMScanConfigurationView.ui
 SOURCES += source/acquaman/AMAcqScanOutput.cpp \
     source/acquaman/AMAcqScanSpectrumOutput.cpp \
     source/acquaman/AMDacqScanController.cpp \
@@ -259,8 +255,6 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
     source/ui/AMRegionsLineView.cpp \
     source/beamline/AMBeamlineActionItem.cpp \
     source/beamline/AMBeamlineControlAction.cpp \
-    source/ui/SGMSampleTransferView.cpp \
-    source/ui/SGMSamplePositioner.cpp \
-    source/ui/AMCameraWidget.cpp
+	source/ui/SGMSampleTransferView.cpp
 RESOURCES = source/icons/icons.qrc
 OTHER_FILES += source/muParser/README.txt
