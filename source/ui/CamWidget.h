@@ -36,14 +36,17 @@ public slots:
 	void setCrosshairPos(const QPointF& pos) {
 		crosshairX_ = pos.x();
 		crosshairY_ = pos.y();
+		update();
 	}
 
 	void setCrosshairPen(const QPen& pen) {
 		crosshairPen_ = pen;
+		update();
 	}
 
 	void showCrosshair(bool crosshairVisible = true) {
 		crosshairVisible_ = crosshairVisible;
+		update();
 	}
 
 signals:
