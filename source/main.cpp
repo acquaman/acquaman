@@ -69,6 +69,7 @@
 #include "ui/ProtocolViewer.h"
 #include "ui/ExpAlbum.h"
 #include "ui/BottomBar.h"
+#include "ui/AMDataView.h"
 
 #include "AMErrorMonitor.h"
 
@@ -81,17 +82,15 @@ int main(int argc, char *argv[])
 	QApplication app(argc, argv);
 	app.setApplicationName("Acquaman");
 
+	AMErrorMon::enableDebugNotifications(true);
+
 	// Load settings from disk:
 	AMSettings::load();
 	AMUserSettings::load();
 	AMPVNames::load();
 
-
 	// ensure user data folder and database are ready for use
 	AMFirstTimeController();
-
-	// Open up the user database, and ensure tables loaded as required for Scan storage:
-	// AMScan::dbPrepareTables(AMDatabase::userdb());
 
 	//Create the main tab window:
 	AMMainWindow mw;
@@ -118,7 +117,7 @@ int main(int argc, char *argv[])
 	mw.addPane(new Scheduler(), "Experiment Tools", "Scheduler", ":/user-away.png");
 	mw.addPane(new PeriodicTable(), "Experiment Tools", "Periodic Table", ":/applications-science.png");
 	mw.addPane(new ProtocolViewer(), "Experiment Tools", "Protocol", ":/accessories-text-editor.png");
-	mw.addPane(new ExpAlbum(), "Experiment Tools", "My Data", ":/system-file-manager.png");
+	mw.addPane(new AMDataView(), "Experiment Tools", "My Data", ":/system-file-manager.png");
 
 	/// end move to MainWindowController
 

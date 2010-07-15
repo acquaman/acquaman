@@ -97,7 +97,8 @@ HEADERS +=	../MPlot/src/MPlot/MPlot.h	\
 	source/muParser/muParserTokenReader.h	\
 	source/ui/AMFirstTimeWidget.h	\
 	source/ui/AMScanView.h	\
-	source/ui/AMSidebar.h
+	source/ui/AMSidebar.h \
+	source/dataman/AMDatabaseDefinition.h
 FORMS +=
 SOURCES +=	source/AMErrorMonitor.cpp	\
 	source/AMSettings.cpp	\
@@ -118,5 +119,6 @@ SOURCES +=	source/AMErrorMonitor.cpp	\
 	source/muParser/muParserTokenReader.cpp	\
 	source/ui/AMScanView.cpp	\
 	source/ui/AMSidebar.cpp	\
+	source/dataman/AMDatabaseDefinition.cpp \
 	tests.cpp
 RESOURCES =	source/icons/icons.qrc

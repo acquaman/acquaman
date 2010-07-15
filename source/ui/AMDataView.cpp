@@ -1,0 +1,678 @@
+#include "AMDataView.h"
+
+#include "dataman/AMDatabase.h"
+#include "dataman/AMDatabaseDefinition.h"
+#include "AMErrorMonitor.h"
+
+#include <QDebug>
+
+AMDataView::AMDataView(AMDatabase* database, QWidget *parent) :
+    QWidget(parent)
+{
+	db_ = database;
+	runId_ = experimentId_ = -1;
+
+	setupUi(this);
+	sectionLayout_ = new QVBoxLayout();
+	sectionLayout_->setContentsMargins(0,0,0,0);
+	//sectionLayout_->setSpacing(6);
+	sectionLayout_->setAlignment(Qt::AlignTop | Qt::AlignLeft);
+	scrollAreaWidget_->setLayout(sectionLayout_);
+
+	retrieveUserName();
+	headingLabel_->setText(userName_ + "Data");
+
+	// setup button group and make viewmode buttons checkable:
+	viewModeButtonGroup_ = new QButtonGroup(this);
+	viewModeButtonGroup_->addButton(viewModeB1_, AMDataViews::ThumbnailView);
+	viewModeButtonGroup_->addButton(viewModeB2_, AMDataViews::ListView);
+	viewModeButtonGroup_->addButton(viewModeB3_, AMDataViews::FlowView);
+	viewModeButtonGroup_->addButton(viewModeB4_, AMDataViews::DetailView);
+	connect(viewModeButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(setViewMode(int)));
+
+	connect(organizeModeBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onOrganizeModeBoxCurrentIndexChanged(int)));
+
+	// install organize mode options? Nope... we'll do that when showRun or showExperiment is called, in order to install the right ones.
+
+	// change this to change the default first view. (In this case, we show all runs)
+	viewMode_ = AMDataViews::ListView;
+	organizeMode_ = AMDataViews::OrganizeRuns;
+	showRun();
+
+
+}
+
+
+void AMDataView::retrieveUserName() {
+	// Personalize the name:
+	QSqlQuery findName = db_->query();
+	findName.prepare("SELECT value FROM DatabaseInformation WHERE key = 'userName'");
+	if(findName.exec() && findName.next()) {
+		userName_ = findName.value(0).toString();
+		if(userName_.endsWith('s'))
+			userName_.append("' ");
+		else
+			userName_.append("'s ");
+	}
+	else
+		userName_ = "My ";
+}
+
+/// setup this view to show a specific run (or use \c runId = -1 to see all runs)
+void AMDataView::showRun(int runId) {
+	runId_ = runId;
+	runOrExp_ = true;
+	if(runId_ < 0)
+		organizeMode_ = AMDataViews::OrganizeRuns;
+	if(runId_ >= 0 && organizeMode_ == AMDataViews::OrganizeRuns)
+		organizeMode_ = AMDataViews::OrganizeNone;
+	refreshView();
+}
+
+/// setup this view to show a specific experiment (or use \c experimentId = -1 to see all experiments)
+void AMDataView::showExperiment(int experimentId) {
+	experimentId_ = experimentId;
+	runOrExp_ = false;
+	if(experimentId_ < 0)
+		organizeMode_ = AMDataViews::OrganizeExperiments;
+	if(experimentId_ >= 0 && organizeMode_ == AMDataViews::OrganizeExperiments)
+		organizeMode_ = AMDataViews::OrganizeNone;
+	refreshView();
+}
+
+/// Set the headers used to separate and organize scans within a view. The \c mode is one of AMDataViews::OrganizeMode.
+void AMDataView::setOrganizeMode(int mode) {
+
+	if(organizeMode_ == mode)
+		return;
+
+	if(mode < AMDataViews::OrganizeNone || mode > AMDataViews::OrganizeElements)
+		return;
+
+	// one condition not allowed: can't set organizeMode to OrganizeRuns when we're only showing one run:
+	if( !(runOrExp_ && runId_ >= 0 && mode == AMDataViews::OrganizeRuns)
+		&&
+		!(!runOrExp_ && experimentId_ >= 0 && mode == AMDataViews::OrganizeExperiments)
+		) {
+		organizeMode_ = (AMDataViews::OrganizeMode)mode;
+		refreshView();
+	}
+
+	organizeModeBox_->setCurrentIndex(organizeModeBox_->findData(organizeMode_));
+
+}
+
+/// Set the view mode, where \c mode is one of AMDataViews::ViewMode (ThumbnailView, ListView, FlowView, or DetailView)
+void AMDataView::setViewMode(int mode) {
+
+	if(mode < AMDataViews::ThumbnailView || mode > AMDataViews::DetailView)
+		return;
+
+	if(viewMode_ == mode)
+		return;
+
+	viewMode_ = (AMDataViews::ViewMode)mode;
+	viewModeButtonGroup_->button(viewMode_)->setChecked(true);
+	refreshView();
+}
+
+/// called when the combo box is used to change the organizeMode
+void AMDataView::onOrganizeModeBoxCurrentIndexChanged(int newIndex) {
+	setOrganizeMode(organizeModeBox_->itemData(newIndex).toInt());
+}
+
+/// This function runs everytime showRun() or showExperiment() is called, or a change is made to the OrganizeMode or ViewMode.  It re-populates the view from scratch.
+void AMDataView::refreshView() {
+
+	qDebug() << "calling AMDataView::refreshView";
+
+	// delete the old views:
+	foreach(QWidget* s, sections_)
+		delete s;
+	sections_.clear();
+
+
+	refreshOrganizeModeBox();
+
+	// what we do from here depends on what we're showing (ie: run or experiment? all or just one?), as well as the organize mode.
+
+	// Showing runs - all runs, or experiments - all experiments
+	if( (runOrExp_ && runId_<0) || (!runOrExp_ && experimentId_<0) ) {
+
+		if(runOrExp_)
+			headingLabel_->setText(userName_ + "Data: All Runs");
+		else
+			headingLabel_->setText(userName_ + "Data: All Experiments");
+
+		switch(organizeMode_) {
+		case AMDataViews::OrganizeNone:
+			sections_ << new AMDataViewSection(
+					userName_ + "Data",
+					"Showing data from all runs",
+					QString(),
+					viewMode_, db_);
+			break;
+
+		case AMDataViews::OrganizeRuns:
+			{
+				// What runs do we have?
+				bool found = false;
+				QSqlQuery findRunIds = db_->query();
+				findRunIds.setForwardOnly(true);
+				findRunIds.prepare(QString("SELECT id, dateTime, name FROM Runs"));
+				if(findRunIds.exec()) {
+					while(findRunIds.next()) {
+						found = true;
+						int runId = findRunIds.value(0).toInt();
+						QString runName = findRunIds.value(2).toString();
+						QDateTime dateTime = findRunIds.value(1).toDateTime();
+						sections_ << new AMDataViewSection(
+								runName + dateTime.toString(" MMM d (yyyy)"),
+								"Showing all data from this run",
+								QString("runId = %1").arg(runId),
+								viewMode_, db_);
+					}
+					if(!found)
+						sections_ << new AMDataViewEmptyHeader("No runs found.");
+				}
+				else {
+					AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for runs. The database might be corrupted."));
+				}
+			}
+
+			break;
+
+		case AMDataViews::OrganizeExperiments:
+			{
+				// What experiments do we have?
+				bool found = false;
+				QSqlQuery findExperiments = db_->query();
+				findExperiments.setForwardOnly(true);
+				findExperiments.prepare(QString("SELECT id, name FROM Experiments"));
+				if(findExperiments.exec()) {
+					while(findExperiments.next()) {
+						found = true;
+						int expId = findExperiments.value(0).toInt();
+						QString expName = findExperiments.value(1).toString();
+						sections_ << new AMDataViewSection(
+								expName,
+								"Showing all data from this experiment",
+								QString("id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = %1)").arg(expId),
+								viewMode_, db_);
+					}
+					if(!found)
+						sections_ << new AMDataViewEmptyHeader("No experiments found.");
+				}
+				else {
+					AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for experiments. The database might be corrupted."));
+				}
+			}
+			break;
+
+		case AMDataViews::OrganizeScanTypes:
+			{
+				// What scan types do we have?
+				bool found = false;
+				QSqlQuery findTypes = db_->query();
+				findTypes.setForwardOnly(true);
+				findTypes.prepare(QString("SELECT id, description FROM ObjectTypes WHERE id IN (SELECT typeId FROM Objects)"));
+				if(findTypes.exec()) {
+					while(findTypes.next()) {
+						found = true;
+						int typeId = findTypes.value(0).toInt();
+						QString typeDescription = findTypes.value(1).toString();
+						sections_ << new AMDataViewSection(
+								typeDescription,
+								"Showing all " + typeDescription,
+								QString("typeId = %1)").arg(typeId),
+								viewMode_, db_);
+					}
+					if(!found)
+						sections_ << new AMDataViewEmptyHeader("No data types found.");
+				}
+				else {
+					AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for scan types. The database might be corrupted."));
+				}
+			}
+			break;
+
+		case AMDataViews::OrganizeSamples:
+			{
+				// What samples do we have?
+				bool found = false;
+				QSqlQuery findSamples = db_->query();
+				findSamples.setForwardOnly(true);
+				findSamples.prepare("SELECT id, dateTime, name FROM Samples");	/// \todo thumbnail for samples
+				if(findSamples.exec()) {
+					while(findSamples.next()) {
+						found = true;
+						int sampleId = findSamples.value(0).toInt();
+						QDateTime dt = findSamples.value(1).toDateTime();
+						QString name = findSamples.value(2).toString();
+						sections_ << new AMDataViewSection(
+								name,
+								"Sample created on: " + dt.toString("h:mmap MMM d (yyyy)"),
+								QString("sampleId = %1").arg(sampleId),
+								viewMode_, db_);
+					}
+					if(!found)
+						sections_ << new AMDataViewEmptyHeader("No samples found.");
+				}
+				else {
+					AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for samples. The database might be corrupted."));
+				}
+			}
+			break;
+
+		case AMDataViews::OrganizeElements:
+			{
+				// What elements do we have?
+				bool found = false;
+				QSqlQuery findElements = db_->query();
+				findElements.setForwardOnly(true);
+				findElements.prepare("SELECT id, symbol, name FROM Elements WHERE id IN (SELECT elementId FROM SampleElementEntries)");
+				if(findElements.exec()) {
+					while(findElements.next()) {
+						found = true;
+						int elementId = findElements.value(0).toInt();
+						QString symbol = findElements.value(1).toString();
+						QString name = findElements.value(2).toString();
+						sections_ << new AMDataViewSection(
+								symbol + ": " + name,
+								QString("Showing all data from samples containing %1").arg(name),
+								QString("sampleId IN (SELECT sampleId FROM SampleElementEntries WHERE elementId = %1)").arg(elementId),
+								viewMode_, db_);
+					}
+					if(!found)
+						sections_ << new AMDataViewEmptyHeader("No elements found.");
+				}
+				else {
+					AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for elements in samples. The database might be corrupted."));
+				}
+			}
+			break;
+
+		}
+	} // end of: showing all runs or all experiments
+
+
+
+
+	// showing a specific run:
+	if(runOrExp_ && runId_ >= 0) {
+
+		// get run name:
+		QString runName;
+		QDateTime runTime;
+		QSqlQuery runInfo = db_->query();
+		runInfo.prepare("SELECT name, dateTime FROM Runs where id = ?");
+		runInfo.bindValue(0, runId_);
+		if(runInfo.exec() && runInfo.next()) {
+			runName = runInfo.value(0).toString();
+			runTime = runInfo.value(1).toDateTime();
+			headingLabel_->setText(userName_ + "Runs: " + runName + runTime.toString(" MMM d (yyyy)"));
+		}
+		else
+			headingLabel_->setText(userName_ + "Data");
+
+
+		switch(organizeMode_) {
+		case AMDataViews::OrganizeRuns:
+			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, "This view is showing a single run, but the organize mode is set to organize by runs. This doesn't make sense and should never happen. Handling as OrganizeNone."));
+		case AMDataViews::OrganizeNone:
+			sections_ << new AMDataViewSection(
+					runName + runTime.toString(" MMM d (yyyy)"),
+					"Showing all data from this run",
+					QString("runId = %1").arg(runId_),
+					viewMode_, db_);
+			break;
+
+
+		case AMDataViews::OrganizeExperiments:
+			{
+				// What experiments do we have?
+				bool found = false;
+				QSqlQuery findExperiments = db_->query();
+				findExperiments.setForwardOnly(true);
+				findExperiments.prepare(QString("SELECT id, name FROM Experiments WHERE id IN (SELECT experimentId FROM ObjectExperimentEntries WHERE objectId IN (SELECT id FROM Objects WHERE runId = %1)))").arg(runId_));
+				if(findExperiments.exec()) {
+					while(findExperiments.next()) {
+						found = true;
+						int expId = findExperiments.value(0).toInt();
+						QString expName = findExperiments.value(1).toString();
+						sections_ << new AMDataViewSection(
+								expName,
+								QString("Showing all data from this experiment in the <i>%1</i> run").arg(runName + runTime.toString(" MMM d (yyyy)")),
+								QString("runId = %1 AND id IN(SELECT objectId IN ObjectExperimentEntries WHERE experimentId = %2)").arg(runId_).arg(expId),
+								viewMode_, db_);
+					}
+					if(!found)
+						sections_ << new AMDataViewEmptyHeader("No experiments found.");
+				}
+				else {
+					AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for experiments. The database might be corrupted."));
+				}
+			}
+			break;
+
+		case AMDataViews::OrganizeScanTypes:
+			{
+				// What scan types do we have?
+				bool found = false;
+				QSqlQuery findTypes = db_->query();
+				findTypes.setForwardOnly(true);
+				findTypes.prepare(QString("SELECT id, description FROM ObjectTypes WHERE id IN (SELECT DISTINCT typeId FROM Objects WHERE runId = ?)"));
+				findTypes.bindValue(0, runId_);
+				if(findTypes.exec()) {
+					while(findTypes.next()) {
+						found = true;
+						int typeId = findTypes.value(0).toInt();
+						QString typeDescription = findTypes.value(1).toString();
+						sections_ << new AMDataViewSection(
+								typeDescription,
+								QString("Showing all data of this type in the <i>%1</i> run").arg(runName + runTime.toString(" MMM d (yyyy)")),
+								QString("typeId = %1 AND runId = %2)").arg(typeId).arg(runId_),
+								viewMode_, db_);
+					}
+					if(!found)
+						sections_ << new AMDataViewEmptyHeader("No data types found.");
+				}
+				else {
+					AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for scan types. The database might be corrupted."));
+				}
+			}
+			break;
+
+		case AMDataViews::OrganizeSamples:
+			{
+				// what samples do we have?
+				bool found = false;
+				QSqlQuery findSamples = db_->query();
+				findSamples.setForwardOnly(true);
+				findSamples.prepare("SELECT id, dateTime, name FROM Samples WHERE id IN (SELECT sampleId FROM Objects WHERE runId = ?)");	/// \todo add thumbnail icon!
+				findSamples.bindValue(0, runId_);
+				if(findSamples.exec()) {
+					while(findSamples.next()) {
+						found = true;
+						int sampleId = findSamples.value(0).toInt();
+						QDateTime dt = findSamples.value(1).toDateTime();
+						QString name = findSamples.value(2).toString();
+						sections_ << new AMDataViewSection(
+								name,
+								QString("Sample created at %1.  Showing all data from this sample in run <i>%2</i>").arg(dt.toString("h:mmap, MMM d (yyyy)")).arg(runName + runTime.toString(" MMM d (yyyy)")),
+								QString("sampleId = %1 AND runId = %2").arg(sampleId).arg(runId_),
+								viewMode_, db_);
+					}
+					if(!found)
+						sections_ << new AMDataViewEmptyHeader("No samples found.");
+				}
+				else {
+					AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for samples. The database might be corrupted."));
+				}
+			}
+			break;
+
+		case AMDataViews::OrganizeElements:
+			{
+				// What elements do we have?
+				bool found = false;
+				QSqlQuery findElements = db_->query();
+				findElements.setForwardOnly(true);
+				findElements.prepare("SELECT id, symbol, name FROM Elements WHERE id IN (SELECT elementId FROM SampleElementEntries WHERE sampleId IN (SELECT sampleId FROM Objects WHERE runId = ?))");
+				findElements.bindValue(0, runId_);
+				if(findElements.exec()) {
+					while(findElements.next()) {
+						found = true;
+						int elementId = findElements.value(0).toInt();
+						QString symbol = findElements.value(1).toString();
+						QString name = findElements.value(2).toString();
+						sections_ << new AMDataViewSection(
+								symbol + ": " + name,
+								QString("Showing all data from samples containing %1 in the <i>%2</i> run").arg(name).arg(runName + runTime.toString(" MMM d (yyyy)")),
+								QString("sampleId IN (SELECT sampleId FROM SampleElementEntries WHERE elementId = %1) AND runId = %2").arg(elementId).arg(runId_),
+								viewMode_, db_);
+					}
+					if(!found)
+						sections_ << new AMDataViewEmptyHeader("No elements found.");
+				}
+				else {
+					AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for elements in samples. The database might be corrupted."));
+				}
+			}
+			break;
+
+		}
+	} // end of showing a specific run
+
+
+
+
+
+
+	if(!runOrExp_ && experimentId_ >= 0) {
+
+		// get experiment name:
+		QString expName;
+		QSqlQuery expInfo = db_->query();
+		expInfo.prepare("SELECT name FROM Experiments where id = ?");
+		expInfo.bindValue(0, experimentId_);
+		if(expInfo.exec() && expInfo.next()) {
+			expName = expInfo.value(0).toString();
+			headingLabel_->setText(userName_ + "Experiments: " + expName);
+		}
+		else
+			headingLabel_->setText(userName_ + "Data");
+
+		switch(organizeMode_) {
+		case AMDataViews::OrganizeExperiments:
+			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, "This view is showing a single experiment, but the organize mode is set to organize by experiments. This doesn't make sense and should never happen. Handling as OrganizeNone."));
+		case AMDataViews::OrganizeNone:
+			sections_ << new AMDataViewSection(
+					expName,
+					"Showing all data from this experiment",
+					QString("id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = %1)").arg(experimentId_),
+					viewMode_, db_);
+			break;
+
+		case AMDataViews::OrganizeRuns:
+			{
+				// What runs do we have?
+				bool found = false;
+				QSqlQuery findRuns = db_->query();
+				findRuns.setForwardOnly(true);
+				findRuns.prepare(QString("SELECT id, name, dateTime FROM Runs WHERE id IN (SELECT runId FROM Objects WHERE objectId IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = %1)))").arg(experimentId_));
+				if(findRuns.exec()) {
+					while(findRuns.next()) {
+						found = true;
+						int runId = findRuns.value(0).toInt();
+						QString runName = findRuns.value(1).toString();
+						QDateTime runTime = findRuns.value(2).toDateTime();
+						sections_ << new AMDataViewSection(
+								runName + runTime.toString(" MMM d (yyyy)"),
+								QString("Showing all data from this run in the <i>%1</i> experiment").arg(expName),
+								QString("runId = %1 AND id IN(SELECT objectId IN ObjectExperimentEntries WHERE experimentId = %2)").arg(runId).arg(experimentId_),
+								viewMode_, db_);
+					}
+					if(!found)
+						sections_ << new AMDataViewEmptyHeader("No runs found.");
+				}
+				else {
+					AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for runs. The database might be corrupted."));
+				}
+			}
+			break;
+
+
+		case AMDataViews::OrganizeScanTypes:
+			{
+				// What scan types do we have?
+				bool found = false;
+				QSqlQuery findTypes = db_->query();
+				findTypes.setForwardOnly(true);
+				findTypes.prepare(QString("SELECT id, description FROM ObjectTypes WHERE id IN (SELECT DISTINCT typeId FROM Objects WHERE id IN(SELECT objectId IN ObjectExperimentEntries WHERE experimentId = ?))"));
+				findTypes.bindValue(0, experimentId_);
+				if(findTypes.exec()) {
+					while(findTypes.next()) {
+						found = true;
+						int typeId = findTypes.value(0).toInt();
+						QString typeDescription = findTypes.value(1).toString();
+						sections_ << new AMDataViewSection(
+								typeDescription,
+								QString("Showing all data of this type in the <i>%1</i> experiment").arg(expName),
+								QString("typeId = %1 AND id IN(SELECT objectId IN ObjectExperimentEntries WHERE experimentId = %2)").arg(typeId).arg(experimentId_),
+								viewMode_, db_);
+					}
+					if(!found)
+						sections_ << new AMDataViewEmptyHeader("No data types found.");
+				}
+				else {
+					AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for scan types. The database might be corrupted."));
+				}
+
+			}
+			break;
+
+		case AMDataViews::OrganizeSamples:
+			{
+				// what samples do we have?
+				bool found = false;
+				QSqlQuery findSamples = db_->query();
+				findSamples.setForwardOnly(true);
+				findSamples.prepare("SELECT id, dateTime, name FROM Samples WHERE id IN (SELECT sampleId FROM Objects WHERE id IN(SELECT objectId IN ObjectExperimentEntries WHERE experimentId = ?))");	/// \todo add thumbnail icon!
+				findSamples.bindValue(0, experimentId_);
+				if(findSamples.exec()) {
+					while(findSamples.next()) {
+						found = true;
+						int sampleId = findSamples.value(0).toInt();
+						QDateTime dt = findSamples.value(1).toDateTime();
+						QString name = findSamples.value(2).toString();
+						sections_ << new AMDataViewSection(
+								name,
+								QString("Sample created at %1.  Showing all data from this sample in the <i>%2</i> experiment").arg(dt.toString("h:mmap, MMM d (yyyy)")).arg(expName),
+								QString("sampleId = %1 AND id IN(SELECT objectId IN ObjectExperimentEntries WHERE experimentId = %2)").arg(sampleId).arg(experimentId_),
+								viewMode_, db_);
+					}
+					if(!found)
+						sections_ << new AMDataViewEmptyHeader("No samples found.");
+				}
+				else {
+					AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for samples. The database might be corrupted."));
+				}
+			}
+			break;
+
+		case AMDataViews::OrganizeElements:
+			{
+				// What elements do we have?
+				bool found = false;
+				QSqlQuery findElements = db_->query();
+				findElements.setForwardOnly(true);
+				findElements.prepare("SELECT id, symbol, name FROM Elements WHERE id IN (SELECT elementId FROM SampleElementEntries WHERE sampleId IN (SELECT sampleId FROM Objects WHERE id IN (SELECT objectId IN ObjectExperimentEntries WHERE experimentId = ?)))");
+				findElements.bindValue(0, experimentId_);
+				if(findElements.exec()) {
+					while(findElements.next()) {
+						found = true;
+						int elementId = findElements.value(0).toInt();
+						QString symbol = findElements.value(1).toString();
+						QString name = findElements.value(2).toString();
+						sections_ << new AMDataViewSection(
+								symbol + ": " + name,
+								QString("Showing all data from samples containing %1 in the <i>%2</i> experiment").arg(name).arg(expName),
+								QString("sampleId IN (SELECT sampleId FROM SampleElementEntries WHERE elementId = %1) AND id IN(SELECT objectId IN ObjectExperimentEntries WHERE experimentId = %2)").arg(elementId).arg(experimentId_),
+								viewMode_, db_);
+					}
+					if(!found)
+						sections_ << new AMDataViewEmptyHeader("No elements found.");
+				}
+				else {
+					AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for elements in samples. The database might be corrupted."));
+				}
+			}
+			break;
+
+		}
+	} // end of showing just one run
+
+
+
+
+	// show all sections in the scroll area:
+	foreach(QWidget* s, sections_) {
+		sectionLayout_->addWidget(s);
+	}
+}
+
+void AMDataView::refreshOrganizeModeBox() {
+
+	// install the correct organizeMode options in the comboBox.
+
+	// The full choices are { OrganizeNone, OrganizeRuns, OrganizeExperiments, OrganizeScanTypes, OrganizeSamples, OrganizeElements }.
+
+	// However, OrganizeRuns makes no sense when showing a single run, and organizeExperiments makes no sense when showing a single experiment.
+	organizeModeBox_->blockSignals(true);
+
+	organizeModeBox_->clear();
+
+	organizeModeBox_->addItem(QString(), AMDataViews::OrganizeNone);
+	if(!(runOrExp_ && runId_ >= 0))
+		organizeModeBox_->addItem("by Run", AMDataViews::OrganizeRuns);
+	if(!(!runOrExp_ && experimentId_ >= 0))
+		organizeModeBox_->addItem("by Experiment", AMDataViews::OrganizeExperiments);
+	organizeModeBox_->addItem("by Scan Type", AMDataViews::OrganizeScanTypes);
+	organizeModeBox_->addItem("by Sample", AMDataViews::OrganizeSamples);
+	organizeModeBox_->addItem("by Element", AMDataViews::OrganizeElements);
+
+	organizeModeBox_->setCurrentIndex(organizeModeBox_->findData(organizeMode_));
+
+	organizeModeBox_->blockSignals(false);
+
+}
+
+#include <QResizeEvent>
+#include <QScrollBar>
+
+/// Overidden so that we can notify the contents of the scroll area to change width with us.
+void AMDataView::resizeEvent(QResizeEvent *event) {
+	scrollAreaWidget_->resize(event->size().width() - scrollArea_->verticalScrollBar()->width(), height());
+}
+
+
+
+
+
+
+AMDataViewSection::AMDataViewSection(const QString& title, const QString& subtitle, const QString& whereClause, AMDataViews::ViewMode viewMode, AMDatabase* db, bool expanded, QWidget* parent) : QWidget(parent) {
+
+	setupUi(this);
+
+	titleLabel_->setText(title);
+	subtitleLabel_->setText(subtitle);
+
+	whereClause_ = whereClause;
+	viewMode_ = viewMode;
+	db_ = db;
+	expanded_ = expanded;
+
+
+
+	connect(expandButton_, SIGNAL(clicked(bool)), this, SLOT(expand(bool)));
+}
+
+
+void AMDataViewSection::expand(bool expanded) {
+
+	if(expanded_ == expanded)
+		return;
+
+	if( (expanded_ = expanded) ) {
+		expandButton_->setArrowType(Qt::DownArrow);
+		expandButton_->setChecked(true);
+	}
+	else {
+		expandButton_->setArrowType(Qt::RightArrow);
+		expandButton_->setChecked(false);
+	}
+
+}
+
+

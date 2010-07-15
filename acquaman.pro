@@ -156,7 +156,8 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
     source/ui/AMRegionsLineView.h \
     source/beamline/AMBeamlineActionItem.h \
     source/beamline/AMBeamlineControlAction.h \
-	source/ui/SGMSampleTransferView.h
+    source/ui/SGMSampleTransferView.h \
+    source/ui/AMDataView.h
 FORMS += source/ui/AbsorptionScanController.ui \
     source/ui/BottomBar.ui \
     source/ui/ConnectionSettings.ui \
@@ -167,8 +168,11 @@ FORMS += source/ui/AbsorptionScanController.ui \
     source/ui/ProtocolViewer.ui \
     source/ui/SamplePositions.ui \
     source/ui/Scheduler.ui \
-	source/ui/SGMXASScanConfigurationViewer.ui \
-	source/ui/AMScanConfigurationView.ui
+    source/ui/SGMXASScanConfigurationViewer.ui \
+    source/ui/AMScanConfigurationView.ui \
+    source/ui/AMDataView.ui \
+    source/ui/AMDataViewSection.ui \
+    source/ui/AMDataViewEmptyHeader.ui
 SOURCES += source/acquaman/AMAcqScanOutput.cpp \
     source/acquaman/AMAcqScanSpectrumOutput.cpp \
     source/acquaman/AMDacqScanController.cpp \
@@ -255,6 +259,8 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
     source/ui/AMRegionsLineView.cpp \
     source/beamline/AMBeamlineActionItem.cpp \
     source/beamline/AMBeamlineControlAction.cpp \
-	source/ui/SGMSampleTransferView.cpp
+    source/ui/SGMSampleTransferView.cpp \
+    source/ui/AMDataView.cpp \
+    source/dataman/AMDatabaseDefinition.cpp
 RESOURCES = source/icons/icons.qrc
 OTHER_FILES += source/muParser/README.txt

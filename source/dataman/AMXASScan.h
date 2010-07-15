@@ -31,6 +31,11 @@ public:
 	/// \todo clear data? (allow from outside the class?)
 	/// \todo some way to encapsulate a bunch of information about detectors: units, detailed comment on where it comes from, whether to show or hide by default in user-facing views.
 
+	/// Reimplemented from AMScan; provides a general human-readable description
+	virtual QString typeDescription() const {
+		return "Xray Absorption Scan";
+	}
+
 signals:
 	// inherits dataChanged(AMScan*)
 

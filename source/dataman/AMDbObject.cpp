@@ -6,9 +6,12 @@ AMDbObject::AMDbObject(QObject *parent) : QObject(parent) {
 	id_ = 0;
 
 	metaData_["name"] = "Untitled";
-	metaData_["number"] = 0;
-	metaData_["dateTime"] = QDateTime::currentDateTime();
 
+}
+
+/// returns the name of the database table where objects like this should be stored
+QString AMDbObject::dbTableName() const {
+	return AMDatabaseDefinition::objectTableName();
 }
 
 /// This member function updates a scan in the database (if it exists already), otherwise it adds it to the database.
@@ -19,24 +22,70 @@ bool AMDbObject::storeToDb(AMDatabase* db) {
 	QList<const QVariant*> values;
 	QStringList keys;
 
-	keys << "type";
-	QVariant typeVariant(this->type());
+	// determine and append the typeId
+	keys << "typeId";
+	QVariant typeVariant(this->typeId(db));
 	values << &typeVariant;
 
+	// store all the metadata
 	foreach(AMMetaMetaData md, this->metaDataAllKeys()) {
 		keys << md.key;
 		values << &metaData_[md.key];
 	}
 
-	int retVal = db->insertOrUpdate(id(), AMDatabaseDefinition::objectTableName(), keys, values);
+	// Add thumbnail info (just the count for now)
+	keys << "thumbnailCount";
+	QVariant thumbCountVariant(this->thumbnailCount());
+	values << &thumbCountVariant;
 
-	if(retVal > 0) {
-		id_ = retVal;
-		return true;
-	}
-	else {
+	// store typeId, thumbnailCount, and all metadata into main object table
+	int retVal = db->insertOrUpdate(id(), dbTableName(), keys, values);
+	if(retVal == 0)
 		return false;
+
+	// we have our new / old id:
+	id_ = retVal;
+
+	// add all thumbnails.
+	// First, remove all old thumbnails:
+	db->deleteRows(AMDatabaseDefinition::thumbnailTableName(), QString("objectId = %1 AND objectTableName = '%2'").arg(id_).arg(dbTableName()));
+
+	// store thumbnails in thumbnail table:
+	QVariant firstThumbnailIndex;
+	for(int i=0; i<thumbnailCount(); i++) {
+		AMDbThumbnail t = thumbnail(i);
+
+		QVariant vobjectId(id_), vobjectTableName(dbTableName()), vnumber(i), vtype(t.typeString()), vtitle(t.title), vsubtitle(t.subtitle), vthumbnail(t.thumbnail);
+		keys.clear();
+		values.clear();
+
+		keys << "objectId";
+		values << &vobjectId;
+		keys << "objectTableName";
+		values << &vobjectTableName;
+		keys << "number";
+		values << &vnumber;
+		keys << "type";
+		values << &vtype;
+		keys << "title";
+		values << &vtitle;
+		keys << "subtitle";
+		values << &vsubtitle;
+		keys << "thumbnail";
+		values << &vthumbnail;
+
+		retVal = db->insertOrUpdate(0, AMDatabaseDefinition::thumbnailTableName(), keys, values);
+		if(retVal == 0)
+			return false;
+
+		if(i == 0)
+			firstThumbnailIndex = QVariant(retVal);
 	}
+
+	// now that we know where the thumbnails are, update this in our
+	db->update(id_, AMDatabaseDefinition::objectTableName(), "thumbnailFirstId", firstThumbnailIndex);
+	return true;
+
 }
 
 /// load a AMDbObject (set its properties) by retrieving it based on id.

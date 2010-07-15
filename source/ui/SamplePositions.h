@@ -17,7 +17,7 @@
 
 
 // temporary: prevent waiting a long time trying to connect when Mark's at home:
-//#define SAMPLEPOS_CAM_SOURCE1 "notfound"
+#define SAMPLEPOS_CAM_SOURCE1 "notfound"
 
 
 
