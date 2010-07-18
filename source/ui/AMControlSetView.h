@@ -99,6 +99,7 @@ public:
 		maxX_ = i.key();
 		maxY_ = i.value();
 		double tmpX, tmpY;
+		qDebug() << tmpX << " " << tmpY;
 		while(i != dataMap_.constEnd()){
 			tmpX = i.key();
 			tmpY = i.value();
@@ -110,6 +111,7 @@ public:
 				minY_ = tmpY;
 			else if(tmpY > maxY_)
 				maxY_ = tmpY;
+			qDebug() << tmpX << " " << tmpY;
 			++i;
 		}
 		if(model_)
@@ -133,6 +135,8 @@ public:
 
 public slots:
 	void onRegionsUpdate(AMRegionsList* contextParams){
+
+		/*
 		QList<QVariant> l1, m1, h1, h3;
 		l1 << 250.0 << 0 << 1;
 		m1 << 250.0 << 1 << 1;
@@ -177,18 +181,39 @@ public slots:
 		aResM1->setDataMap(rm1);
 		aResH1->setDataMap(rh1);
 		aResH3->setDataMap(rh3);
+		*/
+		/*
+		QMap<QString, QMap<double, double> > fluxes, resolutions;
+		fluxes = ((AMControlOptimizationSet*)viewSet_)->collapseAt(0, contextParams);
+		resolutions = ((AMControlOptimizationSet*)viewSet_)->collapseAt(1, contextParams);
+		aFluxL1->setDataMap(fluxes.value("LEG1"));
+		aFluxM1->setDataMap(fluxes.value("MEG1"));
+		aFluxH1->setDataMap(fluxes.value("HEG1"));
+		aFluxH3->setDataMap(fluxes.value("HEG3"));
+		aResL1->setDataMap(resolutions.value("LEG1"));
+		aResM1->setDataMap(resolutions.value("MEG1"));
+		aResH1->setDataMap(resolutions.value("HEG1"));
+		aResH3->setDataMap(resolutions.value("HEG3"));
 
+		double stepSize = 250/(numPoints-1);
 		QMap<double, double> leg, meg, heg1, heg3;
 		for(double x = stepSize; x < 250; x+=stepSize){
-			leg.insert(rl1.value(x), fl1.value(x));
-			meg.insert(rm1.value(x), fm1.value(x));
-			heg1.insert(rh1.value(x), fh1.value(x));
-			heg3.insert(rh3.value(x), fh3.value(x));
+			leg.insert(resolutions.value("LEG1").value(x), fluxes.value("LEG1").value(x));
+			meg.insert(resolutions.value("MEG1").value(x), fluxes.value("MEG1").value(x));
+			heg1.insert(resolutions.value("HEG1").value(x), fluxes.value("HEG1").value(x));
+			heg3.insert(resolutions.value("HEG3").value(x), fluxes.value("HEG3").value(x));
 		}
 		LEG->setDataMap(leg);
 		MEG->setDataMap(meg);
 		HEG1->setDataMap(heg1);
 		HEG3->setDataMap(heg3);
+		*/
+		LEG->setDataMap(((AMControlOptimizationSet*)viewSet_)->plotAgainst(contextParams).value("LEG1"));
+		MEG->setDataMap(((AMControlOptimizationSet*)viewSet_)->plotAgainst(contextParams).value("MEG1"));
+		HEG1->setDataMap(((AMControlOptimizationSet*)viewSet_)->plotAgainst(contextParams).value("HEG1"));
+		HEG3->setDataMap(((AMControlOptimizationSet*)viewSet_)->plotAgainst(contextParams).value("HEG3"));
+
+		((AMControlOptimizationSet*)viewSet_)->onePlot(contextParams);
 	}
 
 protected:

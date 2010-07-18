@@ -437,9 +437,9 @@ QMap<double, double> SGMResolutionOptimization::curve(QList<QVariant> stateParam
 	{
 	}
 	else if((_harmonic == 3) && (_grating == 2)){
-		_y1 = 0.5229*log(_slit)+1.4221;
-		_y2 = 0.4391*log(_slit)+1.2617;
-		_y3 = 0.421*log(_slit)+0.9037;
+		_y1 = (0.95)*(0.5229*log(_slit)+1.4221);
+		_y2 = (0.95)*(0.4391*log(_slit)+1.2617);
+		_y3 = (0.95)*(0.421*log(_slit)+0.9037);
 		_x1 = 2000;
 		_x2 = 1200;
 		_x3 = 800;

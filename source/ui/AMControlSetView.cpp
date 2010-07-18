@@ -40,10 +40,12 @@ AMControlOptimizationSetView::AMControlOptimizationSetView(AMControlOptimization
 		AMControlSetView((AMControlSet*)viewSet, parent)
 {
 	firstTime = true;
-	MPlotWidget *plotWindow = new MPlotWidget();
+
 //	numPoints = 25;
 	numPoints = 50;
-	//MPlot *plot = new MPlot();
+
+	/*
+	MPlotWidget *plotWindow = new MPlotWidget();
 	plot = new MPlot();
 	plotWindow->setPlot(plot);
 	plot->axisRight()->setTicks(3, MPlotAxis::Inside, 2);	// Set the approximate number and style of axis tick marks:
@@ -99,7 +101,9 @@ AMControlOptimizationSetView::AMControlOptimizationSetView(AMControlOptimization
    plot2->addTool(dzTool2);
    MPlotPlotSelectorTool *psTool2 = new MPlotPlotSelectorTool;
    plot2->addTool(psTool2);
+   */
 
+	/*
    MPlotWidget *plotWindow3 = new MPlotWidget();
    //MPlot *plot = new MPlot();
    plot3 = new MPlot();
@@ -139,6 +143,7 @@ AMControlOptimizationSetView::AMControlOptimizationSetView(AMControlOptimization
    plot4->addTool(dzTool4);
    MPlotPlotSelectorTool *psTool4 = new MPlotPlotSelectorTool;
    plot4->addTool(psTool4);
+   */
 
    MPlotWidget *plotWindow5 = new MPlotWidget();
    //MPlot *plot = new MPlot();
@@ -164,10 +169,10 @@ AMControlOptimizationSetView::AMControlOptimizationSetView(AMControlOptimization
    AMQuickDataSet *tmpDataSet;
    QMap<double, double> fkData;
    fkData.insert(1.0, 1.0);
+   /*
    for(int x = 0; x < numPoints; x++){
 	   tmpModel = new MPlotRealtimeModel(this);
 	   mFluxL1.append(tmpModel);
-	   /*d*/
 	   tmpModel = new MPlotRealtimeModel(this);
 	   mFluxM1.append(tmpModel);
 	   tmpModel = new MPlotRealtimeModel(this);
@@ -182,12 +187,10 @@ AMControlOptimizationSetView::AMControlOptimizationSetView(AMControlOptimization
 	   mResH1.append(tmpModel);
 	   tmpModel = new MPlotRealtimeModel(this);
 	   mResH3.append(tmpModel);
-	   /*d*/
 
 	   tmpDataSet = new AMQuickDataSet(fkData, this);
 	   tmpDataSet->setModel(mFluxL1.at(x));
 	   fluxL1.append(tmpDataSet);
-	   /*d*/
 	   tmpDataSet = new AMQuickDataSet(fkData, this);
 	   tmpDataSet->setModel(mFluxM1.at(x));
 	   fluxM1.append(tmpDataSet);
@@ -209,9 +212,10 @@ AMControlOptimizationSetView::AMControlOptimizationSetView(AMControlOptimization
 	   tmpDataSet = new AMQuickDataSet(fkData, this);
 	   tmpDataSet->setModel(mResH3.at(x));
 	   resH3.append(tmpDataSet);
-	   /*d*/
    }
+   */
 
+   /*
    amFluxL1 = new MPlotRealtimeModel(this);
    aFluxL1 = new AMQuickDataSet(fkData, this);
    aFluxL1->setModel(amFluxL1);
@@ -243,6 +247,7 @@ AMControlOptimizationSetView::AMControlOptimizationSetView(AMControlOptimization
    amResH3 = new MPlotRealtimeModel(this);
    aResH3 = new AMQuickDataSet(fkData, this);
    aResH3->setModel(amResH3);
+   */
 
    mLEG = new MPlotRealtimeModel(this);
    LEG = new AMQuickDataSet(fkData, this);
@@ -260,14 +265,15 @@ AMControlOptimizationSetView::AMControlOptimizationSetView(AMControlOptimization
    HEG3 = new AMQuickDataSet(fkData, this);
    HEG3->setModel(mHEG3);
 
+
    MPlotSeriesBasic *tmpSeries;
+   /*
    for(int x = 0; x < numPoints; x++){
 	   tmpSeries = new MPlotSeriesBasic();
 	   tmpSeries->setModel(mFluxL1.at(x));
 	   QPen tmpPen(QBrush(QColor(x*(250.0/numPoints), 127, 127)), 2);
 	   tmpSeries->setLinePen(tmpPen);
 	   plot->addItem(tmpSeries);
-	   /*d*/
 	   tmpSeries = new MPlotSeriesBasic();
 	   tmpSeries->setModel(mFluxM1.at(x));
 	   QPen tmpPen2(QBrush(QColor(127, x*(250.0/numPoints), 127)), 2);
@@ -309,9 +315,10 @@ AMControlOptimizationSetView::AMControlOptimizationSetView(AMControlOptimization
 	   QPen tmpPen8(QBrush(QColor(255-x*(250.0/numPoints), 127, 127)), 2);
 	   tmpSeries->setLinePen(tmpPen8);
 	   plot2->addItem(tmpSeries);
-	   /*d*/
    }
+   */
 
+   /*
    tmpSeries = new MPlotSeriesBasic();
    tmpSeries->setModel(amFluxL1);
    QPen tmpPen9(QBrush(QColor(255, 0, 0)), 2);
@@ -359,6 +366,7 @@ AMControlOptimizationSetView::AMControlOptimizationSetView(AMControlOptimization
    QPen tmpPen17(QBrush(QColor(255, 255, 0)), 2);
    tmpSeries->setLinePen(tmpPen17);
    plot4->addItem(tmpSeries);
+   */
 
    tmpSeries = new MPlotSeriesBasic();
    tmpSeries->setModel(mLEG);
@@ -384,15 +392,19 @@ AMControlOptimizationSetView::AMControlOptimizationSetView(AMControlOptimization
    tmpSeries->setLinePen(tmpPen21);
    plot5->addItem(tmpSeries);
 
-//	plotWindow->setFixedSize(267, 200);
-//	hl_->addWidget(plotWindow);
-   plotWindow->show();
+//d	plotWindow->setFixedSize(267, 200);
+//d	hl_->addWidget(plotWindow);
+   /*
+	plotWindow->show();
 	setFixedSize(517, 200);
-	//	plotWindow->setFixedSize(267, 200);
-	//	hl_->addWidget(plotWindow);
+//d	plotWindow->setFixedSize(267, 200);
+//d	hl_->addWidget(plotWindow);
 	plotWindow2->show();
+	*/
+   /*
 	plotWindow3->show();
 	plotWindow4->show();
+	*/
 	plotWindow5->show();
 }
 

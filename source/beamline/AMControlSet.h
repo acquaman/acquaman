@@ -80,6 +80,7 @@ public:
 	/// Returns a QMap to represent the output to optimize. Can be thought of as x-y pairs for a graph.
 	/// The context parameters allow only the necessary region to be returned.
 	virtual QMap<double, double> curve(QList<QVariant> stateParameters, AMRegionsList* contextParameters);
+	virtual QMap< QString, QMap<double, double> > collapse(AMRegionsList* contextParameters);
 
 public slots:
 	/// Sets the name of the optimization.
@@ -116,6 +117,120 @@ public:
 	QMap<double, double> curveAt(size_t index, QList<QVariant> stateParameters, AMRegionsList* contextParameters){
 		return outputs_.at(index)->curve(stateParameters, contextParameters);
 	}
+	QMap<QString, QMap<double, double> > collapseAt(size_t index, AMRegionsList* contextParameters){
+		return outputs_.at(index)->collapse(contextParameters);
+	}
+	QMap<QString, QMap<double, double> > plotAgainst(AMRegionsList* contextParameters){
+		QMap<QString, QMap<double, double> > fluxes, resolutions;
+		QMap<double, double> LEG, MEG, HEG1, HEG3;
+		fluxes = collapseAt(0, contextParameters);
+		resolutions = collapseAt(1, contextParameters);
+		QMap<double, double>::const_iterator i;
+		i = fluxes.value("LEG1").constBegin();
+		while(i != fluxes.value("LEG1").constEnd()){
+			LEG.insert(resolutions.value("LEG1").value(i.key()), fluxes.value("LEG1").value(i.key()));
+			MEG.insert(resolutions.value("MEG1").value(i.key()), fluxes.value("MEG1").value(i.key()));
+			HEG1.insert(resolutions.value("HEG1").value(i.key()), fluxes.value("HEG1").value(i.key()));
+			HEG3.insert(resolutions.value("HEG3").value(i.key()), fluxes.value("HEG3").value(i.key()));
+			++i;
+		}
+		QMap<QString, QMap<double, double> > rVal;
+		rVal.insert("LEG1", LEG);
+		rVal.insert("MEG1", MEG);
+		rVal.insert("HEG1", HEG1);
+		rVal.insert("HEG3", HEG3);
+		return rVal;
+	}
+	/**/
+	QMap<QString, QPair<double, double> > onePlot(AMRegionsList* contextParameters){
+		QMap<QString, QMap<double, double> > allPlots = plotAgainst(contextParameters);
+		QMap<double, double>::const_iterator l, m, h, hh;
+		l = allPlots.value("LEG1").constBegin();
+		m = allPlots.value("MEG1").constBegin();
+		h = allPlots.value("HEG1").constBegin();
+		hh = allPlots.value("HEG3").constBegin();
+		QPair<double, double> fMaxLEG, fMaxMEG, fMaxHEG1, fMaxHEG3, rMaxLEG, rMaxMEG, rMaxHEG1, rMaxHEG3;
+		rMaxLEG = QPair<double, double>(l.key(), l.value());
+		rMaxMEG = QPair<double, double>(m.key(), m.value());
+		rMaxHEG1 = QPair<double, double>(h.key(), h.value());
+		rMaxHEG3 = QPair<double, double>(hh.key(), hh.value());
+		fMaxLEG = QPair<double, double>(l.value(), l.key());
+		fMaxMEG = QPair<double, double>(m.value(), m.key());
+		fMaxHEG1 = QPair<double, double>(h.value(), h.key());
+		fMaxHEG3 = QPair<double, double>(hh.value(), hh.key());
+		++l;
+		++m;
+		++h;
+		++hh;
+		while(l != allPlots.value("LEG1").constEnd() ){
+			if(rMaxLEG.first < l.key()){
+				rMaxLEG.first = l.key();
+				rMaxLEG.second = l.value();
+			}
+			if(fMaxLEG.first < l.value()){
+				fMaxLEG.first = l.value();
+				fMaxLEG.second = l.key();
+			}
+			++l;
+		}
+		while(m != allPlots.value("MEG1").constEnd() ){
+			if(rMaxMEG.first < m.key()){
+				rMaxMEG.first = m.key();
+				rMaxMEG.second = m.value();
+			}
+			if(fMaxMEG.first < m.value()){
+				fMaxMEG.first = m.value();
+				fMaxMEG.second = m.key();
+			}
+			++m;
+		}
+		while(h != allPlots.value("HEG1").constEnd() ){
+			if(rMaxHEG1.first < h.key()){
+				rMaxHEG1.first = h.key();
+				rMaxHEG1.second = h.value();
+			}
+			if(fMaxHEG1.first < h.value()){
+				fMaxHEG1.first = h.value();
+				fMaxHEG1.second = h.key();
+			}
+			++h;
+		}
+		while(hh != allPlots.value("HEG3").constEnd() ){
+			if(rMaxHEG3.first < hh.key()){
+				rMaxHEG3.first = hh.key();
+				rMaxHEG3.second = hh.value();
+			}
+			if(fMaxHEG3.first < hh.value()){
+				fMaxHEG3.first = hh.value();
+				fMaxHEG3.second = hh.key();
+			}
+			++hh;
+		}
+		if(rMaxLEG.first < 1e-100)
+			rMaxLEG.first = 0;
+		if(rMaxMEG.first < 1e-100)
+			rMaxMEG.first = 0;
+		if(rMaxHEG1.first < 1e-100)
+			rMaxHEG1.first = 0;
+		if(rMaxHEG3.first < 1e-100)
+			rMaxHEG3.first = 0;
+		if(fMaxLEG.first < 1e-100)
+			fMaxLEG.first = 0;
+		if(fMaxMEG.first < 1e-100)
+			fMaxMEG.first = 0;
+		if(fMaxHEG1.first < 1e-100)
+			fMaxHEG1.first = 0;
+		if(fMaxHEG3.first < 1e-100)
+			fMaxHEG3.first = 0;
+		qDebug() << "Flux Maxes: LEG - " << fMaxLEG.first << "(" << fMaxLEG.second << ") MEG - " << fMaxMEG.first << "(" << fMaxMEG.second
+				<< ") HEG1 - " << fMaxHEG1.first << "(" << fMaxHEG1.second << ") HEG3 - " << fMaxHEG3.first << "(" << fMaxHEG3.second << ")\n"
+				<< "Resolution Maxes: LEG - " << rMaxLEG.first << "(" << rMaxLEG.second << ") MEG - " << rMaxMEG.first << "(" << rMaxMEG.second
+				<< ") HEG1 - " << rMaxHEG1.first << "(" << rMaxHEG1.second << ") HEG3 - " << rMaxHEG3.first << "(" << rMaxHEG3.second << ")";
+		QMap<QString, QPair<double, double> > rVal;
+		rVal.insert("Something", QPair<double, double>(100, 100));
+		return rVal;
+	}
+	/**/
 
 protected:
 	/// Internal list of AMControlOptimization.
