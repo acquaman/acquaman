@@ -37,6 +37,8 @@ INCLUDEPATH += $$MPLOT_INCLUDE_DIR
 
 # Epics channel access linking:
 LIBS += -L$$EPICS_LIB_DIR
+LIBS += -lgsl
+LIBS += -lgslcblas
 LIBS += -lca \
 	-lCom
 macx:QMAKE_LFLAGS_RPATH += "$$EPICS_LIB_DIR"

@@ -31,13 +31,18 @@ protected slots:
 		xasCtrl->initialize();
 		xasCtrl->start();
 	}
+	void onRegionsChanged(){
+		if(cfg_ && fluxResolutionView_)
+			fluxResolutionView_->onRegionsUpdate( ((SGMXASScanConfiguration*)cfg_)->regions() );
+	}
 
 protected:
 	AMScanConfiguration *cfg_;
 	AMXASRegionsView *regionsView_;
 	AMRegionsLineView *regionsLineView_;
 	AMControlOptimizationSetView *fluxResolutionView_;
-	AMCompactControlOptimizationSetView *fluxResolutionView2_;
+//	AMCompactControlOptimizationSetView *fluxResolutionView2_;
+	AMColorControlOptimizationSetView *fluxResolutionView2_;
 	AMControlSetView *trackingView_;
 	AMAbstractDetectorSetView *detectorView_;
 	QPushButton *startScanButton_;
