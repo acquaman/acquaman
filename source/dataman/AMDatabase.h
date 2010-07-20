@@ -117,6 +117,8 @@ public:
 signals:
 	/// Emitted when an object is inserted or modified. Contains the id of the inserted or modified object.
 	void updated(int id);
+	/// Emitted after an object is removed. Contains the old id of the removed object.
+	void removed(int oldId);
 
 protected:
 	/// Access the QSqlAMDatabase object for this connection.

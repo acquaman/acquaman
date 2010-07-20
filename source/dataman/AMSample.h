@@ -7,6 +7,7 @@
 
 #include <QBuffer>
 #include <QByteArray>
+#include <QPixmap>
 
 /// This class represents instances of objects that map to Samples in the database of user information. It provides a simple example of how to subclass AMDbObject to create your own C++ object that can be easily stored in the database, and exploit the general meta-data management system.
 
@@ -96,7 +97,20 @@ public:
 			return AMDbThumbnail(name(), dateTime().toString("MMM d (2010)"), AMDbThumbnail::InvalidType, QByteArray());
 
 
-		return AMDbThumbnail(name(), dateTime().toString("MMM d (2010)"), AMDbThumbnail::PNGType, metaData("image").toByteArray());
+		QImage image;
+		QByteArray imageByteArray = metaData("image").toByteArray();
+		if(image.loadFromData(imageByteArray, "PNG")) {
+
+			QImage thumbnailImage = image.scaled(QSize(240,180), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+			QByteArray thumbnailByteArray;
+			QBuffer bthumbnailByteArray(&thumbnailByteArray);
+			bthumbnailByteArray.open(QIODevice::WriteOnly);
+			thumbnailImage.save(&bthumbnailByteArray, "PNG");
+			return AMDbThumbnail(name(), dateTime().toString("MMM d (2010)"), AMDbThumbnail::PNGType, thumbnailByteArray);
+		}
+
+		else
+			return AMDbThumbnail(name(), dateTime().toString("MMM d (2010)"), AMDbThumbnail::InvalidType, QByteArray());
 	}
 
 

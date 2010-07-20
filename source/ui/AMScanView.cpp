@@ -87,6 +87,9 @@ AMScanViewScanBar::AMScanViewScanBar(AMScanSetModel* model, int scanIndex, QWidg
 	hl->setSpacing(24);
 	setLayout(hl);
 
+	scrollLeftButton_->hide();
+	scrollRightButton_->hide();
+
 	//unnecessary: this->setAutoFillBackground(true);
 	//unnecessary: ensurePolished();
 

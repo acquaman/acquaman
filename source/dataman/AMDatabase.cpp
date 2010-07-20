@@ -195,6 +195,7 @@ bool AMDatabase::update(const QString& tableName, const QString& whereClause, co
 		return false;
 	}
 	// Query succeeded.
+	query.result();
 	/// \todo figure out id, so can emit updated(id);
 	return true;
 
@@ -228,6 +229,7 @@ bool AMDatabase::deleteRow(int id, const QString& tableName) {
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -3, QString("Failed to delete the database object. Could not execute the query (%1). The SQL reply was: %2").arg(query.executedQuery()).arg(query.lastError().text())));
 		return false;
 	}
+	emit removed(id);
 	// Query succeeded.
 	return true;
 
@@ -258,6 +260,8 @@ int AMDatabase::deleteRows(const QString& tableName, const QString& whereClause)
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -3, QString("Failed to delete the database object(s). Could not execute the query (%1). The SQL reply was: %2").arg(query.executedQuery()).arg(query.lastError().text())));
 		return 0;
 	}
+	/// \todo Figure out which rows were removed, eh?
+
 	// Query succeeded.
 	return query.numRowsAffected();
 }

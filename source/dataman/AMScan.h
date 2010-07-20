@@ -286,6 +286,18 @@ public:
 	unsigned count() const { return d_->count(); }
 
 
+	// Thumbnail system:
+	////////////////////////////////
+
+	/// We can have a thumbnail for each channel
+	int thumbnailCount() const {
+		return numChannels();
+	}
+
+	/// Return a thumbnail picture of the channel
+	AMDbThumbnail thumbnail(int index) const;
+
+
 
 public slots:
 
