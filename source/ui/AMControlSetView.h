@@ -98,8 +98,7 @@ public:
 		minY_ = i.value();
 		maxX_ = i.key();
 		maxY_ = i.value();
-		double tmpX, tmpY;
-		qDebug() << tmpX << " " << tmpY;
+		double tmpX, tmpY;;
 		while(i != dataMap_.constEnd()){
 			tmpX = i.key();
 			tmpY = i.value();
@@ -111,7 +110,6 @@ public:
 				minY_ = tmpY;
 			else if(tmpY > maxY_)
 				maxY_ = tmpY;
-			qDebug() << tmpX << " " << tmpY;
 			++i;
 		}
 		if(model_)
@@ -144,9 +142,9 @@ public slots:
 		h3 << 250.0 << 2 << 3;
 
 		int count = 0;
-		double stepSize = 250/(numPoints-1);
+		double stepSize = 50/((numPoints/2)-1);
 		QMap<double, double> fl1, fm1, fh1, fh3, rl1, rm1, rh1, rh3;
-		for(double x = stepSize; x < 250; x+=stepSize){
+		for(double x = stepSize; x < 50; x+=stepSize){
 			l1.replace(0, x);
 			m1.replace(0, x);
 			h1.replace(0, x);
@@ -167,12 +165,34 @@ public slots:
 			rm1.insert(x, resM1.at(count)->minY());
 			rh1.insert(x, resH1.at(count)->minY());
 			rh3.insert(x, resH3.at(count)->minY());
-//			qDebug() << "Fluxes: L1 " << fluxL1.at(count)->minY() << " M1 " << fluxM1.at(count)->minY() << " H1 " << fluxH1.at(count)->minY()
-//					<< " H3 " << fluxH3.at(count)->minY() << "\n"
-//					<< "Resolutions: L1 " << resL1.at(count)->minY() << " M1 " << resM1.at(count)->minY() << " H1 " << resH1.at(count)->minY()
-//					<< " H3 " << resH3.at(count)->minY() << "\n";
 			count++;
 		}
+		stepSize = 250/((numPoints/2)-1);
+		for(double x = 50; x < 250; x+=stepSize){
+			l1.replace(0, x);
+			m1.replace(0, x);
+			h1.replace(0, x);
+			h3.replace(0, x);
+			fluxL1.at(count)->setDataMap( ((AMControlOptimizationSet*)viewSet_)->curveAt(0, l1, contextParams) );
+			fluxM1.at(count)->setDataMap( ((AMControlOptimizationSet*)viewSet_)->curveAt(0, m1, contextParams) );
+			fluxH1.at(count)->setDataMap( ((AMControlOptimizationSet*)viewSet_)->curveAt(0, h1, contextParams) );
+			fluxH3.at(count)->setDataMap( ((AMControlOptimizationSet*)viewSet_)->curveAt(0, h3, contextParams) );
+			resL1.at(count)->setDataMap( ((AMControlOptimizationSet*)viewSet_)->curveAt(1, l1, contextParams) );
+			resM1.at(count)->setDataMap( ((AMControlOptimizationSet*)viewSet_)->curveAt(1, m1, contextParams) );
+			resH1.at(count)->setDataMap( ((AMControlOptimizationSet*)viewSet_)->curveAt(1, h1, contextParams) );
+			resH3.at(count)->setDataMap( ((AMControlOptimizationSet*)viewSet_)->curveAt(1, h3, contextParams) );
+			fl1.insert(x, fluxL1.at(count)->minY());
+			fm1.insert(x, fluxM1.at(count)->minY());
+			fh1.insert(x, fluxH1.at(count)->minY());
+			fh3.insert(x, fluxH3.at(count)->minY());
+			rl1.insert(x, resL1.at(count)->minY());
+			rm1.insert(x, resM1.at(count)->minY());
+			rh1.insert(x, resH1.at(count)->minY());
+			rh3.insert(x, resH3.at(count)->minY());
+			count++;
+		}
+		*/
+		/*
 		aFluxL1->setDataMap(fl1);
 		aFluxM1->setDataMap(fm1);
 		aFluxH1->setDataMap(fh1);
@@ -213,7 +233,7 @@ public slots:
 		HEG1->setDataMap(((AMControlOptimizationSet*)viewSet_)->plotAgainst(contextParams).value("HEG1"));
 		HEG3->setDataMap(((AMControlOptimizationSet*)viewSet_)->plotAgainst(contextParams).value("HEG3"));
 
-		((AMControlOptimizationSet*)viewSet_)->onePlot(contextParams);
+		ANSWER->setDataMap(((AMControlOptimizationSet*)viewSet_)->onePlot(contextParams));
 	}
 
 protected:
@@ -225,8 +245,8 @@ protected:
 	QList<AMQuickDataSet*> fluxL1, fluxM1, fluxH1, fluxH3, resL1, resM1, resH1, resH3;
 	AMQuickDataSet *aFluxL1, *aFluxM1, *aFluxH1, *aFluxH3, *aResL1, *aResM1, *aResH1, *aResH3;
 	MPlotRealtimeModel *amFluxL1, *amFluxM1, *amFluxH1, *amFluxH3, *amResL1, *amResM1, *amResH1, *amResH3;
-	AMQuickDataSet *LEG, *MEG, *HEG1, *HEG3;
-	MPlotRealtimeModel *mLEG, *mMEG, *mHEG1, *mHEG3;
+	AMQuickDataSet *LEG, *MEG, *HEG1, *HEG3, *ANSWER;
+	MPlotRealtimeModel *mLEG, *mMEG, *mHEG1, *mHEG3, *mANSWER;
 	int numPoints;
 	bool firstTime;
 };

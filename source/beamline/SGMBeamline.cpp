@@ -360,6 +360,7 @@ QMap< QString, QMap<double, double> > SGMFluxOptimization::collapse(AMRegionsLis
 	h1 << 250.0 << 2 << 1;
 	h3 << 250.0 << 2 << 3;
 	int numPoints = 50;
+	//int numPoints = 100;
 	double stepSize = 250/(numPoints-1);
 	QMap<double, double> fluxL1, fluxM1, fluxH1, fluxH3;
 	for(double x = stepSize; x < 250; x+=stepSize){
@@ -372,7 +373,9 @@ QMap< QString, QMap<double, double> > SGMFluxOptimization::collapse(AMRegionsLis
 		fluxM1.insert(x, collapser(curve(m1, contextParameters)));
 		fluxH1.insert(x, collapser(curve(h1, contextParameters)));
 		fluxH3.insert(x, collapser(curve(h3, contextParameters)));
+		qDebug() << x << " collapses to " << fluxL1.value(x) << fluxM1.value(x) << fluxH1.value(x) << fluxH3.value(x);
 	}
+
 	QMap< QString, QMap<double, double> > rVal;
 	rVal.insert("LEG1", fluxL1);
 	rVal.insert("MEG1", fluxM1);
@@ -520,14 +523,15 @@ QMap<double, double> SGMResolutionOptimization::curve(QList<QVariant> stateParam
 #define COV(i,j) (gsl_matrix_get(cov,(i),(j)))
 
 	QMap<double, double> rCurve;
-	double tmpStart, tmpEnd, tmpDelta;
+	double tmpStart, tmpEnd, tmpDelta, tmpVal;
 	for( int x = 0; x < contextParameters->count(); x++){
 		tmpStart = contextParameters->start(x);
 		tmpDelta = contextParameters->delta(x);
 		tmpEnd = contextParameters->end(x);
 
-		for( double y = tmpStart; ((tmpDelta > 0) ? (y <= tmpEnd) : (y >= tmpEnd)); y += tmpDelta )
+		for( double y = tmpStart; ((tmpDelta > 0) ? (y <= tmpEnd) : (y >= tmpEnd)); y += tmpDelta ){
 			rCurve[y] = !SGMBeamline::sgm()->energyValidForSettings(_grating, _harmonic, y) ? 0.0 :y/(pow(10, C(2)*y*y + C(1)*y + C(0))*1e-3);
+		}
 	}
 	gsl_matrix_free (X);
 	gsl_vector_free (y);
@@ -544,6 +548,7 @@ QMap< QString, QMap<double, double> > SGMResolutionOptimization::collapse(AMRegi
 	h1 << 250.0 << 2 << 1;
 	h3 << 250.0 << 2 << 3;
 	int numPoints = 50;
+	//int numPoints = 100;
 	double stepSize = 250/(numPoints-1);
 	QMap<double, double> resL1, resM1, resH1, resH3;
 	for(double x = stepSize; x < 250; x+=stepSize){
@@ -556,6 +561,7 @@ QMap< QString, QMap<double, double> > SGMResolutionOptimization::collapse(AMRegi
 		resM1.insert(x, collapser(curve(m1, contextParameters)));
 		resH1.insert(x, collapser(curve(h1, contextParameters)));
 		resH3.insert(x, collapser(curve(h3, contextParameters)));
+		qDebug() << x << " collapses to " << resL1.value(x) << resM1.value(x) << resH1.value(x) << resH3.value(x);
 	}
 	QMap< QString, QMap<double, double> > rVal;
 	rVal.insert("LEG1", resL1);

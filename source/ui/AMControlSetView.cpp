@@ -265,6 +265,10 @@ AMControlOptimizationSetView::AMControlOptimizationSetView(AMControlOptimization
    HEG3 = new AMQuickDataSet(fkData, this);
    HEG3->setModel(mHEG3);
 
+   mANSWER = new MPlotRealtimeModel(this);
+   ANSWER = new AMQuickDataSet(fkData, this);
+   ANSWER->setModel(mANSWER);
+
 
    MPlotSeriesBasic *tmpSeries;
    /*
@@ -390,6 +394,12 @@ AMControlOptimizationSetView::AMControlOptimizationSetView(AMControlOptimization
    tmpSeries->setModel(mHEG3);
    QPen tmpPen21(QBrush(QColor(0, 255, 255)), 2);
    tmpSeries->setLinePen(tmpPen21);
+   plot5->addItem(tmpSeries);
+
+   tmpSeries = new MPlotSeriesBasic();
+   tmpSeries->setModel(mANSWER);
+   QPen tmpPen22(QBrush(QColor(255, 0, 255)), 2);
+   tmpSeries->setLinePen(tmpPen22);
    plot5->addItem(tmpSeries);
 
 //d	plotWindow->setFixedSize(267, 200);
