@@ -141,7 +141,7 @@ protected:
 
 /// This class is the base of all objects that represent beamline scan data (for ex: XAS scans over eV, XES detector-image "scans" over detector eV, etc.)
 /*! It provides the following:
-	- adds "sampleName()" and "comments()" meta-data to the basic AMDbObject
+	- adds "sampleId()" and "notes()" meta-data to the basic AMDbObject
 		- demonstrates how to subclass AMDbObject to store additional meta-data in the database
 	- contains an AMDataTree, which is used to store columns of arbitrary-dimensional raw data
 	- provides a list of "channels", which are scientifically-meaningful ways to look at the raw data
@@ -153,8 +153,8 @@ class AMScan : public AMDbObject {
 
 	Q_PROPERTY(int number READ number WRITE setNumber)
 	Q_PROPERTY(QDateTime dateTime READ dateTime WRITE setDateTime)
-	Q_PROPERTY(QString sampleName READ sampleName WRITE setSampleName)
-	Q_PROPERTY(QString comments READ comments WRITE setComments NOTIFY commentsChanged)
+	Q_PROPERTY(int sampleId READ sampleId WRITE setSampleId)
+	Q_PROPERTY(QString notes READ notes WRITE setNotes NOTIFY notesChanged)
 
 public:
 
@@ -179,21 +179,22 @@ public:
 	////////////////////////////////
 	/// Returns a user-given number
 	int number() const { return metaData_["number"].toInt();}
-	/// Returns creation time
+	/// Returns creation time / scan start time
 	QDateTime dateTime() const {return metaData_["dateTime"].toDateTime();}
 	/// Returns the id of the run containing this scan, or (-1) if not associated with a run. \todo return more useful run descriptive information
 	int runId() const { QVariant v = metaData_["runId"]; if(v.isNull()) return -1; else return v.toInt(); }
 
-	/// Returns name of sample
-	QString sampleName() const { return metaData_["sampleName"].toString();}
-	/// Returns comments for scan
-	QString comments() const { return metaData_["comments"].toString();}
-	/// Returns original start time
-	// use DbObject::dateTime();
+	/// Returns name of sample (or -1 if a sample has not been assigned)
+	int sampleId() const { QVariant v = metaData_["sampleId"]; if(v.isNull()) return -1; else return v.toInt();}
+	/// Returns notes/comments for scan
+	QString notes() const { return metaData_["notes"].toString();}
+
 	/// Returns the full scan name: number appended to name
 	QString fullName() const {return QString("%1%2").arg(name()).arg(number()); }
 
 
+	/// Convenience function: returns the name of the sample (if a sample is set)
+	QString sampleName() const;
 
 
 	// Meta-data system
@@ -210,8 +211,8 @@ public:
 		rv << AMMetaMetaData(QVariant::Int, "number", true);
 		rv << AMMetaMetaData(QVariant::DateTime, "dateTime", true);
 		rv << AMMetaMetaData(QVariant::Int, "runId", false);
-		rv << AMMetaMetaData(QVariant::String, "sampleName", true);
-		rv << AMMetaMetaData(QVariant::String, "comments", true);
+		rv << AMMetaMetaData(QVariant::Int, "sampleId", true);
+		rv << AMMetaMetaData(QVariant::String, "notes", true);
 		rv << AMMetaMetaData(QVariant::StringList, "channelNames", false);
 		rv << AMMetaMetaData(QVariant::StringList, "channelExpressions", false);
 		return rv;
@@ -295,9 +296,9 @@ public slots:
 	/// associate this object with a particular run. Set to (-1) to dissociate with any run.  (Note: for now, it's the caller's responsibility to make sure the runId is valid.)
 	void setRunId(int runId) { if(runId < 0) metaData_["runId"] = QVariant(); else metaData_["runId"] = runId; }
 	/// Sets name of sample
-	void setSampleName(const QString &sampleName) { setMetaData("sampleName", sampleName); }
-	/// Sets comments for scan
-	void setComments(const QString &comments) { setMetaData("comments", comments); }
+	void setSampleId(int sampleId) { setMetaData("sampleId", sampleId); }
+	/// Sets notes for scan
+	void setNotes(const QString &notes) { setMetaData("notes", notes); }
 
 	/// create a new channel. The channel will be owned and deleted by the scan.
 	bool addChannel(const QString& chName, const QString& expression);

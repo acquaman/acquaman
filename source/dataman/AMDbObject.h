@@ -72,9 +72,10 @@ AMDbObjects and AMScans normally also provide convenience functions with readabl
 <b>Notes for subclassing AMDbObject, to create more detailed storable data types:</b>
 - Include the Q_OBJECT macro so that Qt's meta-object system knows your class is a distinct type.
 - You must re-implement metaDataKeys(), metaDataUniqueKeys(), and metaDataAllKeys(), calling the base class where appropriate.
+- It's recommended to initialize your meta-data pieces (metaDataUniqueKeys()) inside metaData_ in the constructor.
 - If you need to load or save anything more than your metaData_, you must re-implement loadFromDb() and storeToDb()
-- If you want to store yourself anywhere but in the main object table, you must re-implement dbTableName().  (For example, AMSamples overload dbTableName() to return AMDatabaseDefinition::sampleTableName(), hence making sure that they are stored in a separate table.)
-
+- If you want to store yourself anywhere but in the main object table, you must re-implement databaseTableName().  (For example, AMSamples overload databaseTableName() to return AMDatabaseDefinition::sampleTableName(), hence making sure that they are stored in a separate table.)
+- If you want to have non-blank thumbnails, you must provide thumbnailCount() and thumbnail(int index).
 */
 
 class AMDbObject : public QObject
@@ -162,11 +163,17 @@ public:
 	}
 
 	/// returns the name of the database table where objects like this should be stored. The default implementation stores in AMDatabaseDefinition::objectTableName().
-	virtual QString dbTableName() const;
+	virtual QString databaseTableName() const;
 
 	/// Load yourself from the database. (returns true on success)
 	/*! This version loads all of the meta data found for keys metaDataAllKeys().  Detailed subclasses should re-implement this if they need to load anything more specialized than their meta-data.  When doing so, always call the base class implemention first.*/
 	virtual bool loadFromDb(AMDatabase* db, int id);
+
+	/// If an object has been loaded from a database, this will tell you which database it came from. Returns 0 if this scan instance wasn't loaded out of a database.
+	AMDatabase* database() const {
+		return database_;
+	}
+
 	/// Store or update self in the database. (returns true on success)
 	/*! This version saves all of the meta data found for keys metaDataAllKeys().  Detailed subclasses should re-implement this if they need to save anything not found in the meta data. When doing so, always call the base class implementation first.
 	  */
@@ -206,6 +213,9 @@ protected:
 private:
 	/// unique database id
 	int id_;
+
+	/// pointer to the database where this object came from/should be stored. (If known)
+	AMDatabase* database_;
 
 	/// [obsolted] List of column names required to have in DB
 	/// \todo re-use this for optimizationof metaDataKeys():  static QStringList dbColumnNames_;

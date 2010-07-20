@@ -1,5 +1,6 @@
 #include "AMScan.h"
 #include "dataman/AMDatabase.h"
+#include "dataman/AMDatabaseDefinition.h"
 
 #include <QDebug>
 
@@ -14,13 +15,26 @@ AMScan::AMScan(QObject *parent)
 	metaData_["number"] = 0;
 	metaData_["dateTime"] = QDateTime::currentDateTime();
 	metaData_["runId"] = QVariant();
-	metaData_["sampleName"] = QString();
-	metaData_["comments"] = QString();
+	metaData_["sampleId"] = QVariant();
+	metaData_["notes"] = QString();
 }
 
 
 
+/// Convenience function: returns the name of the sample (if a sample is set)
+QString AMScan::sampleName() const {
 
+	if(sampleId() == -1 || database() == 0)
+		return QString();
+
+	QVariant vSampleName;
+	QList<QVariant*> vList;
+	vList << &vSampleName;
+	if(database()->retrieve(sampleId(), AMDatabaseDefinition::sampleTableName(), QString("name").split(','), vList))
+		return vSampleName.toString();
+	else
+		return QString();
+}
 
 
 

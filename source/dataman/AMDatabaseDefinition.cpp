@@ -81,7 +81,7 @@ void AMDatabaseDefinition::registerType(const AMDbObject* prototype, AMDatabase*
 	v1.setValue(prototype->type());
 	v2.setValue(prototype->typeDescription());
 	v3.setValue(columnNames.join(stringListSeparator()));
-	v4.setValue(prototype->dbTableName());
+	v4.setValue(prototype->databaseTableName());
 
 	db->insertOrUpdate(0,objectTypeTableName(), clist, vlist);
 

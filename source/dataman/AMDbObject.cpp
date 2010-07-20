@@ -4,13 +4,14 @@
 
 AMDbObject::AMDbObject(QObject *parent) : QObject(parent) {
 	id_ = 0;
+	database_ = 0;
 
 	metaData_["name"] = "Untitled";
 
 }
 
 /// returns the name of the database table where objects like this should be stored
-QString AMDbObject::dbTableName() const {
+QString AMDbObject::databaseTableName() const {
 	return AMDatabaseDefinition::objectTableName();
 }
 
@@ -39,7 +40,7 @@ bool AMDbObject::storeToDb(AMDatabase* db) {
 	values << &thumbCountVariant;
 
 	// store typeId, thumbnailCount, and all metadata into main object table
-	int retVal = db->insertOrUpdate(id(), dbTableName(), keys, values);
+	int retVal = db->insertOrUpdate(id(), databaseTableName(), keys, values);
 	if(retVal == 0)
 		return false;
 
@@ -48,14 +49,14 @@ bool AMDbObject::storeToDb(AMDatabase* db) {
 
 	// add all thumbnails.
 	// First, remove all old thumbnails:
-	db->deleteRows(AMDatabaseDefinition::thumbnailTableName(), QString("objectId = %1 AND objectTableName = '%2'").arg(id_).arg(dbTableName()));
+	db->deleteRows(AMDatabaseDefinition::thumbnailTableName(), QString("objectId = %1 AND objectTableName = '%2'").arg(id_).arg(databaseTableName()));
 
 	// store thumbnails in thumbnail table:
 	QVariant firstThumbnailIndex;
 	for(int i=0; i<thumbnailCount(); i++) {
 		AMDbThumbnail t = thumbnail(i);
 
-		QVariant vobjectId(id_), vobjectTableName(dbTableName()), vnumber(i), vtype(t.typeString()), vtitle(t.title), vsubtitle(t.subtitle), vthumbnail(t.thumbnail);
+		QVariant vobjectId(id_), vobjectTableName(databaseTableName()), vnumber(i), vtype(t.typeString()), vtitle(t.title), vsubtitle(t.subtitle), vthumbnail(t.thumbnail);
 		keys.clear();
 		values.clear();
 
@@ -101,6 +102,7 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 
 	if( db->retrieve( sourceId, AMDatabaseDefinition::objectTableName(), keys, values) ) {
 		id_ = sourceId;
+		database_ = db;
 		foreach(QString key, keys)
 			emit metaDataChanged(key);
 		return true;

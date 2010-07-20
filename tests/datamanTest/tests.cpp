@@ -105,8 +105,8 @@ class TestDataman: public QObject
 		dbo.setName("myTestAMScan" + uniqueName);
 		dbo.setDateTime(QDateTime::currentDateTime());
 		dbo.setNumber(42);
-		dbo.setSampleName("mySampleName" + uniqueName);
-		dbo.setComments("my Comments\n"+uniqueName);
+		/// \todo dbo.setSampleName("mySampleName" + uniqueName);
+		dbo.setNotes("my Comments\n"+uniqueName);
 
 		// Insert into db:
 		*AMDatabase::userdb() << dbo;
@@ -124,7 +124,7 @@ class TestDataman: public QObject
 		QCOMPARE(dbo2.number(), dbo.number());
 		QCOMPARE(dbo2.dateTime().toString("yyyy MM/dd hh:mm:ss"), dbo.dateTime().toString("yyyy MM/dd hh:mm:ss"));
 		QCOMPARE(dbo2.sampleName(), dbo.sampleName());
-		QCOMPARE(dbo2.comments(), dbo.comments());
+		QCOMPARE(dbo2.notes(), dbo.notes());
 	}
 
 	/// Test inserts of AMScan into database, and confirm all values loaded back with dynamic loader:
@@ -137,8 +137,8 @@ class TestDataman: public QObject
 		dbo.setName("myTestAMScan" + uniqueName);
 		dbo.setDateTime(QDateTime::currentDateTime());
 		dbo.setNumber(42);
-		dbo.setSampleName("mySampleName" + uniqueName);
-		dbo.setComments("my Comments\n"+uniqueName);
+		/// \todo dbo.setSampleName("mySampleName" + uniqueName);
+		dbo.setNotes("my Comments\n"+uniqueName);
 
 		// Insert into db:
 		*AMDatabase::userdb() << dbo;
@@ -168,7 +168,7 @@ class TestDataman: public QObject
 		QCOMPARE(dbo2->number(), dbo.number());
 		QCOMPARE(dbo2->dateTime().toString("yyyy MM/dd hh:mm:ss"), dbo.dateTime().toString("yyyy MM/dd hh:mm:ss"));
 		QCOMPARE(dbo2->sampleName(), dbo.sampleName());
-		QCOMPARE(dbo2->comments(), dbo.comments());
+		QCOMPARE(dbo2->notes(), dbo.notes());
 	}
 
 	/// Test inserts of AMScan into the database, and confirm all values loaded back with DbObject::loadFromDb().
@@ -181,8 +181,8 @@ class TestDataman: public QObject
 		dbo.setName("myTestAMScan" + uniqueName);
 		dbo.setDateTime(QDateTime::currentDateTime());
 		dbo.setNumber(QDateTime::currentDateTime().toTime_t());
-		dbo.setSampleName("mySampleName" + uniqueName);
-		dbo.setComments("my Comments\n"+uniqueName);
+		/// \todo dbo.setSampleName("mySampleName" + uniqueName);
+		dbo.setNotes("my Comments\n"+uniqueName);
 
 		// Insert into db:
 		*AMDatabase::userdb() << dbo;
@@ -196,15 +196,15 @@ class TestDataman: public QObject
 		//qDebug() << "Checking objectsMatching finds one matching for each column.";
 		//lr = AMDatabase::userdb()->objectsMatching("id", dbo.id());
 		//QCOMPARE(lr.count(), 1);
-		lr = AMDatabase::userdb()->objectsMatching(dbo.dbTableName(), "name", dbo.name());
+		lr = AMDatabase::userdb()->objectsMatching(dbo.databaseTableName(), "name", dbo.name());
 		QCOMPARE(lr.count(), 1);
-		lr = AMDatabase::userdb()->objectsMatching(dbo.dbTableName(), "number", dbo.number());
+		lr = AMDatabase::userdb()->objectsMatching(dbo.databaseTableName(), "number", dbo.number());
 		QCOMPARE(lr.count(), 1);
-		lr = AMDatabase::userdb()->objectsMatching(dbo.dbTableName(), "sampleName", dbo.sampleName());
+		lr = AMDatabase::userdb()->objectsMatching(dbo.databaseTableName(), "sampleName", dbo.sampleName());
 		QCOMPARE(lr.count(), 1);
-		lr = AMDatabase::userdb()->objectsMatching(dbo.dbTableName(), "comments", dbo.comments());
+		lr = AMDatabase::userdb()->objectsMatching(dbo.databaseTableName(), "notes", dbo.notes());
 		QCOMPARE(lr.count(), 1);
-		lr = AMDatabase::userdb()->objectsMatching(dbo.dbTableName(), "dateTime", dbo.dateTime());
+		lr = AMDatabase::userdb()->objectsMatching(dbo.databaseTableName(), "dateTime", dbo.dateTime());
 		/// \todo check for 1-minute tolerance on date-time... This fails...
 		QCOMPARE(lr.count(), 1);
 
@@ -664,7 +664,7 @@ class TestDataman: public QObject
 //		qDebug() << "loading sgm data from file and checking for proper read:" << fileName;
 		QVERIFY(s1Loader.loadFromFile(fileName));
 		QCOMPARE(s1.count(), unsigned(401));
-		QCOMPARE(s1.comments(), QString("0.916667"));
+		QCOMPARE(s1.notes(), QString("0.916667"));
 		QCOMPARE(s1.dateTime().toTime_t(), uint(1269078719));
 		//qDebug() << "s1 raw data columns ('detectors')" << s1.detectors();
 

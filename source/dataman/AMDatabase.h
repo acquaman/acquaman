@@ -100,12 +100,12 @@ public:
 	QSqlQuery query() { return QSqlQuery(qdb()); }
 
 
-	/// Return a list of all the objects/rows (by id) that match 'value' in a certain column {name, number, sampleId, comments, start time (rounded to second), or set of channels}
-	/// ex: AMDatabase::db()->objectsMatching(AMDatabase::Name, "Carbon60"), or AMDatabase::db()->scansMatching(AMDatabase::StartTime, QDateTime::currentDateTime())
+	/// Return a list of all the objects/rows (by id) that match 'value' in a certain column.
+	/// ex: AMDatabase::db()->objectsMatching("name", "Carbon60"), or AMDatabase::db()->objectsMatching("dateTime", QDateTime::currentDateTime())
 	QList<int> objectsMatching(const QString& tableName, const QString& colName, const QVariant& value);
 
-	/// Return a list of all the objects/rows (by id) that contain 'value' in a certain column {name, number, sample name, comment field, start time (rounded to second), or set of channels}
-	/// ex: AMDatabase::db()->scansContaining(AMDatabase::Name, "Carbon60") could return Scans with names Carbon60_alpha and bCarbon60_gamma
+	/// Return a list of all the objects/rows (by id) that contain 'value' in a certain column
+	/// ex: AMDatabase::db()->scansContaining("name", "Carbon60") could return Scans with names Carbon60_alpha and bCarbon60_gamma
 	QList<int> objectsContaining(const QString& tableName, const QString& colName, const QVariant& value);
 
 	/// returns a list of all the objecst/rows (by id) that match a given condition. \c whereClause is a string suitable for appending after an SQL "WHERE" statement.
