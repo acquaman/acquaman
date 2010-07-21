@@ -71,6 +71,7 @@ AMScanViewScanBar::AMScanViewScanBar(AMScanSetModel* model, int scanIndex, QWidg
 	}
 	scrollArea_->setWidget(scrollWidget_);
 	connect(scrollWidget_, SIGNAL(resized(QSize)), this, SLOT(onScrollWidgetResized(QSize)));
+	connect(scrollArea_, SIGNAL(resized(QSize)), this, SLOT(onScrollAreaResized(QSize)));
 
 	scrollArea_->setFrameStyle(QFrame::NoFrame);
 	scrollArea_->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
@@ -200,14 +201,16 @@ void AMScanViewScanBar::onModelDataChanged(const QModelIndex& topLeft, const QMo
 }
 
 void AMScanViewScanBar::onChannelButtonClicked(int id) {
-	Qt::CheckState visible = chButtons_.button(id)->isChecked() ? Qt::Checked : Qt::Unchecked;
-	// in "exclusive" mode, when clicked down, set that channel as the exclusive channel
+	// if in "exclusive" mode, when clicked, set that channel as the exclusive channel
 	if(exclusiveModeOn_) {
-		if(visible == Qt::Checked)
-			model_->setExclusiveChannel(model_->channelAt(scanIndex_, id)->name());
+		//if(visible == Qt::Checked)
+		model_->setExclusiveChannel(model_->channelAt(scanIndex_, id)->name());
+		chButtons_.button(id)->setChecked(true);
 	}
-	else
+	else {
+		Qt::CheckState visible = chButtons_.button(id)->isChecked() ? Qt::Checked : Qt::Unchecked;
 		model_->setData(model_->indexForChannel(scanIndex_, id), QVariant(visible), Qt::CheckStateRole);
+	}
 }
 
 

@@ -158,7 +158,11 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
     source/beamline/AMBeamlineControlAction.h \
     source/ui/SGMSampleTransferView.h \
     source/ui/AMDataView.h \
-    source/dataman/AMSample.h
+    source/dataman/AMSample.h \
+    source/AMAppController.h \
+    source/dataman/AMImportController.h \
+    source/ui/AMImportControllerWidget.h \
+    source/ui/AMThumbnailScrollViewer.h
 FORMS += source/ui/AbsorptionScanController.ui \
     source/ui/BottomBar.ui \
     source/ui/ConnectionSettings.ui \
@@ -173,7 +177,8 @@ FORMS += source/ui/AbsorptionScanController.ui \
     source/ui/AMScanConfigurationView.ui \
     source/ui/AMDataView.ui \
     source/ui/AMDataViewSection.ui \
-    source/ui/AMDataViewEmptyHeader.ui
+    source/ui/AMDataViewEmptyHeader.ui \
+    source/ui/AMImportControllerWidget.ui
 SOURCES += source/acquaman/AMAcqScanOutput.cpp \
     source/acquaman/AMAcqScanSpectrumOutput.cpp \
     source/acquaman/AMDacqScanController.cpp \
@@ -263,6 +268,9 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
     source/ui/SGMSampleTransferView.cpp \
     source/ui/AMDataView.cpp \
     source/dataman/AMDatabaseDefinition.cpp \
-    source/dataman/AMSample.cpp
+    source/dataman/AMSample.cpp \
+    source/AMAppController.cpp \
+    source/dataman/AMImportController.cpp \
+    source/ui/AMThumbnailScrollViewer.cpp
 RESOURCES = source/icons/icons.qrc
 OTHER_FILES += source/muParser/README.txt
