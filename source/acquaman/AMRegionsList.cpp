@@ -44,7 +44,7 @@ bool AMRegionsList::addRegion(size_t index, double start, double delta, double e
 			connect(regions_->regions()->at(index+1), SIGNAL(startChanged(double)), regions_->regions()->at(index), SLOT(adjustEnd(double)));
 			regions_->regions()->at(index+1)->setStart(end);
 		}
-		else if( (index == (count()-1)) && (count() != 1) ){
+		else if( (index == unsigned(count()-1)) && (count() != 1) ){
 			regions_->setData(regions_->index(index, 4), true, Qt::EditRole);
 			regions_->setData(regions_->index(index-1, 5), true, Qt::EditRole);
 			connect(regions_->regions()->at(index), SIGNAL(startChanged(double)), regions_->regions()->at(index-1), SLOT(adjustEnd(double)));
@@ -108,7 +108,7 @@ bool AMRegionsList::deleteRegion(size_t index){
 		disconnect(regions_->regions()->at(index+1), SIGNAL(startChanged(double)), regions_->regions()->at(index), SLOT(adjustEnd(double)));
 //		regions_->regions()->at(index+1)->setStart(end);
 	}
-	else if( (index == (count()-1)) && (count() != 1) ){
+	else if( (index == unsigned(count()-1)) && (count() != 1) ){
 		regions_->setData(regions_->index(index-1, 5), false, Qt::EditRole);
 		disconnect(regions_->regions()->at(index), SIGNAL(startChanged(double)), regions_->regions()->at(index-1), SLOT(adjustEnd(double)));
 		disconnect(regions_->regions()->at(index-1), SIGNAL(endChanged(double)), regions_->regions()->at(index), SLOT(adjustStart(double)));

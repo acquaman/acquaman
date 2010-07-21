@@ -10,16 +10,16 @@
 #include <QMap>
 
 
-/*! This class encapsulates all access to the user's metadata database.  It is a singleton class like AMBeamline, except that it can provide access to either the user's private database object or the public database object.
+/*! This class encapsulates all access to the user's metadata database.  It is a singleton class like AMBeamline, except that it can provide access to either the user's private database or the public database.
 
-	Access the database object via public static functions:
+	Access the database instances via public static functions:
 		- AMDatabase::userdb(), or
 		- AMDatabase::publicdb()
 
 
 
 
-	This class provides tools for accessing and working with a database.  (The actual schema -- or table layout -- for the user database is defined in AMDatabaseDefinition.)  The objective of this class is to cleanly encapsulate the useful SQL queries, and protect the database integrity by not allowing anyone direct access to run arbitrary queries.
+	This class provides tools for accessing and working with an arbitrary database.  (The actual schema -- or table structure -- for the user database is defined in AMDatabaseDefinition.)  The objective of this class is to cleanly encapsulate the useful SQL queries, and protect the database integrity by reducing the amount of times anyone requires direct access to run arbitrary queries.
 
 
 
@@ -70,13 +70,18 @@ public:
 	/// changing single values in the database, at row \c id.
 	bool update(int id, const QString& table, const QString& column, const QVariant& value);
 
-	/// Changing single values in the database (where the id isn't known).  Will update all rows where the value in \c matchColumn is equal to \c matchValue. Will set the value in \c dataColumn to \c dataValue.
-	bool update(const QString& tableName, const QString& matchColumn, const QVariant& matchValue, const QString& dataColumn, const QVariant& dataValue);
+	/// Changing single values in the database (where the id isn't known).  Will update all rows based on the condition specified; \c whereClause is a string suitable for appending after an SQL "WHERE" term.  Will set the value in \c dataColumn to \c dataValue.
+	bool update(const QString& tableName, const QString& whereClause, const QString& dataColumn, const QVariant& dataValue);
+
+	/// delete the object/row in \c tableName at id \c id. Returns true on success.
+	bool deleteRow(int id, const QString& tableName);
+	/// delete all objects/rows in \c tableName that meet a certain condition. \c whereClause is a string suitable for appending after an SQL "WHERE" term. Returns the number of rows deleted.
+	int deleteRows(const QString& tableName, const QString& whereClause);
 
 
 
 
-	/// retrieve an object from the database. (Create the object first; it will be modified to reflect its state in the database)
+	/// retrieve the parameters of an object from the database.
 	/*! id is the object's row in the database.
 		table is the database table name
 		colNames is a list of the column names that the values will be retrieved from
@@ -86,27 +91,34 @@ public:
 	*/
 	bool retrieve(int id, const QString& table, const QStringList& colNames, const QList<QVariant*>& values);
 
-
-	/// Return a list of all the Scans (by id) that match 'value' in a certain column {name, number, sample name, comment field, start time (rounded to second), or set of channels}
-	/// ex: AMDatabase::db()->objectsMatching(AMDatabase::Name, "Carbon60"), or AMDatabase::db()->scansMatching(AMDatabase::StartTime, QDateTime::currentDateTime())
-	QList<int> scansMatching(const QString& colName, const QVariant& value);
-
-	/// Return a list of all the Scans (by id) that contain 'value' in a certain column {name, number, sample name, comment field, start time (rounded to second), or set of channels}
-	/// ex: AMDatabase::db()->scansContaining(AMDatabase::Name, "Carbon60") could return Scans with names Carbon60_alpha and bCarbon60_gamma
-	QList<int> scansContaining(const QString& colName, const QVariant& value);
-
-	/// Return the type of an object stored at 'id'. (Returns empty string if not found.)
-	QString scanType(int id);
-
 	/// ensure that a table of the given name exists. If it doesn't, it will be created with the columns contained in \c columnNames. \c columnTypes is a list of SQLite column types ("TEXT", "INTEGER", etc.), which must have an entry for each \c columnName.
 	bool ensureTable(const QString& tableName, const QStringList& columnNames, const QStringList& columnTypes);
 	/// ensure that a given column (with \c columName and \c columnType) exists, in the table \c tableName.  \c columnType is an SQLite type ("TEXT" or "INTEGER" recommended).
 	bool ensureColumn(const QString& tableName, const QString& columnName, const QString& columnType = "TEXT");
 
+	/// Returns a QSqlQuery object for this database. The contents of the query have not been initialized. Beware: this can give you full-power access to the database. Don't break it!
+	QSqlQuery query() { return QSqlQuery(qdb()); }
+
+
+	/// Return a list of all the objects/rows (by id) that match 'value' in a certain column.
+	/// ex: AMDatabase::db()->objectsMatching("name", "Carbon60"), or AMDatabase::db()->objectsMatching("dateTime", QDateTime::currentDateTime())
+	QList<int> objectsMatching(const QString& tableName, const QString& colName, const QVariant& value);
+
+	/// Return a list of all the objects/rows (by id) that contain 'value' in a certain column
+	/// ex: AMDatabase::db()->scansContaining("name", "Carbon60") could return Scans with names Carbon60_alpha and bCarbon60_gamma
+	QList<int> objectsContaining(const QString& tableName, const QString& colName, const QVariant& value);
+
+	/// returns a list of all the objecst/rows (by id) that match a given condition. \c whereClause is a string suitable for appending after an SQL "WHERE" statement.
+	QList<int> objectsWhere(const QString& tableName, const QString& whereClause);
+
+
+
 
 signals:
 	/// Emitted when an object is inserted or modified. Contains the id of the inserted or modified object.
 	void updated(int id);
+	/// Emitted after an object is removed. Contains the old id of the removed object.
+	void removed(int oldId);
 
 protected:
 	/// Access the QSqlAMDatabase object for this connection.

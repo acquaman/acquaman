@@ -1,5 +1,6 @@
 #include "AMScan.h"
 #include "dataman/AMDatabase.h"
+#include "dataman/AMDatabaseDefinition.h"
 
 #include <QDebug>
 
@@ -11,14 +12,29 @@ AMScan::AMScan(QObject *parent)
 	// created a new top-level data tree (not shared with anyone). Assigning it to dshared_ gives it a reference count of 1. The tree will be automatically deleted when dshared_ goes out of scope (ie: when dshared_ gets deleted, moving the reference count to 0.)
 	dshared_ = d_ = new AMDataTree(0, "x", true);
 
-
-	metaData_["sampleName"] = QString();
-	metaData_["comments"] = QString();
+	metaData_["number"] = 0;
+	metaData_["dateTime"] = QDateTime::currentDateTime();
+	metaData_["runId"] = QVariant();
+	metaData_["sampleId"] = QVariant();
+	metaData_["notes"] = QString();
 }
 
 
 
+/// Convenience function: returns the name of the sample (if a sample is set)
+QString AMScan::sampleName() const {
 
+	if(sampleId() == -1 || database() == 0)
+		return QString();
+
+	QVariant vSampleName;
+	QList<QVariant*> vList;
+	vList << &vSampleName;
+	if(database()->retrieve(sampleId(), AMDatabaseDefinition::sampleTableName(), QString("name").split(','), vList))
+		return vSampleName.toString();
+	else
+		return QString();
+}
 
 
 
@@ -69,7 +85,6 @@ bool AMScan::storeToDb(AMDatabase* db) {
 
 	// the base class version is good at saving all the values in the metaData_ hash. Let's just exploit that.
 	metaData_["channelNames"] = channelNames().join(AMDatabaseDefinition::stringListSeparator());
-	qDebug() << metaData_["channelNames"];
 	metaData_["channelExpressions"] = channelExpressions().join(AMDatabaseDefinition::stringListSeparator());
 
 	// Call the base class implementation
@@ -113,3 +128,54 @@ bool AMScan::loadFromDb(AMDatabase* db, int sourceId) {
 }
 
 
+#include <QPixmap>
+#include <QBuffer>
+#include <QByteArray>
+
+// hackish... just needed for colors. Move the color table somewhere else.
+#include "dataman/AMScanSetModel.h"
+
+#include "MPlot/MPlot.h"
+
+/// Return a thumbnail picture of the channel
+AMDbThumbnail AMScan::thumbnail(int index) const {
+
+	if((unsigned)index >= (unsigned)numChannels())
+		return AMDbThumbnail(QString(), QString(), AMDbThumbnail::InvalidType, QByteArray());
+
+	QPixmap pixmap(240, 180);
+	QPainter painter(&pixmap);
+	QGraphicsScene gscene(QRectF(0,0,240,180));
+	MPlot plot(QRectF(0,0,240,180));
+	gscene.addItem(&plot);
+
+	plot.setMarginLeft(2);
+	plot.setMarginRight(2);
+	plot.setMarginTop(2);
+	plot.setMarginBottom(10);
+	plot.axisRight()->setTicks(0);
+	plot.axisTop()->setTicks(0);
+	plot.axisBottom()->setTicks(2);
+	plot.axisBottom()->showAxisName(false);
+
+	MPlotSeriesBasic series(channel(index));
+	/// Todo: non-arbitrary colors here; don't mess up the ordering in AMScanSetModelChannelMetaData
+	QPen seriesPen(QBrush(AMScanSetModelChannelMetaData::nextColor()), 2);
+	series.setLinePen(seriesPen);
+	series.setMarker(MPlotMarkerShape::None);
+
+	plot.enableAutoScale(MPlotAxis::Left | MPlotAxis::Bottom);
+	plot.addItem(&series);
+
+	gscene.render(&painter);
+	painter.end();
+
+	QByteArray result;
+	QBuffer bresult(&result);
+	bresult.open(QIODevice::WriteOnly);
+	pixmap.save(&bresult, "PNG");
+
+	/// todo: pretty names like "Total Electron Yield" instead of "tey_n"
+	return AMDbThumbnail(channel(index)->name(), QString(), AMDbThumbnail::PNGType, result);
+
+}

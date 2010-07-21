@@ -7,6 +7,7 @@
 
 #include <QDebug>
 
+
 CamWidget::CamWidget(const QString& cameraName, const QUrl& cameraAddress, QWidget* parent) : QWidget(parent) {
 	
 	// Setup UI:
@@ -17,7 +18,7 @@ CamWidget::CamWidget(const QString& cameraName, const QUrl& cameraAddress, QWidg
 	QHBoxLayout* hl1 = new QHBoxLayout();
 	
 	// VideoWidget takes up main space:
-	videoWidget_ = new Phonon::VideoWidget();
+	videoWidget_ = new AMCrosshairVideoWidget();
 	
 	vl1->addWidget(videoWidget_);
 	
@@ -61,21 +62,22 @@ void CamWidget::setupVideo() {
 	
 }
 
+#include "AMErrorMonitor.h"
+
 void CamWidget::onSourceChanged(int index) {
-	
+
 	mediaObject_->stop();
 	
 	QUrl source( cameraList_->itemData(index).toUrl() );
-	
+	AMErrorMon::report(AMErrorReport(this, AMErrorReport::Information, 0, QString("Connecting to video server: '%1%2' with user name: '%3' and password: '%4'").arg(source.host()).arg(source.path()).arg(source.userName()).arg(source.password())));
+
 	mediaObject_->setCurrentSource( source );
-	qDebug() << QString("Connecting to video server: '%1%2' with user name: '%3' and password: '%4'").arg(source.host()).arg(source.path()).arg(source.userName()).arg(source.password());
 	
 	mediaObject_->play();
 	
 }
 
 void CamWidget::addSource(const QString& cameraName, const QUrl& cameraAddress) {
-	
-	cameraList_->insertItem(cameraList_->count(), cameraName, cameraAddress);
-	
+
+	cameraList_->addItem(cameraName, QVariant::fromValue(cameraAddress));
 }

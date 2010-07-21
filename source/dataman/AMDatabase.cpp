@@ -1,11 +1,8 @@
 #include "AMDatabase.h"
 
-#include <QDir>
 #include <QStringList>
 
 #include "AMErrorMonitor.h"
-
-#include "dataman/AMDatabaseDefinition.h"
 
 /// Internal instance pointers
 AMDatabase* AMDatabase::userInstance_ = 0;
@@ -72,6 +69,7 @@ void AMDatabase::releasePublicDb() {
 		publicInstance_ = 0;
 	}
 }
+
 
 /// Inserting or updating objects in the database.
 /*! id is the object's row in the database (for updates), or 0 (for inserts).
@@ -170,32 +168,106 @@ bool AMDatabase::update(int id, const QString& table, const QString& column, con
 }
 
 
-/// Changing single values in the database (where the id isn't known).  Will update all rows where the value in \c matchColumn is equal to \c matchValue. Will set the value in \c dataColumn to \c dataValue.
-bool AMDatabase::update(const QString& tableName, const QString& matchColumn, const QVariant& matchValue, const QString& dataColumn, const QVariant& dataValue) {
+/// Changing single values in the database (where the id isn't known).  Will update all rows based on the condition specified; \c whereClause is a string suitable for appending after an SQL "WHERE" term.  Will set the value in \c dataColumn to \c dataValue.
+bool AMDatabase::update(const QString& tableName, const QString& whereClause, const QString& dataColumn, const QVariant& dataValue) {
+
+	/// \todo sanitize more than this...
+	if(whereClause.isEmpty() || dataColumn.isEmpty() || tableName.isEmpty()) {
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -10, "Could not complete the database update; missing the table name, column, or WHERE clause."));
+		return false;
+	}
 
 	QSqlDatabase db = qdb();
 
 	if(!db.isOpen()) {
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -2, "Could not save to database. (Database is not open.)"));
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -2, "Could not save to the database. (Database is not open.)"));
 		return false;
 	}
 
 	// Prepare the query. Todo: sanitize column names and table name. (Can't use binding because it's not an expression here)
 	QSqlQuery query(db);
-	query.prepare(QString("UPDATE %1 SET %2 = ? WHERE %3 = ?").arg(tableName).arg(dataColumn).arg(matchColumn));
+	query.prepare(QString("UPDATE %1 SET %2 = ? WHERE %3").arg(tableName).arg(dataColumn).arg(whereClause));
 	query.bindValue(0, dataValue);
-	query.bindValue(1, matchValue);
 
 	// Run query. Query failed?
 	if(!query.exec()) {
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -3, QString("database save failed. Could not execute query (%1). The SQL reply was: %2").arg(query.executedQuery()).arg(query.lastError().text())));
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -3, QString("Failed to update the database. Could not execute the query (%1). The SQL reply was: %2").arg(query.executedQuery()).arg(query.lastError().text())));
 		return false;
 	}
 	// Query succeeded.
+	query.result();
 	/// \todo figure out id, so can emit updated(id);
 	return true;
 
 }
+
+
+
+/// delete the object/row in \c tableName at id \c id. Returns true on success.
+bool AMDatabase::deleteRow(int id, const QString& tableName) {
+
+	/// \todo sanitize more than this...
+	if(tableName.isEmpty()) {
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -10, "Could not update the database. (Missing the table name, column, or WHERE clause.)"));
+		return false;
+	}
+
+	QSqlDatabase db = qdb();
+
+	if(!db.isOpen()) {
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -2, "Could not update the database. (Database is not open.)"));
+		return false;
+	}
+
+	// Prepare the query (todo: sanitize table name)
+	QSqlQuery query(db);
+	query.prepare(QString("DELETE FROM %1 WHERE id = ?").arg(tableName));
+	query.bindValue(0, id);
+
+	// Run query. Query failed?
+	if(!query.exec()) {
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -3, QString("Failed to delete the database object. Could not execute the query (%1). The SQL reply was: %2").arg(query.executedQuery()).arg(query.lastError().text())));
+		return false;
+	}
+	emit removed(id);
+	// Query succeeded.
+	return true;
+
+}
+
+/// delete all objects/rows in \c tableName that meet a certain condition. \c whereClause is a string suitable for appending after an SQL "WHERE" term. Returns the number of rows deleted, or 0 if it fails to delete any.
+int AMDatabase::deleteRows(const QString& tableName, const QString& whereClause) {
+
+	/// \todo sanitize more than this...
+	if(tableName.isEmpty() || whereClause.isEmpty()) {
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -10, "Could not update the database. (Missing the table name, column, or WHERE clause.)"));
+		return 0;
+	}
+
+	QSqlDatabase db = qdb();
+
+	if(!db.isOpen()) {
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -2, "Could not update the database. (Database is not open.)"));
+		return 0;
+	}
+
+	// Prepare the query (todo: sanitize table name)
+	QSqlQuery query(db);
+	query.prepare(QString("DELETE FROM %1 WHERE %2").arg(tableName).arg(whereClause));
+
+	// Run query. Query failed?
+	if(!query.exec()) {
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -3, QString("Failed to delete the database object(s). Could not execute the query (%1). The SQL reply was: %2").arg(query.executedQuery()).arg(query.lastError().text())));
+		return 0;
+	}
+	/// \todo Figure out which rows were removed, eh?
+
+	// Query succeeded.
+	return query.numRowsAffected();
+}
+
+
+
 /// retrieve object information from the database.
 /*! id is the object's row in the database.
 	table is the database table name
@@ -205,6 +277,12 @@ bool AMDatabase::update(const QString& tableName, const QString& matchColumn, co
 	Return value: returns true on success.
 */
 bool AMDatabase::retrieve(int id, const QString& table, const QStringList& colNames, const QList<QVariant*>& values) {
+
+	/// \todo sanitize more than this...
+	if(table.isEmpty()) {
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -10, "Could not search the database. (Missing the table name.)"));
+		return false;
+	}
 
 	// create a query on our database connection:
 	QSqlQuery q( qdb() );
@@ -239,27 +317,56 @@ bool AMDatabase::retrieve(int id, const QString& table, const QStringList& colNa
 
 
 
+/// returns a list of all the objecst/rows (by id) that match a given condition. \c whereClause is a string suitable for appending after an SQL "WHERE" statement.
+QList<int> AMDatabase::objectsWhere(const QString& tableName, const QString& whereClause) {
+
+	QList<int> rl;
+
+	/// \todo sanitize more than this...
+	if(tableName.isEmpty() || whereClause.isEmpty()) {
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -10, "Could not search the database. (Missing the table name or column name.)"));
+		return rl;
+	}
+
+	QSqlQuery q( qdb() );
+
+	q.prepare(QString("SELECT id FROM %1 WHERE %2").arg(tableName).arg(whereClause));
+	q.exec();
+
+	while(q.next()) {
+		rl << q.value(0).toInt();
+	}
+	q.finish();
 
 
-/// Return a list of all the objects (by id) that match 'value' in a certain column {name, number, sample name, comment field, start time (rounded to second), or set of channels}
-/// ex: AMDatabase::db()->objectsMatching(AMDatabase::Name, "Carbon60"), or AMDatabase::db()->scansMatching(AMDatabase::StartTime, QDateTime::currentDateTime())
-QList<int> AMDatabase::scansMatching(const QString& colName, const QVariant& value) {
+	return rl;
+}
+
+/// Return a list of all the objects/rows (by id) that match 'value' in a certain column.
+/// ex: AMDatabase::db()->objectsMatching("name", "Carbon60"), or AMDatabase::db()->objectsMatching("dateTime", QDateTime::currentDateTime())
+QList<int> AMDatabase::objectsMatching(const QString& tableName, const QString& colName, const QVariant& value) {
 
 	// return value: list of id's that match
 	QList<int> rl;
 
-
-	QString table = AMDatabaseDefinition::objectTableName();
+	/// \todo sanitize more than this...
+	if(tableName.isEmpty() || colName.isEmpty()) {
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -10, "Could not search the database. (Missing the table name or column name.)"));
+		return rl;
+	}
 
 	QSqlQuery q( qdb() );
 
 	// For date/times, we want a resolution of one minute to count as a match
-	if(value.type() == QVariant::DateTime)
-		q.prepare(QString("SELECT id FROM %1 WHERE %2 BETWEEN datetime(:val, '-1 minute') AND datetime(:val, '+1 minute')").arg(table).arg(colName));
-	else
-		q.prepare(QString("SELECT id FROM %1 WHERE %2 = :val").arg(table).arg(colName));
-
-	q.bindValue(":val", value);
+	if(value.type() == QVariant::DateTime) {
+		q.prepare(QString("SELECT id FROM %1 WHERE %2 BETWEEN datetime(?, '-1 minute') AND datetime(?, '+1 minute')").arg(tableName).arg(colName));
+		q.bindValue(0, value);
+		q.bindValue(1, value);
+	}
+	else {
+		q.prepare(QString("SELECT id FROM %1 WHERE %2 = ?").arg(tableName).arg(colName));
+		q.bindValue(0, value);
+	}
 	q.exec();
 
 	while(q.next()) {
@@ -271,17 +378,22 @@ QList<int> AMDatabase::scansMatching(const QString& colName, const QVariant& val
 }
 
 
-/// Return a list of all the Scans (by id) that contain 'value' in a certain column
-/// ex: AMDatabase::db()->scansContaining(AMDatabase::Name, "Carbon60") could return Scans with names Carbon60_alpha and bCarbon60_gamma
-QList<int> AMDatabase::scansContaining(const QString& colName, const QVariant& value) {
+/// Return a list of all the objects/rows (by id) that contain 'value' in a certain column
+/// ex: AMDatabase::db()->scansContaining("name", "Carbon60") could return Scans with names Carbon60_alpha and bCarbon60_gamma
+QList<int> AMDatabase::objectsContaining(const QString& tableName, const QString& colName, const QVariant& value) {
 
 	QList<int> rl;
 
-	QString table = AMDatabaseDefinition::objectTableName();
+	/// \todo sanitize more than this...
+	if(tableName.isEmpty() || colName.isEmpty()) {
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -10, "Could not search the database. (Missing the table name or column name.)"));
+		return rl;
+	}
+
 
 	QSqlQuery q( qdb() );
 
-	q.prepare(QString("SELECT id FROM %1 WHERE %2 LIKE ('%' || :val || '%')").arg(table).arg(colName));
+	q.prepare(QString("SELECT id FROM %1 WHERE %2 LIKE ('%' || :val || '%')").arg(tableName).arg(colName));
 
 	q.bindValue(":val", value);
 	q.exec();
@@ -295,7 +407,6 @@ QList<int> AMDatabase::scansContaining(const QString& colName, const QVariant& v
 	return rl;
 }
 
-/// AMDatabase admin / temporary testing only:
 bool AMDatabase::ensureTable(const QString& tableName, const QStringList& columnNames, const QStringList& columnTypes) {
 
 	if(columnNames.count() != columnTypes.count()) {
@@ -327,28 +438,6 @@ bool AMDatabase::ensureTable(const QString& tableName, const QStringList& column
 		return false;
 	}
 }
-
-/// Return the type of an object stored at 'id'. (Returns empty string if not found.)
-QString AMDatabase::scanType(int id) {
-	// create a query on our database connection:
-	QSqlQuery q( qdb() );
-
-	// Prepare the query. Todo: sanitize name?
-	q.prepare(QString("SELECT type FROM %1 WHERE id = ?").arg(AMDatabaseDefinition::objectTableName()));
-	q.bindValue(0, id);
-
-	// run query and return true if succeeded at finding id:
-	if(q.exec() && q.first()) {
-
-		return q.value(0).toString();
-	}
-
-	else {
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, -7, "could not find a scan at that id."));
-		return QString();
-	}
-}
-
 
 
 /// ensure that a given column (with \c columName and \c columnType) exists, in the table \c tableName.  \c columnType is an SQLite type ("TEXT" or "INTEGER" recommended).

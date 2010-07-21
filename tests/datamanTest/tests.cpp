@@ -45,8 +45,7 @@ class TestDataman: public QObject
 		//qDebug() << "Generating DbObject with unique properties.";
 		QString uniqueName = QDateTime::currentDateTime().toString("ddddMMddhh:mm:ss.zzz");
 		dbo.setName("myTestDbObject" + uniqueName);
-		dbo.setDateTime(QDateTime::currentDateTime());
-		dbo.setNumber(42);
+
 
 		// Insert into db:
 		*AMDatabase::userdb() << dbo;
@@ -61,8 +60,7 @@ class TestDataman: public QObject
 		//qDebug() << "Retrieving DbObject out of database: comparing all parameters with original:";
 		QCOMPARE(dbo2.id(), dbo.id());
 		QCOMPARE(dbo2.name(), dbo.name());
-		QCOMPARE(dbo2.number(), dbo.number());
-		QCOMPARE(dbo2.dateTime().toString("yyyy MM/dd hh:mm:ss"), dbo.dateTime().toString("yyyy MM/dd hh:mm:ss"));
+
 	}
 
 	/// Test inserts of DbObjects into database, and confirm all values loaded back with dynamic loader:
@@ -73,8 +71,6 @@ class TestDataman: public QObject
 		//qDebug() << "Generating DbObject with unique properties.";
 		QString uniqueName = QDateTime::currentDateTime().toString("ddddMMddhh:mm:ss.zzz");
 		dbo.setName("myTestDbObject" + uniqueName);
-		dbo.setDateTime(QDateTime::currentDateTime());
-		dbo.setNumber(42);
 
 		// Insert into db:
 		*AMDatabase::userdb() << dbo;
@@ -97,8 +93,6 @@ class TestDataman: public QObject
 		//qDebug() << "Retrieved DbObject out of database: comparing all parameters with original:";
 		QCOMPARE(dbo2->id(), dbo.id());
 		QCOMPARE(dbo2->name(), dbo.name());
-		QCOMPARE(dbo2->number(), dbo.number());
-		QCOMPARE(dbo2->dateTime().toString("yyyy MM/dd hh:mm:ss"), dbo.dateTime().toString("yyyy MM/dd hh:mm:ss"));
 	}
 
 	/// Test inserts of AMScan into the database, and confirm all values loaded back with DbObject::loadFromDb().
@@ -111,8 +105,8 @@ class TestDataman: public QObject
 		dbo.setName("myTestAMScan" + uniqueName);
 		dbo.setDateTime(QDateTime::currentDateTime());
 		dbo.setNumber(42);
-		dbo.setSampleName("mySampleName" + uniqueName);
-		dbo.setComments("my Comments\n"+uniqueName);
+		/// \todo dbo.setSampleName("mySampleName" + uniqueName);
+		dbo.setNotes("my Comments\n"+uniqueName);
 
 		// Insert into db:
 		*AMDatabase::userdb() << dbo;
@@ -130,7 +124,7 @@ class TestDataman: public QObject
 		QCOMPARE(dbo2.number(), dbo.number());
 		QCOMPARE(dbo2.dateTime().toString("yyyy MM/dd hh:mm:ss"), dbo.dateTime().toString("yyyy MM/dd hh:mm:ss"));
 		QCOMPARE(dbo2.sampleName(), dbo.sampleName());
-		QCOMPARE(dbo2.comments(), dbo.comments());
+		QCOMPARE(dbo2.notes(), dbo.notes());
 	}
 
 	/// Test inserts of AMScan into database, and confirm all values loaded back with dynamic loader:
@@ -143,8 +137,8 @@ class TestDataman: public QObject
 		dbo.setName("myTestAMScan" + uniqueName);
 		dbo.setDateTime(QDateTime::currentDateTime());
 		dbo.setNumber(42);
-		dbo.setSampleName("mySampleName" + uniqueName);
-		dbo.setComments("my Comments\n"+uniqueName);
+		/// \todo dbo.setSampleName("mySampleName" + uniqueName);
+		dbo.setNotes("my Comments\n"+uniqueName);
 
 		// Insert into db:
 		*AMDatabase::userdb() << dbo;
@@ -174,7 +168,7 @@ class TestDataman: public QObject
 		QCOMPARE(dbo2->number(), dbo.number());
 		QCOMPARE(dbo2->dateTime().toString("yyyy MM/dd hh:mm:ss"), dbo.dateTime().toString("yyyy MM/dd hh:mm:ss"));
 		QCOMPARE(dbo2->sampleName(), dbo.sampleName());
-		QCOMPARE(dbo2->comments(), dbo.comments());
+		QCOMPARE(dbo2->notes(), dbo.notes());
 	}
 
 	/// Test inserts of AMScan into the database, and confirm all values loaded back with DbObject::loadFromDb().
@@ -187,8 +181,8 @@ class TestDataman: public QObject
 		dbo.setName("myTestAMScan" + uniqueName);
 		dbo.setDateTime(QDateTime::currentDateTime());
 		dbo.setNumber(QDateTime::currentDateTime().toTime_t());
-		dbo.setSampleName("mySampleName" + uniqueName);
-		dbo.setComments("my Comments\n"+uniqueName);
+		/// \todo dbo.setSampleName("mySampleName" + uniqueName);
+		dbo.setNotes("my Comments\n"+uniqueName);
 
 		// Insert into db:
 		*AMDatabase::userdb() << dbo;
@@ -199,18 +193,18 @@ class TestDataman: public QObject
 
 		QList<int> lr;
 		// Check: all columns: scans matching should be 1:
-		//qDebug() << "Checking scansMatching finds one matching for each column.";
-		//lr = AMDatabase::userdb()->scansMatching("id", dbo.id());
+		//qDebug() << "Checking objectsMatching finds one matching for each column.";
+		//lr = AMDatabase::userdb()->objectsMatching("id", dbo.id());
 		//QCOMPARE(lr.count(), 1);
-		lr = AMDatabase::userdb()->scansMatching("name", dbo.name());
+		lr = AMDatabase::userdb()->objectsMatching(dbo.databaseTableName(), "name", dbo.name());
 		QCOMPARE(lr.count(), 1);
-		lr = AMDatabase::userdb()->scansMatching("number", dbo.number());
+		lr = AMDatabase::userdb()->objectsMatching(dbo.databaseTableName(), "number", dbo.number());
 		QCOMPARE(lr.count(), 1);
-		lr = AMDatabase::userdb()->scansMatching("sampleName", dbo.sampleName());
+		lr = AMDatabase::userdb()->objectsMatching(dbo.databaseTableName(), "sampleName", dbo.sampleName());
 		QCOMPARE(lr.count(), 1);
-		lr = AMDatabase::userdb()->scansMatching("comments", dbo.comments());
+		lr = AMDatabase::userdb()->objectsMatching(dbo.databaseTableName(), "notes", dbo.notes());
 		QCOMPARE(lr.count(), 1);
-		lr = AMDatabase::userdb()->scansMatching("dateTime", dbo.dateTime());
+		lr = AMDatabase::userdb()->objectsMatching(dbo.databaseTableName(), "dateTime", dbo.dateTime());
 		/// \todo check for 1-minute tolerance on date-time... This fails...
 		QCOMPARE(lr.count(), 1);
 
@@ -670,7 +664,7 @@ class TestDataman: public QObject
 //		qDebug() << "loading sgm data from file and checking for proper read:" << fileName;
 		QVERIFY(s1Loader.loadFromFile(fileName));
 		QCOMPARE(s1.count(), unsigned(401));
-		QCOMPARE(s1.comments(), QString("0.916667"));
+		QCOMPARE(s1.notes(), QString("0.916667"));
 		QCOMPARE(s1.dateTime().toTime_t(), uint(1269078719));
 		//qDebug() << "s1 raw data columns ('detectors')" << s1.detectors();
 

@@ -18,6 +18,34 @@ public:
 	bool writeable;
 };
 
+
+/// Thumbnails are fast little blobs of data used as icons or images to visually represent AMDbObjects.
+class AMDbThumbnail {
+public:
+	/// The thumbnail types currently supported are \c InvalidType, which is a blank thumbnail, and \c PNGType, which is a PNG image (Recommended size 240 x 180 px).
+	/*! \todo Future thumbnail types could include vector formats and plot-based data formats */
+	enum ThumbnailType { InvalidType, PNGType };
+
+	AMDbThumbnail(const QString& Title = QString(), const QString& Subtitle = QString(), ThumbnailType Type = InvalidType, const QByteArray& ThumbnailData = QByteArray())
+		: title(Title), subtitle(Subtitle), type(Type), thumbnail(ThumbnailData) {}
+
+	QString title, subtitle;
+	ThumbnailType type;
+	QByteArray thumbnail;
+
+	QString typeString() const {
+		switch(type) {
+		case PNGType:
+			return "PNG";
+			break;
+		case InvalidType:
+		default:
+			return "Invalid";
+			break;
+		}
+	}
+};
+
 /// This class is the base class for all user-data objects that can be stored in the database.  A generic Scan inherits from this class.
 /*! It provides a database id, handling of inserts/retrieves, and very basic metadata that should be common to everything you might want to store:
 - a user-chosen "name" and "number"
@@ -25,25 +53,29 @@ public:
 
 \todo Write more complete documentation.
 
-<b>Notes for subclassing AMDbObject, to create more detailed storable data types:</b>
-- If you need to load or save anything more than your metaData_, you must re-implement loadFromDb() and storeToDb()
-- Must re-implement metaDataKeys(), metaDataUniqueKeys(), and metaDataAllKeys(), calling the base class where appropriate.
-
-
 <b>Meta data system</b>
 DbObjects and Scans store their meta-data in a flexible, general way, similar to Qt's Property system. (Todo: decide if we should just merge this into the Qt property system.)
 
-Finding out what pieces of meta-data are available:
-- metaDataKeys()
-- metaDataUniqueKeys()
-- metaDataAllKeys()
+To find out what pieces of meta-data are available:
+- metaDataKeys(): returns the available pieces of meta-data for this type of object, including all inherited from base classes (ie: own + base classes'). (static method)
+- metaDataUniqueKeys(): returns the available pieces of meta-data for this type of object, excluding those inherited from base classes (ie: own only). (static method)
+- metaDataAllKeys(): returns the available pieces of meta-data corresponding to the most detailed type of this instance (ie: own + base classes' + derived classes'). (virtual method)
 
 Meta-data pieces have a data-type (QVariant::Type), a unique key or name to access them with (QString), and a flag to indicate whether they are settable/writeable.  They can be read with
 - metaData(const QString& key), and, if available, written with
 - setMetaData(const QString& key, const QVariant& value)
 
-Scans and DbObjects normally also provide convenience functions with readable names to access the meta data values.  Internally, the meta data values are stored in a QHash<QString, QVariant>.
+When a piece of meta-data is changed, it's appropriate to emit metaDataChanged(), passing the key of the piece that was changed. This is handled in the base class inside setMetaData().
 
+AMDbObjects and AMScans normally also provide convenience functions with readable names to access the meta data values.  Internally, the meta data values are stored in a QHash<QString, QVariant> metaData_.
+
+<b>Notes for subclassing AMDbObject, to create more detailed storable data types:</b>
+- Include the Q_OBJECT macro so that Qt's meta-object system knows your class is a distinct type.
+- You must re-implement metaDataKeys(), metaDataUniqueKeys(), and metaDataAllKeys(), calling the base class where appropriate.
+- It's recommended to initialize your meta-data pieces (metaDataUniqueKeys()) inside metaData_ in the constructor.
+- If you need to load or save anything more than your metaData_, you must re-implement loadFromDb() and storeToDb()
+- If you want to store yourself anywhere but in the main object table, you must re-implement databaseTableName().  (For example, AMSamples overload databaseTableName() to return AMDatabaseDefinition::sampleTableName(), hence making sure that they are stored in a separate table.)
+- If you want to have non-blank thumbnails, you must provide thumbnailCount() and thumbnail(int index).
 */
 
 class AMDbObject : public QObject
@@ -51,24 +83,16 @@ class AMDbObject : public QObject
 	Q_OBJECT
 	Q_PROPERTY(QString id READ id)
 	Q_PROPERTY(QString name READ name WRITE setName)
-	Q_PROPERTY(int number READ number WRITE setNumber)
-	Q_PROPERTY(QDateTime dateTime READ dateTime WRITE setDateTime)
 
 
 public:
     explicit AMDbObject(QObject *parent = 0);
 
-	/// Returns scan's unique id
+	/// Returns an object's unique id
 	int id() const { return id_; }
 
 	/// Returns user given name
 	QString name() const { return metaData_["name"].toString();}
-	/// Returns a user-given number
-	int number() const { return metaData_["number"].toInt();}
-	/// Returns creation time
-	QDateTime dateTime() const {return metaData_["dateTime"].toDateTime();}
-	/// Returns the id of the run containing this scan, or (-1) if not associated with a run. \todo return more useful run descriptive information
-	int runId() const { QVariant v = metaData_["runId"]; if(v.isNull()) return -1; else return v.toInt(); }
 
 
 	// Meta-data system
@@ -82,10 +106,7 @@ public:
 	/// Returns the available pieces of meta data for this type of object, excluding those inherited from base classes. (ie: own only)
 	static QList<AMMetaMetaData> metaDataUniqueKeys() {
 		QList<AMMetaMetaData> rv;
-		rv << AMMetaMetaData(QVariant::DateTime, "dateTime", true);
 		rv << AMMetaMetaData(QVariant::String, "name", true);
-		rv << AMMetaMetaData(QVariant::Int, "number", true);
-		rv << AMMetaMetaData(QVariant::Int, "runId", false);
 		return rv;
 	}
 
@@ -117,20 +138,63 @@ public:
 	// These functions provide support for storing and retrieving from the database.
 	// ===================================
 
-	/// The type (aka class name) of this object (corresponding to the type of the most detailed subclass)
+	/// The type (class name) of this object (corresponding to the type of the most detailed subclass).
 	/*! This will be stored in the database and used to figure out the real type of the object when loading*/
 	QString type() const{
 		// metaObject() is virtual, so this will produce the class name of the most detailed subclass.
 		return this->metaObject()->className();
 	}
 
+	/// A human-readable description for the type of this object. (ex: "XAS Scan"). The default implementation just returns type(), the class name. You can re-implement for better usability.
+	virtual QString typeDescription() const {
+		return type();
+	}
+
+	/// returns the typeId of this scan's registered type in a database. If it hasn't been registered as a type yet, this will return 0.
+	/*! Althought this function doesn't look like it's virtual, it calls type() and returns the typeId of the most detailed subclass.*/
+	int typeId(AMDatabase* db) const {
+		QSqlQuery q = db->query();
+		q.prepare("SELECT id FROM ObjectTypes WHERE className = ?");
+		q.bindValue(0, type());
+		if(q.exec() && q.next())
+			return q.value(0).toInt();
+		else
+			return 0;
+	}
+
+	/// returns the name of the database table where objects like this should be stored. The default implementation stores in AMDatabaseDefinition::objectTableName().
+	virtual QString databaseTableName() const;
+
 	/// Load yourself from the database. (returns true on success)
 	/*! This version loads all of the meta data found for keys metaDataAllKeys().  Detailed subclasses should re-implement this if they need to load anything more specialized than their meta-data.  When doing so, always call the base class implemention first.*/
 	virtual bool loadFromDb(AMDatabase* db, int id);
+
+	/// If an object has been loaded from a database, this will tell you which database it came from. Returns 0 if this scan instance wasn't loaded out of a database.
+	AMDatabase* database() const {
+		return database_;
+	}
+
 	/// Store or update self in the database. (returns true on success)
 	/*! This version saves all of the meta data found for keys metaDataAllKeys().  Detailed subclasses should re-implement this if they need to save anything not found in the meta data. When doing so, always call the base class implementation first.
 	  */
 	virtual bool storeToDb(AMDatabase* db);
+
+
+	// Thumbnail system:
+	/////////////////////////////////
+
+	/// Database Objects can have an arbitrary number of thumbnail images/plots. These are stored as binary data blobs directly inside the Db for fast access. This function indicates how many thumbnails are available/relevant.
+	/*! Note that the thumbnails are stored in the database, but they are not stored inside the meta-data system for active AMDbObject instances, in order to reduce memory usage.*/
+	virtual int thumbnailCount() const {
+		return 0;
+	}
+	/// This returns a copy of the thumbnail data (for a given thumbnail). \c index must be less than thumbnailCount().  The base class returns an invalid (blank) thumbnail.
+	virtual AMDbThumbnail thumbnail(int index) const {
+
+		Q_UNUSED(index)
+
+		return AMDbThumbnail();
+	}
 
 
 signals:
@@ -139,12 +203,6 @@ signals:
 public slots:
 	/// Sets user given name
 	void setName(const QString &name) { setMetaData("name", name);}
-	/// Sets appended number
-	void setNumber(int number) { setMetaData("number", number);}
-	/// set the date/time:
-	void setDateTime(const QDateTime& dt) { setMetaData("dateTime", dt); }
-	/// associate this object with a particular run. Set to (-1) to dissociate with any run.  (Note: for now, it's the caller's responsibility to make sure the runId is valid.)
-	void setRunId(int runId) { if(runId < 0) metaData_["runId"] = QVariant(); else metaData_["runId"] = runId; }
 
 
 
@@ -155,6 +213,9 @@ protected:
 private:
 	/// unique database id
 	int id_;
+
+	/// pointer to the database where this object came from/should be stored. (If known)
+	AMDatabase* database_;
 
 	/// [obsolted] List of column names required to have in DB
 	/// \todo re-use this for optimizationof metaDataKeys():  static QStringList dbColumnNames_;

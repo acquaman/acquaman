@@ -1,17 +1,62 @@
-Random list (Mark - week of May 15)
+Random list (Mark - week of May 15.. still going on June 15... july 5. Geez!)
 =============
+- Add users to add a field(s) to the Db/metadata?
+	- think of example story
+
+
+- Import system:
+	- import wizqrd (customized for each scan type?)
+	- how to identify scan type? (automatic? how?)
+	- create channels for ______ columns (remember user defaults -- where?)
+	- wizard should work for single file or large set of files at once
+	
+- Export system:
+	- choose which raw data columns and columns to export
+	- choose delimeter [ascii formats only]
+	- excel, origin, Igor experiment...
+	- automatically open afterwards?
+
+
+Database:
+	- more thinking/planning about beamline-database and user-(local computer) database; synchronizing
+		- 
+	- loadFromDb(): ensure type() matches type column... otherwise don't allow. (if allowed, this would permit loading a scan out of the DB as a less-detailed base class, which would cause loss of information when re-saving.)
+	
+	- figure out how to handle "hidden" columns. (id: data needed internally by program, but not user-visible. ex: thumbnailType)
+		
+Database views:
+	- thumbnails: specify thumbnailType (ex: PNG, normalizedDoubles, etc.)
+	- general qgraphicswidget that displays a vertical (z-stack) of thumbnails... goes through thumbnails as you move mouse over (use for multi-level views)
+	- more thumbnail requirements: titles below thumbnails; titles on thumbnails themselves (ex: TEY, TFY, etc.)
+	
+	- general view components: take a list of columns to show, a map of columns->variants for filtering/choosing which items in the db to show
+	- specific view components: include the general view components; can also include specialized things like (ex: which samples are in this run, etc.)
+	
+	
+Channels:
+	- channelName: software-readable; somewhat human-readable. Also have a channelDescription?  (more flexible input, text with spaces, etc. nicely human-readable)
+	- 2d equivalent to a channel
+	
+Samples:
+	- 
+	
+	
+
+- MPlot: convert to library; implement MPlotItems as true QGraphicsItem children of MPlot... so that deleting an MPlotItem will remove it from its plots
+	- same possible when deleting a model? (ie: remove and delete MPlotItem's which refer to that model?)
+
 - scan runId's: who sets them, who maintains the runs in the Db, etc?
 - Experiments: objects, saving/examining from Db.
 - convert all qDebug() to AMErrorMon::report() [low priority]
-- AMXASScan: review Detector situation; fix bug to make sure AM
+- AMXASScan: review Detector situation; fix bug to make sure AM...
 - Write tests:
 	- AMXASScan save, restore
 	- channel expressions: save, restore
 	- AMDbObject::runId save, restore
 	- AMDbLoader: load AMXASScan
 	- AMScanSetModel: make sure beginRemoveRows and endRemoveRows are being called in nested pairs
-- Finish 4th view in AMScanView
-- Create exclusive button bar for AMScanView (exclusive channel mode)
+- [done] Finish 4th view in AMScanView
+- [done] Create exclusive button bar for AMScanView (exclusive channel mode)
 
 - !!! Demo day: table and thumbnail views for runs and their scans !!!
 

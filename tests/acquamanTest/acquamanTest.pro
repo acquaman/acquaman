@@ -137,7 +137,8 @@ HEADERS +=	../MPlot/src/MPlot/MPlot.h	\
 	source/muParser/muParserToken.h	\
 	source/muParser/muParserTokenReader.h	\
 	source/ui/AMFirstTimeWidget.h	\
-	source/ui/AMScanView.h
+	source/ui/AMScanView.h \
+	source/dataman/AMDatabaseDefinition.h
 
 # FORMS   +=
 SOURCES +=	source/acquaman/AMAcqScanSpectrumOutput.cpp	\
@@ -211,4 +212,5 @@ SOURCES +=	source/acquaman/AMAcqScanSpectrumOutput.cpp	\
 	source/muParser/muParserError.cpp	\
 	source/muParser/muParserTokenReader.cpp	\
 	source/ui/AMScanView.cpp	\
+	source/dataman/AMDatabaseDefinition.cpp \
 	tests.cpp

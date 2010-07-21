@@ -143,7 +143,7 @@ bool SGMLegacyFileImporter::loadFromFile(const QString& filepath) {
 
 
 	// success. Set all scan paramenters, now that we know we've won.
-	scan_->setComments(comments);
+	scan_->setNotes(comments);
 	scan_->setDateTime(datetime);
 	// setSampleName() ?
 	scan_->legacyIntegrationTime_ = integrationTime;
