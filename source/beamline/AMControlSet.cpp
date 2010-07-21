@@ -41,6 +41,12 @@ QMap<double, double> AMControlOptimization::curve(QList<QVariant> stateParameter
 	return noMap;
 }
 
+QMap<QString, QMap<double, double> > AMControlOptimization::collapse(AMRegionsList* contextParameters) {
+	QMap<QString, QMap<double, double> > noMap;
+	Q_UNUSED(contextParameters);
+	return noMap;
+}
+
 
 AMAbstractDetectorSet::AMAbstractDetectorSet(QObject *parent) :
 	QObject(parent)

@@ -43,7 +43,11 @@ public slots:
 	bool deleteRegionSqueeze(size_t index);
 	void setDefaultControl(AMControl* defaultControl){defaultControl_ = defaultControl; regions_->setDefaultControl(defaultControl);}
 
+signals:
+	void regionsChanged();
+
 private slots:
+	void onDataChanged(QModelIndex a,QModelIndex b){ emit regionsChanged();}
 
 protected:
 	/// Holds the list of AMXASRegion pointers.

@@ -40,6 +40,9 @@ public slots:
 	/// Deletes the region refered to by index and renumbers subsequent regions accordingly. Returns true if successful, return false if index is invalid.
 	bool deleteRegion(size_t index) { return regions_->deleteRegion(index);}
 
+signals:
+	void regionsChanged();
+
 protected:
 	/// Holds the list of AMXASRegion pointers.
 	AMXASRegionsList *regions_;
