@@ -158,7 +158,9 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
     source/beamline/AMBeamlineControlAction.h \
     source/ui/SGMSampleTransferView.h \
     source/ui/AMDataView.h \
-    source/dataman/AMSample.h
+    source/dataman/AMSample.h \
+    source/dataman/AMExperiment.h \
+    source/dataman/AMRun.h
 FORMS += source/ui/AbsorptionScanController.ui \
     source/ui/BottomBar.ui \
     source/ui/ConnectionSettings.ui \
@@ -263,6 +265,9 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
     source/ui/SGMSampleTransferView.cpp \
     source/ui/AMDataView.cpp \
     source/dataman/AMDatabaseDefinition.cpp \
-    source/dataman/AMSample.cpp
+    source/dataman/AMSample.cpp \
+    source/dataman/AMExperiment.cpp \
+    source/dataman/AMRun.cpp \
+    source/ui/ComboBox.cpp
 RESOURCES = source/icons/icons.qrc
 OTHER_FILES += source/muParser/README.txt

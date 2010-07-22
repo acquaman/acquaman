@@ -95,6 +95,7 @@ public:
 	QString name() const { return metaData_["name"].toString();}
 
 
+
 	// Meta-data system
 	/////////////////////////////////////////////
 
