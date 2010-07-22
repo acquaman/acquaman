@@ -145,6 +145,7 @@ AMDbThumbnail AMScan::thumbnail(int index) const {
 
 	QPixmap pixmap(240, 180);
 	QPainter painter(&pixmap);
+	painter.setRenderHint(QPainter::Antialiasing, true);
 	QGraphicsScene gscene(QRectF(0,0,240,180));
 	MPlot plot(QRectF(0,0,240,180));
 	gscene.addItem(&plot);
@@ -160,7 +161,7 @@ AMDbThumbnail AMScan::thumbnail(int index) const {
 
 	MPlotSeriesBasic series(channel(index));
 	/// Todo: non-arbitrary colors here; don't mess up the ordering in AMScanSetModelChannelMetaData
-	QPen seriesPen(QBrush(AMScanSetModelChannelMetaData::nextColor()), 2);
+	QPen seriesPen(QBrush(AMScanSetModelChannelMetaData::nextColor()), 1);
 	series.setLinePen(seriesPen);
 	series.setMarker(MPlotMarkerShape::None);
 
@@ -170,12 +171,12 @@ AMDbThumbnail AMScan::thumbnail(int index) const {
 	gscene.render(&painter);
 	painter.end();
 
-	QByteArray result;
-	QBuffer bresult(&result);
+	QBuffer bresult;
 	bresult.open(QIODevice::WriteOnly);
 	pixmap.save(&bresult, "PNG");
+	bresult.close();
 
 	/// todo: pretty names like "Total Electron Yield" instead of "tey_n"
-	return AMDbThumbnail(channel(index)->name(), QString(), AMDbThumbnail::PNGType, result);
+	return AMDbThumbnail(channel(index)->name(), QString(), AMDbThumbnail::PNGType, bresult.buffer());
 
 }

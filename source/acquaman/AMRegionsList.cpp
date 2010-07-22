@@ -146,14 +146,18 @@ bool AMRegionsList::deleteRegionSqueeze(size_t index){
 
 bool AMRegionsList::setupModel(){
 	regions_ = new AMRegionsListModel(this);
-	if(regions_)
+	if(regions_){
+		connect(regions_, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(onDataChanged(QModelIndex,QModelIndex)) );
 		return true;
+	}
 	return false;
 }
 
 bool AMXASRegionsList::setupModel(){
 	regions_ = new AMXASRegionsListModel(this);
-	if(regions_)
+	if(regions_){
+		connect(regions_, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(onDataChanged(QModelIndex,QModelIndex)) );
 		return true;
+	}
 	return false;
 }

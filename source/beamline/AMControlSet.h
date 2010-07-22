@@ -10,6 +10,8 @@
 #include "acquaman/AMRegionsList.h"
 #include "AMAbstractDetector.h"
 
+#include <gsl/gsl_multifit.h>
+
 /// An AMControlSet is designed to hold a logical group of controls.
 /*!
   Controls that are heirarchically linked should be children of an AMControl. On the other hand, AMControls that are logically linked should be in an AMControlSet.
@@ -80,6 +82,7 @@ public:
 	/// Returns a QMap to represent the output to optimize. Can be thought of as x-y pairs for a graph.
 	/// The context parameters allow only the necessary region to be returned.
 	virtual QMap<double, double> curve(QList<QVariant> stateParameters, AMRegionsList* contextParameters);
+	virtual QMap< QString, QMap<double, double> > collapse(AMRegionsList* contextParameters);
 
 public slots:
 	/// Sets the name of the optimization.
@@ -116,6 +119,464 @@ public:
 	QMap<double, double> curveAt(size_t index, QList<QVariant> stateParameters, AMRegionsList* contextParameters){
 		return outputs_.at(index)->curve(stateParameters, contextParameters);
 	}
+	QMap<QString, QMap<double, double> > collapseAt(size_t index, AMRegionsList* contextParameters){
+		return outputs_.at(index)->collapse(contextParameters);
+	}
+	QMap<QString, QMap<double, double> > plotAgainst(AMRegionsList* contextParameters){
+		QMap<QString, QMap<double, double> > fluxes, resolutions;
+		QMap<double, double> LEG, MEG, HEG1, HEG3;
+		fluxes = collapseAt(0, contextParameters);
+		resolutions = collapseAt(1, contextParameters);
+		QMap<double, double>::const_iterator i;
+		i = fluxes.value("LEG1").constBegin();
+		while(i != fluxes.value("LEG1").constEnd()){
+			LEG.insert(resolutions.value("LEG1").value(i.key()), fluxes.value("LEG1").value(i.key()));
+			MEG.insert(resolutions.value("MEG1").value(i.key()), fluxes.value("MEG1").value(i.key()));
+			HEG1.insert(resolutions.value("HEG1").value(i.key()), fluxes.value("HEG1").value(i.key()));
+			HEG3.insert(resolutions.value("HEG3").value(i.key()), fluxes.value("HEG3").value(i.key()));
+			++i;
+		}
+		QMap<QString, QMap<double, double> > rVal;
+		rVal.insert("LEG1", LEG);
+		rVal.insert("MEG1", MEG);
+		rVal.insert("HEG1", HEG1);
+		rVal.insert("HEG3", HEG3);
+		return rVal;
+	}
+	double fitMyCubic(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4, double input){
+		//qDebug() << "Fitting " << x1 << y1 << x2 << y2 << x3 << y3 << x4 << y4 << " for " << input;
+		printf("Fitting %5.2f %5.2f ; %5.2f %5.2f ; %5.2f %5.2f ; %5.2f %5.2f ; for %5.2f\n", x1, y1, x2, y2, x3, y3, x4, y4, input);
+		fflush(stdout);
+		int i, n;
+		double xi, yi, ei, chisq;
+		gsl_matrix *X, *cov;
+		gsl_vector *y, *w, *c;
+
+		n = 4;
+
+		X = gsl_matrix_alloc (n, 4);
+		y = gsl_vector_alloc (n);
+		w = gsl_vector_alloc (n);
+
+		c = gsl_vector_alloc (4);
+		cov = gsl_matrix_alloc (4, 4);
+
+		double ix[4];
+		double iy[4];
+		double ie[4];
+		ix[0] = x1;
+		ix[1] = x2;
+		ix[2] = x3;
+		ix[3] = x4;
+		iy[0] = y1;
+		iy[1] = y2;
+		iy[2] = y3;
+		iy[3] = y4;
+		ie[0] = 0.1*iy[0];
+		ie[1] = 0.1*iy[1];
+		ie[2] = 0.1*iy[2];
+		ie[3] = 0.1*iy[3];
+		for (i = 0; i < n; i++)
+		{
+			xi = ix[i];
+			yi = iy[i];
+			ei = ie[i];
+
+			gsl_matrix_set (X, i, 0, 1.0);
+			gsl_matrix_set (X, i, 1, xi);
+			gsl_matrix_set (X, i, 2, xi*xi);
+			gsl_matrix_set (X, i, 3, xi*xi*xi);
+
+			gsl_vector_set (y, i, yi);
+			gsl_vector_set (w, i, 1.0/(ei*ei*ei));
+		}
+
+		gsl_multifit_linear_workspace * work
+				= gsl_multifit_linear_alloc (n, 4);
+		gsl_multifit_wlinear (X, w, y, c, cov,
+							  &chisq, work);
+		gsl_multifit_linear_free (work);
+
+#define C(i) (gsl_vector_get(c,(i)))
+#define COV(i,j) (gsl_matrix_get(cov,(i),(j)))
+
+		/*
+		printf ("# best fit: Y = %.10g + %.10g X + %.10g X^2 + %.10g X^3\n",
+				C(0), C(1), C(2), C(3));
+
+		_fitCoeffsCheck[caller][2] = C(0);
+		_fitCoeffsCheck[caller][3] = C(1);
+		_fitCoeffsCheck[caller][4] = C(2);
+		_fitCoeffsCheck[caller][5] = C(3);
+		*/
+		double rVal = C(0) + C(1)*input + C(2)*input*input + C(3)*input*input*input;
+		gsl_matrix_free (X);
+		gsl_vector_free (y);
+		gsl_vector_free (w);
+		gsl_vector_free (c);
+		gsl_matrix_free (cov);
+//	}
+//		double rVal = _fitCoeffsCheck[caller][2] + _fitCoeffsCheck[caller][3]*energy + _fitCoeffsCheck[caller][4]*energy*energy + _fitCoeffsCheck[caller][5]*energy*energy*energy;
+		return rVal;
+	}
+
+	/**/
+	//QMap<QString, QPair<double, double> > onePlot(AMRegionsList* contextParameters){
+	QMap<double, double > onePlot(AMRegionsList* contextParameters){
+		QMap<QString, QMap<double, double> > allPlots = plotAgainst(contextParameters);
+		QMap<double, double>::const_iterator l, m, h, hh;
+		l = allPlots.value("LEG1").constBegin();
+		m = allPlots.value("MEG1").constBegin();
+		h = allPlots.value("HEG1").constBegin();
+		hh = allPlots.value("HEG3").constBegin();
+		QPair<double, double> fMaxLEG, fMaxMEG, fMaxHEG1, fMaxHEG3, rMaxLEG, rMaxMEG, rMaxHEG1, rMaxHEG3;
+		rMaxLEG = QPair<double, double>(l.key(), l.value());
+		rMaxMEG = QPair<double, double>(m.key(), m.value());
+		rMaxHEG1 = QPair<double, double>(h.key(), h.value());
+		rMaxHEG3 = QPair<double, double>(hh.key(), hh.value());
+		fMaxLEG = QPair<double, double>(l.value(), l.key());
+		fMaxMEG = QPair<double, double>(m.value(), m.key());
+		fMaxHEG1 = QPair<double, double>(h.value(), h.key());
+		fMaxHEG3 = QPair<double, double>(hh.value(), hh.key());
+		++l;
+		++m;
+		++h;
+		++hh;
+		while(l != allPlots.value("LEG1").constEnd() ){
+			if(rMaxLEG.first < l.key()){
+				rMaxLEG.first = l.key();
+				rMaxLEG.second = l.value();
+			}
+			if(fMaxLEG.first < l.value()){
+				fMaxLEG.first = l.value();
+				fMaxLEG.second = l.key();
+			}
+			++l;
+		}
+		while(m != allPlots.value("MEG1").constEnd() ){
+			if(rMaxMEG.first < m.key()){
+				rMaxMEG.first = m.key();
+				rMaxMEG.second = m.value();
+			}
+			if(fMaxMEG.first < m.value()){
+				fMaxMEG.first = m.value();
+				fMaxMEG.second = m.key();
+			}
+			++m;
+		}
+		while(h != allPlots.value("HEG1").constEnd() ){
+			if(rMaxHEG1.first < h.key()){
+				rMaxHEG1.first = h.key();
+				rMaxHEG1.second = h.value();
+			}
+			if(fMaxHEG1.first < h.value()){
+				fMaxHEG1.first = h.value();
+				fMaxHEG1.second = h.key();
+			}
+			++h;
+		}
+		while(hh != allPlots.value("HEG3").constEnd() ){
+			if(rMaxHEG3.first < hh.key()){
+				rMaxHEG3.first = hh.key();
+				rMaxHEG3.second = hh.value();
+			}
+			if(fMaxHEG3.first < hh.value()){
+				fMaxHEG3.first = hh.value();
+				fMaxHEG3.second = hh.key();
+			}
+			++hh;
+		}
+		if(rMaxLEG.first < 1e-100)
+			rMaxLEG.first = 0;
+		if(rMaxMEG.first < 1e-100)
+			rMaxMEG.first = 0;
+		if(rMaxHEG1.first < 1e-100)
+			rMaxHEG1.first = 0;
+		if(rMaxHEG3.first < 1e-100)
+			rMaxHEG3.first = 0;
+		if(fMaxLEG.first < 1e-100)
+			fMaxLEG.first = 0;
+		if(fMaxMEG.first < 1e-100)
+			fMaxMEG.first = 0;
+		if(fMaxHEG1.first < 1e-100)
+			fMaxHEG1.first = 0;
+		if(fMaxHEG3.first < 1e-100)
+			fMaxHEG3.first = 0;
+		qDebug() << "Flux Maxes: LEG - " << fMaxLEG.first << "(" << fMaxLEG.second << ") MEG - " << fMaxMEG.first << "(" << fMaxMEG.second
+				<< ") HEG1 - " << fMaxHEG1.first << "(" << fMaxHEG1.second << ") HEG3 - " << fMaxHEG3.first << "(" << fMaxHEG3.second << ")\n"
+				<< "Resolution Maxes: LEG - " << rMaxLEG.first << "(" << rMaxLEG.second << ") MEG - " << rMaxMEG.first << "(" << rMaxMEG.second
+				<< ") HEG1 - " << rMaxHEG1.first << "(" << rMaxHEG1.second << ") HEG3 - " << rMaxHEG3.first << "(" << rMaxHEG3.second << ")";
+
+		QPair<double, double> bestFlux = fMaxLEG;
+		if(bestFlux.first < fMaxMEG.first)
+			bestFlux = fMaxMEG;
+		if(bestFlux.first < fMaxHEG1.first)
+			bestFlux = fMaxHEG1;
+		if(bestFlux.first < fMaxHEG3.first)
+			bestFlux = fMaxHEG3;
+		qDebug() << "Best flux is " << bestFlux.first << " at res of " << bestFlux.second;
+
+		QPair<double, double> bestRes = rMaxLEG;
+		if(bestRes.first < rMaxMEG.first)
+			bestRes = rMaxMEG;
+		if(bestRes.first < rMaxHEG1.first)
+			bestRes = rMaxHEG1;
+		if(bestRes.first < rMaxHEG3.first)
+			bestRes = rMaxHEG3;
+
+		QMap<double, double> LEG, MEG, HEG1, HEG3;
+		QMap<double, double> rVal;
+		LEG = allPlots.value("LEG1");
+		MEG = allPlots.value("MEG1");
+		HEG1 = allPlots.value("HEG1");
+		HEG3 = allPlots.value("HEG3");
+		QMap<double, double>::const_iterator prevLEG, nextLEG, pprevLEG, nnextLEG;
+		QMap<double, double>::const_iterator prevMEG, nextMEG, pprevMEG, nnextMEG;
+		QMap<double, double>::const_iterator prevHEG1, nextHEG1, pprevHEG1, nnextHEG1;
+		QMap<double, double>::const_iterator prevHEG3, nextHEG3, pprevHEG3, nnextHEG3;
+		double resStep = (bestRes.first - bestFlux.second)/100;
+		double tmpFlux, tmpVal;
+		for(double x = bestFlux.second; x < bestRes.first; x += resStep){
+			tmpFlux = 0;
+			nextLEG = LEG.lowerBound(x);
+			prevLEG = LEG.lowerBound(x);
+			qDebug() << "LEG starts as " << nextLEG.key() << nextLEG.value();
+			nnextLEG = nextLEG;
+			if(prevLEG != LEG.constBegin()){
+				prevLEG--;
+				pprevLEG = prevLEG;
+				if(pprevLEG != LEG.constBegin()){
+					pprevLEG--;
+					if(nextLEG != LEG.constEnd()){
+						nnextLEG++;
+						if(nnextLEG == LEG.constEnd()){
+							//Case 4, single end
+							nnextLEG--;
+							nextLEG--;
+							prevLEG--;
+							pprevLEG--;
+							qDebug() << "LEG says single end";
+						}
+					}
+					else{
+						//Case 3, double end
+						nnextLEG--;
+						nnextLEG--;
+						nextLEG--;
+						nextLEG--;
+						prevLEG--;
+						prevLEG--;
+						pprevLEG--;
+						pprevLEG--;
+						qDebug() << "LEG says double end";
+					}
+				}
+				else{
+					//Case 2, single front
+					prevLEG++;
+					nextLEG++;
+					nnextLEG++;
+					qDebug() << "LEG says single front";
+				}
+			}
+			else{
+				//Case 1, double front
+				pprevLEG = prevLEG;
+				prevLEG++;
+				nextLEG++;
+				nextLEG++;
+				nnextLEG++;
+				nnextLEG++;
+				qDebug() << "LEG says double front";
+			}
+			if(x <= rMaxLEG.first){
+				tmpVal = fitMyCubic(pprevLEG.key(), pprevLEG.value(), prevLEG.key(), prevLEG.value(), nextLEG.key(), nextLEG.value(), nnextLEG.key(), nnextLEG.value(), x);
+				if(tmpVal > tmpFlux)
+					tmpFlux = tmpVal;
+			}
+
+
+			nextMEG = MEG.lowerBound(x);
+			prevMEG = MEG.lowerBound(x);
+			qDebug() << "MEG starts as " << nextMEG.key() << nextMEG.value();
+			nnextMEG = nextMEG;
+			if(prevMEG != MEG.constBegin()){
+				prevMEG--;
+				pprevMEG = prevMEG;
+				if(pprevMEG != MEG.constBegin()){
+					pprevMEG--;
+					if(nextMEG != MEG.constEnd()){
+						nnextMEG++;
+						if(nnextMEG == MEG.constEnd()){
+							//Case 4, single end
+							nnextMEG--;
+							nextMEG--;
+							prevMEG--;
+							pprevMEG--;
+							qDebug() << "MEG says single end";
+						}
+					}
+					else{
+						//Case 3, double end
+						nnextMEG--;
+						nnextMEG--;
+						nextMEG--;
+						nextMEG--;
+						prevMEG--;
+						prevMEG--;
+						pprevMEG--;
+						pprevMEG--;
+						qDebug() << "MEG says double end";
+					}
+				}
+				else{
+					//Case 2, single front
+					pprevMEG++;
+					prevMEG++;
+					nextMEG++;
+					nnextMEG++;
+					qDebug() << "MEG says single front";
+				}
+			}
+			else{
+				//Case 1, double front
+				pprevMEG = prevMEG;
+				prevMEG++;
+				nextMEG++;
+				nextMEG++;
+				nnextMEG++;
+				nnextMEG++;
+				qDebug() << "MEG says double end";
+			}
+			if(x <= rMaxMEG.first){
+				tmpVal = fitMyCubic(pprevMEG.key(), pprevMEG.value(), prevMEG.key(), prevMEG.value(), nextMEG.key(), nextMEG.value(), nnextMEG.key(), nnextMEG.value(), x);
+				if(tmpVal > tmpFlux)
+					tmpFlux = tmpVal;
+			}
+
+			nextHEG1 = HEG1.lowerBound(x);
+			prevHEG1 = HEG1.lowerBound(x);
+			qDebug() << "HEG1 starts as " << nextHEG1.key() << nextHEG1.value();
+			nnextHEG1 = nextHEG1;
+			if(prevHEG1 != HEG1.constBegin()){
+				prevHEG1--;
+				pprevHEG1 = prevHEG1;
+				if(pprevHEG1 != HEG1.constBegin()){
+					pprevHEG1--;
+					if(nextHEG1 != HEG1.constEnd()){
+						nnextHEG1++;
+						if(nnextHEG1 == HEG1.constEnd()){
+							//Case 4, single end
+							nnextHEG1--;
+							nextHEG1--;
+							prevHEG1--;
+							pprevHEG1--;
+							qDebug() << "HEG1 says single end";
+						}
+					}
+					else{
+						//Case 3, double end
+						nnextHEG1--;
+						nnextHEG1--;
+						nextHEG1--;
+						nextHEG1--;
+						prevHEG1--;
+						prevHEG1--;
+						pprevHEG1--;
+						pprevHEG1--;
+						qDebug() << "HEG1 says double end";
+					}
+				}
+				else{
+					//Case 2, single front
+					prevHEG1++;
+					nextHEG1++;
+					nnextHEG1++;
+					qDebug() << "HEG1 says single front";
+				}
+			}
+			else{
+				//Case 1, double front
+				pprevHEG1 = prevHEG1;
+				prevHEG1++;
+				nextHEG1++;
+				nextHEG1++;
+				nnextHEG1++;
+				nnextHEG1++;
+				qDebug() << "HEG1 says double front";
+			}
+			if(x <= rMaxHEG1.first){
+				tmpVal = fitMyCubic(pprevHEG1.key(), pprevHEG1.value(), prevHEG1.key(), prevHEG1.value(), nextHEG1.key(), nextHEG1.value(), nnextHEG1.key(), nnextHEG1.value(), x);
+				if(tmpVal > tmpFlux)
+					tmpFlux = tmpVal;
+			}
+
+			nextHEG3 = HEG3.lowerBound(x);
+			prevHEG3 = HEG3.lowerBound(x);
+			qDebug() << "HEG3 starts as " << nextHEG3.key() << nextHEG3.value();
+			nnextHEG3 = nextHEG3;
+			if(prevHEG3 != HEG3.constBegin()){
+				prevHEG3--;
+				pprevHEG3 = prevHEG3;
+				if(pprevHEG3 != HEG3.constBegin()){
+					pprevHEG3--;
+					if(nextHEG3 != HEG3.constEnd()){
+						nnextHEG3++;
+						if(nnextHEG3 == HEG3.constEnd()){
+							//Case 4, single end
+							nnextHEG3--;
+							nextHEG3--;
+							prevHEG3--;
+							pprevHEG3--;
+							qDebug() << "HEG3 says single end";
+						}
+					}
+					else{
+						//Case 3, double end
+						nnextHEG3--;
+						nnextHEG3--;
+						nextHEG3--;
+						nextHEG3--;
+						prevHEG3--;
+						prevHEG3--;
+						pprevHEG3--;
+						pprevHEG3--;
+						qDebug() << "HEG3 says double end";
+					}
+				}
+				else{
+					//Case 2, single front
+					prevHEG3++;
+					nextHEG3++;
+					nnextHEG3++;
+					qDebug() << "HEG3 says single front";
+				}
+			}
+			else{
+				//Case 1, double front
+				pprevHEG3 = prevHEG3;
+				prevHEG3++;
+				nextHEG3++;
+				nextHEG3++;
+				nnextHEG3++;
+				nnextHEG3++;
+				qDebug() << "HEG3 says double front";
+			}
+			if(x <= rMaxHEG3.first){
+				tmpVal = fitMyCubic(pprevHEG3.key(), pprevHEG3.value(), prevHEG3.key(), prevHEG3.value(), nextHEG3.key(), nextHEG3.value(), nnextHEG3.key(), nnextHEG3.value(), x);
+				if(tmpVal > tmpFlux)
+					tmpFlux = tmpVal;
+			}
+
+			qDebug() << "Want to insert " << x << ", " << tmpFlux;
+			rVal.insert(x, tmpFlux);
+		}
+
+//		QMap<QString, QPair<double, double> > rVal;
+//		rVal.insert("Something", QPair<double, double>(100, 100));
+		return rVal;
+	}
+	/**/
 
 protected:
 	/// Internal list of AMControlOptimization.

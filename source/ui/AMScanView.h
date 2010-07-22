@@ -16,8 +16,11 @@
 
 #include "dataman/AMScanSetModel.h"
 
-/// A replacement for Qt's QScrollArea. This version's QWidget::sizeHint() asks the internal widget for its own sizeHint(), which is usually what makes the most sense. (In other words, the scroll area will request to be the size of its internal widget, when possible.  To make full use of this, you need a way of being informed of changes in the size that internal widget; see AMSizeSignallingWidget.)
+/// \todo move AMScrollArea and AMSizeSignallingWidget into a container widget AMCramBarHorizontal to simplify AMScanViewScanBar immensely.
+
+/// A replacement for Qt's QScrollArea. This version's QWidget::sizeHint() asks the internal widget for its own sizeHint(), which is usually what makes the most sense. (In other words, the scroll area will request to be the size of its internal widget, when possible.  To make full use of this, you need a way of being informed of changes in the size of that internal widget; see AMSizeSignallingWidget.)
 class AMScrollArea : public QScrollArea {
+	Q_OBJECT
 public:
 	explicit AMScrollArea(QWidget* parent = 0)
 		: QScrollArea(parent) {}
@@ -33,6 +36,15 @@ public:
 
 	virtual QSize minimumSizeHint() const {
 		return QSize(0,0);
+	}
+
+signals:
+	void resized(const QSize& newSize);
+
+protected:
+	void resizeEvent(QResizeEvent *e) {
+		emit resized(e->size());
+		QScrollArea::resizeEvent(e);
 	}
 };
 
@@ -107,12 +119,16 @@ protected slots:
 	void onScrollWidgetResized(const QSize&) {
 		scrollArea_->updateGeometry();
 		//or, could use: scrollLayout_->activate();
-
+	}
+	/// called when the scroll area itself is resized:
+	void onScrollAreaResized(const QSize&) {
 		if(scrollArea_->width() >= scrollWidget_->width()) {
+			qDebug() << "HIDING. scroll widget:" << scrollWidget_->width() << "scroll area:" << scrollArea_->width();
 			scrollLeftButton_->hide();
 			scrollRightButton_->hide();
 		}
 		else {
+			qDebug() << "SHOWING. scroll widget:" << scrollWidget_->width() << "scroll area:" << scrollArea_->width();
 			scrollLeftButton_->show();
 			scrollRightButton_->show();
 		}

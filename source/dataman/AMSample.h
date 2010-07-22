@@ -102,11 +102,11 @@ public:
 		if(image.loadFromData(imageByteArray, "PNG")) {
 
 			QImage thumbnailImage = image.scaled(QSize(240,180), Qt::KeepAspectRatio, Qt::SmoothTransformation);
-			QByteArray thumbnailByteArray;
-			QBuffer bthumbnailByteArray(&thumbnailByteArray);
-			bthumbnailByteArray.open(QIODevice::WriteOnly);
-			thumbnailImage.save(&bthumbnailByteArray, "PNG");
-			return AMDbThumbnail(name(), dateTime().toString("MMM d (2010)"), AMDbThumbnail::PNGType, thumbnailByteArray);
+			QBuffer boutput;
+			boutput.open(QIODevice::WriteOnly);
+			thumbnailImage.save(&boutput, "PNG");
+			boutput.close();
+			return AMDbThumbnail(name(), dateTime().toString("MMM d (2010)"), AMDbThumbnail::PNGType, boutput.buffer());
 		}
 
 		else
@@ -130,11 +130,11 @@ public slots:
 
 	/// Add a photograph or image of this sample. These will be used as thumbnails in the database views as well.
 	void setImage(const QImage& sampleImage) {
-		QByteArray output;
-		QBuffer boutput(&output);
+		QBuffer boutput;
 		boutput.open(QIODevice::WriteOnly);
 		sampleImage.save(&boutput, "PNG");
-		setMetaData("image", output);
+		boutput.close();
+		setMetaData("image", boutput.buffer());
 	}
 
 protected:

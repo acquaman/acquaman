@@ -7,6 +7,8 @@
 #include "AMBiHash.h"
 #include "AMBeamlineControlAction.h"
 
+#include <gsl/gsl_multifit.h>
+
 class SGMGratingAction;
 class SGMTransferAction1;
 class SGMTransferAction2;
@@ -206,9 +208,10 @@ public:
 	SGMFluxOptimization(QObject *parent=0);
 
 	virtual QMap<double, double> curve(QList<QVariant> stateParameters, AMRegionsList* contextParameters);
-
+	QMap< QString, QMap<double, double> > collapse(AMRegionsList *contextParameters);
 
 protected:
+	double collapser(QMap<double, double> optCurve);
 	double maximumEnergy(AMRegionsList* regions);
 	double minimumEnergy(AMRegionsList* regions);
 };
@@ -220,8 +223,10 @@ public:
 	SGMResolutionOptimization(QObject *parent=0);
 
 	QMap<double, double> curve(QList<QVariant> stateParameters, AMRegionsList* contextParameters);
+	QMap< QString, QMap<double, double> > collapse(AMRegionsList *contextParameters);
 
 protected:
+	double collapser(QMap<double, double> optCurve);
 	double maximumEnergy(AMRegionsList* regions);
 	double minimumEnergy(AMRegionsList* regions);
 };
