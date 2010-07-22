@@ -6,25 +6,30 @@ macx {
 	EPICS_INCLUDE_DIRS = /Users/mboots/dev/epics/14-11/base/include \
 		/Users/mboots/dev/epics/14-11/base/include/os/Darwin
 	EPICS_LIB_DIR = /Users/mboots/dev/epics/14-11/base/lib/darwin-x86
-	PHONON_INCLUDE_DIR = /Library/Frameworks/phonon.framework/Versions/Current/Headers
 	MPLOT_INCLUDE_DIR = /Users/mboots/dev/MPlot/src
+
+	GSL_INCLUDE_DIR=/Users/mboots/dev/gsl-install/include
+	GSL_LIB=-L/Users/mboots/dev/gsl-install/lib -lgsl
+	GSL_CBLAS_LIB=-L/Users/mboots/dev/gsl-install/lib -lgslcblas
 }
 linux-g++ {
 	EPICS_INCLUDE_DIRS = /home/reixs/beamline/programming/epics/base/include \
 		/home/reixs/beamline/programming/epics/base/include/os/Linux
 	EPICS_LIB_DIR = /home/reixs/beamline/programming/epics/base/lib/linux-x86
-	PHONON_INCLUDE_DIR = /usr/include/qt4/phonon
 
 	# include path for MPlot library (header-files only)
 	MPLOT_INCLUDE_DIR = /home/reixs/beamline/programming/MPlot/src
+
+	GSL_LIB=-lgsl
+	GSL_CBLAS_LIB=-lgslcblas
 }
 QT += core \
 	phonon \
 	network \
-	sql
-CONFIG += qtestlib
+	sql \
+	testlib
 TARGET = test-acquaman
-DESTDIR = ../../build
+DESTDIR = build
 DEPENDPATH += . \
 	../../ \
 	../../source
@@ -32,13 +37,16 @@ INCLUDEPATH += . \
 	../../ \
 	../../source
 INCLUDEPATH += $$EPICS_INCLUDE_DIRS
-INCLUDEPATH += $$PHONON_INCLUDE_DIR
 INCLUDEPATH += $$MPLOT_INCLUDE_DIR
+INCLUDEPATH += $$GSL_INCLUDE_DIR
+
+
+
+LIBS += $$GSL_LIB
+LIBS += $$GSL_CBLAS_LIB
 
 # Epics channel access linking:
 LIBS += -L$$EPICS_LIB_DIR
-LIBS += -lgsl
-LIBS += -lgslcblas
 LIBS += -lca \
 	-lCom
 macx:QMAKE_LFLAGS_RPATH += "$$EPICS_LIB_DIR"
@@ -138,6 +146,7 @@ HEADERS +=	../MPlot/src/MPlot/MPlot.h	\
 	source/muParser/muParserTokenReader.h	\
 	source/ui/AMFirstTimeWidget.h	\
 	source/ui/AMScanView.h \
+	source/ui/AMCramBarHorizontal.h \
 	source/dataman/AMDatabaseDefinition.h
 
 # FORMS   +=
@@ -212,5 +221,6 @@ SOURCES +=	source/acquaman/AMAcqScanSpectrumOutput.cpp	\
 	source/muParser/muParserError.cpp	\
 	source/muParser/muParserTokenReader.cpp	\
 	source/ui/AMScanView.cpp	\
+	source/ui/AMCramBarHorizontal.cpp \
 	source/dataman/AMDatabaseDefinition.cpp \
 	tests.cpp
