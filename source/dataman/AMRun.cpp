@@ -1,35 +1,53 @@
 #include "AMRun.h"
 
+#include <QSqlQuery>
+#include <QList>
+
+
 AMRun::AMRun(QObject *parent) :
-    AMDbObject(parent)
+	AMDbObject(parent)
 {
 
 }
 
 /// This constructor initializes a run with a given name.
 AMRun::AMRun(const QString& runName, QObject* parent)
-        : AMDbObject(parent)
+		: AMDbObject(parent)
 {
-        /// Initialize our unique pieces of meta-data. The values don't matter much, but we want to make sure that they're present in the metaData_ hash.
-        metaData_["dateTime"] = QDateTime::currentDateTime();
-        metaData_["notes"] = QString();
-        metaData_["image"] = QVariant();
+		/// Initialize our unique pieces of meta-data. The values don't matter much, but we want to make sure that they're present in the metaData_ hash.
+		metaData_["dateTime"] = QDateTime::currentDateTime();
+		metaData_["notes"] = QString();
+		metaData_["image"] = QVariant();
 
-        this->setName(runName);
+		this->setName(runName);
 }
 
 /// This constructor immediately loads a stored run from the database.
 AMRun::AMRun(int databaseId, AMDatabase* database, QObject* parent)
-        : AMDbObject(parent)
+		: AMDbObject(parent)
 {
-        /// Initialize our unique pieces of meta-data. The values don't matter much, but we want to make sure that they're present in the metaData_ hash.
-        metaData_["dateTime"] = QDateTime::currentDateTime();
-        metaData_["notes"] = QString();
-        metaData_["image"] = QVariant();
+		/// Initialize our unique pieces of meta-data. The values don't matter much, but we want to make sure that they're present in the metaData_ hash.
+		metaData_["dateTime"] = QDateTime::currentDateTime();
+		metaData_["notes"] = QString();
+		metaData_["image"] = QVariant();
 
-        loadFromDb(database, databaseId);
+		loadFromDb(database, databaseId);
 }
 
 
-///
+
+/// This function finds out how many scans are in this run.  (If this instance is not associated with any database yet, it returns 0)
+int AMRun::scanCount() const {
+	return scanIds().count();
+}
+
+/// Returns a list of the id's of all scans in this run
+QList<int> AMRun::scanIds() const {
+
+	if(database() == 0 || id() == 0)
+		return 0;
+
+	return database()->objectsMatching("Objects", "runId", id());
+}
+
 
