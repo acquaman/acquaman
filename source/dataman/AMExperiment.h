@@ -64,10 +64,7 @@ public:
 
 	// Convenient access methods for our meta-data:
 	/////////////////////////
-	/// This returns the date/time that this experiment was created.
-	QDateTime dateTime() const {
-		return metaData("dateTime").toDateTime();
-	}
+
 
 	/// This returns a string of notes/comments about this experiment.
 	QString notes() const {
@@ -77,9 +74,7 @@ public:
 	// Database information and access:
 	///////////////////////////////
 	/// We want to store experiments in a separate table (so that it's easy to create relationships between experiments and scan objects).  Therefore, we reimplement databaseTableName():
-	virtual QString databaseTableName() const {
-		return AMDatabaseDefinition::experimentTableName();
-	}
+
 
 	/// We aren't storing any special information outside of the metaData_ hash, so we can use the default implementations of loadFromDb() and storeToDb().
 
@@ -88,32 +83,14 @@ public:
 	/////////////////////////////////
 	/// It would be nice to have (at least one) thumbnail... for now, it'll come from our sample image.
 	int thumbnailCount() const {
-		if(metaData("image").isNull())
 			return 0;
-		else
-			return 1;
+
+	}
+	QString databaseTableName() const {
+		return AMDatabaseDefinition::experimentTableName();
 	}
 
-	AMDbThumbnail thumbnail(int index) const {
-		if(index != 0 || metaData("image").isNull())
-			return AMDbThumbnail(name(), dateTime().toString("MMM d (2010)"), AMDbThumbnail::InvalidType, QByteArray());
 
-
-		QImage image;
-		QByteArray imageByteArray = metaData("image").toByteArray();
-		if(image.loadFromData(imageByteArray, "PNG")) {
-
-			QImage thumbnailImage = image.scaled(QSize(240,180), Qt::KeepAspectRatio, Qt::SmoothTransformation);
-			QByteArray thumbnailByteArray;
-			QBuffer bthumbnailByteArray(&thumbnailByteArray);
-			bthumbnailByteArray.open(QIODevice::WriteOnly);
-			thumbnailImage.save(&bthumbnailByteArray, "PNG");
-			return AMDbThumbnail(name(), dateTime().toString("MMM d (2010)"), AMDbThumbnail::PNGType, thumbnailByteArray);
-		}
-
-		else
-			return AMDbThumbnail(name(), dateTime().toString("MMM d (2010)"), AMDbThumbnail::InvalidType, QByteArray());
-	}
 
 
 signals:
