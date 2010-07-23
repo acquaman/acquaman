@@ -96,6 +96,9 @@ HEADERS +=	../MPlot/src/MPlot/MPlot.h	\
 	source/muParser/muParserToken.h	\
 	source/muParser/muParserTokenReader.h	\
 	source/ui/AMFirstTimeWidget.h \
+	source/dataman/AMSample.h \
+	source/dataman/AMRun.h \
+	source/dataman/AMExperiment.h \
 	source/dataman/AMDatabaseDefinition.h
 
 SOURCES +=	source/dataman/AMFirstTimeController.cpp	\
@@ -117,4 +120,7 @@ SOURCES +=	source/dataman/AMFirstTimeController.cpp	\
 	source/dataman/AMXASScan.cpp	\
 	source/dataman/SGMLegacyFileImporter.cpp	\
 	source/dataman/AMDatabaseDefinition.cpp \
+	source/dataman/AMSample.cpp \
+	source/dataman/AMRun.cpp \
+	source/dataman/AMExperiment.cpp \
 	tests.cpp

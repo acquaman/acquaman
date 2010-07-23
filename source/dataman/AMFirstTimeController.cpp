@@ -73,6 +73,9 @@ void AMFirstTimeController::onFirstTime() {
 
 #include <dataman/AMDatabaseDefinition.h>
 #include <dataman/AMXASScan.h>
+#include <dataman/AMRun.h>
+#include <dataman/AMSample.h>
+#include <dataman/AMExperiment.h>
 
 /// create structures and tables for a new user database, from scratch
 void AMFirstTimeController::databaseInitialization() {
@@ -85,6 +88,15 @@ void AMFirstTimeController::databaseInitialization() {
 	AMDatabaseDefinition::registerType(&s2, AMDatabase::userdb());
 	AMXASScan s3;
 	AMDatabaseDefinition::registerType(&s3, AMDatabase::userdb());
+
+	AMRun r;
+	AMDatabaseDefinition::registerType(&r, AMDatabase::userdb());
+
+	AMExperiment e;
+	AMDatabaseDefinition::registerType(&e, AMDatabase::userdb());
+
+	AMSample s;
+	AMDatabaseDefinition::registerType(&s, AMDatabase::userdb());
 
 }
 

@@ -18,6 +18,8 @@ AMRun::AMRun(const QString& runName, QObject* parent)
 		metaData_["dateTime"] = QDateTime::currentDateTime();
 		metaData_["notes"] = QString();
 		metaData_["image"] = QVariant();
+		metaData_["endDateTime"]=QDateTime();
+		metaData_["location"]=QString();
 
 		this->setName(runName);
 }
@@ -30,6 +32,8 @@ AMRun::AMRun(int databaseId, AMDatabase* database, QObject* parent)
 		metaData_["dateTime"] = QDateTime::currentDateTime();
 		metaData_["notes"] = QString();
 		metaData_["image"] = QVariant();
+		metaData_["endDateTime"]=QDateTime();
+		metaData_["location"]=QString();
 
 		loadFromDb(database, databaseId);
 }
@@ -45,7 +49,7 @@ int AMRun::scanCount() const {
 QList<int> AMRun::scanIds() const {
 
 	if(database() == 0 || id() == 0)
-		return 0;
+		return QList<int>();
 
 	return database()->objectsMatching("Objects", "runId", id());
 }

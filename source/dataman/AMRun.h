@@ -10,7 +10,7 @@
 #include <QByteArray>
 #include <QPixmap>
 
-/// This class represents instances of objects that map to Samples in the database of user information. It provides a simple example of how to subclass AMDbObject to create your own C++ object that can be easily stored in the database, and exploit the general meta-data management system.
+/// This class represents instances of objects that map to Runs in the database of user information. It provides a simple example of how to subclass AMDbObject to create your own C++ object that can be easily stored in the database, and exploit the general meta-data management system.
 
 /*!
 <b>Notes for subclassing AMDbObject, to create more detailed storable data types:</b>
@@ -18,7 +18,7 @@
 - You must re-implement metaDataKeys(), metaDataUniqueKeys(), and metaDataAllKeys(), calling the base class where appropriate.
 - It's recommended to initialize your meta-data pieces (metaDataUniqueKeys()) inside metaData_ in the constructor.
 - If you need to load or save anything more than your metaData_, you must re-implement loadFromDb() and storeToDb()
-- If you want to store yourself anywhere but in the main object table, you must re-implement databaseTableName().  (For example, AMSamples overload databaseTableName() to return AMDatabaseDefinition::sampleTableName(), hence making sure that they are stored in a separate table.)
+- If you want to store yourself anywhere but in the main object table, you must re-implement databaseTableName().  (For example, AMRuns overload databaseTableName() to return AMDatabaseDefinition::RunTableName(), hence making sure that they are stored in a separate table.)
 - If you want to have non-blank thumbnails, you must provide thumbnailCount() and thumbnail(int index).
 */
 /* This Run class will need:
@@ -37,7 +37,7 @@ public:
 		explicit AMRun(QObject *parent = 0);
 
 		/// This constructor initializes a run with a given name.
-		AMRun(const QString& sampleName, QObject* parent = 0);
+		AMRun(const QString& runName, QObject* parent = 0);
 
 		/// This constructor immediately loads a stored run from the database.
 		AMRun(int databaseId, AMDatabase* database, QObject* parent = 0);
@@ -100,18 +100,20 @@ public:
 		// Database information and access:
 		///////////////////////////////
 		/// We want to store runs in a separate table (so that it's easy to create relationships between runs and other objects).  Therefore, we reimplement databaseTableName():
-		virtual QString databaseTableName() const {
-				return AMDatabaseDefinition::runTableName();
-		}
+
 
 		/// We aren't storing any special information outside of the metaData_ hash, so we can use the default implementations of loadFromDb() and storeToDb().
 
 
 		// Thumbnail System
 		/////////////////////////////////
-		/// It would be nice to have (at least one) thumbnail... for now, it'll come from our sample image.
+		/// There is no need for a thumbnail, but since this is defined in the parent class, we must acknowledge it here.
 		int thumbnailCount() const {
 				return 0;
+		}
+
+		QString databaseTableName() const {
+			return AMDatabaseDefinition::runTableName();
 		}
 
 
@@ -138,7 +140,7 @@ public slots:
 
 		/// Convenience function to set the location for this run
 		void setLocation(const QString& location){
-				setMetaData("location", location)
+				setMetaData("location", location);
 		}
 
 

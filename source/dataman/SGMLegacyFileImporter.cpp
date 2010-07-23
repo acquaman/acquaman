@@ -145,7 +145,7 @@ bool SGMLegacyFileImporter::loadFromFile(const QString& filepath, bool extractMe
 
 
 	if(extractMetaData) {
-		scan_->setNotes(QString("Grating: %1\nIntegration Time: %2\nComments:\n%3").arg(integrationTime).arg(grating).arg(comments));
+		scan_->setNotes(QString("Grating: %1\nIntegration Time: %2\nComments:\n%3").arg(grating).arg(integrationTime).arg(comments));
 		scan_->setDateTime(datetime);
 	}
 
