@@ -1,9 +1,7 @@
-#include <QGui>
-
 #include "ComboBox.h"
 #include <QSqlQuery>
 
-ComboBox:: ComboBox(QWidget *parent)
+ComboBox:: comboBox(QWidget *parent)
 	: QComboBox(parent)
 {
 /// Getting required information from database
@@ -12,17 +10,37 @@ ComboBox:: ComboBox(QWidget *parent)
 	   * run date
 	   * run id
 	*/
+	//Checking that database exists:
+	if (database()==0)
+		return 0;
+	QList <string> runName = searchDbRuns(Runs,name);
+	QList <string> runDate = searchDbRuns(Runs, dateTime);
+	QList <string> runId = searchDbRuns(Runs, id);
 
-	// acquiring run name (will be in String format)
-	QSqlQuery q = database()->query();
-	q.prepare ("SELECT runName FROM runs WHERE ... ");
-	q.bindValue(0, runName());
-
-
-
-
-
+	for (int j=0; j<i; j++)
+		string& item = runName++;
+		comboBox->addItem(item);
 
 }
+	// acquiring run name (will be in String format)
+
+
+QList <string> ComboBox::searchDbRuns(const QString& tableName, const QString& colName) const{
+
+	QList<string> rv;
+
+	QSqlQuery q = database()->query();
+	q.prepare (QString("SELECT %1 FROM %2 ").arg(colName).arg(tableName));
+	q.bindValue(0, value);
+	if (q.exec)
+		while (q.next()) {
+		rv<<q.value(0).toString;
+		int i++;    // Will this variable exist outside of this function?
+
+		}
+	return rv;
+}
+
+
 
 

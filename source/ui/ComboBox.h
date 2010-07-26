@@ -9,6 +9,9 @@ class ComboBox: public QComboBox
 
 public:
 	ComboBox (QWidget *parent = 0);
+	QList<string> rv;
+	QList<string> rv1;
+	QList<string> rv2;
 
 private slots:
 
