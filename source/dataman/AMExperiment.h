@@ -45,8 +45,7 @@ public:
 		;
 		rv << AMMetaMetaData(QVariant::String, "notes", true);
 
-		/// Asking users to specify thumbnail that is to be used
-		rv << AMMetaMetaData(QVariant::ByteArray, "image", true);
+
 		return rv;
 	}
 
@@ -90,9 +89,6 @@ public:
 		return AMDatabaseDefinition::experimentTableName();
 	}
 
-
-
-
 signals:
 
 public slots:
@@ -102,14 +98,7 @@ public slots:
 		setMetaData("notes", notes);
 	}
 
-	/// Add a photograph or image of this sample. These will be used as thumbnails in the database views as well.
-	void setImage(const QImage& sampleImage) {
-		QByteArray output;
-		QBuffer boutput(&output);
-		boutput.open(QIODevice::WriteOnly);
-		sampleImage.save(&boutput, "PNG");
-		setMetaData("image", output);
-	}
+
 
 protected:
 	/// We have a picture of this  In the future,

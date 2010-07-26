@@ -2,18 +2,25 @@
 #define COMBOBOX_H
 
 #include <QComboBox>
-
+#include <QString>
+#include <QList>
 class ComboBox: public QComboBox
 {
-	Q_Object
+	Q_OBJECT
 
 public:
-	ComboBox (QWidget *parent = 0);
-	QList<string> rv;
-	QList<string> rv1;
-	QList<string> rv2;
+	ComboBox (QWidget *parent = 0); //Constructor
+	virtual ~ComboBox();            //Destructor
 
-private slots:
+	QList<QString> searchDbRuns(const QString& tableName, const QString& colName) const;
+	// void addRuns();
+
+	int runCount();  // counting number of runs
+
+
+
+protected:
+	void autoAddRuns(int runCount());
 
 };
 

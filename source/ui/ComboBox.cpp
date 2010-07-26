@@ -1,7 +1,8 @@
 #include "ComboBox.h"
 #include <QSqlQuery>
-
-ComboBox:: comboBox(QWidget *parent)
+#include <QString>
+#include <QList>
+ComboBox:: ComboBox(QWidget *parent)
 	: QComboBox(parent)
 {
 /// Getting required information from database
@@ -9,38 +10,60 @@ ComboBox:: comboBox(QWidget *parent)
 	   * run name
 	   * run date
 	   * run id
-	*/
-	//Checking that database exists:
-	if (database()==0)
-		return 0;
-	QList <string> runName = searchDbRuns(Runs,name);
-	QList <string> runDate = searchDbRuns(Runs, dateTime);
-	QList <string> runId = searchDbRuns(Runs, id);
+	*************/
 
-	for (int j=0; j<i; j++)
-		string& item = runName++;
-		comboBox->addItem(item);
+
+	// Setting up UI:
+	/////////////////////
 
 }
-	// acquiring run name (will be in String format)
 
+// Searching and obtaining from the database, whatever is specified in the column name in a string array
+QList<QString> ComboBox::searchDbRuns(const QString& tableName, const QString& colName) const{
 
-QList <string> ComboBox::searchDbRuns(const QString& tableName, const QString& colName) const{
+	QList<QString> rv;
 
-	QList<string> rv;
+	if (database()==0)
+		return QList<QString>();
 
 	QSqlQuery q = database()->query();
+
 	q.prepare (QString("SELECT %1 FROM %2 ").arg(colName).arg(tableName));
 	q.bindValue(0, value);
 	if (q.exec)
 		while (q.next()) {
 		rv<<q.value(0).toString;
 		int i++;    // Will this variable exist outside of this function?
-
 		}
+
 	return rv;
 }
 
+// Obtaining the number of runs in the database
+int ComboBox::runCount(){
+	return searchDbRuns().count();
+}
+
+void ComboBox::autoAddRuns(const int numberOfRuns){
+
+	// Checking that database exists:
 
 
+	//getting different items from database
+	QList<QString> runName = searchDbRuns("Runs","name");
+	QList<QString> runDate = searchDbRuns("Runs", "dateTime");
+	QList<QString> runId = searchDbRuns("Runs", "id");
+	int i = numberOfRuns;
+	//putting those items into the combobox one by one while collating
+	for (int j=0; j<=i; j++) {
+		QString& item = runName++;
+		item.append("\n");
+		item.append(runDate++);
+		item.append("\n");
+		item.append(runId++);
 
+		ComboBox->addItem(item);
+	}
+}
+
+//need to create a function that will allow user to add runs manually to put in the public section

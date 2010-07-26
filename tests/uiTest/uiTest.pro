@@ -103,7 +103,8 @@ HEADERS +=	../MPlot/src/MPlot/MPlot.h	\
 	source/dataman/AMSample.h \
 	source/dataman/AMRun.h \
 	source/dataman/AMExperiment.h \
-	source/dataman/AMDatabaseDefinition.h
+	source/dataman/AMDatabaseDefinition.h \
+	source/ui/ComboBox.h
 FORMS +=
 SOURCES +=	source/AMErrorMonitor.cpp	\
 	source/AMSettings.cpp	\
@@ -128,5 +129,6 @@ SOURCES +=	source/AMErrorMonitor.cpp	\
 	source/dataman/AMSample.cpp \
 	source/dataman/AMRun.cpp \
 	source/dataman/AMExperiment.cpp \
+	source/ui/ComboBox.cpp \
 	tests.cpp
 RESOURCES =	source/icons/icons.qrc

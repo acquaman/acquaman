@@ -67,7 +67,7 @@ void AMDatabaseDefinition::registerType(const AMDbObject* prototype, AMDatabase*
 
 	QStringList columnNames;
 	foreach(AMMetaMetaData col, prototype->metaDataAllKeys() ) {
-		db->ensureColumn(objectTableName(), col.key, AMDatabase::metaType2DbType(col.type));
+		db->ensureColumn(prototype->databaseTableName(), col.key, AMDatabase::metaType2DbType(col.type));
 		columnNames << col.key;
 	}
 
