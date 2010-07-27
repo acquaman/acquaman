@@ -1,8 +1,8 @@
-#include "ComboBox.h"
+#include "AMComboBox.h"
 #include <QSqlQuery>
 #include <QString>
 #include <QList>
-ComboBox:: ComboBox(QWidget *parent)
+AMComboBox:: AMComboBox(QWidget *parent)
 	: QComboBox(parent)
 {
 /// Getting required information from database
@@ -16,35 +16,36 @@ ComboBox:: ComboBox(QWidget *parent)
 	// Setting up UI:
 	/////////////////////
 
+	database_ = AMDatabase::userdb();
+}
+
+AMComboBox::~AMComboBox(){
+
 }
 
 // Searching and obtaining from the database, whatever is specified in the column name in a string array
-QList<QString> ComboBox::searchDbRuns(const QString& tableName, const QString& colName) const{
+QList<QString> AMComboBox::searchDbRuns(const QString& tableName, const QString& colName) const{
 
 	QList<QString> rv;
 
 	if (database()==0)
 		return QList<QString>();
 
+	QVariant value;
+	value = "?";
 	QSqlQuery q = database()->query();
 
 	q.prepare (QString("SELECT %1 FROM %2 ").arg(colName).arg(tableName));
 	q.bindValue(0, value);
-	if (q.exec)
+	if (q.exec())
 		while (q.next()) {
-		rv<<q.value(0).toString;
-		int i++;    // Will this variable exist outside of this function?
+		rv << q.value(0).toString();
 		}
 
 	return rv;
 }
 
-// Obtaining the number of runs in the database
-int ComboBox::runCount(){
-	return searchDbRuns().count();
-}
-
-void ComboBox::autoAddRuns(const int numberOfRuns){
+void AMComboBox::autoAddRuns(){
 
 	// Checking that database exists:
 
@@ -53,9 +54,18 @@ void ComboBox::autoAddRuns(const int numberOfRuns){
 	QList<QString> runName = searchDbRuns("Runs","name");
 	QList<QString> runDate = searchDbRuns("Runs", "dateTime");
 	QList<QString> runId = searchDbRuns("Runs", "id");
-	int i = numberOfRuns;
+	//int i = numberOfRuns;
+	//int i = runCount();
+	int i = runName.count();
 	//putting those items into the combobox one by one while collating
 	for (int j=0; j<=i; j++) {
+		QString item = runName.at(j);
+		item.append(",");
+		item.append(runDate.at(j));
+		item.append(",");
+		item.append(runId.at(j));
+		addItem(item);
+		/*
 		QString& item = runName++;
 		item.append("\n");
 		item.append(runDate++);
@@ -63,6 +73,7 @@ void ComboBox::autoAddRuns(const int numberOfRuns){
 		item.append(runId++);
 
 		ComboBox->addItem(item);
+		*/
 	}
 }
 

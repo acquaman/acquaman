@@ -6,7 +6,7 @@
 
 #include "ui/AMScanView.h"
 #include "ui/AMSidebar.h"
-#include "ui/ComboBox.h"
+#include "ui/AMComboBox.h"
 
 #include "dataman/AMFirstTimeController.h"
 #include "AMErrorMonitor.h"
@@ -68,6 +68,11 @@ private slots:
 	}
 */
 	void testAMScanSetModel() {
+
+		AMComboBox *box = new AMComboBox;
+		box->show();
+
+		QTest::qWait(10000);
 
 		AMScanView sv;
 		sv.show();
@@ -472,7 +477,7 @@ protected:
 int testComboBox(int argc,char *argv[]) {
 	QApplication app(argc,argv);
 
-	ComboBox *box = new ComboBox;
+	AMComboBox *box = new AMComboBox;
 	QTest::qWait(40000);
 
 }
