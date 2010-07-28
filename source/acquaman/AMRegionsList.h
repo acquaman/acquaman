@@ -47,7 +47,7 @@ signals:
 	void regionsChanged();
 
 private slots:
-	void onDataChanged(QModelIndex a,QModelIndex b){ emit regionsChanged();}
+        void onDataChanged(QModelIndex a,QModelIndex b){ Q_UNUSED(a); Q_UNUSED(b); emit regionsChanged();}
 
 protected:
 	/// Holds the list of AMXASRegion pointers.

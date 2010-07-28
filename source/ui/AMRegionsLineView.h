@@ -93,6 +93,8 @@ protected:
 		setCursor(Qt::OpenHandCursor);
 	}
 	void mouseReleaseEvent(QGraphicsSceneMouseEvent *event){
+		Q_UNUSED(event)
+
 		setCursor(Qt::OpenHandCursor);
 	}
 

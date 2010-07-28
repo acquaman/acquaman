@@ -21,6 +21,7 @@ public:
 	static QString sampleTableName() { return "Samples"; }
 	static QString sampleElementEntriesTableName() { return "SampleElementEntries"; }
 	static QString thumbnailTableName() { return "Thumbnails"; }
+	static QString detectorTableName() { return "DetectorInfo"; }
 
 	static QString stringListSeparator() { return "|@^@|"; }
 

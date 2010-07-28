@@ -27,7 +27,7 @@
 
 
 class AMDatabase : QObject {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
 
@@ -51,6 +51,7 @@ public:
 			return "REAL";
 		case QVariant::ByteArray:
 			return "BLOB";
+		// Everything else should be prepared to write itself out as a string.
 		default:
 			return "TEXT";
 		}

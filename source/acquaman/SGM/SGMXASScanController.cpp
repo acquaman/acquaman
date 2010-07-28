@@ -7,7 +7,7 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 	_pCfg_ = & specificCfg_;
 	beamlineInitialized_ = false;
 
-	QList<AMAbstractDetector*> scanDetectors;
+	QList<AMDetectorInfo*> scanDetectors;
 	scanDetectors = pCfg_()->usingDetectors();
 	scanDetectors.prepend(SGMBeamline::sgm()->i0Detector());
 	scanDetectors.prepend(SGMBeamline::sgm()->eVFbkDetector());
@@ -30,7 +30,7 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 
 	/*
 	pScan_()->addChannel("eV", "eV");
-	foreach(AMAbstractDetector *dtctr, scanDetectors){
+	foreach(AMDetectorInfo *dtctr, scanDetectors){
 		if(!dtctr->isSpectralOutput())
 			pScan_()->addChannel(dtctr->name().toUpper(), dtctr->name());
 		// What to do if it is spectral?

@@ -84,19 +84,18 @@ bool AMScan::addChannel(const QString& chName, const QString& expression) {
 bool AMScan::storeToDb(AMDatabase* db) {
 
 	// the base class version is good at saving all the values in the metaData_ hash. Let's just exploit that.
-	metaData_["channelNames"] = channelNames().join(AMDatabaseDefinition::stringListSeparator());
-	metaData_["channelExpressions"] = channelExpressions().join(AMDatabaseDefinition::stringListSeparator());
+	metaData_["channelNames"] = channelNames();
+	metaData_["channelExpressions"] = channelExpressions();
 
 	// Call the base class implementation
 	// Return false if it fails.
-	if( !AMDbObject::storeToDb(db) )
-		return false;
+	bool retval = AMDbObject::storeToDb(db);
 
 	// This was cheating... channelNames and channelExpressions aren't stored authoritatively in the metaData_. Let's get rid of them.
 	metaData_.remove("channelNames");
 	metaData_.remove("channelExpressions");
 
-	return true;
+	return retval;
 }
 
 
@@ -115,8 +114,8 @@ bool AMScan::loadFromDb(AMDatabase* db, int sourceId) {
 		deleteChannel(numChannels()-1);
 
 	// retrieve channelNames and channelExpressions: they've been "accidentally" loaded into the hash by AMDbObject::loadFromDb().
-	QStringList chNames = metaData_.take("channelNames").toString().split(AMDatabaseDefinition::stringListSeparator());
-	QStringList chExpressions = metaData_.take("channelExpressions").toString().split(AMDatabaseDefinition::stringListSeparator());
+	QStringList chNames = metaData_.take("channelNames").toStringList();
+	QStringList chExpressions = metaData_.take("channelExpressions").toStringList();
 	if(chNames.count() != chExpressions.count()) {
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -1, "AMScan: couldn't restore saved channels. (The data was corrupted.)"));
 		return false;
