@@ -117,7 +117,8 @@ void MainWindow::onScanControllerReady(AMScanController *scanController){
 #ifdef Q_WS_MAC
 	menuBar_ = new QMenuBar(0);
 #else
-	menuBar_ = new QMenuBar(mw_);
+	menuBar_ = new QMenuBar();
+	mw_->addTopWidget(menuBar_);
 #endif
 
 	fileMenu_ = menuBar_->addMenu("File");

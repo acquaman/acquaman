@@ -39,6 +39,10 @@ public:
 	void addBottomWidget(QWidget* bottomWidget) {
 		vlayout_->addWidget(bottomWidget);
 	}
+	/// Add a custom widget above the sidebar and main area
+	void addTopWidget(QWidget* topWidget) {
+		vlayout_->insertWidget(0, topWidget);
+	}
 
 	/// Add a new \c pane to manage.  It will show up under category \c categoryName, at the given \c weight, with a \c title and an icon from \c iconFileName.
 	void addPane(QWidget* pane, const QString& categoryName, const QString& title, const QString& iconFileName, double weight = 0);
