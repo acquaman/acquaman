@@ -9,10 +9,11 @@ class AMImportControllerWidget : public QWidget, public Ui::AMImportControllerWi
 public:
 	explicit AMImportControllerWidget(QWidget* parent = 0) : QWidget(parent) {
 		setupUi(this);
-		thumbnailViewer = new AMThumbnailScrollViewer(thumbnailContainer);
+		thumbnailViewer = new AMThumbnailScrollWidget();
+		verticalLayoutLeft->insertWidget(0, thumbnailViewer);
 	}
 
-	AMThumbnailScrollViewer* thumbnailViewer;
+	AMThumbnailScrollWidget* thumbnailViewer;
 };
 
 #endif // AMIMPORTCONTROLLERWIDGET_H

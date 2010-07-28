@@ -16,7 +16,11 @@ AMSidebarDefaultSelector::AMSidebarDefaultSelector(const QString& text, const QS
 		setIcon(iconFileName);
 
 	text_ = new QLabel(text);
+	text_->setObjectName("AMSidebarSelectorText");
 	hl_->addWidget(text_);
+
+	/// Set your object name to "AMSidebarSelector" to have your colors and background set automatically when mouse-overed/selected. If you don't, you're in charge of managing your colors yourself.
+	setObjectName("AMSidebarSelector");
 
 }
 
@@ -120,8 +124,8 @@ void AMSidebar::addLink(const QString& categoryName, QVariant linkContent, QWidg
 		addCategory(categoryName);
 
 
-	selector->setObjectName("AMSidebarSelector");
-	selector->setStyleSheet(AMSIDEBAR_SELECTOR_STYLESHEET);
+	// selector->setObjectName("AMSidebarSelector");
+	selector->setStyleSheet(selector->styleSheet() + AMSIDEBAR_SELECTOR_STYLESHEET);
 	AMSidebarLink newLink(selector, linkContent, weight, categoryName);
 
 	name2category_[categoryName]->addLink(newLink);
@@ -167,10 +171,13 @@ void AMSidebar::setHighlightedLink(QWidget* selector) {
 	if(highlightedSelector_ == selector)
 		return;
 
-	if(highlightedSelector_)
-		highlightedSelector_->setStyleSheet( AMSIDEBAR_SELECTOR_STYLESHEET );
+	if(highlightedSelector_) {
+		highlightedSelector_->setProperty("highlighted", false);
+		highlightedSelector_->setStyleSheet(highlightedSelector_->styleSheet());
+	}
 	highlightedSelector_ = selector;
-	highlightedSelector_->setStyleSheet( AMSIDEBAR_HIGHLIGHTED_STYLESHEET );
+	highlightedSelector_->setProperty("highlighted", true);
+	highlightedSelector_->setStyleSheet(highlightedSelector_->styleSheet());
 }
 
 /// set the highlighted link (specified by the link content).  This version is slower than setHighlightedLink(QWidget* selector).

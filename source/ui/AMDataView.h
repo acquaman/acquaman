@@ -75,6 +75,7 @@ protected:
 };
 
 
+
 /// This class provides a view of one "section" of a multi-part database view.  What is shown inside the section depends on the filter specified using an SQL "WHERE" clause.  The section can be collapsed (hidden) or expanded (shown), to save screen real-estate and reduce the amount of data that must be loaded.
 class AMDataViewSection : public QWidget, private Ui::AMDataViewSection {
 	Q_OBJECT
@@ -93,7 +94,43 @@ protected:
 	AMDataViews::ViewMode viewMode_;
 	QString whereClause_;
 	bool expanded_;
+	QWidget* subview_;
 };
+
+class AMFlowGraphicsLayout;
+class AMThumbnailScrollGraphicsWidget;
+#include <QGraphicsView>
+
+/// This widget is used inside an AMDataViewSection to show the section's items using thumbnails.
+class AMDataViewSectionThumbnailView : public QGraphicsView {
+	Q_OBJECT
+
+public:
+	explicit AMDataViewSectionThumbnailView(AMDatabase* db, const QString& dbTableName, const QString& whereClause, QWidget* parent = 0);
+
+public slots:
+	void setThumbnailWidth(int width) {
+		setThumbnailWidth(double(width));
+	}
+	void setThumbnailWidth(double width);
+
+protected:
+	AMDatabase* db_;
+	QString dbTableName_;
+	QString whereClause_;
+	QGraphicsScene* scene_;
+	QGraphicsWidget* gWidget_;
+	AMFlowGraphicsLayout* layout_;
+	QList<AMThumbnailScrollGraphicsWidget*> thumbs_;
+	double thumbnailWidth_;
+
+	/// This helper function populates the view / layout with all of the thumbnails we need.
+	void populate();
+
+	/// This event handler updates the size of the main graphics widget inside our view/scene, when the size of the view changes.
+	virtual void resizeEvent(QResizeEvent *event);
+};
+
 
 
 class AMDataViewEmptyHeader : public QWidget, private Ui::AMDataViewEmptyHeader {

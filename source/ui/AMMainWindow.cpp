@@ -49,6 +49,18 @@ void AMMainWindow::addPane(QWidget* pane, const QString& categoryName, const QSt
 	pane->installEventFilter(this);
 }
 
+void AMMainWindow::addPane(QWidget* pane, const QString& categoryName, QWidget* selectorWidget, const QString& paneTitle, double weight) {
+
+	pane->setWindowTitle(paneTitle);
+
+	stackWidget_->addWidget(pane);
+	pane2entry_.insert(pane, AMMainWindowEntry(pane, selectorWidget));
+	sidebar_->addLink(categoryName, QVariant::fromValue(pane), selectorWidget, weight);
+
+	pane->installEventFilter(this);
+}
+
+
 /// Removes and deletes a pane widget (whether docked or undocked)
 void AMMainWindow::deletePane(QWidget* pane) {
 

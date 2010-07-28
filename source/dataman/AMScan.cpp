@@ -150,14 +150,17 @@ AMDbThumbnail AMScan::thumbnail(int index) const {
 	MPlot plot(QRectF(0,0,240,180));
 	gscene.addItem(&plot);
 
-	plot.setMarginLeft(2);
-	plot.setMarginRight(2);
-	plot.setMarginTop(2);
+	plot.setMarginLeft(0);
+	plot.setMarginRight(0);
+	plot.setMarginTop(0);
 	plot.setMarginBottom(10);
 	plot.axisRight()->setTicks(0);
 	plot.axisTop()->setTicks(0);
 	plot.axisBottom()->setTicks(2);
+	plot.axisLeft()->showGrid(false);
+	plot.axisBottom()->showGrid(false);
 	plot.axisBottom()->showAxisName(false);
+	plot.axisLeft()->showAxisName(false);
 
 	MPlotSeriesBasic series(channel(index));
 	/// Todo: non-arbitrary colors here; don't mess up the ordering in AMScanSetModelChannelMetaData

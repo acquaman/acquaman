@@ -30,6 +30,7 @@
 #include "ui/ExpAlbum.h"
 #include "ui/BottomBar.h"
 #include "ui/AMDataView.h"
+#include "ui/AMRunExperimentTree.h"
 
 #include "AMErrorMonitor.h"
 
@@ -75,7 +76,14 @@ AMAppController::AMAppController(QObject *parent) :
 	mw_->addPane(new Scheduler(), "Experiment Tools", "Scheduler", ":/user-away.png");
 	mw_->addPane(new PeriodicTable(), "Experiment Tools", "Periodic Table", ":/applications-science.png");
 	mw_->addPane(new ProtocolViewer(), "Experiment Tools", "Protocol", ":/accessories-text-editor.png");
-	mw_->addPane(new AMDataView(), "Experiment Tools", "My Data", ":/system-file-manager.png");
+
+
+
+
+	// create widget
+	AMRunExperimentTree* dataTree = new AMRunExperimentTree();
+	mw_->addPane(new AMDataView(), "Data", dataTree, "Data");
+
 
 
 	BottomBar* b = new BottomBar();

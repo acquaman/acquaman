@@ -67,7 +67,7 @@ AMImportController::AMImportController(QObject *parent) :
 	connect(w_->nextButton, SIGNAL(clicked()), this, SLOT(onNextButtonClicked()));
 	connect(w_->applyAllButton, SIGNAL(clicked()), this, SLOT(onApplyAllButtonClicked()));
 	connect(w_->cancelButton, SIGNAL(clicked()), this, SLOT(onCancelButtonClicked()));
-	connect(w_->formatComboBox, SIGNAL(clicked()), this, SLOT(onFileTypeComboBoxChanged(int)));
+	connect(w_->formatComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onFileTypeComboBoxChanged(int)));
 
 	QSignalMapper* mapper = new QSignalMapper(this);
 	connect(w_->checkName, SIGNAL(clicked()), mapper, SLOT(map()));
@@ -153,13 +153,15 @@ void AMImportController::setupNextFile() {
 	QString name = path.split(QChar('/')).last();
 	path.chop(name.length()+1);
 
-	w_->filenameLabel->setText(name);
-	w_->folderLabel->setText(path);
+	w_->thumbnailViewer->setCaption1(name);
+	w_->thumbnailViewer->setCaption2(path);
 
 	/// \todo: switch importer automatically if current one doesn't match filter, and another does.
 
 	AMImporter* importer = importers_.at(w_->formatComboBox->currentIndex());
 	currentScan_ = importer->import(filesToImport_.at(currentFile_));
+
+	w_->thumbnailViewer->setSource(currentScan_);
 
 	if(currentScan_ == 0) {
 		w_->loadingStatusLabel->setText("Could not load this file.");
@@ -200,10 +202,6 @@ void AMImportController::setupNextFile() {
 	else
 		w_->dateTimeEdit->setEnabled(true);
 	/////////////////////////////
-
-	if(currentScan_) {
-		w_->thumbnailViewer->setSource(currentScan_);
-	}
 
 
 	// This is our magic way of handling "Apply to All", while keeping the progress bar for free and stopping if we ever get an import error:  After setting up the next file, we just schedule a signal to automatically push the next button, as if the user was doing it really fast.

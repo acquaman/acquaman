@@ -7,10 +7,11 @@ macx {
         /Users/mboots/dev/epics/14-11/base/include/os/Darwin
     EPICS_LIB_DIR = /Users/mboots/dev/epics/14-11/base/lib/darwin-x86
     MPLOT_INCLUDE_DIR = /Users/mboots/dev/MPlot/src
-
-	GSL_INCLUDE_DIR=/Users/mboots/dev/gsl-install/include
-	GSL_LIB=-L/Users/mboots/dev/gsl-install/lib -lgsl
-	GSL_CBLAS_LIB=-L/Users/mboots/dev/gsl-install/lib -lgslcblas
+    GSL_INCLUDE_DIR = /Users/mboots/dev/gsl-install/include
+    GSL_LIB = -L/Users/mboots/dev/gsl-install/lib \
+        -lgsl
+    GSL_CBLAS_LIB = -L/Users/mboots/dev/gsl-install/lib \
+        -lgslcblas
 }
 linux-g++ { 
     EPICS_INCLUDE_DIRS = /home/reixs/beamline/programming/epics/base/include \
@@ -19,9 +20,8 @@ linux-g++ {
     
     # include path for MPlot library (header-files only)
     MPLOT_INCLUDE_DIR = /home/reixs/beamline/programming/MPlot/src
-
-	GSL_LIB=-lgsl
-	GSL_CBLAS_LIB=-lgslcblas
+    GSL_LIB = -lgsl
+    GSL_CBLAS_LIB = -lgslcblas
 }
 QT += core \
     phonon \
@@ -36,9 +36,6 @@ INCLUDEPATH += . \
 INCLUDEPATH += $$EPICS_INCLUDE_DIRS
 INCLUDEPATH += $$MPLOT_INCLUDE_DIR
 INCLUDEPATH += $$GSL_INCLUDE_DIR
-
-
-
 LIBS += $$GSL_LIB
 LIBS += $$GSL_CBLAS_LIB
 
@@ -176,7 +173,9 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
     source/ui/Scheduler.h \
     source/ui/SGMSampleTransferView.h \
     source/ui/SGMXASScanConfigurationViewer.h \
-    source/ui/AMCramBarHorizontal.h
+    source/ui/AMCramBarHorizontal.h \
+    source/ui/AMFlowGraphicsLayout.h \
+    source/ui/AMRunExperimentTree.h
 FORMS += source/ui/AbsorptionScanController.ui \
     source/ui/BottomBar.ui \
     source/ui/ConnectionSettings.ui \
@@ -286,6 +285,8 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
     source/AMAppController.cpp \
     source/dataman/AMImportController.cpp \
     source/ui/AMThumbnailScrollViewer.cpp \
-    source/ui/AMCramBarHorizontal.cpp
+    source/ui/AMCramBarHorizontal.cpp \
+    source/ui/AMFlowGraphicsLayout.cpp \
+    source/ui/AMRunExperimentTree.cpp
 RESOURCES = source/icons/icons.qrc
 OTHER_FILES += source/muParser/README.txt

@@ -28,11 +28,10 @@
 #define AMSIDEBAR_MIN_HEIGHT 30
 #define AMSIDEBAR_ICON_SIZE 22
 
-#define AMSIDEBAR_SELECTOR_STYLESHEET " * { font: 500 10pt \"Lucida Grande\"; color: rgb(0, 0, 0); } QFrame#AMSidebarSelector { padding-left: 10px; padding-right: 14px; padding-top: 0px; padding-bottom: 1px; text-align: left; border: 0px solid black; }  	QFrame#AMSidebarSelector:hover { border-width: 1px; border-style: solid;	border-color: rgb(22, 84, 170); border-top-color: rgb(69, 128, 200); background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(91, 146, 213, 255), stop:1 rgba(22, 84, 170, 255)); } "
+#define AMSIDEBAR_SELECTOR_STYLESHEET " #AMSidebarSelectorText { font: 500 10pt \"Lucida Grande\"; color: rgb(0, 0, 0); } QFrame#AMSidebarSelector { padding-left: 10px; padding-right: 14px; padding-top: 0px; padding-bottom: 1px; text-align: left; border: 1px none transparent; }  	QFrame#AMSidebarSelector:hover { border-width: 1px; border-style: solid;	border-color: rgb(22, 84, 170); border-top-color: rgb(69, 128, 200); background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(91, 146, 213, 255), stop:1 rgba(22, 84, 170, 255)); } #AMSidebarSelectorText[highlighted=\"true\"] { font: 500 10pt \"Lucida Grande\"; color: rgb(255, 255, 255); } QFrame#AMSidebarSelector[highlighted=\"true\"] { padding-left: 10px; padding-right: 14px; padding-top: 0px; padding-bottom: 1px; text-align: left; border: 1px solid rgb(115, 122, 153); border-top-color: rgb(131, 137, 167); background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(170, 176, 197, 255), stop:1 rgba(115, 122, 153, 255)); color: rgb(255, 255, 255); } "
 
 // removed from above: background-color: rgb(221, 227, 234);
 
-#define AMSIDEBAR_HIGHLIGHTED_STYLESHEET " * { font: 500 10pt \"Lucida Grande\"; color: rgb(255, 255, 255); } QFrame#AMSidebarSelector { padding-left: 10px; padding-right: 14px; padding-top: 0px; padding-bottom: 1px; text-align: left; border: 0px solid rgb(115, 122, 153); border-top-color: rgb(131, 137, 167); background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(170, 176, 197, 255), stop:1 rgba(115, 122, 153, 255)); color: rgb(255, 255, 255); } "
 
 #define AMSIDEBAR_HEADER_STYLESHEET "QLabel { padding-left: 10px; padding-right: 14px; padding-top: 8px; padding-bottom: 4px; font: bold 10pt \"Lucida Grande\"; color: rgb(100, 109, 125); }"
 
