@@ -12,8 +12,8 @@ AMBiHash<QString, QString> SGMLegacyFileImporter::columns2pvNames_;
 
 #include <QDebug>
 
-/// load from SGM legacy file format (this may or may not be permanent; might want a general loading system)
-bool SGMLegacyFileImporter::loadFromFile(const QString& filepath) {
+/// load raw data from the SGM legacy file format into a scan's data tree.  If \c extractMetaData is set to true, this will also set the 'notes' and 'dateTime' meta-data fields.  If \c createChannels is set to true, it will create some default channels based on the data columns.
+bool SGMLegacyFileImporter::loadFromFile(const QString& filepath, bool extractMetaData, bool createChannels) {
 
 	// not initialized to have a scan target
 	if(!scan_)
@@ -40,19 +40,21 @@ bool SGMLegacyFileImporter::loadFromFile(const QString& filepath) {
 	}
 	QTextStream fs(&f);
 
-\
-	// Start reading the file. look for comment line.
-	while( !fs.atEnd() && fs.readLine() != QString("# COMMENT"))
-		;
-	if(fs.atEnd()) {
-		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -2, "SGMLegacyFileImporter parse error while loading scan data from file. Missing comment."));
-		return false;	// bad format; missing the comment string
-	}
 
-	// read the comment
-	line = fs.readLine();
-	// chop off the "# "
-	comments = line.remove(0,1).trimmed();
+	if(extractMetaData) {
+		// Start reading the file. look for comment line.
+		while( !fs.atEnd() && fs.readLine() != QString("# COMMENT"))
+			;
+		if(fs.atEnd()) {
+			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -2, "SGMLegacyFileImporter parse error while loading scan data from file. Missing comment."));
+			return false;	// bad format; missing the comment string
+		}
+
+		// read the comment
+		line = fs.readLine();
+		// chop off the "# "
+		comments = line.remove(0,1).trimmed();
+	}
 
 
 	// find out what columns exist. Looking for line starting with '#(1) '
@@ -142,16 +144,13 @@ bool SGMLegacyFileImporter::loadFromFile(const QString& filepath) {
 	}
 
 
-	// success. Set all scan paramenters, now that we know we've won.
-	scan_->setNotes(comments);
-	scan_->setDateTime(datetime);
-	// setSampleName() ?
-	scan_->legacyIntegrationTime_ = integrationTime;
-	scan_->legacyGrating_ = grating;
-
+	if(extractMetaData) {
+		scan_->setNotes(QString("Grating: %1\nIntegration Time: %2\nComments:\n%3").arg(grating).arg(integrationTime).arg(comments));
+		scan_->setDateTime(datetime);
+	}
 
 	// If the scan doesn't have any channels yet, it would be helpful to create some.
-	if(scan_->numChannels() == 0) {
+	if(createChannels) {
 		/// \todo defaults for what channels to create?
 		// scan_->addChannel("eV", "eV");
 		if(colNames1.contains("tey") && colNames1.contains("I0"))
@@ -162,13 +161,9 @@ bool SGMLegacyFileImporter::loadFromFile(const QString& filepath) {
 			scan_->addChannel("tey_raw", "tey");
 		if(colNames1.contains("tfy"))
 			scan_->addChannel("tfy_raw", "tfy");
+		if(colNames1.contains("I0"))
+			scan_->addChannel("I0", "I0");
 	}
-
-
-	// what should we name this scan?
-	QString name = QDir::fromNativeSeparators(filepath);
-	name = name.split(QChar('/')).last();
-	scan_->setName(name);
 
 	scan_->onDataChanged();
 

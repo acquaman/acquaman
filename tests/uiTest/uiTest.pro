@@ -100,7 +100,11 @@ HEADERS +=	../MPlot/src/MPlot/MPlot.h	\
 	source/ui/AMFirstTimeWidget.h	\
 	source/ui/AMScanView.h	\
 	source/ui/AMSidebar.h \
-	source/dataman/AMDatabaseDefinition.h
+	source/dataman/AMSample.h \
+	source/dataman/AMRun.h \
+	source/dataman/AMExperiment.h \
+	source/dataman/AMDatabaseDefinition.h \
+	source/ui/AMComboBox.h
 FORMS +=
 SOURCES +=	source/AMErrorMonitor.cpp	\
 	source/AMSettings.cpp	\
@@ -122,5 +126,9 @@ SOURCES +=	source/AMErrorMonitor.cpp	\
 	source/ui/AMScanView.cpp	\
 	source/ui/AMSidebar.cpp	\
 	source/dataman/AMDatabaseDefinition.cpp \
+	source/dataman/AMSample.cpp \
+	source/dataman/AMRun.cpp \
+	source/dataman/AMExperiment.cpp \
+	source/ui/AMComboBox.cpp \
 	tests.cpp
 RESOURCES =	source/icons/icons.qrc

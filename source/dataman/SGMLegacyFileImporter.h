@@ -7,9 +7,7 @@
 
 class AMXASScan;
 
-/// This class encapsulates importing and exporting legacy SGM data files (XAS scans from ???? to 2010) to an AMXASScan
-/*! \todo Should we implement a whole family of abstract and actual classes that encapsulate the dirty details of all file formats?
-  */
+/// This class encapsulates loading and saving legacy SGM data files (XAS scans from 2004 to 2010) to/from an AMXASScan. It can be used for importing external files (by SGMImporter, where it is also used to extract meta-data and create channels), or used to load files that we already have in the database, which store their data in the legacy file format.
 class SGMLegacyFileImporter
 {
 public:
@@ -55,7 +53,7 @@ public:
 
 
 	/// load from SGM legacy file format
-	bool loadFromFile(const QString& filepath);
+	bool loadFromFile(const QString& filepath, bool extractMetaData = true, bool createChannels = true);
 
 	/// save to SGM legacy file format (\todo UNIMPLEMENTED)
 	bool saveToFile(const QString& filepath) {

@@ -90,6 +90,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/acquaman/SGM/SGMXASDacqScanController.h \
 	source/acquaman/SGM/SGMXASScanConfiguration.h \
 	source/acquaman/SGM/SGMXASScanController.h \
+	source/AMAppController.h \
 	source/AMBiHash.h \
 	source/AMErrorMonitor.h \
 	source/AMObservable.h \
@@ -98,6 +99,8 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/beamline/AMAbstractDetector.h \
 	source/beamline/AMAmpDetector.h \
 	source/beamline/AMBeamline.h \
+	source/beamline/AMBeamlineActionItem.h \
+	source/beamline/AMBeamlineControlAction.h \
 	source/beamline/AMControl.h \
 	source/beamline/AMControlSet.h \
 	source/beamline/AMControlState.h \
@@ -120,6 +123,8 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/dataman/AMDbLoader.h \
 	source/dataman/AMDbObject.h \
 	source/dataman/AMFirstTimeController.h \
+	source/dataman/AMImportController.h \
+	source/dataman/AMSample.h \
 	source/dataman/AMScan.h \
 	source/dataman/AMScanSetModel.h \
 	source/dataman/AMXASScan.h \
@@ -136,12 +141,16 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/muParser/muParserTokenReader.h \
 	source/ui/AbsorptionScanController.h \
 	source/ui/AMControlSetView.h \
+	source/ui/AMDataView.h \
 	source/ui/AMFirstTimeWidget.h \
+	source/ui/AMImportControllerWidget.h \
 	source/ui/AMMainWindow.h \
-	source/ui/AMScanView.h \
+	source/ui/AMRegionsLineView.h \
 	source/ui/AMScanConfigurationView.h \
+	source/ui/AMScanView.h \
 	source/ui/AMSidebar.h \
 	source/ui/AMStatusView.h \
+	source/ui/AMThumbnailScrollViewer.h \
 	source/ui/AMXASRegionsView.h \
 	source/ui/BottomBar.h \
 	source/ui/CamWidget.h \
@@ -154,13 +163,11 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/ProtocolViewer.h \
 	source/ui/SamplePositions.h \
 	source/ui/Scheduler.h \
-	source/ui/SGMXASScanConfigurationViewer.h \
-	source/ui/AMRegionsLineView.h \
-	source/beamline/AMBeamlineActionItem.h \
-	source/beamline/AMBeamlineControlAction.h \
 	source/ui/SGMSampleTransferView.h \
-	source/ui/AMDataView.h \
-	source/dataman/AMSample.h
+	source/ui/SGMXASScanConfigurationViewer.h \
+	source/dataman/AMExperiment.h \
+	source/dataman/AMRun.h \
+	source/ui/AMComboBox.h
 FORMS += source/ui/AbsorptionScanController.ui \
 	source/ui/BottomBar.ui \
 	source/ui/ConnectionSettings.ui \
@@ -175,7 +182,8 @@ FORMS += source/ui/AbsorptionScanController.ui \
 	source/ui/AMScanConfigurationView.ui \
 	source/ui/AMDataView.ui \
 	source/ui/AMDataViewSection.ui \
-	source/ui/AMDataViewEmptyHeader.ui
+	source/ui/AMDataViewEmptyHeader.ui \
+	source/ui/AMImportControllerWidget.ui
 SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/acquaman/AMAcqScanSpectrumOutput.cpp \
 	source/acquaman/AMDacqScanController.cpp \
@@ -265,6 +273,12 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/ui/SGMSampleTransferView.cpp \
 	source/ui/AMDataView.cpp \
 	source/dataman/AMDatabaseDefinition.cpp \
-	source/dataman/AMSample.cpp
+	source/dataman/AMSample.cpp \
+	source/AMAppController.cpp \
+	source/dataman/AMImportController.cpp \
+	source/ui/AMThumbnailScrollViewer.cpp \
+	source/dataman/AMExperiment.cpp \
+	source/dataman/AMRun.cpp \
+	source/ui/AMComboBox.cpp
 RESOURCES = source/icons/icons.qrc
 OTHER_FILES += source/muParser/README.txt

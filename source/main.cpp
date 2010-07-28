@@ -41,37 +41,7 @@
 
 
 #include <QApplication>
-#include "AMSettings.h"
-
-#include "ui/AMMainWindow.h"
-
-#include "beamline/AMPVNames.h"
-#include "beamline/AMBeamline.h"
-#include "beamline/SGMBeamline.h"
-#include "beamline/AMControlState.h"
-//#include "acquaman/AMXASDacqScanController.h"
-#include "dataman/AMDatabase.h"
-#include "dataman/AMDbLoader.h"
-#include "dataman/AMFirstTimeController.h"
-
-
-#include "ui/ConnectionSettings.h"
-#include "ui/SGMSampleTransferView.h"
-//#include "ui/SGMSamplePositioner.h"
-#include "ui/SamplePositions.h"
-#include "ui/GratingResolution.h"
-#include "ui/AbsorptionScanController.h"
-#include "ui/AMScanConfigurationView.h"
-#include "ui/SGMXASScanConfigurationViewer.h"
-#include "ui/EmissionScanController.h"
-#include "ui/Scheduler.h"
-#include "ui/PeriodicTable.h"
-#include "ui/ProtocolViewer.h"
-#include "ui/ExpAlbum.h"
-#include "ui/BottomBar.h"
-#include "ui/AMDataView.h"
-
-#include "AMErrorMonitor.h"
+#include "AMAppController.h"
 
 
 int main(int argc, char *argv[])
@@ -82,68 +52,8 @@ int main(int argc, char *argv[])
 	QApplication app(argc, argv);
 	app.setApplicationName("Acquaman");
 
-	AMErrorMon::enableDebugNotifications(true);
 
-	// Load settings from disk:
-	AMSettings::load();
-	AMUserSettings::load();
-	AMPVNames::load();
-
-	// ensure user data folder and database are ready for use
-	AMFirstTimeController();
-
-	//Create the main tab window:
-	AMMainWindow mw;
-	mw.setWindowTitle("Acquaman");
-
-
-	/// \todo Move to MainWindowController:
-
-	mw.addPane(new ConnectionSettings(), "Beamline Control", "Dev Playground", ":/network-workgroup.png");
-	mw.addPane(new SGMSampleTransferView(), "Beamline Control", "SGM Sample Transfer", ":/system-software-update.png");
-//	mw.addPane(new SGMSamplePositioner(), "Beamline Control", "SGM Sample Position", ":/system-software-update.png");
-	mw.addPane(new SamplePositions(), "Beamline Control", "Sample Positions", ":/system-software-update.png");
-	mw.addPane(new GratingResolution(), "Beamline Control", "Gratings and Resolution", ":/system-search.png");
-
-	mw.addPane(new AbsorptionScanController(), "Experiment Setup", "Absorption Scan", ":/utilities-system-monitor.png");
-	mw.addPane(new EmissionScanController(), "Experiment Setup", "Emission Scan", ":/multimedia-volume-control.png");
-
-//	SGMXASScanConfigurationViewer* sxscViewer = new SGMXASScanConfigurationViewer();
-	AMScanConfigurationView *scanViewer = new AMScanConfigurationView();
-//	mw.addPane(sxscViewer, "Experiment Setup", "David Scan", ":/utilities-system-monitor.png");
-	mw.addPane(scanViewer, "Experiment Setup", "Scans", ":/utilities-system-monitor.png");
-	// connect(sxscViewer, SIGNAL(scanControllerReady(AMScanController*)), this, SLOT(onScanControllerReady(AMScanController*)));
-
-	mw.addPane(new Scheduler(), "Experiment Tools", "Scheduler", ":/user-away.png");
-	mw.addPane(new PeriodicTable(), "Experiment Tools", "Periodic Table", ":/applications-science.png");
-	mw.addPane(new ProtocolViewer(), "Experiment Tools", "Protocol", ":/accessories-text-editor.png");
-	mw.addPane(new AMDataView(), "Experiment Tools", "My Data", ":/system-file-manager.png");
-
-	/// end move to MainWindowController
-
-	BottomBar* b = new BottomBar();
-	mw.addBottomWidget(b);
-	/*
-void MainWindow::onScanControllerReady(AMScanController *scanController){
-	qDebug() << "\n\nScan controller is ready\n\n";
-	connect(bottomBar_, SIGNAL(pauseScanIssued()), scanController, SLOT(pause()));
-	connect(bottomBar_, SIGNAL(stopScanIssued()), scanController, SLOT(cancel()));
-	connect(scanController, SIGNAL(progress(double,double)), bottomBar_, SLOT(updateScanProgress(double,double)));
-}
-*/
-
-	// show main window
-	mw.show();
-
-	// app.setStyleSheet("QLabel {font: 16pt \"Lucida Grande\";}");
-
-
-	AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -2, "Watch out, Acquaman!"));
-	AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -3, "Watch out, Acquaman! The sky is exploding again!"));
-	AMErrorMon::report(AMErrorReport(0, AMErrorReport::Information, -1, "Now is the winter of our discontent."));
-	AMErrorMon::report(AMErrorReport(0, AMErrorReport::Information, -1, "Acquaman: Practical and safe."));
-	AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -3, "Acquaman! Watch out for your grill!"));
-	AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -2, "Acquaman: For kids."));
+	AMAppController* appController = new AMAppController();
 
 
 	/// Program Run-loop:
@@ -152,18 +62,7 @@ void MainWindow::onScanControllerReady(AMScanController *scanController){
 
 	/// Program Shutdown:
 	// =================================
-
-	// Make sure we release/clean-up the beamline interface
-	AMBeamline::releaseBl();
-	SGMBeamline::releaseSGM();
-	// Close down connection to the user Database
-	AMDatabase::releaseUserDb();
-
-	// Debug only: store settings to files to ensure created:
-	// Not recommended for future... if anything changes these variables in memory, will be stored permanently
-	//AMSettings::save();
-	//AMUserSettings::save();
-	//AMPVNames::save();
+	delete appController;
 
 	return retVal;
 }

@@ -12,11 +12,12 @@
 
 
 
-/// Create an instance of this object to ensure that user settings, the user data folder, and the database are ready for use. If there is a problem, the constructor calls onFirstTime() to rectify it.
+/// This controller supervises a process to ensure that user settings, the user data folder, and the database are ready for use. To use it, simply create an instance of this class and wait for its constructor to finish (ie: "AMFirstTimeController();" or "delete new AMFirstTimeController()" ).
 class AMFirstTimeController : public QObject
 {
 Q_OBJECT
 public:
+	/// This controller supervises a process to ensure that user settings, the user data folder, and the database are ready for use. If there is a problem, the constructor calls onFirstTime() to rectify it.
 	explicit AMFirstTimeController() ;
 
 	void onFirstTime() ;

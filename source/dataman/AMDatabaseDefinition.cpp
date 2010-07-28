@@ -21,9 +21,9 @@ void AMDatabaseDefinition::initializeDatabaseTables(AMDatabase* db) {
 	// These tables hold AMDbObjects. The first is for all types of user-data objects. Runs, experiments, elements, and samples are stored separately.
 	db->ensureTable(objectTableName(), QString("typeId,thumbnailCount,thumbnailFirstId").split(','), QString("INTEGER,INTEGER,INTEGER").split(','));
 	db->ensureTable(runTableName(), QString("typeId,thumbnailCount,thumbnailFirstId,dateTime,name").split(','), QString("INTEGER,INTEGER,INTEGER,TEXT,TEXT").split(','));
-	db->ensureTable(experimentTableName(), QString("typeId,thumbnailCount,thumbnailFirstId,dateTime,name").split(','), QString("INTEGER,INTEGER,INTEGER,TEXT,TEXT").split(','));
+	db->ensureTable(experimentTableName(), QString("typeId,thumbnailCount,thumbnailFirstId").split(','), QString("INTEGER,INTEGER,INTEGER").split(','));
 	db->ensureTable(elementTableName(), QString("typeId,thumbnailCount,thumbnailFirstId,symbol,name,atomicNumber").split(','), QString("INTEGER,INTEGER,INTEGER,TEXT,TEXT,INTEGER").split(','));
-	db->ensureTable(sampleTableName(), QString("typeId,thumbnailCount,thumbnailFirstId,name,dateTime,notes").split(','), QString("INTEGER,INTEGER,INTEGER,TEXT,TEXT,TEXT").split(','));
+	db->ensureTable(sampleTableName(), QString("typeId,thumbnailCount,thumbnailFirstId").split(','), QString("INTEGER,INTEGER,INTEGER").split(','));
 
 	// This table stores thumbnails for all these object types:
 	db->ensureTable(thumbnailTableName(), QString("objectId,objectTableName,number,type,title,subtitle,thumbnail").split(','), QString("INTEGER,TEXT,INTEGER,TEXT,TEXT,TEXT,BLOB").split(','));
@@ -67,7 +67,7 @@ void AMDatabaseDefinition::registerType(const AMDbObject* prototype, AMDatabase*
 
 	QStringList columnNames;
 	foreach(AMMetaMetaData col, prototype->metaDataAllKeys() ) {
-		db->ensureColumn(objectTableName(), col.key, AMDatabase::metaType2DbType(col.type));
+		db->ensureColumn(prototype->databaseTableName(), col.key, AMDatabase::metaType2DbType(col.type));
 		columnNames << col.key;
 	}
 
