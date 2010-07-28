@@ -51,7 +51,7 @@ SGMXASScanConfigurationViewer::SGMXASScanConfigurationViewer(QWidget *parent)  :
 		connect( ((QSpinBox*)(fluxResolutionView_->boxByName("harmonic"))), SIGNAL(valueChanged(int)), sxsc, SLOT(setHarmonic(int)) );
 		connect( ((QDoubleSpinBox*)(fluxResolutionView_->boxByName("exitSlitGap"))), SIGNAL(valueChanged(double)), sxsc, SLOT(setExitSlitGap(double)) );
 /**/
-//		fluxResolutionView2_ = new AMCompactControlOptimizationSetView((AMControlOptimizationSet*)(sxsc->fluxResolutionSet()), this);
+		fluxResolutionView2_ = new AMCompactControlOptimizationSetView((AMControlOptimizationSet*)(sxsc->fluxResolutionSet()), this);
 //		fluxResolutionView2_ = new AMColorControlOptimizationSetView((AMControlOptimizationSet*)(sxsc->fluxResolutionSet()), this);
 
 		trackingView_ = new AMControlSetView(sxsc->trackingSet(), this);
@@ -68,17 +68,30 @@ SGMXASScanConfigurationViewer::SGMXASScanConfigurationViewer(QWidget *parent)  :
 		connect(startScanButton_, SIGNAL(clicked()), this, SLOT(onStartScanClicked()));
 		delete doLayoutButton;
 		delete layout();
+		/*
 		vl_.setSpacing(0);
 		vl_.addWidget(regionsLineView_);
 		vl_.addWidget(regionsView_);
 		vl_.addSpacing(40);
 		vl_.addWidget(fluxResolutionView_);
-//		vl_.addWidget(fluxResolutionView2_);
+		vl_.addWidget(fluxResolutionView2_);
 		vl_.addWidget(trackingView_);
 		vl_.addWidget(detectorView_);
 		vl_.addWidget(startScanButton_);
 		qDebug() << "Spacing " << vl_.spacing();
 		this->setLayout(&vl_);
+		*/
+		gl_.setSpacing(0);
+		gl_.addWidget(regionsLineView_, 0, 0, 1, 5, Qt::AlignCenter);
+		gl_.addWidget(regionsView_, 1, 0, 2, 3, Qt::AlignLeft);
+		//gl_.addSpacing(40);
+		gl_.addWidget(fluxResolutionView_, 3, 0, 2, 3, Qt::AlignLeft);
+		gl_.addWidget(fluxResolutionView2_, 5, 0, 2, 3, Qt::AlignLeft);
+		gl_.addWidget(trackingView_, 3, 3, 2, 2, Qt::AlignRight);
+		gl_.addWidget(detectorView_, 5, 3, 2, 2, Qt::AlignRight);
+		gl_.addWidget(startScanButton_, 7, 0, 1, 2, Qt::AlignLeft);
+		qDebug() << "Spacing " << gl_.spacing();
+		this->setLayout(&gl_);
 		this->setMaximumSize(800, 800);
 	}
 }
