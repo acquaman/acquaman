@@ -2,6 +2,9 @@
 # QMake project file for reixsdaq.  			January 2010. mark.boots@usask.ca
 # Note: Set EPICS_INCLUDE_DIRS, EPICS_LIB_DIR, and PHONON_INCLUDE_DIR correctly for platform
 # ####################################################################
+
+HOME_FOLDER = /home/rachel
+
 macx {
 	EPICS_INCLUDE_DIRS = /Users/mboots/dev/epics/14-11/base/include \
 		/Users/mboots/dev/epics/14-11/base/include/os/Darwin
@@ -9,12 +12,12 @@ macx {
 	MPLOT_INCLUDE_DIR = /Users/mboots/dev/MPlot/src
 }
 linux-g++ {
-	EPICS_INCLUDE_DIRS = /home/reixs/beamline/programming/epics/base/include \
-		/home/reixs/beamline/programming/epics/base/include/os/Linux
-	EPICS_LIB_DIR = /home/reixs/beamline/programming/epics/base/lib/linux-x86
+		EPICS_INCLUDE_DIRS = $$HOME_FOLDER/beamline/programming/epics/base/include \
+				$$HOME_FOLDER/beamline/programming/epics/base/include/os/Linux
+		EPICS_LIB_DIR = $$HOME_FOLDER/beamline/programming/epics/base/lib/linux-x86
 
 	# include path for MPlot library (header-files only)
-	MPLOT_INCLUDE_DIR = /home/reixs/beamline/programming/MPlot/src
+		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/beamline/programming/MPlot/src
 }
 QT += core \
 	phonon \

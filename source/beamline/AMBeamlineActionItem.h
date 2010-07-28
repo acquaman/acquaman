@@ -26,8 +26,12 @@ signals:
 
 public slots:
 	virtual void start(){ emit started(); }
-	bool setPrevious(AMBeamlineActionItem* previous){ previous_ = previous; }
-	bool setNext(AMBeamlineActionItem* next){ next_ = next; }
+	bool setPrevious(AMBeamlineActionItem* previous){ previous_ = previous;
+/*#error("David... fix this!")*/;
+		}
+	bool setNext(AMBeamlineActionItem* next){ next_ = next;
+			/*#error("David: fix this!")*/;
+		}
 
 protected:
 	bool start_;

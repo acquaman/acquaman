@@ -11,11 +11,7 @@ AMComboBox:: AMComboBox(QWidget *parent)
 	   * run date
 	   * run id
 	*************/
-
-
-	// Setting up UI:
-	/////////////////////
-
+	autoAddRuns();
 	database_ = AMDatabase::userdb();
 }
 
@@ -51,29 +47,29 @@ void AMComboBox::autoAddRuns(){
 
 
 	//getting different items from database
-	QList<QString> runName = searchDbRuns("Runs","name");
+	/*QList<QString> runName = searchDbRuns("Runs","name");
 	QList<QString> runDate = searchDbRuns("Runs", "dateTime");
-	QList<QString> runId = searchDbRuns("Runs", "id");
+	QList<QString> runId = searchDbRuns("Runs", "id"); */
 	//int i = numberOfRuns;
 	//int i = runCount();
+	QList<QString> runName;
+	runName<<"run1"<<"run2"<<"run3";
+	QList<QString> runDate;
+	runDate<<"Jan 21, 2010"<<"Feb 1, 2010"<<"Mar 6, 2010";
+
+
 	int i = runName.count();
 	//putting those items into the combobox one by one while collating
-	for (int j=0; j<=i; j++) {
-		QString item = runName.at(j);
-		item.append(",");
-		item.append(runDate.at(j));
-		item.append(",");
-		item.append(runId.at(j));
-		addItem(item);
-		/*
-		QString& item = runName++;
-		item.append("\n");
-		item.append(runDate++);
-		item.append("\n");
-		item.append(runId++);
 
-		ComboBox->addItem(item);
-		*/
+
+	for (int j=0; j<i; j++) {
+		QString item = runName.at(j);
+		item.append(" , ");
+		item.append(runDate.at(j));
+		//item.append(" , ");
+		//item.append(runId.at(j));
+		addItem(item);
+
 	}
 }
 

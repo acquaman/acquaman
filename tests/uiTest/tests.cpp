@@ -36,6 +36,19 @@ private slots:
 		AMDatabase::releaseUserDb();
 	}
 
+	/// Test to confirm that comboBox works.
+	void testComboBox() {
+
+		AMComboBox *box = new AMComboBox;
+		box->show();
+
+
+
+		QTest::qWait(10000);
+
+		delete box;
+	}
+
 /*
 	void testAMSidebar() {
 
@@ -66,13 +79,9 @@ private slots:
 		QTest::qWait(4000);
 
 	}
-*/
+
 	void testAMScanSetModel() {
 
-		AMComboBox *box = new AMComboBox;
-		box->show();
-
-		QTest::qWait(10000);
 
 		AMScanView sv;
 		sv.show();
@@ -473,14 +482,7 @@ private slots:
 protected:
 };
 
-/// Test to confirm that comboBox works.
-int testComboBox(int argc,char *argv[]) {
-	QApplication app(argc,argv);
 
-	AMComboBox *box = new AMComboBox;
-	QTest::qWait(40000);
-
-}
 
 
 

@@ -13,15 +13,17 @@ class AMComboBox: public QComboBox
 
 public:
 	AMComboBox (QWidget *parent = 0); //Constructor
-	//virtual ~AMComboBox();            //Destructor
-	~AMComboBox();
+
 
 	QList<QString> searchDbRuns(const QString& tableName, const QString& colName) const;
 	// void addRuns();
 
+	//virtual ~AMComboBox();            //Destructor
+	~AMComboBox();
 
 protected:
 	void autoAddRuns();
+
 	AMDatabase* database_;
 
 	AMDatabase* database() const { return database_;}
