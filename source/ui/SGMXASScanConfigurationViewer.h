@@ -8,6 +8,7 @@
 #include "AMRegionsLineView.h"
 #include <QPushButton>
 #include <QVBoxLayout>
+#include <QGridLayout>
 #include "acquaman/SGM/SGMXASScanConfiguration.h"
 #include "acquaman/SGM/SGMXASDacqScanController.h"
 
@@ -41,12 +42,13 @@ protected:
 	AMXASRegionsView *regionsView_;
 	AMRegionsLineView *regionsLineView_;
 	AMControlOptimizationSetView *fluxResolutionView_;
-//	AMCompactControlOptimizationSetView *fluxResolutionView2_;
-	AMColorControlOptimizationSetView *fluxResolutionView2_;
+	AMCompactControlOptimizationSetView *fluxResolutionView2_;
+//	AMColorControlOptimizationSetView *fluxResolutionView2_;
 	AMControlSetView *trackingView_;
 	AMAbstractDetectorSetView *detectorView_;
 	QPushButton *startScanButton_;
 	QVBoxLayout vl_;
+	QGridLayout gl_;
 };
 
 #endif // SGMXASSCANCONFIGURATIONVIEWER_H

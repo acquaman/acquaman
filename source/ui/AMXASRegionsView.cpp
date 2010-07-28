@@ -20,8 +20,8 @@ AMXASRegionsView::AMXASRegionsView(AMXASRegionsList *regions, QWidget *parent) :
 	tv_->hideColumn(4);
 	tv_->hideColumn(5);
 	tv_->setMaximumWidth(350);
-	tv_->setMinimumHeight(150);
-	tv_->setMaximumHeight(150);
+	tv_->setMinimumHeight(100);
+	tv_->setMaximumHeight(100);
 	tv_->resize(tv_->sizeHint());
 	tv_->horizontalHeader()->setStretchLastSection(true);
 //	int totalWidth = tv_->columnWidth(1) + tv_->columnWidth(2) + tv_->columnWidth(3);
@@ -33,8 +33,8 @@ AMXASRegionsView::AMXASRegionsView(AMXASRegionsList *regions, QWidget *parent) :
 	fl_->addRow(tv_);
 	fl_->addRow(hl_);
 	setLayout(fl_);
-	this->setMaximumSize(350, 300);
-	this->setMinimumSize(350, 300);
+	this->setMaximumSize(350, 200);
+	this->setMinimumSize(350, 200);
 	addRegionMenu_= NULL;
 	deleteRegionMenu_ = NULL;
 	connect(addButton_, SIGNAL(clicked()), this, SLOT(addRegion()));
