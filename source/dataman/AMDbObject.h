@@ -7,6 +7,8 @@
 #include "dataman/AMDatabase.h"
 
 #include <QSet>
+#include <QPixmap>
+#include <QBuffer>
 
 /// Acquaman's flexible meta-data information system uses AMMetaMetaData to describe each piece of meta-data associated with a scan or database object.
 class AMMetaMetaData {
@@ -26,8 +28,33 @@ public:
 	/*! \todo Future thumbnail types could include vector formats and plot-based data formats */
 	enum ThumbnailType { InvalidType, PNGType };
 
+	/// Default constructor
 	AMDbThumbnail(const QString& Title = QString(), const QString& Subtitle = QString(), ThumbnailType Type = InvalidType, const QByteArray& ThumbnailData = QByteArray())
-		: title(Title), subtitle(Subtitle), type(Type), thumbnail(ThumbnailData) {}
+		: title(Title), subtitle(Subtitle), type(Type), thumbnail(ThumbnailData) {
+	}
+
+	/// This constructor takes a pixmap of any size and saves it as a PNG type. (It will be saved at the current size of the pixmap, so if you want to save at a reduced size, pass in pixmap.scaledToWidth(240) or similar.)
+	AMDbThumbnail(const QString& Title, const QString& Subtitle, const QPixmap& pixmap)
+		: title(Title), subtitle(Subtitle) {
+
+		if(pixmap.isNull()) {
+			type = InvalidType;
+			thumbnail = QByteArray();
+		}
+		else {
+			//removed: QPixmap p2 = (pixmap.width() == 240) ? pixmap : pixmap.scaledToWidth(240, Qt::SmoothTransformation);
+			QBuffer bout;
+			bout.open(QIODevice::WriteOnly);
+			if(pixmap.save(&bout, "PNG")) {
+				type = PNGType;
+				thumbnail = bout.buffer();
+			}
+			else {
+				type = InvalidType;
+				thumbnail = QByteArray();
+			}
+		}
+	}
 
 	QString title, subtitle;
 	ThumbnailType type;
@@ -86,7 +113,7 @@ class AMDbObject : public QObject
 
 
 public:
-    explicit AMDbObject(QObject *parent = 0);
+	explicit AMDbObject(QObject *parent = 0);
 
 	/// Returns an object's unique id
 	int id() const { return id_; }

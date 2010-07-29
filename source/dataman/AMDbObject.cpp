@@ -99,8 +99,8 @@ bool AMDbObject::storeToDb(AMDatabase* db) {
 			firstThumbnailIndex = QVariant(retVal);
 	}
 
-	// now that we know where the thumbnails are, update this in our
-	db->update(id_, AMDatabaseDefinition::objectTableName(), "thumbnailFirstId", firstThumbnailIndex);
+	// now that we know where the thumbnails are, update this in our actual table
+	db->update(id_, databaseTableName(), "thumbnailFirstId", firstThumbnailIndex);
 	return true;
 
 }
@@ -116,7 +116,7 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 		values << &metaData_[md.key];
 	}
 
-	if( db->retrieve( sourceId, AMDatabaseDefinition::objectTableName(), keys, values) ) {
+	if( db->retrieve( sourceId, databaseTableName(), keys, values) ) {
 		id_ = sourceId;
 		database_ = db;
 

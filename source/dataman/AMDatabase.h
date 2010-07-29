@@ -96,6 +96,8 @@ public:
 	bool ensureTable(const QString& tableName, const QStringList& columnNames, const QStringList& columnTypes);
 	/// ensure that a given column (with \c columName and \c columnType) exists, in the table \c tableName.  \c columnType is an SQLite type ("TEXT" or "INTEGER" recommended).
 	bool ensureColumn(const QString& tableName, const QString& columnName, const QString& columnType = "TEXT");
+	/// create an index on a column or columns \c columnNames in the table \c tableName. For multiple columns, separate the columnNames with commas.
+	bool createIndex(const QString& tableName, const QString& columnNames);
 
 	/// Returns a QSqlQuery object for this database. The contents of the query have not been initialized. Beware: this can give you full-power access to the database. Don't break it!
 	QSqlQuery query() { return QSqlQuery(qdb()); }

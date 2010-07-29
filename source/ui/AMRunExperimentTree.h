@@ -3,11 +3,13 @@
 
 #include <QStandardItemModel>
 
+class AMDatabase;
+
 class AMRunExperimentModel : public QStandardItemModel
 {
 Q_OBJECT
 public:
-    explicit AMRunExperimentModel(QObject *parent = 0);
+	explicit AMRunExperimentModel(AMDatabase* db, QObject *parent = 0);
 
 signals:
 
@@ -19,6 +21,8 @@ protected:
 
 	/// Top-level items (run header and experiment header)
 	QStandardItem *runItem, *experimentItem;
+
+	AMDatabase* db_;
 };
 
 #include <QTreeView>
@@ -26,7 +30,7 @@ protected:
 class AMRunExperimentTree : public QTreeView {
 	Q_OBJECT
 public:
-	explicit AMRunExperimentTree(QWidget* parent = 0);
+	explicit AMRunExperimentTree(AMDatabase* db, QWidget* parent = 0);
 
 signals:
 

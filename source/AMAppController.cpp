@@ -81,7 +81,7 @@ AMAppController::AMAppController(QObject *parent) :
 
 
 	// create widget
-	AMRunExperimentTree* dataTree = new AMRunExperimentTree();
+	AMRunExperimentTree* dataTree = new AMRunExperimentTree(AMDatabase::userdb());
 	mw_->addPane(new AMDataView(), "Data", dataTree, "Data");
 
 

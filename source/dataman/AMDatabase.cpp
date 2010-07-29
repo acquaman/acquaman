@@ -456,3 +456,18 @@ bool AMDatabase::ensureColumn(const QString& tableName, const QString& columnNam
 		return false;
 	}
 }
+
+bool AMDatabase::createIndex(const QString& tableName, const QString& columnNames) {
+	QSqlQuery q( qdb() );
+	QString indexName = QString("idx_%1_%2").arg(tableName, columnNames);
+	indexName.remove(QRegExp("[\\s\\,\\;]"));
+	q.prepare(QString("CREATE INDEX %1 ON %2(%3);").arg(indexName, tableName, columnNames));
+	if(q.exec()) {
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, QString("Added index on columns (%1) to table '%2'.").arg(columnNames).arg(tableName)));
+		return true;
+	}
+	else {
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, QString("Error adding index on columns (%1) to table '%2'. Maybe it's already there? Sql reply says: %3").arg(columnNames).arg(tableName).arg(q.lastError().text())));
+		return false;
+	}
+}

@@ -173,12 +173,7 @@ AMDbThumbnail AMScan::thumbnail(int index) const {
 	gscene.render(&painter);
 	painter.end();
 
-	QBuffer bresult;
-	bresult.open(QIODevice::WriteOnly);
-	pixmap.save(&bresult, "PNG");
-	bresult.close();
-
 	/// todo: pretty names like "Total Electron Yield" instead of "tey_n"
-	return AMDbThumbnail(channel(index)->name(), QString(), AMDbThumbnail::PNGType, bresult.buffer());
+	return AMDbThumbnail(channel(index)->name(), QString(), pixmap);
 
 }

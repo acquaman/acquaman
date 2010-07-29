@@ -325,13 +325,17 @@ AMScanViewModeBar::AMScanViewModeBar(QWidget* parent)
 	hl3->setSpacing(0);
 
 	QToolButton* tabButton_ = new QToolButton();
+	tabButton_->setAttribute(Qt::WA_MacBrushedMetal, true);
 	tabButton_->setText("1");
 	QToolButton* overplotButton_ = new QToolButton();
 	overplotButton_->setText("OP");
+	overplotButton_->setAttribute(Qt::WA_MacBrushedMetal, true);
 	QToolButton* multiScansButton_ = new QToolButton();
 	multiScansButton_->setText("M-S");
+	multiScansButton_->setAttribute(Qt::WA_MacBrushedMetal, true);
 	QToolButton* multiChannelsButton_ = new QToolButton();
 	multiChannelsButton_->setText("M-C");
+	multiChannelsButton_->setAttribute(Qt::WA_MacBrushedMetal, true);
 
 	tabButton_->setCheckable(true);
 	overplotButton_->setCheckable(true);
@@ -355,9 +359,11 @@ AMScanViewModeBar::AMScanViewModeBar(QWidget* parent)
 
 	plusButton_ = new QToolButton();
 	plusButton_->setText("+");
+	plusButton_->setAttribute(Qt::WA_MacBrushedMetal, true);
 	hl3->addWidget(plusButton_);
 	subtractButton_ = new QToolButton();
 	subtractButton_->setText("-");
+	subtractButton_->setAttribute(Qt::WA_MacBrushedMetal, true);
 	hl3->addWidget(subtractButton_);
 
 	hl->addLayout(hl3);
@@ -378,7 +384,7 @@ AMScanViewModeBar::AMScanViewModeBar(QWidget* parent)
 
 
 AMScanView::AMScanView(QWidget *parent) :
-    QWidget(parent)
+	QWidget(parent)
 {
 	mode_ = Invalid;
 
