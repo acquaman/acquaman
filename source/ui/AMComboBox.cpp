@@ -1,7 +1,9 @@
 #include "AMComboBox.h"
 #include <QSqlQuery>
+#include <QSqlDatabase>
 #include <QString>
 #include <QList>
+
 AMComboBox:: AMComboBox(QWidget *parent)
 	: QComboBox(parent)
 {
@@ -11,8 +13,10 @@ AMComboBox:: AMComboBox(QWidget *parent)
 	   * run date
 	   * run id
 	*************/
-	autoAddRuns();
 	database_ = AMDatabase::userdb();
+	autoAddRuns();
+	connect(this, SIGNAL(activated(int)),this,SLOT(onComboBoxActivated(int)));
+
 }
 
 AMComboBox::~AMComboBox(){
@@ -24,15 +28,14 @@ QList<QString> AMComboBox::searchDbRuns(const QString& tableName, const QString&
 
 	QList<QString> rv;
 
-	if (database()==0)
-		return QList<QString>();
 
 	QVariant value;
 	value = "?";
-	QSqlQuery q = database()->query();
 
-	q.prepare (QString("SELECT %1 FROM %2 ").arg(colName).arg(tableName));
-	q.bindValue(0, value);
+
+	QSqlQuery q = database_->query();
+		q.prepare(QString("SELECT %1 FROM %2 ").arg(colName).arg(tableName));
+
 	if (q.exec())
 		while (q.next()) {
 		rv << q.value(0).toString();
@@ -40,37 +43,50 @@ QList<QString> AMComboBox::searchDbRuns(const QString& tableName, const QString&
 
 	return rv;
 }
+void AMComboBox::addRun() {
 
-void AMComboBox::autoAddRuns(){
+	//getting text from input box
+	bool ok;
+	QString text = QInputDialog::getText(this, tr("Add Run"),
+		tr("Please enter the name of the new run:"), QLineEdit::Normal,QString(), &ok);
+	if (ok && !text.isEmpty()){
+			AMRun newRun(text);
+			newRun.storeToDb(database_);
+	}
+}
+
+void AMComboBox::autoAddRuns() {
 
 	// Checking that database exists:
 
-
+	clear();
 	//getting different items from database
-	/*QList<QString> runName = searchDbRuns("Runs","name");
+	QList<QString> runName = searchDbRuns("Runs","name");
 	QList<QString> runDate = searchDbRuns("Runs", "dateTime");
-	QList<QString> runId = searchDbRuns("Runs", "id"); */
 	//int i = numberOfRuns;
 	//int i = runCount();
-	QList<QString> runName;
-	runName<<"run1"<<"run2"<<"run3";
-	QList<QString> runDate;
-	runDate<<"Jan 21, 2010"<<"Feb 1, 2010"<<"Mar 6, 2010";
-
 
 	int i = runName.count();
 	//putting those items into the combobox one by one while collating
 
-
+	addItem("Add New Run...");
 	for (int j=0; j<i; j++) {
 		QString item = runName.at(j);
 		item.append(" , ");
 		item.append(runDate.at(j));
-		//item.append(" , ");
-		//item.append(runId.at(j));
+
 		addItem(item);
 
 	}
+
 }
 
 //need to create a function that will allow user to add runs manually to put in the public section
+
+void AMComboBox::onComboBoxActivated(int index) {
+	if (index==0){
+		addRun();
+		autoAddRuns();
+	}
+}
+

@@ -4,29 +4,35 @@
 #include <QComboBox>
 #include <QString>
 #include <QList>
-
+#include <QVBoxLayout>
+#include <QLabel>
+#include <QPushButton>
+#include <QInputDialog>
+#include <dataman/AMRun.h>
 #include "dataman/AMDatabase.h"
 
 class AMComboBox: public QComboBox
 {
 	Q_OBJECT
 
+
 public:
 	AMComboBox (QWidget *parent = 0); //Constructor
 
 
 	QList<QString> searchDbRuns(const QString& tableName, const QString& colName) const;
-	// void addRuns();
+	void addRun();
 
 	//virtual ~AMComboBox();            //Destructor
 	~AMComboBox();
+protected slots:
+	void onComboBoxActivated(int index);
 
 protected:
 	void autoAddRuns();
 
 	AMDatabase* database_;
 
-	AMDatabase* database() const { return database_;}
 };
 
 #endif // COMBOBOX_H

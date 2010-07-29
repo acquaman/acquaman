@@ -44,7 +44,7 @@ private slots:
 
 
 
-		QTest::qWait(10000);
+		QTest::qWait(100000);
 
 		delete box;
 	}
