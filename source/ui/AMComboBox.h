@@ -19,14 +19,21 @@ class AMComboBox: public QComboBox
 public:
 	AMComboBox (QWidget *parent = 0); //Constructor
 
-	void addRun();
+
 
 	//virtual ~AMComboBox();            //Destructor
 	~AMComboBox();
+
+	int currentRunId() const ;
+
 protected slots:
 	void onComboBoxActivated(int index);
 
+signals:
+	void currentRunIdChanged(int runId);
+
 protected:
+	int addRun();
 	void autoAddRuns();
 
 	AMDatabase* database_;

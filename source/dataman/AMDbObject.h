@@ -202,7 +202,7 @@ public:
 		return database_;
 	}
 
-	/// Store or update self in the database. (returns true on success)
+	/// Store or update self in the database. (returns true on success).  After storing, the objects id() will be set to match where it was stored.
 	/*! This version saves all of the meta data found for keys metaDataAllKeys().  Detailed subclasses should re-implement this if they need to save anything not found in the meta data. When doing so, always call the base class implementation first.
 	  */
 	virtual bool storeToDb(AMDatabase* db);
