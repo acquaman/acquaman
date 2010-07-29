@@ -19,8 +19,6 @@ class AMComboBox: public QComboBox
 public:
 	AMComboBox (QWidget *parent = 0); //Constructor
 
-
-	QList<QString> searchDbRuns(const QString& tableName, const QString& colName) const;
 	void addRun();
 
 	//virtual ~AMComboBox();            //Destructor
