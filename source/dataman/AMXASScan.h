@@ -16,14 +16,14 @@ class AMXASScan : public AMScan {
 Q_OBJECT
 public:
 	/// create a new XAS scan with the following named \c detectors. Each "detector" is a source of a datapoint, that will be stored/logged, available as a column of raw data, and accessible through channel(s).
-	explicit AMXASScan(const QList<AMAbstractDetector*> &detectors = QList<AMAbstractDetector*>(), QObject *parent = 0);
+	explicit AMXASScan(const QList<AMDetectorInfo*> &detectors = QList<AMDetectorInfo*>(), QObject *parent = 0);
 
 	/// the detectors (raw data columns) available within this scan. Does not include the primary column (eV), which is always present.
 	QStringList detectorNames() const { return detectorNames_; }
-	QList<const AMAbstractDetector*> detectors() const { return detectors_; }
+	QList<const AMDetectorInfo*> detectors() const { return detectors_; }
 
 	/// Add a new named detector (returns false if detector already exists)
-	bool addDetector(const AMAbstractDetector* uniqueDetector);
+	bool addDetector(const AMDetectorInfo* uniqueDetector);
 
 	/// \todo access will be through channels which can access the AMDataTree raw columns (d_). Until channels are done, there's no way to peek inside.
 
@@ -45,7 +45,7 @@ protected slots:
 
 protected:
 	QStringList detectorNames_;
-	QList<const AMAbstractDetector*> detectors_;
+	QList<const AMDetectorInfo*> detectors_;
 
 	QString legacyGrating_;
 	QString legacyIntegrationTime_;

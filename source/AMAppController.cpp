@@ -30,6 +30,7 @@
 #include "ui/ExpAlbum.h"
 #include "ui/BottomBar.h"
 #include "ui/AMDataView.h"
+#include "ui/AMRunExperimentTree.h"
 
 #include "AMErrorMonitor.h"
 
@@ -75,7 +76,14 @@ AMAppController::AMAppController(QObject *parent) :
 	mw_->addPane(new Scheduler(), "Experiment Tools", "Scheduler", ":/user-away.png");
 	mw_->addPane(new PeriodicTable(), "Experiment Tools", "Periodic Table", ":/applications-science.png");
 	mw_->addPane(new ProtocolViewer(), "Experiment Tools", "Protocol", ":/accessories-text-editor.png");
-	mw_->addPane(new AMDataView(), "Experiment Tools", "My Data", ":/system-file-manager.png");
+
+
+
+
+	// create widget
+	AMRunExperimentTree* dataTree = new AMRunExperimentTree(AMDatabase::userdb());
+	mw_->addPane(new AMDataView(), "Data", dataTree, "Data");
+
 
 
 	BottomBar* b = new BottomBar();
@@ -109,7 +117,8 @@ void MainWindow::onScanControllerReady(AMScanController *scanController){
 #ifdef Q_WS_MAC
 	menuBar_ = new QMenuBar(0);
 #else
-	menuBar_ = new QMenuBar(mw_);
+	menuBar_ = new QMenuBar();
+	mw_->addTopWidget(menuBar_);
 #endif
 
 	fileMenu_ = menuBar_->addMenu("File");

@@ -33,30 +33,9 @@ AMScanViewScanBar::AMScanViewScanBar(AMScanSetModel* model, int scanIndex, QWidg
 	hl->addWidget(nameLabel_);
 	hl->addStretch(0.5);
 
-	scrollLayout_ = new QHBoxLayout();
-	scrollLayout_->setSpacing(0);
-	scrollLayout_->setContentsMargins(0,0,0,0);
+	cramBar_ = new AMCramBarHorizontal();
 
-	scrollLeftButton_ = new QToolButton();
-	scrollLeftButton_->setArrowType(Qt::LeftArrow);
-	scrollLeftButton_->setAutoRepeat(true);
-	scrollRightButton_ = new QToolButton();
-	scrollRightButton_->setArrowType(Qt::RightArrow);
-	scrollRightButton_->setAutoRepeat(true);
 
-	scrollLayout_->addWidget(scrollLeftButton_);
-
-	scrollArea_ = new AMScrollArea();
-	scrollWidget_ = new AMSizeSignallingWidget();
-	scrollArea_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-	scrollArea_->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-	chButtonLayout_ = new QHBoxLayout();
-	chButtonLayout_->setSpacing(0);
-	chButtonLayout_->setContentsMargins(0,0,0,0);
-	chButtonLayout_->setSizeConstraint(QLayout::SetMinAndMaxSize);
-	//chButtonLayout_->setSizeConstraint(QLayout::SetFixedSize);
-	scrollWidget_->setLayout(chButtonLayout_);
-	//scrollWidget_->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	if(source) {
 		for(int i=0; i<source->numChannels(); i++) {
 			QToolButton* cb = new QToolButton();
@@ -66,18 +45,11 @@ AMScanViewScanBar::AMScanViewScanBar(AMScanSetModel* model, int scanIndex, QWidg
 			cb->setCheckable(true);
 			cb->setChecked(model->data(model->indexForChannel(scanIndex, i), Qt::CheckStateRole).value<bool>());
 			chButtons_.addButton(cb, i);
-			chButtonLayout_->addWidget(cb);
+			cramBar_->addWidget(cb);
 		}
 	}
-	scrollArea_->setWidget(scrollWidget_);
-	connect(scrollWidget_, SIGNAL(resized(QSize)), this, SLOT(onScrollWidgetResized(QSize)));
-	connect(scrollArea_, SIGNAL(resized(QSize)), this, SLOT(onScrollAreaResized(QSize)));
 
-	scrollArea_->setFrameStyle(QFrame::NoFrame);
-	scrollArea_->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
-	scrollLayout_->addWidget(scrollArea_);
-	scrollLayout_->addWidget(scrollRightButton_);
-	hl->addLayout(scrollLayout_);
+	hl->addWidget(cramBar_);
 	hl->addStretch(1);
 
 	closeButton_ = new QToolButton();
@@ -88,14 +60,9 @@ AMScanViewScanBar::AMScanViewScanBar(AMScanSetModel* model, int scanIndex, QWidg
 	hl->setSpacing(24);
 	setLayout(hl);
 
-	scrollLeftButton_->hide();
-	scrollRightButton_->hide();
-
 	//unnecessary: this->setAutoFillBackground(true);
 	//unnecessary: ensurePolished();
 
-
-	///
 
 	connect(model, SIGNAL(rowsInserted(QModelIndex, int, int)), this, SLOT(onRowInserted(QModelIndex,int,int)));
 	connect(model, SIGNAL(rowsAboutToBeRemoved(QModelIndex, int, int)), this, SLOT(onRowAboutToBeRemoved(QModelIndex,int,int)));
@@ -107,18 +74,9 @@ AMScanViewScanBar::AMScanViewScanBar(AMScanSetModel* model, int scanIndex, QWidg
 
 	connect(closeButton_, SIGNAL(clicked()), this, SLOT(onCloseButtonClicked()));
 
-	connect(scrollLeftButton_, SIGNAL(clicked()), this, SLOT(onScrollButtonClicked()));
-	connect(scrollRightButton_, SIGNAL(clicked()), this, SLOT(onScrollButtonClicked()));
-
 }
 
-void AMScanViewScanBar::onScrollButtonClicked() {
-	if(sender() == scrollLeftButton_)
-		scrollArea_->horizontalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepSub);
 
-	if(sender() == scrollRightButton_)
-		scrollArea_->horizontalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepAdd);
-}
 
 
 void AMScanViewScanBar::onRowInserted(const QModelIndex& parent, int start, int end) {
@@ -138,7 +96,7 @@ void AMScanViewScanBar::onRowInserted(const QModelIndex& parent, int start, int 
 		QColor color = model_->data(model_->indexForChannel(scanIndex_, i), Qt::DecorationRole).value<QColor>();
 		cb->setStyleSheet(QString("color: rgba(%1, %2, %3, %4);").arg(color.red()).arg(color.green()).arg(color.blue()).arg(color.alpha()));
 		chButtons_.addButton(cb, i);
-		chButtonLayout_->insertWidget(i, cb);
+		cramBar_->getLayout()->insertWidget(i, cb);
 		if(exclusiveModeOn_)
 			cb->setChecked( (model_->exclusiveChannel() == source->channel(i)->name()) );
 		else
@@ -367,13 +325,17 @@ AMScanViewModeBar::AMScanViewModeBar(QWidget* parent)
 	hl3->setSpacing(0);
 
 	QToolButton* tabButton_ = new QToolButton();
+	tabButton_->setAttribute(Qt::WA_MacBrushedMetal, true);
 	tabButton_->setText("1");
 	QToolButton* overplotButton_ = new QToolButton();
 	overplotButton_->setText("OP");
+	overplotButton_->setAttribute(Qt::WA_MacBrushedMetal, true);
 	QToolButton* multiScansButton_ = new QToolButton();
 	multiScansButton_->setText("M-S");
+	multiScansButton_->setAttribute(Qt::WA_MacBrushedMetal, true);
 	QToolButton* multiChannelsButton_ = new QToolButton();
 	multiChannelsButton_->setText("M-C");
+	multiChannelsButton_->setAttribute(Qt::WA_MacBrushedMetal, true);
 
 	tabButton_->setCheckable(true);
 	overplotButton_->setCheckable(true);
@@ -397,9 +359,11 @@ AMScanViewModeBar::AMScanViewModeBar(QWidget* parent)
 
 	plusButton_ = new QToolButton();
 	plusButton_->setText("+");
+	plusButton_->setAttribute(Qt::WA_MacBrushedMetal, true);
 	hl3->addWidget(plusButton_);
 	subtractButton_ = new QToolButton();
 	subtractButton_->setText("-");
+	subtractButton_->setAttribute(Qt::WA_MacBrushedMetal, true);
 	hl3->addWidget(subtractButton_);
 
 	hl->addLayout(hl3);
@@ -420,7 +384,7 @@ AMScanViewModeBar::AMScanViewModeBar(QWidget* parent)
 
 
 AMScanView::AMScanView(QWidget *parent) :
-    QWidget(parent)
+	QWidget(parent)
 {
 	mode_ = Invalid;
 

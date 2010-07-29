@@ -76,6 +76,7 @@ void AMFirstTimeController::onFirstTime() {
 #include <dataman/AMRun.h>
 #include <dataman/AMSample.h>
 #include <dataman/AMExperiment.h>
+#include <dataman/AMDetectorInfo.h>
 
 /// create structures and tables for a new user database, from scratch
 void AMFirstTimeController::databaseInitialization() {
@@ -97,6 +98,20 @@ void AMFirstTimeController::databaseInitialization() {
 
 	AMSample s;
 	AMDatabaseDefinition::registerType(&s, AMDatabase::userdb());
+
+	AMDetectorInfo d("prototypeDetector", "Generic Detector Info");
+	AMDatabaseDefinition::registerType(&d, AMDatabase::userdb());
+
+	AMSpectralOutputDetectorInfo sod("prototypeDetector", "Generic Spectral-output detector", 4);
+	AMDatabaseDefinition::registerType(&sod, AMDatabase::userdb());
+
+	AMFacility blank("", "[Other Facility]", ":/128x128/contents.png");
+	AMDatabaseDefinition::registerType(&blank, AMDatabase::userdb());
+	blank.storeToDb(AMDatabase::userdb());
+	AMFacility sgm("SGM", "Canadian Light Source SGM Beamline", ":/clsIcon.png");
+	sgm.storeToDb(AMDatabase::userdb());
+	AMFacility als801("8.0.1", "Advanced Light Source Beamline 8.0.1", ":/alsIcon.png");
+	als801.storeToDb(AMDatabase::userdb());
 
 }
 

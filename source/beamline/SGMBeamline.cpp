@@ -122,7 +122,7 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	trackingSet_->addControl(monoTracking_);
 	trackingSet_->addControl(exitSlitTracking_);
 
-	allDetectors_ = new AMAbstractDetectorSet(this);
+	allDetectors_ = new AMDetectorInfoSet(this);
 	allDetectors_->setName("All Detectors");
 	allDetectors_->addDetector(i0Detector_, true);
 	allDetectors_->addDetector(eVFbkDetector_, true);
@@ -130,7 +130,7 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	allDetectors_->addDetector(tfyDetector_, true);
 	allDetectors_->addDetector(pgtDetector_, false);
 
-	XASDetectors_ = new AMAbstractDetectorSet(this);
+	XASDetectors_ = new AMDetectorInfoSet(this);
 	XASDetectors_->setName("XAS Detectors");
 	XASDetectors_->addDetector(teyDetector_, true);
 	XASDetectors_->addDetector(tfyDetector_, true);

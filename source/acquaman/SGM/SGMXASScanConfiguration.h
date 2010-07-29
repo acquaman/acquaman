@@ -12,9 +12,9 @@ public:
 
 	AMControlSet *fluxResolutionSet() const { return fluxResolutionSet_;}
 	AMControlSet *trackingSet() const { return trackingSet_;}
-	AMAbstractDetectorSet *detectorSet() const { return XASDetectors_;}
+	AMDetectorInfoSet *detectorSet() const { return XASDetectors_;}
 
-	QList<AMAbstractDetector*> usingDetectors() const;
+	QList<AMDetectorInfo*> usingDetectors() const;
 
 public slots:
 	virtual bool addRegion(size_t index, double start, double delta, double end) { return regions_->addRegion(index, start, delta, end);}
@@ -51,7 +51,7 @@ signals:
 protected:
 	AMControlSet *fluxResolutionSet_;
 	AMControlSet *trackingSet_;
-	AMAbstractDetectorSet *XASDetectors_;
+	AMDetectorInfoSet *XASDetectors_;
 
 };
 

@@ -1,29 +1,21 @@
 #include "dataman/AMDatabaseDefinition.h"
 
 void AMDatabaseDefinition::initializeDatabaseTables(AMDatabase* db) {
-	/*
-	db->ensureTable(objectTypeTableName(), QString("className,description,columnNames").split(','), QString("TEXT,TEXT,TEXT").split(','));
-	db->ensureTable(objectTableName(), QString("typeId,dateTime,name,number,runId,thumbnailCount,thumbnailFirstId").split(','), QString("INTEGER,TEXT,TEXT,INTEGER,INTEGER,INTEGER,INTEGER").split(','));
-	db->ensureTable(runTableName(), QString("dateTime,name").split(','), QString("TEXT,TEXT").split(','));
-	db->ensureTable(experimentTableName(), QString("dateTime,name").split(','), QString("TEXT,TEXT").split(','));
-	db->ensureTable(experimentEntriesTableName(), QString("objectId,experimentId").split(','), QString("INTEGER,INTEGER").split(','));
 
-	db->ensureTable(databaseInformationTableName(), QString("key,value").split(','), QString("TEXT,TEXT").split(','));
-
-	db->ensureTable(elementTableName(), QString("symbol,name,atomicNumber").split(','), QString("TEXT,TEXT,INTEGER").split(','));
-	db->ensureTable(sampleTableName(), QString("name,dateTime,notes,thumbnailType,thumbnail").split(','), QString("TEXT,TEXT,TEXT,TEXT,BLOB").split(','));
-	db->ensureTable(sampleElementEntriesTableName(), QString("sampleId,elementId").split(','), QString("INTEGER,INTEGER").split(','));
-*/
 
 	// This table registers the different data types we have:
 	db->ensureTable(objectTypeTableName(), QString("className,description,columnNames,tableName").split(','), QString("TEXT,TEXT,TEXT,TEXT").split(','));
 
 	// These tables hold AMDbObjects. The first is for all types of user-data objects. Runs, experiments, elements, and samples are stored separately.
 	db->ensureTable(objectTableName(), QString("typeId,thumbnailCount,thumbnailFirstId").split(','), QString("INTEGER,INTEGER,INTEGER").split(','));
-	db->ensureTable(runTableName(), QString("typeId,thumbnailCount,thumbnailFirstId,dateTime,name").split(','), QString("INTEGER,INTEGER,INTEGER,TEXT,TEXT").split(','));
+	db->ensureTable(runTableName(), QString("typeId,thumbnailCount,thumbnailFirstId").split(','), QString("INTEGER,INTEGER,INTEGER").split(','));
 	db->ensureTable(experimentTableName(), QString("typeId,thumbnailCount,thumbnailFirstId").split(','), QString("INTEGER,INTEGER,INTEGER").split(','));
-	db->ensureTable(elementTableName(), QString("typeId,thumbnailCount,thumbnailFirstId,symbol,name,atomicNumber").split(','), QString("INTEGER,INTEGER,INTEGER,TEXT,TEXT,INTEGER").split(','));
+	db->ensureTable(detectorTableName(), QString("typeId,thumbnailCount,thumbnailFirstId").split(','), QString("INTEGER,INTEGER,INTEGER").split(','));
 	db->ensureTable(sampleTableName(), QString("typeId,thumbnailCount,thumbnailFirstId").split(','), QString("INTEGER,INTEGER,INTEGER").split(','));
+	db->ensureTable(facilityTableName(), QString("typeId,thumbnailCount,thumbnailFirstId").split(','), QString("INTEGER,INTEGER,INTEGER").split(','));
+
+
+	db->ensureTable(elementTableName(), QString("typeId,thumbnailCount,thumbnailFirstId,symbol,name,atomicNumber").split(','), QString("INTEGER,INTEGER,INTEGER,TEXT,TEXT,INTEGER").split(','));
 
 	// This table stores thumbnails for all these object types:
 	db->ensureTable(thumbnailTableName(), QString("objectId,objectTableName,number,type,title,subtitle,thumbnail").split(','), QString("INTEGER,TEXT,INTEGER,TEXT,TEXT,TEXT,BLOB").split(','));
@@ -33,7 +25,11 @@ void AMDatabaseDefinition::initializeDatabaseTables(AMDatabase* db) {
 
 	// These tables provide links between experiments and user-data objects, and samples and elements.
 	db->ensureTable(experimentEntriesTableName(), QString("objectId,experimentId").split(','), QString("INTEGER,INTEGER").split(','));
+	db->createIndex(experimentEntriesTableName(), "objectId,experimentId");
+	db->createIndex(experimentEntriesTableName(), "experimentId,objectId");
 	db->ensureTable(sampleElementEntriesTableName(), QString("sampleId,elementId").split(','), QString("INTEGER,INTEGER").split(','));
+	db->createIndex(sampleElementEntriesTableName(), "sampleId,elementId");
+	db->createIndex(sampleElementEntriesTableName(), "elementId,sampleId");
 
 
 
@@ -58,6 +54,11 @@ void AMDatabaseDefinition::initializeDatabaseTables(AMDatabase* db) {
 }
 
 /// Database support function: registers a subclass of AMDbObject so that the database is ready to store and access objects of this type. This only needs to be called once for each object type that you want to store in the database.
+/*! Expectations:
+	- column names and types will be retrieved from the AMMetaMetaData information for this object, by calling AMDbObject::metaDataAllKeys().
+	- column types (as indicated in the AMMetaMetaData entry) are either QVariant::Int, QVariant::Double, QVariant::ByteArray, or you're okay with them being saved as QVariant::String using the default QVariant::toString() implementation.  See AMDatabase::metaType2DbType() for more information on the types that will be used to convert/store entries in the database.
+	- columns used as foreign keys to another table will be of type QVariant::Int, and their name will end in "Id" (ex: "runId"). This function will automatically create indexes on these columns to speed up relational joins.
+	*/
 void AMDatabaseDefinition::registerType(const AMDbObject* prototype, AMDatabase* db) {
 
 	if(prototype->typeId(db)) {
@@ -67,8 +68,12 @@ void AMDatabaseDefinition::registerType(const AMDbObject* prototype, AMDatabase*
 
 	QStringList columnNames;
 	foreach(AMMetaMetaData col, prototype->metaDataAllKeys() ) {
+		// Make sure that the column for this entry exists...
 		db->ensureColumn(prototype->databaseTableName(), col.key, AMDatabase::metaType2DbType(col.type));
 		columnNames << col.key;
+		// Create indexes on INTEGER type columns that are used as foreign keys
+		if(col.type == QVariant::Int && col.key.endsWith("Id"))
+			db->createIndex(prototype->databaseTableName(), col.key);
 	}
 
 	QVariant v1, v2, v3, v4;

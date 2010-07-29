@@ -16,55 +16,11 @@
 
 #include "dataman/AMScanSetModel.h"
 
+#include "ui/AMCramBarHorizontal.h"
+
 /// \todo move AMScrollArea and AMSizeSignallingWidget into a container widget AMCramBarHorizontal to simplify AMScanViewScanBar immensely.
 
-/// A replacement for Qt's QScrollArea. This version's QWidget::sizeHint() asks the internal widget for its own sizeHint(), which is usually what makes the most sense. (In other words, the scroll area will request to be the size of its internal widget, when possible.  To make full use of this, you need a way of being informed of changes in the size of that internal widget; see AMSizeSignallingWidget.)
-class AMScrollArea : public QScrollArea {
-	Q_OBJECT
-public:
-	explicit AMScrollArea(QWidget* parent = 0)
-		: QScrollArea(parent) {}
 
-	virtual QSize sizeHint() const {
-		if(widget()) {
-			qDebug() << "widget size hint:" << widget()->sizeHint();
-			return widget()->sizeHint();
-		}
-		else
-			return QSize();
-	}
-
-	virtual QSize minimumSizeHint() const {
-		return QSize(0,0);
-	}
-
-signals:
-	void resized(const QSize& newSize);
-
-protected:
-	void resizeEvent(QResizeEvent *e) {
-		emit resized(e->size());
-		QScrollArea::resizeEvent(e);
-	}
-};
-
-/// This widget can be useful as a container QWidget, which provides a resized() signal whenever it is resized.
-class AMSizeSignallingWidget : public QWidget {
-	Q_OBJECT
-
-public:
-	explicit AMSizeSignallingWidget(QWidget* parent = 0)
-		: QWidget(parent) {}
-
-signals:
-	void resized(const QSize& newSize);
-
-protected:
-	void resizeEvent(QResizeEvent *event) {
-		emit resized(event->size());
-		QWidget::resizeEvent(event);
-	}
-};
 
 class AMScanViewChannelSelector;
 
@@ -83,11 +39,7 @@ protected:
 	QLabel* nameLabel_;
 	QButtonGroup chButtons_;
 	QToolButton* closeButton_;
-
-	AMScrollArea* scrollArea_;
-	QToolButton* scrollLeftButton_, *scrollRightButton_;
-	AMSizeSignallingWidget* scrollWidget_;
-	QHBoxLayout* chButtonLayout_, *scrollLayout_;
+	AMCramBarHorizontal* cramBar_;
 
 
 	/// Index of "our" scan in the model:
@@ -113,26 +65,7 @@ protected slots:
 	void onChannelButtonClicked(int id);
 	/// when the close (remove) button is clicked
 	void onCloseButtonClicked();
-	/// called when either scroll button (for the channel button scroll area) is clicked
-	void onScrollButtonClicked();
-	/// called when the contents of the scroll widget (ie: the set of channel buttons) changes size
-	void onScrollWidgetResized(const QSize&) {
-		scrollArea_->updateGeometry();
-		//or, could use: scrollLayout_->activate();
-	}
-	/// called when the scroll area itself is resized:
-	void onScrollAreaResized(const QSize&) {
-		if(scrollArea_->width() >= scrollWidget_->width()) {
-			qDebug() << "HIDING. scroll widget:" << scrollWidget_->width() << "scroll area:" << scrollArea_->width();
-			scrollLeftButton_->hide();
-			scrollRightButton_->hide();
-		}
-		else {
-			qDebug() << "SHOWING. scroll widget:" << scrollWidget_->width() << "scroll area:" << scrollArea_->width();
-			scrollLeftButton_->show();
-			scrollRightButton_->show();
-		}
-	}
+
 
 
 

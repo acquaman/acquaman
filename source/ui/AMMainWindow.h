@@ -39,9 +39,16 @@ public:
 	void addBottomWidget(QWidget* bottomWidget) {
 		vlayout_->addWidget(bottomWidget);
 	}
+	/// Add a custom widget above the sidebar and main area
+	void addTopWidget(QWidget* topWidget) {
+		vlayout_->insertWidget(0, topWidget);
+	}
 
 	/// Add a new \c pane to manage.  It will show up under category \c categoryName, at the given \c weight, with a \c title and an icon from \c iconFileName.
 	void addPane(QWidget* pane, const QString& categoryName, const QString& title, const QString& iconFileName, double weight = 0);
+
+	/// Add a new \c pane to manage.  It will show up under the category \c categoryName, at the given \c weight.  Instead of a default title and icon, it will have a custom button or selector widget \c selectorWidget. Both the pane and the selectorWidget become children of the window.
+	void addPane(QWidget* pane, const QString& categoryName, QWidget* selectorWidget, const QString& paneTitle, double weight = 0);
 
 	/// Remove and delete a pane widget (whether docked or undocked)
 	void deletePane(QWidget* pane);

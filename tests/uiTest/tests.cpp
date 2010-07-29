@@ -49,7 +49,7 @@ private slots:
 		delete box;
 	}
 
-/*
+
 	void testAMSidebar() {
 
 		AMSidebar b;
@@ -166,7 +166,7 @@ private slots:
 
 	}
 
-	/*
+
 	// tests creation/deletion of scans and channels within an AMScanSetModel (using a standard QTreeView to watch)
 	void testAMScanSetModel_Overplot() {
 
@@ -477,7 +477,7 @@ private slots:
 		QTest::qWait(80000);
 
 	}
-*/
+
 
 protected:
 };

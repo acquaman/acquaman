@@ -25,5 +25,11 @@
         <file>dialog-information.png</file>
         <file>dialog-warning.png</file>
         <file>applications-development.png</file>
+        <file>22x22/view_calendar_upcoming_days.png</file>
+        <file>32x32/view_calendar_upcoming_days.png</file>
+        <file>16x16/view_calendar_upcoming_days.png</file>
+        <file>alsIcon.png</file>
+        <file>clsIcon.png</file>
+        <file>128x128/contents.png</file>
     </qresource>
 </RCC>

@@ -29,8 +29,8 @@ SGMXASScanConfiguration::SGMXASScanConfiguration(QObject *parent) : AMXASScanCon
 	emit exitSlitTrackingChanged(exitSlitTracking_);
 }
 
-QList<AMAbstractDetector*> SGMXASScanConfiguration::usingDetectors() const{
-	QList<AMAbstractDetector*> usingDetectors;
+QList<AMDetectorInfo*> SGMXASScanConfiguration::usingDetectors() const{
+	QList<AMDetectorInfo*> usingDetectors;
 	if(usingTEY_)
 		usingDetectors << XASDetectors_->detectorByName("tey");
 	if(usingTFY_)

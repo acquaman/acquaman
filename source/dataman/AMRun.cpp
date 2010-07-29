@@ -1,13 +1,17 @@
 #include "AMRun.h"
 
-#include <QSqlQuery>
+
 #include <QList>
 
 
 AMRun::AMRun(QObject *parent) :
 	AMDbObject(parent)
 {
-
+	/// Initialize our unique pieces of meta-data. The values don't matter much, but we want to make sure that they're present in the metaData_ hash.
+	metaData_["dateTime"] = QDateTime::currentDateTime();
+	metaData_["notes"] = QString();
+	metaData_["endDateTime"]=QDateTime();
+	metaData_["facilityId"]=1;
 }
 
 /// This constructor initializes a run with a given name.
@@ -17,9 +21,8 @@ AMRun::AMRun(const QString& runName, QObject* parent)
 		/// Initialize our unique pieces of meta-data. The values don't matter much, but we want to make sure that they're present in the metaData_ hash.
 		metaData_["dateTime"] = QDateTime::currentDateTime();
 		metaData_["notes"] = QString();
-		metaData_["image"] = QVariant();
 		metaData_["endDateTime"]=QDateTime();
-		metaData_["location"]=QString();
+		metaData_["facilityId"]=1;
 
 		this->setName(runName);
 }
@@ -31,9 +34,8 @@ AMRun::AMRun(int databaseId, AMDatabase* database, QObject* parent)
 		/// Initialize our unique pieces of meta-data. The values don't matter much, but we want to make sure that they're present in the metaData_ hash.
 		metaData_["dateTime"] = QDateTime::currentDateTime();
 		metaData_["notes"] = QString();
-		metaData_["image"] = QVariant();
 		metaData_["endDateTime"]=QDateTime();
-		metaData_["location"]=QString();
+		metaData_["facilityId"]=1;
 
 		loadFromDb(database, databaseId);
 }

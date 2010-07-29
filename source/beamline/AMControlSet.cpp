@@ -48,19 +48,19 @@ QMap<QString, QMap<double, double> > AMControlOptimization::collapse(AMRegionsLi
 }
 
 
-AMAbstractDetectorSet::AMAbstractDetectorSet(QObject *parent) :
+AMDetectorInfoSet::AMDetectorInfoSet(QObject *parent) :
 	QObject(parent)
 {
 }
 
-int AMAbstractDetectorSet::indexOf(const QString &name){
+int AMDetectorInfoSet::indexOf(const QString &name){
 	for(int x = 0; x < detectors_.count(); x++)
 		if(name == detectors_.at(x)->name())
 			return x;
 	return -1;
 }
 
-AMAbstractDetector* AMAbstractDetectorSet::detectorByName(const QString &name){
+AMDetectorInfo* AMDetectorInfoSet::detectorByName(const QString &name){
 	int index = indexOf(name);
 	if(index != -1)
 		return detectorAt(index);
@@ -68,7 +68,7 @@ AMAbstractDetector* AMAbstractDetectorSet::detectorByName(const QString &name){
 		return NULL;
 }
 
-bool AMAbstractDetectorSet::isDefaultByName(const QString &name){
+bool AMDetectorInfoSet::isDefaultByName(const QString &name){
 	int index = indexOf(name);
 	if(index != -1)
 		return isDefaultAt(index);
@@ -77,7 +77,7 @@ bool AMAbstractDetectorSet::isDefaultByName(const QString &name){
 }
 
 /// Returns false if the AMControl to be added is already in the list; otherwise adds the control and returns true.
-bool AMAbstractDetectorSet::addDetector(AMAbstractDetector* detector, bool defaultDetector) {
+bool AMDetectorInfoSet::addDetector(AMDetectorInfo* detector, bool defaultDetector) {
 	if(detectors_.contains(detector))
 		return false;
 	detectors_.append(detector);
@@ -86,6 +86,6 @@ bool AMAbstractDetectorSet::addDetector(AMAbstractDetector* detector, bool defau
 }
 
 /// Returns false if the AMControl to be removed is not present; otherwise removes the control and returns true.
-bool AMAbstractDetectorSet::removeDetector(AMAbstractDetector* detector) {
+bool AMDetectorInfoSet::removeDetector(AMDetectorInfo* detector) {
 	return detectors_.removeOne(detector);
 }
