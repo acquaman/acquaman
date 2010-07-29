@@ -35,6 +35,8 @@ protected slots:
 	void onRegionsChanged(){
 		if(cfg_ && fluxResolutionView_)
 			fluxResolutionView_->onRegionsUpdate( ((SGMXASScanConfiguration*)cfg_)->regions() );
+		if(cfg_ && fluxResolutionView2_)
+			fluxResolutionView2_->onRegionsUpdate( ((SGMXASScanConfiguration*)cfg_)->regions() );
 	}
 
 protected:

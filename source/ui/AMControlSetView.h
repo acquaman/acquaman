@@ -15,6 +15,7 @@
 #include <QPushButton>
 #include <QSlider>
 #include <QCheckBox>
+#include <QGraphicsItem>
 
 #include "../MPlot/src/MPlot/MPlotWidget.h"
 #include "../MPlot/src/MPlot/MPlotSeriesData.h"
@@ -98,13 +99,18 @@ public:
 		minY_ = i.value();
 		maxX_ = i.key();
 		maxY_ = i.value();
-		double tmpX, tmpY;;
+		double tmpX, tmpY;
 		while(i != dataMap_.constEnd()){
 			tmpX = i.key();
 			tmpY = i.value();
 			if(tmpX < minX_)
 				minX_ = tmpX;
-			else if(tmpX > maxX_)
+			else if(tmpX > maxX_)	/*
+	setToolTip(QString("QColor(%1, %2, %3)\n%4")
+			   .arg(color.red()).arg(color.green()).arg(color.blue())
+			   .arg("Click and drag this color onto the robot!"));
+	setCursor(Qt::OpenHandCursor);
+	*/
 				maxX_ = tmpX;
 			if(tmpY < minY_)
 				minY_ = tmpY;
@@ -123,6 +129,189 @@ protected:
 	double maxX_;
 	double maxY_;
 	MPlotRealtimeModel *model_;
+};
+
+class AMCurve : public QObject
+{
+	Q_OBJECT
+public:
+	AMCurve(QMap<double, double> dataMap, QObject *parent = 0) : QObject(parent){
+		setDataMap(dataMap);
+	}
+
+	QPair<double, double> minX() const { return minX_;}
+
+	QPair<double, double> minY() const { return minY_;}
+
+	QPair<double, double> maxX() const { return maxX_;}
+
+	QPair<double, double> maxY() const { return maxY_;}
+
+	void setDataMap(QMap<double, double> dataMap){
+		dataMap_ = dataMap;
+		QMap<double, double>::const_iterator i = dataMap_.constBegin();
+		minX_.first = i.key();
+		minX_.second = i.value();
+		minY_.first = i.value();
+		minY_.second = i.key();
+		maxX_.first = i.key();
+		maxX_.second = i.value();
+		maxY_.first = i.value();
+		maxY_.second = i.key();
+		double tmpX, tmpY;
+		while(i != dataMap_.constEnd()){
+			tmpX = i.key();
+			tmpY = i.value();
+			//qDebug() << "Inserting " << tmpX << tmpY;
+			if(tmpX < minX_.first){
+				minX_.first = tmpX;
+				minX_.second = tmpY;
+			}
+			else if(tmpX > maxX_.first){
+				maxX_.first = tmpX;
+				maxX_.second = tmpY;
+			}
+			if(tmpY < minY_.first){
+				minY_.first = tmpY;
+				minY_.second = tmpX;
+			}
+			else if(tmpY > maxY_.first){
+				maxY_.first = tmpY;
+				maxY_.second = tmpX;
+			}
+			++i;
+		}
+	}
+
+	double valueAt(double x) const{
+		if(dataMap_.count() == 0)
+			return 0;
+		if( (x < minX_.first) || (x > maxX_.first) )
+			return 0;
+		QMap<double, double>::const_iterator i = dataMap_.lowerBound(x);
+		if(dataMap_.count() <= 3)
+			return i.value();
+		int seek = 0;
+		++i;
+		if(i == dataMap_.constEnd())
+			seek = -1;
+		else{
+			--i;
+			if(i == dataMap_.constBegin())
+				seek = 2;
+			else{
+				--i;
+				if(i == dataMap_.constBegin())
+					seek = 1;
+			}
+		}
+
+		i = dataMap_.lowerBound(x);
+		if(seek == -1)
+			--i;
+		else
+			for(int x = 0; x < seek; x++)
+				++i;
+
+		--i;
+		--i;
+		QPair<double, double> first, second, third, fourth;
+		first.first = i.key();
+		first.second = i.value();
+		++i;
+		second.first = i.key();
+		second.second = i.value();
+		++i;
+		third.first = i.key();
+		third.second = i.value();
+		++i;
+		fourth.first = i.key();
+		fourth.second = i.value();
+
+		int j, n;
+		double xi, yi, ei, chisq;
+		gsl_matrix *X, *cov;
+		gsl_vector *y, *w, *c;
+
+		n = 4;
+
+		X = gsl_matrix_alloc (n, 4);
+		y = gsl_vector_alloc (n);
+		w = gsl_vector_alloc (n);
+
+		c = gsl_vector_alloc (4);
+		cov = gsl_matrix_alloc (4, 4);
+
+		double ix[4];
+		double iy[4];
+		double ie[4];
+		ix[0] = first.first;
+		ix[1] = second.first;
+		ix[2] = third.first;
+		ix[3] = fourth.first;
+		iy[0] = first.second;
+		iy[1] = second.second;
+		iy[2] = third.second;
+		iy[3] = fourth.second;
+		ie[0] = 0.1*iy[0];
+		ie[1] = 0.1*iy[1];
+		ie[2] = 0.1*iy[2];
+		ie[3] = 0.1*iy[3];
+		for (j = 0; j < n; j++)
+		{
+			xi = ix[j];
+			yi = iy[j];
+			ei = ie[j];
+
+			gsl_matrix_set (X, j, 0, 1.0);
+			gsl_matrix_set (X, j, 1, xi);
+			gsl_matrix_set (X, j, 2, xi*xi);
+			gsl_matrix_set (X, j, 3, xi*xi*xi);
+
+			gsl_vector_set (y, j, yi);
+			gsl_vector_set (w, j, 1.0/(ei*ei*ei));
+		}
+
+		gsl_multifit_linear_workspace * work
+				= gsl_multifit_linear_alloc (n, 4);
+		gsl_multifit_wlinear (X, w, y, c, cov,
+							  &chisq, work);
+		gsl_multifit_linear_free (work);
+
+#define C(i) (gsl_vector_get(c,(i)))
+#define COV(i,j) (gsl_matrix_get(cov,(i),(j)))
+
+		double rVal = C(0) + C(1)*x + C(2)*x*x + C(3)*x*x*x;
+		gsl_matrix_free (X);
+		gsl_vector_free (y);
+		gsl_vector_free (w);
+		gsl_vector_free (c);
+		gsl_matrix_free (cov);
+
+		qDebug() << "Asking at " << x << " using " << first.first << first.second
+				<< second.first << second.second
+				<< third.first << third.second
+				<< fourth.first << fourth.second
+				<< " gives " << rVal;
+
+		return rVal;
+	}
+
+	double valueAtRange(double percent){
+		//qDebug() << "Percent forwards to " << minX_.first + percent*(maxX_.first-minX_.first) << " for " << percent;
+		return valueAt(minX_.first + percent*(maxX_.first-minX_.first) );
+	}
+
+	QPair<double, double> valuesAtRange(double percent){
+		QPair<double, double> rVal;
+		rVal.first = minX_.first + percent*(maxX_.first-minX_.first);
+		rVal.second = valueAt(minX_.first + percent*(maxX_.first-minX_.first) );
+		return rVal;
+	}
+
+protected:
+	QMap<double, double> dataMap_;
+	QPair<double, double> minX_, minY_, maxX_, maxY_;
 };
 
 class AMControlOptimizationSetView : public AMControlSetView
@@ -148,24 +337,47 @@ protected:
 	int numPoints;
 };
 
+class CCOSVItem : public QGraphicsItem
+{
+public:
+	CCOSVItem(int width, int height, bool invert = false, bool log = false);
+
+	void updateCurve(QMap<double, double> data);
+	QRectF boundingRect() const;
+	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+
+private:
+	int width_;
+	int height_;
+	AMCurve *dataCurve_;
+	QPointF *curve_;
+	bool invert_;
+	bool log_;
+};
+
 class AMCompactControlOptimizationSetView : public QGroupBox
 {
 	Q_OBJECT
 public:
 	AMCompactControlOptimizationSetView(AMControlSet *viewSet, QWidget *parent = 0);
 
+public slots:
+	void onRegionsUpdate(AMRegionsList* contextParams);
+
 protected slots:
-	//bool launchDetails();
-	bool adjustSlider(int val);
+	bool onParam1SliderUpdate(int val);
+	bool onParam2SliderUpdate(int val);
 
 protected:
 	AMControlOptimizationSet *viewSet_;
 	QPushButton *launchDetailButton_;
-	QLabel *optValue_;
-	QList<QWidget*> controlBoxes_;
+	QSlider *param1Slider, *param2Slider;
+	QGraphicsScene *param1Scene, *param2Scene;
+	QGraphicsView *param1View, *param2View;
+	CCOSVItem *param1Item_, *param2Item_;
 	QHBoxLayout *hl_;
+	QGridLayout *gl_;
 	AMControlOptimizationSetView *detailView_;
-	double maxUpper, minUpper, maxLower, minLower;
 };
 
 class AMColorControlOptimizationSetView : public QGroupBox

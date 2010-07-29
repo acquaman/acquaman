@@ -373,7 +373,7 @@ QMap< QString, QMap<double, double> > SGMFluxOptimization::collapse(AMRegionsLis
 		fluxM1.insert(x, collapser(curve(m1, contextParameters)));
 		fluxH1.insert(x, collapser(curve(h1, contextParameters)));
 		fluxH3.insert(x, collapser(curve(h3, contextParameters)));
-		qDebug() << x << " collapses to " << fluxL1.value(x) << fluxM1.value(x) << fluxH1.value(x) << fluxH3.value(x);
+		//qDebug() << x << " collapses to " << fluxL1.value(x) << fluxM1.value(x) << fluxH1.value(x) << fluxH3.value(x);
 	}
 
 	QMap< QString, QMap<double, double> > rVal;
@@ -561,7 +561,7 @@ QMap< QString, QMap<double, double> > SGMResolutionOptimization::collapse(AMRegi
 		resM1.insert(x, collapser(curve(m1, contextParameters)));
 		resH1.insert(x, collapser(curve(h1, contextParameters)));
 		resH3.insert(x, collapser(curve(h3, contextParameters)));
-		qDebug() << x << " collapses to " << resL1.value(x) << resM1.value(x) << resH1.value(x) << resH3.value(x);
+		//qDebug() << x << " collapses to " << resL1.value(x) << resM1.value(x) << resH1.value(x) << resH3.value(x);
 	}
 	QMap< QString, QMap<double, double> > rVal;
 	rVal.insert("LEG1", resL1);

@@ -145,8 +145,8 @@ public:
 	}
 	double fitMyCubic(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4, double input){
 		//qDebug() << "Fitting " << x1 << y1 << x2 << y2 << x3 << y3 << x4 << y4 << " for " << input;
-		printf("Fitting %5.2f %5.2f ; %5.2f %5.2f ; %5.2f %5.2f ; %5.2f %5.2f ; for %5.2f\n", x1, y1, x2, y2, x3, y3, x4, y4, input);
-		fflush(stdout);
+		//printf("Fitting %5.2f %5.2f ; %5.2f %5.2f ; %5.2f %5.2f ; %5.2f %5.2f ; for %5.2f\n", x1, y1, x2, y2, x3, y3, x4, y4, input);
+		//fflush(stdout);
 		int i, n;
 		double xi, yi, ei, chisq;
 		gsl_matrix *X, *cov;
@@ -302,10 +302,12 @@ public:
 			fMaxHEG1.first = 0;
 		if(fMaxHEG3.first < 1e-100)
 			fMaxHEG3.first = 0;
+/*
 		qDebug() << "Flux Maxes: LEG - " << fMaxLEG.first << "(" << fMaxLEG.second << ") MEG - " << fMaxMEG.first << "(" << fMaxMEG.second
 				<< ") HEG1 - " << fMaxHEG1.first << "(" << fMaxHEG1.second << ") HEG3 - " << fMaxHEG3.first << "(" << fMaxHEG3.second << ")\n"
 				<< "Resolution Maxes: LEG - " << rMaxLEG.first << "(" << rMaxLEG.second << ") MEG - " << rMaxMEG.first << "(" << rMaxMEG.second
 				<< ") HEG1 - " << rMaxHEG1.first << "(" << rMaxHEG1.second << ") HEG3 - " << rMaxHEG3.first << "(" << rMaxHEG3.second << ")";
+*/
 
 		QPair<double, double> bestFlux = fMaxLEG;
 		if(bestFlux.first < fMaxMEG.first)
@@ -324,6 +326,9 @@ public:
 		if(bestRes.first < rMaxHEG3.first)
 			bestRes = rMaxHEG3;
 
+		bestFlux_ = bestFlux;
+		bestRes_ = bestRes;
+
 		QMap<double, double> LEG, MEG, HEG1, HEG3;
 		QMap<double, double> rVal;
 		LEG = allPlots.value("LEG1");
@@ -340,7 +345,7 @@ public:
 			tmpFlux = 0;
 			nextLEG = LEG.lowerBound(x);
 			prevLEG = LEG.lowerBound(x);
-			qDebug() << "LEG starts as " << nextLEG.key() << nextLEG.value();
+			//qDebug() << "LEG starts as " << nextLEG.key() << nextLEG.value();
 			nnextLEG = nextLEG;
 			if(prevLEG != LEG.constBegin()){
 				prevLEG--;
@@ -355,7 +360,7 @@ public:
 							nextLEG--;
 							prevLEG--;
 							pprevLEG--;
-							qDebug() << "LEG says single end";
+							//qDebug() << "LEG says single end";
 						}
 					}
 					else{
@@ -368,7 +373,7 @@ public:
 						prevLEG--;
 						pprevLEG--;
 						pprevLEG--;
-						qDebug() << "LEG says double end";
+						//qDebug() << "LEG says double end";
 					}
 				}
 				else{
@@ -376,7 +381,7 @@ public:
 					prevLEG++;
 					nextLEG++;
 					nnextLEG++;
-					qDebug() << "LEG says single front";
+					//qDebug() << "LEG says single front";
 				}
 			}
 			else{
@@ -387,7 +392,7 @@ public:
 				nextLEG++;
 				nnextLEG++;
 				nnextLEG++;
-				qDebug() << "LEG says double front";
+				//qDebug() << "LEG says double front";
 			}
 			if(x <= rMaxLEG.first){
 				tmpVal = fitMyCubic(pprevLEG.key(), pprevLEG.value(), prevLEG.key(), prevLEG.value(), nextLEG.key(), nextLEG.value(), nnextLEG.key(), nnextLEG.value(), x);
@@ -398,7 +403,7 @@ public:
 
 			nextMEG = MEG.lowerBound(x);
 			prevMEG = MEG.lowerBound(x);
-			qDebug() << "MEG starts as " << nextMEG.key() << nextMEG.value();
+			//qDebug() << "MEG starts as " << nextMEG.key() << nextMEG.value();
 			nnextMEG = nextMEG;
 			if(prevMEG != MEG.constBegin()){
 				prevMEG--;
@@ -413,7 +418,7 @@ public:
 							nextMEG--;
 							prevMEG--;
 							pprevMEG--;
-							qDebug() << "MEG says single end";
+							//qDebug() << "MEG says single end";
 						}
 					}
 					else{
@@ -426,7 +431,7 @@ public:
 						prevMEG--;
 						pprevMEG--;
 						pprevMEG--;
-						qDebug() << "MEG says double end";
+						//qDebug() << "MEG says double end";
 					}
 				}
 				else{
@@ -435,7 +440,7 @@ public:
 					prevMEG++;
 					nextMEG++;
 					nnextMEG++;
-					qDebug() << "MEG says single front";
+					//qDebug() << "MEG says single front";
 				}
 			}
 			else{
@@ -446,7 +451,7 @@ public:
 				nextMEG++;
 				nnextMEG++;
 				nnextMEG++;
-				qDebug() << "MEG says double end";
+				//qDebug() << "MEG says double end";
 			}
 			if(x <= rMaxMEG.first){
 				tmpVal = fitMyCubic(pprevMEG.key(), pprevMEG.value(), prevMEG.key(), prevMEG.value(), nextMEG.key(), nextMEG.value(), nnextMEG.key(), nnextMEG.value(), x);
@@ -456,7 +461,7 @@ public:
 
 			nextHEG1 = HEG1.lowerBound(x);
 			prevHEG1 = HEG1.lowerBound(x);
-			qDebug() << "HEG1 starts as " << nextHEG1.key() << nextHEG1.value();
+			//qDebug() << "HEG1 starts as " << nextHEG1.key() << nextHEG1.value();
 			nnextHEG1 = nextHEG1;
 			if(prevHEG1 != HEG1.constBegin()){
 				prevHEG1--;
@@ -471,7 +476,7 @@ public:
 							nextHEG1--;
 							prevHEG1--;
 							pprevHEG1--;
-							qDebug() << "HEG1 says single end";
+							//qDebug() << "HEG1 says single end";
 						}
 					}
 					else{
@@ -484,7 +489,7 @@ public:
 						prevHEG1--;
 						pprevHEG1--;
 						pprevHEG1--;
-						qDebug() << "HEG1 says double end";
+						//qDebug() << "HEG1 says double end";
 					}
 				}
 				else{
@@ -492,7 +497,7 @@ public:
 					prevHEG1++;
 					nextHEG1++;
 					nnextHEG1++;
-					qDebug() << "HEG1 says single front";
+					//qDebug() << "HEG1 says single front";
 				}
 			}
 			else{
@@ -503,7 +508,7 @@ public:
 				nextHEG1++;
 				nnextHEG1++;
 				nnextHEG1++;
-				qDebug() << "HEG1 says double front";
+				//qDebug() << "HEG1 says double front";
 			}
 			if(x <= rMaxHEG1.first){
 				tmpVal = fitMyCubic(pprevHEG1.key(), pprevHEG1.value(), prevHEG1.key(), prevHEG1.value(), nextHEG1.key(), nextHEG1.value(), nnextHEG1.key(), nnextHEG1.value(), x);
@@ -513,7 +518,7 @@ public:
 
 			nextHEG3 = HEG3.lowerBound(x);
 			prevHEG3 = HEG3.lowerBound(x);
-			qDebug() << "HEG3 starts as " << nextHEG3.key() << nextHEG3.value();
+			//qDebug() << "HEG3 starts as " << nextHEG3.key() << nextHEG3.value();
 			nnextHEG3 = nextHEG3;
 			if(prevHEG3 != HEG3.constBegin()){
 				prevHEG3--;
@@ -528,7 +533,7 @@ public:
 							nextHEG3--;
 							prevHEG3--;
 							pprevHEG3--;
-							qDebug() << "HEG3 says single end";
+							//qDebug() << "HEG3 says single end";
 						}
 					}
 					else{
@@ -541,7 +546,7 @@ public:
 						prevHEG3--;
 						pprevHEG3--;
 						pprevHEG3--;
-						qDebug() << "HEG3 says double end";
+						//qDebug() << "HEG3 says double end";
 					}
 				}
 				else{
@@ -549,7 +554,7 @@ public:
 					prevHEG3++;
 					nextHEG3++;
 					nnextHEG3++;
-					qDebug() << "HEG3 says single front";
+					//qDebug() << "HEG3 says single front";
 				}
 			}
 			else{
@@ -560,7 +565,7 @@ public:
 				nextHEG3++;
 				nnextHEG3++;
 				nnextHEG3++;
-				qDebug() << "HEG3 says double front";
+				//qDebug() << "HEG3 says double front";
 			}
 			if(x <= rMaxHEG3.first){
 				tmpVal = fitMyCubic(pprevHEG3.key(), pprevHEG3.value(), prevHEG3.key(), prevHEG3.value(), nextHEG3.key(), nextHEG3.value(), nnextHEG3.key(), nnextHEG3.value(), x);
@@ -568,7 +573,7 @@ public:
 					tmpFlux = tmpVal;
 			}
 
-			qDebug() << "Want to insert " << x << ", " << tmpFlux;
+			//qDebug() << "Want to insert " << x << ", " << tmpFlux;
 			rVal.insert(x, tmpFlux);
 		}
 
@@ -578,9 +583,13 @@ public:
 	}
 	/**/
 
+	QPair<double, double> bestFlux() const { return bestFlux_; }
+
+	QPair<double, double> bestRes() const { return bestRes_; }
 protected:
 	/// Internal list of AMControlOptimization.
 	QList<AMControlOptimization*> outputs_;
+	QPair<double, double> bestFlux_, bestRes_;
 };
 
 

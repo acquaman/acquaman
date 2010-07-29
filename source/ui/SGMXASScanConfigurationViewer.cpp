@@ -52,6 +52,8 @@ SGMXASScanConfigurationViewer::SGMXASScanConfigurationViewer(QWidget *parent)  :
 		connect( ((QDoubleSpinBox*)(fluxResolutionView_->boxByName("exitSlitGap"))), SIGNAL(valueChanged(double)), sxsc, SLOT(setExitSlitGap(double)) );
 /**/
 		fluxResolutionView2_ = new AMCompactControlOptimizationSetView((AMControlOptimizationSet*)(sxsc->fluxResolutionSet()), this);
+		fluxResolutionView2_->onRegionsUpdate(sxsc->regions());
+
 //		fluxResolutionView2_ = new AMColorControlOptimizationSetView((AMControlOptimizationSet*)(sxsc->fluxResolutionSet()), this);
 
 		trackingView_ = new AMControlSetView(sxsc->trackingSet(), this);
