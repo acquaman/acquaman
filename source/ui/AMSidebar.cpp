@@ -73,11 +73,12 @@ AMSidebar::AMSidebar(QWidget* parent) : QScrollArea(parent) {
 	mainWidget_->setLayout(topLayout_);
 	topLayout_->setSpacing(12);
 	topLayout_->setContentsMargins(0, 0, 0, 0);
-	/// \todo needed for sizing inside scroll area? topLayout_->setSizeConstraint(QLayout::SetMinAndMaxSize);
+	/// \todo needed for sizing inside scroll area?
+	//topLayout_->setSizeConstraint(QLayout::SetFixedSize);
 
 
 	// Add an expanding space at the bottom...
-	topLayout_->addStretch();
+	topLayout_->addStretch(1);
 
 	mainWidget_->setObjectName("AMSidebarFill");
 	setObjectName("AMSidebarFill");
