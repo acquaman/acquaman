@@ -80,13 +80,15 @@ AMAppController::AMAppController(QObject *parent) :
 
 
 
-	// create widget
-	//AMRunExperimentTree* dataTree = new AMRunExperimentTree(AMDatabase::userdb());
+	// Make a dataview widget and add it under two links/headings: "Runs" and "Experiments"
 	AMDataView* dataView = new AMDataView();
 	QStandardItem* runsItem = mw_->addPane(dataView, "Data", "Runs", ":/22x22/view_calendar_upcoming_days.png");
 	QStandardItem* expItem = mw_->addPane(dataView, "Data", "Experiments", ":/applications-science.png");
+	// Hook into the sidebar and add Run and Experiment links below these headings.
 	AMRunExperimentInsert* insert = new AMRunExperimentInsert(AMDatabase::userdb(), runsItem, expItem, this);
-
+	connect(mw_->sidebar(), SIGNAL(clicked(QModelIndex)), insert, SLOT(onItemClicked(QModelIndex)));
+	connect(insert, SIGNAL(runSelected(int)), dataView, SLOT(showRun(int)));
+	connect(insert, SIGNAL(experimentSelected(int)), dataView, SLOT(showExperiment(int)));
 
 
 	BottomBar* b = new BottomBar();

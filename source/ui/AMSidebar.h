@@ -104,7 +104,6 @@ public:
 	/// Remove a link item
 	void deleteLink(QStandardItem* item) {
 		model_->removeRow(item->row(), item->parent()->index());
-		// delete item;
 	}
 
 	/// Access a QStandardItemModel containing all of the sidebar entries: call QTreeView::model().
@@ -116,7 +115,7 @@ public:
 public slots:
 	/// set the highlighted link.
 	void setHighlightedLink(const QStandardItem* item) {
-		/// \bug How to do this?
+		setCurrentIndex(item->index());
 	}
 
 protected slots:

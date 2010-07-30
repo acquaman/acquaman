@@ -141,7 +141,23 @@ void AMRunExperimentInsert::refreshExperiments() {
 	expRefreshScheduled_ = false;
 }
 
+/// Connect this slot to the view's clicked(const QModelIndex& index) signal. It will emit runSelected and experimentSelected as required.
+void AMRunExperimentInsert::onItemClicked(const QModelIndex& index) {
+	/// Run heading clicked?
+	if(index == runItem_->index()) {
+		emit runSelected(-1);
+	}
+	else if(index == experimentItem_->index()) {
+		emit experimentSelected(-1);
+	}
+	else if(index.parent() == runItem_->index()) {
+		emit runSelected(runItem_->model()->itemFromIndex(index)->data(AM::IdRole).toInt());
+	}
 
+	else if(index.parent() == experimentItem_->index()) {
+		emit experimentSelected(experimentItem_->model()->itemFromIndex(index)->data(AM::IdRole).toInt());
+	}
+}
 
 
 

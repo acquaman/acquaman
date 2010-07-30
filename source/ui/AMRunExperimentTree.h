@@ -48,15 +48,23 @@ protected:
 	AMDatabase* db_;
 };
 
+/// This class provides an "insert" or "hook" into a tree view and item model. Given two existing items in the model, it will use these as a "run heading" and "experiment heading", and insert the runs and experiments found in the database underneath them.  Additionally, if you connect the view's AMAbstractItemView::clicked(QModelIndex) signal to this class's onItemClicked(QModelIndex) slot, it will be able to issue runSelected(id) and experimentSelected(id) signals.
 class AMRunExperimentInsert : public QObject
 {
 Q_OBJECT
 public:
-	explicit AMRunExperimentInsert(AMDatabase* db, QStandardItem* runParent, QStandardItem* experimentParent, QObject *parent = 0);
+	explicit AMRunExperimentInsert(AMDatabase* db, QStandardItem* runHeading, QStandardItem* experimentHeading, QObject *parent = 0);
 
 signals:
+	/// Emitted when a run is selected. When the Runs heading is selected, this will be emitted with \c id = -1.
+	void runSelected(int id);
+	/// Emitted when an experiment is selected.  When the Experiments heading is selected, this will be emitted with \c id = -1.
+	void experimentSelected(int id);
 
 public slots:
+	/// Connect this slot to the view's clicked(const QModelIndex& index) signal. It will emit runSelected and experimentSelected as required.
+	void onItemClicked(const QModelIndex& index);
+
 
 protected slots:
 	/// This slot receives updated() signals from the database, and (if a refresh hasn't been scheduled yet), schedules a refreshRuns() or refreshExperiments() for once control returns to the Qt event loop.  This provides a performance boost by potentially only doing one refresh for multiple sequential database updates.

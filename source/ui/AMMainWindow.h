@@ -43,6 +43,11 @@ public:
 	/// Remove a pane widget but do not delete it.  Ownership is now the responsibility of the caller. The pane becomes a top-level window.
 	void removePane(QWidget* pane);
 
+	/// Access the main window's sidebar object
+	AMSidebar* sidebar() {
+		return sidebar_;
+	}
+
 
 public slots:
 	/// move a pane from inside the main window to a separate window.
