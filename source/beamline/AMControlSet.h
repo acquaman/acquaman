@@ -95,6 +95,259 @@ protected:
 	QString description_;
 };
 
+class AMCurve : public QObject
+{
+	Q_OBJECT
+public:
+	AMCurve(QMap<double, double> dataMap, QObject *parent = 0) : QObject(parent){
+		hasXDiscontinuities_ = false;
+		hasYDiscontinuities_ = false;
+		setDataMap(dataMap);
+	}
+
+	QPair<double, double> minX() const { return minX_;}
+
+	QPair<double, double> minY() const { return minY_;}
+
+	QPair<double, double> maxX() const { return maxX_;}
+
+	QPair<double, double> maxY() const { return maxY_;}
+
+	void setDataMap(QMap<double, double> dataMap){
+		dataMap_ = dataMap;
+		QMap<double, double>::const_iterator i = dataMap_.constBegin();
+		minX_.first = i.key();
+		minX_.second = i.value();
+		minY_.first = i.value();
+		minY_.second = i.key();
+		maxX_.first = i.key();
+		maxX_.second = i.value();
+		maxY_.first = i.value();
+		maxY_.second = i.key();
+		double tmpX, tmpY;
+		while(i != dataMap_.constEnd()){
+			tmpX = i.key();
+			tmpY = i.value();
+			//qDebug() << "Inserting " << tmpX << tmpY;
+			if(tmpX < minX_.first){
+				minX_.first = tmpX;
+				minX_.second = tmpY;
+			}
+			else if(tmpX > maxX_.first){
+				maxX_.first = tmpX;
+				maxX_.second = tmpY;
+			}
+			if(tmpY < minY_.first){
+				minY_.first = tmpY;
+				minY_.second = tmpX;
+			}
+			else if(tmpY > maxY_.first){
+				maxY_.first = tmpY;
+				maxY_.second = tmpX;
+			}
+			++i;
+		}
+	}
+
+	void setMetaMap(QMap<double, QStringList> metaMap){metaMap_ = metaMap;}
+
+	void addXDiscontinuity(QPair<double, double> dis){
+		if(!hasXDiscontinuities_)
+			hasXDiscontinuities_ = true;
+		xDiscontinuities_.append(dis);
+	}
+
+	void addYDiscontinuity(QPair<double, double> dis){
+		if(!hasYDiscontinuities_)
+			hasYDiscontinuities_ = true;
+		yDiscontinuities_.append(dis);
+	}
+
+	double valueAt(double x) const{
+		if(dataMap_.count() == 0)
+			return 0;
+		if( (x < minX_.first) || (x > maxX_.first) )
+			return 0;
+		QMap<double, double>::const_iterator i = dataMap_.lowerBound(x);
+		if(hasXDiscontinuities_){
+			for(int y = 0; y < xDiscontinuities_.count(); y++)
+				if( (xDiscontinuities_.at(y).first > x) && (x > xDiscontinuities_.at(y).second) ){
+					double x1, x2, y1, y2, tmpVal;
+					x2 = i.key();
+					y2 = i.value();
+					--i;
+					x1 = i.key();
+					y1 = i.value();
+					tmpVal = ((y2-y1)/(x2-x1))*(x-x2) + y2;
+					qDebug() << "IN A DISCONTINUITY REGION " << x << " use " << tmpVal;
+					return tmpVal;
+				}
+		}
+		if(dataMap_.count() <= 3)
+			return i.value();
+		int seek = 0;
+		++i;
+		if(i == dataMap_.constEnd())
+			seek = -1;
+		else{
+			--i;
+			if(i == dataMap_.constBegin())
+				seek = 2;
+			else{
+				--i;
+				if(i == dataMap_.constBegin())
+					seek = 1;
+			}
+		}
+
+		i = dataMap_.lowerBound(x);
+		if(seek == -1)
+			--i;
+		else
+			for(int x = 0; x < seek; x++)
+				++i;
+
+		--i;
+		--i;
+		QPair<double, double> first, second, third, fourth;
+		first.first = i.key();
+		first.second = i.value();
+		++i;
+		second.first = i.key();
+		second.second = i.value();
+		++i;
+		third.first = i.key();
+		third.second = i.value();
+		++i;
+		fourth.first = i.key();
+		fourth.second = i.value();
+
+		int j, n;
+		double xi, yi, ei, chisq;
+		gsl_matrix *X, *cov;
+		gsl_vector *y, *w, *c;
+
+		n = 4;
+
+		X = gsl_matrix_alloc (n, 4);
+		y = gsl_vector_alloc (n);
+		w = gsl_vector_alloc (n);
+
+		c = gsl_vector_alloc (4);
+		cov = gsl_matrix_alloc (4, 4);
+
+		double ix[4];
+		double iy[4];
+		double ie[4];
+		ix[0] = first.first;
+		ix[1] = second.first;
+		ix[2] = third.first;
+		ix[3] = fourth.first;
+		iy[0] = first.second;
+		iy[1] = second.second;
+		iy[2] = third.second;
+		iy[3] = fourth.second;
+		ie[0] = 0.1*iy[0];
+		ie[1] = 0.1*iy[1];
+		ie[2] = 0.1*iy[2];
+		ie[3] = 0.1*iy[3];
+		for (j = 0; j < n; j++)
+		{
+			xi = ix[j];
+			yi = iy[j];
+			ei = ie[j];
+
+			gsl_matrix_set (X, j, 0, 1.0);
+			gsl_matrix_set (X, j, 1, xi);
+			gsl_matrix_set (X, j, 2, xi*xi);
+			gsl_matrix_set (X, j, 3, xi*xi*xi);
+
+			gsl_vector_set (y, j, yi);
+			gsl_vector_set (w, j, 1.0/(ei*ei*ei));
+		}
+
+		gsl_multifit_linear_workspace * work
+				= gsl_multifit_linear_alloc (n, 4);
+		gsl_multifit_wlinear (X, w, y, c, cov,
+							  &chisq, work);
+		gsl_multifit_linear_free (work);
+
+#define C(i) (gsl_vector_get(c,(i)))
+#define COV(i,j) (gsl_matrix_get(cov,(i),(j)))
+
+		double rVal = C(0) + C(1)*x + C(2)*x*x + C(3)*x*x*x;
+		gsl_matrix_free (X);
+		gsl_vector_free (y);
+		gsl_vector_free (w);
+		gsl_vector_free (c);
+		gsl_matrix_free (cov);
+
+		return rVal;
+	}
+
+	double valueAtRange(double percent){
+		//qDebug() << "Percent forwards to " << minX_.first + percent*(maxX_.first-minX_.first) << " for " << percent;
+		return valueAt(minX_.first + percent*(maxX_.first-minX_.first) );
+	}
+
+	QPair<double, double> valuesAtRange(double percent){
+		QPair<double, double> rVal;
+		rVal.first = minX_.first + percent*(maxX_.first-minX_.first);
+		rVal.second = valueAt(minX_.first + percent*(maxX_.first-minX_.first) );
+		return rVal;
+	}
+
+	double percentFromValue(double x) const {
+		return (x - minX_.first)/(maxX_.first - minX_.first);
+	}
+
+	QMap<double, double> dataMap() const { return dataMap_;}
+
+	QMap<double, QStringList> metaMap() const { return metaMap_;}
+
+	QMap<double, double> transposeMap() const {
+		QMap<double, double> tMap;
+		QMap<double, double>::const_iterator i = dataMap_.constBegin();
+		while(i != dataMap_.constEnd()){
+			tMap[i.value()] = i.key();
+			++i;
+		}
+		return tMap;
+	}
+	QMap<double, QStringList> transposeMetaMap() const {
+		QMap<double, QStringList> mtMap;
+		QMap<double, double>::const_iterator i = dataMap_.constBegin();
+		while(i != dataMap_.constEnd()){
+			mtMap[i.value()] = metaMap_.value(i.key());
+			++i;
+		}
+		return mtMap;
+	}
+
+	AMCurve* transposeCurve() {
+		AMCurve *tmpCurve = new AMCurve(transposeMap());
+		tmpCurve->setMetaMap(transposeMetaMap());
+		for(int x = 0; x < xDiscontinuities_.count(); x++){
+			tmpCurve->addYDiscontinuity(xDiscontinuities_.at(x));
+			qDebug() << "Adding as Y " << xDiscontinuities_.at(x).first << xDiscontinuities_.at(x).second;
+		}
+		for(int x = 0; x < yDiscontinuities_.count(); x++){
+			tmpCurve->addXDiscontinuity(yDiscontinuities_.at(x));
+			qDebug() << "Adding as X " << yDiscontinuities_.at(x).first << yDiscontinuities_.at(x).second;
+		}
+		return tmpCurve;
+	}
+
+protected:
+	QMap<double, double> dataMap_;
+	QMap<double, QStringList> metaMap_;
+	QPair<double, double> minX_, minY_, maxX_, maxY_;
+	bool hasXDiscontinuities_;
+	bool hasYDiscontinuities_;
+	QList< QPair<double, double> > xDiscontinuities_;
+	QList< QPair<double, double> > yDiscontinuities_;
+};
+
 /// An AMControlOptimizationSet is a combination of an AMControlSet (its parent class) and a list of AMControlOptimization.
 /*!
   The class is designed to hold a list of AMControl (like AMControlSet), as well as the parameter, or parameters, these controls can be used to optimize.
@@ -143,6 +396,48 @@ public:
 		rVal.insert("HEG3", HEG3);
 		return rVal;
 	}
+	QMap<QString, AMCurve*> cPlotAgainst(AMRegionsList* contextParameters){
+		QMap<QString, QMap<double, double> > fluxes, resolutions;
+		QMap<double, double> LEG, MEG, HEG1, HEG3;
+		QMap<double, QStringList> mLEG, mMEG, mHEG1, mHEG3;
+		fluxes = collapseAt(0, contextParameters);
+		resolutions = collapseAt(1, contextParameters);
+		QMap<double, double>::const_iterator i;
+		i = fluxes.value("LEG1").constBegin();
+		QString tmpStr;
+		QStringList tmpStrList;
+		while(i != fluxes.value("LEG1").constEnd()){
+			tmpStr.clear();
+			tmpStrList.clear();
+			LEG.insert(resolutions.value("LEG1").value(i.key()), fluxes.value("LEG1").value(i.key()));
+			MEG.insert(resolutions.value("MEG1").value(i.key()), fluxes.value("MEG1").value(i.key()));
+			HEG1.insert(resolutions.value("HEG1").value(i.key()), fluxes.value("HEG1").value(i.key()));
+			HEG3.insert(resolutions.value("HEG3").value(i.key()), fluxes.value("HEG3").value(i.key()));
+			tmpStr.setNum(i.key());
+			tmpStrList.append(tmpStr);
+			mLEG.insert(resolutions.value("LEG1").value(i.key()), tmpStrList);
+			mMEG.insert(resolutions.value("MEG1").value(i.key()), tmpStrList);
+			mHEG1.insert(resolutions.value("HEG1").value(i.key()), tmpStrList);
+			mHEG3.insert(resolutions.value("HEG3").value(i.key()), tmpStrList);
+			++i;
+		}
+		//QMap<QString, QMap<double, double> > rVal;
+		QMap<QString, AMCurve*> rVal;
+		AMCurve *cLEG = new AMCurve(LEG);
+		cLEG->setMetaMap(mLEG);
+		AMCurve *cMEG = new AMCurve(MEG);
+		cMEG->setMetaMap(mMEG);
+		AMCurve *cHEG1 = new AMCurve(HEG1);
+		cHEG1->setMetaMap(mHEG1);
+		AMCurve *cHEG3 = new AMCurve(HEG3);
+		cHEG3->setMetaMap(mHEG3);
+		rVal.insert("LEG1", cLEG);
+		rVal.insert("MEG1", cMEG);
+		rVal.insert("HEG1", cHEG1);
+		rVal.insert("HEG3", cHEG3);
+		return rVal;
+	}
+
 	double fitMyCubic(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4, double input){
 		//qDebug() << "Fitting " << x1 << y1 << x2 << y2 << x3 << y3 << x4 << y4 << " for " << input;
 		//printf("Fitting %5.2f %5.2f ; %5.2f %5.2f ; %5.2f %5.2f ; %5.2f %5.2f ; for %5.2f\n", x1, y1, x2, y2, x3, y3, x4, y4, input);
@@ -581,7 +876,140 @@ public:
 //		rVal.insert("Something", QPair<double, double>(100, 100));
 		return rVal;
 	}
-	/**/
+
+	AMCurve* cOnePlot(AMRegionsList* contextParameters){
+		/*
+		QMap<QString, QMap<double, double> > allPlots = plotAgainst(contextParameters);
+		AMCurve *cLEG = new AMCurve(allPlots.value("LEG1"));
+		AMCurve *cMEG = new AMCurve(allPlots.value("MEG1"));
+		AMCurve *cHEG1 = new AMCurve(allPlots.value("HEG1"));
+		AMCurve *cHEG3 = new AMCurve(allPlots.value("HEG3"));
+		*/
+		QMap<QString, AMCurve*> allCurves = cPlotAgainst(contextParameters);
+		AMCurve *cLEG = allCurves.value("LEG1");
+		AMCurve *cMEG = allCurves.value("MEG1");
+		AMCurve *cHEG1 = allCurves.value("HEG1");
+		AMCurve *cHEG3 = allCurves.value("HEG3");
+
+		AMCurve *tLEG = new AMCurve(cLEG->transposeMap());
+		AMCurve *tMEG = new AMCurve(cMEG->transposeMap());
+		AMCurve *tHEG1 = new AMCurve(cHEG1->transposeMap());
+		AMCurve *tHEG3 = new AMCurve(cHEG3->transposeMap());
+
+		QList<AMCurve*> fluxes;
+		QList<AMCurve*> resolutions;
+		fluxes.append(cLEG);
+		fluxes.append(cMEG);
+		fluxes.append(cHEG1);
+		fluxes.append(cHEG3);
+		resolutions.append(cLEG);
+		resolutions.append(cMEG);
+		resolutions.append(cHEG1);
+		resolutions.append(cHEG3);
+
+		QList<AMCurve*> tFluxes;
+		QList<AMCurve*> tResolutions;
+		tFluxes.append(tLEG);
+		tFluxes.append(tMEG);
+		tFluxes.append(tHEG1);
+		tFluxes.append(tHEG3);
+		tResolutions.append(tLEG);
+		tResolutions.append(tMEG);
+		tResolutions.append(tHEG1);
+		tResolutions.append(tHEG3);
+
+		for(int x = 0; x < 3; x++){
+			if( fluxes.at(0)->maxY().first < fluxes.at(1)->maxY().first ){
+				fluxes.swap(0,1);
+				tFluxes.swap(0,1);
+			}
+			if( fluxes.at(2)->maxY().first < fluxes.at(3)->maxY().first ){
+				fluxes.swap(2,3);
+				tFluxes.swap(2,3);
+			}
+			if( resolutions.at(0)->maxX().first < resolutions.at(1)->maxX().first ){
+				resolutions.swap(0,1);
+				tResolutions.swap(0,1);
+			}
+			if( resolutions.at(2)->maxX().first < resolutions.at(3)->maxX().first ){
+				resolutions.swap(2,3);
+				tResolutions.swap(2,3);
+			}
+		}
+		bestFlux_ = fluxes.at(0)->maxY();
+		bestRes_ = resolutions.at(0)->maxX();
+
+		QMap<double, double> rMap;
+		QMap<double, QStringList> mMap;
+		double resStep = (bestRes_.first - bestFlux_.second)/100;
+		double tmpFlux, tmpVal;
+		QStringList tmpStrList, tmpSubList;
+		QString tmpGrating;
+		for(double x = bestFlux_.second; x < bestRes_.first; x += resStep){
+			tmpFlux = 0;
+			tmpStrList.clear();
+			tmpSubList.clear();
+			tmpGrating = "NONE";
+			if(x <= cLEG->maxX().first){
+				tmpVal = cLEG->valueAt(x);
+				if(tmpVal > tmpFlux){
+					tmpFlux = tmpVal;
+					tmpGrating = "LEG";
+					tmpSubList = cLEG->metaMap().lowerBound(x).value();
+				}
+			}
+			if(x <= cMEG->maxX().first){
+				tmpVal = cMEG->valueAt(x);
+				if(tmpVal > tmpFlux){
+					tmpFlux = tmpVal;
+					tmpGrating = "MEG";
+					tmpSubList = cMEG->metaMap().lowerBound(x).value();
+				}
+			}
+			if(x <= cHEG1->maxX().first){
+				tmpVal = cHEG1->valueAt(x);
+				if(tmpVal > tmpFlux){
+					tmpFlux = tmpVal;
+					tmpGrating = "HEG1";
+					tmpSubList = cHEG1->metaMap().lowerBound(x).value();
+				}
+			}
+			if(x <= cHEG3->maxX().first){
+				tmpVal = cHEG3->valueAt(x);
+				if(tmpVal > tmpFlux){
+					tmpFlux = tmpVal;
+					tmpGrating = "HEG3";
+					tmpSubList = cHEG3->metaMap().lowerBound(x).value();
+				}
+			}
+			//qDebug() << "Want to insert " << x << ", " << tmpFlux;
+			tmpStrList.append(tmpGrating);
+			tmpStrList.append(tmpSubList);
+			rMap.insert(x, tmpFlux);
+			mMap.insert(x, tmpStrList);
+		}
+
+		AMCurve *rVal = new AMCurve(rMap);
+		rVal->setMetaMap(mMap);
+
+		for(int x = 1; x < fluxes.count(); x++){
+			if( fluxes.at(x)->maxY().second > tFluxes.at(x-1)->valueAt(fluxes.at(x)->maxY().first) )
+				rVal->addXDiscontinuity( QPair<double, double>(fluxes.at(x)->maxY().second, tFluxes.at(x-1)->valueAt(fluxes.at(x)->maxY().first)) );
+//				qDebug() << "Found resolution discontinuity comparing this (" << x << ")" << fluxes.at(x)->maxY().first << fluxes.at(x)->maxY().second
+//						<< fluxes.at(x)->maxY().first << tFluxes.at(x-1)->valueAt(fluxes.at(x)->maxY().first);
+		}
+
+		for(int x = 1; x < resolutions.count(); x++){
+			//if( resolutions.at(x)->maxX().second > tResolutions.at(x-1)->valueAt(resolutions.at(x)->maxX().first) )
+			if( resolutions.at(x)->maxX().second > resolutions.at(x-1)->valueAt(resolutions.at(x)->maxX().first) ){
+				rVal->addYDiscontinuity( QPair<double, double>( resolutions.at(x)->maxX().second, resolutions.at(x-1)->valueAt(resolutions.at(x)->maxX().first) ) );
+//				qDebug() << "Found flux discontinuity comparing this (" << x << ")" << resolutions.at(x)->maxX().first << resolutions.at(x)->maxX().second
+//						<< resolutions.at(x)->maxX().first << resolutions.at(x-1)->valueAt(resolutions.at(x)->maxX().first);
+			}
+		}
+
+		return rVal;
+	}
 
 	QPair<double, double> bestFlux() const { return bestFlux_; }
 

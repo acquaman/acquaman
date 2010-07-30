@@ -131,6 +131,7 @@ protected:
 	MPlotRealtimeModel *model_;
 };
 
+/*
 class AMCurve : public QObject
 {
 	Q_OBJECT
@@ -288,12 +289,6 @@ public:
 		gsl_vector_free (c);
 		gsl_matrix_free (cov);
 
-		qDebug() << "Asking at " << x << " using " << first.first << first.second
-				<< second.first << second.second
-				<< third.first << third.second
-				<< fourth.first << fourth.second
-				<< " gives " << rVal;
-
 		return rVal;
 	}
 
@@ -313,6 +308,7 @@ protected:
 	QMap<double, double> dataMap_;
 	QPair<double, double> minX_, minY_, maxX_, maxY_;
 };
+*/
 
 class AMControlOptimizationSetView : public AMControlSetView
 {
@@ -327,7 +323,8 @@ public slots:
 		HEG1->setDataMap(((AMControlOptimizationSet*)viewSet_)->plotAgainst(contextParams).value("HEG1"));
 		HEG3->setDataMap(((AMControlOptimizationSet*)viewSet_)->plotAgainst(contextParams).value("HEG3"));
 
-		ANSWER->setDataMap(((AMControlOptimizationSet*)viewSet_)->onePlot(contextParams));
+		//ANSWER->setDataMap(((AMControlOptimizationSet*)viewSet_)->onePlot(contextParams));
+		ANSWER->setDataMap( ((AMControlOptimizationSet*)viewSet_)->cOnePlot(contextParams)->dataMap() );
 	}
 
 protected:
@@ -340,15 +337,17 @@ protected:
 class CCOSVItem : public QGraphicsItem
 {
 public:
-	CCOSVItem(int width, int height, bool invert = false, bool log = false);
+	CCOSVItem(int width, int height, QColor curveColor, bool invert = false, bool log = false);
 
-	void updateCurve(QMap<double, double> data);
+	//void updateCurve(QMap<double, double> data);
+	void updateCurve(AMCurve *dataCurve);
 	QRectF boundingRect() const;
 	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 
 private:
 	int width_;
 	int height_;
+	QColor curveColor_;
 	AMCurve *dataCurve_;
 	QPointF *curve_;
 	bool invert_;
@@ -372,8 +371,11 @@ protected:
 	AMControlOptimizationSet *viewSet_;
 	QPushButton *launchDetailButton_;
 	QSlider *param1Slider, *param2Slider;
+	QLabel *paramsResult_;
 	QGraphicsScene *param1Scene, *param2Scene;
 	QGraphicsView *param1View, *param2View;
+	AMCurve *param1Curve_, *param2Curve_;
+	bool param1Trigger_, param2Trigger_;
 	CCOSVItem *param1Item_, *param2Item_;
 	QHBoxLayout *hl_;
 	QGridLayout *gl_;

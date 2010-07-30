@@ -131,21 +131,20 @@ AMCompactControlOptimizationSetView::AMCompactControlOptimizationSetView(AMContr
 	viewSet_ = (AMControlOptimizationSet*)viewSet;
 	setTitle(viewSet->name());
 	launchDetailButton_ = new QPushButton("More Details", this);
-//	QFormLayout *fl = new QFormLayout();
-//	fl->addRow("", launchDetailButton_);
+	param1Trigger_= false;
+	param2Trigger_ = false;
 	hl_ = new QHBoxLayout(this);
 
 	AMControlOptimization *tmpOpt;
 	if(viewSet_->optimizationCount() == 2){
 		gl_ = new QGridLayout();
 		param1Slider = new QSlider(Qt::Horizontal, this);
-		param1Slider->setRange(0, 101);
+		param1Slider->setRange(0, 100);
 		param1Slider->setMinimumWidth( (int)(width*0.9));
-//		param1Slider->setValue(50);
-		param2Slider = new QSlider(Qt::Horizontal, this);
-		param2Slider->setRange(0, 101);
-		param2Slider->setMinimumWidth( (int)(width*0.9));
 
+		param2Slider = new QSlider(Qt::Horizontal, this);
+		param2Slider->setRange(0, 100);
+		param2Slider->setMinimumWidth( (int)(width*0.9));
 
 		param1Scene = new QGraphicsScene(0, 0, (int)(width*0.9), 20);
 		param1View = new QGraphicsView(param1Scene);
@@ -169,13 +168,21 @@ AMCompactControlOptimizationSetView::AMCompactControlOptimizationSetView(AMContr
 		param2View->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 		param2View->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-		param1Item_ = new CCOSVItem((int)(width*0.9), 20, true, true);
+		param1Curve_ = NULL;
+		param1Item_ = new CCOSVItem((int)(width*0.9), 20, QColor("blue"), true, true);
 		param1Scene->addItem(param1Item_);
 
-		param2Item_ = new CCOSVItem((int)(width*0.9), 20, false, true);
+		param2Curve_ = NULL;
+		param2Item_ = new CCOSVItem((int)(width*0.9), 20, QColor("green"), false, true);
 		param2Scene->addItem(param2Item_);
 
-		gl_->addWidget(launchDetailButton_, 0, 1, 1, 1, Qt::AlignCenter);
+		paramsResult_ = new QLabel("", this);
+
+		connect(param1Slider, SIGNAL(valueChanged(int)), this, SLOT(onParam1SliderUpdate(int)));
+		connect(param2Slider, SIGNAL(valueChanged(int)), this, SLOT(onParam2SliderUpdate(int)));
+
+		gl_->addWidget(paramsResult_, 0, 0, 1, 2, Qt::AlignCenter);
+		gl_->addWidget(launchDetailButton_, 0, 2, 1, 1, Qt::AlignCenter);
 		gl_->addWidget(param1View, 1, 0, 1, 3, Qt::AlignCenter);
 		gl_->addWidget(param1Slider, 2, 0, 1, 3, Qt::AlignCenter);
 		gl_->addWidget(param2Slider, 3, 0, 1, 3, Qt::AlignCenter);
@@ -187,70 +194,65 @@ AMCompactControlOptimizationSetView::AMCompactControlOptimizationSetView(AMContr
 			tmpOpt = (AMControlOptimization*)viewSet_->optimizationAt(x);
 			qDebug() << "Has " << tmpOpt->name();
 
-			/*
-		if(tmpCtrl->isEnum()){
-			tmpASB = new QSpinBox(this);
-			((QSpinBox*)tmpASB)->setValue(tmpCtrl->value());
-			((QSpinBox*)tmpASB)->setMaximum(tmpCtrl->maximumValue());
-			((QSpinBox*)tmpASB)->setMinimum(tmpCtrl->minimumValue());
-		}
-		else{
-			tmpASB = new QDoubleSpinBox(this);
-			((QDoubleSpinBox*)tmpASB)->setValue(tmpCtrl->value());
-			((QDoubleSpinBox*)tmpASB)->setMaximum(tmpCtrl->maximumValue());
-			((QDoubleSpinBox*)tmpASB)->setMinimum(tmpCtrl->minimumValue());
-		}
-		fl->addRow(tmpCtrl->objectName(), tmpASB);
-		controlBoxes_.append(tmpASB);
-		*/
 		}
 	}
-
-//	hl_ = new QHBoxLayout(this);
-//	hl_->addLayout(fl);
 	setLayout(hl_);
-
 }
 
 bool AMCompactControlOptimizationSetView::onParam1SliderUpdate(int val){
-
-/*
-	double upperDiff, lowerDiff, newUpper, newLower;
-	upperDiff = maxUpper - minUpper;
-	lowerDiff = maxLower - minLower;
-	newUpper = (100-val)*upperDiff/100 + minUpper;
-	newLower = val*lowerDiff/100 + minLower;
-	QString upperStr, lowerStr;
-	upperStr.setNum(newUpper, 'g', 3);
-	lowerStr.setNum(newLower);
-	optValue_->setText(upperStr+", "+lowerStr);
-*/
+	if(!param1Curve_ || !param2Curve_)
+		return false;
+	if(param2Trigger_){
+		param2Trigger_ = false;
+		return true;
+	}
+	double param1Val = param1Curve_->valuesAtRange((double)val/100).first;
+	double param2Val = param1Curve_->valuesAtRange((double)val/100).second;
+	double otherPercent = param2Curve_->percentFromValue(param2Val)*100;
+	QStringList metasList = param1Curve_->metaMap().lowerBound(param1Val).value();
+	paramsResult_->setText(metasList.at(0)+" with "+metasList.at(1)+" um slits");
+	qDebug() << "Wants percent " << val << " for output " << param1Val << param2Val << "on metas " << metasList << " wants other to be " << otherPercent;
+	param1Trigger_ = true;
+	param2Slider->setValue(otherPercent);
+	return true;
 }
 
 bool AMCompactControlOptimizationSetView::onParam2SliderUpdate(int val){
-
+	if(!param1Curve_ || !param2Curve_)
+		return false;
+	if(param1Trigger_){
+		param1Trigger_ = false;
+		return true;
+	}
+	qDebug() << "Wants percent " << val << " for output " << param2Curve_->valuesAtRange((double)val/100).first << param2Curve_->valuesAtRange((double)val/100).second;
+	double param2Val = param2Curve_->valuesAtRange((double)val/100).first;
+	double param1Val = param2Curve_->valuesAtRange((double)val/100).second;
+	double otherPercent = param1Curve_->percentFromValue(param1Val)*100;
+	QStringList metasList = param2Curve_->metaMap().lowerBound(param2Val).value();
+	paramsResult_->setText(metasList.at(0)+" with "+metasList.at(1)+" um slits");
+	qDebug() << "Wants percent " << val << " for output " << param2Val << param1Val << "on metas " << metasList << " wants other to be " << otherPercent;
+	param2Trigger_ = true;
+	param1Slider->setValue(otherPercent);
+	return true;
 }
 
 void AMCompactControlOptimizationSetView::onRegionsUpdate(AMRegionsList* contextParams){
-	QMap<double, double> data = ((AMControlOptimizationSet*)viewSet_)->onePlot(contextParams);
-	qDebug() << "Maxes " << ((AMControlOptimizationSet*)viewSet_)->bestFlux().first << "," << ((AMControlOptimizationSet*)viewSet_)->bestFlux().second
-			<< ((AMControlOptimizationSet*)viewSet_)->bestRes().first << "," << ((AMControlOptimizationSet*)viewSet_)->bestRes().second;
-	param1Item_->updateCurve( data );
-	QMap<double, double> transposeData;
-	QMap<double, double>::const_iterator i = data.constBegin();
-	while(i != data.constEnd()){
-		//qDebug() << "Checking out " << i.value() << i.key();
-		transposeData[i.value()] = i.key();
-		++i;
-	}
-	param2Item_->updateCurve(transposeData);
+	if(param1Curve_)
+		delete param1Curve_;
+	if(param2Curve_)
+		delete param2Curve_;
+	param1Curve_ = ((AMControlOptimizationSet*)viewSet_)->cOnePlot(contextParams);
+	param2Curve_ = param1Curve_->transposeCurve();
+	param1Item_->updateCurve(param1Curve_);
+	param2Item_->updateCurve(param2Curve_);
 }
 
-CCOSVItem::CCOSVItem(int width, int height, bool invert, bool log)
+CCOSVItem::CCOSVItem(int width, int height, QColor curveColor, bool invert, bool log)
 {
 	curve_ = NULL;
 	width_ = width;
 	height_ = height;
+	curveColor_ = curveColor;
 	invert_ = invert;
 	log_ = log;
 
@@ -268,51 +270,19 @@ CCOSVItem::CCOSVItem(int width, int height, bool invert, bool log)
 	dataCurve_ = new AMCurve(tmpMap);
 }
 
-void CCOSVItem::updateCurve(QMap<double, double> data){
+void CCOSVItem::updateCurve(AMCurve *dataCurve){
 	if(!curve_){
 		qDebug() << "No curve";
 		return;
 	}
 	qDebug() << "Has curve";
-	dataCurve_->setDataMap(data);
+	dataCurve_ = dataCurve;
 	double min = dataCurve_->minY().first;
 	double max = dataCurve_->maxY().first;
 	double tmpVal;
 
-	/*
-	int skipCount = (int)(data.count()/width_);
-	int stayCount = (int)(width_/data.count());
-	qDebug() << "SkipCount is " << skipCount << " StayCount is " << stayCount;
-	int dataCount = 0;
-	double tmpVal;
-	QMap<double, double>::const_iterator i = data.constBegin();
-
-	while( (i != data.constEnd()) && (dataCount != width_) ){
-		//curve_[dataCount+1] = QPointF(dataCount, height_*i.value()/max);
-		//curve_[dataCount+1].setY( height_*( log(i.value())/log(max) ) );
-		//curve_[dataCount+1].setY( height_ - height_*( i.value()/max ) );
-		if(log_)
-			tmpVal = height_*( log(i.value()/min) / log(max/min) );
-		else
-			tmpVal = height_*( (i.value()-min) / (max-min) );
-		if(invert_)
-			curve_[dataCount+1].setY( height_ - tmpVal );
-		else
-			curve_[dataCount+1].setY( tmpVal );
-		//qDebug() << "Curve at " << dataCount+1 << " is " << curve_[dataCount+1].y() << " with " << i.value() << max << min << "(" << i.key() << ")";
-		if(skipCount != 0)
-			for(int x = 0; x < skipCount; x++)
-				++i;
-		if( (stayCount != 0) && (dataCount%(stayCount+1) == 0) )
-			++i;
-		dataCount++;
-	}
-	qDebug() << "Last dataCount is " << dataCount;
-	*/
-
 	qDebug() << "Max/Min: " << max << min;
 	for(int x = 0; x < width_; x++){
-//		qDebug() << "Data curve says " << dataCurve_->valueAtRange((double)x/(double)width_) << " with " << x << width_;
 		if(log_)
 			tmpVal = height_*( log(dataCurve_->valueAtRange((double)x/(double)width_)/min) / log(max/min) );
 		else
@@ -321,12 +291,8 @@ void CCOSVItem::updateCurve(QMap<double, double> data){
 			curve_[x+1].setY( height_ - tmpVal );
 		else
 			curve_[x+1].setY( tmpVal );
-		//qDebug() << "Data curve says " << dataCurve_->valueAtRange((double)x/(double)width_) << " with " << x << width_ << "Local curve says " << curve_[x+1].y();
-		//qDebug() << dataCurve_->valuesAtRange((double)x/(double)width_).first << dataCurve_->valuesAtRange((double)x/(double)width_).second;
 	}
-
 	update();
-
 }
 
 QRectF CCOSVItem::boundingRect() const{
@@ -336,11 +302,9 @@ QRectF CCOSVItem::boundingRect() const{
 void CCOSVItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget){
 	Q_UNUSED(option);
 	Q_UNUSED(widget);
-	painter->setBrush(Qt::darkGray);
+//	painter->setBrush(Qt::darkGray);
+	painter->setBrush(curveColor_);
 	painter->setPen(Qt::NoPen);
-//	painter->drawRect(0, 0, width_, height_);
-
-//	painter->drawConvexPolygon(points, width_+2);
 	if(curve_)
 		painter->drawConvexPolygon(curve_, width_+2);
 }
