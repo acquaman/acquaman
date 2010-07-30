@@ -1,17 +1,12 @@
 #ifndef ACQMAN_AMSIDEBAR_H
 #define ACQMAN_AMSIDEBAR_H
 
-#include <QScrollArea>
-#include <QFrame>
-#include <QLabel>
-#include <QHash>
-#include <QVBoxLayout>
-#include <QHash>
-#include <QList>
-#include <QEvent>
+#include <QStandardItem>
+#include <QStandardItemModel>
+#include <QTreeView>
 #include <QVariant>
 
-#include <QDebug>
+#include "acquaman.h"
 
 
 #define AMSIDEBAR_BG_COLOR 221, 227, 234
@@ -38,126 +33,113 @@
 #define AMSIDEBAR_STYLESHEET " #AMSidebarFill { background-color: rgb(221, 227, 234); } AMSidebar { border-width: 1px;   border-style: solid;   border-color: rgb(221, 227, 234);  border-right-color: rgb(64, 64, 64); } "
 
 
-class AMSidebarDefaultSelector : public QFrame {
-
+/// An AMSidebarItem is a QStandardItem optimized for use as a "link" inside an AMSidebar. It has the usual name and icon, and it also has a QVariant \c link payload and a \c weight.  The weight is used in sorting (with lighter or more negative items on top), and the \c link is included as a parameter in the linkClicked() / linkDoubleClicked() signals emitted by AMSidebar.
+/*! The weight is stored under a user-role AM::WeightRole, and the link stored under AM::LinkRole. */
+class AMSidebarItem : public QStandardItem {
 public:
-	explicit AMSidebarDefaultSelector(const QString& text = QString(), const QString& iconFileName = QString(), QWidget* parent = 0);
-
-	QString text() const { return text_->text(); }
-	void setText(const QString& text) { text_->setText(text); }
-
-
-	/// Sets the icon displayed next to the label. We take ownership of the new icon, and delete our old one.
-	void setIcon(const QString& fileName) {
-		icon_->setPixmap(QPixmap(fileName));
+	/// Default constructor
+	explicit AMSidebarItem(const QString& name, const QVariant& link, const QIcon& icon = QIcon(), double weight = 0)
+		: QStandardItem(icon, name) {
+		setWeight(weight);
+		setLink(link);
+		setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
 	}
 
-protected:
-
-	QLabel* text_;
-	QLabel* icon_;
-
-	QHBoxLayout* hl_;
-};
-
-
-/// AMSidebar maintains a set of AMSidebarLink's, indexed by selector widget
-class AMSidebarLink {
-public:
-	AMSidebarLink(QWidget* selector = 0, const QVariant& payload = QVariant(), double weight = 0, const QString& category = QString()) {
-		selector_ = selector;
-		payload_ = payload;
-		weight_ = weight;
-		category_ = category;
+	void setWeight(double weight) {
+		setData(weight, AM::WeightRole);
 	}
 
-	QWidget* selector_;
-	QVariant payload_;
-	double weight_;
-	QString category_;
+	void setLink(const QVariant& link) {
+		setData(link, AM::LinkRole);
+	}
+
+
+	/// Re-implemented from QStandardItem, this function sorts by weight in AM::WeightRole
+	virtual bool operator< ( const QStandardItem & other ) const {
+		return data(AM::WeightRole).toDouble() < other.data(AM::WeightRole).toDouble();
+	}
+
+
 };
 
-/// AMSidebar maintains a set of AMSidebarCategory's (indexed by category name)
-class AMSidebarCategory : public QWidget {
+#include <QFont>
+class AMSidebarHeading : public AMSidebarItem {
 public:
-	AMSidebarCategory(const QString& categoryName, double weight, QWidget* parent);
-
-	void addLink(const AMSidebarLink& addMe);
-	void deleteLink(const AMSidebarLink& deleteMe);
-
-protected:
-
-	QString categoryName_;
-	double weight_;
-	QVBoxLayout* layout_;
-
-	QList<double> linkWeights_;
+	explicit AMSidebarHeading(const QString& name, double weight = 0)
+		: AMSidebarItem(name, QVariant(), QIcon(), weight) {
+		setFlags(Qt::ItemIsEnabled);
+		QFont font = QFont("Lucida Grande", 10, QFont::Bold);
+		font.setCapitalization(QFont::AllUppercase);
+		setFont(font);
+		setData(QBrush(QColor::fromRgb(100, 109, 125)), Qt::ForegroundRole);
+	}
 };
 
-/// This class provides an iTunes/iPhoto style left sidebar, which contains a list of links.  It supports category headers, icons, and (todo) nested lists.
+/// This class provides an iTunes/iPhoto style left sidebar, which contains a list of links.  It supports collapsable category headers, icons, and nested lists.
 /*! Terminology:
-	- Selector: a widget used to select (ie: click), a link from the list
 	- Link: An entry in the list, representing some kind of action or result.  The link "payload" is a QVariant, and is up to the user.  When a link's selector is clicked (or double-clicked), the linkClicked(QVariant) (or linkDoubleClicked(QVariant)) signal is emitted.
-	- Category: Links fall under headings, or categories.
-	- Weight: categories and selectors "settle" into their positions in the list by weight, with lightest (most negative) weights at the top, and heaviest (most positive) weights at the bottom. Recommend specifying negative weights, since then the default weight (0) will always append ("sink") to the bottom.
+	- Heading: Links fall under headings (or categories), which are not (usually) active links, but can be collapsed to show or hide a group.
+	- Weight: categories and selectors "settle" into their positions in the list by weight, with lightest (most negative) weights at the top, and heaviest (most positive) weights at the bottom. If specifying custom weights, we recommend using negative weights, since then the default weight (0) will always append ("sink" to the bottom).
 */
-class AMSidebar : public QScrollArea {
-	
+class AMSidebar : public QTreeView {
+
 	Q_OBJECT
-	
+
 public:
 	/// Default constructor
 	explicit AMSidebar(QWidget* parent = 0);
-	
-	/// add a category header with a certain \c weight
-	void addCategory(const QString& categoryName, double weight = 0);
-	
-	/// add a new link under category \c categoryName, with a payload \c linkContent.  The widget \c selector is used to represent the link in the list.
-	/*! This widget takes ownership of \c selector.  If no category with this name exists, a new category is created.
-	  */
-	void addLink(const QString& categoryName, QVariant linkContent, QWidget* selector, double weight = 0);
 
-	/// add a new link under category \c categoryName, with a payload \c linkContent.  A default widget with \c text and \c iconFileName is used to represent the link in the list.
+	/// add a category header with a certain \c weight
+	void addHeading(const QString& categoryName, double weight = 0);
+
+	/// add a new link under category \c heading, with a payload \c linkContent. Returns a pointer to the item that was created.
 	/*! If no category with this name exists, a new category is created.
 	  */
-	void addLink(const QString& categoryName, QVariant linkContent, const QString& text, const QString& iconFileName = "", double weight = 0);
-	
-	/// deletes the first link with a payload matching \c linkTarget
-	void deleteLink(const QVariant& linkTarget);
+	QStandardItem* addLink(const QString& heading, const QVariant& linkContent, const QString& text, const QIcon& icon = QIcon(), double weight = 0);
+
+	/// add a new link (or group of links) under category \c heading, with a payload \c linkContent. The QStandardItem \c item is used to represent the top-level link.
+	/*!  To create nested links, you can give \c item a set of sub-items with QStandardItem::addRow() before calling this function.  Be sure to manually set each item's AM::LinkRole to the desired destination first. */
+	void addLink(const QString& heading, const QVariant& linkContent, QStandardItem* item, double weight = 0);
+
+	/// Remove a link item
+	void deleteLink(QStandardItem* item) {
+		model_->removeRow(item->row(), item->parent()->index());
+		// delete item;
+	}
+
+	/// Access a QStandardItemModel containing all of the sidebar entries: call QTreeView::model().
+	// QStandardItemModel* model() const;
+
+	/// Access the heading item for a given category
+	AMSidebarHeading* heading(const QString& headingTitle);
 
 public slots:
-	/// set the highlighted link (specified by the selector widget).
-	void setHighlightedLink(QWidget* selector);
-	/// set the highlighted link (specified by the link content).  This version is slower than setHighlightedLink(QWidget* selector).
-	void setHighlightedLink(QVariant linkContent);
+	/// set the highlighted link.
+	void setHighlightedLink(const QStandardItem* item) {
+		/// \bug How to do this?
+	}
+
+protected slots:
+	void onItemClicked(const QModelIndex & index);
+	void onItemDoubleClicked(const QModelIndex & index);
 
 protected:
 
-	bool eventFilter(QObject* sourceObject, QEvent* event);
-		
+	// bool eventFilter(QObject* sourceObject, QEvent* event);
+
 signals:
 	void linkClicked(const QVariant& activatedLink);
 	void linkDoubleClicked(const QVariant& activatedLink);
-	
-	
+
+
 protected:
-	
-	QFrame* mainWidget_;
-	QVBoxLayout* topLayout_;
-	
-	QHash<QString, AMSidebarCategory*> name2category_;
-	QList<double> categoryWeights_;
 
-	QHash<QWidget*, AMSidebarLink> selector2link_;
-	
-
-	
-	QWidget* highlightedSelector_;
-
-	
+	QStandardItemModel* model_;
+	QHash<QString,AMSidebarHeading*> headings_;
+	//QWidget* highlightedSelector_;
 	bool doubleClickInProgress_;
-	
-	
+
+
 };
 
 #endif

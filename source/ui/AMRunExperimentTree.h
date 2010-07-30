@@ -3,24 +3,56 @@
 
 #include <QStandardItemModel>
 #include <QDateTime>
+#include "acquaman.h"
 
 class AMDatabase;
+class AMSidebar;
 
-/// This class is a near-identical replacement for QStandardItem, except that it stores and returns a DisplayRole separate from the EditRole. The DisplayRole is a string concatenation of the EditRole string and the UserRole+1 string (which is used in AMRunExperimentModel to store the date of the run).
+/// This subclass of QStandardItem provides the extra features needed to store and display the run name beside the run date, edit the run name, and store the edited name back to the database.
 class AMRunModelItem : public QStandardItem {
 
 public:
-	explicit AMRunModelItem(const QString& editText = QString()) : QStandardItem(editText) {}
+	explicit AMRunModelItem(AMDatabase* db, int id, const QString& editText = QString()) : QStandardItem(editText) {
+		db_ = db;
+		setData(id, AM::IdRole);
+	}
 
 	/// Re-implemented from QStandardItem: Returns a special DisplayRole distinct from the EditRole. (The QStandardItem treat Qt::EditRole and Qt::DisplayRole as referring to the same data.)
 	virtual QVariant data(int role) const;
+
+	/// Re-implemented to order runs by date:
+	virtual bool operator< ( const QStandardItem & other ) const {
+		return data(AM::DateTimeRole).toDateTime() < other.data(AM::DateTimeRole).toDateTime();
+	}
+
+	/// Re-implemented to save the edited run name back to the database:
+	virtual void setData(const QVariant &value, int role);
+
+protected:
+	AMDatabase* db_;
 };
 
-class AMRunExperimentModel : public QStandardItemModel
+/// This subclass of QStandardItem provides the extra features needed to store edited experiment names back to the database.
+class AMExperimentModelItem : public QStandardItem {
+
+public:
+	explicit AMExperimentModelItem(AMDatabase* db, int id, const QString& editText = QString()) : QStandardItem(editText) {
+		db_ = db;
+		setData(id, AM::IdRole);
+	}
+
+	/// Re-implemented to save the edited experiment name back to the database:
+	virtual void setData(const QVariant &value, int role);
+
+protected:
+	AMDatabase* db_;
+};
+
+class AMRunExperimentInsert : public QObject
 {
 Q_OBJECT
 public:
-	explicit AMRunExperimentModel(AMDatabase* db, QObject *parent = 0);
+	explicit AMRunExperimentInsert(AMDatabase* db, QStandardItem* runParent, QStandardItem* experimentParent, QObject *parent = 0);
 
 signals:
 
@@ -47,23 +79,6 @@ protected:
 	bool runRefreshScheduled_, expRefreshScheduled_;
 };
 
-#include <QTreeView>
-
-class AMRunExperimentTree : public QTreeView {
-	Q_OBJECT
-public:
-	explicit AMRunExperimentTree(AMDatabase* db, QWidget* parent = 0);
-
-signals:
-
-public slots:
-
-
-
-protected:
-	AMRunExperimentModel* model_;
-
-};
 
 /* QString treeview_ss = "QTreeView { color: white; background: black; }" +
 		QString("QTreeView { show-decoration-selected: 0; }") +

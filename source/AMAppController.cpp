@@ -81,8 +81,11 @@ AMAppController::AMAppController(QObject *parent) :
 
 
 	// create widget
-	AMRunExperimentTree* dataTree = new AMRunExperimentTree(AMDatabase::userdb());
-	mw_->addPane(new AMDataView(), "Data", dataTree, "Data");
+	//AMRunExperimentTree* dataTree = new AMRunExperimentTree(AMDatabase::userdb());
+	AMDataView* dataView = new AMDataView();
+	QStandardItem* runsItem = mw_->addPane(dataView, "Data", "Runs", ":/22x22/view_calendar_upcoming_days.png");
+	QStandardItem* expItem = mw_->addPane(dataView, "Data", "Experiments", ":/applications-science.png");
+	AMRunExperimentInsert* insert = new AMRunExperimentInsert(AMDatabase::userdb(), runsItem, expItem, this);
 
 
 
