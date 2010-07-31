@@ -55,6 +55,8 @@ public:
 		return controlBoxes_.at(row);
 	}
 
+	QMap<QString, QVariant> configValues() { return configValues_;}
+
 signals:
 	void configValuesChanged();
 
@@ -146,6 +148,9 @@ public slots:
 		ANSWER->setDataMap( cANSWER_->dataMap() );
 	}
 
+signals:
+	void parameterValuesChanged(double param1, double param2);
+
 protected slots:
 	void onConfigValuesChanged();
 
@@ -190,6 +195,9 @@ public slots:
 protected slots:
 	bool onParam1SliderUpdate(int val);
 	bool onParam2SliderUpdate(int val);
+	bool onParamValuesChanged(double param1, double param2);
+
+	bool onConfigValuesUpdate();
 
 protected:
 	AMControlOptimizationSet *viewSet_;
@@ -203,7 +211,7 @@ protected:
 	CCOSVItem *param1Item_, *param2Item_;
 	QHBoxLayout *hl_;
 	QGridLayout *gl_;
-	QMap<QString, QVariant> configValues_;
+	//QMap<QString, QVariant> configValues_;
 	AMControlOptimizationSetView *detailView_;
 
 	void parseConfigValues(const QStringList configList);

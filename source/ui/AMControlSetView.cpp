@@ -78,6 +78,7 @@ void AMControlSetView::onBoxUpdate(const QString &value){
 AMControlOptimizationSetView::AMControlOptimizationSetView(AMControlOptimizationSet *viewSet, QWidget *parent) :
 		AMControlSetView((AMControlSet*)viewSet, parent)
 {
+	lastContextParams_ = NULL;
 	numPoints = 50;
 
 	MPlotWidget *plotWindow = new MPlotWidget();
@@ -131,6 +132,8 @@ AMControlOptimizationSetView::AMControlOptimizationSetView(AMControlOptimization
 }
 
 void AMControlOptimizationSetView::onConfigValuesChanged(){
+	if(!lastContextParams_)
+		return;
 	const AMControlOptimization *tmpOpt = ((AMControlOptimizationSet*)viewSet_)->optimizationAt(1);
 	if( tmpOpt->name() == "SGMResolution" ){
 		qDebug() << "Checking in SGMResolution";
@@ -144,10 +147,11 @@ void AMControlOptimizationSetView::onConfigValuesChanged(){
 		else
 			gnh = "HEG3";
 		double lRes = ((AMControlOptimizationSet*)viewSet_)->collapseAt(1, lastContextParams_).value(gnh).lowerBound(configValues_["exitSlitGap"].toDouble()).value();
-		qDebug() << "I think the resolution is about " << lRes;
-		double lFlux = cANSWER_->valueAt(lRes);
+		//double lFlux = cANSWER_->valueAt(lRes);
+		double lFlux = ((AMControlOptimizationSet*)viewSet_)->collapseAt(0, lastContextParams_).value(gnh).lowerBound(configValues_["exitSlitGap"].toDouble()).value();
 		mCurrentPoint->removePointBack();
 		mCurrentPoint->insertPointBack(lRes, lFlux);
+		emit parameterValuesChanged(lRes, lFlux);
 	}
 }
 
@@ -158,24 +162,12 @@ AMCompactControlOptimizationSetView::AMCompactControlOptimizationSetView(AMContr
 	int width = 350;
 	setFixedSize(width, 150);
 	viewSet_ = (AMControlOptimizationSet*)viewSet;
-	AMControl *tmpCtrl;
-	QString tmpName;
-	QVariant tmpVal;
-	for(int x = 0; x < viewSet_->count(); x++){
-		tmpCtrl = viewSet_->controlAt(x);
-		tmpVal.clear();
-		tmpName = tmpCtrl->name();
-		if(tmpCtrl->isEnum())
-			tmpVal = tmpCtrl->enumNames().at((int)tmpCtrl->value());
-		else
-			tmpVal = tmpCtrl->value();
-		configValues_.insert(tmpName, tmpVal);
-	}
-	qDebug() << "Starting config values are " << configValues_;
 	setTitle(viewSet->name());
 	launchDetailButton_ = new QPushButton("More Details", this);
 	detailView_ = new AMControlOptimizationSetView(viewSet_);
 	connect(launchDetailButton_, SIGNAL(clicked()), detailView_, SLOT(show()));
+	connect(detailView_, SIGNAL(configValuesChanged()), this, SLOT(onConfigValuesUpdate()));
+	connect(detailView_, SIGNAL(parameterValuesChanged(double,double)), this, SLOT(onParamValuesChanged(double,double)));
 	param1Trigger_= false;
 	param2Trigger_ = false;
 	hl_ = new QHBoxLayout(this);
@@ -283,6 +275,29 @@ bool AMCompactControlOptimizationSetView::onParam2SliderUpdate(int val){
 	return true;
 }
 
+bool AMCompactControlOptimizationSetView::onParamValuesChanged(double param1, double param2){
+	param1Trigger_ = true;
+	param2Trigger_ = true;
+	double param1Percent = param1Curve_->percentFromValue(param1)*100;
+	double param2Percent = param2Curve_->percentFromValue(param2)*100;
+	qDebug() << "Percents " << param1Percent << param2Percent << 100*param1Curve_->percentFromValue(param2Curve_->valuesAtRange(param2Percent/100).second);
+	if( fabs(param1Percent - 100*param1Curve_->percentFromValue(param2Curve_->valuesAtRange(param2Percent/100).second) ) > 1.0 )
+		qDebug() << "NON-OPTIMUM VALUE!!!";
+	param1Slider->setValue(param1Percent);
+	param2Slider->setValue(param2Percent);
+}
+
+bool AMCompactControlOptimizationSetView::onConfigValuesUpdate(){
+	QString resStr = "";
+	QMap<QString, QVariant>::const_iterator i = detailView_->configValues().constBegin();
+	while(i != detailView_->configValues().constEnd()){
+		resStr.append(i.value().toString() );
+		resStr.append(" ");
+		++i;
+	}
+	paramsResult_->setText(resStr);
+}
+
 void AMCompactControlOptimizationSetView::onRegionsUpdate(AMRegionsList* contextParams){
 	if(param1Curve_)
 		delete param1Curve_;
@@ -297,22 +312,24 @@ void AMCompactControlOptimizationSetView::onRegionsUpdate(AMRegionsList* context
 }
 
 void AMCompactControlOptimizationSetView::parseConfigValues(const QStringList configList){
-	QString tmpName, tmpVal, resStr;
+	QString tmpName, tmpVal;//, resStr;
 	for(int x = 0; x < configList.count(); x++){
 		tmpName = configList.at(x).split("|").at(0);
 		tmpVal = configList.at(x).split("|").at(1);
 		qDebug() << "Name is " << tmpName << " value is " << tmpVal;
-		if(configValues_.contains(tmpName)){
+		if(detailView_->configValues().contains(tmpName)){
 			if(viewSet_->controlByName(tmpName)->isEnum() && viewSet_->controlByName(tmpName)->enumNames().contains(tmpVal))
-				configValues_[tmpName] = tmpVal;
+				((QComboBox*)(detailView_->boxByName(tmpName)))->setCurrentIndex(viewSet_->controlByName(tmpName)->enumNames().indexOf(tmpVal));
+				//detailView_->configValues()[tmpName] = tmpVal;
 			else
-				configValues_[tmpName] = tmpVal.toDouble();
-			resStr.append(tmpVal);
-			resStr.append(" ");
+				((QDoubleSpinBox*)(detailView_->boxByName(tmpName)))->setValue(tmpVal.toDouble());
+				//detailView_->configValues()[tmpName] = tmpVal.toDouble();
+//			resStr.append(tmpVal);
+//			resStr.append(" ");
 		}
 	}
-	paramsResult_->setText(resStr);
-	qDebug() << "Now configs are " << configValues_;
+//	paramsResult_->setText(resStr);
+	qDebug() << "Now configs are " << detailView_->configValues();
 }
 
 CCOSVItem::CCOSVItem(int width, int height, QColor curveColor, bool invert, bool log)
