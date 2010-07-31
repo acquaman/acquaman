@@ -43,14 +43,14 @@ SGMXASScanConfigurationViewer::SGMXASScanConfigurationViewer(QWidget *parent)  :
 		regionsView_ = new AMXASRegionsView(sxsc->regions(), this);
 		regionsView_->setBeamlineEnergy(SGMBeamline::sgm()->energy());
 		connect(regionsView_, SIGNAL(addRegionClicked()), this, SLOT(onAddRegionClicked()));
-/**/		fluxResolutionView_ = new AMControlOptimizationSetView((AMControlOptimizationSet*)(sxsc->fluxResolutionSet()), this);
+/*		fluxResolutionView_ = new AMControlOptimizationSetView((AMControlOptimizationSet*)(sxsc->fluxResolutionSet()), this);
 		fluxResolutionView_->onRegionsUpdate(sxsc->regions());
 		connect(sxsc, SIGNAL(regionsChanged()), this, SLOT(onRegionsChanged()));
 //d		connect( ((QSpinBox*)(fluxResolutionView_->boxByName("grating"))), SIGNAL(valueChanged(int)), sxsc, SLOT(setGrating(int)) );
 //d		((QSpinBox*)(fluxResolutionView_->boxByName("harmonic")))->setSingleStep(2);
 //d		connect( ((QSpinBox*)(fluxResolutionView_->boxByName("harmonic"))), SIGNAL(valueChanged(int)), sxsc, SLOT(setHarmonic(int)) );
 //d		connect( ((QDoubleSpinBox*)(fluxResolutionView_->boxByName("exitSlitGap"))), SIGNAL(valueChanged(double)), sxsc, SLOT(setExitSlitGap(double)) );
-/**/
+*/
 		fluxResolutionView2_ = new AMCompactControlOptimizationSetView((AMControlOptimizationSet*)(sxsc->fluxResolutionSet()), this);
 		fluxResolutionView2_->onRegionsUpdate(sxsc->regions());
 

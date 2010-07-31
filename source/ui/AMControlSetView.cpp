@@ -13,12 +13,18 @@ AMControlSetView::AMControlSetView(AMControlSet *viewSet, QWidget *parent) :
 	QDoubleSpinBox *tmpDSB;
 	QComboBox *tmpCB;
 	AMControl *tmpCtrl;
+	QString tmpName;
+	QVariant tmpVal;
 	for(int x = 0; x < viewSet_->count(); x++){
 		tmpCtrl = viewSet_->controlAt(x);
+		tmpVal.clear();
+		tmpName = tmpCtrl->name();
 		if(tmpCtrl->isEnum()){
 			tmpCB = new QComboBox(this);
 			tmpCB->addItems(tmpCtrl->enumNames());
 			tmpCB->setCurrentIndex((int)tmpCtrl->value());
+			tmpVal = tmpCtrl->enumNames().at((int)tmpCtrl->value());
+			connect(tmpCB, SIGNAL(currentIndexChanged(QString)), this, SLOT(onBoxUpdate(QString)));
 			tmpWidget = tmpCB;
 		}
 		else{
@@ -26,8 +32,11 @@ AMControlSetView::AMControlSetView(AMControlSet *viewSet, QWidget *parent) :
 			tmpDSB->setValue(tmpCtrl->value());
 			tmpDSB->setMaximum(tmpCtrl->maximumValue());
 			tmpDSB->setMinimum(tmpCtrl->minimumValue());
+			tmpVal = tmpCtrl->value();
+			connect(tmpDSB, SIGNAL(valueChanged(QString)), this, SLOT(onBoxUpdate(QString)));
 			tmpWidget = tmpDSB;
 		}
+		configValues_.insert(tmpName, tmpVal);
 		fl->addRow(tmpCtrl->objectName(), tmpWidget);
 		controlBoxes_.append(tmpWidget);
 	}
@@ -35,36 +44,35 @@ AMControlSetView::AMControlSetView(AMControlSet *viewSet, QWidget *parent) :
 	hl_ = new QHBoxLayout(this);
 	hl_->addLayout(fl);
 	setLayout(hl_);
-	setFixedSize(517, 200);
-	/*
-	viewSet_ = viewSet;
-	setTitle(viewSet->name());
-	QFormLayout *fl = new QFormLayout();
-	QAbstractSpinBox *tmpASB;
+	setFixedSize(300, 200);
+}
+
+void AMControlSetView::onBoxUpdate(const QString &value){
+	Q_UNUSED(value);
 	AMControl *tmpCtrl;
+	QString tmpName;
+	bool actualChange = false;
 	for(int x = 0; x < viewSet_->count(); x++){
 		tmpCtrl = viewSet_->controlAt(x);
+		tmpName = tmpCtrl->name();
 		if(tmpCtrl->isEnum()){
-			tmpASB = new QSpinBox(this);
-			((QSpinBox*)tmpASB)->setValue(tmpCtrl->value());
-			((QSpinBox*)tmpASB)->setMaximum(tmpCtrl->maximumValue());
-			((QSpinBox*)tmpASB)->setMinimum(tmpCtrl->minimumValue());
+			if( ((QComboBox*)(controlBoxes_.at(x)))->currentText() != configValues_[tmpName].toString() ){
+				qDebug() << "Need to change " << tmpName << " to " << ((QComboBox*)(controlBoxes_.at(x)))->currentText();
+				configValues_[tmpName] = ((QComboBox*)(controlBoxes_.at(x)))->currentText();
+				actualChange = true;
+			}
 		}
 		else{
-			tmpASB = new QDoubleSpinBox(this);
-			((QDoubleSpinBox*)tmpASB)->setValue(tmpCtrl->value());
-			((QDoubleSpinBox*)tmpASB)->setMaximum(tmpCtrl->maximumValue());
-			((QDoubleSpinBox*)tmpASB)->setMinimum(tmpCtrl->minimumValue());
+			if( ((QDoubleSpinBox*)(controlBoxes_.at(x)))->value() != configValues_[tmpName].toDouble() ){
+				qDebug() << "Need to change " << tmpName << " to " << ((QDoubleSpinBox*)(controlBoxes_.at(x)))->value();
+				configValues_[tmpName] = ((QDoubleSpinBox*)(controlBoxes_.at(x)))->value();
+				actualChange = true;
+			}
 		}
-		fl->addRow(tmpCtrl->objectName(), tmpASB);
-		controlBoxes_.append(tmpASB);
 	}
-
-	hl_ = new QHBoxLayout(this);
-	hl_->addLayout(fl);
-	setLayout(hl_);
-	setFixedSize(517, 200);
-	*/
+	qDebug() << "Now configs are " << configValues_;
+	if(actualChange)
+		emit configValuesChanged();
 }
 
 AMControlOptimizationSetView::AMControlOptimizationSetView(AMControlOptimizationSet *viewSet, QWidget *parent) :
@@ -72,85 +80,75 @@ AMControlOptimizationSetView::AMControlOptimizationSetView(AMControlOptimization
 {
 	numPoints = 50;
 
-	MPlotWidget *plotWindow5 = new MPlotWidget();
+	MPlotWidget *plotWindow = new MPlotWidget();
 	//MPlot *plot = new MPlot();
-	plot5 = new MPlot();
-	plotWindow5->setPlot(plot5);
-	plot5->axisRight()->setTicks(3, MPlotAxis::Inside, 2);	// Set the approximate number and style of axis tick marks:
-	plot5->axisBottom()->setTicks(3, MPlotAxis::Inside, 2);
-	plot5->axisBottom()->setAxisName("Resolution");
-	plot5->axisLeft()->setAxisName("Flux");
-	plot5->setMarginTop(5);
-	plot5->setMarginRight(5);
-	plot5->setMarginLeft(15);
-	plot5->setMarginBottom(25);
-	plot5->setScalePadding(5);	// set axis scale padding in percent
-	plot5->enableAutoScale(MPlotAxis::Left | MPlotAxis::Bottom);
-	plotWindow5->resize(600, 450);
+	plot = new MPlot();
+	plotWindow->setPlot(plot);
+	plot->axisRight()->setTicks(3, MPlotAxis::Inside, 2);	// Set the approximate number and style of axis tick marks:
+	plot->axisBottom()->setTicks(3, MPlotAxis::Inside, 2);
+	plot->axisBottom()->setAxisName("Resolution");
+	plot->axisLeft()->setAxisName("Flux");
+	plot->setMarginTop(5);
+	plot->setMarginRight(5);
+	plot->setMarginLeft(15);
+	plot->setMarginBottom(25);
+	plot->setScalePadding(5);	// set axis scale padding in percent
+	plot->enableAutoScale(MPlotAxis::Left | MPlotAxis::Bottom);
+	plotWindow->resize(500, 375);
 	MPlotDragZoomerTool *dzTool5 = new MPlotDragZoomerTool();
-	plot5->addTool(dzTool5);
+	plot->addTool(dzTool5);
 	MPlotPlotSelectorTool *psTool5 = new MPlotPlotSelectorTool;
-	plot5->addTool(psTool5);
+	plot->addTool(psTool5);
 
-	MPlotRealtimeModel *tmpModel;
-	AMQuickDataSet *tmpDataSet;
+	//MPlotRealtimeModel *tmpModel;
+	//AMQuickDataSet *tmpDataSet;
 	QMap<double, double> fkData;
 	fkData.insert(1.0, 1.0);
-
-	mLEG = new MPlotRealtimeModel(this);
-	LEG = new AMQuickDataSet(fkData, this);
-	LEG->setModel(mLEG);
-
-	mMEG = new MPlotRealtimeModel(this);
-	MEG = new AMQuickDataSet(fkData, this);
-	MEG->setModel(mMEG);
-
-	mHEG1 = new MPlotRealtimeModel(this);
-	HEG1 = new AMQuickDataSet(fkData, this);
-	HEG1->setModel(mHEG1);
-
-	mHEG3 = new MPlotRealtimeModel(this);
-	HEG3 = new AMQuickDataSet(fkData, this);
-	HEG3->setModel(mHEG3);
-
 	mANSWER = new MPlotRealtimeModel(this);
 	ANSWER = new AMQuickDataSet(fkData, this);
 	ANSWER->setModel(mANSWER);
 
+	mCurrentPoint = new MPlotRealtimeModel(this);
+	mCurrentPoint->insertPointBack(7500, 1);
 
 	MPlotSeriesBasic *tmpSeries;
-
-	tmpSeries = new MPlotSeriesBasic();
-	tmpSeries->setModel(mLEG);
-	QPen tmpPen18(QBrush(QColor(255, 0, 0)), 2);
-	tmpSeries->setLinePen(tmpPen18);
-	plot5->addItem(tmpSeries);
-
-	tmpSeries = new MPlotSeriesBasic();
-	tmpSeries->setModel(mMEG);
-	QPen tmpPen19(QBrush(QColor(0, 255, 0)), 2);
-	tmpSeries->setLinePen(tmpPen19);
-	plot5->addItem(tmpSeries);
-
-	tmpSeries = new MPlotSeriesBasic();
-	tmpSeries->setModel(mHEG1);
-	QPen tmpPen20(QBrush(QColor(0, 0, 255)), 2);
-	tmpSeries->setLinePen(tmpPen20);
-	plot5->addItem(tmpSeries);
-
-	tmpSeries = new MPlotSeriesBasic();
-	tmpSeries->setModel(mHEG3);
-	QPen tmpPen21(QBrush(QColor(0, 255, 255)), 2);
-	tmpSeries->setLinePen(tmpPen21);
-	plot5->addItem(tmpSeries);
-
 	tmpSeries = new MPlotSeriesBasic();
 	tmpSeries->setModel(mANSWER);
-	QPen tmpPen22(QBrush(QColor(255, 0, 255)), 2);
-	tmpSeries->setLinePen(tmpPen22);
-	plot5->addItem(tmpSeries);
+	QPen tmpPen(QBrush(QColor(255, 0, 255)), 2);
+	tmpSeries->setLinePen(tmpPen);
+	plot->addItem(tmpSeries);
 
-	plotWindow5->show();
+	tmpSeries = new MPlotSeriesBasic();
+	tmpSeries->setModel(mCurrentPoint);
+	QPen tmpPen2(QBrush(QColor(0, 255, 255)), 3);
+	tmpSeries->setMarker(MPlotMarkerShape::Triangle, 8, tmpPen2);
+	plot->addItem(tmpSeries);
+
+	hl_->insertWidget(0, plotWindow);
+
+	connect(this, SIGNAL(configValuesChanged()), this, SLOT(onConfigValuesChanged()));
+	setFixedSize(600, 375);
+}
+
+void AMControlOptimizationSetView::onConfigValuesChanged(){
+	const AMControlOptimization *tmpOpt = ((AMControlOptimizationSet*)viewSet_)->optimizationAt(1);
+	if( tmpOpt->name() == "SGMResolution" ){
+		qDebug() << "Checking in SGMResolution";
+		QString gnh = "";
+		if(configValues_["grating"] == "Low")
+			gnh = "LEG1";
+		else if(configValues_["grating"] == "Medium")
+			gnh = "MEG1";
+		else if(configValues_["harmonic"] == "First")
+			gnh = "HEG1";
+		else
+			gnh = "HEG3";
+		double lRes = ((AMControlOptimizationSet*)viewSet_)->collapseAt(1, lastContextParams_).value(gnh).lowerBound(configValues_["exitSlitGap"].toDouble()).value();
+		qDebug() << "I think the resolution is about " << lRes;
+		double lFlux = cANSWER_->valueAt(lRes);
+		mCurrentPoint->removePointBack();
+		mCurrentPoint->insertPointBack(lRes, lFlux);
+	}
 }
 
 
@@ -176,6 +174,8 @@ AMCompactControlOptimizationSetView::AMCompactControlOptimizationSetView(AMContr
 	qDebug() << "Starting config values are " << configValues_;
 	setTitle(viewSet->name());
 	launchDetailButton_ = new QPushButton("More Details", this);
+	detailView_ = new AMControlOptimizationSetView(viewSet_);
+	connect(launchDetailButton_, SIGNAL(clicked()), detailView_, SLOT(show()));
 	param1Trigger_= false;
 	param2Trigger_ = false;
 	hl_ = new QHBoxLayout(this);
@@ -292,10 +292,12 @@ void AMCompactControlOptimizationSetView::onRegionsUpdate(AMRegionsList* context
 	param2Curve_ = param1Curve_->transposeCurve();
 	param1Item_->updateCurve(param1Curve_);
 	param2Item_->updateCurve(param2Curve_);
+	param1Slider->setValue(15);
+	detailView_->onRegionsUpdate(contextParams);
 }
 
 void AMCompactControlOptimizationSetView::parseConfigValues(const QStringList configList){
-	QString tmpName, tmpVal;
+	QString tmpName, tmpVal, resStr;
 	for(int x = 0; x < configList.count(); x++){
 		tmpName = configList.at(x).split("|").at(0);
 		tmpVal = configList.at(x).split("|").at(1);
@@ -305,8 +307,11 @@ void AMCompactControlOptimizationSetView::parseConfigValues(const QStringList co
 				configValues_[tmpName] = tmpVal;
 			else
 				configValues_[tmpName] = tmpVal.toDouble();
+			resStr.append(tmpVal);
+			resStr.append(" ");
 		}
 	}
+	paramsResult_->setText(resStr);
 	qDebug() << "Now configs are " << configValues_;
 }
 
