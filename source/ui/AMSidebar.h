@@ -77,7 +77,7 @@ public:
 
 /// This class provides an iTunes/iPhoto style left sidebar, which contains a list of links.  It supports collapsable category headers, icons, and nested lists.
 /*! Terminology:
-	- Link: An entry in the list, representing some kind of action or result.  The link "payload" is a QVariant, and is up to the user.  When a link's selector is clicked (or double-clicked), the linkClicked(QVariant) (or linkDoubleClicked(QVariant)) signal is emitted.
+	- Link: An entry in the list, representing some kind of action or result.  The link "payload" is a QVariant, and is up to the user.  When a link's selector is clicked/selected (or double-clicked), the linkSelected(QVariant) (or linkDoubleClicked(QVariant)) signal is emitted.
 	- Heading: Links fall under headings (or categories), which are not (usually) active links, but can be collapsed to show or hide a group.
 	- Weight: categories and selectors "settle" into their positions in the list by weight, with lightest (most negative) weights at the top, and heaviest (most positive) weights at the bottom. If specifying custom weights, we recommend using negative weights, since then the default weight (0) will always append ("sink" to the bottom).
 */
@@ -119,15 +119,15 @@ public slots:
 	}
 
 protected slots:
-	void onItemClicked(const QModelIndex & index);
 	void onItemDoubleClicked(const QModelIndex & index);
+	virtual void currentChanged ( const QModelIndex & current, const QModelIndex & previous );
 
 protected:
 
 	// bool eventFilter(QObject* sourceObject, QEvent* event);
 
 signals:
-	void linkClicked(const QVariant& activatedLink);
+	void linkSelected(const QVariant& activatedLink);
 	void linkDoubleClicked(const QVariant& activatedLink);
 
 
@@ -135,8 +135,6 @@ protected:
 
 	QStandardItemModel* model_;
 	QHash<QString,AMSidebarHeading*> headings_;
-	//QWidget* highlightedSelector_;
-	bool doubleClickInProgress_;
 
 
 };

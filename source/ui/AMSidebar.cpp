@@ -14,9 +14,9 @@ AMSidebar::AMSidebar(QWidget* parent)
 	setAnimated(true);
 	setEditTriggers(QAbstractItemView::SelectedClicked);
 
-	doubleClickInProgress_ = false;
 
-	connect(this, SIGNAL(clicked(QModelIndex)), this, SLOT(onItemClicked(QModelIndex)));
+	setSelectionMode(QAbstractItemView::SingleSelection);
+
 	connect(this, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onItemDoubleClicked(QModelIndex)));
 
 
@@ -78,12 +78,14 @@ AMSidebarHeading* AMSidebar::heading(const QString& headingTitle) {
 
 
 
-/*! \note The ordering of mouse events during a double-click goes like this:
+/*! Removing AMSidebar::onItemClicked() because it would be better to respond to selection changes (including keyboard selections).
+  Retaining this nugget that we learned about mouse events that are delivered during double-clicks.
+\note The ordering of mouse events during a double-click goes like this:
   - [first release] onItemClicked()
   - [second press] onItemDoubleClicked()
   - [second release] onItemClicked() again. (for second click).
   Need to ignore the second release click if we just experienced a double-click.
-  */
+
 void AMSidebar::onItemClicked(const QModelIndex & index) {
 	QVariant link = model_->itemFromIndex(index)->data(AM::LinkRole);
 
@@ -95,12 +97,20 @@ void AMSidebar::onItemClicked(const QModelIndex & index) {
 	if(!link.isNull())
 		emit linkClicked(link);
 }
+*/
 
 void AMSidebar::onItemDoubleClicked(const QModelIndex & index) {
 	QVariant link = model_->itemFromIndex(index)->data(AM::LinkRole);
-	doubleClickInProgress_ = true;
 	if(!link.isNull())
 		emit linkDoubleClicked(link);
+}
+
+void AMSidebar::currentChanged ( const QModelIndex & current, const QModelIndex & previous ) {
+	QTreeView::currentChanged(current, previous);
+
+	QVariant link = model_->itemFromIndex(current)->data(AM::LinkRole);
+	if(!link.isNull())
+		emit linkSelected(link);
 }
 
 /*

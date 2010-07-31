@@ -142,7 +142,11 @@ void AMRunExperimentInsert::refreshExperiments() {
 }
 
 /// Connect this slot to the view's clicked(const QModelIndex& index) signal. It will emit runSelected and experimentSelected as required.
-void AMRunExperimentInsert::onItemClicked(const QModelIndex& index) {
+void AMRunExperimentInsert::onItemSelected(const QModelIndex& index,const QModelIndex& previousIndex) {
+
+	Q_UNUSED(previousIndex)
+	/// \bug How to tell when the tree deletes our runItem and experimentItem_?
+
 	/// Run heading clicked?
 	if(index == runItem_->index()) {
 		emit runSelected(-1);

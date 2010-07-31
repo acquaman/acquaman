@@ -86,7 +86,7 @@ AMAppController::AMAppController(QObject *parent) :
 	QStandardItem* expItem = mw_->addPane(dataView, "Data", "Experiments", ":/applications-science.png");
 	// Hook into the sidebar and add Run and Experiment links below these headings.
 	AMRunExperimentInsert* insert = new AMRunExperimentInsert(AMDatabase::userdb(), runsItem, expItem, this);
-	connect(mw_->sidebar(), SIGNAL(clicked(QModelIndex)), insert, SLOT(onItemClicked(QModelIndex)));
+	connect(mw_->sidebar()->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), insert, SLOT(onItemSelected(QModelIndex,QModelIndex)));
 	connect(insert, SIGNAL(runSelected(int)), dataView, SLOT(showRun(int)));
 	connect(insert, SIGNAL(experimentSelected(int)), dataView, SLOT(showExperiment(int)));
 

@@ -48,7 +48,7 @@ protected:
 	AMDatabase* db_;
 };
 
-/// This class provides an "insert" or "hook" into a tree view and item model. Given two existing items in the model, it will use these as a "run heading" and "experiment heading", and insert the runs and experiments found in the database underneath them.  Additionally, if you connect the view's AMAbstractItemView::clicked(QModelIndex) signal to this class's onItemClicked(QModelIndex) slot, it will be able to issue runSelected(id) and experimentSelected(id) signals.
+/// This class provides an "insert" or "hook" into a tree view and item model. Given two existing items in the model, it will use these as a "run heading" and "experiment heading", and insert the runs and experiments found in the database underneath them.  Additionally, if you connect the view's selectionModel()'s QItemSelectionModel::currentChanged(QModelIndex,QModelIndex) signal to this class's onItemSelected(QModelIndex,QModelIndex) slot, it will be able to issue runSelected(id) and experimentSelected(id) signals.
 class AMRunExperimentInsert : public QObject
 {
 Q_OBJECT
@@ -62,8 +62,8 @@ signals:
 	void experimentSelected(int id);
 
 public slots:
-	/// Connect this slot to the view's clicked(const QModelIndex& index) signal. It will emit runSelected and experimentSelected as required.
-	void onItemClicked(const QModelIndex& index);
+	/// Connect this slot to the view's selectionModel()'s currentChanged(const QModelIndex&,const QModelIndex&) signal. It will emit runSelected and experimentSelected as required.
+	void onItemSelected(const QModelIndex&,const QModelIndex&);
 
 
 protected slots:

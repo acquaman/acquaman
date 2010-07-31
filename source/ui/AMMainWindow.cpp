@@ -19,7 +19,7 @@ AMMainWindow::AMMainWindow(QWidget *parent) : QWidget(parent) {
 	hl1->addWidget(sidebar_);
 	hl1->addWidget(stackWidget_);
 	// connect click and double-click signals from the sidebar:
-	connect(sidebar_, SIGNAL(linkClicked(QVariant)), this, SLOT(onSidebarLinkClicked(QVariant)));
+	connect(sidebar_, SIGNAL(linkSelected(QVariant)), this, SLOT(onSidebarLinkClicked(QVariant)));
 	connect(sidebar_, SIGNAL(linkDoubleClicked(QVariant)), this, SLOT(onSidebarLinkDoubleClicked(QVariant)));
 
 	// connect the stackWidget_'s currentWidgetChanged signal to adjust the highlights in the sidebar:
