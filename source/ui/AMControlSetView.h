@@ -11,6 +11,7 @@
 #include <QLabel>
 #include <QAbstractSpinBox>
 #include <QDoubleSpinBox>
+#include <QComboBox>
 #include <QSpinBox>
 #include <QPushButton>
 #include <QSlider>
@@ -379,7 +380,10 @@ protected:
 	CCOSVItem *param1Item_, *param2Item_;
 	QHBoxLayout *hl_;
 	QGridLayout *gl_;
+	QMap<QString, QVariant> configValues_;
 	AMControlOptimizationSetView *detailView_;
+
+	void parseConfigValues(const QStringList configList);
 };
 
 class AMColorControlOptimizationSetView : public QGroupBox

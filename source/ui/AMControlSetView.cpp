@@ -9,9 +9,39 @@ AMControlSetView::AMControlSetView(AMControlSet *viewSet, QWidget *parent) :
 	viewSet_ = viewSet;
 	setTitle(viewSet->name());
 	QFormLayout *fl = new QFormLayout();
+	QWidget *tmpWidget;
+	QDoubleSpinBox *tmpDSB;
+	QComboBox *tmpCB;
+	AMControl *tmpCtrl;
+	for(int x = 0; x < viewSet_->count(); x++){
+		tmpCtrl = viewSet_->controlAt(x);
+		if(tmpCtrl->isEnum()){
+			tmpCB = new QComboBox(this);
+			tmpCB->addItems(tmpCtrl->enumNames());
+			tmpCB->setCurrentIndex((int)tmpCtrl->value());
+			tmpWidget = tmpCB;
+		}
+		else{
+			tmpDSB = new QDoubleSpinBox(this);
+			tmpDSB->setValue(tmpCtrl->value());
+			tmpDSB->setMaximum(tmpCtrl->maximumValue());
+			tmpDSB->setMinimum(tmpCtrl->minimumValue());
+			tmpWidget = tmpDSB;
+		}
+		fl->addRow(tmpCtrl->objectName(), tmpWidget);
+		controlBoxes_.append(tmpWidget);
+	}
+
+	hl_ = new QHBoxLayout(this);
+	hl_->addLayout(fl);
+	setLayout(hl_);
+	setFixedSize(517, 200);
+	/*
+	viewSet_ = viewSet;
+	setTitle(viewSet->name());
+	QFormLayout *fl = new QFormLayout();
 	QAbstractSpinBox *tmpASB;
 	AMControl *tmpCtrl;
-//	for(int x = 0; x < viewSet_->controls().count(); x++){
 	for(int x = 0; x < viewSet_->count(); x++){
 		tmpCtrl = viewSet_->controlAt(x);
 		if(tmpCtrl->isEnum()){
@@ -34,6 +64,7 @@ AMControlSetView::AMControlSetView(AMControlSet *viewSet, QWidget *parent) :
 	hl_->addLayout(fl);
 	setLayout(hl_);
 	setFixedSize(517, 200);
+	*/
 }
 
 AMControlOptimizationSetView::AMControlOptimizationSetView(AMControlOptimizationSet *viewSet, QWidget *parent) :
@@ -129,6 +160,20 @@ AMCompactControlOptimizationSetView::AMCompactControlOptimizationSetView(AMContr
 	int width = 350;
 	setFixedSize(width, 150);
 	viewSet_ = (AMControlOptimizationSet*)viewSet;
+	AMControl *tmpCtrl;
+	QString tmpName;
+	QVariant tmpVal;
+	for(int x = 0; x < viewSet_->count(); x++){
+		tmpCtrl = viewSet_->controlAt(x);
+		tmpVal.clear();
+		tmpName = tmpCtrl->name();
+		if(tmpCtrl->isEnum())
+			tmpVal = tmpCtrl->enumNames().at((int)tmpCtrl->value());
+		else
+			tmpVal = tmpCtrl->value();
+		configValues_.insert(tmpName, tmpVal);
+	}
+	qDebug() << "Starting config values are " << configValues_;
 	setTitle(viewSet->name());
 	launchDetailButton_ = new QPushButton("More Details", this);
 	param1Trigger_= false;
@@ -209,9 +254,10 @@ bool AMCompactControlOptimizationSetView::onParam1SliderUpdate(int val){
 	double param1Val = param1Curve_->valuesAtRange((double)val/100).first;
 	double param2Val = param1Curve_->valuesAtRange((double)val/100).second;
 	double otherPercent = param2Curve_->percentFromValue(param2Val)*100;
-	QStringList metasList = param1Curve_->metaMap().lowerBound(param1Val).value();
-	paramsResult_->setText(metasList.at(0)+" with "+metasList.at(1)+" um slits");
-	qDebug() << "Wants percent " << val << " for output " << param1Val << param2Val << "on metas " << metasList << " wants other to be " << otherPercent;
+	parseConfigValues(param1Curve_->metaMap().lowerBound(param1Val).value());
+	//QStringList metasList = param1Curve_->metaMap().lowerBound(param1Val).value();
+	//paramsResult_->setText(metasList.at(0)+" with "+metasList.at(1)+" um slits");
+	//qDebug() << "Wants percent " << val << " for output " << param1Val << param2Val << "on metas " << metasList << " wants other to be " << otherPercent;
 	param1Trigger_ = true;
 	param2Slider->setValue(otherPercent);
 	return true;
@@ -228,9 +274,10 @@ bool AMCompactControlOptimizationSetView::onParam2SliderUpdate(int val){
 	double param2Val = param2Curve_->valuesAtRange((double)val/100).first;
 	double param1Val = param2Curve_->valuesAtRange((double)val/100).second;
 	double otherPercent = param1Curve_->percentFromValue(param1Val)*100;
-	QStringList metasList = param2Curve_->metaMap().lowerBound(param2Val).value();
-	paramsResult_->setText(metasList.at(0)+" with "+metasList.at(1)+" um slits");
-	qDebug() << "Wants percent " << val << " for output " << param2Val << param1Val << "on metas " << metasList << " wants other to be " << otherPercent;
+	parseConfigValues(param2Curve_->metaMap().lowerBound(param2Val).value());
+	//QStringList metasList = param2Curve_->metaMap().lowerBound(param2Val).value();
+	//paramsResult_->setText(metasList.at(0)+" with "+metasList.at(1)+" um slits");
+	//qDebug() << "Wants percent " << val << " for output " << param2Val << param1Val << "on metas " << metasList << " wants other to be " << otherPercent;
 	param2Trigger_ = true;
 	param1Slider->setValue(otherPercent);
 	return true;
@@ -245,6 +292,22 @@ void AMCompactControlOptimizationSetView::onRegionsUpdate(AMRegionsList* context
 	param2Curve_ = param1Curve_->transposeCurve();
 	param1Item_->updateCurve(param1Curve_);
 	param2Item_->updateCurve(param2Curve_);
+}
+
+void AMCompactControlOptimizationSetView::parseConfigValues(const QStringList configList){
+	QString tmpName, tmpVal;
+	for(int x = 0; x < configList.count(); x++){
+		tmpName = configList.at(x).split("|").at(0);
+		tmpVal = configList.at(x).split("|").at(1);
+		qDebug() << "Name is " << tmpName << " value is " << tmpVal;
+		if(configValues_.contains(tmpName)){
+			if(viewSet_->controlByName(tmpName)->isEnum() && viewSet_->controlByName(tmpName)->enumNames().contains(tmpVal))
+				configValues_[tmpName] = tmpVal;
+			else
+				configValues_[tmpName] = tmpVal.toDouble();
+		}
+	}
+	qDebug() << "Now configs are " << configValues_;
 }
 
 CCOSVItem::CCOSVItem(int width, int height, QColor curveColor, bool invert, bool log)

@@ -414,6 +414,7 @@ public:
 			HEG1.insert(resolutions.value("HEG1").value(i.key()), fluxes.value("HEG1").value(i.key()));
 			HEG3.insert(resolutions.value("HEG3").value(i.key()), fluxes.value("HEG3").value(i.key()));
 			tmpStr.setNum(i.key());
+			tmpStr.prepend("exitSlitGap|");
 			tmpStrList.append(tmpStr);
 			mLEG.insert(resolutions.value("LEG1").value(i.key()), tmpStrList);
 			mMEG.insert(resolutions.value("MEG1").value(i.key()), tmpStrList);
@@ -944,7 +945,7 @@ public:
 		double resStep = (bestRes_.first - bestFlux_.second)/100;
 		double tmpFlux, tmpVal;
 		QStringList tmpStrList, tmpSubList;
-		QString tmpGrating;
+		QString tmpGrating, tmpHarmonic;
 		for(double x = bestFlux_.second; x < bestRes_.first; x += resStep){
 			tmpFlux = 0;
 			tmpStrList.clear();
@@ -954,7 +955,8 @@ public:
 				tmpVal = cLEG->valueAt(x);
 				if(tmpVal > tmpFlux){
 					tmpFlux = tmpVal;
-					tmpGrating = "LEG";
+					tmpGrating = "grating|Low";
+					tmpHarmonic = "harmonic|First";
 					tmpSubList = cLEG->metaMap().lowerBound(x).value();
 				}
 			}
@@ -962,7 +964,8 @@ public:
 				tmpVal = cMEG->valueAt(x);
 				if(tmpVal > tmpFlux){
 					tmpFlux = tmpVal;
-					tmpGrating = "MEG";
+					tmpGrating = "grating|Medium";
+					tmpHarmonic = "harmonic|First";
 					tmpSubList = cMEG->metaMap().lowerBound(x).value();
 				}
 			}
@@ -970,7 +973,8 @@ public:
 				tmpVal = cHEG1->valueAt(x);
 				if(tmpVal > tmpFlux){
 					tmpFlux = tmpVal;
-					tmpGrating = "HEG1";
+					tmpGrating = "grating|High";
+					tmpHarmonic = "harmonic|First";
 					tmpSubList = cHEG1->metaMap().lowerBound(x).value();
 				}
 			}
@@ -978,12 +982,14 @@ public:
 				tmpVal = cHEG3->valueAt(x);
 				if(tmpVal > tmpFlux){
 					tmpFlux = tmpVal;
-					tmpGrating = "HEG3";
+					tmpGrating = "grating|High";
+					tmpHarmonic = "harmonic|Third";
 					tmpSubList = cHEG3->metaMap().lowerBound(x).value();
 				}
 			}
 			//qDebug() << "Want to insert " << x << ", " << tmpFlux;
 			tmpStrList.append(tmpGrating);
+			tmpStrList.append(tmpHarmonic);
 			tmpStrList.append(tmpSubList);
 			rMap.insert(x, tmpFlux);
 			mMap.insert(x, tmpStrList);
