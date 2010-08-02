@@ -253,11 +253,11 @@ protected:
 	double maxUpper, minUpper, maxLower, minLower;
 };
 
-class AMAbstractDetectorSetView : public QGroupBox
+class AMDetectorInfoSetView : public QGroupBox
 {
 	Q_OBJECT
 public:
-	AMAbstractDetectorSetView(AMAbstractDetectorSet *viewSet, QWidget *parent = 0);
+	AMDetectorInfoSetView(AMDetectorInfoSet *viewSet, QWidget *parent = 0);
 
 	QWidget* boxByName(const QString &name){
 		return detectorBoxes_.at(viewSet_->indexOf(name));
@@ -268,7 +268,7 @@ public:
 	}
 
 protected:
-	AMAbstractDetectorSet *viewSet_;
+	AMDetectorInfoSet *viewSet_;
 	QList<QWidget*> detectorBoxes_;
 	QHBoxLayout *hl_;
 };

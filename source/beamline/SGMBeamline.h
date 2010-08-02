@@ -62,18 +62,18 @@ public:
 	AMControl* undulatorTracking() const { return undulatorTracking_;}
 	AMControl* monoTracking() const { return monoTracking_;}
 	AMControl* exitSlitTracking() const { return exitSlitTracking_;}
-	AMAbstractDetector* teyDetector() const { return teyDetector_;}
-	AMAbstractDetector* tfyDetector() const { return tfyDetector_;}
-	AMAbstractDetector* pgtDetector() const { return pgtDetector_;}
-	AMAbstractDetector* i0Detector() const { return i0Detector_;}
-	AMAbstractDetector* eVFbkDetector() const { return eVFbkDetector_;}
+	AMDetectorInfo* teyDetector() const { return teyDetector_;}
+	AMDetectorInfo* tfyDetector() const { return tfyDetector_;}
+	AMDetectorInfo* pgtDetector() const { return pgtDetector_;}
+	AMDetectorInfo* i0Detector() const { return i0Detector_;}
+	AMDetectorInfo* eVFbkDetector() const { return eVFbkDetector_;}
 	AMControl* loadlockCCG() const { return loadlockCCG_;}
 	AMControl* loadlockTCG() const { return loadlockTCG_;}
 
 	AMControlSet* fluxResolutionSet() const { return fluxResolutionSet_;}
 	AMControlSet* trackingSet() const { return trackingSet_;}
-	AMAbstractDetectorSet* allDetectors() const { return allDetectors_;}
-	AMAbstractDetectorSet* XASDetectors() const { return XASDetectors_;}
+	AMDetectorInfoSet* allDetectors() const { return allDetectors_;}
+	AMDetectorInfoSet* XASDetectors() const { return XASDetectors_;}
 
 	QList<AMBeamlineActionItem*> transferLoadlockOutActions() const {
 		QList<AMBeamlineActionItem*> rVal;
@@ -155,19 +155,19 @@ protected:
 	AMControl *loadlockCCG_;
 	AMControl *loadlockTCG_;
 
-	AMAbstractDetector *teyDetector_;
-	AMAbstractDetector *tfyDetector_;
-	AMAbstractDetector *pgtDetector_;
-	AMAbstractDetector *i0Detector_;
-	AMAbstractDetector *eVFbkDetector_;
+	AMDetectorInfo *teyDetector_;
+	AMDetectorInfo *tfyDetector_;
+	AMDetectorInfo *pgtDetector_;
+	AMDetectorInfo *i0Detector_;
+	AMDetectorInfo *eVFbkDetector_;
 
 	AMControlOptimization *fluxOptimization_;
 	AMControlOptimization *resolutionOptimization_;
 	AMControlSet *fluxResolutionSet_;
 
 	AMControlSet *trackingSet_;
-	AMAbstractDetectorSet *allDetectors_;
-	AMAbstractDetectorSet *XASDetectors_;
+	AMDetectorInfoSet *allDetectors_;
+	AMDetectorInfoSet *XASDetectors_;
 
 	AMBeamlineActionItem *transferAction1_;
 	AMBeamlineActionItem *transferAction2_;

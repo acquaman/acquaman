@@ -50,7 +50,7 @@ protected:
 	AMCompactControlOptimizationSetView *fluxResolutionView2_;
 //	AMColorControlOptimizationSetView *fluxResolutionView2_;
 	AMControlSetView *trackingView_;
-	AMAbstractDetectorSetView *detectorView_;
+	AMDetectorInfoSetView *detectorView_;
 	QPushButton *startScanButton_;
 	QVBoxLayout vl_;
 	QGridLayout gl_;

@@ -19,7 +19,7 @@ AMMainWindow::AMMainWindow(QWidget *parent) : QWidget(parent) {
 	hl1->addWidget(sidebar_);
 	hl1->addWidget(stackWidget_);
 	// connect click and double-click signals from the sidebar:
-	connect(sidebar_, SIGNAL(linkClicked(QVariant)), this, SLOT(onSidebarLinkClicked(QVariant)));
+	connect(sidebar_, SIGNAL(linkSelected(QVariant)), this, SLOT(onSidebarLinkClicked(QVariant)));
 	connect(sidebar_, SIGNAL(linkDoubleClicked(QVariant)), this, SLOT(onSidebarLinkDoubleClicked(QVariant)));
 
 	// connect the stackWidget_'s currentWidgetChanged signal to adjust the highlights in the sidebar:
@@ -28,49 +28,68 @@ AMMainWindow::AMMainWindow(QWidget *parent) : QWidget(parent) {
 
 AMMainWindow::~AMMainWindow() {
 	// delete all children, including the cut-loose windows
-	QList<QWidget*> panes = pane2entry_.keys();
+	QList<QWidget*> panes = pane2isDocked_.keys();
 	foreach(QWidget* pane, panes) {
 		deletePane(pane);
 	}
 }
 
 /// Add a new \c pane to manage.  It will show up under category \c categoryName, at the given \c weight, with \c name and an icon from \c iconFileName.
-void AMMainWindow::addPane(QWidget* pane, const QString& categoryName, const QString& title, const QString& iconFileName, double weight) {
+/*! \note It's okay to call this function several times with the same widget.  Only one version of the widget will be added, but multiple links to it in the sidebar will be created. */
+QStandardItem* AMMainWindow::addPane(QWidget* pane, const QString& categoryName, const QString& title, const QString& iconFileName, double weight) {
 
 	pane->setWindowTitle(title);
 	pane->setWindowIcon(QIcon(iconFileName));
 
-	stackWidget_->addWidget(pane);
-	QWidget* selector = new AMSidebarDefaultSelector(title, iconFileName);
-	pane2entry_.insert(pane, AMMainWindowEntry(pane, selector));
-	sidebar_->addLink(categoryName, QVariant::fromValue(pane), selector, weight);
+	// Is this a new widget that we haven't inserted yet?
+	if(!pane2isDocked_.contains(pane)) {
+		pane2isDocked_.insert(pane, true);
+		stackWidget_->addWidget(pane);
+		// For cut-loose windows: we need to catch the close events -- must put back into main window instead of closing
+		pane->installEventFilter(this);
+	}
 
-	// For cut-loose windows: we need to catch the close events -- must put back into main window instead of closing
-	pane->installEventFilter(this);
+	// make a new sidebar link
+	QStandardItem* item = sidebar_->addLink(categoryName, QVariant::fromValue(pane), title, QIcon(iconFileName), weight);
+	pane2sidebarItems_.insertMulti(pane, item);
+
+	return item;
 }
+
+
+
 
 /// Removes and deletes a pane widget (whether docked or undocked)
 void AMMainWindow::deletePane(QWidget* pane) {
 
-	if(!pane2entry_.contains(pane))
+	if(!pane2isDocked_.contains(pane))
 		return;
 
-	// remove from sidebar:
-	sidebar_->deleteLink(QVariant::fromValue(pane));
+	// remove from sidebar link(s):
+	QList<QStandardItem*> sidebarItems = pane2sidebarItems_.values(pane);
+	foreach(QStandardItem* item, sidebarItems) {
+		sidebar_->deleteLink(item);
+		pane2sidebarItems_.remove(pane, item);
+	}
 	// delete actual widget:
 	delete pane;
 
-	// remove from list:
-	pane2entry_.remove(pane);
+	// remove from entries:
+	pane2isDocked_.remove(pane);
 }
 
 /// Removes a pane widget but does not delete it.  Ownership is now the responsibility of the caller. The pane becomes a top-level window.
 void AMMainWindow::removePane(QWidget* pane) {
-	if(!pane2entry_.contains(pane))
+	if(!pane2isDocked_.contains(pane))
 		return;
 
-	sidebar_->deleteLink(QVariant::fromValue(pane));
-	pane2entry_.remove(pane);
+	// remove from sidebar link(s):
+	QList<QStandardItem*> sidebarItems = pane2sidebarItems_.values(pane);
+	foreach(QStandardItem* item, sidebarItems) {
+		sidebar_->deleteLink(item);
+		pane2sidebarItems_.remove(pane, item);
+	}
+	pane2isDocked_.remove(pane);
 
 	QSize oldSize = pane->size();
 	QPoint oldPos = pane->mapToGlobal(pane->geometry().topLeft());
@@ -83,19 +102,19 @@ void AMMainWindow::removePane(QWidget* pane) {
 /// move a pane from inside the main window to a separate window.
 void AMMainWindow::undock(QWidget* pane) {
 
-	if(!pane2entry_.contains(pane))
+	if(!pane2isDocked_.contains(pane))
 		return;
 
-	if(pane2entry_[pane].isCutLoose_)
+	if(!pane2isDocked_[pane])
 		return;
 
-	pane2entry_[pane].isCutLoose_ = true;
+	pane2isDocked_[pane] = false;
 
 	QSize oldSize = pane->size();
 	QPoint oldPos = pane->mapToGlobal(pane->geometry().topLeft());
 
 	// the most intuitive thing for users would be for the main window to take them back to their last-visited pane, now that this one is gone.
-	if(pane2entry_.contains(previousPane_) && !pane2entry_[previousPane_].isCutLoose_)
+	if(pane2isDocked_.contains(previousPane_) && pane2isDocked_[previousPane_])
 		stackWidget_->setCurrentWidget(previousPane_);
 
 	stackWidget_->removeWidget(pane);
@@ -108,20 +127,20 @@ void AMMainWindow::undock(QWidget* pane) {
 /// return a \c pane that was undocked back to the main window.  Does not set this pane as the current widget.
 void AMMainWindow::dock(QWidget* pane) {
 
-	if(!pane2entry_.contains(pane))
+	if(!pane2isDocked_.contains(pane))
 		return;
 
-	if(!pane2entry_[pane].isCutLoose_)
+	if(pane2isDocked_[pane])
 		return;
 
 	stackWidget_->addWidget(pane);
-	pane2entry_[pane].isCutLoose_ = false;
+	pane2isDocked_[pane] = true;
 }
 
 void AMMainWindow::onSidebarLinkClicked(const QVariant& linkContent) {
 
 	QWidget* pane = linkContent.value<QWidget*>();
-	if(!pane2entry_.contains(pane))
+	if(!pane2isDocked_.contains(pane))
 		return;
 
 	// already done
@@ -131,7 +150,7 @@ void AMMainWindow::onSidebarLinkClicked(const QVariant& linkContent) {
 
 
 	// If it's floating free, need to grab it back
-	if(pane2entry_[pane].isCutLoose_) {
+	if(!pane2isDocked_[pane]) {
 		dock(pane);
 	}
 
@@ -150,13 +169,12 @@ void AMMainWindow::onSidebarLinkDoubleClicked(const QVariant& linkContent) {
 /// We intercept and forward the currentChanged(int) signal from the QStackedWidget, to keep the sidebar's highlighted link consistent with the current widget.
 void AMMainWindow::onFwdCurrentWidgetChanged(int currentIndex) {
 
-	stackWidget_->previousInFocusChain();
-
 	if(currentIndex < 0)
 		return;
 
-	// slower: sidebar_->setHighlightedLink(QVariant::fromValue(stackWidget_->widget(currentIndex)));
-	sidebar_->setHighlightedLink(pane2entry_[stackWidget_->widget(currentIndex)].sidebarWidget_);
+	QWidget* currentPane = stackWidget_->widget(currentIndex);
+	if(pane2sidebarItems_.contains(currentPane))
+		sidebar_->setHighlightedLink(pane2sidebarItems_.value(currentPane));
 }
 
 
@@ -165,10 +183,10 @@ bool AMMainWindow::eventFilter(QObject* sourceObject, QEvent* event) {
 
 	QWidget* pane = qobject_cast<QWidget*>(sourceObject);
 
-	if(!pane2entry_.contains(pane))
+	if(!pane2isDocked_.contains(pane))
 		return QWidget::eventFilter(sourceObject, event);
 
-	if(pane2entry_[pane].isCutLoose_ && event->type() == QEvent::Close) {
+	if(!pane2isDocked_[pane] && event->type() == QEvent::Close) {
 		dock(pane);
 		return true;
 	}

@@ -124,16 +124,18 @@ int AMDatabase::insertOrUpdate(int id, const QString& table, const QStringList& 
 	if(id < 1) {
 		QVariant lastId = query.lastInsertId();
 		if(lastId.isValid()) {
-			emit updated(lastId.toInt());
+			emit updated(table, lastId.toInt());
 			return lastId.toInt();
 		}
 		else {
 			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, -4, "Database save completed, but could not get the last id after insert. This should never happen."));
+			emit updated(table, -1);
 			return 0;
 		}
 	}
 	// else (we already had an id, which was used for successful insert:
 	else {
+		emit updated(table, id);
 		return id;
 	}
 
@@ -162,7 +164,7 @@ bool AMDatabase::update(int id, const QString& table, const QString& column, con
 		return false;
 	}
 	// Query succeeded.
-	emit updated(id);
+	emit updated(table, id);
 	return true;
 
 }
@@ -195,8 +197,7 @@ bool AMDatabase::update(const QString& tableName, const QString& whereClause, co
 		return false;
 	}
 	// Query succeeded.
-	query.result();
-	/// \todo figure out id, so can emit updated(id);
+	emit updated(tableName, -1);
 	return true;
 
 }
@@ -229,7 +230,7 @@ bool AMDatabase::deleteRow(int id, const QString& tableName) {
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -3, QString("Failed to delete the database object. Could not execute the query (%1). The SQL reply was: %2").arg(query.executedQuery()).arg(query.lastError().text())));
 		return false;
 	}
-	emit removed(id);
+	emit removed(tableName, id);
 	// Query succeeded.
 	return true;
 
@@ -260,7 +261,7 @@ int AMDatabase::deleteRows(const QString& tableName, const QString& whereClause)
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -3, QString("Failed to delete the database object(s). Could not execute the query (%1). The SQL reply was: %2").arg(query.executedQuery()).arg(query.lastError().text())));
 		return 0;
 	}
-	/// \todo Figure out which rows were removed, eh?
+	emit removed(tableName, -1);
 
 	// Query succeeded.
 	return query.numRowsAffected();
@@ -453,6 +454,21 @@ bool AMDatabase::ensureColumn(const QString& tableName, const QString& columnNam
 	}
 	else {
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, QString("Error adding database column %1 to table %2. Maybe it's already there? Sql reply says: %3").arg(columnName).arg(tableName).arg(q.lastError().text())));
+		return false;
+	}
+}
+
+bool AMDatabase::createIndex(const QString& tableName, const QString& columnNames) {
+	QSqlQuery q( qdb() );
+	QString indexName = QString("idx_%1_%2").arg(tableName, columnNames);
+	indexName.remove(QRegExp("[\\s\\,\\;]"));
+	q.prepare(QString("CREATE INDEX %1 ON %2(%3);").arg(indexName, tableName, columnNames));
+	if(q.exec()) {
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, QString("Added index on columns (%1) to table '%2'.").arg(columnNames).arg(tableName)));
+		return true;
+	}
+	else {
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, QString("Error adding index on columns (%1) to table '%2'. Maybe it's already there? Sql reply says: %3").arg(columnNames).arg(tableName).arg(q.lastError().text())));
 		return false;
 	}
 }

@@ -36,43 +36,53 @@ private slots:
 		AMDatabase::releaseUserDb();
 	}
 
-/*
+	/// Test to confirm that comboBox works.
+	void testComboBox() {
+
+		AMComboBox *box = new AMComboBox;
+		box->show();
+
+
+
+		QTest::qWait(2000);
+
+		delete box;
+	}
+
+
 	void testAMSidebar() {
 
 		AMSidebar b;
 		b.resize(200, 500);
 		b.show();
 
-		b.addLink("cat1", QVariant(), "Link1 Heavy", "", -0.1);
+		b.addLink("cat1", QVariant(), "Link1 Heavy", QIcon(), -0.1);
 		QTest::qWait(1000);
-		b.addLink("cat1", QVariant(), "Link 2 Heavier", "");
+		b.addLink("cat1", QVariant(), "Link 2 Heavier", QIcon());
 		QTest::qWait(1000);
-		b.addLink("cat1", QVariant(QString("myPayload")), "Link3 light toDel", "", -3);
+		QStandardItem* linky = b.addLink("cat1", QVariant(QString("myPayload")), "Link3 light toDel", QIcon(), -3);
 		QTest::qWait(1000);
-		b.addLink("cat1", QVariant(), "Link4 mid", "", -2);
-
-		QTest::qWait(1000);
-
-		b.addCategory("cat2 - light", -1);
+		b.addLink("cat1", QVariant(), "Link4 mid", QIcon(), -2);
 
 		QTest::qWait(1000);
 
-		b.addCategory("cat 3");
+		b.addHeading("cat2 - light", -1);
 
 		QTest::qWait(1000);
 
-		b.deleteLink(QVariant(QString("myPayload")));
+		b.addHeading("cat 3");
 
-		QTest::qWait(4000);
+		QTest::qWait(1000);
+
+		b.deleteLink(linky);
+
+		QTest::qWait(40000);
 
 	}
-*/
+	/*
+
 	void testAMScanSetModel() {
 
-		AMComboBox *box = new AMComboBox;
-		box->show();
-
-		QTest::qWait(10000);
 
 		AMScanView sv;
 		sv.show();
@@ -157,7 +167,7 @@ private slots:
 
 	}
 
-	/*
+
 	// tests creation/deletion of scans and channels within an AMScanSetModel (using a standard QTreeView to watch)
 	void testAMScanSetModel_Overplot() {
 
@@ -468,19 +478,13 @@ private slots:
 		QTest::qWait(80000);
 
 	}
-*/
+	*/
+
 
 protected:
 };
 
-/// Test to confirm that comboBox works.
-int testComboBox(int argc,char *argv[]) {
-	QApplication app(argc,argv);
 
-	AMComboBox *box = new AMComboBox;
-	QTest::qWait(40000);
-
-}
 
 
 

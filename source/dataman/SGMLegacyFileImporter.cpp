@@ -8,7 +8,7 @@ AMBiHash<QString, QString> SGMLegacyFileImporter::columns2pvNames_;
 #include <QStringList>
 #include <QDateTime>
 #include "dataman/AMXASScan.h"
-#include "beamline/AMAbstractDetector.h"
+#include "dataman/AMDetectorInfo.h"
 
 #include <QDebug>
 
@@ -99,12 +99,12 @@ bool SGMLegacyFileImporter::loadFromFile(const QString& filepath, bool extractMe
 	// ensure raw data columns exist:
 	scan_->d_->removeAll();	// remove all non-pricipal columns
 
-	AMAbstractDetector *sgmDetector;
+	AMDetectorInfo *sgmDetector;
 	foreach(QString colName, colNames1) {
 		if(colName != "eV" && colName != "Event-ID" && sgmLegacyDetectorNames_.contains(colName))
 			scan_->addDetector(sgmLegacyDetectors_.at(sgmLegacyDetectorNames_.indexOf(colName)));
 		else if(colName != "eV" && colName != "Event-ID"){
-			sgmDetector = new AMAbstractDetector(colName, false);
+			sgmDetector = new AMDetectorInfo(colName, false);
 			scan_->addDetector(sgmDetector);
 		}
 	}

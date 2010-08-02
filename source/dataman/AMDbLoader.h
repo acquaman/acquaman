@@ -37,7 +37,7 @@ public:
 			returnObject->loadFromDb(db, id);
 		}
 		else if (realType == "AMXASScan") {
-			returnObject = new AMXASScan(QList<AMAbstractDetector*>(), parent);
+			returnObject = new AMXASScan(QList<AMDetectorInfo*>(), parent);
 			returnObject->loadFromDb(db, id);
 		}
 		// Add additional subclasses here:

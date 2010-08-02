@@ -502,14 +502,14 @@ void CCOSVItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 	}
 }
 
-AMAbstractDetectorSetView::AMAbstractDetectorSetView(AMAbstractDetectorSet *viewSet, QWidget *parent) :
+AMDetectorInfoSetView::AMDetectorInfoSetView(AMDetectorInfoSet *viewSet, QWidget *parent) :
 		QGroupBox(parent)
 {
 	viewSet_ = viewSet;
 	setTitle(viewSet->name());
 	QFormLayout *fl = new QFormLayout();
 	QCheckBox *tmpBox;
-	AMAbstractDetector *tmpDetector;
+	AMDetectorInfo *tmpDetector;
 	for(int x = 0; x < viewSet_->count(); x++){
 		tmpDetector = viewSet_->detectorAt(x);
 		tmpBox = new QCheckBox(this);

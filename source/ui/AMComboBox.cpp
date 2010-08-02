@@ -1,7 +1,10 @@
 #include "AMComboBox.h"
 #include <QSqlQuery>
+#include <QSqlDatabase>
 #include <QString>
 #include <QList>
+#include <QPixmap>
+
 AMComboBox:: AMComboBox(QWidget *parent)
 	: QComboBox(parent)
 {
@@ -11,12 +14,14 @@ AMComboBox:: AMComboBox(QWidget *parent)
 	   * run date
 	   * run id
 	*************/
-
-
-	// Setting up UI:
-	/////////////////////
-
 	database_ = AMDatabase::userdb();
+	autoAddRuns();
+
+	if (count() > 1)
+		setCurrentIndex(1);
+
+	connect(this, SIGNAL(activated(int)),this,SLOT(onComboBoxActivated(int)));
+
 }
 
 AMComboBox::~AMComboBox(){
@@ -24,57 +29,74 @@ AMComboBox::~AMComboBox(){
 }
 
 // Searching and obtaining from the database, whatever is specified in the column name in a string array
-QList<QString> AMComboBox::searchDbRuns(const QString& tableName, const QString& colName) const{
 
-	QList<QString> rv;
 
-	if (database()==0)
-		return QList<QString>();
+int AMComboBox::addRun() {
 
-	QVariant value;
-	value = "?";
-	QSqlQuery q = database()->query();
+	//getting text from input box
+	bool ok;
+	QString text = QInputDialog::getText(this, tr("Add Run"),
+		tr("Please enter the name of the new run:"), QLineEdit::Normal,QString(), &ok);
+	if (ok && !text.isEmpty()){
+			AMRun newRun(text);
+			newRun.storeToDb(database_);
 
-	q.prepare (QString("SELECT %1 FROM %2 ").arg(colName).arg(tableName));
-	q.bindValue(0, value);
-	if (q.exec())
-		while (q.next()) {
-		rv << q.value(0).toString();
-		}
-
-	return rv;
+			return newRun.id();
+	}
+	else
+		return -1;
 }
 
-void AMComboBox::autoAddRuns(){
+void AMComboBox::autoAddRuns() {
 
-	// Checking that database exists:
+	clear();
 
+	addItem("Add New Run...");
+	setItemData(0, -1, Qt::UserRole);  // UserRole stores the runId.  This entry doesn't represent a valid run, so the runId is -1.
 
-	//getting different items from database
-	QList<QString> runName = searchDbRuns("Runs","name");
-	QList<QString> runDate = searchDbRuns("Runs", "dateTime");
-	QList<QString> runId = searchDbRuns("Runs", "id");
-	//int i = numberOfRuns;
-	//int i = runCount();
-	int i = runName.count();
-	//putting those items into the combobox one by one while collating
-	for (int j=0; j<=i; j++) {
-		QString item = runName.at(j);
-		item.append(",");
-		item.append(runDate.at(j));
-		item.append(",");
-		item.append(runId.at(j));
-		addItem(item);
-		/*
-		QString& item = runName++;
-		item.append("\n");
-		item.append(runDate++);
-		item.append("\n");
-		item.append(runId++);
+	int i = 1;
+	QSqlQuery q = database_->query();
+	q.prepare(QString("SELECT Runs.id,Runs.name,Runs.dateTime,Facilities.description,Thumbnails.type,Thumbnails.thumbnail "
+					  "FROM Runs,Facilities,Thumbnails "
+					  "WHERE Runs.facilityId = Facilities.id AND Thumbnails.id = Facilities.thumbnailFirstId "
+					  "ORDER BY Runs.dateTime DESC"));
 
-		ComboBox->addItem(item);
-		*/
+	if (q.exec()) {
+		while (q.next()) {
+			addItem(QString(q.value(1).toString()+" , "+q.value(2).toDateTime().toString(" MMM d (yyyy)")));
+			if(q.value(4).toString() == "PNG") {
+				QPixmap p;
+				if(p.loadFromData(q.value(5).toByteArray(), "PNG"))
+					setItemData(i, p.scaledToHeight(22, Qt::SmoothTransformation), Qt::DecorationRole);
+			}
+
+			setItemData(i,q.value(3).toString(), Qt::ToolTipRole);
+			setItemData(i,q.value(0).toInt(), Qt::UserRole);
+
+			i++;
+		}
 	}
+	else
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, "Error retrieving run information from the database."));
+
 }
 
 //need to create a function that will allow user to add runs manually to put in the public section
+
+void AMComboBox::onComboBoxActivated(int index) {
+
+	if (index==0){
+		int id=addRun();
+		autoAddRuns();
+		setCurrentIndex(findData(id,Qt::UserRole));
+	}
+
+	emit currentRunIdChanged(itemData(index, Qt::UserRole).toInt());
+
+}
+
+int AMComboBox::currentRunId() const {
+	return itemData(currentIndex(), Qt::UserRole).toInt();
+}
+
+

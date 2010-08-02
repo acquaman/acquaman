@@ -97,18 +97,9 @@ public:
 			return AMDbThumbnail(name(), dateTime().toString("MMM d (2010)"), AMDbThumbnail::InvalidType, QByteArray());
 
 
-		QImage image;
-		QByteArray imageByteArray = metaData("image").toByteArray();
-		if(image.loadFromData(imageByteArray, "PNG")) {
-
-			QImage thumbnailImage = image.scaled(QSize(240,180), Qt::KeepAspectRatio, Qt::SmoothTransformation);
-			QBuffer boutput;
-			boutput.open(QIODevice::WriteOnly);
-			thumbnailImage.save(&boutput, "PNG");
-			boutput.close();
-			return AMDbThumbnail(name(), dateTime().toString("MMM d (2010)"), AMDbThumbnail::PNGType, boutput.buffer());
-		}
-
+		QPixmap image;
+		if(image.loadFromData(metaData("image").toByteArray(), "PNG"))
+			return AMDbThumbnail(name(), dateTime().toString("MMM d (2010)"), image);
 		else
 			return AMDbThumbnail(name(), dateTime().toString("MMM d (2010)"), AMDbThumbnail::InvalidType, QByteArray());
 	}

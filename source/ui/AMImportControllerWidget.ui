@@ -7,11 +7,17 @@
     <x>0</x>
     <y>0</y>
     <width>642</width>
-    <height>373</height>
+    <height>380</height>
    </rect>
   </property>
+  <property name="minimumSize">
+   <size>
+    <width>0</width>
+    <height>380</height>
+   </size>
+  </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Reviewing files to import...</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_3">
    <item>
@@ -29,63 +35,10 @@ border: 1px solid rgb(168,168,168);
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
-       <layout class="QVBoxLayout" name="verticalLayout">
+       <layout class="QVBoxLayout" name="verticalLayoutLeft">
         <property name="spacing">
          <number>1</number>
         </property>
-        <item>
-         <widget class="QWidget" name="thumbnailContainer" native="true">
-          <property name="minimumSize">
-           <size>
-            <width>240</width>
-            <height>180</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>240</width>
-            <height>180</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="filenameLabel">
-          <property name="styleSheet">
-           <string notr="true">font: bold 12pt &quot;Lucida Grande&quot;;
-color: rgb(25, 25, 25);</string>
-          </property>
-          <property name="text">
-           <string>file001.dat</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="folderLabel">
-          <property name="maximumSize">
-           <size>
-            <width>240</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">font: italic 12pt &quot;Lucida Grande&quot;;
-color: rgb(127, 127, 127);</string>
-          </property>
-          <property name="text">
-           <string>/home/Users/Mark/data</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-          <property name="wordWrap">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
         <item>
          <spacer name="verticalSpacer_2">
           <property name="orientation">
@@ -97,7 +50,7 @@ color: rgb(127, 127, 127);</string>
           <property name="sizeHint" stdset="0">
            <size>
             <width>1</width>
-            <height>15</height>
+            <height>5</height>
            </size>
           </property>
          </spacer>
@@ -122,7 +75,7 @@ color: rgb(127, 127, 127);</string>
        </layout>
       </item>
       <item>
-       <layout class="QVBoxLayout" name="verticalLayout_2">
+       <layout class="QVBoxLayout" name="verticalLayoutRight">
         <property name="spacing">
          <number>2</number>
         </property>
@@ -136,7 +89,14 @@ color: rgb(127, 127, 127);</string>
            </widget>
           </item>
           <item>
-           <widget class="QComboBox" name="formatComboBox"/>
+           <widget class="QComboBox" name="formatComboBox">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>
@@ -161,7 +121,7 @@ color: rgb(127, 127, 127);</string>
           <property name="sizeHint" stdset="0">
            <size>
             <width>2</width>
-            <height>10</height>
+            <height>5</height>
            </size>
           </property>
          </spacer>
@@ -263,19 +223,6 @@ color: rgb(127, 127, 127);</string>
            <widget class="QLabel" name="runLabel">
             <property name="text">
              <string>Run:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="2">
-           <widget class="QSpinBox" name="runEdit">
-            <property name="minimum">
-             <number>-1</number>
-            </property>
-            <property name="maximum">
-             <number>999999999</number>
-            </property>
-            <property name="value">
-             <number>-1</number>
             </property>
            </widget>
           </item>

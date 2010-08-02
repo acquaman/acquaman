@@ -6,23 +6,12 @@
 #include <QPushButton>
 #include <QHBoxLayout>
 #include <QHash>
+#include <QMultiHash>
 #include <QStackedWidget>
 #include <QEvent>
 #include "ui/AMSidebar.h"
 
-/// Holds the information that AMMainWindow needs to know about each of its "window panes".
-class AMMainWindowEntry {
-public:
-	AMMainWindowEntry(QWidget* window = 0, QWidget* sidebarWidget = 0) {
-		window_  = window;
-		sidebarWidget_ = sidebarWidget;
-		isCutLoose_ = false;
-	}
 
-	bool isCutLoose_;
-	QWidget* window_;
-	QWidget* sidebarWidget_;
-};
 
 /// This UI class manages a set of "window panes", which can either be docked and selected using an iTunes-style sidebar, or un-docked to float as independent windows. When an un-docked pane is clicked in the sidebar or closed, it is re-docked in the main window. Finally, a layout is available to add a custom bottom widget underneath the sidebar and main area.
 class AMMainWindow : public QWidget
@@ -39,15 +28,25 @@ public:
 	void addBottomWidget(QWidget* bottomWidget) {
 		vlayout_->addWidget(bottomWidget);
 	}
+	/// Add a custom widget above the sidebar and main area
+	void addTopWidget(QWidget* topWidget) {
+		vlayout_->insertWidget(0, topWidget);
+	}
 
-	/// Add a new \c pane to manage.  It will show up under category \c categoryName, at the given \c weight, with a \c title and an icon from \c iconFileName.
-	void addPane(QWidget* pane, const QString& categoryName, const QString& title, const QString& iconFileName, double weight = 0);
+	/// Add a new \c pane to manage.  It will show up in the sidebar under category \c categoryName, at the given \c weight, with a \c title and an icon from \c iconFileName.  Returns a pointer to the sidebar item in the sidebar.
+	QStandardItem* addPane(QWidget* pane, const QString& categoryName, const QString& title, const QString& iconFileName, double weight = 0);
+
 
 	/// Remove and delete a pane widget (whether docked or undocked)
 	void deletePane(QWidget* pane);
 
 	/// Remove a pane widget but do not delete it.  Ownership is now the responsibility of the caller. The pane becomes a top-level window.
 	void removePane(QWidget* pane);
+
+	/// Access the main window's sidebar object
+	AMSidebar* sidebar() {
+		return sidebar_;
+	}
 
 
 public slots:
@@ -71,7 +70,8 @@ protected slots:
 	void onFwdCurrentWidgetChanged(int currentIndex);
 
 protected:
-	QHash<QWidget*, AMMainWindowEntry> pane2entry_;
+	QHash<QWidget*, bool> pane2isDocked_;
+	QMultiHash<QWidget*, QStandardItem*> pane2sidebarItems_;
 
 	QStackedWidget* stackWidget_;
 

@@ -113,6 +113,8 @@ void AMDataView::setViewMode(int mode) {
 
 	viewMode_ = (AMDataViews::ViewMode)mode;
 	viewModeButtonGroup_->button(viewMode_)->setChecked(true);
+
+	/// \todo optimization: changing the view mode doesn't necessarily need a refreshView, which would re-do all the sections. Instead, we could have a AMDataViewSection::setViewMode().
 	refreshView();
 }
 
@@ -169,7 +171,7 @@ void AMDataView::refreshView() {
 						sections_ << new AMDataViewSection(
 								runName + dateTime.toString(" MMM d (yyyy)"),
 								"Showing all data from this run",
-								QString("runId = %1").arg(runId),
+								QString("runId = '%1'").arg(runId),
 								viewMode_, db_);
 					}
 					if(!found)
@@ -197,7 +199,7 @@ void AMDataView::refreshView() {
 						sections_ << new AMDataViewSection(
 								expName,
 								"Showing all data from this experiment",
-								QString("id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = %1)").arg(expId),
+								QString("id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = '%1')").arg(expId),
 								viewMode_, db_);
 					}
 					if(!found)
@@ -224,7 +226,7 @@ void AMDataView::refreshView() {
 						sections_ << new AMDataViewSection(
 								typeDescription,
 								"Showing all " + typeDescription,
-								QString("typeId = %1)").arg(typeId),
+								QString("typeId = '%1'").arg(typeId),
 								viewMode_, db_);
 					}
 					if(!found)
@@ -252,7 +254,7 @@ void AMDataView::refreshView() {
 						sections_ << new AMDataViewSection(
 								name,
 								"Sample created on: " + dt.toString("h:mmap MMM d (yyyy)"),
-								QString("sampleId = %1").arg(sampleId),
+								QString("sampleId = '%1'").arg(sampleId),
 								viewMode_, db_);
 					}
 					if(!found)
@@ -280,7 +282,7 @@ void AMDataView::refreshView() {
 						sections_ << new AMDataViewSection(
 								symbol + ": " + name,
 								QString("Showing all data from samples containing %1").arg(name),
-								QString("sampleId IN (SELECT sampleId FROM SampleElementEntries WHERE elementId = %1)").arg(elementId),
+								QString("sampleId IN (SELECT sampleId FROM SampleElementEntries WHERE elementId = '%1')").arg(elementId),
 								viewMode_, db_);
 					}
 					if(!found)
@@ -323,7 +325,7 @@ void AMDataView::refreshView() {
 			sections_ << new AMDataViewSection(
 					runName + runTime.toString(" MMM d (yyyy)"),
 					"Showing all data from this run",
-					QString("runId = %1").arg(runId_),
+					QString("runId = '%1'").arg(runId_),
 					viewMode_, db_);
 			break;
 
@@ -334,7 +336,7 @@ void AMDataView::refreshView() {
 				bool found = false;
 				QSqlQuery findExperiments = db_->query();
 				findExperiments.setForwardOnly(true);
-				findExperiments.prepare(QString("SELECT id, name FROM Experiments WHERE id IN (SELECT experimentId FROM ObjectExperimentEntries WHERE objectId IN (SELECT id FROM Objects WHERE runId = %1)))").arg(runId_));
+				findExperiments.prepare(QString("SELECT id, name FROM Experiments WHERE id IN (SELECT experimentId FROM ObjectExperimentEntries WHERE objectId IN (SELECT id FROM Objects WHERE runId = '%1')))").arg(runId_));
 				if(findExperiments.exec()) {
 					while(findExperiments.next()) {
 						found = true;
@@ -343,7 +345,7 @@ void AMDataView::refreshView() {
 						sections_ << new AMDataViewSection(
 								expName,
 								QString("Showing all data from this experiment in the <i>%1</i> run").arg(runName + runTime.toString(" MMM d (yyyy)")),
-								QString("runId = %1 AND id IN(SELECT objectId IN ObjectExperimentEntries WHERE experimentId = %2)").arg(runId_).arg(expId),
+								QString("runId = '%1' AND id IN(SELECT objectId IN ObjectExperimentEntries WHERE experimentId = '%2')").arg(runId_).arg(expId),
 								viewMode_, db_);
 					}
 					if(!found)
@@ -371,7 +373,7 @@ void AMDataView::refreshView() {
 						sections_ << new AMDataViewSection(
 								typeDescription,
 								QString("Showing all data of this type in the <i>%1</i> run").arg(runName + runTime.toString(" MMM d (yyyy)")),
-								QString("typeId = %1 AND runId = %2)").arg(typeId).arg(runId_),
+								QString("typeId = '%1' AND runId = '%2')").arg(typeId).arg(runId_),
 								viewMode_, db_);
 					}
 					if(!found)
@@ -400,7 +402,7 @@ void AMDataView::refreshView() {
 						sections_ << new AMDataViewSection(
 								name,
 								QString("Sample created at %1.  Showing all data from this sample in run <i>%2</i>").arg(dt.toString("h:mmap, MMM d (yyyy)")).arg(runName + runTime.toString(" MMM d (yyyy)")),
-								QString("sampleId = %1 AND runId = %2").arg(sampleId).arg(runId_),
+								QString("sampleId = '%1' AND runId = '%2'").arg(sampleId).arg(runId_),
 								viewMode_, db_);
 					}
 					if(!found)
@@ -429,7 +431,7 @@ void AMDataView::refreshView() {
 						sections_ << new AMDataViewSection(
 								symbol + ": " + name,
 								QString("Showing all data from samples containing %1 in the <i>%2</i> run").arg(name).arg(runName + runTime.toString(" MMM d (yyyy)")),
-								QString("sampleId IN (SELECT sampleId FROM SampleElementEntries WHERE elementId = %1) AND runId = %2").arg(elementId).arg(runId_),
+								QString("sampleId IN (SELECT sampleId FROM SampleElementEntries WHERE elementId = '%1') AND runId = '%2'").arg(elementId).arg(runId_),
 								viewMode_, db_);
 					}
 					if(!found)
@@ -470,7 +472,7 @@ void AMDataView::refreshView() {
 			sections_ << new AMDataViewSection(
 					expName,
 					"Showing all data from this experiment",
-					QString("id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = %1)").arg(experimentId_),
+					QString("id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = '%1')").arg(experimentId_),
 					viewMode_, db_);
 			break;
 
@@ -480,7 +482,7 @@ void AMDataView::refreshView() {
 				bool found = false;
 				QSqlQuery findRuns = db_->query();
 				findRuns.setForwardOnly(true);
-				findRuns.prepare(QString("SELECT id, name, dateTime FROM Runs WHERE id IN (SELECT runId FROM Objects WHERE objectId IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = %1)))").arg(experimentId_));
+				findRuns.prepare(QString("SELECT id, name, dateTime FROM Runs WHERE id IN (SELECT runId FROM Objects WHERE objectId IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = '%1')))").arg(experimentId_));
 				if(findRuns.exec()) {
 					while(findRuns.next()) {
 						found = true;
@@ -490,7 +492,7 @@ void AMDataView::refreshView() {
 						sections_ << new AMDataViewSection(
 								runName + runTime.toString(" MMM d (yyyy)"),
 								QString("Showing all data from this run in the <i>%1</i> experiment").arg(expName),
-								QString("runId = %1 AND id IN(SELECT objectId IN ObjectExperimentEntries WHERE experimentId = %2)").arg(runId).arg(experimentId_),
+								QString("runId = '%1' AND id IN(SELECT objectId IN ObjectExperimentEntries WHERE experimentId = '%2')").arg(runId).arg(experimentId_),
 								viewMode_, db_);
 					}
 					if(!found)
@@ -519,7 +521,7 @@ void AMDataView::refreshView() {
 						sections_ << new AMDataViewSection(
 								typeDescription,
 								QString("Showing all data of this type in the <i>%1</i> experiment").arg(expName),
-								QString("typeId = %1 AND id IN(SELECT objectId IN ObjectExperimentEntries WHERE experimentId = %2)").arg(typeId).arg(experimentId_),
+								QString("typeId = '%1' AND id IN(SELECT objectId IN ObjectExperimentEntries WHERE experimentId = '%2')").arg(typeId).arg(experimentId_),
 								viewMode_, db_);
 					}
 					if(!found)
@@ -549,7 +551,7 @@ void AMDataView::refreshView() {
 						sections_ << new AMDataViewSection(
 								name,
 								QString("Sample created at %1.  Showing all data from this sample in the <i>%2</i> experiment").arg(dt.toString("h:mmap, MMM d (yyyy)")).arg(expName),
-								QString("sampleId = %1 AND id IN(SELECT objectId IN ObjectExperimentEntries WHERE experimentId = %2)").arg(sampleId).arg(experimentId_),
+								QString("sampleId = '%1' AND id IN(SELECT objectId IN ObjectExperimentEntries WHERE experimentId = '%2')").arg(sampleId).arg(experimentId_),
 								viewMode_, db_);
 					}
 					if(!found)
@@ -578,7 +580,7 @@ void AMDataView::refreshView() {
 						sections_ << new AMDataViewSection(
 								symbol + ": " + name,
 								QString("Showing all data from samples containing %1 in the <i>%2</i> experiment").arg(name).arg(expName),
-								QString("sampleId IN (SELECT sampleId FROM SampleElementEntries WHERE elementId = %1) AND id IN(SELECT objectId IN ObjectExperimentEntries WHERE experimentId = %2)").arg(elementId).arg(experimentId_),
+								QString("sampleId IN (SELECT sampleId FROM SampleElementEntries WHERE elementId = '%1') AND id IN(SELECT objectId IN ObjectExperimentEntries WHERE experimentId = '%2')").arg(elementId).arg(experimentId_),
 								viewMode_, db_);
 					}
 					if(!found)
@@ -651,7 +653,8 @@ AMDataViewSection::AMDataViewSection(const QString& title, const QString& subtit
 	whereClause_ = whereClause;
 	viewMode_ = viewMode;
 	db_ = db;
-	expanded_ = expanded;
+	expanded_ = !expanded;
+	expand(expanded);
 
 
 
@@ -667,12 +670,89 @@ void AMDataViewSection::expand(bool expanded) {
 	if( (expanded_ = expanded) ) {
 		expandButton_->setArrowType(Qt::DownArrow);
 		expandButton_->setChecked(true);
+
+		switch(viewMode_) {
+		case AMDataViews::ThumbnailView:
+		default:
+			/// \bug cannot presume all found in objectTableName.  Need a way of knowing where to look for these objects.
+			subview_ = new AMDataViewSectionThumbnailView(db_, AMDatabaseDefinition::objectTableName(), whereClause_);
+		}
+		vlayout_->addWidget(subview_);
 	}
 	else {
 		expandButton_->setArrowType(Qt::RightArrow);
 		expandButton_->setChecked(false);
+		delete subview_;
 	}
 
 }
 
+#include <QGraphicsScene>
+#include <QGraphicsWidget>
+#include "ui/AMFlowGraphicsLayout.h"
 
+AMDataViewSectionThumbnailView::AMDataViewSectionThumbnailView(AMDatabase* db, const QString& dbTableName, const QString& whereClause, QWidget* parent)
+	: QGraphicsView(parent) {
+
+	db_ = db;
+	dbTableName_ = dbTableName;
+	whereClause_ = whereClause;
+
+	thumbnailWidth_ = 240;
+
+	scene_ = new QGraphicsScene();
+	setScene(scene_);
+	gWidget_ = new QGraphicsWidget();
+	scene_->addItem(gWidget_);
+	layout_ = new AMFlowGraphicsLayout();
+	layout_->setSpacing(Qt::Vertical, 30);
+	layout_->setSpacing(Qt::Horizontal, 30);
+	gWidget_->setLayout(layout_);
+
+	populate();
+
+}
+
+#include <QResizeEvent>
+void AMDataViewSectionThumbnailView::resizeEvent(QResizeEvent *event) {
+
+	/// \bug how do you find the height that we need?
+	gWidget_->setGeometry(0,0,event->size().width(), 1200);
+}
+
+#include "ui/AMThumbnailScrollViewer.h"
+
+void AMDataViewSectionThumbnailView::setThumbnailWidth(double width) {
+	thumbnailWidth_ = width;
+	foreach(AMThumbnailScrollGraphicsWidget* w, thumbs_)
+		w->setWidth(thumbnailWidth_);
+}
+
+#include <QGraphicsProxyWidget>
+
+void AMDataViewSectionThumbnailView::populate() {
+
+	/// \todo This won't work for samples, because they don't have a number column. Generalize or specificized.
+	QSqlQuery q = db_->query();
+	QString query = QString("SELECT thumbnailFirstId,thumbnailCount,name,number,dateTime FROM %1").arg(dbTableName_);
+	if(!whereClause_.isEmpty())
+		query.append(" WHERE ").append(whereClause_);
+	q.prepare( query );
+	if(!q.exec())
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, -1, QString("Error executing database query '%1'. The error was %2").arg(q.executedQuery()).arg(q.lastError().text())));
+
+	while(q.next()) {
+
+
+		AMThumbnailScrollGraphicsWidget* w = new AMThumbnailScrollGraphicsWidget(gWidget_);
+		w->setSource(db_, q.value(0).toInt(), q.value(1).toInt());
+		QString caption1 = q.value(2).toString();
+		if(q.value(3).toInt() != 0)
+			caption1.append(QString(" #%1").arg(q.value(3).toInt()));
+		w->setCaption1(caption1);
+		w->setCaption2(q.value(4).toDateTime().toString("MMM d (yyyy)  h:mmap"));
+		w->setWidth(thumbnailWidth_);
+		layout_->addItem(w);
+
+	}
+}

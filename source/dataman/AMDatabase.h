@@ -26,8 +26,8 @@
 */
 
 
-class AMDatabase : QObject {
-    Q_OBJECT
+class AMDatabase : public QObject {
+	Q_OBJECT
 
 public:
 
@@ -51,6 +51,7 @@ public:
 			return "REAL";
 		case QVariant::ByteArray:
 			return "BLOB";
+		// Everything else should be prepared to write itself out as a string.
 		default:
 			return "TEXT";
 		}
@@ -95,6 +96,8 @@ public:
 	bool ensureTable(const QString& tableName, const QStringList& columnNames, const QStringList& columnTypes);
 	/// ensure that a given column (with \c columName and \c columnType) exists, in the table \c tableName.  \c columnType is an SQLite type ("TEXT" or "INTEGER" recommended).
 	bool ensureColumn(const QString& tableName, const QString& columnName, const QString& columnType = "TEXT");
+	/// create an index on a column or columns \c columnNames in the table \c tableName. For multiple columns, separate the columnNames with commas.
+	bool createIndex(const QString& tableName, const QString& columnNames);
 
 	/// Returns a QSqlQuery object for this database. The contents of the query have not been initialized. Beware: this can give you full-power access to the database. Don't break it!
 	QSqlQuery query() { return QSqlQuery(qdb()); }
@@ -115,10 +118,10 @@ public:
 
 
 signals:
-	/// Emitted when an object is inserted or modified. Contains the id of the inserted or modified object.
-	void updated(int id);
+	/// Emitted when an object is inserted or modified. Contains the id of the inserted or modified object, or -1 if a whole refresh is recommended.
+	void updated(const QString& tableName, int id);
 	/// Emitted after an object is removed. Contains the old id of the removed object.
-	void removed(int oldId);
+	void removed(const QString& tableName, int oldId);
 
 protected:
 	/// Access the QSqlAMDatabase object for this connection.

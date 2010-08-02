@@ -30,7 +30,7 @@ public slots:
 			return;
 		}
 
-		foreach(const AMAbstractDetector *dtctr, pScan_()->detectors()){
+		foreach(const AMDetectorInfo *dtctr, pScan_()->detectors()){
 			if(dtctr->name() == SGMBeamline::sgm()->pgtDetector()->name()){
 				advAcq_->appendRecord(SGMBeamline::sgm()->pvName(dtctr->name()), true, true, 0);
 			}

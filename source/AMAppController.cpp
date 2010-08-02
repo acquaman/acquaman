@@ -30,6 +30,7 @@
 #include "ui/ExpAlbum.h"
 #include "ui/BottomBar.h"
 #include "ui/AMDataView.h"
+#include "ui/AMRunExperimentTree.h"
 
 #include "AMErrorMonitor.h"
 
@@ -75,7 +76,19 @@ AMAppController::AMAppController(QObject *parent) :
 	mw_->addPane(new Scheduler(), "Experiment Tools", "Scheduler", ":/user-away.png");
 	mw_->addPane(new PeriodicTable(), "Experiment Tools", "Periodic Table", ":/applications-science.png");
 	mw_->addPane(new ProtocolViewer(), "Experiment Tools", "Protocol", ":/accessories-text-editor.png");
-	mw_->addPane(new AMDataView(), "Experiment Tools", "My Data", ":/system-file-manager.png");
+
+
+
+
+	// Make a dataview widget and add it under two links/headings: "Runs" and "Experiments"
+	AMDataView* dataView = new AMDataView();
+	QStandardItem* runsItem = mw_->addPane(dataView, "Data", "Runs", ":/22x22/view_calendar_upcoming_days.png");
+	QStandardItem* expItem = mw_->addPane(dataView, "Data", "Experiments", ":/applications-science.png");
+	// Hook into the sidebar and add Run and Experiment links below these headings.
+	AMRunExperimentInsert* insert = new AMRunExperimentInsert(AMDatabase::userdb(), runsItem, expItem, this);
+	connect(mw_->sidebar()->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), insert, SLOT(onItemSelected(QModelIndex,QModelIndex)));
+	connect(insert, SIGNAL(runSelected(int)), dataView, SLOT(showRun(int)));
+	connect(insert, SIGNAL(experimentSelected(int)), dataView, SLOT(showExperiment(int)));
 
 
 	BottomBar* b = new BottomBar();
@@ -109,7 +122,8 @@ void MainWindow::onScanControllerReady(AMScanController *scanController){
 #ifdef Q_WS_MAC
 	menuBar_ = new QMenuBar(0);
 #else
-	menuBar_ = new QMenuBar(mw_);
+	menuBar_ = new QMenuBar();
+	mw_->addTopWidget(menuBar_);
 #endif
 
 	fileMenu_ = menuBar_->addMenu("File");

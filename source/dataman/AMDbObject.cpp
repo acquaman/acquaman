@@ -22,6 +22,7 @@ bool AMDbObject::storeToDb(AMDatabase* db) {
 
 	QList<const QVariant*> values;
 	QStringList keys;
+	QList<QVariant*> stringListValues;
 
 	// determine and append the typeId
 	keys << "typeId";
@@ -30,8 +31,17 @@ bool AMDbObject::storeToDb(AMDatabase* db) {
 
 	// store all the metadata
 	foreach(AMMetaMetaData md, this->metaDataAllKeys()) {
+
 		keys << md.key;
-		values << &metaData_[md.key];
+
+		// special action needed for StringList types: need to join into a single string, because we can't store a StringList natively in the DB.
+		if(md.type == QVariant::StringList) {
+			QVariant* slv = new QVariant(metaData_[md.key].toStringList().join(AMDatabaseDefinition::stringListSeparator()));
+			stringListValues << slv;
+			values << slv;
+		}
+		else
+			values << &metaData_[md.key];
 	}
 
 	// Add thumbnail info (just the count for now)
@@ -41,6 +51,12 @@ bool AMDbObject::storeToDb(AMDatabase* db) {
 
 	// store typeId, thumbnailCount, and all metadata into main object table
 	int retVal = db->insertOrUpdate(id(), databaseTableName(), keys, values);
+
+	// delete all the stringList variants we had to temporarily create
+	foreach(QVariant* slv, stringListValues)
+		delete slv;
+
+	// Did the update succeed?
 	if(retVal == 0)
 		return false;
 
@@ -83,8 +99,8 @@ bool AMDbObject::storeToDb(AMDatabase* db) {
 			firstThumbnailIndex = QVariant(retVal);
 	}
 
-	// now that we know where the thumbnails are, update this in our
-	db->update(id_, AMDatabaseDefinition::objectTableName(), "thumbnailFirstId", firstThumbnailIndex);
+	// now that we know where the thumbnails are, update this in our actual table
+	db->update(id_, databaseTableName(), "thumbnailFirstId", firstThumbnailIndex);
 	return true;
 
 }
@@ -100,9 +116,17 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 		values << &metaData_[md.key];
 	}
 
-	if( db->retrieve( sourceId, AMDatabaseDefinition::objectTableName(), keys, values) ) {
+	if( db->retrieve( sourceId, databaseTableName(), keys, values) ) {
 		id_ = sourceId;
 		database_ = db;
+
+		// special action needed: StringList types have been returned as strings... Need to convert back to stringLists.
+		foreach(AMMetaMetaData md, this->metaDataAllKeys()) {
+			if(md.type == QVariant::StringList) {
+				metaData_[md.key] = metaData_[md.key].toString().split(AMDatabaseDefinition::stringListSeparator());
+			}
+		}
+
 		foreach(QString key, keys)
 			emit metaDataChanged(key);
 		return true;

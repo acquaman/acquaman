@@ -2,29 +2,36 @@
 # QMake project file for reixsdaq.  			January 2010. mark.boots@usask.ca
 # Note: Set EPICS_INCLUDE_DIRS, EPICS_LIB_DIR, and PHONON_INCLUDE_DIR correctly for platform
 # #####################################################################
+HOME_FOLDER = $$system(echo $HOME)
+
 macx {
 	EPICS_INCLUDE_DIRS = /Users/mboots/dev/epics/14-11/base/include \
 		/Users/mboots/dev/epics/14-11/base/include/os/Darwin
 	EPICS_LIB_DIR = /Users/mboots/dev/epics/14-11/base/lib/darwin-x86
-	PHONON_INCLUDE_DIR = /Library/Frameworks/phonon.framework/Versions/Current/Headers
 	MPLOT_INCLUDE_DIR = /Users/mboots/dev/MPlot/src
+
+	GSL_INCLUDE_DIR=/Users/mboots/dev/gsl-install/include
+	GSL_LIB=-L/Users/mboots/dev/gsl-install/lib -lgsl
+	GSL_CBLAS_LIB=-L/Users/mboots/dev/gsl-install/lib -lgslcblas
 }
 linux-g++ {
-	EPICS_INCLUDE_DIRS = /home/reixs/beamline/programming/epics/base/include \
-		/home/reixs/beamline/programming/epics/base/include/os/Linux
-	EPICS_LIB_DIR = /home/reixs/beamline/programming/epics/base/lib/linux-x86
-	PHONON_INCLUDE_DIR = /usr/include/qt4/phonon
+	EPICS_INCLUDE_DIRS = $$HOME_FOLDER/beamline/programming/epics/base/include \
+			$$HOME_FOLDER/beamline/programming/epics/base/include/os/Linux
+	EPICS_LIB_DIR = $$HOME_FOLDER/beamline/programming/epics/base/lib/linux-x86
 
 	# include path for MPlot library (header-files only)
-	MPLOT_INCLUDE_DIR = /home/reixs/beamline/programming/MPlot/src
+	MPLOT_INCLUDE_DIR = $$HOME_FOLDER/beamline/programming/MPlot/src
+
+	GSL_LIB=-lgsl
+	GSL_CBLAS_LIB=-lgslcblas
 }
 QT += core \
 	phonon \
 	network \
-	sql
-CONFIG += qtestlib
+	sql \
+	testlib
 TARGET = test-ui
-DESTDIR = ../../build
+DESTDIR = build
 DEPENDPATH += . \
 	../../ \
 	../../source
@@ -32,13 +39,14 @@ INCLUDEPATH += . \
 	../../ \
 	../../source
 INCLUDEPATH += $$EPICS_INCLUDE_DIRS
-INCLUDEPATH += $$PHONON_INCLUDE_DIR
 INCLUDEPATH += $$MPLOT_INCLUDE_DIR
+INCLUDEPATH += $$GSL_INCLUDE_DIR
+
+LIBS += $$GSL_LIB
+LIBS += $$GSL_CBLAS_LIB
 
 # Epics channel access linking:
 LIBS += -L$$EPICS_LIB_DIR
-LIBS += -lgsl
-LIBS += -lgslcblas
 LIBS += -lca \
 	-lCom
 macx:QMAKE_LFLAGS_RPATH += "$$EPICS_LIB_DIR"
@@ -75,14 +83,18 @@ HEADERS +=	../MPlot/src/MPlot/MPlot.h	\
 	source/AMSettings.h	\
 	source/AMSettings.h	\
 	source/AMUserOptions.h	\
-	source/beamline/AMAbstractDetector.h	\
 	source/dataman/AMChannel.h	\
 	source/dataman/AMDatabase.h	\
+	source/dataman/AMDatabaseDefinition.h	\
 	source/dataman/AMDataTree.h	\
 	source/dataman/AMDataTreeColumn.h	\
 	source/dataman/AMDbLoader.h	\
 	source/dataman/AMDbObject.h	\
+	source/dataman/AMDetectorInfo.h	\
+	source/dataman/AMExperiment.h	\
 	source/dataman/AMFirstTimeController.h	\
+	source/dataman/AMRun.h	\
+	source/dataman/AMSample.h	\
 	source/dataman/AMScan.h	\
 	source/dataman/AMScanSetModel.h	\
 	source/dataman/AMXASScan.h	\
@@ -97,22 +109,24 @@ HEADERS +=	../MPlot/src/MPlot/MPlot.h	\
 	source/muParser/muParserStack.h	\
 	source/muParser/muParserToken.h	\
 	source/muParser/muParserTokenReader.h	\
+	source/ui/AMComboBox.h	\
+	source/ui/AMCramBarHorizontal.h	\
 	source/ui/AMFirstTimeWidget.h	\
 	source/ui/AMScanView.h	\
-	source/ui/AMSidebar.h \
-	source/dataman/AMSample.h \
-	source/dataman/AMRun.h \
-	source/dataman/AMExperiment.h \
-	source/dataman/AMDatabaseDefinition.h \
-	source/ui/AMComboBox.h
+	source/ui/AMSidebar.h
+
 FORMS +=
 SOURCES +=	source/AMErrorMonitor.cpp	\
 	source/AMSettings.cpp	\
-	source/beamline/AMAbstractDetector.cpp	\
 	source/dataman/AMChannel.cpp	\
 	source/dataman/AMDatabase.cpp	\
+	source/dataman/AMDatabaseDefinition.cpp	\
 	source/dataman/AMDbObject.cpp	\
+	source/dataman/AMDetectorInfo.cpp	\
+	source/dataman/AMExperiment.cpp	\
 	source/dataman/AMFirstTimeController.cpp	\
+	source/dataman/AMRun.cpp	\
+	source/dataman/AMSample.cpp	\
 	source/dataman/AMScan.cpp	\
 	source/dataman/AMScanSetModel.cpp	\
 	source/dataman/AMXASScan.cpp	\
@@ -123,12 +137,9 @@ SOURCES +=	source/AMErrorMonitor.cpp	\
 	source/muParser/muParserCallback.cpp	\
 	source/muParser/muParserError.cpp	\
 	source/muParser/muParserTokenReader.cpp	\
+	source/ui/AMComboBox.cpp	\
+	source/ui/AMCramBarHorizontal.cpp	\
 	source/ui/AMScanView.cpp	\
 	source/ui/AMSidebar.cpp	\
-	source/dataman/AMDatabaseDefinition.cpp \
-	source/dataman/AMSample.cpp \
-	source/dataman/AMRun.cpp \
-	source/dataman/AMExperiment.cpp \
-	source/ui/AMComboBox.cpp \
 	tests.cpp
 RESOURCES =	source/icons/icons.qrc

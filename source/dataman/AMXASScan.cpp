@@ -1,7 +1,7 @@
 #include "AMXASScan.h"
 #include <qdebug.h>
 
-AMXASScan::AMXASScan(const QList<AMAbstractDetector*> &detectors, QObject *parent)
+AMXASScan::AMXASScan(const QList<AMDetectorInfo*> &detectors, QObject *parent)
 	: AMScan(parent)
 {
 	// setup default columns in data structure:
@@ -9,7 +9,7 @@ AMXASScan::AMXASScan(const QList<AMAbstractDetector*> &detectors, QObject *paren
 
 	// create columns for each detector (ex: "tey", "tfy", "urinalWaterTemp", etc.)
 
-	foreach(AMAbstractDetector *detect, detectors) {
+	foreach(AMDetectorInfo *detect, detectors) {
 		addDetector(detect);
 	}
 
@@ -17,7 +17,10 @@ AMXASScan::AMXASScan(const QList<AMAbstractDetector*> &detectors, QObject *paren
 }
 
 /// Add a new named detector (returns false if detector already exists)
-bool AMXASScan::addDetector(const AMAbstractDetector *uniqueDetector) {
+bool AMXASScan::addDetector(const AMDetectorInfo *uniqueDetector) {
+
+#warning("Mark or David, come back and clean this up.  What if the number of binNames is not the same as binCount?")
+
 	if(detectorNames_.contains(uniqueDetector->name()))
 		return false;
 	detectors_ << uniqueDetector;
@@ -29,12 +32,15 @@ bool AMXASScan::addDetector(const AMAbstractDetector *uniqueDetector) {
 		AMSpectralOutputDetector *specDtctr = (AMSpectralOutputDetector*)uniqueDetector;
 //		qDebug() << "CREATING " << specDtctr->numSpectrumBins() << " SUBTREE FOR PGT";
 		AMDataTree *tmpTree;
-		if(specDtctr->xElementName().isEmpty())
-			tmpTree = new AMDataTree(specDtctr->numSpectrumBins(), "x", false);
+
+		/// \todo What is the difference between these two?
+		if(specDtctr->axisName().isEmpty())
+			tmpTree = new AMDataTree(specDtctr->binCount(), "x", false);
 		else
-			tmpTree = new AMDataTree(specDtctr->numSpectrumBins(), "pgtEV", true);
-		for(int x = 0; x < specDtctr->yElementNames().count(); x++)
-			tmpTree->createColumn(specDtctr->yElementNames().at(x));
+			tmpTree = new AMDataTree(specDtctr->binCount(), "pgtEV", true);
+
+		for(int x = 0; x < specDtctr->binNames().count(); x++)
+			tmpTree->createColumn(specDtctr->binNames().at(x));
 		d_->createSubtreeColumn(specDtctr->name(), tmpTree);
 //		qDebug() << "Subx is " << tmpTree->xName();
 //		for(int x = 0; x < tmpTree->yColumnNames().count(); x++)

@@ -252,8 +252,8 @@ private slots:
 		QCOMPARE(sxsc->monoTracking(), (bool)SGMBeamline::sgm()->monoTracking()->value());
 		QCOMPARE(sxsc->exitSlitTracking(), (bool)SGMBeamline::sgm()->exitSlitTracking()->value());
 		// Should be using the SGM XAS Detectors, check that they are the same
-		AMAbstractDetectorSet *xasDetectors = SGMBeamline::sgm()->XASDetectors();
-		QList<AMAbstractDetector*> xasDefaultDetectors;
+		AMDetectorInfoSet *xasDetectors = SGMBeamline::sgm()->XASDetectors();
+		QList<AMDetectorInfo*> xasDefaultDetectors;
 		for(int x = 0; x < xasDetectors->count(); x++)
 			if(xasDetectors->isDefaultAt(x))
 				xasDefaultDetectors << xasDetectors->detectorAt(x);
@@ -285,8 +285,8 @@ private slots:
 		QCOMPARE(sxsc->monoTracking(), (bool)SGMBeamline::sgm()->monoTracking()->value());
 		QCOMPARE(sxsc->exitSlitTracking(), (bool)SGMBeamline::sgm()->exitSlitTracking()->value());
 		// Should be using the SGM XAS Detectors, check that they are the same
-		AMAbstractDetectorSet *xasDetectors = SGMBeamline::sgm()->XASDetectors();
-		QList<AMAbstractDetector*> xasDefaultDetectors;
+		AMDetectorInfoSet *xasDetectors = SGMBeamline::sgm()->XASDetectors();
+		QList<AMDetectorInfo*> xasDefaultDetectors;
 		for(int x = 0; x < xasDetectors->count(); x++)
 			if(xasDetectors->isDefaultAt(x))
 				xasDefaultDetectors << xasDetectors->detectorAt(x);
