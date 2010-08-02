@@ -8,6 +8,7 @@ AMControlSetView::AMControlSetView(AMControlSet *viewSet, QWidget *parent) :
 {
 	viewSet_ = viewSet;
 	setTitle(viewSet->name());
+	boxTrigger_ = false;
 	QFormLayout *fl = new QFormLayout();
 	QWidget *tmpWidget;
 	QDoubleSpinBox *tmpDSB;
@@ -39,6 +40,7 @@ AMControlSetView::AMControlSetView(AMControlSet *viewSet, QWidget *parent) :
 		configValues_.insert(tmpName, tmpVal);
 		fl->addRow(tmpCtrl->objectName(), tmpWidget);
 		controlBoxes_.append(tmpWidget);
+		dirty_.append(false);
 	}
 
 	hl_ = new QHBoxLayout(this);
@@ -57,22 +59,49 @@ void AMControlSetView::onBoxUpdate(const QString &value){
 		tmpName = tmpCtrl->name();
 		if(tmpCtrl->isEnum()){
 			if( ((QComboBox*)(controlBoxes_.at(x)))->currentText() != configValues_[tmpName].toString() ){
-				qDebug() << "Need to change " << tmpName << " to " << ((QComboBox*)(controlBoxes_.at(x)))->currentText();
 				configValues_[tmpName] = ((QComboBox*)(controlBoxes_.at(x)))->currentText();
-				actualChange = true;
+				if(dirty_.at(x)){
+					qDebug() << "Undirty " << tmpName;
+					dirty_[x] = false;
+				}
+				else
+					actualChange = true;
 			}
 		}
 		else{
 			if( ((QDoubleSpinBox*)(controlBoxes_.at(x)))->value() != configValues_[tmpName].toDouble() ){
-				qDebug() << "Need to change " << tmpName << " to " << ((QDoubleSpinBox*)(controlBoxes_.at(x)))->value();
 				configValues_[tmpName] = ((QDoubleSpinBox*)(controlBoxes_.at(x)))->value();
-				actualChange = true;
+				if(dirty_.at(x)){
+					qDebug() << "Undirty " << tmpName;
+					dirty_[x] = false;
+				}
+				else
+					actualChange = true;
 			}
 		}
 	}
-	qDebug() << "Now configs are " << configValues_;
-	if(actualChange)
+	if(actualChange){
+		qDebug() << "Emit in boxUpdate";
+		boxTrigger_ = true;
 		emit configValuesChanged();
+	}
+}
+
+void AMControlSetView::setConfigValues(QMap<QString, QVariant> configValues){
+	QMap<QString, QVariant>::const_iterator i = configValues.constBegin();
+	while(i != configValues.constEnd()){
+		if( viewSet_->controlByName(i.key()) && configValues_.value(i.key()) != i.value() ){
+			qDebug() << "Setting " << i.key() << " dirty";
+			dirty_[viewSet_->indexOf(i.key())] = true;
+			if( viewSet_->controlByName(i.key())->isEnum() && viewSet_->controlByName(i.key())->enumNames().contains(i.value().toString()) )
+				((QComboBox*)(boxByName(i.key())))->setCurrentIndex(viewSet_->controlByName(i.key())->enumNames().indexOf(i.value().toString()));
+			else if( !viewSet_->controlByName(i.key())->isEnum() )
+				((QDoubleSpinBox*)(boxByName(i.key())))->setValue(i.value().toDouble());
+		}
+		++i;
+	}
+	qDebug() << "Emit in setConfigValues";
+	emit configValuesChanged();
 }
 
 AMControlOptimizationSetView::AMControlOptimizationSetView(AMControlOptimizationSet *viewSet, QWidget *parent) :
@@ -112,6 +141,14 @@ AMControlOptimizationSetView::AMControlOptimizationSetView(AMControlOptimization
 	mCurrentPoint = new MPlotRealtimeModel(this);
 	mCurrentPoint->insertPointBack(7500, 1);
 
+	mVerticalCursor = new MPlotRealtimeModel(this);
+	mVerticalCursor->insertPointBack(7500, 1);
+	mVerticalCursor->insertPointBack(7500, 1);
+
+	mHorizontalCursor = new MPlotRealtimeModel(this);
+	mHorizontalCursor->insertPointBack(7500, 1);
+	mHorizontalCursor->insertPointBack(7500, 1);
+
 	MPlotSeriesBasic *tmpSeries;
 	tmpSeries = new MPlotSeriesBasic();
 	tmpSeries->setModel(mANSWER);
@@ -125,6 +162,20 @@ AMControlOptimizationSetView::AMControlOptimizationSetView(AMControlOptimization
 	tmpSeries->setMarker(MPlotMarkerShape::Triangle, 8, tmpPen2);
 	plot->addItem(tmpSeries);
 
+	tmpSeries = new MPlotSeriesBasic();
+	tmpSeries->setModel(mVerticalCursor);
+	QPen tmpPen3(QBrush(QColor(255, 0, 0)), 2);
+	tmpSeries->setMarker(MPlotMarkerShape::Triangle, 4, tmpPen3);
+	tmpSeries->setLinePen(tmpPen3);
+	plot->addItem(tmpSeries);
+
+	tmpSeries = new MPlotSeriesBasic();
+	tmpSeries->setModel(mHorizontalCursor);
+	QPen tmpPen4(QBrush(QColor(255, 0, 0)), 2);
+	tmpSeries->setMarker(MPlotMarkerShape::None, 0, tmpPen4);
+	tmpSeries->setLinePen(tmpPen4);
+	plot->addItem(tmpSeries);
+
 	hl_->insertWidget(0, plotWindow);
 
 	connect(this, SIGNAL(configValuesChanged()), this, SLOT(onConfigValuesChanged()));
@@ -134,9 +185,9 @@ AMControlOptimizationSetView::AMControlOptimizationSetView(AMControlOptimization
 void AMControlOptimizationSetView::onConfigValuesChanged(){
 	if(!lastContextParams_)
 		return;
+	qDebug() << "One call to CONFIGVALUESCHANGED";
 	const AMControlOptimization *tmpOpt = ((AMControlOptimizationSet*)viewSet_)->optimizationAt(1);
 	if( tmpOpt->name() == "SGMResolution" ){
-		qDebug() << "Checking in SGMResolution";
 		QString gnh = "";
 		if(configValues_["grating"] == "Low")
 			gnh = "LEG1";
@@ -146,14 +197,24 @@ void AMControlOptimizationSetView::onConfigValuesChanged(){
 			gnh = "HEG1";
 		else
 			gnh = "HEG3";
-		qDebug() << "Configs are calculated " << configValues_;
 		double lRes = ((AMControlOptimizationSet*)viewSet_)->cCollapseAt(1, lastContextParams_).value(gnh)->valueAt(configValues_["exitSlitGap"].toDouble());
-//		double lRes = ((AMControlOptimizationSet*)viewSet_)->collapseAt(1, lastContextParams_).value(gnh).lowerBound(configValues_["exitSlitGap"].toDouble()).value();
-		//double lFlux = cANSWER_->valueAt(lRes);
 		double lFlux = ((AMControlOptimizationSet*)viewSet_)->cCollapseAt(0, lastContextParams_).value(gnh)->valueAt(configValues_["exitSlitGap"].toDouble());
-//		double lFlux = ((AMControlOptimizationSet*)viewSet_)->collapseAt(0, lastContextParams_).value(gnh).lowerBound(configValues_["exitSlitGap"].toDouble()).value();
 		mCurrentPoint->removePointBack();
 		mCurrentPoint->insertPointBack(lRes, lFlux);
+
+		AMCurve *oneCurve = ((AMControlOptimizationSet*)viewSet_)->cOnePlot(lastContextParams_);
+		mVerticalCursor->removePointBack();
+		mVerticalCursor->removePointBack();
+		qDebug() << "Vertical bar is " << lRes << oneCurve->maxY().first << oneCurve->minY().first;
+		mVerticalCursor->insertPointBack(lRes-0.005*lRes, 0.9*oneCurve->minY().first );
+		mVerticalCursor->insertPointBack(lRes+0.005*lRes, 1.1*oneCurve->maxY().first );
+
+		mHorizontalCursor->removePointBack();
+		mHorizontalCursor->removePointBack();
+		mHorizontalCursor->insertPointBack( 1.1*oneCurve->maxX().first, lFlux);
+		mHorizontalCursor->insertPointBack( 0.9*oneCurve->minX().first, lFlux);
+
+		qDebug() << "Emit parameterValuesChanged";
 		emit parameterValuesChanged(lRes, lFlux);
 	}
 }
@@ -173,8 +234,6 @@ AMCompactControlOptimizationSetView::AMCompactControlOptimizationSetView(AMContr
 	connect(detailView_, SIGNAL(parameterValuesChanged(double,double)), this, SLOT(onParamValuesChanged(double,double)));
 	param1Trigger_= false;
 	param2Trigger_ = false;
-	slider1Trigger_ = false;
-	slider2Trigger_ = false;
 	details1Trigger_ = false;
 	details2Trigger_ = false;
 	hl_ = new QHBoxLayout(this);
@@ -251,10 +310,6 @@ bool AMCompactControlOptimizationSetView::onParam1SliderUpdate(int val){
 		param2Trigger_ = false;
 		return true;
 	}
-	if(slider1Trigger_){
-		slider1Trigger_ = false;
-		return true;
-	}
 	if(details1Trigger_){
 		details1Trigger_ = false;
 		return true;
@@ -262,12 +317,10 @@ bool AMCompactControlOptimizationSetView::onParam1SliderUpdate(int val){
 	double param1Val = param1Curve_->valuesAtRange((double)val/100).first;
 	double param2Val = param1Curve_->valuesAtRange((double)val/100).second;
 	double otherPercent = param2Curve_->percentFromValue(param2Val)*100;
+	param1Item_->updateCurveMarker(val);
+	param2Item_->updateCurveMarker(otherPercent);
 
-	qDebug() << "Sending out: " << param1Val;
-//	parseConfigValues(param1Curve_->metaMap().lowerBound(param1Val).value());
 	param1Trigger_ = true;
-	slider1Trigger_ = true;
-	slider2Trigger_ = true;
 	param2Slider->setValue(otherPercent);
 	parseConfigValues(param1Curve_->metaAt(param1Val));
 	return true;
@@ -280,34 +333,24 @@ bool AMCompactControlOptimizationSetView::onParam2SliderUpdate(int val){
 		param1Trigger_ = false;
 		return true;
 	}
-	if(slider2Trigger_){
-		slider2Trigger_;
-		return true;
-	}
 	if(details2Trigger_){
 		details2Trigger_ = false;
 		return true;
 	}
-	qDebug() << "Wants percent " << val << " for output " << param2Curve_->valuesAtRange((double)val/100).first << param2Curve_->valuesAtRange((double)val/100).second;
 	double param2Val = param2Curve_->valuesAtRange((double)val/100).first;
 	double param1Val = param2Curve_->valuesAtRange((double)val/100).second;
 	double otherPercent = param1Curve_->percentFromValue(param1Val)*100;
-//	parseConfigValues(param2Curve_->metaMap().lowerBound(param2Val).value());
+	param1Item_->updateCurveMarker(otherPercent);
+	param2Item_->updateCurveMarker(val);
+
 	param2Trigger_ = true;
-	slider1Trigger_ = true;
-	slider2Trigger_ = true;
 	param1Slider->setValue(otherPercent);
 	parseConfigValues(param2Curve_->metaAt(param2Val));
 	return true;
 }
 
 bool AMCompactControlOptimizationSetView::onParamValuesChanged(double param1, double param2){
-	qDebug() << "Receiving " << param1;
-	double optParam2 = param1Curve_->valueAt(param1);
-	double diffPercent = 100*fabs(param2-optParam2)/param1Curve_->maxY().first;
-	qDebug() << "Have " << param1 << " giving " << param2 << " wanted " << optParam2 << " diff as " << diffPercent;
 	QStringList optConfigs = param1Curve_->metaAt(param1);
-	qDebug() << "optConfigs: " << optConfigs;
 	QMap<QString, QVariant> optMap, curMap;
 	curMap = detailView_->configValues();
 	for(int x = 0; x < optConfigs.count(); x++)
@@ -316,59 +359,27 @@ bool AMCompactControlOptimizationSetView::onParamValuesChanged(double param1, do
 	QMap<QString, QVariant>::const_iterator i = optMap.constBegin();
 	bool optimum = true;
 	while(i != optMap.constEnd()){
-		qDebug() << "Compare " << i.value() << curMap.value(i.key());
 		if( (i.value() != curMap.value(i.key())) && (i.value() != "SWITCH") ){
-			qDebug() << "NON-OPTIMUM settings detected";
 			optimum = false;
 		}
 		++i;
 	}
 	nonOptimumValues(optimum);
-	if(!slider1Trigger_ && !slider2Trigger_){
+	qDebug() << "Decide who triggered it " << detailView_->boxTrigger();
+	if(detailView_->boxTrigger()){
 		details1Trigger_ = true;
 		details2Trigger_ = true;
+		detailView_->resetBoxTrigger();
+		qDebug() << "Must have been triggered by detailed view";
+		//	}
+		double param1Percent = param1Curve_->percentFromValue(param1)*100;
+		double param2Percent = param2Curve_->percentFromValue(param2)*100;
+		param1Slider->setValue(param1Percent);
+		param2Slider->setValue(param2Percent);
+		param1Item_->updateCurveMarker(param1Percent);
+		param2Item_->updateCurveMarker(param2Percent);
 	}
-	double param1Percent = param1Curve_->percentFromValue(param1)*100;
-	double param2Percent = param2Curve_->percentFromValue(param2)*100;
-	param1Slider->setValue(param1Percent);
-	param2Slider->setValue(param2Percent);
-	/*
-	QMap<double, QStringList> metas = param1Curve_->metaMap();
-	double slit;
-	QString grtStr, harStr;
-	int grating, harmonic;
-	QMap<double, QStringList>::const_iterator i = metas.lowerBound(param1);
-	if(i == metas.constEnd())
-		--i;
-	slit = i.value().at(2).split('|').at(1).toDouble();
-	grtStr = i.value().at(0).split('|').at(1);
-	harStr = i.value().at(1).split('|').at(1);
-	if(grtStr == "Low")
-		grating = 0;
-	else if(grtStr == "Medium")
-		grating = 1;
-	else if(grtStr == "High")
-		grating = 2;
-	if(harStr == "First")
-		harmonic = 1;
-	else if(harStr == "Third")
-		harmonic = 3;
-	qDebug() << "Params are " << param1 << param2 << slit << grtStr << grating << harStr << harmonic;
-	*/
-	/*
-	param1Trigger_ = true;
-	param2Trigger_ = true;
-	double param1Percent = param1Curve_->percentFromValue(param1)*100;
-	double param2Percent = param2Curve_->percentFromValue(param2)*100;
-	qDebug() << "LOOKING IN PARAM VALUES CHANGED";
-	param1Curve_->metaAt(param1);
 
-//	qDebug() << "Percents " << param1Percent << param2Percent << 100*param1Curve_->percentFromValue(param2Curve_->valuesAtRange(param2Percent/100).second);
-//	if( fabs(param1Percent - 100*param1Curve_->percentFromValue(param2Curve_->valuesAtRange(param2Percent/100).second) ) > 1.0 )
-//		qDebug() << "NON-OPTIMUM VALUE!!!";
-	param1Slider->setValue(param1Percent);
-	param2Slider->setValue(param2Percent);
-	*/
 }
 
 bool AMCompactControlOptimizationSetView::onConfigValuesUpdate(){
@@ -383,7 +394,6 @@ bool AMCompactControlOptimizationSetView::onConfigValuesUpdate(){
 }
 
 void AMCompactControlOptimizationSetView::onRegionsUpdate(AMRegionsList* contextParams){
-	qDebug() << "In onRegionsUpdate";
 	if(param1Curve_)
 		delete param1Curve_;
 	if(param2Curve_)
@@ -392,36 +402,27 @@ void AMCompactControlOptimizationSetView::onRegionsUpdate(AMRegionsList* context
 	param2Curve_ = param1Curve_->transposeCurve();
 	param1Item_->updateCurve(param1Curve_);
 	param2Item_->updateCurve(param2Curve_);
-	param1Slider->setValue(15);
 	detailView_->onRegionsUpdate(contextParams);
 }
 
 void AMCompactControlOptimizationSetView::parseConfigValues(const QStringList configList){
-	QString tmpName, tmpVal;//, resStr;
+	QString tmpName, tmpVal;
+	QMap<QString, QVariant> passMap;
 	for(int x = 0; x < configList.count(); x++){
 		tmpName = configList.at(x).split("|").at(0);
 		tmpVal = configList.at(x).split("|").at(1);
-		qDebug() << "Name is " << tmpName << " value is " << tmpVal;
-		if(detailView_->configValues().contains(tmpName)){
-			if(viewSet_->controlByName(tmpName)->isEnum() && viewSet_->controlByName(tmpName)->enumNames().contains(tmpVal))
-				((QComboBox*)(detailView_->boxByName(tmpName)))->setCurrentIndex(viewSet_->controlByName(tmpName)->enumNames().indexOf(tmpVal));
-				//detailView_->configValues()[tmpName] = tmpVal;
-			else if( !viewSet_->controlByName(tmpName)->isEnum() )
-				((QDoubleSpinBox*)(detailView_->boxByName(tmpName)))->setValue(tmpVal.toDouble());
-				//detailView_->configValues()[tmpName] = tmpVal.toDouble();
-//			resStr.append(tmpVal);
-//			resStr.append(" ");
-		}
+		if(configList.at(x).split("|").at(2) == "c")
+			passMap.insert(tmpName, tmpVal.toDouble());
+		else
+			passMap.insert(tmpName, tmpVal);
 	}
-//	paramsResult_->setText(resStr);
-	qDebug() << "Now configs are " << detailView_->configValues();
+	detailView_->setConfigValues(passMap);
 }
 
 void AMCompactControlOptimizationSetView::nonOptimumValues(bool optimumValues){
 	if(optimumValues == optimumValues_)
 		return;
 	optimumValues_ = optimumValues;
-	qDebug() << "Optimum? " << optimumValues_;
 	if(optimumValues_){
 		paramsResult_->setStyleSheet("");
 	}
@@ -453,20 +454,18 @@ CCOSVItem::CCOSVItem(int width, int height, QColor curveColor, bool invert, bool
 	QMap<double, double> tmpMap;
 	tmpMap[1] = 1;
 	dataCurve_ = new AMCurve(tmpMap);
+	curveMarker_ = 10;
 }
 
 void CCOSVItem::updateCurve(AMCurve *dataCurve){
 	if(!curve_){
-		qDebug() << "No curve";
 		return;
 	}
-	qDebug() << "Has curve";
 	dataCurve_ = dataCurve;
 	double min = dataCurve_->minY().first;
 	double max = dataCurve_->maxY().first;
 	double tmpVal;
 
-	qDebug() << "Max/Min: " << max << min;
 	for(int x = 0; x < width_; x++){
 		if(log_)
 			tmpVal = height_*( log(dataCurve_->valueAtRange((double)x/(double)width_)/min) / log(max/min) );
@@ -480,6 +479,11 @@ void CCOSVItem::updateCurve(AMCurve *dataCurve){
 	update();
 }
 
+void CCOSVItem::updateCurveMarker(double percent){
+	curveMarker_ = percent;
+	update();
+}
+
 QRectF CCOSVItem::boundingRect() const{
 	return QRectF(0, 0, width_, height_);
 }
@@ -490,8 +494,12 @@ void CCOSVItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 //	painter->setBrush(Qt::darkGray);
 	painter->setBrush(curveColor_);
 	painter->setPen(Qt::NoPen);
-	if(curve_)
+	if(curve_){
 		painter->drawConvexPolygon(curve_, width_+2);
+		painter->setBrush(QColor("red"));
+		painter->setPen(QColor("red"));
+		painter->drawLine((int)(curveMarker_*width_/100), 0, (int)(curveMarker_*width_/100), height_);
+	}
 }
 
 AMAbstractDetectorSetView::AMAbstractDetectorSetView(AMAbstractDetectorSet *viewSet, QWidget *parent) :

@@ -179,7 +179,7 @@ public:
 					x1 = i.key();
 					y1 = i.value();
 					tmpVal = ((y2-y1)/(x2-x1))*(x-x2) + y2;
-					qDebug() << "IN A DISCONTINUITY REGION " << x << " use " << tmpVal;
+					//qDebug() << "IN A DISCONTINUITY REGION " << x << " use " << tmpVal;
 					return tmpVal;
 				}
 		}
@@ -310,7 +310,7 @@ public:
 		if(ii == metaMap_.constBegin()){
 			rVal = ii.value();
 			tmpName = ii.value().at(2).split("|").at(0)+"|";
-			qDebug() << "Old metas: " << rVal;
+			//qDebug() << "Old metas: " << rVal;
 			newSlit = ii.value().at(2).split("|").at(1).toDouble();
 		}
 		else{
@@ -318,7 +318,7 @@ public:
 				--ii;
 			rVal = ii.value();
 			tmpName = ii.value().at(2).split("|").at(0)+"|";
-			qDebug() << "Old metas: " << rVal;
+			//qDebug() << "Old metas: " << rVal;
 			tmpGrating = ii.value().at(0).split("|").at(1);
 			tmpHarmonic = ii.value().at(1).split("|").at(1);
 			x1 = ii.key();
@@ -326,11 +326,11 @@ public:
 			--ii;
 			if(tmpGrating != ii.value().at(0).split("|").at(1)){
 				rVal.replace(0, ii.value().at(0).split("|").at(0)+"|SWITCH|"+ii.value().at(0).split("|").at(2));
-				qDebug() << "Switch in grating " << tmpGrating << " to " << ii.value().at(0).split("|").at(1);
+//				qDebug() << "Switch in grating " << tmpGrating << " to " << ii.value().at(0).split("|").at(1);
 			}
 			if(tmpHarmonic != ii.value().at(1).split("|").at(1)){
 				rVal.replace(1, ii.value().at(1).split("|").at(0)+"|SWITCH|"+ii.value().at(1).split("|").at(2));
-				qDebug() << "Switch in harmonic " << tmpHarmonic << " to " << ii.value().at(1).split("|").at(1);
+//				qDebug() << "Switch in harmonic " << tmpHarmonic << " to " << ii.value().at(1).split("|").at(1);
 			}
 			x2 = ii.key();
 			y2 = ii.value().at(2).split("|").at(1).toDouble();
@@ -341,7 +341,6 @@ public:
 		tmpSlit.append("|c");
 		rVal.replace(2, tmpSlit);
 
-		qDebug() << "New metas: " << rVal;
 		return rVal;
 	}
 
@@ -373,11 +372,9 @@ public:
 		tmpCurve->setMetaMap(transposeMetaMap());
 		for(int x = 0; x < xDiscontinuities_.count(); x++){
 			tmpCurve->addYDiscontinuity(xDiscontinuities_.at(x));
-			qDebug() << "Adding as Y " << xDiscontinuities_.at(x).first << xDiscontinuities_.at(x).second;
 		}
 		for(int x = 0; x < yDiscontinuities_.count(); x++){
 			tmpCurve->addXDiscontinuity(yDiscontinuities_.at(x));
-			qDebug() << "Adding as X " << yDiscontinuities_.at(x).first << yDiscontinuities_.at(x).second;
 		}
 		return tmpCurve;
 	}
@@ -670,7 +667,6 @@ public:
 			bestFlux = fMaxHEG1;
 		if(bestFlux.first < fMaxHEG3.first)
 			bestFlux = fMaxHEG3;
-		qDebug() << "Best flux is " << bestFlux.first << " at res of " << bestFlux.second;
 
 		QPair<double, double> bestRes = rMaxLEG;
 		if(bestRes.first < rMaxMEG.first)

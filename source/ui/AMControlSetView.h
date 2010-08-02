@@ -56,11 +56,14 @@ public:
 	}
 
 	QMap<QString, QVariant> configValues() { return configValues_;}
+	bool boxTrigger() const { return boxTrigger_;}
 
 signals:
 	void configValuesChanged();
 
 public slots:
+	void setConfigValues(QMap<QString, QVariant> configValues);
+	void resetBoxTrigger(){boxTrigger_ = false;}
 
 protected slots:
 	void onBoxUpdate(const QString& value);
@@ -70,6 +73,8 @@ protected:
 	AMControlSet *viewSet_;
 	QMap<QString, QVariant> configValues_;
 	QList<QWidget*> controlBoxes_;
+	QList<bool> dirty_;
+	bool boxTrigger_;
 	QHBoxLayout *hl_;
 };
 
@@ -142,10 +147,17 @@ public:
 
 public slots:
 	void onRegionsUpdate(AMRegionsList* contextParams){
+		bool forceEmit = false;
+		if(!lastContextParams_)
+			forceEmit = true;
 		lastContextParams_ = contextParams;
 		cANSWER_ = ((AMControlOptimizationSet*)viewSet_)->cOnePlot(contextParams);
 		//ANSWER->setDataMap( ((AMControlOptimizationSet*)viewSet_)->cOnePlot(contextParams)->dataMap() );
 		ANSWER->setDataMap( cANSWER_->dataMap() );
+		if(forceEmit){
+			boxTrigger_ = true;
+			emit configValuesChanged();
+		}
 	}
 
 signals:
@@ -158,7 +170,7 @@ protected:
 	MPlot *plot;
 	AMCurve *cANSWER_;
 	AMQuickDataSet *ANSWER;
-	MPlotRealtimeModel *mANSWER, *mCurrentPoint;
+	MPlotRealtimeModel *mANSWER, *mCurrentPoint, *mVerticalCursor, *mHorizontalCursor;
 	AMRegionsList* lastContextParams_;
 	int numPoints;
 };
@@ -170,6 +182,7 @@ public:
 
 	//void updateCurve(QMap<double, double> data);
 	void updateCurve(AMCurve *dataCurve);
+	void updateCurveMarker(double percent);
 	QRectF boundingRect() const;
 	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 
@@ -178,6 +191,7 @@ private:
 	int height_;
 	QColor curveColor_;
 	AMCurve *dataCurve_;
+	double curveMarker_;
 	QPointF *curve_;
 	bool invert_;
 	bool log_;
