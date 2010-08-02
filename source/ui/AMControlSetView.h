@@ -207,7 +207,8 @@ protected:
 	QGraphicsScene *param1Scene, *param2Scene;
 	QGraphicsView *param1View, *param2View;
 	AMCurve *param1Curve_, *param2Curve_;
-	bool param1Trigger_, param2Trigger_;
+	bool param1Trigger_, param2Trigger_, slider1Trigger_, slider2Trigger_, details1Trigger_, details2Trigger_;
+	bool optimumValues_;
 	CCOSVItem *param1Item_, *param2Item_;
 	QHBoxLayout *hl_;
 	QGridLayout *gl_;
@@ -215,6 +216,7 @@ protected:
 	AMControlOptimizationSetView *detailView_;
 
 	void parseConfigValues(const QStringList configList);
+	void nonOptimumValues(bool optimumValues);
 };
 
 class AMColorControlOptimizationSetView : public QGroupBox

@@ -301,6 +301,50 @@ public:
 		return (x - minX_.first)/(maxX_.first - minX_.first);
 	}
 
+	QStringList metaAt(double x) const {
+		QStringList rVal;
+		QMap<double, QStringList>::const_iterator ii = metaMap_.lowerBound(x);
+		QString tmpSlit;
+		double newSlit, x1, x2, y1, y2;
+		QString tmpName, tmpGrating, tmpHarmonic;
+		if(ii == metaMap_.constBegin()){
+			rVal = ii.value();
+			tmpName = ii.value().at(2).split("|").at(0)+"|";
+			qDebug() << "Old metas: " << rVal;
+			newSlit = ii.value().at(2).split("|").at(1).toDouble();
+		}
+		else{
+			if(ii == metaMap_.constEnd())
+				--ii;
+			rVal = ii.value();
+			tmpName = ii.value().at(2).split("|").at(0)+"|";
+			qDebug() << "Old metas: " << rVal;
+			tmpGrating = ii.value().at(0).split("|").at(1);
+			tmpHarmonic = ii.value().at(1).split("|").at(1);
+			x1 = ii.key();
+			y1 = ii.value().at(2).split("|").at(1).toDouble();
+			--ii;
+			if(tmpGrating != ii.value().at(0).split("|").at(1)){
+				rVal.replace(0, ii.value().at(0).split("|").at(0)+"|SWITCH|"+ii.value().at(0).split("|").at(2));
+				qDebug() << "Switch in grating " << tmpGrating << " to " << ii.value().at(0).split("|").at(1);
+			}
+			if(tmpHarmonic != ii.value().at(1).split("|").at(1)){
+				rVal.replace(1, ii.value().at(1).split("|").at(0)+"|SWITCH|"+ii.value().at(1).split("|").at(2));
+				qDebug() << "Switch in harmonic " << tmpHarmonic << " to " << ii.value().at(1).split("|").at(1);
+			}
+			x2 = ii.key();
+			y2 = ii.value().at(2).split("|").at(1).toDouble();
+			newSlit = ((y2-y1)/(x2-x1))*(x-x2)+y2;
+		}
+		tmpSlit.setNum(newSlit);
+		tmpSlit.prepend(tmpName);
+		tmpSlit.append("|c");
+		rVal.replace(2, tmpSlit);
+
+		qDebug() << "New metas: " << rVal;
+		return rVal;
+	}
+
 	QMap<double, double> dataMap() const { return dataMap_;}
 
 	QMap<double, QStringList> metaMap() const { return metaMap_;}
@@ -375,6 +419,19 @@ public:
 	QMap<QString, QMap<double, double> > collapseAt(size_t index, AMRegionsList* contextParameters){
 		return outputs_.at(index)->collapse(contextParameters);
 	}
+	QMap<QString, AMCurve*> cCollapseAt(size_t index, AMRegionsList* contextParameters){
+		QMap<QString, AMCurve*> rVal;
+		AMCurve *tmpCurve;
+		QMap<QString, QMap<double, double> > cMaps = collapseAt(index, contextParameters);
+		QMap<QString, QMap<double, double> >::const_iterator i = cMaps.constBegin();
+		while(i != cMaps.constEnd()){
+			tmpCurve = new AMCurve(i.value());
+			rVal.insert(i.key(), tmpCurve);
+			++i;
+		}
+		return rVal;
+	}
+
 	QMap<QString, QMap<double, double> > plotAgainst(AMRegionsList* contextParameters){
 		QMap<QString, QMap<double, double> > fluxes, resolutions;
 		QMap<double, double> LEG, MEG, HEG1, HEG3;
@@ -415,6 +472,7 @@ public:
 			HEG3.insert(resolutions.value("HEG3").value(i.key()), fluxes.value("HEG3").value(i.key()));
 			tmpStr.setNum(i.key());
 			tmpStr.prepend("exitSlitGap|");
+			tmpStr.append("|c");
 			tmpStrList.append(tmpStr);
 			mLEG.insert(resolutions.value("LEG1").value(i.key()), tmpStrList);
 			mMEG.insert(resolutions.value("MEG1").value(i.key()), tmpStrList);
@@ -943,9 +1001,13 @@ public:
 		QMap<double, double> rMap;
 		QMap<double, QStringList> mMap;
 		double resStep = (bestRes_.first - bestFlux_.second)/100;
-		double tmpFlux, tmpVal;
+		double tmpFlux, tmpVal, newSlit;
 		QStringList tmpStrList, tmpSubList;
-		QString tmpGrating, tmpHarmonic;
+		QString tmpGrating, tmpHarmonic, tmpSlit, tmpName;
+		QMap<double, QStringList> lMetas;
+		QMap<double, QStringList>::const_iterator ii;
+		double x1, x2, y1, y2;
+
 		for(double x = bestFlux_.second; x < bestRes_.first; x += resStep){
 			tmpFlux = 0;
 			tmpStrList.clear();
@@ -955,42 +1017,118 @@ public:
 				tmpVal = cLEG->valueAt(x);
 				if(tmpVal > tmpFlux){
 					tmpFlux = tmpVal;
-					tmpGrating = "grating|Low";
-					tmpHarmonic = "harmonic|First";
-					tmpSubList = cLEG->metaMap().lowerBound(x).value();
+					tmpGrating = "grating|Low|d";
+					tmpHarmonic = "harmonic|First|d";
+					lMetas = cLEG->metaMap();
+					ii = lMetas.lowerBound(x);
+					newSlit = 0;
+					tmpName = ii.value().at(0).split("|").at(0)+"|";
+					if(ii == lMetas.constBegin())
+						newSlit = ii.value().at(0).split("|").at(1).toDouble();
+					else{
+						if(ii == lMetas.constEnd())
+							--ii;
+
+						x1 = ii.key();
+						y1 = ii.value().at(0).split("|").at(1).toDouble();
+						--ii;
+						x2 = ii.key();
+						y2 = ii.value().at(0).split("|").at(1).toDouble();
+						newSlit = ((y2-y1)/(x2-x1))*(x-x2)+y2;
+					}
+					tmpSlit.setNum(newSlit);
+					tmpSlit.prepend(tmpName);
+					tmpSlit.append("|c");
 				}
 			}
 			if(x <= cMEG->maxX().first){
 				tmpVal = cMEG->valueAt(x);
 				if(tmpVal > tmpFlux){
 					tmpFlux = tmpVal;
-					tmpGrating = "grating|Medium";
-					tmpHarmonic = "harmonic|First";
-					tmpSubList = cMEG->metaMap().lowerBound(x).value();
+					tmpGrating = "grating|Medium|d";
+					tmpHarmonic = "harmonic|First|d";
+
+					lMetas = cMEG->metaMap();
+					ii = lMetas.lowerBound(x);
+					newSlit = 0;
+					tmpName = ii.value().at(0).split("|").at(0)+"|";
+					if(ii == lMetas.constBegin())
+						newSlit = ii.value().at(0).split("|").at(1).toDouble();
+					else{
+						if(ii == lMetas.constEnd())
+							--ii;
+						x1 = ii.key();
+						y1 = ii.value().at(0).split("|").at(1).toDouble();
+						--ii;
+						x2 = ii.key();
+						y2 = ii.value().at(0).split("|").at(1).toDouble();
+						newSlit = ((y2-y1)/(x2-x1))*(x-x2)+y2;
+					}
+					tmpSlit.setNum(newSlit);
+					tmpSlit.prepend(tmpName);
+					tmpSlit.append("|c");
 				}
 			}
 			if(x <= cHEG1->maxX().first){
 				tmpVal = cHEG1->valueAt(x);
 				if(tmpVal > tmpFlux){
 					tmpFlux = tmpVal;
-					tmpGrating = "grating|High";
-					tmpHarmonic = "harmonic|First";
-					tmpSubList = cHEG1->metaMap().lowerBound(x).value();
+					tmpGrating = "grating|High|d";
+					tmpHarmonic = "harmonic|First|d";
+					lMetas = cHEG1->metaMap();
+					ii = lMetas.lowerBound(x);
+					newSlit = 0;
+					tmpName = ii.value().at(0).split("|").at(0)+"|";
+					if(ii == lMetas.constBegin())
+						newSlit = ii.value().at(0).split("|").at(1).toDouble();
+					else{
+						if(ii == lMetas.constEnd())
+							--ii;
+						x1 = ii.key();
+						y1 = ii.value().at(0).split("|").at(1).toDouble();
+						--ii;
+						x2 = ii.key();
+						y2 = ii.value().at(0).split("|").at(1).toDouble();
+						newSlit = ((y2-y1)/(x2-x1))*(x-x2)+y2;
+					}
+					tmpSlit.setNum(newSlit);
+					tmpSlit.prepend(tmpName);
+					tmpSlit.append("|c");
 				}
 			}
 			if(x <= cHEG3->maxX().first){
 				tmpVal = cHEG3->valueAt(x);
 				if(tmpVal > tmpFlux){
 					tmpFlux = tmpVal;
-					tmpGrating = "grating|High";
-					tmpHarmonic = "harmonic|Third";
-					tmpSubList = cHEG3->metaMap().lowerBound(x).value();
+					tmpGrating = "grating|High|d";
+					tmpHarmonic = "harmonic|Third|d";
+
+					lMetas = cHEG3->metaMap();
+					ii = lMetas.lowerBound(x);
+					newSlit = 0;
+					tmpName = ii.value().at(0).split("|").at(0)+"|";
+					if(ii == lMetas.constBegin())
+						newSlit = ii.value().at(0).split("|").at(1).toDouble();
+					else{
+						if(ii == lMetas.constEnd())
+							--ii;
+						x1 = ii.key();
+						y1 = ii.value().at(0).split("|").at(1).toDouble();
+						--ii;
+						x2 = ii.key();
+						y2 = ii.value().at(0).split("|").at(1).toDouble();
+						newSlit = ((y2-y1)/(x2-x1))*(x-x2)+y2;
+					}
+					tmpSlit.setNum(newSlit);
+					tmpSlit.prepend(tmpName);
+					tmpSlit.append("|c");
 				}
 			}
 			//qDebug() << "Want to insert " << x << ", " << tmpFlux;
 			tmpStrList.append(tmpGrating);
 			tmpStrList.append(tmpHarmonic);
-			tmpStrList.append(tmpSubList);
+			tmpStrList.append(tmpSlit);
+			//tmpStrList.append(tmpSubList);
 			rMap.insert(x, tmpFlux);
 			mMap.insert(x, tmpStrList);
 		}

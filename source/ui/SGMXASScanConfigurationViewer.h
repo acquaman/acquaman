@@ -33,10 +33,13 @@ protected slots:
 		xasCtrl->start();
 	}
 	void onRegionsChanged(){
+		qDebug() << "Master detected regionUpdate";
 		if(cfg_ && fluxResolutionView_)
 			fluxResolutionView_->onRegionsUpdate( ((SGMXASScanConfiguration*)cfg_)->regions() );
-		if(cfg_ && fluxResolutionView2_)
+		if(cfg_ && fluxResolutionView2_){
+			qDebug() << "Calling compact update";
 			fluxResolutionView2_->onRegionsUpdate( ((SGMXASScanConfiguration*)cfg_)->regions() );
+		}
 	}
 
 protected:
