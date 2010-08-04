@@ -9,6 +9,7 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QGridLayout>
+#include <QSpacerItem>
 #include "acquaman/SGM/SGMXASScanConfiguration.h"
 #include "acquaman/SGM/SGMXASDacqScanController.h"
 
@@ -33,12 +34,8 @@ protected slots:
 		xasCtrl->start();
 	}
 	void onRegionsChanged(){
-		qDebug() << "Master detected regionUpdate";
-		if(cfg_ && fluxResolutionView_)
+		if(cfg_ && fluxResolutionView_){
 			fluxResolutionView_->onRegionsUpdate( ((SGMXASScanConfiguration*)cfg_)->regions() );
-		if(cfg_ && fluxResolutionView2_){
-			qDebug() << "Calling compact update";
-			fluxResolutionView2_->onRegionsUpdate( ((SGMXASScanConfiguration*)cfg_)->regions() );
 		}
 	}
 
@@ -46,9 +43,7 @@ protected:
 	AMScanConfiguration *cfg_;
 	AMXASRegionsView *regionsView_;
 	AMRegionsLineView *regionsLineView_;
-	AMControlOptimizationSetView *fluxResolutionView_;
-	AMCompactControlOptimizationSetView *fluxResolutionView2_;
-//	AMColorControlOptimizationSetView *fluxResolutionView2_;
+	AMCompactControlOptimizationSetView *fluxResolutionView_;
 	AMControlSetView *trackingView_;
 	AMDetectorInfoSetView *detectorView_;
 	QPushButton *startScanButton_;

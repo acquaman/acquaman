@@ -4,7 +4,7 @@
 /// Loops through the list of AMControls in the AMControlSet and create an appropriate spinbox.
 /// Adds the spin box and a label (from the AMControl objectName() function) and add to an internal form layout.
 AMControlSetView::AMControlSetView(AMControlSet *viewSet, QWidget *parent) :
-	QGroupBox(parent)
+		QGroupBox(parent)
 {
 	viewSet_ = viewSet;
 	setTitle(viewSet->name());
@@ -38,7 +38,11 @@ AMControlSetView::AMControlSetView(AMControlSet *viewSet, QWidget *parent) :
 			tmpWidget = tmpDSB;
 		}
 		configValues_.insert(tmpName, tmpVal);
-		fl->addRow(tmpCtrl->objectName(), tmpWidget);
+		QString adjName = tmpCtrl->objectName();
+		adjName.replace(QRegExp("([A-Z])"), " \\1");
+		QChar fCap = adjName[0].toUpper();
+		adjName.replace(0, 1, fCap);
+		fl->addRow(adjName, tmpWidget);
 		controlBoxes_.append(tmpWidget);
 		dirty_.append(false);
 	}
@@ -61,7 +65,6 @@ void AMControlSetView::onBoxUpdate(const QString &value){
 			if( ((QComboBox*)(controlBoxes_.at(x)))->currentText() != configValues_[tmpName].toString() ){
 				configValues_[tmpName] = ((QComboBox*)(controlBoxes_.at(x)))->currentText();
 				if(dirty_.at(x)){
-					qDebug() << "Undirty " << tmpName;
 					dirty_[x] = false;
 				}
 				else
@@ -72,7 +75,6 @@ void AMControlSetView::onBoxUpdate(const QString &value){
 			if( ((QDoubleSpinBox*)(controlBoxes_.at(x)))->value() != configValues_[tmpName].toDouble() ){
 				configValues_[tmpName] = ((QDoubleSpinBox*)(controlBoxes_.at(x)))->value();
 				if(dirty_.at(x)){
-					qDebug() << "Undirty " << tmpName;
 					dirty_[x] = false;
 				}
 				else
@@ -81,7 +83,6 @@ void AMControlSetView::onBoxUpdate(const QString &value){
 		}
 	}
 	if(actualChange){
-		qDebug() << "Emit in boxUpdate";
 		boxTrigger_ = true;
 		emit configValuesChanged();
 	}
@@ -91,7 +92,6 @@ void AMControlSetView::setConfigValues(QMap<QString, QVariant> configValues){
 	QMap<QString, QVariant>::const_iterator i = configValues.constBegin();
 	while(i != configValues.constEnd()){
 		if( viewSet_->controlByName(i.key()) && configValues_.value(i.key()) != i.value() ){
-			qDebug() << "Setting " << i.key() << " dirty";
 			dirty_[viewSet_->indexOf(i.key())] = true;
 			if( viewSet_->controlByName(i.key())->isEnum() && viewSet_->controlByName(i.key())->enumNames().contains(i.value().toString()) )
 				((QComboBox*)(boxByName(i.key())))->setCurrentIndex(viewSet_->controlByName(i.key())->enumNames().indexOf(i.value().toString()));
@@ -100,8 +100,53 @@ void AMControlSetView::setConfigValues(QMap<QString, QVariant> configValues){
 		}
 		++i;
 	}
-	qDebug() << "Emit in setConfigValues";
 	emit configValuesChanged();
+}
+
+AMQuickDataSet::AMQuickDataSet(QMap<double, double> dataMap, QObject *parent) : QObject(parent){
+	model_ = NULL;
+	setDataMap(dataMap);
+}
+
+void AMQuickDataSet::setModel(MPlotRealtimeModel *model){
+	model_ = model;
+	setupModel();
+}
+
+void AMQuickDataSet::setupModel(){
+	while (model_->count() > 0) {
+		model_->removePointBack();
+	}
+	QMap<double, double>::const_iterator i = dataMap_.constBegin();
+	while (i != dataMap_.constEnd()) {
+		model_->insertPointBack(i.key(), i.value());
+		++i;
+	}
+}
+
+void AMQuickDataSet::setDataMap(QMap<double, double> dataMap){
+	dataMap_ = dataMap;
+	QMap<double, double>::const_iterator i = dataMap_.constBegin();
+	minX_ = i.key();
+	minY_ = i.value();
+	maxX_ = i.key();
+	maxY_ = i.value();
+	double tmpX, tmpY;
+	while(i != dataMap_.constEnd()){
+		tmpX = i.key();
+		tmpY = i.value();
+		if(tmpX < minX_)
+			minX_ = tmpX;
+		else if(tmpX > maxX_)	\
+				maxX_ = tmpX;
+		if(tmpY < minY_)
+			minY_ = tmpY;
+		else if(tmpY > maxY_)
+			maxY_ = tmpY;
+		++i;
+	}
+	if(model_)
+		setupModel();
 }
 
 AMControlOptimizationSetView::AMControlOptimizationSetView(AMControlOptimizationSet *viewSet, QWidget *parent) :
@@ -182,10 +227,23 @@ AMControlOptimizationSetView::AMControlOptimizationSetView(AMControlOptimization
 	setFixedSize(600, 375);
 }
 
+void AMControlOptimizationSetView::onRegionsUpdate(AMRegionsList* contextParams){
+	bool forceEmit = false;
+	if(!lastContextParams_)
+		forceEmit = true;
+	lastContextParams_ = contextParams;
+	cANSWER_ = ((AMControlOptimizationSet*)viewSet_)->cOnePlot(contextParams);
+	//ANSWER->setDataMap( ((AMControlOptimizationSet*)viewSet_)->cOnePlot(contextParams)->dataMap() );
+	ANSWER->setDataMap( cANSWER_->dataMap() );
+	if(forceEmit){
+		boxTrigger_ = true;
+		emit configValuesChanged();
+	}
+}
+
 void AMControlOptimizationSetView::onConfigValuesChanged(){
 	if(!lastContextParams_)
 		return;
-	qDebug() << "One call to CONFIGVALUESCHANGED";
 	const AMControlOptimization *tmpOpt = ((AMControlOptimizationSet*)viewSet_)->optimizationAt(1);
 	if( tmpOpt->name() == "SGMResolution" ){
 		QString gnh = "";
@@ -205,7 +263,6 @@ void AMControlOptimizationSetView::onConfigValuesChanged(){
 		AMCurve *oneCurve = ((AMControlOptimizationSet*)viewSet_)->cOnePlot(lastContextParams_);
 		mVerticalCursor->removePointBack();
 		mVerticalCursor->removePointBack();
-		qDebug() << "Vertical bar is " << lRes << oneCurve->maxY().first << oneCurve->minY().first;
 		mVerticalCursor->insertPointBack(lRes-0.005*lRes, 0.9*oneCurve->minY().first );
 		mVerticalCursor->insertPointBack(lRes+0.005*lRes, 1.1*oneCurve->maxY().first );
 
@@ -214,7 +271,6 @@ void AMControlOptimizationSetView::onConfigValuesChanged(){
 		mHorizontalCursor->insertPointBack( 1.1*oneCurve->maxX().first, lFlux);
 		mHorizontalCursor->insertPointBack( 0.9*oneCurve->minX().first, lFlux);
 
-		qDebug() << "Emit parameterValuesChanged";
 		emit parameterValuesChanged(lRes, lFlux);
 	}
 }
@@ -365,13 +421,10 @@ bool AMCompactControlOptimizationSetView::onParamValuesChanged(double param1, do
 		++i;
 	}
 	nonOptimumValues(optimum);
-	qDebug() << "Decide who triggered it " << detailView_->boxTrigger();
 	if(detailView_->boxTrigger()){
 		details1Trigger_ = true;
 		details2Trigger_ = true;
 		detailView_->resetBoxTrigger();
-		qDebug() << "Must have been triggered by detailed view";
-		//	}
 		double param1Percent = param1Curve_->percentFromValue(param1)*100;
 		double param2Percent = param2Curve_->percentFromValue(param2)*100;
 		param1Slider->setValue(param1Percent);
@@ -402,6 +455,7 @@ void AMCompactControlOptimizationSetView::onRegionsUpdate(AMRegionsList* context
 	param2Curve_ = param1Curve_->transposeCurve();
 	param1Item_->updateCurve(param1Curve_);
 	param2Item_->updateCurve(param2Curve_);
+
 	detailView_->onRegionsUpdate(contextParams);
 }
 
@@ -491,7 +545,7 @@ QRectF CCOSVItem::boundingRect() const{
 void CCOSVItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget){
 	Q_UNUSED(option);
 	Q_UNUSED(widget);
-//	painter->setBrush(Qt::darkGray);
+	//	painter->setBrush(Qt::darkGray);
 	painter->setBrush(curveColor_);
 	painter->setPen(Qt::NoPen);
 	if(curve_){
@@ -502,27 +556,101 @@ void CCOSVItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 	}
 }
 
+PGTDetectorInfoView::PGTDetectorInfoView(PGTDetectorInfo *detector, bool interactive, QWidget *parent) :
+		QGroupBox(parent)
+{
+	detector_ = detector;
+	interactive_ = interactive;
+	setTitle("PGT Silicon Drift Detector");
+	vl_ = new QVBoxLayout();
+	integrationTimeBox_ = new QDoubleSpinBox();
+	integrationTimeBox_->setValue(detector_->integrationTime());
+	integrationTimeBox_->setEnabled(interactive_);
+	integrationModeBox_ = new QComboBox();
+	integrationModeBox_->addItems(detector_->integrationModes());
+	integrationModeBox_->setCurrentIndex( detector_->integrationModes().indexOf(detector_->integrationMode()) );
+	integrationModeBox_->setEnabled(interactive_);
+	hvSetpointBox_ = new QDoubleSpinBox();
+	hvSetpointBox_->setValue(detector_->hvSetpoint());
+	hvSetpointBox_->setEnabled(interactive_);
+	allBoxes_.append(integrationTimeBox_);
+	allBoxes_.append(integrationModeBox_);
+	allBoxes_.append(hvSetpointBox_);
+	QFormLayout *fl = new QFormLayout();
+	fl->addRow("Integration Time", integrationTimeBox_);
+	fl->addRow("Integration Mode", integrationModeBox_);
+	fl->addRow("HV Setpoint", hvSetpointBox_);
+	vl_->addLayout(fl);
+	setLayout(vl_);
+	setMinimumWidth(250);
+}
+
+MCPDetectorInfoView::MCPDetectorInfoView(MCPDetectorInfo *detector, bool interactive, QWidget *parent) :
+		QGroupBox(parent)
+{
+	detector_ = detector;
+	interactive_ = interactive;
+	setTitle("MCP Total Fluoresence Yield");
+	vl_ = new QVBoxLayout();
+	hvSetpointBox_ = new QDoubleSpinBox();
+	hvSetpointBox_->setValue(detector_->hvSetpoint());
+	hvSetpointBox_->setEnabled(interactive_);
+	allBoxes_.append(hvSetpointBox_);
+	QFormLayout *fl = new QFormLayout();
+	fl->addRow("HV Setpoint", hvSetpointBox_);
+	vl_->addLayout(fl);
+	setLayout(vl_);
+	setMinimumWidth(250);
+}
+
 AMDetectorInfoSetView::AMDetectorInfoSetView(AMDetectorInfoSet *viewSet, QWidget *parent) :
 		QGroupBox(parent)
 {
 	viewSet_ = viewSet;
 	setTitle(viewSet->name());
-	QFormLayout *fl = new QFormLayout();
+	QGridLayout *gl = new QGridLayout();
 	QCheckBox *tmpBox;
+	QPushButton *tmpDetails;
+	QLabel *tmpLabel;
 	AMDetectorInfo *tmpDetector;
 	for(int x = 0; x < viewSet_->count(); x++){
 		tmpDetector = viewSet_->detectorAt(x);
-		tmpBox = new QCheckBox(this);
-//		tmpBox->setChecked(viewSet_->defaultDetectors().at(x));
+		tmpBox = new QCheckBox();
 		tmpBox->setChecked(viewSet_->isDefaultAt(x));
-		fl->addRow(tmpDetector->name(), tmpBox);
+		tmpDetails = new QPushButton("Details");
+//		if( tmpDetector->typeDescription() != "PGT SDD Spectrum-Output Detector" )
+		if( !tmpDetector->hasDetails() )
+			tmpDetails->setEnabled(false);
+		tmpLabel = new QLabel(tmpDetector->description());
+		gl->addWidget(tmpLabel, x, 0, 1, 1, Qt::AlignLeft);
+		gl->addWidget(tmpBox, x, 1, 1, 1, Qt::AlignLeft);
+		gl->addWidget(tmpDetails, x, 2, 1, 1, Qt::AlignLeft);
 		detectorBoxes_.append(tmpBox);
+		detectorDetails_.append(tmpDetails);
+		/*
+		if( tmpDetector->typeDescription() == "PGT SDD Spectrum-Output Detector" )
+			detailViews_.append(new PGTDetectorInfoView( (PGTDetectorInfo*)tmpDetector, true));
+		else
+			detailViews_.append(new QGroupBox());
+		*/
+		detailViews_.append(detailViewByType(tmpDetector));
+		detailViews_.last()->hide();
+		connect(tmpDetails, SIGNAL(clicked()), detailViews_.last(), SLOT(show()));
+		connect(tmpDetails, SIGNAL(clicked()), detailViews_.last(), SLOT(raise()));
 	}
 
 	hl_ = new QHBoxLayout(this);
-	hl_->addLayout(fl);
+	hl_->addLayout(gl);
 	setLayout(hl_);
-	setFixedSize(517, 200);
+}
+
+QWidget* AMDetectorInfoSetView::detailViewByType(AMDetectorInfo *detector){
+	if(detector->typeDescription() == "PGT SDD Spectrum-Output Detector")
+		return new PGTDetectorInfoView( (PGTDetectorInfo*)detector, true);
+	else if(detector->typeDescription() == "MCP Detector")
+		return new MCPDetectorInfoView( (MCPDetectorInfo*)detector, true );
+	else
+		return new QGroupBox();
 }
 
 AMColorControlOptimizationSetView::AMColorControlOptimizationSetView(AMControlSet *viewSet, QWidget *parent) :
@@ -532,9 +660,9 @@ AMColorControlOptimizationSetView::AMColorControlOptimizationSetView(AMControlSe
 	setFixedSize(width, 150);
 	viewSet_ = (AMControlOptimizationSet*)viewSet;
 	setTitle(viewSet->name());
-//	setStyleSheet("QGroupBox::title { color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 green, stop: 1 blue); }");
+	//	setStyleSheet("QGroupBox::title { color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 green, stop: 1 blue); }");
 	setStyleSheet("QGroupBox::title { color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 rgb(0, 255, 0), stop: 0.33 rbg(0, 127, 127), stop: 1 rgb(0, 0, 255)); }");
-//	setStyleSheet("QGroupBox::title { color: qconicalgradient(cx: 0.33, cy: 0.5, angle:0, stop: 0 rgb(0, 255, 0), stop: 1 rgb(0, 0, 255)); }");
+	//	setStyleSheet("QGroupBox::title { color: qconicalgradient(cx: 0.33, cy: 0.5, angle:0, stop: 0 rgb(0, 255, 0), stop: 1 rgb(0, 0, 255)); }");
 	launchDetailButton_ = new QPushButton("More Details", this);
 	hl_ = new QHBoxLayout(this);
 	QSlider *tmpSlider;

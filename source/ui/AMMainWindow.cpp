@@ -175,6 +175,8 @@ void AMMainWindow::onFwdCurrentWidgetChanged(int currentIndex) {
 	QWidget* currentPane = stackWidget_->widget(currentIndex);
 	if(pane2sidebarItems_.contains(currentPane))
 		sidebar_->setHighlightedLink(pane2sidebarItems_.value(currentPane));
+
+	emit sidebarLinkChanged();
 }
 
 

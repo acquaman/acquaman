@@ -21,12 +21,13 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	amNames2pvNames_.set("undulatorTracking", "dave:Energy:undulator:tracking");
 	amNames2pvNames_.set("monoTracking", "dave:Energy:mono:tracking");
 	amNames2pvNames_.set("exitSlitTracking", "dave:Energy:exitSlit:tracking");
-//	amNames2pvNames_.set("tey", "dave:TEY");
 	amNames2pvNames_.set("tey", "reixsHost:tey");
-//	amNames2pvNames_.set("tfy", "dave:TFY");
 	amNames2pvNames_.set("tfy", "reixsHost:tfy");
-//	amNames2pvNames_.set("pgt", "dave:PGT");
 	amNames2pvNames_.set("pgt", "reixsHost:sdd:spectrum");
+	amNames2pvNames_.set("pgtHVSetpoint", "reixsHost:sdd:hv:sp");
+	amNames2pvNames_.set("pgtHVFbk", "reixsHost:sdd:hv:fbk");
+	amNames2pvNames_.set("pgtIntegrationTime", "reixsHost:sdd:integration:time");
+	amNames2pvNames_.set("pgtIntegrationMode", "reixsHost:sdd:integration:mode");
 	amNames2pvNames_.set("I0", "reixsHost:I0");
 	amNames2pvNames_.set("loadlockCCG", "dave:Endstation:loadlock:ccg");
 	amNames2pvNames_.set("loadlockTCG", "dave:Endstation:loadlock:tcg");
@@ -80,24 +81,49 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	tey_ = new AMReadOnlyPVControl("tey", sgmPVName, this);
 	addChild(tey_);
 	teyDetector_ = new AMSingleControlDetector(tey_->name(), tey_, this);
+	teyDetector_->setDescription("TEY");
 	sgmPVName = amNames2pvNames_.valueF("tfy");
 	tfy_ = new AMReadOnlyPVControl("tfy", sgmPVName, this);
 	addChild(tfy_);
-	tfyDetector_ = new AMSingleControlDetector(tfy_->name(), tfy_, this);
+//	tfyDetector_ = new AMSingleControlDetector(tfy_->name(), tfy_, this);
+	tfyDetector_ = new MCPDetector(tfy_->name(), tfy_, this);
+	tfyDetector_->setDescription("TFY");
 	sgmPVName = amNames2pvNames_.valueF("pgt");
 	pgt_ = new AMReadOnlyPVControl("pgt", sgmPVName, this);
 	addChild(pgt_);
+
+	sgmPVName = amNames2pvNames_.valueF("pgtHVSetpoint");
+	pgtHVSetpoint_ = new AMReadOnlyPVControl("pgtHVSetpoint", sgmPVName, this);
+	addChild(pgtHVSetpoint_);
+	sgmPVName = amNames2pvNames_.valueF("pgtHVFbk");
+	pgtHVFbk_ = new AMReadOnlyPVControl("pgtHVFbk", sgmPVName, this);
+	addChild(pgtHVFbk_);
+	sgmPVName = amNames2pvNames_.valueF("pgtIntegrationTime");
+	pgtIntegrationTime_ = new AMReadOnlyPVControl("pgtIntegrationTime", sgmPVName, this);
+	addChild(pgtIntegrationTime_);
+	sgmPVName = amNames2pvNames_.valueF("pgtIntegrationMode");
+	pgtIntegrationMode_ = new AMReadOnlyPVControl("pgtIntegrationMode", sgmPVName, this);
+	addChild(pgtIntegrationMode_);
+
+//	pgtDetector_ = new PGTDetector(pgt_->name(), pgt_, this);
+	pgtDetector_ = new PGTDetector(pgt_->name(), pgt_, pgtHVSetpoint_, pgtHVFbk_, pgtIntegrationTime_, pgtIntegrationMode_, this);
+	pgtDetector_->setDescription("SDD");
+	/*
 	QStringList pgtYElements;
 	pgtYElements << "pgtCounts";
 	pgtDetector_ = new AMSpectralOutputDetector(pgt_->name(), pgt_, 1024, "pgtEV", pgtYElements, this);
+	pgtDetector_->setDescription("SDD");
+	*/
 	sgmPVName = amNames2pvNames_.valueF("I0");
 	i0_ = new AMReadOnlyPVControl("I0", sgmPVName, this);
 	addChild(i0_);
 	i0Detector_ = new AMSingleControlDetector(i0_->name(), i0_, this);
+	i0Detector_->setDescription("I0");
 	sgmPVName = amNames2pvNames_.valueF("eVFbk");
 	eVFbk_ = new AMReadOnlyPVControl("eVFbk", sgmPVName, this);
 	addChild(eVFbk_);
 	eVFbkDetector_ = new AMSingleControlDetector(eVFbk_->name(), eVFbk_, this);
+	eVFbkDetector_->setDescription("Energy Feedback");
 	sgmPVName = amNames2pvNames_.valueF("loadlockCCG");
 	loadlockCCG_ = new AMReadOnlyPVControl("loadlockCCG", sgmPVName, this);
 	sgmPVName = amNames2pvNames_.valueF("loadlockTCG");
@@ -373,7 +399,6 @@ QMap< QString, QMap<double, double> > SGMFluxOptimization::collapse(AMRegionsLis
 		fluxM1.insert(x, collapser(curve(m1, contextParameters)));
 		fluxH1.insert(x, collapser(curve(h1, contextParameters)));
 		fluxH3.insert(x, collapser(curve(h3, contextParameters)));
-		//qDebug() << x << " collapses to " << fluxL1.value(x) << fluxM1.value(x) << fluxH1.value(x) << fluxH3.value(x);
 	}
 
 	QMap< QString, QMap<double, double> > rVal;
@@ -427,13 +452,9 @@ SGMResolutionOptimization::SGMResolutionOptimization(QObject *parent) : AMContro
 QMap<double, double> SGMResolutionOptimization::curve(QList<QVariant> stateParameters, AMRegionsList* contextParameters){
 	double _maxenergy = maximumEnergy(contextParameters);
 	double _minenergy = minimumEnergy(contextParameters);
-	double _maxflux = 0;
-	double _minflux = 0;
-	double _maximum = 0;
-	double _minimum = 1;
-	double _stateScalar = 0;
 	double _slit = stateParameters.at(0).toDouble();
 	double _y1, _y2, _y3, _x1, _x2, _x3;
+	double _maxRes = 0;
 	SGMBeamline::sgmGrating _grating = (SGMBeamline::sgmGrating)stateParameters.at(1).toInt();
 	SGMBeamline::sgmHarmonic _harmonic = (SGMBeamline::sgmHarmonic)stateParameters.at(2).toInt();
 	if(!SGMBeamline::sgm()->energyRangeValidForSettings(_grating, _harmonic, _minenergy, _maxenergy))
@@ -446,6 +467,7 @@ QMap<double, double> SGMResolutionOptimization::curve(QList<QVariant> stateParam
 		_x1 = 2000;
 		_x2 = 1200;
 		_x3 = 800;
+		_maxRes = 12500;
 	}
 	else{
 		if( (_grating == 0) && SGMBeamline::sgm()->energyRangeValidForSettings(_grating, _harmonic, _minenergy, _maxenergy) ){
@@ -455,6 +477,7 @@ QMap<double, double> SGMResolutionOptimization::curve(QList<QVariant> stateParam
 			_x1 = 600;
 			_x2 = 400;
 			_x3 = 250;
+			_maxRes = 17500;
 		}
 		else if( (_grating == 1) && SGMBeamline::sgm()->energyRangeValidForSettings(_grating, _harmonic, _minenergy, _maxenergy) ){
 			_y1 = 0.425*log(_slit)+1.4936;
@@ -463,6 +486,7 @@ QMap<double, double> SGMResolutionOptimization::curve(QList<QVariant> stateParam
 			_x1 = 1200;
 			_x2 = 800;
 			_x3 = 500;
+			_maxRes = 15000;
 		}
 		else if( (_grating == 2) && SGMBeamline::sgm()->energyRangeValidForSettings(_grating, _harmonic, _minenergy, _maxenergy) ){
 			_y1 = 0.5229*log(_slit)+1.4221;
@@ -471,6 +495,7 @@ QMap<double, double> SGMResolutionOptimization::curve(QList<QVariant> stateParam
 			_x1 = 2000;
 			_x2 = 1200;
 			_x3 = 800;
+			_maxRes = 13750;
 		}
 	}
 	int i, n;
@@ -530,7 +555,16 @@ QMap<double, double> SGMResolutionOptimization::curve(QList<QVariant> stateParam
 		tmpEnd = contextParameters->end(x);
 
 		for( double y = tmpStart; ((tmpDelta > 0) ? (y <= tmpEnd) : (y >= tmpEnd)); y += tmpDelta ){
-			rCurve[y] = !SGMBeamline::sgm()->energyValidForSettings(_grating, _harmonic, y) ? 0.0 :y/(pow(10, C(2)*y*y + C(1)*y + C(0))*1e-3);
+			//rCurve[y] = !SGMBeamline::sgm()->energyValidForSettings(_grating, _harmonic, y) ? 0.0 :y/(pow(10, C(2)*y*y + C(1)*y + C(0))*1e-3);
+			if(!SGMBeamline::sgm()->energyValidForSettings(_grating, _harmonic, y))
+				rCurve[y] = 0.0;
+			else{
+				rCurve[y] = y/(pow(10, C(2)*y*y + C(1)*y + C(0))*1e-3);
+				/*
+				tmpVal = y/(pow(10, C(2)*y*y + C(1)*y + C(0))*1e-3);
+				rCurve[y] = tmpVal - (1-exp(-tmpVal))*(tmpVal-_maxRes);
+				*/
+			}
 		}
 	}
 	gsl_matrix_free (X);
@@ -561,7 +595,6 @@ QMap< QString, QMap<double, double> > SGMResolutionOptimization::collapse(AMRegi
 		resM1.insert(x, collapser(curve(m1, contextParameters)));
 		resH1.insert(x, collapser(curve(h1, contextParameters)));
 		resH3.insert(x, collapser(curve(h3, contextParameters)));
-		//qDebug() << x << " collapses to " << resL1.value(x) << resM1.value(x) << resH1.value(x) << resH3.value(x);
 	}
 	QMap< QString, QMap<double, double> > rVal;
 	rVal.insert("LEG1", resL1);

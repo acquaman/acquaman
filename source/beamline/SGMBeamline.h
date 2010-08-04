@@ -150,6 +150,10 @@ protected:
 	AMControl *tey_;
 	AMControl *tfy_;
 	AMControl *pgt_;
+	AMControl *pgtHVSetpoint_;
+	AMControl *pgtHVFbk_;
+	AMControl *pgtIntegrationTime_;
+	AMControl *pgtIntegrationMode_;
 	AMControl *i0_;
 	AMControl *eVFbk_;
 	AMControl *loadlockCCG_;

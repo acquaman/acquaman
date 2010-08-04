@@ -28,4 +28,30 @@ protected:
 	AMControl *control_;
 };
 
+class PGTDetector : public PGTDetectorInfo
+{
+	Q_OBJECT
+public:
+	PGTDetector(const QString& name, AMControl *dataWaveform, AMControl *hvSetpoint, AMControl *hvFbk, AMControl *integrationTime, AMControl *integrationMode, QObject *parent = 0);
+	~PGTDetector();
+
+protected:
+	AMControl *dataWaveform_;
+	AMControl *hvSetpoint_;
+	AMControl *hvFbk_;
+	AMControl *integrationTime_;
+	AMControl *integrationMode_;
+};
+
+class MCPDetector : public MCPDetectorInfo
+{
+	Q_OBJECT
+public:
+	MCPDetector(const QString& name, AMControl *control, QObject *parent = 0);
+	~MCPDetector() { control_ = NULL; }
+
+protected:
+	AMControl *control_;
+};
+
 #endif // AMDETECTOR_H

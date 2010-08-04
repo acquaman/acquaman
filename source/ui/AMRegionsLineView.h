@@ -134,18 +134,11 @@ public:
 		Q_UNUSED(option);
 		Q_UNUSED(widget);
 		painter->setPen(Qt::NoPen);
-//		painter->setBrush(Qt::darkGray);
-//		painter->drawRoundedRect(0, -15, width_, 30, 1, 1, Qt::RelativeSize);
 		painter->setPen(QPen(Qt::black, 1));
 		painter->setBrush(Qt::gray);
-//		painter->drawRoundedRect(0, -15, width_, 30, 1, 1, Qt::RelativeSize);
 		QString energyVal;
-//		painter->drawText(0, 0, energyVal.setNum(energy_));
 		QRectF box(boundingRect());
-		qDebug() << "Before drawing " << textBox_->width();
 		painter->drawText(box, Qt::AlignHCenter, energyVal.setNum(energy_), textBox_);
-		qDebug() << "After drawing " << textBox_->height() << " vs " << boundingRect().width();
-		qDebug() << "Energy is " << energyVal << " width is " << boundingRect().width();
 	}
 
 private:

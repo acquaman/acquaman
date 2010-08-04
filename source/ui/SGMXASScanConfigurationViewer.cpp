@@ -6,26 +6,6 @@ SGMXASScanConfigurationViewer::SGMXASScanConfigurationViewer(QWidget *parent)  :
 	if(SGMBeamline::sgm()->isConnected()){
 		SGMXASScanConfiguration *sxsc = new SGMXASScanConfiguration(this);
 
-	/*
-	QList<chPair> newChannels(sxsc->defaultChannels());
-	newChannels.append(chPair("dave", "dave"));
-	sxsc->setDefaultChannels(newChannels);
-
-	pScan_()->addChannel("bigTEYNorm", "10000*tey/I0");
-	pScan_()->addChannel("bigTFYNorm", "-10000*tfy/I0");
-
-	pScan_()->addChannel("bigTeyNorm", "10000*tey/I0");
-	pScan_()->addChannel("pgtTest1", "pgt.pgtCounts[130]");
-	pScan_()->addChannel("pgtTest2", "pgt[130].pgtCounts");
-
-
-	QString indexer = "";
-	for(int x = 0; x < 1024; x++){
-		indexer.setNum(x);
-		pScan_()->addChannel("PGT_COUNTS"+indexer, "pgt.pgtCounts["+indexer+"]");
-	}
-	*/
-
 		cfg_ = sxsc;
 		sxsc->setFileName("daveData.%03d.dat");
 		sxsc->setFilePath(AMUserSettings::userDataFolder);
@@ -44,17 +24,12 @@ SGMXASScanConfigurationViewer::SGMXASScanConfigurationViewer(QWidget *parent)  :
 		regionsView_->setBeamlineEnergy(SGMBeamline::sgm()->energy());
 		connect(regionsView_, SIGNAL(addRegionClicked()), this, SLOT(onAddRegionClicked()));
 		connect(sxsc, SIGNAL(regionsChanged()), this, SLOT(onRegionsChanged()));
-/*		fluxResolutionView_ = new AMControlOptimizationSetView((AMControlOptimizationSet*)(sxsc->fluxResolutionSet()), this);
-		fluxResolutionView_->onRegionsUpdate(sxsc->regions());
-//d		connect( ((QSpinBox*)(fluxResolutionView_->boxByName("grating"))), SIGNAL(valueChanged(int)), sxsc, SLOT(setGrating(int)) );
-//d		((QSpinBox*)(fluxResolutionView_->boxByName("harmonic")))->setSingleStep(2);
-//d		connect( ((QSpinBox*)(fluxResolutionView_->boxByName("harmonic"))), SIGNAL(valueChanged(int)), sxsc, SLOT(setHarmonic(int)) );
-//d		connect( ((QDoubleSpinBox*)(fluxResolutionView_->boxByName("exitSlitGap"))), SIGNAL(valueChanged(double)), sxsc, SLOT(setExitSlitGap(double)) );
-*/
-		fluxResolutionView2_ = new AMCompactControlOptimizationSetView((AMControlOptimizationSet*)(sxsc->fluxResolutionSet()), this);
-		fluxResolutionView2_->onRegionsUpdate(sxsc->regions());
 
-//		fluxResolutionView2_ = new AMColorControlOptimizationSetView((AMControlOptimizationSet*)(sxsc->fluxResolutionSet()), this);
+		fluxResolutionView_ = new AMCompactControlOptimizationSetView((AMControlOptimizationSet*)(sxsc->fluxResolutionSet()), this);
+		connect( ((QComboBox*)(fluxResolutionView_->detailView()->boxByName("grating"))), SIGNAL(currentIndexChanged(int)), sxsc, SLOT(setGrating(int)) );
+		connect( ((QComboBox*)(fluxResolutionView_->detailView()->boxByName("harmonic"))), SIGNAL(currentIndexChanged(int)), sxsc, SLOT(setHarmonic(int)) );
+		connect( ((QDoubleSpinBox*)(fluxResolutionView_->detailView()->boxByName("exitSlitGap"))), SIGNAL(valueChanged(double)), sxsc, SLOT(setExitSlitGap(double)) );
+		fluxResolutionView_->onRegionsUpdate(sxsc->regions());
 
 		trackingView_ = new AMControlSetView(sxsc->trackingSet(), this);
 		connect( ((QSpinBox*)(trackingView_->boxByName("undulatorTracking"))), SIGNAL(valueChanged(int)), sxsc, SLOT(setUndulatorTracking(int)) );
@@ -70,29 +45,19 @@ SGMXASScanConfigurationViewer::SGMXASScanConfigurationViewer(QWidget *parent)  :
 		connect(startScanButton_, SIGNAL(clicked()), this, SLOT(onStartScanClicked()));
 		delete doLayoutButton;
 		delete layout();
-		/*
-		vl_.setSpacing(0);
-		vl_.addWidget(regionsLineView_);
-		vl_.addWidget(regionsView_);
-		vl_.addSpacing(40);
-		vl_.addWidget(fluxResolutionView_);
-		vl_.addWidget(fluxResolutionView2_);
-		vl_.addWidget(trackingView_);
-		vl_.addWidget(detectorView_);
-		vl_.addWidget(startScanButton_);
-		qDebug() << "Spacing " << vl_.spacing();
-		this->setLayout(&vl_);
-		*/
+		QSpacerItem *spc1 = new QSpacerItem(10, 10, QSizePolicy::Minimum, QSizePolicy::Maximum);
+		QSpacerItem *spc2 = new QSpacerItem(10, 10, QSizePolicy::Minimum, QSizePolicy::Maximum);
+		QSpacerItem *spc3 = new QSpacerItem(10, 10, QSizePolicy::Minimum, QSizePolicy::Maximum);
 		gl_.setSpacing(0);
-		gl_.addWidget(regionsLineView_, 0, 0, 1, 5, Qt::AlignCenter);
-		gl_.addWidget(regionsView_, 1, 0, 2, 3, Qt::AlignLeft);
-		//gl_.addSpacing(40);
-//		gl_.addWidget(fluxResolutionView_, 3, 0, 2, 3, Qt::AlignLeft);
-		gl_.addWidget(fluxResolutionView2_, 5, 0, 2, 3, Qt::AlignLeft);
-		gl_.addWidget(trackingView_, 3, 3, 2, 2, Qt::AlignRight);
-		gl_.addWidget(detectorView_, 5, 3, 2, 2, Qt::AlignRight);
-		gl_.addWidget(startScanButton_, 7, 0, 1, 2, Qt::AlignLeft);
-		qDebug() << "Spacing " << gl_.spacing();
+		gl_.addWidget(regionsLineView_,		0, 0, 1, 5, Qt::AlignCenter);
+		gl_.addWidget(regionsView_,			1, 0, 2, 3, Qt::AlignLeft);
+		gl_.addWidget(fluxResolutionView_, 3, 0, 2, 3, Qt::AlignLeft);
+		gl_.addWidget(trackingView_,		1, 3, 2, 2, Qt::AlignLeft);
+		gl_.addWidget(detectorView_,		3, 3, 2, 2, Qt::AlignLeft);
+		gl_.addItem(spc1,					5, 0, 2, 3, Qt::AlignLeft);
+		gl_.addItem(spc2,					5, 3, 2, 2, Qt::AlignLeft);
+		gl_.addWidget(startScanButton_,		9, 0, 1, 2, Qt::AlignLeft);
+		gl_.addItem(spc3,					9, 3, 1, 2, Qt::AlignLeft);
 		this->setLayout(&gl_);
 		this->setMaximumSize(800, 800);
 	}

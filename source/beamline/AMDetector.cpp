@@ -12,3 +12,28 @@ AMSpectralOutputDetector::AMSpectralOutputDetector(const QString& name, AMContro
 {
 	control_ = control;
 }
+
+PGTDetector::PGTDetector(const QString &name, AMControl *dataWaveform, AMControl *hvSetpoint, AMControl *hvFbk, AMControl *integrationTime, AMControl *integrationMode, QObject *parent) :
+		PGTDetectorInfo(name, name, parent)
+{
+	dataWaveform_ = dataWaveform;
+	hvSetpoint_ = hvSetpoint;
+	hvFbk_ = hvFbk;
+	integrationTime_ = integrationTime;
+	integrationMode_ = integrationMode;
+}
+
+PGTDetector::~PGTDetector()
+{
+	dataWaveform_ = NULL;
+	hvSetpoint_ = NULL;
+	hvFbk_ = NULL;
+	integrationTime_ = NULL;
+	integrationMode_ = NULL;
+}
+
+MCPDetector::MCPDetector(const QString &name, AMControl *control, QObject *parent) :
+		MCPDetectorInfo(name, name, parent)
+{
+	control_ = control;
+}

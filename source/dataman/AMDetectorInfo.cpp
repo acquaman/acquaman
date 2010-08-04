@@ -62,9 +62,20 @@ AMDbThumbnail AMDetectorInfo::thumbnail(int index) const {
 AMSpectralOutputDetectorInfo::AMSpectralOutputDetectorInfo(const QString& name, const QString& description, int binCount, QString axisName, QStringList binNames, QObject *parent) :
 		AMDetectorInfo(name, description, parent)
 {
+	integrationModes_ << "real" << "live" << "peak";
 	metaData_["binCount"] = binCount;
 	metaData_["axisName"] = axisName;
 	metaData_["binNames"] = binNames;
 	metaData_["integrationTime"] = double(1.0);
-	metaData_["integrationMode"] = QString("real");
+	metaData_["integrationMode"] = integrationModes_.at(0);
+}
+
+MCPDetectorInfo::MCPDetectorInfo(const QString& name, const QString& description, QObject *parent) : AMDetectorInfo(name, description, parent)
+{
+
+}
+
+PGTDetectorInfo::PGTDetectorInfo(const QString& name, const QString& description, QObject *parent) : AMSpectralOutputDetectorInfo(name, description, 1024, "energy", QStringList(), parent)
+{
+
 }

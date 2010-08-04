@@ -26,11 +26,11 @@ signals:
 
 public slots:
 	virtual void start(){ emit started(); }
-	bool setPrevious(AMBeamlineActionItem* previous){ previous_ = previous;
-#warning("DAVID! This warning is... RAW!");
+	bool setPrevious(AMBeamlineActionItem* previous){ previous_ = previous; return true;
+//#warning("DAVID! This warning is... RAW!");
 		}
-	bool setNext(AMBeamlineActionItem* next){ next_ = next;
-			#warning("DAVID! This warning is... RAW!");
+	bool setNext(AMBeamlineActionItem* next){ next_ = next; return true;
+//			#warning("DAVID! This warning is... RAW!");
 		}
 
 protected:

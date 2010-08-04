@@ -68,9 +68,12 @@ AMAppController::AMAppController(QObject *parent) :
 	mw_->addPane(new EmissionScanController(), "Experiment Setup", "Emission Scan", ":/multimedia-volume-control.png");
 
 	//	SGMXASScanConfigurationViewer* sxscViewer = new SGMXASScanConfigurationViewer();
-	AMScanConfigurationView *scanViewer = new AMScanConfigurationView();
+	AMXASScanConfigurationHolder *scanViewer = new AMXASScanConfigurationHolder();
+//	AMScanConfigurationView *scanViewer = new AMScanConfigurationView();
+	connect(mw_, SIGNAL(sidebarLinkChanged()), scanViewer, SLOT(onSidebarLinkChanged()));
+
 	//	mw_->addPane(sxscViewer, "Experiment Setup", "David Scan", ":/utilities-system-monitor.png");
-	mw_->addPane(scanViewer, "Experiment Setup", "Scans", ":/utilities-system-monitor.png");
+	mw_->addPane(scanViewer, "Experiment Setup", "SGM XAS Scan", ":/utilities-system-monitor.png");
 	// connect(sxscViewer, SIGNAL(scanControllerReady(AMScanController*)), this, SLOT(onScanControllerReady(AMScanController*)));
 
 	mw_->addPane(new Scheduler(), "Experiment Tools", "Scheduler", ":/user-away.png");

@@ -30,18 +30,15 @@ AMRegionsLineView::AMRegionsLineView(AMXASRegionsList *regions, QWidget *parent)
 
 void AMRegionsLineView::handleDataChanged(QModelIndex topLeft, QModelIndex bottomRight){
 	if(topLeft.column() == 1 || topLeft.column() == 2 || topLeft.column() == 3){
-		qDebug() << "Detected data changed meaningful";
 		redrawRegionsLine();
 	}
 }
 
 void AMRegionsLineView::handleRowsInsert(const QModelIndex &parent, int start, int end){
-	qDebug() << "Detected row insert";
 	redrawRegionsLine();
 }
 
 void AMRegionsLineView::handleRowsRemoved(const QModelIndex &parent, int start, int end){
-	qDebug() << "Detected row remove";
 	redrawRegionsLine();
 }
 
@@ -51,8 +48,6 @@ void AMRegionsLineView::redrawRegionsLine(){
 	double range = regions_->maxEnergy() - regions_->minEnergy();
 	double ratio = range/(nlSize-60);
 	for (int i = 0; i < regions_->count(); ++i) {
-		qDebug() << "Width will be " << (int)floor((regions_->end(i)-regions_->start(i))/ratio) << " pos will be " << 5+(int)floor((regions_->start(i)-regions_->minEnergy())/ratio);
-		//			RegionItem *item = new RegionItem( (int)floor((regions_->end(i)-regions_->start(i))/ratio) );
 		RegionItem *item = new RegionItem(regions_->start(i), regions_->delta(i), regions_->end(i), regions_->minEnergy(), regions_->maxEnergy(), nlSize-60);
 		item->setPos( 10+(int)floor((regions_->start(i)-regions_->minEnergy())/ratio), 0);
 		scene->addItem(item);
@@ -61,7 +56,6 @@ void AMRegionsLineView::redrawRegionsLine(){
 		scene->addItem(eItem);
 	}
 	EnergyIndexItem *eItem = new EnergyIndexItem(regions_->end(regions_->count()-1), regions_->minEnergy(), regions_->maxEnergy(), nlSize-60);
-	qDebug() << "Want to offset by width of eItem? " << eItem->boundingRect().width();
 	eItem->setPos(10+(int)floor((regions_->end(regions_->count()-1)-regions_->minEnergy())/ratio) - eItem->boundingRect().width(), 30);
 	scene->addItem(eItem);
 }

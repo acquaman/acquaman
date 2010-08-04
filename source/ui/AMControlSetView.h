@@ -82,53 +82,16 @@ class AMQuickDataSet : public QObject
 {
 	Q_OBJECT
 public:
-	AMQuickDataSet(QMap<double, double> dataMap, QObject *parent = 0) : QObject(parent){
-		model_ = NULL;
-		setDataMap(dataMap);
-	}
+	AMQuickDataSet(QMap<double, double> dataMap, QObject *parent = 0);
 
 	double minY() { return minY_; }
 	double maxY() { return maxY_; }
 	double minX() { return minX_; }
 	double maxX() { return maxX_; }
 
-	void setModel(MPlotRealtimeModel *model){ model_ = model; setupModel();}
-
-	void setupModel(){
-		while (model_->count() > 0) {
-			model_->removePointBack();
-		}
-		QMap<double, double>::const_iterator i = dataMap_.constBegin();
-		while (i != dataMap_.constEnd()) {
-			model_->insertPointBack(i.key(), i.value());
-			++i;
-		}
-	}
-
-	void setDataMap(QMap<double, double> dataMap){
-		dataMap_ = dataMap;
-		QMap<double, double>::const_iterator i = dataMap_.constBegin();
-		minX_ = i.key();
-		minY_ = i.value();
-		maxX_ = i.key();
-		maxY_ = i.value();
-		double tmpX, tmpY;
-		while(i != dataMap_.constEnd()){
-			tmpX = i.key();
-			tmpY = i.value();
-			if(tmpX < minX_)
-				minX_ = tmpX;
-			else if(tmpX > maxX_)	\
-				maxX_ = tmpX;
-			if(tmpY < minY_)
-				minY_ = tmpY;
-			else if(tmpY > maxY_)
-				maxY_ = tmpY;
-			++i;
-		}
-		if(model_)
-			setupModel();
-	}
+	void setModel(MPlotRealtimeModel *model);
+	void setupModel();
+	void setDataMap(QMap<double, double> dataMap);
 
 protected:
 	QMap<double, double> dataMap_;
@@ -146,19 +109,7 @@ public:
 	AMControlOptimizationSetView(AMControlOptimizationSet *viewSet, QWidget *parent = 0);
 
 public slots:
-	void onRegionsUpdate(AMRegionsList* contextParams){
-		bool forceEmit = false;
-		if(!lastContextParams_)
-			forceEmit = true;
-		lastContextParams_ = contextParams;
-		cANSWER_ = ((AMControlOptimizationSet*)viewSet_)->cOnePlot(contextParams);
-		//ANSWER->setDataMap( ((AMControlOptimizationSet*)viewSet_)->cOnePlot(contextParams)->dataMap() );
-		ANSWER->setDataMap( cANSWER_->dataMap() );
-		if(forceEmit){
-			boxTrigger_ = true;
-			emit configValuesChanged();
-		}
-	}
+	void onRegionsUpdate(AMRegionsList* contextParams);
 
 signals:
 	void parameterValuesChanged(double param1, double param2);
@@ -180,7 +131,6 @@ class CCOSVItem : public QGraphicsItem
 public:
 	CCOSVItem(int width, int height, QColor curveColor, bool invert = false, bool log = false);
 
-	//void updateCurve(QMap<double, double> data);
 	void updateCurve(AMCurve *dataCurve);
 	void updateCurveMarker(double percent);
 	QRectF boundingRect() const;
@@ -202,6 +152,8 @@ class AMCompactControlOptimizationSetView : public QGroupBox
 	Q_OBJECT
 public:
 	AMCompactControlOptimizationSetView(AMControlSet *viewSet, QWidget *parent = 0);
+
+	AMControlOptimizationSetView *detailView() { return detailView_;}
 
 public slots:
 	void onRegionsUpdate(AMRegionsList* contextParams);
@@ -226,7 +178,6 @@ protected:
 	CCOSVItem *param1Item_, *param2Item_;
 	QHBoxLayout *hl_;
 	QGridLayout *gl_;
-	//QMap<QString, QVariant> configValues_;
 	AMControlOptimizationSetView *detailView_;
 
 	void parseConfigValues(const QStringList configList);
@@ -240,7 +191,6 @@ public:
 	AMColorControlOptimizationSetView(AMControlSet *viewSet, QWidget *parent = 0);
 
 protected slots:
-	//bool launchDetails();
 	bool adjustSlider(int val);
 
 protected:
@@ -251,6 +201,48 @@ protected:
 	QHBoxLayout *hl_;
 	AMControlOptimizationSetView *detailView_;
 	double maxUpper, minUpper, maxLower, minLower;
+};
+
+class PGTDetectorInfoView : public QGroupBox
+{
+	Q_OBJECT
+public:
+	PGTDetectorInfoView(PGTDetectorInfo *detector, bool interactive = false, QWidget *parent = 0);
+
+protected:
+	PGTDetectorInfo *detector_;
+	QDoubleSpinBox *integrationTimeBox_;
+	QComboBox *integrationModeBox_;
+	QDoubleSpinBox *hvSetpointBox_;
+	QList<QWidget*> allBoxes_;
+	QVBoxLayout *vl_;
+	bool interactive_;
+};
+
+/*
+class PGTDetectorView : public PGTDetectorInfoView
+{
+	Q_OBJECT
+public:
+	PGTDetectorView(PGTDetector *detector, QWidget *parent = 0);
+
+protected:
+	PGTDetector *detector_;
+};
+*/
+
+class MCPDetectorInfoView : public QGroupBox
+{
+	Q_OBJECT
+public:
+	MCPDetectorInfoView(MCPDetectorInfo *detector, bool interactive = false, QWidget *parent = 0);
+
+protected:
+	MCPDetectorInfo *detector_;
+	QDoubleSpinBox *hvSetpointBox_;
+	QList<QWidget*> allBoxes_;
+	QVBoxLayout *vl_;
+	bool interactive_;
 };
 
 class AMDetectorInfoSetView : public QGroupBox
@@ -269,8 +261,12 @@ public:
 
 protected:
 	AMDetectorInfoSet *viewSet_;
-	QList<QWidget*> detectorBoxes_;
+	QList< QWidget* > detectorBoxes_;
+	QList< QWidget* > detectorDetails_;
+	QList< QWidget* > detailViews_;
 	QHBoxLayout *hl_;
+
+	QWidget* detailViewByType(AMDetectorInfo *detector);
 };
 
 #endif // AMCONTROLSETVIEW_H
