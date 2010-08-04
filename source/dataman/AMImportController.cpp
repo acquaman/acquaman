@@ -245,7 +245,7 @@ void AMImportController::finalizeImport() {
 			currentScan_->setDateTime(w_->dateTimeEdit->dateTime());
 
 		currentScan_->setSampleId(w_->sampleEdit->value());
-		currentScan_->setRunId(w_->runEdit->value());
+		currentScan_->setRunId(w_->runEdit->currentRunId());
 
 		currentScan_->storeToDb(AMDatabase::userdb());
 		numSuccess_++;

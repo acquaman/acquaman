@@ -26,7 +26,7 @@
 */
 
 
-class AMDatabase : QObject {
+class AMDatabase : public QObject {
 	Q_OBJECT
 
 public:
@@ -118,10 +118,10 @@ public:
 
 
 signals:
-	/// Emitted when an object is inserted or modified. Contains the id of the inserted or modified object.
-	void updated(int id);
+	/// Emitted when an object is inserted or modified. Contains the id of the inserted or modified object, or -1 if a whole refresh is recommended.
+	void updated(const QString& tableName, int id);
 	/// Emitted after an object is removed. Contains the old id of the removed object.
-	void removed(int oldId);
+	void removed(const QString& tableName, int oldId);
 
 protected:
 	/// Access the QSqlAMDatabase object for this connection.

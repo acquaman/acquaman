@@ -46,7 +46,7 @@ private slots:
 
 
 
-		QTest::qWait(100000);
+		QTest::qWait(2000);
 
 
 	}
@@ -58,29 +58,30 @@ private slots:
 		b.resize(200, 500);
 		b.show();
 
-		b.addLink("cat1", QVariant(), "Link1 Heavy", "", -0.1);
+		b.addLink("cat1", QVariant(), "Link1 Heavy", QIcon(), -0.1);
 		QTest::qWait(1000);
-		b.addLink("cat1", QVariant(), "Link 2 Heavier", "");
+		b.addLink("cat1", QVariant(), "Link 2 Heavier", QIcon());
 		QTest::qWait(1000);
-		b.addLink("cat1", QVariant(QString("myPayload")), "Link3 light toDel", "", -3);
+		QStandardItem* linky = b.addLink("cat1", QVariant(QString("myPayload")), "Link3 light toDel", QIcon(), -3);
 		QTest::qWait(1000);
-		b.addLink("cat1", QVariant(), "Link4 mid", "", -2);
-
-		QTest::qWait(1000);
-
-		b.addCategory("cat2 - light", -1);
+		b.addLink("cat1", QVariant(), "Link4 mid", QIcon(), -2);
 
 		QTest::qWait(1000);
 
-		b.addCategory("cat 3");
+		b.addHeading("cat2 - light", -1);
 
 		QTest::qWait(1000);
 
-		b.deleteLink(QVariant(QString("myPayload")));
+		b.addHeading("cat 3");
 
-		QTest::qWait(4000);
+		QTest::qWait(1000);
+
+		b.deleteLink(linky);
+
+		QTest::qWait(40000);
 
 	}
+	/*
 
 	void testAMScanSetModel() {
 
@@ -479,6 +480,7 @@ private slots:
 		QTest::qWait(80000);
 
 	}
+	*/
 
 
 protected:
