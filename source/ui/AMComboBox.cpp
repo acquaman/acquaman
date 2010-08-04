@@ -31,21 +31,7 @@ AMComboBox::~AMComboBox(){
 // Searching and obtaining from the database, whatever is specified in the column name in a string array
 
 
-int AMComboBox::addRun() {
 
-	//getting text from input box
-	bool ok;
-	QString text = QInputDialog::getText(this, tr("Add Run"),
-		tr("Please enter the name of the new run:"), QLineEdit::Normal,QString(), &ok);
-	if (ok && !text.isEmpty()){
-			AMRun newRun(text);
-			newRun.storeToDb(database_);
-
-			return newRun.id();
-	}
-	else
-		return -1;
-}
 
 void AMComboBox::autoAddRuns() {
 
@@ -63,7 +49,7 @@ void AMComboBox::autoAddRuns() {
 
 	if (q.exec()) {
 		while (q.next()) {
-			addItem(QString(q.value(1).toString()+" , "+q.value(2).toDateTime().toString(" MMM d (yyyy)")));
+			addItem(QString(q.value(1).toString()+", "+q.value(2).toDateTime().toString(" MMM d (yyyy)")));
 			if(q.value(4).toString() == "PNG") {
 				QPixmap p;
 				if(p.loadFromData(q.value(5).toByteArray(), "PNG"))
@@ -86,9 +72,10 @@ void AMComboBox::autoAddRuns() {
 void AMComboBox::onComboBoxActivated(int index) {
 
 	if (index==0){
-		int id=addRun();
+
+		//int id; // this is the id of the run in the database
 		autoAddRuns();
-		setCurrentIndex(findData(id,Qt::UserRole));
+		//setCurrentIndex(findData(id,Qt::UserRole));
 	}
 
 	emit currentRunIdChanged(itemData(index, Qt::UserRole).toInt());
@@ -98,5 +85,6 @@ void AMComboBox::onComboBoxActivated(int index) {
 int AMComboBox::currentRunId() const {
 	return itemData(currentIndex(), Qt::UserRole).toInt();
 }
+
 
 

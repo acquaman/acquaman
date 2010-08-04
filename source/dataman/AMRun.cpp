@@ -11,20 +11,21 @@ AMRun::AMRun(QObject *parent) :
 	metaData_["dateTime"] = QDateTime::currentDateTime();
 	metaData_["notes"] = QString();
 	metaData_["endDateTime"]=QDateTime();
-	metaData_["facilityId"]=1;
+	metaData_["facilityId"]= int();
 }
 
-/// This constructor initializes a run with a given name.
-AMRun::AMRun(const QString& runName, QObject* parent)
+/// This constructor initializes a run with a given name and facility Id.
+AMRun::AMRun(const QString& runName, const int& facilityId, QObject* parent)
 		: AMDbObject(parent)
 {
 		/// Initialize our unique pieces of meta-data. The values don't matter much, but we want to make sure that they're present in the metaData_ hash.
 		metaData_["dateTime"] = QDateTime::currentDateTime();
 		metaData_["notes"] = QString();
 		metaData_["endDateTime"]=QDateTime();
-		metaData_["facilityId"]=1;
+		metaData_["facilityId"]=int();
 
 		this->setName(runName);
+		this->setFacilityId(facilityId);
 }
 
 /// This constructor immediately loads a stored run from the database.

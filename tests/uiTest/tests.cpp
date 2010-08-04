@@ -7,6 +7,7 @@
 #include "ui/AMScanView.h"
 #include "ui/AMSidebar.h"
 #include "ui/AMComboBox.h"
+#include "ui/AMNewRunDialog.h"
 
 #include "dataman/AMFirstTimeController.h"
 #include "AMErrorMonitor.h"
@@ -36,17 +37,18 @@ private slots:
 		AMDatabase::releaseUserDb();
 	}
 
-	/// Test to confirm that comboBox works.
-	void testComboBox() {
+	/// Test to confirm that new run dialog works.
+	void testRunDialog() {
 
-		AMComboBox *box = new AMComboBox;
-		box->show();
+		AMNewRunDialog *window = new AMNewRunDialog();
+
+		window->show();
 
 
 
 		QTest::qWait(100000);
 
-		delete box;
+
 	}
 
 

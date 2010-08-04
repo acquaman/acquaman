@@ -182,7 +182,8 @@ HEADERS +=	../MPlot/src/MPlot/MPlot.h	\
 	source/ui/SamplePositions.h	\
 	source/ui/Scheduler.h	\
 	source/ui/SGMSampleTransferView.h	\
-	source/ui/SGMXASScanConfigurationViewer.h
+	source/ui/SGMXASScanConfigurationViewer.h \
+	source/ui/AMNewRunDialog.h
 FORMS +=	source/ui/AbsorptionScanController.ui	\
 	source/ui/AMDataView.ui	\
 	source/ui/AMDataViewEmptyHeader.ui	\
@@ -297,6 +298,7 @@ SOURCES +=	source/acquaman/AMAcqScanOutput.cpp	\
 	source/ui/NumericControl.cpp	\
 	source/ui/SamplePositions.cpp	\
 	source/ui/SGMSampleTransferView.cpp	\
-	source/ui/SGMXASScanConfigurationViewer.cpp
+	source/ui/SGMXASScanConfigurationViewer.cpp \
+	source/ui/AMNewRunDialog.cpp
 RESOURCES =	source/icons/icons.qrc
 OTHER_FILES +=	source/muParser/README.txt
