@@ -4,6 +4,7 @@
 #include <QtGui>
 #include "ui_SGMXASScanConfigurationViewer.h"
 #include "AMControlSetView.h"
+#include "AMDetectorView.h"
 #include "AMXASRegionsView.h"
 #include "AMRegionsLineView.h"
 #include <QPushButton>
@@ -46,6 +47,7 @@ protected:
 	AMCompactControlOptimizationSetView *fluxResolutionView_;
 	AMControlSetView *trackingView_;
 	AMDetectorInfoSetView *detectorView_;
+	//AMDetectorSetView *detectorView_;
 	QPushButton *startScanButton_;
 	QVBoxLayout vl_;
 	QGridLayout gl_;

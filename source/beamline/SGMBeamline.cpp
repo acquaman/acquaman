@@ -23,6 +23,8 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	amNames2pvNames_.set("exitSlitTracking", "dave:Energy:exitSlit:tracking");
 	amNames2pvNames_.set("tey", "reixsHost:tey");
 	amNames2pvNames_.set("tfy", "reixsHost:tfy");
+	amNames2pvNames_.set("tfyHVSetpoint", "reixsHost:tfy:hv:sp");
+	amNames2pvNames_.set("tfyHVFbk", "reixsHost:tfy:hv:fbk");
 	amNames2pvNames_.set("pgt", "reixsHost:sdd:spectrum");
 	amNames2pvNames_.set("pgtHVSetpoint", "reixsHost:sdd:hv:sp");
 	amNames2pvNames_.set("pgtHVFbk", "reixsHost:sdd:hv:fbk");
@@ -82,18 +84,28 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	addChild(tey_);
 	teyDetector_ = new AMSingleControlDetector(tey_->name(), tey_, this);
 	teyDetector_->setDescription("TEY");
+
 	sgmPVName = amNames2pvNames_.valueF("tfy");
 	tfy_ = new AMReadOnlyPVControl("tfy", sgmPVName, this);
 	addChild(tfy_);
+	sgmPVName = amNames2pvNames_.valueF("tfyHVSetpoint");
+	tfyHVSetpoint_ = new AMReadOnlyPVControl("tfyHVSetpoint", sgmPVName, this);
+	//tfyHVSetpoint_ = new AMPVControl("tfyHVSetpoint", amNames2pvNames_.valueF("tfyHVFbk"), amNames2pvNames_.valueF("tfyHVSetpoint"), this, 5);
+	addChild(tfyHVSetpoint_);
+	sgmPVName = amNames2pvNames_.valueF("tfyHVFbk");
+	tfyHVFbk_ = new AMReadOnlyPVControl("tfyHVFbk", sgmPVName, this);
+	addChild(tfyHVFbk_);
 //	tfyDetector_ = new AMSingleControlDetector(tfy_->name(), tfy_, this);
-	tfyDetector_ = new MCPDetector(tfy_->name(), tfy_, this);
+	tfyDetector_ = new MCPDetector(tfy_->name(), tfy_, tfyHVSetpoint_, tfyHVFbk_, this);
 	tfyDetector_->setDescription("TFY");
+
 	sgmPVName = amNames2pvNames_.valueF("pgt");
 	pgt_ = new AMReadOnlyPVControl("pgt", sgmPVName, this);
 	addChild(pgt_);
-
 	sgmPVName = amNames2pvNames_.valueF("pgtHVSetpoint");
 	pgtHVSetpoint_ = new AMReadOnlyPVControl("pgtHVSetpoint", sgmPVName, this);
+	//pgtHVSetpoint_ = new AMPVControl("pgtHVSetpoint", amNames2pvNames_.valueF("pgtHVFbk"), amNames2pvNames_.valueF("pgtHVSetpoint"), this, 0.5);
+	qDebug() << "SDD HV: " << pgtHVSetpoint_->minimumValue() << pgtHVSetpoint_->maximumValue();
 	addChild(pgtHVSetpoint_);
 	sgmPVName = amNames2pvNames_.valueF("pgtHVFbk");
 	pgtHVFbk_ = new AMReadOnlyPVControl("pgtHVFbk", sgmPVName, this);

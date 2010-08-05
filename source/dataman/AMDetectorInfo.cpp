@@ -62,20 +62,28 @@ AMDbThumbnail AMDetectorInfo::thumbnail(int index) const {
 AMSpectralOutputDetectorInfo::AMSpectralOutputDetectorInfo(const QString& name, const QString& description, int binCount, QString axisName, QStringList binNames, QObject *parent) :
 		AMDetectorInfo(name, description, parent)
 {
-	integrationModes_ << "real" << "live" << "peak";
 	metaData_["binCount"] = binCount;
 	metaData_["axisName"] = axisName;
 	metaData_["binNames"] = binNames;
 	metaData_["integrationTime"] = double(1.0);
-	metaData_["integrationMode"] = integrationModes_.at(0);
+	metaData_["integrationTimeRangeMin"] = double(0.0);
+	metaData_["integrationTimeRangeMax"] = double(10.0);
+	QStringList tmpList;
+	tmpList << "real" << "live" << "peak";
+	metaData_["integrationModeList"] = tmpList;
+	metaData_["integrationMode"] = tmpList.at(0);
 }
 
 MCPDetectorInfo::MCPDetectorInfo(const QString& name, const QString& description, QObject *parent) : AMDetectorInfo(name, description, parent)
 {
-
+	metaData_["hvSetpoint"] = double(0.0);
+	metaData_["hvSetpointRangeMin"] = double(0.0);
+	metaData_["hvSetpointRangeMax"] = double(1400.0);
 }
 
 PGTDetectorInfo::PGTDetectorInfo(const QString& name, const QString& description, QObject *parent) : AMSpectralOutputDetectorInfo(name, description, 1024, "energy", QStringList(), parent)
 {
-
+	metaData_["hvSetpoint"] = double(0.0);
+	metaData_["hvSetpointRangeMin"] = double(0.0);
+	metaData_["hvSetpointRangeMax"] = double(180.0);
 }

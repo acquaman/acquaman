@@ -32,8 +32,16 @@ PGTDetector::~PGTDetector()
 	integrationMode_ = NULL;
 }
 
-MCPDetector::MCPDetector(const QString &name, AMControl *control, QObject *parent) :
+MCPDetector::MCPDetector(const QString &name, AMControl *reading, AMControl *hvSetpoint, AMControl *hvFbk, QObject *parent) :
 		MCPDetectorInfo(name, name, parent)
 {
-	control_ = control;
+	reading_ = reading;
+	hvSetpoint_ = hvSetpoint;
+	hvFbk_ = hvFbk;
+}
+
+MCPDetector::~MCPDetector(){
+	reading_ = NULL;
+	hvSetpoint_ = NULL;
+	hvFbk_ = NULL;
 }

@@ -149,6 +149,8 @@ protected:
 	AMControl *exitSlitTracking_;
 	AMControl *tey_;
 	AMControl *tfy_;
+	AMControl *tfyHVSetpoint_;
+	AMControl *tfyHVFbk_;
 	AMControl *pgt_;
 	AMControl *pgtHVSetpoint_;
 	AMControl *pgtHVFbk_;

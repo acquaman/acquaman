@@ -115,8 +115,10 @@ public:
 	QStringList binNames() const { return metaData("binNames").toStringList(); }
 	/// The sampling/integration time, in seconds
 	double integrationTime() const { return metaData("integrationTime").toDouble(); }
+	QPair<double, double> integrationTimeRange() const { QPair<double, double> rVal; rVal.first = metaData("integrationTimeRangeMin").toDouble(); rVal.second = metaData("integrationTimeRangeMax").toDouble(); return rVal;}
 	/// The integration mode (describes the integration time: real, ____, or \todo )
 	QString integrationMode() const { return metaData("integrationMode").toString(); }
+	QStringList integrationModeList() const { return metaData("integrationModeList").toStringList(); }
 	QStringList integrationModes() const { return integrationModes_;}
 
 	// Dimensionality and size:
@@ -136,7 +138,10 @@ public:
 		rv << AMMetaMetaData(QVariant::String, "axisName", true);
 		rv << AMMetaMetaData(QVariant::StringList, "binNames", true);
 		rv << AMMetaMetaData(QVariant::Double, "integrationTime", true);
+		rv << AMMetaMetaData(QVariant::Double, "integrationTimeRangeMin", true);
+		rv << AMMetaMetaData(QVariant::Double, "integrationTimeRangeMax", true);
 		rv << AMMetaMetaData(QVariant::String, "integrationMode", true);
+		rv << AMMetaMetaData(QVariant::StringList, "integrationModeList", true);
 		return rv;
 	}
 
@@ -172,6 +177,10 @@ public slots:
 	void setIntegrationTime(double integrationTime) {
 		setMetaData("integrationTime", integrationTime);
 	}
+	void setIntegrationTimeRange(QPair<double, double> range){
+		setMetaData("integrationTimeRangeMin", range.first);
+		setMetaData("integrationTimeRangeMax", range.second);
+	}
 	void setIntegrationMode(const QString& integrationMode) {
 		/// \todo check that integrationMode is one of valid choices.
 		if(integrationModes_.contains(integrationMode))
@@ -190,6 +199,12 @@ public:
 
 	/// Operational setpoint for High Voltage (HV)
 	double hvSetpoint() const { return metaData("hvSetpoint").toDouble(); }
+	QPair<double, double> hvSetpointRange() const {
+		QPair<double, double> rVal;
+		rVal.first = metaData("hvSetpointRangeMin").toDouble();
+		rVal.second = metaData("hvSetpointRangeMax").toDouble();
+		return rVal;
+	}
 
 	// Dimensionality and size:
 	////////////////////////////////////
@@ -206,6 +221,8 @@ public:
 	static QList<AMMetaMetaData> metaDataUniqueKeys() {
 		QList<AMMetaMetaData> rv;
 		rv << AMMetaMetaData(QVariant::Double, "hvSetpoint", true);
+		rv << AMMetaMetaData(QVariant::Double, "hvSetpointRangeMin", true);
+		rv << AMMetaMetaData(QVariant::Double, "hvSetpointRangeMax", true);
 		return rv;
 	}
 
@@ -232,6 +249,10 @@ public slots:
 	void setHVSetpoint(double hvSetpoint) {
 		setMetaData("hvSetpoint", hvSetpoint);
 	}
+	void setHVSetpointRange(QPair<double, double> range){
+		setMetaData("hvSetpointRangeMin", range.first);
+		setMetaData("hvSetpointRangeMax", range.second);
+	}
 
 protected:
 
@@ -245,6 +266,12 @@ public:
 
 	/// Operational setpoint for High Voltage (HV)
 	double hvSetpoint() const { return metaData("hvSetpoint").toDouble(); }
+	QPair<double, double> hvSetpointRange() const {
+		QPair<double, double> rVal;
+		rVal.first = metaData("hvSetpointRangeMin").toDouble();
+		rVal.second = metaData("hvSetpointRangeMax").toDouble();
+		return rVal;
+	}
 
 	// Dimensionality and size:
 	////////////////////////////////////
@@ -261,6 +288,8 @@ public:
 	static QList<AMMetaMetaData> metaDataUniqueKeys() {
 		QList<AMMetaMetaData> rv;
 		rv << AMMetaMetaData(QVariant::Double, "hvSetpoint", true);
+		rv << AMMetaMetaData(QVariant::Double, "hvSetpointRangeMin", true);
+		rv << AMMetaMetaData(QVariant::Double, "hvSetpointRangeMax", true);
 		return rv;
 	}
 
@@ -286,6 +315,10 @@ public:
 public slots:
 	void setHVSetpoint(double hvSetpoint) {
 		setMetaData("hvSetpoint", hvSetpoint);
+	}
+	void setHVSetpointRange(QPair<double, double> range){
+		setMetaData("hvSetpointRangeMin", range.first);
+		setMetaData("hvSetpointRangeMax", range.second);
 	}
 
 protected:

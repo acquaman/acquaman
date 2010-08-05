@@ -35,6 +35,12 @@ public:
 	PGTDetector(const QString& name, AMControl *dataWaveform, AMControl *hvSetpoint, AMControl *hvFbk, AMControl *integrationTime, AMControl *integrationMode, QObject *parent = 0);
 	~PGTDetector();
 
+	AMControl* dataWaveform() const { return dataWaveform_; }
+	AMControl* hvSetpoint() const { return hvSetpoint_; }
+	AMControl* hvFbk() const { return hvFbk_; }
+	AMControl* integrationTime() const { return integrationTime_; }
+	AMControl* integrationMode() const { return integrationMode_; }
+
 protected:
 	AMControl *dataWaveform_;
 	AMControl *hvSetpoint_;
@@ -47,11 +53,16 @@ class MCPDetector : public MCPDetectorInfo
 {
 	Q_OBJECT
 public:
-	MCPDetector(const QString& name, AMControl *control, QObject *parent = 0);
-	~MCPDetector() { control_ = NULL; }
+	MCPDetector(const QString& name, AMControl *reading, AMControl *hvSetpoint, AMControl *hvFbk, QObject *parent = 0);
+	~MCPDetector();
+
+	AMControl* hvSetpoint() const { return hvSetpoint_; }
+	AMControl* hvFbk() const { return hvFbk_; }
 
 protected:
-	AMControl *control_;
+	AMControl *reading_;
+	AMControl *hvSetpoint_;
+	AMControl *hvFbk_;
 };
 
 #endif // AMDETECTOR_H

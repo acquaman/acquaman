@@ -203,53 +203,53 @@ protected:
 	double maxUpper, minUpper, maxLower, minLower;
 };
 
-class PGTDetectorInfoView : public QGroupBox
+class AMDetectorInfoView : public QGroupBox
 {
 	Q_OBJECT
 public:
-	PGTDetectorInfoView(PGTDetectorInfo *detector, bool interactive = false, QWidget *parent = 0);
+	AMDetectorInfoView(AMDetectorInfo *detectorInfo, bool interactive = false, QWidget *parent = 0);
 
 protected:
-	PGTDetectorInfo *detector_;
+	AMDetectorInfo *detectorInfo_;
+	QPushButton *switchToEditBox_;
+	bool interactive_;
+	QHBoxLayout *hl_;
+	QVBoxLayout *vl_;
+};
+
+class PGTDetectorInfoView : public AMDetectorInfoView
+{
+	Q_OBJECT
+public:
+	PGTDetectorInfoView(PGTDetectorInfo *detectorInfo, bool interactive = false, QWidget *parent = 0);
+
+protected:
+	PGTDetectorInfo *sDetectorInfo_;
 	QDoubleSpinBox *integrationTimeBox_;
 	QComboBox *integrationModeBox_;
 	QDoubleSpinBox *hvSetpointBox_;
 	QList<QWidget*> allBoxes_;
-	QVBoxLayout *vl_;
-	bool interactive_;
+	QFormLayout *fl_;
 };
 
-/*
-class PGTDetectorView : public PGTDetectorInfoView
+class MCPDetectorInfoView : public AMDetectorInfoView
 {
 	Q_OBJECT
 public:
-	PGTDetectorView(PGTDetector *detector, QWidget *parent = 0);
+	MCPDetectorInfoView(MCPDetectorInfo *detectorInfo, bool interactive = false, QWidget *parent = 0);
 
 protected:
-	PGTDetector *detector_;
-};
-*/
-
-class MCPDetectorInfoView : public QGroupBox
-{
-	Q_OBJECT
-public:
-	MCPDetectorInfoView(MCPDetectorInfo *detector, bool interactive = false, QWidget *parent = 0);
-
-protected:
-	MCPDetectorInfo *detector_;
+	MCPDetectorInfo *sDetectorInfo_;
 	QDoubleSpinBox *hvSetpointBox_;
 	QList<QWidget*> allBoxes_;
-	QVBoxLayout *vl_;
-	bool interactive_;
+	QFormLayout *fl_;
 };
 
 class AMDetectorInfoSetView : public QGroupBox
 {
 	Q_OBJECT
 public:
-	AMDetectorInfoSetView(AMDetectorInfoSet *viewSet, QWidget *parent = 0);
+	AMDetectorInfoSetView(AMDetectorInfoSet *viewSet, bool setup = true, QWidget *parent = 0);
 
 	QWidget* boxByName(const QString &name){
 		return detectorBoxes_.at(viewSet_->indexOf(name));
@@ -266,7 +266,8 @@ protected:
 	QList< QWidget* > detailViews_;
 	QHBoxLayout *hl_;
 
-	QWidget* detailViewByType(AMDetectorInfo *detector);
+	virtual void runSetup();
+	virtual QWidget* detailViewByType(AMDetectorInfo *detectorInfo);
 };
 
 #endif // AMCONTROLSETVIEW_H
