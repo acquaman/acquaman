@@ -35,11 +35,11 @@ public:
 	PGTDetector(const QString& name, AMControl *dataWaveform, AMControl *hvSetpoint, AMControl *hvFbk, AMControl *integrationTime, AMControl *integrationMode, QObject *parent = 0);
 	~PGTDetector();
 
-	AMControl* dataWaveform() const { return dataWaveform_; }
-	AMControl* hvSetpoint() const { return hvSetpoint_; }
-	AMControl* hvFbk() const { return hvFbk_; }
-	AMControl* integrationTime() const { return integrationTime_; }
-	AMControl* integrationMode() const { return integrationMode_; }
+	AMControl* dataWaveformCtrl() const { return dataWaveform_; }
+	AMControl* hvSetpointCtrl() const { return hvSetpoint_; }
+	AMControl* hvFbkCtrl() const { return hvFbk_; }
+	AMControl* integrationTimeCtrl() const { return integrationTime_; }
+	AMControl* integrationModeCtrl() const { return integrationMode_; }
 
 protected:
 	AMControl *dataWaveform_;
@@ -56,8 +56,8 @@ public:
 	MCPDetector(const QString& name, AMControl *reading, AMControl *hvSetpoint, AMControl *hvFbk, QObject *parent = 0);
 	~MCPDetector();
 
-	AMControl* hvSetpoint() const { return hvSetpoint_; }
-	AMControl* hvFbk() const { return hvFbk_; }
+	AMControl* hvSetpointCtrl() const { return hvSetpoint_; }
+	AMControl* hvFbkCtrl() const { return hvFbk_; }
 
 protected:
 	AMControl *reading_;

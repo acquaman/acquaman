@@ -181,6 +181,7 @@ Q_OBJECT
 public:
 	/// Constructor, only needs a QObject to act as a parent.
 	explicit AMDetectorInfoSet(QObject *parent = 0);
+	//AMDetectorInfoSet(AMDetectorInfoSet *copy, QObject *parent = 0);
 
 	~AMDetectorInfoSet(){
 		detectors_.clear();

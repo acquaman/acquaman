@@ -28,6 +28,7 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	amNames2pvNames_.set("pgt", "reixsHost:sdd:spectrum");
 	amNames2pvNames_.set("pgtHVSetpoint", "reixsHost:sdd:hv:sp");
 	amNames2pvNames_.set("pgtHVFbk", "reixsHost:sdd:hv:fbk");
+	amNames2pvNames_.set("pgtHVRamping", "reixsHost:sdd:hv:ramping");
 	amNames2pvNames_.set("pgtIntegrationTime", "reixsHost:sdd:integration:time");
 	amNames2pvNames_.set("pgtIntegrationMode", "reixsHost:sdd:integration:mode");
 	amNames2pvNames_.set("I0", "reixsHost:I0");
@@ -90,7 +91,7 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	addChild(tfy_);
 	sgmPVName = amNames2pvNames_.valueF("tfyHVSetpoint");
 	tfyHVSetpoint_ = new AMReadOnlyPVControl("tfyHVSetpoint", sgmPVName, this);
-	//tfyHVSetpoint_ = new AMPVControl("tfyHVSetpoint", amNames2pvNames_.valueF("tfyHVFbk"), amNames2pvNames_.valueF("tfyHVSetpoint"), this, 5);
+	//tfyHVSetpoint_ = new AMReadOnlyPVControl("tfyHVSetpoint", amNames2pvNames_.valueF("tfyHVFbk"), amNames2pvNames_.valueF("tfyHVSetpoint"), this, 5);
 	addChild(tfyHVSetpoint_);
 	sgmPVName = amNames2pvNames_.valueF("tfyHVFbk");
 	tfyHVFbk_ = new AMReadOnlyPVControl("tfyHVFbk", sgmPVName, this);
@@ -103,8 +104,9 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	pgt_ = new AMReadOnlyPVControl("pgt", sgmPVName, this);
 	addChild(pgt_);
 	sgmPVName = amNames2pvNames_.valueF("pgtHVSetpoint");
-	pgtHVSetpoint_ = new AMReadOnlyPVControl("pgtHVSetpoint", sgmPVName, this);
-	//pgtHVSetpoint_ = new AMPVControl("pgtHVSetpoint", amNames2pvNames_.valueF("pgtHVFbk"), amNames2pvNames_.valueF("pgtHVSetpoint"), this, 0.5);
+	pgtHVSetpoint_ = new AMPVControl("pgtHVSetpoint", amNames2pvNames_.valueF("pgtHVFbk"), amNames2pvNames_.valueF("pgtHVSetpoint"), this, 0.5);
+	//pgtHVSetpoint_ = new AMReadOnlyPVControl("pgtHVSetpoint", sgmPVName, this);
+	//pgtHVSetpoint_ = new AMPVwStatusControl("pgtHVSetpoint", amNames2pvNames_.valueF("pgtHVFbk"), amNames2pvNames_.valueF("pgtHVSetpoint"), amNames2pvNames_.valueF("pgtHVRamping"), this, 0.5);
 	qDebug() << "SDD HV: " << pgtHVSetpoint_->minimumValue() << pgtHVSetpoint_->maximumValue();
 	addChild(pgtHVSetpoint_);
 	sgmPVName = amNames2pvNames_.valueF("pgtHVFbk");

@@ -154,6 +154,7 @@ protected:
 	AMControl *pgt_;
 	AMControl *pgtHVSetpoint_;
 	AMControl *pgtHVFbk_;
+	AMControl *pgtHVRamping_;
 	AMControl *pgtIntegrationTime_;
 	AMControl *pgtIntegrationMode_;
 	AMControl *i0_;

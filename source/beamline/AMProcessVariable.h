@@ -11,6 +11,7 @@
 #include <QVector>
 #include <QHash>
 #include <QTimer>
+#include <QDebug>
 
 #define EPICS_CA_CONN_TIMEOUT_MS 1000
 

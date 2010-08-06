@@ -998,6 +998,12 @@ AMDetectorInfoSet::AMDetectorInfoSet(QObject *parent) :
 {
 }
 
+//AMDetectorInfoSet::AMDetectorInfoSet(AMDetectorInfoSet *copy, QObject *parent) :
+//		QObject(parent)
+//{
+//
+//}
+
 int AMDetectorInfoSet::indexOf(const QString &name){
 	for(int x = 0; x < detectors_.count(); x++)
 		if(name == detectors_.at(x)->name())

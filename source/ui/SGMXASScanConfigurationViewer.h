@@ -29,10 +29,16 @@ public slots:
 
 protected slots:
 	void onStartScanClicked(){
-		SGMXASDacqScanController *xasCtrl = new SGMXASDacqScanController((SGMXASScanConfiguration*)cfg_, SGMBeamline::sgm());
+		qDebug() << "Detector after: "
+				<< ((PGTDetector*)(((SGMXASScanConfiguration*)(cfg_))->detectorSet()->detectorByName("pgt")))->integrationTime()
+				<< ((PGTDetector*)(((SGMXASScanConfiguration*)(cfg_))->detectorSet()->detectorByName("pgt")))->integrationMode()
+				<< ((PGTDetector*)(((SGMXASScanConfiguration*)(cfg_))->detectorSet()->detectorByName("pgt")))->hvSetpoint()
+				<< ((MCPDetector*)(((SGMXASScanConfiguration*)(cfg_))->detectorSet()->detectorByName("tfy")))->hvSetpoint();
+		/*SGMXASDacqScanController *xasCtrl = new SGMXASDacqScanController((SGMXASScanConfiguration*)cfg_, SGMBeamline::sgm());
 		emit scanControllerReady((AMScanController*)xasCtrl);
 		xasCtrl->initialize();
 		xasCtrl->start();
+		*/
 	}
 	void onRegionsChanged(){
 		if(cfg_ && fluxResolutionView_){
@@ -47,6 +53,7 @@ protected:
 	AMCompactControlOptimizationSetView *fluxResolutionView_;
 	AMControlSetView *trackingView_;
 	AMDetectorInfoSetView *detectorView_;
+	//AMDetectorInfoSet *cfgDetectorInfoSet_;
 	//AMDetectorSetView *detectorView_;
 	QPushButton *startScanButton_;
 	QVBoxLayout vl_;

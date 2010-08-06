@@ -4,6 +4,7 @@
 #include "dataman/AMDbObject.h"
 #include "dataman/AMDatabaseDefinition.h"
 #include <QStringList>
+#include <QDebug>
 
 /// This is the base class of all customizeable detectors and detector information objects. It gets associated with AMScans to indicate how their data was collected.  Subclasses should eventually contain the unique configuration and state of a particular physical detector (ex: the integration time and gain of a pico-ammeter, the HV setting for a CMA/channeltron, the bin configuration of a spectral detector like the Silicon Drift Detector.)  This base class is suitable for an un-configurable, single-point-recording generic detector.
 class AMDetectorInfo : public AMDbObject
@@ -119,7 +120,7 @@ public:
 	/// The integration mode (describes the integration time: real, ____, or \todo )
 	QString integrationMode() const { return metaData("integrationMode").toString(); }
 	QStringList integrationModeList() const { return metaData("integrationModeList").toStringList(); }
-	QStringList integrationModes() const { return integrationModes_;}
+	//QStringList integrationModes() const { return integrationModes_;}
 
 	// Dimensionality and size:
 	////////////////////////////////////
@@ -183,12 +184,13 @@ public slots:
 	}
 	void setIntegrationMode(const QString& integrationMode) {
 		/// \todo check that integrationMode is one of valid choices.
-		if(integrationModes_.contains(integrationMode))
+		if(integrationModeList().contains(integrationMode)){
 			setMetaData("integrationMode", integrationMode);
+		}
 	}
 
 protected:
-	QStringList integrationModes_;
+	//QStringList integrationModes_;
 };
 
 class MCPDetectorInfo : public AMDetectorInfo

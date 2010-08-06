@@ -14,17 +14,15 @@ PGTDetectorView::PGTDetectorView(PGTDetector *detector, bool editMode, QWidget *
 	integrationModeFbk_ = NULL;
 	hvFbk_ = NULL;
 	QPair<double, double> tmpRange;
-	tmpRange = detector_->integrationTime()->range();
+	tmpRange = detector_->integrationTimeCtrl()->range();
 	integrationTimeBox_->setRange(tmpRange.first, tmpRange.second);
-	integrationTimeBox_->setValue(detector_->integrationTime()->value());
+	integrationTimeBox_->setValue(detector_->integrationTimeCtrl()->value());
 	integrationModeBox_->clear();
-	integrationModeBox_->addItems(detector_->integrationMode()->enumNames());
-	integrationModeBox_->setCurrentIndex( (int)detector_->integrationMode()->value() );
-	tmpRange = detector_->hvSetpoint()->range();
-	qDebug() << "HV: " << tmpRange.first << tmpRange.second;
-	qDebug() << "HV: " << detector_->hvSetpoint()->minimumValue() << detector_->hvSetpoint()->maximumValue() << detector_->hvSetpoint()->value();
+	integrationModeBox_->addItems(detector_->integrationModeCtrl()->enumNames());
+	integrationModeBox_->setCurrentIndex( (int)detector_->integrationModeCtrl()->value() );
+	tmpRange = detector_->hvSetpointCtrl()->range();
 	hvSetpointBox_->setRange(tmpRange.first, tmpRange.second);
-	hvSetpointBox_->setValue(detector_->hvSetpoint()->value());
+	hvSetpointBox_->setValue(detector_->hvSetpointCtrl()->value());
 	switchToEditBox_->setEnabled(true);
 	connect(switchToEditBox_, SIGNAL(clicked()), this, SLOT(setEditable()));
 }
@@ -41,18 +39,18 @@ void PGTDetectorView::setEditMode(bool editMode){
 		if(!integrationTimeFbk_){
 			integrationTimeFbk_ = new QDoubleSpinBox();
 			integrationTimeFbk_->setEnabled(false);
-			integrationTimeFbk_->setValue(detector_->integrationTime()->value());
+			integrationTimeFbk_->setValue(detector_->integrationTimeCtrl()->value());
 		}
 		if(!integrationModeFbk_){
 			integrationModeFbk_ = new QComboBox();
 			integrationModeFbk_->setEnabled(false);
 //			integrationModeFbk_->addItems(detector_->integrationModes());
 			integrationModeFbk_->addItems(detector_->integrationModeList());
-			integrationModeFbk_->setCurrentIndex((int)detector_->integrationMode()->value());
+			integrationModeFbk_->setCurrentIndex((int)detector_->integrationModeCtrl()->value());
 		}
 		if(!hvFbk_){
 			hvFbk_ = new QDoubleSpinBox();
-			hvFbk_->setValue(detector_->hvFbk()->value());
+			hvFbk_->setValue(detector_->hvFbkCtrl()->value());
 			hvFbk_->setEnabled(false);
 		}
 		tmpHB = (QHBoxLayout*)fl_->itemAt(0, QFormLayout::FieldRole);
@@ -64,9 +62,9 @@ void PGTDetectorView::setEditMode(bool editMode){
 		tmpHB = (QHBoxLayout*)fl_->itemAt(2, QFormLayout::FieldRole);
 		tmpHB->addWidget(hvFbk_);
 		hvFbk_->show();
-		connect(detector_->integrationTime(), SIGNAL(valueChanged(double)), integrationTimeFbk_, SLOT(setValue(double)));
-		connect(detector_->integrationMode(), SIGNAL(valueChanged(double)), this, SLOT(onIntegrationModeUpdate(double)));
-		connect(detector_->hvFbk(), SIGNAL(valueChanged(double)), hvFbk_, SLOT(setValue(double)));
+		connect(detector_->integrationTimeCtrl(), SIGNAL(valueChanged(double)), integrationTimeFbk_, SLOT(setValue(double)));
+		connect(detector_->integrationModeCtrl(), SIGNAL(valueChanged(double)), this, SLOT(onIntegrationModeUpdate(double)));
+		connect(detector_->hvFbkCtrl(), SIGNAL(valueChanged(double)), hvFbk_, SLOT(setValue(double)));
 		resize(width()+hvSetpointBox_->width(), height());
 	}
 	else{
@@ -105,13 +103,13 @@ void MCPDetectorView::setEditMode(bool editMode){
 		switchToEditBox_->setText("Switch to Configure Mode");
 		if(!hvFbk_){
 			hvFbk_ = new QDoubleSpinBox();
-			hvFbk_->setValue(detector_->hvFbk()->value());
+			hvFbk_->setValue(detector_->hvFbkCtrl()->value());
 			hvFbk_->setEnabled(false);
 		}
 		tmpHB = (QHBoxLayout*)fl_->itemAt(0, QFormLayout::FieldRole);
 		tmpHB->addWidget(hvFbk_);
 		hvFbk_->show();
-		connect(detector_->hvFbk(), SIGNAL(valueChanged(double)), hvFbk_, SLOT(setValue(double)));
+		connect(detector_->hvFbkCtrl(), SIGNAL(valueChanged(double)), hvFbk_, SLOT(setValue(double)));
 		resize(width()+hvSetpointBox_->width(), height());
 	}
 	else{

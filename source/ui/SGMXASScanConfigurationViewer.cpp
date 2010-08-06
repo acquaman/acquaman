@@ -18,6 +18,8 @@ SGMXASScanConfigurationViewer::SGMXASScanConfigurationViewer(QWidget *parent)  :
 		*/
 		sxsc->addRegion(0, 500, 5, 600);
 
+		//cfgDetectorInfoSet_ =
+
 		regionsLineView_ = new AMRegionsLineView(sxsc->regions(), this);
 
 		regionsView_ = new AMXASRegionsView(sxsc->regions(), this);
@@ -40,6 +42,13 @@ SGMXASScanConfigurationViewer::SGMXASScanConfigurationViewer(QWidget *parent)  :
 		connect( ((QCheckBox*)(detectorView_->boxByName("tey"))), SIGNAL(stateChanged(int)), sxsc, SLOT(setUsingTEY(int)) );
 		connect( ((QCheckBox*)(detectorView_->boxByName("tfy"))), SIGNAL(stateChanged(int)), sxsc, SLOT(setUsingTFY(int)) );
 		connect( ((QCheckBox*)(detectorView_->boxByName("pgt"))), SIGNAL(stateChanged(int)), sxsc, SLOT(setUsingPGT(int)) );
+
+		qDebug() << "Detector before: "
+				<< ((PGTDetector*)(sxsc->detectorSet()->detectorByName("pgt")))->integrationTime()
+				<< ((PGTDetector*)(sxsc->detectorSet()->detectorByName("pgt")))->integrationMode()
+				<< ((PGTDetector*)(sxsc->detectorSet()->detectorByName("pgt")))->hvSetpoint()
+				<< ((MCPDetector*)(sxsc->detectorSet()->detectorByName("tfy")))->hvSetpoint();
+
 		startScanButton_ = new QPushButton();
 		startScanButton_->setText("Start Scan");
 		startScanButton_->setMaximumWidth(200);

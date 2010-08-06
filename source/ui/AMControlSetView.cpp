@@ -630,6 +630,7 @@ MCPDetectorInfoView::MCPDetectorInfoView(MCPDetectorInfo *detectorInfo, bool int
 	QPair<double, double> hvRange = sDetectorInfo_->hvSetpointRange();
 	hvSetpointBox_->setRange(hvRange.first, hvRange.second);
 	tmpHB->addWidget(hvSetpointBox_);
+	connect(hvSetpointBox_, SIGNAL(valueChanged(double)), sDetectorInfo_, SLOT(setHVSetpoint(double)));
 	fl_->addRow("HV Setpoint", tmpHB);
 	allBoxes_.append(hvSetpointBox_);
 	vl_->removeItem(hl_);

@@ -299,7 +299,7 @@ void AMProcessVariable::controlInfoCB(struct event_handler_args eventArgs) {
 		lowerGraphLimit_ = ctrlValue->lower_disp_limit;
 		//If the record's DRV_HIGH and DRV_LOW limits haven't been set, we're receiving them as max(0), min(0).
 		// That's a problem, because it pins our minValue() and maxValue() to 0.
-		if(ctrlValue->lower_ctrl_limit == 0 && ctrlValue->upper_alarm_limit == 0) {
+		if(ctrlValue->lower_ctrl_limit == 0 && ctrlValue->upper_ctrl_limit == 0) {
 			lowerLimit_ = -DBL_MAX;
 			upperLimit_ = DBL_MAX;
 		}

@@ -69,9 +69,9 @@ AMSpectralOutputDetectorInfo::AMSpectralOutputDetectorInfo(const QString& name, 
 	metaData_["integrationTimeRangeMin"] = double(0.0);
 	metaData_["integrationTimeRangeMax"] = double(10.0);
 	QStringList tmpList;
-	tmpList << "real" << "live" << "peak";
-	metaData_["integrationModeList"] = tmpList;
-	metaData_["integrationMode"] = tmpList.at(0);
+	tmpList << "Real" << "Live" << "Peak";
+	metaData_["integrationModeList"] = QStringList(tmpList);
+	metaData_["integrationMode"] = QString(tmpList.at(0));
 }
 
 MCPDetectorInfo::MCPDetectorInfo(const QString& name, const QString& description, QObject *parent) : AMDetectorInfo(name, description, parent)
