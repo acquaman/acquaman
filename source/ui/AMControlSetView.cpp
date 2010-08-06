@@ -585,6 +585,7 @@ PGTDetectorInfoView::PGTDetectorInfoView(PGTDetectorInfo *detectorInfo, bool int
 	integrationTimeBox_->setEnabled(interactive_);
 	QPair<double, double> itRange = sDetectorInfo_->integrationTimeRange();
 	integrationTimeBox_->setRange(itRange.first, itRange.second);
+	connect(integrationTimeBox_, SIGNAL(valueChanged(double)), sDetectorInfo_, SLOT(setIntegrationTime(double)));
 	tmpHB->addWidget(integrationTimeBox_);
 	fl_->addRow("Integration Time", tmpHB);
 	tmpHB = new QHBoxLayout();
@@ -593,6 +594,7 @@ PGTDetectorInfoView::PGTDetectorInfoView(PGTDetectorInfo *detectorInfo, bool int
 	integrationModeBox_->setCurrentIndex( sDetectorInfo_->integrationModeList().indexOf(sDetectorInfo_->integrationMode()) );
 	integrationModeBox_->setEnabled(interactive_);
 	tmpHB->addWidget(integrationModeBox_);
+	connect(integrationModeBox_, SIGNAL(currentIndexChanged(QString)), sDetectorInfo_, SLOT(setIntegrationMode(QString)));
 	fl_->addRow("Integration Mode", tmpHB);
 	tmpHB = new QHBoxLayout();
 	hvSetpointBox_ = new QDoubleSpinBox();
@@ -600,6 +602,7 @@ PGTDetectorInfoView::PGTDetectorInfoView(PGTDetectorInfo *detectorInfo, bool int
 	hvSetpointBox_->setEnabled(interactive_);
 	QPair<double, double> hvRange = sDetectorInfo_->hvSetpointRange();
 	hvSetpointBox_->setRange(hvRange.first, hvRange.second);
+	connect(hvSetpointBox_, SIGNAL(valueChanged(double)), sDetectorInfo_, SLOT(setHVSetpoint(double)));
 	tmpHB->addWidget(hvSetpointBox_);
 	fl_->addRow("HV Setpoint", tmpHB);
 	allBoxes_.append(integrationTimeBox_);
