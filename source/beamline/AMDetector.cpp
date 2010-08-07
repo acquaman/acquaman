@@ -7,10 +7,18 @@ AMSingleControlDetector::AMSingleControlDetector(const QString& name, AMControl 
 	control_ = control;
 }
 
+bool AMSingleControlDetector::setControls(AMDetectorInfo *detectorSettings){
+	return false;
+}
+
 AMSpectralOutputDetector::AMSpectralOutputDetector(const QString& name, AMControl *control, int numSpectrumBins, QString xElementName, QStringList yElementNames, QObject *parent) :
 		AMSpectralOutputDetectorInfo(name, name, numSpectrumBins, xElementName, yElementNames, parent)
 {
 	control_ = control;
+}
+
+bool AMSpectralOutputDetector::setControls(AMSpectralOutputDetectorInfo *detectorSettings){
+	return false;
 }
 
 PGTDetector::PGTDetector(const QString &name, AMControl *dataWaveform, AMControl *hvSetpoint, AMControl *hvFbk, AMControl *integrationTime, AMControl *integrationMode, QObject *parent) :
@@ -32,6 +40,13 @@ PGTDetector::~PGTDetector()
 	integrationMode_ = NULL;
 }
 
+bool PGTDetector::setControls(PGTDetectorInfo *pgtSettings){
+	hvSetpoint_->move( pgtSettings->hvSetpoint() );
+	integrationTime_->move( pgtSettings->integrationTime() );
+	integrationMode_->move( integrationMode_->enumNames().indexOf(pgtSettings->integrationMode()) );
+	return true;
+}
+
 MCPDetector::MCPDetector(const QString &name, AMControl *reading, AMControl *hvSetpoint, AMControl *hvFbk, QObject *parent) :
 		MCPDetectorInfo(name, name, parent)
 {
@@ -44,4 +59,9 @@ MCPDetector::~MCPDetector(){
 	reading_ = NULL;
 	hvSetpoint_ = NULL;
 	hvFbk_ = NULL;
+}
+
+bool MCPDetector::setControls(MCPDetectorInfo *mcpSettings){
+	hvSetpoint_->move( mcpSettings->hvSetpoint() );
+	return true;
 }

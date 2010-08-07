@@ -207,10 +207,11 @@ class AMDetectorInfoView : public QGroupBox
 {
 	Q_OBJECT
 public:
-	AMDetectorInfoView(AMDetectorInfo *detectorInfo, bool interactive = false, QWidget *parent = 0);
+	AMDetectorInfoView(AMDetectorInfo *detectorInfo, AMDetectorInfo *writeDetectorInfo = 0, bool interactive = false, QWidget *parent = 0);
 
 protected:
 	AMDetectorInfo *detectorInfo_;
+	AMDetectorInfo *writeDetectorInfo_;
 	QPushButton *switchToEditBox_;
 	bool interactive_;
 	QHBoxLayout *hl_;
@@ -221,7 +222,7 @@ class PGTDetectorInfoView : public AMDetectorInfoView
 {
 	Q_OBJECT
 public:
-	PGTDetectorInfoView(PGTDetectorInfo *detectorInfo, bool interactive = false, QWidget *parent = 0);
+	PGTDetectorInfoView(PGTDetectorInfo *detectorInfo, AMDetectorInfo *writeDetectorInfo = 0, bool interactive = false, QWidget *parent = 0);
 
 protected:
 	PGTDetectorInfo *sDetectorInfo_;
@@ -236,7 +237,7 @@ class MCPDetectorInfoView : public AMDetectorInfoView
 {
 	Q_OBJECT
 public:
-	MCPDetectorInfoView(MCPDetectorInfo *detectorInfo, bool interactive = false, QWidget *parent = 0);
+	MCPDetectorInfoView(MCPDetectorInfo *detectorInfo, AMDetectorInfo *writeDetectorInfo = 0, bool interactive = false, QWidget *parent = 0);
 
 protected:
 	MCPDetectorInfo *sDetectorInfo_;
@@ -249,7 +250,7 @@ class AMDetectorInfoSetView : public QGroupBox
 {
 	Q_OBJECT
 public:
-	AMDetectorInfoSetView(AMDetectorInfoSet *viewSet, bool setup = true, QWidget *parent = 0);
+	AMDetectorInfoSetView(AMDetectorInfoSet *viewSet, AMDetectorInfoSet *writeSet = 0, bool setup = true, QWidget *parent = 0);
 
 	QWidget* boxByName(const QString &name){
 		return detectorBoxes_.at(viewSet_->indexOf(name));
@@ -261,13 +262,14 @@ public:
 
 protected:
 	AMDetectorInfoSet *viewSet_;
+	AMDetectorInfoSet *writeSet_;
 	QList< QWidget* > detectorBoxes_;
 	QList< QWidget* > detectorDetails_;
 	QList< QWidget* > detailViews_;
 	QHBoxLayout *hl_;
 
 	virtual void runSetup();
-	virtual QWidget* detailViewByType(AMDetectorInfo *detectorInfo);
+	virtual QWidget* detailViewByType(AMDetectorInfo *detectorInfo, AMDetectorInfo *writeDetectorInfo);
 };
 
 #endif // AMCONTROLSETVIEW_H

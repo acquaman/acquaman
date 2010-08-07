@@ -5,8 +5,8 @@ AMDetectorView::AMDetectorView(QWidget *parent) :
 {
 }
 
-PGTDetectorView::PGTDetectorView(PGTDetector *detector, bool editMode, QWidget *parent) :
-		PGTDetectorInfoView(detector, true, parent)
+PGTDetectorView::PGTDetectorView(PGTDetector *detector, AMDetectorInfo *configDetector, bool editMode, QWidget *parent) :
+		PGTDetectorInfoView(detector, configDetector, true, parent)
 {
 	detector_ = detector;
 	editMode_ = editMode;
@@ -31,6 +31,10 @@ void PGTDetectorView::onIntegrationModeUpdate(double value){
 	integrationModeFbk_->setCurrentIndex((int)value);
 }
 
+void PGTDetectorView::onIntegrationModeChange(int index){
+	detector_->integrationModeCtrl()->move(index);
+}
+
 void PGTDetectorView::setEditMode(bool editMode){
 	editMode_ = editMode;
 	QHBoxLayout *tmpHB;
@@ -40,19 +44,28 @@ void PGTDetectorView::setEditMode(bool editMode){
 			integrationTimeFbk_ = new QDoubleSpinBox();
 			integrationTimeFbk_->setEnabled(false);
 			integrationTimeFbk_->setValue(detector_->integrationTimeCtrl()->value());
+			connect(detector_->integrationTimeCtrl(), SIGNAL(valueChanged(double)), integrationTimeFbk_, SLOT(setValue(double)));
 		}
 		if(!integrationModeFbk_){
 			integrationModeFbk_ = new QComboBox();
 			integrationModeFbk_->setEnabled(false);
-//			integrationModeFbk_->addItems(detector_->integrationModes());
 			integrationModeFbk_->addItems(detector_->integrationModeList());
 			integrationModeFbk_->setCurrentIndex((int)detector_->integrationModeCtrl()->value());
+			connect(detector_->integrationModeCtrl(), SIGNAL(valueChanged(double)), this, SLOT(onIntegrationModeUpdate(double)));
 		}
 		if(!hvFbk_){
 			hvFbk_ = new QDoubleSpinBox();
+			qDebug() << "HVFbk is " << detector_->hvFbkCtrl()->value();
 			hvFbk_->setValue(detector_->hvFbkCtrl()->value());
 			hvFbk_->setEnabled(false);
+			connect(detector_->hvFbkCtrl(), SIGNAL(valueChanged(double)), hvFbk_, SLOT(setValue(double)));
+			connect(detector_->hvFbkCtrl(), SIGNAL(valueChanged(double)), this, SLOT(onHVFbkUpdate(double)));
+			qDebug() << "Connections made at " << (int)detector_->hvFbkCtrl() << ", what would it say?";
+			onHVFbkUpdate(120);
 		}
+		connect(integrationTimeBox_, SIGNAL(valueChanged(double)), detector_->integrationTimeCtrl(), SLOT(move(double)));
+		connect(integrationModeBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onIntegrationModeChange(int)));
+		connect(hvSetpointBox_, SIGNAL(valueChanged(double)), detector_->hvSetpointCtrl(), SLOT(move(double)));
 		tmpHB = (QHBoxLayout*)fl_->itemAt(0, QFormLayout::FieldRole);
 		tmpHB->addWidget(integrationTimeFbk_);
 		integrationTimeFbk_->show();
@@ -62,12 +75,12 @@ void PGTDetectorView::setEditMode(bool editMode){
 		tmpHB = (QHBoxLayout*)fl_->itemAt(2, QFormLayout::FieldRole);
 		tmpHB->addWidget(hvFbk_);
 		hvFbk_->show();
-		connect(detector_->integrationTimeCtrl(), SIGNAL(valueChanged(double)), integrationTimeFbk_, SLOT(setValue(double)));
-		connect(detector_->integrationModeCtrl(), SIGNAL(valueChanged(double)), this, SLOT(onIntegrationModeUpdate(double)));
-		connect(detector_->hvFbkCtrl(), SIGNAL(valueChanged(double)), hvFbk_, SLOT(setValue(double)));
 		resize(width()+hvSetpointBox_->width(), height());
 	}
 	else{
+		disconnect(integrationTimeBox_, SIGNAL(valueChanged(double)), detector_->integrationTimeCtrl(), SLOT(move(double)));
+		disconnect(integrationModeBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onIntegrationModeChange(int)));
+		disconnect(hvSetpointBox_, SIGNAL(valueChanged(double)), detector_->hvSetpointCtrl(), SLOT(move(double)));
 		switchToEditBox_->setText("Switch to Edit Mode");
 		tmpHB = (QHBoxLayout*)fl_->itemAt(0, QFormLayout::FieldRole);
 		tmpHB->removeWidget(integrationTimeFbk_);
@@ -86,12 +99,16 @@ void PGTDetectorView::setEditable(){
 	setEditMode(!editMode_);
 }
 
-MCPDetectorView::MCPDetectorView(MCPDetector *detector, bool editMode, QWidget *parent) :
-		MCPDetectorInfoView(detector, true, parent)
+MCPDetectorView::MCPDetectorView(MCPDetector *detector, AMDetectorInfo *configDetector, bool editMode, QWidget *parent) :
+		MCPDetectorInfoView(detector, configDetector, true, parent)
 {
 	detector_ = detector;
 	editMode_ = editMode;
 	hvFbk_ = NULL;
+	QPair<double, double> tmpRange;
+	tmpRange = detector_->hvSetpointCtrl()->range();
+	hvSetpointBox_->setRange(tmpRange.first, tmpRange.second);
+	hvSetpointBox_->setValue(detector_->hvSetpointCtrl()->value());
 	switchToEditBox_->setEnabled(true);
 	connect(switchToEditBox_, SIGNAL(clicked()), this, SLOT(setEditable()));
 }
@@ -105,14 +122,16 @@ void MCPDetectorView::setEditMode(bool editMode){
 			hvFbk_ = new QDoubleSpinBox();
 			hvFbk_->setValue(detector_->hvFbkCtrl()->value());
 			hvFbk_->setEnabled(false);
+			connect(detector_->hvFbkCtrl(), SIGNAL(valueChanged(double)), hvFbk_, SLOT(setValue(double)));
 		}
 		tmpHB = (QHBoxLayout*)fl_->itemAt(0, QFormLayout::FieldRole);
 		tmpHB->addWidget(hvFbk_);
+		connect(hvSetpointBox_, SIGNAL(valueChanged(double)), detector_->hvSetpointCtrl(), SLOT(move(double)));
 		hvFbk_->show();
-		connect(detector_->hvFbkCtrl(), SIGNAL(valueChanged(double)), hvFbk_, SLOT(setValue(double)));
 		resize(width()+hvSetpointBox_->width(), height());
 	}
 	else{
+		disconnect(hvSetpointBox_, SIGNAL(valueChanged(double)), detector_->hvSetpointCtrl(), SLOT(move(double)));
 		switchToEditBox_->setText("Switch to Edit Mode");
 		tmpHB = (QHBoxLayout*)fl_->itemAt(0, QFormLayout::FieldRole);
 		tmpHB->removeWidget(hvFbk_);
@@ -125,8 +144,8 @@ void MCPDetectorView::setEditable(){
 	setEditMode(!editMode_);
 }
 
-AMDetectorSetView::AMDetectorSetView(AMDetectorInfoSet *viewSet, bool setup, QWidget *parent) :
-		AMDetectorInfoSetView(viewSet, false, parent)
+AMDetectorSetView::AMDetectorSetView(AMDetectorInfoSet *viewSet, AMDetectorInfoSet *configSet, bool setup, QWidget *parent) :
+		AMDetectorInfoSetView(viewSet, configSet, false, parent)
 {
 	editMode_ = true;
 	if(setup)
@@ -145,14 +164,14 @@ void AMDetectorSetView::runSetup(){
 	runSetup();
 }
 
-QWidget* AMDetectorSetView::detailViewByType(AMDetectorInfo *detector){
+QWidget* AMDetectorSetView::detailViewByType(AMDetectorInfo *detector, AMDetectorInfo *configDetector){
 	if(!editMode_)
-		return AMDetectorInfoSetView::detailViewByType(detector);
+		return AMDetectorInfoSetView::detailViewByType(detector, configDetector);
 	else if(detector->typeDescription() == "PGT SDD Spectrum-Output Detector"){
-		return new PGTDetectorView( (PGTDetector*)detector);
+		return new PGTDetectorView( (PGTDetector*)detector, configDetector);
 	}
 	else if(detector->typeDescription() == "MCP Detector")
-		return new MCPDetectorView( (MCPDetector*)detector);
+		return new MCPDetectorView( (MCPDetector*)detector, configDetector);
 	else
 		return new QGroupBox();
 }

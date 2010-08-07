@@ -149,7 +149,8 @@ public:
 
 	/// This function needs to be overloaded to return all the available pieces of meta data for this type of object, including those inherited from base classes. (ie: own + base classes'). We simply append our unique meta-data onto the base class:
 	static QList<AMMetaMetaData> metaDataKeys() {
-		return AMDbObject::metaDataKeys() << metaDataUniqueKeys();
+//		return AMDbObject::metaDataKeys() << metaDataUniqueKeys();
+		return AMDetectorInfo::metaDataKeys() << metaDataUniqueKeys();
 	}
 
 	/// This virtual function returns all the available pieces of meta data for this type of object, by introspecting it's most detailed type. (ie: own + base classes' + subclasses')
@@ -231,7 +232,8 @@ public:
 
 	/// This function needs to be overloaded to return all the available pieces of meta data for this type of object, including those inherited from base classes. (ie: own + base classes'). We simply append our unique meta-data onto the base class:
 	static QList<AMMetaMetaData> metaDataKeys() {
-		return AMDbObject::metaDataKeys() << metaDataUniqueKeys();
+//		return AMDbObject::metaDataKeys() << metaDataUniqueKeys();
+		return AMDetectorInfo::metaDataKeys() << metaDataUniqueKeys();
 	}
 
 	/// This virtual function returns all the available pieces of meta data for this type of object, by introspecting it's most detailed type. (ie: own + base classes' + subclasses')
@@ -298,7 +300,8 @@ public:
 
 	/// This function needs to be overloaded to return all the available pieces of meta data for this type of object, including those inherited from base classes. (ie: own + base classes'). We simply append our unique meta-data onto the base class:
 	static QList<AMMetaMetaData> metaDataKeys() {
-		return AMDbObject::metaDataKeys() << metaDataUniqueKeys();
+//		return AMDbObject::metaDataKeys() << metaDataUniqueKeys();
+		return AMSpectralOutputDetectorInfo::metaDataKeys() << metaDataUniqueKeys();
 	}
 
 	/// This virtual function returns all the available pieces of meta data for this type of object, by introspecting it's most detailed type. (ie: own + base classes' + subclasses')

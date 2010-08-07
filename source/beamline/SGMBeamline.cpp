@@ -90,13 +90,11 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	tfy_ = new AMReadOnlyPVControl("tfy", sgmPVName, this);
 	addChild(tfy_);
 	sgmPVName = amNames2pvNames_.valueF("tfyHVSetpoint");
-	tfyHVSetpoint_ = new AMReadOnlyPVControl("tfyHVSetpoint", sgmPVName, this);
-	//tfyHVSetpoint_ = new AMReadOnlyPVControl("tfyHVSetpoint", amNames2pvNames_.valueF("tfyHVFbk"), amNames2pvNames_.valueF("tfyHVSetpoint"), this, 5);
+	tfyHVSetpoint_ = new AMPVControl("tfyHVSetpoint", amNames2pvNames_.valueF("tfyHVFbk"), amNames2pvNames_.valueF("tfyHVSetpoint"), this, 10.0);
 	addChild(tfyHVSetpoint_);
 	sgmPVName = amNames2pvNames_.valueF("tfyHVFbk");
 	tfyHVFbk_ = new AMReadOnlyPVControl("tfyHVFbk", sgmPVName, this);
 	addChild(tfyHVFbk_);
-//	tfyDetector_ = new AMSingleControlDetector(tfy_->name(), tfy_, this);
 	tfyDetector_ = new MCPDetector(tfy_->name(), tfy_, tfyHVSetpoint_, tfyHVFbk_, this);
 	tfyDetector_->setDescription("TFY");
 
@@ -104,30 +102,24 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	pgt_ = new AMReadOnlyPVControl("pgt", sgmPVName, this);
 	addChild(pgt_);
 	sgmPVName = amNames2pvNames_.valueF("pgtHVSetpoint");
-	pgtHVSetpoint_ = new AMPVControl("pgtHVSetpoint", amNames2pvNames_.valueF("pgtHVFbk"), amNames2pvNames_.valueF("pgtHVSetpoint"), this, 0.5);
-	//pgtHVSetpoint_ = new AMReadOnlyPVControl("pgtHVSetpoint", sgmPVName, this);
-	//pgtHVSetpoint_ = new AMPVwStatusControl("pgtHVSetpoint", amNames2pvNames_.valueF("pgtHVFbk"), amNames2pvNames_.valueF("pgtHVSetpoint"), amNames2pvNames_.valueF("pgtHVRamping"), this, 0.5);
+//	pgtHVSetpoint_ = new AMPVControl("pgtHVSetpoint", amNames2pvNames_.valueF("pgtHVFbk"), amNames2pvNames_.valueF("pgtHVSetpoint"), this, 0.5);
+	pgtHVSetpoint_ = new AMPVControl("pgtHVSetpoint", amNames2pvNames_.valueF("pgtHVSetpoint"), amNames2pvNames_.valueF("pgtHVSetpoint"), this, 0.5);
 	qDebug() << "SDD HV: " << pgtHVSetpoint_->minimumValue() << pgtHVSetpoint_->maximumValue();
 	addChild(pgtHVSetpoint_);
 	sgmPVName = amNames2pvNames_.valueF("pgtHVFbk");
+	qDebug() << "\n\n\nLOOK FOR ME";
 	pgtHVFbk_ = new AMReadOnlyPVControl("pgtHVFbk", sgmPVName, this);
+	connect(pgtHVFbk_, SIGNAL(valueChanged(double)), this, SLOT(onHVFbkUpdate(double)));
+	qDebug() << "\nNOW I'M FINISHED BEING MADE\n\n\n";
 	addChild(pgtHVFbk_);
 	sgmPVName = amNames2pvNames_.valueF("pgtIntegrationTime");
-	pgtIntegrationTime_ = new AMReadOnlyPVControl("pgtIntegrationTime", sgmPVName, this);
+	pgtIntegrationTime_ = new AMPVControl("pgtIntegrationTime", sgmPVName, sgmPVName, this, 0.1);
 	addChild(pgtIntegrationTime_);
 	sgmPVName = amNames2pvNames_.valueF("pgtIntegrationMode");
-	pgtIntegrationMode_ = new AMReadOnlyPVControl("pgtIntegrationMode", sgmPVName, this);
+	pgtIntegrationMode_ = new AMPVControl("pgtIntegrationMode", sgmPVName, sgmPVName, this, 0.1);
 	addChild(pgtIntegrationMode_);
-
-//	pgtDetector_ = new PGTDetector(pgt_->name(), pgt_, this);
 	pgtDetector_ = new PGTDetector(pgt_->name(), pgt_, pgtHVSetpoint_, pgtHVFbk_, pgtIntegrationTime_, pgtIntegrationMode_, this);
 	pgtDetector_->setDescription("SDD");
-	/*
-	QStringList pgtYElements;
-	pgtYElements << "pgtCounts";
-	pgtDetector_ = new AMSpectralOutputDetector(pgt_->name(), pgt_, 1024, "pgtEV", pgtYElements, this);
-	pgtDetector_->setDescription("SDD");
-	*/
 	sgmPVName = amNames2pvNames_.valueF("I0");
 	i0_ = new AMReadOnlyPVControl("I0", sgmPVName, this);
 	addChild(i0_);
@@ -148,7 +140,6 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	resolutionOptimization_ = new SGMResolutionOptimization(this);
 	resolutionOptimization_->setDescription("Resolution");
 	fluxResolutionSet_ = new AMControlOptimizationSet(this);
-//	fluxResolutionSet_->setName("Flux and Resolution");
 	fluxResolutionSet_->setName("Flux/Resolution");
 	fluxResolutionSet_->addControl(grating_);
 	fluxResolutionSet_->addControl(harmonic_);

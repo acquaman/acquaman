@@ -545,7 +545,6 @@ QRectF CCOSVItem::boundingRect() const{
 void CCOSVItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget){
 	Q_UNUSED(option);
 	Q_UNUSED(widget);
-	//	painter->setBrush(Qt::darkGray);
 	painter->setBrush(curveColor_);
 	painter->setPen(Qt::NoPen);
 	if(curve_){
@@ -556,10 +555,15 @@ void CCOSVItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 	}
 }
 
-AMDetectorInfoView::AMDetectorInfoView(AMDetectorInfo *detectorInfo, bool interactive, QWidget *parent) :
+AMDetectorInfoView::AMDetectorInfoView(AMDetectorInfo *detectorInfo, AMDetectorInfo *writeDetectorInfo, bool interactive, QWidget *parent) :
 		QGroupBox(parent)
 {
 	detectorInfo_ = detectorInfo;
+	if(!writeDetectorInfo)
+		writeDetectorInfo_ = detectorInfo_;
+	else
+		writeDetectorInfo_ = writeDetectorInfo;
+
 	interactive_ = interactive;
 	vl_ = new QVBoxLayout();
 	hl_ = new QHBoxLayout();
@@ -571,8 +575,8 @@ AMDetectorInfoView::AMDetectorInfoView(AMDetectorInfo *detectorInfo, bool intera
 	vl_->addLayout(hl_);
 }
 
-PGTDetectorInfoView::PGTDetectorInfoView(PGTDetectorInfo *detectorInfo, bool interactive, QWidget *parent) :
-		AMDetectorInfoView(detectorInfo, interactive, parent)
+PGTDetectorInfoView::PGTDetectorInfoView(PGTDetectorInfo *detectorInfo, AMDetectorInfo *writeDetectorInfo, bool interactive, QWidget *parent) :
+		AMDetectorInfoView(detectorInfo, writeDetectorInfo, interactive, parent)
 {
 	sDetectorInfo_ = detectorInfo;
 	interactive_ = interactive;
@@ -585,7 +589,7 @@ PGTDetectorInfoView::PGTDetectorInfoView(PGTDetectorInfo *detectorInfo, bool int
 	integrationTimeBox_->setEnabled(interactive_);
 	QPair<double, double> itRange = sDetectorInfo_->integrationTimeRange();
 	integrationTimeBox_->setRange(itRange.first, itRange.second);
-	connect(integrationTimeBox_, SIGNAL(valueChanged(double)), sDetectorInfo_, SLOT(setIntegrationTime(double)));
+	connect(integrationTimeBox_, SIGNAL(valueChanged(double)), (PGTDetectorInfo*)writeDetectorInfo_, SLOT(setIntegrationTime(double)));
 	tmpHB->addWidget(integrationTimeBox_);
 	fl_->addRow("Integration Time", tmpHB);
 	tmpHB = new QHBoxLayout();
@@ -594,7 +598,7 @@ PGTDetectorInfoView::PGTDetectorInfoView(PGTDetectorInfo *detectorInfo, bool int
 	integrationModeBox_->setCurrentIndex( sDetectorInfo_->integrationModeList().indexOf(sDetectorInfo_->integrationMode()) );
 	integrationModeBox_->setEnabled(interactive_);
 	tmpHB->addWidget(integrationModeBox_);
-	connect(integrationModeBox_, SIGNAL(currentIndexChanged(QString)), sDetectorInfo_, SLOT(setIntegrationMode(QString)));
+	connect(integrationModeBox_, SIGNAL(currentIndexChanged(QString)), (PGTDetectorInfo*)writeDetectorInfo_, SLOT(setIntegrationMode(QString)));
 	fl_->addRow("Integration Mode", tmpHB);
 	tmpHB = new QHBoxLayout();
 	hvSetpointBox_ = new QDoubleSpinBox();
@@ -602,7 +606,7 @@ PGTDetectorInfoView::PGTDetectorInfoView(PGTDetectorInfo *detectorInfo, bool int
 	hvSetpointBox_->setEnabled(interactive_);
 	QPair<double, double> hvRange = sDetectorInfo_->hvSetpointRange();
 	hvSetpointBox_->setRange(hvRange.first, hvRange.second);
-	connect(hvSetpointBox_, SIGNAL(valueChanged(double)), sDetectorInfo_, SLOT(setHVSetpoint(double)));
+	connect(hvSetpointBox_, SIGNAL(valueChanged(double)), (PGTDetectorInfo*)writeDetectorInfo_, SLOT(setHVSetpoint(double)));
 	tmpHB->addWidget(hvSetpointBox_);
 	fl_->addRow("HV Setpoint", tmpHB);
 	allBoxes_.append(integrationTimeBox_);
@@ -615,8 +619,8 @@ PGTDetectorInfoView::PGTDetectorInfoView(PGTDetectorInfo *detectorInfo, bool int
 	setMinimumWidth(250);
 }
 
-MCPDetectorInfoView::MCPDetectorInfoView(MCPDetectorInfo *detectorInfo, bool interactive, QWidget *parent) :
-		AMDetectorInfoView(detectorInfo, interactive, parent)
+MCPDetectorInfoView::MCPDetectorInfoView(MCPDetectorInfo *detectorInfo, AMDetectorInfo *writeDetectorInfo, bool interactive, QWidget *parent) :
+		AMDetectorInfoView(detectorInfo, writeDetectorInfo, interactive, parent)
 {
 	sDetectorInfo_ = detectorInfo;
 	interactive_ = interactive;
@@ -630,7 +634,7 @@ MCPDetectorInfoView::MCPDetectorInfoView(MCPDetectorInfo *detectorInfo, bool int
 	QPair<double, double> hvRange = sDetectorInfo_->hvSetpointRange();
 	hvSetpointBox_->setRange(hvRange.first, hvRange.second);
 	tmpHB->addWidget(hvSetpointBox_);
-	connect(hvSetpointBox_, SIGNAL(valueChanged(double)), sDetectorInfo_, SLOT(setHVSetpoint(double)));
+	connect(hvSetpointBox_, SIGNAL(valueChanged(double)), (MCPDetectorInfo*)writeDetectorInfo_, SLOT(setHVSetpoint(double)));
 	fl_->addRow("HV Setpoint", tmpHB);
 	allBoxes_.append(hvSetpointBox_);
 	vl_->removeItem(hl_);
@@ -640,10 +644,15 @@ MCPDetectorInfoView::MCPDetectorInfoView(MCPDetectorInfo *detectorInfo, bool int
 	setMinimumWidth(250);
 }
 
-AMDetectorInfoSetView::AMDetectorInfoSetView(AMDetectorInfoSet *viewSet, bool setup, QWidget *parent) :
+AMDetectorInfoSetView::AMDetectorInfoSetView(AMDetectorInfoSet *viewSet, AMDetectorInfoSet *writeSet, bool setup, QWidget *parent) :
 		QGroupBox(parent)
 {
 	viewSet_ = viewSet;
+	if(!writeSet)
+		writeSet_ = viewSet_;
+	else
+		writeSet_ = writeSet;
+
 	setTitle(viewSet->name());
 	if(setup)
 		runSetup();
@@ -668,7 +677,7 @@ void AMDetectorInfoSetView::runSetup(){
 		gl->addWidget(tmpDetails, x, 2, 1, 1, Qt::AlignLeft);
 		detectorBoxes_.append(tmpBox);
 		detectorDetails_.append(tmpDetails);
-		detailViews_.append(detailViewByType(tmpDetector));
+		detailViews_.append(detailViewByType(tmpDetector, writeSet_->detectorAt(x)));
 		detailViews_.last()->hide();
 		connect(tmpDetails, SIGNAL(clicked()), detailViews_.last(), SLOT(show()));
 		connect(tmpDetails, SIGNAL(clicked()), detailViews_.last(), SLOT(raise()));
@@ -679,11 +688,11 @@ void AMDetectorInfoSetView::runSetup(){
 	setLayout(hl_);
 }
 
-QWidget* AMDetectorInfoSetView::detailViewByType(AMDetectorInfo *detectorInfo){
+QWidget* AMDetectorInfoSetView::detailViewByType(AMDetectorInfo *detectorInfo, AMDetectorInfo *writeDetectorInfo){
 	if(detectorInfo->typeDescription() == "PGT SDD Spectrum-Output Detector")
-		return new PGTDetectorInfoView( (PGTDetectorInfo*)detectorInfo, true);
+		return new PGTDetectorInfoView( (PGTDetectorInfo*)detectorInfo, writeDetectorInfo, true);
 	else if(detectorInfo->typeDescription() == "MCP Detector")
-		return new MCPDetectorInfoView( (MCPDetectorInfo*)detectorInfo, true );
+		return new MCPDetectorInfoView( (MCPDetectorInfo*)detectorInfo, writeDetectorInfo, true );
 	else
 		return new QGroupBox();
 }
@@ -695,9 +704,7 @@ AMColorControlOptimizationSetView::AMColorControlOptimizationSetView(AMControlSe
 	setFixedSize(width, 150);
 	viewSet_ = (AMControlOptimizationSet*)viewSet;
 	setTitle(viewSet->name());
-	//	setStyleSheet("QGroupBox::title { color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 green, stop: 1 blue); }");
 	setStyleSheet("QGroupBox::title { color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 rgb(0, 255, 0), stop: 0.33 rbg(0, 127, 127), stop: 1 rgb(0, 0, 255)); }");
-	//	setStyleSheet("QGroupBox::title { color: qconicalgradient(cx: 0.33, cy: 0.5, angle:0, stop: 0 rgb(0, 255, 0), stop: 1 rgb(0, 0, 255)); }");
 	launchDetailButton_ = new QPushButton("More Details", this);
 	hl_ = new QHBoxLayout(this);
 	QSlider *tmpSlider;

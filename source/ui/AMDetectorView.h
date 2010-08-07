@@ -20,10 +20,12 @@ class PGTDetectorView : public PGTDetectorInfoView
 {
 	Q_OBJECT
 public:
-	PGTDetectorView(PGTDetector *detector, bool editMode = false, QWidget *parent = 0);
+	PGTDetectorView(PGTDetector *detector, AMDetectorInfo *configDetector = 0, bool editMode = false, QWidget *parent = 0);
 
 protected slots:
 	void onIntegrationModeUpdate(double value);
+	void onIntegrationModeChange(int index);
+	void onHVFbkUpdate(double value) { qDebug() << "HV Update to " << value;}
 	void setEditMode(bool editMode);
 	void setEditable();
 
@@ -39,7 +41,7 @@ class MCPDetectorView : public MCPDetectorInfoView
 {
 	Q_OBJECT
 public:
-	MCPDetectorView(MCPDetector *detector, bool editMode = false, QWidget *parent = 0);
+	MCPDetectorView(MCPDetector *detector, AMDetectorInfo *configDetector = 0, bool editMode = false, QWidget *parent = 0);
 
 protected slots:
 	void setEditMode(bool editMode);
@@ -55,7 +57,7 @@ class AMDetectorSetView : public AMDetectorInfoSetView
 {
 	Q_OBJECT
 public:
-	AMDetectorSetView(AMDetectorInfoSet *viewSet, bool setup = true, QWidget *parent = 0);
+	AMDetectorSetView(AMDetectorInfoSet *viewSet, AMDetectorInfoSet *configSet = 0, bool setup = true, QWidget *parent = 0);
 
 public slots:
 	void setEditMode(bool editMode);
@@ -65,7 +67,7 @@ protected:
 	bool editMode_;
 
 	virtual void runSetup();
-	virtual QWidget* detailViewByType(AMDetectorInfo *detector);
+	virtual QWidget* detailViewByType(AMDetectorInfo *detector, AMDetectorInfo *configDetector);
 };
 
 

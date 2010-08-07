@@ -13,6 +13,9 @@ public:
 	AMSingleControlDetector(const QString& name, AMControl *control, QObject *parent = 0);
 	~AMSingleControlDetector(){ control_ = NULL;}
 
+public slots:
+	virtual bool setControls(AMDetectorInfo *detectorSettings);
+
 protected:
 	AMControl *control_;
 };
@@ -23,6 +26,9 @@ Q_OBJECT
 public:
 	AMSpectralOutputDetector(const QString& name, AMControl *control, int numSpectrumBins = 0, QString xElementName = "", QStringList yElementNames = QStringList(), QObject *parent = 0);
 	~AMSpectralOutputDetector() { control_ = NULL; }
+
+public slots:
+	virtual bool setControls(AMSpectralOutputDetectorInfo *detectorSettings);
 
 protected:
 	AMControl *control_;
@@ -41,6 +47,9 @@ public:
 	AMControl* integrationTimeCtrl() const { return integrationTime_; }
 	AMControl* integrationModeCtrl() const { return integrationMode_; }
 
+public slots:
+	virtual bool setControls(PGTDetectorInfo *pgtSettings);
+
 protected:
 	AMControl *dataWaveform_;
 	AMControl *hvSetpoint_;
@@ -58,6 +67,9 @@ public:
 
 	AMControl* hvSetpointCtrl() const { return hvSetpoint_; }
 	AMControl* hvFbkCtrl() const { return hvFbk_; }
+
+public slots:
+	virtual bool setControls(MCPDetectorInfo *mcpSettings);
 
 protected:
 	AMControl *reading_;

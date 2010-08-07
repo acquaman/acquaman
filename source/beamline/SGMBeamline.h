@@ -128,6 +128,7 @@ public:
 
 public slots:
 	void startTransfer() { transferAction1_->start(); }
+	void onHVFbkUpdate(double value){qDebug() << "SGM Says: HVFbk is " << value;}
 
 protected:
 	// Singleton implementation:

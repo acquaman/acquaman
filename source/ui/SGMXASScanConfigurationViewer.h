@@ -34,6 +34,18 @@ protected slots:
 				<< ((PGTDetector*)(((SGMXASScanConfiguration*)(cfg_))->detectorSet()->detectorByName("pgt")))->integrationMode()
 				<< ((PGTDetector*)(((SGMXASScanConfiguration*)(cfg_))->detectorSet()->detectorByName("pgt")))->hvSetpoint()
 				<< ((MCPDetector*)(((SGMXASScanConfiguration*)(cfg_))->detectorSet()->detectorByName("tfy")))->hvSetpoint();
+
+		qDebug() << "cfgDetectorInfo after: "
+				<< ((PGTDetectorInfo*)cfgDetectorInfoSet_->detectorByName("pgt"))->integrationTime()
+				<< ((PGTDetectorInfo*)cfgDetectorInfoSet_->detectorByName("pgt"))->integrationMode()
+				<< ((PGTDetectorInfo*)cfgDetectorInfoSet_->detectorByName("pgt"))->hvSetpoint()
+				<< ((MCPDetectorInfo*)cfgDetectorInfoSet_->detectorByName("tfy"))->hvSetpoint();
+
+		((PGTDetector*)(((SGMXASScanConfiguration*)(cfg_))->detectorSet()->detectorByName("pgt")))->setControls( (PGTDetectorInfo*)cfgDetectorInfoSet_->detectorByName("pgt") );
+		((MCPDetector*)(((SGMXASScanConfiguration*)(cfg_))->detectorSet()->detectorByName("tfy")))->setControls( (MCPDetectorInfo*)cfgDetectorInfoSet_->detectorByName("tfy") );
+
+		//for(int x = 0; x < ((SGMXASScanConfiguration*)(cfg_))->detectorSet()->count(); x++)
+
 		/*SGMXASDacqScanController *xasCtrl = new SGMXASDacqScanController((SGMXASScanConfiguration*)cfg_, SGMBeamline::sgm());
 		emit scanControllerReady((AMScanController*)xasCtrl);
 		xasCtrl->initialize();
@@ -53,8 +65,7 @@ protected:
 	AMCompactControlOptimizationSetView *fluxResolutionView_;
 	AMControlSetView *trackingView_;
 	AMDetectorInfoSetView *detectorView_;
-	//AMDetectorInfoSet *cfgDetectorInfoSet_;
-	//AMDetectorSetView *detectorView_;
+	AMDetectorInfoSet *cfgDetectorInfoSet_;
 	QPushButton *startScanButton_;
 	QVBoxLayout vl_;
 	QGridLayout gl_;
