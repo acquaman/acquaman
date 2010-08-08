@@ -41,16 +41,25 @@ protected slots:
 				<< ((PGTDetectorInfo*)cfgDetectorInfoSet_->detectorByName("pgt"))->hvSetpoint()
 				<< ((MCPDetectorInfo*)cfgDetectorInfoSet_->detectorByName("tfy"))->hvSetpoint();
 
-		((PGTDetector*)(((SGMXASScanConfiguration*)(cfg_))->detectorSet()->detectorByName("pgt")))->setControls( (PGTDetectorInfo*)cfgDetectorInfoSet_->detectorByName("pgt") );
-		((MCPDetector*)(((SGMXASScanConfiguration*)(cfg_))->detectorSet()->detectorByName("tfy")))->setControls( (MCPDetectorInfo*)cfgDetectorInfoSet_->detectorByName("tfy") );
+		/*
+		AMDetectorInfo* tmpDI;
+		for(int x = 0; x < ((SGMXASScanConfiguration*)(cfg_))->detectorSet()->count(); x++){
+			tmpDI = ((SGMXASScanConfiguration*)(cfg_))->detectorSet()->detectorAt(x);
+			if(tmpDI->typeDescription() == "PGT SDD Spectrum-Output Detector")
+				((PGTDetector*)(((SGMXASScanConfiguration*)(cfg_))->detectorSet()->detectorAt(x)))->setControls( (PGTDetectorInfo*)cfgDetectorInfoSet_->detectorAt(x) );
+			else if(tmpDI->typeDescription() == "MCP Detector")
+				((MCPDetector*)(((SGMXASScanConfiguration*)(cfg_))->detectorSet()->detectorAt(x)))->setControls( (MCPDetectorInfo*)cfgDetectorInfoSet_->detectorAt(x) );
+			else
+				((AMSingleControlDetector*)(((SGMXASScanConfiguration*)(cfg_))->detectorSet()->detectorAt(x)))->setControls( (AMDetectorInfo*)cfgDetectorInfoSet_->detectorAt(x) );
+		}
+		*/
 
-		//for(int x = 0; x < ((SGMXASScanConfiguration*)(cfg_))->detectorSet()->count(); x++)
-
-		/*SGMXASDacqScanController *xasCtrl = new SGMXASDacqScanController((SGMXASScanConfiguration*)cfg_, SGMBeamline::sgm());
+		SGMXASDacqScanController *xasCtrl = new SGMXASDacqScanController((SGMXASScanConfiguration*)cfg_, SGMBeamline::sgm());
 		emit scanControllerReady((AMScanController*)xasCtrl);
 		xasCtrl->initialize();
+
 		xasCtrl->start();
-		*/
+
 	}
 	void onRegionsChanged(){
 		if(cfg_ && fluxResolutionView_){

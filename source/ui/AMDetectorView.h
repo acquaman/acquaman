@@ -3,6 +3,7 @@
 
 #include "AMControlSetView.h"
 #include "beamline/AMDetector.h"
+#include "QMessageBox"
 
 class AMDetectorView : public QGroupBox
 {
@@ -25,7 +26,6 @@ public:
 protected slots:
 	void onIntegrationModeUpdate(double value);
 	void onIntegrationModeChange(int index);
-	void onHVFbkUpdate(double value) { qDebug() << "HV Update to " << value;}
 	void setEditMode(bool editMode);
 	void setEditable();
 

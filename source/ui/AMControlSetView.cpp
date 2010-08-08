@@ -432,7 +432,7 @@ bool AMCompactControlOptimizationSetView::onParamValuesChanged(double param1, do
 		param1Item_->updateCurveMarker(param1Percent);
 		param2Item_->updateCurveMarker(param2Percent);
 	}
-
+	return true;
 }
 
 bool AMCompactControlOptimizationSetView::onConfigValuesUpdate(){
@@ -444,6 +444,7 @@ bool AMCompactControlOptimizationSetView::onConfigValuesUpdate(){
 		++i;
 	}
 	paramsResult_->setText(resStr);
+	return true;
 }
 
 void AMCompactControlOptimizationSetView::onRegionsUpdate(AMRegionsList* contextParams){
@@ -567,6 +568,7 @@ AMDetectorInfoView::AMDetectorInfoView(AMDetectorInfo *detectorInfo, AMDetectorI
 	interactive_ = interactive;
 	vl_ = new QVBoxLayout();
 	hl_ = new QHBoxLayout();
+	hl_->setObjectName("Detector Horizontal Layout");
 	switchToEditBox_ = new QPushButton("Switch to Edit Mode");
 	switchToEditBox_->setEnabled(false);
 	QSpacerItem *spc1 = new QSpacerItem(10, 10, QSizePolicy::Maximum, QSizePolicy::MinimumExpanding);
@@ -612,9 +614,7 @@ PGTDetectorInfoView::PGTDetectorInfoView(PGTDetectorInfo *detectorInfo, AMDetect
 	allBoxes_.append(integrationTimeBox_);
 	allBoxes_.append(integrationModeBox_);
 	allBoxes_.append(hvSetpointBox_);
-	vl_->removeItem(hl_);
-	vl_->addLayout(fl_);
-	vl_->addLayout(hl_);
+	vl_->insertLayout(0, fl_);
 	setLayout(vl_);
 	setMinimumWidth(250);
 }
@@ -637,9 +637,7 @@ MCPDetectorInfoView::MCPDetectorInfoView(MCPDetectorInfo *detectorInfo, AMDetect
 	connect(hvSetpointBox_, SIGNAL(valueChanged(double)), (MCPDetectorInfo*)writeDetectorInfo_, SLOT(setHVSetpoint(double)));
 	fl_->addRow("HV Setpoint", tmpHB);
 	allBoxes_.append(hvSetpointBox_);
-	vl_->removeItem(hl_);
-	vl_->addLayout(fl_);
-	vl_->addLayout(hl_);
+	vl_->insertLayout(0, fl_);
 	setLayout(vl_);
 	setMinimumWidth(250);
 }
@@ -682,7 +680,6 @@ void AMDetectorInfoSetView::runSetup(){
 		connect(tmpDetails, SIGNAL(clicked()), detailViews_.last(), SLOT(show()));
 		connect(tmpDetails, SIGNAL(clicked()), detailViews_.last(), SLOT(raise()));
 	}
-
 	hl_ = new QHBoxLayout(this);
 	hl_->addLayout(gl);
 	setLayout(hl_);
@@ -757,4 +754,5 @@ bool AMColorControlOptimizationSetView::adjustSlider(int val){
 	upperStr.setNum(newUpper, 'g', 3);
 	lowerStr.setNum(newLower);
 	optValue_->setText(upperStr+", "+lowerStr);
+	return true;
 }

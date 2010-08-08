@@ -38,11 +38,14 @@ void PGTDetectorView::onIntegrationModeChange(int index){
 void PGTDetectorView::setEditMode(bool editMode){
 	editMode_ = editMode;
 	QHBoxLayout *tmpHB;
+	QPair<double, double> tmpRange;
 	if(editMode_){
 		switchToEditBox_->setText("Switch to Configure Mode");
 		if(!integrationTimeFbk_){
 			integrationTimeFbk_ = new QDoubleSpinBox();
 			integrationTimeFbk_->setEnabled(false);
+			tmpRange = detector_->integrationTimeRange();
+			integrationTimeFbk_->setRange(tmpRange.first, tmpRange.second);
 			integrationTimeFbk_->setValue(detector_->integrationTimeCtrl()->value());
 			connect(detector_->integrationTimeCtrl(), SIGNAL(valueChanged(double)), integrationTimeFbk_, SLOT(setValue(double)));
 		}
@@ -55,13 +58,11 @@ void PGTDetectorView::setEditMode(bool editMode){
 		}
 		if(!hvFbk_){
 			hvFbk_ = new QDoubleSpinBox();
-			qDebug() << "HVFbk is " << detector_->hvFbkCtrl()->value();
-			hvFbk_->setValue(detector_->hvFbkCtrl()->value());
 			hvFbk_->setEnabled(false);
+			tmpRange = detector_->hvSetpointRange();
+			hvFbk_->setRange(tmpRange.first, tmpRange.second);
+			hvFbk_->setValue(detector_->hvFbkCtrl()->value());
 			connect(detector_->hvFbkCtrl(), SIGNAL(valueChanged(double)), hvFbk_, SLOT(setValue(double)));
-			connect(detector_->hvFbkCtrl(), SIGNAL(valueChanged(double)), this, SLOT(onHVFbkUpdate(double)));
-			qDebug() << "Connections made at " << (int)detector_->hvFbkCtrl() << ", what would it say?";
-			onHVFbkUpdate(120);
 		}
 		connect(integrationTimeBox_, SIGNAL(valueChanged(double)), detector_->integrationTimeCtrl(), SLOT(move(double)));
 		connect(integrationModeBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onIntegrationModeChange(int)));
@@ -76,6 +77,22 @@ void PGTDetectorView::setEditMode(bool editMode){
 		tmpHB->addWidget(hvFbk_);
 		hvFbk_->show();
 		resize(width()+hvSetpointBox_->width(), height());
+		if( !detector_->settingsMatchFbk((PGTDetectorInfo*)writeDetectorInfo_) ){
+			int ret = QMessageBox::question(this, "PGT Silicon Drift Detector", "Configuration settings are different from actual settings.\n"
+											"Do you wish to write the changes to the detector?",
+											QMessageBox::Yes,
+											QMessageBox::No);
+			if(ret != QMessageBox::Yes){
+				((PGTDetectorInfo*)writeDetectorInfo_)->setIntegrationTime(detector_->integrationTimeCtrl()->value());
+				integrationTimeBox_->setValue( ((PGTDetectorInfo*)writeDetectorInfo_)->integrationTime() );
+				((PGTDetectorInfo*)writeDetectorInfo_)->setIntegrationMode(detector_->integrationModeList().at(detector_->integrationModeCtrl()->value()));
+				integrationModeBox_->setCurrentIndex( ((PGTDetectorInfo*)writeDetectorInfo_)->integrationModeList().indexOf(((PGTDetectorInfo*)writeDetectorInfo_)->integrationMode()) );
+				((PGTDetectorInfo*)writeDetectorInfo_)->setHVSetpoint(detector_->hvSetpointCtrl()->value());
+				hvSetpointBox_->setValue( ((PGTDetectorInfo*)writeDetectorInfo_)->hvSetpoint() );
+			}
+			else
+				detector_->setControls((PGTDetectorInfo*)writeDetectorInfo_);
+		}
 	}
 	else{
 		disconnect(integrationTimeBox_, SIGNAL(valueChanged(double)), detector_->integrationTimeCtrl(), SLOT(move(double)));
@@ -116,12 +133,15 @@ MCPDetectorView::MCPDetectorView(MCPDetector *detector, AMDetectorInfo *configDe
 void MCPDetectorView::setEditMode(bool editMode){
 	editMode_ = editMode;
 	QHBoxLayout *tmpHB;
+	QPair<double, double> tmpRange;
 	if(editMode_){
 		switchToEditBox_->setText("Switch to Configure Mode");
 		if(!hvFbk_){
 			hvFbk_ = new QDoubleSpinBox();
-			hvFbk_->setValue(detector_->hvFbkCtrl()->value());
 			hvFbk_->setEnabled(false);
+			tmpRange = detector_->hvSetpointRange();
+			hvFbk_->setRange(tmpRange.first, tmpRange.second);
+			hvFbk_->setValue(detector_->hvFbkCtrl()->value());
 			connect(detector_->hvFbkCtrl(), SIGNAL(valueChanged(double)), hvFbk_, SLOT(setValue(double)));
 		}
 		tmpHB = (QHBoxLayout*)fl_->itemAt(0, QFormLayout::FieldRole);
@@ -129,6 +149,18 @@ void MCPDetectorView::setEditMode(bool editMode){
 		connect(hvSetpointBox_, SIGNAL(valueChanged(double)), detector_->hvSetpointCtrl(), SLOT(move(double)));
 		hvFbk_->show();
 		resize(width()+hvSetpointBox_->width(), height());
+		if( !detector_->settingsMatchFbk((MCPDetectorInfo*)writeDetectorInfo_) ){
+			int ret = QMessageBox::question(this, "MCP Detector", "Configuration settings are different from actual settings.\n"
+											"Do you wish to write the changes to the detector?",
+											QMessageBox::Yes,
+											QMessageBox::No);
+			if(ret != QMessageBox::Yes){
+				((MCPDetectorInfo*)writeDetectorInfo_)->setHVSetpoint(detector_->hvSetpointCtrl()->value());
+				hvSetpointBox_->setValue( ((MCPDetectorInfo*)writeDetectorInfo_)->hvSetpoint() );
+			}
+			else
+				detector_->setControls((MCPDetectorInfo*)writeDetectorInfo_);
+		}
 	}
 	else{
 		disconnect(hvSetpointBox_, SIGNAL(valueChanged(double)), detector_->hvSetpointCtrl(), SLOT(move(double)));

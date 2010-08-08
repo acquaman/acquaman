@@ -47,6 +47,8 @@ public:
 	AMControl* integrationTimeCtrl() const { return integrationTime_; }
 	AMControl* integrationModeCtrl() const { return integrationMode_; }
 
+	bool settingsMatchFbk(PGTDetectorInfo* settings);
+
 public slots:
 	virtual bool setControls(PGTDetectorInfo *pgtSettings);
 
@@ -67,6 +69,8 @@ public:
 
 	AMControl* hvSetpointCtrl() const { return hvSetpoint_; }
 	AMControl* hvFbkCtrl() const { return hvFbk_; }
+
+	bool settingsMatchFbk(MCPDetectorInfo* settings);
 
 public slots:
 	virtual bool setControls(MCPDetectorInfo *mcpSettings);

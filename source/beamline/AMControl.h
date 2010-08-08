@@ -405,7 +405,9 @@ protected slots:
 
 private:
 	// subclasses should use the protected methods to access these, to ensure signal generation.
-	bool tolerance_;
+	#warning("MARK BOOTS LOOK AT ME! Why was tolerance_ a bool here? It's set as a double and accessed as a double");
+	//bool tolerance_;
+	double tolerance_;
 	QString units_;
 	QStringList enumNames_;
 

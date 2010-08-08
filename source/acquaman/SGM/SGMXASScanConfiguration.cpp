@@ -16,12 +16,6 @@ SGMXASScanConfiguration::SGMXASScanConfiguration(QObject *parent) : AMXASScanCon
 	tmpCh.first = "NormTFY";
 	tmpCh.second = "-2000*tfy/I0";
 	defaultChannels_.append(tmpCh);
-	tmpCh.first = "PGT@130";
-	tmpCh.second = "pgt.pgtCounts[130]";
-	defaultChannels_.append(tmpCh);
-	tmpCh.first = "Nonsense";
-	tmpCh.second = "tf/I0+bacon";
-	defaultChannels_.append(tmpCh);
 	emit exitSlitGapChanged(exitSlitGap_);
 	emit gratingChanged(grating_);
 	emit undulatorTrackingChanged(undulatorTracking_);

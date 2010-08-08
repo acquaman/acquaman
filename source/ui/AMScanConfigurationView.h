@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include "ui/SGMXASScanConfigurationViewer.h"
+#include "ui/SGMXASScanConfigurationWizard.h"
 
 class AMXASScanConfigurationHolder : public QWidget
 {
@@ -19,10 +20,15 @@ protected slots:
 			vl_->addWidget(sxscViewer);
 			this->setLayout(vl_);
 		}
+		if(!sxscWizard && isVisible() && SGMBeamline::sgm()->isConnected()){
+			sxscWizard = new SGMXASScanConfigurationWizard();
+			sxscWizard->show();
+		}
 	}
 
 protected:
 	SGMXASScanConfigurationViewer *sxscViewer;
+	SGMXASScanConfigurationWizard *sxscWizard;
 	QVBoxLayout *vl_;
 };
 

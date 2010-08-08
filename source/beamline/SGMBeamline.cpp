@@ -93,7 +93,7 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	tfyHVSetpoint_ = new AMPVControl("tfyHVSetpoint", amNames2pvNames_.valueF("tfyHVFbk"), amNames2pvNames_.valueF("tfyHVSetpoint"), this, 10.0);
 	addChild(tfyHVSetpoint_);
 	sgmPVName = amNames2pvNames_.valueF("tfyHVFbk");
-	tfyHVFbk_ = new AMReadOnlyPVControl("tfyHVFbk", sgmPVName, this);
+	tfyHVFbk_ = new AMPVControl("tfyHVFbk", sgmPVName, sgmPVName, this, 10.0);
 	addChild(tfyHVFbk_);
 	tfyDetector_ = new MCPDetector(tfy_->name(), tfy_, tfyHVSetpoint_, tfyHVFbk_, this);
 	tfyDetector_->setDescription("TFY");
@@ -107,10 +107,7 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	qDebug() << "SDD HV: " << pgtHVSetpoint_->minimumValue() << pgtHVSetpoint_->maximumValue();
 	addChild(pgtHVSetpoint_);
 	sgmPVName = amNames2pvNames_.valueF("pgtHVFbk");
-	qDebug() << "\n\n\nLOOK FOR ME";
 	pgtHVFbk_ = new AMReadOnlyPVControl("pgtHVFbk", sgmPVName, this);
-	connect(pgtHVFbk_, SIGNAL(valueChanged(double)), this, SLOT(onHVFbkUpdate(double)));
-	qDebug() << "\nNOW I'M FINISHED BEING MADE\n\n\n";
 	addChild(pgtHVFbk_);
 	sgmPVName = amNames2pvNames_.valueF("pgtIntegrationTime");
 	pgtIntegrationTime_ = new AMPVControl("pgtIntegrationTime", sgmPVName, sgmPVName, this, 0.1);

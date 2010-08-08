@@ -40,6 +40,20 @@ PGTDetector::~PGTDetector()
 	integrationMode_ = NULL;
 }
 
+bool PGTDetector::settingsMatchFbk(PGTDetectorInfo *settings){
+	bool rVal = false;
+	if( fabs(settings->integrationTime() - integrationTimeCtrl()->value()) > integrationTimeCtrl()->tolerance() )
+		return rVal;
+	else if( fabs( settings->integrationModeList().indexOf(settings->integrationMode()) - integrationModeCtrl()->value()) > integrationModeCtrl()->tolerance() )
+		return rVal;
+	else if( fabs(settings->hvSetpoint() - hvFbkCtrl()->value()) > hvFbkCtrl()->tolerance())
+		return rVal;
+	else{
+		rVal = true;
+		return rVal;
+	}
+}
+
 bool PGTDetector::setControls(PGTDetectorInfo *pgtSettings){
 	hvSetpoint_->move( pgtSettings->hvSetpoint() );
 	integrationTime_->move( pgtSettings->integrationTime() );
@@ -59,6 +73,16 @@ MCPDetector::~MCPDetector(){
 	reading_ = NULL;
 	hvSetpoint_ = NULL;
 	hvFbk_ = NULL;
+}
+
+bool MCPDetector::settingsMatchFbk(MCPDetectorInfo *settings){
+	bool rVal = false;
+	if( fabs(settings->hvSetpoint() - hvFbkCtrl()->value()) > hvFbkCtrl()->tolerance())
+		return rVal;
+	else{
+		rVal = true;
+		return rVal;
+	}
 }
 
 bool MCPDetector::setControls(MCPDetectorInfo *mcpSettings){

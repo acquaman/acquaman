@@ -45,6 +45,18 @@ bool SGMXASScanController::beamlineInitialize(){
 	SGMBeamline::sgm()->undulatorTracking()->move( pCfg_()->undulatorTracking() );
 	SGMBeamline::sgm()->monoTracking()->move( pCfg_()->monoTracking() );
 	SGMBeamline::sgm()->exitSlitTracking()->move( pCfg_()->exitSlitTracking() );
+
+	AMDetectorInfo* tmpDI;
+	for(int x = 0; x < pCfg_()->detectorSet()->count(); x++){
+		tmpDI = pCfg_()->detectorSet()->detectorAt(x);
+		if(tmpDI->typeDescription() == "PGT SDD Spectrum-Output Detector")
+			((PGTDetector*)(pCfg_()->detectorSet()->detectorAt(x)))->setControls( (PGTDetectorInfo*)pCfg_()->cfgDetectorInfoSet()->detectorAt(x) );
+		else if(tmpDI->typeDescription() == "MCP Detector")
+			((MCPDetector*)(pCfg_()->detectorSet()->detectorAt(x)))->setControls( (MCPDetectorInfo*)pCfg_()->cfgDetectorInfoSet()->detectorAt(x) );
+		else
+			((AMSingleControlDetector*)(pCfg_()->detectorSet()->detectorAt(x)))->setControls( (AMDetectorInfo*)pCfg_()->cfgDetectorInfoSet()->detectorAt(x) );
+	}
+
 	beamlineInitialized_ = true;
 	return beamlineInitialized_;
 }
