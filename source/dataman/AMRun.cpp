@@ -23,7 +23,6 @@ AMRun::AMRun(const QString& runName, const int& facilityId, QObject* parent)
 		metaData_["notes"] = QString();
 		metaData_["endDateTime"]=QDateTime();
 		metaData_["facilityId"]=int();
-
 		this->setName(runName);
 		this->setFacilityId(facilityId);
 }

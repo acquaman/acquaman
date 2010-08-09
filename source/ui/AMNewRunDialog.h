@@ -23,6 +23,9 @@ protected slots:
 	void okButtonPressed();
 	void cancelButtonPressed();
 
+signals:
+	void dialogBoxClosed();
+
 protected:
 	void addFacility();
 	QComboBox *facilitySelectCb;

@@ -8,6 +8,7 @@
 #include "ui/AMSidebar.h"
 #include "ui/AMComboBox.h"
 #include "ui/AMNewRunDialog.h"
+#include "dataman/AMRun.h"
 
 #include "dataman/AMFirstTimeController.h"
 #include "AMErrorMonitor.h"
@@ -40,13 +41,13 @@ private slots:
 	/// Test to confirm that new run dialog works.
 	void testRunDialog() {
 
-		AMNewRunDialog *window = new AMNewRunDialog();
 
+		AMComboBox *window = new AMComboBox;
 		window->show();
 
 
 
-		QTest::qWait(2000);
+		QTest::qWait(200000);
 
 
 	}
