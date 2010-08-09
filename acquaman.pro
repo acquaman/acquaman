@@ -182,7 +182,9 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
     source/ui/SGMXASScanConfigurationViewer.h \
     source/acquaman.h \
     source/ui/AMDetectorView.h \
-    source/ui/SGMXASScanConfigurationWizard.h
+    source/ui/SGMXASScanConfigurationWizard.h \
+    source/ui/AMWorkflowManagerView.h \
+    source/beamline/AMBeamlineScanAction.h
 FORMS += source/ui/AbsorptionScanController.ui \
     source/ui/AMDataView.ui \
     source/ui/AMDataViewEmptyHeader.ui \
@@ -299,6 +301,8 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
     source/ui/SGMSampleTransferView.cpp \
     source/ui/SGMXASScanConfigurationViewer.cpp \
     source/ui/AMDetectorView.cpp \
-    source/ui/SGMXASScanConfigurationWizard.cpp
+    source/ui/SGMXASScanConfigurationWizard.cpp \
+    source/ui/AMWorkflowManagerView.cpp \
+    source/beamline/AMBeamlineScanAction.cpp
 RESOURCES = source/icons/icons.qrc
 OTHER_FILES += source/muParser/README.txt

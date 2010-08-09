@@ -1,40 +1,11 @@
 #include "SGMXASScanConfigurationViewer.h"
 
-SGMXASScanConfigurationViewer::SGMXASScanConfigurationViewer(QWidget *parent)  : QWidget(parent){
+SGMXASScanConfigurationViewer::SGMXASScanConfigurationViewer(SGMXASScanConfiguration *sxsc, AMDetectorInfoSet *cfgDetectorInfoSet, QWidget *parent)  : QWidget(parent){
 	setupUi(this);
 	cfg_ = NULL;
 	if(SGMBeamline::sgm()->isConnected()){
-		SGMXASScanConfiguration *sxsc = new SGMXASScanConfiguration(this);
-
 		cfg_ = sxsc;
-		sxsc->setFileName("daveData.%03d.dat");
-		sxsc->setFilePath(AMUserSettings::userDataFolder);
-		/*
-		sxsc->addRegion(0, 700, 5, 950);
-		sxsc->addRegion(1, 955, 2, 1000);
-		sxsc->addRegion(2, 1000, 4, 1100);
-
-		sxsc->addRegion(1, 850, 1, 970);
-		*/
-		sxsc->addRegion(0, 500, 5, 600);
-
-		cfgDetectorInfoSet_ = new AMDetectorInfoSet(this);
-		sxsc->setCfgDetectorInfoSet(cfgDetectorInfoSet_);
-		AMDetectorInfo* tmpDI, *tdi;
-		for(int x = 0; x < sxsc->detectorSet()->count(); x++){
-			tdi = sxsc->detectorSet()->detectorAt(x);
-			if(tdi->typeDescription() == "PGT SDD Spectrum-Output Detector")
-				tmpDI = new PGTDetectorInfo(tdi->name(), tdi->description(), this);
-			else if(tdi->typeDescription() == "MCP Detector")
-				tmpDI = new MCPDetectorInfo(tdi->name(), tdi->description(), this);
-			else
-				tmpDI = new AMDetectorInfo(tdi->name(), tdi->description(), this);
-
-			QList<AMMetaMetaData> all = tmpDI->metaDataAllKeys();
-			for(int y = 0; y < all.count(); y++)
-				tmpDI->setMetaData(all.at(y).key, tdi->metaData(all.at(y).key));
-			cfgDetectorInfoSet_->addDetector(tmpDI, sxsc->detectorSet()->isDefaultAt(x));
-		}
+		cfgDetectorInfoSet_ = cfgDetectorInfoSet;
 
 		regionsLineView_ = new AMRegionsLineView(sxsc->regions(), this);
 
@@ -53,9 +24,7 @@ SGMXASScanConfigurationViewer::SGMXASScanConfigurationViewer(QWidget *parent)  :
 		connect( ((QComboBox*)(trackingView_->boxByName("undulatorTracking"))), SIGNAL(currentIndexChanged(int)), sxsc, SLOT(setUndulatorTracking(int)) );
 		connect( ((QComboBox*)(trackingView_->boxByName("monoTracking"))), SIGNAL(currentIndexChanged(int)), sxsc, SLOT(setMonoTracking(int)) );
 		connect( ((QComboBox*)(trackingView_->boxByName("exitSlitTracking"))), SIGNAL(currentIndexChanged(int)), sxsc, SLOT(setExitSlitTracking(int)) );
-//		connect( ((QSpinBox*)(trackingView_->boxByName("undulatorTracking"))), SIGNAL(valueChanged(int)), sxsc, SLOT(setUndulatorTracking(int)) );
-//		connect( ((QSpinBox*)(trackingView_->boxByName("monoTracking"))), SIGNAL(valueChanged(int)), sxsc, SLOT(setMonoTracking(int)) );
-//		connect( ((QSpinBox*)(trackingView_->boxByName("exitSlitTracking"))), SIGNAL(valueChanged(int)), sxsc, SLOT(setExitSlitTracking(int)) );
+
 		detectorView_ = new AMDetectorSetView(sxsc->detectorSet(), cfgDetectorInfoSet_, true, this);
 		connect( ((QCheckBox*)(detectorView_->boxByName("tey"))), SIGNAL(stateChanged(int)), sxsc, SLOT(setUsingTEY(int)) );
 		connect( ((QCheckBox*)(detectorView_->boxByName("tfy"))), SIGNAL(stateChanged(int)), sxsc, SLOT(setUsingTFY(int)) );
@@ -63,8 +32,14 @@ SGMXASScanConfigurationViewer::SGMXASScanConfigurationViewer(QWidget *parent)  :
 
 		startScanButton_ = new QPushButton();
 		startScanButton_->setText("Start Scan");
-		startScanButton_->setMaximumWidth(200);
+		addToQueueButton_ = new QPushButton();
+		addToQueueButton_->setText("Add Scan to Queue");
+		int buttonWidth = max(startScanButton_->sizeHint().width(), addToQueueButton_->sizeHint().width());
+		startScanButton_->setMinimumWidth(buttonWidth);
+		addToQueueButton_->setMinimumWidth(buttonWidth);
 		connect(startScanButton_, SIGNAL(clicked()), this, SLOT(onStartScanClicked()));
+		connect(addToQueueButton_, SIGNAL(clicked()), this, SLOT(onAddToQueueRequested()));
+
 		delete doLayoutButton;
 		delete layout();
 		QSpacerItem *spc1 = new QSpacerItem(10, 10, QSizePolicy::Minimum, QSizePolicy::Maximum);
@@ -73,13 +48,14 @@ SGMXASScanConfigurationViewer::SGMXASScanConfigurationViewer(QWidget *parent)  :
 		gl_.setSpacing(0);
 		gl_.addWidget(regionsLineView_,		0, 0, 1, 5, Qt::AlignCenter);
 		gl_.addWidget(regionsView_,			1, 0, 2, 3, Qt::AlignLeft);
-		gl_.addWidget(fluxResolutionView_, 3, 0, 2, 3, Qt::AlignLeft);
+		gl_.addWidget(fluxResolutionView_,	3, 0, 2, 3, Qt::AlignLeft);
 		gl_.addWidget(trackingView_,		1, 3, 2, 2, Qt::AlignLeft);
 		gl_.addWidget(detectorView_,		3, 3, 2, 2, Qt::AlignLeft);
-		gl_.addItem(spc1,					5, 0, 2, 3, Qt::AlignLeft);
-		gl_.addItem(spc2,					5, 3, 2, 2, Qt::AlignLeft);
-		gl_.addWidget(startScanButton_,		9, 0, 1, 2, Qt::AlignLeft);
-		gl_.addItem(spc3,					9, 3, 1, 2, Qt::AlignLeft);
+		gl_.addWidget(startScanButton_,		5, 3, 1, 2, Qt::AlignRight);
+		gl_.addWidget(addToQueueButton_,	6, 3, 1, 2, Qt::AlignRight);
+		gl_.addItem(spc1,					7, 0, 2, 3, Qt::AlignLeft);
+		gl_.addItem(spc2,					7, 3, 2, 2, Qt::AlignLeft);
+//		gl_.addItem(spc3,					9, 3, 1, 2, Qt::AlignLeft);
 		this->setLayout(&gl_);
 		this->setMaximumSize(800, 800);
 	}

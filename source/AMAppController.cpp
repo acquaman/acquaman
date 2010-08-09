@@ -24,6 +24,7 @@
 #include "ui/AMScanConfigurationView.h"
 #include "ui/SGMXASScanConfigurationViewer.h"
 #include "ui/EmissionScanController.h"
+#include "ui/AMWorkflowManagerView.h"
 #include "ui/Scheduler.h"
 #include "ui/PeriodicTable.h"
 #include "ui/ProtocolViewer.h"
@@ -76,11 +77,15 @@ AMAppController::AMAppController(QObject *parent) :
 	mw_->addPane(scanViewer, "Experiment Setup", "SGM XAS Scan", ":/utilities-system-monitor.png");
 	// connect(sxscViewer, SIGNAL(scanControllerReady(AMScanController*)), this, SLOT(onScanControllerReady(AMScanController*)));
 
+	AMWorkflowManagerView *wfViewer = new AMWorkflowManagerView();
+	mw_->addPane(wfViewer, "Experiment Tools", "Workflow", ":/user-away.png");
+	connect(scanViewer, SIGNAL(startScanRequested()), wfViewer, SLOT(onStartScanRequested()));
+	connect(wfViewer, SIGNAL(freeToScan(bool)), scanViewer, SLOT(onFreeToScan(bool)));
+	connect(scanViewer, SIGNAL(addToQueueRequested(AMScanConfiguration*)), wfViewer, SLOT(onAddToQueueRequested(AMScanConfiguration*)));
+
 	mw_->addPane(new Scheduler(), "Experiment Tools", "Scheduler", ":/user-away.png");
 	mw_->addPane(new PeriodicTable(), "Experiment Tools", "Periodic Table", ":/applications-science.png");
 	mw_->addPane(new ProtocolViewer(), "Experiment Tools", "Protocol", ":/accessories-text-editor.png");
-
-
 
 
 	// Make a dataview widget and add it under two links/headings: "Runs" and "Experiments"

@@ -21,9 +21,13 @@ class SGMXASScanConfigurationWizard : public QWizard
 {
 Q_OBJECT
 public:
-	explicit SGMXASScanConfigurationWizard(QWidget *parent = 0);
+	explicit SGMXASScanConfigurationWizard(SGMXASScanConfiguration *sxsc, AMDetectorInfoSet *cfgDetectorInfoSet, QWidget *parent = 0);
 
 	void accept();
+
+signals:
+	void scanControllerReady(AMScanController *scanController);
+	void scanStartRequested();
 
 protected:
 	SGMXASScanConfiguration *cfg_;

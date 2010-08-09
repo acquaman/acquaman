@@ -1,17 +1,21 @@
 #include "SGMXASScanConfigurationWizard.h"
 
-SGMXASScanConfigurationWizard::SGMXASScanConfigurationWizard(QWidget *parent) :
+SGMXASScanConfigurationWizard::SGMXASScanConfigurationWizard(SGMXASScanConfiguration *sxsc, AMDetectorInfoSet *cfgDetectorInfoSet, QWidget *parent) :
 	QWizard(parent)
 {
 	cfg_ = NULL;
 	cfgDetectorInfoSet_ = NULL;
 	if(SGMBeamline::sgm()->isConnected()){
+		cfg_ = sxsc;
+		cfgDetectorInfoSet_ = cfgDetectorInfoSet;
+		/*
 		SGMXASScanConfiguration *cfg_ = new SGMXASScanConfiguration(this);
 		cfg_->setFileName("daveData.%03d.dat");
 		cfg_->setFilePath(AMUserSettings::userDataFolder);
 		cfg_->addRegion(0, 500, 5, 600);
 		cfgDetectorInfoSet_ = new AMDetectorInfoSet(this);
 		cfg_->setCfgDetectorInfoSet(cfgDetectorInfoSet_);
+		qDebug() << "Using cfg_ as " << (int)cfg_;
 		AMDetectorInfo* tmpDI, *tdi;
 		for(int x = 0; x < cfg_->detectorSet()->count(); x++){
 			tdi = cfg_->detectorSet()->detectorAt(x);
@@ -27,6 +31,7 @@ SGMXASScanConfigurationWizard::SGMXASScanConfigurationWizard(QWidget *parent) :
 				tmpDI->setMetaData(all.at(y).key, tdi->metaData(all.at(y).key));
 			cfgDetectorInfoSet_->addDetector(tmpDI, cfg_->detectorSet()->isDefaultAt(x));
 		}
+		*/
 
 		introPage = new SGMXASScanConfigurationIntroWizardPage("Welcome to SGM's XAS Scan Wizard",
 															   "This wizard will guide you through all of the steps required to configure an XAS on the SGM Beamline.");
@@ -87,11 +92,17 @@ SGMXASScanConfigurationWizard::SGMXASScanConfigurationWizard(QWidget *parent) :
 		addPage(reviewPage);
 
 		setWindowTitle(tr("SGM XAS Scan Wizard"));
+		qDebug() << "End of constructor, cfg_ is " << (int)cfg_;
 	}
 }
 
 void SGMXASScanConfigurationWizard::accept(){
+	qDebug() << "In accept, cfg_ is " << (int)cfg_;
+	SGMXASDacqScanController *xasCtrl = new SGMXASDacqScanController(cfg_, SGMBeamline::sgm());
+	emit scanControllerReady((AMScanController*)xasCtrl);
+	xasCtrl->initialize();
 	QDialog::accept();
+	emit scanStartRequested();
 }
 
 SGMXASScanConfigurationIntroWizardPage::SGMXASScanConfigurationIntroWizardPage(QString title, QString subTitle, QWidget *parent) :
@@ -191,7 +202,7 @@ AMDetectorSetWizardPage::AMDetectorSetWizardPage(AMDetectorInfoSet *detectorSet,
 {
 	detectorSet_ = detectorSet;
 	cfgDetectorInfoSet_ = cfgDetectorInfoSet;
-	detectorView_ = new AMDetectorInfoSetView(detectorSet_, cfgDetectorInfoSet_, true, this);
+	detectorView_ = new AMDetectorSetView(detectorSet_, cfgDetectorInfoSet_, true, this);
 	gl_ = new QGridLayout();
 	textLabel_ = new QLabel(subTitle);
 	textLabel_->setAlignment(Qt::AlignJustify);

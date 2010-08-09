@@ -18,49 +18,20 @@
 class SGMXASScanConfigurationViewer : public QWidget, private Ui::SGMXASScanConfigurationViewer {
 Q_OBJECT
 public:
-		SGMXASScanConfigurationViewer(QWidget *parent = 0);
+		SGMXASScanConfigurationViewer(SGMXASScanConfiguration *sxsc, AMDetectorInfoSet *cfgDetectorInfoSet, QWidget *parent = 0);
 		~SGMXASScanConfigurationViewer();
 
 signals:
 	void scanControllerReady(AMScanController *xasCtrl);
+	void startScanRequested();
+	void addToQueueRequested();
 
 public slots:
 	void onAddRegionClicked();
 
 protected slots:
-	void onStartScanClicked(){
-		qDebug() << "Detector after: "
-				<< ((PGTDetector*)(((SGMXASScanConfiguration*)(cfg_))->detectorSet()->detectorByName("pgt")))->integrationTime()
-				<< ((PGTDetector*)(((SGMXASScanConfiguration*)(cfg_))->detectorSet()->detectorByName("pgt")))->integrationMode()
-				<< ((PGTDetector*)(((SGMXASScanConfiguration*)(cfg_))->detectorSet()->detectorByName("pgt")))->hvSetpoint()
-				<< ((MCPDetector*)(((SGMXASScanConfiguration*)(cfg_))->detectorSet()->detectorByName("tfy")))->hvSetpoint();
-
-		qDebug() << "cfgDetectorInfo after: "
-				<< ((PGTDetectorInfo*)cfgDetectorInfoSet_->detectorByName("pgt"))->integrationTime()
-				<< ((PGTDetectorInfo*)cfgDetectorInfoSet_->detectorByName("pgt"))->integrationMode()
-				<< ((PGTDetectorInfo*)cfgDetectorInfoSet_->detectorByName("pgt"))->hvSetpoint()
-				<< ((MCPDetectorInfo*)cfgDetectorInfoSet_->detectorByName("tfy"))->hvSetpoint();
-
-		/*
-		AMDetectorInfo* tmpDI;
-		for(int x = 0; x < ((SGMXASScanConfiguration*)(cfg_))->detectorSet()->count(); x++){
-			tmpDI = ((SGMXASScanConfiguration*)(cfg_))->detectorSet()->detectorAt(x);
-			if(tmpDI->typeDescription() == "PGT SDD Spectrum-Output Detector")
-				((PGTDetector*)(((SGMXASScanConfiguration*)(cfg_))->detectorSet()->detectorAt(x)))->setControls( (PGTDetectorInfo*)cfgDetectorInfoSet_->detectorAt(x) );
-			else if(tmpDI->typeDescription() == "MCP Detector")
-				((MCPDetector*)(((SGMXASScanConfiguration*)(cfg_))->detectorSet()->detectorAt(x)))->setControls( (MCPDetectorInfo*)cfgDetectorInfoSet_->detectorAt(x) );
-			else
-				((AMSingleControlDetector*)(((SGMXASScanConfiguration*)(cfg_))->detectorSet()->detectorAt(x)))->setControls( (AMDetectorInfo*)cfgDetectorInfoSet_->detectorAt(x) );
-		}
-		*/
-
-		SGMXASDacqScanController *xasCtrl = new SGMXASDacqScanController((SGMXASScanConfiguration*)cfg_, SGMBeamline::sgm());
-		emit scanControllerReady((AMScanController*)xasCtrl);
-		xasCtrl->initialize();
-
-		xasCtrl->start();
-
-	}
+	void onStartScanClicked(){ emit startScanRequested(); }
+	void onAddToQueueRequested() { emit addToQueueRequested(); }
 	void onRegionsChanged(){
 		if(cfg_ && fluxResolutionView_){
 			fluxResolutionView_->onRegionsUpdate( ((SGMXASScanConfiguration*)cfg_)->regions() );
@@ -76,6 +47,7 @@ protected:
 	AMDetectorInfoSetView *detectorView_;
 	AMDetectorInfoSet *cfgDetectorInfoSet_;
 	QPushButton *startScanButton_;
+	QPushButton *addToQueueButton_;
 	QVBoxLayout vl_;
 	QGridLayout gl_;
 };

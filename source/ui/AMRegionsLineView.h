@@ -32,13 +32,9 @@ public:
 		Q_UNUSED(widget);
 		painter->setPen(Qt::NoPen);
 		painter->setBrush(Qt::darkGray);
-//		painter->drawEllipse(-12, -12, 30, 30);
-//		painter->drawRoundedRect(-(int)(0.5*width_), -15, width_, 30, 20, 20, Qt::RelativeSize);
 		painter->drawRoundedRect(0, -15, width_, 30, 1, 1, Qt::RelativeSize);
 		painter->setPen(QPen(Qt::black, 1));
-//		painter->setBrush(QBrush(color));
 		painter->setBrush(Qt::gray);
-//		painter->drawEllipse(-15, -15, 30, 30);
 		painter->drawRoundedRect(0, -15, width_, 30, 1, 1, Qt::RelativeSize);
 		QString deltaVal;
 		deltaVal.setNum(delta_);
@@ -47,7 +43,6 @@ public:
 		deltaVal.prepend(deltaChar);
 		QRectF box(0, -15, width_, 30);
 		painter->drawText(box, Qt::AlignHCenter, deltaVal, &box);
-//		painter->drawText(width_/2, 0, deltaVal);
 	}
 
 protected:

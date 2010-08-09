@@ -12,21 +12,23 @@ public:
 	AMXASScanConfigurationHolder(QWidget *parent = 0);
 	~AMXASScanConfigurationHolder();
 
+public slots:
+	void onFreeToScan(bool ready);
+
+signals:
+	void startScanRequested();
+	void addToQueueRequested(AMScanConfiguration *cfg);
+
 protected slots:
-	void onSidebarLinkChanged(){
-		if(!sxscViewer && isVisible() && SGMBeamline::sgm()->isConnected()){
-			sxscViewer = new SGMXASScanConfigurationViewer();
-			vl_ = new QVBoxLayout();
-			vl_->addWidget(sxscViewer);
-			this->setLayout(vl_);
-		}
-		if(!sxscWizard && isVisible() && SGMBeamline::sgm()->isConnected()){
-			sxscWizard = new SGMXASScanConfigurationWizard();
-			sxscWizard->show();
-		}
-	}
+	void createScanConfiguration();
+	void onSidebarLinkChanged();
+	void onStartScanRequested();
+	void onAddToQueueRequested();
 
 protected:
+	SGMXASScanConfiguration *cfg_;
+	AMDetectorInfoSet *cfgDetectorInfoSet_;
+
 	SGMXASScanConfigurationViewer *sxscViewer;
 	SGMXASScanConfigurationWizard *sxscWizard;
 	QVBoxLayout *vl_;

@@ -14,6 +14,7 @@ Q_OBJECT
 public:
 	explicit AMBeamlineActionItem(QString message = "", QObject *parent = 0);
 	bool hasFeedback() { return hasFeedback_; }
+	bool needsInput() { return needsInput_; }
 	AMBeamlineActionItem* previous() const { return previous_;}
 	AMBeamlineActionItem* next() const { return next_;}
 	QString message() const { return message_; }
@@ -38,6 +39,7 @@ protected:
 	bool succeed_;
 	bool fail_;
 	bool hasFeedback_;
+	bool needsInput_;
 
 	QString message_;
 	AMBeamlineActionItem *previous_;
