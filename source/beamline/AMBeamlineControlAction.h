@@ -10,8 +10,13 @@ Q_OBJECT
 public:
 	AMBeamlineControlAction(AMControl *control, QString message = "", QObject *parent = 0);
 
+	virtual QString type() const;
+
 protected:
 	AMControl *control_;
+
+private:
+	QString type_;
 };
 
 

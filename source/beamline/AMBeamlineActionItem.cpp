@@ -8,6 +8,7 @@ AMBeamlineActionItem::AMBeamlineActionItem(QString message, QObject *parent) :
 	next_ = NULL;
 	hasFeedback_ = false;
 	needsInput_ = false;
+	type_ = "actionItem";
 }
 
 AMBeamlineActionItemView::AMBeamlineActionItemView(AMBeamlineActionItem *item, QWidget *parent) :

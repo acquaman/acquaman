@@ -18,6 +18,7 @@ public:
 	AMBeamlineActionItem* previous() const { return previous_;}
 	AMBeamlineActionItem* next() const { return next_;}
 	QString message() const { return message_; }
+	virtual QString type() const { return type_; }
 
 signals:
 	void started();
@@ -44,6 +45,9 @@ protected:
 	QString message_;
 	AMBeamlineActionItem *previous_;
 	AMBeamlineActionItem *next_;
+
+private:
+	QString type_;
 };
 
 class AMBeamlineActionItemView : public QWidget

@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QLabel>
+#include <QGroupBox>
 #include <QVBoxLayout>
 #include <QFormLayout>
 #include <QDebug>
@@ -29,10 +30,12 @@ signals:
 
 public slots:
 	void onStartScanRequested();
+	void onStartQueueRequested();
 	void onAddToQueueRequested(AMScanConfiguration *cfg);
 
 protected:
 	QLabel *placeHolder_;
+	QPushButton *startWorkflowButton_;
 	QVBoxLayout *vl_;
 
 	AMBeamlineActionsList *workflowActions_;
@@ -101,11 +104,8 @@ protected slots:
 
 protected:
 	AMBeamlineActionsList *actionsList_;
+	QGroupBox *gb_;
 	QVBoxLayout *iib;
-	/*
-	QGraphicsScene *scene;
-	QGraphicsView *view;
-	*/
 };
 
 class BeamlineActionGraphicItem : public QGraphicsItem

@@ -1,25 +1,19 @@
 #include "AMWorkflowManagerView.h"
 #include <QScrollArea>
 #include <QPushButton>
-#include <QGroupBox>
 
 AMWorkflowManagerView::AMWorkflowManagerView(QWidget *parent) :
 	QWidget(parent)
 {
 	queueEmpty_ = true;
 
-/*	data_ << "Workflow goes here ... just like food goes here";
-	model_ = new QStringListModel();
-	model_->setStringList(data_);
-	listView_ = new QListView();
-	listView_->setModel(model_);
-	listView_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Maximum);
-*/
+	startWorkflowButton_ = new QPushButton("Start This Workflow");
+	connect(startWorkflowButton_, SIGNAL(clicked()), this, SLOT(onStartQueueRequested()));
 	workflowActions_ = new AMBeamlineActionsList(this);
 	workflowView_ = new AMBeamlineActionsListView(workflowActions_, this);
 
 	vl_ = new QVBoxLayout();
-//	vl_->addWidget(listView_);
+	vl_->addWidget(startWorkflowButton_, 0, Qt::AlignRight);
 	vl_->addWidget(workflowView_);
 	setLayout(vl_);
 }
@@ -28,23 +22,21 @@ void AMWorkflowManagerView::onStartScanRequested(){
 	if(isEmpty())
 		emit freeToScan(true);
 }
+
+void AMWorkflowManagerView::onStartQueueRequested(){
+	if(workflowActions_->count() > 0)
+		workflowActions_->action(0)->start();
+}
+
 void AMWorkflowManagerView::onAddToQueueRequested(AMScanConfiguration *cfg){
 	SGMXASScanConfiguration *sxsc = (SGMXASScanConfiguration*)cfg;
-	/*
-	QString range = "";
-	QString tmpNum = "";
-	tmpNum.setNum(sxsc->regions()->start(0));
-	range = tmpNum;
-	tmpNum.clear();
-	tmpNum.setNum(sxsc->regions()->end(sxsc->regions()->count()-1));
-	range.append(" to "+tmpNum);
-	QStringList tmpList = model_->stringList();
-	tmpList << "\nSGMXASScan from "+range;
-	model_->setStringList(tmpList);
-	*/
+
 	AMBeamlineScanAction *scanAction = new AMBeamlineScanAction(sxsc, "SGMXASScan", "Deuce", this);
 	workflowActions_->appendAction(scanAction);
-//	scanAction->start();
+	if(workflowActions_->count() > 1){
+		scanAction->setPrevious(workflowActions_->action(workflowActions_->count()-2));
+		connect(scanAction->previous(), SIGNAL(succeeded()), scanAction, SLOT(start()));
+	}
 }
 
 
@@ -80,9 +72,7 @@ QVariant AMBeamlineActionListModel::headerData(int section, Qt::Orientation orie
 }
 
 bool AMBeamlineActionListModel::setData(const QModelIndex &index, const QVariant &value, int role){
-	qDebug() << "In setData";
 	if (index.isValid()  && index.row() < actions_->count() && role == Qt::EditRole) {
-		qDebug() << "In setData and going to do it";
 		bool conversionOK = false;
 		AMBeamlineActionItem* actionItem;
 		actionItem = (AMBeamlineActionItem*) value.value<void*>();
@@ -141,20 +131,17 @@ AMBeamlineActionItem* AMBeamlineActionsList::action(size_t index) const{
 }
 
 bool AMBeamlineActionsList::setAction(size_t index, AMBeamlineActionItem *action){
-	qDebug() << "Doing setAction";
 	return actions_->setData(actions_->index(index, 0), qVariantFromValue((void*)action), Qt::EditRole);
 }
 
 bool AMBeamlineActionsList::addAction(size_t index, AMBeamlineActionItem *action){
 	if(!actions_->insertRows(index, 1))
 		return false;
-	qDebug() << "In addAction in successful side";
 	setAction(index, action);
 	return true;
 }
 
 bool AMBeamlineActionsList::appendAction(AMBeamlineActionItem *action){
-	qDebug() << "In appendAction";
 	return addAction(count(), action);
 }
 
@@ -178,107 +165,47 @@ AMBeamlineActionsListView::AMBeamlineActionsListView(AMBeamlineActionsList *acti
 {
 	actionsList_ = actionsList;
 
-	QGroupBox *gb = new QGroupBox();
-	gb->setTitle("Fuck you bitches");
-	gb->setMinimumSize(600, 8*200);
+	gb_ = new QGroupBox();
+	gb_->setTitle("Workflow");
 	iib = new QVBoxLayout();
-	gb->setLayout(iib);
-//	setMinimumSize(600, 8*200);
-//	setLayout(iib);
-	QPushButton *tmpLabel = new QPushButton("tits1");
-	iib->addWidget(tmpLabel);
-	tmpLabel->setMinimumHeight(200);
-	tmpLabel->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-	QPushButton *tmpLabel2 = new QPushButton("boobs1");
-	iib->addWidget(tmpLabel2);
-	tmpLabel2->setMinimumHeight(200);
-	tmpLabel2->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-	QPushButton *tmpLabel3 = new QPushButton("fucker1");
-	iib->addWidget(tmpLabel3);
-	tmpLabel3->setMinimumHeight(200);
-	tmpLabel3->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-	QPushButton *tmpLabel4 = new QPushButton("ass1");
-	iib->addWidget(tmpLabel4);
-	tmpLabel4->setMinimumHeight(200);
-	tmpLabel4->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-	QPushButton *tmpLabel5 = new QPushButton("tits2");
-	iib->addWidget(tmpLabel5);
-	tmpLabel5->setMinimumHeight(200);
-	tmpLabel5->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-	QPushButton *tmpLabel6 = new QPushButton("boobs2");
-	iib->addWidget(tmpLabel6);
-	tmpLabel6->setMinimumHeight(200);
-	tmpLabel6->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-	QPushButton *tmpLabel7 = new QPushButton("fucker2");
-	iib->addWidget(tmpLabel7);
-	tmpLabel7->setMinimumHeight(200);
-	tmpLabel7->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-	QPushButton *tmpLabel8 = new QPushButton("ass2");
-	iib->addWidget(tmpLabel8);
-	tmpLabel8->setMinimumHeight(200);
-	tmpLabel8->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+	iib->setAlignment(Qt::AlignTop);
+	gb_->setLayout(iib);
+	gb_->setMinimumSize(300, 50);
+	gb_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
 
 	QScrollArea *sa = new QScrollArea();
-	sa->setWidget(gb);
+	sa->setWidget(gb_);
+	sa->setWidgetResizable(true);
 	QVBoxLayout *ob = new QVBoxLayout();
 	ob->addWidget(sa);
 	setLayout(ob);
 
-
-	/*
-	int nlSize = 600;
-	this->setMaximumSize(nlSize, 300);
-	this->setMinimumSize(nlSize, 300);
-	scene = new QGraphicsScene(0, -10, nlSize-200, 260);
-
-	redrawBeamlineActionsList();
-	view = new QGraphicsView(scene);
-	view->setRenderHint(QPainter::Antialiasing);
-	view->setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
-	view->setBackgroundBrush(QColor(230, 200, 167));
-	view->resize(nlSize-200, 280);
-	view->setMaximumHeight(280);
-	view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-	view->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-
-	QFormLayout *fl_ = new QFormLayout(this);
-	fl_->addRow(view);
-	setLayout(fl_);
-	*/
 	connect(actionsList_->model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(handleDataChanged(QModelIndex,QModelIndex)));
 	connect(actionsList_->model(), SIGNAL(rowsInserted(const QModelIndex,int,int)), this, SLOT(handleRowsInsert(QModelIndex,int,int)));
 	connect(actionsList_->model(), SIGNAL(rowsRemoved(const QModelIndex,int,int)), this, SLOT(handleRowsRemoved(QModelIndex,int,int)));
 }
 
 void AMBeamlineActionsListView::handleDataChanged(QModelIndex topLeft, QModelIndex bottomRight){
-	qDebug() << "In handleRowInsert";
 	AMBeamlineActionItem *tmpItem = actionsList_->action(topLeft.row());
-	qDebug() << "Generally " << tmpItem->message();
-	AMBeamlineScanAction *scanAction = (AMBeamlineScanAction*)tmpItem;
-	AMBeamlineScanActionView *scanActionView = new AMBeamlineScanActionView(scanAction);
-	iib->addWidget(scanActionView);
-//	redrawBeamlineActionsList();
+	qDebug() << "Type " << tmpItem->type();
+	if(tmpItem->type() == "actionItem.scanAction"){
+		AMBeamlineScanAction *scanAction = (AMBeamlineScanAction*)tmpItem;
+		AMBeamlineScanActionView *scanActionView = new AMBeamlineScanActionView(scanAction, topLeft.row()+1);
+		iib->addWidget(scanActionView);
+	}
 }
 
 void AMBeamlineActionsListView::handleRowsInsert(const QModelIndex &parent, int start, int end){
-//	redrawBeamlineActionsList();
+	gb_->setMinimumHeight(50+50*actionsList_->count());
 }
 
 void AMBeamlineActionsListView::handleRowsRemoved(const QModelIndex &parent, int start, int end){
-	redrawBeamlineActionsList();
+	gb_->setMinimumHeight(50+50*actionsList_->count());
 }
 
 void AMBeamlineActionsListView::redrawBeamlineActionsList(){
-	/*
-	int nlSize = 600;
-	scene->clear();
-	for (int i = 0; i < actionsList_->count(); ++i) {
-		BeamlineActionGraphicItem *item = new BeamlineActionGraphicItem(nlSize-60);
-		item->setPos(10, i*30);
-		scene->addItem(item);
-	}
-	*/
+
 }
 
 BeamlineActionGraphicItem::BeamlineActionGraphicItem(int width)
