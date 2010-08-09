@@ -26,3 +26,20 @@ void AMBeamlineScanAction::scanCancelled(){
 	qDebug() << "Failed b/c of cancel";
 	emit failed(102);
 }
+
+AMBeamlineScanActionView::AMBeamlineScanActionView(AMBeamlineScanAction *scanAction, QWidget *parent) :
+		QWidget(parent)
+{
+	QString scanName, tmpStr;
+	scanName = "SGM XAS Scan from";
+	tmpStr.setNum( ((SGMXASScanConfiguration*)scanAction->cfg())->start(0) );
+	scanName.append(tmpStr+" to ");
+	tmpStr.setNum( ((SGMXASScanConfiguration*)scanAction->cfg())->end(((SGMXASScanConfiguration*)scanAction->cfg())->count()-1) );
+	scanName.append(tmpStr);
+	scanNameLabel_ = new QLabel(scanName);
+	progressBar_ = new QProgressBar();
+	hl_ = new QHBoxLayout();
+	hl_->addWidget(scanNameLabel_);
+	hl_->addWidget(progressBar_);
+	setLayout(hl_);
+}

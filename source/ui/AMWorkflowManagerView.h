@@ -35,10 +35,8 @@ protected:
 	QLabel *placeHolder_;
 	QVBoxLayout *vl_;
 
-	AMBeamlineActionsList* workflowActions_;
-	QStringList data_;
-	QStringListModel *model_;
-	QListView *listView_;
+	AMBeamlineActionsList *workflowActions_;
+	AMBeamlineActionsListView *workflowView_;
 	bool queueEmpty_;
 };
 
@@ -103,8 +101,11 @@ protected slots:
 
 protected:
 	AMBeamlineActionsList *actionsList_;
+	QVBoxLayout *iib;
+	/*
 	QGraphicsScene *scene;
 	QGraphicsView *view;
+	*/
 };
 
 class BeamlineActionGraphicItem : public QGraphicsItem
