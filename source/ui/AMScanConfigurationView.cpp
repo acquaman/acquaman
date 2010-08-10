@@ -7,9 +7,15 @@ AMXASScanConfigurationHolder::AMXASScanConfigurationHolder(QWidget *parent) :
 	cfgDetectorInfoSet_ = NULL;
 	sxscViewer = NULL;
 	sxscWizard = NULL;
+	vl_ = NULL;
+	director = new AMScanConfigurationQueueDirector();
+	director->setWindowModality(Qt::ApplicationModal);
+	connect(director, SIGNAL(goToQueue()), this, SLOT(goToQueue()));
+	connect(director, SIGNAL(goToNewScan()), this, SLOT(goToNewScan()));
 }
 
 AMXASScanConfigurationHolder::~AMXASScanConfigurationHolder(){
+	delete director;
 }
 
 void AMXASScanConfigurationHolder::onFreeToScan(bool ready){
@@ -20,17 +26,19 @@ void AMXASScanConfigurationHolder::onFreeToScan(bool ready){
 	}
 }
 
+void AMXASScanConfigurationHolder::onAddedToQueue(AMScanConfiguration *cfg){
+	if(cfg == cfg_)
+		director->showDirector();
+}
+
+void AMXASScanConfigurationHolder::setWorkflowPaneVariant(const QVariant &workflowPaneVariant){
+	workflowPaneVariant_ = workflowPaneVariant;
+}
+
 void AMXASScanConfigurationHolder::createScanConfiguration(){
 	cfg_ = new SGMXASScanConfiguration(this);
 	cfg_->setFileName("daveData.%03d.dat");
 	cfg_->setFilePath(AMUserSettings::userDataFolder);
-	/*
-	cfg_->addRegion(0, 700, 5, 950);
-	cfg_->addRegion(1, 955, 2, 1000);
-	cfg_->addRegion(2, 1000, 4, 1100);
-
-	cfg_->addRegion(1, 850, 1, 970);
-	*/
 	cfg_->addRegion(0, 500, 5, 600);
 
 	cfgDetectorInfoSet_ = new AMDetectorInfoSet(this);
@@ -52,15 +60,31 @@ void AMXASScanConfigurationHolder::createScanConfiguration(){
 	}
 }
 
+void AMXASScanConfigurationHolder::destroyScanConfigurationViewer(){
+	if(sxscViewer){
+		disconnect(sxscViewer, SIGNAL(startScanRequested()), this, SLOT(onStartScanRequested()));
+		disconnect(sxscViewer, SIGNAL(addToQueueRequested()), this, SLOT(onAddToQueueRequested()));
+		disconnect(sxscViewer, SIGNAL(queueDirectorRequested()), director, SLOT(show()));
+		vl_->removeWidget(sxscViewer);
+		delete sxscViewer;
+		sxscViewer = NULL;
+	}
+}
+
 void AMXASScanConfigurationHolder::onSidebarLinkChanged(){
 	if(!sxscViewer && isVisible() && SGMBeamline::sgm()->isConnected()){
 		createScanConfiguration();
 		sxscViewer = new SGMXASScanConfigurationViewer(cfg_, cfgDetectorInfoSet_);
 		connect(sxscViewer, SIGNAL(startScanRequested()), this, SLOT(onStartScanRequested()));
 		connect(sxscViewer, SIGNAL(addToQueueRequested()), this, SLOT(onAddToQueueRequested()));
-		vl_ = new QVBoxLayout();
+		connect(sxscViewer, SIGNAL(queueDirectorRequested()), director, SLOT(show()));
+		if(!vl_)
+			vl_ = new QVBoxLayout();
 		vl_->addWidget(sxscViewer);
-		this->setLayout(vl_);
+		if(layout() != vl_){
+			delete layout();
+			this->setLayout(vl_);
+		}
 	}
 //	if(!sxscWizard && isVisible() && SGMBeamline::sgm()->isConnected()){
 //		sxscWizard = new SGMXASScanConfigurationWizard(cfg_, cfgDetectorInfoSet_);
@@ -75,4 +99,80 @@ void AMXASScanConfigurationHolder::onStartScanRequested(){
 
 void AMXASScanConfigurationHolder::onAddToQueueRequested(){
 	emit addToQueueRequested(cfg_);
+}
+
+void AMXASScanConfigurationHolder::goToQueue(){
+	destroyScanConfigurationViewer();
+	emit goToQueueRequested(workflowPaneVariant_);
+}
+
+void AMXASScanConfigurationHolder::goToNewScan(){
+	destroyScanConfigurationViewer();
+	onSidebarLinkChanged();
+}
+
+AMScanConfigurationQueueDirector::AMScanConfigurationQueueDirector(QWidget *parent) :
+		QWidget(parent)
+{
+	alwaysGoToQueue_ = false;
+	alwaysGoToNewScan_ = false;
+
+	vl_ = new QVBoxLayout();
+	message_ = new QLabel("<h3>What would you like to do now?</h3>");
+	vl_->addWidget(message_);
+	QSpacerItem *tmpSpc = new QSpacerItem(10, 20, QSizePolicy::Preferred, QSizePolicy::Maximum);
+	vl_->addSpacerItem(tmpSpc);
+	choices_ = new QFormLayout();
+	QHBoxLayout *tmpHB;
+	tmpHB = new QHBoxLayout();
+	goToQueueButton_ = new QPushButton("Workflow Queue");
+	goToQueueCheck_ = new QCheckBox("Always do this");
+	tmpHB->addSpacerItem(new QSpacerItem(25, 10, QSizePolicy::Maximum, QSizePolicy::Preferred));
+	tmpHB->addWidget(goToQueueButton_);
+	tmpHB->addWidget(goToQueueCheck_);
+	choices_->addRow("Go to the Workflow Queue", tmpHB);
+	tmpHB = new QHBoxLayout();
+	goToNewScanButton_ = new QPushButton("New Scan");
+	goToNewScanCheck_ = new QCheckBox("Always do this");
+	tmpHB->addSpacerItem(new QSpacerItem(25, 10, QSizePolicy::Maximum, QSizePolicy::Preferred));
+	tmpHB->addWidget(goToNewScanButton_);
+	tmpHB->addWidget(goToNewScanCheck_);
+	choices_->addRow("Create a New Scan Configuration", tmpHB);
+	vl_->addLayout(choices_);
+	connect(goToQueueButton_, SIGNAL(clicked()), this, SIGNAL(goToQueue()));
+	connect(goToQueueButton_, SIGNAL(clicked()), this, SLOT(hide()));
+	connect(goToNewScanButton_, SIGNAL(clicked()), this, SIGNAL(goToNewScan()));
+	connect(goToNewScanButton_, SIGNAL(clicked()), this, SLOT(hide()));
+	connect(goToQueueCheck_, SIGNAL(toggled(bool)), this, SLOT(onAlwaysQueueCheck(bool)));
+	connect(goToNewScanCheck_, SIGNAL(toggled(bool)), this, SLOT(onAlwaysNewScanCheck(bool)));
+	setLayout(vl_);
+}
+
+void AMScanConfigurationQueueDirector::showDirector(){
+	if(alwaysGoToQueue_)
+		emit goToQueue();
+	else if(alwaysGoToNewScan_)
+		emit goToNewScan();
+	else
+		show();
+}
+
+void AMScanConfigurationQueueDirector::onAlwaysQueueCheck(bool checked){
+	alwaysGoToQueue_ = checked;
+	if(checked && alwaysGoToNewScan_)
+		goToNewScanCheck_->setChecked(false);
+	if(alwaysGoToQueue_)
+		goToNewScanButton_->setEnabled(false);
+	else
+		goToNewScanButton_->setEnabled(true);
+}
+
+void AMScanConfigurationQueueDirector::onAlwaysNewScanCheck(bool checked){
+	alwaysGoToNewScan_ = checked;
+	if(checked && alwaysGoToQueue_)
+		goToQueueCheck_->setChecked(false);
+	if(alwaysGoToNewScan_)
+		goToQueueButton_->setEnabled(false);
+	else
+		goToQueueButton_->setEnabled(true);
 }

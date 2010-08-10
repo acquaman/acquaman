@@ -52,7 +52,6 @@ QStandardItem* AMSidebar::addLink(const QString& categoryName, const QVariant& l
 	return item;
 }
 
-
 /// add a new link (or group of links) under category \c categoryName, with a payload \c linkContent. The QStandardItem \c item is used to represent the top-level link.
 /*!  To create nested links, you can give \c item a set of sub-items with QStandardItem::addRow() before calling this function.  Be sure to manually set each sub-item's AM::LinkRole to the desired destination first. */
 void AMSidebar::addLink(const QString& categoryName, const QVariant& linkContent, QStandardItem* item, double weight) {

@@ -34,7 +34,8 @@ void AMBeamlineScanAction::scanCancelled(){
 }
 
 AMBeamlineScanActionView::AMBeamlineScanActionView(AMBeamlineScanAction *scanAction, int index, QWidget *parent) :
-		QWidget(parent)
+		QFrame(parent)
+//		QWidget(parent)
 {
 	index_ = index;
 	scanAction_ = scanAction;
@@ -46,7 +47,8 @@ AMBeamlineScanActionView::AMBeamlineScanActionView(AMBeamlineScanAction *scanAct
 
 	progressBar_ = new QProgressBar();
 	progressBar_->setMinimum(0);
-	timeRemainingLabel_ = new QLabel("");
+	timeRemainingLabel_ = new QLabel("Scan Not Started");
+	timeRemainingLabel_->setAlignment(Qt::AlignHCenter);
 	QVBoxLayout *progressVL = new QVBoxLayout();
 	progressVL->addWidget(progressBar_);
 	progressVL->addWidget(timeRemainingLabel_);
@@ -57,6 +59,7 @@ AMBeamlineScanActionView::AMBeamlineScanActionView(AMBeamlineScanAction *scanAct
 //	hl_->addWidget(progressBar_);
 	hl_->addLayout(progressVL);
 	setLayout(hl_);
+	setFrameStyle(QFrame::StyledPanel);
 }
 
 void AMBeamlineScanActionView::setIndex(int index){
@@ -86,11 +89,23 @@ void AMBeamlineScanActionView::updateProgressBar(double elapsed, double total){
 }
 
 void AMBeamlineScanActionView::onScanFinished(){
-	qDebug() << "Wants to set 100%" << progressBar_->maximum();
 	progressBar_->setValue(progressBar_->maximum());
-	qDebug() << "Now " << progressBar_->value() << " of " << progressBar_->maximum();
 
 	progressBar_->setMaximum(100);
 	progressBar_->setValue(100);
 	timeRemainingLabel_->setText("Scan Complete");
+}
+
+void AMBeamlineScanActionView::mousePressEvent(QMouseEvent *event){
+	if (event->button() != Qt::LeftButton) {
+		event->ignore();
+		return;
+	}
+	qDebug() << "Detected mouse click";
+//	QPalette chPalette = QPalette(palette());
+//	chPalette.setColor(QPalette::Active, QPalette::Highlight, QColor(0, 0, 255));
+//	setPalette(chPalette);
+	setStyleSheet("AMBeamlineScanActionView { background : rgb(15, 147, 255) }");
+	setFrameStyle(QFrame::Box);
+	setLineWidth(1);
 }

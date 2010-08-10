@@ -36,7 +36,8 @@ private:
 	QString type_;
 };
 
-class AMBeamlineScanActionView : public QWidget
+//class AMBeamlineScanActionView : public QWidget
+class AMBeamlineScanActionView : public QFrame
 {
 Q_OBJECT
 public:
@@ -51,6 +52,9 @@ protected slots:
 	void updateScanNameLabel();
 	void updateProgressBar(double elapsed, double total);
 	void onScanFinished();
+
+protected:
+	void mousePressEvent(QMouseEvent *event);
 
 protected:
 	AMBeamlineScanAction *scanAction_;

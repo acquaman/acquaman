@@ -34,11 +34,19 @@ SGMXASScanConfigurationViewer::SGMXASScanConfigurationViewer(SGMXASScanConfigura
 		startScanButton_->setText("Start Scan");
 		addToQueueButton_ = new QPushButton();
 		addToQueueButton_->setText("Add Scan to Queue");
+		queueDirectorButton_ = new QPushButton();
+		queueDirectorButton_->setText("Queue Director");
 		int buttonWidth = max(startScanButton_->sizeHint().width(), addToQueueButton_->sizeHint().width());
-		startScanButton_->setMinimumWidth(buttonWidth);
-		addToQueueButton_->setMinimumWidth(buttonWidth);
+		buttonWidth = max(buttonWidth, queueDirectorButton_->sizeHint().width());
+		int buttonHeight = max(startScanButton_->sizeHint().height(), addToQueueButton_->sizeHint().height());
+		buttonHeight = max(buttonHeight, queueDirectorButton_->sizeHint().height());
+		qDebug() << "height: " << buttonHeight;
+		startScanButton_->setMinimumSize(buttonWidth, (int)(1.75*buttonHeight));
+		addToQueueButton_->setMinimumSize(buttonWidth, buttonHeight);
+		queueDirectorButton_->setMinimumSize(buttonWidth, buttonHeight);
 		connect(startScanButton_, SIGNAL(clicked()), this, SLOT(onStartScanClicked()));
 		connect(addToQueueButton_, SIGNAL(clicked()), this, SLOT(onAddToQueueRequested()));
+		connect(queueDirectorButton_, SIGNAL(clicked()), this, SIGNAL(queueDirectorRequested()));
 
 		delete doLayoutButton;
 		delete layout();
@@ -53,8 +61,9 @@ SGMXASScanConfigurationViewer::SGMXASScanConfigurationViewer(SGMXASScanConfigura
 		gl_.addWidget(detectorView_,		3, 3, 2, 2, Qt::AlignLeft);
 		gl_.addWidget(startScanButton_,		5, 3, 1, 2, Qt::AlignRight);
 		gl_.addWidget(addToQueueButton_,	6, 3, 1, 2, Qt::AlignRight);
-		gl_.addItem(spc1,					7, 0, 2, 3, Qt::AlignLeft);
-		gl_.addItem(spc2,					7, 3, 2, 2, Qt::AlignLeft);
+		gl_.addWidget(queueDirectorButton_,	7, 3, 1, 2, Qt::AlignRight);
+		gl_.addItem(spc1,					8, 0, 2, 3, Qt::AlignLeft);
+		gl_.addItem(spc2,					8, 3, 2, 2, Qt::AlignLeft);
 //		gl_.addItem(spc3,					9, 3, 1, 2, Qt::AlignLeft);
 		this->setLayout(&gl_);
 		this->setMaximumSize(800, 800);

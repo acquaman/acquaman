@@ -12,7 +12,7 @@ class AMAppController : public QObject
 {
 Q_OBJECT
 public:
-    explicit AMAppController(QObject *parent = 0);
+	explicit AMAppController(QObject *parent = 0);
 	virtual ~AMAppController();
 
 signals:
@@ -23,7 +23,6 @@ public slots:
 
 protected slots:
 	void onActionImport();
-
 
 protected:
 	AMMainWindow* mw_;

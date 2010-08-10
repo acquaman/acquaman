@@ -78,10 +78,17 @@ AMAppController::AMAppController(QObject *parent) :
 	// connect(sxscViewer, SIGNAL(scanControllerReady(AMScanController*)), this, SLOT(onScanControllerReady(AMScanController*)));
 
 	AMWorkflowManagerView *wfViewer = new AMWorkflowManagerView();
-	mw_->addPane(wfViewer, "Experiment Tools", "Workflow", ":/user-away.png");
+	QStandardItem *workflowPane;
+	workflowPane = mw_->addPane(wfViewer, "Experiment Tools", "Workflow", ":/user-away.png");
 	connect(scanViewer, SIGNAL(startScanRequested()), wfViewer, SLOT(onStartScanRequested()));
 	connect(wfViewer, SIGNAL(freeToScan(bool)), scanViewer, SLOT(onFreeToScan(bool)));
 	connect(scanViewer, SIGNAL(addToQueueRequested(AMScanConfiguration*)), wfViewer, SLOT(onAddToQueueRequested(AMScanConfiguration*)));
+	connect(wfViewer, SIGNAL(addedToQueue(AMScanConfiguration*)), scanViewer, SLOT(onAddedToQueue(AMScanConfiguration*)));
+
+	scanViewer->setWorkflowPaneVariant( qVariantFromValue((void*) workflowPane) );
+	connect(scanViewer, SIGNAL(goToQueueRequested(QVariant)), mw_, SLOT(goToPane(QVariant)));
+
+	//connect(scanViewer, SIGNAL(goToQueueRequested()), wfViewer, SLOT(show()));
 
 	mw_->addPane(new Scheduler(), "Experiment Tools", "Scheduler", ":/user-away.png");
 	mw_->addPane(new PeriodicTable(), "Experiment Tools", "Periodic Table", ":/applications-science.png");

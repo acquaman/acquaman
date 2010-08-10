@@ -25,6 +25,7 @@ signals:
 	void scanControllerReady(AMScanController *xasCtrl);
 	void startScanRequested();
 	void addToQueueRequested();
+	void queueDirectorRequested();
 
 public slots:
 	void onAddRegionClicked();
@@ -48,6 +49,7 @@ protected:
 	AMDetectorInfoSet *cfgDetectorInfoSet_;
 	QPushButton *startScanButton_;
 	QPushButton *addToQueueButton_;
+	QPushButton *queueDirectorButton_;
 	QVBoxLayout vl_;
 	QGridLayout gl_;
 };

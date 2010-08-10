@@ -27,6 +27,7 @@ public:
 
 signals:
 	void freeToScan(bool ready);
+	void addedToQueue(AMScanConfiguration *cfg);
 
 public slots:
 	void onStartScanRequested();

@@ -37,6 +37,7 @@ void AMWorkflowManagerView::onAddToQueueRequested(AMScanConfiguration *cfg){
 		scanAction->setPrevious(workflowActions_->action(workflowActions_->count()-2));
 		connect(scanAction->previous(), SIGNAL(succeeded()), scanAction, SLOT(start()));
 	}
+	emit addedToQueue(cfg);
 }
 
 

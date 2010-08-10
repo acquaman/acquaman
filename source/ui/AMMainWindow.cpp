@@ -1,4 +1,5 @@
 #include "AMMainWindow.h"
+#include <QDebug>
 
 /// Default constructor
 AMMainWindow::AMMainWindow(QWidget *parent) : QWidget(parent) {
@@ -135,6 +136,11 @@ void AMMainWindow::dock(QWidget* pane) {
 
 	stackWidget_->addWidget(pane);
 	pane2isDocked_[pane] = true;
+}
+
+void AMMainWindow::goToPane(const QVariant &paneVariant){
+	QStandardItem *item = (QStandardItem*)paneVariant.value<void*>();
+	sidebar_->setCurrentIndex(item->index());
 }
 
 void AMMainWindow::onSidebarLinkClicked(const QVariant& linkContent) {
