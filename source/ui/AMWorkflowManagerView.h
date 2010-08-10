@@ -7,7 +7,7 @@
 #include <QVBoxLayout>
 #include <QFormLayout>
 #include <QDebug>
-#include <QListView>
+#include <QQueue>
 #include <QStringListModel>
 #include <QAbstractListModel>
 #include "beamline/AMBeamlineScanAction.h"
@@ -72,6 +72,7 @@ public:
 	AMBeamlineActionListModel* model(){ return actions_;}
 	int count(){return actions_->rowCount(QModelIndex());}
 	AMBeamlineActionItem* action(size_t index) const;
+	int indexOf(AMBeamlineActionItem *iAction);
 
 public slots:
 	bool setAction(size_t index, AMBeamlineActionItem *action);
@@ -97,16 +98,30 @@ class AMBeamlineActionsListView : public QWidget
 public:
 	AMBeamlineActionsListView(AMBeamlineActionsList *actionsList, QWidget *parent = 0);
 
+	AMBeamlineActionItem* firstInQueue();
+
 protected slots:
 	void handleDataChanged(QModelIndex topLeft, QModelIndex bottomRight);
 	void handleRowsInsert(const QModelIndex &parent, int start, int end);
 	void handleRowsRemoved(const QModelIndex &parent, int start, int end);
 	void redrawBeamlineActionsList();
 
+	void onFocusRequested(AMBeamlineActionItem *action);
+	void onRemoveRequested(AMBeamlineActionItem *action);
+	void onScanSucceeded(AMBeamlineActionItem *action);
+
+	void reindexViews();
+
 protected:
 	AMBeamlineActionsList *actionsList_;
+	QQueue<AMBeamlineActionItem*> actionsQueue_;
+	QList<AMBeamlineScanActionView*> viewList_;
+	QQueue<AMBeamlineScanActionView*> viewQueue_;
+	int focusAction_;
 	QGroupBox *gb_;
 	QVBoxLayout *iib;
+
+	int insertRowIndex_;
 };
 
 class BeamlineActionGraphicItem : public QGraphicsItem

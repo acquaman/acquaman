@@ -17,11 +17,13 @@ void AMBeamlineScanAction::start(){
 		SGMXASScanConfiguration* lCfg = (SGMXASScanConfiguration*)cfg_;
 		ctrl_ = new SGMXASDacqScanController( lCfg, this);
 		SGMXASDacqScanController *lCtrl = (SGMXASDacqScanController*)ctrl_;
-		connect(lCtrl, SIGNAL(finished()), this, SIGNAL(succeeded()));
+		//connect(lCtrl, SIGNAL(finished()), this, SIGNAL(succeeded()));
+		connect(lCtrl, SIGNAL(finished()), this, SLOT(scanSucceeded()));
 		connect(lCtrl, SIGNAL(cancelled()), this, SLOT(scanCancelled()));
 		connect(lCtrl, SIGNAL(progress(double,double)), this, SIGNAL(progress(double,double)));
 		lCtrl->initialize();
 		lCtrl->start();
+		AMBeamlineActionItem::start();
 	}
 	else
 		qDebug() << "Failed with no valid scan type";
@@ -30,7 +32,13 @@ void AMBeamlineScanAction::start(){
 
 void AMBeamlineScanAction::scanCancelled(){
 	qDebug() << "Failed b/c of cancel";
+	running_ = false;
 	emit failed(102);
+}
+
+void AMBeamlineScanAction::scanSucceeded(){
+	running_ = false;
+	emit succeeded();
 }
 
 AMBeamlineScanActionView::AMBeamlineScanActionView(AMBeamlineScanAction *scanAction, int index, QWidget *parent) :
@@ -38,6 +46,7 @@ AMBeamlineScanActionView::AMBeamlineScanActionView(AMBeamlineScanAction *scanAct
 //		QWidget(parent)
 {
 	index_ = index;
+	inFocus_ = false;
 	scanAction_ = scanAction;
 	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
 
@@ -53,12 +62,20 @@ AMBeamlineScanActionView::AMBeamlineScanActionView(AMBeamlineScanAction *scanAct
 	progressVL->addWidget(progressBar_);
 	progressVL->addWidget(timeRemainingLabel_);
 	connect(scanAction_, SIGNAL(progress(double,double)), this, SLOT(updateProgressBar(double,double)));
+	connect(scanAction_, SIGNAL(started()), this, SLOT(onScanStarted()));
 	connect(scanAction_, SIGNAL(succeeded()), this, SLOT(onScanFinished()));
+	removeButton_ = new QPushButton("X");
+	removeButton_->setMaximumHeight(progressBar_->size().height());
+	removeButton_->setFixedWidth(25);
+	removeButton_->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+	connect(removeButton_, SIGNAL(clicked()), this, SLOT(onRemoveButtonClicked()));
 	hl_ = new QHBoxLayout();
 	hl_->addWidget(scanNameLabel_);
 //	hl_->addWidget(progressBar_);
 	hl_->addLayout(progressVL);
+	hl_->addWidget(removeButton_, 0, Qt::AlignTop | Qt::AlignRight);
 	setLayout(hl_);
+	setLineWidth(1);
 	setFrameStyle(QFrame::StyledPanel);
 }
 
@@ -67,10 +84,35 @@ void AMBeamlineScanActionView::setIndex(int index){
 	updateScanNameLabel();
 }
 
+void AMBeamlineScanActionView::setAction(AMBeamlineScanAction *scanAction){
+	disconnect(scanAction_, SIGNAL(progress(double,double)), this, SLOT(updateProgressBar(double,double)));
+	disconnect(scanAction_, SIGNAL(started()), this, SLOT(onScanStarted()));
+	disconnect(scanAction_, SIGNAL(succeeded()), this, SLOT(onScanFinished()));
+	scanAction_ = scanAction;
+	updateScanNameLabel();
+	connect(scanAction_, SIGNAL(progress(double,double)), this, SLOT(updateProgressBar(double,double)));
+	connect(scanAction_, SIGNAL(started()), this, SLOT(onScanStarted()));
+	connect(scanAction_, SIGNAL(succeeded()), this, SLOT(onScanFinished()));
+}
+
+void AMBeamlineScanActionView::defocusItem(){
+	inFocus_ = false;
+	updateLook();
+//	if(scanAction_->isRunning())
+//		onScanStarted();
+//	else{
+//		setStyleSheet("AMBeamlineScanActionView { background : rgb(230, 222, 214) }");
+//		setFrameStyle(QFrame::StyledPanel);
+//	}
+}
+
 void AMBeamlineScanActionView::updateScanNameLabel(){
 	QString scanName, tmpStr;
-	scanName.setNum(index_);
-	scanName += ". SGM XAS Scan from ";
+	if(index_ != -1){
+		scanName.setNum(index_);
+		scanName.append(". ");
+	}
+	scanName += "SGM XAS Scan from ";
 	tmpStr.setNum( ((SGMXASScanConfiguration*)scanAction_->cfg())->start(0) );
 	scanName.append(tmpStr+" to ");
 	tmpStr.setNum( ((SGMXASScanConfiguration*)scanAction_->cfg())->end(((SGMXASScanConfiguration*)scanAction_->cfg())->count()-1) );
@@ -88,12 +130,28 @@ void AMBeamlineScanActionView::updateProgressBar(double elapsed, double total){
 	timeRemainingLabel_->setText(tRemaining.toString(rStr)+" Remaining");
 }
 
+void AMBeamlineScanActionView::onScanStarted(){
+//	if(!inFocus_)
+//		setStyleSheet("AMBeamlineScanActionView { background : rgb(194, 230, 208) }");
+//	else
+//		setStyleSheet("AMBeamlineScanActionView { background : rgb(198, 202, 230) }");
+//	setFrameStyle(QFrame::Box);
+	updateLook();
+}
+
 void AMBeamlineScanActionView::onScanFinished(){
 	progressBar_->setValue(progressBar_->maximum());
 
 	progressBar_->setMaximum(100);
 	progressBar_->setValue(100);
 	timeRemainingLabel_->setText("Scan Complete");
+//	defocusItem();
+	updateLook();
+	emit scanSuceeded(scanAction_);
+}
+
+void AMBeamlineScanActionView::onRemoveButtonClicked(){
+	emit removeRequested(scanAction_);
 }
 
 void AMBeamlineScanActionView::mousePressEvent(QMouseEvent *event){
@@ -102,10 +160,31 @@ void AMBeamlineScanActionView::mousePressEvent(QMouseEvent *event){
 		return;
 	}
 	qDebug() << "Detected mouse click";
-//	QPalette chPalette = QPalette(palette());
-//	chPalette.setColor(QPalette::Active, QPalette::Highlight, QColor(0, 0, 255));
-//	setPalette(chPalette);
-	setStyleSheet("AMBeamlineScanActionView { background : rgb(15, 147, 255) }");
-	setFrameStyle(QFrame::Box);
-	setLineWidth(1);
+	if(inFocus_)
+		defocusItem();
+	else{
+//		if(scanAction_->isRunning())
+//			setStyleSheet("AMBeamlineScanActionView { background : rgb(198, 202, 230) }");
+//		else
+//			setStyleSheet("AMBeamlineScanActionView { background : rgb(194, 210, 215) }");
+//		setFrameStyle(QFrame::Box);
+		inFocus_ = true;
+		updateLook();
+		emit focusRequested(scanAction_);
+	}
+}
+
+void AMBeamlineScanActionView::updateLook(){
+	if(scanAction_->isRunning() || inFocus_)
+		setFrameStyle(QFrame::Box);
+	if(scanAction_->isRunning() && inFocus_)
+		setStyleSheet("AMBeamlineScanActionView { background : rgb(198, 202, 230) }");
+	else if(scanAction_->isRunning())
+		setStyleSheet("AMBeamlineScanActionView { background : rgb(194, 230, 208) }");
+	else if(inFocus_)
+		setStyleSheet("AMBeamlineScanActionView { background : rgb(194, 210, 215) }");
+	else{
+		setStyleSheet("AMBeamlineScanActionView { background : rgb(230, 222, 214) }");
+		setFrameStyle(QFrame::StyledPanel);
+	}
 }

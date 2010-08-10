@@ -13,6 +13,7 @@ class AMBeamlineActionItem : public QObject
 Q_OBJECT
 public:
 	explicit AMBeamlineActionItem(QString message = "", QObject *parent = 0);
+	bool isRunning() { return running_; }
 	bool hasFeedback() { return hasFeedback_; }
 	bool needsInput() { return needsInput_; }
 	AMBeamlineActionItem* previous() const { return previous_;}
@@ -27,18 +28,19 @@ signals:
 	void failed(int explanation);
 
 public slots:
-	virtual void start(){ emit started(); }
-	bool setPrevious(AMBeamlineActionItem* previous){ previous_ = previous; return true;
+	virtual void start(){ running_ = true; emit started(); }
+	bool setPrevious(AMBeamlineActionItem* previous);//{ previous_ = previous; return true;
 //#warning("DAVID! This warning is... RAW!");
-		}
-	bool setNext(AMBeamlineActionItem* next){ next_ = next; return true;
+//		}
+	bool setNext(AMBeamlineActionItem* next);//{ next_ = next; return true;
 //			#warning("DAVID! This warning is... RAW!");
-		}
+//		}
 
 protected:
 	bool start_;
 	bool succeed_;
 	bool fail_;
+	bool running_;
 	bool hasFeedback_;
 	bool needsInput_;
 

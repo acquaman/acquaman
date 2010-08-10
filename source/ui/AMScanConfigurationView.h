@@ -37,6 +37,7 @@ protected slots:
 	void goToQueue();
 	void goToNewScan();
 
+
 protected:
 	SGMXASScanConfiguration *cfg_;
 	AMDetectorInfoSet *cfgDetectorInfoSet_;

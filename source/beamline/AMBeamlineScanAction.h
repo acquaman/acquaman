@@ -26,6 +26,7 @@ public slots:
 
 protected slots:
 	virtual void scanCancelled();
+	virtual void scanSucceeded();
 
 protected:
 	QString scanType_;
@@ -44,25 +45,39 @@ public:
 	AMBeamlineScanActionView(AMBeamlineScanAction *scanAction, int index = 0, QWidget *parent = 0);
 
 	int index() const { return index_;}
+	AMBeamlineActionItem* action() { return scanAction_;}
 
 public slots:
 	void setIndex(int index);
+	void setAction(AMBeamlineScanAction *scanAction);
+	void defocusItem();
+
+signals:
+	void focusRequested(AMBeamlineActionItem *action);
+	void removeRequested(AMBeamlineActionItem *action);
+	void scanSuceeded(AMBeamlineActionItem *action);
 
 protected slots:
 	void updateScanNameLabel();
 	void updateProgressBar(double elapsed, double total);
+	void onScanStarted();
 	void onScanFinished();
+	void onRemoveButtonClicked();
 
 protected:
 	void mousePressEvent(QMouseEvent *event);
 
+	void updateLook();
+
 protected:
 	AMBeamlineScanAction *scanAction_;
 	int index_;
+	bool inFocus_;
 
 	QLabel *scanNameLabel_;
 	QProgressBar *progressBar_;
 	QLabel *timeRemainingLabel_;
+	QPushButton *removeButton_;
 	QHBoxLayout *hl_;
 };
 

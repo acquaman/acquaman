@@ -24,8 +24,13 @@ void AMWorkflowManagerView::onStartScanRequested(){
 }
 
 void AMWorkflowManagerView::onStartQueueRequested(){
-	if(workflowActions_->count() > 0)
-		workflowActions_->action(0)->start();
+//	if(workflowActions_->count() > 0)
+//		workflowActions_->action(0)->start();
+	AMBeamlineActionItem *goItem = workflowView_->firstInQueue();
+	if(!goItem)
+		qDebug() << "Nothing in queue";
+	else
+		goItem->start();
 }
 
 void AMWorkflowManagerView::onAddToQueueRequested(AMScanConfiguration *cfg){
@@ -131,6 +136,13 @@ AMBeamlineActionItem* AMBeamlineActionsList::action(size_t index) const{
 	return NULL;
 }
 
+int AMBeamlineActionsList::indexOf(AMBeamlineActionItem *iAction){
+	for(int x = 0; x < count(); x++)
+		if(action(x) == iAction)
+			return x;
+	return -1;
+}
+
 bool AMBeamlineActionsList::setAction(size_t index, AMBeamlineActionItem *action){
 	return actions_->setData(actions_->index(index, 0), qVariantFromValue((void*)action), Qt::EditRole);
 }
@@ -138,8 +150,68 @@ bool AMBeamlineActionsList::setAction(size_t index, AMBeamlineActionItem *action
 bool AMBeamlineActionsList::addAction(size_t index, AMBeamlineActionItem *action){
 	if(!actions_->insertRows(index, 1))
 		return false;
-	setAction(index, action);
-	return true;
+	bool retVal = setAction(index, action);
+	/* LOOK BACK IN ONADDTOQUEUE some connections in there right now
+	if(retVal){
+		AMBeamlineActionItem *p, *n;
+		if( (index == 0) && (count() != 1) ){
+			n = (AMBeamlineActionItem*)actions_->data(actions_->index(index+1, 0)).value<void*>();
+		}
+		else if( (index == unsigned(count()-1)) && (count() != 1) ){
+
+		}
+		else if(count() != 1){
+
+		}
+	}
+	*/
+	return retVal;
+
+	/*
+	if(!defaultControl_)
+		return false;
+	bool retVal;
+	if(!regions_->insertRows(index, 1))
+		return false;
+	retVal = setStart(index, start) && setDelta(index, delta) && setEnd(index, end);
+	if(retVal){
+		if( (index == 0) && (count() != 1) ){
+			regions_->setData(regions_->index(index, 5), true, Qt::EditRole);
+			regions_->setData(regions_->index(index+1, 4), true, Qt::EditRole);
+			connect(regions_->regions()->at(index), SIGNAL(endChanged(double)), regions_->regions()->at(index+1), SLOT(adjustStart(double)));
+			connect(regions_->regions()->at(index+1), SIGNAL(startChanged(double)), regions_->regions()->at(index), SLOT(adjustEnd(double)));
+			regions_->regions()->at(index+1)->setStart(end);
+		}
+		else if( (index == unsigned(count()-1)) && (count() != 1) ){
+			regions_->setData(regions_->index(index, 4), true, Qt::EditRole);
+			regions_->setData(regions_->index(index-1, 5), true, Qt::EditRole);
+			connect(regions_->regions()->at(index), SIGNAL(startChanged(double)), regions_->regions()->at(index-1), SLOT(adjustEnd(double)));
+			connect(regions_->regions()->at(index-1), SIGNAL(endChanged(double)), regions_->regions()->at(index), SLOT(adjustStart(double)));
+			regions_->regions()->at(index-1)->setEnd(start);
+		}
+		else if(count() != 1){
+			if( regions_->data(regions_->index(index-1, 5), Qt::DisplayRole).toBool()){
+				regions_->setData(regions_->index(index+1, 4), false, Qt::EditRole);
+				regions_->setData(regions_->index(index-1, 5), false, Qt::EditRole);
+				disconnect(regions_->regions()->at(index-1), SIGNAL(endChanged(double)), regions_->regions()->at(index+1), SLOT(adjustStart(double)));
+				disconnect(regions_->regions()->at(index+1), SIGNAL(startChanged(double)), regions_->regions()->at(index-1), SLOT(adjustEnd(double)));
+			}
+			regions_->setData(regions_->index(index, 5), true, Qt::EditRole);
+			regions_->setData(regions_->index(index+1, 4), true, Qt::EditRole);
+			connect(regions_->regions()->at(index), SIGNAL(endChanged(double)), regions_->regions()->at(index+1), SLOT(adjustStart(double)));
+			connect(regions_->regions()->at(index+1), SIGNAL(startChanged(double)), regions_->regions()->at(index), SLOT(adjustEnd(double)));
+			regions_->regions()->at(index+1)->setStart(end);
+			regions_->setData(regions_->index(index, 4), true, Qt::EditRole);
+			regions_->setData(regions_->index(index-1, 5), true, Qt::EditRole);
+			connect(regions_->regions()->at(index), SIGNAL(startChanged(double)), regions_->regions()->at(index-1), SLOT(adjustEnd(double)));
+			connect(regions_->regions()->at(index-1), SIGNAL(endChanged(double)), regions_->regions()->at(index), SLOT(adjustStart(double)));
+			regions_->regions()->at(index-1)->setEnd(start);
+		}
+	}
+	if(!retVal)
+		regions_->removeRows(index, 1);
+	return retVal;
+	*/
 }
 
 bool AMBeamlineActionsList::appendAction(AMBeamlineActionItem *action){
@@ -165,6 +237,8 @@ AMBeamlineActionsListView::AMBeamlineActionsListView(AMBeamlineActionsList *acti
 		QWidget(parent)
 {
 	actionsList_ = actionsList;
+	focusAction_ = -1;
+	insertRowIndex_ = -1;
 
 	gb_ = new QGroupBox();
 	gb_->setTitle("Workflow");
@@ -187,26 +261,96 @@ AMBeamlineActionsListView::AMBeamlineActionsListView(AMBeamlineActionsList *acti
 	connect(actionsList_->model(), SIGNAL(rowsRemoved(const QModelIndex,int,int)), this, SLOT(handleRowsRemoved(QModelIndex,int,int)));
 }
 
+AMBeamlineActionItem* AMBeamlineActionsListView::firstInQueue(){
+	if(actionsQueue_.count() > 0)
+		return actionsQueue_.head();
+	else
+		return NULL;
+}
+
 void AMBeamlineActionsListView::handleDataChanged(QModelIndex topLeft, QModelIndex bottomRight){
 	AMBeamlineActionItem *tmpItem = actionsList_->action(topLeft.row());
-	qDebug() << "Type " << tmpItem->type();
-	if(tmpItem->type() == "actionItem.scanAction"){
-		AMBeamlineScanAction *scanAction = (AMBeamlineScanAction*)tmpItem;
-		AMBeamlineScanActionView *scanActionView = new AMBeamlineScanActionView(scanAction, topLeft.row()+1);
-		iib->addWidget(scanActionView);
+	qDebug() << "In handleDataChanged on " << topLeft.row() << bottomRight.row();
+	if(topLeft.row() != bottomRight.row())
+		return; //WHAT SHOULD I DO FOR MULTI-ROW CHANGE
+	else if( (insertRowIndex_ != -1) && (topLeft.row() == insertRowIndex_) ){
+		if(tmpItem->type() == "actionItem.scanAction"){
+			AMBeamlineScanAction *scanAction = (AMBeamlineScanAction*)tmpItem;
+			actionsQueue_.enqueue(tmpItem);
+			AMBeamlineScanActionView *scanActionView = new AMBeamlineScanActionView(scanAction, topLeft.row()+1);
+			viewList_.append(scanActionView);
+			viewQueue_.enqueue(scanActionView);
+			iib->addWidget(scanActionView);
+			connect(scanActionView, SIGNAL(focusRequested(AMBeamlineActionItem*)), this, SLOT(onFocusRequested(AMBeamlineActionItem*)));
+			connect(scanActionView, SIGNAL(removeRequested(AMBeamlineActionItem*)), this, SLOT(onRemoveRequested(AMBeamlineActionItem*)));
+			connect(scanActionView, SIGNAL(scanSuceeded(AMBeamlineActionItem*)), this, SLOT(onScanSucceeded(AMBeamlineActionItem*)));
+		}
+		insertRowIndex_ = -1;
+	}
+	else if( insertRowIndex_ == -1){
+		qDebug() << "Going to reset action on the view";
+		viewList_.at(topLeft.row())->setAction((AMBeamlineScanAction*)tmpItem);
 	}
 }
 
 void AMBeamlineActionsListView::handleRowsInsert(const QModelIndex &parent, int start, int end){
+	qDebug() << "In handleRowInsert on " << start << end;
+	if(start != end)
+		return; //WHAT TO DO ON MULTI-ROW INSERT?
+	insertRowIndex_ = start;
 	gb_->setMinimumHeight(50+50*actionsList_->count());
 }
 
 void AMBeamlineActionsListView::handleRowsRemoved(const QModelIndex &parent, int start, int end){
+	qDebug() << "In handleRowRemove on " << start << end;
+	if(start != end)
+		return; //WHAT TO DO FOR MULTI-ROW DELETE?
+	qDebug() << "Counts: " << viewList_.count() << iib->count();
+	AMBeamlineScanActionView *tmpView = viewList_.takeAt(start);
+	viewQueue_.removeAll(tmpView);
+	actionsQueue_.removeAll(tmpView->action());
+	iib->removeWidget(tmpView);
+	delete tmpView;
+	qDebug() << "Counts: " << viewList_.count() << iib->count();
+	reindexViews();
 	gb_->setMinimumHeight(50+50*actionsList_->count());
 }
 
 void AMBeamlineActionsListView::redrawBeamlineActionsList(){
 
+}
+
+void AMBeamlineActionsListView::onFocusRequested(AMBeamlineActionItem *action){
+	if(focusAction_ == actionsList_->indexOf(action))
+		return;
+	else if(focusAction_ != -1)
+		viewList_.at(focusAction_)->defocusItem();
+	focusAction_ = actionsList_->indexOf(action);
+}
+
+void AMBeamlineActionsListView::onRemoveRequested(AMBeamlineActionItem *action){
+	qDebug() << "Requesting remove so deleting action from list";
+	int index = actionsList_->indexOf(action);
+	disconnect( viewList_.at(index), SIGNAL(focusRequested(AMBeamlineActionItem*)), this, SLOT(onFocusRequested(AMBeamlineActionItem*)));
+	disconnect( viewList_.at(index), SIGNAL(removeRequested(AMBeamlineActionItem*)), this, SLOT(onRemoveRequested(AMBeamlineActionItem*)));
+	disconnect( viewList_.at(index), SIGNAL(scanSuceeded(AMBeamlineActionItem*)), this, SLOT(onScanSucceeded(AMBeamlineActionItem*)));
+	actionsList_->deleteAction( index );
+}
+
+void AMBeamlineActionsListView::onScanSucceeded(AMBeamlineActionItem *action){
+	if(actionsQueue_.head() != action)
+		return; //WHAT THE HELL, who succeeded that isn't at the head of the queue?
+	actionsQueue_.dequeue();
+	viewQueue_.dequeue();
+	viewList_.at( actionsList_->indexOf(action) )->setIndex(-1);
+	reindexViews();
+}
+
+void AMBeamlineActionsListView::reindexViews(){
+//	for(int x = 0; x < viewList_.count(); x++)
+//		viewList_.at(x)->setIndex(x+1);
+	for(int x = 0; x < viewQueue_.count(); x++)
+		viewQueue_.at(x)->setIndex(x+1);
 }
 
 BeamlineActionGraphicItem::BeamlineActionGraphicItem(int width)

@@ -6,9 +6,36 @@ AMBeamlineActionItem::AMBeamlineActionItem(QString message, QObject *parent) :
 	message_ = message;
 	previous_ = NULL;
 	next_ = NULL;
+	running_ = false;
 	hasFeedback_ = false;
 	needsInput_ = false;
 	type_ = "actionItem";
+}
+
+bool AMBeamlineActionItem::setPrevious(AMBeamlineActionItem *previous){
+	previous_ = previous;
+	return true;
+	/*
+	if(previous_){
+		disconnect(previous_, SIGNAL(succeeded()), this, SLOT(start()));
+		previous_->setNext(NULL);
+		AMBeamlineActionItem *pp = previous_->previous();
+		if(pp){
+			disconnect(pp, SIGNAL(succeeded()), previous_, SLOT(start()));
+			previous_->setParent(NULL);
+		}
+	}
+	else{
+		previous_ = previous;
+		previous_->setNext(this);
+		connect(previous_, SIGNAL(succeeded()), this, SLOT(start()));
+	}
+	*/
+}
+
+bool AMBeamlineActionItem::setNext(AMBeamlineActionItem *next){
+	next_ = next;
+	return true;
 }
 
 AMBeamlineActionItemView::AMBeamlineActionItemView(AMBeamlineActionItem *item, QWidget *parent) :
