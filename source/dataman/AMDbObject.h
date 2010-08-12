@@ -238,6 +238,7 @@ protected:
 	QHash<QString, QVariant> metaData_;
 
 
+
 private:
 	/// unique database id
 	int id_;

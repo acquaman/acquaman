@@ -4,11 +4,12 @@
 #include <QString>
 #include <QList>
 #include <QPixmap>
+#include <QDebug>
 
 AMComboBox:: AMComboBox(QWidget *parent)
 	: QComboBox(parent)
 {
-/// Getting required information from database
+
 	/* will need from database:
 	   * run name
 	   * run date
@@ -20,8 +21,10 @@ AMComboBox:: AMComboBox(QWidget *parent)
 	if (count() > 1)
 		setCurrentIndex(1);
 
+	box = NULL;
 	connect(this, SIGNAL(activated(int)),this,SLOT(onComboBoxActivated(int)));
 
+	setMinimumContentsLength(30);
 }
 
 AMComboBox::~AMComboBox(){
@@ -31,22 +34,8 @@ AMComboBox::~AMComboBox(){
 // Searching and obtaining from the database, whatever is specified in the column name in a string array
 
 
-int AMComboBox::addRun() {
 
-	//getting text from input box
-	bool ok;
-	QString text = QInputDialog::getText(this, tr("Add Run"),
-		tr("Please enter the name of the new run:"), QLineEdit::Normal,QString(), &ok);
-	if (ok && !text.isEmpty()){
-			AMRun newRun(text);
-			newRun.storeToDb(database_);
-
-			return newRun.id();
-	}
-	else
-		return -1;
-}
-
+/// This function searches through the database for existing runs and adds the run names into the database. In addition, this function also stores the facility thumbnail as a decoration role, the run id as a user role, and the facility description as a tool tip role.
 void AMComboBox::autoAddRuns() {
 
 	clear();
@@ -62,8 +51,8 @@ void AMComboBox::autoAddRuns() {
 					  "ORDER BY Runs.dateTime DESC"));
 
 	if (q.exec()) {
-		while (q.next()) {
-			addItem(QString(q.value(1).toString()+" , "+q.value(2).toDateTime().toString(" MMM d (yyyy)")));
+		while (q.next()){
+			addItem(QString(q.value(1).toString()+", "+q.value(2).toDateTime().toString(" MMM d (yyyy)")));
 			if(q.value(4).toString() == "PNG") {
 				QPixmap p;
 				if(p.loadFromData(q.value(5).toByteArray(), "PNG"))
@@ -83,12 +72,14 @@ void AMComboBox::autoAddRuns() {
 
 //need to create a function that will allow user to add runs manually to put in the public section
 
+/// This function is called upon every time a combo box component is activated. It outputs the index of the activated component.
 void AMComboBox::onComboBoxActivated(int index) {
 
 	if (index==0){
-		int id=addRun();
-		autoAddRuns();
-		setCurrentIndex(findData(id,Qt::UserRole));
+
+		//int id; // this is the id of the run in the database
+	newRunBox();
+		//setCurrentIndex(findData(id,Qt::UserRole));
 	}
 
 	emit currentRunIdChanged(itemData(index, Qt::UserRole).toInt());
@@ -97,6 +88,20 @@ void AMComboBox::onComboBoxActivated(int index) {
 
 int AMComboBox::currentRunId() const {
 	return itemData(currentIndex(), Qt::UserRole).toInt();
+}
+
+void AMComboBox::newRunBox() {
+	if(box)
+		delete box;
+	box = new AMNewRunDialog;
+	box->show();
+	connect(box,SIGNAL(dialogBoxClosed()),this,SLOT(addNewRun()));
+}
+
+void AMComboBox::addNewRun(){
+
+	autoAddRuns();
+	setCurrentIndex(1);
 }
 
 

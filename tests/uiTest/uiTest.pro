@@ -110,6 +110,7 @@ HEADERS +=	../MPlot/src/MPlot/MPlot.h	\
 	source/muParser/muParserToken.h	\
 	source/muParser/muParserTokenReader.h	\
 	source/ui/AMComboBox.h	\
+	source/ui/AMNewRunDialog.h  \
 	source/ui/AMCramBarHorizontal.h	\
 	source/ui/AMFirstTimeWidget.h	\
 	source/ui/AMScanView.h	\
@@ -138,6 +139,7 @@ SOURCES +=	source/AMErrorMonitor.cpp	\
 	source/muParser/muParserError.cpp	\
 	source/muParser/muParserTokenReader.cpp	\
 	source/ui/AMComboBox.cpp	\
+	source/ui/AMNewRunDialog.cpp  \
 	source/ui/AMCramBarHorizontal.cpp	\
 	source/ui/AMScanView.cpp	\
 	source/ui/AMSidebar.cpp	\

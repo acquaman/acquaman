@@ -86,11 +86,11 @@ void AMXASScanConfigurationHolder::onSidebarLinkChanged(){
 			this->setLayout(vl_);
 		}
 	}
-	if(!sxscWizard && isVisible() && SGMBeamline::sgm()->isConnected()){
-		sxscWizard = new SGMXASScanConfigurationWizard(cfg_, cfgDetectorInfoSet_);
-		connect(sxscWizard, SIGNAL(scanStartRequested()), this, SLOT(onStartScanRequested()));
-		sxscWizard->show();
-	}
+//	if(!sxscWizard && isVisible() && SGMBeamline::sgm()->isConnected()){
+//		sxscWizard = new SGMXASScanConfigurationWizard(cfg_, cfgDetectorInfoSet_);
+//		connect(sxscWizard, SIGNAL(scanStartRequested()), this, SLOT(onStartScanRequested()));
+//		sxscWizard->show();
+//	}
 }
 
 void AMXASScanConfigurationHolder::onStartScanRequested(){

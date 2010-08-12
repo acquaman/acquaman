@@ -103,8 +103,8 @@ public:
 	/// Default constructor. In it we initialize the extra fields we want to store inside metaData_.
 	explicit AMRun(QObject *parent = 0);
 
-	/// This constructor initializes a run with a given name.
-	AMRun(const QString& runName, QObject* parent = 0);
+	/// This constructor initializes a run with a given name and facility id.
+	AMRun(const QString& runName, const int& facilityId=1, QObject* parent = 0);
 
 	/// This constructor immediately loads a stored run from the database.
 	AMRun(int databaseId, AMDatabase* database, QObject* parent = 0);
