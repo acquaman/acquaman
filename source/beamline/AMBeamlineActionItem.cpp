@@ -16,26 +16,32 @@ bool AMBeamlineActionItem::setPrevious(AMBeamlineActionItem *previous){
 	previous_ = previous;
 	return true;
 	/*
-	if(previous_){
+	if(previous_ == previous)
+		return;
+	if(previous_)
 		disconnect(previous_, SIGNAL(succeeded()), this, SLOT(start()));
-		previous_->setNext(NULL);
-		AMBeamlineActionItem *pp = previous_->previous();
-		if(pp){
-			disconnect(pp, SIGNAL(succeeded()), previous_, SLOT(start()));
-			previous_->setParent(NULL);
-		}
-	}
-	else{
-		previous_ = previous;
+	if(previous && previous->next())
+		disconnect(previous, SIGNAL(succeeded()), previous->next(), SLOT(start()));
+	previous_ = previous;
+	if(previous_)
 		previous_->setNext(this);
-		connect(previous_, SIGNAL(succeeded()), this, SLOT(start()));
-	}
 	*/
 }
 
 bool AMBeamlineActionItem::setNext(AMBeamlineActionItem *next){
 	next_ = next;
 	return true;
+	/*
+	if(next_ == next)
+		return;
+//	if(next && next->previous())
+//		disconnect(next->previous(), SIGNAL(succeeded()), next, SLOT(start()));
+	next_ = next;
+	if(next_){
+		next_->setPrevious(this);
+//		connect(this, SIGNAL(succeeded()), next_, SLOT(start()));
+	}
+	*/
 }
 
 AMBeamlineActionItemView::AMBeamlineActionItemView(AMBeamlineActionItem *item, QWidget *parent) :

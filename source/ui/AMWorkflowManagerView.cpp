@@ -38,10 +38,10 @@ void AMWorkflowManagerView::onAddToQueueRequested(AMScanConfiguration *cfg){
 
 	AMBeamlineScanAction *scanAction = new AMBeamlineScanAction(sxsc, "SGMXASScan", "Deuce", this);
 	workflowActions_->appendAction(scanAction);
-	if(workflowActions_->count() > 1){
-		scanAction->setPrevious(workflowActions_->action(workflowActions_->count()-2));
-		connect(scanAction->previous(), SIGNAL(succeeded()), scanAction, SLOT(start()));
-	}
+	//if(workflowActions_->count() > 1){
+	//	scanAction->setPrevious(workflowActions_->action(workflowActions_->count()-2));
+	//	connect(scanAction->previous(), SIGNAL(succeeded()), scanAction, SLOT(start()));
+	//}
 	emit addedToQueue(cfg);
 }
 
@@ -144,74 +144,51 @@ int AMBeamlineActionsList::indexOf(AMBeamlineActionItem *iAction){
 }
 
 bool AMBeamlineActionsList::setAction(size_t index, AMBeamlineActionItem *action){
+	AMBeamlineActionItem *oldAction = (AMBeamlineActionItem*)actions_->data( actions_->index(index, 0), Qt::DisplayRole ).value<void*>();
+	AMBeamlineActionItem *prevAction = NULL;
+	AMBeamlineActionItem *nextAction = NULL;
+	if(index != 0)
+		prevAction = (AMBeamlineActionItem*)actions_->data( actions_->index(index-1, 0), Qt::DisplayRole ).value<void*>();
+	if(index != (count() -1) )
+		nextAction = (AMBeamlineActionItem*)actions_->data( actions_->index(index+1, 0), Qt::DisplayRole ).value<void*>();
+	if(oldAction){ //replace
+		if(prevAction){
+			disconnect(prevAction, SIGNAL(succeeded()), oldAction, SLOT(start()));
+			prevAction->setNext(action);
+			action->setPrevious(prevAction);
+			connect(prevAction, SIGNAL(succeeded()), action, SLOT(start()));
+		}
+		if(nextAction){
+			disconnect(oldAction, SIGNAL(succeeded()), nextAction, SLOT(start()));
+			action->setNext(nextAction);
+			nextAction->setPrevious(action);
+			connect(action, SIGNAL(succeeded()), nextAction, SLOT(start()));
+		}
+		oldAction->setPrevious(NULL);
+		oldAction->setNext(NULL);
+	}
+	else{ //insert
+		if(prevAction && nextAction)
+			disconnect(prevAction, SIGNAL(succeeded()), nextAction, SLOT(start()));
+		if(prevAction){
+			prevAction->setNext(action);
+			action->setPrevious(prevAction);
+			connect(prevAction, SIGNAL(succeeded()), action, SLOT(start()));
+		}
+		if(nextAction){
+			action->setNext(nextAction);
+			nextAction->setPrevious(action);
+			connect(action, SIGNAL(succeeded()), nextAction, SLOT(start()));
+		}
+	}
+
 	return actions_->setData(actions_->index(index, 0), qVariantFromValue((void*)action), Qt::EditRole);
 }
 
 bool AMBeamlineActionsList::addAction(size_t index, AMBeamlineActionItem *action){
 	if(!actions_->insertRows(index, 1))
 		return false;
-	bool retVal = setAction(index, action);
-	/* LOOK BACK IN ONADDTOQUEUE some connections in there right now
-	if(retVal){
-		AMBeamlineActionItem *p, *n;
-		if( (index == 0) && (count() != 1) ){
-			n = (AMBeamlineActionItem*)actions_->data(actions_->index(index+1, 0)).value<void*>();
-		}
-		else if( (index == unsigned(count()-1)) && (count() != 1) ){
-
-		}
-		else if(count() != 1){
-
-		}
-	}
-	*/
-	return retVal;
-
-	/*
-	if(!defaultControl_)
-		return false;
-	bool retVal;
-	if(!regions_->insertRows(index, 1))
-		return false;
-	retVal = setStart(index, start) && setDelta(index, delta) && setEnd(index, end);
-	if(retVal){
-		if( (index == 0) && (count() != 1) ){
-			regions_->setData(regions_->index(index, 5), true, Qt::EditRole);
-			regions_->setData(regions_->index(index+1, 4), true, Qt::EditRole);
-			connect(regions_->regions()->at(index), SIGNAL(endChanged(double)), regions_->regions()->at(index+1), SLOT(adjustStart(double)));
-			connect(regions_->regions()->at(index+1), SIGNAL(startChanged(double)), regions_->regions()->at(index), SLOT(adjustEnd(double)));
-			regions_->regions()->at(index+1)->setStart(end);
-		}
-		else if( (index == unsigned(count()-1)) && (count() != 1) ){
-			regions_->setData(regions_->index(index, 4), true, Qt::EditRole);
-			regions_->setData(regions_->index(index-1, 5), true, Qt::EditRole);
-			connect(regions_->regions()->at(index), SIGNAL(startChanged(double)), regions_->regions()->at(index-1), SLOT(adjustEnd(double)));
-			connect(regions_->regions()->at(index-1), SIGNAL(endChanged(double)), regions_->regions()->at(index), SLOT(adjustStart(double)));
-			regions_->regions()->at(index-1)->setEnd(start);
-		}
-		else if(count() != 1){
-			if( regions_->data(regions_->index(index-1, 5), Qt::DisplayRole).toBool()){
-				regions_->setData(regions_->index(index+1, 4), false, Qt::EditRole);
-				regions_->setData(regions_->index(index-1, 5), false, Qt::EditRole);
-				disconnect(regions_->regions()->at(index-1), SIGNAL(endChanged(double)), regions_->regions()->at(index+1), SLOT(adjustStart(double)));
-				disconnect(regions_->regions()->at(index+1), SIGNAL(startChanged(double)), regions_->regions()->at(index-1), SLOT(adjustEnd(double)));
-			}
-			regions_->setData(regions_->index(index, 5), true, Qt::EditRole);
-			regions_->setData(regions_->index(index+1, 4), true, Qt::EditRole);
-			connect(regions_->regions()->at(index), SIGNAL(endChanged(double)), regions_->regions()->at(index+1), SLOT(adjustStart(double)));
-			connect(regions_->regions()->at(index+1), SIGNAL(startChanged(double)), regions_->regions()->at(index), SLOT(adjustEnd(double)));
-			regions_->regions()->at(index+1)->setStart(end);
-			regions_->setData(regions_->index(index, 4), true, Qt::EditRole);
-			regions_->setData(regions_->index(index-1, 5), true, Qt::EditRole);
-			connect(regions_->regions()->at(index), SIGNAL(startChanged(double)), regions_->regions()->at(index-1), SLOT(adjustEnd(double)));
-			connect(regions_->regions()->at(index-1), SIGNAL(endChanged(double)), regions_->regions()->at(index), SLOT(adjustStart(double)));
-			regions_->regions()->at(index-1)->setEnd(start);
-		}
-	}
-	if(!retVal)
-		regions_->removeRows(index, 1);
-	return retVal;
-	*/
+	return setAction(index, action);
 }
 
 bool AMBeamlineActionsList::appendAction(AMBeamlineActionItem *action){
@@ -221,7 +198,29 @@ bool AMBeamlineActionsList::appendAction(AMBeamlineActionItem *action){
 bool AMBeamlineActionsList::deleteAction(size_t index){
 	if(count() == 0)
 		return false;
-	return actions_->removeRows(index, 1);
+	AMBeamlineActionItem *oldAction = (AMBeamlineActionItem*)actions_->data( actions_->index(index, 0), Qt::DisplayRole ).value<void*>();
+	AMBeamlineActionItem *prevAction = NULL;
+	AMBeamlineActionItem *nextAction = NULL;
+	if(index != 0)
+		prevAction = (AMBeamlineActionItem*)actions_->data( actions_->index(index-1, 0), Qt::DisplayRole ).value<void*>();
+	if(index != (count() -1) )
+		nextAction = (AMBeamlineActionItem*)actions_->data( actions_->index(index+1, 0), Qt::DisplayRole ).value<void*>();
+	bool retVal = actions_->removeRows(index, 1);
+	if(retVal){
+		if(prevAction){
+			disconnect(prevAction, SIGNAL(succeeded()), oldAction, SLOT(start()));
+			prevAction->setNext(nextAction);
+		}
+		if(nextAction){
+			disconnect(oldAction, SIGNAL(succeeded()), nextAction, SLOT(start()));
+			nextAction->setPrevious(prevAction);
+		}
+		if(prevAction && nextAction)
+			connect(prevAction, SIGNAL(succeeded()), nextAction, SLOT(start()));
+		oldAction->setPrevious(NULL);
+		oldAction->setNext(NULL);
+	}
+	return retVal;
 }
 
 bool AMBeamlineActionsList::setupModel(){
@@ -277,7 +276,8 @@ void AMBeamlineActionsListView::handleDataChanged(QModelIndex topLeft, QModelInd
 		if(tmpItem->type() == "actionItem.scanAction"){
 			AMBeamlineScanAction *scanAction = (AMBeamlineScanAction*)tmpItem;
 			actionsQueue_.enqueue(tmpItem);
-			AMBeamlineScanActionView *scanActionView = new AMBeamlineScanActionView(scanAction, topLeft.row()+1);
+//			AMBeamlineScanActionView *scanActionView = new AMBeamlineScanActionView(scanAction, topLeft.row()+1);
+			AMBeamlineScanActionView *scanActionView = new AMBeamlineScanActionView(scanAction, viewQueue_.count()+1);
 			viewList_.append(scanActionView);
 			viewQueue_.enqueue(scanActionView);
 			iib->addWidget(scanActionView);

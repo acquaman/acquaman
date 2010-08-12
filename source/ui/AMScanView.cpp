@@ -798,6 +798,7 @@ void AMScanViewMultiView::onRowAboutToBeRemoved(const QModelIndex& parent, int s
 		for(int si=end; si>=start; si--) {
 			for(int ci=0; ci<model()->scanAt(si)->numChannels(); ci++) {
 				if(plotSeries_[si][ci]) {
+					/// \bug Mark start debugging here: looking for deleted target of Emit().
 					plot_->plot()->removeItem(plotSeries_[si][ci]);
 					delete plotSeries_[si][ci];
 				}

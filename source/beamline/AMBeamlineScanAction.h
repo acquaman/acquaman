@@ -23,6 +23,7 @@ signals:
 
 public slots:
 	virtual void start();
+	virtual void pause(bool pause);
 
 protected slots:
 	virtual void scanCancelled();
@@ -55,6 +56,7 @@ public slots:
 signals:
 	void focusRequested(AMBeamlineActionItem *action);
 	void removeRequested(AMBeamlineActionItem *action);
+	void pauseRequested(AMBeamlineActionItem *action);
 	void scanSuceeded(AMBeamlineActionItem *action);
 
 protected slots:
@@ -63,6 +65,7 @@ protected slots:
 	void onScanStarted();
 	void onScanFinished();
 	void onRemoveButtonClicked();
+	void onPauseButtonClicked();
 
 protected:
 	void mousePressEvent(QMouseEvent *event);
@@ -77,7 +80,7 @@ protected:
 	QLabel *scanNameLabel_;
 	QProgressBar *progressBar_;
 	QLabel *timeRemainingLabel_;
-	QPushButton *removeButton_;
+	QPushButton *functionButton_;
 	QHBoxLayout *hl_;
 };
 
