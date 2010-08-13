@@ -45,27 +45,7 @@ public:
 	AMAcqScanSpectrumOutput();
 	virtual ~AMAcqScanSpectrumOutput();
 	static acqBaseOutput *new_AMAcqScanSpectrumOutput();
-	void setScan(AMScan *scan){
-		/**/
-		scan_ = scan;
-
-		sv = new AMScanView();
-		sv->show();
-		AMScanSetModel* model = sv->model();
-		model->addScan(scan_);
-		/**/
-		/*
-		scan_ = scan;
-	//	series1->setModel(data1);
-		series1->setModel(scan_->channel("TEY"));
-//		series2->setModel(scan->channel("tfy"));
-		plot->addItem(series1);
-		plot->setScalePadding(5);
-		plot->enableAutoScale(MPlotAxis::Left | MPlotAxis::Bottom);
-		plotWindow->resize(450, 450);
-		plotWindow->show();
-		*/
-	}
+	void setScan(AMScan *scan);
 
 private:
 	int outputCol;

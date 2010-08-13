@@ -12,6 +12,13 @@ QString AMBeamlineScanAction::type() const{
 	return AMBeamlineActionItem::type()+"."+type_;
 }
 
+bool AMBeamlineScanAction::isPaused() const{
+	if(scanType_ == "SGMXASScan"){
+		SGMXASDacqScanController *lCtrl = (SGMXASDacqScanController*)ctrl_;
+		return lCtrl->isPaused();
+	}
+}
+
 void AMBeamlineScanAction::start(){
 	if(scanType_ == "SGMXASScan"){
 		SGMXASScanConfiguration* lCfg = (SGMXASScanConfiguration*)cfg_;
@@ -28,6 +35,13 @@ void AMBeamlineScanAction::start(){
 	else
 		qDebug() << "Failed with no valid scan type";
 		emit failed(101);
+}
+
+void AMBeamlineScanAction::cancel(){
+	if(scanType_ == "SGMXASScan"){
+		SGMXASDacqScanController *lCtrl = (SGMXASDacqScanController*)ctrl_;
+		return lCtrl->cancel();
+	}
 }
 
 void AMBeamlineScanAction::pause(bool pause){
@@ -52,12 +66,12 @@ void AMBeamlineScanAction::scanSucceeded(){
 }
 
 AMBeamlineScanActionView::AMBeamlineScanActionView(AMBeamlineScanAction *scanAction, int index, QWidget *parent) :
-		QFrame(parent)
-//		QWidget(parent)
+		AMBeamlineActionView(scanAction, index, parent)
 {
 	index_ = index;
-	inFocus_ = false;
+	cancelLatch_ = false;
 	scanAction_ = scanAction;
+	setMinimumHeight(NATURAL_ACTION_VIEW_HEIGHT);
 	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
 
 	scanNameLabel_ = new QLabel();
@@ -74,19 +88,29 @@ AMBeamlineScanActionView::AMBeamlineScanActionView(AMBeamlineScanAction *scanAct
 	connect(scanAction_, SIGNAL(progress(double,double)), this, SLOT(updateProgressBar(double,double)));
 	connect(scanAction_, SIGNAL(started()), this, SLOT(onScanStarted()));
 	connect(scanAction_, SIGNAL(succeeded()), this, SLOT(onScanFinished()));
-	functionButton_ = new QPushButton("X");
-	functionButton_->setMaximumHeight(progressBar_->size().height());
-	functionButton_->setFixedWidth(25);
-	functionButton_->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
-	connect(functionButton_, SIGNAL(clicked()), this, SLOT(onRemoveButtonClicked()));
+	connect(scanAction_, SIGNAL(failed(int)), this, SLOT(onScanFailed(int)));
+	closeIcon_ = QIcon(":/window-close.png");
+	stopIcon_ = QIcon(":/media-playback-stop-dark.png");
+	startIcon_ = QIcon(":/media-playback-start-dark.png");
+	pauseIcon_ = QIcon(":/media-playback-pause-dark.png");
+	stopCancelButton_ = new QPushButton(closeIcon_, "");
+	stopCancelButton_->setMaximumHeight(progressBar_->size().height());
+	stopCancelButton_->setFixedWidth(25);
+	stopCancelButton_->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+	playPauseButton_ = new QPushButton(startIcon_, "");
+	playPauseButton_->setMaximumHeight(progressBar_->size().height());
+	playPauseButton_->setFixedWidth(25);
+	playPauseButton_->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+	playPauseButton_->setEnabled(false);
+	connect(stopCancelButton_, SIGNAL(clicked()), this, SLOT(onStopCancelButtonClicked()));
+	connect(playPauseButton_, SIGNAL(clicked()), this, SLOT(onPlayPauseButtonClicked()));
+	hideButton_ = NULL;
 	hl_ = new QHBoxLayout();
 	hl_->addWidget(scanNameLabel_);
-//	hl_->addWidget(progressBar_);
 	hl_->addLayout(progressVL);
-	hl_->addWidget(functionButton_, 0, Qt::AlignTop | Qt::AlignRight);
+	hl_->addWidget(playPauseButton_, 0, Qt::AlignTop | Qt::AlignRight);
+	hl_->addWidget(stopCancelButton_, 0, Qt::AlignTop | Qt::AlignRight);
 	setLayout(hl_);
-	setLineWidth(1);
-	setFrameStyle(QFrame::StyledPanel);
 }
 
 void AMBeamlineScanActionView::setIndex(int index){
@@ -105,9 +129,8 @@ void AMBeamlineScanActionView::setAction(AMBeamlineScanAction *scanAction){
 	connect(scanAction_, SIGNAL(succeeded()), this, SLOT(onScanFinished()));
 }
 
-void AMBeamlineScanActionView::defocusItem(){
-	inFocus_ = false;
-	updateLook();
+void AMBeamlineScanActionView::onInfoChanged(){
+
 }
 
 void AMBeamlineScanActionView::updateScanNameLabel(){
@@ -125,6 +148,9 @@ void AMBeamlineScanActionView::updateScanNameLabel(){
 }
 
 void AMBeamlineScanActionView::updateProgressBar(double elapsed, double total){
+	if(cancelLatch_)
+		return;
+
 	progressBar_->setMaximum((int)total);
 	progressBar_->setValue((int)elapsed);
 
@@ -135,10 +161,12 @@ void AMBeamlineScanActionView::updateProgressBar(double elapsed, double total){
 }
 
 void AMBeamlineScanActionView::onScanStarted(){
-	functionButton_->setText("||");
-	disconnect(functionButton_, SIGNAL(clicked()), this, SLOT(onRemoveButtonClicked()));
-	connect(functionButton_, SIGNAL(clicked()), this, SLOT(onPauseButtonClicked()));
+	cancelLatch_ = false;
+	stopCancelButton_->setIcon(stopIcon_);
+	playPauseButton_->setIcon(pauseIcon_);
+	playPauseButton_->setEnabled(true);
 	updateLook();
+	emit scanStarted(scanAction_);
 }
 
 void AMBeamlineScanActionView::onScanFinished(){
@@ -146,40 +174,55 @@ void AMBeamlineScanActionView::onScanFinished(){
 
 	progressBar_->setMaximum(100);
 	progressBar_->setValue(100);
-	timeRemainingLabel_->setText("Scan Complete");
-	functionButton_->setText("Hide");
+	if(!cancelLatch_)
+		timeRemainingLabel_->setText("Scan Complete");
+	cancelLatch_ = false;
+	disconnect(stopCancelButton_, SIGNAL(clicked()), this, SLOT(onstopCancelButtonClicked()));
+	disconnect(playPauseButton_, SIGNAL(clicked()), this, SLOT(onPlayPauseButtonClicked()));
+	hl_->removeWidget(stopCancelButton_);
+	hl_->removeWidget(playPauseButton_);
+	hideButton_ = new QPushButton("Hide");
+	connect(hideButton_, SIGNAL(clicked()), this, SLOT(onHideButtonClicked()));
+	hl_->addWidget(hideButton_, 0, Qt::AlignTop | Qt::AlignRight);
 	updateLook();
 	emit scanSuceeded(scanAction_);
 }
 
-void AMBeamlineScanActionView::onRemoveButtonClicked(){
-	emit removeRequested(scanAction_);
+void AMBeamlineScanActionView::onScanFailed(int explanation){
+	if(explanation == 102){//102 is scan cancelled
+		cancelLatch_ = true;
+		stopCancelButton_->setIcon(closeIcon_);
+		playPauseButton_->setIcon(startIcon_);
+		playPauseButton_->setEnabled(false);
+		timeRemainingLabel_->setText("Scan Cancelled");
+		emit scanCancelled(scanAction_);
+	}
 }
 
-void AMBeamlineScanActionView::onPauseButtonClicked(){
+void AMBeamlineScanActionView::onStopCancelButtonClicked(){
 	if(scanAction_->isRunning()){
-		functionButton_->setText(">");
-		scanAction_->pause(true);
+		scanAction_->cancel();
 	}
 	else{
-		functionButton_->setText("||");
-		scanAction_->pause(false);
+		emit removeRequested(scanAction_);
 	}
 }
 
-void AMBeamlineScanActionView::mousePressEvent(QMouseEvent *event){
-	if (event->button() != Qt::LeftButton) {
-		event->ignore();
-		return;
+void AMBeamlineScanActionView::onPlayPauseButtonClicked(){
+	if(scanAction_->isRunning() && !scanAction_->isPaused()){
+		playPauseButton_->setIcon(startIcon_);
+		scanAction_->pause(true);
+		emit pauseRequested(scanAction_);
 	}
-	qDebug() << "Detected mouse click";
-	if(inFocus_)
-		defocusItem();
-	else{
-		inFocus_ = true;
-		updateLook();
-		emit focusRequested(scanAction_);
+	else if(scanAction_->isRunning() && scanAction_->isPaused()){
+		playPauseButton_->setIcon(pauseIcon_);
+		scanAction_->pause(false);
+		emit resumeRequested(scanAction_);
 	}
+}
+
+void AMBeamlineScanActionView::onHideButtonClicked(){
+	emit hideRequested(scanAction_);
 }
 
 void AMBeamlineScanActionView::updateLook(){

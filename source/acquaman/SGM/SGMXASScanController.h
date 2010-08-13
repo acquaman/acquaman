@@ -10,7 +10,7 @@ class SGMXASScanController
 public:
 	SGMXASScanController(SGMXASScanConfiguration *cfg);
 
-	bool isBeamlineInitialized() { return beamlineInitialized_;}
+	bool isBeamlineInitialized();
 	virtual bool beamlineInitialize();
 
 protected:
@@ -22,8 +22,8 @@ private:
 	SGMXASScanConfiguration **_pCfg_;
 	AMXASScan **_pScan_;
 
-	SGMXASScanConfiguration* pCfg_() { return *_pCfg_;}
-	AMXASScan* pScan_() { return *_pScan_;}
+	SGMXASScanConfiguration* pCfg_();
+	AMXASScan* pScan_();
 };
 
 #endif // AMSGMXASSCANCONTROLLER_H

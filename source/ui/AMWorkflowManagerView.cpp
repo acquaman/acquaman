@@ -244,7 +244,7 @@ AMBeamlineActionsListView::AMBeamlineActionsListView(AMBeamlineActionsList *acti
 	iib = new QVBoxLayout();
 	iib->setAlignment(Qt::AlignTop);
 	gb_->setLayout(iib);
-	gb_->setMinimumSize(300, 50);
+	gb_->setMinimumSize(300, NATURAL_ACTION_VIEW_HEIGHT);
 	gb_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
 
@@ -278,18 +278,29 @@ void AMBeamlineActionsListView::handleDataChanged(QModelIndex topLeft, QModelInd
 			actionsQueue_.enqueue(tmpItem);
 //			AMBeamlineScanActionView *scanActionView = new AMBeamlineScanActionView(scanAction, topLeft.row()+1);
 			AMBeamlineScanActionView *scanActionView = new AMBeamlineScanActionView(scanAction, viewQueue_.count()+1);
-			viewList_.append(scanActionView);
+			fullViewList_.append(scanActionView);
+			visibleViewList_.append(scanActionView);
 			viewQueue_.enqueue(scanActionView);
 			iib->addWidget(scanActionView);
 			connect(scanActionView, SIGNAL(focusRequested(AMBeamlineActionItem*)), this, SLOT(onFocusRequested(AMBeamlineActionItem*)));
 			connect(scanActionView, SIGNAL(removeRequested(AMBeamlineActionItem*)), this, SLOT(onRemoveRequested(AMBeamlineActionItem*)));
 			connect(scanActionView, SIGNAL(scanSuceeded(AMBeamlineActionItem*)), this, SLOT(onScanSucceeded(AMBeamlineActionItem*)));
+
+//			AMBeamlineActionHiddenView *tmpH = new AMBeamlineActionHiddenView(1);
+//			fullViewList_.append(tmpH);
+//			viewQueue_.enqueue(tmpH);
+//			iib->addWidget(tmpH);
 		}
+		if(insertRowIndex_ <= focusAction_)
+			focusAction_++;
 		insertRowIndex_ = -1;
 	}
 	else if( insertRowIndex_ == -1){
 		qDebug() << "Going to reset action on the view";
-		viewList_.at(topLeft.row())->setAction((AMBeamlineScanAction*)tmpItem);
+
+		if(tmpItem->type() == "actionItem.scanAction")
+			((AMBeamlineScanActionView*)fullViewList_.at(topLeft.row()))->setAction((AMBeamlineScanAction*)tmpItem);
+
 	}
 }
 
@@ -298,22 +309,24 @@ void AMBeamlineActionsListView::handleRowsInsert(const QModelIndex &parent, int 
 	if(start != end)
 		return; //WHAT TO DO ON MULTI-ROW INSERT?
 	insertRowIndex_ = start;
-	gb_->setMinimumHeight(50+50*actionsList_->count());
+	gb_->setMinimumHeight(NATURAL_ACTION_VIEW_HEIGHT+NATURAL_ACTION_VIEW_HEIGHT*actionsList_->count());
 }
 
 void AMBeamlineActionsListView::handleRowsRemoved(const QModelIndex &parent, int start, int end){
-	qDebug() << "In handleRowRemove on " << start << end;
 	if(start != end)
 		return; //WHAT TO DO FOR MULTI-ROW DELETE?
-	qDebug() << "Counts: " << viewList_.count() << iib->count();
-	AMBeamlineScanActionView *tmpView = viewList_.takeAt(start);
+//	AMBeamlineScanActionView *tmpView = fullViewList_.takeAt(start);
+	AMBeamlineActionView *tmpView = fullViewList_.takeAt(start);
 	viewQueue_.removeAll(tmpView);
 	actionsQueue_.removeAll(tmpView->action());
 	iib->removeWidget(tmpView);
 	delete tmpView;
-	qDebug() << "Counts: " << viewList_.count() << iib->count();
+	if(focusAction_ == start)
+		focusAction_ = -1;
+	else if(focusAction_ > start)
+		focusAction_--;
 	reindexViews();
-	gb_->setMinimumHeight(50+50*actionsList_->count());
+	gb_->setMinimumHeight(NATURAL_ACTION_VIEW_HEIGHT+NATURAL_ACTION_VIEW_HEIGHT*actionsList_->count());
 }
 
 void AMBeamlineActionsListView::redrawBeamlineActionsList(){
@@ -324,16 +337,16 @@ void AMBeamlineActionsListView::onFocusRequested(AMBeamlineActionItem *action){
 	if(focusAction_ == actionsList_->indexOf(action))
 		return;
 	else if(focusAction_ != -1)
-		viewList_.at(focusAction_)->defocusItem();
+		fullViewList_.at(focusAction_)->defocusItem();
 	focusAction_ = actionsList_->indexOf(action);
 }
 
 void AMBeamlineActionsListView::onRemoveRequested(AMBeamlineActionItem *action){
 	qDebug() << "Requesting remove so deleting action from list";
 	int index = actionsList_->indexOf(action);
-	disconnect( viewList_.at(index), SIGNAL(focusRequested(AMBeamlineActionItem*)), this, SLOT(onFocusRequested(AMBeamlineActionItem*)));
-	disconnect( viewList_.at(index), SIGNAL(removeRequested(AMBeamlineActionItem*)), this, SLOT(onRemoveRequested(AMBeamlineActionItem*)));
-	disconnect( viewList_.at(index), SIGNAL(scanSuceeded(AMBeamlineActionItem*)), this, SLOT(onScanSucceeded(AMBeamlineActionItem*)));
+	disconnect( fullViewList_.at(index), SIGNAL(focusRequested(AMBeamlineActionItem*)), this, SLOT(onFocusRequested(AMBeamlineActionItem*)));
+	disconnect( fullViewList_.at(index), SIGNAL(removeRequested(AMBeamlineActionItem*)), this, SLOT(onRemoveRequested(AMBeamlineActionItem*)));
+	disconnect( fullViewList_.at(index), SIGNAL(scanSuceeded(AMBeamlineActionItem*)), this, SLOT(onScanSucceeded(AMBeamlineActionItem*)));
 	actionsList_->deleteAction( index );
 }
 
@@ -342,13 +355,13 @@ void AMBeamlineActionsListView::onScanSucceeded(AMBeamlineActionItem *action){
 		return; //WHAT THE HELL, who succeeded that isn't at the head of the queue?
 	actionsQueue_.dequeue();
 	viewQueue_.dequeue();
-	viewList_.at( actionsList_->indexOf(action) )->setIndex(-1);
+	fullViewList_.at( actionsList_->indexOf(action) )->setIndex(-1);
 	reindexViews();
 }
 
 void AMBeamlineActionsListView::reindexViews(){
-//	for(int x = 0; x < viewList_.count(); x++)
-//		viewList_.at(x)->setIndex(x+1);
+//	for(int x = 0; x < fullViewList_.count(); x++)
+//		fullViewList_.at(x)->setIndex(x+1);
 	for(int x = 0; x < viewQueue_.count(); x++)
 		viewQueue_.at(x)->setIndex(x+1);
 }

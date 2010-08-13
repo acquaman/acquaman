@@ -46,16 +46,7 @@ public:
 	virtual ~AMAcqScanOutput();
 	// we need a static function to be called by the factory operator.
 	static acqBaseOutput *new_AMAcqScanOutput();
-	void setScan(AMScan *scan){
-		scan_ = scan;
-	//	series1->setModel(data1);
-		series1->setModel(scan_->channel(2));
-		plot->addItem(series1);
-		plot->setScalePadding(5);
-		plot->enableAutoScale(MPlotAxis::Left | MPlotAxis::Bottom);
-		plotWindow->resize(450, 450);
-		plotWindow->show();
-	}
+	void setScan(AMScan *scan);
 
 	// routines to output file header sections, over-riding the functions from the acqTextOutput Class
 //	virtual int fileHeaderStart();

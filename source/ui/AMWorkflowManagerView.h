@@ -115,8 +115,10 @@ protected slots:
 protected:
 	AMBeamlineActionsList *actionsList_;
 	QQueue<AMBeamlineActionItem*> actionsQueue_;
-	QList<AMBeamlineScanActionView*> viewList_;
-	QQueue<AMBeamlineScanActionView*> viewQueue_;
+	//QList<AMBeamlineScanActionView*> viewList_;
+	//QQueue<AMBeamlineScanActionView*> viewQueue_;
+	QList<AMBeamlineActionView*> viewList_;
+	QQueue<AMBeamlineActionView*> viewQueue_;
 	int focusAction_;
 	QGroupBox *gb_;
 	QVBoxLayout *iib;

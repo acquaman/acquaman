@@ -36,6 +36,16 @@ AMAcqScanSpectrumOutput::new_AMAcqScanSpectrumOutput()
 		return new AMAcqScanSpectrumOutput;
 }
 
+void AMAcqScanSpectrumOutput::setScan(AMScan *scan){
+	scan_ = scan;
+
+	// DAVID FIX HERE TO GET SCAN WINDOW BACK
+	sv = new AMScanView();
+	sv->show();
+	sv->addScan(scan_);
+
+}
+
 /// C interface to the Constructor.
 /// these are important for dynamic library use!
 acqKey_t new_AMAcqScanSpectrumOutput(void)
