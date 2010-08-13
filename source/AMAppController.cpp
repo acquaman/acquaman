@@ -99,11 +99,12 @@ AMAppController::AMAppController(QObject *parent) :
 	AMDataView* dataView = new AMDataView();
 	QStandardItem* runsItem = mw_->addPane(dataView, "Data", "Runs", ":/22x22/view_calendar_upcoming_days.png");
 	QStandardItem* expItem = mw_->addPane(dataView, "Data", "Experiments", ":/applications-science.png");
+
 	// Hook into the sidebar and add Run and Experiment links below these headings.
-	AMRunExperimentInsert* insert = new AMRunExperimentInsert(AMDatabase::userdb(), runsItem, expItem, this);
-	connect(mw_->sidebar()->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), insert, SLOT(onItemSelected(QModelIndex,QModelIndex)));
-	connect(insert, SIGNAL(runSelected(int)), dataView, SLOT(showRun(int)));
-	connect(insert, SIGNAL(experimentSelected(int)), dataView, SLOT(showExperiment(int)));
+	runExperimentInsert_ = new AMRunExperimentInsert(AMDatabase::userdb(), runsItem, expItem, this);
+	connect(mw_->sidebar()->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), runExperimentInsert_, SLOT(onItemSelected(QModelIndex,QModelIndex)));
+	connect(runExperimentInsert_, SIGNAL(runSelected(int)), dataView, SLOT(showRun(int)));
+	connect(runExperimentInsert_, SIGNAL(experimentSelected(int)), dataView, SLOT(showExperiment(int)));
 
 
 	BottomBar* b = new BottomBar();
@@ -155,7 +156,10 @@ void MainWindow::onScanControllerReady(AMScanController *scanController){
 /// Program shutdown:
 AMAppController::~AMAppController() {
 
-	// destroy the main window:
+	// need to delete the runs/experiments tree insert first, before the tree gets deleted
+	delete runExperimentInsert_;
+
+	// destroy the main window. This will delete everything else within it.
 	delete mw_;
 
 	// Make sure we release/clean-up the beamline interface

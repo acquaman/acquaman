@@ -81,8 +81,8 @@ void AMComboBox::onComboBoxActivated(int index) {
 	newRunBox();
 		//setCurrentIndex(findData(id,Qt::UserRole));
 	}
-
-	emit currentRunIdChanged(itemData(index, Qt::UserRole).toInt());
+	else
+		emit currentRunIdChanged(itemData(index, Qt::UserRole).toInt());
 
 }
 

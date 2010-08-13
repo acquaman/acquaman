@@ -17,8 +17,8 @@ class AMComboBox: public QComboBox
 
 public:
 	AMComboBox (QWidget *parent=0); //Constructor
-	//virtual ~AMComboBox();            //Destructor
-	~AMComboBox();
+	virtual ~AMComboBox();            //Destructor
+
 	int currentRunId() const ;
 
 protected slots:

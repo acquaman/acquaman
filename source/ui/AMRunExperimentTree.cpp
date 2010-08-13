@@ -46,6 +46,7 @@ AMRunExperimentInsert::AMRunExperimentInsert(AMDatabase* db, QStandardItem* runP
 	connect(db_, SIGNAL(updated(QString,int)), this, SLOT(onDatabaseUpdated(QString,int)));
 	connect(db_, SIGNAL(removed(QString,int)), this, SLOT(onDatabaseUpdated(QString,int)));
 
+
 	refreshRuns();
 	refreshExperiments();
 }
@@ -145,7 +146,6 @@ void AMRunExperimentInsert::refreshExperiments() {
 void AMRunExperimentInsert::onItemSelected(const QModelIndex& index,const QModelIndex& previousIndex) {
 
 	Q_UNUSED(previousIndex)
-	/// \bug How to tell when the tree deletes our runItem and experimentItem_?
 
 	/// Run heading clicked?
 	if(index == runItem_->index()) {

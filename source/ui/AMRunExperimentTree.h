@@ -55,6 +55,11 @@ Q_OBJECT
 public:
 	explicit AMRunExperimentInsert(AMDatabase* db, QStandardItem* runHeading, QStandardItem* experimentHeading, QObject *parent = 0);
 
+	virtual ~AMRunExperimentInsert() {
+		runItem_->removeRows(0, runItem_->rowCount());
+		experimentItem_->removeRows(0, experimentItem_->rowCount());
+	}
+
 signals:
 	/// Emitted when a run is selected. When the Runs heading is selected, this will be emitted with \c id = -1.
 	void runSelected(int id);
@@ -66,6 +71,8 @@ public slots:
 	void onItemSelected(const QModelIndex&,const QModelIndex&);
 
 
+
+
 protected slots:
 	/// This slot receives updated() signals from the database, and (if a refresh hasn't been scheduled yet), schedules a refreshRuns() or refreshExperiments() for once control returns to the Qt event loop.  This provides a performance boost by potentially only doing one refresh for multiple sequential database updates.
 	void onDatabaseUpdated(const QString& table, int id);
@@ -74,6 +81,7 @@ protected slots:
 	void refreshRuns();
 	/// request data from the database and fill the model
 	void refreshExperiments();
+
 
 
 protected:
