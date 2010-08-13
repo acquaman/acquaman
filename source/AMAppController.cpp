@@ -31,7 +31,7 @@
 #include "ui/ExpAlbum.h"
 #include "ui/BottomBar.h"
 #include "ui/AMDataView.h"
-#include "ui/AMRunExperimentTree.h"
+#include "ui/AMRunExperimentInsert.h"
 
 #include "AMErrorMonitor.h"
 
