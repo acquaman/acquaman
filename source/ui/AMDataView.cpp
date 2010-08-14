@@ -492,7 +492,7 @@ void AMDataView::refreshView() {
 						sections_ << new AMDataViewSection(
 								runName + runTime.toString(" MMM d (yyyy)"),
 								QString("Showing all data from this run in the <i>%1</i> experiment").arg(expName),
-								QString("runId = '%1' AND id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = '%2';)").arg(runId).arg(experimentId_),
+								QString("runId = '%1' AND id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = '%2');").arg(runId).arg(experimentId_),
 								viewMode_, db_);
 					}
 					if(!found)
@@ -714,13 +714,7 @@ AMDataViewSectionThumbnailView::AMDataViewSectionThumbnailView(AMDatabase* db, c
 	layout_->setSpacing(Qt::Horizontal, 30);
 	gWidget_->setLayout(layout_);
 
-	//gWidget_->layout()->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-	//gWidget_->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-
-
-
 	setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-	//setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
 	populate();
 
@@ -737,9 +731,8 @@ void AMDataViewSectionThumbnailView::resizeEvent(QResizeEvent *event) {
 void AMDataViewSectionThumbnailView::onResize() {
 
 	int internalWidth = this->width() - 5;
-	// bool round2Required = false;
+
 	if( int(gWidget_->geometry().width()) != internalWidth) {
-		// gWidget_->setGeometry(0,0,this->width(), gWidget_->geometry().height());
 		gWidget_->setMinimumWidth(internalWidth);
 		gWidget_->setMaximumWidth(internalWidth);
 
@@ -759,30 +752,6 @@ void AMDataViewSectionThumbnailView::onResize() {
 		// scene_->setSceneRect(0,0,this->width(), fullHeight);
 		setSceneRect(0,0,internalWidth, fullHeight);
 	}
-
-	/*
-	if( int(gWidget_->geometry().width()) != this->width() || gWidget_->geometry().height() != fullHeight) {
-
-		qDebug() << this << "1 layout max height:" << fullHeight;
-		qDebug() << this << "1.5 actual height:" << gWidget_->geometry().height();
-		// gWidget_->setMaximumSize(this->width(), gWidget_->layout()->minimumHeight());
-		gWidget_->setMinimumSize(this->width(), fullHeight);
-		gWidget_->setMaximumSize(this->width(), fullHeight);
-		//gWidget_->setGeometry(0,0,this->width(), gWidget_->layout()->minimumHeight());
-
-		gWidget_->layout()->invalidate();
-		// gWidget_->layout()->activate();
-		// gWidget_->updateGeometry();
-		// qDebug() << this << "2 layout min height:" << gWidget_->layout()->minimumHeight();
-		// gWidget_->setGeometry(0,0,this->width(), gWidget_->layout()->minimumHeight());
-		// gWidget_->layout()->activate();	// after finishing, this will emit activated(), which is again hooked up to this slot.
-
-		this->setMinimumHeight(fullHeight + 10);
-		this->setMaximumHeight(fullHeight + 10);
-
-		// if the minimum height required changed as a result of the width changing, we'll need Round 2:
-		QTimer::singleShot(0, this, SLOT(onResize()));
-	}*/
 }
 
 #include "ui/AMThumbnailScrollViewer.h"
