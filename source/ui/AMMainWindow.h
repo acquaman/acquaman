@@ -56,10 +56,9 @@ public slots:
 	/// return a \c pane that was undocked back to the main window.  Does not set this pane as the current widget.
 	void dock(QWidget* pane);
 
-	void goToPane(const QVariant& paneVariant);
+	// void goToPane(const QVariant& paneVariant);
 
-signals:
-	void sidebarLinkChanged();
+
 
 protected slots:
 	/// Called when a link in the sidebar is clicked.  This should set the linked pane as the current widget, re-capturing it if necessary.

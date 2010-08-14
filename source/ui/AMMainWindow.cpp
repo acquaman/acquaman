@@ -138,10 +138,11 @@ void AMMainWindow::dock(QWidget* pane) {
 	pane2isDocked_[pane] = true;
 }
 
+/*
 void AMMainWindow::goToPane(const QVariant &paneVariant){
 	QStandardItem *item = (QStandardItem*)paneVariant.value<void*>();
 	sidebar_->setCurrentIndex(item->index());
-}
+}*/
 
 void AMMainWindow::onSidebarLinkClicked(const QVariant& linkContent) {
 
@@ -179,10 +180,11 @@ void AMMainWindow::onFwdCurrentWidgetChanged(int currentIndex) {
 		return;
 
 	QWidget* currentPane = stackWidget_->widget(currentIndex);
-	if(pane2sidebarItems_.contains(currentPane))
+	// Normally, we want to ensure that the highlighted selection in the tree(sidebar) stays consistent with the selected pane.
+	// However, if there are multiple links for a single pane, we don't know which one to choose, so its better to not do anything at all. (For now... this could be improved with a more detailed internal model.)
+	if(pane2sidebarItems_.count(currentPane) == 1)
 		sidebar_->setHighlightedLink(pane2sidebarItems_.value(currentPane));
 
-	emit sidebarLinkChanged();
 }
 
 
