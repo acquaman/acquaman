@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/configurationFIles">
+        <file>default.cfg</file>
+        <file>defaultEnergy.cfg</file>
+        <file>myScan.cfg</file>
+        <file>pgt.cfg</file>
+    </qresource>
+</RCC>

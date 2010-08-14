@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-
+class AMRunExperimentInsert;
 class AMMainWindow;
 class QMenuBar;
 class QMenu;
@@ -28,6 +28,8 @@ protected:
 	AMMainWindow* mw_;
 	QMenuBar* menuBar_;
 	QMenu* fileMenu_;
+
+	AMRunExperimentInsert* runExperimentInsert_;
 
 };
 
