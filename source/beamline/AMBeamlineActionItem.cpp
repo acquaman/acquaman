@@ -50,12 +50,17 @@ AMBeamlineActionView::AMBeamlineActionView(AMBeamlineActionItem *action, int ind
 	action_ = action;
 	index_ = index;
 	inFocus_ = false;
+	viewType_ = "actionView";
 	setLineWidth(1);
 	setFrameStyle(QFrame::StyledPanel);
 }
 
 AMBeamlineActionItem* AMBeamlineActionView::action(){
 	return action_;
+}
+
+QString AMBeamlineActionView::viewType() const{
+	return viewType_;
 }
 
 void AMBeamlineActionView::setIndex(int index){
@@ -97,10 +102,11 @@ void AMBeamlineActionView::updateLook(){
 	}
 }
 
-AMBeamlineActionHiddenView::AMBeamlineActionHiddenView(int count, QWidget *parent) :
-		AMBeamlineActionView(NULL, 0, parent)
+AMBeamlineActionHiddenView::AMBeamlineActionHiddenView(AMBeamlineActionItem *first, int count, QWidget *parent) :
+		AMBeamlineActionView(first, 0, parent)
 {
 	count_ = count;
+	viewType_ = "hiddenView";
 
 	infoLabel_ = new QLabel("");
 	expandButton_ = new QPushButton("");
@@ -110,6 +116,27 @@ AMBeamlineActionHiddenView::AMBeamlineActionHiddenView(int count, QWidget *paren
 	hl_->addWidget(infoLabel_);
 	hl_->addWidget(expandButton_, 0, Qt::AlignRight);
 	setLayout(hl_);
+}
+
+AMBeamlineActionHiddenView::~AMBeamlineActionHiddenView(){
+	action_ = NULL;
+}
+
+QString AMBeamlineActionHiddenView::viewType() const{
+	return AMBeamlineActionView::viewType()+"."+viewType_;
+}
+
+int AMBeamlineActionHiddenView::count() const{
+	return count_;
+}
+
+void AMBeamlineActionHiddenView::setFirst(AMBeamlineActionItem *first){
+	setAction(first);
+}
+
+void AMBeamlineActionHiddenView::setCount(int count){
+	count_ = count;
+	onInfoChanged();
 }
 
 void AMBeamlineActionHiddenView::onInfoChanged(){
@@ -122,6 +149,7 @@ void AMBeamlineActionHiddenView::onInfoChanged(){
 	buttonStr.prepend("Expand ");
 	buttonStr.append(" Items");
 	expandButton_->setText(buttonStr);
+	connect(expandButton_, SIGNAL(clicked()), this, SLOT(onExpandButtonClicked()));
 }
 
 void AMBeamlineActionHiddenView::onStopCancelButtonClicked(){
@@ -134,6 +162,10 @@ void AMBeamlineActionHiddenView::onPlayPauseButtonClicked(){
 
 void AMBeamlineActionHiddenView::onHideButtonClicked(){
 
+}
+
+void AMBeamlineActionHiddenView::onExpandButtonClicked(){
+	emit expandRequested(action_);
 }
 
 AMBeamlineActionItemView::AMBeamlineActionItemView(AMBeamlineActionItem *item, QWidget *parent) :

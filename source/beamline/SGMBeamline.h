@@ -69,6 +69,9 @@ public:
 	AMDetectorInfo* eVFbkDetector() const { return eVFbkDetector_;}
 	AMControl* loadlockCCG() const { return loadlockCCG_;}
 	AMControl* loadlockTCG() const { return loadlockTCG_;}
+	AMControl* ssaManipulatorX() const { return ssaManipulatorX_;}
+	AMControl* ssaManipulatorY() const { return ssaManipulatorY_;}
+	AMControl* ssaManipulatorZ() const { return ssaManipulatorZ_;}
 
 	AMControlSet* fluxResolutionSet() const { return fluxResolutionSet_;}
 	AMControlSet* trackingSet() const { return trackingSet_;}
@@ -161,6 +164,9 @@ protected:
 	AMControl *eVFbk_;
 	AMControl *loadlockCCG_;
 	AMControl *loadlockTCG_;
+	AMControl *ssaManipulatorX_;
+	AMControl *ssaManipulatorY_;
+	AMControl *ssaManipulatorZ_;
 
 	AMDetectorInfo *teyDetector_;
 	AMDetectorInfo *tfyDetector_;

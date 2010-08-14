@@ -62,6 +62,7 @@ public:
 	AMBeamlineActionView(AMBeamlineActionItem *action, int index = 0, QWidget *parent = 0);
 
 	virtual AMBeamlineActionItem* action();
+	virtual QString viewType() const;
 
 public slots:
 	virtual void setIndex(int index);
@@ -91,13 +92,27 @@ protected:
 	AMBeamlineActionItem *action_;
 	int index_;
 	bool inFocus_;
+
+private:
+	QString viewType_;
 };
 
 class AMBeamlineActionHiddenView : public AMBeamlineActionView
 {
 	Q_OBJECT
 public:
-	AMBeamlineActionHiddenView(int count = 1, QWidget *parent = 0);
+	AMBeamlineActionHiddenView(AMBeamlineActionItem* first, int count = 1, QWidget *parent = 0);
+	~AMBeamlineActionHiddenView();
+
+	virtual QString viewType() const;
+	virtual int count() const;
+
+public slots:
+	void setFirst(AMBeamlineActionItem *first);
+	void setCount(int count);
+
+signals:
+	void expandRequested(AMBeamlineActionItem* action);
 
 protected slots:
 	virtual void onInfoChanged();
@@ -105,11 +120,16 @@ protected slots:
 	virtual void onPlayPauseButtonClicked();
 	virtual void onHideButtonClicked();
 
+	virtual void onExpandButtonClicked();
+
 protected:
 	int count_;
 	QLabel *infoLabel_;
 	QPushButton *expandButton_;
 	QHBoxLayout *hl_;
+
+private:
+	QString viewType_;
 };
 
 class AMBeamlineActionItemView : public QWidget

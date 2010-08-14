@@ -34,6 +34,9 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	amNames2pvNames_.set("I0", "reixsHost:I0");
 	amNames2pvNames_.set("loadlockCCG", "dave:Endstation:loadlock:ccg");
 	amNames2pvNames_.set("loadlockTCG", "dave:Endstation:loadlock:tcg");
+	amNames2pvNames_.set("ssaManipulatorX", "reixsHost:ssa:x");
+	amNames2pvNames_.set("ssaManipulatorY", "reixsHost:ssa:y");
+	amNames2pvNames_.set("ssaManipulatorZ", "reixsHost:ssa:z");
 
 	ringCurrent_ = new AMReadOnlyPVControl("ringCurrent", AMPVNames::toPV("ringCurrent"), this);
 	addChild(ringCurrent_);
@@ -131,6 +134,16 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	loadlockCCG_ = new AMReadOnlyPVControl("loadlockCCG", sgmPVName, this);
 	sgmPVName = amNames2pvNames_.valueF("loadlockTCG");
 	loadlockTCG_ = new AMReadOnlyPVControl("loadlockTCG", sgmPVName, this);
+
+	sgmPVName = amNames2pvNames_.valueF("ssaManipulatorX");
+	ssaManipulatorX_ = new AMPVwStatusControl("ssaManipulatorX", sgmPVName+":fbk", sgmPVName+":sp", sgmPVName+":moving", this, 0.1);
+	addChild(ssaManipulatorX_);
+	sgmPVName = amNames2pvNames_.valueF("ssaManipulatorY");
+	ssaManipulatorY_ = new AMPVwStatusControl("ssaManipulatorY", sgmPVName+":fbk", sgmPVName+":sp", sgmPVName+":moving", this, 0.1);
+	addChild(ssaManipulatorY_);
+	sgmPVName = amNames2pvNames_.valueF("ssaManipulatorZ");
+	ssaManipulatorZ_ = new AMPVwStatusControl("ssaManipulatorZ", sgmPVName+":fbk", sgmPVName+":sp", sgmPVName+":moving", this, 0.1);
+	addChild(ssaManipulatorZ_);
 
 	fluxOptimization_ = new SGMFluxOptimization(this);
 	fluxOptimization_->setDescription("Flux");

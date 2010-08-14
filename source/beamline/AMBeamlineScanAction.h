@@ -50,6 +50,8 @@ public:
 	int index() const { return index_;}
 	AMBeamlineActionItem* action() { return scanAction_;}
 
+	virtual QString viewType() const;
+
 public slots:
 	void setIndex(int index);
 	void setAction(AMBeamlineScanAction *scanAction);
@@ -86,6 +88,9 @@ protected:
 	QHBoxLayout *hl_;
 
 	QIcon closeIcon_, stopIcon_, startIcon_, pauseIcon_;
+
+private:
+	QString viewType_;
 };
 
 #endif // AMBEAMLINESCANACTION_H

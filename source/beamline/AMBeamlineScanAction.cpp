@@ -70,6 +70,7 @@ AMBeamlineScanActionView::AMBeamlineScanActionView(AMBeamlineScanAction *scanAct
 {
 	index_ = index;
 	cancelLatch_ = false;
+	viewType_ = "scanView";
 	scanAction_ = scanAction;
 	setMinimumHeight(NATURAL_ACTION_VIEW_HEIGHT);
 	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
@@ -111,6 +112,10 @@ AMBeamlineScanActionView::AMBeamlineScanActionView(AMBeamlineScanAction *scanAct
 	hl_->addWidget(playPauseButton_, 0, Qt::AlignTop | Qt::AlignRight);
 	hl_->addWidget(stopCancelButton_, 0, Qt::AlignTop | Qt::AlignRight);
 	setLayout(hl_);
+}
+
+QString AMBeamlineScanActionView::viewType() const{
+	return AMBeamlineActionView::viewType()+"."+viewType_;
 }
 
 void AMBeamlineScanActionView::setIndex(int index){
@@ -177,7 +182,7 @@ void AMBeamlineScanActionView::onScanFinished(){
 	if(!cancelLatch_)
 		timeRemainingLabel_->setText("Scan Complete");
 	cancelLatch_ = false;
-	disconnect(stopCancelButton_, SIGNAL(clicked()), this, SLOT(onstopCancelButtonClicked()));
+	disconnect(stopCancelButton_, SIGNAL(clicked()), this, SLOT(onStopCancelButtonClicked()));
 	disconnect(playPauseButton_, SIGNAL(clicked()), this, SLOT(onPlayPauseButtonClicked()));
 	hl_->removeWidget(stopCancelButton_);
 	hl_->removeWidget(playPauseButton_);
