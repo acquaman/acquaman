@@ -8,9 +8,9 @@ AMBeamlineControlMoveAction::AMBeamlineControlMoveAction(AMControl *control, QSt
 	type_ = "controlMoveAction";
 	if(control_){
 		setpoint_ = control_->value();
-		connect(control_, SIGNAL(moveSucceeded()), this, SLOT(onSucceeded()));
-		connect(control_, SIGNAL(moveFailed(int)), this, SLOT(onFailed(int)));
-		connect(control_, SIGNAL(moveStarted()), this, SLOT(onStarted()));
+//		connect(control_, SIGNAL(moveSucceeded()), this, SLOT(onSucceeded()));
+//		connect(control_, SIGNAL(moveFailed(int)), this, SLOT(onFailed(int)));
+//		connect(control_, SIGNAL(moveStarted()), this, SLOT(onStarted()));
 	}
 	else
 		setpoint_ = 0;
@@ -30,6 +30,9 @@ double AMBeamlineControlMoveAction::setpoint(){
 
 void AMBeamlineControlMoveAction::start(){
 	if(control_ && control_->canMove() && ready_){
+		connect(control_, SIGNAL(moveSucceeded()), this, SLOT(onSucceeded()));
+		connect(control_, SIGNAL(moveFailed(int)), this, SLOT(onFailed(int)));
+		connect(control_, SIGNAL(moveStarted()), this, SLOT(onStarted()));
 		control_->move(setpoint_);
 //		AMBeamlineActionItem::start();
 	}
@@ -42,15 +45,15 @@ void AMBeamlineControlMoveAction::cancel(){
 }
 
 void AMBeamlineControlMoveAction::setControl(AMControl *control){
-	if(control_){
-		disconnect(control_, SIGNAL(moveSucceeded()), this, SLOT(onSucceeded()));
-		disconnect(control_, SIGNAL(moveFailed(int)), this, SLOT(onFailed(int)));
-		disconnect(control_, SIGNAL(moveStarted()), this, SLOT(onStarted()));	}
+//	if(control_){
+//		disconnect(control_, SIGNAL(moveSucceeded()), this, SLOT(onSucceeded()));
+//		disconnect(control_, SIGNAL(moveFailed(int)), this, SLOT(onFailed(int)));
+//		disconnect(control_, SIGNAL(moveStarted()), this, SLOT(onStarted()));	}
 	control_ = control;
-	if(control_){
-		connect(control_, SIGNAL(moveSucceeded()), this, SLOT(onSucceeded()));
-		connect(control_, SIGNAL(moveFailed(int)), this, SLOT(onFailed(int)));
-		connect(control_, SIGNAL(moveStarted()), this, SLOT(onStarted()));	}
+//	if(control_){
+//		connect(control_, SIGNAL(moveSucceeded()), this, SLOT(onSucceeded()));
+//		connect(control_, SIGNAL(moveFailed(int)), this, SLOT(onFailed(int)));
+//		connect(control_, SIGNAL(moveStarted()), this, SLOT(onStarted()));	}
 }
 
 bool AMBeamlineControlMoveAction::setSetpoint(double setpoint){
@@ -78,11 +81,18 @@ void AMBeamlineControlMoveAction::onStarted(){
 
 void AMBeamlineControlMoveAction::onSucceeded(){
 	running_ = false;
+	qDebug() << "I " << (int)this << " succeeded";
+	disconnect(control_, SIGNAL(moveSucceeded()), this, SLOT(onSucceeded()));
+	disconnect(control_, SIGNAL(moveFailed(int)), this, SLOT(onFailed(int)));
+	disconnect(control_, SIGNAL(moveStarted()), this, SLOT(onStarted()));
 	emit succeeded();
 }
 
 void AMBeamlineControlMoveAction::onFailed(int explanation){
 	running_ = false;
+	disconnect(control_, SIGNAL(moveSucceeded()), this, SLOT(onSucceeded()));
+	disconnect(control_, SIGNAL(moveFailed(int)), this, SLOT(onFailed(int)));
+	disconnect(control_, SIGNAL(moveStarted()), this, SLOT(onStarted()));
 	emit failed(explanation);
 }
 

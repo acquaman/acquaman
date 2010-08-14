@@ -64,14 +64,8 @@ void AMWorkflowManagerView::onAddToQueueRequested(AMScanConfiguration *cfg){
 }
 
 void AMWorkflowManagerView::onInsertActionRequested(AMBeamlineActionItem *action, int index){
-	if(workflowView_->indexOfFirst() == -1){
-		qDebug() << "Insert request with iof " << workflowView_->indexOfFirst() << " so to " << workflowView_->indexOfFirst()+index+1;
-		workflowActions_->addAction(workflowView_->indexOfFirst()+index+1, action);
-	}
-	else{
 		qDebug() << "Insert request with iof " << workflowView_->indexOfFirst() << " so to " << workflowView_->indexOfFirst()+index;
 		workflowActions_->addAction(workflowView_->indexOfFirst()+index, action);
-	}
 }
 
 
@@ -298,6 +292,8 @@ AMBeamlineActionItem* AMBeamlineActionsListView::firstInQueue(){
 int AMBeamlineActionsListView::indexOfFirst(){
 	if(actionsQueue_.count() > 0)
 		return actionsList_->indexOf(firstInQueue());
+	else if(actionsList_->count() == 0)
+		return 0;
 	else
 		return actionsList_->count()-1;
 }
@@ -318,6 +314,8 @@ void AMBeamlineActionsListView::handleDataChanged(QModelIndex topLeft, QModelInd
 		if(tmpItem->type() == "actionItem.scanAction"){
 			AMBeamlineScanAction *scanAction = (AMBeamlineScanAction*)tmpItem;
 			int iof = indexOfFirst();
+			if(topLeft.row() < iof)
+				iof--;
 			int viof = visibleIndexOfFirst();
 			qDebug() << "iof is " << iof << " viof is " << viof;
 			qDebug() << "actionsQueue to " << topLeft.row()-iof;
@@ -350,6 +348,8 @@ void AMBeamlineActionsListView::handleDataChanged(QModelIndex topLeft, QModelInd
 		else if(tmpItem->type() == "actionItem.controlMoveAction"){
 			AMBeamlineControlMoveAction *moveAction = (AMBeamlineControlMoveAction*)tmpItem;
 			int iof = indexOfFirst();
+			if(topLeft.row() < iof)
+				iof--;
 			int viof = visibleIndexOfFirst();
 			qDebug() << "iof is " << iof << " viof is " << viof;
 			qDebug() << "actionsQueue to " << topLeft.row()-iof;
