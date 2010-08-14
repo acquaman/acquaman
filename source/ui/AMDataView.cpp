@@ -7,7 +7,7 @@
 #include <QDebug>
 
 AMDataView::AMDataView(AMDatabase* database, QWidget *parent) :
-    QWidget(parent)
+	QWidget(parent)
 {
 	db_ = database;
 	runId_ = experimentId_ = -1;
@@ -150,7 +150,7 @@ void AMDataView::refreshView() {
 		case AMDataViews::OrganizeNone:
 			sections_ << new AMDataViewSection(
 					userName_ + "Data",
-					"Showing data from all runs",
+					"Showing all data",
 					QString(),
 					viewMode_, db_);
 			break;
@@ -336,7 +336,7 @@ void AMDataView::refreshView() {
 				bool found = false;
 				QSqlQuery findExperiments = db_->query();
 				findExperiments.setForwardOnly(true);
-				findExperiments.prepare(QString("SELECT id, name FROM Experiments WHERE id IN (SELECT experimentId FROM ObjectExperimentEntries WHERE objectId IN (SELECT id FROM Objects WHERE runId = '%1')))").arg(runId_));
+				findExperiments.prepare(QString("SELECT id, name FROM Experiments WHERE id IN (SELECT experimentId FROM ObjectExperimentEntries WHERE objectId IN (SELECT id FROM Objects WHERE runId = '%1'))").arg(runId_));
 				if(findExperiments.exec()) {
 					while(findExperiments.next()) {
 						found = true;
@@ -345,7 +345,7 @@ void AMDataView::refreshView() {
 						sections_ << new AMDataViewSection(
 								expName,
 								QString("Showing all data from this experiment in the <i>%1</i> run").arg(runName + runTime.toString(" MMM d (yyyy)")),
-								QString("runId = '%1' AND id IN(SELECT objectId IN ObjectExperimentEntries WHERE experimentId = '%2')").arg(runId_).arg(expId),
+								QString("runId = '%1' AND id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = '%2')").arg(runId_).arg(expId),
 								viewMode_, db_);
 					}
 					if(!found)
@@ -373,7 +373,7 @@ void AMDataView::refreshView() {
 						sections_ << new AMDataViewSection(
 								typeDescription,
 								QString("Showing all data of this type in the <i>%1</i> run").arg(runName + runTime.toString(" MMM d (yyyy)")),
-								QString("typeId = '%1' AND runId = '%2')").arg(typeId).arg(runId_),
+								QString("typeId = '%1' AND runId = '%2'").arg(typeId).arg(runId_),
 								viewMode_, db_);
 					}
 					if(!found)
@@ -482,7 +482,7 @@ void AMDataView::refreshView() {
 				bool found = false;
 				QSqlQuery findRuns = db_->query();
 				findRuns.setForwardOnly(true);
-				findRuns.prepare(QString("SELECT id, name, dateTime FROM Runs WHERE id IN (SELECT runId FROM Objects WHERE objectId IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = '%1')))").arg(experimentId_));
+				findRuns.prepare(QString("SELECT id, name, dateTime FROM Runs WHERE id IN (SELECT runId FROM Objects WHERE id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = '%1'))").arg(experimentId_));
 				if(findRuns.exec()) {
 					while(findRuns.next()) {
 						found = true;
@@ -492,7 +492,7 @@ void AMDataView::refreshView() {
 						sections_ << new AMDataViewSection(
 								runName + runTime.toString(" MMM d (yyyy)"),
 								QString("Showing all data from this run in the <i>%1</i> experiment").arg(expName),
-								QString("runId = '%1' AND id IN(SELECT objectId IN ObjectExperimentEntries WHERE experimentId = '%2')").arg(runId).arg(experimentId_),
+								QString("runId = '%1' AND id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = '%2';)").arg(runId).arg(experimentId_),
 								viewMode_, db_);
 					}
 					if(!found)
@@ -511,7 +511,9 @@ void AMDataView::refreshView() {
 				bool found = false;
 				QSqlQuery findTypes = db_->query();
 				findTypes.setForwardOnly(true);
-				findTypes.prepare(QString("SELECT id, description FROM ObjectTypes WHERE id IN (SELECT DISTINCT typeId FROM Objects WHERE id IN(SELECT objectId IN ObjectExperimentEntries WHERE experimentId = ?))"));
+				findTypes.prepare(QString("SELECT ObjectTypes.id, ObjectTypes.description, Objects.typeId, Objects.id, ObjectExperimentEntries.objectId, ObjectExperimentEntries.experimentId "
+										  "FROM ObjectTypes, Objects, ObjectExperimentEntries "
+										  "WHERE ObjectExperimentEntries.experimentId = ? AND ObjectExperimentEntries.objectId = Objects.id AND ObjectTypes.id = Objects.typeId;"));
 				findTypes.bindValue(0, experimentId_);
 				if(findTypes.exec()) {
 					while(findTypes.next()) {
@@ -521,7 +523,7 @@ void AMDataView::refreshView() {
 						sections_ << new AMDataViewSection(
 								typeDescription,
 								QString("Showing all data of this type in the <i>%1</i> experiment").arg(expName),
-								QString("typeId = '%1' AND id IN(SELECT objectId IN ObjectExperimentEntries WHERE experimentId = '%2')").arg(typeId).arg(experimentId_),
+								QString("typeId = '%1' AND id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = '%2')").arg(typeId).arg(experimentId_),
 								viewMode_, db_);
 					}
 					if(!found)
@@ -540,7 +542,7 @@ void AMDataView::refreshView() {
 				bool found = false;
 				QSqlQuery findSamples = db_->query();
 				findSamples.setForwardOnly(true);
-				findSamples.prepare("SELECT id, dateTime, name FROM Samples WHERE id IN (SELECT sampleId FROM Objects WHERE id IN(SELECT objectId IN ObjectExperimentEntries WHERE experimentId = ?))");	/// \todo add thumbnail icon!
+				findSamples.prepare("SELECT id,dateTime,name FROM Samples WHERE id IN (SELECT sampleId FROM Objects WHERE id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = ?));");	/// \todo add thumbnail icon!
 				findSamples.bindValue(0, experimentId_);
 				if(findSamples.exec()) {
 					while(findSamples.next()) {
@@ -551,7 +553,7 @@ void AMDataView::refreshView() {
 						sections_ << new AMDataViewSection(
 								name,
 								QString("Sample created at %1.  Showing all data from this sample in the <i>%2</i> experiment").arg(dt.toString("h:mmap, MMM d (yyyy)")).arg(expName),
-								QString("sampleId = '%1' AND id IN(SELECT objectId IN ObjectExperimentEntries WHERE experimentId = '%2')").arg(sampleId).arg(experimentId_),
+								QString("sampleId = '%1' AND id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = '%2')").arg(sampleId).arg(experimentId_),
 								viewMode_, db_);
 					}
 					if(!found)
@@ -569,7 +571,7 @@ void AMDataView::refreshView() {
 				bool found = false;
 				QSqlQuery findElements = db_->query();
 				findElements.setForwardOnly(true);
-				findElements.prepare("SELECT id, symbol, name FROM Elements WHERE id IN (SELECT elementId FROM SampleElementEntries WHERE sampleId IN (SELECT sampleId FROM Objects WHERE id IN (SELECT objectId IN ObjectExperimentEntries WHERE experimentId = ?)))");
+				findElements.prepare("SELECT id,symbol,name FROM Elements WHERE id IN (SELECT elementId FROM SampleElementEntries WHERE sampleId IN (SELECT sampleId FROM Objects WHERE id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = ?)));");
 				findElements.bindValue(0, experimentId_);
 				if(findElements.exec()) {
 					while(findElements.next()) {
@@ -580,7 +582,7 @@ void AMDataView::refreshView() {
 						sections_ << new AMDataViewSection(
 								symbol + ": " + name,
 								QString("Showing all data from samples containing %1 in the <i>%2</i> experiment").arg(name).arg(expName),
-								QString("sampleId IN (SELECT sampleId FROM SampleElementEntries WHERE elementId = '%1') AND id IN(SELECT objectId IN ObjectExperimentEntries WHERE experimentId = '%2')").arg(elementId).arg(experimentId_),
+								QString("sampleId IN (SELECT sampleId FROM SampleElementEntries WHERE elementId = '%1') AND id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = '%2')").arg(elementId).arg(experimentId_),
 								viewMode_, db_);
 					}
 					if(!found)
