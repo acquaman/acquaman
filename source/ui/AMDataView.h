@@ -114,6 +114,10 @@ public slots:
 	}
 	void setThumbnailWidth(double width);
 
+protected slots:
+	/// This slot is delay-called when the graphics view widget is resized... Inside, we update the internal widget in the scene to the same width, and just enough height as required.
+	void onResize();
+
 protected:
 	AMDatabase* db_;
 	QString dbTableName_;

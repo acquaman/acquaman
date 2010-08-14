@@ -122,9 +122,11 @@ qreal AMFlowGraphicsLayout::doLayout(const QRectF &geom, bool applyNewGeometry) 
 			} else {
 				x = 0;
 				next_x = pref.width();
+				// moved from below into this else statement:
+				y += maxRowHeight + spacing(Qt::Vertical);
+				maxRowHeight = 0;
 			}
-			y += maxRowHeight + spacing(Qt::Vertical);
-			maxRowHeight = 0;
+
 		}
 
 		if (applyNewGeometry)
