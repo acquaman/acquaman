@@ -13,7 +13,7 @@ class AMThumbnailScrollViewer : public QLabel
 {
 	Q_OBJECT
 public:
-    explicit AMThumbnailScrollViewer(QWidget *parent = 0);
+	explicit AMThumbnailScrollViewer(QWidget *parent = 0);
 
 	/// display the thumbnails from a given AMDbObject
 	void setSource(AMDbObject* source);
@@ -92,6 +92,7 @@ protected:
 
 
 #include <QGraphicsWidget>
+#include <QDebug>
 
 /// This is a high-performance version of AMThumbnailScrollWidget for use inside the QGraphicsView system
 /*! NEEDED!
@@ -202,6 +203,10 @@ protected:
 	virtual void hoverMoveEvent(QGraphicsSceneHoverEvent *event);
 	virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
 	virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
+
+	virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
+
+
 
 	QSizeF sizeHint(Qt::SizeHint which, const QSizeF &constraint) const {
 

@@ -201,7 +201,10 @@ AMThumbnailScrollGraphicsWidget::AMThumbnailScrollGraphicsWidget(QGraphicsItem* 
 
 	pixmap_ = invalidPixmap();
 
+	setEnabled(true);
 	setAcceptHoverEvents(true);
+	setAcceptsHoverEvents(true);
+
 }
 
 
@@ -328,6 +331,8 @@ QPixmap AMThumbnailScrollGraphicsWidget::invalidPixmap() {
 /// re-implemented from QGraphicsItem to change the thumbnail when the mouse is moved over top
 void AMThumbnailScrollGraphicsWidget::hoverMoveEvent(QGraphicsSceneHoverEvent *event) {
 
+	qDebug() << "hover move event";
+
 	double ratio = event->pos().x() / width_;
 
 	if(sourceIsDb_ && sourceDb_ && !ids_.isEmpty()) {
@@ -353,21 +358,25 @@ void AMThumbnailScrollGraphicsWidget::hoverMoveEvent(QGraphicsSceneHoverEvent *e
 }
 
 #include <QGraphicsDropShadowEffect>
+#include <QDebug>
 
 void AMThumbnailScrollGraphicsWidget::hoverEnterEvent(QGraphicsSceneHoverEvent *event) {
 
-	Q_UNUSED(event);
+	qDebug() << "hover enter event";
+
 
 	QGraphicsDropShadowEffect* e = new QGraphicsDropShadowEffect(this);
 	e->setOffset(6, 4);
 	e->setBlurRadius(12);
 
 	this->setGraphicsEffect(e);
+
+	QGraphicsWidget::hoverEnterEvent(event);
 }
 
 void AMThumbnailScrollGraphicsWidget::hoverLeaveEvent(QGraphicsSceneHoverEvent *event) {
 
-	Q_UNUSED(event);
+	qDebug() << "hover leave event";
 
 	setGraphicsEffect(0);
 
@@ -385,4 +394,14 @@ void AMThumbnailScrollGraphicsWidget::hoverLeaveEvent(QGraphicsSceneHoverEvent *
 			displayThumbnail(sourceObject_->thumbnail(tIndex_));
 		}
 	}
+
+	QGraphicsWidget::hoverLeaveEvent(event);
+}
+
+
+#include <QGraphicsSceneMouseEvent>
+
+void AMThumbnailScrollGraphicsWidget::mousePressEvent(QGraphicsSceneMouseEvent *event) {
+	qDebug() << "mouse press event!";
+	QGraphicsWidget::mousePressEvent(event);
 }

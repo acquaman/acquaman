@@ -716,6 +716,7 @@ AMDataViewSectionThumbnailView::AMDataViewSectionThumbnailView(AMDatabase* db, c
 
 	setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
+
 	populate();
 
 }
@@ -735,6 +736,7 @@ void AMDataViewSectionThumbnailView::onResize() {
 	if( int(gWidget_->geometry().width()) != internalWidth) {
 		gWidget_->setMinimumWidth(internalWidth);
 		gWidget_->setMaximumWidth(internalWidth);
+		gWidget_->resize(internalWidth, gWidget_->geometry().height());
 
 		gWidget_->layout()->invalidate();
 		gWidget_->layout()->activate();
@@ -749,7 +751,7 @@ void AMDataViewSectionThumbnailView::onResize() {
 
 	if( int(gWidget_->geometry().height()) != fullHeight ) {
 		gWidget_->setGeometry(0,0,internalWidth, fullHeight);
-		// scene_->setSceneRect(0,0,this->width(), fullHeight);
+		scene_->setSceneRect(0,0,this->width(), fullHeight);
 		setSceneRect(0,0,internalWidth, fullHeight);
 	}
 }
@@ -787,6 +789,15 @@ void AMDataViewSectionThumbnailView::populate() {
 		w->setCaption2(q.value(4).toDateTime().toString("MMM d (yyyy)  h:mmap"));
 		w->setWidth(thumbnailWidth_);
 		layout_->addItem(w);
+
+		/*
+		AMThumbnailScrollViewer* w = new AMThumbnailScrollViewer();
+		w->setSource(db_, q.value(0).toInt(), q.value(1).toInt());
+		QGraphicsProxyWidget* p = new QGraphicsProxyWidget(gWidget_);
+		w->setMinimumSize(240, 180);
+		p->setWidget(w);
+		layout_->addItem(p);
+		*/
 
 	}
 }
