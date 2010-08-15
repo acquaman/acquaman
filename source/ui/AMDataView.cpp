@@ -716,7 +716,6 @@ AMDataViewSectionThumbnailView::AMDataViewSectionThumbnailView(AMDatabase* db, c
 
 	setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-
 	populate();
 
 }

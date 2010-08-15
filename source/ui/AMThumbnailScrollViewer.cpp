@@ -191,8 +191,9 @@ AMThumbnailScrollWidget::AMThumbnailScrollWidget(const QString& caption1, const 
 
 
 AMThumbnailScrollGraphicsWidget::AMThumbnailScrollGraphicsWidget(QGraphicsItem* parent)
-	: QGraphicsWidget(parent) {
+	: QGraphicsItem(parent), QGraphicsLayoutItem() {
 	width_ = 240;
+	preferredWidth_ = 240;
 	textHeight_ = 30;
 
 	sourceIsDb_ = true;
@@ -298,12 +299,12 @@ void AMThumbnailScrollGraphicsWidget::displayThumbnail(AMDatabase* db, int id) {
 			pixmap_ = p;
 		}
 		else {
-			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, -1, "Invalid/un-implemented thumbnail type."));
+			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -1, "AMThumbnailScrollViewerGraphicsWidget: Invalid/un-implemented thumbnail type."));
 			pixmap_ = invalidPixmap();
 		}
 	}
 	else {
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, -1, QString("Could not retrieve thumbnail from database, with query '%1'. (id: %2) Error: \"%3\".").arg(q.executedQuery()).arg(id).arg(q.lastError().text())));
+		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -1, QString("AMThumbnailScrollViewerGraphicsWidget: Could not retrieve thumbnail from database, with query '%1'. (id: %2) Error: \"%3\".").arg(q.executedQuery()).arg(id).arg(q.lastError().text())));
 	}
 	update();
 }
@@ -331,8 +332,6 @@ QPixmap AMThumbnailScrollGraphicsWidget::invalidPixmap() {
 /// re-implemented from QGraphicsItem to change the thumbnail when the mouse is moved over top
 void AMThumbnailScrollGraphicsWidget::hoverMoveEvent(QGraphicsSceneHoverEvent *event) {
 
-	qDebug() << "hover move event";
-
 	double ratio = event->pos().x() / width_;
 
 	if(sourceIsDb_ && sourceDb_ && !ids_.isEmpty()) {
@@ -354,7 +353,7 @@ void AMThumbnailScrollGraphicsWidget::hoverMoveEvent(QGraphicsSceneHoverEvent *e
 		}
 	}
 
-	QGraphicsWidget::hoverMoveEvent(event);
+	QGraphicsItem::hoverMoveEvent(event);
 }
 
 #include <QGraphicsDropShadowEffect>
@@ -362,21 +361,16 @@ void AMThumbnailScrollGraphicsWidget::hoverMoveEvent(QGraphicsSceneHoverEvent *e
 
 void AMThumbnailScrollGraphicsWidget::hoverEnterEvent(QGraphicsSceneHoverEvent *event) {
 
-	qDebug() << "hover enter event";
-
-
-	QGraphicsDropShadowEffect* e = new QGraphicsDropShadowEffect(this);
+	QGraphicsDropShadowEffect* e = new QGraphicsDropShadowEffect();
 	e->setOffset(6, 4);
 	e->setBlurRadius(12);
 
 	this->setGraphicsEffect(e);
 
-	QGraphicsWidget::hoverEnterEvent(event);
+	QGraphicsItem::hoverEnterEvent(event);
 }
 
 void AMThumbnailScrollGraphicsWidget::hoverLeaveEvent(QGraphicsSceneHoverEvent *event) {
-
-	qDebug() << "hover leave event";
 
 	setGraphicsEffect(0);
 
@@ -395,13 +389,7 @@ void AMThumbnailScrollGraphicsWidget::hoverLeaveEvent(QGraphicsSceneHoverEvent *
 		}
 	}
 
-	QGraphicsWidget::hoverLeaveEvent(event);
+	QGraphicsItem::hoverLeaveEvent(event);
 }
 
 
-#include <QGraphicsSceneMouseEvent>
-
-void AMThumbnailScrollGraphicsWidget::mousePressEvent(QGraphicsSceneMouseEvent *event) {
-	qDebug() << "mouse press event!";
-	QGraphicsWidget::mousePressEvent(event);
-}

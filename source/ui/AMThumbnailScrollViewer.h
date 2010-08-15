@@ -91,7 +91,8 @@ protected:
 };
 
 
-#include <QGraphicsWidget>
+#include <QGraphicsItem>
+#include <QGraphicsLayoutItem>
 #include <QDebug>
 
 /// This is a high-performance version of AMThumbnailScrollWidget for use inside the QGraphicsView system
@@ -99,13 +100,13 @@ protected:
   You can start by reimplementing important functions: the protected sizeHint() function, as well as the public setGeometry() function. If you want your items to be aware of immediate geometry changes, you can also reimplement updateGeometry().
   */
 
-class AMThumbnailScrollGraphicsWidget : public QGraphicsWidget {
-	Q_OBJECT
+class AMThumbnailScrollGraphicsWidget : public QGraphicsItem, public QGraphicsLayoutItem {
+
 public:
 	explicit AMThumbnailScrollGraphicsWidget(QGraphicsItem* parent = 0);
 
 	virtual QRectF boundingRect() const {
-		return QRectF(0,0,width_, width_*3/4 + textHeight_);
+		return QRectF(0,0,width_, width_*3.0/4.0 + textHeight_);
 	}
 
 	virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
@@ -159,9 +160,20 @@ public:
 		update();
 	}
 
+	/*
+	QSizeF size() const {
+		return QSize(width_, width_*3.0/4.0+textHeight_);
+	}
+
+	QRectF geometry() const {
+		return QRectF(pos(), size());
+	}*/
+
+
+
 	static double textLineSpacing() { return 2; }
 
-public slots:
+public:
 	void setCaption1(const QString& text) {
 		c1_ = text;
 	}
@@ -199,14 +211,10 @@ protected:
 	static QPixmap invalidPixmap();
 
 
-	/// re-implemented from QGraphicsItem to change the thumbnail when the mouse is moved over top
-	virtual void hoverMoveEvent(QGraphicsSceneHoverEvent *event);
-	virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
-	virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
-
-	virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
-
-
+	/// re-implemented from QGraphicsWidget to change the thumbnail when the mouse is moved over top
+	void hoverMoveEvent(QGraphicsSceneHoverEvent *event);
+	void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
+	void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
 
 	QSizeF sizeHint(Qt::SizeHint which, const QSizeF &constraint) const {
 
@@ -214,6 +222,27 @@ protected:
 		Q_UNUSED(constraint)
 
 		return QSizeF(preferredWidth_, preferredWidth_*3/4 + textHeight_);
+	}
+
+};
+
+#include <QGraphicsWidget>
+class AMRectGW : public QGraphicsWidget {
+public:
+	AMRectGW(QGraphicsItem* parent) : QGraphicsWidget(parent) {
+		setGeometry(0,0,100,100);
+		setAcceptHoverEvents(true);
+		// this->setBrush(QColor(Qt::red));
+	}
+
+protected:
+	void hoverEnterEvent(QGraphicsSceneHoverEvent *event) {
+		qDebug() << "hover enter";
+		QGraphicsWidget::hoverEnterEvent(event);
+	}
+	void mousePressEvent(QGraphicsSceneMouseEvent *event) {
+		qDebug() << "press event";
+		QGraphicsWidget::mousePressEvent(event);
 	}
 
 };

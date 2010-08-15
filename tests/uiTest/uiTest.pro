@@ -114,6 +114,7 @@ HEADERS +=	../MPlot/src/MPlot/MPlot.h	\
 	source/ui/AMCramBarHorizontal.h	\
 	source/ui/AMFirstTimeWidget.h	\
 	source/ui/AMScanView.h	\
+	source/ui/AMThumbnailScrollViewer.h \
 	source/ui/AMSidebar.h
 
 FORMS +=
@@ -143,5 +144,6 @@ SOURCES +=	source/AMErrorMonitor.cpp	\
 	source/ui/AMCramBarHorizontal.cpp	\
 	source/ui/AMScanView.cpp	\
 	source/ui/AMSidebar.cpp	\
+	source/ui/AMThumbnailScrollViewer.cpp \
 	tests.cpp
 RESOURCES =	source/icons/icons.qrc

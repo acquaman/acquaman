@@ -9,6 +9,7 @@
 #include "ui/AMComboBox.h"
 #include "ui/AMNewRunDialog.h"
 #include "dataman/AMRun.h"
+#include "ui/AMThumbnailScrollViewer.h"
 
 #include "dataman/AMFirstTimeController.h"
 #include "AMErrorMonitor.h"
@@ -38,6 +39,47 @@ private slots:
 		AMDatabase::releaseUserDb();
 	}
 
+
+	void testThumbnailGraphicsWidget() {
+		QGraphicsView* view = new QGraphicsView();
+		view->resize(300,300);
+		view->show();
+
+		QGraphicsScene* scene = new QGraphicsScene(view);
+		view->setScene(scene);
+
+		AMThumbnailScrollGraphicsWidget* g = new AMThumbnailScrollGraphicsWidget(0);
+		g->setSource(AMDatabase::userdb(), 1, 4);
+		scene->addItem(g);
+		g->setVisible(true);
+		g->setGeometry(QRectF(0,0,240,180));
+		g->setWidth(240);
+		view->setSceneRect(0,0,400,400);
+		qDebug() << "widget is active:" << g->isActive();
+		qDebug() << "scene is active:" << scene->isActive();
+		qDebug() << "view is active" << view->isActiveWindow();
+		qDebug() << "accepts hover events?" << g->acceptsHoverEvents();
+
+		qDebug() << "accepts hover events?" << g->acceptHoverEvents();
+
+		qDebug() << "geometry" << g->geometry();
+		qDebug() << "bounding rect" << g->boundingRect();
+		qDebug() << "shape" << g->shape();
+
+
+		//scene->setFocus(Qt::MouseFocusReason);
+		//view->setMouseTracking(true);
+
+		//g->grabMouse();
+
+		QTest::qWait(15000);
+
+		delete view;
+
+	}
+
+
+	/*
 	/// Test to confirm that new run dialog works.
 	void testRunDialog() {
 
@@ -47,10 +89,12 @@ private slots:
 
 
 
-		QTest::qWait(200000);
+		QTest::qWait(5000);
 
+		delete window;
 
 	}
+
 
 
 	void testAMSidebar() {
@@ -82,6 +126,7 @@ private slots:
 		QTest::qWait(40000);
 
 	}
+	*/
 	/*
 
 	void testAMScanSetModel() {
