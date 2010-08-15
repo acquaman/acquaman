@@ -7,6 +7,21 @@
 #include "ui_AMDataViewEmptyHeader.h"
 #include "dataman/AMDatabase.h"
 
+#include <QGraphicsView>
+#include <QGraphicsScene>
+#include <QGraphicsWidget>
+#include <QGraphicsLinearLayout>
+
+/*!
+  \todo
+  - convert entire scroll area to QGraphicsView
+  - additional 3 views
+  - buttons: expand all, collapse all, set default thumbnail, slider for size
+  - progress bar or loading throbber (and process system events)
+  - drag to experiment to add to exp.
+  - double-click: open editor window (through AMAppController)
+  */
+
 namespace AMDataViews {
 	enum ViewMode { ThumbnailView, ListView, FlowView, DetailView };
 	enum OrganizeMode { OrganizeNone, OrganizeRuns, OrganizeExperiments, OrganizeScanTypes, OrganizeSamples, OrganizeElements };
@@ -58,7 +73,11 @@ protected:
 
 	// UI components:
 	QButtonGroup* viewModeButtonGroup_;
-	QVBoxLayout* sectionLayout_;
+	QGraphicsView* gview_;
+	QGraphicsScene* gscene_;
+	QGraphicsWidget* gwidget_;
+	QGraphicsLinearLayout* sectionLayout_;
+
 
 	/// This function runs everytime showRun() or showExperiment() is called, or a change is made to the OrganizeMode or ViewMode.  It re-populates the view from scratch.
 	void refreshView();

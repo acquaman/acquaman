@@ -17,6 +17,8 @@ AMScan::AMScan(QObject *parent)
 	metaData_["runId"] = QVariant();
 	metaData_["sampleId"] = QVariant();
 	metaData_["notes"] = QString();
+	metaData_["fileFormat"] = QString("unknown");
+	metaData_["filePath"] = QString();
 }
 
 

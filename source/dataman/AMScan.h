@@ -101,11 +101,9 @@ public:
 	bool addChannel(AMChannel* newChannel) {
 		if(!newChannel->isValid())
 			return false;
-		qDebug() << "begin insert rows (channelList)";
 		beginInsertRows(QModelIndex(), ch_.count(), ch_.count());
 		ch_.append(newChannel);
 		name2chIndex_.set(newChannel->name(), ch_.count()-1);
-		qDebug() << "end insert rows (channelList)";
 		endInsertRows();
 		return true;
 	}
@@ -196,6 +194,9 @@ public:
 	/// Convenience function: returns the name of the sample (if a sample is set)
 	QString sampleName() const;
 
+	/// The string describing the format of the stored raw data file
+	QString fileFormat() const { return metaData_["fileFormat"].toString(); }
+
 
 	// Meta-data system
 	/////////////////////////////////////////////
@@ -215,6 +216,8 @@ public:
 		rv << AMMetaMetaData(QVariant::String, "notes", true);
 		rv << AMMetaMetaData(QVariant::StringList, "channelNames", false);
 		rv << AMMetaMetaData(QVariant::StringList, "channelExpressions", false);
+		rv << AMMetaMetaData(QVariant::String, "fileFormat", false);
+		rv << AMMetaMetaData(QVariant::String, "filePath", false);
 		return rv;
 	}
 

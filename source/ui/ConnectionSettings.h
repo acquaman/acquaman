@@ -9,7 +9,7 @@
 #include "beamline/AMControlState.h"
 #include "ui/NumericControl.h"
 #include "acquaman/SGM/SGMXASDacqScanController.h"
-#include "dataman/SGMLegacyFileImporter.h"
+#include "dataman/SGM2004FileLoader.h"
 
 #include "../MPlot/src/MPlot/MPlotWidget.h"
 #include "../MPlot/src/MPlot/MPlotSeriesData.h"
@@ -152,7 +152,7 @@ public slots:
 		void onRestoreRequested(){
 
 			AMXASScan *s1 = new AMXASScan();
-//			SGMLegacyFileImporter *s1Loader = new SGMLegacyFileImporter(s1);
+//			SGM2004FileLoader *s1Loader = new SGM2004FileLoader(s1);
 //			if(!s1Loader->loadFromFile(AMUserSettings::userDataFolder + "001.dat"))
 //					qDebug() << "FAIL WHALE!";
 

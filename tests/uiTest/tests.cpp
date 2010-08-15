@@ -2,7 +2,7 @@
 
 #include "AMSettings.h"
 #include "dataman/AMXASScan.h"
-#include "dataman/SGMLegacyFileImporter.h"
+#include "dataman/SGM2004FileLoader.h"
 
 #include "ui/AMScanView.h"
 #include "ui/AMSidebar.h"
@@ -150,7 +150,7 @@ private slots:
 		QTest::qWait(2000);
 
 
-		SGMLegacyFileImporter s1Loader(&s1);
+		SGM2004FileLoader s1Loader(&s1);
 		QString fileName = AMUserSettings::userDataFolder + "001.dat";
 
 		QVERIFY(s1Loader.loadFromFile(fileName));
@@ -243,7 +243,7 @@ private slots:
 		QTest::qWait(2000);
 
 
-		SGMLegacyFileImporter s1Loader(&s1);
+		SGM2004FileLoader s1Loader(&s1);
 		QString fileName = AMUserSettings::userDataFolder + "001.dat";
 
 		QVERIFY(s1Loader.loadFromFile(fileName));
@@ -331,7 +331,7 @@ private slots:
 		QTest::qWait(2000);
 
 
-		SGMLegacyFileImporter s1Loader(&s1);
+		SGM2004FileLoader s1Loader(&s1);
 		QString fileName = AMUserSettings::userDataFolder + "001.dat";
 
 		QVERIFY(s1Loader.loadFromFile(fileName));
@@ -420,7 +420,7 @@ private slots:
 		QTest::qWait(2000);
 
 
-		SGMLegacyFileImporter s1Loader(&s1);
+		SGM2004FileLoader s1Loader(&s1);
 		QString fileName = AMUserSettings::userDataFolder + "001.dat";
 
 		QVERIFY(s1Loader.loadFromFile(fileName));
@@ -504,7 +504,7 @@ private slots:
 		QTest::qWait(2000);
 
 
-		SGMLegacyFileImporter s1Loader(&s1);
+		SGM2004FileLoader s1Loader(&s1);
 		QString fileName = AMUserSettings::userDataFolder + "001.dat";
 
 		QVERIFY(s1Loader.loadFromFile(fileName));

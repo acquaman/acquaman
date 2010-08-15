@@ -2,7 +2,7 @@
 
 
 #include "dataman/AMXASScan.h"
-#include "dataman/SGMLegacyFileImporter.h"
+#include "dataman/SGM2004FileLoader.h"
 #include "ui/AMImportControllerWidget.h"
 
 #include <QDir>
@@ -13,13 +13,14 @@
 AMScan* SGMLegacyImporter::import(const QString& fullPath) {
 
 	AMXASScan* rv = new AMXASScan();
-	SGMLegacyFileImporter loader(rv);
+	SGM2004FileLoader loader(rv);
 	if(loader.loadFromFile(fullPath, true, true)) {
 
 		// what should we name this scan?
 		QString name = QDir::fromNativeSeparators(fullPath);
 		// remove folders
 		name = name.split(QChar('/')).last();
+		QString nameAndExt = name;
 		// remove the extension
 		name = name.left(name.lastIndexOf(QChar('.')));
 		// find a number?
@@ -33,6 +34,23 @@ AMScan* SGMLegacyImporter::import(const QString& fullPath) {
 			rv->setName(name);
 			rv->setNumber(0);
 		}
+
+
+		// copy the raw data file to the library:
+		QDir dir;
+		QString path = AMUserSettings::userDataFolder + rv->dateTime().toString("/yyyy/MM");
+		dir.mkpath(path);
+		path.append("/").append(nameAndExt);
+		if(!QFile::copy(fullPath, path)) {
+			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -2, "SGM2004FileImporter: Could not copy the imported file into the library. Maybe this file exists already?"));
+			delete rv;
+			return 0;
+		}
+
+		// remember the file format, for re-loading:
+		rv->setMetaData("fileFormat", loader.formatTag() );
+		rv->setMetaData("filePath", path);
+		qDebug() << "path:" << path;
 
 		return rv;
 	}
@@ -247,8 +265,10 @@ void AMImportController::finalizeImport() {
 		currentScan_->setSampleId(w_->sampleEdit->value());
 		currentScan_->setRunId(w_->runEdit->currentRunId());
 
-		currentScan_->storeToDb(AMDatabase::userdb());
-		numSuccess_++;
+		if(currentScan_->storeToDb(AMDatabase::userdb()))
+			numSuccess_++;
+		else
+			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, -1, "The file was loaded correctly, but it could not be saved to the database."));
 
 		w_->thumbnailViewer->setSource(0);
 		delete currentScan_;

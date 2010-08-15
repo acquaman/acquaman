@@ -50,7 +50,7 @@ protected:
 	QString legacyGrating_;
 	QString legacyIntegrationTime_;
 
-	friend class SGMLegacyFileImporter;
+	friend class SGM2004FileLoader;
 
 };
 

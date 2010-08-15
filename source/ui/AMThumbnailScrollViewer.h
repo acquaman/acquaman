@@ -144,11 +144,7 @@ public:
 	}
 
 	void setWidth(double width) {
-		/*
-		prepareGeometryChange();
-		width_ = width;
-		update();
-		*/
+
 		preferredWidth_ = width;
 		updateGeometry();
 	}
@@ -160,18 +156,9 @@ public:
 		update();
 	}
 
-	/*
-	QSizeF size() const {
-		return QSize(width_, width_*3.0/4.0+textHeight_);
-	}
-
-	QRectF geometry() const {
-		return QRectF(pos(), size());
-	}*/
-
-
-
 	static double textLineSpacing() { return 2; }
+	static double marginLeft() { return 10; }
+	static double marginTop() { return 5; }
 
 public:
 	void setCaption1(const QString& text) {

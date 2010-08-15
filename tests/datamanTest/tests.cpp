@@ -5,7 +5,7 @@
 #include "dataman/AMDbLoader.h"
 #include "dataman/AMDataTree.h"
 #include "dataman/AMXASScan.h"
-#include "dataman/SGMLegacyFileImporter.h"
+#include "dataman/SGM2004FileLoader.h"
 
 #include "dataman/AMFirstTimeController.h"
 #include "AMErrorMonitor.h"
@@ -654,11 +654,11 @@ class TestDataman: public QObject
 	}
 
 
-	/// test loading an AMXASScan from legacy SGM data. Also tests creation of default channels inside SGMLegacyFileImporter::loadFromFile(), and tests
+	/// test loading an AMXASScan from legacy SGM data. Also tests creation of default channels inside SGM2004FileLoader::loadFromFile(), and tests
 	/*
 	void loadAMXASScan() {
 		AMXASScan s1;
-		SGMLegacyFileImporter s1Loader(&s1);
+		SGM2004FileLoader s1Loader(&s1);
 		/// \todo move this into proper storage location in data dir.
 		QString fileName = AMUserSettings::userDataFolder + "001.dat";
 //		qDebug() << "loading sgm data from file and checking for proper read:" << fileName;
@@ -687,7 +687,7 @@ class TestDataman: public QObject
 	/// Using test file 001.dat, tests AMChannel expressions (setting expression, setting xExpression, using default xExpression, evaluating expressions, setting and evaluating invalid expressions)
 	void testAMChannel() {
 		AMXASScan s1;
-		SGMLegacyFileImporter s1Loader(&s1);
+		SGM2004FileLoader s1Loader(&s1);
 		/// \todo move this into proper storage location in data dir.
 		QString fileName = AMUserSettings::userDataFolder + "001.dat";
 		//qDebug() << "loading sgm data from file and checking for proper read:" << fileName;

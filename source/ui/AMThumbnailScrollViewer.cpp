@@ -224,13 +224,13 @@ void AMThumbnailScrollGraphicsWidget::paint(QPainter *painter, const QStyleOptio
 	QRectF tRect;
 	painter->setFont(QFont("Lucida Grande", 12, QFont::DemiBold));
 	painter->setPen(QColor::fromRgb(25,25,25));
-	painter->drawText( QRectF(0,0, width_, 30),
+	painter->drawText( QRectF(0,marginTop(), width_-marginLeft(), 30),
 					   Qt::AlignRight | Qt::AlignTop,
 					   title_,
 					   &tRect);
 	painter->setFont(QFont("Lucida Grande", 12, QFont::Light, true));
 	painter->setPen(QColor::fromRgb(167,167,167));
-	painter->drawText( QRectF(0,tRect.height(),width_, 30),
+	painter->drawText( QRectF(0,textLineSpacing()+marginTop()+tRect.height(),width_-marginLeft(), 30),
 					   Qt::AlignRight | Qt::AlignTop,
 					   subtitle_);
 

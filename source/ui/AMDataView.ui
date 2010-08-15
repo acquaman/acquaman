@@ -149,29 +149,6 @@ color: rgb(79, 79, 79);</string>
      </item>
     </layout>
    </item>
-   <item>
-    <widget class="QScrollArea" name="scrollArea_">
-     <property name="verticalScrollBarPolicy">
-      <enum>Qt::ScrollBarAlwaysOn</enum>
-     </property>
-     <property name="horizontalScrollBarPolicy">
-      <enum>Qt::ScrollBarAlwaysOff</enum>
-     </property>
-     <property name="widgetResizable">
-      <bool>true</bool>
-     </property>
-     <widget class="QWidget" name="scrollAreaWidget_">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>557</width>
-        <height>236</height>
-       </rect>
-      </property>
-     </widget>
-    </widget>
-   </item>
   </layout>
  </widget>
  <resources>

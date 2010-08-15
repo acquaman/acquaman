@@ -98,7 +98,7 @@ HEADERS +=	../MPlot/src/MPlot/MPlot.h	\
 	source/dataman/AMScan.h	\
 	source/dataman/AMScanSetModel.h	\
 	source/dataman/AMXASScan.h	\
-	source/dataman/SGMLegacyFileImporter.h	\
+	source/dataman/SGM2004FileLoader.h	\
 	source/muParser/muParser.h	\
 	source/muParser/muParserBase.h	\
 	source/muParser/muParserBytecode.h	\
@@ -132,7 +132,7 @@ SOURCES +=	source/AMErrorMonitor.cpp	\
 	source/dataman/AMScan.cpp	\
 	source/dataman/AMScanSetModel.cpp	\
 	source/dataman/AMXASScan.cpp	\
-	source/dataman/SGMLegacyFileImporter.cpp	\
+	source/dataman/SGM2004FileLoader.cpp	\
 	source/muParser/muParser.cpp	\
 	source/muParser/muParserBase.cpp	\
 	source/muParser/muParserBytecode.cpp	\
