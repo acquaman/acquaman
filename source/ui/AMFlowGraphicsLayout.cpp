@@ -46,6 +46,8 @@
 #include <QtGui/qwidget.h>
 #include <QtCore/qmath.h>
 
+#include <QDebug>
+
 AMFlowGraphicsLayout::AMFlowGraphicsLayout()
 {
 	m_spacing[0] = 6;
@@ -53,6 +55,34 @@ AMFlowGraphicsLayout::AMFlowGraphicsLayout()
 	QSizePolicy sp = sizePolicy();
 	sp.setHeightForWidth(true);
 	setSizePolicy(sp);
+
+	widthConstraint_ = -1;
+
+}
+
+/*! A common situation is for graphics items to inherit both from QGraphicsItem and QGraphicsLayoutItem. This creates an ambiguity into which "parent" owns the item: the QGraphicsItem* parent, or the parent layout (QGraphicsLayoutItem* parent).  [see QGraphicsLayoutItem::ownedByLayout().]
+
+If QGraphicsLayoutItem::ownedByLayout() is true, we must delete the items this layout contains when it is deleted.
+
+If not, we must remove them from the layout, because they might not be deleted yet, and this layout will soon be.
+
+\note This second scenario happens whenever a parent QGraphicsItem has a layout set on it, and is also the parent of the items within that layout.  Omitting this code causes crashes when the items themselves are deleted; they believe that they have a layout, but the layout is gone.
+
+This functionality probably belongs in ~QGraphicsLayout, but it isn't.
+*/
+AMFlowGraphicsLayout::~AMFlowGraphicsLayout() {
+
+	for (int i = count() - 1; i >= 0; --i) {
+
+		QGraphicsLayoutItem *item = itemAt(i);
+		removeAt(i);
+
+		if (item) {
+			item->setParentLayoutItem(0);
+			if (item->ownedByLayout())
+				delete item;
+		}
+	}
 }
 
 void AMFlowGraphicsLayout::insertItem(int index, QGraphicsLayoutItem *item)
@@ -142,12 +172,19 @@ QSizeF AMFlowGraphicsLayout::minSize(const QSizeF &constraint) const
 	QSizeF size(0, 0);
 	qreal left, top, right, bottom;
 	getContentsMargins(&left, &top, &right, &bottom);
+	// this mode gives a minimum size based on a constrained width, producing the height for that width.
 	if (constraint.width() >= 0) {   // height for width
 		const qreal height = doLayout(QRectF(QPointF(0,0), constraint), false);
 		size = QSizeF(constraint.width(), height);
-	} else if (constraint.height() >= 0) {  // width for height?
-		// not supported
-	} else {
+	}
+	// this mode is not implemented
+	else if (constraint.height() >= 0) {  // width for height?
+		qDebug() << "AMFlowGraphicsLayout: warning: width for height mode not supported by sizeHint(). Please specify a width constraint.";
+	}
+	// this mode returns the size of the largest item in the set of items.
+	else {
+		qDebug() << "AMFlowGraphicsLayout: warning: calling buggy version of sizeHint(Qt::MinimumSize). Please specify a width constraint.";
+
 		QGraphicsLayoutItem *item;
 		foreach (item, m_items)
 			size = size.expandedTo(item->effectiveSizeHint(Qt::MinimumSize));
@@ -155,6 +192,7 @@ QSizeF AMFlowGraphicsLayout::minSize(const QSizeF &constraint) const
 	}
 	return size;
 }
+
 
 QSizeF AMFlowGraphicsLayout::prefSize() const
 {
@@ -199,15 +237,23 @@ QSizeF AMFlowGraphicsLayout::maxSize() const
 	return QSizeF(left + totalWidth + right, top + totalHeight + bottom);
 }
 
+
 QSizeF AMFlowGraphicsLayout::sizeHint(Qt::SizeHint which, const QSizeF &constraint) const
 {
 	QSizeF sh = constraint;
+
+	if(sh.width() < 0) {
+
+		sh.setWidth(widthConstraint_);
+	}
+
 	switch (which) {
 	case Qt::PreferredSize:
-		sh = prefSize();
+		//sh = prefSize();
+		sh = minSize(sh);
 		break;
 	case Qt::MinimumSize:
-		sh = minSize(constraint);
+		sh = minSize(sh);
 		break;
 	case Qt::MaximumSize:
 		sh = maxSize();
@@ -217,3 +263,4 @@ QSizeF AMFlowGraphicsLayout::sizeHint(Qt::SizeHint which, const QSizeF &constrai
 	}
 	return sh;
 }
+

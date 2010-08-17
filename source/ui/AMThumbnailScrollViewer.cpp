@@ -206,6 +206,9 @@ AMThumbnailScrollGraphicsWidget::AMThumbnailScrollGraphicsWidget(QGraphicsItem* 
 	setAcceptHoverEvents(true);
 	setAcceptsHoverEvents(true);
 
+	/// this item is deleted when its QGraphicsItem parent is deleted. The layout does not own this item.
+	setOwnedByLayout(false);
+
 }
 
 
@@ -362,8 +365,8 @@ void AMThumbnailScrollGraphicsWidget::hoverMoveEvent(QGraphicsSceneHoverEvent *e
 void AMThumbnailScrollGraphicsWidget::hoverEnterEvent(QGraphicsSceneHoverEvent *event) {
 
 	QGraphicsDropShadowEffect* e = new QGraphicsDropShadowEffect();
-	e->setOffset(6, 4);
-	e->setBlurRadius(12);
+	e->setOffset(shadowOffsetX(), shadowOffsetY());
+	e->setBlurRadius(shadowBlurRadius());
 
 	this->setGraphicsEffect(e);
 

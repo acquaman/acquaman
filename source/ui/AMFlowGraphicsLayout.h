@@ -51,6 +51,12 @@
  {
  public:
 	 AMFlowGraphicsLayout();
+
+	 /// Added by mark.boots@usask.ca to fix crashes when a layout is deleted before the layout items it contains.
+	 virtual ~AMFlowGraphicsLayout();
+	 /// Added to manually allow setting a width constraint, which will be used whenever the supplied width constraint is < 0:
+	 void setWidthConstraint(double widthConstraint) { widthConstraint_ = widthConstraint; updateGeometry();  }
+
 	 inline void addItem(QGraphicsLayoutItem *item);
 	 void insertItem(int index, QGraphicsLayoutItem *item);
 	 void setSpacing(Qt::Orientations o, qreal spacing);
@@ -64,6 +70,8 @@
 	 void removeAt(int index);
 
  protected:
+
+
 	 QSizeF sizeHint(Qt::SizeHint which, const QSizeF &constraint = QSizeF()) const;
 
  private:
@@ -72,8 +80,13 @@
 	 QSizeF prefSize() const;
 	 QSizeF maxSize() const;
 
+	 /// This function searches up through the hierachy of parentLayoutItems, finding the first one with a maximum width set (!= -1), and returns that for a width constraint.  If it doesn't find one, it returns -1 (no constraint).
+	 double findWidthConstraint(QGraphicsLayoutItem* parent) const;
+
 	 QList<QGraphicsLayoutItem*> m_items;
 	 qreal m_spacing[2];
+
+	 double widthConstraint_;
  };
 
  inline void AMFlowGraphicsLayout::addItem(QGraphicsLayoutItem *item)

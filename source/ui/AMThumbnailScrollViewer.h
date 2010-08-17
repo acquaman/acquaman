@@ -100,13 +100,20 @@ protected:
   You can start by reimplementing important functions: the protected sizeHint() function, as well as the public setGeometry() function. If you want your items to be aware of immediate geometry changes, you can also reimplement updateGeometry().
   */
 
+
 class AMThumbnailScrollGraphicsWidget : public QGraphicsItem, public QGraphicsLayoutItem {
 
 public:
 	explicit AMThumbnailScrollGraphicsWidget(QGraphicsItem* parent = 0);
+	virtual ~AMThumbnailScrollGraphicsWidget() {}
 
+
+	/// This bounding rect is just big enough for the picture box, the text underneath, and some extra room to erase the shadow graphics effect we apply when hover-overed
 	virtual QRectF boundingRect() const {
-		return QRectF(0,0,width_, width_*3.0/4.0 + textHeight_);
+		return QRectF(0,
+					  0,
+					  width_ + shadowBlurRadius(),
+					  width_*3.0/4.0 + textHeight_ + shadowBlurRadius());
 	}
 
 	virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
@@ -169,6 +176,11 @@ public:
 	}
 
 protected:
+	/// Some preferences/parameters:
+	static double shadowOffsetX() { return 6; }
+	static double shadowOffsetY() { return 4; }
+	static double shadowBlurRadius() { return 12; }
+
 	double preferredWidth_, width_, textHeight_;
 	QPixmap pixmap_;
 
