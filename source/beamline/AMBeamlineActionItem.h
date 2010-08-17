@@ -7,6 +7,9 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QDebug>
+#include <QMouseEvent>
+
+#define NATURAL_ACTION_VIEW_HEIGHT 62
 
 class AMBeamlineActionItem : public QObject
 {
@@ -50,6 +53,83 @@ protected:
 
 private:
 	QString type_;
+};
+
+class AMBeamlineActionView : public QFrame
+{
+	Q_OBJECT
+public:
+	AMBeamlineActionView(AMBeamlineActionItem *action, int index = 0, QWidget *parent = 0);
+
+	virtual AMBeamlineActionItem* action();
+	virtual QString viewType() const;
+
+public slots:
+	virtual void setIndex(int index);
+	virtual void setAction(AMBeamlineActionItem *scanAction);
+	virtual void defocusItem();
+
+signals:
+	void focusRequested(AMBeamlineActionItem *action);
+	void removeRequested(AMBeamlineActionItem *action);
+	void pauseRequested(AMBeamlineActionItem *action);
+	void resumeRequested(AMBeamlineActionItem *action);
+	void hideRequested(AMBeamlineActionItem *action);
+	void stopRequested(AMBeamlineActionItem *action);
+
+protected slots:
+	virtual void onInfoChanged() = 0;
+	virtual void onStopCancelButtonClicked() = 0;
+	virtual void onPlayPauseButtonClicked() = 0;
+	virtual void onHideButtonClicked() = 0;
+
+protected:
+	void mousePressEvent(QMouseEvent *event);
+
+	virtual void updateLook();
+
+protected:
+	AMBeamlineActionItem *action_;
+	int index_;
+	bool inFocus_;
+
+private:
+	QString viewType_;
+};
+
+class AMBeamlineActionHiddenView : public AMBeamlineActionView
+{
+	Q_OBJECT
+public:
+	AMBeamlineActionHiddenView(AMBeamlineActionItem* first, int count = 1, QWidget *parent = 0);
+	~AMBeamlineActionHiddenView();
+
+	virtual QString viewType() const;
+	virtual int count() const;
+
+public slots:
+	void setFirst(AMBeamlineActionItem *first);
+	void setCount(int count);
+
+signals:
+	void expandRequested(AMBeamlineActionItem* action);
+
+protected slots:
+	virtual void onInfoChanged();
+	virtual void onStopCancelButtonClicked();
+	virtual void onPlayPauseButtonClicked();
+	virtual void onHideButtonClicked();
+
+	virtual void onExpandButtonClicked();
+
+protected:
+	int count_;
+	QLabel *infoLabel_;
+	QPushButton *expandButton_;
+	QHBoxLayout *hl_;
+
+private:
+	QString viewType_;
 };
 
 class AMBeamlineActionItemView : public QWidget

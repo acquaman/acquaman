@@ -27,6 +27,26 @@ AMDacqScanController::AMDacqScanController(AMScanConfiguration *cfg, QObject *pa
 	connect(advAcq_, SIGNAL(sendCompletion(int)), this, SLOT(onSendCompletion(int)));
 }
 
+void AMDacqScanController::start(){
+	if(initialized_){
+	//	acqBaseOutput *abop = acqOutputHandlerFactory::new_acqOutput("AMScan", "File");
+		acqBaseOutput *abop = acqOutputHandlerFactory::new_acqOutput("AMScanSpectrum", "File");
+		if( abop)
+		{
+			acqRegisterOutputHandler( advAcq_->getMaster(), (acqKey_t) abop, &abop->handler);                // register the handler with the acquisition
+			abop->setProperty( "File Template", pCfg_()->fileName().toStdString());
+			abop->setProperty( "File Path", pCfg_()->filePath().toStdString());
+
+			((AMAcqScanSpectrumOutput*)abop)->setScan(pScan_());
+			advAcq_->Start();
+		}
+		else{
+			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -1, "AMDacqScanController: could not create output handler."));
+		}
+	}
+	else
+		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -1, "AMDacqScanController: attempted start on uninitialized controller."));
+}
 
 /// Cancel scan if currently running or paused
 void AMDacqScanController::cancel()
@@ -92,11 +112,11 @@ void AMDacqScanController::onStop()
 
 void AMDacqScanController::onPause(int mode)
 {
-	if(mode == 0){
+	if(mode == 1){
 		paused_ = TRUE;
 		emit paused();
 	}
-	else if(mode == 1){
+	else if(mode == 0){
 		paused_ = FALSE;
 		emit resumed();
 	}

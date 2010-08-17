@@ -44,6 +44,130 @@ bool AMBeamlineActionItem::setNext(AMBeamlineActionItem *next){
 	*/
 }
 
+AMBeamlineActionView::AMBeamlineActionView(AMBeamlineActionItem *action, int index, QWidget *parent) :
+		QFrame(parent)
+{
+	action_ = action;
+	index_ = index;
+	inFocus_ = false;
+	viewType_ = "actionView";
+	setLineWidth(1);
+	setFrameStyle(QFrame::StyledPanel);
+}
+
+AMBeamlineActionItem* AMBeamlineActionView::action(){
+	return action_;
+}
+
+QString AMBeamlineActionView::viewType() const{
+	return viewType_;
+}
+
+void AMBeamlineActionView::setIndex(int index){
+	index_ = index;
+}
+
+void AMBeamlineActionView::setAction(AMBeamlineActionItem *action){
+	action_ = action;
+}
+
+void AMBeamlineActionView::defocusItem(){
+	inFocus_ = false;
+	updateLook();
+}
+
+void AMBeamlineActionView::mousePressEvent(QMouseEvent *event){
+	if (event->button() != Qt::LeftButton) {
+		event->ignore();
+		return;
+	}
+	qDebug() << "Detected mouse click";
+	if(inFocus_)
+		defocusItem();
+	else{
+		inFocus_ = true;
+		updateLook();
+		emit focusRequested(action_);
+	}
+}
+
+void AMBeamlineActionView::updateLook(){
+	if(inFocus_)
+		setFrameStyle(QFrame::Box);
+	if(inFocus_)
+		setStyleSheet("AMBeamlineScanActionView { background : rgb(194, 210, 215) }");
+	else{
+		setStyleSheet("AMBeamlineScanActionView { background : rgb(230, 222, 214) }");
+		setFrameStyle(QFrame::StyledPanel);
+	}
+}
+
+AMBeamlineActionHiddenView::AMBeamlineActionHiddenView(AMBeamlineActionItem *first, int count, QWidget *parent) :
+		AMBeamlineActionView(first, 0, parent)
+{
+	count_ = count;
+	viewType_ = "hiddenView";
+
+	infoLabel_ = new QLabel("");
+	expandButton_ = new QPushButton("");
+	onInfoChanged();
+
+	hl_ = new QHBoxLayout();
+	hl_->addWidget(infoLabel_);
+	hl_->addWidget(expandButton_, 0, Qt::AlignRight);
+	setLayout(hl_);
+}
+
+AMBeamlineActionHiddenView::~AMBeamlineActionHiddenView(){
+	action_ = NULL;
+}
+
+QString AMBeamlineActionHiddenView::viewType() const{
+	return AMBeamlineActionView::viewType()+"."+viewType_;
+}
+
+int AMBeamlineActionHiddenView::count() const{
+	return count_;
+}
+
+void AMBeamlineActionHiddenView::setFirst(AMBeamlineActionItem *first){
+	setAction(first);
+}
+
+void AMBeamlineActionHiddenView::setCount(int count){
+	count_ = count;
+	onInfoChanged();
+}
+
+void AMBeamlineActionHiddenView::onInfoChanged(){
+	QString infoStr, buttonStr;
+	infoStr.setNum(count_);
+	buttonStr.setNum(count_);
+	infoStr.prepend("<");
+	infoStr.append(" Hidden Items>");
+	infoLabel_->setText(infoStr);
+	buttonStr.prepend("Expand ");
+	buttonStr.append(" Items");
+	expandButton_->setText(buttonStr);
+	connect(expandButton_, SIGNAL(clicked()), this, SLOT(onExpandButtonClicked()));
+}
+
+void AMBeamlineActionHiddenView::onStopCancelButtonClicked(){
+
+}
+
+void AMBeamlineActionHiddenView::onPlayPauseButtonClicked(){
+
+}
+
+void AMBeamlineActionHiddenView::onHideButtonClicked(){
+
+}
+
+void AMBeamlineActionHiddenView::onExpandButtonClicked(){
+	emit expandRequested(action_);
+}
+
 AMBeamlineActionItemView::AMBeamlineActionItemView(AMBeamlineActionItem *item, QWidget *parent) :
 		QWidget(parent)
 {

@@ -8,14 +8,17 @@
 #include <QFormLayout>
 #include <QDebug>
 #include <QQueue>
+#include <QComboBox>
+#include <QDoubleSpinBox>
 #include <QStringListModel>
 #include <QAbstractListModel>
 #include "beamline/AMBeamlineScanAction.h"
+#include "beamline/AMBeamlineControlMoveAction.h"
 
 class AMBeamlineActionListModel;
 class AMBeamlineActionsList;
 class AMBeamlineActionsListView;
-class BeamlineActionGraphicItem;
+class AMBeamlineActionAdder;
 
 class AMWorkflowManagerView : public QWidget
 {
@@ -32,16 +35,21 @@ signals:
 public slots:
 	void onStartScanRequested();
 	void onStartQueueRequested();
+	void onAddActionRequested();
 	void onAddToQueueRequested(AMScanConfiguration *cfg);
+	void onInsertActionRequested(AMBeamlineActionItem *action, int index);
 
 protected:
 	QLabel *placeHolder_;
 	QPushButton *startWorkflowButton_;
+	QPushButton *addActionButton_;
 	QVBoxLayout *vl_;
 
 	AMBeamlineActionsList *workflowActions_;
 	AMBeamlineActionsListView *workflowView_;
 	bool queueEmpty_;
+
+	AMBeamlineActionAdder *adder_;
 };
 
 class AMBeamlineActionListModel : public QAbstractListModel
@@ -99,6 +107,11 @@ public:
 	AMBeamlineActionsListView(AMBeamlineActionsList *actionsList, QWidget *parent = 0);
 
 	AMBeamlineActionItem* firstInQueue();
+	int indexOfFirst();
+	int visibleIndexOfFirst();
+
+signals:
+	void queueUpdated(QQueue<AMBeamlineActionItem*> actionQueue);
 
 protected slots:
 	void handleDataChanged(QModelIndex topLeft, QModelIndex bottomRight);
@@ -108,33 +121,57 @@ protected slots:
 
 	void onFocusRequested(AMBeamlineActionItem *action);
 	void onRemoveRequested(AMBeamlineActionItem *action);
-	void onScanSucceeded(AMBeamlineActionItem *action);
+	void onHideRequested(AMBeamlineActionItem *action);
+	void onExpandRequested(AMBeamlineActionItem *action);
+	void onActionStarted(AMBeamlineActionItem *action);
+	void onActionSucceeded(AMBeamlineActionItem *action);
 
 	void reindexViews();
 
 protected:
 	AMBeamlineActionsList *actionsList_;
 	QQueue<AMBeamlineActionItem*> actionsQueue_;
-	QList<AMBeamlineScanActionView*> viewList_;
-	QQueue<AMBeamlineScanActionView*> viewQueue_;
+	QList<AMBeamlineActionView*> fullViewList_;
+	QList<AMBeamlineActionView*> visibleViewList_;
+	QQueue<AMBeamlineActionView*> viewQueue_;
 	int focusAction_;
 	QGroupBox *gb_;
+	QScrollArea *sa_;
 	QVBoxLayout *iib;
 
 	int insertRowIndex_;
 };
 
-class BeamlineActionGraphicItem : public QGraphicsItem
+class AMBeamlineActionAdder : public QWidget
 {
+	Q_OBJECT
 public:
-	BeamlineActionGraphicItem(int width);
+	AMBeamlineActionAdder(QWidget *parent = 0);
 
-	QRectF boundingRect() const { return QRectF(0, -15, width_, 30);}
-	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+public slots:
+	virtual void onQueueUpdated(QQueue<AMBeamlineActionItem*> actionsQueue);
 
-private:
-	QColor color;
-	int width_;
+signals:
+	void insertActionRequested(AMBeamlineActionItem *action, int index);
+
+protected slots:
+	virtual void onActionTypeBoxUpdate(int curIndex);
+	virtual void onActionSubTypeBoxUpdate(int curIndex);
+
+	virtual void onNewMoveSetpoint(double value);
+	virtual void onAddMoveAction();
+
+protected:
+	QList<QStringList> subTypesLists_;
+	AMPVwStatusControl *movePV_;
+	double moveSetpoint_;
+
+	QVBoxLayout *vl_;
+	QComboBox *addWhereBox_;
+	QComboBox *actionTypeBox_;
+	QComboBox *actionSubTypeBox_;
+	QWidget *nextStepWidget_;
+	QDoubleSpinBox *moveSetpointDSB_;
 };
 
 #endif // AMWORKFLOWMANAGERVIEW_H

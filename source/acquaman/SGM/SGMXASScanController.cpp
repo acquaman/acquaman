@@ -38,6 +38,10 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 	*/
 }
 
+bool SGMXASScanController::isBeamlineInitialized() {
+	return beamlineInitialized_;
+}
+
 bool SGMXASScanController::beamlineInitialize(){
 	SGMBeamline::sgm()->exitSlitGap()->move( pCfg_()->exitSlitGap() );
 	SGMBeamline::sgm()->grating()->move( pCfg_()->grating() );
@@ -59,4 +63,12 @@ bool SGMXASScanController::beamlineInitialize(){
 
 	beamlineInitialized_ = true;
 	return beamlineInitialized_;
+}
+
+SGMXASScanConfiguration* SGMXASScanController::pCfg_(){
+	return *_pCfg_;
+}
+
+AMXASScan* SGMXASScanController::pScan_(){
+	return *_pScan_;
 }

@@ -17,6 +17,8 @@ public:
 
 	AMScanConfiguration* cfg() const { return cfg_;}
 	virtual QString type() const;
+	bool isPaused() const;
+
 
 signals:
 	void progress(double, double);
@@ -24,6 +26,7 @@ signals:
 public slots:
 	virtual void start();
 	virtual void pause(bool pause);
+	virtual void cancel();
 
 protected slots:
 	virtual void scanCancelled();
@@ -38,8 +41,7 @@ private:
 	QString type_;
 };
 
-//class AMBeamlineScanActionView : public QWidget
-class AMBeamlineScanActionView : public QFrame
+class AMBeamlineScanActionView : public AMBeamlineActionView
 {
 Q_OBJECT
 public:
@@ -48,40 +50,47 @@ public:
 	int index() const { return index_;}
 	AMBeamlineActionItem* action() { return scanAction_;}
 
+	virtual QString viewType() const;
+
 public slots:
 	void setIndex(int index);
 	void setAction(AMBeamlineScanAction *scanAction);
-	void defocusItem();
 
 signals:
-	void focusRequested(AMBeamlineActionItem *action);
-	void removeRequested(AMBeamlineActionItem *action);
-	void pauseRequested(AMBeamlineActionItem *action);
+	void scanStarted(AMBeamlineActionItem *action);
 	void scanSuceeded(AMBeamlineActionItem *action);
+	void scanCancelled(AMBeamlineActionItem *action);
 
 protected slots:
+	void onInfoChanged();
 	void updateScanNameLabel();
 	void updateProgressBar(double elapsed, double total);
 	void onScanStarted();
 	void onScanFinished();
-	void onRemoveButtonClicked();
-	void onPauseButtonClicked();
+	void onScanFailed(int explanation);
+	void onStopCancelButtonClicked();
+	void onPlayPauseButtonClicked();
+	void onHideButtonClicked();
 
 protected:
-	void mousePressEvent(QMouseEvent *event);
-
 	void updateLook();
 
 protected:
 	AMBeamlineScanAction *scanAction_;
-	int index_;
-	bool inFocus_;
+	bool cancelLatch_;
 
 	QLabel *scanNameLabel_;
 	QProgressBar *progressBar_;
 	QLabel *timeRemainingLabel_;
-	QPushButton *functionButton_;
+	QPushButton *stopCancelButton_;
+	QPushButton *playPauseButton_;
+	QPushButton *hideButton_;
 	QHBoxLayout *hl_;
+
+	QIcon closeIcon_, stopIcon_, startIcon_, pauseIcon_;
+
+private:
+	QString viewType_;
 };
 
 #endif // AMBEAMLINESCANACTION_H

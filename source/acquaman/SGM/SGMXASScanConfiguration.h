@@ -38,7 +38,7 @@ public slots:
 	bool setUsingPGT(bool active);
 	bool setUsingPGT(int checkedState);
 
-	bool setCfgDetectorInfoSet(AMDetectorInfoSet *cfgDetectorInfoSet) { cfgXASDetectors_ = cfgDetectorInfoSet;}
+	bool setCfgDetectorInfoSet(AMDetectorInfoSet *cfgDetectorInfoSet) { cfgXASDetectors_ = cfgDetectorInfoSet; return true; }
 
 
 signals:

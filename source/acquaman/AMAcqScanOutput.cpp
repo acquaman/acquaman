@@ -33,6 +33,17 @@ acqBaseOutput *
 	return new AMAcqScanOutput;
 }
 
+void AMAcqScanOutput::setScan(AMScan *scan){
+	scan_ = scan;
+//	series1->setModel(data1);
+	series1->setModel(scan_->channel(2));
+	plot->addItem(series1);
+	plot->setScalePadding(5);
+	plot->enableAutoScale(MPlotAxis::Left | MPlotAxis::Bottom);
+	plotWindow->resize(450, 450);
+	plotWindow->show();
+}
+
 /// C interface to the Constructor.
 /// these are important for dynamic library use!
 acqKey_t new_AMAcqScanOutput(void)

@@ -24,32 +24,13 @@ public slots:
 //    /// Sets a new scan configuration
 //    virtual void newConfigurationLoad(AMScanConfiguration &cfg);
 	/// Start scan running if not currently running or paused
-	virtual void start(){
-		if(initialized_){
-		//	acqBaseOutput *abop = acqOutputHandlerFactory::new_acqOutput("AMScan", "File");
-			acqBaseOutput *abop = acqOutputHandlerFactory::new_acqOutput("AMScanSpectrum", "File");
-			if( abop)
-			{
-				acqRegisterOutputHandler( advAcq_->getMaster(), (acqKey_t) abop, &abop->handler);                // register the handler with the acquisition
-				abop->setProperty( "File Template", pCfg_()->fileName().toStdString());
-				abop->setProperty( "File Path", pCfg_()->filePath().toStdString());
-
-				((AMAcqScanSpectrumOutput*)abop)->setScan(pScan_());
-				advAcq_->Start();
-			}
-			else{
-				AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -1, "AMDacqScanController: could not create output handler."));
-			}
-		}
-		else
-			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -1, "AMDacqScanController: attempted start on uninitialized controller."));
-	}
+	virtual void start();
 	/// Cancel scan if currently running or paused
 	virtual void cancel();
 	/// Pause scan if currently running
-	virtual void pause() {advAcq_->Pause(0);}
+	virtual void pause() { advAcq_->Pause(1);}
 	/// Resume scan if currently paused
-	virtual void resume(){ advAcq_->Pause(1);}
+	virtual void resume(){ advAcq_->Pause(0);}
 
 protected:
 	QEpicsAdvAcq *advAcq_;

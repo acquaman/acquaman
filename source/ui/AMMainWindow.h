@@ -58,7 +58,8 @@ public slots:
 
 	// void goToPane(const QVariant& paneVariant);
 
-
+signals:
+	void sidebarLinkChanged();
 
 protected slots:
 	/// Called when a link in the sidebar is clicked.  This should set the linked pane as the current widget, re-capturing it if necessary.

@@ -13,12 +13,12 @@ void SGMXASDacqScanController::initialize(){
 	emit initialized();
 }
 
-void SGMXASDacqScanController::start() {
+void SGMXASDacqScanController::start(){
 	bool loadSuccess;
 	if(pScan_()->detectorNames().contains("pgt"))
-		loadSuccess = advAcq_->setConfigFile("/Users/mboots/dev/acquaman/source/configurationFiles/pgt.cfg");
+		loadSuccess = advAcq_->setConfigFile("/home/reixs/beamline/programming/acquaman/devConfigurationFiles/pgt.cfg");
 	else
-		loadSuccess = advAcq_->setConfigFile("/Users/mboots/dev/acquaman/source/configurationFiles/defaultEnergy.cfg");
+		loadSuccess = advAcq_->setConfigFile("/home/reixs/beamline/programming/acquaman/devConfigurationFiles/defaultEnergy.cfg");
 	if(!loadSuccess){
 		qDebug() << "LIBRARY FAILED TO LOAD CONFIG FILE";
 		return;
