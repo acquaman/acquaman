@@ -36,5 +36,9 @@
         <file>128x128/folder.png</file>
         <file>22x22/arrow-white-down.png</file>
         <file>22x22/arrow-white-right.png</file>
+        <file>media-playback-pause-dark.png</file>
+        <file>media-playback-start.png</file>
+        <file>media-playback-start-dark.png</file>
+        <file>media-playback-stop-dark.png</file>
     </qresource>
 </RCC>
