@@ -15,7 +15,7 @@ AMNewRunDialog:: AMNewRunDialog(QWidget *parent)
 	QPushButton *okButton = new QPushButton("Okay");
 	QPushButton *cancelButton = new QPushButton("Cancel");
 	facilitySelectCb = new QComboBox();
-	runNameLineEdit = new QLineEdit();
+	runNameLineEdit = new AMPrefixSuffixLineEdit(QString(), QString(" [date]"));
 
 
 
@@ -88,8 +88,7 @@ void AMNewRunDialog::addFacility(){
 void AMNewRunDialog::facilitySelectCbChanged(int index) {
 	facilitySelectCb->setCurrentIndex(index);  //not a necessary line...
 	QString text = facilitySelectCb->currentText();
-	runNameLineEdit->clear();
-	runNameLineEdit->insert(text+"--");
+	runNameLineEdit->setText(text);
 }
 
 //This function is activated when the okay button is pressed, and will store the contents of the line edit as the name of the new run and the current facility's id as the new run's facility id

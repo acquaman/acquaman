@@ -39,6 +39,8 @@ signals:
 
 };
 
+#include <QCompleter>
+#include <QDirModel>
 class AMFirstTimeWizardPage : public QWizardPage
  {
 	 Q_OBJECT
@@ -52,6 +54,10 @@ class AMFirstTimeWizardPage : public QWizardPage
 		QFormLayout *layout = new QFormLayout();
 		userName = new QLineEdit();
 		userDataFolder = new QLineEdit();
+		folderCompleter = new QCompleter(this);
+		folderCompleter->setModel(new QDirModel(folderCompleter));
+		userDataFolder->setCompleter(folderCompleter);
+
 		AMFolderPathValidator* v = new AMFolderPathValidator(userDataFolder);
 		userDataFolder->setValidator(v);
 		browseButton = new QPushButton("Choose...");
@@ -86,6 +92,7 @@ protected slots:
 
  private:
 	 QLineEdit *userName, *userDataFolder;
+	 QCompleter* folderCompleter;
 	 QPushButton* browseButton;
 
 

@@ -115,7 +115,8 @@ HEADERS +=	../MPlot/src/MPlot/MPlot.h	\
 	source/ui/AMFirstTimeWidget.h	\
 	source/ui/AMScanView.h	\
 	source/ui/AMThumbnailScrollViewer.h \
-	source/ui/AMSidebar.h
+	source/ui/AMSidebar.h \
+	source/ui/AMPrefixSuffixLineEdit.h
 
 FORMS +=
 SOURCES +=	source/AMErrorMonitor.cpp	\
@@ -145,5 +146,6 @@ SOURCES +=	source/AMErrorMonitor.cpp	\
 	source/ui/AMScanView.cpp	\
 	source/ui/AMSidebar.cpp	\
 	source/ui/AMThumbnailScrollViewer.cpp \
+	source/ui/AMPrefixSuffixLineEdit.cpp \
 	tests.cpp
 RESOURCES =	source/icons/icons.qrc

@@ -8,6 +8,7 @@
 #include <QSqlQuery>
 #include <QGridLayout>
 #include "dataman/AMDatabase.h"
+#include "ui/AMPrefixSuffixLineEdit.h"
 #include "dataman/AMRun.h"
 
 class AMNewRunDialog: public QWidget
@@ -29,7 +30,7 @@ signals:
 protected:
 	void addFacility();
 	QComboBox *facilitySelectCb;
-	QLineEdit *runNameLineEdit;
+	AMPrefixSuffixLineEdit *runNameLineEdit;
 	QGridLayout *addRunsAndFacilitiesLayout;
 	AMDatabase* database_;
 };
