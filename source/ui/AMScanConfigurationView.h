@@ -19,18 +19,20 @@ public slots:
 	void onFreeToScan(bool ready);
 	void onAddedToQueue(AMScanConfiguration *cfg);
 
-	void setWorkflowPaneVariant(const QVariant &workflowPaneVariant);
+	/// This slot will be used to notify this widget when it becomes the current (active) widget
+	void onBecameCurrentWidget();
+
 
 signals:
 	void startScanRequested();
 	void addToQueueRequested(AMScanConfiguration *cfg);
-	void goToQueueRequested(const QVariant &workflowPaneVariant);
+	void goToQueueRequested();
 
 protected slots:
 	void createScanConfiguration();
 	void destroyScanConfigurationViewer();
 
-	void onSidebarLinkChanged();
+
 	void onStartScanRequested();
 	void onAddToQueueRequested();
 
@@ -47,7 +49,6 @@ protected:
 	AMScanConfigurationQueueDirector *director;
 	QVBoxLayout *vl_;
 
-	QVariant workflowPaneVariant_;
 };
 
 class AMScanConfigurationQueueDirector : public QWidget

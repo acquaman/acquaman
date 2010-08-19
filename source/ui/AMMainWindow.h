@@ -43,7 +43,7 @@ public:
 	/// Remove a pane widget but do not delete it.  Ownership is now the responsibility of the caller. The pane becomes a top-level window.
 	void removePane(QWidget* pane);
 
-	/// Access the main window's sidebar object
+	/// Access the main window's sidebar object... Careful; this shouldn't really be part of the public API.
 	AMSidebar* sidebar() {
 		return sidebar_;
 	}
@@ -56,10 +56,12 @@ public slots:
 	/// return a \c pane that was undocked back to the main window.  Does not set this pane as the current widget.
 	void dock(QWidget* pane);
 
-	// void goToPane(const QVariant& paneVariant);
+	/// Set this pane as the current widget
+	void goToPane(QWidget* pane);
 
 signals:
-	void sidebarLinkChanged();
+	/// advertises when a new widget was selected as the current widget
+	void currentPaneChanged(QWidget* pane);
 
 protected slots:
 	/// Called when a link in the sidebar is clicked.  This should set the linked pane as the current widget, re-capturing it if necessary.

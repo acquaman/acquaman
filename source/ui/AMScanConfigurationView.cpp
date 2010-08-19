@@ -31,9 +31,7 @@ void AMXASScanConfigurationHolder::onAddedToQueue(AMScanConfiguration *cfg){
 		director->showDirector();
 }
 
-void AMXASScanConfigurationHolder::setWorkflowPaneVariant(const QVariant &workflowPaneVariant){
-	workflowPaneVariant_ = workflowPaneVariant;
-}
+
 
 void AMXASScanConfigurationHolder::createScanConfiguration(){
 	cfg_ = new SGMXASScanConfiguration(this);
@@ -71,7 +69,7 @@ void AMXASScanConfigurationHolder::destroyScanConfigurationViewer(){
 	}
 }
 
-void AMXASScanConfigurationHolder::onSidebarLinkChanged(){
+void AMXASScanConfigurationHolder::onBecameCurrentWidget(){
 	if(!sxscViewer && isVisible() && SGMBeamline::sgm()->isConnected()){
 		createScanConfiguration();
 		sxscViewer = new SGMXASScanConfigurationViewer(cfg_, cfgDetectorInfoSet_);
@@ -103,12 +101,12 @@ void AMXASScanConfigurationHolder::onAddToQueueRequested(){
 
 void AMXASScanConfigurationHolder::goToQueue(){
 	destroyScanConfigurationViewer();
-	emit goToQueueRequested(workflowPaneVariant_);
+	emit goToQueueRequested();
 }
 
 void AMXASScanConfigurationHolder::goToNewScan(){
 	destroyScanConfigurationViewer();
-	onSidebarLinkChanged();
+	onBecameCurrentWidget();
 }
 
 AMScanConfigurationQueueDirector::AMScanConfigurationQueueDirector(QWidget *parent) :

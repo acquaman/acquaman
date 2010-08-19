@@ -55,40 +55,46 @@ AMAppController::AMAppController(QObject *parent) :
 	mw_ = new AMMainWindow();
 	mw_->setWindowTitle("Acquaman");
 
+	BottomBar* b = new BottomBar();
+	mw_->addBottomWidget(b);
+
 
 	// Create panes in the main window:
 	////////////////////////////////////
 
-	mw_->addPane(new ConnectionSettings(), "Beamline Control", "Dev Playground", ":/network-workgroup.png");
-	mw_->addPane(new SGMSampleTransferView(), "Beamline Control", "SGM Sample Transfer", ":/system-software-update.png");
+	connectionSettings_ = new ConnectionSettings();
+	mw_->addPane(connectionSettings_, "Beamline Control", "Dev Playground", ":/network-workgroup.png");
+
+	sampleTransferView_ = new SGMSampleTransferView();
+	mw_->addPane(sampleTransferView_, "Beamline Control", "SGM Sample Transfer", ":/system-software-update.png");
 	//	mw_->addPane(new SGMSamplePositioner(), "Beamline Control", "SGM Sample Position", ":/system-software-update.png");
-	mw_->addPane(new SamplePositions(), "Beamline Control", "Sample Positions", ":/system-software-update.png");
-	mw_->addPane(new GratingResolution(), "Beamline Control", "Gratings and Resolution", ":/system-search.png");
 
-	mw_->addPane(new AbsorptionScanController(), "Experiment Setup", "Absorption Scan", ":/utilities-system-monitor.png");
-	mw_->addPane(new EmissionScanController(), "Experiment Setup", "Emission Scan", ":/multimedia-volume-control.png");
+	samplePositions_ = new SamplePositions();
+	mw_->addPane(samplePositions_, "Beamline Control", "Sample Positions", ":/system-software-update.png");
 
-	//	SGMXASScanConfigurationViewer* sxscViewer = new SGMXASScanConfigurationViewer();
-	AMXASScanConfigurationHolder *scanViewer = new AMXASScanConfigurationHolder();
-//	AMScanConfigurationView *scanViewer = new AMScanConfigurationView();
-	connect(mw_, SIGNAL(sidebarLinkChanged()), scanViewer, SLOT(onSidebarLinkChanged()));
+	gratingResolution_ = new GratingResolution();
+	mw_->addPane(gratingResolution_, "Beamline Control", "Gratings and Resolution", ":/system-search.png");
 
-	//	mw_->addPane(sxscViewer, "Experiment Setup", "David Scan", ":/utilities-system-monitor.png");
-	mw_->addPane(scanViewer, "Experiment Setup", "SGM XAS Scan", ":/utilities-system-monitor.png");
-	// connect(sxscViewer, SIGNAL(scanControllerReady(AMScanController*)), this, SLOT(onScanControllerReady(AMScanController*)));
+	absorptionScanController_ = new AbsorptionScanController();
+	mw_->addPane(absorptionScanController_, "Experiment Setup", "Absorption Scan", ":/utilities-system-monitor.png");
 
-	AMWorkflowManagerView *wfViewer = new AMWorkflowManagerView();
-	QStandardItem *workflowPane;
-	workflowPane = mw_->addPane(wfViewer, "Experiment Tools", "Workflow", ":/user-away.png");
-	connect(scanViewer, SIGNAL(startScanRequested()), wfViewer, SLOT(onStartScanRequested()));
-	connect(wfViewer, SIGNAL(freeToScan(bool)), scanViewer, SLOT(onFreeToScan(bool)));
-	connect(scanViewer, SIGNAL(addToQueueRequested(AMScanConfiguration*)), wfViewer, SLOT(onAddToQueueRequested(AMScanConfiguration*)));
-	connect(wfViewer, SIGNAL(addedToQueue(AMScanConfiguration*)), scanViewer, SLOT(onAddedToQueue(AMScanConfiguration*)));
+	emissionScanController_ = new EmissionScanController();
+	mw_->addPane(emissionScanController_, "Experiment Setup", "Emission Scan", ":/multimedia-volume-control.png");
 
-	scanViewer->setWorkflowPaneVariant( qVariantFromValue((void*) workflowPane) );
-	connect(scanViewer, SIGNAL(goToQueueRequested(QVariant)), mw_, SLOT(goToPane(QVariant)));
+	scanConfigurationHolder_ = new AMXASScanConfigurationHolder();
+	mw_->addPane(scanConfigurationHolder_, "Experiment Setup", "SGM XAS Scan", ":/utilities-system-monitor.png");
 
-	//connect(scanViewer, SIGNAL(goToQueueRequested()), wfViewer, SLOT(show()));
+
+	workflowManagerView_ = new AMWorkflowManagerView();
+	mw_->addPane(workflowManagerView_, "Experiment Tools", "Workflow", ":/user-away.png");
+	connect(scanConfigurationHolder_, SIGNAL(startScanRequested()), workflowManagerView_, SLOT(onStartScanRequested()));
+	connect(workflowManagerView_, SIGNAL(freeToScan(bool)), scanConfigurationHolder_, SLOT(onFreeToScan(bool)));
+	connect(scanConfigurationHolder_, SIGNAL(addToQueueRequested(AMScanConfiguration*)), workflowManagerView_, SLOT(onAddToQueueRequested(AMScanConfiguration*)));
+	connect(workflowManagerView_, SIGNAL(addedToQueue(AMScanConfiguration*)), scanConfigurationHolder_, SLOT(onAddedToQueue(AMScanConfiguration*)));
+
+	connect(scanConfigurationHolder_, SIGNAL(goToQueueRequested()), this, SLOT(goToWorkflow()));
+
+
 
 	mw_->addPane(new Scheduler(), "Experiment Tools", "Scheduler", ":/user-away.png");
 	mw_->addPane(new PeriodicTable(), "Experiment Tools", "Periodic Table", ":/applications-science.png");
@@ -96,28 +102,27 @@ AMAppController::AMAppController(QObject *parent) :
 
 
 	// Make a dataview widget and add it under two links/headings: "Runs" and "Experiments"
-	AMDataView* dataView = new AMDataView();
-	QStandardItem* runsItem = mw_->addPane(dataView, "Data", "Runs", ":/22x22/view_calendar_upcoming_days.png");
-	QStandardItem* expItem = mw_->addPane(dataView, "Data", "Experiments", ":/applications-science.png");
+	dataView_ = new AMDataView();
+	QStandardItem* runsItem = mw_->addPane(dataView_, "Data", "Runs", ":/22x22/view_calendar_upcoming_days.png");
+	QStandardItem* expItem = mw_->addPane(dataView_, "Data", "Experiments", ":/applications-science.png");
 
 	// Hook into the sidebar and add Run and Experiment links below these headings.
 	runExperimentInsert_ = new AMRunExperimentInsert(AMDatabase::userdb(), runsItem, expItem, this);
 	connect(mw_->sidebar()->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), runExperimentInsert_, SLOT(onItemSelected(QModelIndex,QModelIndex)));
-	connect(runExperimentInsert_, SIGNAL(runSelected(int)), dataView, SLOT(showRun(int)));
-	connect(runExperimentInsert_, SIGNAL(experimentSelected(int)), dataView, SLOT(showExperiment(int)));
+	connect(runExperimentInsert_, SIGNAL(runSelected(int)), dataView_, SLOT(showRun(int)));
+	connect(runExperimentInsert_, SIGNAL(experimentSelected(int)), dataView_, SLOT(showExperiment(int)));
 
-
-	BottomBar* b = new BottomBar();
-	mw_->addBottomWidget(b);
 
 
 
 	// Make connections:
 	//////////////////////////////
 
+	connect(mw_, SIGNAL(currentPaneChanged(QWidget*)), this, SLOT(onCurrentPaneChanged(QWidget*)));
 
 
-	/*
+
+	/*! \todo: hook up bottom-bar signals to the active scan controller.
 void MainWindow::onScanControllerReady(AMScanController *scanController){
 	qDebug() << "\n\nScan controller is ready\n\n";
 	connect(bottomBar_, SIGNAL(pauseScanIssued()), scanController, SLOT(pause()));
@@ -180,5 +185,17 @@ AMAppController::~AMAppController() {
 void AMAppController::onActionImport() {
 
 	new AMImportController();
+
+}
+
+void AMAppController::goToWorkflow() {
+	mw_->goToPane(workflowManagerView_);
+}
+
+void AMAppController::onCurrentPaneChanged(QWidget *pane) {
+
+	// If the scanConfigurationHolder pane was activated, let it know:
+	if(pane == scanConfigurationHolder_)
+		scanConfigurationHolder_->onBecameCurrentWidget();
 
 }

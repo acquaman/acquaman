@@ -138,11 +138,25 @@ void AMMainWindow::dock(QWidget* pane) {
 	pane2isDocked_[pane] = true;
 }
 
-/*
-void AMMainWindow::goToPane(const QVariant &paneVariant){
-	QStandardItem *item = (QStandardItem*)paneVariant.value<void*>();
-	sidebar_->setCurrentIndex(item->index());
-}*/
+
+void AMMainWindow::goToPane(QWidget* pane){
+
+	// widget doesn't exist
+	if(!pane2isDocked_.contains(pane))
+		return;
+
+	// if its a docked widget, set as current widget
+	if(pane2isDocked_[pane]) {
+		previousPane_ = stackWidget_->currentWidget();
+		stackWidget_->setCurrentWidget(pane);
+	}
+
+	// if it's undocked, bring it to the front
+	else {
+		pane->activateWindow();
+		// unnecessary, since pane is a top-level window with no siblings: pane->raise();
+	}
+}
 
 void AMMainWindow::onSidebarLinkClicked(const QVariant& linkContent) {
 
@@ -185,7 +199,7 @@ void AMMainWindow::onFwdCurrentWidgetChanged(int currentIndex) {
 	if(pane2sidebarItems_.count(currentPane) == 1)
 		sidebar_->setHighlightedLink(pane2sidebarItems_.value(currentPane));
 
-	emit sidebarLinkChanged();
+	emit currentPaneChanged(currentPane);
 }
 
 
