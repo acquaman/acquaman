@@ -15,7 +15,7 @@ AMNewRunDialog:: AMNewRunDialog(QWidget *parent)
 	QPushButton *okButton = new QPushButton("Okay");
 	QPushButton *cancelButton = new QPushButton("Cancel");
 	facilitySelectCb = new QComboBox();
-	runNameLineEdit = new AMPrefixSuffixLineEdit(QString(), QString(" [date]"));
+	runNameLineEdit = new AMPrefixSuffixLineEdit(QString(), "[date]");
 
 
 
