@@ -697,7 +697,8 @@ void AMDataView::resizeEvent(QResizeEvent *event) {
 
 	Q_UNUSED(event);
 
-	QTimer::singleShot(0, this, SLOT(onResize()));
+	// QTimer::singleShot(0, this, SLOT(onResize()));
+	onResize();
 
 }
 

@@ -3,7 +3,7 @@
 AMSidebar::AMSidebar(QWidget* parent)
 	: QTreeView(parent) {
 
-	model_ = new QStandardItemModel(this);
+	model_ = new AMItemModel(this);
 	setModel(model_);
 
 	setHeaderHidden(true);
@@ -16,6 +16,12 @@ AMSidebar::AMSidebar(QWidget* parent)
 
 
 	setSelectionMode(QAbstractItemView::SingleSelection);
+
+	// accept drops onto items (specfically, experiment items, which are supposed to accept dropped scans)
+	setDragDropMode(QAbstractItemView::DropOnly);
+	setAcceptDrops(true);
+	setDropIndicatorShown(true);
+
 
 	connect(this, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onItemDoubleClicked(QModelIndex)));
 

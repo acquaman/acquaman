@@ -8,6 +8,9 @@
 
 #include "acquaman.h"
 
+
+#include "dataman/AMItemModel.h"
+
 /* Unused / removed...
 
 #define AMSIDEBAR_BG_COLOR 221, 227, 234
@@ -62,10 +65,16 @@ public:
 		return data(AM::WeightRole).toDouble() < other.data(AM::WeightRole).toDouble();
 	}
 
+	/// Re-implemented to designate as special type of QStandardItem
+	virtual int type() const {
+		return AM::SidebarItem;
+	}
+
 
 };
 
 #include <QFont>
+/// AMSidebarHeadings are restricted version of AMSidebarItems, that are only used to act as headings (or category titles) in a sidebar.
 class AMSidebarHeading : public AMSidebarItem {
 public:
 	explicit AMSidebarHeading(const QString& name, double weight = 0)
@@ -76,6 +85,11 @@ public:
 		setFont(font);
 		setData(QBrush(QColor::fromRgb(100, 109, 125)), Qt::ForegroundRole);
 	}
+
+	virtual int type() const {
+		return AM::SidebarHeadingItem;
+	}
+
 };
 
 /// This class provides an iTunes/iPhoto style left sidebar, which contains a list of links.  It supports collapsable category headers, icons, and nested lists.
@@ -136,7 +150,7 @@ signals:
 
 protected:
 
-	QStandardItemModel* model_;
+	AMItemModel* model_;
 	QHash<QString,AMSidebarHeading*> headings_;
 
 

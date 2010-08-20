@@ -1,4 +1,5 @@
 #include "AMRunExperimentInsert.h"
+#include "dataman/AMRunExperimentItems.h"
 #include "dataman/AMDatabase.h"
 #include "AMErrorMonitor.h"
 #include <QDateTime>
@@ -6,28 +7,7 @@
 
 
 
-QVariant AMRunModelItem::data(int role) const {
-	if(role == Qt::DisplayRole)
-		return QStandardItem::data(Qt::EditRole).toString() + QStandardItem::data(AM::DateTimeRole).toDateTime().toString(", MMM d (yyyy)");
-	else
-		return QStandardItem::data(role);
-}
 
-/// Re-implemented to save the edited run name back to the database:
-void AMRunModelItem::setData(const QVariant &value, int role) {
-	if(role == Qt::EditRole) {
-		db_->update( data(AM::IdRole).toInt(), "Runs", "name", value);
-	}
-	QStandardItem::setData(value, role);
-}
-
-/// Re-implemented to save the edited experiment name back to the database:
-void AMExperimentModelItem::setData(const QVariant &value, int role) {
-	if(role == Qt::EditRole) {
-		db_->update( data(AM::IdRole).toInt(), "Experiments", "name", value);
-	}
-	QStandardItem::setData(value, role);
-}
 
 AMRunExperimentInsert::AMRunExperimentInsert(AMDatabase* db, QStandardItem* runParent, QStandardItem* experimentParent, QObject *parent) :
 	QObject(parent)
@@ -37,7 +17,7 @@ AMRunExperimentInsert::AMRunExperimentInsert(AMDatabase* db, QStandardItem* runP
 
 	experimentItem_ = experimentParent;
 			// new QStandardItem(QIcon(":/applications-science.png"), "Experiments");
-	experimentItem_->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+	experimentItem_->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsDropEnabled);
 	runItem_ =  runParent;
 			//new QStandardItem(QIcon(":/22x22/view_calendar_upcoming_days.png"), "Runs");
 	runItem_->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);

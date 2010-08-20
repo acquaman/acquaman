@@ -116,7 +116,8 @@ HEADERS +=	../MPlot/src/MPlot/MPlot.h	\
 	source/ui/AMScanView.h	\
 	source/ui/AMThumbnailScrollViewer.h \
 	source/ui/AMSidebar.h \
-	source/ui/AMPrefixSuffixLineEdit.h
+	source/ui/AMPrefixSuffixLineEdit.h \
+	source/dataman/AMItemModel.h
 
 FORMS +=
 SOURCES +=	source/AMErrorMonitor.cpp	\
@@ -147,5 +148,6 @@ SOURCES +=	source/AMErrorMonitor.cpp	\
 	source/ui/AMSidebar.cpp	\
 	source/ui/AMThumbnailScrollViewer.cpp \
 	source/ui/AMPrefixSuffixLineEdit.cpp \
+	source/dataman/AMItemModel.cpp \
 	tests.cpp
 RESOURCES =	source/icons/icons.qrc

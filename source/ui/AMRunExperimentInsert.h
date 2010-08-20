@@ -6,47 +6,6 @@
 #include "acquaman.h"
 
 class AMDatabase;
-class AMSidebar;
-
-/// This subclass of QStandardItem provides the extra features needed to store and display the run name beside the run date, edit the run name, and store the edited name back to the database.
-class AMRunModelItem : public QStandardItem {
-
-public:
-	explicit AMRunModelItem(AMDatabase* db, int id, const QString& editText = QString()) : QStandardItem(editText) {
-		db_ = db;
-		setData(id, AM::IdRole);
-	}
-
-	/// Re-implemented from QStandardItem: Returns a special DisplayRole distinct from the EditRole. (The QStandardItem treat Qt::EditRole and Qt::DisplayRole as referring to the same data.)
-	virtual QVariant data(int role) const;
-
-	/// Re-implemented to order runs by date:
-	virtual bool operator< ( const QStandardItem & other ) const {
-		return data(AM::DateTimeRole).toDateTime() < other.data(AM::DateTimeRole).toDateTime();
-	}
-
-	/// Re-implemented to save the edited run name back to the database:
-	virtual void setData(const QVariant &value, int role);
-
-protected:
-	AMDatabase* db_;
-};
-
-/// This subclass of QStandardItem provides the extra features needed to store edited experiment names back to the database.
-class AMExperimentModelItem : public QStandardItem {
-
-public:
-	explicit AMExperimentModelItem(AMDatabase* db, int id, const QString& editText = QString()) : QStandardItem(editText) {
-		db_ = db;
-		setData(id, AM::IdRole);
-	}
-
-	/// Re-implemented to save the edited experiment name back to the database:
-	virtual void setData(const QVariant &value, int role);
-
-protected:
-	AMDatabase* db_;
-};
 
 /// This class provides an "insert" or "hook" into a tree view and item model. Given two existing items in the model, it will use these as a "run heading" and "experiment heading", and insert the runs and experiments found in the database underneath them.  Additionally, if you connect the view's selectionModel()'s QItemSelectionModel::currentChanged(QModelIndex,QModelIndex) signal to this class's onItemSelected(QModelIndex,QModelIndex) slot, it will be able to issue runSelected(id) and experimentSelected(id) signals.
 class AMRunExperimentInsert : public QObject
