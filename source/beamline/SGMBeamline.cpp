@@ -387,9 +387,13 @@ QMap<double, double> SGMFluxOptimization::curve(QList<QVariant> stateParameters,
 		tmpStart = contextParameters->start(x);
 		tmpDelta = contextParameters->delta(x);
 		tmpEnd = contextParameters->end(x);
-		for( double y = tmpStart; ((tmpDelta > 0) ? (y <= tmpEnd) : (y >= tmpEnd)); y += tmpDelta ){
+                if( tmpStart >= 250 && tmpStart <= 2000 && tmpEnd >= 250 && tmpEnd <= 2000 ){
+                    for( double y = tmpStart; ((tmpDelta > 0) ? (y <= tmpEnd) : (y >= tmpEnd)); y += tmpDelta ){
 			rCurve[y] = !SGMBeamline::sgm()->energyValidForSettings(_grating, _harmonic, y) ? 0.0 : (_slit/62500)*(500-_slit)* ( ((_minflux-_maxflux)/((_minimum-_maximum)*(_minimum-_maximum)))*(y-_maximum)*(y-_maximum)+_maxflux );
-		}
+                    }
+                }
+                else
+                    rCurve[250] = 0;
 	}
 	return rCurve;
 }
@@ -565,23 +569,29 @@ QMap<double, double> SGMResolutionOptimization::curve(QList<QVariant> stateParam
 	QMap<double, double> rCurve;
 	double tmpStart, tmpEnd, tmpDelta, tmpVal;
 	for( int x = 0; x < contextParameters->count(); x++){
-		tmpStart = contextParameters->start(x);
-		tmpDelta = contextParameters->delta(x);
-		tmpEnd = contextParameters->end(x);
+            tmpStart = contextParameters->start(x);
+            tmpDelta = contextParameters->delta(x);
+            tmpEnd = contextParameters->end(x);
 
+            if( tmpStart >= 250 && tmpStart <= 2000 && tmpEnd >= 250 && tmpEnd <= 2000 ){
 		for( double y = tmpStart; ((tmpDelta > 0) ? (y <= tmpEnd) : (y >= tmpEnd)); y += tmpDelta ){
-			//rCurve[y] = !SGMBeamline::sgm()->energyValidForSettings(_grating, _harmonic, y) ? 0.0 :y/(pow(10, C(2)*y*y + C(1)*y + C(0))*1e-3);
-			if(!SGMBeamline::sgm()->energyValidForSettings(_grating, _harmonic, y))
-				rCurve[y] = 0.0;
-			else{
-				rCurve[y] = y/(pow(10, C(2)*y*y + C(1)*y + C(0))*1e-3);
-				/*
+                    //rCurve[y] = !SGMBeamline::sgm()->energyValidForSettings(_grating, _harmonic, y) ? 0.0 :y/(pow(10, C(2)*y*y + C(1)*y + C(0))*1e-3);
+                    if(!SGMBeamline::sgm()->energyValidForSettings(_grating, _harmonic, y))
+                        rCurve[y] = 0.0;
+                    else{
+                        rCurve[y] = y/(pow(10, C(2)*y*y + C(1)*y + C(0))*1e-3);
+                        /*
 				tmpVal = y/(pow(10, C(2)*y*y + C(1)*y + C(0))*1e-3);
 				rCurve[y] = tmpVal - (1-exp(-tmpVal))*(tmpVal-_maxRes);
 				*/
-			}
+                    }
 		}
+            }
+            else
+                rCurve[250] = 0;
 	}
+
+
 	gsl_matrix_free (X);
 	gsl_vector_free (y);
 	gsl_vector_free (w);
