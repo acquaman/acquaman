@@ -17,7 +17,7 @@
 
 #include "ui/ConnectionSettings.h"
 #include "ui/SGMSampleTransferView.h"
-//#include "ui/SGMSamplePositioner.h"
+#include "ui/AMSamplePositionView.h"
 #include "ui/SamplePositions.h"
 #include "ui/GratingResolution.h"
 #include "ui/AbsorptionScanController.h"
@@ -67,10 +67,13 @@ AMAppController::AMAppController(QObject *parent) :
 
 	sampleTransferView_ = new SGMSampleTransferView();
 	mw_->addPane(sampleTransferView_, "Beamline Control", "SGM Sample Transfer", ":/system-software-update.png");
-	//	mw_->addPane(new SGMSamplePositioner(), "Beamline Control", "SGM Sample Position", ":/system-software-update.png");
 
-	samplePositions_ = new SamplePositions();
-	mw_->addPane(samplePositions_, "Beamline Control", "Sample Positions", ":/system-software-update.png");
+//	samplePositionView_ = new AMSamplePositionView();
+	samplePositionView_ = new SGMSamplePositionView();
+	mw_->addPane(samplePositionView_, "Beamline Control", "SGM Sample Position", ":/system-software-update.png");
+
+//	samplePositions_ = new SamplePositions();
+//	mw_->addPane(samplePositions_, "Beamline Control", "Sample Positions", ":/system-software-update.png");
 
 	gratingResolution_ = new GratingResolution();
 	mw_->addPane(gratingResolution_, "Beamline Control", "Gratings and Resolution", ":/system-search.png");

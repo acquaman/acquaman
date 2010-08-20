@@ -40,5 +40,7 @@
         <file>media-playback-start.png</file>
         <file>media-playback-start-dark.png</file>
         <file>media-playback-stop-dark.png</file>
+        <file>ArrowPlaneIn.png</file>
+        <file>ArrowPlaneOut.png</file>
     </qresource>
 </RCC>

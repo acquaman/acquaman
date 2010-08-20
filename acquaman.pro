@@ -188,7 +188,10 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
     source/beamline/AMBeamlineScanAction.h \
     source/dataman/AMAbstractFileLoader.h \
     source/beamline/AMBeamlineControlMoveAction.h \
-    source/ui/AMPrefixSuffixLineEdit.h
+    source/ui/AMPrefixSuffixLineEdit.h \
+    source/ui/AMSamplePositionView.h \
+    source/ui/AMSampleManipulatorView.h \
+    source/ui/AMSamplePlateView.h
 FORMS += source/ui/AbsorptionScanController.ui \
     source/ui/AMDataView.ui \
     source/ui/AMDataViewEmptyHeader.ui \
@@ -310,7 +313,10 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
     source/ui/AMWorkflowManagerView.cpp \
     source/beamline/AMBeamlineScanAction.cpp \
     source/beamline/AMBeamlineControlMoveAction.cpp \
-    source/ui/AMPrefixSuffixLineEdit.cpp
+    source/ui/AMPrefixSuffixLineEdit.cpp \
+    source/ui/AMSamplePositionView.cpp \
+    source/ui/AMSampleManipulatorView.cpp \
+    source/ui/AMSamplePlateView.cpp
 RESOURCES = source/icons/icons.qrc \
     source/configurationFiles/configurationFiles.qrc
 OTHER_FILES += source/muParser/README.txt

@@ -7,7 +7,7 @@
 class AMMainWindow;
 class ConnectionSettings;
 class SGMSampleTransferView;
-class SGMSamplePositioner;
+class AMSamplePositionView;
 class SamplePositions;
 class GratingResolution;
 class AbsorptionScanController;
@@ -67,7 +67,7 @@ protected:
 	// Top-level panes in the main window
 	ConnectionSettings* connectionSettings_;
 	SGMSampleTransferView* sampleTransferView_;
-	SGMSamplePositioner* samplePositioner_;
+	AMSamplePositionView* samplePositionView_;
 	SamplePositions* samplePositions_;
 	GratingResolution* gratingResolution_;
 	AbsorptionScanController* absorptionScanController_;
