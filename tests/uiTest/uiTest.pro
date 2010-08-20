@@ -5,14 +5,14 @@
 HOME_FOLDER = $$system(echo $HOME)
 
 macx {
-	EPICS_INCLUDE_DIRS = /Users/mboots/dev/epics/14-11/base/include \
-		/Users/mboots/dev/epics/14-11/base/include/os/Darwin
-	EPICS_LIB_DIR = /Users/mboots/dev/epics/14-11/base/lib/darwin-x86
-	MPLOT_INCLUDE_DIR = /Users/mboots/dev/MPlot/src
+        EPICS_INCLUDE_DIRS = $$HOME_FOLDER/dev/epics/14-11/base/include \
+                $$HOME_FOLDER/dev/epics/14-11/base/include/os/Darwin
+        EPICS_LIB_DIR = $$HOME_FOLDER/dev/epics/14-11/base/lib/darwin-x86
+        MPLOT_INCLUDE_DIR = $$HOME_FOLDER/dev/MPlot/src
 
-	GSL_INCLUDE_DIR=/Users/mboots/dev/gsl-install/include
-	GSL_LIB=-L/Users/mboots/dev/gsl-install/lib -lgsl
-	GSL_CBLAS_LIB=-L/Users/mboots/dev/gsl-install/lib -lgslcblas
+        GSL_INCLUDE_DIR=$$HOME_FOLDER/dev/gsl-install/include
+        GSL_LIB=-L$$HOME_FOLDER/dev/gsl-install/lib -lgsl
+        GSL_CBLAS_LIB=-L$$HOME_FOLDER/dev/gsl-install/lib -lgslcblas
 }
 linux-g++ {
 	EPICS_INCLUDE_DIRS = $$HOME_FOLDER/beamline/programming/epics/base/include \
