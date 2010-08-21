@@ -75,6 +75,7 @@ public:
 
 	AMControlSet* fluxResolutionSet() const { return fluxResolutionSet_;}
 	AMControlSet* trackingSet() const { return trackingSet_;}
+	AMControlSet* ssaManipulatorSet() const { return ssaManipulatorSet_; }
 	AMDetectorInfoSet* allDetectors() const { return allDetectors_;}
 	AMDetectorInfoSet* XASDetectors() const { return XASDetectors_;}
 
@@ -179,6 +180,7 @@ protected:
 	AMControlSet *fluxResolutionSet_;
 
 	AMControlSet *trackingSet_;
+	AMControlSet *ssaManipulatorSet_;
 	AMDetectorInfoSet *allDetectors_;
 	AMDetectorInfoSet *XASDetectors_;
 
