@@ -6,13 +6,14 @@
 #include "acquaman.h"
 
 class AMDatabase;
+class QAbstractItemView;
 
 /// This class provides an "insert" or "hook" into a tree view and item model. Given two existing items in the model, it will use these as a "run heading" and "experiment heading", and insert the runs and experiments found in the database underneath them.  Additionally, if you connect the view's selectionModel()'s QItemSelectionModel::currentChanged(QModelIndex,QModelIndex) signal to this class's onItemSelected(QModelIndex,QModelIndex) slot, it will be able to issue runSelected(id) and experimentSelected(id) signals.
 class AMRunExperimentInsert : public QObject
 {
 Q_OBJECT
 public:
-	explicit AMRunExperimentInsert(AMDatabase* db, QStandardItem* runHeading, QStandardItem* experimentHeading, QObject *parent = 0);
+	explicit AMRunExperimentInsert(AMDatabase* db, QStandardItem* runHeading, QStandardItem* experimentHeading, QAbstractItemView* view = 0, QObject *parent = 0);
 
 	virtual ~AMRunExperimentInsert() {
 		runItem_->removeRows(0, runItem_->rowCount());
@@ -33,8 +34,10 @@ public slots:
 
 
 protected slots:
-	/// This slot receives updated() signals from the database, and (if a refresh hasn't been scheduled yet), schedules a refreshRuns() or refreshExperiments() for once control returns to the Qt event loop.  This provides a performance boost by potentially only doing one refresh for multiple sequential database updates.
+	/// This slot receives updated() and removed() signals from the database, and (if a refresh hasn't been scheduled yet), schedules a refreshRuns() or refreshExperiments() for once control returns to the Qt event loop.  This provides a performance boost by potentially only doing one refresh for multiple sequential database updates.
 	void onDatabaseUpdated(const QString& table, int id);
+	/// This slot receives created() signals from the database.  It works the same as onDatabaseUpdated(), but for newly-created experiments, it selects them and starts editing them so that the user can enter their own name.
+	void onDatabaseObjectCreated(const QString& table, int id);
 
 	/// request data from the database and fill the model
 	void refreshRuns();
@@ -49,9 +52,15 @@ protected:
 	/// Top-level items (run header and experiment header)
 	QStandardItem *runItem_, *experimentItem_;
 
+	/// Optionally, you can initialize this with a pointer to a view. This breaks the model/view separation, but if you do, then we can select and start editing newly-added experiments, so the user can enter their desired name.
+	QAbstractItemView* view_;
+
 	AMDatabase* db_;
 	/// Indicates whether a refresh_ has already been scheduled. If it has, there's no point in scheduling another one.  These flags are cleared after the refreshes are completed.
 	bool runRefreshScheduled_, expRefreshScheduled_;
+
+	/// Used as a flag to indicate that a new experiment was just added... You should select and start editing this one so that the user can provide their desired name. Is equal to -1 in all other situations.
+	int newExperimentId_;
 };
 
 

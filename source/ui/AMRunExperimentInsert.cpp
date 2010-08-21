@@ -4,25 +4,31 @@
 #include "AMErrorMonitor.h"
 #include <QDateTime>
 #include <QTimer>
+#include <QAbstractItemView>
+#include <QTreeView>
 
 
 
 
 
-AMRunExperimentInsert::AMRunExperimentInsert(AMDatabase* db, QStandardItem* runParent, QStandardItem* experimentParent, QObject *parent) :
+AMRunExperimentInsert::AMRunExperimentInsert(AMDatabase* db, QStandardItem* runParent, QStandardItem* experimentParent, QAbstractItemView* view, QObject *parent) :
 	QObject(parent)
 {
 
 	db_ = db;
+	view_ = view;
+
+	newExperimentId_ = -1;
 
 	experimentItem_ = experimentParent;
 			// new QStandardItem(QIcon(":/applications-science.png"), "Experiments");
-	experimentItem_->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsDropEnabled);
+	experimentItem_->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
 	runItem_ =  runParent;
 			//new QStandardItem(QIcon(":/22x22/view_calendar_upcoming_days.png"), "Runs");
 	runItem_->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
 
 
+	connect(db_, SIGNAL(created(QString,int)), this, SLOT(onDatabaseObjectCreated(QString,int)));
 	connect(db_, SIGNAL(updated(QString,int)), this, SLOT(onDatabaseUpdated(QString,int)));
 	connect(db_, SIGNAL(removed(QString,int)), this, SLOT(onDatabaseUpdated(QString,int)));
 
@@ -45,6 +51,14 @@ void AMRunExperimentInsert::onDatabaseUpdated(const QString& table, int id) {
 		expRefreshScheduled_ = true;
 		QTimer::singleShot(0, this, SLOT(refreshExperiments()));
 	}
+}
+
+void AMRunExperimentInsert::onDatabaseObjectCreated(const QString& table, int id) {
+
+	onDatabaseUpdated(table, id);
+
+	if(table == "Experiments")
+		newExperimentId_ = id;
 }
 
 void AMRunExperimentInsert::refreshRuns() {
@@ -103,8 +117,10 @@ void AMRunExperimentInsert::refreshExperiments() {
 
 	while(q.next()) {
 
+		int id = q.value(1).toInt();
+
 		/// "editRole" and "displayRole" are just the name:
-		AMExperimentModelItem* item = new AMExperimentModelItem(db_, q.value(1).toInt(), q.value(0).toString());
+		AMExperimentModelItem* item = new AMExperimentModelItem(db_, id, q.value(0).toString());
 
 		/// "decorationRole" is a standard folder icon
 		item->setData(QPixmap(":/22x22/folder.png"), Qt::DecorationRole);
@@ -116,6 +132,16 @@ void AMRunExperimentInsert::refreshExperiments() {
 		item->setData(experimentItem_->data(AM::LinkRole), AM::LinkRole);
 
 		experimentItem_->appendRow(item);
+
+		// Last of all... if this one is the newly-added experiment, let's select and start editing it's name:
+		if(id == newExperimentId_) {
+			if(view_ && qobject_cast<QTreeView*>(view_)) {
+				qobject_cast<QTreeView*>(view_)->expand(experimentItem_->index());
+				view_->setCurrentIndex(item->index());
+				view_->edit(item->index());
+			}
+			newExperimentId_ = -1;
+		}
 	}
 
 	// no more refresh scheduled, since we just completed it.

@@ -35,10 +35,17 @@ public:
 	static AMDatabase* userdb();
 	/// Get access to the public database. (The constructor is private... this is the only way in.)
 	static AMDatabase* publicdb();
+	/// Get access to a database based on the connection name. If the connection doesn't exist, returns 0
+	static AMDatabase* dbByName(const QString& connectionName);
 
 	/// Free the database resources if no longer needed
 	static void releaseUserDb();
 	static void releasePublicDb();
+
+	/// This is the connection name of your database object:
+	QString connectionName() {
+		return qdb().connectionName();
+	}
 
 	/// Converts from QVariant::Type to the recommended column type in the database
 	static QString metaType2DbType(QVariant::Type type) {
@@ -118,7 +125,9 @@ public:
 
 
 signals:
-	/// Emitted when an object is inserted or modified. Contains the id of the inserted or modified object, or -1 if a whole refresh is recommended.
+	/// Emitted when an object is newly created and stored in the db. Contains the id of the newly-inserted object.
+	void created(const QString& tableName, int id);
+	/// Emitted when an object is modified. Contains the id of the modified object, or -1 if a whole refresh is recommended.
 	void updated(const QString& tableName, int id);
 	/// Emitted after an object is removed. Contains the old id of the removed object.
 	void removed(const QString& tableName, int oldId);

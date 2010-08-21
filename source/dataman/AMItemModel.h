@@ -19,9 +19,21 @@ public:
 	virtual Qt::DropActions supportedDropActions() const {
 		return (Qt::CopyAction | Qt::MoveAction | Qt::LinkAction);
 	}
+
+	/// Re-implemented to add the text/uri-list MIME type to the list of mime-types that are accepted for drops
+	virtual QStringList mimeTypes() const {
+
+		QStringList rv = QStandardItemModel::mimeTypes();
+		rv << "text/uri-list";
+
+		return rv;
+	}
+
 signals:
 
 public slots:
+
+protected:
 
 };
 

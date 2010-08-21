@@ -57,6 +57,7 @@ AMAppController::AMAppController(QObject *parent) :
 
 	BottomBar* b = new BottomBar();
 	mw_->addBottomWidget(b);
+	connect(b, SIGNAL(addButtonClicked()), this, SLOT(onAddButtonClicked()));
 
 
 	// Create panes in the main window:
@@ -107,7 +108,7 @@ AMAppController::AMAppController(QObject *parent) :
 	QStandardItem* expItem = mw_->addPane(dataView_, "Data", "Experiments", ":/applications-science.png");
 
 	// Hook into the sidebar and add Run and Experiment links below these headings.
-	runExperimentInsert_ = new AMRunExperimentInsert(AMDatabase::userdb(), runsItem, expItem, this);
+	runExperimentInsert_ = new AMRunExperimentInsert(AMDatabase::userdb(), runsItem, expItem, mw_->sidebar(), this);
 	connect(mw_->sidebar()->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), runExperimentInsert_, SLOT(onItemSelected(QModelIndex,QModelIndex)));
 	connect(runExperimentInsert_, SIGNAL(runSelected(int)), dataView_, SLOT(showRun(int)));
 	connect(runExperimentInsert_, SIGNAL(experimentSelected(int)), dataView_, SLOT(showExperiment(int)));
@@ -198,4 +199,12 @@ void AMAppController::onCurrentPaneChanged(QWidget *pane) {
 	if(pane == scanConfigurationHolder_)
 		scanConfigurationHolder_->onBecameCurrentWidget();
 
+}
+
+#include "dataman/AMExperiment.h"
+void AMAppController::onAddButtonClicked() {
+
+	// For now, we simply create a new experiment
+	AMExperiment e("New Experiment");
+	e.storeToDb(AMDatabase::userdb());
 }

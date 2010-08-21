@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>595</width>
-    <height>711</height>
+    <height>742</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -161,68 +161,11 @@
         <property name="title">
          <string>Control</string>
         </property>
-        <widget class="QWidget" name="gratingHolder" native="true">
-         <property name="geometry">
-          <rect>
-           <x>160</x>
-           <y>310</y>
-           <width>121</width>
-           <height>40</height>
-          </rect>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>120</width>
-           <height>40</height>
-          </size>
-         </property>
-         <property name="baseSize">
-          <size>
-           <width>120</width>
-           <height>0</height>
-          </size>
-         </property>
-        </widget>
-        <widget class="QLabel" name="hxpd_label_7">
-         <property name="geometry">
-          <rect>
-           <x>9</x>
-           <y>310</y>
-           <width>49</width>
-           <height>17</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Grating</string>
-         </property>
-        </widget>
         <widget class="QWidget" name="slitGapHolder" native="true">
          <property name="geometry">
           <rect>
            <x>160</x>
            <y>80</y>
-           <width>121</width>
-           <height>40</height>
-          </rect>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>120</width>
-           <height>40</height>
-          </size>
-         </property>
-         <property name="baseSize">
-          <size>
-           <width>120</width>
-           <height>0</height>
-          </size>
-         </property>
-        </widget>
-        <widget class="QWidget" name="m4DownstreamHolder" native="true">
-         <property name="geometry">
-          <rect>
-           <x>160</x>
-           <y>264</y>
            <width>121</width>
            <height>40</height>
           </rect>
@@ -273,19 +216,6 @@
            <width>120</width>
            <height>0</height>
           </size>
-         </property>
-        </widget>
-        <widget class="QLabel" name="hxpd_label_6">
-         <property name="geometry">
-          <rect>
-           <x>9</x>
-           <y>264</y>
-           <width>107</width>
-           <height>17</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>M4 Downstream</string>
          </property>
         </widget>
         <widget class="QWidget" name="m4InboardHolder" native="true">
@@ -406,41 +336,6 @@
           <string>M4 Outboard</string>
          </property>
         </widget>
-        <widget class="QLabel" name="hxpd_label_16">
-         <property name="geometry">
-          <rect>
-           <x>20</x>
-           <y>360</y>
-           <width>61</width>
-           <height>17</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Harmonic</string>
-         </property>
-        </widget>
-        <widget class="QWidget" name="harmonicHolder" native="true">
-         <property name="geometry">
-          <rect>
-           <x>160</x>
-           <y>360</y>
-           <width>121</width>
-           <height>40</height>
-          </rect>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>120</width>
-           <height>40</height>
-          </size>
-         </property>
-         <property name="baseSize">
-          <size>
-           <width>120</width>
-           <height>0</height>
-          </size>
-         </property>
-        </widget>
        </widget>
       </item>
       <item row="5" column="2">
@@ -512,90 +407,6 @@
             <widget class="QPushButton" name="scanButton">
              <property name="text">
               <string>Scan</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="groupBox_4">
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>160</height>
-           </size>
-          </property>
-          <property name="title">
-           <string>Tracking</string>
-          </property>
-          <layout class="QFormLayout" name="formLayout_2">
-           <item row="0" column="0">
-            <widget class="QLabel" name="hxpd_label_13">
-             <property name="text">
-              <string>Undulator</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QWidget" name="uTrackHolder" native="true">
-             <property name="minimumSize">
-              <size>
-               <width>120</width>
-               <height>40</height>
-              </size>
-             </property>
-             <property name="baseSize">
-              <size>
-               <width>120</width>
-               <height>0</height>
-              </size>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="hxpd_label_14">
-             <property name="text">
-              <string>Mono</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QWidget" name="mTrackHolder" native="true">
-             <property name="minimumSize">
-              <size>
-               <width>120</width>
-               <height>40</height>
-              </size>
-             </property>
-             <property name="baseSize">
-              <size>
-               <width>120</width>
-               <height>0</height>
-              </size>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="hxpd_label_15">
-             <property name="text">
-              <string>Exit Slit</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="1">
-            <widget class="QWidget" name="eTrackHolder" native="true">
-             <property name="minimumSize">
-              <size>
-               <width>120</width>
-               <height>40</height>
-              </size>
-             </property>
-             <property name="baseSize">
-              <size>
-               <width>120</width>
-               <height>0</height>
-              </size>
              </property>
             </widget>
            </item>

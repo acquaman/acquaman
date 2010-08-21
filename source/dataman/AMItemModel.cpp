@@ -1,6 +1,7 @@
 #include "AMItemModel.h"
-
 #include "dataman/AMRunExperimentItems.h"
+
+#include <QDebug>
 
 AMItemModel::AMItemModel(QObject *parent) :
 		QStandardItemModel(parent)
@@ -9,11 +10,13 @@ AMItemModel::AMItemModel(QObject *parent) :
 
 bool AMItemModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) {
 
-	QStandardItem* parentItem = this->itemFromIndex(parent);
-	if(!parentItem)
+	QStandardItem* item = this->itemFromIndex(parent);
+	if(!item)
 		return QStandardItemModel::dropMimeData(data, action, row, column, parent);
 
-	QStandardItem* item = parentItem->child(row, column);
+	if(row >= 0 && column >= 0)
+		item = item->child(row, column);
+
 	if(!item)
 		return QStandardItemModel::dropMimeData(data, action, row, column, parent);
 
