@@ -53,6 +53,14 @@ AMDatabase* AMDatabase::publicdb() {
 	return publicInstance_;
 }
 
+AMDatabase* AMDatabase::dbByName(const QString& connectionName) {
+	if(connectionName == userdb()->connectionName())
+		return userdb();
+	if(publicInstance_ && connectionName == publicdb()->connectionName())
+		return publicdb();
+	return 0;
+}
+
 /// Shut down database connections and free database resources [static]
 void AMDatabase::releaseUserDb() {
 	if(userInstance_) {
@@ -124,7 +132,7 @@ int AMDatabase::insertOrUpdate(int id, const QString& table, const QStringList& 
 	if(id < 1) {
 		QVariant lastId = query.lastInsertId();
 		if(lastId.isValid()) {
-			emit updated(table, lastId.toInt());
+			emit created(table, lastId.toInt());
 			return lastId.toInt();
 		}
 		else {

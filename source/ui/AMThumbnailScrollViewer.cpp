@@ -396,3 +396,86 @@ void AMThumbnailScrollGraphicsWidget::hoverLeaveEvent(QGraphicsSceneHoverEvent *
 }
 
 
+/// Re-implemented from QGraphicsItem to be a drag-and-drop source containing the database, table name and id of the object that this thumbnail represents.
+void AMThumbnailScrollGraphicsWidget::mousePressEvent(QGraphicsSceneMouseEvent *event) {
+
+	if (event->button() != Qt::LeftButton) {
+		event->ignore();
+		return;
+	}
+
+	// setCursor(Qt::ClosedHandCursor);
+}
+
+#include <QApplication>
+
+/// Re-implemented from QGraphicsItem to be a drag-and-drop source containing the database, table name and id of the object that this thumbnail represents.
+void AMThumbnailScrollGraphicsWidget::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
+	if (QLineF(event->screenPos(), event->buttonDownScreenPos(Qt::LeftButton)).length() < QApplication::startDragDistance()) {
+		return;
+	}
+
+	QDrag* drag = createDragObject(event->widget());
+
+	if(drag) {
+		/// \todo: what drag action to use? default uses Qt::MoveAction
+		drag->exec(Qt::CopyAction);
+		// setCursor(Qt::OpenHandCursor);
+	}
+}
+
+/// Re-implemented from QGraphicsItem to be a drag-and-drop source containing the database, table name and id of the object that this thumbnail represents.
+void AMThumbnailScrollGraphicsWidget::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
+	// setCursor(Qt::OpenHandCursor);
+}
+
+#include <QUrl>
+#include <QList>
+
+/// This is a helper function that creates a new QDrag object and returns a pointer to it.  The QDrag object has the MIME type "text/uri-list" with one URL: 'amd://databaseName/tableName/id', which describes the object represented by this thumbnail.  It also has image data set (MIME type "image/x-") so that the drag icon is visible.  If it's impossible to determine which object this thumbnail represents (for ex: setSource() hasn't been called yet, or was called with an invalid object), this function returns 0.
+QDrag* AMThumbnailScrollGraphicsWidget::createDragObject(QWidget* dragSourceWidget) {
+
+	QString uri;
+
+	// if our source is a database and set of rows (ids_) in the thumbnail table
+	if(sourceIsDb_ && sourceDb_) {
+		if(ids_.isEmpty())
+			return 0;
+
+		QSqlQuery q = sourceDb_->query();
+		q.prepare(QString("SELECT objectId,objectTableName FROM %1 WHERE id = ?").arg(AMDatabaseDefinition::thumbnailTableName()));
+		q.bindValue(0, ids_.at(0));
+		if(q.exec() && q.first()) {
+			uri = QString("amd://%1/%2/%3").arg(sourceDb_->connectionName()).arg(q.value(1).toString()).arg(q.value(0).toInt());
+		}
+		else {
+			return 0;
+		}
+	}
+
+	// if our source is a pointer to an AMDbObject
+	else if(!sourceIsDb_ && sourceObject_) {
+		if(!sourceObject_->database())
+			return 0;
+		if(sourceObject_->id() < 1)
+			return 0;
+		uri = QString("amd://%1/%2/%3").arg(sourceObject_->database()->connectionName()).arg(sourceObject_->databaseTableName()).arg(sourceObject_->id());
+	}
+
+	QDrag* drag = new QDrag(dragSourceWidget);
+	QMimeData* mime = new QMimeData();
+	drag->setMimeData(mime);
+
+	QUrl url = QUrl(uri);
+	QList<QUrl> urlList;
+	urlList << url;
+	mime->setUrls(urlList);
+	mime->setText(uri);
+
+	drag->setPixmap(pixmap_.scaledToHeight(100, Qt::FastTransformation));
+	drag->setHotSpot(QPoint(15,15));
+
+	return drag;
+}
+
+

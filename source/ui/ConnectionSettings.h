@@ -74,8 +74,8 @@ public:
 
 				NumericControl* nc = new NumericControl(AMBeamline::bl()->spectrometer()->hexapod()->x(), placeHolder);
 				Q_UNUSED(nc);
-				NumericControl *nc2 = new NumericControl(SGMBeamline::sgm()->grating(), gratingHolder);
-				Q_UNUSED(nc2);
+				//NumericControl *nc2 = new NumericControl(SGMBeamline::sgm()->grating(), gratingHolder);
+				//Q_UNUSED(nc2);
 				NumericControl *nc3 = new NumericControl(SGMBeamline::sgm()->energy(), energyHolder);
 				Q_UNUSED(nc3);
 				NumericControl *nc4 = new NumericControl(SGMBeamline::sgm()->exitSlitGap(), slitGapHolder);
@@ -86,8 +86,9 @@ public:
 				Q_UNUSED(nc6);
 				NumericControl *nc7 = new NumericControl(SGMBeamline::sgm()->m4()->child(1), m4OutboardHolder);
 				Q_UNUSED(nc7);
-				NumericControl *nc8 = new NumericControl(SGMBeamline::sgm()->m4()->child(2), m4DownstreamHolder);
-				Q_UNUSED(nc8);
+				//NumericControl *nc8 = new NumericControl(SGMBeamline::sgm()->m4()->child(2), m4DownstreamHolder);
+				//Q_UNUSED(nc8);
+				/*
 				NumericControl *nc9 = new NumericControl(SGMBeamline::sgm()->undulatorTracking(), uTrackHolder);
 				Q_UNUSED(nc9);
 				NumericControl *nc10 = new NumericControl(SGMBeamline::sgm()->monoTracking(), mTrackHolder);
@@ -96,6 +97,7 @@ public:
 				Q_UNUSED(nc11);
 				NumericControl *nc12 = new NumericControl(SGMBeamline::sgm()->harmonic(), harmonicHolder);
 				Q_UNUSED(nc12);
+				*/
 
 				slitGapDoubleSpinBox->setMaximum(250);
 				slitGapDoubleSpinBox->setMinimum(5);

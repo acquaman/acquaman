@@ -1,9 +1,10 @@
 #include "AMSidebar.h"
 
+#include <QDebug>
 AMSidebar::AMSidebar(QWidget* parent)
 	: QTreeView(parent) {
 
-	model_ = new QStandardItemModel(this);
+	model_ = new AMItemModel(this);
 	setModel(model_);
 
 	setHeaderHidden(true);
@@ -16,6 +17,15 @@ AMSidebar::AMSidebar(QWidget* parent)
 
 
 	setSelectionMode(QAbstractItemView::SingleSelection);
+
+	// accept drops onto items (specfically, experiment items, which are supposed to accept dropped scans)
+	setDragDropMode(QAbstractItemView::DropOnly);
+	setAcceptDrops(true);
+	setDropIndicatorShown(true);
+
+	model_->invisibleRootItem()->setFlags( Qt::NoItemFlags );
+
+
 
 	connect(this, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onItemDoubleClicked(QModelIndex)));
 
@@ -115,7 +125,38 @@ void AMSidebar::currentChanged ( const QModelIndex & current, const QModelIndex 
 		emit linkSelected(link);
 }
 
-/*
+/* Removed: can simply use QTreeView's drag and drop handling of events, now that the model and item flags are configured properly.
+
+#include <QDragEnterEvent>
+#include <QDropEvent>
+#include <QDragMoveEvent>
+#include <QDebug>
+
+void AMSidebar::dragEnterEvent(QDragEnterEvent *event) {
+	qDebug() << "Drag enter event!";
+	QTreeView::dragEnterEvent(event);
+	qDebug() << "   Was... accepted?" << event->isAccepted();
+}
+
+void AMSidebar::dropEvent(QDropEvent *event) {
+	qDebug() << "Drop event!";
+	QTreeView::dropEvent(event);
+	qDebug() << "   Was... accepted?" << event->isAccepted();
+}
+
+void AMSidebar::dragMoveEvent(QDragMoveEvent *event) {
+	QModelIndex idx = indexAt(event->pos());
+	qDebug() << "drag move. index under:" << idx;
+	QTreeView::dragMoveEvent(event);
+	qDebug() << "   Was... accepted?" << event->isAccepted();
+}
+*/
+
+
+
+
+/* This is a remnant from the old widget-based sidebar system, that needed this to catch and distinguish clicks from double-clicks
+
 bool AMSidebar::eventFilter(QObject* sourceObject, QEvent* event) {
 
 	QWidget* source = qobject_cast<QWidget*>(sourceObject);

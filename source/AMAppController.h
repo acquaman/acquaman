@@ -49,6 +49,9 @@ public slots:
 	/// Calling this slot activates the Import Data wizard.
 	void onActionImport();
 
+	/// this slot is called when the "add something" button is pushed. For now, it just creates a new experiment. This could be expanded to a drop-down menu that offers creating a new experiment, a new scan, a new run...
+	void onAddButtonClicked();
+
 protected slots:
 
 	/// This slot catches changes in the current widget of the AMMainWindow. \c pane is the new current widget.  Insert any widget-specific responses that you need here.

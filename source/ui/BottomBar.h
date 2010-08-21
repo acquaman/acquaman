@@ -8,35 +8,37 @@
 #include "AMStatusView.h"
 
 class BottomBar : public QWidget, private Ui::BottomBarClass {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
 	BottomBar(QWidget *parent = 0);
 
-    ~BottomBar();
+	~BottomBar();
 
 public slots:
 	void updateScanProgress(double secondsElapsed, double secondsTotal);
 	void enableScanInProgressButtons() {}		// enables restartScan, stopScan, pauseScan
-	
+
 protected:
 
 	AMStatusView* statusView_;
 
 	void makeConnections();	// TODO
 
-	
+
 protected slots:
-    // TODO
-    
+	// TODO
+
  signals:
- 	void searchIssued(const QString&);
- 	void restartScanIssued();
- 	void stopScanIssued();
- 	void pauseScanIssued();
- 	void continueScanIssued();
- 	void fullScreenIssued();
- 	void adjustFinishPointsIssued();
+	void searchIssued(const QString&);
+	void restartScanIssued();
+	void stopScanIssued();
+	void pauseScanIssued();
+	void continueScanIssued();
+	void fullScreenIssued();
+	void adjustFinishPointsIssued();
+
+	void addButtonClicked();
 };
 
 #endif // BOTTOMBAR_H

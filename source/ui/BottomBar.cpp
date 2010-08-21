@@ -8,7 +8,6 @@ BottomBar::BottomBar(QWidget *parent) : QWidget(parent)
 	statusView_ = new AMStatusView();
 	mainHLayout->addWidget(statusView_);
 
-	
 	progressBar->setMinimum(0);
 	progressBar->setMaximum(100);
 	progressBar->setValue(100);
@@ -25,8 +24,9 @@ BottomBar::~BottomBar()
 
 void BottomBar::makeConnections()
 {
-    connect(pauseScanButton, SIGNAL(clicked()), this, SIGNAL(pauseScanIssued()));
-    connect(stopScanButton, SIGNAL(clicked()), this, SIGNAL(stopScanIssued()));
+	connect(pauseScanButton, SIGNAL(clicked()), this, SIGNAL(pauseScanIssued()));
+	connect(stopScanButton, SIGNAL(clicked()), this, SIGNAL(stopScanIssued()));
+	connect(addButton, SIGNAL(clicked()), this, SIGNAL(addButtonClicked()));
 }
 
 void BottomBar::updateScanProgress(double secondsElapsed, double secondsTotal){
