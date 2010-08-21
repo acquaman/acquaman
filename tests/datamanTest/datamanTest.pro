@@ -5,14 +5,14 @@
 HOME_FOLDER = $$system(echo $HOME)
 
 macx {
-        EPICS_INCLUDE_DIRS = $$HOME_FOLDER/dev/epics/14-11/base/include \
-                $$HOME_FOLDER/dev/epics/14-11/base/include/os/Darwin
-        EPICS_LIB_DIR = $$HOME_FOLDER/dev/epics/14-11/base/lib/darwin-x86
-        MPLOT_INCLUDE_DIR = $$HOME_FOLDER/dev/MPlot/src
+		EPICS_INCLUDE_DIRS = $$HOME_FOLDER/dev/epics/14-11/base/include \
+				$$HOME_FOLDER/dev/epics/14-11/base/include/os/Darwin
+		EPICS_LIB_DIR = $$HOME_FOLDER/dev/epics/14-11/base/lib/darwin-x86
+		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/dev/MPlot/src
 
-        GSL_INCLUDE_DIR=$$HOME_FOLDER/dev/gsl-install/include
-        GSL_LIB=-L$$HOME_FOLDER/dev/gsl-install/lib -lgsl
-        GSL_CBLAS_LIB=-L$$HOME_FOLDER/dev/gsl-install/lib -lgslcblas
+		GSL_INCLUDE_DIR=$$HOME_FOLDER/dev/gsl-install/include
+		GSL_LIB=-L$$HOME_FOLDER/dev/gsl-install/lib -lgsl
+		GSL_CBLAS_LIB=-L$$HOME_FOLDER/dev/gsl-install/lib -lgslcblas
 }
 linux-g++ {
 	EPICS_INCLUDE_DIRS = $$HOME_FOLDER/beamline/programming/epics/base/include \
@@ -109,7 +109,8 @@ HEADERS +=	../MPlot/src/MPlot/MPlot.h	\
 	source/muParser/muParserStack.h	\
 	source/muParser/muParserToken.h	\
 	source/muParser/muParserTokenReader.h	\
-	source/ui/AMFirstTimeWidget.h
+	source/ui/AMFirstTimeWidget.h \
+	source/dataman/AMControlSetInfo.h
 
 SOURCES +=	source/AMErrorMonitor.cpp	\
 	source/AMSettings.cpp	\
@@ -133,4 +134,5 @@ SOURCES +=	source/AMErrorMonitor.cpp	\
 	source/muParser/muParserCallback.cpp	\
 	source/muParser/muParserError.cpp	\
 	source/muParser/muParserTokenReader.cpp	\
+	source/dataman/AMControlSetInfo.cpp \
 	tests.cpp
