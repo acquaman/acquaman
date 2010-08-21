@@ -7,12 +7,12 @@ AMSamplePositionView::AMSamplePositionView(QWidget *parent, AMSampleManipulatorV
 	cam_ = new CamWidget("Camera 1", source);
 
 	plateView_ = new AMSamplePlateView();
-	plateView_->setMinimumSize(200, 150);
+	plateView_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
 	if(!manipulatorView)
 		manipulatorView_ = new AMSampleManipulatorView();
 	else
 		manipulatorView_ = manipulatorView;
-	manipulatorView_->setMinimumSize(150, 150);
+	manipulatorView_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
 
 	gl_ = new QGridLayout();

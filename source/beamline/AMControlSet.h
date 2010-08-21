@@ -8,6 +8,7 @@
 //#include "acquaman/AMScanConfiguration.h"
 //#include "acquaman/AMRegion.h"
 #include "acquaman/AMRegionsList.h"
+#include "dataman/AMControlSetInfo.h"
 #include "dataman/AMDetectorInfo.h"
 
 #include <gsl/gsl_multifit.h>
@@ -42,15 +43,23 @@ public:
 	int indexOf(const QString &name);
 	AMControl* controlByName(const QString &name);
 
+	AMControlSetInfo* info() { return info_; }
+
 signals:
 
 public slots:
 	/// Sets the name of the control set.
-	void setName(const QString &name) { name_ = name;}
+	void setName(const QString &name);
 	/// Adds an AMControl to the control set. Returns true if the addition was successful. Failure could result from adding the same AMControl twice.
 	bool addControl(AMControl* ctrl);
 	/// Removes an AMControl from the control set. Returns true if the removal was successful. Failure could result from removing an AMControl not in the set.
 	bool removeControl(AMControl* ctrl);
+
+	void syncInfo();
+	void setFromInfo(AMControlSetInfo *info);
+
+protected slots:
+	void onConnected(bool connected);
 
 protected:
 	/// Holds the name of the control set. Should be descriptive of the logical relationship.
@@ -58,6 +67,8 @@ protected:
 	QString name_;
 	/// Local list of AMControl pointers, which represent the controls in the set.
 	QList<AMControl*> ctrls_;
+
+	AMControlSetInfo *info_;
 };
 
 /// An AMControlOptimization is an abstract class that represents how a single output can vary across a given region for a given state of a system.

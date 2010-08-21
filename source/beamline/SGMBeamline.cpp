@@ -37,6 +37,7 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	amNames2pvNames_.set("ssaManipulatorX", "reixsHost:ssa:x");
 	amNames2pvNames_.set("ssaManipulatorY", "reixsHost:ssa:y");
 	amNames2pvNames_.set("ssaManipulatorZ", "reixsHost:ssa:z");
+	amNames2pvNames_.set("ssaManipulatorRot", "reixsHost:ssa:r");
 
 	ringCurrent_ = new AMReadOnlyPVControl("ringCurrent", AMPVNames::toPV("ringCurrent"), this);
 	addChild(ringCurrent_);
@@ -107,7 +108,6 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	sgmPVName = amNames2pvNames_.valueF("pgtHVSetpoint");
 //	pgtHVSetpoint_ = new AMPVControl("pgtHVSetpoint", amNames2pvNames_.valueF("pgtHVFbk"), amNames2pvNames_.valueF("pgtHVSetpoint"), this, 0.5);
 	pgtHVSetpoint_ = new AMPVControl("pgtHVSetpoint", amNames2pvNames_.valueF("pgtHVSetpoint"), amNames2pvNames_.valueF("pgtHVSetpoint"), this, 0.5);
-	qDebug() << "SDD HV: " << pgtHVSetpoint_->minimumValue() << pgtHVSetpoint_->maximumValue();
 	addChild(pgtHVSetpoint_);
 	sgmPVName = amNames2pvNames_.valueF("pgtHVFbk");
 	pgtHVFbk_ = new AMReadOnlyPVControl("pgtHVFbk", sgmPVName, this);
@@ -138,12 +138,23 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	sgmPVName = amNames2pvNames_.valueF("ssaManipulatorX");
 	ssaManipulatorX_ = new AMPVwStatusControl("ssaManipulatorX", sgmPVName+":fbk", sgmPVName+":sp", sgmPVName+":moving", this, 0.1);
 	addChild(ssaManipulatorX_);
+	ssaManipulatorXStop_ = new AMPVControl("ssaManipulatorXStop", sgmPVName+":moving", sgmPVName+":moving", this, 0.1);
+	addChild(ssaManipulatorXStop_);
 	sgmPVName = amNames2pvNames_.valueF("ssaManipulatorY");
 	ssaManipulatorY_ = new AMPVwStatusControl("ssaManipulatorY", sgmPVName+":fbk", sgmPVName+":sp", sgmPVName+":moving", this, 0.1);
 	addChild(ssaManipulatorY_);
+	ssaManipulatorYStop_ = new AMPVControl("ssaManipulatorYStop", sgmPVName+":moving", sgmPVName+":moving", this, 0.1);
+	addChild(ssaManipulatorYStop_);
 	sgmPVName = amNames2pvNames_.valueF("ssaManipulatorZ");
 	ssaManipulatorZ_ = new AMPVwStatusControl("ssaManipulatorZ", sgmPVName+":fbk", sgmPVName+":sp", sgmPVName+":moving", this, 0.1);
 	addChild(ssaManipulatorZ_);
+	ssaManipulatorZStop_ = new AMPVControl("ssaManipulatorZStop", sgmPVName+":moving", sgmPVName+":moving", this, 0.1);
+	addChild(ssaManipulatorZStop_);
+	sgmPVName = amNames2pvNames_.valueF("ssaManipulatorRot");
+	ssaManipulatorRot_ = new AMPVwStatusControl("ssaManipulatorRot", sgmPVName+":fbk", sgmPVName+":sp", sgmPVName+":moving", this, 0.1);
+	addChild(ssaManipulatorRot_);
+	ssaManipulatorRotStop_ = new AMPVControl("ssaManipulatorRotStop", sgmPVName+":moving", sgmPVName+":moving", this, 0.1);
+	addChild(ssaManipulatorRotStop_);
 
 	fluxOptimization_ = new SGMFluxOptimization(this);
 	fluxOptimization_->setDescription("Flux");
@@ -168,6 +179,7 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	ssaManipulatorSet_->addControl(ssaManipulatorX_);
 	ssaManipulatorSet_->addControl(ssaManipulatorY_);
 	ssaManipulatorSet_->addControl(ssaManipulatorZ_);
+	ssaManipulatorSet_->addControl(ssaManipulatorRot_);
 
 	allDetectors_ = new AMDetectorInfoSet(this);
 	allDetectors_->setName("All Detectors");

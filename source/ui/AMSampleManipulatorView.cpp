@@ -27,20 +27,30 @@ SGMSampleManipulatorView::SGMSampleManipulatorView(QWidget *parent) :
 	downstreamIcon_ = QIcon(":/ArrowPlaneIn.png");
 	mDownstreamButton_ = new QPushButton(downstreamIcon_, "");
 	mDownstreamButton_->setToolTip("Move Downstream");
+	cwIcon_ = QIcon(":/ArrowCW.png");
+	mCWButton_ = new QPushButton(cwIcon_, "");
+	mCWButton_->setToolTip("Move Clockwise");
+	ccwIcon_ = QIcon(":/ArrowCCW.png");
+	mCCWButton_ = new QPushButton(ccwIcon_, "");
+	mCCWButton_->setToolTip("Move Counter-Clockwise");
 
 	mVerticalCtrl_ = manipulator_->controlByName("ssaManipulatorZ");
 	mHorizontalCtrl_ = manipulator_->controlByName("ssaManipulatorX");
 	mInPlaneCtrl_ = manipulator_->controlByName("ssaManipulatorY");
+	mRotationCtrl_ = manipulator_->controlByName("ssaManipulatorRot");
 
 	mVerticalNC_ = new NumericControl(mVerticalCtrl_);
 	mVerticalNC_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-	mVerticalNC_->setMinimumWidth(92);
+	mVerticalNC_->setMinimumSize(92, 24);
 	mHorizontalNC_ = new NumericControl(mHorizontalCtrl_);
 	mHorizontalNC_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-	mHorizontalNC_->setMinimumWidth(92);
+	mHorizontalNC_->setMinimumSize(92, 24);
 	mInPlaneNC_ = new NumericControl(mInPlaneCtrl_);
 	mInPlaneNC_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-	mInPlaneNC_->setMinimumWidth(92);
+	mInPlaneNC_->setMinimumSize(92, 24);
+	mRotationNC_ = new NumericControl(mRotationCtrl_);
+	mRotationNC_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+	mRotationNC_->setMinimumSize(92, 24);
 
 	connect(mUpButton_, SIGNAL(pressed()), this, SLOT(onMUpButtonPressed()));
 	connect(mUpButton_, SIGNAL(released()), this, SLOT(onMUpButtonReleased()));
@@ -54,20 +64,28 @@ SGMSampleManipulatorView::SGMSampleManipulatorView(QWidget *parent) :
 	connect(mUpstreamButton_, SIGNAL(released()), this, SLOT(onMUpstreamButtonReleased()));
 	connect(mDownstreamButton_, SIGNAL(pressed()), this, SLOT(onMDownstreamButtonPressed()));
 	connect(mDownstreamButton_, SIGNAL(released()), this, SLOT(onMDownstreamButtonReleased()));
+	connect(mCWButton_, SIGNAL(pressed()), this, SLOT(onMCWButtonPressed()));
+	connect(mCWButton_, SIGNAL(released()), this, SLOT(onMCWButtonReleased()));
+	connect(mCCWButton_, SIGNAL(pressed()), this, SLOT(onMCCWButtonPressed()));
+	connect(mCCWButton_, SIGNAL(released()), this, SLOT(onMCCWButtonReleased()));
 
 	gl_ = new QGridLayout();
-	gl_->addWidget(mUpButton_,			0, 1, 1, 1, Qt::AlignCenter);
-	gl_->addWidget(mDownButton_,		2, 1, 1, 1, Qt::AlignCenter);
-	gl_->addWidget(mInboardButton_,		1, 0, 1, 1, Qt::AlignCenter);
-	gl_->addWidget(mOutboardButton_,	1, 2, 1, 1, Qt::AlignCenter);
-	gl_->addWidget(mUpstreamButton_,	2, 0, 1, 1, Qt::AlignCenter);
-	gl_->addWidget(mDownstreamButton_,	0, 2, 1, 1, Qt::AlignCenter);
-	gl_->addWidget(new QLabel("Vertical"),		0, 3, 1, 1, Qt::AlignJustify);
-	gl_->addWidget(new QLabel("Horizontal"),		1, 3, 1, 1, Qt::AlignJustify);
-	gl_->addWidget(new QLabel("In Plane"),			2, 3, 1, 1, Qt::AlignJustify);
-	gl_->addWidget(mVerticalNC_,		0, 4, 1, 1, Qt::AlignLeft);
-	gl_->addWidget(mHorizontalNC_,		1, 4, 1, 1, Qt::AlignLeft);
-	gl_->addWidget(mInPlaneNC_,			2, 4, 1, 1, Qt::AlignLeft);
+	gl_->addWidget(mUpButton_,			0, 1, 4, 1, Qt::AlignCenter);
+	gl_->addWidget(mDownButton_,		8, 1, 4, 1, Qt::AlignCenter);
+	gl_->addWidget(mInboardButton_,		4, 0, 4, 1, Qt::AlignCenter);
+	gl_->addWidget(mOutboardButton_,	4, 2, 4, 1, Qt::AlignCenter);
+	gl_->addWidget(mUpstreamButton_,	8, 0, 4, 1, Qt::AlignCenter);
+	gl_->addWidget(mDownstreamButton_,	0, 2, 4, 1, Qt::AlignCenter);
+	gl_->addWidget(mCWButton_,			0, 0, 4, 1, Qt::AlignCenter);
+	gl_->addWidget(mCCWButton_,			8, 2, 4, 1, Qt::AlignCenter);
+	gl_->addWidget(new QLabel("Vertical"),			0, 3, 3, 1, Qt::AlignJustify|Qt::AlignVCenter);
+	gl_->addWidget(new QLabel("Horizontal"),		3, 3, 3, 1, Qt::AlignJustify|Qt::AlignVCenter);
+	gl_->addWidget(new QLabel("In Plane"),			6, 3, 3, 1, Qt::AlignJustify|Qt::AlignVCenter);
+	gl_->addWidget(new QLabel("Rotation"),			9, 3, 3, 1, Qt::AlignJustify|Qt::AlignVCenter);
+	gl_->addWidget(mVerticalNC_,		0, 4, 3, 1, Qt::AlignLeft|Qt::AlignVCenter);
+	gl_->addWidget(mHorizontalNC_,		3, 4, 3, 1, Qt::AlignLeft|Qt::AlignVCenter);
+	gl_->addWidget(mInPlaneNC_,			6, 4, 3, 1, Qt::AlignLeft|Qt::AlignVCenter);
+	gl_->addWidget(mRotationNC_,		9, 4, 3, 1, Qt::AlignLeft|Qt::AlignVCenter);
 
 	setLayout(gl_);
 }
@@ -78,6 +96,7 @@ void SGMSampleManipulatorView::onMUpButtonPressed(){
 
 void SGMSampleManipulatorView::onMUpButtonReleased(){
 	mVerticalCtrl_->stop();
+	SGMBeamline::sgm()->ssaManipulatorZStop()->move(0);
 }
 
 void SGMSampleManipulatorView::onMDownButtonPressed(){
@@ -86,6 +105,7 @@ void SGMSampleManipulatorView::onMDownButtonPressed(){
 
 void SGMSampleManipulatorView::onMDownButtonReleased(){
 	mVerticalCtrl_->stop();
+	SGMBeamline::sgm()->ssaManipulatorZStop()->move(0);
 }
 
 void SGMSampleManipulatorView::onMInboardButtonPressed(){
@@ -94,7 +114,7 @@ void SGMSampleManipulatorView::onMInboardButtonPressed(){
 
 void SGMSampleManipulatorView::onMInboardButtonReleased(){
 	mHorizontalCtrl_->stop();
-	mHorizontalCtrl_->move(mHorizontalCtrl_->value());
+	SGMBeamline::sgm()->ssaManipulatorXStop()->move(0);
 }
 
 void SGMSampleManipulatorView::onMOutboardButtonPressed(){
@@ -103,6 +123,7 @@ void SGMSampleManipulatorView::onMOutboardButtonPressed(){
 
 void SGMSampleManipulatorView::onMOutboardButtonReleased(){
 	mHorizontalCtrl_->stop();
+	SGMBeamline::sgm()->ssaManipulatorXStop()->move(0);
 }
 
 void SGMSampleManipulatorView::onMUpstreamButtonPressed(){
@@ -111,6 +132,7 @@ void SGMSampleManipulatorView::onMUpstreamButtonPressed(){
 
 void SGMSampleManipulatorView::onMUpstreamButtonReleased(){
 	mInPlaneCtrl_->stop();
+	SGMBeamline::sgm()->ssaManipulatorYStop()->move(0);
 }
 
 void SGMSampleManipulatorView::onMDownstreamButtonPressed(){
@@ -119,4 +141,23 @@ void SGMSampleManipulatorView::onMDownstreamButtonPressed(){
 
 void SGMSampleManipulatorView::onMDownstreamButtonReleased(){
 	mInPlaneCtrl_->stop();
+	SGMBeamline::sgm()->ssaManipulatorYStop()->move(0);
+}
+
+void SGMSampleManipulatorView::onMCWButtonPressed(){
+	mRotationCtrl_->move(mRotationCtrl_->minimumValue());
+}
+
+void SGMSampleManipulatorView::onMCWButtonReleased(){
+	mRotationCtrl_->stop();
+	SGMBeamline::sgm()->ssaManipulatorRotStop()->move(0);
+}
+
+void SGMSampleManipulatorView::onMCCWButtonPressed(){
+	mRotationCtrl_->move(mRotationCtrl_->maximumValue());
+}
+
+void SGMSampleManipulatorView::onMCCWButtonReleased(){
+	mRotationCtrl_->stop();
+	SGMBeamline::sgm()->ssaManipulatorRotStop()->move(0);
 }

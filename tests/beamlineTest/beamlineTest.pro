@@ -5,14 +5,14 @@
 HOME_FOLDER = $$system(echo $HOME)
 
 macx {
-        EPICS_INCLUDE_DIRS = $$HOME_FOLDER/dev/epics/14-11/base/include \
-                $$HOME_FOLDER/dev/epics/14-11/base/include/os/Darwin
-        EPICS_LIB_DIR = $$HOME_FOLDER/dev/epics/14-11/base/lib/darwin-x86
-        MPLOT_INCLUDE_DIR = $$HOME_FOLDER/dev/MPlot/src
+		EPICS_INCLUDE_DIRS = $$HOME_FOLDER/dev/epics/14-11/base/include \
+				$$HOME_FOLDER/dev/epics/14-11/base/include/os/Darwin
+		EPICS_LIB_DIR = $$HOME_FOLDER/dev/epics/14-11/base/lib/darwin-x86
+		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/dev/MPlot/src
 
-        GSL_INCLUDE_DIR=$$HOME_FOLDER/dev/gsl-install/include
-        GSL_LIB=-L$$HOME_FOLDER/dev/gsl-install/lib -lgsl
-        GSL_CBLAS_LIB=-L$$HOME_FOLDER/dev/gsl-install/lib -lgslcblas
+		GSL_INCLUDE_DIR=$$HOME_FOLDER/dev/gsl-install/include
+		GSL_LIB=-L$$HOME_FOLDER/dev/gsl-install/lib -lgsl
+		GSL_CBLAS_LIB=-L$$HOME_FOLDER/dev/gsl-install/lib -lgslcblas
 }
 linux-g++ {
 	EPICS_INCLUDE_DIRS = $$HOME_FOLDER/beamline/programming/epics/base/include \
@@ -108,6 +108,7 @@ HEADERS +=	../../../MPlot/src/MPlot/MPlot.h	\
 	source/dataman/AMDetectorInfo.h	\
 	source/dataman/AMScan.h	\
 	source/dataman/AMXASScan.h	\
+	source/dataman/AMControlSetInfo.h \
 	source/muParser/muParser.h	\
 	source/muParser/muParserBase.h	\
 	source/muParser/muParserBytecode.h	\
@@ -146,6 +147,7 @@ SOURCES +=	source/acquaman/AMRegion.cpp	\
 	source/dataman/AMDetectorInfo.cpp	\
 	source/dataman/AMScan.cpp	\
 	source/dataman/AMXASScan.cpp	\
+	source/dataman/AMControlSetInfo.cpp \
 	source/muParser/muParser.cpp	\
 	source/muParser/muParserBase.cpp	\
 	source/muParser/muParserBytecode.cpp	\

@@ -3,6 +3,7 @@
 AMControlSet::AMControlSet(QObject *parent) :
 	QObject(parent)
 {
+	info_ = new AMControlSetInfo(this);
 }
 
 int AMControlSet::indexOf(const QString &name){
@@ -20,17 +21,52 @@ AMControl* AMControlSet::controlByName(const QString &name){
 		return NULL;
 }
 
+void AMControlSet::setName(const QString &name) {
+	name_ = name;
+	info_->setName(name);
+}
+
+
 /// Returns false if the AMControl to be added is already in the list; otherwise adds the control and returns true.
 bool AMControlSet::addControl(AMControl* ctrl) {
 	if(ctrls_.contains(ctrl))
 		return false;
 	ctrls_.append(ctrl);
+	connect(ctrl, SIGNAL(connected(bool)), this, SLOT(onConnected(bool)));
+	info_->addControlAt(info_->count(), ctrl->name(), ctrl->value(), ctrl->minimumValue(), ctrl->maximumValue());
 	return true;
 }
 
 /// Returns false if the AMControl to be removed is not present; otherwise removes the control and returns true.
 bool AMControlSet::removeControl(AMControl* ctrl) {
-	return ctrls_.removeOne(ctrl);
+	int index = ctrls_.indexOf(ctrl);
+	info_->removeControlAt(index);
+	bool retVal = ctrls_.removeOne(ctrl);
+	if(retVal)
+		disconnect(ctrl, SIGNAL(connected(bool)), this, SLOT(onConnected(bool)));
+	return retVal;
+}
+
+void AMControlSet::syncInfo(){
+	for(int x = 0; x < ctrls_.count(); x++)
+		info_->setControlAt(x, ctrls_.at(x)->name(), ctrls_.at(x)->value(), ctrls_.at(x)->minimumValue(), ctrls_.at(x)->maximumValue());
+}
+
+void AMControlSet::setFromInfo(AMControlSetInfo *info){
+	AMControl *tmpCtrl;
+	for(int x = 0; x < info->count(); x++){
+		tmpCtrl = controlByName(info->nameAt(x));
+		if(tmpCtrl)
+			tmpCtrl->move(info->valueAt(x));
+	}
+}
+
+void AMControlSet::onConnected(bool connected){
+	AMControl *ctrl = (AMControl*)QObject::sender();
+	if(!ctrl)
+		return;
+	int index = ctrls_.indexOf(ctrl);
+	info_->setControlAt(index, ctrl->name(), ctrl->value(), ctrl->minimumValue(), ctrl->maximumValue());
 }
 
 /// Default implementation returns an empty map. This function is the core of the implementation for subclasses.

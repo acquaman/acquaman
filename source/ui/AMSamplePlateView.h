@@ -2,6 +2,12 @@
 #define AMSAMPLEPLATEVIEW_H
 
 #include <QGroupBox>
+#include <QLabel>
+#include <QComboBox>
+#include <QVBoxLayout>
+#include <QDebug>
+
+#include "dataman/AMSamplePlate.h"
 
 class AMSamplePlateView : public QGroupBox
 {
@@ -14,7 +20,12 @@ signals:
 public slots:
 
 protected:
+	QLabel *plateNameLabel_;
+	QComboBox *existingPlates_;
+	QGroupBox *sampleList_;
+	QVBoxLayout *vl_;
 
+	AMSamplePlate *samplePlate_;
 };
 
 #endif // AMSAMPLEPLATEVIEW_H
