@@ -11,6 +11,22 @@ AMControlSetInfo::AMControlSetInfo(QObject *parent) :
 	metaData_["maximums"] = QStringList(tmpList);
 }
 
+AMControlSetInfo::AMControlSetInfo(AMControlSetInfo *copyFrom, QObject *parent) :
+		AMDbObject(parent)
+{
+	setName("ControlSet");
+	QStringList tmpList;
+	metaData_["names"] = QStringList(tmpList);
+	metaData_["values"] = QStringList(tmpList);
+	metaData_["minimums"] = QStringList(tmpList);
+	metaData_["maximums"] = QStringList(tmpList);
+	if(copyFrom){
+		setName(copyFrom->name());
+		for(int x = 0; x < copyFrom->count(); x++)
+			addControlAt(x, copyFrom->nameAt(x), copyFrom->valueAt(x), copyFrom->minimumAt(x), copyFrom->maximumAt(x));
+	}
+}
+
 int AMControlSetInfo::count() const{
 	return metaData("names").toStringList().count();
 }
@@ -94,6 +110,7 @@ bool AMControlSetInfo::setValueAt(int index, double value){
 		tmpStr.setNum(value);
 		tmpList[index] = tmpStr;
 		setMetaData("values", tmpList);
+		emit valuesChanged();
 		return true;
 	}
 	else
@@ -157,6 +174,7 @@ bool AMControlSetInfo::addControlAt(int index, QString name, double value, doubl
 		tmpStr.setNum(maximum);
 		tmpList.insert(index, tmpStr);
 		setMetaData("maximums", tmpList);
+		emit valuesChanged();
 		return true;
 	}
 	else
@@ -177,8 +195,19 @@ bool AMControlSetInfo::removeControlAt(int index){
 		tmpList = metaData("maximums").toStringList();
 		tmpList.removeAt(index);
 		setMetaData("maximums", tmpList);
+		emit valuesChanged();
 		return true;
 	}
 	else
 		return false;
+}
+
+void AMControlSetInfo::copyFrom(AMControlSetInfo *copyFrom){
+	while(count() > 0)
+		removeControlAt(count()-1);
+	if(copyFrom){
+		setName(copyFrom->name());
+		for(int x = 0; x < copyFrom->count(); x++)
+			addControlAt(x, copyFrom->nameAt(x), copyFrom->valueAt(x), copyFrom->minimumAt(x), copyFrom->maximumAt(x));
+	}
 }

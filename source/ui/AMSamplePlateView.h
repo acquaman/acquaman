@@ -8,6 +8,9 @@
 #include <QFrame>
 #include <QScrollArea>
 #include <QPushButton>
+#include <QMouseEvent>
+#include <QIcon>
+#include <QPropertyAnimation>
 #include <QDebug>
 
 #include "dataman/AMSamplePlate.h"
@@ -51,20 +54,33 @@ class AMSamplePositionItemView : public QFrame
 {
 Q_OBJECT
 public:
-	AMSamplePositionItemView(AMSamplePosition *samplePosition, int index = -1, QWidget *parent = 0);
+	AMSamplePositionItemView(AMSamplePosition *samplePosition, AMControlSet *manipulator = 0, int index = -1, QWidget *parent = 0);
 	int index();
+	AMControlSet* manipulator();
 
 public slots:
 	void setIndex(int index);
+	void setManipulator(AMControlSet* manipulator);
 
 protected slots:
+	bool onSavePositionClicked();
+	bool onRecallPositionClicked();
+
+	void updateLook();
 	void onSamplePositionUpdate();
+	void defocusItem();
+
+protected:
+	void mousePressEvent(QMouseEvent *event);
 
 protected:
 	AMSamplePosition *samplePosition_;
+	AMControlSet *manipulator_;
 	int index_;
+	bool inFocus_;
 
 	QHBoxLayout *hl_;
+	QVBoxLayout *vl_;
 	QLabel *indexLabel_;
 	QComboBox *sampleBox_;
 	QLabel *positionLabel_;

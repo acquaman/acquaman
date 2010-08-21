@@ -107,6 +107,8 @@ AMSamplePosition::AMSamplePosition(AMSample *sample, AMControlSetInfo *position,
 {
 	sample_ = sample;
 	position_ = position;
+	if(position_)
+		connect(position_, SIGNAL(valuesChanged()), this, SIGNAL(positionValuesChanged()));
 }
 
 AMSample* AMSamplePosition::sample(){
@@ -122,5 +124,9 @@ void AMSamplePosition::setSample(AMSample *sample){
 }
 
 void AMSamplePosition::setPosition(AMControlSetInfo *position){
+	if(position_)
+		disconnect(position_, SIGNAL(valuesChanged()), this, SIGNAL(positionValuesChanged()));
 	position_ = position;
+	if(position_)
+		connect(position_, SIGNAL(valuesChanged()), this, SIGNAL(positionValuesChanged()));
 }

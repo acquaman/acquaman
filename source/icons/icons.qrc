@@ -44,5 +44,6 @@
         <file>ArrowPlaneOut.png</file>
         <file>ArrowCCW.png</file>
         <file>ArrowCW.png</file>
+        <file>save.png</file>
     </qresource>
 </RCC>

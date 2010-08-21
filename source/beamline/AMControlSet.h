@@ -55,11 +55,12 @@ public slots:
 	/// Removes an AMControl from the control set. Returns true if the removal was successful. Failure could result from removing an AMControl not in the set.
 	bool removeControl(AMControl* ctrl);
 
-	void syncInfo();
+//	void syncInfo();
 	void setFromInfo(AMControlSetInfo *info);
 
 protected slots:
 	void onConnected(bool connected);
+	void onValueChanged(double value);
 
 protected:
 	/// Holds the name of the control set. Should be descriptive of the logical relationship.

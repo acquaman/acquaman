@@ -66,6 +66,9 @@ public slots:
 	void setSample(AMSample *sample);
 	void setPosition(AMControlSetInfo *position);
 
+signals:
+	void positionValuesChanged();
+
 protected:
 	AMSample *sample_;
 	AMControlSetInfo *position_;

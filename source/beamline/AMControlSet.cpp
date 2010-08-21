@@ -33,6 +33,7 @@ bool AMControlSet::addControl(AMControl* ctrl) {
 		return false;
 	ctrls_.append(ctrl);
 	connect(ctrl, SIGNAL(connected(bool)), this, SLOT(onConnected(bool)));
+	connect(ctrl, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged(double)));
 	info_->addControlAt(info_->count(), ctrl->name(), ctrl->value(), ctrl->minimumValue(), ctrl->maximumValue());
 	return true;
 }
@@ -42,20 +43,18 @@ bool AMControlSet::removeControl(AMControl* ctrl) {
 	int index = ctrls_.indexOf(ctrl);
 	info_->removeControlAt(index);
 	bool retVal = ctrls_.removeOne(ctrl);
-	if(retVal)
+	if(retVal){
 		disconnect(ctrl, SIGNAL(connected(bool)), this, SLOT(onConnected(bool)));
+		disconnect(ctrl, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged(double)));
+	}
 	return retVal;
-}
-
-void AMControlSet::syncInfo(){
-	for(int x = 0; x < ctrls_.count(); x++)
-		info_->setControlAt(x, ctrls_.at(x)->name(), ctrls_.at(x)->value(), ctrls_.at(x)->minimumValue(), ctrls_.at(x)->maximumValue());
 }
 
 void AMControlSet::setFromInfo(AMControlSetInfo *info){
 	AMControl *tmpCtrl;
 	for(int x = 0; x < info->count(); x++){
 		tmpCtrl = controlByName(info->nameAt(x));
+		qDebug() << "Claims value at " << x << info->valueAt(x);
 		if(tmpCtrl)
 			tmpCtrl->move(info->valueAt(x));
 	}
@@ -63,10 +62,18 @@ void AMControlSet::setFromInfo(AMControlSetInfo *info){
 
 void AMControlSet::onConnected(bool connected){
 	AMControl *ctrl = (AMControl*)QObject::sender();
-	if(!ctrl)
+	if(!ctrl || !connected)
 		return;
 	int index = ctrls_.indexOf(ctrl);
 	info_->setControlAt(index, ctrl->name(), ctrl->value(), ctrl->minimumValue(), ctrl->maximumValue());
+}
+
+void AMControlSet::onValueChanged(double value){
+	AMControl *ctrl = (AMControl*)QObject::sender();
+	if(!ctrl)
+		return;
+	int index = ctrls_.indexOf(ctrl);
+	info_->setValueAt(index, value);
 }
 
 /// Default implementation returns an empty map. This function is the core of the implementation for subclasses.

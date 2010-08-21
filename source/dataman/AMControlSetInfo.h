@@ -10,6 +10,7 @@ class AMControlSetInfo : public AMDbObject
 Q_OBJECT
 public:
 	explicit AMControlSetInfo(QObject *parent = 0);
+	AMControlSetInfo(AMControlSetInfo *copyFrom, QObject *parent = 0);
 
 	~AMControlSetInfo() {}
 
@@ -41,6 +42,7 @@ public:
 	virtual QString typeDescription() const;
 
 signals:
+	void valuesChanged();
 
 public slots:
 	/// Convenience function to set the human-readable description
@@ -59,6 +61,8 @@ public slots:
 	bool addControlAt(int index, QString name, double value, double minimum, double maximum);
 
 	bool removeControlAt(int index);
+
+	void copyFrom(AMControlSetInfo *copyFrom);
 };
 
 #endif // AMCONTROLSETINFO_H
