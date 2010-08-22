@@ -1,6 +1,7 @@
 #ifndef AMDetectorInfo_H
 #define AMDetectorInfo_H
 
+#include "acquaman.h"
 #include "dataman/AMDbObject.h"
 #include "dataman/AMDatabaseDefinition.h"
 #include <QStringList>
@@ -43,7 +44,7 @@ public:
 		QList<AMMetaMetaData> rv;
 		rv << AMMetaMetaData(QVariant::String, "description", true);
 		rv << AMMetaMetaData(QVariant::Int, "dimension", false);
-		rv << AMMetaMetaData(QVariant::List, "rank", false);
+		rv << AMMetaMetaData(AM::IntList, "rank", false);
 		return rv;
 	}
 

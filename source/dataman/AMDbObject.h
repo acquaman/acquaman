@@ -1,6 +1,7 @@
 #ifndef ACQMAN_DBOBJECT_H
 #define ACQMAN_DBOBJECT_H
 
+#include "acquaman.h"
 #include <QObject>
 #include <QDateTime>
 #include <QStringList>
@@ -14,6 +15,7 @@
 class AMMetaMetaData {
 public:
 	AMMetaMetaData(QVariant::Type nType, const QString& nKey, bool nWriteable) : type(nType), key(nKey), writeable(nWriteable) {}
+	AMMetaMetaData(AM::AcquamanType nType, const QString& nKey, bool nWriteable) : type((QVariant::Type)nType), key(nKey), writeable(nWriteable) {}
 
 	QVariant::Type type;
 	QString key;
