@@ -10,22 +10,15 @@
 #include <QMap>
 
 
-/*! This class encapsulates all access to the user's metadata database.  It is a singleton class like AMBeamline, except that it can provide access to either the user's private database or the public database.
-
+/// This class encapsulates all access to the user's metadata database.  It is a singleton class like AMBeamline, except that it can provide access to either the user's private database or the public database.
+/*!
 	Access the database instances via public static functions:
 		- AMDatabase::userdb(), or
 		- AMDatabase::publicdb()
 
 
-
-
 	This class provides tools for accessing and working with an arbitrary database.  (The actual schema -- or table structure -- for the user database is defined in AMDatabaseDefinition.)  The objective of this class is to cleanly encapsulate the useful SQL queries, and protect the database integrity by reducing the amount of times anyone requires direct access to run arbitrary queries.
-
-
-
 */
-
-
 class AMDatabase : public QObject {
 	Q_OBJECT
 

@@ -23,8 +23,8 @@ public:
 	virtual bool saveToFile(const QString& filepath) = 0;
 
 	/// Set the target scan
-	void operator=(AMScan& scan) {
-		scan_ = &scan;
+	void setTarget(AMScan* scan) {
+		scan_ = scan;
 	}
 
 protected:

@@ -219,6 +219,9 @@ protected slots:
 	/// This is received after the channel removal completes.
 	void onChannelRemoved(const QModelIndex& parent, int start, int end);
 
+	/// This slot catches signals from scans that change their meta-data, and emits dataChanged() as needed.
+	void onMetaDataChanged(const QString& key);
+
 protected:
 	QList<AMScan*> scans_;
 	QList<const AMChannelListModel*> scanChannelLists_;

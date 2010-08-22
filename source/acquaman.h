@@ -3,6 +3,8 @@
 
 #include <Qt>
 #include <QStandardItem>
+#include <QList>
+
 
 /// This namespace contains global definitions for the Acquaman / Dataman framework.
 
@@ -15,5 +17,15 @@ namespace AM {
 	enum ItemTypes { SidebarItem = QStandardItem::UserType + 1, SidebarHeadingItem, RunItem, ExperimentItem };
 
 
+	/// Application-wide QVariant user types
+	enum AcquamanTypes { IntList = QVariant::UserType + 20, DoubleList };
+
 }
+
+typedef QList<int> AMIntList;
+typedef QList<double> AMDoubleList;
+
+Q_DECLARE_METATYPE(AMIntList);
+Q_DECLARE_METATYPE(AMDoubleList);
+
 #endif // ACQUAMAN_H
