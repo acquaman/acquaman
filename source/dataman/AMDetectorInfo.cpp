@@ -23,11 +23,7 @@ bool AMDetectorInfo::loadFromDb(AMDatabase* db, int id) {
 bool AMDetectorInfo::storeToDb(AMDatabase* db) {
 	// the base class version is good at saving all the values in the metaData_ hash. Let's just exploit that.
 	metaData_["dimension"] = dimension();
-	QString rankList;
-	foreach(int dim, rank())
-		rankList.append("%1,").arg(dim);
-	rankList.chop(1);
-	metaData_["rank"] = rankList;
+	metaData_["rank"].setValue(rank());
 
 	// Call the base class implementation
 	bool retval = AMDbObject::storeToDb(db);

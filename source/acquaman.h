@@ -18,9 +18,10 @@ namespace AM {
 
 
 	/// Application-wide QVariant user types
-	enum AcquamanTypes { IntList = QVariant::UserType + 20, DoubleList };
+	enum AcquamanType { IntList = QVariant::UserType + 20, DoubleList };
 
 }
+
 
 typedef QList<int> AMIntList;
 typedef QList<double> AMDoubleList;
