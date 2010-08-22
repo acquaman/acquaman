@@ -137,16 +137,16 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 			}
 
 			// For lists that should be anything else (ints, doubles, etc.)
-			else if(md.type == AM::IntList || md.type == AM::DoubleList || md.type == QVariant::List) {
+			else if(md.type == (int)AM::IntList || md.type == (int)AM::DoubleList || md.type == QVariant::List) {
 				QStringList stringListForm = metaData_[md.key].toString().split(AMDatabaseDefinition::listSeparator());
 				// Now we've got a stringList. Get that back into a list of integers
-				if(md.type == AM::IntList) {
+				if(md.type == (int)AM::IntList) {
 					AMIntList il;
 					foreach(QString i, stringListForm)
 						il << i.toInt();
 					metaData_[md.key].setValue(il);
 				}
-				else if(md.type == AM::DoubleList) {
+				else if(md.type == (int)AM::DoubleList) {
 					AMDoubleList dl;
 					foreach(QString d, stringListForm)
 						dl << d.toDouble();
