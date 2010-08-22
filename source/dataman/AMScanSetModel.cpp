@@ -3,7 +3,7 @@
 QModelIndex AMScanSetModel::index ( int row, int column, const QModelIndex & parent ) const {
 	// top level:
 	if(!parent.isValid()) {
-		if(column == 0 && row < scans_.count())
+		if(column == 0 && row >= 0 && row < scans_.count())
 			return createIndex(row, 0, -1);	// id of -1 in a model index indicates a Scan-level index. Row is the index of the scan.
 		else
 			return QModelIndex();
@@ -171,10 +171,13 @@ int AMScanSetModel::indexOf(AMChannel* channel, AMScan* insideHere) const {
 
 // Add a scan to this model.  The AMScan must exist elsewhere, for the lifetime that it is added to the model.  Model does not take ownership of the scan.
 void AMScanSetModel::addScan(AMScan* newScan) {
+	emit layoutAboutToBeChanged();
+
 	beginInsertRows(QModelIndex(), scans_.count(), scans_.count());
 
 	scans_.append(newScan);
 	scanChannelLists_.append(newScan->channelList());
+	connect(newScan, SIGNAL(metaDataChanged(QString)), this, SLOT(onMetaDataChanged(QString)));
 
 	QList<AMScanSetModelChannelMetaData> chs;
 	for(int i=0; i<newScan->numChannels(); i++)
@@ -188,21 +191,25 @@ void AMScanSetModel::addScan(AMScan* newScan) {
 	connect(newScan->channelList(), SIGNAL(rowsRemoved(QModelIndex, int, int)), this, SLOT(onChannelRemoved(QModelIndex, int, int)));
 	endInsertRows();
 	/// \todo hack: should not be needed... But we do to keep QTreeViews from getting messed up. Why?
-	reset();
+	emit layoutChanged();
 }
 
 // removes an AMScan from this model. Does not delete the scan.  Call this before deleting a scan that has been added to the model.
 bool AMScanSetModel::removeScan(AMScan* removeMe) {
+
 	int index = scans_.indexOf(removeMe);
 
 	if(index != -1) {
+		disconnect(removeMe, SIGNAL(metaDataChanged(QString)), this, SLOT(onMetaDataChanged(QString)));
+		emit layoutAboutToBeChanged();
 		beginRemoveRows(QModelIndex(), index, index);
 		scans_.removeAt(index);
 		scanChannelLists_.removeAt(index);
 		chMetaData_.removeAt(index);
 		endRemoveRows();
+
 		/// \todo hack: should not be needed... But we do to keep QTreeViews from getting messed up. Why?
-		reset();
+		emit layoutChanged();
 		return true;
 	}
 	else
@@ -317,4 +324,17 @@ void AMScanSetModel::onChannelRemoved(const QModelIndex& parent, int start, int 
 
 
 	endRemoveRows();
+}
+
+
+void AMScanSetModel::onMetaDataChanged(const QString& key) {
+	AMScan* scan = qobject_cast<AMScan*>(sender());
+	if(!scan)
+		return;
+
+	if(key=="name" || key=="sampleName" || key=="dateTime") {
+		QModelIndex i = indexForScan(indexOf(scan));
+		if(i.isValid())
+			emit dataChanged(i, i);
+	}
 }

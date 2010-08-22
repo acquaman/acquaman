@@ -22,6 +22,96 @@ class Test1: public QObject
 private slots:
 
 
+	void testAMScanSetModel() {
+
+
+		AMScanView sv;
+		sv.show();
+
+		AMScanSetModel* model = sv.model();
+
+		QTreeView tree;
+		tree.show();
+		tree.setModel(model);
+
+		QTest::qWait(2000);
+
+		AMXASScan s1;
+		s1.setName("scan1");
+		model->addScan(&s1);
+
+		QTest::qWait(2000);
+
+
+		SGM2004FileLoader s1Loader(&s1);
+		QString fileName = AMUserSettings::userDataFolder + "/2010/06/CarbonTape_C1.dat";
+		qDebug() << fileName;
+
+		QVERIFY(s1Loader.loadFromFile(fileName));
+
+
+		QTest::qWait(4000);
+
+
+		QVERIFY(s1.deleteChannel("tey_n"));
+
+
+		QTest::qWait(2000);
+
+
+		QVERIFY(s1.addChannel("const5", "1+2+2"));
+
+
+		QTest::qWait(4000);
+
+		model->setExclusiveChannel("tfy_n");
+
+		QTest::qWait(4000);
+
+		QVERIFY(s1.deleteChannel("tfy_n"));
+
+		QTest::qWait(1000);
+
+		AMXASScan s2;
+		s2.setName("scan 2");
+		model->addScan(&s2);
+		//s1Loader = s2;
+		s1Loader.setTarget(&s2);
+
+		QVERIFY(s1Loader.loadFromFile(fileName));
+
+		QTest::qWait(2000);
+
+		model->setExclusiveChannel("const5");
+
+		QTest::qWait(4000);
+
+		model->setExclusiveChannel("tey_n");
+
+		QTest::qWait(4000);
+
+		QVERIFY(s2.deleteChannel("tey_raw"));
+
+
+
+
+		QTest::qWait(8000);
+
+		QVERIFY(s1.deleteChannel("const5"));
+
+
+		QTest::qWait(2000);
+
+
+		QVERIFY(model->removeScan(&s1));
+
+
+		QTest::qWait(2000);
+
+	}
+
+
+
 
 	/// This runs before any of the private slots (test cases) get run. It loads the settings and prepares the database tables as required for each Scan object that gets tested.
 	void initTestCase()
@@ -40,6 +130,7 @@ private slots:
 	}
 
 
+	/*
 	void testThumbnailGraphicsWidget() {
 		QGraphicsView* view = new QGraphicsView();
 		view->resize(300,300);
@@ -72,14 +163,14 @@ private slots:
 
 		//g->grabMouse();
 
-		QTest::qWait(15000);
+		QTest::qWait(2000);
 
 		delete view;
 
 	}
 
 
-	/*
+
 	/// Test to confirm that new run dialog works.
 	void testRunDialog() {
 
@@ -89,7 +180,7 @@ private slots:
 
 
 
-		QTest::qWait(5000);
+		QTest::qWait(2000);
 
 		delete window;
 
@@ -126,94 +217,8 @@ private slots:
 		QTest::qWait(40000);
 
 	}
-	*/
-	/*
-
-	void testAMScanSetModel() {
 
 
-		AMScanView sv;
-		sv.show();
-
-		AMScanSetModel* model = sv.model();
-
-		QTreeView tree;
-		tree.show();
-		tree.setModel(model);
-
-		QTest::qWait(2000);
-
-		AMXASScan s1;
-		s1.setName("scan1");
-		model->addScan(&s1);
-
-		QTest::qWait(2000);
-
-
-		SGM2004FileLoader s1Loader(&s1);
-		QString fileName = AMUserSettings::userDataFolder + "001.dat";
-
-		QVERIFY(s1Loader.loadFromFile(fileName));
-
-
-		QTest::qWait(4000);
-
-
-		QVERIFY(s1.deleteChannel("tey_n"));
-
-
-		QTest::qWait(2000);
-
-
-		QVERIFY(s1.addChannel("const5", "1+2+2"));
-
-
-		QTest::qWait(4000);
-
-		model->setExclusiveChannel("tfy_n");
-
-		QTest::qWait(4000);
-
-		QVERIFY(s1.deleteChannel("tfy_n"));
-
-		QTest::qWait(1000);
-
-		AMXASScan s2;
-		s2.setName("scan 2");
-		model->addScan(&s2);
-		s1Loader = s2;
-
-		QVERIFY(s1Loader.loadFromFile(fileName));
-
-		QTest::qWait(2000);
-
-		model->setExclusiveChannel("const5");
-
-		QTest::qWait(4000);
-
-		model->setExclusiveChannel("tey_n");
-
-		QTest::qWait(4000);
-
-		QVERIFY(s2.deleteChannel("tey_raw"));
-
-
-
-
-		QTest::qWait(8000);
-
-		QVERIFY(s1.deleteChannel("const5"));
-
-
-		QTest::qWait(2000);
-
-
-		QVERIFY(model->removeScan(&s1));
-
-
-		QTest::qWait(2000);
-
-	}
 
 
 	// tests creation/deletion of scans and channels within an AMScanSetModel (using a standard QTreeView to watch)
@@ -526,6 +531,7 @@ private slots:
 		QTest::qWait(80000);
 
 	}
+
 	*/
 
 

@@ -1,5 +1,10 @@
 #include "dataman/AMDatabaseDefinition.h"
 
+void AMDatabaseDefinition::ensureTableForDbObjects(constQString& tableName, AMDatabase* db) {
+
+	db->ensureTable(tableName, QString("typeId,thumbnailCount,thumbnailFirstId").split(','), QString("INTEGER,INTEGER,INTEGER").split(','));
+}
+
 void AMDatabaseDefinition::initializeDatabaseTables(AMDatabase* db) {
 
 
