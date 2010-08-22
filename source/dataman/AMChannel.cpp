@@ -122,6 +122,54 @@ AMChannel::AMChannel(AMScan* scan, const QString& name, const QString& expressio
 	setXExpression(xExpression);
 }
 
+double* AMChannel::addVariable(AMParVar *parVar){
+	if(parVar->stName == ""){
+		if( !((dataTree()->xName() == parVar->colName) || dataTree()->yColumnNames().contains(parVar->colName) ) )
+			return NULL;
+		if(parVar->isXExpression){
+			if( dataTree()->xName() == parVar->colName ){
+				usedColumnIndicesX_ << -1;
+				parVar->isX = true;
+			}
+			else
+				usedColumnIndicesX_ << dataTree()->yColumnNames().indexOf(parVar->colName);
+		}
+		else{
+			if( dataTree()->xName() == parVar->colName ){
+				usedColumnIndices_ << -1;
+				parVar->isX = true;
+			}
+			else
+				usedColumnIndices_ << dataTree()->yColumnNames().indexOf(parVar->colName);
+		}
+	}
+	else{
+		if( !dataTree()->ySubtreeNames().contains(parVar->stName) || !( (dataTree()->prototype(parVar->stName)->xName() == parVar->colName) || dataTree()->prototype(parVar->stName)->yColumnNames().contains(parVar->colName) ) )
+			return NULL;
+		if( dataTree()->prototype(parVar->stName)->xName() == parVar->colName )
+			parVar->isX = true;
+	}
+	if(varStorage_.capacity() == varLookUps_.count())
+		varStorage_.resize((int)(1.5*varStorage_.capacity()));
+	parVar->vectorIndex = varLookUps_.count();
+	varLookUps_.append(parVar);
+	varStorage_.append(0);
+	return varStorage_.data()+parVar->vectorIndex;
+}
+
+QRectF AMChannel::boundingRect() const {
+	if(count() == 0)
+		return QRectF();
+	else {
+		double mins = min();
+		double maxs = max();
+		double minXs = minX();
+		double maxXs = maxX();
+		return QRectF(QPointF(minXs, mins), QSizeF(maxXs-minXs, maxs-mins));
+	}
+}
+
+
 bool AMChannel::setExpression(const QString& expression) {
 
 	isValid_ = false;
