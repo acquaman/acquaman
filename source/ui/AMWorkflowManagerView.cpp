@@ -69,12 +69,14 @@ void AMWorkflowManagerView::onInsertActionRequested(AMBeamlineActionItem *action
 }
 
 
-AMBeamlineActionListModel::AMBeamlineActionListModel(QObject *parent)
+AMBeamlineActionListModel::AMBeamlineActionListModel(QObject *parent) :
+		QAbstractListModel(parent)
 {
 	actions_ = new QList<AMBeamlineActionItem*>();
 }
 
 int AMBeamlineActionListModel::rowCount(const QModelIndex &index) const{
+	Q_UNUSED(index);
 	return actions_->count();
 }
 
@@ -101,7 +103,7 @@ QVariant AMBeamlineActionListModel::headerData(int section, Qt::Orientation orie
 
 bool AMBeamlineActionListModel::setData(const QModelIndex &index, const QVariant &value, int role){
 	if (index.isValid()  && index.row() < actions_->count() && role == Qt::EditRole) {
-		bool conversionOK = false;
+//		bool conversionOK = false;
 		AMBeamlineActionItem* actionItem;
 		actionItem = (AMBeamlineActionItem*) value.value<void*>();
 
@@ -169,9 +171,9 @@ bool AMBeamlineActionsList::setAction(size_t index, AMBeamlineActionItem *action
 	AMBeamlineActionItem *oldAction = (AMBeamlineActionItem*)actions_->data( actions_->index(index, 0), Qt::DisplayRole ).value<void*>();
 	AMBeamlineActionItem *prevAction = NULL;
 	AMBeamlineActionItem *nextAction = NULL;
-	if(index != 0)
+	if( (int)index != 0)
 		prevAction = (AMBeamlineActionItem*)actions_->data( actions_->index(index-1, 0), Qt::DisplayRole ).value<void*>();
-	if(index != (count() -1) )
+	if( (int)index != (count() -1) )
 		nextAction = (AMBeamlineActionItem*)actions_->data( actions_->index(index+1, 0), Qt::DisplayRole ).value<void*>();
 	if(oldAction){ //replace
 		if(prevAction){
@@ -223,9 +225,9 @@ bool AMBeamlineActionsList::deleteAction(size_t index){
 	AMBeamlineActionItem *oldAction = (AMBeamlineActionItem*)actions_->data( actions_->index(index, 0), Qt::DisplayRole ).value<void*>();
 	AMBeamlineActionItem *prevAction = NULL;
 	AMBeamlineActionItem *nextAction = NULL;
-	if(index != 0)
+	if( (int)index != 0)
 		prevAction = (AMBeamlineActionItem*)actions_->data( actions_->index(index-1, 0), Qt::DisplayRole ).value<void*>();
-	if(index != (count() -1) )
+	if( (int)index != (count() -1) )
 		nextAction = (AMBeamlineActionItem*)actions_->data( actions_->index(index+1, 0), Qt::DisplayRole ).value<void*>();
 	bool retVal = actions_->removeRows(index, 1);
 	if(retVal){
@@ -394,6 +396,7 @@ void AMBeamlineActionsListView::handleDataChanged(QModelIndex topLeft, QModelInd
 }
 
 void AMBeamlineActionsListView::handleRowsInsert(const QModelIndex &parent, int start, int end){
+	Q_UNUSED(parent);
 	qDebug() << "In handleRowInsert on " << start << end;
 	if(start != end)
 		return; //WHAT TO DO ON MULTI-ROW INSERT?
@@ -402,6 +405,7 @@ void AMBeamlineActionsListView::handleRowsInsert(const QModelIndex &parent, int 
 }
 
 void AMBeamlineActionsListView::handleRowsRemoved(const QModelIndex &parent, int start, int end){
+	Q_UNUSED(parent);
 	if(start != end)
 		return; //WHAT TO DO FOR MULTI-ROW DELETE?
 	AMBeamlineActionView *tmpView = fullViewList_.takeAt(start);

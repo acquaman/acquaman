@@ -70,8 +70,13 @@ public:
 	AMControl* loadlockCCG() const { return loadlockCCG_;}
 	AMControl* loadlockTCG() const { return loadlockTCG_;}
 	AMControl* ssaManipulatorX() const { return ssaManipulatorX_;}
+	AMControl* ssaManipulatorXStop() const { return ssaManipulatorXStop_;}
 	AMControl* ssaManipulatorY() const { return ssaManipulatorY_;}
+	AMControl* ssaManipulatorYStop() const { return ssaManipulatorYStop_;}
 	AMControl* ssaManipulatorZ() const { return ssaManipulatorZ_;}
+	AMControl* ssaManipulatorZStop() const { return ssaManipulatorZStop_;}
+	AMControl* ssaManipulatorRot() const { return ssaManipulatorRot_;}
+	AMControl* ssaManipulatorRotStop() const { return ssaManipulatorRotStop_;}
 
 	AMControlSet* fluxResolutionSet() const { return fluxResolutionSet_;}
 	AMControlSet* trackingSet() const { return trackingSet_;}
@@ -166,8 +171,13 @@ protected:
 	AMControl *loadlockCCG_;
 	AMControl *loadlockTCG_;
 	AMControl *ssaManipulatorX_;
+	AMControl *ssaManipulatorXStop_;
 	AMControl *ssaManipulatorY_;
+	AMControl *ssaManipulatorYStop_;
 	AMControl *ssaManipulatorZ_;
+	AMControl *ssaManipulatorZStop_;
+	AMControl *ssaManipulatorRot_;
+	AMControl *ssaManipulatorRotStop_;
 
 	AMDetectorInfo *teyDetector_;
 	AMDetectorInfo *tfyDetector_;

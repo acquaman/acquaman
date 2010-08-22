@@ -16,6 +16,7 @@ void AMDatabaseDefinition::initializeDatabaseTables(AMDatabase* db) {
 	db->ensureTable(runTableName(), QString("typeId,thumbnailCount,thumbnailFirstId").split(','), QString("INTEGER,INTEGER,INTEGER").split(','));
 	db->ensureTable(experimentTableName(), QString("typeId,thumbnailCount,thumbnailFirstId").split(','), QString("INTEGER,INTEGER,INTEGER").split(','));
 	db->ensureTable(detectorTableName(), QString("typeId,thumbnailCount,thumbnailFirstId").split(','), QString("INTEGER,INTEGER,INTEGER").split(','));
+	db->ensureTable(controlSetTableName(), QString("typeId,thumbnailCount,thumbnailFirstId").split(','), QString("INTEGER,INTEGER,INTEGER").split(','));
 	db->ensureTable(sampleTableName(), QString("typeId,thumbnailCount,thumbnailFirstId").split(','), QString("INTEGER,INTEGER,INTEGER").split(','));
 	db->ensureTable(facilityTableName(), QString("typeId,thumbnailCount,thumbnailFirstId").split(','), QString("INTEGER,INTEGER,INTEGER").split(','));
 

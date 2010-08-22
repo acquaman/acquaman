@@ -193,7 +193,9 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/dataman/AMRunExperimentItems.h \
 	source/ui/AMSamplePositionView.h \
 	source/ui/AMSampleManipulatorView.h \
-	source/ui/AMSamplePlateView.h
+	source/ui/AMSamplePlateView.h \
+	source/dataman/AMControlSetInfo.h \
+	source/dataman/AMSamplePlate.h
 FORMS += source/ui/AbsorptionScanController.ui \
 	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
@@ -320,7 +322,9 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/dataman/AMRunExperimentItems.cpp \
 	source/ui/AMSamplePositionView.cpp \
 	source/ui/AMSampleManipulatorView.cpp \
-	source/ui/AMSamplePlateView.cpp
+	source/ui/AMSamplePlateView.cpp \
+	source/dataman/AMControlSetInfo.cpp \
+	source/dataman/AMSamplePlate.cpp
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc
 OTHER_FILES += source/muParser/README.txt

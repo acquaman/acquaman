@@ -6,13 +6,19 @@ AMSamplePositionView::AMSamplePositionView(QWidget *parent, AMSampleManipulatorV
 	QUrl source("http://ccd1611-403/axis-cgi/mjpg/video.cgi?resolution=1280x1024&.mjpg");
 	cam_ = new CamWidget("Camera 1", source);
 
+	manipulator_ = NULL;
 	plateView_ = new AMSamplePlateView();
-	plateView_->setMinimumSize(200, 150);
+	plateView_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
 	if(!manipulatorView)
 		manipulatorView_ = new AMSampleManipulatorView();
 	else
 		manipulatorView_ = manipulatorView;
-	manipulatorView_->setMinimumSize(150, 150);
+	if(manipulatorView_->manipulator()){
+		manipulator_ = manipulatorView_->manipulator();
+		plateView_->setManipulator(manipulator_);
+	}
+
+	manipulatorView_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
 
 	gl_ = new QGridLayout();

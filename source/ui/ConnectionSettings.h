@@ -42,7 +42,7 @@ public:
 		*/
 
 				AMControlState *csTest = new AMControlState(SGMBeamline::sgm(), this);
-				csTest->vomit();
+				//csTest->vomit();
 
 				connect(AMBeamline::bl()->ringCurrent(), SIGNAL(valueChanged(double)), doubleSpinBox, SLOT(setValue(double)));
 				// TODO: connect(AMBeamline::bl()->ringCurrent(), SIGNAL(pvError(int)), this, SLOT(onEpicsError(int)));
@@ -148,7 +148,7 @@ public slots:
 
 		void onSaveRequested(){
 			csTest = new AMControlState(SGMBeamline::sgm(), this);
-			csTest->vomit();
+			//csTest->vomit();
 		}
 
 		void onRestoreRequested(){

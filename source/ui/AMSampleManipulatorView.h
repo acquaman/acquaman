@@ -15,6 +15,8 @@ Q_OBJECT
 public:
 	explicit AMSampleManipulatorView(QString title = "Manipulator", AMControlSet *manipulator = 0, QWidget *parent = 0);
 
+	AMControlSet *manipulator();
+
 signals:
 
 public slots:
@@ -42,6 +44,10 @@ protected slots:
 	void onMUpstreamButtonReleased();
 	void onMDownstreamButtonPressed();
 	void onMDownstreamButtonReleased();
+	void onMCWButtonPressed();
+	void onMCWButtonReleased();
+	void onMCCWButtonPressed();
+	void onMCCWButtonReleased();
 
 protected:
 	QPushButton *mUpButton_;
@@ -50,16 +56,20 @@ protected:
 	QPushButton *mOutboardButton_;
 	QPushButton *mUpstreamButton_;
 	QPushButton *mDownstreamButton_;
+	QPushButton *mCWButton_;
+	QPushButton *mCCWButton_;
 
 	AMControl *mVerticalCtrl_;
 	AMControl *mHorizontalCtrl_;
 	AMControl *mInPlaneCtrl_;
+	AMControl *mRotationCtrl_;
 
 	NumericControl *mVerticalNC_;
 	NumericControl *mHorizontalNC_;
 	NumericControl *mInPlaneNC_;
+	NumericControl *mRotationNC_;
 
-	QIcon upIcon_, downIcon_, inboardIcon_, outboardIcon_, upstreamIcon_, downstreamIcon_;
+	QIcon upIcon_, downIcon_, inboardIcon_, outboardIcon_, upstreamIcon_, downstreamIcon_, cwIcon_, ccwIcon_;
 
 	QGridLayout *gl_;
 };

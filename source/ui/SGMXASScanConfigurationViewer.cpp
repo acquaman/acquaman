@@ -52,7 +52,7 @@ SGMXASScanConfigurationViewer::SGMXASScanConfigurationViewer(SGMXASScanConfigura
 		delete layout();
 		QSpacerItem *spc1 = new QSpacerItem(10, 10, QSizePolicy::Minimum, QSizePolicy::Maximum);
 		QSpacerItem *spc2 = new QSpacerItem(10, 10, QSizePolicy::Minimum, QSizePolicy::Maximum);
-		QSpacerItem *spc3 = new QSpacerItem(10, 10, QSizePolicy::Minimum, QSizePolicy::Maximum);
+//		QSpacerItem *spc3 = new QSpacerItem(10, 10, QSizePolicy::Minimum, QSizePolicy::Maximum);
 		gl_.setSpacing(0);
 		gl_.addWidget(regionsLineView_,		0, 0, 1, 5, Qt::AlignCenter);
 		gl_.addWidget(regionsView_,			1, 0, 2, 3, Qt::AlignLeft);

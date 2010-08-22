@@ -22,6 +22,7 @@ public:
 	static QString sampleElementEntriesTableName() { return "SampleElementEntries"; }
 	static QString thumbnailTableName() { return "Thumbnails"; }
 	static QString detectorTableName() { return "DetectorInfo"; }
+	static QString controlSetTableName() { return "ControlSetInfo"; }
 	static QString facilityTableName() { return "Facilities"; }
 
 	static QString stringListSeparator() { return "|@^@|"; }
