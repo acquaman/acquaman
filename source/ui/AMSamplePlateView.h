@@ -36,7 +36,7 @@ protected:
 	AMSampleListView *sampleListView_;
 	QVBoxLayout *vl_;
 
-	AMSamplePlate *samplePlate_;
+	AMSamplePlate samplePlate_;
 	AMControlSet *manipulator_;
 };
 

@@ -3,16 +3,16 @@
 AMSamplePlateView::AMSamplePlateView(QString title, QWidget *parent) :
 	QGroupBox(title, parent)
 {
-	samplePlate_ = new AMSamplePlate(this);
+	//samplePlate_ = new AMSamplePlate(this);
 	manipulator_ = NULL;
 
 	setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
-	plateNameLabel_ = new QLabel(samplePlate_->plateName());
+	plateNameLabel_ = new QLabel(samplePlate_.plateName());
 	plateNameLabel_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 	existingPlates_ = new QComboBox();
 	existingPlates_->addItem("Load Existing");
-	sampleListView_ = new AMSampleListView(samplePlate_);
+	sampleListView_ = new AMSampleListView(&samplePlate_);
 	sampleListView_->setManipulator(manipulator_);
 	//sampleListView_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
 	vl_ = new QVBoxLayout();
