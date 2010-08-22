@@ -137,6 +137,7 @@ HEADERS +=	../MPlot/src/MPlot/MPlot.h	\
 	source/dataman/AMFirstTimeController.h	\
 	source/dataman/AMRun.h	\
 	source/dataman/AMSample.h	\
+	source/dataman/AMSamplePlate.h	\
 	source/dataman/AMScan.h	\
 	source/dataman/AMScanSetModel.h	\
 	source/dataman/AMXASScan.h	\
@@ -221,6 +222,7 @@ SOURCES +=	source/acquaman/AMAcqScanSpectrumOutput.cpp	\
 	source/dataman/AMFirstTimeController.cpp	\
 	source/dataman/AMRun.cpp	\
 	source/dataman/AMSample.cpp	\
+	source/dataman/AMSamplePlate.cpp	\
 	source/dataman/AMScan.cpp	\
 	source/dataman/AMScanSetModel.cpp	\
 	source/dataman/AMXASScan.cpp	\

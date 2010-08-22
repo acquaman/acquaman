@@ -1,12 +1,13 @@
 #include "AMSamplePlate.h"
 
 AMSamplePlate::AMSamplePlate(QObject *parent) :
-	QObject(parent)
+	AMDbObject(parent)
 {
 	insertRowLatch = -1;
 	userName_ = "SGM";
-	timeName_ = "loaded "+QDateTime::currentDateTime().toString("MMM d yyyy, h:m ap");
+	createTime_ = QDateTime::currentDateTime();
 	samples_ = NULL;
+	metaData_["createTime"] = QDateTime(createTime_);
 	setupModel();
 }
 
@@ -15,7 +16,7 @@ AMSamplePlateModel* AMSamplePlate::model(){
 }
 
 QString AMSamplePlate::plateName() const{
-	return userName_+" "+timeName_;
+	return userName_+" loaded "+timeString();
 }
 
 int AMSamplePlate::count(){
@@ -69,6 +70,38 @@ int AMSamplePlate::indexOf(const QString &name){
 				return x;
 	}
 	return -1;
+}
+
+QList<AMMetaMetaData> AMSamplePlate::metaDataUniqueKeys(){
+	QList<AMMetaMetaData> rv;
+	rv << AMMetaMetaData(QVariant::DateTime, "createTime", false);
+	return rv;
+}
+
+QList<AMMetaMetaData> AMSamplePlate::metaDataKeys(){
+	return AMDbObject::metaDataKeys() << metaDataUniqueKeys();
+}
+
+QList<AMMetaMetaData> AMSamplePlate::metaDataAllKeys() const{
+	return this->metaDataKeys();
+}
+
+QString AMSamplePlate::databaseTableName() const{
+	return AMDatabaseDefinition::samplePlateTableName();
+}
+
+bool AMSamplePlate::loadFromDb(AMDatabase* db, int id){
+	bool retVal = AMDbObject::loadFromDb(db, id);
+	return retVal;
+}
+
+bool AMSamplePlate::storeToDb(AMDatabase* db){
+	bool retVal = AMDbObject::storeToDb(db);
+	return retVal;
+}
+
+QString AMSamplePlate::typeDescription() const{
+	return "List of Samples their Positions on a Sample Plate";
 }
 
 void AMSamplePlate::setName(const QString &name){
@@ -158,6 +191,12 @@ bool AMSamplePlate::setupModel(){
 		return true;
 	}
 	return false;
+}
+
+const QString AMSamplePlate::timeString() const{
+	QString timeString;
+	timeString = QDateTime::currentDateTime().toString("MMM d yyyy, h:m ap");
+	return timeString;
 }
 
 AMSamplePlateModel::AMSamplePlateModel(QObject *parent) :

@@ -28,12 +28,6 @@ AMControlSetInfo::AMControlSetInfo(AMControlSetInfo *copyFrom, QObject *parent) 
 	ctrlInfoList_ = NULL;
 	setupModel();
 	this->copyFrom(copyFrom);
-/*	if(copyFrom){
-		setName(copyFrom->name());
-		for(int x = 0; x < copyFrom->count(); x++)
-			addControlAt(x, copyFrom->nameAt(x), copyFrom->valueAt(x), copyFrom->minimumAt(x), copyFrom->maximumAt(x));
-	}
-*/
 }
 
 AMControlSetInfoModel* AMControlSetInfo::model(){
