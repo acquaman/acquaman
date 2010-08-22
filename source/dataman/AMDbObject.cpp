@@ -1,6 +1,6 @@
 #include "AMDbObject.h"
 #include "dataman/AMDatabaseDefinition.h"
-
+#include "acquaman.h"
 
 AMDbObject::AMDbObject(QObject *parent) : QObject(parent) {
 	id_ = 0;
@@ -22,7 +22,7 @@ bool AMDbObject::storeToDb(AMDatabase* db) {
 
 	QList<const QVariant*> values;
 	QStringList keys;
-	QList<QVariant*> stringListValues;
+	QList<QVariant*> listValues;
 
 	// determine and append the typeId
 	keys << "typeId";
@@ -37,8 +37,15 @@ bool AMDbObject::storeToDb(AMDatabase* db) {
 		// special action needed for StringList types: need to join into a single string, because we can't store a StringList natively in the DB.
 		if(md.type == QVariant::StringList) {
 			QVariant* slv = new QVariant(metaData_[md.key].toStringList().join(AMDatabaseDefinition::stringListSeparator()));
-			stringListValues << slv;
+			listValues << slv;
 			values << slv;
+		}
+		// special action also needed for all other list types: need to join into a single string, separated by AMDatabaseDefinition::listSeparator
+		else if(md.type == (int)AM::IntList || md.type == (int)AM::DoubleList || md.type == QVariant::List) {
+			// toStringList() works for any list that holds a type that can be converted toString().
+			QVariant* olv = new QVariant(metaData_[md.key].toStringList().join(AMDatabaseDefinition::listSeparator()));
+			listValues << olv;
+			values << olv;
 		}
 		else
 			values << &metaData_[md.key];
@@ -52,9 +59,10 @@ bool AMDbObject::storeToDb(AMDatabase* db) {
 	// store typeId, thumbnailCount, and all metadata into main object table
 	int retVal = db->insertOrUpdate(id(), databaseTableName(), keys, values);
 
-	// delete all the stringList variants we had to temporarily create
-	foreach(QVariant* slv, stringListValues)
-		delete slv;
+	// delete all the variants we had to temporarily create for lists
+	foreach(QVariant* lv, listValues)
+		delete lv;
+
 
 	// Did the update succeed?
 	if(retVal == 0)
@@ -120,10 +128,34 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 		id_ = sourceId;
 		database_ = db;
 
-		// special action needed: StringList types have been returned as strings... Need to convert back to stringLists.
+		// special action needed: StringList types have been returned as strings... Need to convert back to stringLists. Other list types have also been returned as strings. Need to convert them back to their actual list types.
 		foreach(AMMetaMetaData md, this->metaDataAllKeys()) {
+
+			// For lists that SHOULD be StringLists...
 			if(md.type == QVariant::StringList) {
 				metaData_[md.key] = metaData_[md.key].toString().split(AMDatabaseDefinition::stringListSeparator());
+			}
+
+			// For lists that should be anything else (ints, doubles, etc.)
+			else if(md.type == AM::IntList || md.type == AM::DoubleList || md.type == QVariant::List) {
+				QStringList stringListForm = metaData_[md.key].toString().split(AMDatabaseDefinition::listSeparator());
+				// Now we've got a stringList. Get that back into a list of integers
+				if(md.type == AM::IntList) {
+					AMIntList il;
+					foreach(QString i, stringListForm)
+						il << i.toInt();
+					metaData_[md.key].setValue(il);
+				}
+				else if(md.type == AM::DoubleList) {
+					AMDoubleList dl;
+					foreach(QString d, stringListForm)
+						dl << d.toDouble();
+					metaData_[md.key].setValue(dl);
+				}
+				// all other lists get left as string lists. Sorry... I don't know what type you are, so I can't do much else.
+				else {
+					metaData_[md.key] = stringListForm;
+				}
 			}
 		}
 

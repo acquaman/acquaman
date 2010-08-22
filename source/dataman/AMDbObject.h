@@ -78,7 +78,6 @@ public:
 - a user-chosen "name" and "number"
 - a date/time stamp
 
-\todo Write more complete documentation.
 
 <b>Meta data system</b>
 DbObjects and Scans store their meta-data in a flexible, general way, similar to Qt's Property system. (Todo: decide if we should just merge this into the Qt property system.)
@@ -101,7 +100,8 @@ AMDbObjects and AMScans normally also provide convenience functions with readabl
 - You must re-implement metaDataKeys(), metaDataUniqueKeys(), and metaDataAllKeys(), calling the base class where appropriate.
 - It's recommended to initialize your meta-data pieces (metaDataUniqueKeys()) inside metaData_ in the constructor.
 - If you need to load or save anything more than your metaData_, you must re-implement loadFromDb() and storeToDb()
-- If you want to store yourself anywhere but in the main object table, you must re-implement databaseTableName().  (For example, AMSamples overload databaseTableName() to return AMDatabaseDefinition::sampleTableName(), hence making sure that they are stored in a separate table.)
+- If you want to store yourself anywhere but in the main object table, you must re-implement databaseTableName().  (For example, AMSamples overload databaseTableName() to return AMDatabaseDefinition::sampleTableName(), hence making sure that they are stored in a separate table.) \note If you do this, you must make sure that this table exists or is created by AMFirstTimeController::initializeDatabase().
+- Edit
 - If you want to have non-blank thumbnails, you must provide thumbnailCount() and thumbnail(int index).
 */
 

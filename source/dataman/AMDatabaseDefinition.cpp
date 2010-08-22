@@ -1,6 +1,6 @@
 #include "dataman/AMDatabaseDefinition.h"
 
-void AMDatabaseDefinition::ensureTableForDbObjects(constQString& tableName, AMDatabase* db) {
+void AMDatabaseDefinition::ensureTableForDbObjects(const QString& tableName, AMDatabase* db) {
 
 	db->ensureTable(tableName, QString("typeId,thumbnailCount,thumbnailFirstId").split(','), QString("INTEGER,INTEGER,INTEGER").split(','));
 }
@@ -12,13 +12,14 @@ void AMDatabaseDefinition::initializeDatabaseTables(AMDatabase* db) {
 	db->ensureTable(objectTypeTableName(), QString("className,description,columnNames,tableName").split(','), QString("TEXT,TEXT,TEXT,TEXT").split(','));
 
 	// These tables hold AMDbObjects. The first is for all types of user-data objects. Runs, experiments, elements, and samples are stored separately.
-	db->ensureTable(objectTableName(), QString("typeId,thumbnailCount,thumbnailFirstId").split(','), QString("INTEGER,INTEGER,INTEGER").split(','));
-	db->ensureTable(runTableName(), QString("typeId,thumbnailCount,thumbnailFirstId").split(','), QString("INTEGER,INTEGER,INTEGER").split(','));
-	db->ensureTable(experimentTableName(), QString("typeId,thumbnailCount,thumbnailFirstId").split(','), QString("INTEGER,INTEGER,INTEGER").split(','));
-	db->ensureTable(detectorTableName(), QString("typeId,thumbnailCount,thumbnailFirstId").split(','), QString("INTEGER,INTEGER,INTEGER").split(','));
-	db->ensureTable(controlSetTableName(), QString("typeId,thumbnailCount,thumbnailFirstId").split(','), QString("INTEGER,INTEGER,INTEGER").split(','));
-	db->ensureTable(sampleTableName(), QString("typeId,thumbnailCount,thumbnailFirstId").split(','), QString("INTEGER,INTEGER,INTEGER").split(','));
-	db->ensureTable(facilityTableName(), QString("typeId,thumbnailCount,thumbnailFirstId").split(','), QString("INTEGER,INTEGER,INTEGER").split(','));
+	ensureTableForDbObjects(objectTableName(), db);
+	ensureTableForDbObjects(runTableName(), db);
+	ensureTableForDbObjects(experimentTableName(), db);
+	ensureTableForDbObjects(detectorTableName(), db);
+	ensureTableForDbObjects(controlSetTableName(), db);
+	ensureTableForDbObjects(sampleTableName(), db);
+	ensureTableForDbObjects(facilityTableName(), db);
+
 
 
 	db->ensureTable(elementTableName(), QString("typeId,thumbnailCount,thumbnailFirstId,symbol,name,atomicNumber").split(','), QString("INTEGER,INTEGER,INTEGER,TEXT,TEXT,INTEGER").split(','));

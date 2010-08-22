@@ -25,15 +25,17 @@ public:
 	static QString controlSetTableName() { return "ControlSetInfo"; }
 	static QString facilityTableName() { return "Facilities"; }
 
+	/// Separator used between strings when exporting a StringList to the database
 	static QString stringListSeparator() { return "|@^@|"; }
-	static QString intListSeparator(){ return ","; }
+	/// Separator used between items when exporting all other lists to the database
+	static QString listSeparator(){ return ","; }
 
 
 	/// Calling this function will attempt to create all the tables for the schema in database \c db.
 	static void initializeDatabaseTables(AMDatabase* db);
 
 		/// This is a convenience function to ensure that a table is ready with the standard columns for holding AMDbObjects. After calling this, it's still imporant to call registerType() to make the columns for the custom fields.
-	static void ensureTableForDbObjects(AMDatabase* db);
+	static void ensureTableForDbObjects(const QString& tableName, AMDatabase* db);
 
 	/// Database support function: registers a subclass of AMDbObject so that the database is ready to store and access objects of this type. This only needs to be called once for each object type that you want to store in the database.
 	static void registerType(const AMDbObject* prototype, AMDatabase* db);
