@@ -352,7 +352,6 @@ AMCompactControlOptimizationSetView::AMCompactControlOptimizationSetView(AMContr
 	else{
 		for(int x = 0; x < viewSet_->optimizationCount(); x++){
 			tmpOpt = (AMControlOptimization*)viewSet_->optimizationAt(x);
-			qDebug() << "Has " << tmpOpt->name();
 
 		}
 	}
@@ -737,7 +736,6 @@ AMColorControlOptimizationSetView::AMColorControlOptimizationSetView(AMControlSe
 	else{
 		for(int x = 0; x < viewSet_->optimizationCount(); x++){
 			tmpOpt = (AMControlOptimization*)viewSet_->optimizationAt(x);
-			qDebug() << "Has " << tmpOpt->name();
 		}
 	}
 	setLayout(hl_);

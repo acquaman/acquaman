@@ -3,8 +3,15 @@
 AMSamplePlate::AMSamplePlate(QObject *parent) :
 	QObject(parent)
 {
+	insertRowLatch = -1;
 	userName_ = "SGM";
 	timeName_ = "loaded "+QDateTime::currentDateTime().toString("MMM d yyyy, h:m ap");
+	samples_ = NULL;
+	setupModel();
+}
+
+AMSamplePlateModel* AMSamplePlate::model(){
+	return samples_;
 }
 
 QString AMSamplePlate::plateName() const{
@@ -12,13 +19,14 @@ QString AMSamplePlate::plateName() const{
 }
 
 int AMSamplePlate::count(){
-	return samples_.count();
+	return samples_->rowCount(QModelIndex());
 }
 
-AMSamplePosition* AMSamplePlate::samplePositionAt(int index){
-	if(index >= count())
-		return NULL;
-	return samples_.value(index);
+AMSamplePosition* AMSamplePlate::samplePositionAt(size_t index){
+	QVariant retVal = samples_->data(samples_->index(index, 0), Qt::DisplayRole);
+	if(retVal.isValid())
+		return (AMSamplePosition*) retVal.value<void*>();
+	return NULL;
 }
 
 AMSamplePosition* AMSamplePlate::samplePositionByName(const QString &name){
@@ -27,10 +35,11 @@ AMSamplePosition* AMSamplePlate::samplePositionByName(const QString &name){
 	return NULL;
 }
 
-AMSample* AMSamplePlate::sampleAt(int index){
-	if(index >= count())
-		return NULL;
-	return samplePositionAt(index)->sample();
+AMSample* AMSamplePlate::sampleAt(size_t index){
+	AMSamplePosition *sp = samplePositionAt(index);
+	if(sp)
+		return sp->sample();
+	return NULL;
 }
 
 AMSample* AMSamplePlate::sampleByName(const QString &name){
@@ -39,10 +48,11 @@ AMSample* AMSamplePlate::sampleByName(const QString &name){
 	return NULL;
 }
 
-AMControlSetInfo* AMSamplePlate::positionAt(int index){
-	if(index >= count())
-		return NULL;
-	return samplePositionAt(index)->position();
+AMControlSetInfo* AMSamplePlate::positionAt(size_t index){
+	AMSamplePosition *sp = samplePositionAt(index);
+	if(sp)
+		return sp->position();
+	return NULL;
 }
 
 AMControlSetInfo* AMSamplePlate::positionByName(const QString &name){
@@ -52,8 +62,12 @@ AMControlSetInfo* AMSamplePlate::positionByName(const QString &name){
 }
 
 int AMSamplePlate::indexOf(const QString &name){
-	if(sampleName2samplePosition_.containsF(name))
-		return samples_.indexOf(samplePositionByName(name));
+	if(sampleName2samplePosition_.containsF(name)){
+		AMSamplePosition *sp = sampleName2samplePosition_.valueF(name);
+		for(int x = 0; x < count(); x++)
+			if(samplePositionAt(x) == sp)
+				return x;
+	}
 	return -1;
 }
 
@@ -61,22 +75,28 @@ void AMSamplePlate::setName(const QString &name){
 	userName_ = name;
 }
 
-bool AMSamplePlate::addSamplePosition(int index, AMSamplePosition *sp){
-	if(index > count())
-		return false;
-	else if(!sp || !sp->sample() || !sp->position())
-		return false;
-	else if(samples_.contains(sp))
-		return false;
-	samples_.insert(index, sp);
-	sampleName2samplePosition_.set(sp->sample()->name(), sp);
-	return true;
+bool AMSamplePlate::setSamplePosition(size_t index, AMSamplePosition *sp){
+	AMSamplePosition *tmpSP = samplePositionAt(index);
+	bool retVal = samples_->setData(samples_->index(index, 0), qVariantFromValue((void*)sp), Qt::EditRole);
+	if(retVal){
+		sampleName2samplePosition_.removeR(tmpSP);
+		sampleName2samplePosition_.set(sp->sample()->name(), sp);
+	}
+	return retVal;
 }
 
-bool AMSamplePlate::addSamplePosition(int index, AMSample *sample, AMControlSetInfo *position){
-	if(index > count())
+bool AMSamplePlate::addSamplePosition(size_t index, AMSamplePosition *sp){
+	if(!sp || !sp->sample() || !sp->position())
 		return false;
-	else if(!sample || !position)
+	else if(sampleName2samplePosition_.containsR(sp))
+		return false;
+	else if(!samples_->insertRows(index, 1))
+		return false;
+	return setSamplePosition(index, sp);
+}
+
+bool AMSamplePlate::addSamplePosition(size_t index, AMSample *sample, AMControlSetInfo *position){
+	if(!sample || !position)
 		return false;
 	AMSamplePosition *tmpSP = new AMSamplePosition(sample, position, this);
 	return addSamplePosition(index, tmpSP);
@@ -91,16 +111,131 @@ bool AMSamplePlate::appendSamplePosition(AMSample *sample, AMControlSetInfo *pos
 }
 
 bool AMSamplePlate::removeSamplePosition(AMSamplePosition *sp){
-	return removeSamplePosition(samples_.indexOf(sp));
+	return removeSamplePosition( indexOf(sp->sample()->name()) );
 }
 
-bool AMSamplePlate::removeSamplePosition(int index){
-	if(index >= count())
+bool AMSamplePlate::removeSamplePosition(size_t index){
+	if( (int)index >= count())
 		return false;
-	AMSamplePosition *rSP = samples_.takeAt(index);
-	sampleName2samplePosition_.removeR(rSP);
-	return true;
+	AMSamplePosition *rSP = samplePositionAt(index);
+	bool retVal = samples_->removeRows(index, 1);
+	if(retVal)
+		sampleName2samplePosition_.removeR(rSP);
+	return retVal;
 }
+
+void AMSamplePlate::onDataChanged(QModelIndex a, QModelIndex b){
+	if(a.row() != b.row())
+		return;
+	if(insertRowLatch != -1 && insertRowLatch == a.row()){
+		insertRowLatch = -1;
+		emit samplePositionAdded(a.row());
+	}
+	else
+		emit samplePositionChanged(a.row());
+}
+
+void AMSamplePlate::onRowsInserted(QModelIndex parent, int start, int end){
+	Q_UNUSED(parent);
+	if(start != end)
+		return;
+	insertRowLatch = start;
+}
+
+void AMSamplePlate::onRowsRemoved(QModelIndex parent, int start, int end){
+	Q_UNUSED(parent);
+	if(start != end)
+		return;
+	emit samplePositionRemoved(start);
+}
+
+bool AMSamplePlate::setupModel(){
+	samples_ = new AMSamplePlateModel(this);
+	if(samples_){
+		connect(samples_, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(onDataChanged(QModelIndex,QModelIndex)));
+		connect(samples_, SIGNAL(rowsInserted(const QModelIndex,int, int)), this, SLOT(onRowsInserted(QModelIndex,int,int)));
+		connect(samples_, SIGNAL(rowsRemoved(const QModelIndex,int,int)), this, SLOT(onRowsRemoved(QModelIndex,int,int)));
+		return true;
+	}
+	return false;
+}
+
+AMSamplePlateModel::AMSamplePlateModel(QObject *parent) :
+		QAbstractListModel(parent)
+{
+	samples_ = new QList<AMSamplePosition*>();
+}
+
+int AMSamplePlateModel::rowCount(const QModelIndex & /*parent*/) const{
+	return samples_->count();
+}
+
+QVariant AMSamplePlateModel::data(const QModelIndex &index, int role) const{
+	if(!index.isValid())
+		return QVariant();
+	if(index.row() >= samples_->count())
+		return QVariant();
+	if(role == Qt::DisplayRole)
+		return qVariantFromValue((void*)samples_->at(index.row()));
+	else
+		return QVariant();
+}
+
+QVariant AMSamplePlateModel::headerData(int section, Qt::Orientation orientation, int role) const{
+	if (role != Qt::DisplayRole)
+		return QVariant();
+
+	if (orientation == Qt::Horizontal)
+		return QString("Column %1").arg(section);
+	else
+		return QString("Row %1").arg(section);
+}
+
+bool AMSamplePlateModel::setData(const QModelIndex &index, const QVariant &value, int role){
+	if (index.isValid()  && index.row() < samples_->count() && role == Qt::EditRole) {
+		AMSamplePosition* sp;
+		sp = (AMSamplePosition*) value.value<void*>();
+
+		samples_->replace(index.row(), sp);
+		emit dataChanged(index, index);
+		return true;
+	}
+	return false;	// no value set
+}
+
+bool AMSamplePlateModel::insertRows(int position, int rows, const QModelIndex &index){
+	if (index.row() <= samples_->count() && position <= samples_->count()) {
+		beginInsertRows(QModelIndex(), position, position+rows-1);
+		AMSamplePosition *sp = NULL;
+		for (int row = 0; row < rows; ++row) {
+			samples_->insert(position, sp);
+		}
+		endInsertRows();
+		return true;
+	}
+	return false;
+}
+
+bool AMSamplePlateModel::removeRows(int position, int rows, const QModelIndex &index){
+	if (index.row() < samples_->count() && position < samples_->count()) {
+		beginRemoveRows(QModelIndex(), position, position+rows-1);
+		for (int row = 0; row < rows; ++row) {
+			samples_->removeAt(position);
+		}
+		endRemoveRows();
+		return true;
+	}
+	return false;
+}
+
+Qt::ItemFlags AMSamplePlateModel::flags(const QModelIndex &index) const{
+	Qt::ItemFlags flags;
+	if (index.isValid() && index.row() < samples_->count() && index.column()<4)
+		flags = Qt::ItemIsEditable | Qt::ItemIsSelectable | Qt::ItemIsEnabled;
+	return flags;
+}
+
+
 
 AMSamplePosition::AMSamplePosition(AMSample *sample, AMControlSetInfo *position, QObject *parent) :
 		QObject(parent)
@@ -108,7 +243,7 @@ AMSamplePosition::AMSamplePosition(AMSample *sample, AMControlSetInfo *position,
 	sample_ = sample;
 	position_ = position;
 	if(position_)
-		connect(position_, SIGNAL(valuesChanged()), this, SIGNAL(positionValuesChanged()));
+		connect(position_, SIGNAL(valuesChanged(int)), this, SIGNAL(positionValuesChanged(int)));
 }
 
 AMSample* AMSamplePosition::sample(){

@@ -585,7 +585,7 @@ QMap<double, double> SGMResolutionOptimization::curve(QList<QVariant> stateParam
 #define COV(i,j) (gsl_matrix_get(cov,(i),(j)))
 
 	QMap<double, double> rCurve;
-	double tmpStart, tmpEnd, tmpDelta, tmpVal;
+	double tmpStart, tmpEnd, tmpDelta;//, tmpVal;
 	for( int x = 0; x < contextParameters->count(); x++){
 		tmpStart = contextParameters->start(x);
 		tmpDelta = contextParameters->delta(x);

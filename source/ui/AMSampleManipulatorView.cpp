@@ -6,6 +6,10 @@ AMSampleManipulatorView::AMSampleManipulatorView(QString title, AMControlSet *ma
 	manipulator_ = manipulator;
 }
 
+AMControlSet* AMSampleManipulatorView::manipulator(){
+	return manipulator_;
+}
+
 SGMSampleManipulatorView::SGMSampleManipulatorView(QWidget *parent) :
 		AMSampleManipulatorView("SGM SSA Endstation", SGMBeamline::sgm()->ssaManipulatorSet(), parent )
 {

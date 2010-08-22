@@ -34,7 +34,7 @@ bool AMControlSet::addControl(AMControl* ctrl) {
 	ctrls_.append(ctrl);
 	connect(ctrl, SIGNAL(connected(bool)), this, SLOT(onConnected(bool)));
 	connect(ctrl, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged(double)));
-	info_->addControlAt(info_->count(), ctrl->name(), ctrl->value(), ctrl->minimumValue(), ctrl->maximumValue());
+	info_->addControlAt(info_->count(), ctrl->name(), ctrl->value(), ctrl->minimumValue(), ctrl->maximumValue(), ctrl->units());
 	return true;
 }
 
@@ -54,7 +54,6 @@ void AMControlSet::setFromInfo(AMControlSetInfo *info){
 	AMControl *tmpCtrl;
 	for(int x = 0; x < info->count(); x++){
 		tmpCtrl = controlByName(info->nameAt(x));
-		qDebug() << "Claims value at " << x << info->valueAt(x);
 		if(tmpCtrl)
 			tmpCtrl->move(info->valueAt(x));
 	}
@@ -65,7 +64,7 @@ void AMControlSet::onConnected(bool connected){
 	if(!ctrl || !connected)
 		return;
 	int index = ctrls_.indexOf(ctrl);
-	info_->setControlAt(index, ctrl->name(), ctrl->value(), ctrl->minimumValue(), ctrl->maximumValue());
+	info_->setControlAt(index, ctrl->name(), ctrl->value(), ctrl->minimumValue(), ctrl->maximumValue(), ctrl->units());
 }
 
 void AMControlSet::onValueChanged(double value){

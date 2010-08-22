@@ -25,6 +25,8 @@ protected:
 	AMSamplePlateView *plateView_;
 	AMSampleManipulatorView *manipulatorView_;
 
+	AMControlSet *manipulator_;
+
 	QGridLayout *gl_;
 };
 

@@ -81,7 +81,6 @@ void AMBeamlineControlMoveAction::onStarted(){
 
 void AMBeamlineControlMoveAction::onSucceeded(){
 	running_ = false;
-	qDebug() << "I " << (int)this << " succeeded";
 	disconnect(control_, SIGNAL(moveSucceeded()), this, SLOT(onSucceeded()));
 	disconnect(control_, SIGNAL(moveFailed(int)), this, SLOT(onFailed(int)));
 	disconnect(control_, SIGNAL(moveStarted()), this, SLOT(onStarted()));

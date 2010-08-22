@@ -3,6 +3,7 @@
 
 #include <QList>
 #include <QDateTime>
+#include <QAbstractListModel>
 #include <QDebug>
 
 #include "AMSample.h"
@@ -10,6 +11,7 @@
 #include "AMBiHash.h"
 
 class AMSamplePosition;
+class AMSamplePlateModel;
 
 class AMSamplePlate : public QObject
 {
@@ -19,38 +21,73 @@ public:
 
 	~AMSamplePlate() {}
 
+	AMSamplePlateModel* model();
 	QString plateName() const;
 	int count();
 
-	AMSamplePosition* samplePositionAt(int index);
+	AMSamplePosition* samplePositionAt(size_t index);
 	AMSamplePosition* samplePositionByName(const QString &name);
 
-	AMSample* sampleAt(int index);
+	AMSample* sampleAt(size_t index);
 	AMSample* sampleByName(const QString &name);
 
-	AMControlSetInfo* positionAt(int index);
+	AMControlSetInfo* positionAt(size_t index);
 	AMControlSetInfo* positionByName(const QString &name);
 
 	int indexOf(const QString &name);
 
 signals:
+	void samplePositionChanged(int index);
+	void samplePositionAdded(int index);
+	void samplePositionRemoved(int index);
 
 public slots:
 	void setName(const QString &name);
 
-	bool addSamplePosition(int index, AMSamplePosition *sp);
-	bool addSamplePosition(int index, AMSample *sample, AMControlSetInfo *position);
+	bool setSamplePosition(size_t index, AMSamplePosition *sp);
+
+	bool addSamplePosition(size_t index, AMSamplePosition *sp);
+	bool addSamplePosition(size_t index, AMSample *sample, AMControlSetInfo *position);
 	bool appendSamplePosition(AMSamplePosition *sp);
 	bool appendSamplePosition(AMSample *sample, AMControlSetInfo *position);
 
 	bool removeSamplePosition(AMSamplePosition *sp);
-	bool removeSamplePosition(int index);
+	bool removeSamplePosition(size_t index);
+
+protected slots:
+	void onDataChanged(QModelIndex a, QModelIndex b);
+	void onRowsInserted(QModelIndex parent, int start, int end);
+	void onRowsRemoved(QModelIndex parent, int start, int end);
+
+protected:
+	bool setupModel();
 
 protected:
 	QString userName_;
 	QString timeName_;
-	QList<AMSamplePosition*> samples_;
+	AMSamplePlateModel *samples_;
 	AMBiHash<QString, AMSamplePosition*> sampleName2samplePosition_;
+
+private:
+	int insertRowLatch;
+};
+
+class AMSamplePlateModel : public QAbstractListModel
+{
+Q_OBJECT
+public:
+	AMSamplePlateModel(QObject *parent = 0);
+
+	int rowCount(const QModelIndex & /*parent*/) const;
+	QVariant data(const QModelIndex &index, int role) const;
+	QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+	bool setData(const QModelIndex &index, const QVariant &value, int role);
+	bool insertRows(int position, int rows, const QModelIndex &index = QModelIndex());
+	bool removeRows(int position, int rows, const QModelIndex &index = QModelIndex());
+	Qt::ItemFlags flags(const QModelIndex &index) const;
+
+protected:
+	QList<AMSamplePosition*> *samples_;
 };
 
 class AMSamplePosition : public QObject
@@ -67,7 +104,7 @@ public slots:
 	void setPosition(AMControlSetInfo *position);
 
 signals:
-	void positionValuesChanged();
+	void positionValuesChanged(int index);
 
 protected:
 	AMSample *sample_;

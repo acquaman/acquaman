@@ -10,7 +10,7 @@
 #include <QPushButton>
 #include <QMouseEvent>
 #include <QIcon>
-#include <QPropertyAnimation>
+#include <QScrollBar>
 #include <QDebug>
 
 #include "dataman/AMSamplePlate.h"
@@ -28,6 +28,7 @@ public:
 signals:
 
 public slots:
+	void setManipulator(AMControlSet *manipulator);
 
 protected:
 	QLabel *plateNameLabel_;
@@ -36,18 +37,39 @@ protected:
 	QVBoxLayout *vl_;
 
 	AMSamplePlate *samplePlate_;
+	AMControlSet *manipulator_;
 };
 
 class AMSampleListView : public QFrame
 {
 Q_OBJECT
 public:
-	AMSampleListView(QWidget *parent = 0);
+	AMSampleListView(AMSamplePlate *samplePlate, QWidget *parent = 0);
+
+public slots:
+	void setManipulator(AMControlSet *manipulator);
+
+signals:
+
+protected slots:
+	void addNewSampleToPlate();
+	void onSamplePositionChanged(int index);
+	void onSamplePositionAdded(int index);
+	void onSamplePositionRemoved(int index);
+//	void onAdderClicked();
 
 protected:
+	QSize sizeHint() const;
+
+protected:
+	AMSamplePlate *samplePlate_;
+	AMControlSet *manipulator_;
+	int nextNew;
+
 	QScrollArea *sa_;
 	QVBoxLayout *il_;
 	QFrame *saf_;
+	QPushButton *adder_;
 };
 
 class AMSamplePositionItemView : public QFrame
@@ -67,7 +89,7 @@ protected slots:
 	bool onRecallPositionClicked();
 
 	void updateLook();
-	void onSamplePositionUpdate();
+	void onSamplePositionUpdate(int index);
 	void defocusItem();
 
 protected:

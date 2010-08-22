@@ -81,7 +81,6 @@ void AMBeamlineActionView::mousePressEvent(QMouseEvent *event){
 		event->ignore();
 		return;
 	}
-	qDebug() << "Detected mouse click";
 	if(inFocus_)
 		defocusItem();
 	else{

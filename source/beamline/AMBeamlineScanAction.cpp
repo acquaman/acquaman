@@ -17,6 +17,7 @@ bool AMBeamlineScanAction::isPaused() const{
 		SGMXASDacqScanController *lCtrl = (SGMXASDacqScanController*)ctrl_;
 		return lCtrl->isPaused();
 	}
+	return false;
 }
 
 void AMBeamlineScanAction::start(){
@@ -33,7 +34,6 @@ void AMBeamlineScanAction::start(){
 		AMBeamlineActionItem::start();
 	}
 	else
-		qDebug() << "Failed with no valid scan type";
 		emit failed(101);
 }
 

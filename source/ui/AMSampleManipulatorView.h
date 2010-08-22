@@ -15,6 +15,8 @@ Q_OBJECT
 public:
 	explicit AMSampleManipulatorView(QString title = "Manipulator", AMControlSet *manipulator = 0, QWidget *parent = 0);
 
+	AMControlSet *manipulator();
+
 signals:
 
 public slots:

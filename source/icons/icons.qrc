@@ -45,5 +45,6 @@
         <file>ArrowCCW.png</file>
         <file>ArrowCW.png</file>
         <file>save.png</file>
+        <file>add.png</file>
     </qresource>
 </RCC>
