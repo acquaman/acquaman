@@ -59,14 +59,16 @@ AMSampleListView::AMSampleListView(AMSamplePlate *samplePlate, QWidget *parent) 
 }
 
 void AMSampleListView::addNewSampleToPlate(){
+	if(!manipulator_)
+		return;
 	QString tmpStr;
 	tmpStr.setNum(nextNew);
 	nextNew++;
 	/// \todo who owns this sample?
-	AMSample *tmpSample = new AMSample("SGM Sample "+tmpStr);
+	AMSample *tmpSample = new AMSample("SGM Sample "+tmpStr, this);
 	AMControlSetInfo *tmpPosition = NULL;
-	if(manipulator_)
-		tmpPosition = new AMControlSetInfo(manipulator_->info());
+	tmpPosition = new AMControlSetInfo(manipulator_->info(), this);
+	tmpPosition->storeToDb(AMDatabase::userdb());
 	samplePlate_->appendSamplePosition(tmpSample, tmpPosition);
 }
 

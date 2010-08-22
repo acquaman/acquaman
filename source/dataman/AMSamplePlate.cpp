@@ -8,6 +8,9 @@ AMSamplePlate::AMSamplePlate(QObject *parent) :
 	createTime_ = QDateTime::currentDateTime();
 	samples_ = NULL;
 	metaData_["createTime"] = QDateTime(createTime_);
+	AMIntList tmpList;
+	metaData_["sampleIDs"] = AMIntList(tmpList);
+	metaData_["positionIDs"] = AMIntList(tmpList);
 	setupModel();
 }
 
@@ -75,6 +78,8 @@ int AMSamplePlate::indexOf(const QString &name){
 QList<AMMetaMetaData> AMSamplePlate::metaDataUniqueKeys(){
 	QList<AMMetaMetaData> rv;
 	rv << AMMetaMetaData(QVariant::DateTime, "createTime", false);
+	rv << AMMetaMetaData(AM::IntList, "sampleIDs", true);
+	rv << AMMetaMetaData(AM::IntList, "positionIDs", true);
 	return rv;
 }
 
@@ -96,6 +101,15 @@ bool AMSamplePlate::loadFromDb(AMDatabase* db, int id){
 }
 
 bool AMSamplePlate::storeToDb(AMDatabase* db){
+	AMIntList sampleIDs;
+	AMIntList positionIDs;
+	for(int x = 0; x < count(); x++){
+		sampleIDs.append(sampleAt(x)->id());
+		positionIDs.append(positionAt(x)->id());
+	}
+	metaData_["sampleIDs"] = AMIntList(sampleIDs);
+	metaData_["positionIDs"] = AMIntList(positionIDs);
+
 	bool retVal = AMDbObject::storeToDb(db);
 	return retVal;
 }

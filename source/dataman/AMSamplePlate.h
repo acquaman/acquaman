@@ -10,6 +10,7 @@
 #include "AMControlSetInfo.h"
 #include "AMBiHash.h"
 #include "AMDbObject.h"
+#include "acquaman.h"
 
 class AMSamplePosition;
 class AMSamplePlateModel;
