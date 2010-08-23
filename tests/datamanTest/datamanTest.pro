@@ -117,6 +117,7 @@ SOURCES +=	source/AMErrorMonitor.cpp	\
 	source/AMSettings.cpp	\
 	source/beamline/AMPVNames.cpp	\
 	source/dataman/AMChannel.cpp	\
+	source/dataman/AMDataTree.cpp \
 	source/dataman/AMDatabase.cpp	\
 	source/dataman/AMDatabaseDefinition.cpp	\
 	source/dataman/AMDbObject.cpp	\

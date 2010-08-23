@@ -31,48 +31,16 @@ public:
 	enum ThumbnailType { InvalidType, PNGType };
 
 	/// Default constructor
-	AMDbThumbnail(const QString& Title = QString(), const QString& Subtitle = QString(), ThumbnailType Type = InvalidType, const QByteArray& ThumbnailData = QByteArray())
-		: title(Title), subtitle(Subtitle), type(Type), thumbnail(ThumbnailData) {
-	}
+	AMDbThumbnail(const QString& Title = QString(), const QString& Subtitle = QString(), ThumbnailType Type = InvalidType, const QByteArray& ThumbnailData = QByteArray());
 
 	/// This constructor takes a pixmap of any size and saves it as a PNG type. (It will be saved at the current size of the pixmap, so if you want to save at a reduced size, pass in pixmap.scaledToWidth(240) or similar.)
-	AMDbThumbnail(const QString& Title, const QString& Subtitle, const QPixmap& pixmap)
-		: title(Title), subtitle(Subtitle) {
-
-		if(pixmap.isNull()) {
-			type = InvalidType;
-			thumbnail = QByteArray();
-		}
-		else {
-			//removed: QPixmap p2 = (pixmap.width() == 240) ? pixmap : pixmap.scaledToWidth(240, Qt::SmoothTransformation);
-			QBuffer bout;
-			bout.open(QIODevice::WriteOnly);
-			if(pixmap.save(&bout, "PNG")) {
-				type = PNGType;
-				thumbnail = bout.buffer();
-			}
-			else {
-				type = InvalidType;
-				thumbnail = QByteArray();
-			}
-		}
-	}
+	AMDbThumbnail(const QString& Title, const QString& Subtitle, const QPixmap& pixmap);
 
 	QString title, subtitle;
 	ThumbnailType type;
 	QByteArray thumbnail;
 
-	QString typeString() const {
-		switch(type) {
-		case PNGType:
-			return "PNG";
-			break;
-		case InvalidType:
-		default:
-			return "Invalid";
-			break;
-		}
-	}
+	QString typeString() const;
 };
 
 /// This class is the base class for all user-data objects that can be stored in the database.  A generic Scan inherits from this class.
@@ -122,8 +90,6 @@ public:
 
 	/// Returns user given name
 	QString name() const { return metaData_["name"].toString();}
-
-
 
 	// Meta-data system
 	/////////////////////////////////////////////
@@ -182,15 +148,7 @@ public:
 
 	/// returns the typeId of this scan's registered type in a database. If it hasn't been registered as a type yet, this will return 0.
 	/*! Althought this function doesn't look like it's virtual, it calls type() and returns the typeId of the most detailed subclass.*/
-	int typeId(AMDatabase* db) const {
-		QSqlQuery q = db->query();
-		q.prepare("SELECT id FROM ObjectTypes WHERE className = ?");
-		q.bindValue(0, type());
-		if(q.exec() && q.next())
-			return q.value(0).toInt();
-		else
-			return 0;
-	}
+	int typeId(AMDatabase* db) const;
 
 	/// returns the name of the database table where objects like this should be stored. The default implementation stores in AMDatabaseDefinition::objectTableName().
 	virtual QString databaseTableName() const;
@@ -248,8 +206,6 @@ private:
 	/// pointer to the database where this object came from/should be stored. (If known)
 	AMDatabase* database_;
 
-	/// [obsolted] List of column names required to have in DB
-	/// \todo re-use this for optimizationof metaDataKeys():  static QStringList dbColumnNames_;
 };
 
 /// This global function enables using the insertion operator to add scans to the database
