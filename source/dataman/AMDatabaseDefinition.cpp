@@ -40,6 +40,7 @@ void AMDatabaseDefinition::initializeDatabaseTables(AMDatabase* db) {
 
 
 
+
 	// add userName and databaseVersion to DatabaseInformation
 	QVariant v1, v2;
 	QList<const QVariant*> vlist;

@@ -30,6 +30,9 @@ signals:
 public slots:
 	void setManipulator(AMControlSet *manipulator);
 
+protected slots:
+	void onLoadExistingPlate(int index);
+
 protected:
 	QLabel *plateNameLabel_;
 	QComboBox *existingPlates_;

@@ -112,6 +112,7 @@ void AMFirstTimeController::databaseInitialization() {
 
 	AMSamplePlate sp;
 	AMDatabaseDefinition::registerType(&sp, AMDatabase::userdb());
+	AMDatabase::userdb()->createIndex(AMDatabaseDefinition::samplePlateTableName(), "createTime");
 
 	AMFacility blank("", "[Other Facility]", ":/128x128/contents.png");
 	AMDatabaseDefinition::registerType(&blank, AMDatabase::userdb());

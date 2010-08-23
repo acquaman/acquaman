@@ -9,8 +9,8 @@ AMSamplePlate::AMSamplePlate(QObject *parent) :
 	samples_ = NULL;
 	metaData_["createTime"] = QDateTime(createTime_);
 	AMIntList tmpList;
-	metaData_["sampleIDs"] = AMIntList(tmpList);
-	metaData_["positionIDs"] = AMIntList(tmpList);
+	metaData_["sampleIDs"].setValue(tmpList);
+	metaData_["positionIDs"].setValue(tmpList);
 	setupModel();
 }
 
@@ -97,6 +97,26 @@ QString AMSamplePlate::databaseTableName() const{
 
 bool AMSamplePlate::loadFromDb(AMDatabase* db, int id){
 	bool retVal = AMDbObject::loadFromDb(db, id);
+	if(retVal){
+		AMIntList sampleIDs = metaData_.value("sampleIDs").value<AMIntList>();
+		AMIntList positionIDs = metaData_.value("positionIDs").value<AMIntList>();
+		qDebug() << "Positions " << positionIDs;
+		if(sampleIDs.count() != positionIDs.count())
+			return false;
+		AMSample *tmpSample = new AMSample(this);
+		AMControlSetInfo *tmpPosition = new AMControlSetInfo(this);
+		for( int x = 0; x < sampleIDs.count(); x++){
+			if( !tmpPosition->loadFromDb(AMDatabase::userdb(), positionIDs.at(x)) ){
+				qDebug() << "Couldn't load sample plate position at index " << x;
+				return false;
+			}
+			if( positionIDs.at(x) != 0 && !tmpSample->loadFromDb(AMDatabase::userdb(), sampleIDs.at(x)) ){
+				qDebug() << "Couldn't load sample plate sample at index " << x;
+				return false;
+			}
+			appendSamplePosition(tmpSample, tmpPosition);
+		}
+	}
 	return retVal;
 }
 
@@ -106,9 +126,14 @@ bool AMSamplePlate::storeToDb(AMDatabase* db){
 	for(int x = 0; x < count(); x++){
 		sampleIDs.append(sampleAt(x)->id());
 		positionIDs.append(positionAt(x)->id());
+		qDebug() << "Saving indices: " << sampleAt(x)->id() << positionAt(x)->id();
 	}
-	metaData_["sampleIDs"] = AMIntList(sampleIDs);
-	metaData_["positionIDs"] = AMIntList(positionIDs);
+	qDebug() << "Before " << positionIDs;
+	metaData_["sampleIDs"].setValue(sampleIDs);
+	metaData_["positionIDs"].setValue(positionIDs);
+	AMIntList rsids = metaData_.value("positionIDs").value<AMIntList>();
+	qDebug() << "Positions " << rsids;
+	metaData_["name"].setValue(plateName());
 
 	bool retVal = AMDbObject::storeToDb(db);
 	return retVal;

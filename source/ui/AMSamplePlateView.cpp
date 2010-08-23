@@ -1,5 +1,8 @@
 #include "AMSamplePlateView.h"
 
+#include "dataman/AMDatabase.h"
+
+
 AMSamplePlateView::AMSamplePlateView(QString title, QWidget *parent) :
 	QGroupBox(title, parent)
 {
@@ -12,6 +15,24 @@ AMSamplePlateView::AMSamplePlateView(QString title, QWidget *parent) :
 	plateNameLabel_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 	existingPlates_ = new QComboBox();
 	existingPlates_->addItem("Load Existing");
+
+	QSqlQuery q = AMDatabase::userdb()->query();
+	q.prepare(QString("SELECT id,name,createTime FROM %1 ORDER BY createTime DESC").arg(AMDatabaseDefinition::samplePlateTableName()));
+	q.exec();
+	int id;
+	QString name;
+	QDateTime createTime;
+	while(q.next()) {
+		id = q.value(0).toInt();
+		name = q.value(1).toString();
+		createTime = q.value(2).toDateTime();
+//		existingPlates_->addItem(name);
+		existingPlates_->insertItem(1, name);
+		existingPlates_->setItemData(1, id, AM::IdRole);
+		existingPlates_->setItemData(1, createTime, AM::DateTimeRole);
+	}
+	connect(existingPlates_, SIGNAL(currentIndexChanged(int)), this, SLOT(onLoadExistingPlate(int)));
+
 	sampleListView_ = new AMSampleListView(&samplePlate_);
 	sampleListView_->setManipulator(manipulator_);
 	//sampleListView_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
@@ -26,6 +47,12 @@ AMSamplePlateView::AMSamplePlateView(QString title, QWidget *parent) :
 void AMSamplePlateView::setManipulator(AMControlSet *manipulator){
 	manipulator_ = manipulator;
 	sampleListView_->setManipulator(manipulator_);
+}
+
+void AMSamplePlateView::onLoadExistingPlate(int index){
+	int id = existingPlates_->itemData(index, AM::IdRole).toInt();
+	samplePlate_.loadFromDb(AMDatabase::userdb(), id);
+	qDebug() << "Sample plate has " << samplePlate_.count() << " positions.";
 }
 
 AMSampleListView::AMSampleListView(AMSamplePlate *samplePlate, QWidget *parent) :
@@ -64,12 +91,13 @@ void AMSampleListView::addNewSampleToPlate(){
 	QString tmpStr;
 	tmpStr.setNum(nextNew);
 	nextNew++;
-	/// \todo who owns this sample?
 	AMSample *tmpSample = new AMSample("SGM Sample "+tmpStr, this);
 	AMControlSetInfo *tmpPosition = NULL;
 	tmpPosition = new AMControlSetInfo(manipulator_->info(), this);
 	tmpPosition->storeToDb(AMDatabase::userdb());
+	qDebug() << "tmpPosition with id of " << tmpPosition->id();
 	samplePlate_->appendSamplePosition(tmpSample, tmpPosition);
+	samplePlate_->storeToDb(AMDatabase::userdb());
 }
 
 void AMSampleListView::setManipulator(AMControlSet *manipulator){
