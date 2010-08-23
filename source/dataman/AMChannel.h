@@ -81,52 +81,9 @@ public:
 	double minX() const { if(minX_ == -1) searchMinX(); return x(minX_); }
 	double maxX() const { if(maxX_ == -1) searchMaxX(); return x(maxX_); }
 
-	double* addVariable(AMParVar *parVar){
-		if(parVar->stName == ""){
-			if( !((dataTree()->xName() == parVar->colName) || dataTree()->yColumnNames().contains(parVar->colName) ) )
-				return NULL;
-			if(parVar->isXExpression){
-				if( dataTree()->xName() == parVar->colName ){
-					usedColumnIndicesX_ << -1;
-					parVar->isX = true;
-				}
-				else
-					usedColumnIndicesX_ << dataTree()->yColumnNames().indexOf(parVar->colName);
-			}
-			else{
-				if( dataTree()->xName() == parVar->colName ){
-					usedColumnIndices_ << -1;
-					parVar->isX = true;
-				}
-				else
-					usedColumnIndices_ << dataTree()->yColumnNames().indexOf(parVar->colName);
-			}
-		}
-		else{
-			if( !dataTree()->ySubtreeNames().contains(parVar->stName) || !( (dataTree()->prototype(parVar->stName)->xName() == parVar->colName) || dataTree()->prototype(parVar->stName)->yColumnNames().contains(parVar->colName) ) )
-				return NULL;
-			if( dataTree()->prototype(parVar->stName)->xName() == parVar->colName )
-				parVar->isX = true;
-		}
-		if(varStorage_.capacity() == varLookUps_.count())
-			varStorage_.resize((int)(1.5*varStorage_.capacity()));
-		parVar->vectorIndex = varLookUps_.count();
-		varLookUps_.append(parVar);
-		varStorage_.append(0);
-		return varStorage_.data()+parVar->vectorIndex;
-	}
+	double* addVariable(AMParVar *parVar);
 
-	virtual QRectF boundingRect() const {
-		if(count() == 0)
-			return QRectF();
-		else {
-			double mins = min();
-			double maxs = max();
-			double minXs = minX();
-			double maxXs = maxX();
-			return QRectF(QPointF(minXs, mins), QSizeF(maxXs-minXs, maxs-mins));
-		}
-	}
+	virtual QRectF boundingRect() const;
 
 signals:
 	/// \todo emit error messages and eror codes?

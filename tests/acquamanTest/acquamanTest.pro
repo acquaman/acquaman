@@ -213,6 +213,7 @@ SOURCES +=	source/acquaman/AMAcqScanSpectrumOutput.cpp	\
 	source/beamline/AMVariableAperture.cpp	\
 	source/beamline/SGMBeamline.cpp	\
 	source/dataman/AMChannel.cpp	\
+	source/dataman/AMDataTree.cpp \
 	source/dataman/AMDatabase.cpp	\
 	source/dataman/AMDatabaseDefinition.cpp	\
 	source/dataman/AMDbObject.cpp	\

@@ -4,6 +4,82 @@
 
 #include <QDebug>
 
+QVariant AMChannelListModel::data(const QModelIndex &index, int role) const {
+	if(!index.isValid())
+		return QVariant();
+	if(role == Qt::DisplayRole && index.row() < ch_.count() )
+		return QVariant(ch_.at(index.row())->name());
+	if(role == Qt::UserRole && index.row() < ch_.count() )
+		return qVariantFromValue(ch_.at(index.row()));
+	return QVariant();
+}
+QVariant AMChannelListModel::headerData ( int section, Qt::Orientation orientation, int role) const {
+	if(role != Qt::DisplayRole)
+		return QVariant();
+	if(orientation == Qt::Horizontal)
+		return QString("Channel");
+	if(orientation == Qt::Vertical)
+		return QVariant(section);
+	return QVariant();
+}
+
+
+/// returns a list of channel names currently stored.
+QStringList AMChannelListModel::channelNames() const {
+	QStringList names;
+	foreach(AMChannel* ch, ch_) {
+		names << ch->name();
+	}
+	return names;
+}
+
+/// returns a list of the channel expressions. (Channels are ordered the same as channelNames(). )
+QStringList AMChannelListModel::channelExpressions() const {
+	QStringList rv;
+	foreach(AMChannel* ch, ch_)
+		rv << ch->expression();
+	return rv;
+}
+
+
+
+bool AMChannelListModel::addChannel(AMChannel* newChannel) {
+	if(!newChannel->isValid())
+		return false;
+	beginInsertRows(QModelIndex(), ch_.count(), ch_.count());
+	ch_.append(newChannel);
+	name2chIndex_.set(newChannel->name(), ch_.count()-1);
+	endInsertRows();
+	return true;
+}
+
+bool AMChannelListModel::deleteChannel(unsigned index) {
+	if(index >= (unsigned)ch_.count())
+		return false;
+
+	beginRemoveRows(QModelIndex(), index, index);
+
+	// update the name-to-index lookup... Get rid of the current index, and get rid of the highest index, since everything will move down
+	name2chIndex_.removeR(index);
+	name2chIndex_.removeR(ch_.count()-1);
+
+	// remove from list
+	AMChannel* deleteMe = ch_.takeAt(index);
+
+	// in the name-to-index lookup, move everyone above this channel down
+	for(int i=index; i<ch_.count(); i++)
+		name2chIndex_.set(ch_.at(i)->name(), i);
+
+	endRemoveRows();
+	delete deleteMe;
+	return true;
+}
+
+
+
+
+
+
 
 AMScan::AMScan(QObject *parent)
 	: AMDbObject(parent)
@@ -21,7 +97,46 @@ AMScan::AMScan(QObject *parent)
 	metaData_["filePath"] = QString();
 }
 
+AMScan::~AMScan() {
+	// delete channels first.
+	while(ch_.rowCount() != 0)
+		ch_.deleteChannel(0);
+}
 
+QList<AMMetaMetaData> AMScan::metaDataUniqueKeys() {
+	QList<AMMetaMetaData> rv;
+	rv << AMMetaMetaData(QVariant::Int, "number", true);
+	rv << AMMetaMetaData(QVariant::DateTime, "dateTime", true);
+	rv << AMMetaMetaData(QVariant::Int, "runId", false);
+	rv << AMMetaMetaData(QVariant::Int, "sampleId", true);
+	rv << AMMetaMetaData(QVariant::String, "notes", true);
+	rv << AMMetaMetaData(QVariant::StringList, "channelNames", false);
+	rv << AMMetaMetaData(QVariant::StringList, "channelExpressions", false);
+	rv << AMMetaMetaData(QVariant::String, "fileFormat", false);
+	rv << AMMetaMetaData(QVariant::String, "filePath", false);
+	return rv;
+}
+
+QVariant AMScan::metaData(const QString& key) const {
+
+	if(key == "channelNames") {
+		return channelNames();
+	}
+
+	if(key == "channelExpressions") {
+		return channelExpressions();
+	}
+
+	return AMDbObject::metaData(key);
+}
+
+bool AMScan::setMetaData(const QString& key, const QVariant& value) {
+
+		if(key == "channelNames" || key == "channelExpressions")
+			return false;
+
+		return AMDbObject::setMetaData(key, value);
+	}
 
 /// Convenience function: returns the name of the sample (if a sample is set)
 QString AMScan::sampleName() const {

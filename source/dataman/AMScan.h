@@ -30,42 +30,15 @@ public:
 		return ch_.count();
 	}
 
-	QVariant data(const QModelIndex &index, int role) const {
-		if(!index.isValid())
-			return QVariant();
-		if(role == Qt::DisplayRole && index.row() < ch_.count() )
-			return QVariant(ch_.at(index.row())->name());
-		if(role == Qt::UserRole && index.row() < ch_.count() )
-			return qVariantFromValue(ch_.at(index.row()));
-		return QVariant();
-	}
-	QVariant headerData ( int section, Qt::Orientation orientation, int role = Qt::DisplayRole ) const {
-		if(role != Qt::DisplayRole)
-			return QVariant();
-		if(orientation == Qt::Horizontal)
-			return QString("Channel");
-		if(orientation == Qt::Vertical)
-			return QVariant(section);
-		return QVariant();
-	}
+	QVariant data(const QModelIndex &index, int role) const;
+	QVariant headerData ( int section, Qt::Orientation orientation, int role = Qt::DisplayRole ) const;
 
 
 	/// returns a list of channel names currently stored.
-	QStringList channelNames() const {
-		QStringList names;
-		foreach(AMChannel* ch, ch_) {
-			names << ch->name();
-		}
-		return names;
-	}
+	QStringList channelNames() const;
 
 	/// returns a list of the channel expressions. (Channels are ordered the same as channelNames(). )
-	QStringList channelExpressions() const {
-		QStringList rv;
-		foreach(AMChannel* ch, ch_)
-			rv << ch->expression();
-		return rv;
-	}
+	QStringList channelExpressions() const;
 
 	/// Returns specified channel by name: (returns 0 if not found)
 	AMChannel* channel(const QString& name) {
@@ -98,37 +71,9 @@ public:
 		return ch_.indexOf(channel);
 	}
 
-	bool addChannel(AMChannel* newChannel) {
-		if(!newChannel->isValid())
-			return false;
-		beginInsertRows(QModelIndex(), ch_.count(), ch_.count());
-		ch_.append(newChannel);
-		name2chIndex_.set(newChannel->name(), ch_.count()-1);
-		endInsertRows();
-		return true;
-	}
+	bool addChannel(AMChannel* newChannel);
 
-	bool deleteChannel(unsigned index) {
-		if(index >= (unsigned)ch_.count())
-			return false;
-
-		beginRemoveRows(QModelIndex(), index, index);
-
-		// update the name-to-index lookup... Get rid of the current index, and get rid of the highest index, since everything will move down
-		name2chIndex_.removeR(index);
-		name2chIndex_.removeR(ch_.count()-1);
-
-		// remove from list
-		AMChannel* deleteMe = ch_.takeAt(index);
-
-		// in the name-to-index lookup, move everyone above this channel down
-		for(int i=index; i<ch_.count(); i++)
-			name2chIndex_.set(ch_.at(i)->name(), i);
-
-		endRemoveRows();
-		delete deleteMe;
-		return true;
-	}
+	bool deleteChannel(unsigned index);
 
 
 protected:
@@ -162,15 +107,10 @@ public:
 	/// default constructor
 	explicit AMScan(QObject *parent = 0);
 
-	virtual ~AMScan() {
-		// delete channels first.
-		while(ch_.rowCount() != 0)
-			ch_.deleteChannel(0);
-	}
+	/// Destructor: deletes all channels.
+	virtual ~AMScan();
 
 	/// \todo copy constructor and assignment operator required, but not yet implemented. Do not copy. (implementation note: handle channels as children?)
-
-
 
 
 	// Meta Data Elements
@@ -207,8 +147,7 @@ public:
 	}
 
 	/// Returns the available pieces of meta data for this type of object, excluding those inherited from base classes. (ie: own only)
-	static QList<AMMetaMetaData> metaDataUniqueKeys() {
-		QList<AMMetaMetaData> rv;
+	/*! Includes:
 		rv << AMMetaMetaData(QVariant::Int, "number", true);
 		rv << AMMetaMetaData(QVariant::DateTime, "dateTime", true);
 		rv << AMMetaMetaData(QVariant::Int, "runId", false);
@@ -218,8 +157,9 @@ public:
 		rv << AMMetaMetaData(QVariant::StringList, "channelExpressions", false);
 		rv << AMMetaMetaData(QVariant::String, "fileFormat", false);
 		rv << AMMetaMetaData(QVariant::String, "filePath", false);
-		return rv;
-	}
+		*/
+
+	static QList<AMMetaMetaData> metaDataUniqueKeys();
 
 	/// Returns all the available pieces of meta data for this type of object, by introspecting it's most detailed type. (ie: own + base classes' + subclasses')
 	virtual QList<AMMetaMetaData> metaDataAllKeys() const {
@@ -227,27 +167,10 @@ public:
 	}
 
 	/// Returns the value of a piece of meta data. (Re-implemented from AMDbObject to catch channelNames or channelExpressions, which aren't found in the metaData_ hash.)
-	virtual QVariant metaData(const QString& key) const {
-
-		if(key == "channelNames") {
-			return channelNames();
-		}
-
-		if(key == "channelExpressions") {
-			return channelExpressions();
-		}
-
-		return AMDbObject::metaData(key);
-	}
+	virtual QVariant metaData(const QString& key) const;
 
 	/// set a meta data value. (Re-implemented from AMDbObject to catch channelNames or channelExpressions, which are not allowed to be set as metaData like this.)
-	virtual bool setMetaData(const QString& key, const QVariant& value) {
-
-		if(key == "channelNames" || key == "channelExpressions")
-			return false;
-
-		return AMDbObject::setMetaData(key, value);
-	}
+	virtual bool setMetaData(const QString& key, const QVariant& value);
 
 
 	// Database system
@@ -328,6 +251,7 @@ signals:
 
 	/// Emitted when raw data changes / new data accepted
 	void dataChanged(AMScan* me);
+
 	/*
   Belongs in scan controller
 	/// AMScan has started
@@ -360,7 +284,6 @@ protected:
 
 	/// raw data storage. All scans will have one of these, but the contents and structure will vary.
 	AMDataTree* d_;
-
 
 	/// Allow channels to access the datatree:
 	friend AMDataTree* AMChannel::dataTree() const;

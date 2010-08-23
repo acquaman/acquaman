@@ -271,6 +271,7 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/beamline/AMVariableAperture.cpp \
 	source/beamline/SGMBeamline.cpp \
 	source/dataman/AMChannel.cpp \
+	source/dataman/AMDataTree.cpp \
 	source/dataman/AMDatabase.cpp \
 	source/dataman/AMDatabaseDefinition.cpp \
 	source/dataman/AMDbObject.cpp \
@@ -324,7 +325,8 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/ui/AMSampleManipulatorView.cpp \
 	source/ui/AMSamplePlateView.cpp \
 	source/dataman/AMControlSetInfo.cpp \
-	source/dataman/AMSamplePlate.cpp
+	source/dataman/AMSamplePlate.cpp \
+	source/dataman/AMDataTree.cpp
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc
 OTHER_FILES += source/muParser/README.txt
