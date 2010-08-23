@@ -13,24 +13,43 @@ AMSamplePlateView::AMSamplePlateView(QString title, QWidget *parent) :
 	existingPlates_ = new QComboBox();
 	existingPlates_->addItem("Load Existing");
 
-	QSqlQuery q = AMDatabase::userdb()->query();
-	q.prepare(QString("SELECT id,name,createTime FROM %1 ORDER BY createTime DESC").arg(AMDatabaseDefinition::samplePlateTableName()));
-//	q.prepare(QString("SELECT id,name,createTime FROM %1").arg(AMDatabaseDefinition::samplePlateTableName()));
-	q.exec();
+	QSqlQuery q2 = AMDatabase::userdb()->query();
+	q2.prepare(QString("SELECT id,name,createTime FROM %1 ORDER BY createTime DESC").arg(AMDatabaseDefinition::samplePlateTableName()));
+	q2.exec();
 	int id;
 	QString name;
 	QDateTime createTime;
-	while(q.next()) {
-		id = q.value(0).toInt();
-		name = q.value(1).toString();
-		createTime = q.value(2).toDateTime();
+	while(q2.next()) {
+		id = q2.value(0).toInt();
+		name = q2.value(1).toString();
+		createTime = q2.value(2).toDateTime();
 		existingPlates_->insertItem(1, name);
 		existingPlates_->setItemData(1, id, AM::IdRole);
 		existingPlates_->setItemData(1, createTime, AM::DateTimeRole);
 	}
 	connect(existingPlates_, SIGNAL(currentIndexChanged(int)), this, SLOT(onLoadExistingPlate(int)));
 
-	sampleListView_ = new AMSampleListView(&samplePlate_);
+	sampleTableModel_ = new QStandardItemModel();
+	QStandardItem *tmpItem;
+	QSqlQuery q = AMDatabase::userdb()->query();
+	q.prepare(QString("SELECT id,name,dateTime FROM %1 ORDER BY dateTime DESC").arg(AMDatabaseDefinition::sampleTableName()));
+	q.exec();
+	QDateTime dateTime;
+	while(q.next()){
+		id = q.value(0).toInt();
+		name = q.value(1).toString();
+		dateTime = q.value(2).toDateTime();
+		tmpItem = new QStandardItem(name);
+		tmpItem->setData(id, AM::IdRole);
+		tmpItem->setData(dateTime, AM::DateTimeRole);
+		sampleTableModel_->setItem(sampleTableModel_->rowCount(), tmpItem);
+	}
+
+	for(int x = 0; x < sampleTableModel_->rowCount(); x++){
+		qDebug() << x << sampleTableModel_->item(x, 0)->text() << sampleTableModel_->item(x, 0)->data(AM::IdRole) << sampleTableModel_->item(x, 0)->data(AM::DateTimeRole);
+	}
+
+	sampleListView_ = new AMSampleListView(&samplePlate_, sampleTableModel_);
 	sampleListView_->setManipulator(manipulator_);
 	//connect(this, SIGNAL(loadExistingPlate(int)), sampleListView_, SLOT(onLoadExistingPlate(int)));
 	//sampleListView_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
@@ -55,10 +74,11 @@ void AMSamplePlateView::onLoadExistingPlate(int index){
 	qDebug() << "Sample plate has " << samplePlate_.count() << " positions.";
 }
 
-AMSampleListView::AMSampleListView(AMSamplePlate *samplePlate, QWidget *parent) :
+AMSampleListView::AMSampleListView(AMSamplePlate *samplePlate, QStandardItemModel *sampleTableModel, QWidget *parent) :
 		QFrame(parent)
 {
 	samplePlate_ = samplePlate;
+	sampleTableModel_ = sampleTableModel;
 	connect(samplePlate_, SIGNAL(samplePositionChanged(int)), this, SLOT(onSamplePositionChanged(int)));
 	connect(samplePlate_, SIGNAL(samplePositionAdded(int)), this, SLOT(onSamplePositionAdded(int)));
 	connect(samplePlate_, SIGNAL(samplePositionRemoved(int)), this, SLOT(onSamplePositionRemoved(int)));
@@ -123,9 +143,9 @@ void AMSampleListView::onSamplePositionChanged(int index){
 
 void AMSampleListView::onSamplePositionAdded(int index){
 	qDebug() << "Claims added at " << index;
-	if(!manipulator_)
+	if(!manipulator_ || !sampleTableModel_)
 		return;
-	AMSamplePositionItemView *tmpSPIView = new AMSamplePositionItemView(samplePlate_->samplePositionAt(index), manipulator_, index+1);
+	AMSamplePositionItemView *tmpSPIView = new AMSamplePositionItemView(samplePlate_->samplePositionAt(index), sampleTableModel_, manipulator_, index+1);
 	il_->insertWidget(index, tmpSPIView, 0, Qt::AlignTop);
 	tmpSPIView->setFocus();
 	sa_->ensureVisible(0, 0);
@@ -152,7 +172,7 @@ QSize AMSampleListView::sizeHint() const{
 	return tmpSize;
 }
 
-AMSamplePositionItemView::AMSamplePositionItemView(AMSamplePosition *samplePosition, AMControlSet *manipulator, int index, QWidget *parent) :
+AMSamplePositionItemView::AMSamplePositionItemView(AMSamplePosition *samplePosition, QStandardItemModel *sampleTableModel, AMControlSet *manipulator, int index, QWidget *parent) :
 		QFrame(parent)
 {
 	index_ = index;
@@ -160,6 +180,7 @@ AMSamplePositionItemView::AMSamplePositionItemView(AMSamplePosition *samplePosit
 	setFocusPolicy(Qt::StrongFocus);
 	samplePosition_ = samplePosition;
 	manipulator_ = manipulator;
+	sampleTableModel_ = sampleTableModel;
 
 	vl_ = NULL;
 	hl_ = NULL;
@@ -250,10 +271,11 @@ void AMSamplePositionItemView::onSamplePositionUpdate(int index){
 	}
 	if(!sampleBox_){
 		sampleBox_ = new QComboBox();
+		sampleBox_->setModel(sampleTableModel_);
 		sampleBox_->setEditable(true);
 		sampleBox_->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
 		setFocusProxy(sampleBox_);
-
+		/*
 		QSqlQuery q = AMDatabase::userdb()->query();
 		qDebug() << "Before db query";
 //		q.prepare(QString("SELECT id,name,dateTime FROM %1 ORDER BY dateTime ASC").arg(AMDatabaseDefinition::sampleTableName()));
@@ -271,8 +293,11 @@ void AMSamplePositionItemView::onSamplePositionUpdate(int index){
 			sampleBox_->setItemData(0, id, AM::IdRole);
 			sampleBox_->setItemData(0, dateTime, AM::DateTimeRole);
 		}
+		*/
 		connect(sampleBox_->lineEdit(), SIGNAL(editingFinished()), this, SLOT(onSampleNameChanged()));
 		hl_->addWidget(sampleBox_, 3, Qt::AlignLeft);
+		sampleBox_->setMaxVisibleItems(5);
+		qDebug() << "Setting max visible to " << sampleBox_->maxVisibleItems();
 	}
 	if(!positionLabel_){
 		positionLabel_ = new QLabel(this);

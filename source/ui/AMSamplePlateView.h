@@ -42,13 +42,15 @@ protected:
 
 	AMSamplePlate samplePlate_;
 	AMControlSet *manipulator_;
+
+	QStandardItemModel *sampleTableModel_;
 };
 
 class AMSampleListView : public QFrame
 {
 Q_OBJECT
 public:
-	AMSampleListView(AMSamplePlate *samplePlate, QWidget *parent = 0);
+	AMSampleListView(AMSamplePlate *samplePlate, QStandardItemModel *sampleTableModel, QWidget *parent = 0);
 
 public slots:
 	void setManipulator(AMControlSet *manipulator);
@@ -67,6 +69,7 @@ protected:
 protected:
 	AMSamplePlate *samplePlate_;
 	AMControlSet *manipulator_;
+	QStandardItemModel *sampleTableModel_;
 
 	QScrollArea *sa_;
 	QVBoxLayout *il_;
@@ -78,7 +81,7 @@ class AMSamplePositionItemView : public QFrame
 {
 Q_OBJECT
 public:
-	AMSamplePositionItemView(AMSamplePosition *samplePosition, AMControlSet *manipulator = 0, int index = -1, QWidget *parent = 0);
+	AMSamplePositionItemView(AMSamplePosition *samplePosition, QStandardItemModel *sampleTableModel, AMControlSet *manipulator = 0, int index = -1, QWidget *parent = 0);
 	int index();
 	AMControlSet* manipulator();
 
@@ -101,6 +104,7 @@ protected:
 protected:
 	AMSamplePosition *samplePosition_;
 	AMControlSet *manipulator_;
+	QStandardItemModel *sampleTableModel_;
 	int index_;
 	bool inFocus_;
 
