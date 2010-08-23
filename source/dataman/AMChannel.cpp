@@ -187,7 +187,7 @@ bool AMChannel::setExpression(const QString& expression) {
 		parser_.Eval();
 	}
 	catch(mu::Parser::exception_type &e) {
-		QString explanation = QString("AMChannel (setting expression): %1: '%2'.  We found '%3' at position %4.  TODO what happens now?").arg(QString::fromStdString(e.GetMsg()), QString::fromStdString(e.GetExpr()), QString::fromStdString(e.GetToken())).arg(e.GetPos());
+		QString explanation = QString("AMChannel (setting expression): %1: '%2'.  We found '%3' at position %4.  TODO what happens now?").arg(QString::fromStdString(e.GetMsg())).arg(QString::fromStdString(e.GetExpr())).arg(QString::fromStdString(e.GetToken())).arg(e.GetPos());
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, e.GetCode(), explanation));
 		return false;
 	}

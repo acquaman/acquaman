@@ -14,8 +14,8 @@ AMSamplePlateView::AMSamplePlateView(QString title, QWidget *parent) :
 	existingPlates_->addItem("Load Existing");
 
 	QSqlQuery q = AMDatabase::userdb()->query();
-//	q.prepare(QString("SELECT id,name,createTime FROM %1 ORDER BY createTime DESC").arg(AMDatabaseDefinition::samplePlateTableName()));
-	q.prepare(QString("SELECT id,name,createTime FROM %1").arg(AMDatabaseDefinition::samplePlateTableName()));
+	q.prepare(QString("SELECT id,name,createTime FROM %1 ORDER BY createTime DESC").arg(AMDatabaseDefinition::samplePlateTableName()));
+//	q.prepare(QString("SELECT id,name,createTime FROM %1").arg(AMDatabaseDefinition::samplePlateTableName()));
 	q.exec();
 	int id;
 	QString name;
@@ -58,7 +58,6 @@ void AMSamplePlateView::onLoadExistingPlate(int index){
 AMSampleListView::AMSampleListView(AMSamplePlate *samplePlate, QWidget *parent) :
 		QFrame(parent)
 {
-	nextNew = 1;
 	samplePlate_ = samplePlate;
 	connect(samplePlate_, SIGNAL(samplePositionChanged(int)), this, SLOT(onSamplePositionChanged(int)));
 	connect(samplePlate_, SIGNAL(samplePositionAdded(int)), this, SLOT(onSamplePositionAdded(int)));
@@ -88,9 +87,22 @@ AMSampleListView::AMSampleListView(AMSamplePlate *samplePlate, QWidget *parent) 
 void AMSampleListView::addNewSampleToPlate(){
 	if(!manipulator_)
 		return;
+
+	QSqlQuery q = AMDatabase::userdb()->query();
+	q.prepare(QString("SELECT name FROM %1 WHERE name LIKE 'Sample %'").arg(AMDatabaseDefinition::sampleTableName()));
+	q.exec();
+	int index;
+	int max = 1;
+	bool convOK;
+	while(q.next()) {
+		index = q.value(0).toString().remove("Sample ").toInt(&convOK);
+		qDebug() << "testing index " << index;
+		if(index > max)
+			max = index;
+	}
+
 	QString tmpStr;
-	tmpStr.setNum(nextNew);
-	nextNew++;
+	tmpStr.setNum(max+1);
 	AMSample *tmpSample = new AMSample("Sample "+tmpStr, this);
 	tmpSample->storeToDb(AMDatabase::userdb());
 	AMControlSetInfo *tmpPosition = NULL;
@@ -241,6 +253,24 @@ void AMSamplePositionItemView::onSamplePositionUpdate(int index){
 		sampleBox_->setEditable(true);
 		sampleBox_->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
 		setFocusProxy(sampleBox_);
+
+		QSqlQuery q = AMDatabase::userdb()->query();
+		qDebug() << "Before db query";
+//		q.prepare(QString("SELECT id,name,dateTime FROM %1 ORDER BY dateTime ASC").arg(AMDatabaseDefinition::sampleTableName()));
+		q.prepare(QString("SELECT id,name,dateTime FROM %1").arg(AMDatabaseDefinition::sampleTableName()));
+		q.exec();
+		qDebug() << "After db query";
+		int id;
+		QString name;
+		QDateTime dateTime;
+		while(q.next()) {
+			id = q.value(0).toInt();
+			name = q.value(1).toString();
+			dateTime = q.value(2).toDateTime();
+			sampleBox_->insertItem(0, name);
+			sampleBox_->setItemData(0, id, AM::IdRole);
+			sampleBox_->setItemData(0, dateTime, AM::DateTimeRole);
+		}
 		connect(sampleBox_->lineEdit(), SIGNAL(editingFinished()), this, SLOT(onSampleNameChanged()));
 		hl_->addWidget(sampleBox_, 3, Qt::AlignLeft);
 	}
@@ -263,7 +293,8 @@ void AMSamplePositionItemView::onSamplePositionUpdate(int index){
 	QString tmpStr;
 	tmpStr.setNum(index_);
 	indexLabel_->setText(tmpStr+". ");
-	sampleBox_->addItem(samplePosition_->sample()->name());
+//	sampleBox_->insertItem(0, samplePosition_->sample()->name());
+	sampleBox_->setCurrentIndex( sampleBox_->findText(samplePosition_->sample()->name()) );
 	sampleBox_->lineEdit()->selectAll();
 
 	QString positionText;

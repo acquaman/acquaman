@@ -67,7 +67,6 @@ protected:
 protected:
 	AMSamplePlate *samplePlate_;
 	AMControlSet *manipulator_;
-	int nextNew;
 
 	QScrollArea *sa_;
 	QVBoxLayout *il_;

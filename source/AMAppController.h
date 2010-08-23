@@ -20,6 +20,8 @@ class BottomBar;
 class AMDataView;
 class AMRunExperimentInsert;
 
+class AMGenericScanEditor;
+
 
 class QMenuBar;
 class QMenu;
@@ -82,6 +84,8 @@ protected:
 	BottomBar* bottomBar_;
 	AMDataView* dataView_;
 	AMRunExperimentInsert* runExperimentInsert_;
+
+	AMGenericScanEditor* scanEditor_;
 
 };
 

@@ -195,7 +195,8 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMSampleManipulatorView.h \
 	source/ui/AMSamplePlateView.h \
 	source/dataman/AMControlSetInfo.h \
-	source/dataman/AMSamplePlate.h
+	source/dataman/AMSamplePlate.h \
+	source/ui/AMGenericScanEditor.h
 FORMS += source/ui/AbsorptionScanController.ui \
 	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
@@ -211,7 +212,8 @@ FORMS += source/ui/AbsorptionScanController.ui \
 	source/ui/ProtocolViewer.ui \
 	source/ui/SamplePositions.ui \
 	source/ui/Scheduler.ui \
-	source/ui/SGMXASScanConfigurationViewer.ui
+	source/ui/SGMXASScanConfigurationViewer.ui \
+	source/ui/AMGenericScanEditor.ui
 SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/acquaman/AMAcqScanSpectrumOutput.cpp \
 	source/acquaman/AMDacqScanController.cpp \
@@ -325,7 +327,9 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/ui/AMSampleManipulatorView.cpp \
 	source/ui/AMSamplePlateView.cpp \
 	source/dataman/AMControlSetInfo.cpp \
-	source/dataman/AMSamplePlate.cpp
+	source/dataman/AMSamplePlate.cpp \
+	source/ui/AMGenericScanEditor.cpp \
+	source/dataman/AMDbLoader.cpp
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc
 OTHER_FILES += source/muParser/README.txt

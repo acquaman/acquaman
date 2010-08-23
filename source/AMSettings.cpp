@@ -5,6 +5,7 @@
 #include <cstdlib>
 
 #include <QDebug>
+#include <QDateTime>
 /// User Settings:
 // ========================================
 
@@ -16,6 +17,14 @@
 QString AMUserSettings::userDataFolder;
 /// name of user database
 QString AMUserSettings::userDatabaseFilename;
+
+QString AMUserSettings::defaultFilePath(const QDateTime& dt) {
+	QDir dir;
+	QString path = userDataFolder + dt.toString("/yyyy/MM");
+	dir.mkpath(path);
+	path.append(dt.toString("/ddd_MM_dd_hh_mm_ss_zzzz"));
+	return path;
+}
 
 /// 2. User Information:
 // ========================================

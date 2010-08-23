@@ -77,7 +77,7 @@ int AMSamplePlate::indexOf(const QString &name){
 
 QList<AMMetaMetaData> AMSamplePlate::metaDataUniqueKeys(){
 	QList<AMMetaMetaData> rv;
-	rv << AMMetaMetaData(QVariant::DateTime, "createTime", false);
+	rv << AMMetaMetaData(QVariant::DateTime, "createTime", true);
 	rv << AMMetaMetaData(AM::IntList, "sampleIDs", true);
 	rv << AMMetaMetaData(AM::IntList, "positionIDs", true);
 	return rv;
