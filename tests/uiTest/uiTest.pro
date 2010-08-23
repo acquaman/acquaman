@@ -125,6 +125,7 @@ SOURCES +=	source/AMErrorMonitor.cpp	\
 	source/AMSettings.cpp	\
 	source/dataman/AMChannel.cpp	\
 	source/dataman/AMDataTree.cpp \
+	source/dataman/AMDbLoader.cpp	\
 	source/dataman/AMDatabase.cpp	\
 	source/dataman/AMDatabaseDefinition.cpp	\
 	source/dataman/AMDbObject.cpp	\

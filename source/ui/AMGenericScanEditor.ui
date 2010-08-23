@@ -1,0 +1,499 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>AMGenericScanEditor</class>
+ <widget class="QWidget" name="AMGenericScanEditor">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>801</width>
+    <height>574</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_3">
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <property name="margin">
+    <number>0</number>
+   </property>
+   <item>
+    <widget class="QFrame" name="topFrame">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>60</height>
+      </size>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(236, 236, 236);</string>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_3">
+      <item>
+       <widget class="QLabel" name="topFrameIcon">
+        <property name="maximumSize">
+         <size>
+          <width>36</width>
+          <height>36</height>
+         </size>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="pixmap">
+         <pixmap resource="../icons/icons.qrc">:/system-software-update.png</pixmap>
+        </property>
+        <property name="scaledContents">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="topFrameTitle">
+        <property name="styleSheet">
+         <string notr="true">font: 16pt &quot;Lucida Grande&quot;;
+color: rgb(79, 79, 79);</string>
+        </property>
+        <property name="text">
+         <string>Scan Title</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="topFrameSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>516</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+     <zorder>topFrameIcon</zorder>
+     <zorder>topFrameTitle</zorder>
+     <zorder>topFrameSpacer</zorder>
+    </widget>
+   </item>
+   <item>
+    <widget class="QFrame" name="statusFrame">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>30</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>30</height>
+      </size>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QFrame#statusFrame {
+background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(81, 81, 81, 255), stop:0.494444 rgba(81, 81, 81, 255), stop:0.5 rgba(64, 64, 64, 255), stop:1 rgba(64, 64, 64, 255));
+border-bottom: 1px solid black;
+}</string>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_4">
+      <property name="topMargin">
+       <number>6</number>
+      </property>
+      <property name="bottomMargin">
+       <number>6</number>
+      </property>
+      <item>
+       <spacer name="horizontalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>478</width>
+          <height>9</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QLabel" name="xPosLabel">
+        <property name="styleSheet">
+         <string notr="true">color: white;
+font: bold 10pt &quot;Lucida Grande&quot;</string>
+        </property>
+        <property name="text">
+         <string>Status Frame Text</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <property name="spacing">
+      <number>0</number>
+     </property>
+     <item>
+      <layout class="QVBoxLayout" name="leftVerticalLayout">
+       <property name="margin">
+        <number>12</number>
+       </property>
+       <item>
+        <layout class="QHBoxLayout" name="leftHorizontalLayout">
+         <property name="margin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QListView" name="scanListView"/>
+         </item>
+         <item>
+          <widget class="QFrame" name="scanInfoFrame">
+           <property name="styleSheet">
+            <string notr="true">background-color: white;
+</string>
+           </property>
+           <property name="frameShape">
+            <enum>QFrame::StyledPanel</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout">
+            <property name="spacing">
+             <number>2</number>
+            </property>
+            <property name="topMargin">
+             <number>6</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="scanInfoTitle">
+              <property name="styleSheet">
+               <string notr="true">color: rgb(121, 121, 121);
+font-weight: bold;</string>
+              </property>
+              <property name="text">
+               <string>SCAN INFORMATION</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <layout class="QGridLayout" name="gridLayout">
+              <property name="leftMargin">
+               <number>12</number>
+              </property>
+              <property name="verticalSpacing">
+               <number>2</number>
+              </property>
+              <item row="0" column="0">
+               <widget class="QLabel" name="scanNameLabel">
+                <property name="styleSheet">
+                 <string notr="true">color: rgb(121, 121, 121);</string>
+                </property>
+                <property name="text">
+                 <string>Name</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QLineEdit" name="scanName">
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="frame">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="scanNumberLabel">
+                <property name="styleSheet">
+                 <string notr="true">color: rgb(121, 121, 121);</string>
+                </property>
+                <property name="text">
+                 <string>Number</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QLineEdit" name="scanNumber">
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="frame">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="scanDateLabel">
+                <property name="styleSheet">
+                 <string notr="true">color: rgb(121, 121, 121);</string>
+                </property>
+                <property name="text">
+                 <string>Date</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QLabel" name="scanDate">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="0">
+               <widget class="QLabel" name="scanTimeLabel">
+                <property name="styleSheet">
+                 <string notr="true">color: rgb(121, 121, 121);</string>
+                </property>
+                <property name="text">
+                 <string>Time</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1">
+               <widget class="QLabel" name="scanTime">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="0">
+               <widget class="QLabel" name="scanRunLabel">
+                <property name="styleSheet">
+                 <string notr="true">color: rgb(121, 121, 121);</string>
+                </property>
+                <property name="text">
+                 <string>Run</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="1">
+               <widget class="QLabel" name="scanRun">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <spacer name="scanInfoSpacer">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPlainTextEdit" name="notesEdit">
+           <property name="styleSheet">
+            <string notr="true">background-image: url(:/notepadBackground.png);
+font: bold 15px &quot;Marker Felt&quot;;</string>
+           </property>
+           <property name="plainText">
+            <string>Hey Dave!
+
+Line 3</string>
+           </property>
+           <property name="backgroundVisible">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <spacer name="leftVerticaFrameSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>1</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="rightVerticalLayout">
+       <property name="margin">
+        <number>12</number>
+       </property>
+       <item>
+        <widget class="QFrame" name="frame_2">
+         <property name="styleSheet">
+          <string notr="true">background-color: white;
+</string>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <property name="spacing">
+           <number>2</number>
+          </property>
+          <property name="topMargin">
+           <number>6</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="label_10">
+            <property name="styleSheet">
+             <string notr="true">color: rgb(121, 121, 121);
+font-weight: bold;</string>
+            </property>
+            <property name="text">
+             <string>SAMPLE INFORMATION</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QGridLayout" name="gridLayout_2">
+            <property name="leftMargin">
+             <number>12</number>
+            </property>
+            <property name="verticalSpacing">
+             <number>2</number>
+            </property>
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_11">
+              <property name="styleSheet">
+               <string notr="true">color: rgb(121, 121, 121);</string>
+              </property>
+              <property name="text">
+               <string>Name</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QLineEdit" name="lineEdit_3">
+              <property name="text">
+               <string>Sample Name</string>
+              </property>
+              <property name="frame">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="label_12">
+              <property name="styleSheet">
+               <string notr="true">color: rgb(121, 121, 121);</string>
+              </property>
+              <property name="text">
+               <string>Number</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QLineEdit" name="lineEdit_4">
+              <property name="text">
+               <string>1</string>
+              </property>
+              <property name="frame">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="label_13">
+              <property name="styleSheet">
+               <string notr="true">color: rgb(121, 121, 121);</string>
+              </property>
+              <property name="text">
+               <string>Date</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QLabel" name="label_14">
+              <property name="text">
+               <string>June 30, 2010</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <widget class="QLabel" name="label_15">
+              <property name="styleSheet">
+               <string notr="true">color: rgb(121, 121, 121);</string>
+              </property>
+              <property name="text">
+               <string>Time</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1">
+             <widget class="QLabel" name="label_16">
+              <property name="text">
+               <string>7:53 PM</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0">
+             <widget class="QLabel" name="label_17">
+              <property name="styleSheet">
+               <string notr="true">color: rgb(121, 121, 121);</string>
+              </property>
+              <property name="text">
+               <string>Elements</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="1">
+             <widget class="QLabel" name="label_18">
+              <property name="text">
+               <string>TextLabel</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <spacer name="verticalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="../icons/icons.qrc"/>
+  <include location="../icons/icons.qrc"/>
+ </resources>
+ <connections/>
+</ui>

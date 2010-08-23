@@ -32,6 +32,7 @@
 #include "ui/BottomBar.h"
 #include "ui/AMDataView.h"
 #include "ui/AMRunExperimentInsert.h"
+#include "ui/AMGenericScanEditor.h"
 
 #include "AMErrorMonitor.h"
 
@@ -104,6 +105,10 @@ AMAppController::AMAppController(QObject *parent) :
 	mw_->addPane(new PeriodicTable(), "Experiment Tools", "Periodic Table", ":/applications-science.png");
 	mw_->addPane(new ProtocolViewer(), "Experiment Tools", "Protocol", ":/accessories-text-editor.png");
 
+	scanEditor_ = new AMGenericScanEditor();
+	/// \todo update name with names of open scans...
+	mw_->addPane(scanEditor_, "Now Playing...", "Scan Editor", ":/applications-science.png");
+
 
 	// Make a dataview widget and add it under two links/headings: "Runs" and "Experiments"
 	dataView_ = new AMDataView();
@@ -115,6 +120,7 @@ AMAppController::AMAppController(QObject *parent) :
 	connect(mw_->sidebar()->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), runExperimentInsert_, SLOT(onItemSelected(QModelIndex,QModelIndex)));
 	connect(runExperimentInsert_, SIGNAL(runSelected(int)), dataView_, SLOT(showRun(int)));
 	connect(runExperimentInsert_, SIGNAL(experimentSelected(int)), dataView_, SLOT(showExperiment(int)));
+
 
 
 

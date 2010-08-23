@@ -102,6 +102,7 @@ HEADERS +=	../../../MPlot/src/MPlot/MPlot.h	\
 	source/beamline/SGMBeamline.h	\
 	source/dataman/AMChannel.h	\
 	source/dataman/AMDatabase.h	\
+	source/dataman/AMDatabaseDefinition.h	\
 	source/dataman/AMDataTree.h	\
 	source/dataman/AMDbLoader.h	\
 	source/dataman/AMDbObject.h	\
@@ -143,7 +144,9 @@ SOURCES +=	source/acquaman/AMRegion.cpp	\
 	source/beamline/SGMBeamline.cpp	\
 	source/dataman/AMChannel.cpp	\
 	source/dataman/AMDataTree.cpp \
+	source/dataman/AMDbLoader.cpp	\
 	source/dataman/AMDatabase.cpp	\
+	source/dataman/AMDatabaseDefinition.cpp	\
 	source/dataman/AMDbObject.cpp	\
 	source/dataman/AMDetectorInfo.cpp	\
 	source/dataman/AMScan.cpp	\
