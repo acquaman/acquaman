@@ -325,8 +325,7 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/ui/AMSampleManipulatorView.cpp \
 	source/ui/AMSamplePlateView.cpp \
 	source/dataman/AMControlSetInfo.cpp \
-	source/dataman/AMSamplePlate.cpp \
-	source/dataman/AMDataTree.cpp
+	source/dataman/AMSamplePlate.cpp
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc
 OTHER_FILES += source/muParser/README.txt

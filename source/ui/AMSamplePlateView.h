@@ -26,12 +26,13 @@ public:
 	explicit AMSamplePlateView(QString title = "Sample Plate", QWidget *parent = 0);
 
 signals:
+	void loadExistingPlate(int id);
 
 public slots:
 	void setManipulator(AMControlSet *manipulator);
 
 protected slots:
-	void onLoadExistingPlate(int index);
+	void onLoadExistingPlateComboChanged(int index);
 
 protected:
 	QLabel *plateNameLabel_;
@@ -39,7 +40,7 @@ protected:
 	AMSampleListView *sampleListView_;
 	QVBoxLayout *vl_;
 
-	AMSamplePlate samplePlate_;
+//	AMSamplePlate samplePlate_;
 	AMControlSet *manipulator_;
 };
 
@@ -47,10 +48,11 @@ class AMSampleListView : public QFrame
 {
 Q_OBJECT
 public:
-	AMSampleListView(AMSamplePlate *samplePlate, QWidget *parent = 0);
+	AMSampleListView(QWidget *parent = 0);
 
 public slots:
 	void setManipulator(AMControlSet *manipulator);
+	void onLoadExistingPlate(int id);
 
 signals:
 
@@ -59,13 +61,12 @@ protected slots:
 	void onSamplePositionChanged(int index);
 	void onSamplePositionAdded(int index);
 	void onSamplePositionRemoved(int index);
-//	void onAdderClicked();
 
 protected:
 	QSize sizeHint() const;
 
 protected:
-	AMSamplePlate *samplePlate_;
+	AMSamplePlate samplePlate_;
 	AMControlSet *manipulator_;
 	int nextNew;
 

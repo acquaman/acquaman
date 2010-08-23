@@ -7,10 +7,11 @@ AMControlSetInfo::AMControlSetInfo(QObject *parent) :
 	setName("ControlSet");
 	QStringList tmpList;
 	metaData_["names"] = QStringList(tmpList);
-	metaData_["ctrlValues"] = QStringList(tmpList);
-	metaData_["minimums"] = QStringList(tmpList);
-	metaData_["maximums"] = QStringList(tmpList);
 	metaData_["units"] = QStringList(tmpList);
+	AMDoubleList tmpDList;
+	metaData_["ctrlValues"].setValue(tmpDList);
+	metaData_["minimums"].setValue(tmpDList);
+	metaData_["maximums"].setValue(tmpDList);
 	ctrlInfoList_ = NULL;
 	setupModel();
 }
@@ -21,10 +22,11 @@ AMControlSetInfo::AMControlSetInfo(AMControlSetInfo *copyFrom, QObject *parent) 
 	setName("ControlSet");
 	QStringList tmpList;
 	metaData_["names"] = QStringList(tmpList);
-	metaData_["ctrlValues"] = QStringList(tmpList);
-	metaData_["minimums"] = QStringList(tmpList);
-	metaData_["maximums"] = QStringList(tmpList);
 	metaData_["units"] = QStringList(tmpList);
+	AMDoubleList tmpDList;
+	metaData_["ctrlValues"].setValue(tmpDList);
+	metaData_["minimums"].setValue(tmpDList);
+	metaData_["maximums"].setValue(tmpDList);
 	ctrlInfoList_ = NULL;
 	setupModel();
 	this->copyFrom(copyFrom);
@@ -32,28 +34,6 @@ AMControlSetInfo::AMControlSetInfo(AMControlSetInfo *copyFrom, QObject *parent) 
 
 AMControlSetInfoModel* AMControlSetInfo::model(){
 	return ctrlInfoList_;
-}
-
-bool AMControlSetInfo::checkSync(){
-	QStringList names = metaData("names").toStringList();
-	QStringList values = metaData("ctrlValues").toStringList();
-	QStringList minimums = metaData("minimums").toStringList();
-	QStringList maximums = metaData("maximums").toStringList();
-	QStringList units = metaData("units").toStringList();
-	bool retVal = true;
-	for(int x = 0; x < count(); x++){
-		qDebug() << nameAt(x) << "=" << ctrlInfoList_->data(ctrlInfoList_->index(x, 0), Qt::DisplayRole).toString() << "=" << names.at(x)
-				<< valueAt(x) << "=" << ctrlInfoList_->data(ctrlInfoList_->index(x, 1), Qt::DisplayRole).toDouble() << "=" << values.at(x)
-				<< minimumAt(x) << "=" << ctrlInfoList_->data(ctrlInfoList_->index(x, 2), Qt::DisplayRole).toDouble() << "=" << minimums.at(x)
-				<< maximumAt(x) << "=" << ctrlInfoList_->data(ctrlInfoList_->index(x, 3), Qt::DisplayRole).toDouble() << "=" << maximums.at(x)
-				<< unitsAt(x) << "=" << ctrlInfoList_->data(ctrlInfoList_->index(x, 4), Qt::DisplayRole).toString() << "=" << units.at(x);
-		retVal = retVal && ( ctrlInfoList_->data(ctrlInfoList_->index(x, 0), Qt::DisplayRole).toString() == names.at(x) );
-		retVal = retVal && ( ctrlInfoList_->data(ctrlInfoList_->index(x, 1), Qt::DisplayRole).toDouble() == values.at(x).toDouble() );
-		retVal = retVal && ( ctrlInfoList_->data(ctrlInfoList_->index(x, 2), Qt::DisplayRole).toDouble() == minimums.at(x).toDouble() );
-		retVal = retVal && ( ctrlInfoList_->data(ctrlInfoList_->index(x, 3), Qt::DisplayRole).toDouble() == maximums.at(x).toDouble() );
-		retVal = retVal && ( ctrlInfoList_->data(ctrlInfoList_->index(x, 4), Qt::DisplayRole).toString() == units.at(x) );
-	}
-	return retVal;
 }
 
 int AMControlSetInfo::count() const{
@@ -103,9 +83,9 @@ QString AMControlSetInfo::unitsAt(size_t index) const{
 QList<AMMetaMetaData> AMControlSetInfo::metaDataUniqueKeys(){
 	QList<AMMetaMetaData> rv;
 	rv << AMMetaMetaData(QVariant::StringList, "names", true);
-	rv << AMMetaMetaData(QVariant::StringList, "ctrlValues", true);
-	rv << AMMetaMetaData(QVariant::StringList, "minimums", true);
-	rv << AMMetaMetaData(QVariant::StringList, "maximums", true);
+	rv << AMMetaMetaData(AM::DoubleList, "ctrlValues", true);
+	rv << AMMetaMetaData(AM::DoubleList, "maximums", true);
+	rv << AMMetaMetaData(AM::DoubleList, "minimums", true);
 	rv << AMMetaMetaData(QVariant::StringList, "units", true);
 	return rv;
 }
@@ -122,6 +102,47 @@ QString AMControlSetInfo::databaseTableName() const {
 	return AMDatabaseDefinition::controlSetTableName();
 }
 
+bool AMControlSetInfo::loadFromDb(AMDatabase *db, int id){
+	bool retVal = AMDbObject::loadFromDb(db, id);
+	if(retVal){
+		while(count() > 0)
+			removeControlAt(count()-1);
+		QStringList names = metaData_.value("names").toStringList();
+		AMDoubleList ctrlValues = metaData_.value("ctrlValues").value<AMDoubleList>();
+		AMDoubleList minimums = metaData_.value("minimums").value<AMDoubleList>();
+		AMDoubleList maximums = metaData_.value("maximums").value<AMDoubleList>();
+		QStringList units = metaData_.value("units").toStringList();
+		if( (names.count() != ctrlValues.count()) || (ctrlValues.count() != minimums.count()) || (minimums.count() != maximums.count()) || (maximums.count() != units.count()) ){
+			qDebug() << "Failed to load because of count mismatch";
+			return false;
+		}
+		for(int x = 0; x < names.count(); x++)
+			addControlAt(x, names.at(x), ctrlValues.at(x), minimums.at(x), maximums.at(x), units.at(x));
+	}
+	return retVal;
+}
+
+bool AMControlSetInfo::storeToDb(AMDatabase *db){
+	QStringList names;
+	AMDoubleList ctrlValues;
+	AMDoubleList minimums;
+	AMDoubleList maximums;
+	QStringList units;
+	for(int x = 0; x < count(); x++){
+		names.append(nameAt(x));
+		ctrlValues.append(valueAt(x));
+		minimums.append(minimumAt(x));
+		maximums.append(maximumAt(x));
+		units.append(unitsAt(x));
+	}
+	metaData_["names"].setValue(names);
+	metaData_["ctrlValues"].setValue(ctrlValues);
+	metaData_["minimums"].setValue(minimums);
+	metaData_["maximums"].setValue(maximums);
+	metaData_["units"].setValue(units);
+	return AMDbObject::storeToDb(db);
+}
+
 QString AMControlSetInfo::typeDescription() const {
 	return "Generic Control Set";
 }
@@ -131,71 +152,28 @@ void AMControlSetInfo::setDescription(const QString& description) {
 }
 
 bool AMControlSetInfo::setNameAt(size_t index, QString name){
-	bool retVal = ctrlInfoList_->setData(ctrlInfoList_->index(index, 0), name, Qt::EditRole);
-	if(retVal){
-		QStringList tmpList = metaData("names").toStringList();
-		tmpList[index] = name;
-		setMetaData("names", tmpList);
-	}
-	return retVal;
+	return ctrlInfoList_->setData(ctrlInfoList_->index(index, 0), name, Qt::EditRole);
 }
 
 bool AMControlSetInfo::setValueAt(size_t index, double value){
-	bool retVal = ctrlInfoList_->setData(ctrlInfoList_->index(index, 1), value, Qt::EditRole);
-	if(retVal){
-		QStringList tmpList = metaData("ctrlValues").toStringList();
-		QString tmpStr;
-		tmpStr.setNum(value);
-		tmpList[index] = tmpStr;
-		setMetaData("ctrlValues", tmpList);
-	}
-	return retVal;
+	return ctrlInfoList_->setData(ctrlInfoList_->index(index, 1), value, Qt::EditRole);
 }
 
 bool AMControlSetInfo::setMinimumAt(size_t index, double minimum){
-	bool retVal = ctrlInfoList_->setData(ctrlInfoList_->index(index, 2), minimum, Qt::EditRole);
-	if(retVal){
-		QStringList tmpList = metaData("minimums").toStringList();
-		QString tmpStr;
-		tmpStr.setNum(minimum);
-		tmpList[index] = tmpStr;
-		setMetaData("minimums", tmpList);
-	}
-	return retVal;
+	return ctrlInfoList_->setData(ctrlInfoList_->index(index, 2), minimum, Qt::EditRole);
 }
 
 bool AMControlSetInfo::setMaximumAt(size_t index, double maximum){
-	bool retVal = ctrlInfoList_->setData(ctrlInfoList_->index(index, 3), maximum, Qt::EditRole);
-	if(retVal){
-		QStringList tmpList = metaData("maximums").toStringList();
-		QString tmpStr;
-		tmpStr.setNum(maximum);
-		tmpList[index] = tmpStr;
-		setMetaData("maximums", tmpList);
-	}
-	return retVal;
+	return ctrlInfoList_->setData(ctrlInfoList_->index(index, 3), maximum, Qt::EditRole);
 }
 
 bool AMControlSetInfo::setUnitsAt(size_t index, QString units){
 	bool retVal = ctrlInfoList_->setData(ctrlInfoList_->index(index, 4), units, Qt::EditRole);
-	if(retVal){
-		QStringList tmpList = metaData("units").toStringList();
-		tmpList[index] = units;
-		setMetaData("units", tmpList);
-	}
 	return retVal;
 }
 
 bool AMControlSetInfo::setControlAt(size_t index, QString name, double value, double minimum, double maximum, QString units){
 	if( (int)index < count()){
-		/*
-		bool t1 = setNameAt(index, name);
-		bool t2 = setValueAt(index, value);
-		bool t3 = setMinimumAt(index, minimum);
-		bool t4 = setMaximumAt(index, maximum);
-		bool t5 = setUnitsAt(index, units);
-		return t1 && t2 && t3 && t4 && t5;
-		*/
 		return setNameAt(index, name) && setValueAt(index, value) && setMinimumAt(index, minimum) && setMaximumAt(index, maximum) && setUnitsAt(index, units);
 	}
 	else
@@ -205,67 +183,13 @@ bool AMControlSetInfo::setControlAt(size_t index, QString name, double value, do
 bool AMControlSetInfo::addControlAt(size_t index, QString name, double value, double minimum, double maximum, QString units){
 	if(!ctrlInfoList_->insertRows(index, 1))
 		return false;
-	QStringList tmpList = metaData("names").toStringList();
-	QString tmpStr;
-	tmpList.insert(index, "");
-	setMetaData("names", tmpList);
-	tmpList = metaData("ctrlValues").toStringList();
-	tmpStr.setNum(value);
-	tmpList.insert(index, "");
-	setMetaData("ctrlValues", tmpList);
-	tmpList = metaData("minimums").toStringList();
-	tmpStr.setNum(minimum);
-	tmpList.insert(index, "");
-	setMetaData("minimums", tmpList);
-	tmpList = metaData("maximums").toStringList();
-	tmpStr.setNum(maximum);
-	tmpList.insert(index, "");
-	setMetaData("maximums", tmpList);
-	tmpList = metaData("units").toStringList();
-	tmpList.insert(index, "");
-	setMetaData("units", tmpList);
-	bool retVal = setControlAt(index, name, value, minimum, maximum, units);
-/*	if(retVal){
-		QStringList tmpList = metaData("names").toStringList();
-		QString tmpStr;
-		tmpList.insert(index, name);
-		setMetaData("names", tmpList);
-		tmpList = metaData("ctrlValues").toStringList();
-		tmpStr.setNum(value);
-		tmpList.insert(index, tmpStr);
-		setMetaData("ctrlValues", tmpList);
-		tmpList = metaData("minimums").toStringList();
-		tmpStr.setNum(minimum);
-		tmpList.insert(index, tmpStr);
-		setMetaData("minimums", tmpList);
-		tmpList = metaData("maximums").toStringList();
-		tmpStr.setNum(maximum);
-		tmpList.insert(index, tmpStr);
-		setMetaData("maximums", tmpList);
-	}
-*/
-	return retVal;
+	return setControlAt(index, name, value, minimum, maximum, units);
 }
 
 bool AMControlSetInfo::removeControlAt(size_t index){
 	if( (int)index >= count())
 		return false;
-	bool retVal = ctrlInfoList_->removeRows(index, 1);
-	if(retVal){
-		QStringList tmpList = metaData("names").toStringList();
-		tmpList.removeAt(index);
-		setMetaData("names", tmpList);
-		tmpList = metaData("ctrlValues").toStringList();
-		tmpList.removeAt(index);
-		setMetaData("ctrlValues", tmpList);
-		tmpList = metaData("minimums").toStringList();
-		tmpList.removeAt(index);
-		setMetaData("minimums", tmpList);
-		tmpList = metaData("maximums").toStringList();
-		tmpList.removeAt(index);
-		setMetaData("maximums", tmpList);
-	}
-	return retVal;
+	return ctrlInfoList_->removeRows(index, 1);
 }
 
 void AMControlSetInfo::copyFrom(AMControlSetInfo *copyFrom){

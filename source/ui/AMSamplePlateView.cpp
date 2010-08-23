@@ -11,13 +11,15 @@ AMSamplePlateView::AMSamplePlateView(QString title, QWidget *parent) :
 
 	setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
-	plateNameLabel_ = new QLabel(samplePlate_.plateName());
+//	plateNameLabel_ = new QLabel(samplePlate_.plateName());
+	plateNameLabel_ = new QLabel("HEY DAVE FIX ME");
 	plateNameLabel_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 	existingPlates_ = new QComboBox();
 	existingPlates_->addItem("Load Existing");
 
 	QSqlQuery q = AMDatabase::userdb()->query();
-	q.prepare(QString("SELECT id,name,createTime FROM %1 ORDER BY createTime DESC").arg(AMDatabaseDefinition::samplePlateTableName()));
+//	q.prepare(QString("SELECT id,name,createTime FROM %1 ORDER BY createTime DESC").arg(AMDatabaseDefinition::samplePlateTableName()));
+	q.prepare(QString("SELECT id,name,createTime FROM %1").arg(AMDatabaseDefinition::samplePlateTableName()));
 	q.exec();
 	int id;
 	QString name;
@@ -26,15 +28,15 @@ AMSamplePlateView::AMSamplePlateView(QString title, QWidget *parent) :
 		id = q.value(0).toInt();
 		name = q.value(1).toString();
 		createTime = q.value(2).toDateTime();
-//		existingPlates_->addItem(name);
 		existingPlates_->insertItem(1, name);
 		existingPlates_->setItemData(1, id, AM::IdRole);
 		existingPlates_->setItemData(1, createTime, AM::DateTimeRole);
 	}
-	connect(existingPlates_, SIGNAL(currentIndexChanged(int)), this, SLOT(onLoadExistingPlate(int)));
+	connect(existingPlates_, SIGNAL(currentIndexChanged(int)), this, SLOT(onLoadExistingPlateComboChanged(int)));
 
-	sampleListView_ = new AMSampleListView(&samplePlate_);
+	sampleListView_ = new AMSampleListView();
 	sampleListView_->setManipulator(manipulator_);
+	connect(this, SIGNAL(loadExistingPlate(int)), sampleListView_, SLOT(onLoadExistingPlate(int)));
 	//sampleListView_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
 	vl_ = new QVBoxLayout();
 	vl_->setAlignment(Qt::AlignTop);
@@ -49,20 +51,20 @@ void AMSamplePlateView::setManipulator(AMControlSet *manipulator){
 	sampleListView_->setManipulator(manipulator_);
 }
 
-void AMSamplePlateView::onLoadExistingPlate(int index){
+void AMSamplePlateView::onLoadExistingPlateComboChanged(int index){
 	int id = existingPlates_->itemData(index, AM::IdRole).toInt();
-	samplePlate_.loadFromDb(AMDatabase::userdb(), id);
-	qDebug() << "Sample plate has " << samplePlate_.count() << " positions.";
+	qDebug() << "Go to samplePlate id " << id;
+	emit loadExistingPlate(id);
 }
 
-AMSampleListView::AMSampleListView(AMSamplePlate *samplePlate, QWidget *parent) :
+AMSampleListView::AMSampleListView(QWidget *parent) :
 		QFrame(parent)
 {
 	nextNew = 1;
-	samplePlate_ = samplePlate;
-	connect(samplePlate_, SIGNAL(samplePositionChanged(int)), this, SLOT(onSamplePositionChanged(int)));
-	connect(samplePlate_, SIGNAL(samplePositionAdded(int)), this, SLOT(onSamplePositionAdded(int)));
-	connect(samplePlate_, SIGNAL(samplePositionRemoved(int)), this, SLOT(onSamplePositionRemoved(int)));
+//	samplePlate_ = samplePlate;
+	connect(&samplePlate_, SIGNAL(samplePositionChanged(int)), this, SLOT(onSamplePositionChanged(int)));
+	connect(&samplePlate_, SIGNAL(samplePositionAdded(int)), this, SLOT(onSamplePositionAdded(int)));
+	connect(&samplePlate_, SIGNAL(samplePositionRemoved(int)), this, SLOT(onSamplePositionRemoved(int)));
 
 	saf_ = new QFrame();
 	il_ = new QVBoxLayout();
@@ -96,12 +98,20 @@ void AMSampleListView::addNewSampleToPlate(){
 	tmpPosition = new AMControlSetInfo(manipulator_->info(), this);
 	tmpPosition->storeToDb(AMDatabase::userdb());
 	qDebug() << "tmpPosition with id of " << tmpPosition->id();
-	samplePlate_->appendSamplePosition(tmpSample, tmpPosition);
-	samplePlate_->storeToDb(AMDatabase::userdb());
+	samplePlate_.appendSamplePosition(tmpSample, tmpPosition);
+	samplePlate_.storeToDb(AMDatabase::userdb());
 }
 
 void AMSampleListView::setManipulator(AMControlSet *manipulator){
 	manipulator_ = manipulator;
+}
+
+void AMSampleListView::onLoadExistingPlate(int id){
+	qDebug() << "ASKED TO Go to samplePlate id " << id;
+	if(id == 0)
+		return;
+	samplePlate_.loadFromDb(AMDatabase::userdb(), id);
+	qDebug() << "Sample plate has " << samplePlate_.count() << " positions.";
 }
 
 void AMSampleListView::onSamplePositionChanged(int index){
@@ -112,13 +122,18 @@ void AMSampleListView::onSamplePositionAdded(int index){
 	qDebug() << "Claims added at " << index;
 	if(!manipulator_)
 		return;
-	AMSamplePositionItemView *tmpSPIView = new AMSamplePositionItemView(samplePlate_->samplePositionAt(index), manipulator_, index+1);
+	AMSamplePositionItemView *tmpSPIView = new AMSamplePositionItemView(samplePlate_.samplePositionAt(index), manipulator_, index+1);
 	il_->insertWidget(index, tmpSPIView, 0, Qt::AlignTop);
 	sa_->ensureVisible(0, 0);
 }
 
 void AMSampleListView::onSamplePositionRemoved(int index){
 	qDebug() << "Claims removed at " << index;
+	if(il_->itemAt(index) == 0)
+		return;
+	AMSamplePositionItemView *tmpSPIView = (AMSamplePositionItemView*)il_->itemAt(index)->widget();
+	qDebug() << "Actually deleting " << index;
+	delete tmpSPIView;
 }
 
 QSize AMSampleListView::sizeHint() const{
@@ -177,6 +192,7 @@ bool AMSamplePositionItemView::onSavePositionClicked(){
 	if(!manipulator_)
 		return false;
 	samplePosition_->position()->copyFrom(manipulator_->info());
+	samplePosition_->position()->storeToDb(AMDatabase::userdb());
 	return true;
 }
 
@@ -248,7 +264,9 @@ void AMSamplePositionItemView::onSamplePositionUpdate(int index){
 	indexLabel_->setText(tmpStr+". ");
 	sampleBox_->addItem(samplePosition_->sample()->name());
 	QString positionText;
+	qDebug() << "Looping position info";
 	for(int x = 0; x < samplePosition_->position()->count(); x++){
+		qDebug() << samplePosition_->position()->nameAt(x) << samplePosition_->position()->valueAt(x);
 		tmpStr.setNum(samplePosition_->position()->valueAt(x));
 		tmpStr.prepend(": ");
 		tmpStr.prepend(samplePosition_->position()->nameAt(x));
