@@ -50,7 +50,24 @@ bool AMXASScan::addDetector(const AMDetectorInfo *uniqueDetector) {
 }
 
 
+#include "dataman/SGM2004FileLoader.h"
 
+bool AMXASScan::loadData() {
+
+	SGM2004FileLoader loader(this);
+
+	if(fileFormat() != loader.formatTag()) {
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, -1, QString("Could not load raw XAS scan data. The '%1' file format isn't supported.").arg(fileFormat())));
+		return false;
+	}
+
+	if(!loader.loadFromFile(filePath(), false, false)) {
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, -1, QString("Could not load raw XAS scan data from '%1'").arg(filePath())));
+		return false;
+	}
+	else
+		return true;
+}
 
 
 

@@ -37,7 +37,6 @@ myImporter = scan2;
 \endcode
 */
 
-
 	/// translate a PV string from the file header to a meaningful name, if we recognize it.  Unrecognized PV strings are untouched and false is returned.
 	static bool pv2columnName(QString& pv) {
 		QString newName = columns2pvNames_.valueR(pv);

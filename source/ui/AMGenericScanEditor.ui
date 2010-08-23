@@ -147,6 +147,9 @@ font: bold 10pt &quot;Lucida Grande&quot;</string>
        </property>
        <item>
         <layout class="QHBoxLayout" name="leftHorizontalLayout">
+         <property name="spacing">
+          <number>12</number>
+         </property>
          <property name="margin">
           <number>0</number>
          </property>
@@ -307,9 +310,7 @@ font-weight: bold;</string>
 font: bold 15px &quot;Marker Felt&quot;;</string>
            </property>
            <property name="plainText">
-            <string>Hey Dave!
-
-Line 3</string>
+            <string/>
            </property>
            <property name="backgroundVisible">
             <bool>false</bool>

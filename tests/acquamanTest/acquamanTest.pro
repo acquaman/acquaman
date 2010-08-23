@@ -225,6 +225,7 @@ SOURCES +=	source/acquaman/AMAcqScanSpectrumOutput.cpp	\
 	source/dataman/AMScan.cpp	\
 	source/dataman/AMScanSetModel.cpp	\
 	source/dataman/AMXASScan.cpp	\
+	source/dataman/SGM2004FileLoader.cpp \
 	source/dataman/AMControlSetInfo.cpp \
 	source/muParser/muParser.cpp	\
 	source/muParser/muParserBase.cpp	\

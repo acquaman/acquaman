@@ -18,6 +18,7 @@ public:
 
 	/// Add a scan to an editor. The editor takes ownership of the scan, and will delete it when closed or the scan is removed.
 	void addScan(AMScan* newScan) { /// \todo
+		scanSetModel_->addScan(newScan);
 	}
 
 

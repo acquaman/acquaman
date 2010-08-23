@@ -18,6 +18,9 @@ public:
 	/// create a new XAS scan with the following named \c detectors. Each "detector" is a source of a datapoint, that will be stored/logged, available as a column of raw data, and accessible through channel(s).
 	explicit AMXASScan(const QList<AMDetectorInfo*> &detectors = QList<AMDetectorInfo*>(), QObject *parent = 0);
 
+	/// Re-implemented from AMScan. Currently only the SGM2004 file format is supported.
+	virtual bool loadData();
+
 	/// the detectors (raw data columns) available within this scan. Does not include the primary column (eV), which is always present.
 	QStringList detectorNames() const { return detectorNames_; }
 	QList<const AMDetectorInfo*> detectors() const { return detectors_; }

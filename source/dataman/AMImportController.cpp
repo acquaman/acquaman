@@ -35,22 +35,8 @@ AMScan* SGMLegacyImporter::import(const QString& fullPath) {
 			rv->setNumber(0);
 		}
 
-
-		// copy the raw data file to the library:
-		QDir dir;
-		QString path = AMUserSettings::userDataFolder + rv->dateTime().toString("/yyyy/MM");
-		dir.mkpath(path);
-		path.append("/").append(nameAndExt);
-		if(!QFile::copy(fullPath, path)) {
-			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -2, "SGM2004FileImporter: Could not copy the imported file into the library. Maybe this file exists already?"));
-			delete rv;
-			return 0;
-		}
-
-		// remember the file format, for re-loading:
+		// remember the file format, for re-loading.
 		rv->setMetaData("fileFormat", loader.formatTag() );
-		rv->setMetaData("filePath", path);
-		qDebug() << "path:" << path;
 
 		return rv;
 	}
@@ -265,10 +251,24 @@ void AMImportController::finalizeImport() {
 		currentScan_->setSampleId(w_->sampleEdit->value());
 		currentScan_->setRunId(w_->runEdit->currentRunId());
 
-		if(currentScan_->storeToDb(AMDatabase::userdb()))
-			numSuccess_++;
-		else
-			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, -1, "The file was loaded correctly, but it could not be saved to the database."));
+		// copy the raw data file to the library:
+		QFileInfo file(filesToImport_.at(currentFile_));
+		QDir dir;
+		QString path = AMUserSettings::userDataFolder + currentScan_->dateTime().toString("/yyyy/MM");
+		dir.mkpath(path);
+		path.append("/").append(file.fileName());
+
+		currentScan_->setFilePath(path);
+
+		if(!QFile::copy(filesToImport_.at(currentFile_), currentScan_->filePath())) {
+			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -2, "SGM2004FileImporter: Could not copy the imported file into the library. Maybe this file exists already?"));
+		}
+		else {
+			if( currentScan_->storeToDb(AMDatabase::userdb()) )
+				numSuccess_++;
+			else
+				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, -1, "The file was loaded correctly, but it could not be saved to the database."));
+		}
 
 		w_->thumbnailViewer->setSource(0);
 		delete currentScan_;

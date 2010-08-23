@@ -1,6 +1,8 @@
 #include "AMSettings.h"
 
 #include <QDir>
+#include <QDateTime>
+
 // Needed for getenv():
 #include <cstdlib>
 
@@ -22,6 +24,7 @@ QString AMUserSettings::defaultFilePath(const QDateTime& dt) {
 	QString path = userDataFolder + dt.toString("/yyyy/MM");
 	dir.mkpath(path);
 	path.append(dt.toString("/ddd_MM_dd_hh_mm_ss_zzzz"));
+	return path;
 }
 
 /// 2. User Information:

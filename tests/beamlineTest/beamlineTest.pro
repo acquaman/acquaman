@@ -110,6 +110,7 @@ HEADERS +=	../../../MPlot/src/MPlot/MPlot.h	\
 	source/dataman/AMScan.h	\
 	source/dataman/AMXASScan.h	\
 	source/dataman/AMControlSetInfo.h \
+	source/dataman/SGM2004FileLoader.h \
 	source/muParser/muParser.h	\
 	source/muParser/muParserBase.h	\
 	source/muParser/muParserBytecode.h	\
@@ -151,6 +152,7 @@ SOURCES +=	source/acquaman/AMRegion.cpp	\
 	source/dataman/AMDetectorInfo.cpp	\
 	source/dataman/AMScan.cpp	\
 	source/dataman/AMXASScan.cpp	\
+	source/dataman/SGM2004FileLoader.cpp \
 	source/dataman/AMControlSetInfo.cpp \
 	source/muParser/muParser.cpp	\
 	source/muParser/muParserBase.cpp	\
