@@ -238,7 +238,7 @@ bool AMSamplePlate::setupModel(){
 
 const QString AMSamplePlate::timeString() const{
 	QString timeString;
-	timeString = QDateTime::currentDateTime().toString("MMM d yyyy, h:m ap");
+	timeString = QDateTime::currentDateTime().toString("MMM d yyyy, h:mm ap");
 	return timeString;
 }
 

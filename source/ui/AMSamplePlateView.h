@@ -12,9 +12,12 @@
 #include <QIcon>
 #include <QScrollBar>
 #include <QDebug>
+#include <QListView>
+#include <QLineEdit>
 
 #include "dataman/AMSamplePlate.h"
 #include "beamline/SGMBeamline.h"
+#include "dataman/AMDatabase.h"
 
 class AMSampleListView;
 class AMSamplePositionItemView;
@@ -25,14 +28,11 @@ Q_OBJECT
 public:
 	explicit AMSamplePlateView(QString title = "Sample Plate", QWidget *parent = 0);
 
-signals:
-	void loadExistingPlate(int id);
-
 public slots:
 	void setManipulator(AMControlSet *manipulator);
 
 protected slots:
-	void onLoadExistingPlateComboChanged(int index);
+	void onLoadExistingPlate(int index);
 
 protected:
 	QLabel *plateNameLabel_;
@@ -40,7 +40,7 @@ protected:
 	AMSampleListView *sampleListView_;
 	QVBoxLayout *vl_;
 
-//	AMSamplePlate samplePlate_;
+	AMSamplePlate samplePlate_;
 	AMControlSet *manipulator_;
 };
 
@@ -48,11 +48,10 @@ class AMSampleListView : public QFrame
 {
 Q_OBJECT
 public:
-	AMSampleListView(QWidget *parent = 0);
+	AMSampleListView(AMSamplePlate *samplePlate, QWidget *parent = 0);
 
 public slots:
 	void setManipulator(AMControlSet *manipulator);
-	void onLoadExistingPlate(int id);
 
 signals:
 
@@ -66,7 +65,7 @@ protected:
 	QSize sizeHint() const;
 
 protected:
-	AMSamplePlate samplePlate_;
+	AMSamplePlate *samplePlate_;
 	AMControlSet *manipulator_;
 	int nextNew;
 
