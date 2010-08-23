@@ -112,6 +112,21 @@ public:
 
 	/// \todo copy constructor and assignment operator required, but not yet implemented. Do not copy. (implementation note: handle channels as children?)
 
+	// Raw Data Management
+	/// Load raw data into memory from storage. Returns true on success.
+	/*! This will attempt to use the scan's current filePath() and fileFormat() as the source. Subclasses must re-implement this function to handle their set of readable file formats.  The base class implementation does nothing and returns true.*/
+	virtual bool loadData() {
+		return true;
+	}
+	/// Controls whether raw data is loaded automatically inside loadFromDb().  If autoLoadData() is true, then whenever loadFromDb() is called and the new filePath() is different than the old filePath(), loadData() will be called as well.  If you want to turn off loading raw data for performance reasons, call setAutoLoadData(false).  Auto-loading is enabled by default.
+	bool autoLoadData() const {
+		return autoLoadData_;
+	}
+	/// Enables or disables automatically loading raw data inside loadFromDb().
+	void setAutoLoadData(bool autoLoadDataOn) {
+		autoLoadData_ = autoLoadDataOn;
+	}
+
 
 	// Meta Data Elements
 	////////////////////////////////
@@ -136,6 +151,8 @@ public:
 
 	/// The string describing the format of the stored raw data file
 	QString fileFormat() const { return metaData_["fileFormat"].toString(); }
+	/// The directory path and file name of this scan's raw data file
+	QString filePath() const { return metaData_["filePath"].toString(); }
 
 
 	// Meta-data system
@@ -175,7 +192,7 @@ public:
 
 	// Database system
 	///////////////////////////////////////////
-	/// Load yourself from the database. (returns true on success)
+	/// Load yourself from the database. (returns true on success).  In addition to loading meta-data, this version checks to see if the new filePath() is different than the current one, and if it is, it automatically calls loadData().
 	/*! Re-implemented from AMDbObject, this version loads all of the meta data found for keys metaDataAllKeys(), and also restores the chanel names and channel formulas.*/
 	virtual bool loadFromDb(AMDatabase* db, int id);
 	/// Store or update self in the database. (returns true on success)
@@ -237,6 +254,10 @@ public slots:
 	void setSampleId(int sampleId) { setMetaData("sampleId", sampleId); }
 	/// Sets notes for scan
 	void setNotes(const QString &notes) { setMetaData("notes", notes); }
+	/// Set file path. (Be careful if changing this, not to break the association to a raw data file)
+	void setFilePath(const QString& newPath) { setMetaData("filePath", newPath); }
+	/// Set the file format. This is a string matching the AMAbstractFileLoader::formatTag() in one of the available file loaders.
+	void setFileFormat(const QString& format) { setMetaData("fileFormat", format); }
 
 	/// create a new channel. The channel will be owned and deleted by the scan.
 	bool addChannel(const QString& chName, const QString& expression);
@@ -287,6 +308,9 @@ protected:
 
 	/// Allow channels to access the datatree:
 	friend AMDataTree* AMChannel::dataTree() const;
+
+	/// Controls whether loadData() is called automatically inside loadFromDb().
+	bool autoLoadData_;
 
 	friend class AMAcqScanOutput;
 	friend class AMAcqScanSpectrumOutput;

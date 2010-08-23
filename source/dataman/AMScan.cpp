@@ -95,6 +95,8 @@ AMScan::AMScan(QObject *parent)
 	metaData_["notes"] = QString();
 	metaData_["fileFormat"] = QString("unknown");
 	metaData_["filePath"] = QString();
+
+	autoLoadData_ = true;
 }
 
 AMScan::~AMScan() {
@@ -216,23 +218,31 @@ bool AMScan::storeToDb(AMDatabase* db) {
 }
 
 
-/// Store or update self in the database. (returns true on success)
-/*! Re-implemented from AMDbObject::storeToDb(), this version saves all of the meta data found for keys metaDataAllKeys(), as well as saving the channel names and channel formulas.
-  */
+
 bool AMScan::loadFromDb(AMDatabase* db, int sourceId) {
+
+	QString oldFilePath = filePath();
 
 	// always call the base class implementation first. This retrieves/loads all the base-class properties.
 	// return false if it fails:
 	if( !AMDbObject::loadFromDb(db, sourceId))
 		return false;
 
+	// retrieve channelNames and channelExpressions: they've been "accidentally" loaded into the hash by AMDbObject::loadFromDb().
+	QStringList chNames = metaData_.take("channelNames").toStringList();
+	QStringList chExpressions = metaData_.take("channelExpressions").toStringList();
+
+	// If the file path is different than the old one, clear and reload the raw data.
+	if( autoLoadData_ && filePath() != oldFilePath ) {
+		if(!loadData())
+			return false;
+	}
+
 	// clear the existing channels:
 	while(numChannels() != 0)
 		deleteChannel(numChannels()-1);
 
-	// retrieve channelNames and channelExpressions: they've been "accidentally" loaded into the hash by AMDbObject::loadFromDb().
-	QStringList chNames = metaData_.take("channelNames").toStringList();
-	QStringList chExpressions = metaData_.take("channelExpressions").toStringList();
+
 	if(chNames.count() != chExpressions.count()) {
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -1, "AMScan: couldn't restore saved channels. (The data was corrupted.)"));
 		return false;

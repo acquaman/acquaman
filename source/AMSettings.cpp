@@ -1,6 +1,8 @@
 #include "AMSettings.h"
 
 #include <QDir>
+#include <QDateTime>
+
 // Needed for getenv():
 #include <cstdlib>
 

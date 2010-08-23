@@ -99,6 +99,8 @@ void AMGenericScanEditor::dropEvent(QDropEvent * event) {
 			break;
 		}
 
+		// We
+
 		// success!
 		addScan(scan);
 		accepted = true;
