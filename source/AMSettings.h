@@ -9,25 +9,25 @@
    User-specific settings are stored under the AMUserAMSettings namespace.  They can be different for each user account.
 
    Program-wide settings are stored under the AMSettings namespace.
-    For clean organization, we store process variable name definitions separately in their own namespace, inside beamline/ProcessVariables.h
+	For clean organization, we store process variable name definitions separately in their own namespace, inside beamline/ProcessVariables.h
 
-    AMSettings are loaded from config. files by calling
+	AMSettings are loaded from config. files by calling
    load(), and pushed out to the file with save().  Load() is normally called from main() before
    the program starts running, and save() when the AMSettings view gets hit with OK or Apply (todo... that AMSettings view).
 
    Accessing an option variable is simple and easy:
-        AMUserAMSettings::userDataFolder or AMSettings::publicDatabaseFilename or PVNames::ringCurrent
+		AMUserAMSettings::userDataFolder or AMSettings::publicDatabaseFilename or PVNames::ringCurrent
 
    However, that convenience is balanced out by the awkwardness of setting up these settings...
    They need to be written down in four places:
-    - Header (class) definition
-    - actual variable declaration (cpp)
-    - inside save()
-    - inside load()
+	- Header (class) definition
+	- actual variable declaration (cpp)
+	- inside save()
+	- inside load()
 
    TODO: Should we make these QObject properties, and then we don't have to add lines to save() and load() manually when adding new variables?
 
-    Storage locations: on Mac OS X, storage is at:
+	Storage locations: on Mac OS X, storage is at:
 		- /Library/Preferences/Qt/Acquaman/Acquaman.ini for system-wide stuff
 		- ~/.config/Acquaman/Acquaman.ini for user-specific
 
@@ -43,51 +43,54 @@
 
 class AMUserSettings {
 public:
-    /// 1. Database and storage:
-    // ========================================
+	/// 1. Database and storage:
+	// ========================================
 
-    /// Data storage root folder:
-    static QString userDataFolder;
-    /// name of user database
-    static QString userDatabaseFilename;
+	/// Data storage root folder:
+	static QString userDataFolder;
+	/// name of user database
+	static QString userDatabaseFilename;
 
-    /// 2. User Information:
-    // ========================================
+	/// Generates a default file path and file name (without an extension) within the user data storage folder. You can probably trust this to be unique. It will also ensure that the complete path (folders and subfolders) exists all the way down to the destination.
+	static QString defaultFilePath(const QDateTime&);
 
-    /// User name:
-    static QString userName;
+	/// 2. User Information:
+	// ========================================
+
+	/// User name:
+	static QString userName;
 
 
-    /// Load settings from disk:
-    static void load() ;
+	/// Load settings from disk:
+	static void load() ;
 
-    /// Save settings to disk:
-    static void save();
+	/// Save settings to disk:
+	static void save();
 
 };
 
 class AMSettings {
 public:
-    /// 1. Process Variable name definitions should go into beamline/PVNames.h instead...
-    // ========================================
+	/// 1. Process Variable name definitions should go into beamline/PVNames.h instead...
+	// ========================================
 
 
-    /// 2. public database and storage:
-    // ========================================
+	/// 2. public database and storage:
+	// ========================================
 
-    /// This is where public (archived/reviewed) data is stored, system-wide
-    static QString publicDataFolder;
-    /// This is the public database filename:
-    static QString publicDatabaseFilename;
-
-
+	/// This is where public (archived/reviewed) data is stored, system-wide
+	static QString publicDataFolder;
+	/// This is the public database filename:
+	static QString publicDatabaseFilename;
 
 
-    /// Load settings from disk:
-    static void load();
 
-    /// Save settings to disk:
-    static void save();
+
+	/// Load settings from disk:
+	static void load();
+
+	/// Save settings to disk:
+	static void save();
 
 };
 
