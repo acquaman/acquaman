@@ -92,6 +92,7 @@ void AMSampleListView::addNewSampleToPlate(){
 	tmpStr.setNum(nextNew);
 	nextNew++;
 	AMSample *tmpSample = new AMSample("Sample "+tmpStr, this);
+	tmpSample->storeToDb(AMDatabase::userdb());
 	AMControlSetInfo *tmpPosition = NULL;
 	tmpPosition = new AMControlSetInfo(manipulator_->info(), this);
 	tmpPosition->storeToDb(AMDatabase::userdb());
@@ -195,6 +196,11 @@ bool AMSamplePositionItemView::onRecallPositionClicked(){
 	return true;
 }
 
+bool AMSamplePositionItemView::onSampleNameChanged(){
+	samplePosition_->sample()->setName(sampleBox_->currentText());
+	return samplePosition_->sample()->storeToDb(AMDatabase::userdb());
+}
+
 void AMSamplePositionItemView::updateLook(){
 	if(inFocus_)
 		setFrameStyle(QFrame::Box);
@@ -235,6 +241,7 @@ void AMSamplePositionItemView::onSamplePositionUpdate(int index){
 		sampleBox_->setEditable(true);
 		sampleBox_->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
 		setFocusProxy(sampleBox_);
+		connect(sampleBox_->lineEdit(), SIGNAL(editingFinished()), this, SLOT(onSampleNameChanged()));
 		hl_->addWidget(sampleBox_, 3, Qt::AlignLeft);
 	}
 	if(!positionLabel_){

@@ -90,6 +90,7 @@ public slots:
 protected slots:
 	bool onSavePositionClicked();
 	bool onRecallPositionClicked();
+	bool onSampleNameChanged();
 
 	void updateLook();
 	void onSamplePositionUpdate(int index);
