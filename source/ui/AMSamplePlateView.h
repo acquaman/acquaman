@@ -12,9 +12,12 @@
 #include <QIcon>
 #include <QScrollBar>
 #include <QDebug>
+#include <QListView>
+#include <QLineEdit>
 
 #include "dataman/AMSamplePlate.h"
 #include "beamline/SGMBeamline.h"
+#include "dataman/AMDatabase.h"
 
 class AMSampleListView;
 class AMSamplePositionItemView;
@@ -25,10 +28,11 @@ Q_OBJECT
 public:
 	explicit AMSamplePlateView(QString title = "Sample Plate", QWidget *parent = 0);
 
-signals:
-
 public slots:
 	void setManipulator(AMControlSet *manipulator);
+
+protected slots:
+	void onLoadExistingPlate(int index);
 
 protected:
 	QLabel *plateNameLabel_;
@@ -36,15 +40,17 @@ protected:
 	AMSampleListView *sampleListView_;
 	QVBoxLayout *vl_;
 
-	AMSamplePlate *samplePlate_;
+	AMSamplePlate samplePlate_;
 	AMControlSet *manipulator_;
+
+	QStandardItemModel *sampleTableModel_;
 };
 
 class AMSampleListView : public QFrame
 {
 Q_OBJECT
 public:
-	AMSampleListView(AMSamplePlate *samplePlate, QWidget *parent = 0);
+	AMSampleListView(AMSamplePlate *samplePlate, QStandardItemModel *sampleTableModel, QWidget *parent = 0);
 
 public slots:
 	void setManipulator(AMControlSet *manipulator);
@@ -56,7 +62,6 @@ protected slots:
 	void onSamplePositionChanged(int index);
 	void onSamplePositionAdded(int index);
 	void onSamplePositionRemoved(int index);
-//	void onAdderClicked();
 
 protected:
 	QSize sizeHint() const;
@@ -64,7 +69,7 @@ protected:
 protected:
 	AMSamplePlate *samplePlate_;
 	AMControlSet *manipulator_;
-	int nextNew;
+	QStandardItemModel *sampleTableModel_;
 
 	QScrollArea *sa_;
 	QVBoxLayout *il_;
@@ -76,7 +81,7 @@ class AMSamplePositionItemView : public QFrame
 {
 Q_OBJECT
 public:
-	AMSamplePositionItemView(AMSamplePosition *samplePosition, AMControlSet *manipulator = 0, int index = -1, QWidget *parent = 0);
+	AMSamplePositionItemView(AMSamplePosition *samplePosition, QStandardItemModel *sampleTableModel, AMControlSet *manipulator = 0, int index = -1, QWidget *parent = 0);
 	int index();
 	AMControlSet* manipulator();
 
@@ -87,6 +92,7 @@ public slots:
 protected slots:
 	bool onSavePositionClicked();
 	bool onRecallPositionClicked();
+	bool onSampleNameChanged();
 
 	void updateLook();
 	void onSamplePositionUpdate(int index);
@@ -98,6 +104,7 @@ protected:
 protected:
 	AMSamplePosition *samplePosition_;
 	AMControlSet *manipulator_;
+	QStandardItemModel *sampleTableModel_;
 	int index_;
 	bool inFocus_;
 

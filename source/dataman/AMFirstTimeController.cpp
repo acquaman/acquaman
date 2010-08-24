@@ -77,6 +77,7 @@ void AMFirstTimeController::onFirstTime() {
 #include <dataman/AMSample.h>
 #include <dataman/AMExperiment.h>
 #include <dataman/AMControlSetInfo.h>
+#include <dataman/AMSamplePlate.h>
 #include <dataman/AMDetectorInfo.h>
 
 /// create structures and tables for a new user database, from scratch
@@ -108,6 +109,10 @@ void AMFirstTimeController::databaseInitialization() {
 
 	AMControlSetInfo csi;
 	AMDatabaseDefinition::registerType(&csi, AMDatabase::userdb());
+
+	AMSamplePlate sp;
+	AMDatabaseDefinition::registerType(&sp, AMDatabase::userdb());
+	AMDatabase::userdb()->createIndex(AMDatabaseDefinition::samplePlateTableName(), "createTime");
 
 	AMFacility blank("", "[Other Facility]", ":/128x128/contents.png");
 	AMDatabaseDefinition::registerType(&blank, AMDatabase::userdb());

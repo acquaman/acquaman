@@ -23,6 +23,7 @@ public:
 	static QString thumbnailTableName() { return "Thumbnails"; }
 	static QString detectorTableName() { return "DetectorInfo"; }
 	static QString controlSetTableName() { return "ControlSetInfo"; }
+	static QString samplePlateTableName() { return "SamplePlates"; }
 	static QString facilityTableName() { return "Facilities"; }
 
 	/// Separator used between strings when exporting a StringList to the database

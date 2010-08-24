@@ -21,8 +21,6 @@ public:
 
 	AMControlSetInfoModel* model();
 
-	bool checkSync();
-
 	int count() const;
 
 	QString nameAt(size_t index) const;
@@ -48,6 +46,15 @@ public:
 
 	/// We want to store this in a separate table (so that it's easy to create relationships between detectors and scan objects).  Therefore, we reimplement databaseTableName():
 	virtual QString databaseTableName() const;
+
+	/// Load yourself from the database. (returns true on success)
+	/*! Re-implemented from AMDbObject. */
+	virtual bool loadFromDb(AMDatabase* db, int id);
+
+	/// Store or update self in the database. (returns true on success)
+	/*! Re-implemented from AMDbObject::storeToDb(), this version also writes out the dimension and rank, even though they aren't strictly part of the meta-data.
+	  */
+	virtual bool storeToDb(AMDatabase* db);
 
 	/// Reimplemented from AMDbObject; provides a general human-readable description
 	virtual QString typeDescription() const;

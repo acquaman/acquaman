@@ -34,8 +34,14 @@ void AMDacqScanController::start(){
 		if( abop)
 		{
 			acqRegisterOutputHandler( advAcq_->getMaster(), (acqKey_t) abop, &abop->handler);                // register the handler with the acquisition
-			abop->setProperty( "File Template", pCfg_()->fileName().toStdString());
-			abop->setProperty( "File Path", pCfg_()->filePath().toStdString());
+			QString fullPath = AMUserSettings::defaultFilePath(QDateTime::currentDateTime());
+			QString path = fullPath.section('/', 0, -2);
+			QString file = fullPath.section('/', -1);
+			file.append(".dat");
+			QDir dir;
+			dir.mkpath(path);
+			abop->setProperty( "File Template", file.toStdString());
+			abop->setProperty( "File Path", path.toStdString());
 
 			((AMAcqScanSpectrumOutput*)abop)->setScan(pScan_());
 			advAcq_->Start();

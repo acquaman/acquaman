@@ -17,10 +17,9 @@ void AMDatabaseDefinition::initializeDatabaseTables(AMDatabase* db) {
 	ensureTableForDbObjects(experimentTableName(), db);
 	ensureTableForDbObjects(detectorTableName(), db);
 	ensureTableForDbObjects(controlSetTableName(), db);
+	ensureTableForDbObjects(samplePlateTableName(), db);
 	ensureTableForDbObjects(sampleTableName(), db);
 	ensureTableForDbObjects(facilityTableName(), db);
-
-
 
 	db->ensureTable(elementTableName(), QString("typeId,thumbnailCount,thumbnailFirstId,symbol,name,atomicNumber").split(','), QString("INTEGER,INTEGER,INTEGER,TEXT,TEXT,INTEGER").split(','));
 
@@ -37,6 +36,7 @@ void AMDatabaseDefinition::initializeDatabaseTables(AMDatabase* db) {
 	db->ensureTable(sampleElementEntriesTableName(), QString("sampleId,elementId").split(','), QString("INTEGER,INTEGER").split(','));
 	db->createIndex(sampleElementEntriesTableName(), "sampleId,elementId");
 	db->createIndex(sampleElementEntriesTableName(), "elementId,sampleId");
+
 
 
 

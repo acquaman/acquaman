@@ -60,7 +60,7 @@ QString AMDbObject::databaseTableName() const {
 
 /// This member function updates a scan in the database (if it exists already), otherwise it adds it to the database.
 
-
+#include <QDebug>
 bool AMDbObject::storeToDb(AMDatabase* db) {
 
 	QList<const QVariant*> values;
@@ -84,11 +84,30 @@ bool AMDbObject::storeToDb(AMDatabase* db) {
 			values << slv;
 		}
 		// special action also needed for all other list types: need to join into a single string, separated by AMDatabaseDefinition::listSeparator
-		else if(md.type == (int)AM::IntList || md.type == (int)AM::DoubleList || md.type == QVariant::List) {
-			// toStringList() works for any list that holds a type that can be converted toString().
-			QVariant* olv = new QVariant(metaData_[md.key].toStringList().join(AMDatabaseDefinition::listSeparator()));
+		else if(md.type == (int)AM::IntList || md.type == (int)AM::DoubleList) {
+			QStringList listString;
+			if(md.type == (int)AM::IntList) {
+				AMIntList il = metaData_.value(md.key).value<AMIntList>();
+				foreach(int i, il) {
+					QString is = QString("%1").arg(i);
+					listString << is;
+				}
+			}
+			else if(md.type == (int)AM::DoubleList) {
+				AMDoubleList dl = metaData_.value(md.key).value<AMDoubleList>();
+				foreach(double d, dl) {
+					QString ds = QString("%1").arg(d);
+					listString << ds;
+				}
+			}
+			QVariant* olv = new QVariant(listString.join(AMDatabaseDefinition::listSeparator()));
 			listValues << olv;
 			values << olv;
+		}
+		else if(md.type == QVariant::List) {
+			QVariant* slv = new QVariant(metaData_[md.key].toStringList().join(AMDatabaseDefinition::listSeparator()));
+			listValues << slv;
+			values << slv;
 		}
 		else
 			values << &metaData_[md.key];

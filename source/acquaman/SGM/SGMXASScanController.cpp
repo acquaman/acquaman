@@ -1,5 +1,7 @@
 #include "SGMXASScanController.h"
 
+#include "dataman/SGM2004FileLoader.h"
+
 typedef QPair<QString, QString> chPair;
 
 SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
@@ -23,6 +25,8 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 	specificScan_ = new AMXASScan(scanDetectors);
 	_pScan_ = &specificScan_;
 	pScan_()->setName("SGM XAS Scan");
+	pScan_()->setMetaData("filePath", pCfg_()->filePath()+pCfg_()->fileName());
+	pScan_()->setMetaData("fileFormat", "sgm2004");
 
 	foreach(chPair tmpCh, scanChannels){
 		pScan_()->addChannel(tmpCh.first, tmpCh.second);
