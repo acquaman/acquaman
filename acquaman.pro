@@ -151,7 +151,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/muParser/muParserToken.h \
 	source/muParser/muParserTokenReader.h \
 	source/ui/AbsorptionScanController.h \
-	source/ui/AMComboBox.h \
+	source/ui/AMRunSelector.h \
 	source/ui/AMControlSetView.h \
 	source/ui/AMCramBarHorizontal.h \
 	source/ui/AMDataView.h \
@@ -295,7 +295,7 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/muParser/muParserCallback.cpp \
 	source/muParser/muParserError.cpp \
 	source/muParser/muParserTokenReader.cpp \
-	source/ui/AMComboBox.cpp \
+	source/ui/AMRunSelector.cpp \
 	source/ui/AMControlSetView.cpp \
 	source/ui/AMCramBarHorizontal.cpp \
 	source/ui/AMDataView.cpp \
