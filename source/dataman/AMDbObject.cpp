@@ -235,6 +235,7 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 
 		foreach(QString key, keys)
 			emit metaDataChanged(key);
+		emit loadedFromDb();
 		return true;
 	}
 	else {

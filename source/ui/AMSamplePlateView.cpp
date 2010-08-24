@@ -4,6 +4,7 @@ AMSamplePlateView::AMSamplePlateView(QString title, QWidget *parent) :
 	QGroupBox(title, parent)
 {
 	//samplePlate_ = new AMSamplePlate(this);
+	sampleRefreshScheduled_ = false;
 	manipulator_ = NULL;
 
 	setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
@@ -29,6 +30,10 @@ AMSamplePlateView::AMSamplePlateView(QString title, QWidget *parent) :
 	}
 	connect(existingPlates_, SIGNAL(currentIndexChanged(int)), this, SLOT(onLoadExistingPlate(int)));
 
+	connect(AMDatabase::userdb(), SIGNAL(updated(QString,int)), this, SLOT(onSampleTableItemUpdated(QString,int)));
+	connect(AMDatabase::userdb(), SIGNAL(created(QString,int)), this, SLOT(onSampleTableItemCreated(QString,int)));
+	connect(AMDatabase::userdb(), SIGNAL(removed(QString,int)), this, SLOT(onSampleTableItemRemoved(QString,int)));
+
 	sampleTableModel_ = new QStandardItemModel();
 	QStandardItem *tmpItem;
 	QSqlQuery q = AMDatabase::userdb()->query();
@@ -42,17 +47,14 @@ AMSamplePlateView::AMSamplePlateView(QString title, QWidget *parent) :
 		tmpItem = new QStandardItem(name);
 		tmpItem->setData(id, AM::IdRole);
 		tmpItem->setData(dateTime, AM::DateTimeRole);
-		sampleTableModel_->setItem(sampleTableModel_->rowCount(), tmpItem);
+		sampleTableModel_->setItem(sampleTableModel_->rowCount(), 0, tmpItem);
+		QString tmpStr;
+		tmpItem = new QStandardItem(tmpStr.setNum(id));
+		sampleTableModel_->setItem(sampleTableModel_->rowCount()-1, 1, tmpItem);
 	}
-
-	for(int x = 0; x < sampleTableModel_->rowCount(); x++){
-		qDebug() << x << sampleTableModel_->item(x, 0)->text() << sampleTableModel_->item(x, 0)->data(AM::IdRole) << sampleTableModel_->item(x, 0)->data(AM::DateTimeRole);
-	}
-
 	sampleListView_ = new AMSampleListView(&samplePlate_, sampleTableModel_);
 	sampleListView_->setManipulator(manipulator_);
-	//connect(this, SIGNAL(loadExistingPlate(int)), sampleListView_, SLOT(onLoadExistingPlate(int)));
-	//sampleListView_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
+
 	vl_ = new QVBoxLayout();
 	vl_->setAlignment(Qt::AlignTop);
 	vl_->addWidget(plateNameLabel_);
@@ -71,7 +73,86 @@ void AMSamplePlateView::onLoadExistingPlate(int index){
 	if(id == 0)
 		return;
 	samplePlate_.loadFromDb(AMDatabase::userdb(), id);
-	qDebug() << "Sample plate has " << samplePlate_.count() << " positions.";
+}
+
+void AMSamplePlateView::onSampleTableItemUpdated(QString tableName, int id){
+	if(tableName != AMDatabaseDefinition::sampleTableName())
+		return;
+	qDebug() << "Update for id " << id;
+	sampleRefreshIDs_.append(id);
+	sampleRefreshInstructions_.append(0); //Instruction 0 is update
+	if(!sampleRefreshScheduled_){
+		sampleRefreshScheduled_ = true;
+		qDebug() << "FIRED OFF!";
+		QTimer::singleShot(0, this, SLOT(refreshSamples()));
+	}
+}
+
+void AMSamplePlateView::onSampleTableItemCreated(QString tableName, int id){
+	if(tableName != AMDatabaseDefinition::sampleTableName())
+		return;
+	QVariant vSampleName, vSampleDateTime;
+	QList<QVariant*> sampleValues;
+	sampleValues << &vSampleName << &vSampleDateTime;
+	QStringList colNames;
+	colNames << "name" << "dateTime";
+	if(!AMDatabase::userdb()->retrieve(id, tableName, colNames, sampleValues)){
+		qDebug() << "Could not retrieve new sample from db";
+		return;
+	}
+	QStandardItem *tmpItem = new QStandardItem(sampleValues.at(0)->toString());
+	tmpItem->setData(id, AM::IdRole);
+	tmpItem->setData(sampleValues.at(1)->toDateTime(), AM::DateTimeRole);
+	sampleTableModel_->setItem(sampleTableModel_->rowCount(), 0, tmpItem);
+	QString tmpStr;
+	tmpItem = new QStandardItem(tmpStr.setNum(id));
+	sampleTableModel_->setItem(sampleTableModel_->rowCount()-1, 1, tmpItem);
+	qDebug() << "Detected sample added as id " << id << sampleValues.at(0)->toString() << sampleValues.at(1)->toDateTime();
+}
+
+void AMSamplePlateView::onSampleTableItemRemoved(QString tableName, int id){
+	if(tableName != AMDatabaseDefinition::sampleTableName())
+		return;
+	qDebug() << "Detected sample removed had id " << id;
+}
+
+void AMSamplePlateView::refreshSamples(){
+	/*
+	QString idsToSearch;
+	QString tmpStr, name;
+	int id;
+	QDateTime dateTime;
+	QSet<int> noDups = sampleRefreshIDs_.toSet();
+	QSet<int>::const_iterator i = noDups.constBegin();
+	while(i != noDups.constEnd()){
+		idsToSearch.append(tmpStr.setNum(*i)+",");
+		++i;
+	}
+	idsToSearch.remove(idsToSearch.count()-1, 1);
+	qDebug() << "ids to search " << idsToSearch;
+	QSqlQuery q = AMDatabase::userdb()->query();
+	q.prepare(QString("SELECT id,name,dateTime FROM %1 WHERE id IN (%2)").arg(AMDatabaseDefinition::sampleTableName()).arg(idsToSearch)) ;
+	if(!q.exec())
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, "Could not retrieve sample update information from the database."));
+	while(q.next()) {
+		id = q.value(0).toInt();
+		name = q.value(1).toString();
+		dateTime = q.value(2).toDateTime();
+		qDebug() << "Have " << id << name << dateTime;
+		QList<QStandardItem*> items = sampleTableModel_->findItems(tmpStr.setNum(id), Qt::MatchExactly, 1);
+		qDebug() << "Maybe " << items.count();
+		if(items.count() == 1){
+			QStandardItem *tmpItem = sampleTableModel_->item(items.at(0)->index().row(), 0);
+			qDebug() << "Updating " << tmpItem->text() << tmpItem->data(AM::IdRole);
+			tmpItem->setText(name);
+			tmpItem->setData(id, AM::IdRole);
+			tmpItem->setData(dateTime, AM::DateTimeRole);
+		}
+	}
+	*/
+	sampleRefreshIDs_.clear();
+	sampleRefreshInstructions_.clear();
+	sampleRefreshScheduled_ = false;
 }
 
 AMSampleListView::AMSampleListView(AMSamplePlate *samplePlate, QStandardItemModel *sampleTableModel, QWidget *parent) :
@@ -99,8 +180,10 @@ AMSampleListView::AMSampleListView(AMSamplePlate *samplePlate, QStandardItemMode
 
 	setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
-	adder_ = new QPushButton(QIcon(":/add.png"), "Mark a New Sample Position ...");
-	connect(adder_, SIGNAL(clicked()), this, SLOT(addNewSampleToPlate()));
+	//adder_ = new QPushButton(QIcon(":/add.png"), "Mark a New Sample Position ...");
+	//connect(adder_, SIGNAL(clicked()), this, SLOT(addNewSampleToPlate()));
+	adder_ = new AMSamplePositionItemExpandingAdder();
+	adder_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 	il_->addWidget(adder_);
 }
 
@@ -112,12 +195,12 @@ void AMSampleListView::addNewSampleToPlate(){
 	q.prepare(QString("SELECT name FROM %1 WHERE name LIKE 'Sample %'").arg(AMDatabaseDefinition::sampleTableName()));
 	q.exec();
 	int index;
-	int max = 1;
+	int max = 0;
 	bool convOK;
 	while(q.next()) {
 		index = q.value(0).toString().remove("Sample ").toInt(&convOK);
 		qDebug() << "testing index " << index;
-		if(index > max)
+		if(convOK && (index > max) )
 			max = index;
 	}
 
@@ -128,9 +211,19 @@ void AMSampleListView::addNewSampleToPlate(){
 	AMControlSetInfo *tmpPosition = NULL;
 	tmpPosition = new AMControlSetInfo(manipulator_->info(), this);
 	tmpPosition->storeToDb(AMDatabase::userdb());
-	qDebug() << "tmpPosition with id of " << tmpPosition->id();
 	samplePlate_->appendSamplePosition(tmpSample, tmpPosition);
 	samplePlate_->storeToDb(AMDatabase::userdb());
+
+	/*
+	if(samplePlate_->count() > 4){
+		samplePlate_->sampleAt(0)->setName("once more");
+		samplePlate_->sampleAt(0)->storeToDb(AMDatabase::userdb());
+		samplePlate_->sampleAt(2)->setName("last time");
+		samplePlate_->sampleAt(2)->storeToDb(AMDatabase::userdb());
+		samplePlate_->sampleAt(3)->setName("winner");
+		samplePlate_->sampleAt(3)->storeToDb(AMDatabase::userdb());
+	}
+	*/
 }
 
 void AMSampleListView::setManipulator(AMControlSet *manipulator){
@@ -139,10 +232,10 @@ void AMSampleListView::setManipulator(AMControlSet *manipulator){
 
 void AMSampleListView::onSamplePositionChanged(int index){
 	qDebug() << "Claims change at " << index;
+
 }
 
 void AMSampleListView::onSamplePositionAdded(int index){
-	qDebug() << "Claims added at " << index;
 	if(!manipulator_ || !sampleTableModel_)
 		return;
 	AMSamplePositionItemView *tmpSPIView = new AMSamplePositionItemView(samplePlate_->samplePositionAt(index), sampleTableModel_, manipulator_, index+1);
@@ -152,11 +245,9 @@ void AMSampleListView::onSamplePositionAdded(int index){
 }
 
 void AMSampleListView::onSamplePositionRemoved(int index){
-	qDebug() << "Claims removed at " << index;
 	if(il_->itemAt(index) == 0)
 		return;
 	AMSamplePositionItemView *tmpSPIView = (AMSamplePositionItemView*)il_->itemAt(index)->widget();
-	qDebug() << "Actually deleting " << index;
 	delete tmpSPIView;
 }
 
@@ -168,7 +259,6 @@ QSize AMSampleListView::sizeHint() const{
 	else
 		newWidth = tmpSize.width()*1.1;
 	tmpSize.setWidth(newWidth);
-	qDebug() << "Width will be " << tmpSize.width();
 	return tmpSize;
 }
 
@@ -177,6 +267,8 @@ AMSamplePositionItemView::AMSamplePositionItemView(AMSamplePosition *samplePosit
 {
 	index_ = index;
 	inFocus_ = false;
+	iChangeIndex_ = false;
+	ignoreNameChanged_ = false;
 	setFocusPolicy(Qt::StrongFocus);
 	samplePosition_ = samplePosition;
 	manipulator_ = manipulator;
@@ -229,7 +321,26 @@ bool AMSamplePositionItemView::onRecallPositionClicked(){
 	return true;
 }
 
+bool AMSamplePositionItemView::onSampleBoxIndexChanged(int index){
+	ignoreNameChanged_ = true;
+	if(iChangeIndex_){
+		iChangeIndex_ = false;
+		return false;
+	}
+	int newId = sampleTableModel_->item(index, 0)->data(AM::IdRole).toInt();
+	qDebug() << "Sample index changed to " << index;
+	return samplePosition_->sample()->loadFromDb(AMDatabase::userdb(), newId);
+}
+
 bool AMSamplePositionItemView::onSampleNameChanged(){
+	if(ignoreNameChanged_){
+		ignoreNameChanged_ = false;
+		return false;
+	}
+	qDebug() << "Sample name changed";
+	if(sampleBox_->currentText() == samplePosition_->sample()->name())
+		return false;
+	qDebug() << "Sample name ACTUALLY changed";
 	samplePosition_->sample()->setName(sampleBox_->currentText());
 	return samplePosition_->sample()->storeToDb(AMDatabase::userdb());
 }
@@ -275,29 +386,9 @@ void AMSamplePositionItemView::onSamplePositionUpdate(int index){
 		sampleBox_->setEditable(true);
 		sampleBox_->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
 		setFocusProxy(sampleBox_);
-		/*
-		QSqlQuery q = AMDatabase::userdb()->query();
-		qDebug() << "Before db query";
-//		q.prepare(QString("SELECT id,name,dateTime FROM %1 ORDER BY dateTime ASC").arg(AMDatabaseDefinition::sampleTableName()));
-		q.prepare(QString("SELECT id,name,dateTime FROM %1").arg(AMDatabaseDefinition::sampleTableName()));
-		q.exec();
-		qDebug() << "After db query";
-		int id;
-		QString name;
-		QDateTime dateTime;
-		while(q.next()) {
-			id = q.value(0).toInt();
-			name = q.value(1).toString();
-			dateTime = q.value(2).toDateTime();
-			sampleBox_->insertItem(0, name);
-			sampleBox_->setItemData(0, id, AM::IdRole);
-			sampleBox_->setItemData(0, dateTime, AM::DateTimeRole);
-		}
-		*/
+		connect(sampleBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onSampleBoxIndexChanged(int)));
 		connect(sampleBox_->lineEdit(), SIGNAL(editingFinished()), this, SLOT(onSampleNameChanged()));
 		hl_->addWidget(sampleBox_, 3, Qt::AlignLeft);
-		sampleBox_->setMaxVisibleItems(5);
-		qDebug() << "Setting max visible to " << sampleBox_->maxVisibleItems();
 	}
 	if(!positionLabel_){
 		positionLabel_ = new QLabel(this);
@@ -318,14 +409,12 @@ void AMSamplePositionItemView::onSamplePositionUpdate(int index){
 	QString tmpStr;
 	tmpStr.setNum(index_);
 	indexLabel_->setText(tmpStr+". ");
-//	sampleBox_->insertItem(0, samplePosition_->sample()->name());
+	iChangeIndex_ = true;
 	sampleBox_->setCurrentIndex( sampleBox_->findText(samplePosition_->sample()->name()) );
 	sampleBox_->lineEdit()->selectAll();
 
 	QString positionText;
-	qDebug() << "Looping position info";
 	for(int x = 0; x < samplePosition_->position()->count(); x++){
-		qDebug() << samplePosition_->position()->nameAt(x) << samplePosition_->position()->valueAt(x);
 		tmpStr.setNum(samplePosition_->position()->valueAt(x));
 		tmpStr.prepend(": ");
 		tmpStr.prepend(samplePosition_->position()->nameAt(x));
@@ -352,4 +441,70 @@ void AMSamplePositionItemView::mousePressEvent(QMouseEvent *event){
 		updateLook();
 		//emit focusRequested(action_);
 	}
+}
+
+AMSamplePositionItemExpandingAdder::AMSamplePositionItemExpandingAdder(QWidget *parent) :
+		QFrame(parent)
+{
+	setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+	markNewButton_ = new QPushButton(QIcon(":/add.png"), "Mark a New Sample Position ...");
+	markNewButton_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+	newNameEdit_ = new QLineEdit();
+	newNameEdit_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+	chooseExistingBox_ = new QComboBox();
+	chooseExistingBox_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+	goNewButton_ = new QPushButton(QIcon(":/add.png"), "Add");
+	goNewButton_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+	goExistingButton_ = new QPushButton(QIcon(":/add.png"), "Add");
+	goExistingButton_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+
+	connect(markNewButton_, SIGNAL(clicked()), this, SLOT(onMarkNewButtonClicked()));
+	connect(goNewButton_, SIGNAL(clicked()), this, SLOT(onGoNewButtonClicked()));
+	connect(goExistingButton_, SIGNAL(clicked()), this, SLOT(onGoExistingButtonClicked()));
+
+	gl_ = new QGridLayout();
+	gl_->addWidget(markNewButton_, 0, 0, 1, 1, Qt::AlignLeft);
+	gl_->setColumnStretch(0, 5);
+	setLayout(gl_);
+
+	setFrameStyle(QFrame::NoFrame);
+}
+
+void AMSamplePositionItemExpandingAdder::onMarkNewButtonClicked(){
+	gl_->removeWidget(markNewButton_);
+	markNewButton_->hide();
+	gl_->addWidget(newNameEdit_, 0, 0, 1, 1, Qt::AlignLeft);
+	gl_->addWidget(chooseExistingBox_, 1, 0, 1, 1, Qt::AlignLeft);
+	gl_->addWidget(goNewButton_, 0, 1, 1, 1, Qt::AlignLeft);
+	gl_->addWidget(goExistingButton_, 1, 1, 1, 1, Qt::AlignLeft);
+	gl_->setColumnStretch(0, 5);
+	gl_->setColumnStretch(1, 0);
+	newNameEdit_->show();
+	chooseExistingBox_->show();
+	goNewButton_->show();
+	goExistingButton_->show();
+	setFrameStyle(QFrame::StyledPanel);
+}
+
+void AMSamplePositionItemExpandingAdder::onGoNewButtonClicked(){
+	shrinkBack();
+}
+
+void AMSamplePositionItemExpandingAdder::onGoExistingButtonClicked(){
+	shrinkBack();
+}
+
+void AMSamplePositionItemExpandingAdder::shrinkBack(){
+	gl_->removeWidget(newNameEdit_);
+	gl_->removeWidget(chooseExistingBox_);
+	gl_->removeWidget(goNewButton_);
+	gl_->removeWidget(goExistingButton_);
+	newNameEdit_->hide();
+	chooseExistingBox_->hide();
+	goNewButton_->hide();
+	goExistingButton_->hide();
+	gl_->addWidget(markNewButton_, 0, 0, 1, 1, Qt::AlignLeft);
+	gl_->setColumnStretch(0, 5);
+	markNewButton_->show();
+	setFrameStyle(QFrame::NoFrame);
 }

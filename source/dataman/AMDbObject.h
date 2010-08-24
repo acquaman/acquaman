@@ -187,6 +187,7 @@ public:
 
 signals:
 	void metaDataChanged(const QString& key);
+	void loadedFromDb();
 
 public slots:
 	/// Sets user given name

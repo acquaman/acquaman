@@ -21,6 +21,7 @@
 
 class AMSampleListView;
 class AMSamplePositionItemView;
+class AMSamplePositionItemExpandingAdder;
 
 class AMSamplePlateView : public QGroupBox
 {
@@ -34,6 +35,12 @@ public slots:
 protected slots:
 	void onLoadExistingPlate(int index);
 
+	void onSampleTableItemUpdated(QString tableName, int id);
+	void onSampleTableItemCreated(QString tableName, int id);
+	void onSampleTableItemRemoved(QString tableName, int id);
+
+	void refreshSamples();
+
 protected:
 	QLabel *plateNameLabel_;
 	QComboBox *existingPlates_;
@@ -44,6 +51,9 @@ protected:
 	AMControlSet *manipulator_;
 
 	QStandardItemModel *sampleTableModel_;
+	bool sampleRefreshScheduled_;
+	QList<int> sampleRefreshIDs_;
+	QList<int> sampleRefreshInstructions_;
 };
 
 class AMSampleListView : public QFrame
@@ -74,7 +84,8 @@ protected:
 	QScrollArea *sa_;
 	QVBoxLayout *il_;
 	QFrame *saf_;
-	QPushButton *adder_;
+	//QPushButton *adder_;
+	AMSamplePositionItemExpandingAdder *adder_;
 };
 
 class AMSamplePositionItemView : public QFrame
@@ -92,6 +103,7 @@ public slots:
 protected slots:
 	bool onSavePositionClicked();
 	bool onRecallPositionClicked();
+	bool onSampleBoxIndexChanged(int index);
 	bool onSampleNameChanged();
 
 	void updateLook();
@@ -103,8 +115,11 @@ protected:
 
 protected:
 	AMSamplePosition *samplePosition_;
+
 	AMControlSet *manipulator_;
 	QStandardItemModel *sampleTableModel_;
+	bool iChangeIndex_;
+	bool ignoreNameChanged_;
 	int index_;
 	bool inFocus_;
 
@@ -115,6 +130,29 @@ protected:
 	QLabel *positionLabel_;
 	QPushButton *savePositionButton_;
 	QPushButton *recallPositionButton_;
+};
+
+class AMSamplePositionItemExpandingAdder : public QFrame
+{
+Q_OBJECT
+public:
+	AMSamplePositionItemExpandingAdder(QWidget *parent = 0);
+
+protected slots:
+	void onMarkNewButtonClicked();
+	void onGoNewButtonClicked();
+	void onGoExistingButtonClicked();
+
+	void shrinkBack();
+
+protected:
+	QPushButton *markNewButton_;
+	QLineEdit *newNameEdit_;
+	QComboBox *chooseExistingBox_;
+	QPushButton *goNewButton_;
+	QPushButton *goExistingButton_;
+
+	QGridLayout *gl_;
 };
 
 #endif // AMSAMPLEPLATEVIEW_H

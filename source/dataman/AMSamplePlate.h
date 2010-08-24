@@ -115,6 +115,10 @@ public:
 	bool removeRows(int position, int rows, const QModelIndex &index = QModelIndex());
 	Qt::ItemFlags flags(const QModelIndex &index) const;
 
+protected slots:
+	void onSampleLoadedFromDb();
+	void onPositionLoadedFromDb();
+
 protected:
 	QList<AMSamplePosition*> *samples_;
 };
@@ -134,6 +138,8 @@ public slots:
 
 signals:
 	void positionValuesChanged(int index);
+	void sampleLoadedFromDb();
+	void positionLoadedFromDb();
 
 protected:
 	AMSample *sample_;
