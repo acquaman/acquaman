@@ -60,15 +60,20 @@ QVariant AMScanSetModel::data ( const QModelIndex & index, int role) const {
 			return scan->name();
 			break;
 		case Qt::DecorationRole:
-			return QVariant();
+			if(scan->numChannels() > 0)
+				return chMetaData_.at(index.row()).at(0).color;
+			else
+				return QVariant();
 			break;
 		case Qt::ToolTipRole:
 			return QString("%1 (%2): %3").arg(scan->name()).arg(scan->sampleName()).arg(scan->dateTime().toString());
 			break;
+		case AM::DescriptionRole:
+			return QString("started %1, on %2").arg(scan->dateTime().toString("hh:mmap, MMM dd (yyyy)")).arg(scan->sampleName());
 		case Qt::CheckStateRole:
 			return QVariant();	/// \todo For now... No checking/unchecking scans.
 			break;
-		case Qt::UserRole:
+		case AM::PointerRole:
 			return qVariantFromValue(scan);
 			break;
 		default:
@@ -98,13 +103,13 @@ QVariant AMScanSetModel::data ( const QModelIndex & index, int role) const {
 			case Qt::CheckStateRole:
 				return chMetaData_.at(index.internalId()).at(index.row()).visible ? Qt::Checked : Qt::Unchecked;
 				break;
-			case Qt::UserRole:
+			case AM::PointerRole:
 				return qVariantFromValue(channel);
 				break;
-			case PriorityRole:
+			case AM::PriorityRole:
 				return chMetaData_.at(index.internalId()).at(index.row()).priority;
 				break;
-			case LinePenRole:
+			case AM::LinePenRole:
 				return chMetaData_.at(index.internalId()).at(index.row()).linePen;
 			default:
 				return QVariant();
@@ -247,11 +252,11 @@ bool AMScanSetModel::setData ( const QModelIndex & index, const QVariant & value
 			chMetaData_[index.internalId()][index.row()].visible = value.toBool();
 			emit dataChanged(index, index);
 			return true;
-		case PriorityRole:
+		case AM::PriorityRole:
 			chMetaData_[index.internalId()][index.row()].priority = value.toInt();
 			emit dataChanged(index, index);
 			return true;
-		case LinePenRole:
+		case AM::LinePenRole:
 			chMetaData_[index.internalId()][index.row()].linePen = value.value<QPen>();
 			emit dataChanged(index, index);
 			return true;

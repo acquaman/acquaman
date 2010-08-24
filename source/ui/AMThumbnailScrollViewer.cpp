@@ -200,6 +200,8 @@ AMThumbnailScrollGraphicsWidget::AMThumbnailScrollGraphicsWidget(QGraphicsItem* 
 	sourceDb_ = 0;
 	sourceObject_ = 0;
 
+	objectId_ = -1;
+
 	pixmap_ = invalidPixmap();
 
 	setEnabled(true);
@@ -439,17 +441,25 @@ QDrag* AMThumbnailScrollGraphicsWidget::createDragObject(QWidget* dragSourceWidg
 
 	// if our source is a database and set of rows (ids_) in the thumbnail table
 	if(sourceIsDb_ && sourceDb_) {
-		if(ids_.isEmpty())
-			return 0;
 
-		QSqlQuery q = sourceDb_->query();
-		q.prepare(QString("SELECT objectId,objectTableName FROM %1 WHERE id = ?").arg(AMDatabaseDefinition::thumbnailTableName()));
-		q.bindValue(0, ids_.at(0));
-		if(q.exec() && q.first()) {
-			uri = QString("amd://%1/%2/%3").arg(sourceDb_->connectionName()).arg(q.value(1).toString()).arg(q.value(0).toInt());
+		// do we have the object id and table name already?
+		if(!tableName_.isEmpty() && objectId_ > 0) {
+			uri = QString("amd://%1/%2/%3").arg(sourceDb_->connectionName()).arg(tableName_).arg(objectId_);
 		}
+		// otherwise, we're going to have to look this up in reverse from the thumbnail table... Assuming we actually have some valid thumbnails.
 		else {
-			return 0;
+			if(ids_.isEmpty())
+				return 0;
+
+			QSqlQuery q = sourceDb_->query();
+			q.prepare(QString("SELECT objectId,objectTableName FROM %1 WHERE id = ?").arg(AMDatabaseDefinition::thumbnailTableName()));
+			q.bindValue(0, ids_.at(0));
+			if(q.exec() && q.first()) {
+				uri = QString("amd://%1/%2/%3").arg(sourceDb_->connectionName()).arg(q.value(1).toString()).arg(q.value(0).toInt());
+			}
+			else {
+				return 0;
+			}
 		}
 	}
 

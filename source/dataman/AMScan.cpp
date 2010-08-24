@@ -1,7 +1,7 @@
 #include "AMScan.h"
 #include "dataman/AMDatabase.h"
 #include "dataman/AMDatabaseDefinition.h"
-
+#include "acquaman.h"
 #include <QDebug>
 
 QVariant AMChannelListModel::data(const QModelIndex &index, int role) const {
@@ -9,7 +9,7 @@ QVariant AMChannelListModel::data(const QModelIndex &index, int role) const {
 		return QVariant();
 	if(role == Qt::DisplayRole && index.row() < ch_.count() )
 		return QVariant(ch_.at(index.row())->name());
-	if(role == Qt::UserRole && index.row() < ch_.count() )
+	if(role == AM::PointerRole && index.row() < ch_.count() )
 		return qVariantFromValue(ch_.at(index.row()));
 	return QVariant();
 }
@@ -99,10 +99,12 @@ AMScan::AMScan(QObject *parent)
 	autoLoadData_ = true;
 }
 
+#include <QDebug>
 AMScan::~AMScan() {
 	// delete channels first.
 	while(ch_.rowCount() != 0)
 		ch_.deleteChannel(0);
+
 }
 
 QList<AMMetaMetaData> AMScan::metaDataUniqueKeys() {

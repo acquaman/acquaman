@@ -178,8 +178,9 @@ font: bold 10pt &quot;Lucida Grande&quot;</string>
             <item>
              <widget class="QLabel" name="scanInfoTitle">
               <property name="styleSheet">
-               <string notr="true">color: rgb(121, 121, 121);
-font-weight: bold;</string>
+               <string notr="true">color: black;
+font-weight: bold;
+font-family: &quot;Lucida Grande&quot;;</string>
               </property>
               <property name="text">
                <string>SCAN INFORMATION</string>
@@ -192,15 +193,17 @@ font-weight: bold;</string>
                <number>12</number>
               </property>
               <property name="verticalSpacing">
-               <number>2</number>
+               <number>4</number>
               </property>
               <item row="0" column="0">
                <widget class="QLabel" name="scanNameLabel">
                 <property name="styleSheet">
-                 <string notr="true">color: rgb(121, 121, 121);</string>
+                 <string notr="true">color: rgb(121, 121, 121);
+font-weight: bold;
+font-family: &quot;Lucida Grande&quot;;</string>
                 </property>
                 <property name="text">
-                 <string>Name</string>
+                 <string>name</string>
                 </property>
                </widget>
               </item>
@@ -217,10 +220,12 @@ font-weight: bold;</string>
               <item row="1" column="0">
                <widget class="QLabel" name="scanNumberLabel">
                 <property name="styleSheet">
-                 <string notr="true">color: rgb(121, 121, 121);</string>
+                 <string notr="true">color: rgb(121, 121, 121);
+font-weight: bold;
+font-family: &quot;Lucida Grande&quot;;</string>
                 </property>
                 <property name="text">
-                 <string>Number</string>
+                 <string>number</string>
                 </property>
                </widget>
               </item>
@@ -237,10 +242,12 @@ font-weight: bold;</string>
               <item row="2" column="0">
                <widget class="QLabel" name="scanDateLabel">
                 <property name="styleSheet">
-                 <string notr="true">color: rgb(121, 121, 121);</string>
+                 <string notr="true">color: rgb(121, 121, 121);
+font-weight: bold;
+font-family: &quot;Lucida Grande&quot;;</string>
                 </property>
                 <property name="text">
-                 <string>Date</string>
+                 <string>date</string>
                 </property>
                </widget>
               </item>
@@ -254,10 +261,12 @@ font-weight: bold;</string>
               <item row="3" column="0">
                <widget class="QLabel" name="scanTimeLabel">
                 <property name="styleSheet">
-                 <string notr="true">color: rgb(121, 121, 121);</string>
+                 <string notr="true">color: rgb(121, 121, 121);
+font-weight: bold;
+font-family: &quot;Lucida Grande&quot;;</string>
                 </property>
                 <property name="text">
-                 <string>Time</string>
+                 <string>time</string>
                 </property>
                </widget>
               </item>
@@ -271,10 +280,12 @@ font-weight: bold;</string>
               <item row="4" column="0">
                <widget class="QLabel" name="scanRunLabel">
                 <property name="styleSheet">
-                 <string notr="true">color: rgb(121, 121, 121);</string>
+                 <string notr="true">color: rgb(121, 121, 121);
+font-weight: bold;
+font-family: &quot;Lucida Grande&quot;;</string>
                 </property>
                 <property name="text">
-                 <string>Run</string>
+                 <string>run</string>
                 </property>
                </widget>
               </item>

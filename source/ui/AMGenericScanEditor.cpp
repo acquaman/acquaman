@@ -5,8 +5,11 @@
 #include <QList>
 #include <QUrl>
 
+
 #include "dataman/AMDbLoader.h"
 #include "dataman/AMDatabaseDefinition.h"
+
+#include "ui/AMDetailedItemDelegate.h"
 
 AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 		QWidget(parent)
@@ -24,11 +27,62 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 	ui_.scanListView->setModel(scanSetModel_);
 	ui_.scanListView->setSelectionMode(QAbstractItemView::SingleSelection);
 
+	ui_.scanListView->setItemDelegate(new AMDetailedItemDelegate(this));
+	ui_.scanListView->setAlternatingRowColors(true);
+
+	// watch for changes in the selected/deselected scans:
+	connect(ui_.scanListView->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(onCurrentChanged(QModelIndex,QModelIndex)));
+
 	/// \todo make this whole window accept drops of scans, with the 'amd://database/table/id' uri-list mime type
 	setAcceptDrops(true);
+
+	currentScan_ = 0;
 }
 
 
+AMGenericScanEditor::~AMGenericScanEditor() {
+	while(scanSetModel_->numScans()) {
+		AMScan* s = scanSetModel_->scanAt(scanSetModel_->numScans()-1);
+		scanSetModel_->removeScan(s);
+		delete s;
+	}
+}
+
+
+void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const QModelIndex & deselected ) {
+
+	Q_UNUSED(deselected)
+
+	AMScan* newScan = scanSetModel_->scanAt(selected.row());
+	if(currentScan_)
+		disconnect(currentScan_, SIGNAL(metaDataChanged(QString)), this, SLOT(onScanMetaDataChanged(QString)));
+
+	currentScan_ = newScan;
+
+	if(currentScan_)
+		connect(currentScan_, SIGNAL(metaDataChanged(QString)), this, SLOT(onScanMetaDataChanged(QString)));
+
+	updateEditor(currentScan_);
+}
+
+void AMGenericScanEditor::onScanMetaDataChanged(const QString &key) {
+
+}
+
+void AMGenericScanEditor::updateEditor(AMScan *scan) {
+	if(!scan)
+		return;
+
+	ui_.scanName->setText(scan->name());
+	ui_.scanNumber->setText(QString("%1").arg(scan->number()));
+	ui_.scanDate->setText( scan->dateTime().date().toString("MMM d (yyyy)") );
+	ui_.scanTime->setText( scan->dateTime().time().toString("hh:mm AP") );
+	ui_.notesEdit->setPlainText( scan->notes() );
+	/// \todo change to run box selector
+	// ui_.scanRun->setText();
+
+	ui_.topFrameTitle->setText(QString("Editing %1 #%2").arg(scan->name()).arg(scan->number()));
+}
 
 
 /// Overloaded to enable drag-dropping scans (when Drag Action = Qt::CopyAction and mime-type = "text/uri-list" with the proper format.)

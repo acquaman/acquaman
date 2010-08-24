@@ -27,7 +27,6 @@ AMDbObject* AMDbLoader::createAndLoad(AMDatabase* db, int id, QObject* parent, Q
 	}
 	else if (realType == "AMXASScan") {
 		returnObject = new AMXASScan(QList<AMDetectorInfo*>(), parent);
-		qDebug() << "prior to AMXasScan::loadFromDb()";
 		returnObject->loadFromDb(db, id);
 	}
 

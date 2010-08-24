@@ -73,7 +73,7 @@ void AMNewRunDialog::addFacility(){
 					facilitySelectCb->setItemData(i, p.scaledToHeight(22, Qt::SmoothTransformation), Qt::DecorationRole);
 			}
 			facilitySelectCb->setItemData(i,q.value(0),Qt::ToolTipRole);  //Setting description as tool tip
-			facilitySelectCb->setItemData(i,q.value(4), Qt::UserRole);		// Setting facility's ID in the User Role
+			facilitySelectCb->setItemData(i,q.value(4), AM::IdRole);		// Setting facility's ID in the User Role
 			i++;
 		}
 	}
@@ -95,7 +95,7 @@ void AMNewRunDialog::facilitySelectCbChanged(int index) {
 void AMNewRunDialog::okButtonPressed(){
 	QString runName = runNameLineEdit->text();
 	//run AMRun constructor to create new run, but first, we need facility Id
-	int facilityId = facilitySelectCb->itemData(facilitySelectCb->currentIndex(),Qt::UserRole).toInt();
+	int facilityId = facilitySelectCb->itemData(facilitySelectCb->currentIndex(),AM::IdRole).toInt();
 	AMRun(runName, facilityId).storeToDb(AMDatabase::userdb());
 
 	hide();

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>882</width>
+    <width>897</width>
     <height>64</height>
    </rect>
   </property>
@@ -48,7 +48,7 @@ border-top: 1px solid rgb(64, 64,64);
      </property>
      <layout class="QHBoxLayout" name="mainHLayout">
       <item>
-       <widget class="QToolButton" name="addButton">
+       <widget class="QPushButton" name="addButton">
         <property name="text">
          <string>+</string>
         </property>
@@ -448,7 +448,6 @@ font: 8pt &quot;Lucida Grande&quot;;</string>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources>
-  <include location="../icons/icons.qrc"/>
   <include location="../icons/icons.qrc"/>
  </resources>
  <connections/>

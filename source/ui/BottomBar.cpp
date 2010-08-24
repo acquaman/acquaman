@@ -15,6 +15,8 @@ BottomBar::BottomBar(QWidget *parent) : QWidget(parent)
 	timeRemainingLabel->setText("0:00");
 
 	makeConnections();
+
+	addButton->setAttribute(Qt::WA_MacSmallSize, true);
 }
 
 BottomBar::~BottomBar()

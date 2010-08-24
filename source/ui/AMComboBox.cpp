@@ -6,10 +6,15 @@
 #include <QPixmap>
 #include <QDebug>
 
+#include "acquaman.h"
+
+#include "ui/AMDetailedItemDelegate.h"
+
 AMComboBox:: AMComboBox(QWidget *parent)
 	: QComboBox(parent)
 {
 
+	setItemDelegate(new AMDetailedItemDelegate());
 	/* will need from database:
 	   * run name
 	   * run date
@@ -21,10 +26,14 @@ AMComboBox:: AMComboBox(QWidget *parent)
 	if (count() > 1)
 		setCurrentIndex(1);
 
-	box = NULL;
+	box = 0;
 	connect(this, SIGNAL(activated(int)),this,SLOT(onComboBoxActivated(int)));
 
 	setMinimumContentsLength(30);
+
+	runUpdateScheduled_ = false;
+	connect(database_, SIGNAL(created(QString,int)), this, SLOT(onDatabaseUpdate(QString, int)));
+	connect(database_, SIGNAL(updated(QString,int)), this, SLOT(onDatabaseUpdate(QString, int)));
 }
 
 AMComboBox::~AMComboBox(){
@@ -38,10 +47,13 @@ AMComboBox::~AMComboBox(){
 /// This function searches through the database for existing runs and adds the run names into the database. In addition, this function also stores the facility thumbnail as a decoration role, the run id as a user role, and the facility description as a tool tip role.
 void AMComboBox::autoAddRuns() {
 
+	// Turn off this flag because we're completing the update right now.
+	runUpdateScheduled_ = false;
+
 	clear();
 
 	addItem("Add New Run...");
-	setItemData(0, -1, Qt::UserRole);  // UserRole stores the runId.  This entry doesn't represent a valid run, so the runId is -1.
+	setItemData(0, -1, AM::IdRole);  // IdRole stores the runId.  This entry doesn't represent a valid run, so the runId is -1.
 
 	int i = 1;
 	QSqlQuery q = database_->query();
@@ -52,7 +64,9 @@ void AMComboBox::autoAddRuns() {
 
 	if (q.exec()) {
 		while (q.next()){
-			addItem(QString(q.value(1).toString()+", "+q.value(2).toDateTime().toString(" MMM d (yyyy)")));
+			addItem(QString(q.value(1).toString()));
+			setItemData(i, q.value(2).toDateTime().toString(" MMM d (yyyy)"), AM::DescriptionRole);
+			setItemData(i, q.value(2), AM::DateTimeRole);
 			if(q.value(4).toString() == "PNG") {
 				QPixmap p;
 				if(p.loadFromData(q.value(5).toByteArray(), "PNG"))
@@ -60,13 +74,14 @@ void AMComboBox::autoAddRuns() {
 			}
 
 			setItemData(i,q.value(3).toString(), Qt::ToolTipRole);
-			setItemData(i,q.value(0).toInt(), Qt::UserRole);
+			setItemData(i,q.value(0).toInt(), AM::IdRole);
 
 			i++;
 		}
 	}
 	else
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, "Error retrieving run information from the database."));
+
 
 }
 
@@ -76,18 +91,15 @@ void AMComboBox::autoAddRuns() {
 void AMComboBox::onComboBoxActivated(int index) {
 
 	if (index==0){
-
-		//int id; // this is the id of the run in the database
-	newRunBox();
-		//setCurrentIndex(findData(id,Qt::UserRole));
+		newRunBox();
 	}
 	else
-		emit currentRunIdChanged(itemData(index, Qt::UserRole).toInt());
+		emit currentRunIdChanged(itemData(index, AM::IdRole).toInt());
 
 }
 
 int AMComboBox::currentRunId() const {
-	return itemData(currentIndex(), Qt::UserRole).toInt();
+	return itemData(currentIndex(), AM::IdRole).toInt();
 }
 
 void AMComboBox::newRunBox() {
@@ -95,13 +107,34 @@ void AMComboBox::newRunBox() {
 		delete box;
 	box = new AMNewRunDialog;
 	box->show();
+	/// \bug fixup. What if they hit cancel?
 	connect(box,SIGNAL(dialogBoxClosed()),this,SLOT(addNewRun()));
 }
 
 void AMComboBox::addNewRun(){
 
+	/// \bug same bug
 	autoAddRuns();
 	setCurrentIndex(1);
 }
 
+#include "dataman/AMDatabaseDefinition.h"
+#include <QTimer>
+void AMComboBox::onDatabaseUpdate(const QString & tableName, int id) {
 
+	Q_UNUSED(id)
+
+	if(tableName == AMDatabaseDefinition::runTableName()) {
+		if(!runUpdateScheduled_) {
+			runUpdateScheduled_ = true;
+			QTimer::singleShot(0, this, SLOT(autoAddRuns()));
+		}
+	}
+}
+
+void AMComboBox::setCurrentRunId(int runId) {
+
+	setCurrentIndex(findData(runId, AM::IdRole));
+	emit currentRunIdChanged(itemData(currentIndex(), AM::IdRole).toInt());
+
+}

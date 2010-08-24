@@ -21,18 +21,24 @@ public:
 
 	int currentRunId() const ;
 
+public slots:
+	void setCurrentRunId(int runId);
+
 protected slots:
+	void autoAddRuns();
 	void onComboBoxActivated(int index);
 	void newRunBox();
 	void addNewRun();
+	void onDatabaseUpdate(const QString&, int);
 
 signals:
 	void currentRunIdChanged(int runId);
 
 protected:
-	void autoAddRuns();
+
 	AMDatabase* database_;
 	AMNewRunDialog *box;
+	bool runUpdateScheduled_;
 
 };
 

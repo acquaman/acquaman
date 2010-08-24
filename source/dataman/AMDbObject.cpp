@@ -151,7 +151,9 @@ bool AMDbObject::storeToDb(AMDatabase* db) {
 	}
 
 	// now that we know where the thumbnails are, update this in our actual table
-	db->update(id_, databaseTableName(), "thumbnailFirstId", firstThumbnailIndex);
+	if(thumbnailCount() > 0)
+		db->update(id_, databaseTableName(), "thumbnailFirstId", firstThumbnailIndex);
+
 	return true;
 
 }
