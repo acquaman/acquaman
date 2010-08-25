@@ -21,7 +21,7 @@ class Test1: public QObject
 	Q_OBJECT
 private slots:
 
-
+/*
 	void testAMScanSetModel() {
 
 
@@ -111,7 +111,7 @@ private slots:
 	}
 
 
-
+*/
 
 	/// This runs before any of the private slots (test cases) get run. It loads the settings and prepares the database tables as required for each Scan object that gets tested.
 	void initTestCase()
@@ -170,7 +170,7 @@ private slots:
 	}
 
 
-
+*/
 	/// Test to confirm that new run dialog works.
 	void testRunDialog() {
 
@@ -186,7 +186,7 @@ private slots:
 
 	}
 
-
+/*
 
 	void testAMSidebar() {
 
