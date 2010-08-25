@@ -150,9 +150,6 @@ font: bold 10pt &quot;Lucida Grande&quot;</string>
          <property name="spacing">
           <number>12</number>
          </property>
-         <property name="margin">
-          <number>0</number>
-         </property>
          <item>
           <widget class="QListView" name="scanListView"/>
          </item>
@@ -229,16 +226,6 @@ font-family: &quot;Lucida Grande&quot;;</string>
                 </property>
                </widget>
               </item>
-              <item row="1" column="1">
-               <widget class="QLineEdit" name="scanNumber">
-                <property name="text">
-                 <string/>
-                </property>
-                <property name="frame">
-                 <bool>false</bool>
-                </property>
-               </widget>
-              </item>
               <item row="2" column="0">
                <widget class="QLabel" name="scanDateLabel">
                 <property name="styleSheet">
@@ -293,6 +280,25 @@ font-family: &quot;Lucida Grande&quot;;</string>
                <widget class="QLabel" name="scanRun">
                 <property name="text">
                  <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QSpinBox" name="scanNumber">
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>18</height>
+                 </size>
+                </property>
+                <property name="frame">
+                 <bool>false</bool>
+                </property>
+                <property name="buttonSymbols">
+                 <enum>QAbstractSpinBox::NoButtons</enum>
+                </property>
+                <property name="maximum">
+                 <number>9999</number>
                 </property>
                </widget>
               </item>
@@ -504,7 +510,6 @@ font-weight: bold;</string>
   </layout>
  </widget>
  <resources>
-  <include location="../icons/icons.qrc"/>
   <include location="../icons/icons.qrc"/>
  </resources>
  <connections/>

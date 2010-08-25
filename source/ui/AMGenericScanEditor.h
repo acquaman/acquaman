@@ -30,6 +30,8 @@ public:
 
 
 signals:
+	/// Internal signal to forward the textChanged() from ui_.notesEdit
+	void notesChanged(const QString&);
 
 public slots:
 
@@ -40,6 +42,10 @@ protected slots:
 	/// This slot responds to meta-data changes in the current scan
 	void onScanMetaDataChanged(const QString& key);
 
+	/// internal signal to forward the textChanged() signal from ui_.notesEdit
+	void onNotesTextChanged() {
+		emit notesChanged(ui_.notesEdit->toPlainText());
+	}
 
 
 protected:
