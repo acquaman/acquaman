@@ -30,18 +30,14 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 	// Add run selector:
 
 	runSelector_ = new AMRunSelector();
-	runSelector_->setMaximumSizeHint(QSize(40, 50));
-
 	ui_.scanInfoLayout->insertWidget(1, runSelector_);
-	ui_.scanInfoLayout->invalidate();
 
 
 
 
 	// Add detailed editor widgets:
-	QWidget* temp1 = new QWidget();
-	temp1->setMinimumHeight(160);
-	stackWidget_->addItem(temp1, "Sample Information");
+	sampleEditor_ = new AMSampleEditor(AMDatabase::userdb());
+	stackWidget_->addItem(sampleEditor_, "Sample Information");
 
 	QWidget* temp2 = new QWidget();
 	temp2->setMinimumHeight(200);

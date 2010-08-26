@@ -10,6 +10,7 @@
 #include "ui/AMScanView.h"
 #include "ui/AMVerticalStackWidget.h"
 #include "ui/AMRunSelector.h"
+#include "ui/AMSampleEditor.h"
 
 class AMGenericScanEditor : public QWidget
 {
@@ -71,6 +72,9 @@ protected:
 
 	/// Plot view capable of holding multiple scans.
 	AMScanView* scanView_;
+
+	/// Sample editor
+	AMSampleEditor* sampleEditor_;
 
 	/// Overloaded to enable drag-dropping scans (when Drag Action = Qt::CopyAction and mime-type = "text/uri-list" with the proper format.)
 	void dragEnterEvent(QDragEnterEvent *event);
