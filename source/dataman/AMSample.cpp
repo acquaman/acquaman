@@ -1,7 +1,7 @@
 #include "AMSample.h"
 
 AMSample::AMSample(QObject *parent) :
-    AMDbObject(parent)
+	AMDbObject(parent)
 {
 
 }
@@ -15,7 +15,7 @@ AMSample::AMSample(const QString& sampleName, QObject* parent)
 	metaData_["notes"] = QString();
 	metaData_["image"] = QVariant();
 
-	this->setName(sampleName);
+	setName(sampleName);
 }
 
 /// This constructor immediately loads a stored sample from the database.
