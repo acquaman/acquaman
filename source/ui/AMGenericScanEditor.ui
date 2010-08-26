@@ -185,7 +185,7 @@ font-family: &quot;Lucida Grande&quot;;</string>
              </widget>
             </item>
             <item>
-             <layout class="QGridLayout" name="gridLayout">
+             <layout class="QGridLayout" name="scanInfoGridLayout">
               <property name="leftMargin">
                <number>12</number>
               </property>
@@ -273,13 +273,6 @@ font-family: &quot;Lucida Grande&quot;;</string>
                 </property>
                 <property name="text">
                  <string>run</string>
-                </property>
-               </widget>
-              </item>
-              <item row="4" column="1">
-               <widget class="QLabel" name="scanRun">
-                <property name="text">
-                 <string/>
                 </property>
                </widget>
               </item>

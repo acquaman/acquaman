@@ -70,7 +70,7 @@ void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const
 
 		disconnect(ui_.scanName, 0, currentScan_, 0);
 		disconnect(ui_.scanNumber, 0, currentScan_, 0);
-		disconnect(ui_.scanRun, 0, currentScan_, 0);
+		// disconnect(ui_.scanRun, 0, currentScan_, 0);
 		disconnect(this, SIGNAL(notesChanged(QString)), currentScan_, SLOT(setNotes(QString)));
 	}
 

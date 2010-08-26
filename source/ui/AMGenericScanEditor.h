@@ -59,6 +59,9 @@ protected:
 	/// UI object container
 	Ui::AMGenericScanEditor ui_;
 
+	/// Run selector
+
+
 	/// Plot view capable of holding multiple scans.
 	AMScanView* scanView_;
 
