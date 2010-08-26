@@ -25,6 +25,8 @@ public:
 
 	AMSamplePlateModel* model();
 	QString plateName() const;
+	QString userName() const;
+	QString createTime() const;
 	int count();
 
 	AMSamplePosition* samplePositionAt(size_t index);

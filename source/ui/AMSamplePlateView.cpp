@@ -1,16 +1,17 @@
 #include "AMSamplePlateView.h"
 
-AMSamplePlateView::AMSamplePlateView(QString title, QWidget *parent) :
-	QGroupBox(title, parent)
+AMSamplePlateView::AMSamplePlateView(QWidget *parent) :
+	QWidget(parent)
+//	QGroupBox(title, parent)
 {
-	//samplePlate_ = new AMSamplePlate(this);
 	sampleRefreshScheduled_ = false;
 	manipulator_ = NULL;
 
 	setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
-	plateNameLabel_ = new QLabel(samplePlate_.plateName());
+	plateNameLabel_ = new QLabel(samplePlate_.userName());
 	plateNameLabel_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+	loadedLabel_ = new QLabel("   originally loaded "+samplePlate_.createTime());
 	existingPlates_ = new QComboBox();
 	existingPlates_->addItem("Load Existing");
 
@@ -58,6 +59,7 @@ AMSamplePlateView::AMSamplePlateView(QString title, QWidget *parent) :
 	vl_ = new QVBoxLayout();
 	vl_->setAlignment(Qt::AlignTop);
 	vl_->addWidget(plateNameLabel_);
+	vl_->addWidget(loadedLabel_);
 	vl_->addWidget(existingPlates_);
 	vl_->addWidget(sampleListView_);
 	setLayout(vl_);
@@ -364,7 +366,7 @@ bool AMSamplePositionItemView::onSampleNameChanged(){
 
 void AMSamplePositionItemView::onSampleTableRowAdded(const QModelIndex &parent, int start, int end){
 	qDebug() << "AMSamplePositionItemView::onSampleTableRowAdded : Done inserting rows, start ignoring index changed";
-	ignoreIndexChanged_ = true;
+//	ignoreIndexChanged_ = true;
 }
 
 void AMSamplePositionItemView::updateLook(){
@@ -406,9 +408,13 @@ void AMSamplePositionItemView::onSamplePositionUpdate(int index){
 		sampleBox_ = new QComboBox();
 		sampleBox_->setModel(sampleTableModel_);
 		sampleBox_->setEditable(true);
+		sampleBox_->setInsertPolicy(QComboBox::InsertAtCurrent);
+		sampleBox_->setCompleter(NULL);
+		sampleBox_->setSizeAdjustPolicy(QComboBox::AdjustToContents);
 		sampleBox_->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
 		setFocusProxy(sampleBox_);
-		connect(sampleBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onSampleBoxIndexChanged(int)));
+//		connect(sampleBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onSampleBoxIndexChanged(int)));
+		connect(sampleBox_, SIGNAL(activated(int)), this, SLOT(onSampleBoxIndexChanged(int)));
 		connect(sampleBox_->lineEdit(), SIGNAL(editingFinished()), this, SLOT(onSampleNameChanged()));
 		hl_->addWidget(sampleBox_, 3, Qt::AlignLeft);
 	}
@@ -431,7 +437,7 @@ void AMSamplePositionItemView::onSamplePositionUpdate(int index){
 	QString tmpStr;
 	tmpStr.setNum(index_);
 	indexLabel_->setText(tmpStr+". ");
-	iChangeIndex_ = true;
+//	iChangeIndex_ = true;
 	sampleBox_->setCurrentIndex( sampleBox_->findText(samplePosition_->sample()->name()) );
 	sampleBox_->lineEdit()->selectAll();
 
@@ -476,17 +482,24 @@ AMSamplePositionItemExpandingAdder::AMSamplePositionItemExpandingAdder(QStandard
 	newNameEdit_ = new QLineEdit();
 	newNameEdit_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 	setFocusProxy(newNameEdit_);
+	newNameLabel_ = new QLabel("Create a New Sample");
 	chooseExistingBox_ = new QComboBox();
 	chooseExistingBox_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 	chooseExistingBox_->setModel(sampleTableModel_);
+	emptyChooseExistingBox_ = new QComboBox();
+	emptyChooseExistingBox_->addItem("Or Pick Existing Sample");
+	emptyChooseExistingBox_->setCurrentIndex(0);
 	goNewButton_ = new QPushButton(QIcon(":/add.png"), "Add");
 	goNewButton_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 	goExistingButton_ = new QPushButton(QIcon(":/add.png"), "Add");
 	goExistingButton_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+	cancelButton_ = new QPushButton(QIcon(":/Close.png"), "");
 
 	connect(markNewButton_, SIGNAL(clicked()), this, SLOT(onMarkNewButtonClicked()));
 	connect(goNewButton_, SIGNAL(clicked()), this, SLOT(onGoNewButtonClicked()));
 	connect(goExistingButton_, SIGNAL(clicked()), this, SLOT(onGoExistingButtonClicked()));
+	connect(cancelButton_, SIGNAL(clicked()), this, SLOT(shrinkBack()));
+	connect(emptyChooseExistingBox_, SIGNAL(highlighted(int)), this, SLOT(switchBoxes(int)));
 
 	gl_ = new QGridLayout();
 	gl_->addWidget(markNewButton_, 0, 0, 1, 1, Qt::AlignLeft);
@@ -497,7 +510,6 @@ AMSamplePositionItemExpandingAdder::AMSamplePositionItemExpandingAdder(QStandard
 }
 
 void AMSamplePositionItemExpandingAdder::onMarkNewButtonClicked(){
-
 	//HEY DAVE, MAYBE CAN WATCH DB SIGNALS SO ONLY QUERY WHEN CHANGES MADE NOT BY YOU
 	QSqlQuery q = AMDatabase::userdb()->query();
 	q.prepare(QString("SELECT name FROM %1 WHERE name LIKE 'Sample %'").arg(AMDatabaseDefinition::sampleTableName()));
@@ -517,16 +529,22 @@ void AMSamplePositionItemExpandingAdder::onMarkNewButtonClicked(){
 
 	gl_->removeWidget(markNewButton_);
 	markNewButton_->hide();
-	gl_->addWidget(newNameEdit_, 0, 0, 1, 1, Qt::AlignLeft);
-	gl_->addWidget(chooseExistingBox_, 1, 0, 1, 1, Qt::AlignLeft);
-	gl_->addWidget(goNewButton_, 0, 1, 1, 1, Qt::AlignLeft);
-	gl_->addWidget(goExistingButton_, 1, 1, 1, 1, Qt::AlignLeft);
+	gl_->addWidget(newNameLabel_, 0, 0, 1, 1, Qt::AlignLeft);
+	gl_->addWidget(newNameEdit_, 1, 0, 1, 1, Qt::AlignLeft);
+	//gl_->addWidget(chooseExistingBox_, 2, 0, 1, 1, Qt::AlignLeft);
+	gl_->addWidget(emptyChooseExistingBox_, 2, 0, 1, 1, Qt::AlignLeft);
+	gl_->addWidget(goNewButton_, 1, 1, 1, 1, Qt::AlignLeft);
+	gl_->addWidget(goExistingButton_, 2, 1, 1, 1, Qt::AlignLeft);
+	gl_->addWidget(cancelButton_, 0, 1, 1, 1, Qt::AlignRight);
 	gl_->setColumnStretch(0, 5);
 	gl_->setColumnStretch(1, 0);
 	newNameEdit_->show();
-	chooseExistingBox_->show();
+	newNameLabel_->show();
+//	chooseExistingBox_->show();
+	emptyChooseExistingBox_->show();
 	goNewButton_->show();
 	goExistingButton_->show();
+	cancelButton_->show();
 	setFrameStyle(QFrame::StyledPanel);
 	newNameEdit_->selectAll();
 	newNameEdit_->setFocus();
@@ -546,15 +564,37 @@ void AMSamplePositionItemExpandingAdder::onGoExistingButtonClicked(){
 
 void AMSamplePositionItemExpandingAdder::shrinkBack(){
 	gl_->removeWidget(newNameEdit_);
+	gl_->removeWidget(newNameLabel_);
 	gl_->removeWidget(chooseExistingBox_);
 	gl_->removeWidget(goNewButton_);
 	gl_->removeWidget(goExistingButton_);
+	gl_->removeWidget(cancelButton_);
 	newNameEdit_->hide();
+	newNameLabel_->hide();
 	chooseExistingBox_->hide();
 	goNewButton_->hide();
 	goExistingButton_->hide();
+	cancelButton_->hide();
 	gl_->addWidget(markNewButton_, 0, 0, 1, 1, Qt::AlignLeft);
 	gl_->setColumnStretch(0, 5);
 	markNewButton_->show();
 	setFrameStyle(QFrame::NoFrame);
+}
+
+void AMSamplePositionItemExpandingAdder::switchBoxes(int index){
+	emptyChooseExistingBox_->clearFocus();
+	emptyChooseExistingBox_->setMouseTracking(false);
+	emptyChooseExistingBox_->releaseKeyboard();
+	emptyChooseExistingBox_->releaseMouse();
+	emptyChooseExistingBox_->clearFocus();
+	emptyChooseExistingBox_->hidePopup();
+	emptyChooseExistingBox_->clearFocus();
+	gl_->removeWidget(emptyChooseExistingBox_);
+	gl_->addWidget(chooseExistingBox_, 2, 0, 1, 1, Qt::AlignLeft);
+	emptyChooseExistingBox_->hide();
+	emptyChooseExistingBox_->clearFocus();
+	chooseExistingBox_->show();
+	chooseExistingBox_->showPopup();
+	chooseExistingBox_->setFocus();
+	chooseExistingBox_->setMouseTracking(true);
 }

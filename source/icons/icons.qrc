@@ -47,5 +47,6 @@
         <file>save.png</file>
         <file>add.png</file>
         <file>notepadBackground.png</file>
+        <file>Close.png</file>
     </qresource>
 </RCC>

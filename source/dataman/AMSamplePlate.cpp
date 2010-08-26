@@ -4,7 +4,7 @@ AMSamplePlate::AMSamplePlate(QObject *parent) :
 	AMDbObject(parent)
 {
 	insertRowLatch = -1;
-	userName_ = "SGM";
+	userName_ = "SGM Sample Plate";
 	createTime_ = QDateTime::currentDateTime();
 	samples_ = NULL;
 	metaData_["createTime"] = QDateTime(createTime_);
@@ -20,6 +20,14 @@ AMSamplePlateModel* AMSamplePlate::model(){
 
 QString AMSamplePlate::plateName() const{
 	return userName_+" loaded "+timeString();
+}
+
+QString AMSamplePlate::userName() const{
+	return userName_;
+}
+
+QString AMSamplePlate::createTime() const{
+	return timeString();
 }
 
 int AMSamplePlate::count(){

@@ -14,6 +14,7 @@
 #include <QDebug>
 #include <QListView>
 #include <QLineEdit>
+#include <QPropertyAnimation>
 
 #include "dataman/AMSamplePlate.h"
 #include "beamline/SGMBeamline.h"
@@ -23,11 +24,12 @@ class AMSampleListView;
 class AMSamplePositionItemView;
 class AMSamplePositionItemExpandingAdder;
 
-class AMSamplePlateView : public QGroupBox
+//class AMSamplePlateView : public QGroupBox
+class AMSamplePlateView : public QWidget
 {
 Q_OBJECT
 public:
-	explicit AMSamplePlateView(QString title = "Sample Plate", QWidget *parent = 0);
+	explicit AMSamplePlateView(QWidget *parent = 0);
 
 public slots:
 	void setManipulator(AMControlSet *manipulator);
@@ -43,6 +45,7 @@ protected slots:
 
 protected:
 	QLabel *plateNameLabel_;
+	QLabel *loadedLabel_;
 	QComboBox *existingPlates_;
 	AMSampleListView *sampleListView_;
 	QVBoxLayout *vl_;
@@ -150,15 +153,19 @@ protected slots:
 	void onGoExistingButtonClicked();
 
 	void shrinkBack();
+	void switchBoxes(int index);
 
 protected:
 	QStandardItemModel *sampleTableModel_;
 
 	QPushButton *markNewButton_;
 	QLineEdit *newNameEdit_;
+	QLabel *newNameLabel_;
 	QComboBox *chooseExistingBox_;
+	QComboBox *emptyChooseExistingBox_;
 	QPushButton *goNewButton_;
 	QPushButton *goExistingButton_;
+	QPushButton *cancelButton_;
 
 	QGridLayout *gl_;
 };
