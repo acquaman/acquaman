@@ -28,8 +28,7 @@ void AMDetailedItemDelegate::setItemHeight(int height){
 
 void AMDetailedItemDelegate::setFont(const QFont& font){
 	font_=font;
-	qDebug() << "Setting font:" << font.family() << font.pointSize();
-
+	//qDebug() << "Setting font:" << font.family() << font.pointSize();
 }
 
 void AMDetailedItemDelegate::setTextColor(const QColor &color1, const QColor &color2){
@@ -77,8 +76,14 @@ void AMDetailedItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem
 
 	painter->setFont(font_);
 	painter->setPen(color1_);
-	painter->drawText(textRect, index.data(Qt::DisplayRole).toString());
-	qDebug() << painter->fontInfo().family() << painter->fontInfo().pointSize();
+	if (AM::ModifiedRole){
+		QFont fonti=font_;
+		fonti.setItalic(true);
+		painter->setFont(fonti);
+		painter->drawText(textRect, index.data(Qt::DisplayRole).toString());
+	}
+	//qDebug() << painter->fontInfo().family() << painter->fontInfo().pointSize();
+	else painter->drawText(textRect, index.data(Qt::DisplayRole).toString());
 /*
 	QStyleOptionButton option1;
 		 //option1.initFrom(index);
@@ -86,11 +91,19 @@ void AMDetailedItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem
 
 	sty->drawControl(QStyle::CE_PushButton,&option1,painter);
 */
+	QVariant modifiedTime = index.data(AM::DateTimeRole);
+	AMDateTimeUtils modifier;
+
+	qDebug() << "Time is " << modifier.checkAndModifyDate(modifiedTime.toDateTime());
 	QVariant description = index.data(AM::DescriptionRole);
 	if(!description.isNull()){
+		painter->setFont(font_);
 		painter->setPen(color2_);
-		painter->drawText(textRect.translated(QPoint(0,20)), opt.fontMetrics.elidedText(description.toString(), Qt::ElideRight, textRect.width() ));
+	//	painter->drawText(textRect.translated(QPoint(0,20)), opt.fontMetrics.elidedText(description.toString(), Qt::ElideRight, textRect.width() ));
+		painter->drawText(textRect.translated(QPoint(0,20)), opt.fontMetrics.elidedText(modifier.checkAndModifyDate(modifiedTime.toDateTime()), Qt::ElideRight, textRect.width() ));
+
 	}
+
 	/* What info is available:
 enum OptionType
 enum Position

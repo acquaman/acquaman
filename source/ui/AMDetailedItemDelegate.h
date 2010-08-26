@@ -5,6 +5,8 @@
 #include <QStyleOptionViewItemV4>
 #include <QPainter>
 
+#include "AMDateTimeUtils.h"
+
 class AMDetailedItemDelegate : public QStyledItemDelegate
 {
 Q_OBJECT
