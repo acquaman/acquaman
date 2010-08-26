@@ -1,15 +1,9 @@
 #include "AMDetailedItemDelegate.h"
 #include <QDebug>
-
-/*Give it setItemHeight(), setFont(), setTextColor(line1Color, line2Color), setFontSize(line1size, line2size).
-Choose pretty default font colors and sizes ("Lucida Grande" is my standard application-wide pick so far;
-line 1 bigger and darker than line 2). Can I add a request for AMDetailedDelegate?  If the AM::ModifiedRole
-for the data is true, can you render the top line (Qt::DisplayRole data) in italic text?|*/
-
 #include <QApplication>
 #include <QStyle>
 #include <QFontMetrics>
- #include <QGraphicsTextItem>
+#include <QGraphicsTextItem>
 #include <QStyleOptionButton>
 #include "acquaman.h"
 
@@ -20,6 +14,7 @@ QStyledItemDelegate(parent)
 	setFont(QFont("Lucida Grande", 10));
 	setTextColor();
 	setFontSize();
+	setItemHeight();
 }
 
 void AMDetailedItemDelegate::setItemHeight(int height){
@@ -40,9 +35,6 @@ void AMDetailedItemDelegate::setFontSize(int size1,int size2){
 	size1_=size1;
 	size2_=size2;
 }
-
-
-
 
 void AMDetailedItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const  {
 
@@ -69,32 +61,23 @@ void AMDetailedItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem
 		textStartingPoint += horizontalMargin() + p.width() + horizontalSpacing();
 	}
 
-
-
 	QRect textRect = opt.rect;
 	textRect.setLeft( textRect.left() + textStartingPoint);
 
 	painter->setFont(font_);
 	painter->setPen(color1_);
+
 	if (AM::ModifiedRole){
 		QFont fonti=font_;
 		fonti.setItalic(true);
 		painter->setFont(fonti);
 		painter->drawText(textRect, index.data(Qt::DisplayRole).toString());
 	}
-	//qDebug() << painter->fontInfo().family() << painter->fontInfo().pointSize();
 	else painter->drawText(textRect, index.data(Qt::DisplayRole).toString());
-/*
-	QStyleOptionButton option1;
-		 //option1.initFrom(index);
-		 option1.text = "x";
 
-	sty->drawControl(QStyle::CE_PushButton,&option1,painter);
-*/
 	QVariant modifiedTime = index.data(AM::DateTimeRole);
 	AMDateTimeUtils modifier;
 
-	qDebug() << "Time is " << modifier.checkAndModifyDate(modifiedTime.toDateTime());
 	QVariant description = index.data(AM::DescriptionRole);
 	if(!description.isNull()){
 		painter->setFont(font_);
