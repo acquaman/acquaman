@@ -6,9 +6,7 @@ AMDateTimeUtils::AMDateTimeUtils()
 
 }
 
-//Is dateTime always stored in description role?
-//How/where do I get the original dateTime?
-//
+/// This function takes a QDateTime and will change the date to "today", "yesterday", "two days ago", or "three days ago" if it applies.
 QString AMDateTimeUtils::checkAndModifyDate(const QDateTime &dateTime){
 	QDateTime currentDT = QDateTime::currentDateTime();
 	if (dateTime.daysTo(currentDT)==0)
