@@ -1,15 +1,47 @@
 #include "AMDetailedItemDelegate.h"
+#include <QDebug>
 
-AMDetailedItemDelegate::AMDetailedItemDelegate(QObject *parent) :
-	QStyledItemDelegate(parent)
-{
-}
+/*Give it setItemHeight(), setFont(), setTextColor(line1Color, line2Color), setFontSize(line1size, line2size).
+Choose pretty default font colors and sizes ("Lucida Grande" is my standard application-wide pick so far;
+line 1 bigger and darker than line 2). Can I add a request for AMDetailedDelegate?  If the AM::ModifiedRole
+for the data is true, can you render the top line (Qt::DisplayRole data) in italic text?|*/
 
 #include <QApplication>
 #include <QStyle>
 #include <QFontMetrics>
-
+ #include <QGraphicsTextItem>
+#include <QStyleOptionButton>
 #include "acquaman.h"
+
+
+AMDetailedItemDelegate::AMDetailedItemDelegate(QObject *parent) :
+QStyledItemDelegate(parent)
+{
+	setFont(QFont("Lucida Grande", 10));
+	setTextColor();
+	setFontSize();
+}
+
+void AMDetailedItemDelegate::setItemHeight(int height){
+	height_=height;
+}
+
+void AMDetailedItemDelegate::setFont(const QFont& font){
+	font_=font;
+	//qDebug() << "Setting font:" << font.family() << font.pointSize();
+}
+
+void AMDetailedItemDelegate::setTextColor(const QColor &color1, const QColor &color2){
+	color1_ = color1;
+	color2_ = color2;
+}
+
+void AMDetailedItemDelegate::setFontSize(int size1,int size2){
+	size1_=size1;
+	size2_=size2;
+}
+
+
 
 
 void AMDetailedItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const  {
@@ -38,14 +70,39 @@ void AMDetailedItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem
 	}
 
 
+
 	QRect textRect = opt.rect;
 	textRect.setLeft( textRect.left() + textStartingPoint);
 
-	painter->drawText(textRect, index.data(Qt::DisplayRole).toString());
+	painter->setFont(font_);
+	painter->setPen(color1_);
+	if (AM::ModifiedRole){
+		QFont fonti=font_;
+		fonti.setItalic(true);
+		painter->setFont(fonti);
+		painter->drawText(textRect, index.data(Qt::DisplayRole).toString());
+	}
+	//qDebug() << painter->fontInfo().family() << painter->fontInfo().pointSize();
+	else painter->drawText(textRect, index.data(Qt::DisplayRole).toString());
+/*
+	QStyleOptionButton option1;
+		 //option1.initFrom(index);
+		 option1.text = "x";
 
+	sty->drawControl(QStyle::CE_PushButton,&option1,painter);
+*/
+	QVariant modifiedTime = index.data(AM::DateTimeRole);
+	AMDateTimeUtils modifier;
+
+	qDebug() << "Time is " << modifier.checkAndModifyDate(modifiedTime.toDateTime());
 	QVariant description = index.data(AM::DescriptionRole);
-	if(!description.isNull())
-		painter->drawText(textRect.translated(QPoint(0,20)), opt.fontMetrics.elidedText(description.toString(), Qt::ElideRight, textRect.width() ));
+	if(!description.isNull()){
+		painter->setFont(font_);
+		painter->setPen(color2_);
+	//	painter->drawText(textRect.translated(QPoint(0,20)), opt.fontMetrics.elidedText(description.toString(), Qt::ElideRight, textRect.width() ));
+		painter->drawText(textRect.translated(QPoint(0,20)), opt.fontMetrics.elidedText(modifier.checkAndModifyDate(modifiedTime.toDateTime()), Qt::ElideRight, textRect.width() ));
+
+	}
 
 	/* What info is available:
 enum OptionType
