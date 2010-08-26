@@ -10,6 +10,7 @@
 #include "ui/AMNewRunDialog.h"
 
 
+#include <QDebug>
 class AMRunSelector: public QComboBox
 {
 	Q_OBJECT
@@ -20,6 +21,8 @@ public:
 	virtual ~AMRunSelector();            //Destructor
 
 	int currentRunId() const ;
+
+
 
 public slots:
 	void setCurrentRunId(int runId);
@@ -39,6 +42,7 @@ protected:
 	AMDatabase* database_;
 	AMNewRunDialog *box;
 	bool runUpdateScheduled_;
+
 
 };
 

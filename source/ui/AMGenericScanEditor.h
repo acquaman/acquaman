@@ -8,6 +8,9 @@
 #include "dataman/AMScan.h"
 #include "dataman/AMScanSetModel.h"
 #include "ui/AMScanView.h"
+#include "ui/AMVerticalStackWidget.h"
+#include "ui/AMRunSelector.h"
+#include "ui/AMSampleEditor.h"
 
 class AMGenericScanEditor : public QWidget
 {
@@ -23,6 +26,8 @@ public:
 	void addScan(AMScan* newScan) { /// \todo
 		scanSetModel_->addScan(newScan);
 		ui_.scanListView->setCurrentIndex(scanSetModel_->indexForScan(newScan));
+		if(scanSetModel_->exclusiveChannel().isEmpty() && newScan->numChannels() > 0)
+			scanSetModel_->setExclusiveChannel(newScan->channel(0)->name());
 	}
 
 
@@ -59,11 +64,17 @@ protected:
 	/// UI object container
 	Ui::AMGenericScanEditor ui_;
 
-	/// Run selector
+	/// stack-widget holder for right-column editors
+	AMVerticalStackWidget* stackWidget_;
 
+	/// Run selector
+	AMRunSelector* runSelector_;
 
 	/// Plot view capable of holding multiple scans.
 	AMScanView* scanView_;
+
+	/// Sample editor
+	AMSampleEditor* sampleEditor_;
 
 	/// Overloaded to enable drag-dropping scans (when Drag Action = Qt::CopyAction and mime-type = "text/uri-list" with the proper format.)
 	void dragEnterEvent(QDragEnterEvent *event);

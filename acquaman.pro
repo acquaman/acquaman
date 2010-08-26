@@ -198,7 +198,10 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/dataman/AMSamplePlate.h \
 	source/ui/AMGenericScanEditor.h \
 	source/ui/AMDetailedItemDelegate.h \
-	source/ui/AMVerticalStackWidget.h
+	source/ui/AMVerticalStackWidget.h \
+	source/ui/AMHeaderButton.h \
+	source/ui/AMSampleEditor.h \
+	source/ui/AMDateTimeUtils.h
 FORMS += source/ui/AbsorptionScanController.ui \
 	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
@@ -333,7 +336,10 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/ui/AMGenericScanEditor.cpp \
 	source/dataman/AMDbLoader.cpp \
 	source/ui/AMDetailedItemDelegate.cpp \
-	source/ui/AMVerticalStackWidget.cpp
+	source/ui/AMVerticalStackWidget.cpp \
+	source/ui/AMHeaderButton.cpp \
+	source/ui/AMSampleEditor.cpp \
+	source/ui/AMDateTimeUtils.cpp
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc
 OTHER_FILES += source/muParser/README.txt
