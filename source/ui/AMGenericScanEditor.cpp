@@ -103,6 +103,7 @@ void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const
 		disconnect(ui_.scanNumber, 0, currentScan_, 0);
 		disconnect(this, SIGNAL(notesChanged(QString)), currentScan_, SLOT(setNotes(QString)));
 		disconnect(runSelector_, SIGNAL(currentRunIdChanged(int)), currentScan_, SLOT(setRunId(int)));
+		disconnect(sampleEditor_, SIGNAL(currentSampleChanged(int)), currentScan_, SLOT(setSampleId(int)));
 	}
 
 	// it becomes now the new scan:
@@ -120,6 +121,7 @@ void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const
 		connect(ui_.scanNumber, SIGNAL(valueChanged(int)), currentScan_, SLOT(setNumber(int)));
 		connect(this, SIGNAL(notesChanged(QString)), currentScan_, SLOT(setNotes(QString)));
 		connect(runSelector_, SIGNAL(currentRunIdChanged(int)), currentScan_, SLOT(setRunId(int)));
+		connect(sampleEditor_, SIGNAL(currentSampleChanged(int)), currentScan_, SLOT(setSampleId(int)));
 	}
 
 }
@@ -139,6 +141,7 @@ void AMGenericScanEditor::updateEditor(AMScan *scan) {
 	ui_.scanTime->setText( scan->dateTime().time().toString("h:mmap") );
 	ui_.notesEdit->setPlainText( scan->notes() );
 	runSelector_->setCurrentRunId(scan->runId());
+	sampleEditor_->setCurrentSample(scan->sampleId());
 
 	ui_.topFrameTitle->setText(QString("Editing %1 #%2").arg(scan->name()).arg(scan->number()));
 	}
@@ -149,6 +152,10 @@ void AMGenericScanEditor::updateEditor(AMScan *scan) {
 		ui_.scanDate->setText( QString() );
 		ui_.scanTime->setText( QString() );
 		ui_.notesEdit->clear();
+
+		// what to set run selector to?
+
+		sampleEditor_->setCurrentSample(-1);
 
 		ui_.topFrameTitle->setText("Scan Editor");
 	}
