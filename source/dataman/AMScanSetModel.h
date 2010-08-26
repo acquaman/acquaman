@@ -228,6 +228,8 @@ protected slots:
 
 	/// This slot catches signals from scans that change their meta-data, and emits dataChanged() as needed.
 	void onMetaDataChanged(const QString& key);
+	/// This slot catches changes in the modified() flag for scans, which must cause a dataChanged() to update the display text.
+	void onScanModifiedChanged(bool isModified);
 
 protected:
 	QList<AMScan*> scans_;

@@ -16,9 +16,40 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 {
 	ui_.setupUi(this);
 
+	// Add extra UI components:
+	stackWidget_ = new AMVerticalStackWidget();
+	stackWidget_->setMinimumWidth(200);
+	stackWidget_->setMaximumWidth(360);
+	ui_.rightVerticalLayout->addWidget(stackWidget_);
+
 	// Add scan view (plots)
 	scanView_ = new AMScanView();
-	ui_.leftVerticalLayout->insertWidget(0, scanView_);
+	scanView_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	ui_.leftVerticalLayout->insertWidget(0, scanView_, 2);
+
+	// Add run selector:
+
+	runSelector_ = new AMRunSelector();
+	ui_.scanInfoLayout->insertWidget(1, runSelector_);
+
+
+
+
+	// Add detailed editor widgets:
+	sampleEditor_ = new AMSampleEditor(AMDatabase::userdb());
+	stackWidget_->addItem(sampleEditor_, "Sample Information");
+
+	QWidget* temp2 = new QWidget();
+	temp2->setMinimumHeight(200);
+	stackWidget_->addItem(temp2, "XRay Absorption Scan");
+
+	QWidget* temp3 = new QWidget();
+	temp3->setMinimumHeight(200);
+	stackWidget_->addItem(temp3, "Beamline Information");
+
+
+
+
 
 	// share the scan set model with the AMScanView
 	scanSetModel_ = scanView_->model();
@@ -29,6 +60,9 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 
 	ui_.scanListView->setItemDelegate(new AMDetailedItemDelegate(this));
 	ui_.scanListView->setAlternatingRowColors(true);
+	ui_.scanListView->setAttribute( Qt::WA_MacShowFocusRect, false);
+
+	connect(ui_.notesEdit, SIGNAL(textChanged()), this, SLOT(onNotesTextChanged()));
 
 	// watch for changes in the selected/deselected scans:
 	connect(ui_.scanListView->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(onCurrentChanged(QModelIndex,QModelIndex)));
@@ -37,6 +71,12 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 	setAcceptDrops(true);
 
 	currentScan_ = 0;
+
+
+	/// disable drops on text fields that we don't want to accept drops
+	ui_.scanName->setAcceptDrops(false);
+	ui_.notesEdit->setAcceptDrops(false);
+
 }
 
 
@@ -54,34 +94,64 @@ void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const
 	Q_UNUSED(deselected)
 
 	AMScan* newScan = scanSetModel_->scanAt(selected.row());
-	if(currentScan_)
+
+	// disconnect the old scan:
+	if(currentScan_) {
 		disconnect(currentScan_, SIGNAL(metaDataChanged(QString)), this, SLOT(onScanMetaDataChanged(QString)));
 
+		disconnect(ui_.scanName, 0, currentScan_, 0);
+		disconnect(ui_.scanNumber, 0, currentScan_, 0);
+		disconnect(this, SIGNAL(notesChanged(QString)), currentScan_, SLOT(setNotes(QString)));
+		disconnect(runSelector_, SIGNAL(currentRunIdChanged(int)), currentScan_, SLOT(setRunId(int)));
+	}
+
+	// it becomes now the new scan:
 	currentScan_ = newScan;
 
-	if(currentScan_)
+
+	// update all widgets to match
+	updateEditor(currentScan_);
+
+	if(currentScan_) {
 		connect(currentScan_, SIGNAL(metaDataChanged(QString)), this, SLOT(onScanMetaDataChanged(QString)));
 
-	updateEditor(currentScan_);
+		// make connections to widgets, so that widgets edit this scan:
+		connect(ui_.scanName, SIGNAL(textChanged(QString)), currentScan_, SLOT(setName(QString)));
+		connect(ui_.scanNumber, SIGNAL(valueChanged(int)), currentScan_, SLOT(setNumber(int)));
+		connect(this, SIGNAL(notesChanged(QString)), currentScan_, SLOT(setNotes(QString)));
+		connect(runSelector_, SIGNAL(currentRunIdChanged(int)), currentScan_, SLOT(setRunId(int)));
+	}
+
 }
 
 void AMGenericScanEditor::onScanMetaDataChanged(const QString &key) {
 
+	/// hmmm... should we change the editor values? What if the scan is altered elsewhere...
+	// what if they changed it first? But haven't saved yet?
 }
 
 void AMGenericScanEditor::updateEditor(AMScan *scan) {
-	if(!scan)
-		return;
+	if(scan) {
 
 	ui_.scanName->setText(scan->name());
-	ui_.scanNumber->setText(QString("%1").arg(scan->number()));
+	ui_.scanNumber->setValue(scan->number());
 	ui_.scanDate->setText( scan->dateTime().date().toString("MMM d (yyyy)") );
-	ui_.scanTime->setText( scan->dateTime().time().toString("hh:mm AP") );
+	ui_.scanTime->setText( scan->dateTime().time().toString("h:mmap") );
 	ui_.notesEdit->setPlainText( scan->notes() );
-	/// \todo change to run box selector
-	// ui_.scanRun->setText();
+	runSelector_->setCurrentRunId(scan->runId());
 
 	ui_.topFrameTitle->setText(QString("Editing %1 #%2").arg(scan->name()).arg(scan->number()));
+	}
+
+	else {
+		ui_.scanName->setText( QString() );
+		ui_.scanNumber->setValue(0);
+		ui_.scanDate->setText( QString() );
+		ui_.scanTime->setText( QString() );
+		ui_.notesEdit->clear();
+
+		ui_.topFrameTitle->setText("Scan Editor");
+	}
 }
 
 
@@ -90,8 +160,8 @@ void AMGenericScanEditor::dragEnterEvent(QDragEnterEvent *event) {
 	if(	event->possibleActions() & Qt::CopyAction
 		&& event->mimeData()->hasUrls()
 		&& event->mimeData()->urls().count() > 0
-		&& event->mimeData()->urls().at(0).scheme() == "amd"
-		) {
+				&& event->mimeData()->urls().at(0).scheme() == "amd"
+				) {
 		event->accept();
 		event->acceptProposedAction();
 	}
@@ -113,9 +183,9 @@ void AMGenericScanEditor::dragEnterEvent(QDragEnterEvent *event) {
 void AMGenericScanEditor::dropEvent(QDropEvent * event) {
 
 	if(	!(event->possibleActions() & Qt::CopyAction
-		&& event->mimeData()->hasUrls()
+		  && event->mimeData()->hasUrls()
 		&& event->mimeData()->urls().count() > 0
-		&& event->mimeData()->urls().at(0).scheme() == "amd")
+				&& event->mimeData()->urls().at(0).scheme() == "amd")
 		)
 		return;
 
@@ -153,7 +223,6 @@ void AMGenericScanEditor::dropEvent(QDropEvent * event) {
 			break;
 		}
 
-		// We
 
 		// success!
 		addScan(scan);
@@ -164,3 +233,4 @@ void AMGenericScanEditor::dropEvent(QDropEvent * event) {
 	if(accepted)
 		event->acceptProposedAction();
 }
+

@@ -108,7 +108,7 @@ void AMStatusView::onAnyError(AMErrorReport e) {
 		shortText_->setText(msg);
 
 	/// Log to detail window:
-//	detailText_->append(QString("\n\n%1: %2").arg(QDateTime::currentDateTime().toString("ddd hh:mmap")).arg(msg));
+//	detailText_->append(QString("\n\n%1: %2").arg(QDateTime::currentDateTime().toString("ddd h:mmap")).arg(msg));
 	popup_->append(msg, e.level);
 
 }

@@ -8,6 +8,9 @@
 #include "dataman/AMScan.h"
 #include "dataman/AMScanSetModel.h"
 #include "ui/AMScanView.h"
+#include "ui/AMVerticalStackWidget.h"
+#include "ui/AMRunSelector.h"
+#include "ui/AMSampleEditor.h"
 
 class AMGenericScanEditor : public QWidget
 {
@@ -23,6 +26,8 @@ public:
 	void addScan(AMScan* newScan) { /// \todo
 		scanSetModel_->addScan(newScan);
 		ui_.scanListView->setCurrentIndex(scanSetModel_->indexForScan(newScan));
+		if(scanSetModel_->exclusiveChannel().isEmpty() && newScan->numChannels() > 0)
+			scanSetModel_->setExclusiveChannel(newScan->channel(0)->name());
 	}
 
 
@@ -30,6 +35,8 @@ public:
 
 
 signals:
+	/// Internal signal to forward the textChanged() from ui_.notesEdit
+	void notesChanged(const QString&);
 
 public slots:
 
@@ -40,6 +47,10 @@ protected slots:
 	/// This slot responds to meta-data changes in the current scan
 	void onScanMetaDataChanged(const QString& key);
 
+	/// internal signal to forward the textChanged() signal from ui_.notesEdit
+	void onNotesTextChanged() {
+		emit notesChanged(ui_.notesEdit->toPlainText());
+	}
 
 
 protected:
@@ -53,8 +64,17 @@ protected:
 	/// UI object container
 	Ui::AMGenericScanEditor ui_;
 
+	/// stack-widget holder for right-column editors
+	AMVerticalStackWidget* stackWidget_;
+
+	/// Run selector
+	AMRunSelector* runSelector_;
+
 	/// Plot view capable of holding multiple scans.
 	AMScanView* scanView_;
+
+	/// Sample editor
+	AMSampleEditor* sampleEditor_;
 
 	/// Overloaded to enable drag-dropping scans (when Drag Action = Qt::CopyAction and mime-type = "text/uri-list" with the proper format.)
 	void dragEnterEvent(QDragEnterEvent *event);

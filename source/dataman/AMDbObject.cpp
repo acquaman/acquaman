@@ -48,6 +48,7 @@ QString AMDbThumbnail::typeString() const {
 AMDbObject::AMDbObject(QObject *parent) : QObject(parent) {
 	id_ = 0;
 	database_ = 0;
+	setModified(true);
 
 	metaData_["name"] = "Untitled";
 
@@ -79,7 +80,7 @@ bool AMDbObject::storeToDb(AMDatabase* db) {
 
 		// special action needed for StringList types: need to join into a single string, because we can't store a StringList natively in the DB.
 		if(md.type == QVariant::StringList) {
-			QVariant* slv = new QVariant(metaData_[md.key].toStringList().join(AMDatabaseDefinition::stringListSeparator()));
+			QVariant* slv = new QVariant(metaData_.value(md.key).toStringList().join(AMDatabaseDefinition::stringListSeparator()));
 			listValues << slv;
 			values << slv;
 		}
@@ -105,7 +106,7 @@ bool AMDbObject::storeToDb(AMDatabase* db) {
 			values << olv;
 		}
 		else if(md.type == QVariant::List) {
-			QVariant* slv = new QVariant(metaData_[md.key].toStringList().join(AMDatabaseDefinition::listSeparator()));
+			QVariant* slv = new QVariant(metaData_.value(md.key).toStringList().join(AMDatabaseDefinition::listSeparator()));
 			listValues << slv;
 			values << slv;
 		}
@@ -173,6 +174,7 @@ bool AMDbObject::storeToDb(AMDatabase* db) {
 	if(thumbnailCount() > 0)
 		db->update(id_, databaseTableName(), "thumbnailFirstId", firstThumbnailIndex);
 
+	setModified(false);
 	return true;
 
 }
@@ -209,12 +211,12 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 
 			// For lists that SHOULD be StringLists...
 			if(md.type == QVariant::StringList) {
-				metaData_[md.key] = metaData_[md.key].toString().split(AMDatabaseDefinition::stringListSeparator());
+				metaData_[md.key] = metaData_.value(md.key).toString().split(AMDatabaseDefinition::stringListSeparator());
 			}
 
 			// For lists that should be anything else (ints, doubles, etc.)
 			else if(md.type == (int)AM::IntList || md.type == (int)AM::DoubleList || md.type == QVariant::List) {
-				QStringList stringListForm = metaData_[md.key].toString().split(AMDatabaseDefinition::listSeparator());
+				QStringList stringListForm = metaData_.value(md.key).toString().split(AMDatabaseDefinition::listSeparator());
 				// Now we've got a stringList. Get that back into a list of integers
 				if(md.type == (int)AM::IntList) {
 					AMIntList il;
@@ -235,6 +237,7 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 			}
 		}
 
+		setModified(false);
 		foreach(QString key, keys)
 			emit metaDataChanged(key);
 		return true;

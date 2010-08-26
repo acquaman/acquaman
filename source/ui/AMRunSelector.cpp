@@ -29,7 +29,7 @@ AMRunSelector:: AMRunSelector(QWidget *parent)
 	box = 0;
 	connect(this, SIGNAL(activated(int)),this,SLOT(onComboBoxActivated(int)));
 
-	setMinimumContentsLength(30);
+	setMinimumContentsLength(4);
 
 	runUpdateScheduled_ = false;
 	connect(database_, SIGNAL(created(QString,int)), this, SLOT(onDatabaseUpdate(QString, int)));

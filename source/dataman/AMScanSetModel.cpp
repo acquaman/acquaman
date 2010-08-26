@@ -56,10 +56,15 @@ QVariant AMScanSetModel::data ( const QModelIndex & index, int role) const {
 		AMScan* scan = scans_.at(index.row());
 
 		switch(role) {
-		case Qt::DisplayRole:
-			return scan->name();
+		case Qt::DisplayRole: {
+				QString rv = scan->name().append(QString(" #%1").arg(scan->number()));
+				if(scan->modified())
+					rv.append( " (modified)");
+				return rv;
+			}
 			break;
 		case Qt::DecorationRole:
+			/// \bug this is temporary and meaningless
 			if(scan->numChannels() > 0)
 				return chMetaData_.at(index.row()).at(0).color;
 			else
@@ -69,13 +74,15 @@ QVariant AMScanSetModel::data ( const QModelIndex & index, int role) const {
 			return QString("%1 (%2): %3").arg(scan->name()).arg(scan->sampleName()).arg(scan->dateTime().toString());
 			break;
 		case AM::DescriptionRole:
-			return QString("started %1, on %2").arg(scan->dateTime().toString("hh:mmap, MMM dd (yyyy)")).arg(scan->sampleName());
+			return QString("started %1, on %2").arg(scan->dateTime().toString("h:mmap, MMM dd (yyyy)")).arg(scan->sampleName());
 		case Qt::CheckStateRole:
 			return QVariant();	/// \todo For now... No checking/unchecking scans.
 			break;
 		case AM::PointerRole:
 			return qVariantFromValue(scan);
 			break;
+		case AM::ModifiedRole:
+			return scan->modified();
 		default:
 			return QVariant();
 			break;
@@ -183,6 +190,7 @@ void AMScanSetModel::addScan(AMScan* newScan) {
 	scans_.append(newScan);
 	scanChannelLists_.append(newScan->channelList());
 	connect(newScan, SIGNAL(metaDataChanged(QString)), this, SLOT(onMetaDataChanged(QString)));
+	connect(newScan, SIGNAL(modifiedChanged(bool)), this, SLOT(onScanModifiedChanged(bool)));
 
 	QList<AMScanSetModelChannelMetaData> chs;
 	for(int i=0; i<newScan->numChannels(); i++)
@@ -206,6 +214,7 @@ bool AMScanSetModel::removeScan(AMScan* removeMe) {
 
 	if(index != -1) {
 		disconnect(removeMe, SIGNAL(metaDataChanged(QString)), this, SLOT(onMetaDataChanged(QString)));
+		disconnect(removeMe, SIGNAL(modifiedChanged(bool)), this, SLOT(onScanModifiedChanged(bool)));
 		emit layoutAboutToBeChanged();
 		beginRemoveRows(QModelIndex(), index, index);
 		scans_.removeAt(index);
@@ -337,9 +346,19 @@ void AMScanSetModel::onMetaDataChanged(const QString& key) {
 	if(!scan)
 		return;
 
-	if(key=="name" || key=="sampleName" || key=="dateTime") {
+	if(key=="name" || key=="sampleName" || key=="dateTime" || key == "number") {
 		QModelIndex i = indexForScan(indexOf(scan));
 		if(i.isValid())
 			emit dataChanged(i, i);
 	}
+}
+
+void AMScanSetModel::onScanModifiedChanged(bool isModified) {
+	AMScan* scan = qobject_cast<AMScan*>(sender());
+	if(!scan)
+		return;
+
+	QModelIndex i = indexForScan(indexOf(scan));
+	if(i.isValid())
+		emit dataChanged(i, i);
 }
