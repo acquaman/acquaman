@@ -68,7 +68,7 @@ public slots:
 signals:
 
 protected slots:
-	void addNewSampleToPlate();
+	void addNewSampleToPlate(int id);
 	void onSamplePositionChanged(int index);
 	void onSamplePositionAdded(int index);
 	void onSamplePositionRemoved(int index);
@@ -106,6 +106,8 @@ protected slots:
 	bool onSampleBoxIndexChanged(int index);
 	bool onSampleNameChanged();
 
+	void onSampleTableRowAdded(const QModelIndex & parent, int start, int end);
+
 	void updateLook();
 	void onSamplePositionUpdate(int index);
 	void defocusItem();
@@ -119,6 +121,7 @@ protected:
 	AMControlSet *manipulator_;
 	QStandardItemModel *sampleTableModel_;
 	bool iChangeIndex_;
+	bool ignoreIndexChanged_;
 	bool ignoreNameChanged_;
 	int index_;
 	bool inFocus_;
@@ -136,7 +139,10 @@ class AMSamplePositionItemExpandingAdder : public QFrame
 {
 Q_OBJECT
 public:
-	AMSamplePositionItemExpandingAdder(QWidget *parent = 0);
+	AMSamplePositionItemExpandingAdder(QStandardItemModel *sampleTableModel, QWidget *parent = 0);
+
+signals:
+	void sampleToAddChosen(int id);
 
 protected slots:
 	void onMarkNewButtonClicked();
@@ -146,6 +152,8 @@ protected slots:
 	void shrinkBack();
 
 protected:
+	QStandardItemModel *sampleTableModel_;
+
 	QPushButton *markNewButton_;
 	QLineEdit *newNameEdit_;
 	QComboBox *chooseExistingBox_;

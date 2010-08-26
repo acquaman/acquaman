@@ -83,7 +83,7 @@ void AMSamplePlateView::onSampleTableItemUpdated(QString tableName, int id){
 	sampleRefreshInstructions_.append(0); //Instruction 0 is update
 	if(!sampleRefreshScheduled_){
 		sampleRefreshScheduled_ = true;
-		qDebug() << "FIRED OFF!";
+		qDebug() << "AMSamplePlateView::onSampleTableItemUpdated : Requests a refresh for id " << id;
 		QTimer::singleShot(0, this, SLOT(refreshSamples()));
 	}
 }
@@ -91,6 +91,7 @@ void AMSamplePlateView::onSampleTableItemUpdated(QString tableName, int id){
 void AMSamplePlateView::onSampleTableItemCreated(QString tableName, int id){
 	if(tableName != AMDatabaseDefinition::sampleTableName())
 		return;
+	qDebug() << "AMSamplePlateView::onSampleTableItemCreated detected item created, will add to top of list";
 	QVariant vSampleName, vSampleDateTime;
 	QList<QVariant*> sampleValues;
 	sampleValues << &vSampleName << &vSampleDateTime;
@@ -103,10 +104,13 @@ void AMSamplePlateView::onSampleTableItemCreated(QString tableName, int id){
 	QStandardItem *tmpItem = new QStandardItem(sampleValues.at(0)->toString());
 	tmpItem->setData(id, AM::IdRole);
 	tmpItem->setData(sampleValues.at(1)->toDateTime(), AM::DateTimeRole);
-	sampleTableModel_->setItem(sampleTableModel_->rowCount(), 0, tmpItem);
+//	sampleTableModel_->setItem(sampleTableModel_->rowCount(), 0, tmpItem);
+	sampleTableModel_->insertRow(0);
+	sampleTableModel_->setItem(0, 0, tmpItem);
 	QString tmpStr;
 	tmpItem = new QStandardItem(tmpStr.setNum(id));
-	sampleTableModel_->setItem(sampleTableModel_->rowCount()-1, 1, tmpItem);
+//	sampleTableModel_->setItem(sampleTableModel_->rowCount()-1, 1, tmpItem);
+	sampleTableModel_->setItem(0, 1, tmpItem);
 	qDebug() << "Detected sample added as id " << id << sampleValues.at(0)->toString() << sampleValues.at(1)->toDateTime();
 }
 
@@ -117,7 +121,6 @@ void AMSamplePlateView::onSampleTableItemRemoved(QString tableName, int id){
 }
 
 void AMSamplePlateView::refreshSamples(){
-	/*
 	QString idsToSearch;
 	QString tmpStr, name;
 	int id;
@@ -129,7 +132,8 @@ void AMSamplePlateView::refreshSamples(){
 		++i;
 	}
 	idsToSearch.remove(idsToSearch.count()-1, 1);
-	qDebug() << "ids to search " << idsToSearch;
+	qDebug() << "****IDs TO SEARCH IN REFRESH*** " << idsToSearch;
+	/*
 	QSqlQuery q = AMDatabase::userdb()->query();
 	q.prepare(QString("SELECT id,name,dateTime FROM %1 WHERE id IN (%2)").arg(AMDatabaseDefinition::sampleTableName()).arg(idsToSearch)) ;
 	if(!q.exec())
@@ -182,15 +186,16 @@ AMSampleListView::AMSampleListView(AMSamplePlate *samplePlate, QStandardItemMode
 
 	//adder_ = new QPushButton(QIcon(":/add.png"), "Mark a New Sample Position ...");
 	//connect(adder_, SIGNAL(clicked()), this, SLOT(addNewSampleToPlate()));
-	adder_ = new AMSamplePositionItemExpandingAdder();
+	adder_ = new AMSamplePositionItemExpandingAdder(sampleTableModel_);
 	adder_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+	connect(adder_, SIGNAL(sampleToAddChosen(int)), this, SLOT(addNewSampleToPlate(int)));
 	il_->addWidget(adder_);
 }
 
-void AMSampleListView::addNewSampleToPlate(){
+void AMSampleListView::addNewSampleToPlate(int id){ //HEY DAVE, OPTIONALLY TAKE AN AMSAMPLE POINTER? IF YOU JUST MADE IT WHY RETRIEVE IT?
 	if(!manipulator_)
 		return;
-
+/*
 	QSqlQuery q = AMDatabase::userdb()->query();
 	q.prepare(QString("SELECT name FROM %1 WHERE name LIKE 'Sample %'").arg(AMDatabaseDefinition::sampleTableName()));
 	q.exec();
@@ -204,12 +209,15 @@ void AMSampleListView::addNewSampleToPlate(){
 			max = index;
 	}
 
+
 	QString tmpStr;
 	tmpStr.setNum(max+1);
 	AMSample *tmpSample = new AMSample("Sample "+tmpStr, this);
 	tmpSample->storeToDb(AMDatabase::userdb());
-	AMControlSetInfo *tmpPosition = NULL;
-	tmpPosition = new AMControlSetInfo(manipulator_->info(), this);
+*/
+	AMSample *tmpSample = new AMSample("", this);
+	tmpSample->loadFromDb(AMDatabase::userdb(), id);
+	AMControlSetInfo *tmpPosition = new AMControlSetInfo(manipulator_->info(), this);
 	tmpPosition->storeToDb(AMDatabase::userdb());
 	samplePlate_->appendSamplePosition(tmpSample, tmpPosition);
 	samplePlate_->storeToDb(AMDatabase::userdb());
@@ -231,7 +239,8 @@ void AMSampleListView::setManipulator(AMControlSet *manipulator){
 }
 
 void AMSampleListView::onSamplePositionChanged(int index){
-	qDebug() << "Claims change at " << index;
+	qDebug() << "AMSampleListView::onSamplePositionChanged : Claims " << index << " changed sample or position";
+	samplePlate_->storeToDb(AMDatabase::userdb());
 
 }
 
@@ -268,11 +277,13 @@ AMSamplePositionItemView::AMSamplePositionItemView(AMSamplePosition *samplePosit
 	index_ = index;
 	inFocus_ = false;
 	iChangeIndex_ = false;
+	ignoreIndexChanged_ = false;
 	ignoreNameChanged_ = false;
 	setFocusPolicy(Qt::StrongFocus);
 	samplePosition_ = samplePosition;
 	manipulator_ = manipulator;
 	sampleTableModel_ = sampleTableModel;
+	connect(sampleTableModel, SIGNAL(rowsInserted(QModelIndex, int, int)), this, SLOT(onSampleTableRowAdded(QModelIndex,int,int)));
 
 	vl_ = NULL;
 	hl_ = NULL;
@@ -322,13 +333,19 @@ bool AMSamplePositionItemView::onRecallPositionClicked(){
 }
 
 bool AMSamplePositionItemView::onSampleBoxIndexChanged(int index){
+	if(ignoreIndexChanged_){
+		ignoreIndexChanged_ = false;
+		qDebug() << "Detected ignore for model row add, done ignoring now";
+		return false;
+	}
+	qDebug() << "AMSamplePositionItemView::onSampleBoxIndexChanged : Thinks sample box index changed, I'm not sure";
 	ignoreNameChanged_ = true;
 	if(iChangeIndex_){
 		iChangeIndex_ = false;
 		return false;
 	}
 	int newId = sampleTableModel_->item(index, 0)->data(AM::IdRole).toInt();
-	qDebug() << "Sample index changed to " << index;
+	qDebug() << "AMSamplePositionItemView::onSampleBoxIndexChanged :  Sample index ACTUALLY changed to " << index;
 	return samplePosition_->sample()->loadFromDb(AMDatabase::userdb(), newId);
 }
 
@@ -337,12 +354,17 @@ bool AMSamplePositionItemView::onSampleNameChanged(){
 		ignoreNameChanged_ = false;
 		return false;
 	}
-	qDebug() << "Sample name changed";
+	qDebug() << "AMSamplePositionItemView::onSampleNameChanged : Sample name changed, but I'm not sure";
 	if(sampleBox_->currentText() == samplePosition_->sample()->name())
 		return false;
-	qDebug() << "Sample name ACTUALLY changed";
+	qDebug() << "AMSamplePositionItemView::onSampleNameChanged : Sample name ACTUALLY changed";
 	samplePosition_->sample()->setName(sampleBox_->currentText());
 	return samplePosition_->sample()->storeToDb(AMDatabase::userdb());
+}
+
+void AMSamplePositionItemView::onSampleTableRowAdded(const QModelIndex &parent, int start, int end){
+	qDebug() << "AMSamplePositionItemView::onSampleTableRowAdded : Done inserting rows, start ignoring index changed";
+	ignoreIndexChanged_ = true;
 }
 
 void AMSamplePositionItemView::updateLook(){
@@ -443,16 +465,20 @@ void AMSamplePositionItemView::mousePressEvent(QMouseEvent *event){
 	}
 }
 
-AMSamplePositionItemExpandingAdder::AMSamplePositionItemExpandingAdder(QWidget *parent) :
+AMSamplePositionItemExpandingAdder::AMSamplePositionItemExpandingAdder(QStandardItemModel *sampleTableModel, QWidget *parent) :
 		QFrame(parent)
 {
+	sampleTableModel_ = sampleTableModel;
+
 	setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 	markNewButton_ = new QPushButton(QIcon(":/add.png"), "Mark a New Sample Position ...");
 	markNewButton_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 	newNameEdit_ = new QLineEdit();
 	newNameEdit_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+	setFocusProxy(newNameEdit_);
 	chooseExistingBox_ = new QComboBox();
 	chooseExistingBox_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+	chooseExistingBox_->setModel(sampleTableModel_);
 	goNewButton_ = new QPushButton(QIcon(":/add.png"), "Add");
 	goNewButton_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 	goExistingButton_ = new QPushButton(QIcon(":/add.png"), "Add");
@@ -471,6 +497,24 @@ AMSamplePositionItemExpandingAdder::AMSamplePositionItemExpandingAdder(QWidget *
 }
 
 void AMSamplePositionItemExpandingAdder::onMarkNewButtonClicked(){
+
+	//HEY DAVE, MAYBE CAN WATCH DB SIGNALS SO ONLY QUERY WHEN CHANGES MADE NOT BY YOU
+	QSqlQuery q = AMDatabase::userdb()->query();
+	q.prepare(QString("SELECT name FROM %1 WHERE name LIKE 'Sample %'").arg(AMDatabaseDefinition::sampleTableName()));
+	q.exec();
+	int index;
+	int max = 0;
+	bool convOK;
+	while(q.next()) {
+		index = q.value(0).toString().remove("Sample ").toInt(&convOK);
+		if(convOK && (index > max) )
+			max = index;
+	}
+	QString tmpStr;
+	tmpStr.setNum(max+1);
+	newNameEdit_->setText("Sample "+tmpStr);
+	chooseExistingBox_->setCurrentIndex(0);
+
 	gl_->removeWidget(markNewButton_);
 	markNewButton_->hide();
 	gl_->addWidget(newNameEdit_, 0, 0, 1, 1, Qt::AlignLeft);
@@ -484,14 +528,20 @@ void AMSamplePositionItemExpandingAdder::onMarkNewButtonClicked(){
 	goNewButton_->show();
 	goExistingButton_->show();
 	setFrameStyle(QFrame::StyledPanel);
+	newNameEdit_->selectAll();
+	newNameEdit_->setFocus();
 }
 
 void AMSamplePositionItemExpandingAdder::onGoNewButtonClicked(){
+	AMSample *tmpSample = new AMSample(newNameEdit_->text(), this);
+	tmpSample->storeToDb(AMDatabase::userdb());
 	shrinkBack();
+	emit sampleToAddChosen(tmpSample->id());
 }
 
 void AMSamplePositionItemExpandingAdder::onGoExistingButtonClicked(){
 	shrinkBack();
+	emit sampleToAddChosen(sampleTableModel_->data(sampleTableModel_->index(chooseExistingBox_->currentIndex(), 0), AM::IdRole).toInt());
 }
 
 void AMSamplePositionItemExpandingAdder::shrinkBack(){
