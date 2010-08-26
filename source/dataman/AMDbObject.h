@@ -89,7 +89,7 @@ public:
 	int id() const { return id_; }
 
 	/// Returns user given name
-	QString name() const { return metaData_["name"].toString();}
+	QString name() const { return metaData_.value("name").toString();}
 
 	// Meta-data system
 	/////////////////////////////////////////////
@@ -122,8 +122,9 @@ public:
 	/// set a meta data value:
 	virtual bool setMetaData(const QString& key, const QVariant& value) {
 		/// \bug need to implement writeability checking
-		if(metaData_.contains(key)) {
+		if(metaData_.contains(key) && metaData_.value(key) != value) {
 			metaData_[key] = value;
+			setModified(true);
 			emit metaDataChanged(key);
 			return true;
 		}
@@ -167,6 +168,9 @@ public:
 	  */
 	virtual bool storeToDb(AMDatabase* db);
 
+	/// Returns truen when this in-memory object has been modified from the version in the database (or when there is no version in the database)
+	bool modified() const { return modified_; }
+
 
 	// Thumbnail system:
 	/////////////////////////////////
@@ -186,8 +190,11 @@ public:
 
 
 signals:
+	/// Emitted whenever a meta-data item is changed. \c key is the name of the meta-data.
 	void metaDataChanged(const QString& key);
 	void loadedFromDb();
+	/// Emitted when the modified() state changes. Indicates that this object is in-sync or out-of-sync with the database version.
+	void modifiedChanged(bool isModified);
 
 public slots:
 	/// Sets user given name
@@ -198,6 +205,12 @@ public slots:
 protected:
 	QHash<QString, QVariant> metaData_;
 
+	/// Use to set or un-set the modified flag.  Handles emission of the modifiedChanged() signal when required.
+	void setModified(bool isModified) {
+		if(isModified != modified_)
+			emit modifiedChanged(modified_ = isModified);
+		modified_ = isModified;
+	}
 
 
 private:
@@ -206,6 +219,9 @@ private:
 
 	/// pointer to the database where this object came from/should be stored. (If known)
 	AMDatabase* database_;
+
+	/// The modified flag is true whenever the scan's meta-data does not match what is stored in the database.  It is set automatically inside setMetaData(). If you modify the metadata outside of this system, be sure to change it yourself.
+	bool modified_;
 
 };
 

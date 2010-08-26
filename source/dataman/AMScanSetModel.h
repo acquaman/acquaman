@@ -5,6 +5,7 @@
 #include "dataman/AMChannel.h"
 #include "dataman/AMScan.h"
 #include <QAbstractItemModel>
+#include "acquaman.h"
 
 #include <QPen>
 #include <QColor>
@@ -61,11 +62,11 @@ public:
 
 	Qt::CheckStateRole: Qt::CheckState	- whether visible or not. (Qt::Checked or Qt::Unchecked)
 
-	Qt::UserRole or AMScanSetModel::PointerRole: AMScan* or AMChannel*	- the pointer to the object
+	AM::PointerRole: AMScan* or AMChannel*	- the pointer to the object
 
-	AMScanSetModel::PriorityRole: double- used for ordering (lowest to highest).
+	AM::PriorityRole: double- used for ordering (lowest to highest).
 
-	AMScanSetModel::LinePenRole: QPen	- pen used for drawing in scans
+	AM::LinePenRole: QPen	- pen used for drawing in scans
 
 
 	\note While while the Qt standard model API supports inserting/removing multiple rows at once, the AMScanSetModel guarantees that only <i>one</i> row (ie: Scan or Channel) will be inserted/removed/modified at a time.  For all the rowsInserted(), rowsRemoved(), and dataChanged() signals, it's safe to assume that \c start and \c end are the same, as well as \c topLeft and \c bottomRight.
@@ -78,8 +79,6 @@ public:
 class AMScanSetModel : public QAbstractItemModel {
 	Q_OBJECT
 public:
-	enum ItemDataRoles { PointerRole = Qt::UserRole, PriorityRole, LinePenRole };
-
 
 	/// Default constructor
 	AMScanSetModel(QObject* parent = 0) : QAbstractItemModel(parent) {}
@@ -128,10 +127,18 @@ public:
 	QModelIndex indexForScan(int scanIndex) const {
 		return index(scanIndex, 0, QModelIndex());
 	}
+	/// get a model index suitable for accessing a scan element:
+	QModelIndex indexForScan(AMScan* scan) const {
+		return index(indexOf(scan), 0, QModelIndex());
+	}
 
 	/// get a model index suitable for accessing a channel element:
 	QModelIndex indexForChannel(int scanIndex, int channelIndex) {
 		return index(channelIndex, 0, indexForScan(scanIndex));
+	}
+	/// get a model index suitable for accessing a channel element:
+	QModelIndex indexForChannel(AMScan* scan, AMChannel* channel) {
+		return index(indexOf(channel, scan), 0, indexForScan(scan));
 	}
 
 	/// shortcut for accessing a chanel:
@@ -183,7 +190,7 @@ public:
 
 	// Resizable Interface:
 
-	/// Add a scan to this model.  The AMScan must exist elsewhere, for the lifetime that it is added to the model.  Model does not take ownership of the scan.
+	/// Add a scan to this model.  The AMScan must exist elsewhere, for the lifetime that it is added to the model.  The model does not take ownership of the scan.
 	void addScan(AMScan* newScan);
 
 	/// removes an AMScan from this model. Does not delete the scan.  Call this before deleting a scan that has been added to the model.
@@ -221,6 +228,8 @@ protected slots:
 
 	/// This slot catches signals from scans that change their meta-data, and emits dataChanged() as needed.
 	void onMetaDataChanged(const QString& key);
+	/// This slot catches changes in the modified() flag for scans, which must cause a dataChanged() to update the display text.
+	void onScanModifiedChanged(bool isModified);
 
 protected:
 	QList<AMScan*> scans_;

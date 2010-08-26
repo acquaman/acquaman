@@ -151,7 +151,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/muParser/muParserToken.h \
 	source/muParser/muParserTokenReader.h \
 	source/ui/AbsorptionScanController.h \
-	source/ui/AMComboBox.h \
+	source/ui/AMRunSelector.h \
 	source/ui/AMControlSetView.h \
 	source/ui/AMCramBarHorizontal.h \
 	source/ui/AMDataView.h \
@@ -196,7 +196,9 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMSamplePlateView.h \
 	source/dataman/AMControlSetInfo.h \
 	source/dataman/AMSamplePlate.h \
-	source/ui/AMGenericScanEditor.h
+	source/ui/AMGenericScanEditor.h \
+	source/ui/AMDetailedItemDelegate.h \
+	source/ui/AMVerticalStackWidget.h
 FORMS += source/ui/AbsorptionScanController.ui \
 	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
@@ -294,7 +296,7 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/muParser/muParserCallback.cpp \
 	source/muParser/muParserError.cpp \
 	source/muParser/muParserTokenReader.cpp \
-	source/ui/AMComboBox.cpp \
+	source/ui/AMRunSelector.cpp \
 	source/ui/AMControlSetView.cpp \
 	source/ui/AMCramBarHorizontal.cpp \
 	source/ui/AMDataView.cpp \
@@ -329,7 +331,9 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
 	source/dataman/AMControlSetInfo.cpp \
 	source/dataman/AMSamplePlate.cpp \
 	source/ui/AMGenericScanEditor.cpp \
-	source/dataman/AMDbLoader.cpp
+	source/dataman/AMDbLoader.cpp \
+	source/ui/AMDetailedItemDelegate.cpp \
+	source/ui/AMVerticalStackWidget.cpp
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc
 OTHER_FILES += source/muParser/README.txt

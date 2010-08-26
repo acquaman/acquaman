@@ -19,6 +19,7 @@
 #include "dataman/AMSamplePlate.h"
 #include "beamline/SGMBeamline.h"
 #include "dataman/AMDatabase.h"
+#include "AMDetailedItemDelegate.h"
 
 class AMSampleListView;
 class AMSamplePositionItemView;
@@ -138,6 +139,8 @@ protected:
 	QPushButton *recallPositionButton_;
 };
 
+class AMTrickComboBox;
+
 class AMSamplePositionItemExpandingAdder : public QFrame
 {
 Q_OBJECT
@@ -153,7 +156,7 @@ protected slots:
 	void onGoExistingButtonClicked();
 
 	void shrinkBack();
-	void switchBoxes(int index);
+	void switchBoxes();
 
 protected:
 	QStandardItemModel *sampleTableModel_;
@@ -162,12 +165,26 @@ protected:
 	QLineEdit *newNameEdit_;
 	QLabel *newNameLabel_;
 	QComboBox *chooseExistingBox_;
-	QComboBox *emptyChooseExistingBox_;
+	//QComboBox *emptyChooseExistingBox_;
+	AMTrickComboBox *emptyChooseExistingBox_;
 	QPushButton *goNewButton_;
 	QPushButton *goExistingButton_;
 	QPushButton *cancelButton_;
 
 	QGridLayout *gl_;
+};
+
+class AMTrickComboBox : public QComboBox
+{
+Q_OBJECT
+public:
+	AMTrickComboBox(QWidget *parent = 0);
+
+signals:
+	void clicked();
+
+protected:
+	void mousePressEvent(QMouseEvent *e);
 };
 
 #endif // AMSAMPLEPLATEVIEW_H

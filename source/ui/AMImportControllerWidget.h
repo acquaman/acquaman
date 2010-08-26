@@ -4,7 +4,7 @@
 #include <QWidget>
 #include "ui_AMImportControllerWidget.h"
 #include "ui/AMThumbnailScrollViewer.h"
-#include "ui/AMComboBox.h"
+#include "ui/AMRunSelector.h"
 
 class AMImportControllerWidget : public QWidget, public Ui::AMImportControllerWidget {
 public:
@@ -13,13 +13,13 @@ public:
 		thumbnailViewer = new AMThumbnailScrollWidget();
 		verticalLayoutLeft->insertWidget(0, thumbnailViewer);
 
-		runEdit = new AMComboBox();
+		runEdit = new AMRunSelector();
 		gridLayout->addWidget(runEdit, 3, 2);
 	}
 
 	// UI elements (public within this widget class)
 	AMThumbnailScrollWidget* thumbnailViewer;
-	AMComboBox* runEdit;
+	AMRunSelector* runEdit;
 };
 
 #endif // AMIMPORTCONTROLLERWIDGET_H

@@ -123,39 +123,90 @@ public:
 	void setSource(AMDbObject* source) {
 		sourceIsDb_ = false;
 		sourceObject_ = source;
+
+
 		tIndex_ = 0;
-		if(sourceObject_)
+		if(sourceObject_) {
+			objectId_ = sourceObject_->id();
+			tableName_ = sourceObject_->databaseTableName();
 			displayThumbnail(sourceObject_->thumbnail(tIndex_));
-		else
+		}
+		else {
+			objectId_ = -1;
+			tableName_.clear();
 			displayThumbnail(AMDbThumbnail());
+		}
 	}
 
 	/// Display thumbnails directly out of a database (from the thumbnail table, with id's given in \c ids)
 	void setSource(AMDatabase* db, QList<int> ids) {
 		sourceIsDb_ = true;
 		sourceDb_ = db;
+
+		// We don't know this...
+		objectId_ = -1;
+		tableName_.clear();
+
 		ids_ = ids;
 		tIndex_ = 0;
-		displayThumbnail(sourceDb_, tIndex_);
+		if(ids_.count() > 0)
+			displayThumbnail(sourceDb_, ids_.at(tIndex_));
+		else
+			displayThumbnail(0,0);
 	}
 
 	/// Display \c count thumbnails directly out of a database (from the thumbnail table, with sequential id's starting at \c startId)
 	void setSource(AMDatabase* db, int startId, int count) {
 		sourceIsDb_ = true;
 		sourceDb_ = db;
+
+		// We don't know this...
+		objectId_ = -1;
+		tableName_.clear();
+
 		ids_.clear();
 		for(int i=startId; i<startId+count; i++)
 			ids_ << i;
 		tIndex_ = 0;
-		displayThumbnail(sourceDb_, ids_.at(tIndex_));
+		if(ids_.count() > 0)
+			displayThumbnail(sourceDb_, ids_.at(tIndex_));
+		else
+			displayThumbnail(0,0);
+
 	}
 
+	/// Display thumbnails for the object with this \c objectId out of the \c tableName table. For performance, if you know the answers already, you can specify the \c thumbnailStartId and \c count of the thumbnails in the thumbnail table. Otherwise, this information will be retrieved from the Database. This is the preferred usage of setSource(), since it remembers the source object's real location, while avoiding any unnecessary database lookups.
+	void setSource(AMDatabase* db, const QString& tableName, int objectId, int thumbnailStartId = -1, int count = -1) {
+
+		// need to retrieve this from the db:
+		if(thumbnailStartId == -1 || count == -1) {
+
+			thumbnailStartId = 0; count = 0;
+
+			if(db) {
+				QSqlQuery q = db->query();
+				q.prepare(QString("SELECT thumbnailFirstId,thumbnailCount FROM %1 WHERE id = ?").arg(tableName));
+				q.bindValue(0,objectId);
+				if(q.exec() && q.first()) {
+					thumbnailStartId = q.value(0).toInt();
+					count = q.value(1).toInt();
+				}
+			}
+		}
+
+		setSource(db, thumbnailStartId, count);
+		tableName_ = tableName;
+		objectId_ = objectId;
+	}
+
+	/// Use this to set the size hint that the thumbnail requests within layouts. You can use this to dynamically resize
 	void setWidth(double width) {
 
 		preferredWidth_ = width;
 		updateGeometry();
 	}
 
+	/// Re-implemented from QGraphicsLayoutItem to respond to size instructions from the layout
 	void setGeometry(const QRectF &rect) {
 		prepareGeometryChange();
 		setPos(rect.left(), rect.top());
@@ -200,6 +251,11 @@ protected:
 	AMDbObject* sourceObject_;
 	/// When sourceIsDb_ = true, this is the set of rows in the thumbnail table to use.
 	QList<int> ids_;
+	/// If we know it, this is the name of the table holding the actual object
+	QString tableName_;
+	/// If we know it, this is the id of the source object (in tableName_) -- NOT the id of a thumbnail in the thumbnail table
+	int objectId_;
+
 
 	/// Change the view to display this thumbnail object
 	void displayThumbnail(AMDbThumbnail t);

@@ -648,7 +648,7 @@ void AMScanViewExclusiveView::addScan(int scanIndex) {
 		MPlotSeriesBasic* series = new MPlotSeriesBasic(channel);
 
 		series->setMarker(MPlotMarkerShape::None);
-		QPen pen = model()->data(model()->indexForChannel(scanIndex, channelIndex), AMScanSetModel::LinePenRole).value<QPen>();
+		QPen pen = model()->data(model()->indexForChannel(scanIndex, channelIndex), AM::LinePenRole).value<QPen>();
 		pen.setColor(model()->data(model()->indexForChannel(scanIndex, channelIndex), Qt::DecorationRole).value<QColor>());
 		series->setLinePen(pen);
 
@@ -678,7 +678,7 @@ void AMScanViewExclusiveView::reviewScan(int scanIndex) {
 
 		plotSeries_.at(scanIndex)->setModel(channel);
 
-		QPen pen = model()->data(model()->indexForChannel(scanIndex, channelIndex), AMScanSetModel::LinePenRole).value<QPen>();
+		QPen pen = model()->data(model()->indexForChannel(scanIndex, channelIndex), AM::LinePenRole).value<QPen>();
 		pen.setColor(model()->data(model()->indexForChannel(scanIndex, channelIndex), Qt::DecorationRole).value<QColor>());
 		plotSeries_.at(scanIndex)->setLinePen(pen);
 	}
@@ -730,7 +730,7 @@ void AMScanViewMultiView::addScan(int si) {
 			MPlotSeriesBasic* series = new MPlotSeriesBasic(ch);
 
 			series->setMarker(MPlotMarkerShape::None);
-			QPen pen = model()->data(model()->indexForChannel(si, ci), AMScanSetModel::LinePenRole).value<QPen>();
+			QPen pen = model()->data(model()->indexForChannel(si, ci), AM::LinePenRole).value<QPen>();
 			pen.setColor(model()->data(model()->indexForChannel(si, ci), Qt::DecorationRole).value<QColor>());
 			series->setLinePen(pen);
 
@@ -778,7 +778,7 @@ void AMScanViewMultiView::onRowInserted(const QModelIndex& parent, int start, in
 				MPlotSeriesBasic* series = new MPlotSeriesBasic(ch);
 
 				series->setMarker(MPlotMarkerShape::None);
-				QPen pen = model()->data(model()->indexForChannel(si, ci), AMScanSetModel::LinePenRole).value<QPen>();
+				QPen pen = model()->data(model()->indexForChannel(si, ci), AM::LinePenRole).value<QPen>();
 				pen.setColor(model()->data(model()->indexForChannel(si, ci), Qt::DecorationRole).value<QColor>());
 				series->setLinePen(pen);
 
@@ -861,7 +861,7 @@ void AMScanViewMultiView::onModelDataChanged(const QModelIndex& topLeft, const Q
 
 			// finally, apply color and linestyle changes, if visible:
 			if(visible) {
-				QPen pen = model()->data(model()->indexForChannel(si, ci), AMScanSetModel::LinePenRole).value<QPen>();
+				QPen pen = model()->data(model()->indexForChannel(si, ci), AM::LinePenRole).value<QPen>();
 				pen.setColor(model()->data(model()->indexForChannel(si, ci), Qt::DecorationRole).value<QColor>());
 				series->setLinePen(pen);
 			}
@@ -933,7 +933,7 @@ void AMScanViewMultiScansView::addScan(int si) {
 			MPlotSeriesBasic* series = new MPlotSeriesBasic(ch);
 
 			series->setMarker(MPlotMarkerShape::None);
-			QPen pen = model()->data(model()->indexForChannel(si, ci), AMScanSetModel::LinePenRole).value<QPen>();
+			QPen pen = model()->data(model()->indexForChannel(si, ci), AM::LinePenRole).value<QPen>();
 			pen.setColor(model()->data(model()->indexForChannel(si, ci), Qt::DecorationRole).value<QColor>());
 			series->setLinePen(pen);
 
@@ -987,7 +987,7 @@ void AMScanViewMultiScansView::onRowInserted(const QModelIndex& parent, int star
 				MPlotSeriesBasic* series = new MPlotSeriesBasic(ch);
 
 				series->setMarker(MPlotMarkerShape::None);
-				QPen pen = model()->data(model()->indexForChannel(si, ci), AMScanSetModel::LinePenRole).value<QPen>();
+				QPen pen = model()->data(model()->indexForChannel(si, ci), AM::LinePenRole).value<QPen>();
 				pen.setColor(model()->data(model()->indexForChannel(si, ci), Qt::DecorationRole).value<QColor>());
 				series->setLinePen(pen);
 
@@ -1078,7 +1078,7 @@ void AMScanViewMultiScansView::onModelDataChanged(const QModelIndex& topLeft, co
 
 			// finally, apply color and linestyle changes, if visible:
 			if(visible) {
-				QPen pen = model()->data(model()->indexForChannel(si, ci), AMScanSetModel::LinePenRole).value<QPen>();
+				QPen pen = model()->data(model()->indexForChannel(si, ci), AM::LinePenRole).value<QPen>();
 				pen.setColor(model()->data(model()->indexForChannel(si, ci), Qt::DecorationRole).value<QColor>());
 				series->setLinePen(pen);
 			}
@@ -1239,7 +1239,7 @@ void AMScanViewMultiChannelsView::onModelDataChanged(const QModelIndex& topLeft,
 
 			if(channel2Plot_.contains(channelName) && channelAndScan2Series_[channelName].contains(scan)) {
 				MPlotSeriesBasic* series = channelAndScan2Series_[channelName][scan];
-				QPen pen = model()->data(model()->indexForChannel(si, ci), AMScanSetModel::LinePenRole).value<QPen>();
+				QPen pen = model()->data(model()->indexForChannel(si, ci), AM::LinePenRole).value<QPen>();
 				pen.setColor(model()->data(model()->indexForChannel(si, ci), Qt::DecorationRole).value<QColor>());
 				series->setLinePen(pen);
 			}
@@ -1391,7 +1391,7 @@ bool AMScanViewMultiChannelsView::reviewChannels() {
 				MPlotSeriesBasic* series = new MPlotSeriesBasic(scan->channel(ci));
 
 				series->setMarker(MPlotMarkerShape::None);
-				QPen pen = model()->data(model()->indexForChannel(si, ci), AMScanSetModel::LinePenRole).value<QPen>();
+				QPen pen = model()->data(model()->indexForChannel(si, ci), AM::LinePenRole).value<QPen>();
 				pen.setColor(model()->data(model()->indexForChannel(si, ci), Qt::DecorationRole).value<QColor>());
 				series->setLinePen(pen);
 

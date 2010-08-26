@@ -880,7 +880,7 @@ void AMDataViewSectionThumbnailView::populate() {
 
 	/// \todo This won't work for samples, because they don't have a number column. Generalize or specificized.
 	QSqlQuery q = db_->query();
-	QString query = QString("SELECT thumbnailFirstId,thumbnailCount,name,number,dateTime FROM %1").arg(dbTableName_);
+	QString query = QString("SELECT thumbnailFirstId,thumbnailCount,name,number,dateTime,id FROM %1").arg(dbTableName_);
 	if(!whereClause_.isEmpty())
 		query.append(" WHERE ").append(whereClause_);
 	q.prepare( query );
@@ -890,7 +890,7 @@ void AMDataViewSectionThumbnailView::populate() {
 	while(q.next()) {
 
 		AMThumbnailScrollGraphicsWidget* w = new AMThumbnailScrollGraphicsWidget(this);
-		w->setSource(db_, q.value(0).toInt(), q.value(1).toInt());
+		w->setSource(db_, dbTableName_, q.value(5).toInt(), q.value(0).toInt(), q.value(1).toInt());
 		QString caption1 = q.value(2).toString();
 		if(q.value(3).toInt() != 0)
 			caption1.append(QString(" #%1").arg(q.value(3).toInt()));

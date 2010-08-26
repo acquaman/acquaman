@@ -10,29 +10,35 @@
 #include "ui/AMNewRunDialog.h"
 
 
-class AMComboBox: public QComboBox
+class AMRunSelector: public QComboBox
 {
 	Q_OBJECT
 
 
 public:
-	AMComboBox (QWidget *parent=0); //Constructor
-	virtual ~AMComboBox();            //Destructor
+	AMRunSelector (QWidget *parent=0); //Constructor
+	virtual ~AMRunSelector();            //Destructor
 
 	int currentRunId() const ;
 
+public slots:
+	void setCurrentRunId(int runId);
+
 protected slots:
+	void autoAddRuns();
 	void onComboBoxActivated(int index);
 	void newRunBox();
 	void addNewRun();
+	void onDatabaseUpdate(const QString&, int);
 
 signals:
 	void currentRunIdChanged(int runId);
 
 protected:
-	void autoAddRuns();
+
 	AMDatabase* database_;
 	AMNewRunDialog *box;
+	bool runUpdateScheduled_;
 
 };
 

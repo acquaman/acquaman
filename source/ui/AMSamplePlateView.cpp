@@ -28,6 +28,7 @@ AMSamplePlateView::AMSamplePlateView(QWidget *parent) :
 		existingPlates_->insertItem(1, name);
 		existingPlates_->setItemData(1, id, AM::IdRole);
 		existingPlates_->setItemData(1, createTime, AM::DateTimeRole);
+		existingPlates_->setItemData(1, createTime.toString("MMM d yyyy, h:mm ap"), AM::DescriptionRole);
 	}
 	connect(existingPlates_, SIGNAL(currentIndexChanged(int)), this, SLOT(onLoadExistingPlate(int)));
 
@@ -48,6 +49,7 @@ AMSamplePlateView::AMSamplePlateView(QWidget *parent) :
 		tmpItem = new QStandardItem(name);
 		tmpItem->setData(id, AM::IdRole);
 		tmpItem->setData(dateTime, AM::DateTimeRole);
+		tmpItem->setData(dateTime.toString("MMM d yyyy, h:mm ap"), AM::DescriptionRole);
 		sampleTableModel_->setItem(sampleTableModel_->rowCount(), 0, tmpItem);
 		QString tmpStr;
 		tmpItem = new QStandardItem(tmpStr.setNum(id));
@@ -407,6 +409,8 @@ void AMSamplePositionItemView::onSamplePositionUpdate(int index){
 	if(!sampleBox_){
 		sampleBox_ = new QComboBox();
 		sampleBox_->setModel(sampleTableModel_);
+		sampleBox_->view()->setItemDelegate(new AMDetailedItemDelegate(this));
+		sampleBox_->view()->setAlternatingRowColors(true);
 		sampleBox_->setEditable(true);
 		sampleBox_->setInsertPolicy(QComboBox::InsertAtCurrent);
 		sampleBox_->setCompleter(NULL);
@@ -486,7 +490,8 @@ AMSamplePositionItemExpandingAdder::AMSamplePositionItemExpandingAdder(QStandard
 	chooseExistingBox_ = new QComboBox();
 	chooseExistingBox_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 	chooseExistingBox_->setModel(sampleTableModel_);
-	emptyChooseExistingBox_ = new QComboBox();
+//	emptyChooseExistingBox_ = new QComboBox();
+	emptyChooseExistingBox_ = new AMTrickComboBox();
 	emptyChooseExistingBox_->addItem("Or Pick Existing Sample");
 	emptyChooseExistingBox_->setCurrentIndex(0);
 	goNewButton_ = new QPushButton(QIcon(":/add.png"), "Add");
@@ -499,7 +504,7 @@ AMSamplePositionItemExpandingAdder::AMSamplePositionItemExpandingAdder(QStandard
 	connect(goNewButton_, SIGNAL(clicked()), this, SLOT(onGoNewButtonClicked()));
 	connect(goExistingButton_, SIGNAL(clicked()), this, SLOT(onGoExistingButtonClicked()));
 	connect(cancelButton_, SIGNAL(clicked()), this, SLOT(shrinkBack()));
-	connect(emptyChooseExistingBox_, SIGNAL(highlighted(int)), this, SLOT(switchBoxes(int)));
+	connect(emptyChooseExistingBox_, SIGNAL(clicked()), this, SLOT(switchBoxes()));
 
 	gl_ = new QGridLayout();
 	gl_->addWidget(markNewButton_, 0, 0, 1, 1, Qt::AlignLeft);
@@ -565,13 +570,19 @@ void AMSamplePositionItemExpandingAdder::onGoExistingButtonClicked(){
 void AMSamplePositionItemExpandingAdder::shrinkBack(){
 	gl_->removeWidget(newNameEdit_);
 	gl_->removeWidget(newNameLabel_);
-	gl_->removeWidget(chooseExistingBox_);
+	if(chooseExistingBox_->isVisible())
+		gl_->removeWidget(chooseExistingBox_);
+	else
+		gl_->removeWidget(emptyChooseExistingBox_);
 	gl_->removeWidget(goNewButton_);
 	gl_->removeWidget(goExistingButton_);
 	gl_->removeWidget(cancelButton_);
 	newNameEdit_->hide();
 	newNameLabel_->hide();
-	chooseExistingBox_->hide();
+	if(chooseExistingBox_->isVisible())
+		chooseExistingBox_->hide();
+	else
+		emptyChooseExistingBox_->hide();
 	goNewButton_->hide();
 	goExistingButton_->hide();
 	cancelButton_->hide();
@@ -581,20 +592,22 @@ void AMSamplePositionItemExpandingAdder::shrinkBack(){
 	setFrameStyle(QFrame::NoFrame);
 }
 
-void AMSamplePositionItemExpandingAdder::switchBoxes(int index){
-	emptyChooseExistingBox_->clearFocus();
-	emptyChooseExistingBox_->setMouseTracking(false);
-	emptyChooseExistingBox_->releaseKeyboard();
-	emptyChooseExistingBox_->releaseMouse();
-	emptyChooseExistingBox_->clearFocus();
+void AMSamplePositionItemExpandingAdder::switchBoxes(){
+	chooseExistingBox_->setMinimumWidth(emptyChooseExistingBox_->width());
 	emptyChooseExistingBox_->hidePopup();
-	emptyChooseExistingBox_->clearFocus();
 	gl_->removeWidget(emptyChooseExistingBox_);
 	gl_->addWidget(chooseExistingBox_, 2, 0, 1, 1, Qt::AlignLeft);
 	emptyChooseExistingBox_->hide();
-	emptyChooseExistingBox_->clearFocus();
 	chooseExistingBox_->show();
-	chooseExistingBox_->showPopup();
 	chooseExistingBox_->setFocus();
-	chooseExistingBox_->setMouseTracking(true);
+	chooseExistingBox_->showPopup();
+}
+
+AMTrickComboBox::AMTrickComboBox(QWidget *parent) :
+		QComboBox(parent)
+{}
+
+void AMTrickComboBox::mousePressEvent(QMouseEvent *e){
+	emit clicked();
+	e->ignore();
 }

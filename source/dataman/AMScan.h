@@ -131,16 +131,16 @@ public:
 	// Meta Data Elements
 	////////////////////////////////
 	/// Returns a user-given number
-	int number() const { return metaData_["number"].toInt();}
+	int number() const { return metaData_.value("number").toInt();}
 	/// Returns creation time / scan start time
-	QDateTime dateTime() const {return metaData_["dateTime"].toDateTime();}
+	QDateTime dateTime() const {return metaData_.value("dateTime").toDateTime();}
 	/// Returns the id of the run containing this scan, or (-1) if not associated with a run. \todo return more useful run descriptive information
-	int runId() const { QVariant v = metaData_["runId"]; if(v.isNull()) return -1; else return v.toInt(); }
+	int runId() const { QVariant v = metaData_.value("runId"); if(v.isNull()) return -1; else return v.toInt(); }
 
 	/// Returns name of sample (or -1 if a sample has not been assigned)
-	int sampleId() const { QVariant v = metaData_["sampleId"]; if(v.isNull()) return -1; else return v.toInt();}
+	int sampleId() const { QVariant v = metaData_.value("sampleId"); if(v.isNull()) return -1; else return v.toInt();}
 	/// Returns notes/comments for scan
-	QString notes() const { return metaData_["notes"].toString();}
+	QString notes() const { return metaData_.value("notes").toString();}
 
 	/// Returns the full scan name: number appended to name
 	QString fullName() const {return QString("%1%2").arg(name()).arg(number()); }
@@ -150,9 +150,9 @@ public:
 	QString sampleName() const;
 
 	/// The string describing the format of the stored raw data file
-	QString fileFormat() const { return metaData_["fileFormat"].toString(); }
+	QString fileFormat() const { return metaData_.value("fileFormat").toString(); }
 	/// The directory path and file name of this scan's raw data file
-	QString filePath() const { return metaData_["filePath"].toString(); }
+	QString filePath() const { return metaData_.value("filePath").toString(); }
 
 
 	// Meta-data system
@@ -249,7 +249,7 @@ public slots:
 	/// set the date/time:
 	void setDateTime(const QDateTime& dt) { setMetaData("dateTime", dt); }
 	/// associate this object with a particular run. Set to (-1) to dissociate with any run.  (Note: for now, it's the caller's responsibility to make sure the runId is valid.)
-	void setRunId(int runId) { if(runId < 0) metaData_["runId"] = QVariant(); else metaData_["runId"] = runId; }
+	void setRunId(int runId) { if(runId <= 0) metaData_["runId"] = QVariant(); else metaData_["runId"] = runId; }
 	/// Sets name of sample
 	void setSampleId(int sampleId) { setMetaData("sampleId", sampleId); }
 	/// Sets notes for scan
