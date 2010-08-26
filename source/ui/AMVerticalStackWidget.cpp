@@ -1,6 +1,6 @@
 #include "AMVerticalStackWidget.h"
 
-#include <QToolButton>
+#include "ui/AMHeaderButton.h"
 
 Q_DECLARE_METATYPE(QToolButton*);
 
@@ -8,8 +8,15 @@ AMVerticalStackWidget::AMVerticalStackWidget(QWidget *parent) :
 		QFrame(parent)
 {
 	vl_ = new QVBoxLayout();
+	vl_->setSpacing(0);
+	vl_->setContentsMargins(0,0,0,0);
 	vl_->addStretch();
 	setLayout(vl_);
+
+	setFrameShape(QFrame::StyledPanel);
+	setFrameShadow(QFrame::Sunken);
+	setStyleSheet("AMVerticalStackWidget {background:white; }");
+
 
 }
 
@@ -40,10 +47,8 @@ void AMVerticalStackWidget::insertItem(int index, QWidget* widget, const QString
 	item->setData(false, Qt::CheckStateRole);
 	item->setFlags( collapsable ? (Qt::ItemIsEnabled | Qt::ItemIsUserCheckable) : Qt::ItemIsEnabled);
 
-	QToolButton* header = new QToolButton();
+	QToolButton* header = new AMHeaderButton();
 	header->setText(text);
-	header->setStyleSheet(AMVERTICALSTACKWIDGET_STYLE_SHEET);
-	header->setMaximumHeight(16);
 	item->setData(qVariantFromValue(header), AM::WidgetRole);
 	connect(header, SIGNAL(clicked()), this, SLOT(onHeaderButtonClicked()));
 
@@ -109,6 +114,9 @@ void AMVerticalStackWidget::expandItem(int index) {
 	QWidget* w = model_.data(model_.index(index, 0), AM::PointerRole).value<QWidget*>();
 	if(w)
 		w->show();
+	QToolButton* h = model_.data(model_.index(index,0), AM::WidgetRole).value<QToolButton*>();
+	if(h)
+		h->setArrowType(Qt::DownArrow);
 	model_.setData(model_.index(index,0), false, Qt::CheckStateRole);
 }
 
@@ -120,6 +128,9 @@ void AMVerticalStackWidget::collapseItem(int index) {
 	QWidget* w = model_.data(model_.index(index, 0), AM::PointerRole).value<QWidget*>();
 	if(w)
 		w->hide();
+	QToolButton* h = model_.data(model_.index(index,0), AM::WidgetRole).value<QToolButton*>();
+	if(h)
+		h->setArrowType(Qt::RightArrow);
 	model_.setData(model_.index(index,0), true, Qt::CheckStateRole);
 }
 
@@ -134,4 +145,16 @@ void AMVerticalStackWidget::onHeaderButtonClicked() {
 			return;
 		}
 	}
+}
+
+QSize AMVerticalStackWidget::sizeHint() const {
+	QSize rv = QFrame::sizeHint();
+
+	int width = rv.width();
+	for(int i=0; i<count(); i++) {
+		width = qMax(width, model_.data(model_.index(i,0), AM::PointerRole).value<QWidget*>()->sizeHint().width());
+	}
+
+	rv.setWidth(width+2);
+	return rv;
 }

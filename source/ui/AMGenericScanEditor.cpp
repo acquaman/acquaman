@@ -16,9 +16,44 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 {
 	ui_.setupUi(this);
 
+	// Add extra UI components:
+	stackWidget_ = new AMVerticalStackWidget();
+	stackWidget_->setMinimumWidth(200);
+	stackWidget_->setMaximumWidth(360);
+	ui_.rightVerticalLayout->addWidget(stackWidget_);
+
 	// Add scan view (plots)
 	scanView_ = new AMScanView();
-	ui_.leftVerticalLayout->insertWidget(0, scanView_);
+	scanView_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	ui_.leftVerticalLayout->insertWidget(0, scanView_, 2);
+
+	// Add run selector:
+
+	runSelector_ = new AMRunSelector();
+	runSelector_->setMaximumSizeHint(QSize(40, 50));
+
+	ui_.scanInfoLayout->insertWidget(1, runSelector_);
+	ui_.scanInfoLayout->invalidate();
+
+
+
+
+	// Add detailed editor widgets:
+	QWidget* temp1 = new QWidget();
+	temp1->setMinimumHeight(160);
+	stackWidget_->addItem(temp1, "Sample Information");
+
+	QWidget* temp2 = new QWidget();
+	temp2->setMinimumHeight(200);
+	stackWidget_->addItem(temp2, "XRay Absorption Scan");
+
+	QWidget* temp3 = new QWidget();
+	temp3->setMinimumHeight(200);
+	stackWidget_->addItem(temp3, "Beamline Information");
+
+
+
+
 
 	// share the scan set model with the AMScanView
 	scanSetModel_ = scanView_->model();
@@ -70,8 +105,8 @@ void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const
 
 		disconnect(ui_.scanName, 0, currentScan_, 0);
 		disconnect(ui_.scanNumber, 0, currentScan_, 0);
-		// disconnect(ui_.scanRun, 0, currentScan_, 0);
 		disconnect(this, SIGNAL(notesChanged(QString)), currentScan_, SLOT(setNotes(QString)));
+		disconnect(runSelector_, SIGNAL(currentRunIdChanged(int)), currentScan_, SLOT(setRunId(int)));
 	}
 
 	// it becomes now the new scan:
@@ -88,6 +123,7 @@ void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const
 		connect(ui_.scanName, SIGNAL(textChanged(QString)), currentScan_, SLOT(setName(QString)));
 		connect(ui_.scanNumber, SIGNAL(valueChanged(int)), currentScan_, SLOT(setNumber(int)));
 		connect(this, SIGNAL(notesChanged(QString)), currentScan_, SLOT(setNotes(QString)));
+		connect(runSelector_, SIGNAL(currentRunIdChanged(int)), currentScan_, SLOT(setRunId(int)));
 	}
 
 }
@@ -106,8 +142,7 @@ void AMGenericScanEditor::updateEditor(AMScan *scan) {
 	ui_.scanDate->setText( scan->dateTime().date().toString("MMM d (yyyy)") );
 	ui_.scanTime->setText( scan->dateTime().time().toString("h:mmap") );
 	ui_.notesEdit->setPlainText( scan->notes() );
-	/// \todo change to run box selector
-	// ui_.scanRun->setText();
+	runSelector_->setCurrentRunId(scan->runId());
 
 	ui_.topFrameTitle->setText(QString("Editing %1 #%2").arg(scan->name()).arg(scan->number()));
 	}
@@ -118,8 +153,6 @@ void AMGenericScanEditor::updateEditor(AMScan *scan) {
 		ui_.scanDate->setText( QString() );
 		ui_.scanTime->setText( QString() );
 		ui_.notesEdit->clear();
-		/// \todo change to run box selector
-		// ui_.scanRun->setText();
 
 		ui_.topFrameTitle->setText("Scan Editor");
 	}

@@ -10,6 +10,7 @@
 #include "ui/AMNewRunDialog.h"
 
 
+#include <QDebug>
 class AMRunSelector: public QComboBox
 {
 	Q_OBJECT
@@ -20,6 +21,19 @@ public:
 	virtual ~AMRunSelector();            //Destructor
 
 	int currentRunId() const ;
+
+	/// Sometimes this combo box likes to get huge and ugly-wide. This lets you constrain the size hint, instead of enforcing a harsh hard maximum size:
+	void setMaximumSizeHint(const QSize& maxSizeHint) {
+		maxSizeHint_ = maxSizeHint;
+	}
+
+	QSize sizeHint() const {
+		QSize rv = QComboBox::sizeHint().boundedTo(maxSizeHint_);
+		qDebug() << "AMRunSelect: size hint" << rv;
+		qDebug() << "AMRunSelect: min size" << minimumSize();
+		qDebug() << "AMRunSelect: max size" << maximumSize();
+		return rv;
+	}
 
 public slots:
 	void setCurrentRunId(int runId);
@@ -39,6 +53,8 @@ protected:
 	AMDatabase* database_;
 	AMNewRunDialog *box;
 	bool runUpdateScheduled_;
+
+	QSize maxSizeHint_;
 
 };
 
