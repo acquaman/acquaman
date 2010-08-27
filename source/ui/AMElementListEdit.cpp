@@ -112,9 +112,9 @@ void AMElementValidator::fixup(QString & text) const {
 QValidator::State AMElementValidator::validate(QString &text, int &pos) const {
 
 	/// \bug temporary... implementation missing.
-	return QValidator::Acceptable;
+	QValidator::State rv = QValidator::Acceptable;
 
-	/*
+
 
 	QStringList split = text.split(QRegExp("\\s*,+\\s*|\\s+"), QString::SkipEmptyParts);
 
@@ -122,12 +122,40 @@ QValidator::State AMElementValidator::validate(QString &text, int &pos) const {
 	for(int i=0; i<split.count(); i++) {
 
 		QString token = split.at(i);
-		if(model_->)
+		// Either matching a symbol or matching an element is great... still acceptable
+		if(model_->validElement(token) || model_->validSymbol(token)) {
+			// do nothing...
+		}
+
+		else if(model_->validElementStartsWith(token) || model_->validSymbolStartsWith(token)) {
+			// downgrade to "intermediate" and keep going... (this token could still become valid if they keep typing)
+			rv = QValidator::Intermediate;
+		}
+		else {
+			// just one invalid is enough. Book 'em, Deno.
+			return QValidator::Invalid;
+		}
 	}
 
-	*/
+	return rv;
 }
 
+
+bool AMElementsModel::validElementStartsWith(const QString &string) {
+
+	return true;
+
+	QMap<QString,int>::const_iterator lower = name2index_.lowerBound(string);
+	QMap<QString,int>::const_iterator upper = name2index_.upperBound(string);
+
+	QMap<QString,int>::const_iterator i = lower;
+	// while(i)
+
+}
+
+bool AMElementsModel::validSymbolStartsWith(const QString &string) {
+	return true;
+}
 
 /* Learned from http://john.nachtimwald.com/2009/07/04/qcompleter-and-comma-separated-tags/
 
@@ -148,12 +176,15 @@ AMElementListEdit::AMElementListEdit(QWidget *parent) :
 	/// \todo: determine how to make sorting of the model case insensitive, and then completer_->setModelSorting(Qt::CaseInsensitive) for performance.
 	completer_->setCaseSensitivity(Qt::CaseInsensitive);
 
+
 	connect(this, SIGNAL(textEdited(QString)), this, SLOT(onTextEdited(QString)));
 	connect(completer_, SIGNAL(activated(QString)), this, SLOT(onCompleterActivated(QString)));
 	completer_->setWidget(this);
+
+	setValidator(new AMElementValidator(elementsModel_, this));
 }
 
-#include <QDebug>
+#include <QAbstractItemView>
 void AMElementListEdit::onTextEdited(const QString& text) {
 
 	QStringList split = text.split(QRegExp("\\s*,+\\s*|\\s+"));
@@ -168,6 +199,8 @@ void AMElementListEdit::onTextEdited(const QString& text) {
 	// qDebug() << "completion prefix:" << completer_->completionPrefix();
 	if(!completer_->completionPrefix().isEmpty())
 		completer_->complete();
+	else
+		completer_->popup()->hide();
 }
 
 void AMElementListEdit::onCompleterActivated(const QString &text) {
