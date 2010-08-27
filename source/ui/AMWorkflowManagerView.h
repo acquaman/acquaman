@@ -118,7 +118,7 @@ public:
 	AMBeamlineActionAdder(QWidget *parent = 0);
 
 public slots:
-	virtual void onQueueUpdated(QQueue<AMBeamlineActionItem*> actionsQueue);
+	virtual void onQueueUpdated(AMBeamlineActionsQueue *actionsQueue);
 
 signals:
 	void insertActionRequested(AMBeamlineActionItem *action, int index);

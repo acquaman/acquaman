@@ -80,6 +80,7 @@ public:
 	AMBeamlineActionsQueue(AMBeamlineActionsList *fullList, QObject *parent = 0);
 
 	AMBeamlineActionItem* head();
+	int count();
 	int indexOfHead();
 	bool isEmpty();
 

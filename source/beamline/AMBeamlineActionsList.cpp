@@ -269,6 +269,10 @@ AMBeamlineActionItem* AMBeamlineActionsQueue::head(){
 		return fullList_->action(headIndex_);
 }
 
+int AMBeamlineActionsQueue::count(){
+	return fullList_->count()-indexOfHead();
+}
+
 int AMBeamlineActionsQueue::indexOfHead(){
 	return headIndex_;
 }

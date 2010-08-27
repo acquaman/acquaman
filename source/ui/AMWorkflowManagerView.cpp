@@ -21,7 +21,7 @@ AMWorkflowManagerView::AMWorkflowManagerView(QWidget *parent) :
 	workflowActions_ = new AMBeamlineActionsList(this);
 	workflowQueue_ = new AMBeamlineActionsQueue(workflowActions_, this);
 	workflowView_ = new AMBeamlineActionsListView(workflowActions_, workflowQueue_, this);
-	connect(workflowView_, SIGNAL(queueUpdated(QQueue<AMBeamlineActionItem*>)), adder_, SLOT(onQueueUpdated(QQueue<AMBeamlineActionItem*>)));
+//	connect(workflowView_, SIGNAL(queueUpdated(QQueue<AMBeamlineActionItem*>)), adder_, SLOT(onQueueUpdated(QQueue<AMBeamlineActionItem*>)));
 
 	vl_ = new QVBoxLayout();
 //	vl_->addWidget(startWorkflowButton_, 0, Qt::AlignRight);
@@ -108,7 +108,7 @@ AMBeamlineActionsListView::AMBeamlineActionsListView(AMBeamlineActionsList *acti
 	*/
 	connect(actionsList_, SIGNAL(actionChanged(int)), this, SLOT(onActionChanged(int)));
 	connect(actionsList_, SIGNAL(actionAdded(int)), this, SLOT(onActionAdded(int)));
-	connect(actionsList_, SIGNAL(actionRemoved(int)), this, SLOT(onActionRemvoed(int)));
+	connect(actionsList_, SIGNAL(actionRemoved(int)), this, SLOT(onActionRemoved(int)));
 }
 
 /*
@@ -396,7 +396,7 @@ AMBeamlineActionAdder::AMBeamlineActionAdder(QWidget *parent) :
 		QWidget(parent)
 {
 	addWhereBox_ = new QComboBox();
-	onQueueUpdated(QQueue<AMBeamlineActionItem *>());
+	onQueueUpdated(NULL);
 	actionTypeBox_ = new QComboBox();
 	QStringList actionTypes;
 	actionTypes << "Choose Action Type" << "Scan Action" << "Move Action";
@@ -424,12 +424,14 @@ AMBeamlineActionAdder::AMBeamlineActionAdder(QWidget *parent) :
 	moveSetpointDSB_ = NULL;
 }
 
-void AMBeamlineActionAdder::onQueueUpdated(QQueue<AMBeamlineActionItem *> actionsQueue){
+void AMBeamlineActionAdder::onQueueUpdated(AMBeamlineActionsQueue *actionsQueue){
 	addWhereBox_->clear();
 	QStringList positions;
 	positions << "Front of queue";
 	QString tmpStr;
-	for(int x = 0; x < actionsQueue.count(); x++)
+	if(!actionsQueue)
+		return;
+	for(int x = 0; x < actionsQueue->count(); x++)
 		positions << "After "+tmpStr.setNum(x+1);
 	addWhereBox_->addItems(positions);
 }

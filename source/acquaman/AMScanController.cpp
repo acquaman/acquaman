@@ -16,10 +16,13 @@ AMScanController* AMScanController::currentScanController(){
 }
 
 bool AMScanController::setCurrentScanController(AMScanController *newScanController){
-	if(currentScanController_)
+	if(currentScanController_){
+		qDebug() << "Can't set current scan controller, already have one";
 		return false;
+	}
 	currentScanController_ = newScanController;
 	currentScanController_->initiateCurrentScanControllerCreated();
+	qDebug() << "Set current scan controller";
 	return true;
 }
 
@@ -32,7 +35,7 @@ void AMScanController::initiateCurrentScanControllerDestroyed(){
 }
 
 void AMScanController::onCurrentScanControllerFinished(){
-	delete currentScanController_;
-	currentScanController_ = 0;
 	currentScanController_->initiateCurrentScanControllerDestroyed();
+	currentScanController_->deleteLater();
+	currentScanController_ = 0;
 }
