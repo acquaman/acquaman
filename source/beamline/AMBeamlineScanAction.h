@@ -19,7 +19,6 @@ public:
 	virtual QString type() const;
 	bool isPaused() const;
 
-
 signals:
 	void progress(double, double);
 

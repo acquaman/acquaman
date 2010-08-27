@@ -24,7 +24,13 @@ void AMBeamlineScanAction::start(){
 	if(scanType_ == "SGMXASScan"){
 		SGMXASScanConfiguration* lCfg = (SGMXASScanConfiguration*)cfg_;
 		ctrl_ = new SGMXASDacqScanController( lCfg, this);
-		SGMXASDacqScanController *lCtrl = (SGMXASDacqScanController*)ctrl_;
+		if( !AMScanController::setCurrentScanController(ctrl_) ){
+			delete ctrl_;
+			return;
+		}
+
+//		SGMXASDacqScanController *lCtrl = (SGMXASDacqScanController*)ctrl_;
+		SGMXASDacqScanController *lCtrl = (SGMXASDacqScanController*)AMScanController::currentScanController();
 		//connect(lCtrl, SIGNAL(finished()), this, SIGNAL(succeeded()));
 		connect(lCtrl, SIGNAL(finished()), this, SLOT(scanSucceeded()));
 		connect(lCtrl, SIGNAL(cancelled()), this, SLOT(scanCancelled()));
@@ -57,11 +63,13 @@ void AMBeamlineScanAction::pause(bool pause){
 void AMBeamlineScanAction::scanCancelled(){
 	qDebug() << "Failed b/c of cancel";
 	running_ = false;
+	failed_ = true;
 	emit failed(102);
 }
 
 void AMBeamlineScanAction::scanSucceeded(){
 	running_ = false;
+	succeeded_ = true;
 	emit succeeded();
 }
 

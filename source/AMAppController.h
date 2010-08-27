@@ -22,6 +22,8 @@ class AMRunExperimentInsert;
 
 class AMGenericScanEditor;
 
+class AMScanController;
+
 
 class QMenuBar;
 class QMenu;
@@ -44,8 +46,6 @@ public slots:
 	/// Bring the Workflow view to the front level
 	void goToWorkflow();
 
-
-
 	///////////////////////////////////
 
 	/// Calling this slot activates the Import Data wizard.
@@ -60,6 +60,8 @@ protected slots:
 	/*! \note This only applies to panes that are currently docked within the main window.  If a pane has been undocked, no notification will be received when it becomes raised or activated by the user.
 	  */
 	void onCurrentPaneChanged(QWidget* pane);
+	void onCurrentScanControllerCreated();
+	void onCurrentScanControllerDestroyed();
 
 protected:
 	// UI structure components
@@ -87,6 +89,7 @@ protected:
 
 	AMGenericScanEditor* scanEditor_;
 
+	AMScanController *scanController_;
 };
 
 #endif // AMAPPCONTROLLER_H

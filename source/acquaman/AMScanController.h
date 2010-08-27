@@ -16,6 +16,9 @@ Q_PROPERTY(bool paused READ isPaused)
 public:
 	explicit AMScanController(AMScanConfiguration *cfg, QObject *parent = 0);
 
+	static AMScanController* currentScanController();
+	static bool setCurrentScanController(AMScanController *newScanController);
+
 	/// Returns true if the scan is running but not paused
 	bool isRunning() const {return running_ && !paused_;}
 	/// Convenience call, returns true if the scan is not running
@@ -39,6 +42,9 @@ signals:
 	void timeRemaining(double seconds);
 	void progress(double elapsed, double total);
 
+	/// Don't call these
+	void currentScanControllerCreated();
+	void currentScanControllerDestroyed();
 
 public slots:
 	/// Start scan running if not currently running or paused
@@ -51,8 +57,14 @@ public slots:
 	virtual void resume() = 0;
 	virtual void initialize() = 0;
 
+protected slots:
+	void initiateCurrentScanControllerCreated();
+	void initiateCurrentScanControllerDestroyed();
 
 protected:
+	static AMScanController *currentScanController_;
+	static void onCurrentScanControllerFinished();
+
 	/// Configuration for this scan
 	AMScanConfiguration *generalCfg_;
 	AMScan *generalScan_;

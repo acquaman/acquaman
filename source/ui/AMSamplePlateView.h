@@ -109,8 +109,6 @@ protected slots:
 	bool onSampleBoxIndexChanged(int index);
 	bool onSampleNameChanged();
 
-	void onSampleTableRowAdded(const QModelIndex & parent, int start, int end);
-
 	void updateLook();
 	void onSamplePositionUpdate(int index);
 	void defocusItem();
@@ -123,8 +121,6 @@ protected:
 
 	AMControlSet *manipulator_;
 	QStandardItemModel *sampleTableModel_;
-	bool iChangeIndex_;
-	bool ignoreIndexChanged_;
 	bool ignoreNameChanged_;
 	int index_;
 	bool inFocus_;

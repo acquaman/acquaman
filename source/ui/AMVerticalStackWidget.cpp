@@ -116,7 +116,8 @@ void AMVerticalStackWidget::expandItem(int index) {
 		w->show();
 	QToolButton* h = model_.data(model_.index(index,0), AM::WidgetRole).value<QToolButton*>();
 	if(h)
-		h->setArrowType(Qt::DownArrow);
+		h->setIcon(QIcon(":/22x22/arrow-white-down.png"));
+//		h->setArrowType(Qt::DownArrow);
 	model_.setData(model_.index(index,0), false, Qt::CheckStateRole);
 }
 
@@ -130,7 +131,8 @@ void AMVerticalStackWidget::collapseItem(int index) {
 		w->hide();
 	QToolButton* h = model_.data(model_.index(index,0), AM::WidgetRole).value<QToolButton*>();
 	if(h)
-		h->setArrowType(Qt::RightArrow);
+		h->setIcon(QIcon(":/22x22/arrow-white-right.png"));
+//		h->setArrowType(Qt::RightArrow);
 	model_.setData(model_.index(index,0), true, Qt::CheckStateRole);
 }
 

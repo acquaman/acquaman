@@ -34,6 +34,8 @@
 #include "ui/AMRunExperimentInsert.h"
 #include "ui/AMGenericScanEditor.h"
 
+#include "acquaman/AMScanController.h"
+
 #include "AMErrorMonitor.h"
 
 #include <QMenuBar>
@@ -94,8 +96,8 @@ AMAppController::AMAppController(QObject *parent) :
 	mw_->addPane(workflowManagerView_, "Experiment Tools", "Workflow", ":/user-away.png");
 	connect(scanConfigurationHolder_, SIGNAL(startScanRequested()), workflowManagerView_, SLOT(onStartScanRequested()));
 	connect(workflowManagerView_, SIGNAL(freeToScan(bool)), scanConfigurationHolder_, SLOT(onFreeToScan(bool)));
-	connect(scanConfigurationHolder_, SIGNAL(addToQueueRequested(AMScanConfiguration*)), workflowManagerView_, SLOT(onAddToQueueRequested(AMScanConfiguration*)));
-	connect(workflowManagerView_, SIGNAL(addedToQueue(AMScanConfiguration*)), scanConfigurationHolder_, SLOT(onAddedToQueue(AMScanConfiguration*)));
+	connect(scanConfigurationHolder_, SIGNAL(addToQueueRequested(AMScanConfiguration*)), workflowManagerView_, SLOT(onAddScanRequested(AMScanConfiguration*)));
+	connect(workflowManagerView_, SIGNAL(addedScan(AMScanConfiguration*)), scanConfigurationHolder_, SLOT(onAddedToQueue(AMScanConfiguration*)));
 
 	connect(scanConfigurationHolder_, SIGNAL(goToQueueRequested()), this, SLOT(goToWorkflow()));
 
@@ -121,8 +123,7 @@ AMAppController::AMAppController(QObject *parent) :
 	connect(runExperimentInsert_, SIGNAL(runSelected(int)), dataView_, SLOT(showRun(int)));
 	connect(runExperimentInsert_, SIGNAL(experimentSelected(int)), dataView_, SLOT(showExperiment(int)));
 
-
-
+	scanController_ = AMScanController::currentScanController();
 
 
 	// Make connections:
@@ -207,6 +208,14 @@ void AMAppController::onCurrentPaneChanged(QWidget *pane) {
 	// If the scanConfigurationHolder pane was activated, let it know:
 	if(pane == scanConfigurationHolder_)
 		scanConfigurationHolder_->onBecameCurrentWidget();
+
+}
+
+void AMAppController::onCurrentScanControllerCreated(){
+
+}
+
+void AMAppController::onCurrentScanControllerDestroyed(){
 
 }
 
