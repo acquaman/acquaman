@@ -7,6 +7,8 @@
 #include "dataman/AMDatabaseDefinition.h"
 #include "ui/AMDetailedItemDelegate.h"
 
+#include "ui/AMElementListEdit.h"
+
 AMSampleEditor::AMSampleEditor(AMDatabase* db, QWidget *parent) :
 		QWidget(parent)
 {
@@ -45,9 +47,10 @@ AMSampleEditor::AMSampleEditor(AMDatabase* db, QWidget *parent) :
 	l->setObjectName("AMSampleEditorLabel");
 	gl->addWidget(l, 3, 0);
 
-	sampleElements_ = new QLineEdit();
+	sampleElements_ = new AMElementListEdit();
 	sampleElements_->setFrame(false);
 	gl->addWidget(sampleElements_, 3, 1);
+
 
 	l = new QLabel("Choose a different sample...");
 	// l->setObjectName("AMSampleEditorLabel");
