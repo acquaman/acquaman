@@ -39,6 +39,9 @@ void AMDatabaseDefinition::initializeDatabaseTables(AMDatabase* db) {
 
 
 
+	// This table provides optimized storage for the individual control fields in a control set
+	db->ensureTable(controlSetEntriesTableName(), QString("csiId,name,ctrlValue,minimum,maximum,units,number").split(','), QString("INTEGER,TEXT,REAL,REAL,REAL,TEXT,INTEGER").split(','));
+	db->createIndex(controlSetEntriesTableName(), "csiId");
 
 
 	// add userName and databaseVersion to DatabaseInformation

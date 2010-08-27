@@ -32,6 +32,7 @@ class AMAppController : public QObject
 {
 Q_OBJECT
 public:
+	/// Default construster
 	explicit AMAppController(QObject *parent = 0);
 	virtual ~AMAppController();
 
@@ -43,6 +44,7 @@ public slots:
 
 	/// Bring the Workflow view to the front level
 	void goToWorkflow();
+
 
 
 

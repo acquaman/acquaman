@@ -33,16 +33,6 @@ public:
 
 	QString unitsAt(size_t index) const;
 
-	// AMDbObject database interface
-	////////////////////////////////////
-	/// Specify all of our unique pieces of meta-data (excluding those inherited from base classes -- ie: own only)
-	static QList<AMMetaMetaData> metaDataUniqueKeys();
-
-	/// This function needs to be overloaded to return all the available pieces of meta data for this type of object, including those inherited from base classes. (ie: own + base classes'). We simply append our unique meta-data onto the base class:
-	static QList<AMMetaMetaData> metaDataKeys();
-
-	/// This virtual function returns all the available pieces of meta data for this type of object, by introspecting it's most detailed type. (ie: own + base classes' + subclasses')
-	virtual QList<AMMetaMetaData> metaDataAllKeys() const;
 
 	/// We want to store this in a separate table (so that it's easy to create relationships between detectors and scan objects).  Therefore, we reimplement databaseTableName():
 	virtual QString databaseTableName() const;
@@ -58,6 +48,8 @@ public:
 
 	/// Reimplemented from AMDbObject; provides a general human-readable description
 	virtual QString typeDescription() const;
+
+
 
 signals:
 	void valuesChanged(int index);

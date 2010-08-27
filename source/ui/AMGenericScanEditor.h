@@ -31,6 +31,30 @@ public:
 	}
 
 
+	/// Remove a scan from the editor and delete the scan.
+	void deleteScan(AMScan* scan) {
+		scanSetModel_->removeScan(scan);
+		delete scan;
+	}
+
+	/// Remove a scan from the editor, but don't delete the scan. Ownership becomes the responsibility of the caller.
+	void removeScan(AMScan* scan) {
+		scanSetModel_->removeScan(scan);
+	}
+
+	/// Returns the number of scans open in the editor.
+	int numScans() const {
+		return scanSetModel_->numScans();
+	}
+
+	/// Returns a particular scan pointer, by index:
+	AMScan* scanAt(int index) const {
+		if(index<0 || index>=numScans())
+			return 0;
+		return scanSetModel_->scanAt(index);
+	}
+
+
 
 
 
