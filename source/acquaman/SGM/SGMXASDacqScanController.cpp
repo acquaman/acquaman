@@ -18,7 +18,7 @@ void SGMXASDacqScanController::start(){
 	QString homeDir = QDir::homePath();
 	if( QDir(homeDir+"/dev").exists())
 		homeDir.append("/dev");
-	else if( QDir(homeDir+"beamline/programming").exists())
+	else if( QDir(homeDir+"/beamline/programming").exists())
 		homeDir.append("/beamline/programming");
 	if(pScan_()->detectorNames().contains("pgt"))
 		loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/pgt.cfg"));
