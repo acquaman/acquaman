@@ -25,7 +25,6 @@ class AMSampleListView;
 class AMSamplePositionItemView;
 class AMSamplePositionItemExpandingAdder;
 
-//class AMSamplePlateView : public QGroupBox
 class AMSamplePlateView : public QWidget
 {
 Q_OBJECT
@@ -146,6 +145,10 @@ class AMSamplePositionItemExpandingAdder : public QFrame
 Q_OBJECT
 public:
 	AMSamplePositionItemExpandingAdder(QStandardItemModel *sampleTableModel, QWidget *parent = 0);
+	const bool expanded() const;
+
+public slots:
+	void resetAdder();
 
 signals:
 	void sampleToAddChosen(int id);

@@ -2,7 +2,6 @@
 
 AMSamplePlateView::AMSamplePlateView(QWidget *parent) :
 	QWidget(parent)
-//	QGroupBox(title, parent)
 {
 	sampleRefreshScheduled_ = false;
 	manipulator_ = NULL;
@@ -76,6 +75,7 @@ void AMSamplePlateView::onLoadExistingPlate(int index){
 	int id = existingPlates_->itemData(index, AM::IdRole).toInt();
 	if(id == 0)
 		return;
+
 	samplePlate_.loadFromDb(AMDatabase::userdb(), id);
 }
 
@@ -254,6 +254,8 @@ void AMSampleListView::onSamplePositionChanged(int index){
 void AMSampleListView::onSamplePositionAdded(int index){
 	if(!manipulator_ || !sampleTableModel_)
 		return;
+	if(adder_->expanded())
+		adder_->resetAdder();
 	AMSamplePositionItemView *tmpSPIView = new AMSamplePositionItemView(samplePlate_->samplePositionAt(index), sampleTableModel_, manipulator_, index+1);
 	il_->insertWidget(index, tmpSPIView, 0, Qt::AlignTop);
 	tmpSPIView->setFocus();
@@ -515,6 +517,17 @@ AMSamplePositionItemExpandingAdder::AMSamplePositionItemExpandingAdder(QStandard
 	setLayout(gl_);
 
 	setFrameStyle(QFrame::NoFrame);
+}
+
+const bool AMSamplePositionItemExpandingAdder::expanded() const{
+	if(markNewButton_->isVisible())
+		return false;
+	else
+		return true;
+}
+
+void AMSamplePositionItemExpandingAdder::resetAdder(){
+	shrinkBack();
 }
 
 void AMSamplePositionItemExpandingAdder::onMarkNewButtonClicked(){
