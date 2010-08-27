@@ -2,7 +2,7 @@
 
 #include "ui/AMHeaderButton.h"
 
-Q_DECLARE_METATYPE(QToolButton*);
+
 
 AMVerticalStackWidget::AMVerticalStackWidget(QWidget *parent) :
 		QFrame(parent)
@@ -10,7 +10,7 @@ AMVerticalStackWidget::AMVerticalStackWidget(QWidget *parent) :
 	vl_ = new QVBoxLayout();
 	vl_->setSpacing(0);
 	vl_->setContentsMargins(0,0,0,0);
-	vl_->addStretch();
+	vl_->addStretch(1);
 	setLayout(vl_);
 
 	setFrameShape(QFrame::StyledPanel);
@@ -47,14 +47,18 @@ void AMVerticalStackWidget::insertItem(int index, QWidget* widget, const QString
 	item->setData(false, Qt::CheckStateRole);
 	item->setFlags( collapsable ? (Qt::ItemIsEnabled | Qt::ItemIsUserCheckable) : Qt::ItemIsEnabled);
 
-	QToolButton* header = new AMHeaderButton();
+	AMHeaderButton* header = new AMHeaderButton();
 	header->setText(text);
+	header->setArrowType(Qt::DownArrow);
 	item->setData(qVariantFromValue(header), AM::WidgetRole);
 	connect(header, SIGNAL(clicked()), this, SLOT(onHeaderButtonClicked()));
 
+	QSizePolicy sp = widget->sizePolicy();
+	sp.setVerticalPolicy(QSizePolicy::Preferred);
+	widget->setSizePolicy(sp);
+
 	vl_->insertWidget(2*index, header);
 	vl_->insertWidget(2*index+1, widget);
-
 
 	model_.insertRow(index, item);
 }
@@ -67,7 +71,7 @@ QWidget* AMVerticalStackWidget::takeItem(int index) {
 
 	QStandardItem* item = model_.takeRow(index).at(0);
 	QWidget* w = item->data(AM::PointerRole).value<QWidget*>();
-	QToolButton* b = item->data(AM::WidgetRole).value<QToolButton*>();
+	AMHeaderButton* b = item->data(AM::WidgetRole).value<AMHeaderButton*>();
 
 	vl_->takeAt(2*index);
 	vl_->takeAt(2*index + 1);
@@ -100,7 +104,7 @@ void AMVerticalStackWidget::setItemText(int index, const QString& text) {
 
 	QStandardItem* item = model_.item(index, 0);
 	item->setData(text, Qt::DisplayRole);
-	QToolButton* tb = item->data(AM::WidgetRole).value<QToolButton*>();
+	AMHeaderButton* tb = item->data(AM::WidgetRole).value<AMHeaderButton*>();
 	if(tb)
 		tb->setText(text);
 }
@@ -114,7 +118,7 @@ void AMVerticalStackWidget::expandItem(int index) {
 	QWidget* w = model_.data(model_.index(index, 0), AM::PointerRole).value<QWidget*>();
 	if(w)
 		w->show();
-	QToolButton* h = model_.data(model_.index(index,0), AM::WidgetRole).value<QToolButton*>();
+	AMHeaderButton* h = model_.data(model_.index(index,0), AM::WidgetRole).value<AMHeaderButton*>();
 	if(h)
 		h->setArrowType(Qt::DownArrow);
 	model_.setData(model_.index(index,0), false, Qt::CheckStateRole);
@@ -128,7 +132,7 @@ void AMVerticalStackWidget::collapseItem(int index) {
 	QWidget* w = model_.data(model_.index(index, 0), AM::PointerRole).value<QWidget*>();
 	if(w)
 		w->hide();
-	QToolButton* h = model_.data(model_.index(index,0), AM::WidgetRole).value<QToolButton*>();
+	AMHeaderButton* h = model_.data(model_.index(index,0), AM::WidgetRole).value<AMHeaderButton*>();
 	if(h)
 		h->setArrowType(Qt::RightArrow);
 	model_.setData(model_.index(index,0), true, Qt::CheckStateRole);
@@ -139,7 +143,7 @@ void AMVerticalStackWidget::collapseItem(int index) {
 void AMVerticalStackWidget::onHeaderButtonClicked() {
 	QObject* s = sender();
 	for(int i=0; i<count(); i++) {
-		if(model_.data(model_.index(i,0), AM::WidgetRole).value<QToolButton*>() == s) {
+		if(model_.data(model_.index(i,0), AM::WidgetRole).value<AMHeaderButton*>() == s) {
 			if(itemCollapsable(i))
 				itemIsCollapsed(i) ? expandItem(i) : collapseItem(i);
 			return;
