@@ -137,7 +137,7 @@ void AMSamplePlateView::refreshSamples(){
 	}
 	idsToSearch.remove(idsToSearch.count()-1, 1);
 	qDebug() << "****IDs TO SEARCH IN REFRESH*** " << idsToSearch;
-	/*
+
 	QSqlQuery q = AMDatabase::userdb()->query();
 	q.prepare(QString("SELECT id,name,dateTime FROM %1 WHERE id IN (%2)").arg(AMDatabaseDefinition::sampleTableName()).arg(idsToSearch)) ;
 	if(!q.exec())
@@ -151,13 +151,16 @@ void AMSamplePlateView::refreshSamples(){
 		qDebug() << "Maybe " << items.count();
 		if(items.count() == 1){
 			QStandardItem *tmpItem = sampleTableModel_->item(items.at(0)->index().row(), 0);
-			qDebug() << "Updating " << tmpItem->text() << tmpItem->data(AM::IdRole);
-			tmpItem->setText(name);
-			tmpItem->setData(id, AM::IdRole);
-			tmpItem->setData(dateTime, AM::DateTimeRole);
+			qDebug() << "Updating " << tmpItem->text() << name << tmpItem->data(AM::IdRole) << id << tmpItem->data(AM::DateTimeRole) << dateTime;
+			if(tmpItem->text() != name)
+				tmpItem->setText(name);
+			if(tmpItem->data(AM::IdRole).toInt() != id)
+				tmpItem->setData(id, AM::IdRole);
+			if(tmpItem->data(AM::DateTimeRole).toDateTime() != dateTime)
+				tmpItem->setData(dateTime, AM::DateTimeRole);
 		}
 	}
-	*/
+
 	sampleRefreshIDs_.clear();
 	sampleRefreshInstructions_.clear();
 	sampleRefreshScheduled_ = false;
