@@ -1,0 +1,84 @@
+#ifndef AMELEMENTLISTEDIT_H
+#define AMELEMENTLISTEDIT_H
+
+#include <QLineEdit>
+#include <QCompleter>
+#include <QValidator>
+
+#include <QStandardItemModel>
+
+class AMElementsModel: public QStandardItemModel {
+	Q_OBJECT
+public:
+	explicit AMElementsModel(QObject* parent = 0);
+
+	/// Re-implemented from QStandardItemModel to update the "indexing" on the columns
+	void sort(int column, Qt::SortOrder order) {
+		QStandardItemModel::sort(column, order);
+		updateIndexes();
+	}
+
+	int indexOfElement(const QString& elementName) const { if(name2index_.contains(elementName)) return name2index_.value(elementName); else return -1; }
+	int indexOfSymbol(const QString& symbol) const { if(symbol2index_.contains(symbol)) return symbol2index_.value(symbol); else return -1; }
+
+protected:
+	/// Fill the model
+	void populate();
+	/// Fill the name2index_ and symbol2index_ maps for fastest searching. Called automatically by populate() and sort().
+	void updateIndexes();
+
+	QMap<QString, int> name2index_;
+	QMap<QString, int> symbol2index_;
+
+};
+
+/// This validator enforces entry on a text input that accepts element names and symbols.  Successive elements can be separated by a combination of commas and whitespaces.  Full element names are accepted, as well as symbols. If convertToSymbol() is turned on, complete element names are converted inside fixup() into their symbols.
+class AMElementValidator : public QValidator {
+	Q_OBJECT
+public:
+	explicit AMElementValidator(AMElementsModel* model, QObject* parent = 0);
+	virtual void fixup(QString &) const;
+	virtual QValidator::State validate(QString &, int &) const;
+
+	/// Indicates whether automatic conversion from elements to symbols is turned on
+	bool convertsToSymbol() const {
+		return convertToSymbol_;
+	}
+
+	/// Set whether automatic conversion from element names to symbols is turned on
+	void setConvertsToSymbol(bool convertToSymbol = true) {
+		convertToSymbol_ = true;
+	}
+
+
+protected:
+	bool convertToSymbol_;
+
+	AMElementsModel* model_;
+};
+
+class AMElementListEdit : public QLineEdit
+{
+Q_OBJECT
+public:
+	explicit AMElementListEdit(QWidget *parent = 0);
+
+signals:
+
+public slots:
+
+
+
+protected slots:
+	/// Called as the user edits text, this allows us to set the completion prefix on the completer
+	void onTextEdited(const QString& text);
+	/// Called when a result is chosen from the completer:
+	void onCompleterActivated(const QString& text);
+
+protected:
+	QCompleter* completer_;
+	AMElementsModel* elementsModel_;
+	QString priorToPrefix_;
+};
+
+#endif // AMELEMENTLISTEDIT_H

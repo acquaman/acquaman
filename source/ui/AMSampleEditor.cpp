@@ -7,8 +7,10 @@
 #include "dataman/AMDatabaseDefinition.h"
 #include "ui/AMDetailedItemDelegate.h"
 
+#include "ui/AMElementListEdit.h"
+
 AMSampleEditor::AMSampleEditor(AMDatabase* db, QWidget *parent) :
-	QWidget(parent)
+		QWidget(parent)
 {
 	db_ = db;
 
@@ -45,9 +47,10 @@ AMSampleEditor::AMSampleEditor(AMDatabase* db, QWidget *parent) :
 	l->setObjectName("AMSampleEditorLabel");
 	gl->addWidget(l, 3, 0);
 
-	sampleElements_ = new QLineEdit();
+	sampleElements_ = new AMElementListEdit();
 	sampleElements_->setFrame(false);
 	gl->addWidget(sampleElements_, 3, 1);
+
 
 	l = new QLabel("Choose a different sample...");
 	// l->setObjectName("AMSampleEditorLabel");
@@ -61,19 +64,24 @@ AMSampleEditor::AMSampleEditor(AMDatabase* db, QWidget *parent) :
 	vl->addStretch(0);
 
 	setStyleSheet( "#AMSampleEditorLabel {"
-			"color: rgb(121, 121, 121);"
-			"font-weight: bold;"
-			"font-family: \"Lucida Grande\"; }");
+				   "color: rgb(121, 121, 121);"
+				   "font-weight: bold;"
+				   "font-family: \"Lucida Grande\"; }");
 
 	sample_ = new AMSample(this);
 	newSampleActive_ = false;
 
 	// Make connections:
+	// responds to switching between samples, using the combo box
 	connect(sampleSelector_, SIGNAL(activated(int)), this, SLOT(onCBCurrentIndexChanged(int)));
 
+	// responds to updates from the database
 	connect(db_, SIGNAL(created(QString,int)), this, SLOT(onDatabaseCreated(QString,int)));
 	connect(db_, SIGNAL(updated(QString,int)), this, SLOT(onDatabaseUpdated(QString,int)));
 	connect(db_, SIGNAL(removed(QString,int)), this, SLOT(onDatabaseRemoved(QString,int)));
+
+	// responds to changes in the editor fields:
+	connect(sampleName_, SIGNAL(editingFinished()), this, SLOT(saveCurrentSample()));
 
 	refreshScheduled_ = false;
 	onDatabaseUpdated(AMDatabaseDefinition::sampleTableName(), -1);
@@ -121,6 +129,12 @@ void AMSampleEditor::setCurrentSample(int id) {
 		sampleElements_->setText(QString());
 		// todo: notes
 
+		// don't cause infinite loop here... disable signal first?
+		sampleSelector_->blockSignals(true);
+		sampleSelector_->setCurrentIndex(-1);
+		sampleSelector_->blockSignals(false);
+
+
 		emit currentSampleChanged(-1);
 	}
 
@@ -132,43 +146,72 @@ void AMSampleEditor::setCurrentSample(int id) {
 /// Call this to refresh the list of samples in the ComboBox from the database
 void AMSampleEditor::refreshSamples() {
 
-	qDebug() << "Calling AMSampleEditor::refreshSamples";
 
 	// Refresh-scheduled flag is now turned off, because we're completing the refresh
 	refreshScheduled_ = false;
 
-	// clear the old map from sample IDs to combo-box indexes
-	sampleId2Index_.clear();
+	// Mode 1: Precision update of a single sample:
+	///////////////////////////////////////////
+	if(refreshId_ > 0 && sampleId2Index_.contains(refreshId_)) {
 
-	// block the signals out of the combo box for now, while we fill it. Don't want to bother with handling currentIndexChanged() until this is all over...
-	sampleSelector_->blockSignals(true);
+		qDebug() << "Calling precise AMSampleEditor::refreshSamples";
 
-	// clear the old combo box entries
-	sampleSelector_->clear();
-
-	// Add the first entry, which is always "create new sample".
-	sampleSelector_->addItem("Create New Sample");
-
-	// Fill the combo box with all samples in the db:
-	QSqlQuery q = db_->query();
-	q.prepare(QString("SELECT id,name,dateTime FROM %1 ORDER BY dateTime DESC").arg(AMDatabaseDefinition::sampleTableName()));
-	q.exec();
-	int index = 0;
-	while(q.next()) {
-		index++;
-		sampleSelector_->addItem(q.value(1).toString());
-		sampleSelector_->setItemData(index, q.value(0).toInt(), AM::IdRole);
-		sampleSelector_->setItemData(index, q.value(2), AM::DateTimeRole);
-		sampleSelector_->setItemData(index, QString("created ") + q.value(2).toDateTime().toString("h:mmap, MMM d (yyyy)"), AM::DescriptionRole);
-		// todo: decorations... thumbnails?
-		sampleId2Index_.insert(q.value(0).toInt(), index);
+		int index = sampleId2Index_.value(refreshId_);
+		QSqlQuery q = db_->query();
+		q.prepare(QString("SELECT id,name,dateTime FROM %1 WHERE id = ?").arg(AMDatabaseDefinition::sampleTableName()));
+		q.bindValue(0, refreshId_);
+		if(q.exec() && q.first()) {
+			sampleSelector_->setItemData(index, q.value(1).toString(), Qt::DisplayRole);
+			sampleSelector_->setItemData(index, q.value(2), AM::DateTimeRole);
+			sampleSelector_->setItemData(index, QString("created ") + q.value(2).toDateTime().toString("h:mmap, MMM d (yyyy)"), AM::DescriptionRole);
+			// todo: decorations... thumbnails...
+		}
 	}
 
-	sampleSelector_->blockSignals(false);
 
-	// Any changes to our existing sample?
-	setCurrentSample(currentSample());
+	// Full model update, from scratch:
+	/////////////////////////////////////
+	else {
 
+		qDebug() << "Calling full-out AMSampleEditor::refreshSamples";
+
+		// clear the old map from sample IDs to combo-box indexes
+		sampleId2Index_.clear();
+
+		// block the signals out of the combo box for now, while we fill it. Don't want to bother with handling currentIndexChanged() until this is all over...
+		sampleSelector_->blockSignals(true);
+
+		// clear the old combo box entries
+		sampleSelector_->clear();
+
+		// Add the first entry, which is always "create new sample".
+		sampleSelector_->addItem("Create New Sample");
+
+		// Fill the combo box with all samples in the db:
+		QSqlQuery q = db_->query();
+		q.prepare(QString("SELECT id,name,dateTime FROM %1 ORDER BY dateTime DESC").arg(AMDatabaseDefinition::sampleTableName()));
+		q.exec();
+		int index = 0;
+		while(q.next()) {
+			index++;
+			sampleSelector_->addItem(q.value(1).toString());
+			sampleSelector_->setItemData(index, q.value(0).toInt(), AM::IdRole);
+			sampleSelector_->setItemData(index, q.value(2), AM::DateTimeRole);
+			sampleSelector_->setItemData(index, QString("created ") + q.value(2).toDateTime().toString("h:mmap, MMM d (yyyy)"), AM::DescriptionRole);
+			// todo: decorations... thumbnails?
+			sampleId2Index_.insert(q.value(0).toInt(), index);
+		}
+
+		sampleSelector_->blockSignals(false);
+	}
+
+
+	// Do we need to update the info on the existing sample?
+	int currentSamp = currentSample();
+	if(refreshId_ == currentSamp || refreshId_ < 1)
+		setCurrentSample(currentSamp);
+
+	refreshId_ = -1;
 }
 
 
@@ -178,10 +221,26 @@ void AMSampleEditor::refreshSamples() {
 void AMSampleEditor::onDatabaseUpdated(const QString& tableName, int id) {
 	Q_UNUSED(id);
 
-	if(tableName == AMDatabaseDefinition::sampleTableName() && !refreshScheduled_) {
+	if(tableName != AMDatabaseDefinition::sampleTableName())
+		return;
+
+	// single-row precision update? That's cool if this :
+	// is a valid id
+	// AND we have this id already in the model
+	// AND (it's the first/only update scheduled, OR there's an update scheduled already but its for the same id)
+	if( id > 0
+		&& sampleId2Index_.contains(id)
+		&& (!refreshScheduled_ || (refreshScheduled_ && refreshId_ == id) )
+		)
+		refreshId_ = id;
+	else
+		refreshId_ = -1;
+
+	if(!refreshScheduled_) {
 		refreshScheduled_ = true;
 		QTimer::singleShot(0, this, SLOT(refreshSamples()));
 	}
+
 }
 
 
@@ -206,4 +265,17 @@ void AMSampleEditor::createNewSample() {
 	sample_->storeToDb(db_);
 	newSampleActive_ = true;
 	// this will trigger a database update... causing re-loading of the combo-box list, followed by re-setting the current sample id as the current sample. Luckily, the deferred processing of the onDatabaseUpdate() --> refreshSamples() link will let sample_->id() become set by storeToDb() before refreshSamples() is called. That's fantastic, because it means this sample will become the current sample automatically.
+}
+
+void AMSampleEditor::saveCurrentSample() {
+
+	/// clear focus on the editors. \todo Move this to subclass of qlineedit?
+	sampleName_->clearFocus();
+	sampleElements_->clearFocus();
+
+	if(currentSample() > 0) {
+		sample_->setName(sampleName_->text());
+		// nothin' else?
+		sample_->storeToDb(db_);
+	}
 }

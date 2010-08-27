@@ -32,14 +32,17 @@ public slots:
 	void createNewSample();
 
 protected slots:
-	/// Call this to refresh the list of samples in the ComboBox from the database
+	/// Call this to refresh the list of samples in the ComboBox from the database. Set refreshId_ to -1 for a complete refresh, or to the sample id for an optimized single update.
 	void refreshSamples();
+
+	/// Helper function to save a sample when it is edited
+	void saveCurrentSample();
 
 	/// This is called when a row in the database is updated:
 	void onDatabaseUpdated(const QString& tableName, int id);
-	/// In the future, the onDatabaseCreatedd() and onDatabaseRemoved() functions could be used to handle specific situations/optimizations. Right now they just call onDatabaseUpdated().
-	void onDatabaseCreated(const QString& tableName, int id) { onDatabaseUpdated(tableName, id); }
-	void onDatabaseRemoved(const QString& tableName, int id) { onDatabaseUpdated(tableName, id); }
+	/// In the future, the onDatabaseCreatedd() and onDatabaseRemoved() functions could be used to handle specific situations/optimizations. Right now they just call onDatabaseUpdated() for a full model update.
+	void onDatabaseCreated(const QString& tableName, int /*id*/) { onDatabaseUpdated(tableName, -1); }
+	void onDatabaseRemoved(const QString& tableName, int /*id*/) { onDatabaseUpdated(tableName, -1); }
 
 	/// Called when the current index of the combo box changes, indicating new sample selected
 	void onCBCurrentIndexChanged(int);
@@ -59,6 +62,8 @@ protected:
 
 	/// Flag to indicate that a refresh is required, because the database was updated.
 	bool refreshScheduled_;
+	/// Specifies which sample id needs to be refreshed (-1 for all)
+	int refreshId_;
 
 	/// The database searched by this editor
 	AMDatabase* db_;
@@ -68,6 +73,7 @@ protected:
 
 	/// This state flag is set when the current sample is a brand-newly added sample, and should be edited immediately.
 	bool newSampleActive_;
+
 
 
 };
