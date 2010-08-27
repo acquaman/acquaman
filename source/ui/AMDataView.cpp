@@ -20,6 +20,7 @@ AMDataView::AMDataView(AMDatabase* database, QWidget *parent) :
 
 	gscene_ = new QGraphicsScene(this);
 	gview_->setScene(gscene_);
+	gview_->setDragMode(QGraphicsView::RubberBandDrag);
 	gwidget_ = new QGraphicsWidget();
 	gscene_->addItem(gwidget_);
 	sectionLayout_ = new QGraphicsLinearLayout(Qt::Vertical);

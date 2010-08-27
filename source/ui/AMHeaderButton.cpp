@@ -9,3 +9,48 @@ AMHeaderButton::AMHeaderButton(QWidget *parent) :
 	setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 	setMaximumHeight(16);
 }
+
+
+#include <QPaintEvent>
+#include <QPainter>
+
+#include <QDebug>
+
+void AMHeaderButton::paintEvent(QPaintEvent * event) {
+
+	QToolButton::paintEvent(event);
+
+	QRect dest = rect();
+	dest.setLeft(dest.left()+4);
+	dest.setHeight(16);
+	dest.setWidth(16);
+
+	QPainter p(this);
+	p.drawPixmap(dest, arrowPix);
+	p.end();
+}
+
+void AMHeaderButton::setArrowType(Qt::ArrowType type) {
+	arrowType_ = type;
+	switch(type) {
+	case Qt::NoArrow:
+		arrowPix = QPixmap();
+		break;
+
+	case Qt::LeftArrow:
+		arrowPix = QPixmap(":/22x22/arrow-white-right.png").scaledToHeight(16, Qt::SmoothTransformation);
+		break;
+	case Qt::RightArrow:
+		arrowPix = QPixmap(":/22x22/arrow-white-right.png").scaledToHeight(16, Qt::SmoothTransformation);
+		break;
+	case Qt::UpArrow:
+		arrowPix = QPixmap(":/22x22/arrow-white-down.png").scaledToHeight(16, Qt::SmoothTransformation);
+		break;
+	case Qt::DownArrow:
+		arrowPix = QPixmap(":/22x22/arrow-white-down.png").scaledToHeight(16, Qt::SmoothTransformation);
+		break;
+	}
+
+	QToolButton::setArrowType(Qt::NoArrow);
+	update();
+}

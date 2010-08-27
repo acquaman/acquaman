@@ -115,6 +115,18 @@ public:
 	QList<int> objectsWhere(const QString& tableName, const QString& whereClause);
 
 
+	/// For people who really know what they're doing. You shouldn't normally use this.
+	void startTransation() {
+		qdb().transaction();
+	}
+	void commitTransation() {
+		qdb().commit();
+	}
+	void rollbackTransation() {
+		qdb().rollback();
+	}
+
+
 
 
 signals:

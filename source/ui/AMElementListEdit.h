@@ -6,6 +6,7 @@
 #include <QValidator>
 
 #include <QStandardItemModel>
+#include <QMap>
 
 class AMElementsModel: public QStandardItemModel {
 	Q_OBJECT
@@ -18,8 +19,37 @@ public:
 		updateIndexes();
 	}
 
-	int indexOfElement(const QString& elementName) const { if(name2index_.contains(elementName)) return name2index_.value(elementName); else return -1; }
-	int indexOfSymbol(const QString& symbol) const { if(symbol2index_.contains(symbol)) return symbol2index_.value(symbol); else return -1; }
+	int indexOfElement(const QString& e) const {
+		if(name2index_.contains(e)) return name2index_.value(e);
+		else return -1;
+	}
+
+	int indexOfSymbol(const QString& e) const {
+		if(symbol2index_.contains(e)) return symbol2index_.value(e);
+		else return -1;
+	}
+
+	/// returns true if this string is an exact element name (non case-sensitive)
+	bool validElement(const QString& element) {
+		return indexOfElement(titleCase(element)) != -1;
+	}
+
+	/// returns true if this string is an exact symbol (non case-sensitive)
+	bool validSymbol(const QString& symbol) {
+		return indexOfSymbol(titleCase(symbol)) != -1;
+	}
+
+	/// returns true if this string is the beginning of an element name
+	bool validElementStartsWith(const QString& string);
+	/// returns true if this string is the beginning of an element symbol
+	bool validSymbolStartsWith(const QString& string);
+
+	static QString titleCase(const QString& name) {
+		QString rv = name.toLower();
+		if(!rv.isEmpty())
+			rv[0] = rv.at(0).toUpper();
+		return rv;
+	}
 
 protected:
 	/// Fill the model
@@ -47,7 +77,7 @@ public:
 
 	/// Set whether automatic conversion from element names to symbols is turned on
 	void setConvertsToSymbol(bool convertToSymbol = true) {
-		convertToSymbol_ = true;
+		convertToSymbol_ = convertToSymbol;
 	}
 
 

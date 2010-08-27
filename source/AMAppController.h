@@ -34,6 +34,7 @@ class AMAppController : public QObject
 {
 Q_OBJECT
 public:
+	/// Default construster
 	explicit AMAppController(QObject *parent = 0);
 	virtual ~AMAppController();
 

@@ -1,7 +1,7 @@
 #include "AMControlSetInfo.h"
 
 AMControlSetInfo::AMControlSetInfo(QObject *parent) :
-	AMDbObject(parent)
+		AMDbObject(parent)
 {
 	insertRowLatch = -1;
 	setName("ControlSet");
@@ -80,67 +80,64 @@ QString AMControlSetInfo::unitsAt(size_t index) const{
 		return QString();
 }
 
-QList<AMMetaMetaData> AMControlSetInfo::metaDataUniqueKeys(){
-	QList<AMMetaMetaData> rv;
-	rv << AMMetaMetaData(QVariant::StringList, "names", true);
-	rv << AMMetaMetaData(AM::DoubleList, "ctrlValues", true);
-	rv << AMMetaMetaData(AM::DoubleList, "maximums", true);
-	rv << AMMetaMetaData(AM::DoubleList, "minimums", true);
-	rv << AMMetaMetaData(QVariant::StringList, "units", true);
-	return rv;
-}
 
-QList<AMMetaMetaData> AMControlSetInfo::metaDataKeys() {
-	return AMDbObject::metaDataKeys() << metaDataUniqueKeys();
-}
-
-QList<AMMetaMetaData> AMControlSetInfo::metaDataAllKeys() const {
-	return this->metaDataKeys();
-}
 
 QString AMControlSetInfo::databaseTableName() const {
 	return AMDatabaseDefinition::controlSetTableName();
 }
+
 
 bool AMControlSetInfo::loadFromDb(AMDatabase *db, int id){
 	bool retVal = AMDbObject::loadFromDb(db, id);
 	if(retVal){
 		while(count() > 0)
 			removeControlAt(count()-1);
-		QStringList names = metaData_.value("names").toStringList();
-		AMDoubleList ctrlValues = metaData_.value("ctrlValues").value<AMDoubleList>();
-		AMDoubleList minimums = metaData_.value("minimums").value<AMDoubleList>();
-		AMDoubleList maximums = metaData_.value("maximums").value<AMDoubleList>();
-		QStringList units = metaData_.value("units").toStringList();
-		if( (names.count() != ctrlValues.count()) || (ctrlValues.count() != minimums.count()) || (minimums.count() != maximums.count()) || (maximums.count() != units.count()) ){
-			qDebug() << "Failed to load because of count mismatch";
-			return false;
+
+		QSqlQuery q = db->query();
+		q.prepare(QString("SELECT name,ctrlValue,minimum,maximum,units,number FROM %1 WHERE csiId = ?").arg(AMDatabaseDefinition::controlSetEntriesTableName()));
+		q.bindValue(0, id);
+		retVal = q.exec();
+		while(q.next()) {
+			addControlAt(q.value(5).toInt(), q.value(0).toString(), q.value(1).toDouble(), q.value(2).toDouble(), q.value(3).toDouble(), q.value(4).toString());
 		}
-		for(int x = 0; x < names.count(); x++)
-			addControlAt(x, names.at(x), ctrlValues.at(x), minimums.at(x), maximums.at(x), units.at(x));
 	}
 	return retVal;
 }
 
 bool AMControlSetInfo::storeToDb(AMDatabase *db){
-	QStringList names;
-	AMDoubleList ctrlValues;
-	AMDoubleList minimums;
-	AMDoubleList maximums;
-	QStringList units;
-	for(int x = 0; x < count(); x++){
-		names.append(nameAt(x));
-		ctrlValues.append(valueAt(x));
-		minimums.append(minimumAt(x));
-		maximums.append(maximumAt(x));
-		units.append(unitsAt(x));
+	if(!AMDbObject::storeToDb(db) )
+		return false;
+
+	bool success = true;
+
+	// delete all the old entries for this control set
+	db->deleteRows(AMDatabaseDefinition::controlSetEntriesTableName(), QString("csiId = '%1'").arg(id()));
+
+	db->startTransation();
+
+	QSqlQuery q = db->query();
+	q.prepare(QString("INSERT INTO %1 (csiId,name,ctrlValue,minimum,maximum,units,number) VALUES (?,?,?,?,?,?,?)").arg(AMDatabaseDefinition::controlSetEntriesTableName()));
+
+	for(int x=0; x<count(); x++) {
+		q.bindValue(0,id());
+		q.bindValue(1,nameAt(x));
+		q.bindValue(2,valueAt(x));
+		q.bindValue(3,minimumAt(x));
+		q.bindValue(4,maximumAt(x));
+		q.bindValue(5,unitsAt(x));
+		q.bindValue(6,x);
+		if(!q.exec())
+			success = false;
 	}
-	metaData_["names"].setValue(names);
-	metaData_["ctrlValues"].setValue(ctrlValues);
-	metaData_["minimums"].setValue(minimums);
-	metaData_["maximums"].setValue(maximums);
-	metaData_["units"].setValue(units);
-	return AMDbObject::storeToDb(db);
+
+	if(!success) {
+		db->rollbackTransation();
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, -1, "The ControlSet was saved to the database, but saving the individual control values failed."));
+	}
+	else
+		db->commitTransation();
+
+	return success;
 }
 
 QString AMControlSetInfo::typeDescription() const {

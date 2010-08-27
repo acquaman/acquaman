@@ -91,8 +91,13 @@ AMElementValidator::AMElementValidator(AMElementsModel* model, QObject* parent)
 	model_ = model;
 	convertToSymbol_ = true;
 }
+#include <QDebug>
 
 void AMElementValidator::fixup(QString & text) const {
+
+	/*
+	qDebug() << "calling fixup";
+
 	// fixup is only used to convert full element names to symbols, IF this is turned on.
 	if(!convertToSymbol_)
 		return;
@@ -101,20 +106,24 @@ void AMElementValidator::fixup(QString & text) const {
 
 	for(int i=0; i<split.count(); i++) {
 		// if element name matches, replace with symbol
-		int ind = model_->indexOfElement(split.at(i));
+		int ind = model_->indexOfElement(model_->titleCase(split.at(i)));
 		if(ind != -1)
 			split[i] = model_->data(model_->index(ind,1)).toString();
 	}
 
 	text = split.join(", ");
+	if(!split.isEmpty()) {
+		text.append(", ");
+	}*/
+
 }
+
+
 
 QValidator::State AMElementValidator::validate(QString &text, int &pos) const {
 
-	/// \bug temporary... implementation missing.
-	return QValidator::Acceptable;
 
-	/*
+	QValidator::State rv = QValidator::Acceptable;
 
 	QStringList split = text.split(QRegExp("\\s*,+\\s*|\\s+"), QString::SkipEmptyParts);
 
@@ -122,12 +131,65 @@ QValidator::State AMElementValidator::validate(QString &text, int &pos) const {
 	for(int i=0; i<split.count(); i++) {
 
 		QString token = split.at(i);
-		if(model_->)
+		// Either matching a symbol or matching an element is great... still acceptable
+		if(model_->validElement(token) ) {
+			if(convertToSymbol_) {
+				int ind = model_->indexOfElement(model_->titleCase(split.at(i)));
+				if(ind != -1)
+					split[i] = model_->data(model_->index(ind,1)).toString();
+			}
+		}
+
+		else if (model_->validSymbol(token)) {
+			// do nothing...
+		}
+
+		else if(model_->validElementStartsWith(token) || model_->validSymbolStartsWith(token)) {
+			// downgrade to "intermediate" and keep going... (this token could still become valid if they keep typing)
+			rv = QValidator::Intermediate;
+		}
+		else {
+			// just one invalid is enough. Book 'em, Deno.
+			return QValidator::Invalid;
+		}
 	}
 
-	*/
+	// todo: figure out how to modify text (replacing names), and not mess up the cursor position
+	/*
+
+	text = split.join(", ");
+	if(!split.isEmpty() && atEnd)
+		text.append(",");
+*/
+	return rv;
 }
 
+
+bool AMElementsModel::validElementStartsWith(const QString &string) {
+
+	QString s = titleCase(string);
+
+	QMap<QString,int>::const_iterator lower = name2index_.lowerBound(s);
+
+	if(lower != name2index_.constEnd() && lower.key().startsWith(s))
+		return true;
+
+	else
+		return false;
+
+}
+
+bool AMElementsModel::validSymbolStartsWith(const QString &string) {
+	QString s = titleCase(string);
+
+	QMap<QString,int>::const_iterator lower = symbol2index_.lowerBound(s);
+
+	if(lower != symbol2index_.constEnd() && lower.key().startsWith(s))
+		return true;
+
+	else
+		return false;
+}
 
 /* Learned from http://john.nachtimwald.com/2009/07/04/qcompleter-and-comma-separated-tags/
 
@@ -136,7 +198,7 @@ QValidator::State AMElementValidator::validate(QString &text, int &pos) const {
    */
 
 AMElementListEdit::AMElementListEdit(QWidget *parent) :
-	QLineEdit(parent)
+		QLineEdit(parent)
 {
 
 
@@ -148,12 +210,15 @@ AMElementListEdit::AMElementListEdit(QWidget *parent) :
 	/// \todo: determine how to make sorting of the model case insensitive, and then completer_->setModelSorting(Qt::CaseInsensitive) for performance.
 	completer_->setCaseSensitivity(Qt::CaseInsensitive);
 
+
 	connect(this, SIGNAL(textEdited(QString)), this, SLOT(onTextEdited(QString)));
 	connect(completer_, SIGNAL(activated(QString)), this, SLOT(onCompleterActivated(QString)));
 	completer_->setWidget(this);
+
+	setValidator(new AMElementValidator(elementsModel_, this));
 }
 
-#include <QDebug>
+#include <QAbstractItemView>
 void AMElementListEdit::onTextEdited(const QString& text) {
 
 	QStringList split = text.split(QRegExp("\\s*,+\\s*|\\s+"));
@@ -168,13 +233,20 @@ void AMElementListEdit::onTextEdited(const QString& text) {
 	// qDebug() << "completion prefix:" << completer_->completionPrefix();
 	if(!completer_->completionPrefix().isEmpty())
 		completer_->complete();
+	else {
+		completer_->popup()->hide();
+	}
 }
 
 void AMElementListEdit::onCompleterActivated(const QString &text) {
+	QString result;
+
 	if(text.isEmpty())
-		setText(priorToPrefix_);
+		result = priorToPrefix_;
 	else if(priorToPrefix_.isEmpty())
-		setText(text);
+		result = text;
 	else
-		setText(priorToPrefix_ + ", " + text);
+		result = priorToPrefix_ + ", " + text;
+
+	setText(result);
 }
