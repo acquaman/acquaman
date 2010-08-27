@@ -262,6 +262,20 @@ void AMImportController::finalizeImport() {
 
 		if(!QFile::copy(filesToImport_.at(currentFile_), currentScan_->filePath())) {
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -2, "SGM2004FileImporter: Could not copy the imported file into the library. Maybe this file exists already?"));
+			int doSkip = QMessageBox::question(
+					w_,
+					"Skip this file?",
+					QString("The file '%1' was opened correctly, but it couldn't be copied to the data library. Maybe the destination file (%2) exists already? \n\nDo you want to skip this file?").arg(filesToImport_.at(currentFile_)).arg(currentScan_->filePath()),
+					QMessageBox::Ok | QMessageBox::Cancel);
+
+			if(doSkip == QMessageBox::Ok) {
+				// do nothing... We'll move on automatically
+			}
+			else {
+				// This will force us to re-load the same one and try again.
+				currentFile_--;
+				applyToAll_ = false;
+			}
 		}
 		else {
 			if( currentScan_->storeToDb(AMDatabase::userdb()) )

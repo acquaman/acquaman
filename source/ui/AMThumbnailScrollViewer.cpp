@@ -211,6 +211,8 @@ AMThumbnailScrollGraphicsWidget::AMThumbnailScrollGraphicsWidget(QGraphicsItem* 
 	/// this item is deleted when its QGraphicsItem parent is deleted. The layout does not own this item.
 	setOwnedByLayout(false);
 
+	this->setFlag(QGraphicsItem::ItemIsSelectable, true);
+
 }
 
 
@@ -260,6 +262,11 @@ void AMThumbnailScrollGraphicsWidget::paint(QPainter *painter, const QStyleOptio
 	if( !qFuzzyCompare(c1Rect.height() + c2Rect.height() + 2*textLineSpacing(), textHeight_ ) ) {
 		prepareGeometryChange();
 		textHeight_ = c1Rect.height() + c2Rect.height() + 2*textLineSpacing();
+	}
+
+	if(isSelected()) {
+		painter->drawRect(-10, -10, width_+20, height + textHeight_ + 20);
+
 	}
 
 
@@ -401,12 +408,11 @@ void AMThumbnailScrollGraphicsWidget::hoverLeaveEvent(QGraphicsSceneHoverEvent *
 /// Re-implemented from QGraphicsItem to be a drag-and-drop source containing the database, table name and id of the object that this thumbnail represents.
 void AMThumbnailScrollGraphicsWidget::mousePressEvent(QGraphicsSceneMouseEvent *event) {
 
-	if (event->button() != Qt::LeftButton) {
-		event->ignore();
-		return;
+	if (event->button() == Qt::LeftButton) {
+		event->accept();
 	}
 
-	// setCursor(Qt::ClosedHandCursor);
+	QGraphicsItem::mousePressEvent(event);
 }
 
 #include <QApplication>

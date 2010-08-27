@@ -94,6 +94,7 @@ protected:
 #include <QGraphicsItem>
 #include <QGraphicsLayoutItem>
 #include <QDebug>
+#include <QPainterPath>
 
 /// This is a high-performance version of AMThumbnailScrollWidget for use inside the QGraphicsView system
 /*! NEEDED!
@@ -107,13 +108,28 @@ public:
 	explicit AMThumbnailScrollGraphicsWidget(QGraphicsItem* parent = 0);
 	virtual ~AMThumbnailScrollGraphicsWidget() {}
 
-
+/*
 	/// This bounding rect is just big enough for the picture box, the text underneath, and some extra room to erase the shadow graphics effect we apply when hover-overed
 	virtual QRectF boundingRect() const {
 		return QRectF(0,
 					  0,
 					  width_ + shadowBlurRadius(),
 					  width_*3.0/4.0 + textHeight_ + shadowBlurRadius());
+	}
+	*/
+
+	/// This bounding rect is crude but fast. It gives generous room for blur effects and selection borders
+	virtual QRectF boundingRect() const {
+		return QRectF(-15,
+					  -15,
+					  width_ + 30,
+					  width_*3.0/4.0 + textHeight_ + 30);
+	}
+
+	virtual QPainterPath shape() const {
+		QPainterPath rv;
+		rv.addRect(0,0,width_, width_*3.0/4.0 + textHeight_);
+		return rv;
 	}
 
 	virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
@@ -208,6 +224,7 @@ public:
 
 	/// Re-implemented from QGraphicsLayoutItem to respond to size instructions from the layout
 	void setGeometry(const QRectF &rect) {
+		// QGraphicsLayoutItem::setGeometry(rect);
 		prepareGeometryChange();
 		setPos(rect.left(), rect.top());
 		width_ = rect.width();
