@@ -4,7 +4,7 @@ AMSamplePlate::AMSamplePlate(QObject *parent) :
 	AMDbObject(parent)
 {
 	insertRowLatch = -1;
-	userName_ = "SGM";
+	userName_ = "SGM Sample Plate";
 	createTime_ = QDateTime::currentDateTime();
 	samples_ = NULL;
 	metaData_["createTime"] = QDateTime(createTime_);
@@ -20,6 +20,14 @@ AMSamplePlateModel* AMSamplePlate::model(){
 
 QString AMSamplePlate::plateName() const{
 	return userName_+" loaded "+timeString();
+}
+
+QString AMSamplePlate::userName() const{
+	return userName_;
+}
+
+QString AMSamplePlate::createTime() const{
+	return timeString();
 }
 
 int AMSamplePlate::count(){
@@ -102,7 +110,6 @@ bool AMSamplePlate::loadFromDb(AMDatabase* db, int id){
 			removeSamplePosition(count()-1);
 		AMIntList sampleIDs = metaData_.value("sampleIDs").value<AMIntList>();
 		AMIntList positionIDs = metaData_.value("positionIDs").value<AMIntList>();
-		qDebug() << "Positions " << positionIDs;
 		if(sampleIDs.count() != positionIDs.count())
 			return false;
 		AMSample *tmpSample;
@@ -130,13 +137,9 @@ bool AMSamplePlate::storeToDb(AMDatabase* db){
 	for(int x = 0; x < count(); x++){
 		sampleIDs.append(sampleAt(x)->id());
 		positionIDs.append(positionAt(x)->id());
-		qDebug() << "Saving indices: " << sampleAt(x)->id() << positionAt(x)->id();
 	}
-	qDebug() << "Before " << positionIDs;
 	metaData_["sampleIDs"].setValue(sampleIDs);
 	metaData_["positionIDs"].setValue(positionIDs);
-	AMIntList rsids = metaData_.value("positionIDs").value<AMIntList>();
-	qDebug() << "Positions " << rsids;
 	metaData_["name"].setValue(plateName());
 
 	bool retVal = AMDbObject::storeToDb(db);
@@ -207,8 +210,10 @@ void AMSamplePlate::onDataChanged(QModelIndex a, QModelIndex b){
 		insertRowLatch = -1;
 		emit samplePositionAdded(a.row());
 	}
-	else
+	else{
+		qDebug() << "I see row " << a.row() << " changed in sample plate";
 		emit samplePositionChanged(a.row());
+	}
 }
 
 void AMSamplePlate::onRowsInserted(QModelIndex parent, int start, int end){
@@ -275,10 +280,19 @@ QVariant AMSamplePlateModel::headerData(int section, Qt::Orientation orientation
 
 bool AMSamplePlateModel::setData(const QModelIndex &index, const QVariant &value, int role){
 	if (index.isValid()  && index.row() < samples_->count() && role == Qt::EditRole) {
-		AMSamplePosition* sp;
+		AMSamplePosition *oldSP = (AMSamplePosition*)data(index, role).value<void*>();
+		if(oldSP){
+			disconnect(oldSP, SIGNAL(sampleLoadedFromDb()), this, SLOT(onSampleLoadedFromDb()));
+			disconnect(oldSP, SIGNAL(positionLoadedFromDb()), this, SLOT(onPositionLoadedFromDb()));
+		}
+		AMSamplePosition *sp;
 		sp = (AMSamplePosition*) value.value<void*>();
 
 		samples_->replace(index.row(), sp);
+		if(sp){
+			connect(sp, SIGNAL(sampleLoadedFromDb()), this, SLOT(onSampleLoadedFromDb()));
+			connect(sp, SIGNAL(positionLoadedFromDb()), this, SLOT(onPositionLoadedFromDb()));
+		}
 		emit dataChanged(index, index);
 		return true;
 	}
@@ -317,15 +331,34 @@ Qt::ItemFlags AMSamplePlateModel::flags(const QModelIndex &index) const{
 	return flags;
 }
 
+void AMSamplePlateModel::onSampleLoadedFromDb(){
+	AMSamplePosition *sp = (AMSamplePosition*)QObject::sender();
+	for(int x = 0; x < samples_->count(); x++){
+		if(samples_->at(x) == sp)
+			emit dataChanged(index(x, 0), index(x, 0));
+	}
+}
 
+void AMSamplePlateModel::onPositionLoadedFromDb(){
+	AMSamplePosition *sp = (AMSamplePosition*)QObject::sender();
+	for(int x = 0; x < samples_->count(); x++){
+		if(samples_->at(x) == sp)
+			emit dataChanged(index(x, 0), index(x, 0));
+	}
+}
 
 AMSamplePosition::AMSamplePosition(AMSample *sample, AMControlSetInfo *position, QObject *parent) :
 		QObject(parent)
 {
 	sample_ = sample;
 	position_ = position;
-	if(position_)
+	if(position_){
 		connect(position_, SIGNAL(valuesChanged(int)), this, SIGNAL(positionValuesChanged(int)));
+		connect(position_, SIGNAL(loadedFromDb()), this, SIGNAL(positionLoadedFromDb()));
+	}
+	if(sample_){
+		connect(sample_, SIGNAL(loadedFromDb()), this, SIGNAL(sampleLoadedFromDb()));
+	}
 }
 
 AMSample* AMSamplePosition::sample(){
@@ -337,13 +370,21 @@ AMControlSetInfo* AMSamplePosition::position(){
 }
 
 void AMSamplePosition::setSample(AMSample *sample){
+	if(sample_)
+		disconnect(sample_, SIGNAL(loadedFromDb()), this, SIGNAL(sampleLoadedFromDb()));
 	sample_ = sample;
+	if(sample_)
+		connect(sample_, SIGNAL(loadedFromDb()), this, SIGNAL(sampleLoadedFromDb()));
 }
 
 void AMSamplePosition::setPosition(AMControlSetInfo *position){
-	if(position_)
-		disconnect(position_, SIGNAL(valuesChanged()), this, SIGNAL(positionValuesChanged()));
+	if(position_){
+		disconnect(position_, SIGNAL(valuesChanged(int)), this, SIGNAL(positionValuesChanged(int)));
+		disconnect(position_, SIGNAL(loadedFromDb()), this, SIGNAL(positionLoadedFromDb()));
+	}
 	position_ = position;
-	if(position_)
-		connect(position_, SIGNAL(valuesChanged()), this, SIGNAL(positionValuesChanged()));
+	if(position_){
+		connect(position_, SIGNAL(valuesChanged(int)), this, SIGNAL(positionValuesChanged(int)));
+		connect(position_, SIGNAL(loadedFromDb()), this, SIGNAL(positionLoadedFromDb()));
+	}
 }

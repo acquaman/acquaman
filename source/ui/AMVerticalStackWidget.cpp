@@ -120,7 +120,7 @@ void AMVerticalStackWidget::expandItem(int index) {
 		w->show();
 	AMHeaderButton* h = model_.data(model_.index(index,0), AM::WidgetRole).value<AMHeaderButton*>();
 	if(h)
-		h->setArrowType(Qt::DownArrow);
+                h->setArrowType(Qt::DownArrow);
 	model_.setData(model_.index(index,0), false, Qt::CheckStateRole);
 }
 
@@ -134,7 +134,7 @@ void AMVerticalStackWidget::collapseItem(int index) {
 		w->hide();
 	AMHeaderButton* h = model_.data(model_.index(index,0), AM::WidgetRole).value<AMHeaderButton*>();
 	if(h)
-		h->setArrowType(Qt::RightArrow);
+                h->setArrowType(Qt::RightArrow);
 	model_.setData(model_.index(index,0), true, Qt::CheckStateRole);
 }
 

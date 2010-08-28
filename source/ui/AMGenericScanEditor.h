@@ -2,6 +2,7 @@
 #define AMGENERICSCANEDITOR_H
 
 #include <QWidget>
+#include <QMetaType>
 #include "ui_AMGenericScanEditor.h"
 
 #include "acquaman.h"
@@ -124,5 +125,7 @@ protected:
 	void updateEditor(AMScan* scan);
 
 };
+
+Q_DECLARE_METATYPE(AMGenericScanEditor*)
 
 #endif // AMGENERICSCANEDITOR_H

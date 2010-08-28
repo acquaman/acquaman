@@ -192,6 +192,7 @@ public:
 signals:
 	/// Emitted whenever a meta-data item is changed. \c key is the name of the meta-data.
 	void metaDataChanged(const QString& key);
+	void loadedFromDb();
 	/// Emitted when the modified() state changes. Indicates that this object is in-sync or out-of-sync with the database version.
 	void modifiedChanged(bool isModified);
 

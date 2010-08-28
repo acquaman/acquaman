@@ -38,6 +38,7 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	amNames2pvNames_.set("ssaManipulatorY", "reixsHost:ssa:y");
 	amNames2pvNames_.set("ssaManipulatorZ", "reixsHost:ssa:z");
 	amNames2pvNames_.set("ssaManipulatorRot", "reixsHost:ssa:r");
+	amNames2pvNames_.set("beamlineScanning", "reixsHost:scanning");
 
 	ringCurrent_ = new AMReadOnlyPVControl("ringCurrent", AMPVNames::toPV("ringCurrent"), this);
 	addChild(ringCurrent_);
@@ -155,6 +156,10 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	addChild(ssaManipulatorRot_);
 	ssaManipulatorRotStop_ = new AMPVControl("ssaManipulatorRotStop", sgmPVName+":moving", sgmPVName+":moving", this, 0.1);
 	addChild(ssaManipulatorRotStop_);
+	sgmPVName = amNames2pvNames_.valueF("beamlineScanning");
+	beamlineScanning_ = new AMPVControl("beamlineScanning", sgmPVName, sgmPVName, this, 0.1);
+	addChild(beamlineScanning_);
+
 
 	fluxOptimization_ = new SGMFluxOptimization(this);
 	fluxOptimization_->setDescription("Flux");
@@ -277,6 +282,12 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 
 SGMBeamline::~SGMBeamline()
 {
+}
+
+bool SGMBeamline::isScanning(){
+	if( fabs(beamlineScanning_->value() -1.0) < beamlineScanning_->tolerance() )
+		return true;
+	return false;
 }
 
 bool SGMBeamline::energyValidForSettings(sgmGrating grating, sgmHarmonic harmonic, double energy){

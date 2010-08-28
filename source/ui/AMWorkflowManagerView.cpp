@@ -5,8 +5,6 @@
 AMWorkflowManagerView::AMWorkflowManagerView(QWidget *parent) :
 	QWidget(parent)
 {
-	queueEmpty_ = true;
-
 	adder_ = new AMBeamlineActionAdder();
 	adder_->hide();
 	connect(adder_, SIGNAL(insertActionRequested(AMBeamlineActionItem*,int)), this, SLOT(onInsertActionRequested(AMBeamlineActionItem*,int)));
@@ -21,8 +19,9 @@ AMWorkflowManagerView::AMWorkflowManagerView(QWidget *parent) :
 	connect(startWorkflowButton_, SIGNAL(clicked()), this, SLOT(onStartQueueRequested()));
 	connect(addActionButton_, SIGNAL(clicked()), this, SLOT(onAddActionRequested()));
 	workflowActions_ = new AMBeamlineActionsList(this);
-	workflowView_ = new AMBeamlineActionsListView(workflowActions_, this);
-	connect(workflowView_, SIGNAL(queueUpdated(QQueue<AMBeamlineActionItem*>)), adder_, SLOT(onQueueUpdated(QQueue<AMBeamlineActionItem*>)));
+	workflowQueue_ = new AMBeamlineActionsQueue(workflowActions_, this);
+	workflowView_ = new AMBeamlineActionsListView(workflowActions_, workflowQueue_, this);
+//	connect(workflowView_, SIGNAL(queueUpdated(QQueue<AMBeamlineActionItem*>)), adder_, SLOT(onQueueUpdated(QQueue<AMBeamlineActionItem*>)));
 
 	vl_ = new QVBoxLayout();
 //	vl_->addWidget(startWorkflowButton_, 0, Qt::AlignRight);
@@ -32,11 +31,18 @@ AMWorkflowManagerView::AMWorkflowManagerView(QWidget *parent) :
 }
 
 void AMWorkflowManagerView::onStartScanRequested(){
-	if(isEmpty())
+	if(workflowQueue_->isEmpty())
 		emit freeToScan(true);
 }
 
 void AMWorkflowManagerView::onStartQueueRequested(){
+	if(!workflowQueue_->isEmpty()){
+		qDebug() << "Trying to start queue";
+		workflowQueue_->head()->start();
+	}
+//	if(workflowActions_->count() > 0)
+//		workflowActions_->action(0)->start();
+	/*
 //	if(workflowActions_->count() > 0)
 //		workflowActions_->action(0)->start();
 	AMBeamlineActionItem *goItem = workflowView_->firstInQueue();
@@ -44,6 +50,7 @@ void AMWorkflowManagerView::onStartQueueRequested(){
 		qDebug() << "Nothing in queue";
 	else
 		goItem->start();
+	*/
 }
 
 void AMWorkflowManagerView::onAddActionRequested(){
@@ -51,218 +58,34 @@ void AMWorkflowManagerView::onAddActionRequested(){
 	adder_->show();
 }
 
-void AMWorkflowManagerView::onAddToQueueRequested(AMScanConfiguration *cfg){
+void AMWorkflowManagerView::onAddScanRequested(AMScanConfiguration *cfg){
 	SGMXASScanConfiguration *sxsc = (SGMXASScanConfiguration*)cfg;
 
 	AMBeamlineScanAction *scanAction = new AMBeamlineScanAction(sxsc, "SGMXASScan", "Deuce", this);
 	workflowActions_->appendAction(scanAction);
-	//if(workflowActions_->count() > 1){
-	//	scanAction->setPrevious(workflowActions_->action(workflowActions_->count()-2));
-	//	connect(scanAction->previous(), SIGNAL(succeeded()), scanAction, SLOT(start()));
-	//}
-	emit addedToQueue(cfg);
+	emit addedScan(cfg);
 }
 
 void AMWorkflowManagerView::onInsertActionRequested(AMBeamlineActionItem *action, int index){
-		qDebug() << "Insert request with iof " << workflowView_->indexOfFirst() << " so to " << workflowView_->indexOfFirst()+index;
-		workflowActions_->addAction(workflowView_->indexOfFirst()+index, action);
+	workflowActions_->addAction(index, action);
+//		qDebug() << "Insert request with iof " << workflowView_->indexOfFirst() << " so to " << workflowView_->indexOfFirst()+index;
+//		workflowActions_->addAction(workflowView_->indexOfFirst()+index, action);
 }
 
-
-AMBeamlineActionListModel::AMBeamlineActionListModel(QObject *parent) :
-		QAbstractListModel(parent)
-{
-	actions_ = new QList<AMBeamlineActionItem*>();
-}
-
-int AMBeamlineActionListModel::rowCount(const QModelIndex &index) const{
-	Q_UNUSED(index);
-	return actions_->count();
-}
-
-QVariant AMBeamlineActionListModel::data(const QModelIndex &index, int role) const{
-	if(!index.isValid())
-		return QVariant();
-	if(index.row() >= actions_->count())
-		return QVariant();
-	if(role == Qt::DisplayRole)
-		return qVariantFromValue((void*)actions_->at(index.row()));
-	else
-		return QVariant();
-}
-
-QVariant AMBeamlineActionListModel::headerData(int section, Qt::Orientation orientation, int role) const{
-	if (role != Qt::DisplayRole)
-		return QVariant();
-
-	if (orientation == Qt::Horizontal)
-		return QString("Column %1").arg(section);
-	else
-		return QString("Row %1").arg(section);
-}
-
-bool AMBeamlineActionListModel::setData(const QModelIndex &index, const QVariant &value, int role){
-	if (index.isValid()  && index.row() < actions_->count() && role == Qt::EditRole) {
-//		bool conversionOK = false;
-		AMBeamlineActionItem* actionItem;
-		actionItem = (AMBeamlineActionItem*) value.value<void*>();
-
-		actions_->replace(index.row(), actionItem);
-		emit dataChanged(index, index);
-		return true;
-	}
-	return false;	// no value set
-}
-
-bool AMBeamlineActionListModel::insertRows(int position, int rows, const QModelIndex &index){
-	if (index.row() <= actions_->count() && position <= actions_->count()) {
-		beginInsertRows(QModelIndex(), position, position+rows-1);
-		AMBeamlineActionItem *tmpAction = NULL;
-		for (int row = 0; row < rows; ++row) {
-			actions_->insert(position, tmpAction);
-		}
-		endInsertRows();
-		return true;
-	}
-	return false;
-}
-
-bool AMBeamlineActionListModel::removeRows(int position, int rows, const QModelIndex &index){
-	if (index.row() < actions_->count() && position < actions_->count()) {
-		beginRemoveRows(QModelIndex(), position, position+rows-1);
-		for (int row = 0; row < rows; ++row) {
-			actions_->removeAt(position);
-		}
-		endRemoveRows();
-		return true;
-	}
-	return false;
-}
-
-Qt::ItemFlags AMBeamlineActionListModel::flags(const QModelIndex &index) const{
-	Qt::ItemFlags flags;
-	if (index.isValid() && index.row() < actions_->count() && index.column()<4)
-		flags = Qt::ItemIsEditable | Qt::ItemIsSelectable | Qt::ItemIsEnabled;
-	return flags;
-}
-
-AMBeamlineActionsList::AMBeamlineActionsList(QObject *parent) :
-		QObject(parent)
-{
-	actions_ = NULL;
-	setupModel();
-}
-
-AMBeamlineActionItem* AMBeamlineActionsList::action(size_t index) const{
-	QVariant retVal = actions_->data(actions_->index(index, 0), Qt::DisplayRole);
-	if(retVal.isValid())
-		return (AMBeamlineActionItem*) retVal.value<void*>();
-	return NULL;
-}
-
-int AMBeamlineActionsList::indexOf(AMBeamlineActionItem *iAction){
-	for(int x = 0; x < count(); x++)
-		if(action(x) == iAction)
-			return x;
-	return -1;
-}
-
-bool AMBeamlineActionsList::setAction(size_t index, AMBeamlineActionItem *action){
-	AMBeamlineActionItem *oldAction = (AMBeamlineActionItem*)actions_->data( actions_->index(index, 0), Qt::DisplayRole ).value<void*>();
-	AMBeamlineActionItem *prevAction = NULL;
-	AMBeamlineActionItem *nextAction = NULL;
-	if( (int)index != 0)
-		prevAction = (AMBeamlineActionItem*)actions_->data( actions_->index(index-1, 0), Qt::DisplayRole ).value<void*>();
-	if( (int)index != (count() -1) )
-		nextAction = (AMBeamlineActionItem*)actions_->data( actions_->index(index+1, 0), Qt::DisplayRole ).value<void*>();
-	if(oldAction){ //replace
-		if(prevAction){
-			disconnect(prevAction, SIGNAL(succeeded()), oldAction, SLOT(start()));
-			prevAction->setNext(action);
-			action->setPrevious(prevAction);
-			connect(prevAction, SIGNAL(succeeded()), action, SLOT(start()));
-		}
-		if(nextAction){
-			disconnect(oldAction, SIGNAL(succeeded()), nextAction, SLOT(start()));
-			action->setNext(nextAction);
-			nextAction->setPrevious(action);
-			connect(action, SIGNAL(succeeded()), nextAction, SLOT(start()));
-		}
-		oldAction->setPrevious(NULL);
-		oldAction->setNext(NULL);
-	}
-	else{ //insert
-		if(prevAction && nextAction)
-			disconnect(prevAction, SIGNAL(succeeded()), nextAction, SLOT(start()));
-		if(prevAction){
-			prevAction->setNext(action);
-			action->setPrevious(prevAction);
-			connect(prevAction, SIGNAL(succeeded()), action, SLOT(start()));
-		}
-		if(nextAction){
-			action->setNext(nextAction);
-			nextAction->setPrevious(action);
-			connect(action, SIGNAL(succeeded()), nextAction, SLOT(start()));
-		}
-	}
-
-	return actions_->setData(actions_->index(index, 0), qVariantFromValue((void*)action), Qt::EditRole);
-}
-
-bool AMBeamlineActionsList::addAction(size_t index, AMBeamlineActionItem *action){
-	if(!actions_->insertRows(index, 1))
-		return false;
-	return setAction(index, action);
-}
-
-bool AMBeamlineActionsList::appendAction(AMBeamlineActionItem *action){
-	return addAction(count(), action);
-}
-
-bool AMBeamlineActionsList::deleteAction(size_t index){
-	if(count() == 0)
-		return false;
-	AMBeamlineActionItem *oldAction = (AMBeamlineActionItem*)actions_->data( actions_->index(index, 0), Qt::DisplayRole ).value<void*>();
-	AMBeamlineActionItem *prevAction = NULL;
-	AMBeamlineActionItem *nextAction = NULL;
-	if( (int)index != 0)
-		prevAction = (AMBeamlineActionItem*)actions_->data( actions_->index(index-1, 0), Qt::DisplayRole ).value<void*>();
-	if( (int)index != (count() -1) )
-		nextAction = (AMBeamlineActionItem*)actions_->data( actions_->index(index+1, 0), Qt::DisplayRole ).value<void*>();
-	bool retVal = actions_->removeRows(index, 1);
-	if(retVal){
-		if(prevAction){
-			disconnect(prevAction, SIGNAL(succeeded()), oldAction, SLOT(start()));
-			prevAction->setNext(nextAction);
-		}
-		if(nextAction){
-			disconnect(oldAction, SIGNAL(succeeded()), nextAction, SLOT(start()));
-			nextAction->setPrevious(prevAction);
-		}
-		if(prevAction && nextAction)
-			connect(prevAction, SIGNAL(succeeded()), nextAction, SLOT(start()));
-		oldAction->setPrevious(NULL);
-		oldAction->setNext(NULL);
-	}
-	return retVal;
-}
-
-bool AMBeamlineActionsList::setupModel(){
-	actions_ = new AMBeamlineActionListModel(this);
-	if(actions_){
-		connect(actions_, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(onDataChanged(QModelIndex,QModelIndex)) );
-		return true;
-	}
-	return false;
-}
-
-AMBeamlineActionsListView::AMBeamlineActionsListView(AMBeamlineActionsList *actionsList, QWidget *parent) :
+AMBeamlineActionsListView::AMBeamlineActionsListView(AMBeamlineActionsList *actionsList, AMBeamlineActionsQueue *actionsQueue, QWidget *parent) :
 		QWidget(parent)
 {
 	actionsList_ = actionsList;
+	actionsQueue_ = actionsQueue;
 	focusAction_ = -1;
-	insertRowIndex_ = -1;
 
+	//insertRowIndex_ = -1;
+	actionsViewList_ = new AMVerticalStackWidget();
+	QVBoxLayout *vl = new QVBoxLayout();
+	vl->addWidget(actionsViewList_);
+	setLayout(vl);
+
+	/*
 	gb_ = new QGroupBox();
 	gb_->setTitle("Workflow");
 	iib = new QVBoxLayout();
@@ -282,8 +105,13 @@ AMBeamlineActionsListView::AMBeamlineActionsListView(AMBeamlineActionsList *acti
 	connect(actionsList_->model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(handleDataChanged(QModelIndex,QModelIndex)));
 	connect(actionsList_->model(), SIGNAL(rowsInserted(const QModelIndex,int,int)), this, SLOT(handleRowsInsert(QModelIndex,int,int)));
 	connect(actionsList_->model(), SIGNAL(rowsRemoved(const QModelIndex,int,int)), this, SLOT(handleRowsRemoved(QModelIndex,int,int)));
+	*/
+	connect(actionsList_, SIGNAL(actionChanged(int)), this, SLOT(onActionChanged(int)));
+	connect(actionsList_, SIGNAL(actionAdded(int)), this, SLOT(onActionAdded(int)));
+	connect(actionsList_, SIGNAL(actionRemoved(int)), this, SLOT(onActionRemoved(int)));
 }
 
+/*
 AMBeamlineActionItem* AMBeamlineActionsListView::firstInQueue(){
 	if(actionsQueue_.count() > 0)
 		return actionsQueue_.head();
@@ -306,7 +134,37 @@ int AMBeamlineActionsListView::visibleIndexOfFirst(){
 //	else
 	return visibleViewList_.count()-actionsQueue_.count();
 }
+*/
 
+void AMBeamlineActionsListView::onActionChanged(int index){
+	AMBeamlineActionItem *tmpItem = actionsList_->action(index);
+	if(tmpItem->type() == "actionItem.scanAction")
+		((AMBeamlineScanActionView*)actionsViewList_->widget(index))->setAction((AMBeamlineScanAction*)tmpItem);
+	else if(tmpItem->type() == "actionItem.controlMoveAction"){
+		((AMBeamlineControlMoveActionView*)actionsViewList_->widget(index))->setAction((AMBeamlineControlMoveAction*)tmpItem);
+	}
+//		((AMBeamlineScanActionView*)fullViewList_.at(topLeft.row()))->setAction((AMBeamlineScanAction*)tmpItem);
+}
+
+void AMBeamlineActionsListView::onActionAdded(int index){
+	AMBeamlineActionItem *tmpItem = actionsList_->action(index);
+	if(tmpItem->type() == "actionItem.scanAction"){
+		AMBeamlineScanAction *scanAction = (AMBeamlineScanAction*)tmpItem;
+		AMBeamlineScanActionView *scanActionView = new AMBeamlineScanActionView(scanAction, index);
+		actionsViewList_->addItem(scanActionView, "Scan", true);
+	}
+	else if(tmpItem->type() == "actionItem.controlMoveAction"){
+		AMBeamlineControlMoveAction *moveAction = (AMBeamlineControlMoveAction*)tmpItem;
+		AMBeamlineControlMoveActionView *moveActionView = new AMBeamlineControlMoveActionView(moveAction, index);
+		actionsViewList_->addItem(moveActionView, "Move To", true);
+	}
+}
+
+void AMBeamlineActionsListView::onActionRemoved(int index){
+	actionsViewList_->removeItem(index);
+}
+
+/*
 void AMBeamlineActionsListView::handleDataChanged(QModelIndex topLeft, QModelIndex bottomRight){
 	AMBeamlineActionItem *tmpItem = actionsList_->action(topLeft.row());
 	qDebug() << "In handleDataChanged on " << topLeft.row() << bottomRight.row();
@@ -532,12 +390,13 @@ void AMBeamlineActionsListView::reindexViews(){
 	for(int x = 0; x < viewQueue_.count(); x++)
 		viewQueue_.at(x)->setIndex(x+1);
 }
+*/
 
 AMBeamlineActionAdder::AMBeamlineActionAdder(QWidget *parent) :
 		QWidget(parent)
 {
 	addWhereBox_ = new QComboBox();
-	onQueueUpdated(QQueue<AMBeamlineActionItem *>());
+	onQueueUpdated(NULL);
 	actionTypeBox_ = new QComboBox();
 	QStringList actionTypes;
 	actionTypes << "Choose Action Type" << "Scan Action" << "Move Action";
@@ -565,12 +424,14 @@ AMBeamlineActionAdder::AMBeamlineActionAdder(QWidget *parent) :
 	moveSetpointDSB_ = NULL;
 }
 
-void AMBeamlineActionAdder::onQueueUpdated(QQueue<AMBeamlineActionItem *> actionsQueue){
+void AMBeamlineActionAdder::onQueueUpdated(AMBeamlineActionsQueue *actionsQueue){
 	addWhereBox_->clear();
 	QStringList positions;
 	positions << "Front of queue";
 	QString tmpStr;
-	for(int x = 0; x < actionsQueue.count(); x++)
+	if(!actionsQueue)
+		return;
+	for(int x = 0; x < actionsQueue->count(); x++)
 		positions << "After "+tmpStr.setNum(x+1);
 	addWhereBox_->addItems(positions);
 }

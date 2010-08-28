@@ -17,6 +17,9 @@ Q_OBJECT
 public:
 	explicit AMBeamlineActionItem(QString message = "", QObject *parent = 0);
 	bool isRunning() { return running_; }
+	bool hasStarted() { return started_; }
+	bool hasSucceeded() { return succeeded_; }
+	bool hasFailed() { return failed_; }
 	bool hasFeedback() { return hasFeedback_; }
 	bool needsInput() { return needsInput_; }
 	AMBeamlineActionItem* previous() const { return previous_;}
@@ -31,7 +34,7 @@ signals:
 	void failed(int explanation);
 
 public slots:
-	virtual void start(){ running_ = true; emit started(); }
+	virtual void start(){ running_ = true; started_ = true; emit started(); }
 	bool setPrevious(AMBeamlineActionItem* previous);//{ previous_ = previous; return true;
 //#warning("DAVID! This warning is... RAW!");
 //		}
@@ -40,9 +43,9 @@ public slots:
 //		}
 
 protected:
-	bool start_;
-	bool succeed_;
-	bool fail_;
+	bool started_;
+	bool succeeded_;
+	bool failed_;
 	bool running_;
 	bool hasFeedback_;
 	bool needsInput_;

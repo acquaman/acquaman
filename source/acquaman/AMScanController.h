@@ -24,6 +24,8 @@ public:
 	bool isPaused() const {return paused_;}
 	bool isInitialized() const {return initialized_;}
 
+	virtual AMScan* scan() {return pScan_();}
+
 signals:
 	/// Scan has started
 	void started();
@@ -39,6 +41,7 @@ signals:
 	void timeRemaining(double seconds);
 	void progress(double elapsed, double total);
 
+	void scanCreated(AMScan *scan);
 
 public slots:
 	/// Start scan running if not currently running or paused
@@ -50,7 +53,6 @@ public slots:
 	/// Resume scan if currently paused
 	virtual void resume() = 0;
 	virtual void initialize() = 0;
-
 
 protected:
 	/// Configuration for this scan
@@ -68,6 +70,34 @@ private:
 
 	AMScanConfiguration* pCfg_() { return *_pCfg_;}
 	AMScan* pScan_() {return *_pScan_;}
+};
+
+class AMScanControllerSupervisor : public QObject
+{
+Q_OBJECT
+public:
+	static AMScanControllerSupervisor* scanControllerSupervisor();
+	static void releaseScanControllerSupervisor();
+
+	virtual ~AMScanControllerSupervisor();
+
+	AMScanController* currentScanController();
+
+public slots:
+	bool setCurrentScanController(AMScanController *newController);
+
+signals:
+	void currentScanControllerCreated();
+	void currentScanControllerDestroyed();
+
+protected slots:
+	void onCurrentScanControllerFinished();
+
+protected:
+	AMScanControllerSupervisor(QObject *parent = 0);
+	static AMScanControllerSupervisor *instance_;
+
+	AMScanController *currentScanController_;
 };
 
 #endif // ACQMAN_SCANCONTROLLER_H

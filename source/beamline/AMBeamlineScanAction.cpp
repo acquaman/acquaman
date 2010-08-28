@@ -1,5 +1,9 @@
 #include "AMBeamlineScanAction.h"
 
+#define AMBEAMLINEACTIONITEM_INVALID_SCAN_TYPE 101
+#define AMBEAMLINEACTIONITEM_SCAN_CANCELLED 102
+#define AMBEAMLINEACTIONITEM_CANT_SET_CURRENT_CONTROLLER 103
+
 AMBeamlineScanAction::AMBeamlineScanAction(AMScanConfiguration *cfg, QString scanType, QString message, QObject *parent) :
 	AMBeamlineActionItem(message, parent)
 {
@@ -24,8 +28,13 @@ void AMBeamlineScanAction::start(){
 	if(scanType_ == "SGMXASScan"){
 		SGMXASScanConfiguration* lCfg = (SGMXASScanConfiguration*)cfg_;
 		ctrl_ = new SGMXASDacqScanController( lCfg, this);
-		SGMXASDacqScanController *lCtrl = (SGMXASDacqScanController*)ctrl_;
-		//connect(lCtrl, SIGNAL(finished()), this, SIGNAL(succeeded()));
+		if( !AMScanControllerSupervisor::scanControllerSupervisor()->setCurrentScanController(ctrl_) ){
+			delete ctrl_;
+			qDebug() << "Failed to set current scan controller";
+			emit failed(AMBEAMLINEACTIONITEM_CANT_SET_CURRENT_CONTROLLER);
+			return;
+		}
+		SGMXASDacqScanController *lCtrl = (SGMXASDacqScanController*)AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController();
 		connect(lCtrl, SIGNAL(finished()), this, SLOT(scanSucceeded()));
 		connect(lCtrl, SIGNAL(cancelled()), this, SLOT(scanCancelled()));
 		connect(lCtrl, SIGNAL(progress(double,double)), this, SIGNAL(progress(double,double)));
@@ -34,7 +43,7 @@ void AMBeamlineScanAction::start(){
 		AMBeamlineActionItem::start();
 	}
 	else
-		emit failed(101);
+		emit failed(AMBEAMLINEACTIONITEM_INVALID_SCAN_TYPE);
 }
 
 void AMBeamlineScanAction::cancel(){
@@ -57,11 +66,13 @@ void AMBeamlineScanAction::pause(bool pause){
 void AMBeamlineScanAction::scanCancelled(){
 	qDebug() << "Failed b/c of cancel";
 	running_ = false;
-	emit failed(102);
+	failed_ = true;
+	emit failed(AMBEAMLINEACTIONITEM_SCAN_CANCELLED);
 }
 
 void AMBeamlineScanAction::scanSucceeded(){
 	running_ = false;
+	succeeded_ = true;
 	emit succeeded();
 }
 
