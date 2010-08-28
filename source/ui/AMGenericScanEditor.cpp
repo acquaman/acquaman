@@ -58,7 +58,10 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 	ui_.scanListView->setModel(scanSetModel_);
 	ui_.scanListView->setSelectionMode(QAbstractItemView::SingleSelection);
 
-	ui_.scanListView->setItemDelegate(new AMDetailedItemDelegate(this));
+	AMDetailedItemDelegate* del = new AMDetailedItemDelegate(this);
+	del->setCloseButtonsEnabled(true);
+	connect(del, SIGNAL(closeButtonClicked(QModelIndex)), this, SLOT(onScanModelCloseClicked(QModelIndex)));
+	ui_.scanListView->setItemDelegate(del);
 	ui_.scanListView->setAlternatingRowColors(true);
 	ui_.scanListView->setAttribute( Qt::WA_MacShowFocusRect, false);
 
@@ -162,6 +165,51 @@ void AMGenericScanEditor::updateEditor(AMScan *scan) {
 }
 
 
+/// called when the close buttons in the list of scans are clicked
+void AMGenericScanEditor::onScanModelCloseClicked(const QModelIndex& index) {
+	/// Just a quick check to make sure that this is a valid scan index (ie: parent is a top-level index; index.row() is the scan index)
+	if(index.parent() == QModelIndex() && index.isValid())
+		deleteScanWithModifiedCheck(scanSetModel_->scanAt(index.row()));
+
+}
+
+#include <QMessageBox>
+/// Remove a scan and delete it, but ask the user for confirmation if it's been modified.
+void AMGenericScanEditor::deleteScanWithModifiedCheck(AMScan* scan) {
+	// easy way first:
+	if(!scan->modified()) {
+		deleteScan(scan);
+		return;
+	}
+
+	QMessageBox enquiry(this);
+	enquiry.setText(QString("Do you want to save the changes you made to the scan '%1' (#%2)?").arg(scan->name()).arg(scan->number()));
+	enquiry.setInformativeText("Your changes will be lost if you don't save them.");
+	enquiry.setDetailedText("Cool... I didn't even know you could provide detailed text. What now, Brown Cow?");
+	enquiry.setIcon(QMessageBox::Question);
+	enquiry.setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+	enquiry.setDefaultButton(QMessageBox::Save);
+	enquiry.setEscapeButton(QMessageBox::Cancel);
+
+	int result = enquiry.exec();
+
+	if(result == QMessageBox::Discard) {
+		deleteScan(scan);
+	}
+
+	else if(result == QMessageBox::Save) {
+		bool saveSuccess;
+		if(scan->database())
+			saveSuccess = scan->storeToDb(scan->database());
+		else
+			saveSuccess = scan->storeToDb(AMDatabase::userdb());
+
+		if(saveSuccess)
+			deleteScan(scan);
+	}
+
+}
+
 /// Overloaded to enable drag-dropping scans (when Drag Action = Qt::CopyAction and mime-type = "text/uri-list" with the proper format.)
 void AMGenericScanEditor::dragEnterEvent(QDragEnterEvent *event) {
 	if(	event->possibleActions() & Qt::CopyAction
@@ -173,6 +221,7 @@ void AMGenericScanEditor::dragEnterEvent(QDragEnterEvent *event) {
 		event->acceptProposedAction();
 	}
 }
+
 
 
 

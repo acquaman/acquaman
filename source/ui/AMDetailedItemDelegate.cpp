@@ -9,12 +9,14 @@
 
 
 AMDetailedItemDelegate::AMDetailedItemDelegate(QObject *parent) :
-QStyledItemDelegate(parent)
+		QStyledItemDelegate(parent)
 {
-	setFont(QFont("Lucida Grande", 10));
+	// apply defaults:
+	setFont();
 	setTextColor();
 	setFontSize();
 	setItemHeight();
+	setCloseButtonAction();
 }
 
 void AMDetailedItemDelegate::setItemHeight(int height){
@@ -35,6 +37,7 @@ void AMDetailedItemDelegate::setFontSize(int size1,int size2){
 	size1_=size1;
 	size2_=size2;
 }
+
 
 void AMDetailedItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const  {
 
@@ -82,10 +85,24 @@ void AMDetailedItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem
 	if(!description.isNull()){
 		painter->setFont(font_);
 		painter->setPen(color2_);
-	//	painter->drawText(textRect.translated(QPoint(0,20)), opt.fontMetrics.elidedText(description.toString(), Qt::ElideRight, textRect.width() ));
+		//	painter->drawText(textRect.translated(QPoint(0,20)), opt.fontMetrics.elidedText(description.toString(), Qt::ElideRight, textRect.width() ));
 		painter->drawText(textRect.translated(QPoint(0,20)), opt.fontMetrics.elidedText(modifier.checkAndModifyDate(modifiedTime.toDateTime()), Qt::ElideRight, textRect.width() ));
 
 	}
+
+	/// Display close button?
+	if(closeButtonEnabled_) {
+		// "local" rectangle of the close button. Must add
+		closeButtonRect_ = QRect(
+				opt.rect.width() - 20,
+				(opt.rect.height() - 13)/2,
+				12,
+				13);
+		painter->drawPixmap(opt.rect.left() + closeButtonRect_.left(),
+							opt.rect.top() + closeButtonRect_.top(),
+							closeButton_);
+	}
+
 
 	/* What info is available:
 enum OptionType
@@ -124,4 +141,44 @@ viewItemPosition : ViewItemPosition
 widget : const QWidget *
 operator= ( const QStyleOptionViewItem & ) : QStyleOption
 */
+}
+
+
+#include <QEvent>
+#include <QMouseEvent>
+
+bool AMDetailedItemDelegate::editorEvent ( QEvent * event, QAbstractItemModel * model, const QStyleOptionViewItem & option, const QModelIndex & index ) {
+
+	if(!closeButtonEnabled_)
+		return QStyledItemDelegate::editorEvent(event, model, option, index);
+
+
+	if(event->type() == QEvent::MouseButtonPress) {
+		mouseDownPosition_ = static_cast<QMouseEvent*>(event)->pos();
+	}
+
+	if(event->type() == QEvent::MouseButtonRelease) {
+		QMouseEvent* e = static_cast<QMouseEvent*>(event);
+		// Normally, a "click" has to be released nearly in the same position as where it was pushed down. I should actually check that both the down and the up are within the confines of the same widget/button, but we don't really have buttons here now.
+		// This is our criteria for a valid click. Now is it on a close button?
+		if( (mouseDownPosition_ - e->pos()).manhattanLength() < QApplication::startDragDistance() ) {
+			QPoint localPos = e->pos() - option.rect.topLeft();
+
+			// we're on the button!
+			if( closeButtonRect_.contains(localPos) ) {
+				emit closeButtonClicked(index);
+
+				// handle anything special the view might need to do on mouse-release?
+				// QStyledItemDelegate::editorEvent(event, model, option, index);
+
+				if(closeButtonAction_ == RemoveFromModel) {
+					model->removeRow(index.row(), index.parent());
+				}
+				// given that we've acted on this, we want this event.
+				return true;
+			}
+		}
+	}
+
+	return QStyledItemDelegate::editorEvent(event, model, option, index);
 }

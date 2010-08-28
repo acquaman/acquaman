@@ -173,8 +173,6 @@ void AMSampleEditor::refreshSamples() {
 	/////////////////////////////////////
 	else {
 
-		qDebug() << "Calling full-out AMSampleEditor::refreshSamples";
-
 		// clear the old map from sample IDs to combo-box indexes
 		sampleId2Index_.clear();
 

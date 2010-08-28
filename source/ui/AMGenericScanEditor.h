@@ -38,6 +38,9 @@ public:
 		delete scan;
 	}
 
+	/// Remove a scan and delete it, but ask the user for confirmation if it's been modified.
+	void deleteScanWithModifiedCheck(AMScan* scan);
+
 	/// Remove a scan from the editor, but don't delete the scan. Ownership becomes the responsibility of the caller.
 	void removeScan(AMScan* scan) {
 		scanSetModel_->removeScan(scan);
@@ -66,7 +69,7 @@ signals:
 public slots:
 
 protected slots:
-	/// Ultimately, we might handle more than one scan being "selected" at once. This catches changes in the scans that are currently selected, and hooks them up to the editor widgets
+	///  This catches changes in the scan that is currently selected, and hooks it up to the editor widgets. \todo Ultimately, we might handle more than one scan being "selected" at once.
 	void onCurrentChanged ( const QModelIndex & selected, const QModelIndex & deselected );
 
 	/// This slot responds to meta-data changes in the current scan
@@ -76,6 +79,9 @@ protected slots:
 	void onNotesTextChanged() {
 		emit notesChanged(ui_.notesEdit->toPlainText());
 	}
+
+	/// called when the close buttons in the list of scans are clicked
+	void onScanModelCloseClicked(const QModelIndex& index);
 
 
 protected:
