@@ -1,6 +1,6 @@
 #include "AMScanController.h"
 
-AMScanController* AMScanController::currentScanController_ = 0;
+AMScanControllerSupervisor* AMScanControllerSupervisor::instance_ = 0;
 
 AMScanController::AMScanController(AMScanConfiguration *cfg, QObject *parent) :
 	QObject(parent)
@@ -11,31 +11,50 @@ AMScanController::AMScanController(AMScanConfiguration *cfg, QObject *parent) :
 	_pScan_ = &generalScan_;
 }
 
-AMScanController* AMScanController::currentScanController(){
+
+AMScanControllerSupervisor::AMScanControllerSupervisor(QObject *parent) :
+		QObject(parent)
+{
+	currentScanController_ = NULL;
+}
+
+
+AMScanControllerSupervisor::~AMScanControllerSupervisor()
+{
+}
+
+AMScanControllerSupervisor* AMScanControllerSupervisor::scanControllerSupervisor(){
+	if(instance_ == 0)
+		instance_ = new AMScanControllerSupervisor();
+	return instance_;
+}
+
+void AMScanControllerSupervisor::releaseScanControllerSupervisor(){
+	if(instance_){
+		delete instance_;
+		instance_ = 0;
+	}
+}
+
+AMScanController* AMScanControllerSupervisor::currentScanController(){
 	return currentScanController_;
 }
 
-bool AMScanController::setCurrentScanController(AMScanController *newScanController){
-	if(currentScanController_){
-		qDebug() << "Can't set current scan controller, already have one";
+bool AMScanControllerSupervisor::setCurrentScanController(AMScanController *newScanController){
+	qDebug() << "In setCurrentSC with " << (int)currentScanController_;
+	if(currentScanController_)
 		return false;
-	}
 	currentScanController_ = newScanController;
-	currentScanController_->initiateCurrentScanControllerCreated();
+	qDebug()  << " and " << currentScanController_->scan();
+	if(!currentScanController_->scan())
+		return false;
+	connect(currentScanController_, SIGNAL(finished()), this, SLOT(onCurrentScanControllerFinished()));
+	emit currentScanControllerCreated();
 	return true;
 }
 
-void AMScanController::initiateCurrentScanControllerCreated(){
-	connect(currentScanController_, SIGNAL(finished()), currentScanController_, SLOT(onCurrentScanControllerFinished()));
-	emit currentScanControllerCreated();
-}
-
-void AMScanController::initiateCurrentScanControllerDestroyed(){
+void AMScanControllerSupervisor::onCurrentScanControllerFinished(){
 	emit currentScanControllerDestroyed();
-}
-
-void AMScanController::onCurrentScanControllerFinished(){
-	currentScanController_->initiateCurrentScanControllerDestroyed();
 	currentScanController_->deleteLater();
-	currentScanController_ = 0;
+	currentScanController_ = NULL;
 }

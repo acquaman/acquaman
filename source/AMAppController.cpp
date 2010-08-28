@@ -1,6 +1,7 @@
 #include "AMAppController.h"
 
 #include "AMSettings.h"
+#include "acquaman.h"
 
 #include "ui/AMMainWindow.h"
 
@@ -32,6 +33,8 @@
 #include "ui/BottomBar.h"
 #include "ui/AMDataView.h"
 #include "ui/AMRunExperimentInsert.h"
+
+#include <QStandardItemModel>
 #include "ui/AMGenericScanEditor.h"
 
 #include "acquaman/AMScanController.h"
@@ -107,9 +110,14 @@ AMAppController::AMAppController(QObject *parent) :
 	mw_->addPane(new PeriodicTable(), "Experiment Tools", "Periodic Table", ":/applications-science.png");
 	mw_->addPane(new ProtocolViewer(), "Experiment Tools", "Protocol", ":/accessories-text-editor.png");
 
-	scanEditor_ = new AMGenericScanEditor();
+	scanEditors_ = new QStandardItemModel(this);
+	AMGenericScanEditor *scanEditor = new AMGenericScanEditor();
+	QStandardItem *item = new QStandardItem("Title Goes Here");
+	item->setData(qVariantFromValue(scanEditor), AM::PointerRole);
+	scanEditors_->insertRow(scanEditors_->rowCount(), item);
+
 	/// \todo update name with names of open scans...
-	mw_->addPane(scanEditor_, "Now Playing...", "Scan Editor", ":/applications-science.png");
+	mw_->addPane(scanEditor, "Now Playing...", "Scan Editor", ":/applications-science.png");
 
 
 	// Make a dataview widget and add it under two links/headings: "Runs" and "Experiments"
@@ -123,9 +131,8 @@ AMAppController::AMAppController(QObject *parent) :
 	connect(runExperimentInsert_, SIGNAL(runSelected(int)), dataView_, SLOT(showRun(int)));
 	connect(runExperimentInsert_, SIGNAL(experimentSelected(int)), dataView_, SLOT(showExperiment(int)));
 
-	scanController_ = AMScanController::currentScanController();
-	connect(scanController_, SIGNAL(currentScanControllerCreated()), this, SLOT(onCurrentScanControllerCreated()));
-	connect(scanController_, SIGNAL(currentScanControllerDestroyed()), this, SLOT(onCurrentScanControllerDestroyed()));
+	connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerCreated()), this, SLOT(onCurrentScanControllerCreated()));
+	connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerDestroyed()), this, SLOT(onCurrentScanControllerDestroyed()));
 
 
 	// Make connections:
@@ -214,11 +221,22 @@ void AMAppController::onCurrentPaneChanged(QWidget *pane) {
 }
 
 void AMAppController::onCurrentScanControllerCreated(){
-
+	qDebug() << "Detected creation of " << (int)AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController();
+	AMGenericScanEditor *scanEditor = new AMGenericScanEditor();
+	QStandardItem *item = new QStandardItem("Title Goes Here");
+	item->setData(qVariantFromValue(scanEditor), AM::PointerRole);
+	scanEditors_->insertRow(scanEditors_->rowCount(), item);
+	mw_->addPane(scanEditor, "Now Playing...", "Scan Editor", ":/applications-science.png");
+	scanEditor->addScan(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan());
+	mw_->undock(scanEditor);
+	QPoint newPos;
+	newPos.setX(scanEditor->pos().x()+100);
+	newPos.setY(scanEditor->pos().y()+75);
+	scanEditor->move(newPos);
 }
 
 void AMAppController::onCurrentScanControllerDestroyed(){
-
+	qDebug() << "Detected deletion of " << (int)AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController();
 }
 
 #include "dataman/AMExperiment.h"

@@ -14,6 +14,8 @@ public:
 
 	bool isInitialized() { return (initialized_ && beamlineInitialized_);}
 
+	virtual AMScan* scan() {return pScan_();}
+
 signals:
 	void initialized();
 
@@ -21,7 +23,7 @@ public slots:
 	void initialize();
 	void start();
 
-	AMXASScan* scan(){ return pScan_();}
+//	AMXASScan* scan(){ return pScan_();}
 
 private:
 	SGMXASScanConfiguration **_pCfg_;

@@ -16,9 +16,6 @@ Q_PROPERTY(bool paused READ isPaused)
 public:
 	explicit AMScanController(AMScanConfiguration *cfg, QObject *parent = 0);
 
-	static AMScanController* currentScanController();
-	static bool setCurrentScanController(AMScanController *newScanController);
-
 	/// Returns true if the scan is running but not paused
 	bool isRunning() const {return running_ && !paused_;}
 	/// Convenience call, returns true if the scan is not running
@@ -26,6 +23,8 @@ public:
 	/// Returns true if the scan is running and paused
 	bool isPaused() const {return paused_;}
 	bool isInitialized() const {return initialized_;}
+
+	virtual AMScan* scan() {return pScan_();}
 
 signals:
 	/// Scan has started
@@ -42,9 +41,7 @@ signals:
 	void timeRemaining(double seconds);
 	void progress(double elapsed, double total);
 
-	/// Don't call these
-	void currentScanControllerCreated();
-	void currentScanControllerDestroyed();
+	void scanCreated(AMScan *scan);
 
 public slots:
 	/// Start scan running if not currently running or paused
@@ -57,15 +54,7 @@ public slots:
 	virtual void resume() = 0;
 	virtual void initialize() = 0;
 
-protected slots:
-	void initiateCurrentScanControllerCreated();
-	void initiateCurrentScanControllerDestroyed();
-	void onCurrentScanControllerFinished();
-
 protected:
-	static AMScanController *currentScanController_;
-//	static void onCurrentScanControllerFinished();
-
 	/// Configuration for this scan
 	AMScanConfiguration *generalCfg_;
 	AMScan *generalScan_;
@@ -81,6 +70,34 @@ private:
 
 	AMScanConfiguration* pCfg_() { return *_pCfg_;}
 	AMScan* pScan_() {return *_pScan_;}
+};
+
+class AMScanControllerSupervisor : public QObject
+{
+Q_OBJECT
+public:
+	static AMScanControllerSupervisor* scanControllerSupervisor();
+	static void releaseScanControllerSupervisor();
+
+	virtual ~AMScanControllerSupervisor();
+
+	AMScanController* currentScanController();
+
+public slots:
+	bool setCurrentScanController(AMScanController *newController);
+
+signals:
+	void currentScanControllerCreated();
+	void currentScanControllerDestroyed();
+
+protected slots:
+	void onCurrentScanControllerFinished();
+
+protected:
+	AMScanControllerSupervisor(QObject *parent = 0);
+	static AMScanControllerSupervisor *instance_;
+
+	AMScanController *currentScanController_;
 };
 
 #endif // ACQMAN_SCANCONTROLLER_H

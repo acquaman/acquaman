@@ -20,9 +20,8 @@ class BottomBar;
 class AMDataView;
 class AMRunExperimentInsert;
 
-class AMGenericScanEditor;
-
-class AMScanController;
+class QStandardItemModel;
+//class AMGenericScanEditor;
 
 
 class QMenuBar;
@@ -88,9 +87,8 @@ protected:
 	AMDataView* dataView_;
 	AMRunExperimentInsert* runExperimentInsert_;
 
-	AMGenericScanEditor* scanEditor_;
-
-	AMScanController *scanController_;
+//	AMGenericScanEditor* scanEditor_;
+	QStandardItemModel* scanEditors_;
 };
 
 #endif // AMAPPCONTROLLER_H

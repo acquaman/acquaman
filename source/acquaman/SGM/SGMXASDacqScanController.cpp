@@ -5,6 +5,7 @@ SGMXASDacqScanController::SGMXASDacqScanController(SGMXASScanConfiguration *cfg,
 {
 	_pCfg_ = &specificCfg_;
 	_pScan_ = &specificScan_;
+	emit scanCreated(scan());
 }
 
 void SGMXASDacqScanController::initialize(){
