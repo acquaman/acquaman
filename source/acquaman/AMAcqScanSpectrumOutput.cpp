@@ -19,14 +19,6 @@ AMAcqScanSpectrumOutput::AMAcqScanSpectrumOutput() : acqTextSpectrumOutput()
 	lockHash_ = false;
 	colNo_ = 0;
 	specColNo_ = 0;
-
-	/*NEEDS TO BE DELETED I THINK
-	plotWindow = new MPlotWidget();
-	plot = new MPlot();
-	plotWindow->setPlot(plot);
-	series1 = new MPlotSeriesBasic();
-	data1 = new MPlotRealtimeModel();
-	*/
 }
 
 AMAcqScanSpectrumOutput::~AMAcqScanSpectrumOutput(){
@@ -40,14 +32,6 @@ AMAcqScanSpectrumOutput::new_AMAcqScanSpectrumOutput()
 
 void AMAcqScanSpectrumOutput::setScan(AMScan *scan){
 	scan_ = scan;
-
-	/* NO LONGER NEEDED?
-	// DAVID FIX HERE TO GET SCAN WINDOW BACK
-	sv = new AMScanView();
-	sv->show();
-	sv->addScan(scan_);
-	*/
-
 }
 
 /// C interface to the Constructor.
@@ -182,8 +166,6 @@ int AMAcqScanSpectrumOutput::putValue( acqKey_t key, int eventno, int pvno, cons
 				to->scan_->d_->deeper(to->pvnoToColumn_[pvno], to->scan_->d_->count()-1)->setValue(0, x, spectraVal[x]);
 			}
 		}
-		//if(pvno == 2)
-		//	to->data1->insertPointBack(to->scan_->d_->x(to->scan_->d_->count()-1), dataVal);
 	}
 	else if( (pvno != 0) && (eventno == 1) ){
 		if(pvpr->isSpectrum)
@@ -200,8 +182,6 @@ int AMAcqScanSpectrumOutput::putValue( acqKey_t key, int eventno, int pvno, cons
 		QMap<int, double>::const_iterator i = to->dataDelayList_.constBegin();
 		while (i != to->dataDelayList_.constEnd()) {
 			to->scan_->d_->setLastValue(i.key()-1, i.value());
-			//if(i.key() == 2)
-			//	to->data1->insertPointBack(dataVal, i.value());
 			++i;
 		}
 		int tCol;

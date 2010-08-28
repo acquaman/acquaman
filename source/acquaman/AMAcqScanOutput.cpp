@@ -16,14 +16,6 @@ AMAcqScanOutput::AMAcqScanOutput(){
 	handler.pvValue_cb = putValue;
 	handler.shutdown_cb = shutdown;
 	dataDelay_ = true;
-
-	/* NEEDS TO BE DELETED I THINK
-	plotWindow = new MPlotWidget();
-	plot = new MPlot();
-	plotWindow->setPlot(plot);
-	series1 = new MPlotSeriesBasic();
-	data1 = new MPlotRealtimeModel();
-	*/
 }
 
 AMAcqScanOutput::~AMAcqScanOutput(){
@@ -37,15 +29,6 @@ acqBaseOutput *
 
 void AMAcqScanOutput::setScan(AMScan *scan){
 	scan_ = scan;
-//	series1->setModel(data1);
-	/*
-	series1->setModel(scan_->channel(2));
-	plot->addItem(series1);
-	plot->setScalePadding(5);
-	plot->enableAutoScale(MPlotAxis::Left | MPlotAxis::Bottom);
-	plotWindow->resize(450, 450);
-	plotWindow->show();
-	*/
 }
 
 /// C interface to the Constructor.
@@ -167,8 +150,6 @@ int AMAcqScanOutput::putValue( acqKey_t key, int eventno, int pvno, const void *
 
 	if(!to->dataDelay_){
 		to->scan_->d_->setLastValue(pvno-1, dataVal);
-		//if(pvno == 2)
-		//	to->data1->insertPointBack(to->scan_->d_->x(to->scan_->d_->count()-1), dataVal);
 	}
 	else if( (pvno != 0) && (eventno == 1) ){
 		to->dataDelayList_[pvno] = dataVal;
@@ -182,8 +163,6 @@ int AMAcqScanOutput::putValue( acqKey_t key, int eventno, int pvno, const void *
 		QMap<int, double>::const_iterator i = to->dataDelayList_.constBegin();
 		while (i != to->dataDelayList_.constEnd()) {
 			to->scan_->d_->setLastValue(i.key()-1, i.value());
-			//if(i.key() == 2)
-			//	to->data1->insertPointBack(dataVal, i.value());
 			++i;
 		}
 	}
