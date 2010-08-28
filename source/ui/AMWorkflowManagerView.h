@@ -37,7 +37,9 @@ public slots:
 	void onStartQueueRequested();
 	void onAddActionRequested();
 	void onAddScanRequested(AMScanConfiguration *cfg);
+	void onAddScanAndStartRequested(AMScanConfiguration *cfg);
 	void onInsertActionRequested(AMBeamlineActionItem *action, int index);
+	void onBeamlineScanningChanged(bool scanning);
 
 protected:
 	QLabel *placeHolder_;

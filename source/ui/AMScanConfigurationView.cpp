@@ -8,6 +8,7 @@ AMXASScanConfigurationHolder::AMXASScanConfigurationHolder(QWidget *parent) :
 	sxscViewer = NULL;
 	sxscWizard = NULL;
 	vl_ = NULL;
+	addAndStart_ = false;
 	director = new AMScanConfigurationQueueDirector();
 	director->setWindowModality(Qt::ApplicationModal);
 	connect(director, SIGNAL(goToQueue()), this, SLOT(goToQueue()));
@@ -19,16 +20,21 @@ AMXASScanConfigurationHolder::~AMXASScanConfigurationHolder(){
 }
 
 void AMXASScanConfigurationHolder::onFreeToScan(bool ready){
+	qDebug() << "In onFreeToScan";
 	if(ready){
-		SGMXASDacqScanController *xasCtrl = new SGMXASDacqScanController((SGMXASScanConfiguration*)cfg_, SGMBeamline::sgm());
-		xasCtrl->initialize();
-		xasCtrl->start();
+		addAndStart_ = true;
+		emit addToQueueAndStartRequested(cfg_);
 	}
 }
 
 void AMXASScanConfigurationHolder::onAddedToQueue(AMScanConfiguration *cfg){
-	if(cfg == cfg_)
+	qDebug() << "In onAddedToQueue";
+	if(cfg == cfg_ && !addAndStart_)
 		director->showDirector();
+	else if(cfg == cfg_ && addAndStart_){
+		addAndStart_ = false;
+		goToQueue();
+	}
 }
 
 
@@ -100,6 +106,7 @@ void AMXASScanConfigurationHolder::onAddToQueueRequested(){
 }
 
 void AMXASScanConfigurationHolder::goToQueue(){
+	qDebug() << "goToQueue emits";
 	destroyScanConfigurationViewer();
 	emit goToQueueRequested();
 }

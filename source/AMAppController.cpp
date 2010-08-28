@@ -100,6 +100,7 @@ AMAppController::AMAppController(QObject *parent) :
 	connect(scanConfigurationHolder_, SIGNAL(startScanRequested()), workflowManagerView_, SLOT(onStartScanRequested()));
 	connect(workflowManagerView_, SIGNAL(freeToScan(bool)), scanConfigurationHolder_, SLOT(onFreeToScan(bool)));
 	connect(scanConfigurationHolder_, SIGNAL(addToQueueRequested(AMScanConfiguration*)), workflowManagerView_, SLOT(onAddScanRequested(AMScanConfiguration*)));
+	connect(scanConfigurationHolder_, SIGNAL(addToQueueAndStartRequested(AMScanConfiguration*)), workflowManagerView_, SLOT(onAddScanAndStartRequested(AMScanConfiguration*)));
 	connect(workflowManagerView_, SIGNAL(addedScan(AMScanConfiguration*)), scanConfigurationHolder_, SLOT(onAddedToQueue(AMScanConfiguration*)));
 
 	connect(scanConfigurationHolder_, SIGNAL(goToQueueRequested()), this, SLOT(goToWorkflow()));
@@ -209,6 +210,7 @@ void AMAppController::onActionImport() {
 }
 
 void AMAppController::goToWorkflow() {
+	qDebug() << "goToWorkflow goes to queue";
 	mw_->goToPane(workflowManagerView_);
 }
 
@@ -232,7 +234,7 @@ void AMAppController::onCurrentScanControllerCreated(){
 	mw_->undock(scanEditor);
 	QPoint newPos;
 	newPos.setX(scanEditor->pos().x()+100);
-	newPos.setY(scanEditor->pos().y()+75);
+	newPos.setY(scanEditor->pos().y()+150);
 	scanEditor->move(newPos);
 }
 

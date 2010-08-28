@@ -17,6 +17,7 @@ AMWorkflowManagerView::AMWorkflowManagerView(QWidget *parent) :
 	hl->addWidget(addActionButton_, 0, Qt::AlignRight);
 	hl->addWidget(startWorkflowButton_, 0, Qt::AlignRight);
 	connect(startWorkflowButton_, SIGNAL(clicked()), this, SLOT(onStartQueueRequested()));
+	connect(SGMBeamline::sgm(), SIGNAL(beamlineScanningChanged(bool)), this, SLOT(onBeamlineScanningChanged(bool)));
 	connect(addActionButton_, SIGNAL(clicked()), this, SLOT(onAddActionRequested()));
 	workflowActions_ = new AMBeamlineActionsList(this);
 	workflowQueue_ = new AMBeamlineActionsQueue(workflowActions_, this);
@@ -66,10 +67,22 @@ void AMWorkflowManagerView::onAddScanRequested(AMScanConfiguration *cfg){
 	emit addedScan(cfg);
 }
 
+void AMWorkflowManagerView::onAddScanAndStartRequested(AMScanConfiguration *cfg){
+	onAddScanRequested(cfg);
+	onStartQueueRequested();
+}
+
 void AMWorkflowManagerView::onInsertActionRequested(AMBeamlineActionItem *action, int index){
 	workflowActions_->addAction(index, action);
 //		qDebug() << "Insert request with iof " << workflowView_->indexOfFirst() << " so to " << workflowView_->indexOfFirst()+index;
 //		workflowActions_->addAction(workflowView_->indexOfFirst()+index, action);
+}
+
+void AMWorkflowManagerView::onBeamlineScanningChanged(bool scanning){
+	if(scanning)
+		startWorkflowButton_->setEnabled(false);
+	else
+		startWorkflowButton_->setEnabled(true);
 }
 
 AMBeamlineActionsListView::AMBeamlineActionsListView(AMBeamlineActionsList *actionsList, AMBeamlineActionsQueue *actionsQueue, QWidget *parent) :

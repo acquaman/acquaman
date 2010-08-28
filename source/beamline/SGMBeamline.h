@@ -138,8 +138,14 @@ public:
 	QList< QPair<sgmGrating, sgmHarmonic> > gratingHarmonicForEnergyRange(double minEnergy, double maxEnergy);
 	QPair<double, double> energyRangeForGratingHarmonic(sgmGrating grating, sgmHarmonic harmonic);
 
+signals:
+	void beamlineScanningChanged(bool scanning);
+
 public slots:
 	void startTransfer() { transferAction1_->start(); }
+
+protected slots:
+	void onBeamlineScanningValueChanged(double value);
 
 protected:
 	// Singleton implementation:

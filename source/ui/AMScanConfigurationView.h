@@ -26,6 +26,7 @@ public slots:
 signals:
 	void startScanRequested();
 	void addToQueueRequested(AMScanConfiguration *cfg);
+	void addToQueueAndStartRequested(AMScanConfiguration *cfg);
 	void goToQueueRequested();
 
 protected slots:
@@ -43,6 +44,7 @@ protected slots:
 protected:
 	SGMXASScanConfiguration *cfg_;
 	AMDetectorInfoSet *cfgDetectorInfoSet_;
+	bool addAndStart_;
 
 	SGMXASScanConfigurationViewer *sxscViewer;
 	SGMXASScanConfigurationWizard *sxscWizard;
