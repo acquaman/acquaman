@@ -15,6 +15,10 @@ void SGMXASDacqScanController::initialize(){
 }
 
 void SGMXASDacqScanController::start(){
+	if(SGMBeamline::sgm()->isScanning()){
+		qDebug() << "Beamline already scanning";
+		return;
+	}
 	bool loadSuccess;
 	QString homeDir = QDir::homePath();
 	if( QDir(homeDir+"/dev").exists())

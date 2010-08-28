@@ -77,6 +77,7 @@ public:
 	AMControl* ssaManipulatorZStop() const { return ssaManipulatorZStop_;}
 	AMControl* ssaManipulatorRot() const { return ssaManipulatorRot_;}
 	AMControl* ssaManipulatorRotStop() const { return ssaManipulatorRotStop_;}
+	AMControl* beamlineScanning() const { return beamlineScanning_;}
 
 	AMControlSet* fluxResolutionSet() const { return fluxResolutionSet_;}
 	AMControlSet* trackingSet() const { return trackingSet_;}
@@ -129,6 +130,8 @@ public:
 		return rVal;
 	}
 
+	bool isScanning();
+
 	bool energyValidForSettings(sgmGrating grating, sgmHarmonic harmonic, double energy);
 	bool energyRangeValidForSettings(sgmGrating grating, sgmHarmonic harmonic, double minEnergy, double maxEnergy);
 
@@ -178,6 +181,7 @@ protected:
 	AMControl *ssaManipulatorZStop_;
 	AMControl *ssaManipulatorRot_;
 	AMControl *ssaManipulatorRotStop_;
+	AMControl *beamlineScanning_;
 
 	AMDetectorInfo *teyDetector_;
 	AMDetectorInfo *tfyDetector_;

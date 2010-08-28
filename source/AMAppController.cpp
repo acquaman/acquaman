@@ -228,6 +228,7 @@ void AMAppController::onCurrentScanControllerCreated(){
 	scanEditors_->insertRow(scanEditors_->rowCount(), item);
 	mw_->addPane(scanEditor, "Now Playing...", "Scan Editor", ":/applications-science.png");
 	scanEditor->addScan(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan());
+	mw_->goToPane(scanEditor);
 	mw_->undock(scanEditor);
 	QPoint newPos;
 	newPos.setX(scanEditor->pos().x()+100);
