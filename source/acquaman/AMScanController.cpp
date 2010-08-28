@@ -22,11 +22,11 @@ bool AMScanController::setCurrentScanController(AMScanController *newScanControl
 	}
 	currentScanController_ = newScanController;
 	currentScanController_->initiateCurrentScanControllerCreated();
-	qDebug() << "Set current scan controller";
 	return true;
 }
 
 void AMScanController::initiateCurrentScanControllerCreated(){
+	connect(currentScanController_, SIGNAL(finished()), currentScanController_, SLOT(onCurrentScanControllerFinished()));
 	emit currentScanControllerCreated();
 }
 

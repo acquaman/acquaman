@@ -60,10 +60,11 @@ public slots:
 protected slots:
 	void initiateCurrentScanControllerCreated();
 	void initiateCurrentScanControllerDestroyed();
+	void onCurrentScanControllerFinished();
 
 protected:
 	static AMScanController *currentScanController_;
-	static void onCurrentScanControllerFinished();
+//	static void onCurrentScanControllerFinished();
 
 	/// Configuration for this scan
 	AMScanConfiguration *generalCfg_;

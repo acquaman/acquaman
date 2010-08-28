@@ -124,6 +124,8 @@ AMAppController::AMAppController(QObject *parent) :
 	connect(runExperimentInsert_, SIGNAL(experimentSelected(int)), dataView_, SLOT(showExperiment(int)));
 
 	scanController_ = AMScanController::currentScanController();
+	connect(scanController_, SIGNAL(currentScanControllerCreated()), this, SLOT(onCurrentScanControllerCreated()));
+	connect(scanController_, SIGNAL(currentScanControllerDestroyed()), this, SLOT(onCurrentScanControllerDestroyed()));
 
 
 	// Make connections:

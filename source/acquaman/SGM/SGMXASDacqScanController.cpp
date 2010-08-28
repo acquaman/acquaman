@@ -22,10 +22,8 @@ void SGMXASDacqScanController::start(){
 		homeDir.append("/beamline/programming");
 	if(pScan_()->detectorNames().contains("pgt"))
 		loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/pgt.cfg"));
-//		loadSuccess = advAcq_->setConfigFile("/home/reixs/beamline/programming/acquaman/devConfigurationFiles/pgt.cfg");
 	else
 		loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/defaultEnergy.cfg"));
-//		loadSuccess = advAcq_->setConfigFile("/home/reixs/beamline/programming/acquaman/devConfigurationFiles/defaultEnergy.cfg");
 	if(!loadSuccess){
 		qDebug() << "LIBRARY FAILED TO LOAD CONFIG FILE";
 		return;
