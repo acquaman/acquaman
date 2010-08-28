@@ -258,6 +258,7 @@ AMBeamlineActionsQueue::AMBeamlineActionsQueue(AMBeamlineActionsList *fullList, 
 		QObject(parent)
 {
 	headIndex_ = -1;
+	queueRunning_ = false;
 	fullList_ = NULL;
 	setBeamlineActionsList(fullList);
 }
@@ -267,6 +268,13 @@ AMBeamlineActionItem* AMBeamlineActionsQueue::head(){
 		return NULL;
 	else
 		return fullList_->action(headIndex_);
+}
+
+AMBeamlineActionItem* AMBeamlineActionsQueue::peek(){
+	if(fullList_->count() == (headIndex_+1) )
+		return NULL;
+	else
+		return fullList_->action(headIndex_+1);
 }
 
 int AMBeamlineActionsQueue::count(){
@@ -283,16 +291,36 @@ bool AMBeamlineActionsQueue::isEmpty(){
 	return false;
 }
 
+bool AMBeamlineActionsQueue::peekIsEmpty(){
+	if(!peek())
+		return true;
+	return false;
+}
+
+bool AMBeamlineActionsQueue::isRunning(){
+	return queueRunning_;
+}
+
 void AMBeamlineActionsQueue::setBeamlineActionsList(AMBeamlineActionsList *fullList){
 	if(fullList_)
+		disconnect(fullList_, SIGNAL(actionStarted(int)), this, SLOT(onActionStarted(int)));
 		disconnect(fullList_, SIGNAL(actionSucceeded(int)), this, SLOT(onActionSucceeded(int)));
 		disconnect(fullList_, SIGNAL(actionAdded(int)), this, SLOT(onActionAdded(int)));
 	fullList_ = fullList;
 	if(fullList_){
-		connect(fullList_, SIGNAL(actionSucceeded(int)), this, SLOT(onActionSucceeded(int)));
 		connect(fullList_, SIGNAL(actionAdded(int)), this, SLOT(onActionAdded(int)));
+		connect(fullList_, SIGNAL(actionRemoved(int)), this, SLOT(onActionRemoved(int)));
+		connect(fullList_, SIGNAL(actionStarted(int)), this, SLOT(onActionStarted(int)));
+		connect(fullList_, SIGNAL(actionSucceeded(int)), this, SLOT(onActionSucceeded(int)));
+		connect(fullList_, SIGNAL(actionReady(int,bool)), this, SLOT(onActionReady(int)));
+		connect(fullList_, SIGNAL(actionFailed(int,int)), this, SLOT(onActionFailed(int,int)));
 		initializeQueue();
 	}
+}
+
+void AMBeamlineActionsQueue::startQueue(){
+	if(!isEmpty())
+		head()->start();
 }
 
 void AMBeamlineActionsQueue::initializeQueue(){
@@ -309,14 +337,46 @@ void AMBeamlineActionsQueue::initializeQueue(){
 }
 
 void AMBeamlineActionsQueue::onActionAdded(int index){
-	if(headIndex_ == -1)
+	if(headIndex_ == -1){
 		headIndex_ = index;
+		emit headChanged();
+		emit isEmptyChanged(false);
+	}
+}
+
+void AMBeamlineActionsQueue::onActionRemoved(int index){
+	if(index == headIndex_){
+		if(peekIsEmpty())
+			headIndex_ = -1;
+		else
+			headIndex_ = headIndex_+1;
+		emit headChanged();
+		emit isEmptyChanged(false);
+	}
+}
+
+void AMBeamlineActionsQueue::onActionStarted(int index){
+	queueRunning_ = true;
+	emit isRunningChanged(true);
 }
 
 void AMBeamlineActionsQueue::onActionSucceeded(int index){
-	if(fullList_->count() == index+1)
+	if(fullList_->count() == index+1){
 		headIndex_ = -1;
+		queueRunning_ = false;
+		emit isRunningChanged(false);
+		emit isEmptyChanged(true);
+	}
 	else
-		headIndex_ = index;
+		headIndex_ = index+1;
 	emit headChanged();
+}
+
+void AMBeamlineActionsQueue::onActionReady(int index){
+
+}
+
+void AMBeamlineActionsQueue::onActionFailed(int index, int explanation){
+	queueRunning_ = false;
+	emit isRunningChanged(false);
 }

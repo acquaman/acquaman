@@ -27,17 +27,22 @@ bool AMBeamlineScanAction::isPaused() const{
 void AMBeamlineScanAction::start(){
 	if(scanType_ == "SGMXASScan"){
 		SGMXASScanConfiguration* lCfg = (SGMXASScanConfiguration*)cfg_;
-		ctrl_ = new SGMXASDacqScanController( lCfg, this);
-		if( !AMScanControllerSupervisor::scanControllerSupervisor()->setCurrentScanController(ctrl_) ){
-			delete ctrl_;
-			qDebug() << "Failed to set current scan controller";
-			emit failed(AMBEAMLINEACTIONITEM_CANT_SET_CURRENT_CONTROLLER);
-			return;
+		SGMXASDacqScanController *lCtrl;
+		if(!failed_){
+			ctrl_ = new SGMXASDacqScanController( lCfg, this);
+			if( !AMScanControllerSupervisor::scanControllerSupervisor()->setCurrentScanController(ctrl_) ){
+				delete ctrl_;
+				qDebug() << "Failed to set current scan controller";
+				emit failed(AMBEAMLINEACTIONITEM_CANT_SET_CURRENT_CONTROLLER);
+				return;
+			}
+			lCtrl = (SGMXASDacqScanController*)AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController();
+			connect(lCtrl, SIGNAL(finished()), this, SLOT(scanSucceeded()));
+			connect(lCtrl, SIGNAL(cancelled()), this, SLOT(scanCancelled()));
+			connect(lCtrl, SIGNAL(progress(double,double)), this, SIGNAL(progress(double,double)));
 		}
-		SGMXASDacqScanController *lCtrl = (SGMXASDacqScanController*)AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController();
-		connect(lCtrl, SIGNAL(finished()), this, SLOT(scanSucceeded()));
-		connect(lCtrl, SIGNAL(cancelled()), this, SLOT(scanCancelled()));
-		connect(lCtrl, SIGNAL(progress(double,double)), this, SIGNAL(progress(double,double)));
+		else
+			lCtrl = (SGMXASDacqScanController*)AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController();
 		lCtrl->initialize();
 		lCtrl->start();
 		AMBeamlineActionItem::start();

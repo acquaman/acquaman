@@ -5,10 +5,11 @@
 AMWorkflowManagerView::AMWorkflowManagerView(QWidget *parent) :
 	QWidget(parent)
 {
+	cancelAddRequest_ = false;
 	adder_ = new AMBeamlineActionAdder();
 	adder_->hide();
 	connect(adder_, SIGNAL(insertActionRequested(AMBeamlineActionItem*,int)), this, SLOT(onInsertActionRequested(AMBeamlineActionItem*,int)));
-	startWorkflowButton_ = new QPushButton("Start This Workflow");
+	startWorkflowButton_ = new QPushButton("Start This Workflow\nReady");
 	startWorkflowButton_->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
 	addActionButton_ = new QPushButton("Add an Action");
 	addActionButton_->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
@@ -22,6 +23,8 @@ AMWorkflowManagerView::AMWorkflowManagerView(QWidget *parent) :
 	workflowActions_ = new AMBeamlineActionsList(this);
 	workflowQueue_ = new AMBeamlineActionsQueue(workflowActions_, this);
 	workflowView_ = new AMBeamlineActionsListView(workflowActions_, workflowQueue_, this);
+	connect(workflowQueue_, SIGNAL(isRunningChanged(bool)), this, SLOT(onQueueIsRunningChanged(bool)));
+	connect(workflowQueue_, SIGNAL(isEmptyChanged(bool)), this, SLOT(onQueueIsEmptyChanged(bool)));
 //	connect(workflowView_, SIGNAL(queueUpdated(QQueue<AMBeamlineActionItem*>)), adder_, SLOT(onQueueUpdated(QQueue<AMBeamlineActionItem*>)));
 
 	vl_ = new QVBoxLayout();
@@ -31,15 +34,11 @@ AMWorkflowManagerView::AMWorkflowManagerView(QWidget *parent) :
 	setLayout(vl_);
 }
 
-void AMWorkflowManagerView::onStartScanRequested(){
-	if(workflowQueue_->isEmpty())
-		emit freeToScan(true);
-}
-
 void AMWorkflowManagerView::onStartQueueRequested(){
 	if(!workflowQueue_->isEmpty()){
 		qDebug() << "Trying to start queue";
-		workflowQueue_->head()->start();
+		workflowQueue_->startQueue();
+		//workflowQueue_->head()->start();
 	}
 //	if(workflowActions_->count() > 0)
 //		workflowActions_->action(0)->start();
@@ -59,17 +58,29 @@ void AMWorkflowManagerView::onAddActionRequested(){
 	adder_->show();
 }
 
-void AMWorkflowManagerView::onAddScanRequested(AMScanConfiguration *cfg){
+void AMWorkflowManagerView::onAddScanRequested(AMScanConfiguration *cfg, bool startNow){
+	/// \todo fix for general scan type
+	if(startNow && !workflowQueue_->isRunning())
+		emit freeToScan(workflowQueue_->isEmpty(), !workflowQueue_->isRunning());
+	else if(startNow && workflowQueue_->isRunning())
+		emit freeToScan(workflowQueue_->peekIsEmpty(), !workflowQueue_->isRunning());
+	if(cancelAddRequest_){
+		cancelAddRequest_ = false;
+		qDebug() << "Request cancelled, doing nothing";
+		return;
+	}
+
 	SGMXASScanConfiguration *sxsc = (SGMXASScanConfiguration*)cfg;
 
 	AMBeamlineScanAction *scanAction = new AMBeamlineScanAction(sxsc, "SGMXASScan", "Deuce", this);
 	workflowActions_->appendAction(scanAction);
 	emit addedScan(cfg);
+	if(startNow)
+		onStartQueueRequested();
 }
 
-void AMWorkflowManagerView::onAddScanAndStartRequested(AMScanConfiguration *cfg){
-	onAddScanRequested(cfg);
-	onStartQueueRequested();
+void AMWorkflowManagerView::onCancelAddScanRequest(){
+	cancelAddRequest_ = true;
 }
 
 void AMWorkflowManagerView::onInsertActionRequested(AMBeamlineActionItem *action, int index){
@@ -79,10 +90,44 @@ void AMWorkflowManagerView::onInsertActionRequested(AMBeamlineActionItem *action
 }
 
 void AMWorkflowManagerView::onBeamlineScanningChanged(bool scanning){
-	if(scanning)
+//	if(scanning)
+//		startWorkflowButton_->setEnabled(false);
+//	else
+//		startWorkflowButton_->setEnabled(true);
+	onQueueAndScanningStatusChanged();
+}
+
+void AMWorkflowManagerView::onQueueIsRunningChanged(bool isRunning){
+//	if(isRunning)
+//		startWorkflowButton_->setEnabled(false);
+//	else
+//		startWorkflowButton_->setEnabled(true);
+	onQueueAndScanningStatusChanged();
+}
+
+void AMWorkflowManagerView::onQueueIsEmptyChanged(bool isEmpty){
+	onQueueAndScanningStatusChanged();
+}
+
+void AMWorkflowManagerView::onQueueAndScanningStatusChanged(){
+	bool qEmpty = workflowQueue_->isEmpty();
+	bool qRunning = workflowQueue_->isRunning();
+	bool blScanning = SGMBeamline::sgm()->isScanning();
+	if(qEmpty || qRunning || blScanning)
 		startWorkflowButton_->setEnabled(false);
-	else
+	else{
 		startWorkflowButton_->setEnabled(true);
+		startWorkflowButton_->setText("Start This Workflow\nReady");
+	}
+	if(qEmpty){
+		startWorkflowButton_->setText("Start This Workflow\n-- No Items --");
+	}
+	else if(qRunning){
+		startWorkflowButton_->setText("Start This Workflow\n-- Running --");
+	}
+	else if(blScanning && !qRunning){
+		startWorkflowButton_->setText("Start This Workflow\nExternal Scan");
+	}
 }
 
 AMBeamlineActionsListView::AMBeamlineActionsListView(AMBeamlineActionsList *actionsList, AMBeamlineActionsQueue *actionsQueue, QWidget *parent) :

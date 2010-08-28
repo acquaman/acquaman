@@ -8,7 +8,8 @@ AMXASScanConfigurationHolder::AMXASScanConfigurationHolder(QWidget *parent) :
 	sxscViewer = NULL;
 	sxscWizard = NULL;
 	vl_ = NULL;
-	addAndStart_ = false;
+	requestedStart_ = false;
+	canStartImmediately_ = false;
 	director = new AMScanConfigurationQueueDirector();
 	director->setWindowModality(Qt::ApplicationModal);
 	connect(director, SIGNAL(goToQueue()), this, SLOT(goToQueue()));
@@ -19,20 +20,32 @@ AMXASScanConfigurationHolder::~AMXASScanConfigurationHolder(){
 	delete director;
 }
 
-void AMXASScanConfigurationHolder::onFreeToScan(bool ready){
+void AMXASScanConfigurationHolder::onFreeToScan(bool queueEmpty, bool queueNotRunning){
 	qDebug() << "In onFreeToScan";
-	if(ready){
-		addAndStart_ = true;
-		emit addToQueueAndStartRequested(cfg_);
+	if(queueNotRunning && queueEmpty){
+		qDebug() << "Queue is not running and is empty, we can start right now";
+		canStartImmediately_ = true;
+	}
+	else if(queueNotRunning && !queueEmpty){
+		qDebug() << "Queue is not running but also not empty, have to ask user what to do";
+		emit cancelAddToQueueRequest();
+	}
+	else if(!queueNotRunning && queueEmpty){
+		qDebug() << "Queue is running, but is empty after this, ask user what to do";
+		emit cancelAddToQueueRequest();
+	}
+	else{
+		qDebug() << "Queue is running and has stuff in it, ask user what to do";
+		emit cancelAddToQueueRequest();
 	}
 }
 
 void AMXASScanConfigurationHolder::onAddedToQueue(AMScanConfiguration *cfg){
 	qDebug() << "In onAddedToQueue";
-	if(cfg == cfg_ && !addAndStart_)
+	if(cfg == cfg_ && !canStartImmediately_)
 		director->showDirector();
-	else if(cfg == cfg_ && addAndStart_){
-		addAndStart_ = false;
+	else if(cfg == cfg_ && canStartImmediately_){
+		canStartImmediately_ = false;
 		goToQueue();
 	}
 }
@@ -43,7 +56,7 @@ void AMXASScanConfigurationHolder::createScanConfiguration(){
 	cfg_ = new SGMXASScanConfiguration(this);
 	cfg_->setFileName("daveData.%03d.dat");
 	cfg_->setFilePath(AMUserSettings::userDataFolder);
-	cfg_->addRegion(0, 950, 5, 960);
+	cfg_->addRegion(0, 950, 1, 960);
 
 	cfgDetectorInfoSet_ = new AMDetectorInfoSet(this);
 	cfg_->setCfgDetectorInfoSet(cfgDetectorInfoSet_);
@@ -98,7 +111,8 @@ void AMXASScanConfigurationHolder::onBecameCurrentWidget(){
 }
 
 void AMXASScanConfigurationHolder::onStartScanRequested(){
-	emit startScanRequested();
+	requestedStart_ = true;
+	emit addToQueueRequested(cfg_, true);
 }
 
 void AMXASScanConfigurationHolder::onAddToQueueRequested(){
