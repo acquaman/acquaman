@@ -93,7 +93,7 @@ public:
 	bool retrieve(int id, const QString& table, const QStringList& colNames, const QList<QVariant*>& values);
 
 	/// ensure that a table of the given name exists. If it doesn't, it will be created with the columns contained in \c columnNames. \c columnTypes is a list of SQLite column types ("TEXT", "INTEGER", etc.), which must have an entry for each \c columnName.
-	bool ensureTable(const QString& tableName, const QStringList& columnNames, const QStringList& columnTypes);
+	bool ensureTable(const QString& tableName, const QStringList& columnNames, const QStringList& columnTypes, bool reuseDeletedIds = true);
 	/// ensure that a given column (with \c columName and \c columnType) exists, in the table \c tableName.  \c columnType is an SQLite type ("TEXT" or "INTEGER" recommended).
 	bool ensureColumn(const QString& tableName, const QString& columnName, const QString& columnType = "TEXT");
 	/// create an index on a column or columns \c columnNames in the table \c tableName. For multiple columns, separate the columnNames with commas.

@@ -30,5 +30,11 @@ AMSample::AMSample(int databaseId, AMDatabase* database, QObject* parent)
 	loadFromDb(database, databaseId);
 }
 
+void AMSample::destroySample(AMDatabase* db, int id) {
+	if(db == 0)
+		return;
+	db->deleteRow(id, AMDatabaseDefinition::sampleTableName());
+}
+
 
 ///

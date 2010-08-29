@@ -1,8 +1,8 @@
 #include "dataman/AMDatabaseDefinition.h"
 
-void AMDatabaseDefinition::ensureTableForDbObjects(const QString& tableName, AMDatabase* db) {
+void AMDatabaseDefinition::ensureTableForDbObjects(const QString& tableName, AMDatabase* db, bool reuseDeletedIds) {
 
-	db->ensureTable(tableName, QString("typeId,thumbnailCount,thumbnailFirstId").split(','), QString("INTEGER,INTEGER,INTEGER").split(','));
+	db->ensureTable(tableName, QString("typeId,thumbnailCount,thumbnailFirstId").split(','), QString("INTEGER,INTEGER,INTEGER").split(','), reuseDeletedIds);
 }
 
 void AMDatabaseDefinition::initializeDatabaseTables(AMDatabase* db) {
@@ -18,7 +18,7 @@ void AMDatabaseDefinition::initializeDatabaseTables(AMDatabase* db) {
 	ensureTableForDbObjects(detectorTableName(), db);
 	ensureTableForDbObjects(controlSetTableName(), db);
 	ensureTableForDbObjects(samplePlateTableName(), db);
-	ensureTableForDbObjects(sampleTableName(), db);
+	ensureTableForDbObjects(sampleTableName(), db, false);	// samples should not reuse Ids, so that if a sample is deleted, and scans that reference its id will forever interpret this as an invalid sample
 	ensureTableForDbObjects(facilityTableName(), db);
 
 	db->ensureTable(elementTableName(), QString("typeId,thumbnailCount,thumbnailFirstId,symbol,name,atomicNumber").split(','), QString("INTEGER,INTEGER,INTEGER,TEXT,TEXT,INTEGER").split(','));

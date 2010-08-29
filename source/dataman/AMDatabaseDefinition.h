@@ -37,7 +37,7 @@ public:
 	static void initializeDatabaseTables(AMDatabase* db);
 
 		/// This is a convenience function to ensure that a table is ready with the standard columns for holding AMDbObjects. After calling this, it's still imporant to call registerType() to make the columns for the custom fields.
-	static void ensureTableForDbObjects(const QString& tableName, AMDatabase* db);
+	static void ensureTableForDbObjects(const QString& tableName, AMDatabase* db, bool reuseDeletedIds = true);
 
 	/// Database support function: registers a subclass of AMDbObject so that the database is ready to store and access objects of this type. This only needs to be called once for each object type that you want to store in the database.
 	static void registerType(const AMDbObject* prototype, AMDatabase* db);

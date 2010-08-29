@@ -47,6 +47,9 @@ protected slots:
 	/// Called when the current index of the combo box changes, indicating new sample selected
 	void onCBCurrentIndexChanged(int);
 
+	/// Called when someone clicks a 'close button' on a sample to delete it
+	void onSampleDeleteButtonClicked(const QModelIndex& index);
+
 signals:
 	/// Emitted when the currently-selected sample changes. \c id is -1 if there is no valid sample selected
 	void currentSampleChanged(int id);

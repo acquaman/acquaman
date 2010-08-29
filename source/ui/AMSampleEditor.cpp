@@ -8,6 +8,7 @@
 #include "ui/AMDetailedItemDelegate.h"
 
 #include "ui/AMElementListEdit.h"
+#include <QListView>
 
 AMSampleEditor::AMSampleEditor(AMDatabase* db, QWidget *parent) :
 		QWidget(parent)
@@ -57,7 +58,12 @@ AMSampleEditor::AMSampleEditor(AMDatabase* db, QWidget *parent) :
 	gl->addWidget(l, 4, 0, 1, 2);
 
 	sampleSelector_ = new QComboBox();
-	sampleSelector_->setItemDelegate(new AMDetailedItemDelegate(this));
+	QListView* lview = new QListView();
+	sampleSelector_->setView(lview);
+	AMDetailedItemDelegate* del = new AMDetailedItemDelegate(this);
+	del->setCloseButtonsEnabled(true);
+	connect(del, SIGNAL(closeButtonClicked(QModelIndex)), this, SLOT(onSampleDeleteButtonClicked(QModelIndex)));
+	lview->setItemDelegate(del);
 	vl->addWidget(sampleSelector_);
 
 	vl->addSpacing(24);
@@ -276,4 +282,19 @@ void AMSampleEditor::saveCurrentSample() {
 		// nothin' else?
 		sample_->storeToDb(db_);
 	}
+}
+
+#include <QMessageBox>
+void AMSampleEditor::onSampleDeleteButtonClicked(const QModelIndex &index) {
+	int sampleId = sampleSelector_->itemData(index.row(), AM::IdRole).toInt();
+
+	QString sampleName = sampleSelector_->itemData(index.row(), AM::IdRole).toString();
+	QString dt = sampleSelector_->itemData(index.row(), AM::DateTimeRole).toDateTime().toString("h:mmap, MMM d (yyyy)");
+
+	QMessageBox confirmBox(this);
+	confirmBox.setText(QString("Delete the sample '%1'', created %2?").arg(sampleName).arg(dt));
+	confirmBox.setDetailedText("All scans on this sample will be kept, but they will lose their affiliation with this sample.");
+	confirmBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+	if(confirmBox.exec() == QMessageBox::Ok)
+		AMSample::destroySample(db_, sampleId);
 }

@@ -203,7 +203,9 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
     source/ui/AMSampleEditor.h \
     source/ui/AMDateTimeUtils.h \
     source/ui/AMElementListEdit.h \
-    source/beamline/AMBeamlineActionsList.h
+    source/beamline/AMBeamlineActionsList.h \
+    source/ui/AMCloseItemDelegate.h \
+    source/ui/AMChannelEditor.h
 FORMS += source/ui/AbsorptionScanController.ui \
     source/ui/AMDataView.ui \
     source/ui/AMDataViewEmptyHeader.ui \
@@ -343,7 +345,9 @@ SOURCES += source/acquaman/AMAcqScanOutput.cpp \
     source/ui/AMSampleEditor.cpp \
     source/ui/AMDateTimeUtils.cpp \
     source/ui/AMElementListEdit.cpp \
-    source/beamline/AMBeamlineActionsList.cpp
+    source/beamline/AMBeamlineActionsList.cpp \
+    source/ui/AMCloseItemDelegate.cpp \
+    source/ui/AMChannelEditor.cpp
 RESOURCES = source/icons/icons.qrc \
     source/configurationFiles/configurationFiles.qrc
 OTHER_FILES += source/muParser/README.txt
