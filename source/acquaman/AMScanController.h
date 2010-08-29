@@ -85,6 +85,7 @@ public:
 
 public slots:
 	bool setCurrentScanController(AMScanController *newController);
+	bool deleteCurrentScanController();
 
 signals:
 	void currentScanControllerCreated();

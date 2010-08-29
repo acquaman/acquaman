@@ -5,6 +5,7 @@
 #include <QProgressBar>
 #include <QLabel>
 #include <QTime>
+#include <QMessageBox>
 #include "AMBeamlineActionItem.h"
 #include "acquaman/SGM/SGMXASScanConfiguration.h"
 #include "acquaman/SGM/SGMXASDacqScanController.h"
@@ -26,6 +27,7 @@ public slots:
 	virtual void start();
 	virtual void pause(bool pause);
 	virtual void cancel();
+	virtual void cancelButKeep();
 
 protected slots:
 	virtual void scanCancelled();
@@ -35,6 +37,7 @@ protected:
 	QString scanType_;
 	AMScanConfiguration *cfg_;
 	AMScanController * ctrl_;
+	bool keepOnCancel_;
 
 private:
 	QString type_;

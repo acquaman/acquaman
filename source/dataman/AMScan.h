@@ -228,6 +228,8 @@ public:
 	/// the number of datapoints in the scan:
 	unsigned count() const { return d_->count(); }
 
+	void clear() { d_->clear(); }
+
 
 	// Thumbnail system:
 	////////////////////////////////

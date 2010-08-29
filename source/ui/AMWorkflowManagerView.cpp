@@ -206,20 +206,29 @@ void AMBeamlineActionsListView::onActionChanged(int index){
 
 void AMBeamlineActionsListView::onActionAdded(int index){
 	AMBeamlineActionItem *tmpItem = actionsList_->action(index);
+	AMBeamlineActionView *tmpView;
 	if(tmpItem->type() == "actionItem.scanAction"){
 		AMBeamlineScanAction *scanAction = (AMBeamlineScanAction*)tmpItem;
 		AMBeamlineScanActionView *scanActionView = new AMBeamlineScanActionView(scanAction, index);
 		actionsViewList_->addItem(scanActionView, "Scan", true);
+		tmpView = scanActionView;
 	}
 	else if(tmpItem->type() == "actionItem.controlMoveAction"){
 		AMBeamlineControlMoveAction *moveAction = (AMBeamlineControlMoveAction*)tmpItem;
 		AMBeamlineControlMoveActionView *moveActionView = new AMBeamlineControlMoveActionView(moveAction, index);
 		actionsViewList_->addItem(moveActionView, "Move To", true);
+		tmpView = moveActionView;
 	}
+	connect(tmpView, SIGNAL(removeRequested(AMBeamlineActionItem*)), this, SLOT(onActionRemoveRequested(AMBeamlineActionItem*)));
 }
 
 void AMBeamlineActionsListView::onActionRemoved(int index){
 	actionsViewList_->removeItem(index);
+}
+
+void AMBeamlineActionsListView::onActionRemoveRequested(AMBeamlineActionItem *item){
+	int index = actionsList_->indexOf(item);
+	actionsList_->deleteAction(index);
 }
 
 /*

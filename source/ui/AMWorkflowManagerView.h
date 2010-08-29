@@ -81,6 +81,8 @@ protected slots:
 	void onActionChanged(int index);
 	void onActionAdded(int index);
 	void onActionRemoved(int index);
+
+	void onActionRemoveRequested(AMBeamlineActionItem *item);
 	/*
 	void handleDataChanged(QModelIndex topLeft, QModelIndex bottomRight);
 	void handleRowsInsert(const QModelIndex &parent, int start, int end);

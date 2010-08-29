@@ -273,6 +273,8 @@ bool AMChannel::setXExpression(const QString& xExpression) {
 	return true;
 }
 
+#include <cmath>
+
 double AMChannel::value(unsigned p) const {
 
 	AMDataTree* t = dataTree();
@@ -336,6 +338,10 @@ double AMChannel::value(unsigned p) const {
 		QString explanation = QString("AMChannel (evaluating value): %1: '%2'.  We found '%3' at position %4.  TODO what happens now?").arg(QString::fromStdString(e.GetMsg()), QString::fromStdString(e.GetExpr()), QString::fromStdString(e.GetToken())).arg(e.GetPos());
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, e.GetCode(), explanation));
 		return 0.0;
+	}
+
+	if( std::isinf(rv) ) {
+		qDebug() << "Returning infinite! BEWARE! (expression was: " << this->expression();
 	}
 
 	return rv;

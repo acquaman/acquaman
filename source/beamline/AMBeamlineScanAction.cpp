@@ -10,6 +10,7 @@ AMBeamlineScanAction::AMBeamlineScanAction(AMScanConfiguration *cfg, QString sca
 	cfg_ = cfg;
 	scanType_ = scanType;
 	type_ = "scanAction";
+	keepOnCancel_ = true;
 }
 
 QString AMBeamlineScanAction::type() const{
@@ -28,7 +29,7 @@ void AMBeamlineScanAction::start(){
 	if(scanType_ == "SGMXASScan"){
 		SGMXASScanConfiguration* lCfg = (SGMXASScanConfiguration*)cfg_;
 		SGMXASDacqScanController *lCtrl;
-		if(!failed_){
+		if(keepOnCancel_){
 			ctrl_ = new SGMXASDacqScanController( lCfg, this);
 			if( !AMScanControllerSupervisor::scanControllerSupervisor()->setCurrentScanController(ctrl_) ){
 				delete ctrl_;
@@ -36,13 +37,14 @@ void AMBeamlineScanAction::start(){
 				emit failed(AMBEAMLINEACTIONITEM_CANT_SET_CURRENT_CONTROLLER);
 				return;
 			}
-			lCtrl = (SGMXASDacqScanController*)AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController();
+		}
+		lCtrl = (SGMXASDacqScanController*)AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController();
+		if(keepOnCancel_){
 			connect(lCtrl, SIGNAL(finished()), this, SLOT(scanSucceeded()));
 			connect(lCtrl, SIGNAL(cancelled()), this, SLOT(scanCancelled()));
 			connect(lCtrl, SIGNAL(progress(double,double)), this, SIGNAL(progress(double,double)));
+			keepOnCancel_ = false;
 		}
-		else
-			lCtrl = (SGMXASDacqScanController*)AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController();
 		lCtrl->initialize();
 		lCtrl->start();
 		AMBeamlineActionItem::start();
@@ -56,6 +58,11 @@ void AMBeamlineScanAction::cancel(){
 		SGMXASDacqScanController *lCtrl = (SGMXASDacqScanController*)ctrl_;
 		return lCtrl->cancel();
 	}
+}
+
+void AMBeamlineScanAction::cancelButKeep(){
+	keepOnCancel_ = true;
+	cancel();
 }
 
 void AMBeamlineScanAction::pause(bool pause){
@@ -72,6 +79,8 @@ void AMBeamlineScanAction::scanCancelled(){
 	qDebug() << "Failed b/c of cancel";
 	running_ = false;
 	failed_ = true;
+	if(keepOnCancel_)
+		AMScanControllerSupervisor::scanControllerSupervisor()->deleteCurrentScanController();
 	emit failed(AMBEAMLINEACTIONITEM_SCAN_CANCELLED);
 }
 
@@ -89,10 +98,11 @@ AMBeamlineScanActionView::AMBeamlineScanActionView(AMBeamlineScanAction *scanAct
 	viewType_ = "scanView";
 	scanAction_ = scanAction;
 	setMinimumHeight(NATURAL_ACTION_VIEW_HEIGHT);
-	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
+	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
 	scanNameLabel_ = new QLabel();
-	scanNameLabel_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Maximum);
+	scanNameLabel_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+	scanNameLabel_->setAlignment(Qt::AlignVCenter);
 	updateScanNameLabel();
 
 	progressBar_ = new QProgressBar();
@@ -113,17 +123,17 @@ AMBeamlineScanActionView::AMBeamlineScanActionView(AMBeamlineScanAction *scanAct
 	stopCancelButton_ = new QPushButton(closeIcon_, "");
 	stopCancelButton_->setMaximumHeight(progressBar_->size().height());
 	stopCancelButton_->setFixedWidth(25);
-	stopCancelButton_->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+	stopCancelButton_->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
 	playPauseButton_ = new QPushButton(startIcon_, "");
 	playPauseButton_->setMaximumHeight(progressBar_->size().height());
 	playPauseButton_->setFixedWidth(25);
-	playPauseButton_->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+	playPauseButton_->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
 	playPauseButton_->setEnabled(false);
 	connect(stopCancelButton_, SIGNAL(clicked()), this, SLOT(onStopCancelButtonClicked()));
 	connect(playPauseButton_, SIGNAL(clicked()), this, SLOT(onPlayPauseButtonClicked()));
 	hideButton_ = NULL;
 	hl_ = new QHBoxLayout();
-	hl_->addWidget(scanNameLabel_);
+	hl_->addWidget(scanNameLabel_, 0, Qt::AlignTop | Qt::AlignLeft);
 	hl_->addLayout(progressVL);
 	hl_->addWidget(playPauseButton_, 0, Qt::AlignTop | Qt::AlignRight);
 	hl_->addWidget(stopCancelButton_, 0, Qt::AlignTop | Qt::AlignRight);
@@ -222,7 +232,28 @@ void AMBeamlineScanActionView::onScanFailed(int explanation){
 
 void AMBeamlineScanActionView::onStopCancelButtonClicked(){
 	if(scanAction_->isRunning()){
-		scanAction_->cancel();
+		scanAction_->pause(true);
+		QMessageBox msgBox;
+		msgBox.setText("Keep this data?");
+		msgBox.setInformativeText("Do you wish to keep the data from this partially collected scan?");
+		msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+		msgBox.setDefaultButton(QMessageBox::Save);
+		int ret = msgBox.exec();
+		switch (ret) {
+		case QMessageBox::Save:
+			scanAction_->cancelButKeep();
+			break;
+		case QMessageBox::Discard:
+			scanAction_->cancel();
+			break;
+		case QMessageBox::Cancel:
+			scanAction_->pause(false);
+			break;
+		default:
+			// should never be reached
+			break;
+		}
+//		scanAction_->cancel();
 	}
 	else{
 		emit removeRequested(scanAction_);
