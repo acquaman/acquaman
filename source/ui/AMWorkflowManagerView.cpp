@@ -119,14 +119,14 @@ void AMWorkflowManagerView::onQueueAndScanningStatusChanged(){
 		startWorkflowButton_->setEnabled(true);
 		startWorkflowButton_->setText("Start This Workflow\nReady");
 	}
-	if(qEmpty){
+	if(blScanning && !qRunning){
+			startWorkflowButton_->setText("Start This Workflow\nExternal Scan");
+	}
+	else if(qEmpty){
 		startWorkflowButton_->setText("Start This Workflow\n-- No Items --");
 	}
 	else if(qRunning){
 		startWorkflowButton_->setText("Start This Workflow\n-- Running --");
-	}
-	else if(blScanning && !qRunning){
-		startWorkflowButton_->setText("Start This Workflow\nExternal Scan");
 	}
 }
 

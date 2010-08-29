@@ -12,8 +12,6 @@
 #include <QDoubleSpinBox>
 #include <QStringListModel>
 #include <QAbstractListModel>
-//#include "beamline/AMBeamlineScanAction.h"
-//#include "beamline/AMBeamlineControlMoveAction.h"
 #include "beamline/AMBeamlineActionsList.h"
 #include "ui/AMVerticalStackWidget.h"
 
