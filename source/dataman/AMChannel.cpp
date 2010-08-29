@@ -169,7 +169,7 @@ QRectF AMChannel::boundingRect() const {
 		rv = QRectF(QPointF(minXs, mins), QSizeF(maxXs-minXs, maxs-mins));
 	}
 
-	qDebug() << "channel bounding rect:" << rv;
+	// qDebug() << "channel bounding rect:" << rv;
 	return rv;
 }
 
@@ -349,7 +349,8 @@ double AMChannel::value(unsigned p) const {
 	}
 
 	if( std::isinf(rv) ) {
-		qDebug() << "Returning infinite! BEWARE! (expression was: " << this->expression();
+		qDebug() << "trying to return infinite! BEWARE! (expression was: " << this->expression();
+		rv = rv > 0 ? 1e20 : -1e20;
 	}
 
 	return rv;
