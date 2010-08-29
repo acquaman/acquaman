@@ -11,6 +11,7 @@ SGMXASDacqScanController::SGMXASDacqScanController(SGMXASScanConfiguration *cfg,
 void SGMXASDacqScanController::initialize(){
 	if(SGMXASScanController::beamlineInitialize())
 		initialized_ = true;
+	pScan_()->clear();
 	emit initialized();
 }
 

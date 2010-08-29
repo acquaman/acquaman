@@ -16,7 +16,7 @@ public:
 	~AMXASScanConfigurationHolder();
 
 public slots:
-	void onFreeToScan(bool ready);
+	void onFreeToScan(bool queueEmpty, bool queueNotRunning);
 	void onAddedToQueue(AMScanConfiguration *cfg);
 
 	/// This slot will be used to notify this widget when it becomes the current (active) widget
@@ -24,8 +24,8 @@ public slots:
 
 
 signals:
-	void startScanRequested();
-	void addToQueueRequested(AMScanConfiguration *cfg);
+	void addToQueueRequested(AMScanConfiguration *cfg, bool startNow = false);
+	void cancelAddToQueueRequest();
 	void goToQueueRequested();
 
 protected slots:
@@ -43,6 +43,8 @@ protected slots:
 protected:
 	SGMXASScanConfiguration *cfg_;
 	AMDetectorInfoSet *cfgDetectorInfoSet_;
+	bool requestedStart_;
+	bool canStartImmediately_;
 
 	SGMXASScanConfigurationViewer *sxscViewer;
 	SGMXASScanConfigurationWizard *sxscWizard;

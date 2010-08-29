@@ -333,6 +333,9 @@ void AMDataTree::append(const AMNumericType& newValue) {
 
 /// clears all of the data in the tree. The count() will become 0, but all of the columns will remain.
 void AMDataTree::clear() {
+
+	count_ = 0;
+
 	x_.clear();
 
 	// iterate through all of the columns and empty them
@@ -343,6 +346,8 @@ void AMDataTree::clear() {
 	// iterate through all of the subtree columns and empty them.
 	for(int i=0; i<yD_.count(); i++)
 		yD_[i].clear();
+
+
 
 	for(int i=-1; i<y_.count(); i++)
 		observable_.Emit(3, "columnChanged", i);

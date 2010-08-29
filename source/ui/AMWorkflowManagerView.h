@@ -17,8 +17,8 @@
 #include "beamline/AMBeamlineActionsList.h"
 #include "ui/AMVerticalStackWidget.h"
 
-class AMBeamlineActionListModel;
-class AMBeamlineActionsList;
+//class AMBeamlineActionListModel;
+//class AMBeamlineActionsList;
 class AMBeamlineActionsListView;
 class AMBeamlineActionAdder;
 
@@ -29,15 +29,22 @@ public:
 	explicit AMWorkflowManagerView(QWidget *parent = 0);
 
 signals:
-	void freeToScan(bool ready);
+	void freeToScan(bool queueEmpty, bool queueNotRunning);
 	void addedScan(AMScanConfiguration *cfg);
 
 public slots:
-	void onStartScanRequested();
 	void onStartQueueRequested();
 	void onAddActionRequested();
-	void onAddScanRequested(AMScanConfiguration *cfg);
+	void onAddScanRequested(AMScanConfiguration *cfg, bool startNow = false);
+	void onCancelAddScanRequest();
 	void onInsertActionRequested(AMBeamlineActionItem *action, int index);
+	void onBeamlineScanningChanged(bool scanning);
+
+protected slots:
+	void onQueueIsRunningChanged(bool isRunning);
+	void onQueueIsEmptyChanged(bool isEmpty);
+
+	void onQueueAndScanningStatusChanged();
 
 protected:
 	QLabel *placeHolder_;
@@ -48,6 +55,7 @@ protected:
 	AMBeamlineActionsList *workflowActions_;
 	AMBeamlineActionsQueue *workflowQueue_;
 	AMBeamlineActionsListView *workflowView_;
+	bool cancelAddRequest_;
 
 	AMBeamlineActionAdder *adder_;
 };
@@ -73,6 +81,8 @@ protected slots:
 	void onActionChanged(int index);
 	void onActionAdded(int index);
 	void onActionRemoved(int index);
+
+	void onActionRemoveRequested(AMBeamlineActionItem *item);
 	/*
 	void handleDataChanged(QModelIndex topLeft, QModelIndex bottomRight);
 	void handleRowsInsert(const QModelIndex &parent, int start, int end);

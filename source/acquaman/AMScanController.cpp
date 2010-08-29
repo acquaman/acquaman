@@ -53,6 +53,13 @@ bool AMScanControllerSupervisor::setCurrentScanController(AMScanController *newS
 	return true;
 }
 
+bool AMScanControllerSupervisor::deleteCurrentScanController(){
+	if(!currentScanController_)
+		return false;
+	onCurrentScanControllerFinished();
+	return true;
+}
+
 void AMScanControllerSupervisor::onCurrentScanControllerFinished(){
 	emit currentScanControllerDestroyed();
 	currentScanController_->deleteLater();

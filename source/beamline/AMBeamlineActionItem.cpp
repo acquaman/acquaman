@@ -34,6 +34,7 @@ AMBeamlineActionView::AMBeamlineActionView(AMBeamlineActionItem *action, int ind
 	viewType_ = "actionView";
 	setLineWidth(1);
 	setFrameStyle(QFrame::StyledPanel);
+	setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
 }
 
 AMBeamlineActionItem* AMBeamlineActionView::action(){

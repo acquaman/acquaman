@@ -456,7 +456,8 @@ void AMCompactControlOptimizationSetView::onRegionsUpdate(AMRegionsList* context
 	param1Item_->updateCurve(param1Curve_);
 	param2Item_->updateCurve(param2Curve_);
 
-	detailView_->onRegionsUpdate(contextParams);
+	//DAVID FIX ME HERE KKK
+//	detailView_->onRegionsUpdate(contextParams);
 }
 
 void AMCompactControlOptimizationSetView::parseConfigValues(const QStringList configList){

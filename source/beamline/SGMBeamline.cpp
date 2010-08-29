@@ -158,6 +158,7 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	addChild(ssaManipulatorRotStop_);
 	sgmPVName = amNames2pvNames_.valueF("beamlineScanning");
 	beamlineScanning_ = new AMPVControl("beamlineScanning", sgmPVName, sgmPVName, this, 0.1);
+	connect(beamlineScanning_, SIGNAL(valueChanged(double)), this, SLOT(onBeamlineScanningValueChanged(double)));
 	addChild(beamlineScanning_);
 
 
@@ -344,6 +345,15 @@ QPair<double, double> SGMBeamline::energyRangeForGratingHarmonic(SGMBeamline::sg
 	else if( (grating == 2) && (harmonic == 3) )
 		rVal = QPair<double, double>(1100, 2000);
 	return rVal;
+}
+
+void SGMBeamline::onBeamlineScanningValueChanged(double value){
+	bool isScanning;
+	if( fabs(value - 1.0) < beamlineScanning_->tolerance() )
+		isScanning = true;
+	else
+		isScanning = false;
+	emit beamlineScanningChanged(isScanning);
 }
 
 SGMBeamline* SGMBeamline::sgm() {

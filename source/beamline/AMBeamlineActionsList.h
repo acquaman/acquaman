@@ -80,26 +80,37 @@ public:
 	AMBeamlineActionsQueue(AMBeamlineActionsList *fullList, QObject *parent = 0);
 
 	AMBeamlineActionItem* head();
+	AMBeamlineActionItem* peek();
 	int count();
 	int indexOfHead();
 	bool isEmpty();
+	bool peekIsEmpty();
+	bool isRunning();
 
 public slots:
 	void setBeamlineActionsList(AMBeamlineActionsList *fullList);
+	void startQueue();
 
 signals:
 	void headChanged();
+	void isEmptyChanged(bool isEmpty);
+	void isRunningChanged(bool isRunning);
 
 protected:
 	void initializeQueue();
 
 protected slots:
 	void onActionAdded(int index);
+	void onActionRemoved(int index);
+	void onActionStarted(int index);
 	void onActionSucceeded(int index);
+	void onActionReady(int index);
+	void onActionFailed(int index, int explanation);
 
 protected:
 	AMBeamlineActionsList *fullList_;
 	int headIndex_;
+	bool queueRunning_;
 };
 
 #endif // AMBEAMLINEACTIONSLIST_H
