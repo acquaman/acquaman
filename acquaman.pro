@@ -222,7 +222,8 @@ FORMS += source/ui/AbsorptionScanController.ui \
     source/ui/SamplePositions.ui \
     source/ui/Scheduler.ui \
     source/ui/SGMXASScanConfigurationViewer.ui \
-    source/ui/AMGenericScanEditor.ui
+    source/ui/AMGenericScanEditor.ui \
+    source/ui/AMChannelEditor.ui
 SOURCES += source/acquaman/AMAcqScanOutput.cpp \
     source/acquaman/AMAcqScanSpectrumOutput.cpp \
     source/acquaman/AMDacqScanController.cpp \

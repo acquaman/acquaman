@@ -60,6 +60,7 @@ AMSampleEditor::AMSampleEditor(AMDatabase* db, QWidget *parent) :
 	sampleSelector_ = new QComboBox();
 	QListView* lview = new QListView();
 	sampleSelector_->setView(lview);
+	lview->setResizeMode(QListView::Adjust);
 	AMDetailedItemDelegate* del = new AMDetailedItemDelegate(this);
 	del->setCloseButtonsEnabled(true);
 	connect(del, SIGNAL(closeButtonClicked(QModelIndex)), this, SLOT(onSampleDeleteButtonClicked(QModelIndex)));

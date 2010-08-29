@@ -1,7 +1,7 @@
 #include "AMCloseItemDelegate.h"
 
 AMCloseItemDelegate::AMCloseItemDelegate(QObject *parent) :
-	QStyledItemDelegate(parent)
+		QStyledItemDelegate(parent)
 {
 	closeButtonEnabled_ = false;
 	closeButtonAction_ = SignalOnly;
@@ -49,11 +49,22 @@ bool AMCloseItemDelegate::editorEvent ( QEvent * event, QAbstractItemModel * mod
 	if(event->type() == QEvent::MouseButtonPress) {
 		mouseDownPosition_ = static_cast<QMouseEvent*>(event)->pos();
 		QPoint localPos = mouseDownPosition_ - option.rect.topLeft();
+
 		if(closeButtonRect_.contains(localPos)) {
-			return true;	// accept this event here; don't pass it on to the parent styledItemDelegate.
+			// On mac, qlistviews in comboboxes don't report mouse-button release events. So we have to handle it here.
+#ifdef Q_WS_MAC
+			emit closeButtonClicked(index);
+
+			if(closeButtonAction_ == RemoveFromModel) {
+				model->removeRow(index.row(), index.parent());
+			}
+#endif
+			// given that we've acted on this, we want this event.
+			return true;
 		}
 	}
 
+#ifndef Q_WS_MAC
 	else if(event->type() == QEvent::MouseButtonRelease) {
 		QMouseEvent* e = static_cast<QMouseEvent*>(event);
 		// Normally, a "click" has to be released nearly in the same position as where it was pushed down. I should actually check that both the down and the up are within the confines of the same widget/button, but we don't really have buttons here now.
@@ -76,6 +87,7 @@ bool AMCloseItemDelegate::editorEvent ( QEvent * event, QAbstractItemModel * mod
 			}
 		}
 	}
+#endif
 
 	return QStyledItemDelegate::editorEvent(event, model, option, index);
 }

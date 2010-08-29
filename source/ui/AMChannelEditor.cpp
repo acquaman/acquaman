@@ -1,6 +1,6 @@
 #include "AMChannelEditor.h"
 
-AMChannelEditor::AMChannelEditor(QWidget *parent) :
-    QWidget(parent)
+AMChannelEditor::AMChannelEditor(AMScanSetModel* model, QWidget *parent) :
+	QWidget(parent)
 {
 }
