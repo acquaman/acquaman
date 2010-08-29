@@ -287,14 +287,18 @@ void AMSampleEditor::saveCurrentSample() {
 
 #include <QMessageBox>
 void AMSampleEditor::onSampleDeleteButtonClicked(const QModelIndex &index) {
+	if(!index.isValid() || index.row() < 1)
+		return;
+
 	int sampleId = sampleSelector_->itemData(index.row(), AM::IdRole).toInt();
 
-	QString sampleName = sampleSelector_->itemData(index.row(), AM::IdRole).toString();
+	QString sampleName = sampleSelector_->itemData(index.row(), Qt::DisplayRole).toString();
 	QString dt = sampleSelector_->itemData(index.row(), AM::DateTimeRole).toDateTime().toString("h:mmap, MMM d (yyyy)");
 
 	QMessageBox confirmBox(this);
 	confirmBox.setText(QString("Delete the sample '%1'', created %2?").arg(sampleName).arg(dt));
-	confirmBox.setDetailedText("All scans on this sample will be kept, but they will lose their affiliation with this sample.");
+	confirmBox.setInformativeText("All scans on this sample will be kept, but they will lose their affiliation with this sample.");
+	confirmBox.setIcon(QMessageBox::Question);
 	confirmBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
 	if(confirmBox.exec() == QMessageBox::Ok)
 		AMSample::destroySample(db_, sampleId);

@@ -12,6 +12,7 @@
 #include "ui/AMVerticalStackWidget.h"
 #include "ui/AMRunSelector.h"
 #include "ui/AMSampleEditor.h"
+#include "ui/AMChannelEditor.h"
 
 class AMGenericScanEditor : public QWidget
 {
@@ -100,6 +101,9 @@ protected:
 
 	/// Run selector
 	AMRunSelector* runSelector_;
+
+	/// Channel editor:
+	AMChannelEditor* channelEditor_;
 
 	/// Plot view capable of holding multiple scans.
 	AMScanView* scanView_;

@@ -103,6 +103,7 @@ public:
 	virtual void onObservableChanged(AMObservable* source, int code, const char* msg, int payload = 0);
 
 protected:
+
 	/// Name of this channel (Cannot be changed; used to retrieve channels from a scan with AMScan::channel(). )
 	QString name_;
 
@@ -142,6 +143,8 @@ protected:
 public:
 	/// access the data tree from scan object. \todo Should not be public. Why does it need to be to compile?  [friend of AMScan]
 	AMDataTree* dataTree() const;
+	/// tell the scan that its now modified, because we've been modified
+	void informScanModified();
 
 
 };

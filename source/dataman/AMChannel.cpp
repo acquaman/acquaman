@@ -158,15 +158,19 @@ double* AMChannel::addVariable(AMParVar *parVar){
 }
 
 QRectF AMChannel::boundingRect() const {
+	QRectF rv;
 	if(count() == 0)
-		return QRectF();
+		rv = QRectF();
 	else {
 		double mins = min();
 		double maxs = max();
 		double minXs = minX();
 		double maxXs = maxX();
-		return QRectF(QPointF(minXs, mins), QSizeF(maxXs-minXs, maxs-mins));
+		rv = QRectF(QPointF(minXs, mins), QSizeF(maxXs-minXs, maxs-mins));
 	}
+
+	qDebug() << "channel bounding rect:" << rv;
+	return rv;
 }
 
 
@@ -218,6 +222,7 @@ bool AMChannel::setExpression(const QString& expression) {
 	fflush(stdout);
 	*/
 
+	informScanModified();
 	isValid_ = true;
 	return true;
 }
@@ -230,6 +235,7 @@ bool AMChannel::setXExpression(const QString& xExpression) {
 		defaultX_ = true;
 		isValidX_ = true;
 		usedColumnIndicesX_.clear();
+		informScanModified();
 		return true;
 	}
 
@@ -268,6 +274,8 @@ bool AMChannel::setXExpression(const QString& xExpression) {
 		usedColumnIndicesX_ << (varStorageIndex-1);
 	}
 	*/
+
+	informScanModified();
 
 	isValidX_ = true;
 	return true;
@@ -553,4 +561,9 @@ void AMChannel::onObservableChanged(AMObservable* source, int code, const char* 
 		emit updated();
 		Emit(0, "dataChanged");
 	}
+}
+
+
+void AMChannel::informScanModified() {
+	if(scan()) scan()->setModified(true);
 }

@@ -17,7 +17,7 @@ public:
 
 	/// Re-implemented from QStyledItemDelegate to request the height requested in setItemHeight().
 	virtual QSize sizeHint ( const QStyleOptionViewItem & option, const QModelIndex & index ) const {
-		QSize rv = QStyledItemDelegate::sizeHint(option, index);
+		QSize rv = AMCloseItemDelegate::sizeHint(option, index);
 		rv.setHeight(height_);
 		return rv;
 	}

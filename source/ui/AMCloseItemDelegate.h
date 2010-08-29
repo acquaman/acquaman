@@ -20,6 +20,9 @@ public:
 	/// Re-implemented from QStyledItemDelegate to draw the close button if closeButtonEnabled(). Drawing it is done by the protected drawCloseButton() function, which can be called by subclasses in their own paint functions.
 	virtual void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
 
+	/// Re-implemented to ask for a little extra space, when the close buttons are enabled.
+	virtual QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
+
 	/// Re-implemented from QStyledItemDelegate to check if the close button has been clicked. If closeButtonsEnabled() and one of the close buttons is clicked, it will emit closeButtonClicked() with the index of the item.
 	bool editorEvent ( QEvent * event, QAbstractItemModel * model, const QStyleOptionViewItem & option, const QModelIndex & index );
 

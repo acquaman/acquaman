@@ -14,6 +14,12 @@ void AMCloseItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
 	drawCloseButton(painter, option, index);
 }
 
+QSize AMCloseItemDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const {
+	QSize rv = QStyledItemDelegate::sizeHint(option, index);
+	if(closeButtonEnabled_)
+		rv.setWidth(rv.width() + 20);
+	return rv;
+}
 #include <QPainter>
 void AMCloseItemDelegate::drawCloseButton(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const {
 

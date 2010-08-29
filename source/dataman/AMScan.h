@@ -225,10 +225,18 @@ public:
 	/// returns a standard Qt list model that can be used to view the channels and be notified of created/deleted channels
 	const AMChannelListModel* channelList() const { return &ch_; }
 
+
+
+
+
+
 	/// the number of datapoints in the scan:
 	unsigned count() const { return d_->count(); }
 
+	/// Clear all of the raw data in the tree:
 	void clear() { d_->clear(); }
+
+	///
 
 
 	// Thumbnail system:
@@ -310,6 +318,9 @@ protected:
 
 	/// Allow channels to access the datatree:
 	friend AMDataTree* AMChannel::dataTree() const;
+
+	/// Allow channels to tell us when they (and hence us) have been modified:
+	friend void AMChannel::informScanModified();
 
 	/// Controls whether loadData() is called automatically inside loadFromDb().
 	bool autoLoadData_;
