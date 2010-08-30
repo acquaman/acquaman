@@ -42,6 +42,7 @@ signals:
 	void progress(double elapsed, double total);
 
 	void scanCreated(AMScan *scan);
+	void reinitialized(bool removeScan);
 
 public slots:
 	/// Start scan running if not currently running or paused
@@ -90,9 +91,11 @@ public slots:
 signals:
 	void currentScanControllerCreated();
 	void currentScanControllerDestroyed();
+	void currentScanControllerReinitialized(bool removeScan);
 
 protected slots:
 	void onCurrentScanControllerFinished();
+	void onCurrentScanControllerReinitialized(bool removeScan);
 
 protected:
 	AMScanControllerSupervisor(QObject *parent = 0);

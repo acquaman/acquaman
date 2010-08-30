@@ -1,18 +1,99 @@
 #include "AMBeamlineActionItem.h"
 
-AMBeamlineActionItem::AMBeamlineActionItem(QString message, QObject *parent) :
+AMBeamlineActionItemStateFlag::AMBeamlineActionItemStateFlag(bool initialState, QObject *parent) :
+		QObject(parent)
+{
+	state_ = initialState;
+}
+
+bool AMBeamlineActionItemStateFlag::state() const{
+	return state_;
+}
+
+void AMBeamlineActionItemStateFlag::setState(bool state){
+	if(state_ != state){
+		state_ = state;
+		emit stateChanged(state_);
+	}
+}
+
+AMBeamlineActionItem::AMBeamlineActionItem(QObject *parent) :
 	QObject(parent)
 {
-	message_ = message;
 	previous_ = NULL;
 	next_ = NULL;
-	started_ = false;
-	succeeded_ = false;
-	failed_ = false;
-	running_ = false;
-	hasFeedback_ = false;
-	needsInput_ = false;
 	type_ = "actionItem";
+	reinitialized_.setState(false);
+	connect(&ready_, SIGNAL(stateChanged(bool)), this, SLOT(dirtyInitialized()));
+	connect(&started_, SIGNAL(stateChanged(bool)), this, SLOT(dirtyInitialized()));
+	connect(&succeeded_, SIGNAL(stateChanged(bool)), this, SLOT(dirtyInitialized()));
+	connect(&failed_, SIGNAL(stateChanged(bool)), this, SLOT(dirtyInitialized()));
+	connect(&finished_, SIGNAL(stateChanged(bool)), this, SLOT(dirtyInitialized()));
+	initialize();
+}
+
+AMBeamlineActionItem::AMBeamlineActionItem(bool delayInitialize, QObject *parent){
+	previous_ = NULL;
+	next_ = NULL;
+	type_ = "actionItem";
+	reinitialized_.setState(false);
+	connect(&ready_, SIGNAL(stateChanged(bool)), this, SLOT(dirtyInitialized()));
+	connect(&started_, SIGNAL(stateChanged(bool)), this, SLOT(dirtyInitialized()));
+	connect(&succeeded_, SIGNAL(stateChanged(bool)), this, SLOT(dirtyInitialized()));
+	connect(&failed_, SIGNAL(stateChanged(bool)), this, SLOT(dirtyInitialized()));
+	connect(&finished_, SIGNAL(stateChanged(bool)), this, SLOT(dirtyInitialized()));
+	if(!delayInitialize)
+		initialize();
+}
+
+bool AMBeamlineActionItem::isInitialized() const{
+	return initialized_.state();
+}
+
+bool AMBeamlineActionItem::isReinitialized() const{
+	return reinitialized_.state();
+}
+
+bool AMBeamlineActionItem::isReady() const{
+	return ready_.state();
+}
+
+bool AMBeamlineActionItem::hasStarted() const{
+	return started_.state();
+}
+
+bool AMBeamlineActionItem::isRunning() const{
+	return started_.state() && !finished_.state();
+}
+
+bool AMBeamlineActionItem::hasSucceeded() const{
+	return succeeded_.state();
+}
+
+bool AMBeamlineActionItem::hasFailed() const{
+	return failed_.state();
+}
+
+bool AMBeamlineActionItem::hasFinished() const{
+	return finished_.state();
+}
+
+AMBeamlineActionItem* AMBeamlineActionItem::previous() const {
+	return previous_;
+}
+
+AMBeamlineActionItem* AMBeamlineActionItem::next() const {
+	return next_;
+}
+
+QString AMBeamlineActionItem::type() const {
+	return type_;
+}
+
+void AMBeamlineActionItem::reset(bool delayInitialize){
+	reinitialized_.setState(true);
+	if(!delayInitialize)
+		initialize();
 }
 
 bool AMBeamlineActionItem::setPrevious(AMBeamlineActionItem *previous){
@@ -23,6 +104,66 @@ bool AMBeamlineActionItem::setPrevious(AMBeamlineActionItem *previous){
 bool AMBeamlineActionItem::setNext(AMBeamlineActionItem *next){
 	next_ = next;
 	return true;
+}
+
+void AMBeamlineActionItem::setReady(bool isReady){
+	if(ready_.state() != isReady){
+		ready_.setState(isReady);
+		emit ready(ready_.state());
+	}
+}
+
+void AMBeamlineActionItem::setStarted(bool isStarted){
+	if(started_.state() != isStarted){
+		started_.setState(isStarted);
+		if(started_.state())
+			emit started();
+	}
+}
+
+void AMBeamlineActionItem::setSucceeded(bool isSucceeded){
+	if(succeeded_.state() != isSucceeded){
+		succeeded_.setState(isSucceeded);
+		if(succeeded_.state()){
+			emit succeeded();
+			setFinished(true);
+		}
+	}
+}
+
+void AMBeamlineActionItem::setFailed(bool isFailed, int explanation){
+	if(failed_.state() != isFailed){
+		failed_.setState(isFailed);
+		if(failed_.state()){
+			emit failed(explanation);
+			setFinished(true);
+		}
+	}
+}
+
+void AMBeamlineActionItem::setFinished(bool isFinished){
+	if(finished_.state() != isFinished){
+		finished_.setState(isFinished);
+		if(finished_.state())
+			emit finished();
+	}
+}
+
+void AMBeamlineActionItem::initialize(){
+	qDebug() << "AMBeamlineActionItem::initialize()";
+	ready_.setState(false);
+	started_.setState(false);
+	succeeded_.setState(false);
+	failed_.setState(false);
+	finished_.setState(false);
+	initialized_.setState(true);
+	emit initialized();
+}
+
+void AMBeamlineActionItem::dirtyInitialized(){
+	if(initialized_.state() != false){
+		initialized_.setState(false);
+	}
 }
 
 AMBeamlineActionView::AMBeamlineActionView(AMBeamlineActionItem *action, int index, QWidget *parent) :
@@ -83,73 +224,42 @@ void AMBeamlineActionView::updateLook(){
 	}
 }
 
-AMBeamlineActionHiddenView::AMBeamlineActionHiddenView(AMBeamlineActionItem *first, int count, QWidget *parent) :
-		AMBeamlineActionView(first, 0, parent)
+/*****************************************************************************
+*
+*
+*   COMPATABILITY CLASSES
+*
+*
+*
+******************************************************************************/
+
+AM1BeamlineActionItem::AM1BeamlineActionItem(QString message, QObject *parent) :
+	QObject(parent)
 {
-	count_ = count;
-	viewType_ = "hiddenView";
-
-	infoLabel_ = new QLabel("");
-	expandButton_ = new QPushButton("");
-	onInfoChanged();
-
-	hl_ = new QHBoxLayout();
-	hl_->addWidget(infoLabel_);
-	hl_->addWidget(expandButton_, 0, Qt::AlignRight);
-	setLayout(hl_);
+	message_ = message;
+	previous_ = NULL;
+	next_ = NULL;
+	started_ = false;
+	succeeded_ = false;
+	failed_ = false;
+	running_ = false;
+	hasFeedback_ = false;
+	needsInput_ = false;
+	type_ = "actionItem";
 }
 
-AMBeamlineActionHiddenView::~AMBeamlineActionHiddenView(){
-	action_ = NULL;
+bool AM1BeamlineActionItem::setPrevious(AM1BeamlineActionItem *previous){
+	previous_ = previous;
+	return true;
 }
 
-QString AMBeamlineActionHiddenView::viewType() const{
-	return AMBeamlineActionView::viewType()+"."+viewType_;
+bool AM1BeamlineActionItem::setNext(AM1BeamlineActionItem *next){
+	next_ = next;
+	return true;
 }
 
-int AMBeamlineActionHiddenView::count() const{
-	return count_;
-}
 
-void AMBeamlineActionHiddenView::setFirst(AMBeamlineActionItem *first){
-	setAction(first);
-}
-
-void AMBeamlineActionHiddenView::setCount(int count){
-	count_ = count;
-	onInfoChanged();
-}
-
-void AMBeamlineActionHiddenView::onInfoChanged(){
-	QString infoStr, buttonStr;
-	infoStr.setNum(count_);
-	buttonStr.setNum(count_);
-	infoStr.prepend("<");
-	infoStr.append(" Hidden Items>");
-	infoLabel_->setText(infoStr);
-	buttonStr.prepend("Expand ");
-	buttonStr.append(" Items");
-	expandButton_->setText(buttonStr);
-	connect(expandButton_, SIGNAL(clicked()), this, SLOT(onExpandButtonClicked()));
-}
-
-void AMBeamlineActionHiddenView::onStopCancelButtonClicked(){
-
-}
-
-void AMBeamlineActionHiddenView::onPlayPauseButtonClicked(){
-
-}
-
-void AMBeamlineActionHiddenView::onHideButtonClicked(){
-
-}
-
-void AMBeamlineActionHiddenView::onExpandButtonClicked(){
-	emit expandRequested(action_);
-}
-
-AMBeamlineActionItemView::AMBeamlineActionItemView(AMBeamlineActionItem *item, QWidget *parent) :
+AMBeamlineActionItemView::AMBeamlineActionItemView(AM1BeamlineActionItem *item, QWidget *parent) :
 		QWidget(parent)
 {
 	item_ = item;

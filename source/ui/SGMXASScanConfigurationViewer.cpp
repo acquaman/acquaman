@@ -93,3 +93,14 @@ void SGMXASScanConfigurationViewer::onAddRegionClicked(){
 */
 }
 
+void SGMXASScanConfigurationViewer::onLockdowScanning(bool isLocked, QString reason){
+	if(isLocked){
+		startScanButton_->setEnabled(false);
+		startScanButton_->setText("Start Scan\n"+reason);
+	}
+	else{
+		startScanButton_->setEnabled(true);
+		startScanButton_->setText("Start Scan");
+	}
+}
+

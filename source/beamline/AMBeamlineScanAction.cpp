@@ -4,53 +4,66 @@
 #define AMBEAMLINEACTIONITEM_SCAN_CANCELLED 102
 #define AMBEAMLINEACTIONITEM_CANT_SET_CURRENT_CONTROLLER 103
 
-AMBeamlineScanAction::AMBeamlineScanAction(AMScanConfiguration *cfg, QString scanType, QString message, QObject *parent) :
-	AMBeamlineActionItem(message, parent)
+AMBeamlineScanAction::AMBeamlineScanAction(AMScanConfiguration *cfg, QString scanType, QObject *parent) :
+	AMBeamlineActionItem(true, parent)
 {
 	cfg_ = cfg;
+	ctrl_ = NULL;
 	scanType_ = scanType;
 	type_ = "scanAction";
-	keepOnCancel_ = true;
+	keepOnCancel_ = false;
+	connect(SGMBeamline::sgm(), SIGNAL(beamlineScanningChanged(bool)), this, SLOT(onBeamlineScanningChanged(bool)));
+	initialize();
 }
 
 QString AMBeamlineScanAction::type() const{
 	return AMBeamlineActionItem::type()+"."+type_;
 }
 
+bool AMBeamlineScanAction::isRunning() const{
+	return AMBeamlineActionItem::isRunning();// && !isPaused();
+}
+
 bool AMBeamlineScanAction::isPaused() const{
+	if(!ctrl_)
+		return false;
 	if(scanType_ == "SGMXASScan"){
-		SGMXASDacqScanController *lCtrl = (SGMXASDacqScanController*)ctrl_;
-		return lCtrl->isPaused();
+			SGMXASDacqScanController *lCtrl = (SGMXASDacqScanController*)ctrl_;
+			return lCtrl->isPaused();
 	}
 	return false;
 }
 
 void AMBeamlineScanAction::start(){
+	if(!isReady()){
+		qDebug() << "Not ready, connecting and waiting";
+		connect(this, SIGNAL(ready(bool)), this, SLOT(delayedStart(bool)));
+		return;
+	}
 	if(scanType_ == "SGMXASScan"){
+		qDebug() << "Ready, so get rolling";
 		SGMXASScanConfiguration* lCfg = (SGMXASScanConfiguration*)cfg_;
-		SGMXASDacqScanController *lCtrl;
-		if(keepOnCancel_){
+		if(!AMBeamlineActionItem::isReinitialized()){
+			qDebug() << "Not reinitalized, creating new controller";
 			ctrl_ = new SGMXASDacqScanController( lCfg, this);
 			if( !AMScanControllerSupervisor::scanControllerSupervisor()->setCurrentScanController(ctrl_) ){
 				delete ctrl_;
 				qDebug() << "Failed to set current scan controller";
-				emit failed(AMBEAMLINEACTIONITEM_CANT_SET_CURRENT_CONTROLLER);
+				setFailed(true, AMBEAMLINEACTIONITEM_CANT_SET_CURRENT_CONTROLLER);
 				return;
 			}
+			connect(ctrl_, SIGNAL(finished()), this, SLOT(onScanSucceeded()));
+			connect(ctrl_, SIGNAL(cancelled()), this, SLOT(onScanCancelled()));
+			connect(ctrl_, SIGNAL(started()), this, SLOT(onScanStarted()));
+			connect(ctrl_, SIGNAL(progress(double,double)), this, SIGNAL(progress(double,double)));
 		}
-		lCtrl = (SGMXASDacqScanController*)AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController();
-		if(keepOnCancel_){
-			connect(lCtrl, SIGNAL(finished()), this, SLOT(scanSucceeded()));
-			connect(lCtrl, SIGNAL(cancelled()), this, SLOT(scanCancelled()));
-			connect(lCtrl, SIGNAL(progress(double,double)), this, SIGNAL(progress(double,double)));
-			keepOnCancel_ = false;
-		}
-		lCtrl->initialize();
-		lCtrl->start();
-		AMBeamlineActionItem::start();
+		else
+			qDebug() << "Reinitialized, no controller creation";
+		((SGMXASDacqScanController*)ctrl_)->initialize(); //Can I make a pure virtual initialize in AMScanController?
+		ctrl_->start();
 	}
 	else
-		emit failed(AMBEAMLINEACTIONITEM_INVALID_SCAN_TYPE);
+		setFailed(true, AMBEAMLINEACTIONITEM_INVALID_SCAN_TYPE);
 }
 
 void AMBeamlineScanAction::cancel(){
@@ -65,6 +78,18 @@ void AMBeamlineScanAction::cancelButKeep(){
 	cancel();
 }
 
+void AMBeamlineScanAction::reset(bool delayInitialized){
+	qDebug() << "Reseting with keepOnCancel " << keepOnCancel_;
+	((SGMXASDacqScanController*)ctrl_)->reinitialize(!keepOnCancel_);
+	AMBeamlineActionItem::reset(true);
+	initialize();
+}
+
+void AMBeamlineScanAction::cleanup(){
+	if( ctrl_ == AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController() )
+		AMScanControllerSupervisor::scanControllerSupervisor()->deleteCurrentScanController();
+}
+
 void AMBeamlineScanAction::pause(bool pause){
 	if(scanType_ == "SGMXASScan"){
 		SGMXASDacqScanController *lCtrl = (SGMXASDacqScanController*)ctrl_;
@@ -75,19 +100,29 @@ void AMBeamlineScanAction::pause(bool pause){
 	}
 }
 
-void AMBeamlineScanAction::scanCancelled(){
-	qDebug() << "Failed b/c of cancel";
-	running_ = false;
-	failed_ = true;
-	if(keepOnCancel_)
-		AMScanControllerSupervisor::scanControllerSupervisor()->deleteCurrentScanController();
-	emit failed(AMBEAMLINEACTIONITEM_SCAN_CANCELLED);
+void AMBeamlineScanAction::initialize(){
+	AMBeamlineActionItem::initialize();
+	onBeamlineScanningChanged(SGMBeamline::sgm()->isScanning());
 }
 
-void AMBeamlineScanAction::scanSucceeded(){
-	running_ = false;
-	succeeded_ = true;
-	emit succeeded();
+void AMBeamlineScanAction::delayedStart(bool ready){
+	start();
+}
+
+void AMBeamlineScanAction::onScanStarted(){
+	setStarted(true);
+}
+
+void AMBeamlineScanAction::onScanCancelled(){
+	setFailed(true, AMBEAMLINEACTIONITEM_SCAN_CANCELLED);
+}
+
+void AMBeamlineScanAction::onScanSucceeded(){
+	setSucceeded(true);
+}
+
+void AMBeamlineScanAction::onBeamlineScanningChanged(bool isScanning){
+	setReady(!isScanning);
 }
 
 AMBeamlineScanActionView::AMBeamlineScanActionView(AMBeamlineScanAction *scanAction, int index, QWidget *parent) :
@@ -131,7 +166,6 @@ AMBeamlineScanActionView::AMBeamlineScanActionView(AMBeamlineScanAction *scanAct
 	playPauseButton_->setEnabled(false);
 	connect(stopCancelButton_, SIGNAL(clicked()), this, SLOT(onStopCancelButtonClicked()));
 	connect(playPauseButton_, SIGNAL(clicked()), this, SLOT(onPlayPauseButtonClicked()));
-	hideButton_ = NULL;
 	hl_ = new QHBoxLayout();
 	hl_->addWidget(scanNameLabel_, 0, Qt::AlignTop | Qt::AlignLeft);
 	hl_->addLayout(progressVL);
@@ -212,9 +246,8 @@ void AMBeamlineScanActionView::onScanFinished(){
 	disconnect(playPauseButton_, SIGNAL(clicked()), this, SLOT(onPlayPauseButtonClicked()));
 	hl_->removeWidget(stopCancelButton_);
 	hl_->removeWidget(playPauseButton_);
-	hideButton_ = new QPushButton("Hide");
-	connect(hideButton_, SIGNAL(clicked()), this, SLOT(onHideButtonClicked()));
-	hl_->addWidget(hideButton_, 0, Qt::AlignTop | Qt::AlignRight);
+	stopCancelButton_->hide();
+	playPauseButton_->hide();
 	updateLook();
 	emit scanSuceeded(scanAction_);
 }
@@ -231,6 +264,7 @@ void AMBeamlineScanActionView::onScanFailed(int explanation){
 }
 
 void AMBeamlineScanActionView::onStopCancelButtonClicked(){
+	qDebug() << "Running " << scanAction_->isRunning() << " started " << scanAction_->hasStarted() << " finished " << scanAction_->hasFinished() << " paused " << scanAction_->isPaused();
 	if(scanAction_->isRunning()){
 		scanAction_->pause(true);
 		QMessageBox msgBox;
@@ -271,10 +305,6 @@ void AMBeamlineScanActionView::onPlayPauseButtonClicked(){
 		scanAction_->pause(false);
 		emit resumeRequested(scanAction_);
 	}
-}
-
-void AMBeamlineScanActionView::onHideButtonClicked(){
-	emit hideRequested(scanAction_);
 }
 
 void AMBeamlineScanActionView::updateLook(){

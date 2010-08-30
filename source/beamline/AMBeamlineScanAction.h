@@ -14,11 +14,13 @@ class AMBeamlineScanAction : public AMBeamlineActionItem
 {
 Q_OBJECT
 public:
-	explicit AMBeamlineScanAction(AMScanConfiguration *cfg, QString scanType = "", QString message = "", QObject *parent = 0);
+	explicit AMBeamlineScanAction(AMScanConfiguration *cfg, QString scanType = "", QObject *parent = 0);
 
 	AMScanConfiguration* cfg() const { return cfg_;}
 	virtual QString type() const;
-	bool isPaused() const;
+	virtual bool isRunning() const;
+	virtual bool isPaused() const;
+	bool isReinitialized() const;
 
 signals:
 	void progress(double, double);
@@ -28,10 +30,16 @@ public slots:
 	virtual void pause(bool pause);
 	virtual void cancel();
 	virtual void cancelButKeep();
+	virtual void reset(bool delayInitialized = false);
+	virtual void cleanup();
 
 protected slots:
-	virtual void scanCancelled();
-	virtual void scanSucceeded();
+	virtual void initialize();
+	void delayedStart(bool ready);
+	virtual void onScanStarted();
+	virtual void onScanCancelled();
+	virtual void onScanSucceeded();
+	virtual void onBeamlineScanningChanged(bool isScanning);
 
 protected:
 	QString scanType_;
@@ -49,7 +57,6 @@ Q_OBJECT
 public:
 	AMBeamlineScanActionView(AMBeamlineScanAction *scanAction, int index = 0, QWidget *parent = 0);
 
-	int index() const { return index_;}
 	AMBeamlineActionItem* action() { return scanAction_;}
 
 	virtual QString viewType() const;
@@ -72,7 +79,6 @@ protected slots:
 	void onScanFailed(int explanation);
 	void onStopCancelButtonClicked();
 	void onPlayPauseButtonClicked();
-	void onHideButtonClicked();
 
 protected:
 	void updateLook();
@@ -86,7 +92,6 @@ protected:
 	QLabel *timeRemainingLabel_;
 	QPushButton *stopCancelButton_;
 	QPushButton *playPauseButton_;
-	QPushButton *hideButton_;
 	QHBoxLayout *hl_;
 
 	QIcon closeIcon_, stopIcon_, startIcon_, pauseIcon_;

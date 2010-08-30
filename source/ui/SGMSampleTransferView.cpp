@@ -95,12 +95,12 @@ SGMSampleTransferProceduresView::SGMSampleTransferProceduresView(const QString &
 	setLayout(mainLayout_);
 }
 
-SGMSampleTransferPaneView::SGMSampleTransferPaneView(QList<AMBeamlineActionItem*> items, const QString &title, QWidget *parent) :
+SGMSampleTransferPaneView::SGMSampleTransferPaneView(QList<AM1BeamlineActionItem*> items, const QString &title, QWidget *parent) :
 		QGroupBox(title, parent)
 {
 	vl_ = new QVBoxLayout();
 	mainLayout_ = new QGridLayout();
-	QList<AMBeamlineActionItem*> transferActions = items;
+	QList<AM1BeamlineActionItem*> transferActions = items;
 	connect(transferActions.at(transferActions.count()-1), SIGNAL(succeeded()), this, SLOT(prepareCompletion()));
 	AMBeamlineActionItemView *tmpView;
 	int maxMessage = 0;

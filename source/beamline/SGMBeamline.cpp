@@ -711,7 +711,7 @@ double SGMResolutionOptimization::minimumEnergy(AMRegionsList* regions){
 }
 
 SGMGratingAction::SGMGratingAction(AMControl* grating, QObject *parent) :
-		AMBeamlineControlAction(grating, "", parent)
+		AMBeamlineControlAction(grating, parent)
 {
 }
 

@@ -4,6 +4,7 @@
 #include <Qt>
 #include <QStandardItem>
 #include <QList>
+#include <QEvent>
 
 
 /// This namespace contains global definitions for the Acquaman / Dataman framework.
@@ -20,8 +21,16 @@ namespace AM {
 	/// Application-wide QVariant user types
 	enum AcquamanType { IntList = QVariant::UserType + 20, DoubleList };
 
+	enum eventType { AMAcqEvent = QEvent::User+20 };
 }
 
+class AMAcqEvent : public QEvent{
+public:
+	AMAcqEvent() : QEvent( (QEvent::Type)AM::AMAcqEvent)
+	{}
+
+	QMap<int, double> dataPackage_;
+};
 
 typedef QList<int> AMIntList;
 typedef QList<double> AMDoubleList;

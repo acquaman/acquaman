@@ -69,6 +69,33 @@ bool SGMXASScanController::beamlineInitialize(){
 	return beamlineInitialized_;
 }
 
+void SGMXASScanController::reinitialize(){
+	//delete specificScan_;
+
+	QList<AMDetectorInfo*> scanDetectors;
+	scanDetectors = pCfg_()->usingDetectors();
+	scanDetectors.prepend(SGMBeamline::sgm()->i0Detector());
+	scanDetectors.prepend(SGMBeamline::sgm()->eVFbkDetector());
+
+	QList<QPair<QString, QString> > scanChannels;
+	scanChannels = pCfg_()->defaultChannels();
+
+	/*
+	  BIG NOTE TO DAVE:
+	  YOU NEW'D THE SCAN ... SOMEONE ELSE HAS TO TAKE OWNERSHIP OF IT FOR DELETION
+	  opts: function call, new in scan viewer ...
+	  */
+	specificScan_ = new AMXASScan(scanDetectors);
+	_pScan_ = &specificScan_;
+	pScan_()->setName("SGM XAS Scan");
+	pScan_()->setMetaData("filePath", pCfg_()->filePath()+pCfg_()->fileName());
+	pScan_()->setMetaData("fileFormat", "sgm2004");
+
+	foreach(chPair tmpCh, scanChannels){
+		pScan_()->addChannel(tmpCh.first, tmpCh.second);
+	}
+}
+
 SGMXASScanConfiguration* SGMXASScanController::pCfg_(){
 	return *_pCfg_;
 }

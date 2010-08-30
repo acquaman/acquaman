@@ -1,7 +1,7 @@
 #include "AMBeamlineControlMoveAction.h"
 
-AMBeamlineControlMoveAction::AMBeamlineControlMoveAction(AMControl *control, QString message, QObject *parent) :
-	AMBeamlineActionItem(message, parent)
+AMBeamlineControlMoveAction::AMBeamlineControlMoveAction(AMControl *control, QObject *parent) :
+	AMBeamlineActionItem(parent)
 {
 	ready_ = false;
 	control_ = control;
@@ -39,7 +39,7 @@ void AMBeamlineControlMoveAction::start(){
 }
 
 void AMBeamlineControlMoveAction::cancel(){
-	if(control_ && running_){
+	if(control_ && isRunning()){
 		control_->stop();
 	}
 }
@@ -75,12 +75,12 @@ bool AMBeamlineControlMoveAction::setSetpoint(double setpoint){
 }
 
 void AMBeamlineControlMoveAction::onStarted(){
-	running_ = true;
+//	running_ = true;
 	emit started();
 }
 
 void AMBeamlineControlMoveAction::onSucceeded(){
-	running_ = false;
+//	running_ = false;
 	disconnect(control_, SIGNAL(moveSucceeded()), this, SLOT(onSucceeded()));
 	disconnect(control_, SIGNAL(moveFailed(int)), this, SLOT(onFailed(int)));
 	disconnect(control_, SIGNAL(moveStarted()), this, SLOT(onStarted()));
@@ -88,7 +88,7 @@ void AMBeamlineControlMoveAction::onSucceeded(){
 }
 
 void AMBeamlineControlMoveAction::onFailed(int explanation){
-	running_ = false;
+//	running_ = false;
 	disconnect(control_, SIGNAL(moveSucceeded()), this, SLOT(onSucceeded()));
 	disconnect(control_, SIGNAL(moveFailed(int)), this, SLOT(onFailed(int)));
 	disconnect(control_, SIGNAL(moveStarted()), this, SLOT(onStarted()));

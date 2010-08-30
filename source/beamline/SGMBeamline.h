@@ -87,8 +87,8 @@ public:
 	AMDetectorInfoSet* allDetectors() const { return allDetectors_;}
 	AMDetectorInfoSet* XASDetectors() const { return XASDetectors_;}
 
-	QList<AMBeamlineActionItem*> transferLoadlockOutActions() const {
-		QList<AMBeamlineActionItem*> rVal;
+	QList<AM1BeamlineActionItem*> transferLoadlockOutActions() const {
+		QList<AM1BeamlineActionItem*> rVal;
 		rVal.append(transferAction1_);
 		rVal.append(transferAction2_);
 		rVal.append(transferAction3_);
@@ -98,8 +98,8 @@ public:
 		return rVal;
 	}
 
-	QList<AMBeamlineActionItem*> transferLoadlockInActions() const {
-		QList<AMBeamlineActionItem*> rVal;
+	QList<AM1BeamlineActionItem*> transferLoadlockInActions() const {
+		QList<AM1BeamlineActionItem*> rVal;
 		rVal.append(transferAction7_);
 		rVal.append(transferAction8_);
 		rVal.append(transferAction9_);
@@ -109,8 +109,8 @@ public:
 		return rVal;
 	}
 
-	QList<AMBeamlineActionItem*> transferChamberOutActions() const {
-		QList<AMBeamlineActionItem*> rVal;
+	QList<AM1BeamlineActionItem*> transferChamberOutActions() const {
+		QList<AM1BeamlineActionItem*> rVal;
 		rVal.append(transferAction13_);
 		rVal.append(transferAction14_);
 		rVal.append(transferAction15_);
@@ -122,8 +122,8 @@ public:
 		return rVal;
 	}
 
-	QList<AMBeamlineActionItem*> transferChamberInActions() const {
-		QList<AMBeamlineActionItem*> rVal;
+	QList<AM1BeamlineActionItem*> transferChamberInActions() const {
+		QList<AM1BeamlineActionItem*> rVal;
 		rVal.append(transferAction21_);
 		rVal.append(transferAction22_);
 		rVal.append(transferAction23_);
@@ -208,31 +208,31 @@ protected:
 	AMDetectorInfoSet *allDetectors_;
 	AMDetectorInfoSet *XASDetectors_;
 
-	AMBeamlineActionItem *transferAction1_;
-	AMBeamlineActionItem *transferAction2_;
-	AMBeamlineActionItem *transferAction3_;
-	AMBeamlineActionItem *transferAction4_;
-	AMBeamlineActionItem *transferAction5_;
-	AMBeamlineActionItem *transferAction6_;
-	AMBeamlineActionItem *transferAction7_;
-	AMBeamlineActionItem *transferAction8_;
-	AMBeamlineActionItem *transferAction9_;
-	AMBeamlineActionItem *transferAction10_;
-	AMBeamlineActionItem *transferAction11_;
-	AMBeamlineActionItem *transferAction12_;
-	AMBeamlineActionItem *transferAction13_;
-	AMBeamlineActionItem *transferAction14_;
-	AMBeamlineActionItem *transferAction15_;
-	AMBeamlineActionItem *transferAction16_;
-	AMBeamlineActionItem *transferAction17_;
-	AMBeamlineActionItem *transferAction18_;
-	AMBeamlineActionItem *transferAction19_;
-	AMBeamlineActionItem *transferAction20_;
-	AMBeamlineActionItem *transferAction21_;
-	AMBeamlineActionItem *transferAction22_;
-	AMBeamlineActionItem *transferAction23_;
-	AMBeamlineActionItem *transferAction24_;
-	AMBeamlineActionItem *transferAction25_;
+	AM1BeamlineActionItem *transferAction1_;
+	AM1BeamlineActionItem *transferAction2_;
+	AM1BeamlineActionItem *transferAction3_;
+	AM1BeamlineActionItem *transferAction4_;
+	AM1BeamlineActionItem *transferAction5_;
+	AM1BeamlineActionItem *transferAction6_;
+	AM1BeamlineActionItem *transferAction7_;
+	AM1BeamlineActionItem *transferAction8_;
+	AM1BeamlineActionItem *transferAction9_;
+	AM1BeamlineActionItem *transferAction10_;
+	AM1BeamlineActionItem *transferAction11_;
+	AM1BeamlineActionItem *transferAction12_;
+	AM1BeamlineActionItem *transferAction13_;
+	AM1BeamlineActionItem *transferAction14_;
+	AM1BeamlineActionItem *transferAction15_;
+	AM1BeamlineActionItem *transferAction16_;
+	AM1BeamlineActionItem *transferAction17_;
+	AM1BeamlineActionItem *transferAction18_;
+	AM1BeamlineActionItem *transferAction19_;
+	AM1BeamlineActionItem *transferAction20_;
+	AM1BeamlineActionItem *transferAction21_;
+	AM1BeamlineActionItem *transferAction22_;
+	AM1BeamlineActionItem *transferAction23_;
+	AM1BeamlineActionItem *transferAction24_;
+	AM1BeamlineActionItem *transferAction25_;
 
 
 	AMBiHash<QString, QString> amNames2pvNames_;
@@ -272,19 +272,19 @@ protected:
 
 
 
-class SGMTransferAction1 : public AMBeamlineActionItem
+class SGMTransferAction1 : public AM1BeamlineActionItem
 {
 	Q_OBJECT
 public:
-	SGMTransferAction1(QObject *parent = 0) : AMBeamlineActionItem("Close the valve between the endstation and the loadlock", parent){
+	SGMTransferAction1(QObject *parent = 0) : AM1BeamlineActionItem("Close the valve between the endstation and the loadlock", parent){
 	}
 };
 
-class SGMTransferAction2 : public AMBeamlineActionItem
+class SGMTransferAction2 : public AM1BeamlineActionItem
 {
 	Q_OBJECT
 public:
-	SGMTransferAction2(QObject *parent = 0) : AMBeamlineActionItem("Turn off the CCG", parent){
+	SGMTransferAction2(QObject *parent = 0) : AM1BeamlineActionItem("Turn off the CCG", parent){
 		hasFeedback_ = true;
 	}
 public slots:
@@ -296,27 +296,27 @@ public slots:
 	}
 };
 
-class SGMTransferAction3 : public AMBeamlineActionItem
+class SGMTransferAction3 : public AM1BeamlineActionItem
 {
 	Q_OBJECT
 public:
-	SGMTransferAction3(QObject *parent = 0) : AMBeamlineActionItem("Close the roughing pump valve", parent){
+	SGMTransferAction3(QObject *parent = 0) : AM1BeamlineActionItem("Close the roughing pump valve", parent){
 	}
 };
 
-class SGMTransferAction4 : public AMBeamlineActionItem
+class SGMTransferAction4 : public AM1BeamlineActionItem
 {
 	Q_OBJECT
 public:
-	SGMTransferAction4(QObject *parent = 0) : AMBeamlineActionItem("Turn off the turbo pump power", parent){
+	SGMTransferAction4(QObject *parent = 0) : AM1BeamlineActionItem("Turn off the turbo pump power", parent){
 	}
 };
 
-class SGMTransferAction5 : public AMBeamlineActionItem
+class SGMTransferAction5 : public AM1BeamlineActionItem
 {
 	Q_OBJECT
 public:
-	SGMTransferAction5(QObject *parent = 0) : AMBeamlineActionItem("Wait for loadlock to reach air pressure", parent){
+	SGMTransferAction5(QObject *parent = 0) : AM1BeamlineActionItem("Wait for loadlock to reach air pressure", parent){
 		hasFeedback_ = true;
 	}
 public slots:
@@ -328,35 +328,35 @@ public slots:
 	}
 };
 
-class SGMTransferAction6 : public AMBeamlineActionItem
+class SGMTransferAction6 : public AM1BeamlineActionItem
 {
 	Q_OBJECT
 public:
-	SGMTransferAction6(QObject *parent = 0) : AMBeamlineActionItem("Open loadlock port", parent){
+	SGMTransferAction6(QObject *parent = 0) : AM1BeamlineActionItem("Open loadlock port", parent){
 	}
 };
 
-class SGMTransferAction7 : public AMBeamlineActionItem
+class SGMTransferAction7 : public AM1BeamlineActionItem
 {
 	Q_OBJECT
 public:
-	SGMTransferAction7(QObject *parent = 0) : AMBeamlineActionItem("Close loadlock port", parent){
+	SGMTransferAction7(QObject *parent = 0) : AM1BeamlineActionItem("Close loadlock port", parent){
 	}
 };
 
-class SGMTransferAction8 : public AMBeamlineActionItem
+class SGMTransferAction8 : public AM1BeamlineActionItem
 {
 	Q_OBJECT
 public:
-	SGMTransferAction8(QObject *parent = 0) : AMBeamlineActionItem("Open the roughing pump valve", parent){
+	SGMTransferAction8(QObject *parent = 0) : AM1BeamlineActionItem("Open the roughing pump valve", parent){
 	}
 };
 
-class SGMTransferAction9 : public AMBeamlineActionItem
+class SGMTransferAction9 : public AM1BeamlineActionItem
 {
 	Q_OBJECT
 public:
-	SGMTransferAction9(QObject *parent = 0) : AMBeamlineActionItem("Wait for loadlock to reach rough vacuum", parent){
+	SGMTransferAction9(QObject *parent = 0) : AM1BeamlineActionItem("Wait for loadlock to reach rough vacuum", parent){
 		hasFeedback_ = true;
 	}
 public slots:
@@ -368,19 +368,19 @@ public slots:
 	}
 };
 
-class SGMTransferAction10 : public AMBeamlineActionItem
+class SGMTransferAction10 : public AM1BeamlineActionItem
 {
 	Q_OBJECT
 public:
-	SGMTransferAction10(QObject *parent = 0) : AMBeamlineActionItem("Turn on the turbo pump power", parent){
+	SGMTransferAction10(QObject *parent = 0) : AM1BeamlineActionItem("Turn on the turbo pump power", parent){
 	}
 };
 
-class SGMTransferAction11 : public AMBeamlineActionItem
+class SGMTransferAction11 : public AM1BeamlineActionItem
 {
 	Q_OBJECT
 public:
-	SGMTransferAction11(QObject *parent = 0) : AMBeamlineActionItem("Turn on the CCG", parent){
+	SGMTransferAction11(QObject *parent = 0) : AM1BeamlineActionItem("Turn on the CCG", parent){
 		hasFeedback_ = true;
 	}
 public slots:
@@ -392,11 +392,11 @@ public slots:
 	}
 };
 
-class SGMTransferAction12 : public AMBeamlineActionItem
+class SGMTransferAction12 : public AM1BeamlineActionItem
 {
 	Q_OBJECT
 public:
-	SGMTransferAction12(QObject *parent = 0) : AMBeamlineActionItem("Wait for loadlock to reach high vacuum", parent){
+	SGMTransferAction12(QObject *parent = 0) : AM1BeamlineActionItem("Wait for loadlock to reach high vacuum", parent){
 		hasFeedback_ = true;
 	}
 public slots:
@@ -408,107 +408,107 @@ public slots:
 	}
 };
 
-class SGMTransferAction13 : public AMBeamlineActionItem
+class SGMTransferAction13 : public AM1BeamlineActionItem
 {
 	Q_OBJECT
 public:
-	SGMTransferAction13(QObject *parent = 0) : AMBeamlineActionItem("Close Endstation Vacuum Valve", parent){
+	SGMTransferAction13(QObject *parent = 0) : AM1BeamlineActionItem("Close Endstation Vacuum Valve", parent){
 	}
 };
 
-class SGMTransferAction14 : public AMBeamlineActionItem
+class SGMTransferAction14 : public AM1BeamlineActionItem
 {
 	Q_OBJECT
 public:
-	SGMTransferAction14(QObject *parent = 0) : AMBeamlineActionItem("Turn off Detector High Voltage", parent){
+	SGMTransferAction14(QObject *parent = 0) : AM1BeamlineActionItem("Turn off Detector High Voltage", parent){
 	}
 };
 
-class SGMTransferAction15 : public AMBeamlineActionItem
+class SGMTransferAction15 : public AM1BeamlineActionItem
 {
 	Q_OBJECT
 public:
-	SGMTransferAction15(QObject *parent = 0) : AMBeamlineActionItem("Retract Detectors", parent){
+	SGMTransferAction15(QObject *parent = 0) : AM1BeamlineActionItem("Retract Detectors", parent){
 	}
 };
 
-class SGMTransferAction16 : public AMBeamlineActionItem
+class SGMTransferAction16 : public AM1BeamlineActionItem
 {
 	Q_OBJECT
 public:
-	SGMTransferAction16(QObject *parent = 0) : AMBeamlineActionItem("Move to Transfer Position", parent){
+	SGMTransferAction16(QObject *parent = 0) : AM1BeamlineActionItem("Move to Transfer Position", parent){
 	}
 };
 
-class SGMTransferAction17 : public AMBeamlineActionItem
+class SGMTransferAction17 : public AM1BeamlineActionItem
 {
 	Q_OBJECT
 public:
-	SGMTransferAction17(QObject *parent = 0) : AMBeamlineActionItem("Confrim Loadlock at High Vacuum", parent){
+	SGMTransferAction17(QObject *parent = 0) : AM1BeamlineActionItem("Confrim Loadlock at High Vacuum", parent){
 	}
 };
 
-class SGMTransferAction18 : public AMBeamlineActionItem
+class SGMTransferAction18 : public AM1BeamlineActionItem
 {
 	Q_OBJECT
 public:
-	SGMTransferAction18(QObject *parent = 0) : AMBeamlineActionItem("Open Transfer Valve", parent){
+	SGMTransferAction18(QObject *parent = 0) : AM1BeamlineActionItem("Open Transfer Valve", parent){
 	}
 };
 
-class SGMTransferAction19 : public AMBeamlineActionItem
+class SGMTransferAction19 : public AM1BeamlineActionItem
 {
 	Q_OBJECT
 public:
-	SGMTransferAction19(QObject *parent = 0) : AMBeamlineActionItem("Transfer Sample Out", parent){
+	SGMTransferAction19(QObject *parent = 0) : AM1BeamlineActionItem("Transfer Sample Out", parent){
 	}
 };
 
-class SGMTransferAction20 : public AMBeamlineActionItem
+class SGMTransferAction20 : public AM1BeamlineActionItem
 {
 	Q_OBJECT
 public:
-	SGMTransferAction20(QObject *parent = 0) : AMBeamlineActionItem("Close Transfer Valve", parent){
+	SGMTransferAction20(QObject *parent = 0) : AM1BeamlineActionItem("Close Transfer Valve", parent){
 	}
 };
 
-class SGMTransferAction21 : public AMBeamlineActionItem
+class SGMTransferAction21 : public AM1BeamlineActionItem
 {
 	Q_OBJECT
 public:
-	SGMTransferAction21(QObject *parent = 0) : AMBeamlineActionItem("Confirm Loadlock at High Vacuum", parent){
+	SGMTransferAction21(QObject *parent = 0) : AM1BeamlineActionItem("Confirm Loadlock at High Vacuum", parent){
 	}
 };
 
-class SGMTransferAction22 : public AMBeamlineActionItem
+class SGMTransferAction22 : public AM1BeamlineActionItem
 {
 	Q_OBJECT
 public:
-	SGMTransferAction22(QObject *parent = 0) : AMBeamlineActionItem("Open Transfer Valve", parent){
+	SGMTransferAction22(QObject *parent = 0) : AM1BeamlineActionItem("Open Transfer Valve", parent){
 	}
 };
 
-class SGMTransferAction23 : public AMBeamlineActionItem
+class SGMTransferAction23 : public AM1BeamlineActionItem
 {
 	Q_OBJECT
 public:
-	SGMTransferAction23(QObject *parent = 0) : AMBeamlineActionItem("Transfer Sample In", parent){
+	SGMTransferAction23(QObject *parent = 0) : AM1BeamlineActionItem("Transfer Sample In", parent){
 	}
 };
 
-class SGMTransferAction24 : public AMBeamlineActionItem
+class SGMTransferAction24 : public AM1BeamlineActionItem
 {
 	Q_OBJECT
 public:
-	SGMTransferAction24(QObject *parent = 0) : AMBeamlineActionItem("Close Transfer Valve", parent){
+	SGMTransferAction24(QObject *parent = 0) : AM1BeamlineActionItem("Close Transfer Valve", parent){
 	}
 };
 
-class SGMTransferAction25 : public AMBeamlineActionItem
+class SGMTransferAction25 : public AM1BeamlineActionItem
 {
 	Q_OBJECT
 public:
-	SGMTransferAction25(QObject *parent = 0) : AMBeamlineActionItem("Turn on Detector High Voltage", parent){
+	SGMTransferAction25(QObject *parent = 0) : AM1BeamlineActionItem("Turn on Detector High Voltage", parent){
 	}
 };
 

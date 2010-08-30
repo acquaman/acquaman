@@ -97,14 +97,14 @@ AMAppController::AMAppController(QObject *parent) :
 
 	workflowManagerView_ = new AMWorkflowManagerView();
 	mw_->addPane(workflowManagerView_, "Experiment Tools", "Workflow", ":/user-away.png");
-	//connect(scanConfigurationHolder_, SIGNAL(startScanRequested()), workflowManagerView_, SLOT(onStartScanRequested()));
 	connect(workflowManagerView_, SIGNAL(freeToScan(bool, bool)), scanConfigurationHolder_, SLOT(onFreeToScan(bool, bool)));
+	connect(workflowManagerView_, SIGNAL(lockdownScanning(bool,QString)), scanConfigurationHolder_, SLOT(onLockdownScanning(bool,QString)));
 	connect(scanConfigurationHolder_, SIGNAL(addToQueueRequested(AMScanConfiguration*, bool)), workflowManagerView_, SLOT(onAddScanRequested(AMScanConfiguration*, bool)));
 	connect(scanConfigurationHolder_, SIGNAL(cancelAddToQueueRequest()), workflowManagerView_, SLOT(onCancelAddScanRequest()));
 	connect(workflowManagerView_, SIGNAL(addedScan(AMScanConfiguration*)), scanConfigurationHolder_, SLOT(onAddedToQueue(AMScanConfiguration*)));
 
 	connect(scanConfigurationHolder_, SIGNAL(goToQueueRequested()), this, SLOT(goToWorkflow()));
-
+	connect(scanConfigurationHolder_, SIGNAL(newScanConfigurationView()), workflowManagerView_, SLOT(onNewScanConfigurationView()));
 
 
 	mw_->addPane(new Scheduler(), "Experiment Tools", "Scheduler", ":/user-away.png");
@@ -134,7 +134,7 @@ AMAppController::AMAppController(QObject *parent) :
 
 	connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerCreated()), this, SLOT(onCurrentScanControllerCreated()));
 	connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerDestroyed()), this, SLOT(onCurrentScanControllerDestroyed()));
-
+	connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerReinitialized(bool)), this, SLOT(onCurrentScanControllerReinitialized(bool)));
 
 	// Make connections:
 	//////////////////////////////
@@ -240,6 +240,14 @@ void AMAppController::onCurrentScanControllerCreated(){
 
 void AMAppController::onCurrentScanControllerDestroyed(){
 	qDebug() << "Detected deletion of " << (int)AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController();
+}
+
+void AMAppController::onCurrentScanControllerReinitialized(bool removeScan){
+	qDebug() << "Trying to reinitialize with " << scanEditors_->rowCount() << " editors";
+	AMGenericScanEditor *scanEditor = scanEditors_->data(scanEditors_->index(scanEditors_->rowCount()-1, 0), AM::PointerRole).value<AMGenericScanEditor*>();
+	if(removeScan)
+		scanEditor->removeScan(scanEditor->scanAt(scanEditor->numScans()-1));
+	scanEditor->addScan(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan());
 }
 
 #include "dataman/AMExperiment.h"

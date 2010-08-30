@@ -270,9 +270,11 @@ bool AMScan::loadFromDb(AMDatabase* db, int sourceId) {
 	}
 	for(int i=0; i<chNames.count(); i++)
 		addChannel(chNames[i], chExpressions[i]);
+	setModified(false);
 
 	return true;
 }
+
 
 
 #include <QPixmap>
@@ -317,6 +319,7 @@ AMDbThumbnail AMScan::thumbnail(int index) const {
 
 	plot.enableAutoScale(MPlotAxis::Left | MPlotAxis::Bottom);
 	plot.addItem(&series);
+	plot.doDelayedAutoScale();
 
 	gscene.render(&painter);
 	painter.end();

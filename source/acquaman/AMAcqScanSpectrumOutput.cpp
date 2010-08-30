@@ -34,6 +34,10 @@ void AMAcqScanSpectrumOutput::setScan(AMScan *scan){
 	scan_ = scan;
 }
 
+void AMAcqScanSpectrumOutput::setScanController(QObject *scanController){
+	scanController_ = scanController;
+}
+
 /// C interface to the Constructor.
 /// these are important for dynamic library use!
 acqKey_t new_AMAcqScanSpectrumOutput(void)
@@ -49,6 +53,7 @@ int AMAcqScanSpectrumOutput::startRecord( acqKey_t key, int eventno)
 	// flag that some output is occuring
 	acqTextOutput::startRecord(key, eventno);
 
+	to->dataPackage_.clear();
 	to->dataDelayList_.clear();
 	to->spectraDelayList_.clear();
 	to->dataDelay_ = true;
@@ -67,6 +72,14 @@ int AMAcqScanSpectrumOutput::endRecord( acqKey_t key, int eventno)
 	if( (eventno == 1) && !to->lockHash_ )
 		to->lockHash_ = true;
 
+	/// \todo Handle spectrum output like this too, fix up the other (unused right now) output handler
+	AMAcqEvent *ae = new AMAcqEvent();
+	QMap<int, double>::const_iterator i = to->dataPackage_.constBegin();
+	while(i != to->dataPackage_.constEnd()){
+		ae->dataPackage_.insert(i.key(), i.value());
+		i++;
+	}
+	QCoreApplication::postEvent(to->scanController_, ae);
 	return acqTextSpectrumOutput::endRecord(key, eventno);
 
 }
@@ -157,6 +170,13 @@ int AMAcqScanSpectrumOutput::putValue( acqKey_t key, int eventno, int pvno, cons
 	}
 
 
+	if((eventno == 1) && !pvpr->isSpectrum){
+		if( (pvno == 0) && (eventno == 1) )
+			to->dataPackage_.insert(0, dataVal);
+		else
+			to->dataPackage_.insert(to->pvnoToColumn_[pvno]+1, dataVal);
+	}
+	/*
 	if(!to->dataDelay_){
 		if(!pvpr->isSpectrum)
 			to->scan_->d_->setLastValue(to->pvnoToColumn_[pvno], dataVal);
@@ -201,5 +221,6 @@ int AMAcqScanSpectrumOutput::putValue( acqKey_t key, int eventno, int pvno, cons
 			++dI;
 		}
 	}
+	*/
 	return 0;
 }

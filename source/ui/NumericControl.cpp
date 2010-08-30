@@ -387,13 +387,13 @@ void StyledControlInputDialog::setEnumNames(const QStringList &sl){
 	if(oldIsEnum != isEnum_){
 		if(!isEnum_){
 			vl_->removeWidget(comboBox_);
-			vl_->insertWidget(0, spinBox_);
+			vl_->insertWidget(1, spinBox_);
 			comboBox_->hide();
 			spinBox_->show();
 		}
 		else{
 			vl_->removeWidget(spinBox_);
-			vl_->insertWidget(0, comboBox_);
+			vl_->insertWidget(1, comboBox_);
 			spinBox_->hide();
 			comboBox_->show();
 		}

@@ -37,7 +37,15 @@ AMWorkflowManagerView::AMWorkflowManagerView(QWidget *parent) :
 void AMWorkflowManagerView::onStartQueueRequested(){
 	if(!workflowQueue_->isEmpty()){
 		qDebug() << "Trying to start queue";
-		workflowQueue_->startQueue();
+		if(!workflowQueue_->head()->hasFinished() ){
+			qDebug() << "Initialized, so just start, no reset";
+			workflowQueue_->startQueue();
+		}
+		else{
+			qDebug() << "Not initialized anymore, so need to reset";
+			workflowQueue_->head()->reset();
+			workflowQueue_->startQueue();
+		}
 		//workflowQueue_->head()->start();
 	}
 //	if(workflowActions_->count() > 0)
@@ -64,6 +72,7 @@ void AMWorkflowManagerView::onAddScanRequested(AMScanConfiguration *cfg, bool st
 		emit freeToScan(workflowQueue_->isEmpty(), !workflowQueue_->isRunning());
 	else if(startNow && workflowQueue_->isRunning())
 		emit freeToScan(workflowQueue_->peekIsEmpty(), !workflowQueue_->isRunning());
+	//NOT THREAD SAFE IF WORKFLOW AND SXSCVIEWER IN DIFFERENT THREADS
 	if(cancelAddRequest_){
 		cancelAddRequest_ = false;
 		qDebug() << "Request cancelled, doing nothing";
@@ -72,7 +81,7 @@ void AMWorkflowManagerView::onAddScanRequested(AMScanConfiguration *cfg, bool st
 
 	SGMXASScanConfiguration *sxsc = (SGMXASScanConfiguration*)cfg;
 
-	AMBeamlineScanAction *scanAction = new AMBeamlineScanAction(sxsc, "SGMXASScan", "Deuce", this);
+	AMBeamlineScanAction *scanAction = new AMBeamlineScanAction(sxsc, "SGMXASScan", this);
 	workflowActions_->appendAction(scanAction);
 	emit addedScan(cfg);
 	if(startNow)
@@ -109,6 +118,10 @@ void AMWorkflowManagerView::onQueueIsEmptyChanged(bool isEmpty){
 	onQueueAndScanningStatusChanged();
 }
 
+void AMWorkflowManagerView::onNewScanConfigurationView(){
+	onQueueAndScanningStatusChanged();
+}
+
 void AMWorkflowManagerView::onQueueAndScanningStatusChanged(){
 	bool qEmpty = workflowQueue_->isEmpty();
 	bool qRunning = workflowQueue_->isRunning();
@@ -118,9 +131,11 @@ void AMWorkflowManagerView::onQueueAndScanningStatusChanged(){
 	else{
 		startWorkflowButton_->setEnabled(true);
 		startWorkflowButton_->setText("Start This Workflow\nReady");
+		emit lockdownScanning(false, "Ready");
 	}
 	if(blScanning && !qRunning){
 			startWorkflowButton_->setText("Start This Workflow\nExternal Scan");
+			emit lockdownScanning(true, "-- External Scan --");
 	}
 	else if(qEmpty){
 		startWorkflowButton_->setText("Start This Workflow\n-- No Items --");
@@ -167,6 +182,7 @@ AMBeamlineActionsListView::AMBeamlineActionsListView(AMBeamlineActionsList *acti
 	connect(actionsList_, SIGNAL(actionChanged(int)), this, SLOT(onActionChanged(int)));
 	connect(actionsList_, SIGNAL(actionAdded(int)), this, SLOT(onActionAdded(int)));
 	connect(actionsList_, SIGNAL(actionRemoved(int)), this, SLOT(onActionRemoved(int)));
+	connect(actionsQueue_, SIGNAL(headChanged()), this, SLOT(reindexViews()));
 }
 
 /*
@@ -220,10 +236,12 @@ void AMBeamlineActionsListView::onActionAdded(int index){
 		tmpView = moveActionView;
 	}
 	connect(tmpView, SIGNAL(removeRequested(AMBeamlineActionItem*)), this, SLOT(onActionRemoveRequested(AMBeamlineActionItem*)));
+	reindexViews();
 }
 
 void AMBeamlineActionsListView::onActionRemoved(int index){
 	actionsViewList_->removeItem(index);
+	reindexViews();
 }
 
 void AMBeamlineActionsListView::onActionRemoveRequested(AMBeamlineActionItem *item){
@@ -450,14 +468,23 @@ void AMBeamlineActionsListView::onActionSucceeded(AMBeamlineActionItem *action){
 	qDebug() << "iof is " << indexOfFirst();
 	emit queueUpdated(actionsQueue_);
 }
+*/
 
 void AMBeamlineActionsListView::reindexViews(){
-//	for(int x = 0; x < fullViewList_.count(); x++)
-//		fullViewList_.at(x)->setIndex(x+1);
-	for(int x = 0; x < viewQueue_.count(); x++)
-		viewQueue_.at(x)->setIndex(x+1);
+	if(actionsQueue_->indexOfHead() != -1){
+		for(int x = 0; x < actionsQueue_->indexOfHead(); x++)
+			if(actionsViewList_->widget(x) && ((AMBeamlineActionView*)(actionsViewList_->widget(x)))->index() != -1 )
+				((AMBeamlineActionView*)(actionsViewList_->widget(x)))->setIndex(-1);
+		for(int x = actionsQueue_->indexOfHead(); x < actionsList_->count(); x++)
+			if(actionsViewList_->widget(x) && ((AMBeamlineActionView*)(actionsViewList_->widget(x)))->index() != x-actionsQueue_->indexOfHead()+1 )
+				((AMBeamlineActionView*)(actionsViewList_->widget(x)))->setIndex(x-actionsQueue_->indexOfHead()+1);
+	}
+	else
+		for(int x = 0; x < actionsList_->count(); x++)
+			if(actionsViewList_->widget(x) && ((AMBeamlineActionView*)(actionsViewList_->widget(x)))->index() != -1 )
+				((AMBeamlineActionView*)(actionsViewList_->widget(x)))->setIndex(-1);
 }
-*/
+
 
 AMBeamlineActionAdder::AMBeamlineActionAdder(QWidget *parent) :
 		QWidget(parent)
@@ -559,7 +586,7 @@ void AMBeamlineActionAdder::onNewMoveSetpoint(double value){
 }
 
 void AMBeamlineActionAdder::onAddMoveAction(){
-	AMBeamlineActionItem *tmpItem = new AMBeamlineControlMoveAction(movePV_, "");
+	AMBeamlineActionItem *tmpItem = new AMBeamlineControlMoveAction(movePV_);
 	((AMBeamlineControlMoveAction*)tmpItem)->setSetpoint(moveSetpoint_);
 	emit insertActionRequested(tmpItem, addWhereBox_->currentIndex());
 	hide();

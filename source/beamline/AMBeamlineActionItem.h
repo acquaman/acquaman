@@ -11,51 +11,86 @@
 
 #define NATURAL_ACTION_VIEW_HEIGHT 62
 
+class AMBeamlineActionItemStateFlag : public QObject
+{
+Q_OBJECT
+public:
+	AMBeamlineActionItemStateFlag(bool initialState = false, QObject *parent = 0);
+	virtual bool state() const;
+
+signals:
+	void stateChanged(bool changedTo);
+
+public slots:
+	void setState(bool state);
+
+protected:
+	bool state_;
+};
+
 class AMBeamlineActionItem : public QObject
 {
 Q_OBJECT
 public:
-	explicit AMBeamlineActionItem(QString message = "", QObject *parent = 0);
-	bool isRunning() { return running_; }
-	bool hasStarted() { return started_; }
-	bool hasSucceeded() { return succeeded_; }
-	bool hasFailed() { return failed_; }
-	bool hasFeedback() { return hasFeedback_; }
-	bool needsInput() { return needsInput_; }
-	AMBeamlineActionItem* previous() const { return previous_;}
-	AMBeamlineActionItem* next() const { return next_;}
-	QString message() const { return message_; }
-	virtual QString type() const { return type_; }
+	explicit AMBeamlineActionItem(QObject *parent = 0);
+	bool isInitialized() const;
+	bool isReinitialized() const;
+	bool isReady() const;
+	bool hasStarted() const;
+	virtual bool isRunning() const;
+	bool hasSucceeded() const;
+	bool hasFailed() const;
+	bool hasFinished() const;
+	AMBeamlineActionItem* previous() const;
+	AMBeamlineActionItem* next() const;
+	virtual QString type() const;
 
 signals:
-	void started();
+	void initialized();
 	void ready(bool ready);
+	void started();
 	void succeeded();
 	void failed(int explanation);
+	void finished();
 
 public slots:
-	virtual void start(){ running_ = true; started_ = true; emit started(); }
-	bool setPrevious(AMBeamlineActionItem* previous);//{ previous_ = previous; return true;
-//#warning("DAVID! This warning is... RAW!");
-//		}
-	bool setNext(AMBeamlineActionItem* next);//{ next_ = next; return true;
-//			#warning("DAVID! This warning is... RAW!");
-//		}
+	virtual void start() = 0;//Pure virtual. Sub-classes need to implement and they better set start_ = true at some point and cause start() to be emitted
+	//Calling reset always set reintialized to true
+	virtual void reset(bool delayInitialize = false);//NOT Pure virtual. Sub-classes better call this at the end of their reset (AMBeamlineActionItem::reset) or call initialize themselves
+	virtual void cleanup() = 0;
+	bool setPrevious(AMBeamlineActionItem* previous);
+	bool setNext(AMBeamlineActionItem* next);
+
+protected slots:
+	// Interface to internal state. If sub-classes want to change something, call these.
+	// They will cause the corresponding signal to be emitted if the state changed (in the right direction)
+	// They will also cause initialized to become false if they change from their initial state
+	void setReady(bool isReady);
+	void setStarted(bool isStarted);
+	void setSucceeded(bool isSucceeded);
+	void setFailed(bool isFailed, int explanation = -1);
+	void setFinished(bool isFinished);
+
+	virtual void initialize();//NOT Pure virtual. Sub-classes better call this at the end of their initialize (AMBeamlineActionItem::initialize)
 
 protected:
-	bool started_;
-	bool succeeded_;
-	bool failed_;
-	bool running_;
-	bool hasFeedback_;
-	bool needsInput_;
+	AMBeamlineActionItem(bool delayInitialize = false, QObject *parent = 0);
 
-	QString message_;
 	AMBeamlineActionItem *previous_;
 	AMBeamlineActionItem *next_;
 
+private slots:
+	void dirtyInitialized();
+
 private:
 	QString type_;
+	AMBeamlineActionItemStateFlag initialized_;//Only true when initialized and nothing else has happened. Setting any flag below
+	AMBeamlineActionItemStateFlag reinitialized_;//Stays false until reset is called
+	AMBeamlineActionItemStateFlag ready_;
+	AMBeamlineActionItemStateFlag started_;
+	AMBeamlineActionItemStateFlag succeeded_;
+	AMBeamlineActionItemStateFlag failed_;
+	AMBeamlineActionItemStateFlag finished_;
 };
 
 class AMBeamlineActionView : public QFrame
@@ -64,6 +99,7 @@ class AMBeamlineActionView : public QFrame
 public:
 	AMBeamlineActionView(AMBeamlineActionItem *action, int index = 0, QWidget *parent = 0);
 
+	int index() const { return index_;}
 	virtual AMBeamlineActionItem* action();
 	virtual QString viewType() const;
 
@@ -77,14 +113,12 @@ signals:
 	void removeRequested(AMBeamlineActionItem *action);
 	void pauseRequested(AMBeamlineActionItem *action);
 	void resumeRequested(AMBeamlineActionItem *action);
-	void hideRequested(AMBeamlineActionItem *action);
 	void stopRequested(AMBeamlineActionItem *action);
 
 protected slots:
 	virtual void onInfoChanged() = 0;
 	virtual void onStopCancelButtonClicked() = 0;
 	virtual void onPlayPauseButtonClicked() = 0;
-	virtual void onHideButtonClicked() = 0;
 
 protected:
 	void mousePressEvent(QMouseEvent *event);
@@ -100,46 +134,53 @@ private:
 	QString viewType_;
 };
 
-class AMBeamlineActionHiddenView : public AMBeamlineActionView
+class AM1BeamlineActionItem : public QObject
 {
-	Q_OBJECT
+Q_OBJECT
 public:
-	AMBeamlineActionHiddenView(AMBeamlineActionItem* first, int count = 1, QWidget *parent = 0);
-	~AMBeamlineActionHiddenView();
-
-	virtual QString viewType() const;
-	virtual int count() const;
-
-public slots:
-	void setFirst(AMBeamlineActionItem *first);
-	void setCount(int count);
+	explicit AM1BeamlineActionItem(QString message = "", QObject *parent = 0);
+	bool isRunning() { return running_; }
+	bool hasStarted() { return started_; }
+	bool hasSucceeded() { return succeeded_; }
+	bool hasFailed() { return failed_; }
+	bool hasFeedback() { return hasFeedback_; }
+	bool needsInput() { return needsInput_; }
+	AM1BeamlineActionItem* previous() const { return previous_;}
+	AM1BeamlineActionItem* next() const { return next_;}
+	QString message() const { return message_; }
+	virtual QString type() const { return type_; }
 
 signals:
-	void expandRequested(AMBeamlineActionItem* action);
+	void started();
+	void ready(bool ready);
+	void succeeded();
+	void failed(int explanation);
 
-protected slots:
-	virtual void onInfoChanged();
-	virtual void onStopCancelButtonClicked();
-	virtual void onPlayPauseButtonClicked();
-	virtual void onHideButtonClicked();
-
-	virtual void onExpandButtonClicked();
-
+public slots:
+	virtual void start(){ running_ = true; started_ = true; emit started(); }
+	bool setPrevious(AM1BeamlineActionItem* previous);
+	bool setNext(AM1BeamlineActionItem* next);
 protected:
-	int count_;
-	QLabel *infoLabel_;
-	QPushButton *expandButton_;
-	QHBoxLayout *hl_;
+	bool started_;
+	bool succeeded_;
+	bool failed_;
+	bool running_;
+	bool hasFeedback_;
+	bool needsInput_;
+
+	QString message_;
+	AM1BeamlineActionItem *previous_;
+	AM1BeamlineActionItem *next_;
 
 private:
-	QString viewType_;
+	QString type_;
 };
 
 class AMBeamlineActionItemView : public QWidget
 {
 	Q_OBJECT
 public:
-	AMBeamlineActionItemView(AMBeamlineActionItem *item, QWidget *parent = 0);
+	AMBeamlineActionItemView(AM1BeamlineActionItem *item, QWidget *parent = 0);
 	int messageHint(){ return message_->sizeHint().width(); }
 	int lightHint(){ return light_->sizeHint().width(); }
 	int proceedHint() { return proceed_->sizeHint().width(); }
@@ -153,7 +194,7 @@ public slots:
 	virtual void fixProceedSize(int width);
 
 protected:
-	AMBeamlineActionItem *item_;
+	AM1BeamlineActionItem *item_;
 	QHBoxLayout *hl_;
 	QLabel *message_;
 	QPushButton *light_;

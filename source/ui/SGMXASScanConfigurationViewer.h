@@ -38,6 +38,7 @@ protected slots:
 			fluxResolutionView_->onRegionsUpdate( ((SGMXASScanConfiguration*)cfg_)->regions() );
 		}
 	}
+	void onLockdowScanning(bool isLocked, QString reason);
 
 protected:
 	AMScanConfiguration *cfg_;

@@ -23,6 +23,7 @@ acqKey_t new_AMAcqScanOutput(void);
 #include "acquaman/dacq3_2/OutputHandler/acqTextSpectrumOutput.h"
 #include <qdebug.h>
 #include <qmap.h>
+#include <QCoreApplication>
 #include <string>
 
 #include "../MPlot/src/MPlot/MPlotWidget.h"
@@ -46,23 +47,26 @@ public:
 	virtual ~AMAcqScanSpectrumOutput();
 	static acqBaseOutput *new_AMAcqScanSpectrumOutput();
 	void setScan(AMScan *scan);
+	void setScanController(QObject *scanController);
 
 private:
 	int outputCol;
 	AMScan *scan_;
+	QObject *scanController_;
 	QMap<int, double> dataDelayList_;
 	QMap<int, QList<double> > spectraDelayList_;
+	QMap<int, double> dataPackage_;
 	QHash<int, int> pvnoToColumn_;
 	int colNo_, specColNo_;
 	bool lockHash_;
 	bool dataDelay_;
 
-	MPlotWidget *plotWindow;
+	/*MPlotWidget *plotWindow;
 	MPlot *plot;
 	MPlotSeriesBasic *series1, *series2, *series3;
 	MPlotRealtimeModel *data1;
 
-	AMScanView *sv;
+	AMScanView *sv;*/
 };
 
 #endif /* __cplusplus */

@@ -54,7 +54,7 @@ public:
 	AMScan* scan() const { return scan_; }
 
 	/// the expression currently set for this channel
-	QString expression() const { return QString::fromStdString(parser_.GetExpr()); }
+	QString expression() const { return QString::fromStdString(parser_.GetExpr()).trimmed(); }
 	/// The expression set for the x-values of this channel
 	QString xExpression() const { if(defaultX_) return QString(); else return QString::fromStdString(parserX_.GetExpr()); }
 
@@ -127,8 +127,8 @@ protected:
 	/// For optimization, this stores the raw data column indices that are actually used by the parsers.  -1 indicates the raw data x-column.
 	QList<int> usedColumnIndices_, usedColumnIndicesX_;
 
-	/// clears the parser variables and sets them to the names of the raw data columns
-	bool setVariablesFromDataColumns();
+	// clears the parser variables and sets them to the names of the raw data columns
+	// REMOVED bool setVariablesFromDataColumns();
 
 	/// used to remember if the expressions were set successfully:
 	bool isValid_, isValidX_;

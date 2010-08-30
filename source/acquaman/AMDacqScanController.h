@@ -33,6 +33,9 @@ public slots:
 	virtual void resume(){ advAcq_->Pause(0);}
 
 protected:
+	bool event(QEvent *e);
+
+protected:
 	QEpicsAdvAcq *advAcq_;
 	bool cancelled_;
 	QTime startTime_;

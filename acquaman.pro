@@ -3,37 +3,37 @@
 # Note: Set EPICS_INCLUDE_DIRS, EPICS_LIB_DIR, and PHONON_INCLUDE_DIR correctly for platform
 # ####################################################################
 HOME_FOLDER = $$system(echo $HOME)
-macx {
-	EPICS_INCLUDE_DIRS = $$HOME_FOLDER/dev/epics/14-11/base/include \
-		$$HOME_FOLDER/dev/epics/14-11/base/include/os/Darwin
-	EPICS_LIB_DIR = $$HOME_FOLDER/dev/epics/14-11/base/lib/darwin-x86
-	MPLOT_INCLUDE_DIR = $$HOME_FOLDER/dev/MPlot/src
-	GSL_INCLUDE_DIR = $$HOME_FOLDER/dev/gsl-install/include
-	GSL_LIB = -L$$HOME_FOLDER/dev/gsl-install/lib \
-		-lgsl
-	GSL_CBLAS_LIB = -L$$HOME_FOLDER/dev/gsl-install/lib \
-		-lgslcblas
+macx { 
+    EPICS_INCLUDE_DIRS = $$HOME_FOLDER/dev/epics/14-11/base/include \
+        $$HOME_FOLDER/dev/epics/14-11/base/include/os/Darwin
+    EPICS_LIB_DIR = $$HOME_FOLDER/dev/epics/14-11/base/lib/darwin-x86
+    MPLOT_INCLUDE_DIR = $$HOME_FOLDER/dev/MPlot/src
+    GSL_INCLUDE_DIR = $$HOME_FOLDER/dev/gsl-install/include
+    GSL_LIB = -L$$HOME_FOLDER/dev/gsl-install/lib \
+        -lgsl
+    GSL_CBLAS_LIB = -L$$HOME_FOLDER/dev/gsl-install/lib \
+        -lgslcblas
 }
-linux-g++ {
-	EPICS_INCLUDE_DIRS = $$HOME_FOLDER/beamline/programming/epics/base/include \
-		$$HOME_FOLDER/beamline/programming/epics/base/include/os/Linux
-	EPICS_LIB_DIR = $$HOME_FOLDER/beamline/programming/epics/base/lib/linux-x86
-
-	# include path for MPlot library (header-files only)
-	MPLOT_INCLUDE_DIR = $$HOME_FOLDER/beamline/programming/MPlot/src
-	GSL_LIB = -lgsl
-	GSL_CBLAS_LIB = -lgslcblas
+linux-g++ { 
+    EPICS_INCLUDE_DIRS = $$HOME_FOLDER/beamline/programming/epics/base/include \
+        $$HOME_FOLDER/beamline/programming/epics/base/include/os/Linux
+    EPICS_LIB_DIR = $$HOME_FOLDER/beamline/programming/epics/base/lib/linux-x86
+    
+    # include path for MPlot library (header-files only)
+    MPLOT_INCLUDE_DIR = $$HOME_FOLDER/beamline/programming/MPlot/src
+    GSL_LIB = -lgsl
+    GSL_CBLAS_LIB = -lgslcblas
 }
 QT += core \
-	phonon \
-	network \
-	sql
+    phonon \
+    network \
+    sql
 TARGET = Acquaman
 DESTDIR = build
 DEPENDPATH += . \
-	source
+    source
 INCLUDEPATH += . \
-	source
+    source
 INCLUDEPATH += $$EPICS_INCLUDE_DIRS
 INCLUDEPATH += $$MPLOT_INCLUDE_DIR
 INCLUDEPATH += $$GSL_INCLUDE_DIR
@@ -43,11 +43,11 @@ LIBS += $$GSL_CBLAS_LIB
 # Epics channel access linking:
 LIBS += -L$$EPICS_LIB_DIR
 LIBS += -lca \
-	-lCom
+    -lCom
 macx:QMAKE_LFLAGS_RPATH += "$$EPICS_LIB_DIR"
-linux-g++ {
-	QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
-	QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
+linux-g++ { 
+    QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
+    QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
 }
 
 # include and library paths for libxml:
@@ -64,8 +64,6 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	../MPlot/src/MPlot/MPlotItem.h \
 	../MPlot/src/MPlot/MPlotLegend.h \
 	../MPlot/src/MPlot/MPlotMarker.h \
-	../MPlot/src/MPlot/MPlotObservable.h \
-	../MPlot/src/MPlot/MPlotObserver.h \
 	../MPlot/src/MPlot/MPlotPoint.h \
 	../MPlot/src/MPlot/MPlotSeries.h \
 	../MPlot/src/MPlot/MPlotSeriesData.h \
@@ -209,25 +207,26 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMCloseItemDelegate.h \
 	source/ui/AMChannelEditor.h \
 	source/beamline/AMBeamlineActionsList.h \
+	source/ui/AMWrappingLineEdit.h \
 	source/ui/SGMSidebar.h
 FORMS += source/ui/AbsorptionScanController.ui \
-	source/ui/AMDataView.ui \
-	source/ui/AMDataViewEmptyHeader.ui \
-	source/ui/AMDataViewSection.ui \
-	source/ui/AMImportControllerWidget.ui \
-	source/ui/AMScanConfigurationView.ui \
-	source/ui/BottomBar.ui \
-	source/ui/ConnectionSettings.ui \
-	source/ui/EmissionScanController.ui \
-	source/ui/ExpAlbum.ui \
-	source/ui/GratingResolution.ui \
-	source/ui/PeriodicTable.ui \
-	source/ui/ProtocolViewer.ui \
-	source/ui/SamplePositions.ui \
-	source/ui/Scheduler.ui \
-	source/ui/SGMXASScanConfigurationViewer.ui \
-	source/ui/AMGenericScanEditor.ui \
-	source/ui/AMChannelEditor.ui
+    source/ui/AMDataView.ui \
+    source/ui/AMDataViewEmptyHeader.ui \
+    source/ui/AMDataViewSection.ui \
+    source/ui/AMImportControllerWidget.ui \
+    source/ui/AMScanConfigurationView.ui \
+    source/ui/BottomBar.ui \
+    source/ui/ConnectionSettings.ui \
+    source/ui/EmissionScanController.ui \
+    source/ui/ExpAlbum.ui \
+    source/ui/GratingResolution.ui \
+    source/ui/PeriodicTable.ui \
+    source/ui/ProtocolViewer.ui \
+    source/ui/SamplePositions.ui \
+    source/ui/Scheduler.ui \
+    source/ui/SGMXASScanConfigurationViewer.ui \
+    source/ui/AMGenericScanEditor.ui \
+    source/ui/AMChannelEditor.ui
 SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	../MPlot/src/MPlot/MPlotAbstractTool.cpp \
 	../MPlot/src/MPlot/MPlotAxis.cpp \
@@ -237,7 +236,6 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	../MPlot/src/MPlot/MPlotItem.cpp \
 	../MPlot/src/MPlot/MPlotLegend.cpp \
 	../MPlot/src/MPlot/MPlotMarker.cpp \
-	../MPlot/src/MPlot/MPlotObservable.cpp \
 	../MPlot/src/MPlot/MPlotPoint.cpp \
 	../MPlot/src/MPlot/MPlotSeries.cpp \
 	../MPlot/src/MPlot/MPlotSeriesData.cpp \
@@ -368,8 +366,8 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMCloseItemDelegate.cpp \
 	source/ui/AMChannelEditor.cpp \
 	source/beamline/AMBeamlineActionsList.cpp \
+	source/ui/AMWrappingLineEdit.cpp \
 	source/ui/SGMSidebar.cpp
-
 RESOURCES = source/icons/icons.qrc \
-	source/configurationFiles/configurationFiles.qrc
+    source/configurationFiles/configurationFiles.qrc
 OTHER_FILES += source/muParser/README.txt

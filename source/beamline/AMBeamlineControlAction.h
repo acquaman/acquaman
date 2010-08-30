@@ -8,9 +8,12 @@ class AMBeamlineControlAction : public AMBeamlineActionItem
 {
 Q_OBJECT
 public:
-	AMBeamlineControlAction(AMControl *control, QString message = "", QObject *parent = 0);
+	AMBeamlineControlAction(AMControl *control, QObject *parent = 0);
 
 	virtual QString type() const;
+
+public slots:
+	virtual void cleanup() {}
 
 protected:
 	AMControl *control_;
