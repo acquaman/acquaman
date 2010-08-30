@@ -187,7 +187,6 @@ void AMGenericScanEditor::deleteScanWithModifiedCheck(AMScan* scan) {
 	QMessageBox enquiry(this);
 	enquiry.setText(QString("Do you want to save the changes you made to the scan '%1' (#%2)?").arg(scan->name()).arg(scan->number()));
 	enquiry.setInformativeText("Your changes will be lost if you don't save them.");
-	enquiry.setDetailedText("Cool... I didn't even know you could provide detailed text. What now, Brown Cow?");
 	enquiry.setIcon(QMessageBox::Question);
 	enquiry.setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
 	enquiry.setDefaultButton(QMessageBox::Save);

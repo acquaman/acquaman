@@ -228,7 +228,8 @@ public:
 
 
 
-
+	// Data Tree Interface
+	//////////////////////////////////
 
 	/// the number of datapoints in the scan:
 	unsigned count() const { return d_->count(); }
@@ -236,7 +237,12 @@ public:
 	/// Clear all of the raw data in the tree:
 	void clear() { d_->clear(); }
 
-	///
+	/// Get a list of all the data tree column names: (1D channels only)
+	QStringList rawDataColumnNames() const {
+		QStringList rv = d_->yColumnNames();
+		rv.prepend(d_->xName());
+		return rv;
+	}
 
 
 	// Thumbnail system:

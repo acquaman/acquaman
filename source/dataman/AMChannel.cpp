@@ -104,16 +104,17 @@ AMChannel::AMChannel(AMScan* scan, const QString& name, const QString& expressio
 	dataTree()->observable()->addObserver(this);
 
 	parser_.DefineNameChars("0123456789_:.[]"
-						   "abcdefghijklmnopqrstuvwxyz"
-						   "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+							"abcdefghijklmnopqrstuvwxyz"
+							"ABCDEFGHIJKLMNOPQRSTUVWXYZ");
 	parserX_.DefineNameChars("0123456789_:.[]"
-						   "abcdefghijklmnopqrstuvwxyz"
-						   "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+							 "abcdefghijklmnopqrstuvwxyz"
+							 "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
 	//parser_.DefineOprtChars("abcdefghijklmnopqrstuvwxyz"
 	//					   "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-		//				   "+-*^/?<>=#!$%&|~'_");
+	//				   "+-*^/?<>=#!$%&|~'_");
 	//parser_.DefineInfixOprtChars("/+-*^?<>=#!$%&|~'_");
 	varStorage_.reserve(25);
+#warning "varStorage_.reserve(25): will anything blow up past 25 whats?";
 	parser_.SetVarFactory(AddVariable, (void*)(this));
 	parserX_.SetVarFactory(AddVariableX, (void*)(this));
 
@@ -174,14 +175,14 @@ QRectF AMChannel::boundingRect() const {
 
 bool AMChannel::setExpression(const QString& expression) {
 
-	isValid_ = false;
-	min_ = max_ = -1;
-
+	/*
 	/// \todo only needed when the data tree columns change.
 	if(!setVariablesFromDataColumns()) {
 		return false;
-	}
+	}*/
 
+	isValid_ = false;
+	min_ = max_ = -1;
 
 	try {
 		parser_.SetExpr(expression.toStdString());
@@ -189,8 +190,10 @@ bool AMChannel::setExpression(const QString& expression) {
 		parser_.Eval();
 	}
 	catch(mu::Parser::exception_type &e) {
-		QString explanation = QString("AMChannel (setting expression): %1: '%2'.  We found '%3' at position %4.  TODO what happens now?").arg(QString::fromStdString(e.GetMsg())).arg(QString::fromStdString(e.GetExpr())).arg(QString::fromStdString(e.GetToken())).arg(e.GetPos());
+		QString explanation = QString("AMChannel (setting expression): %1: '%2'.  We found '%3' at position %4.  TODO decide what happens now?").arg(QString::fromStdString(e.GetMsg())).arg(QString::fromStdString(e.GetExpr())).arg(QString::fromStdString(e.GetToken())).arg(e.GetPos());
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, e.GetCode(), explanation));
+		informScanModified();
+		emitDataChanged();
 		return false;
 	}
 
@@ -220,8 +223,10 @@ bool AMChannel::setExpression(const QString& expression) {
 	fflush(stdout);
 	*/
 
-	informScanModified();
 	isValid_ = true;
+	informScanModified();
+	emitDataChanged();
+
 	return true;
 }
 
@@ -234,24 +239,28 @@ bool AMChannel::setXExpression(const QString& xExpression) {
 		isValidX_ = true;
 		usedColumnIndicesX_.clear();
 		informScanModified();
+		emitDataChanged();
 		return true;
 	}
 
-	defaultX_ = false;
-	isValidX_ = false;
-
+	/*
 	/// \todo only needed when the data tree columns change.
 	if(!setVariablesFromDataColumns())
 		return false;
+		*/
 
+	defaultX_ = false;
+	isValidX_ = false;
 
 	try {
 		parserX_.SetExpr(xExpression.toStdString());
 		parserX_.Eval();
 	}
 	catch(mu::Parser::exception_type &e) {
-		QString explanation = QString("AMChannel (setting expression): %1: '%2'.  We found '%3' at position %4.  TODO what happens now?").arg(QString::fromStdString(e.GetMsg()), QString::fromStdString(e.GetExpr()), QString::fromStdString(e.GetToken())).arg(e.GetPos());
+		QString explanation = QString("AMChannel (setting expression): %1: '%2'.  We found '%3' at position %4.  TODO decide what happens now?").arg(QString::fromStdString(e.GetMsg()), QString::fromStdString(e.GetExpr()), QString::fromStdString(e.GetToken())).arg(e.GetPos());
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, e.GetCode(), explanation));
+		informScanModified();
+		emitDataChanged();
 		return false;
 	}
 
@@ -273,9 +282,9 @@ bool AMChannel::setXExpression(const QString& xExpression) {
 	}
 	*/
 
-	informScanModified();
-
 	isValidX_ = true;
+	informScanModified();
+	emitDataChanged();
 	return true;
 }
 
@@ -415,9 +424,9 @@ double AMChannel::x(unsigned p) const {
 }
 
 
-
+	/*
 bool AMChannel::setVariablesFromDataColumns() {
-/*
+
 	parser_.ClearVar();
 	parserX_.ClearVar();
 
@@ -453,9 +462,9 @@ bool AMChannel::setVariablesFromDataColumns() {
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, e.GetCode(), explanation));
 		return false;
 	}
-*/
+
 	return true;
-}
+}*/
 
 
 AMDataTree* AMChannel::dataTree() const {
@@ -504,35 +513,35 @@ QString AMChannel::longErrorMsg() const {
 
 void AMChannel::searchMin() const {
 	min_ = 0;
-//	qDebug() << "\nStart searching min";
+	//	qDebug() << "\nStart searching min";
 	for(int i=1; (unsigned)i<count(); i++)
 		if(value(i) < value(min_))
 			min_ = i;
-//	qDebug() << "Done searching min\n";
+	//	qDebug() << "Done searching min\n";
 }
 void AMChannel::searchMax() const {
 	max_ = 0;
-//	qDebug() << "\nStart searching max";
+	//	qDebug() << "\nStart searching max";
 	for(int i=1; (unsigned)i<count(); i++)
 		if(value(i)>value(max_))
 			max_ = i;
-//	qDebug() << "Done searching max\n";
+	//	qDebug() << "Done searching max\n";
 }
 void AMChannel::searchMinX() const {
 	minX_ = 0;
-//	qDebug() << "\nStart searching minX";
+	//	qDebug() << "\nStart searching minX";
 	for(int i=1; (unsigned)i<count(); i++)
 		if(x(i)<x(minX_))
 			minX_ = i;
-//	qDebug() << "Done searching minX\n";
+	//	qDebug() << "Done searching minX\n";
 }
 void AMChannel::searchMaxX() const {
 	maxX_ = 0;
-//	qDebug() << "\nStart searching maxX";
+	//	qDebug() << "\nStart searching maxX";
 	for(int i=1; (unsigned)i<count(); i++)
 		if(x(i)>x(maxX_))
 			maxX_ = i;
-//	qDebug() << "Done searching maxX\n";
+	//	qDebug() << "Done searching maxX\n";
 }
 
 /// We observe AMDataTrees.  They Emit(3, "columnChanged", columnIndex) whenever values in a column change.
@@ -540,7 +549,7 @@ void AMChannel::onObservableChanged(AMObservable* source, int code, const char* 
 	Q_UNUSED(source)
 	Q_UNUSED(msg)
 
-//	qDebug() << "dataTree emits " << code << QString(msg) << colIndex << " for " << usedColumnIndices_ << " and defaultX " << defaultX_;
+	//	qDebug() << "dataTree emits " << code << QString(msg) << colIndex << " for " << usedColumnIndices_ << " and defaultX " << defaultX_;
 	if( code != 3 || QString(msg) != QString("columnChanged") )
 		return;
 
@@ -562,6 +571,7 @@ void AMChannel::onObservableChanged(AMObservable* source, int code, const char* 
 }
 
 
+// If we have a scan parent set, and this parent also agrees that we're part of its channels, and we've been modified, set the scan to be modified.
 void AMChannel::informScanModified() {
-	if(scan()) scan()->setModified(true);
+	if(scan() && scan()->indexOfChannel(name()) != -1) scan()->setModified(true);
 }
