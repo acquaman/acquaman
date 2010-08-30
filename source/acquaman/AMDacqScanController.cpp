@@ -44,6 +44,7 @@ void AMDacqScanController::start(){
 			abop->setProperty( "File Path", path.toStdString());
 
 			((AMAcqScanSpectrumOutput*)abop)->setScan(pScan_());
+			((AMAcqScanSpectrumOutput*)abop)->setScanController(this);;
 			advAcq_->Start();
 		}
 		else{
@@ -60,6 +61,24 @@ void AMDacqScanController::cancel()
 	advAcq_->Stop();
 	cancelled_ = TRUE;
 	emit cancelled();
+}
+
+bool AMDacqScanController::event(QEvent *e){
+	if(e->type() == AM::AMAcqEvent){
+		QMap<int, double> aeData = ((AMAcqEvent*)e)->dataPackage_;
+		QMap<int, double>::const_iterator i = aeData.constBegin();
+		if(i.key() == 0 && aeData.count() > 1){
+			pScan_()->d_->append(i.value());
+			++i;
+			while(i != aeData.constEnd()){
+				pScan_()->d_->setLastValue(i.key()-1, i.value());
+				++i;
+			}
+		}
+		e->accept();
+	}
+	else
+		e->ignore();
 }
 
 void AMDacqScanController::onStart()

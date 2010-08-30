@@ -61,3 +61,30 @@ void SGMXASDacqScanController::start(){
 	generalScan_ = specificScan_;
 	AMDacqScanController::start();
 }
+
+/*
+bool SGMXASDacqScanController::event(QEvent *e){
+	if(e->type() == QEvent::MaxUser){
+		//qDebug() << "Data package in scan controller is " << ((AMAcqEvent*)e)->dataPackage_;
+		QMap<int, double> aeData = ((AMAcqEvent*)e)->dataPackage_;
+		qDebug() << "Data package in scan controller is " << aeData;
+		QMap<int, double>::const_iterator i = aeData.constBegin();
+		qDebug() << i.key() << aeData.count();
+		if(i.key() == 0 && aeData.count() > 1){
+			pScan_()->d_->append(i.value());
+			++i;
+			while(i != aeData.constEnd()){
+				qDebug() << "Trying to set " << i.key()-1 << " as " << i.value();
+				pScan_()->d_->setLastValue(i.key()-1, i.value());
+				++i;
+			}
+			qDebug() << "After " << pScan_()->d_->x(pScan_()->d_->count()-1);
+			for(int x = 1; x < aeData.count(); x++)
+				qDebug() << "After val " << pScan_()->d_->value(x-1, pScan_()->d_->count()-1);
+		}
+		e->accept();
+	}
+	else
+		e->ignore();
+}
+*/

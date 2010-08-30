@@ -349,7 +349,7 @@ double AMChannel::value(unsigned p) const {
 	}
 
 
-	qDebug() << "y: " << rv;
+	//qDebug() << "y: " << rv;
 	return rv;
 }
 
@@ -360,7 +360,7 @@ double AMChannel::x(unsigned p) const {
 	// default x: just return the x column value
 	if(defaultX_){
 		double rv = t->x(p);
-		qDebug() << "X: " << rv;
+		//qDebug() << "X: " << rv;
 		return rv;
 	}
 
@@ -416,7 +416,7 @@ double AMChannel::x(unsigned p) const {
 		return invalidValue();
 	}
 
-	qDebug() << "x: " << rv;
+	//qDebug() << "x: " << rv;
 	return rv;
 }
 

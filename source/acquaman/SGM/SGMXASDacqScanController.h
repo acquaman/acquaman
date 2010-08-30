@@ -30,6 +30,11 @@ public slots:
 //protected:
 //	virtual void reinitialize();
 
+	/*
+protected:
+	bool event(QEvent *e);
+	*/
+
 private:
 	SGMXASScanConfiguration **_pCfg_;
 	AMXASScan **_pScan_;

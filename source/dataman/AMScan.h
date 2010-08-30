@@ -328,6 +328,7 @@ protected:
 	friend class AMAcqScanOutput;
 	friend class AMAcqScanSpectrumOutput;
 	friend class AMDacqScanController;
+	friend class SGMXASDacqScanController;
 
 private:
 

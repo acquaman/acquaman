@@ -92,7 +92,7 @@ QStringList AMDataTree::ySubtreeNames() const {
 AMNumericType AMDataTree::x(unsigned i) const {
 
 	if(i >= count()) {
-		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -1, "AMDataTree: accessed value out of range. Returning an (incorrect) default value."));
+		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -1, QString("AMDataTree: accessed value out of range. Returning an (incorrect) default x value. index %1 count %2").arg(i).arg(count()) ));
 		return AMDATATREE_OUTOFRANGE_VALUE;
 	}
 
@@ -111,14 +111,14 @@ QString AMDataTree::xName() const {
 /// Access the value in any column by \c columnIndex and index \c i.
 AMNumericType AMDataTree::value(unsigned columnIndex, unsigned i) const {
 	if(i >= count()) {
-		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -1, "AMDataTree: accessed value out of range. Returning an (incorrect) default value."));
+		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -1, QString("AMDataTree: accessed value out of range. Returning an (incorrect) default y value. index %1 count %2").arg(i).arg(count()) ));
 		return AMDATATREE_OUTOFRANGE_VALUE;
 	}
 
 	if((int)columnIndex < y_.count())
 		return y_[columnIndex].at(i);
 
-	AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -3, "AMDataTree: accessed non-existent data column. Returning an (incorrect) default value."));
+	AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -3, QString("AMDataTree: accessed non-existent data column. Returning an (incorrect) default value. colIndex %1 count %2").arg(columnIndex).arg(count()) ));
 	return AMDATATREE_NONEXISTENT_VALUE;
 }
 
@@ -139,7 +139,7 @@ AMNumericType AMDataTree::value(const QString& columnName, unsigned i) const {
 		return AMDATATREE_NONEXISTENT_VALUE;
 	}
 
-	AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -3, "AMDataTree: accessed non-existent data column. Returning an (incorrect) default value."));
+	AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -3, QString("AMDataTree: accessed non-existent data column. Returning an (incorrect) default value. colIndex %1 count %2").arg(columnName).arg(count()) ));
 	return AMDATATREE_NONEXISTENT_VALUE;
 }
 
