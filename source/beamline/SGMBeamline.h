@@ -78,6 +78,8 @@ public:
 	AMControl* ssaManipulatorRot() const { return ssaManipulatorRot_;}
 	AMControl* ssaManipulatorRotStop() const { return ssaManipulatorRotStop_;}
 	AMControl* beamlineScanning() const { return beamlineScanning_;}
+	AMControl* beamlineReady() const { return beamlineReady_;}
+	AMControl* energyMovingStatus() const { return energyMovingStatus_;}
 
 	AMControlSet* fluxResolutionSet() const { return fluxResolutionSet_;}
 	AMControlSet* trackingSet() const { return trackingSet_;}
@@ -188,6 +190,8 @@ protected:
 	AMControl *ssaManipulatorRot_;
 	AMControl *ssaManipulatorRotStop_;
 	AMControl *beamlineScanning_;
+	AMControl *beamlineReady_;
+	AMControl *energyMovingStatus_;
 
 	AMDetectorInfo *teyDetector_;
 	AMDetectorInfo *tfyDetector_;

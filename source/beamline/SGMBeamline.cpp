@@ -39,6 +39,8 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	amNames2pvNames_.set("ssaManipulatorZ", "reixsHost:ssa:z");
 	amNames2pvNames_.set("ssaManipulatorRot", "reixsHost:ssa:r");
 	amNames2pvNames_.set("beamlineScanning", "reixsHost:scanning");
+	amNames2pvNames_.set("beamlineReady", "dave:ready");
+	amNames2pvNames_.set("energyMovingStatus", "dave:Energy:moving:status");
 
 	ringCurrent_ = new AMReadOnlyPVControl("ringCurrent", AMPVNames::toPV("ringCurrent"), this);
 	addChild(ringCurrent_);
@@ -160,6 +162,11 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	beamlineScanning_ = new AMPVControl("beamlineScanning", sgmPVName, sgmPVName, this, 0.1);
 	connect(beamlineScanning_, SIGNAL(valueChanged(double)), this, SLOT(onBeamlineScanningValueChanged(double)));
 	addChild(beamlineScanning_);
+	sgmPVName = amNames2pvNames_.valueF("beamlineReady");
+	beamlineReady_ = new AMReadOnlyPVControl("beamlineReady", sgmPVName, this);
+	addChild(beamlineReady_);
+	sgmPVName = amNames2pvNames_.valueF("energyMovingStatus");
+	energyMovingStatus_ = new AMReadOnlyPVControl("energyMovingStatus", sgmPVName, this);
 
 
 	fluxOptimization_ = new SGMFluxOptimization(this);

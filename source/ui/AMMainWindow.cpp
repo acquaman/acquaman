@@ -5,6 +5,7 @@
 AMMainWindow::AMMainWindow(QWidget *parent) : QWidget(parent) {
 
 	sidebar_ = new AMSidebar();
+	sgmSidebar_ = new SGMSidebar();
 	stackWidget_ = new QStackedWidget();
 
 	// setup layouts
@@ -19,6 +20,7 @@ AMMainWindow::AMMainWindow(QWidget *parent) : QWidget(parent) {
 
 	hl1->addWidget(sidebar_);
 	hl1->addWidget(stackWidget_);
+	sgmSidebar_->show();
 	// connect click and double-click signals from the sidebar:
 	connect(sidebar_, SIGNAL(linkSelected(QVariant)), this, SLOT(onSidebarLinkClicked(QVariant)));
 	connect(sidebar_, SIGNAL(linkDoubleClicked(QVariant)), this, SLOT(onSidebarLinkDoubleClicked(QVariant)));

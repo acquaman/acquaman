@@ -3,6 +3,10 @@
 
 #include <QFrame>
 #include <QDialog>
+#include <QGroupBox>
+#include <QComboBox>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
 
 #include "beamline/AMControl.h"
 
@@ -47,7 +51,7 @@ class NumericControl : public QFrame
 {
 Q_OBJECT
 public:
-        explicit NumericControl(AMControl* control, QWidget *parent = 0);
+	explicit NumericControl(AMControl *control, QWidget *parent = 0);
 
 signals:
 	void moveRequested(double);
@@ -66,13 +70,84 @@ protected slots:
 	void onEditStart();
 
 protected:
-        AMControl* control_;
-	QLabel* valueLabel_;
-	QLabel* unitsLabel_;
+	AMControl *control_;
+	QLabel *valueLabel_;
+	QLabel *unitsLabel_;
 	StyledInputDialog* dialog_;
 	
+	void mouseReleaseEvent ( QMouseEvent *event );
+
+};
+
+class StyledControlInputDialog : public QDialog {
+	Q_OBJECT
+public:
+	StyledControlInputDialog( QStringList enumNames = QStringList(), QWidget *parent = 0, Qt::WindowFlags flags = (Qt::Dialog | Qt::FramelessWindowHint) );
+
+public slots:
+	void setDoubleValue(double d);
+	void setDoubleMaximum(double d);
+	void setDoubleMinimum(double d);
+	void setDoubleDecimals(double d);
+	void setLabelText(const QString& s);
+	void setEnumNames(const QStringList &sl);
+	void setSuffix(const QString& s);
+
+signals:
+	void doubleValueSelected(double);
+
+protected slots:
+	void onAccepted();
+
+protected:
+	void resizeEvent(QResizeEvent */* event */);
+	void showEvent ( QShowEvent *event );
+
+protected:
+	QStringList enumNames_;
+	bool isEnum_;
+	QDoubleSpinBox *spinBox_;
+	QComboBox *comboBox_;
+	QLabel *label_;
+	QPushButton *okButton_, *cancelButton_;
+	QVBoxLayout *vl_;
+	QHBoxLayout *hl_;
+};
+
+class AMControlEdit : public QGroupBox
+{
+Q_OBJECT
+public:
+	explicit AMControlEdit(AMControl* control, bool readOnly = false, QWidget *parent = 0);
+
+signals:
+	void moveRequested(double);
+	void clicked();
+
+public slots:
+	void setReadOnly(bool readOnly);
+
+protected slots:
+	void setHappy(bool happy = true);
+	void setUnhappy() { setHappy(false); }
+
+	void onValueChanged(double newVal);
+	void onUnitsChanged(const QString& units);
+	void onMotion(bool moving);
+
+	void onEditStart();
+
+protected:
+	QSize sizeHint() const;
 	void mouseReleaseEvent ( QMouseEvent * event );
 
+protected:
+	AMControl* control_;
+	bool readOnly_;
+	QLabel* valueLabel_;
+	QLabel* unitsLabel_;
+	//QLabel* nameLabel_;
+	StyledControlInputDialog* dialog_;
 };
 
 #endif // NUMERICCONTROL_H

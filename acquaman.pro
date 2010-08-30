@@ -208,7 +208,8 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMElementListEdit.h \
 	source/ui/AMCloseItemDelegate.h \
 	source/ui/AMChannelEditor.h \
-	source/beamline/AMBeamlineActionsList.h
+	source/beamline/AMBeamlineActionsList.h \
+	source/ui/SGMSidebar.h
 FORMS += source/ui/AbsorptionScanController.ui \
 	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
@@ -366,7 +367,8 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMElementListEdit.cpp \
 	source/ui/AMCloseItemDelegate.cpp \
 	source/ui/AMChannelEditor.cpp \
-	source/beamline/AMBeamlineActionsList.cpp
+	source/beamline/AMBeamlineActionsList.cpp \
+	source/ui/SGMSidebar.cpp
 
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc
