@@ -32,6 +32,9 @@ protected slots:
 	/// Called when the 'add channel' button is clicked
 	void onAddChannelButtonClicked();
 
+	/// Called when the user comes up with a name for their new channel
+	void onNewChannelNamed();
+
 
 
 

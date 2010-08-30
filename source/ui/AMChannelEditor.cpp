@@ -126,14 +126,35 @@ int AMChannelEditor::currentScanIndex() const {
 
 }
 void AMChannelEditor::onAddChannelButtonClicked() {
+
+	/// Channel names aren't editable after they've been created. Here we re-enable the nameEdit for editing shortly, and connect its editingFinished ... We'll complete the operation in onNewChannelNamed().
+	ui_.nameEdit->setReadOnly(false);
+	ui_.nameEdit->setText("newChannelName");
+	ui_.nameEdit->setFocus();
+	ui_.nameEdit->selectAll();
+
+	connect(ui_.nameEdit, SIGNAL(editingFinished()), this, SLOT(onNewChannelNamed()));
+
+}
+
+#include "AMErrorMonitor.h"
+void AMChannelEditor::onNewChannelNamed() {
+	QString chName = ui_.nameEdit->text();
+	disconnect(ui_.nameEdit, SIGNAL(editingFinished()), this, SLOT(onNewChannelNamed()));
+	ui_.nameEdit->clearFocus();
+
 	int si = currentScanIndex();
 	if(si < 0 || si >= model_->numScans())
 		return;
 
-	/// Channel names aren't editable after they've been created. Here we re-enable the nameEdit for editing shortly, and connect its editingFinished ...
-	if(model_->scanAt(si)->addChannel("newChannel", "1")) {
+	if(model_->scanAt(si)->addChannel(chName, "1")) {
 		int ci = model_->scanAt(si)->numChannels()-1;
 		ui_.scanSetView->setCurrentIndex(model_->indexForChannel(si, ci));
+		ui_.expressionEdit->setFocus();
 	}
-}
+	else {
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -1, QString("Couldn't create a new channel (plot curve) with the name %1. Make sure to choose a name that doesn't exist already.").arg(chName)));
+		ui_.scanSetView->setCurrentIndex(ui_.scanSetView->currentIndex());
+	}
 
+}

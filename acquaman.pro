@@ -64,8 +64,6 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	../MPlot/src/MPlot/MPlotItem.h \
 	../MPlot/src/MPlot/MPlotLegend.h \
 	../MPlot/src/MPlot/MPlotMarker.h \
-	../MPlot/src/MPlot/MPlotObservable.h \
-	../MPlot/src/MPlot/MPlotObserver.h \
 	../MPlot/src/MPlot/MPlotPoint.h \
 	../MPlot/src/MPlot/MPlotSeries.h \
 	../MPlot/src/MPlot/MPlotSeriesData.h \
@@ -236,7 +234,6 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	../MPlot/src/MPlot/MPlotItem.cpp \
 	../MPlot/src/MPlot/MPlotLegend.cpp \
 	../MPlot/src/MPlot/MPlotMarker.cpp \
-	../MPlot/src/MPlot/MPlotObservable.cpp \
 	../MPlot/src/MPlot/MPlotPoint.cpp \
 	../MPlot/src/MPlot/MPlotSeries.cpp \
 	../MPlot/src/MPlot/MPlotSeriesData.cpp \

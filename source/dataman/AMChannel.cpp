@@ -4,7 +4,6 @@
 #include "AMScan.h"
 #include "AMErrorMonitor.h"
 
-#include <QDebug>
 
 double* AddVariable(const char *a_szName, void *a_pUserData)
 {
@@ -169,7 +168,6 @@ QRectF AMChannel::boundingRect() const {
 		rv = QRectF(QPointF(minXs, mins), QSizeF(maxXs-minXs, maxs-mins));
 	}
 
-	// qDebug() << "channel bounding rect:" << rv;
 	return rv;
 }
 
@@ -348,8 +346,6 @@ double AMChannel::value(unsigned p) const {
 		return invalidValue();
 	}
 
-
-	qDebug() << "y: " << rv;
 	return rv;
 }
 
@@ -360,7 +356,6 @@ double AMChannel::x(unsigned p) const {
 	// default x: just return the x column value
 	if(defaultX_){
 		double rv = t->x(p);
-		qDebug() << "X: " << rv;
 		return rv;
 	}
 
@@ -416,7 +411,6 @@ double AMChannel::x(unsigned p) const {
 		return invalidValue();
 	}
 
-	qDebug() << "x: " << rv;
 	return rv;
 }
 
@@ -562,7 +556,7 @@ void AMChannel::onObservableChanged(AMObservable* source, int code, const char* 
 	}
 
 	if(updateNeeded) {
-		Emit(0, "dataChanged");
+		emitDataChanged();	/// MPlotAbstractSeriesData interface notification
 		emit updated();
 	}
 }
