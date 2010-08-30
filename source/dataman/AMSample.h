@@ -32,6 +32,12 @@ public:
 	/// This constructor immediately loads a stored sample from the database.
 	AMSample(int databaseId, AMDatabase* database, QObject* parent = 0);
 
+	// Sample management interface
+
+	/// Remove this sample from the database. All scans on this sample will now have an invalid id for their sampleId(). (That's okay -- the sample editors understand an invalid sampleId and interpret this to mean 'no sample associated'. Sample ids are never reused, so there is no danger of interpreting an old invalid sampleId as different sample.)
+	void destroySample() { destroySample(database(), id()); }
+	static void destroySample(AMDatabase* db, int sampleId);
+
 	// Implement the Meta-data system
 	///////////////////////////
 

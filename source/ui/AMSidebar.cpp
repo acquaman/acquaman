@@ -22,6 +22,7 @@ AMSidebar::AMSidebar(QWidget* parent)
 	setDragDropMode(QAbstractItemView::DropOnly);
 	setAcceptDrops(true);
 	setDropIndicatorShown(true);
+	setAutoExpandDelay(300);
 
 	model_->invisibleRootItem()->setFlags( Qt::NoItemFlags );
 

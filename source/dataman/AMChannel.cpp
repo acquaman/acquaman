@@ -158,15 +158,19 @@ double* AMChannel::addVariable(AMParVar *parVar){
 }
 
 QRectF AMChannel::boundingRect() const {
+	QRectF rv;
 	if(count() == 0)
-		return QRectF();
+		rv = QRectF();
 	else {
 		double mins = min();
 		double maxs = max();
 		double minXs = minX();
 		double maxXs = maxX();
-		return QRectF(QPointF(minXs, mins), QSizeF(maxXs-minXs, maxs-mins));
+		rv = QRectF(QPointF(minXs, mins), QSizeF(maxXs-minXs, maxs-mins));
 	}
+
+	// qDebug() << "channel bounding rect:" << rv;
+	return rv;
 }
 
 
@@ -218,6 +222,7 @@ bool AMChannel::setExpression(const QString& expression) {
 	fflush(stdout);
 	*/
 
+	informScanModified();
 	isValid_ = true;
 	return true;
 }
@@ -230,6 +235,7 @@ bool AMChannel::setXExpression(const QString& xExpression) {
 		defaultX_ = true;
 		isValidX_ = true;
 		usedColumnIndicesX_.clear();
+		informScanModified();
 		return true;
 	}
 
@@ -268,6 +274,8 @@ bool AMChannel::setXExpression(const QString& xExpression) {
 		usedColumnIndicesX_ << (varStorageIndex-1);
 	}
 	*/
+
+	informScanModified();
 
 	isValidX_ = true;
 	return true;
@@ -337,13 +345,11 @@ double AMChannel::value(unsigned p) const {
 	catch(mu::Parser::exception_type &e) {
 		QString explanation = QString("AMChannel (evaluating value): %1: '%2'.  We found '%3' at position %4.  TODO what happens now?").arg(QString::fromStdString(e.GetMsg()), QString::fromStdString(e.GetExpr()), QString::fromStdString(e.GetToken())).arg(e.GetPos());
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, e.GetCode(), explanation));
-		return 0.0;
+		return invalidValue();
 	}
 
-	if( std::isinf(rv) ) {
-		qDebug() << "Returning infinite! BEWARE! (expression was: " << this->expression();
-	}
 
+	qDebug() << "y: " << rv;
 	return rv;
 }
 
@@ -353,8 +359,9 @@ double AMChannel::x(unsigned p) const {
 
 	// default x: just return the x column value
 	if(defaultX_){
-		//qDebug() << "Just returning default X";
-		return t->x(p);
+		double rv = t->x(p);
+		qDebug() << "X: " << rv;
+		return rv;
 	}
 
 	AMParVar *tmpVar;
@@ -406,9 +413,10 @@ double AMChannel::x(unsigned p) const {
 	catch(mu::Parser::exception_type &e) {
 		QString explanation = QString("AMChannel (evaluating x value): %1: '%2'.  We found '%3' at position %4.  TODO what happens now?").arg(QString::fromStdString(e.GetMsg()), QString::fromStdString(e.GetExpr()), QString::fromStdString(e.GetToken())).arg(e.GetPos());
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, e.GetCode(), explanation));
-		return 0.0;
+		return invalidValue();
 	}
 
+	qDebug() << "x: " << rv;
 	return rv;
 }
 
@@ -542,15 +550,24 @@ void AMChannel::onObservableChanged(AMObservable* source, int code, const char* 
 	if( code != 3 || QString(msg) != QString("columnChanged") )
 		return;
 
+	bool updateNeeded = false;
 	// colIndex will be -1 if the x-data column changed, or the y-column index.
 	if(usedColumnIndices_.contains(colIndex)) {
 		min_ = max_ = -1;
-		emit updated();
-		Emit(0, "dataChanged");
+		updateNeeded = true;
 	}
 	if(usedColumnIndicesX_.contains(colIndex) || (defaultX_ && (colIndex == -1))) {
 		minX_ = maxX_ = -1;
-		emit updated();
-		Emit(0, "dataChanged");
+		updateNeeded = true;
 	}
+
+	if(updateNeeded) {
+		Emit(0, "dataChanged");
+		emit updated();
+	}
+}
+
+
+void AMChannel::informScanModified() {
+	if(scan()) scan()->setModified(true);
 }

@@ -93,7 +93,7 @@ AMNumericType AMDataTree::x(unsigned i) const {
 
 	if(i >= count()) {
 		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -1, "AMDataTree: accessed value out of range. Returning an (incorrect) default value."));
-		return AMNumericType();
+		return AMDATATREE_OUTOFRANGE_VALUE;
 	}
 
 	if(hasXValues_)
@@ -112,14 +112,14 @@ QString AMDataTree::xName() const {
 AMNumericType AMDataTree::value(unsigned columnIndex, unsigned i) const {
 	if(i >= count()) {
 		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -1, "AMDataTree: accessed value out of range. Returning an (incorrect) default value."));
-		return AMNumericType();
+		return AMDATATREE_OUTOFRANGE_VALUE;
 	}
 
 	if((int)columnIndex < y_.count())
 		return y_[columnIndex].at(i);
 
 	AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -3, "AMDataTree: accessed non-existent data column. Returning an (incorrect) default value."));
-	return AMNumericType();
+	return AMDATATREE_NONEXISTENT_VALUE;
 }
 
 /// Access the value in any column by \c columnName and index \c i.
@@ -136,11 +136,11 @@ AMNumericType AMDataTree::value(const QString& columnName, unsigned i) const {
 
 	if(yDNames_.containsF(columnName)) {
 		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -2, "AMDataTree: accessed multi-dimensional data as a single value. Returning an (incorrect) default value."));
-		return AMNumericType();
+		return AMDATATREE_NONEXISTENT_VALUE;
 	}
 
 	AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -3, "AMDataTree: accessed non-existent data column. Returning an (incorrect) default value."));
-	return AMNumericType();
+	return AMDATATREE_NONEXISTENT_VALUE;
 }
 
 /// Iterating through a column using value() is slower because of the column lookup at each step. This can be used to access a reference to an entire column of data (an AMDataTreeColumn).
@@ -248,7 +248,6 @@ bool AMDataTree::setValue(const QString& columnName, unsigned i, AMNumericType n
 		return false;
 	}
 
-	//AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -3, QString("AMDataTree: attempted modifying non-existent data column '%1'. Not successful(VS2).").arg(columnName)));
 	return false;
 
 }
@@ -307,7 +306,7 @@ void AMDataTree::append(const AMNumericType& newValue) {
 
 	// append default values to all the other data columns:
 	for(int i=0; i<y_.count(); i++)
-		y_[i] << AMNumericType();
+		y_[i] << AMDATATREE_INSERT_VALUE;
 
 	// append subtree copies (or, if this is the first, a default subtree) to all the subtree columns.
 	for(int i=0; i<yD_.count(); i++) {
@@ -361,5 +360,7 @@ void AMDataTree::removeAll() {
 	y_.clear();
 	yD_.clear();
 	count_ = 0;
+
+	/// \bug What kind of notification is required here?
 }
 

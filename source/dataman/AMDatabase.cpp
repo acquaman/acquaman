@@ -416,7 +416,7 @@ QList<int> AMDatabase::objectsContaining(const QString& tableName, const QString
 	return rl;
 }
 
-bool AMDatabase::ensureTable(const QString& tableName, const QStringList& columnNames, const QStringList& columnTypes) {
+bool AMDatabase::ensureTable(const QString& tableName, const QStringList& columnNames, const QStringList& columnTypes, bool reuseDeletedIds) {
 
 	if(columnNames.count() != columnTypes.count()) {
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -5, QString("could not create table: invalid structure. Different number of column names and types. Names: %1. Types:%2").arg(columnNames.join(",")).arg(columnTypes.join(","))));
@@ -429,7 +429,10 @@ bool AMDatabase::ensureTable(const QString& tableName, const QStringList& column
 
 	QString qs = "CREATE TABLE IF NOT EXISTS ";
 	qs.append(tableName);
-	qs.append("(id INTEGER PRIMARY KEY ASC, ");
+	if(reuseDeletedIds)
+		qs.append("(id INTEGER PRIMARY KEY ASC, ");
+	else
+		qs.append("(id INTEGER PRIMARY KEY AUTOINCREMENT, ");
 	for(int i=0; i<columnNames.count(); i++) {
 		qs.append(columnNames.at(i));
 		qs.append(" ");

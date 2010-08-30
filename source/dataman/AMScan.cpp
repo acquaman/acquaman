@@ -161,15 +161,31 @@ QString AMScan::sampleName() const {
 
 /// Delete a channel from scan: (All return true on success)
 bool AMScan::deleteChannel(AMChannel* channel) {
-	return ch_.deleteChannel(ch_.indexOf(channel));
+	if( ch_.deleteChannel(ch_.indexOf(channel)) ) {
+		setModified(true);
+		return true;
+	}
+	else
+		return false;
 }
 
 bool AMScan::deleteChannel(const QString& channelName) {
-	return deleteChannel(ch_.channel(channelName));
+	if( deleteChannel(ch_.channel(channelName)) ) {
+		setModified(true);
+		return true;
+	}
+
+	else
+		return false;
 }
 
 bool AMScan::deleteChannel(unsigned index) {
-	return ch_.deleteChannel(index);
+	if( ch_.deleteChannel(index) ) {
+		setModified(true);
+		return true;
+	}
+	else
+		return false;
 }
 
 
@@ -181,13 +197,16 @@ bool AMScan::addChannel(const QString& chName, const QString& expression) {
 	if(channelNames().contains(chName))
 		return false;
 
+#warning "David, tell me what's going on here next time we talk..."
 	AMChannel *tmpCh = new AMChannel(this, chName, expression);
 	if(!tmpCh->isValid()){
 		delete tmpCh;
 		return false;
 	}
+
 	ch_.addChannel(tmpCh);
 	//	ch_.addChannel(new AMChannel(this, chName, expression));
+	setModified(true);
 	return true;
 }
 

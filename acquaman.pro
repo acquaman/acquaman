@@ -206,6 +206,8 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMSampleEditor.h \
 	source/ui/AMDateTimeUtils.h \
 	source/ui/AMElementListEdit.h \
+	source/ui/AMCloseItemDelegate.h \
+	source/ui/AMChannelEditor.h \
 	source/beamline/AMBeamlineActionsList.h
 FORMS += source/ui/AbsorptionScanController.ui \
 	source/ui/AMDataView.ui \
@@ -223,7 +225,8 @@ FORMS += source/ui/AbsorptionScanController.ui \
 	source/ui/SamplePositions.ui \
 	source/ui/Scheduler.ui \
 	source/ui/SGMXASScanConfigurationViewer.ui \
-	source/ui/AMGenericScanEditor.ui
+	source/ui/AMGenericScanEditor.ui \
+	source/ui/AMChannelEditor.ui
 SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	../MPlot/src/MPlot/MPlotAbstractTool.cpp \
 	../MPlot/src/MPlot/MPlotAxis.cpp \
@@ -361,7 +364,10 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMSampleEditor.cpp \
 	source/ui/AMDateTimeUtils.cpp \
 	source/ui/AMElementListEdit.cpp \
+	source/ui/AMCloseItemDelegate.cpp \
+	source/ui/AMChannelEditor.cpp \
 	source/beamline/AMBeamlineActionsList.cpp
+
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc
 OTHER_FILES += source/muParser/README.txt

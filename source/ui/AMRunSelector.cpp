@@ -4,7 +4,7 @@
 #include <QString>
 #include <QList>
 #include <QPixmap>
-#include <QDebug>
+#include <QListView>
 
 #include "acquaman.h"
 
@@ -14,7 +14,11 @@ AMRunSelector:: AMRunSelector(QWidget *parent)
 	: QComboBox(parent)
 {
 
-	setItemDelegate(new AMDetailedItemDelegate());
+	QListView* v = new QListView();
+	setView(v);
+	v->setItemDelegate(new AMDetailedItemDelegate());
+	v->setResizeMode(QListView::Adjust);
+
 	/* will need from database:
 	   * run name
 	   * run date

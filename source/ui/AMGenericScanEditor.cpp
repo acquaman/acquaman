@@ -27,30 +27,6 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 	scanView_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	ui_.leftVerticalLayout->insertWidget(0, scanView_, 2);
 
-	// Add run selector:
-
-	runSelector_ = new AMRunSelector();
-	ui_.scanInfoLayout->insertWidget(1, runSelector_);
-
-
-
-
-	// Add detailed editor widgets:
-	sampleEditor_ = new AMSampleEditor(AMDatabase::userdb());
-	stackWidget_->addItem(sampleEditor_, "Sample Information");
-
-	QWidget* temp2 = new QWidget();
-	temp2->setMinimumHeight(200);
-	stackWidget_->addItem(temp2, "XRay Absorption Scan");
-
-	QWidget* temp3 = new QWidget();
-	temp3->setMinimumHeight(200);
-	stackWidget_->addItem(temp3, "Beamline Information");
-
-
-
-
-
 	// share the scan set model with the AMScanView
 	scanSetModel_ = scanView_->model();
 
@@ -64,6 +40,28 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 	ui_.scanListView->setItemDelegate(del);
 	ui_.scanListView->setAlternatingRowColors(true);
 	ui_.scanListView->setAttribute( Qt::WA_MacShowFocusRect, false);
+
+	// Add run selector:
+	runSelector_ = new AMRunSelector();
+	ui_.scanInfoLayout->insertWidget(1, runSelector_);
+
+
+	// Add detailed editor widgets:
+	sampleEditor_ = new AMSampleEditor(AMDatabase::userdb());
+	stackWidget_->addItem(sampleEditor_, "Sample Information");
+
+	channelEditor_ = new AMChannelEditor(scanSetModel_);
+	stackWidget_->addItem(channelEditor_, "Plot Data");
+
+	QWidget* temp3 = new QWidget();
+	temp3->setMinimumHeight(200);
+	stackWidget_->addItem(temp3, "Beamline Information");
+
+
+
+
+
+
 
 	connect(ui_.notesEdit, SIGNAL(textChanged()), this, SLOT(onNotesTextChanged()));
 
@@ -96,7 +94,9 @@ void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const
 
 	Q_UNUSED(deselected)
 
-	AMScan* newScan = scanSetModel_->scanAt(selected.row());
+	AMScan* newScan = 0;
+	if(selected.isValid())
+		newScan = scanSetModel_->scanAt(selected.row());
 
 	// disconnect the old scan:
 	if(currentScan_) {
@@ -115,6 +115,8 @@ void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const
 
 	// update all widgets to match
 	updateEditor(currentScan_);
+	channelEditor_->setCurrentScan(currentScan_);
+
 
 	if(currentScan_) {
 		connect(currentScan_, SIGNAL(metaDataChanged(QString)), this, SLOT(onScanMetaDataChanged(QString)));

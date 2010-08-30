@@ -134,7 +134,7 @@ public:
 	int number() const { return metaData_.value("number").toInt();}
 	/// Returns creation time / scan start time
 	QDateTime dateTime() const {return metaData_.value("dateTime").toDateTime();}
-	/// Returns the id of the run containing this scan, or (-1) if not associated with a run. \todo return more useful run descriptive information
+	/// Returns the id of the run containing this scan, or (-1) if not associated with a run.
 	int runId() const { QVariant v = metaData_.value("runId"); if(v.isNull()) return -1; else return v.toInt(); }
 
 	/// Returns name of sample (or -1 if a sample has not been assigned)
@@ -225,10 +225,18 @@ public:
 	/// returns a standard Qt list model that can be used to view the channels and be notified of created/deleted channels
 	const AMChannelListModel* channelList() const { return &ch_; }
 
+
+
+
+
+
 	/// the number of datapoints in the scan:
 	unsigned count() const { return d_->count(); }
 
+	/// Clear all of the raw data in the tree:
 	void clear() { d_->clear(); }
+
+	///
 
 
 	// Thumbnail system:
@@ -251,9 +259,9 @@ public slots:
 	/// set the date/time:
 	void setDateTime(const QDateTime& dt) { setMetaData("dateTime", dt); }
 	/// associate this object with a particular run. Set to (-1) to dissociate with any run.  (Note: for now, it's the caller's responsibility to make sure the runId is valid.)
-	void setRunId(int runId) { if(runId <= 0) metaData_["runId"] = QVariant(); else metaData_["runId"] = runId; }
+	void setRunId(int runId) { if(runId <= 0) setMetaData("runId", QVariant()); else setMetaData("runId", runId); }
 	/// Sets name of sample
-	void setSampleId(int sampleId) { setMetaData("sampleId", sampleId); }
+	void setSampleId(int sampleId) { if(sampleId <= 0) setMetaData("sampleId", QVariant()); else setMetaData("sampleId", sampleId); }
 	/// Sets notes for scan
 	void setNotes(const QString &notes) { setMetaData("notes", notes); }
 	/// Set file path. (Be careful if changing this, not to break the association to a raw data file)
@@ -310,6 +318,9 @@ protected:
 
 	/// Allow channels to access the datatree:
 	friend AMDataTree* AMChannel::dataTree() const;
+
+	/// Allow channels to tell us when they (and hence us) have been modified:
+	friend void AMChannel::informScanModified();
 
 	/// Controls whether loadData() is called automatically inside loadFromDb().
 	bool autoLoadData_;

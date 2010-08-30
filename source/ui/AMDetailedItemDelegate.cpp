@@ -1,22 +1,19 @@
 #include "AMDetailedItemDelegate.h"
-#include <QDebug>
-#include <QApplication>
 #include <QStyle>
+#include <QApplication>
 #include <QFontMetrics>
-#include <QGraphicsTextItem>
 #include <QStyleOptionButton>
 #include "acquaman.h"
 
 
 AMDetailedItemDelegate::AMDetailedItemDelegate(QObject *parent) :
-		QStyledItemDelegate(parent)
+		AMCloseItemDelegate(parent)
 {
 	// apply defaults:
 	setFont();
 	setTextColor();
 	setFontSize();
 	setItemHeight();
-	setCloseButtonAction();
 }
 
 void AMDetailedItemDelegate::setItemHeight(int height){
@@ -25,7 +22,6 @@ void AMDetailedItemDelegate::setItemHeight(int height){
 
 void AMDetailedItemDelegate::setFont(const QFont& font){
 	font_=font;
-	//qDebug() << "Setting font:" << font.family() << font.pointSize();
 }
 
 void AMDetailedItemDelegate::setTextColor(const QColor &color1, const QColor &color2){
@@ -90,18 +86,8 @@ void AMDetailedItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem
 
 	}
 
-	/// Display close button?
-	if(closeButtonEnabled_) {
-		// "local" rectangle of the close button. Must add
-		closeButtonRect_ = QRect(
-				opt.rect.width() - 20,
-				(opt.rect.height() - 13)/2,
-				12,
-				13);
-		painter->drawPixmap(opt.rect.left() + closeButtonRect_.left(),
-							opt.rect.top() + closeButtonRect_.top(),
-							closeButton_);
-	}
+	/// call base class to draw close button:
+	drawCloseButton(painter, opt, index);
 
 
 	/* What info is available:
@@ -144,41 +130,4 @@ operator= ( const QStyleOptionViewItem & ) : QStyleOption
 }
 
 
-#include <QEvent>
-#include <QMouseEvent>
 
-bool AMDetailedItemDelegate::editorEvent ( QEvent * event, QAbstractItemModel * model, const QStyleOptionViewItem & option, const QModelIndex & index ) {
-
-	if(!closeButtonEnabled_)
-		return QStyledItemDelegate::editorEvent(event, model, option, index);
-
-
-	if(event->type() == QEvent::MouseButtonPress) {
-		mouseDownPosition_ = static_cast<QMouseEvent*>(event)->pos();
-	}
-
-	if(event->type() == QEvent::MouseButtonRelease) {
-		QMouseEvent* e = static_cast<QMouseEvent*>(event);
-		// Normally, a "click" has to be released nearly in the same position as where it was pushed down. I should actually check that both the down and the up are within the confines of the same widget/button, but we don't really have buttons here now.
-		// This is our criteria for a valid click. Now is it on a close button?
-		if( (mouseDownPosition_ - e->pos()).manhattanLength() < QApplication::startDragDistance() ) {
-			QPoint localPos = e->pos() - option.rect.topLeft();
-
-			// we're on the button!
-			if( closeButtonRect_.contains(localPos) ) {
-				emit closeButtonClicked(index);
-
-				// handle anything special the view might need to do on mouse-release?
-				// QStyledItemDelegate::editorEvent(event, model, option, index);
-
-				if(closeButtonAction_ == RemoveFromModel) {
-					model->removeRow(index.row(), index.parent());
-				}
-				// given that we've acted on this, we want this event.
-				return true;
-			}
-		}
-	}
-
-	return QStyledItemDelegate::editorEvent(event, model, option, index);
-}
