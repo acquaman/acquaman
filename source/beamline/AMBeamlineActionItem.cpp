@@ -20,7 +20,6 @@ void AMBeamlineActionItemStateFlag::setState(bool state){
 AMBeamlineActionItem::AMBeamlineActionItem(QObject *parent) :
 	QObject(parent)
 {
-//	qDebug() << "Start of AMBeamlineActionItem::()";
 	previous_ = NULL;
 	next_ = NULL;
 	type_ = "actionItem";
@@ -31,7 +30,6 @@ AMBeamlineActionItem::AMBeamlineActionItem(QObject *parent) :
 	connect(&failed_, SIGNAL(stateChanged(bool)), this, SLOT(dirtyInitialized()));
 	connect(&finished_, SIGNAL(stateChanged(bool)), this, SLOT(dirtyInitialized()));
 	initialize();
-//	qDebug() << "End of AMBeamlineActionItem::()";
 }
 
 AMBeamlineActionItem::AMBeamlineActionItem(bool delayInitialize, QObject *parent){
@@ -93,11 +91,9 @@ QString AMBeamlineActionItem::type() const {
 }
 
 void AMBeamlineActionItem::reset(bool delayInitialize){
-//	qDebug() << "Start of AMBeamlineActionItem::reset()";
 	reinitialized_.setState(true);
 	if(!delayInitialize)
 		initialize();
-//	qDebug() << "End of AMBeamlineActionItem::reset()";
 }
 
 bool AMBeamlineActionItem::setPrevious(AMBeamlineActionItem *previous){
@@ -112,54 +108,44 @@ bool AMBeamlineActionItem::setNext(AMBeamlineActionItem *next){
 
 void AMBeamlineActionItem::setReady(bool isReady){
 	if(ready_.state() != isReady){
-//		qDebug() << "Start of AMBeamlineActionItem::setReady()";
 		ready_.setState(isReady);
 		emit ready(ready_.state());
-//		qDebug() << "End of AMBeamlineActionItem::setReady()";
 	}
 }
 
 void AMBeamlineActionItem::setStarted(bool isStarted){
 	if(started_.state() != isStarted){
-//		qDebug() << "Start of AMBeamlineActionItem::setStarted()";
 		started_.setState(isStarted);
 		if(started_.state())
 			emit started();
-//		qDebug() << "End of AMBeamlineActionItem::setStarted()";
 	}
 }
 
 void AMBeamlineActionItem::setSucceeded(bool isSucceeded){
 	if(succeeded_.state() != isSucceeded){
-//		qDebug() << "Start of AMBeamlineActionItem::setSucceeded()";
 		succeeded_.setState(isSucceeded);
 		if(succeeded_.state()){
 			emit succeeded();
 			setFinished(true);
 		}
-//		qDebug() << "End of AMBeamlineActionItem::setSucceeded()";
 	}
 }
 
 void AMBeamlineActionItem::setFailed(bool isFailed, int explanation){
 	if(failed_.state() != isFailed){
-//		qDebug() << "Start of AMBeamlineActionItem::setFailed()";
 		failed_.setState(isFailed);
 		if(failed_.state()){
 			emit failed(explanation);
 			setFinished(true);
 		}
-//		qDebug() << "End of AMBeamlineActionItem::setFailed()";
 	}
 }
 
 void AMBeamlineActionItem::setFinished(bool isFinished){
 	if(finished_.state() != isFinished){
-		qDebug() << "Start of AMBeamlineActionItem::setFinished()";
 		finished_.setState(isFinished);
 		if(finished_.state())
 			emit finished();
-		qDebug() << "End of AMBeamlineActionItem::setFinished()";
 	}
 }
 
@@ -172,14 +158,11 @@ void AMBeamlineActionItem::initialize(){
 	finished_.setState(false);
 	initialized_.setState(true);
 	emit initialized();
-//	qDebug() << "End of AMBeamlineActionItem::initialize()";
 }
 
 void AMBeamlineActionItem::dirtyInitialized(){
 	if(initialized_.state() != false){
-//		qDebug() << "Start of AMBeamlineActionItem::dirtyInitialized()";
 		initialized_.setState(false);
-//		qDebug() << "End of AMBeamlineActionItem::dirtyInitialized()";
 	}
 }
 
@@ -240,75 +223,6 @@ void AMBeamlineActionView::updateLook(){
 		setFrameStyle(QFrame::StyledPanel);
 	}
 }
-
-AMBeamlineActionHiddenView::AMBeamlineActionHiddenView(AMBeamlineActionItem *first, int count, QWidget *parent) :
-		AMBeamlineActionView(first, 0, parent)
-{
-	count_ = count;
-	viewType_ = "hiddenView";
-
-	infoLabel_ = new QLabel("");
-	expandButton_ = new QPushButton("");
-	onInfoChanged();
-
-	hl_ = new QHBoxLayout();
-	hl_->addWidget(infoLabel_);
-	hl_->addWidget(expandButton_, 0, Qt::AlignRight);
-	setLayout(hl_);
-}
-
-AMBeamlineActionHiddenView::~AMBeamlineActionHiddenView(){
-	action_ = NULL;
-}
-
-QString AMBeamlineActionHiddenView::viewType() const{
-	return AMBeamlineActionView::viewType()+"."+viewType_;
-}
-
-int AMBeamlineActionHiddenView::count() const{
-	return count_;
-}
-
-void AMBeamlineActionHiddenView::setFirst(AMBeamlineActionItem *first){
-	setAction(first);
-}
-
-void AMBeamlineActionHiddenView::setCount(int count){
-	count_ = count;
-	onInfoChanged();
-}
-
-void AMBeamlineActionHiddenView::onInfoChanged(){
-	QString infoStr, buttonStr;
-	infoStr.setNum(count_);
-	buttonStr.setNum(count_);
-	infoStr.prepend("<");
-	infoStr.append(" Hidden Items>");
-	infoLabel_->setText(infoStr);
-	buttonStr.prepend("Expand ");
-	buttonStr.append(" Items");
-	expandButton_->setText(buttonStr);
-	connect(expandButton_, SIGNAL(clicked()), this, SLOT(onExpandButtonClicked()));
-}
-
-void AMBeamlineActionHiddenView::onStopCancelButtonClicked(){
-
-}
-
-void AMBeamlineActionHiddenView::onPlayPauseButtonClicked(){
-
-}
-
-void AMBeamlineActionHiddenView::onHideButtonClicked(){
-
-}
-
-void AMBeamlineActionHiddenView::onExpandButtonClicked(){
-	emit expandRequested(action_);
-}
-
-
-
 
 /*****************************************************************************
 *

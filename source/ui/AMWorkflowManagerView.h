@@ -28,6 +28,7 @@ public:
 
 signals:
 	void freeToScan(bool queueEmpty, bool queueNotRunning);
+	void lockdownScanning(bool isLocked, QString reason);
 	void addedScan(AMScanConfiguration *cfg);
 
 public slots:
@@ -42,6 +43,7 @@ protected slots:
 	void onQueueIsRunningChanged(bool isRunning);
 	void onQueueIsEmptyChanged(bool isEmpty);
 
+	void onNewScanConfigurationView();
 	void onQueueAndScanningStatusChanged();
 
 protected:
@@ -96,8 +98,8 @@ protected slots:
 	void onActionStarted(AMBeamlineActionItem *action);
 	void onActionSucceeded(AMBeamlineActionItem *action);
 
-	void reindexViews();
 	*/
+	void reindexViews();
 
 protected:
 	AMBeamlineActionsList *actionsList_;

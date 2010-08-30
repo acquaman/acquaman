@@ -12,6 +12,9 @@ public:
 
 	virtual QString type() const;
 
+public slots:
+	virtual void cleanup() {}
+
 protected:
 	AMControl *control_;
 

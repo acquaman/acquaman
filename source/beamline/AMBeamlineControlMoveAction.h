@@ -23,6 +23,7 @@ public slots:
 	virtual void cancel();
 	virtual void setControl(AMControl *control);
 	virtual bool setSetpoint(double setpoint);
+	virtual void cleanup(){}
 
 protected slots:
 	virtual void onStarted();

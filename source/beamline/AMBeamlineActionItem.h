@@ -57,6 +57,7 @@ public slots:
 	virtual void start() = 0;//Pure virtual. Sub-classes need to implement and they better set start_ = true at some point and cause start() to be emitted
 	//Calling reset always set reintialized to true
 	virtual void reset(bool delayInitialize = false);//NOT Pure virtual. Sub-classes better call this at the end of their reset (AMBeamlineActionItem::reset) or call initialize themselves
+	virtual void cleanup() = 0;
 	bool setPrevious(AMBeamlineActionItem* previous);
 	bool setNext(AMBeamlineActionItem* next);
 
@@ -98,6 +99,7 @@ class AMBeamlineActionView : public QFrame
 public:
 	AMBeamlineActionView(AMBeamlineActionItem *action, int index = 0, QWidget *parent = 0);
 
+	int index() const { return index_;}
 	virtual AMBeamlineActionItem* action();
 	virtual QString viewType() const;
 
@@ -111,14 +113,12 @@ signals:
 	void removeRequested(AMBeamlineActionItem *action);
 	void pauseRequested(AMBeamlineActionItem *action);
 	void resumeRequested(AMBeamlineActionItem *action);
-	void hideRequested(AMBeamlineActionItem *action);
 	void stopRequested(AMBeamlineActionItem *action);
 
 protected slots:
 	virtual void onInfoChanged() = 0;
 	virtual void onStopCancelButtonClicked() = 0;
 	virtual void onPlayPauseButtonClicked() = 0;
-	virtual void onHideButtonClicked() = 0;
 
 protected:
 	void mousePressEvent(QMouseEvent *event);
@@ -133,42 +133,6 @@ protected:
 private:
 	QString viewType_;
 };
-
-class AMBeamlineActionHiddenView : public AMBeamlineActionView
-{
-	Q_OBJECT
-public:
-	AMBeamlineActionHiddenView(AMBeamlineActionItem* first, int count = 1, QWidget *parent = 0);
-	~AMBeamlineActionHiddenView();
-
-	virtual QString viewType() const;
-	virtual int count() const;
-
-public slots:
-	void setFirst(AMBeamlineActionItem *first);
-	void setCount(int count);
-
-signals:
-	void expandRequested(AMBeamlineActionItem* action);
-
-protected slots:
-	virtual void onInfoChanged();
-	virtual void onStopCancelButtonClicked();
-	virtual void onPlayPauseButtonClicked();
-	virtual void onHideButtonClicked();
-
-	virtual void onExpandButtonClicked();
-
-protected:
-	int count_;
-	QLabel *infoLabel_;
-	QPushButton *expandButton_;
-	QHBoxLayout *hl_;
-
-private:
-	QString viewType_;
-};
-
 
 class AM1BeamlineActionItem : public QObject
 {

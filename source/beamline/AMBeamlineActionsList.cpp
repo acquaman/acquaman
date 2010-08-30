@@ -115,6 +115,7 @@ bool AMBeamlineActionsList::deleteAction(size_t index){
 		disconnect(oldAction, SIGNAL(succeeded()), this, SLOT(onActionSucceeded()));
 		disconnect(oldAction, SIGNAL(ready(bool)), this, SLOT(onActionReady(bool)));
 		disconnect(oldAction, SIGNAL(failed(int)), this, SLOT(onActionFailed(int)));
+		oldAction->cleanup();
 	}
 	return retVal;
 }

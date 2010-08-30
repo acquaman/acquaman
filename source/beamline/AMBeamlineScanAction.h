@@ -31,6 +31,7 @@ public slots:
 	virtual void cancel();
 	virtual void cancelButKeep();
 	virtual void reset(bool delayInitialized = false);
+	virtual void cleanup();
 
 protected slots:
 	virtual void initialize();
@@ -56,7 +57,6 @@ Q_OBJECT
 public:
 	AMBeamlineScanActionView(AMBeamlineScanAction *scanAction, int index = 0, QWidget *parent = 0);
 
-	int index() const { return index_;}
 	AMBeamlineActionItem* action() { return scanAction_;}
 
 	virtual QString viewType() const;
@@ -79,7 +79,6 @@ protected slots:
 	void onScanFailed(int explanation);
 	void onStopCancelButtonClicked();
 	void onPlayPauseButtonClicked();
-	void onHideButtonClicked();
 
 protected:
 	void updateLook();
@@ -93,7 +92,6 @@ protected:
 	QLabel *timeRemainingLabel_;
 	QPushButton *stopCancelButton_;
 	QPushButton *playPauseButton_;
-	QPushButton *hideButton_;
 	QHBoxLayout *hl_;
 
 	QIcon closeIcon_, stopIcon_, startIcon_, pauseIcon_;

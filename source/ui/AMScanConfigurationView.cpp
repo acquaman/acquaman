@@ -12,32 +12,42 @@ AMXASScanConfigurationHolder::AMXASScanConfigurationHolder(QWidget *parent) :
 	canStartImmediately_ = false;
 	director = new AMScanConfigurationQueueDirector();
 	director->setWindowModality(Qt::ApplicationModal);
+	sDirector = new AMScanConfigurationScanDirector();
+	sDirector->setWindowModality(Qt::ApplicationModal);
+
 	connect(director, SIGNAL(goToQueue()), this, SLOT(goToQueue()));
 	connect(director, SIGNAL(goToNewScan()), this, SLOT(goToNewScan()));
 }
 
 AMXASScanConfigurationHolder::~AMXASScanConfigurationHolder(){
 	delete director;
+	delete sDirector;
 }
 
 void AMXASScanConfigurationHolder::onFreeToScan(bool queueEmpty, bool queueNotRunning){
 	qDebug() << "In onFreeToScan";
 	if(queueNotRunning && queueEmpty){
-		qDebug() << "Queue is not running and is empty, we can start right now";
 		canStartImmediately_ = true;
 	}
 	else if(queueNotRunning && !queueEmpty){
 		qDebug() << "Queue is not running but also not empty, have to ask user what to do";
-		emit cancelAddToQueueRequest();
+		sDirector->showDirector("Queue is not empty");
+//		emit cancelAddToQueueRequest();
 	}
 	else if(!queueNotRunning && queueEmpty){
 		qDebug() << "Queue is running, but is empty after this, ask user what to do";
+		sDirector->showDirector("Queue is running but empty after current action");
 		emit cancelAddToQueueRequest();
 	}
 	else{
 		qDebug() << "Queue is running and has stuff in it, ask user what to do";
+		sDirector->showDirector("Queue is running");
 		emit cancelAddToQueueRequest();
 	}
+}
+
+void AMXASScanConfigurationHolder::onLockdownScanning(bool isLocked, QString reason){
+	emit lockdownScanning(isLocked, reason);
 }
 
 void AMXASScanConfigurationHolder::onAddedToQueue(AMScanConfiguration *cfg){
@@ -82,6 +92,7 @@ void AMXASScanConfigurationHolder::destroyScanConfigurationViewer(){
 		disconnect(sxscViewer, SIGNAL(startScanRequested()), this, SLOT(onStartScanRequested()));
 		disconnect(sxscViewer, SIGNAL(addToQueueRequested()), this, SLOT(onAddToQueueRequested()));
 		disconnect(sxscViewer, SIGNAL(queueDirectorRequested()), director, SLOT(show()));
+		disconnect(this, SIGNAL(lockdownScanning(bool,QString)), sxscViewer, SLOT(onLockdowScanning(bool,QString)));
 		vl_->removeWidget(sxscViewer);
 		delete sxscViewer;
 		sxscViewer = NULL;
@@ -95,6 +106,7 @@ void AMXASScanConfigurationHolder::onBecameCurrentWidget(){
 		connect(sxscViewer, SIGNAL(startScanRequested()), this, SLOT(onStartScanRequested()));
 		connect(sxscViewer, SIGNAL(addToQueueRequested()), this, SLOT(onAddToQueueRequested()));
 		connect(sxscViewer, SIGNAL(queueDirectorRequested()), director, SLOT(show()));
+		connect(this, SIGNAL(lockdownScanning(bool,QString)), sxscViewer, SLOT(onLockdowScanning(bool,QString)));
 		if(!vl_)
 			vl_ = new QVBoxLayout();
 		vl_->addWidget(sxscViewer);
@@ -102,6 +114,7 @@ void AMXASScanConfigurationHolder::onBecameCurrentWidget(){
 			delete layout();
 			this->setLayout(vl_);
 		}
+		emit newScanConfigurationView();
 	}
 //	if(!sxscWizard && isVisible() && SGMBeamline::sgm()->isConnected()){
 //		sxscWizard = new SGMXASScanConfigurationWizard(cfg_, cfgDetectorInfoSet_);
@@ -194,4 +207,98 @@ void AMScanConfigurationQueueDirector::onAlwaysNewScanCheck(bool checked){
 		goToQueueButton_->setEnabled(false);
 	else
 		goToQueueButton_->setEnabled(true);
+}
+
+AMScanConfigurationScanDirector::AMScanConfigurationScanDirector(QWidget *parent) :
+		QWidget(parent)
+{
+	alwaysStartNow_ = false;
+	alwaysWaitNext_ = false;
+	alwaysAppend_ = false;
+	alwaysCancel_ = false;
+
+	vl_ = new QVBoxLayout();
+	message_ = "";
+	messageLabel_ = new QLabel(message_);
+	vl_->addWidget(messageLabel_);
+	gl_ = new QGridLayout();
+	startNowButton_ = new QPushButton("Start Now");
+	waitNextButton_ = new QPushButton("Wait");
+	appendButton_ = new QPushButton("Add to Queue");
+	cancelButton_ = new QPushButton("Cancel");
+	startNowLabel_ = new QLabel("Stop the queue and start this scan immediately");
+	startNowLabel_->setWordWrap(true);
+	waitNextLabel_ = new QLabel("Wait until the current queue action is completed, then run this scan");
+	waitNextLabel_->setWordWrap(true);
+	appendLabel_ = new QLabel("Add this scan to the end of the queue");
+	appendLabel_->setWordWrap(true);
+	cancelLabel_ = new QLabel("Return to the scan configuration page");
+	cancelLabel_->setWordWrap(true);
+	setDefaultLabel_ = new QLabel("Always do this");
+	startNowCheck_ = new QCheckBox("");
+	waitNextCheck_ = new QCheckBox("");
+	appendCheck_ = new QCheckBox("");
+	cancelCheck_ = new QCheckBox("");
+	gl_->addWidget(startNowButton_,		1, 0, 1, 1, Qt::AlignLeft);
+	gl_->addWidget(waitNextButton_,		2, 0, 1, 1, Qt::AlignLeft);
+	gl_->addWidget(appendButton_,		3, 0, 1, 1, Qt::AlignLeft);
+	gl_->addWidget(cancelButton_,		4, 0, 1, 1, Qt::AlignLeft);
+	gl_->addWidget(startNowLabel_,		1, 1, 1, 1, Qt::AlignLeft);
+	gl_->addWidget(waitNextLabel_,		2, 1, 1, 1, Qt::AlignLeft);
+	gl_->addWidget(appendLabel_,		3, 1, 1, 1, Qt::AlignLeft);
+	gl_->addWidget(cancelLabel_,		4, 1, 1, 1, Qt::AlignLeft);
+	gl_->addWidget(startNowCheck_,		1, 2, 1, 1, Qt::AlignRight);
+	gl_->addWidget(waitNextCheck_,		2, 2, 1, 1, Qt::AlignRight);
+	gl_->addWidget(appendCheck_,		3, 2, 1, 1, Qt::AlignRight);
+	gl_->addWidget(cancelCheck_,		4, 2, 1, 1, Qt::AlignRight);
+	gl_->addWidget(setDefaultLabel_,	0, 2, 1, 1, Qt::AlignLeft);
+	vl_->addLayout(gl_);
+	setLayout(vl_);
+	connect(startNowButton_, SIGNAL(clicked()), this, SIGNAL(startNow()));
+	connect(startNowCheck_, SIGNAL(toggled(bool)), this, SLOT(onAlwaysStartNow(bool)));
+	connect(waitNextButton_, SIGNAL(clicked()), this, SLOT(onWaitNext()));
+	connect(waitNextCheck_, SIGNAL(toggled(bool)), this, SLOT(onAlwaysWaitNext(bool)));
+	connect(appendButton_, SIGNAL(clicked()), this, SLOT(onAppend()));
+	connect(appendCheck_, SIGNAL(toggled(bool)), this, SLOT(onAlwaysAppend(bool)));
+	connect(cancelButton_, SIGNAL(clicked()), this, SIGNAL(cancel()));
+	connect(cancelCheck_, SIGNAL(toggled(bool)), this, SLOT(onAlwaysCancel(bool)));
+}
+
+void AMScanConfigurationScanDirector::showDirector(QString reason){
+	message_ = reason;
+	messageLabel_->setText(message_);
+	if(alwaysStartNow_)
+		emit startNow();
+	else if(alwaysWaitNext_)
+		emit addToQueue(1);
+	else if(alwaysAppend_)
+		emit addToQueue(-1);
+	else if(alwaysCancel_)
+		emit cancel();
+	else
+		show();
+}
+
+void AMScanConfigurationScanDirector::onWaitNext(){
+	emit addToQueue(1);
+}
+
+void AMScanConfigurationScanDirector::onAppend(){
+	emit addToQueue(-1);
+}
+
+void AMScanConfigurationScanDirector::onAlwaysStartNow(bool checked){
+	alwaysStartNow_ = checked;
+}
+
+void AMScanConfigurationScanDirector::onAlwaysWaitNext(bool checked){
+	alwaysWaitNext_ = checked;
+}
+
+void AMScanConfigurationScanDirector::onAlwaysAppend(bool checked){
+	alwaysAppend_ = checked;
+}
+
+void AMScanConfigurationScanDirector::onAlwaysCancel(bool checked){
+	alwaysCancel_ = checked;
 }
