@@ -1,9 +1,9 @@
 #include "AMBeamlineControlAction.h"
 
-AMBeamlineControlAction::AMBeamlineControlAction(AMControl *control, QString message, QObject *parent) :
-	AMBeamlineActionItem(message, parent)
+AMBeamlineControlAction::AMBeamlineControlAction(AMControl *control, QObject *parent) :
+	AMBeamlineActionItem(parent)
 {
-	needsInput_ = true;
+	//needsInput_ = true;
 	type_ = "controlAction";
 	control_ = control;
 	connect(control_, SIGNAL(moveStarted()), this, SIGNAL(started()));

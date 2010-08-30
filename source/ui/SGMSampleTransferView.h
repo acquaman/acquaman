@@ -58,7 +58,7 @@ class SGMSampleTransferPaneView : public QGroupBox
 {
 Q_OBJECT
 public:
-	explicit SGMSampleTransferPaneView(QList<AMBeamlineActionItem*> items, const QString &title, QWidget *parent = 0);
+	explicit SGMSampleTransferPaneView(QList<AM1BeamlineActionItem*> items, const QString &title, QWidget *parent = 0);
 
 signals:
 	void completed();
@@ -73,7 +73,7 @@ private slots:
 protected:
 	QVBoxLayout *vl_;
 	QList<AMBeamlineActionItemView*> itemViews_;
-	AMBeamlineActionItem* firstItem_;
+	AM1BeamlineActionItem* firstItem_;
 	QLabel *completeLabel_;
 	QPushButton *completeButton_;
 	QGridLayout *mainLayout_;

@@ -15,6 +15,12 @@ void SGMXASDacqScanController::initialize(){
 	emit initialized();
 }
 
+void SGMXASDacqScanController::reinitialize(bool removeScan){
+	SGMXASScanController::reinitialize();
+	qDebug() << "Emitting reinitialized with removeScan " << removeScan;
+	emit reinitialized(removeScan);
+}
+
 void SGMXASDacqScanController::start(){
 	if(SGMBeamline::sgm()->isScanning()){
 		qDebug() << "Beamline already scanning";

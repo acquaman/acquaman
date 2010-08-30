@@ -134,7 +134,7 @@ AMAppController::AMAppController(QObject *parent) :
 
 	connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerCreated()), this, SLOT(onCurrentScanControllerCreated()));
 	connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerDestroyed()), this, SLOT(onCurrentScanControllerDestroyed()));
-
+	connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerReinitialized(bool)), this, SLOT(onCurrentScanControllerReinitialized(bool)));
 
 	// Make connections:
 	//////////////////////////////
@@ -240,6 +240,14 @@ void AMAppController::onCurrentScanControllerCreated(){
 
 void AMAppController::onCurrentScanControllerDestroyed(){
 	qDebug() << "Detected deletion of " << (int)AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController();
+}
+
+void AMAppController::onCurrentScanControllerReinitialized(bool removeScan){
+	qDebug() << "Trying to reinitialize with " << scanEditors_->rowCount() << " editors";
+	AMGenericScanEditor *scanEditor = scanEditors_->data(scanEditors_->index(scanEditors_->rowCount()-1, 0), AM::PointerRole).value<AMGenericScanEditor*>();
+	if(removeScan)
+		scanEditor->removeScan(scanEditor->scanAt(scanEditor->numScans()-1));
+	scanEditor->addScan(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan());
 }
 
 #include "dataman/AMExperiment.h"

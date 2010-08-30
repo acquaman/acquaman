@@ -62,6 +62,7 @@ protected slots:
 	void onCurrentPaneChanged(QWidget* pane);
 	void onCurrentScanControllerCreated();
 	void onCurrentScanControllerDestroyed();
+	void onCurrentScanControllerReinitialized(bool removeScan);
 
 protected:
 	// UI structure components

@@ -10,7 +10,7 @@ class AMBeamlineControlMoveAction : public AMBeamlineActionItem
 {
 Q_OBJECT
 public:
-	explicit AMBeamlineControlMoveAction(AMControl *control, QString message = "", QObject *parent = 0);
+	explicit AMBeamlineControlMoveAction(AMControl *control, QObject *parent = 0);
 
 	virtual QString type() const;
 	virtual AMControl* control();

@@ -14,11 +14,13 @@ class AMBeamlineScanAction : public AMBeamlineActionItem
 {
 Q_OBJECT
 public:
-	explicit AMBeamlineScanAction(AMScanConfiguration *cfg, QString scanType = "", QString message = "", QObject *parent = 0);
+	explicit AMBeamlineScanAction(AMScanConfiguration *cfg, QString scanType = "", QObject *parent = 0);
 
 	AMScanConfiguration* cfg() const { return cfg_;}
 	virtual QString type() const;
-	bool isPaused() const;
+	virtual bool isRunning() const;
+	virtual bool isPaused() const;
+	bool isReinitialized() const;
 
 signals:
 	void progress(double, double);
@@ -28,10 +30,15 @@ public slots:
 	virtual void pause(bool pause);
 	virtual void cancel();
 	virtual void cancelButKeep();
+	virtual void reset(bool delayInitialized = false);
 
 protected slots:
-	virtual void scanCancelled();
-	virtual void scanSucceeded();
+	virtual void initialize();
+	void delayedStart(bool ready);
+	virtual void onScanStarted();
+	virtual void onScanCancelled();
+	virtual void onScanSucceeded();
+	virtual void onBeamlineScanningChanged(bool isScanning);
 
 protected:
 	QString scanType_;

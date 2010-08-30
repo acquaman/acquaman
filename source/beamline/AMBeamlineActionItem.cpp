@@ -1,18 +1,103 @@
 #include "AMBeamlineActionItem.h"
 
-AMBeamlineActionItem::AMBeamlineActionItem(QString message, QObject *parent) :
+AMBeamlineActionItemStateFlag::AMBeamlineActionItemStateFlag(bool initialState, QObject *parent) :
+		QObject(parent)
+{
+	state_ = initialState;
+}
+
+bool AMBeamlineActionItemStateFlag::state() const{
+	return state_;
+}
+
+void AMBeamlineActionItemStateFlag::setState(bool state){
+	if(state_ != state){
+		state_ = state;
+		emit stateChanged(state_);
+	}
+}
+
+AMBeamlineActionItem::AMBeamlineActionItem(QObject *parent) :
 	QObject(parent)
 {
-	message_ = message;
+//	qDebug() << "Start of AMBeamlineActionItem::()";
 	previous_ = NULL;
 	next_ = NULL;
-	started_ = false;
-	succeeded_ = false;
-	failed_ = false;
-	running_ = false;
-	hasFeedback_ = false;
-	needsInput_ = false;
 	type_ = "actionItem";
+	reinitialized_.setState(false);
+	connect(&ready_, SIGNAL(stateChanged(bool)), this, SLOT(dirtyInitialized()));
+	connect(&started_, SIGNAL(stateChanged(bool)), this, SLOT(dirtyInitialized()));
+	connect(&succeeded_, SIGNAL(stateChanged(bool)), this, SLOT(dirtyInitialized()));
+	connect(&failed_, SIGNAL(stateChanged(bool)), this, SLOT(dirtyInitialized()));
+	connect(&finished_, SIGNAL(stateChanged(bool)), this, SLOT(dirtyInitialized()));
+	initialize();
+//	qDebug() << "End of AMBeamlineActionItem::()";
+}
+
+AMBeamlineActionItem::AMBeamlineActionItem(bool delayInitialize, QObject *parent){
+	previous_ = NULL;
+	next_ = NULL;
+	type_ = "actionItem";
+	reinitialized_.setState(false);
+	connect(&ready_, SIGNAL(stateChanged(bool)), this, SLOT(dirtyInitialized()));
+	connect(&started_, SIGNAL(stateChanged(bool)), this, SLOT(dirtyInitialized()));
+	connect(&succeeded_, SIGNAL(stateChanged(bool)), this, SLOT(dirtyInitialized()));
+	connect(&failed_, SIGNAL(stateChanged(bool)), this, SLOT(dirtyInitialized()));
+	connect(&finished_, SIGNAL(stateChanged(bool)), this, SLOT(dirtyInitialized()));
+	if(!delayInitialize)
+		initialize();
+}
+
+bool AMBeamlineActionItem::isInitialized() const{
+	return initialized_.state();
+}
+
+bool AMBeamlineActionItem::isReinitialized() const{
+	return reinitialized_.state();
+}
+
+bool AMBeamlineActionItem::isReady() const{
+	return ready_.state();
+}
+
+bool AMBeamlineActionItem::hasStarted() const{
+	return started_.state();
+}
+
+bool AMBeamlineActionItem::isRunning() const{
+	return started_.state() && !finished_.state();
+}
+
+bool AMBeamlineActionItem::hasSucceeded() const{
+	return succeeded_.state();
+}
+
+bool AMBeamlineActionItem::hasFailed() const{
+	return failed_.state();
+}
+
+bool AMBeamlineActionItem::hasFinished() const{
+	return finished_.state();
+}
+
+AMBeamlineActionItem* AMBeamlineActionItem::previous() const {
+	return previous_;
+}
+
+AMBeamlineActionItem* AMBeamlineActionItem::next() const {
+	return next_;
+}
+
+QString AMBeamlineActionItem::type() const {
+	return type_;
+}
+
+void AMBeamlineActionItem::reset(bool delayInitialize){
+//	qDebug() << "Start of AMBeamlineActionItem::reset()";
+	reinitialized_.setState(true);
+	if(!delayInitialize)
+		initialize();
+//	qDebug() << "End of AMBeamlineActionItem::reset()";
 }
 
 bool AMBeamlineActionItem::setPrevious(AMBeamlineActionItem *previous){
@@ -23,6 +108,79 @@ bool AMBeamlineActionItem::setPrevious(AMBeamlineActionItem *previous){
 bool AMBeamlineActionItem::setNext(AMBeamlineActionItem *next){
 	next_ = next;
 	return true;
+}
+
+void AMBeamlineActionItem::setReady(bool isReady){
+	if(ready_.state() != isReady){
+//		qDebug() << "Start of AMBeamlineActionItem::setReady()";
+		ready_.setState(isReady);
+		emit ready(ready_.state());
+//		qDebug() << "End of AMBeamlineActionItem::setReady()";
+	}
+}
+
+void AMBeamlineActionItem::setStarted(bool isStarted){
+	if(started_.state() != isStarted){
+//		qDebug() << "Start of AMBeamlineActionItem::setStarted()";
+		started_.setState(isStarted);
+		if(started_.state())
+			emit started();
+//		qDebug() << "End of AMBeamlineActionItem::setStarted()";
+	}
+}
+
+void AMBeamlineActionItem::setSucceeded(bool isSucceeded){
+	if(succeeded_.state() != isSucceeded){
+//		qDebug() << "Start of AMBeamlineActionItem::setSucceeded()";
+		succeeded_.setState(isSucceeded);
+		if(succeeded_.state()){
+			emit succeeded();
+			setFinished(true);
+		}
+//		qDebug() << "End of AMBeamlineActionItem::setSucceeded()";
+	}
+}
+
+void AMBeamlineActionItem::setFailed(bool isFailed, int explanation){
+	if(failed_.state() != isFailed){
+//		qDebug() << "Start of AMBeamlineActionItem::setFailed()";
+		failed_.setState(isFailed);
+		if(failed_.state()){
+			emit failed(explanation);
+			setFinished(true);
+		}
+//		qDebug() << "End of AMBeamlineActionItem::setFailed()";
+	}
+}
+
+void AMBeamlineActionItem::setFinished(bool isFinished){
+	if(finished_.state() != isFinished){
+		qDebug() << "Start of AMBeamlineActionItem::setFinished()";
+		finished_.setState(isFinished);
+		if(finished_.state())
+			emit finished();
+		qDebug() << "End of AMBeamlineActionItem::setFinished()";
+	}
+}
+
+void AMBeamlineActionItem::initialize(){
+	qDebug() << "AMBeamlineActionItem::initialize()";
+	ready_.setState(false);
+	started_.setState(false);
+	succeeded_.setState(false);
+	failed_.setState(false);
+	finished_.setState(false);
+	initialized_.setState(true);
+	emit initialized();
+//	qDebug() << "End of AMBeamlineActionItem::initialize()";
+}
+
+void AMBeamlineActionItem::dirtyInitialized(){
+	if(initialized_.state() != false){
+//		qDebug() << "Start of AMBeamlineActionItem::dirtyInitialized()";
+		initialized_.setState(false);
+//		qDebug() << "End of AMBeamlineActionItem::dirtyInitialized()";
+	}
 }
 
 AMBeamlineActionView::AMBeamlineActionView(AMBeamlineActionItem *action, int index, QWidget *parent) :
@@ -149,7 +307,45 @@ void AMBeamlineActionHiddenView::onExpandButtonClicked(){
 	emit expandRequested(action_);
 }
 
-AMBeamlineActionItemView::AMBeamlineActionItemView(AMBeamlineActionItem *item, QWidget *parent) :
+
+
+
+/*****************************************************************************
+*
+*
+*   COMPATABILITY CLASSES
+*
+*
+*
+******************************************************************************/
+
+AM1BeamlineActionItem::AM1BeamlineActionItem(QString message, QObject *parent) :
+	QObject(parent)
+{
+	message_ = message;
+	previous_ = NULL;
+	next_ = NULL;
+	started_ = false;
+	succeeded_ = false;
+	failed_ = false;
+	running_ = false;
+	hasFeedback_ = false;
+	needsInput_ = false;
+	type_ = "actionItem";
+}
+
+bool AM1BeamlineActionItem::setPrevious(AM1BeamlineActionItem *previous){
+	previous_ = previous;
+	return true;
+}
+
+bool AM1BeamlineActionItem::setNext(AM1BeamlineActionItem *next){
+	next_ = next;
+	return true;
+}
+
+
+AMBeamlineActionItemView::AMBeamlineActionItemView(AM1BeamlineActionItem *item, QWidget *parent) :
 		QWidget(parent)
 {
 	item_ = item;

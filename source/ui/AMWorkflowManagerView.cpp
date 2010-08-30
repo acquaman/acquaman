@@ -37,7 +37,15 @@ AMWorkflowManagerView::AMWorkflowManagerView(QWidget *parent) :
 void AMWorkflowManagerView::onStartQueueRequested(){
 	if(!workflowQueue_->isEmpty()){
 		qDebug() << "Trying to start queue";
-		workflowQueue_->startQueue();
+		if(!workflowQueue_->head()->hasFinished() ){
+			qDebug() << "Initialized, so just start, no reset";
+			workflowQueue_->startQueue();
+		}
+		else{
+			qDebug() << "Not initialized anymore, so need to reset";
+			workflowQueue_->head()->reset();
+			workflowQueue_->startQueue();
+		}
 		//workflowQueue_->head()->start();
 	}
 //	if(workflowActions_->count() > 0)
@@ -64,6 +72,7 @@ void AMWorkflowManagerView::onAddScanRequested(AMScanConfiguration *cfg, bool st
 		emit freeToScan(workflowQueue_->isEmpty(), !workflowQueue_->isRunning());
 	else if(startNow && workflowQueue_->isRunning())
 		emit freeToScan(workflowQueue_->peekIsEmpty(), !workflowQueue_->isRunning());
+	//NOT THREAD SAFE IF WORKFLOW AND SXSCVIEWER IN DIFFERENT THREADS
 	if(cancelAddRequest_){
 		cancelAddRequest_ = false;
 		qDebug() << "Request cancelled, doing nothing";
@@ -72,7 +81,7 @@ void AMWorkflowManagerView::onAddScanRequested(AMScanConfiguration *cfg, bool st
 
 	SGMXASScanConfiguration *sxsc = (SGMXASScanConfiguration*)cfg;
 
-	AMBeamlineScanAction *scanAction = new AMBeamlineScanAction(sxsc, "SGMXASScan", "Deuce", this);
+	AMBeamlineScanAction *scanAction = new AMBeamlineScanAction(sxsc, "SGMXASScan", this);
 	workflowActions_->appendAction(scanAction);
 	emit addedScan(cfg);
 	if(startNow)
@@ -559,7 +568,7 @@ void AMBeamlineActionAdder::onNewMoveSetpoint(double value){
 }
 
 void AMBeamlineActionAdder::onAddMoveAction(){
-	AMBeamlineActionItem *tmpItem = new AMBeamlineControlMoveAction(movePV_, "");
+	AMBeamlineActionItem *tmpItem = new AMBeamlineControlMoveAction(movePV_);
 	((AMBeamlineControlMoveAction*)tmpItem)->setSetpoint(moveSetpoint_);
 	emit insertActionRequested(tmpItem, addWhereBox_->currentIndex());
 	hide();
