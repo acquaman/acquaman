@@ -224,8 +224,6 @@ void AMChannelEditor::onNewChannelNamed() {
 
 void AMChannelEditor::expressionEditingFinished(int reason) {
 	// whoa now... If they just jumped over to the 'insert' button, we don't want to do all this finalization.
-	qDebug() << "Reason for editing finished: " << reason;
-	qDebug() << "   cursor position:" << ui_.expressionEdit->textCursor().position();
 
 	switch(reason) {
 	case AMWrappingLineEdit::EscapePressedReason:
@@ -347,14 +345,17 @@ void AMChannelEditor::onFunctionMenuTriggered(QAction *action) {
 
 void AMChannelEditor::populateFunctionMenu() {
 
-	functionMenu_->addAction("sqrt()");
+
 	functionMenu_->addAction("exp()");
 	functionMenu_->addAction("ln()");
 	functionMenu_->addAction("log()");
-
+	functionMenu_->addSeparator();
+	functionMenu_->addAction("sqrt()");
+	functionMenu_->addSeparator();
 	functionMenu_->addAction("sin()");
 	functionMenu_->addAction("cos()");
 	functionMenu_->addAction("tan()");
+	functionMenu_->addSeparator();
 	functionMenu_->addAction("asin()");
 	functionMenu_->addAction("acos()");
 	functionMenu_->addAction("atan()");
