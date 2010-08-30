@@ -67,6 +67,9 @@ public:
 	/// the x value of this channel at index \c p
 	virtual double x(unsigned p) const;
 
+	/// The value that is returned if there is an error in evaluating this channel
+	virtual double invalidValue() const { return 1.0; }
+
 	/// Returns true if both expressions are set to valid expressions; the value() and x() will be what you asked for.
 	bool isValid() const { return isValid_ && isValidX_; }
 
@@ -76,10 +79,10 @@ public:
 
 
 	/// returns the min/max values.  Warning: use only when count() >= 1.  Do not call on an empty channel. (\todo : the data tree columns already track min/max in an optimized way.  Is there any way to benefit from this, with an arbitrary expression?)
-	double min() const { if(min_ == -1) searchMin(); return value(min_); }
-	double max() const { if(max_ == -1) searchMax(); return value(max_); }
-	double minX() const { if(minX_ == -1) searchMinX(); return x(minX_); }
-	double maxX() const { if(maxX_ == -1) searchMaxX(); return x(maxX_); }
+	double min() const { if(min_ <0   || (unsigned)min_ >= count()) searchMin(); return value(min_); }
+	double max() const { if(max_ <0   || (unsigned)max_ >= count()) searchMax(); return value(max_); }
+	double minX() const { if(minX_ <0 || (unsigned)minX_ >= count()) searchMinX(); return x(minX_); }
+	double maxX() const { if(maxX_ <0 || (unsigned)maxX_ >= count()) searchMaxX(); return x(maxX_); }
 
 	double* addVariable(AMParVar *parVar);
 

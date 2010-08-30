@@ -97,13 +97,13 @@ protected slots:
 		Q_UNUSED(start)
 		Q_UNUSED(end)
 		/// \todo Anything needed here?
-	}
+		}
 
 	/// when data within the model changes. Possibilities we care about: nothing. (All handled within AMScanViewScanBars.)
 	void onModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight) {
 		Q_UNUSED(topLeft)
 		Q_UNUSED(bottomRight)
-	}
+		}
 
 protected:
 	QList<AMScanViewScanBar*> scanBars_;
@@ -140,6 +140,8 @@ public:
 
 		scene_ = new QGraphicsScene();
 		setScene(scene_);
+		/// \bug testing if disabling item indexing solves anything...
+		scene_->setItemIndexMethod(QGraphicsScene::NoIndex);
 
 		graphicsWidget_ = new QGraphicsWidget();
 		graphicsWidget_->setGeometry(0,0,100,100);
@@ -201,7 +203,7 @@ protected:
 /// A GUI class that provides a several different ways to view a set of scans.  It maintains an internal AMScanSetModel, and a variety of different AMScanViewInternal views can be shown within it.
 class AMScanView : public QWidget
 {
-Q_OBJECT
+	Q_OBJECT
 public:
 	enum ViewMode { Invalid = -1, Tabs = 0, OverPlot, MultiScans, MultiChannels };
 

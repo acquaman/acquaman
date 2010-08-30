@@ -7,9 +7,26 @@ AMCloseItemDelegate::AMCloseItemDelegate(QObject *parent) :
 	closeButtonAction_ = SignalOnly;
 }
 
-
+#include <QStyleOptionViewItemV4>
+#include <QApplication>
 void AMCloseItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const {
-	QStyledItemDelegate::paint(painter, option, index);
+
+	if(closeButtonEnabled_) {
+		// trick the base class paint version into thinking we have less width than we do.
+		QStyleOptionViewItemV4 opt(option);
+		initStyleOption(&opt, index);
+		opt.rect.setWidth(option.rect.width() - 20);
+		QStyledItemDelegate::paint(painter, opt, index);
+
+		// finish drawing the background in the remaining width
+		QStyle* sty = opt.widget ? opt.widget->style() : QApplication::style();
+		opt.rect = option.rect;
+		opt.rect.setLeft(option.rect.right() - 20);
+		sty->drawPrimitive(QStyle::PE_PanelItemViewItem, &opt, painter);
+
+	}
+	else
+		QStyledItemDelegate::paint(painter, option, index);
 
 	drawCloseButton(painter, option, index);
 }
@@ -29,7 +46,7 @@ void AMCloseItemDelegate::drawCloseButton(QPainter *painter, const QStyleOptionV
 	if(closeButtonEnabled_) {
 		// "local" rectangle of the close button.
 		closeButtonRect_ = QRect(
-				option.rect.width() - 20,
+				option.rect.width() - 16,
 				(option.rect.height() - 13)/2,
 				12,
 				13);

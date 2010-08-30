@@ -16,10 +16,17 @@
 
 class AMDataTree;
 
-/// The type of a vector of subtrees looks complicated. This is a simplification typedef.
+/// This is a typedef for the type of a vector of subtrees.
 typedef QVector<QSharedDataPointer<AMDataTree> > AMDataTreeSubtreeColumn;
 
+/// This defines the value that will be returned when an out-of-range value is requested from a data tree column.
+#define AMDATATREE_OUTOFRANGE_VALUE -1.0
 
+/// This defines the value that will be returned when a value is requested from a non-existent column
+#define AMDATATREE_NONEXISTENT_VALUE -2.0
+
+/// This defines the default value that will be inserted in empty columns when a new row is created in a tree
+#define AMDATATREE_INSERT_VALUE 1.0
 
 /// This class is an attempt at supporting arbitrary-dimensionality data for AMScan objects, while maintaining simple (programmer-easy) and fast (high-performance) access to the data.
 /*! Data must have a principal column (usually the "x" axis or main independent variable), and the values stored in this column must be true data values.
