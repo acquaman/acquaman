@@ -9,8 +9,10 @@ AMWorkflowManagerView::AMWorkflowManagerView(QWidget *parent) :
 	adder_ = new AMBeamlineActionAdder();
 	adder_->hide();
 	connect(adder_, SIGNAL(insertActionRequested(AMBeamlineActionItem*,int)), this, SLOT(onInsertActionRequested(AMBeamlineActionItem*,int)));
-	/// \todo fix this signal to currentSamplePlate
-	connect(this, SIGNAL(destroyed()), adder_, SLOT(onSamplePlateChanged(bool)));
+	connect(SGMBeamline::sgm()->currentSamplePlate(), SIGNAL(samplePlateChanged(bool)), adder_, SLOT(onSamplePlateChanged(bool)));
+	connect(SGMBeamline::sgm()->currentSamplePlate(), SIGNAL(samplePositionAdded(int)), adder_, SLOT(onSamplePlateUpdate(int)));
+	connect(SGMBeamline::sgm()->currentSamplePlate(), SIGNAL(samplePositionChanged(int)), adder_, SLOT(onSamplePlateUpdate(int)));
+	connect(SGMBeamline::sgm()->currentSamplePlate(), SIGNAL(samplePositionRemoved(int)), adder_, SLOT(onSamplePlateUpdate(int)));
 	startWorkflowButton_ = new QPushButton("Start This Workflow\nReady");
 	startWorkflowButton_->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
 	addActionButton_ = new QPushButton("Add an Action");
@@ -556,14 +558,20 @@ void AMBeamlineActionAdder::onQueueUpdated(int count){
 }
 
 void AMBeamlineActionAdder::onSamplePlateChanged(bool valid){
+	qDebug() << "Rewriting sample list in adder";
 	QStringList samples = subTypesLists_.at(1);
 	samples.clear();
 	if(valid){
-		AMSamplePlate *sp = SGMBeamline::currentSamplePlate();
+		AMSamplePlate *sp = SGMBeamline::sgm()->currentSamplePlate();
 		for(int x = 0; x < sp->count(); x++)
 			samples << sp->sampleAt(x)->name();
 	}
 	subTypesLists_.replace(1, samples);
+}
+
+/// \todo optimize this. I don't need to redo the whole list for one insertion/deletion/change
+void AMBeamlineActionAdder::onSamplePlateUpdate(int index){
+	onSamplePlateChanged(SGMBeamline::sgm()->currentSamplePlate()->valid());
 }
 
 void AMBeamlineActionAdder::onActionTypeBoxUpdate(int curIndex){
@@ -635,12 +643,13 @@ void AMBeamlineActionAdder::onActionSubTypeBoxUpdate(int curIndex){
 		moveSetpointDSB_->setValue(movePV_->value());
 	}
 	if(actionTypeBox_->currentIndex() == 1 && xPosLabel_ && yPosLabel_ && zPosLabel_ && rPosLabel_){
-		AMSamplePlate *sp = SGMBeamline::currentSamplePlate();
-		if( sp->isValid() ){
+		AMSamplePlate *sp = SGMBeamline::sgm()->currentSamplePlate();
+		onSamplePlateChanged(sp->valid());
+		if( sp->valid() ){
 			xPosLabel_->setText(QString("%1").arg(sp->positionAt(curIndex)->valueAt(0)));
-			yPosLabel_->setText(QString("%1").arg(sp->positionAt(curIndex)->valueAt(1)))
-			zPosLabel_->setText(QString("%1").arg(sp->positionAt(curIndex)->valueAt(2)))
-			rPosLabel_->setText(QString("%1").arg(sp->positionAt(curIndex)->valueAt(3)))
+			yPosLabel_->setText(QString("%1").arg(sp->positionAt(curIndex)->valueAt(1)));
+			zPosLabel_->setText(QString("%1").arg(sp->positionAt(curIndex)->valueAt(2)));
+			rPosLabel_->setText(QString("%1").arg(sp->positionAt(curIndex)->valueAt(3)));
 		}
 		else{
 			xPosLabel_->setText("N/A");
@@ -656,23 +665,13 @@ void AMBeamlineActionAdder::onNewMoveSetpoint(double value){
 }
 
 void AMBeamlineActionAdder::onAddControlSetMoveAction(){
-	AMControlSetInfo *tmpInfo = new AMControlSetInfo(SGMBeamline::sgm()->ssaManipulatorSet()->info());
-	if(actionSubTypeBox_->currentIndex() == 0){
-		tmpInfo->setValueAt(0, 12.5);
-		tmpInfo->setValueAt(1, -12.5);
-		tmpInfo->setValueAt(2, 1500);
-		tmpInfo->setValueAt(3, 270);
+	AMSamplePlate *sp = SGMBeamline::sgm()->currentSamplePlate();
+	if(sp->valid()){
+		AMBeamlineActionItem *tmpItem = new AMBeamlineControlSetMoveAction(SGMBeamline::sgm()->ssaManipulatorSet());
+		((AMBeamlineControlSetMoveAction*)tmpItem)->setSetpoint(sp->positionAt(actionSubTypeBox_->currentIndex()));
+		emit insertActionRequested(tmpItem, addWhereBox_->currentIndex());
+		hide();
 	}
-	else if(actionSubTypeBox_->currentIndex() == 1){
-		tmpInfo->setValueAt(0, -5.5);
-		tmpInfo->setValueAt(1, 22.5);
-		tmpInfo->setValueAt(2, 8750);
-		tmpInfo->setValueAt(3, 90);
-	}
-	AMBeamlineActionItem *tmpItem = new AMBeamlineControlSetMoveAction(SGMBeamline::sgm()->ssaManipulatorSet());
-	((AMBeamlineControlSetMoveAction*)tmpItem)->setSetpoint(tmpInfo);
-	emit insertActionRequested(tmpItem, addWhereBox_->currentIndex());
-	hide();
 }
 
 void AMBeamlineActionAdder::onAddMoveAction(){

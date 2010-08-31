@@ -129,6 +129,7 @@ public:
 public slots:
 	virtual void onQueueUpdated(int count);
 	virtual void onSamplePlateChanged(bool valid);
+	virtual void onSamplePlateUpdate(int index);
 
 signals:
 	void insertActionRequested(AMBeamlineActionItem *action, int index);
