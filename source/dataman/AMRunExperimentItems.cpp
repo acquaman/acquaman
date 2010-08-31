@@ -1,11 +1,12 @@
 #include "AMRunExperimentItems.h"
 #include "dataman/AMDatabase.h"
+#include "ui/AMDateTimeUtils.h"
 
 #include <QMimeData>
 
 QVariant AMRunModelItem::data(int role) const {
 	if(role == Qt::DisplayRole)
-		return QStandardItem::data(Qt::EditRole).toString() + QStandardItem::data(AM::DateTimeRole).toDateTime().toString(", MMM d (yyyy)");
+		return QStandardItem::data(Qt::EditRole).toString() + ", started " + AMDateTimeUtils::prettyDate(QStandardItem::data(AM::DateTimeRole).toDateTime());
 	else
 		return QStandardItem::data(role);
 }

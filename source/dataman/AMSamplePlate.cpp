@@ -241,9 +241,11 @@ bool AMSamplePlate::setupModel(){
 	return false;
 }
 
+#include "ui/AMDateTimeUtils.h"
+
 const QString AMSamplePlate::timeString() const{
 	QString timeString;
-	timeString = QDateTime::currentDateTime().toString("MMM d yyyy, h:mm ap");
+	timeString = AMDateTimeUtils::prettyDateTime(QDateTime::currentDateTime());
 	return timeString;
 }
 

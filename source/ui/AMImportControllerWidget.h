@@ -13,7 +13,7 @@ public:
 		thumbnailViewer = new AMThumbnailScrollWidget();
 		verticalLayoutLeft->insertWidget(0, thumbnailViewer);
 
-		runEdit = new AMRunSelector();
+		runEdit = new AMRunSelector(AMDatabase::userdb());
 		gridLayout->addWidget(runEdit, 3, 2);
 	}
 

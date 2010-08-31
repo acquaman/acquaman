@@ -44,8 +44,7 @@ QStringList AMChannelListModel::channelExpressions() const {
 
 
 bool AMChannelListModel::addChannel(AMChannel* newChannel) {
-	if(!newChannel->isValid())
-		return false;
+
 	beginInsertRows(QModelIndex(), ch_.count(), ch_.count());
 	ch_.append(newChannel);
 	name2chIndex_.set(newChannel->name(), ch_.count()-1);
@@ -97,6 +96,8 @@ AMScan::AMScan(QObject *parent)
 	metaData_["filePath"] = QString();
 
 	autoLoadData_ = true;
+
+	sampleNameLoaded_ = false;
 }
 
 #include <QDebug>
@@ -134,27 +135,47 @@ QVariant AMScan::metaData(const QString& key) const {
 	return AMDbObject::metaData(key);
 }
 
+#include <QDebug>
 bool AMScan::setMetaData(const QString& key, const QVariant& value) {
 
-		if(key == "channelNames" || key == "channelExpressions")
-			return false;
+	if(key == "channelNames" || key == "channelExpressions")
+		return false;
 
-		return AMDbObject::setMetaData(key, value);
-	}
+	if(key == "sampleId")
+		sampleNameLoaded_ = false;
+
+	if(key == "dateTime")
+		qDebug() << "AMScan:: who is setting the dateTime?";
+
+	return AMDbObject::setMetaData(key, value);
+}
 
 /// Convenience function: returns the name of the sample (if a sample is set)
+/// \todo Is performance of this okay? Should be cached?
 QString AMScan::sampleName() const {
 
-	if(sampleId() == -1 || database() == 0)
-		return QString();
+	if(!sampleNameLoaded_)
+		retrieveSampleName();
 
-	QVariant vSampleName;
-	QList<QVariant*> vList;
-	vList << &vSampleName;
-	if(database()->retrieve(sampleId(), AMDatabaseDefinition::sampleTableName(), QString("name").split(','), vList))
-		return vSampleName.toString();
-	else
-		return QString();
+	return sampleName_;
+
+}
+
+void AMScan::retrieveSampleName() const {
+
+	if(sampleId() <1 || database() == 0)
+		sampleName_ = "[no sample]";
+
+	else {
+		sampleNameLoaded_ = true;	// don't set sampleNameLoaded_ above. That way we will keep checking until there's a database set (for ex: we get saved/stored.) The sampleNameLoaded_ cache is meant to speed up this database call.
+		QVariant vSampleName;
+		QList<QVariant*> vList;
+		vList << &vSampleName;
+		if(database()->retrieve(sampleId(), AMDatabaseDefinition::sampleTableName(), QString("name").split(','), vList))
+			sampleName_ =  vSampleName.toString();
+		else
+			sampleName_ = "[no sample]";
+	}
 }
 
 
@@ -190,22 +211,23 @@ bool AMScan::deleteChannel(unsigned index) {
 
 
 
+bool AMScan::validateChannelExpression(const QString& expression) {
+	AMChannel tmp(this, "testChannel", expression);
+	return tmp.isValid();
+}
 
-/// create a new channel. The channel is created with a QObject parent of 0, but will be owned and deleted by this Scan.  Protects against creating channels with duplicate names.
-bool AMScan::addChannel(const QString& chName, const QString& expression) {
+/// create a new channel. The channel is created with a QObject parent of 0, but will be owned and deleted by this Scan.  This function protects against creating channels with duplicate names.
+bool AMScan::addChannel(const QString& chName, const QString& expression, bool ensureValid) {
 
 	if(channelNames().contains(chName))
 		return false;
 
-#warning "David, tell me what's going on here next time we talk..."
-	AMChannel *tmpCh = new AMChannel(this, chName, expression);
-	if(!tmpCh->isValid()){
-		delete tmpCh;
+	// invalid channel expression, and you requested validation
+	if(ensureValid && !validateChannelExpression(expression))
 		return false;
-	}
 
-	ch_.addChannel(tmpCh);
-	//	ch_.addChannel(new AMChannel(this, chName, expression));
+	ch_.addChannel(new AMChannel(this, chName, expression));
+
 	setModified(true);
 	return true;
 }

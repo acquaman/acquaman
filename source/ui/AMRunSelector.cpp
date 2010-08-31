@@ -10,7 +10,7 @@
 
 #include "ui/AMDetailedItemDelegate.h"
 
-AMRunSelector:: AMRunSelector(QWidget *parent)
+AMRunSelector:: AMRunSelector(AMDatabase* db, QWidget *parent)
 	: QComboBox(parent)
 {
 
@@ -24,13 +24,13 @@ AMRunSelector:: AMRunSelector(QWidget *parent)
 	   * run date
 	   * run id
 	*************/
-	database_ = AMDatabase::userdb();
-	autoAddRuns();
+	database_ = db;
+	populateRuns();
 
 	if (count() > 1)
-		setCurrentIndex(1);
+		setCurrentRunId(itemData(1, AM::IdRole).toInt());
 
-	box = 0;
+	newRunDialog_ = 0;
 	connect(this, SIGNAL(activated(int)),this,SLOT(onComboBoxActivated(int)));
 
 	setMinimumContentsLength(4);
@@ -48,13 +48,18 @@ AMRunSelector::~AMRunSelector(){
 }
 
 /// This function searches through the database for existing runs and adds the run names into the database. In addition, this function also stores the facility thumbnail as a decoration role, the run id as a user role, and the facility description as a tool tip role.
-void AMRunSelector::autoAddRuns() {
+void AMRunSelector::populateRuns() {
 
 	// Turn off this flag because we're completing the update right now.
 	runUpdateScheduled_ = false;
 
+	// old run index: (save for backup)
+	int oldRunId = currentRunId();
+
+	// empty all run entries
 	clear();
 
+	// The first entry is just a 'Add New Run...' entry.
 	addItem("Add New Run...");
 	setItemData(0, -1, AM::IdRole);  // IdRole stores the runId.  This entry doesn't represent a valid run, so the runId is -1.
 
@@ -84,7 +89,9 @@ void AMRunSelector::autoAddRuns() {
 	}
 	else
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, "Error retrieving run information from the database."));
-	setCurrentIndex(1);
+
+	// restore
+	setCurrentRunId(oldRunId);
 
 }
 
@@ -93,9 +100,10 @@ void AMRunSelector::autoAddRuns() {
 /// This function is called upon every time a combo box component is activated. It outputs the index of the activated component.
 void AMRunSelector::onComboBoxActivated(int index) {
 
-	if (index==0){
-		newRunBox();
-	}
+	if(index < 0)
+		emit currentRunIdChanged(-1);
+	else if (index==0)	// open dialogue to create a new run
+		showAddRunDialog();
 	else
 		emit currentRunIdChanged(itemData(index, AM::IdRole).toInt());
 
@@ -103,25 +111,34 @@ void AMRunSelector::onComboBoxActivated(int index) {
 
 /// This function returns the ID of the run that is currently selected in the this combo box
 int AMRunSelector::currentRunId() const {
-	return itemData(currentIndex(), AM::IdRole).toInt();
+	if(currentIndex() < 1)
+		return -1;
+	else
+		return itemData(currentIndex(), AM::IdRole).toInt();
 }
 
-/// This function opens a newRunDialog box and will activate the addNewRun function when the dialog box is closed.
-void AMRunSelector::newRunBox() {
-	if(box)
-		delete box;
-	box = new AMNewRunDialog;
-	box->show();
-
-	connect(box,SIGNAL(dialogBoxClosed()),this,SLOT(addNewRun()));
+/// This function opens a new AddRunDialog box and will activate the onAddRunDialogClosed function when the dialog box is closed.
+void AMRunSelector::showAddRunDialog() {
+	if(newRunDialog_) {
+		newRunDialog_->deleteLater();
+		newRunDialog_ = 0;
+	}
+	newRunDialog_ = new AMNewRunDialog(database_, this);
+	newRunDialog_->show();
+	connect(newRunDialog_,SIGNAL(dialogBoxClosed(int)),this,SLOT(onAddRunDialogClosed(int)));
 }
 
 /// This function adds all runs from the database and sets the combo box index to select the 1st run down.
-void AMRunSelector::addNewRun(){
+void AMRunSelector::onAddRunDialogClosed(int newRunId){
 
-
-	autoAddRuns();
-	setCurrentIndex(2);
+	if(newRunDialog_) {
+		newRunDialog_->deleteLater();;
+		newRunDialog_ = 0;
+	}
+	if(newRunId > 0) {
+		populateRuns();
+		setCurrentRunId(newRunId);
+	}
 }
 
 #include "dataman/AMDatabaseDefinition.h"
@@ -133,15 +150,20 @@ void AMRunSelector::onDatabaseUpdate(const QString & tableName, int id) {
 	if(tableName == AMDatabaseDefinition::runTableName()) {
 		if(!runUpdateScheduled_) {
 			runUpdateScheduled_ = true;
-			QTimer::singleShot(0, this, SLOT(autoAddRuns()));
+			QTimer::singleShot(0, this, SLOT(populateRuns()));
 		}
 	}
 }
 
-/// This function sets the combo box selector to the run that has the designated runId. If not a valid runId, then this function does nothing.
+/// This function sets the combo box selector to the run that has the designated runId. If the run id is invalid (ie: runId<1, or non-existent), it sets the combo box to have nothing selected, and emits the currentRunIdChanged() signal with an invalid value (-1).
 void AMRunSelector::setCurrentRunId(int runId) {
-	if (findData(runId, AM::IdRole)>0){
-		setCurrentIndex(findData(runId, AM::IdRole));
-		emit currentRunIdChanged(itemData(currentIndex(), AM::IdRole).toInt());
+	int runIndex;
+	if(runId < 1 || (runIndex = findData(runId, AM::IdRole)) == -1 ) {
+		setCurrentIndex(-1);
+		emit currentRunIdChanged(-1);
+	}
+	else {
+		setCurrentIndex(runIndex);
+		emit currentRunIdChanged(runId);
 	}
 }

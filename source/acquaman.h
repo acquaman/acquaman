@@ -21,12 +21,12 @@ namespace AM {
 	/// Application-wide QVariant user types
 	enum AcquamanType { IntList = QVariant::UserType + 20, DoubleList };
 
-	enum eventType { AMAcqEvent = QEvent::User+20 };
+	enum EventType { AcqEvent = QEvent::User+20 };
 }
 
 class AMAcqEvent : public QEvent{
 public:
-	AMAcqEvent() : QEvent( (QEvent::Type)AM::AMAcqEvent)
+	AMAcqEvent() : QEvent( (QEvent::Type)AM::AcqEvent)
 	{}
 
 	QMap<int, double> dataPackage_;

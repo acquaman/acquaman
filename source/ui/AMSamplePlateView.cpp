@@ -27,7 +27,7 @@ AMSamplePlateView::AMSamplePlateView(QWidget *parent) :
 		existingPlates_->insertItem(1, name);
 		existingPlates_->setItemData(1, id, AM::IdRole);
 		existingPlates_->setItemData(1, createTime, AM::DateTimeRole);
-		existingPlates_->setItemData(1, createTime.toString("MMM d yyyy, h:mm ap"), AM::DescriptionRole);
+		existingPlates_->setItemData(1, AMDateTimeUtils::prettyDateTime(createTime), AM::DescriptionRole);
 	}
 	connect(existingPlates_, SIGNAL(currentIndexChanged(int)), this, SLOT(onLoadExistingPlate(int)));
 
@@ -48,7 +48,7 @@ AMSamplePlateView::AMSamplePlateView(QWidget *parent) :
 		tmpItem = new QStandardItem(name);
 		tmpItem->setData(id, AM::IdRole);
 		tmpItem->setData(dateTime, AM::DateTimeRole);
-		tmpItem->setData(dateTime.toString("MMM d yyyy, h:mm ap"), AM::DescriptionRole);
+		tmpItem->setData(AMDateTimeUtils::prettyDateTime(dateTime), AM::DescriptionRole);
 		sampleTableModel_->setItem(sampleTableModel_->rowCount(), 0, tmpItem);
 		QString tmpStr;
 		tmpItem = new QStandardItem(tmpStr.setNum(id));
@@ -105,7 +105,7 @@ void AMSamplePlateView::onSampleTableItemCreated(QString tableName, int id){
 	QStandardItem *tmpItem = new QStandardItem(sampleValues.at(0)->toString());
 	tmpItem->setData(id, AM::IdRole);
 	tmpItem->setData(sampleValues.at(1)->toDateTime(), AM::DateTimeRole);
-	tmpItem->setData(sampleValues.at(1)->toDateTime().toString("MMM d yyyy, h:mm ap"), AM::DescriptionRole);
+	tmpItem->setData(AMDateTimeUtils::prettyDateTime(sampleValues.at(1)->toDateTime()), AM::DescriptionRole);
 	sampleTableModel_->insertRow(0);
 	sampleTableModel_->setItem(0, 0, tmpItem);
 	QString tmpStr;
