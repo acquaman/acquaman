@@ -42,6 +42,7 @@ void AMDacqScanController::start(){
 			dir.mkpath(path);
 			abop->setProperty( "File Template", file.toStdString());
 			abop->setProperty( "File Path", path.toStdString());
+			pScan_()->setFilePath(fullPath+".dat");
 
 			((AMAcqScanSpectrumOutput*)abop)->setScan(pScan_());
 			((AMAcqScanSpectrumOutput*)abop)->setScanController(this);;
