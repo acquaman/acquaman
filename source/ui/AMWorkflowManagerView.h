@@ -14,9 +14,8 @@
 #include <QAbstractListModel>
 #include "beamline/AMBeamlineActionsList.h"
 #include "ui/AMVerticalStackWidget.h"
+#include "dataman/AMSamplePlate.h"
 
-//class AMBeamlineActionListModel;
-//class AMBeamlineActionsList;
 class AMBeamlineActionsListView;
 class AMBeamlineActionAdder;
 
@@ -129,6 +128,8 @@ public:
 
 public slots:
 	virtual void onQueueUpdated(int count);
+	virtual void onSamplePlateChanged(bool valid);
+	virtual void onSamplePlateUpdate(int index);
 
 signals:
 	void insertActionRequested(AMBeamlineActionItem *action, int index);
@@ -152,7 +153,7 @@ protected:
 	QComboBox *actionSubTypeBox_;
 	QWidget *nextStepWidget_;
 	QDoubleSpinBox *moveSetpointDSB_;
-	QLabel *xPosLabel_, *yPosLabel_, *zPosLabel_;
+	QLabel *xPosLabel_, *yPosLabel_, *zPosLabel_, *rPosLabel_;
 };
 
 #endif // AMWORKFLOWMANAGERVIEW_H
