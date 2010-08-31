@@ -7,12 +7,14 @@
 #include <QComboBox>
 #include <QSqlQuery>
 #include <QGridLayout>
+#include <QDialog>
+
 #include "dataman/AMDatabase.h"
 #include "ui/AMPrefixSuffixLineEdit.h"
 #include "dataman/AMRun.h"
 
 /// author: Rachel Si (2010)
-class AMNewRunDialog: public QWidget
+class AMNewRunDialog: public QDialog
 {
 	Q_OBJECT
 
