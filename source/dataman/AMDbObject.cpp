@@ -71,9 +71,7 @@ bool AMDbObject::storeToDb(AMDatabase* db) {
 	bool neverSavedHere = (id()<1 || database() != db);
 	bool reuseThumbnailIds = false;
 	int reuseThumbnailStartId;
-	if( id() > 0
-		&& database() == db
-		&& thumbnailCount() ) {
+	if( id() > 0 && database() == db && thumbnailCount() ) {
 
 		QVariant oldThumbnailCount = db->retrieve(id(), databaseTableName(), "thumbnailCount");
 		// same number of thumbnails as before?
