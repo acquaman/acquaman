@@ -4,10 +4,10 @@ AMSamplePlate::AMSamplePlate(QObject *parent) :
 		AMDbObject(parent)
 {
 	insertRowLatch = -1;
-	userName_ = "SGM Sample Plate";
-	createTime_ = QDateTime::currentDateTime();
+	setName("Sample Plate");
+	metaData_["createTime"] = QDateTime::currentDateTime();
+
 	samples_ = NULL;
-	metaData_["createTime"] = QDateTime(createTime_);
 	AMIntList tmpList;
 	metaData_["sampleIDs"].setValue(tmpList);
 	metaData_["positionIDs"].setValue(tmpList);
@@ -19,15 +19,15 @@ AMSamplePlateModel* AMSamplePlate::model(){
 }
 
 QString AMSamplePlate::plateName() const{
-	return userName_+" loaded "+timeString();
+	return name() + " created " + timeString();
 }
 
 QString AMSamplePlate::userName() const{
-	return userName_;
+	return name();
 }
 
-QString AMSamplePlate::createTime() const{
-	return timeString();
+QDateTime AMSamplePlate::createTime() const{
+	return metaData("createTime").toDateTime();
 }
 
 int AMSamplePlate::count(){
@@ -153,18 +153,15 @@ bool AMSamplePlate::storeToDb(AMDatabase* db){
 	}
 	metaData_["sampleIDs"].setValue(sampleIDs);
 	metaData_["positionIDs"].setValue(positionIDs);
-	metaData_["name"].setValue(plateName());
 
 	return valid_ = AMDbObject::storeToDb(db);
 }
 
 QString AMSamplePlate::typeDescription() const{
-	return "List of Samples their Positions on a Sample Plate";
+	return "List of Samples and their Positions on a Sample Plate";
 }
 
-void AMSamplePlate::setName(const QString &name){
-	userName_ = name;
-}
+
 
 bool AMSamplePlate::setSamplePosition(size_t index, AMSamplePosition *sp){
 	AMSamplePosition *tmpSP = samplePositionAt(index);
@@ -255,10 +252,8 @@ bool AMSamplePlate::setupModel(){
 
 #include "ui/AMDateTimeUtils.h"
 
-const QString AMSamplePlate::timeString() const{
-	QString timeString;
-	timeString = AMDateTimeUtils::prettyDateTime(QDateTime::currentDateTime());
-	return timeString;
+QString AMSamplePlate::timeString() const{
+	return AMDateTimeUtils::prettyDateTime(metaData("createTime").toDateTime());
 }
 
 AMSamplePlateModel::AMSamplePlateModel(QObject *parent) :

@@ -29,7 +29,11 @@ class AMSamplePlateView : public QWidget
 {
 Q_OBJECT
 public:
-	explicit AMSamplePlateView(QWidget *parent = 0);
+	/// Create a sample plate editor, to modify/view an existing sample plate \c existingPlate.  If \c existingPlate is 0, it will create a new sample plate to work with.
+	explicit AMSamplePlateView(AMSamplePlate* existingPlate = 0, QWidget *parent = 0);
+
+	/// Returns the id of the currently selected sample plate
+	int currentSamplePlateId() const;
 
 public slots:
 	void setManipulator(AMControlSet *manipulator);
@@ -43,20 +47,31 @@ protected slots:
 
 	void refreshSamples();
 
+
+	/// Fill the list of available sample plates from the database. Make the first entry an 'Add New Sample Plate...' option
+	void populateSamplePlates();
+	/// Start the process of getting a name from the user to create a new sample plate
+	void startCreatingNewPlate();
+	/// This is called when editing is finished on the name lineedit... during a "Create New Plate" process.
+	void onFinishCreatingNewPlate();
+
+
 protected:
-	QLabel *plateNameLabel_;
+	QLineEdit *plateNameLabel_;
 	QLabel *loadedLabel_;
 	QComboBox *existingPlates_;
 	AMSampleListView *sampleListView_;
 	QVBoxLayout *vl_;
 
-	AMSamplePlate samplePlate_;
+	AMSamplePlate* samplePlate_;
 	AMControlSet *manipulator_;
 
 	QStandardItemModel *sampleTableModel_;
 	bool sampleRefreshScheduled_;
 	QList<int> sampleRefreshIDs_;
 	QList<int> sampleRefreshInstructions_;
+
+
 };
 
 class AMSampleListView : public QFrame

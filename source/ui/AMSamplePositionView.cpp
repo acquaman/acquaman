@@ -3,11 +3,13 @@
 AMSamplePositionView::AMSamplePositionView(QWidget *parent, AMSampleManipulatorView *manipulatorView) :
 	QWidget(parent)
 {
+	/// \todo temporary. (find a place to get this location from)
 	QUrl source("http://ccd1611-403/axis-cgi/mjpg/video.cgi?resolution=1280x1024&.mjpg");
 	cam_ = new CamWidget("Camera 1", source);
 
 	manipulator_ = NULL;
-	plateView_ = new AMSamplePlateView();
+	/// \todo move this out of AM framework level... (or move currentSamplePlate() up to AM framework level)
+	plateView_ = new AMSamplePlateView(SGMBeamline::sgm()->currentSamplePlate());
 	plateView_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
 	if(!manipulatorView)
 		manipulatorView_ = new AMSampleManipulatorView();

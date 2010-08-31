@@ -1,18 +1,71 @@
 #include "AMSamplePlateView.h"
 
-AMSamplePlateView::AMSamplePlateView(QWidget *parent) :
-	QWidget(parent)
+AMSamplePlateView::AMSamplePlateView(AMSamplePlate* plate, QWidget *parent) :
+		QWidget(parent)
 {
 	sampleRefreshScheduled_ = false;
-	manipulator_ = NULL;
+	manipulator_ = 0;
+
+	if(plate)
+		samplePlate_ = plate;
+	else
+		samplePlate_ = new AMSamplePlate(this);
 
 	setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
-	plateNameLabel_ = new QLabel(samplePlate_.userName());
+	plateNameLabel_ = new QLineEdit(samplePlate_->userName());
+	plateNameLabel_->setFrame(false);
 	plateNameLabel_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
-	loadedLabel_ = new QLabel("   originally loaded "+samplePlate_.createTime());
+	loadedLabel_ = new QLabel("   first created "+samplePlate_->timeString());
+
 	existingPlates_ = new QComboBox();
-	existingPlates_->addItem("Load Existing");
+	AMDetailedItemDelegate* del = new AMDetailedItemDelegate(this);
+	existingPlates_->setItemDelegate(del);
+	populateSamplePlates();
+
+	connect(existingPlates_, SIGNAL(activated(int)), this, SLOT(onLoadExistingPlate(int)));
+
+	connect(AMDatabase::userdb(), SIGNAL(updated(QString,int)), this, SLOT(onSampleTableItemUpdated(QString,int)));
+	connect(AMDatabase::userdb(), SIGNAL(created(QString,int)), this, SLOT(onSampleTableItemCreated(QString,int)));
+	connect(AMDatabase::userdb(), SIGNAL(removed(QString,int)), this, SLOT(onSampleTableItemRemoved(QString,int)));
+
+	sampleTableModel_ = new QStandardItemModel();
+	QStandardItem *tmpItem;
+	QSqlQuery q = AMDatabase::userdb()->query();
+	q.prepare(QString("SELECT id,name,dateTime FROM %1 ORDER BY dateTime DESC").arg(AMDatabaseDefinition::sampleTableName()));
+	q.exec();
+
+	while(q.next()){
+		int id = q.value(0).toInt();
+		QString name = q.value(1).toString();
+		QDateTime dateTime = q.value(2).toDateTime();
+		tmpItem = new QStandardItem(name);
+		tmpItem->setData(id, AM::IdRole);
+		tmpItem->setData(dateTime, AM::DateTimeRole);
+		tmpItem->setData(AMDateTimeUtils::prettyDateTime(dateTime), AM::DescriptionRole);
+		sampleTableModel_->setItem(sampleTableModel_->rowCount(), 0, tmpItem);
+		QString tmpStr;
+		tmpItem = new QStandardItem(tmpStr.setNum(id));
+		sampleTableModel_->setItem(sampleTableModel_->rowCount()-1, 1, tmpItem);
+	}
+	sampleListView_ = new AMSampleListView(samplePlate_, sampleTableModel_);
+	sampleListView_->setManipulator(manipulator_);
+
+	vl_ = new QVBoxLayout();
+	vl_->setAlignment(Qt::AlignTop);
+	vl_->addWidget(plateNameLabel_);
+	vl_->addWidget(loadedLabel_);
+	vl_->addWidget(existingPlates_);
+	vl_->addWidget(sampleListView_);
+	setLayout(vl_);
+}
+
+void AMSamplePlateView::populateSamplePlates() {
+	int oldPlateId = currentSamplePlateId();
+
+	existingPlates_->clear();
+	existingPlates_->addItem("Create New Sample Plate...");
+	existingPlates_->setItemData(0, -1);	// as a safety check, this makes sure that the "Sample Plate Id" of the "Create New..." item is invalid.
 
 	QSqlQuery q2 = AMDatabase::userdb()->query();
 	q2.prepare(QString("SELECT id,name,createTime FROM %1 ORDER BY createTime DESC").arg(AMDatabaseDefinition::samplePlateTableName()));
@@ -29,41 +82,36 @@ AMSamplePlateView::AMSamplePlateView(QWidget *parent) :
 		existingPlates_->setItemData(1, createTime, AM::DateTimeRole);
 		existingPlates_->setItemData(1, AMDateTimeUtils::prettyDateTime(createTime), AM::DescriptionRole);
 	}
-	connect(existingPlates_, SIGNAL(currentIndexChanged(int)), this, SLOT(onLoadExistingPlate(int)));
 
-	connect(AMDatabase::userdb(), SIGNAL(updated(QString,int)), this, SLOT(onSampleTableItemUpdated(QString,int)));
-	connect(AMDatabase::userdb(), SIGNAL(created(QString,int)), this, SLOT(onSampleTableItemCreated(QString,int)));
-	connect(AMDatabase::userdb(), SIGNAL(removed(QString,int)), this, SLOT(onSampleTableItemRemoved(QString,int)));
+	// After an update... If we used to have a valid plate selected, we should still have that selected:
+	if(oldPlateId > 0) {
+		int oldPlateIndex = existingPlates_->findData(oldPlateId, AM::IdRole);
+		if(oldPlateIndex > 0)
+			existingPlates_->setCurrentIndex(oldPlateIndex);
+		// damn... it's gone. If we've got anything else, set that instead
+		if(existingPlates_->count() > 1) {
+			existingPlates_->setCurrentIndex(1);
+			onLoadExistingPlate(1);	// and this is an important change.
+		}
 
-	sampleTableModel_ = new QStandardItemModel();
-	QStandardItem *tmpItem;
-	QSqlQuery q = AMDatabase::userdb()->query();
-	q.prepare(QString("SELECT id,name,dateTime FROM %1 ORDER BY dateTime DESC").arg(AMDatabaseDefinition::sampleTableName()));
-	q.exec();
-	QDateTime dateTime;
-	while(q.next()){
-		id = q.value(0).toInt();
-		name = q.value(1).toString();
-		dateTime = q.value(2).toDateTime();
-		tmpItem = new QStandardItem(name);
-		tmpItem->setData(id, AM::IdRole);
-		tmpItem->setData(dateTime, AM::DateTimeRole);
-		tmpItem->setData(AMDateTimeUtils::prettyDateTime(dateTime), AM::DescriptionRole);
-		sampleTableModel_->setItem(sampleTableModel_->rowCount(), 0, tmpItem);
-		QString tmpStr;
-		tmpItem = new QStandardItem(tmpStr.setNum(id));
-		sampleTableModel_->setItem(sampleTableModel_->rowCount()-1, 1, tmpItem);
 	}
-	sampleListView_ = new AMSampleListView(&samplePlate_, sampleTableModel_);
-	sampleListView_->setManipulator(manipulator_);
+	// We didn't have a plate selected before.  Hopefully there's one now.
+	else {
+		if(existingPlates_->count() > 1) {
+			existingPlates_->setCurrentIndex(1);
+			onLoadExistingPlate(1);	// this is an important change
+		}
+	}
 
-	vl_ = new QVBoxLayout();
-	vl_->setAlignment(Qt::AlignTop);
-	vl_->addWidget(plateNameLabel_);
-	vl_->addWidget(loadedLabel_);
-	vl_->addWidget(existingPlates_);
-	vl_->addWidget(sampleListView_);
-	setLayout(vl_);
+}
+
+int AMSamplePlateView::currentSamplePlateId() const {
+	if(existingPlates_->currentIndex() < 1)
+		return -1;	// nothing selected at all, or the 'Add New Plate...' option is still selected
+
+	// By convention, we always sneak the id of the object into the model's AM::IdRole
+	return existingPlates_->itemData(existingPlates_->currentIndex(), AM::IdRole).toInt();
+
 }
 
 void AMSamplePlateView::setManipulator(AMControlSet *manipulator){
@@ -72,49 +120,99 @@ void AMSamplePlateView::setManipulator(AMControlSet *manipulator){
 }
 
 void AMSamplePlateView::onLoadExistingPlate(int index){
-	int id = existingPlates_->itemData(index, AM::IdRole).toInt();
-	if(id == 0)
-		return;
 
-	samplePlate_.loadFromDb(AMDatabase::userdb(), id);
+	// index is the activated index within the existingPlates_ combo box. It could mean...
+
+	// nothing at all selected
+	if(index < 0)
+		return;
+	// 'Create New Plate..." option selected
+	if(index == 0)
+		startCreatingNewPlate();
+	// In this case, someone has chosen an existing sample plate
+	else {
+		int id = existingPlates_->itemData(index, AM::IdRole).toInt();
+		samplePlate_->loadFromDb(AMDatabase::userdb(), id);
+		/// \todo fill in here: update widgets to match new sample plate
+	}
+
 }
 
-void AMSamplePlateView::onSampleTableItemUpdated(QString tableName, int id){
-	if(tableName != AMDatabaseDefinition::sampleTableName())
+void AMSamplePlateView::startCreatingNewPlate() {
+	// We're going to steal the name edit as the place for the user to enter the name of this new plate
+	plateNameLabel_->setText("[New Sample Plate Name]");
+	plateNameLabel_->setFocus();
+	plateNameLabel_->selectAll();
+
+	connect(plateNameLabel_, SIGNAL(editingFinished()), this, SLOT(onFinishCreatingNewPlate()));
+
+}
+
+void AMSamplePlateView::onFinishCreatingNewPlate() {
+
+	disconnect(plateNameLabel_, SIGNAL(editingFinished()), this, SLOT(onFinishCreatingNewPlate()));
+
+	QString newName = plateNameLabel_->text();
+	if(newName.isEmpty())
 		return;
-	sampleRefreshIDs_.append(id);
-	sampleRefreshInstructions_.append(0); //Instruction 0 is update
-	if(!sampleRefreshScheduled_){
-		sampleRefreshScheduled_ = true;
-		QTimer::singleShot(0, this, SLOT(refreshSamples()));
+
+	AMSamplePlate newPlate;
+	newPlate.setName(plateNameLabel_->text());
+	newPlate.storeToDb(AMDatabase::userdb());
+
+}
+
+
+void AMSamplePlateView::onSampleTableItemUpdated(QString tableName, int id){
+	if(tableName == AMDatabaseDefinition::samplePlateTableName()) {
+		/// \todo optimize this
+		populateSamplePlates();
+	}
+	else if(tableName == AMDatabaseDefinition::sampleTableName()) {
+		sampleRefreshIDs_.append(id);
+		sampleRefreshInstructions_.append(0); //Instruction 0 is update
+		if(!sampleRefreshScheduled_){
+			sampleRefreshScheduled_ = true;
+			QTimer::singleShot(0, this, SLOT(refreshSamples()));
+		}
 	}
 }
 
 void AMSamplePlateView::onSampleTableItemCreated(QString tableName, int id){
-	if(tableName != AMDatabaseDefinition::sampleTableName())
-		return;
-	QVariant vSampleName, vSampleDateTime;
-	QList<QVariant*> sampleValues;
-	sampleValues << &vSampleName << &vSampleDateTime;
-	QStringList colNames;
-	colNames << "name" << "dateTime";
-	if(!AMDatabase::userdb()->retrieve(id, tableName, colNames, sampleValues)){
-		qDebug() << "Could not retrieve new sample from db";
-		return;
+	if(tableName == AMDatabaseDefinition::samplePlateTableName()) {
+		/// \todo optimize this
+		populateSamplePlates();
 	}
-	QStandardItem *tmpItem = new QStandardItem(sampleValues.at(0)->toString());
-	tmpItem->setData(id, AM::IdRole);
-	tmpItem->setData(sampleValues.at(1)->toDateTime(), AM::DateTimeRole);
-	tmpItem->setData(AMDateTimeUtils::prettyDateTime(sampleValues.at(1)->toDateTime()), AM::DescriptionRole);
-	sampleTableModel_->insertRow(0);
-	sampleTableModel_->setItem(0, 0, tmpItem);
-	QString tmpStr;
-	tmpItem = new QStandardItem(tmpStr.setNum(id));
-	sampleTableModel_->setItem(0, 1, tmpItem);
+	else if(tableName == AMDatabaseDefinition::sampleTableName()) {
+		QVariant vSampleName, vSampleDateTime;
+		QList<QVariant*> sampleValues;
+		sampleValues << &vSampleName << &vSampleDateTime;
+		QStringList colNames;
+		colNames << "name" << "dateTime";
+		if(!AMDatabase::userdb()->retrieve(id, tableName, colNames, sampleValues)){
+			qDebug() << "Could not retrieve new sample from db";
+			return;
+		}
+		QStandardItem *tmpItem = new QStandardItem(sampleValues.at(0)->toString());
+		tmpItem->setData(id, AM::IdRole);
+		tmpItem->setData(sampleValues.at(1)->toDateTime(), AM::DateTimeRole);
+		tmpItem->setData(AMDateTimeUtils::prettyDateTime(sampleValues.at(1)->toDateTime()), AM::DescriptionRole);
+		sampleTableModel_->insertRow(0);
+		sampleTableModel_->setItem(0, 0, tmpItem);
+		QString tmpStr;
+		tmpItem = new QStandardItem(tmpStr.setNum(id));
+		sampleTableModel_->setItem(0, 1, tmpItem);
+	}
 }
 
 void AMSamplePlateView::onSampleTableItemRemoved(QString tableName, int id){
-	if(tableName != AMDatabaseDefinition::sampleTableName())
+	if(tableName == AMDatabaseDefinition::samplePlateTableName()) {
+		/// \todo optimize
+		populateSamplePlates();
+	}
+	/// \bug What if a sample that you're using was removed from the table?
+#warning "What if a sample you are using was just removed from the sample table?"
+	else if(tableName == AMDatabaseDefinition::sampleTableName())
 		return;
 }
 
