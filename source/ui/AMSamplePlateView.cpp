@@ -133,7 +133,7 @@ void AMSamplePlateView::onLoadExistingPlate(int index){
 	else {
 		int id = existingPlates_->itemData(index, AM::IdRole).toInt();
 		samplePlate_->loadFromDb(AMDatabase::userdb(), id);
-		/// \todo anywhere do we need to signal the SGMBeamline::currentSamplePlate()?
+		/// \todo fill in here: update widgets to match new sample plate
 	}
 
 }
