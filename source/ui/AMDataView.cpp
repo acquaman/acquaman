@@ -3,6 +3,7 @@
 #include "dataman/AMDatabase.h"
 #include "dataman/AMDatabaseDefinition.h"
 #include "AMErrorMonitor.h"
+#include "ui/AMDateTimeUtils.h"
 
 #include <QDebug>
 
@@ -187,7 +188,7 @@ void AMDataView::refreshView() {
 						QString runName = findRunIds.value(2).toString();
 						QDateTime dateTime = findRunIds.value(1).toDateTime();
 						AMDataViewSection* section = new AMDataViewSection(
-								runName + dateTime.toString(" MMM d (yyyy)"),
+								runName + AMDateTimeUtils::prettyDate(dateTime),
 								"Showing all data from this run",
 								QString("runId = '%1'").arg(runId),
 								viewMode_, db_, true, gwidget_);
@@ -277,7 +278,7 @@ void AMDataView::refreshView() {
 						QString name = findSamples.value(2).toString();
 						AMDataViewSection* section = new AMDataViewSection(
 								name,
-								"Sample created on: " + dt.toString("h:mmap MMM d (yyyy)"),
+								"Sample created " + AMDateTimeUtils::prettyDateTime(dt),
 								QString("sampleId = '%1'").arg(sampleId),
 								viewMode_, db_, true, gwidget_);
 						sections_ << section;
@@ -437,7 +438,7 @@ void AMDataView::refreshView() {
 						QString name = findSamples.value(2).toString();
 						AMDataViewSection* section = new AMDataViewSection(
 								name,
-								QString("Sample created at %1.  Showing all data from this sample in run <i>%2</i>").arg(dt.toString("h:mmap, MMM d (yyyy)")).arg(runName + runTime.toString(" MMM d (yyyy)")),
+								QString("Sample created %1.  Showing all data from this sample in run <i>%2</i>").arg(AMDateTimeUtils::prettyDateTime(dt)).arg(runName + runTime.toString(" MMM d (yyyy)")),
 								QString("sampleId = '%1' AND runId = '%2'").arg(sampleId).arg(runId_),
 								viewMode_, db_, true, gwidget_);
 						sections_ << section;
@@ -600,7 +601,7 @@ void AMDataView::refreshView() {
 						QString name = findSamples.value(2).toString();
 						AMDataViewSection* section = new AMDataViewSection(
 								name,
-								QString("Sample created at %1.  Showing all data from this sample in the <i>%2</i> experiment").arg(dt.toString("h:mmap, MMM d (yyyy)")).arg(expName),
+								QString("Sample created %1.  Showing all data from this sample in the <i>%2</i> experiment").arg(AMDateTimeUtils::prettyDateTime(dt)).arg(expName),
 								QString("sampleId = '%1' AND id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = '%2')").arg(sampleId).arg(experimentId_),
 								viewMode_, db_, true, gwidget_);
 						sections_ << section;
@@ -896,7 +897,7 @@ void AMDataViewSectionThumbnailView::populate() {
 		if(q.value(3).toInt() != 0)
 			caption1.append(QString(" #%1").arg(q.value(3).toInt()));
 		w->setCaption1(caption1);
-		w->setCaption2(q.value(4).toDateTime().toString("MMM d (yyyy)  h:mmap"));
+		w->setCaption2(AMDateTimeUtils::prettyDateTime(q.value(4).toDateTime()));
 		w->setWidth(thumbnailWidth_);
 		layout_->addItem(w);
 

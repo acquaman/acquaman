@@ -1,13 +1,13 @@
 #include "AMSamplePlate.h"
 
 AMSamplePlate::AMSamplePlate(QObject *parent) :
-	AMDbObject(parent)
+		AMDbObject(parent)
 {
 	insertRowLatch = -1;
-	userName_ = "SGM Sample Plate";
-	createTime_ = QDateTime::currentDateTime();
+	setName("Sample Plate");
+	metaData_["createTime"] = QDateTime::currentDateTime();
+
 	samples_ = NULL;
-	metaData_["createTime"] = QDateTime(createTime_);
 	AMIntList tmpList;
 	metaData_["sampleIDs"].setValue(tmpList);
 	metaData_["positionIDs"].setValue(tmpList);
@@ -19,15 +19,15 @@ AMSamplePlateModel* AMSamplePlate::model(){
 }
 
 QString AMSamplePlate::plateName() const{
-	return userName_+" loaded "+timeString();
+	return name() + " created " + timeString();
 }
 
 QString AMSamplePlate::userName() const{
-	return userName_;
+	return name();
 }
 
-QString AMSamplePlate::createTime() const{
-	return timeString();
+QDateTime AMSamplePlate::createTime() const{
+	return metaData("createTime").toDateTime();
 }
 
 int AMSamplePlate::count(){
@@ -104,31 +104,44 @@ QString AMSamplePlate::databaseTableName() const{
 }
 
 bool AMSamplePlate::loadFromDb(AMDatabase* db, int id){
-	bool retVal = AMDbObject::loadFromDb(db, id);
-	if(retVal){
-		while(count() > 0)
-			removeSamplePosition(count()-1);
-		AMIntList sampleIDs = metaData_.value("sampleIDs").value<AMIntList>();
-		AMIntList positionIDs = metaData_.value("positionIDs").value<AMIntList>();
-		if(sampleIDs.count() != positionIDs.count())
-			return false;
-		AMSample *tmpSample;
-		AMControlSetInfo *tmpPosition;
-		for( int x = 0; x < sampleIDs.count(); x++){
-			tmpSample = new AMSample(this);
-			tmpPosition = new AMControlSetInfo(this);
-			if( !tmpPosition->loadFromDb(AMDatabase::userdb(), positionIDs.at(x)) ){
-				qDebug() << "Couldn't load sample plate position at index " << x;
-				return false;
-			}
-			if( sampleIDs.at(x) != 0 && !tmpSample->loadFromDb(AMDatabase::userdb(), sampleIDs.at(x)) ){
-				qDebug() << "Couldn't load sample plate sample at index " << x;
-				return false;
-			}
-			appendSamplePosition(tmpSample, tmpPosition);
-		}
+
+	valid_ = false;
+
+	if(!AMDbObject::loadFromDb(db, id)) {
+		emit samplePlateChanged(false);
+		return false;
 	}
-	return retVal;
+
+
+	while(count() > 0)
+		removeSamplePosition(count()-1);
+	AMIntList sampleIDs = metaData_.value("sampleIDs").value<AMIntList>();
+	AMIntList positionIDs = metaData_.value("positionIDs").value<AMIntList>();
+	if(sampleIDs.count() != positionIDs.count()) {
+		emit samplePlateChanged(false);
+		return false;
+	}
+	AMSample *tmpSample;
+	AMControlSetInfo *tmpPosition;
+	for( int x = 0; x < sampleIDs.count(); x++){
+		tmpSample = new AMSample(this);
+		tmpPosition = new AMControlSetInfo(this);
+		if( !tmpPosition->loadFromDb(AMDatabase::userdb(), positionIDs.at(x)) ){
+			qDebug() << "Couldn't load sample plate position at index " << x;
+			emit samplePlateChanged(false);
+			return false;
+		}
+		if( sampleIDs.at(x) != 0 && !tmpSample->loadFromDb(AMDatabase::userdb(), sampleIDs.at(x)) ){
+			qDebug() << "Couldn't load sample plate sample at index " << x;
+			emit samplePlateChanged(false);
+			return false;
+		}
+		appendSamplePosition(tmpSample, tmpPosition);
+	}
+
+	emit samplePlateChanged(true);
+	return true;
+
 }
 
 bool AMSamplePlate::storeToDb(AMDatabase* db){
@@ -140,19 +153,15 @@ bool AMSamplePlate::storeToDb(AMDatabase* db){
 	}
 	metaData_["sampleIDs"].setValue(sampleIDs);
 	metaData_["positionIDs"].setValue(positionIDs);
-	metaData_["name"].setValue(plateName());
 
-	bool retVal = AMDbObject::storeToDb(db);
-	return retVal;
+	return valid_ = AMDbObject::storeToDb(db);
 }
 
 QString AMSamplePlate::typeDescription() const{
-	return "List of Samples their Positions on a Sample Plate";
+	return "List of Samples and their Positions on a Sample Plate";
 }
 
-void AMSamplePlate::setName(const QString &name){
-	userName_ = name;
-}
+
 
 bool AMSamplePlate::setSamplePosition(size_t index, AMSamplePosition *sp){
 	AMSamplePosition *tmpSP = samplePositionAt(index);
@@ -241,10 +250,10 @@ bool AMSamplePlate::setupModel(){
 	return false;
 }
 
-const QString AMSamplePlate::timeString() const{
-	QString timeString;
-	timeString = QDateTime::currentDateTime().toString("MMM d yyyy, h:mm ap");
-	return timeString;
+#include "ui/AMDateTimeUtils.h"
+
+QString AMSamplePlate::timeString() const{
+	return AMDateTimeUtils::prettyDateTime(metaData("createTime").toDateTime());
 }
 
 AMSamplePlateModel::AMSamplePlateModel(QObject *parent) :

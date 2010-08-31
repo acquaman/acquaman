@@ -20,6 +20,10 @@ public:
 	/// This controller supervises a process to ensure that user settings, the user data folder, and the database are ready for use. If there is a problem, the constructor calls onFirstTime() to rectify it.
 	explicit AMFirstTimeController() ;
 
+	~AMFirstTimeController(){
+		//delete splashScreen_;
+	}
+
 	void onFirstTime() ;
 
 	/// create structures and tables for a new user database, from scratch

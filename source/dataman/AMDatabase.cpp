@@ -324,6 +324,38 @@ bool AMDatabase::retrieve(int id, const QString& table, const QStringList& colNa
 }
 
 
+QVariant AMDatabase::retrieve(int id, const QString& table, const QString& colName) {
+
+	/// \todo sanitize more than this...
+	if(table.isEmpty()) {
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -10, "Could not search the database. (Missing the table name.)"));
+		return false;
+	}
+
+	// create a query on our database connection:
+	QSqlQuery q( qdb() );
+
+
+	/// Prepare the query. \todo: sanitize column names and table name. (Can't use binding because it's not an expression here)
+	q.prepare(QString("SELECT %1 FROM %2 WHERE id = ?").arg(colName).arg(table));
+	q.bindValue(0,id);
+
+	// run query. Did it succeed?
+	if(!q.exec()) {
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -4, QString("database retrieve failed. Could not execute query (%1). The SQL reply was: %2").arg(q.executedQuery()).arg(q.lastError().text())));
+		return false;
+	}
+	// If we found a record at this id:
+	if(q.first()) {
+		return q.value(0);
+	}
+	// else: didn't find this id.  That's normal if it's not there; just return null QVariant.
+	else {
+		return QVariant();
+	}
+
+}
+
 
 
 /// returns a list of all the objecst/rows (by id) that match a given condition. \c whereClause is a string suitable for appending after an SQL "WHERE" statement.

@@ -110,7 +110,7 @@ void AMSampleEditor::setCurrentSample(int id) {
 	if(sample_->loadFromDb(db_, id)) {
 		sampleName_->setReadOnly(false);
 		sampleName_->setText(sample_->name());
-		sampleDate_->setText(sample_->dateTime().toString("MMM d (yyyy)"));
+		sampleDate_->setText(AMDateTimeUtils::prettyDate(sample_->dateTime()));
 		sampleTime_->setText(sample_->dateTime().toString("h:mmap"));
 		// todo: elements .  bwaa?
 		// todo: notes
@@ -170,7 +170,7 @@ void AMSampleEditor::refreshSamples() {
 		if(q.exec() && q.first()) {
 			sampleSelector_->setItemData(index, q.value(1).toString(), Qt::DisplayRole);
 			sampleSelector_->setItemData(index, q.value(2), AM::DateTimeRole);
-			sampleSelector_->setItemData(index, QString("created ") + q.value(2).toDateTime().toString("h:mmap, MMM d (yyyy)"), AM::DescriptionRole);
+			sampleSelector_->setItemData(index, QString("created ") + AMDateTimeUtils::prettyDateTime(q.value(2).toDateTime()), AM::DescriptionRole);
 			// todo: decorations... thumbnails...
 		}
 	}
@@ -202,7 +202,7 @@ void AMSampleEditor::refreshSamples() {
 			sampleSelector_->addItem(q.value(1).toString());
 			sampleSelector_->setItemData(index, q.value(0).toInt(), AM::IdRole);
 			sampleSelector_->setItemData(index, q.value(2), AM::DateTimeRole);
-			sampleSelector_->setItemData(index, QString("created ") + q.value(2).toDateTime().toString("h:mmap, MMM d (yyyy)"), AM::DescriptionRole);
+			sampleSelector_->setItemData(index, QString("created ") + AMDateTimeUtils::prettyDateTime(q.value(2).toDateTime()), AM::DescriptionRole);
 			// todo: decorations... thumbnails?
 			sampleId2Index_.insert(q.value(0).toInt(), index);
 		}
@@ -293,7 +293,7 @@ void AMSampleEditor::onSampleDeleteButtonClicked(const QModelIndex &index) {
 	int sampleId = sampleSelector_->itemData(index.row(), AM::IdRole).toInt();
 
 	QString sampleName = sampleSelector_->itemData(index.row(), Qt::DisplayRole).toString();
-	QString dt = sampleSelector_->itemData(index.row(), AM::DateTimeRole).toDateTime().toString("h:mmap, MMM d (yyyy)");
+	QString dt = AMDateTimeUtils::prettyDateTime(sampleSelector_->itemData(index.row(), AM::DateTimeRole).toDateTime());
 
 	QMessageBox confirmBox(this);
 	confirmBox.setText(QString("Delete the sample '%1'', created %2?").arg(sampleName).arg(dt));

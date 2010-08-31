@@ -6,7 +6,7 @@
 
 #include "ui/AMScanView.h"
 #include "ui/AMSidebar.h"
-#include "ui/AMComboBox.h"
+#include "ui/AMStartScreen.h"
 #include "ui/AMNewRunDialog.h"
 #include "dataman/AMRun.h"
 #include "ui/AMThumbnailScrollViewer.h"
@@ -175,14 +175,14 @@ private slots:
 	void testRunDialog() {
 
 
-		AMComboBox *window = new AMComboBox;
-		window->show();
+		AMStartScreen *ss;
+		ss->show();
 
 
 
 		QTest::qWait(2000);
 
-		delete window;
+		delete ss;
 
 	}
 

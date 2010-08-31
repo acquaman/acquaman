@@ -20,7 +20,6 @@ signals:
 public slots:
 	void storeCurrentRun();
 private:
-	AMDatabase* database_;
 	AMRunSelector *box;
 
 };

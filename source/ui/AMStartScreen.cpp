@@ -5,6 +5,7 @@ AMStartScreen::AMStartScreen(QWidget *parent) :
 	QSplashScreen(parent)
 {
 	//QPixmap pixmap(":/ ")
+	box = new AMRunSelector(AMDatabase::userdb(),this);
 	QVBoxLayout *overallLayout = new QVBoxLayout(this);
 	QGridLayout *startLayout = new QGridLayout(this);
 	QLabel *selectRunLabel = new QLabel(tr("Please add a new run or set an existing one"),this);
@@ -17,12 +18,16 @@ AMStartScreen::AMStartScreen(QWidget *parent) :
 	//overallLayout->addItem(pixmap);
 	overallLayout->addLayout(startLayout);
 
+	setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
+
 	connect(ok,SIGNAL(clicked()),this,SLOT(storeCurrentRun()));
-	connect(ok,SIGNAL(clicked()),this,SLOT(close()));
+
 }
 
 void AMStartScreen::storeCurrentRun(){
 	AMUserSettings::userCurrentRun = box->currentRunId();
+	close();
+	deleteLater();
 }
 
 /*

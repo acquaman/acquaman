@@ -27,10 +27,9 @@ AMFirstTimeController::AMFirstTimeController() {
 		}
 	}
 
-
+	splashScreen_ = new AMStartScreen(0);
 	if(isFirstTime) {
 		onFirstTime();
-		splashScreen_->show();
 	}
 	else splashScreen_->show();
 
@@ -129,10 +128,11 @@ void AMFirstTimeController::databaseInitialization() {
 	AMFacility blank("", "[Other Facility]", ":/128x128/contents.png");
 	AMDatabaseDefinition::registerType(&blank, AMDatabase::userdb());
 	blank.storeToDb(AMDatabase::userdb());
-	AMFacility sgm("SGM", "Canadian Light Source SGM Beamline", ":/clsIcon.png");
-	sgm.storeToDb(AMDatabase::userdb());
 	AMFacility als801("8.0.1", "Advanced Light Source Beamline 8.0.1", ":/alsIcon.png");
 	als801.storeToDb(AMDatabase::userdb());
+	AMFacility sgm("SGM", "Canadian Light Source SGM Beamline", ":/clsIcon.png");
+	sgm.storeToDb(AMDatabase::userdb());
+
 
 }
 

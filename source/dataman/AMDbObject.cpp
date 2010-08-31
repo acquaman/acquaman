@@ -64,6 +64,29 @@ QString AMDbObject::databaseTableName() const {
 #include <QDebug>
 bool AMDbObject::storeToDb(AMDatabase* db) {
 
+	///////////////////////////////////
+	// Thumbnail saving optimization:
+	// If we've been previously saved to this database, and the number of thumbnails we had before matches what we have now, then flag to save them in place. (Otherwise we have to delete and reinsert the new thumbnails).
+	///////////////////////////////////
+	bool neverSavedHere = (id()<1 || database() != db);
+	bool reuseThumbnailIds = false;
+	int reuseThumbnailStartId;
+	if( id() > 0 && database() == db && thumbnailCount() ) {
+
+		QVariant oldThumbnailCount = db->retrieve(id(), databaseTableName(), "thumbnailCount");
+		// same number of thumbnails as before?
+		if(oldThumbnailCount.isValid() && oldThumbnailCount.toInt() == thumbnailCount()) {
+			// ok, where do we store them?
+			QVariant oldThumbnailFirstId = db->retrieve(id(), databaseTableName(), "thumbnailFirstId");
+			if(oldThumbnailFirstId.isValid()) {
+				reuseThumbnailStartId = oldThumbnailFirstId.toInt(&reuseThumbnailIds);
+			}
+		}
+	}
+	/////////////////////////////////////
+
+
+
 	QList<const QVariant*> values;
 	QStringList keys;
 	QList<QVariant*> listValues;
@@ -85,6 +108,7 @@ bool AMDbObject::storeToDb(AMDatabase* db) {
 			values << slv;
 		}
 		// special action also needed for all other list types: need to join into a single string, separated by AMDatabaseDefinition::listSeparator
+		////////////////////////////////////
 		else if(md.type == (int)AM::IntList || md.type == (int)AM::DoubleList) {
 			QStringList listString;
 			if(md.type == (int)AM::IntList) {
@@ -116,7 +140,7 @@ bool AMDbObject::storeToDb(AMDatabase* db) {
 
 	// Add thumbnail info (just the count for now)
 	keys << "thumbnailCount";
-	QVariant thumbCountVariant(this->thumbnailCount());
+	QVariant thumbCountVariant(thumbnailCount());
 	values << &thumbCountVariant;
 
 	// store typeId, thumbnailCount, and all metadata into main object table
@@ -134,9 +158,13 @@ bool AMDbObject::storeToDb(AMDatabase* db) {
 	// we have our new / old id:
 	id_ = retVal;
 
-	// add all thumbnails.
-	// First, remove all old thumbnails:
-	db->deleteRows(AMDatabaseDefinition::thumbnailTableName(), QString("objectId = %1 AND objectTableName = '%2'").arg(id_).arg(databaseTableName()));
+	// Thumbnail save
+	///////////////////////////////////////////
+	// First, if we were saved here before, and we're not reusing the same thumbnail spots, delete the old ones
+	if(!neverSavedHere && !reuseThumbnailIds) {
+		qDebug() << "Thumbnail save: deleting old ones before inserting new spots";
+		db->deleteRows(AMDatabaseDefinition::thumbnailTableName(), QString("objectId = %1 AND objectTableName = '%2'").arg(id_).arg(databaseTableName()));
+	}
 
 	// store thumbnails in thumbnail table:
 	QVariant firstThumbnailIndex;
@@ -162,7 +190,14 @@ bool AMDbObject::storeToDb(AMDatabase* db) {
 		keys << "thumbnail";
 		values << &vthumbnail;
 
-		retVal = db->insertOrUpdate(0, AMDatabaseDefinition::thumbnailTableName(), keys, values);
+		if(reuseThumbnailIds) {
+			retVal = db->insertOrUpdate(i+reuseThumbnailStartId, AMDatabaseDefinition::thumbnailTableName(), keys, values);
+			qDebug() << "Thumbnail save: reusing spots at " << reuseThumbnailStartId+i;
+		}
+		else {
+			retVal = db->insertOrUpdate(0, AMDatabaseDefinition::thumbnailTableName(), keys, values);
+			qDebug() << "Thumbnail save: Inserting new spots" << retVal;
+		}
 		if(retVal == 0)
 			return false;
 
@@ -173,6 +208,7 @@ bool AMDbObject::storeToDb(AMDatabase* db) {
 	// now that we know where the thumbnails are, update this in our actual table
 	if(thumbnailCount() > 0)
 		db->update(id_, databaseTableName(), "thumbnailFirstId", firstThumbnailIndex);
+	/////////////////////////////////
 
 	setModified(false);
 	return true;

@@ -19,6 +19,7 @@ class AMSamplePlate : public AMDbObject
 {
 Q_OBJECT
 public:
+
 	explicit AMSamplePlate(QObject *parent = 0);
 
 	~AMSamplePlate() {}
@@ -26,7 +27,8 @@ public:
 	AMSamplePlateModel* model();
 	QString plateName() const;
 	QString userName() const;
-	QString createTime() const;
+	QDateTime createTime() const;
+	QString timeString() const;
 	int count();
 
 	AMSamplePosition* samplePositionAt(size_t index);
@@ -39,6 +41,14 @@ public:
 	AMControlSetInfo* positionByName(const QString &name);
 
 	int indexOf(const QString &name);
+
+	/// Sample plates are valid after being loaded or saved. You can also manually mark a sample plate as invalid by calling setInvalid(). (For example, at the beginning of a sample transfer.)
+	bool valid() const { return valid_; }
+	/// Mark a sample plate as 'invalid' (ie: non-existent, or not trustworthy. It won't become valid until successfully saved to the db, or loaded from the db.)
+	void setInvalid() { valid_ = false; }
+	/// This is a convenience function that tells a sample plate object to "become another sample plate" that already exists in the user's database.  It's equivalent to "loadFromDb(AMDatabase::userdb(), newSamplePlateId);"
+	void changeSamplePlate(int newSamplePlateId) { loadFromDb(AMDatabase::userdb(), newSamplePlateId); }
+
 
 	// AMDbObject database interface
 	////////////////////////////////////
@@ -71,8 +81,10 @@ signals:
 	void samplePositionAdded(int index);
 	void samplePositionRemoved(int index);
 
+	/// This signal is emitted when the sample plate is "changed out", or re-loaded. It may now contain completely different samples, at completely different positions.
+	void samplePlateChanged(bool isValid);
+
 public slots:
-	void setName(const QString &name);
 
 	bool setSamplePosition(size_t index, AMSamplePosition *sp);
 
@@ -91,13 +103,14 @@ protected slots:
 
 protected:
 	bool setupModel();
-	const QString timeString() const;
 
 protected:
-	QString userName_;
-	QDateTime createTime_;
 	AMSamplePlateModel *samples_;
 	AMBiHash<QString, AMSamplePosition*> sampleName2samplePosition_;
+
+	/// Sample plates are valid when they've been successfully stored to or loaded from the Db.
+	bool valid_;
+
 
 private:
 	int insertRowLatch;

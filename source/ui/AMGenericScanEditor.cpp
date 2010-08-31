@@ -142,7 +142,7 @@ void AMGenericScanEditor::updateEditor(AMScan *scan) {
 
 	ui_.scanName->setText(scan->name());
 	ui_.scanNumber->setValue(scan->number());
-	ui_.scanDate->setText( scan->dateTime().date().toString("MMM d (yyyy)") );
+	ui_.scanDate->setText( AMDateTimeUtils::prettyDate(scan->dateTime()));
 	ui_.scanTime->setText( scan->dateTime().time().toString("h:mmap") );
 	ui_.notesEdit->setPlainText( scan->notes() );
 	runSelector_->setCurrentRunId(scan->runId());
