@@ -26,9 +26,12 @@ SGMXASScanConfigurationViewer::SGMXASScanConfigurationViewer(SGMXASScanConfigura
 		connect( ((QComboBox*)(trackingView_->boxByName("exitSlitTracking"))), SIGNAL(currentIndexChanged(int)), sxsc, SLOT(setExitSlitTracking(int)) );
 
 		detectorView_ = new AMDetectorSetView(sxsc->detectorSet(), cfgDetectorInfoSet_, true, this);
-		connect( ((QCheckBox*)(detectorView_->boxByName("tey"))), SIGNAL(stateChanged(int)), sxsc, SLOT(setUsingTEY(int)) );
-		connect( ((QCheckBox*)(detectorView_->boxByName("tfy"))), SIGNAL(stateChanged(int)), sxsc, SLOT(setUsingTFY(int)) );
-		connect( ((QCheckBox*)(detectorView_->boxByName("pgt"))), SIGNAL(stateChanged(int)), sxsc, SLOT(setUsingPGT(int)) );
+		if( SGMBeamline::sgm()->detectorConnectedByName("tey") )
+			connect( ((QCheckBox*)(detectorView_->boxByName("tey"))), SIGNAL(stateChanged(int)), sxsc, SLOT(setUsingTEY(int)) );
+		if( SGMBeamline::sgm()->detectorConnectedByName("tfy") )
+			connect( ((QCheckBox*)(detectorView_->boxByName("tfy"))), SIGNAL(stateChanged(int)), sxsc, SLOT(setUsingTFY(int)) );
+		if( SGMBeamline::sgm()->detectorConnectedByName("sdd") )
+			connect( ((QCheckBox*)(detectorView_->boxByName("pgt"))), SIGNAL(stateChanged(int)), sxsc, SLOT(setUsingPGT(int)) );
 
 		startScanButton_ = new QPushButton();
 		startScanButton_->setText("Start Scan");

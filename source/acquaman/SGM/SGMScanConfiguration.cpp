@@ -8,9 +8,12 @@ SGMScanConfiguration::SGMScanConfiguration()
 	setUndulatorTracking(SGMBeamline::sgm()->undulatorTracking()->value());
 	setMonoTracking(SGMBeamline::sgm()->monoTracking()->value());
 	setExitSlitTracking(SGMBeamline::sgm()->exitSlitTracking()->value());
-	setUsingTEY(SGMBeamline::sgm()->XASDetectors()->isDefaultByName(SGMBeamline::sgm()->teyDetector()->name()) );
-	setUsingTFY(SGMBeamline::sgm()->XASDetectors()->isDefaultByName(SGMBeamline::sgm()->tfyDetector()->name()) );
-	setUsingPGT(SGMBeamline::sgm()->XASDetectors()->isDefaultByName(SGMBeamline::sgm()->pgtDetector()->name()) );
+	if(SGMBeamline::sgm()->teyDetector())
+		setUsingTEY(SGMBeamline::sgm()->XASDetectors()->isDefaultByName(SGMBeamline::sgm()->teyDetector()->name()) );
+	if(SGMBeamline::sgm()->tfyDetector())
+		setUsingTFY(SGMBeamline::sgm()->XASDetectors()->isDefaultByName(SGMBeamline::sgm()->tfyDetector()->name()) );
+	if(SGMBeamline::sgm()->pgtDetector())
+		setUsingPGT(SGMBeamline::sgm()->XASDetectors()->isDefaultByName(SGMBeamline::sgm()->pgtDetector()->name()) );
 }
 
 bool SGMScanConfiguration::setExitSlitGap(double exitSlitGap){
