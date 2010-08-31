@@ -8,6 +8,7 @@
 
 #include <QDebug>
 #include <QDateTime>
+
 /// User Settings:
 // ========================================
 
@@ -19,6 +20,8 @@
 QString AMUserSettings::userDataFolder;
 /// name of user database
 QString AMUserSettings::userDatabaseFilename;
+/// id of current run:
+int AMUserSettings::userCurrentRun;
 
 QString AMUserSettings::defaultFilePath(const QDateTime& dt) {
 	QDir dir;

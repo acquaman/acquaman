@@ -208,7 +208,8 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMChannelEditor.h \
 	source/beamline/AMBeamlineActionsList.h \
 	source/ui/AMWrappingLineEdit.h \
-	source/ui/SGMSidebar.h
+	source/ui/SGMSidebar.h \
+    source/ui/AMStartScreen.h
 FORMS += source/ui/AbsorptionScanController.ui \
     source/ui/AMDataView.ui \
     source/ui/AMDataViewEmptyHeader.ui \
@@ -367,7 +368,8 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMChannelEditor.cpp \
 	source/beamline/AMBeamlineActionsList.cpp \
 	source/ui/AMWrappingLineEdit.cpp \
-	source/ui/SGMSidebar.cpp
+	source/ui/SGMSidebar.cpp \
+    source/ui/AMStartScreen.cpp
 RESOURCES = source/icons/icons.qrc \
     source/configurationFiles/configurationFiles.qrc
 OTHER_FILES += source/muParser/README.txt

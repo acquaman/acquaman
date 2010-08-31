@@ -41,6 +41,9 @@ signals:
 
 #include <QCompleter>
 #include <QDirModel>
+#include <QSplashScreen>
+
+
 class AMFirstTimeWizardPage : public QWizardPage
  {
 	 Q_OBJECT
@@ -108,6 +111,7 @@ class AMFirstTimeWizard : public QWizard
 	AMFirstTimeWizard(QWidget *parent = 0) : QWizard(parent) {
 		addPage(new AMFirstTimeWizardPage);
 		setWindowTitle("Welcome to Acquaman");
+
 	}
 
 	 // void accept();

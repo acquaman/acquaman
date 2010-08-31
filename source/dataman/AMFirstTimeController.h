@@ -5,7 +5,7 @@
 
 #include "AMErrorMonitor.h"
 #include <AMSettings.h>
-
+#include "ui/AMStartScreen.h"
 #include <dataman/AMDatabase.h>
 #include <ui/AMFirstTimeWidget.h>
 
@@ -31,10 +31,10 @@ public:
 signals:
 
 public slots:
-
+	void openSplashScreen();
 
 protected:
-
+	AMStartScreen *splashScreen_;
 
 
 };
