@@ -73,9 +73,9 @@ public:
 	*/
 
 signals:
-	/*
-	void queueUpdated(QQueue<AMBeamlineActionItem*> actionQueue);
-	*/
+
+	void queueUpdated(int count);
+
 
 protected slots:
 	void onActionChanged(int index);
@@ -128,7 +128,7 @@ public:
 	AMBeamlineActionAdder(QWidget *parent = 0);
 
 public slots:
-	virtual void onQueueUpdated(AMBeamlineActionsQueue *actionsQueue);
+	virtual void onQueueUpdated(int count);
 
 signals:
 	void insertActionRequested(AMBeamlineActionItem *action, int index);
@@ -138,6 +138,7 @@ protected slots:
 	virtual void onActionSubTypeBoxUpdate(int curIndex);
 
 	virtual void onNewMoveSetpoint(double value);
+	virtual void onAddControlSetMoveAction();
 	virtual void onAddMoveAction();
 
 protected:
@@ -151,6 +152,7 @@ protected:
 	QComboBox *actionSubTypeBox_;
 	QWidget *nextStepWidget_;
 	QDoubleSpinBox *moveSetpointDSB_;
+	QLabel *xPosLabel_, *yPosLabel_, *zPosLabel_;
 };
 
 #endif // AMWORKFLOWMANAGERVIEW_H

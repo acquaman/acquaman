@@ -7,6 +7,7 @@
 
 #include "beamline/AMBeamlineScanAction.h"
 #include "beamline/AMBeamlineControlMoveAction.h"
+#include "beamline/AMBeamlineControlSetMoveAction.h"
 
 class AMBeamlineActionListModel;
 

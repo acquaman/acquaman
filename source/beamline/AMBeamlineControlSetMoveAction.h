@@ -1,21 +1,21 @@
-#ifndef AMBEAMLINECONTROLMOVEACTION_H
-#define AMBEAMLINECONTROLMOVEACTION_H
+#ifndef AMBEAMLINECONTROLSETMOVEACTION_H
+#define AMBEAMLINECONTROLSETMOVEACTION_H
 
+#include <QTimer>
 #include <QProgressBar>
-#include <QTime>
 
 #include "AMBeamlineActionItem.h"
-#include "AMControl.h"
+#include "AMControlSet.h"
 
-class AMBeamlineControlMoveAction : public AMBeamlineActionItem
+class AMBeamlineControlSetMoveAction : public AMBeamlineActionItem
 {
 Q_OBJECT
 public:
-	explicit AMBeamlineControlMoveAction(AMControl *control, QObject *parent = 0);
+	explicit AMBeamlineControlSetMoveAction(AMControlSet *controlSet, QObject *parent = 0);
 
 	virtual QString type() const;
-	virtual AMControl* control();
-	virtual double setpoint();
+	virtual AMControlSet* controlSet();
+	virtual AMControlSetInfo* setpoint();
 
 signals:
 	void progress(double, double);
@@ -23,12 +23,11 @@ signals:
 public slots:
 	virtual void start();
 	virtual void cancel();
-	virtual void setControl(AMControl *control);
-	virtual bool setSetpoint(double setpoint);
+	virtual void setControlSet(AMControlSet *controlSet);
+	virtual bool setSetpoint(AMControlSetInfo *setpoint); // It's copying from this controlSetInfo. So if you change your copy it won't do anything
 	virtual void cleanup(){}
 
 protected slots:
-//	virtual void initialize();
 	void delayedStart(bool ready);
 	virtual void onMovingChanged(bool moving);
 	virtual void onConnected(bool connected);
@@ -40,26 +39,26 @@ protected slots:
 	virtual void calculateProgress();
 
 protected:
-	AMControl *control_;
-	double setpoint_;
-	double startPoint_;
+	AMControlSet *controlSet_;
+	AMControlSetInfo *setpoint_;
+	AMControlSetInfo *startPoint_;
 	QTimer progressTimer_;
 
 private:
 	QString type_;
 };
 
-class AMBeamlineControlMoveActionView : public AMBeamlineActionView
+class AMBeamlineControlSetMoveActionView : public AMBeamlineActionView
 {
-	Q_OBJECT
+Q_OBJECT
 public:
-	AMBeamlineControlMoveActionView(AMBeamlineControlMoveAction *moveAction, int index = 0, QWidget *parent = 0);
+	AMBeamlineControlSetMoveActionView(AMBeamlineControlSetMoveAction *controlSetAction, int index = 0, QWidget *parent = 0);
 
 	virtual QString viewType() const;
 
 public slots:
 	void setIndex(int index);
-	void setAction(AMBeamlineControlMoveAction *moveAction);
+	void setAction(AMBeamlineControlSetMoveAction *controlSetAction);
 
 signals:
 	void actionStarted(AMBeamlineActionItem *action);
@@ -77,8 +76,7 @@ protected slots:
 	virtual void onFailed(int explanation);
 
 protected:
-	AMBeamlineControlMoveAction *moveAction_;
-
+	AMBeamlineControlSetMoveAction *controlSetAction_;
 	QLabel *infoLabel_;
 	QProgressBar *progressBar_;
 	QLabel *timeRemainingLabel_;
@@ -92,4 +90,4 @@ private:
 	QString viewType_;
 };
 
-#endif // AMBEAMLINECONTROLMOVEACTION_H
+#endif // AMBEAMLINECONTROLSETMOVEACTION_H

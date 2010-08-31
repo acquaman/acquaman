@@ -52,6 +52,7 @@ signals:
 	void succeeded();
 	void failed(int explanation);
 	void finished();
+	void progress(double, double);
 
 public slots:
 	virtual void start() = 0;//Pure virtual. Sub-classes need to implement and they better set start_ = true at some point and cause start() to be emitted
@@ -105,7 +106,7 @@ public:
 
 public slots:
 	virtual void setIndex(int index);
-	virtual void setAction(AMBeamlineActionItem *scanAction);
+	virtual void setAction(AMBeamlineActionItem *action);
 	virtual void defocusItem();
 
 signals:
