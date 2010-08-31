@@ -1,4 +1,5 @@
 #include "AMScanSetModel.h"
+#include "ui/AMDateTimeUtils.h"
 
 QModelIndex AMScanSetModel::index ( int row, int column, const QModelIndex & parent ) const {
 	// top level:
@@ -71,10 +72,12 @@ QVariant AMScanSetModel::data ( const QModelIndex & index, int role) const {
 				return QVariant();
 			break;
 		case Qt::ToolTipRole:
-			return QString("%1 (%2): %3").arg(scan->name()).arg(scan->sampleName()).arg(scan->dateTime().toString());
+			return QString("%1, #%2 (sample: %3): %4").arg(scan->name()).arg(scan->number()).arg(scan->sampleName()).arg(AMDateTimeUtils::prettyDateTime(scan->dateTime(), "h:mm:ssap"));
 			break;
 		case AM::DescriptionRole:
-			return QString("started %1, on %2").arg(scan->dateTime().toString("h:mmap, MMM dd (yyyy)")).arg(scan->sampleName());
+			return QString("%1, on %2").arg(AMDateTimeUtils::prettyDateTime(scan->dateTime())).arg(scan->sampleName());
+		case AM::DateTimeRole:
+			return scan->dateTime();
 		case Qt::CheckStateRole:
 			return QVariant();	/// \todo For now... No checking/unchecking scans.
 			break;

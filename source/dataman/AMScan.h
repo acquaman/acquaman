@@ -146,7 +146,7 @@ public:
 	QString fullName() const {return QString("%1%2").arg(name()).arg(number()); }
 
 
-	/// Convenience function: returns the name of the sample (if a sample is set)
+	/// Convenience function: returns the name of the sample (if a sample is set, otherwise returns "[no sample]")
 	QString sampleName() const;
 
 	/// The string describing the format of the stored raw data file
@@ -330,6 +330,13 @@ protected:
 
 	/// Controls whether loadData() is called automatically inside loadFromDb().
 	bool autoLoadData_;
+
+	/// Caches the sample name
+	mutable QString sampleName_;
+	/// Status of sample name cache
+	mutable bool sampleNameLoaded_;
+	/// retrieves the sample name from the database, based on our sampleId. Sets sampleName_, and sets sampleNameLoaded_ = true;
+	void retrieveSampleName() const;
 
 	friend class AMAcqScanOutput;
 	friend class AMAcqScanSpectrumOutput;

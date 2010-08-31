@@ -1,23 +1,27 @@
 #include "AMDateTimeUtils.h"
 #include <QDateTime>
 
-AMDateTimeUtils::AMDateTimeUtils()
-{
+
+
+QString AMDateTimeUtils::prettyDate(const QDate &date){
+
+	QDate current = QDate::currentDate();
+	int daysTo = date.daysTo(current);
+
+	if (daysTo==0)
+		return "today";
+	else if (daysTo == 1)
+		return "yesterday";
+	else if (daysTo == 2)
+		return "two days ago";
+	else if (date.year() == current.year())
+		return date.toString("MMM d");
+	else return date.toString("MMM d (yyyy)");
 
 }
 
-/// This function takes a QDateTime and will change the date to "today", "yesterday", "two days ago", or "three days ago" if it applies.
-QString AMDateTimeUtils::checkAndModifyDate(const QDateTime &dateTime){
-	QDateTime currentDT = QDateTime::currentDateTime();
-	if (dateTime.daysTo(currentDT)==0)
-		return QString("today at ")+dateTime.time().toString("h:mm ap");
-	else if (dateTime.daysTo(currentDT) == 1)
-		return QString("yesterday at ")+dateTime.time().toString("h:mm ap");
-		else if (dateTime.daysTo(currentDT)== 2)
-			return QString("two days ago at ")+dateTime.time().toString("h:mm ap");
-			else if (dateTime.daysTo(currentDT) == 3)
-				return QString("three days ago at ")+dateTime.time().toString("h:mm ap");
-				else return currentDT.toString("MMM d, (yyyy) h:mm ap");
-				//change the date to two days ago
-
+QString AMDateTimeUtils::prettyDateTime(const QDateTime &dateTime, const QString &timeFormat) {
+	return prettyDate(dateTime.date()) + " at " + dateTime.time().toString(timeFormat);
 }
+
+QString AMDateTimeUtils::prettyDate(const QDateTime& dt) { return prettyDate(dt.date()); }

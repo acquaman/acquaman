@@ -1,5 +1,6 @@
 #include "AMChannelEditor.h"
 #include "ui/AMCloseItemDelegate.h"
+#include <QRegExpValidator>
 
 AMChannelEditor::AMChannelEditor(AMScanSetModel* model, QWidget *parent) :
 		QWidget(parent)
@@ -8,6 +9,8 @@ AMChannelEditor::AMChannelEditor(AMScanSetModel* model, QWidget *parent) :
 
 	// Modify and adjust UI components
 	ui_.nameEdit->setReadOnly(true);	// you can't edit existing channel names.
+	// When making new names for channels, they better be mathematically sound variable names (No spaces, alphabetic character at beginning, no funky symbols, etc...)
+	ui_.nameEdit->setValidator(new QRegExpValidator(QRegExp("[A-Za-z_]\\w*"), this));
 
 	// create menus for the insert button:
 	insertMenu_ = new QMenu(this);
@@ -208,13 +211,13 @@ void AMChannelEditor::onNewChannelNamed() {
 		return;
 	}
 
-	if(model_->scanAt(si)->addChannel(chName, "1")) {
+	if(!chName.isEmpty() && model_->scanAt(si)->addChannel(chName, "1")) {
 		int ci = model_->scanAt(si)->numChannels()-1;
 		ui_.scanSetView->setCurrentIndex(model_->indexForChannel(si, ci));
 		ui_.expressionEdit->setFocus();
 	}
 	else {
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -1, QString("Couldn't create a new channel (plot curve) with the name %1. Make sure to choose a name that doesn't exist already.").arg(chName)));
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -1, QString("Couldn't create a new channel (plot curve) with the name \"%1\". Make sure to choose a valid name that doesn't exist already.").arg(chName)));
 		ui_.scanSetView->setCurrentIndex(ui_.scanSetView->currentIndex());
 	}
 

@@ -64,7 +64,7 @@ void AMDacqScanController::cancel()
 }
 
 bool AMDacqScanController::event(QEvent *e){
-	if(e->type() == AM::AMAcqEvent){
+	if(e->type() == (QEvent::Type)AM::AcqEvent){
 		QMap<int, double> aeData = ((AMAcqEvent*)e)->dataPackage_;
 		QMap<int, double>::const_iterator i = aeData.constBegin();
 		if(i.key() == 0 && aeData.count() > 1){
@@ -76,9 +76,10 @@ bool AMDacqScanController::event(QEvent *e){
 			}
 		}
 		e->accept();
+		return true;
 	}
 	else
-		e->ignore();
+		return AMScanController::event(e);
 }
 
 void AMDacqScanController::onStart()

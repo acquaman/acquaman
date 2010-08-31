@@ -22,6 +22,9 @@ void AMDetailedItemDelegate::setItemHeight(int height){
 
 void AMDetailedItemDelegate::setFont(const QFont& font){
 	font_=font;
+	fontItalic_ = font;
+	// is the opposite italicization of whatever font you gave us.
+	fontItalic_.setItalic(!font.italic());
 }
 
 void AMDetailedItemDelegate::setTextColor(const QColor &color1, const QColor &color2){
@@ -63,26 +66,20 @@ void AMDetailedItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem
 	QRect textRect = opt.rect;
 	textRect.setLeft( textRect.left() + textStartingPoint);
 
-	painter->setFont(font_);
+	if (index.data(AM::ModifiedRole).toBool())
+		painter->setFont(fontItalic_);
+	else
+		painter->setFont(font_);
 	painter->setPen(color1_);
 
-	if (AM::ModifiedRole){
-		QFont fonti=font_;
-		fonti.setItalic(true);
-		painter->setFont(fonti);
-		painter->drawText(textRect, index.data(Qt::DisplayRole).toString());
-	}
-	else painter->drawText(textRect, index.data(Qt::DisplayRole).toString());
-
-	QVariant modifiedTime = index.data(AM::DateTimeRole);
-	AMDateTimeUtils modifier;
+	painter->drawText(textRect, index.data(Qt::DisplayRole).toString());
 
 	QVariant description = index.data(AM::DescriptionRole);
 	if(!description.isNull()){
 		painter->setFont(font_);
 		painter->setPen(color2_);
 		//	painter->drawText(textRect.translated(QPoint(0,20)), opt.fontMetrics.elidedText(description.toString(), Qt::ElideRight, textRect.width() ));
-		painter->drawText(textRect.translated(QPoint(0,20)), opt.fontMetrics.elidedText(modifier.checkAndModifyDate(modifiedTime.toDateTime()), Qt::ElideRight, textRect.width() ));
+		painter->drawText(textRect.translated(QPoint(0,20)), opt.fontMetrics.elidedText(description.toString(), Qt::ElideRight, textRect.width() ));
 
 	}
 

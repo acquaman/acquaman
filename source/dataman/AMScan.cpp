@@ -97,6 +97,8 @@ AMScan::AMScan(QObject *parent)
 	metaData_["filePath"] = QString();
 
 	autoLoadData_ = true;
+
+	sampleNameLoaded_ = false;
 }
 
 #include <QDebug>
@@ -134,27 +136,47 @@ QVariant AMScan::metaData(const QString& key) const {
 	return AMDbObject::metaData(key);
 }
 
+#include <QDebug>
 bool AMScan::setMetaData(const QString& key, const QVariant& value) {
 
-		if(key == "channelNames" || key == "channelExpressions")
-			return false;
+	if(key == "channelNames" || key == "channelExpressions")
+		return false;
 
-		return AMDbObject::setMetaData(key, value);
-	}
+	if(key == "sampleId")
+		sampleNameLoaded_ = false;
+
+	if(key == "dateTime")
+		qDebug() << "AMScan:: who is setting the dateTime?";
+
+	return AMDbObject::setMetaData(key, value);
+}
 
 /// Convenience function: returns the name of the sample (if a sample is set)
+/// \todo Is performance of this okay? Should be cached?
 QString AMScan::sampleName() const {
 
-	if(sampleId() == -1 || database() == 0)
-		return QString();
+	if(!sampleNameLoaded_)
+		retrieveSampleName();
 
-	QVariant vSampleName;
-	QList<QVariant*> vList;
-	vList << &vSampleName;
-	if(database()->retrieve(sampleId(), AMDatabaseDefinition::sampleTableName(), QString("name").split(','), vList))
-		return vSampleName.toString();
-	else
-		return QString();
+	return sampleName_;
+
+}
+
+void AMScan::retrieveSampleName() const {
+
+	if(sampleId() <1 || database() == 0)
+		sampleName_ = "[no sample]";
+
+	else {
+		sampleNameLoaded_ = true;	// don't set sampleNameLoaded_ above. That way we will keep checking until there's a database set (for ex: we get saved/stored.) The sampleNameLoaded_ cache is meant to speed up this database call.
+		QVariant vSampleName;
+		QList<QVariant*> vList;
+		vList << &vSampleName;
+		if(database()->retrieve(sampleId(), AMDatabaseDefinition::sampleTableName(), QString("name").split(','), vList))
+			sampleName_ =  vSampleName.toString();
+		else
+			sampleName_ = "[no sample]";
+	}
 }
 
 
