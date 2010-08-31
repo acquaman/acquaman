@@ -27,7 +27,8 @@ public:
 	AMSamplePlateModel* model();
 	QString plateName() const;
 	QString userName() const;
-	QString createTime() const;
+	QDateTime createTime() const;
+	QString timeString() const;
 	int count();
 
 	AMSamplePosition* samplePositionAt(size_t index);
@@ -84,7 +85,6 @@ signals:
 	void samplePlateChanged(bool isValid);
 
 public slots:
-	void setName(const QString &name);
 
 	bool setSamplePosition(size_t index, AMSamplePosition *sp);
 
@@ -103,11 +103,8 @@ protected slots:
 
 protected:
 	bool setupModel();
-	const QString timeString() const;
 
 protected:
-	QString userName_;
-	QDateTime createTime_;
 	AMSamplePlateModel *samples_;
 	AMBiHash<QString, AMSamplePosition*> sampleName2samplePosition_;
 
