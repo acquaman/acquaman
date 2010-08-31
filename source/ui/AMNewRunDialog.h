@@ -11,12 +11,13 @@
 #include "ui/AMPrefixSuffixLineEdit.h"
 #include "dataman/AMRun.h"
 
+/// author: Rachel Si (2010)
 class AMNewRunDialog: public QWidget
 {
 	Q_OBJECT
 
 public:
-	AMNewRunDialog(QWidget *parent = 0); //constructor
+	AMNewRunDialog(AMDatabase* db, QWidget *parent = 0); //constructor
 	~AMNewRunDialog();
 
 protected slots:
@@ -25,7 +26,8 @@ protected slots:
 	void cancelButtonPressed();
 
 signals:
-	void dialogBoxClosed();
+	/// Emitted when the dialog box is cancelled or accepted. The newRunId is the id of the newly created run, or -1 if cancelled.
+	void dialogBoxClosed(int newRunId);
 
 protected:
 	void addFacility();

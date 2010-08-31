@@ -42,7 +42,7 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 	ui_.scanListView->setAttribute( Qt::WA_MacShowFocusRect, false);
 
 	// Add run selector:
-	runSelector_ = new AMRunSelector();
+	runSelector_ = new AMRunSelector(AMDatabase::userdb());
 	ui_.scanInfoLayout->insertWidget(1, runSelector_);
 
 

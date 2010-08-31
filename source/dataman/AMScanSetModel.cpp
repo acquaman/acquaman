@@ -357,6 +357,8 @@ void AMScanSetModel::onMetaDataChanged(const QString& key) {
 }
 
 void AMScanSetModel::onScanModifiedChanged(bool isModified) {
+	Q_UNUSED(isModified)
+
 	AMScan* scan = qobject_cast<AMScan*>(sender());
 	if(!scan)
 		return;

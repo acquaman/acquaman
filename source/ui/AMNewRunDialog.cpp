@@ -4,10 +4,10 @@
 
 //Constructor:
 
-AMNewRunDialog:: AMNewRunDialog(QWidget *parent)
+AMNewRunDialog:: AMNewRunDialog(AMDatabase* db, QWidget *parent)
 	: QWidget(parent)
 {
-	database_ = AMDatabase::userdb();
+	database_ = db;
 	//setting up the layout of the entire window
 
 	QLabel *facilitiesLabel = new QLabel(tr("Facilities"));
@@ -96,17 +96,22 @@ void AMNewRunDialog::okButtonPressed(){
 	QString runName = runNameLineEdit->text();
 	//run AMRun constructor to create new run, but first, we need facility Id
 	int facilityId = facilitySelectCb->itemData(facilitySelectCb->currentIndex(),AM::IdRole).toInt();
-	AMRun(runName, facilityId).storeToDb(AMDatabase::userdb());
+
+	AMRun newRun(runName, facilityId);
+	bool success = newRun.storeToDb(AMDatabase::userdb());
 
 	hide();
 
-	emit dialogBoxClosed();
+	if(success)
+		emit dialogBoxClosed(newRun.id());
+	else
+		emit dialogBoxClosed(-1);
 
 
 }
 
 /// This function will hide the dialog box if the cancel button is pressed. Also, the dialogBoxClosed signal will be emitted
 void AMNewRunDialog::cancelButtonPressed(){
-	close();
-	emit dialogBoxClosed();
+	hide();
+	emit dialogBoxClosed(-1);
 }

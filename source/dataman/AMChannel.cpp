@@ -114,7 +114,6 @@ AMChannel::AMChannel(AMScan* scan, const QString& name, const QString& expressio
 	//				   "+-*^/?<>=#!$%&|~'_");
 	//parser_.DefineInfixOprtChars("/+-*^?<>=#!$%&|~'_");
 	varStorage_.reserve(25);
-#warning "varStorage_.reserve(25): will anything blow up past 25 whats?";
 	parser_.SetVarFactory(AddVariable, (void*)(this));
 	parserX_.SetVarFactory(AddVariableX, (void*)(this));
 

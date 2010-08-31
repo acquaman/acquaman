@@ -275,8 +275,11 @@ public slots:
 	/// Set the file format. This is a string matching the AMAbstractFileLoader::formatTag() in one of the available file loaders.
 	void setFileFormat(const QString& format) { setMetaData("fileFormat", format); }
 
-	/// create a new channel. The channel will be owned and deleted by the scan.
-	bool addChannel(const QString& chName, const QString& expression);
+	/// Test a possible channel expression for validity. The expression will be valid if it's an acceptable mathematical formula, involving valid raw data column names for variables.
+	bool validateChannelExpression(const QString& expression);
+
+	/// create a new channel. The channel will be owned and deleted by the scan.  Returns true on success. Will fail if there is an existing channel with the same name \c chName.  Will also fail if you turn \c ensureValid on, and the expression is invalid.
+	bool addChannel(const QString& chName, const QString& expression, bool ensureValid = false);
 
 	/// Delete a channel from scan:
 	bool deleteChannel(AMChannel* channel);

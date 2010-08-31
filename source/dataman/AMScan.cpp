@@ -44,8 +44,7 @@ QStringList AMChannelListModel::channelExpressions() const {
 
 
 bool AMChannelListModel::addChannel(AMChannel* newChannel) {
-	if(!newChannel->isValid())
-		return false;
+
 	beginInsertRows(QModelIndex(), ch_.count(), ch_.count());
 	ch_.append(newChannel);
 	name2chIndex_.set(newChannel->name(), ch_.count()-1);
@@ -212,22 +211,23 @@ bool AMScan::deleteChannel(unsigned index) {
 
 
 
+bool AMScan::validateChannelExpression(const QString& expression) {
+	AMChannel tmp(this, "testChannel", expression);
+	return tmp.isValid();
+}
 
-/// create a new channel. The channel is created with a QObject parent of 0, but will be owned and deleted by this Scan.  Protects against creating channels with duplicate names.
-bool AMScan::addChannel(const QString& chName, const QString& expression) {
+/// create a new channel. The channel is created with a QObject parent of 0, but will be owned and deleted by this Scan.  This function protects against creating channels with duplicate names.
+bool AMScan::addChannel(const QString& chName, const QString& expression, bool ensureValid) {
 
 	if(channelNames().contains(chName))
 		return false;
 
-#warning "David, tell me what's going on here next time we talk..."
-	AMChannel *tmpCh = new AMChannel(this, chName, expression);
-	if(!tmpCh->isValid()){
-		delete tmpCh;
+	// invalid channel expression, and you requested validation
+	if(ensureValid && !validateChannelExpression(expression))
 		return false;
-	}
 
-	ch_.addChannel(tmpCh);
-	//	ch_.addChannel(new AMChannel(this, chName, expression));
+	ch_.addChannel(new AMChannel(this, chName, expression));
+
 	setModified(true);
 	return true;
 }
