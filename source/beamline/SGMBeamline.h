@@ -15,6 +15,8 @@ class SGMTransferAction2;
 class SGMTransferAction3;
 class SGMTransferAction4;
 
+class AMSamplePlate;
+
 class SGMBeamline : public AMControl
 {
 	Q_OBJECT
@@ -86,6 +88,8 @@ public:
 	AMControlSet* ssaManipulatorSet() const { return ssaManipulatorSet_; }
 	AMDetectorInfoSet* allDetectors() const { return allDetectors_;}
 	AMDetectorInfoSet* XASDetectors() const { return XASDetectors_;}
+
+	AMSamplePlate* currentSamplePlate() const { return currentSamplePlate_; }
 
 	QList<AM1BeamlineActionItem*> transferLoadlockOutActions() const {
 		QList<AM1BeamlineActionItem*> rVal;
@@ -208,6 +212,9 @@ protected:
 	AMDetectorInfoSet *allDetectors_;
 	AMDetectorInfoSet *XASDetectors_;
 
+	/// The sample plate currently in the SSA chamber:
+	AMSamplePlate* currentSamplePlate_;
+
 	AM1BeamlineActionItem *transferAction1_;
 	AM1BeamlineActionItem *transferAction2_;
 	AM1BeamlineActionItem *transferAction3_;
@@ -233,6 +240,8 @@ protected:
 	AM1BeamlineActionItem *transferAction23_;
 	AM1BeamlineActionItem *transferAction24_;
 	AM1BeamlineActionItem *transferAction25_;
+
+
 
 
 	AMBiHash<QString, QString> amNames2pvNames_;

@@ -1,5 +1,7 @@
 #include "SGMBeamline.h"
 
+#include "dataman/AMSamplePlate.h"
+
 SGMBeamline* SGMBeamline::instance_ = 0;
 
 
@@ -207,6 +209,8 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	XASDetectors_->addDetector(teyDetector_, true);
 	XASDetectors_->addDetector(tfyDetector_, true);
 	XASDetectors_->addDetector(pgtDetector_, false);
+
+	currentSamplePlate_ = new AMSamplePlate(this);
 
 	transferAction1_ = new SGMTransferAction1(this);
 	transferAction2_ = new SGMTransferAction2(this);

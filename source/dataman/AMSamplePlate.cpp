@@ -1,7 +1,7 @@
 #include "AMSamplePlate.h"
 
 AMSamplePlate::AMSamplePlate(QObject *parent) :
-	AMDbObject(parent)
+		AMDbObject(parent)
 {
 	insertRowLatch = -1;
 	userName_ = "SGM Sample Plate";
@@ -104,31 +104,44 @@ QString AMSamplePlate::databaseTableName() const{
 }
 
 bool AMSamplePlate::loadFromDb(AMDatabase* db, int id){
-	bool retVal = AMDbObject::loadFromDb(db, id);
-	if(retVal){
-		while(count() > 0)
-			removeSamplePosition(count()-1);
-		AMIntList sampleIDs = metaData_.value("sampleIDs").value<AMIntList>();
-		AMIntList positionIDs = metaData_.value("positionIDs").value<AMIntList>();
-		if(sampleIDs.count() != positionIDs.count())
-			return false;
-		AMSample *tmpSample;
-		AMControlSetInfo *tmpPosition;
-		for( int x = 0; x < sampleIDs.count(); x++){
-			tmpSample = new AMSample(this);
-			tmpPosition = new AMControlSetInfo(this);
-			if( !tmpPosition->loadFromDb(AMDatabase::userdb(), positionIDs.at(x)) ){
-				qDebug() << "Couldn't load sample plate position at index " << x;
-				return false;
-			}
-			if( sampleIDs.at(x) != 0 && !tmpSample->loadFromDb(AMDatabase::userdb(), sampleIDs.at(x)) ){
-				qDebug() << "Couldn't load sample plate sample at index " << x;
-				return false;
-			}
-			appendSamplePosition(tmpSample, tmpPosition);
-		}
+
+	valid_ = false;
+
+	if(!AMDbObject::loadFromDb(db, id)) {
+		emit samplePlateChanged(false);
+		return false;
 	}
-	return retVal;
+
+
+	while(count() > 0)
+		removeSamplePosition(count()-1);
+	AMIntList sampleIDs = metaData_.value("sampleIDs").value<AMIntList>();
+	AMIntList positionIDs = metaData_.value("positionIDs").value<AMIntList>();
+	if(sampleIDs.count() != positionIDs.count()) {
+		emit samplePlateChanged(false);
+		return false;
+	}
+	AMSample *tmpSample;
+	AMControlSetInfo *tmpPosition;
+	for( int x = 0; x < sampleIDs.count(); x++){
+		tmpSample = new AMSample(this);
+		tmpPosition = new AMControlSetInfo(this);
+		if( !tmpPosition->loadFromDb(AMDatabase::userdb(), positionIDs.at(x)) ){
+			qDebug() << "Couldn't load sample plate position at index " << x;
+			emit samplePlateChanged(false);
+			return false;
+		}
+		if( sampleIDs.at(x) != 0 && !tmpSample->loadFromDb(AMDatabase::userdb(), sampleIDs.at(x)) ){
+			qDebug() << "Couldn't load sample plate sample at index " << x;
+			emit samplePlateChanged(false);
+			return false;
+		}
+		appendSamplePosition(tmpSample, tmpPosition);
+	}
+
+	emit samplePlateChanged(true);
+	return true;
+
 }
 
 bool AMSamplePlate::storeToDb(AMDatabase* db){
@@ -142,8 +155,7 @@ bool AMSamplePlate::storeToDb(AMDatabase* db){
 	metaData_["positionIDs"].setValue(positionIDs);
 	metaData_["name"].setValue(plateName());
 
-	bool retVal = AMDbObject::storeToDb(db);
-	return retVal;
+	return valid_ = AMDbObject::storeToDb(db);
 }
 
 QString AMSamplePlate::typeDescription() const{
