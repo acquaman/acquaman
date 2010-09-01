@@ -29,7 +29,9 @@ class AMSamplePositionItemView;
 class AMSamplePositionItemExpandingAdder;
 
 /// This class provides a widget that can be used to select and load a sample plate object, out of the available set of user-defined sample plates. It can also be used to create new sample plates.
-/*! This widget operates on an "active" or "current" sample plate, and causes it to be re-loaded to become a different plate when activated by the user.  This active plate can be retrieved with samplePlate().  If an AMSamplePlate pointer is provided in the constructor, we use this as the active plate; otherwise we create an internal AMSamplePlate object.  You can use the complete AMSamplePlate interface, including the changeSamplePlate(newId) slot and samplePlateChanged(newId) signal, on the object returned with samplePlate().
+/*! This widget operates on an "active" or "current" sample plate, and causes it to be re-loaded to become a different plate when activated by the user.  This active plate can be retrieved with samplePlate().  If an AMSamplePlate pointer is provided in the constructor, we use this as the active plate; otherwise we create an internal AMSamplePlate object.
+
+You can use the complete AMSamplePlate interface, including the changeSamplePlate(newId) slot and samplePlateChanged(newId) signal, on the object returned from samplePlate().
   */
 class AMSamplePlateSelector : public QWidget, private Ui::AMSamplePlateSelector {
 	Q_OBJECT
@@ -47,8 +49,6 @@ public:
 signals:
 	/// Convenience signal, connected to samplePlate()->samplePlateChanged(bool isValid)
 	void samplePlateChanged(bool);
-
-
 
 
 

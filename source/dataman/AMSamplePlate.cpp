@@ -147,6 +147,7 @@ bool AMSamplePlate::loadFromDb(AMDatabase* db, int id){
 		appendSamplePosition(tmpSample, tmpPosition);
 	}
 
+	valid_ = true;
 	emit samplePlateChanged(true);
 	return true;
 
@@ -215,12 +216,13 @@ bool AMSamplePlate::removeSamplePosition(size_t index){
 		return false;
 	AMSamplePosition *rSP = samplePositionAt(index);
 	bool retVal = samples_->removeRows(index, 1);
-	if(retVal)
+	if(retVal) {
 		sampleName2samplePosition_.removeR(rSP);
-	#warning "David to double check: can I delete this?  And would it be okay for AMSamplePosition to take ownership of its sample, and position, and delete them itself?"
-	delete rSP->sample();
-	delete rSP->position();
-	delete rSP;
+#warning "David to double check: can I delete this?  And would it be okay for AMSamplePosition to take ownership of its sample, and position, and delete them itself?"
+		delete rSP->sample();
+		delete rSP->position();
+		delete rSP;
+	}
 	return retVal;
 }
 

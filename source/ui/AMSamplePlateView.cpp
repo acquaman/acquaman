@@ -17,6 +17,9 @@ AMSamplePlateSelector::AMSamplePlateSelector(AMSamplePlate* sourcePlate, QWidget
 	lview->setAlternatingRowColors(true);
 	ui_.plateComboBox->setView(lview);
 
+	ui_.notesEditor->setMaximumHeight(80);
+	this->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+
 	schedulePlateRefresh();
 	onSamplePlateChanged(plate_->valid());
 
@@ -126,10 +129,10 @@ void AMSamplePlateSelector::startCreatingNewPlate() {
 
 void AMSamplePlateSelector::onFinishCreatingNewPlate() {
 
-	ui_.nameEdit->clearFocus();
-
 	// restore usual connections for the name edit box...
 	disconnect(ui_.nameEdit, SIGNAL(editingFinished()), this, SLOT(onFinishCreatingNewPlate()));
+
+	ui_.nameEdit->clearFocus();
 	connect(ui_.nameEdit, SIGNAL(textEdited(QString)), this, SLOT(onNameEdited(QString)));
 	connect(ui_.nameEdit, SIGNAL(editingFinished()), this, SLOT(onPlateEditingFinished()));
 
@@ -242,7 +245,7 @@ AMSamplePlateView::AMSamplePlateView(AMSamplePlate* plate, QWidget *parent) :
 
 
 
-	samplePlateSelector_ = new AMSamplePlateSelector();
+	samplePlateSelector_ = new AMSamplePlateSelector(samplePlate_);
 	sampleListView_ = new AMSampleListView(samplePlate_, sampleTableModel_);
 	sampleListView_->setManipulator(manipulator_);
 

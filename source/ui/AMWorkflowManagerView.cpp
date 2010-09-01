@@ -537,7 +537,8 @@ AMBeamlineActionAdder::AMBeamlineActionAdder(QWidget *parent) :
 	actionSubTypeBox_->addItems(subTypesLists_.at(0));
 	nextStepWidget_ = new QLabel(".....");
 	connect(actionTypeBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onActionTypeBoxUpdate(int)));
-	connect(actionSubTypeBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onActionSubTypeBoxUpdate(int)));
+	/// \note temporary fix for crash bug described on line 645. Changed from currentIndexChanged(int) to activated(int) signal, which only is issued by the user clicking. However, it could mean that that combo box gets out of sync.
+	connect(actionSubTypeBox_, SIGNAL(activated(int)), this, SLOT(onActionSubTypeBoxUpdate(int)));
 	vl_ = new QVBoxLayout();
 	vl_->addWidget(addWhereBox_);
 	vl_->addWidget(actionTypeBox_);
@@ -558,9 +559,8 @@ void AMBeamlineActionAdder::onQueueUpdated(int count){
 }
 
 void AMBeamlineActionAdder::onSamplePlateChanged(bool valid){
-	qDebug() << "Rewriting sample list in adder";
-	QStringList samples = subTypesLists_.at(1);
-	samples.clear();
+	qDebug() << "Rewriting sample list in adder, valid is " << valid;
+	QStringList samples;
 	if(valid){
 		AMSamplePlate *sp = SGMBeamline::sgm()->currentSamplePlate();
 		for(int x = 0; x < sp->count(); x++)
@@ -642,6 +642,7 @@ void AMBeamlineActionAdder::onActionSubTypeBoxUpdate(int curIndex){
 		moveSetpointDSB_->setRange(movePV_->minimumValue(), movePV_->maximumValue());
 		moveSetpointDSB_->setValue(movePV_->value());
 	}
+	/// \bug Checking for xPosLabel_ and posse is not enough. Sure, their not 0, because they were allocated at least once. But then they got deleted when you switched type boxes and nextStepWidget_ (their parent) was deleted.   This results in a crash if you choose "Action type -> Go To Sample -> Choose Action Type -> Go to Sample (2nd time)".
 	if(actionTypeBox_->currentIndex() == 1 && xPosLabel_ && yPosLabel_ && zPosLabel_ && rPosLabel_){
 		AMSamplePlate *sp = SGMBeamline::sgm()->currentSamplePlate();
 		onSamplePlateChanged(sp->valid());
