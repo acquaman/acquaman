@@ -30,25 +30,37 @@ QDateTime AMSamplePlate::createTime() const{
 	return metaData("createTime").toDateTime();
 }
 
-int AMSamplePlate::count() const {
-	return samples_->count();
+int AMSamplePlate::count(){
+	return samples_->rowCount(QModelIndex());
 }
 
+AMSamplePosition* AMSamplePlate::samplePositionAt(size_t index){
+	QVariant retVal = samples_->data(samples_->index(index, 0), Qt::DisplayRole);
+	if(retVal.isValid())
+		return (AMSamplePosition*) retVal.value<void*>();
+	return NULL;
+}
 
+AMSamplePosition* AMSamplePlate::samplePositionByName(const QString &name){
+	if(sampleName2samplePosition_.containsF(name))
+		return sampleName2samplePosition_.valueF(name);
+	return NULL;
+}
 
-AMSample* AMSamplePlate::sampleAt(int index){
+AMSample* AMSamplePlate::sampleAt(size_t index){
 	AMSamplePosition *sp = samplePositionAt(index);
 	if(sp)
 		return sp->sample();
 	return NULL;
 }
 
-AMSample* AMSamplePlate::sampleByName(const QString &name) {
-	return sampleAt(model()->indexOfSampleName(name));
+AMSample* AMSamplePlate::sampleByName(const QString &name){
+	if(sampleName2samplePosition_.containsF(name))
+		return samplePositionByName(name)->sample();
+	return NULL;
 }
 
-
-AMControlSetInfo* AMSamplePlate::positionAt(int index){
+AMControlSetInfo* AMSamplePlate::positionAt(size_t index){
 	AMSamplePosition *sp = samplePositionAt(index);
 	if(sp)
 		return sp->position();
@@ -56,11 +68,20 @@ AMControlSetInfo* AMSamplePlate::positionAt(int index){
 }
 
 AMControlSetInfo* AMSamplePlate::positionByName(const QString &name){
-	return positionAt(model()->indexOfSampleName(name));
+	if(sampleName2samplePosition_.containsF(name))
+		return samplePositionByName(name)->position();
+	return NULL;
 }
 
-
-
+int AMSamplePlate::indexOf(const QString &name){
+	if(sampleName2samplePosition_.containsF(name)){
+		AMSamplePosition *sp = sampleName2samplePosition_.valueF(name);
+		for(int x = 0; x < count(); x++)
+			if(samplePositionAt(x) == sp)
+				return x;
+	}
+	return -1;
+}
 
 QList<AMMetaMetaData> AMSamplePlate::metaDataUniqueKeys(){
 	QList<AMMetaMetaData> rv;
@@ -151,22 +172,31 @@ QString AMSamplePlate::typeDescription() const{
 
 
 
-
-
-bool AMSamplePlate::addSamplePosition(int index, AMSamplePosition *sp){
-	/// \note This check, if a general requirement, makes a lot of other error checking code redundant.
-	if(!sp || !sp->sample() || !sp->position())
-		return false;
-
-	model()->insertSamplePosition(index, sp);
-
+bool AMSamplePlate::setSamplePosition(size_t index, AMSamplePosition *sp){
+	AMSamplePosition *tmpSP = samplePositionAt(index);
+	bool retVal = samples_->setData(samples_->index(index, 0), qVariantFromValue((void*)sp), Qt::EditRole);
+	if(retVal){
+		sampleName2samplePosition_.removeR(tmpSP);
+		sampleName2samplePosition_.set(sp->sample()->name(), sp);
+	}
+	return retVal;
 }
 
-bool AMSamplePlate::addSamplePosition(int index, AMSample *sample, AMControlSetInfo *position){
+bool AMSamplePlate::addSamplePosition(size_t index, AMSamplePosition *sp){
+	if(!sp || !sp->sample() || !sp->position())
+		return false;
+	else if(sampleName2samplePosition_.containsR(sp))
+		return false;
+	else if(!samples_->insertRows(index, 1))
+		return false;
+	return setSamplePosition(index, sp);
+}
+
+bool AMSamplePlate::addSamplePosition(size_t index, AMSample *sample, AMControlSetInfo *position){
 	if(!sample || !position)
 		return false;
-	model()->insertSamplePosition(index, new AMSamplePosition(sample,position));
-	return true;
+	AMSamplePosition *tmpSP = new AMSamplePosition(sample, position, this);
+	return addSamplePosition(index, tmpSP);
 }
 
 bool AMSamplePlate::appendSamplePosition(AMSamplePosition *sp){
@@ -177,16 +207,23 @@ bool AMSamplePlate::appendSamplePosition(AMSample *sample, AMControlSetInfo *pos
 	return addSamplePosition(count(), sample, position);
 }
 
-/// \note This used to remove the first sample position with the same name as sp->sample()->name().  There might be quite a few situations where this wouldn't do what you think it would (since no one is enforcing unique sample names, and names are changeable.) Now it removes the exact same object that sp is.
 bool AMSamplePlate::removeSamplePosition(AMSamplePosition *sp){
-	return removeSamplePosition( model()->indexOf(sp) );
+	return removeSamplePosition( indexOf(sp->sample()->name()) );
 }
 
-bool AMSamplePlate::removeSamplePosition(int index){
-	if( index < 0 || index >= count())
+bool AMSamplePlate::removeSamplePosition(size_t index){
+	if( (int)index >= count())
 		return false;
-
-	return model()->removeRow(index);
+	AMSamplePosition *rSP = samplePositionAt(index);
+	bool retVal = samples_->removeRows(index, 1);
+	if(retVal) {
+		sampleName2samplePosition_.removeR(rSP);
+#warning "David to double check: can I delete this?  And would it be okay for AMSamplePosition to take ownership of its sample, and position, and delete them itself?"
+		delete rSP->sample();
+		delete rSP->position();
+		delete rSP;
+	}
+	return retVal;
 }
 
 void AMSamplePlate::onDataChanged(QModelIndex a, QModelIndex b){
@@ -216,13 +253,15 @@ void AMSamplePlate::onRowsRemoved(QModelIndex parent, int start, int end){
 	emit samplePositionRemoved(start);
 }
 
-void AMSamplePlate::setupModel(){
+bool AMSamplePlate::setupModel(){
 	samples_ = new AMSamplePlateModel(this);
-
-	connect(samples_, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(onDataChanged(QModelIndex,QModelIndex)));
-	connect(samples_, SIGNAL(rowsInserted(const QModelIndex,int, int)), this, SLOT(onRowsInserted(QModelIndex,int,int)));
-	connect(samples_, SIGNAL(rowsRemoved(const QModelIndex,int,int)), this, SLOT(onRowsRemoved(QModelIndex,int,int)));
-
+	if(samples_){
+		connect(samples_, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(onDataChanged(QModelIndex,QModelIndex)));
+		connect(samples_, SIGNAL(rowsInserted(const QModelIndex,int, int)), this, SLOT(onRowsInserted(QModelIndex,int,int)));
+		connect(samples_, SIGNAL(rowsRemoved(const QModelIndex,int,int)), this, SLOT(onRowsRemoved(QModelIndex,int,int)));
+		return true;
+	}
+	return false;
 }
 
 #include "ui/AMDateTimeUtils.h"
@@ -231,98 +270,105 @@ QString AMSamplePlate::timeString() const{
 	return AMDateTimeUtils::prettyDateTime(metaData("createTime").toDateTime());
 }
 
-
-
-// AMSamplePlateModel
-//////////////////////////////////////
-
 AMSamplePlateModel::AMSamplePlateModel(QObject *parent) :
-		QStandardItemModel(parent)
+		QAbstractListModel(parent)
 {
-
+	samples_ = new QList<AMSamplePosition*>();
 }
+
+int AMSamplePlateModel::rowCount(const QModelIndex & /*parent*/) const{
+	return samples_->count();
+}
+
 QVariant AMSamplePlateModel::data(const QModelIndex &index, int role) const{
-
-	if(role == Qt::DisplayRole && index.isValid() && index.row() < rowCount() && index.column() == 0 && !index.parent().isValid()) {
-		AMSamplePosition* sp = samplePositionAt(index.row());
-		if(sp && sp->sample())
-			return sp->sample()->name();
-	}
-
-	return QStandardItemModel::data(index,role);
+	if(!index.isValid())
+		return QVariant();
+	if(index.row() >= samples_->count())
+		return QVariant();
+	if(role == Qt::DisplayRole)
+		return qVariantFromValue((void*)samples_->at(index.row()));
+	else
+		return QVariant();
 }
 
+QVariant AMSamplePlateModel::headerData(int section, Qt::Orientation orientation, int role) const{
+	if (role != Qt::DisplayRole)
+		return QVariant();
 
-
-
-
-/// Function to insert an AMSamplePosition. This model takes ownership of the sample position, and will delete it when removed from the model.  If row == -1, the sample will be appended.
-void AMSamplePlateModel::insertSamplePosition(int row, AMSamplePosition* sp) {
-	if(row<0 || row>count())
-		row = count();
-	QStandardItem* item = new QStandardItem();
-	item->setData(qVariantFromValue(sp), AM::PointerRole);
-	insertRow(row, item);
-
-	if(sp) {
-		sp->setParent(this);
-		connect(sp, SIGNAL(sampleLoadedFromDb()), this, SLOT(onSampleLoadedFromDb()));
-		connect(sp, SIGNAL(positionLoadedFromDb()), this, SLOT(onPositionLoadedFromDb()));
-		connect(sp, SIGNAL(positionValuesChanged(int)), this, SLOT(onPositionLoadedFromDb()));
-	}
-
+	if (orientation == Qt::Horizontal)
+		return QString("Column %1").arg(section);
+	else
+		return QString("Row %1").arg(section);
 }
 
-bool AMSamplePlateModel::removeRows(int row, int count, const QModelIndex &parent) {
-
-	// must be a top-level index:
-	if(!parent.isValid()) {
-		for(int i=row; i<row+count; i++) {
-			AMSamplePosition* sp = samplePositionAt(i);
-			if(sp)
-				delete sp;
+bool AMSamplePlateModel::setData(const QModelIndex &index, const QVariant &value, int role){
+	if (index.isValid()  && index.row() < samples_->count() && role == Qt::EditRole) {
+		AMSamplePosition *oldSP = (AMSamplePosition*)data(index, role).value<void*>();
+		if(oldSP){
+			disconnect(oldSP, SIGNAL(sampleLoadedFromDb()), this, SLOT(onSampleLoadedFromDb()));
+			disconnect(oldSP, SIGNAL(positionLoadedFromDb()), this, SLOT(onPositionLoadedFromDb()));
 		}
-	}
+		AMSamplePosition *sp;
+		sp = (AMSamplePosition*) value.value<void*>();
 
-	return QStandardItemModel::removeRows(row, count, parent);
-}
-
-int AMSamplePlateModel::indexOf(AMSamplePosition *existing) const {
-	for(int x = 0; x < count(); x++){
-		if(samplePositionAt(x) == existing)
-			return x;
-	}
-	return -1;
-}
-
-int AMSamplePlateModel::indexOfSampleName(const QString &sampleName) const {
-	for(int x = 0; x < count(); x++){
-		AMSamplePosition* sp = samplePositionAt(x);
-		if(sp && sp->sample() && sp->sample()->name() == sampleName) {
-			return x;
+		samples_->replace(index.row(), sp);
+		if(sp){
+			connect(sp, SIGNAL(sampleLoadedFromDb()), this, SLOT(onSampleLoadedFromDb()));
+			connect(sp, SIGNAL(positionLoadedFromDb()), this, SLOT(onPositionLoadedFromDb()));
 		}
+		emit dataChanged(index, index);
+		return true;
 	}
-	return -1;
+	return false;	// no value set
+}
+
+bool AMSamplePlateModel::insertRows(int position, int rows, const QModelIndex &index){
+	if (index.row() <= samples_->count() && position <= samples_->count()) {
+		beginInsertRows(QModelIndex(), position, position+rows-1);
+		AMSamplePosition *sp = NULL;
+		for (int row = 0; row < rows; ++row) {
+			samples_->insert(position, sp);
+		}
+		endInsertRows();
+		return true;
+	}
+	return false;
+}
+
+bool AMSamplePlateModel::removeRows(int position, int rows, const QModelIndex &index){
+	if (index.row() < samples_->count() && position < samples_->count()) {
+		beginRemoveRows(QModelIndex(), position, position+rows-1);
+		for (int row = 0; row < rows; ++row) {
+			samples_->removeAt(position);
+		}
+		endRemoveRows();
+		return true;
+	}
+	return false;
+}
+
+Qt::ItemFlags AMSamplePlateModel::flags(const QModelIndex &index) const{
+	Qt::ItemFlags flags;
+	if (index.isValid() && index.row() < samples_->count() && index.column()<4)
+		flags = Qt::ItemIsEditable | Qt::ItemIsSelectable | Qt::ItemIsEnabled;
+	return flags;
 }
 
 void AMSamplePlateModel::onSampleLoadedFromDb(){
-
-	int row = indexOf(qobject_cast<AMSamplePosition*>(sender()));
-	if(row != -1)
-		emit dataChanged(indexForRow(row), indexForRow(row));
+	AMSamplePosition *sp = (AMSamplePosition*)QObject::sender();
+	for(int x = 0; x < samples_->count(); x++){
+		if(samples_->at(x) == sp)
+			emit dataChanged(index(x, 0), index(x, 0));
+	}
 }
 
 void AMSamplePlateModel::onPositionLoadedFromDb(){
-
-	int row = indexOf(qobject_cast<AMSamplePosition*>(sender()));
-	if(row != -1)
-		emit dataChanged(indexForRow(row), indexForRow(row));
+	AMSamplePosition *sp = (AMSamplePosition*)QObject::sender();
+	for(int x = 0; x < samples_->count(); x++){
+		if(samples_->at(x) == sp)
+			emit dataChanged(index(x, 0), index(x, 0));
+	}
 }
-
-
-
-//////////////////////////////////////
-
 
 AMSamplePosition::AMSamplePosition(AMSample *sample, AMControlSetInfo *position, QObject *parent) :
 		QObject(parent)
