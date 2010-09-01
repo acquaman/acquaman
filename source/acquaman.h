@@ -21,7 +21,11 @@ namespace AM {
 	/// Application-wide QVariant user types
 	enum AcquamanType { IntList = QVariant::UserType + 20, DoubleList };
 
+	/// Acquaman-specific event types
 	enum EventType { AcqEvent = QEvent::User+20 };
+
+	/// custom QGraphicsItem types (see qgraphicsitem_cast<>() for more information)
+	enum GraphicsItemType { ThumbnailScrollGraphicsWidgetType = 65540 };
 }
 
 class AMAcqEvent : public QEvent{

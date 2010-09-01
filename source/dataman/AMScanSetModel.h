@@ -156,8 +156,9 @@ public:
 	/// returns the name of an "exclusive" channel: one that might be preferred in exclusive views.  Returns empty string if an exclusive channel is not yet established.
 	QString exclusiveChannel() const { return exclusiveChannel_; }
 
+	/// Set the exclusive channel, by name. To clear the exclusive channel, specify an empty string. (This will 'exclusive' views to show nothing.)
 	bool setExclusiveChannel(const QString& exclusiveChannelName) {
-		if(allChannelNames().contains(exclusiveChannelName)) {
+		if(exclusiveChannelName.isEmpty() || allChannelNames().contains(exclusiveChannelName)) {
 			exclusiveChannel_ = exclusiveChannelName;
 			emit exclusiveChannelChanged(exclusiveChannel_);
 			return true;

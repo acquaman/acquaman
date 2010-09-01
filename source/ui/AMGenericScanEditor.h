@@ -25,12 +25,7 @@ public:
 	virtual ~AMGenericScanEditor();
 
 	/// Add a scan to an editor. The editor takes ownership of the scan, and will delete it when closed or the scan is removed.
-	void addScan(AMScan* newScan) { /// \todo
-		scanSetModel_->addScan(newScan);
-		ui_.scanListView->setCurrentIndex(scanSetModel_->indexForScan(newScan));
-		if(scanSetModel_->exclusiveChannel().isEmpty() && newScan->numChannels() > 0)
-			scanSetModel_->setExclusiveChannel(newScan->channel(0)->name());
-	}
+	void addScan(AMScan* newScan);
 
 
 	/// Remove a scan from the editor and delete the scan.

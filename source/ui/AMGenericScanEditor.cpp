@@ -90,6 +90,14 @@ AMGenericScanEditor::~AMGenericScanEditor() {
 }
 
 
+void AMGenericScanEditor::addScan(AMScan* newScan) {
+	scanSetModel_->addScan(newScan);
+	ui_.scanListView->setCurrentIndex(scanSetModel_->indexForScan(newScan));
+	if(scanSetModel_->exclusiveChannel().isEmpty() && newScan->numChannels() > 0)
+		scanSetModel_->setExclusiveChannel(newScan->channel(0)->name());
+}
+
+
 void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const QModelIndex & deselected ) {
 
 	Q_UNUSED(deselected)
@@ -128,6 +136,10 @@ void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const
 		connect(runSelector_, SIGNAL(currentRunIdChanged(int)), currentScan_, SLOT(setRunId(int)));
 		connect(sampleEditor_, SIGNAL(currentSampleChanged(int)), currentScan_, SLOT(setSampleId(int)));
 	}
+
+
+	if(scanSetModel_->numScans() == 0)
+		scanSetModel_->setExclusiveChannel(QString());
 
 }
 

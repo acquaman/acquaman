@@ -28,7 +28,7 @@ AMScanViewScanBar::AMScanViewScanBar(AMScanSetModel* model, int scanIndex, QWidg
 	QHBoxLayout* hl = new QHBoxLayout();
 	nameLabel_ = new QLabel();
 	if(source)
-		nameLabel_->setText(source->name());
+		nameLabel_->setText(source->name() + QString(" #%1").arg(source->number()));
 	nameLabel_->setStyleSheet("color: white;");
 	hl->addWidget(nameLabel_);
 	hl->addStretch(0.5);
@@ -138,7 +138,7 @@ void AMScanViewScanBar::onModelDataChanged(const QModelIndex& topLeft, const QMo
 	// changes to our scan:
 	if(topLeft.internalId() == -1 && topLeft.row() == scanIndex_) {
 
-		nameLabel_->setText(model_->scanAt(scanIndex_)->name());
+		nameLabel_->setText(model_->scanAt(scanIndex_)->name() + QString(" #%1").arg(model_->scanAt(scanIndex_)->number()));
 	}
 
 	// changes to one of our channels:

@@ -8,10 +8,17 @@
 #include "dataman/AMDatabase.h"
 
 #include <QGraphicsView>
-#include <QGraphicsScene>
+#include "ui/AMSignallingGraphicsScene.h"
 #include <QGraphicsWidget>
 #include <QGraphicsLinearLayout>
+
+#include <QUrl>
+
 #include "ui/AMFlowGraphicsLayout.h"
+
+
+
+
 
 
 /*!
@@ -44,6 +51,9 @@ The container functionality consists of a QGraphicsView, holding a QGraphicsScen
 The controller functionality consists of responding to signals from the OrganizeMode combo box, and the showRun(), showExperiment(), setOrganizeMode(), and setViewMode() slots.  When this happens, the database is queried for the  information corresponding to the view requested, and AMDataViewSection views for each section are created to show the actual data representation.
 
 Some careful programmers will suggest that the controller functionality and view functionality (especially the QGraphicsView/resizing widget system) should be split into separate classes. All the power to you ; )
+
+Last of all, this class emits the selected(QList<QUrl>) and activated(QList<QUrl>) signals, to notify you when the user has selected or attempted to open a set of scans/objects. The format of the QUrls is the same as used for drag and drop events:
+- amd://databaseConnectionName/tableName/objectId
 */
 class AMDataView : public QWidget, private Ui::AMDataView
 {
@@ -53,6 +63,8 @@ public:
 	explicit AMDataView(AMDatabase* database = AMDatabase::userdb(), QWidget *parent = 0);
 
 signals:
+	void selected(const QList<QUrl>&);
+	void activated(const QList<QUrl>&);
 
 public slots:
 	/// setup this view to show a specific run (or use \c runId = -1 to see all runs)
@@ -73,6 +85,12 @@ protected slots:
 	/// called when the widget is resized
 	void onResize();
 
+	/// called when the scene selection changes. We use this to determine the selected items that represent scan objects
+	void onSceneSelectionChanged();
+	/// Called when something in the scene is double-clicked. We use this to send the activated() signal
+	void onSceneDoubleClicked();
+
+
 protected:
 	// Logic components:
 	AMDataViews::ViewMode viewMode_;
@@ -90,6 +108,13 @@ protected:
 	/// the user's name, with appropriate possesive ending to be tacked onto "Data".  (ie: Mark Boots's )
 	QString userName_;
 
+	/// The database id's of currently selected scans
+	QList<int> selectedIds_;
+	QStringList selectedTableNames_;
+	QList<QUrl> selectedUrls_;
+	/// This helper function packages the selectedIds_ and selectedTableNames_ into the selectedUrls_ format, and emits the selected() signal.
+	void processNewSelectedIds();
+
 
 
 	// UI components:
@@ -98,7 +123,7 @@ protected:
 	// QGraphicsView UI components:
 
 	QGraphicsView* gview_;
-	QGraphicsScene* gscene_;
+	AMSignallingGraphicsScene* gscene_;
 	QGraphicsWidget* gwidget_;
 	QGraphicsLinearLayout* sectionLayout_;
 
@@ -109,6 +134,7 @@ protected:
 	void refreshOrganizeModeBox();
 	/// This helper function retrieves the user's name from the database and forms the possesive form of it, storing in userName_;
 	void retrieveUserName();
+
 
 	/// Overidden so that we can notify the contents of the scroll area to change width with us.
 	virtual void resizeEvent(QResizeEvent *event);

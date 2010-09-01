@@ -105,8 +105,22 @@ protected:
 class AMThumbnailScrollGraphicsWidget : public QGraphicsItem, public QGraphicsLayoutItem {
 
 public:
+	/// Enable the use of qgraphicsitem_cast
+	enum { Type = AM::ThumbnailScrollGraphicsWidgetType };
+	/// Enable the use of qgraphicsitem_cast
+	int type() const { return Type; }
+
 	explicit AMThumbnailScrollGraphicsWidget(QGraphicsItem* parent = 0);
 	virtual ~AMThumbnailScrollGraphicsWidget() {}
+
+
+
+	/// Returns the name of the database table for the item that this widget represents (or an empty string if unknown)
+	QString tableName() const { return tableName_; }
+	/// Returns the database id of the object that this widget represents (or -1 if unknown)
+	int objectId() const { return objectId_; }
+	/// Returns the database pointer, if this widget is representing an object out of the database. If we're representing a temporary AMDbThumbnail instead, this will return 0.
+	AMDatabase* database() const { return sourceDb_; }
 
 /*
 	/// This bounding rect is just big enough for the picture box, the text underneath, and some extra room to erase the shadow graphics effect we apply when hover-overed
@@ -268,9 +282,9 @@ protected:
 	AMDbObject* sourceObject_;
 	/// When sourceIsDb_ = true, this is the set of rows in the thumbnail table to use.
 	QList<int> ids_;
-	/// If we know it, this is the name of the table holding the actual object
+	/// If we know it, this is the name of the table holding the actual object. If we don't know it, it's an empty string.
 	QString tableName_;
-	/// If we know it, this is the id of the source object (in tableName_) -- NOT the id of a thumbnail in the thumbnail table
+	/// If we know it, this is the id of the source object (in tableName_) -- NOT the id of a thumbnail in the thumbnail table.  If we don't know it, it's -1.
 	int objectId_;
 
 

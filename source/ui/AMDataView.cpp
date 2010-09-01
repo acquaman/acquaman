@@ -17,9 +17,12 @@ AMDataView::AMDataView(AMDatabase* database, QWidget *parent) :
 
 	// add additional UI components: the QGraphicsView and QGraphicsScene
 	gview_ = new QGraphicsView();
+	gview_->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 	verticalLayout->addWidget(gview_);
 
-	gscene_ = new QGraphicsScene(this);
+	gscene_ = new AMSignallingGraphicsScene(this);
+	connect(gscene_, SIGNAL(selectionChanged()), this, SLOT(onSceneSelectionChanged()));
+	connect(gscene_, SIGNAL(doubleClicked(QPointF)), this, SLOT(onSceneDoubleClicked()));
 	gview_->setScene(gscene_);
 	gview_->setDragMode(QGraphicsView::RubberBandDrag);
 	gwidget_ = new QGraphicsWidget();
@@ -137,6 +140,49 @@ void AMDataView::setViewMode(int mode) {
 /// called when the combo box is used to change the organizeMode
 void AMDataView::onOrganizeModeBoxCurrentIndexChanged(int newIndex) {
 	setOrganizeMode(organizeModeBox_->itemData(newIndex).toInt());
+}
+
+#include "ui/AMThumbnailScrollViewer.h"
+
+// Called when the scene selection changes
+void AMDataView::onSceneSelectionChanged() {
+	selectedIds_.clear();
+
+	QList<QGraphicsItem*> selectedItems = gscene_->selectedItems();
+	foreach(QGraphicsItem* i, selectedItems) {
+		/// \badcode Is there a way to handle this generally, so that we don't need to specifically know the type of the item class? Right now we only have AMThumbnailScrollGraphicsWidget's... but eventually there could be a whole bunch of QGraphicsItems used to represent scans
+		AMThumbnailScrollGraphicsWidget* gw = qgraphicsitem_cast<AMThumbnailScrollGraphicsWidget*>(i);
+
+		/// \todo Make this work for thumbnail scroll graphics widgets that are representing AMDbThumbnails as well.
+		if(gw && gw->database() == db_ && gw->objectId() > 0) {
+			selectedIds_ << gw->objectId();
+			selectedTableNames_ << gw->tableName();
+		}
+
+	}
+	processNewSelectedIds();
+}
+
+void AMDataView::processNewSelectedIds() {
+	selectedUrls_.clear();
+
+	QString prefix = "amd://" + db_->connectionName() + "/";
+
+	for(int i=0; i<selectedIds_.count(); i++) {
+		QString url = prefix;
+		url.append(selectedTableNames_.at(i));
+		url.append(QString("/%1").arg(selectedIds_.at(i)));
+		selectedUrls_ << QUrl(url);
+	}
+
+	emit selected(selectedUrls_);
+}
+
+void AMDataView::onSceneDoubleClicked() {
+	qDebug() << "Activated this many urls:" << selectedUrls_.count();
+
+	if(selectedUrls_.count() > 0)
+		emit activated(selectedUrls_);
 }
 
 /// This function runs everytime showRun() or showExperiment() is called, or a change is made to the OrganizeMode or ViewMode.  It re-populates the view from scratch.

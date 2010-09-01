@@ -111,6 +111,7 @@ AMAppController::AMAppController(QObject *parent) :
 	mw_->addPane(new PeriodicTable(), "Experiment Tools", "Periodic Table", ":/applications-science.png");
 	mw_->addPane(new ProtocolViewer(), "Experiment Tools", "Protocol", ":/accessories-text-editor.png");
 
+	/// \todo clean this up
 	scanEditors_ = new QStandardItemModel(this);
 	AMGenericScanEditor *scanEditor = new AMGenericScanEditor();
 	QStandardItem *item = new QStandardItem("Title Goes Here");
@@ -131,6 +132,11 @@ AMAppController::AMAppController(QObject *parent) :
 	connect(mw_->sidebar()->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), runExperimentInsert_, SLOT(onItemSelected(QModelIndex,QModelIndex)));
 	connect(runExperimentInsert_, SIGNAL(runSelected(int)), dataView_, SLOT(showRun(int)));
 	connect(runExperimentInsert_, SIGNAL(experimentSelected(int)), dataView_, SLOT(showExperiment(int)));
+
+	// connect the activated signal from the dataview to our own slot
+	connect(dataView_, SIGNAL(activated(QList<QUrl>)), this, SLOT(onDataViewItemsActivated(QList<QUrl>)));
+
+
 
 	connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerCreated()), this, SLOT(onCurrentScanControllerCreated()));
 	connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerDestroyed()), this, SLOT(onCurrentScanControllerDestroyed()));
@@ -256,4 +262,46 @@ void AMAppController::onAddButtonClicked() {
 	// For now, we simply create a new experiment
 	AMExperiment e("New Experiment");
 	e.storeToDb(AMDatabase::userdb());
+}
+
+#include "dataman/AMDbLoader.h"
+
+void AMAppController::onDataViewItemsActivated(const QList<QUrl>& itemUrls) {
+
+	if(itemUrls.count() == 0)
+		return;
+
+	AMGenericScanEditor* editor = new AMGenericScanEditor();
+	mw_->addPane(editor, "Now Playing...", "Scan Editor", ":/applications-science.png");
+	mw_->goToPane(editor);
+
+	foreach(const QUrl& url, itemUrls) {
+
+		if(url.scheme() != "amd")
+			break;
+
+		// Make sure this came from the user database... (it's the only one we support for now)
+		/// \todo This wouldn't be necessary if the scan editor doesn't make assumptions about which database.  Should check that out.
+		if(AMDatabase::userdb()->connectionName() != url.host())
+			break;
+
+		QStringList path = url.path().split('/', QString::SkipEmptyParts);
+		if(path.count() != 2)
+			break;
+
+		QString tableName = path.at(0);
+		bool idOkay;
+		int id = path.at(1).toInt(&idOkay);
+		if(!idOkay || id < 1)
+			break;
+
+
+		// Only show things from the Objects table for now
+		if(tableName != AMDatabaseDefinition::objectTableName())
+			break;
+
+		AMScan* scan = qobject_cast<AMScan*>( AMDbLoader::createAndLoad(AMDatabase::userdb(), id) );
+		if(scan)
+			editor->addScan(scan);
+	}
 }
