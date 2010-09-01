@@ -10,7 +10,7 @@
 #include <QStackedWidget>
 #include <QEvent>
 #include "ui/AMSidebar.h"
-#include "SGMSidebar.h"
+
 
 
 /// This UI class manages a set of "window panes", which can either be docked and selected using an iTunes-style sidebar, or un-docked to float as independent windows. When an un-docked pane is clicked in the sidebar or closed, it is re-docked in the main window. Finally, a layout is available to add a custom bottom widget underneath the sidebar and main area.
@@ -81,8 +81,6 @@ protected:
 	QStackedWidget* stackWidget_;
 
 	AMSidebar* sidebar_;
-
-	SGMSidebar* sgmSidebar_;
 
 	QVBoxLayout* vlayout_;
 

@@ -211,7 +211,8 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
     source/ui/SGMSidebar.h \
     source/beamline/AMBeamlineControlSetMoveAction.h \
     source/ui/AMStartScreen.h \
-    source/ui/AMSignallingGraphicsScene.h
+    source/ui/AMSignallingGraphicsScene.h \
+    source/ui/SGMBeamlineAtAGlanceBar.h
 FORMS += source/ui/AbsorptionScanController.ui \
     source/ui/AMDataView.ui \
     source/ui/AMDataViewEmptyHeader.ui \
@@ -374,7 +375,8 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
     source/ui/SGMSidebar.cpp \
     source/beamline/AMBeamlineControlSetMoveAction.cpp \
     source/ui/AMStartScreen.cpp \
-    source/ui/AMSignallingGraphicsScene.cpp
+    source/ui/AMSignallingGraphicsScene.cpp \
+    source/ui/SGMBeamlineAtAGlanceBar.cpp
 RESOURCES = source/icons/icons.qrc \
     source/configurationFiles/configurationFiles.qrc
 OTHER_FILES += source/muParser/README.txt

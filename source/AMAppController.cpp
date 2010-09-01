@@ -69,27 +69,29 @@ AMAppController::AMAppController(QObject *parent) :
 	// Create panes in the main window:
 	////////////////////////////////////
 
-	connectionSettings_ = new ConnectionSettings();
-	mw_->addPane(connectionSettings_, "Beamline Control", "Dev Playground", ":/network-workgroup.png");
+	//connectionSettings_ = new ConnectionSettings();
+	// mw_->addPane(connectionSettings_, "Beamline Control", "Dev Playground", ":/network-workgroup.png");
 
-	sampleTransferView_ = new SGMSampleTransferView();
-	mw_->addPane(sampleTransferView_, "Beamline Control", "SGM Sample Transfer", ":/system-software-update.png");
+
 
 //	samplePositionView_ = new AMSamplePositionView();
 	samplePositionView_ = new SGMSamplePositionView();
 	mw_->addPane(samplePositionView_, "Beamline Control", "SGM Sample Position", ":/system-software-update.png");
 
+	sampleTransferView_ = new SGMSampleTransferView();
+	mw_->addPane(sampleTransferView_, "Beamline Control", "SGM Sample Transfer", ":/system-software-update.png");
+
 //	samplePositions_ = new SamplePositions();
 //	mw_->addPane(samplePositions_, "Beamline Control", "Sample Positions", ":/system-software-update.png");
 
-	gratingResolution_ = new GratingResolution();
-	mw_->addPane(gratingResolution_, "Beamline Control", "Gratings and Resolution", ":/system-search.png");
+	// gratingResolution_ = new GratingResolution();
+	// mw_->addPane(gratingResolution_, "Beamline Control", "Gratings and Resolution", ":/system-search.png");
 
 	absorptionScanController_ = new AbsorptionScanController();
 	mw_->addPane(absorptionScanController_, "Experiment Setup", "Absorption Scan", ":/utilities-system-monitor.png");
 
-	emissionScanController_ = new EmissionScanController();
-	mw_->addPane(emissionScanController_, "Experiment Setup", "Emission Scan", ":/multimedia-volume-control.png");
+	//emissionScanController_ = new EmissionScanController();
+	//mw_->addPane(emissionScanController_, "Experiment Setup", "Emission Scan", ":/multimedia-volume-control.png");
 
 	scanConfigurationHolder_ = new AMXASScanConfigurationHolder();
 	mw_->addPane(scanConfigurationHolder_, "Experiment Setup", "SGM XAS Scan", ":/utilities-system-monitor.png");
@@ -107,9 +109,9 @@ AMAppController::AMAppController(QObject *parent) :
 	connect(scanConfigurationHolder_, SIGNAL(newScanConfigurationView()), workflowManagerView_, SLOT(onNewScanConfigurationView()));
 
 
-	mw_->addPane(new Scheduler(), "Experiment Tools", "Scheduler", ":/user-away.png");
-	mw_->addPane(new PeriodicTable(), "Experiment Tools", "Periodic Table", ":/applications-science.png");
-	mw_->addPane(new ProtocolViewer(), "Experiment Tools", "Protocol", ":/accessories-text-editor.png");
+	// mw_->addPane(new Scheduler(), "Experiment Tools", "Scheduler", ":/user-away.png");
+	// mw_->addPane(new PeriodicTable(), "Experiment Tools", "Periodic Table", ":/applications-science.png");
+	// mw_->addPane(new ProtocolViewer(), "Experiment Tools", "Protocol", ":/accessories-text-editor.png");
 
 	/// \todo clean this up
 	scanEditors_ = new QStandardItemModel(this);

@@ -73,7 +73,7 @@ protected slots:
 	void onDataViewItemsActivated(const QList<QUrl>& itemUrls);
 
 
-	/// \note please write some fucking comments when you work on my files
+	/// \todo comment this
 	void onCurrentScanControllerCreated();
 	void onCurrentScanControllerDestroyed();
 	void onCurrentScanControllerReinitialized(bool removeScan);
