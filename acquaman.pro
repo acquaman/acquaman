@@ -227,7 +227,8 @@ FORMS += source/ui/AbsorptionScanController.ui \
     source/ui/Scheduler.ui \
     source/ui/SGMXASScanConfigurationViewer.ui \
     source/ui/AMGenericScanEditor.ui \
-    source/ui/AMChannelEditor.ui
+    source/ui/AMChannelEditor.ui \
+    source/ui/AMSamplePlateSelector.ui
 SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
     ../MPlot/src/MPlot/MPlotAbstractTool.cpp \
     ../MPlot/src/MPlot/MPlotAxis.cpp \

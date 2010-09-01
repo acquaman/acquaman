@@ -64,6 +64,9 @@ QString AMDbObject::databaseTableName() const {
 #include <QDebug>
 bool AMDbObject::storeToDb(AMDatabase* db) {
 
+	if(!db)
+		return false;
+
 	///////////////////////////////////
 	// Thumbnail saving optimization:
 	// If we've been previously saved to this database, and the number of thumbnails we had before matches what we have now, then flag to save them in place. (Otherwise we have to delete and reinsert the new thumbnails).
@@ -251,12 +254,15 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 
 			// For lists that SHOULD be StringLists...
 			if(md.type == QVariant::StringList) {
-				metaData_[md.key] = metaData_.value(md.key).toString().split(AMDatabaseDefinition::stringListSeparator());
+				if(metaData_.value(md.key).isNull())
+					metaData_[md.key] = QStringList();
+				else
+					metaData_[md.key] = metaData_.value(md.key).toString().split(AMDatabaseDefinition::stringListSeparator());
 			}
 
 			// For lists that should be anything else (ints, doubles, etc.)
 			else if(md.type == (int)AM::IntList || md.type == (int)AM::DoubleList || md.type == QVariant::List) {
-				QStringList stringListForm = metaData_.value(md.key).toString().split(AMDatabaseDefinition::listSeparator());
+				QStringList stringListForm = metaData_.value(md.key).toString().split(AMDatabaseDefinition::listSeparator(), QString::SkipEmptyParts);
 				// Now we've got a stringList. Get that back into a list of integers
 				if(md.type == (int)AM::IntList) {
 					AMIntList il;

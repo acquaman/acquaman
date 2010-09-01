@@ -6,18 +6,28 @@
 #include <QSignalMapper>
 #include "acquaman.h"
 #include <QVBoxLayout>
+#include <QSpacerItem>
 
 /// The AMVerticalStackWidget class provides a column of widget items, that can be expanded or hidden.
 class AMVerticalStackWidget : public QFrame
 {
 Q_OBJECT
 public:
+	/// Create a new vertical stack widget to hold a column of subwidgets.
 	explicit AMVerticalStackWidget(QWidget *parent = 0);
 
 	/// Number of widgets in the stack
 	int count() const {
 		return model_.rowCount();
 	}
+
+	/*
+	/// If expanding = true, this widget will try to take up as much vertical space as available, and internal widgets will sit up at the top of it.
+	void setExpanding(bool expanding);
+
+	/// Returns whether expanding mode is on
+	bool expanding() const { return spacer_; }
+*/
 
 	/// Add a widget at the bottom of the stack. Widgets are initially shown expanded.  The AMVerticalStackWidget takes ownership of the widget.
 	void addItem(QWidget* widget, const QString& text, bool collapsable = true) {
@@ -92,6 +102,7 @@ protected:
 	// QSignalMapper* headerButtonMapper_;
 
 	QVBoxLayout* vl_;
+	// QSpacerItem* spacer_;
 
 
 };

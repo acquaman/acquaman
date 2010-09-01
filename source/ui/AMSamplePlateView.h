@@ -16,37 +16,48 @@
 #include <QLineEdit>
 #include <QPropertyAnimation>
 
+
 #include "dataman/AMSamplePlate.h"
 #include "beamline/SGMBeamline.h"
 #include "dataman/AMDatabase.h"
 #include "AMDetailedItemDelegate.h"
 
+#include "ui_AMSamplePlateSelector.h"
+
 class AMSampleListView;
 class AMSamplePositionItemView;
 class AMSamplePositionItemExpandingAdder;
 
-class AMSamplePlateView : public QWidget
-{
-Q_OBJECT
+/// This class provides a widget that can be used to select and load a sample plate object, out of the available set of user-defined sample plates. It can also be used to create new sample plates.
+/*! This widget operates on an "active" or "current" sample plate, and causes it to be re-loaded to become a different plate when activated by the user.  This active plate can be retrieved with samplePlate().  If an AMSamplePlate pointer is provided in the constructor, we use this as the active plate; otherwise we create an internal AMSamplePlate object.  You can use the complete AMSamplePlate interface, including the changeSamplePlate(newId) slot and samplePlateChanged(newId) signal, on the object returned with samplePlate().
+  */
+class AMSamplePlateSelector : public QWidget, private Ui::AMSamplePlateSelector {
+	Q_OBJECT
 public:
-	/// Create a sample plate editor, to modify/view an existing sample plate \c existingPlate.  If \c existingPlate is 0, it will create a new sample plate to work with.
-	explicit AMSamplePlateView(AMSamplePlate* existingPlate = 0, QWidget *parent = 0);
+	explicit AMSamplePlateSelector(AMSamplePlate* sourcePlate = 0, QWidget* parent = 0);
 
-	/// Returns the id of the currently selected sample plate
-	int currentSamplePlateId() const;
+	/// Returns the active sample plate object
+	AMSamplePlate* samplePlate() { return plate_; }
 
-public slots:
-	void setManipulator(AMControlSet *manipulator);
+	/// Convenience function for samplePlate()->id()
+	int samplePlateId() const { return plate_->id(); }
+	/// Convenience function for samplePlate()->changeSamplePlate(newId);
+	void changeSamplePlate(int newId) { plate_->changeSamplePlate(newId); }
+
+signals:
+	/// Convenience signal, connected to samplePlate()->samplePlateChanged(bool isValid)
+	void samplePlateChanged(bool);
+
+
+
+
 
 protected slots:
-	void onLoadExistingPlate(int index);
+	/// Called when the active sample plate is changed substantially (ie: reloaded out of the db)... we need to refresh what's currently highlighted in the list, and refresh the name, date, and notes display
+	void onSamplePlateChanged(bool isValid);
 
-	void onSampleTableItemUpdated(QString tableName, int id);
-	void onSampleTableItemCreated(QString tableName, int id);
-	void onSampleTableItemRemoved(QString tableName, int id);
-
-	void refreshSamples();
-
+	/// called when an option in the list of sample plates is activated by the user
+	void onComboBoxActivated(int index);
 
 	/// Fill the list of available sample plates from the database. Make the first entry an 'Add New Sample Plate...' option
 	void populateSamplePlates();
@@ -55,11 +66,57 @@ protected slots:
 	/// This is called when editing is finished on the name lineedit... during a "Create New Plate" process.
 	void onFinishCreatingNewPlate();
 
+	/// Called when an item in the database is updated. Need to watch for changes in the sample plate table.
+	void onDatabaseUpdated(const QString& tableName, int id);
+	/// Called when an item in the database is created. Need to watch for changes in the sample plate table.
+	void onDatabaseCreated(const QString& tableName, int id);
+	/// Called when an item in the database is removed. Need to watch for changes in the sample plate table.
+	void onDatabaseRemoved(const QString& tableName, int id);
+
+	/// Call this to request a refresh of the list of sample plates
+	void schedulePlateRefresh();
+
+	// UI event responders:
+	/// Called when the user finishes editing the text in a plate name, or the notes box
+	void onPlateEditingFinished() { plate_->storeToDb(plate_->database()); }
+	/// Called when the user edits the name of the plate
+	void onNameEdited(const QString& name) { plate_->setName(name); }
+	/// Called when the user edits the notes for the plate
+	void onNotesEdited() { /*! \todo plate_->setNotes(notesEditor_.toPlainText()); */ }
+
+
 
 protected:
-	QLineEdit *plateNameLabel_;
-	QLabel *loadedLabel_;
-	QComboBox *existingPlates_;
+	Ui::AMSamplePlateSelector ui_;
+
+	bool plateRefreshRequired_;
+	AMSamplePlate* plate_;
+
+};
+
+class AMSamplePlateView : public QWidget
+{
+Q_OBJECT
+public:
+	/// Create a sample plate editor, to modify/view an existing sample plate \c existingPlate.  If \c existingPlate is 0, it will create a new sample plate to work with.
+	explicit AMSamplePlateView(AMSamplePlate* existingPlate = 0, QWidget *parent = 0);
+
+
+
+public slots:
+	void setManipulator(AMControlSet *manipulator);
+
+protected slots:
+	void changeSamplePlate(int newPlateId);
+
+	void onSampleTableItemUpdated(QString tableName, int id);
+	void onSampleTableItemCreated(QString tableName, int id);
+	void onSampleTableItemRemoved(QString tableName, int id);
+
+	void refreshSamples();
+
+protected:
+	AMSamplePlateSelector* samplePlateSelector_;
 	AMSampleListView *sampleListView_;
 	QVBoxLayout *vl_;
 

@@ -10,6 +10,8 @@ AMVerticalStackWidget::AMVerticalStackWidget(QWidget *parent) :
 	vl_ = new QVBoxLayout();
 	vl_->setSpacing(0);
 	vl_->setContentsMargins(0,0,0,0);
+	//spacer_ = new QSpacerItem(0,0,QSizePolicy::Preferred, QSizePolicy::Expanding);
+	//vl_->addSpacerItem(spacer_);
 	vl_->addStretch(1);
 	setLayout(vl_);
 
@@ -19,7 +21,21 @@ AMVerticalStackWidget::AMVerticalStackWidget(QWidget *parent) :
 
 
 }
+/*
 
+void AMVerticalStackWidget::setExpanding(bool expanding) {
+	if(expanding && !spacer_) {
+		spacer_ = new QSpacerItem(0,0,QSizePolicy::Preferred, QSizePolicy::Expanding);
+		vl_->addSpacerItem(spacer_);
+	}
+
+	if(!expanding && spacer_) {
+		delete spacer_;
+		spacer_ = 0;
+	}
+}
+
+*/
 
 
 

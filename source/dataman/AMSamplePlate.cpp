@@ -114,10 +114,12 @@ bool AMSamplePlate::loadFromDb(AMDatabase* db, int id){
 
 
 	while(count() > 0)
-		removeSamplePosition(count()-1);
+		removeSamplePosition(count()-1); /// \note Where do theses AMSample and AMControlSetInfo objects get deleted? They are children of AMSamplePlate, but we might be hanging onto this sample plate for a long time (for ex: life of the program, in the case of SGMBeamline::currentSamplePlate()... If you're calling loadFromDb a lot, the memory consumption will keep on increasing.  [for now: added delete to removeSamplePosition()]
+
 	AMIntList sampleIDs = metaData_.value("sampleIDs").value<AMIntList>();
 	AMIntList positionIDs = metaData_.value("positionIDs").value<AMIntList>();
 	if(sampleIDs.count() != positionIDs.count()) {
+		qDebug() << "Couldn't load sample plate: the number of samples " << sampleIDs.count() << "was not equal to the number of saved positions" << positionIDs.count();
 		emit samplePlateChanged(false);
 		return false;
 	}
@@ -127,12 +129,18 @@ bool AMSamplePlate::loadFromDb(AMDatabase* db, int id){
 		tmpSample = new AMSample(this);
 		tmpPosition = new AMControlSetInfo(this);
 		if( !tmpPosition->loadFromDb(AMDatabase::userdb(), positionIDs.at(x)) ){
-			qDebug() << "Couldn't load sample plate position at index " << x;
+			qDebug() << "Couldn't load sample plate positions at index " << x << ", CSI id = " << positionIDs.at(x);
+			qDebug() << "  positionIds was" << positionIDs << "count was" << positionIDs.count();
+			delete tmpSample;
+			delete tmpPosition;
 			emit samplePlateChanged(false);
 			return false;
 		}
 		if( sampleIDs.at(x) != 0 && !tmpSample->loadFromDb(AMDatabase::userdb(), sampleIDs.at(x)) ){
-			qDebug() << "Couldn't load sample plate sample at index " << x;
+			qDebug() << "Couldn't load sample plate sample at index " << x << ", Sample id = " << sampleIDs.at(x);
+			qDebug() << "  sampleIds was" << sampleIDs << "count was " << sampleIDs.count();
+			delete tmpSample;
+			delete tmpPosition;
 			emit samplePlateChanged(false);
 			return false;
 		}
@@ -209,6 +217,10 @@ bool AMSamplePlate::removeSamplePosition(size_t index){
 	bool retVal = samples_->removeRows(index, 1);
 	if(retVal)
 		sampleName2samplePosition_.removeR(rSP);
+	#warning "David to double check: can I delete this?  And would it be okay for AMSamplePosition to take ownership of its sample, and position, and delete them itself?"
+	delete rSP->sample();
+	delete rSP->position();
+	delete rSP;
 	return retVal;
 }
 
