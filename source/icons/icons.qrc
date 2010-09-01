@@ -49,5 +49,21 @@
         <file>notepadBackground.png</file>
         <file>closeButton.png</file>
         <file>Close.png</file>
+        <file>22x22/button1-22x22.png</file>
+        <file>22x22/button1inv-22x22.png</file>
+        <file>22x22/button2-22x22.png</file>
+        <file>22x22/button2inv-22x22.png</file>
+        <file>22x22/button3-22x22.png</file>
+        <file>22x22/button3inv-22x22.png</file>
+        <file>22x22/button4-22x22.png</file>
+        <file>22x22/button4inv-22x22.png</file>
+        <file>22x22/viewCover-22x22.png</file>
+        <file>22x22/viewCoverInv-22x22.png</file>
+        <file>22x22/viewDetail-22x22.png</file>
+        <file>22x22/viewDetaillInv-22x22.png</file>
+        <file>22x22/viewList-22x22.png</file>
+        <file>22x22/viewThumb-22x22.png</file>
+        <file>22x22/viewListInv-22x22.png</file>
+        <file>22x22/viewThumbInv-22x22.png</file>
     </qresource>
 </RCC>

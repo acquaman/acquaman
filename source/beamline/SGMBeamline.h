@@ -45,11 +45,10 @@ public:
 	virtual ~SGMBeamline();
 
 	bool isConnected() const {
-		for(int x = 0; x < numChildren(); x++)
-			if(!children_.at(x)->isConnected())
-				return false;
-		return true;
+		return criticalControlsSet_->isConnected();
 	}
+
+	bool detectorConnectedByName(QString name);
 
 	QString pvName(const QString &amName) const { return amNames2pvNames_.valueF(amName);}
 	QString amName(const QString &pvName) const { return amNames2pvNames_.valueR(pvName);}
@@ -59,7 +58,6 @@ public:
 	AMControl* exitSlitGap() const { return exitSlitGap_;}
 	AMControl* m4() const { return m4_;}
 	AMControl* grating() const { return grating_;}
-	AMBeamlineActionItem *gratingAction() const { return gratingAction_;}
 	AMControl* harmonic() const { return harmonic_;}
 	AMControl* undulatorTracking() const { return undulatorTracking_;}
 	AMControl* monoTracking() const { return monoTracking_;}
@@ -146,12 +144,14 @@ public:
 
 signals:
 	void beamlineScanningChanged(bool scanning);
+	void controlSetConnectionschanged();
 
 public slots:
 	void startTransfer() { transferAction1_->start(); }
 
 protected slots:
 	void onBeamlineScanningValueChanged(double value);
+	void onControlSetConnected(bool csConnected);
 
 protected:
 	// Singleton implementation:
@@ -166,7 +166,6 @@ protected:
 	AMControl *exitSlitGap_;
 	AMControl *m4_;
 	AMControl *grating_;
-	AMBeamlineActionItem *gratingAction_;
 	AMControl *harmonic_;
 	AMControl *undulatorTracking_;
 	AMControl *monoTracking_;
@@ -197,11 +196,18 @@ protected:
 	AMControl *beamlineReady_;
 	AMControl *energyMovingStatus_;
 
+	AMControlSet *teyControlSet_;
 	AMDetectorInfo *teyDetector_;
+	AMControlSet *tfyControlSet_;
 	AMDetectorInfo *tfyDetector_;
+	AMControlSet *pgtControlSet_;
 	AMDetectorInfo *pgtDetector_;
 	AMDetectorInfo *i0Detector_;
+	AMControlSet *i0ControlSet_;
 	AMDetectorInfo *eVFbkDetector_;
+	AMControlSet *eVFbkControlSet_;
+
+	AMControlSet* criticalControlsSet_;
 
 	AMControlOptimization *fluxOptimization_;
 	AMControlOptimization *resolutionOptimization_;
@@ -211,6 +217,8 @@ protected:
 	AMControlSet *ssaManipulatorSet_;
 	AMDetectorInfoSet *allDetectors_;
 	AMDetectorInfoSet *XASDetectors_;
+
+	QList<AMControlSet*> unconnectedSets_;
 
 	/// The sample plate currently in the SSA chamber:
 	AMSamplePlate* currentSamplePlate_;
@@ -247,6 +255,10 @@ protected:
 	AMBiHash<QString, QString> amNames2pvNames_;
 
 	friend class SGMGratingAction;
+
+private:
+	void usingSGMBeamline();
+	void usingFakeBeamline();
 };
 
 class SGMFluxOptimization : public AMControlOptimization
@@ -519,16 +531,6 @@ class SGMTransferAction25 : public AM1BeamlineActionItem
 public:
 	SGMTransferAction25(QObject *parent = 0) : AM1BeamlineActionItem("Turn on Detector High Voltage", parent){
 	}
-};
-
-class SGMGratingAction : public AMBeamlineControlAction
-{
-	Q_OBJECT
-public:
-	SGMGratingAction(AMControl *grating, QObject *parent = 0);
-
-public slots:
-	void start();
 };
 
 

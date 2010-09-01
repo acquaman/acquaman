@@ -3,7 +3,10 @@
 AMControlSet::AMControlSet(QObject *parent) :
 	QObject(parent)
 {
+	wasConnected_ = false;
 	info_ = new AMControlSetInfo(this);
+	QTimer connectionsTimedOut;
+	connectionsTimedOut.singleShot(AMCONTROLSET_CONTROL_TIMEOUT_MS, this, SLOT(onConnectionsTimedOut()));
 }
 
 int AMControlSet::indexOf(const QString &name){
@@ -19,6 +22,13 @@ AMControl* AMControlSet::controlByName(const QString &name){
 		return controlAt(index);
 	else
 		return NULL;
+}
+
+bool AMControlSet::isConnected(){
+	for(int x = 0; x < ctrls_.count(); x++)
+		if(!controlAt(x)->isConnected())
+			return false;
+	return true;
 }
 
 void AMControlSet::setName(const QString &name) {
@@ -59,12 +69,25 @@ void AMControlSet::setFromInfo(AMControlSetInfo *info){
 	}
 }
 
-void AMControlSet::onConnected(bool connected){
+void AMControlSet::onConnected(bool ctrlConnected){
+	if(wasConnected_ == true && !ctrlConnected){
+		wasConnected_ = false;
+		emit connected(false);
+	}
 	AMControl *ctrl = (AMControl*)QObject::sender();
-	if(!ctrl || !connected)
+	if(!ctrl || !ctrlConnected)
 		return;
 	int index = ctrls_.indexOf(ctrl);
 	info_->setControlAt(index, ctrl->name(), ctrl->value(), ctrl->minimumValue(), ctrl->maximumValue(), ctrl->units());
+	if(isConnected() && !wasConnected_){
+		wasConnected_ = true;
+		emit connected(true);
+	}
+}
+
+void AMControlSet::onConnectionsTimedOut(){
+	if(!wasConnected_)
+		emit connected(false);
 }
 
 void AMControlSet::onValueChanged(double value){

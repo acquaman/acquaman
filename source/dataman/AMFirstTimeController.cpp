@@ -27,11 +27,19 @@ AMFirstTimeController::AMFirstTimeController() {
 		}
 	}
 
-
-	if(isFirstTime)
+	splashScreen_ = new AMStartScreen(0);
+	if(isFirstTime) {
 		onFirstTime();
+	}
+	else splashScreen_->show();
 
 	databaseUpgrade();
+}
+
+//added function here so easier to call with a signal in FirstTimeWidget.
+// Where should we delete the splash screen?
+void AMFirstTimeController::openSplashScreen(){
+	splashScreen_->show();
 }
 
 #include <QApplication>
@@ -39,6 +47,9 @@ AMFirstTimeController::AMFirstTimeController() {
 void AMFirstTimeController::onFirstTime() {
 
 	AMFirstTimeWizard ftw;
+
+	connect(&ftw,SIGNAL(accepted()),this,SLOT(openSplashScreen()));
+
 	if(ftw.exec() != QDialog::Accepted) {
 		// figure out how to quit the main program from here.  We might not be inside the application run loop yet.
 	}

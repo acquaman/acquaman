@@ -1,6 +1,8 @@
 #ifndef ACQMAN_AMCONTROLSET_H
 #define ACQMAN_AMCONTROLSET_H
 
+#define AMCONTROLSET_CONTROL_TIMEOUT_MS 4000
+
 #include <QObject>
 #include <QList>
 #include <QMap>
@@ -45,7 +47,10 @@ public:
 
 	AMControlSetInfo* info() { return info_; }
 
+	bool isConnected();
+
 signals:
+	void connected(bool groupConnected);
 
 public slots:
 	/// Sets the name of the control set.
@@ -59,7 +64,8 @@ public slots:
 	void setFromInfo(AMControlSetInfo *info);
 
 protected slots:
-	void onConnected(bool connected);
+	void onConnected(bool ctrlConnected);
+	void onConnectionsTimedOut();
 	void onValueChanged(double value);
 
 protected:
@@ -70,6 +76,8 @@ protected:
 	QList<AMControl*> ctrls_;
 
 	AMControlSetInfo *info_;
+
+	bool wasConnected_;
 };
 
 /// An AMControlOptimization is an abstract class that represents how a single output can vary across a given region for a given state of a system.
