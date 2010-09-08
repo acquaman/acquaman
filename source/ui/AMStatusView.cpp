@@ -2,6 +2,7 @@
 #include <QDateTime>
 #include "AMSettings.h"
 #include <QHBoxLayout>
+#include "dataman/AMUser.h"
 
 AMStatusView::AMStatusView(QWidget *parent) : QWidget(parent)
 {
@@ -31,7 +32,7 @@ AMStatusView::AMStatusView(QWidget *parent) : QWidget(parent)
 	setFixedWidth(250);
 
 	/// last notification text (
-	shortText_ = new QLabel(QString("Acquaman: Welcome %1").arg(AMUserSettings::userName));
+	shortText_ = new QLabel(QString("Acquaman: Welcome %1").arg(AMUser::user()->name()));
 	hl_->addWidget(shortText_);
 
 	hl_->addStretch(1);

@@ -26,6 +26,7 @@ public:
 	static QString controlSetEntriesTableName() { return "ControlSetEntries"; }
 	static QString samplePlateTableName() { return "SamplePlates"; }
 	static QString facilityTableName() { return "Facilities"; }
+	static QString userTableName() { return "Users"; }
 
 	/// Separator used between strings when exporting a StringList to the database
 	static QString stringListSeparator() { return "|@^@|"; }

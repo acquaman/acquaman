@@ -31,9 +31,11 @@ AMStartScreen::AMStartScreen(QWidget *parent) :
 }
 
 #include <QMessageBox>
+#include "dataman/AMUser.h"
+
 bool AMStartScreen::storeCurrentRun(){
 	if(runSelector_->currentRunId() > 0) {
-		AMUserSettings::userCurrentRun = runSelector_->currentRunId();
+		AMUser::user()->setCurrentRunId( runSelector_->currentRunId() );
 		return true;
 	}
 	else {

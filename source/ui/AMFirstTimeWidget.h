@@ -41,7 +41,9 @@ signals:
 
 #include <QCompleter>
 #include <QDirModel>
-#include <QSplashScreen>
+
+// Needed for getenv():
+#include <cstdlib>
 
 
 class AMFirstTimeWizardPage : public QWizardPage
@@ -122,7 +124,7 @@ protected:
 		QWizard::initializePage(id);
 
 		if(id == 0) {
-			setField("userName", AMUserSettings::userName);
+			setField("userName", getenv("USER"));
 			setField("userDataFolder", AMUserSettings::userDataFolder);
 		}
 	}

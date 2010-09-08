@@ -32,6 +32,7 @@ bool AMFirstTimeController::isFirstTime() {
 
 
 #include <QApplication>
+#include "dataman/AMUser.h"
 
 bool AMFirstTimeController::onFirstTime() {
 
@@ -41,7 +42,6 @@ bool AMFirstTimeController::onFirstTime() {
 	if(ftw.exec() != QDialog::Accepted)
 		return false;
 
-	AMUserSettings::userName = ftw.field("userName").toString();
 	AMUserSettings::userDataFolder = ftw.field("userDataFolder").toString();
 	if(!AMUserSettings::userDataFolder.endsWith('/'))
 		AMUserSettings::userDataFolder.append("/");
@@ -58,6 +58,9 @@ bool AMFirstTimeController::onFirstTime() {
 		}
 	}
 
+	/// Find out the user's name:
+	AMUser::user()->setName( ftw.field("userName").toString() );
+
 	// initialize the database
 	QString filename = AMUserSettings::userDataFolder + AMUserSettings::userDatabaseFilename;
 	QFile dbFile(filename);
@@ -69,7 +72,14 @@ bool AMFirstTimeController::onFirstTime() {
 }
 
 bool AMFirstTimeController::onEveryTime() {
-	return databaseUpgrade();
+
+	/// Upgrade database versions if required.
+	bool success = databaseUpgrade();
+
+	/// Load extended user settings from the database
+	AMUser::user()->loadFromDb(AMDatabase::userdb(), 1);
+
+	return success;
 }
 
 #include <dataman/AMDatabaseDefinition.h>
@@ -80,6 +90,7 @@ bool AMFirstTimeController::onEveryTime() {
 #include <dataman/AMControlSetInfo.h>
 #include <dataman/AMSamplePlate.h>
 #include <dataman/AMDetectorInfo.h>
+#include "dataman/AMUser.h"
 
 /// create structures and tables for a new user database, from scratch
 bool AMFirstTimeController::databaseInitialization() {
@@ -114,6 +125,9 @@ bool AMFirstTimeController::databaseInitialization() {
 	AMSamplePlate sp;
 	AMDatabaseDefinition::registerType(&sp, AMDatabase::userdb());
 	AMDatabase::userdb()->createIndex(AMDatabaseDefinition::samplePlateTableName(), "createTime");
+
+	AMDatabaseDefinition::registerType(AMUser::user(), AMDatabase::userdb());
+	AMUser::user()->storeToDb(AMDatabase::userdb());
 
 	AMFacility blank("", "[Other Facility]", ":/128x128/contents.png");
 	AMDatabaseDefinition::registerType(&blank, AMDatabase::userdb());

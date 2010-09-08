@@ -20,13 +20,14 @@ void AMDatabaseDefinition::initializeDatabaseTables(AMDatabase* db) {
 	ensureTableForDbObjects(samplePlateTableName(), db);
 	ensureTableForDbObjects(sampleTableName(), db, false);	// samples should not reuse Ids, so that if a sample is deleted, and scans that reference its id will forever interpret this as an invalid sample
 	ensureTableForDbObjects(facilityTableName(), db);
+	ensureTableForDbObjects(userTableName(), db);
 
 	db->ensureTable(elementTableName(), QString("typeId,thumbnailCount,thumbnailFirstId,symbol,name,atomicNumber").split(','), QString("INTEGER,INTEGER,INTEGER,TEXT,TEXT,INTEGER").split(','));
 
-	// This table stores thumbnails for all these object types:
+	// This table stores thumbnails for all these object types.  It should not reuse ids, so that a set of thumbnails added will always have sequential ids.
 	db->ensureTable(thumbnailTableName(), QString("objectId,objectTableName,number,type,title,subtitle,thumbnail").split(','), QString("INTEGER,TEXT,INTEGER,TEXT,TEXT,TEXT,BLOB").split(','), false);
 
-	// This table stores key-value pairs of information about the database and about the user
+	// This table stores key-value pairs of information about the database (ex: version number, etc.)
 	db->ensureTable(databaseInformationTableName(), QString("key,value").split(','), QString("TEXT,TEXT").split(','));
 
 	// These tables provide links between experiments and user-data objects, and samples and elements.
@@ -51,11 +52,6 @@ void AMDatabaseDefinition::initializeDatabaseTables(AMDatabase* db) {
 
 	QStringList clist;
 	clist << "key" << "value";
-
-	v1.setValue(QString("userName"));
-	v2.setValue(AMUserSettings::userName);
-
-	db->insertOrUpdate(0, databaseInformationTableName(), clist, vlist);
 
 	v1.setValue(QString("databaseVersion"));
 	v2.setValue(version());

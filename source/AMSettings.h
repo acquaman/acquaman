@@ -6,14 +6,13 @@
 #include <QString>
 
 /*! This file encapsulates user settings/options and beamline settings that are persistent over many runs of the program.
-   User-specific settings are stored under the AMUserAMSettings namespace.  They can be different for each user account.
+   User-specific settings are stored under the AMUserSettings class.  They can be different for each user account.
 
-   Program-wide settings are stored under the AMSettings namespace.
-	For clean organization, we store process variable name definitions separately in their own namespace, inside beamline/ProcessVariables.h
+   Program-wide settings are stored under the AMSettings class.
+	(We store process variable name definitions separately in their own namespace, inside beamline/AMProcessVariables.h)
 
 	AMSettings are loaded from config. files by calling
-   load(), and pushed out to the file with save().  Load() is normally called from main() before
-   the program starts running, and save() when the AMSettings view gets hit with OK or Apply (todo... that AMSettings view).
+   load(), and pushed out to the file with save().  Load() is normally called on program startup, and save() when the AMSettings view gets hit with OK or Apply (todo... that AMSettings view).
 
    Accessing an option variable is simple and easy:
 		AMUserAMSettings::userDataFolder or AMSettings::publicDatabaseFilename or PVNames::ringCurrent
@@ -25,7 +24,7 @@
 	- inside save()
 	- inside load()
 
-   TODO: Should we make these QObject properties, and then we don't have to add lines to save() and load() manually when adding new variables?
+   For user settings, only two basic pieces of information are stored in the config file: the folder to store the user's data and database, and the name of their database file.  Once we have this information, we can access the user's personal meta-data object, which is stored in the database itself. (see AMUser::user() for more information.)
 
 	Storage locations: on Mac OS X, storage is at:
 		- /Library/Preferences/Qt/Acquaman/Acquaman.ini for system-wide stuff
@@ -54,13 +53,8 @@ public:
 	/// Generates a default file path and file name (without an extension) within the user data storage folder. You can probably trust this to be unique. It will also ensure that the complete path (folders and subfolders) exists all the way down to the destination.
 	static QString defaultFilePath(const QDateTime&);
 
-	static int userCurrentRun;
-
-	/// 2. User Information:
+	/// 2. User Information: (MOVED to AMUser)
 	// ========================================
-
-	/// User name:
-	static QString userName;
 
 
 	/// Load settings from disk:

@@ -3,9 +3,6 @@
 #include <QDir>
 #include <QDateTime>
 
-// Needed for getenv():
-#include <cstdlib>
-
 #include <QDebug>
 #include <QDateTime>
 
@@ -20,8 +17,7 @@
 QString AMUserSettings::userDataFolder;
 /// name of user database
 QString AMUserSettings::userDatabaseFilename;
-/// id of current run:
-int AMUserSettings::userCurrentRun;
+
 
 QString AMUserSettings::defaultFilePath(const QDateTime& dt) {
 	QDir dir;
@@ -31,9 +27,9 @@ QString AMUserSettings::defaultFilePath(const QDateTime& dt) {
 	return path;
 }
 
-/// 2. User Information:
+/// 2. User Information: (MOVED to AMUser)
 // ========================================
-QString AMUserSettings::userName;
+
 
 /// Load settings from disk:
 void AMUserSettings::load() {
@@ -44,12 +40,9 @@ void AMUserSettings::load() {
 
 	// variable = settings.value(key, defaultValue).toType();
 
-//	userDataFolder = settings.value("userDataFolder", QDir::homePath() + "/acquamanData/").toString();
 	userDataFolder = settings.value("userDataFolder", QDir::homePath() + "/beamline/programming/acquaman/devUserData/").toString();
-	// TODO: warn here if doesn't exist?
 	userDatabaseFilename = settings.value("userDatabaseFilename", "userdata.db").toString();
 
-	userName = settings.value("userName", getenv("USER") ).toString();
 }
 
 /// Save settings to disk:
@@ -62,7 +55,7 @@ void AMUserSettings::save() {
 	settings.setValue("userDataFolder", userDataFolder);
 	settings.setValue("userDatabaseFilename", userDatabaseFilename);
 
-	settings.setValue("userName", userName);
+	// settings.setValue("userName", userName);
 }
 
 
