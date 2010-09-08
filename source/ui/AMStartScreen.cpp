@@ -1,39 +1,55 @@
 #include "AMStartScreen.h"
 
+#include <QDebug>
 
 AMStartScreen::AMStartScreen(QWidget *parent) :
-	QSplashScreen(parent)
+	QWidget(parent)
 {
 	//QPixmap pixmap(":/ ")
-	box = new AMRunSelector(AMDatabase::userdb(),this);
+	runSelector_ = new AMRunSelector(AMDatabase::userdb(),this);
 	QVBoxLayout *overallLayout = new QVBoxLayout(this);
 	QGridLayout *startLayout = new QGridLayout(this);
-	QLabel *selectRunLabel = new QLabel(tr("Please add a new run or set an existing one"),this);
+	QLabel *selectRunLabel = new QLabel(tr("Welcome to Acquaman!\n\nThis is your current run.\nIt will be used to organize your data for this visit to the facility.\n\nYou can change it, or create a new one."),this);
 	QPushButton *ok= new QPushButton("Start",this);
 
 	startLayout->addWidget(selectRunLabel,1,1);
 	startLayout->addWidget(ok,2,2);
-	startLayout->addWidget(box,2,1);
+	startLayout->addWidget(runSelector_,2,1);
 
 	//overallLayout->addItem(pixmap);
 	overallLayout->addLayout(startLayout);
 
 	setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
+	setAttribute(Qt::WA_DeleteOnClose, true);
 
-	connect(ok,SIGNAL(clicked()),this,SLOT(storeCurrentRun()));
+	connect(ok,SIGNAL(clicked()),this,SLOT(close()));
+
+	// Useability tweak: If there are no valid runs (ie: the current run selected is invalid), we can start creating one
+	if(runSelector_->currentRunId() < 1)
+		runSelector_->showAddRunDialog();
 
 }
 
-void AMStartScreen::storeCurrentRun(){
-	AMUserSettings::userCurrentRun = box->currentRunId();
-	close();
-	deleteLater();
+#include <QMessageBox>
+bool AMStartScreen::storeCurrentRun(){
+	if(runSelector_->currentRunId() > 0) {
+		AMUserSettings::userCurrentRun = runSelector_->currentRunId();
+		return true;
+	}
+	else {
+		QMessageBox::information(this, "Please select a run", "You must select or create a valid run. ");
+		return false;
+	}
 }
 
-/*
- First check if it is user's first time. If it is, this should run after the first time screen has run.
- If not, it should run as usual.
 
- Display splashscreen: it should have: runSelector, option to start new scan, ....
- Make nice picture for it later...
-*/
+#include <QCloseEvent>
+#include <QApplication>
+
+void AMStartScreen::closeEvent(QCloseEvent *e) {
+
+	if(QApplication::closingDown() || storeCurrentRun())
+		e->accept();
+	else
+		e->ignore();
+}

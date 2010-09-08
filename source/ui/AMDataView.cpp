@@ -234,7 +234,7 @@ void AMDataView::refreshView() {
 						QString runName = findRunIds.value(2).toString();
 						QDateTime dateTime = findRunIds.value(1).toDateTime();
 						AMDataViewSection* section = new AMDataViewSection(
-								runName + AMDateTimeUtils::prettyDate(dateTime),
+								runName + ", started " + AMDateTimeUtils::prettyDate(dateTime),
 								"Showing all data from this run",
 								QString("runId = '%1'").arg(runId),
 								viewMode_, db_, true, gwidget_);

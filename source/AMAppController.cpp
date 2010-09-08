@@ -37,6 +37,9 @@
 #include <QStandardItemModel>
 #include "ui/AMGenericScanEditor.h"
 
+#include "ui/AMStartScreen.h"
+
+
 #include "acquaman/AMScanController.h"
 
 #include "AMErrorMonitor.h"
@@ -46,6 +49,11 @@
 AMAppController::AMAppController(QObject *parent) :
 		QObject(parent)
 {
+	isStarting_ = true;
+	isShuttingDown_ = false;
+}
+
+bool AMAppController::startup() {
 
 	AMErrorMon::enableDebugNotifications(true);
 
@@ -55,7 +63,12 @@ AMAppController::AMAppController(QObject *parent) :
 	AMPVNames::load();
 
 	// ensure user data folder and database are ready for use, if this is the first time the program is ever run.
-	AMFirstTimeController();
+	if(!AMFirstTimeController::firstTimeCheck())
+		return false;
+
+	// Show the splash screen. (It will delete itself when closed)
+	AMStartScreen* startScreen = new AMStartScreen(0);
+	startScreen->show();
 
 	//Create the main tab window:
 	mw_ = new AMMainWindow();
@@ -184,11 +197,22 @@ void MainWindow::onScanControllerReady(AMScanController *scanController){
 	// show main window
 	mw_->show();
 
+	isStarting_ = false;
+	return true;
+
 }
 
 
 /// Program shutdown:
 AMAppController::~AMAppController() {
+
+	if(isRunning())
+		shutdown();
+}
+
+void AMAppController::shutdown() {
+
+	isShuttingDown_ = true;
 
 	// need to delete the runs/experiments tree insert first, before the tree gets deleted
 	delete runExperimentInsert_;

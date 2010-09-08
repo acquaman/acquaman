@@ -2,14 +2,14 @@
 #define AMSTARTSCREEN_H
 
 
-#include <QSplashScreen>
+#include <QWidget>
 #include <QVBoxLayout>
 #include <QGridLayout>
 #include <QPushButton>
 #include "ui/AMRunSelector.h"
 #include "dataman/AMDatabase.h"
 
-class AMStartScreen : public QSplashScreen
+class AMStartScreen : public QWidget
 {
 	Q_OBJECT
 public:
@@ -18,9 +18,12 @@ public:
 signals:
 
 public slots:
-	void storeCurrentRun();
-private:
-	AMRunSelector *box;
+	bool storeCurrentRun();
+
+protected:
+	AMRunSelector *runSelector_;
+
+	virtual void closeEvent(QCloseEvent *);
 
 };
 

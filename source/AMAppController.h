@@ -38,15 +38,31 @@ class AMAppController : public QObject
 {
 Q_OBJECT
 public:
-	/// Default construster
+	/// This constructor is empty. Call AMAppController::startup() to create all of the application windows, widgets, and data objects that are needed on program startup.
 	explicit AMAppController(QObject *parent = 0);
+	/// This destructor automatically calls shutdown() if required. (ie: if startup() has run successfully, and shutdown() hasn't been called yet.)
 	virtual ~AMAppController();
+
+	/// create and setup all of the application windows, widgets, communication connections, and data objects that are needed on program startup. Returns true on success
+	bool startup();
+
+	/// destroy all of the windows, widgets, and data objects created by applicationStartup(). Only call this if startup() has ran successfully.
+	void shutdown();
+
+	/// Returns true when the application is starting up (ie: true prior to startup() finishing successfully, false afterwards)
+	bool isStarting() { return isStarting_; }
+	/// Returns true when the application is in the process of shutting down (ie: as soon as shutdown() has been called)
+	bool isShuttingDown() { return isShuttingDown_; }
+	/// Returns true when the application is running normally (ie: after startup() finishes succesfully, and before shutdown() is called)
+	bool isRunning() { return isStarting_ == false && isShuttingDown_ == false; }
+
 
 signals:
 
 public slots:
 
 	// These slots are used to tell the app to activate a particular window/widget
+	///////////////////////////////
 
 	/// Bring the Workflow view to the front level
 	void goToWorkflow();
@@ -87,16 +103,12 @@ protected:
 	QMenu* fileMenu_;
 
 	// Top-level panes in the main window
-	ConnectionSettings* connectionSettings_;
 	SGMSampleTransferView* sampleTransferView_;
 	AMSamplePositionView* samplePositionView_;
-	SamplePositions* samplePositions_;
-	GratingResolution* gratingResolution_;
 	AbsorptionScanController* absorptionScanController_;
 	AMScanConfigurationView* scanConfigurationView_;
 	SGMXASScanConfigurationViewer* xasScanConfigurationViewer_;
 	AMXASScanConfigurationHolder* scanConfigurationHolder_;
-	EmissionScanController* emissionScanController_;
 	AMWorkflowManagerView* workflowManagerView_;
 	BottomBar* bottomBar_;
 	AMDataView* dataView_;
@@ -104,6 +116,10 @@ protected:
 
 //	AMGenericScanEditor* scanEditor_;
 	QStandardItemModel* scanEditors_;
+
+
+	// Application state:
+	bool isStarting_, isShuttingDown_;
 };
 
 #endif // AMAPPCONTROLLER_H

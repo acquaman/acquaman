@@ -1,7 +1,7 @@
 #include "AMFirstTimeController.h"
 #include <QStringList>
 
-AMFirstTimeController::AMFirstTimeController() {
+bool AMFirstTimeController::isFirstTime() {
 
 	bool isFirstTime = false;
 
@@ -27,32 +27,19 @@ AMFirstTimeController::AMFirstTimeController() {
 		}
 	}
 
-	splashScreen_ = new AMStartScreen(0);
-	if(isFirstTime) {
-		onFirstTime();
-	}
-	else splashScreen_->show();
-
-	databaseUpgrade();
+	return isFirstTime;
 }
 
-//added function here so easier to call with a signal in FirstTimeWidget.
-// Where should we delete the splash screen?
-void AMFirstTimeController::openSplashScreen(){
-	splashScreen_->show();
-}
 
 #include <QApplication>
 
-void AMFirstTimeController::onFirstTime() {
+bool AMFirstTimeController::onFirstTime() {
 
 	AMFirstTimeWizard ftw;
 
-	connect(&ftw,SIGNAL(accepted()),this,SLOT(openSplashScreen()));
-
-	if(ftw.exec() != QDialog::Accepted) {
-		// figure out how to quit the main program from here.  We might not be inside the application run loop yet.
-	}
+	// We're pretty forceful here... The user needs to accept this dialog.
+	if(ftw.exec() != QDialog::Accepted)
+		return false;
 
 	AMUserSettings::userName = ftw.field("userName").toString();
 	AMUserSettings::userDataFolder = ftw.field("userDataFolder").toString();
@@ -65,22 +52,25 @@ void AMFirstTimeController::onFirstTime() {
 	QDir userDataDir(AMUserSettings::userDataFolder);
 	if(!userDataDir.exists()) {
 		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, 0, "Creating new user data folder: "  + AMUserSettings::userDataFolder));
-		if(!userDataDir.mkpath(AMUserSettings::userDataFolder))
+		if(!userDataDir.mkpath(AMUserSettings::userDataFolder)) {
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, 0, "Could not create user data folder " + AMUserSettings::userDataFolder));
+			return false;
+		}
 	}
 
 	// initialize the database
 	QString filename = AMUserSettings::userDataFolder + AMUserSettings::userDatabaseFilename;
 	QFile dbFile(filename);
 	if(!dbFile.exists())
-		databaseInitialization();
+		return databaseInitialization();
 	else
-		databaseUpgrade();
-
+		return true;
 
 }
 
-
+bool AMFirstTimeController::onEveryTime() {
+	return databaseUpgrade();
+}
 
 #include <dataman/AMDatabaseDefinition.h>
 #include <dataman/AMXASScan.h>
@@ -92,7 +82,7 @@ void AMFirstTimeController::onFirstTime() {
 #include <dataman/AMDetectorInfo.h>
 
 /// create structures and tables for a new user database, from scratch
-void AMFirstTimeController::databaseInitialization() {
+bool AMFirstTimeController::databaseInitialization() {
 
 	AMDatabaseDefinition::initializeDatabaseTables(AMDatabase::userdb());
 
@@ -133,10 +123,15 @@ void AMFirstTimeController::databaseInitialization() {
 	AMFacility sgm("SGM", "Canadian Light Source SGM Beamline", ":/clsIcon.png");
 	sgm.storeToDb(AMDatabase::userdb());
 
+	/// \todo Better error checking. Complicated because some calls could fail even though the process completes successfully. (ie: creating db table columns that already exist will fail)
+	return true;
+
+
 
 }
 
 /// Check whether the user database is the most recent version, and migrate if required.
-void AMFirstTimeController::databaseUpgrade() {
+bool AMFirstTimeController::databaseUpgrade() {
 	/// \todo
+	return true;
 }

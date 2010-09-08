@@ -25,13 +25,12 @@ public:
 
 public slots:
 	void setCurrentRunId(int runId);
+	void showAddRunDialog();
 
 protected slots:
 	void populateRuns();
 	void onComboBoxActivated(int index);
 
-
-	void showAddRunDialog();
 	void onAddRunDialogClosed(int newRunId);
 
 	void onDatabaseUpdate(const QString&, int);
@@ -45,6 +44,7 @@ protected:
 	AMNewRunDialog *newRunDialog_;
 
 	bool runUpdateScheduled_;
+	int lastValidRunId_;
 
 
 };

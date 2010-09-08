@@ -144,9 +144,6 @@ bool AMScan::setMetaData(const QString& key, const QVariant& value) {
 	if(key == "sampleId")
 		sampleNameLoaded_ = false;
 
-	if(key == "dateTime")
-		qDebug() << "AMScan:: who is setting the dateTime?";
-
 	return AMDbObject::setMetaData(key, value);
 }
 
@@ -167,7 +164,7 @@ void AMScan::retrieveSampleName() const {
 		sampleName_ = "[no sample]";
 
 	else {
-		sampleNameLoaded_ = true;	// don't set sampleNameLoaded_ above. That way we will keep checking until there's a database set (for ex: we get saved/stored.) The sampleNameLoaded_ cache is meant to speed up this database call.
+		sampleNameLoaded_ = true;	// don't set sampleNameLoaded_ in the case above. That way we will keep checking until there's a valid database() (for ex: we get saved/stored.) The sampleNameLoaded_ cache is meant to speed up this database call.
 		QVariant vSampleName;
 		QList<QVariant*> vList;
 		vList << &vSampleName;

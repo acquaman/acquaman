@@ -19,12 +19,8 @@ AMRunSelector:: AMRunSelector(AMDatabase* db, QWidget *parent)
 	v->setItemDelegate(new AMDetailedItemDelegate());
 	v->setResizeMode(QListView::Adjust);
 
-	/* will need from database:
-	   * run name
-	   * run date
-	   * run id
-	*************/
 	database_ = db;
+	lastValidRunId_ = -1;
 	populateRuns();
 
 	if (count() > 1)
@@ -72,9 +68,9 @@ void AMRunSelector::populateRuns() {
 
 	if (q.exec()) {
 		while (q.next()){
-			addItem(QString(q.value(1).toString()));
-			setItemData(i, q.value(2).toDateTime().toString(" MMM d (yyyy)"), AM::DescriptionRole);
-			setItemData(i, q.value(2), AM::DateTimeRole);
+			addItem(QString("%1, started %2").arg(q.value(1).toString()).arg(AMDateTimeUtils::prettyDate(q.value(2).toDateTime())));
+			setItemData(i, q.value(3).toString() + " - " + q.value(2).toDateTime().toString("MMM d (yyyy)"), AM::DescriptionRole);
+			setItemData(i, q.value(2).toDateTime(), AM::DateTimeRole);
 			if(q.value(4).toString() == "PNG") {
 				QPixmap p;
 				if(p.loadFromData(q.value(5).toByteArray(), "PNG"))
@@ -90,8 +86,12 @@ void AMRunSelector::populateRuns() {
 	else
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, "Error retrieving run information from the database."));
 
-	// restore
-	setCurrentRunId(oldRunId);
+	// restore. If we didn't have anything selected previously, and we have at least one valid run now, select it
+	if(oldRunId < 1 && count() > 1) {
+		setCurrentRunId(itemData(1, AM::IdRole).toInt());
+	}
+	else
+		setCurrentRunId(oldRunId);
 
 }
 
@@ -104,8 +104,10 @@ void AMRunSelector::onComboBoxActivated(int index) {
 		emit currentRunIdChanged(-1);
 	else if (index==0)	// open dialogue to create a new run
 		showAddRunDialog();
-	else
-		emit currentRunIdChanged(itemData(index, AM::IdRole).toInt());
+	else {
+		lastValidRunId_ = itemData(index, AM::IdRole).toInt();
+		emit currentRunIdChanged(lastValidRunId_);
+	}
 
 }
 
@@ -138,6 +140,9 @@ void AMRunSelector::onAddRunDialogClosed(int newRunId){
 	if(newRunId > 0) {
 		populateRuns();
 		setCurrentRunId(newRunId);
+	}
+	else {
+		setCurrentRunId(lastValidRunId_);
 	}
 }
 

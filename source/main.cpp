@@ -58,7 +58,9 @@ int main(int argc, char *argv[])
 
 	/// Program Run-loop:
 	// =================================
-	int retVal = app.exec();
+	int retVal = -1;
+	if(appController->startup())
+		retVal = app.exec();
 
 	/// Program Shutdown:
 	// =================================

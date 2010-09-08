@@ -5,41 +5,46 @@
 
 #include "AMErrorMonitor.h"
 #include <AMSettings.h>
-#include "ui/AMStartScreen.h"
 #include <dataman/AMDatabase.h>
 #include <ui/AMFirstTimeWidget.h>
 
 
 
 
-/// This controller supervises a process to ensure that user settings, the user data folder, and the database are ready for use. To use it, simply create an instance of this class and wait for its constructor to finish (ie: "AMFirstTimeController();" or "delete new AMFirstTimeController()" ).
+/// This controller supervises a process to ensure that user settings, the user data folder, and the database are ready for use. To use it, call AMFirstTimeController::firstTimeCheck() to automatically check and conduct any initialization that needs to happen.  Alternatively, you can call isFirstTime() to find out what the situation is, and call onFirstTime() or onEveryTime() accordingly.
 class AMFirstTimeController : public QObject
 {
 Q_OBJECT
 public:
-	/// This controller supervises a process to ensure that user settings, the user data folder, and the database are ready for use. If there is a problem, the constructor calls onFirstTime() to rectify it.
-	explicit AMFirstTimeController() ;
 
-	~AMFirstTimeController(){
-		//delete splashScreen_;
+	/// It's recommended to call this function on application startup.  It checks if this is the first time the application has run, and calls onFirstTime() if that's true; otherwise it calls onEveryTime().  Returns true of everything that needs to happen is completed successfully.
+	static bool firstTimeCheck() {
+		if(isFirstTime())
+			return onFirstTime();
+		else
+			return onEveryTime();
 	}
 
-	void onFirstTime() ;
 
-	/// create structures and tables for a new user database, from scratch
-	void databaseInitialization() ;
 
-	/// Check whether the user database is the most recent version, and migrate if required.
-	void databaseUpgrade() ;
 
-signals:
 
-public slots:
-	void openSplashScreen();
+	/// This function returns true if the application has ran before, and returns false if this looks to be the first time (and some initialization is required)
+	static bool isFirstTime();
+
+	/// This function supervises a process to ensure that user settings, the user data folder, and the database are ready for use. Returns true on success.
+	static bool onFirstTime();
+
+	/// Call this function on every other program startup (ie: whenever onFirstTime() is not called). Returns true on success
+	static bool onEveryTime();
+
 
 protected:
-	AMStartScreen *splashScreen_;
+	/// create structures and tables for a new user database, from scratch
+	static bool databaseInitialization() ;
 
+	/// Check whether the user database is the most recent version, and migrate if required.
+	static bool databaseUpgrade();
 
 };
 
