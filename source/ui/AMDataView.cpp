@@ -4,6 +4,7 @@
 #include "dataman/AMDatabaseDefinition.h"
 #include "AMErrorMonitor.h"
 #include "ui/AMDateTimeUtils.h"
+#include "dataman/AMUser.h"
 
 #include <QDebug>
 
@@ -63,11 +64,11 @@ AMDataView::AMDataView(AMDatabase* database, QWidget *parent) :
 
 
 void AMDataView::retrieveUserName() {
-	// Personalize the name:
-	QSqlQuery findName = db_->query();
-	findName.prepare("SELECT value FROM DatabaseInformation WHERE key = 'userName'");
-	if(findName.exec() && findName.next()) {
-		userName_ = findName.value(0).toString();
+
+	userName_ = AMUser::user()->name();
+
+	if(!userName_.isEmpty()) {
+
 		if(userName_.endsWith('s'))
 			userName_.append("' ");
 		else
