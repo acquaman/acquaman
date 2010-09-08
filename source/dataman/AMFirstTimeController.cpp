@@ -123,6 +123,10 @@ bool AMFirstTimeController::databaseInitialization() {
 	AMFacility sgm("SGM", "Canadian Light Source SGM Beamline", ":/clsIcon.png");
 	sgm.storeToDb(AMDatabase::userdb());
 
+	/// Usability tweak: the first time users launch the program, we can assume they're going to do some acquisition, so let's create an initial run. (\todo This is SGM-specific... maybe it should be moved elsewhere)
+	AMRun newRun("SGM", sgm.id());
+	newRun.storeToDb(AMDatabase::userdb());
+
 	/// \todo Better error checking. Complicated because some calls could fail even though the process completes successfully. (ie: creating db table columns that already exist will fail)
 	return true;
 

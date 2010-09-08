@@ -86,9 +86,11 @@ void AMRunSelector::populateRuns() {
 	else
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, "Error retrieving run information from the database."));
 
-	// restore. If we didn't have anything selected previously, and we have at least one valid run now, select it
+	// restore the previous id. If we didn't have anything selected previously, and we have at least one valid run now, select it
 	if(oldRunId < 1 && count() > 1) {
-		setCurrentRunId(itemData(1, AM::IdRole).toInt());
+		lastValidRunId_ = itemData(1, AM::IdRole).toInt();
+		setCurrentIndex(1);
+		emit currentRunIdChanged(lastValidRunId_);
 	}
 	else
 		setCurrentRunId(oldRunId);

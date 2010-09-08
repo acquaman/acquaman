@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>317</width>
-    <height>266</height>
+    <height>271</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -177,7 +177,7 @@ color: rgb(121,121,121);</string>
            <item>
             <widget class="QToolButton" name="insertButton">
              <property name="text">
-              <string>Insert...</string>
+              <string>Insert  </string>
              </property>
              <property name="popupMode">
               <enum>QToolButton::InstantPopup</enum>
