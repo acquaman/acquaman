@@ -4,8 +4,10 @@ AMSamplePositionView::AMSamplePositionView(QWidget *parent, AMSampleManipulatorV
 	QWidget(parent)
 {
 	/// \todo temporary. (find a place to get this location from)
-	QUrl source("http://ccd1611-403/axis-cgi/mjpg/video.cgi?resolution=1280x1024&.mjpg");
+	QUrl source("/Users/mboots/Desktop/japan2010/devin/P8100682.MP4");
+	QUrl source2("http://ccd1611-403/axis-cgi/mjpg/video.cgi?resolution=1280x1024&.mjpg");
 	cam_ = new CamWidget("Camera 1", source);
+	cam_->addSource("Camera 2", source2);
 
 	manipulator_ = NULL;
 	/// \todo move this out of AM framework level... (or move currentSamplePlate() up to AM framework level)
