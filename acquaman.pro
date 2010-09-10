@@ -179,7 +179,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMThumbnailScrollViewer.h \
 	source/ui/AMXASRegionsView.h \
 	source/ui/BottomBar.h \
-	source/ui/CamWidget.h \
+	source/ui/AMBeamlineCameraWidget.h \
 	source/ui/ConnectionSettings.h \
 	source/ui/EmissionScanController.h \
 	source/ui/ExpAlbum.h \
@@ -223,7 +223,8 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMStartScreen.h \
 	source/ui/AMSignallingGraphicsScene.h \
 	source/ui/SGMBeamlineAtAGlanceBar.h \
-	source/dataman/AMUser.h
+	source/dataman/AMUser.h \
+	source/ui/AMVideoPlayerWidget.h
 FORMS += source/ui/AbsorptionScanController.ui \
 	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
@@ -352,7 +353,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMThumbnailScrollViewer.cpp \
 	source/ui/AMXASRegionsView.cpp \
 	source/ui/BottomBar.cpp \
-	source/ui/CamWidget.cpp \
+	source/ui/AMBeamlineCameraWidget.cpp \
 	source/ui/NumericControl.cpp \
 	source/ui/SamplePositions.cpp \
 	source/ui/SGMSampleTransferView.cpp \
@@ -388,7 +389,8 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMStartScreen.cpp \
 	source/ui/AMSignallingGraphicsScene.cpp \
 	source/ui/SGMBeamlineAtAGlanceBar.cpp \
-	source/dataman/AMUser.cpp
+	source/dataman/AMUser.cpp \
+	source/ui/AMVideoPlayerWidget.cpp
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc
 OTHER_FILES += source/muParser/README.txt

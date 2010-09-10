@@ -8,7 +8,7 @@
 
 #include "AMSamplePlateView.h"
 #include "AMSampleManipulatorView.h"
-#include "CamWidget.h"
+#include "ui/AMBeamlineCameraWidget.h"
 
 class AMSamplePositionView : public QWidget
 {
@@ -21,7 +21,7 @@ signals:
 public slots:
 
 protected:
-	CamWidget *cam_;
+	AMBeamlineCameraWidget *cam_;
 	AMSamplePlateView *plateView_;
 	AMSampleManipulatorView *manipulatorView_;
 

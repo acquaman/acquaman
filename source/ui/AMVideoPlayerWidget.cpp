@@ -1,13 +1,11 @@
-#include "CamWidget.h"
-
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QLabel>
-#include <QUrl>
+#include "AMVideoPlayerWidget.h"
 
 #include <QImage>
+#include <QPalette>
+#include <QPainter>
 
 #include <QDebug>
+
 
 
 AMVideoPlayerWidget::AMVideoPlayerWidget(QWidget *parent) : QFrame(parent) {
@@ -18,6 +16,16 @@ AMVideoPlayerWidget::AMVideoPlayerWidget(QWidget *parent) : QFrame(parent) {
 	vlcInstance_ = libvlc_new (0, NULL);
 	/// create the vlc player itself
 	vlcPlayer_ = libvlc_media_player_new(vlcInstance_);
+
+
+	sourceSizeCheckRequired_ = false;
+	videoSourceSize_ = QSize(640, 480);	// doesn't matter... we just need something for now. We'll pick this up again once we get actual video.
+	libvlc_video_set_format(vlcPlayer_, "RV32", videoSourceSize_.width(), videoSourceSize_.height(), videoSourceSize_.width()*4);
+
+	// compute initial display size
+	scaleMode_ = Qt::KeepAspectRatio;
+	displaySizeHelper();
+
 	/// register callbacks so that we can implement custom drawing of video frames
 	libvlc_video_set_callbacks(
 			vlcPlayer_,
@@ -26,11 +34,10 @@ AMVideoPlayerWidget::AMVideoPlayerWidget(QWidget *parent) : QFrame(parent) {
 			&displayCBWrapper,
 			this);
 
-	scaleMode_ = Qt::KeepAspectRatio;
-	sizeCheck();
-
-	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-	setStyleSheet("background-color: black;");
+	QPalette p = palette();
+	p.setBrush(QPalette::Window, Qt::black);
+	setPalette(p);
+	setAutoFillBackground(true);
 }
 
 AMVideoPlayerWidget::~AMVideoPlayerWidget() {
@@ -46,13 +53,14 @@ bool AMVideoPlayerWidget::openVideoUrl(const QString &videoUrl) {
 		return false;
 
 	/// \todo Look at:
-	libvlc_state_t state = libvlc_media_get_state(media);
+	// libvlc_state_t state = libvlc_media_get_state(media);
 
 
+	libvlc_media_player_stop(vlcPlayer_);
 	libvlc_media_player_set_media(vlcPlayer_, media);
 	libvlc_media_release(media);
 
-	setSizeCheckRequired();
+	sourceSizeCheckRequired_ = true;
 
 	return true;
 
@@ -74,28 +82,41 @@ void AMVideoPlayerWidget::stop() {
 }
 
 
+void AMVideoPlayerWidget::videoResizeEvent(AMVideoResizeEvent* event) {
+
+	if(!sourceSizeCheckRequired_)
+		return;
+
+	sourceSizeCheckRequired_ = false;
+	event->accept();
+
+	libvlc_media_player_stop(vlcPlayer_);
+
+	videoSourceSizeMutex_.lock();	// this critical section ensures the videoSourceSize_ and the libvlc render format size are always in sync. The lockCB() function called from the vlc thread will need to wait for this to finish before being able to access videoSourceSize().
+	videoSourceSize_ = event->newSize();
+	libvlc_video_set_format(vlcPlayer_, "RV32", videoSourceSize_.width(), videoSourceSize_.height(), videoSourceSize_.width()*4);
+	videoSourceSizeMutex_.unlock(); // end critical section.
+
+	qDebug() << "VIDEO SOURCE RESIZE EVENT. Re-scaling and changing format to new size:" << videoSourceSize_;
+
+	displaySizeHelper();
+	libvlc_media_player_play(vlcPlayer_);
+}
+
 /// Called to determine the pixel dimensions of the video source, and determine how big our video display should be
-void AMVideoPlayerWidget::sizeCheck() {
+void AMVideoPlayerWidget::displaySizeHelper() {
 
-	QMutexLocker locker(&sizeCheckMutex_);
+	QSize sourceSize = videoSourceSize();
 
-	sizeCheckRequired_ = false;
-
-	unsigned int w, h;
-	if(libvlc_video_get_size(vlcPlayer_, 0, &w, &h) == 0) {	// returns 0 on success (ie: video loaded and playing)
-		videoSourceSize_ = QSize(w,h);
-	}
-	else {
-		videoSourceSize_ = QSize(320, 240);	// doesn't matter for now... we just need something. We'll check again once actual video is playing
-	}
-
-	double sourceAspectRatio = double(videoSourceSize_.height()) / videoSourceSize_.width();
+	double sourceAspectRatio = double(sourceSize.height()) / sourceSize.width();
 	double displayAspectRatio = double(height())/width();
 
 	switch(scaleMode_) {
+
 	case Qt::IgnoreAspectRatio:
 		videoDisplayRect_ = QRect(0,0,width(),height());	// in IgnoreAspectRatio mode, we just render to fill the whole widget
 		break;
+
 	case Qt::KeepAspectRatio:	// In this mode, we shrink video to fit, with the original aspect ratio
 		if(displayAspectRatio >= sourceAspectRatio) { // our display is taller than the source. letterbox above and below; video goes full width
 			int displayHeight = width()*sourceAspectRatio;
@@ -109,6 +130,7 @@ void AMVideoPlayerWidget::sizeCheck() {
 			videoDisplayRect_ = QRect((width()-displayWidth)/2, 0, displayWidth, height());
 		}
 		break;
+
 	case Qt::KeepAspectRatioByExpanding: // in this mode, we expand video and crop on edges if required
 		if(displayAspectRatio >= sourceAspectRatio) { // our display is taller than the source. Video goes full height; width is over-sized.
 			int displayWidth = height()*sourceAspectRatio;
@@ -122,49 +144,44 @@ void AMVideoPlayerWidget::sizeCheck() {
 		break;
 	}
 
-
-	/// What is the "line pitch"? Looks like it's the number of width pixels X the size of a pixel (in bytes...)
-	libvlc_video_set_format(vlcPlayer_, "RV32", videoDisplayRect_.width(), videoDisplayRect_.height(), videoDisplayRect_.width()*4);
-
-	/// Check what happened:
-	qDebug() << "SSSSSSSSSSize CCCCCCCCCCCCheck!!!!!!!!!  source size:" << videoSourceSize_ << "display rect:" << videoDisplayRect_;
-
+	qDebug() << "VIDEO DISPLAY SIZE ADJUSTED ======  source size:" << sourceSize << "display rect:" << videoDisplayRect_;
 }
 
+#include <QApplication>
 /// Called when a video frame needs to be decoded; this must allocate video memory, which is returned in the argument \c pixelPlane. Also returns a pointer that will be passed into unlockCB() and displayCB() as the void* \c picture argument.
 void* AMVideoPlayerWidget::lockCB(void** pixelPlane) {
 
-	if(sizeCheckRequired()) {
-		sizeCheck();
+	QSize sourceSize = videoSourceSize();
+
+	if(sourceSizeCheckRequired_) {
+		unsigned int w,h;
+		if(libvlc_video_get_size(vlcPlayer_, 0, &w, &h) == 0)	// returns 0 on success (ie: media loaded and playing... we now know the real size)
+			QApplication::postEvent(this, new AMVideoResizeEvent(QSize(w,h), sourceSize));
 	}
 
-	sizeCheckMutex_.lock();
-	QSize videoSize = videoDisplayRect_.size();
-	sizeCheckMutex_.unlock();
+	QImage* image = new QImage(sourceSize.width(), sourceSize.height(), QImage::Format_RGB32);
 
-
-	renderPixmapMutex_.lock();
-	if(renderPixmap_.size() != videoSize)
-		renderPixmap_ = QImage(videoSize.width(), videoSize.height(), QImage::QImage::Format_RGB32);
-	*pixelPlane = renderPixmap_.bits();
-	return &renderPixmap_;
+	*pixelPlane = image->bits();
+	return image;
 
 }
 
 /// Called when a video frame is done decoding; this can free the memory. \c picture is the return value from lockCB().
 void AMVideoPlayerWidget::unlockCB(void* picture, void*const *pixelPlane) {
-	renderPixmapMutex_.unlock();
+	Q_UNUSED(picture)
+	Q_UNUSED(pixelPlane)
 }
 
 /// Called when a video frame is ready to be displayed, according to the vlc clock. \c picture is the return value from lockCB().
 void AMVideoPlayerWidget::displayCB(void* picture) {
 
+	QImage* image = reinterpret_cast<QImage*>(picture);
 
-	renderPixmapMutex_.lock();
 	onScreenPixmapMutex_.lock();
-	onScreenPixmap_ = QPixmap::fromImage(renderPixmap_);
+	onScreenPixmap_ = QPixmap::fromImage(*image);
 	onScreenPixmapMutex_.unlock();
-	renderPixmapMutex_.unlock();
+
+	delete image;
 
 	update();
 }
@@ -173,73 +190,11 @@ void AMVideoPlayerWidget::displayCB(void* picture) {
 void AMVideoPlayerWidget::paintEvent(QPaintEvent *e) {
 	QFrame::paintEvent(e);
 
-	sizeCheckMutex_.lock();
-	QRect displayRect = videoDisplayRect_;
-	sizeCheckMutex_.unlock();
-
 	QPainter p(this);
 	onScreenPixmapMutex_.lock();
-	p.drawPixmap(displayRect, onScreenPixmap_, onScreenPixmap_.rect());
+	p.drawPixmap(videoDisplayRect_, onScreenPixmap_, onScreenPixmap_.rect());
 	onScreenPixmapMutex_.unlock();
 	p.end();
 
 
-}
-
-CamWidget::CamWidget(const QString& cameraName, const QUrl& cameraAddress, QWidget* parent) : QWidget(parent) {
-
-	// Setup UI:
-	/////////////////////
-
-	// Layouts: full vertical, with horizontal sub-layout at bottom.
-	QVBoxLayout* vl1 = new QVBoxLayout(this);
-	QHBoxLayout* hl1 = new QHBoxLayout();
-
-	// VideoWidget takes up main space:
-	videoWidget_ = new AMVideoPlayerWidget(this);
-
-	vl1->addWidget(videoWidget_);
-
-	// add horizontal layout at bottom:
-	vl1->addLayout(hl1);
-
-	hl1->addStretch();
-	QLabel* label = new QLabel("Source");
-	hl1->addWidget(label);
-
-	// Add combobox with list of camera names/addresses:
-	cameraList_ = new QComboBox();
-	hl1->addWidget(cameraList_);
-
-	cameraList_->insertItem(0, cameraName, cameraAddress);
-	connect(cameraList_, SIGNAL(activated(int)), this, SLOT(onSourceChanged(int)));
-	onSourceChanged( cameraList_->currentIndex() );
-
-
-}
-
-CamWidget::~CamWidget()
-{
-}
-
-
-#include "AMErrorMonitor.h"
-
-void CamWidget::onSourceChanged(int index) {
-
-	videoWidget_->stop();
-
-	QUrl source( cameraList_->itemData(index).toUrl() );
-
-	AMErrorMon::report(AMErrorReport(this, AMErrorReport::Information, 0, QString("Attempting to connect to video server: '%1%2' with user name: '%3' and password: '%4'").arg(source.host()).arg(source.path()).arg(source.userName()).arg(source.password())));
-
-	videoWidget_->openVideoUrl( source.toString() );
-
-	videoWidget_->play();
-
-}
-
-void CamWidget::addSource(const QString& cameraName, const QUrl& cameraAddress) {
-
-	cameraList_->addItem(cameraName, QVariant::fromValue(cameraAddress));
 }

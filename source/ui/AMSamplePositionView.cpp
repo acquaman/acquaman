@@ -4,9 +4,9 @@ AMSamplePositionView::AMSamplePositionView(QWidget *parent, AMSampleManipulatorV
 	QWidget(parent)
 {
 	/// \todo temporary. (find a place to get this location from)
-	QUrl source("/Users/mboots/Desktop/japan2010/devin/P8100682.MP4");
-	QUrl source2("http://ccd1611-403/axis-cgi/mjpg/video.cgi?resolution=1280x1024&.mjpg");
-	cam_ = new CamWidget("Camera 1", source);
+	QUrl source("http://ccd1611-403/axis-cgi/mjpg/video.cgi?resolution=1280x1024&.mjpg");
+	QUrl source2("/Users/mboots/Desktop/japan2010/devin/P8100682.MP4");
+	cam_ = new AMBeamlineCameraWidget("Camera 1", source);
 	cam_->addSource("Camera 2", source2);
 
 	manipulator_ = NULL;

@@ -22,7 +22,7 @@ namespace AM {
 	enum AcquamanType { IntList = QVariant::UserType + 20, DoubleList };
 
 	/// Acquaman-specific event types
-	enum EventType { AcqEvent = QEvent::User+20 };
+	enum EventType { AcqEvent = QEvent::User+20, VideoResizeEvent };
 
 	/// custom QGraphicsItem types (see qgraphicsitem_cast<>() for more information)
 	enum GraphicsItemType { ThumbnailScrollGraphicsWidgetType = 65540 };
@@ -35,6 +35,7 @@ public:
 
 	QMap<int, double> dataPackage_;
 };
+
 
 typedef QList<int> AMIntList;
 typedef QList<double> AMDoubleList;

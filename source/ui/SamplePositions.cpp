@@ -6,7 +6,7 @@ SamplePositions::SamplePositions(QWidget* parent) : QWidget(parent) {
 
 	QUrl source1(SAMPLEPOS_CAM_SOURCE1);
 
-	camWidget_ = new CamWidget("Camera 1", source1);
+	camWidget_ = new AMBeamlineCameraWidget("Camera 1", source1);
 
 	QVBoxLayout* vl = new QVBoxLayout(videoFrameWidget);
 	vl->addWidget(camWidget_);

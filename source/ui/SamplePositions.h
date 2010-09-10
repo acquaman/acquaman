@@ -2,7 +2,7 @@
 #define ACQMAN_SamplePositions_H
 
 #include "ui_SamplePositions.h"
-#include "CamWidget.h"
+#include "ui/AMBeamlineCameraWidget.h"
 #include <QUrl>
 
 
@@ -22,15 +22,15 @@
 
 
 class SamplePositions : public QWidget, private Ui::SamplePositions {
-	
+
 	Q_OBJECT
-	
+
 public:
 	SamplePositions(QWidget* parent = 0);
-	
-	
+
+
 protected:
-	CamWidget* camWidget_;
+	AMBeamlineCameraWidget* camWidget_;
 };
 
 #endif
