@@ -1,3 +1,128 @@
+Acquaman Feature Roadmap
+--------------------------
+
+
+Mark's short-term, ongoing
+====================
+- AMRun: when setting the runId on scan... how to notify that run (and the run of the previous runId) to re-compute their start and end times?
+- Delete experiments, close scan editors ('x' button in Sidebar)
+- catch scan editor close event; prompt for save
+- set scan's runId( AMUser::currentRunId() ) on scan controller start acquisition
+- AMDataView: efficient update when scans are created, or re-saved with new thumbnails.
+- AMDataView: feedback and maintaining responsiveness while loading
+- Multiple-selection of scans with ctrl-click or equivalent
+- adjustable sizing of thumbnails in AMDataViewThumbnailSectionView
+- DragAndDrop onto open scan editor links in sidebar
+- 'Open' button in scan editor; widget to show/add {recent, run, experiment} scans
+- dynamic window names for scan editors
+
+
+
+
+David's short-term, ongoing
+=====================
+
+
+
+
+
+Beta1 Polish
+=====================
+- Sample transfer walk-through
+- titles and legends on plots
+- adjust line/color/style of plot series
+- adjust waterfall and scaling on plots
+
+
+
+Beta1 Missing Features
+=====================
+- Scans: isAcquiring() and signals... + some way to stop acquiring from the scan editor? What happens when scan editor closed with a currently acquiring scan?
+
+- Beamline quick-view control bar
+- Beamline advanced control pane
+
+- Detectors: XES detector and detector configuration
+- XES scan subclass
+- XES scan: custom editor
+- Beamline information editor inside Scan Editor; saving beamline information
+- 2D channels, and functions to turn 2d into 1d channel
+
+- Scan setup/configuration:
+	- XES scan setup
+	- Wizard mode
+	
+- Data management view:
+	- List view
+	
+- External import and export tools
+	- import: support existing file formats: SGM XAS, PGM XAS, ALS XAS, ALS XES, general ascii columns	(auto-identify?)
+		ascii import: skip 'n' first lines, specify delimeters (preview?); prompt for missing meta-data. [must work in batch mode for large set of files]
+	- export: as ascii, .xls, and origin file formats. (choose channels & raw data columns to export; remember user-default settings)
+
+Beta1 Code/API Cleanup
+======================
+- management of scan editors inside AMAppController
+- Window management: common title bar, look, and feel
+- AMSamplePlateModel cleanup: completed... why does it break the view?
+
+
+
+Roadmap: Release1
+=====================
+
+- Sample positioning:
+	- select samples by highlighting on video display
+		- ray + sample-plate 3D geometry analysis
+	- XES position optimization (automatically aligns for highest detector signal)
+
+- Data management views:
+	- Logbook (moewes beamteam/tregier-style table) view
+	- Calendar view
+
+- Periodic table with edge information (Use to start a coarse or fine scan)
+- Excel and Origin export: export channels as math formulas, not values
+- Channels: access data from other scans
+- Additional math functions in channel expressions (not strictly point-based: integration, differentiation, smoothing ...)
+- Drag-and-drop other scans into plots (show: recent scans, specific run, specific sample, specific experiment)
+
+
+Roadmap: Release2
+=====================
+
+- Data management views:
+	- Coverflow view
+
+- Scripting framework and user interface (script console, debugger, etc.)
+- General queue system (integrated with user workflow system)
+- Logbook (combine drag-and-dropped plot layouts with free notes and sketches)
+- Calibration tools
+- User-addable metadata
+- Improved 2D data handling: UI for slicing, cross-sectioning, and joining a series of 1D datasets into a 2D set
+- Native import handling for data files from PGM, HXMA, ...
+	- Auto-import based on user account info?
+- Multi-user database (online): enables sharing data with group members, collaborators, and public (if user chooses)
+- Calibration standards (in public database). Linked from periodic table: is this what my data should look like?
+
+
+Roadmap - Release3
+=====================
+- Refining scan ranges and re-starting new scans from within plot views
+- Integration with modeling and fitting tools (Athena/Artemis, IFFEFFIT/FEFF, FitIt/FDMNES, Crystal Field/Atomic Multiplet, etc.)
+- Advanced plot tools: view integrated area under a curve, peak fitting, centroid finding, ...
+- Sample chamber and beam 3D modeling: automatic beam cross-hair on sample video
+- Raster scanning and mapping support
+- Continuous sample motion for radiation-damage-sensitive samples
+
+
+
+
+
+
+
+
+
+
 Random list (Mark - week of May 15.. still going on June 15... july 5. Geez!)
 =============
 - Add users to add a field(s) to the Db/metadata?
@@ -5,7 +130,7 @@ Random list (Mark - week of May 15.. still going on June 15... july 5. Geez!)
 
 
 - Import system:
-	- import wizqrd (customized for each scan type?)
+	- import wizard (customized for each scan type?)
 	- how to identify scan type? (automatic? how?)
 	- create channels for ______ columns (remember user defaults -- where?)
 	- wizard should work for single file or large set of files at once

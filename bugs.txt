@@ -1,8 +1,24 @@
-Bugs List
----------
+Acquaman Bug Tracking List
+-----------------------------
 
-> analyze, test, and cleanup the move___ and moving() properties and signals in beamline/Control.  Develop more explicit notification system.
+Outstanding - Causing crashes
+========================
 
-> replace all qDebug() with our own error/logging notification system.
 
->> errorMon popup needs to have the drawing algorithm fixed ... and the code needs to be migrated from the .h to the .cpp file ... just tried of working on it.
+
+
+
+
+
+
+Outstanding - Wrong behaviour
+========================
+
+
+
+
+
+Fixed:
+========================
+001 - Sept 15: libvlc playback inside AMVideoPlayerWidget causes crash on linux.  
+	Culprit: implicit sharing of onScreenPixmap_ meant that data was not being fully copied before releasing the mutex inside onDisplayCB(). Solved by explicitly calling detach() before releasing mutex.  Also changed type from QPixmap to QImage to avoid conversions when drawing.
