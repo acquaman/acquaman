@@ -79,8 +79,14 @@ public:
 
 	/// Start playback
 	void play();
-	/// Toggle pause on and off
+
+	/// Pause playback
 	void pause();
+	/// Resume playback
+	void unPause();
+	/// Convenience function to toggle pause on/off
+	void togglePause();
+
 	/// Stop playback and rewind to the beginning
 	void stop();
 
@@ -140,7 +146,7 @@ protected:
 	libvlc_media_player_t *vlcPlayer_;
 
 	/// The onScreenPixmap_ caches the latest video frame for widget painting.
-	QPixmap onScreenPixmap_;
+	QImage onScreenPixmap_;
 	/// Mutex used to protect access to onScreenPixmap_, which is accessed from both displayCB() and paintEvent().
 	/*! Motivation: displayCB() could be called from a separate thread, writing to onScreenPixmap, while the Qt GUI thread is reading onScreenPixmap_ inside paintEvent() */
 	QMutex onScreenPixmapMutex_;

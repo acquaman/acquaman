@@ -16,7 +16,6 @@ BottomBar::BottomBar(QWidget *parent) : QWidget(parent)
 
 	makeConnections();
 
-	addButton->setAttribute(Qt::WA_MacSmallSize, true);
 }
 
 BottomBar::~BottomBar()
