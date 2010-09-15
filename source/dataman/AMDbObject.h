@@ -158,7 +158,7 @@ public:
 	/*! This version loads all of the meta data found for keys metaDataAllKeys().  Detailed subclasses should re-implement this if they need to load anything more specialized than their meta-data.  When doing so, always call the base class implemention first.*/
 	virtual bool loadFromDb(AMDatabase* db, int id);
 
-	/// If an object has been loaded from a database, this will tell you which database it came from. Returns 0 if this scan instance wasn't loaded out of a database.
+	/// If an object has been loaded from a database (or created and stored to a database), this will tell you which database it's in. Returns 0 if this scan instance wasn't loaded out of a database.
 	AMDatabase* database() const {
 		return database_;
 	}

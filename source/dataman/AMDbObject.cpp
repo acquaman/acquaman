@@ -160,6 +160,7 @@ bool AMDbObject::storeToDb(AMDatabase* db) {
 
 	// we have our new / old id:
 	id_ = retVal;
+	database_ = db;
 
 	// Thumbnail save
 	///////////////////////////////////////////
