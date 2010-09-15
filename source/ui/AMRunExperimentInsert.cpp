@@ -67,7 +67,7 @@ void AMRunExperimentInsert::refreshRuns() {
 
 	QSqlQuery q = db_->query();
 	q.setForwardOnly(true);
-	q.prepare("SELECT Runs.name, Runs.dateTime, Facilities.description, Thumbnails.thumbnail, Thumbnails.type, Runs.id "
+	q.prepare("SELECT Runs.name, Runs.dateTime, Facilities.description, Thumbnails.thumbnail, Thumbnails.type, Runs.id, Runs.endDateTime "
 			  "FROM Runs,Facilities,Thumbnails "
 			  "WHERE Facilities.id = Runs.facilityId AND Thumbnails.id = Facilities.thumbnailFirstId "
 			  "ORDER BY Runs.dateTime ASC");
@@ -79,8 +79,9 @@ void AMRunExperimentInsert::refreshRuns() {
 		/// "editRole" is just the name, because you can't change the date:
 		AMRunModelItem* item = new AMRunModelItem(db_, q.value(5).toInt(), q.value(0).toString());
 
-		/// "displayRole" looks like "[name], [date]" or "SGM, Aug 4 (2010)". We get this by storing the date/time in AM::DateTimeRole
+		/// "displayRole" looks like "[name], [startDate] - [endDate]" or "SGM, Aug 4 - 9 (2010)". We get this by storing the date/time in AM::DateTimeRole, and the endDateTime in AM::EndDateTimeRole
 		item->setData(q.value(1).toDateTime(), AM::DateTimeRole);
+		item->setData(q.value(6).toDateTime(), AM::EndDateTimeRole);
 
 		/// "decorationRole" is the icon for the facility:
 		if(q.value(4).toString() == "PNG") {

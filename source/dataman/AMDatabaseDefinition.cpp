@@ -44,6 +44,10 @@ void AMDatabaseDefinition::initializeDatabaseTables(AMDatabase* db) {
 	db->ensureTable(controlSetEntriesTableName(), QString("csiId,name,ctrlValue,minimum,maximum,units,number").split(','), QString("INTEGER,TEXT,REAL,REAL,REAL,TEXT,INTEGER").split(','));
 	db->createIndex(controlSetEntriesTableName(), "csiId");
 
+	// Create indexes necessary for optimization and fast searches. (Note that INTEGER column names ending in "Id" will automatically have indexes created for them, inside registerType(). )
+	db->createIndex(objectTableName(), "dateTime");	// index the dateTime column on scans to allow fast calendar searching
+
+
 
 	// add userName and databaseVersion to DatabaseInformation
 	QVariant v1, v2;

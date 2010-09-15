@@ -186,7 +186,7 @@ public:
 	/// Returns the value of a piece of meta data. (Re-implemented from AMDbObject to catch channelNames or channelExpressions, which aren't found in the metaData_ hash.)
 	virtual QVariant metaData(const QString& key) const;
 
-	/// set a meta data value. (Re-implemented from AMDbObject to catch channelNames or channelExpressions, which are not allowed to be set as metaData like this.)
+	/// set a meta data value. (Re-fieldsimplemented from AMDbObject to catch channelNames or channelExpressions, which are not allowed to be set as metaData like this.)
 	virtual bool setMetaData(const QString& key, const QVariant& value);
 
 
@@ -265,7 +265,8 @@ public slots:
 	/// set the date/time:
 	void setDateTime(const QDateTime& dt) { setMetaData("dateTime", dt); }
 	/// associate this object with a particular run. Set to (-1) to dissociate with any run.  (Note: for now, it's the caller's responsibility to make sure the runId is valid.)
-	void setRunId(int runId) { if(runId <= 0) setMetaData("runId", QVariant()); else setMetaData("runId", runId); }
+	/*! This will also tell the new run (and the old run, if it exists) to update their date ranges */
+	void setRunId(int newRunId) { if(newRunId <= 0) setMetaData("runId", QVariant());	else setMetaData("runId", newRunId); }
 	/// Sets name of sample
 	void setSampleId(int sampleId) { if(sampleId <= 0) setMetaData("sampleId", QVariant()); else setMetaData("sampleId", sampleId); }
 	/// Sets notes for scan

@@ -6,7 +6,7 @@
 
 QVariant AMRunModelItem::data(int role) const {
 	if(role == Qt::DisplayRole)
-		return QStandardItem::data(Qt::EditRole).toString() + ", started " + AMDateTimeUtils::prettyDate(QStandardItem::data(AM::DateTimeRole).toDateTime());
+		return QStandardItem::data(Qt::EditRole).toString() + ", " + AMDateTimeUtils::prettyDateRange(QStandardItem::data(AM::DateTimeRole).toDateTime(), QStandardItem::data(AM::EndDateTimeRole).toDateTime());
 	else
 		return QStandardItem::data(role);
 }

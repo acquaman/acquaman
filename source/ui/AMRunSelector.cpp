@@ -61,7 +61,7 @@ void AMRunSelector::populateRuns() {
 
 	int i = 1;
 	QSqlQuery q = database_->query();
-	q.prepare(QString("SELECT Runs.id,Runs.name,Runs.dateTime,Facilities.description,Thumbnails.type,Thumbnails.thumbnail "
+	q.prepare(QString("SELECT Runs.id,Runs.name,Runs.dateTime,Facilities.description,Thumbnails.type,Thumbnails.thumbnail,Runs.endDateTime "
 					  "FROM Runs,Facilities,Thumbnails "
 					  "WHERE Runs.facilityId = Facilities.id AND Thumbnails.id = Facilities.thumbnailFirstId "
 					  "ORDER BY Runs.dateTime DESC"));
@@ -69,8 +69,9 @@ void AMRunSelector::populateRuns() {
 	if (q.exec()) {
 		while (q.next()){
 			addItem(QString("%1, started %2").arg(q.value(1).toString()).arg(AMDateTimeUtils::prettyDate(q.value(2).toDateTime())));
-			setItemData(i, q.value(3).toString() + " - " + q.value(2).toDateTime().toString("MMM d (yyyy)"), AM::DescriptionRole);
+			setItemData(i, q.value(3).toString() + ", " + AMDateTimeUtils::prettyDateRange(q.value(2).toDateTime(), q.value(6).toDateTime()), AM::DescriptionRole);
 			setItemData(i, q.value(2).toDateTime(), AM::DateTimeRole);
+			setItemData(i, q.value(6).toDateTime(), AM::EndDateTimeRole);
 			if(q.value(4).toString() == "PNG") {
 				QPixmap p;
 				if(p.loadFromData(q.value(5).toByteArray(), "PNG"))

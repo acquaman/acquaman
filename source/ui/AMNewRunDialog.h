@@ -10,7 +10,7 @@
 #include <QDialog>
 
 #include "dataman/AMDatabase.h"
-#include "ui/AMPrefixSuffixLineEdit.h"
+// #include "ui/AMPrefixSuffixLineEdit.h"
 #include "dataman/AMRun.h"
 
 /// author: Rachel Si (2010)
@@ -34,7 +34,10 @@ signals:
 protected:
 	void addFacility();
 	QComboBox *facilitySelectCb;
-	AMPrefixSuffixLineEdit *runNameLineEdit;
+
+	// AMPrefixSuffixLineEdit* runNameLineEdit;
+	QLineEdit *runNameLineEdit;
+
 	QGridLayout *addRunsAndFacilitiesLayout;
 	AMDatabase* database_;
 };

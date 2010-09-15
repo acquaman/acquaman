@@ -2,6 +2,7 @@
 #include "dataman/AMDatabase.h"
 #include "dataman/AMDatabaseDefinition.h"
 #include "acquaman.h"
+#include "dataman/AMRun.h"
 #include <QDebug>
 
 QVariant AMChannelListModel::data(const QModelIndex &index, int role) const {
@@ -144,6 +145,31 @@ bool AMScan::setMetaData(const QString& key, const QVariant& value) {
 	if(key == "sampleId")
 		sampleNameLoaded_ = false;
 
+
+
+	// when setting the runId, need to tell our old and new runs to possibly update their date ranges
+	if(key == "runId") {
+
+		int oldRunId = runId();
+
+		bool success = AMDbObject::setMetaData(key, value);
+
+		// Do we need to update the scan range on the runs?
+		if(database() && oldRunId > 0) {
+			AMRun oldRun(oldRunId, database());
+			oldRun.scheduleDateRangeUpdate(dateTime());
+		}
+		if(database() && runId() > 0) {
+			AMRun newRun(runId(), database());
+			newRun.scheduleDateRangeUpdate(dateTime());
+		}
+
+		return success;
+	}
+
+
+
+
 	return AMDbObject::setMetaData(key, value);
 }
 
@@ -242,19 +268,28 @@ bool AMScan::addChannel(const QString& chName, const QString& expression, bool e
   */
 bool AMScan::storeToDb(AMDatabase* db) {
 
+	bool isFirstTimeStored = (database() == 0 || id() < 1);
+
 	// the base class version is good at saving all the values in the metaData_ hash. Let's just exploit that.
 	metaData_["channelNames"] = channelNames();
 	metaData_["channelExpressions"] = channelExpressions();
 
 	// Call the base class implementation
 	// Return false if it fails.
-	bool retval = AMDbObject::storeToDb(db);
+	bool success = AMDbObject::storeToDb(db);
 
 	// This was cheating... channelNames and channelExpressions aren't stored authoritatively in the metaData_. Let's get rid of them.
 	metaData_.remove("channelNames");
 	metaData_.remove("channelExpressions");
 
-	return retval;
+	// if we have a runId set, and this is the first time we're getting stored to the database, we need to tell that run to update it's date range.
+	// (Once we've been stored in the db, we'll notify the old run and new run each time our runId changes)
+	if(success && isFirstTimeStored && runId() > 0 ) {
+		AMRun myRun(runId(), database());
+		myRun.scheduleDateRangeUpdate(dateTime());
+	}
+
+	return success;
 }
 
 
@@ -293,6 +328,9 @@ bool AMScan::loadFromDb(AMDatabase* db, int sourceId) {
 
 	return true;
 }
+
+
+
 
 
 

@@ -227,15 +227,17 @@ void AMDataView::refreshView() {
 				bool found = false;
 				QSqlQuery findRunIds = db_->query();
 				findRunIds.setForwardOnly(true);
-				findRunIds.prepare(QString("SELECT id, dateTime, name FROM Runs"));
+				findRunIds.prepare(QString("SELECT id, dateTime, name, endDateTime FROM Runs"));
 				if(findRunIds.exec()) {
 					while(findRunIds.next()) {
 						found = true;
 						int runId = findRunIds.value(0).toInt();
 						QString runName = findRunIds.value(2).toString();
 						QDateTime dateTime = findRunIds.value(1).toDateTime();
+						QDateTime endDateTime = findRunIds.value(3).toDateTime();
+						QString fullRunName = runName + " (" + AMDateTimeUtils::prettyDateRange(dateTime, endDateTime);
 						AMDataViewSection* section = new AMDataViewSection(
-								runName + ", started " + AMDateTimeUtils::prettyDate(dateTime),
+								fullRunName,
 								"Showing all data from this run",
 								QString("runId = '%1'").arg(runId),
 								viewMode_, db_, true, gwidget_);
@@ -380,15 +382,17 @@ void AMDataView::refreshView() {
 	if(runOrExp_ && runId_ >= 0) {
 
 		// get run name:
-		QString runName;
-		QDateTime runTime;
+		QString runName, fullRunName;
+		QDateTime runTime, runEndTime;
 		QSqlQuery runInfo = db_->query();
-		runInfo.prepare("SELECT name, dateTime FROM Runs where id = ?");
+		runInfo.prepare("SELECT name, dateTime, endDateTime FROM Runs where id = ?");
 		runInfo.bindValue(0, runId_);
 		if(runInfo.exec() && runInfo.next()) {
 			runName = runInfo.value(0).toString();
 			runTime = runInfo.value(1).toDateTime();
-			headingLabel_->setText(userName_ + "Runs: " + runName + runTime.toString(" MMM d (yyyy)"));
+			runEndTime = runInfo.value(2).toDateTime();
+			fullRunName = runName + " (" + AMDateTimeUtils::prettyDateRange(runTime, runEndTime) + ")";
+			headingLabel_->setText(userName_ + "Run: " + runName + runTime.toString(" MMM d (yyyy)"));
 		}
 		else
 			headingLabel_->setText(userName_ + "Data");
@@ -400,7 +404,7 @@ void AMDataView::refreshView() {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, "This view is showing a single run, but the organize mode is set to organize by runs. This doesn't make sense and should never happen. Handling as OrganizeNone."));
 			case AMDataViews::OrganizeNone:
 				AMDataViewSection* section = new AMDataViewSection(
-						runName + runTime.toString(" MMM d (yyyy)"),
+						fullRunName,
 						"Showing all data from this run",
 						QString("runId = '%1'").arg(runId_),
 						viewMode_, db_, true, gwidget_);
@@ -424,7 +428,7 @@ void AMDataView::refreshView() {
 						QString expName = findExperiments.value(1).toString();
 						AMDataViewSection* section = new AMDataViewSection(
 								expName,
-								QString("Showing all data from this experiment in the <i>%1</i> run").arg(runName + runTime.toString(" MMM d (yyyy)")),
+								QString("Showing all data from this experiment in the <i>%1</i> run").arg(fullRunName),
 								QString("runId = '%1' AND id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = '%2')").arg(runId_).arg(expId),
 								viewMode_, db_, true, gwidget_);
 						sections_ << section;
@@ -454,7 +458,7 @@ void AMDataView::refreshView() {
 						QString typeDescription = findTypes.value(1).toString();
 						AMDataViewSection* section = new AMDataViewSection(
 								typeDescription,
-								QString("Showing all data of this type in the <i>%1</i> run").arg(runName + runTime.toString(" MMM d (yyyy)")),
+								QString("Showing all data of this type in the <i>%1</i> run").arg(fullRunName),
 								QString("typeId = '%1' AND runId = '%2'").arg(typeId).arg(runId_),
 								viewMode_, db_, true, gwidget_);
 						sections_ << section;
@@ -485,7 +489,7 @@ void AMDataView::refreshView() {
 						QString name = findSamples.value(2).toString();
 						AMDataViewSection* section = new AMDataViewSection(
 								name,
-								QString("Sample created %1.  Showing all data from this sample in run <i>%2</i>").arg(AMDateTimeUtils::prettyDateTime(dt)).arg(runName + runTime.toString(" MMM d (yyyy)")),
+								QString("Sample created %1.  Showing all data from this sample in the <i>%2</i> run").arg(AMDateTimeUtils::prettyDateTime(dt)).arg(fullRunName),
 								QString("sampleId = '%1' AND runId = '%2'").arg(sampleId).arg(runId_),
 								viewMode_, db_, true, gwidget_);
 						sections_ << section;
@@ -516,7 +520,7 @@ void AMDataView::refreshView() {
 						QString name = findElements.value(2).toString();
 						AMDataViewSection* section = new AMDataViewSection(
 								symbol + ": " + name,
-								QString("Showing all data from samples containing %1 in the <i>%2</i> run").arg(name).arg(runName + runTime.toString(" MMM d (yyyy)")),
+								QString("Showing all data from samples containing %1 in the <i>%2</i> run").arg(name).arg(fullRunName),
 								QString("sampleId IN (SELECT sampleId FROM SampleElementEntries WHERE elementId = '%1') AND runId = '%2'").arg(elementId).arg(runId_),
 								viewMode_, db_, true, gwidget_);
 						sections_ << section;
@@ -574,15 +578,17 @@ void AMDataView::refreshView() {
 				bool found = false;
 				QSqlQuery findRuns = db_->query();
 				findRuns.setForwardOnly(true);
-				findRuns.prepare(QString("SELECT id, name, dateTime FROM Runs WHERE id IN (SELECT runId FROM Objects WHERE id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = '%1'))").arg(experimentId_));
+				findRuns.prepare(QString("SELECT id, name, dateTime, endDateTime FROM Runs WHERE id IN (SELECT runId FROM Objects WHERE id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = '%1'))").arg(experimentId_));
 				if(findRuns.exec()) {
 					while(findRuns.next()) {
 						found = true;
 						int runId = findRuns.value(0).toInt();
 						QString runName = findRuns.value(1).toString();
 						QDateTime runTime = findRuns.value(2).toDateTime();
+						QDateTime runEndTime = findRuns.value(3).toDateTime();
+						QString fullRunName = runName + " (" + AMDateTimeUtils::prettyDateRange(runTime, runEndTime) + ")";
 						AMDataViewSection* section = new AMDataViewSection(
-								runName + runTime.toString(" MMM d (yyyy)"),
+								fullRunName,
 								QString("Showing all data from this run in the <i>%1</i> experiment").arg(expName),
 								QString("runId = '%1' AND id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = '%2');").arg(runId).arg(experimentId_),
 								viewMode_, db_, true, gwidget_);

@@ -116,10 +116,10 @@ public:
 	static QList<AMMetaMetaData> metaDataUniqueKeys() {
 		QList<AMMetaMetaData> rv;
 		// We have a DateTime field representing when this run was first created, when it was completed, a rich-text field for notes, and the location (link via facilityId) that this run took place.
-		rv << AMMetaMetaData(QVariant::DateTime, "dateTime", true);
+		rv << AMMetaMetaData(QVariant::DateTime, "dateTime", false);
 		rv << AMMetaMetaData(QVariant::String, "notes", true);
 		rv << AMMetaMetaData(QVariant::Int, "facilityId", true);
-		rv << AMMetaMetaData(QVariant::DateTime, "endDateTime", true);
+		rv << AMMetaMetaData(QVariant::DateTime, "endDateTime", false);
 
 		return rv;
 	}
@@ -138,7 +138,7 @@ public:
 	// Convenient access methods for our meta-data:
 	/////////////////////////
 
-	/// Although we can access everything through metaData() and setMetaData(), we can also write convenience functions for direct acces. This returns the creation date/time for this run.
+	/// Although we can access everything through metaData() and setMetaData(), we can also write convenience functions for direct acces. This returns the date/time of the earliest scan in this run.
 	QDateTime dateTime() const {
 		return metaData("dateTime").toDateTime();
 	}
@@ -153,7 +153,7 @@ public:
 		return metaData("facilityId").toInt();
 	}
 
-	/// This returns the end of run date only
+	/// This returns the date/time of the last scan in this run.
 	QDateTime endDateTime() const{
 		return metaData("endDateTime").toDateTime();
 	}
@@ -188,19 +188,9 @@ signals:
 
 public slots:
 
-	/// Convenience function to set the creation date/time associated with this run.  We call setMetaData(), since this takes care of emitting the metaDataChanged() signal for us.
-	void setDateTime(const QDateTime& dateTime) {
-		setMetaData("dateTime", dateTime);
-	}
-
 	/// Convenience function to set the notes/comments on this run
 	void setNotes(const QString& notes) {
 		setMetaData("notes", notes);
-	}
-
-	/// Convenience function to set the end date for this run
-	void setEndDate(const QDate& endDate) {
-		setMetaData("endDate", endDate);
 	}
 
 	/// Convenience function to set the location for this run
@@ -208,10 +198,28 @@ public slots:
 		setMetaData("facilityId", facilityId);
 	}
 
+	/// Call this to schedule an update of the start and end dates, based on looking at the scans in this run. For optimization, you can provide the \c alteredDateTime of the scan that was just added or removed from this run, or changed within a scan that was part of this run. (If this \c alteredDateTime is in the middle of this run's dateTime range, nothing needs to happen.)
+	/*! The update search happens when control returns to the event loop, so multiple calls to scheduleDateRangeUpdate() will only result in one search. */
+	void scheduleDateRangeUpdate(const QDateTime& alteredDateTime = QDateTime());
+
+protected slots:
+	/// Convenience function to set the end date for this run. This is only called internally, because the dateTime and endDateTime are determined automatically from the scans inside this run.  We call setMetaData(), since this takes care of emitting the metaDataChanged() signal for us.
+	void setEndDateTime(const QDateTime& endDateTime) {
+		setMetaData("endDateTime", endDateTime);
+	}
+
+	/// Convenience function to set the creation date/time associated with this run.   This is only called internally, because the dateTime and endDateTime are determined automatically from the scans inside this run.  We call setMetaData(), since this takes care of emitting the metaDataChanged() signal for us.
+	void setDateTime(const QDateTime& dateTime) {
+		setMetaData("dateTime", dateTime);
+	}
+
+	/// Conduct a search through all scans in this run, and determine the dateTime range of this run
+	void doDateRangeUpdate();
+
 
 
 protected:
-
+	bool dateRangeUpdateScheduled_;
 
 };
 

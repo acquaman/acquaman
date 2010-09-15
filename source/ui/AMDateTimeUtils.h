@@ -14,6 +14,9 @@ namespace AMDateTimeUtils
 	/// Returns the date in a relative, user-friendly format (ex: "Today", "Yesterday", "2 days ago", "March 18" (in current year), or "February 12 (1985)"
 	QString prettyDate(const QDateTime& dt);
 
+	/// Returns a compact date range (ex: "yesterday and today", "September 4 - 9 (2010)", "Aug 4 - Sept 9 (2010)", or "Aug 4 (2009) - Sept 9 (2010)"
+	QString prettyDateRange(const QDateTime& start, const QDateTime& end);
+
 
 };
 

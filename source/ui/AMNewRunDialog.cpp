@@ -12,11 +12,12 @@ AMNewRunDialog:: AMNewRunDialog(AMDatabase* db, QWidget *parent)
 
 	QLabel *facilitiesLabel = new QLabel(tr("Facilities"));
 	QLabel *runNameLineLabel = new QLabel(tr("New Run Name:"));
-	QLabel* informationLabel = new QLabel(tr("Create a new run\n\nThese runs will be used to organize your data for each visit to the facility."));
+	QLabel* informationLabel = new QLabel(tr("<b>Create a new run</b>\n\nThese runs will be used to organize your data for each visit to the facility.\n\n"));
+	QLabel* dateWarningLabel = new QLabel(tr("The run date will be automatically added to this name."));
 	QPushButton *okButton = new QPushButton("Ok");
 	QPushButton *cancelButton = new QPushButton("Cancel");
 	facilitySelectCb = new QComboBox();
-	runNameLineEdit = new AMPrefixSuffixLineEdit(QString(), "[date]");
+	runNameLineEdit = new QLineEdit();
 
 
 
@@ -27,21 +28,19 @@ AMNewRunDialog:: AMNewRunDialog(AMDatabase* db, QWidget *parent)
 	addRunsAndFacilitiesLayout ->addWidget(facilitySelectCb, 1, 1);
 	addRunsAndFacilitiesLayout ->addWidget(runNameLineLabel,2,0);
 	addRunsAndFacilitiesLayout ->addWidget(runNameLineEdit, 2, 1, 1, 2);
-	addRunsAndFacilitiesLayout ->addWidget(okButton, 3, 2);
-	addRunsAndFacilitiesLayout ->addWidget(cancelButton, 3, 3);
+	addRunsAndFacilitiesLayout->addWidget(dateWarningLabel, 3, 1, 1, 2);
+	addRunsAndFacilitiesLayout ->addWidget(okButton, 4, 2);
+	addRunsAndFacilitiesLayout ->addWidget(cancelButton, 4, 3);
 	setLayout(addRunsAndFacilitiesLayout);
 
 	addFacility(); // added all facilities in database to the combo box
-	//facilitySelectCbChanged(0);
-	this->facilitySelectCbChanged(0);
+	facilitySelectCbChanged(0);
 	connect(okButton,SIGNAL(clicked()), this, SLOT(okButtonPressed()));
 
 //when user selects a different facility in the combobox, must append facility name to line edit
 	connect(facilitySelectCb, SIGNAL(activated(int)),this, SLOT(facilitySelectCbChanged(int)));
 
 	connect(cancelButton,SIGNAL(clicked()),this, SLOT(cancelButtonPressed()));
-	AMRun("test",0);
-
 }
 
 
