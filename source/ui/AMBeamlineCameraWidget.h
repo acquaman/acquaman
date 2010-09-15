@@ -69,7 +69,7 @@ protected:
 
 
 
-/// A widget that provides a view onto multiple Axis-server MJPEG streams (uses AMVideoPlayerWidget, which uses the VLC video library)
+/// A widget that provides a view onto multiple Axis-server MJPEG streams (uses AMVideoPlayerWidget, which uses the VLC video library).  Pauses the video stream when hidden to save CPU consumption.
 class AMBeamlineCameraWidget : public QWidget {
 
 	Q_OBJECT
@@ -103,6 +103,18 @@ protected:
 
 	AMCrosshairVideoWidget* videoWidget_;
 	QComboBox* cameraList_;
+
+	/// (Stop) the video stream when hidden (to save CPU usage)
+	virtual void hideEvent(QHideEvent *e) {
+		QWidget::hideEvent(e);
+		videoWidget_->stop();
+	}
+
+	/// (Play) the video stream when un-hidden
+	virtual void showEvent(QShowEvent *e) {
+		QWidget::showEvent(e);
+		videoWidget_->play();
+	}
 
 
 };

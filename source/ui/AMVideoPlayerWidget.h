@@ -79,8 +79,14 @@ public:
 
 	/// Start playback
 	void play();
-	/// Toggle pause on and off
+
+	/// Pause playback
 	void pause();
+	/// Resume playback
+	void unPause();
+	/// Convenience function to toggle pause on/off
+	void togglePause();
+
 	/// Stop playback and rewind to the beginning
 	void stop();
 

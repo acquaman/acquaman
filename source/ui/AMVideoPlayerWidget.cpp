@@ -74,11 +74,19 @@ void AMVideoPlayerWidget::play() {
 }
 
 void AMVideoPlayerWidget::pause() {
+	libvlc_media_player_set_pause(vlcPlayer_, true);
+}
+
+void AMVideoPlayerWidget::unPause() {
+	libvlc_media_player_set_pause(vlcPlayer_, false);
+}
+
+void AMVideoPlayerWidget::togglePause() {
 	libvlc_media_player_pause(vlcPlayer_);
 }
 
 void AMVideoPlayerWidget::stop() {
-	libvlc_media_player_set_pause(vlcPlayer_, true);
+	libvlc_media_player_stop(vlcPlayer_);
 }
 
 
@@ -170,7 +178,7 @@ void* AMVideoPlayerWidget::lockCB(void** pixelPlane) {
 void AMVideoPlayerWidget::unlockCB(void* picture, void*const *pixelPlane) {
 	Q_UNUSED(picture)
 	Q_UNUSED(pixelPlane)
-}
+	}
 
 /// Called when a video frame is ready to be displayed, according to the vlc clock. \c picture is the return value from lockCB().
 void AMVideoPlayerWidget::displayCB(void* picture) {
@@ -191,11 +199,13 @@ void AMVideoPlayerWidget::displayCB(void* picture) {
 void AMVideoPlayerWidget::paintEvent(QPaintEvent *e) {
 	QFrame::paintEvent(e);
 
-	QPainter p(this);
-	onScreenPixmapMutex_.lock();
-	p.drawImage(videoDisplayRect_, onScreenPixmap_, onScreenPixmap_.rect());
-	onScreenPixmapMutex_.unlock();
-	p.end();
+	if(isVisible()) {
+		QPainter p(this);
+		onScreenPixmapMutex_.lock();
+		p.drawImage(videoDisplayRect_, onScreenPixmap_, onScreenPixmap_.rect());
+		onScreenPixmapMutex_.unlock();
+		p.end();
+	}
 
 
 }
