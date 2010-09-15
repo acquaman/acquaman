@@ -27,8 +27,8 @@ linux-g++ {
 	GSL_LIB = -lgsl
 	GSL_CBLAS_LIB = -lgslcblas
 
-	VLC_LIB = -L$$HOME_FOLDER/dev/vlc-install/lib -lvlc
-	VLC_INCLUDE_DIR = $$HOME_FOLDER/dev/vlc-install/include
+	VLC_LIB = -lvlc
+	VLC_INCLUDE_DIR = /usr/include
 }
 QT += core \
 	network \
