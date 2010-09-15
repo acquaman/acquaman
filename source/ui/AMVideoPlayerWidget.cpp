@@ -178,7 +178,8 @@ void AMVideoPlayerWidget::displayCB(void* picture) {
 	QImage* image = reinterpret_cast<QImage*>(picture);
 
 	onScreenPixmapMutex_.lock();
-	onScreenPixmap_ = QPixmap::fromImage(*image);
+	onScreenPixmap_ = QImage(*image);
+	onScreenPixmap_.detach();
 	onScreenPixmapMutex_.unlock();
 
 	delete image;
@@ -192,7 +193,7 @@ void AMVideoPlayerWidget::paintEvent(QPaintEvent *e) {
 
 	QPainter p(this);
 	onScreenPixmapMutex_.lock();
-	p.drawPixmap(videoDisplayRect_, onScreenPixmap_, onScreenPixmap_.rect());
+	p.drawImage(videoDisplayRect_, onScreenPixmap_, onScreenPixmap_.rect());
 	onScreenPixmapMutex_.unlock();
 	p.end();
 
