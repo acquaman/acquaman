@@ -139,9 +139,11 @@ QVariant AMScan::metaData(const QString& key) const {
 #include <QDebug>
 bool AMScan::setMetaData(const QString& key, const QVariant& value) {
 
+	// These are read-only
 	if(key == "channelNames" || key == "channelExpressions")
 		return false;
 
+	// If changing the sampleId, the sampleName cache is no longer valid
 	if(key == "sampleId")
 		sampleNameLoaded_ = false;
 
@@ -155,19 +157,14 @@ bool AMScan::setMetaData(const QString& key, const QVariant& value) {
 		bool success = AMDbObject::setMetaData(key, value);
 
 		// Do we need to update the scan range on the runs?
-		if(database() && oldRunId > 0) {
-			AMRun oldRun(oldRunId, database());
-			oldRun.scheduleDateRangeUpdate(dateTime());
-		}
-		if(database() && runId() > 0) {
-			AMRun newRun(runId(), database());
-			newRun.scheduleDateRangeUpdate(dateTime());
-		}
+		if(database() && oldRunId > 0)
+			AMRun::scheduleDateRangeUpdate(oldRunId, database(), dateTime());
+
+		if(database() && runId() > 0)
+			AMRun::scheduleDateRangeUpdate(runId(), database(), dateTime());
 
 		return success;
 	}
-
-
 
 
 	return AMDbObject::setMetaData(key, value);
@@ -285,8 +282,7 @@ bool AMScan::storeToDb(AMDatabase* db) {
 	// if we have a runId set, and this is the first time we're getting stored to the database, we need to tell that run to update it's date range.
 	// (Once we've been stored in the db, we'll notify the old run and new run each time our runId changes)
 	if(success && isFirstTimeStored && runId() > 0 ) {
-		AMRun myRun(runId(), database());
-		myRun.scheduleDateRangeUpdate(dateTime());
+		AMRun::scheduleDateRangeUpdate(runId(), database(), dateTime());
 	}
 
 	return success;

@@ -12,7 +12,7 @@ AMNewRunDialog:: AMNewRunDialog(AMDatabase* db, QWidget *parent)
 
 	QLabel *facilitiesLabel = new QLabel(tr("Facilities"));
 	QLabel *runNameLineLabel = new QLabel(tr("New Run Name:"));
-	QLabel* informationLabel = new QLabel(tr("<b>Create a new run</b>\n\nThese runs will be used to organize your data for each visit to the facility.\n\n"));
+	QLabel* informationLabel = new QLabel(tr("<b>Create a new run</b><br><br>These runs will be used to organize your data for each visit to the facility.<br>"));
 	QLabel* dateWarningLabel = new QLabel(tr("The run date will be automatically added to this name."));
 	QPushButton *okButton = new QPushButton("Ok");
 	QPushButton *cancelButton = new QPushButton("Cancel");

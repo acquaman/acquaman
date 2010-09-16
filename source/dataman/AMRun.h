@@ -184,6 +184,23 @@ public:
 	}
 
 
+
+
+
+	/// This class-wide function is the most efficient way to notify a run that it needs to update its date range.
+	static void scheduleDateRangeUpdate(int runid, AMDatabase* db, const QDateTime& alteredDateTime = QDateTime()) {
+
+		AMRun* updateRun = new AMRun(runid, db);
+		updateRun->deleteWhenFinishedDateRangeUpdate_ = true;
+
+		updateRun->scheduleDateRangeUpdate(alteredDateTime);
+		if(!updateRun->dateRangeUpdateScheduled_)	// if the date range update wasn't necessary, we can delete now...
+			delete updateRun;
+		// otherwise this run will hang around until the update is completed
+
+	}
+
+
 signals:
 
 public slots:
@@ -220,6 +237,7 @@ protected slots:
 
 protected:
 	bool dateRangeUpdateScheduled_;
+	bool deleteWhenFinishedDateRangeUpdate_;
 
 };
 

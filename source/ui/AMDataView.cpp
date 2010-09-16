@@ -235,7 +235,7 @@ void AMDataView::refreshView() {
 						QString runName = findRunIds.value(2).toString();
 						QDateTime dateTime = findRunIds.value(1).toDateTime();
 						QDateTime endDateTime = findRunIds.value(3).toDateTime();
-						QString fullRunName = runName + " (" + AMDateTimeUtils::prettyDateRange(dateTime, endDateTime);
+						QString fullRunName = runName + " (" + AMDateTimeUtils::prettyDateRange(dateTime, endDateTime) + ")";
 						AMDataViewSection* section = new AMDataViewSection(
 								fullRunName,
 								"Showing all data from this run",
@@ -392,7 +392,7 @@ void AMDataView::refreshView() {
 			runTime = runInfo.value(1).toDateTime();
 			runEndTime = runInfo.value(2).toDateTime();
 			fullRunName = runName + " (" + AMDateTimeUtils::prettyDateRange(runTime, runEndTime) + ")";
-			headingLabel_->setText(userName_ + "Run: " + runName + runTime.toString(" MMM d (yyyy)"));
+			headingLabel_->setText(userName_ + "Runs: " + fullRunName);
 		}
 		else
 			headingLabel_->setText(userName_ + "Data");
