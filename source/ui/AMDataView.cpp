@@ -938,6 +938,7 @@ void AMDataViewSectionThumbnailView::populate() {
 	QString query = QString("SELECT thumbnailFirstId,thumbnailCount,name,number,dateTime,id FROM %1").arg(dbTableName_);
 	if(!whereClause_.isEmpty())
 		query.append(" WHERE ").append(whereClause_);
+	query.append(" ORDER BY dateTime");
 	q.prepare( query );
 	if(!q.exec())
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, -1, QString("Error executing database query '%1'. The error was %2").arg(q.executedQuery()).arg(q.lastError().text())));

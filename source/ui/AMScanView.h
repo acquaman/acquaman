@@ -38,7 +38,7 @@ protected:
 	/// ui components:
 	QLabel* nameLabel_;
 	QButtonGroup chButtons_;
-	QToolButton* closeButton_;
+	// QToolButton* closeButton_;
 	AMCramBarHorizontal* cramBar_;
 
 

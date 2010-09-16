@@ -52,10 +52,6 @@ AMScanViewScanBar::AMScanViewScanBar(AMScanSetModel* model, int scanIndex, QWidg
 	hl->addWidget(cramBar_);
 	hl->addStretch(1);
 
-	closeButton_ = new QToolButton();
-	closeButton_->setText("X");
-	hl->addWidget(closeButton_);
-
 	hl->setMargin(6);
 	hl->setSpacing(24);
 	setLayout(hl);
@@ -72,7 +68,7 @@ AMScanViewScanBar::AMScanViewScanBar(AMScanSetModel* model, int scanIndex, QWidg
 
 	connect(&chButtons_, SIGNAL(buttonClicked(int)), this, SLOT(onChannelButtonClicked(int)));
 
-	connect(closeButton_, SIGNAL(clicked()), this, SLOT(onCloseButtonClicked()));
+	// connect(closeButton_, SIGNAL(clicked()), this, SLOT(onCloseButtonClicked()));
 
 }
 
@@ -204,10 +200,11 @@ void AMScanViewScanBar::setExclusiveModeOn(bool exclusiveModeOn) {
 	}
 }
 
+/*
 void AMScanViewScanBar::onCloseButtonClicked() {
 	model_->removeScan(model_->scanAt(scanIndex_));
 }
-
+*/
 
 
 
