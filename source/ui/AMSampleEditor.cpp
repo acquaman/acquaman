@@ -107,6 +107,8 @@ int AMSampleEditor::currentSample() const {
 /// Set the currently-selected sample, by ID
 void AMSampleEditor::setCurrentSample(int id) {
 
+	int oldSampleId = currentSample();
+
 	if(sample_->loadFromDb(db_, id)) {
 		sampleName_->setReadOnly(false);
 		sampleName_->setText(sample_->name());
@@ -126,7 +128,8 @@ void AMSampleEditor::setCurrentSample(int id) {
 			sampleName_->selectAll();
 		}
 
-		emit currentSampleChanged(id);
+		if(newSampleActive_ || id != oldSampleId)
+			emit currentSampleChanged(id);
 	}
 	else {
 		sampleName_->setText("[no sample]");
@@ -142,7 +145,8 @@ void AMSampleEditor::setCurrentSample(int id) {
 		sampleSelector_->blockSignals(false);
 
 
-		emit currentSampleChanged(-1);
+		if(oldSampleId != -1)
+			emit currentSampleChanged(-1);
 	}
 
 	newSampleActive_ = false;
@@ -287,6 +291,7 @@ void AMSampleEditor::saveCurrentSample() {
 
 #include <QMessageBox>
 void AMSampleEditor::onSampleDeleteButtonClicked(const QModelIndex &index) {
+
 	if(!index.isValid() || index.row() < 1)
 		return;
 

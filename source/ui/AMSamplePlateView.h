@@ -213,7 +213,7 @@ class AMSamplePositionItemExpandingAdder : public QFrame
 Q_OBJECT
 public:
 	AMSamplePositionItemExpandingAdder(QStandardItemModel *sampleTableModel, QWidget *parent = 0);
-	const bool expanded() const;
+	bool expanded() const;
 
 public slots:
 	void resetAdder();

@@ -79,6 +79,15 @@ protected slots:
 	/// called when the close buttons in the list of scans are clicked
 	void onScanModelCloseClicked(const QModelIndex& index);
 
+	/// Called when the 'Open...' button is clicked
+	void onOpenScanButtonClicked();
+
+	/// Called when the 'Save' scan button is clicked
+	void onSaveScanButtonClicked();
+
+	/// Called when the 'Close' scan button is clicked
+	void onCloseScanButtonClicked();
+
 
 protected:
 	/// This is a model containing the current open scans

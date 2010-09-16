@@ -349,7 +349,7 @@ void AMScanSetModel::onMetaDataChanged(const QString& key) {
 	if(!scan)
 		return;
 
-	if(key=="name" || key=="sampleName" || key=="dateTime" || key == "number") {
+	if(key=="name" || key=="sampleId" || key=="dateTime" || key == "number") {
 		QModelIndex i = indexForScan(indexOf(scan));
 		if(i.isValid())
 			emit dataChanged(i, i);

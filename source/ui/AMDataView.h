@@ -90,6 +90,9 @@ protected slots:
 	/// Called when something in the scene is double-clicked. We use this to send the activated() signal
 	void onSceneDoubleClicked();
 
+	/// call this to adjust the accessible height of the scroll area to match the height required inside it
+	void adjustViewScrollHeight();
+
 
 protected:
 	// Logic components:

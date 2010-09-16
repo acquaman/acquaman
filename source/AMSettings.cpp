@@ -23,7 +23,8 @@ QString AMUserSettings::defaultFilePath(const QDateTime& dt) {
 	QDir dir;
 	QString path = userDataFolder + dt.toString("/yyyy/MM");
 	dir.mkpath(path);
-	path.append(dt.toString("/ddd_MM_dd_hh_mm_ss_zzzz"));
+	path.append(dt.toString("/ddd_MM_dd_hh_mm_ss"));
+	path.append(QString("_%1").arg(int(qrand()%10000), 4, 10, QChar('0')));
 	return path;
 }
 

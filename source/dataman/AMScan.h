@@ -266,9 +266,15 @@ public slots:
 	void setDateTime(const QDateTime& dt) { setMetaData("dateTime", dt); }
 	/// associate this object with a particular run. Set to (-1) to dissociate with any run.  (Note: for now, it's the caller's responsibility to make sure the runId is valid.)
 	/*! This will also tell the new run (and the old run, if it exists) to update their date ranges */
-	void setRunId(int newRunId) { if(newRunId <= 0) setMetaData("runId", QVariant());	else setMetaData("runId", newRunId); }
+	void setRunId(int newRunId) {
+		if(newRunId <= 0) setMetaData("runId", QVariant());
+		else setMetaData("runId", newRunId);
+	}
 	/// Sets name of sample
-	void setSampleId(int sampleId) { if(sampleId <= 0) setMetaData("sampleId", QVariant()); else setMetaData("sampleId", sampleId); }
+	void setSampleId(int newSampleId) {
+		if(newSampleId <= 0) setMetaData("sampleId", QVariant());
+		else setMetaData("sampleId", newSampleId);
+	}
 	/// Sets notes for scan
 	void setNotes(const QString &notes) { setMetaData("notes", notes); }
 	/// Set file path. (Be careful if changing this, not to break the association to a raw data file)

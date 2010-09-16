@@ -6,6 +6,8 @@
 #include "ui/AMDateTimeUtils.h"
 #include "dataman/AMUser.h"
 
+#include <QScrollBar>
+
 #include <QDebug>
 
 AMDataView::AMDataView(AMDatabase* database, QWidget *parent) :
@@ -25,7 +27,7 @@ AMDataView::AMDataView(AMDatabase* database, QWidget *parent) :
 	connect(gscene_, SIGNAL(selectionChanged()), this, SLOT(onSceneSelectionChanged()));
 	connect(gscene_, SIGNAL(doubleClicked(QPointF)), this, SLOT(onSceneDoubleClicked()));
 	gview_->setScene(gscene_);
-	gview_->setDragMode(QGraphicsView::RubberBandDrag);
+	// gview_->setDragMode(QGraphicsView::RubberBandDrag);
 	gwidget_ = new QGraphicsWidget();
 	gscene_->addItem(gwidget_);
 	sectionLayout_ = new QGraphicsLinearLayout(Qt::Vertical);
@@ -55,7 +57,10 @@ AMDataView::AMDataView(AMDatabase* database, QWidget *parent) :
 	// change this to change the default first view. (In this case, we show all runs)
 	viewMode_ = AMDataViews::ListView;
 	organizeMode_ = AMDataViews::OrganizeRuns;
-	showRun();
+
+	runId_ = -3;
+	experimentId_ = -3;
+	showExperiment();
 
 	onResize();
 
@@ -80,22 +85,35 @@ void AMDataView::retrieveUserName() {
 
 /// setup this view to show a specific run (or use \c runId = -1 to see all runs)
 void AMDataView::showRun(int runId) {
+
+	if(runId_ == runId && runOrExp_)
+		return;
+
+	gview_->verticalScrollBar()->setValue(0);
+
 	runId_ = runId;
 	runOrExp_ = true;
 	if(runId_ < 0)
 		organizeMode_ = AMDataViews::OrganizeRuns;
-	if(runId_ >= 0 && organizeMode_ == AMDataViews::OrganizeRuns)
+	if(runId_ >= 0 && (organizeMode_ == AMDataViews::OrganizeRuns || organizeMode_ == AMDataViews::OrganizeExperiments))
 		organizeMode_ = AMDataViews::OrganizeNone;
 	refreshView();
 }
 
+
 /// setup this view to show a specific experiment (or use \c experimentId = -1 to see all experiments)
 void AMDataView::showExperiment(int experimentId) {
+
+	if(experimentId == experimentId_ && !runOrExp_)
+		return;
+
+	gview_->verticalScrollBar()->setValue(0);
+
 	experimentId_ = experimentId;
 	runOrExp_ = false;
 	if(experimentId_ < 0)
 		organizeMode_ = AMDataViews::OrganizeExperiments;
-	if(experimentId_ >= 0 && organizeMode_ == AMDataViews::OrganizeExperiments)
+	if(experimentId_ >= 0 && (organizeMode_ == AMDataViews::OrganizeRuns || organizeMode_ == AMDataViews::OrganizeExperiments))
 		organizeMode_ = AMDataViews::OrganizeNone;
 	refreshView();
 }
@@ -105,6 +123,8 @@ void AMDataView::setOrganizeMode(int mode) {
 
 	if(organizeMode_ == mode)
 		return;
+
+	gview_->verticalScrollBar()->setValue(0);
 
 	if(mode < AMDataViews::OrganizeNone || mode > AMDataViews::OrganizeElements)
 		return;
@@ -130,6 +150,8 @@ void AMDataView::setViewMode(int mode) {
 
 	if(viewMode_ == mode)
 		return;
+
+	gview_->verticalScrollBar()->setValue(0);
 
 	viewMode_ = (AMDataViews::ViewMode)mode;
 	viewModeButtonGroup_->button(viewMode_)->setChecked(true);
@@ -195,7 +217,6 @@ void AMDataView::refreshView() {
 	sections_.clear();
 	sections__.clear();
 
-
 	refreshOrganizeModeBox();
 
 	// what we do from here depends on what we're showing (ie: run or experiment? all or just one?), as well as the organize mode.
@@ -235,7 +256,7 @@ void AMDataView::refreshView() {
 						QString runName = findRunIds.value(2).toString();
 						QDateTime dateTime = findRunIds.value(1).toDateTime();
 						QDateTime endDateTime = findRunIds.value(3).toDateTime();
-						QString fullRunName = runName + " (" + AMDateTimeUtils::prettyDateRange(dateTime, endDateTime);
+						QString fullRunName = runName + " (" + AMDateTimeUtils::prettyDateRange(dateTime, endDateTime) + ")";
 						AMDataViewSection* section = new AMDataViewSection(
 								fullRunName,
 								"Showing all data from this run",
@@ -392,7 +413,7 @@ void AMDataView::refreshView() {
 			runTime = runInfo.value(1).toDateTime();
 			runEndTime = runInfo.value(2).toDateTime();
 			fullRunName = runName + " (" + AMDateTimeUtils::prettyDateRange(runTime, runEndTime) + ")";
-			headingLabel_->setText(userName_ + "Run: " + runName + runTime.toString(" MMM d (yyyy)"));
+			headingLabel_->setText(userName_ + "Runs: " + fullRunName);
 		}
 		else
 			headingLabel_->setText(userName_ + "Data");
@@ -714,8 +735,13 @@ void AMDataView::refreshView() {
 		sectionLayout_->addItem(s);
 	}
 
+	// finally, set the visualized area of the scene to be exactly as big as we need it...
+	adjustViewScrollHeight();
 
+}
 
+void AMDataView::adjustViewScrollHeight() {
+	gview_->setSceneRect( QRectF( QPointF(0,0), sectionLayout_->effectiveSizeHint(Qt::MinimumSize, QSizeF(this->width()-20, -1)) ) );
 }
 
 void AMDataView::refreshOrganizeModeBox() {
@@ -729,7 +755,7 @@ void AMDataView::refreshOrganizeModeBox() {
 
 	organizeModeBox_->clear();
 
-	organizeModeBox_->addItem(QString(), AMDataViews::OrganizeNone);
+	organizeModeBox_->addItem("Chronological", AMDataViews::OrganizeNone);
 	if(!(runOrExp_ && runId_ >= 0))
 		organizeModeBox_->addItem("by Run", AMDataViews::OrganizeRuns);
 	if(!(!runOrExp_ && experimentId_ >= 0))
@@ -780,7 +806,7 @@ void AMDataView::onResize() {
 	sectionLayout_->activate();
 
 	// Finally, we need to decide how much of the graphics scene should be visible within the view's scroll area.
-	gview_->setSceneRect( QRectF( QPointF(0,0), sectionLayout_->effectiveSizeHint(Qt::MinimumSize, QSizeF(width, -1)) ) );
+	adjustViewScrollHeight();
 }
 
 
@@ -938,6 +964,7 @@ void AMDataViewSectionThumbnailView::populate() {
 	QString query = QString("SELECT thumbnailFirstId,thumbnailCount,name,number,dateTime,id FROM %1").arg(dbTableName_);
 	if(!whereClause_.isEmpty())
 		query.append(" WHERE ").append(whereClause_);
+	query.append(" ORDER BY dateTime");
 	q.prepare( query );
 	if(!q.exec())
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, -1, QString("Error executing database query '%1'. The error was %2").arg(q.executedQuery()).arg(q.lastError().text())));

@@ -61,7 +61,7 @@ QString AMDbObject::databaseTableName() const {
 
 /// This member function updates a scan in the database (if it exists already), otherwise it adds it to the database.
 
-#include <QDebug>
+
 bool AMDbObject::storeToDb(AMDatabase* db) {
 
 	if(!db)
@@ -74,15 +74,24 @@ bool AMDbObject::storeToDb(AMDatabase* db) {
 	bool neverSavedHere = (id()<1 || database() != db);
 	bool reuseThumbnailIds = false;
 	int reuseThumbnailStartId;
-	if( id() > 0 && database() == db && thumbnailCount() ) {
+	int oldThumbnailCount = -1;
 
-		QVariant oldThumbnailCount = db->retrieve(id(), databaseTableName(), "thumbnailCount");
-		// same number of thumbnails as before?
-		if(oldThumbnailCount.isValid() && oldThumbnailCount.toInt() == thumbnailCount()) {
-			// ok, where do we store them?
-			QVariant oldThumbnailFirstId = db->retrieve(id(), databaseTableName(), "thumbnailFirstId");
-			if(oldThumbnailFirstId.isValid()) {
-				reuseThumbnailStartId = oldThumbnailFirstId.toInt(&reuseThumbnailIds);
+	// If we've been saved in this database before...
+	if( id() > 0 && database() == db) {
+
+		// How many thumbnails did we use to have?
+		QVariant oldThumbnailCountV = db->retrieve(id(), databaseTableName(), "thumbnailCount");
+
+		if(oldThumbnailCountV.isValid()) {
+			oldThumbnailCount = oldThumbnailCountV.toInt();
+
+			// Do we have more than 0 thumbnails, and the same number of thumbnails as the last time we were saved?
+			if(thumbnailCount() > 0 && thumbnailCount() == oldThumbnailCount) {
+				// That's good. We can re-use those spots.  What are the ids of these spots?
+				QVariant oldThumbnailFirstId = db->retrieve(id(), databaseTableName(), "thumbnailFirstId");
+				if(oldThumbnailFirstId.isValid()) {
+					reuseThumbnailStartId = oldThumbnailFirstId.toInt(&reuseThumbnailIds);
+				}
 			}
 		}
 	}
@@ -160,12 +169,13 @@ bool AMDbObject::storeToDb(AMDatabase* db) {
 
 	// we have our new / old id:
 	id_ = retVal;
+	database_ = db;
 
 	// Thumbnail save
 	///////////////////////////////////////////
-	// First, if we were saved here before, and we're not reusing the same thumbnail spots, delete the old ones
-	if(!neverSavedHere && !reuseThumbnailIds) {
-		qDebug() << "Thumbnail save: deleting old ones before inserting new spots";
+	// First, if we WERE saved here before, and we're NOT reusing the same thumbnail spots, and we DID have thumbnails stored previously... delete the old ones
+	if(!neverSavedHere && !reuseThumbnailIds && oldThumbnailCount != 0) {
+		// qDebug() << "Thumbnail save: deleting old ones before inserting new spots";
 		db->deleteRows(AMDatabaseDefinition::thumbnailTableName(), QString("objectId = %1 AND objectTableName = '%2'").arg(id_).arg(databaseTableName()));
 	}
 
@@ -195,11 +205,11 @@ bool AMDbObject::storeToDb(AMDatabase* db) {
 
 		if(reuseThumbnailIds) {
 			retVal = db->insertOrUpdate(i+reuseThumbnailStartId, AMDatabaseDefinition::thumbnailTableName(), keys, values);
-			qDebug() << "Thumbnail save: reusing spots at " << reuseThumbnailStartId+i;
+			// qDebug() << "Thumbnail save: reusing spots at " << reuseThumbnailStartId+i;
 		}
 		else {
 			retVal = db->insertOrUpdate(0, AMDatabaseDefinition::thumbnailTableName(), keys, values);
-			qDebug() << "Thumbnail save: Inserting new spots" << retVal;
+			// qDebug() << "Thumbnail save: Inserting new spots" << retVal;
 		}
 		if(retVal == 0)
 			return false;

@@ -52,9 +52,11 @@ AMScanViewScanBar::AMScanViewScanBar(AMScanSetModel* model, int scanIndex, QWidg
 	hl->addWidget(cramBar_);
 	hl->addStretch(1);
 
+	/* REMOVED
 	closeButton_ = new QToolButton();
 	closeButton_->setText("X");
 	hl->addWidget(closeButton_);
+	*/
 
 	hl->setMargin(6);
 	hl->setSpacing(24);
@@ -72,7 +74,7 @@ AMScanViewScanBar::AMScanViewScanBar(AMScanSetModel* model, int scanIndex, QWidg
 
 	connect(&chButtons_, SIGNAL(buttonClicked(int)), this, SLOT(onChannelButtonClicked(int)));
 
-	connect(closeButton_, SIGNAL(clicked()), this, SLOT(onCloseButtonClicked()));
+	// connect(closeButton_, SIGNAL(clicked()), this, SLOT(onCloseButtonClicked()));
 
 }
 
@@ -204,10 +206,11 @@ void AMScanViewScanBar::setExclusiveModeOn(bool exclusiveModeOn) {
 	}
 }
 
+/*
 void AMScanViewScanBar::onCloseButtonClicked() {
 	model_->removeScan(model_->scanAt(scanIndex_));
 }
-
+*/
 
 
 
@@ -417,6 +420,7 @@ void AMScanView::setupUI() {
 
 	gview_ = new AMGraphicsViewAndWidget();
 	gview_->setMinimumSize(400,300);
+	gview_->graphicsWidget()->setGeometry(0,0,400*4, 300);
 
 	vl->addWidget(gview_);
 
@@ -429,7 +433,6 @@ void AMScanView::setupUI() {
 	setLayout(vl);
 
 	// setup linear layout within main graphics area:
-
 	glayout_ = new QGraphicsLinearLayout();
 	glayout_->setSpacing(0);
 	glayout_->setContentsMargins(0,0,0,0);
@@ -542,6 +545,8 @@ AMScanViewExclusiveView::AMScanViewExclusiveView(AMScanView* masterView) : AMSca
 	plot_->plot()->axisBottom()->setTicks(4);
 	plot_->plot()->axisLeft()->showGrid(false);
 	plot_->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left);
+	plot_->plot()->axisBottom()->showAxisName(false);
+	plot_->plot()->axisLeft()->showAxisName(false);
 
 	QGraphicsLinearLayout* gl = new QGraphicsLinearLayout();
 	gl->setContentsMargins(0,0,0,0);
@@ -704,6 +709,8 @@ AMScanViewMultiView::AMScanViewMultiView(AMScanView* masterView) : AMScanViewInt
 	plot_->plot()->axisBottom()->setTicks(4);
 	plot_->plot()->axisLeft()->showGrid(false);
 	plot_->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left);
+	plot_->plot()->axisBottom()->showAxisName(false);
+	plot_->plot()->axisLeft()->showAxisName(false);
 
 	QGraphicsLinearLayout* gl = new QGraphicsLinearLayout();
 	gl->setContentsMargins(0,0,0,0);
@@ -892,6 +899,8 @@ AMScanViewMultiScansView::AMScanViewMultiScansView(AMScanView* masterView) : AMS
 	plot->plot()->axisBottom()->setTicks(4);
 	plot->plot()->axisLeft()->showGrid(false);
 	plot->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left);
+	plot->plot()->axisBottom()->showAxisName(false);
+	plot->plot()->axisLeft()->showAxisName(false);
 
 	firstPlotEmpty_ = true;
 	plots_ << plot;
@@ -918,6 +927,8 @@ void AMScanViewMultiScansView::addScan(int si) {
 		plot->plot()->axisBottom()->setTicks(4);
 		plot->plot()->axisLeft()->showGrid(false);
 		plot->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left);
+		plot->plot()->axisBottom()->showAxisName(false);
+		plot->plot()->axisLeft()->showAxisName(false);
 
 		plots_.insert(si, plot);
 	}
@@ -1127,6 +1138,9 @@ AMScanViewMultiChannelsView::AMScanViewMultiChannelsView(AMScanView* masterView)
 	firstPlot_->plot()->axisBottom()->setTicks(4);
 	firstPlot_->plot()->axisLeft()->showGrid(false);
 	firstPlot_->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left);
+	firstPlot_->plot()->axisBottom()->showAxisName(false);
+	firstPlot_->plot()->axisLeft()->showAxisName(false);
+
 
 	firstPlotEmpty_ = true;
 
@@ -1355,6 +1369,8 @@ bool AMScanViewMultiChannelsView::reviewChannels() {
 			newPlot->plot()->axisBottom()->setTicks(4);
 			newPlot->plot()->axisLeft()->showGrid(false);
 			newPlot->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left);
+			newPlot->plot()->axisBottom()->showAxisName(false);
+			newPlot->plot()->axisLeft()->showAxisName(false);
 		}
 
 		channel2Plot_.insert(channelName, newPlot);
