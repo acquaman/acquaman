@@ -6,14 +6,10 @@ Outstanding - Causing crashes
 
 
 
-
-
-
-
-
 Outstanding - Wrong behaviour
 ========================
-
+003 - Sept 15: Dragging scans from data view to experiment folder in sidebar: only one scan is copied, when multiple scans are selected.
+005 - Sept 15: Renaming a sample does not trigger an update all the way through to affecting the AMDescriptionRole on scans in AMGenericScanEditor's scanSetModel.
 
 
 
@@ -22,3 +18,8 @@ Fixed:
 ========================
 001 - Sept 15: libvlc playback inside AMVideoPlayerWidget causes crash on linux.  
 	Culprit: implicit sharing of onScreenPixmap_ meant that data was not being fully copied before releasing the mutex inside onDisplayCB(). Solved by explicitly calling detach() before releasing mutex.  Also changed type from QPixmap to QImage to avoid conversions when drawing.
+	
+002 - Sept 15: Importing causes crash (SEGFAULT) when clicking 'Next' or "Apply to All".
+	Culprit: AMDbObject::database_ was not being set after a successful storeToDb().  Result
+
+004 - Sept 15: Deferring AMRun dateTime range update doesn't work... because runs are deleted too quickly.

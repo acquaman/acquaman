@@ -15,6 +15,7 @@ Mark's short-term, ongoing
 - DragAndDrop onto open scan editor links in sidebar
 - 'Open' button in scan editor; widget to show/add {recent, run, experiment} scans
 - dynamic window names for scan editors
+- AMDatView: need to scroll to top when switching what's in the views; properly re-sizing the vertical height of the widget on every re-fill...
 
 
 
