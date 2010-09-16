@@ -545,6 +545,8 @@ AMScanViewExclusiveView::AMScanViewExclusiveView(AMScanView* masterView) : AMSca
 	plot_->plot()->axisBottom()->setTicks(4);
 	plot_->plot()->axisLeft()->showGrid(false);
 	plot_->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left);
+	plot_->plot()->axisBottom()->showAxisName(false);
+	plot_->plot()->axisLeft()->showAxisName(false);
 
 	QGraphicsLinearLayout* gl = new QGraphicsLinearLayout();
 	gl->setContentsMargins(0,0,0,0);
@@ -707,6 +709,8 @@ AMScanViewMultiView::AMScanViewMultiView(AMScanView* masterView) : AMScanViewInt
 	plot_->plot()->axisBottom()->setTicks(4);
 	plot_->plot()->axisLeft()->showGrid(false);
 	plot_->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left);
+	plot_->plot()->axisBottom()->showAxisName(false);
+	plot_->plot()->axisLeft()->showAxisName(false);
 
 	QGraphicsLinearLayout* gl = new QGraphicsLinearLayout();
 	gl->setContentsMargins(0,0,0,0);
@@ -895,6 +899,8 @@ AMScanViewMultiScansView::AMScanViewMultiScansView(AMScanView* masterView) : AMS
 	plot->plot()->axisBottom()->setTicks(4);
 	plot->plot()->axisLeft()->showGrid(false);
 	plot->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left);
+	plot->plot()->axisBottom()->showAxisName(false);
+	plot->plot()->axisLeft()->showAxisName(false);
 
 	firstPlotEmpty_ = true;
 	plots_ << plot;
@@ -921,6 +927,8 @@ void AMScanViewMultiScansView::addScan(int si) {
 		plot->plot()->axisBottom()->setTicks(4);
 		plot->plot()->axisLeft()->showGrid(false);
 		plot->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left);
+		plot->plot()->axisBottom()->showAxisName(false);
+		plot->plot()->axisLeft()->showAxisName(false);
 
 		plots_.insert(si, plot);
 	}
@@ -1130,6 +1138,9 @@ AMScanViewMultiChannelsView::AMScanViewMultiChannelsView(AMScanView* masterView)
 	firstPlot_->plot()->axisBottom()->setTicks(4);
 	firstPlot_->plot()->axisLeft()->showGrid(false);
 	firstPlot_->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left);
+	firstPlot_->plot()->axisBottom()->showAxisName(false);
+	firstPlot_->plot()->axisLeft()->showAxisName(false);
+
 
 	firstPlotEmpty_ = true;
 
@@ -1358,6 +1369,8 @@ bool AMScanViewMultiChannelsView::reviewChannels() {
 			newPlot->plot()->axisBottom()->setTicks(4);
 			newPlot->plot()->axisLeft()->showGrid(false);
 			newPlot->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left);
+			newPlot->plot()->axisBottom()->showAxisName(false);
+			newPlot->plot()->axisLeft()->showAxisName(false);
 		}
 
 		channel2Plot_.insert(channelName, newPlot);
