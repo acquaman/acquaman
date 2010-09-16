@@ -78,6 +78,16 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 	ui_.scanName->setAcceptDrops(false);
 	ui_.notesEdit->setAcceptDrops(false);
 
+
+	// Connect open,save,close buttons
+	connect(ui_.openScanButton, SIGNAL(clicked()), this, SLOT(onOpenScanButtonClicked()));
+	connect(ui_.closeScanButton, SIGNAL(clicked()), this, SLOT(onCloseScanButtonClicked()));
+	connect(ui_.saveScanButton, SIGNAL(clicked()), this, SLOT(onSaveScanButtonClicked()));
+
+	// close button and save buttons are initially disabled; there's no scan to act on
+	ui_.closeScanButton->setEnabled(false);
+	ui_.saveScanButton->setEnabled(false);
+
 }
 
 
@@ -135,6 +145,15 @@ void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const
 		connect(this, SIGNAL(notesChanged(QString)), currentScan_, SLOT(setNotes(QString)));
 		connect(runSelector_, SIGNAL(currentRunIdChanged(int)), currentScan_, SLOT(setRunId(int)));
 		connect(sampleEditor_, SIGNAL(currentSampleChanged(int)), currentScan_, SLOT(setSampleId(int)));
+
+		/// \todo When migrating to multiple scan selection, this will need to be changed:
+		ui_.saveScanButton->setEnabled(true);
+		ui_.closeScanButton->setEnabled(true);
+	}
+	else {
+		/// \todo When migrating to multiple scan selection, this will need to be changed:
+		ui_.saveScanButton->setEnabled(false);
+		ui_.closeScanButton->setEnabled(false);
 	}
 
 
@@ -303,3 +322,27 @@ void AMGenericScanEditor::dropEvent(QDropEvent * event) {
 		event->acceptProposedAction();
 }
 
+
+void AMGenericScanEditor::onCloseScanButtonClicked() {
+	// this function is ready for when multiple scan selection is enabled
+	QModelIndexList scanIndexes = ui_.scanListView->selectionModel()->selectedIndexes();
+	foreach(QModelIndex i, scanIndexes) {
+		deleteScanWithModifiedCheck(scanSetModel_->scanAt(i.row()));
+	}
+}
+
+void AMGenericScanEditor::onSaveScanButtonClicked() {
+	// this function is ready for when multiple scan selection is enabled
+	QModelIndexList scanIndexes = ui_.scanListView->selectionModel()->selectedIndexes();
+	foreach(QModelIndex i, scanIndexes) {
+		AMScan* scan = scanSetModel_->scanAt(i.row());
+		if(scan->database())
+			scan->storeToDb(scan->database());
+		else
+			scan->storeToDb(AMDatabase::userdb());
+	}
+}
+
+void AMGenericScanEditor::onOpenScanButtonClicked() {
+	/// \todo need open scan browser dialog
+}

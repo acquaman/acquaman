@@ -38,7 +38,7 @@ protected:
 	/// ui components:
 	QLabel* nameLabel_;
 	QButtonGroup chButtons_;
-	// QToolButton* closeButton_;
+	// REMOVED: QToolButton* closeButton_;
 	AMCramBarHorizontal* cramBar_;
 
 
@@ -63,8 +63,9 @@ protected slots:
 	void onExclusiveChannelChanged(const QString& exclusiveChannelName);
 	/// when one of the channel toggles is clicked:
 	void onChannelButtonClicked(int id);
-	/// when the close (remove) button is clicked
-	void onCloseButtonClicked();
+
+	// when the close (remove) button is clicked
+	// REMOVED: void onCloseButtonClicked();
 
 
 
@@ -144,7 +145,7 @@ public:
 		scene_->setItemIndexMethod(QGraphicsScene::NoIndex);
 
 		graphicsWidget_ = new QGraphicsWidget();
-		graphicsWidget_->setGeometry(0,0,100,100);
+		graphicsWidget_->setGeometry(0,0,640,480);
 		scene_->addItem(graphicsWidget_);
 
 	}

@@ -52,6 +52,12 @@ AMScanViewScanBar::AMScanViewScanBar(AMScanSetModel* model, int scanIndex, QWidg
 	hl->addWidget(cramBar_);
 	hl->addStretch(1);
 
+	/* REMOVED
+	closeButton_ = new QToolButton();
+	closeButton_->setText("X");
+	hl->addWidget(closeButton_);
+	*/
+
 	hl->setMargin(6);
 	hl->setSpacing(24);
 	setLayout(hl);
@@ -414,6 +420,7 @@ void AMScanView::setupUI() {
 
 	gview_ = new AMGraphicsViewAndWidget();
 	gview_->setMinimumSize(400,300);
+	gview_->graphicsWidget()->setGeometry(0,0,400*4, 300);
 
 	vl->addWidget(gview_);
 
@@ -426,7 +433,6 @@ void AMScanView::setupUI() {
 	setLayout(vl);
 
 	// setup linear layout within main graphics area:
-
 	glayout_ = new QGraphicsLinearLayout();
 	glayout_->setSpacing(0);
 	glayout_->setContentsMargins(0,0,0,0);

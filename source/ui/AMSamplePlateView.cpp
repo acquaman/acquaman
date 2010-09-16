@@ -647,7 +647,7 @@ AMSamplePositionItemExpandingAdder::AMSamplePositionItemExpandingAdder(QStandard
 	setFrameStyle(QFrame::NoFrame);
 }
 
-const bool AMSamplePositionItemExpandingAdder::expanded() const{
+bool AMSamplePositionItemExpandingAdder::expanded() const{
 	if(markNewButton_->isVisible())
 		return false;
 	else
