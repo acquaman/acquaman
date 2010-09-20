@@ -8,7 +8,7 @@
 
 class AMXASScan;
 
-/// This class encapsulates loading and saving legacy SGM data files (XAS scans from 2004 to 2010) to/from an AMXASScan. It can be used for importing external files (by SGMImporter, where it is also used to extract meta-data and create channels), or used to load files that we already have in the database, which store their data in the legacy file format.
+/// This class encapsulates loading and saving legacy SGM data files (XAS scans from 2004 to 2010) to/from an AMXASScan. It can be used for importing external files (by SGMImporter, where it is also used to extract meta-data and create channels), or used to load files that we already have in the database, which happen to store their data in this file format.
 class SGM2004FileLoader : public AMAbstractFileLoader
 {
 public:

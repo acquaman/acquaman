@@ -224,7 +224,10 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMSignallingGraphicsScene.h \
 	source/ui/SGMBeamlineAtAGlanceBar.h \
 	source/dataman/AMUser.h \
-	source/ui/AMVideoPlayerWidget.h
+	source/ui/AMVideoPlayerWidget.h \
+    source/dataman/AMXESScan.h \
+    source/dataman/ALSBL8XESDetectorInfo.h \
+    source/dataman/ALSBL8XASFileLoader.h
 FORMS += source/ui/AbsorptionScanController.ui \
 	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
@@ -390,7 +393,10 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMSignallingGraphicsScene.cpp \
 	source/ui/SGMBeamlineAtAGlanceBar.cpp \
 	source/dataman/AMUser.cpp \
-	source/ui/AMVideoPlayerWidget.cpp
+	source/ui/AMVideoPlayerWidget.cpp \
+    source/dataman/AMXESScan.cpp \
+    source/dataman/ALSBL8XESDetectorInfo.cpp \
+    source/dataman/ALSBL8XASFileLoader.cpp
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc
 OTHER_FILES += source/muParser/README.txt

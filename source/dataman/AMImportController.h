@@ -46,6 +46,28 @@ public:
 };
 
 
+/// This implementation of AMImporter is appropriate for importing the ALS Beamline 8.0.1 (200? - 2010) XAS file format, and returning an AMXASScan
+class ALSBL8XASImporter : public AMImporter {
+public:
+	/// A human-readable description of what this importer is good for
+	virtual QString description() const {
+		return "ALS Beamline 8.0.1 XAS data format, 200? - 2010";
+	}
+
+	/// The type (ie: class name) of the scan type returned by a succesful import (ex: "AMXASScan")
+	virtual QString scanType() const {
+		return "AMXASScan";
+	}
+
+	/// Returns a file name filter appropriate for designating "importable files". (ex: "*.dat" or, for multiple allowed: "*.dat *.info *.xas"). This is used as a hint to try using this importer, but it doesn't restrict using it when the file name does not match.
+	virtual QString fileNameFilter() const {
+		return "*.txt";
+	}
+
+	/// Attempt to import, and return a pointer to a new scan object, or 0 if the import fails.  It's the caller's responsibility to delete the scan when done with it.
+	virtual AMScan* import(const QString& fullPath);
+};
+
 
 class QFileDialog;
 class AMImportControllerWidget;
@@ -55,7 +77,7 @@ class AMImportController : public QObject
 {
 Q_OBJECT
 public:
-    explicit AMImportController(QObject *parent = 0);
+	explicit AMImportController(QObject *parent = 0);
 	virtual ~AMImportController();
 
 signals:

@@ -3,6 +3,7 @@
 
 #include "dataman/AMXASScan.h"
 #include "dataman/SGM2004FileLoader.h"
+#include "dataman/ALSBL8XASFileLoader.h"
 #include "ui/AMImportControllerWidget.h"
 
 #include <QDir>
@@ -17,12 +18,8 @@ AMScan* SGMLegacyImporter::import(const QString& fullPath) {
 	if(loader.loadFromFile(fullPath, true, true)) {
 
 		// what should we name this scan?
-		QString name = QDir::fromNativeSeparators(fullPath);
-		// remove folders
-		name = name.split(QChar('/')).last();
-		QString nameAndExt = name;
-		// remove the extension
-		name = name.left(name.lastIndexOf(QChar('.')));
+		QFileInfo fileInfo(fullPath);
+		QString name = fileInfo.completeBaseName();
 		// find a number?
 		int indexOfNumber = name.indexOf(QRegExp("\\d+$"));
 		// will be -1 if not found, or 0 if the whole filename is a number. In either case, don't use it as the number.
@@ -45,6 +42,47 @@ AMScan* SGMLegacyImporter::import(const QString& fullPath) {
 		return 0;
 	}
 }
+
+#include <QFileInfo>
+AMScan* ALSBL8XASImporter::import(const QString& fullPath) {
+
+	AMXASScan* rv = new AMXASScan();
+	ALSBL8XASFileLoader loader(rv);
+	// load meta-data AND raw data, please...
+	if(loader.loadFromFile(fullPath, true, true)) {
+
+		// what should we name this scan?
+		QFileInfo fileInfo(fullPath);
+		QString name = fileInfo.completeBaseName();	// SigScan23777.txt ===> SigScan23777
+		bool numberOk;
+		int number = name.right(3).toInt(&numberOk);	// SigScan23777 ===> 777
+		// find a number?
+		if(numberOk) {
+			rv->setNumber(number);
+		}
+		else {
+			rv->setNumber(0);
+		}
+
+		// use the first line of the description for the name, if it's filled out. (Otherwise, use the file name...)
+		QStringList notes = rv->notes().split('\n', QString::SkipEmptyParts);
+		if(!notes.isEmpty())
+			rv->setName(notes.at(0).trimmed());
+		else
+			rv->setName(name);
+
+		// remember the file format, for re-loading.
+		rv->setMetaData("fileFormat", loader.formatTag() );
+
+		return rv;
+	}
+	else {
+		delete rv;
+		return 0;
+	}
+}
+
+
 
 AMImportController::~AMImportController() {
 	for(int i=0; i<importers_.count(); i++)
@@ -89,6 +127,7 @@ AMImportController::AMImportController(QObject *parent) :
 
 void AMImportController::installImporters() {
 	importers_ << new SGMLegacyImporter();
+	importers_ << new ALSBL8XASImporter();
 }
 
 /// Used to start the whole import process. (Called automatically from the constructor)

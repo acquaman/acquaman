@@ -34,10 +34,13 @@ Beta1 Polish
 - adjust line/color/style of plot series
 - adjust waterfall and scaling on plots
 
+- Implement channel descriptions (+ connect to editor in AMGenericScanEditor - channel editor)
+
 
 
 Beta1 Missing Features
 =====================
+
 - Scans: isAcquiring() and signals... + some way to stop acquiring from the scan editor? What happens when scan editor closed with a currently acquiring scan?
 
 - Beamline quick-view control bar

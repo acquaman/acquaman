@@ -18,7 +18,7 @@ public:
 	/// create a new XAS scan with the following named \c detectors. Each "detector" is a source of a datapoint, that will be stored/logged, available as a column of raw data, and accessible through channel(s).
 	explicit AMXASScan(const QList<AMDetectorInfo*> &detectors = QList<AMDetectorInfo*>(), QObject *parent = 0);
 
-	/// Re-implemented from AMScan. Currently only the SGM2004 file format is supported.
+	/// Re-implemented from AMScan. Currently only the SGM2004 and ALS Bl8.0.1 file formats are supported.
 	virtual bool loadData();
 
 	/// the detectors (raw data columns) available within this scan. Does not include the primary column (eV), which is always present.
@@ -28,7 +28,6 @@ public:
 	/// Add a new named detector (returns false if detector already exists)
 	bool addDetector(const AMDetectorInfo* uniqueDetector);
 
-	/// \todo access will be through channels which can access the AMDataTree raw columns (d_). Until channels are done, there's no way to peek inside.
 
 	/// \todo append new data values... (from outside, or inside the class?)
 	/// \todo clear data? (allow from outside the class?)
@@ -54,6 +53,7 @@ protected:
 	QString legacyIntegrationTime_;
 
 	friend class SGM2004FileLoader;
+	friend class ALSBL8XASFileLoader;
 
 };
 

@@ -149,7 +149,7 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool extractMetaDa
 		if(colName != "eV" && colName != "Event-ID" && sgmLegacyDetectorNames_.contains(colName))
 			scan->addDetector(sgmLegacyDetectors_.at(sgmLegacyDetectorNames_.indexOf(colName)));
 		else if(colName != "eV" && colName != "Event-ID"){
-			sgmDetector = new AMDetectorInfo(colName, false);
+			sgmDetector = new AMDetectorInfo(colName, false);	/// \bug memory allocation... who's freeing?
 			scan->addDetector(sgmDetector);
 		}
 	}

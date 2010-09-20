@@ -79,20 +79,6 @@ public:
 	}
 
 
-
-	// Thumbnail System
-	/////////////////////////////////
-	/* Removed for now: otherwise this would save a separate thumbnail with each detectorInfo instance... huge waste of space. What we want is a single icon for all in this class. Waiting on improvements to the thumbnail system.
-
-	/// Just to be fancy, we'll give ourselves a thumbnail icon. Maybe someone will use it someday.
-	int thumbnailCount() const {
-		return 1;
-	}
-
-	/// Just to be fancy, we'll give ourselves a thumbnail icon. Maybe someone will use it someday. You can re-implement this to make specific icons for specific detectors.
-	AMDbThumbnail thumbnail(int index) const;
-	*/
-
 public slots:
 	/// Convenience function to set the human-readable description
 	void setDescription(const QString& description) {
