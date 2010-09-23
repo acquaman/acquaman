@@ -295,6 +295,10 @@ protected:
 
 	/// Helper function to handle review a scan when a channel is added or the exclusive channel changes.
 	void reviewScan(int scanIndex);
+
+	/// Helper function to review how many scans are actually displayed (ie: how many have the exclusive channel), and update the plot legend title
+	void refreshTitle();
+
 };
 
 
@@ -330,6 +334,9 @@ protected:
 	/// helper function: adds the scan at \c scanIndex
 	void addScan(int scanIndex);
 
+	/// helper function: sets legend and title according to scans in the model
+	void refreshTitles();
+
 };
 
 
@@ -358,6 +365,9 @@ protected slots:
 protected:
 	/// A list of a list of MPlotSeries*... In each scan, one for each channel
 	QList<QList<MPlotSeriesBasic*> > plotSeries_;
+	/// A list of a list of legend strings... In each scan, one for each channel
+	QList<QStringList> plotLegendText_;
+
 	/// Our plots
 	QList<MPlotGW*> plots_;
 	/// A grid-layout within which to put our plots:
@@ -368,6 +378,11 @@ protected:
 
 	/// helper function: adds the scan at \c scanIndex
 	void addScan(int scanIndex);
+
+	/// Helper function: create the legend text on the plot at scan index \c si
+	void refreshLegend(int si) {
+		plots_.at(si)->plot()->legend()->setBodyText(plotLegendText_.at(si).join(QString()));
+	}
 
 	/// re-do the layout of our plots
 	void reLayout();
@@ -403,7 +418,7 @@ protected:
 	QMap<QString, MPlotGW*> channel2Plot_;
 	/// Our plot series, indexed by channel name and then by Scan pointer
 	QMap<QString, QHash<AMScan*, MPlotSeriesBasic*> > channelAndScan2Series_;
-	////////////////////
+
 
 
 	/// A grid-layout within which to put our plots:

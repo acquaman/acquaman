@@ -217,6 +217,9 @@ void AMProcessVariable::connectionChangedCB(struct connection_handler_args connA
 
 		// Discover the type of this channel:
 		serverType_ = ca_field_type(chid_);
+
+		qDebug() << "Type of channel" << this->pvName() << "is " << serverType_;
+
 		// We simplify all floating-point types to double, all integer types to long, and leave strings as strings and enums as enums:
 		ourType_ = serverType2ourType(serverType_);
 
@@ -247,13 +250,22 @@ void AMProcessVariable::connectionChangedCB(struct connection_handler_args connA
 			}
 		}
 		// otherwise, requesting control information as DBR_CTRL_DOUBLE because this gives the most information that could possibly be available (precision, limits, units)
-		else {
+		else if (ourType_ == Integer || ourType_ == FloatingPoint){
 			lastError_ = ca_get_callback(DBR_CTRL_DOUBLE, chid_, PVControlInfoCBWrapper, this);
 			if(lastError_ != ECA_NORMAL) {
 				qDebug() << QString("AMProcessVariable: Error while trying to request value: %1: %2").arg(pvName()).arg(ca_message(lastError_));
 				emit error(lastError_);
 			}
 		}
+		else if(ourType_ == String){
+			lastError_ = ca_get_callback(DBR_CTRL_STRING, chid_, PVControlInfoCBWrapper, this);
+			if(lastError_ != ECA_NORMAL) {
+				qDebug() << QString("AMProcessVariable: Error while trying to request value: %1: %2").arg(pvName()).arg(ca_message(lastError_));
+				emit error(lastError_);
+			}
+		}
+		/// \todo What control type to request if type is not any of these?
+		/// \bug Currently, if the type is not an enum, integer, floating-point, or string, PV's will not emit initialized().
 
 		// It's useful to automatically-request the value, after we are first connected:
 		this->requestValue(count());
@@ -327,7 +339,22 @@ void AMProcessVariable::controlInfoCB(struct event_handler_args eventArgs) {
 		initialized_ = true;
 		emit initialized();
 		break;
+
+	case DBR_CTRL_STRING:
+		units_ = QString();
+		precision_ = 0;
+		lowerLimit_ = -DBL_MAX;
+		upperLimit_ = DBL_MAX;
+		enumStrings_.clear();
+		initialized_ = true;
+		emit initialized();
+		break;
+
+
 	}
+
+
+
 }
 
 // eventArgs:

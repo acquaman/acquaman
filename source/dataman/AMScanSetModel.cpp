@@ -22,6 +22,14 @@ QModelIndex AMScanSetModel::index ( int row, int column, const QModelIndex & par
 	return QModelIndex();
 }
 
+/// Return a list of the names of all scans in this model:
+QStringList AMScanSetModel::scanNames() const {
+	QStringList rv;
+	for(int i=0; i<numScans(); i++)
+		rv << scanAt(i)->fullName();
+	return rv;
+}
+
 QModelIndex AMScanSetModel::parent ( const QModelIndex & index ) const {
 
 	// scan-level indices: parent is the top level

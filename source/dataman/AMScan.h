@@ -143,7 +143,7 @@ public:
 	QString notes() const { return metaData_.value("notes").toString();}
 
 	/// Returns the full scan name: number appended to name
-	QString fullName() const {return QString("%1%2").arg(name()).arg(number()); }
+	QString fullName() const {return QString("%1 #%2").arg(name()).arg(number()); }
 
 
 	/// Convenience function: returns the name of the sample (if a sample is set, otherwise returns "[no sample]")

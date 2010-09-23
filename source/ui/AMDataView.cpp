@@ -60,7 +60,7 @@ AMDataView::AMDataView(AMDatabase* database, QWidget *parent) :
 
 	runId_ = -3;
 	experimentId_ = -3;
-	showExperiment();
+	showRun();
 
 	onResize();
 

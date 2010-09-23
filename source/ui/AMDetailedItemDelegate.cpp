@@ -66,20 +66,27 @@ void AMDetailedItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem
 	QRect textRect = opt.rect;
 	textRect.setLeft( textRect.left() + textStartingPoint);
 
-	if (index.data(AM::ModifiedRole).toBool())
+
+	if (index.data(AM::ModifiedRole).toBool()) {
+		fontItalic_.setPointSize(size1_);
 		painter->setFont(fontItalic_);
-	else
+	}
+	else {
+		font_.setPointSize(size1_);
 		painter->setFont(font_);
+	}
 	painter->setPen(color1_);
 
 	painter->drawText(textRect, index.data(Qt::DisplayRole).toString());
 
 	QVariant description = index.data(AM::DescriptionRole);
 	if(!description.isNull()){
+		font_.setPointSize(size2_);
 		painter->setFont(font_);
 		painter->setPen(color2_);
-		//	painter->drawText(textRect.translated(QPoint(0,20)), opt.fontMetrics.elidedText(description.toString(), Qt::ElideRight, textRect.width() ));
-		painter->drawText(textRect.translated(QPoint(0,20)), opt.fontMetrics.elidedText(description.toString(), Qt::ElideRight, textRect.width() ));
+		QFontMetrics fontMetrics(font_);
+
+		painter->drawText(textRect.translated(QPoint(0,20)), fontMetrics.elidedText(description.toString(), Qt::ElideRight, textRect.width() ));
 
 	}
 

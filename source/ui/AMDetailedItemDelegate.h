@@ -44,7 +44,7 @@ public:
 
 
 protected:
-	QFont font_, fontItalic_;
+	mutable QFont font_, fontItalic_;
 	QColor color1_;
 	QColor color2_;
 	int size1_;

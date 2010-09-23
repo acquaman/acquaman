@@ -562,6 +562,8 @@ AMScanViewExclusiveView::AMScanViewExclusiveView(AMScanView* masterView) : AMSca
 	}
 
 	connect(model(), SIGNAL(exclusiveChannelChanged(QString)), this, SLOT(onExclusiveChannelChanged(QString)));
+
+	refreshTitle();
 }
 
 AMScanViewExclusiveView::~AMScanViewExclusiveView() {
@@ -591,6 +593,8 @@ void AMScanViewExclusiveView::onRowInserted(const QModelIndex& parent, int start
 	else if(parent.internalId() == -1) {
 		reviewScan(parent.row());
 	}
+
+	refreshTitle();
 }
 /// before a scan or channel is deleted in the model:
 void AMScanViewExclusiveView::onRowAboutToBeRemoved(const QModelIndex& parent, int start, int end) {
@@ -618,35 +622,77 @@ void AMScanViewExclusiveView::onRowAboutToBeRemoved(const QModelIndex& parent, i
 			}
 		}
 	}
+
 }
+
 /// after a scan or channel is deleted in the model:
 void AMScanViewExclusiveView::onRowRemoved(const QModelIndex& parent, int start, int end) {
 	Q_UNUSED(parent)
 	Q_UNUSED(start)
 	Q_UNUSED(end)
+
+	refreshTitle();
+
 }
 /// when data changes:
 void AMScanViewExclusiveView::onModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight) {
 	Q_UNUSED(topLeft)
 	Q_UNUSED(bottomRight)
+
+	// the one situation we need to worry about here: if the color of a channel changes, and it's the exclusive (currently-displayed) channel, we'll need to re-color the legend
+
+	// changes to a scan:
+	if(topLeft.internalId() == -1) {
+		// no changes that we really care about...
+	}
+
+	// changes to one of our channels: internalId is the scanIndex.  Channel index is from topLeft.row to bottomRight.row
+	else if((unsigned)topLeft.internalId() < (unsigned)model()->numScans()) {
+
+		int si = topLeft.internalId();	// si: scan index
+		for(int ci=topLeft.row(); ci<=bottomRight.row(); ci++) {	// ci: channel index
+
+			// if this channel is the exclusive channel:
+			if(model()->channelAt(si, ci)->name() == model()->exclusiveChannel()) {
+				QColor color = model()->data(model()->indexForChannel(si, ci), Qt::DecorationRole).value<QColor>();
+				QPen pen = model()->data(model()->indexForChannel(si, ci), AM::LinePenRole).value<QPen>();
+				pen.setColor(color);
+				plotSeries_.at(si)->setLinePen(pen);
+			}
+		}
+	}
+
 }
 
 /// when the model's "exclusive channel" changes. This is the one channel that we display for all of our scans (as long as they have it).
 void AMScanViewExclusiveView::onExclusiveChannelChanged(const QString& exclusiveChannel) {
 	Q_UNUSED(exclusiveChannel)
 
-	for(int i=0; i<model()->numScans(); i++)
+	for(int i=0; i<model()->numScans(); i++) {
 		reviewScan(i);
+	}
+
+	refreshTitle();
 }
 
+void AMScanViewExclusiveView::refreshTitle() {
+
+	int numScansShown = 0;
+	foreach(MPlotSeriesBasic* s, plotSeries_)
+		if(s)
+			numScansShown++;
+
+	QString scanCount = (numScansShown == 1) ? " (1 scan)" : QString(" (%1 scans)").arg(numScansShown);
+	plot_->plot()->legend()->setTitleText(model()->exclusiveChannel() + scanCount);	// result ex: "tey (3 scans)"
+}
 
 /// Helper function to handle adding a scan (at row scanIndex in the model)
 void AMScanViewExclusiveView::addScan(int scanIndex) {
 
 	QString channelName = model()->exclusiveChannel();
 
-	AMChannel* channel = model()->scanAt(scanIndex)->channel(channelName);
-	int channelIndex = model()->indexOf(channel, model()->scanAt(scanIndex));
+	int channelIndex = model()->scanAt(scanIndex)->indexOfChannel(channelName);
+	AMChannel* channel = model()->channelAt(scanIndex, channelIndex);
 
 	// does this scan have the "exclusive" channel in it?
 	if(channel) {
@@ -654,14 +700,18 @@ void AMScanViewExclusiveView::addScan(int scanIndex) {
 
 		series->setMarker(MPlotMarkerShape::None);
 		QPen pen = model()->data(model()->indexForChannel(scanIndex, channelIndex), AM::LinePenRole).value<QPen>();
-		pen.setColor(model()->data(model()->indexForChannel(scanIndex, channelIndex), Qt::DecorationRole).value<QColor>());
+		QColor color = model()->data(model()->indexForChannel(scanIndex, channelIndex), Qt::DecorationRole).value<QColor>();
+		pen.setColor(color);
 		series->setLinePen(pen);
+		series->setDescription(model()->scanAt(scanIndex)->fullName());
 
 		plotSeries_.insert(scanIndex, series);
 		plot_->plot()->addItem(series);
+
 	}
-	else
+	else {
 		plotSeries_.insert(scanIndex, 0);
+	}
 }
 
 /// Helper function to handle review a scan when a channel is added or the exclusive channel changes.
@@ -669,8 +719,8 @@ void AMScanViewExclusiveView::reviewScan(int scanIndex) {
 
 	QString channelName = model()->exclusiveChannel();
 
-	AMChannel* channel = model()->scanAt(scanIndex)->channel(channelName);
-	int channelIndex = model()->indexOf(channel, model()->scanAt(scanIndex));
+	int channelIndex = model()->scanAt(scanIndex)->indexOfChannel(channelName);
+	AMChannel* channel = model()->channelAt(scanIndex, channelIndex);
 
 	// does this scan have the "exclusive" channel in it?
 	if(channel) {
@@ -684,8 +734,11 @@ void AMScanViewExclusiveView::reviewScan(int scanIndex) {
 		plotSeries_.at(scanIndex)->setModel(channel);
 
 		QPen pen = model()->data(model()->indexForChannel(scanIndex, channelIndex), AM::LinePenRole).value<QPen>();
-		pen.setColor(model()->data(model()->indexForChannel(scanIndex, channelIndex), Qt::DecorationRole).value<QColor>());
+		QColor color = model()->data(model()->indexForChannel(scanIndex, channelIndex), Qt::DecorationRole).value<QColor>();
+		pen.setColor(color);
 		plotSeries_.at(scanIndex)->setLinePen(pen);
+		plotSeries_.at(scanIndex)->setDescription(model()->scanAt(scanIndex)->fullName());
+
 	}
 	// if it doesn't, but we used to have it:
 	else if(plotSeries_.at(scanIndex)) {
@@ -711,6 +764,7 @@ AMScanViewMultiView::AMScanViewMultiView(AMScanView* masterView) : AMScanViewInt
 	plot_->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left);
 	plot_->plot()->axisBottom()->showAxisName(false);
 	plot_->plot()->axisLeft()->showAxisName(false);
+	plot_->plot()->legend()->enableDefaultLegend(false);	// turn on or turn off labels for individual scans in this plot
 
 	QGraphicsLinearLayout* gl = new QGraphicsLinearLayout();
 	gl->setContentsMargins(0,0,0,0);
@@ -723,6 +777,8 @@ AMScanViewMultiView::AMScanViewMultiView(AMScanView* masterView) : AMScanViewInt
 	for(int si=0; si<model()->numScans(); si++) {
 		addScan(si);
 	}
+
+	refreshTitles();
 }
 
 void AMScanViewMultiView::addScan(int si) {
@@ -740,6 +796,7 @@ void AMScanViewMultiView::addScan(int si) {
 			QPen pen = model()->data(model()->indexForChannel(si, ci), AM::LinePenRole).value<QPen>();
 			pen.setColor(model()->data(model()->indexForChannel(si, ci), Qt::DecorationRole).value<QColor>());
 			series->setLinePen(pen);
+			series->setDescription(model()->scanAt(si)->fullName() + ": " + ch->name());
 
 			plot_->plot()->addItem(series);
 			scanList << series;
@@ -788,6 +845,7 @@ void AMScanViewMultiView::onRowInserted(const QModelIndex& parent, int start, in
 				QPen pen = model()->data(model()->indexForChannel(si, ci), AM::LinePenRole).value<QPen>();
 				pen.setColor(model()->data(model()->indexForChannel(si, ci), Qt::DecorationRole).value<QColor>());
 				series->setLinePen(pen);
+				series->setDescription(model()->scanAt(si)->fullName() + ": " + ch->name());
 
 				plot_->plot()->addItem(series);
 				plotSeries_[si].insert(ci, series);
@@ -796,6 +854,8 @@ void AMScanViewMultiView::onRowInserted(const QModelIndex& parent, int start, in
 				plotSeries_[si].insert(ci, 0);
 		}
 	}
+
+	refreshTitles();
 }
 /// before a scan or channel is deleted in the model:
 void AMScanViewMultiView::onRowAboutToBeRemoved(const QModelIndex& parent, int start, int end) {
@@ -824,12 +884,16 @@ void AMScanViewMultiView::onRowAboutToBeRemoved(const QModelIndex& parent, int s
 			plotSeries_[si].removeAt(ci);
 		}
 	}
+
+
 }
 /// after a scan or channel is deleted in the model:
 void AMScanViewMultiView::onRowRemoved(const QModelIndex& parent, int start, int end) {
 	Q_UNUSED(parent)
 	Q_UNUSED(start)
 	Q_UNUSED(end)
+
+	refreshTitles();
 }
 
 /// when data changes: (Things we care about: color, linePen, and visible)
@@ -871,14 +935,25 @@ void AMScanViewMultiView::onModelDataChanged(const QModelIndex& topLeft, const Q
 				QPen pen = model()->data(model()->indexForChannel(si, ci), AM::LinePenRole).value<QPen>();
 				pen.setColor(model()->data(model()->indexForChannel(si, ci), Qt::DecorationRole).value<QColor>());
 				series->setLinePen(pen);
+				series->setDescription(model()->scanAt(si)->fullName() + ": " + model()->channelAt(si, ci)->name());
 			}
 		}
 	}
+
+	refreshTitles();
 }
 
 
 
+void AMScanViewMultiView::refreshTitles() {
 
+	if(model()->numScans() == 1)
+		plot_->plot()->legend()->setTitleText("1 scan");
+	else
+		plot_->plot()->legend()->setTitleText(QString("%1 scans").arg(model()->numScans()));
+
+	plot_->plot()->legend()->setBodyText("(" + model()->scanNames().join(", ") + ")");
+}
 
 
 ///////////////////////////////////////////////////
@@ -901,6 +976,7 @@ AMScanViewMultiScansView::AMScanViewMultiScansView(AMScanView* masterView) : AMS
 	plot->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left);
 	plot->plot()->axisBottom()->showAxisName(false);
 	plot->plot()->axisLeft()->showAxisName(false);
+	plot->plot()->legend()->enableDefaultLegend(false);	/// \todo Right now we maintain our own legend (instead of using MPlotLegend's automatic one), to keep it sorted by channel order. If you could introduce consistent ordering to MPlotLegend and MPlot::items(), we wouldn't have to.
 
 	firstPlotEmpty_ = true;
 	plots_ << plot;
@@ -929,11 +1005,13 @@ void AMScanViewMultiScansView::addScan(int si) {
 		plot->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left);
 		plot->plot()->axisBottom()->showAxisName(false);
 		plot->plot()->axisLeft()->showAxisName(false);
+		plot->plot()->legend()->enableDefaultLegend(false);
 
 		plots_.insert(si, plot);
 	}
 
 	QList<MPlotSeriesBasic*> scanList;
+	QStringList channelLegendText;
 
 	for(int ci=0; ci<model()->scanAt(si)->numChannels(); ci++) {
 
@@ -945,16 +1023,32 @@ void AMScanViewMultiScansView::addScan(int si) {
 
 			series->setMarker(MPlotMarkerShape::None);
 			QPen pen = model()->data(model()->indexForChannel(si, ci), AM::LinePenRole).value<QPen>();
-			pen.setColor(model()->data(model()->indexForChannel(si, ci), Qt::DecorationRole).value<QColor>());
+			QColor color = model()->data(model()->indexForChannel(si, ci), Qt::DecorationRole).value<QColor>();
+			pen.setColor(color);
 			series->setLinePen(pen);
+			series->setDescription(ch->name());
 
-			plots_[si]->plot()->addItem(series);
+			plots_.at(si)->plot()->addItem(series);
 			scanList << series;
+
+			channelLegendText << QString("<font color=#%1%2%3>%4</font><br>")
+					.arg(color.red(), 2, 16, QChar('0'))
+					.arg(color.green(), 2, 16, QChar('0'))
+					.arg(color.blue(), 2, 16, QChar('0'))
+					.arg(ch->name());	/// \todo use channel description instead of name
+
 		}
-		else // otherwise, append null series
+		else { // otherwise, append null series
 			scanList << 0;
+			channelLegendText << QString();
+		}
 	}
 	plotSeries_.insert(si, scanList);
+	plotLegendText_.insert(si, channelLegendText);
+
+	// set plot title and legend
+	plots_.at(si)->plot()->legend()->setTitleText(model()->scanAt(si)->fullName());
+	refreshLegend(si);
 
 	// note: haven't yet added this new plot to the layout_.  That's up to reLayout();
 }
@@ -999,15 +1093,28 @@ void AMScanViewMultiScansView::onRowInserted(const QModelIndex& parent, int star
 
 				series->setMarker(MPlotMarkerShape::None);
 				QPen pen = model()->data(model()->indexForChannel(si, ci), AM::LinePenRole).value<QPen>();
-				pen.setColor(model()->data(model()->indexForChannel(si, ci), Qt::DecorationRole).value<QColor>());
+				QColor color = model()->data(model()->indexForChannel(si, ci), Qt::DecorationRole).value<QColor>();
+				pen.setColor(color);
 				series->setLinePen(pen);
+				series->setDescription(ch->name());
 
 				plots_[si]->plot()->addItem(series);
 				plotSeries_[si].insert(ci, series);
+
+				QString legendText = QString("<font color=#%1%2%3>%4</font><br>")
+									.arg(color.red(), 2, 16, QChar('0'))
+									.arg(color.green(), 2, 16, QChar('0'))
+									.arg(color.blue(), 2, 16, QChar('0'))
+									.arg(ch->name());	/// \todo use channel description instead of name
+				plotLegendText_[si].insert(ci, legendText);
 			}
-			else // otherwise, append null series
+			else { // otherwise, append null series
 				plotSeries_[si].insert(ci, 0);
+				plotLegendText_[si].insert(ci, QString());
+			}
 		}
+		// update the legend text
+		refreshLegend(si);
 	}
 }
 /// before a scan or channel is deleted in the model:
@@ -1026,6 +1133,7 @@ void AMScanViewMultiScansView::onRowAboutToBeRemoved(const QModelIndex& parent, 
 			// if this is the first plot, and its the only one left, need to leave it around but flagged as empty
 			if(si == 0 && plots_.count()==1) {
 				firstPlotEmpty_ = true;
+				plots_.at(si)->plot()->legend()->setTitleText("");
 			}
 			else {
 				delete plots_.takeAt(si);
@@ -1043,7 +1151,9 @@ void AMScanViewMultiScansView::onRowAboutToBeRemoved(const QModelIndex& parent, 
 				delete plotSeries_[si][ci];
 			}
 			plotSeries_[si].removeAt(ci);
+			plotLegendText_[si].removeAt(ci);
 		}
+		refreshLegend(si);
 	}
 }
 /// after a scan or channel is deleted in the model:
@@ -1073,14 +1183,14 @@ void AMScanViewMultiScansView::onModelDataChanged(const QModelIndex& topLeft, co
 
 			MPlotSeriesBasic* series = plotSeries_[si][ci];
 
-			// need to create:
+			// need to create? (becoming visible)
 			if(visible && series == 0) {
 				plotSeries_[si][ci] = series = new MPlotSeriesBasic(model()->channelAt(si, ci));
 				series->setMarker(MPlotMarkerShape::None);
 				plots_[si]->plot()->addItem(series);
 			}
 
-			// need to get rid of:
+			// need to get rid of? (becoming invisible)
 			if(!visible && series) {
 				plots_[si]->plot()->removeItem(series);
 				delete series;
@@ -1090,10 +1200,23 @@ void AMScanViewMultiScansView::onModelDataChanged(const QModelIndex& topLeft, co
 			// finally, apply color and linestyle changes, if visible:
 			if(visible) {
 				QPen pen = model()->data(model()->indexForChannel(si, ci), AM::LinePenRole).value<QPen>();
-				pen.setColor(model()->data(model()->indexForChannel(si, ci), Qt::DecorationRole).value<QColor>());
+				QColor color = model()->data(model()->indexForChannel(si, ci), Qt::DecorationRole).value<QColor>();
+				pen.setColor(color);
 				series->setLinePen(pen);
+				series->setDescription(model()->channelAt(si, ci)->name());
+
+				plotLegendText_[si][ci] = QString("<font color=#%1%2%3>%4</font><br>")
+									.arg(color.red(), 2, 16, QChar('0'))
+									.arg(color.green(), 2, 16, QChar('0'))
+									.arg(color.blue(), 2, 16, QChar('0'))
+									.arg(model()->channelAt(si, ci)->name());	/// \todo use channel description instead of name
+			}
+			// if invisible, remove from legend
+			else {
+				plotLegendText_[si][ci] = QString();
 			}
 		}
+		refreshLegend(si);
 	}
 }
 
@@ -1231,7 +1354,8 @@ void AMScanViewMultiChannelsView::onModelDataChanged(const QModelIndex& topLeft,
 
 	// changes to a scan:
 	if(topLeft.internalId() == -1) {
-		// no changes that we really care about...
+		/// \todo zzzzz changes to name and number?
+
 
 	}
 
@@ -1375,6 +1499,7 @@ bool AMScanViewMultiChannelsView::reviewChannels() {
 
 		channel2Plot_.insert(channelName, newPlot);
 		channelAndScan2Series_.insert(channelName, QHash<AMScan*, MPlotSeriesBasic*>());
+		newPlot->plot()->legend()->setTitleText(channelName);
 	}
 
 
@@ -1410,13 +1535,18 @@ bool AMScanViewMultiChannelsView::reviewChannels() {
 				QPen pen = model()->data(model()->indexForChannel(si, ci), AM::LinePenRole).value<QPen>();
 				pen.setColor(model()->data(model()->indexForChannel(si, ci), Qt::DecorationRole).value<QColor>());
 				series->setLinePen(pen);
+				series->setDescription(scan->fullName());
 
 				channel2Plot_[channelName]->plot()->addItem(series);
 				channelAndScan2Series_[channelName].insert(scan, series);
 			}
 		}
 
-
+		// only show the detailed legend (with the scan names) if there's more than one scan open. If there's just one, it's kinda obvious, so don't waste the space.
+		if(model()->numScans() > 1)
+			channel2Plot_[channelName]->plot()->legend()->enableDefaultLegend(true);
+		else
+			channel2Plot_[channelName]->plot()->legend()->enableDefaultLegend(false);
 	}
 
 	return areChanges;

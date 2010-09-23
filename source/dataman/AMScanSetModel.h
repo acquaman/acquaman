@@ -102,6 +102,8 @@ public:
 	int rowCount ( const QModelIndex & parent = QModelIndex() ) const;
 	/// Returns the number of scans represented within the model.
 	int numScans() const { return rowCount(); }
+	/// Return a list of the names of all scans in this model:
+	QStringList scanNames() const;
 
 	/// Implemented from QAbstractItemModel.  Number of columns is always 1.
 	int columnCount ( const QModelIndex & parent = QModelIndex() ) const;
@@ -143,10 +145,7 @@ public:
 
 	/// shortcut for accessing a chanel:
 	AMChannel* channelAt(int scanIndex, int channelIndex) const {
-		if((unsigned)scanIndex >= (unsigned)scans_.count())
-			return 0;
-
-		if(channelIndex >= scans_.at(scanIndex)->numChannels())
+		if(scanIndex < 0 || channelIndex < 0 || scanIndex >= scans_.count() || channelIndex >= scans_.at(scanIndex)->numChannels())
 			return 0;
 
 		return scans_.at(scanIndex)->channel(channelIndex);
