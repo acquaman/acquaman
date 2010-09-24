@@ -547,6 +547,8 @@ AMScanViewExclusiveView::AMScanViewExclusiveView(AMScanView* masterView) : AMSca
 	plot_->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left);
 	plot_->plot()->axisBottom()->showAxisName(false);
 	plot_->plot()->axisLeft()->showAxisName(false);
+	plot_->plot()->enableAxisNormalizationLeft(true);
+	plot_->plot()->setWaterfallLeft();
 
 	QGraphicsLinearLayout* gl = new QGraphicsLinearLayout();
 	gl->setContentsMargins(0,0,0,0);
@@ -765,6 +767,8 @@ AMScanViewMultiView::AMScanViewMultiView(AMScanView* masterView) : AMScanViewInt
 	plot_->plot()->axisBottom()->showAxisName(false);
 	plot_->plot()->axisLeft()->showAxisName(false);
 	plot_->plot()->legend()->enableDefaultLegend(false);	// turn on or turn off labels for individual scans in this plot
+	plot_->plot()->enableAxisNormalizationLeft(true);
+	plot_->plot()->setWaterfallLeft();
 
 	QGraphicsLinearLayout* gl = new QGraphicsLinearLayout();
 	gl->setContentsMargins(0,0,0,0);
@@ -977,6 +981,7 @@ AMScanViewMultiScansView::AMScanViewMultiScansView(AMScanView* masterView) : AMS
 	plot->plot()->axisBottom()->showAxisName(false);
 	plot->plot()->axisLeft()->showAxisName(false);
 	plot->plot()->legend()->enableDefaultLegend(false);	/// \todo Right now we maintain our own legend (instead of using MPlotLegend's automatic one), to keep it sorted by channel order. If you could introduce consistent ordering to MPlotLegend and MPlot::items(), we wouldn't have to.
+	plot->plot()->enableAxisNormalizationLeft(true);
 
 	firstPlotEmpty_ = true;
 	plots_ << plot;
@@ -1006,6 +1011,7 @@ void AMScanViewMultiScansView::addScan(int si) {
 		plot->plot()->axisBottom()->showAxisName(false);
 		plot->plot()->axisLeft()->showAxisName(false);
 		plot->plot()->legend()->enableDefaultLegend(false);
+		plot->plot()->enableAxisNormalizationLeft(true);
 
 		plots_.insert(si, plot);
 	}
@@ -1263,6 +1269,7 @@ AMScanViewMultiChannelsView::AMScanViewMultiChannelsView(AMScanView* masterView)
 	firstPlot_->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left);
 	firstPlot_->plot()->axisBottom()->showAxisName(false);
 	firstPlot_->plot()->axisLeft()->showAxisName(false);
+	firstPlot_->plot()->enableAxisNormalizationLeft(true);
 
 
 	firstPlotEmpty_ = true;
@@ -1495,6 +1502,7 @@ bool AMScanViewMultiChannelsView::reviewChannels() {
 			newPlot->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left);
 			newPlot->plot()->axisBottom()->showAxisName(false);
 			newPlot->plot()->axisLeft()->showAxisName(false);
+			newPlot->plot()->enableAxisNormalizationLeft(true);
 		}
 
 		channel2Plot_.insert(channelName, newPlot);
