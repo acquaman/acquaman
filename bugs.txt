@@ -3,6 +3,7 @@ Acquaman Bug Tracking List
 
 Outstanding - Causing crashes
 ========================
+007 - Sept 23: Disabling waterfall inside AMScanView (with AMScanViewMultiScansView shown) -- crash is in AMScanViewMultiChannelsView>>MPlot::setWaterfallLeft()
 
 
 

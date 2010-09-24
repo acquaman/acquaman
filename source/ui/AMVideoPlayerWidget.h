@@ -79,6 +79,10 @@ public:
 
 	/// Start playback
 	void play();
+	/// isPlaying is true when video is in playback
+	bool isPlaying() const { return libvlc_media_player_is_playing(vlcPlayer_); }
+	/// returns the exact state of playback (see
+	libvlc_state_t state() const { return libvlc_media_player_get_state(vlcPlayer_); }
 
 	/// Pause playback
 	void pause();

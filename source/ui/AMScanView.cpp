@@ -104,7 +104,7 @@ void AMScanViewScanBar::onRowInserted(const QModelIndex& parent, int start, int 
 		else
 			cb->setChecked(model_->data(model_->index(i,0,parent), Qt::CheckStateRole).value<bool>());
 
-		qDebug() << "added a channel. exclusiveModeOn is: " << exclusiveModeOn_ << ", channelName is:" << source->channel(i)->name() << ", exclusiveChannelName is:" << model_->exclusiveChannel();
+		// qDebug() << "added a channel. exclusiveModeOn is: " << exclusiveModeOn_ << ", channelName is:" << source->channel(i)->name() << ", exclusiveChannelName is:" << model_->exclusiveChannel();
 	}
 
 }
@@ -318,14 +318,16 @@ void AMScanViewChannelSelector::setExclusiveModeOn(bool exclusiveModeOn) {
 
 
 
+#include <QCheckBox>
+#include <QDoubleSpinBox>
 
 AMScanViewModeBar::AMScanViewModeBar(QWidget* parent)
 	: QFrame(parent)
 {
 	QHBoxLayout* hl = new QHBoxLayout();
-	QHBoxLayout* hl2 = new QHBoxLayout(), *hl3 = new QHBoxLayout();
+	QHBoxLayout* hl2 = new QHBoxLayout();
 	hl2->setSpacing(0);
-	hl3->setSpacing(0);
+
 
 	QToolButton* tabButton_ = new QToolButton();
 	tabButton_->setAttribute(Qt::WA_MacBrushedMetal, true);
@@ -360,18 +362,21 @@ AMScanViewModeBar::AMScanViewModeBar(QWidget* parent)
 	hl->addLayout(hl2);
 	hl->addStretch(1);
 
-	plusButton_ = new QToolButton();
-	plusButton_->setText("+");
-	plusButton_->setAttribute(Qt::WA_MacBrushedMetal, true);
-	hl3->addWidget(plusButton_);
-	subtractButton_ = new QToolButton();
-	subtractButton_->setText("-");
-	subtractButton_->setAttribute(Qt::WA_MacBrushedMetal, true);
-	hl3->addWidget(subtractButton_);
+	normalizationCheckBox_ = new QCheckBox("Show at same scale");
+	normalizationCheckBox_->setChecked(true);
+	hl->addWidget(normalizationCheckBox_);
+	waterfallCheckBox_ = new QCheckBox("Waterfall  Amount");
+	waterfallCheckBox_->setChecked(true);
+	hl->addWidget(waterfallCheckBox_);
+	waterfallAmount_ = new QDoubleSpinBox();
+	waterfallAmount_->setMinimum(0);
+	waterfallAmount_->setMaximum(1e12);
+	waterfallAmount_->setValue(0.2);
+	waterfallAmount_->setSingleStep(0.1);
+	hl->addWidget(waterfallAmount_);
 
-	hl->addLayout(hl3);
 	hl->setMargin(6);
-	hl->setSpacing(24);
+	// hl->setSpacing(24);
 	setLayout(hl);
 
 	setObjectName("AMScanViewModeBar");
@@ -379,6 +384,10 @@ AMScanViewModeBar::AMScanViewModeBar(QWidget* parent)
 		"background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(81, 81, 81, 255), stop:0.494444 rgba(81, 81, 81, 255), stop:0.5 rgba(64, 64, 64, 255), stop:1 rgba(64, 64, 64, 255));"
 		"border-bottom: 1px solid black;"
 		"}");*/
+
+	connect(normalizationCheckBox_, SIGNAL(clicked(bool)), this, SIGNAL(normalizationEnabled(bool)));
+	connect(waterfallCheckBox_, SIGNAL(clicked(bool)), this, SIGNAL(waterfallOffsetEnabled(bool)));
+	connect(waterfallAmount_, SIGNAL(valueChanged(double)), this, SIGNAL(waterfallOffsetChanged(double)));
 }
 
 
@@ -443,8 +452,13 @@ void AMScanView::setupUI() {
 	views_ << new AMScanViewMultiScansView(this);
 	views_ << new AMScanViewMultiChannelsView(this);
 
-	for(int i=0; i<views_.count(); i++)
-		glayout_->addItem(views_.at(i));
+	for(int i=0; i<views_.count(); i++) {
+		AMScanViewInternal* v = views_.at(i);
+		v->enableNormalization(true);
+		v->setWaterfallOffset(0.2);
+		v->enableWaterfallOffset(true);
+		glayout_->addItem(v);
+	}
 
 }
 
@@ -475,6 +489,14 @@ void AMScanView::makeConnections() {
 
 	// connect resize event from graphicsView to resize the stuff inside the view
 	connect(gview_, SIGNAL(resized(QSizeF)), this, SLOT(resizeViews()), Qt::QueuedConnection);
+
+	// connect enabling/disabling normalization and waterfall to each view
+	for(int i=0; i<views_.count(); i++) {
+		AMScanViewInternal* v = views_.at(i);
+		connect(modeBar_, SIGNAL(normalizationEnabled(bool)), v, SLOT(enableNormalization(bool)));
+		connect(modeBar_, SIGNAL(waterfallOffsetEnabled(bool)), v, SLOT(enableWaterfallOffset(bool)));
+		connect(modeBar_, SIGNAL(waterfallOffsetChanged(double)), v, SLOT(setWaterfallOffset(double)));
+	}
 }
 
 void AMScanView::resizeViews() {
@@ -529,6 +551,10 @@ AMScanViewInternal::AMScanViewInternal(AMScanView* masterView)
 	setSizePolicy(sp);
 	// note that the _widget_'s size policy will be meaningless after a top-level layout is set. (the sizePolicy() of the layout is used instead.)  Therefore, subclasses with top-level layouts need to copy this sizePolicy() to their layout before setting it.
 
+	normalizationEnabled_ = false;
+	waterfallEnabled_ = false;
+	waterfallOffset_  = 0;
+
 }
 
 
@@ -547,8 +573,6 @@ AMScanViewExclusiveView::AMScanViewExclusiveView(AMScanView* masterView) : AMSca
 	plot_->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left);
 	plot_->plot()->axisBottom()->showAxisName(false);
 	plot_->plot()->axisLeft()->showAxisName(false);
-	plot_->plot()->enableAxisNormalizationLeft(true);
-	plot_->plot()->setWaterfallLeft();
 
 	QGraphicsLinearLayout* gl = new QGraphicsLinearLayout();
 	gl->setContentsMargins(0,0,0,0);
@@ -751,8 +775,30 @@ void AMScanViewExclusiveView::reviewScan(int scanIndex) {
 }
 
 
+void AMScanViewExclusiveView::enableNormalization(bool normalizationOn, double min, double max) {
+	AMScanViewInternal::enableNormalization(normalizationOn, min, max);
 
+	plot_->plot()->enableAxisNormalizationLeft(normalizationOn, min, max);
 
+}
+
+void AMScanViewExclusiveView::enableWaterfallOffset(bool waterfallOn) {
+	AMScanViewInternal::enableWaterfallOffset(waterfallOn);
+
+	if(waterfallOn)
+		plot_->plot()->setWaterfallLeft(waterfallOffset_);
+	else
+		plot_->plot()->setWaterfallLeft(0);
+
+}
+
+void AMScanViewExclusiveView::setWaterfallOffset(double offset) {
+	AMScanViewInternal::setWaterfallOffset(offset);
+
+	if(waterfallEnabled_)
+		plot_->plot()->setWaterfallLeft(offset);
+
+}
 
 /////////////////////////////
 AMScanViewMultiView::AMScanViewMultiView(AMScanView* masterView) : AMScanViewInternal(masterView) {
@@ -767,8 +813,6 @@ AMScanViewMultiView::AMScanViewMultiView(AMScanView* masterView) : AMScanViewInt
 	plot_->plot()->axisBottom()->showAxisName(false);
 	plot_->plot()->axisLeft()->showAxisName(false);
 	plot_->plot()->legend()->enableDefaultLegend(false);	// turn on or turn off labels for individual scans in this plot
-	plot_->plot()->enableAxisNormalizationLeft(true);
-	plot_->plot()->setWaterfallLeft();
 
 	QGraphicsLinearLayout* gl = new QGraphicsLinearLayout();
 	gl->setContentsMargins(0,0,0,0);
@@ -956,7 +1000,30 @@ void AMScanViewMultiView::refreshTitles() {
 	else
 		plot_->plot()->legend()->setTitleText(QString("%1 scans").arg(model()->numScans()));
 
-	plot_->plot()->legend()->setBodyText("(" + model()->scanNames().join(", ") + ")");
+	plot_->plot()->legend()->setBodyText(model()->scanNames().join("<br>"));
+}
+
+
+void AMScanViewMultiView::enableNormalization(bool normalizationOn, double min, double max) {
+	AMScanViewInternal::enableNormalization(normalizationOn, min, max);
+
+	plot_->plot()->enableAxisNormalizationLeft(normalizationOn, min, max);
+}
+
+void AMScanViewMultiView::enableWaterfallOffset(bool waterfallOn) {
+	AMScanViewInternal::enableWaterfallOffset(waterfallOn);
+
+	if(waterfallOn)
+		plot_->plot()->setWaterfallLeft(waterfallOffset_);
+	else
+		plot_->plot()->setWaterfallLeft(0);
+}
+
+void AMScanViewMultiView::setWaterfallOffset(double offset) {
+	AMScanViewInternal::setWaterfallOffset(offset);
+
+	if(waterfallEnabled_)
+		plot_->plot()->setWaterfallLeft(offset);
 }
 
 
@@ -981,7 +1048,6 @@ AMScanViewMultiScansView::AMScanViewMultiScansView(AMScanView* masterView) : AMS
 	plot->plot()->axisBottom()->showAxisName(false);
 	plot->plot()->axisLeft()->showAxisName(false);
 	plot->plot()->legend()->enableDefaultLegend(false);	/// \todo Right now we maintain our own legend (instead of using MPlotLegend's automatic one), to keep it sorted by channel order. If you could introduce consistent ordering to MPlotLegend and MPlot::items(), we wouldn't have to.
-	plot->plot()->enableAxisNormalizationLeft(true);
 
 	firstPlotEmpty_ = true;
 	plots_ << plot;
@@ -1011,7 +1077,10 @@ void AMScanViewMultiScansView::addScan(int si) {
 		plot->plot()->axisBottom()->showAxisName(false);
 		plot->plot()->axisLeft()->showAxisName(false);
 		plot->plot()->legend()->enableDefaultLegend(false);
-		plot->plot()->enableAxisNormalizationLeft(true);
+
+		plot->plot()->enableAxisNormalizationLeft(normalizationEnabled_, normMin_, normMax_);
+		if(waterfallEnabled_)
+			plot->plot()->setWaterfallLeft(waterfallOffset_);
 
 		plots_.insert(si, plot);
 	}
@@ -1249,6 +1318,37 @@ void AMScanViewMultiScansView::reLayout() {
 
 
 
+void AMScanViewMultiScansView::enableNormalization(bool normalizationOn, double min, double max) {
+	AMScanViewInternal::enableNormalization(normalizationOn, min, max);
+
+	for(int i=0; i<plots_.count(); i++) {
+		plots_.at(i)->plot()->enableAxisNormalizationLeft(normalizationOn, min, max);
+	}
+}
+
+void AMScanViewMultiScansView::enableWaterfallOffset(bool waterfallOn) {
+	AMScanViewInternal::enableWaterfallOffset(waterfallOn);
+
+	for(int i=0; i<plots_.count(); i++) {
+		if(waterfallOn)
+			plots_.at(i)->plot()->setWaterfallLeft(waterfallOffset_);
+		else
+			plots_.at(i)->plot()->setWaterfallLeft(0);
+	}
+
+}
+
+void AMScanViewMultiScansView::setWaterfallOffset(double offset) {
+	AMScanViewInternal::setWaterfallOffset(offset);
+
+	if(waterfallEnabled_)
+		for(int i=0; i<plots_.count(); i++)
+			plots_.at(i)->plot()->setWaterfallLeft(offset);
+}
+
+
+
+
 
 //////////////////////////////////////////////////
 
@@ -1269,8 +1369,6 @@ AMScanViewMultiChannelsView::AMScanViewMultiChannelsView(AMScanView* masterView)
 	firstPlot_->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left);
 	firstPlot_->plot()->axisBottom()->showAxisName(false);
 	firstPlot_->plot()->axisLeft()->showAxisName(false);
-	firstPlot_->plot()->enableAxisNormalizationLeft(true);
-
 
 	firstPlotEmpty_ = true;
 
@@ -1502,7 +1600,10 @@ bool AMScanViewMultiChannelsView::reviewChannels() {
 			newPlot->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left);
 			newPlot->plot()->axisBottom()->showAxisName(false);
 			newPlot->plot()->axisLeft()->showAxisName(false);
-			newPlot->plot()->enableAxisNormalizationLeft(true);
+
+			newPlot->plot()->enableAxisNormalizationLeft(normalizationEnabled_, normMin_, normMax_);
+			if(waterfallEnabled_)
+				newPlot->plot()->setWaterfallLeft(waterfallOffset_);
 		}
 
 		channel2Plot_.insert(channelName, newPlot);
@@ -1559,3 +1660,55 @@ bool AMScanViewMultiChannelsView::reviewChannels() {
 
 	return areChanges;
 }
+
+
+void AMScanViewMultiChannelsView::enableNormalization(bool normalizationOn, double min, double max) {
+	AMScanViewInternal::enableNormalization(normalizationOn, min, max);
+
+	if(firstPlotEmpty_)
+		firstPlot_->plot()->enableAxisNormalizationLeft(normalizationOn, min, max);
+	QMapIterator<QString, MPlotGW*> i(channel2Plot_);
+	while(i.hasNext()) {
+		i.next();
+		i.value()->plot()->enableAxisNormalizationLeft(normalizationOn, min, max);
+	}
+}
+
+void AMScanViewMultiChannelsView::enableWaterfallOffset(bool waterfallOn) {
+	AMScanViewInternal::enableWaterfallOffset(waterfallOn);
+
+	if(waterfallOn) {
+		if(firstPlotEmpty_)
+			firstPlot_->plot()->setWaterfallLeft(waterfallOffset_);
+		QMapIterator<QString, MPlotGW*> i(channel2Plot_);
+		while(i.hasNext()) {
+			i.next();
+			i.value()->plot()->setWaterfallLeft(waterfallOffset_);
+		}
+	}
+	else {
+		if(firstPlotEmpty_)
+			firstPlot_->plot()->setWaterfallLeft(0);
+		QMapIterator<QString, MPlotGW*> i(channel2Plot_);
+		while(i.hasNext()) {
+			i.next();
+			i.value()->plot()->setWaterfallLeft(0);
+		}
+	}
+}
+
+void AMScanViewMultiChannelsView::setWaterfallOffset(double offset) {
+	AMScanViewInternal::setWaterfallOffset(offset);
+
+	if(waterfallEnabled_) {
+		if(firstPlotEmpty_)
+			firstPlot_->plot()->setWaterfallLeft(offset);
+
+		QMapIterator<QString, MPlotGW*> i(channel2Plot_);
+		while(i.hasNext()) {
+			i.next();
+			i.value()->plot()->setWaterfallLeft(offset);
+		}
+	}
+}
+

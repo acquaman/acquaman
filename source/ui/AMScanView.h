@@ -115,14 +115,25 @@ protected:
 
 };
 
+class QCheckBox;
+class QDoubleSpinBox;
+
 /// Contains the GUI buttons used by AMScanView to switch between different view modes
 class AMScanViewModeBar : public QFrame {
 	Q_OBJECT
 public:
 	explicit AMScanViewModeBar(QWidget* parent = 0);
 
-	QToolButton* plusButton_, *subtractButton_;
 	QButtonGroup* modeButtons_;
+
+	QCheckBox* normalizationCheckBox_, *waterfallCheckBox_;
+	QDoubleSpinBox* waterfallAmount_;
+
+signals:
+	void normalizationEnabled(bool);
+	void waterfallOffsetEnabled(bool);
+	void waterfallOffsetChanged(double);
+
 
 };
 
@@ -182,6 +193,12 @@ public:
 	explicit AMScanViewInternal(AMScanView* masterView);
 
 public slots:
+	/// Must re-implement in subclasses: turn on axis normalization on the y-axis
+	virtual void enableNormalization(bool normalizationOn = true, double min = 0, double max = 1) { normalizationEnabled_ = normalizationOn; normMin_ = min, normMax_ = max;}
+	/// Must re-implement in subclasses: set the waterfall amount
+	virtual void setWaterfallOffset(double offset) { waterfallOffset_ = offset; }
+	/// Must re-implement in subclasses: enable or disable the waterfall effect
+	virtual void enableWaterfallOffset(bool waterfallOn = true) { waterfallEnabled_ = waterfallOn; }
 
 protected slots:
 	/// after a scan or channel is added in the model
@@ -197,6 +214,9 @@ protected:
 	AMScanView* masterView_;
 
 	AMScanSetModel* model() const;
+
+	double waterfallOffset_, normMin_, normMax_;
+	bool normalizationEnabled_, waterfallEnabled_;
 };
 
 #include <QPropertyAnimation>
@@ -270,6 +290,10 @@ public:
 
 public slots:
 
+	virtual void enableNormalization(bool normalizationOn, double min = 0, double max = 1);
+	virtual void setWaterfallOffset(double offset);
+	virtual void enableWaterfallOffset(bool waterfallOn);
+
 protected slots:
 	/// after a scan or channel is added in the model
 	virtual void onRowInserted(const QModelIndex& parent, int start, int end);
@@ -311,6 +335,9 @@ public:
 	virtual ~AMScanViewMultiView();
 
 public slots:
+	virtual void enableNormalization(bool normalizationOn, double min = 0, double max = 1);
+	virtual void setWaterfallOffset(double offset);
+	virtual void enableWaterfallOffset(bool waterfallOn);
 
 
 protected slots:
@@ -350,6 +377,9 @@ public:
 	virtual ~AMScanViewMultiScansView();
 
 public slots:
+	virtual void enableNormalization(bool normalizationOn, double min = 0, double max = 1);
+	virtual void setWaterfallOffset(double offset);
+	virtual void enableWaterfallOffset(bool waterfallOn);
 
 protected slots:
 	/// after a scan or channel is added in the model
@@ -399,6 +429,9 @@ public:
 	virtual ~AMScanViewMultiChannelsView();
 
 public slots:
+	virtual void enableNormalization(bool normalizationOn, double min = 0, double max = 1);
+	virtual void setWaterfallOffset(double offset);
+	virtual void enableWaterfallOffset(bool waterfallOn);
 
 protected slots:
 	/// after a scan or channel is added in the model

@@ -87,7 +87,8 @@ void AMVideoPlayerWidget::togglePause() {
 }
 
 void AMVideoPlayerWidget::stop() {
-	libvlc_media_player_stop(vlcPlayer_);
+	if(isPlaying())	/// \todo change to all non-stopped states?
+		libvlc_media_player_stop(vlcPlayer_);
 }
 
 
