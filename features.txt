@@ -4,7 +4,7 @@ Acquaman Feature Roadmap
 
 Mark's short-term, ongoing
 ====================
-- AMRun: when setting the runId on scan... how to notify that run (and the run of the previous runId) to re-compute their start and end times?
+- [done] AMRun: when setting the runId on scan... how to notify that run (and the run of the previous runId) to re-compute their start and end times?
 - Delete experiments, close scan editors ('x' button in Sidebar)
 - catch scan editor close event; prompt for save
 - set scan's runId( AMUser::currentRunId() ) on scan controller start acquisition
@@ -15,7 +15,7 @@ Mark's short-term, ongoing
 - DragAndDrop onto open scan editor links in sidebar
 - 'Open' button in scan editor; widget to show/add {recent, run, experiment} scans
 - dynamic window names for scan editors
-- AMDatView: need to scroll to top when switching what's in the views; properly re-sizing the vertical height of the widget on every re-fill...
+- [done] AMDatView: need to scroll to top when switching what's in the views; properly re-sizing the vertical height of the widget on every re-fill...
 
 
 

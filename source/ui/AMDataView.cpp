@@ -27,7 +27,7 @@ AMDataView::AMDataView(AMDatabase* database, QWidget *parent) :
 	connect(gscene_, SIGNAL(selectionChanged()), this, SLOT(onSceneSelectionChanged()));
 	connect(gscene_, SIGNAL(doubleClicked(QPointF)), this, SLOT(onSceneDoubleClicked()));
 	gview_->setScene(gscene_);
-	// gview_->setDragMode(QGraphicsView::RubberBandDrag);
+	gview_->setDragMode(QGraphicsView::RubberBandDrag);
 	gwidget_ = new QGraphicsWidget();
 	gscene_->addItem(gwidget_);
 	sectionLayout_ = new QGraphicsLinearLayout(Qt::Vertical);
@@ -733,6 +733,7 @@ void AMDataView::refreshView() {
 	// and show all the sections in the qgraphicsview layout area:
 	foreach(QGraphicsLayoutItem* s, sections_) {
 		sectionLayout_->addItem(s);
+		sectionLayout_->setAlignment(s, Qt::AlignTop | Qt::AlignHCenter);
 	}
 
 	// finally, set the visualized area of the scene to be exactly as big as we need it...
@@ -824,6 +825,7 @@ AMDataViewSection::AMDataViewSection(const QString& title, const QString& subtit
 	layout_->setContentsMargins(0,0,0,0);
 	layout_->setSpacing(0);
 	layout_->addItem(proxy);
+	layout_->setAlignment(proxy, Qt::AlignTop | Qt::AlignHCenter);
 	setLayout(layout_);
 
 
@@ -864,6 +866,7 @@ void AMDataViewSection::expand(bool expanded) {
 			subview__ = v;
 		}
 		layout_->addItem(subview_);
+		layout_->setAlignment(subview_, Qt::AlignTop | Qt::AlignHCenter);
 		subview__->setWidthConstraint(widthConstraint_);
 	}
 	else {

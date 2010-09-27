@@ -363,19 +363,22 @@ AMDbThumbnail AMScan::thumbnail(int index) const {
 	plot.axisBottom()->showGrid(false);
 	plot.axisBottom()->showAxisName(false);
 	plot.axisLeft()->showAxisName(false);
+	plot.legend()->enableDefaultLegend(false);	// don't show default legend names, because we want to provide these as text later; don't include them in the bitmap
 
-	MPlotSeriesBasic series(channel(index));
+	MPlotSeriesBasic* series = new MPlotSeriesBasic(channel(index));
 	/// Todo: non-arbitrary colors here; don't mess up the ordering in AMScanSetModelChannelMetaData
 	QPen seriesPen(QBrush(AMScanSetModelChannelMetaData::nextColor()), 1);
-	series.setLinePen(seriesPen);
-	series.setMarker(MPlotMarkerShape::None);
+	series->setLinePen(seriesPen);
+	series->setMarker(MPlotMarkerShape::None);
 
 	plot.enableAutoScale(MPlotAxis::Left | MPlotAxis::Bottom);
-	plot.addItem(&series);
+	plot.addItem(series);
 	plot.doDelayedAutoScale();
 
 	gscene.render(&painter);
 	painter.end();
+
+	delete series;
 
 	/// todo: pretty names like "Total Electron Yield" instead of "tey_n"
 	return AMDbThumbnail(channel(index)->name(), QString(), pixmap);

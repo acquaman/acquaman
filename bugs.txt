@@ -15,7 +15,6 @@ Outstanding - Wrong behaviour
 
 
 
-
 Fixed:
 ========================
 001 - Sept 15: libvlc playback inside AMVideoPlayerWidget causes crash on linux.  

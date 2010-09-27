@@ -39,6 +39,7 @@ AMScanViewScanBar::AMScanViewScanBar(AMScanSetModel* model, int scanIndex, QWidg
 	if(source) {
 		for(int i=0; i<source->numChannels(); i++) {
 			QToolButton* cb = new QToolButton();
+			cb->setMaximumHeight(18);
 			cb->setText(source->channel(i)->name());
 			QColor color = model->data(model->indexForChannel(scanIndex, i), Qt::DecorationRole).value<QColor>();
 			cb->setStyleSheet(QString("color: rgba(%1, %2, %3, %4);").arg(color.red()).arg(color.green()).arg(color.blue()).arg(color.alpha()));
@@ -58,7 +59,7 @@ AMScanViewScanBar::AMScanViewScanBar(AMScanSetModel* model, int scanIndex, QWidg
 	hl->addWidget(closeButton_);
 	*/
 
-	hl->setMargin(6);
+	hl->setContentsMargins(6, 0, 6, 0);
 	hl->setSpacing(24);
 	setLayout(hl);
 
@@ -409,7 +410,7 @@ AMScanView::AMScanView(QWidget *parent) :
 
 	modeAnim_ = new QPropertyAnimation(gview_->graphicsWidget(), "geometry", this);
 	modeAnim_->setDuration(500);
-	modeAnim_->setEasingCurve(QEasingCurve::InOutQuad);
+	modeAnim_->setEasingCurve(QEasingCurve::InOutCubic);
 
 	changeViewMode(Tabs);
 
