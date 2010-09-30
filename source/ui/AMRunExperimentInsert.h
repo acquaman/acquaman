@@ -8,12 +8,13 @@
 class AMDatabase;
 class QAbstractItemView;
 
-/// This class provides an "insert" or "hook" into a tree view and item model. Given two existing items in the model, it will use these as a "run heading" and "experiment heading", and insert the runs and experiments found in the database underneath them.  Additionally, if you connect the view's selectionModel()'s QItemSelectionModel::currentChanged(QModelIndex,QModelIndex) signal to this class's onItemSelected(QModelIndex,QModelIndex) slot, it will be able to issue runSelected(id) and experimentSelected(id) signals.
+/// This class provides an "insert" or "hook" into the AMWindowPaneModel. Given two existing items in the model, it will use these as a "run heading" and "experiment heading", and insert the runs and experiments found in the database underneath them, as 'alias' link items.  (See AMWindowPaneModel for more information about alias items.)
+/*! The newExperimentAdded(QModelIndex) signal is emitted when we detect that a new experiment has been created.  It useful as a request to the view containing these items, to start editing the name of the new experiment. */
 class AMRunExperimentInsert : public QObject
 {
 Q_OBJECT
 public:
-	explicit AMRunExperimentInsert(AMDatabase* db, QStandardItem* runHeading, QStandardItem* experimentHeading, QAbstractItemView* view = 0, QObject *parent = 0);
+	explicit AMRunExperimentInsert(AMDatabase* db, QStandardItem* runHeading, QStandardItem* experimentHeading, QObject *parent = 0);
 
 	virtual ~AMRunExperimentInsert() {
 		runItem_->removeRows(0, runItem_->rowCount());
@@ -21,16 +22,11 @@ public:
 	}
 
 signals:
-	/// Emitted when a run is selected. When the Runs heading is selected, this will be emitted with \c id = -1.
-	void runSelected(int id);
-	/// Emitted when an experiment is selected.  When the Experiments heading is selected, this will be emitted with \c id = -1.
-	void experimentSelected(int id);
+
+	/// Emitted when a new item has been created
+	void newExperimentAdded(const QModelIndex& index);
 
 public slots:
-	/// Connect this slot to the view's selectionModel()'s currentChanged(const QModelIndex&,const QModelIndex&) signal. It will emit runSelected and experimentSelected as required.
-	void onItemSelected(const QModelIndex&,const QModelIndex&);
-
-
 
 
 protected slots:
@@ -52,9 +48,8 @@ protected:
 	/// Top-level items (run header and experiment header)
 	QStandardItem *runItem_, *experimentItem_;
 
-	/// Optionally, you can initialize this with a pointer to a view. This breaks the model/view separation, but if you do, then we can select and start editing newly-added experiments, so the user can enter their desired name.
-	QAbstractItemView* view_;
 
+	/// The database to search for runs and experiments
 	AMDatabase* db_;
 	/// Indicates whether a refresh_ has already been scheduled. If it has, there's no point in scheduling another one.  These flags are cleared after the refreshes are completed.
 	bool runRefreshScheduled_, expRefreshScheduled_;

@@ -7,31 +7,26 @@
 #include <QAbstractItemView>
 #include <QTreeView>
 
+#include "ui/AMWindowPaneModel.h"
 
 
 
-
-AMRunExperimentInsert::AMRunExperimentInsert(AMDatabase* db, QStandardItem* runParent, QStandardItem* experimentParent, QAbstractItemView* view, QObject *parent) :
+AMRunExperimentInsert::AMRunExperimentInsert(AMDatabase* db, QStandardItem* runParent, QStandardItem* experimentParent, QObject *parent) :
 	QObject(parent)
 {
 
 	db_ = db;
-	view_ = view;
 
 	newExperimentId_ = -1;
 
 	experimentItem_ = experimentParent;
-			// new QStandardItem(QIcon(":/applications-science.png"), "Experiments");
 	experimentItem_->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
 	runItem_ =  runParent;
-			//new QStandardItem(QIcon(":/22x22/view_calendar_upcoming_days.png"), "Runs");
 	runItem_->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
-
 
 	connect(db_, SIGNAL(created(QString,int)), this, SLOT(onDatabaseObjectCreated(QString,int)));
 	connect(db_, SIGNAL(updated(QString,int)), this, SLOT(onDatabaseUpdated(QString,int)));
 	connect(db_, SIGNAL(removed(QString,int)), this, SLOT(onDatabaseUpdated(QString,int)));
-
 
 	refreshRuns();
 	refreshExperiments();
@@ -93,8 +88,8 @@ void AMRunExperimentInsert::refreshRuns() {
 		/// "toolTipRole" is the long description of the facility
 		item->setData(q.value(2).toString(), Qt::ToolTipRole);
 
-		/// Copy the Link role from runItem_ so that we open the same widget in the main window
-		item->setData(runItem_->data(AM::LinkRole), AM::LinkRole);
+		/// Fill the alias information for this to be a valid 'Alias' item
+		AMWindowPaneModel::initAliasItem(item, runItem_->data(AMWindowPaneModel::AliasTargetRole).value<QStandardItem*>(), "Runs", q.value(5).toInt());
 
 		runItem_->appendRow(item);
 	}
@@ -129,18 +124,15 @@ void AMRunExperimentInsert::refreshExperiments() {
 		/// "toolTipRole" is the name, again. (\todo eventually, this could contain the number of scans in the experiment)
 		item->setData(q.value(0).toString(), Qt::ToolTipRole);
 
-		/// Copy the Link role from runItem_ so that we open the same widget in the main window
-		item->setData(experimentItem_->data(AM::LinkRole), AM::LinkRole);
+		/// Fill the alias information for this to be a valid 'Alias' item
+		AMWindowPaneModel::initAliasItem(item, experimentItem_->data(AMWindowPaneModel::AliasTargetRole).value<QStandardItem*>(), "Experiments", id);
+		item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsDropEnabled | Qt::ItemIsEditable);
 
 		experimentItem_->appendRow(item);
 
 		// Last of all... if this one is the newly-added experiment, let's select and start editing it's name:
 		if(id == newExperimentId_) {
-			if(view_ && qobject_cast<QTreeView*>(view_)) {
-				qobject_cast<QTreeView*>(view_)->expand(experimentItem_->index());
-				view_->setCurrentIndex(item->index());
-				view_->edit(item->index());
-			}
+			emit newExperimentAdded(item->index());
 			newExperimentId_ = -1;
 		}
 	}
@@ -148,28 +140,6 @@ void AMRunExperimentInsert::refreshExperiments() {
 	// no more refresh scheduled, since we just completed it.
 	expRefreshScheduled_ = false;
 }
-
-/// Connect this slot to the view's clicked(const QModelIndex& index) signal. It will emit runSelected and experimentSelected as required.
-void AMRunExperimentInsert::onItemSelected(const QModelIndex& index,const QModelIndex& previousIndex) {
-
-	Q_UNUSED(previousIndex)
-
-	/// Run heading clicked?
-	if(index == runItem_->index()) {
-		emit runSelected(-1);
-	}
-	else if(index == experimentItem_->index()) {
-		emit experimentSelected(-1);
-	}
-	else if(index.parent() == runItem_->index()) {
-		emit runSelected(runItem_->model()->itemFromIndex(index)->data(AM::IdRole).toInt());
-	}
-
-	else if(index.parent() == experimentItem_->index()) {
-		emit experimentSelected(experimentItem_->model()->itemFromIndex(index)->data(AM::IdRole).toInt());
-	}
-}
-
 
 
 

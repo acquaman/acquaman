@@ -158,28 +158,40 @@ bool AMWindowPaneModel::setData(const QModelIndex &index, const QVariant &value,
 	}
 }
 
-/// This convenience function can be used to insert a new window pane widget into the model, under the heading \c headingText.  Alternatively, you can set the AM::WidgetRole on any QStandardItem and add it using the conventional QStandardItemModel::addRow() API.
-/*! \note \c pane must be a valid widget until this item is removed from the model */
-void AMWindowPaneModel::addPane(QWidget* pane, const QString& headingText) {
+QStandardItem* AMWindowPaneModel::addPane(QWidget* pane, const QString& headingText) {
 
-	QStandardItem* newItem = new QStandardItem(pane->windowIcon(), pane->windowTitle());
+	QStandardItem* newItem = new QStandardItem();
+	newItem->setData(qVariantFromValue(pane), AM::WidgetRole);
+	newItem->setData(true, AMWindowPaneModel::DockStateRole);
 
+	newItem->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
 
 	headingItem(headingText)->appendRow(newItem);
+
+	return newItem;
 }
 
+QStandardItem* AMWindowPaneModel::addPane(QWidget *pane, const QString &headingText, const QString& windowTitle, const QIcon& windowIcon) {
+
+	pane->setWindowTitle(windowTitle);
+	pane->setWindowIcon(windowIcon);
+
+	return addPane(pane, headingText);
+}
 
 
 bool AMWindowPaneModel::initAliasItem(QStandardItem* newAliasItem, QWidget* targetWindowPane, const QString& aliasKey, const QVariant& aliasValue) {
 
 	if(!widget2item_.contains(targetWindowPane))
 		return false;
-	else
-		return initAliasItem(newAliasItem, widget2item_.value(targetWindowPane), aliasKey, aliasValue);
+	else {
+		initAliasItem(newAliasItem, widget2item_.value(targetWindowPane), aliasKey, aliasValue);
+		return true;
+	}
 
 }
 
-bool AMWindowPaneModel::initAliasItem(QStandardItem *newAliasItem, QStandardItem *targetItem, const QString &aliasKey, const QVariant &aliasValue) {
+void AMWindowPaneModel::initAliasItem(QStandardItem *newAliasItem, QStandardItem *targetItem, const QString &aliasKey, const QVariant &aliasValue) {
 
 	newAliasItem->setData(true, AMWindowPaneModel::IsAliasRole);
 	newAliasItem->setData(qVariantFromValue(targetItem), AMWindowPaneModel::AliasTargetRole);
@@ -187,7 +199,8 @@ bool AMWindowPaneModel::initAliasItem(QStandardItem *newAliasItem, QStandardItem
 	newAliasItem->setData(aliasValue, AMWindowPaneModel::AliasValueRole);
 	newAliasItem->setData(QVariant(), AM::WidgetRole);
 
-	return true;
+	newAliasItem->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+
 }
 
 // Convenience access functions:

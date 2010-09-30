@@ -1,11 +1,41 @@
 #include "AMMainWindow.h"
 #include <QDebug>
+#include "ui/AMCloseItemDelegate.h"
 
 /// Default constructor
 AMMainWindow::AMMainWindow(QWidget *parent) : QWidget(parent) {
 
-	sidebar_ = new AMSidebar();
+	model_ = new AMWindowPaneModel(this);
+
 	stackWidget_ = new QStackedWidget();
+
+	sidebar_ = new QTreeView();
+	sidebar_->setModel(model_);
+	sidebar_->setHeaderHidden(true);
+	sidebar_->setRootIsDecorated(true);
+	sidebar_->setAttribute(Qt::WA_MacShowFocusRect, false);
+	sidebar_->setWordWrap(false);
+	sidebar_->setIndentation(10);
+	sidebar_->setAnimated(true);
+	sidebar_->setEditTriggers(QAbstractItemView::SelectedClicked);
+	sidebar_->setSelectionMode(QAbstractItemView::SingleSelection);
+	// accept drops onto items (specfically, experiment items, which are supposed to accept dropped scans)
+	sidebar_->setDragDropMode(QAbstractItemView::DropOnly);
+	sidebar_->setAcceptDrops(true);
+	sidebar_->setDropIndicatorShown(true);
+	sidebar_->setAutoExpandDelay(300);
+	sidebar_->setMinimumWidth(200);
+	sidebar_->setMaximumWidth(200);
+	sidebar_->setStyleSheet("QTreeView { font: 500 10pt \"Lucida Grande\"; border-width: 1px;   border-style: solid;   border-color: rgb(221, 227, 234);  border-right-color: rgb(64, 64, 64); background-color: rgb(221, 227, 234); show-decoration-selected: 1; selection-background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(91, 146, 213, 255), stop:1 rgba(22, 84, 170, 255)); }"
+							" QTreeView::item { height: 30; } "
+							" QTreeView::item::selected { background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(91, 146, 213, 255), stop:1 rgba(22, 84, 170, 255)); } ");
+	AMCloseItemDelegate* del = new AMCloseItemDelegate();
+	del->setCloseButtonsEnabled(true);
+	sidebar_->setItemDelegate(del);
+
+
+	model_->invisibleRootItem()->setFlags( Qt::NoItemFlags );
+
 
 	// setup layouts
 	vlayout_ = new QVBoxLayout(this);
@@ -19,42 +49,44 @@ AMMainWindow::AMMainWindow(QWidget *parent) : QWidget(parent) {
 
 	hl1->addWidget(sidebar_);
 	hl1->addWidget(stackWidget_);
-	// connect click and double-click signals from the sidebar:
-	connect(sidebar_, SIGNAL(linkSelected(QVariant)), this, SLOT(onSidebarLinkClicked(QVariant)));
-	connect(sidebar_, SIGNAL(linkDoubleClicked(QVariant)), this, SLOT(onSidebarLinkDoubleClicked(QVariant)));
 
-	// connect the stackWidget_'s currentWidgetChanged signal to adjust the highlights in the sidebar:
+	// connect signals from the model:
+	connect(model_, SIGNAL(dockStateChanged(QWidget*,bool)), this, SLOT(onDockStateChanged(QWidget*,bool)));
+	connect(model_, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(onModelRowsInserted(QModelIndex,int,int)));
+	connect(model_, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)), this, SLOT(onModelRowsAboutToBeRemoved(QModelIndex,int,int)));
+
+	// connect click and double-click signals from the sidebar:
+	connect(sidebar_->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(onSidebarItemActivated(QModelIndex,QModelIndex)));
+	connect(sidebar_, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onSidebarItemDoubleClicked(QModelIndex)));
+
+	// connect the stackWidget_'s currentWidgetChanged signal, to ensure we stay in sync with the currentIndex in the sidebar:
 	connect(stackWidget_, SIGNAL(currentChanged(int)), this, SLOT(onFwdCurrentWidgetChanged(int)));
+
+	// connect 'close' signal from AMCloseItemDelegate
+	connect(del, SIGNAL(closeButtonClicked(QModelIndex)), this, SLOT(onItemCloseButtonClicked(QModelIndex)));
 }
 
 AMMainWindow::~AMMainWindow() {
-	// delete all children, including the cut-loose windows
-	QList<QWidget*> panes = pane2isDocked_.keys();
+	// determine all children widgets:
+	QList<QWidget*> panes = model_->allPanes();
+
+	// get rid of the sidebar, so that it's not emitting signals and causing changes while we delete the widgets themselves.
+	delete sidebar_;
+
+	disconnect(stackWidget_, SIGNAL(currentChanged(int)), this, SLOT(onFwdCurrentWidgetChanged(int)));
+	// delete the model.
+	delete model_;
+
 	foreach(QWidget* pane, panes) {
-		deletePane(pane);
+		delete pane;
 	}
 }
 
-/// Add a new \c pane to manage.  It will show up under category \c categoryName, at the given \c weight, with \c name and an icon from \c iconFileName.
-/*! \note It's okay to call this function several times with the same widget.  Only one version of the widget will be added, but multiple links to it in the sidebar will be created. */
-QStandardItem* AMMainWindow::addPane(QWidget* pane, const QString& categoryName, const QString& title, const QString& iconFileName, double weight) {
 
-	pane->setWindowTitle(title);
-	pane->setWindowIcon(QIcon(iconFileName));
 
-	// Is this a new widget that we haven't inserted yet?
-	if(!pane2isDocked_.contains(pane)) {
-		pane2isDocked_.insert(pane, true);
-		stackWidget_->addWidget(pane);
-		// For cut-loose windows: we need to catch the close events -- must put back into main window instead of closing
-		pane->installEventFilter(this);
-	}
+QStandardItem* AMMainWindow::addPane(QWidget* pane, const QString& categoryName, const QString& title, const QString& iconFileName) {
 
-	// make a new sidebar link
-	QStandardItem* item = sidebar_->addLink(categoryName, QVariant::fromValue(pane), title, QIcon(iconFileName), weight);
-	pane2sidebarItems_.insertMulti(pane, item);
-
-	return item;
+	return model_->addPane(pane, categoryName, title, QIcon(iconFileName));
 }
 
 
@@ -63,90 +95,118 @@ QStandardItem* AMMainWindow::addPane(QWidget* pane, const QString& categoryName,
 /// Removes and deletes a pane widget (whether docked or undocked)
 void AMMainWindow::deletePane(QWidget* pane) {
 
-	if(!pane2isDocked_.contains(pane))
-		return;
+	removePane(pane);
 
-	// remove from sidebar link(s):
-	QList<QStandardItem*> sidebarItems = pane2sidebarItems_.values(pane);
-	foreach(QStandardItem* item, sidebarItems) {
-		sidebar_->deleteLink(item);
-		pane2sidebarItems_.remove(pane, item);
-	}
 	// delete actual widget:
 	delete pane;
-
-	// remove from entries:
-	pane2isDocked_.remove(pane);
 }
+
+
 
 /// Removes a pane widget but does not delete it.  Ownership is now the responsibility of the caller. The pane becomes a top-level window.
 void AMMainWindow::removePane(QWidget* pane) {
-	if(!pane2isDocked_.contains(pane))
-		return;
 
-	// remove from sidebar link(s):
-	QList<QStandardItem*> sidebarItems = pane2sidebarItems_.values(pane);
-	foreach(QStandardItem* item, sidebarItems) {
-		sidebar_->deleteLink(item);
-		pane2sidebarItems_.remove(pane, item);
+	QModelIndex i = model_->indexForPane(pane);
+
+	if(i.isValid())
+		model_->removeRow(i.row(), i.parent());
+}
+
+
+void AMMainWindow::onModelRowsInserted(const QModelIndex &parent, int start, int end) {
+
+	for(int row=start; row<=end; row++) {
+		QModelIndex i = model_->index(row, 0, parent);
+
+		qDebug() << "Inserting new item. isAlias() = " << model_->isAlias(i) << "isHeading = " << model_->isHeading(i);
+
+		// for "real" item entries. (Nothing to do for aliases or headings)
+		if(!model_->isAlias(i) && !model_->isHeading(i)) {
+
+			QWidget* pane = model_->pane(i);
+			qDebug() << "  Still inserting new item. pane is:" << pane;
+
+			if(model_->isDocked(i) && pane) {
+				stackWidget_->addWidget(pane);
+			}
+			else if(pane) {
+				pane->setParent(0);
+				pane->show();
+			}
+		}
 	}
-	pane2isDocked_.remove(pane);
 
-	QSize oldSize = pane->size();
-	QPoint oldPos = pane->mapToGlobal(pane->geometry().topLeft());
-	stackWidget_->removeWidget(pane);
-	pane->setParent(0);
-	pane->setGeometry(QRect(oldPos + QPoint(20, 20), oldSize));
-	pane->show();
+	sidebar_->expand(parent);
 }
 
-/// move a pane from inside the main window to a separate window.
-void AMMainWindow::undock(QWidget* pane) {
+void AMMainWindow::onModelRowsAboutToBeRemoved(const QModelIndex &parent, int start, int end) {
 
-	if(!pane2isDocked_.contains(pane))
-		return;
 
-	if(!pane2isDocked_[pane])
-		return;
+	for(int row=start; row<=end; row++) {
+		QModelIndex i = model_->index(row, 0, parent);
 
-	pane2isDocked_[pane] = false;
+		// for "real" items only. Don't care about removing headings or aliases.
+		if(!model_->isAlias(i) && !model_->isHeading(i)) {
 
-	QSize oldSize = pane->size();
-	QPoint oldPos = pane->mapToGlobal(pane->geometry().topLeft());
+			if(model_->isDocked(i)) {
+				QWidget* pane = model_->pane(i);
+				if(pane) {
 
-	// the most intuitive thing for users would be for the main window to take them back to their last-visited pane, now that this one is gone.
-	if(pane2isDocked_.contains(previousPane_) && pane2isDocked_[previousPane_])
-		stackWidget_->setCurrentWidget(previousPane_);
+					QSize oldSize = pane->size();
+					QPoint oldPos = pane->mapToGlobal(pane->geometry().topLeft());
+					stackWidget_->removeWidget(pane);
+					pane->setParent(0);
+					pane->setGeometry(QRect(oldPos + QPoint(20, 20), oldSize));
+					pane->show();
 
-	stackWidget_->removeWidget(pane);
-	pane->setParent(0);
-	pane->setGeometry(QRect(oldPos + QPoint(20, 20), oldSize));
-	pane->show();
-
+					if(previousPane_ == pane)
+						previousPane_ = 0;
+				}
+			}
+		}
+	}
 }
 
-/// return a \c pane that was undocked back to the main window.  Does not set this pane as the current widget.
-void AMMainWindow::dock(QWidget* pane) {
-
-	if(!pane2isDocked_.contains(pane))
-		return;
-
-	if(pane2isDocked_[pane])
-		return;
-
-	stackWidget_->addWidget(pane);
-	pane2isDocked_[pane] = true;
+void AMMainWindow::onItemCloseButtonClicked(const QModelIndex &index) {
+	/// \todo IMPORTANT "What now?"
+	qDebug() << "AMMainWindow: close buttons not implemented";
 }
+
+void AMMainWindow::onDockStateChanged(QWidget* pane, bool isDocked) {
+	// dock it
+	if(isDocked) {
+		stackWidget_->addWidget(pane);
+	}
+
+	// undock it
+	else {
+		QSize oldSize = pane->size();
+		QPoint oldPos = pane->mapToGlobal(pane->geometry().topLeft());
+
+		// the most intuitive thing for users would be: when undocking this pane, take them back in the main-window to the previously-visited pane.
+		// caveats: need to make sure that the previously-visited pane still exists, and is actually docked itself.
+		QModelIndex previousPaneIndex = model_->indexForPane(previousPane_);
+		if(previousPaneIndex.isValid() && model_->isDocked(previousPaneIndex) && previousPane_ != pane)
+			stackWidget_->setCurrentWidget(previousPane_);
+
+		stackWidget_->removeWidget(pane);
+		pane->setParent(0);
+		pane->setGeometry(QRect(oldPos + QPoint(20, 20), oldSize));
+		pane->show();
+	}
+}
+
 
 
 void AMMainWindow::goToPane(QWidget* pane){
 
 	// widget doesn't exist
-	if(!pane2isDocked_.contains(pane))
+	QModelIndex i = model_->indexForPane(pane);
+	if(!i.isValid())
 		return;
 
 	// if its a docked widget, set as current widget
-	if(pane2isDocked_[pane]) {
+	if(model_->isDocked(i)) {
 		previousPane_ = stackWidget_->currentWidget();
 		stackWidget_->setCurrentWidget(pane);
 	}
@@ -158,33 +218,38 @@ void AMMainWindow::goToPane(QWidget* pane){
 	}
 }
 
-void AMMainWindow::onSidebarLinkClicked(const QVariant& linkContent) {
 
-	QWidget* pane = linkContent.value<QWidget*>();
-	if(!pane2isDocked_.contains(pane))
+void AMMainWindow::onSidebarItemActivated(const QModelIndex& index, const QModelIndex& oldIndex) {
+
+	Q_UNUSED(oldIndex)
+
+	QWidget* pane = model_->pane(index);
+
+	qDebug() << "Calling onSidebarItemActivated. pane = " << pane << "index = " << index;
+
+	if(pane == 0)
 		return;
+
+	// if this item is an "alias" item for another widget, pane() will correctly access the real widget. However, we should emit the 'aliasActivated' signal to notify
+	if(model_->isAlias(index)) {
+		emit aliasItemActivated(pane, model_->aliasKey(index), model_->aliasValue(index));
+	}
 
 	// already done
 	if(pane == stackWidget_->currentWidget())
 		return;
 
-
-
 	// If it's floating free, need to grab it back
-	if(!pane2isDocked_[pane]) {
-		dock(pane);
+	if(!model_->isDocked(index)) {
+		model_->dock(index);
 	}
-
 
 	previousPane_ = stackWidget_->currentWidget();
 	stackWidget_->setCurrentWidget(pane);
-
 }
 
-void AMMainWindow::onSidebarLinkDoubleClicked(const QVariant& linkContent) {
-	QWidget* pane = linkContent.value<QWidget*>();
-
-	undock(pane);
+void AMMainWindow::onSidebarItemDoubleClicked(const QModelIndex& index) {
+	model_->undock(index);
 }
 
 /// We intercept and forward the currentChanged(int) signal from the QStackedWidget, to keep the sidebar's highlighted link consistent with the current widget.
@@ -194,27 +259,12 @@ void AMMainWindow::onFwdCurrentWidgetChanged(int currentIndex) {
 		return;
 
 	QWidget* currentPane = stackWidget_->widget(currentIndex);
-	// Normally, we want to ensure that the highlighted segit lection in the tree(sidebar) stays consistent with the selected pane.
+	// Normally, we want to ensure that the highlighted selection in the tree(sidebar) stays consistent with the selected pane.
 	// However, if there are multiple links for a single pane, we don't know which one to choose, so its better to not do anything at all. (For now... this could be improved with a more detailed internal model.)
-	if(pane2sidebarItems_.count(currentPane) == 1)
-		sidebar_->setHighlightedLink(pane2sidebarItems_.value(currentPane));
+	// ??????????
+	QModelIndex i = model_->indexForPane(currentPane);
+	sidebar_->setCurrentIndex(i);
 
 	emit currentPaneChanged(currentPane);
 }
 
-
-/// if an undocked widget is about to be closed, we need to intercept that event and capture (dock) it back to the main window insead.
-bool AMMainWindow::eventFilter(QObject* sourceObject, QEvent* event) {
-
-	QWidget* pane = qobject_cast<QWidget*>(sourceObject);
-
-	if(!pane2isDocked_.contains(pane))
-		return QWidget::eventFilter(sourceObject, event);
-
-	if(!pane2isDocked_[pane] && event->type() == QEvent::Close) {
-		dock(pane);
-		return true;
-	}
-
-	return QWidget::eventFilter(sourceObject, event);
-}

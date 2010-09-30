@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QUrl>
 #include <QList>
+#include <QModelIndex>
 
 class AMMainWindow;
 class ConnectionSettings;
@@ -87,6 +88,13 @@ protected slots:
 	/*! the \c itemUrls are in the same format as the uri-list mime type used for drag-and-drop: "amd://databaseConnectionName/tableName/id"
 	  */
 	void onDataViewItemsActivated(const QList<QUrl>& itemUrls);
+
+	/// This slot is called when an 'alias' item is clicked in the sidebar of the main window.  Alias items are links that contain additional information that needs to be delivered to the widget.
+	void onMainWindowAliasItemActivated(QWidget* target, const QString& key, const QVariant& value);
+
+	/// This is called when we detect that a new experiment has finished being created. We call it to select that experiment and start editing its name.
+	/*! \c index is the model index of the experiment item in the main window's AMWindowPaneModel. */
+	void onNewExperimentAdded(const QModelIndex& index);
 
 
 	/// \todo comment this

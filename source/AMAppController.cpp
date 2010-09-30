@@ -87,15 +87,15 @@ bool AMAppController::startup() {
 
 
 
-//	samplePositionView_ = new AMSamplePositionView();
+	//	samplePositionView_ = new AMSamplePositionView();
 	samplePositionView_ = new SGMSamplePositionView();
 	mw_->addPane(samplePositionView_, "Beamline Control", "SGM Sample Position", ":/system-software-update.png");
 
 	sampleTransferView_ = new SGMSampleTransferView();
 	mw_->addPane(sampleTransferView_, "Beamline Control", "SGM Sample Transfer", ":/system-software-update.png");
 
-//	samplePositions_ = new SamplePositions();
-//	mw_->addPane(samplePositions_, "Beamline Control", "Sample Positions", ":/system-software-update.png");
+	//	samplePositions_ = new SamplePositions();
+	//	mw_->addPane(samplePositions_, "Beamline Control", "Sample Positions", ":/system-software-update.png");
 
 	// gratingResolution_ = new GratingResolution();
 	// mw_->addPane(gratingResolution_, "Beamline Control", "Gratings and Resolution", ":/system-search.png");
@@ -137,19 +137,38 @@ bool AMAppController::startup() {
 	mw_->addPane(scanEditor, "Now Playing...", "Scan Editor", ":/applications-science.png");
 
 
-	// Make a dataview widget and add it under two links/headings: "Runs" and "Experiments"
+	// Make a dataview widget and add it under two links/headings: "Runs" and "Experiments". Here we use the AMMainWindowModel for more power
 	dataView_ = new AMDataView();
-	QStandardItem* runsItem = mw_->addPane(dataView_, "Data", "Runs", ":/22x22/view_calendar_upcoming_days.png");
-	QStandardItem* expItem = mw_->addPane(dataView_, "Data", "Experiments", ":/applications-science.png");
+	dataView_->setWindowTitle("Data");
+
+	QStandardItem* dataViewItem = new QStandardItem();
+	dataViewItem->setData(qVariantFromValue((QWidget*)dataView_), AM::WidgetRole);
+	dataViewItem->setFlags(Qt::ItemIsEnabled);	// enabled, but should not be selectable
+	QFont font = QFont("Lucida Grande", 10, QFont::Bold);
+	font.setCapitalization(QFont::AllUppercase);
+	dataViewItem->setFont(font);
+	dataViewItem->setData(QBrush(QColor::fromRgb(100, 109, 125)), Qt::ForegroundRole);
+	dataViewItem->setData(true, AMWindowPaneModel::DockStateRole);
+
+	mw_->windowPaneModel()->appendRow(dataViewItem);
+
+	QStandardItem* runsItem = new QStandardItem(QIcon(":/22x22/view_calendar_upcoming_days.png"), "Runs");
+	mw_->windowPaneModel()->initAliasItem(runsItem, dataViewItem, "Runs", -1);
+	dataViewItem->appendRow(runsItem);
+	QStandardItem* expItem = new QStandardItem(QIcon(":/applications-science.png"), "Experiments");
+	mw_->windowPaneModel()->initAliasItem(expItem, dataViewItem, "Experiments", -1);
+	dataViewItem->appendRow(expItem);
+
 
 	// Hook into the sidebar and add Run and Experiment links below these headings.
-	runExperimentInsert_ = new AMRunExperimentInsert(AMDatabase::userdb(), runsItem, expItem, mw_->sidebar(), this);
-	connect(mw_->sidebar()->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), runExperimentInsert_, SLOT(onItemSelected(QModelIndex,QModelIndex)));
-	connect(runExperimentInsert_, SIGNAL(runSelected(int)), dataView_, SLOT(showRun(int)));
-	connect(runExperimentInsert_, SIGNAL(experimentSelected(int)), dataView_, SLOT(showExperiment(int)));
+	runExperimentInsert_ = new AMRunExperimentInsert(AMDatabase::userdb(), runsItem, expItem, this);
+	connect(runExperimentInsert_, SIGNAL(newExperimentAdded(QModelIndex)), this, SLOT(onNewExperimentAdded(QModelIndex)));
+
 
 	// connect the activated signal from the dataview to our own slot
 	connect(dataView_, SIGNAL(activated(QList<QUrl>)), this, SLOT(onDataViewItemsActivated(QList<QUrl>)));
+	// When 'alias' links are clicked in the main window sidebar, we might need to notify some widgets of the details
+	connect(mw_, SIGNAL(aliasItemActivated(QWidget*,QString,QVariant)), this, SLOT(onMainWindowAliasItemActivated(QWidget*,QString,QVariant)));
 
 
 
@@ -215,7 +234,7 @@ void AMAppController::shutdown() {
 	isShuttingDown_ = true;
 
 	// need to delete the runs/experiments tree insert first, before the tree gets deleted
-	delete runExperimentInsert_;
+	/// \tod IMPORTANT replace: delete runExperimentInsert_;
 
 	// destroy the main window. This will delete everything else within it.
 	delete mw_;
@@ -252,6 +271,22 @@ void AMAppController::onCurrentPaneChanged(QWidget *pane) {
 	if(pane == scanConfigurationHolder_)
 		scanConfigurationHolder_->onBecameCurrentWidget();
 
+}
+
+void AMAppController::onMainWindowAliasItemActivated(QWidget *target, const QString &key, const QVariant &value) {
+
+	if(target == dataView_) {
+		if(key == "Runs")
+			dataView_->showRun(value.toInt());
+		if(key == "Experiments")
+			dataView_->showExperiment(value.toInt());
+	}
+}
+
+void AMAppController::onNewExperimentAdded(const QModelIndex &index) {
+	mw_->sidebar()->expand(index.parent());
+	mw_->sidebar()->setCurrentIndex(index);
+	mw_->sidebar()->edit(index);
 }
 
 void AMAppController::onCurrentScanControllerCreated(){

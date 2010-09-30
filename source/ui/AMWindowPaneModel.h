@@ -22,7 +22,7 @@ The following roles are used to access/represent/modify the state of the window 
 
 - AMWindowPaneModel::IsHeadingRole: (bool) Some entries in this model are just "Headings": titles for groups of window panes. This role returns true for all these items. \note This role is read-only; it simply indicates that the item has no QWidget* set for its AM::WidgetRole, nor is it an alias item.
 
-- AMWindowPaneModel::IsAliasRole: (bool) Some entries in this model are just "aliases". Rather than referring to their own unique window pane widgets, alias items are simply links to to an existing widget, found under another model index.  For example, "Run" and "Experiment" items are shown in the Acquaman and Dataman sidebars, but all of these items are just aliases for a single AMDataView widget window pane.
+- AMWindowPaneModel::IsAliasRole: (bool) "Aliases" are items that don't have their own unique window pane widgets, but instead link to another existing widget. When activated, they can deliver a message (in the form of a key-value pair) for that widget.  (For example, "Run" and "Experiment" items are shown in the Acquaman and Dataman sidebars, but all of these items are just aliases for a single AMDataView widget window pane.)  Whether an item is, in effect, an alias, is stored in this data role.
 
 - AMWindowPaneModel::AliasTargetRole: (QStandardItem*) For alias items, this is the model item representing the "real" widget. \note It's important to never delete the "real" item while alias items for it still exist.  For now, this responsibility is up to the user. (For example, do not remove the AMDataView widget/window pane item, as long as runs and experiments are listed in the model.)
 
@@ -71,16 +71,22 @@ public:
 	/*! It also ensures that when docking 'alias' items, the target items are docked instead.*/
 	bool setData(const QModelIndex &index, const QVariant &value, int role);
 
-	/// This convenience function can be used to insert a new window pane widget into the model, under the heading \c headingText.  Alternatively, you can set the AM::WidgetRole on any QStandardItem and add it using the conventional QStandardItemModel::addRow() API.
-	void addPane(QWidget* pane, const QString& headingText = QString());
+	/// Insert a new window pane widget \c pane into the model, under the heading \c headingText.  It returns the newly-created model item representing that pane.
+	/*! This is a convenience function. Alternatively, you can set the AM::WidgetRole pointer on any QStandardItem and add it using the conventional QStandardItemModel::addRow() interface.
+	\note \c pane must be a valid widget until this item is removed from the model */
+	QStandardItem* addPane(QWidget* pane, const QString& headingText = QString());
+	/// This is an overloaded function to allow setting the window title and icon while calling addPane().
+	QStandardItem* addPane(QWidget *pane, const QString &headingText, const QString& windowTitle, const QIcon& windowIcon);
 
 	/// This convenience function can be used to initialize any QStandardItem as a proper "alias" item, pointing to the existing window pane widget \c targetWindowPane.  Returns true on success, and false if the \c targetWindowPane was not found in the model.  It modifies \c newAliasItem to set the IsAliasRole, AliasTargetRole, AliasKeyRole, and AliasValueRole, but does not add the item to the model. (You should follow up by inserting it anywhere you want.)
 	bool initAliasItem(QStandardItem* newAliasItem, QWidget* targetWindowPane, const QString& aliasKey = QString(), const QVariant& aliasValue = QVariant());
 
-	/// This convenience function can be used to initialize any QStandardItem as a proper "alias" item, pointing to the existing window pane widget described by \c targetItem.  Returns true on success, and false if the \c targetItem was not found in the model.  It modifies \c newAliasItem to set the IsAliasRole, AliasTargetRole, AliasKeyRole, and AliasValueRole, but does not add the item to the model. (You should follow up by inserting it anywhere you want.)
-	bool initAliasItem(QStandardItem* newAliasItem, QStandardItem* targetItem, const QString& aliasKey = QString(), const QVariant& aliasValue = QVariant());
+	/// This convenience function can be used to initialize any QStandardItem as a proper "alias" item, pointing to the existing window pane widget described by \c targetItem.  It modifies \c newAliasItem to set the IsAliasRole, AliasTargetRole, AliasKeyRole, and AliasValueRole, but does not add the item to the model. (You should follow up by inserting it anywhere you want.)
+	static void initAliasItem(QStandardItem* newAliasItem, QStandardItem* targetItem, const QString& aliasKey = QString(), const QVariant& aliasValue = QVariant());
 
 
+	/// Returns a list of all the window pane widgets in the model. Does not include headers and aliases. For panes with multipler aliases, only one instance of the pane is included.
+	QList<QWidget*> allPanes() const { return widget2item_.keys(); }
 
 	// Convenience access functions:
 	/////////////////////////////////
@@ -96,6 +102,12 @@ public:
 	/// Convenience function to retrieve an alias item's target item. Returns 0 if the item at this \c index is not an alias.
 	QStandardItem* aliasTarget(const QModelIndex& index) const;
 
+	/// Convenience function to retrieve an alias item's "key" message.
+	QString aliasKey(const QModelIndex& index) const { return data(index, AMWindowPaneModel::AliasKeyRole).toString(); }
+
+	/// Convenience function to retrive an alias item's "value" message.
+	QVariant aliasValue(const QModelIndex& index) const { return data(index, AMWindowPaneModel::AliasValueRole); }
+
 	/// Convenience function to check if this window pane is currently docked.
 	bool isDocked(const QModelIndex& index) const;
 
@@ -108,7 +120,7 @@ public:
 	/// Convenience function to dock or undock a window pane widget
 	void setDocked(const QModelIndex& index, bool isDocked) { setData(index, isDocked, DockStateRole); }
 	void dock(const QModelIndex& index) { setDocked(index, true); }
-	void unDock(const QModelIndex& index) { setDocked(index, false); }
+	void undock(const QModelIndex& index) { setDocked(index, false); }
 
 signals:
 	/// Emitted when the dock state changes for an item (ie: true emitted when docked, false emitted when undocked)
