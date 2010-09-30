@@ -3,13 +3,26 @@
 
 #include "acquaman.h"
 #include <QStandardItemModel>
+#include <QStandardItem>
+
+/// This extension of QStandardItem allows user-type items (ex: AMRunModelItem, AMExperimentModelItem) to define their own behaviour in response to drag and drop events.  Each individual item can handle or reject a drop by re-implementing dropMimeData(const QMimeData *data, Qt::DropAction action).  The base-class implementation rejects all drops.
+class AMDragDropItem : public QStandardItem {
+public:
+	/// Constructor
+	AMDragDropItem(const QString& text = QString());
+
+	/// Reimplement this function to handle or reject a drop action. Return false to reject, or true to accept.
+	virtual bool dropMimeData(const QMimeData * data, Qt::DropAction action) { Q_UNUSED(data); Q_UNUSED(action); return false; }
+	/// Re-implemented from QStandardItem to distinguish this item type. Subclasses should NOT re-implement this function.  If they do, changes need to be made to AMItemModel::dropMimeData() to handle the new type specifically.
+	virtual int type() const { return AM::DragDropItem; }
+};
 
 /// This extension of QStandardItemModel allows user-type items (ex: AMRunModelItem, AMExperimentModelItem) to define their own behaviour in response to drag and drop events.
-class AMItemModel : public QStandardItemModel
+class AMDragDropItemModel : public QStandardItemModel
 {
 Q_OBJECT
 public:
-	explicit AMItemModel(QObject *parent = 0);
+	explicit AMDragDropItemModel(QObject *parent = 0);
 
 	/// Re-implemented to check if the item supports this drop, and if it does, passes the drop along to the item.
 	virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent);

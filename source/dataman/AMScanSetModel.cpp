@@ -94,6 +94,8 @@ QVariant AMScanSetModel::data ( const QModelIndex & index, int role) const {
 			break;
 		case AM::ModifiedRole:
 			return scan->modified();
+		case AM::CanCloseRole:	// allows views to show the 'close' button beside each scan, to delete it. Do we want this on?
+			return true;
 		default:
 			return QVariant();
 			break;
@@ -129,6 +131,8 @@ QVariant AMScanSetModel::data ( const QModelIndex & index, int role) const {
 				break;
 			case AM::LinePenRole:
 				return chMetaData_.at(index.internalId()).at(index.row()).linePen;
+			case AM::CanCloseRole:	// allows views to show the 'close' button beside each scan, to delete it.
+				return true;
 			default:
 				return QVariant();
 				break;
@@ -202,6 +206,8 @@ void AMScanSetModel::addScan(AMScan* newScan) {
 	scanChannelLists_.append(newScan->channelList());
 	connect(newScan, SIGNAL(metaDataChanged(QString)), this, SLOT(onMetaDataChanged(QString)));
 	connect(newScan, SIGNAL(modifiedChanged(bool)), this, SLOT(onScanModifiedChanged(bool)));
+
+
 
 	QList<AMScanSetModelChannelMetaData> chs;
 	for(int i=0; i<newScan->numChannels(); i++)

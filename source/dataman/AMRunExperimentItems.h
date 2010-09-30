@@ -2,20 +2,21 @@
 #define AMRUNEXPERIMENTITEMS_H
 
 #include "acquaman.h"
-#include <QStandardItem>
+#include "ui/AMDragDropItemModel.h"
 #include <QDateTime>
 
 class AMDatabase;
 
 
 /// This subclass of QStandardItem provides the extra features needed to store and display the run name beside the run date, edit the run name, and store the edited name back to the database.
-class AMRunModelItem : public QStandardItem {
+class AMRunModelItem : public AMDragDropItem {
 
 public:
-	explicit AMRunModelItem(AMDatabase* db, int id, const QString& editText = QString()) : QStandardItem(editText) {
+	explicit AMRunModelItem(AMDatabase* db, int id, const QString& editText = QString()) : AMDragDropItem(editText) {
 		db_ = db;
 		setData(id, AM::IdRole);
 		setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable);
+		setDropEnabled(false);
 	}
 
 	/// Re-implemented from QStandardItem: Returns a special DisplayRole distinct from the EditRole. (The QStandardItem treat Qt::EditRole and Qt::DisplayRole as referring to the same data.)
@@ -26,10 +27,6 @@ public:
 		return data(AM::DateTimeRole).toDateTime() < other.data(AM::DateTimeRole).toDateTime();
 	}
 
-	/// Re-implemented as a custom type, distinguished from QStandardItem
-	virtual int type() const {
-		return AM::RunItem;
-	}
 
 	/// Re-implemented to save the edited run name back to the database:
 	virtual void setData(const QVariant &value, int role);
@@ -39,23 +36,19 @@ protected:
 };
 
 /// This subclass of QStandardItem provides the extra features needed to store edited experiment names back to the database.
-class AMExperimentModelItem : public QStandardItem {
+class AMExperimentModelItem : public AMDragDropItem {
 
 public:
-	explicit AMExperimentModelItem(AMDatabase* db, int id, const QString& editText = QString()) : QStandardItem(editText) {
+	explicit AMExperimentModelItem(AMDatabase* db, int id, const QString& editText = QString()) : AMDragDropItem(editText) {
 		db_ = db;
 		setData(id, AM::IdRole);
+		setData(true, AM::CanCloseRole);	// experiments can be deleted...
 		setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsDropEnabled | Qt::ItemIsEditable);
 		setDropEnabled(true);
 	}
 
 	/// Re-implemented to save the edited experiment name back to the database:
 	virtual void setData(const QVariant &value, int role);
-
-	/// Re-implemented as a custom type, distinguished from QStandardItem
-	virtual int type() const {
-		return AM::ExperimentItem;
-	}
 
 	/// Additional function to accept drops from the drag-and-drop system. We use this to accept dropped scans and add them to this experiment
 	virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action);

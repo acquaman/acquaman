@@ -1,14 +1,20 @@
-#include "AMItemModel.h"
+#include "AMDragDropItemModel.h"
 #include "dataman/AMRunExperimentItems.h"
 
 #include <QDebug>
 
-AMItemModel::AMItemModel(QObject *parent) :
+
+AMDragDropItem::AMDragDropItem(const QString& text) : QStandardItem(text) {
+	setDropEnabled(true);
+}
+
+
+AMDragDropItemModel::AMDragDropItemModel(QObject *parent) :
 		QStandardItemModel(parent)
 {
 }
 
-bool AMItemModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) {
+bool AMDragDropItemModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) {
 
 	QStandardItem* item = this->itemFromIndex(parent);
 	if(!item)
@@ -22,12 +28,9 @@ bool AMItemModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int
 
 	switch(item->type()) {
 
-		// case AM::RunItem:
-		//	break;
-
-	case AM::ExperimentItem: {
-			AMExperimentModelItem* ei = static_cast<AMExperimentModelItem*>(item);
-			return ei->dropMimeData(data, action);
+	case AM::DragDropItem: {
+			AMDragDropItem* item = static_cast<AMExperimentModelItem*>(item);
+			return item->dropMimeData(data, action);
 		}
 		break;
 

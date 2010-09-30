@@ -200,7 +200,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/dataman/AMAbstractFileLoader.h \
 	source/beamline/AMBeamlineControlMoveAction.h \
 	source/ui/AMPrefixSuffixLineEdit.h \
-	source/dataman/AMItemModel.h \
+	source/ui/AMDragDropItemModel.h \
 	source/dataman/AMRunExperimentItems.h \
 	source/ui/AMSamplePositionView.h \
 	source/ui/AMSampleManipulatorView.h \
@@ -225,9 +225,10 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/SGMBeamlineAtAGlanceBar.h \
 	source/dataman/AMUser.h \
 	source/ui/AMVideoPlayerWidget.h \
-    source/dataman/AMXESScan.h \
-    source/dataman/ALSBL8XESDetectorInfo.h \
-    source/dataman/ALSBL8XASFileLoader.h
+	source/dataman/AMXESScan.h \
+	source/dataman/ALSBL8XESDetectorInfo.h \
+	source/dataman/ALSBL8XASFileLoader.h \
+	source/ui/AMWindowPaneModel.h
 FORMS += source/ui/AbsorptionScanController.ui \
 	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
@@ -368,7 +369,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/beamline/AMBeamlineScanAction.cpp \
 	source/beamline/AMBeamlineControlMoveAction.cpp \
 	source/ui/AMPrefixSuffixLineEdit.cpp \
-	source/dataman/AMItemModel.cpp \
+	source/ui/AMDragDropItemModel.cpp \
 	source/dataman/AMRunExperimentItems.cpp \
 	source/ui/AMSamplePositionView.cpp \
 	source/ui/AMSampleManipulatorView.cpp \
@@ -394,9 +395,10 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/SGMBeamlineAtAGlanceBar.cpp \
 	source/dataman/AMUser.cpp \
 	source/ui/AMVideoPlayerWidget.cpp \
-    source/dataman/AMXESScan.cpp \
-    source/dataman/ALSBL8XESDetectorInfo.cpp \
-    source/dataman/ALSBL8XASFileLoader.cpp
+	source/dataman/AMXESScan.cpp \
+	source/dataman/ALSBL8XESDetectorInfo.cpp \
+	source/dataman/ALSBL8XASFileLoader.cpp \
+	source/ui/AMWindowPaneModel.cpp
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc
 OTHER_FILES += source/muParser/README.txt

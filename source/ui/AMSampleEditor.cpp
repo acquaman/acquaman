@@ -204,6 +204,7 @@ void AMSampleEditor::refreshSamples() {
 		while(q.next()) {
 			index++;
 			sampleSelector_->addItem(q.value(1).toString());
+			sampleSelector_->setItemData(index, true, AM::CanCloseRole);	// enables views to show the close/delete button
 			sampleSelector_->setItemData(index, q.value(0).toInt(), AM::IdRole);
 			sampleSelector_->setItemData(index, q.value(2), AM::DateTimeRole);
 			sampleSelector_->setItemData(index, QString("created ") + AMDateTimeUtils::prettyDateTime(q.value(2).toDateTime()), AM::DescriptionRole);

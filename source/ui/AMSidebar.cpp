@@ -4,7 +4,7 @@
 AMSidebar::AMSidebar(QWidget* parent)
 	: QTreeView(parent) {
 
-	model_ = new AMItemModel(this);
+	model_ = new AMDragDropItemModel(this);
 	setModel(model_);
 
 	setHeaderHidden(true);

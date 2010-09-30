@@ -12,10 +12,10 @@
 namespace AM {
 
 	/// Application-wide role definitions used in the Qt StandardItem Model/View system
-	enum ItemRoles { IdRole = Qt::UserRole+20, DateTimeRole, EndDateTimeRole, WeightRole, LinkRole, PointerRole, PriorityRole, LinePenRole, ModifiedRole, DescriptionRole, WidgetRole };
+	enum ItemRoles { IdRole = Qt::UserRole+20, DateTimeRole, EndDateTimeRole, WeightRole, LinkRole, PointerRole, PriorityRole, LinePenRole, ModifiedRole, DescriptionRole, WidgetRole, CanCloseRole, UserRole };
 
 	/// Application-wide type definitions used inthe Qt StandardItem Model/View system
-	enum ItemTypes { SidebarItem = QStandardItem::UserType + 1, SidebarHeadingItem, RunItem, ExperimentItem };
+	enum ItemTypes { DragDropItem = QStandardItem::UserType + 1, SidebarItem, SidebarHeadingItem };
 
 
 	/// Application-wide QVariant user types

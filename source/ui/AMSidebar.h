@@ -9,7 +9,7 @@
 #include "acquaman.h"
 
 
-#include "dataman/AMItemModel.h"
+#include "ui/AMDragDropItemModel.h"
 
 /* Unused / removed...
 
@@ -39,7 +39,7 @@
   */
 
 
-/// An AMSidebarItem is a QStandardItem optimized for use as a "link" inside an AMSidebar. It has the usual name and icon, and it also has a QVariant \c link payload and a \c weight.  The weight is used in sorting (with lighter or more negative items on top), and the \c link is included as a parameter in the linkClicked() / linkDoubleClicked() signals emitted by AMSidebar.
+/// DEPRECATED CLASS -- An AMSidebarItem is a QStandardItem optimized for use as a "link" inside an AMSidebar. It has the usual name and icon, and it also has a QVariant \c link payload and a \c weight.  The weight is used in sorting (with lighter or more negative items on top), and the \c link is included as a parameter in the linkClicked() / linkDoubleClicked() signals emitted by AMSidebar.
 /*! The weight is stored under a user-role AM::WeightRole, and the link stored under AM::LinkRole. */
 class AMSidebarItem : public QStandardItem {
 public:
@@ -74,7 +74,7 @@ public:
 };
 
 #include <QFont>
-/// AMSidebarHeadings are restricted version of AMSidebarItems, that are only used to act as headings (or category titles) in a sidebar.
+/// DEPRECATED CLASS -- AMSidebarHeadings are restricted version of AMSidebarItems, that are only used to act as headings (or category titles) in a sidebar.
 class AMSidebarHeading : public AMSidebarItem {
 public:
 	explicit AMSidebarHeading(const QString& name, double weight = 0)
@@ -92,7 +92,7 @@ public:
 
 };
 
-/// This class provides an iTunes/iPhoto style left sidebar, which contains a list of links.  It supports collapsable category headers, icons, and nested lists.
+/// DEPRECATED CLASS -- This class provides an iTunes/iPhoto style left sidebar, which contains a list of links.  It supports collapsable category headers, icons, and nested lists.
 /*! Terminology:
 	- Link: An entry in the list, representing some kind of action or result.  The link "payload" is a QVariant, and is up to the user.  When a link's selector is clicked/selected (or double-clicked), the linkSelected(QVariant) (or linkDoubleClicked(QVariant)) signal is emitted.
 	- Heading: Links fall under headings (or categories), which are not (usually) active links, but can be collapsed to show or hide a group.
@@ -150,7 +150,7 @@ signals:
 
 protected:
 
-	AMItemModel* model_;
+	AMDragDropItemModel* model_;
 	QHash<QString,AMSidebarHeading*> headings_;
 
 

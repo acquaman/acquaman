@@ -1,4 +1,5 @@
 #include "AMCloseItemDelegate.h"
+#include "acquaman.h"
 
 AMCloseItemDelegate::AMCloseItemDelegate(QObject *parent) :
 		QStyledItemDelegate(parent)
@@ -11,7 +12,7 @@ AMCloseItemDelegate::AMCloseItemDelegate(QObject *parent) :
 #include <QApplication>
 void AMCloseItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const {
 
-	if(closeButtonEnabled_) {
+	if(closeButtonEnabled_ && index.data(AM::CanCloseRole).toBool()) {
 		// trick the base class paint version into thinking we have less width than we do.
 		QStyleOptionViewItemV4 opt(option);
 		initStyleOption(&opt, index);
@@ -33,7 +34,7 @@ void AMCloseItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
 
 QSize AMCloseItemDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const {
 	QSize rv = QStyledItemDelegate::sizeHint(option, index);
-	if(closeButtonEnabled_)
+	if(closeButtonEnabled_ && index.data(AM::CanCloseRole).toBool())
 		rv.setWidth(rv.width() + 20);
 	return rv;
 }
@@ -43,7 +44,7 @@ void AMCloseItemDelegate::drawCloseButton(QPainter *painter, const QStyleOptionV
 	Q_UNUSED(index)
 
 	/// Display close button?
-	if(closeButtonEnabled_) {
+	if(closeButtonEnabled_ && index.data(AM::CanCloseRole).toBool()) {
 		// "local" rectangle of the close button.
 		closeButtonRect_ = QRect(
 				option.rect.width() - 16,
@@ -65,11 +66,11 @@ void AMCloseItemDelegate::drawCloseButton(QPainter *painter, const QStyleOptionV
 
 bool AMCloseItemDelegate::editorEvent ( QEvent * event, QAbstractItemModel * model, const QStyleOptionViewItem & option, const QModelIndex & index ) {
 
-	if(!closeButtonEnabled_)
+	if(!closeButtonEnabled_ || !index.data(AM::CanCloseRole).toBool())
 		return QStyledItemDelegate::editorEvent(event, model, option, index);
 
 
-	if(event->type() == QEvent::MouseButtonPress) {
+	if(event->type() == QEvent::MouseButtonRelease) {
 		mouseDownPosition_ = static_cast<QMouseEvent*>(event)->pos();
 		QPoint localPos = mouseDownPosition_ - option.rect.topLeft();
 
