@@ -35,8 +35,8 @@ public:
 		refreshWindowTitle();
 	}
 
-	/// Remove a scan and delete it, but ask the user for confirmation if it's been modified.
-	void deleteScanWithModifiedCheck(AMScan* scan);
+	/// Remove a scan and delete it, but ask the user for confirmation if it's been modified.  Returns true if the scan was deleted, and false if the user 'cancelled' the process.
+	bool deleteScanWithModifiedCheck(AMScan* scan);
 
 	/// Remove a scan from the editor, but don't delete the scan. Ownership becomes the responsibility of the caller.
 	void removeScan(AMScan* scan) {

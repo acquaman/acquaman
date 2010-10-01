@@ -146,16 +146,16 @@ bool AMAppController::startup() {
 
 	mw_->windowPaneModel()->appendRow(dataViewItem);
 
-	QStandardItem* runsItem = new QStandardItem(QIcon(":/22x22/view_calendar_upcoming_days.png"), "Runs");
-	mw_->windowPaneModel()->initAliasItem(runsItem, dataViewItem, "Runs", -1);
-	dataViewItem->appendRow(runsItem);
-	QStandardItem* expItem = new QStandardItem(QIcon(":/applications-science.png"), "Experiments");
-	mw_->windowPaneModel()->initAliasItem(expItem, dataViewItem, "Experiments", -1);
-	dataViewItem->appendRow(expItem);
+	runsParentItem_ = new QStandardItem(QIcon(":/22x22/view_calendar_upcoming_days.png"), "Runs");
+	mw_->windowPaneModel()->initAliasItem(runsParentItem_, dataViewItem, "Runs", -1);
+	dataViewItem->appendRow(runsParentItem_);
+	experimentsParentItem_ = new QStandardItem(QIcon(":/applications-science.png"), "Experiments");
+	mw_->windowPaneModel()->initAliasItem(experimentsParentItem_, dataViewItem, "Experiments", -1);
+	dataViewItem->appendRow(experimentsParentItem_);
 
 
 	// Hook into the sidebar and add Run and Experiment links below these headings.
-	runExperimentInsert_ = new AMRunExperimentInsert(AMDatabase::userdb(), runsItem, expItem, this);
+	runExperimentInsert_ = new AMRunExperimentInsert(AMDatabase::userdb(), runsParentItem_, experimentsParentItem_, this);
 	connect(runExperimentInsert_, SIGNAL(newExperimentAdded(QModelIndex)), this, SLOT(onNewExperimentAdded(QModelIndex)));
 
 
@@ -319,7 +319,7 @@ void AMAppController::onCurrentScanControllerReinitialized(bool removeScan){
 	}
 
 	/// \bug How do you know that the last scan in this scan editor is the one to remove? What if they've opened another scan since onCurrentScanControllerCreated()?
-	#warning "Bug for David: how do you know that the last scan in this scan editor is the one to remove? What if they've opened another scan since onCurrentScanControllerCreated()?"
+#warning "Bug for David: how do you know that the last scan in this scan editor is the one to remove? What if they've opened another scan since onCurrentScanControllerCreated()?"
 	if(removeScan)
 		scanControllerActiveEditor_->removeScan(scanControllerActiveEditor_->scanAt(scanControllerActiveEditor_->numScans()-1));
 
@@ -349,7 +349,55 @@ void AMAppController::onDataViewItemsActivated(const QList<QUrl>& itemUrls) {
 	editor->dropScanURLs(itemUrls);
 }
 
+#include "dataman/AMRunExperimentItems.h"
+
 void AMAppController::onWindowPaneCloseButtonClicked(const QModelIndex& index) {
 
+	// is this a scan editor to be deleted?
+	/////////////////////////////////
+	if(mw_->windowPaneModel()->itemFromIndex(index.parent()) == scanEditorsParentItem_) {
+		AMGenericScanEditor* editor = qobject_cast<AMGenericScanEditor*>(index.data(AM::WidgetRole).value<QWidget*>());
 
+		if(!editor)
+			return;
+
+		/// \todo Move this functionality into the scan window itself. Also provide more usability... ask if they want to stop the scan
+		if(editor == scanControllerActiveEditor_) {
+			QMessageBox::information(editor, "Cannot close this window while acquiring", "A scan is still acquiring data inside this scan window.\n\nTo close it, stop the scan first.", QMessageBox::Ok);
+			return;
+		}
+
+		// delete all scans in the editor, and ask the user for confirmation. If they 'cancel' on any, give up here and don't close the window.
+		while(editor->numScans()) {
+			if(!editor->deleteScanWithModifiedCheck(editor->scanAt(editor->numScans()-1)))
+				return;
+		}
+		mw_->removePane(editor);
+		delete editor;
+		scanEditors_.removeAll(editor);
+	}
+
+
+	// is this an experiment asking to be deleted?
+	/// \todo bad code; improve this with better architecture and functionality in expItem.  Don't like trusting dynamic_cast; there's no guarantee that someone didn't put a non-AMExperimentModelItem into the model under experimentsParentItem_.
+	else if(mw_->windowPaneModel()->itemFromIndex(index.parent()) == experimentsParentItem_) {
+
+		AMExperimentModelItem* expItem = dynamic_cast<AMExperimentModelItem*>(mw_->windowPaneModel()->itemFromIndex(index));
+		if(!expItem)
+			return;
+
+		AMExperiment experiment(expItem->id(), expItem->database());
+
+		QMessageBox deleteConfirmation(mw_);
+		deleteConfirmation.setText(QString("Are you sure you want to delete the experiment '%1'?").arg(experiment.name()));
+		deleteConfirmation.setInformativeText("The scans in this experiment will remain, but they will no longer be associated with the experiment. You can't undo this action.");
+		deleteConfirmation.setIcon(QMessageBox::Question);
+		deleteConfirmation.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+		deleteConfirmation.setDefaultButton(QMessageBox::Ok);
+		deleteConfirmation.setEscapeButton(QMessageBox::Cancel);
+
+		if(deleteConfirmation.exec() == QMessageBox::Ok) {
+			AMExperiment::deleteExperiment(experiment.id(), expItem->database());
+		}
+	}
 }

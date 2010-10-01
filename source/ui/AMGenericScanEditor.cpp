@@ -230,11 +230,11 @@ void AMGenericScanEditor::onScanModelCloseClicked(const QModelIndex& index) {
 
 #include <QMessageBox>
 /// Remove a scan and delete it, but ask the user for confirmation if it's been modified.
-void AMGenericScanEditor::deleteScanWithModifiedCheck(AMScan* scan) {
+bool AMGenericScanEditor::deleteScanWithModifiedCheck(AMScan* scan) {
 	// easy way first:
 	if(!scan->modified()) {
 		deleteScan(scan);
-		return;
+		return true;
 	}
 
 	QMessageBox enquiry(this);
@@ -249,6 +249,7 @@ void AMGenericScanEditor::deleteScanWithModifiedCheck(AMScan* scan) {
 
 	if(result == QMessageBox::Discard) {
 		deleteScan(scan);
+		return true;
 	}
 
 	else if(result == QMessageBox::Save) {
@@ -258,10 +259,13 @@ void AMGenericScanEditor::deleteScanWithModifiedCheck(AMScan* scan) {
 		else
 			saveSuccess = scan->storeToDb(AMDatabase::userdb());
 
-		if(saveSuccess)
+		if(saveSuccess) {
 			deleteScan(scan);
+			return true;
+		}
 	}
 
+	return false;
 }
 
 /// Overloaded to enable drag-dropping scans (when Drag Action = Qt::CopyAction and mime-type = "text/uri-list" with the proper format.)

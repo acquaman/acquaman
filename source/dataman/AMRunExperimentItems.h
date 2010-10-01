@@ -61,6 +61,8 @@ public:
 		return data(AM::IdRole).toInt();
 	}
 
+	/// Retrieve the database that contains this experiment
+	AMDatabase* database() const { return db_; }
 
 protected:
 	AMDatabase* db_;

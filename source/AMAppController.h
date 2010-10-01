@@ -127,6 +127,9 @@ protected:
 	AMRunExperimentInsert* runExperimentInsert_;
 
 
+	/// The parent item for all runs and experiments we'll place in the window pane model
+	QStandardItem* runsParentItem_, *experimentsParentItem_;
+
 	/// The parent item of all scan editors we'll placed in the window pane model.
 	QStandardItem* scanEditorsParentItem_;
 
