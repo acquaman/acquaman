@@ -426,11 +426,11 @@ AMScanView::~AMScanView() {
 void AMScanView::setupUI() {
 	QVBoxLayout* vl = new QVBoxLayout();
 	vl->setMargin(6);
-	vl->setSpacing(6);
+	vl->setSpacing(0);
 
 	gview_ = new AMGraphicsViewAndWidget();
 	gview_->setMinimumSize(400,300);
-	gview_->graphicsWidget()->setGeometry(0,0,400*4, 300);
+	gview_->graphicsWidget()->setGeometry(0,0,640*4, 480);
 
 	vl->addWidget(gview_);
 

@@ -7,6 +7,7 @@
 #include "dataman/AMUser.h"
 
 #include <QScrollBar>
+#include <QApplication>
 
 #include <QDebug>
 
@@ -236,7 +237,7 @@ void AMDataView::refreshView() {
 						userName_ + "Data",
 						"Showing all data",
 						QString(),
-						viewMode_, db_, true, gwidget_);
+						viewMode_, db_, true, gwidget_, effectiveWidth());
 				sections_ << section;
 				sections__ << section;
 				break;
@@ -261,7 +262,7 @@ void AMDataView::refreshView() {
 								fullRunName,
 								"Showing all data from this run",
 								QString("runId = '%1'").arg(runId),
-								viewMode_, db_, true, gwidget_);
+								viewMode_, db_, true, gwidget_, effectiveWidth());
 						sections_ << section;
 						sections__ << section;
 					}
@@ -291,7 +292,7 @@ void AMDataView::refreshView() {
 								expName,
 								"Showing all data from this experiment",
 								QString("id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = '%1')").arg(expId),
-								viewMode_, db_, true, gwidget_);
+								viewMode_, db_, true, gwidget_, effectiveWidth());
 						sections_ << section;
 						sections__ << section;
 					}
@@ -320,7 +321,7 @@ void AMDataView::refreshView() {
 								typeDescription,
 								"Showing all " + typeDescription,
 								QString("typeId = '%1'").arg(typeId),
-								viewMode_, db_, true, gwidget_);
+								viewMode_, db_, true, gwidget_, effectiveWidth());
 						sections_ << section;
 						sections__ << section;
 					}
@@ -350,7 +351,7 @@ void AMDataView::refreshView() {
 								name,
 								"Sample created " + AMDateTimeUtils::prettyDateTime(dt),
 								QString("sampleId = '%1'").arg(sampleId),
-								viewMode_, db_, true, gwidget_);
+								viewMode_, db_, true, gwidget_, effectiveWidth());
 						sections_ << section;
 						sections__ << section;
 					}
@@ -380,7 +381,7 @@ void AMDataView::refreshView() {
 								symbol + ": " + name,
 								QString("Showing all data from samples containing %1").arg(name),
 								QString("sampleId IN (SELECT sampleId FROM SampleElementEntries WHERE elementId = '%1')").arg(elementId),
-								viewMode_, db_, true, gwidget_);
+								viewMode_, db_, true, gwidget_, effectiveWidth());
 						sections_ << section;
 						sections__ << section;
 					}
@@ -428,7 +429,7 @@ void AMDataView::refreshView() {
 						fullRunName,
 						"Showing all data from this run",
 						QString("runId = '%1'").arg(runId_),
-						viewMode_, db_, true, gwidget_);
+						viewMode_, db_, true, gwidget_, effectiveWidth());
 				sections_ << section;
 				sections__ << section;
 				break;
@@ -451,7 +452,7 @@ void AMDataView::refreshView() {
 								expName,
 								QString("Showing all data from this experiment in the <i>%1</i> run").arg(fullRunName),
 								QString("runId = '%1' AND id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = '%2')").arg(runId_).arg(expId),
-								viewMode_, db_, true, gwidget_);
+								viewMode_, db_, true, gwidget_, effectiveWidth());
 						sections_ << section;
 						sections__ << section;
 					}
@@ -481,7 +482,7 @@ void AMDataView::refreshView() {
 								typeDescription,
 								QString("Showing all data of this type in the <i>%1</i> run").arg(fullRunName),
 								QString("typeId = '%1' AND runId = '%2'").arg(typeId).arg(runId_),
-								viewMode_, db_, true, gwidget_);
+								viewMode_, db_, true, gwidget_, effectiveWidth());
 						sections_ << section;
 						sections__ << section;
 					}
@@ -512,7 +513,7 @@ void AMDataView::refreshView() {
 								name,
 								QString("Sample created %1.  Showing all data from this sample in the <i>%2</i> run").arg(AMDateTimeUtils::prettyDateTime(dt)).arg(fullRunName),
 								QString("sampleId = '%1' AND runId = '%2'").arg(sampleId).arg(runId_),
-								viewMode_, db_, true, gwidget_);
+								viewMode_, db_, true, gwidget_, effectiveWidth());
 						sections_ << section;
 						sections__ << section;
 					}
@@ -543,7 +544,7 @@ void AMDataView::refreshView() {
 								symbol + ": " + name,
 								QString("Showing all data from samples containing %1 in the <i>%2</i> run").arg(name).arg(fullRunName),
 								QString("sampleId IN (SELECT sampleId FROM SampleElementEntries WHERE elementId = '%1') AND runId = '%2'").arg(elementId).arg(runId_),
-								viewMode_, db_, true, gwidget_);
+								viewMode_, db_, true, gwidget_, effectiveWidth());
 						sections_ << section;
 						sections__ << section;
 					}
@@ -587,7 +588,7 @@ void AMDataView::refreshView() {
 					expName,
 					"Showing all data from this experiment",
 					QString("id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = '%1')").arg(experimentId_),
-					viewMode_, db_, true, gwidget_);
+					viewMode_, db_, true, gwidget_, effectiveWidth());
 			sections_ << section;
 			sections__ << section;
 		}
@@ -612,7 +613,7 @@ void AMDataView::refreshView() {
 								fullRunName,
 								QString("Showing all data from this run in the <i>%1</i> experiment").arg(expName),
 								QString("runId = '%1' AND id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = '%2');").arg(runId).arg(experimentId_),
-								viewMode_, db_, true, gwidget_);
+								viewMode_, db_, true, gwidget_, effectiveWidth());
 						sections_ << section;
 						sections__ << section;
 					}
@@ -645,7 +646,7 @@ void AMDataView::refreshView() {
 								typeDescription,
 								QString("Showing all data of this type in the <i>%1</i> experiment").arg(expName),
 								QString("typeId = '%1' AND id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = '%2')").arg(typeId).arg(experimentId_),
-								viewMode_, db_, true, gwidget_);
+								viewMode_, db_, true, gwidget_, effectiveWidth());
 						sections_ << section;
 						sections__ << section;
 					}
@@ -677,7 +678,7 @@ void AMDataView::refreshView() {
 								name,
 								QString("Sample created %1.  Showing all data from this sample in the <i>%2</i> experiment").arg(AMDateTimeUtils::prettyDateTime(dt)).arg(expName),
 								QString("sampleId = '%1' AND id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = '%2')").arg(sampleId).arg(experimentId_),
-								viewMode_, db_, true, gwidget_);
+								viewMode_, db_, true, gwidget_, effectiveWidth());
 						sections_ << section;
 						sections__ << section;
 					}
@@ -708,7 +709,7 @@ void AMDataView::refreshView() {
 								symbol + ": " + name,
 								QString("Showing all data from samples containing %1 in the <i>%2</i> experiment").arg(name).arg(expName),
 								QString("sampleId IN (SELECT sampleId FROM SampleElementEntries WHERE elementId = '%1') AND id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = '%2')").arg(elementId).arg(experimentId_),
-								viewMode_, db_, true, gwidget_);
+								viewMode_, db_, true, gwidget_, effectiveWidth());
 						sections_ << section;
 						sections__ << section;
 					}
@@ -726,10 +727,7 @@ void AMDataView::refreshView() {
 
 
 
-	// set the proper width on all the sections...
-	foreach(AMAbstractDataViewSection* s, sections__) {
-		s->setWidthConstraint(this->width() - 20);
-	}
+
 	// and show all the sections in the qgraphicsview layout area:
 	foreach(QGraphicsLayoutItem* s, sections_) {
 		sectionLayout_->addItem(s);
@@ -742,7 +740,7 @@ void AMDataView::refreshView() {
 }
 
 void AMDataView::adjustViewScrollHeight() {
-	gview_->setSceneRect( QRectF( QPointF(0,0), sectionLayout_->effectiveSizeHint(Qt::MinimumSize, QSizeF(this->width()-20, -1)) ) );
+	gview_->setSceneRect( QRectF( QPointF(0,0), sectionLayout_->effectiveSizeHint(Qt::MinimumSize, QSizeF(effectiveWidth(), -1)) ) );
 }
 
 void AMDataView::refreshOrganizeModeBox() {
@@ -789,7 +787,7 @@ void AMDataView::onResize() {
 	// Here we set the size of the graphics widget INSIDE the scene/scroll area to match the size if this widget (OUTSIDE the scroll area).
 	// The width needs to be the width of this widget, less a scroll bar (so that the horizontal scroll bar doesn't appear)
 	// It doesn't matter what we use for the height, because the vertical layout manager will increase the height as required based on the minimum heights of things inside it.
-	int width = this->width() - 20;
+	int width = effectiveWidth();
 
 	// Instead of gwidget_->resize(width, 100); we need to set the minimum and maximum width. This will cause the sectionLayout() to include that width as a constraint when asking sub-layouts for sizeHints().  This is required for the AMFlowGraphicsLayout to generate a correct sizeHint().  NOPE! Doesn't work! See next...
 	gwidget_->setMaximumWidth(width);
@@ -811,7 +809,7 @@ void AMDataView::onResize() {
 }
 
 
-AMDataViewSection::AMDataViewSection(const QString& title, const QString& subtitle, const QString& whereClause, AMDataViews::ViewMode viewMode, AMDatabase* db, bool expanded, QGraphicsItem* parent) : QGraphicsWidget(parent) {
+AMDataViewSection::AMDataViewSection(const QString& title, const QString& subtitle, const QString& whereClause, AMDataViews::ViewMode viewMode, AMDatabase* db, bool expanded, QGraphicsItem* parent, double initialWidthConstraint) : QGraphicsWidget(parent) {
 
 	proxiedWidget_ = new QWidget();
 	setupUi(proxiedWidget_);
@@ -837,6 +835,7 @@ AMDataViewSection::AMDataViewSection(const QString& title, const QString& subtit
 	whereClause_ = whereClause;
 	viewMode_ = viewMode;
 	db_ = db;
+	setWidthConstraint(initialWidthConstraint);
 	expanded_ = !expanded;
 	expand(expanded);
 
@@ -861,13 +860,14 @@ void AMDataViewSection::expand(bool expanded) {
 		case AMDataViews::ThumbnailView:
 		default:
 			/// \bug cannot presume all found in objectTableName.  Need a way of knowing where to look for these objects.
-			AMDataViewSectionThumbnailView* v = new AMDataViewSectionThumbnailView(db_, AMDatabaseDefinition::objectTableName(), whereClause_, this);
+			AMDataViewSectionThumbnailView* v = new AMDataViewSectionThumbnailView(db_, AMDatabaseDefinition::objectTableName(), whereClause_, this, widthConstraint_);
 			subview_ = v;
 			subview__ = v;
+
+			layout_->addItem(subview_);
+			layout_->setAlignment(subview_, Qt::AlignTop | Qt::AlignHCenter);
+			v->setVisible(true);
 		}
-		layout_->addItem(subview_);
-		layout_->setAlignment(subview_, Qt::AlignTop | Qt::AlignHCenter);
-		subview__->setWidthConstraint(widthConstraint_);
 	}
 	else {
 		expandButton_->setArrowType(Qt::RightArrow);
@@ -894,8 +894,10 @@ int AMDataViewSection::countResults() {
 #include <QGraphicsWidget>
 #include "ui/AMFlowGraphicsLayout.h"
 
-AMDataViewSectionThumbnailView::AMDataViewSectionThumbnailView(AMDatabase* db, const QString& dbTableName, const QString& whereClause, QGraphicsItem* parent)
+AMDataViewSectionThumbnailView::AMDataViewSectionThumbnailView(AMDatabase* db, const QString& dbTableName, const QString& whereClause, QGraphicsItem* parent, double initialWidthConstraint)
 	: QGraphicsWidget(parent) {
+
+	setVisible(false);
 
 	db_ = db;
 	dbTableName_ = dbTableName;
@@ -907,6 +909,8 @@ AMDataViewSectionThumbnailView::AMDataViewSectionThumbnailView(AMDatabase* db, c
 	layout_->setSpacing(Qt::Vertical, 30);
 	layout_->setSpacing(Qt::Horizontal, 30);
 	// layout_ = new QGraphicsLinearLayout(Qt::Vertical);
+
+	setWidthConstraint(initialWidthConstraint);
 	setLayout(layout_);
 
 	populate();
@@ -959,6 +963,7 @@ void AMDataViewSectionThumbnailView::setThumbnailWidth(double width) {
 
 #include <QPushButton>
 
+#define AMDATAVIEWSECTIONTHUMBNAILVIEW_PROCESS_EVENTS_EVERY_N_ITEMS 50
 
 void AMDataViewSectionThumbnailView::populate() {
 
@@ -969,8 +974,14 @@ void AMDataViewSectionThumbnailView::populate() {
 		query.append(" WHERE ").append(whereClause_);
 	query.append(" ORDER BY dateTime");
 	q.prepare( query );
+
+	qDebug() << "TIMER: prior to executing database query: " << QTime::currentTime().toString("mm:ss.zzz");
 	if(!q.exec())
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, -1, QString("Error executing database query '%1'. The error was %2").arg(q.executedQuery()).arg(q.lastError().text())));
+
+	qDebug() << "TIMER: after executing database query: " << QTime::currentTime().toString("mm:ss.zzz");
+
+	int processEventsBreakCounter = 0;
 
 	while(q.next()) {
 
@@ -984,6 +995,11 @@ void AMDataViewSectionThumbnailView::populate() {
 		w->setWidth(thumbnailWidth_);
 		layout_->addItem(w);
 
+		if(processEventsBreakCounter++ == AMDATAVIEWSECTIONTHUMBNAILVIEW_PROCESS_EVENTS_EVERY_N_ITEMS) {
+			processEventsBreakCounter = 0;
+			QApplication::processEvents();
+		}
+
 		/*
 		AMThumbnailScrollViewer* w = new AMThumbnailScrollViewer();
 		w->setSource(db_, q.value(0).toInt(), q.value(1).toInt());
@@ -994,4 +1010,5 @@ void AMDataViewSectionThumbnailView::populate() {
 		*/
 
 	}
+
 }

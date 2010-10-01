@@ -17,8 +17,6 @@ public:
 	explicit AMRunExperimentInsert(AMDatabase* db, QStandardItem* runHeading, QStandardItem* experimentHeading, QObject *parent = 0);
 
 	virtual ~AMRunExperimentInsert() {
-		runItem_->removeRows(0, runItem_->rowCount());
-		experimentItem_->removeRows(0, experimentItem_->rowCount());
 	}
 
 signals:

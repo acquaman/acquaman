@@ -118,13 +118,13 @@ void AMMainWindow::onModelRowsInserted(const QModelIndex &parent, int start, int
 	for(int row=start; row<=end; row++) {
 		QModelIndex i = model_->index(row, 0, parent);
 
-		qDebug() << "Inserting new item. isAlias() = " << model_->isAlias(i) << "isHeading = " << model_->isHeading(i);
+		// qDebug() << "Inserting new item. isAlias() = " << model_->isAlias(i) << "isHeading = " << model_->isHeading(i);
 
 		// for "real" item entries. (Nothing to do for aliases or headings)
 		if(!model_->isAlias(i) && !model_->isHeading(i)) {
 
 			QWidget* pane = model_->pane(i);
-			qDebug() << "  Still inserting new item. pane is:" << pane;
+			// qDebug() << "  Still inserting new item. pane is:" << pane;
 
 			if(model_->isDocked(i) && pane) {
 				stackWidget_->addWidget(pane);
@@ -225,7 +225,7 @@ void AMMainWindow::onSidebarItemActivated(const QModelIndex& index, const QModel
 
 	QWidget* pane = model_->pane(index);
 
-	qDebug() << "Calling onSidebarItemActivated. pane = " << pane << "index = " << index;
+	// qDebug() << "Calling onSidebarItemActivated. pane = " << pane << "index = " << index;
 
 	if(pane == 0)
 		return;

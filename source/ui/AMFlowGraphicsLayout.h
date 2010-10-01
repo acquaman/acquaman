@@ -80,8 +80,6 @@
 	 QSizeF prefSize() const;
 	 QSizeF maxSize() const;
 
-	 /// This function searches up through the hierachy of parentLayoutItems, finding the first one with a maximum width set (!= -1), and returns that for a width constraint.  If it doesn't find one, it returns -1 (no constraint).
-	 double findWidthConstraint(QGraphicsLayoutItem* parent) const;
 
 	 QList<QGraphicsLayoutItem*> m_items;
 	 qreal m_spacing[2];

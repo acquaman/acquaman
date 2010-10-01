@@ -138,6 +138,9 @@ protected:
 	/// This helper function retrieves the user's name from the database and forms the possesive form of it, storing in userName_;
 	void retrieveUserName();
 
+	/// The amount of room that views should assume to have available
+	double effectiveWidth() const { return this->width() - 20; }
+
 
 	/// Overidden so that we can notify the contents of the scroll area to change width with us.
 	virtual void resizeEvent(QResizeEvent *event);
@@ -154,7 +157,7 @@ class AMDataViewSection : public QGraphicsWidget, public AMAbstractDataViewSecti
 
 public:
 	/// Create a new "section view" of the data set.  \c title and \c subtitle are used for the header. A chunk of an SQL search string, suitable for appending behind a WHERE keyword, should be contained in \c whereClause.  The section will create a view type based on the \c viewMode.  If you want this section initially collapsed (for performance reasons), specify \c expanded = false.
-	explicit AMDataViewSection(const QString& title, const QString& subtitle, const QString& whereClause, AMDataViews::ViewMode viewMode, AMDatabase* db, bool expanded = true, QGraphicsItem* parent = 0);
+	explicit AMDataViewSection(const QString& title, const QString& subtitle, const QString& whereClause, AMDataViews::ViewMode viewMode, AMDatabase* db, bool expanded = true, QGraphicsItem* parent = 0, double initialWidthConstraint = 400);
 	virtual ~AMDataViewSection() {}
 
 	void setWidthConstraint(double widthConstraint) {
@@ -193,7 +196,7 @@ class AMDataViewSectionThumbnailView : public QGraphicsWidget, public AMAbstract
 	Q_OBJECT
 
 public:
-	explicit AMDataViewSectionThumbnailView(AMDatabase* db, const QString& dbTableName, const QString& whereClause, QGraphicsItem* parent = 0);
+	explicit AMDataViewSectionThumbnailView(AMDatabase* db, const QString& dbTableName, const QString& whereClause, QGraphicsItem* parent = 0, double initialWidthConstraint = 400);
 	virtual ~AMDataViewSectionThumbnailView() {}
 
 	void setWidthConstraint(double widthConstraint) {

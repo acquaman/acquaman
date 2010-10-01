@@ -29,7 +29,7 @@ bool AMDragDropItemModel::dropMimeData(const QMimeData *data, Qt::DropAction act
 	switch(item->type()) {
 
 	case AM::DragDropItem: {
-			AMDragDropItem* item = static_cast<AMExperimentModelItem*>(item);
+			AMDragDropItem* item = static_cast<AMDragDropItem*>(item);
 			return item->dropMimeData(data, action);
 		}
 		break;
