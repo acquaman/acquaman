@@ -978,7 +978,7 @@ void AMDataViewSectionThumbnailView::populate() {
 	if(!q.exec())
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, -1, QString("Error executing database query '%1'. The error was %2").arg(q.executedQuery()).arg(q.lastError().text())));
 
-	qDebug() << "   after executing database query: " << QTime::currentTime().toString("mm:ss.zzz");
+	// qDebug() << "   after executing database query: " << QTime::currentTime().toString("mm:ss.zzz");
 
 	// int processEventsBreakCounter = 0;
 

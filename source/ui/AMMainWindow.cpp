@@ -262,7 +262,7 @@ void AMMainWindow::onFwdCurrentWidgetChanged(int currentIndex) {
 	// However, if there are multiple links for a single pane, we don't know which one to choose, so its better to not do anything at all. (For now... this could be improved with a more detailed internal model.)
 	// ??????????
 	QModelIndex i = model_->indexForPane(currentPane);
-	sidebar_->setCurrentIndex(i);
+	// sidebar_->setCurrentIndex(i);
 
 	emit currentPaneChanged(currentPane);
 }
