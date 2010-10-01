@@ -8,6 +8,7 @@
 #include "dataman/AMDatabase.h"
 
 /// This widget shows a single thumbnail, either from an AMDbObject or accessed directly from the database. However, by placing the mouse over the thumbnail, one can scroll through a related set of thumbnails.  The thumbnail title and subtitle are super-posed over top of the thumbnail image.
+/*! \todo Implement deferred database lookups for displayThumbnail(AMDatabase* db, int id) as done in AMThumbnailScrollGraphicsWidget*/
 
 class AMThumbnailScrollViewer : public QLabel
 {
@@ -53,6 +54,8 @@ protected:
 
 	/// returns a pixmap (240 x 180) suitable for an invalid/blank background
 	static QPixmap invalidPixmap();
+	/// Cache for the invalidPixmap(), so that it doesn't need to be recalculated every time
+	static QPixmap* invalidPixmapCache_;
 
 };
 
@@ -180,9 +183,9 @@ public:
 		ids_ = ids;
 		tIndex_ = 0;
 		if(ids_.count() > 0)
-			displayThumbnail(sourceDb_, ids_.at(tIndex_));
+			displayThumbnailDeferred(sourceDb_, ids_.at(tIndex_));
 		else
-			displayThumbnail(0,0);
+			displayThumbnailDeferred(0,0);
 	}
 
 	/// Display \c count thumbnails directly out of a database (from the thumbnail table, with sequential id's starting at \c startId)
@@ -199,9 +202,9 @@ public:
 			ids_ << i;
 		tIndex_ = 0;
 		if(ids_.count() > 0)
-			displayThumbnail(sourceDb_, ids_.at(tIndex_));
+			displayThumbnailDeferred(sourceDb_, ids_.at(tIndex_));
 		else
-			displayThumbnail(0,0);
+			displayThumbnailDeferred(0,0);
 
 	}
 
@@ -292,9 +295,20 @@ protected:
 	void displayThumbnail(AMDbThumbnail t);
 	/// Change the view to display the thumbnail data pulled from database \c db at row \c id.
 	void displayThumbnail(AMDatabase* db, int id);
+	/// Performance optimization: Change the view to display the thumbnail data pulled from the database \c db at row \c id... but DON'T actually do the database lookup right now. Instead, just flag that we need to complete this before the next paint operation.
+	void displayThumbnailDeferred(AMDatabase* db, int id);
+
+	/// Optimization flags for displayThumbnailDeferred():
+	AMDatabase* deferredUpdate_db_;
+	/// Optimization flags for displayThumbnailDeferred():
+	int deferredUpdate_id_;
+	/// Optimization flags for displayThumbnailDeferred():
+	bool deferredUpdate_required_;
 
 	/// returns a pixmap (240 x 180) suitable for an invalid/blank background
 	static QPixmap invalidPixmap();
+	/// cache of the invalidPixmap(), so that it doesn't need to be re-drawn every time
+	static QPixmap* invalidPixmapCache_;
 
 
 	/// re-implemented from QGraphicsItem to change the thumbnail when the mouse is moved over top

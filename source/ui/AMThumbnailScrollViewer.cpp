@@ -72,6 +72,12 @@ void AMThumbnailScrollViewer::setSource(AMDatabase* db, int startId, int count) 
 	sourceIds_.clear();
 	for(int i=startId; i<startId+count; i++)
 		sourceIds_ << i;
+
+	if(sourceDb_ && sourceIds_.count() > 0)
+		displayThumbnail(sourceDb_, sourceIds_.at(0));
+	else {
+		displayThumbnail(AMDbThumbnail());
+	}
 }
 
 
@@ -79,20 +85,26 @@ void AMThumbnailScrollViewer::setSource(AMDatabase* db, int startId, int count) 
 #include <QGradient>
 #include <QGradientStops>
 
-QPixmap AMThumbnailScrollViewer::invalidPixmap() {
-	QPixmap p(240,180);
-	QPainter painter(&p);
-	QRadialGradient g(QPointF(120, 50), 120, QPointF(120,50));
-	g.setColorAt(0, Qt::white);
-	g.setColorAt(1, QColor::fromRgb(223,230,237));
+QPixmap* AMThumbnailScrollViewer::invalidPixmapCache_ = 0;
 
-	painter.setBrush(QBrush(g));
-	painter.setPen(QColor::fromRgb(167,167,167));
-	painter.drawRect(0,0,239,179);
-	painter.setFont(QFont("Lucida Grande", 128, QFont::DemiBold));
-	painter.drawText(QRectF(0,0,240,180), Qt::AlignHCenter | Qt::AlignVCenter, "?");
-	painter.end();
-	return p;
+QPixmap AMThumbnailScrollViewer::invalidPixmap() {
+	if(!invalidPixmapCache_) {
+		invalidPixmapCache_ = new QPixmap(240,180);
+
+		QPainter painter(invalidPixmapCache_);
+		QRadialGradient g(QPointF(120, 50), 120, QPointF(120,50));
+		g.setColorAt(0, Qt::white);
+		g.setColorAt(1, QColor::fromRgb(223,230,237));
+
+		painter.setBrush(QBrush(g));
+		painter.setPen(QColor::fromRgb(167,167,167));
+		painter.drawRect(0,0,239,179);
+		painter.setFont(QFont("Lucida Grande", 128, QFont::DemiBold));
+		painter.drawText(QRectF(0,0,240,180), Qt::AlignHCenter | Qt::AlignVCenter, "?");
+		painter.end();
+	}
+
+	return *invalidPixmapCache_;
 }
 
 void AMThumbnailScrollViewer::displayThumbnail(AMDbThumbnail t) {
@@ -202,7 +214,16 @@ AMThumbnailScrollGraphicsWidget::AMThumbnailScrollGraphicsWidget(QGraphicsItem* 
 
 	objectId_ = -1;
 
-	pixmap_ = invalidPixmap();
+	// previously: pixmap_ = invalidPixmap();
+	// This is a huge performance hog. Having to calculate this radial gradient for EACH thumbnail added was taking forever...
+	/* Now optimized in two ways:
+		- Don't calculate the invalid pixmap_ until we really need it. (ie: in paint() )
+		- Cache the last pixmap in a static member, so we can reuse it if it's the right size.
+		*/
+	deferredUpdate_db_ = 0;
+	deferredUpdate_id_ = 0;
+	deferredUpdate_required_ = true;
+
 
 	setEnabled(true);
 	setAcceptHoverEvents(true);
@@ -220,6 +241,9 @@ void AMThumbnailScrollGraphicsWidget::paint(QPainter *painter, const QStyleOptio
 
 	Q_UNUSED(option)
 	Q_UNUSED(widget)
+
+	if(deferredUpdate_required_)
+		displayThumbnail(deferredUpdate_db_, deferredUpdate_id_);
 
 	double height = width_*3/4;
 
@@ -275,6 +299,8 @@ void AMThumbnailScrollGraphicsWidget::paint(QPainter *painter, const QStyleOptio
 
 void AMThumbnailScrollGraphicsWidget::displayThumbnail(AMDbThumbnail t) {
 
+	deferredUpdate_required_ = false;
+
 	title_ = t.title;
 	subtitle_ = t.subtitle;
 
@@ -289,15 +315,26 @@ void AMThumbnailScrollGraphicsWidget::displayThumbnail(AMDbThumbnail t) {
 	update();
 }
 
+void AMThumbnailScrollGraphicsWidget::displayThumbnailDeferred(AMDatabase *db, int id) {
+	deferredUpdate_db_ = db;
+	deferredUpdate_id_ = id;
+	deferredUpdate_required_ = true;
+	update();
+}
+
 void AMThumbnailScrollGraphicsWidget::displayThumbnail(AMDatabase* db, int id) {
 
 	if(db == 0) {
 		title_ = QString();
 		subtitle_ = QString();
 		pixmap_ = invalidPixmap();
-		update();
+		if(!deferredUpdate_required_)
+			update();
+		deferredUpdate_required_ = false;
 		return;
 	}
+
+	// qDebug() << "AMThumbnailScrollGraphicsWidget::displayThumbnail() -- Doing database lookup";
 
 	QSqlQuery q = db->query();
 	q.prepare(QString("SELECT title,subtitle,type,thumbnail FROM %1 WHERE id = ?").arg(AMDatabaseDefinition::thumbnailTableName()));
@@ -318,24 +355,36 @@ void AMThumbnailScrollGraphicsWidget::displayThumbnail(AMDatabase* db, int id) {
 	else {
 		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -1, QString("AMThumbnailScrollViewerGraphicsWidget: Could not retrieve thumbnail from database, with query '%1'. (id: %2) Error: \"%3\".").arg(q.executedQuery()).arg(id).arg(q.lastError().text())));
 	}
-	update();
+
+	// normally, issue an update() to trigger a re-paint. However, if deferredUpdate_required is true, this is already being called within a paint() event, so don't do it again.
+	if(!deferredUpdate_required_)
+		update();
+
+	deferredUpdate_required_ = false;
 }
 
+QPixmap* AMThumbnailScrollGraphicsWidget::invalidPixmapCache_ = 0;
 
 QPixmap AMThumbnailScrollGraphicsWidget::invalidPixmap() {
-	QPixmap p(240,180);
-	QPainter painter(&p);
-	QRadialGradient g(QPointF(120, 50), 120, QPointF(120,50));
-	g.setColorAt(0, Qt::white);
-	g.setColorAt(1, QColor::fromRgb(223,230,237));
 
-	painter.setBrush(QBrush(g));
-	painter.setPen(QColor::fromRgb(167,167,167));
-	painter.drawRect(0,0,239,179);
-	painter.setFont(QFont("Lucida Grande", 128, QFont::DemiBold));
-	painter.drawText(QRectF(0,0,240,180), Qt::AlignHCenter | Qt::AlignVCenter, "?");
-	painter.end();
-	return p;
+	if(!invalidPixmapCache_) {
+
+		invalidPixmapCache_ = new QPixmap(240, 180);
+
+		QPainter painter(invalidPixmapCache_);
+		QRadialGradient g(QPointF(120, 50), 120, QPointF(120,50));
+		g.setColorAt(0, Qt::white);
+		g.setColorAt(1, QColor::fromRgb(223,230,237));
+
+		painter.setBrush(QBrush(g));
+		painter.setPen(QColor::fromRgb(167,167,167));
+		painter.drawRect(0,0,239,179);
+		painter.setFont(QFont("Lucida Grande", 128, QFont::DemiBold));
+		painter.drawText(QRectF(0,0,240,180), Qt::AlignHCenter | Qt::AlignVCenter, "?");
+		painter.end();
+	}
+
+	return *invalidPixmapCache_;
 }
 
 

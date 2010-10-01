@@ -863,11 +863,9 @@ void AMDataViewSection::expand(bool expanded) {
 			AMDataViewSectionThumbnailView* v = new AMDataViewSectionThumbnailView(db_, AMDatabaseDefinition::objectTableName(), whereClause_, this, widthConstraint_);
 			subview_ = v;
 			subview__ = v;
-
-			layout_->addItem(subview_);
-			layout_->setAlignment(subview_, Qt::AlignTop | Qt::AlignHCenter);
-			v->setVisible(true);
 		}
+		layout_->addItem(subview_);
+		layout_->setAlignment(subview_, Qt::AlignTop | Qt::AlignHCenter);
 	}
 	else {
 		expandButton_->setArrowType(Qt::RightArrow);
@@ -896,8 +894,6 @@ int AMDataViewSection::countResults() {
 
 AMDataViewSectionThumbnailView::AMDataViewSectionThumbnailView(AMDatabase* db, const QString& dbTableName, const QString& whereClause, QGraphicsItem* parent, double initialWidthConstraint)
 	: QGraphicsWidget(parent) {
-
-	setVisible(false);
 
 	db_ = db;
 	dbTableName_ = dbTableName;
@@ -967,6 +963,8 @@ void AMDataViewSectionThumbnailView::setThumbnailWidth(double width) {
 
 void AMDataViewSectionThumbnailView::populate() {
 
+	// qDebug() << "AMDataViewSectionThumbnailView::populate(): \n   starting at " << QTime::currentTime().toString("mm:ss.zzz");
+
 	/// \todo This won't work for samples, because they don't have a number column. Generalize or specificized.
 	QSqlQuery q = db_->query();
 	QString query = QString("SELECT thumbnailFirstId,thumbnailCount,name,number,dateTime,id FROM %1").arg(dbTableName_);
@@ -975,13 +973,14 @@ void AMDataViewSectionThumbnailView::populate() {
 	query.append(" ORDER BY dateTime");
 	q.prepare( query );
 
-	qDebug() << "TIMER: prior to executing database query: " << QTime::currentTime().toString("mm:ss.zzz");
+	//qDebug() << "   prior to executing database query: " << QTime::currentTime().toString("mm:ss.zzz");
+
 	if(!q.exec())
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, -1, QString("Error executing database query '%1'. The error was %2").arg(q.executedQuery()).arg(q.lastError().text())));
 
-	qDebug() << "TIMER: after executing database query: " << QTime::currentTime().toString("mm:ss.zzz");
+	qDebug() << "   after executing database query: " << QTime::currentTime().toString("mm:ss.zzz");
 
-	int processEventsBreakCounter = 0;
+	// int processEventsBreakCounter = 0;
 
 	while(q.next()) {
 
@@ -993,12 +992,13 @@ void AMDataViewSectionThumbnailView::populate() {
 		w->setCaption1(caption1);
 		w->setCaption2(AMDateTimeUtils::prettyDateTime(q.value(4).toDateTime()));
 		w->setWidth(thumbnailWidth_);
+
 		layout_->addItem(w);
 
-		if(processEventsBreakCounter++ == AMDATAVIEWSECTIONTHUMBNAILVIEW_PROCESS_EVENTS_EVERY_N_ITEMS) {
+		/*if(processEventsBreakCounter++ == AMDATAVIEWSECTIONTHUMBNAILVIEW_PROCESS_EVENTS_EVERY_N_ITEMS) {
 			processEventsBreakCounter = 0;
 			QApplication::processEvents();
-		}
+		}*/
 
 		/*
 		AMThumbnailScrollViewer* w = new AMThumbnailScrollViewer();
@@ -1010,5 +1010,7 @@ void AMDataViewSectionThumbnailView::populate() {
 		*/
 
 	}
+
+	// qDebug() << "   ending at " << QTime::currentTime().toString("mm:ss.zzz") << "\n";
 
 }
