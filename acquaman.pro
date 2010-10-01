@@ -228,7 +228,8 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/dataman/AMXESScan.h \
 	source/dataman/ALSBL8XESDetectorInfo.h \
 	source/dataman/ALSBL8XASFileLoader.h \
-	source/ui/AMWindowPaneModel.h
+	source/ui/AMWindowPaneModel.h \
+    source/dataman/AMScanEditorModelItem.h
 FORMS += source/ui/AbsorptionScanController.ui \
 	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
@@ -398,7 +399,8 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/dataman/AMXESScan.cpp \
 	source/dataman/ALSBL8XESDetectorInfo.cpp \
 	source/dataman/ALSBL8XASFileLoader.cpp \
-	source/ui/AMWindowPaneModel.cpp
+	source/ui/AMWindowPaneModel.cpp \
+    source/dataman/AMScanEditorModelItem.cpp
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc
 OTHER_FILES += source/muParser/README.txt

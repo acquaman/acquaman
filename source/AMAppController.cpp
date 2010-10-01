@@ -51,6 +51,8 @@ AMAppController::AMAppController(QObject *parent) :
 {
 	isStarting_ = true;
 	isShuttingDown_ = false;
+
+	scanControllerActiveEditor_ = 0;
 }
 
 bool AMAppController::startup() {
@@ -73,6 +75,7 @@ bool AMAppController::startup() {
 	//Create the main tab window:
 	mw_ = new AMMainWindow();
 	mw_->setWindowTitle("Acquaman");
+	connect(mw_, SIGNAL(itemCloseButtonClicked(QModelIndex)), this, SLOT(onWindowPaneCloseButtonClicked(QModelIndex)));
 
 	BottomBar* b = new BottomBar();
 	mw_->addBottomWidget(b);
@@ -126,16 +129,7 @@ bool AMAppController::startup() {
 	// mw_->addPane(new PeriodicTable(), "Experiment Tools", "Periodic Table", ":/applications-science.png");
 	// mw_->addPane(new ProtocolViewer(), "Experiment Tools", "Protocol", ":/accessories-text-editor.png");
 
-	/// \todo clean this up
-	scanEditors_ = new QStandardItemModel(this);
-	AMGenericScanEditor *scanEditor = new AMGenericScanEditor();
-	QStandardItem *item = new QStandardItem("Title Goes Here");
-	item->setData(qVariantFromValue(scanEditor), AM::PointerRole);
-	scanEditors_->insertRow(scanEditors_->rowCount(), item);
-
-	/// \todo update name with names of open scans...
-	mw_->addPane(scanEditor, "Now Playing...", "Scan Editor", ":/applications-science.png");
-
+	scanEditorsParentItem_ = mw_->windowPaneModel()->headingItem("Open Scans");
 
 	// Make a dataview widget and add it under two links/headings: "Runs" and "Experiments". Here we use the AMMainWindowModel for more power
 	dataView_ = new AMDataView();
@@ -289,20 +283,27 @@ void AMAppController::onNewExperimentAdded(const QModelIndex &index) {
 	mw_->sidebar()->edit(index);
 }
 
+#include "dataman/AMScanEditorModelItem.h"
+
 void AMAppController::onCurrentScanControllerCreated(){
 	qDebug() << "Detected creation of " << (int)AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController();
+
 	AMGenericScanEditor *scanEditor = new AMGenericScanEditor();
-	QStandardItem *item = new QStandardItem("Title Goes Here");
-	item->setData(qVariantFromValue(scanEditor), AM::PointerRole);
-	scanEditors_->insertRow(scanEditors_->rowCount(), item);
-	mw_->addPane(scanEditor, "Now Playing...", "Scan Editor", ":/applications-science.png");
+	scanEditorsParentItem_->appendRow(new AMScanEditorModelItem(scanEditor, ":/applications-science.png"));
+
 	scanEditor->addScan(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan());
 	mw_->goToPane(scanEditor);
-	mw_->undock(scanEditor);
-	QPoint newPos;
-	newPos.setX(scanEditor->pos().x()+100);
-	newPos.setY(scanEditor->pos().y()+150);
-	scanEditor->move(newPos);
+
+	scanEditors_ << scanEditor;
+
+	scanControllerActiveEditor_ = scanEditor;
+
+	/// \todo add user preference: should new scans open in a new window, or docked?
+	// mw_->undock(scanEditor);
+	// QPoint newPos;
+	// newPos.setX(scanEditor->pos().x()+100);
+	// newPos.setY(scanEditor->pos().y()+150);
+	// scanEditor->move(newPos);
 }
 
 void AMAppController::onCurrentScanControllerDestroyed(){
@@ -310,11 +311,19 @@ void AMAppController::onCurrentScanControllerDestroyed(){
 }
 
 void AMAppController::onCurrentScanControllerReinitialized(bool removeScan){
-	qDebug() << "Trying to reinitialize with " << scanEditors_->rowCount() << " editors";
-	AMGenericScanEditor *scanEditor = scanEditors_->data(scanEditors_->index(scanEditors_->rowCount()-1, 0), AM::PointerRole).value<AMGenericScanEditor*>();
+	qDebug() << "Trying to reinitialize with scan editor " << scanControllerActiveEditor_;
+
+	if(!scanControllerActiveEditor_) {
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -13, "Error while re-initializing the scan controller; there is no active scan editor window. This is a bug and you should report it to the Acquaman developers."));
+		return;
+	}
+
+	/// \bug How do you know that the last scan in this scan editor is the one to remove? What if they've opened another scan since onCurrentScanControllerCreated()?
+	#warning "Bug for David: how do you know that the last scan in this scan editor is the one to remove? What if they've opened another scan since onCurrentScanControllerCreated()?"
 	if(removeScan)
-		scanEditor->removeScan(scanEditor->scanAt(scanEditor->numScans()-1));
-	scanEditor->addScan(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan());
+		scanControllerActiveEditor_->removeScan(scanControllerActiveEditor_->scanAt(scanControllerActiveEditor_->numScans()-1));
+
+	scanControllerActiveEditor_->addScan(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan());
 }
 
 #include "dataman/AMExperiment.h"
@@ -333,36 +342,14 @@ void AMAppController::onDataViewItemsActivated(const QList<QUrl>& itemUrls) {
 		return;
 
 	AMGenericScanEditor* editor = new AMGenericScanEditor();
-	mw_->addPane(editor, "Now Playing...", "Scan Editor", ":/applications-science.png");
+	scanEditorsParentItem_->appendRow(new AMScanEditorModelItem(editor, ":/applications-science.png"));
+	scanEditors_ << editor;
 	mw_->goToPane(editor);
 
-	foreach(const QUrl& url, itemUrls) {
+	editor->dropScanURLs(itemUrls);
+}
 
-		if(url.scheme() != "amd")
-			break;
-
-		// Make sure this came from the user database... (it's the only one we support for now)
-		/// \todo This wouldn't be necessary if the scan editor doesn't make assumptions about which database.  Should check that out.
-		if(AMDatabase::userdb()->connectionName() != url.host())
-			break;
-
-		QStringList path = url.path().split('/', QString::SkipEmptyParts);
-		if(path.count() != 2)
-			break;
-
-		QString tableName = path.at(0);
-		bool idOkay;
-		int id = path.at(1).toInt(&idOkay);
-		if(!idOkay || id < 1)
-			break;
+void AMAppController::onWindowPaneCloseButtonClicked(const QModelIndex& index) {
 
 
-		// Only show things from the Objects table for now
-		if(tableName != AMDatabaseDefinition::objectTableName())
-			break;
-
-		AMScan* scan = qobject_cast<AMScan*>( AMDbLoader::createAndLoad(AMDatabase::userdb(), id) );
-		if(scan)
-			editor->addScan(scan);
-	}
 }

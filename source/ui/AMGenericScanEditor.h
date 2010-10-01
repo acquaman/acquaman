@@ -32,6 +32,7 @@ public:
 	void deleteScan(AMScan* scan) {
 		scanSetModel_->removeScan(scan);
 		delete scan;
+		refreshWindowTitle();
 	}
 
 	/// Remove a scan and delete it, but ask the user for confirmation if it's been modified.
@@ -40,6 +41,7 @@ public:
 	/// Remove a scan from the editor, but don't delete the scan. Ownership becomes the responsibility of the caller.
 	void removeScan(AMScan* scan) {
 		scanSetModel_->removeScan(scan);
+		refreshWindowTitle();
 	}
 
 	/// Returns the number of scans open in the editor.
@@ -57,6 +59,9 @@ public:
 
 
 
+	/// Call this function to open a set of scans from the database. The scan information is contained inside a list of "amd://..." URLs.  For more information on the format, see dropEvent().   Returns true if the list contains at least one valid scan that was added.
+	/*! This function is used as a helper function by dropEvent(), but you can also call it directly. */
+	bool dropScanURLs(const QList<QUrl>& urls);
 
 signals:
 	/// Internal signal to forward the textChanged() from ui_.notesEdit
@@ -87,6 +92,9 @@ protected slots:
 
 	/// Called when the 'Close' scan button is clicked
 	void onCloseScanButtonClicked();
+
+	/// Call this to update the window title when a scan is added or removed
+	void refreshWindowTitle();
 
 
 protected:

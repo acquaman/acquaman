@@ -22,12 +22,13 @@ class BottomBar;
 class AMDataView;
 class AMRunExperimentInsert;
 
-class QStandardItemModel;
-//class AMGenericScanEditor;
+
+class AMGenericScanEditor;
 
 
 class QMenuBar;
 class QMenu;
+class QStandardItem;
 
 /// This class takes the role of the main application controller for your particular version of the Acquaman program. It marshalls communication between separate widgets/objects, handles menus and menu actions, and all other cross-cutting issues that don't reside within a specific view or controller.  It creates and knows about all top-level GUI objects, and manages them within an AMMainWindow.
 /*! The AMMainWindow class is a reusable GUI framework class that should not contain application-specific code.  Instead, you should modify this class for your specific version of Acquaman.
@@ -96,6 +97,9 @@ protected slots:
 	/*! \c index is the model index of the experiment item in the main window's AMWindowPaneModel. */
 	void onNewExperimentAdded(const QModelIndex& index);
 
+	/// This is called when the user clicks any of the available "close" buttons in the main window's sidebar. For now, this could involve closing a scan editor window, or deleting an experiment.
+	void onWindowPaneCloseButtonClicked(const QModelIndex& index);
+
 
 	/// \todo comment this
 	void onCurrentScanControllerCreated();
@@ -122,9 +126,15 @@ protected:
 	AMDataView* dataView_;
 	AMRunExperimentInsert* runExperimentInsert_;
 
-//	AMGenericScanEditor* scanEditor_;
-	QStandardItemModel* scanEditors_;
 
+	/// The parent item of all scan editors we'll placed in the window pane model.
+	QStandardItem* scanEditorsParentItem_;
+
+	/// A list of the scan editors we have open. \todo this is currently unused... consider deprecating...
+	QList<QWidget*> scanEditors_;
+
+	/// The scan editor belonging to the active scan controller. (0 if not initialized)
+	AMGenericScanEditor* scanControllerActiveEditor_;
 
 	// Application state:
 	bool isStarting_, isShuttingDown_;

@@ -437,6 +437,8 @@ void AMScanView::setupUI() {
 	scanBars_ = new AMScanViewChannelSelector();
 	vl->addWidget(scanBars_);
 
+	vl->addSpacing(6);
+
 	modeBar_ = new AMScanViewModeBar();
 	vl->addWidget(modeBar_);
 

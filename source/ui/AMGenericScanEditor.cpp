@@ -105,8 +105,30 @@ void AMGenericScanEditor::addScan(AMScan* newScan) {
 	ui_.scanListView->setCurrentIndex(scanSetModel_->indexForScan(newScan));
 	if(scanSetModel_->exclusiveChannel().isEmpty() && newScan->numChannels() > 0)
 		scanSetModel_->setExclusiveChannel(newScan->channel(0)->name());
+
+	refreshWindowTitle();
 }
 
+void AMGenericScanEditor::refreshWindowTitle() {
+
+	int numScans = scanSetModel_->numScans();
+
+	if(numScans == 0) {
+		setWindowTitle("Scan Editor");
+		return;
+	}
+
+	QStringList scanNames;
+	for(int i=0; i<numScans; i++)
+		scanNames << scanSetModel_->scanAt(i)->fullName();
+
+	QString windowTitle = scanNames.join(", ");
+	if(numScans > 1) {
+		windowTitle.prepend(QString("%1 scans: (").arg(numScans));
+		windowTitle.append(")");
+	}
+	setWindowTitle(windowTitle);
+}
 
 void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const QModelIndex & deselected ) {
 
@@ -247,7 +269,7 @@ void AMGenericScanEditor::dragEnterEvent(QDragEnterEvent *event) {
 	if(	event->possibleActions() & Qt::CopyAction
 		&& event->mimeData()->hasUrls()
 		&& event->mimeData()->urls().count() > 0
-				&& event->mimeData()->urls().at(0).scheme() == "amd"
+		&& event->mimeData()->urls().at(0).scheme() == "amd"
 				) {
 		event->accept();
 		event->acceptProposedAction();
@@ -270,29 +292,40 @@ void AMGenericScanEditor::dragEnterEvent(QDragEnterEvent *event) {
   */
 void AMGenericScanEditor::dropEvent(QDropEvent * event) {
 
-	if(	!(event->possibleActions() & Qt::CopyAction
-		  && event->mimeData()->hasUrls()
-		&& event->mimeData()->urls().count() > 0
-				&& event->mimeData()->urls().at(0).scheme() == "amd")
-		)
+	if(	!( event->possibleActions() & Qt::CopyAction
+		&& event->mimeData()->hasUrls()) )
 		return;
 
 
+	if(dropScanURLs(event->mimeData()->urls()))
+		event->acceptProposedAction();
+}
+
+bool AMGenericScanEditor::dropScanURLs(const QList<QUrl>& urls) {
+
+	if(	!urls.count() )
+		return false;
+
 	bool accepted = false;
 
-	foreach(QUrl url, event->mimeData()->urls()) {
+	foreach(QUrl url, urls) {
+		// scheme correct?
+		if(url.scheme() != "amd")
+			break;
+
 		// Can we connect to the database?
 		AMDatabase* db = AMDatabase::dbByName(url.host());
 		if(!db)
 			break;
+		/// \bug This does not verify that the incoming scans came from the user database. In fact, it happily accepts scans from other databases. Check if we assume anywhere else inside AMGenericScanEditor that we're using the AMDatabase::userdb() database. (If we do, this could cause problems.)
 
-		QStringList path = url.path().split('/');
-		if(path.count() != 3)
+		QStringList path = url.path().split('/', QString::SkipEmptyParts);
+		if(path.count() != 2)
 			break;
 
-		QString tableName = path.at(1);
+		QString tableName = path.at(0);
 		bool idOkay;
-		int id = path.at(2).toInt(&idOkay);
+		int id = path.at(1).toInt(&idOkay);
 		if(!idOkay || id < 1)
 			break;
 
@@ -311,17 +344,13 @@ void AMGenericScanEditor::dropEvent(QDropEvent * event) {
 			break;
 		}
 
-
 		// success!
 		addScan(scan);
 		accepted = true;
 	}
 
-
-	if(accepted)
-		event->acceptProposedAction();
+	return accepted;
 }
-
 
 void AMGenericScanEditor::onCloseScanButtonClicked() {
 	// this function is ready for when multiple scan selection is enabled

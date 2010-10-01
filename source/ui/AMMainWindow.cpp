@@ -168,8 +168,7 @@ void AMMainWindow::onModelRowsAboutToBeRemoved(const QModelIndex &parent, int st
 }
 
 void AMMainWindow::onItemCloseButtonClicked(const QModelIndex &index) {
-	/// \todo IMPORTANT "What now?"
-	qDebug() << "AMMainWindow: close buttons not implemented";
+	emit itemCloseButtonClicked(index);
 }
 
 void AMMainWindow::onDockStateChanged(QWidget* pane, bool isDocked) {
