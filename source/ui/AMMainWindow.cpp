@@ -13,6 +13,7 @@ AMMainWindow::AMMainWindow(QWidget *parent) : QWidget(parent) {
 	sidebar_->setModel(model_);
 	sidebar_->setHeaderHidden(true);
 	sidebar_->setRootIsDecorated(true);
+	sidebar_->setMouseTracking(true);
 	sidebar_->setAttribute(Qt::WA_MacShowFocusRect, false);
 	sidebar_->setWordWrap(false);
 	sidebar_->setIndentation(10);

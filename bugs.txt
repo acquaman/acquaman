@@ -24,3 +24,6 @@ Fixed:
 	Culprit: AMDbObject::database_ was not being set after a successful storeToDb().  Result
 
 004 - Sept 15: Deferring AMRun dateTime range update doesn't work... because runs are deleted too quickly.
+
+
+mysql --user=user_name --password=your_password db_name
