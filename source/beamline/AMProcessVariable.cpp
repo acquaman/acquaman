@@ -96,6 +96,9 @@ AMProcessVariable::AMProcessVariable(const QString& pvName, bool autoMonitor, QO
 	upperGraphLimit_ = DBL_MAX;
 	lowerGraphLimit_ = -DBL_MAX;
 
+	// Sets disablePutCallback to false so that setValue uses ca_put_callback() by default.
+	disablePutCallback_ = false;
+
 	try {
 
 		AMProcessVariableHeartbeat::ensureChannelAccess();
@@ -477,7 +480,11 @@ void AMProcessVariable::setValue(int value) {
 
 	dbr_long_t setpoint = value;
 
-	lastError_ = ca_put_callback( DBR_LONG, chid_, &setpoint, PVPutRequestCBWrapper, this );
+	if (disablePutCallback_)
+		lastError_ = ca_put( DBR_LONG, chid_, &setpoint );
+	else
+		lastError_ = ca_put_callback( DBR_LONG, chid_, &setpoint, PVPutRequestCBWrapper, this );
+
 	if(lastError_ != ECA_NORMAL) {
 		qDebug() << QString("AMProcessVariable: Error while trying to put value: %1: %2").arg(pvName()).arg(ca_message(lastError_));
 		emit error(lastError_);
@@ -486,7 +493,11 @@ void AMProcessVariable::setValue(int value) {
 
 void AMProcessVariable::setValues(dbr_long_t setpoints[], int num) {
 
-	lastError_ = ca_array_put_callback( DBR_LONG, num, chid_, setpoints, PVPutRequestCBWrapper, this );
+	if (disablePutCallback_)
+		lastError_ = ca_array_put( DBR_LONG, num, chid_, setpoints );
+	else
+		lastError_ = ca_array_put_callback( DBR_LONG, num, chid_, setpoints, PVPutRequestCBWrapper, this );
+
 	if(lastError_ != ECA_NORMAL) {
 		qDebug() << QString("AMProcessVariable: Error while trying to put values: %1: %2").arg(pvName()).arg(ca_message(lastError_));
 		emit error(lastError_);
@@ -497,7 +508,11 @@ void AMProcessVariable::setValue(double value) {
 
 	dbr_double_t setpoint = value;
 
-	lastError_ = ca_put_callback( DBR_DOUBLE, chid_, &setpoint, PVPutRequestCBWrapper, this );
+	if (disablePutCallback_)
+		lastError_ = ca_put( DBR_DOUBLE, chid_, &setpoint );
+	else
+		lastError_ = ca_put_callback( DBR_DOUBLE, chid_, &setpoint, PVPutRequestCBWrapper, this );
+
 	if(lastError_ != ECA_NORMAL) {
 		qDebug() << QString("Error while trying to put AMProcessVariable value: %1: %2").arg(pvName()).arg(ca_message(lastError_));
 		emit error(lastError_);
@@ -506,7 +521,11 @@ void AMProcessVariable::setValue(double value) {
 
 void AMProcessVariable::setValues(dbr_double_t setpoints[], int num) {
 
-	lastError_ = ca_array_put_callback( DBR_DOUBLE, num, chid_, setpoints, PVPutRequestCBWrapper, this );
+	if (disablePutCallback_)
+		lastError_ = ca_array_put( DBR_DOUBLE, num, chid_, setpoints );
+	else
+		lastError_ = ca_array_put_callback( DBR_DOUBLE, num, chid_, setpoints, PVPutRequestCBWrapper, this );
+
 	if(lastError_ != ECA_NORMAL) {
 		qDebug() << QString("Error while trying to put AMProcessVariable values: %1: %2").arg(pvName()).arg(ca_message(lastError_));
 		emit error(lastError_);
@@ -519,7 +538,11 @@ void AMProcessVariable::setValue(const QString& value) {
 	QByteArray d1 = value.toAscii();
 	strcpy(setpoint, d1.constData());
 
-	lastError_ = ca_put_callback( DBR_STRING, chid_, setpoint, PVPutRequestCBWrapper, this );
+	if (disablePutCallback_)
+		lastError_ = ca_put( DBR_STRING, chid_, setpoint );
+	else
+		lastError_ = ca_put_callback( DBR_STRING, chid_, setpoint, PVPutRequestCBWrapper, this );
+
 	if(lastError_ != ECA_NORMAL) {
 		qDebug() << QString("Error while trying to put AMProcessVariable value: %1: %2").arg(pvName()).arg(ca_message(lastError_));
 		emit error(lastError_);
@@ -537,7 +560,11 @@ void AMProcessVariable::setValues(const QStringList& setpoints) {
 		stringArray[i] = asciiData[i].constData();
 	}
 
-	lastError_ = ca_array_put_callback( DBR_STRING, setpoints.size(), chid_, stringArray, PVPutRequestCBWrapper, this );
+	if (disablePutCallback_)
+		lastError_ = ca_array_put( DBR_STRING, setpoints.size(), chid_, stringArray );
+	else
+		lastError_ = ca_array_put_callback( DBR_STRING, setpoints.size(), chid_, stringArray, PVPutRequestCBWrapper, this );
+
 	if(lastError_ != ECA_NORMAL) {
 		qDebug() << QString("Error while trying to put AMProcessVariable values: %1: %2").arg(pvName()).arg(ca_message(lastError_));
 		emit error(lastError_);

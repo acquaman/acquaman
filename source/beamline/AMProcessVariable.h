@@ -133,6 +133,21 @@ public:
 	/// Checks write access ability. (Verifies also that we are connected, since writing is impossible if not.)
 	bool canWrite() const { return isConnected() && ca_write_access(chid_); }
 
+	/*! This function changes whether the the PV sets values through using ca_put() or ca_put_callback().  Generally ca_put_callback() is preferred since it returns debug messages after all process requests.  However, some of the more exotic record types in EPICS do not handle the ca_put_callback() effectively which causes the IOC to delay writing the value for a very long time (seconds per value).  An except from Jeff Hill about the differences between ca_put() and ca_put_callback():
+
+		Description (IOC Database Specific)
+		A ca put request causes the record to process if the record's SCAN field is set to passive, and the field being written has it's process passive attribute set to true. If such a record is already processing when a put request is initiated the specified field is written immediately, and the record is scheduled to process again as soon as it finishes processing. Earlier instances of multiple put requests initiated while the record is being processing may be discarded, but the last put request initiated is always written and processed.
+
+		A ca put callback request causes the record to process if the record's SCAN field is set to passive, and the field being written has it's process passive attribute set to true. For such a record, the user's put callback function is not called until after the record, and any records that the record links to, finish processing. If such a record is already processing when a put callback request is initiated the put callback request is postponed until the record, and any records it links to, finish processing.
+		If the record's SCAN field is not set to passive, or the field being written has it's process passive attribute set to false then the ca put or ca put callback request cause the specified field to be immediately written, but they do not cause the record to be processed.
+
+		As the name of the function indicates, setting this value to true will cause the PV to use ca_put() and false will use ca_put_callback();
+	  */
+	void disablePutCallbackMode(bool disablePutCallback) { disablePutCallback_ = disablePutCallback; }
+
+	/// Returns the current ca_put mode for the PV.  True means ca_put() and false means ca_put_callback().
+	bool putCallbackMode() const { return disablePutCallback_; }
+
 	/// Read the most recent value of the PV.
 	/*! (The Return value is a double, since this can hold any numeric value. See getInt, getDouble, and getString for other options.)  If you are monitoring (isMonitoring() == true), then the value is as recent as the last monitor notification received from the CA server.  Otherwise, it's as recent as the last time you called requestValue().  requestValue() is also called once when the connection is first established, so if you're using an AMProcessVariable to only read a value once, you don't have to explicitly start monitoring.*/
 	double lastValue(unsigned index = 0) const;
@@ -278,7 +293,7 @@ signals:
 	void valueChanged();	///< emitted whenever a new value arrives
 	void valueChanged(int);	///< emitted for all numeric values
 	void valueChanged(double); ///< emitted for all numeric values
-	/// for performance reasons, valueChanged(string) is only emitted if the natural type is a string type or enum type.
+	/// for perform4ance reasons, valueChanged(string) is only emitted if the natural type is a string type or enum type.
 	void valueChanged(const QString&);
 	//@}
 
@@ -336,6 +351,9 @@ protected:
 
 	/// Last error experienced.
 	int lastError_;
+
+	/// Sets up whether the PV should use ca_put() or ca_put_callback().  If true will have ca_put() be the calling function, false will have ca_put_callback().
+	bool disablePutCallback_;
 
 	/// \name Control Group Storage
 	/// Storage of information on the PV's type and description.
