@@ -106,8 +106,7 @@ AMProcessVariable::AMProcessVariable(const QString& pvName, bool autoMonitor, QO
 			throw lastError_;
 
 		// This will notice if the search times out:
-		connect(&startupTimer_, SIGNAL(timeout()), this, SLOT(onConnectionTimeout()));
-		startupTimer_.start(timeoutMs);
+		QTimer::singleShot(timeoutMs, this, SLOT(onConnectionTimeout()));
 
 		// register ourself to the support class:
 		AMProcessVariableHeartbeat::registerPV(chid_, this);
@@ -210,10 +209,6 @@ void AMProcessVariable::connectionChangedCB(struct connection_handler_args connA
 	if( ca_state(connArgs.chid) == cs_conn && connArgs.op == CA_OP_CONN_UP) {
 
 		emit connected(true);
-
-		// Cancel the connection-timeout timer. We are connected.
-		startupTimer_.stop();
-		disconnect(&startupTimer_, SIGNAL(timeout()), this, SLOT(onConnectionTimeout()));
 
 		// Discover the type of this channel:
 		serverType_ = ca_field_type(chid_);
@@ -436,11 +431,10 @@ void AMProcessVariable::onConnectionTimeout() {
 	// If we haven't connected by now:
 	if(this->connectionState() != cs_conn) {
 		qDebug() << QString("AMProcessVariable: channel connect timed out for %1").arg(pvName());
-		startupTimer_.stop();
 		emit connectionTimeout();
 	}
 
-	// Don't call ca_clear_channel here.  We'll keep on trying. (Channel access handles this automatically for us.)  Will emit connected() signal when successful.
+	// Don't call ca_clear_channel here.  Channel access will keep on trying in the background. (Channel access handles this automatically for us.)  Will emit connected() signal when successful.
 }
 
 
