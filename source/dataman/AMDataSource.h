@@ -17,9 +17,9 @@ public:
 	AMDataSource* dataSource() const { return data_; }
 
 protected slots:
-	void emitValuesChanged() { emit valuesChanged(); }
-	void emitSizeChanged() { emit sizeChanged(); }
-	void emitInfoChanged() { emit infoChanged(); }
+	void emitValuesChanged(const AMnDIndex& start, const AMnDIndex& end) { emit valuesChanged(start, end); }
+	void emitSizeChanged(int axisNumber) { emit sizeChanged(axisNumber); }
+	void emitInfoChanged(int axisNumber) { emit infoChanged(axisNumber); }
 
 protected:
 	AMDataSourceSignalSource(AMDataSource* parent);
@@ -27,9 +27,9 @@ protected:
 	friend class AMDataSource;
 
 signals:
-	void valuesChanged();
-	void sizeChanged();
-	void infoChanged();
+	void valuesChanged(const AMnDIndex& start, const AMnDIndex& end);
+	void sizeChanged(int axisNumber);
+	void infoChanged(int axisNumber);
 };
 
 class AMNumber;
@@ -72,8 +72,8 @@ public:
 	virtual AMnDIndex size() const = 0; // { AMnDIndex s(); foreach(AMAxis a, axes_) s << a.count(); return s; }
 	/// Returns a bunch of information about a particular axis.
 	virtual AMAxisInfo axisAt(int axisNumber) const = 0;
-	/// Returns a bunch of information about a particular axis.
-	virtual AMAxisInfo axisNamed(const QString& axisName) const = 0;
+	/// Returns the number of an axis, by name. (By number, we mean the index of the axis. We called it number to avoid ambiguity with indexes <i>into</i> axes.) This could be slow, so users shouldn't call it repeatedly.
+	virtual int numberOfAxis(const QString& axisName) = 0;
 
 
 	// Data value access
@@ -93,12 +93,14 @@ public:
 
 
 protected:
-	/// Subclasses must call this when the data has changed (in value, or validity). It allows connected plots and analysis blocks to update / re-analyze.
-	void emitValuesChanged() { signalSource_->emitValuesChanged(); }
-	/// Subclasses must call this when the data has changed (in rank or size). SHOULD THIS EVER HAPPEN? Disallow?
-	void emitSizeChanged() { signalSource_->emitSizeChanged(); }
-	/// Subclasses must call this when the descriptions of the axes have changed (units, description, etc.)
-	void emitInfoChanged() { signalSource_->emitInfoChanged(); }
+	// Question: specify WHICH values changed in the signals? requires an nDimensional from-to index block.
+
+	/// Subclasses must call this when the data has changed (in value, or validity). It allows connected plots and analysis blocks to update / re-analyze. \c start and \c end specify the range of values that have changed. Use an invalid index (AMnDIndex()) for \c start to specify all data might have changed.
+	void emitValuesChanged(const AMnDIndex& start = AMnDIndex(), const AMnDIndex& end = AMnDIndex()) { signalSource_->emitValuesChanged(start, end); }
+	/// Subclasses must call this when the data has changed (in size). \c axisNumber specifies which axis changed, or -1 to indicate they all might have.  Changing rank (dimensionality) is not allowed.
+	void emitSizeChanged(int axisNumber = -1) { signalSource_->emitSizeChanged(axisNumber); }
+	/// Subclasses must call this when the descriptions of the axes have changed (units, description, etc.). \c axisNumber specifies which axis changed, or -1 to indicate they all might have.
+	void emitInfoChanged(int axisNumber = -1) { signalSource_->emitInfoChanged(axisNumber); }
 
 private:
 	/// QObject proxy for emitting signals. (This interface class can't emit directly, because it doesn't want to inherit QObject.)

@@ -71,4 +71,7 @@ public:
 
 };
 
+ #include <QMetaType>
+Q_DECLARE_METATYPE(AMnDIndex)
+
 #endif // AMNDINDEX_H
