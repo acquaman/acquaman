@@ -80,6 +80,9 @@ public:
 	/// Returns the state (validity) of this number
 	State state() const { return state_; }
 
+	/// Returns the type of the number, as stored natively.
+	Type type() const { return type_; }
+
 
 protected:
 	State state_;

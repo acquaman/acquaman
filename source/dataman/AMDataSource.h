@@ -37,7 +37,7 @@ class AMNumber;
 class AMDataSource
 {
 public:
-	/// Describes the state of the data
+	/// Describes the state of the data...  (Should these be flags instead... Describing indep. whether the data values can change or are fixed, whether the sizes can change or are fixed, whether the data is static, etc...)
 	enum State { InvalidState, ReadyState, ProcessingState };
 
 	/// Implementing classes must be sure to call this constructor in their constructor initialization.
@@ -45,7 +45,7 @@ public:
 	/// Destructor
 	virtual ~AMDataSource();
 
-	/// Observers can connect to the valuesChanged(), sizeChanged(), or infoChanged() signals of this object to receive notification that the data has changed in some way (ie: in value/validity, in rank or size, or in axis descriptions, respectively)
+	/// Observers can connect to the valuesChanged(), sizeChanged(), or infoChanged() signals of this object to receive notification that the data has changed in some way (ie: in value/validity, in size, or in axis descriptions, respectively)
 	AMDataSourceSignalSource* signalSource() const { return signalSource_; }
 
 
@@ -94,7 +94,7 @@ public:
 protected:
 	/// Subclasses must call this when the data has changed (in value, or validity). It allows connected plots and analysis blocks to update / re-analyze.
 	void emitValuesChanged() { signalSource_->emitValuesChanged(); }
-	/// Subclasses must call this when the data has changed (in rank or size). SHOULD THIS EVER HAPPEN? Disallow?
+	/// Subclasses must call this when the data has changed (in size along an axis). \note The rank (number of axes) is expected to never change, although the sizes can.
 	void emitSizeChanged() { signalSource_->emitSizeChanged(); }
 	/// Subclasses must call this when the descriptions of the axes have changed (units, description, etc.)
 	void emitInfoChanged() { signalSource_->emitInfoChanged(); }
@@ -102,7 +102,6 @@ protected:
 private:
 	/// QObject proxy for emitting signals. (This interface class can't emit directly, because it doesn't want to inherit QObject.)
 	AMDataSourceSignalSource* signalSource_;
-	// friend class AMDataSourceSignalSource;
 };
 
 #endif // AMDATASOURCE_H
