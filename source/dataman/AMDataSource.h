@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QMap>
 #include "dataman/AMAxisInfo.h"
+#include "dataman/AMnDIndex.h"
 
 class AMDataSource;
 
@@ -68,7 +69,7 @@ public:
 	/// Returns the rank (number of dimensions) of this data set
 	virtual int rank() const = 0; // { return axes_.count(); }
 	/// Returns the size of (ie: count along) each dimension
-	virtual QList<int> size() const = 0; // { QList<int> s(); foreach(AMAxis a, axes_) s << a.count(); return s; }
+	virtual AMnDIndex size() const = 0; // { AMnDIndex s(); foreach(AMAxis a, axes_) s << a.count(); return s; }
 	/// Returns a bunch of information about a particular axis.
 	virtual AMAxisInfo axisAt(int axisNumber) const = 0;
 	/// Returns a bunch of information about a particular axis.
@@ -79,7 +80,7 @@ public:
 	////////////////////////////
 
 	/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient or any are out of range, or if the data is not ready.
-	virtual AMNumber value(const QList<int>& indexes) const = 0;
+	virtual AMNumber value(const AMnDIndex& indexes) const = 0;
 	/// Returns the dependent value for a set of axis indexes, where the indices are specified by axis name. This generally will not be as fast as the other version of value().
 	virtual AMNumber value(const QMap<QString, int>& axisNamesAndIndexes) const = 0;
 
