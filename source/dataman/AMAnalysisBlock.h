@@ -1,7 +1,7 @@
 #ifndef AMANALYSISBLOCK_H
 #define AMANALYSISBLOCK_H
 
-#include <QObject>
+#include "dataman/AMDbObject.h"
 #include "dataman/AMDataSource.h"
 
 class QWidget;
@@ -28,9 +28,11 @@ To implement a real AMAnalysisBlock, you must implement the pure virtual functio
 
 If an analysis block requires parameters in addition to the input sources, implement custom functions to set and access these parameters. \todo Figure out if generic parameter-description and parameter-setting functionality is required in the interface/base-class definition.
 
+Since AMAnalysisBlocks must be persistently stored and reloaded, they also inherit AMDbObject.  \sa AMDbObject for how to specify parameters so they are saved and reloaded from the database. You may either re-implement storeToDb() and loadFromDb(), or use the meta-data array.
+
 Finally, AMAnalysisBlocks may choose to implement a factory function to create QWidget editors for their unique parameters. This should return a newly-created  widget, connected to the block's parameter-setting functions. If you don't provide this functionality, the base version simply returns a null pointer.  \todo Define some standards for editor widgets (size range, preferred layout, etc.)
 */
-class AMAnalysisBlock : public QObject, public AMDataSource
+class AMAnalysisBlock : public AMDbObject, public AMDataSource
 {
 	Q_OBJECT
 
@@ -77,6 +79,16 @@ public:
 	////////////////////////////////////
 	/// Create, connect, and return a widget suitable for displaying/editing this analysis block's custom parameters.  If you don't want to provide an editor widget, return 0.
 	virtual QWidget* createEditorWidget() {	return 0; }
+
+
+	// AMDbObject interface
+	////////////////////////////////
+
+	/// Specialization of AMDbObject::typeDescription(). This can be re-implemented.
+	virtual QString typeDescription() const {
+		return "Generic Analysis Block";
+	}
+
 
 protected slots:
 	/// called automatically when a current input source is deleted. The default response is to discard ALL input sources and go into the invalid/inactive state. The base class implementation of this function is effectively the same as calling setInputDataSources() with an empty list. setInputDataSourcesImplementation() will be called with an empty list to tell the subclass to put itself in the invalid/inactive state.

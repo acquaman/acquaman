@@ -1,8 +1,10 @@
 #include "AMAnalysisBlock.h"
 
+/// Note that AMDbObject and AMDataSource both have a name(). (These are not virtual, for now.)  In this constructor, we initialize AMDataSource() with \c outputName, and also AMDbObject::setName() with the same.  As long as no one calls AMDbObject::setName(), these will stay consistent.  AMDataSource names are not supposed to change...
 AMAnalysisBlock::AMAnalysisBlock(const QString& outputName, QObject* parent)
-	: QObject(parent), AMDataSource(outputName)
+	: AMDbObject(parent), AMDataSource(outputName)
 {
+	AMDbObject::setName(outputName);
 }
 
 bool AMAnalysisBlock::setInputDataSources(const QList<AMDataSource*>& dataSources) {
