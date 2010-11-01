@@ -5,12 +5,14 @@ AMDataSourceSignalSource::AMDataSourceSignalSource(AMDataSource *parent)
 	data_ = parent;
 }
 
-AMDataSource::AMDataSource()
+AMDataSource::AMDataSource(const QString& name)
+	: name_(name)
 {
 	signalSource_ = new AMDataSourceSignalSource(this);
 }
 
 AMDataSource::~AMDataSource() {
+	signalSource_->emitDeleted();
 	delete signalSource_;
 	signalSource_ = 0;
 }

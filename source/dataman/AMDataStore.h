@@ -99,7 +99,7 @@ public:
 
 	// Axes
 	/////////////////////////////
-	/// Create space to support an additional scan axis.  \c axisDetails describes the characteristics of the axis, but the \c size of axisDetails will be ignored.  If no axes exist yet, the size of the new axis will be set to 0; otherwise, it will be set to 1.
+	/// Create space to support an additional scan axis.  \c axisDetails describes the characteristics of the axis, but the \c size of axisDetails will be ignored.  If no data points exist yet (ie: the scan space is empty), the size of the new axis will be set to 0; otherwise, it will be set to 1.
 	/*! If you want to retrieve axes by name, \c axisDetails must contain a unique \c name.  This function should return false if an axis with that name already exists. */
 	virtual bool addScanAxis(const AMAxisInfo& axisDetails) = 0;
 	/// Retrieve the id of an existing axis, by name.  (Depending on the implementation, this may not be fast. Avoid calling it repeatedly.)
@@ -108,6 +108,14 @@ public:
 	virtual AMAxisInfo scanAxisAt(int id) const = 0;
 	/// Return the number scan axes
 	virtual int scanAxisCount() const = 0;
+
+	/// Indicates that the scan space is empty (no scan points yet). This is true when the size of any axis is 0. (think about it..)
+	virtual bool isEmpty() const {
+		for(int mu=0; mu<scanAxisCount(); mu++)
+			if(scanAxisAt(mu).size == 0)
+				return true;
+		return false;
+	}
 
 
 	// Setting and getting values
@@ -135,6 +143,8 @@ public:
 
 	  This function, in addition to creating space for the new data, suppresses the dataChanged() signal until endInsertRows() is called.  This allows you to insert valid data for all detectors and scan points within the new space, and the dataChanged() signal is only emitted once for the whole affected region.
 
+	  If the scan space is currently empty, the sizes of one or more axes might be 0. Adding a row to any axis will cause the sizes of all other axes to become at least 1. (think about it...)
+
 	 Subclasses should re-implement beginInsertRowsImplementation() instead of this function.
 	*/
 	bool beginInsertRows(int axisId, int numRows = 1, int atRowIndex = -1);
@@ -144,6 +154,18 @@ public:
 	/*! The base class version will emit the sizeChanged() and dataChanged() signals for the region.  Subclasses that want to know when an insert is complete can re-implement endInsertRowsImplementation().
 		*/
 	void endInsertRows();
+
+
+	// Removing data points: not supported. It's a storage machine, ok?
+	////////////////////////////////////////////////////////////////////
+
+	// Ok, I guess you can clear the whole thing
+	////////////////////////////////////////////////////
+	/// Clear the entire data set. This maintains the set of measurements, but deletes every point in the scan space. The size of every scan axis will become 0. Implementing subclasses must provide a clearImplementation().
+	void clear() {
+		clearImplementation();
+		emitSizeChanged(-1);
+	}
 
 
 
@@ -160,6 +182,8 @@ protected:
 		Q_UNUSED(atRowIndex);
 	}
 
+	/// Implementing subclasses must provide a clearImplementation(), which removes all data values and sets the size of each axis to 0.
+	virtual void clearImplementation() = 0;
 
 	/// Implementing subclasses must call this whenever a measurement value changes. (For example, in their setValue implementation).  \c scanIndexStart and \c scanIndexEnd describe the scan range affected.  Use an invalid \c scanIndexStart to indicate the whole scan space is affected.  For performance, subclasses can opt to avoid calling this on every setValue(), and combine multiple emits into one (as long as the last one covers the complete affected range.)  A separate emitDataChanged() should be sent for each different measurement.  For multi-dimensional measurements, it's suggested to delay emits until all the values for a complete measurement have been received (if you can figure out how...).
 	void emitDataChanged(const AMnDIndex& scanIndexStart, const AMnDIndex& scanIndexEnd, int measurementId) {
@@ -170,7 +194,7 @@ protected:
 		signalSource_->emitDataChanged(scanIndexStart, scanIndexEnd, measurementId);
 	}
 
-	/// The base class calls this when the size of an axis changes (in endInsertRows()).  Subclasses do not need to worry about this, as long as they call the base class's endInsertRows() when re-implementing endInsertRows().
+	/// The base class calls this when the size of an axis changes (in endInsertRows()).  An \c axisId of -1 indicates that all the axes have changed size. Subclasses do not need to worry about this, as long as they call the base class's endInsertRows() when re-implementing endInsertRows().
 	void emitSizeChanged(int axisId) {
 		signalSource_->emitSizeChanged(axisId);
 	}
