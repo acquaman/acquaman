@@ -235,7 +235,9 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
     source/dataman/AMNumber.h \
     source/dataman/AMnDIndex.h \
     source/dataman/AMDataStore.h \
-    source/dataman/AMAnalysisBlock.h
+    source/dataman/AMAnalysisBlock.h \
+    source/dataman/AMDataSourceSeriesData.h \
+    source/dataman/AMDataSourceImageData.h
 FORMS += source/ui/AbsorptionScanController.ui \
 	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
@@ -412,7 +414,9 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
     source/dataman/AMNumber.cpp \
     source/dataman/AMnDIndex.cpp \
     source/dataman/AMDataStore.cpp \
-    source/dataman/AMAnalysisBlock.cpp
+    source/dataman/AMAnalysisBlock.cpp \
+    source/dataman/AMDataSourceSeriesData.cpp \
+    source/dataman/AMDataSourceImageData.cpp
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc
 OTHER_FILES += source/muParser/README.txt

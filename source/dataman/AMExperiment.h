@@ -39,6 +39,8 @@ public:
 
 	/// Static function for managing experiments: deletes an experiment and all associated entries from the given \c database.  Returns true on success.
 	static bool deleteExperiment(int id, AMDatabase* database) {
+		Q_UNUSED(id)
+		Q_UNUSED(database)
 		/// \todo Complete this.
 		qDebug() << "Haha... Just kidding.  I haven't implemented deleting experiments yet.";
 		return false;

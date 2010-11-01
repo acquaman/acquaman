@@ -97,8 +97,10 @@ public:
 	virtual int rank() const = 0; // { return axes_.count(); }
 	/// Returns the size of (ie: count along) each dimension
 	virtual AMnDIndex size() const = 0; // { AMnDIndex s(); foreach(AMAxis a, axes_) s << a.count(); return s; }
+	/// Returns the size along a single axis \c axisNumber. This should be fast.
+	virtual int size(int axisNumber) const = 0;
 	/// Returns a bunch of information about a particular axis.
-	virtual AMAxisInfo axisAt(int axisNumber) const = 0;
+	virtual AMAxisInfo axisInfoAt(int axisNumber) const = 0;
 	/// Returns the number of an axis, by name. (By number, we mean the index of the axis. We called it number to avoid ambiguity with indexes <i>into</i> axes.) This could be slow, so users shouldn't call it repeatedly.
 	virtual int numberOfAxis(const QString& axisName) = 0;
 

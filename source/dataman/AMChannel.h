@@ -59,7 +59,7 @@ public:
 	QString xExpression() const { if(defaultX_) return QString(); else return QString::fromStdString(parserX_.GetExpr()); }
 
 	/// the number of accessible values in this series
-	unsigned count() const { return dataTree()->count(); }
+	int count() const { return dataTree()->count(); }
 
 	/// the (y) value of this channel at index \c p
 	virtual double value(unsigned p) const;
@@ -79,10 +79,10 @@ public:
 
 
 	/// returns the min/max values.  Warning: use only when count() >= 1.  Do not call on an empty channel. (\todo : the data tree columns already track min/max in an optimized way.  Is there any way to benefit from this, with an arbitrary expression?)
-	double min() const { if(min_ <0   || (unsigned)min_ >= count()) searchMin(); return value(min_); }
-	double max() const { if(max_ <0   || (unsigned)max_ >= count()) searchMax(); return value(max_); }
-	double minX() const { if(minX_ <0 || (unsigned)minX_ >= count()) searchMinX(); return x(minX_); }
-	double maxX() const { if(maxX_ <0 || (unsigned)maxX_ >= count()) searchMaxX(); return x(maxX_); }
+	double min() const { if(min_ <0   || min_ >= count()) searchMin(); return value(min_); }
+	double max() const { if(max_ <0   || max_ >= count()) searchMax(); return value(max_); }
+	double minX() const { if(minX_ <0 || minX_ >= count()) searchMinX(); return x(minX_); }
+	double maxX() const { if(maxX_ <0 || maxX_ >= count()) searchMaxX(); return x(maxX_); }
 
 	double* addVariable(AMParVar *parVar);
 

@@ -511,7 +511,7 @@ QString AMChannel::longErrorMsg() const {
 void AMChannel::searchMin() const {
 	min_ = 0;
 	//	qDebug() << "\nStart searching min";
-	for(int i=1; (unsigned)i<count(); i++)
+	for(int i=1; i<count(); i++)
 		if(value(i) < value(min_))
 			min_ = i;
 	//	qDebug() << "Done searching min\n";
@@ -519,7 +519,7 @@ void AMChannel::searchMin() const {
 void AMChannel::searchMax() const {
 	max_ = 0;
 	//	qDebug() << "\nStart searching max";
-	for(int i=1; (unsigned)i<count(); i++)
+	for(int i=1; i<count(); i++)
 		if(value(i)>value(max_))
 			max_ = i;
 	//	qDebug() << "Done searching max\n";
@@ -527,7 +527,7 @@ void AMChannel::searchMax() const {
 void AMChannel::searchMinX() const {
 	minX_ = 0;
 	//	qDebug() << "\nStart searching minX";
-	for(int i=1; (unsigned)i<count(); i++)
+	for(int i=1; i<count(); i++)
 		if(x(i)<x(minX_))
 			minX_ = i;
 	//	qDebug() << "Done searching minX\n";
@@ -535,7 +535,7 @@ void AMChannel::searchMinX() const {
 void AMChannel::searchMaxX() const {
 	maxX_ = 0;
 	//	qDebug() << "\nStart searching maxX";
-	for(int i=1; (unsigned)i<count(); i++)
+	for(int i=1; i<count(); i++)
 		if(x(i)>x(maxX_))
 			maxX_ = i;
 	//	qDebug() << "Done searching maxX\n";
