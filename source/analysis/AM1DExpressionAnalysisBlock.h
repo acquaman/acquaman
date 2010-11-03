@@ -163,7 +163,7 @@ protected:
 	/// List of input sources
 	QList<AMDataSource*> sources_;
 
-	/// Math expression parsers for evaluating channel values. parserX_ is used only if defaultX_ == false.
+	/// Math expression parsers for evaluating output values.  parser_ is used to evaluate value(). parserX_ is used to evaluate axisValue().
 	mu::Parser parser_, xParser_;
 
 	/// Optimization: if the expression is just a single input source name, we can optimize to return its value directly, rather than use the parser.
