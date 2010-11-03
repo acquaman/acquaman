@@ -2,11 +2,34 @@
 #define AM1DEXPRESSIONANALYSISBLOCK_H
 
 #include "dataman/AMAnalysisBlock.h"
+#include "muParser/muParser.h"
 
-/// This class implements an analysis block which takes a set of 1-dimensional input data sources, and creates a 1D result of the same size by applying a formula on a point-by-point basis. The formula can be any algebraic expression where the variable names come from the name()s of the input data sources.
-/*! Current restrictions, which are flagged \todo to be removed:
+/// This struct is used by AM1DExpressionAB to group information about an expression variable.
+struct AMParserVariable {
+public:
+	/// Convenience constructor
+	AMParserVariable(int mSourceIndex = 0, bool mUseAxisValue = false) {
+		sourceIndex = mSourceIndex;
+		useAxisValue = mUseAxisValue;
+		value = 0;
+	}
 
-  - Input data sources (in addition to having a rank() of 1) must have the same size().  This could be removed by adding a "subset" notation (ex: tey[10:30] / I0[11:31] )
+	/// a place to hold a double value: used as the parser's variable storage
+	/*! Why? The math expression parser gets optimized into bytecode, as long as the variable targets are not changed.  Therefore, this buffer holds the variable targets (in a constant location) for the expression parser. It's much faster to copy the input data values into these targets for every evaluation, and keep the bytecode optimization, rather than set new parser variables each time. */
+	double value;
+	/// index of input data source
+	int sourceIndex;
+	/// Whether to access the independent axisValue() instead of the dependent value() for this source
+	bool useAxisValue;
+
+};
+
+/// This class implements an analysis block which takes a set of 1-dimensional input data sources, and creates a 1D result of the same size by applying a formula expression() on a point-by-point basis. The formula can be any algebraic expression where the variable names come from the name()s of the input data sources.
+/*! A second expression xExpression() is provided to evaluate the independent variable (or axisValue()) of the result. By default, this simply takes on the axisValue() of the first input source.
+
+Current restrictions, which are flagged \todo to be removed:
+
+  - Input data sources (in addition to having a rank() of 1) must have the same size().  This could be removed by adding a "subset" notation (ex: tey[10:30] / I0[11:31] ). Since sizes may change, the output state() will go to invalid whenever the sizes of the inputs don't all match.
   - Variables for the input data sources come from the name() of each input data source. You can also use "[name()].x" to refer to the input source's independent axisValue().  In the case where there are two inputs with the same name, we should eventually introduce some kind of notation to resolve this ambiguity. Currently, a variable refers to the first data source in the input list with a matching name.
   */
 class AM1DExpressionAB : public AMAnalysisBlock
@@ -16,28 +39,26 @@ public:
 	/// Constructor. \c outputName is the name() for the output data source.
 	AM1DExpressionAB(const QString& outputName, QObject* parent = 0);
 
-	/// Check if a set of inputs is valid. The empty list (no inputs) must always be valid.
+	/// Check if a set of inputs is valid. The empty list (no inputs) must always be valid. For non-empty lists, the requirements are...
+	/*! - the rank() of all the inputs is 1
+		- the size() of the inputs can be anything, although our output state() will go to InvalidState whenever the sizes are not all matching.
+		- anything else?
+		*/
 	virtual bool areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const;
 
-	/// Set the data source inputs
+	/// Set the data source inputs.
+	/*! \note Whenever new input sources are set, if the xExpression() is blank/invalid, it is automatically initialized to the axisValue() of the first input source. Otherwise it, like expression(), is left as it was prior to setting the new inputs. Note that if the names of the new inputs are different, the old expressions will both likely become invalid. */
 	virtual void setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources);
-
-	/// Return the current state of the outputs.
-	/*! Valid: all inputs are in the Valid state, and the expression is also valid.
-		Processing: one or more of the inputs are in the Processing state, and the expression is valid.
-		Invalid: one or more of the inputs are in the Invalid state, OR the expression is invalid, OR the list of inputs is empty.
-			*/
-	virtual AMDataSource::State state() const;
 
 	// Access to input data sources
 	//////////////////////////
 
 	/// Access the data sources which are currently providing input to this block
-	virtual QList<AMDataSource*> inputDataSources() const;
+	virtual QList<AMDataSource*> inputDataSources() const { return sources_; }
 	/// Number of current input sources
-	virtual int inputDataSourceCount() const;
+	virtual int inputDataSourceCount() const { return sources_.count(); }
 	/// Access input data source by index.  If \c index >= inputDataCount(), returns null pointer.
-	virtual AMDataSource* inputDataSourceAt(int index) const;
+	virtual AMDataSource* inputDataSourceAt(int index) const { if(index<0 || index>=sources_.count()) return 0; return sources_.at(index); }
 	/// Retrieve index of an input data source by name. (Hopefully no two data sources have the same name; if they do, this returns the first one.) Returns -1 if no input source found with this name.
 	/*! This might be involve a slow lookup; users should not call repeatedly.*/
 	virtual int indexOfInputSource(const QString& dataSourceName) const;
@@ -46,8 +67,39 @@ public:
 
 	// Creating editors for editing parameters
 	////////////////////////////////////
-	/// Create, connect, and return a widget suitable for displaying/editing this analysis block's custom parameters.  If you don't want to provide an editor widget, return 0.
+	/// Create, connect, and return a widget suitable for displaying/editing the expressions.
 	virtual QWidget* createEditorWidget();
+
+	// AMDataSource interface for ouput value. (rank of 1 -- single-dimensional)
+	///////////////////////////////////
+
+	/// Returns axis information for all axes
+	virtual QList<AMAxisInfo> axes() const { QList<AMAxisInfo> rv; rv << axisInfoAt(0); return rv; }
+
+	/// Returns the rank (number of dimensions) of this data set
+	virtual int rank() const { return 1; }
+	/// Returns the size of (ie: count along) each dimension
+	virtual AMnDIndex size() const { if(isValid()) return AMnDIndex(size_); else return AMnDIndex(); }
+	/// Returns the size along a single axis \c axisNumber. This should be fast.
+	virtual int size(int axisNumber) const { if(axisNumber==0 && isValid()) return size_; else return 0; }
+	/// Returns a bunch of information about a particular axis.
+	virtual AMAxisInfo axisInfoAt(int axisNumber) const;
+	/// Returns the number of an axis, by name. (By number, we mean the index of the axis. We called it number to avoid ambiguity with indexes <i>into</i> axes.) This could be slow, so users shouldn't call it repeatedly.
+	virtual int numberOfAxis(const QString& axisName) { if(axisName == axisInfo_.name) return 0; else return -1; }
+
+	/// Set the meta-information describing the output axis.
+	void setAxisInfo(const AMAxisInfo& newInfo) { axisInfo_ = newInfo; }
+
+
+	// Data value access
+	////////////////////////////
+
+	/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient or any are out of range, or if the data is not ready.
+	virtual AMNumber value(const AMnDIndex& indexes) const;
+\
+	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index)
+	virtual AMNumber axisValue(int axisNumber, int index);
+
 
 
 	// AMDbObject interface
@@ -55,7 +107,7 @@ public:
 
 	/// Specialization of AMDbObject::typeDescription(). This can be re-implemented.
 	virtual QString typeDescription() const {
-		return "1D Expression Evaluator";
+		return "Expression Evaluator for 1D series data";
 	}
 
 	// Expression Setting for Y values
@@ -63,37 +115,81 @@ public:
 	/// Check if a given expression string is valid (for the current set of inputs)
 	bool checkExpressionValidity(const QString& testExpression);
 
-	/// Set the current expression used to evaluate the result. Any algebraic expression is valid; the allowed variables are the name()s of the input data sources, or '[name()].x' to refer to the independent variable of an input source.  If the expression is not valid, the state of the output goes to Invalid, and this returns false.
+	/// Set the current expression used to evaluate the value(). Any algebraic expression is valid; the allowed variables are the name()s of the input data sources, or '[name()].x' to refer to the independent variable of an input source.  If the expression is not valid, the state of the output goes to InvalidState, and this returns false.
 	bool setExpression(const QString& newExpression);
 
 	/// Retrieve the current expression (It may or may not be valid -- whatever was last set with setExpression)
 	QString expression() const {return QString::fromStdString(parser_.GetExpr()).trimmed(); }
 
 	/// Check if the current expression is valid
-	bool isExpressionValid() const { return isExpressionValid_; }
+	bool isExpressionValid() const { return expressionValid_; }
 
 	// X-values (or axis values)
 	///////////////////////////////
-	/// Use this input source for the independent axis. (axisValue()).
-	void setIndependentAxis
+	/// Set the expression used for the independent variable (aka x-axis... the one returned by axisValue()). Whenever the input data sources are set, this is automatically set to be the independent variable of the first input data source.
+	bool setXExpression(const QString& xExpression);
+
+	/// Retrieve the current expression used for the axisValue(), whether valid or not
+	QString xExpression() const {return QString::fromStdString(xParser_.GetExpr()).trimmed(); }
+
+	/// Check if the current expression for the axisValue() is valid
+	bool isXExpressionValid() const { return xExpressionValid_; }
 
 
 protected slots:
-	void onInputSourceValuesChanged();
+	void onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end);
 	void onInputSourceSizeChanged();
 	void onInputSourceStateChanged();
 
 protected:
-	/// caches the state of the output data
-	AMDataSource::State state_;
-	/// caches whether the current expression is valid
-	bool isExpressionValid_;
 
-	/// Optimization: if the expression is just a single input source name, we can optimize to return its value directly.
-	bool expressionDirect_;
-	/// The index of the input source to use for the optimized expression
+	/// caches whether the current expressions are valid. Set by setExpression(), setXExpression().
+	bool expressionValid_, xExpressionValid_;
+
+	/// caches whether the input sizes match. Set by setInputDataSourcesImplementation and updated in onInputSourceSizeChanged().
+	bool sizesMatch_;
+	/// Caches the size of the input/output data. Only meaningful when sizesMatch_ = true.
+	int size_;
+
+	/// the combined state of the inputs. Set by setInputDataSourcesImplementation and updated in onInputSourceStateChanged().
+	int combinedInputState_;
+
+	/// A list of all the variables we have available. (One for each input data source, and one for the axisValue() for each input data source.)
+	QVector<AMParserVariable> allVariables_;
+	/// A list of pointers to the variables used in the current expression.
+	QVector<AMParserVariable*> usedVariables_, xUsedVariables_;
 
 
+	/// List of input sources
+	QList<AMDataSource*> sources_;
+
+	/// Math expression parsers for evaluating channel values. parserX_ is used only if defaultX_ == false.
+	mu::Parser parser_, xParser_;
+
+	/// Optimization: if the expression is just a single input source name, we can optimize to return its value directly, rather than use the parser.
+	bool direct_, xDirect_;
+	/// When using direct evaluation, these are the variables to use
+	AMParserVariable directVar_, xDirectVar_;
+
+
+	/// Axis meta-information for our single axis.
+	mutable AMAxisInfo axisInfo_;
+
+	/// Helper function to review the conditions of everything that affects the output state, and then call setState appropriately.  Call this whenever anything might have changed to affect the output state flags.
+	/*! Any of these will add the InvalidFlag to the state:
+
+	  - No inputs
+	  - Inputs of different sizes
+	  - Any inputs that have the InvalidFlag set
+	  - Invalid expression() or xExpression().
+
+	  Any of these will add the ProcessingFlag:
+
+	  - Any inputs that have the ProcessinFlag set.
+
+	  Implementation note: it's okay to call setState() multiple times with the same state value.  For efficiency, it will only call emitStateChanged() when the new state is different from the old state.
+	  */
+	void reviewState();
 
 
 };

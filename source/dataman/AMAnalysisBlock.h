@@ -14,11 +14,11 @@ class QWidget;
 
   Each block implementation can determine what consists of acceptable and sufficient input, by providing areInputDataSourcesAcceptable().  This might depend on the number of inputs, the dimensionality and size of each input, or any other property of the AMDataSources.  Depending on the block, it's possible for inputs to be optional OR required, or to accept a variable number of inputs. (For example, a summing analysis block could accept a variable number of inputs, as long as they all have the same dimensionality and size.)
 
-  AMAnalysisBlocks can exist in an inactive/invalid state if they have no inputs. (This is the initial condition, on creation.) In this state, the AMDataSource::state() function should return AMDataSource::Invalid, and all requests to value() should return an invalid AMNumber.
+  AMAnalysisBlocks can exist in an inactive/invalid state if they have no inputs. (This is the initial condition, on creation.) In this state, the AMDataSource::state() function should include the AMDataSource::InvalidFlag, and all requests to value() should return an invalid AMNumber.
 
-  It's okay to use AMDataSources that are currently in the AMDataSource::InvalidState as input sources.  They simply remain connected, and the block implementation should watch for its inputs' stateChanged() signals so that when all inputs[1] <i>do</i> become valid, the block can start its processing and (now or eventually) become valid itself.  Other blocks using this block as input will follow.  See the possible AMDataSource::State states for more information.
+  It's okay to use AMDataSources that are currently in the invalid state as input sources.  They simply remain connected, and the block implementation should watch for its inputs' stateChanged() signals so that when all inputs[1] <i>do</i> become valid, the block can start its processing and (now or eventually) become valid itself.  Other blocks using this block as input will follow.  See the possible AMDataSource::StateFlags for more information.
 
-If you delete an AMDataSource (or AMAnalysisBlock) that is being used as input for another block, the remaining block will receive the deleted() signal and respond appropriately. The default behaviour (defined in AMAnalysisBlock::onInputSourceDeleted() is to discard ALL input sources and go into the inactive/invalid state, by calling setInputDataSourcesImplementation() with an empty list.)  This will cause the block to transition its state() to the AMDataSource::InvalidState, and all other blocks which depend on it will likewise follow. See? It's like a big happy game of Telephone!
+If you delete an AMDataSource (or AMAnalysisBlock) that is being used as input for another block, the remaining block will receive the deleted() signal and respond appropriately. The default behaviour (defined in AMAnalysisBlock::onInputSourceDeleted() is to discard ALL input sources and go into the inactive/invalid state, by calling setInputDataSourcesImplementation() with an empty list.)  This will cause the block to transition its state() to the invalid state, and all other blocks which depend on it will likewise follow. See? It's like a big happy game of Telephone!
 
 [1] Or just some, depending on what the block needs to produce outputs.
 
@@ -45,7 +45,7 @@ public:
 
 	This base-class function checks whether the inputs are acceptable, and if so, calls deregisterObserver() on the old sources, registerObserver() on the new sources, and calls the setInputDataSourcesImplementation() provided by the subclass.
 
-	  \note An empty list MUST always be acceptable input data, indicating that this analysis block hasn't been connected yet, and is in the "inactive" or "invalid" state. In this condition, the output AMDataSource::state() should be AMDataSource::InvalidState, and all value() requests return an invalid AMNumber.
+	  \note An empty list MUST always be acceptable input data, indicating that this analysis block hasn't been connected yet, and is in the "inactive" or "invalid" state. In this condition, the output AMDataSource::state() should include the AMDataSource::InvalidFlag, and all value() requests return an invalid AMNumber.
 	  */
 	bool setInputDataSources(const QList<AMDataSource*>& dataSources);
 
@@ -89,12 +89,28 @@ public:
 		return "Generic Analysis Block";
 	}
 
+	// Reimplemented from AMDataSource
+	//////////////////////////////
+	/// If implementing classes don't use the setState() method to notify of changes in their current output state, they must re-implement this function to reflect their actual current state.
+	virtual int state() const { return state_;	}
 
 protected slots:
 	/// called automatically when a current input source is deleted. The default response is to discard ALL input sources and go into the invalid/inactive state. The base class implementation of this function is effectively the same as calling setInputDataSources() with an empty list. setInputDataSourcesImplementation() will be called with an empty list to tell the subclass to put itself in the invalid/inactive state.
 	/*! If you re-implement this function, make sure to deregisterObserver() and disconnect the deleted() signal from the sources you no longer use. See the base class implementation for an example.*/
 	virtual void onInputSourceDeleted(void* deletedSource);
 
+
+protected:
+	/// Implementing classes can call this function whenever their state changes. It takes care of calling emitStateChanged() whenever the new state is different from the old, and sets the value that will be returned by the default implementation of state().
+	void setState(int newState) {
+		if(state_ != newState)
+			emitStateChanged( (state_ = newState) );
+	}
+
+
+private:
+	/// OR-combination of AMDataSource::StateFlag's returned by the default implementation of state().
+	int state_;
 
 
 };

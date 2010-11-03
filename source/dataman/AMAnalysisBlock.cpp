@@ -5,6 +5,7 @@ AMAnalysisBlock::AMAnalysisBlock(const QString& outputName, QObject* parent)
 	: AMDbObject(parent), AMDataSource(outputName)
 {
 	AMDbObject::setName(outputName);
+	state_ = AMDataSource::InvalidFlag;
 }
 
 bool AMAnalysisBlock::setInputDataSources(const QList<AMDataSource*>& dataSources) {

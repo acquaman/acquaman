@@ -40,7 +40,7 @@ signals:
 	void axisInfoChanged(int axisNumber);
 	/// Indicates that the meta-information for this data source (currently just description()) has changed.
 	void infoChanged();
-	/// Emitted when the AMDataSource::State state() of the data has changed.
+	/// Emitted when the state() flags of the data have changed.
 	void stateChanged(int newState);
 	/// Emitted before the data source is deleted. \c deletedSource is a pointer to the deleted source. Observers can use this to detect when AMDataSource objects no longer exist.
 	/*! (In a direct signal-slot connection, the \c deletedSource will still exist, inside ~AMDataSource(), when this is called. In a queued signal-slot connection, you should assume that \c deletedSource is already deleted. */
@@ -53,11 +53,10 @@ class AMNumber;
 class AMDataSource
 {
 public:
-	/// Describes the state of the data
-	enum State {
-		InvalidState, ///< The data is downright invalid... all calls to value() will return invalid AMNumbers.
-		ReadyState, ///< The data is valid, and generally static. (However, there is no guarantee that it won't change and emit valuesChanged() )
-		ProcessingState ///< Some or all of the data might be valid, but processing is ongoing and its changing. If you have to start an expensive processing operation, you might want to wait until
+	/// Flags to describe the state of the data
+	enum StateFlags {
+		InvalidFlag = 1, ///< The dataset is downright invalid... all calls to value() will return invalid AMNumbers.
+		ProcessingFlag = 2 ///< Some or all of the data might be valid, but processing is ongoing and the data is changing. If you have to start an expensive processing operation, you might want to wait until this flag goes away.
 	};
 
 	/// Implementing classes must be sure to call this constructor in their initialization.
@@ -80,10 +79,10 @@ public:
 
 	// State of the data
 	//////////////////////////
-	/// Indicates the current state of the data. The base class interface indicates that it does not have valid data. Implementing classes should return ReadyState when they have valid data, or ProcessingState if they're still working on it.
-	virtual State state() const { return InvalidState; }
-	/// Convenience function that returns true when the data's state() is in the ReadyState. This means that value() will return valid numbers (assuming the axis parameters are in range, etc.)  It's not necessary to re-implement this function.
-	virtual bool isValid() const { return state() != InvalidState; }
+	/// Returns an OR-combination of StateFlags describing the current state of the data. The base class interface indicates that it does not have valid data. Implementing classes should return InvalidFlag when they don't have valid data, and/or ProcessingFlag if their data might be changing. No flags indicate the data is valid and generally static.
+	virtual int state() const { return InvalidFlag; }
+	/// Convenience function that returns true when the data's state() does not include the InvalidFlag. This means that value() will return valid numbers (assuming the axis parameters are in range, etc.)  It's not necessary to re-implement this function.
+	virtual bool isValid() const { return !(state() & InvalidFlag); }
 
 
 	// Axis Information
@@ -110,15 +109,15 @@ public:
 
 	/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient or any are out of range, or if the data is not ready.
 	virtual AMNumber value(const AMnDIndex& indexes) const = 0;
-	/// Returns the dependent value for a set of axis indexes, where the indices are specified by axis name. This generally will not be as fast as the other version of value().
-	virtual AMNumber value(const QMap<QString, int>& axisNamesAndIndexes) const = 0;
+	/// [removed] Returns the dependent value for a set of axis indexes, where the indices are specified by axis name. This generally will not be as fast as the other version of value().
+	// removed from API: virtual AMNumber value(const QMap<QString, int>& axisNamesAndIndexes) const = 0;
 
-	// Include here, or as part of AMAxisInfo ==> AMAxis ?
-	/////////////////////
+
+
 	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index)
 	virtual AMNumber axisValue(int axisNumber, int index) = 0;
-	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis name and index)
-	virtual AMNumber axisValue(const QString& axisName, int index) = 0;
+	/// [removed] When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis name and index)
+	// removed: virtual AMNumber axisValue(const QString& axisName, int index) = 0;
 
 	// Observers
 	//////////////////////////
@@ -156,7 +155,7 @@ protected:
 	/// This is emitted when the meta-info changes. (Right now, this only includes a data source's description() )
 	void emitInfoChanged() { signalSource_->emitInfoChanged(); }
 	/// Subclasses must call this when the state() of the data changes
-	void emitStateChanged(State newDataState) { signalSource_->emitStateChanged(newDataState); }
+	void emitStateChanged(int newDataState) { signalSource_->emitStateChanged(newDataState); }
 
 	/// identifying name for this data source
 	QString name_;

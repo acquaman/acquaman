@@ -41,8 +41,8 @@ myAMNumFunction(myFloat); // num inside the function is valid, with type Floatin
 class AMNumber
 {
 public:
-	/// Describes the validity of the value.  An un-initialized AMNumber is Null.  An array object could return
-	enum State { Null, Valid, OutOfBoundsError, DimensionError, CalculationError };
+	/// Describes the validity of the value.  An un-initialized AMNumber is Null.  An array object could return OutOfBoundsError for attempted access beyond the data it has.
+	enum State { Null, Valid, OutOfBoundsError, DimensionError, CalculationError, InvalidError };
 	/// The type of the value, as stored natively.  Conversion will always be available.
 	enum Type { Integer, FloatingPoint };
 
