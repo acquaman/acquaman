@@ -30,8 +30,8 @@ public:
 
 	/// Separator used between strings when exporting a StringList to the database
 	static QString stringListSeparator() { return "|@^@|"; }
-	/// Separator used between items when exporting all other lists to the database
-	static QString listSeparator(){ return ","; }
+	/// Separator used between items when exporting all other lists to the database (changed from comma to support french localizations which use une virgule for the decimal point. maybe this needs to be fully localized.)
+	static QString listSeparator(){ return ";"; }
 
 
 	/// Calling this function will attempt to create all the tables for the schema in database \c db.

@@ -43,42 +43,106 @@ public:
 	QString typeString() const;
 };
 
-/// This class is the base class for all user-data objects that can be stored in the database.  A generic Scan inherits from this class.
-/*! It provides a database id, handling of inserts/retrieves, and very basic metadata that should be common to everything you might want to store:
-- a user-chosen "name" and "number"
-- a date/time stamp
+/// This is the base class for all persistent user-data objects that can be stored in the database.  A generic AMScan inherits from this class.
+/*!
+  <b>Introduction to the AMDbObject persistent object system</b>
+  The AMDbObject system provides a way to make QObjects persistent, ie: storable and reloadable from a permanent database.  It is highly integrated with the Qt meta object system. Some of the features that set it apart from other C++ ORM (Object-Relational Management) systems:
+
+  - More than one database is supported: objects can be loaded out of one database, and stored into another.
+  - No special syntax or external files are required to specify which member variables should be persistent (the  "data definition model"), or create the database tables. The fields you wish to store can be identified within the class definition by simply declaring then as QProperties with the Q_PROPERTY macro.  Calling AMDbObjectSystem::registerType<Class>() will register the class and create the schema if required.
+  - Dynamic loading of an object, without knowing its type. You can call AMDbObjectSystem::loadObject() and receive a fully-initialized pointer to whatever object was stored at the specified location.
+  - Objects of different classes can share a storage table, if desired. At the expense of having unused/null columns, this can make searching the database for similar objects much easier.
+  - The database can still be accessed using raw SQL. This has the drawback of allowing stored objects to be modified without control, but it allows for high-performance searching and updates when required.
+  - Explicit support is provided for composition of AMDbObject subclasses: a class which contains members which are AMDbObjects can reload them automatically as it is loaded from the database.
+  - \todo Explicit support for One-to-one, many-to-one and one-to-many, and many-to-many relationships
+
+  <b>Database layout of AMDbObjects</b>
+  In most cases, all objects of a certain class are stored in their own table. The table has columns for each member variable.  Objects are uniquely identified by their row (primary key), which can be retrieved with AMDbObject::id().
+
+  The types of member variables which may be stored are:
+
+	- Integers
+	- Floating point numbers
+	- QStrings
+	- QDates, QTimes, and QDateTimes
+	- Any other QVariant types will attempt to be stored as strings, using the toString() and fromString() operations.
+
+	List member variables (specifically, QStringList, AMIntList, and AMDoubleList) can be stored within a single table cell. (Defined separators are used to combine the list values into a string representation, and extract them back again.) More complex lists require special handling, and sometimes a separate table.
+
+  If specified, classes can share a database table with other classes. They do this by specifying the class name of an already-registered class whose table they want to share.
+
+  <b>Creating a persistent class definition</b>
+  To add persistent functionality to your class:
+
+  - Inherit from AMDbObject, and declare the Q_OBJECT macro.
+  - Declare properties (using the Q_PROPERTY) macro for all the fields you want to be persistent. Fields with only a READ method will stored in the database, but not reloaded from it. The name of the property becomes the name of the database column. (\bug This introduces some restrictions on the allowed property names -- find a way to catch this! for ex: "value" is not allowed as a property name.)
+  - You can use the Q_CLASSINFO macro to specify additional characteristics for each field. The (name, value) QClassInfo pairs should be in the form:
+  <code>
+  Q_CLASSINFO("propertyName", "keyword=value;keyword=value;keyword=value...")
+  </code>
+  where supported keywords are:
+
+	  - \c doNotStore: if equal to "true", does not store this property in the database. (Also implies doNotLoad=true)
+	  - \c doNotLoad: if equal to "true", does not set this property when re-loading an object from the database.
+	  - \c hidden: if equal to "true", this property should not be user-visible in default tables created on the database.
+	  - \c createIndex: if equal to "true", creates an index on this column in the table. (You should understand the performance implications of doing this. In short, it will make searches based on this column's values much faster, but slow down inserts and deletes, and take extra space in the database.
+
+  If unspecified, the default value for all keywords is false.
+
+  A set of keywords is also available within the special "AMDbObject_Parameters" QClassInfo key.
+  <code>
+  Q_CLASSINFO("AMDbObject_Parameters", "keyword=value;...")
+  </code>
+  where the supported keywords are:
+
+	- \c doNotReuseIds: if equal to "true", the auto-increment property on the primary key will be set so that new objects will never reuse the ids of old deleted ones.  Otherwise, after a table has had rows created and deleted, the ids of previously deleted rows may be re-used.
+	- \c shareTableWithClass=[className]: if defined, uses the same database table for storage as [className].  Note that [clasName] must be registered with the AMDbObject system prior to registering this class.
 
 
-<b>Meta data system</b>
-DbObjects and Scans store their meta-data in a flexible, general way, similar to Qt's Property system. (Todo: decide if we should just merge this into the Qt property system.)
+- Register the class on every database you wish to use it in by calling AMDbObjectSupport::registerClass<Class>(AMDatabase* database) at runtime.  It's harmless to register a class multiple times, but it must be registered before calling storeToDb() or loadFromDb().
+<code>
+AMDatabase* myWorkingDatabase;
+AMDbObjectSupport::registerClass<MyDbObject>(myWorkingDatabase);
+</code>
 
-To find out what pieces of meta-data are available:
-- metaDataKeys(): returns the available pieces of meta-data for this type of object, including all inherited from base classes (ie: own + base classes'). (static method)
-- metaDataUniqueKeys(): returns the available pieces of meta-data for this type of object, excluding those inherited from base classes (ie: own only). (static method)
-- metaDataAllKeys(): returns the available pieces of meta-data corresponding to the most detailed type of this instance (ie: own + base classes' + derived classes'). (virtual method)
+- Finally, all database objects have the optional functionality of providing one or more thumbnails to describe themselves. If you want to have non-blank thumbnails, you must provide thumbnailCount() and thumbnail(int index). The default is to have no thumbnails.
 
-Meta-data pieces have a data-type (QVariant::Type), a unique key or name to access them with (QString), and a flag to indicate whether they are settable/writeable.  They can be read with
-- metaData(const QString& key), and, if available, written with
-- setMetaData(const QString& key, const QVariant& value)
+<b>Storing and re-loading persistent objects</b>
+To store an AMDbObject in a database, simply call
+<code>
+AMDatabase* myWorkingDatabase;
+MyDbObject bob;
+bob.setSomeProperty("foo");
 
-When a piece of meta-data is changed, it's appropriate to emit metaDataChanged(), passing the key of the piece that was changed. This is handled in the base class inside setMetaData().
+bob.storeToDb(myWorkingDatabase);
+</code>
+If the object has previously been stored in or loaded from the given database, it will have a valid id(), and be re-saved in the same location (sql UPDATE).  If the object has never been stored in a database before (id() < 1), or has been loaded from a different database (database() != the given database), then it will be added as a new object (sql INSERT).
 
-AMDbObjects and AMScans normally also provide convenience functions with readable names to access the meta data values.  Internally, the meta data values are stored in a QHash<QString, QVariant> metaData_.
+You can restore an object from the database (ie: copy its values from the stored version to the in-memory object) by calling
+<code>
+MyDbObject bob;
+bob.loadFromDb(myWorkingDatabase, id);
+</code>
+where \c id is the row to load the object from.
 
-<b>Notes for subclassing AMDbObject, to create more detailed storable data types:</b>
-- Include the Q_OBJECT macro so that Qt's meta-object system knows your class is a distinct type.
-- You must re-implement metaDataKeys(), metaDataUniqueKeys(), and metaDataAllKeys(), calling the base class where appropriate.
-- It's recommended to initialize your meta-data pieces (metaDataUniqueKeys()) inside metaData_ in the constructor.
-- If you need to load or save anything more than your metaData_, you must re-implement loadFromDb() and storeToDb()
-- If you want to store yourself anywhere but in the main object table, you must re-implement databaseTableName().  (For example, AMSamples overload databaseTableName() to return AMDatabaseDefinition::sampleTableName(), hence making sure that they are stored in a separate table.) \note If you do this, you must make sure that this table exists or is created by AMFirstTimeController::initializeDatabase().
-- Edit
-- If you want to have non-blank thumbnails, you must provide thumbnailCount() and thumbnail(int index).
+If you want to reload an object from the database, but you don't know its exact detailed type, you can use the dynamic loader. It will create and loadFromDb() the appropriate object for a given database, id, and table name:
+<code>
+AMDbObject* newSomeKindaObject = AMDbObjectSupport::loadObject(myWorkingDatabase, tableName, id);
+</code>
+You can then use qobject_cast<>() to test the type of the created object, or ask it for its metaObject()->className(), etc.
+
+\note This functionality depends on the detailed class providing either a default constructor (or a constructor that accepts a database and id), and is declared with the Q_INVOKABLE flag. It's recommended that all AMDbObjects provide such a constructor, which initializes a new object directly from a stored copy in the database.
+
+/// \todo how to re-implement the modified() signal, now that we're using the property system, instead of setMetaData()?
+
+
 */
 
 class AMDbObject : public QObject
 {
 	Q_OBJECT
-	Q_PROPERTY(QString id READ id)
+
+	/// AMDbObject provides a single property: a name() for this instance.
 	Q_PROPERTY(QString name READ name WRITE setName)
 
 

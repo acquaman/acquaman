@@ -97,7 +97,7 @@ class AMScan : public AMDbObject {
 	Q_PROPERTY(int number READ number WRITE setNumber)
 	Q_PROPERTY(QDateTime dateTime READ dateTime WRITE setDateTime)
 	Q_PROPERTY(int sampleId READ sampleId WRITE setSampleId)
-	Q_PROPERTY(QString notes READ notes WRITE setNotes NOTIFY notesChanged)
+	Q_PROPERTY(QString notes READ notes WRITE setNotes)
 
 public:
 
