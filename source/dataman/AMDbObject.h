@@ -45,17 +45,18 @@ public:
 
 /// This is the base class for all persistent user-data objects that can be stored in the database.  A generic AMScan inherits from this class.
 /*!
-  <b>Introduction to the AMDbObject persistent object system</b>
+<b>Introduction to the AMDbObject persistent object system</b>
 
-  The AMDbObject system provides a way to make QObjects persistent, ie: storable and reloadable from a permanent database.  It is highly integrated with the Qt meta object system. Some of the features that set it apart from other C++ ORM (Object-Relational Management) systems:
+The AMDbObject system provides a way to make QObjects persistent, ie: storable and reloadable from a permanent database.  It is highly integrated with the Qt meta object system. Some of the features that set it apart from other C++ ORM (Object-Relational Management) systems:
 
-  - More than one database is supported: objects can be loaded out of one database, and stored into another.
-  - No special syntax or external files are required to specify which member variables should be persistent (the  "data definition model"), or create the database tables. The fields you wish to store can be identified within the class definition by simply declaring then as QProperties with the Q_PROPERTY macro.  Calling AMDbObjectSystem::registerType<Class>() will register the class and create the tables if required.
-  - Dynamic loading of an object, without knowing its type. You can call AMDbObjectSystem::loadObject() and receive a fully-initialized pointer to whatever object was stored at the specified location.
-  - Objects of different classes can share a storage table, if desired. At the expense of having unused/null columns, this can make searching the database for similar objects much easier.
-  - The database can still be accessed using raw SQL. This has the drawback of allowing stored objects to be modified without control, but it allows for high-performance searching and updates when required.
-  - Explicit support is provided for composition of AMDbObject subclasses: a class which contains members which are AMDbObjects can reload them automatically as it is loaded from the database.
-  - \todo Explicit support for One-to-one, many-to-one and one-to-many, and many-to-many relationships
+- More than one database is supported: objects can be loaded out of one database, and stored into another.
+- No special syntax or external files are required to specify which member variables should be persistent (the  "data definition model"), or create the database tables. The fields you wish to store can be identified within the class definition by simply declaring then as QProperties with the Q_PROPERTY macro.  Calling AMDbObjectSystem::registerType<Class>() will register the class and create the tables if required.
+- Dynamic loading of an object, without knowing its type. You can call AMDbObjectSystem::loadObject() and receive a fully-initialized pointer to whatever object was stored at the specified location.
+- Objects of different classes can share a storage table, if desired. At the expense of having unused/null columns, this can make searching the database for similar objects much easier.
+- The database can still be accessed using raw SQL. This has the drawback of allowing stored objects to be modified without control, but it allows for high-performance searching and updates when required.
+- Explicit support is provided for composition of AMDbObject subclasses: a class which contains members which are AMDbObjects can reload them automatically as it is loaded from the database.
+- \todo Explicit support for One-to-one, many-to-one and one-to-many, and many-to-many relationships
+
 
 <b>Database layout of AMDbObjects</b>
 
@@ -78,7 +79,9 @@ If specified, classes can share a database table with other classes. They do thi
 To add persistent functionality to your class:
 
 - Inherit from AMDbObject, and declare the Q_OBJECT macro.
-- Declare properties (using the Q_PROPERTY) macro for all the fields you want to be persistent. Fields with only a READ method will stored in the database, but not reloaded from it. The name of the property becomes the name of the database column. \bug This introduces some restrictions on the allowed property names -- find a way to catch this! for ex: "value" is not allowed as a property name.
+- Declare properties (using the Q_PROPERTY) macro for all the fields you want to be persistent. Fields with only a READ method will stored in the database, but not reloaded from it. The name of the property becomes the name of the database column.
+\bug This introduces some restrictions on the allowed property names -- find a way to catch this! for ex: "value" is not allowed as a property name.
+
 - You can use the Q_CLASSINFO macro to specify additional characteristics for each field. The (name, value) QClassInfo pairs should be in the form:
 \code
 Q_CLASSINFO("propertyName", "keyword=value;keyword=value;keyword=value...")
@@ -99,7 +102,7 @@ Q_CLASSINFO("AMDbObject_Parameters", "keyword=value;...")
 where the supported keywords are:
 
 - \c doNotReuseIds: if equal to "true", the auto-increment property on the primary key will be set so that new objects will never reuse the ids of old deleted ones.  Otherwise, after a table has had rows created and deleted, the ids of previously deleted rows may be re-used.
-- \c shareTableWithClass=[className]: if defined, uses the same database table for storage as [className].  Note that [clasName] must be registered with the AMDbObject system prior to registering this class.
+- \c shareTableWithClass=[\c className]: if defined, uses the same database table for storage as [\c className].  Note that [\c className] must be registered with the AMDbObject system prior to registering this class.
 
 
 - Register the class on every database you wish to use it in by calling AMDbObjectSupport::registerClass<Class>(AMDatabase* database) at runtime.  It's harmless to register a class multiple times, but it must be registered before calling storeToDb() or loadFromDb().
