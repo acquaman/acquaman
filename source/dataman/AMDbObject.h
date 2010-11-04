@@ -80,25 +80,26 @@ To add persistent functionality to your class:
 
 - Inherit from AMDbObject, and declare the Q_OBJECT macro.
 - Declare properties (using the Q_PROPERTY) macro for all the fields you want to be persistent. Fields with only a READ method will stored in the database, but not reloaded from it. The name of the property becomes the name of the database column.
+
 	\bug This introduces some restrictions on the allowed property names -- find a way to catch this! for ex: "value" is not allowed as a property name.
 
 - You can use the Q_CLASSINFO macro to specify additional characteristics for each field. The (name, value) QClassInfo pairs should be in the form:
 \code
 Q_CLASSINFO("propertyName", "keyword=value;keyword=value;keyword=value...")
 \endcode
-where supported keywords are:
+	where supported keywords are:
 	- \c doNotStore: if equal to "true", does not store this property in the database. (Also implies doNotLoad=true)
 	- \c doNotLoad: if equal to "true", does not set this property when re-loading an object from the database.
 	- \c hidden: if equal to "true", this property should not be user-visible in default tables created on the database.
 	- \c createIndex: if equal to "true", creates an index on this column in the table. (You should understand the performance implications of doing this. In short, it will make searches based on this column's values much faster, but slow down inserts and deletes, and take extra space in the database.
 
-If unspecified, the default value for all keywords is false.
+	If unspecified, the default value for all keywords is false.
 
 - A set of keywords is also available within the special "AMDbObject_Parameters" QClassInfo key.
 \code
 Q_CLASSINFO("AMDbObject_Parameters", "keyword=value;...")
 \endcode
-where the supported keywords are:
+	where the supported keywords are:
 	- \c doNotReuseIds: if equal to "true", the auto-increment property on the primary key will be set so that new objects will never reuse the ids of old deleted ones.  Otherwise, after a table has had rows created and deleted, the ids of previously deleted rows may be re-used.
 	- \c shareTableWithClass=[\c className]: if defined, uses the same database table for storage as [\c className].  Note that [\c className] must be registered with the AMDbObject system prior to registering this class.
 
@@ -138,7 +139,7 @@ You can then use qobject_cast<>() to test the type of the created object, or ask
 
 \note This functionality depends on the detailed class providing either a default constructor (or a constructor that accepts a database and id), and is declared with the Q_INVOKABLE flag. It's recommended that all AMDbObjects provide such a constructor, which initializes a new object directly from a stored copy in the database.
 
-/// \todo how to re-implement the modified() signal, now that we're using the property system, instead of setMetaData()?
+\todo how to re-implement the modified() signal, now that we're using the property system, instead of setMetaData()?
 
 
 */
