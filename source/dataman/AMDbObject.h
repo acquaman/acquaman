@@ -80,7 +80,6 @@ To add persistent functionality to your class:
 
 - Inherit from AMDbObject, and declare the Q_OBJECT macro.
 - Declare properties (using the Q_PROPERTY) macro for all the fields you want to be persistent. Fields with only a READ method will stored in the database, but not reloaded from it. The name of the property becomes the name of the database column.
-
 	\bug This introduces some restrictions on the allowed property names -- find a way to catch this! for ex: "value" is not allowed as a property name.
 
 - You can use the Q_CLASSINFO macro to specify additional characteristics for each field. The (name, value) QClassInfo pairs should be in the form:
