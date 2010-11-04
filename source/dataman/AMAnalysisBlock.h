@@ -89,6 +89,11 @@ public:
 		return "Generic Analysis Block";
 	}
 
+	/// Re-implemented form AMDbObject to store analysis blocks in their own table
+	virtual QString databaseTableName() const {
+		return "analysisBlocksTable";
+	}
+
 	// Reimplemented from AMDataSource
 	//////////////////////////////
 	/// If implementing classes don't use the setState() method to notify of changes in their current output state, they must re-implement this function to reflect their actual current state.

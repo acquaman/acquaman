@@ -6,6 +6,10 @@ AM1DExpressionAB::AM1DExpressionAB(const QString& outputName, QObject* parent)
 	axisInfo_(outputName + "_x", 0)
 {
 
+	// meta-data initialization
+	metaData_["expression"] = QString();
+	metaData_["xExpression"] = QString();
+
 	// We're not using direct evaluation at the start
 	direct_ = xDirect_ = false;
 
@@ -335,6 +339,8 @@ bool AM1DExpressionAB::setExpression(const QString& newExpression) {
 	usedVariables_.clear();
 	direct_ = false;
 
+	metaData_["expression"] = newExpression;	// keep meta-data hash in sync
+
 	try {
 		parser_.SetExpr(newExpression.toStdString());
 		parser_.Eval();
@@ -388,6 +394,8 @@ bool AM1DExpressionAB::setXExpression(const QString& xExpression) {
 	xExpressionValid_ = true;
 	xUsedVariables_.clear();
 	xDirect_ = false;
+
+	metaData_["xExpression"] = xExpression;	// keep meta-data hash in sync.
 
 	try {
 		xParser_.SetExpr(xExpression.toStdString());

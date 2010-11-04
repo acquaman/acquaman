@@ -41,7 +41,7 @@ public:
 
 	/// Check if a set of inputs is valid. The empty list (no inputs) must always be valid. For non-empty lists, the requirements are...
 	/*! - the rank() of all the inputs is 1
-		- the size() of the inputs can be anything, although our output state() will go to InvalidState whenever the sizes are not all matching.
+		- the size() of the inputs can be anything, although our output state() will go to Invalid whenever the sizes are not all matching.
 		- anything else?
 		*/
 	virtual bool areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const;
@@ -100,16 +100,6 @@ public:
 	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index)
 	virtual AMNumber axisValue(int axisNumber, int index);
 
-
-
-	// AMDbObject interface
-	////////////////////////////////
-
-	/// Specialization of AMDbObject::typeDescription(). This can be re-implemented.
-	virtual QString typeDescription() const {
-		return "Expression Evaluator for 1D series data";
-	}
-
 	// Expression Setting for Y values
 	//////////////////////////////
 	/// Check if a given expression string is valid (for the current set of inputs)
@@ -135,10 +125,59 @@ public:
 	/// Check if the current expression for the axisValue() is valid
 	bool isXExpressionValid() const { return xExpressionValid_; }
 
+	// AMDbObject interface
+	////////////////////////////////
+
+	/// Specialization of AMDbObject::typeDescription().
+	virtual QString typeDescription() const {
+		return "Expression Evaluator for 1D series data";
+	}
+
+	/// Returns the available pieces of meta data for this type of object, including all inherited from base classes. (ie: own + base classes')
+	static QList<AMMetaMetaData> metaDataKeys() {
+		return AMAnalysisBlock::metaDataKeys() << metaDataUniqueKeys();
+	}
+
+	/// Returns the available pieces of meta data for this type of object, excluding those inherited from base classes. (ie: own only)
+	static QList<AMMetaMetaData> metaDataUniqueKeys() {
+		QList<AMMetaMetaData> rv;
+		rv << AMMetaMetaData(QVariant::String, "expression", true);
+		rv << AMMetaMetaData(QVariant::String, "xExpression", true);
+		return rv;
+	}
+
+	/// Returns all the available pieces of meta data for this type of object, by introspecting it's most detailed type. (ie: own + base classes' + subclasses')
+	virtual QList<AMMetaMetaData> metaDataAllKeys() const {
+		return this->metaDataKeys();
+	}
+	/// Re-implemented from AMAnalysisBlock to support setting the expressions as metadata:
+	virtual bool setMetaData(const QString &key, const QVariant &value) {
+		if(key == "expression") {
+			setExpression(value.toString());
+			return true;	// even though the new expression might not be valid, it's still be successfully set.
+		}
+		if(key == "xExpression") {
+			setXExpression(value.toString());
+			return true;
+		}
+
+		AMAnalysisBlock::setMetaData(key, value);
+	}
+
+	/// Re-implemented from AMAnalysisBlock to re-load the expressions when loading from database.
+	virtual bool loadFromDb(AMDatabase *db, int id) {
+		AMAnalysisBlock::loadFromDb(db, id);	// will load the meta-data hash, including 'expression' and 'xExpression'.
+		setXExpression(metaData_.value("xExpression"));
+		setExpression(metaData_.value("expression"));
+	}
+
 
 protected slots:
+	/// Connected to be called when the values of any of the input data sources change
 	void onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end);
+	/// Connected to be called when the size of any input source changes
 	void onInputSourceSizeChanged();
+	/// Connected to be called when the state() flags of any input source change
 	void onInputSourceStateChanged();
 
 protected:
