@@ -46,10 +46,11 @@ public:
 /// This is the base class for all persistent user-data objects that can be stored in the database.  A generic AMScan inherits from this class.
 /*!
   <b>Introduction to the AMDbObject persistent object system</b>
+
   The AMDbObject system provides a way to make QObjects persistent, ie: storable and reloadable from a permanent database.  It is highly integrated with the Qt meta object system. Some of the features that set it apart from other C++ ORM (Object-Relational Management) systems:
 
   - More than one database is supported: objects can be loaded out of one database, and stored into another.
-  - No special syntax or external files are required to specify which member variables should be persistent (the  "data definition model"), or create the database tables. The fields you wish to store can be identified within the class definition by simply declaring then as QProperties with the Q_PROPERTY macro.  Calling AMDbObjectSystem::registerType<Class>() will register the class and create the schema if required.
+  - No special syntax or external files are required to specify which member variables should be persistent (the  "data definition model"), or create the database tables. The fields you wish to store can be identified within the class definition by simply declaring then as QProperties with the Q_PROPERTY macro.  Calling AMDbObjectSystem::registerType<Class>() will register the class and create the tables if required.
   - Dynamic loading of an object, without knowing its type. You can call AMDbObjectSystem::loadObject() and receive a fully-initialized pointer to whatever object was stored at the specified location.
   - Objects of different classes can share a storage table, if desired. At the expense of having unused/null columns, this can make searching the database for similar objects much easier.
   - The database can still be accessed using raw SQL. This has the drawback of allowing stored objects to be modified without control, but it allows for high-performance searching and updates when required.
@@ -57,6 +58,7 @@ public:
   - \todo Explicit support for One-to-one, many-to-one and one-to-many, and many-to-many relationships
 
   <b>Database layout of AMDbObjects</b>
+
   In most cases, all objects of a certain class are stored in their own table. The table has columns for each member variable.  Objects are uniquely identified by their row (primary key), which can be retrieved with AMDbObject::id().
 
   The types of member variables which may be stored are:
@@ -72,6 +74,7 @@ public:
   If specified, classes can share a database table with other classes. They do this by specifying the class name of an already-registered class whose table they want to share.
 
   <b>Creating a persistent class definition</b>
+
   To add persistent functionality to your class:
 
   - Inherit from AMDbObject, and declare the Q_OBJECT macro.
@@ -108,6 +111,7 @@ AMDbObjectSupport::registerClass<MyDbObject>(myWorkingDatabase);
 - Finally, all database objects have the optional functionality of providing one or more thumbnails to describe themselves. If you want to have non-blank thumbnails, you must provide thumbnailCount() and thumbnail(int index). The default is to have no thumbnails.
 
 <b>Storing and re-loading persistent objects</b>
+
 To store an AMDbObject in a database, simply call
 <code>
 AMDatabase* myWorkingDatabase;
