@@ -81,13 +81,11 @@ To add persistent functionality to your class:
 - Inherit from AMDbObject, and declare the Q_OBJECT macro.
 - Declare properties (using the Q_PROPERTY) macro for all the fields you want to be persistent. Fields with only a READ method will stored in the database, but not reloaded from it. The name of the property becomes the name of the database column.
 \bug This introduces some restrictions on the allowed property names -- find a way to catch this! for ex: "value" is not allowed as a property name.
-
 - You can use the Q_CLASSINFO macro to specify additional characteristics for each field. The (name, value) QClassInfo pairs should be in the form:
 \code
 Q_CLASSINFO("propertyName", "keyword=value;keyword=value;keyword=value...")
 \endcode
 where supported keywords are:
-
 	- \c doNotStore: if equal to "true", does not store this property in the database. (Also implies doNotLoad=true)
 	- \c doNotLoad: if equal to "true", does not set this property when re-loading an object from the database.
 	- \c hidden: if equal to "true", this property should not be user-visible in default tables created on the database.
@@ -95,14 +93,13 @@ where supported keywords are:
 
 If unspecified, the default value for all keywords is false.
 
-A set of keywords is also available within the special "AMDbObject_Parameters" QClassInfo key.
+- A set of keywords is also available within the special "AMDbObject_Parameters" QClassInfo key.
 \code
 Q_CLASSINFO("AMDbObject_Parameters", "keyword=value;...")
 \endcode
 where the supported keywords are:
-
-- \c doNotReuseIds: if equal to "true", the auto-increment property on the primary key will be set so that new objects will never reuse the ids of old deleted ones.  Otherwise, after a table has had rows created and deleted, the ids of previously deleted rows may be re-used.
-- \c shareTableWithClass=[\c className]: if defined, uses the same database table for storage as [\c className].  Note that [\c className] must be registered with the AMDbObject system prior to registering this class.
+	- \c doNotReuseIds: if equal to "true", the auto-increment property on the primary key will be set so that new objects will never reuse the ids of old deleted ones.  Otherwise, after a table has had rows created and deleted, the ids of previously deleted rows may be re-used.
+	- \c shareTableWithClass=[\c className]: if defined, uses the same database table for storage as [\c className].  Note that [\c className] must be registered with the AMDbObject system prior to registering this class.
 
 
 - Register the class on every database you wish to use it in by calling AMDbObjectSupport::registerClass<Class>(AMDatabase* database) at runtime.  It's harmless to register a class multiple times, but it must be registered before calling storeToDb() or loadFromDb().
