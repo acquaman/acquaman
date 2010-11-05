@@ -620,7 +620,7 @@ int AMProcessVariable::getInt(unsigned index) const {
 
 	case String:
 		if(index >= (unsigned)data_str_.count())
-			return -1.0;
+			return -1;
 		return data_str_.at(index).toInt();
 
 	// default case, including Unconnected:
