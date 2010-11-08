@@ -7,6 +7,6 @@ AMUser* AMUser::instance_ = 0;
 AMUser::AMUser() :
 	AMDbObject()
 {
-	metaData_["currentRunId"] = -1;
+	currentRunId_ = -1;
 }
 

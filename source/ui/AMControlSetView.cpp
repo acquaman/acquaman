@@ -685,12 +685,26 @@ void AMDetectorInfoSetView::runSetup(){
 }
 
 QWidget* AMDetectorInfoSetView::detailViewByType(AMDetectorInfo *detectorInfo, AMDetectorInfo *writeDetectorInfo){
+	#warning "David... please review. Needed to change because of removed AMDbObject::typeDescription."
+
+	/* typeDescription was never the safest way to tell what type a class was anyway... nor the fastest.
 	if(detectorInfo->typeDescription() == "PGT SDD Spectrum-Output Detector")
 		return new PGTDetectorInfoView( (PGTDetectorInfo*)detectorInfo, writeDetectorInfo, true);
 	else if(detectorInfo->typeDescription() == "MCP Detector")
 		return new MCPDetectorInfoView( (MCPDetectorInfo*)detectorInfo, writeDetectorInfo, true );
 	else
 		return new QGroupBox();
+		*/
+	PGTDetectorInfo* pgtDetectorInfo;
+	MCPDetectorInfo* mcpDetectorInfo;
+
+	if( (pgtDetectorInfo = qobject_cast<PGTDetectorInfo*>(detectorInfo)) )
+		return new PGTDetectorInfoView(pgtDetectorInfo, writeDetectorInfo, true);
+	else if( (mcpDetectorInfo = qobject_cast<MCPDetectorInfo*>(detectorInfo)) )
+		return new MCPDetectorInfoView(mcpDetectorInfo, writeDetectorInfo, true);
+	else
+		return new QGroupBox();
+
 }
 
 AMColorControlOptimizationSetView::AMColorControlOptimizationSetView(AMControlSet *viewSet, QWidget *parent) :

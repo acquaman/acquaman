@@ -7,6 +7,7 @@
 #include <QListView>
 
 #include "acquaman.h"
+#include "AMErrorMonitor.h"
 
 #include "ui/AMDetailedItemDelegate.h"
 
@@ -149,13 +150,13 @@ void AMRunSelector::onAddRunDialogClosed(int newRunId){
 	}
 }
 
-#include "dataman/AMDatabaseDefinition.h"
+#include "dataman/AMDbObjectSupport.h"
 #include <QTimer>
 void AMRunSelector::onDatabaseUpdate(const QString & tableName, int id) {
 
 	Q_UNUSED(id)
 
-	if(tableName == AMDatabaseDefinition::runTableName()) {
+	if(tableName == AMDbObjectSupport::tableNameForClass<AMRun>()) {
 		if(!runUpdateScheduled_) {
 			runUpdateScheduled_ = true;
 			QTimer::singleShot(0, this, SLOT(populateRuns()));

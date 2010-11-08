@@ -136,7 +136,6 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/beamline/SGMBeamline.h \
 	source/dataman/AMChannel.h \
 	source/dataman/AMDatabase.h \
-	source/dataman/AMDatabaseDefinition.h \
 	source/dataman/AMDataTree.h \
 	source/dataman/AMDataTreeColumn.h \
 	source/dataman/AMDbLoader.h \
@@ -229,16 +228,17 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/dataman/ALSBL8XESDetectorInfo.h \
 	source/dataman/ALSBL8XASFileLoader.h \
 	source/ui/AMWindowPaneModel.h \
-    source/dataman/AMScanEditorModelItem.h \
-    source/dataman/AMDataSource.h \
-    source/dataman/AMAxisInfo.h \
-    source/dataman/AMNumber.h \
-    source/dataman/AMnDIndex.h \
-    source/dataman/AMDataStore.h \
-    source/dataman/AMAnalysisBlock.h \
-    source/dataman/AMDataSourceSeriesData.h \
-    source/dataman/AMDataSourceImageData.h \
-    source/analysis/AM1DExpressionAnalysisBlock.h
+	source/dataman/AMScanEditorModelItem.h \
+	source/dataman/AMDataSource.h \
+	source/dataman/AMAxisInfo.h \
+	source/dataman/AMNumber.h \
+	source/dataman/AMnDIndex.h \
+	source/dataman/AMDataStore.h \
+	source/dataman/AMAnalysisBlock.h \
+	source/dataman/AMDataSourceSeriesData.h \
+	source/dataman/AMDataSourceImageData.h \
+	source/analysis/AM1DExpressionAnalysisBlock.h \
+	source/dataman/AMDbObjectSupport.h
 FORMS += source/ui/AbsorptionScanController.ui \
 	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
@@ -333,7 +333,6 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/dataman/AMChannel.cpp \
 	source/dataman/AMDataTree.cpp \
 	source/dataman/AMDatabase.cpp \
-	source/dataman/AMDatabaseDefinition.cpp \
 	source/dataman/AMDbObject.cpp \
 	source/dataman/AMDetectorInfo.cpp \
 	source/dataman/AMExperiment.cpp \
@@ -409,16 +408,17 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/dataman/ALSBL8XESDetectorInfo.cpp \
 	source/dataman/ALSBL8XASFileLoader.cpp \
 	source/ui/AMWindowPaneModel.cpp \
-    source/dataman/AMScanEditorModelItem.cpp \
-    source/dataman/AMDataSource.cpp \
-    source/dataman/AMAxisInfo.cpp \
-    source/dataman/AMNumber.cpp \
-    source/dataman/AMnDIndex.cpp \
-    source/dataman/AMDataStore.cpp \
-    source/dataman/AMAnalysisBlock.cpp \
-    source/dataman/AMDataSourceSeriesData.cpp \
-    source/dataman/AMDataSourceImageData.cpp \
-    source/analysis/AM1DExpressionAnalysisBlock.cpp
+	source/dataman/AMScanEditorModelItem.cpp \
+	source/dataman/AMDataSource.cpp \
+	source/dataman/AMAxisInfo.cpp \
+	source/dataman/AMNumber.cpp \
+	source/dataman/AMnDIndex.cpp \
+	source/dataman/AMDataStore.cpp \
+	source/dataman/AMAnalysisBlock.cpp \
+	source/dataman/AMDataSourceSeriesData.cpp \
+	source/dataman/AMDataSourceImageData.cpp \
+	source/analysis/AM1DExpressionAnalysisBlock.cpp \
+	source/dataman/AMDbObjectSupport.cpp
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc
 OTHER_FILES += source/muParser/README.txt

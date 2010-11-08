@@ -1,5 +1,5 @@
 #include "AMDbObject.h"
-#include "dataman/AMDatabaseDefinition.h"
+#include "dataman/AMDbObjectSupport.h"
 #include "acquaman.h"
 
 
@@ -50,14 +50,42 @@ AMDbObject::AMDbObject(QObject *parent) : QObject(parent) {
 	database_ = 0;
 	setModified(true);
 
-	metaData_["name"] = "Untitled";
+	name_ = "Unnamed Object";
 
 }
 
-/// returns the name of the database table where objects like this should be stored
+#include <QMetaClassInfo>
+QString AMDbObject::dbObjectAttribute(const QString& key) const {
+	return AMDbObjectSupport::dbObjectAttribute(this->metaObject(), key);
+}
+
+
+QString AMDbObject::dbPropertyAttribute(const QString& propertyName, const QString& key) const {
+	return AMDbObjectSupport::dbPropertyAttribute(this->metaObject(), propertyName, key);
+}
+
+
+/// returns the name of the database table where objects like this should be/are stored
 QString AMDbObject::databaseTableName() const {
-	return AMDatabaseDefinition::objectTableName();
+	return AMDbObjectSupport::tableNameForClass(this->metaObject());
 }
+
+/// If this class has already been registered in the AMDbObject system, returns the AMDbObjectInfo describing this class's persistent properties.  If the class hasn't been registered, returns an invalid AMDbObjectInfo.
+const AMDbObjectInfo AMDbObject::dbObjectInfo() const {
+	QHash<QString, AMDbObjectInfo>::const_iterator i = AMDbObjectSupport::registeredClasses()->find( type() );
+	if( i != AMDbObjectSupport::registeredClasses()->end() ) {
+		return i.value();
+	}
+	return AMDbObjectInfo();
+}
+/*
+const AMDbObjectInfo* AMDbObject::dbObjectInfo() const {
+	if( AMDbObjectSupport::registeredClasses()->contains( type() ) ) {
+		return &((AMDbObjectInfo&)((*AMDbObjectSupport::registeredClasses())[ type() ]));
+	}
+	return 0;
+}*/
+
 
 /// This member function updates a scan in the database (if it exists already), otherwise it adds it to the database.
 
@@ -99,15 +127,14 @@ bool AMDbObject::storeToDb(AMDatabase* db) {
 
 
 
-	QList<const QVariant*> values;
+	QVariantList values;
 	QStringList keys;
-	QList<QVariant*> listValues;
 
 	// determine and append the typeId
 	keys << "typeId";
-	QVariant typeVariant(this->typeId(db));
-	values << &typeVariant;
+	values << int(0); /// \bug migrate to new system. ysed to be typeId
 
+	/*
 	// store all the metadata
 	foreach(AMMetaMetaData md, this->metaDataAllKeys()) {
 
@@ -148,19 +175,14 @@ bool AMDbObject::storeToDb(AMDatabase* db) {
 		}
 		else
 			values << &metaData_[md.key];
-	}
+	}*/
 
 	// Add thumbnail info (just the count for now)
 	keys << "thumbnailCount";
-	QVariant thumbCountVariant(thumbnailCount());
-	values << &thumbCountVariant;
+	values << thumbnailCount();
 
 	// store typeId, thumbnailCount, and all metadata into main object table
 	int retVal = db->insertOrUpdate(id(), databaseTableName(), keys, values);
-
-	// delete all the variants we had to temporarily create for lists
-	foreach(QVariant* lv, listValues)
-		delete lv;
 
 
 	// Did the update succeed?
@@ -176,7 +198,7 @@ bool AMDbObject::storeToDb(AMDatabase* db) {
 	// First, if we WERE saved here before, and we're NOT reusing the same thumbnail spots, and we DID have thumbnails stored previously... delete the old ones
 	if(!neverSavedHere && !reuseThumbnailIds && oldThumbnailCount != 0) {
 		// qDebug() << "Thumbnail save: deleting old ones before inserting new spots";
-		db->deleteRows(AMDatabaseDefinition::thumbnailTableName(), QString("objectId = %1 AND objectTableName = '%2'").arg(id_).arg(databaseTableName()));
+		db->deleteRows(AMDbObjectSupport::thumbnailTableName(), QString("objectId = %1 AND objectTableName = '%2'").arg(id_).arg(databaseTableName()));
 	}
 
 	// store thumbnails in thumbnail table:
@@ -184,31 +206,30 @@ bool AMDbObject::storeToDb(AMDatabase* db) {
 	for(int i=0; i<thumbnailCount(); i++) {
 		AMDbThumbnail t = thumbnail(i);
 
-		QVariant vobjectId(id_), vobjectTableName(databaseTableName()), vnumber(i), vtype(t.typeString()), vtitle(t.title), vsubtitle(t.subtitle), vthumbnail(t.thumbnail);
 		keys.clear();
 		values.clear();
 
 		keys << "objectId";
-		values << &vobjectId;
+		values << id_;
 		keys << "objectTableName";
-		values << &vobjectTableName;
+		values << databaseTableName();
 		keys << "number";
-		values << &vnumber;
+		values << i;
 		keys << "type";
-		values << &vtype;
+		values << t.typeString();
 		keys << "title";
-		values << &vtitle;
+		values << t.title;
 		keys << "subtitle";
-		values << &vsubtitle;
+		values << t.subtitle;
 		keys << "thumbnail";
-		values << &vthumbnail;
+		values << t.thumbnail;
 
 		if(reuseThumbnailIds) {
-			retVal = db->insertOrUpdate(i+reuseThumbnailStartId, AMDatabaseDefinition::thumbnailTableName(), keys, values);
+			retVal = db->insertOrUpdate(i+reuseThumbnailStartId, AMDbObjectSupport::thumbnailTableName(), keys, values);
 			// qDebug() << "Thumbnail save: reusing spots at " << reuseThumbnailStartId+i;
 		}
 		else {
-			retVal = db->insertOrUpdate(0, AMDatabaseDefinition::thumbnailTableName(), keys, values);
+			retVal = db->insertOrUpdate(0, AMDbObjectSupport::thumbnailTableName(), keys, values);
 			// qDebug() << "Thumbnail save: Inserting new spots" << retVal;
 		}
 		if(retVal == 0)
@@ -228,17 +249,7 @@ bool AMDbObject::storeToDb(AMDatabase* db) {
 
 }
 
-/// returns the typeId of this scan's registered type in a database. If it hasn't been registered as a type yet, this will return 0.
-/*! Althought this function doesn't look like it's virtual, it calls type() and returns the typeId of the most detailed subclass.*/
-int AMDbObject::typeId(AMDatabase* db) const {
-	QSqlQuery q = db->query();
-	q.prepare("SELECT id FROM ObjectTypes WHERE className = ?");
-	q.bindValue(0, type());
-	if(q.exec() && q.next())
-		return q.value(0).toInt();
-	else
-		return 0;
-}
+
 
 /// load a AMDbObject (set its properties) by retrieving it based on id.
 bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
@@ -248,17 +259,19 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 		return false;
 
 	QStringList keys;
-	QList<QVariant*> values;
+	QVariantList values;
 
+	/*! \bug removed; migrate to new system
 	foreach(AMMetaMetaData md, this->metaDataAllKeys()) {
 		keys << md.key;
-		values << &metaData_[md.key];
-	}
+	}*/
 
-	if( db->retrieve( sourceId, databaseTableName(), keys, values) ) {
+	values = db->retrieve( sourceId, databaseTableName(), keys);
+	if( !values.isEmpty() ) {
 		id_ = sourceId;
 		database_ = db;
 
+		/*! \bug removed; migrate to new system
 		// special action needed: StringList types have been returned as strings... Need to convert back to stringLists. Other list types have also been returned as strings. Need to convert them back to their actual list types.
 		foreach(AMMetaMetaData md, this->metaDataAllKeys()) {
 
@@ -291,11 +304,11 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 					metaData_[md.key] = stringListForm;
 				}
 			}
-		}
+		}*/
 
 		setModified(false);
-		foreach(QString key, keys)
-			emit metaDataChanged(key);
+		/*! \bug removed: foreach(QString key, keys)
+			emit metaDataChanged(key);*/
 		emit loadedFromDb();
 		return true;
 	}

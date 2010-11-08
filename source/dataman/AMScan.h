@@ -99,6 +99,11 @@ class AMScan : public AMDbObject {
 	Q_PROPERTY(int sampleId READ sampleId WRITE setSampleId)
 	Q_PROPERTY(QString notes READ notes WRITE setNotes)
 
+	AM_DBPROPERTYINFO(dateTime, "createIndex=true")
+	AM_DBPROPERTYINFO(sampleId, "createIndex=true")
+
+	AM_DBOBJECTINFO("description=Generic Scan")
+
 public:
 
 	// Constructors and Destructors
@@ -158,30 +163,6 @@ public:
 	// Meta-data system
 	/////////////////////////////////////////////
 
-	/// Returns the available pieces of meta data for this type of object, including all inherited from base classes. (ie: own + base classes')
-	static QList<AMMetaMetaData> metaDataKeys() {
-		return AMDbObject::metaDataKeys() << metaDataUniqueKeys();
-	}
-
-	/// Returns the available pieces of meta data for this type of object, excluding those inherited from base classes. (ie: own only)
-	/*! Includes:
-		rv << AMMetaMetaData(QVariant::Int, "number", true);
-		rv << AMMetaMetaData(QVariant::DateTime, "dateTime", true);
-		rv << AMMetaMetaData(QVariant::Int, "runId", false);
-		rv << AMMetaMetaData(QVariant::Int, "sampleId", true);
-		rv << AMMetaMetaData(QVariant::String, "notes", true);
-		rv << AMMetaMetaData(QVariant::StringList, "channelNames", false);
-		rv << AMMetaMetaData(QVariant::StringList, "channelExpressions", false);
-		rv << AMMetaMetaData(QVariant::String, "fileFormat", false);
-		rv << AMMetaMetaData(QVariant::String, "filePath", false);
-		*/
-
-	static QList<AMMetaMetaData> metaDataUniqueKeys();
-
-	/// Returns all the available pieces of meta data for this type of object, by introspecting it's most detailed type. (ie: own + base classes' + subclasses')
-	virtual QList<AMMetaMetaData> metaDataAllKeys() const {
-		return this->metaDataKeys();
-	}
 
 	/// Returns the value of a piece of meta data. (Re-implemented from AMDbObject to catch channelNames or channelExpressions, which aren't found in the metaData_ hash.)
 	virtual QVariant metaData(const QString& key) const;
@@ -199,11 +180,6 @@ public:
 	/*! Re-implemented from AMDbObject::storeToDb(), this version saves all of the meta data found for keys metaDataAllKeys(), as well as saving the channel names and channel formulas.
 	  */
 	virtual bool storeToDb(AMDatabase* db);
-
-	/// Reimplemented from AMDbObject; provides a general human-readable description
-	virtual QString typeDescription() const {
-		return "Generic Scan";
-	}
 
 
 	// Channel System
@@ -325,6 +301,9 @@ protected slots:
 	}
 
 protected:
+
+	/// temporary; re-implement?
+	QHash<QString, QVariant> metaData_;
 
 	/// List of channels
 	AMChannelListModel ch_;

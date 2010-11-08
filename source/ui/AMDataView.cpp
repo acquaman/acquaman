@@ -1,10 +1,11 @@
 #include "AMDataView.h"
 
 #include "dataman/AMDatabase.h"
-#include "dataman/AMDatabaseDefinition.h"
+#include "dataman/AMDbObjectSupport.h"
 #include "AMErrorMonitor.h"
 #include "ui/AMDateTimeUtils.h"
 #include "dataman/AMUser.h"
+#include "dataman/AMScan.h"
 
 #include <QScrollBar>
 #include <QApplication>
@@ -860,7 +861,7 @@ void AMDataViewSection::expand(bool expanded) {
 		case AMDataViews::ThumbnailView:
 		default:
 			/// \bug cannot presume all found in objectTableName.  Need a way of knowing where to look for these objects.
-			AMDataViewSectionThumbnailView* v = new AMDataViewSectionThumbnailView(db_, AMDatabaseDefinition::objectTableName(), whereClause_, this, widthConstraint_);
+			AMDataViewSectionThumbnailView* v = new AMDataViewSectionThumbnailView(db_, AMDbObjectSupport::tableNameForClass<AMScan>(), whereClause_, this, widthConstraint_);
 			subview_ = v;
 			subview__ = v;
 		}
@@ -877,7 +878,7 @@ void AMDataViewSection::expand(bool expanded) {
 
 int AMDataViewSection::countResults() {
 	QSqlQuery q = db_->query();
-	QString query = QString("SELECT COUNT(1) FROM %1").arg(AMDatabaseDefinition::objectTableName());
+	QString query = QString("SELECT COUNT(1) FROM %1").arg(AMDbObjectSupport::tableNameForClass<AMScan>());
 	if(!whereClause_.isEmpty())
 		query.append(" WHERE ").append(whereClause_);
 	q.prepare(query);

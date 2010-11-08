@@ -36,6 +36,8 @@ class AMAnalysisBlock : public AMDbObject, public AMDataSource
 {
 	Q_OBJECT
 
+	AM_DBOBJECTINFO("description=Generic Analysis Block")
+
 public:
 	/// Create a new AMAnalysisBlock. The block is an AMDataSource of output data; \c outputName is the name for this AMDataSource.
 	AMAnalysisBlock(const QString& outputName, QObject* parent = 0);
@@ -81,18 +83,7 @@ public:
 	virtual QWidget* createEditorWidget() {	return 0; }
 
 
-	// AMDbObject interface
-	////////////////////////////////
 
-	/// Specialization of AMDbObject::typeDescription(). This can be re-implemented.
-	virtual QString typeDescription() const {
-		return "Generic Analysis Block";
-	}
-
-	/// Re-implemented form AMDbObject to store analysis blocks in their own table
-	virtual QString databaseTableName() const {
-		return "analysisBlocksTable";
-	}
 
 	// Reimplemented from AMDataSource
 	//////////////////////////////

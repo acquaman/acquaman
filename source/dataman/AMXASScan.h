@@ -14,6 +14,8 @@
   */
 class AMXASScan : public AMScan {
 Q_OBJECT
+	AM_DBOBJECTINFO("shareTableWithClass=AMScan;description=XRay Absorption Scan")
+
 public:
 	/// create a new XAS scan with the following named \c detectors. Each "detector" is a source of a datapoint, that will be stored/logged, available as a column of raw data, and accessible through channel(s).
 	explicit AMXASScan(const QList<AMDetectorInfo*> &detectors = QList<AMDetectorInfo*>(), QObject *parent = 0);
@@ -33,10 +35,7 @@ public:
 	/// \todo clear data? (allow from outside the class?)
 	/// \todo some way to encapsulate a bunch of information about detectors: units, detailed comment on where it comes from, whether to show or hide by default in user-facing views.
 
-	/// Reimplemented from AMScan; provides a general human-readable description
-	virtual QString typeDescription() const {
-		return "Xray Absorption Scan";
-	}
+
 
 signals:
 	// inherits dataChanged(AMScan*)

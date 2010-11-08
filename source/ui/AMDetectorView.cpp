@@ -197,13 +197,17 @@ void AMDetectorSetView::runSetup(){
 }
 
 QWidget* AMDetectorSetView::detailViewByType(AMDetectorInfo *detector, AMDetectorInfo *configDetector){
+
 	if(!editMode_)
 		return AMDetectorInfoSetView::detailViewByType(detector, configDetector);
-	else if(detector->typeDescription() == "PGT SDD Spectrum-Output Detector"){
-		return new PGTDetectorView( (PGTDetector*)detector, configDetector);
+	#warning "D: same edit to review:"
+
+	else if( qobject_cast<PGTDetector*>(detector) ){
+		return new PGTDetectorView( qobject_cast<PGTDetector*>(detector), configDetector);
 	}
-	else if(detector->typeDescription() == "MCP Detector")
-		return new MCPDetectorView( (MCPDetector*)detector, configDetector);
+	else if( qobject_cast<MCPDetector*>(detector) )
+		return new MCPDetectorView( qobject_cast<MCPDetector*>(detector), configDetector);
+
 	else
 		return new QGroupBox();
 }

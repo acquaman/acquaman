@@ -5,13 +5,6 @@ AMControlSetInfo::AMControlSetInfo(QObject *parent) :
 {
 	insertRowLatch = -1;
 	setName("ControlSet");
-	QStringList tmpList;
-	metaData_["names"] = QStringList(tmpList);
-	metaData_["units"] = QStringList(tmpList);
-	AMDoubleList tmpDList;
-	metaData_["ctrlValues"].setValue(tmpDList);
-	metaData_["minimums"].setValue(tmpDList);
-	metaData_["maximums"].setValue(tmpDList);
 	ctrlInfoList_ = NULL;
 	setupModel();
 }
@@ -20,13 +13,6 @@ AMControlSetInfo::AMControlSetInfo(AMControlSetInfo *copyFrom, QObject *parent) 
 		AMDbObject(parent)
 {
 	setName("ControlSet");
-	QStringList tmpList;
-	metaData_["names"] = QStringList(tmpList);
-	metaData_["units"] = QStringList(tmpList);
-	AMDoubleList tmpDList;
-	metaData_["ctrlValues"].setValue(tmpDList);
-	metaData_["minimums"].setValue(tmpDList);
-	metaData_["maximums"].setValue(tmpDList);
 	ctrlInfoList_ = NULL;
 	setupModel();
 	this->copyFrom(copyFrom);
@@ -82,10 +68,9 @@ QString AMControlSetInfo::unitsAt(size_t index) const{
 
 
 
-QString AMControlSetInfo::databaseTableName() const {
-	return AMDatabaseDefinition::controlSetTableName();
-}
 
+
+#include "dataman/AMDbObjectSupport.h"
 
 bool AMControlSetInfo::loadFromDb(AMDatabase *db, int id){
 	bool retVal = AMDbObject::loadFromDb(db, id);
@@ -93,8 +78,9 @@ bool AMControlSetInfo::loadFromDb(AMDatabase *db, int id){
 		while(count() > 0)
 			removeControlAt(count()-1);
 
+		/// \todo migrate to use new/improved AMDatabase::retrieve, or ...
 		QSqlQuery q = db->query();
-		q.prepare(QString("SELECT name,ctrlValue,minimum,maximum,units,number FROM %1 WHERE csiId = ?").arg(AMDatabaseDefinition::controlSetEntriesTableName()));
+		q.prepare(QString("SELECT name,ctrlValue,minimum,maximum,units,number FROM %1 WHERE csiId = ?").arg(AMDbObjectSupport::controlSetEntriesTableName()));
 		q.bindValue(0, id);
 		retVal = q.exec();
 		while(q.next()) {
@@ -111,12 +97,12 @@ bool AMControlSetInfo::storeToDb(AMDatabase *db){
 	bool success = true;
 
 	// delete all the old entries for this control set
-	db->deleteRows(AMDatabaseDefinition::controlSetEntriesTableName(), QString("csiId = '%1'").arg(id()));
+	db->deleteRows(AMDbObjectSupport::controlSetEntriesTableName(), QString("csiId = '%1'").arg(id()));
 
 	db->startTransation();
 
 	QSqlQuery q = db->query();
-	q.prepare(QString("INSERT INTO %1 (csiId,name,ctrlValue,minimum,maximum,units,number) VALUES (?,?,?,?,?,?,?)").arg(AMDatabaseDefinition::controlSetEntriesTableName()));
+	q.prepare(QString("INSERT INTO %1 (csiId,name,ctrlValue,minimum,maximum,units,number) VALUES (?,?,?,?,?,?,?)").arg(AMDbObjectSupport::controlSetEntriesTableName()));
 
 	for(int x=0; x<count(); x++) {
 		q.bindValue(0,id());
@@ -140,12 +126,10 @@ bool AMControlSetInfo::storeToDb(AMDatabase *db){
 	return success;
 }
 
-QString AMControlSetInfo::typeDescription() const {
-	return "Generic Control Set";
-}
 
 void AMControlSetInfo::setDescription(const QString& description) {
-	setMetaData("description", description);
+	description_ = description;
+	setModified(true);
 }
 
 bool AMControlSetInfo::setNameAt(size_t index, QString name){

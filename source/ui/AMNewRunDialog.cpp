@@ -1,6 +1,6 @@
 
 #include "AMNewRunDialog.h"
-
+#include "AMErrorMonitor.h"
 
 //Constructor:
 

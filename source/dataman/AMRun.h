@@ -3,7 +3,6 @@
 
 
 #include "dataman/AMDbObject.h"
-#include "dataman/AMDatabaseDefinition.h"
 #include <QImage>
 
 #include <QBuffer>
@@ -21,54 +20,35 @@
 - If you want to store yourself anywhere but in the main object table, you must re-implement databaseTableName().  (For example, AMRuns overload databaseTableName() to return AMDatabaseDefinition::RunTableName(), hence making sure that they are stored in a separate table.)
 - If you want to have non-blank thumbnails, you must provide thumbnailCount() and thumbnail(int index).
 */
-/* This Run class will need:
--name
--date and time
--end time
--notes
--location
-*/
+
 
 /// AMRun's happen at AMFacility's... This is a lightweight class to store facility information in the database.
 class AMFacility : public AMDbObject
 {
 	Q_OBJECT
+	Q_PROPERTY(QString description READ description WRITE setDescription)
+	Q_PROPERTY(QString iconFileName READ iconFileName WRITE setIconFileName)
 public:
 	explicit AMFacility(const QString& shortDescription, const QString& longDescription, const QString& iconFileName = QString(), QObject* parent = 0)
 		: AMDbObject(parent) {
 		setName(shortDescription);	// ex: "SGM"
-		metaData_["description"] = longDescription;	// ex: "Canadian Light Source SGM Beamline"
-		metaData_["iconFileName"] = iconFileName;
+		description_ = longDescription;	// ex: "Canadian Light Source SGM Beamline"
+		iconFileName_ = iconFileName;
 	}
 
-	/// Unique meta-data:
-	static QList<AMMetaMetaData> metaDataUniqueKeys() {
-		QList<AMMetaMetaData> rv;
-		rv << AMMetaMetaData(QVariant::String, "description", true);
-		rv << AMMetaMetaData(QVariant::String, "iconFileName", true);
-		/// \todo There might be more useful information to put here...
-		return rv;
-	}
-	/// All meta-data:
-	static QList<AMMetaMetaData> metaDataKeys() {
-		return AMDbObject::metaDataKeys() << metaDataUniqueKeys();
-	}
-
-	/// All meta-data:
-	virtual QList<AMMetaMetaData> metaDataAllKeys() const {
-		return this->metaDataKeys();
-	}
-
-	QString databaseTableName() const {
-		return AMDatabaseDefinition::facilityTableName();
-	}
 
 	/// Long description of the facility (ex: "Canadian Light Source SGM Beamline")
 	QString description() const {
-		return metaData("description").toString();
+		return description_;
 	}
+
+	void setDescription(const QString& description) {
+		description_ = description;
+		setModified(true);
+	}
+
 	QString iconFileName() const {
-		return metaData("iconFileName").toString();
+		return iconFileName_;
 	}
 
 	int thumbnailCount() const {
@@ -93,12 +73,20 @@ public:
 
 protected:
 
+	void setIconFileName(const QString& fileName) { iconFileName_ = fileName; setModified(true); }
+
+	QString description_;
+	QString iconFileName_;
 
 };
 
 class AMRun : public AMDbObject
 {
 	Q_OBJECT
+	Q_PROPERTY(QString notes READ notes WRITE setNotes)
+	Q_PROPERTY(QDateTime dateTime READ dateTime WRITE setDateTime)
+	Q_PROPERTY(QDateTime endDateTime READ endDateTime WRITE setEndDateTime)
+	Q_PROPERTY(int facilityId READ facilityId WRITE setFacilityId)
 public:
 	/// Default constructor. In it we initialize the extra fields we want to store inside metaData_.
 	explicit AMRun(QObject *parent = 0);
@@ -109,53 +97,28 @@ public:
 	/// This constructor immediately loads a stored run from the database.
 	AMRun(int databaseId, AMDatabase* database, QObject* parent = 0);
 
-	// Implement the Meta-data system
-	///////////////////////////
-
-	/// We write this function to specify all of our unique pieces of meta-data (excluding those inherited from base classes -- ie: own only)
-	static QList<AMMetaMetaData> metaDataUniqueKeys() {
-		QList<AMMetaMetaData> rv;
-		// We have a DateTime field representing when this run was first created, when it was completed, a rich-text field for notes, and the location (link via facilityId) that this run took place.
-		rv << AMMetaMetaData(QVariant::DateTime, "dateTime", false);
-		rv << AMMetaMetaData(QVariant::String, "notes", true);
-		rv << AMMetaMetaData(QVariant::Int, "facilityId", true);
-		rv << AMMetaMetaData(QVariant::DateTime, "endDateTime", false);
-
-		return rv;
-	}
-
-
-	/// This function needs to be overloaded to return all the available pieces of meta data for this type of object, including those inherited from base classes. (ie: own + base classes'). We simply append our unique meta-data onto the base class:
-	static QList<AMMetaMetaData> metaDataKeys() {
-		return AMDbObject::metaDataKeys() << metaDataUniqueKeys();
-	}
-
-	/// This virtual function returns all the available pieces of meta data for this type of object, by introspecting it's most detailed type. (ie: own + base classes' + subclasses')
-	virtual QList<AMMetaMetaData> metaDataAllKeys() const {
-		return this->metaDataKeys();
-	}
 
 	// Convenient access methods for our meta-data:
 	/////////////////////////
 
 	/// Although we can access everything through metaData() and setMetaData(), we can also write convenience functions for direct acces. This returns the date/time of the earliest scan in this run.
 	QDateTime dateTime() const {
-		return metaData("dateTime").toDateTime();
+		return dateTime_;
 	}
 
 	/// This returns a string of notes/comments about this run.
 	QString notes() const {
-		return metaData("notes").toString();
+		return notes_;
 	}
 
 	/// This returns a string regarding the location of the run.
 	int facilityId() const{
-		return metaData("facilityId").toInt();
+		return facilityId_;
 	}
 
 	/// This returns the date/time of the last scan in this run.
 	QDateTime endDateTime() const{
-		return metaData("endDateTime").toDateTime();
+		return endDateTime_;
 	}
 
 	/// This function finds out how many scans are in this run.  (If this instance is not associated with any database yet, it returns 0)
@@ -163,16 +126,6 @@ public:
 
 	/// Returns a list of the id's of all scans in this run
 	QList<int> scanIds() const;
-
-	// Database information and access:
-	///////////////////////////////
-	/// We want to store runs in a separate table (so that it's easy to create relationships between runs and other objects).  Therefore, we reimplement databaseTableName():
-	QString databaseTableName() const {
-		return AMDatabaseDefinition::runTableName();
-	}
-
-
-	/// We aren't storing any special information outside of the metaData_ hash, so we can use the default implementations of loadFromDb() and storeToDb().
 
 
 	// Thumbnail System
@@ -182,8 +135,6 @@ public:
 	int thumbnailCount() const {
 		return 0;
 	}
-
-
 
 
 
@@ -207,12 +158,14 @@ public slots:
 
 	/// Convenience function to set the notes/comments on this run
 	void setNotes(const QString& notes) {
-		setMetaData("notes", notes);
+		notes_ = notes;
+		setModified(true);
 	}
 
 	/// Convenience function to set the location for this run
 	void setFacilityId(int facilityId){
-		setMetaData("facilityId", facilityId);
+		facilityId_ = facilityId;
+		setModified(true);
 	}
 
 	/// Call this to schedule an update of the start and end dates, based on looking at the scans in this run. For optimization, you can provide the \c alteredDateTime of the scan that was just added or removed from this run, or changed within a scan that was part of this run. (If this \c alteredDateTime is in the middle of this run's dateTime range, nothing needs to happen.)
@@ -222,12 +175,14 @@ public slots:
 protected slots:
 	/// Convenience function to set the end date for this run. This is only called internally, because the dateTime and endDateTime are determined automatically from the scans inside this run.  We call setMetaData(), since this takes care of emitting the metaDataChanged() signal for us.
 	void setEndDateTime(const QDateTime& endDateTime) {
-		setMetaData("endDateTime", endDateTime);
+		endDateTime_ = endDateTime;
+		setModified(true);
 	}
 
 	/// Convenience function to set the creation date/time associated with this run.   This is only called internally, because the dateTime and endDateTime are determined automatically from the scans inside this run.  We call setMetaData(), since this takes care of emitting the metaDataChanged() signal for us.
 	void setDateTime(const QDateTime& dateTime) {
-		setMetaData("dateTime", dateTime);
+		dateTime_ = dateTime;
+		setModified(true);
 	}
 
 	/// Conduct a search through all scans in this run, and determine the dateTime range of this run
@@ -238,6 +193,11 @@ protected slots:
 protected:
 	bool dateRangeUpdateScheduled_;
 	bool deleteWhenFinishedDateRangeUpdate_;
+
+	QString notes_;
+	int facilityId_;
+	QDateTime dateTime_;
+	QDateTime endDateTime_;
 
 };
 

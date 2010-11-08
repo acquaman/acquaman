@@ -58,15 +58,15 @@ public:
 	}
 
 	/// Inserting or updating a row in the database.
-	/*! id is the object's row in the database (for updates), or 0 (for inserts).
-		table is the database table name
-		colNames is a list of the column names that the values will be inserted under
-		values is a list of constant references to QVariants that provide the values to insert.
-		(Note that the const and const& arguments are designed to prevent memory copies, so this should be fast.)
+	/*! \c id is the object's row in the database (for updates), or 0 (for inserts).
+		\c table is the database table name
+		\c colNames is a list of the column names that the values will be inserted under
+		\c values is a list of QVariants that provide the values to insert.
+		(Note that QList uses copy-on-write / implicit sharing, so you can pass a QList<QVariant> around very fast, as long as it isn't modified.)
 		Return value: (IMPORTANT) returns the id of the row that was inserted into or updated, or 0 on failure.
 		When inserting new objects, make sure to set their id to the return value afterwards, otherwise they will be duplicated on next insert.
 	*/
-	int insertOrUpdate(int id, const QString& table, const QStringList& colNames, const QList<const QVariant*>& values);
+	int insertOrUpdate(int id, const QString& table, const QStringList& colNames, const QVariantList& values);
 
 	/// changing single values in the database, at row \c id.
 	bool update(int id, const QString& table, const QString& column, const QVariant& value);
@@ -83,14 +83,14 @@ public:
 
 
 	/// retrieve the parameters of an object from the database.
-	/*! id is the object's row in the database.
-		table is the database table name
-		colNames is a list of the column names that the values will be retrieved from
-		values is a list of references to QVariants that will be modified with the retrived values.
-		(Note that the const and & arguments are designed to prevent memory copies, so this should be fast.)
-		Return value: returns true on success.
+	/*! \c id is the object's row in the database.
+		\c table is the database table name
+		\c colNames is a list of the column names that the values will be retrieved from
+		Returns a list of QVariants that will hold the results. Note that QList uses implicit sharing / copy-on-write, so returning the result is fast -- as long you don't modify the resulting list (ie: call non-const methods on it).
+
+		Returns an empty list on failure.
 	*/
-	bool retrieve(int id, const QString& table, const QStringList& colNames, const QList<QVariant*>& values);
+	QVariantList retrieve(int id, const QString& table, const QStringList& colNames);
 	/// Retrieve a single parameter/value for an object.  This is simpler than retrieve() when all you need is a single value.
 	QVariant retrieve(int id, const QString& table, const QString& colName);
 

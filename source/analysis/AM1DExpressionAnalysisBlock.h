@@ -35,6 +35,10 @@ Current restrictions, which are flagged \todo to be removed:
 class AM1DExpressionAB : public AMAnalysisBlock
 {
 	Q_OBJECT
+
+	Q_PROPERTY(QString expression READ expression WRITE setExpression)
+	Q_PROPERTY(QString xExpression READ xExpression WRITE setXExpression)
+
 public:
 	/// Constructor. \c outputName is the name() for the output data source.
 	AM1DExpressionAB(const QString& outputName, QObject* parent = 0);
@@ -125,51 +129,6 @@ public:
 	/// Check if the current expression for the axisValue() is valid
 	bool isXExpressionValid() const { return xExpressionValid_; }
 
-	// AMDbObject interface
-	////////////////////////////////
-
-	/// Specialization of AMDbObject::typeDescription().
-	virtual QString typeDescription() const {
-		return "Expression Evaluator for 1D series data";
-	}
-
-	/// Returns the available pieces of meta data for this type of object, including all inherited from base classes. (ie: own + base classes')
-	static QList<AMMetaMetaData> metaDataKeys() {
-		return AMAnalysisBlock::metaDataKeys() << metaDataUniqueKeys();
-	}
-
-	/// Returns the available pieces of meta data for this type of object, excluding those inherited from base classes. (ie: own only)
-	static QList<AMMetaMetaData> metaDataUniqueKeys() {
-		QList<AMMetaMetaData> rv;
-		rv << AMMetaMetaData(QVariant::String, "expression", true);
-		rv << AMMetaMetaData(QVariant::String, "xExpression", true);
-		return rv;
-	}
-
-	/// Returns all the available pieces of meta data for this type of object, by introspecting it's most detailed type. (ie: own + base classes' + subclasses')
-	virtual QList<AMMetaMetaData> metaDataAllKeys() const {
-		return this->metaDataKeys();
-	}
-	/// Re-implemented from AMAnalysisBlock to support setting the expressions as metadata:
-	virtual bool setMetaData(const QString &key, const QVariant &value) {
-		if(key == "expression") {
-			setExpression(value.toString());
-			return true;	// even though the new expression might not be valid, it's still be successfully set.
-		}
-		if(key == "xExpression") {
-			setXExpression(value.toString());
-			return true;
-		}
-
-		AMAnalysisBlock::setMetaData(key, value);
-	}
-
-	/// Re-implemented from AMAnalysisBlock to re-load the expressions when loading from database.
-	virtual bool loadFromDb(AMDatabase *db, int id) {
-		AMAnalysisBlock::loadFromDb(db, id);	// will load the meta-data hash, including 'expression' and 'xExpression'.
-		setXExpression(metaData_.value("xExpression"));
-		setExpression(metaData_.value("expression"));
-	}
 
 
 protected slots:

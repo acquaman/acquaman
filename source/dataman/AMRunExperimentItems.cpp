@@ -86,10 +86,8 @@ bool AMExperimentModelItem::addObjectToExperiment(int objectId) {
 
 	QStringList colNames;
 	colNames << "objectId" << "experimentId";
-	QVariant vobjectId(objectId);
-	QVariant vexperimentId(id());
-	QList<const QVariant*> values;
-	values << &vobjectId << &vexperimentId;
+	QVariantList colValues;
+	colValues << objectId << id();
 
-	return db_->insertOrUpdate(0, "ObjectExperimentEntries", colNames, values);
+	return db_->insertOrUpdate(0, "ObjectExperimentEntries", colNames, colValues);
 }

@@ -88,7 +88,7 @@ void AMDatabase::releasePublicDb() {
 	Return value: (IMPORTANT) returns the id of the row that was inserted into or updated, or 0 on failure.
 	When inserting new objects, make sure to set their id to the return value afterwards, otherwise they will be duplicated on next insert.
 */
-int AMDatabase::insertOrUpdate(int id, const QString& table, const QStringList& colNames, const QList<const QVariant*>& values) {
+int AMDatabase::insertOrUpdate(int id, const QString& table, const QStringList& colNames, const QVariantList& values) {
 
 	QSqlDatabase db = qdb();
 
@@ -119,7 +119,7 @@ int AMDatabase::insertOrUpdate(int id, const QString& table, const QStringList& 
 
 	// Bind remaining values
 	for(int i=0; i<colNames.count(); i++)
-		query.bindValue(i+1, *(values.at(i)));
+		query.bindValue(i+1, values.at(i));
 
 	// Run query. Query failed?
 	if(!query.exec()) {
@@ -285,12 +285,14 @@ int AMDatabase::deleteRows(const QString& tableName, const QString& whereClause)
 	(Note that the const and & arguments are designed to prevent memory copies, so this should be fast.)
 	Return value: returns true on success.
 */
-bool AMDatabase::retrieve(int id, const QString& table, const QStringList& colNames, const QList<QVariant*>& values) {
+QVariantList AMDatabase::retrieve(int id, const QString& table, const QStringList& colNames) {
+
+	QVariantList values;	// return value
 
 	/// \todo sanitize more than this...
 	if(table.isEmpty()) {
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -10, "Could not search the database. (Missing the table name.)"));
-		return false;
+		return values;
 	}
 
 	// create a query on our database connection:
@@ -305,22 +307,18 @@ bool AMDatabase::retrieve(int id, const QString& table, const QStringList& colNa
 	// run query. Did it succeed?
 	if(!q.exec()) {
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -4, QString("database retrieve failed. Could not execute query (%1). The SQL reply was: %2").arg(q.executedQuery()).arg(q.lastError().text())));
-		return false;
+		return values;
 	}
 	// If we found a record at this id:
 	if(q.first()) {
 		// copy columns to return values:
-		for(int i=0; i<values.count(); i++)
-			*(values.at(i)) = q.value(i);
+		for(int i=0; i<colNames.count(); i++)
+			values << q.value(i);
 
 		q.finish();
-		return true;
 	}
-	// else: didn't find this id.  That's normal if it's not there; just return false.
-	else {
-		return false;
-	}
-
+	// otherwise: didn't find this id.  That's normal if it's not there; just return empty list
+	return values;
 }
 
 
@@ -504,7 +502,7 @@ bool AMDatabase::ensureColumn(const QString& tableName, const QString& columnNam
 bool AMDatabase::createIndex(const QString& tableName, const QString& columnNames) {
 	QSqlQuery q( qdb() );
 	QString indexName = QString("idx_%1_%2").arg(tableName, columnNames);
-	indexName.remove(QRegExp("[\\s\\,\\;]"));
+	indexName.remove(QRegExp("[\\s\\,\\;]"));// remove whitespace, commas, and semicolons from index name...
 	q.prepare(QString("CREATE INDEX %1 ON %2(%3);").arg(indexName, tableName, columnNames));
 	if(q.exec()) {
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, QString("Added index on columns (%1) to table '%2'.").arg(columnNames).arg(tableName)));

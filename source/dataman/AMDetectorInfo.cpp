@@ -4,36 +4,10 @@ AMDetectorInfo::AMDetectorInfo(const QString& name, const QString& description, 
 		AMDbObject(parent)
 {
 	setName(name);
-	metaData_["description"] = description;
+	description_ = description;
 }
 
-/// Load yourself from the database. (returns true on success)
-/*! Re-implemented from AMDbObject. */
-bool AMDetectorInfo::loadFromDb(AMDatabase* db, int id) {
-	bool retval = AMDbObject::loadFromDb(db, id);
-	// This was cheating... dimension and rank shouldn't be stored authoritatively in the metaData_. Let's get rid of them.
-	metaData_.remove("dimension");
-	metaData_.remove("rank");
-	return retval;
-}
 
-/// Store or update self in the database. (returns true on success)
-/*! Re-implemented from AMDbObject::storeToDb(), this version also writes out the dimension and rank, even though they aren't strictly part of the meta-data.
-  */
-bool AMDetectorInfo::storeToDb(AMDatabase* db) {
-	// the base class version is good at saving all the values in the metaData_ hash. Let's just exploit that.
-	metaData_["dimension"] = dimension();
-	metaData_["rank"].setValue(rank());
-
-	// Call the base class implementation
-	bool retval = AMDbObject::storeToDb(db);
-
-	// This was cheating... dimension and rank aren't stored authoritatively in the metaData_. Let's get rid of them.
-	metaData_.remove("dimension");
-	metaData_.remove("rank");
-
-	return retval;
-}
 
 /*
 #include <QImage>
@@ -58,28 +32,26 @@ AMDbThumbnail AMDetectorInfo::thumbnail(int index) const {
 AMSpectralOutputDetectorInfo::AMSpectralOutputDetectorInfo(const QString& name, const QString& description, int binCount, QString axisName, QStringList binNames, QObject *parent) :
 		AMDetectorInfo(name, description, parent)
 {
-	metaData_["binCount"] = binCount;
-	metaData_["axisName"] = axisName;
-	metaData_["binNames"] = binNames;
-	metaData_["integrationTime"] = double(1.0);
-	metaData_["integrationTimeRangeMin"] = double(0.0);
-	metaData_["integrationTimeRangeMax"] = double(10.0);
-	QStringList tmpList;
-	tmpList << "Real" << "Live" << "Peak";
-	metaData_["integrationModeList"] = QStringList(tmpList);
-	metaData_["integrationMode"] = QString(tmpList.at(0));
+	binCount_ = binCount;
+	axisName_ = axisName;
+	binNames_ = binNames;
+	integrationTime_ = double(1.0);
+	integrationTimeRangeMin_ = double(0.0);
+	integrationTimeRangeMax_ = double(10.0);
+	integrationModeList_ << "Real" << "Live" << "Peak";
+	integrationMode_ = integrationModeList_.at(0);
 }
 
 MCPDetectorInfo::MCPDetectorInfo(const QString& name, const QString& description, QObject *parent) : AMDetectorInfo(name, description, parent)
 {
-	metaData_["hvSetpoint"] = double(0.0);
-	metaData_["hvSetpointRangeMin"] = double(0.0);
-	metaData_["hvSetpointRangeMax"] = double(1400.0);
+	hvSetpoint_ = double(0.0);
+	hvSetpointRangeMin_ = double(0.0);
+	hvSetpointRangeMax_ = double(1400.0);
 }
 
 PGTDetectorInfo::PGTDetectorInfo(const QString& name, const QString& description, QObject *parent) : AMSpectralOutputDetectorInfo(name, description, 1024, "energy", QStringList(), parent)
 {
-	metaData_["hvSetpoint"] = double(0.0);
-	metaData_["hvSetpointRangeMin"] = double(0.0);
-	metaData_["hvSetpointRangeMax"] = double(180.0);
+	hvSetpoint_ = double(0.0);
+	hvSetpointRangeMin_ = double(0.0);
+	hvSetpointRangeMax_ = double(180.0);
 }

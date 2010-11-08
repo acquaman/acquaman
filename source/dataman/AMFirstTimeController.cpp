@@ -1,5 +1,17 @@
 #include "AMFirstTimeController.h"
-#include <QStringList>
+
+#include <QApplication>
+
+#include <dataman/AMXASScan.h>
+#include <dataman/AMRun.h>
+#include <dataman/AMSample.h>
+#include <dataman/AMExperiment.h>
+#include <dataman/AMControlSetInfo.h>
+#include <dataman/AMSamplePlate.h>
+#include <dataman/AMDetectorInfo.h>
+#include "dataman/AMUser.h"
+
+#include "dataman/AMDbObjectSupport.h"
 
 bool AMFirstTimeController::isFirstTime() {
 
@@ -31,8 +43,7 @@ bool AMFirstTimeController::isFirstTime() {
 }
 
 
-#include <QApplication>
-#include "dataman/AMUser.h"
+
 
 bool AMFirstTimeController::onFirstTime() {
 
@@ -61,95 +72,72 @@ bool AMFirstTimeController::onFirstTime() {
 	/// Find out the user's name:
 	AMUser::user()->setName( ftw.field("userName").toString() );
 
-	// initialize the database
+	/*
 	QString filename = AMUserSettings::userDataFolder + AMUserSettings::userDatabaseFilename;
 	QFile dbFile(filename);
 	if(!dbFile.exists())
 		return databaseInitialization();
 	else
 		return true;
+		*/
+
+	bool success = databaseInitialization(true);
+
+	if(success) {
+
+		/// On first time only: create facilities. \todo This is app-specific... should probably be moved out of here.
+		AMFacility blank("", "[Other Facility]", ":/128x128/contents.png");
+		blank.storeToDb(AMDatabase::userdb());
+		AMFacility als801("8.0.1", "Advanced Light Source Beamline 8.0.1", ":/alsIcon.png");
+		als801.storeToDb(AMDatabase::userdb());
+		AMFacility sgm("SGM", "Canadian Light Source SGM Beamline", ":/clsIcon.png");
+		sgm.storeToDb(AMDatabase::userdb());
+
+		/// Usability tweak: the first time users launch the program, we can assume they're going to do some acquisition, so let's create an initial run. (\todo This is SGM-specific... should be moved elsewhere)
+		AMRun newRun("SGM", sgm.id());
+		newRun.storeToDb(AMDatabase::userdb());
+	}
+
+	return success;
 
 }
 
 bool AMFirstTimeController::onEveryTime() {
 
-	/// Upgrade database versions if required.
-	bool success = databaseUpgrade();
-
-	/// Load extended user settings from the database
-	AMUser::user()->loadFromDb(AMDatabase::userdb(), 1);
-
-	return success;
+	return databaseInitialization(false);
 }
 
-#include <dataman/AMDatabaseDefinition.h>
-#include <dataman/AMXASScan.h>
-#include <dataman/AMRun.h>
-#include <dataman/AMSample.h>
-#include <dataman/AMExperiment.h>
-#include <dataman/AMControlSetInfo.h>
-#include <dataman/AMSamplePlate.h>
-#include <dataman/AMDetectorInfo.h>
-#include "dataman/AMUser.h"
 
 /// create structures and tables for a new user database, from scratch
-bool AMFirstTimeController::databaseInitialization() {
+bool AMFirstTimeController::databaseInitialization(bool newUser) {
 
-	AMDatabaseDefinition::initializeDatabaseTables(AMDatabase::userdb());
-
-	AMDbObject s1;
-	AMDatabaseDefinition::registerType(&s1, AMDatabase::userdb());
-	AMScan s2;
-	AMDatabaseDefinition::registerType(&s2, AMDatabase::userdb());
-	AMXASScan s3;
-	AMDatabaseDefinition::registerType(&s3, AMDatabase::userdb());
-
-	AMRun r;
-	AMDatabaseDefinition::registerType(&r, AMDatabase::userdb());
-
-	AMExperiment e;
-	AMDatabaseDefinition::registerType(&e, AMDatabase::userdb());
-
-	AMSample s;
-	AMDatabaseDefinition::registerType(&s, AMDatabase::userdb());
-
-	AMDetectorInfo d("prototypeDetector", "Generic Detector Info");
-	AMDatabaseDefinition::registerType(&d, AMDatabase::userdb());
-
-	AMSpectralOutputDetectorInfo sod("prototypeDetector", "Generic Spectral-output detector", 4);
-	AMDatabaseDefinition::registerType(&sod, AMDatabase::userdb());
-
-	AMControlSetInfo csi;
-	AMDatabaseDefinition::registerType(&csi, AMDatabase::userdb());
-
-	AMSamplePlate sp;
-	AMDatabaseDefinition::registerType(&sp, AMDatabase::userdb());
-	AMDatabase::userdb()->createIndex(AMDatabaseDefinition::samplePlateTableName(), "createTime");
-
-	AMDatabaseDefinition::registerType(AMUser::user(), AMDatabase::userdb());
-	AMUser::user()->storeToDb(AMDatabase::userdb());
-
-	AMFacility blank("", "[Other Facility]", ":/128x128/contents.png");
-	AMDatabaseDefinition::registerType(&blank, AMDatabase::userdb());
-	blank.storeToDb(AMDatabase::userdb());
-	AMFacility als801("8.0.1", "Advanced Light Source Beamline 8.0.1", ":/alsIcon.png");
-	als801.storeToDb(AMDatabase::userdb());
-	AMFacility sgm("SGM", "Canadian Light Source SGM Beamline", ":/clsIcon.png");
-	sgm.storeToDb(AMDatabase::userdb());
-
-	/// Usability tweak: the first time users launch the program, we can assume they're going to do some acquisition, so let's create an initial run. (\todo This is SGM-specific... maybe it should be moved elsewhere)
-	AMRun newRun("SGM", sgm.id());
-	newRun.storeToDb(AMDatabase::userdb());
-
-	/// \todo Better error checking. Complicated because some calls could fail even though the process completes successfully. (ie: creating db table columns that already exist will fail)
-	return true;
+	AMDbObjectSupport::registerDatabase(AMDatabase::userdb());
 
 
+	AMDbObjectSupport::registerClass<AMDbObject>();
+	AMDbObjectSupport::registerClass<AMScan>();
+	AMDbObjectSupport::registerClass<AMXASScan>();
 
-}
+	AMDbObjectSupport::registerClass<AMRun>();
+	AMDbObjectSupport::registerClass<AMExperiment>();
+	AMDbObjectSupport::registerClass<AMSample>();
+	AMDbObjectSupport::registerClass<AMFacility>();
 
-/// Check whether the user database is the most recent version, and migrate if required.
-bool AMFirstTimeController::databaseUpgrade() {
-	/// \todo
+
+	AMDbObjectSupport::registerClass<AMDetectorInfo>();
+	AMDbObjectSupport::registerClass<AMSpectralOutputDetectorInfo>();
+	AMDbObjectSupport::registerClass<AMControlSetInfo>();
+	AMDbObjectSupport::registerClass<AMSamplePlate>();
+
+	AMDbObjectSupport::registerClass<AMUser>();
+
+	if(newUser)
+		AMUser::user()->storeToDb(AMDatabase::userdb());	// insert the user into the database, if new.
+	else
+		AMUser::user()->loadFromDb(AMDatabase::userdb(), 1);// otherwise load existing user settings
+
+	/// \bug Better error checking. Complicated because some calls could fail even though the process completes successfully. (ie: creating db table columns that already exist will fail)
 	return true;
 }
+
+

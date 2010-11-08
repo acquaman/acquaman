@@ -2,7 +2,6 @@
 #define AMCONTROLSETINFO_H
 
 #include "dataman/AMDbObject.h"
-#include "dataman/AMDatabaseDefinition.h"
 #include <QStringList>
 #include <QAbstractTableModel>
 #include <QDebug>
@@ -13,6 +12,10 @@ class AMControlSlimInfo;
 class AMControlSetInfo : public AMDbObject
 {
 Q_OBJECT
+	Q_PROPERTY(QString description READ description WRITE setDescription)
+
+	AM_DBOBJECTINFO("description=Set of control settings")
+
 public:
 	explicit AMControlSetInfo(QObject *parent = 0);
 	AMControlSetInfo(AMControlSetInfo *copyFrom, QObject *parent = 0);
@@ -33,9 +36,9 @@ public:
 
 	QString unitsAt(size_t index) const;
 
+	QString description() const { return description_; }
 
-	/// We want to store this in a separate table (so that it's easy to create relationships between detectors and scan objects).  Therefore, we reimplement databaseTableName():
-	virtual QString databaseTableName() const;
+
 
 	/// Load yourself from the database. (returns true on success)
 	/*! Re-implemented from AMDbObject. */
@@ -45,9 +48,6 @@ public:
 	/*! Re-implemented from AMDbObject::storeToDb(), this version also writes out the dimension and rank, even though they aren't strictly part of the meta-data.
 	  */
 	virtual bool storeToDb(AMDatabase* db);
-
-	/// Reimplemented from AMDbObject; provides a general human-readable description
-	virtual QString typeDescription() const;
 
 
 
@@ -88,6 +88,7 @@ protected:
 
 protected:
 	AMControlSetInfoModel *ctrlInfoList_;
+	QString description_;
 
 private:
 	int insertRowLatch;

@@ -4,7 +4,6 @@
 
 
 #include "dataman/AMDbObject.h"
-#include "dataman/AMDatabaseDefinition.h"
 #include <QImage>
 
 #include <QBuffer>
@@ -27,6 +26,10 @@
 class AMExperiment : public AMDbObject
 {
 	Q_OBJECT
+	Q_PROPERTY(QString notes READ notes WRITE setNotes)
+
+	AM_DBOBJECTINFO("description=Experiment")
+
 public:
 	/// Default constructor. In it we initialize the extra fields we want to store inside metaData_.
 	explicit AMExperiment(QObject *parent = 0);
@@ -38,6 +41,7 @@ public:
 	AMExperiment(int databaseId, AMDatabase* database, QObject* parent = 0);
 
 	/// Static function for managing experiments: deletes an experiment and all associated entries from the given \c database.  Returns true on success.
+	/*! \todo move the general functionality in AMDbObject sytem */
 	static bool deleteExperiment(int id, AMDatabase* database) {
 		Q_UNUSED(id)
 		Q_UNUSED(database)
@@ -46,57 +50,10 @@ public:
 		return false;
 	}
 
-	// Implement the Meta-data system
-	///////////////////////////
-
-	/// We write this function to specify all of our unique pieces of meta-data (excluding those inherited from base classes -- ie: own only)
-	static QList<AMMetaMetaData> metaDataUniqueKeys() {
-		QList<AMMetaMetaData> rv;
-		;
-		rv << AMMetaMetaData(QVariant::String, "notes", true);
-
-
-		return rv;
-	}
-
-
-	/// This function needs to be overloaded to return all the available pieces of meta data for this type of object, including those inherited from base classes. (ie: own + base classes'). We simply append our unique meta-data onto the base class:
-	static QList<AMMetaMetaData> metaDataKeys() {
-		return AMDbObject::metaDataKeys() << metaDataUniqueKeys();
-
-	}
-
-	/// This virtual function returns all the available pieces of meta data for this type of object, by introspecting it's most detailed type. (ie: own + base classes' + subclasses')
-	virtual QList<AMMetaMetaData> metaDataAllKeys() const {
-		return this->metaDataKeys();
-	}
-
-	// Convenient access methods for our meta-data:
-	/////////////////////////
-
 
 	/// This returns a string of notes/comments about this experiment.
 	QString notes() const {
-		return metaData("notes").toString();
-	}
-
-	// Database information and access:
-	///////////////////////////////
-	/// We want to store experiments in a separate table (so that it's easy to create relationships between experiments and scan objects).  Therefore, we reimplement databaseTableName():
-
-
-	/// We aren't storing any special information outside of the metaData_ hash, so we can use the default implementations of loadFromDb() and storeToDb().
-
-
-	// Thumbnail System
-	/////////////////////////////////
-	/// It would be nice to have (at least one) thumbnail... for now, it'll come from our sample image.
-	int thumbnailCount() const {
-			return 0;
-
-	}
-	QString databaseTableName() const {
-		return AMDatabaseDefinition::experimentTableName();
+		return notes_;
 	}
 
 
@@ -106,14 +63,18 @@ public slots:
 
 	/// Convenience function to set the notes/comments on this sample
 	void setNotes(const QString& notes) {
-		setMetaData("notes", notes);
+		notes_ = notes;
+		setModified(true);
 	}
 
 
 
 protected:
 	/// We have a picture of this  In the future,
-	QImage sampleImage_;
+	// QImage sampleImage_;
+
+	/// User-logged notes about this experiment.
+	QString notes_;
 
 };
 

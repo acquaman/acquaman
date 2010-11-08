@@ -57,12 +57,27 @@ bool SGMXASScanController::beamlineInitialize(){
 	AMDetectorInfo* tmpDI;
 	for(int x = 0; x < pCfg_()->detectorSet()->count(); x++){
 		tmpDI = pCfg_()->detectorSet()->detectorAt(x);
+		#warning "David please review... Had to change because of removed AMDbObject::typeDescription"
+		/* previously: typeDescription()s were never the safest way to tell what class something was anyway.
 		if(tmpDI->typeDescription() == "PGT SDD Spectrum-Output Detector")
 			((PGTDetector*)(pCfg_()->detectorSet()->detectorAt(x)))->setControls( (PGTDetectorInfo*)pCfg_()->cfgDetectorInfoSet()->detectorAt(x) );
 		else if(tmpDI->typeDescription() == "MCP Detector")
 			((MCPDetector*)(pCfg_()->detectorSet()->detectorAt(x)))->setControls( (MCPDetectorInfo*)pCfg_()->cfgDetectorInfoSet()->detectorAt(x) );
 		else
 			((AMSingleControlDetector*)(pCfg_()->detectorSet()->detectorAt(x)))->setControls( (AMDetectorInfo*)pCfg_()->cfgDetectorInfoSet()->detectorAt(x) );
+			*/
+		// replaced with: use qobject_cast<toType*>(genericType*).  Returns 0 if genericType* is not of the toType type.
+		PGTDetector* pgtDetector;
+		MCPDetector* mcpDetector;
+		AMSingleControlDetector* scDetector;
+
+		if( (pgtDetector = qobject_cast<PGTDetector*>(tmpDI)) )
+			pgtDetector->setControls( (PGTDetectorInfo*)pCfg_()->cfgDetectorInfoSet()->detectorAt(x) );
+		else if( (mcpDetector = qobject_cast<MCPDetector*>(tmpDI)) )
+			mcpDetector->setControls( (MCPDetectorInfo*)pCfg_()->cfgDetectorInfoSet()->detectorAt(x) );
+		else if( (scDetector = qobject_cast<AMSingleControlDetector*>(tmpDI)) )
+			scDetector->setControls( (AMDetectorInfo*)pCfg_()->cfgDetectorInfoSet()->detectorAt(x) );
+
 	}
 
 	beamlineInitialized_ = true;

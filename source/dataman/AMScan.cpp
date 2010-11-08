@@ -1,6 +1,5 @@
 #include "AMScan.h"
 #include "dataman/AMDatabase.h"
-#include "dataman/AMDatabaseDefinition.h"
 #include "acquaman.h"
 #include "dataman/AMRun.h"
 #include <QDebug>
@@ -109,19 +108,7 @@ AMScan::~AMScan() {
 
 }
 
-QList<AMMetaMetaData> AMScan::metaDataUniqueKeys() {
-	QList<AMMetaMetaData> rv;
-	rv << AMMetaMetaData(QVariant::Int, "number", true);
-	rv << AMMetaMetaData(QVariant::DateTime, "dateTime", true);
-	rv << AMMetaMetaData(QVariant::Int, "runId", false);
-	rv << AMMetaMetaData(QVariant::Int, "sampleId", true);
-	rv << AMMetaMetaData(QVariant::String, "notes", true);
-	rv << AMMetaMetaData(QVariant::StringList, "channelNames", false);
-	rv << AMMetaMetaData(QVariant::StringList, "channelExpressions", false);
-	rv << AMMetaMetaData(QVariant::String, "fileFormat", false);
-	rv << AMMetaMetaData(QVariant::String, "filePath", false);
-	return rv;
-}
+
 
 QVariant AMScan::metaData(const QString& key) const {
 
@@ -133,7 +120,7 @@ QVariant AMScan::metaData(const QString& key) const {
 		return channelExpressions();
 	}
 
-	return AMDbObject::metaData(key);
+	return metaData_.value(key);
 }
 
 #include <QDebug>
@@ -154,7 +141,11 @@ bool AMScan::setMetaData(const QString& key, const QVariant& value) {
 
 		int oldRunId = runId();
 
-		bool success = AMDbObject::setMetaData(key, value);
+		bool success = false;
+		if(metaData_.contains(key)) {
+			success = true;
+			metaData_[key] = value;
+		}
 
 		// Do we need to update the scan range on the runs?
 		if(database() && oldRunId > 0)
@@ -167,7 +158,11 @@ bool AMScan::setMetaData(const QString& key, const QVariant& value) {
 	}
 
 
-	return AMDbObject::setMetaData(key, value);
+	bool success = metaData_.contains(key);
+	if(success) {
+		metaData_[key] = value;
+	}
+	return success;
 }
 
 /// Convenience function: returns the name of the sample (if a sample is set)
@@ -181,6 +176,9 @@ QString AMScan::sampleName() const {
 
 }
 
+#include "dataman/AMSample.h"
+#include "dataman/AMDbObjectSupport.h"
+
 void AMScan::retrieveSampleName() const {
 
 	if(sampleId() <1 || database() == 0)
@@ -188,10 +186,8 @@ void AMScan::retrieveSampleName() const {
 
 	else {
 		sampleNameLoaded_ = true;	// don't set sampleNameLoaded_ in the case above. That way we will keep checking until there's a valid database() (for ex: we get saved/stored.) The sampleNameLoaded_ cache is meant to speed up this database call.
-		QVariant vSampleName;
-		QList<QVariant*> vList;
-		vList << &vSampleName;
-		if(database()->retrieve(sampleId(), AMDatabaseDefinition::sampleTableName(), QString("name").split(','), vList))
+		QVariant vSampleName = database()->retrieve(sampleId(), AMDbObjectSupport::tableNameForClass<AMSample>(), QString("name"));
+		if(vSampleName.isValid())
 			sampleName_ =  vSampleName.toString();
 		else
 			sampleName_ = "[no sample]";
@@ -253,11 +249,6 @@ bool AMScan::addChannel(const QString& chName, const QString& expression, bool e
 }
 
 
-// DBObject database implementation:
-///////////////////////////////
-
-
-#include "dataman/AMDatabaseDefinition.h"
 
 
 /// Store or update self in the database. (returns true on success)
