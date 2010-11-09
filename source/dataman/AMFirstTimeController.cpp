@@ -10,8 +10,11 @@
 #include <dataman/AMSamplePlate.h>
 #include <dataman/AMDetectorInfo.h>
 #include "dataman/AMUser.h"
+#include "dataman/AMXESScan.h"
 
 #include "dataman/AMDbObjectSupport.h"
+
+#include <QDebug>
 
 bool AMFirstTimeController::isFirstTime() {
 
@@ -46,6 +49,8 @@ bool AMFirstTimeController::isFirstTime() {
 
 
 bool AMFirstTimeController::onFirstTime() {
+
+	AM::registerTypes();
 
 	AMFirstTimeWizard ftw;
 
@@ -104,15 +109,17 @@ bool AMFirstTimeController::onFirstTime() {
 
 bool AMFirstTimeController::onEveryTime() {
 
+	AM::registerTypes();
 	return databaseInitialization(false);
 }
 
+
+#include <QDebug>
 
 /// create structures and tables for a new user database, from scratch
 bool AMFirstTimeController::databaseInitialization(bool newUser) {
 
 	AMDbObjectSupport::registerDatabase(AMDatabase::userdb());
-
 
 	AMDbObjectSupport::registerClass<AMDbObject>();
 	AMDbObjectSupport::registerClass<AMScan>();
@@ -137,6 +144,7 @@ bool AMFirstTimeController::databaseInitialization(bool newUser) {
 		AMUser::user()->loadFromDb(AMDatabase::userdb(), 1);// otherwise load existing user settings
 
 	/// \bug Better error checking. Complicated because some calls could fail even though the process completes successfully. (ie: creating db table columns that already exist will fail)
+
 	return true;
 }
 

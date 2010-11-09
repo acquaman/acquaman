@@ -316,4 +316,6 @@ Because Scan::storeToDb() is virtual, this version can be used properly for all 
 */
 AMDatabase& operator<<(AMDatabase& db, AMDbObject& s);
 
+Q_DECLARE_METATYPE(AMDbObject*)
+
 #endif // DBOBJECT_H

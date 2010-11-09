@@ -2,6 +2,7 @@
 #include "dataman/AMDbObjectSupport.h"
 #include "acquaman.h"
 
+#include <QMetaType>
 
 /// Default constructor
 AMDbThumbnail::AMDbThumbnail(const QString& Title, const QString& Subtitle, ThumbnailType Type, const QByteArray& ThumbnailData)
@@ -144,8 +145,9 @@ bool AMDbObject::storeToDb(AMDatabase* db) {
 		QByteArray columnNameBA = myInfo->columns.at(i).toAscii();
 		const char* columnName = columnNameBA.constData();
 
-
-		if(columnType == (int)AM::IntList) {
+		/// AAAAAHHHHH!!! determine whether columnType is QProperty's QVariant::type() or QVariant::userType(). Handle as req'd.
+		/// \todo add AMDbObjectList
+		if(columnType == qMetaTypeId<AMIntList>()) {
 			AMIntList intList = property(columnName).value<AMIntList>();
 			QStringList resultString;
 			foreach(int i, intList)
@@ -153,7 +155,7 @@ bool AMDbObject::storeToDb(AMDatabase* db) {
 			values << resultString.join(AMDbObjectSupport::listSeparator());
 		}
 
-		else if(columnType == (int)AM::DoubleList) {
+		else if(columnType == qMetaTypeId<AMDoubleList>()) {
 			AMDoubleList doubleList = property(columnName).value<AMDoubleList>();
 			QStringList resultString;
 			foreach(double d, doubleList)
@@ -161,6 +163,7 @@ bool AMDbObject::storeToDb(AMDatabase* db) {
 			values << resultString.join(AMDbObjectSupport::listSeparator());
 		}
 
+		/// \todo determine if QVariantList gets handled properly here...
 		else if(columnType == QVariant::StringList || columnType == QVariant::List) {
 			values << property(columnName).toStringList().join(AMDbObjectSupport::stringListSeparator());
 		}
@@ -287,20 +290,23 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 
 		// special action necessary to convert StringList, IntList, and DoubleList types which have been returned as strings.
 
-		if(columnType == (int)AM::IntList) {	// integer lists
+		/// AAAAAHHHHH!!! determine whether columnType is QProperty's QVariant::type() or QVariant::userType(). Handle as req'd.
+		/// \todo add AMDbObjectList
+		if(columnType == qMetaTypeId<AMIntList>()) {	// integer lists
 			AMIntList intList;
 			QStringList stringList = values.at(i).toString().split(AMDbObjectSupport::listSeparator());
 			foreach(QString i, stringList)
 				intList << i.toInt();
 			setProperty(columnName, QVariant::fromValue(intList));
 		}
-		else if(columnType == (int)AM::DoubleList) {	// double lists
+		else if(columnType == qMetaTypeId<AMDoubleList>()) {	// double lists
 			AMDoubleList doubleList;
 			QStringList stringList = values.at(i).toString().split(AMDbObjectSupport::listSeparator());
 			foreach(QString d, stringList)
 				doubleList << d.toDouble();
 			setProperty(columnName, QVariant::fromValue(doubleList));
 		}
+		/// \todo determine if QVariantList gets handled properly here...
 		else if(columnType == QVariant::StringList || columnType == QVariant::List) {	// string list, and anything-else-lists saved as string lists
 			setProperty(columnName, values.at(i).toString().split(AMDbObjectSupport::stringListSeparator()));
 		}

@@ -416,7 +416,8 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/dataman/AMDataSourceSeriesData.cpp \
 	source/dataman/AMDataSourceImageData.cpp \
 	source/analysis/AM1DExpressionAnalysisBlock.cpp \
-	source/dataman/AMDbObjectSupport.cpp
+	source/dataman/AMDbObjectSupport.cpp \
+    source/acquaman.cpp
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc
 OTHER_FILES += source/muParser/README.txt

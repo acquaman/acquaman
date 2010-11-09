@@ -7,6 +7,8 @@
 #include <QMetaClassInfo>
 #include "AMErrorMonitor.h"
 
+#include <QDebug>
+
 // fill the className, tableName, metaObject, columns, columnTypes, isVisible, isLoadable, and doNotReuseIds properties based on a prototype AMDbObject.
 AMDbObjectInfo::AMDbObjectInfo(AMDbObject* prototype) {
 	initWithMetaObject(prototype->metaObject());
@@ -55,7 +57,7 @@ void AMDbObjectInfo::initWithMetaObject(const QMetaObject *classMetaObject) {
 
 		columnCount++;
 		columns << propertyName;
-		columnTypes << metaObject->property(i).type();
+		columnTypes << metaObject->property(i).userType();	// need userType() instead of type(), because the type() for all user-defined types would be simply QVariant::UserType.  Note that for normal types, userType() == type().
 		isVisible << !hidden;
 		isLoadable << !doNotLoad;
 		isIndexed << createIndex;
