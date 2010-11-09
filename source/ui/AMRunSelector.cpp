@@ -62,10 +62,11 @@ void AMRunSelector::populateRuns() {
 
 	int i = 1;
 	QSqlQuery q = database_->query();
-	q.prepare(QString("SELECT Runs.id,Runs.name,Runs.dateTime,Facilities.description,Thumbnails.type,Thumbnails.thumbnail,Runs.endDateTime "
-					  "FROM Runs,Facilities,Thumbnails "
-					  "WHERE Runs.facilityId = Facilities.id AND Thumbnails.id = Facilities.thumbnailFirstId "
-					  "ORDER BY Runs.dateTime DESC"));
+#warning "Hard-coded database table names. This is not future-compatible code."
+	q.prepare(QString("SELECT AMRun_table.id,AMRun_table.name,AMRun_table.dateTime,AMFacility_table.description,AMDbObjectThumbnails_table.type,AMDbObjectThumbnails_table.thumbnail,AMRun_table.endDateTime "
+					  "FROM AMRun_table,AMFacility_table,AMDbObjectThumbnails_table "
+					  "WHERE AMRun_table.facilityId = AMFacility_table.id AND AMDbObjectThumbnails_table.id = AMFacility_table.thumbnailFirstId "
+					  "ORDER BY AMRun_table.dateTime DESC"));
 
 	if (q.exec()) {
 		while (q.next()){

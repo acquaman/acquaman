@@ -17,7 +17,7 @@ Q_OBJECT
 	Q_PROPERTY(QByteArray image READ rawImage WRITE setRawImage)
 
 	/// Do not reuse ids in the sample database... when deleting samples, we want any scans that reference their ids to become invalid; not to refer to new samples that would reuse the deleted ids.
-	AM_DBOBJECTINFO("doNotReuseIds=true;description=Sample")
+	Q_CLASSINFO("AMDbObject_Attributes", "doNotReuseIds=true;description=Sample")
 
 public:
 	/// Default constructor.

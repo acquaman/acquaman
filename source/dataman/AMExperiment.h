@@ -28,7 +28,7 @@ class AMExperiment : public AMDbObject
 	Q_OBJECT
 	Q_PROPERTY(QString notes READ notes WRITE setNotes)
 
-	AM_DBOBJECTINFO("description=Experiment")
+	Q_CLASSINFO("AMDbObject_Attributes", "description=Experiment")
 
 public:
 	/// Default constructor. In it we initialize the extra fields we want to store inside metaData_.

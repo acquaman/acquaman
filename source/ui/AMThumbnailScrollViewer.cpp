@@ -525,7 +525,7 @@ QDrag* AMThumbnailScrollGraphicsWidget::createDragObject(QWidget* dragSourceWidg
 			return 0;
 		if(sourceObject_->id() < 1)
 			return 0;
-		uri = QString("amd://%1/%2/%3").arg(sourceObject_->database()->connectionName()).arg(sourceObject_->databaseTableName()).arg(sourceObject_->id());
+		uri = QString("amd://%1/%2/%3").arg(sourceObject_->database()->connectionName()).arg(sourceObject_->dbTableName()).arg(sourceObject_->id());
 	}
 
 	QDrag* drag = new QDrag(dragSourceWidget);

@@ -22,8 +22,8 @@ Q_OBJECT
 	Q_PROPERTY(AMIntList sampleIDs READ sampleIDs WRITE loadSampleIDs)
 	Q_PROPERTY(AMIntList positionIDs READ positionIDs WRITE loadPositionIDs)
 
-	AM_DBOBJECTINFO("description=List of Samples and their Positions on a Sample Plate")
-	AM_DBPROPERTYINFO(createTime, "createIndex=true")
+	Q_CLASSINFO("AMDbObject_Attributes", "description=List of Samples and their Positions on a Sample Plate")
+	Q_CLASSINFO("createTime", "createIndex=true")
 
 public:
 

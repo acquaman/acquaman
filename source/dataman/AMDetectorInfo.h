@@ -16,7 +16,7 @@ Q_OBJECT
 	Q_PROPERTY(int dimension READ dimension)
 	Q_PROPERTY(QList<int> rank READ rank)	/// \bug upgrade this to AMnDIndex
 
-	AM_DBOBJECTINFO("description=Generic Detector")
+	Q_CLASSINFO("AMDbObject_Attributes", "description=Generic Detector")
 
 public:
 	// Constructors and destructors
@@ -68,7 +68,7 @@ Q_OBJECT
 	Q_PROPERTY(QString integrationMode READ integrationMode WRITE setIntegrationMode)
 	Q_PROPERTY(QStringList integrationModeList READ integrationModeList)
 
-	AM_DBOBJECTINFO("description=Generic Binning Spectrum-Output Detector")
+	Q_CLASSINFO("AMDbObject_Attributes", "description=Generic Binning Spectrum-Output Detector")
 
 public:
 	AMSpectralOutputDetectorInfo(const QString& name, const QString& description, int binCount = 0, QString axisName = "", QStringList binNames = QStringList(), QObject *parent = 0);
@@ -169,7 +169,7 @@ Q_OBJECT
 	Q_PROPERTY(double hvSetpointRangeMin READ hvSetpointRangeMin WRITE setHVSetpointRangeMin)
 	Q_PROPERTY(double hvSetpointRangeMax READ hvSetpointRangeMax WRITE setHVSetpointRangeMax)
 
-	AM_DBOBJECTINFO("description=MCP Detector")
+	Q_CLASSINFO("AMDbObject_Attributes", "description=MCP Detector")
 
 public:
 	MCPDetectorInfo(const QString& name, const QString& description, QObject *parent = 0);
@@ -223,7 +223,7 @@ Q_OBJECT
 	Q_PROPERTY(double hvSetpointRangeMin READ hvSetpointRangeMin WRITE setHVSetpointRangeMin)
 	Q_PROPERTY(double hvSetpointRangeMax READ hvSetpointRangeMax WRITE setHVSetpointRangeMax)
 
-	AM_DBOBJECTINFO("description=PGT Detector")
+	Q_CLASSINFO("AMDbObject_Attributes", "description=PGT Detector")
 
 public:
 	PGTDetectorInfo(const QString& name, const QString& description, QObject *parent = 0);

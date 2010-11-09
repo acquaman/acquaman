@@ -36,7 +36,7 @@ class AMAnalysisBlock : public AMDbObject, public AMDataSource
 {
 	Q_OBJECT
 
-	AM_DBOBJECTINFO("description=Generic Analysis Block")
+	Q_CLASSINFO("AMDbObject_Attributes", "description=Generic Analysis Block")
 
 public:
 	/// Create a new AMAnalysisBlock. The block is an AMDataSource of output data; \c outputName is the name for this AMDataSource.

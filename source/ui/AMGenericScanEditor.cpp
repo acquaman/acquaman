@@ -5,8 +5,6 @@
 #include <QList>
 #include <QUrl>
 
-
-#include "dataman/AMDbLoader.h"
 #include "dataman/AMDbObjectSupport.h"
 
 #include "ui/AMDetailedItemDelegate.h"
@@ -333,12 +331,12 @@ bool AMGenericScanEditor::dropScanURLs(const QList<QUrl>& urls) {
 		if(!idOkay || id < 1)
 			break;
 
-		// Only store things that belong in the scans table for now.
+		/// \todo Evaluate if this is still necessary: Only store things that belong in the scans table for now.
 		if(tableName != AMDbObjectSupport::tableNameForClass<AMScan>())
 			break;
 
 		/// Dynamically create and load a detailed subclass of AMDbObject from the database... whatever type it is.
-		AMDbObject* dbo = AMDbLoader::createAndLoad(db, id);
+		AMDbObject* dbo = AMDbObjectSupport::createAndLoadObjectAt(db, tableName, id);
 		if(!dbo)
 			break;
 

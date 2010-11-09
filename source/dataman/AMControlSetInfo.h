@@ -14,7 +14,7 @@ class AMControlSetInfo : public AMDbObject
 Q_OBJECT
 	Q_PROPERTY(QString description READ description WRITE setDescription)
 
-	AM_DBOBJECTINFO("description=Set of control settings")
+	Q_CLASSINFO("AMDbObject_Attributes", "description=Set of control settings")
 
 public:
 	explicit AMControlSetInfo(QObject *parent = 0);

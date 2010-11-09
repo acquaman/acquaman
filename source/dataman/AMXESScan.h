@@ -6,6 +6,8 @@
 class AMXESScan : public AMScan
 {
 	Q_OBJECT
+	Q_CLASSINFO("AMDbObject_Attributes", "shareTableWithClass=AMScan;description=XRay Absorption Scan")
+
 public:
 	explicit AMXESScan(QObject *parent = 0);
 

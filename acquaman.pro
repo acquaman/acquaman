@@ -138,7 +138,6 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/dataman/AMDatabase.h \
 	source/dataman/AMDataTree.h \
 	source/dataman/AMDataTreeColumn.h \
-	source/dataman/AMDbLoader.h \
 	source/dataman/AMDbObject.h \
 	source/dataman/AMDetectorInfo.h \
 	source/dataman/AMExperiment.h \
@@ -386,7 +385,6 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/dataman/AMControlSetInfo.cpp \
 	source/dataman/AMSamplePlate.cpp \
 	source/ui/AMGenericScanEditor.cpp \
-	source/dataman/AMDbLoader.cpp \
 	source/ui/AMDetailedItemDelegate.cpp \
 	source/ui/AMVerticalStackWidget.cpp \
 	source/ui/AMHeaderButton.cpp \

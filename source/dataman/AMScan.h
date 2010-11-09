@@ -96,13 +96,17 @@ class AMScan : public AMDbObject {
 
 	Q_PROPERTY(int number READ number WRITE setNumber)
 	Q_PROPERTY(QDateTime dateTime READ dateTime WRITE setDateTime)
+	Q_PROPERTY(int runId READ runId WRITE setRunId)
 	Q_PROPERTY(int sampleId READ sampleId WRITE setSampleId)
 	Q_PROPERTY(QString notes READ notes WRITE setNotes)
+	Q_PROPERTY(QString fileFormat READ fileFormat WRITE setFileFormat)
+	Q_PROPERTY(QString filePath READ filePath WRITE setFilePath)
 
-	AM_DBPROPERTYINFO(dateTime, "createIndex=true")
-	AM_DBPROPERTYINFO(sampleId, "createIndex=true")
+	Q_CLASSINFO("dateTime", "createIndex=true")
+	Q_CLASSINFO("sampleId", "createIndex=true")
+	Q_CLASSINFO("runId", "createIndex=true")
 
-	AM_DBOBJECTINFO("description=Generic Scan")
+	Q_CLASSINFO("AMDbObject_Attributes", "description=Generic Scan")
 
 public:
 

@@ -40,7 +40,7 @@ class ALSBL8XESDetectorInfo : public AMDetectorInfo
 	Q_PROPERTY(AMDoubleList slitCorrectionsDY READ slitCorrectionsDY WRITE loadSlitCorrectionsDY);	// mm
 	*/
 
-	AM_DBOBJECTINFO("description=ALS BL8.0.1")
+	Q_CLASSINFO("AMDbObject_Attributes", "description=ALS BL8.0.1 XES Spectrometer Settings")
 
 public:
 	explicit ALSBL8XESDetectorInfo(QObject *parent = 0);

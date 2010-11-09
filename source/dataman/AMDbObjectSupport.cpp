@@ -7,12 +7,12 @@
 #include <QMetaClassInfo>
 #include "AMErrorMonitor.h"
 
-/// fill the className, tableName, metaObject, columns, columnTypes, isVisible, isLoadable, and doNotReuseIds properties based on a prototype AMDbObject.
+// fill the className, tableName, metaObject, columns, columnTypes, isVisible, isLoadable, and doNotReuseIds properties based on a prototype AMDbObject.
 AMDbObjectInfo::AMDbObjectInfo(AMDbObject* prototype) {
 	initWithMetaObject(prototype->metaObject());
 }
 
-/// fill the className, tableName, metaObject, columns, columnTypes, isVisile, isLoadable, and doNotReuseIds properties based on a prototype object's QMetaObject. (This version doesn't require an instance. The \c classMetaObject can be retrieved statically with Class::staticMetaObject. )
+// fill the className, tableName, metaObject, columns, columnTypes, isVisile, isLoadable, and doNotReuseIds properties based on a prototype object's QMetaObject. (This version doesn't require an instance. The \c classMetaObject can be retrieved statically with Class::staticMetaObject. )
 AMDbObjectInfo::AMDbObjectInfo(const QMetaObject* classMetaObject) {
 	initWithMetaObject(classMetaObject);
 }
@@ -24,12 +24,14 @@ void AMDbObjectInfo::initWithMetaObject(const QMetaObject *classMetaObject) {
 
 	doNotReuseIds = ( AMDbObjectSupport::dbObjectAttribute(metaObject, "doNotReuseIds") == QString("true") );
 	classDescription = AMDbObjectSupport::dbObjectAttribute(metaObject, "description");
+	sharedTable = !AMDbObjectSupport::dbObjectAttribute(metaObject, "shareTableWithClass").isEmpty();
 
 	bool versionSet;
 	int versionInt = AMDbObjectSupport::dbObjectAttribute(metaObject, "version").toInt(&versionSet);
 	version = versionSet ? versionInt : 1;
 
 	int numProperties = metaObject->propertyCount();
+	columnCount = 0;
 
 	for(int i=0; i<numProperties; i++) {
 		QString propertyName = metaObject->property(i).name();
@@ -51,6 +53,7 @@ void AMDbObjectInfo::initWithMetaObject(const QMetaObject *classMetaObject) {
 			db->createIndex(prototype->databaseTableName(), col.key);
 			*/
 
+		columnCount++;
 		columns << propertyName;
 		columnTypes << metaObject->property(i).type();
 		isVisible << !hidden;
@@ -69,11 +72,13 @@ namespace AMDbObjectSupport {
 		return &registeredClasses_;
 	}
 
-	/// Retrieve the AMDbObjectAttribute for a given \c object and \c key
+	// Retrieve the AMDbObjectAttribute for a given \c object and \c key
 	QString dbObjectAttribute(const QMetaObject* mo, const QString& key) {
 		int i = mo->indexOfClassInfo("AMDbObject_Attributes");
-		if(i < 0)
+		if(i < 0) {
+			//qDebug() << "AMDBOBJECT" << mo->className() << ": no dbobject attributes set";
 			return QString();
+		}
 		QString allAttributes( mo->classInfo(i).value() );
 		QStringList attributeList = allAttributes.split(QChar(';'), QString::SkipEmptyParts);// split attributes by semicolon
 		// search for a matching attribute:
@@ -81,14 +86,17 @@ namespace AMDbObjectSupport {
 			if(attributeList.at(i).trimmed().startsWith(key+"="))
 				return attributeList.at(i).section(QChar('='), 1);// return section after "key=".
 		}
+		//qDebug() << "AMDBOBJECT" << mo->className() << ": could not find object attribute " << key;
 		return QString();
 	}
 
-	/// Retrieve an object's property attribute for a given \c object, \c propertyName, and \c key. Returns empty string if not set.
+	// Retrieve an object's property attribute for a given \c object, \c propertyName, and \c key. Returns empty string if not set.
 	QString dbPropertyAttribute(const QMetaObject* mo, const QString& propertyName, const QString& key) {
-		int i = mo->indexOfClassInfo(propertyName.toAscii().data());
-		if(i < 0)
+		int i = mo->indexOfClassInfo(propertyName.toAscii().constData());
+		if(i < 0) {
+			//qDebug() << "AMDBOBJECT" << mo->className() << ": no property attributes set for " << propertyName;
 			return QString();	// property attributes not found for this property
+		}
 		QString allAttributes( mo->classInfo(i).value() );
 		QStringList attributeList = allAttributes.split(QChar(';'), QString::SkipEmptyParts);// split attributes by semicolon
 		// search for matching attribute:
@@ -96,28 +104,29 @@ namespace AMDbObjectSupport {
 			if(attributeList.at(i).startsWith(key+"="))
 				return attributeList.at(i).section(QChar('='), 1);// return section after "key=".
 		}
+		//qDebug() << "AMDBOBJECT" << mo->className() << ": could not find property attribute " << propertyName << key;
+
 		return QString();
 	}
 
 
-	/// Returns the name of the table that should be used to store this class. If the class is registered already, it returns the registered name. If it's not registered, but it has the dbObjectProperty 'shareTableWithClass' set to another registered class, then it returns the table used by that class. Otherwise, it provides a default table name of 'className' + '_table'.
+	// Returns the name of the table that should be used to store this class. If the class is registered already, it returns the registered name. If it's not registered, but it has the dbObjectProperty 'shareTableWithClass' set to another registered class, then it returns the table used by that class. Otherwise, it provides a default table name of 'className' + '_table'.
 	QString tableNameForClass(const QMetaObject* classMetaObject) {
 		QString className = classMetaObject->className();
 
 		// if we're registered already, let's just look this up in the registry.
-		if( AMDbObjectSupport::registeredClasses()->contains(className) ) {
-			const AMDbObjectInfo& info = (*AMDbObjectSupport::registeredClasses())[className];
-			return info.tableName;
-		}
+		QHash<QString, AMDbObjectInfo>::const_iterator iInfo = registeredClasses()->find(className);
+		if(iInfo != registeredClasses()->end())
+			return iInfo.value().tableName;
 
 		// ok, we're not registered. Instead, let's answer where we SHOULD be stored:
 
 		// are supposed to use the table of another registered class?
 		QString sharedClassName = dbObjectAttribute(classMetaObject, "shareTableWithClass");
 		if( !sharedClassName.isEmpty() ) {
-			if(AMDbObjectSupport::registeredClasses()->contains(sharedClassName)) {
-				return ((AMDbObjectInfo&)(*AMDbObjectSupport::registeredClasses())[sharedClassName]).tableName;
-			}
+			iInfo = registeredClasses()->find(sharedClassName);
+			if(iInfo != registeredClasses()->end())
+				return iInfo.value().tableName;
 		}
 		// default is to use the class name (which is always unique) plus "_table":
 		return className + "_table";
@@ -129,22 +138,22 @@ namespace AMDbObjectSupport {
 	bool registerDatabase(AMDatabase* db) {
 		// ensure type-metaInfo table
 		if( db->ensureTable(	typeTableName(),
-							QString("className,tableName,typeDescription,version").split(','),
-							QString("TEXT,TEXT,TEXT,INTEGER").split(','),
-							false) )
-			db->createIndex(typeTableName(), "className");
+								QString("AMDbObjectType,tableName,description,version").split(','),
+								QString("TEXT,TEXT,TEXT,INTEGER").split(','),
+								false) )
+			db->createIndex(typeTableName(), "AMDbObjectType");
 
 		// ensure supporting type tables: (These map types to column names: an entry for each type / field-name combintion)
 		if( db->ensureTable(	allColumnsTableName(),
-							QString("typeId,columnName").split(','),
-							QString("INTEGER,TEXT").split(','),
-							false) )
+								QString("typeId,columnName").split(','),
+								QString("INTEGER,TEXT").split(','),
+								false) )
 			db->createIndex(allColumnsTableName(), "typeId");
 
 		if( db->ensureTable(	visibleColumnsTableName(),
-							QString("typeId,columnName").split(','),
-							QString("INTEGER,TEXT").split(','),
-							false) )
+								QString("typeId,columnName").split(','),
+								QString("INTEGER,TEXT").split(','),
+								false) )
 			db->createIndex(visibleColumnsTableName(), "typeId");
 
 		if( db->ensureTable(loadColumnsTableName(),
@@ -159,7 +168,7 @@ namespace AMDbObjectSupport {
 
 		// temporary... this should all be cleaned up and moved and handled generically
 		////////////////////////////
-		db->ensureTable(elementTableName(), QString("typeId,thumbnailCount,thumbnailFirstId,symbol,name,atomicNumber").split(','), QString("INTEGER,INTEGER,INTEGER,TEXT,TEXT,INTEGER").split(','));
+		db->ensureTable(elementTableName(), QString("AMDbObjectType,thumbnailCount,thumbnailFirstId,symbol,name,atomicNumber").split(','), QString("TEXT,INTEGER,INTEGER,TEXT,TEXT,INTEGER").split(','));
 
 
 		// These tables provide links between experiments and user-data objects, and samples and elements.
@@ -178,13 +187,13 @@ namespace AMDbObjectSupport {
 
 
 		registeredDatabases_.insert(db);
-		return true;	/// \todo error checking on creating type table
+		return true;	// \todo error checking on creating type table
 	}
 
 	bool getDatabaseReadyForClass(AMDatabase* db, const AMDbObjectInfo& info) {
 
 		// have the tables already been created in this database for this class? check the types table:
-		QList<int> foundRows = db->objectsMatching(typeTableName(), "className", info.className );
+		QList<int> foundRows = db->objectsMatching(typeTableName(), "AMDbObjectType", info.className );
 
 		// Possibility 1: This type has never been stored in this database... need to create new table for it, create columns and indexes in that table, add row for this class in the type information table, and add column entries in the allColumns, visibleColumns, and loadColumns tables.
 		/////////////////////////
@@ -193,8 +202,8 @@ namespace AMDbObjectSupport {
 			db->startTransation();	// exiting this function for any error should roll back to here.
 
 			// create table...
-			/// \bug attempts to re-create table when sharing tables with other already-registered objects...
-			if ( !ensureTableForDbObjects(info.tableName, db, !info.doNotReuseIds) ) {
+			// \bug attempts to re-create table when sharing tables with other already-registered objects...
+			if ( !info.sharedTable && !ensureTableForDbObjects(info.tableName, db, !info.doNotReuseIds) ) {
 				db->rollbackTransation();
 				AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -1, QString("Database support: There was an error trying to create a table in the database for class %1.").arg(info.className)));
 				return false;
@@ -206,24 +215,30 @@ namespace AMDbObjectSupport {
 				if( !db->ensureColumn(info.tableName,
 									  info.columns.at(i),
 									  db->metaType2DbType((QVariant::Type)info.columnTypes.at(i))) ) {
-					db->rollbackTransation();
-					AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -2, QString("Database support: There was an error trying to create a column (%1) in the database for class %2.").arg(info.columns.at(i)).arg(info.className)));
-					return false;
+					// allow failures on shared tables... the columns might have already been created for previous classes.
+					/// \todo For more reliability, could ensure that _unique columns_ in shared-table classes have actually been created.
+					if(!info.sharedTable) {
+						db->rollbackTransation();
+						AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -2, QString("Database support: There was an error trying to create a column (%1) in the database for class %2.").arg(info.columns.at(i)).arg(info.className)));
+						return false;
+					}
 				}
 
 				// create index on column, if required.
 				if(info.isIndexed.at(i)) {
 					if( !db->createIndex(info.tableName, info.columns.at(i)) ) {
-						AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -3, QString("Database support: There was an error trying to create an index (%1) in the database for class %2.").arg(info.columns.at(i)).arg(info.className)));
-						db->rollbackTransation();
-						return false;
+						if(!info.sharedTable) {
+							AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -3, QString("Database support: There was an error trying to create an index (%1) in the database for class %2.").arg(info.columns.at(i)).arg(info.className)));
+							db->rollbackTransation();
+							return false;
+						}
 					}
 				}
 			}	// end of loop over properties
 
 			// add to type table:
 			QStringList typeTableCols;
-			typeTableCols << "type" << "tableName" << "description" << "version";
+			typeTableCols << "AMDbObjectType" << "tableName" << "description" << "version";
 			QVariantList typeTableValues;
 			typeTableValues << info.className << info.tableName << info.classDescription << info.version;
 			int typeId = db->insertOrUpdate(0, typeTableName(), typeTableCols, typeTableValues);
@@ -263,7 +278,7 @@ namespace AMDbObjectSupport {
 		if( foundRows.count() == 1) {
 			int id = foundRows.at(0);
 			QStringList typeInfoCols;
-			typeInfoCols << "type" << "tableName" << "version";
+			typeInfoCols << "AMDbObjectType" << "tableName" << "version";
 			QVariantList typeInfoValues = db->retrieve(id, typeTableName(), typeInfoCols);
 
 			// check for matching version. If not matching, need to upgrade
@@ -291,20 +306,20 @@ namespace AMDbObjectSupport {
 	}
 
 
-	/// upgrade an existing database from supporting an old version of a class to supporting a new version.
+	// upgrade an existing database from supporting an old version of a class to supporting a new version.
 	bool upgradeDatabaseForClass(AMDatabase* db, const AMDbObjectInfo& info, int existingVersion) {
 		Q_UNUSED(db)
 		Q_UNUSED(info)
 		Q_UNUSED(existingVersion)
 
-		/// \todo implement upgrade functionality...
+		// \todo implement upgrade functionality...
 		return true;
 	}
 
 
-	/// Support table names:
+	// Support table names: (AMDbObject___ prefix ensures they don't collide with potential class table names)
 	QString thumbnailTableName() { return "AMDbObjectThumbnails_table"; }
-	/// name of the table that stores meta-type information for all the registered classes.
+	// name of the table that stores meta-type information for all the registered classes.
 	QString typeTableName() { return "AMDbObjectTypes_table"; }
 	QString allColumnsTableName() { return "AMDbObjectTypes_allColumns"; }
 	QString visibleColumnsTableName() { return "AMDbObjectTypes_visibleColumns"; }
@@ -313,14 +328,14 @@ namespace AMDbObjectSupport {
 
 	bool ensureTableForDbObjects(const QString& tableName, AMDatabase* db, bool reuseDeletedIds) {
 
-		return db->ensureTable(tableName, QString("type,thumbnailCount,thumbnailFirstId").split(','), QString("TEXT,INTEGER,INTEGER").split(','), reuseDeletedIds);
+		return db->ensureTable(tableName, QString("AMDbObjectType,thumbnailCount,thumbnailFirstId").split(','), QString("TEXT,INTEGER,INTEGER").split(','), reuseDeletedIds);
 	}
 
 
 
-	/// Separator used between strings when exporting a StringList to the database
+	// Separator used between strings when exporting a StringList to the database
 	QString stringListSeparator() { return "|@^@|"; }
-	/// Separator used between items when exporting all other lists to the database (changed from comma to support french localizations which use une virgule for the decimal point. maybe this needs to be fully localized.)
+	// Separator used between items when exporting all other lists to the database (changed from comma to support french localizations which use une virgule for the decimal point. maybe this needs to be fully localized.)
 	QString listSeparator() { return ";"; }
 
 
@@ -333,5 +348,67 @@ namespace AMDbObjectSupport {
 	QString controlSetEntriesTableName() { return "ControlSetEntries"; }
 	///////////////////////////
 
-}
+
+
+	// Useful for database introspection, this returns the type() (ie: class name) of the object stored in database \c db, under table \c tableName, at row \c id.
+	QString typeOfObjectAt(AMDatabase* db, const QString& tableName, int id) {
+
+		if(!db || id<1)
+			return QString();
+
+		QVariant typeString = db->retrieve(id, tableName, "AMDbObjectType");
+		if(typeString.isValid())
+			return typeString.toString();
+		else
+			return QString();
+	}
+
+	// returns a pointer to the object info for a given class with \c className, or 0 if the class has not been registered in the database system.
+	const AMDbObjectInfo* objectInfoForClass(const QString& className) {
+		QHash<QString, AMDbObjectInfo>::const_iterator iInfo = registeredClasses()->find(className);
+		if(iInfo != registeredClasses()->end())
+			return &(iInfo.value());
+
+		return 0;
+	}
+
+	// Useful for database introspection, this creates and dynamically loads an object stored in database \c db, under table \c tableName, at row \c id. You can use qobject_cast<>() or type() to find out the detailed type of the new object.  Returns 0 if no object found.
+	/* Ownership of the newly-created object becomes the responsibility of the caller. */
+	AMDbObject* createAndLoadObjectAt(AMDatabase* db, const QString& tableName, int id) {
+
+		QString className = typeOfObjectAt(db, tableName, id);
+		if(className.isEmpty())
+			return 0;
+
+		const AMDbObjectInfo* objInfo = objectInfoForClass(className);
+		if(!objInfo)
+			return 0;
+
+		// this should never happen, so we won't bother to check. But if an object was somehow stored in the wrong table, AMDbObject::loadFromDb() will fail.
+		// if(tableName != objInfo->tableName)
+		// return 0;
+
+		const QMetaObject* mo = objInfo->metaObject;
+
+		// first try a constructor that takes a database and an id. We assume this one calls loadFromDb() automatically.
+		AMDbObject* newObject;
+
+		newObject = qobject_cast<AMDbObject*>( mo->newInstance(	Q_ARG(AMDatabase*, db),
+																Q_ARG(int, id)) );
+		if(newObject)
+			return newObject;
+
+		// now try a default constructor taking no arguments:
+		newObject = qobject_cast<AMDbObject*>( mo->newInstance() );
+		if(newObject) {
+			if(newObject->loadFromDb(db, id))
+				return newObject;
+			else
+				delete newObject;	// loading failed, and we're not going to return anything. Make sure not to leak the newly-created object.
+		}
+
+		return false;
+	}
+
+}	// END OF NAMESPACE AMDbObjectSupport
 

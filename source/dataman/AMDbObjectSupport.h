@@ -29,6 +29,7 @@ public:
 
 	QString className;	///< the class name (C++ type name) of these objects
 	QString tableName;	///< table used to store these objects
+	bool sharedTable;	///< true if this class does not create a table of its own, but shares another class's table. (Note: this is only true for secondary classes that share an existing table; NOT for the first/original class which makes its own.)
 	const QMetaObject* metaObject;	///< QMetaObject pointer with the complete class meta-information. The remaining values can be determined by parsing the metaObject's classInfo parameters, but are stored here for efficiency.
 
 	QString classDescription;	///< human-readable description for this class. Defined with AM_DBOBJECTINFO("description=_____")
@@ -36,6 +37,7 @@ public:
 
 	bool doNotReuseIds;	///< indicates that row ids should not be reused when objects are deleted.
 
+	int columnCount; ///< number of fields/columns that are stored in the db. The following lists all have a count() of columnCount.
 	QStringList columns;	///< names of all the persistent fields/columns stored for this class
 	AMIntList columnTypes;///< for all fields, the QVariant::Type type of the stored data
 	QList<bool> isVisible;///< for all fields, whether this column should be exposed to users in default table views.
@@ -59,6 +61,7 @@ class AMDbObject;
 
 namespace AMDbObjectSupport
 {
+	/// \todo hide these from the public interface.
 	extern QHash<QString, AMDbObjectInfo> registeredClasses_;
 	extern QSet<AMDatabase*> registeredDatabases_;
 
@@ -79,9 +82,13 @@ namespace AMDbObjectSupport
 		return tableNameForClass( &(T::staticMetaObject) );
 	}
 
+
 	/// returns a const pointer to the hash of registered AMDbObject classes
 	const QHash<QString, AMDbObjectInfo>* registeredClasses();
 
+	/// returns a pointer to the object info for a given class with \c className, or 0 if the class has not yet been registered in the database system.
+	const AMDbObjectInfo* objectInfoForClass(const QString& classsName);
+	/// \todo Overloads for objectInfoForClass<Class>().
 
 
 
@@ -113,7 +120,7 @@ namespace AMDbObjectSupport
 		do {
 			inheritsDbObject = (superClass->className() == QString("AMDbObject"));
 		}
-		while( (superClass=mo->superClass()) && inheritsDbObject == false );
+		while( (superClass=superClass->superClass()) && inheritsDbObject == false );
 		if(!inheritsDbObject)
 			return false;	// can't register a non AMDbObject subclass.
 
@@ -167,6 +174,14 @@ namespace AMDbObjectSupport
 	QString stringListSeparator();
 	/// Separator used between items when exporting all other lists to the database (changed from comma to support french localizations which use une virgule for the decimal point. maybe this needs to be fully localized.)
 	QString listSeparator();
+
+
+	/// Useful for database introspection, this returns the type() (ie: class name) of the object stored in database \c db, under table \c tableName, at row \c id. Returns an empty string if no object is found.
+	QString typeofObjectAt(AMDatabase* db, const QString& tableName, int id);
+
+	/// Useful for database introspection, this creates and dynamically loads an object stored in database \c db, under table \c tableName, at row \c id. You can use qobject_cast<>() or type() to find out the detailed type of the new object.  Returns 0 if no object found.
+	/*! Ownership of the newly-created object becomes the responsibility of the caller. */
+	AMDbObject* createAndLoadObjectAt(AMDatabase* db, const QString& tableName, int id);
 }
 
 #endif // AMDBOBJECTSUPPORT_H

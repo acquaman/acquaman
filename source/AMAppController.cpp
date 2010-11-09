@@ -11,7 +11,6 @@
 #include "beamline/AMControlState.h"
 //#include "acquaman/AMXASDacqScanController.h"
 #include "dataman/AMDatabase.h"
-#include "dataman/AMDbLoader.h"
 #include "dataman/AMFirstTimeController.h"
 #include "dataman/AMImportController.h"
 
@@ -334,7 +333,6 @@ void AMAppController::onAddButtonClicked() {
 	e.storeToDb(AMDatabase::userdb());
 }
 
-#include "dataman/AMDbLoader.h"
 
 void AMAppController::onDataViewItemsActivated(const QList<QUrl>& itemUrls) {
 

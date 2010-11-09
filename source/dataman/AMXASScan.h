@@ -13,8 +13,9 @@
 	See AMXASSpectrumScan for scans which include 1D data (such as the SGM's silicon drift detector) for every eV datapoint.
   */
 class AMXASScan : public AMScan {
-Q_OBJECT
-	AM_DBOBJECTINFO("shareTableWithClass=AMScan;description=XRay Absorption Scan")
+	Q_OBJECT
+	// AM_DBOBJECTINFO("shareTableWithClass=AMScan;description=XRay Absorption Scan")
+	Q_CLASSINFO("AMDbObject_Attributes", "shareTableWithClass=AMScan;description=XRay Absorption Scan")
 
 public:
 	/// create a new XAS scan with the following named \c detectors. Each "detector" is a source of a datapoint, that will be stored/logged, available as a column of raw data, and accessible through channel(s).
