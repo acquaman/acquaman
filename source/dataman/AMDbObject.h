@@ -229,9 +229,6 @@ public:
 
 
 
-	/// REMOVED: This info is internal to DB only. typeId might depend on order in which classes were registered, which means nothing... Future programs could register in different order. Code should use type() string exclusively.  PREVIOUSLY: returns the typeId of this scan's registered type in a database. If it hasn't been registered as a type yet, this will return 0.
-	// removed: int typeId(AMDatabase* db) const;
-
 	/// returns the name of the database table where objects like this are stored.
 	QString dbTableName() const;
 

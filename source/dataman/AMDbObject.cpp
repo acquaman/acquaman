@@ -170,11 +170,18 @@ bool AMDbObject::storeToDb(AMDatabase* db) {
 		// special case: pointers to AMDbObjects: we actually store the object in the database, and then store a string "tableName;id"... which will let us re-load it later.
 		else if(columnType == qMetaTypeId<AMDbObject*>()) {
 			AMDbObject* obj = property(columnName).value<AMDbObject*>();
-			if(obj && obj!=this && obj->modified() && obj->storeToDb(db)) {	// if its a valid object, and not ourself (avoid recursion), and its been modified, store it.
-				values << QString("%1%2%3").arg(obj->dbTableName()).arg(AMDbObjectSupport::listSeparator()).arg(obj->id());
+			if(obj && obj!=this) {	// if its a valid object, and not ourself (avoid recursion)
+				if(!obj->modified() && obj->database()==db && obj->id() >1)	// if it's not modified, and already part of this database... don't need to store it. Just remember where it is...
+					values << QString("%1%2%3").arg(obj->dbTableName()).arg(AMDbObjectSupport::listSeparator()).arg(obj->id());
+				else {
+					if(obj->storeToDb(db))
+						values << QString("%1%2%3").arg(obj->dbTableName()).arg(AMDbObjectSupport::listSeparator()).arg(obj->id());
+					else
+						values << QString();// storing empty string: indicates failure to save object here.
+				}
 			}
 			else
-				values << QString();// storing empty string: indicates failure to save object here.
+				values << QString();// storing empty string: indicates invalid object to save here.
 		}
 
 		// special case: lists of AMDbObject pointers. Interpreted as a one-to-many (or maybe many-to-many) relationship.
@@ -232,10 +239,12 @@ bool AMDbObject::storeToDb(AMDatabase* db) {
 			QVariantList vlist;
 			vlist << id() << myInfo->tableName << int(0) << "tableName2";	// int(0) and "tableName2" are dummy variables for now.
 			foreach(AMDbObject* obj, objList) {
-				if(obj && obj!=this && obj->modified() && obj->storeToDb(db)) {
-					vlist[2] = obj->id();
-					vlist[3] = obj->dbTableName();
-					db->insertOrUpdate(0, auxTableName, clist, vlist);
+				if(obj && obj!=this) {
+					if(  (!obj->modified() && obj->database() == db && obj->id() >1) || obj->storeToDb(db) ) {	// remember a valid location if either: (object is not modified, and already part of this database) OR (we successfully just saved it).  (This avoids storeToDb()'ing objects that are unmodified and do not need re-saving.)
+						vlist[2] = obj->id();
+						vlist[3] = obj->dbTableName();
+						db->insertOrUpdate(0, auxTableName, clist, vlist);
+					}
 				}
 			}
 		}
@@ -345,8 +354,8 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 
 		// if its an AMDbObjectList property, it doesn't have an actual column. Look in the auxiliary table instead.
 		if(columnType == qMetaTypeId<AMDbObjectList>()) {
-					// grab current AMDbObjectList using property() and check if existing count and types match. In that case, can call loadFromDb() on each of them.
-					// otherwise, create new objects with createAndLoadObjectAt(), and then call setProperty().
+			// grab current AMDbObjectList using property() and check if existing count and types match. In that case, can call loadFromDb() on each of them.
+			// otherwise, create new objects with createAndLoadObjectAt(), and then call setProperty().
 			AMDbObjectList reloadedObjects;
 			AMDbObjectList existingObjects = property(columnName).value<AMDbObjectList>();
 

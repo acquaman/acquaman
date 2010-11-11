@@ -817,12 +817,20 @@ class TestDataman: public QObject
 		threeObjects << o1 << o2 << o3;
 
 		t2->reloadMyDbObjects(threeObjects);
+		QCOMPARE(t2->myScan()->name(), QString("special scan test name! With secret sauce."));
+
 		QCOMPARE(t2->numScans(), 3);
 
 		t2->storeToDb(AMDatabase::userdb());
 
+
 		QCOMPARE(t1->numScans(), 0);
 		t1->loadFromDb(AMDatabase::userdb(), t2->id());	// should create brand new objects; t1 didn't have three in the list.
+
+			// catches a bug where member variable links weren't being rememberd if they weren't modified. If they're not modified and already in the db, we don't need to re-storeToDb() them, but we still need remember that we own them, and remember where they are.
+			QVERIFY(t1->myScan());
+			QCOMPARE(t1->myScan()->name(), QString("special scan test name! With secret sauce."));
+
 		QCOMPARE(t1->numScans(), 3);
 		AMDbObjectList checkList = t1->myDbObjects();
 		QCOMPARE(checkList.count(), 3);
