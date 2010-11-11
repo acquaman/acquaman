@@ -176,8 +176,8 @@ namespace AMDbObjectSupport
 	QString listSeparator();
 
 
-	/// Useful for database introspection, this returns the type() (ie: class name) of the object stored in database \c db, under table \c tableName, at row \c id. Returns an empty string if no object is found.
-	QString typeofObjectAt(AMDatabase* db, const QString& tableName, int id);
+	/// Useful for database introspection, this returns the type() (ie: class name) of the object stored in database \c db, under table \c tableName, at row \c id.
+	QString typeOfObjectAt(AMDatabase* db, const QString& tableName, int id);
 
 	/// Useful for database introspection, this creates and dynamically loads an object stored in database \c db, under table \c tableName, at row \c id. You can use qobject_cast<>() or type() to find out the detailed type of the new object.  Returns 0 if no object found.
 	/*! Ownership of the newly-created object becomes the responsibility of the caller. */

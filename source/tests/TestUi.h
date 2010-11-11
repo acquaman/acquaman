@@ -16,12 +16,29 @@
 
 #include <QTreeView>
 
-class Test1: public QObject
+class TestUi: public QObject
 {
 	Q_OBJECT
 private slots:
 
-/*
+
+	/// This runs before any of the private slots (test cases) get run. It loads the settings and prepares the database tables as required for each Scan object that gets tested.
+	void initTestCase()
+	{
+		AMErrorMon::enableDebugNotifications();
+		AMSettings::load();
+		AMUserSettings::load();
+
+	}
+
+
+	/// This is run after all tests are complete.
+	void cleanupTestCase()
+	{
+		AMDatabase::releaseUserDb();
+	}
+
+
 	void testAMScanSetModel() {
 
 
@@ -111,26 +128,10 @@ private slots:
 	}
 
 
-*/
-
-	/// This runs before any of the private slots (test cases) get run. It loads the settings and prepares the database tables as required for each Scan object that gets tested.
-	void initTestCase()
-	{
-		AMErrorMon::enableDebugNotifications();
-		AMSettings::load();
-		AMUserSettings::load();
-		AMFirstTimeController();
-
-	}
-
-	/// This is run after all tests are complete.
-	void cleanupTestCase()
-	{
-		AMDatabase::releaseUserDb();
-	}
 
 
-	/*
+
+
 	void testThumbnailGraphicsWidget() {
 		QGraphicsView* view = new QGraphicsView();
 		view->resize(300,300);
@@ -170,7 +171,7 @@ private slots:
 	}
 
 
-*/
+
 	/// Test to confirm that new run dialog works.
 	void testRunDialog() {
 
@@ -186,37 +187,6 @@ private slots:
 
 	}
 
-/*
-
-	void testAMSidebar() {
-
-		AMSidebar b;
-		b.resize(200, 500);
-		b.show();
-
-		b.addLink("cat1", QVariant(), "Link1 Heavy", QIcon(), -0.1);
-		QTest::qWait(1000);
-		b.addLink("cat1", QVariant(), "Link 2 Heavier", QIcon());
-		QTest::qWait(1000);
-		QStandardItem* linky = b.addLink("cat1", QVariant(QString("myPayload")), "Link3 light toDel", QIcon(), -3);
-		QTest::qWait(1000);
-		b.addLink("cat1", QVariant(), "Link4 mid", QIcon(), -2);
-
-		QTest::qWait(1000);
-
-		b.addHeading("cat2 - light", -1);
-
-		QTest::qWait(1000);
-
-		b.addHeading("cat 3");
-
-		QTest::qWait(1000);
-
-		b.deleteLink(linky);
-
-		QTest::qWait(40000);
-
-	}
 
 
 
@@ -275,7 +245,7 @@ private slots:
 		AMXASScan s2;
 		s2.setName("scan2");
 		model->addScan(&s2);
-		s1Loader = s2;
+		s1Loader.setTarget(&s2);
 
 		QVERIFY(s1Loader.loadFromFile(fileName));
 
@@ -363,7 +333,7 @@ private slots:
 		AMXASScan s2;
 		s2.setName("scan2");
 		model->addScan(&s2);
-		s1Loader = s2;
+		s1Loader.setTarget(&s2);
 
 		QVERIFY(s1Loader.loadFromFile(fileName));
 
@@ -452,7 +422,7 @@ private slots:
 		AMXASScan s2;
 		s2.setName("scan2");
 		model->addScan(&s2);
-		s1Loader = s2;
+		s1Loader.setTarget(&s2);
 
 		QVERIFY(s1Loader.loadFromFile(fileName));
 
@@ -520,7 +490,7 @@ private slots:
 		AMXASScan s2;
 		s2.setName("scan 2");
 		model->addScan(&s2);
-		s1Loader = s2;
+		s1Loader.setTarget(&s2);
 
 		s1Loader.loadFromFile(fileName);
 
@@ -532,15 +502,9 @@ private slots:
 
 	}
 
-	*/
+
 
 
 protected:
 };
 
-
-
-
-
-QTEST_MAIN(Test1)
-#include "tests.moc"

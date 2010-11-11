@@ -19,7 +19,7 @@ class AMXASScan : public AMScan {
 
 public:
 	/// create a new XAS scan with the following named \c detectors. Each "detector" is a source of a datapoint, that will be stored/logged, available as a column of raw data, and accessible through channel(s).
-	explicit AMXASScan(const QList<AMDetectorInfo*> &detectors = QList<AMDetectorInfo*>(), QObject *parent = 0);
+	Q_INVOKABLE explicit AMXASScan(const QList<AMDetectorInfo*> &detectors = QList<AMDetectorInfo*>(), QObject *parent = 0);
 
 	/// Re-implemented from AMScan. Currently only the SGM2004 and ALS Bl8.0.1 file formats are supported.
 	virtual bool loadData();

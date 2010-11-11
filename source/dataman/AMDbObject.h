@@ -168,6 +168,30 @@ You can then use qobject_cast<>() or type() to test the type of the newly-create
 \todo how to re-implement the modified() and metaDataChanged() signal, now that we're using the property system, instead of setMetaData()?
 
 
+<b>Composition of AMDbObjects</b>
+
+Special handling of two property types provides support for composite AMDbObjects that "own" or "have" other AMDbObjects as member variables.  (Note that this functionality is provided for ownership situations only; it is distinct from the concept of association (ex: one-to-one, one-to-many, or many-to-many, such as between Scans and Experiments).  The distinction here is that a scan object does not 'own' all of the experiments it is part of, nor does an experiment 'own' all the scans it contains. Association relationships must be handled separately.)
+
+To automatically store AMDbObject member variables, declare a Q_PROPERTY of the type AMDbObject*.  The read function should simply return a pointer to your member object.
+
+When you call storeToDb() on the parent object,
+- the read property is used to access a pointer to the member object. If the pointer is not 0, and the object has been modified(), we call storeToDb() on the member object as well.  Then we store the table name and storage id of the member object, so that it can be reloaded later.
+
+Calling loadFromDb() could behave in two different ways:
+	- The read property is used again to access a pointer to the member object. If it receives a valid pointer, and the type() of the existing object matches the type of the stored object, we call loadFromDb() on the existing object. setProperty() is never called.
+	- If the read property returns a null pointer, or if the type() of the existing object does NOT match the type of the object stored in the database, we cannot call loadFromDb().  Instead, we create a brand new object using AMDbObjectSupport::createAndLoadObjectAt() based on the stored object. Then we call setProperty() with a pointer to the newly created object.  \note It's the responsibility of the setProperty() write function to delete the old existing object (if required), take ownership of the new object, and re-connect any signal/slot connections to the newly created object.
+
+	In normal usage, where the type of the member AMDbObject is constant, the second version of the loadFromDb() behaviour will only occur when re-loading the parent object from the database for the first time (if the member object hasn't been created by the constructor, and the read property returns a null pointer). In all subsequent storeToDb()/loadFromDb() calls, the existing member object will simply be stored and loaded transparently with the parent.
+
+
+To store sets of AMDbObject member variables, you can declare a Q_PROPERTY of the type AMDbObjectList (ie: QList<AMDbObject*>).  The read function should return a list of pointers to your member objects.
+
+storeToDb() and loadFromDb() work the same as in the case of single variables.
+	- The read property is used to access a list of pointers to member objects. Each valid object is storeToDb()'d, and the table and id locations for each are stored with the parent object for future reference. (Here we use an auxilliary table called 'MainTableName_propertyName' to remember the stored locations.)
+
+	- loadFromDb() also starts by calling the read property function to get a list of the existing member objects.  If the number of existing objects matches the number of stored objects, AND all the existing objects are valid, AND the types match for all pairs of (existing,stored) objects, then loadFromDb() is called on each.
+	- Otherwise, if there are any discrepencies, a whole new set of objects is created with AMDbObjectSupport::createAndLoadObjectAt() based on the stored versions, and setProperty() is called with the list of new objects.  It's the responsibility of the setPropert() write function to delete the old existing objects (if required) and re-establish connections to the new objects.   Note that it is NOT possible to reuse some of the existing objects in the list, but not others.
+
 */
 
 class AMDbObjectInfo;
@@ -185,7 +209,7 @@ class AMDbObject : public QObject
 
 
 public:
-	explicit AMDbObject(QObject *parent = 0);
+	Q_INVOKABLE explicit AMDbObject(QObject *parent = 0);
 
 	/// Returns an object's unique id
 	int id() const { return id_; }

@@ -114,7 +114,8 @@ public:
 	//////////////////////////////////
 
 	/// default constructor
-	explicit AMScan(QObject *parent = 0);
+	Q_INVOKABLE explicit AMScan(QObject *parent = 0);
+
 
 	/// Destructor: deletes all channels.
 	virtual ~AMScan();

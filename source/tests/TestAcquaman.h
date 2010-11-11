@@ -9,18 +9,12 @@
 #include "dataman/AMFirstTimeController.h"
 #include "AMErrorMonitor.h"
 
-class AcquamanTest: public QObject
+class TestAcquaman: public QObject
 {
 	Q_OBJECT
 private slots:
 	void initTestCase()
 	{
-		AMErrorMon::enableDebugNotifications();
-		AMSettings::load();
-		AMUserSettings::load();
-		AMPVNames::load();
-		AMFirstTimeController();
-
 		qDebug() << "Starting up SGM";
 		SGMBeamline::sgm();
 		qDebug() << "Created SGM";
@@ -32,6 +26,7 @@ private slots:
 		}
 		QVERIFY(SGMBeamline::sgm()->isConnected());
 
+		/*
 		qDebug() << "Prior to waiting";
 		QTest::qWait(2000);
 		qDebug() << "About to action grating";
@@ -40,6 +35,12 @@ private slots:
 		QTest::qWait(5000);
 		SGMBeamline::sgm()->startTransfer();
 		qDebug() << "After final wait";
+		*/
+	}
+
+	void cleanupTestCase()
+	{
+
 	}
 
 	void testAMRegions()
@@ -340,7 +341,8 @@ private slots:
 			data[eV] = rowData;
 		}
 
-		AMXASScan *xs = xasCtrl->scan();
+		AMXASScan *xs = qobject_cast<AMXASScan*>(xasCtrl->scan());
+		QVERIFY(xs);
 		int evIndex = xs->indexOfChannel("eV");
 		int I0Index = xs->indexOfChannel("I0");
 		int teyIndex = xs->indexOfChannel("TEY");
@@ -357,14 +359,9 @@ private slots:
 		QTest::qWait(5000);
 	}
 
-	void cleanupTestCase()
-	{
-		AMDatabase::releaseUserDb();
-	}
+
 
 private:
 	SGMXASDacqScanController *xasCtrl;
 };
 
-QTEST_MAIN(AcquamanTest)
-#include "tests.moc"

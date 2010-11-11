@@ -210,29 +210,70 @@ namespace AMDbObjectSupport {
 				AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -1, QString("Database support: There was an error trying to create a table in the database for class %1.").arg(info.className)));
 				return false;
 			}
-			// go through properties and create columns
+			// go through properties and create columns for each, (with some exceptions...)
 			for(int i=0; i<info.columns.count(); i++) {
 
-				// create column in table...
-				if( !db->ensureColumn(info.tableName,
-									  info.columns.at(i),
-									  db->metaType2DbType((QVariant::Type)info.columnTypes.at(i))) ) {
-					// allow failures on shared tables... the columns might have already been created for previous classes.
-					/// \todo For more reliability, could ensure that _unique columns_ in shared-table classes have actually been created.
-					if(!info.sharedTable) {
-						db->rollbackTransation();
-						AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -2, QString("Database support: There was an error trying to create a column (%1) in the database for class %2.").arg(info.columns.at(i)).arg(info.className)));
-						return false;
+				// if type of property is AMDbObject* (it 'owns' another AMDbObject), then actually create two columns: one for table where object is stored, one for id
+				/* Not doing this... Keeping it simple and sticking with one column.
+				if( info.columnTypes.at(i) == qMetaTypeId<AMDbObject*>() ) {
+					if( !db->ensureColumn(info.tableName,
+										  info.columns.at(i) + "_id",
+										  "INTEGER")
+						|| !db->ensureColumn(info.tableName,
+											 info.columns.at(i) + "_table",
+											 "TEXT")) {
+						// allow failures on shared tables... the columns might have already been created for previous classes.
+						/// \todo For more reliability, could ensure that _unique columns_ in shared-table classes have actually been created.
+						if(!info.sharedTable) {
+							db->rollbackTransation();
+							AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -2, QString("Database support: There was an error trying to create a column (%1) in the database for class %2.").arg(info.columns.at(i)).arg(info.className)));
+							return false;
+						}
+					}
+				}
+				*/
+
+				// if type of property is AMDbObjectList (ie: it 'owns' a set of other AMDbObjects), then don't create a column at all. Instead, create an auxilliary table.  Table name is our table name + "_propertyName".
+				if( info.columnTypes.at(i) == qMetaTypeId<AMDbObjectList>() ) {
+					QString auxTableName = info.tableName + "_" + info.columns.at(i);
+					if( !db->ensureTable(auxTableName,
+										 QString("id1,table1,id2,table2").split(','),
+										 QString("INTEGER,TEXT,INTEGER,TEXT").split(','))
+						|| !db->createIndex(auxTableName, "id1")
+						|| !db->createIndex(auxTableName, "id2") ) {
+
+						// allow failures on shared tables... the columns might have already been created for previous classes.
+						/// \todo For more reliability, could ensure that _unique columns_ in shared-table classes have actually been created.
+						if(!info.sharedTable) {
+							db->rollbackTransation();
+							AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -16, QString("Database support: There was an error trying to create an auxiliary table (%1) in the database for class %2.").arg(auxTableName).arg(info.className)));
+							return false;
+						}
 					}
 				}
 
-				// create index on column, if required.
-				if(info.isIndexed.at(i)) {
-					if( !db->createIndex(info.tableName, info.columns.at(i)) ) {
+				// otherwise, handle as usual: create one column with the name and type of the property.
+				else {
+					if( !db->ensureColumn(info.tableName,
+										  info.columns.at(i),
+										  db->metaType2DbType((QVariant::Type)info.columnTypes.at(i))) ) {
+						// allow failures on shared tables... the columns might have already been created for previous classes.
+						/// \todo For more reliability, could ensure that _unique columns_ in shared-table classes have actually been created.
 						if(!info.sharedTable) {
-							AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -3, QString("Database support: There was an error trying to create an index (%1) in the database for class %2.").arg(info.columns.at(i)).arg(info.className)));
 							db->rollbackTransation();
+							AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -2, QString("Database support: There was an error trying to create a column (%1) in the database for class %2.").arg(info.columns.at(i)).arg(info.className)));
 							return false;
+						}
+					}
+
+					// create index on column, if required.
+					if(info.isIndexed.at(i)) {
+						if( !db->createIndex(info.tableName, info.columns.at(i)) ) {
+							if(!info.sharedTable) {
+								AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -3, QString("Database support: There was an error trying to create an index (%1) in the database for class %2.").arg(info.columns.at(i)).arg(info.className)));
+								db->rollbackTransation();
+								return false;
+							}
 						}
 					}
 				}
@@ -257,11 +298,19 @@ namespace AMDbObjectSupport {
 			QVariantList vlist;
 			vlist << typeId << "colName";
 			for(int i=0; i<info.columns.count(); i++) {	// loop over columns
+
+				// lists of AMDbObjects use aux. tables, not columns. So no column entry should appear for these.
+				if(info.columnTypes.at(i) == qMetaTypeId<AMDbObjectList>())
+					continue;
+
 				vlist[1] = info.columns.at(i);// takes on the name of this column
+
 				bool success = db->insertOrUpdate(0, allColumnsTableName(), clist, vlist); // always add to the 'allColumns' table.
-				if(info.isVisible.at(i))
+
+				if(info.isVisible.at(i) && info.columnTypes.at(i) != qMetaTypeId<AMDbObject*>())	// no matter what, AMDbObject* reference columns aren't user-visible. There's nothing user-meaningful about a 'tableName;id' string.
 					success = success && db->insertOrUpdate(0, visibleColumnsTableName(), clist, vlist);
-				if(info.isLoadable.at(i))
+
+				if(info.isLoadable.at(i)) // if loadable, add to 'loadColumns' table.
 					success = success && db->insertOrUpdate(0, loadColumnsTableName(), clist, vlist);
 
 				if(!success) {

@@ -4,4 +4,4 @@
 
 TEMPLATE = subdirs
 SUBDIRS += acquaman.pro \
-	tests
+	acquamanTest.pro
