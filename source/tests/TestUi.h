@@ -25,9 +25,6 @@ private slots:
 	/// This runs before any of the private slots (test cases) get run. It loads the settings and prepares the database tables as required for each Scan object that gets tested.
 	void initTestCase()
 	{
-		AMErrorMon::enableDebugNotifications();
-		AMSettings::load();
-		AMUserSettings::load();
 
 	}
 
@@ -35,7 +32,6 @@ private slots:
 	/// This is run after all tests are complete.
 	void cleanupTestCase()
 	{
-		AMDatabase::releaseUserDb();
 	}
 
 
