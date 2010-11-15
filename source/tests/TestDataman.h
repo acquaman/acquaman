@@ -8,6 +8,7 @@
 #include "AMErrorMonitor.h"
 #include "dataman/AMDbObjectSupport.h"
 
+#include "dataman/AMOrderedSet.h"
 
 /// This subclass of AMDbObject is used only for test purposes.
 class AMTestDbObject : public AMDbObject {
@@ -846,6 +847,75 @@ class TestDataman: public QObject
 
 		t2->loadFromDb(t2->database(), t2->id());	// first version of loadFromDb()... all three exist already and match in type... should not call setProperty().  Verify that "AMTestDbObject: creating/loading brand new scans" only appears twice in the test log.
 		QCOMPARE(t2->myDbObjects().at(0)->name(), QString("AMDbObject: object1")); // should be restored from last saved state...
+
+	}
+
+
+	void testAMOrderedSet() {
+		AMOrderedSet<QString, int> s1;
+
+		s1.setAllowsDuplicateKeys(false);
+
+		QVERIFY(s1.append(0, "0"));
+		QVERIFY(s1.append(1, "1"));
+		QVERIFY(s1.append(2, "2"));
+		QVERIFY(!s1.append(3, "2"));	// duplicate key.
+		QVERIFY(s1.append(3, "3"));
+		QVERIFY(s1.append(4, "4"));
+
+		QVERIFY(s1.at(0) == 0);
+		QVERIFY(s1.at(1) == 1);
+		QVERIFY(s1.at(2) == 2);
+		QVERIFY(s1.at(3) == 3);
+		QVERIFY(s1.at(4) == 4);
+
+		QVERIFY(s1.indexOf("0") == 0);
+		QVERIFY(s1.indexOf("1") == 1);
+		QVERIFY(s1.indexOf("2") == 2);
+		QVERIFY(s1.indexOf("3") == 3);
+		QVERIFY(s1.indexOf("4") == 4);
+
+		// test remove in middle:
+		s1.remove(2);
+		QVERIFY(s1.count() == 4);
+
+		QVERIFY(s1.indexOf("0") == 0);
+		QVERIFY(s1.indexOf("1") == 1);
+		QVERIFY(s1.indexOf("2") == -1);
+		QVERIFY(s1.indexOf("3") == 2);	// index moves down
+		QVERIFY(s1.indexOf("4") == 3);
+
+		QVERIFY(s1.at(0) == 0);
+		QVERIFY(s1.at(1) == 1);
+		QVERIFY(s1.at(2) == 3);	// value moves down
+		QVERIFY(s1.at(3) == 4);
+
+
+		// check insert inside:
+		s1.insert(1, 88, "eighty-eight");
+
+		QVERIFY(s1.count() == 5);
+
+		QVERIFY(s1.indexOf("0") == 0);
+		QVERIFY(s1.indexOf("eighty-eight") == 1);
+		QVERIFY(s1.indexOf("1") == 2);	// index moves up; was inserted in front
+		QVERIFY(s1.indexOf("2") == -1);
+		QVERIFY(s1.indexOf("3") == 3);
+		QVERIFY(s1.indexOf("4") == 4);
+
+		QVERIFY(s1.at(0) == 0);
+		QVERIFY(s1.at(1) == 88);
+		QVERIFY(s1.at(2) == 1);	// value moves down
+		QVERIFY(s1.at(3) == 3);
+		QVERIFY(s1.at(4) == 4);
+
+		QVERIFY(s1.replace(1, 77, "seventyseven") == 88);
+		QVERIFY(s1.indexOf("eighty-eight") == -1);
+		QVERIFY(s1.indexOf("seventyseven") == 1);
+
+		s1.clear();
+		QVERIFY(s1.indexOf("seventyseven") == -1);
+		QVERIFY(s1.count() == 0);
 
 	}
 

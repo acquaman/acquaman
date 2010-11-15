@@ -236,8 +236,10 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/dataman/AMAnalysisBlock.h \
 	source/dataman/AMDataSourceSeriesData.h \
 	source/dataman/AMDataSourceImageData.h \
-	source/analysis/AM1DExpressionAnalysisBlock.h \
-	source/dataman/AMDbObjectSupport.h
+	source/analysis/AM1DExpressionAB.h \
+	source/dataman/AMDbObjectSupport.h \
+	source/util/AMOrderedSetSignalSource.h \
+	source/util/AMOrderedSet.h
 FORMS += source/ui/AbsorptionScanController.ui \
 	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
@@ -414,8 +416,9 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/dataman/AMAnalysisBlock.cpp \
 	source/dataman/AMDataSourceSeriesData.cpp \
 	source/dataman/AMDataSourceImageData.cpp \
-	source/analysis/AM1DExpressionAnalysisBlock.cpp \
+	source/analysis/AM1DExpressionAB.cpp \
 	source/dataman/AMDbObjectSupport.cpp \
-	source/acquaman.cpp
+	source/acquaman.cpp \
+	source/util/AMOrderedSetSignalSource.cpp
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc

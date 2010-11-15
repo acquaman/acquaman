@@ -1,4 +1,4 @@
-#include "AM1DExpressionAnalysisBlock.h"
+#include "AM1DExpressionAB.h"
 #include "AMErrorMonitor.h"
 
 AM1DExpressionAB::AM1DExpressionAB(const QString& outputName, QObject* parent)
