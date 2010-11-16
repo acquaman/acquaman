@@ -8,7 +8,7 @@
 #include "AMErrorMonitor.h"
 #include "dataman/AMDbObjectSupport.h"
 
-#include "dataman/AMOrderedSet.h"
+#include "util/AMOrderedSet.h"
 
 /// This subclass of AMDbObject is used only for test purposes.
 class AMTestDbObject : public AMDbObject {

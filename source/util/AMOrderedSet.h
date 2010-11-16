@@ -4,7 +4,7 @@
 #include <QList>
 #include <QHash>
 
-#include "dataman/AMOrderedSetSignalSource.h"
+#include "util/AMOrderedSetSignalSource.h"
 
 /// This container class offers hybrid functionality of QList and QHash.  Items can be inserted, appended, removed, and replaced in an ordered list, by numerical index.  Iterating through the items by index from 0 to count() is fast and convenient. Additionally, items can also be accessed by key, where the key is any type compatible as a key for QHash.
 /*!
