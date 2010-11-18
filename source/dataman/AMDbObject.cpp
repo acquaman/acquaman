@@ -329,7 +329,7 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 		if(myInfo->columnTypes.at(i) != qMetaTypeId<AMDbObjectList>() && myInfo->isLoadable.at(i))
 			keys << myInfo->columns.at(i);
 
-	QVariantList values = db->retrieve( sourceId, myInfo->tableName, keys);	/// \bug if there's an AMDbObjectList column in myInfo->columns, this column won't exist in the db, and this retrieve will fail.
+	QVariantList values = db->retrieve( sourceId, myInfo->tableName, keys);
 
 	if(values.isEmpty())
 		return false;

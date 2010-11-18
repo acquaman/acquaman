@@ -2,82 +2,8 @@
 #include "dataman/AMDatabase.h"
 #include "acquaman.h"
 #include "dataman/AMRun.h"
-#include <QDebug>
-
-QVariant AMChannelListModel::data(const QModelIndex &index, int role) const {
-	if(!index.isValid())
-		return QVariant();
-	if(role == Qt::DisplayRole && index.row() < ch_.count() )
-		return QVariant(ch_.at(index.row())->name());
-	if(role == AM::PointerRole && index.row() < ch_.count() )
-		return qVariantFromValue(ch_.at(index.row()));
-	return QVariant();
-}
-QVariant AMChannelListModel::headerData ( int section, Qt::Orientation orientation, int role) const {
-	if(role != Qt::DisplayRole)
-		return QVariant();
-	if(orientation == Qt::Horizontal)
-		return QString("Channel");
-	if(orientation == Qt::Vertical)
-		return QVariant(section);
-	return QVariant();
-}
-
-
-/// returns a list of channel names currently stored.
-QStringList AMChannelListModel::channelNames() const {
-	QStringList names;
-	foreach(AMChannel* ch, ch_) {
-		names << ch->name();
-	}
-	return names;
-}
-
-/// returns a list of the channel expressions. (Channels are ordered the same as channelNames(). )
-QStringList AMChannelListModel::channelExpressions() const {
-	QStringList rv;
-	foreach(AMChannel* ch, ch_)
-		rv << ch->expression();
-	return rv;
-}
-
-
-
-bool AMChannelListModel::addChannel(AMChannel* newChannel) {
-
-	beginInsertRows(QModelIndex(), ch_.count(), ch_.count());
-	ch_.append(newChannel);
-	name2chIndex_.set(newChannel->name(), ch_.count()-1);
-	endInsertRows();
-	return true;
-}
-
-bool AMChannelListModel::deleteChannel(unsigned index) {
-	if(index >= (unsigned)ch_.count())
-		return false;
-
-	beginRemoveRows(QModelIndex(), index, index);
-
-	// update the name-to-index lookup... Get rid of the current index, and get rid of the highest index, since everything will move down
-	name2chIndex_.removeR(index);
-	name2chIndex_.removeR(ch_.count()-1);
-
-	// remove from list
-	AMChannel* deleteMe = ch_.takeAt(index);
-
-	// in the name-to-index lookup, move everyone above this channel down
-	for(int i=index; i<ch_.count(); i++)
-		name2chIndex_.set(ch_.at(i)->name(), i);
-
-	endRemoveRows();
-	delete deleteMe;
-	return true;
-}
-
-
-
-
-
+#include "dataman/AMSample.h"
+#include "dataman/AMDbObjectSupport.h"
 
 
 AMScan::AMScan(QObject *parent)
@@ -85,88 +11,76 @@ AMScan::AMScan(QObject *parent)
 {
 
 	// created a new top-level data tree (not shared with anyone). Assigning it to dshared_ gives it a reference count of 1. The tree will be automatically deleted when dshared_ goes out of scope (ie: when dshared_ gets deleted, moving the reference count to 0.)
+	/*! \todo move this to AMDataTreeDataStore
 	dshared_ = d_ = new AMDataTree(0, "x", true);
+	*/
 
-	metaData_["number"] = 0;
-	metaData_["dateTime"] = QDateTime::currentDateTime();
-	metaData_["runId"] = QVariant();
-	metaData_["sampleId"] = QVariant();
-	metaData_["notes"] = QString();
-	metaData_["fileFormat"] = QString("unknown");
-	metaData_["filePath"] = QString();
+	number_ = 0;
+	dateTime_ = QDateTime::currentDateTime();
+	runId_ = -1;
+	sampleId_ = -1;
+	notes_ = QString();
+	filePath_ = QString();
+	fileFormat_ = "unknown";
 
 	autoLoadData_ = true;
 
 	sampleNameLoaded_ = false;
+
+	// Connect added/removed signals from rawDataSources_ and analyzedDataSources_, to provide a model of all data sources:
+	connect(rawDataSources_.signalSource(), SIGNAL(itemAdded(int)), this, SLOT(onDataSourceAdded(int)));
+	connect(analyzedDataSources_.signalSource(), SIGNAL(itemAdded(int)), this, SLOT(onDataSourceAdded(int)));
+	connect(rawDataSources_.signalSource(), SIGNAL(itemAboutToBeRemoved(int)), this, SLOT(onDataSourceAboutToBeRemoved(int)));
+	connect(analyzedDataSources_.signalSource(), SIGNAL(itemAboutToBeRemoved(int)), this, SLOT(onDataSourceAboutToBeRemoved(int)));
+
 }
 
-#include <QDebug>
+
 AMScan::~AMScan() {
-	// delete channels first.
-	while(ch_.rowCount() != 0)
-		ch_.deleteChannel(0);
+	// delete all data sources.
+	/// \note This is expensive if an AMScanSetModel and associated plots are watching. It would be faster to tell those plots, "Peace out, all my data sources are about to disappear", so that they don't need to respond to each removal separately. For now, you should remove this scan from the AMScanSetModel FIRST, and then delete it.
+	int count;
+	while( (count = analyzedDataSources_.count()) ) {
+		AMDataSource* deleteMe = analyzedDataSources_.at(count-1);
+		analyzedDataSources_.remove(count-1);
+		delete deleteMe;
+	}
 
+	while( (count = rawDataSources_.count()) ) {
+		AMDataSource* deleteMe = rawDataSources_.at(count-1);
+		rawDataSources_.remove(count-1);
+		delete deleteMe;
+	}
 }
 
 
-
-QVariant AMScan::metaData(const QString& key) const {
-
-	if(key == "channelNames") {
-		return channelNames();
-	}
-
-	if(key == "channelExpressions") {
-		return channelExpressions();
-	}
-
-	return metaData_.value(key);
-}
-
-#include <QDebug>
-bool AMScan::setMetaData(const QString& key, const QVariant& value) {
-
-	// These are read-only
-	if(key == "channelNames" || key == "channelExpressions")
-		return false;
-
-	// If changing the sampleId, the sampleName cache is no longer valid
-	if(key == "sampleId")
-		sampleNameLoaded_ = false;
-
-
-
+// associate this object with a particular run. Set to (-1) to dissociate with any run.  (Note: for now, it's the caller's responsibility to make sure the runId is valid.)
+/* This will also tell the new run (and the old run, if it exists) to update their date ranges */
+void AMScan::setRunId(int newRunId) {
 	// when setting the runId, need to tell our old and new runs to possibly update their date ranges
-	if(key == "runId") {
+	int oldRunId = runId_;
 
-		int oldRunId = runId();
+	if(newRunId <= 0) runId_ = -1;
+	else runId_ = newRunId;
+	setModified(true);
 
-		bool success = false;
-		if(metaData_.contains(key)) {
-			success = true;
-			metaData_[key] = value;
-		}
+	// Do we need to update the scan range on the runs?
+	if(database() && oldRunId > 0)
+		AMRun::scheduleDateRangeUpdate(oldRunId, database(), dateTime());
 
-		// Do we need to update the scan range on the runs?
-		if(database() && oldRunId > 0)
-			AMRun::scheduleDateRangeUpdate(oldRunId, database(), dateTime());
+	if(database() && runId_ > 0)
+		AMRun::scheduleDateRangeUpdate(runId_, database(), dateTime());
+}
 
-		if(database() && runId() > 0)
-			AMRun::scheduleDateRangeUpdate(runId(), database(), dateTime());
-
-		return success;
-	}
-
-
-	bool success = metaData_.contains(key);
-	if(success) {
-		metaData_[key] = value;
-	}
-	return success;
+// Sets name of sample
+void AMScan::setSampleId(int newSampleId) {
+	sampleNameLoaded_ = false;	// invalidate the sample name cache
+	if(newSampleId <= 0) sampleId_ = -1;
+	else sampleId_ = newSampleId;
+	setModified(true);
 }
 
 /// Convenience function: returns the name of the sample (if a sample is set)
-/// \todo Is performance of this okay? Should be cached?
 QString AMScan::sampleName() const {
 
 	if(!sampleNameLoaded_)
@@ -176,8 +90,7 @@ QString AMScan::sampleName() const {
 
 }
 
-#include "dataman/AMSample.h"
-#include "dataman/AMDbObjectSupport.h"
+
 
 void AMScan::retrieveSampleName() const {
 
@@ -196,79 +109,18 @@ void AMScan::retrieveSampleName() const {
 
 
 
-/// Delete a channel from scan: (All return true on success)
-bool AMScan::deleteChannel(AMChannel* channel) {
-	if( ch_.deleteChannel(ch_.indexOf(channel)) ) {
-		setModified(true);
-		return true;
-	}
-	else
-		return false;
-}
-
-bool AMScan::deleteChannel(const QString& channelName) {
-	if( deleteChannel(ch_.channel(channelName)) ) {
-		setModified(true);
-		return true;
-	}
-
-	else
-		return false;
-}
-
-bool AMScan::deleteChannel(unsigned index) {
-	if( ch_.deleteChannel(index) ) {
-		setModified(true);
-		return true;
-	}
-	else
-		return false;
-}
-
-
-
-bool AMScan::validateChannelExpression(const QString& expression) {
-	AMChannel tmp(this, "testChannel", expression);
-	return tmp.isValid();
-}
-
-/// create a new channel. The channel is created with a QObject parent of 0, but will be owned and deleted by this Scan.  This function protects against creating channels with duplicate names.
-bool AMScan::addChannel(const QString& chName, const QString& expression, bool ensureValid) {
-
-	if(channelNames().contains(chName))
-		return false;
-
-	// invalid channel expression, and you requested validation
-	if(ensureValid && !validateChannelExpression(expression))
-		return false;
-
-	ch_.addChannel(new AMChannel(this, chName, expression));
-
-	setModified(true);
-	return true;
-}
-
-
 
 
 /// Store or update self in the database. (returns true on success)
-/*! Re-implemented from AMDbObject::storeToDb(), this version saves all of the meta data found for keys metaDataAllKeys(), as well as saving the channel names and channel formulas.
+/*! Re-implemented from AMDbObject::storeToDb(), this version also schedules a date range update of the scan's run when it is inserte into a database for the very first time.
   */
 bool AMScan::storeToDb(AMDatabase* db) {
 
-	bool isFirstTimeStored = (database() == 0 || id() < 1);
-
-	// the base class version is good at saving all the values in the metaData_ hash. Let's just exploit that.
-	metaData_["channelNames"] = channelNames();
-	metaData_["channelExpressions"] = channelExpressions();
+	bool isFirstTimeStored = (database() != db || id() < 1);
 
 	// Call the base class implementation
 	// Return false if it fails.
 	bool success = AMDbObject::storeToDb(db);
-
-	// This was cheating... channelNames and channelExpressions aren't stored authoritatively in the metaData_. Let's get rid of them.
-	metaData_.remove("channelNames");
-	metaData_.remove("channelExpressions");
 
 	// if we have a runId set, and this is the first time we're getting stored to the database, we need to tell that run to update it's date range.
 	// (Once we've been stored in the db, we'll notify the old run and new run each time our runId changes)
@@ -280,7 +132,8 @@ bool AMScan::storeToDb(AMDatabase* db) {
 }
 
 
-
+/// Loads a saved scan from the database into self. Returns true on success.
+/*! Re-implemented from AMDbObject::loadFromDb(), this version also loads the scan's raw data if autoLoadData() is set to true, and the stored filePath doesn't match the existing filePath()*/
 bool AMScan::loadFromDb(AMDatabase* db, int sourceId) {
 
 	QString oldFilePath = filePath();
@@ -290,35 +143,147 @@ bool AMScan::loadFromDb(AMDatabase* db, int sourceId) {
 	if( !AMDbObject::loadFromDb(db, sourceId))
 		return false;
 
-	// retrieve channelNames and channelExpressions: they've been "accidentally" loaded into the hash by AMDbObject::loadFromDb().
-	QStringList chNames = metaData_.take("channelNames").toStringList();
-	QStringList chExpressions = metaData_.take("channelExpressions").toStringList();
-
-	// If the file path is different than the old one, clear and reload the raw data.
+	// In auto-load data mode: If the file path is different than the old one, clear and reload the raw data.
 	if( autoLoadData_ && filePath() != oldFilePath ) {
 		if(!loadData())
 			return false;
 	}
 
-	// clear the existing channels:
-	while(numChannels() != 0)
-		deleteChannel(numChannels()-1);
-
-
-	if(chNames.count() != chExpressions.count()) {
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -1, "AMScan: couldn't restore saved channels. (The data was corrupted.)"));
-		return false;
-	}
-	for(int i=0; i<chNames.count(); i++)
-		addChannel(chNames[i], chExpressions[i]);
-	setModified(false);
-
+	// no longer necessary: setModified(false);
 	return true;
 }
 
 
+// Called when a stored scanInitialCondition is loaded out of the database, but scanInitialConditions() is not returning a pointer to a valid AMControlSetInfo. Note: this should never happen, unless the database storage was corrupted and is loading the wrong object type.
+void AMScan::dbLoadScanInitialConditions(AMDbObject* newLoadedObject) {
+	AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -89, "There was an error re-loading the initial conditions for this scan from the database. This should never happen unless your database is corrupted. Please report this bug to the Acquaman developers."));
+
+	// delete newLoadedObject, since we don't intend to do anything with it, but we're responsible for it.
+	if(newLoadedObject)
+		delete newLoadedObject;
+}
+
+// Returns a list of pointers to the raw data sources, to support db storage.
+AMDbObjectList AMScan::dbReadRawDataSources() const {
+	AMDbObjectList rv;
+	for(int i=0; i<rawDataSources_.count(); i++)
+		rv << rawDataSources_.at(i);
+	return rv;
+}
+// Returns a list of pointers to the analyzed data sources, to support db storage.
+AMDbObjectList AMScan::dbReadAnalyzedDataSources() const {
+	AMDbObjectList rv;
+	for(int i=0; i<analyzedDataSources_.count(); i++)
+		rv << analyzedDataSources_.at(i);
+	return rv;
+}
+// Called when loadFromDb() finds a different number (or types) of stored raw data sources than we currently have in-memory.
+/* Usually, this would only happen when calling loadFromDb() a scan object for the first time, or when re-loading after creating additional raw data sources but not saving them.*/
+void AMScan::dbLoadRawDataSources(const AMDbObjectList& newRawSources) {
+	// delete the existing raw data sources, since they will be replaced. (Does nothing if there are no sources yet.)
+	int count;
+	while( (count = rawDataSources_.count()) ) {
+		AMRawDataSource* deleteMe = rawDataSources_.at(count-1);
+		rawDataSources_.remove(count-1);	// removing at the end is fastest.
+		delete deleteMe;
+	}
+
+	// add new sources. Simply adding these to rawDataSources_ will be enough to emit the signals that tell everyone watching we have new data channels.
+	for(int i=0; i<newRawSources.count(); i++) {
+		if(newRawSources.at(i))
+			rawDataSources_.append(newRawSources.at(i), newRawSources.at(i)->name());
+		else
+			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, "There was an error reloading one of this scan's raw data sources from the database. Your database might be corrupted. Please report this bug to the Acquaman developers."));
+	}
+}
+
+// Called when loadFromDb() finds a different number (or types) of stored analyzed data sources than we currently have in-memory.
+/* Usually, this would only happen when calling loadFromDb() on a scan object for the first time, or when re-loading after creating additional analyzed data sources but not saving them.*/
+void AMScan::dbLoadAnalyzedDataSources(const AMDbObjectList& newAnalyzedSources) {
+	// delete the existing data sources, since they will be replaced. (Does nothing if there are no sources yet.)
+	int count;
+	while( (count = analyzedDataSources_.count()) ) {
+		AMAnalysisBlock* deleteMe = analyzedDataSources_.at(count-1);
+		analyzedDataSources_.remove(count-1);	// removing at the end is fastest.
+		delete deleteMe;
+	}
+
+	// Simply adding these to analyzedDataSources_ will be enough to emit the signals that tell everyone watching we have new data channels.
+	for(int i=0; i<newAnalyzedSources.count(); i++) {
+		if(newAnalyzedSources.at(i))
+			analyzedDataSources_.append(newAnalyzedSources.at(i), newAnalyzedSources.at(i)->name());
+		else
+			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, "There was an error reloading one of this scan's processed data sources from the database. Your database might be corrupted. Please report this bug to the Acquaman developers."));
+	}
+}
+
+// This returns a string describing the input connections of all the analyzed data sources. It's used to save and restore these connections when loading from the database.  (This system is necessary because AMAnalysisBlocks use pointers to AMDataSources to specify their inputs; these pointers will not be the same after new objects are created when restoring from the database.)
+/* Implementation note: The string contains one line for each AMAnalysisBlock in analyzedDataSources_, in order.  Every line is a sequence of comma-separated numbers, where the number represents the index of a datasource in dataSourceAt().  So for an analysis block using the 1st, 2nd, and 5th sources (in order), the line would be "0,1,4".
+
+Lines are separated by single '\n', so a full string could look like:
+"0,1,4\n
+3,2\n
+0,4,3"
+*/
+QString AMScan::dbReadAnalyzedDataSourcesConnections() const {
+	QStringList rv;
+
+	for(int i=0; i<analyzedDataSources_.count(); i++) {
+		AMAnalysisBlock* block = analyzedDataSources_.at(i);
+		QStringList connections;
+		for(int j=0; j<block->inputDataSourceCount(); j++)
+			connections << QString("%1").arg(indexOfDataSource(block->inputDataSourceAt(j)));
+		rv << connections.join(",");
+	}
+
+	return rv.join("\n");
+}
 
 
+// This receives the string describing the input connections of all the analyzed data sources, when loadFromDb() is called., and restores the input data connections for all AMAnalysisBlocks in analyzedDataSources_.
+void AMScan::dbLoadAnalyzedDataSourcesConnections(const QString& connectionString) {
+
+	/// \todo check that properties are always loaded in their declared order. This must be called after the raw data sources and analyzed data sources are loaded.
+	QStringList allConnections = connectionString.split("\n", QString::SkipEmptyParts);
+
+	if(allConnections.count() != analyzedDataSources_.count()) {
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "There was an error re-connecting the analysis and processing components for this scan; the number of blocks didn't match. Your database might be corrupted. Please report this bug to the Acquaman developers."));
+		return;
+	}
+
+	// for each analysis block, set inputs
+	for(int i=0; i<analyzedDataSources_.count(); i++) {
+		QStringList connections = allConnections.at(i).split(",", QString::SkipEmptyParts);
+		QList<AMDataSource*> inputs;
+		// for each input to this block, add to input list
+		for(int j=0; j<connections.count(); j++)
+			inputs << dataSourceAt(connections.at(j).toInt());
+
+		if(!analyzedDataSources_.at(i)->setInputDataSources(inputs))
+			AMErrorMon::report(AMErrorReport(	this,
+											 AMErrorReport::Alert,
+											 0,
+											 QString("There was an error re-connecting the inputs for the analysis component '%1: %2', when reloading this scan from the database. Your database might be corrupted. Please report this bug to the Acquaman developers.").arg(analyzedDataSources_.at(i)->name()).arg(analyzedDataSources_.at(i)->description())));
+	}
+}
+
+
+// Receives itemAdded() signals from rawDataSources_ and analyzedDataSources, and emits dataSourceAdded().
+void AMScan::onDataSourceAdded(int index) {
+	if(sender() == rawDataSources_.signalSource())
+		emit dataSourceAdded(index);
+	else if(sender() == analyzedDataSources_.signalSource() )
+		emit dataSourceAdded(index+rawDataSources_.count());	// this is an index for the combined set of raw+analyzed data sources, for dataSourceAt(). Raw data sources come first.
+}
+
+
+// Receives itemAboutToBeRemoved() signals from rawDataSources_ and analyzedDataSources_, and emits dataSourceAboutToBeRemoved.
+void AMScan::onDataSourceAboutToBeRemoved(int index) {
+	if(sender() == rawDataSources_.signalSource())
+		emit dataSourceAboutToBeRemoved(index);
+	else if(sender() == analyzedDataSources_.signalSource())
+		emit dataSourceAboutToBeRemoved(index+rawDataSources_.count());
+}
 
 
 #include <QPixmap>
@@ -331,6 +296,7 @@ bool AMScan::loadFromDb(AMDatabase* db, int sourceId) {
 #include "MPlot/MPlot.h"
 
 /// Return a thumbnail picture of the channel
+/*! \todo fix this
 AMDbThumbnail AMScan::thumbnail(int index) const {
 
 	if((unsigned)index >= (unsigned)numChannels())
@@ -374,4 +340,4 @@ AMDbThumbnail AMScan::thumbnail(int index) const {
 	/// todo: pretty names like "Total Electron Yield" instead of "tey_n"
 	return AMDbThumbnail(channel(index)->name(), QString(), pixmap);
 
-}
+}*/

@@ -53,7 +53,7 @@ bool AMXASScan::addDetector(const AMDetectorInfo *uniqueDetector) {
 #include "dataman/SGM2004FileLoader.h"
 #include "dataman/ALSBL8XASFileLoader.h"
 
-bool AMXASScan::loadData() {
+bool AMXASScan::loadDataImplementation() {
 
 	SGM2004FileLoader sgmLoader(this);
 

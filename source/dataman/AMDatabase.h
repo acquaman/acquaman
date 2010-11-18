@@ -90,9 +90,9 @@ public:
 
 		Returns an empty list on failure.
 	*/
-	QVariantList retrieve(int id, const QString& table, const QStringList& colNames);
+	QVariantList retrieve(int id, const QString& table, const QStringList& colNames) const;
 	/// Retrieve a single parameter/value for an object.  This is simpler than retrieve() when all you need is a single value.
-	QVariant retrieve(int id, const QString& table, const QString& colName);
+	QVariant retrieve(int id, const QString& table, const QString& colName) const;
 
 	/// ensure that a table of the given name exists. If it doesn't, it will be created with the columns contained in \c columnNames. \c columnTypes is a list of SQLite column types ("TEXT", "INTEGER", etc.), which must have an entry for each \c columnName.
 	bool ensureTable(const QString& tableName, const QStringList& columnNames, const QStringList& columnTypes, bool reuseDeletedIds = true);
@@ -107,24 +107,24 @@ public:
 
 	/// Return a list of all the objects/rows (by id) that match 'value' in a certain column.
 	/// ex: AMDatabase::db()->objectsMatching("name", "Carbon60"), or AMDatabase::db()->objectsMatching("dateTime", QDateTime::currentDateTime())
-	QList<int> objectsMatching(const QString& tableName, const QString& colName, const QVariant& value);
+	QList<int> objectsMatching(const QString& tableName, const QString& colName, const QVariant& value) const;
 
 	/// Return a list of all the objects/rows (by id) that contain 'value' in a certain column
 	/// ex: AMDatabase::db()->scansContaining("name", "Carbon60") could return Scans with names Carbon60_alpha and bCarbon60_gamma
-	QList<int> objectsContaining(const QString& tableName, const QString& colName, const QVariant& value);
+	QList<int> objectsContaining(const QString& tableName, const QString& colName, const QVariant& value) const;
 
 	/// returns a list of all the objecst/rows (by id) that match a given condition. \c whereClause is a string suitable for appending after an SQL "WHERE" statement.
-	QList<int> objectsWhere(const QString& tableName, const QString& whereClause);
+	QList<int> objectsWhere(const QString& tableName, const QString& whereClause) const;
 
 
 	/// For people who really know what they're doing. You shouldn't normally use this.
-	void startTransation() {
+	void startTransaction() {
 		qdb().transaction();
 	}
-	void commitTransation() {
+	void commitTransaction() {
 		qdb().commit();
 	}
-	void rollbackTransation() {
+	void rollbackTransaction() {
 		qdb().rollback();
 	}
 
@@ -141,7 +141,7 @@ signals:
 
 protected:
 	/// Access the QSqlAMDatabase object for this connection.
-	QSqlDatabase qdb() { return QSqlDatabase::database(connectionName_); }
+	QSqlDatabase qdb() const { return QSqlDatabase::database(connectionName_); }
 
 
 private:

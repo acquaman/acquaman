@@ -134,7 +134,6 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/beamline/AMSpectrometer.h \
 	source/beamline/AMVariableAperture.h \
 	source/beamline/SGMBeamline.h \
-	source/dataman/AMChannel.h \
 	source/dataman/AMDatabase.h \
 	source/dataman/AMDataTree.h \
 	source/dataman/AMDataTreeColumn.h \
@@ -239,7 +238,8 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/analysis/AM1DExpressionAB.h \
 	source/dataman/AMDbObjectSupport.h \
 	source/util/AMOrderedSetSignalSource.h \
-	source/util/AMOrderedSet.h
+	source/util/AMOrderedSet.h \
+	source/dataman/AMRawDataSource.h
 FORMS += source/ui/AbsorptionScanController.ui \
 	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
@@ -331,7 +331,6 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/beamline/AMSpectrometer.cpp \
 	source/beamline/AMVariableAperture.cpp \
 	source/beamline/SGMBeamline.cpp \
-	source/dataman/AMChannel.cpp \
 	source/dataman/AMDataTree.cpp \
 	source/dataman/AMDatabase.cpp \
 	source/dataman/AMDbObject.cpp \
@@ -419,6 +418,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/analysis/AM1DExpressionAB.cpp \
 	source/dataman/AMDbObjectSupport.cpp \
 	source/acquaman.cpp \
-	source/util/AMOrderedSetSignalSource.cpp
+	source/util/AMOrderedSetSignalSource.cpp \
+	source/dataman/AMRawDataSource.cpp
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc

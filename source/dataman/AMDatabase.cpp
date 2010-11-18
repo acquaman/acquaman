@@ -285,7 +285,7 @@ int AMDatabase::deleteRows(const QString& tableName, const QString& whereClause)
 	(Note that the const and & arguments are designed to prevent memory copies, so this should be fast.)
 	Return value: returns true on success.
 */
-QVariantList AMDatabase::retrieve(int id, const QString& table, const QStringList& colNames) {
+QVariantList AMDatabase::retrieve(int id, const QString& table, const QStringList& colNames) const {
 
 	QVariantList values;	// return value
 
@@ -322,7 +322,7 @@ QVariantList AMDatabase::retrieve(int id, const QString& table, const QStringLis
 }
 
 
-QVariant AMDatabase::retrieve(int id, const QString& table, const QString& colName) {
+QVariant AMDatabase::retrieve(int id, const QString& table, const QString& colName) const {
 
 	/// \todo sanitize more than this...
 	if(table.isEmpty()) {
@@ -357,7 +357,7 @@ QVariant AMDatabase::retrieve(int id, const QString& table, const QString& colNa
 
 
 /// returns a list of all the objecst/rows (by id) that match a given condition. \c whereClause is a string suitable for appending after an SQL "WHERE" statement.
-QList<int> AMDatabase::objectsWhere(const QString& tableName, const QString& whereClause) {
+QList<int> AMDatabase::objectsWhere(const QString& tableName, const QString& whereClause) const {
 
 	QList<int> rl;
 
@@ -383,7 +383,7 @@ QList<int> AMDatabase::objectsWhere(const QString& tableName, const QString& whe
 
 /// Return a list of all the objects/rows (by id) that match 'value' in a certain column.
 /// ex: AMDatabase::db()->objectsMatching("name", "Carbon60"), or AMDatabase::db()->objectsMatching("dateTime", QDateTime::currentDateTime())
-QList<int> AMDatabase::objectsMatching(const QString& tableName, const QString& colName, const QVariant& value) {
+QList<int> AMDatabase::objectsMatching(const QString& tableName, const QString& colName, const QVariant& value) const {
 
 	// return value: list of id's that match
 	QList<int> rl;
@@ -419,7 +419,7 @@ QList<int> AMDatabase::objectsMatching(const QString& tableName, const QString& 
 
 /// Return a list of all the objects/rows (by id) that contain 'value' in a certain column
 /// ex: AMDatabase::db()->scansContaining("name", "Carbon60") could return Scans with names Carbon60_alpha and bCarbon60_gamma
-QList<int> AMDatabase::objectsContaining(const QString& tableName, const QString& colName, const QVariant& value) {
+QList<int> AMDatabase::objectsContaining(const QString& tableName, const QString& colName, const QVariant& value) const {
 
 	QList<int> rl;
 

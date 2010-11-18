@@ -80,7 +80,7 @@ class AMDataStore
 {
 public:
 	/// Constructs an empty data store
-    AMDataStore();
+	AMDataStore();
 	/// Destructor
 	virtual ~AMDataStore();
 
@@ -100,14 +100,23 @@ public:
 	// Axes
 	/////////////////////////////
 	/// Create space to support an additional scan axis.  \c axisDetails describes the characteristics of the axis, but the \c size of axisDetails will be ignored.  If no data points exist yet (ie: the scan space is empty), the size of the new axis will be set to 0; otherwise, it will be set to 1.
-	/*! If you want to retrieve axes by name, \c axisDetails must contain a unique \c name.  This function should return false if an axis with that name already exists. */
+	/*! If you want to retrieve axes by name, \c axisDetails must contain a unique \c name.  This function should return false if an axis with that name already exists.
+
+	  \note No signalling is provided for alerting observers of new scan axes. It's also prohibited for AMDataSources that expose this data (for ex: AMRawDataSource) to change dimensionality (ie: add another axis). Therefore, it's recommended to only call this function when first setting up a dataStore, before any observers get involved.
+*/
 	virtual bool addScanAxis(const AMAxisInfo& axisDetails) = 0;
 	/// Retrieve the id of an existing axis, by name.  (Depending on the implementation, this may not be fast. Avoid calling it repeatedly.)
 	virtual int idOfScanAxis(const QString& axisName) const = 0;
 	/// Retrieve information about an axis, by id.
 	virtual AMAxisInfo scanAxisAt(int id) const = 0;
-	/// Return the number scan axes
-	virtual int scanAxisCount() const = 0;
+	/// Return the number of scan axes
+	virtual int scanAxesCount() const = 0;
+	/// Synonym for scanAxisCount()
+	int scanRank() const { return scanAxesCount(); }
+	/// Return the sizes of all the scan axes, in order.
+	AMnDIndex scanSize() const = 0;
+	/// Return the size of a specific axis, by \c id.
+	int scanAxisSize(int id) const = 0;
 
 	/// Indicates that the scan space is empty (no scan points yet). This is true when the size of any axis is 0. (think about it..)
 	virtual bool isEmpty() const {
@@ -169,6 +178,10 @@ public:
 
 
 
+	// Signal source
+	///////////////////////
+	/// Access the signal source, which provides dataChanged() and sizeChanged().
+	const AMDataStoreSignalSource* signalSource() const { return signalSource_; }
 
 
 protected:

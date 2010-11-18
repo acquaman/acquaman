@@ -1,0 +1,113 @@
+#include "AMRawDataSource.h"
+
+
+AMRawDataSource::AMRawDataSource(const AMDataStore* dataStore, int measurementId, QObject* parent)
+	: AMDbObject(parent), AMDataSource( dataStore->measurementAt(measurementId).name )
+{
+
+	dataStore_ = dataStore;
+	AMMeasurementInfo measurementInfo = dataStore_->measurementAt(measurementId);
+
+	AMDbObject::setName( AMDataSource::name() );
+	setDescription( measurementInfo.description );
+
+	scanAxesCount_ = dataStore_->scanRank();
+	measurementAxesCount_ = measurementInfo.rank();
+
+	// create the correct number of axes
+	for(int i=0; i<scanAxesCount_; i++)
+		axes_ << dataStore_->scanAxisAt(i);	// adds scan axes
+	axes_ << measurementInfo.axes;	// adds detector axes
+
+
+	// \todo Add ProcessingFlag when acquiring...
+	stateFlags_ = 0;
+
+	// create connections to datastore:
+	connect(dataStore_->signalSource(), SIGNAL(dataChanged(AMnDIndex,AMnDIndex,int)), SLOT(onDataChanged(AMnDIndex, AMnDIndex,int)) );
+	connect(dataStore->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onScanAxisSizeChanged(int)));
+}
+
+
+// This constructor re-loads a previously-stored source from the database.
+AMRawDataSource::AMRawDataSource(AMDatabase* db, int id)
+	: AMDbObject(0), AMDataSource("tempName")
+{
+	dataStore_ = 0;
+	measurementId_ = 0;
+	stateFlags_ = AMDataSource::InvalidFlag;
+
+	// restore the description(), rank(), measurementId(), scanRank(), and measurementRank() as stored in the database.  Our state() will remain Invalid until you call setDataStore() with a valid datastore that matches these dimensions.
+	loadFromDb(db, id);
+	AMDataSource::name_ = AMDbObject::name();
+
+}
+
+bool AMRawDataSource::setDataStore(const AMDataStore *dataStore) {
+	// verify that this new dataStore is suitable. It needs to match our old sizes, and measurementId_ must be a valid for it.
+	if(!dataStore)
+		return false;
+	if(dataStore->scanRank() != scanAxesCount_)
+		return false;
+	if(measurementId_ >= dataStore->measurementCount())
+		return false;
+	AMMeasurementInfo measurementInfo = dataStore->measurementAt(measurementId_);
+	if(measurementInfo.rank() != measurementAxesCount_)
+		return false;
+
+	// ok, you're good.
+
+	// existing data store? Disconnect signals.
+	if(dataStore_) {
+		disconnect(dataStore_->signalSource(), 0, this, 0);
+	}
+
+	dataStore_ = dataStore;
+	axes_.clear();
+	for(int i=0; i<scanAxesCount_; i++)
+		axes_ << dataStore->scanAxisAt(i);	// adds scan axes
+	axes_ << measurementInfo.axes;
+
+	// create connections to the new datastore:
+	connect(dataStore_->signalSource(), SIGNAL(dataChanged(AMnDIndex,AMnDIndex,int)), SLOT(onDataChanged(AMnDIndex, AMnDIndex,int)) );
+	connect(dataStore->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onScanAxisSizeChanged(int)));
+
+	setValid();
+	emitSizeChanged(-1);
+	emitAxisInfoChanged(-1);
+	return true;
+}
+
+
+// Forwarding signals from the data store:
+//////////////////////
+// Called when the data changes within the region described. We only care when \c measurementId matches our measurementId_
+void AMRawDataSource::onDataChanged(const AMnDIndex& scanIndexStart, const AMnDIndex scanIndexEnd, int measurementId) {
+	if(measurementId != measurementId_)
+		return;	// doesn't concern us. None of our data changed
+
+	AMnDIndex start = scanIndexStart;
+	AMnDIndex end = scanIndexEnd;
+
+	start.append(measurementIndexStart_);
+	end.append(measurementIndexEnd_);
+
+	emitValuesChanged(start, end);	/// \todo evaluate performance of creating these start/end indices on every valuesChanged. If no one uses the regions, would be faster not to bother.
+}
+
+// Called when the size of a scan axis changes.  \c axisId is the id of the changing axis, or -1 if they all did.
+void AMRawDataSource::onScanAxisSizeChanged(int axisId) {
+	// the nice thing is that within our axes, the scan axes appear first, followed by the measurement axes. So an AMDataStore scan axis id is the same as one of our axis numbers.
+
+	if(axisId < 0) {	// all axes changed size?
+		for(int a=0; a<scanAxesCount_; a++)
+			axes_[a].size = dataStore_->scanAxisSize(a);
+		emitSizeChanged(-1);
+	}
+	else if(axisId < scanAxesCount_) {	// just this axis changed size
+		axes_[axisId].size = dataStore_->scanAxisSize(axisId);
+		emitSizeChanged(axisId);
+	}
+}
+
+

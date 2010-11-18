@@ -22,7 +22,7 @@ public:
 	Q_INVOKABLE explicit AMXASScan(const QList<AMDetectorInfo*> &detectors = QList<AMDetectorInfo*>(), QObject *parent = 0);
 
 	/// Re-implemented from AMScan. Currently only the SGM2004 and ALS Bl8.0.1 file formats are supported.
-	virtual bool loadData();
+	virtual bool loadDataImplementation();
 
 	/// the detectors (raw data columns) available within this scan. Does not include the primary column (eV), which is always present.
 	QStringList detectorNames() const { return detectorNames_; }
