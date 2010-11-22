@@ -20,10 +20,10 @@ class AMScan : public AMDbObject {
 	Q_OBJECT
 
 	/// Database Persistent Properties
-	Q_PROPERTY(int number READ number WRITE setNumber)
-	Q_PROPERTY(QDateTime dateTime READ dateTime WRITE setDateTime)
+	Q_PROPERTY(int number READ number WRITE setNumber NOTIFY numberChanged)
+	Q_PROPERTY(QDateTime dateTime READ dateTime WRITE setDateTime NOTIFY dateTimeChanged)
 	Q_PROPERTY(int runId READ runId WRITE setRunId)
-	Q_PROPERTY(int sampleId READ sampleId WRITE setSampleId)
+	Q_PROPERTY(int sampleId READ sampleId WRITE setSampleId NOTIFY sampleIdChanged)
 	Q_PROPERTY(QString notes READ notes WRITE setNotes)
 	Q_PROPERTY(QString fileFormat READ fileFormat WRITE setFileFormat)
 	Q_PROPERTY(QString filePath READ filePath WRITE setFilePath)
@@ -60,20 +60,20 @@ public:
 	// Meta Data Elements
 	////////////////////////////////
 	/// Returns a user-given number
-	int number() const { return metaData_.value("number").toInt();}
+	int number() const { return number_;}
 	/// Returns creation time / scan start time
-	QDateTime dateTime() const {return metaData_.value("dateTime").toDateTime();}
+	QDateTime dateTime() const {return dateTime_;}
 	/// Returns the id of the run containing this scan, or (-1) if not associated with a run.
-	int runId() const { QVariant v = metaData_.value("runId"); if(v.isNull()) return -1; else return v.toInt(); }
+	int runId() const { return runId_; }
 	/// Returns id of the scan's sample (or -1 if a sample has not been assigned)
-	int sampleId() const { QVariant v = metaData_.value("sampleId"); if(v.isNull()) return -1; else return v.toInt();}
+	int sampleId() const { return sampleId_; }
 	/// Returns notes/comments for scan
-	QString notes() const { return metaData_.value("notes").toString();}
+	QString notes() const { return notes_; }
 
 	/// The string describing the format of the stored raw data file
-	QString fileFormat() const { return metaData_.value("fileFormat").toString(); }
+	QString fileFormat() const { return fileFormat_; }
 	/// The directory path and file name of this scan's raw data file
-	QString filePath() const { return metaData_.value("filePath").toString(); }
+	QString filePath() const { return filePath_; }
 
 	// Convenience functions on meta-data:
 	/////////////////////////
@@ -89,7 +89,7 @@ public:
 	/*! Re-implemented from AMDbObject::loadFromDb(), this version also loads the scan's raw data if autoLoadData() is set to true, and the stored filePath doesn't match the existing filePath()*/
 	virtual bool loadFromDb(AMDatabase* db, int id);
 	/// Store or update self in the database. (Returns true on success.)
-	/*! Re-implemented from AMDbObject::storeToDb(), this version also schedules a date range update of the scan's run when it is inserte into a database for the very first time.
+	/*! Re-implemented from AMDbObject::storeToDb(), this version also schedules a date range update of the scan's run when it is inserted into a database for the very first time.
 	  */
 	virtual bool storeToDb(AMDatabase* db);
 
@@ -221,9 +221,9 @@ public slots:
 	///////////////////////////////
 
 	/// Sets appended number
-	void setNumber(int number) { number_ = number; setModified(true); }
+	void setNumber(int number) { number_ = number; setModified(true); emit numberChanged(number_); }
 	/// set the date/time:
-	void setDateTime(const QDateTime& dt) { dateTime_ = dt; setModified(true); }
+	void setDateTime(const QDateTime& dt) { dateTime_ = dt; setModified(true); emit dateTimeChanged(dateTime_); }
 	/// associate this object with a particular run. Set to (-1) to dissociate with any run.  (Note: for now, it's the caller's responsibility to make sure the runId is valid.)
 	/*! This will also tell the new run (and the old run, if it exists) to update their date ranges */
 	void setRunId(int newRunId);
@@ -243,14 +243,24 @@ signals:
 	/// Emitted when raw data changes / new data accepted
 	void dataChanged(AMScan* me);
 
+	// Meta-data changed signals:
+	/////////////////
+	void dateTimeChanged(const QDateTime& newDateTime);
+	void sampleIdChanged(int sampleId);
+	void numberChanged(int number);
+
 
 	// Combined Data Source Model: Signals
 	////////////////////////////////////////
 
+	/// Emitted just before a new data source is added. \c index is the index where it will end up.  It's not there yet.
+	void dataSourceAboutToBeAdded(int index);
 	/// Emitted when a new data source is added.  \c index is the index of the source in dataSourceAt().
 	void dataSourceAdded(int index);
-	/// Emitted just before a data source is removed. \c index in the old index of the source in dataSourceAt().
+	/// Emitted just before a data source is removed. \c index in the index of the source in dataSourceAt().
 	void dataSourceAboutToBeRemoved(int index);
+	/// Emitted after a data source was removed. \c index is the index the source used to occupy in dataSourceAt(); it's not there anymore.
+	void dataSourceRemoved(int index);
 
 
 
@@ -262,10 +272,14 @@ protected slots:
 		emit dataChanged(this);
 	}
 
+	/// Receives itemAboutToBeAdded() signals from rawDataSources_ and analyzedDataSources, and emits dataSourceAboutToBeAdded().
+	void onDataSourceAboutToBeAdded(int index);
 	/// Receives itemAdded() signals from rawDataSources_ and analyzedDataSources, and emits dataSourceAdded().
 	void onDataSourceAdded(int index);
 	/// Receives itemAboutToBeRemoved() signals from rawDataSources_ and analyzedDataSources_, and emits dataSourceAboutToBeRemoved.
 	void onDataSourceAboutToBeRemoved(int index);
+	/// Receives itemRemoved() signals from rawDataSources_ and analyzedDataSources_, and emits dataSourceRemoved.
+	void onDataSourceRemoved(int index);
 
 protected:
 

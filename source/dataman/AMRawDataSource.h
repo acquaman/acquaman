@@ -81,6 +81,8 @@ public:
 
 	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index)
 	virtual AMNumber axisValue(int axisNumber, int index) {
+		if(!isValid())
+			return AMNumber(AMNumber::InvalidError);
 		if(axisNumber < scanAxesCount_)
 			return dataStore_->axisValue(axisNumber, index);	// value along a scan axis
 		else if (axisNumber < rank() )	// value along a measurement axis. Unsupported so far... All we have is the direct value
@@ -110,6 +112,7 @@ public:
 	/// Called when reloading from the database. Must be followed with a call to setDataStore() to make this source valid again.
 	void dbLoadRank(int newRank) {
 		setInvalid();
+		dataStore_ = 0;
 
 		axes_.clear();
 		for(int i=0; i<newRank; i++)

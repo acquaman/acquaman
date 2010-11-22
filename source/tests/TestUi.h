@@ -77,7 +77,7 @@ private slots:
 
 		QTest::qWait(4000);
 
-		model->setExclusiveChannel("tfy_n");
+		model->setExclusiveDataSourceByName("tfy_n");
 
 		QTest::qWait(4000);
 
@@ -95,11 +95,11 @@ private slots:
 
 		QTest::qWait(2000);
 
-		model->setExclusiveChannel("const5");
+		model->setExclusiveDataSourceByName("const5");
 
 		QTest::qWait(4000);
 
-		model->setExclusiveChannel("tey_n");
+		model->setExclusiveDataSourceByName("tey_n");
 
 		QTest::qWait(4000);
 
@@ -234,7 +234,7 @@ private slots:
 
 		QTest::qWait(4000);
 
-		model->setExclusiveChannel("tfy_n");
+		model->setExclusiveDataSourceByName("tfy_n");
 
 		QTest::qWait(4000);
 
@@ -247,11 +247,11 @@ private slots:
 
 		QTest::qWait(2000);
 
-		model->setExclusiveChannel("const5");
+		model->setExclusiveDataSourceByName("const5");
 
 		QTest::qWait(4000);
 
-		model->setExclusiveChannel("tey_n");
+		model->setExclusiveDataSourceByName("tey_n");
 
 		QTest::qWait(4000);
 
@@ -322,7 +322,7 @@ private slots:
 
 		QTest::qWait(4000);
 
-		model->setExclusiveChannel("tfy_n");
+		model->setExclusiveDataSourceByName("tfy_n");
 
 		QTest::qWait(4000);
 
@@ -335,11 +335,11 @@ private slots:
 
 		QTest::qWait(2000);
 
-		model->setExclusiveChannel("const5");
+		model->setExclusiveDataSourceByName("const5");
 
 		QTest::qWait(4000);
 
-		model->setExclusiveChannel("tey_n");
+		model->setExclusiveDataSourceByName("tey_n");
 
 		QTest::qWait(4000);
 
@@ -369,7 +369,7 @@ private slots:
 
 		AMScanView sv;
 		sv.show();
-		sv.changeViewMode(AMScanView::MultiChannels);
+		sv.changeViewMode(AMScanView::MultiSources);
 
 		AMScanSetModel* model = sv.model();
 
@@ -411,7 +411,7 @@ private slots:
 
 		QTest::qWait(4000);
 
-		model->setExclusiveChannel("tfy_n");
+		model->setExclusiveDataSourceByName("tfy_n");
 
 		QTest::qWait(4000);
 
@@ -424,11 +424,11 @@ private slots:
 
 		QTest::qWait(2000);
 
-		model->setExclusiveChannel("const5");
+		model->setExclusiveDataSourceByName("const5");
 
 		QTest::qWait(4000);
 
-		model->setExclusiveChannel("tey_n");
+		model->setExclusiveDataSourceByName("tey_n");
 
 		QTest::qWait(4000);
 
@@ -458,7 +458,7 @@ private slots:
 
 		AMScanView sv;
 		sv.show();
-		sv.changeViewMode(AMScanView::MultiChannels);
+		sv.changeViewMode(AMScanView::MultiSources);
 
 		AMScanSetModel* model = sv.model();
 

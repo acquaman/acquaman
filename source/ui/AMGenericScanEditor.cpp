@@ -101,8 +101,8 @@ AMGenericScanEditor::~AMGenericScanEditor() {
 void AMGenericScanEditor::addScan(AMScan* newScan) {
 	scanSetModel_->addScan(newScan);
 	ui_.scanListView->setCurrentIndex(scanSetModel_->indexForScan(newScan));
-	if(scanSetModel_->exclusiveChannel().isEmpty() && newScan->numChannels() > 0)
-		scanSetModel_->setExclusiveChannel(newScan->channel(0)->name());
+	if(scanSetModel_->exclusiveDataSourceName().isEmpty() && newScan->numChannels() > 0)
+		scanSetModel_->setExclusiveDataSourceByName(newScan->channel(0)->name());
 
 	refreshWindowTitle();
 }
@@ -138,7 +138,7 @@ void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const
 
 	// disconnect the old scan:
 	if(currentScan_) {
-		disconnect(currentScan_, SIGNAL(metaDataChanged(QString)), this, SLOT(onScanMetaDataChanged(QString)));
+		// removed: disconnect(currentScan_, SIGNAL(metaDataChanged()), this, SLOT(onScanMetaDataChanged()));
 
 		disconnect(ui_.scanName, 0, currentScan_, 0);
 		disconnect(ui_.scanNumber, 0, currentScan_, 0);
@@ -157,7 +157,7 @@ void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const
 
 
 	if(currentScan_) {
-		connect(currentScan_, SIGNAL(metaDataChanged(QString)), this, SLOT(onScanMetaDataChanged(QString)));
+		// removed: connect(currentScan_, SIGNAL(metaDataChanged()), this, SLOT(onScanMetaDataChanged()));
 
 		// make connections to widgets, so that widgets edit this scan:
 		connect(ui_.scanName, SIGNAL(textChanged(QString)), currentScan_, SLOT(setName(QString)));
@@ -178,15 +178,16 @@ void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const
 
 
 	if(scanSetModel_->numScans() == 0)
-		scanSetModel_->setExclusiveChannel(QString());
+		scanSetModel_->setExclusiveDataSourceByName(QString());
 
 }
 
-void AMGenericScanEditor::onScanMetaDataChanged(const QString &key) {
+/* removed:
+void AMGenericScanEditor::onScanMetaDataChanged() {
 
 	/// hmmm... should we change the editor values? What if the scan is altered elsewhere...
 	// what if they changed it first? But haven't saved yet?
-}
+}*/
 
 void AMGenericScanEditor::updateEditor(AMScan *scan) {
 	if(scan) {

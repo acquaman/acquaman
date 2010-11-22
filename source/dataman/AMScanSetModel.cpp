@@ -12,13 +12,13 @@ QModelIndex AMScanSetModel::index ( int row, int column, const QModelIndex & par
 
 	// Parent is a scan-level index
 	else if(parent.internalId() == -1 && parent.row() < scans_.count() ) {
-		if(column == 0 && row < scans_.at(parent.row())->numChannels() )
+		if(column == 0 && row < scans_.at(parent.row())->dataSourceCount() )
 			return createIndex(row, 0, parent.row() );
 		else
 			return QModelIndex();
 	}
 
-	// anything else (For parent-indices that correspond to channels, there are no children indices)
+	// anything else (For parent-indices that correspond to data sources, there are no children indices)
 	return QModelIndex();
 }
 
@@ -36,7 +36,7 @@ QModelIndex AMScanSetModel::parent ( const QModelIndex & index ) const {
 	if(index.internalId() == -1)
 		return QModelIndex();
 
-	// if index is a channel level index: internalId is the index of its parent scan, which becomes the row in the parent index.
+	// if index is a data source-level index: internalId is the index of its parent scan, which becomes the row in the parent index.
 	if(index.isValid() && index.column() == 0 && index.internalId() >=0 && index.internalId() < scans_.count() )
 		return createIndex(index.internalId(), 0, -1);
 
@@ -49,7 +49,7 @@ Qt::ItemFlags AMScanSetModel::flags ( const QModelIndex & index ) const  {
 	if(index.internalId() == -1)
 		return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
 
-	// Channels:
+	// Data Sources:
 	if(index.internalId() >= 0)
 		return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
 
@@ -73,9 +73,9 @@ QVariant AMScanSetModel::data ( const QModelIndex & index, int role) const {
 			}
 			break;
 		case Qt::DecorationRole:
-			/// \bug this is temporary and meaningless
-			if(scan->numChannels() > 0)
-				return chMetaData_.at(index.row()).at(0).color;
+			/// \bug this is temporary and meaningless; it's just the color of the first data source in the scan.
+			if(scan->dataSourceCount() > 0)
+				return sourcePlotSettings_.at(index.row()).at(0).color;
 			else
 				return QVariant();
 			break;
@@ -103,34 +103,35 @@ QVariant AMScanSetModel::data ( const QModelIndex & index, int role) const {
 	}
 
 
-	// channel-level index:
+	// data source-level index:
 	if(index.internalId() >= 0 && index.internalId() < scans_.count() ) {
 		AMScan* scan = scans_.at(index.internalId());
 
-		if(index.row() < scan->numChannels() && index.column() == 0) {
-			AMChannel* channel = scan->channel(index.row());
+		if(index.row() < scan->dataSourceCount() && index.column() == 0) {
+			AMDataSource* dataSource = scan->dataSourceAt(index.row());
 
 			switch(role) {
 			case Qt::DisplayRole:
-				return channel->name();
+				return QString("%1 (%2)").arg(dataSource->description(), dataSource->name());
 				break;
 			case Qt::DecorationRole:
-				return chMetaData_.at(index.internalId()).at(index.row()).color;
+				return sourcePlotSettings_.at(index.internalId()).at(index.row()).color;
 				break;
 			case Qt::ToolTipRole:
-				return QString("%1 (%2): %3").arg(channel->name()).arg(scan->name()).arg(channel->expression());
+			case AM::DescriptionRole:
+				return QString("%1 (%2) From scan: %3\n%4").arg(dataSource->description(), dataSource->name()).arg(scan->name()).arg(dataSource->typeDescription());
 				break;
 			case Qt::CheckStateRole:
-				return chMetaData_.at(index.internalId()).at(index.row()).visible ? Qt::Checked : Qt::Unchecked;
+				return sourcePlotSettings_.at(index.internalId()).at(index.row()).visible ? Qt::Checked : Qt::Unchecked;
 				break;
 			case AM::PointerRole:
-				return qVariantFromValue(channel);
+				return qVariantFromValue(dataSource);
 				break;
 			case AM::PriorityRole:
-				return chMetaData_.at(index.internalId()).at(index.row()).priority;
+				return sourcePlotSettings_.at(index.internalId()).at(index.row()).priority;
 				break;
 			case AM::LinePenRole:
-				return chMetaData_.at(index.internalId()).at(index.row()).linePen;
+				return sourcePlotSettings_.at(index.internalId()).at(index.row()).linePen;
 			case AM::CanCloseRole:	// allows views to show the 'close' button beside each scan, to delete it.
 				return true;
 			default:
@@ -147,7 +148,7 @@ QVariant AMScanSetModel::headerData ( int section, Qt::Orientation orientation, 
 	if(role != Qt::DisplayRole)
 		return QVariant();
 	if(orientation == Qt::Horizontal)
-		return QString("Channel");
+		return QString("Data Source");
 	if(orientation == Qt::Vertical)
 		return QVariant(section);
 	return QVariant();
@@ -158,40 +159,43 @@ int AMScanSetModel::rowCount ( const QModelIndex & parent ) const  {
 	if(!parent.isValid())
 		return scans_.count();
 
-	// scan-level: return number of channels:
+	// scan-level: return number of data sources:
 	if(parent.internalId() == -1 && parent.row() < scans_.count())
-		return scans_.at(parent.row())->numChannels();
+		return scans_.at(parent.row())->dataSourceCount();
 
 	return 0;
 }
 
-int AMScanSetModel::columnCount ( const QModelIndex & parent ) const {
-	Q_UNUSED(parent)
 
-	return 1;
-}
 
 bool AMScanSetModel::hasChildren ( const QModelIndex & parent  ) const {
 
 	if(!parent.isValid())
 		return true;
 
-	// scans have children, if they have channels
-	if(parent.internalId() == -1 && parent.row() < scans_.count() && scans_.at(parent.row())->numChannels() > 0)
+	// scans have children, if they have data sources
+	if(parent.internalId() == -1 && parent.row() < scans_.count() && scans_.at(parent.row())->dataSourceCount() > 0)
 		return true;
-	// channels don't.
+	// data sources don't.
 	else
 		return false;
 }
 
 
 /// returns the index (or row) of an AMScan in the top-level. returns -1 if not found.
-int AMScanSetModel::indexOf(AMScan* scan) const {
+int AMScanSetModel::indexOf(const AMScan* scan) const {
 	return scans_.indexOf(scan);
 }
 
-int AMScanSetModel::indexOf(AMChannel* channel, AMScan* insideHere) const {
-	return insideHere->channelList()->indexOf(channel);
+int AMScanSetModel::indexOf(AMDataSource* dataSource, AMScan* insideHere) const {
+	if(insideHere)
+		return insideHere->indexOfDataSource(dataSource);
+	else
+		return -1;
+}
+
+int AMScanSetModel::indexOf(const AMDataSource *dataSource, int scanIndex) const {
+	return indexOf(dataSource, scanAt(scanIndex));
 }
 
 // Resizable Interface:
@@ -203,24 +207,26 @@ void AMScanSetModel::addScan(AMScan* newScan) {
 	beginInsertRows(QModelIndex(), scans_.count(), scans_.count());
 
 	scans_.append(newScan);
-	scanChannelLists_.append(newScan->channelList());
-	connect(newScan, SIGNAL(metaDataChanged(QString)), this, SLOT(onMetaDataChanged(QString)));
 	connect(newScan, SIGNAL(modifiedChanged(bool)), this, SLOT(onScanModifiedChanged(bool)));
+	connect(newScan, SIGNAL(nameChanged(QString)), this, SLOT(onMetaDataChanged()));
+	connect(newScan, SIGNAL(numberChanged(int)), this, SLOT(onMetaDataChanged()));
+	connect(newScan, SIGNAL(dateTimeChanged(QDateTime)), this, SLOT(onMetaDataChanged()));
+	connect(newScan, SIGNAL(sampleIdChanged(int)), this, SLOT(onMetaDataChanged()));
 
+	QList<AMDataSourcePlotSettings> plotSettings;
+	for(int i=0; i<newScan->dataSourceCount(); i++)
+		plotSettings.append(AMDataSourcePlotSettings());	/// \todo set up nicer default colors (related within scans)
+	sourcePlotSettings_.append(plotSettings);
 
+	// hook up signals from newScan to catch data source addition and removal
+	connect(newScan, SIGNAL(dataSourceAdded(int)), this, SLOT(onDataSourceAdded(int)));
+	connect(newScan, SIGNAL(dataSourceAboutToBeAdded(int)), this, SLOT(onDataSourceAboutToBeAdded(int)));
+	connect(newScan, SIGNAL(dataSourceAboutToBeRemoved(int)), this, SLOT(onDataSourceAboutToBeRemoved(int)));
+	connect(newScan, SIGNAL(dataSourceRemoved(int)), this, SLOT(onDataSourceRemoved(int)));
 
-	QList<AMScanSetModelChannelMetaData> chs;
-	for(int i=0; i<newScan->numChannels(); i++)
-		chs.append(AMScanSetModelChannelMetaData());
-	chMetaData_.append(chs);
-
-	/// \todo hook up signals from newScan->channelList to catch channel creation and deletion
-	connect(newScan->channelList(), SIGNAL(rowsAboutToBeInserted(QModelIndex, int, int)), this, SLOT(onChannelAboutToBeAdded(QModelIndex, int, int)));
-	connect(newScan->channelList(), SIGNAL(rowsInserted(QModelIndex, int, int)), this, SLOT(onChannelAdded(QModelIndex, int, int)));
-	connect(newScan->channelList(), SIGNAL(rowsAboutToBeRemoved(QModelIndex, int, int)), this, SLOT(onChannelAboutToBeRemoved(QModelIndex, int, int)));
-	connect(newScan->channelList(), SIGNAL(rowsRemoved(QModelIndex, int, int)), this, SLOT(onChannelRemoved(QModelIndex, int, int)));
 	endInsertRows();
-	/// \todo hack: should not be needed... But we do to keep QTreeViews from getting messed up. Why?
+
+	/// \todo this is a hack; should not be needed... But we do need it to keep QTreeViews from getting messed up. Why?
 	emit layoutChanged();
 }
 
@@ -230,13 +236,12 @@ bool AMScanSetModel::removeScan(AMScan* removeMe) {
 	int index = scans_.indexOf(removeMe);
 
 	if(index != -1) {
-		disconnect(removeMe, SIGNAL(metaDataChanged(QString)), this, SLOT(onMetaDataChanged(QString)));
-		disconnect(removeMe, SIGNAL(modifiedChanged(bool)), this, SLOT(onScanModifiedChanged(bool)));
+		disconnect(removeMe, 0, this, 0);
+
 		emit layoutAboutToBeChanged();
 		beginRemoveRows(QModelIndex(), index, index);
 		scans_.removeAt(index);
-		scanChannelLists_.removeAt(index);
-		chMetaData_.removeAt(index);
+		sourcePlotSettings_.removeAt(index);
 		endRemoveRows();
 
 		/// \todo hack: should not be needed... But we do to keep QTreeViews from getting messed up. Why?
@@ -256,34 +261,32 @@ bool AMScanSetModel::setData ( const QModelIndex & index, const QVariant & value
 	// editing a (valid) scan?
 	if(index.internalId() == -1 && index.row() < scans_.count()) {
 		AMScan* scan = scans_.at(index.row());
+		Q_UNUSED(scan)
 		switch(role) {
-		case Qt::DisplayRole:
-			scan->setName(value.toString());
-			emit dataChanged(index, index);
-			return true;
+		// no editable roles for editing scans (for now...)
 		default:
 			return false;
 		}
 	}
 
-	// editing a (valid) channel?
-	else if(index.internalId() < scans_.count() && index.row() < scans_.at(index.internalId())->numChannels()) {
-		// AMChannel* channel = scans_.at(index.internalId())->channel(index.row());
+	// editing a (valid) data source?
+	else if(index.internalId() < scans_.count() && index.row() < scans_.at(index.internalId())->dataSourceCount()) {
+		// AMDataSource* dataSource = scans_.at(index.internalId())->dataSourceAt(index.row());
 		switch(role) {
 		case Qt::DecorationRole:
-			chMetaData_[index.internalId()][index.row()].color = value.value<QColor>();
+			sourcePlotSettings_[index.internalId()][index.row()].color = value.value<QColor>();
 			emit dataChanged(index, index);
 			return true;
 		case Qt::CheckStateRole:
-			chMetaData_[index.internalId()][index.row()].visible = value.toBool();
+			sourcePlotSettings_[index.internalId()][index.row()].visible = value.toBool();
 			emit dataChanged(index, index);
 			return true;
 		case AM::PriorityRole:
-			chMetaData_[index.internalId()][index.row()].priority = value.toInt();
+			sourcePlotSettings_[index.internalId()][index.row()].priority = value.toDouble();
 			emit dataChanged(index, index);
 			return true;
 		case AM::LinePenRole:
-			chMetaData_[index.internalId()][index.row()].linePen = value.value<QPen>();
+			sourcePlotSettings_[index.internalId()][index.row()].linePen = value.value<QPen>();
 			emit dataChanged(index, index);
 			return true;
 		default:
@@ -295,79 +298,59 @@ bool AMScanSetModel::setData ( const QModelIndex & index, const QVariant & value
 }
 
 
-// the AMChannelListModel is a standard Qt model, but it guarantees that only one channel will be added at a time, and it will be added at the end of all rows(channels).
-void AMScanSetModel::onChannelAboutToBeAdded(const QModelIndex& parent, int start, int end) {
 
-	Q_UNUSED(parent)
+void AMScanSetModel::onDataSourceAboutToBeAdded(int dataSourceIndex) {
 
-	AMChannelListModel* source = qobject_cast<AMChannelListModel*>(sender());
-
-	int scanIndex = scanChannelLists_.indexOf(source);
+	int scanIndex = indexOf(qobject_cast<AMScan*>(sender()));
 	if(scanIndex == -1)
 		return;
 
-	beginInsertRows(index(scanIndex,0), start, end);
+	beginInsertRows(index(scanIndex,0), dataSourceIndex, dataSourceIndex);
 
 }
 
-void AMScanSetModel::onChannelAdded(const QModelIndex& parent, int start, int end) {
+void AMScanSetModel::onDataSourceAdded(int dataSourceIndex) {
 
-	Q_UNUSED(parent)
-
-	AMChannelListModel* source = qobject_cast<AMChannelListModel*>(sender());
-	int scanIndex = scanChannelLists_.indexOf(source);
+	int scanIndex = indexOf(qobject_cast<AMScan*>(sender()));
 	if(scanIndex == -1)
 		return;
 
-	for(int i=start; i<=end; i++)
-		chMetaData_[scanIndex].insert(i, AMScanSetModelChannelMetaData());
+	sourcePlotSettings_[scanIndex].insert(dataSourceIndex, AMDataSourcePlotSettings());	/// \todo colors...
 
 	endInsertRows();
 }
 
-void AMScanSetModel::onChannelAboutToBeRemoved(const QModelIndex& parent, int start, int end) {
+void AMScanSetModel::onDataSourceAboutToBeRemoved(int dataSourceIndex) {
 
-	Q_UNUSED(parent)
-
-	AMChannelListModel* source = qobject_cast<AMChannelListModel*>(sender());
-	int scanIndex = scanChannelLists_.indexOf(source);
+	int scanIndex = indexOf(qobject_cast<AMScan*>(sender()));
 	if(scanIndex == -1)
 		return;
 
-	beginRemoveRows(index(scanIndex,0), start, end);
+	beginRemoveRows(index(scanIndex,0), dataSourceIndex, dataSourceIndex);
 
-	for(int i=end; i>=start; i--)
-		chMetaData_[scanIndex].removeAt(i);
+	sourcePlotSettings_[scanIndex].removeAt(dataSourceIndex);
 }
 
-void AMScanSetModel::onChannelRemoved(const QModelIndex& parent, int start, int end) {
+void AMScanSetModel::onDataSourceRemoved(int dataSourceIndex) {
 
-	Q_UNUSED(parent)
-	Q_UNUSED(start)
-	Q_UNUSED(end)
+	Q_UNUSED(dataSourceIndex)
 
-	AMChannelListModel* source = qobject_cast<AMChannelListModel*>(sender());
-	int scanIndex = scanChannelLists_.indexOf(source);
+	int scanIndex = indexOf(qobject_cast<AMScan*>(sender()));
 	if(scanIndex == -1)
 		return;
-
-
-
 
 	endRemoveRows();
 }
 
 
-void AMScanSetModel::onMetaDataChanged(const QString& key) {
+void AMScanSetModel::onMetaDataChanged() {
 	AMScan* scan = qobject_cast<AMScan*>(sender());
 	if(!scan)
 		return;
 
-	if(key=="name" || key=="sampleId" || key=="dateTime" || key == "number") {
-		QModelIndex i = indexForScan(indexOf(scan));
-		if(i.isValid())
-			emit dataChanged(i, i);
-	}
+	QModelIndex i = indexForScan(indexOf(scan));
+	if(i.isValid())
+		emit dataChanged(i, i);
 }
 
 void AMScanSetModel::onScanModifiedChanged(bool isModified) {

@@ -164,7 +164,7 @@ public slots:
 			sv->show();
 			sv->changeViewMode(AMScanView::MultiScans);
 			sv->addScan(s1);
-			sv->changeViewMode(AMScanView::MultiChannels);
+			sv->changeViewMode(AMScanView::MultiSources);
 			sv->addScan(s1);
 
 

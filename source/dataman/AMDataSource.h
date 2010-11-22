@@ -77,6 +77,12 @@ public:
 	void setDescription(const QString& description) { description_ = description; emitInfoChanged(); }
 
 
+	// Data source type
+	//////////////////////////
+
+	/// Human-readable description of the type of data source this is (ex: "One-dimensional math expression").  Subclasses should re-implement this.
+	virtual QString typeDescription() const { return "Generic Data Source"; }
+
 	// State of the data
 	//////////////////////////
 	/// Returns an OR-combination of StateFlags describing the current state of the data. The base class interface indicates that it does not have valid data. Implementing classes should return InvalidFlag when they don't have valid data, and/or ProcessingFlag if their data might be changing. No flags indicate the data is valid and generally static.

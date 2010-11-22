@@ -28,10 +28,15 @@ AMScan::AMScan(QObject *parent)
 	sampleNameLoaded_ = false;
 
 	// Connect added/removed signals from rawDataSources_ and analyzedDataSources_, to provide a model of all data sources:
+	connect(rawDataSources_.signalSource(), SIGNAL(itemAboutToBeAdded(int)), this, SLOT(onDataSourceAboutToBeAdded(int)));
 	connect(rawDataSources_.signalSource(), SIGNAL(itemAdded(int)), this, SLOT(onDataSourceAdded(int)));
-	connect(analyzedDataSources_.signalSource(), SIGNAL(itemAdded(int)), this, SLOT(onDataSourceAdded(int)));
 	connect(rawDataSources_.signalSource(), SIGNAL(itemAboutToBeRemoved(int)), this, SLOT(onDataSourceAboutToBeRemoved(int)));
+	connect(rawDataSources_.signalSource(), SIGNAL(itemRemoved(int)), this, SLOT(onDataSourceRemoved(int)));
+
+	connect(analyzedDataSources_.signalSource(), SIGNAL(itemAboutToBeAdded(int)), this, SLOT(onDataSourceAboutToBeAdded(int)));
+	connect(analyzedDataSources_.signalSource(), SIGNAL(itemAdded(int)), this, SLOT(onDataSourceAdded(int)));
 	connect(analyzedDataSources_.signalSource(), SIGNAL(itemAboutToBeRemoved(int)), this, SLOT(onDataSourceAboutToBeRemoved(int)));
+	connect(analyzedDataSources_.signalSource(), SIGNAL(itemRemoved(int)), this, SLOT(onDataSourceRemoved(int)));
 
 }
 
@@ -78,6 +83,7 @@ void AMScan::setSampleId(int newSampleId) {
 	if(newSampleId <= 0) sampleId_ = -1;
 	else sampleId_ = newSampleId;
 	setModified(true);
+	emit sampleIdChanged(sampleId_);
 }
 
 /// Convenience function: returns the name of the sample (if a sample is set)
@@ -276,6 +282,13 @@ void AMScan::onDataSourceAdded(int index) {
 		emit dataSourceAdded(index+rawDataSources_.count());	// this is an index for the combined set of raw+analyzed data sources, for dataSourceAt(). Raw data sources come first.
 }
 
+void AMScan::onDataSourceAboutToBeAdded(int index) {
+	if(sender() == rawDataSources_.signalSource())
+		emit dataSourceAboutToBeAdded(index);
+	else if(sender() == analyzedDataSources_.signalSource())
+		emit dataSourceAboutToBeAdded(index+rawDataSources_.count());
+}
+
 
 // Receives itemAboutToBeRemoved() signals from rawDataSources_ and analyzedDataSources_, and emits dataSourceAboutToBeRemoved.
 void AMScan::onDataSourceAboutToBeRemoved(int index) {
@@ -284,6 +297,17 @@ void AMScan::onDataSourceAboutToBeRemoved(int index) {
 	else if(sender() == analyzedDataSources_.signalSource())
 		emit dataSourceAboutToBeRemoved(index+rawDataSources_.count());
 }
+
+
+// Receives itemAboutToBeRemoved() signals from rawDataSources_ and analyzedDataSources_, and emits dataSourceAboutToBeRemoved.
+void AMScan::onDataSourceRemoved(int index) {
+	if(sender() == rawDataSources_.signalSource())
+		emit dataSourceRemoved(index);
+	else if(sender() == analyzedDataSources_.signalSource())
+		emit dataSourceRemoved(index+rawDataSources_.count());
+}
+
+
 
 
 #include <QPixmap>

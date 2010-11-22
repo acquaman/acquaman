@@ -86,9 +86,11 @@ public:
 		if(!allowsDuplicateKeys_ && hash_.contains(key))
 			return false;
 
+		int index = values_.count();
+		signalSource_->emitItemAboutToBeAdded(index);
+
 		values_ << item;
 		keys_ << key;
-		int index = values_.count()-1;
 		hash_.insertMulti(key, index);
 		signalSource_->emitItemAdded(index);
 		return true;
@@ -103,6 +105,8 @@ public:
 		// indexes of less than 0, or > count(), should append.
 		if(index<0 || index>count())
 			index = count();
+
+		signalSource_->emitItemAboutToBeAdded(index);
 
 		// indexes will change for all keys from this index onward. Remove old <key, index> associations from hash.
 		for(int i=index; i<keys_.count(); i++)
@@ -155,9 +159,11 @@ public:
 		for(int i=index; i<keys_.count(); i++)
 			hash_.insertMulti(keys_.at(i), i);
 
+		signalSource_->emitItemRemoved(index);
+
 	}
 
-	/// Clears the set, emitting aboutToBeRemoved() signals for each item.  \todo If nothing is connected to the signalSource(), there's a much faster way of doing this.
+	/// Clears the set, emitting aboutToBeRemoved() and removed() signals for each item.  \todo If nothing is connected to the signalSource(), there's a much faster way of doing this.
 	void clear() {
 		while(this->count())
 			this->remove(this->count()-1);

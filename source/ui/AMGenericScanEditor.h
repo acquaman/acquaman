@@ -73,8 +73,8 @@ protected slots:
 	///  This catches changes in the scan that is currently selected, and hooks it up to the editor widgets. \todo Ultimately, we might handle more than one scan being "selected" at once.
 	void onCurrentChanged ( const QModelIndex & selected, const QModelIndex & deselected );
 
-	/// This slot responds to meta-data changes in the current scan
-	void onScanMetaDataChanged(const QString& key);
+	// This slot responds to meta-data changes in the current scan
+	// removed: void onScanMetaDataChanged();
 
 	/// internal signal to forward the textChanged() signal from ui_.notesEdit
 	void onNotesTextChanged() {

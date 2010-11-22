@@ -201,7 +201,7 @@ class AMDbObject : public QObject
 	Q_OBJECT
 
 	/// AMDbObject provides a single property: a name() for this instance.
-	Q_PROPERTY(QString name READ name WRITE setName)
+	Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
 
 	// QObject's have one property to start: objectName().  Don't store QObject::objectName() by default
 	Q_CLASSINFO("objectName", "doNotStore=true")
@@ -300,9 +300,12 @@ signals:
 	/// Emitted when the modified() state changes. Indicates that this object is in-sync or out-of-sync with the database version.
 	void modifiedChanged(bool isModified);
 
+	/// Emitted when the name() changes
+	void nameChanged(const QString& newName);
+
 public slots:
 	/// Sets user given name
-	void setName(const QString &name) { name_ = name; setModified(true); }
+	void setName(const QString &name) { name_ = name; setModified(true); emit nameChanged(name_); }
 
 
 

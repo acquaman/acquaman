@@ -18,26 +18,23 @@
 
 #include "ui/AMCramBarHorizontal.h"
 
-/// \todo move AMScrollArea and AMSizeSignallingWidget into a container widget AMCramBarHorizontal to simplify AMScanViewScanBar immensely.
 
+class AMScanViewSourceSelector;
 
-
-class AMScanViewChannelSelector;
-
-/// This GUI class is a helper for AMScanViewChannelSelector.  It diplays the available channels for a single Scan.
+/// This GUI class is a helper for AMScanViewSourceSelector.  It diplays the available data sources for a single Scan.
 class AMScanViewScanBar : public QFrame {
 	Q_OBJECT
 public:
 	explicit AMScanViewScanBar(AMScanSetModel* model, int scanIndex, QWidget* parent = 0);
 
 public slots:
-	/// The ScanBar has two behaviours.  When exclusiveMode is on, it only allows one channel to be "checked" or selected at a time, and tells the model to make this the exclusive channel.  Otherwise, it allows multiple channels to be checked, and toggles their visibility in the model.
+	/// The ScanBar has two behaviours.  When exclusiveMode is on, it only allows one data source to be "checked" or selected at a time, and tells the model to make this the exclusive data source.  Otherwise, it allows multiple data sources to be checked, and toggles their visibility in the model.
 	void setExclusiveModeOn(bool exclusiveModeOn = true);
 
 protected:
 	/// ui components:
 	QLabel* nameLabel_;
-	QButtonGroup chButtons_;
+	QButtonGroup sourceButtons_;
 	// REMOVED: QToolButton* closeButton_;
 	AMCramBarHorizontal* cramBar_;
 
@@ -46,23 +43,23 @@ protected:
 	int scanIndex_;
 	/// Connected model:
 	AMScanSetModel* model_;
-	/// whether in exclusiveMode (ie: only one channel allowed) or not:
+	/// whether in exclusiveMode (ie: only one data source allowed) or not:
 	bool exclusiveModeOn_;
 
 
 protected slots:
-	/// after a scan or channel is added in the model
+	/// after a scan or data source is added in the model
 	void onRowInserted(const QModelIndex& parent, int start, int end);
-	/// before a scan or channel is deleted in the model:
+	/// before a scan or data source is deleted in the model:
 	void onRowAboutToBeRemoved(const QModelIndex& parent, int start, int end);
-	/// after a scan or channel is deleted in the model:
+	/// after a scan or data source is deleted in the model:
 	void onRowRemoved(const QModelIndex& parent, int start, int end);
 	/// when data changes:
 	void onModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight);
-	/// when the model's exclusiveChannel is changed
-	void onExclusiveChannelChanged(const QString& exclusiveChannelName);
-	/// when one of the channel toggles is clicked:
-	void onChannelButtonClicked(int id);
+	/// when the model's exclusivedata source is changed
+	void onExclusiveDataSourceChanged(const QString& exclusiveDataSourceName);
+	/// when one of the data source toggles is clicked:
+	void onSourceButtonClicked(int id);
 
 	// when the close (remove) button is clicked
 	// REMOVED: void onCloseButtonClicked();
@@ -70,29 +67,29 @@ protected slots:
 
 
 
-	friend class AMScanViewChannelSelector;
+	friend class AMScanViewSourceSelector;
 };
 
-/// This GUI class is a view on an AMScanSetModel.  It shows each scan in a horizontal bar, with checkable buttons for each channel.
-class AMScanViewChannelSelector : public QWidget {
+/// This GUI class is a view on an AMScanSetModel.  It shows each scan in a horizontal bar, with checkable buttons for each data source.
+class AMScanViewSourceSelector : public QWidget {
 	Q_OBJECT
 
 public:
-	explicit AMScanViewChannelSelector(AMScanSetModel* model = 0, QWidget* parent = 0);
+	explicit AMScanViewSourceSelector(AMScanSetModel* model = 0, QWidget* parent = 0);
 	void setModel(AMScanSetModel* model);
 
 public slots:
-	/// ScanBars have two behaviours.  When exclusiveMode is on, they only allow one channel to be "checked" or selected at a time, and tell the model to make this the exclusive channel.  Otherwise, they allows multiple channels within each Scan to be checked, and toggle the channels' visibility in the model.
+	/// ScanBars have two behaviours.  When exclusiveMode is on, they only allow one data source to be "checked" or selected at a time, and tell the model to make this the exclusive data source.  Otherwise, they allows multiple data sources within each Scan to be checked, and toggle the data sources' visibility in the model.
 	void setExclusiveModeOn(bool exclusiveModeOn = true);
 
 protected slots:
-	/// after a scan or channel is added in the model
+	/// after a scan or data source is added in the model
 	void onRowInserted(const QModelIndex& parent, int start, int end);
 
-	/// before a scan or channel is deleted in the model:
+	/// before a scan or data source is deleted in the model:
 	void onRowAboutToBeRemoved(const QModelIndex& parent, int start, int end);
 
-	/// after a scan or channel is deleted in the model:
+	/// after a scan or data source is deleted in the model:
 	void onRowRemoved(const QModelIndex& parent, int start, int end) {
 		Q_UNUSED(parent)
 		Q_UNUSED(start)
@@ -186,7 +183,7 @@ protected:
 
 class AMScanView;
 
-/// This class is the interface for different view options inside an AMScanView.  They must be able to handle changes from the AMScanSet model (scans or channels added or removed).
+/// This class is the interface for different view options inside an AMScanView.  They must be able to handle changes from the AMScanSet model (scans or data sources added or removed).
 class AMScanViewInternal : public QGraphicsWidget {
 	Q_OBJECT
 public:
@@ -201,16 +198,19 @@ public slots:
 	virtual void enableWaterfallOffset(bool waterfallOn = true) { waterfallEnabled_ = waterfallOn; }
 
 protected slots:
-	/// after a scan or channel is added in the model
+	/// after a scan or data source is added in the model
 	virtual void onRowInserted(const QModelIndex& parent, int start, int end) = 0;
-	/// before a scan or channel is deleted in the model:
+	/// before a scan or data source is deleted in the model:
 	virtual void onRowAboutToBeRemoved(const QModelIndex& parent, int start, int end) = 0;
-	/// after a scan or channel is deleted in the model:
+	/// after a scan or data source is deleted in the model:
 	virtual void onRowRemoved(const QModelIndex& parent, int start, int end) = 0;
 	/// when data changes:
 	virtual void onModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight) = 0;
 
 protected:
+	/// Helper function to create an appropriate MPlotItem and connect it to the \c dataSource, depending on the dimensionality of \c dataSource.  Returns 0 if we can't handle this dataSource and no item was created (ex: unsupported dimensionality; we only handle 1D or 2D data for now.)
+	MPlotItem* createPlotItemForDataSource(const AMDataSource* dataSource, const AMDataSourcePlotSettings& plotSettings);
+
 	AMScanView* masterView_;
 
 	AMScanSetModel* model() const;
@@ -226,19 +226,19 @@ class AMScanView : public QWidget
 {
 	Q_OBJECT
 public:
-	enum ViewMode { Invalid = -1, Tabs = 0, OverPlot, MultiScans, MultiChannels };
+	enum ViewMode { Invalid = -1, Tabs = 0, OverPlot, MultiScans, MultiSources };
 
 	explicit AMScanView(QWidget *parent = 0);
 	virtual ~AMScanView();
 
-	/// returns the AMScanSetModel used internally to hold the scans/channels.
+	/// returns the AMScanSetModel used internally to hold the scans/data sources.
 	AMScanSetModel* model() const { return scansModel_; }
 
 signals:
 
 public slots:
 
-	/// change the view mode (newMode is a ViewMode enum: 0 for one channel at a time; 1 for channels overplotted; 2 for one plot per scan; 2 for one plot per channel.
+	/// change the view mode (newMode is a ViewMode enum: 0 for one data source at a time; 1 for all data sources overplotted; 2 for one plot per scan; 2 for one plot per data source.
 	void changeViewMode(int newMode);
 
 	/// add a scan to the view:
@@ -264,7 +264,7 @@ protected:
 	int width_, rc_, cc_;// layout locations: width (num cols), rowcounter, columncounter.
 
 	AMScanViewModeBar* modeBar_;
-	AMScanViewChannelSelector* scanBars_;
+	AMScanViewSourceSelector* scanBars_;
 
 	QPropertyAnimation* modeAnim_;
 
@@ -279,7 +279,7 @@ protected:
 
 
 
-
+/// This class implements an internal view for AMScanView, which shows only a single data source at a time.
 class AMScanViewExclusiveView : public AMScanViewInternal {
 	Q_OBJECT
 
@@ -295,32 +295,37 @@ public slots:
 	virtual void enableWaterfallOffset(bool waterfallOn);
 
 protected slots:
-	/// after a scan or channel is added in the model
+	/// after a scan or data source is added in the model
 	virtual void onRowInserted(const QModelIndex& parent, int start, int end);
-	/// before a scan or channel is deleted in the model:
+	/// before a scan or data source is deleted in the model:
 	virtual void onRowAboutToBeRemoved(const QModelIndex& parent, int start, int end);
-	/// after a scan or channel is deleted in the model:
+	/// after a scan or data source is deleted in the model:
 	virtual void onRowRemoved(const QModelIndex& parent, int start, int end);
 	/// when data changes:
 	virtual void onModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight);
 
-	/// when the model's "exclusive channel" changes. This is the one channel that we display for all of our scans (as long as they have it).
-	void onExclusiveChannelChanged(const QString& exclusiveChannel);
+	/// when the model's "exclusive data source" changes. This is the one data source that we display for all of our scans (as long as they have it).
+	void onExclusiveDataSourceChanged(const QString& exclusiveDataSource);
 
 protected:
-	/// A list of MPlotSeries*... one series for each scan.
-	QList<MPlotSeriesBasic*> plotSeries_;
+	/// A list of MPlotItem*... one item for each scan. If we don't have a plot item shown for this scan, this list stores a null pointer.
+	/*! A null pointer in plotItems_ means that the scan at that index doesn't have a data source matching the exclusive data source... or there is a data source, but we're unable to display it (ex: unsupported dimensionality, etc.).*/
+	QList<MPlotItem*> plotItems_;
+	/// This list is a parallel to plotItems_, but it holds a pointer to the data source that we're displaying for this plot.
+	/*! A null pointer in plotItemDataSources_ means that the scan at that index doesn't have a data source matching the exclusive data source. */
+	QList<AMDataSource*> plotItemDataSources_;
+
+
 	/// Our plot.
 	MPlotGW* plot_;
-
 
 	/// Helper function to handle adding a scan (at row scanIndex in the model)
 	void addScan(int scanIndex);
 
-	/// Helper function to handle review a scan when a channel is added or the exclusive channel changes.
+	/// Helper function to handle review a scan when a data source is added or the exclusive data source changes.
 	void reviewScan(int scanIndex);
 
-	/// Helper function to review how many scans are actually displayed (ie: how many have the exclusive channel), and update the plot legend title
+	/// Helper function to review how many scans are actually displayed (ie: how many have the exclusive data source), and update the plot legend title
 	void refreshTitle();
 
 };
@@ -341,19 +346,19 @@ public slots:
 
 
 protected slots:
-	/// after a scan or channel is added in the model
+	/// after a scan or data source is added in the model
 	virtual void onRowInserted(const QModelIndex& parent, int start, int end);
-	/// before a scan or channel is deleted in the model:
+	/// before a scan or data source is deleted in the model:
 	virtual void onRowAboutToBeRemoved(const QModelIndex& parent, int start, int end);
-	/// after a scan or channel is deleted in the model:
+	/// after a scan or data source is deleted in the model:
 	virtual void onRowRemoved(const QModelIndex& parent, int start, int end);
 	/// when data changes: (Things we care about: color, linePen, and visible)
 	virtual void onModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight);
 
 
 protected:
-	/// A list of a list of MPlotSeries*... In each scan, one for each channel
-	QList<QList<MPlotSeriesBasic*> > plotSeries_;
+	/// A list of a list of MPlotItem*... In each scan, one for each data source
+	QList<QList<MPlotItem*> > plotItems_;
 	/// Our plot.
 	MPlotGW* plot_;
 
@@ -382,20 +387,20 @@ public slots:
 	virtual void enableWaterfallOffset(bool waterfallOn);
 
 protected slots:
-	/// after a scan or channel is added in the model
+	/// after a scan or data source is added in the model
 	virtual void onRowInserted(const QModelIndex& parent, int start, int end);
-	/// before a scan or channel is deleted in the model:
+	/// before a scan or data source is deleted in the model:
 	virtual void onRowAboutToBeRemoved(const QModelIndex& parent, int start, int end);
-	/// after a scan or channel is deleted in the model:
+	/// after a scan or data source is deleted in the model:
 	virtual void onRowRemoved(const QModelIndex& parent, int start, int end);
 	/// when data changes: (Things we care about: color, linePen, and visible)
 	virtual void onModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight);
 
 
 protected:
-	/// A list of a list of MPlotSeries*... In each scan, one for each channel
-	QList<QList<MPlotSeriesBasic*> > plotSeries_;
-	/// A list of a list of legend strings... In each scan, one for each channel
+	/// A list of a list of MPlotItem*... In each scan, one for each data source
+	QList<QList<MPlotItem*> > plotItems_;
+	/// A list of a list of legend strings... In each scan, one for each data source
 	QList<QStringList> plotLegendText_;
 
 	/// Our plots
@@ -420,13 +425,13 @@ protected:
 };
 
 
-class AMScanViewMultiChannelsView : public AMScanViewInternal {
+class AMScanViewMultiSourcesView : public AMScanViewInternal {
 	Q_OBJECT
 
 public:
-	explicit AMScanViewMultiChannelsView(AMScanView* masterView);
+	explicit AMScanViewMultiSourcesView(AMScanView* masterView);
 
-	virtual ~AMScanViewMultiChannelsView();
+	virtual ~AMScanViewMultiSourcesView();
 
 public slots:
 	virtual void enableNormalization(bool normalizationOn, double min = 0, double max = 1);
@@ -434,11 +439,11 @@ public slots:
 	virtual void enableWaterfallOffset(bool waterfallOn);
 
 protected slots:
-	/// after a scan or channel is added in the model
+	/// after a scan or data source is added in the model
 	virtual void onRowInserted(const QModelIndex& parent, int start, int end);
-	/// before a scan or channel is deleted in the model:
+	/// before a scan or data source is deleted in the model:
 	virtual void onRowAboutToBeRemoved(const QModelIndex& parent, int start, int end);
-	/// after a scan or channel is deleted in the model:
+	/// after a scan or data source is deleted in the model:
 	virtual void onRowRemoved(const QModelIndex& parent, int start, int end);
 	/// when data changes: (Things we care about: color, linePen, and visible)
 	virtual void onModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight);
@@ -447,22 +452,22 @@ protected slots:
 protected:
 
 
-	/// Our plots (one for each channel), indexed by channel name
-	QMap<QString, MPlotGW*> channel2Plot_;
-	/// Our plot series, indexed by channel name and then by Scan pointer
-	QMap<QString, QHash<AMScan*, MPlotSeriesBasic*> > channelAndScan2Series_;
-
+	/// Our plots (one for each data source), indexed by data source name
+	QMap<QString, MPlotGW*> dataSource2Plot_;
+	/// Our plot items, indexed by data source name and then by Scan pointer
+	QMap<QString, QHash<AMScan*, MPlotItem*> > sourceAndScan2PlotItem_;
 
 
 	/// A grid-layout within which to put our plots:
 	QGraphicsGridLayout* layout_;
 
-	/// true if the first plot in plots_ exists already, but isn't used:
-	MPlotGW* firstPlot_;
+	/// true if the first plot (firstPlot_) exists already, but isn't used. (ie: free for the using)
 	bool firstPlotEmpty_;
+	/// When dataSource2Plot_ is empty, we keep a single plot here, to make sure that there's always at least one shown.
+	MPlotGW* firstPlot_;
 
-	/// helper function: reviews the channels that exist/are visible, and ensures plots correspond. Returns true if channel plots were created or deleted (which would require a reLayout()).
-	bool reviewChannels();
+	/// helper function: reviews the data sources that exist/are visible, and ensures plots correspond. Returns true if data source plots were created or deleted (which would require a reLayout()).
+	bool reviewDataSources();
 
 	/// re-do the layout of our plots
 	void reLayout();
