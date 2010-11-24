@@ -42,6 +42,9 @@ public:
 	/// Create a new AMAnalysisBlock. The block is an AMDataSource of output data; \c outputName is the name for this AMDataSource.
 	AMAnalysisBlock(const QString& outputName, QObject* parent = 0);
 
+	/// Both AMDbObject:: and AMDataSource:: have a name() function. Here we resolve that ambiguity.
+	QString name() const { return AMDataSource::name(); }
+
 	/// Set the input of this block as a list of data sources. Returns false if the inputs are not sufficient, or incompatible with this analysis block. It is okay to set AMDataSource inputs that are currently not isValid()... the calculation will simply start when they become valid.
 	/*! Implementing classes should not re-implement this function; instead, they should provide setInputDataSourcesImplementation().
 
@@ -77,10 +80,7 @@ public:
 
 	// Remaining (output data) functionality derives from the AMDataSource interface, including the state() of the output data source, as well as signals via emitStateChanged(), emitValuesChanged(), emitSizeChanged(), etc.
 
-	// Creating editors for editing parameters
-	////////////////////////////////////
-	/// Create, connect, and return a widget suitable for displaying/editing this analysis block's custom parameters.  If you don't want to provide an editor widget, return 0.
-	virtual QWidget* createEditorWidget() {	return 0; }
+
 
 
 

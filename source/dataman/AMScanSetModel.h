@@ -25,7 +25,7 @@ public:
 	/// common color used for plotting this data source
 	QColor color;
 	/// Colormap used for multi-dimensional data
-	MPlotColorMap colormap;
+	MPlotColorMap colorMap;
 	/// Priority level for this data source (used for ordering... lower numbers appear first.)
 	double priority;
 	/// Pen used for this data source (dots, dashes, etc.)

@@ -8,7 +8,8 @@ AMBiHash<QString, QString> SGM2004FileLoader::columns2pvNames_;
 #include <QStringList>
 #include <QDateTime>
 #include "dataman/AMXASScan.h"
-#include "dataman/AMDetectorInfo.h"
+#include "AMErrorMonitor.h"
+#include "analysis/AM1DExpressionAB.h"
 
 #include <QDebug>
 
@@ -29,26 +30,6 @@ SGM2004FileLoader::SGM2004FileLoader(AMXASScan* scan) : AMAbstractFileLoader(sca
 		columns2pvNames_.set("integrationTime", "A1611I1:cont_interval");
 		columns2pvNames_.set("grating", "SG16114I1001:choice");
 		columns2pvNames_.set("time", "Absolute-Time-Stamp");
-	}
-	if(sgmLegacyDetectors_.count() == 0){
-		AMDetectorInfo *sgmDetector;
-		sgmDetector = new AMDetectorInfo("tey", false);
-		sgmLegacyDetectors_ << sgmDetector;
-		sgmLegacyDetectorNames_ << sgmDetector->name();
-		sgmDetector = new AMDetectorInfo("tfy", false);
-		sgmLegacyDetectors_ << sgmDetector;
-		sgmLegacyDetectorNames_ << sgmDetector->name();
-		QStringList yElementNames;
-		yElementNames << "count";
-		sgmDetector = new AMSpectralOutputDetectorInfo("pgt", "Silicon Drift Detector", 1024, "eV", yElementNames);
-		sgmLegacyDetectors_ << sgmDetector;
-		sgmLegacyDetectorNames_ << sgmDetector->name();
-		sgmDetector = new AMDetectorInfo("I0", false);
-		sgmLegacyDetectors_ << sgmDetector;
-		sgmLegacyDetectorNames_ << sgmDetector->name();
-		sgmDetector = new AMDetectorInfo("eVFbk", false);
-		sgmLegacyDetectors_ << sgmDetector;
-		sgmLegacyDetectorNames_ << sgmDetector->name();
 	}
 }
 
@@ -141,20 +122,28 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool extractMetaDa
 
 	}
 
-	// ensure raw data columns exist:
-	scan->d_->removeAll();	// remove all non-pricipal columns
+	// remove all previous raw data sources
+	scan->rawDataSources()->clear();
+	scan->rawData()->clear();
 
-	AMDetectorInfo *sgmDetector;
+
+	// This axis info describes an axis along eV:
+	AMAxisInfo eVAxisInfo("eV", 0, "Incident Energy", "eV");
+	// add a scan axis to the raw data store:
+	scan->rawData()->addScanAxis(eVAxisInfo);
+
+	// add scalar (0D) measurements to the raw data store, for each data column.  Also add raw data sources to the scan, which expose this data.
+	/// \todo Design question: should adding a measurement to the raw data store automatically create a corresponding AMRawDataSource for the scan?
 	foreach(QString colName, colNames1) {
-		if(colName != "eV" && colName != "Event-ID" && sgmLegacyDetectorNames_.contains(colName))
-			scan->addDetector(sgmLegacyDetectors_.at(sgmLegacyDetectorNames_.indexOf(colName)));
-		else if(colName != "eV" && colName != "Event-ID"){
-			sgmDetector = new AMDetectorInfo(colName, false);	/// \bug memory allocation... who's freeing?
-			scan->addDetector(sgmDetector);
+		if(colName != "eV" && colName != "Event-ID") {
+			scan->rawData()->addMeasurement(AMMeasurementInfo(colName, colName));	/// \todo nice descriptions for the common column names; not just 'tey' or 'tfy'.
+			scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount()-1));
 		}
 	}
 
 	// read all the data. Add to data columns or scan properties depending on the event-ID.
+
+	int eVAxisIndex = 0;	// counter, incremented for every data point along the scan (eV) axis.
 	while(!fs.atEnd()) {
 
 		line = fs.readLine();
@@ -162,14 +151,19 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool extractMetaDa
 		// event id 1.  If the line starts with "1," and there are the correct number of columns:
 		if(line.startsWith("1,") && (lp = line.split(',')).count() == colNames1.count() ) {
 
-			// append a new datapoint to the data tree (supply primary eV value here)
-			scan->d_->append(lp.at(eVIndex).toDouble());	// insert eV
+			scan->rawData()->beginInsertRows(0);
+			scan->rawData()->setAxisValue(0, eVAxisIndex, lp.at(eVIndex).toDouble()); // insert eV
 
-			// add all columns (but ignore the first (Event-ID) and the eV column)
+			// add data from all columns (but ignore the first (Event-ID) and the eV column)
+			int measurementId = 0;
 			for(int i=1; i<colNames1.count(); i++) {
-				if(i!=eVIndex)
-					scan->d_->setLastValue(colNames1.at(i), lp.at(i).toDouble());
+				if(i!=eVIndex) {
+					scan->rawData()->setValue(eVAxisIndex, measurementId++, AMnDIndex(), lp.at(i).toDouble());
+				}
 			}
+
+			eVAxisIndex++;
+			scan->rawData()->endInsertRows();
 		}
 
 		// event id 2.  If the line starts with "# 2," and there are the correct number of columns:
@@ -190,24 +184,38 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool extractMetaDa
 
 
 	if(extractMetaData) {
-		scan->setNotes(QString("Grating: %1\nIntegration Time: %2\nComments:\n%3").arg(grating).arg(integrationTime).arg(comments));
+		scan->setNotes(QString("Grating: %1\nIntegration Time: %2\nComments:\n%3").arg(grating).arg(integrationTime).arg(comments));	/// \todo Move this from notes to the scan's scanInitialConditions().
 		scan->setDateTime(datetime);
 	}
 
 	// If the scan doesn't have any channels yet, it would be helpful to create some.
 	if(createChannels) {
+
 		/// \todo defaults for what channels to create?
-		// scan->addChannel("eV", "eV");
-		if(colNames1.contains("tey") && colNames1.contains("I0"))
-			scan->addChannel("tey_n", "tey/I0");
-		if(colNames1.contains("tfy") && colNames1.contains("I0"))
-			scan->addChannel("tfy_n", "-1*tfy/I0");
-		if(colNames1.contains("tey"))
-			scan->addChannel("tey_raw", "tey");
-		if(colNames1.contains("tfy"))
-			scan->addChannel("tfy_raw", "tfy");
-		if(colNames1.contains("I0"))
-			scan->addChannel("I0", "I0");
+
+		int rawTeyIndex = scan->rawDataSources()->indexOf("tey");
+		int rawTfyIndex = scan->rawDataSources()->indexOf("tfy");
+		int rawI0Index = scan->rawDataSources()->indexOf("I0");
+
+		if(rawTeyIndex != -1 && rawI0Index != -1) {
+			AM1DExpressionAB* teyChannel = new AM1DExpressionAB("tey_n");
+			teyChannel->setDescription("Normalized TEY");
+			teyChannel->setInputDataSources(scan->rawDataSources()->toList());
+			teyChannel->setExpression("tey/I0");
+
+			scan->addAnalyzedDataSource(teyChannel);
+		}
+
+		if(rawTfyIndex != -1 && rawI0Index != -1) {
+			AM1DExpressionAB* tfyChannel = new AM1DExpressionAB("tfy_n");
+			tfyChannel->setDescription("Normalized TFY");
+			tfyChannel->setInputDataSources(scan->rawDataSources()->toList());
+			tfyChannel->setExpression("tfy/I0");
+
+			scan->addAnalyzedDataSource(tfyChannel);
+		}
+
+
 	}
 
 	scan->onDataChanged();

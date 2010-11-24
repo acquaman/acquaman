@@ -11,7 +11,8 @@ SGMXASDacqScanController::SGMXASDacqScanController(SGMXASScanConfiguration *cfg,
 void SGMXASDacqScanController::initialize(){
 	if(SGMXASScanController::beamlineInitialize())
 		initialized_ = true;
-	pScan_()->clear();
+#warning "Do we need to also clear any raw data sources here, or just the raw data itself?"
+	pScan_()->rawData()->clear();
 	emit initialized();
 }
 

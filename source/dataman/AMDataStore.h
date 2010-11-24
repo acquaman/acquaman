@@ -114,13 +114,13 @@ public:
 	/// Synonym for scanAxisCount()
 	int scanRank() const { return scanAxesCount(); }
 	/// Return the sizes of all the scan axes, in order.
-	AMnDIndex scanSize() const = 0;
-	/// Return the size of a specific axis, by \c id.
-	int scanAxisSize(int id) const = 0;
+	virtual AMnDIndex scanSize() const = 0;
+	/// Return the size along a specific axis, by \c id.
+	virtual int scanSize(int axisId) const = 0;
 
 	/// Indicates that the scan space is empty (no scan points yet). This is true when the size of any axis is 0. (think about it..)
 	virtual bool isEmpty() const {
-		for(int mu=0; mu<scanAxisCount(); mu++)
+		for(int mu=0; mu<scanAxesCount(); mu++)
 			if(scanAxisAt(mu).size == 0)
 				return true;
 		return false;
@@ -130,9 +130,9 @@ public:
 	// Setting and getting values
 	////////////////////////////////
 	/// Retrieve a value from a measurement, at a specific scan point.
-	virtual AMNumber value(const AMnDIndex& scanIndex, int measurementId, const AMnDIndex& measurementIndex) = 0;
+	virtual AMNumber value(const AMnDIndex& scanIndex, int measurementId, const AMnDIndex& measurementIndex) const = 0;
 	/// Retrieve the independent variable along an axis \c axisId, at a specific scan point \c axisIndex.  If the axis scale is uniform (see AMAxisInfo::isUniform) this can be calculated from the axis' \c start and \c increment.
-	virtual AMNumber axisValue(int axisId, int axisIndex) = 0;
+	virtual AMNumber axisValue(int axisId, int axisIndex) const = 0;
 	/// Set the value of a measurement, at a specific scan point
 	virtual bool setValue(const AMnDIndex& scanIndex, int measurementId, const AMnDIndex& measurementIndex, const AMNumber& newValue) = 0;
 	/// Set the independent variable along an axis \c axisId, at a specific scan point \c axisIndex. This is necessary after adding a "row" with beginInsertRows(), unless the axis scale is uniform. (See AMAxisInfo::isUniform).

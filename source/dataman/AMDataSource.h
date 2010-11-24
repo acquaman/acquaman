@@ -150,6 +150,13 @@ public:
 	}
 
 
+
+	// Creating editors for editing parameters
+	////////////////////////////////////
+	/// Create, connect, and return a widget suitable for displaying/editing this data source's custom parameters.  If you don't want to provide an editor widget, return 0.
+	virtual QWidget* createEditorWidget() {	return 0; }
+
+
 protected:
 
 	/// Subclasses must call this when the data has changed (in value, or validity). It allows connected plots and analysis blocks to update / re-analyze. \c start and \c end specify the range of values that have changed. Use an invalid index (AMnDIndex()) for \c start to specify all data might have changed.

@@ -48,8 +48,8 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 	sampleEditor_ = new AMSampleEditor(AMDatabase::userdb());
 	stackWidget_->addItem(sampleEditor_, "Sample Information");
 
-	channelEditor_ = new AMChannelEditor(scanSetModel_);
-	stackWidget_->addItem(channelEditor_, "Plot Data");
+	dataSourcesEditor_ = new AMDataSourcesEditor(scanSetModel_);
+	stackWidget_->addItem(dataSourcesEditor_, "Plot Data");
 
 	QWidget* temp3 = new QWidget();
 	temp3->setMinimumHeight(200);
@@ -153,7 +153,7 @@ void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const
 
 	// update all widgets to match
 	updateEditor(currentScan_);
-	channelEditor_->setCurrentScan(currentScan_);
+	dataSourcesEditor_->setCurrentScan(currentScan_);
 
 
 	if(currentScan_) {

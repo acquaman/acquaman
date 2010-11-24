@@ -133,6 +133,7 @@ public:
 
 protected slots:
 	/// Connected to be called when the values of any of the input data sources change
+	/*! \todo Optimize: only connect the used data sources to here. Don't connect all of them... */
 	void onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end);
 	/// Connected to be called when the size of any input source changes
 	void onInputSourceSizeChanged();

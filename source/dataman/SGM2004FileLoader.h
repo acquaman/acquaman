@@ -51,8 +51,8 @@ protected:
 
 	/// A forward- and reverse-mapping from meaningful data column names to process variable strings
 	static AMBiHash<QString, QString> columns2pvNames_;
-	QList<AMDetectorInfo*> sgmLegacyDetectors_;
-	QStringList sgmLegacyDetectorNames_;
+	//QList<AMDetectorInfo*> sgmLegacyDetectors_;
+	//QStringList sgmLegacyDetectorNames_;
 };
 
 

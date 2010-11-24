@@ -7,6 +7,7 @@
 #include "dataman/SGM2004FileLoader.h"
 #include "AMErrorMonitor.h"
 #include "dataman/AMDbObjectSupport.h"
+#include "analysis/AM1DExpressionAB.h"
 
 #include "util/AMOrderedSet.h"
 
@@ -15,11 +16,11 @@ class AMTestDbObject : public AMDbObject {
 
 	Q_OBJECT
 	Q_PROPERTY(AMDbObject* myScan READ myScan WRITE reloadMyScan)
-	Q_PROPERTY(AMDbObjectList myDbObjects READ myDbObjects WRITE reloadMyDbObjects)
-	Q_PROPERTY(int numScans READ numScans WRITE reloadNumScans)
+			Q_PROPERTY(AMDbObjectList myDbObjects READ myDbObjects WRITE reloadMyDbObjects)
+			Q_PROPERTY(int numScans READ numScans WRITE reloadNumScans)
 
 public:
-	Q_INVOKABLE explicit AMTestDbObject(QObject* parent = 0) : AMDbObject(parent) {
+			Q_INVOKABLE explicit AMTestDbObject(QObject* parent = 0) : AMDbObject(parent) {
 		mySingleScan_ = 0;
 	}//todo
 
@@ -53,7 +54,7 @@ protected:
 class TestDataman: public QObject
 {
 	Q_OBJECT
-	private slots:
+private slots:
 
 
 	/// This runs before any of the private slots (test cases) get run. It loads the settings and prepares the database tables as required for each Scan object that gets tested.
@@ -659,8 +660,8 @@ class TestDataman: public QObject
 		QCOMPARE(t1.count(), (unsigned)0);
 		//qDebug() << "appending 1 value";
 		t1.append(3);
-//DC		QCOMPARE(t1.deeper("s1", 0)->count(), unsigned(0));	// because the top tree count was 0, there were no copies made of the prototype tree, and a default tree was inserted.
-//DC		QCOMPARE(t1.deeper("s1", 0)->xName(), AMDataTree().xName()); // because the top tree count was 0, there were no copies made of the prototype tree, and a default tree was inserted.
+		//DC		QCOMPARE(t1.deeper("s1", 0)->count(), unsigned(0));	// because the top tree count was 0, there were no copies made of the prototype tree, and a default tree was inserted.
+		//DC		QCOMPARE(t1.deeper("s1", 0)->xName(), AMDataTree().xName()); // because the top tree count was 0, there were no copies made of the prototype tree, and a default tree was inserted.
 		QCOMPARE(t1.deeper("s1", 0)->count(), unsigned(5));	// because the top tree count was 0, prototype tree was delayed until an append occurred.
 		QCOMPARE(t1.deeper("s1", 0)->xName(), QString("s1_x")); // because the top tree count was 0, prototype tree was delayed until an append occurred.
 
@@ -694,7 +695,7 @@ class TestDataman: public QObject
 		SGM2004FileLoader s1Loader(&s1);
 		/// \todo move this into proper storage location in data dir.
 		QString fileName = AMUserSettings::userDataFolder + "testScriptData/sgm001.dat";
-//		qDebug() << "loading sgm data from file and checking for proper read:" << fileName;
+		//		qDebug() << "loading sgm data from file and checking for proper read:" << fileName;
 		QVERIFY(s1Loader.loadFromFile(fileName));
 		QCOMPARE(s1.count(), unsigned(301));
 		QCOMPARE(s1.notes(), QString("0.916667"));	// NOTE: this test fails, because we're currently putting the Grating and Integration Time inside the comment field (for lack of a better place) Eventually, the Grating and Integration time should become part of the scan configuration, or beamline state.
@@ -717,8 +718,8 @@ class TestDataman: public QObject
 	}
 
 
-	/// Using test file testScriptData/sgm001.dat, tests AMChannel expressions (setting expression, setting xExpression, using default xExpression, evaluating expressions, setting and evaluating invalid expressions)
-	void testAMChannel() {
+	/// Using test file testScriptData/sgm001.dat, tests AM1DExpressionAB expressions (setting expression, setting xExpression, using default xExpression, evaluating expressions, setting and evaluating invalid expressions)
+	void testAM1DExpressionAB() {
 		AMXASScan s1;
 		SGM2004FileLoader s1Loader(&s1);
 		/// \todo move this into proper storage location in data dir.
@@ -726,43 +727,84 @@ class TestDataman: public QObject
 		//qDebug() << "loading sgm data from file and checking for proper read:" << fileName;
 		QVERIFY(s1Loader.loadFromFile(fileName));
 
-		QVERIFY(s1.addChannel("const5", "3+2"));	// simplest formula for a channel
-		QCOMPARE(s1.channel("const5")->value(0), 5.0);
-		QCOMPARE(s1.channel("const5")->value(400), 5.0);
+		// create simple math channel
+		AM1DExpressionAB* const5Channel = new AM1DExpressionAB("const5");
+		const5Channel->setInputDataSources(s1.rawDataSources()->toList());
+		QVERIFY(const5Channel->setExpression("3+2"));
+		QVERIFY(const5Channel->isValid());
+		s1.addAnalyzedDataSource(const5Channel);
+
+		QVERIFY(const5Channel->value(0) == AMNumber(5.0));
+		QVERIFY(const5Channel->value(3) == AMNumber(5.0));
+		QVERIFY(const5Channel->value(900) == AMNumber(AMNumber::OutOfBoundsError));
+
 
 		// verify auto-created channels (inside loadFromFile())
-		QVERIFY(s1.channel("tey_n") != 0);
-		AMChannel* c1 = s1.channel("tey_n");
-		// check for default x values:
-		for(int i=0; i<c1->count(); i++)
-			QCOMPARE(c1->x(i), c1->dataTree()->x(i));
-		// set x expression and check for adjusted values:
-		QVERIFY(c1->setXExpression("eV+1"));
-		for(int i=0; i<c1->count(); i++)
-			QCOMPARE(c1->x(i), c1->dataTree()->x(i)+1.0);
-		// restore the x expression to default and check values:
-		QVERIFY(c1->setXExpression());
-		for(int i=0; i<c1->count(); i++)
-			QCOMPARE(c1->x(i), c1->dataTree()->x(i));
-		// set the y expression and check values:
-		QVERIFY(c1->setExpression("tey/I0 + 4"));
-		for(int i=0; i<c1->count(); i++)
-			QCOMPARE(c1->value(i), c1->dataTree()->value("tey",i)/c1->dataTree()->value("I0",i)+4.0);
-		// reset the y expression and check values:
-		QVERIFY(c1->setExpression("tey/I0"));
-		for(int i=0; i<c1->count(); i++)
-			QCOMPARE(c1->value(i), c1->dataTree()->value("tey",i)/c1->dataTree()->value("I0",i));
+		QVERIFY(s1.analyzedDataSources()->indexOf("tey_n") == 0);
+		QVERIFY(s1.analyzedDataSources()->indexOf("tfy_n") == 1);
 
-		// set a bad expression, check for failure, and check all values = c1->invalidValue()
-		QCOMPARE(c1->setExpression("garbage + 4"), false);
-		for(int i=0; i<c1->count(); i++)
-			QCOMPARE(c1->value(i), c1->invalidValue());
+		AM1DExpressionAB* teyn = s1.analyzedDataSources()->at(0);
+		AM1DExpressionAB* tfyn = s1.analyzedDataSources()->at(1);
+		QVERIFY(teyn);
+		QVERIFY(tfyn);
+
+		for(int i=0; i<teyn->size(0); i++)
+			QVERIFY(teyn->axisValue(0, i) == s1.rawData()->axisValue(0, i));
+
+		// set x expression and check for adjusted values. (ex: calibrating by +1 eV)
+		QVERIFY(teyn->setXExpression("tey.x + 1"));
+		QVERIFY(teyn->isValid());
+		for(int i=0; i<teyn->size(0); i++)
+			QVERIFY(teyn->axisValue(0, i) == s1.rawData()->axisValue(0, i)+1.0);
+
+		// restore the x expression to default and check values:
+		QVERIFY(teyn->setXExpression());
+		QVERIFY(teyn->isValid());
+		for(int i=0; i<teyn->size(0); i++)
+			QVERIFY(teyn->axisValue(0, i) == s1.rawData()->axisValue(0, i));
+
+
+		// set the y expression and check values:
+		QVERIFY(teyn->setExpression("tey/I0 + 4"));
+		QVERIFY(teyn->isValid());
+
+		// need to get index of tey column and I0 column in data tree...
+		int teyColIndex = -1;
+		for(int i=0; i<s1.rawData()->measurementCount(); i++) {
+			if(s1.rawData()->measurementAt(i).name == "tey") {
+				teyColIndex = i;
+				break;
+			}
+		}
+		int ioColIndex = -1;
+		for(int i=0; i<s1.rawData()->measurementCount(); i++) {
+			if(s1.rawData()->measurementAt(i).name == "I0") {
+				ioColIndex = i;
+				break;
+			}
+		}
+		QVERIFY(teyColIndex != -1);
+		QVERIFY(ioColIndex != -1);
+
+		for(int i=0; i<teyn->size(0); i++)
+			QVERIFY(teyn->value(i) == s1.rawData()->value(i, teyColIndex, AMnDIndex())/s1.rawData()->value(i, ioColIndex, AMnDIndex())+4.0);
+		// reset the y expression and check values:
+		QVERIFY(teyn->setExpression("tey/I0"));
+		QVERIFY(teyn->isValid());
+		for(int i=0; i<teyn->size(0); i++)
+			QVERIFY(teyn->value(i) == s1.rawData()->value(i, teyColIndex, AMnDIndex())/s1.rawData()->value(i, ioColIndex, AMnDIndex()));
+
+		// set a bad expression, check for failure, and check all values = InvalidValue.
+		QVERIFY(teyn->setExpression("garbage + 4") == false);
+		QVERIFY(!teyn->isValid());
+		for(int i=0; i<teyn->size(0); i++)
+			QVERIFY(teyn->value(i) == AMNumber(AMNumber::InvalidError));
 
 		// set a bad x expression, check for failure, and check all values = c1->invalidValue()
-		QVERIFY(c1->setXExpression("garbage + kj3423")==false);
-		qDebug() << c1->errorMsg();
-		for(int i=0; i<c1->count(); i++)
-			QCOMPARE(c1->x(i), c1->invalidValue());
+		QVERIFY(teyn->setXExpression("garbage + kj3423") == false);
+		QVERIFY(!teyn->isValid());
+		for(int i=0; i<teyn->size(0); i++)
+			QVERIFY(teyn->axisValue(0, i) == AMNumber(AMNumber::InvalidError));
 
 
 	}
@@ -828,9 +870,9 @@ class TestDataman: public QObject
 		QCOMPARE(t1->numScans(), 0);
 		t1->loadFromDb(AMDatabase::userdb(), t2->id());	// should create brand new objects; t1 didn't have three in the list.
 
-			// catches a bug where member variable locations weren't being stored in the db if the member object wasn't modified. If it's not modified and already in the db, we don't need to re-storeToDb() it, but we still need remember that we own it, and remember where it is.
-			QVERIFY(t1->myScan());
-			QCOMPARE(t1->myScan()->name(), QString("special scan test name! With secret sauce."));
+		// catches a bug where member variable locations weren't being stored in the db if the member object wasn't modified. If it's not modified and already in the db, we don't need to re-storeToDb() it, but we still need remember that we own it, and remember where it is.
+		QVERIFY(t1->myScan());
+		QCOMPARE(t1->myScan()->name(), QString("special scan test name! With secret sauce."));
 
 		QCOMPARE(t1->numScans(), 3);
 		AMDbObjectList checkList = t1->myDbObjects();

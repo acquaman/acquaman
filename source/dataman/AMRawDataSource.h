@@ -23,6 +23,9 @@ public:
 	/// This constructor re-loads a previously-stored source from the database.
 	Q_INVOKABLE AMRawDataSource(AMDatabase* db, int id);
 
+	/// Both AMDbObject() and AMDataSource() have a name(). Here we un-ambiguate those two.
+	QString name() const { return AMDataSource::name(); }
+
 	/// Provided to reconnect this source to a valid \c dataStore, after using the second constructor. The current measurementId() must be a valid id within the new \c dataStore, and the scan and measurement dimensions of the new datastore must match our old ones. (This is a requirement of AMDataSources never changing rank.). Returns false if the new \c dataStore cannot work, and this source is going to remain Invalid.
 	bool setDataStore(const AMDataStore* dataStore);
 
@@ -40,9 +43,9 @@ public:
 	virtual int rank() const { return axes_.count(); }
 	/// Returns the size of (ie: count along) each dimension
 	virtual AMnDIndex size() const {
-		AMnDIndex s();
+		AMnDIndex s;
 		for(int i=0; i<axes_.count(); i++)
-			s << axes_.at(i).size;
+			s.append(axes_.at(i).size);
 		return s;
 	}
 	/// Returns the size along a single axis \c axisNumber. This should be fast. \c axisNumber is assumed to be between 0 and rank()-1.

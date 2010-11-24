@@ -196,7 +196,8 @@ void AMScan::dbLoadRawDataSources(const AMDbObjectList& newRawSources) {
 
 	// add new sources. Simply adding these to rawDataSources_ will be enough to emit the signals that tell everyone watching we have new data channels.
 	for(int i=0; i<newRawSources.count(); i++) {
-		if(newRawSources.at(i))
+		AMRawDataSource* newRawSource = qobject_cast<AMRawDataSource*>(newRawSources.at(i));
+		if(newRawSource)
 			rawDataSources_.append(newRawSources.at(i), newRawSources.at(i)->name());
 		else
 			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, "There was an error reloading one of this scan's raw data sources from the database. Your database might be corrupted. Please report this bug to the Acquaman developers."));

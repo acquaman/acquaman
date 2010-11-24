@@ -320,7 +320,7 @@ void AMAppController::onCurrentScanControllerReinitialized(bool removeScan){
 	/// \bug How do you know that the last scan in this scan editor is the one to remove? What if they've opened another scan since onCurrentScanControllerCreated()?
 #warning "Bug for David: how do you know that the last scan in this scan editor is the one to remove? What if they've opened another scan since onCurrentScanControllerCreated()?"
 	if(removeScan)
-		scanControllerActiveEditor_->removeScan(scanControllerActiveEditor_->scanAt(scanControllerActiveEditor_->numScans()-1));
+		scanControllerActiveEditor_->removeScan(scanControllerActiveEditor_->scanAt(scanControllerActiveEditor_->scanCount()-1));
 
 	scanControllerActiveEditor_->addScan(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan());
 }
@@ -366,8 +366,8 @@ void AMAppController::onWindowPaneCloseButtonClicked(const QModelIndex& index) {
 		}
 
 		// delete all scans in the editor, and ask the user for confirmation. If they 'cancel' on any, give up here and don't close the window.
-		while(editor->numScans()) {
-			if(!editor->deleteScanWithModifiedCheck(editor->scanAt(editor->numScans()-1)))
+		while(editor->scanCount()) {
+			if(!editor->deleteScanWithModifiedCheck(editor->scanAt(editor->scanCount()-1)))
 				return;
 		}
 		mw_->removePane(editor);

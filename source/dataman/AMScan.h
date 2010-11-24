@@ -97,15 +97,21 @@ public:
 	// Data Sources (Raw and Analyzed)
 	////////////////////////////////
 
-	/// Returns the set of raw data sources. (A data source represents a single "stream" or "channel" of data. For example, in a simple absorption scan, the electron yield measurements are one raw data source, and the fluorescence yield measurements are another data source.)
+	/// Returns read-only access to the set of raw data sources. (A data source represents a single "stream" or "channel" of data. For example, in a simple absorption scan, the electron yield measurements are one raw data source, and the fluorescence yield measurements are another data source.)
 	const AMRawDataSourceSet* rawDataSources() const { return &rawDataSources_; }
-	/// Returns the set of analyzed data sources. (Analyzed data sources are built on either raw data sources, or other analyzed sources, by applying an AMAnalysisBlock.)
+	/// Publicly expose part of the rawData(), by adding a new AMRawDataSource to the scan. The new data source \c newRawDataSource should be valid, initialized and connected to the data store already.  The scan takes ownership of \c newRawDataSource.
+	/*! \todo Check for duplicate names? (ie: what if there's already a raw data source with this name?) */
+	void addRawDataSource(AMRawDataSource* newRawDataSource) { if(newRawDataSource) rawDataSources_.append(newRawDataSource, newRawDataSource->name()); }
+
+	/// Returns read-only access to the set of analyzed data sources. (Analyzed data sources are built on either raw data sources, or other analyzed sources, by applying an AMAnalysisBlock.)
 	const AMAnalyzedDataSourceSet* analyzedDataSources() const { return &analyzedDataSources_; }
+	/// Add an new analysis block to the scan.  The scan takes ownership of the \c newAnalysisBlock and exposes it as one of the analyzed data sources.
+	void addAnalyzedDataSource(AMAnalysisBlock* newAnalyzedDataSource) { if(newAnalyzedDataSource) analyzedDataSources_.append(newAnalyzedDataSource, newAnalyzedDataSource->name()); }
 
 	// Provides a simple access model to all the data sources (combination of rawDataSources() and analyzedDataSources()
 
 	/// The total number of data sources (raw and analyzed)
-	int dataSourceCount() const { return rawDataSources_.count() + analayzedDataSources_.count(); }
+	int dataSourceCount() const { return rawDataSources_.count() + analyzedDataSources_.count(); }
 	/// Returns a data source by index.  (\c index must be from 0 to < dataSourceCount(), otherwise returns 0. )  Raw sources are listed first, from 0 to rawDataSources().count()-1. Next come analyzed sources, from rawDataSources().count() to dataSourceCount()-1.
 	/*! This function is useful when considering the combined set of all the data sources. If you want to retrieve an analyzed source by its own index, just use analyzedDataSources()->at().*/
 	AMDataSource* dataSourceAt(int index) const {
@@ -184,15 +190,17 @@ public:
 	/// Returns the number of dimensions in the scan. (This does not include the dimensions of any multi-dimensional detectors; it's only the dimensions that were 'scanned over'.  For example, an XAS scan over energy has scanRank() of 1. A 2D micro-map scan at fixed energy has scanRank() 2.  A 2D micro-map with an absorption scan at each point has a scanRank() of 3.  For each scan point, you might have a set of detector measurements, each with their own dimensionality, that are not included here.)
 	virtual int scanRank() const { return data_->scanRank(); }
 	/// Returns the size of the scan along each dimension
-	virtual int scanSize() const { return data_->scanSize(); }
+	virtual AMnDIndex scanSize() const { return data_->scanSize(); }
+	/// Returns the size of the scan along a specific scan axis \c axisId
+	virtual int scanSize(int axisId) const { return data_->scanSize(axisId); }
 
 
 
 	// Beamline conditions
 	//////////////////////////////
 	/// Independent from the hardware you're connected to right now, an AMControlSetInfo can remember values and descriptions of how some hardware was set at the time of the scan.
-	const AMControlSetInfo* scanInitialConditions() const { return scanInitialConditions_; }
-	AMControlSetInfo* scanInitialConditions() { return scanInitialConditions_; }
+	const AMControlSetInfo* scanInitialConditions() const { return &scanInitialConditions_; }
+	AMControlSetInfo* scanInitialConditions() { return &scanInitialConditions_; }
 
 	// Thumbnail system:
 	////////////////////////////////

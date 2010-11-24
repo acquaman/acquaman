@@ -68,6 +68,16 @@ public:
 	/// Indicates whether insert() and append() will accept keys that already exist
 	bool allowsDuplicateKeys() const { return allowsDuplicateKeys_; }
 
+	/// Returns a QList containing all the items in the set, in order. This is fast, thanks to implicit sharing.
+	QList<Tvalue> toList() const { return values_; }
+	/// Returns a QHash containing all the items in the set, indexed by key. This requires creation of a new hash, and runs in O(n) time.
+	QHash<Tkey, Tvalue> toHash() const {
+		QHash<Tkey, Tvalue> hash;
+		for(int i=0; i<values_.count(); i++)
+			hash.insertMulti(keys_.at(i), values_.at(i));
+		return hash;
+	}
+
 
 	// non-const access functions
 	//=====================================

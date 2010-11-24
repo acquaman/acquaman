@@ -2,6 +2,7 @@
 
 #include "dataman/SGM2004FileLoader.h"
 
+/// If this had a one-line documented comment, I would know how to interpret these two strings. Are they the name and the channel expression? The expression and the x-expression?
 typedef QPair<QString, QString> chPair;
 
 SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
@@ -9,37 +10,20 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 	_pCfg_ = & specificCfg_;
 	beamlineInitialized_ = false;
 
-	QList<AMDetectorInfo*> scanDetectors;
-	scanDetectors = pCfg_()->usingDetectors();
+	QList<AMDetectorInfo*> scanDetectors = pCfg_()->usingDetectors();
 	scanDetectors.prepend(SGMBeamline::sgm()->i0Detector());
 	scanDetectors.prepend(SGMBeamline::sgm()->eVFbkDetector());
 
-	QList<QPair<QString, QString> > scanChannels;
-	scanChannels = pCfg_()->defaultChannels();
+	/// \bug CRITICAL create columns in scan's rawData() and rawDataSources(), based on scanDetectors.  Remove detectors from dataman stuff, or expand role inside scan configuration. (application: XES detector?)
 
-	/*
-	  BIG NOTE TO DAVE:
-	  YOU NEW'D THE SCAN ... SOMEONE ELSE HAS TO TAKE OWNERSHIP OF IT FOR DELETION
-	  opts: function call, new in scan viewer ...
-	  */
 	specificScan_ = new AMXASScan(scanDetectors);
 	_pScan_ = &specificScan_;
 	pScan_()->setName("SGM XAS Scan");
-	pScan_()->setMetaData("filePath", pCfg_()->filePath()+pCfg_()->fileName());
-	pScan_()->setMetaData("fileFormat", "sgm2004");
+	pScan_()->setFilePath(pCfg_()->filePath()+pCfg_()->fileName());
+	pScan_()->setFileFormat("sgm2004");
 
-	foreach(chPair tmpCh, scanChannels){
-		pScan_()->addChannel(tmpCh.first, tmpCh.second);
-	}
+	/// \bug CRITICAL Removed creating default channels. They were never set anyway (nothing called the old AMXASScan::setDefaultChannels(); )
 
-	/*
-	pScan_()->addChannel("eV", "eV");
-	foreach(AMDetectorInfo *dtctr, scanDetectors){
-		if(!dtctr->isSpectralOutput())
-			pScan_()->addChannel(dtctr->name().toUpper(), dtctr->name());
-		// What to do if it is spectral?
-	}
-	*/
 }
 
 bool SGMXASScanController::isBeamlineInitialized() {
@@ -92,8 +76,7 @@ void SGMXASScanController::reinitialize(){
 	scanDetectors.prepend(SGMBeamline::sgm()->i0Detector());
 	scanDetectors.prepend(SGMBeamline::sgm()->eVFbkDetector());
 
-	QList<QPair<QString, QString> > scanChannels;
-	scanChannels = pCfg_()->defaultChannels();
+	/// \bug CRITICAL removed creating default channels. Was never used anyway.
 
 	/*
 	  BIG NOTE TO DAVE:
@@ -103,12 +86,9 @@ void SGMXASScanController::reinitialize(){
 	specificScan_ = new AMXASScan(scanDetectors);
 	_pScan_ = &specificScan_;
 	pScan_()->setName("SGM XAS Scan");
-	pScan_()->setMetaData("filePath", pCfg_()->filePath()+pCfg_()->fileName());
-	pScan_()->setMetaData("fileFormat", "sgm2004");
+	pScan_()->setFilePath(pCfg_()->filePath()+pCfg_()->fileName());
+	pScan_()->setFileFormat("sgm2004");
 
-	foreach(chPair tmpCh, scanChannels){
-		pScan_()->addChannel(tmpCh.first, tmpCh.second);
-	}
 }
 
 SGMXASScanConfiguration* SGMXASScanController::pCfg_(){

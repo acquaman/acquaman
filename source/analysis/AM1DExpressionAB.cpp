@@ -84,7 +84,7 @@ void AM1DExpressionAB::setInputDataSourcesImplementation(const QList<AMDataSourc
 
 	// connect new input sources to signal handlers.
 	for(int i=0; i<sources_.count(); i++) {
-		connect(sources_.at(i)->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
+		connect(sources_.at(i)->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));	/// \todo Optimization: only connect this when this input source is actually used in the expression...
 		connect(inputDataSourceAt(i)->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
 		connect(inputDataSourceAt(i)->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
 	}

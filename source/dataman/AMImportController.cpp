@@ -5,6 +5,7 @@
 #include "dataman/SGM2004FileLoader.h"
 #include "dataman/ALSBL8XASFileLoader.h"
 #include "ui/AMImportControllerWidget.h"
+#include "AMErrorMonitor.h"
 
 #include <QDir>
 #include <QFileDialog>
@@ -33,7 +34,7 @@ AMScan* SGMLegacyImporter::import(const QString& fullPath) {
 		}
 
 		// remember the file format, for re-loading.
-		rv->setMetaData("fileFormat", loader.formatTag() );
+		rv->setFileFormat( loader.formatTag() );
 
 		return rv;
 	}
@@ -72,7 +73,7 @@ AMScan* ALSBL8XASImporter::import(const QString& fullPath) {
 			rv->setName(name);
 
 		// remember the file format, for re-loading.
-		rv->setMetaData("fileFormat", loader.formatTag() );
+		rv->setFileFormat( loader.formatTag() );
 
 		return rv;
 	}

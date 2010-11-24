@@ -212,7 +212,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMDateTimeUtils.h \
 	source/ui/AMElementListEdit.h \
 	source/ui/AMCloseItemDelegate.h \
-	source/ui/AMChannelEditor.h \
+	source/ui/AMDataSourcesEditor.h \
 	source/beamline/AMBeamlineActionsList.h \
 	source/ui/AMWrappingLineEdit.h \
 	source/ui/SGMSidebar.h \
@@ -239,7 +239,8 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/dataman/AMDbObjectSupport.h \
 	source/util/AMOrderedSetSignalSource.h \
 	source/util/AMOrderedSet.h \
-	source/dataman/AMRawDataSource.h
+	source/dataman/AMRawDataSource.h \
+    source/analysis/AM1DExpressionABEditor.h
 FORMS += source/ui/AbsorptionScanController.ui \
 	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
@@ -257,7 +258,7 @@ FORMS += source/ui/AbsorptionScanController.ui \
 	source/ui/Scheduler.ui \
 	source/ui/SGMXASScanConfigurationViewer.ui \
 	source/ui/AMGenericScanEditor.ui \
-	source/ui/AMChannelEditor.ui \
+	source/ui/AMDataSourcesEditor.ui \
 	source/ui/AMSamplePlateSelector.ui
 SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	../MPlot/src/MPlot/MPlotAbstractTool.cpp \
@@ -392,7 +393,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMDateTimeUtils.cpp \
 	source/ui/AMElementListEdit.cpp \
 	source/ui/AMCloseItemDelegate.cpp \
-	source/ui/AMChannelEditor.cpp \
+	source/ui/AMDataSourcesEditor.cpp \
 	source/beamline/AMBeamlineActionsList.cpp \
 	source/ui/AMWrappingLineEdit.cpp \
 	source/ui/SGMSidebar.cpp \
@@ -419,6 +420,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/dataman/AMDbObjectSupport.cpp \
 	source/acquaman.cpp \
 	source/util/AMOrderedSetSignalSource.cpp \
-	source/dataman/AMRawDataSource.cpp
+	source/dataman/AMRawDataSource.cpp \
+    source/analysis/AM1DExpressionABEditor.cpp
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc

@@ -221,14 +221,15 @@ protected:
 
 #include <QPropertyAnimation>
 
-/// A GUI class that provides a several different ways to view a set of scans.  It maintains an internal AMScanSetModel, and a variety of different AMScanViewInternal views can be shown within it.
+/// A GUI class that provides a several different ways to view a set of scans.  It is based on the contents of an AMScanSetModel, and a variety of different AMScanViewInternal views can be shown within it.
 class AMScanView : public QWidget
 {
 	Q_OBJECT
 public:
 	enum ViewMode { Invalid = -1, Tabs = 0, OverPlot, MultiScans, MultiSources };
 
-	explicit AMScanView(QWidget *parent = 0);
+	/// Constructs a new AMScanView based on a set of scans given by \c model. If \c model is 0,  it creates its own model to use internally; otherwise it uses the supplied model.
+	explicit AMScanView(AMScanSetModel* model = 0, QWidget *parent = 0);
 	virtual ~AMScanView();
 
 	/// returns the AMScanSetModel used internally to hold the scans/data sources.

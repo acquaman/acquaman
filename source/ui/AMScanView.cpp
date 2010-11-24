@@ -387,12 +387,14 @@ AMScanViewModeBar::AMScanViewModeBar(QWidget* parent)
 
 
 
-AMScanView::AMScanView(QWidget *parent) :
+AMScanView::AMScanView(AMScanSetModel* model, QWidget *parent) :
 		QWidget(parent)
 {
 	mode_ = Invalid;
 
-	scansModel_ = new AMScanSetModel(this);
+	scansModel_ = model;
+	if(scansModel_ == 0)
+		scansModel_ = new AMScanSetModel(this);
 
 	setupUI();
 	makeConnections();

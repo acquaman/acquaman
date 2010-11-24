@@ -69,10 +69,10 @@ bool AMDacqScanController::event(QEvent *e){
 		QMap<int, double> aeData = ((AMAcqEvent*)e)->dataPackage_;
 		QMap<int, double>::const_iterator i = aeData.constBegin();
 		if(i.key() == 0 && aeData.count() > 1){
-			pScan_()->d_->append(i.value());
+			/// \bug CRITICAL: upgrade to use new AMDataStore interface! pScan_()->d_->append(i.value());
 			++i;
 			while(i != aeData.constEnd()){
-				pScan_()->d_->setLastValue(i.key()-1, i.value());
+				/// \bug CRITICAL: upgrade to use new AMDataStore interface! pScan_()->d_->setLastValue(i.key()-1, i.value());
 				++i;
 			}
 		}
@@ -99,7 +99,7 @@ void AMDacqScanController::onStop()
 		emit finished();
 
 	if(pScan_()){
-		/*
+		/* removed: testing only:
 		qDebug() << "Before scan view";
 		AMScanView *sv = new AMScanView();
 //		sv->show();
@@ -156,6 +156,7 @@ void AMDacqScanController::onSendCompletion(int completion){
 	emit progress(tc, tc+remaining);
 }
 
+/*
 void AMDacqScanController::play2d()
 {
 	MPlotWidget *plotWindow = new MPlotWidget();
@@ -218,4 +219,4 @@ void AMDacqScanController::play2d()
    MPlotCursorTool crsrTool;
    plot->addTool(&crsrTool);
    crsrTool.addCursor();
-}
+}*/
