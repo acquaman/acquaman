@@ -3,6 +3,7 @@
 
 #include "acquaman.h"
 #include "dataman/AMDbObject.h"
+#include "dataman/AMnDIndex.h"
 #include <QStringList>
 #include <QDebug>
 
@@ -13,8 +14,9 @@ Q_OBJECT
 
 	/// A description (human-readable string) for this type of detector
 	Q_PROPERTY(QString description READ description WRITE setDescription)
-	Q_PROPERTY(int dimension READ dimension)
-	Q_PROPERTY(QList<int> rank READ rank)	/// \bug upgrade this to AMnDIndex
+	Q_PROPERTY(int rank READ rank)
+	Q_PROPERTY(AMnDIndex size READ size)
+#warning "AMDbObject does not yet support output of AMnDIndex"
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Generic Detector")
 
@@ -35,12 +37,12 @@ public:
 
 	// Dimensionality and size:
 	////////////////////////////////////
-	/// Returns the number of dimensions in the output of this detector. A single point has dimension 0. A spectrum output would have dimension 1. An image output would have dimension 2. \todo fix: backwards with rank().
-	virtual int dimension() const { return 0;}
-	/// Returns the rank (ie: number of elements) along each dimension of the detector.  For a single-point detector, an empty list is fine. For a spectrum output, this would contain one number (the number of pixels or points along the axis).  For an image output, this would contain the width and height. \todo fix: should be size(), and should return AMnDIndex.
-	virtual QList<int> rank() const { return QList<int>(); }
+	/// Returns the number of dimensions in the output of this detector. A single point has rank 0. A spectrum output would have rank 1. An image output would have rank 2.
+	virtual int rank() const { return 0;}
+	/// Returns the size (ie: number of elements) along each dimension of the detector.  For a single-point detector, returns an empty AMnDIndex(). For a spectrum output, this would contain one number (the number of pixels or points along the axis).  For an image output, this would contain the width and height.
+	virtual AMnDIndex size() const { return AMnDIndex(); }
 	/// Convenience function to test if the detector has a dimesion > 0.
-	virtual bool isSpectralOutput() const { return (dimension() > 0); }
+	virtual bool isSpectralOutput() const { return (rank() > 0); }
 	virtual bool hasDetails() const { return false; }
 
 
@@ -91,9 +93,9 @@ public:
 	// Dimensionality and size:
 	////////////////////////////////////
 	/// Returns the number of dimensions in the output of this detector. A single point has dimension 0. A spectrum output would have dimension 1. An image output would have dimension 2.
-	virtual int dimension() const { return 1;}
+	virtual int rank() const { return 1;}
 	/// Returns the rank (ie: number of elements) along each dimension of the detector.  Since this detector outputs a spectrum, this would contain one number (the number of pixels, points, or bins along the axis).
-	virtual QList<int> rank() const { QList<int> rv; rv << binCount(); return rv; }
+	virtual AMnDIndex size() const { return AMnDIndex(binCount()); }
 
 
 	// AMDbObject database interface
@@ -186,9 +188,9 @@ public:
 	// Dimensionality and size:
 	////////////////////////////////////
 	/// Returns the number of dimensions in the output of this detector. A single point has dimension 0. A spectrum output would have dimension 1. An image output would have dimension 2.
-	virtual int dimension() const { return 0;}
+	virtual int rank() const { return 0;}
 	/// Returns the rank (ie: number of elements) along each dimension of the detector.  Since this detector outputs a spectrum, this would contain one number (the number of pixels, points, or bins along the axis).
-	virtual QList<int> rank() const { return QList<int>(); }
+	virtual AMnDIndex size() const { return AMnDIndex(); }
 	virtual bool hasDetails() const { return true; }
 
 
@@ -239,9 +241,9 @@ public:
 	// Dimensionality and size:
 	////////////////////////////////////
 	/// Returns the number of dimensions in the output of this detector. A single point has dimension 0. A spectrum output would have dimension 1. An image output would have dimension 2.
-	virtual int dimension() const { return 1;}
+	virtual int rank() const { return 1;}
 	/// Returns the rank (ie: number of elements) along each dimension of the detector.  Since this detector outputs a spectrum, this would contain one number (the number of pixels, points, or bins along the axis).
-	virtual QList<int> rank() const { QList<int> rv; rv << binCount(); return rv; }
+	virtual AMnDIndex size() const { return AMnDIndex(binCount()); }
 	virtual bool hasDetails() const { return true; }
 
 

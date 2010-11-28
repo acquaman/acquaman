@@ -203,24 +203,24 @@ public:
 		tolerance_ = AMCONTROL_TOLERANCE_DONT_CARE;
 	}
 
-	/// \name Accessing children() subcontrols:
+	/// \name Accessing childControls() subcontrols:
 	/// One additional feature of Controls is the ability to logically group sets of sub-controls together. (For example, a Monochromator control could consist of a Grating angle control, exit slit position control, and grating selector.)  Every Control therefore has a list of subcontrols.
 	//@{
 
 	/// The list of sub-controls associated with this control.
 
 	/// \return A list of pointers to all sub-controls.
-	QList<AMControl*> children() const { return children_; }
+	QList<AMControl*> childControls() const { return children_; }
 	/// Returns the number of subcontrols in this group.
-	int numChildren() const { return children_.count(); }
+	int childControlCount() const { return children_.count(); }
 	/// Retreive a specific child control from the list by index
-	AMControl* child(unsigned index) const{
+	AMControl* childControlAt(unsigned index) const{
 		if(index < (unsigned)children_.count())
 			return children_.at(index);
 		return NULL;
 	}
 	/// Add a subcontrol to the control group. Subclasses can reimplement this if they need to connect to the child's signals, etc.
-	virtual void addChild(AMControl* control) { children_ << control; }
+	virtual void addChildControl(AMControl* control) { children_ << control; }
 	//@}
 
 	/// Returns a descriptive and hopefully-unique name for this control:

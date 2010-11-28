@@ -198,7 +198,7 @@ void AMScan::dbLoadRawDataSources(const AMDbObjectList& newRawSources) {
 	for(int i=0; i<newRawSources.count(); i++) {
 		AMRawDataSource* newRawSource = qobject_cast<AMRawDataSource*>(newRawSources.at(i));
 		if(newRawSource)
-			rawDataSources_.append(newRawSources.at(i), newRawSources.at(i)->name());
+			rawDataSources_.append(newRawSource, newRawSource->name());
 		else
 			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, "There was an error reloading one of this scan's raw data sources from the database. Your database might be corrupted. Please report this bug to the Acquaman developers."));
 	}
@@ -217,8 +217,9 @@ void AMScan::dbLoadAnalyzedDataSources(const AMDbObjectList& newAnalyzedSources)
 
 	// Simply adding these to analyzedDataSources_ will be enough to emit the signals that tell everyone watching we have new data channels.
 	for(int i=0; i<newAnalyzedSources.count(); i++) {
-		if(newAnalyzedSources.at(i))
-			analyzedDataSources_.append(newAnalyzedSources.at(i), newAnalyzedSources.at(i)->name());
+		AMAnalysisBlock* newSource = qobject_cast<AMAnalysisBlock*>(newAnalyzedSources.at(i));
+		if(newSource)
+			analyzedDataSources_.append(newSource, newSource->name());
 		else
 			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, "There was an error reloading one of this scan's processed data sources from the database. Your database might be corrupted. Please report this bug to the Acquaman developers."));
 	}
@@ -315,54 +316,82 @@ void AMScan::onDataSourceRemoved(int index) {
 #include <QBuffer>
 #include <QByteArray>
 
-// hackish... just needed for colors. Move the color table somewhere else.
+/// \todo Hackish... just needed for colors. Move the color table somewhere else besides AMScanSetModel.
 #include "dataman/AMScanSetModel.h"
 
 #include "MPlot/MPlot.h"
+#include "MPlot/MPlotSeries.h"
+#include "MPlot/MPlotImage.h"
+#include "dataman/AMDataSourceSeriesData.h"
+#include "dataman/AMDataSourceImageData.h"
 
-/// Return a thumbnail picture of the channel
-/*! \todo fix this
+/// Return a thumbnail picture for thumbnail number \c index. For now, we use the following decision: Normally we provide thumbnails for all the analyzed data sources.  If there are no analyzed data sources, we provide thumbnails for all the raw data sources.
 AMDbThumbnail AMScan::thumbnail(int index) const {
 
-	if((unsigned)index >= (unsigned)numChannels())
+	bool useRawSources = (analyzedDataSources_.count() == 0);
+
+	if( index < 0 ||
+		(useRawSources && index >= rawDataSources_.count()) ||
+		(!useRawSources && index >= analyzedDataSources_.count())
+		)
 		return AMDbThumbnail(QString(), QString(), AMDbThumbnail::InvalidType, QByteArray());
+
+	// convert index into a proper index for dataSourceAt(). If we're using raw sources, leave as-is. If we're using analyzed data sources, add the rawDataSources_.count() offset.
+	if(!useRawSources)
+		index += rawDataSources_.count();
 
 	QPixmap pixmap(240, 180);
 	QPainter painter(&pixmap);
 	painter.setRenderHint(QPainter::Antialiasing, true);
 	QGraphicsScene gscene(QRectF(0,0,240,180));
-	MPlot plot(QRectF(0,0,240,180));
-	gscene.addItem(&plot);
+	MPlot* plot = new MPlot(QRectF(0,0,240,180));
+	gscene.addItem(plot);
 
-	plot.setMarginLeft(0);
-	plot.setMarginRight(0);
-	plot.setMarginTop(0);
-	plot.setMarginBottom(10);
-	plot.axisRight()->setTicks(0);
-	plot.axisTop()->setTicks(0);
-	plot.axisBottom()->setTicks(2);
-	plot.axisLeft()->showGrid(false);
-	plot.axisBottom()->showGrid(false);
-	plot.axisBottom()->showAxisName(false);
-	plot.axisLeft()->showAxisName(false);
-	plot.legend()->enableDefaultLegend(false);	// don't show default legend names, because we want to provide these as text later; don't include them in the bitmap
+	plot->setMarginLeft(0);
+	plot->setMarginRight(0);
+	plot->setMarginTop(0);
+	plot->setMarginBottom(10);
+	plot->axisRight()->setTicks(0);
+	plot->axisTop()->setTicks(0);
+	plot->axisBottom()->setTicks(2);
+	plot->axisLeft()->showGrid(false);
+	plot->axisBottom()->showGrid(false);
+	plot->axisBottom()->showAxisName(false);
+	plot->axisLeft()->showAxisName(false);
+	plot->legend()->enableDefaultLegend(false);	// don't show default legend names, because we want to provide these as text later; don't include them in the bitmap
 
-	MPlotSeriesBasic* series = new MPlotSeriesBasic(channel(index));
-	/// Todo: non-arbitrary colors here; don't mess up the ordering in AMScanSetModelChannelMetaData
-	QPen seriesPen(QBrush(AMScanSetModelChannelMetaData::nextColor()), 1);
-	series->setLinePen(seriesPen);
-	series->setMarker(MPlotMarkerShape::None);
+	const AMDataSource* dataSource = dataSourceAt(index);
+	switch(dataSource->rank()) {
+	case 1: {
+		MPlotSeriesBasic* series = new MPlotSeriesBasic();
+		series->setModel(new AMDataSourceSeriesData(dataSource), true);
+		QPen seriesPen(QBrush(AMDataSourcePlotSettings::nextColor()), 0);
+		series->setLinePen(seriesPen);
+		series->setMarker(MPlotMarkerShape::None);
 
-	plot.enableAutoScale(MPlotAxis::Left | MPlotAxis::Bottom);
-	plot.addItem(series);
-	plot.doDelayedAutoScale();
+		plot->enableAutoScale(MPlotAxis::Left | MPlotAxis::Bottom);
+		plot->addItem(series);
+		plot->doDelayedAutoScale();
+		break; }
+	case 2: {
+		MPlotImageBasic* image = new MPlotImageBasic();
+		image->setModel(new AMDataSourceImageData(dataSource), true);
+
+		plot->enableAutoScale(MPlotAxis::Left | MPlotAxis::Bottom);
+		plot->addItem(image);
+		plot->doDelayedAutoScale();
+		break; }
+	default: {
+		// what?
+		break; }
+	}
 
 	gscene.render(&painter);
 	painter.end();
 
-	delete series;
+	delete plot;	// deletes all plot items (series, image) with it.
 
 	/// todo: pretty names like "Total Electron Yield" instead of "tey_n"
-	return AMDbThumbnail(channel(index)->name(), QString(), pixmap);
+	return AMDbThumbnail(dataSource->name(), dataSource->description(), pixmap);
 
-}*/
+}

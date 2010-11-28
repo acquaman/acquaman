@@ -673,18 +673,18 @@ void AMScanViewExclusiveView::onModelDataChanged(const QModelIndex& topLeft, con
 			// if this data source is the one we're currently displaying...
 			if(dataSource == plotItemDataSources_.at(si)) {
 				switch(dataSource->rank()) {
-				case 1:
+				case 1: {
 					QColor color = model()->plotColor(si, di);
 					QPen pen = model()->plotPen(si, di);
 					pen.setColor(color);
 					static_cast<MPlotAbstractSeries*>(plotItems_.at(si))->setLinePen(pen);
-					break;
-				case 2:
+					break; }
+				case 2: {
 					/// \todo This is inefficient... Institute separate signals for different dataChanged() parameters, or check if old color map matches new color map.
 					static_cast<MPlotAbstractImage*>(plotItems_.at(si))->setColorMap(model()->plotColorMap(si, di));
 					break;
 				default:
-					break;
+					break; }
 				}
 			}
 		}
@@ -745,7 +745,7 @@ MPlotItem* AMScanViewInternal::createPlotItemForDataSource(const AMDataSource* d
 
 	switch(dataSource->rank()) {	// depending on the rank, we'll need an XY-series or an image to display it. 3D and 4D, etc. we don't handle for now.
 
-	case 1:
+	case 1: {
 		MPlotSeriesBasic* series = new MPlotSeriesBasic();
 		series->setModel(new AMDataSourceSeriesData(dataSource), true);
 		series->setMarker(MPlotMarkerShape::None);
@@ -753,14 +753,14 @@ MPlotItem* AMScanViewInternal::createPlotItemForDataSource(const AMDataSource* d
 		pen.setColor(plotSettings.color);
 		series->setLinePen(pen);
 		rv = series;
-		break;
+		break; }
 
-	case 2:
+	case 2: {
 		MPlotImageBasic* image = new MPlotImageBasic();
-		image->setModel(AMDataSourceImageData(dataSource), true);
-		image->setColorMap(plotSettings.colormap);
+		image->setModel(new AMDataSourceImageData(dataSource), true);
+		image->setColorMap(plotSettings.colorMap);
 		rv = image;
-		break;
+		break; }
 	default:
 		rv = 0;
 		break;
@@ -790,7 +790,7 @@ void AMScanViewExclusiveView::reviewScan(int scanIndex) {
 			plotItems_.at(scanIndex)->setDescription(model()->scanAt(scanIndex)->fullName());
 
 			switch(dataSource->rank()) {
-			case 1:
+			case 1: {
 				MPlotAbstractSeries* series = static_cast<MPlotAbstractSeries*>(plotItems_.at(scanIndex));
 				if(plotItemDataSources_.at(scanIndex) != dataSource) {
 					series->setModel(new AMDataSourceSeriesData(dataSource), true);
@@ -800,15 +800,15 @@ void AMScanViewExclusiveView::reviewScan(int scanIndex) {
 				QColor color = model()->plotColor(scanIndex, dataSourceIndex);
 				pen.setColor(color);
 				series->setLinePen(pen);
-				break;
-			case 2:
+				break; }
+			case 2: {
 				MPlotAbstractImage* image = static_cast<MPlotAbstractImage*>(plotItems_.at(scanIndex));
 				if(plotItemDataSources_.at(scanIndex) != dataSource) {
 					image->setModel(new AMDataSourceImageData(dataSource), true);
 					plotItemDataSources_[scanIndex] = dataSource;
 				}
 				image->setColorMap(model()->plotColorMap(scanIndex, dataSourceIndex));
-				break;
+				break; }
 			default:
 				break;
 			}
@@ -880,7 +880,7 @@ AMScanViewMultiView::AMScanViewMultiView(AMScanView* masterView) : AMScanViewInt
 }
 
 void AMScanViewMultiView::addScan(int si) {
-	QList<MPlotSeriesBasic*> scanList;
+	QList<MPlotItem*> scanList;
 
 	for(int di=0; di<model()->scanAt(si)->dataSourceCount(); di++) {
 
@@ -888,7 +888,7 @@ void AMScanViewMultiView::addScan(int si) {
 		// if visible, create and append the list
 		if(model()->isVisible(si, di)) {
 
-			MPlotItem* newItem = createPlotItemForDataSource(dataSource, model()->plotSettings());
+			MPlotItem* newItem = createPlotItemForDataSource(dataSource, model()->plotSettings(si, di));
 			if(newItem) {
 				plot_->plot()->addItem(newItem);
 				newItem->setDescription(model()->scanAt(si)->fullName() + ": " + dataSource->name());
@@ -1019,15 +1019,15 @@ void AMScanViewMultiView::onModelDataChanged(const QModelIndex& topLeft, const Q
 				else {
 					plotItem->setDescription(model()->scanAt(si)->fullName() + ": " + model()->dataSourceAt(si, di)->description());
 					switch(model()->dataSourceAt(si, di)->rank()) {
-					case 1:
+					case 1: {
 						QPen pen = model()->plotPen(si, di);
 						pen.setColor(model()->plotColor(si, di));
 						static_cast<MPlotAbstractSeries*>(plotItem)->setLinePen(pen);
-						break;
-					case 2:
+						break; }
+					case 2: {
 						/// \todo This is inefficient... Institute separate signals for different dataChanged() parameters, or check if old color map matches new color map.
 						static_cast<MPlotAbstractImage*>(plotItem)->setColorMap(model()->plotColorMap(si, di));
-						break;
+						break; }
 					default:
 						break;
 					}
@@ -1143,7 +1143,7 @@ void AMScanViewMultiScansView::addScan(int si) {
 		plots_.insert(si, plot);
 	}
 
-	QList<MPlotSeriesBasic*> scanList;
+	QList<MPlotItem*> scanList;
 	QStringList sourceLegendText;
 
 	for(int di=0; di<model()->scanAt(si)->dataSourceCount(); di++) {
@@ -1322,15 +1322,15 @@ void AMScanViewMultiScansView::onModelDataChanged(const QModelIndex& topLeft, co
 					plotItem->setDescription(model()->dataSourceAt(si, di)->description());
 
 					switch(model()->dataSourceAt(si, di)->rank()) {
-					case 1:
+					case 1: {
 						QPen pen = model()->plotPen(si, di);
 						pen.setColor(model()->plotColor(si, di));
 						static_cast<MPlotAbstractSeries*>(plotItem)->setLinePen(pen);
-						break;
-					case 2:
+						break; }
+					case 2: {
 						/// \todo This is inefficient... Institute separate signals for different dataChanged() parameters, or check if old color map matches new color map.
 						static_cast<MPlotAbstractImage*>(plotItem)->setColorMap(model()->plotColorMap(si, di));
-						break;
+						break; }
 					default:
 						break;
 					}
@@ -1549,15 +1549,15 @@ void AMScanViewMultiSourcesView::onModelDataChanged(const QModelIndex& topLeft, 
 				MPlotItem* plotItem = sourceAndScan2PlotItem_[sourceName][scan];
 
 				switch(model()->dataSourceAt(si, di)->rank()) {
-				case 1:
+				case 1: {
 					QPen pen = model()->plotPen(si, di);
 					pen.setColor(model()->plotColor(si, di));
 					static_cast<MPlotAbstractSeries*>(plotItem)->setLinePen(pen);
-					break;
-				case 2:
+					break; }
+				case 2: {
 					/// \todo This is inefficient... Institute separate signals for different dataChanged() parameters, or check if old color map matches new color map.
 					static_cast<MPlotAbstractImage*>(plotItem)->setColorMap(model()->plotColorMap(si, di));
-					break;
+					break; }
 				default:
 					break;
 				}
@@ -1683,7 +1683,7 @@ bool AMScanViewMultiSourcesView::reviewDataSources() {
 		}
 
 		dataSource2Plot_.insert(sourceName, newPlot);
-		sourceAndScan2PlotItem_.insert(sourceName, QHash<AMScan*, MPlotSeriesBasic*>());
+		sourceAndScan2PlotItem_.insert(sourceName, QHash<AMScan*, MPlotItem*>());
 		newPlot->plot()->legend()->setTitleText(sourceName);
 	}
 
@@ -1711,7 +1711,7 @@ bool AMScanViewMultiSourcesView::reviewDataSources() {
 			// if this scan contains this data source, and it's visible, and we don't have a series for it yet... make and add the new series
 			if(di >= 0 && model()->isVisible(si, di) && !sourceAndScan2PlotItem_[sourceName].contains(scan)) {
 
-				MPlotItem* newItem = createPlotItemForDataSource(scan->dataSourceAt(di));
+				MPlotItem* newItem = createPlotItemForDataSource(scan->dataSourceAt(di), model()->plotSettings(si, di));
 				if(newItem) {
 					newItem->setDescription(scan->fullName());
 					dataSource2Plot_[sourceName]->plot()->addItem(newItem);

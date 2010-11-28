@@ -121,7 +121,7 @@ public:
 
 
 	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index)
-	virtual AMNumber axisValue(int axisNumber, int index) = 0;
+	virtual AMNumber axisValue(int axisNumber, int index) const = 0;
 	/// [removed] When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis name and index)
 	// removed: virtual AMNumber axisValue(const QString& axisName, int index) = 0;
 
@@ -182,5 +182,7 @@ private:
 	/// QObject proxy for emitting signals. (This interface class can't emit directly, because it doesn't want to inherit QObject.)
 	AMDataSourceSignalSource* signalSource_;
 };
+
+Q_DECLARE_METATYPE(AMDataSource*)
 
 #endif // AMDATASOURCE_H

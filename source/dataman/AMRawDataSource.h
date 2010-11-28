@@ -83,7 +83,7 @@ public:
 	}
 
 	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index)
-	virtual AMNumber axisValue(int axisNumber, int index) {
+	virtual AMNumber axisValue(int axisNumber, int index) const {
 		if(!isValid())
 			return AMNumber(AMNumber::InvalidError);
 		if(axisNumber < scanAxesCount_)
@@ -162,6 +162,10 @@ protected:
 	const AMDataStore* dataStore_;
 	/// The measurement/detector/channel exposed by this source.  It must be a valid measurementId for AMDataStore::measurementAt().
 	int measurementId_;
+	/// For quickly knowing the extent of our data, this is the AMnDIndex of the starting "corner" of the measurement dimensionality.  For example, on a 2D detector, it might be AMnDIndex(0, 0).  On a 1D detector, it might be AMnDIndex(0).
+	AMnDIndex measurementIndexStart_;
+	/// For quickly knowing the extent of our data, this is the AMnDIndex of the ending "corner" of the measurement dimensionality.  For example, on 2D detector with \c width and \c height, it might be AMnDIndex(\c width, \c height).  \note There is a system-wide assumption that detectors/measurements don't change their size.
+	AMnDIndex measurementIndexEnd_;
 
 	/// State of the data (OR-combination of AMDataSource::StateFlags)
 	int stateFlags_;

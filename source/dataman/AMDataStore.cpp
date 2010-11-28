@@ -55,7 +55,7 @@ void AMDataStore::endInsertRows() {
 
 	// determine a region that covers the whole new scan space. It will be from min to max index in all axes, except for the axis along which we're inserting.
 	AMnDIndex start, end;
-	for(int mu=0; mu<scanAxisCount(); mu++) {	// mu is a "meta-index"... iterating over the axis indexes.
+	for(int mu=0; mu<scanAxesCount(); mu++) {	// mu is a "meta-index"... iterating over the axis indexes.
 		if(mu == insertingAxisId_) {
 			start.append(insertingAtRowIndex_);	// any data that got pushed down should also be considered changed. end should be the max index for this axis.
 			end.append(scanAxisAt(mu).size-1);

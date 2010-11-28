@@ -38,15 +38,15 @@ AM1DExpressionABEditor::AM1DExpressionABEditor(AM1DExpressionAB* expressionBlock
 	insertMenu_ = new QMenu(this);
 	rawDataMenu_ = insertMenu_->addMenu("Raw Data");
 	functionMenu_ = insertMenu_->addMenu("Function");
-	insertButton->setMenu(insertMenu_);
+	insertButton_->setMenu(insertMenu_);
 	connect(rawDataMenu_, SIGNAL(triggered(QAction*)), this, SLOT(onRawDataMenuTriggered(QAction*)));
 	connect(functionMenu_, SIGNAL(triggered(QAction*)), this, SLOT(onFunctionMenuTriggered(QAction*)));
 	populateFunctionMenu();
 
 
 	// connect editor widgets to test/apply changes:
-	connect(expressionEdit, SIGNAL(textChanged()), this, SLOT(expressionEditingChanged()));
-	connect(expressionEdit, SIGNAL(editingFinished(int)), this, SLOT(expressionEditingFinished(int)));
+	connect(expressionEdit_, SIGNAL(textChanged()), this, SLOT(expressionEditingChanged()));
+	connect(expressionEdit_, SIGNAL(editingFinished(int)), this, SLOT(expressionEditingFinished(int)));
 
 }
 
@@ -81,7 +81,7 @@ void AM1DExpressionABEditor::expressionEditingChanged() {
 
 	editingExpression_ = true;
 
-	if(expressionBlock_->checkExpressionValidity(expressionEdit_->text().trimmed()));
+	if(expressionBlock_->checkExpressionValidity(expressionEdit_->text().trimmed()))
 		expressionEdit_->setStyleSheet("color: rgb(0,128,0);");
 	else
 		expressionEdit_->setStyleSheet("color: red");
@@ -125,12 +125,9 @@ void AM1DExpressionABEditor::abortExpressionEdit() {
 
 }
 
-void AM1DExpressionABEditor::populateExpressionMenu(int scanIndex) {
+void AM1DExpressionABEditor::populateExpressionMenu() {
 
 	rawDataMenu_->clear();
-
-	if(scanIndex < 0 || scanIndex >= model_->numScans())
-		return;
 
 	for(int i=0; i<expressionBlock_->inputDataSourceCount(); i++) {
 		rawDataMenu_->addAction(expressionBlock_->inputDataSourceAt(i)->name());

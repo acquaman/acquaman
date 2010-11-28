@@ -1,6 +1,7 @@
 #include "SGMXASScanController.h"
 
 #include "dataman/SGM2004FileLoader.h"
+#include "dataman/AMRawDataSource.h"
 
 /// If this had a one-line documented comment, I would know how to interpret these two strings. Are they the name and the channel expression? The expression and the x-expression?
 typedef QPair<QString, QString> chPair;
@@ -14,13 +15,25 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 	scanDetectors.prepend(SGMBeamline::sgm()->i0Detector());
 	scanDetectors.prepend(SGMBeamline::sgm()->eVFbkDetector());
 
-	/// \bug CRITICAL create columns in scan's rawData() and rawDataSources(), based on scanDetectors.  Remove detectors from dataman stuff, or expand role inside scan configuration. (application: XES detector?)
 
-	specificScan_ = new AMXASScan(scanDetectors);
+
+	specificScan_ = new AMXASScan();
 	_pScan_ = &specificScan_;
 	pScan_()->setName("SGM XAS Scan");
 	pScan_()->setFilePath(pCfg_()->filePath()+pCfg_()->fileName());
 	pScan_()->setFileFormat("sgm2004");
+
+	// Create space in raw data store, and create raw data channels, for each detector.
+
+	for(int i=0; i<scanDetectors.count(); i++) {
+		AMDetectorInfo* detectorInfo = scanDetectors.at(i);
+		QList<AMAxisInfo> detectorAxes;
+		for(int j=0; j<detectorInfo->rank(); j++)
+			detectorAxes << AMAxisInfo(QString("%1_axis%2").arg(detectorInfo->name()).arg(j), detectorInfo->size()[j]);	/// \todo change AMDetectorInfo to closer match the AMMeasurementInfo api, including a list of AMAxisInfo.
+		AMMeasurementInfo measurementDetails(detectorInfo->name(), detectorInfo->description(), detectorAxes);
+		pScan_()->rawData()->addMeasurement(measurementDetails);
+		pScan_()->addRawDataSource(new AMRawDataSource(pScan_()->rawData(), i));
+	}
 
 	/// \bug CRITICAL Removed creating default channels. They were never set anyway (nothing called the old AMXASScan::setDefaultChannels(); )
 
@@ -69,26 +82,34 @@ bool SGMXASScanController::beamlineInitialize(){
 }
 
 void SGMXASScanController::reinitialize(){
-	//delete specificScan_;
+	/// \bug CRITICAL this was commented out. Why?
+	delete specificScan_;
 
 	QList<AMDetectorInfo*> scanDetectors;
 	scanDetectors = pCfg_()->usingDetectors();
 	scanDetectors.prepend(SGMBeamline::sgm()->i0Detector());
 	scanDetectors.prepend(SGMBeamline::sgm()->eVFbkDetector());
 
-	/// \bug CRITICAL removed creating default channels. Was never used anyway.
 
-	/*
-	  BIG NOTE TO DAVE:
-	  YOU NEW'D THE SCAN ... SOMEONE ELSE HAS TO TAKE OWNERSHIP OF IT FOR DELETION
-	  opts: function call, new in scan viewer ...
-	  */
-	specificScan_ = new AMXASScan(scanDetectors);
+	specificScan_ = new AMXASScan();
 	_pScan_ = &specificScan_;
 	pScan_()->setName("SGM XAS Scan");
 	pScan_()->setFilePath(pCfg_()->filePath()+pCfg_()->fileName());
 	pScan_()->setFileFormat("sgm2004");
 
+	// Create space in raw data store, and create raw data channels, for each detector.
+
+	for(int i=0; i<scanDetectors.count(); i++) {
+		AMDetectorInfo* detectorInfo = scanDetectors.at(i);
+		QList<AMAxisInfo> detectorAxes;
+		for(int j=0; j<detectorInfo->rank(); j++)
+			detectorAxes << AMAxisInfo(QString("%1_axis%2").arg(detectorInfo->name()).arg(j), detectorInfo->size()[j]);	/// \todo change AMDetectorInfo to closer match the AMMeasurementInfo api, including a list of AMAxisInfo.
+		AMMeasurementInfo measurementDetails(detectorInfo->name(), detectorInfo->description(), detectorAxes);
+		pScan_()->rawData()->addMeasurement(measurementDetails);
+		pScan_()->addRawDataSource(new AMRawDataSource(pScan_()->rawData(), i));
+	}
+
+	/// \bug CRITICAL removed creating default channels. Was never used anyway.
 }
 
 SGMXASScanConfiguration* SGMXASScanController::pCfg_(){

@@ -102,7 +102,7 @@ public:
 	virtual AMNumber value(const AMnDIndex& indexes) const;
 \
 	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index)
-	virtual AMNumber axisValue(int axisNumber, int index);
+	virtual AMNumber axisValue(int axisNumber, int index) const;
 
 	// Expression Setting for Y values
 	//////////////////////////////
@@ -120,8 +120,8 @@ public:
 
 	// X-values (or axis values)
 	///////////////////////////////
-	/// Set the expression used for the independent variable (aka x-axis... the one returned by axisValue()). Whenever the input data sources are set, this is automatically set to be the independent variable of the first input data source.
-	bool setXExpression(const QString& xExpression);
+	/// Set the expression used for the independent variable (aka x-axis... the one returned by axisValue()).   If \c xExpression is an empty string, the expression is set back to default, ie: the independent variable of the first input data source.    Whenever the input data sources are re-set, the x expression is also set back to this default.
+	bool setXExpression(const QString& xExpression = QString());
 
 	/// Retrieve the current expression used for the axisValue(), whether valid or not
 	QString xExpression() const {return QString::fromStdString(xParser_.GetExpr()).trimmed(); }

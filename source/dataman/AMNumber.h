@@ -83,6 +83,15 @@ public:
 	/// Returns the type of the number, as stored natively.
 	Type type() const { return type_; }
 
+	/// Comparison operator:
+	bool operator==(const AMNumber& other) const {
+		return state_ == other.state_ && double(*this) == double(other);
+	}
+
+	bool operator==(double d) const {
+		return state_ == Valid && double(*this) == d;
+	}
+
 
 protected:
 	State state_;
@@ -91,5 +100,6 @@ protected:
 
 
 };
+
 
 #endif // AMNUMBER_H

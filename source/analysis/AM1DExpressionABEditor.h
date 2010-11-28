@@ -34,7 +34,7 @@ protected slots:
 
 protected:
 	/// Helper function: fills the available options in the 'insert' menu based on the block's input sources.
-	void populateExpressionMenu(int scanIndex);
+	void populateExpressionMenu();
 
 	/// Helper function: called once to fill the list of functions.  This should really be tied into the muParser stuff, but it's here for now.
 	void populateFunctionMenu();

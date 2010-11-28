@@ -227,7 +227,7 @@ void AMAppController::shutdown() {
 	isShuttingDown_ = true;
 
 	// need to delete the runs/experiments tree insert first, before the tree gets deleted
-	/// \tod IMPORTANT replace: delete runExperimentInsert_;
+	/// \todo IMPORTANT replace: delete runExperimentInsert_;
 
 	// destroy the main window. This will delete everything else within it.
 	delete mw_;

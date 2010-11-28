@@ -25,7 +25,7 @@ QModelIndex AMScanSetModel::index ( int row, int column, const QModelIndex & par
 /// Return a list of the names of all scans in this model:
 QStringList AMScanSetModel::scanNames() const {
 	QStringList rv;
-	for(int i=0; i<numScans(); i++)
+	for(int i=0; i<scanCount(); i++)
 		rv << scanAt(i)->fullName();
 	return rv;
 }
@@ -184,10 +184,10 @@ bool AMScanSetModel::hasChildren ( const QModelIndex & parent  ) const {
 
 /// returns the index (or row) of an AMScan in the top-level. returns -1 if not found.
 int AMScanSetModel::indexOf(const AMScan* scan) const {
-	return scans_.indexOf(scan);
+	return scans_.indexOf(const_cast<AMScan*>(scan));
 }
 
-int AMScanSetModel::indexOf(AMDataSource* dataSource, AMScan* insideHere) const {
+int AMScanSetModel::indexOf(const AMDataSource* dataSource, const AMScan* insideHere) const {
 	if(insideHere)
 		return insideHere->indexOfDataSource(dataSource);
 	else

@@ -90,8 +90,8 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 
 
 AMGenericScanEditor::~AMGenericScanEditor() {
-	while(scanSetModel_->numScans()) {
-		AMScan* s = scanSetModel_->scanAt(scanSetModel_->numScans()-1);
+	while(scanSetModel_->scanCount()) {
+		AMScan* s = scanSetModel_->scanAt(scanSetModel_->scanCount()-1);
 		scanSetModel_->removeScan(s);
 		delete s;
 	}
@@ -100,16 +100,16 @@ AMGenericScanEditor::~AMGenericScanEditor() {
 
 void AMGenericScanEditor::addScan(AMScan* newScan) {
 	scanSetModel_->addScan(newScan);
-	ui_.scanListView->setCurrentIndex(scanSetModel_->indexForScan(newScan));
-	if(scanSetModel_->exclusiveDataSourceName().isEmpty() && newScan->numChannels() > 0)
-		scanSetModel_->setExclusiveDataSourceByName(newScan->channel(0)->name());
+	ui_.scanListView->setCurrentIndex(scanSetModel_->indexForScan(scanSetModel_->indexOf(newScan)));
+	if(scanSetModel_->exclusiveDataSourceName().isEmpty() && newScan->dataSourceCount() > 0)
+		scanSetModel_->setExclusiveDataSourceByName(newScan->dataSourceAt(0)->name());
 
 	refreshWindowTitle();
 }
 
 void AMGenericScanEditor::refreshWindowTitle() {
 
-	int numScans = scanSetModel_->numScans();
+	int numScans = scanSetModel_->scanCount();
 
 	if(numScans == 0) {
 		setWindowTitle("Scan Editor");
@@ -177,7 +177,7 @@ void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const
 	}
 
 
-	if(scanSetModel_->numScans() == 0)
+	if(scanSetModel_->scanCount() == 0)
 		scanSetModel_->setExclusiveDataSourceByName(QString());
 
 }

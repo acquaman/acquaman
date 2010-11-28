@@ -11,13 +11,13 @@ class AMDataSourceSeriesData : public QObject, public MPlotAbstractSeriesData
 	Q_OBJECT
 public:
 	/// Constructor. \c dataSource is the source to represent as XY scatter data.
-	AMDataSourceSeriesData(AMDataSource* dataSource, QObject* parent = 0);
+	AMDataSourceSeriesData(const AMDataSource* dataSource, QObject* parent = 0);
 
 	/// Call this to switch to representing a different data source
-	void setDataSource(AMDataSource* dataSource);
+	void setDataSource(const AMDataSource* dataSource);
 
 	/// Access the underlying data source
-	AMDataSource* dataSource() const { return source_; }
+	const AMDataSource* dataSource() const { return source_; }
 
 	/// Return the x-value at \c index. \c index must be greater or equal to 0, and less than count().
 	virtual double x(unsigned index) const {
@@ -43,7 +43,7 @@ protected slots:
 	void onDataSourceDeleted() { source_ = 0; setDataSource(0); }
 
 protected:
-	AMDataSource* source_;
+	const AMDataSource* source_;
 	bool isValid_;
 };
 

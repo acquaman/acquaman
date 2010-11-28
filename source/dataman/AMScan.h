@@ -132,6 +132,7 @@ public:
 		int analyzedSourceIndex = analyzedDataSources_.indexOf(sourceName);
 		if(analyzedSourceIndex >= 0)
 			return analyzedSourceIndex + rawDataSources_.count();
+		return -1;
 	}
 
 	/// Returns the index of a data source (in the combined set of raw+analyzed sources) identified by pointer \c dataSource, or -1 if not found.
@@ -148,6 +149,22 @@ public:
 	}
 
 
+	/// Removes and deletes the data source at \c index.  Returns true on success, false if \c index < 0 or >= dataSourceCount().
+	bool deleteDataSourceAt(int index ) {
+		if(index < 0)
+			return false;
+		int rawCount = rawDataSources_.count();
+		if(index < rawCount)	{ // is a raw data source.
+			delete rawDataSources_.takeAt(index);
+			return true;
+		}
+		index -= rawCount;
+		if(index < analyzedDataSources_.count()) {
+			delete analyzedDataSources_.takeAt(index);
+			return true;
+		}
+		return false;
+	}
 
 
 
@@ -176,6 +193,18 @@ public:
 		autoLoadData_ = autoLoadDataOn;
 	}
 
+
+	/// Clears the scan's raw data completely, including all measurements configured within the rawData() data store, and all the rawDataSources().
+	void clearDataAndMeasurements() {
+		while(rawDataSources_.count())
+			delete rawDataSources_.takeAt(rawDataSources_.count()-1);
+
+		data_->clearAllMeasurements();
+	}
+	/// Clears all of scans's data points, but leaves all measurements and raw data sources as-is.
+	void clearData() {
+		data_->clear();
+	}
 
 
 	// DataStore (Raw Data) Interface

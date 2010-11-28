@@ -688,7 +688,7 @@ private slots:
 	}
 
 
-	/// test loading an AMXASScan from legacy SGM data. Also tests creation of default channels inside SGM2004FileLoader::loadFromFile(), and tests
+	/// test loading an AMXASScan from legacy SGM data. Also tests creation of default channels inside SGM2004FileLoader::loadFromFile()
 
 	void loadAMXASScan() {
 		AMXASScan s1;
@@ -697,24 +697,26 @@ private slots:
 		QString fileName = AMUserSettings::userDataFolder + "testScriptData/sgm001.dat";
 		//		qDebug() << "loading sgm data from file and checking for proper read:" << fileName;
 		QVERIFY(s1Loader.loadFromFile(fileName));
-		QCOMPARE(s1.count(), unsigned(301));
+		QCOMPARE(s1.scanSize(0), int(301));
 		QCOMPARE(s1.notes(), QString("0.916667"));	// NOTE: this test fails, because we're currently putting the Grating and Integration Time inside the comment field (for lack of a better place) Eventually, the Grating and Integration time should become part of the scan configuration, or beamline state.
 		QCOMPARE(s1.dateTime().toTime_t(), uint(1285706567));
 		//qDebug() << "s1 raw data columns ('detectors')" << s1.detectors();
 
 
-		QVERIFY(s1.channel("tey_n"));
-		QVERIFY(s1.channel("tfy_n"));
-		QVERIFY(s1.channel("tey_raw"));
-		QVERIFY(s1.channel("tfy_raw"));
-		QCOMPARE(s1.channel("tey_n")->expression().trimmed(), QString("tey/I0").trimmed());
-		QCOMPARE(s1.channel("tfy_n")->expression().trimmed(), QString("-1*tfy/I0").trimmed());
+		int tey_n, tfy_n, tey, tfy, io;
+		QVERIFY((tey = s1.rawDataSources()->indexOf("tey")) != -1);
+		QVERIFY((tfy = s1.rawDataSources()->indexOf("tfy")) != -1);
+		QVERIFY((io = s1.rawDataSources()->indexOf("I0")) != -1);
+		QVERIFY((tey_n = s1.analyzedDataSources()->indexOf("tey_n")) != -1);
+		QVERIFY((tfy_n = s1.analyzedDataSources()->indexOf("tfy_n")) != -1);
+		QCOMPARE(qobject_cast<AM1DExpressionAB*>(s1.analyzedDataSources()->at(tey_n))->expression(), QString("tey/I0"));
+		QCOMPARE(qobject_cast<AM1DExpressionAB*>(s1.analyzedDataSources()->at(tfy_n))->expression(), QString("-1*tfy/I0"));
 		// test math parser:
-		for(int i=0; i<s1.channel("tey_n")->count(); i++)
-			QCOMPARE(s1.channel("tey_n")->value(i), s1.channel("tey_n")->dataTree()->value("tey", i)/s1.channel("tey_n")->dataTree()->value("I0", i));
+		for(int i=0; i<s1.scanSize(0); i++)
+			QVERIFY((double)s1.analyzedDataSources()->at(tey_n)->value(i) == (double)s1.rawDataSources()->at(tey)->value(i) / (double)s1.rawDataSources()->at(io)->value(i));
 		// test math parser:
-		for(int i=0; i<s1.channel("tfy_n")->count(); i++)
-			QCOMPARE(s1.channel("tfy_n")->value(i), -s1.channel("tfy_n")->dataTree()->value("tfy", i)/s1.channel("tfy_n")->dataTree()->value("I0", i));
+		for(int i=0; i<s1.scanSize(0); i++)
+			QVERIFY((double)s1.analyzedDataSources()->at(tfy_n)->value(i) == (double)s1.rawDataSources()->at(tfy)->value(i) / (double)s1.rawDataSources()->at(io)->value(i));
 	}
 
 
@@ -729,7 +731,10 @@ private slots:
 
 		// create simple math channel
 		AM1DExpressionAB* const5Channel = new AM1DExpressionAB("const5");
-		const5Channel->setInputDataSources(s1.rawDataSources()->toList());
+		QList<AMDataSource*> rawDataSources;
+		foreach(AMRawDataSource* ds, s1.rawDataSources()->toList())
+			rawDataSources << ds;
+		const5Channel->setInputDataSources(rawDataSources);
 		QVERIFY(const5Channel->setExpression("3+2"));
 		QVERIFY(const5Channel->isValid());
 		s1.addAnalyzedDataSource(const5Channel);
@@ -743,8 +748,8 @@ private slots:
 		QVERIFY(s1.analyzedDataSources()->indexOf("tey_n") == 0);
 		QVERIFY(s1.analyzedDataSources()->indexOf("tfy_n") == 1);
 
-		AM1DExpressionAB* teyn = s1.analyzedDataSources()->at(0);
-		AM1DExpressionAB* tfyn = s1.analyzedDataSources()->at(1);
+		AM1DExpressionAB* teyn = qobject_cast<AM1DExpressionAB*>(s1.analyzedDataSources()->at(0));
+		AM1DExpressionAB* tfyn = qobject_cast<AM1DExpressionAB*>(s1.analyzedDataSources()->at(1));
 		QVERIFY(teyn);
 		QVERIFY(tfyn);
 
@@ -755,7 +760,7 @@ private slots:
 		QVERIFY(teyn->setXExpression("tey.x + 1"));
 		QVERIFY(teyn->isValid());
 		for(int i=0; i<teyn->size(0); i++)
-			QVERIFY(teyn->axisValue(0, i) == s1.rawData()->axisValue(0, i)+1.0);
+			QVERIFY(double(teyn->axisValue(0, i)) == double(s1.rawData()->axisValue(0, i))+1.0);
 
 		// restore the x expression to default and check values:
 		QVERIFY(teyn->setXExpression());
@@ -787,12 +792,12 @@ private slots:
 		QVERIFY(ioColIndex != -1);
 
 		for(int i=0; i<teyn->size(0); i++)
-			QVERIFY(teyn->value(i) == s1.rawData()->value(i, teyColIndex, AMnDIndex())/s1.rawData()->value(i, ioColIndex, AMnDIndex())+4.0);
+			QVERIFY(teyn->value(i) == (double)s1.rawData()->value(i, teyColIndex, AMnDIndex()) / (double)s1.rawData()->value(i, ioColIndex, AMnDIndex())+4.0);
 		// reset the y expression and check values:
 		QVERIFY(teyn->setExpression("tey/I0"));
 		QVERIFY(teyn->isValid());
 		for(int i=0; i<teyn->size(0); i++)
-			QVERIFY(teyn->value(i) == s1.rawData()->value(i, teyColIndex, AMnDIndex())/s1.rawData()->value(i, ioColIndex, AMnDIndex()));
+			QVERIFY(teyn->value(i) == (double)s1.rawData()->value(i, teyColIndex, AMnDIndex()) / (double)s1.rawData()->value(i, ioColIndex, AMnDIndex()));
 
 		// set a bad expression, check for failure, and check all values = InvalidValue.
 		QVERIFY(teyn->setExpression("garbage + 4") == false);

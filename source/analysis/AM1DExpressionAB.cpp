@@ -228,7 +228,7 @@ AMNumber AM1DExpressionAB::value(const AMnDIndex& indexes) const {
 }
 
 /// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index)
-AMNumber AM1DExpressionAB::axisValue(int axisNumber, int index)  {
+AMNumber AM1DExpressionAB::axisValue(int axisNumber, int index) const  {
 	if(!isValid())	// will catch most invalid situations: non matching sizes, invalid inputs, invalid expressions.
 		return AMNumber(AMNumber::InvalidError);
 
@@ -381,12 +381,17 @@ bool AM1DExpressionAB::setExpression(const QString& newExpression) {
 
 // X-values (or axis values)
 ///////////////////////////////
-/// Set the expression used for the independent variable (aka x-axis... the one returned by axisValue()). Whenever the input data sources are set, this is automatically set to be the independent variable of the first input data source.
-bool AM1DExpressionAB::setXExpression(const QString& xExpression) {
+/// Set the expression used for the independent variable (aka x-axis... the one returned by axisValue()).   If \c xExpression is an empty string, the expression is set back to default, ie: the independent variable of the first input data source.    Whenever the input data sources are re-set, the x expression is also set back to this default.
+bool AM1DExpressionAB::setXExpression(const QString& xExpressionIn) {
+
+	QString xExpression = xExpressionIn;
 
 	xExpressionValid_ = true;
 	xUsedVariables_.clear();
 	xDirect_ = false;
+
+	if(xExpression.isEmpty() && !sources_.isEmpty())
+		xExpression = sources_.at(0)->name() + ".x";
 
 	try {
 		xParser_.SetExpr(xExpression.toStdString());

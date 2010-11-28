@@ -122,9 +122,8 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool extractMetaDa
 
 	}
 
-	// remove all previous raw data sources
-	scan->rawDataSources()->clear();
-	scan->rawData()->clear();
+	// remove all previous raw data sources and raw data
+	scan->clearDataAndMeasurements();
 
 
 	// This axis info describes an axis along eV:
@@ -191,6 +190,10 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool extractMetaDa
 	// If the scan doesn't have any channels yet, it would be helpful to create some.
 	if(createChannels) {
 
+		QList<AMDataSource*> rawDataSources;
+		foreach(AMRawDataSource* ds, scan->rawDataSources()->toList())
+			rawDataSources << ds;
+
 		/// \todo defaults for what channels to create?
 
 		int rawTeyIndex = scan->rawDataSources()->indexOf("tey");
@@ -200,7 +203,7 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool extractMetaDa
 		if(rawTeyIndex != -1 && rawI0Index != -1) {
 			AM1DExpressionAB* teyChannel = new AM1DExpressionAB("tey_n");
 			teyChannel->setDescription("Normalized TEY");
-			teyChannel->setInputDataSources(scan->rawDataSources()->toList());
+			teyChannel->setInputDataSources(rawDataSources);
 			teyChannel->setExpression("tey/I0");
 
 			scan->addAnalyzedDataSource(teyChannel);
@@ -209,7 +212,7 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool extractMetaDa
 		if(rawTfyIndex != -1 && rawI0Index != -1) {
 			AM1DExpressionAB* tfyChannel = new AM1DExpressionAB("tfy_n");
 			tfyChannel->setDescription("Normalized TFY");
-			tfyChannel->setInputDataSources(scan->rawDataSources()->toList());
+			tfyChannel->setInputDataSources(rawDataSources);
 			tfyChannel->setExpression("tfy/I0");
 
 			scan->addAnalyzedDataSource(tfyChannel);
@@ -218,7 +221,7 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool extractMetaDa
 
 	}
 
-	scan->onDataChanged();
+	scan->onDataChanged();	/// \todo Is this still used? What does it mean?
 
 	return true;
 }

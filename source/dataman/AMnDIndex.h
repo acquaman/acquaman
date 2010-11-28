@@ -35,7 +35,7 @@ class AMnDIndex : public QVarLengthArray<int, AMNDARRAY_BASE_SIZE>
 {
 public:
 	/// Create an invalid index (rank of 0)
-    AMnDIndex();
+	AMnDIndex();
 	/// Create an index for 1D data
 	AMnDIndex(int row);
 	/// Create an index for 2D data
@@ -68,6 +68,11 @@ public:
 	int slice() const { return (*this)[2]; }
 	/// Synonym for l()
 	int segment() const { return (*this)[3]; }
+
+	/// Append all the indices from \c another AMnDIndex to this one.
+	void append(const AMnDIndex& another) {
+		QVarLengthArray<int, AMNDARRAY_BASE_SIZE>::append(another.constData(), another.size());
+	}
 
 };
 

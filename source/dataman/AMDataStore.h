@@ -171,9 +171,15 @@ public:
 	// Ok, I guess you can clear the whole thing
 	////////////////////////////////////////////////////
 	/// Clear the entire data set. This maintains the set of measurements, but deletes every point in the scan space. The size of every scan axis will become 0. Implementing subclasses must provide a clearImplementation().
+	/*! \todo Rename to clearScanDataPoints() */
 	void clear() {
 		clearImplementation();
 		emitSizeChanged(-1);
+	}
+	/// Clear the entire data set, and also delete all configured measurements.  This function calls clearScanDataPoints() first.  Implementing subclasses must provide a clearMeasurementsImplementation().
+	void clearAllMeasurements() {
+		clear();
+		clearMeasurementsImplementation();
 	}
 
 
@@ -195,8 +201,11 @@ protected:
 		Q_UNUSED(atRowIndex);
 	}
 
-	/// Implementing subclasses must provide a clearImplementation(), which removes all data values and sets the size of each axis to 0.
+	/// Implementing subclasses must provide a clearImplementation(), which removes all data values and sets the size of each axis to 0.  It should leave the set of configured measurements as-is.
 	virtual void clearImplementation() = 0;
+
+	/// Implementing subclasses must provide a clearMeasurementsImplementation(), which clears the set of configured measurements.  They can assume that the set of scan data values is already cleared.
+	virtual void clearMeasurementsImplementation() = 0;
 
 	/// Implementing subclasses must call this whenever a measurement value changes. (For example, in their setValue implementation).  \c scanIndexStart and \c scanIndexEnd describe the scan range affected.  Use an invalid \c scanIndexStart to indicate the whole scan space is affected.  For performance, subclasses can opt to avoid calling this on every setValue(), and combine multiple emits into one (as long as the last one covers the complete affected range.)  A separate emitDataChanged() should be sent for each different measurement.  For multi-dimensional measurements, it's suggested to delay emits until all the values for a complete measurement have been received (if you can figure out how...).
 	void emitDataChanged(const AMnDIndex& scanIndexStart, const AMnDIndex& scanIndexEnd, int measurementId) {

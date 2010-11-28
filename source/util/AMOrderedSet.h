@@ -152,7 +152,7 @@ public:
 		return oldValue;
 	}
 
-	/// Remove the item at \c index.  The AMOrderedSetSignalSource::itemAboutToBeRemoved() signal will be emitted first.
+	/// Remove the item at \c index.  The AMOrderedSetSignalSource::itemAboutToBeRemoved() signal will be emitted first.  Does nothing if \c index < 0 or \c index >= count().
 	void remove(int index) {
 		if(index<0 || index>=count())
 			return;
@@ -171,6 +171,13 @@ public:
 
 		signalSource_->emitItemRemoved(index);
 
+	}
+
+	/// Remove and return the item at \c index.  The AMOrderedSetSignalSource::itemAboutToBeRemoved() signal will be emitted first.  (\c index must be >= 0 and < count(). )
+	Tvalue takeAt(int index) {
+		Tvalue returnMe = at(index);
+		remove(index);
+		return returnMe;
 	}
 
 	/// Clears the set, emitting aboutToBeRemoved() and removed() signals for each item.  \todo If nothing is connected to the signalSource(), there's a much faster way of doing this.

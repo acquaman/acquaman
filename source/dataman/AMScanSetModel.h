@@ -138,7 +138,7 @@ public:
 	QStringList scanNames() const;
 
 	/// Implemented from QAbstractItemModel.  Number of columns is always 1.
-	int columnCount ( const QModelIndex & parent = QModelIndex() ) const { return 1; }
+	int columnCount ( const QModelIndex & parent = QModelIndex() ) const { Q_UNUSED(parent); return 1; }
 	/// Implemented as required in QAbstractItemModel.
 	bool hasChildren ( const QModelIndex & parent = QModelIndex() ) const;
 
@@ -147,7 +147,7 @@ public:
 	/// returns the row number of an AMDataSource within an AMScan. Returns -1 if not found.
 	int indexOf(const AMDataSource* dataSource, int scanIndex) const;
 	/// returns the row number of an AMDataSource within an AMScan. Returns -1 if not found.
-	int indexOf(const AMDataSource* dataSource, AMScan* insideHere) const;
+	int indexOf(const AMDataSource* dataSource, const AMScan* insideHere) const;
 
 	/// Shortcuts to accessing a scan pointer.
 	AMScan* scanAt(int scanIndex) const {

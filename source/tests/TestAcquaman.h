@@ -343,17 +343,18 @@ private slots:
 
 		AMXASScan *xs = qobject_cast<AMXASScan*>(xasCtrl->scan());
 		QVERIFY(xs);
-		int evIndex = xs->indexOfChannel("eV");
-		int I0Index = xs->indexOfChannel("I0");
-		int teyIndex = xs->indexOfChannel("TEY");
-		int tfyIndex = xs->indexOfChannel("TFY");
-		for(unsigned int x = 0; x < xs->count(); x++){
+		/* Must be updated for new scan / data architecture:
+		int evIndex = xs->indexOfDataSource("eV");
+		int I0Index = xs->indexOfDataSource("I0");
+		int teyIndex = xs->indexOfDataSource("TEY");
+		int tfyIndex = xs->indexOfDataSource("TFY");
+		for(unsigned int x = 0; x < xs->scanSize(0); x++){
 			eV = xs->channel(evIndex)->value(x);
 			rowData = data.value(eV);
 			QCOMPARE(xs->channel(I0Index)->value(x), rowData.value("I0"));
 			QCOMPARE(xs->channel(teyIndex)->value(x), rowData.value("TEY"));
 			QCOMPARE(xs->channel(tfyIndex)->value(x), rowData.value("TFY"));
-		}
+		}*/
 
 
 		QTest::qWait(5000);

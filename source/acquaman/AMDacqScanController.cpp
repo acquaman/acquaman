@@ -45,7 +45,7 @@ void AMDacqScanController::start(){
 			pScan_()->setFilePath(fullPath+".dat");
 
 			((AMAcqScanSpectrumOutput*)abop)->setScan(pScan_());
-			((AMAcqScanSpectrumOutput*)abop)->setScanController(this);;
+			((AMAcqScanSpectrumOutput*)abop)->setScanController(this);
 			advAcq_->Start();
 		}
 		else{

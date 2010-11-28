@@ -14,6 +14,7 @@
 #include "dataman/AMFirstTimeController.h"
 #include "AMErrorMonitor.h"
 
+#include "analysis/AM1DExpressionAB.h"
 #include <QTreeView>
 
 class TestUi: public QObject
@@ -66,13 +67,16 @@ private slots:
 		QTest::qWait(4000);
 
 
-		QVERIFY(s1.deleteChannel("tey_n"));
+		QVERIFY(s1.deleteDataSourceAt(s1.indexOfDataSource("tey_n")));
 
 
 		QTest::qWait(2000);
 
 
-		QVERIFY(s1.addChannel("const5", "1+2+2"));
+		AM1DExpressionAB* channel = new AM1DExpressionAB("const5");
+		channel->setExpression("1+2+2");
+		s1.addAnalyzedDataSource(channel);
+		QVERIFY(s1.indexOfDataSource("const5") != -1);
 
 
 		QTest::qWait(4000);
@@ -81,7 +85,7 @@ private slots:
 
 		QTest::qWait(4000);
 
-		QVERIFY(s1.deleteChannel("tfy_n"));
+		QVERIFY(s1.deleteDataSourceAt(s1.indexOfDataSource("tfy_n")));
 
 		QTest::qWait(1000);
 
@@ -103,14 +107,14 @@ private slots:
 
 		QTest::qWait(4000);
 
-		QVERIFY(s2.deleteChannel("tey_raw"));
+		QVERIFY(s2.deleteDataSourceAt(s2.indexOfDataSource("tey_raw")));
 
 
 
 
 		QTest::qWait(8000);
 
-		QVERIFY(s1.deleteChannel("const5"));
+		QVERIFY(s1.deleteDataSourceAt(s1.indexOfDataSource("const5")));
 
 
 		QTest::qWait(2000);
@@ -223,13 +227,17 @@ private slots:
 		QTest::qWait(2000);
 
 
-		QVERIFY(s1.deleteChannel("tey_n"));
+		QVERIFY(s1.deleteDataSourceAt(s1.indexOfDataSource("tey_n")));
 
 
 		QTest::qWait(2000);
 
 
-		QVERIFY(s1.addChannel("const5", "1+2+2"));
+		AM1DExpressionAB* const5 = new AM1DExpressionAB("const5");
+		const5->setExpression("1+2+2");
+		QVERIFY(const5->isValid());
+		s1.addAnalyzedDataSource(const5);
+		QVERIFY(s1.indexOfDataSource("const5") != -1);
 
 
 		QTest::qWait(4000);
@@ -255,14 +263,14 @@ private slots:
 
 		QTest::qWait(4000);
 
-		QVERIFY(s2.deleteChannel("tey_raw"));
+		QVERIFY(s2.deleteDataSourceAt(s2.indexOfDataSource("tey_raw")));
 
 
 
 
 		QTest::qWait(8000);
 
-		QVERIFY(s1.deleteChannel("const5"));
+		QVERIFY(s1.deleteDataSourceAt(s1.indexOfDataSource("const5")));
 
 
 		QTest::qWait(2000);
@@ -311,13 +319,17 @@ private slots:
 		QTest::qWait(2000);
 
 
-		QVERIFY(s1.deleteChannel("tey_n"));
+		QVERIFY(s1.deleteDataSourceAt(s1.indexOfDataSource("tey_n")));
 
 
 		QTest::qWait(2000);
 
 
-		QVERIFY(s1.addChannel("const5", "1+2+2"));
+		AM1DExpressionAB* const5 = new AM1DExpressionAB("const5");
+		const5->setExpression("1+2+2");
+		QVERIFY(const5->isValid());
+		s1.addAnalyzedDataSource(const5);
+		QVERIFY(s1.indexOfDataSource("const5") != -1);
 
 
 		QTest::qWait(4000);
@@ -343,14 +355,14 @@ private slots:
 
 		QTest::qWait(4000);
 
-		QVERIFY(s2.deleteChannel("tey_raw"));
+		QVERIFY(s2.deleteDataSourceAt(s2.indexOfDataSource("tey_raw")));
 
 
 
 
 		QTest::qWait(8000);
 
-		QVERIFY(s1.deleteChannel("const5"));
+		QVERIFY(s1.deleteDataSourceAt(s1.indexOfDataSource("const5")));
 
 
 		QTest::qWait(2000);
@@ -400,13 +412,17 @@ private slots:
 		QTest::qWait(2000);
 
 
-		QVERIFY(s1.deleteChannel("tey_n"));
+		QVERIFY(s1.deleteDataSourceAt(s1.indexOfDataSource("tey_n")));
 
 
 		QTest::qWait(2000);
 
 
-		QVERIFY(s1.addChannel("const5", "1+2+2"));
+		AM1DExpressionAB* const5 = new AM1DExpressionAB("const5");
+		const5->setExpression("1+2+2");
+		QVERIFY(const5->isValid());
+		s1.addAnalyzedDataSource(const5);
+		QVERIFY(s1.indexOfDataSource("const5") != -1);
 
 
 		QTest::qWait(4000);
@@ -432,14 +448,14 @@ private slots:
 
 		QTest::qWait(4000);
 
-		QVERIFY(s2.deleteChannel("tey_raw"));
+		QVERIFY(s2.deleteDataSourceAt(s2.indexOfDataSource("tey_raw")));
 
 
 
 
 		QTest::qWait(8000);
 
-		QVERIFY(s1.deleteChannel("const5"));
+		QVERIFY(s1.deleteDataSourceAt(s1.indexOfDataSource("const5")));
 
 
 		QTest::qWait(2000);

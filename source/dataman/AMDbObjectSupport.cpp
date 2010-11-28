@@ -201,12 +201,12 @@ namespace AMDbObjectSupport {
 		/////////////////////////
 		if(foundRows.count() == 0) {
 
-			db->startTransation();	// exiting this function for any error should roll back to here.
+			db->startTransaction();	// exiting this function for any error should roll back to here.
 
 			// create table...
 			// \bug attempts to re-create table when sharing tables with other already-registered objects...
 			if ( !info.sharedTable && !ensureTableForDbObjects(info.tableName, db, !info.doNotReuseIds) ) {
-				db->rollbackTransation();
+				db->rollbackTransaction();
 				AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -1, QString("Database support: There was an error trying to create a table in the database for class %1.").arg(info.className)));
 				return false;
 			}
@@ -225,7 +225,7 @@ namespace AMDbObjectSupport {
 						// allow failures on shared tables... the columns might have already been created for previous classes.
 						/// \todo For more reliability, could ensure that _unique columns_ in shared-table classes have actually been created.
 						if(!info.sharedTable) {
-							db->rollbackTransation();
+							db->rollbackTransaction();
 							AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -2, QString("Database support: There was an error trying to create a column (%1) in the database for class %2.").arg(info.columns.at(i)).arg(info.className)));
 							return false;
 						}
@@ -245,7 +245,7 @@ namespace AMDbObjectSupport {
 						// allow failures on shared tables... the columns might have already been created for previous classes.
 						/// \todo For more reliability, could ensure that _unique columns_ in shared-table classes have actually been created.
 						if(!info.sharedTable) {
-							db->rollbackTransation();
+							db->rollbackTransaction();
 							AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -16, QString("Database support: There was an error trying to create an auxiliary table (%1) in the database for class %2.").arg(auxTableName).arg(info.className)));
 							return false;
 						}
@@ -260,7 +260,7 @@ namespace AMDbObjectSupport {
 						// allow failures on shared tables... the columns might have already been created for previous classes.
 						/// \todo For more reliability, could ensure that _unique columns_ in shared-table classes have actually been created.
 						if(!info.sharedTable) {
-							db->rollbackTransation();
+							db->rollbackTransaction();
 							AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -2, QString("Database support: There was an error trying to create a column (%1) in the database for class %2.").arg(info.columns.at(i)).arg(info.className)));
 							return false;
 						}
@@ -271,7 +271,7 @@ namespace AMDbObjectSupport {
 						if( !db->createIndex(info.tableName, info.columns.at(i)) ) {
 							if(!info.sharedTable) {
 								AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -3, QString("Database support: There was an error trying to create an index (%1) in the database for class %2.").arg(info.columns.at(i)).arg(info.className)));
-								db->rollbackTransation();
+								db->rollbackTransaction();
 								return false;
 							}
 						}
@@ -287,7 +287,7 @@ namespace AMDbObjectSupport {
 			int typeId = db->insertOrUpdate(0, typeTableName(), typeTableCols, typeTableValues);
 
 			if(typeId < 1) {
-				db->rollbackTransation();
+				db->rollbackTransaction();
 				AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -4, QString("Database support: There was an error trying to register the class '%1' in the database").arg(info.className)));
 				return false;
 			}
@@ -314,13 +314,13 @@ namespace AMDbObjectSupport {
 					success = success && db->insertOrUpdate(0, loadColumnsTableName(), clist, vlist);
 
 				if(!success) {
-					db->rollbackTransation();
+					db->rollbackTransaction();
 					AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -5, QString("Database support: There was an error trying to register the class '%1' in the database").arg(info.className)));
 					return false;
 				}
 			}
 
-			db->commitTransation();
+			db->commitTransaction();
 			return true;
 		}
 

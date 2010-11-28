@@ -1,6 +1,6 @@
 #include "AMDataSourceSeriesData.h"
 
-AMDataSourceSeriesData::AMDataSourceSeriesData(AMDataSource* dataSource, QObject* parent)
+AMDataSourceSeriesData::AMDataSourceSeriesData(const AMDataSource* dataSource, QObject* parent)
 	: QObject(parent), MPlotAbstractSeriesData()
 {
 	source_ = 0;
@@ -8,7 +8,7 @@ AMDataSourceSeriesData::AMDataSourceSeriesData(AMDataSource* dataSource, QObject
 }
 
 /// Call this to switch to representing a different data source
-void AMDataSourceSeriesData::setDataSource(AMDataSource* dataSource) {
+void AMDataSourceSeriesData::setDataSource(const AMDataSource* dataSource) {
 
 	// disconnect the old source, if there is a valid old source.
 	if(source_) {

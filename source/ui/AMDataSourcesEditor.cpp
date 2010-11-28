@@ -46,7 +46,7 @@ void AMDataSourcesEditor::setCurrentScan(int scanIndex) {
 	// get rid of any current 'detail' editors.
 	removeDetailEditor();
 
-	if(scanIndex < 0 || scanIndex >= model_->numScans()) {
+	if(scanIndex < 0 || scanIndex >= model_->scanCount()) {
 		ui_.scanSetView->setCurrentIndex(QModelIndex());
 		ui_.scanSetView->collapseAll();
 		return;
@@ -69,11 +69,7 @@ void AMDataSourcesEditor::onSetViewIndexChanged(const QModelIndex &selected, con
 		ui_.nameEdit->clear();
 		ui_.descriptionEdit->clear();
 		ui_.descriptionEdit->setReadOnly(true);
-		ui_.expressionEdit->clear();
-		ui_.expressionEdit->setReadOnly(true);
-		ui_.insertButton->setDisabled(true);
 		ui_.addDataSourceButton->setDisabled(true);
-		populateExpressionMenu(-1);
 		return;
 	}
 
@@ -85,10 +81,6 @@ void AMDataSourcesEditor::onSetViewIndexChanged(const QModelIndex &selected, con
 		ui_.nameEdit->clear();
 		ui_.descriptionEdit->clear();
 		ui_.descriptionEdit->setReadOnly(true);
-		ui_.expressionEdit->clear();
-		ui_.expressionEdit->setReadOnly(true);
-		ui_.insertButton->setDisabled(true);
-		populateExpressionMenu(selected.row());
 		return;
 	}
 
@@ -172,8 +164,6 @@ void AMDataSourcesEditor::onAddDataSourceButtonClicked() {
 	ui_.nameEdit->selectAll();
 
 	ui_.descriptionEdit->clear();
-	ui_.expressionEdit->clear();
-
 
 	connect(ui_.nameEdit, SIGNAL(editingFinished()), this, SLOT(onNewDataSourceNamed()));
 

@@ -7,6 +7,8 @@
 #include <QDateTime>
 #include "dataman/AMXASScan.h"
 #include "dataman/AMDetectorInfo.h"
+#include "AMErrorMonitor.h"
+#include "analysis/AM1DExpressionAB.h"
 
 #include <QDebug>
 
@@ -112,12 +114,23 @@ bool ALSBL8XASFileLoader::loadFromFile(const QString& filepath, bool extractMeta
 	}
 
 	// ensure raw data columns exist:
-	scan->d_->removeAll();
+	scan->clearDataAndMeasurements();
+
+	// This axis info describes an axis along eV:
+	AMAxisInfo eVAxisInfo("eV", 0, "Incident Energy", "eV");
+	// add a scan axis to the raw data store:
+	scan->rawData()->addScanAxis(eVAxisInfo);
+
+	// add scalar (0D) measurements to the raw data store, for each data column.  Also add raw data sources to the scan, which expose this data.
+	/// \todo Design question: should adding a measurement to the raw data store automatically create a corresponding AMRawDataSource for the scan?
 	foreach(QString colName, colNames1) {
-		if(colName != "eV"){
-			scan->addDetector(new AMDetectorInfo(colName, false));
+		if(colName != "eV" && colName != "Event-ID") {
+			scan->rawData()->addMeasurement(AMMeasurementInfo(colName, colName));	/// \todo nice descriptions for the common column names; not just 'tey' or 'tfy'.
+			scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount()-1));
 		}
 	}
+
+	int eVAxisIndex = 0;	// counter for each datapoint along the scan axis.
 
 	// read all the data. Add to data columns or scan properties depending on the event-ID.
 	while(!fs.atEnd()) {
@@ -128,13 +141,17 @@ bool ALSBL8XASFileLoader::loadFromFile(const QString& filepath, bool extractMeta
 		if( (lp = line.split('\t', QString::SkipEmptyParts)).count() == colNames1.count() ) {
 
 			// append a new datapoint to the data tree (supply primary eV value here)
-			scan->d_->append(lp.at(eVIndex).toDouble());	// insert eV
+			scan->rawData()->beginInsertRows(0);
+			scan->rawData()->setAxisValue(0, eVAxisIndex, lp.at(eVIndex).toDouble());	// insert eV
 
 			// add all columns (but ignore the eV column)
+			int measurementId = 0;
 			for(int i=1; i<colNames1.count(); i++) {
 				if(i!=eVIndex)
-					scan->d_->setLastValue(colNames1.at(i), lp.at(i).toDouble());
+					scan->rawData()->setValue(eVAxisIndex, measurementId++, AMnDIndex(), lp.at(i).toDouble());
 			}
+			eVAxisIndex++;
+			scan->rawData()->endInsertRows();
 		}
 	}
 
@@ -149,21 +166,37 @@ bool ALSBL8XASFileLoader::loadFromFile(const QString& filepath, bool extractMeta
 
 	// If the scan doesn't have any channels yet, it might be helpful to create some.
 	if(createChannels) {
+
+		QList<AMDataSource*> rawDataSources;
+		foreach(AMRawDataSource* ds, scan->rawDataSources()->toList())
+			rawDataSources << ds;
+
 		/// \todo defaults for what channels to create?
-		// scan->addChannel("eV", "eV");
-		if(colNames1.contains("tey") && colNames1.contains("I0"))
-			scan->addChannel("tey_n", "tey/I0");
-		if(colNames1.contains("tfy") && colNames1.contains("I0"))
-			scan->addChannel("tfy_n", "tfy/I0");
-		if(colNames1.contains("tey"))
-			scan->addChannel("tey_raw", "tey");
-		if(colNames1.contains("tfy"))
-			scan->addChannel("tfy_raw", "tfy");
-		if(colNames1.contains("I0"))
-			scan->addChannel("I0", "I0");
+
+		int rawTeyIndex = scan->rawDataSources()->indexOf("tey");
+		int rawTfyIndex = scan->rawDataSources()->indexOf("tfy");
+		int rawI0Index = scan->rawDataSources()->indexOf("I0");
+
+		if(rawTeyIndex != -1 && rawI0Index != -1) {
+			AM1DExpressionAB* teyChannel = new AM1DExpressionAB("tey_n");
+			teyChannel->setDescription("Normalized TEY");
+			teyChannel->setInputDataSources(rawDataSources);
+			teyChannel->setExpression("tey/I0");
+
+			scan->addAnalyzedDataSource(teyChannel);
+		}
+
+		if(rawTfyIndex != -1 && rawI0Index != -1) {
+			AM1DExpressionAB* tfyChannel = new AM1DExpressionAB("tfy_n");
+			tfyChannel->setDescription("Normalized TFY");
+			tfyChannel->setInputDataSources(rawDataSources);
+			tfyChannel->setExpression("tfy/I0");
+
+			scan->addAnalyzedDataSource(tfyChannel);
+		}
 	}
 
-	scan->onDataChanged();
+	scan->onDataChanged();	/// \todo Is this still used? What does it mean?
 
 	return true;
 }

@@ -11,13 +11,13 @@ class AMDataSourceImageData : public QObject, public MPlotAbstractImageData
 	Q_OBJECT
 public:
 	/// Constructor. \c dataSource is the source to represent as Z=f(X,Y) image data.
-	AMDataSourceImageData(AMDataSource* dataSource, QObject* parent = 0);
+	AMDataSourceImageData(const AMDataSource* dataSource, QObject* parent = 0);
 
 	/// Call this to switch to representing a different data source
-	void setDataSource(AMDataSource* dataSource);
+	void setDataSource(const AMDataSource* dataSource);
 
 	/// Access the underlying data source
-	AMDataSource* dataSource() const { return source_; }
+	const AMDataSource* dataSource() const { return source_; }
 
 
 	/// Return the x (data value) corresponding an (x,y) \c index:
@@ -63,7 +63,7 @@ protected slots:
 	void onDataSourceDeleted() { source_ = 0; setDataSource(0); }
 
 protected:
-	AMDataSource* source_;
+	const AMDataSource* source_;
 	bool isValid_;
 };
 

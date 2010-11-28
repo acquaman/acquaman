@@ -19,6 +19,11 @@ AMRawDataSource::AMRawDataSource(const AMDataStore* dataStore, int measurementId
 		axes_ << dataStore_->scanAxisAt(i);	// adds scan axes
 	axes_ << measurementInfo.axes;	// adds detector axes
 
+	measurementIndexEnd_ = measurementIndexStart_ = measurementInfo.size();
+	for(int a=0; a<measurementIndexEnd_.count(); a++) {	// a: dimension index.
+		measurementIndexEnd_[a]--;	// end index should be size-1 in all dimensions.
+		measurementIndexStart_[a] = 0;	// start index should be 0 in all dimensions.
+	}
 
 	// \todo Add ProcessingFlag when acquiring...
 	stateFlags_ = 0;
@@ -66,7 +71,13 @@ bool AMRawDataSource::setDataStore(const AMDataStore *dataStore) {
 	axes_.clear();
 	for(int i=0; i<scanAxesCount_; i++)
 		axes_ << dataStore->scanAxisAt(i);	// adds scan axes
-	axes_ << measurementInfo.axes;
+	axes_ << measurementInfo.axes;			// appends measurement axes
+
+	measurementIndexEnd_ = measurementIndexStart_ = measurementInfo.size();
+	for(int a=0; a<measurementIndexEnd_.count(); a++) {	// a: dimension index.
+		measurementIndexEnd_[a]--;	// end index should be size-1 in all dimensions.
+		measurementIndexStart_[a] = 0;	// start index should be 0 in all dimensions.
+	}
 
 	// create connections to the new datastore:
 	connect(dataStore_->signalSource(), SIGNAL(dataChanged(AMnDIndex,AMnDIndex,int)), SLOT(onDataChanged(AMnDIndex, AMnDIndex,int)) );
@@ -101,11 +112,11 @@ void AMRawDataSource::onScanAxisSizeChanged(int axisId) {
 
 	if(axisId < 0) {	// all axes changed size?
 		for(int a=0; a<scanAxesCount_; a++)
-			axes_[a].size = dataStore_->scanAxisSize(a);
+			axes_[a].size = dataStore_->scanSize(a);
 		emitSizeChanged(-1);
 	}
 	else if(axisId < scanAxesCount_) {	// just this axis changed size
-		axes_[axisId].size = dataStore_->scanAxisSize(axisId);
+		axes_[axisId].size = dataStore_->scanSize(axisId);
 		emitSizeChanged(axisId);
 	}
 }

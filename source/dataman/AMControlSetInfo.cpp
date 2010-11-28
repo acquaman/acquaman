@@ -99,7 +99,7 @@ bool AMControlSetInfo::storeToDb(AMDatabase *db){
 	// delete all the old entries for this control set
 	db->deleteRows(AMDbObjectSupport::controlSetEntriesTableName(), QString("csiId = '%1'").arg(id()));
 
-	db->startTransation();
+	db->startTransaction();
 
 	QSqlQuery q = db->query();
 	q.prepare(QString("INSERT INTO %1 (csiId,name,ctrlValue,minimum,maximum,units,number) VALUES (?,?,?,?,?,?,?)").arg(AMDbObjectSupport::controlSetEntriesTableName()));
@@ -117,11 +117,11 @@ bool AMControlSetInfo::storeToDb(AMDatabase *db){
 	}
 
 	if(!success) {
-		db->rollbackTransation();
+		db->rollbackTransaction();
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, -1, "The ControlSet was saved to the database, but saving the individual control values failed."));
 	}
 	else
-		db->commitTransation();
+		db->commitTransaction();
 
 	return success;
 }
