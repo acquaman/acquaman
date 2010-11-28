@@ -240,7 +240,8 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/util/AMOrderedSetSignalSource.h \
 	source/util/AMOrderedSet.h \
 	source/dataman/AMRawDataSource.h \
-    source/analysis/AM1DExpressionABEditor.h
+    source/analysis/AM1DExpressionABEditor.h \
+    source/dataman/AMMeasurementInfo.h
 FORMS += source/ui/AbsorptionScanController.ui \
 	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \

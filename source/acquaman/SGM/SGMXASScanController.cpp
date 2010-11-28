@@ -27,11 +27,7 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 
 	for(int i=0; i<scanDetectors.count(); i++) {
 		AMDetectorInfo* detectorInfo = scanDetectors.at(i);
-		QList<AMAxisInfo> detectorAxes;
-		for(int j=0; j<detectorInfo->rank(); j++)
-			detectorAxes << AMAxisInfo(QString("%1_axis%2").arg(detectorInfo->name()).arg(j), detectorInfo->size()[j]);	/// \todo change AMDetectorInfo to closer match the AMMeasurementInfo api, including a list of AMAxisInfo.
-		AMMeasurementInfo measurementDetails(detectorInfo->name(), detectorInfo->description(), detectorAxes);
-		pScan_()->rawData()->addMeasurement(measurementDetails);
+		pScan_()->rawData()->addMeasurement(AMMeasurementInfo(*detectorInfo));
 		pScan_()->addRawDataSource(new AMRawDataSource(pScan_()->rawData(), i));
 	}
 
@@ -101,11 +97,8 @@ void SGMXASScanController::reinitialize(){
 
 	for(int i=0; i<scanDetectors.count(); i++) {
 		AMDetectorInfo* detectorInfo = scanDetectors.at(i);
-		QList<AMAxisInfo> detectorAxes;
-		for(int j=0; j<detectorInfo->rank(); j++)
-			detectorAxes << AMAxisInfo(QString("%1_axis%2").arg(detectorInfo->name()).arg(j), detectorInfo->size()[j]);	/// \todo change AMDetectorInfo to closer match the AMMeasurementInfo api, including a list of AMAxisInfo.
-		AMMeasurementInfo measurementDetails(detectorInfo->name(), detectorInfo->description(), detectorAxes);
-		pScan_()->rawData()->addMeasurement(measurementDetails);
+
+		pScan_()->rawData()->addMeasurement(AMMeasurementInfo(*detectorInfo));
 		pScan_()->addRawDataSource(new AMRawDataSource(pScan_()->rawData(), i));
 	}
 

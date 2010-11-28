@@ -1,10 +1,6 @@
 #include "AMDataStore.h"
 
-AMMeasurementInfo::AMMeasurementInfo(const QString& mName, const QString& mDescription, const QList<AMAxisInfo>& mAxes) {
-	name = mName;
-	description = mDescription;
-	axes = mAxes;
-}
+
 
 
 AMDataStoreSignalSource::AMDataStoreSignalSource(AMDataStore *parent)

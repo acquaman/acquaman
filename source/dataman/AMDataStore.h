@@ -3,27 +3,10 @@
 
 #include "dataman/AMAxisInfo.h"
 #include "dataman/AMnDIndex.h"
+#include "dataman/AMMeasurementInfo.h"
 #include <QList>
 
-/// AMMeasurementInfo is used by AMDataStore to describe the nature of a detector's measurements (dimensionality, size, name, description, etc.)
-class AMMeasurementInfo {
-public:
-	/// Create a measurement description by specifying the axes that it has. The default creates a 0-dimensional (scalar) measurement.
-	AMMeasurementInfo(const QString& name, const QString& description, const QList<AMAxisInfo>& axes = QList<AMAxisInfo>());
 
-	QString name;
-	QString description;
-	QList<AMAxisInfo> axes;
-
-	int rank() const { return axes.count(); }
-
-	AMnDIndex size() const {
-		AMnDIndex s;
-		for(int i=0; i<axes.count(); i++)
-			s.append(axes.at(i).size);
-		return s;
-	}
-};
 
 class AMDataStore;
 

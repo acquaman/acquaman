@@ -3,7 +3,7 @@
 
 #include "acquaman.h"
 #include "dataman/AMDbObject.h"
-#include "dataman/AMnDIndex.h"
+#include "dataman/AMMeasurementInfo.h"
 #include <QStringList>
 #include <QDebug>
 
@@ -41,8 +41,18 @@ public:
 	virtual int rank() const { return 0;}
 	/// Returns the size (ie: number of elements) along each dimension of the detector.  For a single-point detector, returns an empty AMnDIndex(). For a spectrum output, this would contain one number (the number of pixels or points along the axis).  For an image output, this would contain the width and height.
 	virtual AMnDIndex size() const { return AMnDIndex(); }
+	/// Returns a list of AMAxisInfo describing the size and nature of each detector axis, in order.
+	virtual QList<AMAxisInfo>  axes() const { return QList<AMAxisInfo>(); }
+
+	/// Returns (or casts) this AMDetectorInfo as an AMMeasurementInfo, which contains the bare-bones dimensional information.
+	operator AMMeasurementInfo() {
+		return AMMeasurementInfo(name(), description(), axes());
+	}
+
+
 	/// Convenience function to test if the detector has a dimesion > 0.
 	virtual bool isSpectralOutput() const { return (rank() > 0); }
+	/// I don't know what this is for.
 	virtual bool hasDetails() const { return false; }
 
 
@@ -96,26 +106,13 @@ public:
 	virtual int rank() const { return 1;}
 	/// Returns the rank (ie: number of elements) along each dimension of the detector.  Since this detector outputs a spectrum, this would contain one number (the number of pixels, points, or bins along the axis).
 	virtual AMnDIndex size() const { return AMnDIndex(binCount()); }
-
-
-	// AMDbObject database interface
-	////////////////////////////////////
-	/*
-	/// Specify all of our unique pieces of meta-data (excluding those inherited from base classes -- ie: own only)
-	static QList<AMMetaMetaData> metaDataUniqueKeys() {
-
-		QList<AMMetaMetaData> rv;
-		rv << AMMetaMetaData(QVariant::Int, "binCount", true);
-		rv << AMMetaMetaData(QVariant::String, "axisName", true);
-		rv << AMMetaMetaData(QVariant::StringList, "binNames", true);
-		rv << AMMetaMetaData(QVariant::Double, "integrationTime", true);
-		rv << AMMetaMetaData(QVariant::Double, "integrationTimeRangeMin", true);
-		rv << AMMetaMetaData(QVariant::Double, "integrationTimeRangeMax", true);
-		rv << AMMetaMetaData(QVariant::String, "integrationMode", true);
-		rv << AMMetaMetaData(QVariant::StringList, "integrationModeList", true);
+	/// Returns a list of AMAxisInfo describing the size and nature of each detector axis, in order.  Here we have a single axis.
+	virtual QList<AMAxisInfo>  axes() const {
+		QList<AMAxisInfo> rv;
+		AMAxisInfo binAxis(name()+"_x", binCount(), description() + " axis" );	/// \todo better name description, and provide units
+		rv << binAxis;
 		return rv;
-	}*/
-
+	}
 
 
 public slots:
@@ -187,10 +184,12 @@ public:
 
 	// Dimensionality and size:
 	////////////////////////////////////
-	/// Returns the number of dimensions in the output of this detector. A single point has dimension 0. A spectrum output would have dimension 1. An image output would have dimension 2.
-	virtual int rank() const { return 0;}
-	/// Returns the rank (ie: number of elements) along each dimension of the detector.  Since this detector outputs a spectrum, this would contain one number (the number of pixels, points, or bins along the axis).
-	virtual AMnDIndex size() const { return AMnDIndex(); }
+
+	// Since this is a single-point detector, we're using the default rank(), size(), and axes() from AMDetectorInfo.
+
+
+
+
 	virtual bool hasDetails() const { return true; }
 
 
@@ -240,10 +239,10 @@ public:
 
 	// Dimensionality and size:
 	////////////////////////////////////
-	/// Returns the number of dimensions in the output of this detector. A single point has dimension 0. A spectrum output would have dimension 1. An image output would have dimension 2.
-	virtual int rank() const { return 1;}
-	/// Returns the rank (ie: number of elements) along each dimension of the detector.  Since this detector outputs a spectrum, this would contain one number (the number of pixels, points, or bins along the axis).
-	virtual AMnDIndex size() const { return AMnDIndex(binCount()); }
+
+	// Using the base class (AMSpectralOutputDetector) for default rank(), size(), and axes().
+
+
 	virtual bool hasDetails() const { return true; }
 
 
