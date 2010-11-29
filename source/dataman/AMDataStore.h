@@ -155,13 +155,13 @@ public:
 	////////////////////////////////////////////////////
 	/// Clear the entire data set. This maintains the set of measurements, but deletes every point in the scan space. The size of every scan axis will become 0. Implementing subclasses must provide a clearImplementation().
 	/*! \todo Rename to clearScanDataPoints() */
-	void clear() {
-		clearImplementation();
+	void clearScanDataPoints() {
+		clearScanDataPointsImplementation();
 		emitSizeChanged(-1);
 	}
 	/// Clear the entire data set, and also delete all configured measurements.  This function calls clearScanDataPoints() first.  Implementing subclasses must provide a clearMeasurementsImplementation().
 	void clearAllMeasurements() {
-		clear();
+		clearScanDataPoints();
 		clearMeasurementsImplementation();
 	}
 
@@ -185,7 +185,7 @@ protected:
 	}
 
 	/// Implementing subclasses must provide a clearImplementation(), which removes all data values and sets the size of each axis to 0.  It should leave the set of configured measurements as-is.
-	virtual void clearImplementation() = 0;
+	virtual void clearScanDataPointsImplementation() = 0;
 
 	/// Implementing subclasses must provide a clearMeasurementsImplementation(), which clears the set of configured measurements.  They can assume that the set of scan data values is already cleared.
 	virtual void clearMeasurementsImplementation() = 0;

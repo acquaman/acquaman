@@ -8,6 +8,7 @@
 #include "AMErrorMonitor.h"
 #include "dataman/AMDbObjectSupport.h"
 #include "analysis/AM1DExpressionAB.h"
+#include "dataman/AMDataTreeDataStore.h"
 
 #include "util/AMOrderedSet.h"
 
@@ -68,6 +69,83 @@ private slots:
 	{
 
 	}
+
+	void testDataTreeDataStore() {
+		qDebug() << "\n\n\n DAVID STARTS HERE \n\nTesting data tree data store\n\n\n";
+
+
+		AMMeasurementInfo teyInfo("tey", "Total Electron Yield", "amps");
+		AMMeasurementInfo tfyInfo("tfy", "Total Fluoresence Yield", "amps");
+		AMMeasurementInfo i0Info("I0", "I0", "amps");
+
+		AMAxisInfo sddEVAxisInfo("energy", 1024, "SDD Energy", "eV");
+		QList<AMAxisInfo> sddAxes;
+		sddAxes << sddEVAxisInfo;
+		AMMeasurementInfo sddInfo("sdd", "Silicon Drift Detector", "counts", sddAxes);
+
+		AMAxisInfo xosWavelengthAxisInfo("wavelength", 512, "XOS Wavelength", "nm");
+		QList<AMAxisInfo> xosAxes;
+		xosAxes << xosWavelengthAxisInfo;
+		AMMeasurementInfo xosInfo("xos", "XEOL Optical Spectrometer", "counts", xosAxes);
+
+		AMAxisInfo xessXAxisInfo("x", 1280, "x pixel", "index");
+		AMAxisInfo xessYAxisInfo("y", 1024, "y pixel", "index");
+		QList<AMAxisInfo> xessAxes;
+		xessAxes << xessXAxisInfo << xessYAxisInfo;
+		AMMeasurementInfo xessInfo("xess", "XES Spectrometer", "counts", xessAxes);
+
+		AMAxisInfo uglyRAxisInfo("r", 100, "Radial Distance", "percent");
+		AMAxisInfo uglyPhiAxisInfo("phi", 180, "Phi Angle", "degrees");
+		AMAxisInfo uglyThetaAxisInfo("theta", 360, "Theta Distance", "degrees");
+		QList<AMAxisInfo> uglyAxes;
+		uglyAxes << uglyRAxisInfo << uglyPhiAxisInfo << uglyThetaAxisInfo;
+		AMMeasurementInfo uglyInfo("ugly", "Some Ugly Detector", "events", uglyAxes);
+
+		AMAxisInfo scanAxis("energy", 1000, "Beamline Energy", "eV");
+
+		AMDataTreeDataStore dtds(scanAxis, this);
+		QVERIFY(dtds.addMeasurement(teyInfo));
+		QVERIFY(dtds.addMeasurement(tfyInfo));
+		QCOMPARE(dtds.measurementCount(), 2);
+		QVERIFY(dtds.addMeasurement(i0Info));
+		QVERIFY(dtds.addMeasurement(sddInfo));
+		QVERIFY(dtds.addMeasurement(xosInfo));
+		QCOMPARE(dtds.measurementCount(), 5);
+		QVERIFY(dtds.addMeasurement(xessInfo));
+		QVERIFY(dtds.addMeasurement(uglyInfo));
+		QCOMPARE(dtds.measurementCount(), 7);
+
+		AMMeasurementInfo sameAsTeyInfo("tey", "something else", "counts");
+		QVERIFY(!dtds.addMeasurement(teyInfo));
+		QVERIFY(!dtds.addMeasurement(sameAsTeyInfo));
+		QCOMPARE(dtds.measurementCount(), 7);
+
+		QCOMPARE(dtds.idOfMeasurement("tey"), 0);
+		QCOMPARE(dtds.idOfMeasurement("ugly"), 6);
+		QCOMPARE(dtds.idOfMeasurement("sdd"), 3);
+		QCOMPARE(dtds.idOfMeasurement("not in here"), -1);
+
+		QCOMPARE(dtds.measurementAt(1).name, tfyInfo.name);
+		QCOMPARE(dtds.measurementAt(1).description, tfyInfo.description);
+		QCOMPARE(dtds.measurementAt(1).units, tfyInfo.units);
+
+		QCOMPARE(dtds.measurementAt(5).name, xessInfo.name);
+		QCOMPARE(dtds.measurementAt(5).description, xessInfo.description);
+		QCOMPARE(dtds.measurementAt(5).units, xessInfo.units);
+		QCOMPARE(dtds.measurementAt(5).axes.at(0).name, xessInfo.axes.at(0).name);
+		QCOMPARE(dtds.measurementAt(5).axes.at(0).description, xessInfo.axes.at(0).description);
+		QCOMPARE(dtds.measurementAt(5).axes.at(0).size, xessInfo.axes.at(0).size);
+		QCOMPARE(dtds.measurementAt(5).axes.at(1).name, xessInfo.axes.at(1).name);
+		QCOMPARE(dtds.measurementAt(5).axes.at(1).description, xessInfo.axes.at(1).description);
+		QCOMPARE(dtds.measurementAt(5).axes.at(1).size, xessInfo.axes.at(1).size);
+
+		AMDataTree *dt = dtds.dataTree();
+
+		dataTreeColumnsPuke(dt);
+
+		qDebug() << "\n\n\nEND TESTING\n\n\n";
+	}
+
 
 
 	/// Test inserts of DbObjects into the database, and confirm all values loaded back with DbObject::loadFromDb().

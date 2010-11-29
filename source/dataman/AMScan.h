@@ -203,7 +203,7 @@ public:
 	}
 	/// Clears all of scans's data points, but leaves all measurements and raw data sources as-is.
 	void clearData() {
-		data_->clear();
+		data_->clearScanDataPoints();
 	}
 
 
