@@ -14,6 +14,7 @@ Q_OBJECT
 
 	/// A description (human-readable string) for this type of detector
 	Q_PROPERTY(QString description READ description WRITE setDescription)
+	Q_PROPERTY(QString units READ units WRITE setUnits)
 	Q_PROPERTY(int rank READ rank)
 	Q_PROPERTY(AMnDIndex size READ size)
 #warning "AMDbObject does not yet support output of AMnDIndex"
@@ -34,6 +35,8 @@ public:
 	// QString name() const;
 	/// Access a human-readable description (ex: "Sample Current" or "Total Fluorescence Yield")
 	QString description() const { return description_; }
+	/// The units describing this detector's readings. (ex: "counts", "milliAmps", etc.)
+	QString units() const { return units_; }
 
 	// Dimensionality and size:
 	////////////////////////////////////
@@ -46,7 +49,7 @@ public:
 
 	/// Returns (or casts) this AMDetectorInfo as an AMMeasurementInfo, which contains the bare-bones dimensional information.
 	operator AMMeasurementInfo() {
-		return AMMeasurementInfo(name(), description(), axes());
+		return AMMeasurementInfo(name(), description(), units(), axes());
 	}
 
 
@@ -58,14 +61,20 @@ public:
 
 
 public slots:
-	/// Convenience function to set the human-readable description
+	/// Set the human-readable description
 	void setDescription(const QString& description) {
 		description_ =  description;
+		setModified(true);
+	}
+	/// Set the units describing the detector's readings
+	void setUnits(const QString& units) {
+		units_ = units;
 		setModified(true);
 	}
 
 protected:
 	QString description_;
+	QString units_;
 };
 
 class AMSpectralOutputDetectorInfo : public AMDetectorInfo

@@ -40,6 +40,7 @@ AMSpectralOutputDetectorInfo::AMSpectralOutputDetectorInfo(const QString& name, 
 	integrationTimeRangeMax_ = double(10.0);
 	integrationModeList_ << "Real" << "Live" << "Peak";
 	integrationMode_ = integrationModeList_.at(0);
+	units_ = "counts";
 }
 
 MCPDetectorInfo::MCPDetectorInfo(const QString& name, const QString& description, QObject *parent) : AMDetectorInfo(name, description, parent)
@@ -47,6 +48,7 @@ MCPDetectorInfo::MCPDetectorInfo(const QString& name, const QString& description
 	hvSetpoint_ = double(0.0);
 	hvSetpointRangeMin_ = double(0.0);
 	hvSetpointRangeMax_ = double(1400.0);
+	units_ = "counts";
 }
 
 PGTDetectorInfo::PGTDetectorInfo(const QString& name, const QString& description, QObject *parent) : AMSpectralOutputDetectorInfo(name, description, 1024, "energy", QStringList(), parent)
