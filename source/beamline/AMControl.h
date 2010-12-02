@@ -189,6 +189,7 @@ public:
 		NotConnectedFailure = 1, ///< Could not start the move because the control's not connected / responding
 		ToleranceFailure,		///< The move finished, but failed to achieve the tolerance requested
 		TimeoutFailure,			///< The move did not complete within a timeout period specified
+		WasStoppedFailure,		///< The move was prematurely stopped with the stop() command.
 		OtherFailure 			///<  an error code defined by the specific control implementation
 };
 
@@ -251,6 +252,10 @@ public:
 	virtual bool canMove() const { return false; }
 	/// Indicates that this control \em should (assuming it's connected) be able to move to setpoints:
 	virtual bool shouldMove() const { return false; }
+	/// Indicates that this control \em can (currently) issue stop() commands while moves are in progress.
+	virtual bool canStop() const { return false; }
+	/// Indicates that this control \em shoule (assuming it's connected) be able to issue stop() commands while moves are in progress.
+	virtual bool shouldStop() const { return false; }
 	//@}
 
 	/// Indicates that the Control's measurement is transient (ie: on its way toward a steady-state value)
@@ -341,12 +346,13 @@ public slots:
 	/// This sets the tolerance level: the required level of accuracy for successful move()s.
 	void setTolerance(double newTolerance) { tolerance_ = newTolerance; }
 
-	/// This is used to cancel a move. Must reimplement for actual controls.
-	virtual void stop() { emit moveFailed(AMControl::NotConnectedFailure); }
+	/// This is used to cancel or stop a move in progress. Must reimplement for actual controls.  It will be successful only if canStop() is true.  Returns true if the stop command was successfully sent.  (Note: this DOES NOT guarantee that the motor actually stopped!)
+	virtual bool stop() { return false; }
 
 	/// Moves all of the AMControl's subcontrols (children and grandchildren, etc) based on a \c controlList QMap of Control Names and setpoint values.
 	/*! \param controlList specifies a set of AMControls by their name(), and specifies a target value for each.
-		\param errorLevel specifies what counts as success. \todo DC write these out.
+		\param errorLevel specifies what counts as success. \todo David: write out what these are.
+		\todo Change name to setChildrenState().
 	  */
 	bool setState(const QMap<QString, double> controlList, unsigned int errorLevel = 0);
 
@@ -468,6 +474,8 @@ public:
 	//@{
 	/// The EPICS channel-access name of the underlying readPV.
 	QString readPVName() const { return readPV_->pvName(); }
+	/// Read-only access to the underlying readPV.
+	const AMProcessVariable* readPV() const { return readPV_; }
 	//@}
 
 
@@ -545,15 +553,16 @@ public:
 		\param tolerance The accuracy required for a move() to count as having reached its setpoint() and emit moveSucceeded().
 		\param completionTimeoutSeconds Maximum time allowed for the value() to get within tolerance() of the setpoint() after a move().
 		\param parent QObject parent class
+		\param stopPVname The EPICS channel-access name for the process variable to write to cancel a move in progress. If empty (default), shouldStop() and canStop() both return false, and calls to stop() will not work.
 		*/
-	AMPVControl(const QString& name, const QString& readPVname, const QString& writePVname, QObject* parent = 0, double tolerance = AMCONTROL_TOLERANCE_DONT_CARE, double completionTimeoutSeconds = 10.0);
+	AMPVControl(const QString& name, const QString& readPVname, const QString& writePVname, const QString& stopPVname = QString(), QObject* parent = 0, double tolerance = AMCONTROL_TOLERANCE_DONT_CARE, double completionTimeoutSeconds = 10.0, int stopValue = 1);
 
 	/// \name Reimplemented Public Functions:
 	//@{
 	/// Indicates that a move (that you requested) is currently completing... hasn't reached destination, and hasn't time'd out.
 	virtual bool isMoving() const{ return moveInProgress(); }
 	/// Indicates that a move (that you requested) is currently completing... hasn't reached destination, and hasn't time'd out.
-	virtual bool moveInProgress() const { return mip_; }
+	virtual bool moveInProgress() const { return moveInProgress_; }
 
 	/// Implies that we can read from the feedback PV and write to the setpoint PV.
 	virtual bool isConnected() const { return canMeasure() && canMove(); }
@@ -561,6 +570,10 @@ public:
 	virtual bool canMove() const { return writePV_->canWrite(); }
 	/// This Control class has the theoretical ability to move. Always true.
 	virtual bool shouldMove() const { return true; }
+	/// This Control class can currently stop() if it can write to the stop PV.
+	virtual bool canStop() const { return !noStopPV_ && stopPV_->canWrite(); }
+	/// This Control class has the theoretical ability to stop, if a stopPVname has been provided.
+	virtual bool shouldStop() const { return !noStopPV_; }
 
 	/// Minimum allowed value derived from the writePV's DRV_LOW field, as defined by EPICS
 	virtual double minimumValue() const { return writePV_->lowerControlLimit(); }
@@ -575,6 +588,8 @@ public:
 	//@{
 	/// The EPICS channel-access name of the writePV
 	QString writePVName() const { return writePV_->pvName(); }
+	/// The value of the writePV. This will match setpoint() unless someone else (another program or person in the facility) is changing the setpoint.
+	double writePVValue() const { return writePV_->lastValue(); }
 	/// Returns the number of seconds allowed for a move() to reach its target setpoint().
 	double completionTimeout() const { return completionTimeout_; }
 	//@}
@@ -585,9 +600,18 @@ public slots:
 	virtual void move(double setpoint);
 
 	/// Stop a move in progress (reimplemented)
+	virtual bool stop() {
+		if(!canStop())
+			return false;
+		stopPV_->setValue(stopValue_);
 
-	/// \todo Can't STOP!!!! AHHH!!!!
-	virtual void stop() {}
+		// This move is over:
+		moveInProgress_ = false;
+		completionTimer_.stop();
+		emit moveFailed(AMControl::WasStoppedFailure);
+
+		return true;
+	}
 
 	/// set the completion timeout (new public slot)
 	void setCompletionTimeout(double seconds) { completionTimeout_ = seconds; }
@@ -595,13 +619,18 @@ public slots:
 
 signals:
 	/// Reports that the writePV failed to connect to the EPICS server within the timeout.
-
-	///  This extra signal is specialized to report on PV channel connection status.  You should be free to ignore it and use the signals defined in AMControl.
+	/*! This extra signal is specialized to report on PV channel connection status.  You should be free to ignore it and use the signals defined in AMControl.*/
 	void writeConnectionTimeoutOccurred();
 
+	/// Signals changes in writePVValue().
+	/*! Normally we expect that only this program is changing the setpoint and causing motion, using move().  If someone else changes the writePV (setpoint PV), this will signal you with the new value.*/
+	void writePVValueChanged(double);
+
 protected:
-	/// Used for the setpoint:
+	/// Used for the setpoint
 	AMProcessVariable* writePV_;
+	/// Used for stopping
+	AMProcessVariable* stopPV_;
 
 	/// Used to detect completion timeouts:
 	QTimer completionTimer_;
@@ -609,7 +638,7 @@ protected:
 	double completionTimeout_;
 
 	/// used internally to track whether we're moving:
-	bool mip_;
+	bool moveInProgress_;
 
 	/// the target of our attempted move:
 	double setpoint_;
@@ -617,15 +646,19 @@ protected:
 	/// used for change-detection of the connection state:
 	bool wasConnected_;
 
+	/// true if no stopPVname was provided... Means we can't stop(), and shouldStop() and canStop() are false.
+	bool noStopPV_;
+	/// The value written to the stopPV_ when attempting to stop().
+	int stopValue_;
+
 protected slots:
 
 	/// (overridden) Handle a connection timeout from either the readPV_ or writePV_
-
-	/// The units come from the readPV, so if it's out, we don't know.
-	/// In any case, if either one doesn't connected, we're not connected.
+	/*! The units come from the readPV, so if it's out, we don't know what the units are.
+		In any case, if either one doesn't connected, we're not connected.*/
 	void onConnectionTimeout() { if(sender() == readPV_) { setUnits("?"); } emit connected(false); }
 
-	/// This is called when a PV channel connects or disconnects
+	/// This is called when a PV channel (read or write) connects or disconnects
 	void onPVConnected(bool connected);
 
 	/// This is used to handle the timeout of a move
@@ -698,8 +731,13 @@ public:
 	/// The movingPV now provides our moving status. (Masked with isMovingMask and compared to isMovingValue)
 	virtual bool isMoving() const { return ( int(movingPV_->getInt() & isMovingMask_) == isMovingValue_); }
 
-	/// Additional public functions:
+	// Additional public functions:
+	/// The EPICS channel-access name of the PV that provides the moving status.
 	QString movingPVName() const { return movingPV_->pvName(); }
+	/// The current value of the movingPV
+	int movingPVValue() const { return movingPV_->getInt(); }
+	/// Read-only access to the movingPV
+	const AMProcessVariable* movingPV() const { return movingPV_; }
 	//@}
 
 
@@ -791,20 +829,26 @@ public:
 		\param moveStartTimeoutSeconds Time allowed after a move() for the Control to first start moving.  If it doesn't, we emit moveFailed(AMControl::TimeoutFailure).
 		\param isMovingValue isMoving() is true when the movingPV's value (masked by the \c isMovingMask) is equal to this.
 		\param isMovingMask can be used to mask certain bits in the movingPV's value before comparing it to \c isMovingValue.
+		\param stopPVname is the EPICS channel-access name for the Process Variable used to stop() a move in progress.
+		\param stopValue is the value that will be written to the stopPV when stop() is called.
 		\param parent QObject parent class
 		*/
-	AMPVwStatusControl(const QString& name, const QString& readPVname, const QString& writePVname, const QString& movingPVname, QObject* parent = 0, double tolerance = AMCONTROL_TOLERANCE_DONT_CARE, double moveStartTimeoutSeconds = 10.0, int isMovingValue = 1, quint32 isMovingMask = AMCONTROL_MOVING_MASK_NONE);
+	AMPVwStatusControl(const QString& name, const QString& readPVname, const QString& writePVname, const QString& movingPVname, const QString& stopPVname = QString(), QObject* parent = 0, double tolerance = AMCONTROL_TOLERANCE_DONT_CARE, double moveStartTimeoutSeconds = 2.0, int isMovingValue = 1, quint32 isMovingMask = AMCONTROL_MOVING_MASK_NONE, int stopValue = 1);
 
 	/// \name Reimplemented Public Functions:
 	//@{
 	/// Indicates that all three process variables are ready for action:
 	virtual bool isConnected() const { return canMeasure() && canMove() && movingPV_->canRead(); }
 	/// Indicates that a move (that you requested) is currently completing... hasn't reached destination, and hasn't time'd out.
-	virtual bool moveInProgress() const { return mip_ && AMReadOnlyPVwStatusControl::isMoving(); }	// mip_ will be true as soon as move() is requested.  moveInProgress() isn't happening until the device starts moving as well.)
+	virtual bool moveInProgress() const { return moveInProgress_ && AMReadOnlyPVwStatusControl::isMoving(); }	// mip_ will be true as soon as move() is requested.  moveInProgress() isn't happening until the device starts moving as well.)
 	/// Indicates that this control currently can cause moves:
 	virtual bool canMove() const { return writePV_->canWrite(); }
 	/// Theoretically, if we're connected, this control type should be able to move:
 	virtual bool shouldMove() const { return true; }
+	/// This Control class can currently stop() if it can write to the stop PV.
+	virtual bool canStop() const { return !noStopPV_ && stopPV_->canWrite(); }
+	/// This Control class has the theoretical ability to stop, if a stopPVname has been provided.
+	virtual bool shouldStop() const { return !noStopPV_; }
 
 	/// Minimum allowed value derived from the writePV's DRV_LOW field, as defined by EPICS
 	virtual double minimumValue() const { return writePV_->lowerControlLimit(); }
@@ -819,6 +863,10 @@ public:
 	//@{
 	/// The EPICS channel-access name of the setpoint PV
 	QString writePVName() const { return writePV_->pvName(); }
+	/// The value of the writePV. This will match setpoint() unless someone else (another program or person in the facility) is changing the setpoint.
+	double writePVValue() const { return writePV_->lastValue(); }
+	/// Read-only access to the writePV.  Using this to change the writePVs value by connecting to its slots is not allowed/not supported.
+	const AMProcessVariable* writePV() const { return writePV_; }
 	/// The maximum time allowed for the Control to start isMoving() after a move() is issued.
 	double moveStartTimeout() { return moveStartTimeout_; }
 	//@}
@@ -830,8 +878,8 @@ public slots:
 
 	/// Stop a move in progress (reimplemented)
 
-	/// \todo Implement stop!
-	virtual void stop() {}
+	/// Tell the motor to stop.  (Note: For safety, this will send the stop instruction whether we think we're moving or not.)
+	virtual bool stop();
 
 	/// set the completion timeout:
 	void setMoveStartTimeout(double seconds) { moveStartTimeout_ = seconds; }
@@ -839,10 +887,15 @@ public slots:
 signals:
 	/// These are specialized to report on the writePV's channel connection status.  You should be free to ignore them and use the signals defined in AMControl.
 	void writeConnectionTimeoutOccurred();
+	/// Signals changes in writePVValue().
+	/*! Normally we expect that only this program is changing the setpoint and causing motion, using move().  If someone else changes the writePV (setpoint PV), this will signal you with the new value.*/
+	void writePVValueChanged(double);
 
 protected:
 	/// This PV is used for the setpoint:
 	AMProcessVariable* writePV_;
+	/// Used for stopping
+	AMProcessVariable* stopPV_;
 
 	/// Used to detect moveStart timeouts:
 	QTimer moveStartTimer_;
@@ -850,10 +903,17 @@ protected:
 	double moveStartTimeout_;
 
 	/// used internally to track whether we're moving:
-	bool mip_;
+	bool moveInProgress_;
+	/// Used internally to indicate that we've issued a stop() command. (Stop in-progress)
+	bool stopInProgress_;
 
 	/// the target of our attempted move:
 	double setpoint_;
+
+	/// true if no stopPVname was provided... Means we can't stop(), and shouldStop() and canStop() are false.
+	bool noStopPV_;
+	/// The value written to the stopPV_ when attempting to stop().
+	int stopValue_;
 
 protected slots:
 
