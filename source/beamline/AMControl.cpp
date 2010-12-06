@@ -171,7 +171,7 @@ void AMPVControl::move(double setpoint) {
 		emit this->moveStarted();
 
 		// start the countdown to see if we get there in time or stall out: (completionTimeout_ is in seconds)
-		completionTimer_.start(completionTimeout_*1000.0);
+		completionTimer_.start((int)completionTimeout_*1000.0);
 	}
 	else {
 		qDebug() << QString("Could not move %1 to %2").arg(writePV_->pvName()).arg(setpoint_);
@@ -350,7 +350,7 @@ void AMPVwStatusControl::move(double setpoint) {
 	// Flag that "our" move started:
 	moveInProgress_ = true;
 	// start the timer to check if our move failed to start:
-	moveStartTimer_.start(moveStartTimeout_*1000.0);
+	moveStartTimer_.start((int)moveStartTimeout_*1000.0);
 
 }
 
