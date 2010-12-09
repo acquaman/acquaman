@@ -29,7 +29,7 @@ AMRawDataSource::AMRawDataSource(const AMDataStore* dataStore, int measurementId
 	stateFlags_ = 0;
 
 	// create connections to datastore:
-	connect(dataStore_->signalSource(), SIGNAL(dataChanged(AMnDIndex,AMnDIndex,int)), SLOT(onDataChanged(AMnDIndex, AMnDIndex,int)) );
+	connect(dataStore_->signalSource(), SIGNAL(dataChanged(AMnDIndex,AMnDIndex,int)), this, SLOT(onDataChanged(AMnDIndex, AMnDIndex,int)) );
 	connect(dataStore->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onScanAxisSizeChanged(int)));
 }
 

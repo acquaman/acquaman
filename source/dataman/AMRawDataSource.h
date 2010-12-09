@@ -128,7 +128,7 @@ public:
 
 
 
-protected:
+protected slots:
 
 	// Forwarding signals from the data store:
 	//////////////////////
@@ -137,6 +137,7 @@ protected:
 	/// Called when the size of a scan axis changes.  \c axisId is the id of the changing axis, or -1 if they all did.
 	void onScanAxisSizeChanged(int axisId);
 
+protected:
 	/// Call to add the InvalidFlag to the state, and emit stateChanged() if required.
 	void setInvalid() {
 		int newState = stateFlags_ | AMDataSource::InvalidFlag;

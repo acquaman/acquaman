@@ -346,7 +346,7 @@ private slots:
 	}
 
 
-	/*
+
 
 	/// Test inserts of DbObjects into the database, and confirm all values loaded back with DbObject::loadFromDb().
 	void insertAMDbObject_retrieveStatically() {
@@ -525,7 +525,7 @@ private slots:
 
 	}
 
-	*/
+
 
 	/// Test of insert and retrieval from AMDataTree.
 	/*!
@@ -538,7 +538,7 @@ private slots:
 	  - create column of AMDataTrees for each SDD spectra
 	  - retrieve all values and check for matching
 	  */
-	/*
+
 	void insertAMDataTree1() {
 
 		//qDebug() << "Testing creation and inserts of primary column values into data tree.";
@@ -1246,6 +1246,6 @@ private slots:
 		QVERIFY(s1.count() == 0);
 
 	}
-	*/
+
 
 };

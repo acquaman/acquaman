@@ -4,6 +4,7 @@
 #include "dataman/AMRun.h"
 #include "dataman/AMSample.h"
 #include "dataman/AMDbObjectSupport.h"
+#include "dataman/AMDataTreeDataStore.h"
 
 
 AMScan::AMScan(QObject *parent)
@@ -22,6 +23,9 @@ AMScan::AMScan(QObject *parent)
 	notes_ = QString();
 	filePath_ = QString();
 	fileFormat_ = "unknown";
+
+	/// \todo The problem with putting this here is that we need to create the data store... but at the AMScan level we don't really know what type of scan this is, or what initial axis it should have.  And we can't really get rid of it
+	data_ = new AMDataTreeDataStore(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
 
 	autoLoadData_ = true;
 
@@ -56,6 +60,9 @@ AMScan::~AMScan() {
 		rawDataSources_.remove(count-1);
 		delete deleteMe;
 	}
+
+	// delete the raw data store, which was allocated in the constructor.
+	// delete data_;
 }
 
 
