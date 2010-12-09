@@ -74,6 +74,21 @@ public:
 		QVarLengthArray<int, AMNDARRAY_BASE_SIZE>::append(another.constData(), another.size());
 	}
 
+	/// Check to see if another AMnDIndex has the same dimensions as this one
+	bool dimensionsMatch(const AMnDIndex& other){
+		if( count() != other.rank() )
+			return false;
+		return true;
+	}
+
+	/// Check to see if another AMnDIndex refers to valid index within this one
+	bool inBounds(const AMnDIndex& other){
+		for(int x=0; x < count(); x++)
+			if( other[x] >= (*this)[x] )
+				return false;
+		return true;
+	}
+
 };
 
  #include <QMetaType>

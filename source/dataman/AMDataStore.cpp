@@ -11,6 +11,7 @@ AMDataStoreSignalSource::AMDataStoreSignalSource(AMDataStore *parent)
 AMDataStore::AMDataStore()
 {
 	signalSource_ = new AMDataStoreSignalSource(this);
+	isInsertingRows_ = false;
 }
 
 AMDataStore::~AMDataStore() {

@@ -20,13 +20,13 @@ class AMDataTree;
 typedef QVector<QSharedDataPointer<AMDataTree> > AMDataTreeSubtreeColumn;
 
 /// This defines the value that will be returned when an out-of-range value is requested from a data tree column.
-#define AMDATATREE_OUTOFRANGE_VALUE -1.0
+#define AMDATATREE_OUTOFRANGE_VALUE -1.012e-27
 
 /// This defines the value that will be returned when a value is requested from a non-existent column
-#define AMDATATREE_NONEXISTENT_VALUE -2.0
+#define AMDATATREE_NONEXISTENT_VALUE -2.012e-27
 
 /// This defines the default value that will be inserted in empty columns when a new row is created in a tree
-#define AMDATATREE_INSERT_VALUE 1.0
+#define AMDATATREE_INSERT_VALUE -3.012e-27
 
 /// This class is an attempt at supporting arbitrary-dimensionality data for AMScan objects, while maintaining simple (programmer-easy) and fast (high-performance) access to the data.
 /*! Data must have a principal column (usually the "x" axis or main independent variable), and the values stored in this column must be true data values.
@@ -283,7 +283,7 @@ copyXASData.deeper("sddSpectrums",5)->setValue("y", 512, 49.3);
 
 	\test
 	*/
-	void append(const AMNumericType& newValue = 0);
+	void append(const AMNumericType& newValue = AMDATATREE_INSERT_VALUE);
 
 	/// This a convenience function, equivalent to setValue(colIndex, count()-1, newValue). It's useful when filling extra columns after append(). \test
 	void setLastValue(unsigned colIndex, const AMNumericType& newValue = 0) {

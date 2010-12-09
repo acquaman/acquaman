@@ -1,6 +1,6 @@
 #include "AMDataTree.h"
 
-/// Constructor. Creates a tree with just a single (x) column. If it has explicit x values (specify hasXValues = true), space is allocated but no initialization is done; all the x values will be 0.
+/// Constructor. Creates a tree with just a single (x) column. If it has explicit x values (specify hasXValues = true), space is allocated but no initialization is done; all the x values will be AMDATATREE_INSERT_VALUE (used to be 0's).
 AMDataTree::AMDataTree(unsigned count, const QString& xColumnName, bool hasXValues)
 	: QSharedData(), x_(xColumnName)
 {
@@ -9,6 +9,8 @@ AMDataTree::AMDataTree(unsigned count, const QString& xColumnName, bool hasXValu
 	hasXValues_ = hasXValues;
 	if( hasXValues_ ) {
 		x_.resize(count_);
+		for(int i=0; i < count_; i++)
+			x_[i] = AMDATATREE_INSERT_VALUE;
 	}
 }
 

@@ -4,7 +4,12 @@ AMDataTreeDataStore::AMDataTreeDataStore(const AMAxisInfo &initialAxis, QObject 
 	AMDbObject(parent)
 {
 	baseTree_ = new AMDataTree(0, initialAxis.name, true);
+	axes_.setAllowsDuplicateKeys(false);
+	axes_.append(initialAxis, initialAxis.name);
+	axes_[0].size = 0;
 	dataTree_ = baseTree_;
+	measurements_.setAllowsDuplicateKeys(false);
+	emptyTree_ = true;
 }
 
 AMDataTreeDataStore::~AMDataTreeDataStore(){
@@ -13,9 +18,8 @@ AMDataTreeDataStore::~AMDataTreeDataStore(){
 
 #warning "Handling naming, but not yet handling insertions when data already exists"
 bool AMDataTreeDataStore::addMeasurement(const AMMeasurementInfo &measurementDetails){
-	if(baseTree_->yColumnNames().contains(measurementDetails.name) || baseTree_->ySubtreeNames().contains(measurementDetails.name))
+	if( !measurements_.append(measurementDetails, measurementDetails.name) )
 		return false;
-	measurements_ << measurementDetails;
 	if(measurementDetails.rank() == 0)
 		baseTree_->createColumn(measurementDetails.name, measurementDetails.description, measurementDetails.units);
 	else{
@@ -28,10 +32,7 @@ bool AMDataTreeDataStore::addMeasurement(const AMMeasurementInfo &measurementDet
 }
 
 int AMDataTreeDataStore::idOfMeasurement(const QString &measurementName) const{
-	for(int x = 0; x < measurements_.count(); x++)
-		if(measurementName == measurements_.at(x).name)
-			return x;
-	return -1;
+	return measurements_.indexOf(measurementName);
 }
 
 AMMeasurementInfo AMDataTreeDataStore::measurementAt(int id) const{
@@ -48,50 +49,263 @@ int AMDataTreeDataStore::measurementCount() const{
 
 
 bool AMDataTreeDataStore::addScanAxis(const AMAxisInfo &axisDetails){
-
+	if( !axes_.append(axisDetails, axisDetails.name) )
+		return false;
+	if(emptyTree_)
+		axes_[(axes_.count()-1)].size = 0;
+	else
+		axes_[(axes_.count()-1)].size = 1;
+	AMDataTree *oldDataTree = dataTree_;
+	dataTree_ = new AMDataTree(axes_[(axes_.count()-1)].size, axisDetails.name, true);
+	//dataTree_ = new AMDataTree(0, axisDetails.name, true);
+	dataTree_->createSubtreeColumn(oldDataTree->xName(), oldDataTree);
 }
 
 int AMDataTreeDataStore::idOfScanAxis(const QString &axisName) const{
-
+	return axes_.indexOf(axisName);
 }
 
 AMAxisInfo AMDataTreeDataStore::scanAxisAt(int id) const{
-
+	if( (id < 0) || (id >= axes_.count()) ){
+#warning "What to return here?"
+	}
+	else
+		return axes_.at(id);
 }
 
 int AMDataTreeDataStore::scanAxesCount() const{
-
+	return axes_.count();
 }
 
+AMnDIndex AMDataTreeDataStore::scanSize() const{
+	AMnDIndex nDIndex;
+	AMDataTree *axisLevel = dataTree_;
+	for(int x= 0; x < axes_.count(); x++){
+		if(axisLevel->count() == 0)
+			nDIndex.append(0);
+		else{
+			nDIndex.append(axisLevel->count());
+			axisLevel = axisLevel->deeper(0,0);
+		}
+	}
+	return nDIndex;
+}
+
+int AMDataTreeDataStore::scanSize(int axisId) const{
+	if( (axisId < 0) || (axisId >= axes_.count()) )
+		return -1;
+	AMDataTree *axisLevel = dataTree_;
+	for(int x=0; x < axisId; x++){
+		if(axisLevel->count() == 0)
+			return 0;
+		axisLevel = axisLevel->deeper(0,0);
+	}
+	return axisLevel->count();
+}
 
 AMNumber AMDataTreeDataStore::value(const AMnDIndex &scanIndex, int measurementId, const AMnDIndex &measurementIndex) const {
+	if( !scanSize().dimensionsMatch(scanIndex) )
+		return AMNumber(AMNumber::DimensionError);
+	if( !scanSize().inBounds(scanIndex) )
+		return AMNumber(AMNumber::OutOfBoundsError);
+	if( !measurementIndexExists(measurementId) )
+		return AMNumber(AMNumber::DimensionError);
+	if( !measurementAt(measurementId).size().dimensionsMatch(measurementIndex) )
+		return AMNumber(AMNumber::DimensionError);
+	if( !measurementAt(measurementId).size().inBounds(measurementIndex) )
+		return AMNumber(AMNumber::OutOfBoundsError);
+
+	AMDataTree *treeLevel = dataTree_;
+	for(int x=0; x < scanIndex.rank()-1; x++)
+		treeLevel = treeLevel->deeper(0, scanIndex[x]);
+
+	double retVal;
+	QString measurementName = measurementAt(measurementId).name;
+	if(measurementAt(measurementId).size().rank() == 0)
+		retVal = treeLevel->value(measurementName, scanIndex[scanIndex.rank()-1]);
+//		return treeLevel->value(measurementName, scanIndex[scanIndex.rank()-1]);
+	else{
+		treeLevel = treeLevel->deeper(measurementName, scanIndex[scanIndex.rank()-1]);
+		for(int x=0; x < measurementIndex.rank()-1; x++)
+			treeLevel = treeLevel->deeper(0, measurementIndex[x]);
+		retVal = treeLevel->value(0, measurementIndex[measurementIndex.rank()-1]);
+//		return treeLevel->value(0, measurementIndex[measurementIndex.rank()-1]);
+	}
+
+	if(retVal == AMDATATREE_OUTOFRANGE_VALUE)
+		return AMNumber(AMNumber::OutOfBoundsError);
+	if(retVal == AMDATATREE_NONEXISTENT_VALUE)
+		return AMNumber(AMNumber::DimensionError);
+	if(retVal == AMDATATREE_INSERT_VALUE)
+		return AMNumber(AMNumber::Null);
+
+	return retVal;
 
 }
 
 AMNumber AMDataTreeDataStore::axisValue(int axisId, int axisIndex) const {
+	if( axisId >= axes_.count() )
+		return AMNumber(AMNumber::DimensionError);
 
+	AMDataTree *axisLevel = dataTree_;
+	for(int x= 0; x < axisId; x++)
+		axisLevel = axisLevel->deeper(0, 0);
+	if( axisIndex >= axisLevel->count() )
+		return AMNumber(AMNumber::OutOfBoundsError);
+	double retVal = axisLevel->x(axisIndex);
+//	return axisLevel->x(axisIndex);
+
+	if(retVal == AMDATATREE_OUTOFRANGE_VALUE)
+		return AMNumber(AMNumber::OutOfBoundsError);
+	if(retVal == AMDATATREE_NONEXISTENT_VALUE)
+		return AMNumber(AMNumber::DimensionError);
+	if(retVal == AMDATATREE_INSERT_VALUE)
+		return AMNumber(AMNumber::Null);
+	return retVal;
 }
 
 bool AMDataTreeDataStore::setValue(const AMnDIndex &scanIndex, int measurementId, const AMnDIndex &measurementIndex, const AMNumber &newValue){
+	if( !scanSize().dimensionsMatch(scanIndex) )
+		return false;
+	if( !scanSize().inBounds(scanIndex) )
+		return false;
+	if( !measurementIndexExists(measurementId) )
+		return false;
+	if( !measurementAt(measurementId).size().dimensionsMatch(measurementIndex) )
+		return false;
+	if( !measurementAt(measurementId).size().inBounds(measurementIndex) )
+		return false;
 
+	AMDataTree *axisLevel = dataTree_;
+	for(int x= 0; x < scanIndex.rank()-1; x++)
+		axisLevel = axisLevel->deeper(0, scanIndex[x]);
+
+	QString measurementName = measurementAt(measurementId).name;
+	if( measurementAt(measurementId).rank() == 0)
+		return axisLevel->setValue(measurementName, scanIndex[scanIndex.rank()-1], newValue );
+	else{
+		qDebug() << "Measurement has " << measurementIndex.rank() << " dimensions";
+		axisLevel = axisLevel->deeper(measurementName, scanIndex[scanIndex.rank()-1]);
+		for(int x=0; x < measurementIndex.rank()-1; x++)
+			axisLevel = axisLevel->deeper(0, measurementIndex[x]);
+		qDebug() << "Bottom of a multidim measurement has count " << axisLevel->count() << " and columns " << axisLevel->yColumnNames();
+		return axisLevel->setValue(0, measurementIndex[measurementIndex.rank()-1], newValue);
+	}
 }
 
 bool AMDataTreeDataStore::setAxisValue(int axisId, int axisIndex, AMNumber newValue){
+	if( axisId >= axes_.count() )
+		return false;
 
+	AMDataTree *axisLevel = dataTree_;
+	for(int x= 0; x < axisId; x++)
+		axisLevel = axisLevel->deeper(0, 0);
+	if( axisIndex >= axisLevel->count() )
+		return false;
+	return axisLevel->setX(axisIndex, newValue);
 }
 
 
-bool AMDataTreeDataStore::setValue(const AMnDIndex &scanIndex, int measurementId, const int* inputData){
+bool AMDataTreeDataStore::setValue(const AMnDIndex &scanIndex, int measurementId, const int* inputData, const int numArrayElements){
+	if( !scanSize().dimensionsMatch(scanIndex) )
+		return false;
+	if( !scanSize().inBounds(scanIndex) )
+		return false;
+	if( !measurementIndexExists(measurementId) )
+		return false;
+	if( numArrayElements != measurementAt(measurementId).spanSize() )
+		return false;
 
+
+	AMDataTree *axisLevel = dataTree_;
+	for(int x= 0; x < scanIndex.rank()-1; x++)
+		axisLevel = axisLevel->deeper(0, scanIndex[x]);
+
+	AMMeasurementInfo mi = measurementAt(measurementId);
+	QString measurementName = mi.name;
+	if( mi.rank() == 0)
+		return axisLevel->setValue(measurementName, scanIndex[scanIndex.rank()-1], inputData[0] );
+	else{
+		axisLevel = axisLevel->deeper(measurementName, scanIndex[scanIndex.rank()-1]);
+		for(int x=0; x < numArrayElements; x+=mi.size()[mi.rank()-1])
+			if(!setValueFillBottom(bottomTreeFinder(axisLevel, mi, x), inputData+x, mi.size()[mi.rank()-1]))
+				return false;
+	}
+	return true;
 }
 
-bool AMDataTreeDataStore::setValue(const AMnDIndex &scanIndex, int measurementId, const double* inputData){
+bool AMDataTreeDataStore::setValue(const AMnDIndex &scanIndex, int measurementId, const double* inputData, const int numArrayElements){
+	if( !scanSize().dimensionsMatch(scanIndex) )
+		return false;
+	if( !scanSize().inBounds(scanIndex) )
+		return false;
+	if( !measurementIndexExists(measurementId) )
+		return false;
+	if( numArrayElements != measurementAt(measurementId).spanSize() )
+		return false;
 
+
+	AMDataTree *axisLevel = dataTree_;
+	for(int x= 0; x < scanIndex.rank()-1; x++)
+		axisLevel = axisLevel->deeper(0, scanIndex[x]);
+
+	AMMeasurementInfo mi = measurementAt(measurementId);
+	QString measurementName = mi.name;
+	if( mi.rank() == 0)
+		return axisLevel->setValue(measurementName, scanIndex[scanIndex.rank()-1], inputData[0] );
+	else{
+		axisLevel = axisLevel->deeper(measurementName, scanIndex[scanIndex.rank()-1]);
+		qDebug() << "Pretty deep, name is " << measurementName;
+		for(int x=0; x < numArrayElements; x+=mi.size()[mi.rank()-1])
+			if(!setValueFillBottom(bottomTreeFinder(axisLevel, mi, x), inputData+x, mi.size()[mi.rank()-1]))
+				return false;
+	}
+	return true;
 }
 
 
 bool AMDataTreeDataStore::beginInsertRowsImplementation(int axisId, int numRows, int atRowIndex){
+	if( (axisId < 0) || (axisId >= axes_.count()) )
+		return false;
 
+//	qDebug() << "Appending valid axis IN BEGIN INSERT ROWS IMPLEMENTATION";
+	AMDataTree *axisLevel = dataTree_;
+#warning "Only working on append for now"
+	int rowCount = scanAxisAt(axisId).size;
+//	qDebug() << "Row count on axis " << axisId << " is " << rowCount;
+	if( atRowIndex != rowCount)
+		return false;
+
+	if(emptyTree_){
+		emptyTree_ = false;
+		for(int x=0; x < axes_.count(); x++){
+			axisLevel->append();
+			axes_[x].size++;
+			axisLevel = axisLevel->deeper(0,0);
+		}
+		return true;
+	}
+
+	/* Complex append */
+	QList<int> newCounts;
+	for(int x=0; x <= axisId; x++)
+		newCounts << scanAxisAt(x).size;
+	newCounts[axisId] = rowCount+1;
+	qDebug() << "Append we want " << newCounts;
+	appendToDepth(dataTree_, newCounts);
+	axes_[axisId].size++;
+
+	/* End complex append */
+
+	/* Simple append
+
+	for(int x=0; x < axisId; x++)
+		axisLevel = axisLevel->deeper(0,0);
+	axisLevel->append();
+
+	 End simple append */
+
+	return true;
 }
 
 void AMDataTreeDataStore::endInsertRowsImplementation(int axisId, int numRows, int atRowIndex){
@@ -102,6 +316,22 @@ void AMDataTreeDataStore::clearScanDataPointsImplementation(){
 
 }
 
+void AMDataTreeDataStore::appendToDepth(AMDataTree* dataTree, QList<int> newCounts){
+//	if(depth == 1)
+	if( newCounts.count() == 1){
+		if(newCounts.at(0) == dataTree->count()+1)
+			dataTree->append();
+		else
+			return;
+	}
+	else{
+		int rowCount = newCounts.takeFirst();
+		for(int x=0; x < dataTree->count(); x++)
+//			if(rowCount == dataTree->count()-1) NECESSARY?
+			appendToDepth(dataTree->deeper(0, x), newCounts);
+//			appendToDepth(dataTree->deeper(0, x), depth-1);
+	}
+}
 
 AMDataTree* AMDataTreeDataStore::measurementInfoToTree(const AMMeasurementInfo &measurementDetails, QList<AMAxisInfo> remainingAxes){
 	if(remainingAxes.count() == 1){
@@ -116,6 +346,72 @@ AMDataTree* AMDataTreeDataStore::measurementInfoToTree(const AMMeasurementInfo &
 		notBottom->createSubtreeColumn(remainingAxes.at(0).name, measurementInfoToTree(measurementDetails, remainingAxes));
 		return notBottom;
 	}
+}
+
+AMDataTree* AMDataTreeDataStore::bottomTreeFinder(AMDataTree *treeTop, const AMMeasurementInfo &measurementDetails, const int offset){
+	AMDataTree *retTree = treeTop;
+	if( offset >= measurementDetails.spanSize() )
+		return NULL;
+//	qDebug() << "Info: " << retTree->xName() << measurementDetails.rank() << measurementDetails.name;
+//	qDebug() << "Offset of " << offset << " navigates to ";
+	int chunkSize;
+	for(int x=0; x < measurementDetails.rank()-1; x++){
+		chunkSize = 1;
+		for(int y=x+1; y < measurementDetails.rank(); y++)
+			chunkSize *= measurementDetails.size()[y];
+//		qDebug() << ((int)(offset/chunkSize))%measurementDetails.size()[x] ;
+		retTree = retTree->deeper(0, (((int)(offset/chunkSize))%measurementDetails.size()[x]) ) ;
+	}
+	return retTree;
+}
+
+bool AMDataTreeDataStore::setValueFillBottom(AMDataTree* dataTree, const int *inputData, const int bottomDimension){
+	if(dataTree->numYColumns() != 1)
+		return false;
+	if(dataTree->ySubtreeNames().count() != 0)
+		return false;
+	if(dataTree->count() != bottomDimension)
+		return false;
+	for(int x=0; x < bottomDimension; x++)
+		if(!dataTree->setValue(0, x, inputData[x]))
+			return false;
+
+	return true;
+}
+
+bool AMDataTreeDataStore::setValueFillBottom(AMDataTree* dataTree, const double *inputData, const int bottomDimension){
+	if(dataTree->numYColumns() != 1)
+		return false;
+	if(dataTree->ySubtreeNames().count() != 0)
+		return false;
+	if(dataTree->count() != bottomDimension)
+		return false;
+	for(int x=0; x < bottomDimension; x++)
+		if(!dataTree->setValue(0, x, inputData[x]))
+			return false;
+
+	return true;
+}
+
+bool AMDataTreeDataStore::measurementIndexExists(int measurementId) const{
+	if(measurementId >= measurements_.count())
+		return false;
+
+	return true;
+}
+
+void AMDataTreeDataStore::dataStoreDimensionsPuke(){
+	dataStoreDimensionsPukeHelper(dataTree_, scanAxesCount(), 0);
+}
+
+void AMDataTreeDataStore::dataStoreDimensionsPukeHelper(const AMDataTree *dataTree, const int depthToGo, const int depthNow){
+	QString puke = "-";
+	for(int x=0; x < depthNow; x++)
+		puke+="-";
+	qDebug() << puke+"> " << dataTree->count() << "[" << dataTree->xName() << "]";
+	if(depthToGo != 1)
+		for(int x=0; x < dataTree->count(); x++)
+			dataStoreDimensionsPukeHelper(dataTree->deeper(0, x), depthToGo-1, depthNow+1);
 }
 
 void dataTreeColumnsPuke(const AMDataTree *dataTree){

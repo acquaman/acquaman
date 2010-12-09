@@ -34,6 +34,14 @@ public:
 			s.append(axes.at(i).size);
 		return s;
 	}
+
+	/// Returns the number of points this measurement spans (A scalar value is "1" point, a 1D Detector is the same as its dimension, higher-D detectors are the products of their dimensions)
+	int spanSize() const {
+		int aSize = 1;
+		for(int i=0; i<axes.count(); i++)
+			aSize *= axes.at(i).size;
+		return aSize;
+	}
 };
 
 

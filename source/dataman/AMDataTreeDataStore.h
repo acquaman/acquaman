@@ -2,6 +2,7 @@
 #define AMDATATREEDATASTORE_H
 
 #include "dataman/AMDbObject.h"
+#include "util/AMOrderedSet.h"
 #include "dataman/AMDataStore.h"
 #include "dataman/AMDataTree.h"
 
@@ -23,6 +24,7 @@ public slots:
 	virtual AMMeasurementInfo measurementAt(int id) const;
 	virtual int measurementCount() const;
 
+	// Right now can only add outer axis, not insert inner ones
 	virtual bool addScanAxis(const AMAxisInfo &axisDetails);
 	virtual int idOfScanAxis(const QString &axisName) const;
 	virtual AMAxisInfo scanAxisAt(int id) const;
@@ -39,8 +41,10 @@ public slots:
 	virtual bool setValue(const AMnDIndex &scanIndex, int measurementId, const AMnDIndex &measurementIndex, const AMNumber &newValue);
 	virtual bool setAxisValue(int axisId, int axisIndex, AMNumber newValue);
 
-	virtual bool setValue(const AMnDIndex &scanIndex, int measurementId, const int* inputData);
-	virtual bool setValue(const AMnDIndex &scanIndex, int measurementId, const double* inputData);
+	virtual bool setValue(const AMnDIndex &scanIndex, int measurementId, const int* inputData, const int numArrayElements);
+	virtual bool setValue(const AMnDIndex &scanIndex, int measurementId, const double* inputData, const int numArrayElements);
+
+	void dataStoreDimensionsPuke();
 
 protected:
 	/// Implementing subclasses must provide a beginInsertRowsImplementation() which creates space for the new measurements.  When this function completes, it should be valid to setValue()s within the new scan space. Return false if the request is not possible.
@@ -54,14 +58,21 @@ protected:
 
 	}
 
+	void appendToDepth(AMDataTree* dataTree, QList<int> newCounts);
 	AMDataTree* measurementInfoToTree(const AMMeasurementInfo &measurementDetails, QList<AMAxisInfo> remainingAxes);
+	AMDataTree* bottomTreeFinder(AMDataTree* treeTop, const AMMeasurementInfo &measurementDetails, const int offset);
+	bool setValueFillBottom(AMDataTree* dataTree, const int *inputData, const int bottomDimension);
+	bool setValueFillBottom(AMDataTree* dataTree, const double *inputData, const int bottomDimension);
+	bool measurementIndexExists(int measurementId) const;
+
+	void dataStoreDimensionsPukeHelper(const AMDataTree *dataTree, const int depthToGo, const int depthNow);
 
 protected:
 	AMDataTree *dataTree_;
 	AMDataTree *baseTree_;
-	int axisCount_;
-#warning "Need to change this to an ordered set eventually"
-	QList<AMMeasurementInfo> measurements_;
+	bool emptyTree_;
+	AMOrderedSet<QString, AMMeasurementInfo> measurements_;
+	AMOrderedSet<QString, AMAxisInfo> axes_;
 };
 
 void dataTreeColumnsPuke(const AMDataTree *dataTree);
