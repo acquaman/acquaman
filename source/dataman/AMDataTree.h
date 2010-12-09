@@ -39,7 +39,7 @@ AMDataTree myXasData;
 printf( "(%d, %d)", myXasData.x(5), myXasData.value("tey", 5) );
 \endcode
 
-However, all of the datapoints in the "sddSpectrums" column would actually be links to other AMDataTables.  (In the case of the SDD (silicon drift detector), the linked tables would contain an x column (pixel value or energy value) and a y column of intensities.)
+However, all of the datapoints in the "sddSpectrums" column would actually be links to other AMDataTrees.  (In the case of the SDD (silicon drift detector), the linked tables would contain an x column (pixel value or energy value) and a y column of intensities.)
 Externally, an actual data value would be accessed as:
 \code
 myXasData.deeper("sddSpectrums", 5)->value("sddIntensities", 512);
