@@ -12,6 +12,8 @@
 #include "dataman/AMUser.h"
 #include "dataman/AMXESScan.h"
 
+#include "analysis/AM1DExpressionAB.h"
+
 #include "dataman/AMDbObjectSupport.h"
 
 #include <QDebug>
@@ -130,11 +132,16 @@ bool AMFirstTimeController::databaseInitialization(bool newUser) {
 	AMDbObjectSupport::registerClass<AMSample>();
 	AMDbObjectSupport::registerClass<AMFacility>();
 
+	AMDbObjectSupport::registerClass<AMRawDataSource>();
+	AMDbObjectSupport::registerClass<AMAnalysisBlock>();
+	AMDbObjectSupport::registerClass<AM1DExpressionAB>();
+
 
 	AMDbObjectSupport::registerClass<AMDetectorInfo>();
 	AMDbObjectSupport::registerClass<AMSpectralOutputDetectorInfo>();
 	AMDbObjectSupport::registerClass<AMControlSetInfo>();
 	AMDbObjectSupport::registerClass<AMSamplePlate>();
+
 
 	AMDbObjectSupport::registerClass<AMUser>();
 

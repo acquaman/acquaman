@@ -124,8 +124,8 @@ public:
 
 
 	/// Performance optimization for setValue(): this allows multi-dimensional measurements to be set in a single setValue call.  \c inputData is interpreted as being in a flat array, ordered where the measurement's first axis varies the fastest, and the measurement's last axis varies the slowest.  The size of the \c inputData must match the product of the sizes of all dimensions in the measurement.
-	virtual bool setValue(const AMnDIndex &scanIndex, int measurementId, const int* inputData, const int numArrayElements) = 0;
-	virtual bool setValue(const AMnDIndex &scanIndex, int measurementId, const double* inputData, const int numArrayElements) = 0;
+	virtual bool setValue(const AMnDIndex &scanIndex, int measurementId, const int* inputData, int numArrayElements) = 0;
+	virtual bool setValue(const AMnDIndex &scanIndex, int measurementId, const double* inputData, int numArrayElements) = 0;
 
 
 	// Adding new data points: increasing the size of the scan space

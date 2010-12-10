@@ -24,8 +24,37 @@ AM1DExpressionAB::AM1DExpressionAB(const QString& outputName, QObject* parent)
 	setState(AMDataSource::InvalidFlag);
 }
 
-/// Check if a set of inputs is valid. The empty list (no inputs) must always be valid. For non-empty lists, the requirements are...
-/*! - the rank() of all the inputs is 1
+// This constructor is used to reload analysis blocks directly out of the database
+AM1DExpressionAB::AM1DExpressionAB(AMDatabase* db, int id)
+	: AMAnalysisBlock("tempName"),
+	axisInfo_("tempName_x", 0)
+{
+	// We're not using direct evaluation at the start
+	direct_ = xDirect_ = false;
+
+	// initialize the parser:
+	parser_.DefineNameChars("0123456789_:.[]"
+							"abcdefghijklmnopqrstuvwxyz"
+							"ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+	xParser_.DefineNameChars("0123456789_:.[]"
+							 "abcdefghijklmnopqrstuvwxyz"
+							 "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+	//parser_.DefineOprtChars("abcdefghijklmnopqrstuvwxyz"
+	//					   "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	//				   "+-*^/?<>=#!$%&|~'_");
+	//parser_.DefineInfixOprtChars("/+-*^?<>=#!$%&|~'_");
+
+	// initial state is invalid: no inputs.
+	setState(AMDataSource::InvalidFlag);
+
+	loadFromDb(db, id);	// this will trigger setExpression() and setXExpression(), which will re-evaluate our state.
+
+	AMDataSource::name_ = AMDbObject::name();	// normally it's not okay to change a dataSource's name. Here we get away with it because we're within the constructor, and nothing's watching us yet.
+	axisInfo_ = AMAxisInfo(name() + "_x", 0);
+}
+
+// Check if a set of inputs is valid. The empty list (no inputs) must always be valid. For non-empty lists, the requirements are...
+/* - the rank() of all the inputs is 1
 	- the size() of the inputs can be anything, although our output state() will go to InvalidState whenever the sizes are not all matching.
 	- anything else?
 	*/
@@ -37,8 +66,8 @@ bool AM1DExpressionAB::areInputDataSourcesAcceptable(const QList<AMDataSource*>&
 	return true;
 }
 
-/// Set the data source inputs.
-/*! \note Whenever new input sources are set, if the xExpression() is blank/invalid, it is automatically initialized to the axisValue() of the first input source. Otherwise it, like expression(), is left as it was prior to setting the new inputs. Note that if the names of the new inputs are different, the old expressions will both likely become invalid. */
+// Set the data source inputs.
+/* \note Whenever new input sources are set, if the xExpression() is blank/invalid, it is automatically initialized to the axisValue() of the first input source. Otherwise it, like expression(), is left as it was prior to setting the new inputs. Note that if the names of the new inputs are different, the old expressions will both likely become invalid. */
 void AM1DExpressionAB::setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources) {
 
 	QString oldExpression = expression();
@@ -107,18 +136,9 @@ void AM1DExpressionAB::setInputDataSourcesImplementation(const QList<AMDataSourc
 
 	// set y expression to what it used to be. (side-effect: reviews y expression for validity on new inputs)
 	setExpression(oldExpression);
-
-	// if the x expression is blank, a useful default is the x-values (axisValue()s) from the first data source. Same side effect of checking for validity.
-	if(xExpression().isEmpty() && !sources_.isEmpty())
-		setXExpression(sources_.at(0)->name() + ".x");
-	// otherwise re-set it to what it used to be:
-	else
-		setXExpression(oldXExpression);
+	setXExpression(oldXExpression);
 
 	// both the setExpression() and setXExpression() calls will end by calling reviewState(), which will call setState() appropriately, given the status of the inputs, their sizes, and the expression validity.
-
-
-
 
 }
 
@@ -137,15 +157,15 @@ void AM1DExpressionAB::reviewState() {
 // Access to input data sources
 //////////////////////////
 
-/// Retrieve index of an input data source by name. (Hopefully no two data sources have the same name; if they do, this returns the first one.) Returns -1 if no input source found with this name.
-/*! This might be involve a slow lookup; users should not call repeatedly.*/
+// Retrieve index of an input data source by name. (Hopefully no two data sources have the same name; if they do, this returns the first one.) Returns -1 if no input source found with this name.
+/* This might be involve a slow lookup; users should not call repeatedly.*/
 int AM1DExpressionAB::indexOfInputSource(const QString& dataSourceName) const {
 	for(int i=0; i<inputDataSourceCount(); i++)
 		if(inputDataSourceAt(i)->name() == dataSourceName)
 			return i;
 	return -1;
 }
-/// Retrieve index of an input data source by pointer. If it doesn't exist, returns -1.
+// Retrieve index of an input data source by pointer. If it doesn't exist, returns -1.
 int AM1DExpressionAB::indexOfInputSource(const AMDataSource* source) const {
 	for(int i=0; i<inputDataSourceCount(); i++)
 		if(inputDataSourceAt(i) == source)
@@ -155,7 +175,7 @@ int AM1DExpressionAB::indexOfInputSource(const AMDataSource* source) const {
 
 // Creating editors for editing parameters
 ////////////////////////////////////
-/// Create, connect, and return a widget suitable for displaying/editing this analysis block's custom parameters.  If you don't want to provide an editor widget, return 0.
+// Create, connect, and return a widget suitable for displaying/editing this analysis block's custom parameters.  If you don't want to provide an editor widget, return 0.
 QWidget* AM1DExpressionAB::createEditorWidget() {
 	// return new AM1DExpressionABEditor(this);
 	return 0;
@@ -166,7 +186,7 @@ QWidget* AM1DExpressionAB::createEditorWidget() {
 // Axis Information
 /////////////////////////
 
-/// Returns a bunch of information about a particular axis.
+// Returns a bunch of information about a particular axis.
 AMAxisInfo AM1DExpressionAB::axisInfoAt(int axisNumber) const {
 	if(axisNumber != 0)
 		return AMAxisInfo("invalid", 0);
@@ -181,7 +201,7 @@ AMAxisInfo AM1DExpressionAB::axisInfoAt(int axisNumber) const {
 // Data value access
 ////////////////////////////
 
-/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient or any are out of range, or if the data is not ready.
+// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient or any are out of range, or if the data is not ready.
 AMNumber AM1DExpressionAB::value(const AMnDIndex& indexes) const {
 	if(!isValid())	// will catch most invalid situations: non matching sizes, invalid inputs, invalid expressions.
 		return AMNumber(AMNumber::InvalidError);
@@ -227,7 +247,7 @@ AMNumber AM1DExpressionAB::value(const AMnDIndex& indexes) const {
 	}
 }
 
-/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index)
+// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index)
 AMNumber AM1DExpressionAB::axisValue(int axisNumber, int index) const  {
 	if(!isValid())	// will catch most invalid situations: non matching sizes, invalid inputs, invalid expressions.
 		return AMNumber(AMNumber::InvalidError);
@@ -280,7 +300,7 @@ void AM1DExpressionAB::onInputSourceValuesChanged(const AMnDIndex& start, const 
 	emitValuesChanged(start, end);
 }
 
-/// If the inputs change size, this will affect the output state. All the inputs need to be the same size for now, otherwise the result is invalid.
+// If the inputs change size, this will affect the output state. All the inputs need to be the same size for now, otherwise the result is invalid.
 void AM1DExpressionAB::onInputSourceSizeChanged() {
 	size_ = inputDataSourceAt(0)->size(0);
 	sizesMatch_ = true;
@@ -292,7 +312,7 @@ void AM1DExpressionAB::onInputSourceSizeChanged() {
 	reviewState();
 }
 
-/// If the inputs change state, this will affect the output state.  If any inputs are InvalidState, then the output is InvalidState.  If any of the inputs are in ProcessingState, then the output is ProcessingState. Otherwise, it's ReadyState.
+// If the inputs change state, this will affect the output state.  If any inputs are InvalidState, then the output is InvalidState.  If any of the inputs are in ProcessingState, then the output is ProcessingState. Otherwise, it's ReadyState.
 void AM1DExpressionAB::onInputSourceStateChanged() {
 	combinedInputState_ = 0;
 	for(int i=0; i<inputDataSourceCount(); i++)
@@ -302,7 +322,7 @@ void AM1DExpressionAB::onInputSourceStateChanged() {
 	reviewState();
 }
 
-/// Check if a given expression string is valid (for the current set of inputs)
+// Check if a given expression string is valid (for the current set of inputs)
 bool AM1DExpressionAB::checkExpressionValidity(const QString& testExpression) {
 
 	bool ok = true;
@@ -327,7 +347,7 @@ bool AM1DExpressionAB::checkExpressionValidity(const QString& testExpression) {
 	return ok;
 }
 
-/// Set the current expression used to evaluate the result. If the expression is not valid, the state of the output goes to Invalid, and this returns false.
+// Set the current expression used to evaluate the result. If the expression is not valid, the state of the output goes to Invalid, and this returns false.
 bool AM1DExpressionAB::setExpression(const QString& newExpression) {
 
 	expressionValid_ = true;
@@ -337,6 +357,32 @@ bool AM1DExpressionAB::setExpression(const QString& newExpression) {
 	try {
 		parser_.SetExpr(newExpression.toStdString());
 		parser_.Eval();
+
+		// determine the usedVariables_:
+		mu::varmap_type usedvar = parser_.GetUsedVar();
+		mu::varmap_type::const_iterator item = usedvar.begin();
+		// Query the used variables.  item->second is a pointer to the variable storage location. (With a better design, we might not need the inner loop.)
+		for (; item!=usedvar.end(); ++item)
+		{
+			// search to find out if a variable is used. It is used if the pointer to the storage location matches item->second.
+			for(int i=0; i<allVariables_.count(); i++)
+				if( &(allVariables_.at(i).value) == item->second)
+					usedVariables_ << &(allVariables_[i]);
+		}
+
+		// Optimization: is the whole expression merely a single input source name? Can we operate in direct mode?
+		if(expressionValid_ && usedVariables_.count() == 1) {	// precondition: only one input variable
+			directVar_ = *(usedVariables_.at(0));	// storing it here won't matter if direct_ is not set.
+			if(directVar_.useAxisValue) {	// is this an axisValue name?
+				if(newExpression.trimmed() == sources_.at(directVar_.sourceIndex)->name() + ".x")	// the whole expression matches just the name. We can go direct.
+					direct_ = true;
+			}
+			else {
+				if(newExpression.trimmed() == sources_.at(directVar_.sourceIndex)->name())	// whole expression matches just the name. Can go direct
+					direct_ = true;
+			}
+		}
+
 	}
 	catch(mu::Parser::exception_type& e) {
 		QString explanation = QString("AM1DExpressionAB Analysis Block: error setting expression: %1: '%2'.  We found '%3' at position %4.").arg(QString::fromStdString(e.GetMsg())).arg(QString::fromStdString(e.GetExpr())).arg(QString::fromStdString(e.GetToken())).arg(e.GetPos());
@@ -344,32 +390,6 @@ bool AM1DExpressionAB::setExpression(const QString& newExpression) {
 		expressionValid_ = false;
 	}
 
-
-
-	// determine usedVariables_:
-	mu::varmap_type usedvar = parser_.GetUsedVar();
-	mu::varmap_type::const_iterator item = usedvar.begin();
-	// Query the used variables.  item->second is a pointer to the variable storage location. (With a better design, we might not need the inner loop.)
-	for (; item!=usedvar.end(); ++item)
-	{
-		/// search to find out if a variable is used. It is used if the pointer to the storage location matches item->second.
-		for(int i=0; i<allVariables_.count(); i++)
-			if( &(allVariables_.at(i).value) == item->second)
-				usedVariables_ << &(allVariables_[i]);
-	}
-
-	// Optimization: is the whole expression merely a single input source name? Can we operate in direct mode?
-	if(expressionValid_ && usedVariables_.count() == 1) {	// precondition: only one input variable
-		directVar_ = *(usedVariables_.at(0));	// storing it here won't matter if direct_ is not set.
-		if(directVar_.useAxisValue) {	// is this an axisValue name?
-			if(newExpression.trimmed() == sources_.at(directVar_.sourceIndex)->name() + ".x")	// the whole expression matches just the name. We can go direct.
-				direct_ = true;
-		}
-		else {
-			if(newExpression.trimmed() == sources_.at(directVar_.sourceIndex)->name())	// whole expression matches just the name. Can go direct
-				direct_ = true;
-		}
-	}
 
 	// anything that could trigger a change in the output validity must call this
 	reviewState();
@@ -381,7 +401,7 @@ bool AM1DExpressionAB::setExpression(const QString& newExpression) {
 
 // X-values (or axis values)
 ///////////////////////////////
-/// Set the expression used for the independent variable (aka x-axis... the one returned by axisValue()).   If \c xExpression is an empty string, the expression is set back to default, ie: the independent variable of the first input data source.    Whenever the input data sources are re-set, the x expression is also set back to this default.
+// Set the expression used for the independent variable (aka x-axis... the one returned by axisValue()).   If \c xExpression is an empty string, the expression is set back to default, ie: the independent variable of the first input data source.
 bool AM1DExpressionAB::setXExpression(const QString& xExpressionIn) {
 
 	QString xExpression = xExpressionIn;
@@ -396,36 +416,37 @@ bool AM1DExpressionAB::setXExpression(const QString& xExpressionIn) {
 	try {
 		xParser_.SetExpr(xExpression.toStdString());
 		xParser_.Eval();
+
+		// determine usedVariables_:
+		mu::varmap_type usedvar = xParser_.GetUsedVar();
+		mu::varmap_type::const_iterator item = usedvar.begin();
+		// Query the used variables.  item->second is a pointer to the variable storage location. (With a better design, we might not need the inner loop.)
+		for (; item!=usedvar.end(); ++item)
+		{
+			// search to find out if a variable is used. It is used if the pointer to the storage location matches item->second.
+			for(int i=0; i<allVariables_.count(); i++)
+				if( &(allVariables_.at(i).value) == item->second)
+					xUsedVariables_ << &(allVariables_[i]);
+		}
+
+		// Optimization: is the whole expression merely a single input source name? Can we operate in direct mode?
+		if(xExpressionValid_ && xUsedVariables_.count() == 1) {	// precondition: only one input variable
+			xDirectVar_ = *(xUsedVariables_.at(0));	// storing it here won't matter if xDirect_ is not set.
+			if(xDirectVar_.useAxisValue) {	// is this an axisValue name?
+				if(xExpression.trimmed() == sources_.at(xDirectVar_.sourceIndex)->name() + ".x")	// the whole expression matches just the name. We can go direct.
+					xDirect_ = true;
+			}
+			else {
+				if(xExpression.trimmed() == sources_.at(xDirectVar_.sourceIndex)->name())	// whole expression matches justthe name. Can go direct
+					xDirect_ = true;
+			}
+		}
+
 	}
 	catch(mu::Parser::exception_type& e) {
 		QString explanation = QString("AM1DExpressionAB Analysis Block: error setting expression: %1: '%2'.  We found '%3' at position %4.").arg(QString::fromStdString(e.GetMsg())).arg(QString::fromStdString(e.GetExpr())).arg(QString::fromStdString(e.GetToken())).arg(e.GetPos());
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, e.GetCode(), explanation));
 		xExpressionValid_ = false;
-	}
-
-	// determine usedVariables_:
-	mu::varmap_type usedvar = xParser_.GetUsedVar();
-	mu::varmap_type::const_iterator item = usedvar.begin();
-	// Query the used variables.  item->second is a pointer to the variable storage location. (With a better design, we might not need the inner loop.)
-	for (; item!=usedvar.end(); ++item)
-	{
-		/// search to find out if a variable is used. It is used if the pointer to the storage location matches item->second.
-		for(int i=0; i<allVariables_.count(); i++)
-			if( &(allVariables_.at(i).value) == item->second)
-				xUsedVariables_ << &(allVariables_[i]);
-	}
-
-	// Optimization: is the whole expression merely a single input source name? Can we operate in direct mode?
-	if(xExpressionValid_ && xUsedVariables_.count() == 1) {	// precondition: only one input variable
-		xDirectVar_ = *(xUsedVariables_.at(0));	// storing it here won't matter if xDirect_ is not set.
-		if(xDirectVar_.useAxisValue) {	// is this an axisValue name?
-			if(xExpression.trimmed() == sources_.at(xDirectVar_.sourceIndex)->name() + ".x")	// the whole expression matches just the name. We can go direct.
-				xDirect_ = true;
-		}
-		else {
-			if(xExpression.trimmed() == sources_.at(xDirectVar_.sourceIndex)->name())	// whole expression matches justthe name. Can go direct
-				xDirect_ = true;
-		}
 	}
 
 	// anything that could trigger a change in the output validity must call this

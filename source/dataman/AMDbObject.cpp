@@ -239,11 +239,19 @@ bool AMDbObject::storeToDb(AMDatabase* db) {
 			QVariantList vlist;
 			vlist << id() << myInfo->tableName << int(0) << "tableName2";	// int(0) and "tableName2" are dummy variables for now.
 			foreach(AMDbObject* obj, objList) {
-				if(obj && obj!=this) {
-					if(  (!obj->modified() && obj->database() == db && obj->id() >1) || obj->storeToDb(db) ) {	// remember a valid location if either: (object is not modified, and already part of this database) OR (we successfully just saved it).  (This avoids storeToDb()'ing objects that are unmodified and do not need re-saving.)
+				if(obj && obj!=this) {	// verify that this is a valid object, and not ourself (to avoid infinite recursion)
+					if(  (!obj->modified() && obj->database() == db && obj->id() >1) ) {	// if this object is unmodified and already stored in the database, just remember its location. (This avoids storeToDb()'ing objects that are unmodified and do not need re-saving.)
 						vlist[2] = obj->id();
 						vlist[3] = obj->dbTableName();
 						db->insertOrUpdate(0, auxTableName, clist, vlist);
+					}
+					else if( obj->storeToDb(db) ) {	// otherwise, store the object and remember its location
+						vlist[2] = obj->id();
+						vlist[3] = obj->dbTableName();
+						db->insertOrUpdate(0, auxTableName, clist, vlist);
+					}
+					else {	// problem storing the object...
+						AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -47, QString("While storing '%1' to the database, there was an error trying to store its child object '%2'").arg(this->name()).arg(obj->name())));
 					}
 				}
 			}

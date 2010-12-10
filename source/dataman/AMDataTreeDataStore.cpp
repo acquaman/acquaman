@@ -206,7 +206,7 @@ bool AMDataTreeDataStore::setAxisValue(int axisId, int axisIndex, AMNumber newVa
 }
 
 
-bool AMDataTreeDataStore::setValue(const AMnDIndex &scanIndex, int measurementId, const int* inputData, const int numArrayElements){
+bool AMDataTreeDataStore::setValue(const AMnDIndex &scanIndex, int measurementId, const int* inputData, int numArrayElements){
 	if( !scanSize().dimensionsMatch(scanIndex) )
 		return false;
 	if( !scanSize().inBounds(scanIndex) )
@@ -234,7 +234,7 @@ bool AMDataTreeDataStore::setValue(const AMnDIndex &scanIndex, int measurementId
 	return true;
 }
 
-bool AMDataTreeDataStore::setValue(const AMnDIndex &scanIndex, int measurementId, const double* inputData, const int numArrayElements){
+bool AMDataTreeDataStore::setValue(const AMnDIndex &scanIndex, int measurementId, const double* inputData, int numArrayElements){
 	if( !scanSize().dimensionsMatch(scanIndex) )
 		return false;
 	if( !scanSize().inBounds(scanIndex) )
@@ -291,7 +291,7 @@ bool AMDataTreeDataStore::beginInsertRowsImplementation(int axisId, int numRows,
 	for(int x=0; x <= axisId; x++)
 		newCounts << scanAxisAt(x).size;
 	newCounts[axisId] = rowCount+1;
-	qDebug() << "Append we want " << newCounts;
+	// qDebug() << "Append we want " << newCounts;
 	appendToDepth(dataTree_, newCounts);
 	axes_[axisId].size++;
 

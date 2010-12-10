@@ -42,6 +42,8 @@ class AM1DExpressionAB : public AMAnalysisBlock
 public:
 	/// Constructor. \c outputName is the name() for the output data source.
 	AM1DExpressionAB(const QString& outputName, QObject* parent = 0);
+	/// This constructor is used to reload analysis blocks directly out of the database
+	Q_INVOKABLE AM1DExpressionAB(AMDatabase* db, int id);
 
 	/// Check if a set of inputs is valid. The empty list (no inputs) must always be valid. For non-empty lists, the requirements are...
 	/*! - the rank() of all the inputs is 1
@@ -50,8 +52,7 @@ public:
 		*/
 	virtual bool areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const;
 
-	/// Set the data source inputs.
-	/*! \note Whenever new input sources are set, if the xExpression() is blank/invalid, it is automatically initialized to the axisValue() of the first input source. Otherwise it, like expression(), is left as it was prior to setting the new inputs. Note that if the names of the new inputs are different, the old expressions will both likely become invalid. */
+	/// Set the data source inputs.  The existing expression() and xExpression() are preserved
 	virtual void setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources);
 
 	// Access to input data sources
@@ -109,7 +110,7 @@ public:
 	/// Check if a given expression string is valid (for the current set of inputs)
 	bool checkExpressionValidity(const QString& testExpression);
 
-	/// Set the current expression used to evaluate the value(). Any algebraic expression is valid; the allowed variables are the name()s of the input data sources, or '[name()].x' to refer to the independent variable of an input source.  If the expression is not valid, the state of the output goes to InvalidState, and this returns false.
+	/// Set the current expression used to evaluate the value(). Any algebraic expression is valid; the allowed variables are the name()s of the input data sources, or '[name()].x' to refer to the independent variable of an input source.  If the expression is not valid, the state of the output goes to InvalidState, and this returns false. However, the expression will be set (whether currently valid or not) and may become valid if the inputs are changed.
 	bool setExpression(const QString& newExpression);
 
 	/// Retrieve the current expression (It may or may not be valid -- whatever was last set with setExpression)
@@ -120,7 +121,7 @@ public:
 
 	// X-values (or axis values)
 	///////////////////////////////
-	/// Set the expression used for the independent variable (aka x-axis... the one returned by axisValue()).   If \c xExpression is an empty string, the expression is set back to default, ie: the independent variable of the first input data source.    Whenever the input data sources are re-set, the x expression is also set back to this default.
+	/// Set the expression used for the independent variable (aka x-axis... the one returned by axisValue()).   If \c xExpression is an empty string, the expression is set back to default, ie: the independent variable of the first input data source.  Error handling for invalid expressions is that same as for setExpression().
 	bool setXExpression(const QString& xExpression = QString());
 
 	/// Retrieve the current expression used for the axisValue(), whether valid or not
