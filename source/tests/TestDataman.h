@@ -267,7 +267,7 @@ private slots:
 		AMnDIndex scanInsertIndex(0, 0, 1);
 		AMnDIndex scanRetrieveIndex(0, 0, 1);
 		qDebug() << "\n\n\n";
-		for(int x=0; x<3; x++){
+		for(int x=0; x<1; x++){
 			if(dtds.beginInsertRows(0, 1, x))
 				dtds.dataStoreDimensionsPuke();
 			//else
@@ -279,13 +279,15 @@ private slots:
 				//else
 				//	qDebug() << "No need for y = " << y;
 				dtds.endInsertRows();
-				for(int z=0; z<2; z++){
+				for(int z=0; z<3; z++){
 					if(dtds.beginInsertRows(2, 1, z))
 						dtds.dataStoreDimensionsPuke();
 					//else
 					//	qDebug() << "No need for z = " << z;
 					dtds.endInsertRows();
+
 					if(z == 1 && y == 0 && x == 0){
+						qDebug() << "Doing this insert once when " << z << y << x;
 						dtds.setValue(scanInsertIndex, dtds.idOfMeasurement("tey"), AMnDIndex(), 12.2);
 						AMNumber retVal = dtds.value(scanRetrieveIndex, dtds.idOfMeasurement("tey"), AMnDIndex());
 						if(retVal.state() == AMNumber::Null)
@@ -300,9 +302,14 @@ private slots:
 							qDebug() << "Set that axis mud trucka as " << double(retVal);
 					}
 				}
+				dtds.dataStoreDataPuke();
 			}
 		}
 
+		qDebug() << "\n\n\nDATA PUKE";
+//		dtds.setValue(scanInsertIndex, 0, AMnDIndex(), 27.12);
+		dtds.dataStoreDataPuke();
+		qDebug() << "\n\n";
 		dtds.beginInsertRows(2, 1, 2);
 		dtds.dataStoreDimensionsPuke();
 		dtds.endInsertRows();

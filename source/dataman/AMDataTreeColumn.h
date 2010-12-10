@@ -5,9 +5,11 @@
 #include <QVector>
 #include <QVectorIterator>
 
-/// The type of (numeric?) data stored. We're taking the overhead of using doubles for everything, for the simplicity of being able to accurately hold any numeric type.
-typedef double AMNumericType;
+#include "AMNumber.h"
 
+/// The type of (numeric?) data stored. We're taking the overhead of using doubles for everything, for the simplicity of being able to accurately hold any numeric type.
+//typedef double AMNumericType;
+typedef AMNumber AMNumericType;
 
 
 /// An AMDataTree consists of an arbitrary number of columns of data. This class represents one of those columns.
@@ -106,9 +108,9 @@ public:
 
 		QVector<AMNumericType>::append(value);
 
-		if(maxIndex_>=0 && value > at(maxIndex_))
+		if(maxIndex_>=0 && (double)value > (double)at(maxIndex_))
 			maxIndex_ = count() - 1;
-		if(minIndex_>=0 && value < at(minIndex_))
+		if(minIndex_>=0 && (double)value < (double)at(minIndex_))
 			minIndex_ = count() - 1;
 
 	}
@@ -192,9 +194,9 @@ public:
 		QVector<AMNumericType>::insert(i, value);
 
 		// this has guaranteed that maxIndex or minIndex are not == i. Now check: should the insert be boss?
-		if(maxIndex_>=0 && value > at(maxIndex_))
+		if(maxIndex_>=0 && (double)value > (double)at(maxIndex_))
 			maxIndex_ = i;
-		if(minIndex_>=0 && value < at(minIndex_))
+		if(minIndex_>=0 && (double)value < (double)at(minIndex_))
 			minIndex_ = i;
 
 	}
@@ -222,9 +224,9 @@ public:
 		iterator retval = QVector<AMNumericType>::insert(before, value);
 
 		// this has guaranteed that maxIndex or minIndex are not == i. Now check: should the insert be boss?
-		if(maxIndex_>=0 && value > at(maxIndex_))
+		if(maxIndex_>=0 && (double)value > (double)at(maxIndex_))
 			maxIndex_ = before-data();
-		if(minIndex_>=0 && value < at(minIndex_))
+		if(minIndex_>=0 && (double)value < (double)at(minIndex_))
 			minIndex_ = before-data();
 
 		return retval;
@@ -267,9 +269,9 @@ public:
 		QVector<AMNumericType>::prepend(value);
 
 		// check for potential new bosses (at front)
-		if(maxIndex_>=0 && value>at(maxIndex_))
+		if(maxIndex_>=0 && (double)value > (double)at(maxIndex_))
 			maxIndex_ = 0;
-		if(minIndex_>=0 && value<at(minIndex_))
+		if(minIndex_>=0 && (double)value < (double)at(minIndex_))
 			minIndex_ = 0;
 
 	}
@@ -278,9 +280,9 @@ public:
 
 		QVector<AMNumericType>::push_back(value);
 
-		if(maxIndex_>=0 && value > at(maxIndex_))
+		if(maxIndex_>=0 && (double)value > (double)at(maxIndex_))
 			maxIndex_ = count() - 1;
-		if(minIndex_>=0 && value < at(minIndex_))
+		if(minIndex_>=0 && (double)value < (double)at(minIndex_))
 			minIndex_ = count() - 1;
 	}
 
@@ -294,9 +296,9 @@ public:
 		QVector<AMNumericType>::push_front(value);
 
 		// check for potential new bosses (at front)
-		if(maxIndex_>=0 && value>at(maxIndex_))
+		if(maxIndex_>=0 && (double)value > (double)at(maxIndex_))
 			maxIndex_ = 0;
-		if(minIndex_>=0 && value<at(minIndex_))
+		if(minIndex_>=0 && (double)value < (double)at(minIndex_))
 			minIndex_ = 0;
 	}
 
@@ -346,9 +348,9 @@ public:
 	AMDataTreeColumn& operator+= ( const AMNumericType& value ) {
 		QVector<AMNumericType>::operator+=(value);
 
-		if(maxIndex_>=0 && value > at(maxIndex_))
+		if(maxIndex_>=0 && (double)value > (double)at(maxIndex_))
 			maxIndex_ = count() - 1;
-		if(minIndex_>=0 && value < at(minIndex_))
+		if(minIndex_>=0 && (double)value < (double)at(minIndex_))
 			minIndex_ = count() - 1;
 
 		return *this;
@@ -358,9 +360,9 @@ public:
 
 		QVector<AMNumericType>::operator<<(value);
 
-		if(maxIndex_>=0 && value > at(maxIndex_))
+		if(maxIndex_>=0 && (double)value > (double)at(maxIndex_))
 			maxIndex_ = count() - 1;
-		if(minIndex_>=0 && value < at(minIndex_))
+		if(minIndex_>=0 && (double)value < (double)at(minIndex_))
 			minIndex_ = count() - 1;
 
 		return *this;
@@ -372,12 +374,12 @@ public:
 		if(maxIndex_<0 || other.maxIndex_<0)
 			maxIndex_ = -1;
 		// otherwise (both tracking...) if other's max is bigger, it's boss. Note that it'll be ahead by count() after we append.
-		else if( other.at(other.maxIndex_) > at(maxIndex_) )
+		else if( (double)other.at(other.maxIndex_) > (double)at(maxIndex_) )
 			maxIndex_ = other.maxIndex_ + count();
 
 		if(minIndex_<0 || other.minIndex_<0)
 			minIndex_ = -1;
-		else if( other.at(other.minIndex_) < at(minIndex_))
+		else if( (double)other.at(other.minIndex_) < (double)at(minIndex_))
 			minIndex_ = other.minIndex_ + count();
 
 		QVector<AMNumericType>::operator<<(other);
@@ -407,15 +409,15 @@ public:
 	void setValue(const AMNumericType& value, int i) {
 
 		// if we're replacing what used to be the max, and this value is smaller, we don't know who the max is anymore.
-		if(i == maxIndex_ && value < at(maxIndex_) )
+		if(i == maxIndex_ && (double)value < (double)at(maxIndex_) )
 			maxIndex_ = -1;
-		if(i == minIndex_ && value > at(minIndex_) )
+		if(i == minIndex_ && (double)value > (double)at(minIndex_) )
 			minIndex_ = -1;
 
 		// if we're tracking the maximum, and this value is larger, it becomes the new maximum
-		if(maxIndex_>=0 && value > at(maxIndex_) )
+		if(maxIndex_>=0 && (double)value > (double)at(maxIndex_) )
 			maxIndex_ = i;
-		if(minIndex_>=0 && value < at(minIndex_) )
+		if(minIndex_>=0 && (double)value < (double)at(minIndex_) )
 			minIndex_ = i;
 
 		QVector<AMNumericType>::operator[](i) = value;

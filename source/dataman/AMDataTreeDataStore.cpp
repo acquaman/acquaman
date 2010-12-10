@@ -3,7 +3,7 @@
 AMDataTreeDataStore::AMDataTreeDataStore(const AMAxisInfo &initialAxis, QObject *parent) :
 	AMDbObject(parent)
 {
-	baseTree_ = new AMDataTree(0, initialAxis.name, true);
+	baseTree_ = new AMDataTree(0, initialAxis.name, true, true);
 	axes_.setAllowsDuplicateKeys(false);
 	axes_.append(initialAxis, initialAxis.name);
 	axes_[0].size = 0;
@@ -56,7 +56,7 @@ bool AMDataTreeDataStore::addScanAxis(const AMAxisInfo &axisDetails){
 	else
 		axes_[(axes_.count()-1)].size = 1;
 	AMDataTree *oldDataTree = dataTree_;
-	dataTree_ = new AMDataTree(axes_[(axes_.count()-1)].size, axisDetails.name, true);
+	dataTree_ = new AMDataTree(axes_[(axes_.count()-1)].size, axisDetails.name, true, true);
 	//dataTree_ = new AMDataTree(0, axisDetails.name, true);
 	dataTree_->createSubtreeColumn(oldDataTree->xName(), oldDataTree);
 }
@@ -119,28 +119,18 @@ AMNumber AMDataTreeDataStore::value(const AMnDIndex &scanIndex, int measurementI
 	for(int x=0; x < scanIndex.rank()-1; x++)
 		treeLevel = treeLevel->deeper(0, scanIndex[x]);
 
-	double retVal;
+	AMNumber retVal;
 	QString measurementName = measurementAt(measurementId).name;
 	if(measurementAt(measurementId).size().rank() == 0)
-		retVal = treeLevel->value(measurementName, scanIndex[scanIndex.rank()-1]);
-//		return treeLevel->value(measurementName, scanIndex[scanIndex.rank()-1]);
+		return treeLevel->value(measurementName, scanIndex[scanIndex.rank()-1]);
 	else{
 		treeLevel = treeLevel->deeper(measurementName, scanIndex[scanIndex.rank()-1]);
 		for(int x=0; x < measurementIndex.rank()-1; x++)
 			treeLevel = treeLevel->deeper(0, measurementIndex[x]);
-		retVal = treeLevel->value(0, measurementIndex[measurementIndex.rank()-1]);
-//		return treeLevel->value(0, measurementIndex[measurementIndex.rank()-1]);
+		return treeLevel->value(0, measurementIndex[measurementIndex.rank()-1]);
 	}
 
-	if(retVal == AMDATATREE_OUTOFRANGE_VALUE)
-		return AMNumber(AMNumber::OutOfBoundsError);
-	if(retVal == AMDATATREE_NONEXISTENT_VALUE)
-		return AMNumber(AMNumber::DimensionError);
-	if(retVal == AMDATATREE_INSERT_VALUE)
-		return AMNumber(AMNumber::Null);
-
-	return retVal;
-
+	return AMNumber();
 }
 
 AMNumber AMDataTreeDataStore::axisValue(int axisId, int axisIndex) const {
@@ -152,16 +142,7 @@ AMNumber AMDataTreeDataStore::axisValue(int axisId, int axisIndex) const {
 		axisLevel = axisLevel->deeper(0, 0);
 	if( axisIndex >= axisLevel->count() )
 		return AMNumber(AMNumber::OutOfBoundsError);
-	double retVal = axisLevel->x(axisIndex);
-//	return axisLevel->x(axisIndex);
-
-	if(retVal == AMDATATREE_OUTOFRANGE_VALUE)
-		return AMNumber(AMNumber::OutOfBoundsError);
-	if(retVal == AMDATATREE_NONEXISTENT_VALUE)
-		return AMNumber(AMNumber::DimensionError);
-	if(retVal == AMDATATREE_INSERT_VALUE)
-		return AMNumber(AMNumber::Null);
-	return retVal;
+	return axisLevel->x(axisIndex);
 }
 
 bool AMDataTreeDataStore::setValue(const AMnDIndex &scanIndex, int measurementId, const AMnDIndex &measurementIndex, const AMNumber &newValue){
@@ -335,13 +316,13 @@ void AMDataTreeDataStore::appendToDepth(AMDataTree* dataTree, QList<int> newCoun
 
 AMDataTree* AMDataTreeDataStore::measurementInfoToTree(const AMMeasurementInfo &measurementDetails, QList<AMAxisInfo> remainingAxes){
 	if(remainingAxes.count() == 1){
-		AMDataTree *treeBottom = new AMDataTree(remainingAxes.at(0).size, remainingAxes.at(0).name, true);
+		AMDataTree *treeBottom = new AMDataTree(remainingAxes.at(0).size, remainingAxes.at(0).name, true, true);
 		//treeBottom->createColumn(remainingAxes.at(0).name, remainingAxes.at(0).description, remainingAxes.at(0).units);
 		treeBottom->createColumn(measurementDetails.name, measurementDetails.description, measurementDetails.units);
 		return treeBottom;
 	}
 	else{
-		AMDataTree *notBottom = new AMDataTree(remainingAxes.at(0).size, remainingAxes.at(0).name, true);
+		AMDataTree *notBottom = new AMDataTree(remainingAxes.at(0).size, remainingAxes.at(0).name, true, true);
 		remainingAxes.pop_front();
 		notBottom->createSubtreeColumn(remainingAxes.at(0).name, measurementInfoToTree(measurementDetails, remainingAxes));
 		return notBottom;
@@ -404,6 +385,10 @@ void AMDataTreeDataStore::dataStoreDimensionsPuke(){
 	dataStoreDimensionsPukeHelper(dataTree_, scanAxesCount(), 0);
 }
 
+void AMDataTreeDataStore::dataStoreDataPuke(){
+	dataStoreDataPukeHelper(dataTree_, scanAxesCount(), 0);
+}
+
 void AMDataTreeDataStore::dataStoreDimensionsPukeHelper(const AMDataTree *dataTree, const int depthToGo, const int depthNow){
 	QString puke = "-";
 	for(int x=0; x < depthNow; x++)
@@ -412,6 +397,53 @@ void AMDataTreeDataStore::dataStoreDimensionsPukeHelper(const AMDataTree *dataTr
 	if(depthToGo != 1)
 		for(int x=0; x < dataTree->count(); x++)
 			dataStoreDimensionsPukeHelper(dataTree->deeper(0, x), depthToGo-1, depthNow+1);
+}
+
+void AMDataTreeDataStore::dataStoreDataPukeHelper(const AMDataTree *dataTree, const int depthToGo, const int depthNow){
+	QString puke, tmpStr;
+	AMNumber curVal;
+	if(depthToGo > 2){
+		for(int x=0; x < dataTree->count(); x++){
+			tmpStr.setNum((int)x);
+			qDebug() << dataTree->xName()+"["+tmpStr+"]";
+			dataStoreDataPukeHelper(dataTree->deeper(0, x), depthToGo-1, depthNow+1);
+		}
+	}
+	else if(depthToGo == 2){
+		for(int x=0; x < dataTree->count(); x++){
+			for(int y=0; y < dataTree->deeper(0,0)->count(); y++){
+				curVal = dataTree->deeper(0, x)->value(0, y);
+				if(curVal.state() == AMNumber::Null)
+					puke += " N";
+				else if(curVal.state() == AMNumber::OutOfBoundsError)
+					puke += " B";
+				else if(curVal.state() == AMNumber::DimensionError)
+					puke += " D";
+				else{
+					tmpStr.setNum((double)curVal);
+					puke += " "+tmpStr;
+				}
+			}
+			qDebug() << puke;
+			puke.clear();
+		}
+	}
+	else{
+		for(int x=0; x < dataTree->count(); x++){
+			curVal = dataTree->value(0, x);
+			if(curVal.state() == AMNumber::Null)
+				puke += " N";
+			else if(curVal.state() == AMNumber::OutOfBoundsError)
+				puke += " B";
+			else if(curVal.state() == AMNumber::DimensionError)
+				puke += " D";
+			else{
+				tmpStr.setNum((double)curVal);
+				puke += " "+tmpStr;
+			}
+		}
+		qDebug() << puke;
+	}
 }
 
 void dataTreeColumnsPuke(const AMDataTree *dataTree){

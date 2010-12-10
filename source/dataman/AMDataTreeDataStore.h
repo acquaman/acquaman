@@ -45,6 +45,7 @@ public slots:
 	virtual bool setValue(const AMnDIndex &scanIndex, int measurementId, const double* inputData, const int numArrayElements);
 
 	void dataStoreDimensionsPuke();
+	void dataStoreDataPuke();
 
 protected:
 	/// Implementing subclasses must provide a beginInsertRowsImplementation() which creates space for the new measurements.  When this function completes, it should be valid to setValue()s within the new scan space. Return false if the request is not possible.
@@ -66,6 +67,7 @@ protected:
 	bool measurementIndexExists(int measurementId) const;
 
 	void dataStoreDimensionsPukeHelper(const AMDataTree *dataTree, const int depthToGo, const int depthNow);
+	void dataStoreDataPukeHelper(const AMDataTree *dataTree, const int depthToGo, const int depthNow);
 
 protected:
 	AMDataTree *dataTree_;
