@@ -5,7 +5,7 @@
 AMXASScan::AMXASScan(QObject *parent)
 	: AMScan(parent)
 {
-
+	data_->addScanAxis( AMAxisInfo("eV", 0, "Incident Energy", "eV") );
 }
 
 

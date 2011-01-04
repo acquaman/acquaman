@@ -428,12 +428,16 @@ namespace AMDbObjectSupport {
 	AMDbObject* createAndLoadObjectAt(AMDatabase* db, const QString& tableName, int id) {
 
 		QString className = typeOfObjectAt(db, tableName, id);
-		if(className.isEmpty())
+		if(className.isEmpty()) {
+			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -90, QString("[AMDbObjectSupport] Could not load the object with ID %1 from the table '%2', because we couldn't determine the type of the object.").arg(id).arg(tableName)));
 			return 0;
+		}
 
 		const AMDbObjectInfo* objInfo = objectInfoForClass(className);
-		if(!objInfo)
+		if(!objInfo) {
+			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -91, QString("[AMDbObjectSupport] Could not load the object with ID %1 from the table '%2', because the class '%3' hasn't yet been registered in the database system.").arg(id).arg(tableName).arg(className)));
 			return 0;
+		}
 
 		// this should never happen, so we won't bother to check. But if an object was somehow stored in the wrong table, AMDbObject::loadFromDb() will fail.
 		// if(tableName != objInfo->tableName)
@@ -458,7 +462,8 @@ namespace AMDbObjectSupport {
 				delete newObject;	// loading failed, and we're not going to return anything. Make sure not to leak the newly-created object.
 		}
 
-		return false;
+		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -93, QString("[AMDbObjectSupport] Could not load the object with ID %1 from the table '%2', because there are no suitable constructors.").arg(id).arg(tableName)));
+		return 0;
 	}
 
 }	// END OF NAMESPACE AMDbObjectSupport

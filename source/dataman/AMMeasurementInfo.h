@@ -26,13 +26,20 @@ public:
 	/// Number, size, and description of each axis of this measurement's dimensionality.  (For a scalar-value (0D) detector, this is just an empty list)
 	QList<AMAxisInfo> axes;
 
+	/// Returns the number of axes (ie: the number of dimensions in this measurement)
 	int rank() const { return axes.count(); }
 
+	/// Returns the length of all the axes
 	AMnDIndex size() const {
 		AMnDIndex s;
 		for(int i=0; i<axes.count(); i++)
 			s.append(axes.at(i).size);
 		return s;
+	}
+
+	/// Returns the length of the specified axis \c axisId.  (\c axisId is assumed to be >= 0 and < rank().)
+	int size(int axisId) const {
+		return axes.at(axisId).size;
 	}
 
 	/// Returns the number of points this measurement spans (A scalar value is "1" point, a 1D Detector is the same as its dimension, higher-D detectors are the products of their dimensions)

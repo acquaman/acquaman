@@ -4,6 +4,7 @@
 #include "dataman/AMRun.h"
 #include "dataman/AMSample.h"
 #include "dataman/AMDbObjectSupport.h"
+#include "dataman/AMInMemoryDataStore.h"
 
 
 AMScan::AMScan(QObject *parent)
@@ -22,6 +23,8 @@ AMScan::AMScan(QObject *parent)
 	notes_ = QString();
 	filePath_ = QString();
 	fileFormat_ = "unknown";
+
+	data_ = new AMInMemoryDataStore();	// data store is initially empty. Needs axes configured in specific subclasses.
 
 	autoLoadData_ = true;
 
@@ -43,7 +46,7 @@ AMScan::AMScan(QObject *parent)
 
 AMScan::~AMScan() {
 	// delete all data sources.
-	/// \note This is expensive if an AMScanSetModel and associated plots are watching. It would be faster to tell those plots, "Peace out, all my data sources are about to disappear", so that they don't need to respond to each removal separately. For now, you should remove this scan from the AMScanSetModel FIRST, and then delete it.
+	// \note This is expensive if an AMScanSetModel and associated plots are watching. It would be faster to tell those plots, "Peace out, all my data sources are about to disappear", so that they don't need to respond to each removal separately. For now, you should remove this scan from the AMScanSetModel FIRST, and then delete it.
 	int count;
 	while( (count = analyzedDataSources_.count()) ) {
 		AMDataSource* deleteMe = analyzedDataSources_.at(count-1);
@@ -56,6 +59,9 @@ AMScan::~AMScan() {
 		rawDataSources_.remove(count-1);
 		delete deleteMe;
 	}
+
+	// delete the raw data store, which was allocated in the constructor.
+	delete data_;
 }
 
 
@@ -86,7 +92,7 @@ void AMScan::setSampleId(int newSampleId) {
 	emit sampleIdChanged(sampleId_);
 }
 
-/// Convenience function: returns the name of the sample (if a sample is set)
+// Convenience function: returns the name of the sample (if a sample is set)
 QString AMScan::sampleName() const {
 
 	if(!sampleNameLoaded_)
@@ -117,8 +123,8 @@ void AMScan::retrieveSampleName() const {
 
 
 
-/// Store or update self in the database. (returns true on success)
-/*! Re-implemented from AMDbObject::storeToDb(), this version also schedules a date range update of the scan's run when it is inserte into a database for the very first time.
+// Store or update self in the database. (returns true on success)
+/* Re-implemented from AMDbObject::storeToDb(), this version also schedules a date range update of the scan's run when it is insertes into a database for the very first time.
   */
 bool AMScan::storeToDb(AMDatabase* db) {
 
@@ -138,7 +144,7 @@ bool AMScan::storeToDb(AMDatabase* db) {
 }
 
 
-/// Loads a saved scan from the database into self. Returns true on success.
+// Loads a saved scan from the database into self. Returns true on success.
 /*! Re-implemented from AMDbObject::loadFromDb(), this version also loads the scan's raw data if autoLoadData() is set to true, and the stored filePath doesn't match the existing filePath()*/
 bool AMScan::loadFromDb(AMDatabase* db, int sourceId) {
 
@@ -217,6 +223,7 @@ void AMScan::dbLoadAnalyzedDataSources(const AMDbObjectList& newAnalyzedSources)
 
 	// Simply adding these to analyzedDataSources_ will be enough to emit the signals that tell everyone watching we have new data channels.
 	for(int i=0; i<newAnalyzedSources.count(); i++) {
+
 		AMAnalysisBlock* newSource = qobject_cast<AMAnalysisBlock*>(newAnalyzedSources.at(i));
 		if(newSource)
 			analyzedDataSources_.append(newSource, newSource->name());
@@ -255,7 +262,9 @@ void AMScan::dbLoadAnalyzedDataSourcesConnections(const QString& connectionStrin
 	QStringList allConnections = connectionString.split("\n", QString::SkipEmptyParts);
 
 	if(allConnections.count() != analyzedDataSources_.count()) {
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "There was an error re-connecting the analysis and processing components for this scan; the number of blocks didn't match. Your database might be corrupted. Please report this bug to the Acquaman developers."));
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "There was an error re-connecting the analysis and processing components for this scan; the number of analysis blocks didn't match. Your database might be corrupted. Please report this bug to the Acquaman developers."));
+		qDebug() << "    AMScan: loading analyzedDataSourcesConnections: allConnections is:" << allConnections;
+		qDebug() << "        but number of analyzedDataSources_ is : " << analyzedDataSources_.count();
 		return;
 	}
 
@@ -325,7 +334,7 @@ void AMScan::onDataSourceRemoved(int index) {
 #include "dataman/AMDataSourceSeriesData.h"
 #include "dataman/AMDataSourceImageData.h"
 
-/// Return a thumbnail picture for thumbnail number \c index. For now, we use the following decision: Normally we provide thumbnails for all the analyzed data sources.  If there are no analyzed data sources, we provide thumbnails for all the raw data sources.
+// Return a thumbnail picture for thumbnail number \c index. For now, we use the following decision: Normally we provide thumbnails for all the analyzed data sources.  If there are no analyzed data sources, we provide thumbnails for all the raw data sources.
 AMDbThumbnail AMScan::thumbnail(int index) const {
 
 	bool useRawSources = (analyzedDataSources_.count() == 0);
@@ -391,7 +400,7 @@ AMDbThumbnail AMScan::thumbnail(int index) const {
 
 	delete plot;	// deletes all plot items (series, image) with it.
 
-	/// todo: pretty names like "Total Electron Yield" instead of "tey_n"
+	// todo: pretty names like "Total Electron Yield" instead of "tey_n"
 	return AMDbThumbnail(dataSource->name(), dataSource->description(), pixmap);
 
 }

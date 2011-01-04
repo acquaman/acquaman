@@ -41,8 +41,8 @@ public slots:
 	virtual bool setValue(const AMnDIndex &scanIndex, int measurementId, const AMnDIndex &measurementIndex, const AMNumber &newValue);
 	virtual bool setAxisValue(int axisId, int axisIndex, AMNumber newValue);
 
-	virtual bool setValue(const AMnDIndex &scanIndex, int measurementId, const int* inputData, const int numArrayElements);
-	virtual bool setValue(const AMnDIndex &scanIndex, int measurementId, const double* inputData, const int numArrayElements);
+	virtual bool setValue(const AMnDIndex &scanIndex, int measurementId, const int* inputData, int numArrayElements);
+	virtual bool setValue(const AMnDIndex &scanIndex, int measurementId, const double* inputData, int numArrayElements);
 
 	void dataStoreDimensionsPuke();
 	void dataStoreDataPuke();

@@ -72,9 +72,9 @@ public:
 	/// Creates space to support an additional measurement at every scan point. \c measurementDetails describes the dimensionality and details of the new set of measurements.  (If a set of scan points exist already, the initial values for this measurement at those scan points should be Null.)
 	/*! If you want to retrieve measurements by name, \c measurementDetails must contain a unique \c name.  This function should return false if a measurement with that name already exists. */
 	virtual bool addMeasurement(const AMMeasurementInfo& measurementDetails) = 0;
-	/// Retrieve the id of an existing set of measurements, by name.  (Depending on the implementation, this may not be fast. Avoid calling it repeatedly.)
+	/// Retrieve the id of an existing set of measurements, by name.  (Depending on the implementation, this may not be fast. Avoid calling it repeatedly.) Returns -1 if not found.
 	virtual int idOfMeasurement(const QString& measurementName) const = 0;
-	/// Retrieve information about a set of measurements, by id.
+	/// Retrieve information about a set of measurements, by id. \c id must be >= 0 and < measurementCount().
 	virtual AMMeasurementInfo measurementAt(int id) const = 0;
 	/// Return the number of measurements stored for each scan point
 	virtual int measurementCount() const = 0;
@@ -82,15 +82,15 @@ public:
 
 	// Axes
 	/////////////////////////////
-	/// Create space to support an additional scan axis.  \c axisDetails describes the characteristics of the axis, but the \c size of axisDetails will be ignored.  If no data points exist yet (ie: the scan space is empty), the size of the new axis will be set to 0; otherwise, it will be set to 1.
+	/// Create space to support an additional scan axis.  \c axisDetails describes the characteristics of the axis, but the \c size of axisDetails will be ignored.  If this is the first axis to be added, the size will be set to 0; otherwise it will be set to 1.
 	/*! If you want to retrieve axes by name, \c axisDetails must contain a unique \c name.  This function should return false if an axis with that name already exists.
 
 	  \note No signalling is provided for alerting observers of new scan axes. It's also prohibited for AMDataSources that expose this data (for ex: AMRawDataSource) to change dimensionality (ie: add another axis). Therefore, it's recommended to only call this function when first setting up a dataStore, before any observers get involved.
 */
 	virtual bool addScanAxis(const AMAxisInfo& axisDetails) = 0;
-	/// Retrieve the id of an existing axis, by name.  (Depending on the implementation, this may not be fast. Avoid calling it repeatedly.)
+	/// Retrieve the id of an existing axis, by name.  (Depending on the implementation, this may not be fast. Avoid calling it repeatedly.)  Returns -1 if not found.
 	virtual int idOfScanAxis(const QString& axisName) const = 0;
-	/// Retrieve information about an axis, by id.
+	/// Retrieve information about an axis, by id.  \c id must be >= 0 and < scanAxesCount().
 	virtual AMAxisInfo scanAxisAt(int id) const = 0;
 	/// Return the number of scan axes
 	virtual int scanAxesCount() const = 0;
@@ -98,13 +98,14 @@ public:
 	int scanRank() const { return scanAxesCount(); }
 	/// Return the sizes of all the scan axes, in order.
 	virtual AMnDIndex scanSize() const = 0;
-	/// Return the size along a specific axis, by \c id.
+	/// Return the size along a specific axis, by \c id.  (\c id must be >= 0 and < scanAxesCount().)
 	virtual int scanSize(int axisId) const = 0;
 
-	/// Indicates that the scan space is empty (no scan points yet). This is true when the size of any axis is 0. (think about it..)
+	/// Indicates that the scan space is empty (no scan points yet). This is true when the size of any axis is 0.
 	virtual bool isEmpty() const {
-		for(int mu=0; mu<scanAxesCount(); mu++)
-			if(scanAxisAt(mu).size == 0)
+		int rank = scanAxesCount();
+		for(int mu=0; mu<rank; mu++)
+			if(scanSize(mu) == 0)
 				return true;
 		return false;
 	}
@@ -124,8 +125,8 @@ public:
 
 
 	/// Performance optimization for setValue(): this allows multi-dimensional measurements to be set in a single setValue call.  \c inputData is interpreted as being in a flat array, ordered where the measurement's first axis varies the fastest, and the measurement's last axis varies the slowest.  The size of the \c inputData must match the product of the sizes of all dimensions in the measurement.
-	virtual bool setValue(const AMnDIndex &scanIndex, int measurementId, const int* inputData, const int numArrayElements) = 0;
-	virtual bool setValue(const AMnDIndex &scanIndex, int measurementId, const double* inputData, const int numArrayElements) = 0;
+	virtual bool setValue(const AMnDIndex &scanIndex, int measurementId, const int* inputData, int numArrayElements) = 0;
+	virtual bool setValue(const AMnDIndex &scanIndex, int measurementId, const double* inputData, int numArrayElements) = 0;
 
 
 	// Adding new data points: increasing the size of the scan space
@@ -184,7 +185,7 @@ protected:
 		Q_UNUSED(atRowIndex);
 	}
 
-	/// Implementing subclasses must provide a clearImplementation(), which removes all data values and sets the size of each axis to 0.  It should leave the set of configured measurements as-is.
+	/// Implementing subclasses must provide a clearImplementation(), which removes all data values and sets the size of each axis to 1... except for the first axis (axisId == 0), which should have a size of 0.  It should leave the set of configured measurements as-is.
 	virtual void clearScanDataPointsImplementation() = 0;
 
 	/// Implementing subclasses must provide a clearMeasurementsImplementation(), which clears the set of configured measurements.  They can assume that the set of scan data values is already cleared.

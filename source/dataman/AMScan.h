@@ -407,9 +407,7 @@ Lines are separated by single '\n', so a full string could look like:
 
 private:
 
-	/* Move this to AMDataTreeDataStore: This is used to maintain a reference count of 1 on the implicitly shared AMDataTree d_, and delete d_ when this (dshared_) goes out of scope
-	QSharedDataPointer<AMDataTree> dshared_;
-	*/
+
 
 };
 

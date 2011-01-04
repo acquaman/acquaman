@@ -63,6 +63,11 @@ public:
 
 	}
 
+	/// Returns true if an item with this \c key exists in the set:
+	bool contains(const Tkey& key) const {
+		return hash_.contains(key);
+	}
+
 	const AMOrderedSetSignalSource* signalSource() const { return signalSource_; }
 
 	/// Indicates whether insert() and append() will accept keys that already exist

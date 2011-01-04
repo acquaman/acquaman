@@ -163,7 +163,13 @@ AMDbObject* newSomeKindaObject = AMDbObjectSupport::createAndLoadObjectAt(myWork
 \endcode
 You can then use qobject_cast<>() or type() to test the type of the newly-created object.
 
-\note This functionality depends on the detailed class providing either a default constructor, or a constructor that accepts a database and id. In either case, the constructor must be declared with the Q_INVOKABLE flag. It's recommended that all AMDbObjects provide one or another of these constructors.
+\note This functionality depends on the detailed class providing either a default constructor that requires no arguments, or a constructor that accepts a database and id:
+
+\code
+Q_INVOKABLE MyDbObject(AMDatabase* db, int id);
+\endcode
+
+ In either case, the constructor must be declared with the Q_INVOKABLE flag. It's recommended that all AMDbObjects provide one or another of these constructors.
 
 \todo how to re-implement the modified() and metaDataChanged() signal, now that we're using the property system, instead of setMetaData()?
 

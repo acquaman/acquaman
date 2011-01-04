@@ -5,6 +5,7 @@
 AMDataSourcesEditor::AMDataSourcesEditor(AMScanSetModel* model, QWidget *parent) :
 		QWidget(parent)
 {
+	detailEditor_ = 0;
 	ui_.setupUi(this);
 
 	// Modify and adjust UI components
