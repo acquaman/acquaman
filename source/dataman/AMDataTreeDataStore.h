@@ -46,6 +46,7 @@ public slots:
 
 	void dataStoreDimensionsPuke();
 	void dataStoreDataPuke();
+	void dataStoreBasePuke();
 
 protected:
 	/// Implementing subclasses must provide a beginInsertRowsImplementation() which creates space for the new measurements.  When this function completes, it should be valid to setValue()s within the new scan space. Return false if the request is not possible.
@@ -59,7 +60,7 @@ protected:
 
 	}
 
-	void appendToDepth(AMDataTree* dataTree, QList<int> newCounts);
+	void appendToDepth(AMDataTree* dataTree, QList<int> newCounts, AMDataTree* initializerTree = NULL);
 	AMDataTree* measurementInfoToTree(const AMMeasurementInfo &measurementDetails, QList<AMAxisInfo> remainingAxes);
 	AMDataTree* bottomTreeFinder(AMDataTree* treeTop, const AMMeasurementInfo &measurementDetails, const int offset);
 	bool setValueFillBottom(AMDataTree* dataTree, const int *inputData, const int bottomDimension);

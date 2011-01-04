@@ -7,7 +7,8 @@ AMDataTreeDataStore::AMDataTreeDataStore(const AMAxisInfo &initialAxis, QObject 
 	axes_.setAllowsDuplicateKeys(false);
 	axes_.append(initialAxis, initialAxis.name);
 	axes_[0].size = 0;
-	dataTree_ = baseTree_;
+	//dataTree_ = baseTree_;
+	dataTree_ = new AMDataTree(0, initialAxis.name, true, true);
 	measurements_.setAllowsDuplicateKeys(false);
 	emptyTree_ = true;
 }
@@ -20,13 +21,16 @@ AMDataTreeDataStore::~AMDataTreeDataStore(){
 bool AMDataTreeDataStore::addMeasurement(const AMMeasurementInfo &measurementDetails){
 	if( !measurements_.append(measurementDetails, measurementDetails.name) )
 		return false;
-	if(measurementDetails.rank() == 0)
+	if(measurementDetails.rank() == 0){
 		baseTree_->createColumn(measurementDetails.name, measurementDetails.description, measurementDetails.units);
+		dataTree_->createColumn(measurementDetails.name, measurementDetails.description, measurementDetails.units);
+	}
 	else{
 		QList<AMAxisInfo> axes;
 		foreach(AMAxisInfo axis, measurementDetails.axes)
 			axes << AMAxisInfo(axis.name, axis.size, axis.description, axis.units);
 		baseTree_->createSubtreeColumn(measurementDetails.name, measurementInfoToTree(measurementDetails, axes) );
+		dataTree_->createSubtreeColumn(measurementDetails.name, measurementInfoToTree(measurementDetails, axes) );
 	}
 	return true;
 }
@@ -55,10 +59,14 @@ bool AMDataTreeDataStore::addScanAxis(const AMAxisInfo &axisDetails){
 		axes_[(axes_.count()-1)].size = 0;
 	else
 		axes_[(axes_.count()-1)].size = 1;
+
 	AMDataTree *oldDataTree = dataTree_;
 	dataTree_ = new AMDataTree(axes_[(axes_.count()-1)].size, axisDetails.name, true, true);
-	//dataTree_ = new AMDataTree(0, axisDetails.name, true);
 	dataTree_->createSubtreeColumn(oldDataTree->xName(), oldDataTree);
+
+	AMDataTree *oldBaseTree = baseTree_;
+	baseTree_ = new AMDataTree(axes_[(axes_.count()-1)].size, axisDetails.name, true, true);
+	baseTree_->createSubtreeColumn(oldBaseTree->xName(), oldBaseTree);
 }
 
 int AMDataTreeDataStore::idOfScanAxis(const QString &axisName) const{
@@ -249,14 +257,47 @@ bool AMDataTreeDataStore::beginInsertRowsImplementation(int axisId, int numRows,
 	if( (axisId < 0) || (axisId >= axes_.count()) )
 		return false;
 
-//	qDebug() << "Appending valid axis IN BEGIN INSERT ROWS IMPLEMENTATION";
+	//qDebug() << "Appending valid axis IN BEGIN INSERT ROWS IMPLEMENTATION";
+	AMDataTree *baseAxisLevel = baseTree_;
 	AMDataTree *axisLevel = dataTree_;
-#warning "Only working on append for now"
+
 	int rowCount = scanAxisAt(axisId).size;
-//	qDebug() << "Row count on axis " << axisId << " is " << rowCount;
 	if( atRowIndex != rowCount)
 		return false;
 
+	if(emptyTree_){
+		emptyTree_ = false;
+		for(int x=0; x < axes_.count(); x++){
+			baseAxisLevel->append();
+			axisLevel->append();
+			axes_[x].size++;
+			axisLevel = axisLevel->deeper(0,0);
+			baseAxisLevel = baseAxisLevel->deeper(0,0);
+		}
+		return true;
+	}
+
+	QList<int> newCounts;
+	for(int x=0; x <= axisId; x++)
+		newCounts << scanAxisAt(x).size;
+	newCounts[axisId] = rowCount+1;
+	qDebug() << "Append we want " << newCounts;
+	appendToDepth(baseTree_, newCounts);
+	qDebug() << "base/data before data append";
+	dataStoreDataPukeHelper(baseTree_, axes_.count(), 0);
+	dataStoreDataPukeHelper(dataTree_, axes_.count(), 0);
+	appendToDepth(dataTree_, newCounts, baseTree_);
+	//axes_[axisId].size++;
+
+
+
+#warning "Only working on append for now"
+	//int rowCount = scanAxisAt(axisId).size;
+//	qDebug() << "Row count on axis " << axisId << " is " << rowCount;
+	//if( atRowIndex != rowCount)
+	//	return false;
+
+	/*
 	if(emptyTree_){
 		emptyTree_ = false;
 		for(int x=0; x < axes_.count(); x++){
@@ -266,14 +307,15 @@ bool AMDataTreeDataStore::beginInsertRowsImplementation(int axisId, int numRows,
 		}
 		return true;
 	}
+	*/
 
 	/* Complex append */
-	QList<int> newCounts;
-	for(int x=0; x <= axisId; x++)
-		newCounts << scanAxisAt(x).size;
-	newCounts[axisId] = rowCount+1;
-	qDebug() << "Append we want " << newCounts;
-	appendToDepth(dataTree_, newCounts);
+	//QList<int> newCounts;
+	//for(int x=0; x <= axisId; x++)
+	//	newCounts << scanAxisAt(x).size;
+	//newCounts[axisId] = rowCount+1;
+	//qDebug() << "Append we want " << newCounts;
+
 	axes_[axisId].size++;
 
 	/* End complex append */
@@ -297,20 +339,32 @@ void AMDataTreeDataStore::clearScanDataPointsImplementation(){
 
 }
 
-void AMDataTreeDataStore::appendToDepth(AMDataTree* dataTree, QList<int> newCounts){
+void AMDataTreeDataStore::appendToDepth(AMDataTree* dataTree, QList<int> newCounts, AMDataTree* initializerTree){
 //	if(depth == 1)
+	if(initializerTree && newCounts.count() == 1 && dataTree->xName() == "temperature"){
+		qDebug() << "data/null pair:";
+		dataStoreDataPukeHelper(dataTree, 2, 0);
+		dataStoreDataPukeHelper(initializerTree, 2, 0);
+	}
 	if( newCounts.count() == 1){
-		if(newCounts.at(0) == dataTree->count()+1)
-			dataTree->append();
+		if(newCounts.at(0) == dataTree->count()+1){
+			if(initializerTree)
+				dataTree->append(AMNumber(), initializerTree, true);
+			else
+				dataTree->append();
+		}
 		else
 			return;
 	}
 	else{
 		int rowCount = newCounts.takeFirst();
-		for(int x=0; x < dataTree->count(); x++)
+		for(int x=0; x < dataTree->count(); x++){
 //			if(rowCount == dataTree->count()-1) NECESSARY?
-			appendToDepth(dataTree->deeper(0, x), newCounts);
-//			appendToDepth(dataTree->deeper(0, x), depth-1);
+			if(initializerTree)
+				appendToDepth(dataTree->deeper(0, x), newCounts, initializerTree->deeper(0, x));
+			else
+				appendToDepth(dataTree->deeper(0, x), newCounts);
+		}
 	}
 }
 
@@ -387,6 +441,10 @@ void AMDataTreeDataStore::dataStoreDimensionsPuke(){
 
 void AMDataTreeDataStore::dataStoreDataPuke(){
 	dataStoreDataPukeHelper(dataTree_, scanAxesCount(), 0);
+}
+
+void AMDataTreeDataStore::dataStoreBasePuke(){
+	dataStoreDataPukeHelper(baseTree_, scanAxesCount(), 0);
 }
 
 void AMDataTreeDataStore::dataStoreDimensionsPukeHelper(const AMDataTree *dataTree, const int depthToGo, const int depthNow){

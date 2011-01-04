@@ -298,7 +298,7 @@ If there are columns of subtrees, the default value of the new subtree is a copy
 
 \test
 */
-void AMDataTree::append(const AMNumericType& newValue) {
+void AMDataTree::append(const AMNumericType& newValue, AMDataTree *initializerTree, bool useInitializer) {
 
 	// count_ is now one ahead of every column's size.
 	count_++;
@@ -322,7 +322,11 @@ void AMDataTree::append(const AMNumericType& newValue) {
 				yD_[i] << QSharedDataPointer<AMDataTree>(prototypes_.at(i));
 			}
 		}
-
+		else if(useInitializer){
+			qDebug() << "Using initializer";
+			yD_[i] << QSharedDataPointer<AMDataTree>( initializerTree->deeper(i, initializerTree->count()-1) );
+			//yD_[i] << QSharedDataPointer<AMDataTree>(new AMDataTree( *(initializerTree.deeper(i, initializerTree.count()-1))) );
+		}
 		// otherwise append a copy of the latest tree.
 		else
 			yD_[i] << yD_[i][count_ - 2];

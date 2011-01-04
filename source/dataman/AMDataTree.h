@@ -274,7 +274,7 @@ copyXASData.deeper("sddSpectrums",5)->setValue("y", 512, 49.3);
 
 	\test
 	*/
-	void append(const AMNumericType& newValue = AMNumber());
+	void append(const AMNumericType& newValue = AMNumber(), AMDataTree *initializerTree = NULL, bool useInitializer = false);
 
 	/// This a convenience function, equivalent to setValue(colIndex, count()-1, newValue). It's useful when filling extra columns after append(). \test
 	void setLastValue(unsigned colIndex, const AMNumericType& newValue = AMNumber()) {

@@ -265,7 +265,9 @@ private slots:
 		dtds.endInsertRows();
 
 		AMnDIndex scanInsertIndex(0, 0, 1);
+		AMnDIndex scanInsertIndex2(0, 1, 2);
 		AMnDIndex scanRetrieveIndex(0, 0, 1);
+		AMnDIndex scanRetrieveIndex2(0, 1, 2);
 		qDebug() << "\n\n\n";
 		for(int x=0; x<1; x++){
 			if(dtds.beginInsertRows(0, 1, x))
@@ -287,6 +289,7 @@ private slots:
 					dtds.endInsertRows();
 
 					if(z == 1 && y == 0 && x == 0){
+						/**/
 						qDebug() << "Doing this insert once when " << z << y << x;
 						dtds.setValue(scanInsertIndex, dtds.idOfMeasurement("tey"), AMnDIndex(), 12.2);
 						AMNumber retVal = dtds.value(scanRetrieveIndex, dtds.idOfMeasurement("tey"), AMnDIndex());
@@ -300,8 +303,27 @@ private slots:
 							qDebug() << "Axis is Null valued number";
 						else
 							qDebug() << "Set that axis mud trucka as " << double(retVal);
+						/**/
+					}
+					if(z == 2 && y == 1 && x == 0){
+						/**/
+						qDebug() << "Doing this insert once when " << z << y << x;
+						dtds.setValue(scanInsertIndex2, dtds.idOfMeasurement("tey"), AMnDIndex(), 27.27);
+						AMNumber retVal = dtds.value(scanRetrieveIndex2, dtds.idOfMeasurement("tey"), AMnDIndex());
+						if(retVal.state() == AMNumber::Null)
+							qDebug() << "Null valued number";
+						else
+							qDebug() << "Set that mud trucka as " << double(retVal);
+						dtds.setAxisValue(0, 0, 12.27);
+						retVal = dtds.axisValue(0,0);
+						if(retVal.state() == AMNumber::Null)
+							qDebug() << "Axis is Null valued number";
+						else
+							qDebug() << "Set that axis mud trucka as " << double(retVal);
+						/**/
 					}
 				}
+				qDebug() << "\n\nLOOPED PUKE\n";
 				dtds.dataStoreDataPuke();
 			}
 		}
@@ -309,6 +331,7 @@ private slots:
 		qDebug() << "\n\n\nDATA PUKE";
 //		dtds.setValue(scanInsertIndex, 0, AMnDIndex(), 27.12);
 		dtds.dataStoreDataPuke();
+		dtds.dataStoreBasePuke();
 		qDebug() << "\n\n";
 		dtds.beginInsertRows(2, 1, 2);
 		dtds.dataStoreDimensionsPuke();
