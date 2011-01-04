@@ -89,7 +89,22 @@ public:
 		return true;
 	}
 
+	bool operator==(const AMnDIndex& other) const {
+		if(other.size() != size())
+			return false;
+		for(int i=0; i<size(); i++) {
+			if(other[i] != (*this)[i])
+				return false;
+		}
+		return true;
+	}
+
+	bool operator!=(const AMnDIndex& other) const {
+		return !(*this == other);
+	}
+
 };
+
 
  #include <QMetaType>
 Q_DECLARE_METATYPE(AMnDIndex)

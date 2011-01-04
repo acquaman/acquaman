@@ -9,6 +9,7 @@
 #include "dataman/AMDbObjectSupport.h"
 #include "analysis/AM1DExpressionAB.h"
 #include "dataman/AMDataTreeDataStore.h"
+#include "dataman/AMInMemoryDataStore.h"
 
 #include "util/AMOrderedSet.h"
 
@@ -70,6 +71,460 @@ private slots:
 
 	}
 
+	void testInMemoryDataStore() {
+
+		AMInMemoryDataStore* s = new AMInMemoryDataStore();
+
+		s->addMeasurement(AMMeasurementInfo("meas0", "Measurement 0"));
+
+		// starting with a single axis
+		s->addScanAxis(AMAxisInfo("x", 0, "x axis"));
+
+		QVERIFY(s->isEmpty());
+		QVERIFY(s->scanAxesCount() == 1);
+		QVERIFY(s->scanAxisAt(0).name == "x");
+
+		QVERIFY(s->measurementCount() == 1);
+		QVERIFY(s->measurementAt(0).name == "meas0");
+
+		// insert single row; check size; insert values and check
+		QVERIFY(s->beginInsertRows(0, 1));
+		QVERIFY(s->setValue(AMnDIndex(0), 0, AMnDIndex(), 3.1415));
+		QVERIFY(s->setAxisValue(0,0,1.2));
+		s->endInsertRows();
+
+		QVERIFY(s->value(AMnDIndex(0), 0, AMnDIndex()) == 3.1415);
+		QVERIFY(s->axisValue(0,0) == 1.2);
+
+		QVERIFY(s->beginInsertRows(0, 9, 0));	// prepend 9 rows
+		s->endInsertRows();
+		// check that initial values are AMNumber::Null.
+		for(int i=0; i<9; i++) {
+			QVERIFY(s->value(i, 0, AMnDIndex()) == AMNumber());
+		}
+		for(int i=0; i<9; i++) {
+			QVERIFY(s->setValue(AMnDIndex(i), 0, AMnDIndex(), 0));
+		}
+		for(int i=0; i<9; i++) {
+			QVERIFY(s->value(i, 0, AMnDIndex()) == 0.0);
+		}
+
+
+		QVERIFY(s->scanSize(0) == 10);
+		QVERIFY(s->value(9, 0, AMnDIndex()) == 3.1415);	// ensure prepend worked
+		QVERIFY(s->axisValue(0, 9) == 1.2);
+
+
+		// create first row of multiplication table for 2D test coming up.
+		for(int i=0; i<10; i++) {
+			s->setValue(i, 0, AMnDIndex(), i+1);
+		}
+
+
+
+		// adding another axis.
+		QVERIFY(s->addScanAxis(AMAxisInfo("y", 0, "y axis")));
+		QVERIFY(s->scanRank() == 2);
+		QVERIFY(s->scanSize() == AMnDIndex(10, 1));
+		QVERIFY(s->scanSize(1) == 1);
+		QVERIFY(s->scanAxisAt(1).name == "y");
+
+		for(int i=0; i<s->scanSize(0); i++) {
+			QVERIFY(s->value(AMnDIndex(i,0), 0, AMnDIndex()) == i+1.0);
+			QVERIFY(s->value(AMnDIndex(i), 0, AMnDIndex()) == AMNumber(AMNumber::DimensionError)); // wrong dimension of index
+		}
+
+#ifdef AMINMEMORYDATASTORE_BOUNDS_CHECKING_ENABLED
+		QVERIFY(s->value(AMnDIndex(200,0), 0, AMnDIndex()) == AMNumber(AMNumber::OutOfBoundsError));
+#endif
+
+		QVERIFY(s->value(AMnDIndex(5,0), 3, AMnDIndex()) == AMNumber(AMNumber::InvalidError));	// invalid measurement
+
+		/// \todo test creating a second axis when first is empty...
+
+		QVERIFY(s->beginInsertRows(1, 9));	// append 9 rows to 2nd dimension
+		s->endInsertRows();
+
+		for(int i=0; i<10; i++) {
+			for(int j=1; j<10; j++) {
+				QVERIFY(s->value(AMnDIndex(i,j), 0, AMnDIndex()) == AMNumber(AMNumber::Null));	// initial values should be AMNumber::Null everywhere except first slice.
+			}
+		}
+		for(int i=0; i<10; i++) {
+			for(int j=0; j<10; j++) {
+				QVERIFY(s->setValue(AMnDIndex(i,j), 0, AMnDIndex(), (i+1.0)*(j+1.0)));
+				QVERIFY(s->setAxisValue(1, j, j+1));
+			}
+			QVERIFY(s->setAxisValue(0, i, i+1));
+		}
+
+// check 2D multiplication table
+
+		QString row = " :\t";
+		for(int j=0; j<s->scanSize(1); j++)
+			row.append(QString("%1\t").arg((double)s->axisValue(1, j)));
+		//qDebug() << row;
+		//qDebug() << "======================================================";
+		for(int i=0; i<s->scanSize(0); i++) {
+			QString row = QString("%1:\t").arg((double)s->axisValue(0,i));
+			for(int j=0; j<s->scanSize(1); j++) {
+				double value = s->value(AMnDIndex(i,j), 0, AMnDIndex());
+				row.append(QString("%1\t").arg(value));
+				QVERIFY(value == (i+1.0)*(j+1.0));
+			}
+			//qDebug() << row;
+		}
+
+
+		// adding another measurement to existing points:
+		QVERIFY(s->addMeasurement(AMMeasurementInfo("meas1", "measurement 1")));
+		QVERIFY(s->measurementCount() == 2);
+
+		for(int i=0; i<s->scanSize(0); i++) {
+			for(int j=0; j<s->scanSize(1); j++) {
+				QVERIFY(s->value(AMnDIndex(i,j), 1, AMnDIndex()) == AMNumber(AMNumber::Null));
+				QVERIFY(s->value(AMnDIndex(i,j), 0, AMnDIndex()).isValid());
+			}
+		}
+
+
+		// copy first measurement values to second measurement; multiply by 2 in process
+		for(int i=0; i<s->scanSize(0); i++) {
+			for(int j=0; j<s->scanSize(1); j++) {
+				QVERIFY(s->setValue(AMnDIndex(i,j), 1, AMnDIndex(),
+									(double)s->value(AMnDIndex(i,j), 0, AMnDIndex())*2.0) );
+			}
+		}
+
+		// check that this worked; now all values shouldbe valid.
+		for(int i=0; i<s->scanSize(0); i++) {
+			for(int j=0; j<s->scanSize(1); j++) {
+				QVERIFY(s->value(AMnDIndex(i,j), 1, AMnDIndex()) == (double)s->value(AMnDIndex(i,j), 0, AMnDIndex())*2.0);
+				QVERIFY(s->value(AMnDIndex(i,j), 0, AMnDIndex()).isValid());
+				QVERIFY(s->value(AMnDIndex(i,j), 1, AMnDIndex()).isValid());
+			}
+		}
+
+		QVERIFY(s->scanSize() == AMnDIndex(10,10));
+		s->clearScanDataPoints();
+		QVERIFY(s->isEmpty());
+		QVERIFY(s->scanSize() == AMnDIndex(0,1));
+
+		// repeat test after clearing, to make sure data structure still has integrity.
+			// also tests inserting rows when the final axis has size 0.
+		QVERIFY(s->beginInsertRows(1, 9));
+		QVERIFY(s->beginInsertRows(0,10) == false);	// can't nest beginInsertRows().
+		s->endInsertRows();
+		QVERIFY(s->scanSize() == AMnDIndex(0, 10));
+		QVERIFY(s->beginInsertRows(0, 10));
+		s->endInsertRows();
+
+		for(int i=0; i<s->scanSize(0); i++) {
+			for(int j=0; j<s->scanSize(1); j++) {
+				QVERIFY(s->setValue(AMnDIndex(i,j), 0, AMnDIndex(), (i+1.0)*(j+1.0)));
+			}
+		}
+
+		for(int i=0; i<10; i++) {
+			for(int j=0; j<10; j++) {
+				QVERIFY(s->value(AMnDIndex(i,j), 0, AMnDIndex()) ==(i+1.0)*(j+1.0));
+			}
+		}
+
+
+
+		delete s;
+
+
+
+		//////////////////////////
+
+		// test with in-memory data store on stack
+		AMInMemoryDataStore s2;
+
+		QVERIFY(s2.addScanAxis(AMAxisInfo("x", 0, "x axis")));
+		// test adding second dimension when first dimension is size 0.
+		QVERIFY(s2.addScanAxis(AMAxisInfo("y", 0, "y axis")));
+
+		QVERIFY(s2.addMeasurement(AMMeasurementInfo("meas0", "measurement 0")));
+
+		QVERIFY(s2.scanSize() == AMnDIndex(0,1));
+
+		QVERIFY(s2.addScanAxis(AMAxisInfo("z", 0, "z axis")));
+
+		QVERIFY(s2.scanSize() == AMnDIndex(0, 1, 1));
+
+		QVERIFY(s2.beginInsertRows(2, 9));
+		s2.endInsertRows();
+		QVERIFY(s2.beginInsertRows(0, 10));
+		s2.endInsertRows();
+		QVERIFY(s2.scanSize() == AMnDIndex(10,1,10));
+		QVERIFY(s2.beginInsertRows(1,9));
+
+		for(int i=0; i<10; i++) {
+			for(int j=0; j<10; j++) {
+				for(int k=0; k<10; k++) {
+					QVERIFY(s2.setValue(AMnDIndex(i,j,k), 0, AMnDIndex(), (i+1)*(j+1)*(k+1) ));
+				}
+			}
+		}
+
+		s2.endInsertRows();
+
+
+		for(int i=0; i<10; i++) {
+			for(int j=0; j<10; j++) {
+				for(int k=0; k<10; k++) {
+					QVERIFY((double)s2.value(AMnDIndex(i,j,k), 0, AMnDIndex()) == (i+1)*(j+1)*(k+1)	);
+				}
+			}
+		}
+
+		/// \todo Test multi-dimensional measurements.  Remove all optimizations for rank() < 5 and re-run tests to check the general handling. Do memory leak test (How?)
+	}
+
+	// Using David's testof AMDataTreeDataStore to test AMInMemoryDataStore.
+	/*
+	void testInMemoryDataStoreWithAMDataTreeDataStoreTest() {
+
+		// qDebug() << "\n\n\n DAVID STARTS HERE \n\nTesting data tree data store\n\n\n";
+
+
+		AMMeasurementInfo teyInfo("tey", "Total Electron Yield", "amps");
+		AMMeasurementInfo tfyInfo("tfy", "Total Fluoresence Yield", "amps");
+		AMMeasurementInfo i0Info("I0", "I0", "amps");
+
+		AMAxisInfo sddEVAxisInfo("energy", 1024, "SDD Energy", "eV");
+		QList<AMAxisInfo> sddAxes;
+		sddAxes << sddEVAxisInfo;
+		AMMeasurementInfo sddInfo("sdd", "Silicon Drift Detector", "counts", sddAxes);
+
+		AMAxisInfo xosWavelengthAxisInfo("wavelength", 512, "XOS Wavelength", "nm");
+		QList<AMAxisInfo> xosAxes;
+		xosAxes << xosWavelengthAxisInfo;
+		AMMeasurementInfo xosInfo("xos", "XEOL Optical Spectrometer", "counts", xosAxes);
+
+		AMAxisInfo xessXAxisInfo("x", 1280, "x pixel", "index");
+		AMAxisInfo xessYAxisInfo("y", 1024, "y pixel", "index");
+		QList<AMAxisInfo> xessAxes;
+		xessAxes << xessXAxisInfo << xessYAxisInfo;
+		AMMeasurementInfo xessInfo("xess", "XES Spectrometer", "counts", xessAxes);
+
+		AMAxisInfo uglyRAxisInfo("r", 100, "Radial Distance", "percent");
+		AMAxisInfo uglyPhiAxisInfo("phi", 180, "Phi Angle", "degrees");
+		AMAxisInfo uglyThetaAxisInfo("theta", 360, "Theta Distance", "degrees");
+		QList<AMAxisInfo> uglyAxes;
+		uglyAxes << uglyRAxisInfo << uglyPhiAxisInfo << uglyThetaAxisInfo;
+		AMMeasurementInfo uglyInfo("ugly", "Some Ugly Detector", "events", uglyAxes);
+
+		AMAxisInfo scanAxis("energy", 1000, "Beamline Energy", "eV");
+
+		AMInMemoryDataStore dtds;
+		dtds.addScanAxis(scanAxis);
+
+		QVERIFY(dtds.addMeasurement(teyInfo));
+		QVERIFY(dtds.addMeasurement(tfyInfo));
+		QCOMPARE(dtds.measurementCount(), 2);
+		QVERIFY(dtds.addMeasurement(i0Info));
+		QVERIFY(dtds.addMeasurement(sddInfo));
+		QVERIFY(dtds.addMeasurement(xosInfo));
+		QCOMPARE(dtds.measurementCount(), 5);
+		QVERIFY(dtds.addMeasurement(xessInfo));
+		QVERIFY(dtds.addMeasurement(uglyInfo));
+		QCOMPARE(dtds.measurementCount(), 7);
+
+		AMMeasurementInfo sameAsTeyInfo("tey", "something else", "counts");
+		QVERIFY(!dtds.addMeasurement(teyInfo));
+		QVERIFY(!dtds.addMeasurement(sameAsTeyInfo));
+		QCOMPARE(dtds.measurementCount(), 7);
+
+		QCOMPARE(dtds.idOfMeasurement("tey"), 0);
+		QCOMPARE(dtds.idOfMeasurement("ugly"), 6);
+		QCOMPARE(dtds.idOfMeasurement("sdd"), 3);
+		QCOMPARE(dtds.idOfMeasurement("not in here"), -1);
+
+		QCOMPARE(dtds.measurementAt(1).name, tfyInfo.name);
+		QCOMPARE(dtds.measurementAt(1).description, tfyInfo.description);
+		QCOMPARE(dtds.measurementAt(1).units, tfyInfo.units);
+
+		QCOMPARE(dtds.measurementAt(5).name, xessInfo.name);
+		QCOMPARE(dtds.measurementAt(5).description, xessInfo.description);
+		QCOMPARE(dtds.measurementAt(5).units, xessInfo.units);
+		QCOMPARE(dtds.measurementAt(5).axes.at(0).name, xessInfo.axes.at(0).name);
+		QCOMPARE(dtds.measurementAt(5).axes.at(0).description, xessInfo.axes.at(0).description);
+		QCOMPARE(dtds.measurementAt(5).axes.at(0).size, xessInfo.axes.at(0).size);
+		QCOMPARE(dtds.measurementAt(5).axes.at(1).name, xessInfo.axes.at(1).name);
+		QCOMPARE(dtds.measurementAt(5).axes.at(1).description, xessInfo.axes.at(1).description);
+		QCOMPARE(dtds.measurementAt(5).axes.at(1).size, xessInfo.axes.at(1).size);
+
+
+		AMnDIndex curSize = dtds.scanSize();
+		qDebug() << "[1] nDIndex for axes: " << curSize.i();
+
+		AMAxisInfo scanAxis2("temperature", 10, "Sample Temperature", "K");
+		QVERIFY(dtds.addScanAxis(scanAxis2));
+
+		QCOMPARE(dtds.idOfScanAxis("energy"), 0);
+		QCOMPARE(dtds.idOfScanAxis(scanAxis.name), 0);
+		QCOMPARE(dtds.idOfScanAxis("temperature"), 1);
+		QCOMPARE(dtds.scanAxisAt(1).name, scanAxis2.name);
+		QCOMPARE(dtds.scanAxisAt(1).description, scanAxis2.description);
+		// QCOMPARE(dtds.scanAxisAt(1).size, 0); //regardless of incoming size, axes get sized to 0 in an empty tree (NO... sized to 1 if they are parent axes)
+		QCOMPARE(dtds.scanAxesCount(), 2);
+
+
+		qDebug() << "\n\n\nADDED SCAN AXIS\n\n\n";
+		curSize = dtds.scanSize();
+		qDebug() << "[2] nDIndex for axes: " << curSize.i() << curSize.j();
+
+		AMAxisInfo scanAxis3("exitslitsize", 20, "Exit Slit Size", "um");
+		QVERIFY(dtds.addScanAxis(scanAxis3));
+		QCOMPARE(dtds.idOfScanAxis(scanAxis3.name), 2);
+		QCOMPARE(dtds.scanAxisAt(2).name, scanAxis3.name);
+		QCOMPARE(dtds.scanAxisAt(2).description, scanAxis3.description);
+		// QCOMPARE(dtds.scanAxisAt(2).size, 0); //regardless of incoming size, axes get sized to 0 in an empty tree (NO... sized to 1 if they are parent axes)
+		QCOMPARE(dtds.scanAxesCount(), 3);
+
+		qDebug() << "\n\n\nADDED SCAN AXIS\n\n\n";
+
+		AMAxisInfo scanAxis3Imposter("exitslitsize", 25, "Not the same", "either");
+		QVERIFY(!dtds.addScanAxis(scanAxis2));
+		QVERIFY(!dtds.addScanAxis(scanAxis3Imposter));
+		QCOMPARE(dtds.scanAxesCount(), 3);
+
+		curSize = dtds.scanSize();
+		qDebug() << "[3] nDIndex for axes: " << curSize.i() << curSize.j() << curSize.k();
+		qDebug() << "[3] or: " << dtds.scanSize(0) << dtds.scanSize(1) << dtds.scanSize(2);
+
+
+		QVERIFY(dtds.beginInsertRows(2));
+
+		curSize = dtds.scanSize();
+		qDebug() << "[3] nDIndex for axes: " << curSize.i() << curSize.j() << curSize.k();
+		qDebug() << "[3] or: " << dtds.scanSize(0) << dtds.scanSize(1) << dtds.scanSize(2);
+		AMnDIndex curIndex(0, 0, 0);
+		AMnDIndex scalarMeasurement;
+		AMnDIndex d1Measurement(0);
+		AMnDIndex d2Measurement(0,0);
+		AMnDIndex d3Measurement(0,0,0);
+		double dArray[1];
+		dArray[0] = 12.27;
+		int iArray[1];
+		iArray[0] = 99;
+//		QVERIFY(dtds.setValue(curIndex, dtds.idOfMeasurement("tey"), scalarMeasurement, 12.27));
+		QVERIFY(dtds.setValue(curIndex, dtds.idOfMeasurement("tey"), dArray, 1));
+		QVERIFY(dtds.setValue(curIndex, dtds.idOfMeasurement("tfy"), scalarMeasurement, 1.001));
+//		QVERIFY(dtds.setValue(curIndex, dtds.idOfMeasurement("I0"), scalarMeasurement, 99));
+		QVERIFY(dtds.setValue(curIndex, dtds.idOfMeasurement("I0"), iArray, 1));
+		QVERIFY(dtds.setValue(curIndex, dtds.idOfMeasurement("sdd"), d1Measurement, 36));
+		QVERIFY(dtds.setValue(curIndex, dtds.idOfMeasurement("xos"), d1Measurement, 1023));
+		QVERIFY(dtds.setValue(curIndex, dtds.idOfMeasurement("xess"), d2Measurement, 12));
+		QVERIFY(dtds.setValue(curIndex, dtds.idOfMeasurement("ugly"), d3Measurement, 62.2));
+
+		double retVal = dtds.value(curIndex, dtds.idOfMeasurement("tey"), scalarMeasurement);
+		QCOMPARE(retVal, 12.27);
+		retVal = dtds.value(curIndex, dtds.idOfMeasurement("tfy"), scalarMeasurement);
+		QCOMPARE(retVal, 1.001);
+		int retVali = dtds.value(curIndex, dtds.idOfMeasurement("I0"), scalarMeasurement);
+		QCOMPARE(retVali, 99);
+		retVali = dtds.value(curIndex, dtds.idOfMeasurement("sdd"), d1Measurement);
+		QCOMPARE(retVali, 36);
+		retVali = dtds.value(curIndex, dtds.idOfMeasurement("xos"), d1Measurement);
+		QCOMPARE(retVali, 1023);
+		retVali = dtds.value(curIndex, dtds.idOfMeasurement("xess"), d2Measurement);
+		QCOMPARE(retVali, 12);
+		retVal = dtds.value(curIndex, dtds.idOfMeasurement("ugly"), d3Measurement);
+		QCOMPARE(retVal, 62.2);
+
+		QVERIFY(dtds.setAxisValue(dtds.idOfScanAxis("exitslitsize"), 0, 25.0));
+		retVal = dtds.axisValue(dtds.idOfScanAxis("exitslitsize"), 0);
+		QCOMPARE(retVal, 25.0);
+		QVERIFY(dtds.setAxisValue(dtds.idOfScanAxis("temperature"), 0, 76.7));
+		retVal = dtds.axisValue(dtds.idOfScanAxis("temperature"), 0);
+		QCOMPARE(retVal, 76.7);
+		QVERIFY(dtds.setAxisValue(dtds.idOfScanAxis("energy"), 0, 282.5));
+		retVal = dtds.axisValue(dtds.idOfScanAxis("energy"), 0);
+		QCOMPARE(retVal, 282.5);
+
+		int *intArray = (int*)malloc(1280*1024*sizeof(int));
+		for(int x = 0; x < 1280*1024; x++)
+			intArray[x] = x;
+		double *doubleArray = (double*)malloc(512*sizeof(double));
+		for(int x = 0; x < 512; x++)
+			doubleArray[x] = x + 0.01*x;
+		int *int2Array = (int*)malloc(100*180*360*sizeof(int));
+		for(int x = 0; x < 100*180*360; x++)
+			int2Array[x] = x;
+		double *double2Array = (double*)malloc(100*180*360*sizeof(double));
+		for(int x = 0; x < 100*180*360; x++)
+			double2Array[x] = ((double)x) + 0.01;
+		dtds.setValue(curIndex, dtds.idOfMeasurement("xos"), doubleArray, 512);
+		dtds.setValue(curIndex, dtds.idOfMeasurement("ugly"), double2Array, 100*180*360);
+
+		AMnDIndex check3Index(0,0,302);
+		double ans = dtds.value(curIndex, dtds.idOfMeasurement("ugly"), check3Index);
+		qDebug() << ans;
+
+		AMnDIndex check1Index(124);
+		ans = dtds.value(curIndex, dtds.idOfMeasurement("xos"), check1Index);
+		qDebug() << ans;
+
+		dtds.endInsertRows();
+
+		AMnDIndex scanInsertIndex(0, 0, 1);
+		AMnDIndex scanRetrieveIndex(0, 0, 1);
+		qDebug() << "\n\n\n";
+		for(int x=0; x<3; x++){
+			if(dtds.beginInsertRows(0, 1, x))
+				;
+			//else
+			//	qDebug() << "No need for x = " << x;
+			dtds.endInsertRows();
+			for(int y=0; y<4; y++){
+
+				dtds.endInsertRows();
+				for(int z=0; z<2; z++){
+
+					dtds.endInsertRows();
+					if(z == 1 && y == 0 && x == 0){
+						dtds.setValue(scanInsertIndex, dtds.idOfMeasurement("tey"), AMnDIndex(), 12.2);
+						AMNumber retVal = dtds.value(scanRetrieveIndex, dtds.idOfMeasurement("tey"), AMnDIndex());
+						if(retVal.state() == AMNumber::Null)
+							qDebug() << "Null valued number";
+						else
+							qDebug() << "Set that mud trucka as " << double(retVal);
+						dtds.setAxisValue(0, 0, 12.27);
+						retVal = dtds.axisValue(0,0);
+						if(retVal.state() == AMNumber::Null)
+							qDebug() << "Axis is Null valued number";
+						else
+							qDebug() << "Set that axis mud trucka as " << double(retVal);
+					}
+				}
+			}
+		}
+
+		dtds.beginInsertRows(2, 1, 2);
+		dtds.endInsertRows();
+
+		AMAxisInfo scanAxis4("polarization", 10, "Polarization", "degrees");
+		QVERIFY(dtds.addScanAxis(scanAxis4));
+		QCOMPARE(dtds.idOfScanAxis(scanAxis4.name), 3);
+		QCOMPARE(dtds.scanAxisAt(3).name, scanAxis4.name);
+		QCOMPARE(dtds.scanAxisAt(3).description, scanAxis4.description);
+		QCOMPARE(dtds.scanAxisAt(3).size, 1); //Set as 1 because other data already exists so data store is not empty
+		QCOMPARE(dtds.scanAxesCount(), 4);
+
+
+
+		QVERIFY(dtds.axisValue(3, 0).state() == AMNumber::Null);
+
+
+		// qDebug() << "\n\n\nEND TESTING\n\n\n";
+
+	}
+*/
+/*
 	void testDataTreeDataStore() {
 		qDebug() << "\n\n\n DAVID STARTS HERE \n\nTesting data tree data store\n\n\n";
 
@@ -262,6 +717,7 @@ private slots:
 		qDebug() << ans;
 		*/
 
+		/*
 		dtds.endInsertRows();
 
 		AMnDIndex scanInsertIndex(0, 0, 1);
@@ -341,11 +797,11 @@ private slots:
 		qDebug() << "[3] nDIndex for axes: " << curSize.i() << curSize.j() << curSize.k();
 		qDebug() << "[3] or: " << dtds.scanSize(0) << dtds.scanSize(1) << dtds.scanSize(2);
 		*/
-
+/*
 		qDebug() << "\n\n\nEND TESTING\n\n\n";
 	}
 
-
+*/
 
 
 	/// Test inserts of DbObjects into the database, and confirm all values loaded back with DbObject::loadFromDb().
@@ -527,447 +983,6 @@ private slots:
 
 
 
-	/// Test of insert and retrieval from AMDataTree.
-	/*!
-	  First example is a typical set of XAS data from SGM: energy, tey, and an SDD spectra for each datapoint
-	  - create with count of 5 datapoints
-	  - fill primary column with energy values: 410.1, 410.2, 410.3, 410.4, 411.0 (use setX() and setValue("eV"))
-	  - test retrieval using all methods: .x(i), .value("colName", i), ["colName"][i]
-	  - fill tey column with energy^2
-	  - attempt to write beyond range of tey data
-	  - create column of AMDataTrees for each SDD spectra
-	  - retrieve all values and check for matching
-	  */
-
-	void insertAMDataTree1() {
-
-		//qDebug() << "Testing creation and inserts of primary column values into data tree.";
-
-		AMDataTree t1(5, "eV", true);
-		t1.setX(0, 410.1);
-		t1.setX(1, 410.2);
-		t1.setValue("eV",2, 410.3);
-		t1.setValue("eV",3, 410.4);
-		t1.setX(4, 411);
-
-		QCOMPARE(t1.xName(), QString("eV"));
-		QCOMPARE(t1.count(), (unsigned)5);
-		QCOMPARE(t1.x(0), 410.1);
-		QCOMPARE(t1.value("eV", 0), 410.1);
-		QCOMPARE(t1.column("eV")[0], 410.1);
-		QCOMPARE(t1.x(1), 410.2);
-		QCOMPARE(t1.x(2), 410.3);
-		QCOMPARE(t1.value("eV",3), 410.4);
-		QCOMPARE(t1.column("eV")[3], 410.4);
-		QCOMPARE(t1.x(4), 411.0);
-		QCOMPARE(t1.setX(500, 1.2345), false);	// index out of range
-		QCOMPARE(t1.setValue("eV", 500, 1.2345), false); //index out of range
-		QCOMPARE(t1.setValue("nonexistentColumn", 2, 1.2345), false); //non-existent column
-
-		//qDebug() << "Testing creation of data tree with no explicit x values.";
-		AMDataTree t2(5, "eV", false);
-		QCOMPARE(t2.setX(0, 410.7), false);	// should fail
-		QCOMPARE(t2.setValue("eV", 2, 410.7), false);	// should fail
-		QCOMPARE(t2.x(0), 0.0);
-		QCOMPARE(t2.x(4), 4.0);
-		QCOMPARE(t2.x(28), AMDATATREE_OUTOFRANGE_VALUE);	// out of range; should return default-constructed value (-1.0 for double)
-
-		//qDebug() << "Testing copying simple trees, count=5, not even x values.";
-		AMDataTree t2Copy(t2);
-		QCOMPARE(t2Copy.x(0), 0.0);
-		QCOMPARE(t2Copy.x(4), 4.0);
-		QCOMPARE(t2Copy.count(), (unsigned)5);
-		QCOMPARE(t2Copy.x(5100), AMDATATREE_OUTOFRANGE_VALUE);// out of range; should return default value (and log error message)
-
-		//qDebug() << "Testing copying simple trees, count = 5, with just x values.";
-		AMDataTree t1Copy(t1);
-		QCOMPARE(t1Copy.xName(), t1.xName());
-		for(unsigned i=0; i<t1Copy.count(); i++) {
-			QCOMPARE(t1Copy.x(i), t1.x(i));
-			QCOMPARE(t1Copy.value("eV", i), t1.value("eV", i));
-		}
-		//qDebug() << "attempting changing data values and causing deep copy of x-column data.";
-		t1Copy.setValue("eV", 3, 300.2);
-		t1Copy.setX(4, 400.2);
-		QCOMPARE(t1Copy.x(0), t1.x(0));
-		QCOMPARE(t1Copy.x(1), t1.x(1));
-		QCOMPARE(t1Copy.x(2), t1.x(2));
-		QCOMPARE(t1Copy.x(3), 300.2);
-		QCOMPARE(t1Copy.x(4), 400.2);
-		t1.setX(0, -31.2);
-		QCOMPARE(t1.x(0), -31.2);
-		QCOMPARE(t1Copy.x(0), 410.1);	// after changing original, t1Copy should still have first original value.
-
-		//qDebug() << "Adding a second column and checking insert/retrieves";
-		t1.createColumn("tey");
-		for(unsigned i=0; i<t1.count(); i++)
-			QCOMPARE(t1.setValue("tey", i, t1.x(i)*t1.x(i) ), true);	// tey = eV^2
-		for(unsigned i=0; i<t1.count(); i++) {
-			QCOMPARE(t1.value("tey", i), t1.x(i)*t1.x(i) );
-			QCOMPARE(t1.column("tey")[i], t1.x(i)*t1.x(i) );
-		}
-
-		QCOMPARE(t1.setValue("tey", 300, 1.234), false);	// insert out-of-range should fail
-		QCOMPARE(t1.setValue("teyeee", 0, 1.234), false);	// invalid column
-
-		//qDebug() << "inserting subtrees with a count of 1024, x-axis values named 'sddEV', and going from 200 to 1300";
-		t1.createSubtreeColumn("sddSpectrum", new AMDataTree(1024, "sddEV", true));
-		// insert the x-axis values for each subtree...
-		for(unsigned i=0; i<t1.count(); i++)
-			for(unsigned j=0; j<t1.deeper	("sddSpectrum", i)->count(); j++)
-				QCOMPARE( t1.deeper("sddSpectrum", i)->setValue("sddEV", j, 200+j*(1300.0-200.0)/1024.0), true);	// check for successful insert.
-
-		t1.deeper("sddSpectrum", 0)->createColumn("sddCount");
-		for(unsigned i=0; i<t1.deeper("sddSpectrum", 0)->count(); i++)
-			t1.deeper("sddSpectrum", 0)->setValue("sddCount", i, i);
-
-		qDebug() << "David's check: " << t1.deeper("sddSpectrum", 0)->yColumnNames().count();
-		qDebug() << "David's check: " << t1.deeper("sddSpectrum", 0)->yColumnNames();
-
-		// check for correct values:
-		for(unsigned i=0; i<t1.count(); i++)
-			for(unsigned j=0; j<t1.deeper("sddSpectrum", i)->count(); j++)
-				QCOMPARE( t1.deeper("sddSpectrum", i)->value("sddEV", j),  200+j*(1300.0-200.0)/1024.0);	// check for successful retrieve.
-
-		//qDebug() << "copying the multi-level tree to t1Copy, using copy constructor.";
-		AMDataTree t1Copy2(t1);
-		// check for correct values:
-		for(unsigned i=0; i<t1Copy2.count(); i++)
-			for(unsigned j=0; j<t1Copy2.deeper("sddSpectrum", i)->count(); j++)
-				QCOMPARE( t1Copy2.deeper("sddSpectrum", i)->value("sddEV", j),  200+j*(1300.0-200.0)/1024.0);	// check for successful retrieve.
-
-		//qDebug() << "changing a value in t1Copy2, at top-index 3, subtree index 512 in one of the trees; causes deep copies to be made. Checking for change to occur.";
-
-		t1Copy2.deeper("sddSpectrum", 3)->setValue("sddEV", 512, -1.0);
-		// check for correct values within copy, even after modifications.
-		for(unsigned i=0; i<t1Copy2.count(); i++)
-			for(unsigned j=0; j<t1Copy2.deeper("sddSpectrum", i)->count(); j++) {
-			if(i==3 && j==512)
-				QCOMPARE( t1Copy2.deeper("sddSpectrum", i)->value("sddEV", j),  -1.0);
-			else
-				QCOMPARE( t1Copy2.deeper("sddSpectrum", i)->value("sddEV", j),  200+j*(1300.0-200.0)/1024.0);	// check for successful retrieve.
-		}
-		//qDebug() << "modified value is:" << t1Copy2.deeper("sddSpectrum", 3)->value("sddEV", 512);
-
-
-		//qDebug() << "checking that original tree is unaffected by changes to the copy.";
-		// check for correct values within original tree, even after modifications.
-		for(unsigned i=0; i<t1.count(); i++)
-			for(unsigned j=0; j<t1.deeper("sddSpectrum", i)->count(); j++) {
-			QCOMPARE( t1.deeper("sddSpectrum", i)->value("sddEV", j),  200+j*(1300.0-200.0)/1024.0);
-			QCOMPARE( t1.deeper("sddSpectrum", i)->column("sddEV")[j],  200+j*(1300.0-200.0)/1024.0);
-		}
-
-		//qDebug() << "original value is:" << t1.deeper("sddSpectrum", 3)->value("sddEV", 512);
-
-		//qDebug() << "copying the multi-level tree to t1Copy3, using assignment operator.";
-		AMDataTree t1Copy3 = t1;
-		// check for correct values:
-		QCOMPARE(t1Copy3.count(), t1.count());
-		for(unsigned i=0; i<t1Copy3.count(); i++)
-			for(unsigned j=0; j<t1Copy3.deeper("sddSpectrum", i)->count(); j++) {
-			QCOMPARE( t1Copy3.deeper("sddSpectrum", i)->value("sddEV", j),  200+j*(1300.0-200.0)/1024.0);	// check for successful retrieve.
-			QCOMPARE( t1Copy3.deeper("sddSpectrum", i)->column("sddEV")[j],  200+j*(1300.0-200.0)/1024.0);	// check for successful retrieve.
-		}
-
-		//qDebug() << "changing a value in t1Copy3, at top-index 3, subtree index 512 in one of the trees; causes deep copies to be made. Checking for change to occur.";
-
-		t1Copy3.deeper("sddSpectrum", 3)->setValue("sddEV", 512, -1.0);
-		// check for correct values within copy, even after modifications.
-		for(unsigned i=0; i<t1Copy3.count(); i++)
-			for(unsigned j=0; j<t1Copy3.deeper("sddSpectrum", i)->count(); j++) {
-			if(i==3 && j==512) {
-				QCOMPARE( t1Copy3.deeper("sddSpectrum", i)->value("sddEV", j),  -1.0);
-				QCOMPARE( t1Copy3.deeper("sddSpectrum", i)->column("sddEV")[j],  -1.0);
-			}
-			else {
-				QCOMPARE( t1Copy3.deeper("sddSpectrum", i)->value("sddEV", j),  200+j*(1300.0-200.0)/1024.0);	// check for successful retrieve.
-				QCOMPARE( t1Copy3.deeper("sddSpectrum", i)->column("sddEV")[j],  200+j*(1300.0-200.0)/1024.0);	// check for successful retrieve.
-			}
-		}
-		//qDebug() << "modified value is:" << t1Copy3.deeper("sddSpectrum", 3)->value("sddEV", 512);
-
-
-		//qDebug() << "checking that original tree is unaffected by changes to the copy.";
-		// check for correct values within original tree, even after modifications.
-		for(unsigned i=0; i<t1.count(); i++)
-			for(unsigned j=0; j<t1.deeper("sddSpectrum", i)->count(); j++) {
-			QCOMPARE( t1.deeper("sddSpectrum", i)->value("sddEV", j),  200+j*(1300.0-200.0)/1024.0);
-			QCOMPARE( t1.deeper("sddSpectrum", i)->column("sddEV")[j],  200+j*(1300.0-200.0)/1024.0);
-		}
-
-		//qDebug() << "original value is:" << t1.deeper("sddSpectrum", 3)->value("sddEV", 512);
-
-	}
-
-
-	/// Same test as insertAMDataTree1, but using deeperColumn("colName")[i] instead of deeper("colName", i) to access the entire subtree vector, rather than individual subtrees.
-	void insertAMDataTree2() {
-
-		//qDebug() << "Testing creation and inserts of primary column values into data tree.";
-
-		AMDataTree t1(5, "eV", true);
-		t1.setX(0, 410.1);
-		t1.setX(1, 410.2);
-		t1.setValue("eV",2, 410.3);
-		t1.setValue("eV",3, 410.4);
-		t1.setX(4, 411);
-
-		QCOMPARE(t1.xName(), QString("eV"));
-		QCOMPARE(t1.count(), (unsigned)5);
-		QCOMPARE(t1.x(0), 410.1);
-		QCOMPARE(t1.value("eV", 0), 410.1);
-		QCOMPARE(t1.column("eV")[0], 410.1);
-		QCOMPARE(t1.x(1), 410.2);
-		QCOMPARE(t1.x(2), 410.3);
-		QCOMPARE(t1.value("eV",3), 410.4);
-		QCOMPARE(t1.column("eV")[3], 410.4);
-		QCOMPARE(t1.x(4), 411.0);
-		QCOMPARE(t1.setX(500, 1.2345), false);	// index out of range
-		QCOMPARE(t1.setValue("eV", 500, 1.2345), false); //index out of range
-		QCOMPARE(t1.setValue("nonexistentColumn", 2, 1.2345), false); //non-existent column
-
-		//qDebug() << "Testing creation of data tree with no explicit x values.";
-		AMDataTree t2(5, "eV", false);
-		QCOMPARE(t2.setX(0, 410.7), false);	// should fail
-		QCOMPARE(t2.setValue("eV", 2, 410.7), false);	// should fail
-		QCOMPARE(t2.x(0), 0.0);
-		QCOMPARE(t2.x(4), 4.0);
-		QCOMPARE(t2.x(28), AMDATATREE_OUTOFRANGE_VALUE);	// out of range; should return default-constructed value (-1.0 for double)
-
-		//qDebug() << "Testing copying simple trees, count=5, not even x values.";
-		AMDataTree t2Copy(t2);
-		QCOMPARE(t2Copy.x(0), 0.0);
-		QCOMPARE(t2Copy.x(4), 4.0);
-		QCOMPARE(t2Copy.count(), (unsigned)5);
-		QCOMPARE(t2Copy.x(5100), AMDATATREE_OUTOFRANGE_VALUE);// out of range; should return default value (and log error message)
-
-		//qDebug() << "Testing copying simple trees, count = 5, with just x values.";
-		AMDataTree t1Copy(t1);
-		QCOMPARE(t1Copy.xName(), t1.xName());
-		for(unsigned i=0; i<t1Copy.count(); i++) {
-			QCOMPARE(t1Copy.x(i), t1.x(i));
-			QCOMPARE(t1Copy.value("eV", i), t1.value("eV", i));
-		}
-		//qDebug() << "attempting changing data values and causing deep copy of x-column data.";
-		t1Copy.setValue("eV", 3, 300.2);
-		t1Copy.setX(4, 400.2);
-		QCOMPARE(t1Copy.x(0), t1.x(0));
-		QCOMPARE(t1Copy.x(1), t1.x(1));
-		QCOMPARE(t1Copy.x(2), t1.x(2));
-		QCOMPARE(t1Copy.x(3), 300.2);
-		QCOMPARE(t1Copy.x(4), 400.2);
-		t1.setX(0, -31.2);
-		QCOMPARE(t1.x(0), -31.2);
-		QCOMPARE(t1Copy.x(0), 410.1);	// after changing original, t1Copy should still have first original value.
-
-		//qDebug() << "Adding a second column and checking insert/retrieves";
-		t1.createColumn("tey");
-		for(unsigned i=0; i<t1.count(); i++)
-			QCOMPARE(t1.setValue("tey", i, t1.x(i)*t1.x(i) ), true);	// tey = eV^2
-		for(unsigned i=0; i<t1.count(); i++) {
-			QCOMPARE(t1.value("tey", i), t1.x(i)*t1.x(i) );
-			QCOMPARE(t1.column("tey")[i], t1.x(i)*t1.x(i) );
-		}
-
-		QCOMPARE(t1.setValue("tey", 300, 1.234), false);	// insert out-of-range should fail
-		QCOMPARE(t1.setValue("teyeee", 0, 1.234), false);	// invalid column
-
-		//qDebug() << "inserting subtrees with a count of 1024, x-axis values named 'sddEV', and going from 200 to 1300";
-		t1.createSubtreeColumn("sddSpectrum", new AMDataTree(1024, "sddEV", true));
-		// insert the x-axis values for each subtree...
-		for(unsigned i=0; i<t1.count(); i++)
-			for(unsigned j=0; j<(*t1.deeperColumn("sddSpectrum"))[i]->count(); j++)
-				QCOMPARE( (*t1.deeperColumn("sddSpectrum"))[i]->setValue("sddEV", j, 200+j*(1300.0-200.0)/1024.0), true);	// check for successful insert.
-
-		// check for correct values:
-		for(unsigned i=0; i<t1.count(); i++)
-			for(unsigned j=0; j<(*t1.deeperColumn("sddSpectrum"))[i]->count(); j++)
-				QCOMPARE( (*t1.deeperColumn("sddSpectrum"))[i]->value("sddEV", j),  200+j*(1300.0-200.0)/1024.0);	// check for successful retrieve.
-
-		//qDebug() << "copying the multi-level tree to t1Copy, using copy constructor.";
-		AMDataTree t1Copy2(t1);
-		// check for correct values:
-		for(unsigned i=0; i<t1Copy2.count(); i++)
-			for(unsigned j=0; j<(*t1Copy2.deeperColumn("sddSpectrum"))[i]->count(); j++)
-				QCOMPARE( (*t1Copy2.deeperColumn("sddSpectrum"))[i]->value("sddEV", j),  200+j*(1300.0-200.0)/1024.0);	// check for successful retrieve.
-
-		//qDebug() << "changing a value in t1Copy2, at top-index 3, subtree index 512 in one of the trees; causes deep copies to be made. Checking for change to occur.";
-
-		(*t1Copy2.deeperColumn("sddSpectrum"))[3]->setValue("sddEV", 512, -1.0);
-		// check for correct values within copy, even after modifications.
-		for(unsigned i=0; i<t1Copy2.count(); i++)
-			for(unsigned j=0; j<(*t1Copy2.deeperColumn("sddSpectrum"))[i]->count(); j++) {
-			if(i==3 && j==512)
-				QCOMPARE( (*t1Copy2.deeperColumn("sddSpectrum"))[i]->value("sddEV", j),  -1.0);
-			else
-				QCOMPARE( (*t1Copy2.deeperColumn("sddSpectrum"))[i]->value("sddEV", j),  200+j*(1300.0-200.0)/1024.0);	// check for successful retrieve.
-		}
-		//qDebug() << "modified value is:" << (*t1Copy2.deeperColumn("sddSpectrum"))[3]->value("sddEV", 512);
-
-
-		//qDebug() << "checking that original tree is unaffected by changes to the copy.";
-		// check for correct values within original tree, even after modifications.
-		for(unsigned i=0; i<t1.count(); i++)
-			for(unsigned j=0; j<(*t1.deeperColumn("sddSpectrum"))[i]->count(); j++) {
-			QCOMPARE( (*t1.deeperColumn("sddSpectrum"))[i]->value("sddEV", j),  200+j*(1300.0-200.0)/1024.0);
-			QCOMPARE( (*t1.deeperColumn("sddSpectrum"))[i]->column("sddEV")[j],  200+j*(1300.0-200.0)/1024.0);
-		}
-
-		//qDebug() << "original value is:" << t1.deeper("sddSpectrum", 3)->value("sddEV", 512);
-
-
-		//qDebug() << "copying the multi-level tree to t1Copy3, using assignment operator.";
-		AMDataTree t1Copy3 = t1;
-		// check for correct values:
-		QCOMPARE(t1Copy3.count(), t1.count());
-		for(unsigned i=0; i<t1Copy3.count(); i++)
-			for(unsigned j=0; j<(*t1Copy3.deeperColumn("sddSpectrum"))[i]->count(); j++) {
-			QCOMPARE( (*t1Copy3.deeperColumn("sddSpectrum"))[i]->value("sddEV", j),  200+j*(1300.0-200.0)/1024.0);	// check for successful retrieve.
-			QCOMPARE( (*t1Copy3.deeperColumn("sddSpectrum"))[i]->column("sddEV")[j],  200+j*(1300.0-200.0)/1024.0);	// check for successful retrieve.
-		}
-
-		//qDebug() << "changing a value in t1Copy3, at top-index 3, subtree index 512 in one of the trees; causes deep copies to be made. Checking for change to occur.";
-
-		(*t1Copy3.deeperColumn("sddSpectrum"))[3]->setValue("sddEV", 512, -1.0);
-		// check for correct values within copy, even after modifications.
-		for(unsigned i=0; i<t1Copy3.count(); i++)
-			for(unsigned j=0; j<(*t1Copy3.deeperColumn("sddSpectrum"))[i]->count(); j++) {
-			if(i==3 && j==512) {
-				QCOMPARE( (*t1Copy3.deeperColumn("sddSpectrum"))[i]->value("sddEV", j),  -1.0);
-				QCOMPARE( (*t1Copy3.deeperColumn("sddSpectrum"))[i]->column("sddEV")[j],  -1.0);
-			}
-			else {
-				QCOMPARE( (*t1Copy3.deeperColumn("sddSpectrum"))[i]->value("sddEV", j),  200+j*(1300.0-200.0)/1024.0);	// check for successful retrieve.
-				QCOMPARE( (*t1Copy3.deeperColumn("sddSpectrum"))[i]->column("sddEV")[j],  200+j*(1300.0-200.0)/1024.0);	// check for successful retrieve.
-			}
-		}
-		//qDebug() << "modified value is:" << (*t1Copy3.deeperColumn("sddSpectrum"))[3]->value("sddEV", 512);
-
-
-		//qDebug() << "checking that original tree is unaffected by changes to the copy.";
-		// check for correct values within original tree, even after modifications.
-		for(unsigned i=0; i<t1.count(); i++)
-			for(unsigned j=0; j<(*t1.deeperColumn("sddSpectrum"))[i]->count(); j++) {
-			QCOMPARE( (*t1.deeperColumn("sddSpectrum"))[i]->value("sddEV", j),  200+j*(1300.0-200.0)/1024.0);
-			QCOMPARE( (*t1.deeperColumn("sddSpectrum"))[i]->column("sddEV")[j],  200+j*(1300.0-200.0)/1024.0);
-		}
-
-		//qDebug() << "original value is:" << (*t1.deeperColumn("sddSpectrum"))[3]->value("sddEV", 512);
-
-
-	}
-
-
-
-	/// test append() to datatrees without subtrees:
-	void appendAMDataTree() {
-
-		//qDebug() << "creating empty tree t1, no x values:";
-		AMDataTree t1(0, "x", false);
-		QCOMPARE(t1.count(), (unsigned)0);
-		//qDebug() << "appending 1 value";
-		t1.append(3);
-		QCOMPARE(t1.count(), (unsigned)1);
-		QCOMPARE(t1.x(0), 0.0);	// since we don't have explicit x values, should be 0.
-		//qDebug() << "appending another value";
-		t1.append(42);
-		QCOMPARE(t1.count(), (unsigned)2);
-		QCOMPARE(t1.x(1), 1.0);	// since we don't have explicit x values, should be 1.
-
-		//qDebug() << "creating new tree, with actual x values.";
-		t1 = AMDataTree(0, "x", true);
-		QCOMPARE(t1.count(), (unsigned)0);
-		//qDebug() << "appending 1 value";
-		t1.append(3);
-		QCOMPARE(t1.count(), (unsigned)1);
-		QCOMPARE(t1.x(0), 3.);
-		//qDebug() << "appending another value";
-		t1.append(42);
-		QCOMPARE(t1.count(), (unsigned)2);
-		QCOMPARE(t1.x(1), 42.);
-		//qDebug() << "testing setLastValue()";
-		t1.setLastValue("x", -1.234);
-		QCOMPARE(t1.x(1), -1.234);
-
-		//qDebug() << "creating new tree, with x and y columns.";
-		t1 = AMDataTree(0, "x", true);
-		t1.createColumn("y");
-		QCOMPARE(t1.count(), (unsigned)0);
-		//qDebug() << "appending 1 value";
-		t1.append(3);
-		QCOMPARE(t1.value("y", 0), AMDATATREE_INSERT_VALUE);	// should be default-inserted value for now
-		t1.setLastValue("y", 3*3.);
-		QCOMPARE(t1.count(), (unsigned)1);
-		QCOMPARE(t1.x(0), 3.);
-		QCOMPARE(t1.value("y", 0), 3*3.);
-		//qDebug() << "appending another value";
-		t1.append(42);
-		t1.setLastValue("y", 42*42.);
-		QCOMPARE(t1.count(), (unsigned)2);
-		QCOMPARE(t1.x(1), 42.);
-		QCOMPARE(t1.value("y", 1), 42*42.);
-		//qDebug() << "testing setLastValue()";
-		t1.setLastValue("y", -1.234);
-		QCOMPARE(t1.column("y")[1], -1.234);
-
-		//qDebug() << "creating new tree, with x and y columns and initially 1 value.";
-		t1 = AMDataTree(1, "x", true);
-		t1.createColumn("y");
-		QCOMPARE(t1.count(), (unsigned)1);
-		//qDebug() << "appending 1 value";
-		t1.append(3);
-		QCOMPARE(t1.value("y", 1), AMDATATREE_INSERT_VALUE);	// should be default-inserted value for now
-		t1.setLastValue("y", 3*3.);
-		QCOMPARE(t1.count(), (unsigned)2);
-		QCOMPARE(t1.x(1), 3.);
-		QCOMPARE(t1.value("y", 1), 3*3.);
-		//qDebug() << "appending another value";
-		t1.append(42);
-		t1.setLastValue("y", 42*42.);
-		QCOMPARE(t1.count(), (unsigned)3);
-		QCOMPARE(t1.x(2), 42.);
-		QCOMPARE(t1.value("y", 2), 42*42.);
-		//qDebug() << "testing setLastValue()";
-		t1.setLastValue("y", -1.234);
-		QCOMPARE(t1.column("y")[2], -1.234);
-
-
-
-		//qDebug() << "creating new empty tree, with x and y columns and subtree of count 5 (meaningless)";
-		t1 = AMDataTree(0, "x", true);
-		t1.createColumn("y");
-		t1.createSubtreeColumn("s1", new AMDataTree(5, "s1_x", true));
-		QCOMPARE(t1.count(), (unsigned)0);
-		//qDebug() << "appending 1 value";
-		t1.append(3);
-		//DC		QCOMPARE(t1.deeper("s1", 0)->count(), unsigned(0));	// because the top tree count was 0, there were no copies made of the prototype tree, and a default tree was inserted.
-		//DC		QCOMPARE(t1.deeper("s1", 0)->xName(), AMDataTree().xName()); // because the top tree count was 0, there were no copies made of the prototype tree, and a default tree was inserted.
-		QCOMPARE(t1.deeper("s1", 0)->count(), unsigned(5));	// because the top tree count was 0, prototype tree was delayed until an append occurred.
-		QCOMPARE(t1.deeper("s1", 0)->xName(), QString("s1_x")); // because the top tree count was 0, prototype tree was delayed until an append occurred.
-
-		//qDebug() << "creating new tree, count 1, with x and y columns and subtree of count 5";
-		t1 = AMDataTree(1, "x", true);
-		t1.createColumn("y");
-		t1.createSubtreeColumn("s1", new AMDataTree(5, "s1_x", true));
-		QCOMPARE(t1.count(), (unsigned)1);
-		QCOMPARE(t1.deeper("s1", 0)->count(), unsigned(5));	// confirm creation of prototype tree
-		QCOMPARE(t1.deeper("s1", 0)->xName(), QString("s1_x")); // confirm creation of prototype tree
-		for(unsigned i=0; i<5; i++)
-			t1.deeper("s1",0)->setX(i, i+2.3);
-		for(unsigned i=0; i<5; i++)
-			QCOMPARE(t1.deeper("s1", 0)->x(i), i+2.3);
-		//qDebug() << "appending 2nd value. Subtree at i=0 should be copied into i=1";
-		t1.append(3);
-		QCOMPARE(t1.deeper("s1", 1)->count(), unsigned(5));	// confirm copying of prototype tree
-		QCOMPARE(t1.deeper("s1", 1)->xName(), QString("s1_x")); // confirm copying of prototype tree
-		for(unsigned i=0; i<5; i++)
-			QCOMPARE(t1.deeper("s1", 1)->x(i), i+2.3);
-
-
-
-	}
-
 
 	/// test loading an AMXASScan from legacy SGM data. Also tests creation of default channels inside SGM2004FileLoader::loadFromFile()
 
@@ -1073,7 +1088,7 @@ private slots:
 		QVERIFY(ioColIndex != -1);
 
 		for(int i=0; i<teyn->size(0); i++)
-			QVERIFY(teyn->value(i) == (double)s1.rawData()->value(i, teyColIndex, AMnDIndex()) / (double)s1.rawData()->value(i, ioColIndex, AMnDIndex())+4.0);
+			QCOMPARE((double)teyn->value(i) , (double)s1.rawData()->value(i, teyColIndex, AMnDIndex()) / (double)s1.rawData()->value(i, ioColIndex, AMnDIndex())+4.0);
 		// reset the y expression and check values:
 		QVERIFY(teyn->setExpression("tey/I0"));
 		QVERIFY(teyn->isValid());
@@ -1246,6 +1261,7 @@ private slots:
 		QVERIFY(s1.count() == 0);
 
 	}
+
 
 
 };

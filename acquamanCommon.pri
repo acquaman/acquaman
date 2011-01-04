@@ -242,7 +242,8 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/dataman/AMRawDataSource.h \
     source/analysis/AM1DExpressionABEditor.h \
     source/dataman/AMMeasurementInfo.h \
-    source/dataman/AMDataTreeDataStore.h
+    source/dataman/AMDataTreeDataStore.h \
+    source/dataman/AMInMemoryDataStore.h
 FORMS += source/ui/AbsorptionScanController.ui \
 	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
@@ -424,6 +425,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/util/AMOrderedSetSignalSource.cpp \
 	source/dataman/AMRawDataSource.cpp \
     source/analysis/AM1DExpressionABEditor.cpp \
-    source/dataman/AMDataTreeDataStore.cpp
+    source/dataman/AMDataTreeDataStore.cpp \
+    source/dataman/AMInMemoryDataStore.cpp
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc
