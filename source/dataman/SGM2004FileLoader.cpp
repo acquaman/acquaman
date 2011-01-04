@@ -126,10 +126,9 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool extractMetaDa
 	scan->clearDataAndMeasurements();
 
 
-	// This axis info describes an axis along eV:
-	AMAxisInfo eVAxisInfo("eV", 0, "Incident Energy", "eV");
-	// add a scan axis to the raw data store:
-	scan->rawData()->addScanAxis(eVAxisInfo);
+	// There is a rawData scan axis called "eV" created in the constructor.  AMAxisInfo("eV", 0, "Incident Energy", "eV")
+	/// \todo What if there isn't? Should we check, and create the axis if none exist? What if there's more than one scan axis? Can't remove from AMDataStore... [The rest of this code assumes a single scan axis]
+
 
 	// add scalar (0D) measurements to the raw data store, for each data column.  Also add raw data sources to the scan, which expose this data.
 	/// \todo Design question: should adding a measurement to the raw data store automatically create a corresponding AMRawDataSource for the scan?
@@ -188,6 +187,7 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool extractMetaDa
 	}
 
 	// If the scan doesn't have any channels yet, it would be helpful to create some.
+
 	if(createChannels) {
 
 		QList<AMDataSource*> rawDataSources;
@@ -217,11 +217,41 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool extractMetaDa
 
 			scan->addAnalyzedDataSource(tfyChannel);
 		}
-
-
 	}
 
 	scan->onDataChanged();	/// \todo Is this still used? What does it mean?
+
+
+	// Debugging only... What's here?
+	/*
+	qDebug() << "========= Breakdown for scan named: " << scan->name() << "==============";
+	qDebug() << "Scan axes\n===========================";
+	for(int i=0; i<scan->rawData()->scanAxesCount(); i++)
+		qDebug() << scan->rawData()->scanAxisAt(i).name << ": " << scan->rawData()->scanAxisAt(i).size << "points.";
+
+	qDebug() << "Measurements\n===========================";
+	for(int i=0; i<scan->rawData()->measurementCount(); i++)
+		qDebug() << scan->rawData()->measurementAt(i).name;
+
+	qDebug() << "Raw Data\n===========================";
+	for(int i=0; i<scan->rawDataSources()->count(); i++) {
+		AMRawDataSource* rds = scan->rawDataSources()->at(i);
+		qDebug() << rds->name() << ":" << rds->description() << ": isValid is " << rds->isValid() << ": numPoints is " << rds->size(0);
+	}
+
+	QString row;
+	qDebug() << "First measurement, raw data axis value:";
+	for(int i=0; i<scan->rawData()->scanSize(0); i++)
+		row.append(QString("%1, ").arg((double)scan->rawData()->axisValue(0,i)));
+	qDebug() << "   " << row;
+
+	qDebug() << "From raw data source:";
+	row.clear();
+	AMRawDataSource* rds = scan->rawDataSources()->at(0);
+	for(int i=0; i<rds->size(0); i++)
+		row.append(QString("%1, ").arg((double)rds->axisValue(0,i)));
+	qDebug() << "    " << row;
+*/
 
 	return true;
 }
