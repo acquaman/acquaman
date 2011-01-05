@@ -30,6 +30,13 @@ SGM2004FileLoader::SGM2004FileLoader(AMXASScan* scan) : AMAbstractFileLoader(sca
 		columns2pvNames_.set("integrationTime", "A1611I1:cont_interval");
 		columns2pvNames_.set("grating", "SG16114I1001:choice");
 		columns2pvNames_.set("time", "Absolute-Time-Stamp");
+
+		columns2pvNames_.set("sdd_ROI_0", "MCA1611-01:ROI:0");
+		columns2pvNames_.set("sdd_ROI_1", "MCA1611-01:ROI:1");
+		columns2pvNames_.set("sdd_ROI_2", "MCA1611-01:ROI:2");
+		columns2pvNames_.set("sdd_ROI_3", "MCA1611-01:ROI:3");
+		columns2pvNames_.set("sdd_deadtime", "MCA1611-01:DeadFraction");
+		columns2pvNames_.set("sdd_fileOffset", "MCA1611-01:GetChannels");
 	}
 }
 
@@ -133,7 +140,10 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool extractMetaDa
 	// add scalar (0D) measurements to the raw data store, for each data column.  Also add raw data sources to the scan, which expose this data.
 	/// \todo Design question: should adding a measurement to the raw data store automatically create a corresponding AMRawDataSource for the scan?
 	foreach(QString colName, colNames1) {
-		if(colName != "eV" && colName != "Event-ID") {
+		if(colName == "sdd_fileOffset"){
+			qDebug() << "Found SDD Offsets with file path " << filepath;
+		}
+		else if(colName != "eV" && colName != "Event-ID") {
 			scan->rawData()->addMeasurement(AMMeasurementInfo(colName, colName));	/// \todo nice descriptions for the common column names; not just 'tey' or 'tfy'.
 			scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount()-1));
 		}
