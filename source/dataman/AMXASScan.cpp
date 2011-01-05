@@ -17,7 +17,7 @@ bool AMXASScan::loadDataImplementation() {
 	SGM2004FileLoader sgmLoader(this);
 
 	if(fileFormat() == sgmLoader.formatTag()) {
-		if(sgmLoader.loadFromFile(filePath(), false, false)) {
+		if(sgmLoader.loadFromFile(filePath(), false, false, false)) {
 			return true;
 		}
 		else {
@@ -30,7 +30,7 @@ bool AMXASScan::loadDataImplementation() {
 	ALSBL8XASFileLoader alsLoader(this);
 
 	if(fileFormat() == alsLoader.formatTag()) {
-		if(alsLoader.loadFromFile(filePath(), false, false)) {
+		if(alsLoader.loadFromFile(filePath(), false, false, false)) {
 			return true;
 		}
 		else {

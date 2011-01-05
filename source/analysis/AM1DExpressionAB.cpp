@@ -1,6 +1,8 @@
 #include "AM1DExpressionAB.h"
 #include "AMErrorMonitor.h"
 
+#include <QDebug>
+
 AM1DExpressionAB::AM1DExpressionAB(const QString& outputName, QObject* parent)
 	: AMAnalysisBlock(outputName, parent),
 	axisInfo_(outputName + "_x", 0)
@@ -70,6 +72,8 @@ bool AM1DExpressionAB::areInputDataSourcesAcceptable(const QList<AMDataSource*>&
 /* \note Whenever new input sources are set, if the xExpression() is blank/invalid, it is automatically initialized to the axisValue() of the first input source. Otherwise it, like expression(), is left as it was prior to setting the new inputs. Note that if the names of the new inputs are different, the old expressions will both likely become invalid. */
 void AM1DExpressionAB::setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources) {
 
+	qDebug() << "==== AM1DExpressionAB: Setting input data sources.  Number:" << dataSources.count();
+
 	QString oldExpression = expression();
 	QString oldXExpression = xExpression();
 
@@ -135,6 +139,8 @@ void AM1DExpressionAB::setInputDataSourcesImplementation(const QList<AMDataSourc
 	}
 
 	// set y expression to what it used to be. (side-effect: reviews y expression for validity on new inputs)
+	qDebug() << "    Old expression:" << oldExpression << "\n    Old X Expression:" << oldXExpression;
+
 	setExpression(oldExpression);
 	setXExpression(oldXExpression);
 
@@ -350,6 +356,8 @@ bool AM1DExpressionAB::checkExpressionValidity(const QString& testExpression) {
 // Set the current expression used to evaluate the result. If the expression is not valid, the state of the output goes to Invalid, and this returns false.
 bool AM1DExpressionAB::setExpression(const QString& newExpression) {
 
+	qDebug() << "   === AM1DExpressionAB: setting expression";
+
 	expressionValid_ = true;
 	usedVariables_.clear();
 	direct_ = false;
@@ -395,6 +403,9 @@ bool AM1DExpressionAB::setExpression(const QString& newExpression) {
 	reviewState();
 	emitValuesChanged();
 
+	if(expressionValid_)
+		qDebug() << "     AM1DExpressionAB: success setting expression!";
+
 	return expressionValid_;
 }
 
@@ -403,6 +414,8 @@ bool AM1DExpressionAB::setExpression(const QString& newExpression) {
 ///////////////////////////////
 // Set the expression used for the independent variable (aka x-axis... the one returned by axisValue()).   If \c xExpression is an empty string, the expression is set back to default, ie: the independent variable of the first input data source.
 bool AM1DExpressionAB::setXExpression(const QString& xExpressionIn) {
+
+	qDebug() << "   === AM1DExpressionAB: setting x expression";
 
 	QString xExpression = xExpressionIn;
 
@@ -444,7 +457,7 @@ bool AM1DExpressionAB::setXExpression(const QString& xExpressionIn) {
 
 	}
 	catch(mu::Parser::exception_type& e) {
-		QString explanation = QString("AM1DExpressionAB Analysis Block: error setting expression: %1: '%2'.  We found '%3' at position %4.").arg(QString::fromStdString(e.GetMsg())).arg(QString::fromStdString(e.GetExpr())).arg(QString::fromStdString(e.GetToken())).arg(e.GetPos());
+		QString explanation = QString("AM1DExpressionAB Analysis Block: error setting X expression: %1: '%2'.  We found '%3' at position %4.").arg(QString::fromStdString(e.GetMsg())).arg(QString::fromStdString(e.GetExpr())).arg(QString::fromStdString(e.GetToken())).arg(e.GetPos());
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, e.GetCode(), explanation));
 		xExpressionValid_ = false;
 	}
@@ -452,6 +465,9 @@ bool AM1DExpressionAB::setXExpression(const QString& xExpressionIn) {
 	// anything that could trigger a change in the output validity must call this
 	reviewState();
 	emitValuesChanged();	/// \todo: actually, we mean that the axis values changed. How to signal that?
+
+	if(expressionValid_)
+		qDebug() << "     AM1DExpressionAB: success setting X expression!";
 
 	return xExpressionValid_;
 }

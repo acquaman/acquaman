@@ -29,7 +29,7 @@ ALSBL8XASFileLoader::ALSBL8XASFileLoader(AMXASScan* scan) : AMAbstractFileLoader
 }
 
 
-bool ALSBL8XASFileLoader::loadFromFile(const QString& filepath, bool extractMetaData, bool createChannels) {
+bool ALSBL8XASFileLoader::loadFromFile(const QString& filepath, bool setMetaData, bool setRawDataSources, bool createDefaultAnalysisBlocks) {
 
 	// not initialized to have a scan target, or scan target is not an AMXASScan...
 	AMXASScan* scan = qobject_cast<AMXASScan*>(scan_);
@@ -55,8 +55,7 @@ bool ALSBL8XASFileLoader::loadFromFile(const QString& filepath, bool extractMeta
 	}
 	QTextStream fs(&f);
 
-
-	if(extractMetaData) {
+	if(setMetaData) {
 		// Start reading the file. look for the count-time line.
 		while( !fs.atEnd() && !(line = fs.readLine()).startsWith("Count Time (s):") )
 			;
@@ -113,8 +112,11 @@ bool ALSBL8XASFileLoader::loadFromFile(const QString& filepath, bool extractMeta
 
 	}
 
-	// ensure raw data columns exist:
-	scan->clearDataAndMeasurements();
+	// clear the existing raw data (and raw data sources, if we're supposed to)
+	if(setRawDataSources)
+		scan->clearRawDataPointsAndMeasurementsAndDataSources();
+	else
+		scan->clearRawDataPointsAndMeasurements();
 
 	// There is a rawData scan axis called "eV" created in the constructor.  AMAxisInfo("eV", 0, "Incident Energy", "eV")
 	/// \todo What if there isn't? Should we check, and create the axis if none exist? What if there's more than one scan axis? Can't remove from AMDataStore... [The rest of this code assumes a single scan axis]
@@ -124,7 +126,8 @@ bool ALSBL8XASFileLoader::loadFromFile(const QString& filepath, bool extractMeta
 	foreach(QString colName, colNames1) {
 		if(colName != "eV" && colName != "Event-ID") {
 			scan->rawData()->addMeasurement(AMMeasurementInfo(colName, colName));	/// \todo nice descriptions for the common column names; not just 'tey' or 'tfy'.
-			scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount()-1));
+			if(setRawDataSources)
+				scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount()-1));
 		}
 	}
 
@@ -154,7 +157,7 @@ bool ALSBL8XASFileLoader::loadFromFile(const QString& filepath, bool extractMeta
 	}
 
 
-	if(extractMetaData) {
+	if(setMetaData) {
 		scan->setNotes(comments);
 		// for a date-time, there is no information saved inside the file format, so the best we can do is look at the file's creation date-time...
 		QFileInfo fi(filepath);
@@ -162,8 +165,20 @@ bool ALSBL8XASFileLoader::loadFromFile(const QString& filepath, bool extractMeta
 		/// \todo integration time... do what with?
 	}
 
+	// pre-existing raw data sources integrity check... If there's a raw data source, but it's pointing to a non-existent measurement in the data store, that's a problem.
+	/// \todo Is there any way to incorporate this at a higher level, so that import-writers don't need to bother?
+	if(!setRawDataSources) {	// if setRawDataSources is true, we know it's all good... We just created them
+		for(int i=0; i<scan->rawDataSources()->count(); i++) {
+			if(scan->rawDataSources()->at(i)->measurementId() >= scan->rawData()->measurementCount()) {
+				AMErrorMon::report(AMErrorReport(scan, AMErrorReport::Debug, -97, QString("The data in the file didn't match the raw data columns we were expecting. Removing the raw data column '%1')").arg(scan->rawDataSources()->at(i)->name())));
+				scan->deleteRawDataSource(i);
+			}
+		}
+	}
+
+
 	// If the scan doesn't have any channels yet, it might be helpful to create some.
-	if(createChannels) {
+	if(createDefaultAnalysisBlocks) {
 
 		QList<AMDataSource*> rawDataSources;
 		foreach(AMRawDataSource* ds, scan->rawDataSources()->toList())

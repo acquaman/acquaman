@@ -16,7 +16,7 @@ AMScan* SGMLegacyImporter::import(const QString& fullPath) {
 
 	AMXASScan* rv = new AMXASScan();
 	SGM2004FileLoader loader(rv);
-	if(loader.loadFromFile(fullPath, true, true)) {
+	if(loader.loadFromFile(fullPath, true, true, true)) {
 
 		// what should we name this scan?
 		QFileInfo fileInfo(fullPath);
@@ -50,7 +50,7 @@ AMScan* ALSBL8XASImporter::import(const QString& fullPath) {
 	AMXASScan* rv = new AMXASScan();
 	ALSBL8XASFileLoader loader(rv);
 	// load meta-data AND raw data, please...
-	if(loader.loadFromFile(fullPath, true, true)) {
+	if(loader.loadFromFile(fullPath, true, true, true)) {
 
 		// what should we name this scan?
 		QFileInfo fileInfo(fullPath);

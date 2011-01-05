@@ -17,7 +17,7 @@ public:
 	QString formatTag() const { return "sgm2004"; }
 
 	/// load from SGM legacy file format
-	bool loadFromFile(const QString& filepath, bool extractMetaData = true, bool createChannels = true);
+	bool loadFromFile(const QString& filepath, bool setMetaData, bool setRawDataSources, bool createDefaultAnalysisBlocks);
 
 	/// save to SGM legacy file format (\todo UNIMPLEMENTED)
 	bool saveToFile(const QString& filepath) {
