@@ -1020,7 +1020,7 @@ private slots:
 		/// \todo move this into proper storage location in data dir.
 		QString fileName = AMUserSettings::userDataFolder + "testScriptData/sgm001.dat";
 		//		qDebug() << "loading sgm data from file and checking for proper read:" << fileName;
-		QVERIFY(s1Loader.loadFromFile(fileName));
+		QVERIFY(s1Loader.loadFromFile(fileName, true, true, true));
 		QCOMPARE(s1.scanSize(0), int(301));
 		QCOMPARE(s1.notes(), QString("0.916667"));	// NOTE: this test fails, because we're currently putting the Grating and Integration Time inside the comment field (for lack of a better place) Eventually, the Grating and Integration time should become part of the scan configuration, or beamline state.
 		QCOMPARE(s1.dateTime().toTime_t(), uint(1285706567));
@@ -1051,7 +1051,7 @@ private slots:
 		/// \todo move this into proper storage location in data dir.
 		QString fileName = AMUserSettings::userDataFolder + "testScriptData/sgm001.dat";
 		//qDebug() << "loading sgm data from file and checking for proper read:" << fileName;
-		QVERIFY(s1Loader.loadFromFile(fileName));
+		QVERIFY(s1Loader.loadFromFile(fileName, true, true, true));
 
 		// create simple math channel
 		AM1DExpressionAB* const5Channel = new AM1DExpressionAB("const5");
