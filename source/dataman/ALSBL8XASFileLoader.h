@@ -17,7 +17,7 @@ public:
 	QString formatTag() const { return "alsBl8Xas"; }
 
 	/// load from ALS BL 8.0.1 legacy file format
-	bool loadFromFile(const QString& filepath, bool extractMetaData = true, bool createChannels = true);
+	bool loadFromFile(const QString& filepath, bool setMetaData, bool setRawDataSources, bool createDefaultAnalysisBlocks);
 
 	/// save to ALS BL 8.0.1 legacy file format (\todo UNIMPLEMENTED)
 	bool saveToFile(const QString& filepath) {

@@ -41,7 +41,7 @@ SGM2004FileLoader::SGM2004FileLoader(AMXASScan* scan) : AMAbstractFileLoader(sca
 }
 
 /// load raw data from the SGM legacy file format into a scan's data tree.  If \c extractMetaData is set to true, this will also set the 'notes' and 'dateTime' meta-data fields.  If \c createChannels is set to true, it will create some default channels based on the data columns.
-bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool extractMetaData, bool createChannels) {
+bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, bool setRawDataSources, bool createDefaultAnalysisBlocks) {
 
 	// not initialized to have a scan target, or scan target is not an AMXASScan...
 	AMXASScan* scan = qobject_cast<AMXASScan*>(scan_);
@@ -69,8 +69,7 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool extractMetaDa
 	}
 	QTextStream fs(&f);
 
-
-	if(extractMetaData) {
+	if(setMetaData) {
 		// Start reading the file. look for comment line.
 		while( !fs.atEnd() && fs.readLine() != QString("# COMMENT"))
 			;
@@ -129,23 +128,27 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool extractMetaDa
 
 	}
 
-	// remove all previous raw data sources and raw data
-	scan->clearDataAndMeasurements();
+
+	// clear the existing raw data (and raw data sources, if we're supposed to)
+	if(setRawDataSources)
+		scan->clearRawDataPointsAndMeasurementsAndDataSources();
+	else
+		scan->clearRawDataPointsAndMeasurements();
 
 
 	// There is a rawData scan axis called "eV" created in the constructor.  AMAxisInfo("eV", 0, "Incident Energy", "eV")
 	/// \todo What if there isn't? Should we check, and create the axis if none exist? What if there's more than one scan axis? Can't remove from AMDataStore... [The rest of this code assumes a single scan axis]
 
 
-	// add scalar (0D) measurements to the raw data store, for each data column.  Also add raw data sources to the scan, which expose this data.
-	/// \todo Design question: should adding a measurement to the raw data store automatically create a corresponding AMRawDataSource for the scan?
+	// add scalar (0D) measurements to the raw data store, for each data column.  If setRawDataSources is true, also add raw data sources to the scan, which expose this data.
 	foreach(QString colName, colNames1) {
 		if(colName == "sdd_fileOffset"){
 			qDebug() << "Found SDD Offsets with file path " << filepath;
 		}
 		else if(colName != "eV" && colName != "Event-ID") {
 			scan->rawData()->addMeasurement(AMMeasurementInfo(colName, colName));	/// \todo nice descriptions for the common column names; not just 'tey' or 'tfy'.
-			scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount()-1));
+			if(setRawDataSources)
+				scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount()-1));
 		}
 	}
 
@@ -191,20 +194,29 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool extractMetaDa
 	}
 
 
-	if(extractMetaData) {
+	if(setMetaData) {
 		scan->setNotes(QString("Grating: %1\nIntegration Time: %2\nComments:\n%3").arg(grating).arg(integrationTime).arg(comments));	/// \todo Move this from notes to the scan's scanInitialConditions().
 		scan->setDateTime(datetime);
 	}
 
+	// pre-existing raw data sources integrity check... If there's a raw data source, but it's pointing to a non-existent measurement in the data store, that's a problem.
+	/// \todo Is there any way to incorporate this at a higher level, so that import-writers don't need to bother?
+	if(!setRawDataSources) {	// if setRawDataSources is true, we know it's all good... We just created them
+		for(int i=0; i<scan->rawDataSources()->count(); i++) {
+			if(scan->rawDataSources()->at(i)->measurementId() >= scan->rawData()->measurementCount()) {
+				AMErrorMon::report(AMErrorReport(scan, AMErrorReport::Debug, -97, QString("The data in the file didn't match the raw data columns we were expecting. Removing the raw data column '%1')").arg(scan->rawDataSources()->at(i)->name())));
+				scan->deleteRawDataSource(i);
+			}
+		}
+	}
+
 	// If the scan doesn't have any channels yet, it would be helpful to create some.
 
-	if(createChannels) {
+	if(createDefaultAnalysisBlocks) {
 
 		QList<AMDataSource*> rawDataSources;
 		foreach(AMRawDataSource* ds, scan->rawDataSources()->toList())
 			rawDataSources << ds;
-
-		/// \todo defaults for what channels to create?
 
 		int rawTeyIndex = scan->rawDataSources()->indexOf("tey");
 		int rawTfyIndex = scan->rawDataSources()->indexOf("tfy");

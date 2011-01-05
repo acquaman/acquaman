@@ -99,14 +99,19 @@ public:
 
 	/// Returns read-only access to the set of raw data sources. (A data source represents a single "stream" or "channel" of data. For example, in a simple absorption scan, the electron yield measurements are one raw data source, and the fluorescence yield measurements are another data source.)
 	const AMRawDataSourceSet* rawDataSources() const { return &rawDataSources_; }
-	/// Publicly expose part of the rawData(), by adding a new AMRawDataSource to the scan. The new data source \c newRawDataSource should be valid, initialized and connected to the data store already.  The scan takes ownership of \c newRawDataSource.
-	/*! \todo Check for duplicate names? (ie: what if there's already a raw data source with this name?) */
-	void addRawDataSource(AMRawDataSource* newRawDataSource) { if(newRawDataSource) rawDataSources_.append(newRawDataSource, newRawDataSource->name()); }
+	// AMRawDataSourceSet* rawDataSources() { return &rawDataSources_; }
+	/// Publicly expose part of the rawData(), by adding a new AMRawDataSource to the scan. The new data source \c newRawDataSource should be valid, initialized and connected to the data store already.  The scan takes ownership of \c newRawDataSource.  This function returns false if raw data source already exists with the same name as the \c newRawDataSource.
+	bool addRawDataSource(AMRawDataSource* newRawDataSource) { if(newRawDataSource) return rawDataSources_.append(newRawDataSource, newRawDataSource->name()); return false; }
+	/// Delete and remove an existing raw data source.  \c id is the idnex of the source in rawDataSources().
+	bool deleteRawDataSource(int id) { if((unsigned)id >= (unsigned)rawDataSources_.count()) return false; delete rawDataSources_.takeAt(id); return true; }
 
 	/// Returns read-only access to the set of analyzed data sources. (Analyzed data sources are built on either raw data sources, or other analyzed sources, by applying an AMAnalysisBlock.)
 	const AMAnalyzedDataSourceSet* analyzedDataSources() const { return &analyzedDataSources_; }
+	// AMAnalyzedDataSourceSet* analyzedDataSources() { return &analyzedDataSources_; }
 	/// Add an new analysis block to the scan.  The scan takes ownership of the \c newAnalysisBlock and exposes it as one of the analyzed data sources.
-	void addAnalyzedDataSource(AMAnalysisBlock* newAnalyzedDataSource) { if(newAnalyzedDataSource) analyzedDataSources_.append(newAnalyzedDataSource, newAnalyzedDataSource->name()); }
+	bool addAnalyzedDataSource(AMAnalysisBlock* newAnalyzedDataSource) { if(newAnalyzedDataSource) return analyzedDataSources_.append(newAnalyzedDataSource, newAnalyzedDataSource->name()); return false; }
+	/// Delete and remove an existing analysis block. \c id is the index of the source in analyzedDataSources().
+	bool deleteAnalyzedDataSource(int id) { if((unsigned)id >= (unsigned)analyzedDataSources_.count()) return false; delete analyzedDataSources_.takeAt(id); return true; }
 
 	// Provides a simple access model to all the data sources (combination of rawDataSources() and analyzedDataSources()
 
@@ -136,7 +141,7 @@ public:
 	}
 
 	/// Returns the index of a data source (in the combined set of raw+analyzed sources) identified by pointer \c dataSource, or -1 if not found.
-	/*! Performance note: This involves a linear seach through all sources. Unless you have a thousand sources, it's fast enough, but don't call it repeatedly if you don't have to.*/
+	/*! Performance note: This involves a linear seach through all sources. Unless you have thousands of sources, it's fast enough, but don't call it repeatedly if you don't have to.*/
 	int indexOfDataSource(const AMDataSource* source) const {
 		int rawCount = rawDataSources_.count();
 		for(int i=0; i<rawCount; i++)
@@ -149,7 +154,7 @@ public:
 	}
 
 
-	/// Removes and deletes the data source at \c index.  Returns true on success, false if \c index < 0 or >= dataSourceCount().
+	/// Removes and deletes a data source.  \c index is the index of the data source in dataSourceAt().  Returns true on success, false if \c index < 0 or >= dataSourceCount().
 	bool deleteDataSourceAt(int index ) {
 		if(index < 0)
 			return false;
@@ -194,15 +199,22 @@ public:
 	}
 
 
-	/// Clears the scan's raw data completely, including all measurements configured within the rawData() data store, and all the rawDataSources().
-	void clearDataAndMeasurements() {
+	/// Clears the scan's raw data completely, including all measurements configured within the rawData() data store, and all rawDataSources() which expose this data.
+	void clearRawDataPointsAndMeasurementsAndDataSources() {
 		while(rawDataSources_.count())
 			delete rawDataSources_.takeAt(rawDataSources_.count()-1);
 
 		data_->clearAllMeasurements();
 	}
+
+	/// Clears the scan's raw data completely, including all measurements configured within the rawData() data store.
+	/*! Caution: Leaves the rawDataSources() as-is; make sure that they don't attempt to access non-existent raw data.*/
+	void clearRawDataPointsAndMeasurements() {
+		data_->clearAllMeasurements();
+	}
+
 	/// Clears all of scans's data points, but leaves all measurements and raw data sources as-is.
-	void clearData() {
+	void clearRawDataPoints() {
 		data_->clearScanDataPoints();
 	}
 
