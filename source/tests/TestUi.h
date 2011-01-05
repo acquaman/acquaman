@@ -61,7 +61,7 @@ private slots:
 		QString fileName = AMUserSettings::userDataFolder + "/2010/06/CarbonTape_C1.dat";
 		qDebug() << fileName;
 
-		QVERIFY(s1Loader.loadFromFile(fileName));
+		QVERIFY(s1Loader.loadFromFile(fileName, true, true, true));
 
 
 		QTest::qWait(4000);
@@ -95,7 +95,7 @@ private slots:
 		//s1Loader = s2;
 		s1Loader.setTarget(&s2);
 
-		QVERIFY(s1Loader.loadFromFile(fileName));
+		QVERIFY(s1Loader.loadFromFile(fileName, true, true, true));
 
 		QTest::qWait(2000);
 
@@ -221,7 +221,7 @@ private slots:
 		SGM2004FileLoader s1Loader(&s1);
 		QString fileName = AMUserSettings::userDataFolder + "001.dat";
 
-		QVERIFY(s1Loader.loadFromFile(fileName));
+		QVERIFY(s1Loader.loadFromFile(fileName, true, true, true));
 
 
 		QTest::qWait(2000);
@@ -251,7 +251,7 @@ private slots:
 		model->addScan(&s2);
 		s1Loader.setTarget(&s2);
 
-		QVERIFY(s1Loader.loadFromFile(fileName));
+		QVERIFY(s1Loader.loadFromFile(fileName, true, true, true));
 
 		QTest::qWait(2000);
 
@@ -313,7 +313,7 @@ private slots:
 		SGM2004FileLoader s1Loader(&s1);
 		QString fileName = AMUserSettings::userDataFolder + "001.dat";
 
-		QVERIFY(s1Loader.loadFromFile(fileName));
+		QVERIFY(s1Loader.loadFromFile(fileName, true, true, true));
 
 
 		QTest::qWait(2000);
@@ -343,7 +343,7 @@ private slots:
 		model->addScan(&s2);
 		s1Loader.setTarget(&s2);
 
-		QVERIFY(s1Loader.loadFromFile(fileName));
+		QVERIFY(s1Loader.loadFromFile(fileName, true, true, true));
 
 		QTest::qWait(2000);
 
@@ -406,7 +406,7 @@ private slots:
 		SGM2004FileLoader s1Loader(&s1);
 		QString fileName = AMUserSettings::userDataFolder + "001.dat";
 
-		QVERIFY(s1Loader.loadFromFile(fileName));
+		QVERIFY(s1Loader.loadFromFile(fileName, true, true, true));
 
 
 		QTest::qWait(2000);
@@ -436,7 +436,7 @@ private slots:
 		model->addScan(&s2);
 		s1Loader.setTarget(&s2);
 
-		QVERIFY(s1Loader.loadFromFile(fileName));
+		QVERIFY(s1Loader.loadFromFile(fileName, true, true, true));
 
 		QTest::qWait(2000);
 
@@ -494,7 +494,7 @@ private slots:
 		SGM2004FileLoader s1Loader(&s1);
 		QString fileName = AMUserSettings::userDataFolder + "001.dat";
 
-		QVERIFY(s1Loader.loadFromFile(fileName));
+		QVERIFY(s1Loader.loadFromFile(fileName, true, true, true));
 
 
 		QTest::qWait(2000);
@@ -504,7 +504,7 @@ private slots:
 		model->addScan(&s2);
 		s1Loader.setTarget(&s2);
 
-		s1Loader.loadFromFile(fileName);
+		s1Loader.loadFromFile(fileName, true, true, true);
 
 		QTest::qWait(80000);
 
