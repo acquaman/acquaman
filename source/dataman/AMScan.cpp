@@ -5,6 +5,7 @@
 #include "dataman/AMSample.h"
 #include "dataman/AMDbObjectSupport.h"
 #include "dataman/AMInMemoryDataStore.h"
+#include "dataman/AMDataTreeDataStore.h"
 
 
 AMScan::AMScan(QObject *parent)
@@ -25,6 +26,7 @@ AMScan::AMScan(QObject *parent)
 	fileFormat_ = "unknown";
 
 	data_ = new AMInMemoryDataStore();	// data store is initially empty. Needs axes configured in specific subclasses.
+	//data_ = new AMDataTreeDataStore(AMAxisInfo("eV", 0, "Incidence Energy", "eV"));
 
 	autoLoadData_ = true;
 

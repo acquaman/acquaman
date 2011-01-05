@@ -116,10 +116,8 @@ bool ALSBL8XASFileLoader::loadFromFile(const QString& filepath, bool extractMeta
 	// ensure raw data columns exist:
 	scan->clearDataAndMeasurements();
 
-	// This axis info describes an axis along eV:
-	AMAxisInfo eVAxisInfo("eV", 0, "Incident Energy", "eV");
-	// add a scan axis to the raw data store:
-	scan->rawData()->addScanAxis(eVAxisInfo);
+	// There is a rawData scan axis called "eV" created in the constructor.  AMAxisInfo("eV", 0, "Incident Energy", "eV")
+	/// \todo What if there isn't? Should we check, and create the axis if none exist? What if there's more than one scan axis? Can't remove from AMDataStore... [The rest of this code assumes a single scan axis]
 
 	// add scalar (0D) measurements to the raw data store, for each data column.  Also add raw data sources to the scan, which expose this data.
 	/// \todo Design question: should adding a measurement to the raw data store automatically create a corresponding AMRawDataSource for the scan?

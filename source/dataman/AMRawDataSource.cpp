@@ -6,6 +6,7 @@ AMRawDataSource::AMRawDataSource(const AMDataStore* dataStore, int measurementId
 {
 
 	dataStore_ = dataStore;
+	measurementId_ = measurementId;
 	AMMeasurementInfo measurementInfo = dataStore_->measurementAt(measurementId);
 
 	AMDbObject::setName( AMDataSource::name() );
