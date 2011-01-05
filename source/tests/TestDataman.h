@@ -528,11 +528,12 @@ private slots:
 	void testDataTreeDataStore() {
 			qDebug() << "\n\n\n DAVID STARTS HERE \n\nTesting data tree data store\n\n\n";
 
-
+			// 0-D Measurements
 			AMMeasurementInfo teyInfo("tey", "Total Electron Yield", "amps");
 			AMMeasurementInfo tfyInfo("tfy", "Total Fluoresence Yield", "amps");
 			AMMeasurementInfo i0Info("I0", "I0", "amps");
 
+			// 1-D Measurements
 			AMAxisInfo sddEVAxisInfo("energy", 1024, "SDD Energy", "eV");
 			QList<AMAxisInfo> sddAxes;
 			sddAxes << sddEVAxisInfo;
@@ -543,12 +544,14 @@ private slots:
 			xosAxes << xosWavelengthAxisInfo;
 			AMMeasurementInfo xosInfo("xos", "XEOL Optical Spectrometer", "counts", xosAxes);
 
+			// 2-D Measurements
 			AMAxisInfo xessXAxisInfo("x", 1280, "x pixel", "index");
 			AMAxisInfo xessYAxisInfo("y", 1024, "y pixel", "index");
 			QList<AMAxisInfo> xessAxes;
 			xessAxes << xessXAxisInfo << xessYAxisInfo;
 			AMMeasurementInfo xessInfo("xess", "XES Spectrometer", "counts", xessAxes);
 
+			// 3-D Measurements
 			AMAxisInfo uglyRAxisInfo("r", 100, "Radial Distance", "percent");
 			AMAxisInfo uglyPhiAxisInfo("phi", 180, "Phi Angle", "degrees");
 			AMAxisInfo uglyThetaAxisInfo("theta", 360, "Theta Distance", "degrees");
@@ -556,8 +559,10 @@ private slots:
 			uglyAxes << uglyRAxisInfo << uglyPhiAxisInfo << uglyThetaAxisInfo;
 			AMMeasurementInfo uglyInfo("ugly", "Some Ugly Detector", "events", uglyAxes);
 
+			// Principle Axis
 			AMAxisInfo scanAxis("energy", 1000, "Beamline Energy", "eV");
 
+			// Create DataTreeDataStore and test addMeasurement() and measurementCount() functions
 			AMDataTreeDataStore dtds(scanAxis, this);
 			QVERIFY(dtds.addMeasurement(teyInfo));
 			QVERIFY(dtds.addMeasurement(tfyInfo));
@@ -570,16 +575,19 @@ private slots:
 			QVERIFY(dtds.addMeasurement(uglyInfo));
 			QCOMPARE(dtds.measurementCount(), 7);
 
+			// Test addMeasurement() for failure on re-adding exisiting measurement and adding non-unique named measurements
 			AMMeasurementInfo sameAsTeyInfo("tey", "something else", "counts");
 			QVERIFY(!dtds.addMeasurement(teyInfo));
 			QVERIFY(!dtds.addMeasurement(sameAsTeyInfo));
 			QCOMPARE(dtds.measurementCount(), 7);
 
+			// Test idOfMeasurement() function
 			QCOMPARE(dtds.idOfMeasurement("tey"), 0);
 			QCOMPARE(dtds.idOfMeasurement("ugly"), 6);
 			QCOMPARE(dtds.idOfMeasurement("sdd"), 3);
 			QCOMPARE(dtds.idOfMeasurement("not in here"), -1);
 
+			// Test measurementAt() function
 			QCOMPARE(dtds.measurementAt(1).name, tfyInfo.name);
 			QCOMPARE(dtds.measurementAt(1).description, tfyInfo.description);
 			QCOMPARE(dtds.measurementAt(1).units, tfyInfo.units);
@@ -594,15 +602,11 @@ private slots:
 			QCOMPARE(dtds.measurementAt(5).axes.at(1).description, xessInfo.axes.at(1).description);
 			QCOMPARE(dtds.measurementAt(5).axes.at(1).size, xessInfo.axes.at(1).size);
 
-			AMDataTree *dt = dtds.dataTree();
-
-			dataTreeColumnsPuke(dt);
-			AMnDIndex curSize = dtds.scanSize();
-			qDebug() << "[1] nDIndex for axes: " << curSize.i();
-
+			// Test addScanAxis() function
 			AMAxisInfo scanAxis2("temperature", 10, "Sample Temperature", "K");
 			QVERIFY(dtds.addScanAxis(scanAxis2));
 
+			// Test idOfScanAxis(), scanAxisAt(), and scanAxesCount() functions
 			QCOMPARE(dtds.idOfScanAxis("energy"), 0);
 			QCOMPARE(dtds.idOfScanAxis(scanAxis.name), 0);
 			QCOMPARE(dtds.idOfScanAxis("temperature"), 1);
@@ -611,12 +615,7 @@ private slots:
 			QCOMPARE(dtds.scanAxisAt(1).size, 0); //regardless of incoming size, axes get sized to 0 in an empty tree
 			QCOMPARE(dtds.scanAxesCount(), 2);
 
-			dt = dtds.dataTree();
-			qDebug() << "\n\n\nADDED SCAN AXIS\n\n\n";
-			dataTreeColumnsPuke(dt);
-			curSize = dtds.scanSize();
-			qDebug() << "[2] nDIndex for axes: " << curSize.i() << curSize.j();
-
+			// Test another addScanAxis() and accompanying functions
 			AMAxisInfo scanAxis3("exitslitsize", 20, "Exit Slit Size", "um");
 			QVERIFY(dtds.addScanAxis(scanAxis3));
 			QCOMPARE(dtds.idOfScanAxis(scanAxis3.name), 2);
@@ -625,27 +624,13 @@ private slots:
 			QCOMPARE(dtds.scanAxisAt(2).size, 0); //regardless of incoming size, axes get sized to 0 in an empty tree
 			QCOMPARE(dtds.scanAxesCount(), 3);
 
-			dt = dtds.dataTree();
-			qDebug() << "\n\n\nADDED SCAN AXIS\n\n\n";
-			dataTreeColumnsPuke(dt);
-
+			// Test addScanAxis() for failure on re-adding existing axis and adding non-uniqued named scan axis
 			AMAxisInfo scanAxis3Imposter("exitslitsize", 25, "Not the same", "either");
 			QVERIFY(!dtds.addScanAxis(scanAxis2));
 			QVERIFY(!dtds.addScanAxis(scanAxis3Imposter));
 			QCOMPARE(dtds.scanAxesCount(), 3);
 
-			curSize = dtds.scanSize();
-			qDebug() << "[3] nDIndex for axes: " << curSize.i() << curSize.j() << curSize.k();
-			qDebug() << "[3] or: " << dtds.scanSize(0) << dtds.scanSize(1) << dtds.scanSize(2);
 
-			qDebug() << "PUKING DIMENSIONS";
-			dtds.dataStoreDimensionsPuke();
-			QVERIFY(dtds.beginInsertRows(2));
-			dtds.dataStoreDimensionsPuke();
-			/*
-			curSize = dtds.scanSize();
-			qDebug() << "[3] nDIndex for axes: " << curSize.i() << curSize.j() << curSize.k();
-			qDebug() << "[3] or: " << dtds.scanSize(0) << dtds.scanSize(1) << dtds.scanSize(2);
 			AMnDIndex curIndex(0, 0, 0);
 			AMnDIndex scalarMeasurement;
 			AMnDIndex d1Measurement(0);
@@ -655,8 +640,9 @@ private slots:
 			dArray[0] = 12.27;
 			int iArray[1];
 			iArray[0] = 99;
-	//		QVERIFY(dtds.setValue(curIndex, dtds.idOfMeasurement("tey"), scalarMeasurement, 12.27));
-			QVERIFY(dtds.setValue(curIndex, dtds.idOfMeasurement("tey"), dArray, 1));
+			QVERIFY(dtds.beginInsertRows(0));
+			QVERIFY(dtds.setValue(curIndex, dtds.idOfMeasurement("tey"), scalarMeasurement, 12.27));
+	//		QVERIFY(dtds.setValue(curIndex, dtds.idOfMeasurement("tey"), dArray, 1));
 			QVERIFY(dtds.setValue(curIndex, dtds.idOfMeasurement("tfy"), scalarMeasurement, 1.001));
 	//		QVERIFY(dtds.setValue(curIndex, dtds.idOfMeasurement("I0"), scalarMeasurement, 99));
 			QVERIFY(dtds.setValue(curIndex, dtds.idOfMeasurement("I0"), iArray, 1));
@@ -689,7 +675,6 @@ private slots:
 			QVERIFY(dtds.setAxisValue(dtds.idOfScanAxis("energy"), 0, 282.5));
 			retVal = dtds.axisValue(dtds.idOfScanAxis("energy"), 0);
 			QCOMPARE(retVal, 282.5);
-			*/
 
 
 			/*
