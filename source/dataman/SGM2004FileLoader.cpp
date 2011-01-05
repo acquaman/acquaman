@@ -225,7 +225,7 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 			AM1DExpressionAB* tfyChannel = new AM1DExpressionAB("tfy_n");
 			tfyChannel->setDescription("Normalized TFY");
 			tfyChannel->setInputDataSources(rawDataSources);
-			tfyChannel->setExpression("tfy/I0");
+			tfyChannel->setExpression("-tfy/I0");
 
 			scan->addAnalyzedDataSource(tfyChannel);
 		}

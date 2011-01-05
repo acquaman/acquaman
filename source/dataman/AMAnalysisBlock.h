@@ -36,6 +36,8 @@ class AMAnalysisBlock : public AMDbObject, public AMDataSource
 {
 	Q_OBJECT
 
+	Q_PROPERTY(QString description READ description WRITE setDescription)
+
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Generic Analysis Block")
 
 public:
@@ -90,10 +92,13 @@ public:
 	/// If implementing classes don't use the setState() method to notify of changes in their current output state, they must re-implement this function to reflect their actual current state.
 	virtual int state() const { return state_;	}
 
+
 protected slots:
 	/// called automatically when a current input source is deleted. The default response is to discard ALL input sources and go into the invalid/inactive state. The base class implementation of this function is effectively the same as calling setInputDataSources() with an empty list. setInputDataSourcesImplementation() will be called with an empty list to tell the subclass to put itself in the invalid/inactive state.
 	/*! If you re-implement this function, make sure to deregisterObserver() and disconnect the deleted() signal from the sources you no longer use. See the base class implementation for an example.*/
 	virtual void onInputSourceDeleted(void* deletedSource);
+
+
 
 
 protected:

@@ -11,12 +11,6 @@
 AMScan::AMScan(QObject *parent)
 	: AMDbObject(parent)
 {
-
-	// created a new top-level data tree (not shared with anyone). Assigning it to dshared_ gives it a reference count of 1. The tree will be automatically deleted when dshared_ goes out of scope (ie: when dshared_ gets deleted, moving the reference count to 0.)
-	/*! \todo move this to AMDataTreeDataStore
-	dshared_ = d_ = new AMDataTree(0, "x", true);
-	*/
-
 	number_ = 0;
 	dateTime_ = QDateTime::currentDateTime();
 	runId_ = -1;
