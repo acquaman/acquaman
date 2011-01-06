@@ -16,6 +16,18 @@ AMScan* SGMLegacyImporter::import(const QString& fullPath) {
 
 	AMXASScan* rv = new AMXASScan();
 	SGM2004FileLoader loader(rv);
+
+	// check for spectra file, and set rv->additionalFilePaths()
+	if( fullPath.indexOf(".dat") >= 0){
+		QString spectraPath = fullPath;
+		spectraPath.insert(spectraPath.indexOf(".dat"), "_spectra");
+		if( QFile::exists(spectraPath) ){
+			QStringList additionalFilePaths;
+			additionalFilePaths << spectraPath;
+			rv->setAdditionalFilePaths(additionalFilePaths);
+		}
+	}
+
 	if(loader.loadFromFile(fullPath, true, true, true)) {
 
 		// what should we name this scan?
