@@ -264,6 +264,7 @@ public:
 	/// \todo Acquisition status, and link to scan controller
 
 
+
 public slots:
 
 	// Setting Meta-Data

@@ -38,6 +38,15 @@ SGM2004FileLoader::SGM2004FileLoader(AMXASScan* scan) : AMAbstractFileLoader(sca
 		columns2pvNames_.set("sdd_deadtime", "MCA1611-01:DeadFraction");
 		columns2pvNames_.set("sdd_fileOffset", "MCA1611-01:GetChannels");
 	}
+
+
+	defaultUserVisibleColumns_ << "tey";
+	defaultUserVisibleColumns_ << "tfy";
+	defaultUserVisibleColumns_ << "I0";
+	defaultUserVisibleColumns_ << "I0_2";
+	defaultUserVisibleColumns_ << "eV_fbk";
+	defaultUserVisibleColumns_ << "ringCurrent";
+
 }
 
 /// load raw data from the SGM legacy file format into a scan's data tree.  If \c extractMetaData is set to true, this will also set the 'notes' and 'dateTime' meta-data fields.  If \c createChannels is set to true, it will create some default channels based on the data columns.
@@ -166,8 +175,6 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 		}
 		else if(colName != "eV" && colName != "Event-ID") {
 			scan->rawData()->addMeasurement(AMMeasurementInfo(colName, colName));	/// \todo nice descriptions for the common column names; not just 'tey' or 'tfy'.
-			if(setRawDataSources)
-				scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount()-1));
 		}
 	}
 
@@ -264,9 +271,19 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 		scan->setDateTime(datetime);
 	}
 
-	// pre-existing raw data sources integrity check... If there's a raw data source, but it's pointing to a non-existent measurement in the data store, that's a problem.
-	/// \todo Is there any way to incorporate this at a higher level, so that import-writers don't need to bother?
-	if(!setRawDataSources) {	// if setRawDataSources is true, we know it's all good... We just created them
+
+	// If we need to create the raw data sources...
+	if(setRawDataSources) {
+		// expose the raw data that might be useful to the users
+		foreach(QString visibleColumn, defaultUserVisibleColumns_) {
+			int measurementId = scan->rawData()->idOfMeasurement(visibleColumn);
+			if(measurementId >= 0)
+				scan->addRawDataSource(new AMRawDataSource(scan->rawData(), measurementId));
+		}
+	}
+
+	/// Not supposed to create the raw data sources.  Do an integrity check on the pre-existing data sources instead... If there's a raw data source, but it's pointing to a non-existent measurement in the data store, that's a problem. Remove it.  \todo Is there any way to incorporate this at a higher level, so that import-writers don't need to bother?
+	else {
 		for(int i=0; i<scan->rawDataSources()->count(); i++) {
 			if(scan->rawDataSources()->at(i)->measurementId() >= scan->rawData()->measurementCount()) {
 				AMErrorMon::report(AMErrorReport(scan, AMErrorReport::Debug, -97, QString("The data in the file didn't match the raw data columns we were expecting. Removing the raw data column '%1')").arg(scan->rawDataSources()->at(i)->name())));
@@ -300,7 +317,7 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 			AM1DExpressionAB* tfyChannel = new AM1DExpressionAB("tfy_n");
 			tfyChannel->setDescription("Normalized TFY");
 			tfyChannel->setInputDataSources(rawDataSources);
-			tfyChannel->setExpression("tfy/I0");
+			tfyChannel->setExpression("-tfy/I0");
 
 			scan->addAnalyzedDataSource(tfyChannel);
 		}

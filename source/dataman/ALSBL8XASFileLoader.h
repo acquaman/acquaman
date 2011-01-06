@@ -44,6 +44,9 @@ protected:
 	/// A forward- and reverse-mapping from Acquaman-style data column names to the file format's column headers
 	static AMBiHash<QString, QString> columns2fileFormatHeaders_;
 
+	/// A list (in order) of the raw data columns we want to expose to the user by default
+	QStringList defaultUserVisibleColumns_;
+
 	/// translate a string from the file's column header to a meaningful name, if we recognize it.  Unrecognized strings are untouched and false is returned.
 	static bool header2columnName(QString& source) {
 		QString newName = columns2fileFormatHeaders_.valueR(source);
