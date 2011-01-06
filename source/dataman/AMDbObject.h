@@ -11,18 +11,6 @@
 #include <QPixmap>
 #include <QBuffer>
 
-/*
-/// Acquaman's flexible meta-data information system uses AMMetaMetaData to describe each piece of meta-data associated with a scan or database object.
-class AMMetaMetaData {
-public:
-	AMMetaMetaData(QVariant::Type nType, const QString& nKey, bool nWriteable) : type(nType), key(nKey), writeable(nWriteable) {}
-	AMMetaMetaData(AM::AcquamanType nType, const QString& nKey, bool nWriteable) : type((QVariant::Type)nType), key(nKey), writeable(nWriteable) {}
-
-	QVariant::Type type;
-	QString key;
-	bool writeable;
-};*/
-
 
 /// Thumbnails are fast little blobs of data used as icons or images to visually represent AMDbObjects.
 class AMDbThumbnail {
@@ -318,7 +306,7 @@ public slots:
 protected:
 
 	/// Subclasses should call this to set or un-set the modified flag.  Handles emission of the modifiedChanged() signal when required.
-	void setModified(bool isModified) {
+	virtual void setModified(bool isModified) {
 		if(isModified != modified_)
 			emit modifiedChanged(modified_ = isModified);
 		modified_ = isModified;

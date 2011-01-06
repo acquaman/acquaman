@@ -61,6 +61,7 @@ AMScan::~AMScan() {
 }
 
 
+
 // associate this object with a particular run. Set to (-1) to dissociate with any run.  (Note: for now, it's the caller's responsibility to make sure the runId is valid.)
 /* This will also tell the new run (and the old run, if it exists) to update their date ranges */
 void AMScan::setRunId(int newRunId) {
@@ -72,11 +73,13 @@ void AMScan::setRunId(int newRunId) {
 	setModified(true);
 
 	// Do we need to update the scan range on the runs?
-	if(database() && oldRunId > 0)
-		AMRun::scheduleDateRangeUpdate(oldRunId, database(), dateTime());
+	if(oldRunId != runId_) {
+		if(database() && oldRunId > 0)
+			AMRun::scheduleDateRangeUpdate(oldRunId, database(), dateTime());
 
-	if(database() && runId_ > 0)
-		AMRun::scheduleDateRangeUpdate(runId_, database(), dateTime());
+		if(database() && runId_ > 0)
+			AMRun::scheduleDateRangeUpdate(runId_, database(), dateTime());
+	}
 }
 
 // Sets name of sample

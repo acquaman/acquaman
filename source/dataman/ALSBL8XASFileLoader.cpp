@@ -26,6 +26,12 @@ ALSBL8XASFileLoader::ALSBL8XASFileLoader(AMXASScan* scan) : AMAbstractFileLoader
 		columns2fileFormatHeaders_.set("tey", "Counter 1");
 		columns2fileFormatHeaders_.set("tfy", "Counter 2");
 	}
+
+	defaultUserVisibleColumns_ << "tey";
+	defaultUserVisibleColumns_ << "tfy";
+	defaultUserVisibleColumns_ << "I0";
+	defaultUserVisibleColumns_ << "ringCurrent";
+
 }
 
 
@@ -122,12 +128,9 @@ bool ALSBL8XASFileLoader::loadFromFile(const QString& filepath, bool setMetaData
 	/// \todo What if there isn't? Should we check, and create the axis if none exist? What if there's more than one scan axis? Can't remove from AMDataStore... [The rest of this code assumes a single scan axis]
 
 	// add scalar (0D) measurements to the raw data store, for each data column.  Also add raw data sources to the scan, which expose this data.
-	/// \todo Design question: should adding a measurement to the raw data store automatically create a corresponding AMRawDataSource for the scan?
 	foreach(QString colName, colNames1) {
 		if(colName != "eV" && colName != "Event-ID") {
 			scan->rawData()->addMeasurement(AMMeasurementInfo(colName, colName));	/// \todo nice descriptions for the common column names; not just 'tey' or 'tfy'.
-			if(setRawDataSources)
-				scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount()-1));
 		}
 	}
 
@@ -165,9 +168,18 @@ bool ALSBL8XASFileLoader::loadFromFile(const QString& filepath, bool setMetaData
 		/// \todo integration time... do what with?
 	}
 
-	// pre-existing raw data sources integrity check... If there's a raw data source, but it's pointing to a non-existent measurement in the data store, that's a problem.
-	/// \todo Is there any way to incorporate this at a higher level, so that import-writers don't need to bother?
-	if(!setRawDataSources) {	// if setRawDataSources is true, we know it's all good... We just created them
+	// If we need to create the raw data sources...
+	if(setRawDataSources) {
+		// expose the raw data that might be useful to the users
+		foreach(QString visibleColumn, defaultUserVisibleColumns_) {
+			int measurementId = scan->rawData()->idOfMeasurement(visibleColumn);
+			if(measurementId >= 0)
+				scan->addRawDataSource(new AMRawDataSource(scan->rawData(), measurementId));
+		}
+	}
+
+	/// Not supposed to create the raw data sources.  Do an integrity check on the pre-existing data sources instead... If there's a raw data source, but it's pointing to a non-existent measurement in the data store, that's a problem. Remove it.  \todo Is there any way to incorporate this at a higher level, so that import-writers don't need to bother?
+	else {
 		for(int i=0; i<scan->rawDataSources()->count(); i++) {
 			if(scan->rawDataSources()->at(i)->measurementId() >= scan->rawData()->measurementCount()) {
 				AMErrorMon::report(AMErrorReport(scan, AMErrorReport::Debug, -97, QString("The data in the file didn't match the raw data columns we were expecting. Removing the raw data column '%1')").arg(scan->rawDataSources()->at(i)->name())));

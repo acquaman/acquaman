@@ -318,6 +318,7 @@ bool AMDbObject::storeToDb(AMDatabase* db) {
 }
 
 
+
 /// load a AMDbObject (set its properties) by retrieving it based on id.
 bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 
