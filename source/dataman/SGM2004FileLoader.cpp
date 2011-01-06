@@ -141,9 +141,28 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 
 
 	// add scalar (0D) measurements to the raw data store, for each data column.  If setRawDataSources is true, also add raw data sources to the scan, which expose this data.
+	QString spectraPath = "";
 	foreach(QString colName, colNames1) {
 		if(colName == "sdd_fileOffset"){
-			qDebug() << "Found SDD Offsets with file path " << filepath;
+			qDebug() << "\n\nFound SDD Offsets with file path " << filepath;
+			if( filepath.indexOf(".dat") >= 0){
+				spectraPath = filepath;
+				spectraPath.insert(spectraPath.indexOf(".dat"), "_spectra");
+				qDebug() << "Looking for " << spectraPath;
+				if( !QFile::exists(spectraPath) )
+					spectraPath = "";
+				else{
+					qDebug() << "Found spectra file\n\n";
+					scan->rawData()->addMeasurement(AMMeasurementInfo(colName, colName));
+					AMAxisInfo sddEVAxisInfo("energy", 1024, "SDD Energy", "eV");
+					QList<AMAxisInfo> sddAxes;
+					sddAxes << sddEVAxisInfo;
+					AMMeasurementInfo sddInfo("sdd", "Silicon Drift Detector", "counts", sddAxes);
+					scan->rawData()->addMeasurement(sddInfo);
+					if(setRawDataSources)
+						scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount()-1));
+				}
+			}
 		}
 		else if(colName != "eV" && colName != "Event-ID") {
 			scan->rawData()->addMeasurement(AMMeasurementInfo(colName, colName));	/// \todo nice descriptions for the common column names; not just 'tey' or 'tfy'.
@@ -193,6 +212,52 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 		}
 	}
 
+	if(spectraPath != ""){
+		qDebug() << "\n\nIndex of sdd is " << scan->rawData()->idOfMeasurement("sdd");
+		qDebug() << "and index of tey is " << scan->rawData()->idOfMeasurement("tey") << "\n\n";
+		QFile sf(spectraPath);
+		if(!sf.open(QIODevice::ReadOnly)) {
+			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -1, "SGM2004FileLoader parse error while loading scan data from file. Missing spectra file."));
+			return false;
+		}
+		QTextStream sfs(&sf);
+		QTextStream sfls;
+		int startByte, endByte;
+		int specVal;
+		int specCounter = 0;
+		for(int x = 0; x < scan->rawData()->scanSize(0); x++){
+			if(x == scan->rawData()->scanSize(0)-1){
+				endByte += endByte-startByte; //Assumes the last two are the same size
+				startByte = scan->rawData()->value(AMnDIndex(x), scan->rawData()->idOfMeasurement("sdd_fileOffset"), AMnDIndex());
+			}
+			else{
+				startByte = scan->rawData()->value(AMnDIndex(x), scan->rawData()->idOfMeasurement("sdd_fileOffset"), AMnDIndex());
+				endByte = scan->rawData()->value(AMnDIndex(x+1), scan->rawData()->idOfMeasurement("sdd_fileOffset"), AMnDIndex());
+			}
+			//sfs.seek( (qint64)((int)(scan->rawData()->value(AMnDIndex(x), scan->rawData()->idOfMeasurement("sdd_fileOffset"), AMnDIndex()))) );
+			sfs.seek(startByte);
+			QString sfl = sfs.read( (qint64)(endByte-startByte) ).remove(',');
+			sfls.setString(&sfl, QIODevice::ReadOnly);
+
+			while(!sfls.atEnd()){
+				sfls >> specVal;
+				scan->rawData()->setValue(AMnDIndex(x), scan->rawData()->idOfMeasurement("sdd"), AMnDIndex(specCounter), specVal);
+				specCounter++;
+			}
+
+			specCounter = 0;
+		}
+
+		QString specLine = "";
+		QString tmpNum;
+		qDebug() << "\n\n\nSpectal Data" << scan->rawData()->scanSize(0);
+		for(int x = 0; x < scan->rawData()->scanSize(0); x++){
+			for(int y = 0; y < scan->rawData()->measurementAt(scan->rawData()->idOfMeasurement("sdd")).size(0); y++)
+				specLine += tmpNum.setNum( (int)(scan->rawData()->value(AMnDIndex(x), scan->rawData()->idOfMeasurement("sdd"), AMnDIndex(y))) ) + " ";
+			qDebug() << specLine << "<---->";
+			specLine = "";
+		}
+	}
 
 	if(setMetaData) {
 		scan->setNotes(QString("Grating: %1\nIntegration Time: %2\nComments:\n%3").arg(grating).arg(integrationTime).arg(comments));	/// \todo Move this from notes to the scan's scanInitialConditions().
