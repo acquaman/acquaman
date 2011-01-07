@@ -152,29 +152,7 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 	// add scalar (0D) measurements to the raw data store, for each data column.  If setRawDataSources is true, also add raw data sources to the scan, which expose this data.
 	QString spectraPath = "";
 	foreach(QString colName, colNames1) {
-		/*
-		if(colName == "sdd_fileOffset"){
-			qDebug() << "\n\nFound SDD Offsets with file path " << filepath;
-			if( filepath.indexOf(".dat") >= 0){
-				spectraPath = filepath;
-				spectraPath.insert(spectraPath.indexOf(".dat"), "_spectra");
-				qDebug() << "Looking for " << spectraPath;
-				if( !QFile::exists(spectraPath) )
-					spectraPath = "";
-				else{
-					qDebug() << "Found spectra file\n\n";
-					scan->rawData()->addMeasurement(AMMeasurementInfo(colName, colName));
-					AMAxisInfo sddEVAxisInfo("energy", 1024, "SDD Energy", "eV");
-					QList<AMAxisInfo> sddAxes;
-					sddAxes << sddEVAxisInfo;
-					AMMeasurementInfo sddInfo("sdd", "Silicon Drift Detector", "counts", sddAxes);
-					scan->rawData()->addMeasurement(sddInfo);
-					//if(setRawDataSources)
-					//	scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount()-1));
-				}
-			}
-		}
-		else */if(colName != "eV" && colName != "Event-ID") {
+		if(colName != "eV" && colName != "Event-ID") {
 			scan->rawData()->addMeasurement(AMMeasurementInfo(colName, colName));	/// \todo nice descriptions for the common column names; not just 'tey' or 'tfy'.
 		}
 	}
@@ -233,17 +211,6 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 		}
 	}
 
-	// special! testing 2d:
-	////////////////////////
-//	QList<AMAxisInfo> spectrumAxes;
-//	spectrumAxes << AMAxisInfo("sddEnergy", 1024, "SDD Energy Axis", "pixels");
-//	scan->rawData()->addMeasurement(AMMeasurementInfo("spectraTest", "Spectra Test", "counts", spectrumAxes));
-//	int measurementId = scan->rawData()->measurementCount()-1;
-//	for(int i=0; i<scan->rawData()->scanSize(0); i++)
-//		for(int j=0; j<scan->rawData()->measurementAt(measurementId).size(0); j++)
-//			scan->rawData()->setValue(i, measurementId, j, sin(i*4*M_PI)*sin(j*2*M_PI) );
-	///////////////////////////////
-
 
 	if(spectraFile != ""){
 		qDebug() << "\n\nIndex of sdd is " << scan->rawData()->idOfMeasurement("sdd");
@@ -281,6 +248,7 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 			specCounter = 0;
 		}
 
+		/* Debug output of spectral data
 		QString specLine = "";
 		QString tmpNum;
 		qDebug() << "\n\n\nSpectal Data" << scan->rawData()->scanSize(0);
@@ -289,7 +257,7 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 				specLine += tmpNum.setNum( (int)(scan->rawData()->value(AMnDIndex(x), scan->rawData()->idOfMeasurement("sdd"), AMnDIndex(y))) ) + " ";
 			qDebug() << specLine << "<---->";
 			specLine = "";
-		}
+		}*/
 	}
 
 
@@ -332,9 +300,10 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 
 	if(createDefaultAnalysisBlocks) {
 
-		QList<AMDataSource*> rawDataSources;
-		foreach(AMRawDataSource* ds, scan->rawDataSources()->toList())
-			rawDataSources << ds;
+		QList<AMDataSource*> raw1DDataSources;
+		for(int i=0; i<scan->rawDataSources()->count(); i++)
+			if(scan->rawDataSources()->at(i)->rank() == 1)
+				raw1DDataSources << scan->rawDataSources()->at(i);
 
 		int rawTeyIndex = scan->rawDataSources()->indexOf("tey");
 		int rawTfyIndex = scan->rawDataSources()->indexOf("tfy");
@@ -343,7 +312,7 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 		if(rawTeyIndex != -1 && rawI0Index != -1) {
 			AM1DExpressionAB* teyChannel = new AM1DExpressionAB("tey_n");
 			teyChannel->setDescription("Normalized TEY");
-			teyChannel->setInputDataSources(rawDataSources);
+			teyChannel->setInputDataSources(raw1DDataSources);
 			teyChannel->setExpression("tey/I0");
 
 			scan->addAnalyzedDataSource(teyChannel);
@@ -352,7 +321,7 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 		if(rawTfyIndex != -1 && rawI0Index != -1) {
 			AM1DExpressionAB* tfyChannel = new AM1DExpressionAB("tfy_n");
 			tfyChannel->setDescription("Normalized TFY");
-			tfyChannel->setInputDataSources(rawDataSources);
+			tfyChannel->setInputDataSources(raw1DDataSources);
 			tfyChannel->setExpression("-tfy/I0");
 
 			scan->addAnalyzedDataSource(tfyChannel);
@@ -363,7 +332,7 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 
 
 	// Debugging only... What's here?
-	/*
+
 	qDebug() << "========= Breakdown for scan named: " << scan->name() << "==============";
 	qDebug() << "Scan axes\n===========================";
 	for(int i=0; i<scan->rawData()->scanAxesCount(); i++)
@@ -378,6 +347,12 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 		AMRawDataSource* rds = scan->rawDataSources()->at(i);
 		qDebug() << rds->name() << ":" << rds->description() << ": isValid is " << rds->isValid() << ": numPoints is " << rds->size(0);
 	}
+	qDebug() << "Analyzed Data\n===========================";
+	for(int i=0; i<scan->analyzedDataSources()->count(); i++) {
+		AMAnalysisBlock* rds = scan->analyzedDataSources()->at(i);
+		qDebug() << rds->name() << ":" << rds->description() << ": isValid is " << rds->isValid() << ": numPoints is " << rds->size(0);
+	}
+	/*
 
 	QString row;
 	qDebug() << "First measurement, raw data axis value:";

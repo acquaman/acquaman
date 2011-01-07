@@ -1,4 +1,5 @@
 #include "AMAnalysisBlock.h"
+#include "AMErrorMonitor.h"
 
 /// Note that AMDbObject and AMDataSource both have a name(). (These are not virtual, for now.)  In this constructor, we initialize AMDataSource() with \c outputName, and also AMDbObject::setName() with the same.  As long as no one calls AMDbObject::setName(), these will stay consistent.  AMDataSource names are not supposed to change...
 AMAnalysisBlock::AMAnalysisBlock(const QString& outputName, QObject* parent)
@@ -10,8 +11,10 @@ AMAnalysisBlock::AMAnalysisBlock(const QString& outputName, QObject* parent)
 
 bool AMAnalysisBlock::setInputDataSources(const QList<AMDataSource*>& dataSources) {
 	// if a non-empty set of data sources has been provided, and they are not acceptable, return false.  (An empty list must always be acceptable)
-	if(!dataSources.isEmpty() && !areInputDataSourcesAcceptable(dataSources))
+	if(!dataSources.isEmpty() && !areInputDataSourcesAcceptable(dataSources)) {
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -98, QString("There was an error connecting the input data sources to this analysis component '%1: %2'. The data sources provided weren't acceptable. This can happen if they have the wrong dimension, don't provide enough data, etc.").arg(name()).arg(description())));
 		return false;
+	}
 
 	for(int i=0; i<inputDataSourceCount(); i++) {
 		AMDataSource* oldSource = inputDataSourceAt(i);

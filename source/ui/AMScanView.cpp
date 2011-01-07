@@ -156,7 +156,7 @@ void AMScanViewScanBar::onModelDataChanged(const QModelIndex& topLeft, const QMo
 
 		int dataSourceIndex = topLeft.row();
 		AMDataSource* dataSource = model_->dataSourceAt(scanIndex_, dataSourceIndex);
-		sourceButtons_.button(dataSourceIndex)->setText(dataSource->name());
+		sourceButtons_.button(dataSourceIndex)->setText(dataSource->description());
 		// setting visibility: depends on whether exclusiveMode is on or not
 		if(exclusiveModeOn_)
 			sourceButtons_.button(dataSourceIndex)->setChecked( (model_->exclusiveDataSourceName() == dataSource->name()) );

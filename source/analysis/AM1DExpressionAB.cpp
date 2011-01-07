@@ -387,8 +387,8 @@ bool AM1DExpressionAB::setExpression(const QString& newExpression) {
 
 	}
 	catch(mu::Parser::exception_type& e) {
-		QString explanation = QString("AM1DExpressionAB Analysis Block: error setting expression: %1: '%2'.  We found '%3' at position %4.").arg(QString::fromStdString(e.GetMsg())).arg(QString::fromStdString(e.GetExpr())).arg(QString::fromStdString(e.GetToken())).arg(e.GetPos());
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, e.GetCode(), explanation));
+		// QString explanation = QString("AM1DExpressionAB Analysis Block: error setting expression: %1: '%2'.  We found '%3' at position %4.").arg(QString::fromStdString(e.GetMsg())).arg(QString::fromStdString(e.GetExpr())).arg(QString::fromStdString(e.GetToken())).arg(e.GetPos());
+		// AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, e.GetCode(), explanation));
 		expressionValid_ = false;
 	}
 
@@ -446,8 +446,8 @@ bool AM1DExpressionAB::setXExpression(const QString& xExpressionIn) {
 
 	}
 	catch(mu::Parser::exception_type& e) {
-		QString explanation = QString("AM1DExpressionAB Analysis Block: error setting X expression: %1: '%2'.  We found '%3' at position %4.").arg(QString::fromStdString(e.GetMsg())).arg(QString::fromStdString(e.GetExpr())).arg(QString::fromStdString(e.GetToken())).arg(e.GetPos());
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, e.GetCode(), explanation));
+		// QString explanation = QString("AM1DExpressionAB Analysis Block: error setting X expression: %1: '%2'.  We found '%3' at position %4.").arg(QString::fromStdString(e.GetMsg())).arg(QString::fromStdString(e.GetExpr())).arg(QString::fromStdString(e.GetToken())).arg(e.GetPos());
+		// AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, e.GetCode(), explanation));
 		xExpressionValid_ = false;
 	}
 

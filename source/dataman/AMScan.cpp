@@ -262,8 +262,8 @@ void AMScan::dbLoadAnalyzedDataSourcesConnections(const QString& connectionStrin
 
 	if(allConnections.count() != analyzedDataSources_.count()) {
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "There was an error re-connecting the analysis and processing components for this scan; the number of analysis blocks didn't match. Your database might be corrupted. Please report this bug to the Acquaman developers."));
-		qDebug() << "    AMScan: loading analyzedDataSourcesConnections: allConnections is:" << allConnections;
-		qDebug() << "        but number of analyzedDataSources_ is : " << analyzedDataSources_.count();
+		//qDebug() << "    AMScan: loading analyzedDataSourcesConnections: allConnections is:" << allConnections;
+		//qDebug() << "        but number of analyzedDataSources_ is : " << analyzedDataSources_.count();
 		return;
 	}
 
