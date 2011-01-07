@@ -30,6 +30,13 @@ SGM2004FileLoader::SGM2004FileLoader(AMXASScan* scan) : AMAbstractFileLoader(sca
 		columns2pvNames_.set("integrationTime", "A1611I1:cont_interval");
 		columns2pvNames_.set("grating", "SG16114I1001:choice");
 		columns2pvNames_.set("time", "Absolute-Time-Stamp");
+
+		columns2pvNames_.set("sdd_ROI_0", "MCA1611-01:ROI:0");
+		columns2pvNames_.set("sdd_ROI_1", "MCA1611-01:ROI:1");
+		columns2pvNames_.set("sdd_ROI_2", "MCA1611-01:ROI:2");
+		columns2pvNames_.set("sdd_ROI_3", "MCA1611-01:ROI:3");
+		columns2pvNames_.set("sdd_deadtime", "MCA1611-01:DeadFraction");
+		columns2pvNames_.set("sdd_fileOffset", "MCA1611-01:GetChannels");
 	}
 
 
@@ -39,7 +46,7 @@ SGM2004FileLoader::SGM2004FileLoader(AMXASScan* scan) : AMAbstractFileLoader(sca
 	defaultUserVisibleColumns_ << "I0_2";
 	defaultUserVisibleColumns_ << "eV_fbk";
 	defaultUserVisibleColumns_ << "ringCurrent";
-
+	defaultUserVisibleColumns_ << "sdd";
 }
 
 /// load raw data from the SGM legacy file format into a scan's data tree.  If \c extractMetaData is set to true, this will also set the 'notes' and 'dateTime' meta-data fields.  If \c createChannels is set to true, it will create some default channels based on the data columns.
@@ -143,9 +150,45 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 
 
 	// add scalar (0D) measurements to the raw data store, for each data column.  If setRawDataSources is true, also add raw data sources to the scan, which expose this data.
+	QString spectraPath = "";
 	foreach(QString colName, colNames1) {
-		if(colName != "eV" && colName != "Event-ID") {
+		/*
+		if(colName == "sdd_fileOffset"){
+			qDebug() << "\n\nFound SDD Offsets with file path " << filepath;
+			if( filepath.indexOf(".dat") >= 0){
+				spectraPath = filepath;
+				spectraPath.insert(spectraPath.indexOf(".dat"), "_spectra");
+				qDebug() << "Looking for " << spectraPath;
+				if( !QFile::exists(spectraPath) )
+					spectraPath = "";
+				else{
+					qDebug() << "Found spectra file\n\n";
+					scan->rawData()->addMeasurement(AMMeasurementInfo(colName, colName));
+					AMAxisInfo sddEVAxisInfo("energy", 1024, "SDD Energy", "eV");
+					QList<AMAxisInfo> sddAxes;
+					sddAxes << sddEVAxisInfo;
+					AMMeasurementInfo sddInfo("sdd", "Silicon Drift Detector", "counts", sddAxes);
+					scan->rawData()->addMeasurement(sddInfo);
+					//if(setRawDataSources)
+					//	scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount()-1));
+				}
+			}
+		}
+		else */if(colName != "eV" && colName != "Event-ID") {
 			scan->rawData()->addMeasurement(AMMeasurementInfo(colName, colName));	/// \todo nice descriptions for the common column names; not just 'tey' or 'tfy'.
+		}
+	}
+	QString spectraFile = "";
+	if(scan->rawData()->idOfMeasurement("sdd_fileOffset") >= 0){
+		foreach(QString afp, scan->additionalFilePaths())
+			if(afp.contains("_spectra.dat"))
+				spectraFile = afp;
+		if(spectraFile != ""){
+			AMAxisInfo sddEVAxisInfo("energy", 1024, "SDD Energy", "eV");
+			QList<AMAxisInfo> sddAxes;
+			sddAxes << sddEVAxisInfo;
+			AMMeasurementInfo sddInfo("sdd", "Silicon Drift Detector", "counts", sddAxes);
+			scan->rawData()->addMeasurement(sddInfo);
 		}
 	}
 
@@ -202,6 +245,53 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 	///////////////////////////////
 
 
+	if(spectraFile != ""){
+		qDebug() << "\n\nIndex of sdd is " << scan->rawData()->idOfMeasurement("sdd");
+		qDebug() << "and index of tey is " << scan->rawData()->idOfMeasurement("tey") << "\n\n";
+		QFile sf(spectraFile);
+		if(!sf.open(QIODevice::ReadOnly)) {
+			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -1, "SGM2004FileLoader parse error while loading scan data from file. Missing spectra file."));
+			return false;
+		}
+		QTextStream sfs(&sf);
+		QTextStream sfls;
+		int startByte, endByte;
+		int specVal;
+		int specCounter = 0;
+		for(int x = 0; x < scan->rawData()->scanSize(0); x++){
+			if(x == scan->rawData()->scanSize(0)-1){
+				endByte += endByte-startByte; //Assumes the last two are the same size
+				startByte = scan->rawData()->value(AMnDIndex(x), scan->rawData()->idOfMeasurement("sdd_fileOffset"), AMnDIndex());
+			}
+			else{
+				startByte = scan->rawData()->value(AMnDIndex(x), scan->rawData()->idOfMeasurement("sdd_fileOffset"), AMnDIndex());
+				endByte = scan->rawData()->value(AMnDIndex(x+1), scan->rawData()->idOfMeasurement("sdd_fileOffset"), AMnDIndex());
+			}
+			//sfs.seek( (qint64)((int)(scan->rawData()->value(AMnDIndex(x), scan->rawData()->idOfMeasurement("sdd_fileOffset"), AMnDIndex()))) );
+			sfs.seek(startByte);
+			QString sfl = sfs.read( (qint64)(endByte-startByte) ).remove(',');
+			sfls.setString(&sfl, QIODevice::ReadOnly);
+
+			while(!sfls.atEnd()){
+				sfls >> specVal;
+				scan->rawData()->setValue(AMnDIndex(x), scan->rawData()->idOfMeasurement("sdd"), AMnDIndex(specCounter), specVal);
+				specCounter++;
+			}
+
+			specCounter = 0;
+		}
+
+		QString specLine = "";
+		QString tmpNum;
+		qDebug() << "\n\n\nSpectal Data" << scan->rawData()->scanSize(0);
+		for(int x = 0; x < scan->rawData()->scanSize(0); x++){
+			for(int y = 0; y < scan->rawData()->measurementAt(scan->rawData()->idOfMeasurement("sdd")).size(0); y++)
+				specLine += tmpNum.setNum( (int)(scan->rawData()->value(AMnDIndex(x), scan->rawData()->idOfMeasurement("sdd"), AMnDIndex(y))) ) + " ";
+			qDebug() << specLine << "<---->";
+			specLine = "";
+		}
+	}
+
 
 	if(setMetaData) {
 		scan->setNotes(QString("Grating: %1\nIntegration Time: %2\nComments:\n%3").arg(grating).arg(integrationTime).arg(comments));	/// \todo Move this from notes to the scan's scanInitialConditions().
@@ -223,7 +313,16 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 	else {
 		for(int i=0; i<scan->rawDataSources()->count(); i++) {
 			if(scan->rawDataSources()->at(i)->measurementId() >= scan->rawData()->measurementCount()) {
-				AMErrorMon::report(AMErrorReport(scan, AMErrorReport::Debug, -97, QString("The data in the file didn't match the raw data columns we were expecting. Removing the raw data column '%1')").arg(scan->rawDataSources()->at(i)->name())));
+				AMErrorMon::report(AMErrorReport(scan, AMErrorReport::Debug, -97, QString("The data in the file (%1 columns) didn't match the raw data columns we were expecting (column %2). Removing the raw data column '%3')").arg(scan->rawData()->measurementCount()).arg(scan->rawDataSources()->at(i)->measurementId()).arg(scan->rawDataSources()->at(i)->name())));
+
+				/////////////
+				QString rawDataColumns;
+				for(int r=0; r<scan->rawData()->measurementCount(); r++)
+					rawDataColumns.append((QString("%1,").arg(scan->rawData()->measurementAt(r).name)));
+				qDebug() << "Inside integrity check: Raw data column names:\n     " << rawDataColumns;
+				////////////
+
+
 				scan->deleteRawDataSource(i);
 			}
 		}

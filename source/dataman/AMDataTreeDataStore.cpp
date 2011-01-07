@@ -173,11 +173,11 @@ bool AMDataTreeDataStore::setValue(const AMnDIndex &scanIndex, int measurementId
 	if( measurementAt(measurementId).rank() == 0)
 		return axisLevel->setValue(measurementName, scanIndex[scanIndex.rank()-1], newValue );
 	else{
-		qDebug() << "Measurement has " << measurementIndex.rank() << " dimensions";
+		//qDebug() << "Measurement has " << measurementIndex.rank() << " dimensions";
 		axisLevel = axisLevel->deeper(measurementName, scanIndex[scanIndex.rank()-1]);
 		for(int x=0; x < measurementIndex.rank()-1; x++)
 			axisLevel = axisLevel->deeper(0, measurementIndex[x]);
-		qDebug() << "Bottom of a multidim measurement has count " << axisLevel->count() << " and columns " << axisLevel->yColumnNames();
+		//qDebug() << "Bottom of a multidim measurement has count " << axisLevel->count() << " and columns " << axisLevel->yColumnNames();
 		return axisLevel->setValue(0, measurementIndex[measurementIndex.rank()-1], newValue);
 	}
 }
@@ -244,7 +244,7 @@ bool AMDataTreeDataStore::setValue(const AMnDIndex &scanIndex, int measurementId
 		return axisLevel->setValue(measurementName, scanIndex[scanIndex.rank()-1], inputData[0] );
 	else{
 		axisLevel = axisLevel->deeper(measurementName, scanIndex[scanIndex.rank()-1]);
-		qDebug() << "Pretty deep, name is " << measurementName;
+		//qDebug() << "Pretty deep, name is " << measurementName;
 		for(int x=0; x < numArrayElements; x+=mi.size()[mi.rank()-1])
 			if(!setValueFillBottom(bottomTreeFinder(axisLevel, mi, x), inputData+x, mi.size()[mi.rank()-1]))
 				return false;
@@ -281,11 +281,11 @@ bool AMDataTreeDataStore::beginInsertRowsImplementation(int axisId, int numRows,
 	for(int x=0; x <= axisId; x++)
 		newCounts << scanAxisAt(x).size;
 	newCounts[axisId] = rowCount+1;
-	qDebug() << "Append we want " << newCounts;
+	//qDebug() << "Append we want " << newCounts;
 	appendToDepth(baseTree_, newCounts);
-	qDebug() << "base/data before data append";
-	dataStoreDataPukeHelper(baseTree_, axes_.count(), 0);
-	dataStoreDataPukeHelper(dataTree_, axes_.count(), 0);
+	//qDebug() << "base/data before data append";
+	//dataStoreDataPukeHelper(baseTree_, axes_.count(), 0);
+	//dataStoreDataPukeHelper(dataTree_, axes_.count(), 0);
 	appendToDepth(dataTree_, newCounts, baseTree_);
 	//axes_[axisId].size++;
 
@@ -341,9 +341,9 @@ void AMDataTreeDataStore::clearScanDataPointsImplementation(){
 void AMDataTreeDataStore::appendToDepth(AMDataTree* dataTree, QList<int> newCounts, AMDataTree* initializerTree){
 //	if(depth == 1)
 	if(initializerTree && newCounts.count() == 1 && dataTree->xName() == "temperature"){
-		qDebug() << "data/null pair:";
-		dataStoreDataPukeHelper(dataTree, 2, 0);
-		dataStoreDataPukeHelper(initializerTree, 2, 0);
+		//qDebug() << "data/null pair:";
+		//dataStoreDataPukeHelper(dataTree, 2, 0);
+		//dataStoreDataPukeHelper(initializerTree, 2, 0);
 	}
 	if( newCounts.count() == 1){
 		if(newCounts.at(0) == dataTree->count()+1){

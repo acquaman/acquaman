@@ -27,6 +27,7 @@ class AMScan : public AMDbObject {
 	Q_PROPERTY(QString notes READ notes WRITE setNotes)
 	Q_PROPERTY(QString fileFormat READ fileFormat WRITE setFileFormat)
 	Q_PROPERTY(QString filePath READ filePath WRITE setFilePath)
+	Q_PROPERTY(QStringList additionalFilePaths READ additionalFilePaths WRITE setAdditionalFilePaths)
 	Q_PROPERTY(AMDbObject* scanInitialConditions READ scanInitialConditions WRITE dbLoadScanInitialConditions)
 	Q_PROPERTY(AMDbObjectList rawDataSources READ dbReadRawDataSources WRITE dbLoadRawDataSources)
 	Q_PROPERTY(AMDbObjectList analyzedDataSources READ dbReadAnalyzedDataSources WRITE dbLoadAnalyzedDataSources)
@@ -74,6 +75,8 @@ public:
 	QString fileFormat() const { return fileFormat_; }
 	/// The directory path and file name of this scan's raw data file
 	QString filePath() const { return filePath_; }
+	/// Any additional files of raw data that need to be referenced
+	QStringList additionalFilePaths() const { return additionalFilePaths_; }
 
 	// Convenience functions on meta-data:
 	/////////////////////////
@@ -286,6 +289,8 @@ public slots:
 	void setFilePath(const QString& newPath) { filePath_ = newPath;  setModified(true); }
 	/// Set the file format. This is a string matching the AMAbstractFileLoader::formatTag() in one of the available file loaders.
 	void setFileFormat(const QString& format) { fileFormat_ = format;  setModified(true); }
+	/// Any additional files of raw data that need to be referenced
+	void setAdditionalFilePaths(const QStringList& additionalFilePaths) { additionalFilePaths_ = additionalFilePaths; setModified(true); }
 
 signals:
 
@@ -345,6 +350,8 @@ protected:
 	QString notes_;
 	/// The absolute file path where this scan's data is stored (if there is an external data file), and the format tag describing the data format.
 	QString filePath_, fileFormat_;
+	/// Any additional files of raw data that need to be referenced.
+	QStringList additionalFilePaths_;
 
 	/// Caches the sample name
 	mutable QString sampleName_;
