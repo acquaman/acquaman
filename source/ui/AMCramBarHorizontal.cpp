@@ -1,17 +1,20 @@
 #include "AMCramBarHorizontal.h"
+#include <QTimer>
 
 AMCramBarHorizontal::AMCramBarHorizontal(QWidget *parent) :
-    QWidget(parent)
+		QWidget(parent)
 {
 	outerLayout_ = new QHBoxLayout();
 	outerLayout_->setSpacing(0);
 	outerLayout_->setContentsMargins(0,0,0,0);
 
 	scrollLeftButton_ = new QToolButton();
-	scrollLeftButton_->setArrowType(Qt::LeftArrow);
+	scrollLeftButton_->setText("<<");
+	scrollLeftButton_->setMaximumHeight(18);
 	scrollLeftButton_->setAutoRepeat(true);
 	scrollRightButton_ = new QToolButton();
-	scrollRightButton_->setArrowType(Qt::RightArrow);
+	scrollRightButton_->setText(">>");
+	scrollRightButton_->setMaximumHeight(18);
 	scrollRightButton_->setAutoRepeat(true);
 
 	outerLayout_->addWidget(scrollLeftButton_);
@@ -42,6 +45,8 @@ AMCramBarHorizontal::AMCramBarHorizontal(QWidget *parent) :
 
 	scrollLeftButton_->hide();
 	scrollRightButton_->hide();
+	scrollButtonsOn_ = false;
+	QTimer::singleShot(0, this, SLOT(onScrollAreaResized()));
 
 	connect(scrollLeftButton_, SIGNAL(clicked()), this, SLOT(onScrollButtonClicked()));
 	connect(scrollRightButton_, SIGNAL(clicked()), this, SLOT(onScrollButtonClicked()));
@@ -57,15 +62,34 @@ void AMCramBarHorizontal::onScrollButtonClicked() {
 		scrollArea_->horizontalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepAdd);
 }
 
+#include <QDebug>
+
+
 
 /// called when the scroll area itself is resized:
-void AMCramBarHorizontal::onScrollAreaResized(const QSize&) {
+void AMCramBarHorizontal::onScrollAreaResized() {
 	if(scrollArea_->width() >= scrollWidget_->width()) {
-		scrollLeftButton_->hide();
-		scrollRightButton_->hide();
+		if(scrollButtonsOn_) {
+			scrollLeftButton_->hide();
+			scrollRightButton_->hide();
+			scrollButtonsOn_ = false;
+			QTimer::singleShot(0, this, SLOT(onScrollAreaResized()));
+			qDebug() << "AMCRAMBAR: turning buttons off.";
+		}
 	}
 	else {
-		scrollLeftButton_->show();
-		scrollRightButton_->show();
+		if(!scrollButtonsOn_){
+			scrollButtonsOn_ = true;
+			scrollLeftButton_->show();
+			scrollRightButton_->show();
+			QTimer::singleShot(0, this, SLOT(onScrollAreaResized()));
+			qDebug() << "AMCRAMBAR: turning buttons on.";
+		}
 	}
+}
+
+
+void AMCramBarHorizontal::onScrollWidgetResized(const QSize&) {
+	scrollArea_->updateGeometry();		//or, could use: outerLayout_->activate();
+	QTimer::singleShot(0, this, SLOT(onScrollAreaResized(QSize)));
 }

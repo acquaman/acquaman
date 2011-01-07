@@ -2,12 +2,13 @@
 #include <QToolButton>
 #include <QLabel>
 #include <QBoxLayout>
+#include <QFormLayout>
 #include <QMenu>
 #include "ui/AMWrappingLineEdit.h"
 #include "analysis/AM1DExpressionAB.h"
 
 AM1DExpressionABEditor::AM1DExpressionABEditor(AM1DExpressionAB* expressionBlock, QWidget* parent) :
-	QWidget(parent)
+		QWidget(parent)
 {
 
 	expressionBlock_ = expressionBlock;
@@ -15,13 +16,24 @@ AM1DExpressionABEditor::AM1DExpressionABEditor(AM1DExpressionAB* expressionBlock
 	// create GUI objects and layout
 	///////////////////////////////
 	insertButton_ = new QToolButton();
-	insertButton_->setText("Insert");
+	insertButton_->setText("Insert ");
 
 	expressionEdit_ = new AMWrappingLineEdit();
+	xExpressionEdit_ = new AMWrappingLineEdit();
 
 	QLabel* label = new QLabel("expression");
 	label->setStyleSheet("font: bold \"Lucida Grande\";\ncolor: rgb(121,121,121);");
 
+	QFormLayout* formLayout = new QFormLayout();
+	formLayout->addRow("y values", expressionEdit_);
+	QHBoxLayout* hl2 = new QHBoxLayout();
+	hl2->addWidget(xExpressionEdit_);
+	hl2->addWidget(insertButton_);
+	formLayout->addRow("x values", hl2);
+
+	setLayout(formLayout);
+
+	/*
 	QVBoxLayout* col1Layout = new QVBoxLayout();
 	QHBoxLayout* insertSpacerLayout = new QHBoxLayout();
 	insertSpacerLayout->addSpacerItem(new QSpacerItem(2, 2, QSizePolicy::Expanding));
@@ -30,8 +42,12 @@ AM1DExpressionABEditor::AM1DExpressionABEditor(AM1DExpressionAB* expressionBlock
 	col1Layout->addLayout(insertSpacerLayout);
 	QHBoxLayout* mainLayout = new QHBoxLayout();
 	mainLayout->addLayout(col1Layout);
-	mainLayout->addWidget(expressionEdit_);
+	QVBoxLayout* expressionEditorsLayout = new QVBoxLayout();
+	expressionEditorsLayout->addWidget(expressionEdit_);
+	expressionEditorsLayout->addWidget(xExpressionEdit_);
+	mainLayout->addLayout(expressionEditorsLayout);
 	setLayout(mainLayout);
+	*/
 
 
 	// create menus for the insert button:
@@ -45,16 +61,19 @@ AM1DExpressionABEditor::AM1DExpressionABEditor(AM1DExpressionAB* expressionBlock
 
 	// set the initial expression. Note: assuming expressionBlock_ is valid.  Since these editors are created within AM1DExpressionAB::createEditorWidget(), it should never happen that we have an editor created with an invalid expression block.
 	expressionEdit_->setText(expressionBlock_->expression());
+	xExpressionEdit_->setText(expressionBlock_->xExpression());
 	populateExpressionMenu();
 
 	// connect editor widgets to test/apply changes:
 	connect(expressionEdit_, SIGNAL(textChanged()), this, SLOT(expressionEditingChanged()));
+	connect(xExpressionEdit_, SIGNAL(textChanged()), this, SLOT(xExpressionEditingChanged()));
 	connect(expressionEdit_, SIGNAL(editingFinished(int)), this, SLOT(expressionEditingFinished(int)));
+	connect(xExpressionEdit_, SIGNAL(editingFinished(int)), this, SLOT(expressionEditingFinished(int)));
 
 }
 
 AM1DExpressionABEditor::~AM1DExpressionABEditor() {
-	abortExpressionEdit();
+
 }
 
 
@@ -91,41 +110,74 @@ void AM1DExpressionABEditor::expressionEditingChanged() {
 
 }
 
+void AM1DExpressionABEditor::xExpressionEditingChanged() {
+	editingXExpression_ = true;
+
+	if(expressionBlock_->checkExpressionValidity(xExpressionEdit_->text().trimmed()))
+		xExpressionEdit_->setStyleSheet("color: rgb(0,128,0);");
+	else
+		xExpressionEdit_->setStyleSheet("color: red");
+}
+
 #include <QTextCursor>
+#include <QApplication>
 void AM1DExpressionABEditor::finalizeExpressionEdit() {
 
-	if(!editingExpression_)
-		return;
+	if(editingExpression_) {
 
-	editingExpression_ = false;
-	expressionEdit_->setStyleSheet("color: black;");
+		editingExpression_ = false;
+		expressionEdit_->setStyleSheet("color: black;");
 
-	QString newExpression = expressionEdit_->text().trimmed();
+		QString newExpression = expressionEdit_->text().trimmed();
 
-	/// is it good? set new value for channel
-	if(expressionBlock_->checkExpressionValidity(newExpression)) {
-		expressionBlock_->setExpression(newExpression);
-		expressionEdit_->setText(newExpression);
+		/// is it good? set new value for channel
+		if(expressionBlock_->checkExpressionValidity(newExpression)) {
+			expressionBlock_->setExpression(newExpression);
+			expressionEdit_->setText(newExpression);
+		}
+		/// revert editor to old value of channel
+		else {
+			QApplication::beep();	// let the user know that something went wrong/changes were not applied.
+			expressionEdit_->setText(expressionBlock_->expression());
+		}
 	}
-	/// revert editor to old value of channel
-	else {
-		/// \todo Play system beep to let them know something went wrong
-		expressionEdit_->setText(expressionBlock_->expression());
-	}
 
+	if(editingXExpression_) {
+		editingXExpression_ = false;
+		xExpressionEdit_->setStyleSheet("color: black;");
+
+		QString newExpression = xExpressionEdit_->text().trimmed();
+
+		/// is it good? set new value for channel
+		if(expressionBlock_->checkExpressionValidity(newExpression)) {
+			expressionBlock_->setXExpression(newExpression);
+			xExpressionEdit_->setText(newExpression);
+		}
+		/// revert editor to old value of channel
+		else {
+			QApplication::beep();	// let the user know that something went wrong/changes were not applied.
+			xExpressionEdit_->setText(expressionBlock_->xExpression());
+		}
+	}
 }
 
 void AM1DExpressionABEditor::abortExpressionEdit() {
 
-	if(!editingExpression_)
-		return;
+	if(editingExpression_) {
 
-	editingExpression_ = false;
-	expressionEdit_->setStyleSheet("color: black;");
+		editingExpression_ = false;
+		expressionEdit_->setStyleSheet("color: black;");
 
-	// restore old/current actual expression in UI editor text box.
-	expressionEdit_->setText(expressionBlock_->expression());
+		// restore old/current actual expression in UI editor text box.
+		expressionEdit_->setText(expressionBlock_->expression());
+	}
 
+	if(editingXExpression_) {
+		editingXExpression_ = false;
+		xExpressionEdit_->setStyleSheet("color: black;");
+
+		xExpressionEdit_->setText(expressionBlock_->xExpression());
+	}
 }
 
 void AM1DExpressionABEditor::populateExpressionMenu() {
@@ -143,16 +195,28 @@ void AM1DExpressionABEditor::populateExpressionMenu() {
 
 #include <QAction>
 void AM1DExpressionABEditor::onRawDataMenuTriggered(QAction *action) {
-	expressionEdit_->insertPlainText(action->text());
-	if(editingExpression_)
-		expressionEdit_->setFocus();
+	if(editingXExpression_) {
+		xExpressionEdit_->insertPlainText(action->text());
+		xExpressionEdit_->setFocus();
+	}
+	else {
+		expressionEdit_->insertPlainText(action->text());
+		//if(editingExpression_)
+			expressionEdit_->setFocus();
+	}
 }
 
 void AM1DExpressionABEditor::onFunctionMenuTriggered(QAction *action) {
 	/// \todo: instead of just inserting, wrap the function brackets around the currently selected item, and place the cursor just inside the right bracket.
-	expressionEdit_->insertPlainText(action->text());
-	if(editingExpression_)
-		expressionEdit_->setFocus();
+	if(editingXExpression_) {
+		xExpressionEdit_->insertPlainText(action->text());
+		xExpressionEdit_->setFocus();
+	}
+	else {
+		expressionEdit_->insertPlainText(action->text());
+		//if(editingExpression_)
+			expressionEdit_->setFocus();
+	}
 }
 
 
