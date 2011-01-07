@@ -213,8 +213,6 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 
 
 	if(spectraFile != ""){
-		qDebug() << "\n\nIndex of sdd is " << scan->rawData()->idOfMeasurement("sdd");
-		qDebug() << "and index of tey is " << scan->rawData()->idOfMeasurement("tey") << "\n\n";
 		QFile sf(spectraFile);
 		if(!sf.open(QIODevice::ReadOnly)) {
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -1, "SGM2004FileLoader parse error while loading scan data from file. Missing spectra file."));
@@ -247,17 +245,6 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 
 			specCounter = 0;
 		}
-
-		/* Debug output of spectral data
-		QString specLine = "";
-		QString tmpNum;
-		qDebug() << "\n\n\nSpectal Data" << scan->rawData()->scanSize(0);
-		for(int x = 0; x < scan->rawData()->scanSize(0); x++){
-			for(int y = 0; y < scan->rawData()->measurementAt(scan->rawData()->idOfMeasurement("sdd")).size(0); y++)
-				specLine += tmpNum.setNum( (int)(scan->rawData()->value(AMnDIndex(x), scan->rawData()->idOfMeasurement("sdd"), AMnDIndex(y))) ) + " ";
-			qDebug() << specLine << "<---->";
-			specLine = "";
-		}*/
 	}
 
 
@@ -282,22 +269,12 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 		for(int i=0; i<scan->rawDataSources()->count(); i++) {
 			if(scan->rawDataSources()->at(i)->measurementId() >= scan->rawData()->measurementCount()) {
 				AMErrorMon::report(AMErrorReport(scan, AMErrorReport::Debug, -97, QString("The data in the file (%1 columns) didn't match the raw data columns we were expecting (column %2). Removing the raw data column '%3')").arg(scan->rawData()->measurementCount()).arg(scan->rawDataSources()->at(i)->measurementId()).arg(scan->rawDataSources()->at(i)->name())));
-
-				/////////////
-				QString rawDataColumns;
-				for(int r=0; r<scan->rawData()->measurementCount(); r++)
-					rawDataColumns.append((QString("%1,").arg(scan->rawData()->measurementAt(r).name)));
-				qDebug() << "Inside integrity check: Raw data column names:\n     " << rawDataColumns;
-				////////////
-
-
 				scan->deleteRawDataSource(i);
 			}
 		}
 	}
 
 	// If the scan doesn't have any channels yet, it would be helpful to create some.
-
 	if(createDefaultAnalysisBlocks) {
 
 		QList<AMDataSource*> raw1DDataSources;

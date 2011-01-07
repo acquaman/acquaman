@@ -43,6 +43,9 @@ AM1DExpressionABEditor::AM1DExpressionABEditor(AM1DExpressionAB* expressionBlock
 	connect(functionMenu_, SIGNAL(triggered(QAction*)), this, SLOT(onFunctionMenuTriggered(QAction*)));
 	populateFunctionMenu();
 
+	// set the initial expression. Note: assuming expressionBlock_ is valid.  Since these editors are created within AM1DExpressionAB::createEditorWidget(), it should never happen that we have an editor created with an invalid expression block.
+	expressionEdit_->setText(expressionBlock_->expression());
+	populateExpressionMenu();
 
 	// connect editor widgets to test/apply changes:
 	connect(expressionEdit_, SIGNAL(textChanged()), this, SLOT(expressionEditingChanged()));

@@ -1,7 +1,6 @@
 #include "AM1DExpressionAB.h"
 #include "AMErrorMonitor.h"
-
-#include <QDebug>
+#include "AM1DExpressionABEditor.h"
 
 AM1DExpressionAB::AM1DExpressionAB(const QString& outputName, QObject* parent)
 	: AMAnalysisBlock(outputName, parent),
@@ -179,8 +178,7 @@ int AM1DExpressionAB::indexOfInputSource(const AMDataSource* source) const {
 ////////////////////////////////////
 // Create, connect, and return a widget suitable for displaying/editing this analysis block's custom parameters.  If you don't want to provide an editor widget, return 0.
 QWidget* AM1DExpressionAB::createEditorWidget() {
-	// return new AM1DExpressionABEditor(this);
-	return 0;
+	return new AM1DExpressionABEditor(this);
 }
 
 
