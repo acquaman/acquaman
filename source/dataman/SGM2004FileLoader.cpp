@@ -190,6 +190,18 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 		}
 	}
 
+	// special! testing 2d:
+	////////////////////////
+//	QList<AMAxisInfo> spectrumAxes;
+//	spectrumAxes << AMAxisInfo("sddEnergy", 1024, "SDD Energy Axis", "pixels");
+//	scan->rawData()->addMeasurement(AMMeasurementInfo("spectraTest", "Spectra Test", "counts", spectrumAxes));
+//	int measurementId = scan->rawData()->measurementCount()-1;
+//	for(int i=0; i<scan->rawData()->scanSize(0); i++)
+//		for(int j=0; j<scan->rawData()->measurementAt(measurementId).size(0); j++)
+//			scan->rawData()->setValue(i, measurementId, j, sin(i*4*M_PI)*sin(j*2*M_PI) );
+	///////////////////////////////
+
+
 
 	if(setMetaData) {
 		scan->setNotes(QString("Grating: %1\nIntegration Time: %2\nComments:\n%3").arg(grating).arg(integrationTime).arg(comments));	/// \todo Move this from notes to the scan's scanInitialConditions().

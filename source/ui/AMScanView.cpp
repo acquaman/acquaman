@@ -566,7 +566,7 @@ AMScanViewExclusiveView::AMScanViewExclusiveView(AMScanView* masterView) : AMSca
 	plot_->plot()->axisRight()->setTicks(0);
 	plot_->plot()->axisBottom()->setTicks(4);
 	plot_->plot()->axisLeft()->showGrid(false);
-	plot_->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left);
+	plot_->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left | MPlotAxis::Right);
 	plot_->plot()->axisBottom()->showAxisName(false);
 	plot_->plot()->axisLeft()->showAxisName(false);
 
@@ -779,14 +779,25 @@ void AMScanViewExclusiveView::reviewScan(int scanIndex) {
 
 	// does this scan have the "exclusive" data source in it?
 	if(dataSource) {
-		if(plotItems_.at(scanIndex) == 0) {	// need to create new plot item
+
+
+		// the current plot item exists, but it's the wrong type to handle the current scan data. (ie: dataSource->rank() is 2, but we've currently got a plot series instead of a plot image.
+		if(plotItems_.at(scanIndex) && plotItems_.at(scanIndex)->rank() != dataSource->rank() ) {
+			// delete the plot item; we'll recreate the new one of the proper size in the next check.
+			delete plotItems_.at(scanIndex);
+			plotItems_[scanIndex] = 0;
+			plotItemDataSources_[scanIndex] = 0;
+		}
+
+		// need to create new plot item for this scan. (Don't have one yet)
+		if(plotItems_.at(scanIndex) == 0) {
 			plotItems_[scanIndex] = createPlotItemForDataSource(dataSource, model()->plotSettings(scanIndex, dataSourceIndex));
 			plotItems_.at(scanIndex)->setDescription(model()->scanAt(scanIndex)->fullName());
 			plot_->plot()->addItem(plotItems_.at(scanIndex));
 			plotItemDataSources_[scanIndex] = dataSource;
 		}
 
-		else {	// review and update the existing plot item. (When would this be called? Just curious...)
+		else {	// We already have one.  Review and update the existing plot item. (When would this be called? // A: When the exclusive data source changes, for one thing. need to change old series/image to represent new data)
 			plotItems_.at(scanIndex)->setDescription(model()->scanAt(scanIndex)->fullName());
 
 			switch(dataSource->rank()) {
@@ -804,7 +815,8 @@ void AMScanViewExclusiveView::reviewScan(int scanIndex) {
 			case 2: {
 				MPlotAbstractImage* image = static_cast<MPlotAbstractImage*>(plotItems_.at(scanIndex));
 				if(plotItemDataSources_.at(scanIndex) != dataSource) {
-					image->setModel(new AMDataSourceImageData(dataSource), true);
+					AMDataSourceImageData* newData = new AMDataSourceImageData(dataSource);
+					image->setModel(newData, true);
 					plotItemDataSources_[scanIndex] = dataSource;
 				}
 				image->setColorMap(model()->plotColorMap(scanIndex, dataSourceIndex));
@@ -859,7 +871,7 @@ AMScanViewMultiView::AMScanViewMultiView(AMScanView* masterView) : AMScanViewInt
 	plot_->plot()->axisRight()->setTicks(0);
 	plot_->plot()->axisBottom()->setTicks(4);
 	plot_->plot()->axisLeft()->showGrid(false);
-	plot_->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left);
+	plot_->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left | MPlotAxis::Right);
 	plot_->plot()->axisBottom()->showAxisName(false);
 	plot_->plot()->axisLeft()->showAxisName(false);
 	plot_->plot()->legend()->enableDefaultLegend(false);	// turn on or turn off labels for individual scans in this plot
@@ -1102,7 +1114,7 @@ AMScanViewMultiScansView::AMScanViewMultiScansView(AMScanView* masterView) : AMS
 	plot->plot()->axisRight()->setTicks(0);
 	plot->plot()->axisBottom()->setTicks(4);
 	plot->plot()->axisLeft()->showGrid(false);
-	plot->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left);
+	plot->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left | MPlotAxis::Right);
 	plot->plot()->axisBottom()->showAxisName(false);
 	plot->plot()->axisLeft()->showAxisName(false);
 	plot->plot()->legend()->enableDefaultLegend(false);	/// \todo Right now we maintain our own legend (instead of using MPlotLegend's automatic one), to keep it sorted by data source order. If you could introduce consistent ordering to MPlotLegend and MPlot::items(), we wouldn't have to.  [done, can insertPlotItem()s instead of addPlotItem()s now.]
@@ -1131,7 +1143,7 @@ void AMScanViewMultiScansView::addScan(int si) {
 		plot->plot()->axisRight()->setTicks(0);
 		plot->plot()->axisBottom()->setTicks(4);
 		plot->plot()->axisLeft()->showGrid(false);
-		plot->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left);
+		plot->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left | MPlotAxis::Right);
 		plot->plot()->axisBottom()->showAxisName(false);
 		plot->plot()->axisLeft()->showAxisName(false);
 		plot->plot()->legend()->enableDefaultLegend(false);
@@ -1431,7 +1443,7 @@ AMScanViewMultiSourcesView::AMScanViewMultiSourcesView(AMScanView* masterView) :
 	firstPlot_->plot()->axisRight()->setTicks(0);
 	firstPlot_->plot()->axisBottom()->setTicks(4);
 	firstPlot_->plot()->axisLeft()->showGrid(false);
-	firstPlot_->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left);
+	firstPlot_->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left | MPlotAxis::Right);
 	firstPlot_->plot()->axisBottom()->showAxisName(false);
 	firstPlot_->plot()->axisLeft()->showAxisName(false);
 
@@ -1673,7 +1685,7 @@ bool AMScanViewMultiSourcesView::reviewDataSources() {
 			newPlot->plot()->axisRight()->setTicks(0);
 			newPlot->plot()->axisBottom()->setTicks(4);
 			newPlot->plot()->axisLeft()->showGrid(false);
-			newPlot->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left);
+			newPlot->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left | MPlotAxis::Right);
 			newPlot->plot()->axisBottom()->showAxisName(false);
 			newPlot->plot()->axisLeft()->showAxisName(false);
 
