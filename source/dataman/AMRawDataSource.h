@@ -37,23 +37,24 @@ public:
 	// Axis Information
 	//////////////////////
 	/// Returns axis information for all axes
-	virtual QList<AMAxisInfo> axes() const { return axes_; }
+	virtual inline QList<AMAxisInfo> axes() const { return axes_; }
 
 	/// Returns the rank (number of dimensions) of this data set
-	virtual int rank() const { return axes_.count(); }
+	virtual inline int rank() const { return axes_.count(); }
 	/// Returns the size of (ie: count along) each dimension
-	virtual AMnDIndex size() const {
-		AMnDIndex s;
-		for(int i=0; i<axes_.count(); i++)
-			s.append(axes_.at(i).size);
+	virtual inline AMnDIndex size() const {
+		int rank = axes_.count();
+		AMnDIndex s(rank, false);
+		for(int i=0; i<rank; i++)
+			s[i] = axes_.at(i).size;
 		return s;
 	}
-	/// Returns the size along a single axis \c axisNumber. This should be fast. \c axisNumber is assumed to be between 0 and rank()-1.
-	virtual int size(int axisNumber) const { return axes_.at(axisNumber).size; }
-	/// Returns a bunch of information about a particular axis. \c axisNumber is assumed to be between 0 and rank()-1.
-	virtual AMAxisInfo axisInfoAt(int axisNumber) const { return axes_.at(axisNumber); }
-	/// Returns the number of an axis, by name. (By number, we mean the index of the axis. We called it number to avoid ambiguity with indexes <i>into</i> axes.) This could be slow, so users shouldn't call it repeatedly.  Returns -1 if not found.
-	virtual int numberOfAxis(const QString& axisName) {
+	/// Returns the size along a single axis \c axisId. This should be fast. \c axisId is assumed to be between 0 and rank()-1.
+	virtual inline int size(int axisId) const { return axes_.at(axisId).size; }
+	/// Returns a bunch of information about a particular axis. \c axisId is assumed to be between 0 and rank()-1.
+	virtual inline AMAxisInfo axisInfoAt(int axisId) const { return axes_.at(axisId); }
+	/// Returns the id of an axis, by name. (By id, we mean the index of the axis. We called it number to avoid ambiguity with indexes <i>into</i> axes.) This could be slow, so users shouldn't call it repeatedly.  Returns -1 if not found.
+	virtual inline int idOfAxis(const QString& axisName) {
 		for(int i=0; i<axes_.count(); i++)
 			if(axes_.at(i).name == axisName)
 				return i;
@@ -64,26 +65,55 @@ public:
 	// Data value access
 	////////////////////////////
 
-	/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient or any are out of range, or if the data is not ready.
-	virtual AMNumber value(const AMnDIndex& indexes) const {
+	/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient/wrong dimensionality, or if the data is not ready.
+	virtual inline AMNumber value(const AMnDIndex& indexes) const {
+
 		if(!isValid())
 			return AMNumber(AMNumber::InvalidError);
-		if(indexes.count() != rank())
+		if(indexes.rank() != rank())
 			return AMNumber(AMNumber::DimensionError);
 
-		/// \todo optimize for common dimensional cases, to avoid the for-loop overhead
-		AMnDIndex scanIndex;
+		/// optimize for common dimensional cases, to avoid the for-loop overhead
+		switch(scanAxesCount_) {
+		case 0:
+			break;	/// \todo SERIOUS: need to support scalar scan spaces (ie; no scan axis) for XES scans. For now there's always one scan axis.
+		case 1:
+			switch(measurementAxesCount_) {
+			case 0:
+				return dataStore_->value(indexes[0], measurementId_, AMnDIndex());	// 1d data: one scan axis, scalar measurements
+			case 1:
+				return dataStore_->value(indexes[0], measurementId_, indexes[1]); // 2d data: one scan axis, one measurement axis (ie: XAS scan with 1D detector, like SDD)
+			case 2:
+				return dataStore_->value(indexes[0], measurementId_, AMnDIndex(indexes[1], indexes[2]));	// 3d data: one scan axis, two measurement axes (ie: XAS scan with 2D detector, like XES)
+			}
+		case 2:
+			switch(measurementAxesCount_) {
+			case 0:
+				return dataStore_->value(AMnDIndex(indexes[0], indexes[1]), measurementId_, AMnDIndex());
+			case 1:
+				return dataStore_->value(AMnDIndex(indexes[0], indexes[1]), measurementId_, indexes[2]);
+			case 2:
+				return dataStore_->value(AMnDIndex(indexes[0], indexes[1]), measurementId_, AMnDIndex(indexes[2], indexes[3]));	// 4D data: really?
+			}
+
+		default:
+			break;	// nothing... We'll pick this up below in the general case.
+		}
+
+		// general case:
+		AMnDIndex scanIndex(scanAxesCount_, false);
 		for(int i=0; i<scanAxesCount_; i++)
-			scanIndex.append(indexes[i]);
-		AMnDIndex measurementIndex;
-		for(int i=scanAxesCount_; i<indexes.count(); i++)
-			measurementIndex.append(indexes[i]);
+			scanIndex[i] = indexes[i];
+
+		AMnDIndex measurementIndex(measurementAxesCount_, false);
+		for(int i=0; i<measurementAxesCount_; i++)
+			measurementIndex[i] = indexes[i+scanAxesCount_];
 
 		return dataStore_->value(scanIndex, measurementId_, measurementIndex);
 	}
 
 	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index)
-	virtual AMNumber axisValue(int axisNumber, int index) const {
+	virtual inline AMNumber axisValue(int axisNumber, int index) const {
 		if(!isValid())
 			return AMNumber(AMNumber::InvalidError);
 		if(axisNumber < scanAxesCount_)
@@ -99,11 +129,11 @@ public:
 	// Access for database stored values
 	///////////////////
 	/// The id of the detector we're exposing out of the raw data
-	int measurementId() const { return measurementId_; }
+	int inline measurementId() const { return measurementId_; }
 	/// The number of dimensions or axes that were scanned over
-	int scanRank() const { return scanAxesCount_; }
+	int inline scanRank() const { return scanAxesCount_; }
 	/// The number of dimensions or axes that the detector has, at each scan point
-	int measurementRank() const { return measurementAxesCount_; }
+	int inline measurementRank() const { return measurementAxesCount_; }
 
 
 	/// Called when reloading from the database

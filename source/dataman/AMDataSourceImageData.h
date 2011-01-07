@@ -17,22 +17,22 @@ public:
 	void setDataSource(const AMDataSource* dataSource);
 
 	/// Access the underlying data source
-	const AMDataSource* dataSource() const { return source_; }
+	const inline AMDataSource* dataSource() const { return source_; }
 
 
 	/// Return the x (data value) corresponding an (x,y) \c index:
-	virtual double x(int indexX) const { return source_->axisValue(0, indexX); }
+	virtual inline double x(int indexX) const { return source_->axisValue(0, indexX); }
 	/// Return the y (data value) corresponding an (x,y) \c index:
-	virtual double y(int indexY) const { return source_->axisValue(1, indexY); }
+	virtual inline double y(int indexY) const { return source_->axisValue(1, indexY); }
 	/// Return the z = f(x,y) value corresponding an (x,y) \c index:
-	virtual double z(int xIndex, int yIndex) const { return source_->value(AMnDIndex(xIndex, yIndex)); }
+	virtual inline double z(int xIndex, int yIndex) const { return source_->value(AMnDIndex(xIndex, yIndex)); }
 
 
 	/// Return the number of elements in x and y
-	virtual QPoint count() const { if(isValid_) return QPoint(source_->size(0), source_->size(1)); else return QPoint(0,0); }
+	virtual inline QPoint count() const { if(isValid_) return QPoint(source_->size(0), source_->size(1)); else return QPoint(0,0); }
 
 	/// Return the extent of the data. We assume the axis values are ordered... is this a valid assumption?
-	virtual QRectF boundingRect() const {
+	virtual inline QRectF boundingRect() const {
 		int sizeX = source_->size(0);
 		int sizeY = source_->size(1);
 
@@ -40,9 +40,9 @@ public:
 			return QRectF();
 
 		double minX = source_->axisValue(0, 0);
-		double maxX = source_->axisValue(0, sizeX);
+		double maxX = source_->axisValue(0, sizeX-1);
 		double minY = source_->axisValue(1, 0);
-		double maxY = source_->axisValue(1, sizeY);
+		double maxY = source_->axisValue(1, sizeY-1);
 
 		if(maxX < minX)
 			qSwap(minX, maxX);
@@ -55,9 +55,9 @@ public:
 
 protected slots:
 	/// Forward the valuesChanged() and stateChanged() signals from the data source.
-	void onDataSourceDataChanged() { MPlotAbstractImageData::emitDataChanged(); }
+	inline void onDataSourceDataChanged() { MPlotAbstractImageData::emitDataChanged(); }
 	/// Forward the sizeChanged() and stateChanged() signals from the data source.
-	void onDataSourceBoundsChanged() { MPlotAbstractImageData::emitBoundsChanged(); }
+	inline void onDataSourceBoundsChanged() { MPlotAbstractImageData::emitBoundsChanged(); }
 
 	/// ensure that we don't keep trying to read data from a source that has been deleted.
 	void onDataSourceDeleted() { source_ = 0; setDataSource(0); }

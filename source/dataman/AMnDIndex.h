@@ -45,6 +45,9 @@ public:
 	/// Create an index for 4D data
 	AMnDIndex(int i, int j, int k, int l);
 
+	/// Optimized for performance: create an index of the initial size \c dimension.  If \c initToZero is true, all the values are initialized to 0.
+	AMnDIndex(int dimension, bool initToZero);
+
 	/// Returns the rank (# of dimensions that this index has available)
 	int rank() const { return count(); }
 

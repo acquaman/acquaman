@@ -28,3 +28,10 @@ AMnDIndex::AMnDIndex(int i, int j, int k, int l) : QVarLengthArray<int, AMNDARRA
 	(*this)[2] = k;
 	(*this)[3] = l;
 }
+
+AMnDIndex::AMnDIndex(int dimension, bool initToZero) : QVarLengthArray<int, AMNDARRAY_BASE_SIZE>(dimension) {
+	if(initToZero)
+		for(int i=0; i<dimension; i++)
+			(*this)[i] = 0;
+}
+
