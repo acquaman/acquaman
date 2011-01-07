@@ -759,6 +759,7 @@ MPlotItem* AMScanViewInternal::createPlotItemForDataSource(const AMDataSource* d
 		MPlotImageBasic* image = new MPlotImageBasic();
 		image->setModel(new AMDataSourceImageData(dataSource), true);
 		image->setColorMap(plotSettings.colorMap);
+		image->setYAxisTarget(MPlotAxis::Right);
 		rv = image;
 		break; }
 	default:

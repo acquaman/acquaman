@@ -90,7 +90,7 @@ public:
 	/// Returns a bunch of information about a particular axis.
 	virtual AMAxisInfo axisInfoAt(int axisNumber) const;
 	/// Returns the number of an axis, by name. (By number, we mean the index of the axis. We called it number to avoid ambiguity with indexes <i>into</i> axes.) This could be slow, so users shouldn't call it repeatedly.
-	virtual int numberOfAxis(const QString& axisName) { if(axisName == axisInfo_.name) return 0; else return -1; }
+	virtual int idOfAxis(const QString& axisName) { if(axisName == axisInfo_.name) return 0; else return -1; }
 
 	/// Set the meta-information describing the output axis.
 	void setAxisInfo(const AMAxisInfo& newInfo) { axisInfo_ = newInfo; }

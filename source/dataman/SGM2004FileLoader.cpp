@@ -333,6 +333,7 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 
 	// Debugging only... What's here?
 
+	/*
 	qDebug() << "========= Breakdown for scan named: " << scan->name() << "==============";
 	qDebug() << "Scan axes\n===========================";
 	for(int i=0; i<scan->rawData()->scanAxesCount(); i++)
@@ -352,7 +353,20 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 		AMAnalysisBlock* rds = scan->analyzedDataSources()->at(i);
 		qDebug() << rds->name() << ":" << rds->description() << ": isValid is " << rds->isValid() << ": numPoints is " << rds->size(0);
 	}
-	/*
+
+//	qDebug() << "Raw data source - SDD - Axis 0\n======================";
+//	QString axisValues;
+//	AMRawDataSource* sddRds = scan->rawDataSources()->at(scan->rawDataSources()->count()-1);
+//	for(int i=0; i<sddRds->size(0); i++)
+//		axisValues.append(QString("%1, ").arg((double)sddRds->axisValue(0, i)));
+//	qDebug() << axisValues;
+
+//	qDebug() << "Raw data source - SDD - Axis 1\n======================";
+//	axisValues.clear();
+//	for(int i=0; i<sddRds->size(1); i++)
+//		axisValues.append(QString("%1, ").arg((double)sddRds->axisValue(1, i)));
+//	qDebug() << axisValues;
+
 
 	QString row;
 	qDebug() << "First measurement, raw data axis value:";
