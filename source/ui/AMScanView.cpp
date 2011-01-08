@@ -99,6 +99,7 @@ void AMScanViewScanBar::onRowInserted(const QModelIndex& parent, int start, int 
 		QToolButton* newButton = new QToolButton();
 		newButton->setText(source->dataSourceAt(i)->name());
 		newButton->setCheckable(true);
+		newButton->setMaximumHeight(18);
 		QColor color = model_->plotColor(scanIndex_, i);
 		newButton->setStyleSheet(QString("color: rgba(%1, %2, %3, %4);").arg(color.red()).arg(color.green()).arg(color.blue()).arg(color.alpha()));
 		sourceButtons_.addButton(newButton, i);
@@ -760,6 +761,7 @@ MPlotItem* AMScanViewInternal::createPlotItemForDataSource(const AMDataSource* d
 		image->setModel(new AMDataSourceImageData(dataSource), true);
 		image->setColorMap(plotSettings.colorMap);
 		image->setYAxisTarget(MPlotAxis::Right);
+		image->setZValue(-1000);
 		rv = image;
 		break; }
 	default:

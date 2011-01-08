@@ -25,6 +25,7 @@ protected slots:
 	// Signals from GUI components to edit the current values
 	void expressionEditingFinished(int reason);
 	void expressionEditingChanged();
+	void xExpressionEditingChanged();
 
 	/// Called when a menu item in the raw data menu is clicked:
 	void onRawDataMenuTriggered(QAction* action);
@@ -46,8 +47,10 @@ protected:
 	/*! This function is designed to do nothing if a channel expression edit is not in progress.*/
 	void abortExpressionEdit();
 
-	/// Flag to indicate that we're currently editing the expression for a valid channel. So be careful if you switch channels suddenly!
+	/// Flag to indicate that we're currently editing the expression.
 	bool editingExpression_;
+	/// Flag to indicate that we're currently editing the x-expression.
+	bool editingXExpression_;
 
 
 	/// Menu containing the insert items for the expression editor
@@ -55,6 +58,7 @@ protected:
 
 	/// UI elements:
 	AMWrappingLineEdit* expressionEdit_;
+	AMWrappingLineEdit* xExpressionEdit_;
 	QToolButton* insertButton_;
 
 	/// The actual AM1DExpressionAB analysis block that we provide editing capability for

@@ -399,7 +399,6 @@ AMDbThumbnail AMScan::thumbnail(int index) const {
 
 	delete plot;	// deletes all plot items (series, image) with it.
 
-	// todo: pretty names like "Total Electron Yield" instead of "tey_n"
-	return AMDbThumbnail(dataSource->name(), dataSource->description(), pixmap);
+	return AMDbThumbnail(dataSource->description(), dataSource->name(), pixmap);
 
 }
