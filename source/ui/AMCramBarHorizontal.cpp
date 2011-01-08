@@ -9,11 +9,11 @@ AMCramBarHorizontal::AMCramBarHorizontal(QWidget *parent) :
 	outerLayout_->setContentsMargins(0,0,0,0);
 
 	scrollLeftButton_ = new QToolButton();
-	scrollLeftButton_->setText("<<");
+	scrollLeftButton_->setText(QString(QChar(0x00AB)));// left "guillemet"
 	scrollLeftButton_->setMaximumHeight(18);
 	scrollLeftButton_->setAutoRepeat(true);
 	scrollRightButton_ = new QToolButton();
-	scrollRightButton_->setText(">>");
+	scrollRightButton_->setText(QString(QChar(0x00BB)));//right "guillemet"
 	scrollRightButton_->setMaximumHeight(18);
 	scrollRightButton_->setAutoRepeat(true);
 

@@ -136,7 +136,7 @@ public:
 
 	  This function, in addition to creating space for the new data, suppresses the dataChanged() signal until endInsertRows() is called.  This allows you to insert valid data for all detectors and scan points within the new space, and the dataChanged() signal is only emitted once for the whole affected region.
 
-	  If the scan space is currently empty, the sizes of one or more axes might be 0. Adding a row to any axis will cause the sizes of all other axes to become at least 1. (think about it...)
+	  If the scan space is currently empty, the size of the first scan axis is 0.  In the future, we will change the behaviour of this function so that inserting rows to any axis automatically ensures the size of each axis is at least 1.
 
 	 Subclasses should re-implement beginInsertRowsImplementation() instead of this function.
 	*/
@@ -147,6 +147,9 @@ public:
 	/*! The base class version will emit the sizeChanged() and dataChanged() signals for the region.  Subclasses that want to know when an insert is complete can re-implement endInsertRowsImplementation().
 		*/
 	void endInsertRows();
+
+	/// This version of beginInsertRows() automatically inserts rows along all axes as required to make sure you can store data at the scan index \c scanIndex.  Call endInsertRows() once after this function, once you are done filling the new space with data using setValue().  Any un-set values will be accessible, but null.
+	bool beginInsertRowsAsNecessaryForScanPoint(const AMnDIndex& scanIndex);
 
 
 	// Removing data points: not supported. It's a storage machine, ok?
@@ -209,6 +212,9 @@ protected:
 private:
 	bool isInsertingRows_;
 	int insertingAxisId_, insertingAtRowIndex_, insertingNumRows_;
+
+	bool multiAxisInsertInProgress_;
+	AMnDIndex scanSpaceStartIndex_, scanSpaceEndIndex_;
 
 	AMDataStoreSignalSource* signalSource_;
 };
