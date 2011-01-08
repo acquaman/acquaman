@@ -66,7 +66,9 @@ void AMDacqScanController::cancel()
 
 bool AMDacqScanController::event(QEvent *e){
 	if(e->type() == (QEvent::Type)AM::AcqEvent){
+		qDebug() << "\n\nCalling a ::toScanIndex";
 		QMap<int, double> aeData = ((AMAcqEvent*)e)->dataPackage_;
+		toScanIndex(aeData);
 		QMap<int, double>::const_iterator i = aeData.constBegin();
 		if(i.key() == 0 && aeData.count() > 1){
 			/// \bug CRITICAL: upgrade to use new AMDataStore interface! pScan_()->d_->append(i.value());
@@ -81,6 +83,11 @@ bool AMDacqScanController::event(QEvent *e){
 	}
 	else
 		return AMScanController::event(e);
+}
+
+AMnDIndex AMDacqScanController::toScanIndex(QMap<int, double> aeData){
+	//Simple indexer, assumes there is ONLY ONE scan dimension and appends to the end
+	return AMnDIndex(pScan_()->rawData()->scanSize(0));
 }
 
 void AMDacqScanController::onStart()

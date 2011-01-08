@@ -26,6 +26,7 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 	// Create space in raw data store, and create raw data channels, for each detector.
 
 	for(int i=0; i<scanDetectors.count(); i++) {
+		qDebug() << "Detector at " << i << " is " << scanDetectors.at(i)->name() ;
 		AMDetectorInfo* detectorInfo = scanDetectors.at(i);
 		pScan_()->rawData()->addMeasurement(AMMeasurementInfo(*detectorInfo));
 		pScan_()->addRawDataSource(new AMRawDataSource(pScan_()->rawData(), i));

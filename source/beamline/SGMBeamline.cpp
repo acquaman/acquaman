@@ -332,14 +332,14 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	connect(pgtControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
 	i0ControlSet_ = new AMControlSet(this);
-	i0ControlSet_->setName("I0 Contols");
+	i0ControlSet_->setName("I0 Controls");
 	i0ControlSet_->addControl(i0_);
 	i0Detector_ = NULL;
 	unconnectedSets_.append(i0ControlSet_);
 	connect(i0ControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
 	eVFbkControlSet_ = new AMControlSet(this);
-	eVFbkControlSet_->setName("Energy Feeback Controls");
+	eVFbkControlSet_->setName("Energy Feedback Controls");
 	eVFbkControlSet_->addControl(eVFbk_);
 	eVFbkDetector_ = NULL;
 	unconnectedSets_.append(eVFbkControlSet_);
@@ -588,7 +588,7 @@ void SGMBeamline::onControlSetConnected(bool csConnected){
 			i0Detector_->setDescription("I0");
 			allDetectors_->addDetector(i0Detector_, true);
 		}
-		else if(!eVFbkDetector_ && ctrlSet->name() == "Energy Feeback Controls"){
+		else if(!eVFbkDetector_ && ctrlSet->name() == "Energy Feedback Controls"){
 			eVFbkDetector_ = new AMSingleControlDetector(eVFbk_->name(), eVFbk_, this);
 			eVFbkDetector_->setDescription("Energy Feedback");
 			allDetectors_->addDetector(eVFbkDetector_, true);
