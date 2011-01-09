@@ -106,7 +106,7 @@ public:
 	virtual int size(int axisNumber) const = 0;
 	/// Returns a bunch of information about a particular axis. \c axisNumber is assumed to be between 0 and rank()-1.
 	virtual AMAxisInfo axisInfoAt(int axisNumber) const = 0;
-	/// Returns the number of an axis, by name. (By number, we mean the index of the axis. We called it number to avoid ambiguity with indexes <i>into</i> axes.) This could be slow, so users shouldn't call it repeatedly. Returns -1 if not found.
+	/// Returns the id of an axis, by name. (By id, we mean the index of the axis. We called it id to avoid ambiguity with indexes <i>into</i> axes.) This could be slow, so users shouldn't call it repeatedly. Returns -1 if not found.
 	virtual int idOfAxis(const QString& axisName) = 0;
 
 
