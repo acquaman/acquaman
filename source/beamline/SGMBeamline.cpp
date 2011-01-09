@@ -131,7 +131,7 @@ void SGMBeamline::usingSGMBeamline(){
 void SGMBeamline::usingFakeBeamline(){
 	amNames2pvNames_.set("energy", "reixsHost:Energy");
 	amNames2pvNames_.set("eV_Fbk", "dave:Energy:fbk");
-	amNames2pvNames_.set("eVFbk", "dave:Energy:fbk");
+	amNames2pvNames_.set("eVFbk", "reixsHost:eVfbk");
 	amNames2pvNames_.set("mono", "dave:Energy:mono");
 	amNames2pvNames_.set("undulator", "dave:Energy:undulator");
 	amNames2pvNames_.set("exitSlit", "dave:Energy:exitSlit");
@@ -332,14 +332,14 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	connect(pgtControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
 	i0ControlSet_ = new AMControlSet(this);
-	i0ControlSet_->setName("I0 Contols");
+	i0ControlSet_->setName("I0 Controls");
 	i0ControlSet_->addControl(i0_);
 	i0Detector_ = NULL;
 	unconnectedSets_.append(i0ControlSet_);
 	connect(i0ControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
 	eVFbkControlSet_ = new AMControlSet(this);
-	eVFbkControlSet_->setName("Energy Feeback Controls");
+	eVFbkControlSet_->setName("Energy Feedback Controls");
 	eVFbkControlSet_->addControl(eVFbk_);
 	eVFbkDetector_ = NULL;
 	unconnectedSets_.append(eVFbkControlSet_);
@@ -385,6 +385,9 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	allDetectors_->addDetector(tfyDetector_, true);
 	allDetectors_->addDetector(pgtDetector_, false);
 	*/
+
+	feedbackDetectors_ = new AMDetectorInfoSet(this);
+	feedbackDetectors_->setName("Feedback Detectors");
 
 	XASDetectors_ = new AMDetectorInfoSet(this);
 	XASDetectors_->setName("XAS Detectors");
@@ -587,11 +590,13 @@ void SGMBeamline::onControlSetConnected(bool csConnected){
 			i0Detector_ = new AMSingleControlDetector(i0_->name(), i0_, this);
 			i0Detector_->setDescription("I0");
 			allDetectors_->addDetector(i0Detector_, true);
+			feedbackDetectors_->addDetector(i0Detector_, true);
 		}
-		else if(!eVFbkDetector_ && ctrlSet->name() == "Energy Feeback Controls"){
+		else if(!eVFbkDetector_ && ctrlSet->name() == "Energy Feedback Controls"){
 			eVFbkDetector_ = new AMSingleControlDetector(eVFbk_->name(), eVFbk_, this);
 			eVFbkDetector_->setDescription("Energy Feedback");
 			allDetectors_->addDetector(eVFbkDetector_, true);
+			feedbackDetectors_->addDetector(eVFbkDetector_, true);
 		}
 		emit controlSetConnectionschanged();
 	}

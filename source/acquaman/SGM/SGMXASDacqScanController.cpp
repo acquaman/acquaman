@@ -91,3 +91,8 @@ bool SGMXASDacqScanController::event(QEvent *e){
 		e->ignore();
 }
 */
+
+AMnDIndex SGMXASDacqScanController::toScanIndex(QMap<int, double> aeData){
+	// SGM XAS Scan has only one dimension (energy), simply append to the end of this
+	return AMnDIndex(pScan_()->rawData()->scanSize(0));
+}

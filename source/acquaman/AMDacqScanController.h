@@ -14,6 +14,8 @@
 #include "AMAcqScanSpectrumOutput.h"
 #include "dacq3_2/qepicsadvacq.h"
 
+#include "dataman/AMnDIndex.h"
+
 class AMDacqScanController : public AMScanController
 {
 Q_OBJECT
@@ -34,6 +36,7 @@ public slots:
 
 protected:
 	bool event(QEvent *e);
+	virtual AMnDIndex toScanIndex(QMap<int, double> aeData);
 
 protected:
 	QEpicsAdvAcq *advAcq_;
@@ -52,8 +55,6 @@ private:
 
 	AMScanConfiguration *pCfg_() { return *_pCfg_;}
 	AMScan *pScan_() { return *_pScan_;}
-
-	// removed: testing function: void play2d();
 };
 
 #endif // ACQMAN_DACQSCANCONTROLLER_H
