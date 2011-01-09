@@ -477,7 +477,10 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
 	source/qjson/serializerrunnable.h \
 	source/qjson/stack.hh \
 	source/util/AMGithubManager.h \
-    source/ui/util/AMGithubIssueSubmissionView.h
+    source/ui/util/AMGithubIssueSubmissionView.h \
+    source/actions2/AMAction.h \
+    source/actions2/AMListAction.h \
+    source/actions2/AMActionInfo.h
 
 CONFIG(mobility) {
 DEFINES += AM_MOBILITY_VIDEO_ENABLED
@@ -765,7 +768,10 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
 	source/qjson/serializer.cpp \
 	source/qjson/serializerrunnable.cpp \
 	source/util/AMGithubManager.cpp \
-    source/ui/util/AMGithubIssueSubmissionView.cpp
+    source/ui/util/AMGithubIssueSubmissionView.cpp \
+    source/actions2/AMAction.cpp \
+    source/actions2/AMListAction.cpp \
+    source/actions2/AMActionInfo.cpp
 
 CONFIG(mobility) {
 SOURCES +=	source/ui/AMOverlayVideoWidget.cpp \
@@ -784,36 +790,6 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

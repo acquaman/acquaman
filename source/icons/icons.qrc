@@ -139,5 +139,6 @@
         <file>64x64/gnome-display-properties.png</file>
         <file>hammer-wrench.png</file>
         <file>32x32/hammer-wrench.png</file>
+        <file>64x64/generic-action.png</file>
     </qresource>
 </RCC>
