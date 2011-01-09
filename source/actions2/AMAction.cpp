@@ -145,9 +145,6 @@ bool AMAction::pause()
 
 bool AMAction::resume()
 {
-	if(!canPause())
-		return false;
-
 	if(state() == Paused) {
 		if(previousState() == WaitingForPrereqs) {
 			setState(WaitingForPrereqs);
@@ -161,7 +158,7 @@ bool AMAction::resume()
 		}
 	}
 
-	return false;	// cannot resume from any other states.
+	return false;	// cannot resume from any other states except Pause.
 }
 
 bool AMAction::addPrereq(AMActionPrereq *newPrereq)

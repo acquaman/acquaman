@@ -12,7 +12,7 @@ AMListAction::AMListAction(AMActionInfo* info, SubActionMode subActionMode, QObj
 // Copy constructor. Takes care of making copies of the sub-actions
 AMListAction::AMListAction(const AMListAction& other) : AMAction(other) {
 	subActionMode_ = other.subActionMode_;
-	currentSubActionIndex_ = -1;
+	currentSubActionIndex_ = -1; // prior to running an subactions
 
 	foreach(AMAction* action, other.subActions_)
 		subActions_ << action->createCopy();
@@ -86,19 +86,19 @@ bool AMListAction::canPause() const
 			return false;
 		// if we just have one sub-action and it cannot pause, then we can't pause.
 		if(subActionCount() == 1)
-			return subActionAt(0)->canPause();
+			return (subActionAt(0)->state() == Running && subActionAt(0)->canPause());
 		// More than one action. Are we on the last action? Then whether we can pause depends on whether that last action can pause
 		if(currentSubActionIndex() == subActionCount()-1)
-			return currentSubAction()->canPause();
-		// If we've made it here, we have more than one action and we're not on the last action. Therefore, we can pause between actions even if they can't pause themselves.
+			return (currentSubAction()->state() == Running && currentSubAction()->canPause());
+		// If we've made it here, we have more than one action and we're not on the last action. Therefore, at least we can pause between actions even if they can't pause themselves.
 		return true;
 	}
 
-	// in parallel mode, we can pause if all sub-actions can.
+	// in parallel mode, we can pause if all still-running sub-actions can.  If ALL the actions are in a final state, then we won't be Running, so the base class will never let someone call pause().
 	else {
 		bool canDoPause = true;
 		foreach(AMAction* action, subActions_)
-			canDoPause &= action->canPause();
+			canDoPause &= ((action->state() == Running && action->canPause()) || action->inFinalState());
 
 		return canDoPause;
 	}
@@ -106,24 +106,27 @@ bool AMListAction::canPause() const
 
 void AMListAction::startImplementation()
 {
+	// if this was called by the base class, we know that we are in the Starting state.
+
+	// no actions? That's easy...
 	if(subActionCount() == 0) {
 		notifyStarted();
-		notifySucceeded();	// that was quick and easy...
+		notifySucceeded();	// done and done.
 		return;
 	}
 
 	if(subActionMode() == SequentialMode) {
-		currentSubActionIndex_ = 0;
-		internalConnectAction(currentSubAction());
+		emit currentSubActionChanged(currentSubActionIndex_ = 0);
 		notifyStarted();
+		internalConnectAction(currentSubAction());
 		currentSubAction()->start();
 	}
 	// parallel mode
 	else {
+		notifyStarted();
 		foreach(AMAction* action, subActions_) {
 			internalConnectAction(action);
 		}
-		notifyStarted();
 		foreach(AMAction* action, subActions_) {
 			action->start();
 		}
@@ -131,49 +134,140 @@ void AMListAction::startImplementation()
 }
 void AMListAction::pauseImplementation()
 {
+	// if this was called by the base class, we know that we are in the Pausing state, and were in the Running state. We also know that canPause() is true.
+
+	// sequential mode:
+	////////////////////////
+	if(subActionMode() == SequentialMode) {
+		if(currentSubAction()) {
+			// Can this action pause?
+			if(currentSubAction()->canPause())
+				currentSubAction()->pause();
+			// If it can't, we'll pause by stopping at the next action. When the current action transitions to Succeeded, we simply won't start the next one and will notifyPaused(). In this case, we could stay at Pausing for quite some time until the current action finishes.
+		}
+		else {
+			qWarning() << "AMListAction: Warning: pauseImplementation() was called at an unexpected time. No action is running.";
+		}
+		// when the action changes to the Paused state, we'll pick that up in internalOnSubActionStateChanged() and notifyPaused().
+	}
+
+	// parallel mode:
+	/////////////////////
+	else {
+		// because we can trust that canPause() was true for all, let's just tell all of our actions to pause.
+		foreach(AMAction* action, subActions_) {
+			action->pause();	// this will fail for completed actions, but that's OK.
+		}
+		// when ALL of the still-running actions change to the Paused state, we'll pick that up in internalOnSubActionStateChanged() and notifyPaused().
+	}
 }
 
 void AMListAction::resumeImplementation()
 {
+	// If this is called by the base class, we know that we're now in Resuming and used to be in Pause.
+	if(subActionMode() == SequentialMode) {
+		// The currentSubAction() will either be Paused (if it supported pausing when we were paused), or Constructed (if the last action didn't support pausing and completed; now we're at the beginning of the next one).
+		if(currentSubAction()) {
+			if(currentSubAction()->state() == Paused)
+				currentSubAction()->resume();
+			else if(currentSubAction()->state() == Constructed) {
+				internalConnectAction(currentSubAction());
+				currentSubAction()->start();
+			}
+			else
+				qWarning() << "AMListAction: Warning: Asked to resume, but the current action is not paused.";
+		}
+		else {
+			qWarning() << "AMListAction: Warning: Asked to resume unexpectedly: there is no current action to resume.";
+		}
+	}
+	// Parallel mode:
+	////////////////////////
+	else {
+		// we know that we were in Paused (aka: all actions finished pausing), and that canPause() was true, so we can tell them all to resume.
+		foreach(AMAction* action, subActions_) {
+			if(!action->inFinalState())
+				action->resume();
+		}
+	}
 }
 
 void AMListAction::cancelImplementation()
 {
+	// sequential mode
+	if(subActionMode() == SequentialMode) {
+		if(currentSubAction()) {
+			if(currentSubAction()->state() == Constructed)	// this sub-action not connected or run yet. Don't need to cancel it. (This could happen if we are paused between actions and currentSubAction() hasn't been started yet.)
+				notifyCancelled();
+			else
+				currentSubAction()->cancel(); // action is already connected and running. Need to cancel it. We'll pick it up in internalOnSubActionStateChanged
+		}
+		else {
+			notifyCancelled();
+		}
+	}
+	// Parallel mode:
+	else {
+		// this won't be called unless startImplementation() has already been given. In that case, all actions have been connected and started. Try to cancel all the ones that aren't finished already.
+		foreach(AMAction* action, subActions_)
+			if(!action->inFinalState())
+				action->cancel();
+	}
 }
 
 
 void AMListAction::internalOnSubActionStateChanged(int newState, int oldState)
 {
+	Q_UNUSED(oldState)
+
 	// sequential mode: could only come from the current action
 	if(subActionMode() == SequentialMode) {
 		switch(newState) {
 		case WaitingForPrereqs:
+			// If we were paused between actions and resuming, the next action is now running...
+			if(state() == Resuming)
+				notifyResumed();
 			return;
 		case Starting:
+			// If we were paused between actions and resuming, the next action is now running...
+			if(state() == Resuming)
+				notifyResumed();
 			return;
 		case Running:
-			if(state() == Resuming && oldState == Resuming)
+			// If we had a current action paused:
+			if(state() == Resuming)
 				notifyResumed();
 			return;
 		case Pausing:
 			return;
 		case Paused:
 			// the current action paused, so now we're paused. This will only happen if the current action supports pause and transitioned to it.
-			if(state() == Pausing && oldState == Pausing)
+			if(state() == Pausing) {
 				notifyPaused();
+			}
+			else {
+				qWarning() << "AMListAction: Warning: A sub-action was paused without cancelling its parent list action. This should not happen.";
+			}
 			return;
 		case Resuming:
 			return;
 		case Cancelling:
 			return;
 		case Cancelled:
-			internalDisconnectAction(currentSubAction());
-			notifyCancelled();
+			if(state() == Cancelling) {
+				internalDisconnectAction(currentSubAction());
+				notifyCancelled();
+			}
+			else {
+				qWarning() << "AMListAction: Warning: A sub-action was cancelled without cancelling its parent list action. This should not happen.";
+			}
 			return;
 		case Succeeded:
+			// in sequential mode, always move on to the next action here.
 			internalDisconnectAction(currentSubAction());
-			// Are we on the last action? If we are, we're done no matter what [even if supposed to be pausing]
-			if(++currentSubActionIndex_ == subActionCount()-1) {
+			emit currentSubActionChanged(++currentSubActionIndex_);
+			// Are we done the last action? If we are, we're done no matter what [even if supposed to be pausing]
+			if(currentSubActionIndex_ == subActionCount()) {
 				notifySucceeded();
 				return;
 			}
@@ -182,23 +276,72 @@ void AMListAction::internalOnSubActionStateChanged(int newState, int oldState)
 				notifyPaused();
 				return;
 			}
-			// if we were running and an action has completed, time to move on to next
+			// if we were running and an action has completed, time to start the next action. currentSubAction() has already been advanced for us.
 			if(state() == Running) {
 				internalConnectAction(currentSubAction());
 				currentSubAction()->start();
 				return;
 			}
+			qWarning() << "AMListAction: Warning: A sub-action succeeded when we weren't expecting it to be running.";
+			return;
 		case Failed:
 			internalDisconnectAction(currentSubAction());
 			notifyFailed();
 			return;
 		}
-		qWarning() << "AMListAction: Unexpected sub-action state transition. Sub-action state:" << newState << "Sub-action previous state:" << oldState << "Our state:" << (int)state() << "Our previous state:" << (int)previousState();
 	}
 
 	// parallel mode:
+	/////////////////////////
 	else {
-
+		switch(newState) {
+		case WaitingForPrereqs:
+			return;
+		case Starting:
+			return;
+		case Running:
+			if(state() == Resuming) {
+				if(internalAllActionsRunningOrFinal())
+					notifyResumed();
+			}
+			return;
+		case Pausing:
+			return;
+		case Paused:
+			if(state() == Pausing) {
+				// one of them paused. Are all the actions paused now?
+				if(internalAllActionsPausedOrFinal())
+					notifyPaused();
+			}
+			else
+				qWarning() << "AMListAction: Warning: A sub-action was paused without pausing its parent list action. This should not happen.";
+			return;
+		case Resuming:
+			return;
+		case Cancelling:
+			return;
+		case Cancelled:
+			if(state() != Cancelling)
+				qWarning() << "AMListAction: Warning: A sub-action was cancelled with cancelling its parent list action. This should not happen.";
+			// Continue on to common handling with Succeeded and Failed:
+		case Succeeded:
+		case Failed:
+			// only do something here if all actions are done.
+			if(internalAllActionsInFinalState()) {
+				// disconnect all actions
+				foreach(AMAction* action, subActions_)
+					internalDisconnectAction(action);
+				// Any failures?
+				if(internalAnyActionsFailed())
+					notifyFailed();
+				// Any cancelled?
+				else if(internalAnyActionsCancelled())
+					notifyCancelled();
+				else	 // well, I guess they're all good then. We're done!
+					notifySucceeded();
+			}
+			return;
+		}
 	}
 }
 
@@ -224,4 +367,44 @@ void AMListAction::internalDisconnectAction(AMAction *action)
 	disconnect(action, SIGNAL(stateChanged(int,int)), this, SLOT(internalOnSubActionStateChanged(int,int)));
 	disconnect(action, SIGNAL(progressChanged(double,double)), this, SLOT(internalOnSubActionProgressChanged(double,double)));
 	disconnect(action, SIGNAL(statusTextChanged(QString)), this, SLOT(internalOnSubActionStatusTextChanged(QString)));
+}
+
+bool AMListAction::internalAllActionsRunningOrFinal() const
+{
+	bool rf = true;
+	foreach(AMAction* action, subActions_)
+		rf &= (action->state() == Running || action->inFinalState());
+	return rf;
+}
+
+bool AMListAction::internalAllActionsPausedOrFinal() const
+{
+	bool rf = true;
+	foreach(AMAction* action, subActions_)
+		rf &= (action->state() == Paused || action->inFinalState());
+	return rf;
+}
+
+bool AMListAction::internalAllActionsInFinalState() const
+{
+	bool rf = true;
+	foreach(AMAction* action, subActions_)
+		rf &= action->inFinalState();
+	return rf;
+}
+
+bool AMListAction::internalAnyActionsFailed() const
+{
+	foreach(AMAction* action, subActions_)
+		if(action->state() == Failed)
+			return true;
+	return false;
+}
+
+bool AMListAction::internalAnyActionsCancelled() const
+{
+	foreach(AMAction* action, subActions_)
+		if(action->state() == Cancelled)
+			return true;
+	return false;
 }

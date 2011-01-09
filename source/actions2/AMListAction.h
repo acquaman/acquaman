@@ -31,23 +31,27 @@ public:
 	// Sub-actions API
 	//////////////////////
 
+	// Accessor methods:
+
+	/// Returns whether subactions are going to run in parallel or sequentially
+	SubActionMode subActionMode() const { return subActionMode_; }
+
 	/// Returns the number of sub-actions
 	int subActionCount() const { return subActions_.count(); }
-	/// Returns the currently-running sub-action, or 0 if none is running.
-	const AMAction* currentSubAction() const { return subActionAt(currentSubActionIndex()); }
-	/// Returns the currently-running sub-action, or 0 if none is running.
-	AMAction* currentSubAction() { return subActionAt(currentSubActionIndex()); }
-	/// Returns the index of the currently-running sub-action. Returns -1 if prior to running any sub-actions, and subActionCount() if after all sub-actions have been run.
-	int currentSubActionIndex() const { return currentSubActionIndex_; }
 	/// Returns the sub-action at the given index, or 0 if the index is out of range.
 	AMAction* subActionAt(int index);
 	/// Returns the sub-action at the given index, or 0 if the index is out of range.
 	const AMAction* subActionAt(int index) const;
-	/// Returns whether subactions are going to run in parallel or sequentially
-	SubActionMode subActionMode() const { return subActionMode_; }
+
+	/// In SequentialMode, returns the currently-running sub-action, or 0 if none is running.  Always returns 0 in ParallelMode.
+	const AMAction* currentSubAction() const { return subActionAt(currentSubActionIndex()); }
+	/// In SequentialMode, returns the currently-running sub-action, or 0 if none is running.  Always returns 0 in ParallelMode.
+	AMAction* currentSubAction() { return subActionAt(currentSubActionIndex()); }
+	/// In SequentialMode, returns the index of the currently-running sub-action. Returns -1 if prior to running any sub-actions, and subActionCount() if all sub-actions have been run.  Always returns -1 in ParalleMode.
+	int currentSubActionIndex() const { return currentSubActionIndex_; }
 
 
-
+	// Modification methods:
 
 	/// Appends a sub-action to the end of the sub-actions list. (Fails and returns false if the action is already running.)
 	/*! The action takes ownership of its sub-actions and will delete them when deleted */
@@ -65,17 +69,25 @@ public:
 	// Re-implemented public functions
 	///////////////////////
 
-	/// Re-implemented from AMAction to indicate we can pause. In sequential mode we can pause if the current action can pause, or there's more than one action (ie: we can pause between actions). In parallel mode, we can pause if all of our parallel actions can pause.  If there are no sub-actions, we cannot pause because the action would run instantly.
+	/// Re-implemented from AMAction to indicate we can pause. In sequential mode we can pause if the current action is running and can pause, OR if there's more than one action (ie: we can pause between actions). In parallel mode, we can pause if all of our still-running parallel actions can pause.  If there are no sub-actions, we cannot pause because the action would run instantly.
 	virtual bool canPause() const;
 
 signals:
 
 	// These signals help views that want to be informed when sub-actions are created or removed
+	/// Emitted before a sub-action is added at \c index.
 	void subActionAboutToBeAdded(int index);
+	/// Emitted right after a sub-action is added at \c index
 	void subActionAdded(int index);
+	/// Emitted right before the sub-action at \c index is removed
 	void subActionAboutToBeRemoved(int index);
+	/// Emitted right after the sub-action (that used to be at \c index) is removed.
 	void subActionRemoved(int index);
 
+
+	/// Only in Sequential Mode: Emitted when one action finishes. currentSubActionIndex() and currentSubAction() will be updated to refer to the next action _as soon as_ the preceeding action succeeds. Note that this will be emitted with \c newSubActionIndex == subActionCount() when finishing the last action.
+	/*! (If we are Pausing and waiting to stop between sequential actions, this signal will still be emitted and currentSubAction() will point to the next action, but that action will not be started yet.)  */
+	void currentSubActionChanged(int newSubActionIndex);
 
 
 public slots:
@@ -83,30 +95,45 @@ public slots:
 
 protected:
 
-	// re-implemented from AMAction
+	// Required implementation functions for AMAction classes.
 
-	/// This function is called from the Starting state when the implementation should initiate the action. We start either our first action, or all of them in parallel.
+	/// This function is called from the Starting state when the implementation should initiate the action. In SequentialMode, we start() the first action. In ParallelMode, we start() all of them.  If there are no sub-actions, we will report starting and finishing immediately.
 	virtual void startImplementation();
 
-	/// For actions which support pausing, this function is called from the Pausing state when the implementation should pause the action. If running in sequential mode, we can pause -- either the current action, or pause between
+	/// For actions which support pausing, this function is called from the Pausing state when the implementation should pause the action. If running in sequential mode, we can pause -- either the current action, or pause between actions. In parallel mode, we pause all the still-running actions. (If actions have finished or failed already, we ignore those and pause the ones still running.)
 	virtual void pauseImplementation();
 
-	/// For actions that support resuming, this function is called from the Paused state when the implementation should resume the action. Once the action is running again, you should call notifyResumed().
+	/// For actions that support resuming, this function is called from the Paused state when the implementation should resume the action. In SequentialMode, this will either resume the current action (if it supported pausing), or -- when paused between actions -- start the next one. In ParallelMode, this will resume all actions that haven't finished already.
 	virtual void resumeImplementation();
 
-	/// All implementations must support cancelling. This function will be called from the Cancelling state. Implementations will probably want to examine the previousState(), which could be any of Starting, Running, Pausing, Paused, or Resuming. Once the action is cancelled and can be deleted, you should call notifyCancelled().
-	/*! \note If startImplementation() was never called, you won't receive this when a user tries to cancel(); the base class will handle it for you. */
+	/// All implementations must support cancelling. This function will be called from the Cancelling state. In SequentialMode, we cancel() the currently running action (unless we're paused between actions.)  In ParallelMode, we cancel all the still-running actions.
 	virtual void cancelImplementation();
 
 private:
+	/// Ordered list of sub-actions
 	QList<AMAction*> subActions_;
+	/// Whether to run sub-actions sequentially or in parallel
 	SubActionMode subActionMode_;
+	/// In SequentialMode, indicates the current sub-action. This is -1 before starting, 0 immediately after starting, and equals subActionCount() when all actions are done.  It is updated immediately after the previous sub-action succeeds. If we are Pausing and supposed to stop between actions, it is still advanced, but the next action is not yet started().
 	int currentSubActionIndex_;
 
 	/// Helper function to connect a sub-action to our state-monitoring slots
 	void internalConnectAction(AMAction* action);
 	/// Helper function to disconnect a sub-action from our state-monitoring slots
 	void internalDisconnectAction(AMAction* action);
+
+	// Helper functions to check the state of all actions when running in ParallelMode
+	/////////////////
+	/// Returns true if all actions are in a final state (Succeeded, Failed, or Cancelled)
+	bool internalAllActionsInFinalState() const;
+	/// Returns true if all actions are running, or in a final state
+	bool internalAllActionsRunningOrFinal() const;
+	/// Returns true if all actions are paused, or in a final state
+	bool internalAllActionsPausedOrFinal() const;
+	/// Returns true if ANY actions are in the failed state
+	bool internalAnyActionsFailed() const;
+	/// Returns true if ANY actions are in the cancelled state.
+	bool internalAnyActionsCancelled() const;
 
 private slots:
 	/// Called when any of the sub-actions changes state.
