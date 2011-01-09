@@ -54,6 +54,7 @@ int AMAcqScanSpectrumOutput::startRecord( acqKey_t key, int eventno)
 	acqTextOutput::startRecord(key, eventno);
 
 	to->dataPackage_.clear();
+	to->spectraPackage_.clear();
 	to->dataDelayList_.clear();
 	to->spectraDelayList_.clear();
 	to->dataDelay_ = true;
@@ -79,6 +80,11 @@ int AMAcqScanSpectrumOutput::endRecord( acqKey_t key, int eventno)
 		ae->dataPackage_.insert(i.key(), i.value());
 		i++;
 	}
+	QMap<int, QList<double> >::const_iterator j = to->spectraPackage_.constBegin();
+	while(j != to->spectraPackage_.constEnd()){
+		ae->spectraPackage_.insert(j.key(), j.value());
+		j++;
+	}
 	QCoreApplication::postEvent(to->scanController_, ae);
 	return acqTextSpectrumOutput::endRecord(key, eventno);
 
@@ -94,9 +100,10 @@ int AMAcqScanSpectrumOutput::putValue( acqKey_t key, int eventno, int pvno, cons
 	}
 
 	if( (eventno == 1) && (pvno != 0) && !to->lockHash_){
-		if(pvpr->isSpectrum)
-			to->pvnoToColumn_[pvno] = to->specColNo_++;
-		else
+		#warning "David: check if this still needs to be done"
+		//if(pvpr->isSpectrum)
+		//	to->pvnoToColumn_[pvno] = to->specColNo_++;
+		//else
 			to->pvnoToColumn_[pvno] = to->colNo_++;
 	}
 
@@ -175,6 +182,9 @@ int AMAcqScanSpectrumOutput::putValue( acqKey_t key, int eventno, int pvno, cons
 			to->dataPackage_.insert(0, dataVal);
 		else
 			to->dataPackage_.insert(to->pvnoToColumn_[pvno]+1, dataVal);
+	}
+	else if( (eventno == 1) && pvpr->isSpectrum ){
+		to->spectraPackage_.insert(to->pvnoToColumn_[pvno]+1, spectraVal);
 	}
 	/*
 	if(!to->dataDelay_){

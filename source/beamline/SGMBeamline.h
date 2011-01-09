@@ -85,6 +85,7 @@ public:
 	AMControlSet* trackingSet() const { return trackingSet_;}
 	AMControlSet* ssaManipulatorSet() const { return ssaManipulatorSet_; }
 	AMDetectorInfoSet* allDetectors() const { return allDetectors_;}
+	AMDetectorInfoSet* feedbackDetectors() const { return feedbackDetectors_;}
 	AMDetectorInfoSet* XASDetectors() const { return XASDetectors_;}
 
 	AMSamplePlate* currentSamplePlate() const { return currentSamplePlate_; }
@@ -216,6 +217,7 @@ protected:
 	AMControlSet *trackingSet_;
 	AMControlSet *ssaManipulatorSet_;
 	AMDetectorInfoSet *allDetectors_;
+	AMDetectorInfoSet *feedbackDetectors_;
 	AMDetectorInfoSet *XASDetectors_;
 
 	QList<AMControlSet*> unconnectedSets_;

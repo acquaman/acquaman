@@ -55,6 +55,7 @@ signals:
 protected:
 	AMControlSet *fluxResolutionSet_;
 	AMControlSet *trackingSet_;
+	AMDetectorInfoSet *feedbackDetectors_;
 	AMDetectorInfoSet *XASDetectors_;
 	AMDetectorInfoSet *cfgXASDetectors_;
 

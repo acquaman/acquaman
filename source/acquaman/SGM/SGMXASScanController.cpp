@@ -1,6 +1,7 @@
 #include "SGMXASScanController.h"
 
 #include "dataman/SGM2004FileLoader.h"
+#include "analysis/AM1DExpressionAB.h"
 #include "dataman/AMRawDataSource.h"
 
 /// If this had a one-line documented comment, I would know how to interpret these two strings. Are they the name and the channel expression? The expression and the x-expression?
@@ -12,8 +13,9 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 	beamlineInitialized_ = false;
 
 	QList<AMDetectorInfo*> scanDetectors = pCfg_()->usingDetectors();
-	scanDetectors.prepend(SGMBeamline::sgm()->i0Detector());
-	scanDetectors.prepend(SGMBeamline::sgm()->eVFbkDetector());
+	//scanDetectors.prepend(SGMBeamline::sgm()->i0Detector());
+	//scanDetectors.prepend(SGMBeamline::sgm()->eVFbkDetector());
+
 
 
 
@@ -30,6 +32,33 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 		AMDetectorInfo* detectorInfo = scanDetectors.at(i);
 		pScan_()->rawData()->addMeasurement(AMMeasurementInfo(*detectorInfo));
 		pScan_()->addRawDataSource(new AMRawDataSource(pScan_()->rawData(), i));
+	}
+
+	QList<AMDataSource*> raw1DDataSources;
+	for(int i=0; i<pScan_()->rawDataSources()->count(); i++)
+		if(pScan_()->rawDataSources()->at(i)->rank() == 1)
+			raw1DDataSources << pScan_()->rawDataSources()->at(i);
+
+	int rawTeyIndex = pScan_()->rawDataSources()->indexOf("tey");
+	int rawTfyIndex = pScan_()->rawDataSources()->indexOf("tfy");
+	int rawI0Index = pScan_()->rawDataSources()->indexOf("I0");
+
+	if(rawTeyIndex != -1 && rawI0Index != -1) {
+		AM1DExpressionAB* teyChannel = new AM1DExpressionAB("tey_n");
+		teyChannel->setDescription("Normalized TEY");
+		teyChannel->setInputDataSources(raw1DDataSources);
+		teyChannel->setExpression("tey/I0");
+
+		pScan_()->addAnalyzedDataSource(teyChannel);
+	}
+
+	if(rawTfyIndex != -1 && rawI0Index != -1) {
+		AM1DExpressionAB* tfyChannel = new AM1DExpressionAB("tfy_n");
+		tfyChannel->setDescription("Normalized TFY");
+		tfyChannel->setInputDataSources(raw1DDataSources);
+		tfyChannel->setExpression("-tfy/I0");
+
+		pScan_()->addAnalyzedDataSource(tfyChannel);
 	}
 
 	/// \bug CRITICAL Removed creating default channels. They were never set anyway (nothing called the old AMXASScan::setDefaultChannels(); )

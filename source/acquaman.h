@@ -38,6 +38,7 @@ public:
 	{}
 
 	QMap<int, double> dataPackage_;
+	QMap<int, QList<double> > spectraPackage_;
 };
 
 class AMDbObject;
