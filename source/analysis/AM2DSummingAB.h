@@ -32,7 +32,7 @@ public:
 	// Creating editors for editing parameters
 	////////////////////////////////////
 	/// Create, connect, and return a widget suitable for displaying/editing the expressions.
-	virtual QWidget* createEditorWidget() { return 0; }
+	virtual QWidget* createEditorWidget();
 
 
 
@@ -62,6 +62,7 @@ public:
 					newVal += (double)inputSource_->value(AMnDIndex(indexes.i(), i));
 
 			cachedValues_[indexes.i()] = newVal;
+			cacheCompletelyInvalid_ = false;
 			return newVal;
 		}
 		// otherwise return the value we have.
@@ -97,7 +98,7 @@ public:
 	///////////////////////////
 	/// Specify the axis which is summed along. (The size() of the output thus becomes the size of the other axis.) This must be 0 or 1.
 	void setSumAxis(int sumAxis) {
-		if(sumAxis >= 2)
+		if((unsigned)sumAxis >= 2)
 			return;
 
 		if(sumAxis == sumAxis_)
@@ -109,9 +110,8 @@ public:
 		// if we have a data source, set our output axisInfo to match the input source's other axis. This also changes our size.
 		if(inputSource_) {
 			axes_[0] = inputSource_->axisInfoAt(otherAxis);
-			setDescription(QString("%1: %2 summed along the %3 axis")
+			setDescription(QString("%1 summed (over %2)")
 						   .arg(inputSource_->name())
-						   .arg(inputSource_->description())
 						   .arg(inputSource_->axisInfoAt(sumAxis_).name));
 		}
 
@@ -166,7 +166,10 @@ protected slots:
 
 
 protected:
+	/// Cached previously-summed values.  Either they don't need to be re-calculated, or they're AMNumber::Null and do need to be recalculated.
 	mutable QVector<AMNumber> cachedValues_;
+	/// Optimization: invalidating the cache with invalid() requires clearing all values in it. If we've just done this, we can avoid re-doing it until there's actually something to clear.
+	mutable bool cacheCompletelyInvalid_;
 
 	AMDataSource* inputSource_;	// our single input source, or 0 if we don't have one.
 
@@ -175,7 +178,10 @@ protected:
 
 	/// helper function to clear the cachedValues_
 	void invalidateCache() {
-		cachedValues_ = QVector<AMNumber>(axes_.at(0).size);	// everything in there is now AMNumber::Null.
+		if(!cacheCompletelyInvalid_ || cachedValues_.size() != axes_.at(0).size) {
+			cachedValues_ = QVector<AMNumber>(axes_.at(0).size);	// everything in there is now AMNumber::Null.
+			cacheCompletelyInvalid_ = true;
+		}
 	}
 
 
@@ -187,7 +193,7 @@ protected:
 			return;
 		}
 
-		int s = axes_.at(0).size;
+		int s = inputSource_->size(sumAxis_);
 
 		if(sumRangeMin_ >= s || sumRangeMax_ >= s) {
 			setState(AMDataSource::InvalidFlag);
@@ -199,5 +205,6 @@ protected:
 
 
 };
+
 
 #endif // AM2DSUMMINGAB_H

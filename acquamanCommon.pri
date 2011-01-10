@@ -245,7 +245,8 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
     source/dataman/AMDataTreeDataStore.h \
     source/dataman/AMInMemoryDataStore.h \
     source/analysis/AM2DSummingAB.h \
-    source/analysis/AMStandardAnalysisBlock.h
+    source/analysis/AMStandardAnalysisBlock.h \
+    source/analysis/AM2DSummingABEditor.h
 FORMS += source/ui/AbsorptionScanController.ui \
 	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
@@ -430,6 +431,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
     source/dataman/AMDataTreeDataStore.cpp \
     source/dataman/AMInMemoryDataStore.cpp \
     source/analysis/AM2DSummingAB.cpp \
-    source/analysis/AMStandardAnalysisBlock.cpp
+    source/analysis/AMStandardAnalysisBlock.cpp \
+    source/analysis/AM2DSummingABEditor.cpp
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc

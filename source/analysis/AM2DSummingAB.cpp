@@ -9,10 +9,12 @@ AM2DSummingAB::AM2DSummingAB(const QString& outputName, QObject* parent)
 	sumRangeMax_ = 0;
 
 	inputSource_ = 0;
+	cacheCompletelyInvalid_ = false;
 	// leave sources_ empty for now.
 
 	axes_ << AMAxisInfo("invalid", 0, "No input data");
 	setState(AMDataSource::InvalidFlag);
+
 }
 
 /// This constructor is used to reload analysis blocks directly out of the database
@@ -24,6 +26,7 @@ AM2DSummingAB::AM2DSummingAB(AMDatabase* db, int id)
 	sumRangeMax_ = 0;
 
 	inputSource_ = 0;
+	cacheCompletelyInvalid_ = false;
 	// leave sources_ empty for now.
 
 	axes_ << AMAxisInfo("invalid", 0, "No input data");
@@ -78,9 +81,8 @@ void AM2DSummingAB::setInputDataSourcesImplementation(const QList<AMDataSource*>
 		int otherAxis = (sumAxis_ == 0) ? 1 : 0;
 		axes_[0] = inputSource_->axisInfoAt(otherAxis);
 
-		setDescription(QString("%1: %2 summed along the %3 axis")
+		setDescription(QString("%1 Summed (over %2)")
 					   .arg(inputSource_->name())
-					   .arg(inputSource_->description())
 					   .arg(inputSource_->axisInfoAt(sumAxis_).name));
 
 		connect(inputSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
@@ -121,7 +123,7 @@ void AM2DSummingAB::onInputSourceSizeChanged() {
 	int otherAxis = (sumAxis_ == 0) ? 1 : 0;
 	if(axes_.at(0).size != inputSource_->size(otherAxis)) {
 		axes_[0].size = inputSource_->size(otherAxis);
-		cachedValues_.resize(axes_.at(0).size);
+		cachedValues_.resize(axes_.at(0).size);	// resize() will fill in with default-constructed value for AMNumber(), which is AMNumber::Null. So this keeps cache invalid (if was previously invalid), and nulls the new values so they are calculated as required.
 		emitSizeChanged(0);
 	}
 }
@@ -134,3 +136,9 @@ void AM2DSummingAB::onInputSourceStateChanged() {
 	// just in case the size has changed while the input source was invalid, and now it's going valid.  Do we need this? probably not, if the input source is well behaved. But it's pretty inexpensive to do it twice... and we know we'll get the size right everytime it goes valid.
 	onInputSourceSizeChanged();
 }
+
+#include "analysis/AM2DSummingABEditor.h"
+QWidget* AM2DSummingAB::createEditorWidget() {
+	return new AM2DSummingABEditor(this);
+}
+
