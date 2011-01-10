@@ -39,8 +39,8 @@ bool AMControl::searchSetChildren(QMap<QString, double> *controlList, QMap<QStri
 	AMControl* tmpCtrl = NULL;
 	// Run through all the children, check for shouldn't move and can't move errors
 	// Insert in the list of executable instances, remove from the "unfounds" list
-	for(int x = 0; x < numChildren(); x++){
-		tmpCtrl = child(x);
+	for(int x = 0; x < childControlCount(); x++){
+		tmpCtrl = childControlAt(x);
 		qDebug() << "Inspecting " << tmpCtrl->objectName();
 		if(controlList->contains(tmpCtrl->objectName())){
 			qDebug() << "Checking against " << tmpCtrl->objectName() << " should " << tmpCtrl->shouldMove() << " can " << tmpCtrl->canMove();
@@ -55,7 +55,7 @@ bool AMControl::searchSetChildren(QMap<QString, double> *controlList, QMap<QStri
 		}
 		// Call recursively on all grandchildren (CHECK TO SEE IF NO CHILDREN?, SAVE A CALL)
  //       for(int y = 0; y < tmpCtrl->numChildren(); y++){
-		if(tmpCtrl->numChildren() > 0)
+		if(tmpCtrl->childControlCount() > 0)
 			if(!tmpCtrl->searchSetChildren(controlList, executeList, errorLevel))
 				return false;
  //       }
@@ -319,8 +319,9 @@ AMPVwStatusControl::AMPVwStatusControl(const QString& name, const QString& readP
 	setpoint_ = 0;
 	moveStartTimeout_ = moveStartTimeoutSeconds;
 
-	// create new setpoint PV
+	// create new setpoint PV. Monitor it, in case someone else changes it
 	writePV_ = new AMProcessVariable(writePVname, true, this);
+
 	// connect:
 	connect(writePV_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
 	connect(writePV_, SIGNAL(error(int)), this, SLOT(onPVError(int)));

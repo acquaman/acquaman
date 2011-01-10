@@ -35,6 +35,8 @@ protected slots:
 
 	void onDatabaseUpdate(const QString&, int);
 
+	int findIndexForRunId(int runId) const;
+
 signals:
 	void currentRunIdChanged(int runId);
 

@@ -1,7 +1,10 @@
 #include "SGMXASScanController.h"
 
 #include "dataman/SGM2004FileLoader.h"
+#include "analysis/AM1DExpressionAB.h"
+#include "dataman/AMRawDataSource.h"
 
+/// If this had a one-line documented comment, I would know how to interpret these two strings. Are they the name and the channel expression? The expression and the x-expression?
 typedef QPair<QString, QString> chPair;
 
 SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
@@ -9,37 +12,57 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 	_pCfg_ = & specificCfg_;
 	beamlineInitialized_ = false;
 
-	QList<AMDetectorInfo*> scanDetectors;
-	scanDetectors = pCfg_()->usingDetectors();
-	scanDetectors.prepend(SGMBeamline::sgm()->i0Detector());
-	scanDetectors.prepend(SGMBeamline::sgm()->eVFbkDetector());
+	QList<AMDetectorInfo*> scanDetectors = pCfg_()->usingDetectors();
+	//scanDetectors.prepend(SGMBeamline::sgm()->i0Detector());
+	//scanDetectors.prepend(SGMBeamline::sgm()->eVFbkDetector());
 
-	QList<QPair<QString, QString> > scanChannels;
-	scanChannels = pCfg_()->defaultChannels();
 
-	/*
-	  BIG NOTE TO DAVE:
-	  YOU NEW'D THE SCAN ... SOMEONE ELSE HAS TO TAKE OWNERSHIP OF IT FOR DELETION
-	  opts: function call, new in scan viewer ...
-	  */
-	specificScan_ = new AMXASScan(scanDetectors);
+
+
+	specificScan_ = new AMXASScan();
 	_pScan_ = &specificScan_;
 	pScan_()->setName("SGM XAS Scan");
-	pScan_()->setMetaData("filePath", pCfg_()->filePath()+pCfg_()->fileName());
-	pScan_()->setMetaData("fileFormat", "sgm2004");
+	pScan_()->setFilePath(pCfg_()->filePath()+pCfg_()->fileName());
+	pScan_()->setFileFormat("sgm2004");
 
-	foreach(chPair tmpCh, scanChannels){
-		pScan_()->addChannel(tmpCh.first, tmpCh.second);
+	// Create space in raw data store, and create raw data channels, for each detector.
+
+	for(int i=0; i<scanDetectors.count(); i++) {
+		qDebug() << "Detector at " << i << " is " << scanDetectors.at(i)->name() ;
+		AMDetectorInfo* detectorInfo = scanDetectors.at(i);
+		pScan_()->rawData()->addMeasurement(AMMeasurementInfo(*detectorInfo));
+		pScan_()->addRawDataSource(new AMRawDataSource(pScan_()->rawData(), i));
 	}
 
-	/*
-	pScan_()->addChannel("eV", "eV");
-	foreach(AMDetectorInfo *dtctr, scanDetectors){
-		if(!dtctr->isSpectralOutput())
-			pScan_()->addChannel(dtctr->name().toUpper(), dtctr->name());
-		// What to do if it is spectral?
+	QList<AMDataSource*> raw1DDataSources;
+	for(int i=0; i<pScan_()->rawDataSources()->count(); i++)
+		if(pScan_()->rawDataSources()->at(i)->rank() == 1)
+			raw1DDataSources << pScan_()->rawDataSources()->at(i);
+
+	int rawTeyIndex = pScan_()->rawDataSources()->indexOf("tey");
+	int rawTfyIndex = pScan_()->rawDataSources()->indexOf("tfy");
+	int rawI0Index = pScan_()->rawDataSources()->indexOf("I0");
+
+	if(rawTeyIndex != -1 && rawI0Index != -1) {
+		AM1DExpressionAB* teyChannel = new AM1DExpressionAB("tey_n");
+		teyChannel->setDescription("Normalized TEY");
+		teyChannel->setInputDataSources(raw1DDataSources);
+		teyChannel->setExpression("tey/I0");
+
+		pScan_()->addAnalyzedDataSource(teyChannel);
 	}
-	*/
+
+	if(rawTfyIndex != -1 && rawI0Index != -1) {
+		AM1DExpressionAB* tfyChannel = new AM1DExpressionAB("tfy_n");
+		tfyChannel->setDescription("Normalized TFY");
+		tfyChannel->setInputDataSources(raw1DDataSources);
+		tfyChannel->setExpression("-tfy/I0");
+
+		pScan_()->addAnalyzedDataSource(tfyChannel);
+	}
+
+	/// \bug CRITICAL Removed creating default channels. They were never set anyway (nothing called the old AMXASScan::setDefaultChannels(); )
+
 }
 
 bool SGMXASScanController::isBeamlineInitialized() {
@@ -57,12 +80,27 @@ bool SGMXASScanController::beamlineInitialize(){
 	AMDetectorInfo* tmpDI;
 	for(int x = 0; x < pCfg_()->detectorSet()->count(); x++){
 		tmpDI = pCfg_()->detectorSet()->detectorAt(x);
+		#warning "David please review... Had to change because of removed AMDbObject::typeDescription"
+		/* previously: typeDescription()s were never the safest way to tell what class something was anyway.
 		if(tmpDI->typeDescription() == "PGT SDD Spectrum-Output Detector")
 			((PGTDetector*)(pCfg_()->detectorSet()->detectorAt(x)))->setControls( (PGTDetectorInfo*)pCfg_()->cfgDetectorInfoSet()->detectorAt(x) );
 		else if(tmpDI->typeDescription() == "MCP Detector")
 			((MCPDetector*)(pCfg_()->detectorSet()->detectorAt(x)))->setControls( (MCPDetectorInfo*)pCfg_()->cfgDetectorInfoSet()->detectorAt(x) );
 		else
 			((AMSingleControlDetector*)(pCfg_()->detectorSet()->detectorAt(x)))->setControls( (AMDetectorInfo*)pCfg_()->cfgDetectorInfoSet()->detectorAt(x) );
+			*/
+		// replaced with: use qobject_cast<toType*>(genericType*).  Returns 0 if genericType* is not of the toType type.
+		PGTDetector* pgtDetector;
+		MCPDetector* mcpDetector;
+		AMSingleControlDetector* scDetector;
+
+		if( (pgtDetector = qobject_cast<PGTDetector*>(tmpDI)) )
+			pgtDetector->setControls( (PGTDetectorInfo*)pCfg_()->cfgDetectorInfoSet()->detectorAt(x) );
+		else if( (mcpDetector = qobject_cast<MCPDetector*>(tmpDI)) )
+			mcpDetector->setControls( (MCPDetectorInfo*)pCfg_()->cfgDetectorInfoSet()->detectorAt(x) );
+		else if( (scDetector = qobject_cast<AMSingleControlDetector*>(tmpDI)) )
+			scDetector->setControls( (AMDetectorInfo*)pCfg_()->cfgDetectorInfoSet()->detectorAt(x) );
+
 	}
 
 	beamlineInitialized_ = true;
@@ -70,30 +108,31 @@ bool SGMXASScanController::beamlineInitialize(){
 }
 
 void SGMXASScanController::reinitialize(){
-	//delete specificScan_;
+	/// \bug CRITICAL this was commented out. Why?
+	delete specificScan_;
 
 	QList<AMDetectorInfo*> scanDetectors;
 	scanDetectors = pCfg_()->usingDetectors();
 	scanDetectors.prepend(SGMBeamline::sgm()->i0Detector());
 	scanDetectors.prepend(SGMBeamline::sgm()->eVFbkDetector());
 
-	QList<QPair<QString, QString> > scanChannels;
-	scanChannels = pCfg_()->defaultChannels();
 
-	/*
-	  BIG NOTE TO DAVE:
-	  YOU NEW'D THE SCAN ... SOMEONE ELSE HAS TO TAKE OWNERSHIP OF IT FOR DELETION
-	  opts: function call, new in scan viewer ...
-	  */
-	specificScan_ = new AMXASScan(scanDetectors);
+	specificScan_ = new AMXASScan();
 	_pScan_ = &specificScan_;
 	pScan_()->setName("SGM XAS Scan");
-	pScan_()->setMetaData("filePath", pCfg_()->filePath()+pCfg_()->fileName());
-	pScan_()->setMetaData("fileFormat", "sgm2004");
+	pScan_()->setFilePath(pCfg_()->filePath()+pCfg_()->fileName());
+	pScan_()->setFileFormat("sgm2004");
 
-	foreach(chPair tmpCh, scanChannels){
-		pScan_()->addChannel(tmpCh.first, tmpCh.second);
+	// Create space in raw data store, and create raw data channels, for each detector.
+
+	for(int i=0; i<scanDetectors.count(); i++) {
+		AMDetectorInfo* detectorInfo = scanDetectors.at(i);
+
+		pScan_()->rawData()->addMeasurement(AMMeasurementInfo(*detectorInfo));
+		pScan_()->addRawDataSource(new AMRawDataSource(pScan_()->rawData(), i));
 	}
+
+	/// \bug CRITICAL removed creating default channels. Was never used anyway.
 }
 
 SGMXASScanConfiguration* SGMXASScanController::pCfg_(){

@@ -17,7 +17,7 @@ public:
 	QString formatTag() const { return "sgm2004"; }
 
 	/// load from SGM legacy file format
-	bool loadFromFile(const QString& filepath, bool extractMetaData = true, bool createChannels = true);
+	bool loadFromFile(const QString& filepath, bool setMetaData, bool setRawDataSources, bool createDefaultAnalysisBlocks);
 
 	/// save to SGM legacy file format (\todo UNIMPLEMENTED)
 	bool saveToFile(const QString& filepath) {
@@ -51,8 +51,10 @@ protected:
 
 	/// A forward- and reverse-mapping from meaningful data column names to process variable strings
 	static AMBiHash<QString, QString> columns2pvNames_;
-	QList<AMDetectorInfo*> sgmLegacyDetectors_;
-	QStringList sgmLegacyDetectorNames_;
+
+	/// A list (in order) of the column names that our users might be interested in (ie: those which we should expose the raw data for, by default).  These names should match the column names in columns2pvNames_.
+	QStringList defaultUserVisibleColumns_;
+
 };
 
 

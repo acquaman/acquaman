@@ -7,6 +7,8 @@
 #include <QDateTime>
 #include "dataman/AMXASScan.h"
 #include "dataman/AMDetectorInfo.h"
+#include "AMErrorMonitor.h"
+#include "analysis/AM1DExpressionAB.h"
 
 #include <QDebug>
 
@@ -24,10 +26,16 @@ ALSBL8XASFileLoader::ALSBL8XASFileLoader(AMXASScan* scan) : AMAbstractFileLoader
 		columns2fileFormatHeaders_.set("tey", "Counter 1");
 		columns2fileFormatHeaders_.set("tfy", "Counter 2");
 	}
+
+	defaultUserVisibleColumns_ << "tey";
+	defaultUserVisibleColumns_ << "tfy";
+	defaultUserVisibleColumns_ << "I0";
+	defaultUserVisibleColumns_ << "ringCurrent";
+
 }
 
 
-bool ALSBL8XASFileLoader::loadFromFile(const QString& filepath, bool extractMetaData, bool createChannels) {
+bool ALSBL8XASFileLoader::loadFromFile(const QString& filepath, bool setMetaData, bool setRawDataSources, bool createDefaultAnalysisBlocks) {
 
 	// not initialized to have a scan target, or scan target is not an AMXASScan...
 	AMXASScan* scan = qobject_cast<AMXASScan*>(scan_);
@@ -53,8 +61,7 @@ bool ALSBL8XASFileLoader::loadFromFile(const QString& filepath, bool extractMeta
 	}
 	QTextStream fs(&f);
 
-
-	if(extractMetaData) {
+	if(setMetaData) {
 		// Start reading the file. look for the count-time line.
 		while( !fs.atEnd() && !(line = fs.readLine()).startsWith("Count Time (s):") )
 			;
@@ -111,13 +118,23 @@ bool ALSBL8XASFileLoader::loadFromFile(const QString& filepath, bool extractMeta
 
 	}
 
-	// ensure raw data columns exist:
-	scan->d_->removeAll();
+	// clear the existing raw data (and raw data sources, if we're supposed to)
+	if(setRawDataSources)
+		scan->clearRawDataPointsAndMeasurementsAndDataSources();
+	else
+		scan->clearRawDataPointsAndMeasurements();
+
+	// There is a rawData scan axis called "eV" created in the constructor.  AMAxisInfo("eV", 0, "Incident Energy", "eV")
+	/// \todo What if there isn't? Should we check, and create the axis if none exist? What if there's more than one scan axis? Can't remove from AMDataStore... [The rest of this code assumes a single scan axis]
+
+	// add scalar (0D) measurements to the raw data store, for each data column.  Also add raw data sources to the scan, which expose this data.
 	foreach(QString colName, colNames1) {
-		if(colName != "eV"){
-			scan->addDetector(new AMDetectorInfo(colName, false));
+		if(colName != "eV" && colName != "Event-ID") {
+			scan->rawData()->addMeasurement(AMMeasurementInfo(colName, colName));	/// \todo nice descriptions for the common column names; not just 'tey' or 'tfy'.
 		}
 	}
+
+	int eVAxisIndex = 0;	// counter for each datapoint along the scan axis.
 
 	// read all the data. Add to data columns or scan properties depending on the event-ID.
 	while(!fs.atEnd()) {
@@ -128,18 +145,22 @@ bool ALSBL8XASFileLoader::loadFromFile(const QString& filepath, bool extractMeta
 		if( (lp = line.split('\t', QString::SkipEmptyParts)).count() == colNames1.count() ) {
 
 			// append a new datapoint to the data tree (supply primary eV value here)
-			scan->d_->append(lp.at(eVIndex).toDouble());	// insert eV
+			scan->rawData()->beginInsertRows(0);
+			scan->rawData()->setAxisValue(0, eVAxisIndex, lp.at(eVIndex).toDouble());	// insert eV
 
 			// add all columns (but ignore the eV column)
+			int measurementId = 0;
 			for(int i=1; i<colNames1.count(); i++) {
 				if(i!=eVIndex)
-					scan->d_->setLastValue(colNames1.at(i), lp.at(i).toDouble());
+					scan->rawData()->setValue(eVAxisIndex, measurementId++, AMnDIndex(), lp.at(i).toDouble());
 			}
+			eVAxisIndex++;
+			scan->rawData()->endInsertRows();
 		}
 	}
 
 
-	if(extractMetaData) {
+	if(setMetaData) {
 		scan->setNotes(comments);
 		// for a date-time, there is no information saved inside the file format, so the best we can do is look at the file's creation date-time...
 		QFileInfo fi(filepath);
@@ -147,23 +168,60 @@ bool ALSBL8XASFileLoader::loadFromFile(const QString& filepath, bool extractMeta
 		/// \todo integration time... do what with?
 	}
 
-	// If the scan doesn't have any channels yet, it might be helpful to create some.
-	if(createChannels) {
-		/// \todo defaults for what channels to create?
-		// scan->addChannel("eV", "eV");
-		if(colNames1.contains("tey") && colNames1.contains("I0"))
-			scan->addChannel("tey_n", "tey/I0");
-		if(colNames1.contains("tfy") && colNames1.contains("I0"))
-			scan->addChannel("tfy_n", "tfy/I0");
-		if(colNames1.contains("tey"))
-			scan->addChannel("tey_raw", "tey");
-		if(colNames1.contains("tfy"))
-			scan->addChannel("tfy_raw", "tfy");
-		if(colNames1.contains("I0"))
-			scan->addChannel("I0", "I0");
+	// If we need to create the raw data sources...
+	if(setRawDataSources) {
+		// expose the raw data that might be useful to the users
+		foreach(QString visibleColumn, defaultUserVisibleColumns_) {
+			int measurementId = scan->rawData()->idOfMeasurement(visibleColumn);
+			if(measurementId >= 0)
+				scan->addRawDataSource(new AMRawDataSource(scan->rawData(), measurementId));
+		}
 	}
 
-	scan->onDataChanged();
+	/// Not supposed to create the raw data sources.  Do an integrity check on the pre-existing data sources instead... If there's a raw data source, but it's pointing to a non-existent measurement in the data store, that's a problem. Remove it.  \todo Is there any way to incorporate this at a higher level, so that import-writers don't need to bother?
+	else {
+		for(int i=0; i<scan->rawDataSources()->count(); i++) {
+			if(scan->rawDataSources()->at(i)->measurementId() >= scan->rawData()->measurementCount()) {
+				AMErrorMon::report(AMErrorReport(scan, AMErrorReport::Debug, -97, QString("The data in the file didn't match the raw data columns we were expecting. Removing the raw data column '%1')").arg(scan->rawDataSources()->at(i)->name())));
+				scan->deleteRawDataSource(i);
+			}
+		}
+	}
+
+
+	// If the scan doesn't have any channels yet, it might be helpful to create some.
+	if(createDefaultAnalysisBlocks) {
+
+		QList<AMDataSource*> rawDataSources;
+		foreach(AMRawDataSource* ds, scan->rawDataSources()->toList())
+			rawDataSources << ds;
+
+		/// \todo defaults for what channels to create?
+
+		int rawTeyIndex = scan->rawDataSources()->indexOf("tey");
+		int rawTfyIndex = scan->rawDataSources()->indexOf("tfy");
+		int rawI0Index = scan->rawDataSources()->indexOf("I0");
+
+		if(rawTeyIndex != -1 && rawI0Index != -1) {
+			AM1DExpressionAB* teyChannel = new AM1DExpressionAB("tey_n");
+			teyChannel->setDescription("Normalized TEY");
+			teyChannel->setInputDataSources(rawDataSources);
+			teyChannel->setExpression("tey/I0");
+
+			scan->addAnalyzedDataSource(teyChannel);
+		}
+
+		if(rawTfyIndex != -1 && rawI0Index != -1) {
+			AM1DExpressionAB* tfyChannel = new AM1DExpressionAB("tfy_n");
+			tfyChannel->setDescription("Normalized TFY");
+			tfyChannel->setInputDataSources(rawDataSources);
+			tfyChannel->setExpression("tfy/I0");
+
+			scan->addAnalyzedDataSource(tfyChannel);
+		}
+	}
+
+	scan->onDataChanged();	/// \todo Is this still used? What does it mean?
 
 	return true;
 }

@@ -1,6 +1,9 @@
 #include "AMScanView.h"
 #include <QGraphicsWidget>
-
+#include "dataman/AMDataSourceSeriesData.h"
+#include "dataman/AMDataSourceImageData.h"
+#include "MPlot/MPlotImage.h"
+#include "MPlot/MPlotSeries.h"
 #include <QScrollBar>
 
 AMScanViewScanBar::AMScanViewScanBar(AMScanSetModel* model, int scanIndex, QWidget* parent)
@@ -11,13 +14,13 @@ AMScanViewScanBar::AMScanViewScanBar(AMScanSetModel* model, int scanIndex, QWidg
 
 	setObjectName("AMScanViewScanBar");
 	setStyleSheet("QFrame#AMScanViewScanBar { "
-		"background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(81, 81, 81, 255), stop:0.494444 rgba(81, 81, 81, 255), stop:0.5 rgba(64, 64, 64, 255), stop:1 rgba(64, 64, 64, 255));"
-		"border-bottom: 1px solid black;"
-		"}");
+				  "background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(81, 81, 81, 255), stop:0.494444 rgba(81, 81, 81, 255), stop:0.5 rgba(64, 64, 64, 255), stop:1 rgba(64, 64, 64, 255));"
+				  "border-bottom: 1px solid black;"
+				  "}");
 
 
 	exclusiveModeOn_ = false;
-	chButtons_.setExclusive(false);
+	sourceButtons_.setExclusive(false);
 
 	AMScan* source = model->scanAt(scanIndex_);
 
@@ -37,16 +40,16 @@ AMScanViewScanBar::AMScanViewScanBar(AMScanSetModel* model, int scanIndex, QWidg
 
 
 	if(source) {
-		for(int i=0; i<source->numChannels(); i++) {
-			QToolButton* cb = new QToolButton();
-			cb->setMaximumHeight(18);
-			cb->setText(source->channel(i)->name());
-			QColor color = model->data(model->indexForChannel(scanIndex, i), Qt::DecorationRole).value<QColor>();
-			cb->setStyleSheet(QString("color: rgba(%1, %2, %3, %4);").arg(color.red()).arg(color.green()).arg(color.blue()).arg(color.alpha()));
-			cb->setCheckable(true);
-			cb->setChecked(model->data(model->indexForChannel(scanIndex, i), Qt::CheckStateRole).value<bool>());
-			chButtons_.addButton(cb, i);
-			cramBar_->addWidget(cb);
+		for(int i=0; i<source->dataSourceCount(); i++) {
+			QToolButton* sourceButton = new QToolButton();
+			sourceButton->setMaximumHeight(18);
+			sourceButton->setText(source->dataSourceAt(i)->description());	/// \todo description or name? both? name if description is empty?
+			QColor color = model->plotColor(scanIndex, i);
+			sourceButton->setStyleSheet(QString("color: rgba(%1, %2, %3, %4);").arg(color.red()).arg(color.green()).arg(color.blue()).arg(color.alpha()));	/// \todo special buttons, with lines underneath that show the line color / style, and differentiate 1D, 2D datasets.
+			sourceButton->setCheckable(true);
+			sourceButton->setChecked(model->isVisible(scanIndex, i));
+			sourceButtons_.addButton(sourceButton, i);
+			cramBar_->addWidget(sourceButton);
 		}
 	}
 
@@ -71,9 +74,9 @@ AMScanViewScanBar::AMScanViewScanBar(AMScanSetModel* model, int scanIndex, QWidg
 	connect(model, SIGNAL(rowsAboutToBeRemoved(QModelIndex, int, int)), this, SLOT(onRowAboutToBeRemoved(QModelIndex,int,int)));
 	connect(model, SIGNAL(rowsRemoved(QModelIndex, int, int)), this, SLOT(onRowRemoved(QModelIndex,int,int)));
 	connect(model, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(onModelDataChanged(QModelIndex,QModelIndex)));
-	connect(model, SIGNAL(exclusiveChannelChanged(QString)), this, SLOT(onExclusiveChannelChanged(QString)));
+	connect(model, SIGNAL(exclusiveDataSourceChanged(QString)), this, SLOT(onExclusiveDataSourceChanged(QString)));
 
-	connect(&chButtons_, SIGNAL(buttonClicked(int)), this, SLOT(onChannelButtonClicked(int)));
+	connect(&sourceButtons_, SIGNAL(buttonClicked(int)), this, SLOT(onSourceButtonClicked(int)));
 
 	// connect(closeButton_, SIGNAL(clicked()), this, SLOT(onCloseButtonClicked()));
 
@@ -89,51 +92,56 @@ void AMScanViewScanBar::onRowInserted(const QModelIndex& parent, int start, int 
 	}
 
 
-	// it is for us... (parent index is our Scan, and it is a new channel)
+	// it is for us... (parent index is our Scan, and it is a new data source)
 	AMScan* source = model_->scanAt(scanIndex_);
-	// note: AMScanSetModel guarantees only one row inserted at a time
+	// note: AMScanSetModel guarantees only one row inserted at a time, but we don't depend on that...
 	for(int i=start; i<=end; i++) {
-		QToolButton* cb = new QToolButton();
-		cb->setText(source->channel(i)->name());
-		cb->setCheckable(true);
-		QColor color = model_->data(model_->indexForChannel(scanIndex_, i), Qt::DecorationRole).value<QColor>();
-		cb->setStyleSheet(QString("color: rgba(%1, %2, %3, %4);").arg(color.red()).arg(color.green()).arg(color.blue()).arg(color.alpha()));
-		chButtons_.addButton(cb, i);
-		cramBar_->getLayout()->insertWidget(i, cb);
+		QToolButton* newButton = new QToolButton();
+		newButton->setText(source->dataSourceAt(i)->name());
+		newButton->setCheckable(true);
+		newButton->setMaximumHeight(18);
+		QColor color = model_->plotColor(scanIndex_, i);
+		newButton->setStyleSheet(QString("color: rgba(%1, %2, %3, %4);").arg(color.red()).arg(color.green()).arg(color.blue()).arg(color.alpha()));
+		sourceButtons_.addButton(newButton, i);
+		cramBar_->getLayout()->insertWidget(i, newButton);
 		if(exclusiveModeOn_)
-			cb->setChecked( (model_->exclusiveChannel() == source->channel(i)->name()) );
+			newButton->setChecked( (model_->exclusiveDataSourceName() == source->dataSourceAt(i)->name()) );
 		else
-			cb->setChecked(model_->data(model_->index(i,0,parent), Qt::CheckStateRole).value<bool>());
+			newButton->setChecked(model_->isVisible(scanIndex_, i));
 
-		// qDebug() << "added a channel. exclusiveModeOn is: " << exclusiveModeOn_ << ", channelName is:" << source->channel(i)->name() << ", exclusiveChannelName is:" << model_->exclusiveChannel();
+		// qDebug() << "added a data source. exclusiveModeOn is: " << exclusiveModeOn_ << ", source name is:" << source->dataSourceAt(i)->name() << ", exclusiveDataSourceName is:" << model_->exclusiveDataSourceName();
 	}
 
 }
 
-/// before a scan or channel is deleted in the model:  (\todo this one depends on the guarantee that only one row is removed at a time. fix to work with a general model.)
+// before a scan or data source is deleted in the model.
 void AMScanViewScanBar::onRowAboutToBeRemoved(const QModelIndex& parent, int start, int end) {
 	Q_UNUSED(end)
 
-	// check if this isn't one of our channels being deleted.
+	// check if this isn't one of our data sources being deleted.
 	if(parent.internalId() != -1 || parent.row() != scanIndex_) {
 		return;
 	}
 
-	// need to remove the 'start' channel (AMScanSetModel guarantees only one removed at once)
-	delete chButtons_.button(start);
-	// the button group's id's from "start+1" to "count+1" are too high now...
-	for(int i=start+1; i<chButtons_.buttons().count()+1; i++)
-		chButtons_.setId(chButtons_.button(i), i-1);
+
+	// (AMScanSetModel guarantees only one removed at once -- ie: start == end --, but we don't depend on that)
+	for(int di = end; di>=start; di-- ) {
+		delete sourceButtons_.button(di);
+		// the button group's id's from "start+1" to "count+1" are too high now...
+		for(int i=di+1; i<sourceButtons_.buttons().count()+1; i++)
+			sourceButtons_.setId(sourceButtons_.button(i), i-1);
+	}
 }
 
-/// after a scan or channel is deleted in the model:
+// after a scan or data source is deleted in the model:
 void AMScanViewScanBar::onRowRemoved(const QModelIndex& parent, int start, int end) {
 	Q_UNUSED(parent)
 	Q_UNUSED(start)
 	Q_UNUSED(end)
-}
+	}
 
-/// when model data changes.  Possibilities we care about: scan name, and channels visible/not visible.
+// when model data changes.  Possibilities we care about: scan name, and data sources visible/not visible.
+/*! This assumes that topLeft == bottomRight, which is ok, given that AMScanSetModel always emits dataChanged() for single items. */
 void AMScanViewScanBar::onModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight) {
 
 	Q_UNUSED(bottomRight)
@@ -144,86 +152,72 @@ void AMScanViewScanBar::onModelDataChanged(const QModelIndex& topLeft, const QMo
 		nameLabel_->setText(model_->scanAt(scanIndex_)->name() + QString(" #%1").arg(model_->scanAt(scanIndex_)->number()));
 	}
 
-	// changes to one of our channels:
+	// changes to one of our data sources:
 	else if(topLeft.internalId() == scanIndex_) {
 
-		int channelIndex = topLeft.row();
-		AMChannel* channel = model_->channelAt(scanIndex_, channelIndex);
-		chButtons_.button(channelIndex)->setText(channel->name());
+		int dataSourceIndex = topLeft.row();
+		AMDataSource* dataSource = model_->dataSourceAt(scanIndex_, dataSourceIndex);
+		sourceButtons_.button(dataSourceIndex)->setText(dataSource->description());
 		// setting visibility: depends on whether exclusiveMode is on or not
 		if(exclusiveModeOn_)
-			chButtons_.button(channelIndex)->setChecked( (model_->exclusiveChannel() == channel->name()) );
+			sourceButtons_.button(dataSourceIndex)->setChecked( (model_->exclusiveDataSourceName() == dataSource->name()) );
 		else
-			chButtons_.button(channelIndex)->setChecked(model_->data(topLeft, Qt::CheckStateRole).value<bool>());
+			sourceButtons_.button(dataSourceIndex)->setChecked(model_->isVisible(scanIndex_, dataSourceIndex));
 
-		QColor color = model_->data(model_->indexForChannel(scanIndex_, channelIndex), Qt::DecorationRole).value<QColor>();
-		chButtons_.button(channelIndex)->setStyleSheet(QString("color: rgba(%1, %2, %3, %4);").arg(color.red()).arg(color.green()).arg(color.blue()).arg(color.alpha()));
+		QColor color = model_->plotColor(scanIndex_, dataSourceIndex);
+		sourceButtons_.button(dataSourceIndex)->setStyleSheet(QString("color: rgba(%1, %2, %3, %4);").arg(color.red()).arg(color.green()).arg(color.blue()).arg(color.alpha()));
 	}
 }
 
-void AMScanViewScanBar::onChannelButtonClicked(int id) {
-	// if in "exclusive" mode, when clicked, set that channel as the exclusive channel
+void AMScanViewScanBar::onSourceButtonClicked(int id) {
+	// if in "exclusive" mode, when clicked, set that data source as the exclusive data source
 	if(exclusiveModeOn_) {
 		//if(visible == Qt::Checked)
-		model_->setExclusiveChannel(model_->channelAt(scanIndex_, id)->name());
-		chButtons_.button(id)->setChecked(true);
+		model_->setExclusiveDataSourceByName(model_->dataSourceAt(scanIndex_, id)->name());
+		sourceButtons_.button(id)->setChecked(true);
 	}
 	else {
-		Qt::CheckState visible = chButtons_.button(id)->isChecked() ? Qt::Checked : Qt::Unchecked;
-		model_->setData(model_->indexForChannel(scanIndex_, id), QVariant(visible), Qt::CheckStateRole);
+		model_->setVisible(scanIndex_, id, sourceButtons_.button(id)->isChecked());
 	}
 }
 
 
-void AMScanViewScanBar::onExclusiveChannelChanged(const QString &exclusiveChannelName) {
-	// when exclusive mode is on, set checked only when channel(button) name matches
+void AMScanViewScanBar::onExclusiveDataSourceChanged(const QString& exlusiveDataSourceName) {
+	// when exclusive mode is on, set checked only when data source name matches the exclusive one
 	if(exclusiveModeOn_) {
-		int numChannelButtons = chButtons_.buttons().count();
-		for(int ci=0; ci<numChannelButtons; ci++)
-			chButtons_.button(ci)->setChecked( (model_->channelAt(scanIndex_, ci)->name() == exclusiveChannelName) );
+		int numSourceButtons = sourceButtons_.buttons().count();
+		for(int di=0; di<numSourceButtons; di++)
+			sourceButtons_.button(di)->setChecked( (model_->dataSourceAt(scanIndex_, di)->name() == exlusiveDataSourceName) );
 	}
 }
+
 
 void AMScanViewScanBar::setExclusiveModeOn(bool exclusiveModeOn) {
 
 	// turning exclusiveMode on:
 	if(exclusiveModeOn && !exclusiveModeOn_) {
 		exclusiveModeOn_ = true;
-		int numChannelButtons = chButtons_.buttons().count();
-		for(int ci=0; ci<numChannelButtons; ci++) {
-			chButtons_.button(ci)->setChecked( (model_->channelAt(scanIndex_, ci)->name() == model_->exclusiveChannel()) );
+		int numSourceButtons = sourceButtons_.buttons().count();
+		for(int di=0; di<numSourceButtons; di++) {
+			sourceButtons_.button(di)->setChecked( (model_->dataSourceAt(scanIndex_, di)->name() == model_->exclusiveDataSourceName()) );
 		}
-		//chButtons_.setExclusive(true);
 	}
 
 	// turning exclusiveMode off:
 	if(!exclusiveModeOn && exclusiveModeOn_) {
 		exclusiveModeOn_ = false;
 		//chButtons_.setExclusive(false);
-		int numChannelButtons = chButtons_.buttons().count();
-		for(int ci=0; ci<numChannelButtons; ci++) {
-			chButtons_.button(ci)->setChecked( model_->data(model_->indexForChannel(scanIndex_, ci), Qt::CheckStateRole).value<bool>() );
+		int numSourceButtons = sourceButtons_.buttons().count();
+		for(int di=0; di<numSourceButtons; di++) {
+			sourceButtons_.button(di)->setChecked( model_->isVisible(scanIndex_, di) );
 		}
 	}
 }
 
-/*
-void AMScanViewScanBar::onCloseButtonClicked() {
-	model_->removeScan(model_->scanAt(scanIndex_));
-}
-*/
 
 
 
-
-
-
-
-
-
-
-
-AMScanViewChannelSelector::AMScanViewChannelSelector(AMScanSetModel* model, QWidget* parent)
+AMScanViewSourceSelector::AMScanViewSourceSelector(AMScanSetModel* model, QWidget* parent)
 	: QWidget(parent) {
 	model_ = 0;
 	setModel(model);
@@ -237,7 +231,7 @@ AMScanViewChannelSelector::AMScanViewChannelSelector(AMScanSetModel* model, QWid
 }
 
 
-void AMScanViewChannelSelector::setModel(AMScanSetModel* model) {
+void AMScanViewSourceSelector::setModel(AMScanSetModel* model) {
 	// remove anything associated with the old model:
 	if(model_) {
 
@@ -245,10 +239,7 @@ void AMScanViewChannelSelector::setModel(AMScanSetModel* model) {
 			delete scanBars_.takeLast();
 		}
 
-		disconnect(model_, SIGNAL(rowsInserted(QModelIndex, int, int)), this, SLOT(onRowInserted(QModelIndex,int,int)));
-		disconnect(model_, SIGNAL(rowsRemoved(QModelIndex, int, int)), this, SLOT(onRowRemoved(QModelIndex,int,int)));
-		disconnect(model_, SIGNAL(rowsAboutToBeRemoved(QModelIndex, int, int)), this, SLOT(onRowAboutToBeRemoved(QModelIndex,int,int)));
-		disconnect(model_, SIGNAL(dataChanged(QModelIndex, QModelIndex)), this, SLOT(onModelDataChanged(QModelIndex, QModelIndex)));
+		disconnect(model_, 0, this, 0);
 	}
 
 	model_ = model;
@@ -256,7 +247,7 @@ void AMScanViewChannelSelector::setModel(AMScanSetModel* model) {
 	// add the new model, if it's valid.
 	if(model_) {
 		// add existing
-		for(int i=0; i<model_->numScans(); i++) {
+		for(int i=0; i<model_->scanCount(); i++) {
 			AMScanViewScanBar* bar = new AMScanViewScanBar(model_, i);
 			barLayout_->addWidget(bar);
 			scanBars_ << bar;
@@ -271,36 +262,37 @@ void AMScanViewChannelSelector::setModel(AMScanSetModel* model) {
 	}
 }
 
-/// after a scan or channel is added in the model
-void AMScanViewChannelSelector::onRowInserted(const QModelIndex& parent, int start, int end) {
+// after scans or data sources are added in the model
+void AMScanViewSourceSelector::onRowInserted(const QModelIndex& parent, int start, int end) {
 
-	Q_UNUSED(end)
-
-	// top-level: inserting a scan:
+	// top-level: inserting scans:
 	if(!parent.isValid()) {
-		AMScanViewScanBar* bar = new AMScanViewScanBar(model_, start);
-		bar->setExclusiveModeOn(exclusiveModeOn_);
-		barLayout_->insertWidget(start, bar);
-		scanBars_.insert(start, bar);
+		for(int si=start; si<=end; si++) {
+			AMScanViewScanBar* bar = new AMScanViewScanBar(model_, si);
+			bar->setExclusiveModeOn(exclusiveModeOn_);
+			barLayout_->insertWidget(si, bar);
+			scanBars_.insert(si, bar);
+		}
 	}
 
-	// otherwise, inserting a channel. Handled separately by our AMScanViewScanBar's
+	// otherwise, inserting a data source. Handled separately by our AMScanViewScanBar's
 }
 
-/// before a scan or channel is deleted in the model:
-void AMScanViewChannelSelector::onRowAboutToBeRemoved(const QModelIndex& parent, int start, int end) {
-	Q_UNUSED(end)
-	// invalid (top-level) parent: means we're removing a scan
+// before scans or data sources are deleted in the model:
+void AMScanViewSourceSelector::onRowAboutToBeRemoved(const QModelIndex& parent, int start, int end) {
+	// invalid (top-level) parent: means we're removing scans
 	if(!parent.isValid()){
-		delete scanBars_.takeAt(start);
-		// all the scans above this one need to move their scan index down:
-		for(int i=start; i<scanBars_.count(); i++)
-			scanBars_[i]->scanIndex_--;
+		for(int si=end; si>=start; si--) {
+			delete scanBars_.takeAt(si);
+			// all the scans above this one need to move their scan index down:
+			for(int i=si; i<scanBars_.count(); i++)
+				scanBars_[i]->scanIndex_--;
+		}
 	}
 }
 
-/// ScanBars have two behaviours.  When exclusiveMode is on, they only allow one channel to be "checked" or selected at a time, and tell the model to make this the exclusive channel.  Otherwise, they allows multiple channels within each Scan to be checked, and toggle the channels' visibility in the model.
-void AMScanViewChannelSelector::setExclusiveModeOn(bool exclusiveModeOn) {
+// ScanBars have two behaviours.  When exclusiveMode is on, they only allow one data source to be "checked" or selected at a time, and tell the model to make this the exclusive data source.  Otherwise, they allow multiple data sources within each Scan to be checked, and toggle the data sources' visibility in the model.
+void AMScanViewSourceSelector::setExclusiveModeOn(bool exclusiveModeOn) {
 	exclusiveModeOn_ = exclusiveModeOn;
 	foreach(AMScanViewScanBar* bar, scanBars_) {
 		bar->setExclusiveModeOn(exclusiveModeOn);
@@ -339,26 +331,26 @@ AMScanViewModeBar::AMScanViewModeBar(QWidget* parent)
 	QToolButton* multiScansButton_ = new QToolButton();
 	multiScansButton_->setText("M-S");
 	multiScansButton_->setAttribute(Qt::WA_MacBrushedMetal, true);
-	QToolButton* multiChannelsButton_ = new QToolButton();
-	multiChannelsButton_->setText("M-C");
-	multiChannelsButton_->setAttribute(Qt::WA_MacBrushedMetal, true);
+	QToolButton* multiSourcesButton = new QToolButton();
+	multiSourcesButton->setText("M-C");
+	multiSourcesButton->setAttribute(Qt::WA_MacBrushedMetal, true);
 
 	tabButton_->setCheckable(true);
 	overplotButton_->setCheckable(true);
 	multiScansButton_->setCheckable(true);
-	multiChannelsButton_->setCheckable(true);
+	multiSourcesButton->setCheckable(true);
 
 	modeButtons_ = new QButtonGroup(this);
 	modeButtons_->addButton(tabButton_, AMScanView::Tabs);
 	modeButtons_->addButton(overplotButton_, AMScanView::OverPlot);
 	modeButtons_->addButton(multiScansButton_, AMScanView::MultiScans);
-	modeButtons_->addButton(multiChannelsButton_, AMScanView::MultiChannels);
+	modeButtons_->addButton(multiSourcesButton, AMScanView::MultiSources);
 	tabButton_->setChecked(true);
 
 	hl2->addWidget(tabButton_);
 	hl2->addWidget(overplotButton_);
 	hl2->addWidget(multiScansButton_);
-	hl2->addWidget(multiChannelsButton_);
+	hl2->addWidget(multiSourcesButton);
 
 	hl->addLayout(hl2);
 	hl->addStretch(1);
@@ -396,12 +388,14 @@ AMScanViewModeBar::AMScanViewModeBar(QWidget* parent)
 
 
 
-AMScanView::AMScanView(QWidget *parent) :
-	QWidget(parent)
+AMScanView::AMScanView(AMScanSetModel* model, QWidget *parent) :
+		QWidget(parent)
 {
 	mode_ = Invalid;
 
-	scansModel_ = new AMScanSetModel(this);
+	scansModel_ = model;
+	if(scansModel_ == 0)
+		scansModel_ = new AMScanSetModel(this);
 
 	setupUI();
 	makeConnections();
@@ -434,7 +428,7 @@ void AMScanView::setupUI() {
 
 	vl->addWidget(gview_);
 
-	scanBars_ = new AMScanViewChannelSelector();
+	scanBars_ = new AMScanViewSourceSelector();
 	vl->addWidget(scanBars_);
 
 	vl->addSpacing(6);
@@ -453,7 +447,7 @@ void AMScanView::setupUI() {
 	views_ << new AMScanViewExclusiveView(this);
 	views_ << new AMScanViewMultiView(this);
 	views_ << new AMScanViewMultiScansView(this);
-	views_ << new AMScanViewMultiChannelsView(this);
+	views_ << new AMScanViewMultiSourcesView(this);
 
 	for(int i=0; i<views_.count(); i++) {
 		AMScanViewInternal* v = views_.at(i);
@@ -533,7 +527,7 @@ void AMScanView::addScan(AMScan *newScan) {
 	// that's it!  handling the rowsAdded, rowsRemoved signals from the model will take care of everything else.
 }
 
-/// remove a scan from the view:
+// remove a scan from the view:
 void AMScanView::removeScan(AMScan* scan) {
 	scansModel_->removeScan(scan);
 }
@@ -573,7 +567,7 @@ AMScanViewExclusiveView::AMScanViewExclusiveView(AMScanView* masterView) : AMSca
 	plot_->plot()->axisRight()->setTicks(0);
 	plot_->plot()->axisBottom()->setTicks(4);
 	plot_->plot()->axisLeft()->showGrid(false);
-	plot_->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left);
+	plot_->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left | MPlotAxis::Right);
 	plot_->plot()->axisBottom()->showAxisName(false);
 	plot_->plot()->axisLeft()->showAxisName(false);
 
@@ -585,25 +579,18 @@ AMScanViewExclusiveView::AMScanViewExclusiveView(AMScanView* masterView) : AMSca
 	setLayout(gl);
 
 
-	// the list of plotSeries_ needs one element for each scan.
-	for(int scanIndex=0; scanIndex < model()->numScans(); scanIndex++) {
+	// the list of plotItems_ needs one element for each scan.
+	for(int scanIndex=0; scanIndex < model()->scanCount(); scanIndex++) {
 		addScan(scanIndex);
 	}
 
-	connect(model(), SIGNAL(exclusiveChannelChanged(QString)), this, SLOT(onExclusiveChannelChanged(QString)));
+	connect(model(), SIGNAL(exclusiveDataSourceChanged(QString)), this, SLOT(onExclusiveDataSourceChanged(QString)));
 
 	refreshTitle();
 }
 
 AMScanViewExclusiveView::~AMScanViewExclusiveView() {
-	// this isn't really necessary... PlotSeries's will be deleted by as children items of the plot.
-	/*
-	for(int i=0; i<plotSeries_.count(); i++) {
-		if(plotSeries_.at(i)) {
-			plot_->plot()->removeItem(plotSeries_.at(i));
-			delete plotSeries_.at(i);
-		}
-	}*/
+	// PlotSeries's will be deleted as children items of the plot.
 
 	delete plot_;
 }
@@ -612,49 +599,53 @@ AMScanViewExclusiveView::~AMScanViewExclusiveView() {
 
 void AMScanViewExclusiveView::onRowInserted(const QModelIndex& parent, int start, int end) {
 
-	// inserting a scan:
+	// inserting scans:
 	if(!parent.isValid()) {
 		for(int i=start; i<=end; i++)
 			addScan(i);
 	}
 
-	// inserting a channel: (parent.row is the scanIndex, start-end are the channel indices)
+	// inserting data sources: (parent.row is the scanIndex, start-end are the data source indices)
 	else if(parent.internalId() == -1) {
 		reviewScan(parent.row());
 	}
 
 	refreshTitle();
 }
-/// before a scan or channel is deleted in the model:
+// before scans or data sources is deleted in the model:
 void AMScanViewExclusiveView::onRowAboutToBeRemoved(const QModelIndex& parent, int start, int end) {
 
 	// removing a scan: (start through end are the scan index)
 	if(!parent.isValid()) {
 		for(int i=end; i>=start; i--) {
-			if(plotSeries_.at(i)) {
-				plot_->plot()->removeItem(plotSeries_.at(i));
-				delete plotSeries_.at(i);
-				plotSeries_.removeAt(i);
+			if(plotItems_.at(i)) {
+				// unnecessary: deleting an item removes it from its plot: plot_->plot()->removeItem(plotItems_.at(i));
+				delete plotItems_.at(i);
+				plotItems_.removeAt(i);
+				plotItemDataSources_.removeAt(i);
 			}
 		}
 	}
 
-	// removing a channel. parent.row() is the scanIndex, and start - end are the channel indexes.
+	// removing a data source. parent.row() is the scanIndex, and start - end are the data source indexes.
 	else if(parent.internalId() == -1) {
 		int si = parent.row();
 		for(int ci = start; ci<=end; ci++) {
-			// if this channel is acting as the data for a plot series, we're about to lose it.  Remove the plot series and set it to 0.
-			if(plotSeries_.at(si) && model()->channelAt(si, ci) == plotSeries_.at(si)->model()) {
-				plot_->plot()->removeItem(plotSeries_.at(si));
-				delete plotSeries_.at(si);
-				plotSeries_[si] = 0;
+			// Are we displaying the data source that's about to be removed? If we are, we're going to lose it...
+			if(model()->dataSourceAt(si, ci) == plotItemDataSources_.at(si)) {
+				if(plotItems_.at(si)) {
+					// unnecessary: deleting an item removes it from its plot: plot_->plot()->removeItem(plotItems_.at(si));
+					delete plotItems_.at(si);
+					plotItems_[si] = 0;
+				}
+				plotItemDataSources_[si] = 0;
 			}
 		}
 	}
 
 }
 
-/// after a scan or channel is deleted in the model:
+// after a scan or data source is deleted in the model:
 void AMScanViewExclusiveView::onRowRemoved(const QModelIndex& parent, int start, int end) {
 	Q_UNUSED(parent)
 	Q_UNUSED(start)
@@ -663,41 +654,50 @@ void AMScanViewExclusiveView::onRowRemoved(const QModelIndex& parent, int start,
 	refreshTitle();
 
 }
-/// when data changes:
+// when data changes.
 void AMScanViewExclusiveView::onModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight) {
-	Q_UNUSED(topLeft)
-	Q_UNUSED(bottomRight)
 
-	// the one situation we need to worry about here: if the color of a channel changes, and it's the exclusive (currently-displayed) channel, we'll need to re-color the legend
+	// the one situation we need to worry about here: if the color, line pen, or colormap of a data source changes, and it's the exclusive (currently-displayed) data source, we'll need to update the plot item.
 
 	// changes to a scan:
 	if(topLeft.internalId() == -1) {
 		// no changes that we really care about...
 	}
 
-	// changes to one of our channels: internalId is the scanIndex.  Channel index is from topLeft.row to bottomRight.row
-	else if((unsigned)topLeft.internalId() < (unsigned)model()->numScans()) {
+	// changes to one of our data sources: internalId is the scanIndex.  Data source indices are from topLeft.row to bottomRight.row
+	else if((unsigned)topLeft.internalId() < (unsigned)model()->scanCount()) {
 
 		int si = topLeft.internalId();	// si: scan index
-		for(int ci=topLeft.row(); ci<=bottomRight.row(); ci++) {	// ci: channel index
+		for(int di=topLeft.row(); di<=bottomRight.row(); di++) {	// di: data source index
 
-			// if this channel is the exclusive channel:
-			if(model()->channelAt(si, ci)->name() == model()->exclusiveChannel()) {
-				QColor color = model()->data(model()->indexForChannel(si, ci), Qt::DecorationRole).value<QColor>();
-				QPen pen = model()->data(model()->indexForChannel(si, ci), AM::LinePenRole).value<QPen>();
-				pen.setColor(color);
-				plotSeries_.at(si)->setLinePen(pen);
+			AMDataSource* dataSource = model()->dataSourceAt(si, di);
+			// if this data source is the one we're currently displaying...
+			if(dataSource == plotItemDataSources_.at(si)) {
+				switch(dataSource->rank()) {
+				case 1: {
+					QColor color = model()->plotColor(si, di);
+					QPen pen = model()->plotPen(si, di);
+					pen.setColor(color);
+					static_cast<MPlotAbstractSeries*>(plotItems_.at(si))->setLinePen(pen);
+					break; }
+				case 2: {
+					/// \todo This is inefficient... Institute separate signals for different dataChanged() parameters, or check if old color map matches new color map.
+					static_cast<MPlotAbstractImage*>(plotItems_.at(si))->setColorMap(model()->plotColorMap(si, di));
+					break;
+				default:
+					break; }
+				}
 			}
 		}
 	}
 
 }
 
-/// when the model's "exclusive channel" changes. This is the one channel that we display for all of our scans (as long as they have it).
-void AMScanViewExclusiveView::onExclusiveChannelChanged(const QString& exclusiveChannel) {
-	Q_UNUSED(exclusiveChannel)
+// when the model's "exclusive data source" changes. This is the one data source that we display for all of our scans (as long as they have it).
+void AMScanViewExclusiveView::onExclusiveDataSourceChanged(const QString& exclusiveDataSourceName) {
+	Q_UNUSED(exclusiveDataSourceName)
 
-	for(int i=0; i<model()->numScans(); i++) {
+	for(int i=0; i<model()->scanCount(); i++) {
 		reviewScan(i);
 	}
 
@@ -707,73 +707,135 @@ void AMScanViewExclusiveView::onExclusiveChannelChanged(const QString& exclusive
 void AMScanViewExclusiveView::refreshTitle() {
 
 	int numScansShown = 0;
-	foreach(MPlotSeriesBasic* s, plotSeries_)
+	foreach(MPlotItem* s, plotItems_)
 		if(s)
 			numScansShown++;
 
 	QString scanCount = (numScansShown == 1) ? " (1 scan)" : QString(" (%1 scans)").arg(numScansShown);
-	plot_->plot()->legend()->setTitleText(model()->exclusiveChannel() + scanCount);	// result ex: "tey (3 scans)"
+	/// \todo This should show a data source description; not a name. However, we don't know that all the descriptions (for all the data sources matching the exclusive data source) are the same....
+	plot_->plot()->legend()->setTitleText(model()->exclusiveDataSourceName() + scanCount);	// result ex: "tey (3 scans)"
 }
 
-/// Helper function to handle adding a scan (at row scanIndex in the model)
+// Helper function to handle adding a scan (at row scanIndex in the model)
 void AMScanViewExclusiveView::addScan(int scanIndex) {
 
-	QString channelName = model()->exclusiveChannel();
+	QString dataSourceName = model()->exclusiveDataSourceName();
 
-	int channelIndex = model()->scanAt(scanIndex)->indexOfChannel(channelName);
-	AMChannel* channel = model()->channelAt(scanIndex, channelIndex);
+	int dataSourceIndex = model()->scanAt(scanIndex)->indexOfDataSource(dataSourceName);
+	AMDataSource* dataSource = model()->dataSourceAt(scanIndex, dataSourceIndex);	// dataSource will = 0 if this scan doesn't have the exclusive data source in it.
 
-	// does this scan have the "exclusive" channel in it?
-	if(channel) {
-		MPlotSeriesBasic* series = new MPlotSeriesBasic(channel);
+	MPlotItem* newItem = 0;
+	if(dataSource)
+		newItem = createPlotItemForDataSource(dataSource, model()->plotSettings(scanIndex, dataSourceIndex));
 
-		series->setMarker(MPlotMarkerShape::None);
-		QPen pen = model()->data(model()->indexForChannel(scanIndex, channelIndex), AM::LinePenRole).value<QPen>();
-		QColor color = model()->data(model()->indexForChannel(scanIndex, channelIndex), Qt::DecorationRole).value<QColor>();
-		pen.setColor(color);
-		series->setLinePen(pen);
-		series->setDescription(model()->scanAt(scanIndex)->fullName());
-
-		plotSeries_.insert(scanIndex, series);
-		plot_->plot()->addItem(series);
-
+	if(newItem) {
+		newItem->setDescription(model()->scanAt(scanIndex)->fullName());
+		plot_->plot()->addItem(newItem);
 	}
-	else {
-		plotSeries_.insert(scanIndex, 0);
-	}
+	plotItems_.insert(scanIndex, newItem);
+	plotItemDataSources_.insert(scanIndex, dataSource);
+
 }
 
-/// Helper function to handle review a scan when a channel is added or the exclusive channel changes.
+// Helper function to create an appropriate MPlotItem and connect it to the data, depending on the dimensionality of \c dataSource.  Returns 0 if we can't handle this dataSource and no item was created (ex: unsupported dimensionality; we only handle 1D or 2D data for now.)
+MPlotItem* AMScanViewInternal::createPlotItemForDataSource(const AMDataSource* dataSource, const AMDataSourcePlotSettings& plotSettings) {
+	MPlotItem* rv = 0;
+
+	if(dataSource == 0)
+		return 0;
+
+	switch(dataSource->rank()) {	// depending on the rank, we'll need an XY-series or an image to display it. 3D and 4D, etc. we don't handle for now.
+
+	case 1: {
+		MPlotSeriesBasic* series = new MPlotSeriesBasic();
+		series->setModel(new AMDataSourceSeriesData(dataSource), true);
+		series->setMarker(MPlotMarkerShape::None);
+		QPen pen = plotSettings.linePen;
+		pen.setColor(plotSettings.color);
+		series->setLinePen(pen);
+		rv = series;
+		break; }
+
+	case 2: {
+		MPlotImageBasic* image = new MPlotImageBasic();
+		image->setModel(new AMDataSourceImageData(dataSource), true);
+		image->setColorMap(plotSettings.colorMap);
+		image->setYAxisTarget(MPlotAxis::Right);
+		image->setZValue(-1000);
+		rv = image;
+		break; }
+	default:
+		rv = 0;
+		break;
+	}
+
+	return rv;
+}
+
+// Helper function to review a scan when a data source is added or the exclusive data source changes.
 void AMScanViewExclusiveView::reviewScan(int scanIndex) {
 
-	QString channelName = model()->exclusiveChannel();
+	QString dataSourceName = model()->exclusiveDataSourceName();
 
-	int channelIndex = model()->scanAt(scanIndex)->indexOfChannel(channelName);
-	AMChannel* channel = model()->channelAt(scanIndex, channelIndex);
+	int dataSourceIndex = model()->scanAt(scanIndex)->indexOfDataSource(dataSourceName);
+	AMDataSource* dataSource = model()->dataSourceAt(scanIndex, dataSourceIndex);
 
-	// does this scan have the "exclusive" channel in it?
-	if(channel) {
+	// does this scan have the "exclusive" data source in it?
+	if(dataSource) {
 
-		if(plotSeries_.at(scanIndex) == 0) {
-			plotSeries_[scanIndex] = new MPlotSeriesBasic();
-			plot_->plot()->addItem(plotSeries_.at(scanIndex));
-			plotSeries_.at(scanIndex)->setMarker(MPlotMarkerShape::None);
+
+		// the current plot item exists, but it's the wrong type to handle the current scan data. (ie: dataSource->rank() is 2, but we've currently got a plot series instead of a plot image.
+		if(plotItems_.at(scanIndex) && plotItems_.at(scanIndex)->rank() != dataSource->rank() ) {
+			// delete the plot item; we'll recreate the new one of the proper size in the next check.
+			delete plotItems_.at(scanIndex);
+			plotItems_[scanIndex] = 0;
+			plotItemDataSources_[scanIndex] = 0;
 		}
 
-		plotSeries_.at(scanIndex)->setModel(channel);
+		// need to create new plot item for this scan. (Don't have one yet)
+		if(plotItems_.at(scanIndex) == 0) {
+			plotItems_[scanIndex] = createPlotItemForDataSource(dataSource, model()->plotSettings(scanIndex, dataSourceIndex));
+			plotItems_.at(scanIndex)->setDescription(model()->scanAt(scanIndex)->fullName());
+			plot_->plot()->addItem(plotItems_.at(scanIndex));
+			plotItemDataSources_[scanIndex] = dataSource;
+		}
 
-		QPen pen = model()->data(model()->indexForChannel(scanIndex, channelIndex), AM::LinePenRole).value<QPen>();
-		QColor color = model()->data(model()->indexForChannel(scanIndex, channelIndex), Qt::DecorationRole).value<QColor>();
-		pen.setColor(color);
-		plotSeries_.at(scanIndex)->setLinePen(pen);
-		plotSeries_.at(scanIndex)->setDescription(model()->scanAt(scanIndex)->fullName());
+		else {	// We already have one.  Review and update the existing plot item. (When would this be called? // A: When the exclusive data source changes, for one thing. need to change old series/image to represent new data)
+			plotItems_.at(scanIndex)->setDescription(model()->scanAt(scanIndex)->fullName());
 
+			switch(dataSource->rank()) {
+			case 1: {
+				MPlotAbstractSeries* series = static_cast<MPlotAbstractSeries*>(plotItems_.at(scanIndex));
+				if(plotItemDataSources_.at(scanIndex) != dataSource) {
+					series->setModel(new AMDataSourceSeriesData(dataSource), true);
+					plotItemDataSources_[scanIndex] = dataSource;
+				}
+				QPen pen = model()->plotPen(scanIndex, dataSourceIndex);
+				QColor color = model()->plotColor(scanIndex, dataSourceIndex);
+				pen.setColor(color);
+				series->setLinePen(pen);
+				break; }
+			case 2: {
+				MPlotAbstractImage* image = static_cast<MPlotAbstractImage*>(plotItems_.at(scanIndex));
+				if(plotItemDataSources_.at(scanIndex) != dataSource) {
+					AMDataSourceImageData* newData = new AMDataSourceImageData(dataSource);
+					image->setModel(newData, true);
+					plotItemDataSources_[scanIndex] = dataSource;
+				}
+				image->setColorMap(model()->plotColorMap(scanIndex, dataSourceIndex));
+				break; }
+			default:
+				break;
+			}
+		}
 	}
-	// if it doesn't, but we used to have it:
-	else if(plotSeries_.at(scanIndex)) {
-		plot_->plot()->removeItem(plotSeries_.at(scanIndex));
-		delete plotSeries_.at(scanIndex);
-		plotSeries_[scanIndex] = 0;
+	// if this scan doesn't have the exclusive data source, but we used to have it. Remove the old plot.
+	else {
+		if(plotItems_.at(scanIndex)) {
+			delete plotItems_.at(scanIndex);
+			plotItems_[scanIndex] = 0;
+		}
+		plotItemDataSources_[scanIndex] = 0;
 	}
 }
 
@@ -812,7 +874,7 @@ AMScanViewMultiView::AMScanViewMultiView(AMScanView* masterView) : AMScanViewInt
 	plot_->plot()->axisRight()->setTicks(0);
 	plot_->plot()->axisBottom()->setTicks(4);
 	plot_->plot()->axisLeft()->showGrid(false);
-	plot_->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left);
+	plot_->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left | MPlotAxis::Right);
 	plot_->plot()->axisBottom()->showAxisName(false);
 	plot_->plot()->axisLeft()->showAxisName(false);
 	plot_->plot()->legend()->enableDefaultLegend(false);	// turn on or turn off labels for individual scans in this plot
@@ -825,7 +887,7 @@ AMScanViewMultiView::AMScanViewMultiView(AMScanView* masterView) : AMScanViewInt
 	setLayout(gl);
 
 	// the list of plotSeries_ needs one list for each scan,
-	for(int si=0; si<model()->numScans(); si++) {
+	for(int si=0; si<model()->scanCount(); si++) {
 		addScan(si);
 	}
 
@@ -833,36 +895,32 @@ AMScanViewMultiView::AMScanViewMultiView(AMScanView* masterView) : AMScanViewInt
 }
 
 void AMScanViewMultiView::addScan(int si) {
-	QList<MPlotSeriesBasic*> scanList;
+	QList<MPlotItem*> scanList;
 
-	for(int ci=0; ci<model()->scanAt(si)->numChannels(); ci++) {
+	for(int di=0; di<model()->scanAt(si)->dataSourceCount(); di++) {
 
-		AMChannel* ch = model()->channelAt(si, ci);
+		AMDataSource* dataSource = model()->dataSourceAt(si, di);
 		// if visible, create and append the list
-		if(model()->data(model()->indexForChannel(si, ci), Qt::CheckStateRole).value<bool>()) {
+		if(model()->isVisible(si, di)) {
 
-			MPlotSeriesBasic* series = new MPlotSeriesBasic(ch);
-
-			series->setMarker(MPlotMarkerShape::None);
-			QPen pen = model()->data(model()->indexForChannel(si, ci), AM::LinePenRole).value<QPen>();
-			pen.setColor(model()->data(model()->indexForChannel(si, ci), Qt::DecorationRole).value<QColor>());
-			series->setLinePen(pen);
-			series->setDescription(model()->scanAt(si)->fullName() + ": " + ch->name());
-
-			plot_->plot()->addItem(series);
-			scanList << series;
+			MPlotItem* newItem = createPlotItemForDataSource(dataSource, model()->plotSettings(si, di));
+			if(newItem) {
+				plot_->plot()->addItem(newItem);
+				newItem->setDescription(model()->scanAt(si)->fullName() + ": " + dataSource->name());
+			}
+			scanList << newItem;
 		}
 		else // otherwise, append null series
 			scanList << 0;
 	}
-	plotSeries_.insert(si, scanList);
+	plotItems_.insert(si, scanList);
 }
 
 AMScanViewMultiView::~AMScanViewMultiView() {
 
 	/* Not necessary; deleting the plot should delete its children.
 	for(int si=0; si<plotSeries_.count(); si++)
-		for(int ci=0; ci<model()->scanAt(si)->numChannels(); ci++)
+		for(int ci=0; ci<model()->scanAt(si)->dataSourceCount(); ci++)
 			if(plotSeries_[si][ci]) {
 				plot_->plot()->removeItem(plotSeries_[si][ci]);
 				delete plotSeries_[si][ci];
@@ -881,64 +939,60 @@ void AMScanViewMultiView::onRowInserted(const QModelIndex& parent, int start, in
 			addScan(i);
 	}
 
-	// inserting a channel: (parent.row is the scanIndex, start-end are the channel indices)
+	// inserting data sources: (parent.row is the scanIndex, start-end are the data source indices)
 	else if(parent.internalId() == -1) {
 		int si = parent.row();
-		for(int ci=start; ci<=end; ci++) {
+		for(int di=start; di<=end; di++) {
 
-			AMChannel* ch = model()->channelAt(si, ci);
+			AMDataSource* dataSource = model()->dataSourceAt(si, di);
 			// if visible, create and append to the list, and add to plot.
-			if(model()->data(model()->indexForChannel(si, ci), Qt::CheckStateRole).value<bool>()) {
+			if(model()->isVisible(si, di)) {
 
-				MPlotSeriesBasic* series = new MPlotSeriesBasic(ch);
-
-				series->setMarker(MPlotMarkerShape::None);
-				QPen pen = model()->data(model()->indexForChannel(si, ci), AM::LinePenRole).value<QPen>();
-				pen.setColor(model()->data(model()->indexForChannel(si, ci), Qt::DecorationRole).value<QColor>());
-				series->setLinePen(pen);
-				series->setDescription(model()->scanAt(si)->fullName() + ": " + ch->name());
-
-				plot_->plot()->addItem(series);
-				plotSeries_[si].insert(ci, series);
+				MPlotItem* newItem = createPlotItemForDataSource(dataSource, model()->plotSettings(si, di));
+				if(newItem) {
+					newItem->setDescription(model()->scanAt(si)->fullName() + ": " + dataSource->name());
+					plot_->plot()->addItem(newItem);
+				}
+				plotItems_[si].insert(di, newItem);
 			}
 			else // otherwise, append null series
-				plotSeries_[si].insert(ci, 0);
+				plotItems_[si].insert(di, 0);
 		}
 	}
 
 	refreshTitles();
 }
-/// before a scan or channel is deleted in the model:
+// before scans or dataSources are deleted in the model:
 void AMScanViewMultiView::onRowAboutToBeRemoved(const QModelIndex& parent, int start, int end) {
 
-	// removing a scan: (start through end are the scan index)
+	// removing scans: (start through end are the scan index)
 	if(!parent.isValid()) {
 		for(int si=end; si>=start; si--) {
-			for(int ci=0; ci<model()->scanAt(si)->numChannels(); ci++) {
-				if(plotSeries_[si][ci]) {
-					plot_->plot()->removeItem(plotSeries_[si][ci]);
-					delete plotSeries_[si][ci];
+			for(int ci=0; ci<model()->scanAt(si)->dataSourceCount(); ci++) {
+				if(plotItems_[si][ci]) {
+					// unnecessary: plot_->plot()->removeItem(plotItems_[si][ci]);
+					delete plotItems_[si][ci];
 				}
 			}
-			plotSeries_.removeAt(si);
+			plotItems_.removeAt(si);
 		}
 	}
 
-	// removing a channel. parent.row() is the scanIndex, and start - end are the channel indexes.
+	// removing a dataSource. parent.row() is the scanIndex, and start - end are the data source indexes.
 	else if(parent.internalId() == -1) {
 		int si = parent.row();
-		for(int ci = end; ci>=start; ci--) {
-			if(plotSeries_[si][ci]) {
-				plot_->plot()->removeItem(plotSeries_[si][ci]);
-				delete plotSeries_[si][ci];
+		for(int di = end; di>=start; di--) {
+			if(plotItems_[si][di]) {
+				// unnecessary: plot_->plot()->removeItem(plotItems_[si][ci]);
+				delete plotItems_[si][di];
 			}
-			plotSeries_[si].removeAt(ci);
+			plotItems_[si].removeAt(di);
 		}
 	}
 
 
 }
-/// after a scan or channel is deleted in the model:
+// after scans or data sources are deleted in the model:
 void AMScanViewMultiView::onRowRemoved(const QModelIndex& parent, int start, int end) {
 	Q_UNUSED(parent)
 	Q_UNUSED(start)
@@ -947,7 +1001,7 @@ void AMScanViewMultiView::onRowRemoved(const QModelIndex& parent, int start, int
 	refreshTitles();
 }
 
-/// when data changes: (Things we care about: color, linePen, and visible)
+// when data changes: (Things we care about: color, linePen, and visible)
 void AMScanViewMultiView::onModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight) {
 
 	// changes to a scan:
@@ -956,37 +1010,52 @@ void AMScanViewMultiView::onModelDataChanged(const QModelIndex& topLeft, const Q
 
 	}
 
-	// changes to one of our channels: internalId is the scanIndex.  Channel index is from topLeft.row to bottomRight.row
-	else if((unsigned)topLeft.internalId() < (unsigned)model()->numScans()) {
+	// changes to our data sources: internalId is the scanIndex.  data source index is from topLeft.row to bottomRight.row
+	else if((unsigned)topLeft.internalId() < (unsigned)model()->scanCount()) {
 
 		int si = topLeft.internalId();
-		for(int ci=topLeft.row(); ci<=bottomRight.row(); ci++) {
+		for(int di=topLeft.row(); di<=bottomRight.row(); di++) {
 
 			// handle visibility changes:
-			bool visible = model()->data(model()->indexForChannel(si, ci), Qt::CheckStateRole).value<bool>();
+			bool visible = model()->isVisible(si, di);
 
-			MPlotSeriesBasic* series = plotSeries_[si][ci];
+			MPlotItem* plotItem = plotItems_[si][di];
 
-			// need to create:
-			if(visible && series == 0) {
-				plotSeries_[si][ci] = series = new MPlotSeriesBasic(model()->channelAt(si, ci));
-				series->setMarker(MPlotMarkerShape::None);
-				plot_->plot()->addItem(series);
+			if(visible) {	// plot item should be visible
+				// need to create?
+				if(plotItem == 0) {
+					plotItems_[si][di] = plotItem = createPlotItemForDataSource(model()->dataSourceAt(si, di), model()->plotSettings(si, di));
+					if(plotItem) {
+						plot_->plot()->addItem(plotItem);
+						plotItem->setDescription(model()->scanAt(si)->fullName() + ": " + model()->dataSourceAt(si, di)->description());
+					}
+				}
+				// otherwise, already have a plot item; just need to update it.
+				else {
+					plotItem->setDescription(model()->scanAt(si)->fullName() + ": " + model()->dataSourceAt(si, di)->description());
+					switch(model()->dataSourceAt(si, di)->rank()) {
+					case 1: {
+						QPen pen = model()->plotPen(si, di);
+						pen.setColor(model()->plotColor(si, di));
+						static_cast<MPlotAbstractSeries*>(plotItem)->setLinePen(pen);
+						break; }
+					case 2: {
+						/// \todo This is inefficient... Institute separate signals for different dataChanged() parameters, or check if old color map matches new color map.
+						static_cast<MPlotAbstractImage*>(plotItem)->setColorMap(model()->plotColorMap(si, di));
+						break; }
+					default:
+						break;
+					}
+				}
 			}
 
-			// need to get rid of:
-			if(!visible && series) {
-				plot_->plot()->removeItem(series);
-				delete series;
-				plotSeries_[si][ci] = 0;
-			}
 
-			// finally, apply color and linestyle changes, if visible:
-			if(visible) {
-				QPen pen = model()->data(model()->indexForChannel(si, ci), AM::LinePenRole).value<QPen>();
-				pen.setColor(model()->data(model()->indexForChannel(si, ci), Qt::DecorationRole).value<QColor>());
-				series->setLinePen(pen);
-				series->setDescription(model()->scanAt(si)->fullName() + ": " + model()->channelAt(si, ci)->name());
+			else {	// shouldn't be visible
+				if(plotItem) { // need to get rid of?  (ie: it's not supposed to be visible, but we have a plot item)
+					plot_->plot()->removeItem(plotItem);
+					delete plotItem;
+					plotItems_[si][di] = 0;
+				}
 			}
 		}
 	}
@@ -995,13 +1064,14 @@ void AMScanViewMultiView::onModelDataChanged(const QModelIndex& topLeft, const Q
 }
 
 
-
 void AMScanViewMultiView::refreshTitles() {
 
-	if(model()->numScans() == 1)
+	if(model()->scanCount() == 1)
 		plot_->plot()->legend()->setTitleText("1 scan");
 	else
-		plot_->plot()->legend()->setTitleText(QString("%1 scans").arg(model()->numScans()));
+		plot_->plot()->legend()->setTitleText(QString("%1 scans").arg(model()->scanCount()));
+
+	/// \todo set legend description on all plot series, and then case use default legend text, instead of custom body text
 
 	plot_->plot()->legend()->setBodyText(model()->scanNames().join("<br>"));
 }
@@ -1047,16 +1117,16 @@ AMScanViewMultiScansView::AMScanViewMultiScansView(AMScanView* masterView) : AMS
 	plot->plot()->axisRight()->setTicks(0);
 	plot->plot()->axisBottom()->setTicks(4);
 	plot->plot()->axisLeft()->showGrid(false);
-	plot->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left);
+	plot->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left | MPlotAxis::Right);
 	plot->plot()->axisBottom()->showAxisName(false);
 	plot->plot()->axisLeft()->showAxisName(false);
-	plot->plot()->legend()->enableDefaultLegend(false);	/// \todo Right now we maintain our own legend (instead of using MPlotLegend's automatic one), to keep it sorted by channel order. If you could introduce consistent ordering to MPlotLegend and MPlot::items(), we wouldn't have to.
+	plot->plot()->legend()->enableDefaultLegend(false);	/// \todo Right now we maintain our own legend (instead of using MPlotLegend's automatic one), to keep it sorted by data source order. If you could introduce consistent ordering to MPlotLegend and MPlot::items(), we wouldn't have to.  [done, can insertPlotItem()s instead of addPlotItem()s now.]
 
 	firstPlotEmpty_ = true;
 	plots_ << plot;
 
 	// add all of the scans we have already
-	for(int si=0; si<model()->numScans(); si++) {
+	for(int si=0; si<model()->scanCount(); si++) {
 		addScan(si);
 	}
 
@@ -1076,7 +1146,7 @@ void AMScanViewMultiScansView::addScan(int si) {
 		plot->plot()->axisRight()->setTicks(0);
 		plot->plot()->axisBottom()->setTicks(4);
 		plot->plot()->axisLeft()->showGrid(false);
-		plot->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left);
+		plot->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left | MPlotAxis::Right);
 		plot->plot()->axisBottom()->showAxisName(false);
 		plot->plot()->axisLeft()->showAxisName(false);
 		plot->plot()->legend()->enableDefaultLegend(false);
@@ -1088,41 +1158,38 @@ void AMScanViewMultiScansView::addScan(int si) {
 		plots_.insert(si, plot);
 	}
 
-	QList<MPlotSeriesBasic*> scanList;
-	QStringList channelLegendText;
+	QList<MPlotItem*> scanList;
+	QStringList sourceLegendText;
 
-	for(int ci=0; ci<model()->scanAt(si)->numChannels(); ci++) {
+	for(int di=0; di<model()->scanAt(si)->dataSourceCount(); di++) {
 
-		AMChannel* ch = model()->channelAt(si, ci);
+		AMDataSource* dataSource = model()->dataSourceAt(si, di);
 		// if visible, create and append the list
-		if(model()->data(model()->indexForChannel(si, ci), Qt::CheckStateRole).value<bool>()) {
+		if(model()->isVisible(si, di)) {
 
-			MPlotSeriesBasic* series = new MPlotSeriesBasic(ch);
+			MPlotItem* newItem = createPlotItemForDataSource(dataSource, model()->plotSettings(si, di));
+			if(newItem) {
+				newItem->setDescription(dataSource->description());
+				plots_.at(si)->plot()->addItem(newItem);
+			}
+			scanList << newItem;
 
-			series->setMarker(MPlotMarkerShape::None);
-			QPen pen = model()->data(model()->indexForChannel(si, ci), AM::LinePenRole).value<QPen>();
-			QColor color = model()->data(model()->indexForChannel(si, ci), Qt::DecorationRole).value<QColor>();
-			pen.setColor(color);
-			series->setLinePen(pen);
-			series->setDescription(ch->name());
-
-			plots_.at(si)->plot()->addItem(series);
-			scanList << series;
-
-			channelLegendText << QString("<font color=#%1%2%3>%4</font><br>")
+			QColor color = model()->plotColor(si, di);
+			sourceLegendText << QString("<font color=#%1%2%3>%4</font><br>")
 					.arg(color.red(), 2, 16, QChar('0'))
 					.arg(color.green(), 2, 16, QChar('0'))
 					.arg(color.blue(), 2, 16, QChar('0'))
-					.arg(ch->name());	/// \todo use channel description instead of name
+					.arg(dataSource->description());	/// \todo use data source description or name?
+			/// \todo convert to using built-in legend system.
 
 		}
 		else { // otherwise, append null series
 			scanList << 0;
-			channelLegendText << QString();
+			sourceLegendText << QString();
 		}
 	}
-	plotSeries_.insert(si, scanList);
-	plotLegendText_.insert(si, channelLegendText);
+	plotItems_.insert(si, scanList);
+	plotLegendText_.insert(si, sourceLegendText);
 
 	// set plot title and legend
 	plots_.at(si)->plot()->legend()->setTitleText(model()->scanAt(si)->fullName());
@@ -1135,7 +1202,7 @@ AMScanViewMultiScansView::~AMScanViewMultiScansView() {
 
 	/* NOT necessary to delete all plotSeries. As long as they are added to a plot, they will be deleted when the plot is deleted (below).
 	for(int si=0; si<plotSeries_.count(); si++)
-		for(int ci=0; ci<model()->scanAt(si)->numChannels(); ci++)
+		for(int ci=0; ci<model()->scanAt(si)->dataSourceCount(); ci++)
 			if(plotSeries_[si][ci]) {
 				plots_[si]->plot()->removeItem(plotSeries_[si][ci]);
 				delete plotSeries_[si][ci];
@@ -1158,56 +1225,53 @@ void AMScanViewMultiScansView::onRowInserted(const QModelIndex& parent, int star
 		reLayout();
 	}
 
-	// inserting a channel: (parent.row is the scanIndex, start-end are the channel indices)
+	// inserting a data source: (parent.row is the scanIndex, start-end are the data source indices)
 	else if(parent.internalId() == -1) {
 		int si = parent.row();
-		for(int ci=start; ci<=end; ci++) {
+		for(int di=start; di<=end; di++) {
 
-			AMChannel* ch = model()->channelAt(si, ci);
+			AMDataSource* dataSource = model()->dataSourceAt(si, di);
 			// if visible, create and append to the list, and add to plot.
-			if(model()->data(model()->indexForChannel(si, ci), Qt::CheckStateRole).value<bool>()) {
+			if(model()->isVisible(si, di)) {
 
-				MPlotSeriesBasic* series = new MPlotSeriesBasic(ch);
+				MPlotItem* newItem = createPlotItemForDataSource(dataSource, model()->plotSettings(si, di));
+				if(newItem) {
+					newItem->setDescription(dataSource->description());
+					plots_.at(si)->plot()->addItem(newItem);
+				}
+				plots_[si]->plot()->addItem(newItem);
+				plotItems_[si].insert(di, newItem);
 
-				series->setMarker(MPlotMarkerShape::None);
-				QPen pen = model()->data(model()->indexForChannel(si, ci), AM::LinePenRole).value<QPen>();
-				QColor color = model()->data(model()->indexForChannel(si, ci), Qt::DecorationRole).value<QColor>();
-				pen.setColor(color);
-				series->setLinePen(pen);
-				series->setDescription(ch->name());
-
-				plots_[si]->plot()->addItem(series);
-				plotSeries_[si].insert(ci, series);
-
+				QColor color = model()->plotColor(si, di);
 				QString legendText = QString("<font color=#%1%2%3>%4</font><br>")
-									.arg(color.red(), 2, 16, QChar('0'))
-									.arg(color.green(), 2, 16, QChar('0'))
-									.arg(color.blue(), 2, 16, QChar('0'))
-									.arg(ch->name());	/// \todo use channel description instead of name
-				plotLegendText_[si].insert(ci, legendText);
+									 .arg(color.red(), 2, 16, QChar('0'))
+									 .arg(color.green(), 2, 16, QChar('0'))
+									 .arg(color.blue(), 2, 16, QChar('0'))
+									 .arg(dataSource->description());
+				plotLegendText_[si].insert(di, legendText);
 			}
 			else { // otherwise, append null series
-				plotSeries_[si].insert(ci, 0);
-				plotLegendText_[si].insert(ci, QString());
+				plotItems_[si].insert(di, 0);
+				plotLegendText_[si].insert(di, QString());
 			}
 		}
 		// update the legend text
 		refreshLegend(si);
 	}
 }
-/// before a scan or channel is deleted in the model:
+// before a scan or data source is deleted in the model:
 void AMScanViewMultiScansView::onRowAboutToBeRemoved(const QModelIndex& parent, int start, int end) {
 
 	// removing a scan: (start through end are the scan index)
 	if(!parent.isValid()) {
 		for(int si=end; si>=start; si--) {
-			for(int ci=0; ci<model()->scanAt(si)->numChannels(); ci++) {
-				if(plotSeries_[si][ci]) {
-					plots_[si]->plot()->removeItem(plotSeries_[si][ci]);
-					delete plotSeries_[si][ci];
+			for(int di=0; di<model()->scanAt(si)->dataSourceCount(); di++) {
+				if(plotItems_[si][di]) {
+					// unnecessary: plots_[si]->plot()->removeItem(plotSeries_[si][di]);
+					delete plotItems_[si][di];
 				}
 			}
-			plotSeries_.removeAt(si);
+			plotItems_.removeAt(si);
 			// if this is the first plot, and its the only one left, need to leave it around but flagged as empty
 			if(si == 0 && plots_.count()==1) {
 				firstPlotEmpty_ = true;
@@ -1220,28 +1284,28 @@ void AMScanViewMultiScansView::onRowAboutToBeRemoved(const QModelIndex& parent, 
 		reLayout();
 	}
 
-	// removing a channel. parent.row() is the scanIndex, and start - end are the channel indexes.
+	// removing data sources. parent.row() is the scanIndex, and start - end are the data source indexes.
 	else if(parent.internalId() == -1) {
 		int si = parent.row();
-		for(int ci = end; ci>=start; ci--) {
-			if(plotSeries_[si][ci]) {
-				plots_[si]->plot()->removeItem(plotSeries_[si][ci]);
-				delete plotSeries_[si][ci];
+		for(int di = end; di>=start; di--) {
+			if(plotItems_[si][di]) {
+				// unnecessary: plots_[si]->plot()->removeItem(plotSeries_[si][di]);
+				delete plotItems_[si][di];
 			}
-			plotSeries_[si].removeAt(ci);
-			plotLegendText_[si].removeAt(ci);
+			plotItems_[si].removeAt(di);
+			plotLegendText_[si].removeAt(di);
 		}
 		refreshLegend(si);
 	}
 }
-/// after a scan or channel is deleted in the model:
+// after scans or data sources deleted in the model:
 void AMScanViewMultiScansView::onRowRemoved(const QModelIndex& parent, int start, int end) {
 	Q_UNUSED(parent)
 	Q_UNUSED(start)
 	Q_UNUSED(end)
-}
+	}
 
-/// when data changes: (Things we care about: color, linePen, and visible)
+// when data changes: (Things we care about: color, linePen, and visible)
 void AMScanViewMultiScansView::onModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight) {
 
 	// changes to a scan:
@@ -1250,48 +1314,60 @@ void AMScanViewMultiScansView::onModelDataChanged(const QModelIndex& topLeft, co
 
 	}
 
-	// changes to one of our channels: internalId is the scanIndex.  Channel index is from topLeft.row to bottomRight.row
-	else if((unsigned)topLeft.internalId() < (unsigned)model()->numScans()) {
+	// changes to our data sources: internalId is the scanIndex.  Data source index is from topLeft.row to bottomRight.row
+	else if((unsigned)topLeft.internalId() < (unsigned)model()->scanCount()) {
 
 		int si = topLeft.internalId();
-		for(int ci=topLeft.row(); ci<=bottomRight.row(); ci++) {
+		for(int di=topLeft.row(); di<=bottomRight.row(); di++) {
 
 			// handle visibility changes:
-			bool visible = model()->data(model()->indexForChannel(si, ci), Qt::CheckStateRole).value<bool>();
+			bool visible = model()->isVisible(si, di);
 
-			MPlotSeriesBasic* series = plotSeries_[si][ci];
+			MPlotItem* plotItem = plotItems_[si][di];
 
-			// need to create? (becoming visible)
-			if(visible && series == 0) {
-				plotSeries_[si][ci] = series = new MPlotSeriesBasic(model()->channelAt(si, ci));
-				series->setMarker(MPlotMarkerShape::None);
-				plots_[si]->plot()->addItem(series);
-			}
-
-			// need to get rid of? (becoming invisible)
-			if(!visible && series) {
-				plots_[si]->plot()->removeItem(series);
-				delete series;
-				plotSeries_[si][ci] = 0;
-			}
-
-			// finally, apply color and linestyle changes, if visible:
 			if(visible) {
-				QPen pen = model()->data(model()->indexForChannel(si, ci), AM::LinePenRole).value<QPen>();
-				QColor color = model()->data(model()->indexForChannel(si, ci), Qt::DecorationRole).value<QColor>();
-				pen.setColor(color);
-				series->setLinePen(pen);
-				series->setDescription(model()->channelAt(si, ci)->name());
+				if(plotItem == 0) { // need to create? (becoming visible)
+					plotItems_[si][di] = plotItem = createPlotItemForDataSource(model()->dataSourceAt(si, di), model()->plotSettings(si, di));
+					if(plotItem) {
+						plotItem->setDescription(model()->dataSourceAt(si, di)->description());
+						plots_[si]->plot()->addItem(plotItem);
+					}
+				}
+				else {	// apply data changes to existing plot item
+					plotItem->setDescription(model()->dataSourceAt(si, di)->description());
 
-				plotLegendText_[si][ci] = QString("<font color=#%1%2%3>%4</font><br>")
-									.arg(color.red(), 2, 16, QChar('0'))
-									.arg(color.green(), 2, 16, QChar('0'))
-									.arg(color.blue(), 2, 16, QChar('0'))
-									.arg(model()->channelAt(si, ci)->name());	/// \todo use channel description instead of name
+					switch(model()->dataSourceAt(si, di)->rank()) {
+					case 1: {
+						QPen pen = model()->plotPen(si, di);
+						pen.setColor(model()->plotColor(si, di));
+						static_cast<MPlotAbstractSeries*>(plotItem)->setLinePen(pen);
+						break; }
+					case 2: {
+						/// \todo This is inefficient... Institute separate signals for different dataChanged() parameters, or check if old color map matches new color map.
+						static_cast<MPlotAbstractImage*>(plotItem)->setColorMap(model()->plotColorMap(si, di));
+						break; }
+					default:
+						break;
+					}
+
+				}
+
+				QColor color = model()->plotColor(si, di);
+				plotLegendText_[si][di] = QString("<font color=#%1%2%3>%4</font><br>")
+										  .arg(color.red(), 2, 16, QChar('0'))
+										  .arg(color.green(), 2, 16, QChar('0'))
+										  .arg(color.blue(), 2, 16, QChar('0'))
+										  .arg(model()->dataSourceAt(si, di)->description());	/// \todo: warning in legend if plot item can't be displayed (ex: higher dimensionality?) -- easy to detect: plotItem would be = 0 here still.
 			}
-			// if invisible, remove from legend
-			else {
-				plotLegendText_[si][ci] = QString();
+
+
+			else {	// shouldn't be visible.
+				if(plotItem) {	// need to get rid of? (becoming invisible)
+					// unnecessary: plots_[si]->plot()->removeItem(plotItem);
+					delete plotItem;
+					plotItems_[si][di] = 0;
+				}
+				plotLegendText_[si][di] = QString(); // if invisible, remove from legend
 			}
 		}
 		refreshLegend(si);
@@ -1301,7 +1377,7 @@ void AMScanViewMultiScansView::onModelDataChanged(const QModelIndex& topLeft, co
 
 
 
-/// re-do the layout
+// re-do the layout
 void AMScanViewMultiScansView::reLayout() {
 
 	for(int li=0; li<layout_->count(); li++)
@@ -1355,7 +1431,8 @@ void AMScanViewMultiScansView::setWaterfallOffset(double offset) {
 
 //////////////////////////////////////////////////
 
-AMScanViewMultiChannelsView::AMScanViewMultiChannelsView(AMScanView* masterView) : AMScanViewInternal(masterView) {
+
+AMScanViewMultiSourcesView::AMScanViewMultiSourcesView(AMScanView* masterView) : AMScanViewInternal(masterView) {
 
 	layout_ = new QGraphicsGridLayout();
 	layout_->setContentsMargins(0,0,0,0);
@@ -1369,57 +1446,57 @@ AMScanViewMultiChannelsView::AMScanViewMultiChannelsView(AMScanView* masterView)
 	firstPlot_->plot()->axisRight()->setTicks(0);
 	firstPlot_->plot()->axisBottom()->setTicks(4);
 	firstPlot_->plot()->axisLeft()->showGrid(false);
-	firstPlot_->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left);
+	firstPlot_->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left | MPlotAxis::Right);
 	firstPlot_->plot()->axisBottom()->showAxisName(false);
 	firstPlot_->plot()->axisLeft()->showAxisName(false);
 
 	firstPlotEmpty_ = true;
 
-	// add all of the scans/channels we have already
-	reviewChannels();
+	// add all of the scans/data sources we have already
+	reviewDataSources();
 
 	reLayout();
 }
 
 
 
-AMScanViewMultiChannelsView::~AMScanViewMultiChannelsView() {
+AMScanViewMultiSourcesView::~AMScanViewMultiSourcesView() {
 
 	/* NOT necessary to delete all plotSeries. As long as they are added to a plot, they will be deleted when the plot is deleted (below).*/
 
-	foreach(MPlotGW* plot, channel2Plot_)
+	foreach(MPlotGW* plot, dataSource2Plot_)
 		delete plot;
 }
 
 
 
-void AMScanViewMultiChannelsView::onRowInserted(const QModelIndex& parent, int start, int end) {
+void AMScanViewMultiSourcesView::onRowInserted(const QModelIndex& parent, int start, int end) {
 
 	Q_UNUSED(parent)
 	Q_UNUSED(start)
 	Q_UNUSED(end)
 
-	if(reviewChannels())
+	if(reviewDataSources())
 		reLayout();
 }
 
 
-/// before a scan or channel is deleted in the model:
-void AMScanViewMultiChannelsView::onRowAboutToBeRemoved(const QModelIndex& parent, int start, int end) {
+// before scans or data sources are deleted in the model:
+void AMScanViewMultiSourcesView::onRowAboutToBeRemoved(const QModelIndex& parent, int start, int end) {
 
 	// removing a scan(s):    (start through end are the scan index)
 	if(!parent.isValid()) {
 		for(int si=end; si>=start; si--) {
 			AMScan* scan = model()->scanAt(si);
 
-			// go through all channels that this scan has; check if they exist; remove and delete plot series if they do.
-			for(int ci=0; ci<scan->numChannels(); ci++) {
-				QString channelName = scan->channel(ci)->name();
-				if(channel2Plot_.contains(channelName) && channelAndScan2Series_[channelName].contains(scan)) {
-					channel2Plot_[channelName]->plot()->removeItem(channelAndScan2Series_[channelName][scan]);
-					delete channelAndScan2Series_[channelName][scan];
-					channelAndScan2Series_[channelName].remove(scan);
-					// note: checking whether a plot for this channel should still exist (in channel2Plot_) will be done after the deletion is finished, inside reviewChannels() called by onRowRemoved().
+			// go through all data sources that this scan has; check if they exist; remove and delete plot series if they do.
+			for(int ci=0; ci<scan->dataSourceCount(); ci++) {
+				QString dataSourceName = scan->dataSourceAt(ci)->name();
+				if(dataSource2Plot_.contains(dataSourceName) && sourceAndScan2PlotItem_[dataSourceName].contains(scan)) {
+					// unnecessary: dataSource2Plot_[dataSourceName]->plot()->removeItem(sourceAndScan2PlotItem_[dataSourceName][scan]);
+					delete sourceAndScan2PlotItem_[dataSourceName][scan];
+					sourceAndScan2PlotItem_[dataSourceName].remove(scan);
+					// note: checking whether a plot for this dataSource should still exist (in dataSource2Plot_) will be done after the deletion is finished, inside reviewSources() called by onRowRemoved().
 				}
 			}
 
@@ -1427,19 +1504,19 @@ void AMScanViewMultiChannelsView::onRowAboutToBeRemoved(const QModelIndex& paren
 	}
 
 
-	// removing a channel(s).     parent.row() is the scanIndex, and start - end are the channel indexes.
+	// removing data source(s).     parent.row() is the scanIndex, and start - end are the data source indexes.
 	else if(parent.internalId() == -1) {
 
 		int si = parent.row();
 		AMScan* scan = model()->scanAt(si);
 
-		for(int ci = end; ci>=start; ci--) {
-			QString channelName = model()->channelAt(si, ci)->name();
-			if(channel2Plot_.contains(channelName) && channelAndScan2Series_[channelName].contains(scan)) {
-				channel2Plot_[channelName]->plot()->removeItem(channelAndScan2Series_[channelName][scan]);
-				delete channelAndScan2Series_[channelName][scan];
-				channelAndScan2Series_[channelName].remove(scan);
-				// note: checking whether a plot for this channel should still exist (in channel2Plot_) will be done after the deletion is finished, inside reviewChannels() called by onRowRemoved().
+		for(int di = end; di>=start; di--) {
+			QString sourceName = model()->dataSourceAt(si, di)->name();
+			if(dataSource2Plot_.contains(sourceName) && sourceAndScan2PlotItem_[sourceName].contains(scan)) {
+				// unnecessary: dataSource2Plot_[sourceName]->plot()->removeItem(sourceAndScan2PlotItem_[sourceName][scan]);
+				delete sourceAndScan2PlotItem_[sourceName][scan];
+				sourceAndScan2PlotItem_[sourceName].remove(scan);
+				// note: checking whether a plot for this data source should still exist (in dataSource2Plot_) will be done after the deletion is finished, inside reviewSources() called by onRowRemoved().
 			}
 		}
 	}
@@ -1447,47 +1524,58 @@ void AMScanViewMultiChannelsView::onRowAboutToBeRemoved(const QModelIndex& paren
 
 
 
-/// after a scan or channel is deleted in the model:
-void AMScanViewMultiChannelsView::onRowRemoved(const QModelIndex& parent, int start, int end) {
+// after scans or data sources are deleted in the model:
+void AMScanViewMultiSourcesView::onRowRemoved(const QModelIndex& parent, int start, int end) {
 	Q_UNUSED(parent)
 	Q_UNUSED(start)
 	Q_UNUSED(end)
 
-	if(reviewChannels())
+	if(reviewDataSources())
 		reLayout();
 }
 
-/// when data changes: (Things we care about: color, linePen, and visible)
-void AMScanViewMultiChannelsView::onModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight) {
+// when data changes: (Things we care about: color, linePen, and visible)
+void AMScanViewMultiSourcesView::onModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight) {
 
 	// changes to a scan:
 	if(topLeft.internalId() == -1) {
-		/// \todo zzzzz changes to name and number?
-
+		/// \todo What if there's changes to the scan's name and number? (This applies to all AMScanViewInternal subclasses, not just this one.)
+		// here specifically, if the scan name changes, we need to go through and change the descriptions of all the plot items that represent that scan.
 
 	}
 
-	// changes to one of our channels: internalId is the scanIndex.  Channel index is from topLeft.row to bottomRight.row
-	else if((unsigned)topLeft.internalId() < (unsigned)model()->numScans()) {
+	// changes to one of our data sources: internalId is the scanIndex.  Data source index is from topLeft.row to bottomRight.row
+	else if((unsigned)topLeft.internalId() < (unsigned)model()->scanCount()) {
 
-		// handling visibility changes: if a channel has been turned off (or on), and it was the only channel of its kind, we'll need to delete/add a plot.
-		// this is expensive... Would be nice to know _what_ changed (since simply changing the color of a line shouldn't require this whole process)
-		if(reviewChannels())
+		// handling visibility changes: if a data source has been turned off (or on), and it was the only source of its kind, we'll need to delete/add a plot.
+		/// \todo this is expensive... Would be nice to know _what_ changed (since simply changing the color of a line shouldn't require this whole process.  Add specific visibility-change signalling, to make this more efficient.
+		if(reviewDataSources())
 			reLayout();
 
 		// apply possible line pen and color changes:
 		int si = topLeft.internalId();
 		AMScan* scan = model()->scanAt(si);
 
-		for(int ci=topLeft.row(); ci<=bottomRight.row(); ci++) {
+		for(int di=topLeft.row(); di<=bottomRight.row(); di++) {
 
-			QString channelName = model()->scanAt(si)->channel(ci)->name();
+			QString sourceName = model()->scanAt(si)->dataSourceAt(di)->name();
 
-			if(channel2Plot_.contains(channelName) && channelAndScan2Series_[channelName].contains(scan)) {
-				MPlotSeriesBasic* series = channelAndScan2Series_[channelName][scan];
-				QPen pen = model()->data(model()->indexForChannel(si, ci), AM::LinePenRole).value<QPen>();
-				pen.setColor(model()->data(model()->indexForChannel(si, ci), Qt::DecorationRole).value<QColor>());
-				series->setLinePen(pen);
+			if(dataSource2Plot_.contains(sourceName) && sourceAndScan2PlotItem_[sourceName].contains(scan)) {
+				MPlotItem* plotItem = sourceAndScan2PlotItem_[sourceName][scan];
+
+				switch(model()->dataSourceAt(si, di)->rank()) {
+				case 1: {
+					QPen pen = model()->plotPen(si, di);
+					pen.setColor(model()->plotColor(si, di));
+					static_cast<MPlotAbstractSeries*>(plotItem)->setLinePen(pen);
+					break; }
+				case 2: {
+					/// \todo This is inefficient... Institute separate signals for different dataChanged() parameters, or check if old color map matches new color map.
+					static_cast<MPlotAbstractImage*>(plotItem)->setColorMap(model()->plotColorMap(si, di));
+					break; }
+				default:
+					break;
+				}
 			}
 		}
 	}
@@ -1496,15 +1584,15 @@ void AMScanViewMultiChannelsView::onModelDataChanged(const QModelIndex& topLeft,
 
 
 
-/// re-do the layout
-void AMScanViewMultiChannelsView::reLayout() {
+// re-do the layout
+void AMScanViewMultiSourcesView::reLayout() {
 
 	for(int li=0; li<layout_->count(); li++)
 		layout_->removeAt(li);
 
-	int rc=0, cc=0, width = sqrt(channel2Plot_.count());
+	int rc=0, cc=0, width = sqrt(dataSource2Plot_.count());
 
-	foreach(MPlotGW* plot, channel2Plot_) {
+	foreach(MPlotGW* plot, dataSource2Plot_) {
 		layout_->addItem(plot, rc, cc++, Qt::AlignCenter);
 		if(cc == width) {
 			rc++;
@@ -1512,15 +1600,15 @@ void AMScanViewMultiChannelsView::reLayout() {
 		}
 	}
 
-	if(channel2Plot_.isEmpty())
+	if(dataSource2Plot_.isEmpty())
 		layout_->addItem(firstPlot_, 0, 0, Qt::AlignCenter);
 }
 
 
-/// The following comment is old and no longer correct.  We no longer care about maintaining the same ordering as model()->visibleChannelNames(). We now maintain a QMap of plots indexed by channelName, instead of a list of plots ordered the same as visibleChannelNames().
+// The following comment is old and no longer correct.  We no longer care about maintaining the same ordering as model()->visibleChannelNames(). We now maintain a QMap of plots indexed by channelName, instead of a list of plots ordered the same as visibleChannelNames().
 
-/// when full list of channels in the model changes, we need to sync/match up our channel lists (channelNames_ and plots_) with the model list.
-/*! Here's what changes could have happened in the model list:
+// when full list of channels in the model changes, we need to sync/match up our channel lists (channelNames_ and plots_) with the model list.
+/* Here's what changes could have happened in the model list:
 	- channels added (one or multiple)
 	- channels removed (one or multiple)
 	- order changed
@@ -1546,46 +1634,46 @@ void AMScanViewMultiChannelsView::reLayout() {
 				- us.insert at i
 
 */
-bool AMScanViewMultiChannelsView::reviewChannels() {
+bool AMScanViewMultiSourcesView::reviewDataSources() {
 
-	QSet<QString> modelChannels = model()->visibleChannelNames().toSet();
-	QSet<QString> ourChannels = channel2Plot_.keys().toSet();
-	QSet<QString> deleteChannels(ourChannels);
-	deleteChannels -= modelChannels;
+	QSet<QString> modelSources = model()->visibleDataSourceNames().toSet();
+	QSet<QString> ourSources = dataSource2Plot_.keys().toSet();
+	QSet<QString> deleteTheseSources(ourSources);
+	deleteTheseSources -= modelSources;
 
-	QSet<QString> addChannels(modelChannels);
-	addChannels -= ourChannels;
+	QSet<QString> addTheseSources(modelSources);
+	addTheseSources -= ourSources;
 
-	// now, deleteChannels is a set of the channel names we have as plots (but shouldn't have)
-	// and, addChannels is a set of the channel names we don't have plots for (but should have)
+	// now, deleteTheseSources is a set of the source names we have as plots (but shouldn't have)
+	// and, addTheseSources is a set of the source names we don't have plots for (but should have)
 
-	// if there's anything in deleteChannels or in addChannels, we'll need to re-layout the plots
-	bool areChanges = ( deleteChannels.count() || addChannels.count() );
+	// if there's anything in deleteTheseSources or in addTheseSources, we'll need to re-layout the plots
+	bool areChanges = ( deleteTheseSources.count() || addTheseSources.count() );
 
-	// delete the channel plots that don't belong:
-	foreach(QString channelName, deleteChannels) {
+	// delete the source plots that don't belong:
+	foreach(QString sourceName, deleteTheseSources) {
 		// delete the plot (will also delete any MPlotSeries within it)
 
 		// WAIT: can't delete if it's the last/only plot. Instead, need to remove/delete all series from it and mark it as empty.
-		if(channel2Plot_.count() == 1) {
-			foreach(MPlotSeriesBasic* series, channelAndScan2Series_[channelName]) {
-				channel2Plot_[channelName]->plot()->removeItem(series);
-				delete series;
+		if(dataSource2Plot_.count() == 1) {
+			foreach(MPlotItem* plotItem, sourceAndScan2PlotItem_[sourceName]) {
+				//unnecessary: dataSource2Plot_[sourceName]->plot()->removeItem(series);
+				delete plotItem;
 			}
 
-			firstPlot_ = channel2Plot_[channelName];
+			firstPlot_ = dataSource2Plot_[sourceName];
 			firstPlotEmpty_ = true;
 		}
 		else
-			delete channel2Plot_[channelName];
+			delete dataSource2Plot_[sourceName];
 
 		// remove pointer to deleted plot, and pointers to deleted series
-		channel2Plot_.remove(channelName);
-		channelAndScan2Series_.remove(channelName);
+		dataSource2Plot_.remove(sourceName);
+		sourceAndScan2PlotItem_.remove(sourceName);
 	}
 
-	// add the channel plots that do:
-	foreach(QString channelName, addChannels) {
+	// add the source plots that do belong:
+	foreach(QString sourceName, addTheseSources) {
 
 		// create a new plot, or use the first one if it's available
 		MPlotGW* newPlot;
@@ -1600,7 +1688,7 @@ bool AMScanViewMultiChannelsView::reviewChannels() {
 			newPlot->plot()->axisRight()->setTicks(0);
 			newPlot->plot()->axisBottom()->setTicks(4);
 			newPlot->plot()->axisLeft()->showGrid(false);
-			newPlot->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left);
+			newPlot->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left | MPlotAxis::Right);
 			newPlot->plot()->axisBottom()->showAxisName(false);
 			newPlot->plot()->axisLeft()->showAxisName(false);
 
@@ -1609,81 +1697,75 @@ bool AMScanViewMultiChannelsView::reviewChannels() {
 				newPlot->plot()->setWaterfallLeft(waterfallOffset_);
 		}
 
-		channel2Plot_.insert(channelName, newPlot);
-		channelAndScan2Series_.insert(channelName, QHash<AMScan*, MPlotSeriesBasic*>());
-		newPlot->plot()->legend()->setTitleText(channelName);
+		dataSource2Plot_.insert(sourceName, newPlot);
+		sourceAndScan2PlotItem_.insert(sourceName, QHash<AMScan*, MPlotItem*>());
+		newPlot->plot()->legend()->setTitleText(sourceName);
 	}
 
 
-	// now... for each channel plot, add any series that are missing. Also need to remove any series that have had their visibility turned off...
-	foreach(QString channelName, modelChannels) {
+	// now... for each source plot, add any series that are missing. Also need to remove any series that have had their visibility turned off...
+	foreach(QString sourceName, modelSources) {
 
 		// remove any existing series, that have had their visibility turned off...
-		foreach(AMScan* scan, channelAndScan2Series_[channelName].keys()) {
+		foreach(AMScan* scan, sourceAndScan2PlotItem_[sourceName].keys()) {
 			int si = model()->indexOf(scan);
-			int ci = scan->indexOfChannel(channelName);	// cheating (bad design... exploiting the fact that channel indexes are the same inside the scan as they are in our AMScanSetModel model().  Should really use: int ci = model()->indexOf(scan->channel(channelName), scan);
+			int di = scan->indexOfDataSource(sourceName);
 			// if not visible, remove and delete series
-			if(!model()->data(model()->indexForChannel(si, ci), Qt::CheckStateRole).value<bool>()) {
-				channel2Plot_[channelName]->plot()->removeItem(channelAndScan2Series_[channelName][scan]);
-				delete channelAndScan2Series_[channelName].take(scan);
+			if(!model()->isVisible(si, di)) {
+				//unnecessary: dataSource2Plot_[sourceName]->plot()->removeItem(sourceAndScan2PlotItem_[sourceName][scan]);
+				delete sourceAndScan2PlotItem_[sourceName].take(scan);
 			}
 		}
 
 		// loop through all scans, adding series to this plot if required...
-		for(int si=0; si<model()->numScans(); si++) {
+		for(int si=0; si<model()->scanCount(); si++) {
 			AMScan* scan = model()->scanAt(si);
 
-			// What's the channel index for this channelName, within this scan?
-			// proper, but slower:
-			// int ci = model()->indexOf(scan->channel(channelName), scan);
-			// faster, but assumes channel indexes are the same in the scan's channelList model as in the AMScanSetModel. (true for now)
-			int ci = scan->indexOfChannel(channelName);
+			int di = scan->indexOfDataSource(sourceName);
 
-			// if this scan contains this channel, and it's visible, and we don't have a series for it yet... make and add the new series
-			if(ci >= 0 && model()->data(model()->indexForChannel(si, ci), Qt::CheckStateRole).value<bool>() && !channelAndScan2Series_[channelName].contains(scan)) {
-				MPlotSeriesBasic* series = new MPlotSeriesBasic(scan->channel(ci));
+			// if this scan contains this data source, and it's visible, and we don't have a series for it yet... make and add the new series
+			if(di >= 0 && model()->isVisible(si, di) && !sourceAndScan2PlotItem_[sourceName].contains(scan)) {
 
-				series->setMarker(MPlotMarkerShape::None);
-				QPen pen = model()->data(model()->indexForChannel(si, ci), AM::LinePenRole).value<QPen>();
-				pen.setColor(model()->data(model()->indexForChannel(si, ci), Qt::DecorationRole).value<QColor>());
-				series->setLinePen(pen);
-				series->setDescription(scan->fullName());
-
-				channel2Plot_[channelName]->plot()->addItem(series);
-				channelAndScan2Series_[channelName].insert(scan, series);
+				MPlotItem* newItem = createPlotItemForDataSource(scan->dataSourceAt(di), model()->plotSettings(si, di));
+				if(newItem) {
+					newItem->setDescription(scan->fullName());
+					dataSource2Plot_[sourceName]->plot()->addItem(newItem);
+					// zzzzzzzz Always add, even if 0? (requires checking everywhere for null plot items). Or only add if valid? (Going with later... hope this is okay, in event someone tries at add 0d, 3d or 4d data source.
+					sourceAndScan2PlotItem_[sourceName].insert(scan, newItem);
+				}
 			}
 		}
 
 		// only show the detailed legend (with the scan names) if there's more than one scan open. If there's just one, it's kinda obvious, so don't waste the space.
-		if(model()->numScans() > 1)
-			channel2Plot_[channelName]->plot()->legend()->enableDefaultLegend(true);
+		if(model()->scanCount() > 1)
+			dataSource2Plot_[sourceName]->plot()->legend()->enableDefaultLegend(true);
 		else
-			channel2Plot_[channelName]->plot()->legend()->enableDefaultLegend(false);
+			dataSource2Plot_[sourceName]->plot()->legend()->enableDefaultLegend(false);
 	}
 
 	return areChanges;
 }
 
 
-void AMScanViewMultiChannelsView::enableNormalization(bool normalizationOn, double min, double max) {
+void AMScanViewMultiSourcesView::enableNormalization(bool normalizationOn, double min, double max) {
 	AMScanViewInternal::enableNormalization(normalizationOn, min, max);
 
 	if(firstPlotEmpty_)
 		firstPlot_->plot()->enableAxisNormalizationLeft(normalizationOn, min, max);
-	QMapIterator<QString, MPlotGW*> i(channel2Plot_);
+	QMapIterator<QString, MPlotGW*> i(dataSource2Plot_);
 	while(i.hasNext()) {
 		i.next();
 		i.value()->plot()->enableAxisNormalizationLeft(normalizationOn, min, max);
 	}
 }
 
-void AMScanViewMultiChannelsView::enableWaterfallOffset(bool waterfallOn) {
+void AMScanViewMultiSourcesView::enableWaterfallOffset(bool waterfallOn) {
 	AMScanViewInternal::enableWaterfallOffset(waterfallOn);
 
 	if(waterfallOn) {
 		if(firstPlotEmpty_)
 			firstPlot_->plot()->setWaterfallLeft(waterfallOffset_);
-		QMapIterator<QString, MPlotGW*> i(channel2Plot_);
+		QMapIterator<QString, MPlotGW*> i(dataSource2Plot_);
 		while(i.hasNext()) {
 			i.next();
 			i.value()->plot()->setWaterfallLeft(waterfallOffset_);
@@ -1692,7 +1774,7 @@ void AMScanViewMultiChannelsView::enableWaterfallOffset(bool waterfallOn) {
 	else {
 		if(firstPlotEmpty_)
 			firstPlot_->plot()->setWaterfallLeft(0);
-		QMapIterator<QString, MPlotGW*> i(channel2Plot_);
+		QMapIterator<QString, MPlotGW*> i(dataSource2Plot_);
 		while(i.hasNext()) {
 			i.next();
 			i.value()->plot()->setWaterfallLeft(0);
@@ -1700,14 +1782,14 @@ void AMScanViewMultiChannelsView::enableWaterfallOffset(bool waterfallOn) {
 	}
 }
 
-void AMScanViewMultiChannelsView::setWaterfallOffset(double offset) {
+void AMScanViewMultiSourcesView::setWaterfallOffset(double offset) {
 	AMScanViewInternal::setWaterfallOffset(offset);
 
 	if(waterfallEnabled_) {
 		if(firstPlotEmpty_)
 			firstPlot_->plot()->setWaterfallLeft(offset);
 
-		QMapIterator<QString, MPlotGW*> i(channel2Plot_);
+		QMapIterator<QString, MPlotGW*> i(dataSource2Plot_);
 		while(i.hasNext()) {
 			i.next();
 			i.value()->plot()->setWaterfallLeft(offset);

@@ -11,7 +11,8 @@ SGMXASDacqScanController::SGMXASDacqScanController(SGMXASScanConfiguration *cfg,
 void SGMXASDacqScanController::initialize(){
 	if(SGMXASScanController::beamlineInitialize())
 		initialized_ = true;
-	pScan_()->clear();
+#warning "Do we need to also clear any raw data sources here, or just the raw data itself?"
+	pScan_()->clearRawDataPoints();
 	emit initialized();
 }
 
@@ -32,7 +33,9 @@ void SGMXASDacqScanController::start(){
 		homeDir.append("/dev");
 	else if( QDir(homeDir+"/beamline/programming").exists())
 		homeDir.append("/beamline/programming");
-	if(pScan_()->detectorNames().contains("pgt"))
+
+#warning "David, can you verify that I can use the scan configuration's usingPGT_? instead of the scan's detectors()?"
+	if(pCfg_()->usingPGT())
 		loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/pgt.cfg"));
 	else
 		loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/defaultEnergy.cfg"));
@@ -40,8 +43,8 @@ void SGMXASDacqScanController::start(){
 		qDebug() << "LIBRARY FAILED TO LOAD CONFIG FILE";
 		return;
 	}
-
-	foreach(const AMDetectorInfo *dtctr, pScan_()->detectors()){
+#warning "David, can you verify that I can use the scan configuration's usingDetectors()? instead of the scan's detectors()?"
+	foreach(const AMDetectorInfo *dtctr, pCfg_()->usingDetectors() ){
 		if(dtctr->name() == SGMBeamline::sgm()->pgtDetector()->name()){
 			advAcq_->appendRecord(SGMBeamline::sgm()->pvName(dtctr->name()), true, true, 0);
 		}
@@ -88,3 +91,8 @@ bool SGMXASDacqScanController::event(QEvent *e){
 		e->ignore();
 }
 */
+
+AMnDIndex SGMXASDacqScanController::toScanIndex(QMap<int, double> aeData){
+	// SGM XAS Scan has only one dimension (energy), simply append to the end of this
+	return AMnDIndex(pScan_()->rawData()->scanSize(0));
+}

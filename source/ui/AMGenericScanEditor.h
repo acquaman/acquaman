@@ -12,7 +12,7 @@
 #include "ui/AMVerticalStackWidget.h"
 #include "ui/AMRunSelector.h"
 #include "ui/AMSampleEditor.h"
-#include "ui/AMChannelEditor.h"
+#include "ui/AMDataSourcesEditor.h"
 
 class AMGenericScanEditor : public QWidget
 {
@@ -45,13 +45,13 @@ public:
 	}
 
 	/// Returns the number of scans open in the editor.
-	int numScans() const {
-		return scanSetModel_->numScans();
+	int scanCount() const {
+		return scanSetModel_->scanCount();
 	}
 
-	/// Returns a particular scan pointer, by index:
+	/// Returns a particular scan pointer, by index. Returns 0 if \c index is out of bounds.
 	AMScan* scanAt(int index) const {
-		if(index<0 || index>=numScans())
+		if(index<0 || index>=scanCount())
 			return 0;
 		return scanSetModel_->scanAt(index);
 	}
@@ -73,8 +73,8 @@ protected slots:
 	///  This catches changes in the scan that is currently selected, and hooks it up to the editor widgets. \todo Ultimately, we might handle more than one scan being "selected" at once.
 	void onCurrentChanged ( const QModelIndex & selected, const QModelIndex & deselected );
 
-	/// This slot responds to meta-data changes in the current scan
-	void onScanMetaDataChanged(const QString& key);
+	// This slot responds to meta-data changes in the current scan
+	// removed: void onScanMetaDataChanged();
 
 	/// internal signal to forward the textChanged() signal from ui_.notesEdit
 	void onNotesTextChanged() {
@@ -114,8 +114,8 @@ protected:
 	/// Run selector
 	AMRunSelector* runSelector_;
 
-	/// Channel editor:
-	AMChannelEditor* channelEditor_;
+	/// Data sources editor:
+	AMDataSourcesEditor* dataSourcesEditor_;
 
 	/// Plot view capable of holding multiple scans.
 	AMScanView* scanView_;

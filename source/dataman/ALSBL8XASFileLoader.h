@@ -17,7 +17,7 @@ public:
 	QString formatTag() const { return "alsBl8Xas"; }
 
 	/// load from ALS BL 8.0.1 legacy file format
-	bool loadFromFile(const QString& filepath, bool extractMetaData = true, bool createChannels = true);
+	bool loadFromFile(const QString& filepath, bool setMetaData, bool setRawDataSources, bool createDefaultAnalysisBlocks);
 
 	/// save to ALS BL 8.0.1 legacy file format (\todo UNIMPLEMENTED)
 	bool saveToFile(const QString& filepath) {
@@ -43,6 +43,9 @@ protected:
 
 	/// A forward- and reverse-mapping from Acquaman-style data column names to the file format's column headers
 	static AMBiHash<QString, QString> columns2fileFormatHeaders_;
+
+	/// A list (in order) of the raw data columns we want to expose to the user by default
+	QStringList defaultUserVisibleColumns_;
 
 	/// translate a string from the file's column header to a meaningful name, if we recognize it.  Unrecognized strings are untouched and false is returned.
 	static bool header2columnName(QString& source) {

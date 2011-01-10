@@ -7,6 +7,7 @@
 #include <QListView>
 
 #include "acquaman.h"
+#include "AMErrorMonitor.h"
 
 #include "ui/AMDetailedItemDelegate.h"
 
@@ -24,7 +25,7 @@ AMRunSelector:: AMRunSelector(AMDatabase* db, QWidget *parent)
 	populateRuns();
 
 	if (count() > 1)
-		setCurrentRunId(itemData(1, AM::IdRole).toInt());
+		setCurrentIndex(1);
 
 	newRunDialog_ = 0;
 	connect(this, SIGNAL(activated(int)),this,SLOT(onComboBoxActivated(int)));
@@ -43,7 +44,7 @@ AMRunSelector::~AMRunSelector(){
 
 }
 
-/// This function searches through the database for existing runs and adds the run names into the database. In addition, this function also stores the facility thumbnail as a decoration role, the run id as a user role, and the facility description as a tool tip role.
+/// This function searches through the database for existing runs and adds the run names into the database. In addition, this function also stores the facility thumbnail as a decoration role, the run id as a user role, and the facility description as a tool tip role. \todo Performance question: check how often this is getting called. It might be being called more often than necessary.
 void AMRunSelector::populateRuns() {
 
 	// Turn off this flag because we're completing the update right now.
@@ -61,10 +62,11 @@ void AMRunSelector::populateRuns() {
 
 	int i = 1;
 	QSqlQuery q = database_->query();
-	q.prepare(QString("SELECT Runs.id,Runs.name,Runs.dateTime,Facilities.description,Thumbnails.type,Thumbnails.thumbnail,Runs.endDateTime "
-					  "FROM Runs,Facilities,Thumbnails "
-					  "WHERE Runs.facilityId = Facilities.id AND Thumbnails.id = Facilities.thumbnailFirstId "
-					  "ORDER BY Runs.dateTime DESC"));
+#warning "Hard-coded database table names. This is not future-compatible code."
+	q.prepare(QString("SELECT AMRun_table.id,AMRun_table.name,AMRun_table.dateTime,AMFacility_table.description,AMDbObjectThumbnails_table.type,AMDbObjectThumbnails_table.thumbnail,AMRun_table.endDateTime "
+					  "FROM AMRun_table,AMFacility_table,AMDbObjectThumbnails_table "
+					  "WHERE AMRun_table.facilityId = AMFacility_table.id AND AMDbObjectThumbnails_table.id = AMFacility_table.thumbnailFirstId "
+					  "ORDER BY AMRun_table.dateTime DESC"));
 
 	if (q.exec()) {
 		while (q.next()){
@@ -87,14 +89,21 @@ void AMRunSelector::populateRuns() {
 	else
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, "Error retrieving run information from the database."));
 
-	// restore the previous id. If we didn't have anything selected previously, and we have at least one valid run now, select it
-	if(oldRunId < 1 && count() > 1) {
+	// restore the previous id. If we didn't have anything selected previously, and we have at least one valid run now, select it, and notify
+	if(oldRunId == -1 && count() > 1) {
 		lastValidRunId_ = itemData(1, AM::IdRole).toInt();
 		setCurrentIndex(1);
 		emit currentRunIdChanged(lastValidRunId_);
 	}
-	else
-		setCurrentRunId(oldRunId);
+	else {	// we had a previously valid run. It might have been moved (up or down) in index, or even deleted.  If we still have it, set it as the current index (but don't signal, because the current run id hasn't changed. It it's gone, select nothing, and notify that the current run id HAS changed.
+		int indexOfOldRun = findIndexForRunId(oldRunId);
+		if(indexOfOldRun == -1) {
+			setCurrentIndex(-1);
+			emit currentRunIdChanged(-1);
+		}
+		else
+			setCurrentIndex(indexOfOldRun);
+	}
 
 }
 
@@ -149,13 +158,13 @@ void AMRunSelector::onAddRunDialogClosed(int newRunId){
 	}
 }
 
-#include "dataman/AMDatabaseDefinition.h"
+#include "dataman/AMDbObjectSupport.h"
 #include <QTimer>
 void AMRunSelector::onDatabaseUpdate(const QString & tableName, int id) {
 
 	Q_UNUSED(id)
 
-	if(tableName == AMDatabaseDefinition::runTableName()) {
+	if(tableName == AMDbObjectSupport::tableNameForClass<AMRun>()) {
 		if(!runUpdateScheduled_) {
 			runUpdateScheduled_ = true;
 			QTimer::singleShot(0, this, SLOT(populateRuns()));
@@ -165,13 +174,25 @@ void AMRunSelector::onDatabaseUpdate(const QString & tableName, int id) {
 
 /// This function sets the combo box selector to the run that has the designated runId. If the run id is invalid (ie: runId<1, or non-existent), it sets the combo box to have nothing selected, and emits the currentRunIdChanged() signal with an invalid value (-1).
 void AMRunSelector::setCurrentRunId(int runId) {
-	int runIndex;
-	if(runId < 1 || (runIndex = findData(runId, AM::IdRole)) == -1 ) {
-		setCurrentIndex(-1);
+	int oldRunId = currentRunId();
+
+	int runIndex = findIndexForRunId(runId);
+
+	setCurrentIndex(runIndex);
+
+	if(runIndex == -1)
 		emit currentRunIdChanged(-1);
-	}
-	else {
-		setCurrentIndex(runIndex);
+
+	else if(runId != oldRunId)
 		emit currentRunIdChanged(runId);
-	}
+
+}
+
+int AMRunSelector::findIndexForRunId(int runId) const {
+	int runIndex;
+
+	if(runId < 1 || (runIndex = findData(runId, AM::IdRole)) == -1 )
+		return -1;
+
+	return runIndex;
 }

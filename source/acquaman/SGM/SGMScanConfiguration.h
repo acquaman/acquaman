@@ -25,6 +25,10 @@ public:
 	bool setUsingTFY(bool active) { usingTFY_ = active; return true;}
 	bool setUsingPGT(bool active) { usingPGT_ = active; return true;}
 
+	bool usingPGT() const { return usingPGT_; }
+	bool usingTEY() const { return usingTEY_; }
+	bool usingTFY() const { return usingTFY_; }
+
 protected:
 	double exitSlitGap_;
 	SGMBeamline::sgmGrating grating_;

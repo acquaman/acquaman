@@ -36,23 +36,24 @@ AMRunExperimentInsert::AMRunExperimentInsert(AMDatabase* db, QStandardItem* runP
 void AMRunExperimentInsert::onDatabaseUpdated(const QString& table, int id) {
 
 	Q_UNUSED(id)
+#warning "Hard-coded database table names. This is not future-compatible code."
 
-	if(table == "Runs" && !runRefreshScheduled_) {
+	if(table == "AMRun_table" && !runRefreshScheduled_) {
 		runRefreshScheduled_ = true;
 		QTimer::singleShot(0, this, SLOT(refreshRuns()));
 	}
 
-	if(table == "Experiments" && !expRefreshScheduled_) {
+	if(table == "AMExperiment_table" && !expRefreshScheduled_) {
 		expRefreshScheduled_ = true;
 		QTimer::singleShot(0, this, SLOT(refreshExperiments()));
 	}
 }
 
 void AMRunExperimentInsert::onDatabaseObjectCreated(const QString& table, int id) {
-
+#warning "Hard-coded database table names. This is not future-compatible code."
 	onDatabaseUpdated(table, id);
 
-	if(table == "Experiments")
+	if(table == "AMExperiment_table")
 		newExperimentId_ = id;
 }
 
@@ -62,10 +63,11 @@ void AMRunExperimentInsert::refreshRuns() {
 
 	QSqlQuery q = db_->query();
 	q.setForwardOnly(true);
-	q.prepare("SELECT Runs.name, Runs.dateTime, Facilities.description, Thumbnails.thumbnail, Thumbnails.type, Runs.id, Runs.endDateTime "
-			  "FROM Runs,Facilities,Thumbnails "
-			  "WHERE Facilities.id = Runs.facilityId AND Thumbnails.id = Facilities.thumbnailFirstId "
-			  "ORDER BY Runs.dateTime ASC");
+	#warning "Hard-coded database table names. This is not future-compatible code."
+	q.prepare("SELECT AMRun_table.name, AMRun_table.dateTime, AMFacility_table.description, AMDbObjectThumbnails_table.thumbnail, AMDbObjectThumbnails_table.type, AMRun_table.id, AMRun_table.endDateTime "
+			  "FROM AMRun_table,AMFacility_table,AMDbObjectThumbnails_table "
+			  "WHERE AMFacility_table.id = AMRun_table.facilityId AND AMDbObjectThumbnails_table.id = AMFacility_table.thumbnailFirstId "
+			  "ORDER BY AMRun_table.dateTime ASC");
 	if(!q.exec())
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, "Could not retrieve a list of run information from the database."));
 
@@ -105,8 +107,9 @@ void AMRunExperimentInsert::refreshExperiments() {
 
 	QSqlQuery q = db_->query();
 	q.setForwardOnly(true);
+	#warning "Hard-coded database table names. This is not future-compatible code."
 	q.prepare("SELECT name,id "
-			  "FROM Experiments "
+			  "FROM AMExperiment_table "
 			  "ORDER BY id ASC");
 	if(!q.exec())
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, "Could not retrieve a list of experiment information from the database."));

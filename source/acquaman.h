@@ -18,14 +18,18 @@ namespace AM {
 	enum ItemTypes { DragDropItem = QStandardItem::UserType + 1, SidebarItem, SidebarHeadingItem };
 
 
-	/// Application-wide QVariant user types
-	enum AcquamanType { IntList = QVariant::UserType + 20, DoubleList };
+	// REMOVED: Application-wide QVariant user types
+	// enum AcquamanType { IntList = QVariant::UserType + 20, DoubleList };
 
 	/// Acquaman-specific event types
 	enum EventType { AcqEvent = QEvent::User+20, VideoResizeEvent };
 
 	/// custom QGraphicsItem types (see qgraphicsitem_cast<>() for more information)
 	enum GraphicsItemType { ThumbnailScrollGraphicsWidgetType = 65540 };
+
+	/// Register acquaman-defined types with the QMetaType system. Call on application startup before using these types.
+	void registerTypes();
+
 }
 
 class AMAcqEvent : public QEvent{
@@ -34,13 +38,16 @@ public:
 	{}
 
 	QMap<int, double> dataPackage_;
+	QMap<int, QList<double> > spectraPackage_;
 };
 
-
+class AMDbObject;
 typedef QList<int> AMIntList;
 typedef QList<double> AMDoubleList;
+typedef QList<AMDbObject*> AMDbObjectList;
 
 Q_DECLARE_METATYPE(AMIntList);
 Q_DECLARE_METATYPE(AMDoubleList);
+Q_DECLARE_METATYPE(AMDbObjectList);
 
 #endif // ACQUAMAN_H

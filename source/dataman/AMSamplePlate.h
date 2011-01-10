@@ -18,6 +18,13 @@ class AMSamplePlateModel;
 class AMSamplePlate : public AMDbObject
 {
 Q_OBJECT
+	Q_PROPERTY(QDateTime createTime READ createTime WRITE loadCreateTime)
+	Q_PROPERTY(AMIntList sampleIDs READ sampleIDs WRITE loadSampleIDs)
+	Q_PROPERTY(AMIntList positionIDs READ positionIDs WRITE loadPositionIDs)
+
+	Q_CLASSINFO("AMDbObject_Attributes", "description=List of Samples and their Positions on a Sample Plate")
+	Q_CLASSINFO("createTime", "createIndex=true")
+
 public:
 
 	explicit AMSamplePlate(QObject *parent = 0);
@@ -49,21 +56,6 @@ public:
 	/// This is a convenience function that tells a sample plate object to "become another sample plate" that already exists in the user's database.  It's equivalent to "loadFromDb(AMDatabase::userdb(), newSamplePlateId);"
 	void changeSamplePlate(int newSamplePlateId) { loadFromDb(AMDatabase::userdb(), newSamplePlateId); }
 
-
-	// AMDbObject database interface
-	////////////////////////////////////
-	/// Specify all of our unique pieces of meta-data (excluding those inherited from base classes -- ie: own only)
-	static QList<AMMetaMetaData> metaDataUniqueKeys();
-
-	/// This function needs to be overloaded to return all the available pieces of meta data for this type of object, including those inherited from base classes. (ie: own + base classes'). We simply append our unique meta-data onto the base class:
-	static QList<AMMetaMetaData> metaDataKeys();
-
-	/// This virtual function returns all the available pieces of meta data for this type of object, by introspecting it's most detailed type. (ie: own + base classes' + subclasses')
-	virtual QList<AMMetaMetaData> metaDataAllKeys() const;
-
-	/// We want to store this in a separate table (so that it's easy to create relationships between detectors and scan objects).  Therefore, we reimplement databaseTableName():
-	virtual QString databaseTableName() const;
-
 	/// Load yourself from the database. (returns true on success)
 	/*! Re-implemented from AMDbObject. */
 	virtual bool loadFromDb(AMDatabase* db, int id);
@@ -73,8 +65,7 @@ public:
 	  */
 	virtual bool storeToDb(AMDatabase* db);
 
-	/// Reimplemented from AMDbObject; provides a general human-readable description
-	virtual QString typeDescription() const;
+
 
 signals:
 	void samplePositionChanged(int index);
@@ -111,6 +102,19 @@ protected:
 	/// Sample plates are valid when they've been successfully stored to or loaded from the Db.
 	bool valid_;
 
+
+	/// Time when this sample plate was first created
+	QDateTime createTime_;
+	void loadCreateTime(const QDateTime& createTime) { createTime_ = createTime; }
+	/// list of sample ids, used for storing in the DB. May not be up to date always...
+	AMIntList sampleIDs_;
+	AMIntList sampleIDs() const { return sampleIDs_; }
+	void loadSampleIDs(const AMIntList& sampleIDs) { sampleIDs_ = sampleIDs; }
+
+	/// list of position ids, used for storing in the DB. Maynot be up to date always...
+	AMIntList positionIDs_;
+	AMIntList positionIDs() const { return positionIDs_; }
+	void loadPositionIDs(const AMIntList& positionIDs) { positionIDs_ = positionIDs; }
 
 private:
 	int insertRowLatch;

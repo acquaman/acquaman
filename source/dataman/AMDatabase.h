@@ -58,15 +58,15 @@ public:
 	}
 
 	/// Inserting or updating a row in the database.
-	/*! id is the object's row in the database (for updates), or 0 (for inserts).
-		table is the database table name
-		colNames is a list of the column names that the values will be inserted under
-		values is a list of constant references to QVariants that provide the values to insert.
-		(Note that the const and const& arguments are designed to prevent memory copies, so this should be fast.)
+	/*! \c id is the object's row in the database (for updates), or 0 (for inserts).
+		\c table is the database table name
+		\c colNames is a list of the column names that the values will be inserted under
+		\c values is a list of QVariants that provide the values to insert.
+		(Note that QList uses copy-on-write / implicit sharing, so you can pass a QList<QVariant> around very fast, as long as it isn't modified.)
 		Return value: (IMPORTANT) returns the id of the row that was inserted into or updated, or 0 on failure.
 		When inserting new objects, make sure to set their id to the return value afterwards, otherwise they will be duplicated on next insert.
 	*/
-	int insertOrUpdate(int id, const QString& table, const QStringList& colNames, const QList<const QVariant*>& values);
+	int insertOrUpdate(int id, const QString& table, const QStringList& colNames, const QVariantList& values);
 
 	/// changing single values in the database, at row \c id.
 	bool update(int id, const QString& table, const QString& column, const QVariant& value);
@@ -83,16 +83,16 @@ public:
 
 
 	/// retrieve the parameters of an object from the database.
-	/*! id is the object's row in the database.
-		table is the database table name
-		colNames is a list of the column names that the values will be retrieved from
-		values is a list of references to QVariants that will be modified with the retrived values.
-		(Note that the const and & arguments are designed to prevent memory copies, so this should be fast.)
-		Return value: returns true on success.
+	/*! \c id is the object's row in the database.
+		\c table is the database table name
+		\c colNames is a list of the column names that the values will be retrieved from
+		Returns a list of QVariants that will hold the results. Note that QList uses implicit sharing / copy-on-write, so returning the result is fast -- as long you don't modify the resulting list (ie: call non-const methods on it).
+
+		Returns an empty list on failure.
 	*/
-	bool retrieve(int id, const QString& table, const QStringList& colNames, const QList<QVariant*>& values);
+	QVariantList retrieve(int id, const QString& table, const QStringList& colNames) const;
 	/// Retrieve a single parameter/value for an object.  This is simpler than retrieve() when all you need is a single value.
-	QVariant retrieve(int id, const QString& table, const QString& colName);
+	QVariant retrieve(int id, const QString& table, const QString& colName) const;
 
 	/// ensure that a table of the given name exists. If it doesn't, it will be created with the columns contained in \c columnNames. \c columnTypes is a list of SQLite column types ("TEXT", "INTEGER", etc.), which must have an entry for each \c columnName.
 	bool ensureTable(const QString& tableName, const QStringList& columnNames, const QStringList& columnTypes, bool reuseDeletedIds = true);
@@ -107,24 +107,24 @@ public:
 
 	/// Return a list of all the objects/rows (by id) that match 'value' in a certain column.
 	/// ex: AMDatabase::db()->objectsMatching("name", "Carbon60"), or AMDatabase::db()->objectsMatching("dateTime", QDateTime::currentDateTime())
-	QList<int> objectsMatching(const QString& tableName, const QString& colName, const QVariant& value);
+	QList<int> objectsMatching(const QString& tableName, const QString& colName, const QVariant& value) const;
 
 	/// Return a list of all the objects/rows (by id) that contain 'value' in a certain column
 	/// ex: AMDatabase::db()->scansContaining("name", "Carbon60") could return Scans with names Carbon60_alpha and bCarbon60_gamma
-	QList<int> objectsContaining(const QString& tableName, const QString& colName, const QVariant& value);
+	QList<int> objectsContaining(const QString& tableName, const QString& colName, const QVariant& value) const;
 
 	/// returns a list of all the objecst/rows (by id) that match a given condition. \c whereClause is a string suitable for appending after an SQL "WHERE" statement.
-	QList<int> objectsWhere(const QString& tableName, const QString& whereClause);
+	QList<int> objectsWhere(const QString& tableName, const QString& whereClause) const;
 
 
 	/// For people who really know what they're doing. You shouldn't normally use this.
-	void startTransation() {
+	void startTransaction() {
 		qdb().transaction();
 	}
-	void commitTransation() {
+	void commitTransaction() {
 		qdb().commit();
 	}
-	void rollbackTransation() {
+	void rollbackTransaction() {
 		qdb().rollback();
 	}
 
@@ -141,7 +141,7 @@ signals:
 
 protected:
 	/// Access the QSqlAMDatabase object for this connection.
-	QSqlDatabase qdb() { return QSqlDatabase::database(connectionName_); }
+	QSqlDatabase qdb() const { return QSqlDatabase::database(connectionName_); }
 
 
 private:

@@ -30,13 +30,17 @@ public slots:
 //protected:
 //	virtual void reinitialize();
 
-	/*
+
 protected:
+	/*
 	bool event(QEvent *e);
 	*/
+	AMnDIndex toScanIndex(QMap<int, double> aeData);
 
 private:
+	/// \todo Why the double pointers?
 	SGMXASScanConfiguration **_pCfg_;
+	/// \todo Why the double pointer system?
 	AMXASScan **_pScan_;
 
 	SGMXASScanConfiguration *pCfg_() { return *_pCfg_;}

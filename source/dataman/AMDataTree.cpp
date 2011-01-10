@@ -1,14 +1,17 @@
 #include "AMDataTree.h"
 
-/// Constructor. Creates a tree with just a single (x) column. If it has explicit x values (specify hasXValues = true), space is allocated but no initialization is done; all the x values will be 0.
-AMDataTree::AMDataTree(unsigned count, const QString& xColumnName, bool hasXValues)
+/// Constructor. Creates a tree with just a single (x) column. If it has explicit x values (specify hasXValues = true), space is allocated but no initialization is done; all the x values will be null valued AMNumbers (used to be 0's).
+AMDataTree::AMDataTree(unsigned count, const QString& xColumnName, bool hasXValues, bool fillNewSubTreesNull)
 	: QSharedData(), x_(xColumnName)
 {
 
 	count_ = count;
 	hasXValues_ = hasXValues;
+	fillNewSubTreesNull_ = fillNewSubTreesNull;
 	if( hasXValues_ ) {
 		x_.resize(count_);
+		for(int i=0; i < count_; i++)
+			x_[i] = AMNumber();
 	}
 }
 
@@ -93,13 +96,13 @@ AMNumericType AMDataTree::x(unsigned i) const {
 
 	if(i >= count()) {
 		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -1, QString("AMDataTree: accessed value out of range. Returning an (incorrect) default x value. index %1 count %2").arg(i).arg(count()) ));
-		return AMDATATREE_OUTOFRANGE_VALUE;
+		return AMNumber(AMNumber::OutOfBoundsError);
 	}
 
 	if(hasXValues_)
 		return x_.at(i);
 	else
-		return i;
+		return (int)i;
 }
 
 /// The name of the primary column
@@ -112,14 +115,14 @@ QString AMDataTree::xName() const {
 AMNumericType AMDataTree::value(unsigned columnIndex, unsigned i) const {
 	if(i >= count()) {
 		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -1, QString("AMDataTree: accessed value out of range. Returning an (incorrect) default y value. index %1 count %2").arg(i).arg(count()) ));
-		return AMDATATREE_OUTOFRANGE_VALUE;
+		return AMNumber(AMNumber::OutOfBoundsError);
 	}
 
 	if((int)columnIndex < y_.count())
 		return y_[columnIndex].at(i);
 
 	AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -3, QString("AMDataTree: accessed non-existent data column. Returning an (incorrect) default value. colIndex %1 count %2").arg(columnIndex).arg(count()) ));
-	return AMDATATREE_NONEXISTENT_VALUE;
+	return AMNumber(AMNumber::DimensionError);
 }
 
 /// Access the value in any column by \c columnName and index \c i.
@@ -136,11 +139,11 @@ AMNumericType AMDataTree::value(const QString& columnName, unsigned i) const {
 
 	if(yDNames_.containsF(columnName)) {
 		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -2, "AMDataTree: accessed multi-dimensional data as a single value. Returning an (incorrect) default value."));
-		return AMDATATREE_NONEXISTENT_VALUE;
+		return AMNumber(AMNumber::DimensionError);
 	}
 
 	AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -3, QString("AMDataTree: accessed non-existent data column. Returning an (incorrect) default value. colIndex %1 count %2").arg(columnName).arg(count()) ));
-	return AMDATATREE_NONEXISTENT_VALUE;
+	return AMNumber(AMNumber::DimensionError);
 }
 
 /// Iterating through a column using value() is slower because of the column lookup at each step. This can be used to access a reference to an entire column of data (an AMDataTreeColumn).
@@ -295,7 +298,7 @@ If there are columns of subtrees, the default value of the new subtree is a copy
 
 \test
 */
-void AMDataTree::append(const AMNumericType& newValue) {
+void AMDataTree::append(const AMNumericType& newValue, AMDataTree *initializerTree, bool useInitializer) {
 
 	// count_ is now one ahead of every column's size.
 	count_++;
@@ -306,18 +309,23 @@ void AMDataTree::append(const AMNumericType& newValue) {
 
 	// append default values to all the other data columns:
 	for(int i=0; i<y_.count(); i++)
-		y_[i] << AMDATATREE_INSERT_VALUE;
+		y_[i] << AMNumber();
 
 	// append subtree copies (or, if this is the first, a default subtree) to all the subtree columns.
 	for(int i=0; i<yD_.count(); i++) {
 		// are we the first? append default subtree
-		if(count_ == 1){
+		if( count_ == 1 ){
 			if(prototypes_.at(i) == NULL){
 				yD_[i] << QSharedDataPointer<AMDataTree>(new AMDataTree());
 			}
 			else{
 				yD_[i] << QSharedDataPointer<AMDataTree>(prototypes_.at(i));
 			}
+		}
+		else if(useInitializer){
+			qDebug() << "Using initializer";
+			yD_[i] << QSharedDataPointer<AMDataTree>( initializerTree->deeper(i, initializerTree->count()-1) );
+			//yD_[i] << QSharedDataPointer<AMDataTree>(new AMDataTree( *(initializerTree.deeper(i, initializerTree.count()-1))) );
 		}
 		// otherwise append a copy of the latest tree.
 		else
@@ -362,5 +370,30 @@ void AMDataTree::removeAll() {
 	count_ = 0;
 
 	/// \bug What kind of notification is required here?
+}
+
+void AMDataTree::resetDataTreeNull(AMDataTree *dataTree){
+	/*
+	for(int i=0; i < dataTree->count(); i++){
+		if(dataTree->x(i).state() != AMNumber::Null)
+			dataTree->setX(i, AMNumber());
+		for(int j=0; j < dataTree->yColumnNames().count(); j++)
+			if(dataTree->value(j, i).state() != AMNumber::Null)
+				dataTree->setValue(j, i, AMNumber());
+		for(int j=0; j < dataTree->ySubtreeNames().count(); j++)
+			resetDataTreeNull( dataTree->deeper(j, i));
+	}
+	*/
+	/*
+	for(int i=0; i < count_; i++){
+		if(hasXValues_)
+			x_[i] = AMNumber();
+		for(int j=0; j < y_.count(); j++)
+			(y_[j])[i] = AMNumber();
+		for(int j=0; j < yD_.count(); j++)
+			if(dataTree->deeper(j,i))
+				resetDataTreeNull( dataTree->deeper(j, i) );
+	}
+	*/
 }
 

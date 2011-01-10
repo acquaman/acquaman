@@ -5,6 +5,7 @@
 #include "dataman/SGM2004FileLoader.h"
 #include "dataman/ALSBL8XASFileLoader.h"
 #include "ui/AMImportControllerWidget.h"
+#include "AMErrorMonitor.h"
 
 #include <QDir>
 #include <QFileDialog>
@@ -15,7 +16,19 @@ AMScan* SGMLegacyImporter::import(const QString& fullPath) {
 
 	AMXASScan* rv = new AMXASScan();
 	SGM2004FileLoader loader(rv);
-	if(loader.loadFromFile(fullPath, true, true)) {
+
+	// check for spectra file, and set rv->additionalFilePaths()
+	if( fullPath.indexOf(".dat") >= 0){
+		QString spectraPath = fullPath;
+		spectraPath.insert(spectraPath.indexOf(".dat"), "_spectra");
+		if( QFile::exists(spectraPath) ){
+			QStringList additionalFilePaths;
+			additionalFilePaths << spectraPath;
+			rv->setAdditionalFilePaths(additionalFilePaths);
+		}
+	}
+
+	if(loader.loadFromFile(fullPath, true, true, true)) {
 
 		// what should we name this scan?
 		QFileInfo fileInfo(fullPath);
@@ -33,7 +46,7 @@ AMScan* SGMLegacyImporter::import(const QString& fullPath) {
 		}
 
 		// remember the file format, for re-loading.
-		rv->setMetaData("fileFormat", loader.formatTag() );
+		rv->setFileFormat( loader.formatTag() );
 
 		return rv;
 	}
@@ -49,7 +62,7 @@ AMScan* ALSBL8XASImporter::import(const QString& fullPath) {
 	AMXASScan* rv = new AMXASScan();
 	ALSBL8XASFileLoader loader(rv);
 	// load meta-data AND raw data, please...
-	if(loader.loadFromFile(fullPath, true, true)) {
+	if(loader.loadFromFile(fullPath, true, true, true)) {
 
 		// what should we name this scan?
 		QFileInfo fileInfo(fullPath);
@@ -72,7 +85,7 @@ AMScan* ALSBL8XASImporter::import(const QString& fullPath) {
 			rv->setName(name);
 
 		// remember the file format, for re-loading.
-		rv->setMetaData("fileFormat", loader.formatTag() );
+		rv->setFileFormat( loader.formatTag() );
 
 		return rv;
 	}
@@ -255,7 +268,6 @@ void AMImportController::setupNextFile() {
 
 #include <QMessageBox>
 #include "dataman/AMDatabase.h"
-#include "dataman/AMDatabaseDefinition.h"
 
 void AMImportController::finalizeImport() {
 	// error loading:
