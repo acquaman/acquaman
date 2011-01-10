@@ -220,7 +220,7 @@ void AMPVControl::onCompletionTimeout() {
 
 	// No matter what, this move is over:
 	moveInProgress_ = false;
-	emit this->movingChanged(false);
+
 	completionTimer_.stop();
 
 	// Did we make it?
@@ -231,6 +231,9 @@ void AMPVControl::onCompletionTimeout() {
 	else {
 		emit moveFailed(AMControl::TimeoutFailure);
 	}
+
+	// Regardless, this move is done.
+	emit this->movingChanged(false);
 }
 
 
