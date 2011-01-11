@@ -1,5 +1,8 @@
 #include "AMListAction.h"
 
+#include <QStringBuilder>
+
+// Used for qWarning() messages that may be useful to developers trying to debug action implementatons
 #include <QDebug>
 
 AMListAction::AMListAction(AMActionInfo* info, SubActionMode subActionMode, QObject *parent) :
@@ -86,10 +89,14 @@ bool AMListAction::canPause() const
 			return false;
 		// if we just have one sub-action and it cannot pause, then we can't pause.
 		if(subActionCount() == 1)
-			return (subActionAt(0)->state() == Running && subActionAt(0)->canPause());
+			return ((subActionAt(0)->state() == Running
+					 || subActionAt(0)->state() == WaitingForPrereqs)
+					&& subActionAt(0)->canPause());
 		// More than one action. Are we on the last action? Then whether we can pause depends on whether that last action can pause
 		if(currentSubActionIndex() == subActionCount()-1)
-			return (currentSubAction()->state() == Running && currentSubAction()->canPause());
+			return ((currentSubAction()->state() == Running
+					 || currentSubAction()->state() == WaitingForPrereqs)
+					&& currentSubAction()->canPause());
 		// If we've made it here, we have more than one action and we're not on the last action. Therefore, at least we can pause between actions even if they can't pause themselves.
 		return true;
 	}
@@ -98,7 +105,9 @@ bool AMListAction::canPause() const
 	else {
 		bool canDoPause = true;
 		foreach(AMAction* action, subActions_)
-			canDoPause &= ((action->state() == Running && action->canPause()) || action->inFinalState());
+			canDoPause &= (action->inFinalState()
+						   || ((action->state() == Running || action->state() == WaitingForPrereqs)
+							   && action->canPause()));
 
 		return canDoPause;
 	}
@@ -347,10 +356,54 @@ void AMListAction::internalOnSubActionStateChanged(int newState, int oldState)
 
 void AMListAction::internalOnSubActionProgressChanged(double numerator, double denominator)
 {
+	// sequential mode:
+	if(subActionMode() == SequentialMode) {
+		// If all still-running actions specify an expected duration, then we use this to specify the relative size of each action's "work chunk". The denominator of our progress will be in total (expected) seconds for all actions to complete.
+		if(internalAllActionsHaveExpectedDuration()) {
+			double totalNumerator = 0, totalDenominator = 0;
+			for(int i=0, cc=subActionCount(); i<cc; i++) {
+				AMAction* action = subActionAt(i);
+
+				// completed action? Add total run time to both denominator and numerator.
+				if(action->inFinalState()) {
+					double runTimeSeconds = action->startDateTime().secsTo(action->endDateTime());
+					totalDenominator += runTimeSeconds;
+					totalNumerator += runTimeSeconds;
+				}
+				// incomplete action.
+				else {
+					double expectedDuration = action->info()->expectedDuration();
+					totalDenominator += expectedDuration;
+					if(i == currentSubActionIndex())	// if it's the current action, we have some partial progress.
+						totalNumerator += numerator/denominator * expectedDuration;
+				}
+			}
+			setProgress(totalNumerator, totalDenominator);
+		}
+		// Otherwise, assume every subaction makes up an equal fraction of the total amount of work. Our denominator will be the number of sub-actions, and our numerator will be the sub-action we are on (plus its fraction done). For ex: with 8 sub-actions: At the beginning, this will be 0/8.  Half-way through the first action it will be (0+0.5)/8.  At the very end it will be (7+1)/8.
+		else {
+			setProgress(currentSubActionIndex() + numerator/denominator, subActionCount());
+		}
+	}
+	else {
+
+	}
 }
 
 void AMListAction::internalOnSubActionStatusTextChanged(const QString &statusText)
 {
+	// sequential mode:
+	if(subActionMode() == SequentialMode) {
+		setStatusText("Step " % QString::number(currentSubActionIndex()+1) % " (" % currentSubAction()->info()->shortDescription() % "): " % statusText);
+	}
+	// parallel mode:
+	else {
+		QStringList allStatuses;
+		for(int i=0, cc=subActionCount(); i<cc; i++)
+			allStatuses << "Step " % QString::number(i+1) % " (" % subActionAt(i)->info()->shortDescription() % "): " % subActionAt(i)->statusText();
+
+		setStatusText(allStatuses.join("\n"));
+	}
 }
 
 
@@ -371,26 +424,26 @@ void AMListAction::internalDisconnectAction(AMAction *action)
 
 bool AMListAction::internalAllActionsRunningOrFinal() const
 {
-	bool rf = true;
+	bool rv = true;
 	foreach(AMAction* action, subActions_)
-		rf &= (action->state() == Running || action->inFinalState());
-	return rf;
+		rv &= (action->state() == Running || action->inFinalState());
+	return rv;
 }
 
 bool AMListAction::internalAllActionsPausedOrFinal() const
 {
-	bool rf = true;
+	bool rv = true;
 	foreach(AMAction* action, subActions_)
-		rf &= (action->state() == Paused || action->inFinalState());
-	return rf;
+		rv &= (action->state() == Paused || action->inFinalState());
+	return rv;
 }
 
 bool AMListAction::internalAllActionsInFinalState() const
 {
-	bool rf = true;
+	bool rv = true;
 	foreach(AMAction* action, subActions_)
-		rf &= action->inFinalState();
-	return rf;
+		rv &= action->inFinalState();
+	return rv;
 }
 
 bool AMListAction::internalAnyActionsFailed() const
@@ -407,4 +460,12 @@ bool AMListAction::internalAnyActionsCancelled() const
 		if(action->state() == Cancelled)
 			return true;
 	return false;
+}
+
+bool AMListAction::internalAllActionsHaveExpectedDuration() const
+{
+	foreach(AMAction* action, subActions_)
+		if(action->info()->expectedDuration() < 0)
+			return false;
+	return true;
 }

@@ -1,5 +1,8 @@
 #include "AMAction.h"
 
+// Used for qWarning() messages that may be helpful to people trying to debug AMAction implementations.
+#include <QDebug>
+
 // Constructor: create an action to run the specified AMActionInfo.
 AMAction::AMAction(AMActionInfo* info, QObject *parent)
 	: QObject(parent)
@@ -96,6 +99,7 @@ bool AMAction::cancel()
 	case Cancelled:
 	case Succeeded:
 	case Failed:
+		qWarning() << "AMAction: Warning: You cannot cancel this action because it is already in a final state.";
 		return false;	// can't cancel from these states. Already cancelling, or in a final state.
 
 	case Constructed:
@@ -125,8 +129,10 @@ bool AMAction::cancel()
 
 bool AMAction::pause()
 {
-	if(!canPause())
+	if(!canPause()) {
+		qWarning() << "AMAction: Warning: Tried to pause an action that specifies that it cannot pause (at the moment).";
 		return false;
+	}
 
 	if(state() == WaitingForPrereqs) {
 		setProgress(0,0	);
@@ -140,6 +146,7 @@ bool AMAction::pause()
 		return true;
 	}
 
+	qWarning() << "AMAction: Warning: You can not pause this action, because it is not in a pausable state.";
 	return false;	// any other state: cannot pause from there.
 }
 
@@ -158,13 +165,16 @@ bool AMAction::resume()
 		}
 	}
 
+	qWarning() << "AMAction: Warning: You can not resume this action because it is not paused.";
 	return false;	// cannot resume from any other states except Pause.
 }
 
 bool AMAction::addPrereq(AMActionPrereq *newPrereq)
 {
-	if(state() != Constructed)
+	if(state() != Constructed) {
+		qWarning() << "AMAction: Warning: You can not set action prerequisites after the action is running.";
 		return false;
+	}
 
 	prereqs_ << newPrereq;
 	return true;
@@ -172,8 +182,10 @@ bool AMAction::addPrereq(AMActionPrereq *newPrereq)
 
 bool AMAction::setPrereqBehaviour(AMAction::PrereqBehaviour prereqBehaviour)
 {
-	if(state() != Constructed)
+	if(state() != Constructed) {
+		qWarning() << "AMAction: Warning: You can not set action prerequisites after the action is running.";
 		return false;
+	}
 
 	prereqBehaviour_ = prereqBehaviour;
 	return true;
@@ -181,8 +193,10 @@ bool AMAction::setPrereqBehaviour(AMAction::PrereqBehaviour prereqBehaviour)
 
 void AMAction::notifyStarted()
 {
-	if(state() != Starting)
+	if(state() != Starting) {
+		qWarning() << "AMAction: Warning: An action told us it has started, but we did not tell it to start.";
 		return;
+	}
 
 	setState(Running);
 }
@@ -202,8 +216,7 @@ void AMAction::notifySucceeded()
 		break;
 
 	default:
-		;
-		// do nothing: can't succeed if we haven't started yet, or are already in a final state.
+		qWarning() << "AMAction: Warning: An implementation told us it had succeeded before it could possibly be running.";
 	}
 }
 
@@ -222,29 +235,35 @@ void AMAction::notifyFailed()
 		break;
 
 	default:
-		;// do nothing: can't fail if we haven't started yet, or are already in a final state. Why is the implementation telling us this?
+		qWarning() << "AMAction: Warning: An implementation told us it had failed before it could possibly be running.";
 	}
 }
 
 void AMAction::notifyPaused()
 {
-	if(state() != Pausing)
+	if(state() != Pausing) {
+		qWarning() << "AMAction: Warning: An action notified us it had paused, when it should not be pausing.";
 		return;
+	}
 	setState(Paused);
 }
 
 void AMAction::notifyResumed()
 {
-	if(state() != Resuming)
+	if(state() != Resuming) {
+		qWarning() << "AMAction: Warning: An action notified us it had resumed, when it should not be resuming.";
 		return;
+	}
 	setState(Running);
 }
 
 void AMAction::notifyCancelled()
 {
 	// only called by implementation when finished cancelling.
-	if(state() != Cancelling)
+	if(state() != Cancelling) {
+		qWarning() << "AMAction: Warning: An action notified us it was cancelled before we could possibly cancel it.";
 		return;
+	}
 	endDateTime_ = QDateTime::currentDateTime();
 	setState(Cancelled);
 }

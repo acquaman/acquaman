@@ -109,19 +109,6 @@ protected:
 	/// All implementations must support cancelling. This function will be called from the Cancelling state. In SequentialMode, we cancel() the currently running action (unless we're paused between actions.)  In ParallelMode, we cancel all the still-running actions.
 	virtual void cancelImplementation();
 
-private:
-	/// Ordered list of sub-actions
-	QList<AMAction*> subActions_;
-	/// Whether to run sub-actions sequentially or in parallel
-	SubActionMode subActionMode_;
-	/// In SequentialMode, indicates the current sub-action. This is -1 before starting, 0 immediately after starting, and equals subActionCount() when all actions are done.  It is updated immediately after the previous sub-action succeeds. If we are Pausing and supposed to stop between actions, it is still advanced, but the next action is not yet started().
-	int currentSubActionIndex_;
-
-	/// Helper function to connect a sub-action to our state-monitoring slots
-	void internalConnectAction(AMAction* action);
-	/// Helper function to disconnect a sub-action from our state-monitoring slots
-	void internalDisconnectAction(AMAction* action);
-
 	// Helper functions to check the state of all actions when running in ParallelMode
 	/////////////////
 	/// Returns true if all actions are in a final state (Succeeded, Failed, or Cancelled)
@@ -134,6 +121,24 @@ private:
 	bool internalAnyActionsFailed() const;
 	/// Returns true if ANY actions are in the cancelled state.
 	bool internalAnyActionsCancelled() const;
+
+	/// Returns true if all actions specify an expected duration (ie: AMActionInfo::expectedDuration() does not return -1)
+	bool internalAllActionsHaveExpectedDuration() const;
+
+
+
+private:
+	/// Ordered list of sub-actions
+	QList<AMAction*> subActions_;
+	/// Whether to run sub-actions sequentially or in parallel
+	SubActionMode subActionMode_;
+	/// In SequentialMode, indicates the current sub-action. This is -1 before starting, 0 immediately after starting, and equals subActionCount() when all actions are done.  It is updated immediately after the previous sub-action succeeds. If we are Pausing and supposed to stop between actions, it is still advanced, but the next action is not yet started().
+	int currentSubActionIndex_;
+
+	/// Helper function to connect a sub-action to our state-monitoring slots
+	void internalConnectAction(AMAction* action);
+	/// Helper function to disconnect a sub-action from our state-monitoring slots
+	void internalDisconnectAction(AMAction* action);
 
 private slots:
 	/// Called when any of the sub-actions changes state.
