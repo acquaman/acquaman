@@ -1,6 +1,6 @@
 
 #include "AMNewRunDialog.h"
-
+#include "AMErrorMonitor.h"
 
 //Constructor:
 
@@ -56,12 +56,10 @@ void AMNewRunDialog::addFacility(){
 
 	// searching database for the required components
 	QSqlQuery q = database_->query();
-
-	//q.prepare(QString("SELECT Facilities.description FROM Facilities" ));
-
-	q.prepare(QString("SELECT Facilities.description,Facilities.name,Thumbnails.thumbnail,Thumbnails.type,Facilities.id "
-					  "FROM Facilities,Thumbnails WHERE Facilities.thumbnailFirstId = Thumbnails.id "
-					  "ORDER BY Facilities.id DESC"));
+#warning "Hard-coded database table names. This is not future-compatible code."
+	q.prepare(QString("SELECT AMFacility_table.description,AMFacility_table.name,AMDbObjectThumbnails_table.thumbnail,AMDbObjectThumbnails_table.type,AMFacility_table.id "
+					  "FROM AMFacility_table,AMDbObjectThumbnails_table WHERE AMFacility_table.thumbnailFirstId = AMDbObjectThumbnails_table.id "
+					  "ORDER BY AMFacility_table.id DESC"));
 
 	int i = 0;
 	if (q.exec()) {

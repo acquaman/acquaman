@@ -10,11 +10,7 @@ AMSample::AMSample(QObject *parent) :
 AMSample::AMSample(const QString& sampleName, QObject* parent)
 	: AMDbObject(parent)
 {
-	/// Initialize our unique pieces of meta-data. The values don't matter much, but we want to make sure that they're present in the metaData_ hash.
-	metaData_["dateTime"] = QDateTime::currentDateTime();
-	metaData_["notes"] = QString();
-	metaData_["image"] = QVariant();
-
+	dateTime_ = QDateTime::currentDateTime();
 	setName(sampleName);
 }
 
@@ -22,18 +18,15 @@ AMSample::AMSample(const QString& sampleName, QObject* parent)
 AMSample::AMSample(int databaseId, AMDatabase* database, QObject* parent)
 	: AMDbObject(parent)
 {
-	/// Initialize our unique pieces of meta-data. The values don't matter much, but we want to make sure that they're present in the metaData_ hash.
-	metaData_["dateTime"] = QDateTime::currentDateTime();
-	metaData_["notes"] = QString();
-	metaData_["image"] = QVariant();
 
 	loadFromDb(database, databaseId);
 }
 
+#include "dataman/AMDbObjectSupport.h"
 void AMSample::destroySample(AMDatabase* db, int id) {
 	if(db == 0)
 		return;
-	db->deleteRow(id, AMDatabaseDefinition::sampleTableName());
+	db->deleteRow(id, AMDbObjectSupport::tableNameForClass<AMSample>());
 }
 
 

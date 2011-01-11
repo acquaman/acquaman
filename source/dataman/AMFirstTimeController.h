@@ -17,7 +17,7 @@ class AMFirstTimeController : public QObject
 Q_OBJECT
 public:
 
-	/// It's recommended to call this function on application startup.  It checks if this is the first time the application has run, and calls onFirstTime() if that's true; otherwise it calls onEveryTime().  Returns true of everything that needs to happen is completed successfully.
+	/// It's recommended to call this function on application startup.  It checks if this is the first time the application has run, and calls onFirstTime() if that's true, otherwise it calls onEveryTime().  Returns true of everything that needs to happen is completed successfully.
 	static bool firstTimeCheck() {
 		if(isFirstTime())
 			return onFirstTime();
@@ -35,16 +35,14 @@ public:
 	/// This function supervises a process to ensure that user settings, the user data folder, and the database are ready for use. Returns true on success.
 	static bool onFirstTime();
 
-	/// Call this function on every other program startup (ie: whenever onFirstTime() is not called). Returns true on success
+	/// Call this function on every other program startup (ie: when onFirstTime() is not called). Returns true on success
 	static bool onEveryTime();
 
 
 protected:
-	/// create structures and tables for a new user database, from scratch
-	static bool databaseInitialization() ;
+	/// register the user database and all classes with the AMDbObject system. \c newUser is true if this is the very first time, and no user object exists yet.
+	static bool databaseInitialization(bool newUser) ;
 
-	/// Check whether the user database is the most recent version, and migrate if required.
-	static bool databaseUpgrade();
 
 };
 

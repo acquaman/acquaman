@@ -3,7 +3,7 @@
 
 #include "acquaman.h"
 #include "dataman/AMDbObject.h"
-#include "dataman/AMDatabaseDefinition.h"
+#include "dataman/AMMeasurementInfo.h"
 #include <QStringList>
 #include <QDebug>
 
@@ -11,6 +11,16 @@
 class AMDetectorInfo : public AMDbObject
 {
 Q_OBJECT
+
+	/// A description (human-readable string) for this type of detector
+	Q_PROPERTY(QString description READ description WRITE setDescription)
+	Q_PROPERTY(QString units READ units WRITE setUnits)
+	Q_PROPERTY(int rank READ rank)
+	Q_PROPERTY(AMnDIndex size READ size)
+#warning "AMDbObject does not yet support output of AMnDIndex"
+
+	Q_CLASSINFO("AMDbObject_Attributes", "description=Generic Detector")
+
 public:
 	// Constructors and destructors
 	/////////////////////////////////////
@@ -24,296 +34,248 @@ public:
 	/// Access the unique name of this detector. (Implemented in AMDbObject)
 	// QString name() const;
 	/// Access a human-readable description (ex: "Sample Current" or "Total Fluorescence Yield")
-	QString description() const { return metaData("description").toString(); }
+	QString description() const { return description_; }
+	/// The units describing this detector's readings. (ex: "counts", "milliAmps", etc.)
+	QString units() const { return units_; }
 
 	// Dimensionality and size:
 	////////////////////////////////////
-	/// Returns the number of dimensions in the output of this detector. A single point has dimension 0. A spectrum output would have dimension 1. An image output would have dimension 2.
-	virtual int dimension() const { return 0;}
-	/// Returns the rank (ie: number of elements) along each dimension of the detector.  For a single-point detector, an empty list is fine. For a spectrum output, this would contain one number (the number of pixels or points along the axis).  For an image output, this would contain the width and height.
-	virtual QList<int> rank() const { return QList<int>(); }
+	/// Returns the number of dimensions in the output of this detector. A single point has rank 0. A spectrum output would have rank 1. An image output would have rank 2.
+	virtual int rank() const { return 0;}
+	/// Returns the size (ie: number of elements) along each dimension of the detector.  For a single-point detector, returns an empty AMnDIndex(). For a spectrum output, this would contain one number (the number of pixels or points along the axis).  For an image output, this would contain the width and height.
+	virtual AMnDIndex size() const { return AMnDIndex(); }
+	/// Returns a list of AMAxisInfo describing the size and nature of each detector axis, in order.
+	virtual QList<AMAxisInfo>  axes() const { return QList<AMAxisInfo>(); }
+
+	/// Returns (or casts) this AMDetectorInfo as an AMMeasurementInfo, which contains the bare-bones dimensional information.
+	operator AMMeasurementInfo() {
+		return AMMeasurementInfo(name(), description(), units(), axes());
+	}
+
+
 	/// Convenience function to test if the detector has a dimesion > 0.
-	virtual bool isSpectralOutput() const { return (dimension() > 0); }
+	virtual bool isSpectralOutput() const { return (rank() > 0); }
+	/// I don't know what this is for.
 	virtual bool hasDetails() const { return false; }
 
 
-	// AMDbObject database interface
-	////////////////////////////////////
-	/// Specify all of our unique pieces of meta-data (excluding those inherited from base classes -- ie: own only)
-	static QList<AMMetaMetaData> metaDataUniqueKeys() {
-		QList<AMMetaMetaData> rv;
-		rv << AMMetaMetaData(QVariant::String, "description", true);
-		rv << AMMetaMetaData(QVariant::Int, "dimension", false);
-		rv << AMMetaMetaData(AM::IntList, "rank", false);
-		return rv;
-	}
-
-
-	/// This function needs to be overloaded to return all the available pieces of meta data for this type of object, including those inherited from base classes. (ie: own + base classes'). We simply append our unique meta-data onto the base class:
-	static QList<AMMetaMetaData> metaDataKeys() {
-		return AMDbObject::metaDataKeys() << metaDataUniqueKeys();
-	}
-
-	/// This virtual function returns all the available pieces of meta data for this type of object, by introspecting it's most detailed type. (ie: own + base classes' + subclasses')
-	virtual QList<AMMetaMetaData> metaDataAllKeys() const {
-		return this->metaDataKeys();
-	}
-
-	/// We want to store this in a separate table (so that it's easy to create relationships between detectors and scan objects).  Therefore, we reimplement databaseTableName():
-	virtual QString databaseTableName() const {
-		return AMDatabaseDefinition::detectorTableName();
-	}
-
-	/// Load yourself from the database. (returns true on success)
-	/*! Re-implemented from AMDbObject. */
-	virtual bool loadFromDb(AMDatabase* db, int id);
-
-	/// Store or update self in the database. (returns true on success)
-	/*! Re-implemented from AMDbObject::storeToDb(), this version also writes out the dimension and rank, even though they aren't strictly part of the meta-data.
-	  */
-	virtual bool storeToDb(AMDatabase* db);
-
-	/// Reimplemented from AMDbObject; provides a general human-readable description
-	virtual QString typeDescription() const {
-		return "Generic Detector";
-	}
-
 
 public slots:
-	/// Convenience function to set the human-readable description
+	/// Set the human-readable description
 	void setDescription(const QString& description) {
-		setMetaData("description", description);
+		description_ =  description;
+		setModified(true);
+	}
+	/// Set the units describing the detector's readings
+	void setUnits(const QString& units) {
+		units_ = units;
+		setModified(true);
 	}
 
 protected:
-
+	QString description_;
+	QString units_;
 };
 
 class AMSpectralOutputDetectorInfo : public AMDetectorInfo
 {
 Q_OBJECT
+	Q_PROPERTY(int binCount READ binCount WRITE setBinCount)
+	Q_PROPERTY(QString axisName READ axisName WRITE setAxisName)
+	Q_PROPERTY(QStringList binNames READ binNames WRITE setBinNames)
+	Q_PROPERTY(double integrationTime READ integrationTime WRITE setIntegrationTime)
+	Q_PROPERTY(double integrationTimeRangeMin READ integrationTimeRangeMin WRITE setIntegrationTimeRangeMin)
+	Q_PROPERTY(double integrationTimeRangeMax READ integrationTimeRangeMax WRITE setIntegrationTimeRangeMax)
+	Q_PROPERTY(QString integrationMode READ integrationMode WRITE setIntegrationMode)
+	Q_PROPERTY(QStringList integrationModeList READ integrationModeList)
+
+	Q_CLASSINFO("AMDbObject_Attributes", "description=Generic Binning Spectrum-Output Detector")
+
 public:
 	AMSpectralOutputDetectorInfo(const QString& name, const QString& description, int binCount = 0, QString axisName = "", QStringList binNames = QStringList(), QObject *parent = 0);
 
 	/// Number of bins or pixels along the axis
-	int binCount() const { return metaData("binCount").toInt(); }
+	int binCount() const { return binCount_; }
 	/// Name of the spectrum axis (ex: "eV")
-	QString axisName() const { return metaData("axisName").toString(); }
+	QString axisName() const { return axisName_; }
 	/// Name of each column or bin
-	QStringList binNames() const { return metaData("binNames").toStringList(); }
+	QStringList binNames() const { return binNames_; }
 	/// The sampling/integration time, in seconds
-	double integrationTime() const { return metaData("integrationTime").toDouble(); }
-	QPair<double, double> integrationTimeRange() const { QPair<double, double> rVal; rVal.first = metaData("integrationTimeRangeMin").toDouble(); rVal.second = metaData("integrationTimeRangeMax").toDouble(); return rVal;}
+	double integrationTime() const { return integrationTime_; }
+	QPair<double, double> integrationTimeRange() const { QPair<double, double> rVal; rVal.first = integrationTimeRangeMin_; rVal.second =integrationTimeRangeMax_; return rVal;}
+	double integrationTimeRangeMin() const { return integrationTimeRangeMin_; }
+	double integrationTimeRangeMax() const { return integrationTimeRangeMax_; }
 	/// The integration mode (describes the integration time: real, ____, or \todo )
-	QString integrationMode() const { return metaData("integrationMode").toString(); }
-	QStringList integrationModeList() const { return metaData("integrationModeList").toStringList(); }
-	//QStringList integrationModes() const { return integrationModes_;}
+	QString integrationMode() const { return integrationMode_; }
+	QStringList integrationModeList() const { return integrationModeList_; }
 
 	// Dimensionality and size:
 	////////////////////////////////////
 	/// Returns the number of dimensions in the output of this detector. A single point has dimension 0. A spectrum output would have dimension 1. An image output would have dimension 2.
-	virtual int dimension() const { return 1;}
+	virtual int rank() const { return 1;}
 	/// Returns the rank (ie: number of elements) along each dimension of the detector.  Since this detector outputs a spectrum, this would contain one number (the number of pixels, points, or bins along the axis).
-	virtual QList<int> rank() const { QList<int> rv; rv << binCount(); return rv; }
-
-
-	// AMDbObject database interface
-	////////////////////////////////////
-	/// Specify all of our unique pieces of meta-data (excluding those inherited from base classes -- ie: own only)
-	static QList<AMMetaMetaData> metaDataUniqueKeys() {
-		QList<AMMetaMetaData> rv;
-		rv << AMMetaMetaData(QVariant::Int, "binCount", true);
-		rv << AMMetaMetaData(QVariant::String, "axisName", true);
-		rv << AMMetaMetaData(QVariant::StringList, "binNames", true);
-		rv << AMMetaMetaData(QVariant::Double, "integrationTime", true);
-		rv << AMMetaMetaData(QVariant::Double, "integrationTimeRangeMin", true);
-		rv << AMMetaMetaData(QVariant::Double, "integrationTimeRangeMax", true);
-		rv << AMMetaMetaData(QVariant::String, "integrationMode", true);
-		rv << AMMetaMetaData(QVariant::StringList, "integrationModeList", true);
+	virtual AMnDIndex size() const { return AMnDIndex(binCount()); }
+	/// Returns a list of AMAxisInfo describing the size and nature of each detector axis, in order.  Here we have a single axis.
+	virtual QList<AMAxisInfo>  axes() const {
+		QList<AMAxisInfo> rv;
+		AMAxisInfo binAxis(name()+"_x", binCount(), description() + " axis" );	/// \todo better name description, and provide units
+		rv << binAxis;
 		return rv;
-	}
-
-
-	/// This function needs to be overloaded to return all the available pieces of meta data for this type of object, including those inherited from base classes. (ie: own + base classes'). We simply append our unique meta-data onto the base class:
-	static QList<AMMetaMetaData> metaDataKeys() {
-//		return AMDbObject::metaDataKeys() << metaDataUniqueKeys();
-		return AMDetectorInfo::metaDataKeys() << metaDataUniqueKeys();
-	}
-
-	/// This virtual function returns all the available pieces of meta data for this type of object, by introspecting it's most detailed type. (ie: own + base classes' + subclasses')
-	virtual QList<AMMetaMetaData> metaDataAllKeys() const {
-		return this->metaDataKeys();
-	}
-
-	/// Since everything is stored in the meta-data hash, we can use the default implementation of storeToDb() and loadFromDb().
-
-	/// Reimplemented from AMDbObject; provides a general human-readable description
-	virtual QString typeDescription() const {
-		return "Generic Binning Spectrum-Output Detector";
 	}
 
 
 public slots:
 	void setBinCount(int numBins) {
-		setMetaData("binCount", numBins);
+		binCount_ = numBins;
+		setModified(true);
 	}
 	void setAxisName(const QString& axisName) {
-		setMetaData("axisName", axisName);
+		axisName_ = axisName;
+		setModified(true);
 	}
 	void setBinNames(const QStringList& binNames) {
-		setMetaData("binNames", binNames);
+		binNames_ = binNames;
+		setModified(true);
 	}
 	void setIntegrationTime(double integrationTime) {
-		setMetaData("integrationTime", integrationTime);
+		integrationTime_ = integrationTime;
+		setModified(true);
 	}
+	void setIntegrationTimeRangeMin(double min) {
+		integrationTimeRangeMin_ = min;
+		setModified(true);
+	}
+	void setIntegrationTimeRangeMax(double max) {
+		integrationTimeRangeMax_ = max;
+		setModified(true);
+	}
+
 	void setIntegrationTimeRange(QPair<double, double> range){
-		setMetaData("integrationTimeRangeMin", range.first);
-		setMetaData("integrationTimeRangeMax", range.second);
+		integrationTimeRangeMin_ = range.first;
+		integrationTimeRangeMax_ = range.second;
+		setModified(true);
 	}
 	void setIntegrationMode(const QString& integrationMode) {
 		/// \todo check that integrationMode is one of valid choices.
-		if(integrationModeList().contains(integrationMode)){
-			setMetaData("integrationMode", integrationMode);
-		}
+		integrationMode_ = integrationMode;
+		setModified(true);
 	}
 
 protected:
-	//QStringList integrationModes_;
+	int binCount_;
+	QString axisName_;
+	QStringList binNames_;
+	double integrationTime_, integrationTimeRangeMin_, integrationTimeRangeMax_;
+	QString integrationMode_;
+	QStringList integrationModeList_;
 };
 
 class MCPDetectorInfo : public AMDetectorInfo
 {
 Q_OBJECT
+	Q_PROPERTY(double hvSetpoint READ hvSetpoint WRITE setHVSetpoint)
+	Q_PROPERTY(double hvSetpointRangeMin READ hvSetpointRangeMin WRITE setHVSetpointRangeMin)
+	Q_PROPERTY(double hvSetpointRangeMax READ hvSetpointRangeMax WRITE setHVSetpointRangeMax)
+
+	Q_CLASSINFO("AMDbObject_Attributes", "description=MCP Detector")
+
 public:
 	MCPDetectorInfo(const QString& name, const QString& description, QObject *parent = 0);
 
 	/// Operational setpoint for High Voltage (HV)
-	double hvSetpoint() const { return metaData("hvSetpoint").toDouble(); }
+	double hvSetpoint() const { return hvSetpoint_; }
+	double hvSetpointRangeMin() const { return hvSetpointRangeMin_; }
+	double hvSetpointRangeMax() const { return hvSetpointRangeMax_; }
 	QPair<double, double> hvSetpointRange() const {
-		QPair<double, double> rVal;
-		rVal.first = metaData("hvSetpointRangeMin").toDouble();
-		rVal.second = metaData("hvSetpointRangeMax").toDouble();
-		return rVal;
+		return QPair<double, double>(hvSetpointRangeMin_, hvSetpointRangeMax_);
 	}
+
 
 	// Dimensionality and size:
 	////////////////////////////////////
-	/// Returns the number of dimensions in the output of this detector. A single point has dimension 0. A spectrum output would have dimension 1. An image output would have dimension 2.
-	virtual int dimension() const { return 0;}
-	/// Returns the rank (ie: number of elements) along each dimension of the detector.  Since this detector outputs a spectrum, this would contain one number (the number of pixels, points, or bins along the axis).
-	virtual QList<int> rank() const { return QList<int>(); }
+
+	// Since this is a single-point detector, we're using the default rank(), size(), and axes() from AMDetectorInfo.
+
+
+
+
 	virtual bool hasDetails() const { return true; }
 
-
-	// AMDbObject database interface
-	////////////////////////////////////
-	/// Specify all of our unique pieces of meta-data (excluding those inherited from base classes -- ie: own only)
-	static QList<AMMetaMetaData> metaDataUniqueKeys() {
-		QList<AMMetaMetaData> rv;
-		rv << AMMetaMetaData(QVariant::Double, "hvSetpoint", true);
-		rv << AMMetaMetaData(QVariant::Double, "hvSetpointRangeMin", true);
-		rv << AMMetaMetaData(QVariant::Double, "hvSetpointRangeMax", true);
-		return rv;
-	}
-
-
-	/// This function needs to be overloaded to return all the available pieces of meta data for this type of object, including those inherited from base classes. (ie: own + base classes'). We simply append our unique meta-data onto the base class:
-	static QList<AMMetaMetaData> metaDataKeys() {
-//		return AMDbObject::metaDataKeys() << metaDataUniqueKeys();
-		return AMDetectorInfo::metaDataKeys() << metaDataUniqueKeys();
-	}
-
-	/// This virtual function returns all the available pieces of meta data for this type of object, by introspecting it's most detailed type. (ie: own + base classes' + subclasses')
-	virtual QList<AMMetaMetaData> metaDataAllKeys() const {
-		return this->metaDataKeys();
-	}
-
-	/// Since everything is stored in the meta-data hash, we can use the default implementation of storeToDb() and loadFromDb().
-
-	/// Reimplemented from AMDbObject; provides a general human-readable description
-	virtual QString typeDescription() const {
-		return "MCP Detector";
-	}
 
 
 public slots:
 	void setHVSetpoint(double hvSetpoint) {
-		setMetaData("hvSetpoint", hvSetpoint);
+		hvSetpoint_ = hvSetpoint;
+		setModified(true);
+	}
+	void setHVSetpointRangeMin(double min) {
+		hvSetpointRangeMin_ = min;
+		setModified(true);
+	}
+	void setHVSetpointRangeMax(double max) {
+		hvSetpointRangeMax_ = max;
+		setModified(true);
 	}
 	void setHVSetpointRange(QPair<double, double> range){
-		setMetaData("hvSetpointRangeMin", range.first);
-		setMetaData("hvSetpointRangeMax", range.second);
+		hvSetpointRangeMin_ = range.first;
+		hvSetpointRangeMax_ = range.second;
+		setModified(true);
 	}
 
 protected:
-
+	double hvSetpointRangeMin_, hvSetpointRangeMax_, hvSetpoint_;
 };
 
 class PGTDetectorInfo : public AMSpectralOutputDetectorInfo
 {
 Q_OBJECT
+	Q_PROPERTY(double hvSetpoint READ hvSetpoint WRITE setHVSetpoint)
+	Q_PROPERTY(double hvSetpointRangeMin READ hvSetpointRangeMin WRITE setHVSetpointRangeMin)
+	Q_PROPERTY(double hvSetpointRangeMax READ hvSetpointRangeMax WRITE setHVSetpointRangeMax)
+
+	Q_CLASSINFO("AMDbObject_Attributes", "description=PGT Detector")
+
 public:
 	PGTDetectorInfo(const QString& name, const QString& description, QObject *parent = 0);
 
 	/// Operational setpoint for High Voltage (HV)
-	double hvSetpoint() const { return metaData("hvSetpoint").toDouble(); }
+	double hvSetpoint() const { return hvSetpoint_; }
+	double hvSetpointRangeMin() const { return hvSetpointRangeMin_; }
+	double hvSetpointRangeMax() const { return hvSetpointRangeMax_; }
 	QPair<double, double> hvSetpointRange() const {
-		QPair<double, double> rVal;
-		rVal.first = metaData("hvSetpointRangeMin").toDouble();
-		rVal.second = metaData("hvSetpointRangeMax").toDouble();
-		return rVal;
+		return QPair<double, double>(hvSetpointRangeMin_, hvSetpointRangeMax_);
 	}
 
 	// Dimensionality and size:
 	////////////////////////////////////
-	/// Returns the number of dimensions in the output of this detector. A single point has dimension 0. A spectrum output would have dimension 1. An image output would have dimension 2.
-	virtual int dimension() const { return 1;}
-	/// Returns the rank (ie: number of elements) along each dimension of the detector.  Since this detector outputs a spectrum, this would contain one number (the number of pixels, points, or bins along the axis).
-	virtual QList<int> rank() const { QList<int> rv; rv << binCount(); return rv; }
+
+	// Using the base class (AMSpectralOutputDetector) for default rank(), size(), and axes().
+
+
 	virtual bool hasDetails() const { return true; }
-
-
-	// AMDbObject database interface
-	////////////////////////////////////
-	/// Specify all of our unique pieces of meta-data (excluding those inherited from base classes -- ie: own only)
-	static QList<AMMetaMetaData> metaDataUniqueKeys() {
-		QList<AMMetaMetaData> rv;
-		rv << AMMetaMetaData(QVariant::Double, "hvSetpoint", true);
-		rv << AMMetaMetaData(QVariant::Double, "hvSetpointRangeMin", true);
-		rv << AMMetaMetaData(QVariant::Double, "hvSetpointRangeMax", true);
-		return rv;
-	}
-
-
-	/// This function needs to be overloaded to return all the available pieces of meta data for this type of object, including those inherited from base classes. (ie: own + base classes'). We simply append our unique meta-data onto the base class:
-	static QList<AMMetaMetaData> metaDataKeys() {
-//		return AMDbObject::metaDataKeys() << metaDataUniqueKeys();
-		return AMSpectralOutputDetectorInfo::metaDataKeys() << metaDataUniqueKeys();
-	}
-
-	/// This virtual function returns all the available pieces of meta data for this type of object, by introspecting it's most detailed type. (ie: own + base classes' + subclasses')
-	virtual QList<AMMetaMetaData> metaDataAllKeys() const {
-		return this->metaDataKeys();
-	}
-
-	/// Since everything is stored in the meta-data hash, we can use the default implementation of storeToDb() and loadFromDb().
-
-	/// Reimplemented from AMDbObject; provides a general human-readable description
-	virtual QString typeDescription() const {
-		return "PGT SDD Spectrum-Output Detector";
-	}
 
 
 public slots:
 	void setHVSetpoint(double hvSetpoint) {
-		setMetaData("hvSetpoint", hvSetpoint);
+		hvSetpoint_ = hvSetpoint;
+		setModified(true);
+	}
+	void setHVSetpointRangeMin(double min) {
+		hvSetpointRangeMin_ = min;
+		setModified(true);
+	}
+	void setHVSetpointRangeMax(double max) {
+		hvSetpointRangeMax_ = max;
+		setModified(true);
 	}
 	void setHVSetpointRange(QPair<double, double> range){
-		setMetaData("hvSetpointRangeMin", range.first);
-		setMetaData("hvSetpointRangeMax", range.second);
+		hvSetpointRangeMin_ = range.first;
+		hvSetpointRangeMax_ = range.second;
+		setModified(true);
 	}
 
 protected:
+	double hvSetpointRangeMin_, hvSetpointRangeMax_, hvSetpoint_;
 
 };
 #endif // AMDetectorInfo_H

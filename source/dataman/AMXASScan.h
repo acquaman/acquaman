@@ -13,30 +13,15 @@
 	See AMXASSpectrumScan for scans which include 1D data (such as the SGM's silicon drift detector) for every eV datapoint.
   */
 class AMXASScan : public AMScan {
-Q_OBJECT
+	Q_OBJECT
+	Q_CLASSINFO("AMDbObject_Attributes", "shareTableWithClass=AMScan;description=XRay Absorption Scan")
+
 public:
 	/// create a new XAS scan with the following named \c detectors. Each "detector" is a source of a datapoint, that will be stored/logged, available as a column of raw data, and accessible through channel(s).
-	explicit AMXASScan(const QList<AMDetectorInfo*> &detectors = QList<AMDetectorInfo*>(), QObject *parent = 0);
+	Q_INVOKABLE explicit AMXASScan(QObject *parent = 0);
 
 	/// Re-implemented from AMScan. Currently only the SGM2004 and ALS Bl8.0.1 file formats are supported.
-	virtual bool loadData();
-
-	/// the detectors (raw data columns) available within this scan. Does not include the primary column (eV), which is always present.
-	QStringList detectorNames() const { return detectorNames_; }
-	QList<const AMDetectorInfo*> detectors() const { return detectors_; }
-
-	/// Add a new named detector (returns false if detector already exists)
-	bool addDetector(const AMDetectorInfo* uniqueDetector);
-
-
-	/// \todo append new data values... (from outside, or inside the class?)
-	/// \todo clear data? (allow from outside the class?)
-	/// \todo some way to encapsulate a bunch of information about detectors: units, detailed comment on where it comes from, whether to show or hide by default in user-facing views.
-
-	/// Reimplemented from AMScan; provides a general human-readable description
-	virtual QString typeDescription() const {
-		return "Xray Absorption Scan";
-	}
+	virtual bool loadDataImplementation();
 
 signals:
 	// inherits dataChanged(AMScan*)
@@ -46,8 +31,6 @@ public slots:
 protected slots:
 
 protected:
-	QStringList detectorNames_;
-	QList<const AMDetectorInfo*> detectors_;
 
 	QString legacyGrating_;
 	QString legacyIntegrationTime_;

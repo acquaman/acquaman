@@ -1,5 +1,6 @@
 #include "AMThumbnailScrollViewer.h"
-#include "dataman/AMDatabaseDefinition.h"
+#include "dataman/AMDbObjectSupport.h"
+#include "AMErrorMonitor.h"
 
 #include <QVBoxLayout>
 
@@ -130,7 +131,7 @@ void AMThumbnailScrollViewer::displayThumbnail(AMDatabase* db, int id) {
 	}
 
 	QSqlQuery q = db->query();
-	q.prepare(QString("SELECT title, subtitle, type, thumbnail FROM %1 WHERE id = ?").arg(AMDatabaseDefinition::thumbnailTableName()));
+	q.prepare(QString("SELECT title, subtitle, type, thumbnail FROM %1 WHERE id = ?").arg(AMDbObjectSupport::thumbnailTableName()));
 	q.bindValue(0, id);
 	if(q.exec() && q.first()) {
 		title_->setText(q.value(0).toString());
@@ -337,7 +338,7 @@ void AMThumbnailScrollGraphicsWidget::displayThumbnail(AMDatabase* db, int id) {
 	// qDebug() << "AMThumbnailScrollGraphicsWidget::displayThumbnail() -- Doing database lookup";
 
 	QSqlQuery q = db->query();
-	q.prepare(QString("SELECT title,subtitle,type,thumbnail FROM %1 WHERE id = ?").arg(AMDatabaseDefinition::thumbnailTableName()));
+	q.prepare(QString("SELECT title,subtitle,type,thumbnail FROM %1 WHERE id = ?").arg(AMDbObjectSupport::thumbnailTableName()));
 	q.bindValue(0, id);
 	if(q.exec() && q.first()) {
 		title_ = q.value(0).toString();
@@ -507,7 +508,7 @@ QDrag* AMThumbnailScrollGraphicsWidget::createDragObject(QWidget* dragSourceWidg
 				return 0;
 
 			QSqlQuery q = sourceDb_->query();
-			q.prepare(QString("SELECT objectId,objectTableName FROM %1 WHERE id = ?").arg(AMDatabaseDefinition::thumbnailTableName()));
+			q.prepare(QString("SELECT objectId,objectTableName FROM %1 WHERE id = ?").arg(AMDbObjectSupport::thumbnailTableName()));
 			q.bindValue(0, ids_.at(0));
 			if(q.exec() && q.first()) {
 				uri = QString("amd://%1/%2/%3").arg(sourceDb_->connectionName()).arg(q.value(1).toString()).arg(q.value(0).toInt());
@@ -524,7 +525,7 @@ QDrag* AMThumbnailScrollGraphicsWidget::createDragObject(QWidget* dragSourceWidg
 			return 0;
 		if(sourceObject_->id() < 1)
 			return 0;
-		uri = QString("amd://%1/%2/%3").arg(sourceObject_->database()->connectionName()).arg(sourceObject_->databaseTableName()).arg(sourceObject_->id());
+		uri = QString("amd://%1/%2/%3").arg(sourceObject_->database()->connectionName()).arg(sourceObject_->dbTableName()).arg(sourceObject_->id());
 	}
 
 	QDrag* drag = new QDrag(dragSourceWidget);

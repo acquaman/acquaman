@@ -19,15 +19,6 @@ class AMDataTree;
 /// This is a typedef for the type of a vector of subtrees.
 typedef QVector<QSharedDataPointer<AMDataTree> > AMDataTreeSubtreeColumn;
 
-/// This defines the value that will be returned when an out-of-range value is requested from a data tree column.
-#define AMDATATREE_OUTOFRANGE_VALUE -1.0
-
-/// This defines the value that will be returned when a value is requested from a non-existent column
-#define AMDATATREE_NONEXISTENT_VALUE -2.0
-
-/// This defines the default value that will be inserted in empty columns when a new row is created in a tree
-#define AMDATATREE_INSERT_VALUE 1.0
-
 /// This class is an attempt at supporting arbitrary-dimensionality data for AMScan objects, while maintaining simple (programmer-easy) and fast (high-performance) access to the data.
 /*! Data must have a principal column (usually the "x" axis or main independent variable), and the values stored in this column must be true data values.
 The dataset can have an arbitrary number of additional columns (ex: "tey_raw", "tfy_raw", and "sddSpectrums").  These columns can contain single datapoints (stored in \c y_) OR links to separate AMDataTables containing higher-dimensional data (stored in \c yD_).
@@ -39,7 +30,7 @@ AMDataTree myXasData;
 printf( "(%d, %d)", myXasData.x(5), myXasData.value("tey", 5) );
 \endcode
 
-However, all of the datapoints in the "sddSpectrums" column would actually be links to other AMDataTables.  (In the case of the SDD (silicon drift detector), the linked tables would contain an x column (pixel value or energy value) and a y column of intensities.)
+However, all of the datapoints in the "sddSpectrums" column would actually be links to other AMDataTrees.  (In the case of the SDD (silicon drift detector), the linked tables would contain an x column (pixel value or energy value) and a y column of intensities.)
 Externally, an actual data value would be accessed as:
 \code
 myXasData.deeper("sddSpectrums", 5)->value("sddIntensities", 512);
@@ -73,7 +64,7 @@ class AMDataTree : public QSharedData {
 
 public:
 	/// Constructor. Creates a tree with just a single (x) column. If it has explicit x values (specify hasXValues = true), space is allocated but no initialization is done; all the x values will be 0.
-	explicit AMDataTree(unsigned count = 0, const QString& xColumnName = "x", bool hasXValues = false);
+	explicit AMDataTree(unsigned count = 0, const QString& xColumnName = "x", bool hasXValues = false, bool fillNewSubTreesNull = false);
 
 
 
@@ -283,17 +274,17 @@ copyXASData.deeper("sddSpectrums",5)->setValue("y", 512, 49.3);
 
 	\test
 	*/
-	void append(const AMNumericType& newValue = 0);
+	void append(const AMNumericType& newValue = AMNumber(), AMDataTree *initializerTree = NULL, bool useInitializer = false);
 
 	/// This a convenience function, equivalent to setValue(colIndex, count()-1, newValue). It's useful when filling extra columns after append(). \test
-	void setLastValue(unsigned colIndex, const AMNumericType& newValue = 0) {
+	void setLastValue(unsigned colIndex, const AMNumericType& newValue = AMNumber()) {
 
 		setValue(colIndex, count_ - 1, newValue);
 
 	}
 
 	/// This a convenience function, equivalent to setValue(colName, count()-1, newValue). It's useful when filling extra columns after append(). \test
-	void setLastValue(const QString& colName, const AMNumericType& newValue = 0) {
+	void setLastValue(const QString& colName, const AMNumericType& newValue = AMNumber()) {
 
 		setValue(colName, count_ - 1, newValue);
 
@@ -340,6 +331,9 @@ protected:
 	QList<AMDataTreeSubtreeColumn> yD_;
 
 	QList<AMDataTree*> prototypes_;
+
+	bool fillNewSubTreesNull_;
+	void resetDataTreeNull(AMDataTree *dataTree);
 
 	/// used to lookup subtree column indices based on column names
 	AMBiHash<QString, int> yDNames_;

@@ -88,7 +88,7 @@ void AMDatabase::releasePublicDb() {
 	Return value: (IMPORTANT) returns the id of the row that was inserted into or updated, or 0 on failure.
 	When inserting new objects, make sure to set their id to the return value afterwards, otherwise they will be duplicated on next insert.
 */
-int AMDatabase::insertOrUpdate(int id, const QString& table, const QStringList& colNames, const QList<const QVariant*>& values) {
+int AMDatabase::insertOrUpdate(int id, const QString& table, const QStringList& colNames, const QVariantList& values) {
 
 	QSqlDatabase db = qdb();
 
@@ -119,7 +119,7 @@ int AMDatabase::insertOrUpdate(int id, const QString& table, const QStringList& 
 
 	// Bind remaining values
 	for(int i=0; i<colNames.count(); i++)
-		query.bindValue(i+1, *(values.at(i)));
+		query.bindValue(i+1, values.at(i));
 
 	// Run query. Query failed?
 	if(!query.exec()) {
@@ -285,12 +285,14 @@ int AMDatabase::deleteRows(const QString& tableName, const QString& whereClause)
 	(Note that the const and & arguments are designed to prevent memory copies, so this should be fast.)
 	Return value: returns true on success.
 */
-bool AMDatabase::retrieve(int id, const QString& table, const QStringList& colNames, const QList<QVariant*>& values) {
+QVariantList AMDatabase::retrieve(int id, const QString& table, const QStringList& colNames) const {
+
+	QVariantList values;	// return value
 
 	/// \todo sanitize more than this...
 	if(table.isEmpty()) {
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -10, "Could not search the database. (Missing the table name.)"));
-		return false;
+		return values;
 	}
 
 	// create a query on our database connection:
@@ -305,26 +307,22 @@ bool AMDatabase::retrieve(int id, const QString& table, const QStringList& colNa
 	// run query. Did it succeed?
 	if(!q.exec()) {
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -4, QString("database retrieve failed. Could not execute query (%1). The SQL reply was: %2").arg(q.executedQuery()).arg(q.lastError().text())));
-		return false;
+		return values;
 	}
 	// If we found a record at this id:
 	if(q.first()) {
 		// copy columns to return values:
-		for(int i=0; i<values.count(); i++)
-			*(values.at(i)) = q.value(i);
+		for(int i=0; i<colNames.count(); i++)
+			values << q.value(i);
 
 		q.finish();
-		return true;
 	}
-	// else: didn't find this id.  That's normal if it's not there; just return false.
-	else {
-		return false;
-	}
-
+	// otherwise: didn't find this id.  That's normal if it's not there; just return empty list
+	return values;
 }
 
 
-QVariant AMDatabase::retrieve(int id, const QString& table, const QString& colName) {
+QVariant AMDatabase::retrieve(int id, const QString& table, const QString& colName) const {
 
 	/// \todo sanitize more than this...
 	if(table.isEmpty()) {
@@ -359,7 +357,7 @@ QVariant AMDatabase::retrieve(int id, const QString& table, const QString& colNa
 
 
 /// returns a list of all the objecst/rows (by id) that match a given condition. \c whereClause is a string suitable for appending after an SQL "WHERE" statement.
-QList<int> AMDatabase::objectsWhere(const QString& tableName, const QString& whereClause) {
+QList<int> AMDatabase::objectsWhere(const QString& tableName, const QString& whereClause) const {
 
 	QList<int> rl;
 
@@ -385,7 +383,7 @@ QList<int> AMDatabase::objectsWhere(const QString& tableName, const QString& whe
 
 /// Return a list of all the objects/rows (by id) that match 'value' in a certain column.
 /// ex: AMDatabase::db()->objectsMatching("name", "Carbon60"), or AMDatabase::db()->objectsMatching("dateTime", QDateTime::currentDateTime())
-QList<int> AMDatabase::objectsMatching(const QString& tableName, const QString& colName, const QVariant& value) {
+QList<int> AMDatabase::objectsMatching(const QString& tableName, const QString& colName, const QVariant& value) const {
 
 	// return value: list of id's that match
 	QList<int> rl;
@@ -421,7 +419,7 @@ QList<int> AMDatabase::objectsMatching(const QString& tableName, const QString& 
 
 /// Return a list of all the objects/rows (by id) that contain 'value' in a certain column
 /// ex: AMDatabase::db()->scansContaining("name", "Carbon60") could return Scans with names Carbon60_alpha and bCarbon60_gamma
-QList<int> AMDatabase::objectsContaining(const QString& tableName, const QString& colName, const QVariant& value) {
+QList<int> AMDatabase::objectsContaining(const QString& tableName, const QString& colName, const QVariant& value) const {
 
 	QList<int> rl;
 
@@ -504,7 +502,7 @@ bool AMDatabase::ensureColumn(const QString& tableName, const QString& columnNam
 bool AMDatabase::createIndex(const QString& tableName, const QString& columnNames) {
 	QSqlQuery q( qdb() );
 	QString indexName = QString("idx_%1_%2").arg(tableName, columnNames);
-	indexName.remove(QRegExp("[\\s\\,\\;]"));
+	indexName.remove(QRegExp("[\\s\\,\\;]"));// remove whitespace, commas, and semicolons from index name...
 	q.prepare(QString("CREATE INDEX %1 ON %2(%3);").arg(indexName, tableName, columnNames));
 	if(q.exec()) {
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, QString("Added index on columns (%1) to table '%2'.").arg(columnNames).arg(tableName)));

@@ -8,10 +8,9 @@ AMRun::AMRun(QObject *parent) :
 		AMDbObject(parent)
 {
 	/// Initialize our unique pieces of meta-data. The values don't matter much, but we want to make sure that they're present in the metaData_ hash.
-	metaData_["dateTime"] = QDateTime::currentDateTime();
-	metaData_["notes"] = QString();
-	metaData_["endDateTime"]=QDateTime::currentDateTime();
-	metaData_["facilityId"]= int();
+	dateTime_ = QDateTime::currentDateTime();
+	endDateTime_=QDateTime::currentDateTime();
+	facilityId_= int();
 
 	dateRangeUpdateScheduled_ = false;
 	deleteWhenFinishedDateRangeUpdate_ = false;
@@ -22,12 +21,11 @@ AMRun::AMRun(const QString& runName, const int& facilityId, QObject* parent)
 	: AMDbObject(parent)
 {
 	/// Initialize our unique pieces of meta-data. The values don't matter much, but we want to make sure that they're present in the metaData_ hash.
-	metaData_["dateTime"] = QDateTime::currentDateTime();
-	metaData_["notes"] = QString();
-	metaData_["endDateTime"]=QDateTime::currentDateTime();
-	metaData_["facilityId"]=int();
-	this->setName(runName);
-	this->setFacilityId(facilityId);
+	dateTime_ = QDateTime::currentDateTime();
+	endDateTime_=QDateTime::currentDateTime();
+
+	setName(runName);
+	setFacilityId(facilityId);
 
 	dateRangeUpdateScheduled_ = false;
 	deleteWhenFinishedDateRangeUpdate_ = false;
@@ -37,11 +35,6 @@ AMRun::AMRun(const QString& runName, const int& facilityId, QObject* parent)
 AMRun::AMRun(int databaseId, AMDatabase* database, QObject* parent)
 	: AMDbObject(parent)
 {
-	/// Initialize our unique pieces of meta-data. The values don't matter much, but we want to make sure that they're present in the metaData_ hash.
-	metaData_["dateTime"] = QDateTime::currentDateTime();
-	metaData_["notes"] = QString();
-	metaData_["endDateTime"]=QDateTime::currentDateTime();
-	metaData_["facilityId"]=1;
 
 	loadFromDb(database, databaseId);
 
@@ -82,6 +75,8 @@ void AMRun::scheduleDateRangeUpdate(const QDateTime &alteredDateTime) {
 	}
 }
 
+#include "dataman/AMDbObjectSupport.h"
+#include "dataman/AMScan.h"
 void AMRun::doDateRangeUpdate() {
 
 	dateRangeUpdateScheduled_ = false;
@@ -90,14 +85,16 @@ void AMRun::doDateRangeUpdate() {
 		return;
 
 	QSqlQuery q = database()->query();
-	q.prepare(QString("SELECT MAX(dateTime) FROM %1 WHERE runId = ?").arg(AMDatabaseDefinition::objectTableName()));
+	QString scanTableName = AMDbObjectSupport::tableNameForClass<AMScan>();
+
+	q.prepare(QString("SELECT MAX(dateTime) FROM %1 WHERE runId = ?").arg(scanTableName));
 	q.bindValue(0, id());
 	if(q.exec() && q.first())
 		setEndDateTime(q.value(0).toDateTime());
 	else
 		setEndDateTime(QDateTime());
 
-	q.prepare(QString("SELECT MIN(dateTime) FROM %1 WHERE runId = ?").arg(AMDatabaseDefinition::objectTableName()));
+	q.prepare(QString("SELECT MIN(dateTime) FROM %1 WHERE runId = ?").arg(scanTableName));
 	q.bindValue(0, id());
 	if(q.exec() && q.first())
 		setDateTime(q.value(0).toDateTime());

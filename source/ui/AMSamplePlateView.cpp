@@ -1,4 +1,5 @@
 #include "AMSamplePlateView.h"
+#include "dataman/AMDbObjectSupport.h"
 
 AMSamplePlateSelector::AMSamplePlateSelector(AMSamplePlate* sourcePlate, QWidget *parent)
 	: QWidget(parent) {
@@ -74,7 +75,7 @@ void AMSamplePlateSelector::populateSamplePlates() {
 	ui_.plateComboBox->setItemData(0, -777);	// as a safety check, this makes sure that the "Sample Plate Id" of the "Create New..." item is an invalid index.
 
 	QSqlQuery q2 = AMDatabase::userdb()->query();
-	q2.prepare(QString("SELECT id,name,createTime FROM %1 ORDER BY createTime ASC").arg(AMDatabaseDefinition::samplePlateTableName()));
+	q2.prepare(QString("SELECT id,name,createTime FROM %1 ORDER BY createTime ASC").arg(AMDbObjectSupport::tableNameForClass<AMSamplePlate>()));
 	q2.exec();
 	int id;
 	QString name;
@@ -151,7 +152,7 @@ void AMSamplePlateSelector::onFinishCreatingNewPlate() {
 
 void AMSamplePlateSelector::onDatabaseUpdated(const QString &tableName, int id) {
 
-	if(tableName != AMDatabaseDefinition::samplePlateTableName())
+	if(tableName != AMDbObjectSupport::tableNameForClass<AMSamplePlate>() )
 		return;
 
 	if(id < 1)	// invalid ids here mean need a full table update
@@ -185,7 +186,7 @@ void AMSamplePlateSelector::onDatabaseUpdated(const QString &tableName, int id) 
 }
 
 void AMSamplePlateSelector::onDatabaseRemoved(const QString &tableName, int id) {
-	if(tableName == AMDatabaseDefinition::samplePlateTableName()) {
+	if(tableName == AMDbObjectSupport::tableNameForClass<AMSamplePlate>() ) {
 		if(id == plate_->id()) {
 			// deleted the current sample plate... This could be a problem.
 			plate_->changeSamplePlate(plate_->id());	// will cause a failed load and trigger error handling as usual... hopefully
@@ -196,7 +197,7 @@ void AMSamplePlateSelector::onDatabaseRemoved(const QString &tableName, int id) 
 }
 
 void AMSamplePlateSelector::onDatabaseCreated(const QString &tableName, int id) {
-	if(tableName != AMDatabaseDefinition::samplePlateTableName())
+	if(tableName != AMDbObjectSupport::tableNameForClass<AMSamplePlate>())
 		return;
 
 	schedulePlateRefresh();
@@ -226,7 +227,7 @@ AMSamplePlateView::AMSamplePlateView(AMSamplePlate* plate, QWidget *parent) :
 	sampleTableModel_ = new QStandardItemModel();
 	QStandardItem *tmpItem;
 	QSqlQuery q = AMDatabase::userdb()->query();
-	q.prepare(QString("SELECT id,name,dateTime FROM %1 ORDER BY dateTime DESC").arg(AMDatabaseDefinition::sampleTableName()));
+	q.prepare(QString("SELECT id,name,dateTime FROM %1 ORDER BY dateTime DESC").arg(AMDbObjectSupport::tableNameForClass<AMSample>()));
 	q.exec();
 
 	while(q.next()){
@@ -272,7 +273,7 @@ void AMSamplePlateView::setManipulator(AMControlSet *manipulator){
 
 
 void AMSamplePlateView::onSampleTableItemUpdated(QString tableName, int id){
-	if(tableName == AMDatabaseDefinition::sampleTableName()) {
+	if(tableName == AMDbObjectSupport::tableNameForClass<AMSample>()) {
 		sampleRefreshIDs_.append(id);
 		sampleRefreshInstructions_.append(0); //Instruction 0 is update
 		if(!sampleRefreshScheduled_){
@@ -283,20 +284,19 @@ void AMSamplePlateView::onSampleTableItemUpdated(QString tableName, int id){
 }
 
 void AMSamplePlateView::onSampleTableItemCreated(QString tableName, int id){
-	if(tableName == AMDatabaseDefinition::sampleTableName()) {
-		QVariant vSampleName, vSampleDateTime;
-		QList<QVariant*> sampleValues;
-		sampleValues << &vSampleName << &vSampleDateTime;
+	if(tableName == AMDbObjectSupport::tableNameForClass<AMSample>()) {
+
 		QStringList colNames;
 		colNames << "name" << "dateTime";
-		if(!AMDatabase::userdb()->retrieve(id, tableName, colNames, sampleValues)){
-			qDebug() << "Could not retrieve new sample from db";
+		QVariantList sampleValues = AMDatabase::userdb()->retrieve(id, tableName, colNames);	/// \todo check assumption that all sample plates created in user database?
+		if(sampleValues.isEmpty()){
+			qDebug() << "Could not retrieve new sample from db";	/// \todo Is this an error that could occur in production? Use AMErrorReport() instead if so.
 			return;
 		}
-		QStandardItem *tmpItem = new QStandardItem(sampleValues.at(0)->toString());
+		QStandardItem *tmpItem = new QStandardItem(sampleValues.at(0).toString());
 		tmpItem->setData(id, AM::IdRole);
-		tmpItem->setData(sampleValues.at(1)->toDateTime(), AM::DateTimeRole);
-		tmpItem->setData(AMDateTimeUtils::prettyDateTime(sampleValues.at(1)->toDateTime()), AM::DescriptionRole);
+		tmpItem->setData(sampleValues.at(1).toDateTime(), AM::DateTimeRole);
+		tmpItem->setData(AMDateTimeUtils::prettyDateTime(sampleValues.at(1).toDateTime()), AM::DescriptionRole);
 		sampleTableModel_->insertRow(0);
 		sampleTableModel_->setItem(0, 0, tmpItem);
 		QString tmpStr;
@@ -309,7 +309,7 @@ void AMSamplePlateView::onSampleTableItemRemoved(QString tableName, int id){
 
 	/// \bug What if a sample that you're using was removed from the table?
 #warning "What if a sample you are using was just removed from the sample table?"
-	if(tableName == AMDatabaseDefinition::sampleTableName())
+	if(tableName == AMDbObjectSupport::tableNameForClass<AMSample>())
 		return;
 }
 
@@ -327,7 +327,7 @@ void AMSamplePlateView::refreshSamples(){
 	idsToSearch.remove(idsToSearch.count()-1, 1);
 
 	QSqlQuery q = AMDatabase::userdb()->query();
-	q.prepare(QString("SELECT id,name,dateTime FROM %1 WHERE id IN (%2)").arg(AMDatabaseDefinition::sampleTableName()).arg(idsToSearch)) ;
+	q.prepare(QString("SELECT id,name,dateTime FROM %1 WHERE id IN (%2)").arg(AMDbObjectSupport::tableNameForClass<AMSample>()).arg(idsToSearch)) ;
 	if(!q.exec())
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, "Could not retrieve sample update information from the database."));
 	while(q.next()) {
@@ -661,7 +661,7 @@ void AMSamplePositionItemExpandingAdder::resetAdder(){
 void AMSamplePositionItemExpandingAdder::onMarkNewButtonClicked(){
 	//HEY DAVE, MAYBE CAN WATCH DB SIGNALS SO ONLY QUERY WHEN CHANGES MADE NOT BY YOU
 	QSqlQuery q = AMDatabase::userdb()->query();
-	q.prepare(QString("SELECT name FROM %1 WHERE name LIKE 'Sample %'").arg(AMDatabaseDefinition::sampleTableName()));
+	q.prepare(QString("SELECT name FROM %1 WHERE name LIKE 'Sample %'").arg(AMDbObjectSupport::tableNameForClass<AMSample>()));
 	q.exec();
 	int index;
 	int max = 0;

@@ -5,6 +5,7 @@ SGMXASScanConfiguration::SGMXASScanConfiguration(QObject *parent) : AMXASScanCon
 	regions_->setEnergyControl(SGMBeamline::sgm()->energy());
 	fluxResolutionSet_ = SGMBeamline::sgm()->fluxResolutionSet();
 	trackingSet_ = SGMBeamline::sgm()->trackingSet();
+	feedbackDetectors_ = SGMBeamline::sgm()->feedbackDetectors();
 	XASDetectors_ = SGMBeamline::sgm()->XASDetectors();
 	QPair<QString, QString> tmpCh;
 	tmpCh.first = "eV";
@@ -25,6 +26,8 @@ SGMXASScanConfiguration::SGMXASScanConfiguration(QObject *parent) : AMXASScanCon
 
 QList<AMDetectorInfo*> SGMXASScanConfiguration::usingDetectors() const{
 	QList<AMDetectorInfo*> usingDetectors;
+	usingDetectors << feedbackDetectors_->detectorByName("I0");
+	usingDetectors << feedbackDetectors_->detectorByName("eVFbk");
 	if(usingTEY_)
 		usingDetectors << XASDetectors_->detectorByName("tey");
 	if(usingTFY_)

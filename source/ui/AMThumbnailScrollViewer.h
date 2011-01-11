@@ -161,7 +161,7 @@ public:
 		tIndex_ = 0;
 		if(sourceObject_) {
 			objectId_ = sourceObject_->id();
-			tableName_ = sourceObject_->databaseTableName();
+			tableName_ = sourceObject_->dbTableName();
 			displayThumbnail(sourceObject_->thumbnail(tIndex_));
 		}
 		else {

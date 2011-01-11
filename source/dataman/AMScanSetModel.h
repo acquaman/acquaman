@@ -2,34 +2,38 @@
 #define AMSCANSETMODEL_H
 
 #include <QObject>
-#include "dataman/AMChannel.h"
-#include "dataman/AMScan.h"
 #include <QAbstractItemModel>
-#include "acquaman.h"
-
 #include <QPen>
 #include <QColor>
 
-/// This class holds meta-data information for channels, not contained within AMChannel itself, that is required by the AMScanSetModel.
-class AMScanSetModelChannelMetaData {
+#include "acquaman.h"
+#include "dataman/AMDataSource.h"
+#include "dataman/AMScan.h"
+#include "MPlot/MPlotColorMap.h"
+
+
+/// This class holds visualization information about AMDataSources; all the plot settings that are associated with a particular plot/layout, rather than with the AMDataSource itself.
+class AMDataSourcePlotSettings {
 public:
 	/// Default Constructor
-	AMScanSetModelChannelMetaData(const QColor& Color = nextColor(), double Priority = 1, const QPen& LinePen = QPen(), bool Visible = true)
+	AMDataSourcePlotSettings(const QColor& Color = nextColor(), double Priority = 1, const QPen& LinePen = QPen(), bool Visible = true)
 		: color(Color),
 		priority(Priority),
 		linePen(LinePen),
 		visible(Visible) {}
 
-	/// common color used for plotting this channel
+	/// common color used for plotting this data source
 	QColor color;
-	/// Priority level for this channel (used for ordering... lower numbers appear first.)
+	/// Colormap used for multi-dimensional data
+	MPlotColorMap colorMap;
+	/// Priority level for this data source (used for ordering... lower numbers appear first.)
 	double priority;
-	/// Pen used for this channel (dots, dashes, etc.)
+	/// Pen used for this data source (dots, dashes, etc.)
 	QPen linePen;
-	/// Whether this channel is shown/enabled in non-exclusive views.
+	/// Whether this data source is shown/enabled in non-exclusive views.
 	bool visible;
 
-	/// Globally-accessible function to get the "next" channel color to use.
+	/// Globally-accessible function to get the "next" data source color to use.
 	static QColor nextColor() {
 		static int i = 0;
 
@@ -51,29 +55,31 @@ public:
 
 };
 
-/// This class provides a standard Qt model for a set of AMScans, with the 2nd level in the tree containing their AMChannels.  It can be used with a standard Qt view (ex: QTreeView), and it's also used inside custom views like AMScanView.
-/*! Roles:
+/// This class provides a standard Qt model for a set of AMScans, with the 2nd level in the tree containing their AMDataSources.  It can be used with a standard Qt view (ex: QTreeView), and it's also used with custom views like AMScanView.
+/*!
+The data() function is implemented to return values that are relevant to standard Qt views:
 
-	Qt::DisplayRole: QString			- the name of the scan or channel
+Data Roles:
 
-	Qt::DecorationRole: QColor			- line/display color
+	Qt::DisplayRole: QString			- the name of the scan or data source
+	Qt::DecorationRole: QColor		- line/display color (\todo Return a QPixmap for 2D data sources, based on their colormap gradient?)
 
-	Qt::TooltipRole: QString			- detailed information
+	Qt::TooltipRole: QString			- detailed information (Scan's name, number, dateTime and sample name; or data source description() )
+	AM::DescriptionRole: QString		- detailed information (Scan sample name and dateTime; or data source description() )
 
-	Qt::CheckStateRole: Qt::CheckState	- whether visible or not. (Qt::Checked or Qt::Unchecked)
+	Qt::CheckStateRole: Qt::CheckState	- Data sources only: whether visible or not. (Qt::Checked or Qt::Unchecked)
 
-	AM::PointerRole: AMScan* or AMChannel*	- the pointer to the object
-
-	AM::PriorityRole: double- used for ordering (lowest to highest).
-
+	// custom roles:
+	AM::PointerRole: AMScan* or AMDataSource*	- the pointer to the object
+	AM::PriorityRole: double Data sources only: used for ordering (lowest to highest).
 	AM::LinePenRole: QPen	- pen used for drawing in scans
+	AM::CanCloseRole: whether an 'x' should be shown beside this scan/data-source, to allow closing or deleting.  On by default.
 
 
-	\note While while the Qt standard model API supports inserting/removing multiple rows at once, the AMScanSetModel guarantees that only <i>one</i> row (ie: Scan or Channel) will be inserted/removed/modified at a time.  For all the rowsInserted(), rowsRemoved(), and dataChanged() signals, it's safe to assume that \c start and \c end are the same, as well as \c topLeft and \c bottomRight.
-	\note When adding, rows will ALWAYS be added at the end of all existing rows.  However, rows may be <i>removed</i> from any position.
+	\note While while the Qt standard model API supports inserting/removing multiple rowse, the AMScanSetModel guarantees that only <i>one</i> row (ie: Scan or Data Source) will be inserted/removed/modified at a time.  For all the rowsInserted(), rowsRemoved(), and dataChanged() signals, it's safe to assume that \c start and \c end are the same, as well as \c topLeft and \c bottomRight.
 
 	\todo !!!!!!
-	hookup edited properties in scan/channels (name, etc.) to dataChanged() signal out of model.
+	hookup edited properties in scan/data sources (name, etc.) to dataChanged() signal out of model.
 	*/
 
 class AMScanSetModel : public QAbstractItemModel {
@@ -83,107 +89,135 @@ public:
 	/// Default constructor
 	AMScanSetModel(QObject* parent = 0) : QAbstractItemModel(parent) {}
 
-	/// Implemented from QAbstractItemModel.  Use this to create a QModelIndex to access a scan or channel.  Scans are found by row-based indexing at the top level of the tree (ie: \c parent is an invalid QModelIndex() ).  Channels are found by row-based indexing, using a valid parent corresponding to their Scan's index().
+	/// Implemented from QAbstractItemModel.  Use this to create a QModelIndex to access a scan or data source in the data() function.  Scans are found by row-based indexing at the top level of the tree (ie: \c parent is an invalid QModelIndex() ).  Data sources are found by row-based indexing, using a valid \c parent corresponding to their Scan's index().
 	QModelIndex index ( int row, int column, const QModelIndex & parent = QModelIndex() ) const;
 
-	/// Implemented from QAbstractItemModel.  Gives the parent index (ie: Scan index) for a lower-level element (ie: Channel index).
+	/// Implemented from QAbstractItemModel.  Gives the parent index (ie: Scan index) for a lower-level element (ie: data source index).
 	QModelIndex parent ( const QModelIndex & index ) const;
 
 	/// Implemented from QAbstractItemModel.
 	Qt::ItemFlags flags ( const QModelIndex & index ) const;
 
-	/// Returns data values based on the pointer roles and meta-data roles given in the class description.
+	/// Returns data values for roles that are relevant to standard Qt views.
 	QVariant data ( const QModelIndex & index, int role = Qt::DisplayRole ) const;
+
+	// Shortcut functions for accessing custom roles (ie: plot settings) which cannot be accessed through the scan itself
+	////////////////////////////////////
+
+	/// Returns a reference to the plot settings for the data source at \c dataSourceIndex within the scan at \c scanIndex. The plot settings include things like the visibility, line color, line pen, color map, etc.
+	const AMDataSourcePlotSettings& plotSettings(int scanIndex, int dataSourceIndex) const {
+		return sourcePlotSettings_.at(scanIndex).at(dataSourceIndex);
+	}
+	/// Indicates whether the data source at \c dataSourceIndex within the scan at \c scanIndex should be visible on plots.
+	bool isVisible(int scanIndex, int dataSourceIndex) const {
+		return sourcePlotSettings_.at(scanIndex).at(dataSourceIndex).visible;
+	}
+	/// Returns the color to use for data source at \c dataSourceIndex within the scan at \c scanIndex
+	QColor plotColor(int si, int di) const {	return sourcePlotSettings_.at(si).at(di).color; }
+	/// Returns the color map to use for data source at \c dataSourceIndex within the scan at \c scanIndex
+	MPlotColorMap plotColorMap(int si, int di) const { return sourcePlotSettings_.at(si).at(di).colorMap; }
+	/// Returns the priority to use for data source at \c dataSourceIndex within the scan at \c scanIndex. The priority is a double value that controls the stacking order of plots on top of each other.
+	double priority(int si, int di) const { return sourcePlotSettings_.at(si).at(di).priority; }
+	/// Returns the pen that should be used to draw the data source at \c dataSourceIndex within the scan at \c scanIndex
+	QPen plotPen(int si, int di) const {
+		QPen pen = sourcePlotSettings_.at(si).at(di).linePen;
+		pen.setColor(plotColor(si, di));
+		return pen;
+	}
+
+
 
 	/// Implemented from QAbstractItemModel.
 	QVariant headerData ( int section, Qt::Orientation orientation, int role = Qt::DisplayRole ) const;
 
-	/// Returns the number of scans (for a top-level \c parent = QModelIndex() ), or the number of channels (for a scan-level \c parent).
+	/// Returns the number of scans (for a top-level \c parent = QModelIndex() ), or the number of data sources (for a scan-level \c parent).
 	int rowCount ( const QModelIndex & parent = QModelIndex() ) const;
 	/// Returns the number of scans represented within the model.
-	int numScans() const { return rowCount(); }
+	int scanCount() const { return rowCount(); }
 	/// Return a list of the names of all scans in this model:
 	QStringList scanNames() const;
 
 	/// Implemented from QAbstractItemModel.  Number of columns is always 1.
-	int columnCount ( const QModelIndex & parent = QModelIndex() ) const;
+	int columnCount ( const QModelIndex & parent = QModelIndex() ) const { Q_UNUSED(parent); return 1; }
 	/// Implemented as required in QAbstractItemModel.
 	bool hasChildren ( const QModelIndex & parent = QModelIndex() ) const;
 
 	/// returns the row number of an AMScan in the top-level. returns -1 if not found.
-	int indexOf(AMScan* scan) const;
-	/// returns the row number of an AMChannel within an AMScan. Returns -1 if not found.
-	int indexOf(AMChannel* channel, AMScan* insideHere) const;
+	int indexOf(const AMScan* scan) const;
+	/// returns the row number of an AMDataSource within an AMScan. Returns -1 if not found.
+	int indexOf(const AMDataSource* dataSource, int scanIndex) const;
+	/// returns the row number of an AMDataSource within an AMScan. Returns -1 if not found.
+	int indexOf(const AMDataSource* dataSource, const AMScan* insideHere) const;
 
-	/// Shortcuts to accessing a scan pointer. (Can also retrieve using data() with an appropriate indexForScan() and the AMScanSetModel::PointerRole.)
+	/// Shortcuts to accessing a scan pointer.
 	AMScan* scanAt(int scanIndex) const {
-		if((unsigned)scanIndex >= (unsigned)scans_.count())
+		if(scanIndex < 0 || scanIndex >= scans_.count())
 			return 0;
 
-		return scans_[scanIndex];
-
-		// equivalent: return data(index(scanIndex,0), PointerRole).value<AMScan*>();
+		return scans_.at(scanIndex);
 	}
 
 	/// get a model index suitable for accessing a scan element:
 	QModelIndex indexForScan(int scanIndex) const {
 		return index(scanIndex, 0, QModelIndex());
 	}
-	/// get a model index suitable for accessing a scan element:
-	QModelIndex indexForScan(AMScan* scan) const {
+	/// get a model index suitable for accessing a scan element.
+	/* deprecated
+	QModelIndex indexForScan(const AMScan* scan) const {
 		return index(indexOf(scan), 0, QModelIndex());
-	}
+	}*/
 
-	/// get a model index suitable for accessing a channel element:
-	QModelIndex indexForChannel(int scanIndex, int channelIndex) {
-		return index(channelIndex, 0, indexForScan(scanIndex));
+	/// get a model index suitable for accessing a data source element:
+	QModelIndex indexForDataSource(int scanIndex, int dataSourceIndex) {
+		return index(dataSourceIndex, 0, indexForScan(scanIndex));
 	}
-	/// get a model index suitable for accessing a channel element:
-	QModelIndex indexForChannel(AMScan* scan, AMChannel* channel) {
-		return index(indexOf(channel, scan), 0, indexForScan(scan));
-	}
+	/// get a model index suitable for accessing a data source element:
+	/*
+	QModelIndex indexForDataSource(const AMScan* scan, const AMDataSource* dataSource) {
+		return index(indexOf(dataSource, scan), 0, indexForScan(scan));
+	}*/
 
-	/// shortcut for accessing a chanel:
-	AMChannel* channelAt(int scanIndex, int channelIndex) const {
-		if(scanIndex < 0 || channelIndex < 0 || scanIndex >= scans_.count() || channelIndex >= scans_.at(scanIndex)->numChannels())
+	/// shortcut for accessing a data source pointer:
+	AMDataSource* dataSourceAt(int scanIndex, int dataSourceIndex) const {
+		if(scanIndex < 0 || dataSourceIndex < 0 || scanIndex >= scans_.count() || dataSourceIndex >= scans_.at(scanIndex)->dataSourceCount())
 			return 0;
 
-		return scans_.at(scanIndex)->channel(channelIndex);
+		return scans_.at(scanIndex)->dataSourceAt(dataSourceIndex);
 	}
 
 
-	/// returns the name of an "exclusive" channel: one that might be preferred in exclusive views.  Returns empty string if an exclusive channel is not yet established.
-	QString exclusiveChannel() const { return exclusiveChannel_; }
+	/// returns the name of an "exclusive" data source: one that might be preferred in exclusive views.  Returns empty string if an exclusive data source is not yet established.
+	QString exclusiveDataSourceName() const { return exclusiveDataSourceName_; }
 
-	/// Set the exclusive channel, by name. To clear the exclusive channel, specify an empty string. (This will 'exclusive' views to show nothing.)
-	bool setExclusiveChannel(const QString& exclusiveChannelName) {
-		if(exclusiveChannelName.isEmpty() || allChannelNames().contains(exclusiveChannelName)) {
-			exclusiveChannel_ = exclusiveChannelName;
-			emit exclusiveChannelChanged(exclusiveChannel_);
+	/// Set the exclusive data source, by name. To clear the exclusive data source, specify an empty string. (This will cause 'exclusive' views to show nothing.)
+	bool setExclusiveDataSourceByName(const QString& exclusiveDataSourceName) {
+		if(exclusiveDataSourceName.isEmpty() || allDataSourceNames().contains(exclusiveDataSourceName)) {
+			exclusiveDataSourceName_ = exclusiveDataSourceName;
+			emit exclusiveDataSourceChanged(exclusiveDataSourceName_);
 			return true;
 		}
 		else
 			return false;
 	}
-	/// returns a list of all channel names that exist (over all scans in the model). Warning: this is slow.  O(n), where n is the total number of channels in all scans.
+	/// returns a list of all data source names that exist (over all scans in the model). Warning: this is slow.  O(n), where n is the total number of data sources in all scans.
 	/*! \todo Optimize with caching. */
-	QStringList allChannelNames() const {
+	QStringList allDataSourceNames() const {
 		QSet<QString> rv;
 		for(int si = 0; si<scans_.count(); si++)
-			for(int ci = 0; ci<scans_.at(si)->numChannels(); ci++)
-				rv << scans_.at(si)->channel(ci)->name();
+			for(int ci = 0; ci<scans_.at(si)->dataSourceCount(); ci++)
+				rv << scans_.at(si)->dataSourceAt(ci)->name();
 		return rv.toList();
 	}
 
 
-	/// returns a list of all channel names that exist and are visible in at least one scan. Warning: this is slow.  O(n), where n is the total number of channels in all scans.
+	/// returns a list of all data source names that exist and are visible in at least one scan. Warning: this is slow.  O(n), where n is the total number of data sources in all scans.
 	/*! \todo Optimize with caching. */
-	QStringList visibleChannelNames() const {
+	QStringList visibleDataSourceNames() const {
 		QSet<QString> rv;
 		for(int si = 0; si<scans_.count(); si++)
-			for(int ci = 0; ci<scans_.at(si)->numChannels(); ci++)
-				if(chMetaData_.at(si).at(ci).visible)
-					rv << scans_.at(si)->channel(ci)->name();
+			for(int ci = 0; ci<scans_.at(si)->dataSourceCount(); ci++)
+				if(sourcePlotSettings_.at(si).at(ci).visible)
+					rv << scans_.at(si)->dataSourceAt(ci)->name();
 		return rv.toList();
 	}
 
@@ -193,50 +227,55 @@ public:
 	/// Add a scan to this model.  The AMScan must exist elsewhere, for the lifetime that it is added to the model.  The model does not take ownership of the scan.
 	void addScan(AMScan* newScan);
 
-	/// removes an AMScan from this model. Does not delete the scan.  Call this before deleting a scan that has been added to the model.
+	/// removes an AMScan from this model. Does not delete the scan.  You must call this before deleting a scan that has been added to the model.
 	bool removeScan(AMScan* removeMe);
 
 	/// edit interface. Not all roles/values can be edited.
 	/*! Acceptable roles for editing:
 
 	  Scans:
-		- Qt::DisplayRole (setName())
+		- [no editable roles]
 
-	  Channels:
+	  Data Sources:
 		- Qt::DecorationRole (meta-data: sets color)
-		- Qt::CheckStateRole (meta-data: sets visible or not)
-		- AMScanSetModel::PriorityRole (meta-data: sets channel ordering)
-		- AMScanSetModel::LinePenRole (meta-data: sets pen used for channel)
+		- Qt::TooltipRole and AM::DescriptionRole (calls setDescription() )
+		- Qt::CheckStateRole (plot options: sets visible or not)
+		- AMScanSetModel::PriorityRole (plot options: sets data source ordering)
+		- AMScanSetModel::LinePenRole (plot options: sets pen used for data source, but not color)
 
 	*/
 	bool setData ( const QModelIndex & index, const QVariant & value, int role = Qt::EditRole );
 
+
+	// Convenience functions for setting plot-settings parameters
+	//////////////////////////////////////////////////////////////
+	void setVisible(int scanIndex, int dataSourceIndex, bool isVisible) {
+		sourcePlotSettings_[scanIndex][dataSourceIndex].visible = isVisible;
+		QModelIndex i = indexForDataSource(scanIndex, dataSourceIndex);
+		emit dataChanged(i, i);
+	}
+
 signals:
-	void exclusiveChannelChanged(QString exclusiveChannelName);
+	void exclusiveDataSourceChanged(QString exclusiveDataSourceName);
 
 
 protected slots:
-	/// the AMChannelListModel is a standard Qt model, but it guarantees that only one channel will be added at a time, and it will be added at the end of all rows(channels).
-	void onChannelAboutToBeAdded(const QModelIndex& parent, int start, int end);
-/// received after the channel is added.
-	void onChannelAdded(const QModelIndex& parent, int start, int end);
 
-	/// AMChannelListModel guarantees that only one channel will be removed at a time. This is received before it gets removed.  \c start and \c end will always be the same.
-	void onChannelAboutToBeRemoved(const QModelIndex& parent, int start, int end);
-	/// This is received after the channel removal completes.
-	void onChannelRemoved(const QModelIndex& parent, int start, int end);
+	void onDataSourceAboutToBeAdded(int index);
+	void onDataSourceAdded(int index);
+	void onDataSourceAboutToBeRemoved(int index);
+	void onDataSourceRemoved(int index);
 
-	/// This slot catches signals from scans that change their meta-data, and emits dataChanged() as needed.
-	void onMetaDataChanged(const QString& key);
+	/// This slot catches signals from scans that change their meta-data (name, number, dateTime, or sample), and emits the model's dataChanged() as needed.
+	void onMetaDataChanged();
 	/// This slot catches changes in the modified() flag for scans, which must cause a dataChanged() to update the display text.
 	void onScanModifiedChanged(bool isModified);
 
 protected:
 	QList<AMScan*> scans_;
-	QList<const AMChannelListModel*> scanChannelLists_;
-	QList<QList<AMScanSetModelChannelMetaData> > chMetaData_;
+	QList<QList<AMDataSourcePlotSettings> > sourcePlotSettings_;
 
-	QString exclusiveChannel_;
+	QString exclusiveDataSourceName_;
 
 };
 

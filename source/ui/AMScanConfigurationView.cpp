@@ -73,16 +73,19 @@ void AMXASScanConfigurationHolder::createScanConfiguration(){
 	AMDetectorInfo* tmpDI, *tdi;
 	for(int x = 0; x < cfg_->detectorSet()->count(); x++){
 		tdi = cfg_->detectorSet()->detectorAt(x);
-		if(tdi->typeDescription() == "PGT SDD Spectrum-Output Detector")
+		#warning "D: same edit to review. Was tdi a PGTDetector or a PGTDetectorInfo?"
+		if( qobject_cast<PGTDetector*>(tdi) )
 			tmpDI = new PGTDetectorInfo(tdi->name(), tdi->description(), this);
-		else if(tdi->typeDescription() == "MCP Detector")
+		else if( qobject_cast<MCPDetector*>(tdi) )
 			tmpDI = new MCPDetectorInfo(tdi->name(), tdi->description(), this);
 		else
 			tmpDI = new AMDetectorInfo(tdi->name(), tdi->description(), this);
 
+		/*! \bug Removed with metaData change.  Need to repair. What's going on here? Is this function even still being used? What's up with the "daveData.xxx.dat" file name?
 		QList<AMMetaMetaData> all = tmpDI->metaDataAllKeys();
 		for(int y = 0; y < all.count(); y++)
 			tmpDI->setMetaData(all.at(y).key, tdi->metaData(all.at(y).key));
+			*/
 		cfgDetectorInfoSet_->addDetector(tmpDI, cfg_->detectorSet()->isDefaultAt(x));
 	}
 }

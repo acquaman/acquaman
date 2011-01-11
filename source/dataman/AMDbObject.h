@@ -11,17 +11,6 @@
 #include <QPixmap>
 #include <QBuffer>
 
-/// Acquaman's flexible meta-data information system uses AMMetaMetaData to describe each piece of meta-data associated with a scan or database object.
-class AMMetaMetaData {
-public:
-	AMMetaMetaData(QVariant::Type nType, const QString& nKey, bool nWriteable) : type(nType), key(nKey), writeable(nWriteable) {}
-	AMMetaMetaData(AM::AcquamanType nType, const QString& nKey, bool nWriteable) : type((QVariant::Type)nType), key(nKey), writeable(nWriteable) {}
-
-	QVariant::Type type;
-	QString key;
-	bool writeable;
-};
-
 
 /// Thumbnails are fast little blobs of data used as icons or images to visually represent AMDbObjects.
 class AMDbThumbnail {
@@ -42,6 +31,29 @@ public:
 
 	QString typeString() const;
 };
+
+
+
+// Macro for declaring AMDbObject object attributes. \c paramString is set of "key=value;key=value..." arguments
+/* For example:
+  \code
+  AM_DBOBJECTINFO("description=Xray Absorption Scan; version=2; doNotReuseIds=true")
+  \endcode
+
+  It's a bummer this doesn't work. Unfortunately moc runs before the C++ pre-processor, so you can't put moc statements like Q_CLASSINFO() into a macro, or use macros inside Q_CLASSINFO statements.
+  */
+// #define AM_DBOBJECTINFO(paramString) Q_CLASSINFO("AMDbObject_Attributes", paramString)
+
+// Macro for declaring AMDbObject attributes for the property \c propertyName. \c paramString is a set of "key=value;key=value..." arguments
+/* For example:
+  \code
+  AM_DBPROPERTYINFO(numCounts, "doNotLoad=true;hidden=true")
+  AM_DBPROPERTYINFO(sampleId, "createIndex=true")
+  \endcode
+
+  Also doesn't work : (
+  */
+// #define AM_DBPROPERTYINFO(propertyName, paramString) Q_CLASSINFO(#propertyName, paramString)
 
 /// This is the base class for all persistent user-data objects that can be stored in the database.  A generic AMScan inherits from this class.
 /*!
@@ -82,9 +94,9 @@ To add persistent functionality to your class:
 - Declare properties (using the Q_PROPERTY) macro for all the fields you want to be persistent. Fields with only a READ method will stored in the database, but not reloaded from it. The name of the property becomes the name of the database column.
 	\bug This introduces some restrictions on the allowed property names -- find a way to catch this! for ex: "value" is not allowed as a property name.
 
-- You can use the Q_CLASSINFO macro to specify additional characteristics for each field. The (name, value) QClassInfo pairs should be in the form:
+- You can use the Q_CLASSINFO macro to specify additional characteristics for each field, in the form of semicolon-separated 'key=value' pairs:
 \code
-Q_CLASSINFO("propertyName", "keyword=value;keyword=value;keyword=value...")
+Q_CLASSINFO("propertyName", "keyword1=value1;keyword2=value2;keyword3=value3...")
 \endcode
 	where supported keywords are:
 	- \c doNotStore: if equal to "true", does not store this property in the database. (Also implies doNotLoad=true)
@@ -92,15 +104,19 @@ Q_CLASSINFO("propertyName", "keyword=value;keyword=value;keyword=value...")
 	- \c hidden: if equal to "true", this property should not be user-visible in default tables created on the database.
 	- \c createIndex: if equal to "true", creates an index on this column in the table. (You should understand the performance implications of doing this. In short, it will make searches based on this column's values much faster, but slow down inserts and deletes, and take extra space in the database.
 
-	If unspecified, the default value for all keywords is false.
+	If unspecified, the default value for all keywords is false. Note that subclasses inherit the base class definitions, unless re-defined.
 
-- A set of keywords is also available within the special "AMDbObject_Parameters" QClassInfo key.
+- You can use the Q_CLASSINFO macro to specify characteristics for the entire object, also in the form of semicolon-separated 'key=value' pairs:
 \code
-Q_CLASSINFO("AMDbObject_Parameters", "keyword=value;...")
+Q_CLASSINFO("AMDbObject_Attributes", "keyword1=value1;keyword2=value2;...")
 \endcode
 	where the supported keywords are:
+	- \c description: if provided, gives a human-readable string description for this class. (ex: "XRay Absorption Scan").
+	- \c version: if provided, gives the version number (integer) of this class, for the purpose of software upgrades. If you upgrade a class for which users have existing stored objects in their database, increase the version number (> 1), so that existing databases know that they must be upgraded.  If unspecified, the default version is '1'.
 	- \c doNotReuseIds: if equal to "true", the auto-increment property on the primary key will be set so that new objects will never reuse the ids of old deleted ones.  Otherwise, after a table has had rows created and deleted, the ids of previously deleted rows may be re-used.
 	- \c shareTableWithClass=[\c className]: if defined, uses the same database table for storage as [\c className].  Note that [\c className] must be registered with the AMDbObject system prior to registering this class.
+
+	Note that subclasses inherit the base class definition for the whole attribute string, unless re-defined.  You can only specify the AMDbObject_Attributes once per class; multiple Q_CLASSINFO definitions are not allowed.
 
 
 - Register the class on every database you wish to use it in by calling AMDbObjectSupport::registerClass<Class>(AMDatabase* database) at runtime.  It's harmless to register a class multiple times, but it must be registered before calling storeToDb() or loadFromDb().
@@ -132,74 +148,69 @@ where \c id is the row to load the object from.
 
 If you want to reload an object from the database, but you don't know its exact detailed type, you can use the dynamic loader. It will create and loadFromDb() the appropriate object for a given database, id, and table name:
 \code
-AMDbObject* newSomeKindaObject = AMDbObjectSupport::loadObject(myWorkingDatabase, tableName, id);
+AMDbObject* newSomeKindaObject = AMDbObjectSupport::createAndLoadObjectAt(myWorkingDatabase, tableName, id);
 \endcode
-You can then use qobject_cast<>() to test the type of the created object, or ask it for its metaObject()->className(), etc.
+You can then use qobject_cast<>() or type() to test the type of the newly-created object.
 
-\note This functionality depends on the detailed class providing either a default constructor (or a constructor that accepts a database and id), and is declared with the Q_INVOKABLE flag. It's recommended that all AMDbObjects provide such a constructor, which initializes a new object directly from a stored copy in the database.
+\note This functionality depends on the detailed class providing either a default constructor that requires no arguments, or a constructor that accepts a database and id:
 
-\todo how to re-implement the modified() signal, now that we're using the property system, instead of setMetaData()?
+\code
+Q_INVOKABLE MyDbObject(AMDatabase* db, int id);
+\endcode
 
+ In either case, the constructor must be declared with the Q_INVOKABLE flag. It's recommended that all AMDbObjects provide one or another of these constructors.
+
+\todo how to re-implement the modified() and metaDataChanged() signal, now that we're using the property system, instead of setMetaData()?
+
+
+<b>Composition of AMDbObjects</b>
+
+Special handling of two property types provides support for composite AMDbObjects that "own" or "have" other AMDbObjects as member variables.  (Note that this functionality is provided for ownership situations only; it is distinct from the concept of association (ex: one-to-one, one-to-many, or many-to-many, such as between Scans and Experiments).  The distinction here is that a scan object does not 'own' all of the experiments it is part of, nor does an experiment 'own' all the scans it contains. Association relationships must be handled separately.)
+
+To automatically store AMDbObject member variables, declare a Q_PROPERTY of the type AMDbObject*.  The read function should simply return a pointer to your member object.
+
+When you call storeToDb() on the parent object,
+- the read property is used to access a pointer to the member object. If the pointer is not 0, and the object has been modified(), we call storeToDb() on the member object as well.  Then we store the table name and storage id of the member object, so that it can be reloaded later.
+
+Calling loadFromDb() could behave in two different ways:
+	- The read property is used again to access a pointer to the member object. If it receives a valid pointer, and the type() of the existing object matches the type of the stored object, we call loadFromDb() on the existing object. setProperty() is never called.
+	- If the read property returns a null pointer, or if the type() of the existing object does NOT match the type of the object stored in the database, we cannot call loadFromDb().  Instead, we create a brand new object using AMDbObjectSupport::createAndLoadObjectAt() based on the stored object. Then we call setProperty() with a pointer to the newly created object.  (Note that if createAndLoadObjectAt() fails, setProperty() will pass in a null pointer, and you should check for this.)  \note It's the responsibility of the setProperty() write function to delete the old existing object (if required), take ownership of the new object, and re-connect any signal/slot connections to the newly created object.
+
+	In normal usage, where the type of the member AMDbObject is constant, the second version of the loadFromDb() behaviour will only occur when re-loading the parent object from the database for the first time (if the member object hasn't been created by the constructor, and the read property returns a null pointer). In all subsequent storeToDb()/loadFromDb() calls, the existing member object will simply be stored and loaded transparently with the parent.
+
+
+To store sets of AMDbObject member variables, you can declare a Q_PROPERTY of the type AMDbObjectList (ie: QList<AMDbObject*>).  The read function should return a list of pointers to your member objects.
+
+storeToDb() and loadFromDb() work the same as in the case of single variables.
+	- The read property is used to access a list of pointers to member objects. Each valid object is storeToDb()'d, and the table and id locations for each are stored with the parent object for future reference. (Here we use an auxilliary table called 'MainTableName_propertyName' to remember the stored locations.)
+
+	- loadFromDb() also starts by calling the read property function to get a list of the existing member objects.  If the number of existing objects matches the number of stored objects, AND all the existing objects are valid, AND the types match for all pairs of (existing,stored) objects, then loadFromDb() is called on each.
+	- Otherwise, if there are any discrepencies, a whole new set of objects is created with AMDbObjectSupport::createAndLoadObjectAt() based on the stored versions, and setProperty() is called with the list of new objects.  (Note that if createAndLoadObjectAt() fails, there may be null pointers in this list.)  It's the responsibility of the setPropert() write function to delete the old existing objects (if required) and re-establish connections to the new objects.   Note that it is NOT possible to reuse some of the existing objects in the list, but not others.
 
 */
+
+class AMDbObjectInfo;
 
 class AMDbObject : public QObject
 {
 	Q_OBJECT
 
 	/// AMDbObject provides a single property: a name() for this instance.
-	Q_PROPERTY(QString name READ name WRITE setName)
+	Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
+
+	// QObject's have one property to start: objectName().  Don't store QObject::objectName() by default
+	Q_CLASSINFO("objectName", "doNotStore=true")
+
 
 
 public:
-	explicit AMDbObject(QObject *parent = 0);
+	Q_INVOKABLE explicit AMDbObject(QObject *parent = 0);
 
 	/// Returns an object's unique id
 	int id() const { return id_; }
 
-	/// Returns user given name
-	QString name() const { return metaData_.value("name").toString();}
-
-	// Meta-data system
-	/////////////////////////////////////////////
-
-	/// Returns the available pieces of meta data for this type of object, including all inherited from base classes. (ie: own + base classes')
-	static QList<AMMetaMetaData> metaDataKeys() {
-		return metaDataUniqueKeys();
-	}
-
-	/// Returns the available pieces of meta data for this type of object, excluding those inherited from base classes. (ie: own only)
-	static QList<AMMetaMetaData> metaDataUniqueKeys() {
-		QList<AMMetaMetaData> rv;
-		rv << AMMetaMetaData(QVariant::String, "name", true);
-		return rv;
-	}
-
-	/// Returns all the available pieces of meta data for this type of object, by introspecting it's most detailed type. (ie: own + base classes' + subclasses')
-	virtual QList<AMMetaMetaData> metaDataAllKeys() const {
-		return this->metaDataKeys();
-	}
-
-	/// Returns the value of a piece of meta data:
-	virtual QVariant metaData(const QString& key) const {
-		if(metaData_.contains(key))
-			return metaData_.value(key);
-		else
-			return QVariant();
-	}
-
-	/// set a meta data value:
-	virtual bool setMetaData(const QString& key, const QVariant& value) {
-		/// \bug need to implement writeability checking
-		if(metaData_.contains(key) && metaData_.value(key) != value) {
-			metaData_[key] = value;
-			setModified(true);
-			emit metaDataChanged(key);
-			return true;
-		}
-
-		return false;
-	}
+	/// Returns a user given name for this instance.
+	QString name() const { return name_; }
 
 	// These functions provide support for storing and retrieving from the database.
 	// ===================================
@@ -211,34 +222,51 @@ public:
 		return this->metaObject()->className();
 	}
 
-	/// A human-readable description for the type of this object. (ex: "XAS Scan"). The default implementation just returns type(), the class name. You can re-implement for better usability.
-	virtual QString typeDescription() const {
-		return type();
-	}
 
-	/// returns the typeId of this scan's registered type in a database. If it hasn't been registered as a type yet, this will return 0.
-	/*! Althought this function doesn't look like it's virtual, it calls type() and returns the typeId of the most detailed subclass.*/
-	int typeId(AMDatabase* db) const;
 
-	/// returns the name of the database table where objects like this should be stored. The default implementation stores in AMDatabaseDefinition::objectTableName().
-	virtual QString databaseTableName() const;
+	/// returns the name of the database table where objects like this are stored.
+	QString dbTableName() const;
 
-	/// Load yourself from the database. (returns true on success)
-	/*! This version loads all of the meta data found for keys metaDataAllKeys().  Detailed subclasses should re-implement this if they need to load anything more specialized than their meta-data.  When doing so, always call the base class implemention first.*/
-	virtual bool loadFromDb(AMDatabase* db, int id);
+	/// If this class has already been registered in the AMDbObject system, returns a pointer to the AMDbObjectInfo describing this class's persistent properties.  If the class hasn't been registered, returns 0;
+	const AMDbObjectInfo* dbObjectInfo() const;
 
 	/// If an object has been loaded from a database (or created and stored to a database), this will tell you which database it's in. Returns 0 if this scan instance wasn't loaded out of a database.
 	AMDatabase* database() const {
 		return database_;
 	}
 
-	/// Store or update self in the database. (returns true on success).  After storing, the objects id() will be set to match where it was stored.
-	/*! This version saves all of the meta data found for keys metaDataAllKeys().  Detailed subclasses should re-implement this if they need to save anything not found in the meta data. When doing so, always call the base class implementation first.
+	/// Load yourself from the database. (returns true on success)
+	/*! This version loads all of the object's properties (which don't have the \c doNotStore or \c doNotLoad attributes set).  Detailed subclasses should re-implement this if they need to load anything that is not a QProperty.  When doing so, always call the base class implemention first.*/
+	virtual bool loadFromDb(AMDatabase* db, int id);
+
+	/// Store or update self in the database. (returns true on success).  After storing, the object's id() will be set to match where it was stored.
+	/*! This version saves all of the object's properties (which don't have the \c doNotStore attribute set).  Detailed subclasses should re-implement this if they need to save anything that is not a defined QProperty. When doing so, always call the base class implementation first.
 	  */
 	virtual bool storeToDb(AMDatabase* db);
 
-	/// Returns truen when this in-memory object has been modified from the version in the database (or when there is no version in the database)
+	/// Returns truen when this in-memory object has been modified from the version in the database (or when there is no version in the database).  Subclasses should help keep this correct by calling setModified(true) when their properties are changed.
 	bool modified() const { return modified_; }
+
+	/// Access the value of one of the AMDbObject_Attributes (by name).  If the attribute hasn't been set, returns an empty string.
+	/*! Common attributes are:
+	  - doNotReuseIds
+	  - shareTableWithClass
+	  - description
+	  - version
+
+	  /// \todo This is slow -- it probably needs to be optimized.
+	  */
+	QString dbObjectAttribute(const QString& key) const;
+
+	/// Access the value of one of the properties' database attributes. If the attribute hasn't been set, returns an empty string.
+	/*! Common attributes are:
+	  - doNotStore
+	  - doNotLoad
+	  - hidden
+	  - createIndex
+	*/
+	QString dbPropertyAttribute(const QString& propertyName, const QString& key) const;
+
 
 
 	// Thumbnail system:
@@ -251,32 +279,35 @@ public:
 	}
 	/// This returns a copy of the thumbnail data (for a given thumbnail). \c index must be less than thumbnailCount().  The base class returns an invalid (blank) thumbnail.
 	virtual AMDbThumbnail thumbnail(int index) const {
-
 		Q_UNUSED(index)
-
 		return AMDbThumbnail();
 	}
 
 
+
+
 signals:
-	/// Emitted whenever a meta-data item is changed. \c key is the name of the meta-data.
-	void metaDataChanged(const QString& key);
+	/// Removed: Emitted whenever a meta-data item is changed. \c key is the name of the meta-data.
+	// removeod: void metaDataChanged(const QString& key);
+
 	/// Emitted when this scan is fully re-loaded from the database
 	void loadedFromDb();
 	/// Emitted when the modified() state changes. Indicates that this object is in-sync or out-of-sync with the database version.
 	void modifiedChanged(bool isModified);
 
+	/// Emitted when the name() changes
+	void nameChanged(const QString& newName);
+
 public slots:
 	/// Sets user given name
-	void setName(const QString &name) { setMetaData("name", name);}
+	void setName(const QString &name) { name_ = name; setModified(true); emit nameChanged(name_); }
 
 
 
 protected:
-	QHash<QString, QVariant> metaData_;
 
-	/// Use to set or un-set the modified flag.  Handles emission of the modifiedChanged() signal when required.
-	void setModified(bool isModified) {
+	/// Subclasses should call this to set or un-set the modified flag.  Handles emission of the modifiedChanged() signal when required.
+	virtual void setModified(bool isModified) {
 		if(isModified != modified_)
 			emit modifiedChanged(modified_ = isModified);
 		modified_ = isModified;
@@ -290,14 +321,20 @@ private:
 	/// pointer to the database where this object came from/should be stored. (If known)
 	AMDatabase* database_;
 
-	/// The modified flag is true whenever the scan's meta-data does not match what is stored in the database.  It is set automatically inside setMetaData(). If you modify the metadata outside of this system, be sure to change it yourself.
+	/// The modified flag is true whenever the object's persistent data does not match what is stored in the database.  It is set automatically inside setProperty(). If you modify the persistent data in other ways, be sure to call setModified(true).
 	bool modified_;
+
+	/// stores the name property
+	QString name_;
 
 };
 
-/// This global function enables using the insertion operator to add scans to the database
-///		ex: *Database::db() << myScan
-/// Because Scan::storeToDb() is virtual, this version can be used properly for all sub-types of Scans.
+/// This global function enables using the insertion operator to store objects in a database. It simply calls AMDbObject::storeToDb() with the given \c database.
+/*!		For example: *Database::db() << myScan
+Because Scan::storeToDb() is virtual, this version can be used properly for all sub-types of AMDbObject.
+*/
 AMDatabase& operator<<(AMDatabase& db, AMDbObject& s);
+
+Q_DECLARE_METATYPE(AMDbObject*)
 
 #endif // DBOBJECT_H

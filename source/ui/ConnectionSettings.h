@@ -82,9 +82,9 @@ public:
 				Q_UNUSED(nc4);
 				NumericControl *nc5 = new NumericControl(SGMBeamline::sgm()->m4(), m4Holder);
 				Q_UNUSED(nc5);
-				NumericControl *nc6 = new NumericControl(SGMBeamline::sgm()->m4()->child(0), m4InboardHolder);
+				NumericControl *nc6 = new NumericControl(SGMBeamline::sgm()->m4()->childControlAt(0), m4InboardHolder);
 				Q_UNUSED(nc6);
-				NumericControl *nc7 = new NumericControl(SGMBeamline::sgm()->m4()->child(1), m4OutboardHolder);
+				NumericControl *nc7 = new NumericControl(SGMBeamline::sgm()->m4()->childControlAt(1), m4OutboardHolder);
 				Q_UNUSED(nc7);
 				//NumericControl *nc8 = new NumericControl(SGMBeamline::sgm()->m4()->child(2), m4DownstreamHolder);
 				//Q_UNUSED(nc8);
@@ -164,7 +164,7 @@ public slots:
 			sv->show();
 			sv->changeViewMode(AMScanView::MultiScans);
 			sv->addScan(s1);
-			sv->changeViewMode(AMScanView::MultiChannels);
+			sv->changeViewMode(AMScanView::MultiSources);
 			sv->addScan(s1);
 
 

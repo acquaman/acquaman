@@ -8,6 +8,7 @@
 #include <QHBoxLayout>
 
 
+
 /// A replacement for Qt's QScrollArea. This version's QWidget::sizeHint() asks the internal widget for its own sizeHint(), which is usually what makes the most sense. (In other words, the scroll area will request to be the size of its internal widget, when possible.  To make full use of this, you need a way of being informed of changes in the size of that internal widget; see AMSizeSignallingWidget.)
 class AMScrollArea : public QScrollArea {
 	Q_OBJECT
@@ -60,7 +61,7 @@ class AMCramBarHorizontal : public QWidget
 {
 Q_OBJECT
 public:
-    explicit AMCramBarHorizontal(QWidget *parent = 0);
+	explicit AMCramBarHorizontal(QWidget *parent = 0);
 
 	void addWidget(QWidget* widget) {
 		innerLayout_->addWidget(widget);
@@ -80,19 +81,18 @@ protected slots:
 	void onScrollButtonClicked();
 
 	/// called when the contents of the scroll widget (ie: the set of channel buttons) changes size
-	void onScrollWidgetResized(const QSize&) {
-		scrollArea_->updateGeometry();
-		//or, could use: outerLayout_->activate();
-	}
+	void onScrollWidgetResized(const QSize&);
 
 	/// called when the scroll area itself is resized:
-	void onScrollAreaResized(const QSize&);
+	void onScrollAreaResized(const QSize&) { onScrollAreaResized(); }
+	void onScrollAreaResized();
 
 protected:
 	AMScrollArea* scrollArea_;
 	QToolButton* scrollLeftButton_, *scrollRightButton_;
 	AMSizeSignallingWidget* scrollWidget_;
 	QHBoxLayout* innerLayout_, *outerLayout_;
+	bool scrollButtonsOn_;
 
 };
 

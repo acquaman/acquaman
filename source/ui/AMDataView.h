@@ -62,6 +62,7 @@ public:
 	/// Create an AMDataView widget, where \c database is the database you want to explore.
 	explicit AMDataView(AMDatabase* database = AMDatabase::userdb(), QWidget *parent = 0);
 
+
 signals:
 	void selected(const QList<QUrl>&);
 	void activated(const QList<QUrl>&);
@@ -129,7 +130,6 @@ protected:
 	AMSignallingGraphicsScene* gscene_;
 	QGraphicsWidget* gwidget_;
 	QGraphicsLinearLayout* sectionLayout_;
-
 
 	/// This function runs everytime showRun() or showExperiment() is called, or a change is made to the OrganizeMode or ViewMode.  It re-populates the view from scratch.
 	void refreshView();

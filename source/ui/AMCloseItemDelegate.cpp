@@ -67,7 +67,7 @@ void AMCloseItemDelegate::drawCloseButton(QPainter *painter, const QStyleOptionV
 
 bool AMCloseItemDelegate::editorEvent ( QEvent * event, QAbstractItemModel * model, const QStyleOptionViewItem & option, const QModelIndex & index ) {
 
-	qDebug() << "CLOSE ITEM: editor event: " << event;
+	//qDebug() << "CLOSE ITEM: editor event: " << event;
 
 	if(!closeButtonEnabled_ || !index.data(AM::CanCloseRole).toBool()) {
 		return QStyledItemDelegate::editorEvent(event, model, option, index);

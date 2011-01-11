@@ -4,7 +4,7 @@
 #include <QGridLayout>
 #include <QTimer>
 
-#include "dataman/AMDatabaseDefinition.h"
+#include "dataman/AMDbObjectSupport.h"
 #include "ui/AMDetailedItemDelegate.h"
 
 #include "ui/AMElementListEdit.h"
@@ -91,7 +91,7 @@ AMSampleEditor::AMSampleEditor(AMDatabase* db, QWidget *parent) :
 	connect(sampleName_, SIGNAL(editingFinished()), this, SLOT(saveCurrentSample()));
 
 	refreshScheduled_ = false;
-	onDatabaseUpdated(AMDatabaseDefinition::sampleTableName(), -1);
+	onDatabaseUpdated(AMDbObjectSupport::tableNameForClass<AMSample>(), -1);
 }
 
 
@@ -169,7 +169,7 @@ void AMSampleEditor::refreshSamples() {
 
 		int index = sampleId2Index_.value(refreshId_);
 		QSqlQuery q = db_->query();
-		q.prepare(QString("SELECT id,name,dateTime FROM %1 WHERE id = ?").arg(AMDatabaseDefinition::sampleTableName()));
+		q.prepare(QString("SELECT id,name,dateTime FROM %1 WHERE id = ?").arg(AMDbObjectSupport::tableNameForClass<AMSample>()));
 		q.bindValue(0, refreshId_);
 		if(q.exec() && q.first()) {
 			sampleSelector_->setItemData(index, q.value(1).toString(), Qt::DisplayRole);
@@ -198,7 +198,7 @@ void AMSampleEditor::refreshSamples() {
 
 		// Fill the combo box with all samples in the db:
 		QSqlQuery q = db_->query();
-		q.prepare(QString("SELECT id,name,dateTime FROM %1 ORDER BY dateTime DESC").arg(AMDatabaseDefinition::sampleTableName()));
+		q.prepare(QString("SELECT id,name,dateTime FROM %1 ORDER BY dateTime DESC").arg(AMDbObjectSupport::tableNameForClass<AMSample>()));
 		q.exec();
 		int index = 0;
 		while(q.next()) {
@@ -231,7 +231,7 @@ void AMSampleEditor::refreshSamples() {
 void AMSampleEditor::onDatabaseUpdated(const QString& tableName, int id) {
 	Q_UNUSED(id);
 
-	if(tableName != AMDatabaseDefinition::sampleTableName())
+	if(tableName != AMDbObjectSupport::tableNameForClass<AMSample>())
 		return;
 
 	// single-row precision update? That's cool if this :

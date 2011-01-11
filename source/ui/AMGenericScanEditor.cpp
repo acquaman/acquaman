@@ -5,9 +5,7 @@
 #include <QList>
 #include <QUrl>
 
-
-#include "dataman/AMDbLoader.h"
-#include "dataman/AMDatabaseDefinition.h"
+#include "dataman/AMDbObjectSupport.h"
 
 #include "ui/AMDetailedItemDelegate.h"
 
@@ -50,8 +48,8 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 	sampleEditor_ = new AMSampleEditor(AMDatabase::userdb());
 	stackWidget_->addItem(sampleEditor_, "Sample Information");
 
-	channelEditor_ = new AMChannelEditor(scanSetModel_);
-	stackWidget_->addItem(channelEditor_, "Plot Data");
+	dataSourcesEditor_ = new AMDataSourcesEditor(scanSetModel_);
+	stackWidget_->addItem(dataSourcesEditor_, "Plot Data");
 
 	QWidget* temp3 = new QWidget();
 	temp3->setMinimumHeight(200);
@@ -92,8 +90,8 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 
 
 AMGenericScanEditor::~AMGenericScanEditor() {
-	while(scanSetModel_->numScans()) {
-		AMScan* s = scanSetModel_->scanAt(scanSetModel_->numScans()-1);
+	while(scanSetModel_->scanCount()) {
+		AMScan* s = scanSetModel_->scanAt(scanSetModel_->scanCount()-1);
 		scanSetModel_->removeScan(s);
 		delete s;
 	}
@@ -102,16 +100,16 @@ AMGenericScanEditor::~AMGenericScanEditor() {
 
 void AMGenericScanEditor::addScan(AMScan* newScan) {
 	scanSetModel_->addScan(newScan);
-	ui_.scanListView->setCurrentIndex(scanSetModel_->indexForScan(newScan));
-	if(scanSetModel_->exclusiveChannel().isEmpty() && newScan->numChannels() > 0)
-		scanSetModel_->setExclusiveChannel(newScan->channel(0)->name());
+	ui_.scanListView->setCurrentIndex(scanSetModel_->indexForScan(scanSetModel_->indexOf(newScan)));
+	if(scanSetModel_->exclusiveDataSourceName().isEmpty() && newScan->dataSourceCount() > 0)
+		scanSetModel_->setExclusiveDataSourceByName(newScan->dataSourceAt(0)->name());
 
 	refreshWindowTitle();
 }
 
 void AMGenericScanEditor::refreshWindowTitle() {
 
-	int numScans = scanSetModel_->numScans();
+	int numScans = scanSetModel_->scanCount();
 
 	if(numScans == 0) {
 		setWindowTitle("Scan Editor");
@@ -140,7 +138,7 @@ void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const
 
 	// disconnect the old scan:
 	if(currentScan_) {
-		disconnect(currentScan_, SIGNAL(metaDataChanged(QString)), this, SLOT(onScanMetaDataChanged(QString)));
+		// removed: disconnect(currentScan_, SIGNAL(metaDataChanged()), this, SLOT(onScanMetaDataChanged()));
 
 		disconnect(ui_.scanName, 0, currentScan_, 0);
 		disconnect(ui_.scanNumber, 0, currentScan_, 0);
@@ -155,11 +153,11 @@ void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const
 
 	// update all widgets to match
 	updateEditor(currentScan_);
-	channelEditor_->setCurrentScan(currentScan_);
+	dataSourcesEditor_->setCurrentScan(currentScan_);
 
 
 	if(currentScan_) {
-		connect(currentScan_, SIGNAL(metaDataChanged(QString)), this, SLOT(onScanMetaDataChanged(QString)));
+		// removed: connect(currentScan_, SIGNAL(metaDataChanged()), this, SLOT(onScanMetaDataChanged()));
 
 		// make connections to widgets, so that widgets edit this scan:
 		connect(ui_.scanName, SIGNAL(textChanged(QString)), currentScan_, SLOT(setName(QString)));
@@ -179,16 +177,17 @@ void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const
 	}
 
 
-	if(scanSetModel_->numScans() == 0)
-		scanSetModel_->setExclusiveChannel(QString());
+	if(scanSetModel_->scanCount() == 0)
+		scanSetModel_->setExclusiveDataSourceByName(QString());
 
 }
 
-void AMGenericScanEditor::onScanMetaDataChanged(const QString &key) {
+/* removed:
+void AMGenericScanEditor::onScanMetaDataChanged() {
 
 	/// hmmm... should we change the editor values? What if the scan is altered elsewhere...
 	// what if they changed it first? But haven't saved yet?
-}
+}*/
 
 void AMGenericScanEditor::updateEditor(AMScan *scan) {
 	if(scan) {
@@ -333,12 +332,12 @@ bool AMGenericScanEditor::dropScanURLs(const QList<QUrl>& urls) {
 		if(!idOkay || id < 1)
 			break;
 
-		// Only store things that belong in the objects table for now.
-		if(tableName != AMDatabaseDefinition::objectTableName())
+		/// \todo Evaluate if this is still necessary: Only store things that belong in the scans table for now.
+		if(tableName != AMDbObjectSupport::tableNameForClass<AMScan>())
 			break;
 
 		/// Dynamically create and load a detailed subclass of AMDbObject from the database... whatever type it is.
-		AMDbObject* dbo = AMDbLoader::createAndLoad(db, id);
+		AMDbObject* dbo = AMDbObjectSupport::createAndLoadObjectAt(db, tableName, id);
 		if(!dbo)
 			break;
 

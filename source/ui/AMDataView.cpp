@@ -1,15 +1,18 @@
 #include "AMDataView.h"
 
 #include "dataman/AMDatabase.h"
-#include "dataman/AMDatabaseDefinition.h"
+#include "dataman/AMDbObjectSupport.h"
 #include "AMErrorMonitor.h"
 #include "ui/AMDateTimeUtils.h"
 #include "dataman/AMUser.h"
+#include "dataman/AMScan.h"
 
 #include <QScrollBar>
 #include <QApplication>
 
 #include <QDebug>
+
+
 
 AMDataView::AMDataView(AMDatabase* database, QWidget *parent) :
 		QWidget(parent)
@@ -62,6 +65,7 @@ AMDataView::AMDataView(AMDatabase* database, QWidget *parent) :
 	runId_ = -3;
 	experimentId_ = -3;
 	showRun();
+
 
 	onResize();
 
@@ -249,7 +253,7 @@ void AMDataView::refreshView() {
 				bool found = false;
 				QSqlQuery findRunIds = db_->query();
 				findRunIds.setForwardOnly(true);
-				findRunIds.prepare(QString("SELECT id, dateTime, name, endDateTime FROM Runs"));
+				findRunIds.prepare(QString("SELECT id, dateTime, name, endDateTime FROM AMRun_table"));
 				if(findRunIds.exec()) {
 					while(findRunIds.next()) {
 						found = true;
@@ -282,7 +286,7 @@ void AMDataView::refreshView() {
 				bool found = false;
 				QSqlQuery findExperiments = db_->query();
 				findExperiments.setForwardOnly(true);
-				findExperiments.prepare(QString("SELECT id, name FROM Experiments"));
+				findExperiments.prepare(QString("SELECT id, name FROM AMExperiment_table"));
 				if(findExperiments.exec()) {
 					while(findExperiments.next()) {
 						found = true;
@@ -311,16 +315,16 @@ void AMDataView::refreshView() {
 				bool found = false;
 				QSqlQuery findTypes = db_->query();
 				findTypes.setForwardOnly(true);
-				findTypes.prepare(QString("SELECT id, description FROM ObjectTypes WHERE id IN (SELECT typeId FROM Objects)"));
+				findTypes.prepare(QString("SELECT AMDbObjectType, description FROM AMDbObjectTypes_table WHERE AMDbObjectType IN (SELECT AMDbObjectType FROM AMScan_table)"));
 				if(findTypes.exec()) {
 					while(findTypes.next()) {
 						found = true;
-						int typeId = findTypes.value(0).toInt();
+						QString className = findTypes.value(0).toString();
 						QString typeDescription = findTypes.value(1).toString();
 						AMDataViewSection* section = new AMDataViewSection(
 								typeDescription,
 								"Showing all " + typeDescription,
-								QString("typeId = '%1'").arg(typeId),
+								QString("AMDbObjectType = '%1'").arg(className),
 								viewMode_, db_, true, gwidget_, effectiveWidth());
 						sections_ << section;
 						sections__ << section;
@@ -340,7 +344,7 @@ void AMDataView::refreshView() {
 				bool found = false;
 				QSqlQuery findSamples = db_->query();
 				findSamples.setForwardOnly(true);
-				findSamples.prepare("SELECT id, dateTime, name FROM Samples");	/// \todo thumbnail for samples
+				findSamples.prepare("SELECT id, dateTime, name FROM AMSample_table");	/// \todo thumbnail for samples
 				if(findSamples.exec()) {
 					while(findSamples.next()) {
 						found = true;
@@ -407,7 +411,7 @@ void AMDataView::refreshView() {
 		QString runName, fullRunName;
 		QDateTime runTime, runEndTime;
 		QSqlQuery runInfo = db_->query();
-		runInfo.prepare("SELECT name, dateTime, endDateTime FROM Runs where id = ?");
+		runInfo.prepare("SELECT name, dateTime, endDateTime FROM AMRun_table where id = ?");
 		runInfo.bindValue(0, runId_);
 		if(runInfo.exec() && runInfo.next()) {
 			runName = runInfo.value(0).toString();
@@ -442,7 +446,7 @@ void AMDataView::refreshView() {
 				bool found = false;
 				QSqlQuery findExperiments = db_->query();
 				findExperiments.setForwardOnly(true);
-				findExperiments.prepare(QString("SELECT id, name FROM Experiments WHERE id IN (SELECT experimentId FROM ObjectExperimentEntries WHERE objectId IN (SELECT id FROM Objects WHERE runId = '%1'))").arg(runId_));
+				findExperiments.prepare(QString("SELECT id, name FROM AMExperiment_table WHERE id IN (SELECT experimentId FROM ObjectExperimentEntries WHERE objectId IN (SELECT id FROM AMScan_table WHERE runId = '%1'))").arg(runId_));
 				if(findExperiments.exec()) {
 					while(findExperiments.next()) {
 						found = true;
@@ -471,17 +475,17 @@ void AMDataView::refreshView() {
 				bool found = false;
 				QSqlQuery findTypes = db_->query();
 				findTypes.setForwardOnly(true);
-				findTypes.prepare(QString("SELECT id, description FROM ObjectTypes WHERE id IN (SELECT DISTINCT typeId FROM Objects WHERE runId = ?)"));
+				findTypes.prepare(QString("SELECT AMDbObjectType, description FROM AMDbObjectTypes_table WHERE AMDbObjectType IN (SELECT DISTINCT AMDbObjectType FROM AMScan_table WHERE runId = ?)"));
 				findTypes.bindValue(0, runId_);
 				if(findTypes.exec()) {
 					while(findTypes.next()) {
 						found = true;
-						int typeId = findTypes.value(0).toInt();
+						QString className = findTypes.value(0).toString();
 						QString typeDescription = findTypes.value(1).toString();
 						AMDataViewSection* section = new AMDataViewSection(
 								typeDescription,
 								QString("Showing all data of this type in the <i>%1</i> run").arg(fullRunName),
-								QString("typeId = '%1' AND runId = '%2'").arg(typeId).arg(runId_),
+								QString("AMDbObjectType = '%1' AND runId = '%2'").arg(className).arg(runId_),
 								viewMode_, db_, true, gwidget_, effectiveWidth());
 						sections_ << section;
 						sections__ << section;
@@ -501,7 +505,7 @@ void AMDataView::refreshView() {
 				bool found = false;
 				QSqlQuery findSamples = db_->query();
 				findSamples.setForwardOnly(true);
-				findSamples.prepare("SELECT id, dateTime, name FROM Samples WHERE id IN (SELECT sampleId FROM Objects WHERE runId = ?)");	/// \todo add thumbnail icon!
+				findSamples.prepare("SELECT id, dateTime, name FROM AMSample_table WHERE id IN (SELECT sampleId FROM AMScan_table WHERE runId = ?)");	/// \todo add thumbnail icon!
 				findSamples.bindValue(0, runId_);
 				if(findSamples.exec()) {
 					while(findSamples.next()) {
@@ -532,7 +536,7 @@ void AMDataView::refreshView() {
 				bool found = false;
 				QSqlQuery findElements = db_->query();
 				findElements.setForwardOnly(true);
-				findElements.prepare("SELECT id, symbol, name FROM Elements WHERE id IN (SELECT elementId FROM SampleElementEntries WHERE sampleId IN (SELECT sampleId FROM Objects WHERE runId = ?))");
+				findElements.prepare("SELECT id, symbol, name FROM Elements WHERE id IN (SELECT elementId FROM SampleElementEntries WHERE sampleId IN (SELECT sampleId FROM AMScan_table WHERE runId = ?))");
 				findElements.bindValue(0, runId_);
 				if(findElements.exec()) {
 					while(findElements.next()) {
@@ -570,7 +574,7 @@ void AMDataView::refreshView() {
 		// get experiment name:
 		QString expName;
 		QSqlQuery expInfo = db_->query();
-		expInfo.prepare("SELECT name FROM Experiments where id = ?");
+		expInfo.prepare("SELECT name FROM AMExperiment_table where id = ?");
 		expInfo.bindValue(0, experimentId_);
 		if(expInfo.exec() && expInfo.next()) {
 			expName = expInfo.value(0).toString();
@@ -600,7 +604,7 @@ void AMDataView::refreshView() {
 				bool found = false;
 				QSqlQuery findRuns = db_->query();
 				findRuns.setForwardOnly(true);
-				findRuns.prepare(QString("SELECT id, name, dateTime, endDateTime FROM Runs WHERE id IN (SELECT runId FROM Objects WHERE id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = '%1'))").arg(experimentId_));
+				findRuns.prepare(QString("SELECT id, name, dateTime, endDateTime FROM AMRun_table WHERE id IN (SELECT runId FROM AMScan_table WHERE id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = '%1'))").arg(experimentId_));
 				if(findRuns.exec()) {
 					while(findRuns.next()) {
 						found = true;
@@ -633,19 +637,19 @@ void AMDataView::refreshView() {
 				bool found = false;
 				QSqlQuery findTypes = db_->query();
 				findTypes.setForwardOnly(true);
-				findTypes.prepare(QString("SELECT ObjectTypes.id, ObjectTypes.description, Objects.typeId, Objects.id, ObjectExperimentEntries.objectId, ObjectExperimentEntries.experimentId "
-										  "FROM ObjectTypes, Objects, ObjectExperimentEntries "
-										  "WHERE ObjectExperimentEntries.experimentId = ? AND ObjectExperimentEntries.objectId = Objects.id AND ObjectTypes.id = Objects.typeId;"));
+				findTypes.prepare(QString("SELECT AMDbObjectTypes_table.AMDbObjectType, AMDbObjectTypes_table.description, AMScan_table.AMDbObjectType, AMScan_table.id, ObjectExperimentEntries.objectId, ObjectExperimentEntries.experimentId "
+										  "FROM AMDbObjectTypes_table, AMScan_table, ObjectExperimentEntries "
+										  "WHERE ObjectExperimentEntries.experimentId = ? AND ObjectExperimentEntries.objectId = AMScan_table.id AND AMDbObjectTypes_table.AMDbObjectType = AMScan_table.AMDbObjectType;"));
 				findTypes.bindValue(0, experimentId_);
 				if(findTypes.exec()) {
 					while(findTypes.next()) {
 						found = true;
-						int typeId = findTypes.value(0).toInt();
+						QString className = findTypes.value(0).toString();
 						QString typeDescription = findTypes.value(1).toString();
 						AMDataViewSection* section = new AMDataViewSection(
 								typeDescription,
 								QString("Showing all data of this type in the <i>%1</i> experiment").arg(expName),
-								QString("typeId = '%1' AND id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = '%2')").arg(typeId).arg(experimentId_),
+								QString("AMDbObjectType = '%1' AND id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = '%2')").arg(className).arg(experimentId_),
 								viewMode_, db_, true, gwidget_, effectiveWidth());
 						sections_ << section;
 						sections__ << section;
@@ -666,7 +670,7 @@ void AMDataView::refreshView() {
 				bool found = false;
 				QSqlQuery findSamples = db_->query();
 				findSamples.setForwardOnly(true);
-				findSamples.prepare("SELECT id,dateTime,name FROM Samples WHERE id IN (SELECT sampleId FROM Objects WHERE id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = ?));");	/// \todo add thumbnail icon!
+				findSamples.prepare("SELECT id,dateTime,name FROM AMSample_table WHERE id IN (SELECT sampleId FROM AMScan_table WHERE id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = ?));");	/// \todo add thumbnail icon!
 				findSamples.bindValue(0, experimentId_);
 				if(findSamples.exec()) {
 					while(findSamples.next()) {
@@ -697,7 +701,7 @@ void AMDataView::refreshView() {
 				bool found = false;
 				QSqlQuery findElements = db_->query();
 				findElements.setForwardOnly(true);
-				findElements.prepare("SELECT id,symbol,name FROM Elements WHERE id IN (SELECT elementId FROM SampleElementEntries WHERE sampleId IN (SELECT sampleId FROM Objects WHERE id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = ?)));");
+				findElements.prepare("SELECT id,symbol,name FROM Elements WHERE id IN (SELECT elementId FROM SampleElementEntries WHERE sampleId IN (SELECT sampleId FROM AMScan_table WHERE id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = ?)));");
 				findElements.bindValue(0, experimentId_);
 				if(findElements.exec()) {
 					while(findElements.next()) {
@@ -860,7 +864,7 @@ void AMDataViewSection::expand(bool expanded) {
 		case AMDataViews::ThumbnailView:
 		default:
 			/// \bug cannot presume all found in objectTableName.  Need a way of knowing where to look for these objects.
-			AMDataViewSectionThumbnailView* v = new AMDataViewSectionThumbnailView(db_, AMDatabaseDefinition::objectTableName(), whereClause_, this, widthConstraint_);
+			AMDataViewSectionThumbnailView* v = new AMDataViewSectionThumbnailView(db_, AMDbObjectSupport::tableNameForClass<AMScan>(), whereClause_, this, widthConstraint_);
 			subview_ = v;
 			subview__ = v;
 		}
@@ -877,7 +881,7 @@ void AMDataViewSection::expand(bool expanded) {
 
 int AMDataViewSection::countResults() {
 	QSqlQuery q = db_->query();
-	QString query = QString("SELECT COUNT(1) FROM %1").arg(AMDatabaseDefinition::objectTableName());
+	QString query = QString("SELECT COUNT(1) FROM %1").arg(AMDbObjectSupport::tableNameForClass<AMScan>());
 	if(!whereClause_.isEmpty())
 		query.append(" WHERE ").append(whereClause_);
 	q.prepare(query);

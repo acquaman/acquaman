@@ -3,6 +3,12 @@
 #include "ui/AMDateTimeUtils.h"
 
 #include <QMimeData>
+#include <QUrl>
+#include <QList>
+#include <QStringList>
+
+#include "dataman/AMDbObjectSupport.h"
+#include "dataman/AMScan.h"
 
 QVariant AMRunModelItem::data(int role) const {
 	if(role == Qt::DisplayRole)
@@ -11,26 +17,24 @@ QVariant AMRunModelItem::data(int role) const {
 		return QStandardItem::data(role);
 }
 
+#include "dataman/AMRun.h"
 void AMRunModelItem::setData(const QVariant &value, int role) {
 	if(role == Qt::EditRole) {
-		db_->update( data(AM::IdRole).toInt(), "Runs", "name", value);
+		db_->update( data(AM::IdRole).toInt(), AMDbObjectSupport::tableNameForClass<AMRun>(), "name", value);
 	}
 	QStandardItem::setData(value, role);
 }
 
+#include "dataman/AMExperiment.h"
 void AMExperimentModelItem::setData(const QVariant &value, int role) {
 	if(role == Qt::EditRole) {
-		db_->update( data(AM::IdRole).toInt(), "Experiments", "name", value);
+		db_->update( data(AM::IdRole).toInt(), AMDbObjectSupport::tableNameForClass<AMExperiment>(), "name", value);
 	}
 	QStandardItem::setData(value, role);
 }
 
-#include <QUrl>
-#include <QList>
-#include <QStringList>
-#include "dataman/AMDatabaseDefinition.h"
 
-#include <QDebug>
+
 
 bool AMExperimentModelItem::dropMimeData(const QMimeData *data, Qt::DropAction action) {
 
@@ -62,8 +66,8 @@ bool AMExperimentModelItem::dropMimeData(const QMimeData *data, Qt::DropAction a
 				break;
 
 
-			// Only store things that belong in the objects table for now.
-			if(tableName != AMDatabaseDefinition::objectTableName())
+			/// \todo Determine if this is still necessary: Only store things that belong in the main scans table for now.
+			if(tableName != AMDbObjectSupport::tableNameForClass<AMScan>())
 				break;
 
 			addObjectToExperiment(id);
@@ -86,10 +90,8 @@ bool AMExperimentModelItem::addObjectToExperiment(int objectId) {
 
 	QStringList colNames;
 	colNames << "objectId" << "experimentId";
-	QVariant vobjectId(objectId);
-	QVariant vexperimentId(id());
-	QList<const QVariant*> values;
-	values << &vobjectId << &vexperimentId;
+	QVariantList colValues;
+	colValues << objectId << id();
 
-	return db_->insertOrUpdate(0, "ObjectExperimentEntries", colNames, values);
+	return db_->insertOrUpdate(0, "ObjectExperimentEntries", colNames, colValues);
 }

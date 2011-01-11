@@ -3,101 +3,46 @@
 
 
 #include <QObject>
-#include <QMap>
-#include "dataman/AMChannel.h"
 
-#include <QAbstractListModel>
-
-#include "dataman/AMDataTree.h"
 #include "dataman/AMDbObject.h"
-#include "dataman/AMDataTree.h"
+#include "dataman/AMDataStore.h"
+#include "util/AMOrderedSet.h"
+#include "dataman/AMRawDataSource.h"
+#include "dataman/AMAnalysisBlock.h"
+#include "dataman/AMControlSetInfo.h"	/// \todo change to AMControlInfoSet, using standard set API.
 
-#include "AMBiHash.h"
+typedef AMOrderedSet<QString, AMRawDataSource*> AMRawDataSourceSet;
+typedef AMOrderedSet<QString, AMAnalysisBlock*> AMAnalyzedDataSourceSet;
 
-
-
-/// This helper class is a Qt standard model for the list of channels in an AMScan.  This provides a standardized way for views that need to see the channels, and be notified before and after channels are added/removed.
-class AMChannelListModel : public QAbstractListModel {
-
-	Q_OBJECT
-
-
-public:
-	AMChannelListModel(QObject* parent = 0) : QAbstractListModel(parent) {}
-
-	int rowCount ( const QModelIndex & parent = QModelIndex() ) const {
-		Q_UNUSED(parent)
-		return ch_.count();
-	}
-
-	QVariant data(const QModelIndex &index, int role) const;
-	QVariant headerData ( int section, Qt::Orientation orientation, int role = Qt::DisplayRole ) const;
-
-
-	/// returns a list of channel names currently stored.
-	QStringList channelNames() const;
-
-	/// returns a list of the channel expressions. (Channels are ordered the same as channelNames(). )
-	QStringList channelExpressions() const;
-
-	/// Returns specified channel by name: (returns 0 if not found)
-	AMChannel* channel(const QString& name) {
-		if(name2chIndex_.containsF(name))
-			return ch_.at(name2chIndex_.valueF(name));
-		else
-			return 0;
-	}
-
-	const AMChannel* channel(const QString& name) const {
-		if(name2chIndex_.containsF(name))
-			return ch_.at(name2chIndex_.valueF(name));
-		else
-			return 0;
-	}
-
-	int indexOfChannel(const QString& name) {
-		if(name2chIndex_.containsF(name))
-			return name2chIndex_.valueF(name);
-		else
-			 return -1;
-	}
-
-	/// Return specified channel by index: (returns 0 if not found)
-	AMChannel* channel(int index) { if((unsigned)index < (unsigned)ch_.count() ) return ch_.at(index); else return 0; }
-	const AMChannel* channel(int index) const { if((unsigned)index < (unsigned)ch_.count() ) return ch_.at(index); else return 0; }
-
-	/// Returns the index of a channel, or -1 if not here:
-	int indexOf(AMChannel* channel) const {
-		return ch_.indexOf(channel);
-	}
-
-	bool addChannel(AMChannel* newChannel);
-
-	bool deleteChannel(unsigned index);
-
-
-protected:
-
-	QList<AMChannel*> ch_;
-	AMBiHash<QString, int> name2chIndex_;
-};
-
-/// This class is the base of all objects that represent beamline scan data (for ex: XAS scans over eV, XES detector-image "scans" over detector eV, etc.)
-/*! It provides the following:
-	- adds "sampleId()" and "notes()" meta-data to the basic AMDbObject
-		- demonstrates how to subclass AMDbObject to store additional meta-data in the database
-	- contains an AMDataTree, which is used to store columns of arbitrary-dimensional raw data
-	- provides a list of "channels", which are scientifically-meaningful ways to look at the raw data
-	\todo complete documentation
-  */
+/// This class is the base of all objects that represent a single 'scan' on a beamline.  It's also used as the standard container for a set of raw and/or processed AMDataSources, which can be visualized together in
 class AMScan : public AMDbObject {
 
 	Q_OBJECT
 
-	Q_PROPERTY(int number READ number WRITE setNumber)
-	Q_PROPERTY(QDateTime dateTime READ dateTime WRITE setDateTime)
-	Q_PROPERTY(int sampleId READ sampleId WRITE setSampleId)
-	Q_PROPERTY(QString notes READ notes WRITE setNotes NOTIFY notesChanged)
+	/// Database Persistent Properties
+	Q_PROPERTY(int number READ number WRITE setNumber NOTIFY numberChanged)
+	Q_PROPERTY(QDateTime dateTime READ dateTime WRITE setDateTime NOTIFY dateTimeChanged)
+	Q_PROPERTY(int runId READ runId WRITE setRunId)
+	Q_PROPERTY(int sampleId READ sampleId WRITE setSampleId NOTIFY sampleIdChanged)
+	Q_PROPERTY(QString notes READ notes WRITE setNotes)
+	Q_PROPERTY(QString fileFormat READ fileFormat WRITE setFileFormat)
+	Q_PROPERTY(QString filePath READ filePath WRITE setFilePath)
+	Q_PROPERTY(QStringList additionalFilePaths READ additionalFilePaths WRITE setAdditionalFilePaths)
+	Q_PROPERTY(AMDbObject* scanInitialConditions READ scanInitialConditions WRITE dbLoadScanInitialConditions)
+	Q_PROPERTY(AMDbObjectList rawDataSources READ dbReadRawDataSources WRITE dbLoadRawDataSources)
+	Q_PROPERTY(AMDbObjectList analyzedDataSources READ dbReadAnalyzedDataSources WRITE dbLoadAnalyzedDataSources)
+	Q_PROPERTY(QString analyzedDataSourcesConnections READ dbReadAnalyzedDataSourcesConnections WRITE dbLoadAnalyzedDataSourcesConnections)
+
+	Q_CLASSINFO("dateTime", "createIndex=true")
+	Q_CLASSINFO("sampleId", "createIndex=true")
+	Q_CLASSINFO("runId", "createIndex=true")
+
+	Q_CLASSINFO("rawDataSources", "hidden=true")
+	Q_CLASSINFO("analyzedDataSources", "hidden=true")
+	Q_CLASSINFO("scanInitialConditions", "hidden=true")
+	Q_CLASSINFO("analyzedDataSourcesConnections", "hidden=true")
+
+	Q_CLASSINFO("AMDbObject_Attributes", "description=Generic Scan")
 
 public:
 
@@ -105,19 +50,148 @@ public:
 	//////////////////////////////////
 
 	/// default constructor
-	explicit AMScan(QObject *parent = 0);
+	Q_INVOKABLE explicit AMScan(QObject *parent = 0);
+
 
 	/// Destructor: deletes all channels.
 	virtual ~AMScan();
 
 	/// \todo copy constructor and assignment operator required, but not yet implemented. Do not copy. (implementation note: handle channels as children?)
 
-	// Raw Data Management
+	// Meta Data Elements
+	////////////////////////////////
+	/// Returns a user-given number
+	int number() const { return number_;}
+	/// Returns creation time / scan start time
+	QDateTime dateTime() const {return dateTime_;}
+	/// Returns the id of the run containing this scan, or (-1) if not associated with a run.
+	int runId() const { return runId_; }
+	/// Returns id of the scan's sample (or -1 if a sample has not been assigned)
+	int sampleId() const { return sampleId_; }
+	/// Returns notes/comments for scan
+	QString notes() const { return notes_; }
+
+	/// The string describing the format of the stored raw data file
+	QString fileFormat() const { return fileFormat_; }
+	/// The directory path and file name of this scan's raw data file
+	QString filePath() const { return filePath_; }
+	/// Any additional files of raw data that need to be referenced
+	QStringList additionalFilePaths() const { return additionalFilePaths_; }
+
+	// Convenience functions on meta-data:
+	/////////////////////////
+	/// Returns the full scan name: number appended to name
+	QString fullName() const {return QString("%1 #%2").arg(name()).arg(number()); }
+	/// Returns the name of the sample (if a sample is set, otherwise returns "[no sample]")
+	QString sampleName() const;
+
+
+	// Database system
+	///////////////////////////////////////////
+	/// Loads a saved scan from the database into self. Returns true on success.
+	/*! Re-implemented from AMDbObject::loadFromDb(), this version also loads the scan's raw data if autoLoadData() is set to true, and the stored filePath doesn't match the existing filePath()*/
+	virtual bool loadFromDb(AMDatabase* db, int id);
+	/// Store or update self in the database. (Returns true on success.)
+	/*! Re-implemented from AMDbObject::storeToDb(), this version also schedules a date range update of the scan's run when it is inserted into a database for the very first time.
+	  */
+	virtual bool storeToDb(AMDatabase* db);
+
+
+	// Data Sources (Raw and Analyzed)
+	////////////////////////////////
+
+	/// Returns read-only access to the set of raw data sources. (A data source represents a single "stream" or "channel" of data. For example, in a simple absorption scan, the electron yield measurements are one raw data source, and the fluorescence yield measurements are another data source.)
+	const AMRawDataSourceSet* rawDataSources() const { return &rawDataSources_; }
+	// AMRawDataSourceSet* rawDataSources() { return &rawDataSources_; }
+	/// Publicly expose part of the rawData(), by adding a new AMRawDataSource to the scan. The new data source \c newRawDataSource should be valid, initialized and connected to the data store already.  The scan takes ownership of \c newRawDataSource.  This function returns false if raw data source already exists with the same name as the \c newRawDataSource.
+	bool addRawDataSource(AMRawDataSource* newRawDataSource) { if(newRawDataSource) return rawDataSources_.append(newRawDataSource, newRawDataSource->name()); return false; }
+	/// Delete and remove an existing raw data source.  \c id is the idnex of the source in rawDataSources().
+	bool deleteRawDataSource(int id) { if((unsigned)id >= (unsigned)rawDataSources_.count()) return false; delete rawDataSources_.takeAt(id); return true; }
+
+	/// Returns read-only access to the set of analyzed data sources. (Analyzed data sources are built on either raw data sources, or other analyzed sources, by applying an AMAnalysisBlock.)
+	const AMAnalyzedDataSourceSet* analyzedDataSources() const { return &analyzedDataSources_; }
+	// AMAnalyzedDataSourceSet* analyzedDataSources() { return &analyzedDataSources_; }
+	/// Add an new analysis block to the scan.  The scan takes ownership of the \c newAnalysisBlock and exposes it as one of the analyzed data sources.
+	bool addAnalyzedDataSource(AMAnalysisBlock* newAnalyzedDataSource) { if(newAnalyzedDataSource) return analyzedDataSources_.append(newAnalyzedDataSource, newAnalyzedDataSource->name()); return false; }
+	/// Delete and remove an existing analysis block. \c id is the index of the source in analyzedDataSources().
+	bool deleteAnalyzedDataSource(int id) { if((unsigned)id >= (unsigned)analyzedDataSources_.count()) return false; delete analyzedDataSources_.takeAt(id); return true; }
+
+	// Provides a simple access model to all the data sources (combination of rawDataSources() and analyzedDataSources()
+
+	/// The total number of data sources (raw and analyzed)
+	int dataSourceCount() const { return rawDataSources_.count() + analyzedDataSources_.count(); }
+	/// Returns a data source by index.  (\c index must be from 0 to < dataSourceCount(), otherwise returns 0. )  Raw sources are listed first, from 0 to rawDataSources().count()-1. Next come analyzed sources, from rawDataSources().count() to dataSourceCount()-1.
+	/*! This function is useful when considering the combined set of all the data sources. If you want to retrieve an analyzed source by its own index, just use analyzedDataSources()->at().*/
+	AMDataSource* dataSourceAt(int index) const {
+		if(index<0)
+			return 0;
+		int rawCount = rawDataSources_.count();
+		if(index<rawCount)
+			return rawDataSources_.at(index);
+		if(index-rawCount < analyzedDataSources_.count())
+			return analyzedDataSources_.at(index-rawCount);
+		return 0;
+	}
+	/// Returns the index of a data source (in the combined set of raw+analyzed sources) identified by \c sourceName, or -1 if not found. You can then use the return value in dataSourceAt().
+	int indexOfDataSource(const QString& sourceName) const {
+		int rawSourceIndex = rawDataSources_.indexOf(sourceName);
+		if(rawSourceIndex >= 0)
+			return rawSourceIndex;
+		int analyzedSourceIndex = analyzedDataSources_.indexOf(sourceName);
+		if(analyzedSourceIndex >= 0)
+			return analyzedSourceIndex + rawDataSources_.count();
+		return -1;
+	}
+
+	/// Returns the index of a data source (in the combined set of raw+analyzed sources) identified by pointer \c dataSource, or -1 if not found.
+	/*! Performance note: This involves a linear seach through all sources. Unless you have thousands of sources, it's fast enough, but don't call it repeatedly if you don't have to.*/
+	int indexOfDataSource(const AMDataSource* source) const {
+		int rawCount = rawDataSources_.count();
+		for(int i=0; i<rawCount; i++)
+			if(source == rawDataSources_.at(i))
+				return i;
+		for(int i=0; i<analyzedDataSources_.count(); i++)
+			if(source == analyzedDataSources_.at(i))
+				return i+rawCount;	// is an index in the combined set; raw sources come first.
+		return -1;
+	}
+
+
+	/// Removes and deletes a data source.  \c index is the index of the data source in dataSourceAt().  Returns true on success, false if \c index < 0 or >= dataSourceCount().
+	bool deleteDataSourceAt(int index ) {
+		if(index < 0)
+			return false;
+		int rawCount = rawDataSources_.count();
+		if(index < rawCount)	{ // is a raw data source.
+			delete rawDataSources_.takeAt(index);
+			return true;
+		}
+		index -= rawCount;
+		if(index < analyzedDataSources_.count()) {
+			delete analyzedDataSources_.takeAt(index);
+			return true;
+		}
+		return false;
+	}
+
+
+
+	// Raw Data Loading
+	////////////////////////////
 	/// Load raw data into memory from storage. Returns true on success.
-	/*! This will attempt to use the scan's current filePath() and fileFormat() as the source. Subclasses must re-implement this function to handle their set of readable file formats.  The base class implementation does nothing and returns true.*/
-	virtual bool loadData() {
+	/*! Subclasses should not reimplement this function, but must provide an implementation for loadDataImplementation(), which attempts to use the scan's current filePath() and fileFormat() as the source, and handles their set of readable file formats.  This function calls loadDataImplementation(), and then calls setDataStore() on all the raw data sources, to hopefully restore them to a valid state, now that there is valid raw data.*/
+	bool loadData() {
+		bool success = loadDataImplementation();
+		if(success)
+			for(int i=rawDataSources_.count()-1; i>=0; i--)
+				rawDataSources_.at(i)->setDataStore(rawData());
+		return success;
+	}
+	/// Scan subclassses must provide an implementation of this function, which uses the scan's current filePath() and fileFormat() as the source, and handles their own set of readable file formats, to fill the dataStore() with appropriate raw data. Return true on success. This base class implementation does nothing and returns true.
+	virtual bool loadDataImplementation() {
 		return true;
 	}
+
 	/// Controls whether raw data is loaded automatically inside loadFromDb().  If autoLoadData() is true, then whenever loadFromDb() is called and the new filePath() is different than the old filePath(), loadData() will be called as well.  If you want to turn off loading raw data for performance reasons, call setAutoLoadData(false).  Auto-loading is enabled by default.
 	bool autoLoadData() const {
 		return autoLoadData_;
@@ -128,218 +202,156 @@ public:
 	}
 
 
-	// Meta Data Elements
-	////////////////////////////////
-	/// Returns a user-given number
-	int number() const { return metaData_.value("number").toInt();}
-	/// Returns creation time / scan start time
-	QDateTime dateTime() const {return metaData_.value("dateTime").toDateTime();}
-	/// Returns the id of the run containing this scan, or (-1) if not associated with a run.
-	int runId() const { QVariant v = metaData_.value("runId"); if(v.isNull()) return -1; else return v.toInt(); }
+	/// Clears the scan's raw data completely, including all measurements configured within the rawData() data store, and all rawDataSources() which expose this data.
+	void clearRawDataPointsAndMeasurementsAndDataSources() {
+		while(rawDataSources_.count())
+			delete rawDataSources_.takeAt(rawDataSources_.count()-1);
 
-	/// Returns name of sample (or -1 if a sample has not been assigned)
-	int sampleId() const { QVariant v = metaData_.value("sampleId"); if(v.isNull()) return -1; else return v.toInt();}
-	/// Returns notes/comments for scan
-	QString notes() const { return metaData_.value("notes").toString();}
-
-	/// Returns the full scan name: number appended to name
-	QString fullName() const {return QString("%1 #%2").arg(name()).arg(number()); }
-
-
-	/// Convenience function: returns the name of the sample (if a sample is set, otherwise returns "[no sample]")
-	QString sampleName() const;
-
-	/// The string describing the format of the stored raw data file
-	QString fileFormat() const { return metaData_.value("fileFormat").toString(); }
-	/// The directory path and file name of this scan's raw data file
-	QString filePath() const { return metaData_.value("filePath").toString(); }
-
-
-	// Meta-data system
-	/////////////////////////////////////////////
-
-	/// Returns the available pieces of meta data for this type of object, including all inherited from base classes. (ie: own + base classes')
-	static QList<AMMetaMetaData> metaDataKeys() {
-		return AMDbObject::metaDataKeys() << metaDataUniqueKeys();
+		data_->clearAllMeasurements();
 	}
 
-	/// Returns the available pieces of meta data for this type of object, excluding those inherited from base classes. (ie: own only)
-	/*! Includes:
-		rv << AMMetaMetaData(QVariant::Int, "number", true);
-		rv << AMMetaMetaData(QVariant::DateTime, "dateTime", true);
-		rv << AMMetaMetaData(QVariant::Int, "runId", false);
-		rv << AMMetaMetaData(QVariant::Int, "sampleId", true);
-		rv << AMMetaMetaData(QVariant::String, "notes", true);
-		rv << AMMetaMetaData(QVariant::StringList, "channelNames", false);
-		rv << AMMetaMetaData(QVariant::StringList, "channelExpressions", false);
-		rv << AMMetaMetaData(QVariant::String, "fileFormat", false);
-		rv << AMMetaMetaData(QVariant::String, "filePath", false);
-		*/
-
-	static QList<AMMetaMetaData> metaDataUniqueKeys();
-
-	/// Returns all the available pieces of meta data for this type of object, by introspecting it's most detailed type. (ie: own + base classes' + subclasses')
-	virtual QList<AMMetaMetaData> metaDataAllKeys() const {
-		return this->metaDataKeys();
+	/// Clears the scan's raw data completely, including all measurements configured within the rawData() data store.
+	/*! Caution: Leaves the rawDataSources() as-is; make sure that they don't attempt to access non-existent raw data.*/
+	void clearRawDataPointsAndMeasurements() {
+		data_->clearAllMeasurements();
 	}
 
-	/// Returns the value of a piece of meta data. (Re-implemented from AMDbObject to catch channelNames or channelExpressions, which aren't found in the metaData_ hash.)
-	virtual QVariant metaData(const QString& key) const;
-
-	/// set a meta data value. (Re-fieldsimplemented from AMDbObject to catch channelNames or channelExpressions, which are not allowed to be set as metaData like this.)
-	virtual bool setMetaData(const QString& key, const QVariant& value);
-
-
-	// Database system
-	///////////////////////////////////////////
-	/// Load yourself from the database. (returns true on success).  In addition to loading meta-data, this version checks to see if the new filePath() is different than the current one, and if it is, it automatically calls loadData().
-	/*! Re-implemented from AMDbObject, this version loads all of the meta data found for keys metaDataAllKeys(), and also restores the chanel names and channel formulas.*/
-	virtual bool loadFromDb(AMDatabase* db, int id);
-	/// Store or update self in the database. (returns true on success)
-	/*! Re-implemented from AMDbObject::storeToDb(), this version saves all of the meta data found for keys metaDataAllKeys(), as well as saving the channel names and channel formulas.
-	  */
-	virtual bool storeToDb(AMDatabase* db);
-
-	/// Reimplemented from AMDbObject; provides a general human-readable description
-	virtual QString typeDescription() const {
-		return "Generic Scan";
+	/// Clears all of scans's data points, but leaves all measurements and raw data sources as-is.
+	void clearRawDataPoints() {
+		data_->clearScanDataPoints();
 	}
 
 
-	// Channel System
-	/////////////////////////////////
-	/// Return number of available channels
-	int numChannels() const { return ch_.rowCount(); }
-	/// Returns specified channel by name: (returns 0 if not found)
-	AMChannel* channel(const QString& name) { return ch_.channel(name); }
-	const AMChannel* channel(const QString& name) const { return ch_.channel(name); }
-	int indexOfChannel(const QString& name) { return ch_.indexOfChannel(name);}
-
-	/// Return specified channel by index: (returns 0 if not found)
-	AMChannel* channel(unsigned index) { return ch_.channel(index);  }
-	const AMChannel* channel(unsigned index) const { return ch_.channel(index);  }
-	/// Return a comma-separated list of all channel names (Used for channel hints in database)
-	QStringList channelNames() const { return ch_.channelNames(); }
-	QStringList channelExpressions() const { return ch_.channelExpressions(); }
-
-	/// returns a standard Qt list model that can be used to view the channels and be notified of created/deleted channels
-	const AMChannelListModel* channelList() const { return &ch_; }
-
-
-
-
-	// Data Tree Interface
+	// DataStore (Raw Data) Interface
 	//////////////////////////////////
 
-	/// the number of datapoints in the scan:
-	unsigned count() const { return d_->count(); }
+	/// This should only be exposed to certain objects (such as scan controllers), which are allowed to modify the raw data store.
+	AMDataStore* rawData() { return data_; }
+	/// Provides read-only access to the raw data store
+	const AMDataStore* rawData() const { return data_; }
 
-	/// Clear all of the raw data in the tree:
-	void clear() { d_->clear(); }
+	// should anything be exposed directly, from the data store? For ex:
+	/// Returns the number of dimensions in the scan. (This does not include the dimensions of any multi-dimensional detectors; it's only the dimensions that were 'scanned over'.  For example, an XAS scan over energy has scanRank() of 1. A 2D micro-map scan at fixed energy has scanRank() 2.  A 2D micro-map with an absorption scan at each point has a scanRank() of 3.  For each scan point, you might have a set of detector measurements, each with their own dimensionality, that are not included here.)
+	virtual int scanRank() const { return data_->scanRank(); }
+	/// Returns the size of the scan along each dimension
+	virtual AMnDIndex scanSize() const { return data_->scanSize(); }
+	/// Returns the size of the scan along a specific scan axis \c axisId
+	virtual int scanSize(int axisId) const { return data_->scanSize(axisId); }
 
-	/// Get a list of all the data tree column names: (1D channels only)
-	QStringList rawDataColumnNames() const {
-		QStringList rv = d_->yColumnNames();
-		rv.prepend(d_->xName());
-		return rv;
-	}
 
+
+	// Beamline conditions
+	//////////////////////////////
+	/// Independent from the hardware you're connected to right now, an AMControlSetInfo can remember values and descriptions of how some hardware was set at the time of the scan.
+	const AMControlSetInfo* scanInitialConditions() const { return &scanInitialConditions_; }
+	AMControlSetInfo* scanInitialConditions() { return &scanInitialConditions_; }
 
 	// Thumbnail system:
 	////////////////////////////////
 
-	/// We can have a thumbnail for each channel
+	/// This is an arbitrary decision, but let's define it like this (for usability): If we have any analyzed data sources, we have a thumbnail for each analyzed data source. Otherwise, rather than showing nothing, we have a thumbnail for each raw data source.
 	int thumbnailCount() const {
-		return numChannels();
+		if(analyzedDataSources_.count())
+			return analyzedDataSources_.count();
+		else
+			return rawDataSources_.count();
 	}
 
 	/// Return a thumbnail picture of the channel
 	AMDbThumbnail thumbnail(int index) const;
 
 
+	// Acquisition status, and link to scan controller
+	///////////////////////////////
+
+	/// \todo Acquisition status, and link to scan controller
+
+
 
 public slots:
 
+	// Setting Meta-Data
+	///////////////////////////////
+
 	/// Sets appended number
-	void setNumber(int number) { setMetaData("number", number);}
+	void setNumber(int number) { number_ = number; setModified(true); emit numberChanged(number_); }
 	/// set the date/time:
-	void setDateTime(const QDateTime& dt) { setMetaData("dateTime", dt); }
+	void setDateTime(const QDateTime& dt) { dateTime_ = dt; setModified(true); emit dateTimeChanged(dateTime_); }
 	/// associate this object with a particular run. Set to (-1) to dissociate with any run.  (Note: for now, it's the caller's responsibility to make sure the runId is valid.)
 	/*! This will also tell the new run (and the old run, if it exists) to update their date ranges */
-	void setRunId(int newRunId) {
-		if(newRunId <= 0) setMetaData("runId", QVariant());
-		else setMetaData("runId", newRunId);
-	}
-	/// Sets name of sample
-	void setSampleId(int newSampleId) {
-		if(newSampleId <= 0) setMetaData("sampleId", QVariant());
-		else setMetaData("sampleId", newSampleId);
-	}
+	void setRunId(int newRunId);
+	/// Sets the sample associated with this scan.
+	void setSampleId(int newSampleId);
+
 	/// Sets notes for scan
-	void setNotes(const QString &notes) { setMetaData("notes", notes); }
+	void setNotes(const QString &notes) { notes_ = notes; setModified(true); }
 	/// Set file path. (Be careful if changing this, not to break the association to a raw data file)
-	void setFilePath(const QString& newPath) { setMetaData("filePath", newPath); }
+	void setFilePath(const QString& newPath) { filePath_ = newPath;  setModified(true); }
 	/// Set the file format. This is a string matching the AMAbstractFileLoader::formatTag() in one of the available file loaders.
-	void setFileFormat(const QString& format) { setMetaData("fileFormat", format); }
-
-	/// Test a possible channel expression for validity. The expression will be valid if it's an acceptable mathematical formula, involving valid raw data column names for variables.
-	bool validateChannelExpression(const QString& expression);
-
-	/// create a new channel. The channel will be owned and deleted by the scan.  Returns true on success. Will fail if there is an existing channel with the same name \c chName.  Will also fail if you turn \c ensureValid on, and the expression is invalid.
-	bool addChannel(const QString& chName, const QString& expression, bool ensureValid = false);
-
-	/// Delete a channel from scan:
-	bool deleteChannel(AMChannel* channel);
-	bool deleteChannel(const QString& channelName);
-	bool deleteChannel(unsigned index);
-
+	void setFileFormat(const QString& format) { fileFormat_ = format;  setModified(true); }
+	/// Any additional files of raw data that need to be referenced
+	void setAdditionalFilePaths(const QStringList& additionalFilePaths) { additionalFilePaths_ = additionalFilePaths; setModified(true); }
 
 signals:
 
+	// Is it okay to remove this?
 	/// Emitted when raw data changes / new data accepted
 	void dataChanged(AMScan* me);
 
-	/*
-  Belongs in scan controller
-	/// AMScan has started
-	void started();
-	/// AMScan completed
-	void finished();
-	/// AMScan canceled by user
-	void cancelled();
-	/// AMScan paused
-	void paused();
-	/// AMScan resumed
-	void resumed();
-	/// Time left in scan
-	void timeRemaining(double seconds);
-*/
+	// Meta-data changed signals:
+	/////////////////
+	void dateTimeChanged(const QDateTime& newDateTime);
+	void sampleIdChanged(int sampleId);
+	void numberChanged(int number);
 
+
+	// Combined Data Source Model: Signals
+	////////////////////////////////////////
+
+	/// Emitted just before a new data source is added. \c index is the index where it will end up.  It's not there yet.
+	void dataSourceAboutToBeAdded(int index);
+	/// Emitted when a new data source is added.  \c index is the index of the source in dataSourceAt().
+	void dataSourceAdded(int index);
+	/// Emitted just before a data source is removed. \c index in the index of the source in dataSourceAt().
+	void dataSourceAboutToBeRemoved(int index);
+	/// Emitted after a data source was removed. \c index is the index the source used to occupy in dataSourceAt(); it's not there anymore.
+	void dataSourceRemoved(int index);
 
 
 
 protected slots:
-	/// called by friends after finished updating / loading from file, etc.
+
+	// Is it okay to remove this? All notification should be through AMDataSources.
+	/// Called by friends after finished updating / loading from file, etc.
 	void onDataChanged() {
 		emit dataChanged(this);
 	}
 
+	/// Receives itemAboutToBeAdded() signals from rawDataSources_ and analyzedDataSources, and emits dataSourceAboutToBeAdded().
+	void onDataSourceAboutToBeAdded(int index);
+	/// Receives itemAdded() signals from rawDataSources_ and analyzedDataSources, and emits dataSourceAdded().
+	void onDataSourceAdded(int index);
+	/// Receives itemAboutToBeRemoved() signals from rawDataSources_ and analyzedDataSources_, and emits dataSourceAboutToBeRemoved.
+	void onDataSourceAboutToBeRemoved(int index);
+	/// Receives itemRemoved() signals from rawDataSources_ and analyzedDataSources_, and emits dataSourceRemoved.
+	void onDataSourceRemoved(int index);
+
 protected:
 
-	/// List of channels
-	AMChannelListModel ch_;
-
-	/// raw data storage. All scans will have one of these, but the contents and structure will vary.
-	AMDataTree* d_;
-
-	/// Allow channels to access the datatree:
-	friend AMDataTree* AMChannel::dataTree() const;
-
-	/// Allow channels to tell us when they (and hence us) have been modified:
-	friend void AMChannel::informScanModified();
-
-	/// Controls whether loadData() is called automatically inside loadFromDb().
-	bool autoLoadData_;
+	// meta data values
+	//////////////////////
+	/// user-given number for this scan
+	int number_;
+	/// Scan start time
+	QDateTime dateTime_;
+	/// database id of the run and sample that this scan is associated with
+	int runId_, sampleId_;
+	/// notes for this sample. Can be plain or rich text, as long as you want it...
+	QString notes_;
+	/// The absolute file path where this scan's data is stored (if there is an external data file), and the format tag describing the data format.
+	QString filePath_, fileFormat_;
+	/// Any additional files of raw data that need to be referenced.
+	QStringList additionalFilePaths_;
 
 	/// Caches the sample name
 	mutable QString sampleName_;
@@ -348,15 +360,74 @@ protected:
 	/// retrieves the sample name from the database, based on our sampleId. Sets sampleName_, and sets sampleNameLoaded_ = true;
 	void retrieveSampleName() const;
 
+	// Composite members
+	//////////////////////
+
+	/// Raw data storage. All scans will have one of these, but the implementation will vary.
+	AMDataStore* data_;
+	/// Raw data sources.  Provide AMDataSource interfaces to the data_.
+	AMRawDataSourceSet rawDataSources_;
+	/// Analyzed data sources.  A set of AMAnalysisBlocks.
+	AMAnalyzedDataSourceSet analyzedDataSources_;
+	/// Conditions of the beamline/experimental hardware at the beginning of the scan
+	AMControlSetInfo scanInitialConditions_;
+
+
+
+	// Protected functions to support loading and storing of composite properties (scanInitialConditions, rawDataSources, analyzeDataSources) in the database. You should never need to use these directly.
+	///////////////////////////////
+
+	/// Called when a stored scanInitialCondition is loaded out of the database, but scanInitialConditions() is not returning a pointer to a valid AMControlSetInfo. Note: this should never happen, unless the database storage was corrupted and is loading the wrong object type.
+	void dbLoadScanInitialConditions(AMDbObject* newLoadedObject);
+	/// Returns a list of pointers to the raw data sources, to support db storage.
+	AMDbObjectList dbReadRawDataSources() const;
+	/// Returns a list of pointers to the analyzed data sources, to support db storage.
+	AMDbObjectList dbReadAnalyzedDataSources() const;
+	/// Called when loadFromDb() finds a different number (or types) of stored raw data sources than we currently have in-memory.
+	/*! Usually, this would only happen when calling loadFromDb() a scan object for the first time, or when re-loading after creating additional raw data sources but not saving them.*/
+	void dbLoadRawDataSources(const AMDbObjectList& newRawSources);
+	/// Called when loadFromDb() finds a different number (or types) of stored analyzed data sources than we currently have in-memory.
+	/*! Usually, this would only happen when calling loadFromDb() on a scan object for the first time, or when re-loading after creating additional analyzed data sources but not saving them.*/
+	void dbLoadAnalyzedDataSources(const AMDbObjectList& newAnalyzedSources);
+
+	/// This returns a string describing the input connections of all the analyzed data sources. It's used to save and restore these connections when loading from the database.  (This system is necessary because AMAnalysisBlocks use pointers to AMDataSources to specify their inputs; these pointers will not be the same after new objects are created when restoring from the database.)
+	/*! Implementation note: The string contains one line for each AMAnalysisBlock in analyzedDataSources_, in order.  Every line is a sequence of comma-separated numbers, where the number represents the index of a datasource in dataSourceAt().  So for an analysis block using the 1st, 2nd, and 5th sources (in order), the line would be "0,1,4".
+
+Lines are separated by single '\n', so a full string could look like:
+\code
+0,1,4\n
+3,2\n
+0,4,3
+\endcode
+*/
+	QString dbReadAnalyzedDataSourcesConnections() const;
+	/// When loadFromDb() is called, this receives the string describing the input connections of all the analyzed data sources, and restores their input data connections.
+	void dbLoadAnalyzedDataSourcesConnections(const QString& connectionString);
+
+
+/*
+	/// Allow channels to tell us when they (and hence us) have been modified:
+	friend void AMChannel::informScanModified();
+*/
+
+	// Raw Data Loading
+	////////////////////////
+	/// Controls whether raw data is automatically loaded when restoring this scan from the database (ie: loadData() is called automatically inside loadFromDb().)  This is true by default, but you may want to turn it off for performance reasons when loading a large group of scans just to look at their meta-data.
+	bool autoLoadData_;
+
+
+
+
+	/* removed: this is now accomplished through the AMDataStore public API.
 	friend class AMAcqScanOutput;
 	friend class AMAcqScanSpectrumOutput;
 	friend class AMDacqScanController;
 	friend class SGMXASDacqScanController;
+	*/
 
 private:
 
-	/// This is used to maintain a reference count of 1 on the implicitly shared AMDataTree d_, and delete d_ when this (dshared_) goes out of scope
-	QSharedDataPointer<AMDataTree> dshared_;
+
 
 };
 
