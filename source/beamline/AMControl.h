@@ -75,6 +75,14 @@ The second category only reflects motion due to instructions sent by \em this so
 	-# The move did not complete within a timeout period specified
 	-# an error code defined by the specific control implementation
 
+<b>Warning About Expected Behaviour</b>
+
+All behaviour about the current state of a control is based on whether the control has made it to its destination within the tolerance() that has been set for it.
+However, this assumes that you set this tolerance yourself because the default is CONTROL_TOLERANCE_DONT_CARE.
+If the tolerance is left to its default value you are not able to trust the signals such as moveSucceeded() because they will be emitted the first time the system gets a feedback value, <b>even if the control is still moving</b>!
+Therefore, in order to use AMControl to the fullest of its capabilities make sure you set the tolerance.
+
+
 <b>Grouping Controls</b>
 
 One additional feature of Controls is the ability to logically group sets of sub-controls together.  (For example, a Monochromator control could consist of a Grating angle control, exit slit position control, and grating selector.)
