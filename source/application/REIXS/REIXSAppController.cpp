@@ -47,6 +47,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMRun.h"
 #include "ui/AMStartScreen.h"
 
+#include "ui/actions2/AMWorkflowView.h"
+
 #include <QMessageBox>
 
 
@@ -132,6 +134,8 @@ bool REIXSAppController::startup() {
 		spectrometerControlWidget->setLayout(hl);
 		mw_->addPane(spectrometerControlWidget, "Experiment Setup", "Spectrometer controls", ":/utilities-system-monitor.png");
 
+
+		mw_->addPane(new AMWorkflowView(), "Experiment Tools", "Workflow 2", ":/user-away.png");
 
 		////////////////// End of testing junk; move somewhere clean ////////////////////
 

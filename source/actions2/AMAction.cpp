@@ -3,6 +3,9 @@
 // Used for qWarning() messages that may be helpful to people trying to debug AMAction implementations.
 #include <QDebug>
 
+#include "util/AMErrorMonitor.h"
+#include <QStringBuilder>
+
 // Constructor: create an action to run the specified AMActionInfo.
 AMAction::AMAction(AMActionInfo* info, QObject *parent)
 	: QObject(parent)
@@ -74,10 +77,12 @@ bool AMAction::start()
 			break;
 		case CancelActionPrereqBehaviour:
 			endDateTime_ = QDateTime::currentDateTime();
+			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -1, "The action '" % info()->shortDescription() % "' was cancelled because it had prerequisites that weren't ready."));
 			setState(Cancelled);	// we don't need to go through Cancelling, because we haven't started yet.
 			break;
 		case FailActionPrereqBehaviour:
 		default:
+			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -1, "The action '" % info()->shortDescription() % "' failed because it had prerequisites that weren't ready."));
 			setState(Failed);
 			break;
 		}
@@ -317,4 +322,34 @@ AMAction::PrereqBehaviour AMAction::promptUserForPrereqBehaviour()
 		return WaitPrereqBehaviour;
 	else
 		return CancelActionPrereqBehaviour;
+}
+
+QString AMAction::stateDescription(AMAction::State state)
+{
+	switch(state) {
+	case Constructed:
+		return "Not yet started";
+	case WaitingForPrereqs:
+		return "Wating for Prerequisites";
+	case Starting:
+		return "Starting";
+	case Running:
+		return "Running";
+	case Pausing:
+		return "Pausing";
+	case Paused:
+		return "Paused";
+	case Resuming:
+		return "Resuming";
+	case Cancelling:
+		return "Cancelling";
+	case Cancelled:
+		return "Cancelled";
+	case Succeeded:
+		return "Succeeded";
+	case Failed:
+		return "Failed";
+	default:
+		return "Invalid State";
+	}
 }

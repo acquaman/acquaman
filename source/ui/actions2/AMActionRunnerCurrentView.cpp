@@ -1,0 +1,170 @@
+#include "AMActionRunnerCurrentView.h"
+#include "actions2/AMActionRunner.h"
+#include "actions2/AMAction.h"
+
+#include <QTreeView>
+#include <QBoxLayout>
+#include <QFrame>
+#include <QToolButton>
+#include <QLabel>
+#include <QPushButton>
+#include <QStandardItemModel>
+#include <QProgressBar>
+#include <QFrame>
+#include <QStringBuilder>
+#include <QTimer>
+
+AMActionRunnerCurrentView::AMActionRunnerCurrentView(AMActionRunner* actionRunner, QWidget *parent) :
+    QWidget(parent)
+{
+	actionRunner_ = actionRunner;
+
+	// setup UI
+	QFrame* topFrame = new QFrame();
+	topFrame->setObjectName("topFrame");
+	topFrame->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+	topFrame->setStyleSheet("QFrame#topFrame {\n/*background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(81, 81, 81, 255), stop:0.494444 rgba(81, 81, 81, 255), stop:0.5 rgba(64, 64, 64, 255), stop:1 rgba(64, 64, 64, 255));*/\nbackground-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(0, 0, 0, 105), stop:0.494444 rgba(0, 0, 0, 105), stop:0.5 rgba(0, 0, 0, 134), stop:1 rgba(0, 0, 0, 134));\nborder-bottom: 1px solid black;\n}");
+	QHBoxLayout* hl = new QHBoxLayout(topFrame);
+	hl->setSpacing(0);
+	hl->setContentsMargins(6, 2, 12, 4);
+
+	QVBoxLayout* vl2 = new QVBoxLayout();
+	headerTitle_ = new QLabel("Current Action");
+	headerTitle_->setStyleSheet("color: white;\nfont: 20pt \"Lucida Grande\"");
+	headerSubTitle_ = new QLabel("No action running.");
+	headerSubTitle_->setStyleSheet("color: rgb(204, 204, 204);\nfont: 12pt \"Lucida Grande\"");
+	vl2->addWidget(headerTitle_);
+	vl2->addWidget(headerSubTitle_);
+	hl->addLayout(vl2);
+	hl->addSpacing(40);
+	hl->addStretch(0);
+
+	timeElapsedLabel_ = new QLabel("0:00");
+	timeElapsedLabel_->setStyleSheet("color: white;\nfont: 18pt \"Lucida Grande\"");
+	hl->addWidget(timeElapsedLabel_);
+	hl->addSpacing(10);
+	progressBar_ = new QProgressBar();
+	progressBar_->setMaximumWidth(600);
+	hl->addWidget(progressBar_, 1);
+	hl->addSpacing(10);
+	timeRemainingLabel_ = new QLabel("0:00");
+	timeRemainingLabel_->setStyleSheet("color: white;\nfont: 18pt \"Lucida Grande\"");
+	hl->addWidget(timeRemainingLabel_);
+	hl->addSpacing(20);
+
+	cancelButton_ = new QPushButton("Cancel");
+	cancelButton_->setEnabled(false);
+	hl->addWidget(cancelButton_);
+
+
+	QVBoxLayout* vl = new QVBoxLayout(this);
+	vl->setSpacing(0);
+	vl->setContentsMargins(0,0,0,0);
+	vl->addWidget(topFrame);
+
+	currentActionView_ = new QTreeView();
+	vl->addWidget(currentActionView_);
+
+	currentActionModel_ = new QStandardItemModel(this);
+	currentActionView_->setModel(currentActionModel_);
+	currentActionView_->setSelectionMode(QAbstractItemView::NoSelection);
+	currentActionView_->setHeaderHidden(true);
+	currentActionView_->setAttribute(Qt::WA_MacShowFocusRect, false);
+
+	connect(actionRunner_, SIGNAL(currentActionChanged(AMAction*)), this, SLOT(onCurrentActionChanged(AMAction*)));
+	connect(cancelButton_, SIGNAL(clicked()), this, SLOT(onCancelButtonClicked()));
+
+	connect(actionRunner_, SIGNAL(currentActionStatusTextChanged(QString)), this, SLOT(onStatusTextChanged(QString)));
+	connect(actionRunner_, SIGNAL(currentActionExpectedDurationChanged(double)), this, SLOT(onExpectedDurationChanged(double)));
+	connect(actionRunner_, SIGNAL(currentActionProgressChanged(double,double)), this, SLOT(onProgressChanged(double,double)));
+
+	QTimer* timeUpdateTimer = new QTimer(this);
+	connect(timeUpdateTimer, SIGNAL(timeout()), this, SLOT(onTimeUpdateTimer()));
+	timeUpdateTimer->start(1000);
+}
+
+void AMActionRunnerCurrentView::onCurrentActionChanged(AMAction* nextAction)
+{
+	cancelButton_->setDisabled((nextAction == 0));
+
+	currentActionModel_->removeRow(0); // harmless if no row yet... Will just return false.
+
+	if(nextAction) {
+		currentActionModel_->appendRow(new AMActionModelItem(nextAction));
+		headerTitle_->setText("Current Action: " % nextAction->info()->typeDescription());
+		headerSubTitle_->setText("<b>Status</b>: " % nextAction->statusText());
+		timeElapsedLabel_->setText("0:00");
+		double expectedDuration = nextAction->expectedDuration();
+		timeRemainingLabel_->setText(expectedDuration > 0 ? formatSeconds(expectedDuration) : "?:??");
+	}
+	else {
+		headerTitle_->setText("Current Action");
+		headerSubTitle_->setText("No action running.");
+		timeElapsedLabel_->setText("-:--");
+		timeRemainingLabel_->setText("-:--");
+		progressBar_->setRange(0,1);
+		progressBar_->setValue(0);
+	}
+}
+
+void AMActionRunnerCurrentView::onCancelButtonClicked()
+{
+	AMAction* currentAction = actionRunner_->currentAction();
+	if(currentAction)
+		currentAction->cancel();
+}
+
+void AMActionRunnerCurrentView::onStatusTextChanged(const QString &newStatus)
+{
+	headerSubTitle_->setText("<b>Status</b>: " % newStatus);
+}
+
+void AMActionRunnerCurrentView::onExpectedDurationChanged(double totalSeconds)
+{
+	double elapsed = actionRunner_->currentAction()->elapsedTime();
+	if(totalSeconds > 0)
+		timeRemainingLabel_->setText(formatSeconds(totalSeconds-elapsed));
+	else
+		timeRemainingLabel_->setText("?:??");
+}
+
+void AMActionRunnerCurrentView::onProgressChanged(double numerator, double denominator)
+{
+	progressBar_->setRange(0, int(denominator*100));
+	progressBar_->setValue(int(numerator*100));
+}
+
+void AMActionRunnerCurrentView::onTimeUpdateTimer()
+{
+	AMAction* currentAction = actionRunner_->currentAction();
+	if(currentAction) {
+		double elapsed = currentAction->elapsedTime();
+		double expectedDuration = currentAction->expectedDuration();
+		timeRemainingLabel_->setText(expectedDuration > 0 ? formatSeconds(expectedDuration-elapsed) : "?:??");
+		timeElapsedLabel_->setText(formatSeconds(elapsed));
+	}
+}
+
+QString AMActionRunnerCurrentView::formatSeconds(double seconds)
+{
+	if(seconds < 0)
+		return QString("?:??");
+
+	QString rv;
+
+	if(seconds > 60*60*24) {
+		QDateTime now = QDateTime::currentDateTime();
+		QDateTime later = now.addSecs(qRound(seconds));
+
+		rv.append(QString("%1 days, ").arg(now.daysTo(later)));
+	}
+
+	QTime t(0,0,0);
+	t = t.addSecs(qRound(seconds));
+	if(seconds > 60*60)
+		rv.append(t.toString("h:m:ss"));
+	else
+		rv.append(t.toString("m:ss"));
+
+	return rv;
+}

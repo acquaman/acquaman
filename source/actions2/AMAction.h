@@ -87,7 +87,7 @@ You can use a generic AMActionInfo in an AMAction-subclass constructor, but if y
 	/// Returns the date and time when this action finished, or an invalid QDateTime if it hasn't finished yet.
 	QDateTime endDateTime() const { return endDateTime_; }
 	/// Returns the number of seconds that this action has been running for, or -1 if it hasn't started running yet.
-	double elapsedTime() const { if(startDateTime_.isValid()) return startDateTime_.secsTo(QDateTime::currentDateTime()); return -1.0; }
+	double elapsedTime() const { if(startDateTime_.isValid()) return double(startDateTime_.msecsTo(QDateTime::currentDateTime()))/1000.0; return -1.0; }
 
 	/// Returns a description of the action's status, for example, "Waiting for the beamline energy to reach the setpoint".  Implementations should update this while the action is running using setStatusText().
 	QString statusText() const { return statusText_; }
@@ -98,6 +98,8 @@ You can use a generic AMActionInfo in an AMAction-subclass constructor, but if y
 
 	/// Returns the current state of the action
 	State state() const { return state_; }
+	/// Returns a string describing the given \c state
+	QString stateDescription(State state);
 	/// Returns whether the action is in a final state (Succeeded, Failed, or Cancelled). All cleanup should be done before entering these states, so it should be OK to delete an action once it is in a final state.
 	bool inFinalState() const { return state_ == Succeeded || state_ == Failed || state_ == Cancelled; }
 	/// Returns the state the action was in before the current state
@@ -144,7 +146,7 @@ You can use a generic AMActionInfo in an AMAction-subclass constructor, but if y
 	/// Specify what should be done in the event that a prereq is not satisfied. The options are to wait for the prereq to be satisfied, cancel the action, fail the action, or prompt the user for what to do. In the future, we might add an attempt to fix the situation causing the prereq.  The default is to wait for the prereq to be satistifed.
 	/*! This function returns false if the action is already running and it would be meaningless to set the prereq behaviour.
 
-	  \note The difference between cancelling and failing the action has to do with the failure response... When cancelled, the failure response isn't invoked; when the action fails, it is.
+   \note The difference between cancelling and failing the action has to do with the failure response... When cancelled, the failure response isn't invoked; when the action fails, it is.
 */
 	bool setPrereqBehaviour(PrereqBehaviour prereqBehaviour);
 
@@ -169,9 +171,6 @@ signals:
 
 	/// Emitted whenever the state() of the action changes
 	void stateChanged(int newActionState, int previousActionState);
-
-	// These signals duplicate signals that are emitted by our AMActionInfo
-	//////////////////////
 
 	/// Emitted when the progress changes. (\c numerator gives the amount done, relative to the total expected amount \c denominator. For example, \c numerator could be a percentage value, and \c denominator could be 100.)
 	void progressChanged(double numerator, double denominator);
@@ -232,7 +231,12 @@ protected:
 
 private:
 	State state_, previousState_;
-	void setState(State newState) { previousState_ = state_; state_ = newState; emit stateChanged(state_, previousState_); }
+	void setState(State newState) {
+		previousState_ = state_;
+		state_ = newState;
+		setStatusText(stateDescription(state_));
+		emit stateChanged(state_, previousState_);
+	}
 
 	QList<AMActionPrereq*> prereqs_;
 	PrereqBehaviour prereqBehaviour_;

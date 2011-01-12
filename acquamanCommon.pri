@@ -480,7 +480,13 @@ HEADERS += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.h \
     source/ui/util/AMGithubIssueSubmissionView.h \
     source/actions2/AMAction.h \
     source/actions2/AMListAction.h \
-    source/actions2/AMActionInfo.h
+	source/actions2/AMActionInfo.h \
+    source/actions2/AMActionRunner.h \
+    source/ui/actions2/AMActionRunnerQueueView.h \
+    source/ui/actions2/AMActionRunnerCurrentView.h \
+    source/ui/actions2/AMWorkflowView.h \
+	source/actions2/actions/AMWaitAction.h \
+	source/actions2/actions/AMWaitActionInfo.h
 
 CONFIG(mobility) {
 DEFINES += AM_MOBILITY_VIDEO_ENABLED
@@ -771,7 +777,13 @@ SOURCES += $$MPLOT_INCLUDE_DIR/MPlot/MPlot.cpp \
     source/ui/util/AMGithubIssueSubmissionView.cpp \
     source/actions2/AMAction.cpp \
     source/actions2/AMListAction.cpp \
-    source/actions2/AMActionInfo.cpp
+    source/actions2/AMActionInfo.cpp \
+    source/actions2/AMActionRunner.cpp \
+    source/ui/actions2/AMActionRunnerQueueView.cpp \
+    source/ui/actions2/AMActionRunnerCurrentView.cpp \
+    source/ui/actions2/AMWorkflowView.cpp \
+	source/actions2/actions/AMWaitAction.cpp \
+	source/actions2/actions/AMWaitActionInfo.cpp
 
 CONFIG(mobility) {
 SOURCES +=	source/ui/AMOverlayVideoWidget.cpp \
@@ -790,9 +802,6 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
-
-
-
 
 
 
