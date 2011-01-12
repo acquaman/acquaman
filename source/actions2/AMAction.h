@@ -82,12 +82,21 @@ You can use a generic AMActionInfo in an AMAction-subclass constructor, but if y
 	// needed?
 	// AMActionInfo* info() { return info_; }
 
+	// Action Timing: start time, end time, cumulative elapsed time, etc.  All of this is managed by the base class for you.
+	////////////////////////
 	/// Returns the date and time when this action was started, or an invalid QDateTime if it hasn't started yet
 	QDateTime startDateTime() const { return startDateTime_; }
 	/// Returns the date and time when this action finished, or an invalid QDateTime if it hasn't finished yet.
 	QDateTime endDateTime() const { return endDateTime_; }
-	/// Returns the number of seconds that this action has been running for, or -1 if it hasn't started running yet.
-	double elapsedTime() const { if(startDateTime_.isValid()) return double(startDateTime_.msecsTo(QDateTime::currentDateTime()))/1000.0; return -1.0; }
+	/// Returns the total number of seconds since this action was start()ed, or -1 if it hasn't started running yet. As long as the action has started, this will be equivalent to QDateTime::currentDateTime() - startDateTime().
+	/*! \note This will include all the time spent in the Paused state as well as WaitingForPrereqs. To get just the actual running time, \see runningTime(). */
+	double elapsedTime() const { if(!startDateTime_.isValid()) return -1.0; return double(startDateTime_.msecsTo(QDateTime::currentDateTime()))/1000.0; }
+	/// Returns the number of seconds that this action has been in the Paused and Pausing states for.
+	double pausedTime() const;
+	/// Returns the number of seconds that this action has been in the WaitingForPrereqs state for
+	double waitingForPrereqsTime() const;
+	/// Returns the number of seconds that this action has actually been running for, <i>excluding</i> time spent in the Paused (and Pausing) and WaitingForPrereqs states.
+	double runningTime() const { if(!startDateTime_.isValid()) return -1.0; return elapsedTime() - pausedTime() - waitingForPrereqsTime(); }
 
 	/// Returns a description of the action's status, for example, "Waiting for the beamline energy to reach the setpoint".  Implementations should update this while the action is running using setStatusText().
 	QString statusText() const { return statusText_; }
@@ -231,12 +240,7 @@ protected:
 
 private:
 	State state_, previousState_;
-	void setState(State newState) {
-		previousState_ = state_;
-		state_ = newState;
-		setStatusText(stateDescription(state_));
-		emit stateChanged(state_, previousState_);
-	}
+	void setState(State newState);
 
 	QList<AMActionPrereq*> prereqs_;
 	PrereqBehaviour prereqBehaviour_;
@@ -257,8 +261,16 @@ private:
 	/// Helper function to prompt the user for whether to cancel the action or wait for the prereqs to be satisfied
 	PrereqBehaviour promptUserForPrereqBehaviour();
 
-protected:
+private:
+	/// A pointer to our associated AMActionInfo object
 	AMActionInfo* info_;
+	/// This variable tracks the number of seconds that the action has spent in the Paused or Pausing states; we use it to implement runningTime().
+	/*! \note It is only updated _after_ the action has resume()d.*/
+	double secondsSpentPaused_;
+	/// This variable tracks the number of seconds that the action spent in the WaitingForPrereqs state; we use it to implement runningTime(). It is not valid until we get past that state.
+	double secondsSpentWaitingForPrereqs_;
+	/// This variable stores the time at which we were last paused. It is set in pause().
+	QDateTime lastPausedAt_;
 };
 
 #endif // AMACTION_H

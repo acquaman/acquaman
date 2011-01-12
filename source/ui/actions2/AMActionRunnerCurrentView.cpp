@@ -13,6 +13,7 @@
 #include <QFrame>
 #include <QStringBuilder>
 #include <QTimer>
+#include <QMessageBox>
 
 AMActionRunnerCurrentView::AMActionRunnerCurrentView(AMActionRunner* actionRunner, QWidget *parent) :
     QWidget(parent)
@@ -52,9 +53,13 @@ AMActionRunnerCurrentView::AMActionRunnerCurrentView(AMActionRunner* actionRunne
 	hl->addWidget(timeRemainingLabel_);
 	hl->addSpacing(20);
 
-	cancelButton_ = new QPushButton("Cancel");
+	pauseButton_ = new QPushButton(QIcon(":/22x22/media-playback-pause.png"), "Pause");
+	pauseButton_->setEnabled(false);
+	hl->addWidget(pauseButton_);
+	cancelButton_ = new QPushButton(QIcon(":/22x22/list-remove-2.png"), "Cancel");
 	cancelButton_->setEnabled(false);
 	hl->addWidget(cancelButton_);
+
 
 
 	QVBoxLayout* vl = new QVBoxLayout(this);
@@ -73,10 +78,12 @@ AMActionRunnerCurrentView::AMActionRunnerCurrentView(AMActionRunner* actionRunne
 
 	connect(actionRunner_, SIGNAL(currentActionChanged(AMAction*)), this, SLOT(onCurrentActionChanged(AMAction*)));
 	connect(cancelButton_, SIGNAL(clicked()), this, SLOT(onCancelButtonClicked()));
+	connect(pauseButton_, SIGNAL(clicked()), this, SLOT(onPauseButtonClicked()));
 
 	connect(actionRunner_, SIGNAL(currentActionStatusTextChanged(QString)), this, SLOT(onStatusTextChanged(QString)));
 	connect(actionRunner_, SIGNAL(currentActionExpectedDurationChanged(double)), this, SLOT(onExpectedDurationChanged(double)));
 	connect(actionRunner_, SIGNAL(currentActionProgressChanged(double,double)), this, SLOT(onProgressChanged(double,double)));
+	connect(actionRunner_, SIGNAL(currentActionStateChanged(int,int)), this, SLOT(onStateChanged(int,int)));
 
 	QTimer* timeUpdateTimer = new QTimer(this);
 	connect(timeUpdateTimer, SIGNAL(timeout()), this, SLOT(onTimeUpdateTimer()));
@@ -86,6 +93,14 @@ AMActionRunnerCurrentView::AMActionRunnerCurrentView(AMActionRunner* actionRunne
 void AMActionRunnerCurrentView::onCurrentActionChanged(AMAction* nextAction)
 {
 	cancelButton_->setDisabled((nextAction == 0));
+	if(nextAction && nextAction->state() == AMAction::Paused) {
+		pauseButton_->setIcon(QIcon(":/22x22/media-playback-start.png"));
+		pauseButton_->setText("Resume");
+	}
+	else {
+		pauseButton_->setIcon(QIcon(":/22x22/media-playback-pause.png"));
+		pauseButton_->setText("Pause");
+	}
 
 	currentActionModel_->removeRow(0); // harmless if no row yet... Will just return false.
 
@@ -138,7 +153,7 @@ void AMActionRunnerCurrentView::onTimeUpdateTimer()
 {
 	AMAction* currentAction = actionRunner_->currentAction();
 	if(currentAction) {
-		double elapsed = currentAction->elapsedTime();
+		double elapsed = currentAction->runningTime();
 		double expectedDuration = currentAction->expectedDuration();
 		timeRemainingLabel_->setText(expectedDuration > 0 ? formatSeconds(expectedDuration-elapsed) : "?:??");
 		timeElapsedLabel_->setText(formatSeconds(elapsed));
@@ -167,4 +182,37 @@ QString AMActionRunnerCurrentView::formatSeconds(double seconds)
 		rv.append(t.toString("m:ss"));
 
 	return rv;
+}
+
+void AMActionRunnerCurrentView::onPauseButtonClicked()
+{
+	AMAction* currentAction = actionRunner_->currentAction();
+	if(!currentAction)
+		return;
+
+	if(currentAction->state() == AMAction::Paused) {
+		currentAction->resume();
+		return;
+	}
+
+	if((currentAction->state() == AMAction::Running || currentAction->state() == AMAction::WaitingForPrereqs) && currentAction->pause())
+		;	// successfully paused; do nothing.
+	else
+		QMessageBox::warning(this, "This action can't be paused", QString("This '%1' action cannot be paused right now.\n\n(Some actions just can't be paused, and others can't be paused at certain points in time.)").arg(currentAction->info()->typeDescription()), QMessageBox::Ok);
+}
+
+void AMActionRunnerCurrentView::onStateChanged(int state, int previousState)
+{
+	if(state == AMAction::Paused) {
+		pauseButton_->setText("Resume");
+		pauseButton_->setIcon(QIcon(":/22x22/media-playback-start.png"));
+	}
+
+	if(previousState == AMAction::Resuming) {
+		pauseButton_->setText("Pause");
+		pauseButton_->setIcon(QIcon(":/22x22/media-playback-pause.png"));
+	}
+
+	// Can pause or resume from only these states:
+	pauseButton_->setEnabled(state == AMAction::Running || state == AMAction::WaitingForPrereqs || state == AMAction::Paused);
 }

@@ -30,6 +30,8 @@ protected slots:
 	void onCurrentActionChanged(AMAction*);
 	/// When the cancel button is clicked for the current action
 	void onCancelButtonClicked();
+	/// When the pause button is clicked for the current action
+	void onPauseButtonClicked();
 
 	// Signals from the current action, forwarded through the Action Runner
 	/// When the action's status text changes
@@ -38,6 +40,9 @@ protected slots:
 	void onExpectedDurationChanged(double totalSeconds);
 	/// When the action's progress changes
 	void onProgressChanged(double numerator, double denominator);
+	/// When the action's state changes. We use this to change the pause button to "Resume" if the action is paused.
+	void onStateChanged(int state, int previousState);
+
 	/// Called on a one-second timer to update the time elapsed, time remaining
 	void onTimeUpdateTimer();
 
@@ -49,7 +54,7 @@ protected:
 	QTreeView* currentActionView_;
 	QStandardItemModel* currentActionModel_;
 
-	QPushButton* cancelButton_;
+	QPushButton* cancelButton_, *pauseButton_;
 	QProgressBar* progressBar_;
 	QLabel* timeElapsedLabel_, * timeRemainingLabel_, *headerTitle_, *headerSubTitle_;
 

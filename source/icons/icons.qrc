@@ -142,5 +142,6 @@
         <file>64x64/generic-action.png</file>
         <file>22x22/media-playback-pause.png</file>
         <file>22x22/media-playback-start.png</file>
+        <file>22x22/list-remove-2.png</file>
     </qresource>
 </RCC>

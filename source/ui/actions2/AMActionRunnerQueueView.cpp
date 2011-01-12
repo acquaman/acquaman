@@ -21,6 +21,7 @@ AMActionRunnerQueueView::AMActionRunnerQueueView(AMActionRunner* actionRunner, Q
 	treeView_->setAttribute(Qt::WA_MacShowFocusRect, false);
 	treeView_->setSelectionBehavior(QAbstractItemView::SelectRows);
 	treeView_->setSelectionMode(QAbstractItemView::ExtendedSelection);
+	treeView_->setAlternatingRowColors(true);
 
 	QFrame* topFrame = new QFrame();
 	topFrame->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
@@ -106,12 +107,17 @@ void AMActionRunnerQueueView::onSelectionChanged()
 void AMActionRunnerQueueView::onDeleteButtonClicked()
 {
 	QModelIndexList selectedRows = treeView_->selectionModel()->selectedRows(0);
+	QList<int> indexesToDelete;
 	foreach(QModelIndex i, selectedRows) {
 		// todozzz.... For now, only delete top-level actions. Will need to figure out deleting actions inside loops later.
 		if(!i.parent().isValid()) {
-			actionRunner_->deleteActionInQueue(i.row());
+			indexesToDelete << i.row();
 		}
 	}
+	// need to delete from largest index to smallest index, otherwise the indexes will change as we go.
+	qSort(indexesToDelete);
+	for(int i=indexesToDelete.count()-1; i>=0; i--)
+		actionRunner_->deleteActionInQueue(indexesToDelete.at(i));
 }
 
 void AMActionRunnerQueueView::onDuplicateButtonClicked()

@@ -14,6 +14,7 @@ AMAction::AMAction(AMActionInfo* info, QObject *parent)
 	progress_ = QPair<double,double>(-1.0, -1.0);
 	state_ = previousState_ = Constructed;
 	statusText_ = "Not yet started";
+	secondsSpentPaused_ = secondsSpentWaitingForPrereqs_ = 0;
 
 	connect(info_, SIGNAL(expectedDurationChanged(double)), this, SIGNAL(expectedDurationChanged(double)));
 
@@ -29,7 +30,7 @@ AMAction::AMAction(const AMAction& other)
 	progress_ = QPair<double,double>(-1.0, -1.0);
 	state_ = previousState_ = Constructed;
 	statusText_ = "Not yet started";
-
+	secondsSpentPaused_ = secondsSpentWaitingForPrereqs_ = 0;
 
 	prereqBehaviour_ = other.prereqBehaviour_;
 	failureResponseInActionRunner_ = other.failureResponseInActionRunner_;
@@ -140,11 +141,13 @@ bool AMAction::pause()
 	}
 
 	if(state() == WaitingForPrereqs) {
+		lastPausedAt_ = QDateTime::currentDateTime();
 		setProgress(0,0	);
 		setState(Paused);	// that's all we need... As long as the state is set to Paused, we won't advance if the prereqs become satisfied until we've been resumed.
 		return true;
 	}
 	if(state() == Running) {
+		lastPausedAt_ = QDateTime::currentDateTime();
 		setProgress(0,0);
 		setState(Pausing);
 		pauseImplementation();
@@ -158,6 +161,8 @@ bool AMAction::pause()
 bool AMAction::resume()
 {
 	if(state() == Paused) {
+		secondsSpentPaused_ += double(lastPausedAt_.msecsTo(QDateTime::currentDateTime()))/1000.0;
+
 		if(previousState() == WaitingForPrereqs) {
 			setState(WaitingForPrereqs);
 			internalOnPrereqChanged();	// review all prereqs to see if we should carry on.  They might have changed while paused.
@@ -276,13 +281,14 @@ void AMAction::notifyCancelled()
 void AMAction::internalOnPrereqChanged()
 {
 	if(state() != WaitingForPrereqs)
-		return;	// only check this and possibly move on if we're in the correct state. If we're paused while the prereqs are connected, we won't enter this function.
+		return;	// only check this and possibly move on if we're in the correct state. If we're paused while the prereqs are connected, we won't enter the remainder of this function.
 
 	if(prereqsSatisfied()) {
 		// we're done here; disconnect prereqs and move on to the Starting state
 		foreach(AMActionPrereq* prereq, prereqs_) {
 			disconnect(prereq, SIGNAL(satisfiedChanged(bool)), this, SLOT(internalOnPrereqChanged()));
 		}
+		secondsSpentWaitingForPrereqs_ = elapsedTime() - secondsSpentPaused_;
 		setState(Starting);	// move on to the next state
 		startImplementation();
 	}
@@ -352,4 +358,38 @@ QString AMAction::stateDescription(AMAction::State state)
 	default:
 		return "Invalid State";
 	}
+}
+
+void AMAction::setState(AMAction::State newState) {
+	previousState_ = state_;
+	state_ = newState;
+	// qDebug() << "AMAction: Entering state:" << stateDescription(state_);
+	setStatusText(stateDescription(state_));
+	emit stateChanged(state_, previousState_);
+}
+
+double AMAction::pausedTime() const
+{
+	if(!startDateTime_.isValid())
+		return -1.0;
+
+	// if we're still in the paused state, secondsSpentPaused_ hasn't been updated yet. Need to add the length of the current pause break;
+	if(state() == Paused)
+		return secondsSpentPaused_ + double(lastPausedAt_.msecsTo(QDateTime::currentDateTime()))/1000.0;
+	else
+		return secondsSpentPaused_;
+}
+
+double AMAction::waitingForPrereqsTime() const
+{
+	if(!startDateTime_.isValid())
+		return -1.0;
+
+	// Are we before secondsSpentWaitingForPrereqs_ has been set?
+	if(state() == WaitingForPrereqs ||
+			(state() == Paused && previousState() == WaitingForPrereqs))
+		return elapsedTime() - pausedTime();	// Our whole elapsed time so far is WaitingForPrereqs time. Except for any paused time, which needs to be counted separately.
+
+	// otherwise, this has been set already. Just use it.
+	return secondsSpentWaitingForPrereqs_;
 }

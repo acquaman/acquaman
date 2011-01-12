@@ -25,7 +25,7 @@ public:
 	virtual int type() const { return AMActionModelItemType; }
 
 	virtual QStandardItem* clone() const {
-		qDebug() << "AMActionModelItem: Is clone() ever used? Apparently.";
+		qDebug() << "AMActionModelItem: Is clone() ever used? If you see this, then yes.";
 		return new AMActionModelItem(action_);
 	}
 protected:
@@ -101,13 +101,15 @@ signals:
 	/// Emitted whenever the currently-running action changes.  If the queue reaches the end and is empty, this will be emitted with 0 (for no current action).
 	void currentActionChanged(AMAction* action);
 
-	// These signals are useful to views of the current action. This saves them from having to connect and disconnect
+	// These signals are useful to views of the current action. This saves them from having to connect and disconnect from all the individual actions
 	/// Forwards the progressChanged() signal from the current action, for convenience
 	void currentActionProgressChanged(double numerator, double denominator);
 	/// Forward the statusTextChanged() signal from the current action, for convenience.
 	void currentActionStatusTextChanged(const QString& status);
 	/// Forward the expectedDurationChanged() signal from the current action, for convenience
 	void currentActionExpectedDurationChanged(double expectedSecondsTotal);
+	/// Forward the stateChanged() signal from the current action, for convenience
+	void currentActionStateChanged(int state, int previousState);
 
 	// Signals regarding the state of the queue.
 	////////////////////////////
@@ -123,10 +125,10 @@ public slots:
 
 protected slots:
 	/// Respond internally whenever the state of the currently-running action changes.
-	void onCurrentActionStateChanged(int newState, int previousState);
+	void onCurrentActionStateChanged(int state, int previousState);
 
 	/// Respond internally whenever the state of any immediate-run action changes.
-	void onImmediateActionStateChanged(int newState, int previousState);
+	void onImmediateActionStateChanged(int state, int previousState);
 
 
 protected:

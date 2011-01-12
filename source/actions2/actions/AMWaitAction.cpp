@@ -3,13 +3,11 @@
 AMWaitAction::AMWaitAction(AMWaitActionInfo* info, QObject *parent) :
 	AMAction(info, parent)
 {
-	secondsSpentPaused_ = 0;
 }
 
 AMWaitAction::AMWaitAction(double seconds, QObject* parent) :
 	AMAction(new AMWaitActionInfo(seconds), parent)
 {
-	secondsSpentPaused_ = 0;
 }
 
 const AMWaitActionInfo * AMWaitAction::waitInfo() const
@@ -23,7 +21,7 @@ void AMWaitAction::startImplementation()
 	timer_.start(int(waitInfo()->secondsToWait()*1000));
 
 	connect(&progressTick_, SIGNAL(timeout()), this, SLOT(onProgressTick()));
-	progressTick_.start(1000);
+	progressTick_.start(200);
 
 	notifyStarted();
 }
@@ -33,17 +31,13 @@ void AMWaitAction::pauseImplementation()
 	timer_.stop();
 	progressTick_.stop();
 
-	pausedAtTime_ = QTime::currentTime();
 	notifyPaused();
 }
 
 void AMWaitAction::resumeImplementation()
 {
-	secondsSpentPaused_ += double(pausedAtTime_.msecsTo(QTime::currentTime()))/1000.0;
-	setExpectedDuration(waitInfo()->secondsToWait()+secondsSpentPaused_);
-
-	double secondsCompleted = elapsedTime() - secondsSpentPaused_;
-	timer_.start(waitInfo()->secondsToWait() - secondsCompleted);
+	double secondsCompleted = runningTime();
+	timer_.start(int((waitInfo()->secondsToWait() - secondsCompleted)*1000));
 	progressTick_.start();
 
 	notifyResumed();
@@ -52,12 +46,13 @@ void AMWaitAction::resumeImplementation()
 void AMWaitAction::cancelImplementation()
 {
 	timer_.stop();
+	progressTick_.stop();
 	notifyCancelled();
 }
 
 void AMWaitAction::onProgressTick()
 {
-	double secondsCompleted = elapsedTime() - secondsSpentPaused_;
+	double secondsCompleted = runningTime();
 	setProgress(secondsCompleted, waitInfo()->secondsToWait());
 }
 

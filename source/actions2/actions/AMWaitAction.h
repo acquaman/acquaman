@@ -20,8 +20,8 @@ public:
 	AMWaitAction(AMWaitActionInfo* info, QObject *parent = 0);
 	/// This convenience constructor is indentical to AMWaitAction(new AMWaitActionInfo(seconds))
 	AMWaitAction(double seconds, QObject* parent = 0);
-	/// Copy constructor: must re-implement, but can simply use the AMAction copy constructor to make copies of the info and prereqs. We need to reset our internal state variables (secondsSpentPaused_, in this case) to make the copy a "like new" action - ie, not run yet.
-	AMWaitAction(const AMWaitAction& other) : AMAction(other) { secondsSpentPaused_ = 0; }
+	/// Copy constructor: must re-implement, but can simply use the AMAction copy constructor to make copies of the info and prereqs. We need to reset our internal state variables (secondsSpentWaitingForPrereqs_, in this case) to make the copy a "like new" action - ie, not run yet.
+	AMWaitAction(const AMWaitAction& other) : AMAction(other) {}
 	/// Virtual copy constructor
 	virtual AMWaitAction* createCopy() const { return new AMWaitAction(*this); }
 
@@ -68,10 +68,6 @@ protected:
 	QTimer timer_;
 	/// Timer used to issue progress updates on a per-second basis
 	QTimer progressTick_;
-	/// Number of seconds spent in "paused" state, which we add to our expected duration
-	double secondsSpentPaused_;
-	/// The instant in time when we were last paused
-	QTime pausedAtTime_;
 
 	/// We can always access our info object via info_ or info(), but it will come back as a AMActionInfo* pointer that we would need to cast to AMWaitActionInfo. This makes it easier to access.
 	const AMWaitActionInfo* waitInfo() const;

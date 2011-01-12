@@ -41,7 +41,7 @@ void AMActionRunner::releaseActionRunner()
 
 void AMActionRunner::onCurrentActionStateChanged(int state, int previousState)
 {
-	Q_UNUSED(previousState)
+	emit currentActionStateChanged(state, previousState);
 
 	if(state == AMAction::Failed) {
 		// What should we do?
@@ -173,8 +173,6 @@ void AMActionRunner::setQueuePaused(bool isPaused) {
 
 void AMActionRunner::internalDoNextAction()
 {
-	qDebug() << "AMActionRunner: Next Action";
-
 	// signal that no action is running? (queue paused, or we're out of actions in the queue to run...)
 	if(isPaused_ || queuedActionCount() == 0) {
 		if(currentAction_) {
@@ -283,10 +281,28 @@ AMActionModelItem::AMActionModelItem(AMAction *action) : QStandardItem()
 	action_ = action;
 }
 
+#include <QPixmapCache>
+#include <QDebug>
 QVariant AMActionModelItem::data(int role) const
 {
 	if(role == Qt::DisplayRole) {
 		return action_->info()->shortDescription();
+	}
+	else if(role == Qt::DecorationRole) {
+		QPixmap p;
+		QString iconFileName = action_->info()->iconFileName();
+		if(QPixmapCache::find("AMActionModelItemIcon" % iconFileName, &p))
+			return p;
+		else {
+			qDebug() << "Long load...";
+			p.load(iconFileName);
+			p = p.scaledToHeight(32);
+			QPixmapCache::insert("AMActionModelItemIcon" % iconFileName, p);
+			return p;
+		}
+	}
+	else if(role == Qt::SizeHintRole) {
+		return QSize(-1, 48);
 	}
 	return QStandardItem::data(role);
 }
