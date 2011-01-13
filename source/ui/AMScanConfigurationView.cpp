@@ -305,3 +305,64 @@ void AMScanConfigurationScanDirector::onAlwaysAppend(bool checked){
 void AMScanConfigurationScanDirector::onAlwaysCancel(bool checked){
 	alwaysCancel_ = checked;
 }
+
+AMFastScanConfigurationHolder::AMFastScanConfigurationHolder(QWidget *parent) :
+		QWidget(parent)
+{
+	vl_ = NULL;
+	cfg_ = NULL;
+	sfscViewer_ = NULL;
+}
+
+AMFastScanConfigurationHolder::~AMFastScanConfigurationHolder()
+{
+}
+
+void AMFastScanConfigurationHolder::onBecameCurrentWidget()
+{
+	if(!sfscViewer_ && isVisible() && SGMBeamline::sgm()->isConnected()){
+		createScanConfiguration();
+		sfscViewer_ = new SGMFastScanConfigurationViewer(cfg_);
+		/*
+		connect(sxscViewer, SIGNAL(startScanRequested()), this, SLOT(onStartScanRequested()));
+		connect(sxscViewer, SIGNAL(addToQueueRequested()), this, SLOT(onAddToQueueRequested()));
+		connect(sxscViewer, SIGNAL(queueDirectorRequested()), director, SLOT(show()));
+		connect(this, SIGNAL(lockdownScanning(bool,QString)), sxscViewer, SLOT(onLockdowScanning(bool,QString)));
+		*/
+		if(!vl_)
+			vl_ = new QVBoxLayout();
+		vl_->addWidget(sfscViewer_);
+		if(layout() != vl_){
+			delete layout();
+			this->setLayout(vl_);
+		}
+		/*
+		emit newScanConfigurationView();
+		*/
+	}
+}
+
+void AMFastScanConfigurationHolder::createScanConfiguration(){
+	cfg_ = new SGMFastScanConfiguration(this);
+	cfg_->setFileName("daveData.%03d.dat");
+	cfg_->setFilePath(AMUserSettings::userDataFolder);
+
+	/*
+	cfgDetectorInfoSet_ = new AMDetectorInfoSet(this);
+	cfg_->setCfgDetectorInfoSet(cfgDetectorInfoSet_);
+	AMDetectorInfo* tmpDI, *tdi;
+	for(int x = 0; x < cfg_->detectorSet()->count(); x++){
+		tdi = cfg_->detectorSet()->detectorAt(x);
+		#warning "D: same edit to review. Was tdi a PGTDetector or a PGTDetectorInfo?"
+		if( qobject_cast<PGTDetector*>(tdi) )
+			tmpDI = new PGTDetectorInfo(tdi->name(), tdi->description(), this);
+		else if( qobject_cast<MCPDetector*>(tdi) )
+			tmpDI = new MCPDetectorInfo(tdi->name(), tdi->description(), this);
+		else
+			tmpDI = new AMDetectorInfo(tdi->name(), tdi->description(), this);
+
+
+		cfgDetectorInfoSet_->addDetector(tmpDI, cfg_->detectorSet()->isDefaultAt(x));
+	}
+	*/
+}

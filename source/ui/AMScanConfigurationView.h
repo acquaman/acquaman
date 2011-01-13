@@ -4,6 +4,7 @@
 #include <QWidget>
 #include "ui/SGMXASScanConfigurationViewer.h"
 #include "ui/SGMXASScanConfigurationWizard.h"
+#include "ui/SGMFastScanConfigurationViewer.h"
 
 class AMScanConfigurationQueueDirector;
 class AMScanConfigurationScanDirector;
@@ -133,6 +134,27 @@ protected:
 	QCheckBox *waitNextCheck_;
 	QCheckBox *appendCheck_;
 	QCheckBox *cancelCheck_;
+};
+
+class AMFastScanConfigurationHolder : public QWidget
+{
+	Q_OBJECT
+public:
+	AMFastScanConfigurationHolder(QWidget *parent = 0);
+	~AMFastScanConfigurationHolder();
+
+public slots:
+	void onBecameCurrentWidget();
+
+protected slots:
+	void createScanConfiguration();
+
+protected:
+	SGMFastScanConfiguration *cfg_;
+
+	SGMFastScanConfigurationViewer *sfscViewer_;
+
+	QVBoxLayout *vl_;
 };
 
 #endif // AMSCANCONFIGURATIONVIEW_H

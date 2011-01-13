@@ -86,7 +86,7 @@ bool AMRegionsList::addRegionSqueeze(size_t index){
 		nextStart = start(index);
 		return addRegion(index, sensibleStart, 1, nextStart);
 	}
-	else if(index == count()){
+	else if(index == (unsigned)count()){
 		prevEnd = end(index-1);
 		return addRegion(index, prevEnd, 1, sensibleEnd);
 	}
@@ -134,7 +134,7 @@ bool AMRegionsList::deleteRegion(size_t index){
 bool AMRegionsList::deleteRegionSqueeze(size_t index){
 	bool retVal = deleteRegion(index);
 	if(retVal){
-		if( (index != 0) && (index != count()) ){
+		if( (index != 0) && (index != (unsigned)count()) ){
 			double prevEnd, nextStart;
 			prevEnd = end(index-1);
 			nextStart = start(index);
