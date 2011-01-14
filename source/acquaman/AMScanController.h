@@ -78,6 +78,10 @@ public:
 	bool isFinished() const;
 	bool isFailed() const;
 
+	/// Public function to determine whether the implementation is able to pause while running. \see canPause().
+	/*! (Necessary just because canPause() is protected.) */
+	bool controllerCanPause() const { return canPause(); }
+
 	/// Pointer to the scan this instance is controlling.
 	virtual AMScan* scan() { return scan_; }
 
@@ -151,7 +155,7 @@ protected:
 	/// Implement to start a scan (ie: transition from Initialized to Running).  Returns whether or not the scan can be started, not that the scan has started. After the scan is running, call setStarted().
 	virtual bool startImplementation() = 0;
 	/// Implement to define whether or not your scan controller is capable of pausing (defaults to not able to pause). If you canPause (return true), then you need to implement a pauseImplementation and a resumeImplementation.
-	virtual bool canPause() { return false; }
+	virtual bool canPause() const { return false; }
 	/// Implement to pause a running scan (ie: transition from Running to Paused).  After the scan is paused, call setPaused(). (Note: If it's not possible to pause this type of scan (ie: canPause() is false), this will never be called.)
 	virtual void pauseImplementation() {}
 	/// Implement to resume a paused scan (ie: transition from Paused to Running).  If pauseImplementation() returns false, you don't need to do anything here. After the scan is resumed, call setResumed().

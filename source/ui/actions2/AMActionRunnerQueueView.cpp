@@ -23,13 +23,18 @@ AMActionRunnerQueueView::AMActionRunnerQueueView(AMActionRunner* actionRunner, Q
 	treeView_->setSelectionMode(QAbstractItemView::ExtendedSelection);
 	treeView_->setAlternatingRowColors(true);
 
+	treeView_->setDragEnabled(true);
+	treeView_->viewport()->setAcceptDrops(true);
+	treeView_->setDropIndicatorShown(true);
+	treeView_->setDragDropMode(QTreeView::DragDrop);
+
 	QFrame* topFrame = new QFrame();
 	topFrame->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 	topFrame->setObjectName("topFrame");
-	topFrame->setStyleSheet("QFrame#topFrame {\n/*background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(81, 81, 81, 255), stop:0.494444 rgba(81, 81, 81, 255), stop:0.5 rgba(64, 64, 64, 255), stop:1 rgba(64, 64, 64, 255));*/\nbackground-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(0, 0, 0, 105), stop:0.494444 rgba(0, 0, 0, 105), stop:0.5 rgba(0, 0, 0, 134), stop:1 rgba(0, 0, 0, 134));\nborder-bottom: 1px solid black;\n}");
+	topFrame->setStyleSheet("QFrame#topFrame {\nbackground-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(89, 89, 89, 255), stop:0.494444 rgba(89, 89, 89, 255), stop:0.5 rgba(58, 58, 58, 255), stop:1 rgba(58, 58, 58, 255));\nborder-bottom: 1px solid black;\n}");
 	QHBoxLayout* hl = new QHBoxLayout(topFrame);
 	hl->setSpacing(0);
-	hl->setContentsMargins(6, 2, 12, 4);
+	hl->setContentsMargins(6, 2, 12, 1);
 
 	hideButton_ = new QToolButton();
 	hideButton_->setStyleSheet("QToolButton {\nborder: none;\nbackground-color: rgba(255, 255, 255, 0);\ncolor: white;\n image: url(:/22x22/arrow-white-right.png)} \nQToolButton::checked {\n	image: url(:/22x22/arrow-white-down.png);\n}\n");
@@ -39,6 +44,8 @@ AMActionRunnerQueueView::AMActionRunnerQueueView(AMActionRunner* actionRunner, Q
 	hl->addSpacing(10);
 
 	QVBoxLayout* vl2 = new QVBoxLayout();
+	vl2->setContentsMargins(0,0,0,0);
+	vl2->setSpacing(0);
 	headerTitle_ = new QLabel("Upcoming Actions");
 	headerTitle_->setStyleSheet("color: white;\nfont: 20pt \"Lucida Grande\"");
 	headerSubTitle_ = new QLabel(QString("%1 actions in the workflow queue.").arg(actionRunner_->queuedActionCount()));
@@ -63,7 +70,7 @@ AMActionRunnerQueueView::AMActionRunnerQueueView(AMActionRunner* actionRunner, Q
 	pauseButton_->setIconSize(QSize(22, 22));
 	pauseButton_->setCheckable(true);
 	pauseButton_->setChecked(true);
-	pauseButton_->setStyleSheet("QPushButton { border: 2px solid #8f8f91; border-radius: 6px;background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 rgb(102,255,102), stop: 1 #dadbde);min-width: 140px; padding: 0px 5px 0 5px;} QPushButton:pressed { background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #dadbde, stop: 1 #f6f7fa); } QPushButton:flat { border: none; /* no border for a flat push button */ } QPushButton:checked { background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 rgb(102,102,255), stop: 1 #f6f7fa); }");
+	pauseButton_->setStyleSheet("QPushButton { border: 2px solid #8f8f91; border-radius: 6px;background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 rgb(102,255,102), stop: 1 #dadbde);min-width: 140px; padding: 0px 5px 0 5px;} QPushButton:pressed { background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #dadbde, stop: 1 #f6f7fa); } QPushButton:flat { border: none; /* no border for a flat push button */ } QPushButton:checked { background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 rgb(102,102,255), stop: 1 #f6f7fa); } QPushButton:checked:pressed { background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #dadbde, stop: 1 #f6f7fa); }");
 	hl->addWidget(pauseButton_);
 
 	QVBoxLayout* vl = new QVBoxLayout(this);

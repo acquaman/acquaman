@@ -19,7 +19,42 @@ signals:
 	void satisfiedChanged(bool isSatisfied);
 };
 
+/// AMAction defines the interface for "actions" which can be run asynchronously in Acquaman's Workflow system. Actions (especially AMListAction) can also be useful on their own, outside of the workflow environment, to (a) make a set of events happen in a defined order, and (b) receive notification when those events succeed or fail. They can be used to easily build up complicated behaviour when moving beamlines around or building scan controllers.
+/*!
+  <b>Running actions</b>
 
+Actions can be run on their own (by simply calling start()), or within the workflow system by using AMActionRunner.
+
+When using AMActionRunner, they can be queued up to run one-by-one with AMActionRunner::addQueuedAction(), or run immediately (in parallel with whatever else might be running) with AMActionRunner::runActionImmediately().  In both cases, the actions are logged in the database after running.
+
+<b>Actions and States</b>
+\todo detailed docs
+
+<b>Actions and AMActionInfo</b>
+
+Most of the time, an AMAction subclass has a corresponding AMActionInfo subclass that describes the content/details/specs of the action, but omits all the implementation code required to actually run the action. (Users should typically configure/set up actions by <i>configuring the info</i> inside a corresponding AMActionInfoView.)  This separation allows users to review/copy/manage the AMActionInfos from their completed actions inside Acquaman programs that do not (or should not) have access to the implementation code.  For example, a user might want to review some scan actions done on Beamline A, while working on Beamline B; the user could open and review a BeamlineAScanActionInfo even though their program doesn't have access to BeamlineAScanAction.  (A more typical example might be reviewing a log of completed actions from many beamlines inside the Dataman take-home program.)
+
+<b><i>Action/Info Registry</i></b>
+
+When this one-to-one relationship between AMActions and AMActionInfos is used, the programmer should register the pair in the AMAction/Info Registry (AMActionRegistry::registerInfoAndAction()). This allows the workflow system to recreate valid AMActions given a particular AMActionInfo -- allowing a user to re-instantiate and re-run actions from their history of stored AMActionInfos.
+
+<b>AMActionInfo, views, and editors</b>
+
+\todo detailed description
+
+<b>Prerequisites</b>
+
+AMActionPrereq defines an interface for "prerequisites" which must be satisfied before an action can run.  One example of this (for a scan action) could be to ensure that no other scans are currently running on the beamline.
+
+When you add one or more prereqs to an action with addPrereq(), the action can do one of four things (depending on the chosen prereqBehavior()) if any of them are not satisfied:
+
+- Wait patiently for all the prerequisites to be satisfied
+- Automatically cancel the action (like calling cancel())
+- Automatically fail the action  (like the action going into the Failed state)
+- Ask the user for whether to wait or cancel the action
+
+
+ */
 class AMAction : public QObject
 {
 	Q_OBJECT
@@ -75,12 +110,11 @@ public:
 	//////////////////////
 
 	/// Returns the AMActionInfo subclass describing this action. The Info subclasses are a way to separate the description/content of actions from their implementation. This allows storing and viewing future/past actions inside programs which shouldn't have the capability to run them
-	/*! (For example: viewing a history of a user's SGM beamline actions inside their take-home Dataman program, or when on another beamline. Theoretically, this approach could even let someone plan and queue up beamline actions at home to run once they get to the beamline.)
+	/*! (For example: a user viewing a history of their SGM beamline actions inside their take-home Dataman program, or when on another beamline. Theoretically, this approach could even let someone plan and queue up beamline actions at home to run once they get to the beamline.)
 
 You can use a generic AMActionInfo in an AMAction-subclass constructor, but if you want to be able to re-create live actions from historical ones, you should provide a unique info subclass with sufficient information to completely specify/re-create the action, and register your Info-Action pair with AMActionRegistry::registerInfoAndAction().*/
 	const AMActionInfo* info() const { return info_; }
-	// needed?
-	// AMActionInfo* info() { return info_; }
+	AMActionInfo* info() { return info_; }
 
 	// Action Timing: start time, end time, cumulative elapsed time, etc.  All of this is managed by the base class for you.
 	////////////////////////

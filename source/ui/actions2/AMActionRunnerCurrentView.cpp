@@ -24,12 +24,14 @@ AMActionRunnerCurrentView::AMActionRunnerCurrentView(AMActionRunner* actionRunne
 	QFrame* topFrame = new QFrame();
 	topFrame->setObjectName("topFrame");
 	topFrame->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-	topFrame->setStyleSheet("QFrame#topFrame {\n/*background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(81, 81, 81, 255), stop:0.494444 rgba(81, 81, 81, 255), stop:0.5 rgba(64, 64, 64, 255), stop:1 rgba(64, 64, 64, 255));*/\nbackground-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(0, 0, 0, 105), stop:0.494444 rgba(0, 0, 0, 105), stop:0.5 rgba(0, 0, 0, 134), stop:1 rgba(0, 0, 0, 134));\nborder-bottom: 1px solid black;\n}");
+	topFrame->setStyleSheet("QFrame#topFrame {\nbackground-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(89, 89, 89, 255), stop:0.494444 rgba(89, 89, 89, 255), stop:0.5 rgba(58, 58, 58, 255), stop:1 rgba(58, 58, 58, 255));\nborder-bottom: 1px solid black;\n}");
 	QHBoxLayout* hl = new QHBoxLayout(topFrame);
 	hl->setSpacing(0);
-	hl->setContentsMargins(6, 2, 12, 4);
+	hl->setContentsMargins(6, 2, 12, 1);
 
 	QVBoxLayout* vl2 = new QVBoxLayout();
+	vl2->setContentsMargins(0,0,0,0);
+	vl2->setSpacing(0);
 	headerTitle_ = new QLabel("Current Action");
 	headerTitle_->setStyleSheet("color: white;\nfont: 20pt \"Lucida Grande\"");
 	headerSubTitle_ = new QLabel("No action running.");
@@ -105,7 +107,7 @@ void AMActionRunnerCurrentView::onCurrentActionChanged(AMAction* nextAction)
 	currentActionModel_->removeRow(0); // harmless if no row yet... Will just return false.
 
 	if(nextAction) {
-		currentActionModel_->appendRow(new AMActionModelItem(nextAction));
+		currentActionModel_->appendRow(new AMActionQueueModelItem(nextAction));
 		headerTitle_->setText("Current Action: " % nextAction->info()->typeDescription());
 		headerSubTitle_->setText("<b>Status</b>: " % nextAction->statusText());
 		timeElapsedLabel_->setText("0:00");

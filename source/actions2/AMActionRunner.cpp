@@ -2,22 +2,32 @@
 #include "actions2/AMAction.h"
 
 #include <QStringBuilder>
+#include <QPixmapCache>
 
 AMActionRunner* AMActionRunner::instance_ = 0;
 
 // testing only:
 #include "actions2/actions/AMWaitAction.h"
+#include "actions2/actions/AMScanControllerAction.h"
+#include "actions2/actions/AMScanControllerActionInfo.h"
+// #include "acquaman/REIXS/REIXSXESScanConfiguration.h"
 
 AMActionRunner::AMActionRunner(QObject *parent) :
 	QObject(parent)
 {
 	currentAction_ = 0;
 	isPaused_ = true;
+	queueModel_ = new AMActionQueueModel(this, this);
 
+	addActionToQueue(new AMWaitAction(10));
 	addActionToQueue(new AMWaitAction(20));
-	addActionToQueue(new AMWaitAction(20));
-	addActionToQueue(new AMWaitAction(20));
-	addActionToQueue(new AMWaitAction(20));
+	addActionToQueue(new AMWaitAction(30));
+	addActionToQueue(new AMWaitAction(40));
+	addActionToQueue(new AMWaitAction(50));
+	addActionToQueue(new AMWaitAction(60));
+	addActionToQueue(new AMWaitAction(70));
+	addActionToQueue(new AMWaitAction(80));
+	// addActionToQueue(new AMScanControllerAction(new AMScanControllerActionInfo(new REIXSXESScanConfiguration())));
 }
 
 AMActionRunner::~AMActionRunner() {
@@ -76,11 +86,11 @@ void AMActionRunner::onCurrentActionStateChanged(int state, int previousState)
 
 void AMActionRunner::insertActionInQueue(AMAction *action, int index)
 {
-	if(index < 0 || index > queueModel_.rowCount())
-		index = queueModel_.rowCount();
+	if(index < 0 || index > queueModel_->rowCount())
+		index = queueModel_->rowCount();
 
 	// emit actionAboutToBeAdded(index);
-	queueModel_.insertRow(index, new AMActionModelItem(action));
+	queueModel_->insertRow(index, new AMActionQueueModelItem(action));
 	// emit actionAdded(index);
 
 	// was this the first action inserted into a running but empty queue? Start it up!
@@ -90,12 +100,12 @@ void AMActionRunner::insertActionInQueue(AMAction *action, int index)
 
 bool AMActionRunner::deleteActionInQueue(int index)
 {
-	if(index<0 || index>=queueModel_.rowCount())
+	if(index<0 || index>=queueModel_->rowCount())
 		return false;
 
 	// emit actionAboutToBeRemoved(index);
-	AMAction* action = static_cast<AMActionModelItem*>(queueModel_.item(index))->action();
-	queueModel_.removeRow(index);
+	AMAction* action = static_cast<AMActionQueueModelItem*>(queueModel_->item(index))->action();
+	queueModel_->removeRow(index);
 	delete action;
 	// emit actionRemoved(index);
 
@@ -104,10 +114,10 @@ bool AMActionRunner::deleteActionInQueue(int index)
 
 bool AMActionRunner::duplicateActionInQueue(int index)
 {
-	if(index<0 || index>=queueModel_.rowCount())
+	if(index<0 || index>=queueModel_->rowCount())
 		return false;
 
-	insertActionInQueue(static_cast<AMActionModelItem*>(queueModel_.item(index))->action()->createCopy(), index+1);
+	insertActionInQueue(static_cast<AMActionQueueModelItem*>(queueModel_->item(index))->action()->createCopy(), index+1);
 	return true;
 }
 
@@ -131,7 +141,7 @@ bool AMActionRunner::duplicateActionsInQueue(const QList<int> &indexesToCopy)
 
 	// note: because we're inserting at higher indexes than any of indexesToCopy, we know that any that we're supposed to copy won't change positions as we start inserting.
 	foreach(int index, indexesToCopy) {
-		insertActionInQueue(static_cast<AMActionModelItem*>(queueModel_.item(index))->action()->createCopy(),
+		insertActionInQueue(static_cast<AMActionQueueModelItem*>(queueModel_->item(index))->action()->createCopy(),
 							++maxIndex);
 	}
 	return true;
@@ -149,12 +159,12 @@ bool AMActionRunner::moveActionInQueue(int currentIndex, int finalIndex)
 		finalIndex = queuedActionCount()-1;
 
 	// emit actionAboutToBeRemoved(currentIndex);
-	QStandardItem* item = queueModel_.item(currentIndex);
-	queueModel_.removeRow(currentIndex);
+	QStandardItem* item = queueModel_->item(currentIndex);
+	queueModel_->removeRow(currentIndex);
 	// emit actionRemoved(currentIndex);
 
 	// emit actionAboutToBeAdded(finalIndex);
-	queueModel_.insertRow(finalIndex, item);
+	queueModel_->insertRow(finalIndex, item);
 	// emit actionAdded(finalIndex);
 
 	return true;
@@ -189,7 +199,7 @@ void AMActionRunner::internalDoNextAction()
 		// todozzzz Handle special situation if newAction is a LoopAction: don't remove it.
 		// emit actionAboutToBeRemoved(0);
 		AMAction* newAction = queuedActionAt(0);
-		queueModel_.removeRow(0);
+		queueModel_->removeRow(0);
 		// emit actionRemoved(0);
 
 		emit currentActionChanged(currentAction_ = newAction);
@@ -276,14 +286,16 @@ void AMActionRunner::onImmediateActionStateChanged(int state, int previousState)
 }
 
 
-AMActionModelItem::AMActionModelItem(AMAction *action) : QStandardItem()
+AMActionQueueModelItem::AMActionQueueModelItem(AMAction *action) : QStandardItem()
 {
 	action_ = action;
+	setFlags(Qt::ItemIsEnabled | Qt::ItemIsEditable | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled);
+
+	// todozzz For loop items, should be drop-enabled to accept dropping actions into them?);
 }
 
-#include <QPixmapCache>
-#include <QDebug>
-QVariant AMActionModelItem::data(int role) const
+
+QVariant AMActionQueueModelItem::data(int role) const
 {
 	if(role == Qt::DisplayRole) {
 		return action_->info()->shortDescription();
@@ -291,13 +303,12 @@ QVariant AMActionModelItem::data(int role) const
 	else if(role == Qt::DecorationRole) {
 		QPixmap p;
 		QString iconFileName = action_->info()->iconFileName();
-		if(QPixmapCache::find("AMActionModelItemIcon" % iconFileName, &p))
+		if(QPixmapCache::find("AMActionQueueModelItemIcon" % iconFileName, &p))
 			return p;
 		else {
-			qDebug() << "Long load...";
 			p.load(iconFileName);
 			p = p.scaledToHeight(32);
-			QPixmapCache::insert("AMActionModelItemIcon" % iconFileName, p);
+			QPixmapCache::insert("AMActionQueueModelItemIcon" % iconFileName, p);
 			return p;
 		}
 	}
@@ -306,3 +317,79 @@ QVariant AMActionModelItem::data(int role) const
 	}
 	return QStandardItem::data(role);
 }
+
+AMActionQueueModel::AMActionQueueModel(AMActionRunner *actionRunner, QObject *parent) :
+	QStandardItemModel(parent)
+{
+	actionRunner_ = actionRunner;
+}
+bool AMActionQueueModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)
+{
+	Q_UNUSED(column)
+
+	// Option 1: Handle internal move actions, where the \c data is a list of the qmodelindexes to move
+	if(action == Qt::MoveAction) {
+		const AMModelIndexListMimeData* milData = qobject_cast<const AMModelIndexListMimeData*>(data);
+		if(milData) {
+			QList<QPersistentModelIndex> mil = milData->modelIndexList();
+			// go through and make sure all indexes are valid, and have the same parent index. If we're asked to move multiple indexes from different levels of the hierarchy, I have no idea how we'd interpret that.
+			if(mil.isEmpty())
+				return false;	// nothing to do!
+			QPersistentModelIndex first = mil.at(0);
+			foreach(const QPersistentModelIndex& mi, mil) {
+				if(!mi.isValid()) {
+					return false;	// this item was removed from the model while the drag was in progress.  Be faster next time, user.
+				}
+				if(mi.parent() != first.parent())
+					return false;	// we need all indexes to move to be at the same level of the hierarchy.
+			}
+			// OK, these indexes are OK to use.
+
+			// Subcase A: If these are all top-level actions in the queue, we can move them using the AMActionRunner API.
+			if(!first.parent().isValid()) {
+				// destination: if they are being moved to another location at the top level:
+				if(!parent.isValid()) {
+					// get the row (index) of each action, and sort them in ascending order
+					QList<int> indexesToMove;
+					foreach(const QPersistentModelIndex& pmi, mil) {
+						QModelIndex mi = pmi; // convert back to current index to get the row.
+						indexesToMove << mi.row();
+					}
+					qSort(indexesToMove);
+
+					QList<AMAction*> actionsToMove;
+					foreach(int i, indexesToMove)
+						actionsToMove << actionRunner_->queuedActionAt(i);
+
+					// go from highest index to lowest index, inserting at the destination row
+					for(int i=actionsToMove.count()-1; i>=0; i--)
+						actionRunner_->insertActionInQueue(actionsToMove.at(i), row);
+
+					// now here's the funny thing: The view's drag action will now delete rows from the model corresponding to where these all came from. (Hopefully it uses persistent indexes for this!) Normally it's not good to delete rows using the model interface, because we haven't deleted the corresponding actions in the AMActionRunner. But here we've actually created duplicate model entries for each action, so this is exactly the behaviour we want.
+					return true;
+				}
+				// todozzzz destination: being moved into a loop action
+			}
+			// todozzz Subcase B: These are sub-actions inside a loop action... Grab the loop action and rearrange them.
+		}
+	}
+
+	return false;
+}
+
+QMimeData * AMActionQueueModel::mimeData(const QModelIndexList &indexes) const
+{
+	return new AMModelIndexListMimeData(indexes);
+}
+
+QStringList AMActionQueueModel::mimeTypes() const
+{
+	return QStringList() << "application/octet-stream";
+}
+
+bool AMActionQueueModel::removeRows(int row, int count, const QModelIndex &parent)
+{
+	// qDebug() << "What? someone's calling removeRows on the model" << row << count << parent;
+	return QStandardItemModel::removeRows(row, count, parent);
+}
+

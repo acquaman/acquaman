@@ -2,37 +2,64 @@
 #define AMACTIONRUNNER_H
 
 #include <QObject>
-#include <Qlist>
+#include <QList>
 #include <QStandardItemModel>
 #include <QStandardItem>
 
-#include <QDebug>
-
 class AMAction;
 
-/// This subclass of QStandardItem is used to represent actions in the AMActionRunner queue.  You should never need to use this class directly.
-/*! We use a possibly hierarchical model so that we can support nesting of "For-loop" actions at some point.*/
-class AMActionModelItem : public QStandardItem {
+/// This subclass of QStandardItem is used inside AMActionQueueModel to represent actions in the AMActionRunner queue.  You should never need to use this class directly.
+class AMActionQueueModelItem : public QStandardItem {
 public:
-	enum Type { AMActionModelItemType = QStandardItem::UserType + 1002 };
-
-	AMActionModelItem(AMAction* action);
-
+	/// Used to identify a specific type of item subclass
+	enum Type { AMActionQueueModelItemType = QStandardItem::UserType + 1049 };
+	/// Constructor
+	AMActionQueueModelItem(AMAction* action);
+	/// The two things that separate us from QStandardItems: we have an associated action, and we return data based on that action
 	AMAction* action() { return action_; }
-
+	/// Action-specific data: we return the action's info's shortDescription() for Qt::DisplayRole, and cache and return pixmaps based on the info's iconFileName() for Qt::DecorationRole
 	virtual QVariant data(int role) const;
-
-	virtual int type() const { return AMActionModelItemType; }
-
-	virtual QStandardItem* clone() const {
-		qDebug() << "AMActionModelItem: Is clone() ever used? If you see this, then yes.";
-		return new AMActionModelItem(action_);
-	}
+	/// Used to identify a specific type of item subclass
+	virtual int type() const { return AMActionQueueModelItemType; }
 protected:
+	/// Pointer to our associated action
 	AMAction* action_;
 };
 
-/// This singleton class takes the role of a workflow manager. You can queue up actions for it to run, manage the queue of upcoming actions, and receive notifications when actions are completed. After an action is completed, it will automatically log the actions with AMActionHistoryLogger.
+class AMActionRunner;
+
+/// This subclass of QStandardItemModel is used internally by AMActionRunner for its queue of upcoming actions.   You should never use this class directly.
+/*!
+Implementation Notes
+
+- We use a possibly hierarchical model so that we can support nesting of "For-loop" actions at some point.
+- Subclassing QStandardItemModel is only necessary because we want to enable drag-and-drop reordering of actions (AMActionQueueModelItems) in the AMActionRunner.
+- There is not two-way data flow/synchronization between this model and AMActionRunner.  Instead, the AMActionRunner must be the only object to send modification commands to this model.  For example, it is NOT supported to remove items from the AMActionRunner queue by calling removeRows() on this model.
+*/
+class AMActionQueueModel : public QStandardItemModel {
+public:
+	/// Constructor. Requires a pointer back to the AMActionRunner.
+	AMActionQueueModel(AMActionRunner* actionRunner, QObject* parent = 0);
+
+	/// Re-implemented from QStandardItemModel to deal with dropping when re-ordering the queue via drag-and-drop.
+	virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent);
+	/// Re-implemented from QStandardItemModel to deal with dragging when re-ordering the queue via drag-and-drop.
+	virtual QMimeData* mimeData(const QModelIndexList &indexes) const;
+	/// Re-implemented from QStandardItemModel to deal with dragging when re-ordering the queue via drag-and-drop.
+	virtual QStringList mimeTypes() const;
+	/// Re-implemented from QStandardItemModel to deal with dropping when re-ordering the queue via drag-and-drop
+	virtual Qt::DropActions supportedDropActions() const { return Qt::MoveAction; }
+
+	/// Re-implemented only for debugging purposes (temporary). Same behaviour as QStandardItemView.
+	bool removeRows(int row, int count, const QModelIndex &parent);
+
+protected:
+	/// Pointer back to our action runner, that we use to request re-ordering during drag-and-drop
+	AMActionRunner* actionRunner_;
+};
+
+
+/// This singleton class provides the API for Acquaman's workflow manager. You can queue up actions for it to run, manage the queue of upcoming actions, and receive notifications when actions are completed. After an action is completed, it will automatically log the actions with AMActionHistoryLogger.  The AMActionRunnerCurrentView and AMActionRunnerQueueView provide user interfaces to this API.
 /*! Note that the AMActionRunner's queue is initially paused when it is first created. To have it start executing actions as soon as they become available, call AMActionRunner::s()->setPaused(false).*/
 class AMActionRunner : public QObject
 {
@@ -47,11 +74,11 @@ public:
 	///////////////////////////////////
 
 	/// The number of actions that are in the queue. (Does not include the possible current action.)
-	int queuedActionCount() const { return queueModel_.rowCount(); }
+	int queuedActionCount() const { return queueModel_->rowCount(); }
 	/// Returns a pointer to an action in the queue, or 0 if the index is out of range.
-	const AMAction* queuedActionAt(int index) const { AMActionModelItem* item = static_cast<AMActionModelItem*>(queueModel_.item(index)); if(item) return item->action(); return 0; }
+	const AMAction* queuedActionAt(int index) const { AMActionQueueModelItem* item = static_cast<AMActionQueueModelItem*>(queueModel_->item(index)); if(item) return item->action(); return 0; }
 	/// Returns a pointer to an action in the queue, or 0 if the index is out of range.
-	AMAction* queuedActionAt(int index) { AMActionModelItem* item = static_cast<AMActionModelItem*>(queueModel_.item(index)); if(item) return item->action(); return 0; }
+	AMAction* queuedActionAt(int index) { AMActionQueueModelItem* item = static_cast<AMActionQueueModelItem*>(queueModel_->item(index)); if(item) return item->action(); return 0; }
 
 	/// Add an action to the end of the queue. This class takes ownership of the \c action and will log and delete it after running it.
 	void addActionToQueue(AMAction* action) { insertActionInQueue(action, -1); }
@@ -71,8 +98,8 @@ public:
 	/// Whether the queue is paused or running. If the queue is running, it will advance automatically to the next action whenever there are actions in the queue.  \see setQueuePaused().
 	bool queuePaused() const { return isPaused_; }
 
-	/// This QStandardItemModel is full of AMActionModelItem items, and a useful model for views of the AMActionRunner's queue.
-	QStandardItemModel* queueModel() { return &queueModel_; }
+	/// This QStandardItemModel is full of AMActionQueueModelItem items, and a useful model for standard Qt views of the AMActionRunner's queue (like AMActionRunnerQueueView). We also use it internally to manage our upcoming items.
+	AMActionQueueModel* queueModel() { return queueModel_; }
 
 
 	// The Current Action that we (might be)/are executing
@@ -132,7 +159,7 @@ protected slots:
 
 
 protected:
-	QStandardItemModel queueModel_;
+	AMActionQueueModel* queueModel_;
 	AMAction* currentAction_;
 	bool isPaused_;
 
@@ -150,6 +177,31 @@ private:
 	/// The singleton instance
 	static AMActionRunner* instance_;
 
+};
+
+#include <QMimeData>
+#include <QPersistentModelIndex>
+
+/// This subclass of QMimeData is used to pass a list of persistent model indexes for the purpose of internal drag-and-drop inside Qt model views. It is not suitable for passing generic mime data to other applications.
+/*! \note We use persistent model indexes to guarantee safety in case the model changes (rows added/removed) while the drag is in progress.  Therefore, it's possible that some indexes could be invalid by the time you access them in the drop event via modelIndexList(), if the corresponding row has been removed from the model in the meantime. */
+class AMModelIndexListMimeData : public QMimeData {
+	Q_OBJECT
+public:
+	/// Constructor
+	AMModelIndexListMimeData(const QModelIndexList& mil) : QMimeData() {
+		foreach(const QModelIndex& mi, mil)
+			mil_ << mi;
+	}
+
+	/// Access the model index list
+	QList<QPersistentModelIndex> modelIndexList() const { return mil_; }
+
+	/// Returns the formats we have: only an application-specific binary format. (Internal use only; other apps should not look at this.)
+	virtual QStringList formats() const { return QStringList() << "application/octet-stream"; }
+
+protected:
+	/// holds a list of QPersistentModelIndex that were the source of the drag event (with the assumption that they pertain to the same model as the drop destination)
+	QList<QPersistentModelIndex> mil_;
 };
 
 #endif // AMACTIONRUNNER_H
