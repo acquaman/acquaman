@@ -169,8 +169,6 @@ void AMPVControl::move(double setpoint) {
 
 		// emit the signal that we started:
 		emit this->moveStarted();
-		// emit the signal on movingChanged
-		emit this->movingChanged(true);
 
 		// start the countdown to see if we get there in time or stall out: (completionTimeout_ is in seconds)
 		completionTimer_.start((int)completionTimeout_*1000.0);
@@ -182,8 +180,6 @@ void AMPVControl::move(double setpoint) {
 		emit moveFailed(AMControl::NotConnectedFailure);
 		// And we're definitely not moving.
 		moveInProgress_ = false;
-		// Announce that we're no longer moving.
-		emit this->movingChanged(true);
 	}
 
 }
@@ -203,7 +199,6 @@ void AMPVControl::onNewFeedbackValue(double) {
 		completionTimer_.stop();
 		// let everyone know we succeeded:
 		emit moveSucceeded();
-		emit this->movingChanged(false);
 
 	}
 }
@@ -220,7 +215,6 @@ void AMPVControl::onCompletionTimeout() {
 
 	// No matter what, this move is over:
 	moveInProgress_ = false;
-	emit this->movingChanged(false);
 	completionTimer_.stop();
 
 	// Did we make it?

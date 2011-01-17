@@ -615,7 +615,6 @@ public slots:
 
 		// This move is over:
 		moveInProgress_ = false;
-		emit this->movingChanged(false);
 		completionTimer_.stop();
 		emit moveFailed(AMControl::WasStoppedFailure);
 
