@@ -122,6 +122,8 @@ bool AMAppController::startup() {
 	connect(scanConfigurationHolder_, SIGNAL(cancelAddToQueueRequest()), workflowManagerView_, SLOT(onCancelAddScanRequest()));
 	connect(workflowManagerView_, SIGNAL(addedScan(AMScanConfiguration*)), scanConfigurationHolder_, SLOT(onAddedToQueue(AMScanConfiguration*)));
 
+	connect(fastScanConfigurationHolder_, SIGNAL(addToQueueRequested(AMScanConfiguration*,bool)), workflowManagerView_, SLOT(onAddScanRequested(AMScanConfiguration*,bool)));
+
 	connect(scanConfigurationHolder_, SIGNAL(goToQueueRequested()), this, SLOT(goToWorkflow()));
 	connect(scanConfigurationHolder_, SIGNAL(newScanConfigurationView()), workflowManagerView_, SLOT(onNewScanConfigurationView()));
 

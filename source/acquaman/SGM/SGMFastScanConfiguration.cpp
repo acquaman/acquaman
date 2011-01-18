@@ -26,6 +26,17 @@ QStringList SGMFastScanConfiguration::options() const{
 	return retVal;
 }
 
+QList<AMDetectorInfo*> SGMFastScanConfiguration::usingDetectors() const{
+	QList<AMDetectorInfo*> usingDetectors;
+//	if(usingTEY_)
+	usingDetectors << SGMBeamline::sgm()->XASDetectors()->detectorByName("tey");
+//	if(usingTFY_)
+	usingDetectors << SGMBeamline::sgm()->XASDetectors()->detectorByName("tfy");
+	usingDetectors << SGMBeamline::sgm()->feedbackDetectors()->detectorByName("I0");
+	usingDetectors << SGMBeamline::sgm()->feedbackDetectors()->detectorByName("eVFbk");
+	return usingDetectors;
+}
+
 bool SGMFastScanConfiguration::setParameters(const QString &element, double runTime){
 	for(int x = 0; x < settings_.count(); x++)
 		if(settings_.at(x)->element() == element && settings_.at(x)->runSeconds() == runTime){

@@ -246,7 +246,10 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
     source/dataman/AMInMemoryDataStore.h \
     source/acquaman/AMFastScanConfiguration.h \
     source/acquaman/SGM/SGMFastScanConfiguration.h \
-    source/ui/SGMFastScanConfigurationViewer.h
+    source/ui/SGMFastScanConfigurationViewer.h \
+    source/ui/AMScanConfigurationViewer.h \
+    source/acquaman/SGM/SGMFastDacqScanController.h \
+    source/dataman/AMFastScan.h
 FORMS += source/ui/AbsorptionScanController.ui \
 	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
@@ -432,6 +435,9 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
     source/dataman/AMInMemoryDataStore.cpp \
     source/acquaman/AMFastScanConfiguration.cpp \
     source/acquaman/SGM/SGMFastScanConfiguration.cpp \
-    source/ui/SGMFastScanConfigurationViewer.cpp
+    source/ui/SGMFastScanConfigurationViewer.cpp \
+    source/ui/AMScanConfigurationViewer.cpp \
+    source/acquaman/SGM/SGMFastDacqScanController.cpp \
+    source/dataman/AMFastScan.cpp
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc

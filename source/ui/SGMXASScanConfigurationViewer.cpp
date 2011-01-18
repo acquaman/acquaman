@@ -1,6 +1,8 @@
 #include "SGMXASScanConfigurationViewer.h"
 
-SGMXASScanConfigurationViewer::SGMXASScanConfigurationViewer(SGMXASScanConfiguration *sxsc, AMDetectorInfoSet *cfgDetectorInfoSet, QWidget *parent)  : QWidget(parent){
+SGMXASScanConfigurationViewer::SGMXASScanConfigurationViewer(SGMXASScanConfiguration *sxsc, AMDetectorInfoSet *cfgDetectorInfoSet, QWidget *parent)  :
+		//QWidget(parent){
+		AMScanConfigurationViewer(sxsc, parent){
 	setupUi(this);
 	cfg_ = NULL;
 	if(SGMBeamline::sgm()->isConnected()){

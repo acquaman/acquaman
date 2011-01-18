@@ -18,14 +18,19 @@ public:
 
 	QStringList options() const;
 
+	AMDetectorInfoSet* cfgDetectorInfoSet() const { return cfgFastDetectors_;}
+	QList<AMDetectorInfo*> usingDetectors() const;
+
 public slots:
 	bool setParameters(const QString &element, double runTime);
+	bool setCfgDetectorInfoSet(AMDetectorInfoSet *cfgDetectorInfoSet) { cfgFastDetectors_ = cfgDetectorInfoSet; return true; }
 //	bool setElement(const QString &element);
 //	bool setRunTime(double runTime);
 
 protected:
 	QString element_;
 	double runTime_;
+	AMDetectorInfoSet *cfgFastDetectors_;
 	QList<SGMFastScanParameters*> settings_;
 };
 

@@ -25,6 +25,7 @@ void SGMBeamline::usingSGMBeamline(){
 	amNames2pvNames_.set("tfy", "A1611-4-16:A:fbk");
 	amNames2pvNames_.set("tfyHVSetpoint", "PS1611401:109:v0set");
 	amNames2pvNames_.set("tfyHVFbk", "PS1611401:109:vmon");
+#warning "Hey Dave, I think you need a different PV here for the pgt's spectrum"
 	amNames2pvNames_.set("pgt", "MCA1611-01:ROI:0");
 	amNames2pvNames_.set("pgtHVSetpoint", "MCA1611-01:Bias:Volt");
 	amNames2pvNames_.set("pgtHVFbk", "MCA1611-01:Bias:VoltActual:fbk");
@@ -41,6 +42,9 @@ void SGMBeamline::usingSGMBeamline(){
 	amNames2pvNames_.set("beamlineScanning", "BL1611-ID-1:scanning");
 	amNames2pvNames_.set("beamlineReady", "BL1611-ID-1:beam:status");
 	amNames2pvNames_.set("energyMovingStatus", "BL1611-ID-1:ready");
+	amNames2pvNames_.set("fastShutterVoltage", "PSH161141001:V");
+	amNames2pvNames_.set("scalarMode", "BL1611-ID-1:mcs:continuous");
+	amNames2pvNames_.set("scalarStart", "BL1611-ID-1:mcs:startScan");
 
 	ringCurrent_ = new AMReadOnlyPVControl("ringCurrent", AMPVNames::toPV("ringCurrent"), this);
 	addChildControl(ringCurrent_);
@@ -126,6 +130,8 @@ void SGMBeamline::usingSGMBeamline(){
 	beamlineReady_ = new AMReadOnlyPVControl("beamlineReady", sgmPVName, this);
 	sgmPVName = amNames2pvNames_.valueF("energyMovingStatus");
 	energyMovingStatus_ = new AMReadOnlyPVControl("energyMovingStatus", sgmPVName, this);
+	sgmPVName = amNames2pvNames_.valueF("fastShutterVoltage");
+	energyMovingStatus_ = new AMPVControl("fastShutterVoltage", sgmPVName, sgmPVName, this);
 }
 
 void SGMBeamline::usingFakeBeamline(){
@@ -165,6 +171,9 @@ void SGMBeamline::usingFakeBeamline(){
 	amNames2pvNames_.set("beamlineScanning", "reixsHost:scanning");
 	amNames2pvNames_.set("beamlineReady", "dave:ready");
 	amNames2pvNames_.set("energyMovingStatus", "dave:Energy:moving:status");
+	amNames2pvNames_.set("fastShutterVoltage", "dave:fastShutter:V");
+	amNames2pvNames_.set("scalarMode", "reixsHost:fast:trigger");
+	amNames2pvNames_.set("scalarStart", "dave:scalar:start");
 
 	QString sgmPVName = amNames2pvNames_.valueF("energy");
 	energy_ = new AMPVwStatusControl("energy", sgmPVName, sgmPVName, sgmPVName+":moving", this, 0.01);
@@ -250,6 +259,8 @@ void SGMBeamline::usingFakeBeamline(){
 	beamlineReady_ = new AMReadOnlyPVControl("beamlineReady", sgmPVName, this);
 	sgmPVName = amNames2pvNames_.valueF("energyMovingStatus");
 	energyMovingStatus_ = new AMReadOnlyPVControl("energyMovingStatus", sgmPVName, this);
+	sgmPVName = amNames2pvNames_.valueF("fastShutterVoltage");
+	energyMovingStatus_ = new AMPVControl("fastShutterVoltage", sgmPVName, sgmPVName, this);
 }
 
 SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
@@ -287,6 +298,7 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	connect(beamlineScanning_, SIGNAL(valueChanged(double)), this, SLOT(onBeamlineScanningValueChanged(double)));
 	addChildControl(beamlineReady_);
 	addChildControl(energyMovingStatus_);
+	addChildControl(fastShutterVoltage_);
 
 	criticalControlsSet_ = new AMControlSet(this);
 	criticalControlsSet_->setName("Critical Beamline Controls");

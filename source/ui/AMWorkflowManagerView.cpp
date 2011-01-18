@@ -82,9 +82,12 @@ void AMWorkflowManagerView::onAddScanRequested(AMScanConfiguration *cfg, bool st
 		return;
 	}
 
+	/*
 	SGMXASScanConfiguration *sxsc = (SGMXASScanConfiguration*)cfg;
 
 	AMBeamlineScanAction *scanAction = new AMBeamlineScanAction(sxsc, "SGMXASScan", this);
+	*/
+	AMBeamlineScanAction *scanAction = new AMBeamlineScanAction(cfg, "DacqScan", this);
 	workflowActions_->appendAction(scanAction);
 	emit addedScan(cfg);
 	if(startNow)
