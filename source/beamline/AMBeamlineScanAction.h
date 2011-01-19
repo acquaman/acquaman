@@ -28,7 +28,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMessageBox>
 #include "AMBeamlineActionItem.h"
 #include "acquaman/SGM/SGMXASScanConfiguration.h"
+#include "acquaman/SGM/SGMFastScanConfiguration.h"
 #include "acquaman/SGM/SGMXASDacqScanController.h"
+#include "acquaman/SGM/SGMFastDacqScanController.h"
 
 class AMBeamlineScanAction : public AMBeamlineActionItem
 {

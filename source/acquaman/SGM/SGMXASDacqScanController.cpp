@@ -54,7 +54,6 @@ void SGMXASDacqScanController::start(){
 	else if( QDir(homeDir+"/beamline/programming").exists())
 		homeDir.append("/beamline/programming");
 
-#warning "David, can you verify that I can use the scan configuration's usingPGT_? instead of the scan's detectors()?"
 	if(pCfg_()->usingPGT())
 		loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/pgt.cfg"));
 	else
@@ -63,7 +62,6 @@ void SGMXASDacqScanController::start(){
 		qDebug() << "LIBRARY FAILED TO LOAD CONFIG FILE";
 		return;
 	}
-#warning "David, can you verify that I can use the scan configuration's usingDetectors()? instead of the scan's detectors()?"
 	foreach(const AMDetectorInfo *dtctr, pCfg_()->usingDetectors() ){
 		if(dtctr->name() == SGMBeamline::sgm()->pgtDetector()->name()){
 			advAcq_->appendRecord(SGMBeamline::sgm()->pvName(dtctr->name()), true, true, 0);
@@ -84,33 +82,6 @@ void SGMXASDacqScanController::start(){
 	generalScan_ = specificScan_;
 	AMDacqScanController::start();
 }
-
-/*
-bool SGMXASDacqScanController::event(QEvent *e){
-	if(e->type() == QEvent::MaxUser){
-		//qDebug() << "Data package in scan controller is " << ((AMAcqEvent*)e)->dataPackage_;
-		QMap<int, double> aeData = ((AMAcqEvent*)e)->dataPackage_;
-		qDebug() << "Data package in scan controller is " << aeData;
-		QMap<int, double>::const_iterator i = aeData.constBegin();
-		qDebug() << i.key() << aeData.count();
-		if(i.key() == 0 && aeData.count() > 1){
-			pScan_()->d_->append(i.value());
-			++i;
-			while(i != aeData.constEnd()){
-				qDebug() << "Trying to set " << i.key()-1 << " as " << i.value();
-				pScan_()->d_->setLastValue(i.key()-1, i.value());
-				++i;
-			}
-			qDebug() << "After " << pScan_()->d_->x(pScan_()->d_->count()-1);
-			for(int x = 1; x < aeData.count(); x++)
-				qDebug() << "After val " << pScan_()->d_->value(x-1, pScan_()->d_->count()-1);
-		}
-		e->accept();
-	}
-	else
-		e->ignore();
-}
-*/
 
 AMnDIndex SGMXASDacqScanController::toScanIndex(QMap<int, double> aeData){
 	// SGM XAS Scan has only one dimension (energy), simply append to the end of this

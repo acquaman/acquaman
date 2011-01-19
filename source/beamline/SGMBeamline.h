@@ -100,6 +100,10 @@ public:
 	AMControl* beamlineScanning() const { return beamlineScanning_;}
 	AMControl* beamlineReady() const { return beamlineReady_;}
 	AMControl* energyMovingStatus() const { return energyMovingStatus_;}
+	AMControl* fastShutterVoltage() const { return fastShutterVoltage_;}
+	AMControl* gratingVelocity() const { return gratingVelocity_;}
+	AMControl* gratingBaseVelocity() const { return gratingBaseVelocity_;}
+	AMControl* gratingAcceleration() const { return gratingAcceleration_;}
 
 	AMControlSet* fluxResolutionSet() const { return fluxResolutionSet_;}
 	AMControlSet* trackingSet() const { return trackingSet_;}
@@ -216,6 +220,10 @@ protected:
 	AMControl *beamlineScanning_;
 	AMControl *beamlineReady_;
 	AMControl *energyMovingStatus_;
+	AMControl *fastShutterVoltage_;
+	AMControl *gratingVelocity_;
+	AMControl *gratingBaseVelocity_;
+	AMControl *gratingAcceleration_;
 
 	AMControlSet *teyControlSet_;
 	AMDetectorInfo *teyDetector_;

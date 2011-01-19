@@ -131,6 +131,8 @@ bool AMAppController::startup() {
 	scanConfigurationHolder_ = new AMXASScanConfigurationHolder();
 	mw_->addPane(scanConfigurationHolder_, "Experiment Setup", "SGM XAS Scan", ":/utilities-system-monitor.png");
 
+	fastScanConfigurationHolder_ = new AMFastScanConfigurationHolder();
+	mw_->addPane(fastScanConfigurationHolder_, "Experiment Setup", "SGM Fast Scan", ":/utilities-system-monitor.png");
 
 	workflowManagerView_ = new AMWorkflowManagerView();
 	mw_->addPane(workflowManagerView_, "Experiment Tools", "Workflow", ":/user-away.png");
@@ -140,9 +142,10 @@ bool AMAppController::startup() {
 	connect(scanConfigurationHolder_, SIGNAL(cancelAddToQueueRequest()), workflowManagerView_, SLOT(onCancelAddScanRequest()));
 	connect(workflowManagerView_, SIGNAL(addedScan(AMScanConfiguration*)), scanConfigurationHolder_, SLOT(onAddedToQueue(AMScanConfiguration*)));
 
+	connect(fastScanConfigurationHolder_, SIGNAL(addToQueueRequested(AMScanConfiguration*,bool)), workflowManagerView_, SLOT(onAddScanRequested(AMScanConfiguration*,bool)));
+
 	connect(scanConfigurationHolder_, SIGNAL(goToQueueRequested()), this, SLOT(goToWorkflow()));
 	connect(scanConfigurationHolder_, SIGNAL(newScanConfigurationView()), workflowManagerView_, SLOT(onNewScanConfigurationView()));
-
 
 	// mw_->addPane(new Scheduler(), "Experiment Tools", "Scheduler", ":/user-away.png");
 	// mw_->addPane(new PeriodicTable(), "Experiment Tools", "Periodic Table", ":/applications-science.png");
@@ -283,6 +286,8 @@ void AMAppController::onCurrentPaneChanged(QWidget *pane) {
 	// If the scanConfigurationHolder pane was activated, let it know:
 	if(pane == scanConfigurationHolder_)
 		scanConfigurationHolder_->onBecameCurrentWidget();
+	else if(pane == fastScanConfigurationHolder_)
+		fastScanConfigurationHolder_->onBecameCurrentWidget();
 
 }
 

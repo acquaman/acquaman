@@ -52,9 +52,6 @@ public slots:
 
 
 protected:
-	/*
-	bool event(QEvent *e);
-	*/
 	AMnDIndex toScanIndex(QMap<int, double> aeData);
 
 private:

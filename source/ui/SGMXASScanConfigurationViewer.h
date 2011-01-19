@@ -33,26 +33,19 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSpacerItem>
 #include "acquaman/SGM/SGMXASScanConfiguration.h"
 #include "acquaman/SGM/SGMXASDacqScanController.h"
+#include "AMScanConfigurationViewer.h"
 
 
-class SGMXASScanConfigurationViewer : public QWidget, private Ui::SGMXASScanConfigurationViewer {
+class SGMXASScanConfigurationViewer : public AMScanConfigurationViewer, private Ui::SGMXASScanConfigurationViewer {
 Q_OBJECT
 public:
 		SGMXASScanConfigurationViewer(SGMXASScanConfiguration *sxsc, AMDetectorInfoSet *cfgDetectorInfoSet, QWidget *parent = 0);
 		~SGMXASScanConfigurationViewer();
 
-signals:
-	void scanControllerReady(AMScanController *xasCtrl);
-	void startScanRequested();
-	void addToQueueRequested();
-	void queueDirectorRequested();
-
 public slots:
 	void onAddRegionClicked();
 
 protected slots:
-	void onStartScanClicked(){ emit startScanRequested(); }
-	void onAddToQueueRequested() { emit addToQueueRequested(); }
 	void onRegionsChanged(){
 		if(cfg_ && fluxResolutionView_){
 			fluxResolutionView_->onRegionsUpdate( ((SGMXASScanConfiguration*)cfg_)->regions() );
@@ -61,7 +54,6 @@ protected slots:
 	void onLockdowScanning(bool isLocked, QString reason);
 
 protected:
-	AMScanConfiguration *cfg_;
 	AMXASRegionsView *regionsView_;
 	AMRegionsLineView *regionsLineView_;
 	AMCompactControlOptimizationSetView *fluxResolutionView_;

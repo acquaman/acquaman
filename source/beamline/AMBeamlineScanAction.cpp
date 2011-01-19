@@ -47,7 +47,8 @@ bool AMBeamlineScanAction::isRunning() const{
 bool AMBeamlineScanAction::isPaused() const{
 	if(!ctrl_)
 		return false;
-	if(scanType_ == "SGMXASScan"){
+	//if(scanType_ == "SGMXASScan"){
+	if(scanType_ == "DacqScan"){
 			SGMXASDacqScanController *lCtrl = (SGMXASDacqScanController*)ctrl_;
 			return lCtrl->isPaused();
 	}
@@ -60,12 +61,37 @@ void AMBeamlineScanAction::start(){
 		connect(this, SIGNAL(ready(bool)), this, SLOT(delayedStart(bool)));
 		return;
 	}
-	if(scanType_ == "SGMXASScan"){
+	//if(scanType_ == "SGMXASScan"){
+	if(scanType_ == "DacqScan"){
 		qDebug() << "Ready, so get rolling";
-		SGMXASScanConfiguration* lCfg = (SGMXASScanConfiguration*)cfg_;
+		SGMXASScanConfiguration *sxsc = NULL;
+		SGMFastScanConfiguration *sfsc = NULL;
+		SGMXASDacqScanController *sxdc = NULL;
+		SGMFastDacqScanController *sfdc = NULL;
+		if( sxsc = qobject_cast<SGMXASScanConfiguration*>(cfg_) )
+			sxdc = qobject_cast<SGMXASDacqScanController*>(ctrl_);
+		else if( sfsc = qobject_cast<SGMFastScanConfiguration*>(cfg_) )
+			sfdc = qobject_cast<SGMFastDacqScanController*>(ctrl_);
+		else{
+			setFailed(true, AMBEAMLINEACTIONITEM_INVALID_SCAN_TYPE);
+			return;
+		}
 		if(!AMBeamlineActionItem::isReinitialized()){
 			qDebug() << "Not reinitalized, creating new controller";
-			ctrl_ = new SGMXASDacqScanController( lCfg, this);
+			if(sxsc){
+				sxdc = new SGMXASDacqScanController( sxsc, this);
+				ctrl_ = sxdc;
+			}
+			else if(sfsc){
+				sfdc = new SGMFastDacqScanController( sfsc, this);
+				ctrl_ = sfdc;
+				qDebug() << "Looks like we set ctrl_ right" << (int)sfdc << " " << (int)ctrl_;
+			}
+			else{
+				qDebug() << "(1)Honestly, how did we get here? We should have already failed. Okay, Acquaman, you've got me, we fail again.";
+				setFailed(true, AMBEAMLINEACTIONITEM_INVALID_SCAN_TYPE);
+				return;
+			}
 			if( !AMScanControllerSupervisor::scanControllerSupervisor()->setCurrentScanController(ctrl_) ){
 				delete ctrl_;
 				qDebug() << "Failed to set current scan controller";
@@ -79,7 +105,16 @@ void AMBeamlineScanAction::start(){
 		}
 		else
 			qDebug() << "Reinitialized, no controller creation";
-		((SGMXASDacqScanController*)ctrl_)->initialize(); //Can I make a pure virtual initialize in AMScanController?
+		//((SGMXASDacqScanController*)ctrl_)->initialize(); //Can I make a pure virtual initialize in AMScanController?
+		if(sxdc)
+			sxdc->initialize();
+		else if(sfdc)
+			sfdc->initialize();
+		else{
+			qDebug() << "(2)Honestly, how did we get here? We should have already failed. Okay, Acquaman, you've got me, we fail again.";
+			setFailed(true, AMBEAMLINEACTIONITEM_INVALID_SCAN_TYPE);
+			return;
+		}
 		ctrl_->start();
 	}
 	else
@@ -224,12 +259,14 @@ void AMBeamlineScanActionView::updateScanNameLabel(){
 		scanName.setNum(index_);
 		scanName.append(". ");
 	}
-	scanName += "SGM XAS Scan from ";
-	tmpStr.setNum( ((SGMXASScanConfiguration*)scanAction_->cfg())->start(0) );
-	scanName.append(tmpStr+" to ");
-	tmpStr.setNum( ((SGMXASScanConfiguration*)scanAction_->cfg())->end(((SGMXASScanConfiguration*)scanAction_->cfg())->count()-1) );
-	scanName.append(tmpStr);
-	scanNameLabel_->setText(scanName);
+	if(qobject_cast<SGMXASScanConfiguration*>(scanAction_->cfg())){
+		scanName += "SGM XAS Scan from ";
+		tmpStr.setNum( ((SGMXASScanConfiguration*)scanAction_->cfg())->start(0) );
+		scanName.append(tmpStr+" to ");
+		tmpStr.setNum( ((SGMXASScanConfiguration*)scanAction_->cfg())->end(((SGMXASScanConfiguration*)scanAction_->cfg())->count()-1) );
+		scanName.append(tmpStr);
+		scanNameLabel_->setText(scanName);
+	}
 }
 
 void AMBeamlineScanActionView::updateProgressBar(double elapsed, double total){

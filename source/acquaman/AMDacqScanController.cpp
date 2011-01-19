@@ -116,6 +116,7 @@ bool AMDacqScanController::event(QEvent *e){
 
 AMnDIndex AMDacqScanController::toScanIndex(QMap<int, double> aeData){
 	//Simple indexer, assumes there is ONLY ONE scan dimension and appends to the end
+	Q_UNUSED(aeData);
 	return AMnDIndex(pScan_()->rawData()->scanSize(0));
 }
 

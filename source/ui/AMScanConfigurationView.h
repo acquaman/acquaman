@@ -24,25 +24,25 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QWidget>
 #include "ui/SGMXASScanConfigurationViewer.h"
 #include "ui/SGMXASScanConfigurationWizard.h"
+#include "ui/SGMFastScanConfigurationViewer.h"
 
 class AMScanConfigurationQueueDirector;
 class AMScanConfigurationScanDirector;
 
-class AMXASScanConfigurationHolder : public QWidget
+class AMScanConfigurationHolder : public QWidget
 {
 	Q_OBJECT
 public:
-	AMXASScanConfigurationHolder(QWidget *parent = 0);
-	~AMXASScanConfigurationHolder();
+	AMScanConfigurationHolder(QWidget *parent = 0);
+	~AMScanConfigurationHolder();
 
 public slots:
-	void onFreeToScan(bool queueEmpty, bool queueNotRunning);
-	void onLockdownScanning(bool isLocked, QString reason);
-	void onAddedToQueue(AMScanConfiguration *cfg);
+	virtual void onFreeToScan(bool queueEmpty, bool queueNotRunning);
+	virtual void onLockdownScanning(bool isLocked, QString reason);
+	virtual void onAddedToQueue(AMScanConfiguration *cfg);
 
 	/// This slot will be used to notify this widget when it becomes the current (active) widget
-	void onBecameCurrentWidget();
-
+	virtual void onBecameCurrentWidget() = 0;
 
 signals:
 	void addToQueueRequested(AMScanConfiguration *cfg, bool startNow = false);
@@ -52,29 +52,48 @@ signals:
 	void newScanConfigurationView();
 
 protected slots:
-	void createScanConfiguration();
-	void destroyScanConfigurationViewer();
+	virtual void createScanConfiguration() = 0;
+	virtual void destroyScanConfigurationViewer() = 0;
 
+	virtual void onStartScanRequested();
+	virtual void onAddToQueueRequested();
 
-	void onStartScanRequested();
-	void onAddToQueueRequested();
-
-	void goToQueue();
-	void goToNewScan();
-
+	virtual void goToQueue();
+	virtual void goToNewScan();
 
 protected:
-	SGMXASScanConfiguration *cfg_;
-	AMDetectorInfoSet *cfgDetectorInfoSet_;
+	AMScanConfiguration *cfg_;
 	bool requestedStart_;
 	bool canStartImmediately_;
 
-	SGMXASScanConfigurationViewer *sxscViewer;
-	SGMXASScanConfigurationWizard *sxscWizard;
 	AMScanConfigurationQueueDirector *director;
 	AMScanConfigurationScanDirector *sDirector;
-	QVBoxLayout *vl_;
+};
 
+class AMXASScanConfigurationHolder : public AMScanConfigurationHolder
+{
+	Q_OBJECT
+public:
+	AMXASScanConfigurationHolder(QWidget *parent = 0);
+	~AMXASScanConfigurationHolder();
+
+public slots:
+	/// This slot will be used to notify this widget when it becomes the current (active) widget
+	void onBecameCurrentWidget();
+
+protected slots:
+	void createScanConfiguration();
+	void destroyScanConfigurationViewer();
+
+private:
+	SGMXASScanConfiguration* cfg() { return qobject_cast<SGMXASScanConfiguration*>(cfg_);}
+
+protected:
+	AMDetectorInfoSet *cfgDetectorInfoSet_;
+
+	SGMXASScanConfigurationViewer *sxscViewer;
+	SGMXASScanConfigurationWizard *sxscWizard;
+	QVBoxLayout *vl_;
 };
 
 class AMScanConfigurationQueueDirector : public QWidget
@@ -153,6 +172,30 @@ protected:
 	QCheckBox *waitNextCheck_;
 	QCheckBox *appendCheck_;
 	QCheckBox *cancelCheck_;
+};
+
+class AMFastScanConfigurationHolder : public AMScanConfigurationHolder
+{
+	Q_OBJECT
+public:
+	AMFastScanConfigurationHolder(QWidget *parent = 0);
+	~AMFastScanConfigurationHolder();
+
+public slots:
+	/// This slot will be used to notify this widget when it becomes the current (active) widget
+	void onBecameCurrentWidget();
+
+protected slots:
+	void createScanConfiguration();
+	void destroyScanConfigurationViewer();
+
+private:
+	SGMFastScanConfiguration* cfg() { return qobject_cast<SGMFastScanConfiguration*>(cfg_);}
+
+protected:
+	SGMFastScanConfigurationViewer *sfscViewer_;
+
+	QVBoxLayout *vl_;
 };
 
 #endif // AMSCANCONFIGURATIONVIEW_H
