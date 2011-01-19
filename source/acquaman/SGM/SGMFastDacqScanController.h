@@ -2,11 +2,10 @@
 #define SGMFASTDACQSCANCONTROLLER_H
 
 #include "acquaman/AMDacqScanController.h"
-#include "dataman/AMFastScan.h"
-#include "analysis/AM1DExpressionAB.h"
-#include "SGMFastScanConfiguration.h"
+#include "SGMFastScanController.h"
 
 //class SGMFastScanController;
+/*
 class SGMFastScanController
 {
 public:
@@ -24,7 +23,10 @@ protected:
 private:
 	SGMFastScanConfiguration* pCfg() { return qobject_cast<SGMFastScanConfiguration*>(specificCfg_);}
 	AMFastScan* pScan() { return qobject_cast<AMFastScan*>(specificScan_);}
+
+	void beamlineInitializeSecondStep();
 };
+*/
 
 class SGMFastDacqScanController : public AMDacqScanController, public SGMFastScanController
 {

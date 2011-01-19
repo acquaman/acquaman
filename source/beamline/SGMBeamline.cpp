@@ -45,6 +45,9 @@ void SGMBeamline::usingSGMBeamline(){
 	amNames2pvNames_.set("fastShutterVoltage", "PSH161141001:V");
 	amNames2pvNames_.set("scalarMode", "BL1611-ID-1:mcs:continuous");
 	amNames2pvNames_.set("scalarStart", "BL1611-ID-1:mcs:startScan");
+	amNames2pvNames_.set("gratingVelocity", "SMTR16114I1002:velo");
+	amNames2pvNames_.set("gratingBaseVelocity", "SMTR16114I1002:veloBase");
+	amNames2pvNames_.set("gratingAcceleration", "SMTR16114I1002:accel");
 
 	ringCurrent_ = new AMReadOnlyPVControl("ringCurrent", AMPVNames::toPV("ringCurrent"), this);
 	addChildControl(ringCurrent_);
@@ -132,6 +135,12 @@ void SGMBeamline::usingSGMBeamline(){
 	energyMovingStatus_ = new AMReadOnlyPVControl("energyMovingStatus", sgmPVName, this);
 	sgmPVName = amNames2pvNames_.valueF("fastShutterVoltage");
 	energyMovingStatus_ = new AMPVControl("fastShutterVoltage", sgmPVName, sgmPVName, this);
+	sgmPVName = amNames2pvNames_.valueF("gratingVelocity");
+	energyMovingStatus_ = new AMPVControl("gratingVelocity", sgmPVName, sgmPVName, this);
+	sgmPVName = amNames2pvNames_.valueF("gratingVelocityBase");
+	energyMovingStatus_ = new AMPVControl("gratingVelocityBase", sgmPVName, sgmPVName, this);
+	sgmPVName = amNames2pvNames_.valueF("gratingAcceleration");
+	energyMovingStatus_ = new AMPVControl("gratingAcceleration", sgmPVName, sgmPVName, this);
 }
 
 void SGMBeamline::usingFakeBeamline(){
@@ -174,6 +183,9 @@ void SGMBeamline::usingFakeBeamline(){
 	amNames2pvNames_.set("fastShutterVoltage", "dave:fastShutter:V");
 	amNames2pvNames_.set("scalarMode", "reixsHost:fast:trigger");
 	amNames2pvNames_.set("scalarStart", "dave:scalar:start");
+	amNames2pvNames_.set("gratingVelocity", "dave:mono:velo");
+	amNames2pvNames_.set("gratingBaseVelocity", "dave:mono:veloBase");
+	amNames2pvNames_.set("gratingAcceleration", "dave:mono:accel");
 
 	QString sgmPVName = amNames2pvNames_.valueF("energy");
 	energy_ = new AMPVwStatusControl("energy", sgmPVName, sgmPVName, sgmPVName+":moving", this, 0.01);
@@ -261,6 +273,13 @@ void SGMBeamline::usingFakeBeamline(){
 	energyMovingStatus_ = new AMReadOnlyPVControl("energyMovingStatus", sgmPVName, this);
 	sgmPVName = amNames2pvNames_.valueF("fastShutterVoltage");
 	energyMovingStatus_ = new AMPVControl("fastShutterVoltage", sgmPVName, sgmPVName, this);
+
+	sgmPVName = amNames2pvNames_.valueF("gratingVelocity");
+	energyMovingStatus_ = new AMPVControl("gratingVelocity", sgmPVName, sgmPVName, this);
+	sgmPVName = amNames2pvNames_.valueF("gratingVelocityBase");
+	energyMovingStatus_ = new AMPVControl("gratingVelocityBase", sgmPVName, sgmPVName, this);
+	sgmPVName = amNames2pvNames_.valueF("gratingAcceleration");
+	energyMovingStatus_ = new AMPVControl("gratingAcceleration", sgmPVName, sgmPVName, this);
 }
 
 SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
@@ -299,6 +318,9 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	addChildControl(beamlineReady_);
 	addChildControl(energyMovingStatus_);
 	addChildControl(fastShutterVoltage_);
+	addChildControl(gratingVelocity_);
+	addChildControl(gratingBaseVelocity_);
+	addChildControl(gratingAcceleration_);
 
 	criticalControlsSet_ = new AMControlSet(this);
 	criticalControlsSet_->setName("Critical Beamline Controls");
