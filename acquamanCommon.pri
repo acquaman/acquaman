@@ -250,7 +250,10 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
     source/ui/AMScanConfigurationViewer.h \
     source/acquaman/SGM/SGMFastDacqScanController.h \
     source/dataman/AMFastScan.h \
-    source/acquaman/SGM/SGMFastScanController.h
+    source/acquaman/SGM/SGMFastScanController.h \
+    source/analysis/AM2DSummingAB.h \
+    source/analysis/AMStandardAnalysisBlock.h \
+    source/analysis/AM2DSummingABEditor.h
 FORMS += source/ui/AbsorptionScanController.ui \
 	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
@@ -440,6 +443,9 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
     source/ui/AMScanConfigurationViewer.cpp \
     source/acquaman/SGM/SGMFastDacqScanController.cpp \
     source/dataman/AMFastScan.cpp \
-    source/acquaman/SGM/SGMFastScanController.cpp
+    source/acquaman/SGM/SGMFastScanController.cpp \
+    source/analysis/AM2DSummingAB.cpp \
+    source/analysis/AMStandardAnalysisBlock.cpp \
+    source/analysis/AM2DSummingABEditor.cpp
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc

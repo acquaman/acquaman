@@ -49,50 +49,50 @@ public:
 	AMnDIndex(int dimension, bool initToZero);
 
 	/// Returns the rank (# of dimensions that this index has available)
-	int rank() const { return count(); }
+	inline int rank() const { return count(); }
 
 	/// Is the index valid? Invalid indexes have a rank of 0.
-	bool isValid() const { return !isEmpty(); }
+	inline bool isValid() const { return !isEmpty(); }
 
 	/// Return the index for 1st independent axis of the multi-dimensional data set
-	int i() const { return (*this)[0]; }
+	inline int i() const { return (*this)[0]; }
 	/// Return the index for 2nd independent axis of the multi-dimensional data set
-	int j() const { return (*this)[1]; }
+	inline int j() const { return (*this)[1]; }
 	/// Return the index for 3rd independent axis of the multi-dimensional data set
-	int k() const { return (*this)[2]; }
+	inline int k() const { return (*this)[2]; }
 	/// Return the index for 4th independent axis of the multi-dimensional data set
-	int l() const { return (*this)[3]; }
+	inline int l() const { return (*this)[3]; }
 
 	/// Synonym for i()
-	int row() const { return (*this)[0]; }
+	inline int row() const { return (*this)[0]; }
 	/// Synonym for j()
-	int col() const { return (*this)[1]; }
+	inline int col() const { return (*this)[1]; }
 	/// Synonym for k()
-	int slice() const { return (*this)[2]; }
+	inline int slice() const { return (*this)[2]; }
 	/// Synonym for l()
-	int segment() const { return (*this)[3]; }
+	inline int segment() const { return (*this)[3]; }
 
 	/// Append all the indices from \c another AMnDIndex to this one.
-	void append(const AMnDIndex& another) {
+	inline void append(const AMnDIndex& another) {
 		QVarLengthArray<int, AMNDARRAY_BASE_SIZE>::append(another.constData(), another.size());
 	}
 
 	/// Check to see if another AMnDIndex has the same dimensions as this one
-	bool dimensionsMatch(const AMnDIndex& other){
+	inline bool dimensionsMatch(const AMnDIndex& other){
 		if( count() != other.rank() )
 			return false;
 		return true;
 	}
 
 	/// Check to see if another AMnDIndex refers to valid index within this one
-	bool inBounds(const AMnDIndex& other){
+	inline bool inBounds(const AMnDIndex& other){
 		for(int x=0; x < count(); x++)
 			if( other[x] >= (*this)[x] )
 				return false;
 		return true;
 	}
 
-	bool operator==(const AMnDIndex& other) const {
+	inline bool operator==(const AMnDIndex& other) const {
 		if(other.size() != size())
 			return false;
 		for(int i=0; i<size(); i++) {
@@ -102,7 +102,7 @@ public:
 		return true;
 	}
 
-	bool operator!=(const AMnDIndex& other) const {
+	inline bool operator!=(const AMnDIndex& other) const {
 		return !(*this == other);
 	}
 

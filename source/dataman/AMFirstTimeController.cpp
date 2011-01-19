@@ -13,6 +13,7 @@
 #include "dataman/AMXESScan.h"
 
 #include "analysis/AM1DExpressionAB.h"
+#include "analysis/AM2DSummingAB.h"
 
 #include "dataman/AMDbObjectSupport.h"
 
@@ -116,7 +117,6 @@ bool AMFirstTimeController::onEveryTime() {
 }
 
 
-#include <QDebug>
 
 /// create structures and tables for a new user database, from scratch
 bool AMFirstTimeController::databaseInitialization(bool newUser) {
@@ -135,6 +135,7 @@ bool AMFirstTimeController::databaseInitialization(bool newUser) {
 	AMDbObjectSupport::registerClass<AMRawDataSource>();
 	AMDbObjectSupport::registerClass<AMAnalysisBlock>();
 	AMDbObjectSupport::registerClass<AM1DExpressionAB>();
+	AMDbObjectSupport::registerClass<AM2DSummingAB>();
 
 
 	AMDbObjectSupport::registerClass<AMDetectorInfo>();

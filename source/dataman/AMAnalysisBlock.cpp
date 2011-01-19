@@ -29,6 +29,8 @@ bool AMAnalysisBlock::setInputDataSources(const QList<AMDataSource*>& dataSource
 	}
 
 	setInputDataSourcesImplementation(dataSources);
+
+	emit inputSourcesChanged();
 	return true;
 }
 
@@ -44,4 +46,5 @@ void AMAnalysisBlock::onInputSourceDeleted(void* deletedSource) {
 
 	// tell implementation to set its sources to an empty list (inactive/invalid)
 	setInputDataSourcesImplementation(QList<AMDataSource*>());
+	emit inputSourcesChanged();
 }

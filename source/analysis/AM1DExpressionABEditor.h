@@ -8,6 +8,7 @@ class AMWrappingLineEdit;
 class QToolButton;
 class AM1DExpressionAB;
 
+/// This class provides an editor widget to set the X and Y expressions for an AM1DExpressionAB analysis block. \todo Connect to AMAnalysisBlock::inputDataSourcesChanged() signal, in case the input data sources change while the editor is open.
 class AM1DExpressionABEditor : public QWidget
 {
 	Q_OBJECT

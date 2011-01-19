@@ -10,6 +10,7 @@ AMBiHash<QString, QString> SGM2004FileLoader::columns2pvNames_;
 #include "dataman/AMXASScan.h"
 #include "AMErrorMonitor.h"
 #include "analysis/AM1DExpressionAB.h"
+#include "analysis/AM2DSummingAB.h"
 
 #include <QDebug>
 
@@ -302,6 +303,20 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 			tfyChannel->setExpression("-tfy/I0");
 
 			scan->addAnalyzedDataSource(tfyChannel);
+		}
+
+
+		int rawSddIndex = scan->rawDataSources()->indexOf("sdd");
+		if(rawSddIndex != -1) {
+			AMRawDataSource* sddRaw = scan->rawDataSources()->at(rawSddIndex);
+			AM2DSummingAB* sddSum = new AM2DSummingAB("sddSummed");
+			QList<AMDataSource*> sddSumSource;
+			sddSumSource << sddRaw;
+			sddSum->setInputDataSources(sddSumSource);
+			sddSum->setSumAxis(1);
+			sddSum->setSumRangeMax(sddRaw->size(1)-1);
+
+			scan->addAnalyzedDataSource(sddSum);
 		}
 	}
 

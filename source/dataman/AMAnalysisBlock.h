@@ -99,6 +99,9 @@ protected slots:
 	virtual void onInputSourceDeleted(void* deletedSource);
 
 
+signals:
+	/// Emitted automatically by setInputDataSources() after this analysis block's input sources change.  This can be useful for editor widgets, etc. that need to update themselves based on the block's input sources, rather than the current state of the block itself.  (Changes to the block's <i>output<i> state, size, etc. are available from the AMDataSource::signalSource() signals.)
+	void inputSourcesChanged();
 
 
 protected:
