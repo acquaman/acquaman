@@ -23,13 +23,16 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMInMemoryDataStore::AMInMemoryDataStore()
 	: AMDataStore()
 {
-	// with no scan axes yet:
+	// with no scan axes yet, we have a scalar scan space, and one scan point
+	scalarScanPoint_ = new AMIMDSScanPoint();
 	dataRoot_ = 0;
 }
 
 AMInMemoryDataStore::~AMInMemoryDataStore() {
 	if(dataRoot_) {
-		clearScanDataPointsImplementationRecursive(dataRoot_, scanAxesCount()-1, false);
+		clearScanDataPointsImplementationRecursive(dataRoot_, axes_.count()-1, false);
 		delete dataRoot_;
 	}
+
+	delete scalarScanPoint_;
 }
