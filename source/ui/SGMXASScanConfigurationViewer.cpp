@@ -1,6 +1,8 @@
 #include "SGMXASScanConfigurationViewer.h"
 
-SGMXASScanConfigurationViewer::SGMXASScanConfigurationViewer(SGMXASScanConfiguration *sxsc, AMDetectorInfoSet *cfgDetectorInfoSet, QWidget *parent)  : QWidget(parent){
+SGMXASScanConfigurationViewer::SGMXASScanConfigurationViewer(SGMXASScanConfiguration *sxsc, AMDetectorInfoSet *cfgDetectorInfoSet, QWidget *parent)  :
+		//QWidget(parent){
+		AMScanConfigurationViewer(sxsc, parent){
 	setupUi(this);
 	cfg_ = NULL;
 	if(SGMBeamline::sgm()->isConnected()){
@@ -58,16 +60,16 @@ SGMXASScanConfigurationViewer::SGMXASScanConfigurationViewer(SGMXASScanConfigura
 //		QSpacerItem *spc3 = new QSpacerItem(10, 10, QSizePolicy::Minimum, QSizePolicy::Maximum);
 		gl_.setSpacing(0);
 		gl_.addWidget(regionsLineView_,		0, 0, 1, 5, Qt::AlignCenter);
-		gl_.addWidget(regionsView_,			1, 0, 2, 3, Qt::AlignLeft);
+		gl_.addWidget(regionsView_,		1, 0, 2, 3, Qt::AlignLeft);
 		gl_.addWidget(fluxResolutionView_,	3, 0, 2, 3, Qt::AlignLeft);
 		gl_.addWidget(trackingView_,		1, 3, 2, 2, Qt::AlignLeft);
 		gl_.addWidget(detectorView_,		3, 3, 2, 2, Qt::AlignLeft);
 		gl_.addWidget(startScanButton_,		5, 3, 1, 2, Qt::AlignRight);
 		gl_.addWidget(addToQueueButton_,	6, 3, 1, 2, Qt::AlignRight);
 		gl_.addWidget(queueDirectorButton_,	7, 3, 1, 2, Qt::AlignRight);
-		gl_.addItem(spc1,					8, 0, 2, 3, Qt::AlignLeft);
-		gl_.addItem(spc2,					8, 3, 2, 2, Qt::AlignLeft);
-//		gl_.addItem(spc3,					9, 3, 1, 2, Qt::AlignLeft);
+		gl_.addItem(spc1,			8, 0, 2, 3, Qt::AlignLeft);
+		gl_.addItem(spc2,			8, 3, 2, 2, Qt::AlignLeft);
+//		gl_.addItem(spc3,			9, 3, 1, 2, Qt::AlignLeft);
 		this->setLayout(&gl_);
 		this->setMaximumSize(800, 800);
 	}

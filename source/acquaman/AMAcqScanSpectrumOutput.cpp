@@ -99,13 +99,8 @@ int AMAcqScanSpectrumOutput::putValue( acqKey_t key, int eventno, int pvno, cons
 		pvpr->output(key, pvpr->colp->columnType, value, count);
 	}
 
-	if( (eventno == 1) && (pvno != 0) && !to->lockHash_){
-		#warning "David: check if this still needs to be done"
-		//if(pvpr->isSpectrum)
-		//	to->pvnoToColumn_[pvno] = to->specColNo_++;
-		//else
+	if( (eventno == 1) && (pvno != 0) && !to->lockHash_)
 			to->pvnoToColumn_[pvno] = to->colNo_++;
-	}
 
 	double dataVal;
 	double specMax = 0;
@@ -186,51 +181,5 @@ int AMAcqScanSpectrumOutput::putValue( acqKey_t key, int eventno, int pvno, cons
 	else if( (eventno == 1) && pvpr->isSpectrum ){
 		to->spectraPackage_.insert(to->pvnoToColumn_[pvno]+1, spectraVal);
 	}
-	/*
-	if(!to->dataDelay_){
-		if(!pvpr->isSpectrum)
-			to->scan_->d_->setLastValue(to->pvnoToColumn_[pvno], dataVal);
-		else{
-			QStringList myList = to->scan_->d_->deeper(0, to->scan_->d_->count()-1)->yColumnNames();
-			for(int x = 0; x < spectraVal.count(); x++){
-				to->scan_->d_->deeper(to->pvnoToColumn_[pvno], to->scan_->d_->count()-1)->setValue(0, x, spectraVal[x]);
-			}
-		}
-	}
-	else if( (pvno != 0) && (eventno == 1) ){
-		if(pvpr->isSpectrum)
-			to->spectraDelayList_[pvno] = spectraVal;
-		else
-			to->dataDelayList_[pvno] = dataVal;
-	}
-	else if( (pvno == 0) && (eventno == 1) ){
-		to->dataDelay_ = false;
-
-		// append a new datapoint to the data tree (supply primary eV value here)
-		to->scan_->d_->append(dataVal);	// insert eV
-
-		QMap<int, double>::const_iterator i = to->dataDelayList_.constBegin();
-		while (i != to->dataDelayList_.constEnd()) {
-			to->scan_->d_->setLastValue(i.key()-1, i.value());
-			++i;
-		}
-		int tCol;
-		QList<double> localSpectrum;
-		int colCount;
-		int tRow;
-		QMap<int, QList<double> >::const_iterator dI = to->spectraDelayList_.constBegin();
-		while(dI != to->spectraDelayList_.constEnd()){
-			tCol = dI.key()-1;
-			localSpectrum = dI.value();
-			colCount = localSpectrum.count();
-			tRow = to->scan_->d_->count()-1;
-			for(int x = 0; x < colCount; x++){
-				to->scan_->d_->deeper(tCol, tRow)->setValue(0, x, localSpectrum[x]);
-				qDebug() << "Spectrum setting tCol " << tCol << " tRow " << tRow << " deeper index " << x << " and value " << localSpectrum[x];
-			}
-			++dI;
-		}
-	}
-	*/
 	return 0;
 }

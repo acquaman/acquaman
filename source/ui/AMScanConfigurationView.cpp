@@ -1,7 +1,73 @@
 #include "AMScanConfigurationView.h"
 
+AMScanConfigurationHolder::AMScanConfigurationHolder(QWidget *parent) :
+		QWidget(parent)
+{
+}
+
+AMScanConfigurationHolder::~AMScanConfigurationHolder()
+{
+}
+
+void AMScanConfigurationHolder::onFreeToScan(bool queueEmpty, bool queueNotRunning){
+	qDebug() << "In onFreeToScan";
+	if(queueNotRunning && queueEmpty){
+		canStartImmediately_ = true;
+	}
+	else if(queueNotRunning && !queueEmpty){
+		qDebug() << "Queue is not running but also not empty, have to ask user what to do";
+		sDirector->showDirector("Queue is not empty");
+//		emit cancelAddToQueueRequest();
+	}
+	else if(!queueNotRunning && queueEmpty){
+		qDebug() << "Queue is running, but is empty after this, ask user what to do";
+		sDirector->showDirector("Queue is running but empty after current action");
+		emit cancelAddToQueueRequest();
+	}
+	else{
+		qDebug() << "Queue is running and has stuff in it, ask user what to do";
+		sDirector->showDirector("Queue is running");
+		emit cancelAddToQueueRequest();
+	}
+}
+
+void AMScanConfigurationHolder::onLockdownScanning(bool isLocked, QString reason){
+	emit lockdownScanning(isLocked, reason);
+}
+
+void AMScanConfigurationHolder::onAddedToQueue(AMScanConfiguration *cfg){
+	qDebug() << "In onAddedToQueue";
+	if(cfg == cfg_ && !canStartImmediately_)
+		director->showDirector();
+	else if(cfg == cfg_ && canStartImmediately_){
+		canStartImmediately_ = false;
+		goToQueue();
+	}
+}
+
+void AMScanConfigurationHolder::onStartScanRequested(){
+	requestedStart_ = true;
+	qDebug() << "A holder is requesting a scan start";
+	emit addToQueueRequested(cfg_, true);
+}
+
+void AMScanConfigurationHolder::onAddToQueueRequested(){
+	emit addToQueueRequested(cfg_);
+}
+
+void AMScanConfigurationHolder::goToQueue(){
+	qDebug() << "goToQueue emits";
+	destroyScanConfigurationViewer();
+	emit goToQueueRequested();
+}
+
+void AMScanConfigurationHolder::goToNewScan(){
+	destroyScanConfigurationViewer();
+	onBecameCurrentWidget();
+}
+
 AMXASScanConfigurationHolder::AMXASScanConfigurationHolder(QWidget *parent) :
-	QWidget(parent)
+	AMScanConfigurationHolder(parent)
 {
 	cfg_ = NULL;
 	cfgDetectorInfoSet_ = NULL;
@@ -24,55 +90,17 @@ AMXASScanConfigurationHolder::~AMXASScanConfigurationHolder(){
 	delete sDirector;
 }
 
-void AMXASScanConfigurationHolder::onFreeToScan(bool queueEmpty, bool queueNotRunning){
-	qDebug() << "In onFreeToScan";
-	if(queueNotRunning && queueEmpty){
-		canStartImmediately_ = true;
-	}
-	else if(queueNotRunning && !queueEmpty){
-		qDebug() << "Queue is not running but also not empty, have to ask user what to do";
-		sDirector->showDirector("Queue is not empty");
-//		emit cancelAddToQueueRequest();
-	}
-	else if(!queueNotRunning && queueEmpty){
-		qDebug() << "Queue is running, but is empty after this, ask user what to do";
-		sDirector->showDirector("Queue is running but empty after current action");
-		emit cancelAddToQueueRequest();
-	}
-	else{
-		qDebug() << "Queue is running and has stuff in it, ask user what to do";
-		sDirector->showDirector("Queue is running");
-		emit cancelAddToQueueRequest();
-	}
-}
-
-void AMXASScanConfigurationHolder::onLockdownScanning(bool isLocked, QString reason){
-	emit lockdownScanning(isLocked, reason);
-}
-
-void AMXASScanConfigurationHolder::onAddedToQueue(AMScanConfiguration *cfg){
-	qDebug() << "In onAddedToQueue";
-	if(cfg == cfg_ && !canStartImmediately_)
-		director->showDirector();
-	else if(cfg == cfg_ && canStartImmediately_){
-		canStartImmediately_ = false;
-		goToQueue();
-	}
-}
-
-
-
 void AMXASScanConfigurationHolder::createScanConfiguration(){
 	cfg_ = new SGMXASScanConfiguration(this);
-	cfg_->setFileName("daveData.%03d.dat");
-	cfg_->setFilePath(AMUserSettings::userDataFolder);
-	cfg_->addRegion(0, 950, 1, 960);
+	cfg()->setFileName("daveData.%03d.dat");
+	cfg()->setFilePath(AMUserSettings::userDataFolder);
+	cfg()->addRegion(0, 950, 1, 960);
 
 	cfgDetectorInfoSet_ = new AMDetectorInfoSet(this);
-	cfg_->setCfgDetectorInfoSet(cfgDetectorInfoSet_);
+	cfg()->setCfgDetectorInfoSet(cfgDetectorInfoSet_);
 	AMDetectorInfo* tmpDI, *tdi;
-	for(int x = 0; x < cfg_->detectorSet()->count(); x++){
-		tdi = cfg_->detectorSet()->detectorAt(x);
+	for(int x = 0; x < cfg()->detectorSet()->count(); x++){
+		tdi = cfg()->detectorSet()->detectorAt(x);
 		#warning "D: same edit to review. Was tdi a PGTDetector or a PGTDetectorInfo?"
 		if( qobject_cast<PGTDetector*>(tdi) )
 			tmpDI = new PGTDetectorInfo(tdi->name(), tdi->description(), this);
@@ -86,7 +114,7 @@ void AMXASScanConfigurationHolder::createScanConfiguration(){
 		for(int y = 0; y < all.count(); y++)
 			tmpDI->setMetaData(all.at(y).key, tdi->metaData(all.at(y).key));
 			*/
-		cfgDetectorInfoSet_->addDetector(tmpDI, cfg_->detectorSet()->isDefaultAt(x));
+		cfgDetectorInfoSet_->addDetector(tmpDI, cfg()->detectorSet()->isDefaultAt(x));
 	}
 }
 
@@ -105,7 +133,7 @@ void AMXASScanConfigurationHolder::destroyScanConfigurationViewer(){
 void AMXASScanConfigurationHolder::onBecameCurrentWidget(){
 	if(!sxscViewer && isVisible() && SGMBeamline::sgm()->isConnected()){
 		createScanConfiguration();
-		sxscViewer = new SGMXASScanConfigurationViewer(cfg_, cfgDetectorInfoSet_);
+		sxscViewer = new SGMXASScanConfigurationViewer(cfg(), cfgDetectorInfoSet_);
 		connect(sxscViewer, SIGNAL(startScanRequested()), this, SLOT(onStartScanRequested()));
 		connect(sxscViewer, SIGNAL(addToQueueRequested()), this, SLOT(onAddToQueueRequested()));
 		connect(sxscViewer, SIGNAL(queueDirectorRequested()), director, SLOT(show()));
@@ -124,26 +152,6 @@ void AMXASScanConfigurationHolder::onBecameCurrentWidget(){
 //		connect(sxscWizard, SIGNAL(scanStartRequested()), this, SLOT(onStartScanRequested()));
 //		sxscWizard->show();
 //	}
-}
-
-void AMXASScanConfigurationHolder::onStartScanRequested(){
-	requestedStart_ = true;
-	emit addToQueueRequested(cfg_, true);
-}
-
-void AMXASScanConfigurationHolder::onAddToQueueRequested(){
-	emit addToQueueRequested(cfg_);
-}
-
-void AMXASScanConfigurationHolder::goToQueue(){
-	qDebug() << "goToQueue emits";
-	destroyScanConfigurationViewer();
-	emit goToQueueRequested();
-}
-
-void AMXASScanConfigurationHolder::goToNewScan(){
-	destroyScanConfigurationViewer();
-	onBecameCurrentWidget();
 }
 
 AMScanConfigurationQueueDirector::AMScanConfigurationQueueDirector(QWidget *parent) :
@@ -304,4 +312,78 @@ void AMScanConfigurationScanDirector::onAlwaysAppend(bool checked){
 
 void AMScanConfigurationScanDirector::onAlwaysCancel(bool checked){
 	alwaysCancel_ = checked;
+}
+
+AMFastScanConfigurationHolder::AMFastScanConfigurationHolder(QWidget *parent) :
+		AMScanConfigurationHolder(parent)
+{
+	vl_ = NULL;
+	cfg_ = NULL;
+	sfscViewer_ = NULL;
+}
+
+AMFastScanConfigurationHolder::~AMFastScanConfigurationHolder()
+{
+}
+
+void AMFastScanConfigurationHolder::onBecameCurrentWidget()
+{
+	if(!sfscViewer_ && isVisible() && SGMBeamline::sgm()->isConnected()){
+		createScanConfiguration();
+		sfscViewer_ = new SGMFastScanConfigurationViewer(cfg());
+		connect(sfscViewer_, SIGNAL(startScanRequested()), this, SLOT(onStartScanRequested()));
+		/*
+		connect(sxscViewer, SIGNAL(startScanRequested()), this, SLOT(onStartScanRequested()));
+		connect(sxscViewer, SIGNAL(addToQueueRequested()), this, SLOT(onAddToQueueRequested()));
+		connect(sxscViewer, SIGNAL(queueDirectorRequested()), director, SLOT(show()));
+		connect(this, SIGNAL(lockdownScanning(bool,QString)), sxscViewer, SLOT(onLockdowScanning(bool,QString)));
+		*/
+		if(!vl_)
+			vl_ = new QVBoxLayout();
+		vl_->addWidget(sfscViewer_);
+		if(layout() != vl_){
+			delete layout();
+			this->setLayout(vl_);
+		}
+		emit newScanConfigurationView();
+	}
+}
+
+void AMFastScanConfigurationHolder::createScanConfiguration(){
+	cfg_ = new SGMFastScanConfiguration(this);
+	cfg_->setFileName("daveData.%03d.dat");
+	cfg_->setFilePath(AMUserSettings::userDataFolder);
+
+	/*
+	cfgDetectorInfoSet_ = new AMDetectorInfoSet(this);
+	cfg_->setCfgDetectorInfoSet(cfgDetectorInfoSet_);
+	AMDetectorInfo* tmpDI, *tdi;
+	for(int x = 0; x < cfg_->detectorSet()->count(); x++){
+		tdi = cfg_->detectorSet()->detectorAt(x);
+		#warning "D: same edit to review. Was tdi a PGTDetector or a PGTDetectorInfo?"
+		if( qobject_cast<PGTDetector*>(tdi) )
+			tmpDI = new PGTDetectorInfo(tdi->name(), tdi->description(), this);
+		else if( qobject_cast<MCPDetector*>(tdi) )
+			tmpDI = new MCPDetectorInfo(tdi->name(), tdi->description(), this);
+		else
+			tmpDI = new AMDetectorInfo(tdi->name(), tdi->description(), this);
+
+
+		cfgDetectorInfoSet_->addDetector(tmpDI, cfg_->detectorSet()->isDefaultAt(x));
+	}
+	*/
+}
+
+void AMFastScanConfigurationHolder::destroyScanConfigurationViewer(){
+	/*
+	if(sfscViewer){
+		disconnect(sxscViewer, SIGNAL(startScanRequested()), this, SLOT(onStartScanRequested()));
+		disconnect(sxscViewer, SIGNAL(addToQueueRequested()), this, SLOT(onAddToQueueRequested()));
+		disconnect(sxscViewer, SIGNAL(queueDirectorRequested()), director, SLOT(show()));
+		disconnect(this, SIGNAL(lockdownScanning(bool,QString)), sxscViewer, SLOT(onLockdowScanning(bool,QString)));
+		vl_->removeWidget(sxscViewer);
+		delete sxscViewer;
+		sxscViewer = NULL;
+	}
+	*/
 }

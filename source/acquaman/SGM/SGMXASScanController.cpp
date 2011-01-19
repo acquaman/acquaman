@@ -78,6 +78,7 @@ bool SGMXASScanController::beamlineInitialize(){
 	SGMBeamline::sgm()->exitSlitTracking()->move( pCfg_()->exitSlitTracking() );
 
 	AMDetectorInfo* tmpDI;
+	#warning "David: Why are we using detectorSet() and not usingDetectors() besides the list versus class thing? Conversion function anyone?"
 	for(int x = 0; x < pCfg_()->detectorSet()->count(); x++){
 		tmpDI = pCfg_()->detectorSet()->detectorAt(x);
 		#warning "David please review... Had to change because of removed AMDbObject::typeDescription"
@@ -113,8 +114,8 @@ void SGMXASScanController::reinitialize(){
 
 	QList<AMDetectorInfo*> scanDetectors;
 	scanDetectors = pCfg_()->usingDetectors();
-	scanDetectors.prepend(SGMBeamline::sgm()->i0Detector());
-	scanDetectors.prepend(SGMBeamline::sgm()->eVFbkDetector());
+	//scanDetectors.prepend(SGMBeamline::sgm()->i0Detector());
+	//scanDetectors.prepend(SGMBeamline::sgm()->eVFbkDetector());
 
 
 	specificScan_ = new AMXASScan();

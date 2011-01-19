@@ -752,6 +752,8 @@ build_scanRecord_links(acqScan_t *sc)
 /*
  * remove components from the action list at the end of the run
  */
+#warning "Compiler complained about reaching end of non-void function ... what is the return type here? I'm setting it as void"
+void
 eraseActionList( acqAction_t *act_h)
 {
 	acqAction_t *ap;
@@ -790,6 +792,11 @@ eraseActionList( acqAction_t *act_h)
 			continue;
 		case AA_WAIT_SCAN:
 			ap->au.ws.scan = NULL;
+			continue;
+#warning "Compiler complained about lack of AA_NEXT_OUTPUT and AA_NO_ACTION, adding is same continue format"
+		case AA_NEXT_OUTPUT:
+			continue;
+		case AA_NO_ACTION:
 			continue;
 		}
 	}
@@ -989,7 +996,9 @@ curState(acqState st)
 char *
 acqCurState(acqState st)
 {
-	if( st < 0 || st >= AS_NUMBER)
+#warning "Compiler complained about redundancy of st < 0"
+//	if( st < 0 || st >= AS_NUMBER)
+	if( st >= AS_NUMBER)
 		return "unknown";
 	return stateNames[st];
 }
@@ -997,7 +1006,8 @@ acqCurState(acqState st)
 acqState
 acqGetStateFromName(const char *name)
 {
-	int i;
+#warning "Compiler complained about signed/unsigned"
+	unsigned int i;
 	for(i=0; i < sizeof stateNames/sizeof stateNames[0]; i++)
 		if( strcmp(name, stateNames[i]) == 0)
 			return (acqState)i;

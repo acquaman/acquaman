@@ -244,6 +244,13 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
     source/dataman/AMMeasurementInfo.h \
     source/dataman/AMDataTreeDataStore.h \
     source/dataman/AMInMemoryDataStore.h \
+    source/acquaman/AMFastScanConfiguration.h \
+    source/acquaman/SGM/SGMFastScanConfiguration.h \
+    source/ui/SGMFastScanConfigurationViewer.h \
+    source/ui/AMScanConfigurationViewer.h \
+    source/acquaman/SGM/SGMFastDacqScanController.h \
+    source/dataman/AMFastScan.h \
+    source/acquaman/SGM/SGMFastScanController.h \
     source/analysis/AM2DSummingAB.h \
     source/analysis/AMStandardAnalysisBlock.h \
     source/analysis/AM2DSummingABEditor.h
@@ -430,6 +437,13 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
     source/analysis/AM1DExpressionABEditor.cpp \
     source/dataman/AMDataTreeDataStore.cpp \
     source/dataman/AMInMemoryDataStore.cpp \
+    source/acquaman/AMFastScanConfiguration.cpp \
+    source/acquaman/SGM/SGMFastScanConfiguration.cpp \
+    source/ui/SGMFastScanConfigurationViewer.cpp \
+    source/ui/AMScanConfigurationViewer.cpp \
+    source/acquaman/SGM/SGMFastDacqScanController.cpp \
+    source/dataman/AMFastScan.cpp \
+    source/acquaman/SGM/SGMFastScanController.cpp \
     source/analysis/AM2DSummingAB.cpp \
     source/analysis/AMStandardAnalysisBlock.cpp \
     source/analysis/AM2DSummingABEditor.cpp
