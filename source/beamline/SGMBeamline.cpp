@@ -137,13 +137,13 @@ void SGMBeamline::usingSGMBeamline(){
 	sgmPVName = amNames2pvNames_.valueF("energyMovingStatus");
 	energyMovingStatus_ = new AMReadOnlyPVControl("energyMovingStatus", sgmPVName, this);
 	sgmPVName = amNames2pvNames_.valueF("fastShutterVoltage");
-	energyMovingStatus_ = new AMPVControl("fastShutterVoltage", sgmPVName, sgmPVName, this);
+	energyMovingStatus_ = new AMPVControl("fastShutterVoltage", sgmPVName, sgmPVName, "", this);
 	sgmPVName = amNames2pvNames_.valueF("gratingVelocity");
-	energyMovingStatus_ = new AMPVControl("gratingVelocity", sgmPVName, sgmPVName, this);
+	energyMovingStatus_ = new AMPVControl("gratingVelocity", sgmPVName, sgmPVName, "", this);
 	sgmPVName = amNames2pvNames_.valueF("gratingVelocityBase");
-	energyMovingStatus_ = new AMPVControl("gratingVelocityBase", sgmPVName, sgmPVName, this);
+	energyMovingStatus_ = new AMPVControl("gratingVelocityBase", sgmPVName, sgmPVName, "", this);
 	sgmPVName = amNames2pvNames_.valueF("gratingAcceleration");
-	energyMovingStatus_ = new AMPVControl("gratingAcceleration", sgmPVName, sgmPVName, this);
+	energyMovingStatus_ = new AMPVControl("gratingAcceleration", sgmPVName, sgmPVName, "", this);
 }
 
 void SGMBeamline::usingFakeBeamline(){
@@ -278,14 +278,14 @@ void SGMBeamline::usingFakeBeamline(){
 	sgmPVName = amNames2pvNames_.valueF("energyMovingStatus");
 	energyMovingStatus_ = new AMReadOnlyPVControl("energyMovingStatus", sgmPVName, this);
 	sgmPVName = amNames2pvNames_.valueF("fastShutterVoltage");
-	energyMovingStatus_ = new AMPVControl("fastShutterVoltage", sgmPVName, sgmPVName, this);
+	energyMovingStatus_ = new AMPVControl("fastShutterVoltage", sgmPVName, sgmPVName, "", this);
 
 	sgmPVName = amNames2pvNames_.valueF("gratingVelocity");
-	energyMovingStatus_ = new AMPVControl("gratingVelocity", sgmPVName, sgmPVName, this);
+	energyMovingStatus_ = new AMPVControl("gratingVelocity", sgmPVName, sgmPVName, "", this);
 	sgmPVName = amNames2pvNames_.valueF("gratingVelocityBase");
-	energyMovingStatus_ = new AMPVControl("gratingVelocityBase", sgmPVName, sgmPVName, this);
+	energyMovingStatus_ = new AMPVControl("gratingVelocityBase", sgmPVName, sgmPVName, "", this);
 	sgmPVName = amNames2pvNames_.valueF("gratingAcceleration");
-	energyMovingStatus_ = new AMPVControl("gratingAcceleration", sgmPVName, sgmPVName, this);
+	energyMovingStatus_ = new AMPVControl("gratingAcceleration", sgmPVName, sgmPVName, "", this);
 }
 
 SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
