@@ -28,7 +28,7 @@ AMBeamlineControlSetMoveAction::AMBeamlineControlSetMoveAction(AMControlSet *con
 	type_ = "controlSetMoveAction";
 	if(controlSet){
 		setControlSet(controlSet);
-		setpoint_ = new AMControlSetInfo(controlSet_->info(), this);
+		setpoint_ = new AMControlInfoSet(controlSet_->info(), this);
 	}
 	else
 		setpoint_ = NULL;
@@ -42,7 +42,7 @@ AMControlSet* AMBeamlineControlSetMoveAction::controlSet(){
 	return controlSet_;
 }
 
-AMControlSetInfo* AMBeamlineControlSetMoveAction::setpoint(){
+AMControlInfoSet* AMBeamlineControlSetMoveAction::setpoint(){
 	return setpoint_;
 }
 
@@ -54,7 +54,7 @@ void AMBeamlineControlSetMoveAction::start(){
 			connect(controlSet_->controlAt(x), SIGNAL(moveFailed(int)), this, SLOT(onFailed(int)));
 			connect(controlSet_->controlAt(x), SIGNAL(moveStarted()), this, SLOT(onStarted()));
 		}
-		startPoint_ = new AMControlSetInfo(controlSet_->info(), this);
+		startPoint_ = new AMControlInfoSet(controlSet_->info(), this);
 		connect(&progressTimer_, SIGNAL(timeout()), this, SLOT(calculateProgress()) );
 		progressTimer_.start(500);
 		controlSet_->setFromInfo(setpoint_);
@@ -100,7 +100,7 @@ void AMBeamlineControlSetMoveAction::setControlSet(AMControlSet *controlSet){
 	checkReady();
 }
 
-bool AMBeamlineControlSetMoveAction::setSetpoint(AMControlSetInfo *setpoint){
+bool AMBeamlineControlSetMoveAction::setSetpoint(AMControlInfoSet *setpoint){
 	if(!controlSet_)
 		return false;
 	for(int x = 0; x < controlSet_->count(); x++){
@@ -111,7 +111,7 @@ bool AMBeamlineControlSetMoveAction::setSetpoint(AMControlSetInfo *setpoint){
 	}
 	if(setpoint_)
 		delete setpoint_;
-	setpoint_ = new AMControlSetInfo(setpoint, this);
+	setpoint_ = new AMControlInfoSet(setpoint, this);
 	return true;
 }
 

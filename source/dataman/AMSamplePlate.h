@@ -64,8 +64,8 @@ public:
 	AMSample* sampleAt(size_t index);
 	AMSample* sampleByName(const QString &name);
 
-	AMControlSetInfo* positionAt(size_t index);
-	AMControlSetInfo* positionByName(const QString &name);
+	AMControlInfoSet* positionAt(size_t index);
+	AMControlInfoSet* positionByName(const QString &name);
 
 	int indexOf(const QString &name);
 
@@ -100,9 +100,9 @@ public slots:
 	bool setSamplePosition(size_t index, AMSamplePosition *sp);
 
 	bool addSamplePosition(size_t index, AMSamplePosition *sp);
-	bool addSamplePosition(size_t index, AMSample *sample, AMControlSetInfo *position);
+	bool addSamplePosition(size_t index, AMSample *sample, AMControlInfoSet *position);
 	bool appendSamplePosition(AMSamplePosition *sp);
-	bool appendSamplePosition(AMSample *sample, AMControlSetInfo *position);
+	bool appendSamplePosition(AMSample *sample, AMControlInfoSet *position);
 
 	bool removeSamplePosition(AMSamplePosition *sp);
 	bool removeSamplePosition(size_t index);
@@ -166,14 +166,14 @@ class AMSamplePosition : public QObject
 {
 Q_OBJECT
 public:
-	AMSamplePosition(AMSample *sample, AMControlSetInfo *position, QObject *parent = 0);
+	AMSamplePosition(AMSample *sample, AMControlInfoSet *position, QObject *parent = 0);
 
 	AMSample* sample();
-	AMControlSetInfo* position();
+	AMControlInfoSet* position();
 
 public slots:
 	void setSample(AMSample *sample);
-	void setPosition(AMControlSetInfo *position);
+	void setPosition(AMControlInfoSet *position);
 
 signals:
 	void positionValuesChanged(int index);
@@ -182,7 +182,7 @@ signals:
 
 protected:
 	AMSample *sample_;
-	AMControlSetInfo *position_;
+	AMControlInfoSet *position_;
 };
 
 #endif // AMSAMPLEPLATE_H

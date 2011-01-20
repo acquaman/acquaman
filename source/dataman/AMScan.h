@@ -263,8 +263,8 @@ public:
 	// Beamline conditions
 	//////////////////////////////
 	/// Independent from the hardware you're connected to right now, an AMControlSetInfo can remember values and descriptions of how some hardware was set at the time of the scan.
-	const AMControlSetInfo* scanInitialConditions() const { return &scanInitialConditions_; }
-	AMControlSetInfo* scanInitialConditions() { return &scanInitialConditions_; }
+	const AMControlInfoSet* scanInitialConditions() const { return &scanInitialConditions_; }
+	AMControlInfoSet* scanInitialConditions() { return &scanInitialConditions_; }
 
 	// Thumbnail system:
 	////////////////////////////////
@@ -390,7 +390,7 @@ protected:
 	/// Analyzed data sources.  A set of AMAnalysisBlocks.
 	AMAnalyzedDataSourceSet analyzedDataSources_;
 	/// Conditions of the beamline/experimental hardware at the beginning of the scan
-	AMControlSetInfo scanInitialConditions_;
+	AMControlInfoSet scanInitialConditions_;
 
 
 

@@ -407,7 +407,7 @@ void AMSampleListView::addNewSampleToPlate(int id){ //HEY DAVE, OPTIONALLY TAKE 
 		return;
 	AMSample *tmpSample = new AMSample("", this);
 	tmpSample->loadFromDb(AMDatabase::userdb(), id);
-	AMControlSetInfo *tmpPosition = new AMControlSetInfo(manipulator_->info(), this);
+	AMControlInfoSet *tmpPosition = new AMControlInfoSet(manipulator_->info(), this);
 	tmpPosition->storeToDb(AMDatabase::userdb());
 	samplePlate_->appendSamplePosition(tmpSample, tmpPosition);
 	samplePlate_->storeToDb(AMDatabase::userdb());

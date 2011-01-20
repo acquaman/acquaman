@@ -26,10 +26,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QAbstractTableModel>
 #include <QDebug>
 
-class AMControlSetInfoModel;
-class AMControlSlimInfo;
+class AMControlInfoSetModel;
+class AMControlInfo;
 
-class AMControlSetInfo : public AMDbObject
+class AMControlInfoSet : public AMDbObject
 {
 Q_OBJECT
 	Q_PROPERTY(QString description READ description WRITE setDescription)
@@ -37,12 +37,12 @@ Q_OBJECT
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Set of control settings")
 
 public:
-	explicit AMControlSetInfo(QObject *parent = 0);
-	AMControlSetInfo(AMControlSetInfo *copyFrom, QObject *parent = 0);
+	explicit AMControlInfoSet(QObject *parent = 0);
+	AMControlInfoSet(AMControlInfoSet *copyFrom, QObject *parent = 0);
 
-	~AMControlSetInfo() {}
+	~AMControlInfoSet() {}
 
-	AMControlSetInfoModel* model();
+	AMControlInfoSetModel* model();
 
 	int count() const;
 
@@ -96,7 +96,7 @@ public slots:
 
 	bool removeControlAt(size_t index);
 
-	void copyFrom(AMControlSetInfo *copyFrom);
+	void copyFrom(AMControlInfoSet *copyFrom);
 
 protected slots:
 	void onDataChanged(QModelIndex a,QModelIndex b);
@@ -107,18 +107,18 @@ protected:
 	virtual bool setupModel();
 
 protected:
-	AMControlSetInfoModel *ctrlInfoList_;
+	AMControlInfoSetModel *ctrlInfoList_;
 	QString description_;
 
 private:
 	int insertRowLatch;
 };
 
-class AMControlSetInfoModel : public QAbstractTableModel
+class AMControlInfoSetModel : public QAbstractTableModel
 {
 Q_OBJECT
 public:
-	AMControlSetInfoModel(QObject *parent = 0);
+	AMControlInfoSetModel(QObject *parent = 0);
 
 	/// Returns the number of controls in the list to generate the number of rows in a table or list
 	int rowCount(const QModelIndex & /*parent*/) const;
@@ -137,14 +137,14 @@ public:
 
 protected:
 	/// Internal pointer to the list of AMControlSlimInfo
-	QList<AMControlSlimInfo*> *ctrlInfoList_;
+	QList<AMControlInfo*> *ctrlInfoList_;
 };
 
-class AMControlSlimInfo : public QObject
+class AMControlInfo : public QObject
 {
 Q_OBJECT
 public:
-	AMControlSlimInfo(QString name, double value, double minimum, double maximum, QString units, QObject *parent = 0);
+	AMControlInfo(QString name, double value, double minimum, double maximum, QString units, QObject *parent = 0);
 
 	const QString& name() const;
 	double value() const;

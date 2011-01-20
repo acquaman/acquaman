@@ -65,7 +65,7 @@ public:
 	int indexOf(const QString &name);
 	AMControl* controlByName(const QString &name);
 
-	AMControlSetInfo* info() { return info_; }
+	AMControlInfoSet* info() { return info_; }
 
 	bool isConnected();
 
@@ -81,7 +81,7 @@ public slots:
 	bool removeControl(AMControl* ctrl);
 
 //	void syncInfo();
-	void setFromInfo(AMControlSetInfo *info);
+	void setFromInfo(AMControlInfoSet *info);
 
 protected slots:
 	void onConnected(bool ctrlConnected);
@@ -95,7 +95,7 @@ protected:
 	/// Local list of AMControl pointers, which represent the controls in the set.
 	QList<AMControl*> ctrls_;
 
-	AMControlSetInfo *info_;
+	AMControlInfoSet *info_;
 
 	bool wasConnected_;
 };

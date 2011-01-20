@@ -24,7 +24,7 @@ AMControlSet::AMControlSet(QObject *parent) :
 	QObject(parent)
 {
 	wasConnected_ = false;
-	info_ = new AMControlSetInfo(this);
+	info_ = new AMControlInfoSet(this);
 	QTimer connectionsTimedOut;
 	connectionsTimedOut.singleShot(AMCONTROLSET_CONTROL_TIMEOUT_MS, this, SLOT(onConnectionsTimedOut()));
 }
@@ -80,7 +80,7 @@ bool AMControlSet::removeControl(AMControl* ctrl) {
 	return retVal;
 }
 
-void AMControlSet::setFromInfo(AMControlSetInfo *info){
+void AMControlSet::setFromInfo(AMControlInfoSet *info){
 	AMControl *tmpCtrl;
 	for(int x = 0; x < info->count(); x++){
 		tmpCtrl = controlByName(info->nameAt(x));
