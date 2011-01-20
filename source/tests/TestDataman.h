@@ -97,8 +97,17 @@ private slots:
 
 		s->addMeasurement(AMMeasurementInfo("meas0", "Measurement 0"));
 
+		// beginning: no axes. Scalar scan space. Should be able to access measurements at scan point index AMnDIndex().
+		QVERIFY(s->setValue(AMnDIndex(), 0, AMnDIndex(), AMNumber(3)));
+		QVERIFY(s->value(AMnDIndex(), 0, AMnDIndex()) == AMNumber(3));
+
+
 		// starting with a single axis
-		s->addScanAxis(AMAxisInfo("x", 0, "x axis"));
+		QVERIFY(s->addScanAxis(AMAxisInfo("x", 0, "x axis")));
+
+		// Scalar scan space should not work anymore
+		QVERIFY(s->setValue(AMnDIndex(), 0, AMnDIndex(), AMNumber(4)) == false);
+		QVERIFY(s->value(AMnDIndex(), 0, AMnDIndex()) == AMNumber(AMNumber::DimensionError));
 
 		QVERIFY(s->isEmpty());
 		QVERIFY(s->scanAxesCount() == 1);
