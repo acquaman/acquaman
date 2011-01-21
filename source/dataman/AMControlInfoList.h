@@ -64,17 +64,11 @@ protected:
 };
 
 
+/// This is a container class for AMControlInfo, most commonly used to represent an arbitrary set of control positions.
 class AMControlInfoList : public AMDbObject, public AMOrderedList<AMControlInfo>
 {
 Q_OBJECT
 	Q_PROPERTY(QString description READ description WRITE setDescription)
-
-//	Q_PROPERTY(QStringList controlNames READ dbReadControlNames WRITE dbLoadControlNames)
-//	Q_PROPERTY(AMDoubleList controlValues READ dbReadControlValues WRITE dbLoadControlValues)
-//	Q_PROPERTY(AMDoubleList controlMinimums READ dbReadControlMinimums WRITE dbLoadControlMinimums)
-//	Q_PROPERTY(AMDoubleList controlMaximums READ dbReadControlMaximums WRITE dbLoadControlMaximums)
-//	Q_PROPERTY(QStringList controlUnits READ dbReadControlUnits WRITE dbLoadControlUnits)
-
 	Q_PROPERTY(AMDbObjectList controlInfos READ dbReadControlInfos WRITE dbLoadControlInfos)
 
 
@@ -88,7 +82,6 @@ public:
 	/// Assignment operator
 	AMControlInfoList& operator=(const AMControlInfoList& other);
 
-
 	/// Destructor
 	~AMControlInfoList() {}
 
@@ -99,6 +92,7 @@ public:
 	// Support for saving / restoring an AMControlInfoSet to the database
 	////////////////////////////////
 
+	/// Returns a list of pointers to the AMControlInfo objects we store, for use by the database system in storeToDb() / loadFromDb().
 	AMDbObjectList dbReadControlInfos() {
 		AMDbObjectList rv;
 		for(int i=0; i<count(); i++)
@@ -106,6 +100,7 @@ public:
 		return rv;
 	}
 
+	/// Called by the database system on loadFromDb() to give us our new set of AMControlInfo objects. We copy these ones into our internal list and then delete them.
 	void dbLoadControlInfos(const AMDbObjectList& newControlInfos) {
 		clear();	// get rid of our existing
 
@@ -119,19 +114,6 @@ public:
 				delete newControlInfos.at(i);	// we're copying these; don't need to keep these ones around. Our responsibility to delete.
 		}
 	}
-
-//	QStringList dbReadControlNames() const;
-//	AMDoubleList dbReadControlValues() const;
-//	AMDoubleList dbReadControlMinimums() const;
-//	AMDoubleList dbReadControlMaximums() const;
-//	QStringList dbReadControlUnits() const;
-
-//	void dbLoadControlNames(const QStringList& newNames);
-//	void dbLoadControlValues(const AMDoubleList& newValues);
-//	void dbLoadControlMinimums(const AMDoubleList& newMinimums);
-//	void dbLoadControlMaximums(const AMDoubleList& newMaximums);
-//	void dbLoadControlUnits(const QStringList& newUnits);
-	/////////////////////////
 
 
 signals:
