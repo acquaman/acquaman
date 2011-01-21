@@ -25,38 +25,38 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMOrderedList.h"
 
 /// This class can be used to store the essential information and state of an AMControl, without actually needing to have a live control object. This information includes the name, units, value, minimum value, and maximum value.
-class AMControlInfo  {
+class AMControlInfo : public AMDbObject {
 
-	/*
+
 	Q_OBJECT
 
-	Q_PROPERTY(QString name READ name WRITE setName)
 	Q_PROPERTY(double value READ value WRITE setValue)
 	Q_PROPERTY(double minimum READ minimum WRITE setMinimum)
 	Q_PROPERTY(double maximum READ maximum WRITE setMaximum)
 	Q_PROPERTY(QString units READ units WRITE setUnits)
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Saved Control State")
-	*/
+
 
 public:
-	AMControlInfo(const QString& name, double value, double minimum, double maximum, const QString& units);
+	AMControlInfo(const QString& name, double value, double minimum, double maximum, const QString& units, QObject* parent = 0);
+	Q_INVOKABLE AMControlInfo(AMDatabase* db, int id);
 
-	QString name() const { return name_; }
+	// QString name() const { return name_; }
 	double value() const { return value_; }
 	double minimum() const { return minimum_; }
 	double maximum() const { return maximum_; }
 	QString units() const { return units_; }
 
-public /*slots*/:
-	void setName(const QString& name) { name_ = name; }
+public slots:
+	// void setName(const QString& name) { name_ = name; }
 	void setValue(double value) { value_ = value; }
 	void setMinimum(double minimum) { minimum_ = minimum; }
 	void setMaximum(double maximum) { maximum_ = maximum; }
 	void setUnits(const QString &units) { units_ = units; }
 
 protected:
-	QString name_;
+	// QString name_;
 	double value_;
 	double minimum_;
 	double maximum_;
@@ -69,16 +69,20 @@ class AMControlInfoList : public AMDbObject, public AMOrderedList<AMControlInfo>
 Q_OBJECT
 	Q_PROPERTY(QString description READ description WRITE setDescription)
 
-	Q_PROPERTY(QStringList controlNames READ dbReadControlNames WRITE dbLoadControlNames)
-	Q_PROPERTY(AMDoubleList controlValues READ dbReadControlValues WRITE dbLoadControlValues)
-	Q_PROPERTY(AMDoubleList controlMinimums READ dbReadControlMinimums WRITE dbLoadControlMinimums)
-	Q_PROPERTY(AMDoubleList controlMaximums READ dbReadControlMaximums WRITE dbLoadControlMaximums)
-	Q_PROPERTY(QStringList controlUnits READ dbReadControlUnits WRITE dbLoadControlUnits)
+//	Q_PROPERTY(QStringList controlNames READ dbReadControlNames WRITE dbLoadControlNames)
+//	Q_PROPERTY(AMDoubleList controlValues READ dbReadControlValues WRITE dbLoadControlValues)
+//	Q_PROPERTY(AMDoubleList controlMinimums READ dbReadControlMinimums WRITE dbLoadControlMinimums)
+//	Q_PROPERTY(AMDoubleList controlMaximums READ dbReadControlMaximums WRITE dbLoadControlMaximums)
+//	Q_PROPERTY(QStringList controlUnits READ dbReadControlUnits WRITE dbLoadControlUnits)
+
+	Q_PROPERTY(AMDbObjectList controlInfos READ dbReadControlInfos WRITE dbLoadControlInfos)
 
 
 public:
 	/// Default constructor
 	explicit AMControlInfoList(QObject *parent = 0);
+	/// Loading-from-database constructor
+	Q_INVOKABLE AMControlInfoList(AMDatabase* db, int id);
 	/// Copy constructor
 	AMControlInfoList(const AMControlInfoList& other);
 	/// Assignment operator
@@ -94,17 +98,39 @@ public:
 
 	// Support for saving / restoring an AMControlInfoSet to the database
 	////////////////////////////////
-	QStringList dbReadControlNames() const;
-	AMDoubleList dbReadControlValues() const;
-	AMDoubleList dbReadControlMinimums() const;
-	AMDoubleList dbReadControlMaximums() const;
-	QStringList dbReadControlUnits() const;
 
-	void dbLoadControlNames(const QStringList& newNames);
-	void dbLoadControlValues(const AMDoubleList& newValues);
-	void dbLoadControlMinimums(const AMDoubleList& newMinimums);
-	void dbLoadControlMaximums(const AMDoubleList& newMaximums);
-	void dbLoadControlUnits(const QStringList& newUnits);
+	AMDbObjectList dbReadControlInfos() {
+		AMDbObjectList rv;
+		for(int i=0; i<count(); i++)
+			rv << &((*this)[i]);
+		return rv;
+	}
+
+	void dbLoadControlInfos(const AMDbObjectList& newControlInfos) {
+		clear();	// get rid of our existing
+
+		for(int i=0; i<newControlInfos.count(); i++) {
+			AMControlInfo* newControlInfo = qobject_cast<AMControlInfo*>(newControlInfos.at(i));
+			if(newControlInfo) {
+				append(*newControlInfo);	// note: makes a copy of object pointed to by newControlInfo, and stores in our internal list.
+			}
+
+			if(newControlInfos.at(i))
+				delete newControlInfos.at(i);	// we're copying these; don't need to keep these ones around. Our responsibility to delete.
+		}
+	}
+
+//	QStringList dbReadControlNames() const;
+//	AMDoubleList dbReadControlValues() const;
+//	AMDoubleList dbReadControlMinimums() const;
+//	AMDoubleList dbReadControlMaximums() const;
+//	QStringList dbReadControlUnits() const;
+
+//	void dbLoadControlNames(const QStringList& newNames);
+//	void dbLoadControlValues(const AMDoubleList& newValues);
+//	void dbLoadControlMinimums(const AMDoubleList& newMinimums);
+//	void dbLoadControlMaximums(const AMDoubleList& newMaximums);
+//	void dbLoadControlUnits(const QStringList& newUnits);
 	/////////////////////////
 
 

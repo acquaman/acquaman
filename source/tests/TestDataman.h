@@ -92,6 +92,10 @@ private slots:
 	}
 
 	void testAMControlInfoList() {
+
+		AMControlInfo* ci = new AMControlInfo("bob", 5, 1, 10, "pF");
+		QVERIFY(ci->storeToDb(AMDatabase::userdb()));
+
 		AMControlInfoList* l = new AMControlInfoList();
 
 		l->append(AMControlInfo("mark",3,1,4,"feet"));
@@ -103,7 +107,7 @@ private slots:
 
 
 		AMControlInfoList* l2 = new AMControlInfoList();
-		l2->loadFromDb(AMDatabase::userdb(), l->id());
+		QVERIFY(l2->loadFromDb(AMDatabase::userdb(), l->id()));
 
 		// test store and reload from db
 		QVERIFY(l2->at(0).name() == "mark");
