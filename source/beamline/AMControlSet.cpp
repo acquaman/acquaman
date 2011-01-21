@@ -24,7 +24,7 @@ AMControlSet::AMControlSet(QObject *parent) :
 	QObject(parent)
 {
 	wasConnected_ = false;
-	info_ = new AMControlInfoSet(this);
+	info_ = new AMControlInfoList(this);
 	QTimer connectionsTimedOut;
 	connectionsTimedOut.singleShot(AMCONTROLSET_CONTROL_TIMEOUT_MS, this, SLOT(onConnectionsTimedOut()));
 }
@@ -64,14 +64,14 @@ bool AMControlSet::addControl(AMControl* ctrl) {
 	ctrls_.append(ctrl);
 	connect(ctrl, SIGNAL(connected(bool)), this, SLOT(onConnected(bool)));
 	connect(ctrl, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged(double)));
-	info_->addControlAt(info_->count(), ctrl->name(), ctrl->value(), ctrl->minimumValue(), ctrl->maximumValue(), ctrl->units());
+	info_->append(AMControlInfo(ctrl->name(), ctrl->value(), ctrl->minimumValue(), ctrl->maximumValue(), ctrl->units()));
 	return true;
 }
 
 /// Returns false if the AMControl to be removed is not present; otherwise removes the control and returns true.
 bool AMControlSet::removeControl(AMControl* ctrl) {
 	int index = ctrls_.indexOf(ctrl);
-	info_->removeControlAt(index);
+	info_->remove(index);
 	bool retVal = ctrls_.removeOne(ctrl);
 	if(retVal){
 		disconnect(ctrl, SIGNAL(connected(bool)), this, SLOT(onConnected(bool)));
@@ -80,12 +80,12 @@ bool AMControlSet::removeControl(AMControl* ctrl) {
 	return retVal;
 }
 
-void AMControlSet::setFromInfo(AMControlInfoSet *info){
+void AMControlSet::setFromInfo(AMControlInfoList *info){
 	AMControl *tmpCtrl;
 	for(int x = 0; x < info->count(); x++){
-		tmpCtrl = controlByName(info->nameAt(x));
+		tmpCtrl = controlByName(info->at(x).name());
 		if(tmpCtrl)
-			tmpCtrl->move(info->valueAt(x));
+			tmpCtrl->move(info->at(x).value());
 	}
 }
 
@@ -94,11 +94,11 @@ void AMControlSet::onConnected(bool ctrlConnected){
 		wasConnected_ = false;
 		emit connected(false);
 	}
-	AMControl *ctrl = (AMControl*)QObject::sender();
+	AMControl *ctrl = qobject_cast<AMControl*>(QObject::sender());
 	if(!ctrl || !ctrlConnected)
 		return;
 	int index = ctrls_.indexOf(ctrl);
-	info_->setControlAt(index, ctrl->name(), ctrl->value(), ctrl->minimumValue(), ctrl->maximumValue(), ctrl->units());
+	info_->replace(index, AMControlInfo(ctrl->name(), ctrl->value(), ctrl->minimumValue(), ctrl->maximumValue(), ctrl->units()));
 	if(isConnected() && !wasConnected_){
 		wasConnected_ = true;
 		emit connected(true);
@@ -111,11 +111,11 @@ void AMControlSet::onConnectionsTimedOut(){
 }
 
 void AMControlSet::onValueChanged(double value){
-	AMControl *ctrl = (AMControl*)QObject::sender();
+	AMControl *ctrl = qobject_cast<AMControl*>(QObject::sender());
 	if(!ctrl)
 		return;
 	int index = ctrls_.indexOf(ctrl);
-	info_->setValueAt(index, value);
+	(*info_)[index].setValue(value);
 }
 
 /// Default implementation returns an empty map. This function is the core of the implementation for subclasses.

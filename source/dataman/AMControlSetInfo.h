@@ -22,142 +22,38 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMCONTROLSETINFO_H
 
 #include "dataman/AMDbObject.h"
-#include <QStringList>
-#include <QAbstractTableModel>
-#include <QDebug>
+#include "util/AMOrderedList.h"
 
-class AMControlInfoSetModel;
-class AMControlInfo;
+/// This class can be used to store the essential information and state of an AMControl, without actually needing to have a live control object. This information includes the name, units, value, minimum value, and maximum value.
+class AMControlInfo  {
 
-class AMControlInfoSet : public AMDbObject
-{
-Q_OBJECT
-	Q_PROPERTY(QString description READ description WRITE setDescription)
+	/*
+	Q_OBJECT
 
-	Q_CLASSINFO("AMDbObject_Attributes", "description=Set of control settings")
+	Q_PROPERTY(QString name READ name WRITE setName)
+	Q_PROPERTY(double value READ value WRITE setValue)
+	Q_PROPERTY(double minimum READ minimum WRITE setMinimum)
+	Q_PROPERTY(double maximum READ maximum WRITE setMaximum)
+	Q_PROPERTY(QString units READ units WRITE setUnits)
+
+	Q_CLASSINFO("AMDbObject_Attributes", "description=Saved Control State")
+	*/
 
 public:
-	explicit AMControlInfoSet(QObject *parent = 0);
-	AMControlInfoSet(AMControlInfoSet *copyFrom, QObject *parent = 0);
+	AMControlInfo(const QString& name, double value, double minimum, double maximum, const QString& units);
 
-	~AMControlInfoSet() {}
+	QString name() const { return name_; }
+	double value() const { return value_; }
+	double minimum() const { return minimum_; }
+	double maximum() const { return maximum_; }
+	QString units() const { return units_; }
 
-	AMControlInfoSetModel* model();
-
-	int count() const;
-
-	QString nameAt(size_t index) const;
-
-	double valueAt(size_t index) const;
-
-	double minimumAt(size_t index) const;
-
-	double maximumAt(size_t index) const;
-
-	QString unitsAt(size_t index) const;
-
-	QString description() const { return description_; }
-
-
-
-	/// Load yourself from the database. (returns true on success)
-	/*! Re-implemented from AMDbObject. */
-	virtual bool loadFromDb(AMDatabase* db, int id);
-
-	/// Store or update self in the database. (returns true on success)
-	/*! Re-implemented from AMDbObject::storeToDb(), this version also writes out the dimension and rank, even though they aren't strictly part of the meta-data.
-	  */
-	virtual bool storeToDb(AMDatabase* db);
-
-
-
-signals:
-	void valuesChanged(int index);
-	void controlAdded(int index);
-	void controlRemoved(int index);
-
-public slots:
-	/// Convenience function to set the human-readable description
-	void setDescription(const QString& description);
-
-	bool setNameAt(size_t index, QString name);
-
-	bool setValueAt(size_t index, double value);
-
-	bool setMinimumAt(size_t index, double minimum);
-
-	bool setMaximumAt(size_t index, double maximum);
-
-	bool setUnitsAt(size_t, QString units);
-
-	bool setControlAt(size_t index, QString name, double value, double minimum, double maximum, QString units);
-
-	bool addControlAt(size_t index, QString name, double value, double minimum, double maximum, QString units);
-
-	bool removeControlAt(size_t index);
-
-	void copyFrom(AMControlInfoSet *copyFrom);
-
-protected slots:
-	void onDataChanged(QModelIndex a,QModelIndex b);
-	void onRowsInserted(QModelIndex parent, int start, int end);
-	void onRowsRemoved(QModelIndex parent, int start, int end);
-
-protected:
-	virtual bool setupModel();
-
-protected:
-	AMControlInfoSetModel *ctrlInfoList_;
-	QString description_;
-
-private:
-	int insertRowLatch;
-};
-
-class AMControlInfoSetModel : public QAbstractTableModel
-{
-Q_OBJECT
-public:
-	AMControlInfoSetModel(QObject *parent = 0);
-
-	/// Returns the number of controls in the list to generate the number of rows in a table or list
-	int rowCount(const QModelIndex & /*parent*/) const;
-	/// Returns "5" statically. There are always five fields in the control's slim info: name, value, minimum, maximum, and units.
-	int columnCount(const QModelIndex & /*parent*/) const;
-	/// Retrieves the data from an index (row and column) and returns as a QVariant. Only valid role is Qt::DisplayRole right now.
-	QVariant data(const QModelIndex &index, int role) const;
-	/// Retrieves the header data for a column or row and returns as a QVariant. Only valid role is Qt::DisplayRole right now.
-	QVariant headerData(int section, Qt::Orientation orientation, int role) const;
-	/// Sets the data value at an index (row and column). Only valid role is Qt::DisplayRole right now.
-	bool setData(const QModelIndex &index, const QVariant &value, int role);
-	bool insertRows(int position, int rows, const QModelIndex &index = QModelIndex());
-	bool removeRows(int position, int rows, const QModelIndex &index = QModelIndex());
-	/// This allows editing of values within range (for ex: in a QTableView)
-	Qt::ItemFlags flags(const QModelIndex &index) const;
-
-protected:
-	/// Internal pointer to the list of AMControlSlimInfo
-	QList<AMControlInfo*> *ctrlInfoList_;
-};
-
-class AMControlInfo : public QObject
-{
-Q_OBJECT
-public:
-	AMControlInfo(QString name, double value, double minimum, double maximum, QString units, QObject *parent = 0);
-
-	const QString& name() const;
-	double value() const;
-	double minimum() const;
-	double maximum() const;
-	const QString& units() const;
-
-public slots:
-	void setName(const QString &name);
-	void setValue(double value);
-	void setMinimum(double minimum);
-	void setMaximum(double maximum);
-	void setUnits(const QString &units);
+public /*slots*/:
+	void setName(const QString& name) { name_ = name; }
+	void setValue(double value) { value_ = value; }
+	void setMinimum(double minimum) { minimum_ = minimum; }
+	void setMaximum(double maximum) { maximum_ = maximum; }
+	void setUnits(const QString &units) { units_ = units; }
 
 protected:
 	QString name_;
@@ -166,5 +62,92 @@ protected:
 	double maximum_;
 	QString units_;
 };
+
+
+class AMControlInfoList : public AMDbObject, public AMOrderedList<AMControlInfo>
+{
+Q_OBJECT
+	Q_PROPERTY(QString description READ description WRITE setDescription)
+
+	Q_PROPERTY(QStringList controlNames READ dbReadControlNames WRITE dbLoadControlNames)
+	Q_PROPERTY(AMDoubleList controlValues READ dbReadControlValues WRITE dbLoadControlValues)
+	Q_PROPERTY(AMDoubleList controlMinimums READ dbReadControlMinimums WRITE dbLoadControlMinimums)
+	Q_PROPERTY(AMDoubleList controlMaximums READ dbReadControlMaximums WRITE dbLoadControlMaximums)
+	Q_PROPERTY(QStringList controlUnits READ dbReadControlUnits WRITE dbLoadControlUnits)
+
+
+public:
+	/// Default constructor
+	explicit AMControlInfoList(QObject *parent = 0);
+	/// Copy constructor
+	AMControlInfoList(const AMControlInfoList& other);
+	/// Assignment operator
+	AMControlInfoList& operator=(const AMControlInfoList& other);
+
+
+	/// Destructor
+	~AMControlInfoList() {}
+
+	/// A human-readable description for this set of controls
+	QString description() const { return description_; }
+
+
+	// Support for saving / restoring an AMControlInfoSet to the database
+	////////////////////////////////
+	QStringList dbReadControlNames() const;
+	AMDoubleList dbReadControlValues() const;
+	AMDoubleList dbReadControlMinimums() const;
+	AMDoubleList dbReadControlMaximums() const;
+	QStringList dbReadControlUnits() const;
+
+	void dbLoadControlNames(const QStringList& newNames);
+	void dbLoadControlValues(const AMDoubleList& newValues);
+	void dbLoadControlMinimums(const AMDoubleList& newMinimums);
+	void dbLoadControlMaximums(const AMDoubleList& newMaximums);
+	void dbLoadControlUnits(const QStringList& newUnits);
+	/////////////////////////
+
+
+signals:
+	/// Forwarded from signalSource()->itemChanged(). Emitted when a control is replaced, OR after a control is accessed for modification and program execution returns back to the event loop.
+	void controlValuesChanged(int index);
+	/// Forwarded from signalSource()->itemAdded(). Emitted after a new control is added at \c index.
+	void controlAdded(int index);
+	/// Forwarded from signalSource()->itemRemoved(). Emitted after a control was removed (previously at \c index).
+	void controlRemoved(int index);
+
+public slots:
+	/// Set the human-readable description
+	void setDescription(const QString& description) {
+		description_ = description;
+		setModified(true);
+	}
+
+
+protected slots:
+	/// Called when a control is accessed and potentially modified.
+	void onControlValuesChanged(int index) {
+		setModified(true);
+		emit controlValuesChanged(index);
+	}
+	/// Called after a control is added at \c index
+	void onControlAdded(int index) {
+		setModified(true);
+		emit controlAdded(index);
+	}
+
+	/// Called after a control is removed from \c index
+	void onControlRemoved(int index) {
+		setModified(true);
+		emit controlRemoved(index);
+	}
+
+
+
+protected:
+	QString description_;
+
+};
+
 
 #endif // AMCONTROLSETINFO_H

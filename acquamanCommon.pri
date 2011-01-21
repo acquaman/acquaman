@@ -253,7 +253,8 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
     source/acquaman/SGM/SGMFastScanController.h \
     source/analysis/AM2DSummingAB.h \
     source/analysis/AMStandardAnalysisBlock.h \
-    source/analysis/AM2DSummingABEditor.h
+    source/analysis/AM2DSummingABEditor.h \
+    source/util/AMOrderedList.h
 FORMS += source/ui/AbsorptionScanController.ui \
 	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \

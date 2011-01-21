@@ -224,7 +224,21 @@ class AMDbObject : public QObject
 
 
 public:
+	/// Default Constructor
 	Q_INVOKABLE explicit AMDbObject(QObject *parent = 0);
+	/// Copy constructor.  QObject parent/child relationships are NOT copied, but the essential characteristics (id, database, and modified state) of the AMDbObject are.  Making a copy will create an independent instance in memory. However, if the original has been previously saved to or loaded from the database, both the original and the copy will store/restore to the same location in the database (ie: they refer to the same persistent object).
+	/*! If the original has never been successfully saved or loaded (ie: id() and database() return 0) then the two instances remain fully independent objects (both in memory, and in the database after calling storeToDb() for the first time.)
+
+	  The parent() QObject is not set when using this copy constructor. If you want the copy to share the same parent(), you must call QObject::setParent() afterward.
+	  */
+	AMDbObject(const AMDbObject& original);
+
+	/// Assignment operator. QObject parent/child relationships are NOT copied, but the essential characteristics (id, database, and modified state) of the AMDbObject are.  Making a copy will create an independent instance in memory. However, if the original has been previously saved to or loaded from the database, both the original and the copy will store/restore to the same location in the database (ie: they refer to the same persistent object).
+	/*! If the original has never been successfully saved or loaded (ie: id() and database() return 0) then the two instances remain fully independent objects (both in memory, and in the database after calling storeToDb() for the first time.)
+
+	  The parent() QObject is not set when using this copy constructor. If you want the copy to share the same parent(), you must call QObject::setParent() afterward.
+	  */
+	AMDbObject& operator=(const AMDbObject& other);
 
 	/// Returns an object's unique id
 	int id() const { return id_; }

@@ -35,7 +35,7 @@ public:
 
 	virtual QString type() const;
 	virtual AMControlSet* controlSet();
-	virtual AMControlInfoSet* setpoint();
+	virtual AMControlInfoList* setpoint();
 
 signals:
 	void progress(double, double);
@@ -44,7 +44,7 @@ public slots:
 	virtual void start();
 	virtual void cancel();
 	virtual void setControlSet(AMControlSet *controlSet);
-	virtual bool setSetpoint(AMControlInfoSet *setpoint); // It's copying from this controlSetInfo. So if you change your copy it won't do anything
+	virtual bool setSetpoint(AMControlInfoList *setpoint); // It's copying from this controlSetInfo. So if you change your copy it won't do anything
 	virtual void cleanup(){}
 
 protected slots:
@@ -60,8 +60,8 @@ protected slots:
 
 protected:
 	AMControlSet *controlSet_;
-	AMControlInfoSet *setpoint_;
-	AMControlInfoSet *startPoint_;
+	AMControlInfoList *setpoint_;
+	AMControlInfoList *startPoint_;
 	QTimer progressTimer_;
 
 private:

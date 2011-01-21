@@ -19,8 +19,45 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AMOrderedSetSignalSource.h"
+#include <QCoreApplication>
+#include "acquaman.h"
 
 AMOrderedSetSignalSource::AMOrderedSetSignalSource() :
 	QObject()
 {
+	delayedItemChangedScheduled_ = false;
+}
+
+void AMOrderedSetSignalSource::scheduleItemChanged(int index) {
+	itemsChanged_ << index;
+
+	if(!delayedItemChangedScheduled_) {
+		delayedItemChangedScheduled_ = true;
+		QCoreApplication::postEvent(this, new QEvent((QEvent::Type)AM::ItemChangedEvent), Qt::HighEventPriority);
+	}
+}
+
+
+void AMOrderedSetSignalSource::onDelayedItemChanged() {
+	if(!delayedItemChangedScheduled_)
+		return;
+
+	delayedItemChangedScheduled_ = false;
+
+	QSetIterator<int> itemsChangedIterator(itemsChanged_);
+	while(itemsChangedIterator.hasNext())
+		emit itemChanged(itemsChangedIterator.next());
+
+	itemsChanged_.clear();
+}
+
+
+bool AMOrderedSetSignalSource::event(QEvent *event) {
+	if(event->type() == (QEvent::Type)AM::ItemChangedEvent) {
+		onDelayedItemChanged();
+		event->accept();
+		return true;
+	}
+	else
+		return QObject::event(event);
 }

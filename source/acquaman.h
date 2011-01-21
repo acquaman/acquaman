@@ -42,7 +42,7 @@ namespace AM {
 	// enum AcquamanType { IntList = QVariant::UserType + 20, DoubleList };
 
 	/// Acquaman-specific event types
-	enum EventType { AcqEvent = QEvent::User+20, VideoResizeEvent };
+	enum EventType { AcqEvent = QEvent::User+20, VideoResizeEvent, ItemChangedEvent };
 
 	/// custom QGraphicsItem types (see qgraphicsitem_cast<>() for more information)
 	enum GraphicsItemType { ThumbnailScrollGraphicsWidgetType = 65540 };

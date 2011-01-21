@@ -48,11 +48,38 @@ class AMOrderedSet
 {
 
 public:
+	/// Default constructor.  If you want to prohibit duplicate keys, set \c allowDuplicateKeys to false.
 	explicit AMOrderedSet(bool allowDuplicateKeys = true) {
 		allowsDuplicateKeys_ = allowDuplicateKeys;
 		signalSource_ = new AMOrderedSetSignalSource();
 	}
 
+	/// Copy constructor.
+	AMOrderedSet(const AMOrderedSet& other) {
+		signalSource_ = new AMOrderedSetSignalSource();
+
+		values_ = other.values_;
+		keys_ = other.keys_;
+		hash_ = other.hash_;
+		allowsDuplicateKeys_ = other.allowsDuplicateKeys_;
+	}
+
+	/// Assignment operator.  The itemAboutToBeRemoved() and itemRemoved() signals are emitted for all existing items, and the itemAboutToBeAdded() and itemAdded() signals are emitted for all the new items that we copy in from \c other.
+	AMOrderedSet& operator=(const AMOrderedSet& other) {
+		// check for self assignment
+		if(this != &other) {
+
+			// we use clear() and append() so that added/removed signals are emitted properly.
+			clear();
+
+			for(int i=0; i<other.count(); i++)
+				append(other.at(i), other.keyAt(i));
+		}
+
+		return *this;
+	}
+
+	/// Destructor
 	~AMOrderedSet() { delete signalSource_; }
 
 	// const access functions:
@@ -60,10 +87,14 @@ public:
 
 	/// Number of items in the set:
 	int count() const { return values_.count(); }
+	/// Returns true if the container is empty.
+	bool isEmpty() const { return values_.isEmpty(); }
 	/// Returns a const reference to the item at index \c i.  (\c i must be between [0, count()) )
 	const Tvalue& at(int i) const { return values_.at(i); }
 	/// Returns a const reference to the item at index \c i. (\c i must be between [0, count()) )
 	const Tvalue& operator[](int i) const { return values_.at(i); }
+	/// Returns a const reference to the key at index \c i. (\c i must be between [0, count()). )
+	const Tkey& keyAt(int i) const { return keys_.at(i); }
 
 
 	/// Returns the index of the first item with key \c key, or -1 if the key isn't found. The item can then be returned using at() or operator[].
@@ -88,6 +119,7 @@ public:
 		return hash_.contains(key);
 	}
 
+	/// Access the AMOrderedSetSignalSource which provides signals for this container.
 	const AMOrderedSetSignalSource* signalSource() const { return signalSource_; }
 
 	/// Indicates whether insert() and append() will accept keys that already exist
@@ -95,6 +127,7 @@ public:
 
 	/// Returns a QList containing all the items in the set, in order. This is fast, thanks to implicit sharing.
 	QList<Tvalue> toList() const { return values_; }
+
 	/// Returns a QHash containing all the items in the set, indexed by key. This requires creation of a new hash, and runs in O(n) time.
 	QHash<Tkey, Tvalue> toHash() const {
 		QHash<Tkey, Tvalue> hash;
@@ -107,8 +140,8 @@ public:
 	// non-const access functions
 	//=====================================
 
-	/// Returns a modifiable reference to the item at index \c i.  (\c i must be between [0, count()) )
-	Tvalue& operator[](int i) { return values_[i]; }
+	/// Returns a modifiable reference to the item at index \c i.  (\c i must be between [0, count()) ).  The itemChanged() signal will be emitted after control returns to the event loop (and thus after your modification).
+	Tvalue& operator[](int i) { signalSource_->scheduleItemChanged(i); return values_[i]; }
 
 	// non-const modification functions
 	//=====================================
@@ -207,9 +240,10 @@ public:
 
 	/// Clears the set, emitting aboutToBeRemoved() and removed() signals for each item.  \todo If nothing is connected to the signalSource(), there's a much faster way of doing this.
 	void clear() {
-		while(this->count())
-			this->remove(this->count()-1);
+		while(count())
+			remove(count()-1);
 	}
+
 
 
 protected:

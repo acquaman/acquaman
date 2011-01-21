@@ -37,7 +37,6 @@ Q_OBJECT
 	Q_PROPERTY(QString units READ units WRITE setUnits)
 	Q_PROPERTY(int rank READ rank)
 	Q_PROPERTY(AMnDIndex size READ size)
-#warning "AMDbObject does not yet support output of AMnDIndex"
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Generic Detector")
 

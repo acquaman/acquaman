@@ -407,7 +407,8 @@ void AMSampleListView::addNewSampleToPlate(int id){ //HEY DAVE, OPTIONALLY TAKE 
 		return;
 	AMSample *tmpSample = new AMSample("", this);
 	tmpSample->loadFromDb(AMDatabase::userdb(), id);
-	AMControlInfoSet *tmpPosition = new AMControlInfoSet(manipulator_->info(), this);
+	AMControlInfoList *tmpPosition = new AMControlInfoList(manipulator_->info());
+	tmpPosition->setParent(this);	/// \bug possible memory leak. this will delete when AMSampleListView is deleted... is that enough?
 	tmpPosition->storeToDb(AMDatabase::userdb());
 	samplePlate_->appendSamplePosition(tmpSample, tmpPosition);
 	samplePlate_->storeToDb(AMDatabase::userdb());
@@ -498,7 +499,7 @@ void AMSamplePositionItemView::setManipulator(AMControlSet *manipulator){
 bool AMSamplePositionItemView::onSavePositionClicked(){
 	if(!manipulator_)
 		return false;
-	samplePosition_->position()->copyFrom(manipulator_->info());
+	*(samplePosition_->position()) = *(manipulator_->info());
 	samplePosition_->position()->storeToDb(AMDatabase::userdb());
 	return true;
 }
@@ -601,9 +602,9 @@ void AMSamplePositionItemView::onSamplePositionUpdate(int index){
 
 	QString positionText;
 	for(int x = 0; x < samplePosition_->position()->count(); x++){
-		tmpStr.setNum(samplePosition_->position()->valueAt(x));
+		tmpStr.setNum(samplePosition_->position()->at(x).value());
 		tmpStr.prepend(": ");
-		tmpStr.prepend(samplePosition_->position()->nameAt(x));
+		tmpStr.prepend(samplePosition_->position()->at(x).name());
 		tmpStr.append("\n");
 		positionText.append(tmpStr);
 	}
@@ -614,6 +615,7 @@ void AMSamplePositionItemView::defocusItem(){
 	inFocus_ = false;
 	updateLook();
 }
+
 
 void AMSamplePositionItemView::mousePressEvent(QMouseEvent *event){
 	if (event->button() != Qt::LeftButton) {

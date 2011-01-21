@@ -670,10 +670,10 @@ void AMBeamlineActionAdder::onActionSubTypeBoxUpdate(int curIndex){
 		AMSamplePlate *sp = SGMBeamline::sgm()->currentSamplePlate();
 		onSamplePlateChanged(sp->valid());
 		if( sp->valid() ){
-			xPosLabel_->setText(QString("%1").arg(sp->positionAt(curIndex)->valueAt(0)));
-			yPosLabel_->setText(QString("%1").arg(sp->positionAt(curIndex)->valueAt(1)));
-			zPosLabel_->setText(QString("%1").arg(sp->positionAt(curIndex)->valueAt(2)));
-			rPosLabel_->setText(QString("%1").arg(sp->positionAt(curIndex)->valueAt(3)));
+			xPosLabel_->setText(QString("%1").arg(sp->positionAt(curIndex)->at(0).value()));
+			yPosLabel_->setText(QString("%1").arg(sp->positionAt(curIndex)->at(1).value()));
+			zPosLabel_->setText(QString("%1").arg(sp->positionAt(curIndex)->at(2).value()));
+			rPosLabel_->setText(QString("%1").arg(sp->positionAt(curIndex)->at(3).value()));
 		}
 		else{
 			xPosLabel_->setText("N/A");
