@@ -37,7 +37,7 @@ int AMBeamlineActionsList::count(){
 }
 
 
-AMBeamlineActionItem* AMBeamlineActionsList::action(size_t index) const{
+AMBeamlineActionItem* AMBeamlineActionsList::action(int index) const{
 	QVariant retVal = actions_->data(actions_->index(index, 0), Qt::DisplayRole);
 	if(retVal.isValid())
 		return (AMBeamlineActionItem*) retVal.value<void*>();
@@ -52,7 +52,7 @@ int AMBeamlineActionsList::indexOf(AMBeamlineActionItem *iAction){
 }
 
 //HEY DAVE, CHECK THE ORDERING ON THIS, RETURN STATEMENT SEEMS ODD
-bool AMBeamlineActionsList::setAction(size_t index, AMBeamlineActionItem *action){
+bool AMBeamlineActionsList::setAction(int index, AMBeamlineActionItem *action){
 	AMBeamlineActionItem *oldAction = (AMBeamlineActionItem*)actions_->data( actions_->index(index, 0), Qt::DisplayRole ).value<void*>();
 	AMBeamlineActionItem *prevAction = NULL;
 	AMBeamlineActionItem *nextAction = NULL;
@@ -97,7 +97,7 @@ bool AMBeamlineActionsList::setAction(size_t index, AMBeamlineActionItem *action
 	return actions_->setData(actions_->index(index, 0), qVariantFromValue((void*)action), Qt::EditRole);
 }
 
-bool AMBeamlineActionsList::addAction(size_t index, AMBeamlineActionItem *action){
+bool AMBeamlineActionsList::addAction(int index, AMBeamlineActionItem *action){
 	if(!actions_->insertRows(index, 1))
 		return false;
 	return setAction(index, action);
@@ -107,7 +107,7 @@ bool AMBeamlineActionsList::appendAction(AMBeamlineActionItem *action){
 	return addAction(count(), action);
 }
 
-bool AMBeamlineActionsList::deleteAction(size_t index){
+bool AMBeamlineActionsList::deleteAction(int index){
 	if(count() == 0)
 		return false;
 	AMBeamlineActionItem *oldAction = (AMBeamlineActionItem*)actions_->data( actions_->index(index, 0), Qt::DisplayRole ).value<void*>();

@@ -193,9 +193,9 @@ public:
 	const AMControlOptimization* optimizationAt(int index) const { return outputs_.at(index) ;}
 	int optimizationCount() const { return outputs_.count() ;}
 
-	QMap<double, double> curveAt(size_t index, QList<QVariant> stateParameters, AMRegionsList* contextParameters);
-	QMap<QString, QMap<double, double> > collapseAt(size_t index, AMRegionsList* contextParameters);
-	QMap<QString, AMCurve*> cCollapseAt(size_t index, AMRegionsList* contextParameters);
+	QMap<double, double> curveAt(int index, QList<QVariant> stateParameters, AMRegionsList* contextParameters);
+	QMap<QString, QMap<double, double> > collapseAt(int index, AMRegionsList* contextParameters);
+	QMap<QString, AMCurve*> cCollapseAt(int index, AMRegionsList* contextParameters);
 
 	QMap<QString, QMap<double, double> > plotAgainst(AMRegionsList* contextParameters);
 	QMap<QString, AMCurve*> cPlotAgainst(AMRegionsList* contextParameters);

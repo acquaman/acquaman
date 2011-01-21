@@ -27,16 +27,9 @@ SGMXASScanConfiguration::SGMXASScanConfiguration(QObject *parent) : AMXASScanCon
 	trackingSet_ = SGMBeamline::sgm()->trackingSet();
 	feedbackDetectors_ = SGMBeamline::sgm()->feedbackDetectors();
 	XASDetectors_ = SGMBeamline::sgm()->XASDetectors();
-	QPair<QString, QString> tmpCh;
-	tmpCh.first = "eV";
-	tmpCh.second = "eV";
-	defaultChannels_.append(tmpCh);
-	tmpCh.first = "NormTEY";
-	tmpCh.second = "2000*tey/I0";
-	defaultChannels_.append(tmpCh);
-	tmpCh.first = "NormTFY";
-	tmpCh.second = "-2000*tfy/I0";
-	defaultChannels_.append(tmpCh);
+
+	// default channels removed. Need to come up with new replacement system to create default analysis blocks instead.
+
 	emit exitSlitGapChanged(exitSlitGap_);
 	emit gratingChanged(grating_);
 	emit undulatorTrackingChanged(undulatorTracking_);

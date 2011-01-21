@@ -396,13 +396,13 @@ AMControlOptimizationSet::~AMControlOptimizationSet(){
 	outputs_.clear();
 }
 
-QMap<double, double> AMControlOptimizationSet::curveAt(size_t index, QList<QVariant> stateParameters, AMRegionsList* contextParameters){
+QMap<double, double> AMControlOptimizationSet::curveAt(int index, QList<QVariant> stateParameters, AMRegionsList* contextParameters){
 	return outputs_.at(index)->curve(stateParameters, contextParameters);
 }
-QMap<QString, QMap<double, double> > AMControlOptimizationSet::collapseAt(size_t index, AMRegionsList* contextParameters){
+QMap<QString, QMap<double, double> > AMControlOptimizationSet::collapseAt(int index, AMRegionsList* contextParameters){
 	return outputs_.at(index)->collapse(contextParameters);
 }
-QMap<QString, AMCurve*> AMControlOptimizationSet::cCollapseAt(size_t index, AMRegionsList* contextParameters){
+QMap<QString, AMCurve*> AMControlOptimizationSet::cCollapseAt(int index, AMRegionsList* contextParameters){
 	QMap<QString, AMCurve*> rVal;
 	AMCurve *tmpCurve;
 	QMap<QString, QMap<double, double> > cMaps = collapseAt(index, contextParameters);

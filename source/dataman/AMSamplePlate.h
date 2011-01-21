@@ -58,13 +58,13 @@ public:
 	QString timeString() const;
 	int count();
 
-	AMSamplePosition* samplePositionAt(size_t index);
+	AMSamplePosition* samplePositionAt(int index);
 	AMSamplePosition* samplePositionByName(const QString &name);
 
-	AMSample* sampleAt(size_t index);
+	AMSample* sampleAt(int index);
 	AMSample* sampleByName(const QString &name);
 
-	AMControlInfoList* positionAt(size_t index);
+	AMControlInfoList* positionAt(int index);
 	AMControlInfoList* positionByName(const QString &name);
 
 	int indexOf(const QString &name);
@@ -97,15 +97,15 @@ signals:
 
 public slots:
 
-	bool setSamplePosition(size_t index, AMSamplePosition *sp);
+	bool setSamplePosition(int index, AMSamplePosition *sp);
 
-	bool addSamplePosition(size_t index, AMSamplePosition *sp);
-	bool addSamplePosition(size_t index, AMSample *sample, AMControlInfoList *position);
+	bool addSamplePosition(int index, AMSamplePosition *sp);
+	bool addSamplePosition(int index, AMSample *sample, AMControlInfoList *position);
 	bool appendSamplePosition(AMSamplePosition *sp);
 	bool appendSamplePosition(AMSample *sample, AMControlInfoList *position);
 
 	bool removeSamplePosition(AMSamplePosition *sp);
-	bool removeSamplePosition(size_t index);
+	bool removeSamplePosition(int index);
 
 protected slots:
 	void onDataChanged(QModelIndex a, QModelIndex b);

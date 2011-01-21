@@ -28,28 +28,28 @@ AMRegionsList::AMRegionsList(QObject *parent, bool setup) : QObject(parent){
 }
 
 /// Returns the start value of the region refered to by index. If an invalid index is given, returns -1 (not a valid energy value).
-double AMRegionsList::start(size_t index) const{
+double AMRegionsList::start(int index) const{
 	QVariant retVal = regions_->data(regions_->index(index, 1), Qt::DisplayRole);
 	if(retVal.isValid())
 		return retVal.toDouble();
 	return -1;
 }
 /// Returns the delta value of the region refered to by index. If an invalid index is given, returns 0 (not a valid delta value).
-double AMRegionsList::delta(size_t index) const{
+double AMRegionsList::delta(int index) const{
 	QVariant retVal = regions_->data(regions_->index(index, 2), Qt::DisplayRole);
 	if(retVal.isValid())
 		return retVal.toDouble();
 	return 0;
 }
 /// Returns the end value of the region refered to by index. If an invalid index is given, returns -1 (not a valid energy value).
-double AMRegionsList::end(size_t index) const{
+double AMRegionsList::end(int index) const{
 	QVariant retVal = regions_->data(regions_->index(index, 3), Qt::DisplayRole);
 	if(retVal.isValid())
 		return retVal.toDouble();
 	return -1;
 }
 
-bool AMRegionsList::addRegion(size_t index, double start, double delta, double end){
+bool AMRegionsList::addRegion(int index, double start, double delta, double end){
 	if(!defaultControl_)
 		return false;
 	bool retVal;
@@ -64,7 +64,7 @@ bool AMRegionsList::addRegion(size_t index, double start, double delta, double e
 			connect(regions_->regions()->at(index+1), SIGNAL(startChanged(double)), regions_->regions()->at(index), SLOT(adjustEnd(double)));
 			regions_->regions()->at(index+1)->setStart(end);
 		}
-		else if( (index == unsigned(count()-1)) && (count() != 1) ){
+		else if( (index == count()-1) && (count() != 1) ){
 			regions_->setData(regions_->index(index, 4), true, Qt::EditRole);
 			regions_->setData(regions_->index(index-1, 5), true, Qt::EditRole);
 			connect(regions_->regions()->at(index), SIGNAL(startChanged(double)), regions_->regions()->at(index-1), SLOT(adjustEnd(double)));
@@ -95,7 +95,7 @@ bool AMRegionsList::addRegion(size_t index, double start, double delta, double e
 	return retVal;
 }
 
-bool AMRegionsList::addRegionSqueeze(size_t index){
+bool AMRegionsList::addRegionSqueeze(int index){
 	double nextStart, nextEnd, prevStart, prevEnd;
 	double sensibleStart = 200;
 	double sensibleEnd = 2000;
@@ -106,7 +106,7 @@ bool AMRegionsList::addRegionSqueeze(size_t index){
 		nextStart = start(index);
 		return addRegion(index, sensibleStart, 1, nextStart);
 	}
-	else if(index == (unsigned)count()){
+	else if(index == count()){
 		prevEnd = end(index-1);
 		return addRegion(index, prevEnd, 1, sensibleEnd);
 	}
@@ -119,7 +119,7 @@ bool AMRegionsList::addRegionSqueeze(size_t index){
 	}
 }
 
-bool AMRegionsList::deleteRegion(size_t index){
+bool AMRegionsList::deleteRegion(int index){
 	if(count() == 0)
 		return false;
 	else if( (index == 0) && (count() != 1) ){
@@ -128,7 +128,7 @@ bool AMRegionsList::deleteRegion(size_t index){
 		disconnect(regions_->regions()->at(index+1), SIGNAL(startChanged(double)), regions_->regions()->at(index), SLOT(adjustEnd(double)));
 //		regions_->regions()->at(index+1)->setStart(end);
 	}
-	else if( (index == unsigned(count()-1)) && (count() != 1) ){
+	else if( (index == (count()-1)) && (count() != 1) ){
 		regions_->setData(regions_->index(index-1, 5), false, Qt::EditRole);
 		disconnect(regions_->regions()->at(index), SIGNAL(startChanged(double)), regions_->regions()->at(index-1), SLOT(adjustEnd(double)));
 		disconnect(regions_->regions()->at(index-1), SIGNAL(endChanged(double)), regions_->regions()->at(index), SLOT(adjustStart(double)));
@@ -151,10 +151,10 @@ bool AMRegionsList::deleteRegion(size_t index){
 	return regions_->removeRows(index, 1);
 }
 
-bool AMRegionsList::deleteRegionSqueeze(size_t index){
+bool AMRegionsList::deleteRegionSqueeze(int index){
 	bool retVal = deleteRegion(index);
 	if(retVal){
-		if( (index != 0) && (index != (unsigned)count()) ){
+		if( (index != 0) && (index != count()) ){
 			double prevEnd, nextStart;
 			prevEnd = end(index-1);
 			nextStart = start(index);

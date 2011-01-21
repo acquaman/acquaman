@@ -40,14 +40,14 @@ public:
 
 	AMBeamlineActionListModel* model();//{ return actions_;}
 	int count();//{return actions_->rowCount(QModelIndex());}
-	AMBeamlineActionItem* action(size_t index) const;
+	AMBeamlineActionItem* action(int index) const;
 	int indexOf(AMBeamlineActionItem *iAction);
 
 public slots:
-	bool setAction(size_t index, AMBeamlineActionItem *action);
-	virtual bool addAction(size_t index, AMBeamlineActionItem *action);
+	bool setAction(int index, AMBeamlineActionItem *action);
+	virtual bool addAction(int index, AMBeamlineActionItem *action);
 	virtual bool appendAction(AMBeamlineActionItem *action);
-	bool deleteAction(size_t index);
+	bool deleteAction(int index);
 
 signals:
 	void actionChanged(int index);

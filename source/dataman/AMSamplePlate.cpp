@@ -51,7 +51,7 @@ int AMSamplePlate::count(){
 	return samples_->rowCount(QModelIndex());
 }
 
-AMSamplePosition* AMSamplePlate::samplePositionAt(size_t index){
+AMSamplePosition* AMSamplePlate::samplePositionAt(int index){
 	QVariant retVal = samples_->data(samples_->index(index, 0), Qt::DisplayRole);
 	if(retVal.isValid())
 		return (AMSamplePosition*) retVal.value<void*>();
@@ -64,7 +64,7 @@ AMSamplePosition* AMSamplePlate::samplePositionByName(const QString &name){
 	return NULL;
 }
 
-AMSample* AMSamplePlate::sampleAt(size_t index){
+AMSample* AMSamplePlate::sampleAt(int index){
 	AMSamplePosition *sp = samplePositionAt(index);
 	if(sp)
 		return sp->sample();
@@ -77,7 +77,7 @@ AMSample* AMSamplePlate::sampleByName(const QString &name){
 	return NULL;
 }
 
-AMControlInfoList* AMSamplePlate::positionAt(size_t index){
+AMControlInfoList* AMSamplePlate::positionAt(int index){
 	AMSamplePosition *sp = samplePositionAt(index);
 	if(sp)
 		return sp->position();
@@ -165,7 +165,7 @@ bool AMSamplePlate::storeToDb(AMDatabase* db){
 
 
 
-bool AMSamplePlate::setSamplePosition(size_t index, AMSamplePosition *sp){
+bool AMSamplePlate::setSamplePosition(int index, AMSamplePosition *sp){
 	AMSamplePosition *tmpSP = samplePositionAt(index);
 	bool retVal = samples_->setData(samples_->index(index, 0), qVariantFromValue((void*)sp), Qt::EditRole);
 	if(retVal){
@@ -175,7 +175,7 @@ bool AMSamplePlate::setSamplePosition(size_t index, AMSamplePosition *sp){
 	return retVal;
 }
 
-bool AMSamplePlate::addSamplePosition(size_t index, AMSamplePosition *sp){
+bool AMSamplePlate::addSamplePosition(int index, AMSamplePosition *sp){
 	if(!sp || !sp->sample() || !sp->position())
 		return false;
 	else if(sampleName2samplePosition_.containsR(sp))
@@ -185,7 +185,7 @@ bool AMSamplePlate::addSamplePosition(size_t index, AMSamplePosition *sp){
 	return setSamplePosition(index, sp);
 }
 
-bool AMSamplePlate::addSamplePosition(size_t index, AMSample *sample, AMControlInfoList *position){
+bool AMSamplePlate::addSamplePosition(int index, AMSample *sample, AMControlInfoList *position){
 	if(!sample || !position)
 		return false;
 	AMSamplePosition *tmpSP = new AMSamplePosition(sample, position, this);
@@ -204,7 +204,7 @@ bool AMSamplePlate::removeSamplePosition(AMSamplePosition *sp){
 	return removeSamplePosition( indexOf(sp->sample()->name()) );
 }
 
-bool AMSamplePlate::removeSamplePosition(size_t index){
+bool AMSamplePlate::removeSamplePosition(int index){
 	if( (int)index >= count())
 		return false;
 	AMSamplePosition *rSP = samplePositionAt(index);
