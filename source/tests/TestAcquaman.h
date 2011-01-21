@@ -264,7 +264,7 @@ private slots:
 	{
 		SGMXASScanConfiguration *sxsc = new SGMXASScanConfiguration(this);
 		// List of regions should be created but empty
-		QCOMPARE(sxsc->count(), 0);
+		QCOMPARE(sxsc->regionCount(), 0);
 		// SGM components should be initialized and be the same as the current beamline values
 		QCOMPARE(sxsc->exitSlitGap(), SGMBeamline::sgm()->exitSlitGap()->value());
 		QCOMPARE(sxsc->grating(), (SGMBeamline::sgmGrating)SGMBeamline::sgm()->grating()->value());
@@ -297,7 +297,7 @@ private slots:
 	{
 		SGMXASScanConfiguration *sxsc = new SGMXASScanConfiguration(this);
 		// List of regions should be created but empty
-		QCOMPARE(sxsc->count(), 0);
+		QCOMPARE(sxsc->regionCount(), 0);
 		// SGM components should be initialized and be the same as the current beamline values
 		QCOMPARE(sxsc->exitSlitGap(), SGMBeamline::sgm()->exitSlitGap()->value());
 		QCOMPARE(sxsc->grating(), (SGMBeamline::sgmGrating)SGMBeamline::sgm()->grating()->value());

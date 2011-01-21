@@ -69,13 +69,13 @@ void SGMXASDacqScanController::start(){
 		else{
 			advAcq_->appendRecord(SGMBeamline::sgm()->pvName(dtctr->name()), true, false, 0);
 		}
-		for(int x = 0; x < pCfg_()->count(); x++){
+		for(int x = 0; x < pCfg_()->regionCount(); x++){
 			if(advAcq_->getNumRegions() == x)
-				advAcq_->addRegion(x, pCfg_()->start(x), pCfg_()->delta(x), pCfg_()->end(x), 1);
+				advAcq_->addRegion(x, pCfg_()->regionStart(x), pCfg_()->regionDelta(x), pCfg_()->regionEnd(x), 1);
 			else{
-				advAcq_->setStart(x, pCfg_()->start(x));
-				advAcq_->setDelta(x, pCfg_()->delta(x));
-				advAcq_->setEnd(x, pCfg_()->end(x));
+				advAcq_->setStart(x, pCfg_()->regionStart(x));
+				advAcq_->setDelta(x, pCfg_()->regionDelta(x));
+				advAcq_->setEnd(x, pCfg_()->regionEnd(x));
 			}
 		}
 	}

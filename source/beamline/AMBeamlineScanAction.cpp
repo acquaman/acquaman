@@ -261,9 +261,9 @@ void AMBeamlineScanActionView::updateScanNameLabel(){
 	}
 	if(qobject_cast<SGMXASScanConfiguration*>(scanAction_->cfg())){
 		scanName += "SGM XAS Scan from ";
-		tmpStr.setNum( ((SGMXASScanConfiguration*)scanAction_->cfg())->start(0) );
+		tmpStr.setNum( ((SGMXASScanConfiguration*)scanAction_->cfg())->regionStart(0) );
 		scanName.append(tmpStr+" to ");
-		tmpStr.setNum( ((SGMXASScanConfiguration*)scanAction_->cfg())->end(((SGMXASScanConfiguration*)scanAction_->cfg())->count()-1) );
+		tmpStr.setNum( ((SGMXASScanConfiguration*)scanAction_->cfg())->regionEnd(((SGMXASScanConfiguration*)scanAction_->cfg())->regionCount()-1) );
 		scanName.append(tmpStr);
 		scanNameLabel_->setText(scanName);
 	}

@@ -39,26 +39,26 @@ public:
 	/// Constructor, needs only a pointer to a QObject to act as a parent.
 	AMXASScanConfiguration(QObject *parent = 0);
 	/// Returns the start value of the region refered to by index. If an invalid index is given, returns -1 (not a valid energy value).
-	double start(size_t index) const { return regions_->start(index);}
+	double regionStart(int index) const { return regions_->start(index);}
 	/// Returns the delta value of the region refered to by index. If an invalid index is given, returns 0 (not a valid delta value).
-	double delta(size_t index) const { return regions_->delta(index);}
+	double regionDelta(int index) const { return regions_->delta(index);}
 	/// Returns the end value of the region refered to by index. If an invalid index is given, returns -1 (not a valid energy value).
-	double end(size_t index) const { return regions_->end(index);}
-	int count() const { return regions_->count();}
+	double regionEnd(int index) const { return regions_->end(index);}
+	int regionCount() const { return regions_->count();}
 	AMXASRegionsList* regions() { return regions_;}
 
 public slots:
 	/// Sets the start value of the region refered to by index. Returns true if sucessful, returns false if the index is invalid or the energy is out of range.
-	bool setStart(size_t index, double start) { return regions_->setStart(index, start);}
+	bool setRegionStart(int index, double start) { return regions_->setStart(index, start);}
 	/// Sets the delta value of the region refered to by index. Returns true if sucessful, return false if the index is invalid or the delta is 0.
-	bool setDelta(size_t index, double delta) { return regions_->setDelta(index, delta);}
+	bool setRegionDelta(int index, double delta) { return regions_->setDelta(index, delta);}
 	/// Sets the end value of the region refered to by index. Returns true if succesful, returns false if the index is invalid or the energy is out of range.
-	bool setEnd(size_t index, double end) { return regions_->setEnd(index, end);}
+	bool setRegionEnd(int index, double end) { return regions_->setEnd(index, end);}
 	/// Pure virtual function. Should be implemented in beamline specific subclasses as a convenience function for above.
 	/// Creates a new region using start, delta, and end values then calls addRegion(index, *region).
-	virtual bool addRegion(size_t index, double start, double delta, double end) = 0;
+	virtual bool addRegion(int index, double start, double delta, double end) = 0;
 	/// Deletes the region refered to by index and renumbers subsequent regions accordingly. Returns true if successful, return false if index is invalid.
-	bool deleteRegion(size_t index) { return regions_->deleteRegion(index);}
+	bool deleteRegion(int index) { return regions_->deleteRegion(index);}
 
 signals:
 	void regionsChanged();
