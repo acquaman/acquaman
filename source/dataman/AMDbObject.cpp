@@ -1,8 +1,29 @@
+/*
+Copyright 2010, 2011 Mark Boots, David Chevrier.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "AMDbObject.h"
 #include "dataman/AMDbObjectSupport.h"
 #include "acquaman.h"
 
 #include <QMetaType>
+#include "dataman/AMnDIndex.h"
 
 /// Default constructor
 AMDbThumbnail::AMDbThumbnail(const QString& Title, const QString& Subtitle, ThumbnailType Type, const QByteArray& ThumbnailData)
@@ -53,6 +74,24 @@ AMDbObject::AMDbObject(QObject *parent) : QObject(parent) {
 
 	name_ = "Unnamed Object";
 
+}
+
+AMDbObject::AMDbObject(const AMDbObject &original) : QObject() {
+	id_ = original.id_;
+	database_ = original.database_;
+	modified_ = original.modified_;
+	name_ = original.name_;
+}
+
+AMDbObject& AMDbObject::operator=(const AMDbObject& other) {
+	if(this != &other) {
+		id_ = other.id_;
+		database_ = other.database_;
+		name_ = other.name_;
+		setModified(other.modified_);
+	}
+
+	return *this;
 }
 
 #include <QMetaClassInfo>
@@ -147,7 +186,15 @@ bool AMDbObject::storeToDb(AMDatabase* db) {
 
 		// add value to values list. First, some special processing is needed for StringList, IntList, and DoubleList types, to join their values into a single string. Other property types simply get written out in their native QVariant form. EXCEPTION: AMDbObjectList doesn't get written here; it gets its own table later.
 
-		if(columnType == qMetaTypeId<AMIntList>()) {
+		if(columnType == qMetaTypeId<AMnDIndex>()) {
+			AMnDIndex output = property(columnName).value<AMnDIndex>();
+			QStringList resultString;
+			for(int i=0; i<output.size(); i++)
+				resultString << QString("%1").arg(output[i]);
+			values << resultString.join(AMDbObjectSupport::listSeparator());
+
+		}
+		else if(columnType == qMetaTypeId<AMIntList>()) {
 			AMIntList intList = property(columnName).value<AMIntList>();
 			QStringList resultString;
 			foreach(int i, intList)
@@ -420,6 +467,13 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 				else
 					setProperty(columnName, QVariant::fromValue((AMDbObject*)0));	// if it wasn't reloaded successfully, you'll still get a setProperty call, but it will be with a null pointer.
 
+			}
+			else if(columnType == qMetaTypeId<AMnDIndex>()) {
+				AMnDIndex ndIndex;
+				QStringList stringList = values.at(ri).toString().split(AMDbObjectSupport::listSeparator());
+				foreach(QString i, stringList)
+					ndIndex.append(i.toInt());
+				setProperty(columnName, QVariant::fromValue(ndIndex));
 			}
 			else if(columnType == qMetaTypeId<AMIntList>()) {	// integer lists: must convert back from separated string.
 				AMIntList intList;

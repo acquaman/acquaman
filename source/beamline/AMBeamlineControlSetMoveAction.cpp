@@ -1,3 +1,23 @@
+/*
+Copyright 2010, 2011 Mark Boots, David Chevrier.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "AMBeamlineControlSetMoveAction.h"
 
 AMBeamlineControlSetMoveAction::AMBeamlineControlSetMoveAction(AMControlSet *controlSet, QObject *parent) :
@@ -8,7 +28,8 @@ AMBeamlineControlSetMoveAction::AMBeamlineControlSetMoveAction(AMControlSet *con
 	type_ = "controlSetMoveAction";
 	if(controlSet){
 		setControlSet(controlSet);
-		setpoint_ = new AMControlSetInfo(controlSet_->info(), this);
+		setpoint_ = new AMControlInfoList(*controlSet_->info());
+		setpoint_->setParent(this);
 	}
 	else
 		setpoint_ = NULL;
@@ -22,7 +43,7 @@ AMControlSet* AMBeamlineControlSetMoveAction::controlSet(){
 	return controlSet_;
 }
 
-AMControlSetInfo* AMBeamlineControlSetMoveAction::setpoint(){
+AMControlInfoList* AMBeamlineControlSetMoveAction::setpoint(){
 	return setpoint_;
 }
 
@@ -34,7 +55,8 @@ void AMBeamlineControlSetMoveAction::start(){
 			connect(controlSet_->controlAt(x), SIGNAL(moveFailed(int)), this, SLOT(onFailed(int)));
 			connect(controlSet_->controlAt(x), SIGNAL(moveStarted()), this, SLOT(onStarted()));
 		}
-		startPoint_ = new AMControlSetInfo(controlSet_->info(), this);
+		startPoint_ = new AMControlInfoList(*controlSet_->info());
+		startPoint_->setParent(this);
 		connect(&progressTimer_, SIGNAL(timeout()), this, SLOT(calculateProgress()) );
 		progressTimer_.start(500);
 		controlSet_->setFromInfo(setpoint_);
@@ -68,30 +90,31 @@ void AMBeamlineControlSetMoveAction::setControlSet(AMControlSet *controlSet){
 	}
 	else if(controlSet_ && setpoint_){
 		for(int x = 0; x < controlSet_->count(); x++){
-			if(controlSet_->controlAt(x)->name() != setpoint_->nameAt(x)){
+			if(controlSet_->controlAt(x)->name() != setpoint_->at(x).name()){
 				delete setpoint_;
 				setpoint_ = NULL;
 				break;
 			}
-			else if(controlSet_->controlAt(x)->valueOutOfRange(setpoint_->valueAt(x)))
-				setpoint_->setValueAt(x, controlSet_->controlAt(x)->value());
+			else if(controlSet_->controlAt(x)->valueOutOfRange(setpoint_->at(x).value()))
+				(*setpoint_)[x].setValue(controlSet_->controlAt(x)->value());
 		}
 	}
 	checkReady();
 }
 
-bool AMBeamlineControlSetMoveAction::setSetpoint(AMControlSetInfo *setpoint){
+bool AMBeamlineControlSetMoveAction::setSetpoint(AMControlInfoList *setpoint){
 	if(!controlSet_)
 		return false;
 	for(int x = 0; x < controlSet_->count(); x++){
-		if(controlSet_->controlAt(x)->name() != setpoint_->nameAt(x))
+		if(controlSet_->controlAt(x)->name() != setpoint_->at(x).name())
 			return false;
-		else if(controlSet_->controlAt(x)->valueOutOfRange(setpoint_->valueAt(x)))
+		else if(controlSet_->controlAt(x)->valueOutOfRange(setpoint_->at(x).value()))
 			return false;
 	}
 	if(setpoint_)
 		delete setpoint_;
-	setpoint_ = new AMControlSetInfo(setpoint, this);
+	setpoint_ = new AMControlInfoList(*setpoint);
+	setpoint_->setParent(this);
 	return true;
 }
 
@@ -160,10 +183,10 @@ void AMBeamlineControlSetMoveAction::calculateProgress(){
 	double csCount = (double)controlSet_->count();
 	qDebug() << "Count is " << csCount;
 	for(int x = 0; x < controlSet_->count(); x++){
-		if( fabs(setpoint_->valueAt(x) - startPoint_->valueAt(x)) < 0.0001 )
+		if( fabs(setpoint_->at(x).value() - startPoint_->at(x).value()) < 0.0001 )
 			iPercent = 100;
 		else
-			iPercent = (fabs(controlSet_->controlAt(x)->value()-startPoint_->valueAt(x))/fabs(setpoint_->valueAt(x) - startPoint_->valueAt(x))*100);
+			iPercent = (fabs(controlSet_->controlAt(x)->value()-startPoint_->at(x).value())/fabs(setpoint_->at(x).value() - startPoint_->at(x).value())*100);
 		avgPercent += iPercent/csCount;
 		qDebug() << "i " << iPercent << " avg " << avgPercent;
 //		avgPercent += (fabs(controlSet_->controlAt(x)->value()-startPoint_->valueAt(x))/fabs(setpoint_->valueAt(x) - startPoint_->valueAt(x))*100)/csCount;

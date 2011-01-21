@@ -1,3 +1,23 @@
+/*
+Copyright 2010, 2011 Mark Boots, David Chevrier.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 
 #include <QtTest/QtTest>
 #include "dataman/AMDatabase.h"
@@ -71,14 +91,71 @@ private slots:
 
 	}
 
+	void testAMControlInfoList() {
+
+		AMControlInfo* ci = new AMControlInfo("bob", 5, 1, 10, "pF");
+		QVERIFY(ci->storeToDb(AMDatabase::userdb()));
+
+		AMControlInfoList* l = new AMControlInfoList();
+
+		l->append(AMControlInfo("mark",3,1,4,"feet"));
+		l->append(AMControlInfo("david", 5,4,6,"inches"));
+		l->append(AMControlInfo("darren", 30,20,40,"cm"));
+
+		QVERIFY(l->storeToDb(AMDatabase::userdb()));
+		QVERIFY(l->modified() == false);
+
+
+		AMControlInfoList* l2 = new AMControlInfoList();
+		QVERIFY(l2->loadFromDb(AMDatabase::userdb(), l->id()));
+
+		// test store and reload from db
+		QVERIFY(l2->at(0).name() == "mark");
+		QCOMPARE(l2->at(1).value(), double(5));
+		QCOMPARE(l2->at(2).minimum(), double(20));
+
+		(*l2)[0].setName("steve");
+		(*l2)[1].setName("mary");
+		(*l2)[2].setName("james");
+
+		// test assignment operator
+		*l = *l2;
+
+		QVERIFY(l->at(0).name() == "steve");
+		QVERIFY(l->at(1).name() == "mary");
+		QVERIFY(l->at(2).name() == "james");
+
+		// modified detection for l should be detected already (when the assignment is made)
+		QVERIFY(l->modified() == true);
+
+		// modified for l2 won't kick in until flow goes back to event loop...
+		QVERIFY(l2->modified() == false);
+		qApp->processEvents();
+		QVERIFY(l2->modified() == true);
+
+
+
+		delete l;
+		delete l2;
+	}
+
 	void testInMemoryDataStore() {
 
 		AMInMemoryDataStore* s = new AMInMemoryDataStore();
 
 		s->addMeasurement(AMMeasurementInfo("meas0", "Measurement 0"));
 
+		// beginning: no axes. Scalar scan space. Should be able to access measurements at scan point index AMnDIndex().
+		QVERIFY(s->setValue(AMnDIndex(), 0, AMnDIndex(), AMNumber(3)));
+		QVERIFY(s->value(AMnDIndex(), 0, AMnDIndex()) == AMNumber(3));
+
+
 		// starting with a single axis
-		s->addScanAxis(AMAxisInfo("x", 0, "x axis"));
+		QVERIFY(s->addScanAxis(AMAxisInfo("x", 0, "x axis")));
+
+		// Scalar scan space should not work anymore
+		QVERIFY(s->setValue(AMnDIndex(), 0, AMnDIndex(), AMNumber(4)) == false);
+		QVERIFY(s->value(AMnDIndex(), 0, AMnDIndex()) == AMNumber(AMNumber::DimensionError));
 
 		QVERIFY(s->isEmpty());
 		QVERIFY(s->scanAxesCount() == 1);
@@ -283,248 +360,8 @@ private slots:
 		/// \todo Test multi-dimensional measurements.  Remove all optimizations for rank() < 5 and re-run tests to check the general handling. Do memory leak test (How?)
 	}
 
-	// Using David's testof AMDataTreeDataStore to test AMInMemoryDataStore.
-	/*
-	void testInMemoryDataStoreWithAMDataTreeDataStoreTest() {
 
-		// qDebug() << "\n\n\n DAVID STARTS HERE \n\nTesting data tree data store\n\n\n";
-
-
-		AMMeasurementInfo teyInfo("tey", "Total Electron Yield", "amps");
-		AMMeasurementInfo tfyInfo("tfy", "Total Fluoresence Yield", "amps");
-		AMMeasurementInfo i0Info("I0", "I0", "amps");
-
-		AMAxisInfo sddEVAxisInfo("energy", 1024, "SDD Energy", "eV");
-		QList<AMAxisInfo> sddAxes;
-		sddAxes << sddEVAxisInfo;
-		AMMeasurementInfo sddInfo("sdd", "Silicon Drift Detector", "counts", sddAxes);
-
-		AMAxisInfo xosWavelengthAxisInfo("wavelength", 512, "XOS Wavelength", "nm");
-		QList<AMAxisInfo> xosAxes;
-		xosAxes << xosWavelengthAxisInfo;
-		AMMeasurementInfo xosInfo("xos", "XEOL Optical Spectrometer", "counts", xosAxes);
-
-		AMAxisInfo xessXAxisInfo("x", 1280, "x pixel", "index");
-		AMAxisInfo xessYAxisInfo("y", 1024, "y pixel", "index");
-		QList<AMAxisInfo> xessAxes;
-		xessAxes << xessXAxisInfo << xessYAxisInfo;
-		AMMeasurementInfo xessInfo("xess", "XES Spectrometer", "counts", xessAxes);
-
-		AMAxisInfo uglyRAxisInfo("r", 100, "Radial Distance", "percent");
-		AMAxisInfo uglyPhiAxisInfo("phi", 180, "Phi Angle", "degrees");
-		AMAxisInfo uglyThetaAxisInfo("theta", 360, "Theta Distance", "degrees");
-		QList<AMAxisInfo> uglyAxes;
-		uglyAxes << uglyRAxisInfo << uglyPhiAxisInfo << uglyThetaAxisInfo;
-		AMMeasurementInfo uglyInfo("ugly", "Some Ugly Detector", "events", uglyAxes);
-
-		AMAxisInfo scanAxis("energy", 1000, "Beamline Energy", "eV");
-
-		AMInMemoryDataStore dtds;
-		dtds.addScanAxis(scanAxis);
-
-		QVERIFY(dtds.addMeasurement(teyInfo));
-		QVERIFY(dtds.addMeasurement(tfyInfo));
-		QCOMPARE(dtds.measurementCount(), 2);
-		QVERIFY(dtds.addMeasurement(i0Info));
-		QVERIFY(dtds.addMeasurement(sddInfo));
-		QVERIFY(dtds.addMeasurement(xosInfo));
-		QCOMPARE(dtds.measurementCount(), 5);
-		QVERIFY(dtds.addMeasurement(xessInfo));
-		QVERIFY(dtds.addMeasurement(uglyInfo));
-		QCOMPARE(dtds.measurementCount(), 7);
-
-		AMMeasurementInfo sameAsTeyInfo("tey", "something else", "counts");
-		QVERIFY(!dtds.addMeasurement(teyInfo));
-		QVERIFY(!dtds.addMeasurement(sameAsTeyInfo));
-		QCOMPARE(dtds.measurementCount(), 7);
-
-		QCOMPARE(dtds.idOfMeasurement("tey"), 0);
-		QCOMPARE(dtds.idOfMeasurement("ugly"), 6);
-		QCOMPARE(dtds.idOfMeasurement("sdd"), 3);
-		QCOMPARE(dtds.idOfMeasurement("not in here"), -1);
-
-		QCOMPARE(dtds.measurementAt(1).name, tfyInfo.name);
-		QCOMPARE(dtds.measurementAt(1).description, tfyInfo.description);
-		QCOMPARE(dtds.measurementAt(1).units, tfyInfo.units);
-
-		QCOMPARE(dtds.measurementAt(5).name, xessInfo.name);
-		QCOMPARE(dtds.measurementAt(5).description, xessInfo.description);
-		QCOMPARE(dtds.measurementAt(5).units, xessInfo.units);
-		QCOMPARE(dtds.measurementAt(5).axes.at(0).name, xessInfo.axes.at(0).name);
-		QCOMPARE(dtds.measurementAt(5).axes.at(0).description, xessInfo.axes.at(0).description);
-		QCOMPARE(dtds.measurementAt(5).axes.at(0).size, xessInfo.axes.at(0).size);
-		QCOMPARE(dtds.measurementAt(5).axes.at(1).name, xessInfo.axes.at(1).name);
-		QCOMPARE(dtds.measurementAt(5).axes.at(1).description, xessInfo.axes.at(1).description);
-		QCOMPARE(dtds.measurementAt(5).axes.at(1).size, xessInfo.axes.at(1).size);
-
-
-		AMnDIndex curSize = dtds.scanSize();
-		qDebug() << "[1] nDIndex for axes: " << curSize.i();
-
-		AMAxisInfo scanAxis2("temperature", 10, "Sample Temperature", "K");
-		QVERIFY(dtds.addScanAxis(scanAxis2));
-
-		QCOMPARE(dtds.idOfScanAxis("energy"), 0);
-		QCOMPARE(dtds.idOfScanAxis(scanAxis.name), 0);
-		QCOMPARE(dtds.idOfScanAxis("temperature"), 1);
-		QCOMPARE(dtds.scanAxisAt(1).name, scanAxis2.name);
-		QCOMPARE(dtds.scanAxisAt(1).description, scanAxis2.description);
-		// QCOMPARE(dtds.scanAxisAt(1).size, 0); //regardless of incoming size, axes get sized to 0 in an empty tree (NO... sized to 1 if they are parent axes)
-		QCOMPARE(dtds.scanAxesCount(), 2);
-
-
-		qDebug() << "\n\n\nADDED SCAN AXIS\n\n\n";
-		curSize = dtds.scanSize();
-		qDebug() << "[2] nDIndex for axes: " << curSize.i() << curSize.j();
-
-		AMAxisInfo scanAxis3("exitslitsize", 20, "Exit Slit Size", "um");
-		QVERIFY(dtds.addScanAxis(scanAxis3));
-		QCOMPARE(dtds.idOfScanAxis(scanAxis3.name), 2);
-		QCOMPARE(dtds.scanAxisAt(2).name, scanAxis3.name);
-		QCOMPARE(dtds.scanAxisAt(2).description, scanAxis3.description);
-		// QCOMPARE(dtds.scanAxisAt(2).size, 0); //regardless of incoming size, axes get sized to 0 in an empty tree (NO... sized to 1 if they are parent axes)
-		QCOMPARE(dtds.scanAxesCount(), 3);
-
-		qDebug() << "\n\n\nADDED SCAN AXIS\n\n\n";
-
-		AMAxisInfo scanAxis3Imposter("exitslitsize", 25, "Not the same", "either");
-		QVERIFY(!dtds.addScanAxis(scanAxis2));
-		QVERIFY(!dtds.addScanAxis(scanAxis3Imposter));
-		QCOMPARE(dtds.scanAxesCount(), 3);
-
-		curSize = dtds.scanSize();
-		qDebug() << "[3] nDIndex for axes: " << curSize.i() << curSize.j() << curSize.k();
-		qDebug() << "[3] or: " << dtds.scanSize(0) << dtds.scanSize(1) << dtds.scanSize(2);
-
-
-		QVERIFY(dtds.beginInsertRows(2));
-
-		curSize = dtds.scanSize();
-		qDebug() << "[3] nDIndex for axes: " << curSize.i() << curSize.j() << curSize.k();
-		qDebug() << "[3] or: " << dtds.scanSize(0) << dtds.scanSize(1) << dtds.scanSize(2);
-		AMnDIndex curIndex(0, 0, 0);
-		AMnDIndex scalarMeasurement;
-		AMnDIndex d1Measurement(0);
-		AMnDIndex d2Measurement(0,0);
-		AMnDIndex d3Measurement(0,0,0);
-		double dArray[1];
-		dArray[0] = 12.27;
-		int iArray[1];
-		iArray[0] = 99;
-//		QVERIFY(dtds.setValue(curIndex, dtds.idOfMeasurement("tey"), scalarMeasurement, 12.27));
-		QVERIFY(dtds.setValue(curIndex, dtds.idOfMeasurement("tey"), dArray, 1));
-		QVERIFY(dtds.setValue(curIndex, dtds.idOfMeasurement("tfy"), scalarMeasurement, 1.001));
-//		QVERIFY(dtds.setValue(curIndex, dtds.idOfMeasurement("I0"), scalarMeasurement, 99));
-		QVERIFY(dtds.setValue(curIndex, dtds.idOfMeasurement("I0"), iArray, 1));
-		QVERIFY(dtds.setValue(curIndex, dtds.idOfMeasurement("sdd"), d1Measurement, 36));
-		QVERIFY(dtds.setValue(curIndex, dtds.idOfMeasurement("xos"), d1Measurement, 1023));
-		QVERIFY(dtds.setValue(curIndex, dtds.idOfMeasurement("xess"), d2Measurement, 12));
-		QVERIFY(dtds.setValue(curIndex, dtds.idOfMeasurement("ugly"), d3Measurement, 62.2));
-
-		double retVal = dtds.value(curIndex, dtds.idOfMeasurement("tey"), scalarMeasurement);
-		QCOMPARE(retVal, 12.27);
-		retVal = dtds.value(curIndex, dtds.idOfMeasurement("tfy"), scalarMeasurement);
-		QCOMPARE(retVal, 1.001);
-		int retVali = dtds.value(curIndex, dtds.idOfMeasurement("I0"), scalarMeasurement);
-		QCOMPARE(retVali, 99);
-		retVali = dtds.value(curIndex, dtds.idOfMeasurement("sdd"), d1Measurement);
-		QCOMPARE(retVali, 36);
-		retVali = dtds.value(curIndex, dtds.idOfMeasurement("xos"), d1Measurement);
-		QCOMPARE(retVali, 1023);
-		retVali = dtds.value(curIndex, dtds.idOfMeasurement("xess"), d2Measurement);
-		QCOMPARE(retVali, 12);
-		retVal = dtds.value(curIndex, dtds.idOfMeasurement("ugly"), d3Measurement);
-		QCOMPARE(retVal, 62.2);
-
-		QVERIFY(dtds.setAxisValue(dtds.idOfScanAxis("exitslitsize"), 0, 25.0));
-		retVal = dtds.axisValue(dtds.idOfScanAxis("exitslitsize"), 0);
-		QCOMPARE(retVal, 25.0);
-		QVERIFY(dtds.setAxisValue(dtds.idOfScanAxis("temperature"), 0, 76.7));
-		retVal = dtds.axisValue(dtds.idOfScanAxis("temperature"), 0);
-		QCOMPARE(retVal, 76.7);
-		QVERIFY(dtds.setAxisValue(dtds.idOfScanAxis("energy"), 0, 282.5));
-		retVal = dtds.axisValue(dtds.idOfScanAxis("energy"), 0);
-		QCOMPARE(retVal, 282.5);
-
-		int *intArray = (int*)malloc(1280*1024*sizeof(int));
-		for(int x = 0; x < 1280*1024; x++)
-			intArray[x] = x;
-		double *doubleArray = (double*)malloc(512*sizeof(double));
-		for(int x = 0; x < 512; x++)
-			doubleArray[x] = x + 0.01*x;
-		int *int2Array = (int*)malloc(100*180*360*sizeof(int));
-		for(int x = 0; x < 100*180*360; x++)
-			int2Array[x] = x;
-		double *double2Array = (double*)malloc(100*180*360*sizeof(double));
-		for(int x = 0; x < 100*180*360; x++)
-			double2Array[x] = ((double)x) + 0.01;
-		dtds.setValue(curIndex, dtds.idOfMeasurement("xos"), doubleArray, 512);
-		dtds.setValue(curIndex, dtds.idOfMeasurement("ugly"), double2Array, 100*180*360);
-
-		AMnDIndex check3Index(0,0,302);
-		double ans = dtds.value(curIndex, dtds.idOfMeasurement("ugly"), check3Index);
-		qDebug() << ans;
-
-		AMnDIndex check1Index(124);
-		ans = dtds.value(curIndex, dtds.idOfMeasurement("xos"), check1Index);
-		qDebug() << ans;
-
-		dtds.endInsertRows();
-
-		AMnDIndex scanInsertIndex(0, 0, 1);
-		AMnDIndex scanRetrieveIndex(0, 0, 1);
-		qDebug() << "\n\n\n";
-		for(int x=0; x<3; x++){
-			if(dtds.beginInsertRows(0, 1, x))
-				;
-			//else
-			//	qDebug() << "No need for x = " << x;
-			dtds.endInsertRows();
-			for(int y=0; y<4; y++){
-
-				dtds.endInsertRows();
-				for(int z=0; z<2; z++){
-
-					dtds.endInsertRows();
-					if(z == 1 && y == 0 && x == 0){
-						dtds.setValue(scanInsertIndex, dtds.idOfMeasurement("tey"), AMnDIndex(), 12.2);
-						AMNumber retVal = dtds.value(scanRetrieveIndex, dtds.idOfMeasurement("tey"), AMnDIndex());
-						if(retVal.state() == AMNumber::Null)
-							qDebug() << "Null valued number";
-						else
-							qDebug() << "Set that mud trucka as " << double(retVal);
-						dtds.setAxisValue(0, 0, 12.27);
-						retVal = dtds.axisValue(0,0);
-						if(retVal.state() == AMNumber::Null)
-							qDebug() << "Axis is Null valued number";
-						else
-							qDebug() << "Set that axis mud trucka as " << double(retVal);
-					}
-				}
-			}
-		}
-
-		dtds.beginInsertRows(2, 1, 2);
-		dtds.endInsertRows();
-
-		AMAxisInfo scanAxis4("polarization", 10, "Polarization", "degrees");
-		QVERIFY(dtds.addScanAxis(scanAxis4));
-		QCOMPARE(dtds.idOfScanAxis(scanAxis4.name), 3);
-		QCOMPARE(dtds.scanAxisAt(3).name, scanAxis4.name);
-		QCOMPARE(dtds.scanAxisAt(3).description, scanAxis4.description);
-		QCOMPARE(dtds.scanAxisAt(3).size, 1); //Set as 1 because other data already exists so data store is not empty
-		QCOMPARE(dtds.scanAxesCount(), 4);
-
-
-
-		QVERIFY(dtds.axisValue(3, 0).state() == AMNumber::Null);
-
-
-		// qDebug() << "\n\n\nEND TESTING\n\n\n";
-
-	}
-*/
-
+/*
 	void testDataTreeDataStore() {
 			qDebug() << "\n\n\n DAVID STARTS HERE \n\nTesting data tree data store\n\n\n";
 
@@ -677,30 +514,30 @@ private slots:
 			QCOMPARE(retVal, 282.5);
 
 
-			/*
-			int *intArray = (int*)malloc(1280*1024*sizeof(int));
-			for(int x = 0; x < 1280*1024; x++)
-				intArray[x] = x;
-			double *doubleArray = (double*)malloc(512*sizeof(double));
-			for(int x = 0; x < 512; x++)
-				doubleArray[x] = x + 0.01*x;
-			int *int2Array = (int*)malloc(100*180*360*sizeof(int));
-			for(int x = 0; x < 100*180*360; x++)
-				int2Array[x] = x;
-			double *double2Array = (double*)malloc(100*180*360*sizeof(double));
-			for(int x = 0; x < 100*180*360; x++)
-				double2Array[x] = ((double)x) + 0.01;
-			dtds.setValue(curIndex, dtds.idOfMeasurement("xos"), doubleArray, 512);
-			dtds.setValue(curIndex, dtds.idOfMeasurement("ugly"), double2Array, 100*180*360);
 
-			AMnDIndex check3Index(0,0,302);
-			double ans = dtds.value(curIndex, dtds.idOfMeasurement("ugly"), check3Index);
-			qDebug() << ans;
+//			int *intArray = (int*)malloc(1280*1024*sizeof(int));
+//			for(int x = 0; x < 1280*1024; x++)
+//				intArray[x] = x;
+//			double *doubleArray = (double*)malloc(512*sizeof(double));
+//			for(int x = 0; x < 512; x++)
+//				doubleArray[x] = x + 0.01*x;
+//			int *int2Array = (int*)malloc(100*180*360*sizeof(int));
+//			for(int x = 0; x < 100*180*360; x++)
+//				int2Array[x] = x;
+//			double *double2Array = (double*)malloc(100*180*360*sizeof(double));
+//			for(int x = 0; x < 100*180*360; x++)
+//				double2Array[x] = ((double)x) + 0.01;
+//			dtds.setValue(curIndex, dtds.idOfMeasurement("xos"), doubleArray, 512);
+//			dtds.setValue(curIndex, dtds.idOfMeasurement("ugly"), double2Array, 100*180*360);
 
-			AMnDIndex check1Index(124);
-			ans = dtds.value(curIndex, dtds.idOfMeasurement("xos"), check1Index);
-			qDebug() << ans;
-			*/
+//			AMnDIndex check3Index(0,0,302);
+//			double ans = dtds.value(curIndex, dtds.idOfMeasurement("ugly"), check3Index);
+//			qDebug() << ans;
+
+//			AMnDIndex check1Index(124);
+//			ans = dtds.value(curIndex, dtds.idOfMeasurement("xos"), check1Index);
+//			qDebug() << ans;
+
 
 			dtds.endInsertRows();
 
@@ -729,7 +566,7 @@ private slots:
 						dtds.endInsertRows();
 
 						if(z == 1 && y == 0 && x == 0){
-							/**/
+
 							qDebug() << "Doing this insert once when " << z << y << x;
 							dtds.setValue(scanInsertIndex, dtds.idOfMeasurement("tey"), AMnDIndex(), 12.2);
 							AMNumber retVal = dtds.value(scanRetrieveIndex, dtds.idOfMeasurement("tey"), AMnDIndex());
@@ -743,10 +580,10 @@ private slots:
 								qDebug() << "Axis is Null valued number";
 							else
 								qDebug() << "Set that axis mud trucka as " << double(retVal);
-							/**/
+
 						}
 						if(z == 2 && y == 1 && x == 0){
-							/**/
+
 							qDebug() << "Doing this insert once when " << z << y << x;
 							dtds.setValue(scanInsertIndex2, dtds.idOfMeasurement("tey"), AMnDIndex(), 27.27);
 							AMNumber retVal = dtds.value(scanRetrieveIndex2, dtds.idOfMeasurement("tey"), AMnDIndex());
@@ -760,7 +597,7 @@ private slots:
 								qDebug() << "Axis is Null valued number";
 							else
 								qDebug() << "Set that axis mud trucka as " << double(retVal);
-							/**/
+
 						}
 					}
 					qDebug() << "\n\nLOOPED PUKE\n";
@@ -793,29 +630,29 @@ private slots:
 			else
 				qDebug() << "Ah sheit! Dat is not good.";
 
-			/*
-			dt->append(12);
-			curSize = dtds.scanSize();
-			qDebug() << "[3] nDIndex for axes: " << curSize.i() << curSize.j() << curSize.k();
-			qDebug() << "[3] or: " << dtds.scanSize(0) << dtds.scanSize(1) << dtds.scanSize(2);
-			dt->deeper(0,0)->append(20);
-			curSize = dtds.scanSize();
-			qDebug() << "[3] nDIndex for axes: " << curSize.i() << curSize.j() << curSize.k();
-			qDebug() << "[3] or: " << dtds.scanSize(0) << dtds.scanSize(1) << dtds.scanSize(2);
-			dt->deeper(0,0)->deeper(0,0)->append(100);
-			curSize = dtds.scanSize();
-			qDebug() << "[3] nDIndex for axes: " << curSize.i() << curSize.j() << curSize.k();
-			qDebug() << "[3] or: " << dtds.scanSize(0) << dtds.scanSize(1) << dtds.scanSize(2);
-			dt->deeper(0,0)->deeper(0,0)->append(101);
-			curSize = dtds.scanSize();
-			qDebug() << "[3] nDIndex for axes: " << curSize.i() << curSize.j() << curSize.k();
-			qDebug() << "[3] or: " << dtds.scanSize(0) << dtds.scanSize(1) << dtds.scanSize(2);
-			*/
+
+//			dt->append(12);
+//			curSize = dtds.scanSize();
+//			qDebug() << "[3] nDIndex for axes: " << curSize.i() << curSize.j() << curSize.k();
+//			qDebug() << "[3] or: " << dtds.scanSize(0) << dtds.scanSize(1) << dtds.scanSize(2);
+//			dt->deeper(0,0)->append(20);
+//			curSize = dtds.scanSize();
+//			qDebug() << "[3] nDIndex for axes: " << curSize.i() << curSize.j() << curSize.k();
+//			qDebug() << "[3] or: " << dtds.scanSize(0) << dtds.scanSize(1) << dtds.scanSize(2);
+//			dt->deeper(0,0)->deeper(0,0)->append(100);
+//			curSize = dtds.scanSize();
+//			qDebug() << "[3] nDIndex for axes: " << curSize.i() << curSize.j() << curSize.k();
+//			qDebug() << "[3] or: " << dtds.scanSize(0) << dtds.scanSize(1) << dtds.scanSize(2);
+//			dt->deeper(0,0)->deeper(0,0)->append(101);
+//			curSize = dtds.scanSize();
+//			qDebug() << "[3] nDIndex for axes: " << curSize.i() << curSize.j() << curSize.k();
+//			qDebug() << "[3] or: " << dtds.scanSize(0) << dtds.scanSize(1) << dtds.scanSize(2);
+
 
 			qDebug() << "\n\n\nEND TESTING\n\n\n";
 		}
 
-
+*/
 
 	/// Test inserts of DbObjects into the database, and confirm all values loaded back with DbObject::loadFromDb().
 	void insertAMDbObject_retrieveStatically() {

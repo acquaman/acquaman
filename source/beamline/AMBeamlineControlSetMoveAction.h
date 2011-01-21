@@ -1,3 +1,23 @@
+/*
+Copyright 2010, 2011 Mark Boots, David Chevrier.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef AMBEAMLINECONTROLSETMOVEACTION_H
 #define AMBEAMLINECONTROLSETMOVEACTION_H
 
@@ -15,7 +35,7 @@ public:
 
 	virtual QString type() const;
 	virtual AMControlSet* controlSet();
-	virtual AMControlSetInfo* setpoint();
+	virtual AMControlInfoList* setpoint();
 
 signals:
 	void progress(double, double);
@@ -24,7 +44,7 @@ public slots:
 	virtual void start();
 	virtual void cancel();
 	virtual void setControlSet(AMControlSet *controlSet);
-	virtual bool setSetpoint(AMControlSetInfo *setpoint); // It's copying from this controlSetInfo. So if you change your copy it won't do anything
+	virtual bool setSetpoint(AMControlInfoList *setpoint); // It's copying from this controlSetInfo. So if you change your copy it won't do anything
 	virtual void cleanup(){}
 
 protected slots:
@@ -40,8 +60,8 @@ protected slots:
 
 protected:
 	AMControlSet *controlSet_;
-	AMControlSetInfo *setpoint_;
-	AMControlSetInfo *startPoint_;
+	AMControlInfoList *setpoint_;
+	AMControlInfoList *startPoint_;
 	QTimer progressTimer_;
 
 private:

@@ -1,3 +1,23 @@
+/*
+Copyright 2010, 2011 Mark Boots, David Chevrier.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef AMSAMPLEPLATE_H
 #define AMSAMPLEPLATE_H
 
@@ -7,7 +27,7 @@
 #include <QDebug>
 
 #include "AMSample.h"
-#include "AMControlSetInfo.h"
+#include "AMControlInfoList.h"
 #include "AMBiHash.h"
 #include "AMDbObject.h"
 #include "acquaman.h"
@@ -38,14 +58,14 @@ public:
 	QString timeString() const;
 	int count();
 
-	AMSamplePosition* samplePositionAt(size_t index);
+	AMSamplePosition* samplePositionAt(int index);
 	AMSamplePosition* samplePositionByName(const QString &name);
 
-	AMSample* sampleAt(size_t index);
+	AMSample* sampleAt(int index);
 	AMSample* sampleByName(const QString &name);
 
-	AMControlSetInfo* positionAt(size_t index);
-	AMControlSetInfo* positionByName(const QString &name);
+	AMControlInfoList* positionAt(int index);
+	AMControlInfoList* positionByName(const QString &name);
 
 	int indexOf(const QString &name);
 
@@ -77,15 +97,15 @@ signals:
 
 public slots:
 
-	bool setSamplePosition(size_t index, AMSamplePosition *sp);
+	bool setSamplePosition(int index, AMSamplePosition *sp);
 
-	bool addSamplePosition(size_t index, AMSamplePosition *sp);
-	bool addSamplePosition(size_t index, AMSample *sample, AMControlSetInfo *position);
+	bool addSamplePosition(int index, AMSamplePosition *sp);
+	bool addSamplePosition(int index, AMSample *sample, AMControlInfoList *position);
 	bool appendSamplePosition(AMSamplePosition *sp);
-	bool appendSamplePosition(AMSample *sample, AMControlSetInfo *position);
+	bool appendSamplePosition(AMSample *sample, AMControlInfoList *position);
 
 	bool removeSamplePosition(AMSamplePosition *sp);
-	bool removeSamplePosition(size_t index);
+	bool removeSamplePosition(int index);
 
 protected slots:
 	void onDataChanged(QModelIndex a, QModelIndex b);
@@ -146,14 +166,14 @@ class AMSamplePosition : public QObject
 {
 Q_OBJECT
 public:
-	AMSamplePosition(AMSample *sample, AMControlSetInfo *position, QObject *parent = 0);
+	AMSamplePosition(AMSample *sample, AMControlInfoList *position, QObject *parent = 0);
 
 	AMSample* sample();
-	AMControlSetInfo* position();
+	AMControlInfoList* position();
 
 public slots:
 	void setSample(AMSample *sample);
-	void setPosition(AMControlSetInfo *position);
+	void setPosition(AMControlInfoList *position);
 
 signals:
 	void positionValuesChanged(int index);
@@ -162,7 +182,7 @@ signals:
 
 protected:
 	AMSample *sample_;
-	AMControlSetInfo *position_;
+	AMControlInfoList *position_;
 };
 
 #endif // AMSAMPLEPLATE_H

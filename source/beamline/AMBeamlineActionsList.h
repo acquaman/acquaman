@@ -1,3 +1,23 @@
+/*
+Copyright 2010, 2011 Mark Boots, David Chevrier.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef AMBEAMLINEACTIONSLIST_H
 #define AMBEAMLINEACTIONSLIST_H
 
@@ -20,14 +40,14 @@ public:
 
 	AMBeamlineActionListModel* model();//{ return actions_;}
 	int count();//{return actions_->rowCount(QModelIndex());}
-	AMBeamlineActionItem* action(size_t index) const;
+	AMBeamlineActionItem* action(int index) const;
 	int indexOf(AMBeamlineActionItem *iAction);
 
 public slots:
-	bool setAction(size_t index, AMBeamlineActionItem *action);
-	virtual bool addAction(size_t index, AMBeamlineActionItem *action);
+	bool setAction(int index, AMBeamlineActionItem *action);
+	virtual bool addAction(int index, AMBeamlineActionItem *action);
 	virtual bool appendAction(AMBeamlineActionItem *action);
-	bool deleteAction(size_t index);
+	bool deleteAction(int index);
 
 signals:
 	void actionChanged(int index);

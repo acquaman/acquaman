@@ -1,3 +1,23 @@
+/*
+Copyright 2010, 2011 Mark Boots, David Chevrier.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "AMBeamlineScanAction.h"
 
 #define AMBEAMLINEACTIONITEM_INVALID_SCAN_TYPE 101
@@ -241,9 +261,9 @@ void AMBeamlineScanActionView::updateScanNameLabel(){
 	}
 	if(qobject_cast<SGMXASScanConfiguration*>(scanAction_->cfg())){
 		scanName += "SGM XAS Scan from ";
-		tmpStr.setNum( ((SGMXASScanConfiguration*)scanAction_->cfg())->start(0) );
+		tmpStr.setNum( ((SGMXASScanConfiguration*)scanAction_->cfg())->regionStart(0) );
 		scanName.append(tmpStr+" to ");
-		tmpStr.setNum( ((SGMXASScanConfiguration*)scanAction_->cfg())->end(((SGMXASScanConfiguration*)scanAction_->cfg())->count()-1) );
+		tmpStr.setNum( ((SGMXASScanConfiguration*)scanAction_->cfg())->regionEnd(((SGMXASScanConfiguration*)scanAction_->cfg())->regionCount()-1) );
 		scanName.append(tmpStr);
 		scanNameLabel_->setText(scanName);
 	}

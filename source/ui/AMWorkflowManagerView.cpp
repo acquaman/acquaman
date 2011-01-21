@@ -1,3 +1,23 @@
+/*
+Copyright 2010, 2011 Mark Boots, David Chevrier.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "AMWorkflowManagerView.h"
 #include <QScrollArea>
 #include <QPushButton>
@@ -650,10 +670,10 @@ void AMBeamlineActionAdder::onActionSubTypeBoxUpdate(int curIndex){
 		AMSamplePlate *sp = SGMBeamline::sgm()->currentSamplePlate();
 		onSamplePlateChanged(sp->valid());
 		if( sp->valid() ){
-			xPosLabel_->setText(QString("%1").arg(sp->positionAt(curIndex)->valueAt(0)));
-			yPosLabel_->setText(QString("%1").arg(sp->positionAt(curIndex)->valueAt(1)));
-			zPosLabel_->setText(QString("%1").arg(sp->positionAt(curIndex)->valueAt(2)));
-			rPosLabel_->setText(QString("%1").arg(sp->positionAt(curIndex)->valueAt(3)));
+			xPosLabel_->setText(QString("%1").arg(sp->positionAt(curIndex)->at(0).value()));
+			yPosLabel_->setText(QString("%1").arg(sp->positionAt(curIndex)->at(1).value()));
+			zPosLabel_->setText(QString("%1").arg(sp->positionAt(curIndex)->at(2).value()));
+			rPosLabel_->setText(QString("%1").arg(sp->positionAt(curIndex)->at(3).value()));
 		}
 		else{
 			xPosLabel_->setText("N/A");

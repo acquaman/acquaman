@@ -1,3 +1,23 @@
+/*
+Copyright 2010, 2011 Mark Boots, David Chevrier.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef ACQMAN_SCANCONFIGURATION_H
 #define ACQMAN_SCANCONFIGURATION_H
 
@@ -46,7 +66,6 @@ public:
 	/// Returns the path to save the raw data file to
 	QString filePath() const { return filePath_; }
 
-	QList<QPair<QString, QString> > defaultChannels() const { return defaultChannels_; }
 
 public slots:
 	/// Sets the file name
@@ -54,7 +73,6 @@ public slots:
 	/// Sets the file path
 	bool setFilePath(const QString &filePath) { filePath_ = filePath; return true;}
 
-	bool setDefaultChannels(const QList<QPair<QString, QString> > &defaultChannels) { defaultChannels_ = defaultChannels; return true;}
 
 protected:
 	/// File name
@@ -62,7 +80,6 @@ protected:
 	/// File path
 	QString filePath_;
 
-	QList<QPair<QString, QString> > defaultChannels_;
 };
 
 #endif // ACQMAN_SCANCONFIGURATION_H

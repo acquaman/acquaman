@@ -1,3 +1,23 @@
+/*
+Copyright 2010, 2011 Mark Boots, David Chevrier.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "SGMXASDacqScanController.h"
 
 SGMXASDacqScanController::SGMXASDacqScanController(SGMXASScanConfiguration *cfg, QObject *parent) :
@@ -49,13 +69,13 @@ void SGMXASDacqScanController::start(){
 		else{
 			advAcq_->appendRecord(SGMBeamline::sgm()->pvName(dtctr->name()), true, false, 0);
 		}
-		for(int x = 0; x < pCfg_()->count(); x++){
+		for(int x = 0; x < pCfg_()->regionCount(); x++){
 			if(advAcq_->getNumRegions() == x)
-				advAcq_->addRegion(x, pCfg_()->start(x), pCfg_()->delta(x), pCfg_()->end(x), 1);
+				advAcq_->addRegion(x, pCfg_()->regionStart(x), pCfg_()->regionDelta(x), pCfg_()->regionEnd(x), 1);
 			else{
-				advAcq_->setStart(x, pCfg_()->start(x));
-				advAcq_->setDelta(x, pCfg_()->delta(x));
-				advAcq_->setEnd(x, pCfg_()->end(x));
+				advAcq_->setStart(x, pCfg_()->regionStart(x));
+				advAcq_->setDelta(x, pCfg_()->regionDelta(x));
+				advAcq_->setEnd(x, pCfg_()->regionEnd(x));
 			}
 		}
 	}

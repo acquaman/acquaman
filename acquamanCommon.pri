@@ -202,7 +202,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMSamplePositionView.h \
 	source/ui/AMSampleManipulatorView.h \
 	source/ui/AMSamplePlateView.h \
-	source/dataman/AMControlSetInfo.h \
+	source/dataman/AMControlInfoList.h \
 	source/dataman/AMSamplePlate.h \
 	source/ui/AMGenericScanEditor.h \
 	source/ui/AMDetailedItemDelegate.h \
@@ -253,7 +253,8 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
     source/acquaman/SGM/SGMFastScanController.h \
     source/analysis/AM2DSummingAB.h \
     source/analysis/AMStandardAnalysisBlock.h \
-    source/analysis/AM2DSummingABEditor.h
+    source/analysis/AM2DSummingABEditor.h \
+    source/util/AMOrderedList.h
 FORMS += source/ui/AbsorptionScanController.ui \
 	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
@@ -396,7 +397,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMSamplePositionView.cpp \
 	source/ui/AMSampleManipulatorView.cpp \
 	source/ui/AMSamplePlateView.cpp \
-	source/dataman/AMControlSetInfo.cpp \
+	source/dataman/AMControlInfoList.cpp \
 	source/dataman/AMSamplePlate.cpp \
 	source/ui/AMGenericScanEditor.cpp \
 	source/ui/AMDetailedItemDelegate.cpp \

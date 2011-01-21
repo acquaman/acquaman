@@ -1,3 +1,23 @@
+/*
+Copyright 2010, 2011 Mark Boots, David Chevrier.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "AMBeamlineActionsList.h"
 
 AMBeamlineActionsList::AMBeamlineActionsList(QObject *parent) :
@@ -17,7 +37,7 @@ int AMBeamlineActionsList::count(){
 }
 
 
-AMBeamlineActionItem* AMBeamlineActionsList::action(size_t index) const{
+AMBeamlineActionItem* AMBeamlineActionsList::action(int index) const{
 	QVariant retVal = actions_->data(actions_->index(index, 0), Qt::DisplayRole);
 	if(retVal.isValid())
 		return (AMBeamlineActionItem*) retVal.value<void*>();
@@ -32,7 +52,7 @@ int AMBeamlineActionsList::indexOf(AMBeamlineActionItem *iAction){
 }
 
 //HEY DAVE, CHECK THE ORDERING ON THIS, RETURN STATEMENT SEEMS ODD
-bool AMBeamlineActionsList::setAction(size_t index, AMBeamlineActionItem *action){
+bool AMBeamlineActionsList::setAction(int index, AMBeamlineActionItem *action){
 	AMBeamlineActionItem *oldAction = (AMBeamlineActionItem*)actions_->data( actions_->index(index, 0), Qt::DisplayRole ).value<void*>();
 	AMBeamlineActionItem *prevAction = NULL;
 	AMBeamlineActionItem *nextAction = NULL;
@@ -77,7 +97,7 @@ bool AMBeamlineActionsList::setAction(size_t index, AMBeamlineActionItem *action
 	return actions_->setData(actions_->index(index, 0), qVariantFromValue((void*)action), Qt::EditRole);
 }
 
-bool AMBeamlineActionsList::addAction(size_t index, AMBeamlineActionItem *action){
+bool AMBeamlineActionsList::addAction(int index, AMBeamlineActionItem *action){
 	if(!actions_->insertRows(index, 1))
 		return false;
 	return setAction(index, action);
@@ -87,7 +107,7 @@ bool AMBeamlineActionsList::appendAction(AMBeamlineActionItem *action){
 	return addAction(count(), action);
 }
 
-bool AMBeamlineActionsList::deleteAction(size_t index){
+bool AMBeamlineActionsList::deleteAction(int index){
 	if(count() == 0)
 		return false;
 	AMBeamlineActionItem *oldAction = (AMBeamlineActionItem*)actions_->data( actions_->index(index, 0), Qt::DisplayRole ).value<void*>();

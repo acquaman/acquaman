@@ -1,3 +1,23 @@
+/*
+Copyright 2010, 2011 Mark Boots, David Chevrier.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "AMSamplePlate.h"
 
 AMSamplePlate::AMSamplePlate(QObject *parent) :
@@ -31,7 +51,7 @@ int AMSamplePlate::count(){
 	return samples_->rowCount(QModelIndex());
 }
 
-AMSamplePosition* AMSamplePlate::samplePositionAt(size_t index){
+AMSamplePosition* AMSamplePlate::samplePositionAt(int index){
 	QVariant retVal = samples_->data(samples_->index(index, 0), Qt::DisplayRole);
 	if(retVal.isValid())
 		return (AMSamplePosition*) retVal.value<void*>();
@@ -44,7 +64,7 @@ AMSamplePosition* AMSamplePlate::samplePositionByName(const QString &name){
 	return NULL;
 }
 
-AMSample* AMSamplePlate::sampleAt(size_t index){
+AMSample* AMSamplePlate::sampleAt(int index){
 	AMSamplePosition *sp = samplePositionAt(index);
 	if(sp)
 		return sp->sample();
@@ -57,14 +77,14 @@ AMSample* AMSamplePlate::sampleByName(const QString &name){
 	return NULL;
 }
 
-AMControlSetInfo* AMSamplePlate::positionAt(size_t index){
+AMControlInfoList* AMSamplePlate::positionAt(int index){
 	AMSamplePosition *sp = samplePositionAt(index);
 	if(sp)
 		return sp->position();
 	return NULL;
 }
 
-AMControlSetInfo* AMSamplePlate::positionByName(const QString &name){
+AMControlInfoList* AMSamplePlate::positionByName(const QString &name){
 	if(sampleName2samplePosition_.containsF(name))
 		return samplePositionByName(name)->position();
 	return NULL;
@@ -102,10 +122,10 @@ bool AMSamplePlate::loadFromDb(AMDatabase* db, int id){
 		return false;
 	}
 	AMSample *tmpSample;
-	AMControlSetInfo *tmpPosition;
+	AMControlInfoList *tmpPosition;
 	for( int x = 0; x < sampleIDs_.count(); x++){
 		tmpSample = new AMSample(this);
-		tmpPosition = new AMControlSetInfo(this);
+		tmpPosition = new AMControlInfoList(this);
 		if( !tmpPosition->loadFromDb(AMDatabase::userdb(), positionIDs_.at(x)) ){
 			qDebug() << "Couldn't load sample plate positions at index " << x << ", CSI id = " << positionIDs_.at(x); /// \todo if this a production-possible error, use AMErrorMon::report()
 			qDebug() << "  positionIDs_ was" << positionIDs_ << "count was" << positionIDs_.count();
@@ -145,7 +165,7 @@ bool AMSamplePlate::storeToDb(AMDatabase* db){
 
 
 
-bool AMSamplePlate::setSamplePosition(size_t index, AMSamplePosition *sp){
+bool AMSamplePlate::setSamplePosition(int index, AMSamplePosition *sp){
 	AMSamplePosition *tmpSP = samplePositionAt(index);
 	bool retVal = samples_->setData(samples_->index(index, 0), qVariantFromValue((void*)sp), Qt::EditRole);
 	if(retVal){
@@ -155,7 +175,7 @@ bool AMSamplePlate::setSamplePosition(size_t index, AMSamplePosition *sp){
 	return retVal;
 }
 
-bool AMSamplePlate::addSamplePosition(size_t index, AMSamplePosition *sp){
+bool AMSamplePlate::addSamplePosition(int index, AMSamplePosition *sp){
 	if(!sp || !sp->sample() || !sp->position())
 		return false;
 	else if(sampleName2samplePosition_.containsR(sp))
@@ -165,7 +185,7 @@ bool AMSamplePlate::addSamplePosition(size_t index, AMSamplePosition *sp){
 	return setSamplePosition(index, sp);
 }
 
-bool AMSamplePlate::addSamplePosition(size_t index, AMSample *sample, AMControlSetInfo *position){
+bool AMSamplePlate::addSamplePosition(int index, AMSample *sample, AMControlInfoList *position){
 	if(!sample || !position)
 		return false;
 	AMSamplePosition *tmpSP = new AMSamplePosition(sample, position, this);
@@ -176,7 +196,7 @@ bool AMSamplePlate::appendSamplePosition(AMSamplePosition *sp){
 	return addSamplePosition(count(), sp);
 }
 
-bool AMSamplePlate::appendSamplePosition(AMSample *sample, AMControlSetInfo *position){
+bool AMSamplePlate::appendSamplePosition(AMSample *sample, AMControlInfoList *position){
 	return addSamplePosition(count(), sample, position);
 }
 
@@ -184,7 +204,7 @@ bool AMSamplePlate::removeSamplePosition(AMSamplePosition *sp){
 	return removeSamplePosition( indexOf(sp->sample()->name()) );
 }
 
-bool AMSamplePlate::removeSamplePosition(size_t index){
+bool AMSamplePlate::removeSamplePosition(int index){
 	if( (int)index >= count())
 		return false;
 	AMSamplePosition *rSP = samplePositionAt(index);
@@ -343,7 +363,7 @@ void AMSamplePlateModel::onPositionLoadedFromDb(){
 	}
 }
 
-AMSamplePosition::AMSamplePosition(AMSample *sample, AMControlSetInfo *position, QObject *parent) :
+AMSamplePosition::AMSamplePosition(AMSample *sample, AMControlInfoList *position, QObject *parent) :
 		QObject(parent)
 {
 	sample_ = sample;
@@ -361,7 +381,7 @@ AMSample* AMSamplePosition::sample(){
 	return sample_;
 }
 
-AMControlSetInfo* AMSamplePosition::position(){
+AMControlInfoList* AMSamplePosition::position(){
 	return position_;
 }
 
@@ -373,7 +393,7 @@ void AMSamplePosition::setSample(AMSample *sample){
 		connect(sample_, SIGNAL(loadedFromDb()), this, SIGNAL(sampleLoadedFromDb()));
 }
 
-void AMSamplePosition::setPosition(AMControlSetInfo *position){
+void AMSamplePosition::setPosition(AMControlInfoList *position){
 	if(position_){
 		disconnect(position_, SIGNAL(valuesChanged(int)), this, SIGNAL(positionValuesChanged(int)));
 		disconnect(position_, SIGNAL(loadedFromDb()), this, SIGNAL(positionLoadedFromDb()));

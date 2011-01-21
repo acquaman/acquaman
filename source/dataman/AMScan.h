@@ -1,3 +1,23 @@
+/*
+Copyright 2010, 2011 Mark Boots, David Chevrier.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef ACQMAN_SCAN_H
 #define ACQMAN_SCAN_H
 
@@ -9,7 +29,7 @@
 #include "util/AMOrderedSet.h"
 #include "dataman/AMRawDataSource.h"
 #include "dataman/AMAnalysisBlock.h"
-#include "dataman/AMControlSetInfo.h"	/// \todo change to AMControlInfoSet, using standard set API.
+#include "dataman/AMControlInfoList.h"	/// \todo change to AMControlInfoSet, using standard set API.
 
 typedef AMOrderedSet<QString, AMRawDataSource*> AMRawDataSourceSet;
 typedef AMOrderedSet<QString, AMAnalysisBlock*> AMAnalyzedDataSourceSet;
@@ -243,8 +263,8 @@ public:
 	// Beamline conditions
 	//////////////////////////////
 	/// Independent from the hardware you're connected to right now, an AMControlSetInfo can remember values and descriptions of how some hardware was set at the time of the scan.
-	const AMControlSetInfo* scanInitialConditions() const { return &scanInitialConditions_; }
-	AMControlSetInfo* scanInitialConditions() { return &scanInitialConditions_; }
+	const AMControlInfoList* scanInitialConditions() const { return &scanInitialConditions_; }
+	AMControlInfoList* scanInitialConditions() { return &scanInitialConditions_; }
 
 	// Thumbnail system:
 	////////////////////////////////
@@ -370,14 +390,14 @@ protected:
 	/// Analyzed data sources.  A set of AMAnalysisBlocks.
 	AMAnalyzedDataSourceSet analyzedDataSources_;
 	/// Conditions of the beamline/experimental hardware at the beginning of the scan
-	AMControlSetInfo scanInitialConditions_;
+	AMControlInfoList scanInitialConditions_;
 
 
 
 	// Protected functions to support loading and storing of composite properties (scanInitialConditions, rawDataSources, analyzeDataSources) in the database. You should never need to use these directly.
 	///////////////////////////////
 
-	/// Called when a stored scanInitialCondition is loaded out of the database, but scanInitialConditions() is not returning a pointer to a valid AMControlSetInfo. Note: this should never happen, unless the database storage was corrupted and is loading the wrong object type.
+	/// Called when a stored scanInitialCondition is loaded out of the database, but scanInitialConditions() is not returning a pointer to a valid AMControlInfoList. Note: this should never happen, unless the database storage was corrupted and is loading the wrong object type.
 	void dbLoadScanInitialConditions(AMDbObject* newLoadedObject);
 	/// Returns a list of pointers to the raw data sources, to support db storage.
 	AMDbObjectList dbReadRawDataSources() const;

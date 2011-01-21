@@ -1,10 +1,30 @@
+/*
+Copyright 2010, 2011 Mark Boots, David Chevrier.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "AMControlSet.h"
 
 AMControlSet::AMControlSet(QObject *parent) :
 	QObject(parent)
 {
 	wasConnected_ = false;
-	info_ = new AMControlSetInfo(this);
+	info_ = new AMControlInfoList(this);
 	QTimer connectionsTimedOut;
 	connectionsTimedOut.singleShot(AMCONTROLSET_CONTROL_TIMEOUT_MS, this, SLOT(onConnectionsTimedOut()));
 }
@@ -44,14 +64,14 @@ bool AMControlSet::addControl(AMControl* ctrl) {
 	ctrls_.append(ctrl);
 	connect(ctrl, SIGNAL(connected(bool)), this, SLOT(onConnected(bool)));
 	connect(ctrl, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged(double)));
-	info_->addControlAt(info_->count(), ctrl->name(), ctrl->value(), ctrl->minimumValue(), ctrl->maximumValue(), ctrl->units());
+	info_->append(AMControlInfo(ctrl->name(), ctrl->value(), ctrl->minimumValue(), ctrl->maximumValue(), ctrl->units()));
 	return true;
 }
 
 /// Returns false if the AMControl to be removed is not present; otherwise removes the control and returns true.
 bool AMControlSet::removeControl(AMControl* ctrl) {
 	int index = ctrls_.indexOf(ctrl);
-	info_->removeControlAt(index);
+	info_->remove(index);
 	bool retVal = ctrls_.removeOne(ctrl);
 	if(retVal){
 		disconnect(ctrl, SIGNAL(connected(bool)), this, SLOT(onConnected(bool)));
@@ -60,12 +80,12 @@ bool AMControlSet::removeControl(AMControl* ctrl) {
 	return retVal;
 }
 
-void AMControlSet::setFromInfo(AMControlSetInfo *info){
+void AMControlSet::setFromInfo(AMControlInfoList *info){
 	AMControl *tmpCtrl;
 	for(int x = 0; x < info->count(); x++){
-		tmpCtrl = controlByName(info->nameAt(x));
+		tmpCtrl = controlByName(info->at(x).name());
 		if(tmpCtrl)
-			tmpCtrl->move(info->valueAt(x));
+			tmpCtrl->move(info->at(x).value());
 	}
 }
 
@@ -74,11 +94,11 @@ void AMControlSet::onConnected(bool ctrlConnected){
 		wasConnected_ = false;
 		emit connected(false);
 	}
-	AMControl *ctrl = (AMControl*)QObject::sender();
+	AMControl *ctrl = qobject_cast<AMControl*>(QObject::sender());
 	if(!ctrl || !ctrlConnected)
 		return;
 	int index = ctrls_.indexOf(ctrl);
-	info_->setControlAt(index, ctrl->name(), ctrl->value(), ctrl->minimumValue(), ctrl->maximumValue(), ctrl->units());
+	info_->replace(index, AMControlInfo(ctrl->name(), ctrl->value(), ctrl->minimumValue(), ctrl->maximumValue(), ctrl->units()));
 	if(isConnected() && !wasConnected_){
 		wasConnected_ = true;
 		emit connected(true);
@@ -91,11 +111,11 @@ void AMControlSet::onConnectionsTimedOut(){
 }
 
 void AMControlSet::onValueChanged(double value){
-	AMControl *ctrl = (AMControl*)QObject::sender();
+	AMControl *ctrl = qobject_cast<AMControl*>(QObject::sender());
 	if(!ctrl)
 		return;
 	int index = ctrls_.indexOf(ctrl);
-	info_->setValueAt(index, value);
+	(*info_)[index].setValue(value);
 }
 
 /// Default implementation returns an empty map. This function is the core of the implementation for subclasses.
@@ -376,13 +396,13 @@ AMControlOptimizationSet::~AMControlOptimizationSet(){
 	outputs_.clear();
 }
 
-QMap<double, double> AMControlOptimizationSet::curveAt(size_t index, QList<QVariant> stateParameters, AMRegionsList* contextParameters){
+QMap<double, double> AMControlOptimizationSet::curveAt(int index, QList<QVariant> stateParameters, AMRegionsList* contextParameters){
 	return outputs_.at(index)->curve(stateParameters, contextParameters);
 }
-QMap<QString, QMap<double, double> > AMControlOptimizationSet::collapseAt(size_t index, AMRegionsList* contextParameters){
+QMap<QString, QMap<double, double> > AMControlOptimizationSet::collapseAt(int index, AMRegionsList* contextParameters){
 	return outputs_.at(index)->collapse(contextParameters);
 }
-QMap<QString, AMCurve*> AMControlOptimizationSet::cCollapseAt(size_t index, AMRegionsList* contextParameters){
+QMap<QString, AMCurve*> AMControlOptimizationSet::cCollapseAt(int index, AMRegionsList* contextParameters){
 	QMap<QString, AMCurve*> rVal;
 	AMCurve *tmpCurve;
 	QMap<QString, QMap<double, double> > cMaps = collapseAt(index, contextParameters);

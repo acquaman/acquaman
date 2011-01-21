@@ -1,3 +1,23 @@
+/*
+Copyright 2010, 2011 Mark Boots, David Chevrier.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "AMSamplePlateView.h"
 #include "dataman/AMDbObjectSupport.h"
 
@@ -387,7 +407,8 @@ void AMSampleListView::addNewSampleToPlate(int id){ //HEY DAVE, OPTIONALLY TAKE 
 		return;
 	AMSample *tmpSample = new AMSample("", this);
 	tmpSample->loadFromDb(AMDatabase::userdb(), id);
-	AMControlSetInfo *tmpPosition = new AMControlSetInfo(manipulator_->info(), this);
+	AMControlInfoList *tmpPosition = new AMControlInfoList(manipulator_->info());
+	tmpPosition->setParent(this);	/// \bug possible memory leak. this will delete when AMSampleListView is deleted... is that enough?
 	tmpPosition->storeToDb(AMDatabase::userdb());
 	samplePlate_->appendSamplePosition(tmpSample, tmpPosition);
 	samplePlate_->storeToDb(AMDatabase::userdb());
@@ -478,7 +499,7 @@ void AMSamplePositionItemView::setManipulator(AMControlSet *manipulator){
 bool AMSamplePositionItemView::onSavePositionClicked(){
 	if(!manipulator_)
 		return false;
-	samplePosition_->position()->copyFrom(manipulator_->info());
+	*(samplePosition_->position()) = *(manipulator_->info());
 	samplePosition_->position()->storeToDb(AMDatabase::userdb());
 	return true;
 }
@@ -581,9 +602,9 @@ void AMSamplePositionItemView::onSamplePositionUpdate(int index){
 
 	QString positionText;
 	for(int x = 0; x < samplePosition_->position()->count(); x++){
-		tmpStr.setNum(samplePosition_->position()->valueAt(x));
+		tmpStr.setNum(samplePosition_->position()->at(x).value());
 		tmpStr.prepend(": ");
-		tmpStr.prepend(samplePosition_->position()->nameAt(x));
+		tmpStr.prepend(samplePosition_->position()->at(x).name());
 		tmpStr.append("\n");
 		positionText.append(tmpStr);
 	}
@@ -594,6 +615,7 @@ void AMSamplePositionItemView::defocusItem(){
 	inFocus_ = false;
 	updateLook();
 }
+
 
 void AMSamplePositionItemView::mousePressEvent(QMouseEvent *event){
 	if (event->button() != Qt::LeftButton) {

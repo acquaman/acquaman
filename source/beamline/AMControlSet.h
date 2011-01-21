@@ -1,3 +1,23 @@
+/*
+Copyright 2010, 2011 Mark Boots, David Chevrier.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef ACQMAN_AMCONTROLSET_H
 #define ACQMAN_AMCONTROLSET_H
 
@@ -10,7 +30,7 @@
 //#include "acquaman/AMScanConfiguration.h"
 //#include "acquaman/AMRegion.h"
 #include "acquaman/AMRegionsList.h"
-#include "dataman/AMControlSetInfo.h"
+#include "dataman/AMControlInfoList.h"
 #include "dataman/AMDetectorInfo.h"
 
 #include <gsl/gsl_multifit.h>
@@ -45,7 +65,7 @@ public:
 	int indexOf(const QString &name);
 	AMControl* controlByName(const QString &name);
 
-	AMControlSetInfo* info() { return info_; }
+	AMControlInfoList* info() { return info_; }
 
 	bool isConnected();
 
@@ -61,7 +81,7 @@ public slots:
 	bool removeControl(AMControl* ctrl);
 
 //	void syncInfo();
-	void setFromInfo(AMControlSetInfo *info);
+	void setFromInfo(AMControlInfoList *info);
 
 protected slots:
 	void onConnected(bool ctrlConnected);
@@ -75,7 +95,7 @@ protected:
 	/// Local list of AMControl pointers, which represent the controls in the set.
 	QList<AMControl*> ctrls_;
 
-	AMControlSetInfo *info_;
+	AMControlInfoList *info_;
 
 	bool wasConnected_;
 };
@@ -173,9 +193,9 @@ public:
 	const AMControlOptimization* optimizationAt(int index) const { return outputs_.at(index) ;}
 	int optimizationCount() const { return outputs_.count() ;}
 
-	QMap<double, double> curveAt(size_t index, QList<QVariant> stateParameters, AMRegionsList* contextParameters);
-	QMap<QString, QMap<double, double> > collapseAt(size_t index, AMRegionsList* contextParameters);
-	QMap<QString, AMCurve*> cCollapseAt(size_t index, AMRegionsList* contextParameters);
+	QMap<double, double> curveAt(int index, QList<QVariant> stateParameters, AMRegionsList* contextParameters);
+	QMap<QString, QMap<double, double> > collapseAt(int index, AMRegionsList* contextParameters);
+	QMap<QString, AMCurve*> cCollapseAt(int index, AMRegionsList* contextParameters);
 
 	QMap<QString, QMap<double, double> > plotAgainst(AMRegionsList* contextParameters);
 	QMap<QString, AMCurve*> cPlotAgainst(AMRegionsList* contextParameters);
