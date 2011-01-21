@@ -27,7 +27,7 @@ public slots:
 	// Right now can only add outer axis, not insert inner ones
 	virtual bool addScanAxis(const AMAxisInfo &axisDetails);
 	virtual int idOfScanAxis(const QString &axisName) const;
-	virtual AMAxisInfo scanAxisAt(int id) const;
+	virtual const AMAxisInfo scanAxisAt(int id) const;
 	virtual int scanAxesCount() const;
 
 	/// Return the sizes of all the scan axes, in order.

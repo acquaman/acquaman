@@ -73,7 +73,7 @@ int AMDataTreeDataStore::idOfScanAxis(const QString &axisName) const{
 	return axes_.indexOf(axisName);
 }
 
-AMAxisInfo AMDataTreeDataStore::scanAxisAt(int id) const{
+const AMAxisInfo AMDataTreeDataStore::scanAxisAt(int id) const{
 	if( (id < 0) || (id >= axes_.count()) ){
 #warning "What to return here?"
 	}

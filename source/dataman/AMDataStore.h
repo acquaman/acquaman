@@ -91,7 +91,7 @@ public:
 	/// Retrieve the id of an existing axis, by name.  (Depending on the implementation, this may not be fast. Avoid calling it repeatedly.)  Returns -1 if not found.
 	virtual int idOfScanAxis(const QString& axisName) const = 0;
 	/// Retrieve information about an axis, by id.  \c id must be >= 0 and < scanAxesCount().
-	virtual AMAxisInfo scanAxisAt(int id) const = 0;
+	virtual const AMAxisInfo scanAxisAt(int id) const = 0;
 	/// Return the number of scan axes
 	virtual int scanAxesCount() const = 0;
 	/// Synonym for scanAxisCount()

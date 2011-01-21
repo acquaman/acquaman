@@ -13,11 +13,13 @@ SGMFastScanController::SGMFastScanController(SGMFastScanConfiguration *cfg){
 
 	// The energy axis will be slightly miscalibrated, but can be approximated as uniform with 1000 points between the
 	//  start energy and the final energy
+	/*
 	pScan()->rawData()->scanAxisAt(0).isUniform = true;
 	pScan()->rawData()->scanAxisAt(0).start = pCfg()->start();
 	pScan()->rawData()->scanAxisAt(0).increment = (double) ((pCfg()->end() - pCfg()->start())/1000.0);
 
 	qDebug() << pScan()->rawData()->scanAxisAt(0).isUniform << (double)pScan()->rawData()->scanAxisAt(0).start << (double)pScan()->rawData()->scanAxisAt(0).increment;
+	*/
 
 	// Create space in raw data store, and create raw data channels, for each detector.
 
@@ -124,11 +126,13 @@ void SGMFastScanController::reinitialize(){
 	pScan()->setFilePath(pCfg()->filePath()+pCfg()->fileName());
 	pScan()->setFileFormat("sgm2010Fast");
 
+	/*
 	// The energy axis will be slightly miscalibrated, but can be approximated as uniform with 1000 points between the
 	//  start energy and the final energy
 	pScan()->rawData()->scanAxisAt(0).isUniform = true;
 	pScan()->rawData()->scanAxisAt(0).start = pCfg()->start();
 	pScan()->rawData()->scanAxisAt(0).increment = (double) ((pCfg()->end() - pCfg()->start())/1000.0);
+	*/
 
 	// Create space in raw data store, and create raw data channels, for each detector.
 

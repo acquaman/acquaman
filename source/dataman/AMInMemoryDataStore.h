@@ -177,7 +177,7 @@ public:
 		return axes_.indexOf(axisName);
 	}
 	/// Retrieve information about an axis, by id.  \c id assumed to be >= 0 and < scanAxesCount().
-	virtual inline AMAxisInfo scanAxisAt(int id) const {
+	virtual inline const AMAxisInfo scanAxisAt(int id) const {
 		return axes_.at(id);
 	}
 	/// Return the number of scan axes
