@@ -93,27 +93,9 @@ public:
 	////////////////////////////////
 
 	/// Returns a list of pointers to the AMControlInfo objects we store, for use by the database system in storeToDb() / loadFromDb().
-	AMDbObjectList dbReadControlInfos() {
-		AMDbObjectList rv;
-		for(int i=0; i<count(); i++)
-			rv << &((*this)[i]);
-		return rv;
-	}
-
+	AMDbObjectList dbReadControlInfos();
 	/// Called by the database system on loadFromDb() to give us our new set of AMControlInfo objects. We copy these ones into our internal list and then delete them.
-	void dbLoadControlInfos(const AMDbObjectList& newControlInfos) {
-		clear();	// get rid of our existing
-
-		for(int i=0; i<newControlInfos.count(); i++) {
-			AMControlInfo* newControlInfo = qobject_cast<AMControlInfo*>(newControlInfos.at(i));
-			if(newControlInfo) {
-				append(*newControlInfo);	// note: makes a copy of object pointed to by newControlInfo, and stores in our internal list.
-			}
-
-			if(newControlInfos.at(i))
-				delete newControlInfos.at(i);	// we're copying these; don't need to keep these ones around. Our responsibility to delete.
-		}
-	}
+	void dbLoadControlInfos(const AMDbObjectList& newControlInfos);
 
 
 signals:
@@ -149,8 +131,6 @@ protected slots:
 		setModified(true);
 		emit controlRemoved(index);
 	}
-
-
 
 protected:
 	QString description_;

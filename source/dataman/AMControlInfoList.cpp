@@ -81,71 +81,27 @@ AMControlInfoList& AMControlInfoList::operator=(const AMControlInfoList& other) 
 	return *this;
 }
 
+// Returns a list of pointers to the AMControlInfo objects we store, for use by the database system in storeToDb() / loadFromDb().
+AMDbObjectList AMControlInfoList::dbReadControlInfos() {
+	AMDbObjectList rv;
+	for(int i=0; i<count(); i++)
+		rv << &((*this)[i]);
+	return rv;
+}
 
-//QStringList AMControlInfoList::dbReadControlNames() const {
-//	QStringList rv;
-//	for(int i=0; i<count(); i++)
-//		rv << at(i).name();
-//	return rv;
-//}
-//AMDoubleList AMControlInfoList::dbReadControlValues() const {
-//	AMDoubleList rv;
-//	for(int i=0; i<count(); i++)
-//		rv << at(i).value();
-//	return rv;
-//}
-//AMDoubleList AMControlInfoList::dbReadControlMinimums() const {
-//	AMDoubleList rv;
-//	for(int i=0; i<count(); i++)
-//		rv << at(i).minimum();
-//	return rv;
-//}
-//AMDoubleList AMControlInfoList::dbReadControlMaximums() const {
-//	AMDoubleList rv;
-//	for(int i=0; i<count(); i++)
-//		rv << at(i).maximum();
-//	return rv;
-//}
-//QStringList AMControlInfoList::dbReadControlUnits() const {
-//	QStringList rv;
-//	for(int i=0; i<count(); i++)
-//		rv << at(i).units();
-//	return rv;
-//}
+// Called by the database system on loadFromDb() to give us our new set of AMControlInfo objects. We copy these ones into our internal list and then delete them.
+void AMControlInfoList::dbLoadControlInfos(const AMDbObjectList& newControlInfos) {
+	clear();	// get rid of our existing
 
-//void AMControlInfoList::dbLoadControlNames(const QStringList& newNames) {
-//	for(int i=0; i<newNames.count(); i++) {
-//		if(i<count())
-//			(*this)[i].setName(newNames.at(i));
-//		else
-//			append( AMControlInfo(newNames.at(i),0,0,0,QString()) );
-//	}
-//}
+	for(int i=0; i<newControlInfos.count(); i++) {
+		AMControlInfo* newControlInfo = qobject_cast<AMControlInfo*>(newControlInfos.at(i));
+		if(newControlInfo) {
+			append(*newControlInfo);	// note: makes a copy of object pointed to by newControlInfo, and stores in our internal list.
+		}
 
-//void AMControlInfoList::dbLoadControlValues(const AMDoubleList& newValues) {
-//	for(int i=0; i<newValues.count(); i++) {
-//		// dbLoadControlNames() will be called first, so we know that we have enough controls to store this here.
-//		(*this)[i].setValue(newValues.at(i));
-//	}
-//}
+		if(newControlInfos.at(i))
+			delete newControlInfos.at(i);	// we're copying these; don't need to keep these ones around. Our responsibility to delete.
+	}
+}
 
-//void AMControlInfoList::dbLoadControlMinimums(const AMDoubleList& newMinimums) {
-//	for(int i=0; i<newMinimums.count(); i++) {
-//		// dbLoadControlNames() will be called first, so we know that we have enough controls to store this here.
-//		(*this)[i].setMinimum(newMinimums.at(i));
-//	}
-//}
 
-//void AMControlInfoList::dbLoadControlMaximums(const AMDoubleList& newMaximums) {
-//	for(int i=0; i<newMaximums.count(); i++) {
-//		// dbLoadControlNames() will be called first, so we know that we have enough controls to store this here.
-//		(*this)[i].setMaximum(newMaximums.at(i));
-//	}
-//}
-
-//void AMControlInfoList::dbLoadControlUnits(const QStringList& newUnits) {
-//	for(int i=0; i<newUnits.count(); i++) {
-//		// dbLoadControlNames() will be called first, so we know that we have enough controls to store this here.
-//		(*this)[i].setUnits(newUnits.at(i));
-//	}
-//}
