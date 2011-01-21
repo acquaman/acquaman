@@ -30,7 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 //#include "acquaman/AMScanConfiguration.h"
 //#include "acquaman/AMRegion.h"
 #include "acquaman/AMRegionsList.h"
-#include "dataman/AMControlSetInfo.h"
+#include "dataman/AMControlInfoList.h"
 #include "dataman/AMDetectorInfo.h"
 
 #include <gsl/gsl_multifit.h>

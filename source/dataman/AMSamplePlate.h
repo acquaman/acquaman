@@ -27,7 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDebug>
 
 #include "AMSample.h"
-#include "AMControlSetInfo.h"
+#include "AMControlInfoList.h"
 #include "AMBiHash.h"
 #include "AMDbObject.h"
 #include "acquaman.h"

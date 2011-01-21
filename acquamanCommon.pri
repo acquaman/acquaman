@@ -202,7 +202,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMSamplePositionView.h \
 	source/ui/AMSampleManipulatorView.h \
 	source/ui/AMSamplePlateView.h \
-	source/dataman/AMControlSetInfo.h \
+	source/dataman/AMControlInfoList.h \
 	source/dataman/AMSamplePlate.h \
 	source/ui/AMGenericScanEditor.h \
 	source/ui/AMDetailedItemDelegate.h \
@@ -397,7 +397,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMSamplePositionView.cpp \
 	source/ui/AMSampleManipulatorView.cpp \
 	source/ui/AMSamplePlateView.cpp \
-	source/dataman/AMControlSetInfo.cpp \
+	source/dataman/AMControlInfoList.cpp \
 	source/dataman/AMSamplePlate.cpp \
 	source/ui/AMGenericScanEditor.cpp \
 	source/ui/AMDetailedItemDelegate.cpp \

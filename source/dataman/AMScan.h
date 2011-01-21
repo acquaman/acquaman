@@ -29,7 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMOrderedSet.h"
 #include "dataman/AMRawDataSource.h"
 #include "dataman/AMAnalysisBlock.h"
-#include "dataman/AMControlSetInfo.h"	/// \todo change to AMControlInfoSet, using standard set API.
+#include "dataman/AMControlInfoList.h"	/// \todo change to AMControlInfoSet, using standard set API.
 
 typedef AMOrderedSet<QString, AMRawDataSource*> AMRawDataSourceSet;
 typedef AMOrderedSet<QString, AMAnalysisBlock*> AMAnalyzedDataSourceSet;
@@ -397,7 +397,7 @@ protected:
 	// Protected functions to support loading and storing of composite properties (scanInitialConditions, rawDataSources, analyzeDataSources) in the database. You should never need to use these directly.
 	///////////////////////////////
 
-	/// Called when a stored scanInitialCondition is loaded out of the database, but scanInitialConditions() is not returning a pointer to a valid AMControlSetInfo. Note: this should never happen, unless the database storage was corrupted and is loading the wrong object type.
+	/// Called when a stored scanInitialCondition is loaded out of the database, but scanInitialConditions() is not returning a pointer to a valid AMControlInfoList. Note: this should never happen, unless the database storage was corrupted and is loading the wrong object type.
 	void dbLoadScanInitialConditions(AMDbObject* newLoadedObject);
 	/// Returns a list of pointers to the raw data sources, to support db storage.
 	AMDbObjectList dbReadRawDataSources() const;

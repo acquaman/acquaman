@@ -185,7 +185,7 @@ bool AMScan::loadFromDb(AMDatabase* db, int sourceId) {
 }
 
 
-// Called when a stored scanInitialCondition is loaded out of the database, but scanInitialConditions() is not returning a pointer to a valid AMControlSetInfo. Note: this should never happen, unless the database storage was corrupted and is loading the wrong object type.
+// Called when a stored scanInitialCondition is loaded out of the database, but scanInitialConditions() is not returning a pointer to a valid AMControlInfoList. Note: this should never happen, unless the database storage was corrupted and is loading the wrong object type.
 void AMScan::dbLoadScanInitialConditions(AMDbObject* newLoadedObject) {
 	AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -89, "There was an error re-loading the initial conditions for this scan from the database. This should never happen unless your database is corrupted. Please report this bug to the Acquaman developers."));
 
