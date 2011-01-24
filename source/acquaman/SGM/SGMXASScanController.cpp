@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/SGM2004FileLoader.h"
 #include "analysis/AM1DExpressionAB.h"
 #include "dataman/AMRawDataSource.h"
+#include "dataman/AMUser.h"
 
 /// If this had a one-line documented comment, I would know how to interpret these two strings. Are they the name and the channel expression? The expression and the x-expression?
 typedef QPair<QString, QString> chPair;
@@ -44,6 +45,7 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 	pScan_()->setName("SGM XAS Scan");
 	pScan_()->setFilePath(pCfg_()->filePath()+pCfg_()->fileName());
 	pScan_()->setFileFormat("sgm2004");
+	pScan_()->setRunId(AMUser::user()->currentRunId());
 
 	// Create space in raw data store, and create raw data channels, for each detector.
 
