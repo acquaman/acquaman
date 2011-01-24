@@ -24,7 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFrame>
 #include <QHBoxLayout>
 
-#include "NumericControl.h"
+#include "AMNumericControl.h"
 #include "beamline/SGMBeamline.h"
 
 class SGMBeamlineAtAGlanceBar : public QFrame

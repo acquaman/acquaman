@@ -67,11 +67,11 @@ protected slots:
 // TODO: moving indicator
 // TODO: move dialog
 
-class NumericControl : public QFrame
+class AMNumericControl : public QFrame
 {
 Q_OBJECT
 public:
-	explicit NumericControl(AMControl *control, QWidget *parent = 0);
+	explicit AMNumericControl(AMControl *control, QWidget *parent = 0);
 
 signals:
 	void moveRequested(double);
@@ -86,7 +86,7 @@ protected slots:
 	void onValueChanged(double newVal);
 	void onUnitsChanged(const QString& units);
 	void onMotion(bool moving);
-	
+
 	void onEditStart();
 
 protected:
@@ -94,7 +94,7 @@ protected:
 	QLabel *valueLabel_;
 	QLabel *unitsLabel_;
 	StyledInputDialog* dialog_;
-	
+
 	void mouseReleaseEvent ( QMouseEvent *event );
 
 };

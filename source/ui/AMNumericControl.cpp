@@ -18,7 +18,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "NumericControl.h"
+#include "AMNumericControl.h"
 #include <QApplication>
 #include <QMouseEvent>
 
@@ -27,10 +27,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QVBoxLayout>
 #include <QLabel>
 
-NumericControl::NumericControl(AMControl* control, QWidget *parent) :
+AMNumericControl::AMNumericControl(AMControl* control, QWidget *parent) :
 	QFrame(parent)
 {
-	setObjectName("NumericControl");
+	setObjectName("AMNumericControl");
 
 	control_ = control;
 
@@ -52,7 +52,7 @@ NumericControl::NumericControl(AMControl* control, QWidget *parent) :
 	valueLabel_->setStyleSheet("color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);");
 	valueLabel_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 	setFrameStyle(QFrame::StyledPanel);
-	setStyleSheet("QFrame#NumericControl { background: white; } ");
+	setStyleSheet("QFrame#AMNumericControl { background: white; } ");
 	setHappy(false);
 	setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 
@@ -65,7 +65,7 @@ NumericControl::NumericControl(AMControl* control, QWidget *parent) :
 		connect(control_, SIGNAL(movingChanged(bool)), this, SLOT(onMotion(bool)));
 	}
 	connect(this, SIGNAL(clicked()), this, SLOT(onEditStart()));
-	
+
 	// Create the editor dialog:
 	dialog_ = new StyledInputDialog(this);
 	// dialog_->setInputMode(QInputDialog::DoubleInput);
@@ -75,35 +75,35 @@ NumericControl::NumericControl(AMControl* control, QWidget *parent) :
 
 }
 
-void NumericControl::onValueChanged(double newVal) {
+void AMNumericControl::onValueChanged(double newVal) {
 	valueLabel_->setText(QString("%1").arg(newVal));
 }
-void NumericControl::onUnitsChanged(const QString& units) {
+void AMNumericControl::onUnitsChanged(const QString& units) {
 	unitsLabel_->setText(units);
 }
 
 
-void NumericControl::setHappy(bool happy) {
+void AMNumericControl::setHappy(bool happy) {
 	if(happy)
 		unitsLabel_->setStyleSheet("border: 1px outset #00df00; background: #d4ffdf; padding: 1px; width: 100%; color: #00df00;");
 	else
 		unitsLabel_->setStyleSheet("border: 1px outset #f20000; background: #ffdfdf;	padding: 1px; color: #f20000;");
 }
 
-void NumericControl::onMotion(bool moving) {
+void AMNumericControl::onMotion(bool moving) {
 	if(moving)
 		unitsLabel_->setStyleSheet("border: 1px outset blue; background: #ffdfdf;	padding: 1px; color: blue;");
 	else
 		setHappy(control_->isConnected());
 }
 
-void NumericControl::onEditStart() {
+void AMNumericControl::onEditStart() {
 
 	if(!control_->canMove()) {
 		QApplication::beep();
 		return;
 	}
-	
+
 	//bool ok;
 
 	dialog_->setDoubleValue(control_->value());
@@ -117,7 +117,7 @@ void NumericControl::onEditStart() {
 
 }
 
-void NumericControl::mouseReleaseEvent ( QMouseEvent * event ) {
+void AMNumericControl::mouseReleaseEvent ( QMouseEvent * event ) {
 	if(event->button() == Qt::LeftButton) {
 		event->accept();
 		emit clicked();

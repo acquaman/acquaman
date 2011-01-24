@@ -25,7 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QGroupBox>
 #include <QVBoxLayout>
 
-#include "NumericControl.h"
+#include "AMNumericControl.h"
 #include "beamline/SGMBeamline.h"
 
 class SGMSidebar : public QWidget
