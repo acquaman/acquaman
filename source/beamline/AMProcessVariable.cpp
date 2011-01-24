@@ -119,6 +119,9 @@ AMProcessVariable::AMProcessVariable(const QString& pvName, bool autoMonitor, QO
 	// Sets disablePutCallback to false so that setValue uses ca_put_callback() by default.
 	disablePutCallback_ = false;
 
+	chid_ = 0;
+	channelCreated_ = true;
+
 	try {
 
 		AMProcessVariableHeartbeat::ensureChannelAccess();
@@ -139,7 +142,8 @@ AMProcessVariable::AMProcessVariable(const QString& pvName, bool autoMonitor, QO
 
 	catch(int s) {
 
-		qDebug() << QString("AMProcessVariable: Error initializing AMProcessVariable: %1: %2").arg(pvName).arg(ca_message(lastError_));
+		qDebug() << QString("AMProcessVariable: Error initializing AMProcessVariable for process variable named '%1'. Reason: %2").arg(pvName).arg(ca_message(lastError_));
+		channelCreated_ = false;
 		emit error(s);
 	}
 }
@@ -155,10 +159,12 @@ AMProcessVariable::~AMProcessVariable() {
 	// This is unnecessary... called auto. by ca_clear_channel():
 	// ca_clear_subscription(evid_);
 
-	ca_clear_channel(chid_);
+	if(channelCreated_) {
+		ca_clear_channel(chid_);
 
-	// deregister ourself from the support class:
-	AMProcessVariableHeartbeat::removePV(chid_);
+		// deregister ourself from the support class:
+		AMProcessVariableHeartbeat::removePV(chid_);
+	}
 
 }
 

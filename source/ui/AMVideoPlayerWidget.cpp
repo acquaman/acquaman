@@ -32,9 +32,13 @@ AMVideoPlayerWidget::AMVideoPlayerWidget(QWidget *parent) : QFrame(parent) {
 
 	setMinimumSize(100,100);
 
-	const char* optionString = "--no-video-title";
+	const char* const vlcArgs[] = {
+					"--no-video-title",
+					"--plugin-path=/Users/mboots/dev/vlc-install/lib/vlc/plugins/"
+			};
+
 	/// Create a vlc instance for this widget
-	vlcInstance_ = libvlc_new (1, &optionString);
+	vlcInstance_ = libvlc_new (2, vlcArgs);
 	/// create the vlc player itself
 	vlcPlayer_ = libvlc_media_player_new(vlcInstance_);
 
