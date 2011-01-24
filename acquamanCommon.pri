@@ -135,8 +135,6 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/beamline/AMVariableAperture.h \
 	source/beamline/SGMBeamline.h \
 	source/dataman/AMDatabase.h \
-	source/dataman/AMDataTree.h \
-	source/dataman/AMDataTreeColumn.h \
 	source/dataman/AMDbObject.h \
 	source/dataman/AMDetectorInfo.h \
 	source/dataman/AMExperiment.h \
@@ -177,15 +175,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMXASRegionsView.h \
 	source/ui/BottomBar.h \
 	source/ui/AMBeamlineCameraWidget.h \
-	source/ui/ConnectionSettings.h \
-	source/ui/EmissionScanController.h \
-	source/ui/ExpAlbum.h \
-	source/ui/GratingResolution.h \
-	source/ui/NumericControl.h \
-	source/ui/PeriodicTable.h \
-	source/ui/ProtocolViewer.h \
-	source/ui/SamplePositions.h \
-	source/ui/Scheduler.h \
+	source/ui/AMNumericControl.h \
 	source/ui/SGMSampleTransferView.h \
 	source/ui/SGMXASScanConfigurationViewer.h \
 	source/acquaman.h \
@@ -240,36 +230,26 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/util/AMOrderedSetSignalSource.h \
 	source/util/AMOrderedSet.h \
 	source/dataman/AMRawDataSource.h \
-    source/analysis/AM1DExpressionABEditor.h \
-    source/dataman/AMMeasurementInfo.h \
-    source/dataman/AMDataTreeDataStore.h \
-    source/dataman/AMInMemoryDataStore.h \
-    source/acquaman/AMFastScanConfiguration.h \
-    source/acquaman/SGM/SGMFastScanConfiguration.h \
-    source/ui/SGMFastScanConfigurationViewer.h \
-    source/ui/AMScanConfigurationViewer.h \
-    source/acquaman/SGM/SGMFastDacqScanController.h \
-    source/dataman/AMFastScan.h \
-    source/acquaman/SGM/SGMFastScanController.h \
-    source/analysis/AM2DSummingAB.h \
-    source/analysis/AMStandardAnalysisBlock.h \
-    source/analysis/AM2DSummingABEditor.h \
-    source/util/AMOrderedList.h
-FORMS += source/ui/AbsorptionScanController.ui \
-	source/ui/AMDataView.ui \
+	source/analysis/AM1DExpressionABEditor.h \
+	source/dataman/AMMeasurementInfo.h \
+	source/dataman/AMInMemoryDataStore.h \
+	source/acquaman/AMFastScanConfiguration.h \
+	source/acquaman/SGM/SGMFastScanConfiguration.h \
+	source/ui/SGMFastScanConfigurationViewer.h \
+	source/ui/AMScanConfigurationViewer.h \
+	source/acquaman/SGM/SGMFastDacqScanController.h \
+	source/dataman/AMFastScan.h \
+	source/acquaman/SGM/SGMFastScanController.h \
+	source/analysis/AM2DSummingAB.h \
+	source/analysis/AMStandardAnalysisBlock.h \
+	source/analysis/AM2DSummingABEditor.h \
+	source/util/AMOrderedList.h
+FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
 	source/ui/AMDataViewSection.ui \
 	source/ui/AMImportControllerWidget.ui \
 	source/ui/AMScanConfigurationView.ui \
 	source/ui/BottomBar.ui \
-	source/ui/ConnectionSettings.ui \
-	source/ui/EmissionScanController.ui \
-	source/ui/ExpAlbum.ui \
-	source/ui/GratingResolution.ui \
-	source/ui/PeriodicTable.ui \
-	source/ui/ProtocolViewer.ui \
-	source/ui/SamplePositions.ui \
-	source/ui/Scheduler.ui \
 	source/ui/SGMXASScanConfigurationViewer.ui \
 	source/ui/AMGenericScanEditor.ui \
 	source/ui/AMDataSourcesEditor.ui \
@@ -346,7 +326,6 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/beamline/AMSpectrometer.cpp \
 	source/beamline/AMVariableAperture.cpp \
 	source/beamline/SGMBeamline.cpp \
-	source/dataman/AMDataTree.cpp \
 	source/dataman/AMDatabase.cpp \
 	source/dataman/AMDbObject.cpp \
 	source/dataman/AMDetectorInfo.cpp \
@@ -381,8 +360,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMXASRegionsView.cpp \
 	source/ui/BottomBar.cpp \
 	source/ui/AMBeamlineCameraWidget.cpp \
-	source/ui/NumericControl.cpp \
-	source/ui/SamplePositions.cpp \
+	source/ui/AMNumericControl.cpp \
 	source/ui/SGMSampleTransferView.cpp \
 	source/ui/SGMXASScanConfigurationViewer.cpp \
 	source/ui/AMDetectorView.cpp \
@@ -435,18 +413,17 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/acquaman.cpp \
 	source/util/AMOrderedSetSignalSource.cpp \
 	source/dataman/AMRawDataSource.cpp \
-    source/analysis/AM1DExpressionABEditor.cpp \
-    source/dataman/AMDataTreeDataStore.cpp \
-    source/dataman/AMInMemoryDataStore.cpp \
-    source/acquaman/AMFastScanConfiguration.cpp \
-    source/acquaman/SGM/SGMFastScanConfiguration.cpp \
-    source/ui/SGMFastScanConfigurationViewer.cpp \
-    source/ui/AMScanConfigurationViewer.cpp \
-    source/acquaman/SGM/SGMFastDacqScanController.cpp \
-    source/dataman/AMFastScan.cpp \
-    source/acquaman/SGM/SGMFastScanController.cpp \
-    source/analysis/AM2DSummingAB.cpp \
-    source/analysis/AMStandardAnalysisBlock.cpp \
-    source/analysis/AM2DSummingABEditor.cpp
+	source/analysis/AM1DExpressionABEditor.cpp \
+	source/dataman/AMInMemoryDataStore.cpp \
+	source/acquaman/AMFastScanConfiguration.cpp \
+	source/acquaman/SGM/SGMFastScanConfiguration.cpp \
+	source/ui/SGMFastScanConfigurationViewer.cpp \
+	source/ui/AMScanConfigurationViewer.cpp \
+	source/acquaman/SGM/SGMFastDacqScanController.cpp \
+	source/dataman/AMFastScan.cpp \
+	source/acquaman/SGM/SGMFastScanController.cpp \
+	source/analysis/AM2DSummingAB.cpp \
+	source/analysis/AMStandardAnalysisBlock.cpp \
+	source/analysis/AM2DSummingABEditor.cpp
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc

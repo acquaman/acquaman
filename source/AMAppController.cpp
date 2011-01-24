@@ -35,20 +35,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMImportController.h"
 
 
-#include "ui/ConnectionSettings.h"
+
 #include "ui/SGMSampleTransferView.h"
 #include "ui/AMSamplePositionView.h"
-#include "ui/SamplePositions.h"
-#include "ui/GratingResolution.h"
-#include "ui/AbsorptionScanController.h"
 #include "ui/AMScanConfigurationView.h"
 #include "ui/SGMXASScanConfigurationViewer.h"
-#include "ui/EmissionScanController.h"
 #include "ui/AMWorkflowManagerView.h"
-#include "ui/Scheduler.h"
-#include "ui/PeriodicTable.h"
-#include "ui/ProtocolViewer.h"
-#include "ui/ExpAlbum.h"
 #include "ui/BottomBar.h"
 #include "ui/AMDataView.h"
 #include "ui/AMRunExperimentInsert.h"
@@ -122,8 +114,8 @@ bool AMAppController::startup() {
 	// gratingResolution_ = new GratingResolution();
 	// mw_->addPane(gratingResolution_, "Beamline Control", "Gratings and Resolution", ":/system-search.png");
 
-	absorptionScanController_ = new AbsorptionScanController();
-	mw_->addPane(absorptionScanController_, "Experiment Setup", "Absorption Scan", ":/utilities-system-monitor.png");
+//	absorptionScanController_ = new AbsorptionScanController();
+//	mw_->addPane(absorptionScanController_, "Experiment Setup", "Absorption Scan", ":/utilities-system-monitor.png");
 
 	//emissionScanController_ = new EmissionScanController();
 	//mw_->addPane(emissionScanController_, "Experiment Setup", "Emission Scan", ":/multimedia-volume-control.png");
