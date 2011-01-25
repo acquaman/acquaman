@@ -32,6 +32,7 @@ void SGMBeamline::usingSGMBeamline(){
 	amNames2pvNames_.set("undulator", "UND1411-01");
 	amNames2pvNames_.set("exitSlit", "PSL16114I1003");
 	amNames2pvNames_.set("exitSlitGap", "PSL16114I1004");
+	amNames2pvNames_.set("entranceSlitGap", "PSL16114I1001");
 	amNames2pvNames_.set("M4", "BL1611-ID-1:Energy");
 	amNames2pvNames_.set("M4Inboard", "BL1611-ID-1:Energy");
 	amNames2pvNames_.set("M4Outboard", "BL1611-ID-1:Energy");
@@ -68,23 +69,31 @@ void SGMBeamline::usingSGMBeamline(){
 	amNames2pvNames_.set("gratingVelocity", "SMTR16114I1002:velo");
 	amNames2pvNames_.set("gratingBaseVelocity", "SMTR16114I1002:veloBase");
 	amNames2pvNames_.set("gratingAcceleration", "SMTR16114I1002:accel");
+	amNames2pvNames_.set("ea1CloseVacuum", "VVR1611-4-I10-05:opr:close");
+	amNames2pvNames_.set("ea2CloseVacuum", "VVR1611-4-I10-08:opr:close");
+	amNames2pvNames_.set("beamOn", "BL1611-ID-1:beam:turnon");
 
 	ringCurrent_ = new AMReadOnlyPVControl("ringCurrent", AMPVNames::toPV("ringCurrent"), this);
 	addChildControl(ringCurrent_);
 	QString sgmPVName = amNames2pvNames_.valueF("energy");
 	energy_ = new AMPVwStatusControl("energy", sgmPVName+":fbk", sgmPVName, amNames2pvNames_.valueF("energyMovingStatus"), "", this, 0.01);
 	sgmPVName = amNames2pvNames_.valueF("mono");
-	AMReadOnlyPVwStatusControl *mono = new AMReadOnlyPVwStatusControl("mono", sgmPVName+":enc:fbk", sgmPVName+":moving", energy_);
+	//AMReadOnlyPVwStatusControl *mono = new AMReadOnlyPVwStatusControl("mono", sgmPVName+":enc:fbk", sgmPVName+":moving", energy_);
+	AMPVwStatusControl *mono = new AMPVwStatusControl("mono", sgmPVName+":enc:fbk", sgmPVName+"encTarget", sgmPVName+":moving", "SMTR1611I1002:stop", energy_, 5);
 	sgmPVName = amNames2pvNames_.valueF("undulator");
-	AMReadOnlyPVwStatusControl *undulator = new AMReadOnlyPVwStatusControl("undulator", sgmPVName+":gap:mm:fbk", sgmPVName+":moveStatus", energy_);
+	//AMReadOnlyPVwStatusControl *undulator = new AMReadOnlyPVwStatusControl("undulator", sgmPVName+":gap:mm:fbk", sgmPVName+":moveStatus", energy_);
+	AMPVwStatusControl *undulator = new AMPVwStatusControl("undulator", sgmPVName+":gap:mm:fbk", sgmPVName+":gap:mm", sgmPVName+":moveStatus", "UND1411-01:stop", energy_, 0.1);
 	sgmPVName = amNames2pvNames_.valueF("exitSlit");
-	AMReadOnlyPVwStatusControl *exitSlit = new AMReadOnlyPVwStatusControl("exitSlit", sgmPVName+":Y:mm:encsp", "SMTR16114I1003:moving", energy_);
+	//AMReadOnlyPVwStatusControl *exitSlit = new AMReadOnlyPVwStatusControl("exitSlit", sgmPVName+":Y:mm:encsp", "SMTR16114I1003:moving", energy_);
+	AMPVwStatusControl *exitSlit = new AMPVwStatusControl("exitSlit", sgmPVName+":Y:mm:encsp", "SMTR16114I1003:mm", "SMTR16114I1003:moving", "SMTR16114I1003:stop", energy_, 0.1);
 	energy_->addChildControl(mono);
 	energy_->addChildControl(undulator);
 	energy_->addChildControl(exitSlit);
 
 	sgmPVName = amNames2pvNames_.valueF("exitSlitGap");
-	exitSlitGap_ = new AMPVwStatusControl("exitSlitGap", sgmPVName+":Y:mm:fbk", sgmPVName+":Y:mm:encsp", "SMTR16114I1017:status", "", this, 0.1);
+	exitSlitGap_ = new AMPVwStatusControl("exitSlitGap", sgmPVName+":Y:mm:fbk", sgmPVName+":Y:mm:encsp", "SMTR16114I1017:status", "SMTR16114I1017:stop", this, 0.1);
+	sgmPVName = amNames2pvNames_.valueF("entranceSlitGap");
+	entranceSlitGap_ = new AMPVwStatusControl("entranceSlitGap", sgmPVName+":Y:mm:fbk", sgmPVName+":Y:mm:encsp", "SMTR16114I1001:status", "SMTR16114I1001:stop", this, 0.1);
 	sgmPVName = amNames2pvNames_.valueF("M4");
 	m4_ = new AMReadOnlyPVwStatusControl("M4", sgmPVName, sgmPVName, this);
 	sgmPVName = amNames2pvNames_.valueF("M4Inboard");
@@ -157,13 +166,20 @@ void SGMBeamline::usingSGMBeamline(){
 	sgmPVName = amNames2pvNames_.valueF("energyMovingStatus");
 	energyMovingStatus_ = new AMReadOnlyPVControl("energyMovingStatus", sgmPVName, this);
 	sgmPVName = amNames2pvNames_.valueF("fastShutterVoltage");
-	energyMovingStatus_ = new AMPVControl("fastShutterVoltage", sgmPVName, sgmPVName, "", this);
+	fastShutterVoltage_ = new AMPVControl("fastShutterVoltage", sgmPVName, sgmPVName, "", this);
 	sgmPVName = amNames2pvNames_.valueF("gratingVelocity");
-	energyMovingStatus_ = new AMPVControl("gratingVelocity", sgmPVName, sgmPVName, "", this);
-	sgmPVName = amNames2pvNames_.valueF("gratingVelocityBase");
-	energyMovingStatus_ = new AMPVControl("gratingVelocityBase", sgmPVName, sgmPVName, "", this);
+	gratingVelocity_ = new AMPVControl("gratingVelocity", sgmPVName, sgmPVName, "", this);
+	sgmPVName = amNames2pvNames_.valueF("gratingBaseVelocity");
+	gratingBaseVelocity_ = new AMPVControl("gratingBaseVelocity", sgmPVName, sgmPVName, "", this);
 	sgmPVName = amNames2pvNames_.valueF("gratingAcceleration");
-	energyMovingStatus_ = new AMPVControl("gratingAcceleration", sgmPVName, sgmPVName, "", this);
+	gratingAcceleration_ = new AMPVControl("gratingAcceleration", sgmPVName, sgmPVName, "", this);
+	sgmPVName = amNames2pvNames_.valueF("ea1CloseVacuum");
+	ea1CloseVacuum_ = new AMPVControl("ea1CloseVacuum", sgmPVName, sgmPVName, "", this);
+	sgmPVName = amNames2pvNames_.valueF("ea2CloseVacuum");
+	ea2CloseVacuum_ = new AMPVControl("ea2CloseVacuum", sgmPVName, sgmPVName, "", this);
+	sgmPVName = amNames2pvNames_.valueF("beamOn");
+	beamOn_ = new AMPVControl("beamOn", sgmPVName, sgmPVName, "", this);
+
 }
 
 void SGMBeamline::usingFakeBeamline(){
@@ -174,6 +190,7 @@ void SGMBeamline::usingFakeBeamline(){
 	amNames2pvNames_.set("undulator", "dave:Energy:undulator");
 	amNames2pvNames_.set("exitSlit", "dave:Energy:exitSlit");
 	amNames2pvNames_.set("exitSlitGap", "dave:Slit");
+	amNames2pvNames_.set("entranceSlitGap", "dave:entranceSlit");
 	amNames2pvNames_.set("M4", "dave:M4");
 	amNames2pvNames_.set("M4Inboard", "dave:M4:inboard");
 	amNames2pvNames_.set("M4Outboard", "dave:M4:outboard");
@@ -209,20 +226,28 @@ void SGMBeamline::usingFakeBeamline(){
 	amNames2pvNames_.set("gratingVelocity", "dave:mono:velo");
 	amNames2pvNames_.set("gratingBaseVelocity", "dave:mono:veloBase");
 	amNames2pvNames_.set("gratingAcceleration", "dave:mono:accel");
+	amNames2pvNames_.set("ea1CloseVacuum", "dave:close:ea1");
+	amNames2pvNames_.set("ea2CloseVacuum", "dave:close:ea2");
+	amNames2pvNames_.set("beamOn", "dave:open:beamline");
 
 	QString sgmPVName = amNames2pvNames_.valueF("energy");
 	energy_ = new AMPVwStatusControl("energy", sgmPVName, sgmPVName, sgmPVName+":moving", "", this, 0.01);
 	sgmPVName = amNames2pvNames_.valueF("mono");
-	AMReadOnlyPVwStatusControl *mono = new AMReadOnlyPVwStatusControl("mono", sgmPVName, sgmPVName+":moving", energy_);
+	//AMReadOnlyPVwStatusControl *mono = new AMReadOnlyPVwStatusControl("mono", sgmPVName, sgmPVName+":moving", energy_);
+	AMPVwStatusControl *mono = new AMPVwStatusControl("mono", sgmPVName, sgmPVName, sgmPVName+":moving", sgmPVName+":stop", energy_, 5);
 	sgmPVName = amNames2pvNames_.valueF("undulator");
-	AMReadOnlyPVwStatusControl *undulator = new AMReadOnlyPVwStatusControl("undulator", sgmPVName, sgmPVName+":moving", energy_);
+	//AMReadOnlyPVwStatusControl *undulator = new AMReadOnlyPVwStatusControl("undulator", sgmPVName, sgmPVName+":moving", energy_);
+	AMPVwStatusControl *undulator = new AMPVwStatusControl("undulator", sgmPVName, sgmPVName, sgmPVName+":moving", sgmPVName+":stop", energy_, 0.1);
 	sgmPVName = amNames2pvNames_.valueF("exitSlit");
-	AMReadOnlyPVwStatusControl *exitSlit = new AMReadOnlyPVwStatusControl("exitSlit", sgmPVName, sgmPVName+":moving", energy_);
+	//AMReadOnlyPVwStatusControl *exitSlit = new AMReadOnlyPVwStatusControl("exitSlit", sgmPVName, sgmPVName+":moving", energy_);
+	AMPVwStatusControl *exitSlit = new AMPVwStatusControl("exitSlit", sgmPVName, sgmPVName, sgmPVName+":moving", sgmPVName+":stop", energy_, 0.1);
 	energy_->addChildControl(mono);
 	energy_->addChildControl(undulator);
 	energy_->addChildControl(exitSlit);
 	sgmPVName = amNames2pvNames_.valueF("exitSlitGap");
 	exitSlitGap_ = new AMPVwStatusControl("exitSlitGap", sgmPVName, sgmPVName, sgmPVName+":moving", "", this, 0.1);
+	sgmPVName = amNames2pvNames_.valueF("entranceSlitGap");
+	entranceSlitGap_ = new AMPVwStatusControl("entranceSlitGap", sgmPVName, sgmPVName, sgmPVName+":moving", sgmPVName+":stop", this, 0.1);
 	sgmPVName = amNames2pvNames_.valueF("M4");
 	m4_ = new AMReadOnlyPVwStatusControl("M4", sgmPVName, sgmPVName+":moving", this);
 	sgmPVName = amNames2pvNames_.valueF("M4Inboard");
@@ -298,14 +323,19 @@ void SGMBeamline::usingFakeBeamline(){
 	sgmPVName = amNames2pvNames_.valueF("energyMovingStatus");
 	energyMovingStatus_ = new AMReadOnlyPVControl("energyMovingStatus", sgmPVName, this);
 	sgmPVName = amNames2pvNames_.valueF("fastShutterVoltage");
-	energyMovingStatus_ = new AMPVControl("fastShutterVoltage", sgmPVName, sgmPVName, "", this);
-
+	fastShutterVoltage_ = new AMPVControl("fastShutterVoltage", sgmPVName, sgmPVName, "", this);
 	sgmPVName = amNames2pvNames_.valueF("gratingVelocity");
-	energyMovingStatus_ = new AMPVControl("gratingVelocity", sgmPVName, sgmPVName, "", this);
+	gratingVelocity_ = new AMPVControl("gratingVelocity", sgmPVName, sgmPVName, "", this);
 	sgmPVName = amNames2pvNames_.valueF("gratingBaseVelocity");
-	energyMovingStatus_ = new AMPVControl("gratingBaseVelocity", sgmPVName, sgmPVName, "", this);
+	gratingBaseVelocity_ = new AMPVControl("gratingBaseVelocity", sgmPVName, sgmPVName, "", this);
 	sgmPVName = amNames2pvNames_.valueF("gratingAcceleration");
-	energyMovingStatus_ = new AMPVControl("gratingAcceleration", sgmPVName, sgmPVName, "", this);
+	gratingAcceleration_ = new AMPVControl("gratingAcceleration", sgmPVName, sgmPVName, "", this);
+	sgmPVName = amNames2pvNames_.valueF("ea1CloseVacuum");
+	ea1CloseVacuum_ = new AMPVControl("ea1CloseVacuum", sgmPVName, sgmPVName, "", this);
+	sgmPVName = amNames2pvNames_.valueF("ea2CloseVacuum");
+	ea2CloseVacuum_ = new AMPVControl("ea2CloseVacuum", sgmPVName, sgmPVName, "", this);
+	sgmPVName = amNames2pvNames_.valueF("beamOn");
+	beamOn_ = new AMPVControl("beamOn", sgmPVName, sgmPVName, "", this);
 }
 
 SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
@@ -315,6 +345,7 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 
 	addChildControl(energy_);
 	addChildControl(exitSlitGap_);
+	addChildControl(entranceSlitGap_);
 	addChildControl(m4_);
 	addChildControl(grating_);
 	addChildControl(harmonic_);
@@ -347,6 +378,9 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	addChildControl(gratingVelocity_);
 	addChildControl(gratingBaseVelocity_);
 	addChildControl(gratingAcceleration_);
+	addChildControl(ea1CloseVacuum_);
+	addChildControl(ea2CloseVacuum_);
+	addChildControl(beamOn_);
 
 	criticalControlsSet_ = new AMControlSet(this);
 	criticalControlsSet_->setName("Critical Beamline Controls");

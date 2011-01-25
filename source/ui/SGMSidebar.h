@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QWidget>
 #include <QGroupBox>
 #include <QVBoxLayout>
+#include <QGridLayout>
 
 #include "AMNumericControl.h"
 #include "beamline/SGMBeamline.h"
@@ -42,12 +43,15 @@ protected:
 	QGroupBox *mainBox_;
 
 	QVBoxLayout *mainLayout_;
-	QVBoxLayout *vl_;
+	//QVBoxLayout *vl_;
+	QGridLayout *gl_;
 
 	AMControlEdit *energyNC_;
 	AMControlEdit *gratingNC_;
+	AMControlEdit *exitSlitNC_;
+	AMControlEdit *entranceSlitNC_;
 	AMControlEdit *readyLabel_;
-	AMControlEdit *moveStatusLabel_;
+//	AMControlEdit *moveStatusLabel_;
 };
 
 #endif // SGMSIDEBAR_H

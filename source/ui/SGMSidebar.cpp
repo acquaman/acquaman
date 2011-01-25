@@ -26,17 +26,40 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	mainBox_ = new QGroupBox("SGM Beamline");
 	mainLayout_ = new QVBoxLayout();
 	mainLayout_->addWidget(mainBox_);
-	vl_ = new QVBoxLayout();
-	mainBox_->setLayout(vl_);
+	//vl_ = new QVBoxLayout();
+	gl_ = new QGridLayout();
+	//mainBox_->setLayout(vl_);
+	mainBox_->setLayout(gl_);
 
-	energyNC_ = new AMControlEdit(SGMBeamline::sgm()->energy());
+	energyNC_ = new AMControlEdit(SGMBeamline::sgm()->energy(), SGMBeamline::sgm()->energyMovingStatus());
+	energyNC_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+	energyNC_->setMinimumWidth(150);
 	gratingNC_ = new AMControlEdit(SGMBeamline::sgm()->grating());
+	gratingNC_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+	gratingNC_->setMinimumWidth(150);
+	exitSlitNC_ = new AMControlEdit(SGMBeamline::sgm()->exitSlitGap());
+	exitSlitNC_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+	exitSlitNC_->setMinimumWidth(150);
+	entranceSlitNC_ = new AMControlEdit(SGMBeamline::sgm()->entranceSlitGap());
+	entranceSlitNC_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+	entranceSlitNC_->setMinimumWidth(150);
 	readyLabel_ = new AMControlEdit(SGMBeamline::sgm()->beamlineReady());
-	moveStatusLabel_ = new AMControlEdit(SGMBeamline::sgm()->energyMovingStatus());
+	readyLabel_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+	readyLabel_->setMinimumWidth(150);
+//	moveStatusLabel_ = new AMControlEdit(SGMBeamline::sgm()->energyMovingStatus());
+	/*
 	vl_->addWidget(energyNC_);
 	vl_->addWidget(gratingNC_);
+	vl_->addWidget(exitSlitNC_);
+	vl_->addWidget(entranceSlitNC_);
 	vl_->addWidget(readyLabel_);
 	vl_->addWidget(moveStatusLabel_);
+	*/
+	gl_->addWidget(readyLabel_,		0, 0, 1, 1, Qt::AlignCenter);
+	gl_->addWidget(energyNC_,		1, 0, 1, 1, Qt::AlignCenter);
+	gl_->addWidget(gratingNC_,		2, 0, 1, 1, Qt::AlignCenter);
+	gl_->addWidget(entranceSlitNC_,		3, 0, 1, 1, Qt::AlignCenter);
+	gl_->addWidget(exitSlitNC_,		3, 1, 1, 1, Qt::AlignCenter);
 
 	setLayout(mainLayout_);
 }

@@ -76,6 +76,10 @@ public:
 	AMControl* ringCurrent() const { return ringCurrent_; }
 	AMControl* energy() const { return energy_;}
 	AMControl* exitSlitGap() const { return exitSlitGap_;}
+	AMControl* entranceSlitGap() const { return entranceSlitGap_;}
+	AMControl* mono() const { return energy_->childControlAt(0);}
+	AMControl* undulator() const { return energy_->childControlAt(1);}
+	AMControl* exitSlit() const { return energy_->childControlAt(2);}
 	AMControl* m4() const { return m4_;}
 	AMControl* grating() const { return grating_;}
 	AMControl* harmonic() const { return harmonic_;}
@@ -104,6 +108,10 @@ public:
 	AMControl* gratingVelocity() const { return gratingVelocity_;}
 	AMControl* gratingBaseVelocity() const { return gratingBaseVelocity_;}
 	AMControl* gratingAcceleration() const { return gratingAcceleration_;}
+	AMControl* ea1CloseVacuum() const { return ea1CloseVacuum_;}
+	AMControl* ea2CloseVacuum() const { return ea2CloseVacuum_;}
+	AMControl* beamOn() const { return beamOn_;}
+
 
 	AMControlSet* fluxResolutionSet() const { return fluxResolutionSet_;}
 	AMControlSet* trackingSet() const { return trackingSet_;}
@@ -189,6 +197,7 @@ protected:
 	AMControl *ringCurrent_;
 	AMControl *energy_;
 	AMControl *exitSlitGap_;
+	AMControl *entranceSlitGap_;
 	AMControl *m4_;
 	AMControl *grating_;
 	AMControl *harmonic_;
@@ -224,6 +233,9 @@ protected:
 	AMControl *gratingVelocity_;
 	AMControl *gratingBaseVelocity_;
 	AMControl *gratingAcceleration_;
+	AMControl *ea1CloseVacuum_;
+	AMControl *ea2CloseVacuum_;
+	AMControl *beamOn_;
 
 	AMControlSet *teyControlSet_;
 	AMDetectorInfo *teyDetector_;

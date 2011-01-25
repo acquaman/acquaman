@@ -138,7 +138,7 @@ class AMControlEdit : public QGroupBox
 {
 Q_OBJECT
 public:
-	explicit AMControlEdit(AMControl* control, bool readOnly = false, QWidget *parent = 0);
+	explicit AMControlEdit(AMControl* control, AMControl* statusTagControl = NULL, bool readOnly = false, QWidget *parent = 0);
 
 signals:
 	void moveRequested(double);
@@ -157,15 +157,19 @@ protected slots:
 
 	void onEditStart();
 
+	void onStatusValueChanged(double newVal);
+
 protected:
 	QSize sizeHint() const;
 	void mouseReleaseEvent ( QMouseEvent * event );
 
 protected:
 	AMControl* control_;
+	AMControl* statusTagControl_;
 	bool readOnly_;
 	QLabel* valueLabel_;
 	QLabel* unitsLabel_;
+	QLabel* statusLabel_;
 	//QLabel* nameLabel_;
 	StyledControlInputDialog* dialog_;
 };

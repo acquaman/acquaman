@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QLabel>
+#include <QFont>
 
 AMNumericControl::AMNumericControl(AMControl* control, QWidget *parent) :
 	QFrame(parent)
@@ -189,39 +190,59 @@ void StyledInputDialog::setSuffix(const QString& s) { spinBox_->setSuffix(QStrin
 void StyledInputDialog::showEvent ( QShowEvent * event ) { QDialog::showEvent(event); spinBox_->setFocus(); }
 
 
-AMControlEdit::AMControlEdit(AMControl* control, bool readOnly, QWidget *parent) :
+AMControlEdit::AMControlEdit(AMControl* control, AMControl* statusTagControl, bool readOnly, QWidget *parent) :
 	QGroupBox(parent)
 {
 	setObjectName("AMControlEdit");
 
 	control_ = control;
 	readOnly_ = readOnly;
+	statusTagControl_ = statusTagControl;
 	if(!control_->canMove())
 		readOnly_ = true;
 
 	// Create objects:
 	valueLabel_ = new QLabel("[unconnected]");
 	unitsLabel_ = new QLabel("?");
+	if(statusTagControl_){
+		QFont statusFont;
+		statusFont.setPointSize(10);
+		statusLabel_ = new QLabel("[unconnected]");
+		statusLabel_->setFont(statusFont);
+		statusLabel_->setMargin(1);
+	}
 //	nameLabel_ = new QLabel("?");
 	if(control_)
 		setTitle(control_->name());
 
 	// Layout:
 	QHBoxLayout* hl = new QHBoxLayout();
+	QVBoxLayout* vl = new QVBoxLayout();
 	hl->addWidget(valueLabel_, 2);
 	hl->addSpacing(2);
 	hl->addWidget(unitsLabel_, 0);
 	hl->setMargin(2);
+	vl->addLayout(hl);
+	if(statusTagControl_){
+		QHBoxLayout* hl2 = new QHBoxLayout();
+		hl2->addWidget(statusLabel_, Qt::AlignCenter);
+		hl2->setStretch(0, 2);
+		//vl->addWidget(statusLabel_, Qt::AlignHCenter);
+		vl->addLayout(hl2);
+	}
+	vl->setSpacing(1);
+	vl->setMargin(2);
 
 //	QVBoxLayout *vl = new QVBoxLayout();
 //	vl->addWidget(nameLabel_, 0, Qt::AlignLeft);
 //	vl->addLayout(hl, 2);
-//	setLayout(vl);
-	setLayout(hl);
+	setLayout(vl);
+//	setLayout(hl);
 
 	// Style: TODO: move out of this constructor into app-wide stylesheet
 	valueLabel_->setStyleSheet("color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);");
 	valueLabel_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+
 	//setFrameStyle(QFrame::StyledPanel);
 	//setStyleSheet("QFrame#AMControlEdit { background: white; } ");
 	//setStyleSheet("QGroupBox#AMControlEdit { background: white; } ");
@@ -236,6 +257,8 @@ AMControlEdit::AMControlEdit(AMControl* control, bool readOnly, QWidget *parent)
 		connect(control_, SIGNAL(connected(bool)), this, SLOT(setHappy(bool)));
 		connect(control_, SIGNAL(movingChanged(bool)), this, SLOT(onMotion(bool)));
 	}
+	if(statusTagControl_)
+		connect(statusTagControl_, SIGNAL(valueChanged(double)), this, SLOT(onStatusValueChanged(double)));
 	connect(this, SIGNAL(clicked()), this, SLOT(onEditStart()));
 
 	// Create the editor dialog:
@@ -246,6 +269,16 @@ AMControlEdit::AMControlEdit(AMControl* control, bool readOnly, QWidget *parent)
 	dialog_->setWindowModality(Qt::NonModal);
 	connect(dialog_, SIGNAL(doubleValueSelected(double)), control_, SLOT(move(double)));
 	connect(control_, SIGNAL(enumChanges(QStringList)), dialog_, SLOT(setEnumNames(QStringList)));
+
+	if(control_ && control_->isConnected()){
+		onValueChanged(control_->value());
+		onUnitsChanged(control_->units());
+		setHappy(control_->isConnected());
+		if(control_->isEnum())
+			dialog_->setEnumNames(control_->enumNames());
+	}
+	if(statusTagControl_ && statusTagControl_->isConnected())
+		onStatusValueChanged(statusTagControl_->value());
 }
 
 void AMControlEdit::setReadOnly(bool readOnly){
@@ -262,6 +295,7 @@ void AMControlEdit::onValueChanged(double newVal) {
 	else
 		valueLabel_->setText(QString("%1").arg(newVal));
 }
+
 void AMControlEdit::onUnitsChanged(const QString& units) {
 	if(control_->isEnum())
 		unitsLabel_->setText("");
@@ -305,6 +339,13 @@ void AMControlEdit::onEditStart() {
 	dialog_->show();
 	dialog_->move( mapToGlobal(QPoint(width()/2,height()/2)) - QPoint(dialog_->width()/2, dialog_->height()/2) );
 
+}
+
+void AMControlEdit::onStatusValueChanged(double newVal){
+	if(statusTagControl_->isEnum())
+		statusLabel_->setText(statusTagControl_->enumNames().at((int)newVal));
+	else
+		statusLabel_->setText(QString("%1").arg(newVal));
 }
 
 QSize AMControlEdit::sizeHint() const{
