@@ -397,6 +397,9 @@ protected:
 	QStringList data_str_;
 	//@}
 
+	/// True almost always. False if the initial attempt to create the channel-access channel failed.
+	bool channelCreated_;
+
 };
 
 /**
