@@ -16,6 +16,7 @@ macx {
 
 	VLC_LIB = -L$$HOME_FOLDER/dev/vlc-install/lib -lvlc
 	VLC_INCLUDE_DIR = $$HOME_FOLDER/dev/vlc-install/include
+	VLC_PLUGIN_PATH = $$HOME_FOLDER/dev/vlc-install/lib/vlc/plugins/
 }
 linux-g++ {
 	EPICS_INCLUDE_DIRS = $$HOME_FOLDER/beamline/programming/epics/base/include \
@@ -29,6 +30,7 @@ linux-g++ {
 
 	VLC_LIB = -lvlc
 	VLC_INCLUDE_DIR = /usr/include
+	VLC_PLUGIN_PATH = /usr/lib/vlc/plugins/
 }
 QT += core \
 	network \
@@ -50,6 +52,9 @@ LIBS += $$VLC_LIB
 # Epics channel access linking:
 LIBS += -L$$EPICS_LIB_DIR
 LIBS += -lca -lCom
+
+# VLC plugin path: define as pre-processor symbol
+DEFINES += "VLC_PLUGIN_PATH=$$VLC_PLUGIN_PATH"
 
 # search locations for libraries:
 macx {
@@ -156,7 +161,6 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/muParser/muParserStack.h \
 	source/muParser/muParserToken.h \
 	source/muParser/muParserTokenReader.h \
-	source/ui/AbsorptionScanController.h \
 	source/ui/AMRunSelector.h \
 	source/ui/AMControlSetView.h \
 	source/ui/AMCramBarHorizontal.h \
