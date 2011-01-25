@@ -324,6 +324,7 @@ void AMAppController::onCurrentScanControllerCreated(){
 
 void AMAppController::onCurrentScanControllerDestroyed(){
 	qDebug() << "Detected deletion of " << (int)AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController();
+	scanControllerActiveEditor_ = 0;
 }
 
 void AMAppController::onCurrentScanControllerReinitialized(bool removeScan){
