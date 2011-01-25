@@ -302,8 +302,8 @@ void SGMBeamline::usingFakeBeamline(){
 
 	sgmPVName = amNames2pvNames_.valueF("gratingVelocity");
 	energyMovingStatus_ = new AMPVControl("gratingVelocity", sgmPVName, sgmPVName, "", this);
-	sgmPVName = amNames2pvNames_.valueF("gratingVelocityBase");
-	energyMovingStatus_ = new AMPVControl("gratingVelocityBase", sgmPVName, sgmPVName, "", this);
+	sgmPVName = amNames2pvNames_.valueF("gratingBaseVelocity");
+	energyMovingStatus_ = new AMPVControl("gratingBaseVelocity", sgmPVName, sgmPVName, "", this);
 	sgmPVName = amNames2pvNames_.valueF("gratingAcceleration");
 	energyMovingStatus_ = new AMPVControl("gratingAcceleration", sgmPVName, sgmPVName, "", this);
 }

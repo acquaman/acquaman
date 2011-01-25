@@ -1,5 +1,7 @@
 #include "SGMFastScanConfigurationViewer.h"
 
+#include "SGMSidebar.h"
+
 SGMFastScanConfigurationViewer::SGMFastScanConfigurationViewer(SGMFastScanConfiguration *sfsc, QWidget *parent) :
 		AMScanConfigurationViewer(sfsc, parent)
 {
@@ -29,6 +31,7 @@ SGMFastScanConfigurationViewer::SGMFastScanConfigurationViewer(SGMFastScanConfig
 		connect(queueDirectorButton_, SIGNAL(clicked()), this, SIGNAL(queueDirectorRequested()));
 
 		gl_.addWidget(availableElements_,	0, 0, 1, 1, Qt::AlignCenter);
+		gl_.addWidget(new SGMSidebar(),		0, 1, 1, 1, Qt::AlignRight);
 		gl_.addWidget(startScanButton_,		5, 3, 1, 2, Qt::AlignRight);
 		gl_.addWidget(addToQueueButton_,	6, 3, 1, 2, Qt::AlignRight);
 		gl_.addWidget(queueDirectorButton_,	7, 3, 1, 2, Qt::AlignRight);
