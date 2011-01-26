@@ -27,6 +27,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QComboBox>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
+#include <QPushButton>
+#include <QToolButton>
 
 #include "beamline/AMControl.h"
 
@@ -146,6 +148,10 @@ signals:
 
 public slots:
 	void setReadOnly(bool readOnly);
+	void setNoUnitsBox(bool noUnitsBox);
+	void overrideTitle(const QString& title);
+
+	QSize sizeHint() const;
 
 protected slots:
 	void setHappy(bool happy = true);
@@ -160,7 +166,7 @@ protected slots:
 	void onStatusValueChanged(double newVal);
 
 protected:
-	QSize sizeHint() const;
+//	QSize sizeHint() const;
 	void mouseReleaseEvent ( QMouseEvent * event );
 
 protected:
@@ -172,6 +178,37 @@ protected:
 	QLabel* statusLabel_;
 	//QLabel* nameLabel_;
 	StyledControlInputDialog* dialog_;
+};
+
+//class AMControlButton : public QPushButton
+class AMControlButton : public QToolButton
+{
+Q_OBJECT
+public:
+	AMControlButton(AMControl *control, QWidget *parent = 0);
+
+	int downValue() const;
+	int upValue() const;
+
+public slots:
+	void setDownValue(double downValue);
+	void setUpValue(double upValue);
+
+	void overrideText(const QString& text);
+	void setCheckable(bool);
+
+protected slots:
+	void setHappy(bool happy = true);
+	void setUnhappy() { setHappy(false); }
+
+	void onValueChanged(double newVal);
+	void onClicked();
+	void onToggled(bool toggled);
+
+protected:
+	AMControl *control_;
+	double downValue_;
+	double upValue_;
 };
 
 #endif // NUMERICCONTROL_H

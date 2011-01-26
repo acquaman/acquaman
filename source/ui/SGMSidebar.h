@@ -40,17 +40,29 @@ signals:
 public slots:
 
 protected:
+	void showEvent(QShowEvent *);
+
+protected:
 	QGroupBox *mainBox_;
 
 	QVBoxLayout *mainLayout_;
 	//QVBoxLayout *vl_;
 	QGridLayout *gl_;
 
-	AMControlEdit *energyNC_;
-	AMControlEdit *gratingNC_;
-	AMControlEdit *exitSlitNC_;
-	AMControlEdit *entranceSlitNC_;
 	AMControlEdit *readyLabel_;
+	AMControlButton *beamOnCButton_;
+	AMControlButton *beamOffCButton_;
+	QToolButton *stopMotorsButton_;
+	AMControlButton *closeVacuumCButton_;
+	QToolButton *visibleLightButton_;
+	AMControlEdit *energyNC_;
+	AMControlButton *trackUndulatorCButton_;
+	AMControlButton *trackGratingCButton_;
+	AMControlButton *trackExitSlitCButton_;
+	AMControlEdit *gratingNC_;
+	AMControlEdit *entranceSlitNC_;
+	AMControlEdit *exitSlitNC_;
+
 //	AMControlEdit *moveStatusLabel_;
 };
 

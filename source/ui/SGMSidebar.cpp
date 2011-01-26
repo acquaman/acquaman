@@ -31,35 +31,73 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	//mainBox_->setLayout(vl_);
 	mainBox_->setLayout(gl_);
 
+	readyLabel_ = new AMControlEdit(SGMBeamline::sgm()->beamlineReady(), NULL, true);
+	readyLabel_->setNoUnitsBox(true);
+	readyLabel_->overrideTitle("");
+	beamOnCButton_ = new AMControlButton(SGMBeamline::sgm()->beamOn());
+	beamOnCButton_->overrideText("Beam On");
+	beamOnCButton_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+	beamOffCButton_ = new AMControlButton(SGMBeamline::sgm()->fastShutterVoltage());
+	beamOffCButton_->overrideText("Beam Off");
+	beamOffCButton_->setDownValue(5);
+	beamOffCButton_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+	stopMotorsButton_ = new QToolButton();
+	stopMotorsButton_->setText("Emergency\nMotor Stop");
+	stopMotorsButton_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+	closeVacuumCButton_ = new AMControlButton(SGMBeamline::sgm()->ea2CloseVacuum());
+	closeVacuumCButton_->overrideText("Close Vacuum");
+	closeVacuumCButton_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+	visibleLightButton_ = new QToolButton();
+	visibleLightButton_->setText("Visible Light");
+	visibleLightButton_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 	energyNC_ = new AMControlEdit(SGMBeamline::sgm()->energy(), SGMBeamline::sgm()->energyMovingStatus());
-	energyNC_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
-	energyNC_->setMinimumWidth(150);
+	energyNC_->overrideTitle("Energy");
+	trackUndulatorCButton_ = new AMControlButton(SGMBeamline::sgm()->undulatorTracking());
+	trackUndulatorCButton_->overrideText("Undulator");
+	trackUndulatorCButton_->setCheckable(true);
+	trackUndulatorCButton_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+	trackGratingCButton_ = new AMControlButton(SGMBeamline::sgm()->monoTracking());
+	trackGratingCButton_->overrideText("Grating");
+	trackGratingCButton_->setCheckable(true);
+	trackGratingCButton_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+	trackExitSlitCButton_ = new AMControlButton(SGMBeamline::sgm()->exitSlitTracking());
+	trackExitSlitCButton_->overrideText("Exit Slit");
+	trackExitSlitCButton_->setCheckable(true);
+	trackExitSlitCButton_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 	gratingNC_ = new AMControlEdit(SGMBeamline::sgm()->grating());
-	gratingNC_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
-	gratingNC_->setMinimumWidth(150);
-	exitSlitNC_ = new AMControlEdit(SGMBeamline::sgm()->exitSlitGap());
-	exitSlitNC_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
-	exitSlitNC_->setMinimumWidth(150);
+	gratingNC_->overrideTitle("Grating");
 	entranceSlitNC_ = new AMControlEdit(SGMBeamline::sgm()->entranceSlitGap());
-	entranceSlitNC_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
-	entranceSlitNC_->setMinimumWidth(150);
-	readyLabel_ = new AMControlEdit(SGMBeamline::sgm()->beamlineReady());
-	readyLabel_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
-	readyLabel_->setMinimumWidth(150);
-//	moveStatusLabel_ = new AMControlEdit(SGMBeamline::sgm()->energyMovingStatus());
-	/*
-	vl_->addWidget(energyNC_);
-	vl_->addWidget(gratingNC_);
-	vl_->addWidget(exitSlitNC_);
-	vl_->addWidget(entranceSlitNC_);
-	vl_->addWidget(readyLabel_);
-	vl_->addWidget(moveStatusLabel_);
-	*/
-	gl_->addWidget(readyLabel_,		0, 0, 1, 1, Qt::AlignCenter);
-	gl_->addWidget(energyNC_,		1, 0, 1, 1, Qt::AlignCenter);
-	gl_->addWidget(gratingNC_,		2, 0, 1, 1, Qt::AlignCenter);
-	gl_->addWidget(entranceSlitNC_,		3, 0, 1, 1, Qt::AlignCenter);
-	gl_->addWidget(exitSlitNC_,		3, 1, 1, 1, Qt::AlignCenter);
+	entranceSlitNC_->overrideTitle("Entrance Slit");
+	exitSlitNC_ = new AMControlEdit(SGMBeamline::sgm()->exitSlitGap());
+	exitSlitNC_->overrideTitle("Exit Slit");
+
+	gl_->addWidget(readyLabel_,		0, 0, 1, 6, 0);
+	gl_->addWidget(beamOnCButton_,		1, 0, 1, 2, 0);
+	gl_->addWidget(beamOffCButton_,		1, 2, 1, 2, 0);
+	gl_->addWidget(stopMotorsButton_,	1, 4, 1, 2, 0);
+	gl_->addWidget(closeVacuumCButton_,	2, 0, 1, 3, 0);
+	gl_->addWidget(visibleLightButton_,	2, 3, 1, 3, 0);
+	gl_->addWidget(energyNC_,		3, 0, 1, 6, 0);
+	gl_->addWidget(trackUndulatorCButton_,	4, 0, 1, 2, 0);
+	gl_->addWidget(trackGratingCButton_,	4, 2, 1, 2, 0);
+	gl_->addWidget(trackExitSlitCButton_,	4, 4, 1, 2, 0);
+	gl_->addWidget(gratingNC_,		5, 0, 1, 6, 0);
+	gl_->addWidget(entranceSlitNC_,		6, 0, 1, 3, 0);
+	gl_->addWidget(exitSlitNC_,		6, 3, 1, 3, 0);
 
 	setLayout(mainLayout_);
+}
+
+void SGMSidebar::showEvent(QShowEvent *se){
+	int minWidth = std::max(entranceSlitNC_->size().width()/3, exitSlitNC_->size().width()/3);
+	minWidth = std::max(minWidth, trackUndulatorCButton_->size().width()/2);
+	minWidth = std::max(minWidth, trackGratingCButton_->size().width()/2);
+	minWidth = std::max(minWidth, trackExitSlitCButton_->size().width()/2);
+	gl_->setColumnMinimumWidth(0, minWidth);
+	gl_->setColumnMinimumWidth(1, minWidth);
+	gl_->setColumnMinimumWidth(2, minWidth);
+	gl_->setColumnMinimumWidth(3, minWidth);
+	gl_->setColumnMinimumWidth(4, minWidth);
+	gl_->setColumnMinimumWidth(5, minWidth);
+	QWidget::showEvent(se);
 }
