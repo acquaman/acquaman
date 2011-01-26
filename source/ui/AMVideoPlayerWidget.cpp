@@ -26,7 +26,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QDebug>
 
+/// Macro to take a non-quoted expression \c s and place quotes around it ("Stringify" it)
+#define stringify(s) #s
 
+/// Macro to expand/evaluate a macro expression and THEN stringify it
+#define stringify2(s) stringify(s)
 
 AMVideoPlayerWidget::AMVideoPlayerWidget(QWidget *parent) : QFrame(parent) {
 
@@ -34,7 +38,7 @@ AMVideoPlayerWidget::AMVideoPlayerWidget(QWidget *parent) : QFrame(parent) {
 
 	const char* const vlcArgs[] = {
 					"--no-video-title",
-					"--plugin-path=/Users/mboots/dev/vlc-install/lib/vlc/plugins/"
+					"--plugin-path=" stringify2(VLC_PLUGIN_PATH)
 			};
 
 	/// Create a vlc instance for this widget
