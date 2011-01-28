@@ -42,41 +42,50 @@ void SGMBeamline::usingSGMBeamline(){
 	amNames2pvNames_.set("undulatorTracking", "UND1411-01:Energy:track");
 	amNames2pvNames_.set("monoTracking", "SG16114I1001:Energy:track");
 	amNames2pvNames_.set("exitSlitTracking", "PSL16114I1003:Energy:track");
-	amNames2pvNames_.set("tey", "A1611-4-15:A:fbk");
-	amNames2pvNames_.set("tfy", "A1611-4-16:A:fbk");
+	//amNames2pvNames_.set("tey", "A1611-4-15:A:fbk");
+	amNames2pvNames_.set("tey", "BL1611-ID-1:mcs00:fbk");
+	//amNames2pvNames_.set("tfy", "A1611-4-16:A:fbk");
+	amNames2pvNames_.set("tfy", "BL1611-ID-1:mcs02:fbk");
 	amNames2pvNames_.set("tfyHVSetpoint", "PS1611401:109:v0set");
 	amNames2pvNames_.set("tfyHVFbk", "PS1611401:109:vmon");
-#warning "Hey Dave, I think you need a different PV here for the pgt's spectrum"
-	amNames2pvNames_.set("pgt", "MCA1611-01:ROI:0");
+	amNames2pvNames_.set("pgt", "MCA1611-01:GetChannels");
 	amNames2pvNames_.set("pgtHVSetpoint", "MCA1611-01:Bias:Volt");
 	amNames2pvNames_.set("pgtHVFbk", "MCA1611-01:Bias:VoltActual:fbk");
 	amNames2pvNames_.set("pgtHVRamping", "MCA1611-01:Bias:Volt:fbk");
 	amNames2pvNames_.set("pgtIntegrationTime", "MCA1611-01:Preset:Live");
 	amNames2pvNames_.set("pgtIntegrationMode", "MCA1611-01:Preset:Live");
-	amNames2pvNames_.set("I0", "A1611-4-14:A:fbk");
+	//amNames2pvNames_.set("I0", "A1611-4-14:A:fbk");
+	amNames2pvNames_.set("I0", "BL1611-ID-1:mcs01:fbk");
 	amNames2pvNames_.set("loadlockCCG", "CCG1611-4-I10-09:vac:p");
 	amNames2pvNames_.set("loadlockTCG", "TCGC1611-426:pressure:fbk");
-	amNames2pvNames_.set("ssaManipulatorX", "BL1611-ID-1:EA1:x");
-	amNames2pvNames_.set("ssaManipulatorY", "BL1611-ID-1:EA1:z");
-	amNames2pvNames_.set("ssaManipulatorZ", "BL1611-ID-1:EA1:y");
-	amNames2pvNames_.set("ssaManipulatorRot", "BL1611-ID-1:EA1:r");
+	amNames2pvNames_.set("ssaManipulatorX", "BL1611-ID-1:EA2:x");
+	amNames2pvNames_.set("ssaManipulatorY", "BL1611-ID-1:EA2:z");
+	amNames2pvNames_.set("ssaManipulatorZ", "BL1611-ID-1:EA2:y");
+	amNames2pvNames_.set("ssaManipulatorRot", "BL1611-ID-1:EA2:r");
 	amNames2pvNames_.set("beamlineScanning", "BL1611-ID-1:scanning");
 	amNames2pvNames_.set("beamlineReady", "BL1611-ID-1:beam:status");
 	amNames2pvNames_.set("energyMovingStatus", "BL1611-ID-1:ready");
-	amNames2pvNames_.set("fastShutterVoltage", "PSH161141001:V");
+	amNames2pvNames_.set("fastShutterVoltage", "PSH16114I1001:V");
 	amNames2pvNames_.set("scalarMode", "BL1611-ID-1:mcs:continuous");
 	amNames2pvNames_.set("scalarStart", "BL1611-ID-1:mcs:startScan");
 	amNames2pvNames_.set("gratingVelocity", "SMTR16114I1002:velo");
 	amNames2pvNames_.set("gratingBaseVelocity", "SMTR16114I1002:veloBase");
 	amNames2pvNames_.set("gratingAcceleration", "SMTR16114I1002:accel");
-	amNames2pvNames_.set("ea1CloseVacuum", "VVR1611-4-I10-05:opr:close");
+	amNames2pvNames_.set("ea1CloseVacuum1", "VVR1611-4-I10-05:opr:close");
+	amNames2pvNames_.set("ea1CloseVacuum2", "VVR1611-4-I10-06:opr:close");
 	amNames2pvNames_.set("ea2CloseVacuum", "VVR1611-4-I10-08:opr:close");
-	amNames2pvNames_.set("beamOn", "BL1611-ID-1:beam:turnon");
+	//amNames2pvNames_.set("beamOn", "BL1611-ID-1:beam:turnon");
+	amNames2pvNames_.set("beamOn", "david:beamon:trigger");
+	amNames2pvNames_.set("visibleLightToggle", "BL1611-ID-1:visible");
+	amNames2pvNames_.set("visibleLightStatus", "BL1611-ID-1:visible:cal");
+	amNames2pvNames_.set("activeEndstation", "david:endstation:active");
 
 	ringCurrent_ = new AMReadOnlyPVControl("ringCurrent", AMPVNames::toPV("ringCurrent"), this);
 	addChildControl(ringCurrent_);
+
 	QString sgmPVName = amNames2pvNames_.valueF("energy");
-	energy_ = new AMPVwStatusControl("energy", sgmPVName+":fbk", sgmPVName, amNames2pvNames_.valueF("energyMovingStatus"), "", this, 0.01);
+	//energy_ = new AMPVwStatusControl("energy", sgmPVName+":fbk", sgmPVName, amNames2pvNames_.valueF("energyMovingStatus"), "", this, 0.01);
+	energy_ = new AMPVwStatusControl("energy", sgmPVName+":fbk", sgmPVName, "BL1611-ID-1:ready", sgmPVName, this, 0.01);
 	sgmPVName = amNames2pvNames_.valueF("mono");
 	//AMReadOnlyPVwStatusControl *mono = new AMReadOnlyPVwStatusControl("mono", sgmPVName+":enc:fbk", sgmPVName+":moving", energy_);
 	AMPVwStatusControl *mono = new AMPVwStatusControl("mono", sgmPVName+":enc:fbk", sgmPVName+"encTarget", sgmPVName+":moving", "SMTR1611I1002:stop", energy_, 5);
@@ -159,6 +168,7 @@ void SGMBeamline::usingSGMBeamline(){
 	sgmPVName = amNames2pvNames_.valueF("ssaManipulatorRot");
 	ssaManipulatorRot_ = new AMPVwStatusControl("ssaManipulatorRot", sgmPVName+":fbk", sgmPVName+":sp", sgmPVName+":sp", "", this, 0.1);
 	ssaManipulatorRotStop_ = new AMPVControl("ssaManipulatorRotStop", "SMTR16114I1015:emergStop", "SMTR16114I1015:emergStop", "", this, 0.1);
+
 	sgmPVName = amNames2pvNames_.valueF("beamlineScanning");
 	beamlineScanning_ = new AMPVControl("beamlineScanning", sgmPVName, sgmPVName, "", this, 0.1);
 	sgmPVName = amNames2pvNames_.valueF("beamlineReady");
@@ -173,13 +183,20 @@ void SGMBeamline::usingSGMBeamline(){
 	gratingBaseVelocity_ = new AMPVControl("gratingBaseVelocity", sgmPVName, sgmPVName, "", this);
 	sgmPVName = amNames2pvNames_.valueF("gratingAcceleration");
 	gratingAcceleration_ = new AMPVControl("gratingAcceleration", sgmPVName, sgmPVName, "", this);
-	sgmPVName = amNames2pvNames_.valueF("ea1CloseVacuum");
-	ea1CloseVacuum_ = new AMPVControl("ea1CloseVacuum", sgmPVName, sgmPVName, "", this);
+	sgmPVName = amNames2pvNames_.valueF("ea1CloseVacuum1");
+	ea1CloseVacuum1_ = new AMPVControl("ea1CloseVacuum1", sgmPVName, sgmPVName, "", this);
+	sgmPVName = amNames2pvNames_.valueF("ea1CloseVacuum2");
+	ea1CloseVacuum2_ = new AMPVControl("ea1CloseVacuum2", sgmPVName, sgmPVName, "", this);
 	sgmPVName = amNames2pvNames_.valueF("ea2CloseVacuum");
 	ea2CloseVacuum_ = new AMPVControl("ea2CloseVacuum", sgmPVName, sgmPVName, "", this);
 	sgmPVName = amNames2pvNames_.valueF("beamOn");
 	beamOn_ = new AMPVControl("beamOn", sgmPVName, sgmPVName, "", this);
-
+	sgmPVName = amNames2pvNames_.valueF("visibleLightToggle");
+	visibleLightToggle_ = new AMPVControl("visibleLightToggle", sgmPVName, sgmPVName, "", this);
+	sgmPVName = amNames2pvNames_.valueF("visibleLightStatus");
+	visibleLightStatus_ = new AMReadOnlyPVControl("visibleLightStatus", sgmPVName, this);
+	sgmPVName = amNames2pvNames_.valueF("activeEndstation");
+	activeEndstation_ = new AMPVControl("activeEndstation", sgmPVName, sgmPVName, "", this);
 }
 
 void SGMBeamline::usingFakeBeamline(){
@@ -226,7 +243,7 @@ void SGMBeamline::usingFakeBeamline(){
 	amNames2pvNames_.set("gratingVelocity", "dave:mono:velo");
 	amNames2pvNames_.set("gratingBaseVelocity", "dave:mono:veloBase");
 	amNames2pvNames_.set("gratingAcceleration", "dave:mono:accel");
-	amNames2pvNames_.set("ea1CloseVacuum", "dave:close:ea1");
+	amNames2pvNames_.set("ea1CloseVacuum1", "dave:close:ea1");
 	amNames2pvNames_.set("ea2CloseVacuum", "dave:close:ea2");
 	amNames2pvNames_.set("beamOn", "dave:open:beamline");
 
@@ -330,8 +347,8 @@ void SGMBeamline::usingFakeBeamline(){
 	gratingBaseVelocity_ = new AMPVControl("gratingBaseVelocity", sgmPVName, sgmPVName, "", this);
 	sgmPVName = amNames2pvNames_.valueF("gratingAcceleration");
 	gratingAcceleration_ = new AMPVControl("gratingAcceleration", sgmPVName, sgmPVName, "", this);
-	sgmPVName = amNames2pvNames_.valueF("ea1CloseVacuum");
-	ea1CloseVacuum_ = new AMPVControl("ea1CloseVacuum", sgmPVName, sgmPVName, "", this);
+	sgmPVName = amNames2pvNames_.valueF("ea1CloseVacuum1");
+	ea1CloseVacuum1_ = new AMPVControl("ea1CloseVacuum1", sgmPVName, sgmPVName, "", this);
 	sgmPVName = amNames2pvNames_.valueF("ea2CloseVacuum");
 	ea2CloseVacuum_ = new AMPVControl("ea2CloseVacuum", sgmPVName, sgmPVName, "", this);
 	sgmPVName = amNames2pvNames_.valueF("beamOn");
@@ -339,9 +356,8 @@ void SGMBeamline::usingFakeBeamline(){
 }
 
 SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
-	usingFakeBeamline();
-	//	usingSGMBeamline();
-
+	//usingFakeBeamline();
+	usingSGMBeamline();
 
 	addChildControl(energy_);
 	addChildControl(exitSlitGap_);
@@ -372,15 +388,21 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	addChildControl(ssaManipulatorRotStop_);
 	addChildControl(beamlineScanning_);
 	connect(beamlineScanning_, SIGNAL(valueChanged(double)), this, SLOT(onBeamlineScanningValueChanged(double)));
+
 	addChildControl(beamlineReady_);
 	addChildControl(energyMovingStatus_);
 	addChildControl(fastShutterVoltage_);
 	addChildControl(gratingVelocity_);
 	addChildControl(gratingBaseVelocity_);
 	addChildControl(gratingAcceleration_);
-	addChildControl(ea1CloseVacuum_);
+	addChildControl(ea1CloseVacuum1_);
+	addChildControl(ea1CloseVacuum2_);
 	addChildControl(ea2CloseVacuum_);
 	addChildControl(beamOn_);
+	addChildControl(visibleLightToggle_);
+	connect(visibleLightToggle_, SIGNAL(valueChanged(double)), this, SLOT(onVisibleLightChanged(double)));
+	addChildControl(visibleLightStatus_);
+	connect(visibleLightStatus_, SIGNAL(valueChanged(double)), this, SLOT(onVisibleLightChanged(double)));
 
 	criticalControlsSet_ = new AMControlSet(this);
 	criticalControlsSet_->setName("Critical Beamline Controls");
@@ -393,10 +415,19 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	criticalControlsSet_->addControl(monoTracking_);
 	criticalControlsSet_->addControl(exitSlitTracking_);
 	criticalControlsSet_->addControl(beamlineScanning_);
+
 	criticalControlsSet_->addControl(beamlineReady_);
 	criticalControlsSet_->addControl(energyMovingStatus_);
+
 	unconnectedSets_.append(criticalControlsSet_);
 	connect(criticalControlsSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
+
+	beamOnControlSet_ = new AMControlSet(this);
+	beamOnControlSet_->setName("Beam On Controls");
+	beamOnControlSet_->addControl(beamOn_);
+	beamOnControlSet_->addControl(fastShutterVoltage_);
+	unconnectedSets_.append(beamOnControlSet_);
+	connect(beamOnControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
 	teyControlSet_ = new AMControlSet(this);
 	teyControlSet_->setName("TEY Controls");
@@ -472,24 +503,13 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 
 	allDetectors_ = new AMDetectorInfoSet(this);
 	allDetectors_->setName("All Detectors");
-	/*
-	allDetectors_->addDetector(i0Detector_, true);
-	allDetectors_->addDetector(eVFbkDetector_, true);
-	allDetectors_->addDetector(teyDetector_, true);
-	allDetectors_->addDetector(tfyDetector_, true);
-	allDetectors_->addDetector(pgtDetector_, false);
-	*/
+
 
 	feedbackDetectors_ = new AMDetectorInfoSet(this);
 	feedbackDetectors_->setName("Feedback Detectors");
 
 	XASDetectors_ = new AMDetectorInfoSet(this);
 	XASDetectors_->setName("XAS Detectors");
-	/*
-	XASDetectors_->addDetector(teyDetector_, true);
-	XASDetectors_->addDetector(tfyDetector_, true);
-	XASDetectors_->addDetector(pgtDetector_, false);
-	*/
 
 	currentSamplePlate_ = new AMSamplePlate(this);
 
@@ -571,10 +591,30 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	transferAction24_->setPrevious(transferAction23_);
 	transferAction24_->setNext(transferAction25_);
 	transferAction25_->setPrevious(transferAction24_);
+
+	beamOnAction1_ = NULL;
+	beamOnAction2_ = NULL;
+	beamOnActionsList_ = NULL;
 }
 
 SGMBeamline::~SGMBeamline()
 {
+}
+
+QString SGMBeamline::sgmGratingName(SGMBeamline::sgmGrating grating) const {
+	if(grating == 0)
+		return "lowGrating";
+	else if(grating == 1)
+		return "mediumGrating";
+	else if(grating == 2)
+		return "highGrating";
+}
+
+QString SGMBeamline::sgmHarmonicName(SGMBeamline::sgmHarmonic harmonic) const {
+	if(harmonic == 1)
+		return "firstHarmonic";
+	else if(harmonic == 3)
+		return "thirdHarmonic";
 }
 
 bool SGMBeamline::detectorConnectedByName(QString name){
@@ -585,8 +625,71 @@ bool SGMBeamline::detectorConnectedByName(QString name){
 	return true;
 }
 
+AMBeamlineControlMoveAction* SGMBeamline::beamOnAction(){
+	if(!beamOnAction1_ && !beamOnAction2_)
+		createBeamOnActions();
+	return beamOnAction1_;
+}
+
+AMBeamlineActionsList* SGMBeamline::beamOnActionsList(){
+	if(!beamOnActionsList_)
+		createBeamOnActions();
+	return beamOnActionsList_;
+}
+
+QList<AM1BeamlineActionItem*> SGMBeamline::transferLoadlockOutActions() const {
+	QList<AM1BeamlineActionItem*> rVal;
+	rVal.append(transferAction1_);
+	rVal.append(transferAction2_);
+	rVal.append(transferAction3_);
+	rVal.append(transferAction4_);
+	rVal.append(transferAction5_);
+	rVal.append(transferAction6_);
+	return rVal;
+}
+
+QList<AM1BeamlineActionItem*> SGMBeamline::transferLoadlockInActions() const {
+	QList<AM1BeamlineActionItem*> rVal;
+	rVal.append(transferAction7_);
+	rVal.append(transferAction8_);
+	rVal.append(transferAction9_);
+	rVal.append(transferAction10_);
+	rVal.append(transferAction11_);
+	rVal.append(transferAction12_);
+	return rVal;
+}
+
+QList<AM1BeamlineActionItem*> SGMBeamline::transferChamberOutActions() const {
+	QList<AM1BeamlineActionItem*> rVal;
+	rVal.append(transferAction13_);
+	rVal.append(transferAction14_);
+	rVal.append(transferAction15_);
+	rVal.append(transferAction16_);
+	rVal.append(transferAction17_);
+	rVal.append(transferAction18_);
+	rVal.append(transferAction19_);
+	rVal.append(transferAction20_);
+	return rVal;
+}
+
+QList<AM1BeamlineActionItem*> SGMBeamline::transferChamberInActions() const {
+	QList<AM1BeamlineActionItem*> rVal;
+	rVal.append(transferAction21_);
+	rVal.append(transferAction22_);
+	rVal.append(transferAction23_);
+	rVal.append(transferAction24_);
+	rVal.append(transferAction25_);
+	return rVal;
+}
+
 bool SGMBeamline::isScanning(){
 	if( fabs(beamlineScanning_->value() -1.0) < beamlineScanning_->tolerance() )
+		return true;
+	return false;
+}
+
+bool SGMBeamline::isVisibleLightOn(){
+	if(visibleLightToggle_->value() == 1)
 		return true;
 	return false;
 }
@@ -647,6 +750,23 @@ QPair<double, double> SGMBeamline::energyRangeForGratingHarmonic(SGMBeamline::sg
 	return rVal;
 }
 
+void SGMBeamline::visibleLightOn(){
+	visibleLightToggle_->move(1);
+}
+
+void SGMBeamline::visibleLightOff(){
+	visibleLightToggle_->move(0);
+}
+
+void SGMBeamline::closeVacuum(){
+	if(activeEndstation_->value() == 0){
+		ea1CloseVacuum1_->move(1);
+		ea1CloseVacuum2_->move(1);
+	}
+	else if(activeEndstation_->value() == 1)
+		ea2CloseVacuum_->move(1);
+}
+
 void SGMBeamline::onBeamlineScanningValueChanged(double value){
 	bool isScanning;
 	if( fabs(value - 1.0) < beamlineScanning_->tolerance() )
@@ -705,6 +825,57 @@ void SGMBeamline::onControlSetConnected(bool csConnected){
 	for(int x = 0; x < unconnectedSets_.count(); x++)
 		tmpStr.append(" "+unconnectedSets_.at(x)->name());
 	qDebug() << tmpStr;
+}
+
+void SGMBeamline::createBeamOnActions(){
+	if(!beamOnControlSet_->isConnected())
+		return;
+	if(!beamOnActionsList_){
+		qDebug() << "\n\nMY ACTION: NEED TO CREATE LIST";
+		beamOnActionsList_ = new AMBeamlineActionsList(this);
+	}
+	if(!beamOnAction1_ && !beamOnAction2_){
+		qDebug() << "\n\nMY ACTION: NEED TO CREATE ACTIONS";
+		// Action to turn on beam for SGM:
+		// Set beamOn to "1"
+		// Set fastShutterVoltage to "0 V"
+		beamOnAction1_ = new AMBeamlineControlMoveAction(beamOn(), this);
+		beamOnAction1_->setSetpoint(1);
+		beamOnAction2_ = new AMBeamlineControlMoveAction(fastShutterVoltage(), this);
+		beamOnAction2_->setSetpoint(0);
+		beamOnActionsList_->addAction(0, beamOnAction1_);
+		beamOnActionsList_->appendAction(beamOnAction2_);
+		connect(beamOnAction2_, SIGNAL(finished()), this, SLOT(onBeamOnActionsFinsihed()));
+	}
+}
+
+void SGMBeamline::onBeamOnActionsFinsihed(){
+	if(beamOnAction1_ && beamOnAction2_ && beamOnAction1_->hasFinished() && beamOnAction2_->hasFinished()){
+		qDebug() << "\n\nMY ACTION: NEED TO DELETE B/C FINISHED";
+		disconnect(beamOnAction2_, SIGNAL(finished()), this, SLOT(onBeamOnActionsFinsihed()));
+		beamOnActionsList_->deleteAction(1);
+		beamOnActionsList_->deleteAction(0);
+		delete beamOnAction1_;
+		delete beamOnAction2_;
+		beamOnAction1_ = NULL;
+		beamOnAction2_ = NULL;
+		createBeamOnActions();
+	}
+}
+
+void SGMBeamline::onVisibleLightChanged(double value){
+	Q_UNUSED(value);
+	AMPVwStatusControl *lMono = qobject_cast<AMPVwStatusControl*>(mono());
+	if(visibleLightToggle_->value() == 1 && visibleLightStatus_->value() == 8)
+		emit visibleLightStatusChanged("Visible Light is ON");
+	else if( visibleLightToggle_->value() == 1 && visibleLightStatus_->value() == 0 && lMono->movingPV()->getString() == "MOVING - CCW" )
+		emit visibleLightStatusChanged("Visible Light is moving to ON");
+	else if( visibleLightToggle_->value() == 1 && visibleLightStatus_->value() == 0 && lMono->movingPV()->getString() == "MOVING +  CW" )
+		visibleLightToggle_->move(0);
+	else if( visibleLightStatus_->value() == 8)
+		emit visibleLightStatusChanged("Visible Light is moving to OFF");
+	else if( visibleLightStatus_->value() == 0)
+		emit visibleLightStatusChanged("Visible Light is OFF");
 }
 
 SGMBeamline* SGMBeamline::sgm() {

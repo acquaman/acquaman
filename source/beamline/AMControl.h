@@ -362,6 +362,16 @@ The Control abstraction provides two different properties (and associated signal
 
 	/// If it is a discrete control, this tells you how many discrete options/states are available:
 	unsigned enumCount() const { return enumNames_.count(); }	// TODO: there could be problems if you use a feedback PV and a setpoint PV with different number of enum choices. How to handle this?
+
+	/// Returns the enum string for a given \c controlValue. This function will check to make sure the control value is within the range of the set of enums.
+	QString enumNameAt(double controlValue) {
+		int enumValue = controlValue;
+		if((unsigned)enumValue < (unsigned)enumNames_.count())
+			return enumNames_.at(enumValue);
+		else
+			return "[enum value out of range]";
+	}
+
 	//@}
 
 public slots:

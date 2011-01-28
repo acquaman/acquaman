@@ -79,6 +79,7 @@ void SGMXASDacqScanController::start(){
 			}
 		}
 	}
+	advAcq_->saveConfigFile("/Users/fawkes/dev/acquaman/devConfigurationFiles/davidTest.cfg");
 	generalScan_ = specificScan_;
 	AMDacqScanController::start();
 }

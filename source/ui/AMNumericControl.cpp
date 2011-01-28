@@ -300,7 +300,7 @@ void AMControlEdit::overrideTitle(const QString &title){
 
 void AMControlEdit::onValueChanged(double newVal) {
 	if(control_->isEnum()){
-		valueLabel_->setText(control_->enumNames().at((int)newVal));
+		valueLabel_->setText(control_->enumNameAt(newVal));
 		unitsLabel_->setText("");
 	}
 	else
@@ -354,7 +354,7 @@ void AMControlEdit::onEditStart() {
 
 void AMControlEdit::onStatusValueChanged(double newVal){
 	if(statusTagControl_->isEnum())
-		statusLabel_->setText(statusTagControl_->enumNames().at((int)newVal));
+		statusLabel_->setText(statusTagControl_->enumNameAt(newVal));
 	else
 		statusLabel_->setText(QString("%1").arg(newVal));
 }
@@ -594,4 +594,23 @@ void AMControlButton::setHappy(bool happy) {
 	else
 		setStyleSheet("border: 1px outset #f20000; background: #ffdfdf;	padding: 1px; color: #f20000;");
 	*/
+}
+
+AMBeamlineActionsListButton::AMBeamlineActionsListButton(AMBeamlineActionsList *actionsList, QWidget *parent) :
+		QToolButton(parent)
+{
+	actionsList_ = actionsList;
+	connect(this, SIGNAL(clicked()), this, SLOT(onClicked()));
+}
+
+void AMBeamlineActionsListButton::overrideText(const QString &text){
+	setText(text);
+}
+
+void AMBeamlineActionsListButton::onClicked(){
+	qDebug() << "Trying to start actionsList";
+	if(actionsList_ && actionsList_->count() > 0 && !actionsList_->action(0)->hasFinished()){
+		qDebug() << "Starting it";
+		actionsList_->action(0)->start();
+	}
 }

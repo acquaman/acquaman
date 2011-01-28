@@ -42,6 +42,11 @@ public slots:
 protected:
 	void showEvent(QShowEvent *);
 
+protected slots:
+	void onVisibleLightStatusChanged(const QString& status);
+	void onVisibleLightClicked();
+	void onCloseVacuumButtonClicked();
+
 protected:
 	QGroupBox *mainBox_;
 
@@ -50,10 +55,11 @@ protected:
 	QGridLayout *gl_;
 
 	AMControlEdit *readyLabel_;
-	AMControlButton *beamOnCButton_;
+	//AMControlButton *beamOnCButton_;
+	AMBeamlineActionsListButton *beamOnBALButton_;
 	AMControlButton *beamOffCButton_;
 	QToolButton *stopMotorsButton_;
-	AMControlButton *closeVacuumCButton_;
+	QToolButton *closeVacuumButton_;
 	QToolButton *visibleLightButton_;
 	AMControlEdit *energyNC_;
 	AMControlButton *trackUndulatorCButton_;

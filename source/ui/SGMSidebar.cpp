@@ -34,9 +34,12 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	readyLabel_ = new AMControlEdit(SGMBeamline::sgm()->beamlineReady(), NULL, true);
 	readyLabel_->setNoUnitsBox(true);
 	readyLabel_->overrideTitle("");
-	beamOnCButton_ = new AMControlButton(SGMBeamline::sgm()->beamOn());
-	beamOnCButton_->overrideText("Beam On");
-	beamOnCButton_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+//	beamOnCButton_ = new AMControlButton(SGMBeamline::sgm()->beamOn());
+//	beamOnCButton_->overrideText("Beam On");
+//	beamOnCButton_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+	beamOnBALButton_ = new AMBeamlineActionsListButton(SGMBeamline::sgm()->beamOnActionsList());
+	beamOnBALButton_->overrideText("Beam On");
+	beamOnBALButton_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 	beamOffCButton_ = new AMControlButton(SGMBeamline::sgm()->fastShutterVoltage());
 	beamOffCButton_->overrideText("Beam Off");
 	beamOffCButton_->setDownValue(5);
@@ -44,12 +47,15 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	stopMotorsButton_ = new QToolButton();
 	stopMotorsButton_->setText("Emergency\nMotor Stop");
 	stopMotorsButton_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
-	closeVacuumCButton_ = new AMControlButton(SGMBeamline::sgm()->ea2CloseVacuum());
-	closeVacuumCButton_->overrideText("Close Vacuum");
-	closeVacuumCButton_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+	closeVacuumButton_ = new QToolButton();
+	closeVacuumButton_->setText("Close Vacuum");
+	closeVacuumButton_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+	connect(closeVacuumButton_, SIGNAL(clicked()), this, SLOT(onCloseVacuumButtonClicked()));
 	visibleLightButton_ = new QToolButton();
 	visibleLightButton_->setText("Visible Light");
 	visibleLightButton_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+	connect(visibleLightButton_, SIGNAL(clicked()), this, SLOT(onVisibleLightClicked()));
+	connect(SGMBeamline::sgm(), SIGNAL(visibleLightStatusChanged(QString)), this, SLOT(onVisibleLightStatusChanged(QString)));
 	energyNC_ = new AMControlEdit(SGMBeamline::sgm()->energy(), SGMBeamline::sgm()->energyMovingStatus());
 	energyNC_->overrideTitle("Energy");
 	trackUndulatorCButton_ = new AMControlButton(SGMBeamline::sgm()->undulatorTracking());
@@ -72,10 +78,10 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	exitSlitNC_->overrideTitle("Exit Slit");
 
 	gl_->addWidget(readyLabel_,		0, 0, 1, 6, 0);
-	gl_->addWidget(beamOnCButton_,		1, 0, 1, 2, 0);
+	gl_->addWidget(beamOnBALButton_,	1, 0, 1, 2, 0);
 	gl_->addWidget(beamOffCButton_,		1, 2, 1, 2, 0);
 	gl_->addWidget(stopMotorsButton_,	1, 4, 1, 2, 0);
-	gl_->addWidget(closeVacuumCButton_,	2, 0, 1, 3, 0);
+	gl_->addWidget(closeVacuumButton_,	2, 0, 1, 3, 0);
 	gl_->addWidget(visibleLightButton_,	2, 3, 1, 3, 0);
 	gl_->addWidget(energyNC_,		3, 0, 1, 6, 0);
 	gl_->addWidget(trackUndulatorCButton_,	4, 0, 1, 2, 0);
@@ -100,4 +106,20 @@ void SGMSidebar::showEvent(QShowEvent *se){
 	gl_->setColumnMinimumWidth(4, minWidth);
 	gl_->setColumnMinimumWidth(5, minWidth);
 	QWidget::showEvent(se);
+}
+
+void SGMSidebar::onVisibleLightStatusChanged(const QString &status){
+	if(visibleLightButton_)
+		visibleLightButton_->setText(status);
+}
+
+void SGMSidebar::onVisibleLightClicked(){
+	if(SGMBeamline::sgm()->isVisibleLightOn())
+		SGMBeamline::sgm()->visibleLightOff();
+	else
+		SGMBeamline::sgm()->visibleLightOn();
+}
+
+void SGMSidebar::onCloseVacuumButtonClicked(){
+	SGMBeamline::sgm()->closeVacuum();
 }

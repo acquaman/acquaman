@@ -497,16 +497,20 @@ void AMSamplePositionItemView::setManipulator(AMControlSet *manipulator){
 }
 
 bool AMSamplePositionItemView::onSavePositionClicked(){
+	qDebug() << "Trying to save position in AMSamplePositionItemView";
 	if(!manipulator_)
 		return false;
+	qDebug() << "Doing that save position";
 	*(samplePosition_->position()) = *(manipulator_->info());
 	samplePosition_->position()->storeToDb(AMDatabase::userdb());
 	return true;
 }
 
 bool AMSamplePositionItemView::onRecallPositionClicked(){
+	qDebug() << "Trying to recall position in AMSamplePositionItemView";
 	if(!manipulator_)
 		return false;
+	qDebug() << "Doing that recall position";
 	manipulator_->setFromInfo(samplePosition_->position());
 	return true;
 }

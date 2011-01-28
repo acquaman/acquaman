@@ -26,6 +26,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMControlSet.h"
 #include "AMBiHash.h"
 #include "AMBeamlineControlAction.h"
+#include "AMBeamlineControlMoveAction.h"
+#include "AMBeamlineActionsList.h"
 
 #include <gsl/gsl_multifit.h>
 
@@ -43,21 +45,9 @@ class SGMBeamline : public AMControl
 
 public:
 	enum sgmGrating {lowGrating=0, mediumGrating=1, highGrating=2};
-	QString sgmGratingName(SGMBeamline::sgmGrating grating) const {
-		if(grating == 0)
-			return "lowGrating";
-		else if(grating == 1)
-			return "mediumGrating";
-		else if(grating == 2)
-			return "highGrating";
-	}
+	QString sgmGratingName(SGMBeamline::sgmGrating grating) const;
 	enum sgmHarmonic {firstHarmonic=1, thirdHarmonic=3};
-	QString sgmHarmonicName(SGMBeamline::sgmHarmonic harmonic) const {
-		if(harmonic == 1)
-			return "firstHarmonic";
-		else if(harmonic == 3)
-			return "thirdHarmonic";
-	}
+	QString sgmHarmonicName(SGMBeamline::sgmHarmonic harmonic) const;
 
 	static SGMBeamline* sgm();		// singleton-class accessor
 	static void releaseSGM();	// releases memory for Beamline
@@ -108,9 +98,13 @@ public:
 	AMControl* gratingVelocity() const { return gratingVelocity_;}
 	AMControl* gratingBaseVelocity() const { return gratingBaseVelocity_;}
 	AMControl* gratingAcceleration() const { return gratingAcceleration_;}
-	AMControl* ea1CloseVacuum() const { return ea1CloseVacuum_;}
+	AMControl* ea1CloseVacuum1() const { return ea1CloseVacuum1_;}
+	AMControl* ea1CloseVacuum2() const { return ea1CloseVacuum2_;}
 	AMControl* ea2CloseVacuum() const { return ea2CloseVacuum_;}
 	AMControl* beamOn() const { return beamOn_;}
+	AMControl* visibleLightToggle() const { return visibleLightToggle_;}
+	AMControl* visibleLightStatus() const { return visibleLightStatus_;}
+	AMControl* activeEndstation() const { return activeEndstation_;}
 
 
 	AMControlSet* fluxResolutionSet() const { return fluxResolutionSet_;}
@@ -122,52 +116,20 @@ public:
 
 	AMSamplePlate* currentSamplePlate() const { return currentSamplePlate_; }
 
-	QList<AM1BeamlineActionItem*> transferLoadlockOutActions() const {
-		QList<AM1BeamlineActionItem*> rVal;
-		rVal.append(transferAction1_);
-		rVal.append(transferAction2_);
-		rVal.append(transferAction3_);
-		rVal.append(transferAction4_);
-		rVal.append(transferAction5_);
-		rVal.append(transferAction6_);
-		return rVal;
-	}
+	AMBeamlineControlMoveAction* beamOnAction();
+	AMBeamlineActionsList* beamOnActionsList();
 
-	QList<AM1BeamlineActionItem*> transferLoadlockInActions() const {
-		QList<AM1BeamlineActionItem*> rVal;
-		rVal.append(transferAction7_);
-		rVal.append(transferAction8_);
-		rVal.append(transferAction9_);
-		rVal.append(transferAction10_);
-		rVal.append(transferAction11_);
-		rVal.append(transferAction12_);
-		return rVal;
-	}
+	QList<AM1BeamlineActionItem*> transferLoadlockOutActions() const;
 
-	QList<AM1BeamlineActionItem*> transferChamberOutActions() const {
-		QList<AM1BeamlineActionItem*> rVal;
-		rVal.append(transferAction13_);
-		rVal.append(transferAction14_);
-		rVal.append(transferAction15_);
-		rVal.append(transferAction16_);
-		rVal.append(transferAction17_);
-		rVal.append(transferAction18_);
-		rVal.append(transferAction19_);
-		rVal.append(transferAction20_);
-		return rVal;
-	}
+	QList<AM1BeamlineActionItem*> transferLoadlockInActions() const;
 
-	QList<AM1BeamlineActionItem*> transferChamberInActions() const {
-		QList<AM1BeamlineActionItem*> rVal;
-		rVal.append(transferAction21_);
-		rVal.append(transferAction22_);
-		rVal.append(transferAction23_);
-		rVal.append(transferAction24_);
-		rVal.append(transferAction25_);
-		return rVal;
-	}
+	QList<AM1BeamlineActionItem*> transferChamberOutActions() const;
+
+	QList<AM1BeamlineActionItem*> transferChamberInActions() const;
 
 	bool isScanning();
+
+	bool isVisibleLightOn();
 
 	bool energyValidForSettings(sgmGrating grating, sgmHarmonic harmonic, double energy);
 	bool energyRangeValidForSettings(sgmGrating grating, sgmHarmonic harmonic, double minEnergy, double maxEnergy);
@@ -179,12 +141,24 @@ signals:
 	void beamlineScanningChanged(bool scanning);
 	void controlSetConnectionschanged();
 
+	void visibleLightStatusChanged(const QString& status);
+
 public slots:
 	void startTransfer() { transferAction1_->start(); }
+
+	void visibleLightOn();
+	void visibleLightOff();
+
+	void closeVacuum();
 
 protected slots:
 	void onBeamlineScanningValueChanged(double value);
 	void onControlSetConnected(bool csConnected);
+
+	void createBeamOnActions();
+	void onBeamOnActionsFinsihed();
+
+	void onVisibleLightChanged(double value);
 
 protected:
 	// Singleton implementation:
@@ -233,9 +207,13 @@ protected:
 	AMControl *gratingVelocity_;
 	AMControl *gratingBaseVelocity_;
 	AMControl *gratingAcceleration_;
-	AMControl *ea1CloseVacuum_;
+	AMControl *ea1CloseVacuum1_;
+	AMControl *ea1CloseVacuum2_;
 	AMControl *ea2CloseVacuum_;
 	AMControl *beamOn_;
+	AMControl *visibleLightToggle_;
+	AMControl *visibleLightStatus_;
+	AMControl *activeEndstation_;
 
 	AMControlSet *teyControlSet_;
 	AMDetectorInfo *teyDetector_;
@@ -249,6 +227,7 @@ protected:
 	AMControlSet *eVFbkControlSet_;
 
 	AMControlSet* criticalControlsSet_;
+	AMControlSet* beamOnControlSet_;
 
 	AMControlOptimization *fluxOptimization_;
 	AMControlOptimization *resolutionOptimization_;
@@ -291,8 +270,9 @@ protected:
 	AM1BeamlineActionItem *transferAction24_;
 	AM1BeamlineActionItem *transferAction25_;
 
-
-
+	AMBeamlineControlMoveAction *beamOnAction1_;
+	AMBeamlineControlMoveAction *beamOnAction2_;
+	AMBeamlineActionsList *beamOnActionsList_;
 
 	AMBiHash<QString, QString> amNames2pvNames_;
 

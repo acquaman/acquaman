@@ -36,6 +36,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMVerticalStackWidget.h"
 #include "dataman/AMSamplePlate.h"
 
+#include "acquaman/AMScanConfiguration.h"
+#include "beamline/AMBeamlineScanAction.h"
+#include "beamline/AMBeamlineControlSetMoveAction.h"
+
 class AMBeamlineActionsListView;
 class AMBeamlineActionAdder;
 

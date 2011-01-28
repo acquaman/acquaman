@@ -422,15 +422,23 @@ void AMProcessVariable::valueChangedCB(struct event_handler_args eventArgs) {
 		emit valueChanged();
 		break;
 
-	case Enum:
+	case Enum: {
 		for(int i=0; i<eventArgs.count; i++)
 			data_int_[i] = ((dbr_enum_t*)eventArgs.dbr)[i];
-		emit valueChanged(data_int_.at(0));
-		emit valueChanged(double(data_int_.at(0)));
-		if(initialized_)
-			emit valueChanged(enumStrings_.at(data_int_.at(0)));
+		int newValue = data_int_.at(0);
+		emit valueChanged(newValue);
+		emit valueChanged(double(newValue));
+		if(initialized_) {
+			// check to make sure that the enum value is within the allowed enum range
+				// Some bad IOCs might send an enum value that is not within their set of enum options. Dude!?
+			if((unsigned)newValue < (unsigned)enumStrings_.count())
+				emit valueChanged(enumStrings_.at(newValue));
+			else
+				emit valueChanged(QString("[enum value out of range]"));
+		}
 		emit valueChanged();
 		break;
+		}
 
 	case String:
 		data_str_.clear();
@@ -673,8 +681,15 @@ QString AMProcessVariable::getString(unsigned index) const {
 	case Enum:
 		if(index >= (unsigned)data_int_.count())
 			return "[array index out of range]";
-		if(initialized_)	// If we have the String name for this enum value:
-			return enumStrings_.at(data_int_.at(index));
+		if(initialized_) {
+			int intValue = data_int_.at(index);
+			// check to make sure that the enum value is within the allowed enum range
+				// Some bad IOCs might send an enum value that is not within their set of enum options. Dude!?
+			if((unsigned)intValue < (unsigned)enumStrings_.count())
+				return enumStrings_.at(intValue);
+			else
+				return QString("[enum value out of range]");
+		}
 		else	// otherwise we just return the number, in string form:
 			return QString("%1").arg(data_int_.at(index));
 

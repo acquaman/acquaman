@@ -31,6 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QToolButton>
 
 #include "beamline/AMControl.h"
+#include "beamline/AMBeamlineActionsList.h"
 
 class QLabel;
 class QDoubleSpinBox;
@@ -209,6 +210,23 @@ protected:
 	AMControl *control_;
 	double downValue_;
 	double upValue_;
+};
+
+// Starts the first action in the actionsList as long as it isn't already finished (that would put us in a problematic state)
+class AMBeamlineActionsListButton : public QToolButton
+{
+Q_OBJECT
+public:
+	AMBeamlineActionsListButton(AMBeamlineActionsList *actionsList, QWidget *parent = 0);
+
+public slots:
+	void overrideText(const QString& text);
+
+protected slots:
+	void onClicked();
+
+protected:
+	AMBeamlineActionsList *actionsList_;
 };
 
 #endif // NUMERICCONTROL_H

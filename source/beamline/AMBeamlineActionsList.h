@@ -25,11 +25,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QAbstractListModel>
 #include <QQueue>
 
+#include "beamline/AMBeamlineActionItem.h"
+/*
 #include "beamline/AMBeamlineScanAction.h"
 #include "beamline/AMBeamlineControlMoveAction.h"
 #include "beamline/AMBeamlineControlSetMoveAction.h"
+*/
 
 class AMBeamlineActionListModel;
+class AMBeamlineActionsListParallelHolder;
 
 class AMBeamlineActionsList : public QObject
 {
@@ -74,6 +78,23 @@ protected:
 
 private:
 	int insertRowLatch_;
+};
+
+class AMBeamlineActionsListParallelHolder : public QObject
+{
+Q_OBJECT
+public:
+	AMBeamlineActionsListParallelHolder(QObject *parent = 0);
+
+public slots:
+	void addAction(AMBeamlineActionItem* ai);
+	void actionFinished();
+
+signals:
+	void everythingFinished();
+
+protected:
+	QList<AMBeamlineActionItem*> waitingOn_;
 };
 
 class AMBeamlineActionListModel : public QAbstractListModel
