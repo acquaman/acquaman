@@ -33,7 +33,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 class AMBeamlineActionListModel;
-class AMBeamlineActionsListParallelHolder;
 
 class AMBeamlineActionsList : public QObject
 {
@@ -42,8 +41,8 @@ Q_OBJECT
 public:
 	AMBeamlineActionsList(QObject *parent = 0);
 
-	AMBeamlineActionListModel* model();//{ return actions_;}
-	int count();//{return actions_->rowCount(QModelIndex());}
+	AMBeamlineActionListModel* model();
+	int count();
 	AMBeamlineActionItem* action(int index) const;
 	int indexOf(AMBeamlineActionItem *iAction);
 
@@ -78,23 +77,6 @@ protected:
 
 private:
 	int insertRowLatch_;
-};
-
-class AMBeamlineActionsListParallelHolder : public QObject
-{
-Q_OBJECT
-public:
-	AMBeamlineActionsListParallelHolder(QObject *parent = 0);
-
-public slots:
-	void addAction(AMBeamlineActionItem* ai);
-	void actionFinished();
-
-signals:
-	void everythingFinished();
-
-protected:
-	QList<AMBeamlineActionItem*> waitingOn_;
 };
 
 class AMBeamlineActionListModel : public QAbstractListModel

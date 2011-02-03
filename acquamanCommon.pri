@@ -247,7 +247,8 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/analysis/AM2DSummingAB.h \
 	source/analysis/AMStandardAnalysisBlock.h \
 	source/analysis/AM2DSummingABEditor.h \
-	source/util/AMOrderedList.h
+	source/util/AMOrderedList.h \
+    source/beamline/AMBeamlineParallelActionsList.h
 FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
 	source/ui/AMDataViewSection.ui \
@@ -428,6 +429,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/acquaman/SGM/SGMFastScanController.cpp \
 	source/analysis/AM2DSummingAB.cpp \
 	source/analysis/AMStandardAnalysisBlock.cpp \
-	source/analysis/AM2DSummingABEditor.cpp
+	source/analysis/AM2DSummingABEditor.cpp \
+    source/beamline/AMBeamlineParallelActionsList.cpp
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc

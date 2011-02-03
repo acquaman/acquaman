@@ -28,6 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMNumericControl.h"
 #include "beamline/SGMBeamline.h"
+#include "beamline/AMBeamlineParallelActionsList.h"
 
 class SGMSidebar : public QWidget
 {

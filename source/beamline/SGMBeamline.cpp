@@ -243,9 +243,13 @@ void SGMBeamline::usingFakeBeamline(){
 	amNames2pvNames_.set("gratingVelocity", "dave:mono:velo");
 	amNames2pvNames_.set("gratingBaseVelocity", "dave:mono:veloBase");
 	amNames2pvNames_.set("gratingAcceleration", "dave:mono:accel");
-	amNames2pvNames_.set("ea1CloseVacuum1", "dave:close:ea1");
+	amNames2pvNames_.set("ea1CloseVacuum1", "dave:close:ea1:1");
+	amNames2pvNames_.set("ea1CloseVacuum2", "dave:close:ea1:2");
 	amNames2pvNames_.set("ea2CloseVacuum", "dave:close:ea2");
 	amNames2pvNames_.set("beamOn", "dave:open:beamline");
+	amNames2pvNames_.set("visibleLightToggle", "dave:visible");
+	amNames2pvNames_.set("visibleLightStatus", "dave:visible:cal");
+	amNames2pvNames_.set("activeEndstation", "david:endstation:active");
 
 	QString sgmPVName = amNames2pvNames_.valueF("energy");
 	energy_ = new AMPVwStatusControl("energy", sgmPVName, sgmPVName, sgmPVName+":moving", "", this, 0.01);
@@ -347,17 +351,26 @@ void SGMBeamline::usingFakeBeamline(){
 	gratingBaseVelocity_ = new AMPVControl("gratingBaseVelocity", sgmPVName, sgmPVName, "", this);
 	sgmPVName = amNames2pvNames_.valueF("gratingAcceleration");
 	gratingAcceleration_ = new AMPVControl("gratingAcceleration", sgmPVName, sgmPVName, "", this);
+
 	sgmPVName = amNames2pvNames_.valueF("ea1CloseVacuum1");
 	ea1CloseVacuum1_ = new AMPVControl("ea1CloseVacuum1", sgmPVName, sgmPVName, "", this);
+	sgmPVName = amNames2pvNames_.valueF("ea1CloseVacuum2");
+	ea1CloseVacuum2_ = new AMPVControl("ea1CloseVacuum2", sgmPVName, sgmPVName, "", this);
 	sgmPVName = amNames2pvNames_.valueF("ea2CloseVacuum");
 	ea2CloseVacuum_ = new AMPVControl("ea2CloseVacuum", sgmPVName, sgmPVName, "", this);
 	sgmPVName = amNames2pvNames_.valueF("beamOn");
 	beamOn_ = new AMPVControl("beamOn", sgmPVName, sgmPVName, "", this);
+	sgmPVName = amNames2pvNames_.valueF("visibleLightToggle");
+	visibleLightToggle_ = new AMPVControl("visibleLightToggle", sgmPVName, sgmPVName, "", this);
+	sgmPVName = amNames2pvNames_.valueF("visibleLightStatus");
+	visibleLightStatus_ = new AMReadOnlyPVControl("visibleLightStatus", sgmPVName, this);
+	sgmPVName = amNames2pvNames_.valueF("activeEndstation");
+	activeEndstation_ = new AMPVControl("activeEndstation", sgmPVName, sgmPVName, "", this);
 }
 
 SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
-	//usingFakeBeamline();
-	usingSGMBeamline();
+	usingFakeBeamline();
+	//usingSGMBeamline();
 
 	addChildControl(energy_);
 	addChildControl(exitSlitGap_);
