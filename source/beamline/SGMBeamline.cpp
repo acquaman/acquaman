@@ -252,7 +252,7 @@ void SGMBeamline::usingFakeBeamline(){
 	amNames2pvNames_.set("activeEndstation", "david:endstation:active");
 
 	QString sgmPVName = amNames2pvNames_.valueF("energy");
-	energy_ = new AMPVwStatusControl("energy", sgmPVName, sgmPVName, sgmPVName+":moving", "", this, 0.01);
+	energy_ = new AMPVwStatusControl("energy", sgmPVName+":fbk", sgmPVName, sgmPVName+":moving", "", this, 0.01);
 	sgmPVName = amNames2pvNames_.valueF("mono");
 	//AMReadOnlyPVwStatusControl *mono = new AMReadOnlyPVwStatusControl("mono", sgmPVName, sgmPVName+":moving", energy_);
 	AMPVwStatusControl *mono = new AMPVwStatusControl("mono", sgmPVName, sgmPVName, sgmPVName+":moving", sgmPVName+":stop", energy_, 5);
