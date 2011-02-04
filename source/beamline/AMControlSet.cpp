@@ -50,12 +50,12 @@ AMControlInfoList AMControlSet::toInfoList() const {
 }
 
 
-void AMControlSet::setFromInfoList(AMControlInfoList *info){
+void AMControlSet::setFromInfoList(const AMControlInfoList& info){
 	AMControl *tmpCtrl;
-	for(int x = 0; x < info->count(); x++){
-		tmpCtrl = controlNamed(info->at(x).name());
+	for(int x = 0; x < info.count(); x++){
+		tmpCtrl = controlNamed(info.at(x).name());
 		if(tmpCtrl)
-			tmpCtrl->move(info->at(x).value());
+			tmpCtrl->move(info.at(x).value());
 	}
 }
 

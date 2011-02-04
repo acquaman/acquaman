@@ -94,7 +94,7 @@ public:
 
 
 	/// Set the position of all the controls in the set from the simplified AMControlInfoList \c infoList.  The controls in \c infoList are matched by name, and for each corresponding name in this set, the real control's value is set.
-	void setFromInfoList(AMControlInfoList *info);
+	void setFromInfoList(const AMControlInfoList& info);
 
 signals:
 	/// This signal is emitted whenever isConnected() changes

@@ -59,7 +59,7 @@ void AMBeamlineControlSetMoveAction::start(){
 		startPoint_->setParent(this);
 		connect(&progressTimer_, SIGNAL(timeout()), this, SLOT(calculateProgress()) );
 		progressTimer_.start(500);
-		controlSet_->setFromInfoList(setpoint_);
+		controlSet_->setFromInfoList(*setpoint_);
 	}
 	else
 		connect(this, SIGNAL(ready(bool)), this, SLOT(delayedStart(bool)));

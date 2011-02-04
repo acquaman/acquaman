@@ -507,7 +507,7 @@ bool AMSamplePositionItemView::onSavePositionClicked(){
 bool AMSamplePositionItemView::onRecallPositionClicked(){
 	if(!manipulator_)
 		return false;
-	manipulator_->setFromInfoList(samplePosition_->position());
+	manipulator_->setFromInfoList(*(samplePosition_->position()));
 	return true;
 }
 
