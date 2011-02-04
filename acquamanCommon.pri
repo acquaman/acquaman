@@ -248,7 +248,14 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/analysis/AMStandardAnalysisBlock.h \
 	source/analysis/AM2DSummingABEditor.h \
 	source/util/AMOrderedList.h \
+<<<<<<< HEAD
     source/beamline/AMBeamlineParallelActionsList.h
+=======
+    source/acquaman/AMControlOptimization.h \
+    source/acquaman/AMDetectorInfoList.h \
+    source/ui/AMDetectorInfoView.h \
+    source/ui/AMControlOptimizationView.h
+>>>>>>> 41af124940f95384601299a775c61c50907ce7fe
 FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
 	source/ui/AMDataViewSection.ui \
@@ -430,6 +437,13 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/analysis/AM2DSummingAB.cpp \
 	source/analysis/AMStandardAnalysisBlock.cpp \
 	source/analysis/AM2DSummingABEditor.cpp \
+<<<<<<< HEAD
     source/beamline/AMBeamlineParallelActionsList.cpp
+=======
+    source/acquaman/AMControlOptimization.cpp \
+    source/acquaman/AMDetectorInfoList.cpp \
+    source/ui/AMDetectorInfoView.cpp \
+    source/ui/AMControlOptimizationView.cpp
+>>>>>>> 41af124940f95384601299a775c61c50907ce7fe
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc

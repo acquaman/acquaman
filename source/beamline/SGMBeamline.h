@@ -29,7 +29,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMBeamlineControlMoveAction.h"
 #include "AMBeamlineActionsList.h"
 
-#include <gsl/gsl_multifit.h>
+#include "acquaman/AMDetectorInfoList.h"
+#include "acquaman/AMControlOptimization.h"
+
 
 class SGMGratingAction;
 class SGMTransferAction1;
@@ -110,6 +112,7 @@ public:
 	AMControlSet* fluxResolutionSet() const { return fluxResolutionSet_;}
 	AMControlSet* trackingSet() const { return trackingSet_;}
 	AMControlSet* ssaManipulatorSet() const { return ssaManipulatorSet_; }
+
 	AMDetectorInfoSet* allDetectors() const { return allDetectors_;}
 	AMDetectorInfoSet* feedbackDetectors() const { return feedbackDetectors_;}
 	AMDetectorInfoSet* XASDetectors() const { return XASDetectors_;}

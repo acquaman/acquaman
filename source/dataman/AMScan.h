@@ -154,10 +154,10 @@ public:
 	}
 	/// Returns the index of a data source (in the combined set of raw+analyzed sources) identified by \c sourceName, or -1 if not found. You can then use the return value in dataSourceAt().
 	int indexOfDataSource(const QString& sourceName) const {
-		int rawSourceIndex = rawDataSources_.indexOf(sourceName);
+		int rawSourceIndex = rawDataSources_.indexOfKey(sourceName);
 		if(rawSourceIndex >= 0)
 			return rawSourceIndex;
-		int analyzedSourceIndex = analyzedDataSources_.indexOf(sourceName);
+		int analyzedSourceIndex = analyzedDataSources_.indexOfKey(sourceName);
 		if(analyzedSourceIndex >= 0)
 			return analyzedSourceIndex + rawDataSources_.count();
 		return -1;

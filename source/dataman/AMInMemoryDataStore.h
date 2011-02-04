@@ -143,7 +143,7 @@ public:
 
 	/// Retrieve the id of an existing set of measurements, by name.  (Depending on the implementation, this may not be fast. Avoid calling it repeatedly.) Returns -1 if not found.
 	virtual inline int idOfMeasurement(const QString& measurementName) const {
-		return measurements_.indexOf(measurementName);
+		return measurements_.indexOfKey(measurementName);
 	}
 
 	/// Retrieve information about a set of measurements, by id. \c id assumed to be >= 0 and < measurementCount().
@@ -198,7 +198,7 @@ public:
 
 	/// Retrieve the id of an existing axis, by name.
 	virtual inline int idOfScanAxis(const QString& axisName) const {
-		return axes_.indexOf(axisName);
+		return axes_.indexOfKey(axisName);
 	}
 	/// Retrieve information about an axis, by id.  \c id assumed to be >= 0 and < scanAxesCount().
 	virtual inline const AMAxisInfo scanAxisAt(int id) const {

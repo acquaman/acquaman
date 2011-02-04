@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMControlSetView.h"
 #include "beamline/AMDetector.h"
+#include "ui/AMDetectorInfoView.h"
 #include "QMessageBox"
 
 class AMDetectorView : public QGroupBox

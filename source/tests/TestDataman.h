@@ -848,11 +848,11 @@ private slots:
 
 
 		int tey_n, tfy_n, tey, tfy, io;
-		QVERIFY((tey = s1.rawDataSources()->indexOf("tey")) != -1);
-		QVERIFY((tfy = s1.rawDataSources()->indexOf("tfy")) != -1);
-		QVERIFY((io = s1.rawDataSources()->indexOf("I0")) != -1);
-		QVERIFY((tey_n = s1.analyzedDataSources()->indexOf("tey_n")) != -1);
-		QVERIFY((tfy_n = s1.analyzedDataSources()->indexOf("tfy_n")) != -1);
+		QVERIFY((tey = s1.rawDataSources()->indexOfKey("tey")) != -1);
+		QVERIFY((tfy = s1.rawDataSources()->indexOfKey("tfy")) != -1);
+		QVERIFY((io = s1.rawDataSources()->indexOfKey("I0")) != -1);
+		QVERIFY((tey_n = s1.analyzedDataSources()->indexOfKey("tey_n")) != -1);
+		QVERIFY((tfy_n = s1.analyzedDataSources()->indexOfKey("tfy_n")) != -1);
 		QCOMPARE(qobject_cast<AM1DExpressionAB*>(s1.analyzedDataSources()->at(tey_n))->expression(), QString("tey/I0"));
 		QCOMPARE(qobject_cast<AM1DExpressionAB*>(s1.analyzedDataSources()->at(tfy_n))->expression(), QString("-1*tfy/I0"));
 		// test math parser:
@@ -889,8 +889,8 @@ private slots:
 
 
 		// verify auto-created channels (inside loadFromFile())
-		QVERIFY(s1.analyzedDataSources()->indexOf("tey_n") == 0);
-		QVERIFY(s1.analyzedDataSources()->indexOf("tfy_n") == 1);
+		QVERIFY(s1.analyzedDataSources()->indexOfKey("tey_n") == 0);
+		QVERIFY(s1.analyzedDataSources()->indexOfKey("tfy_n") == 1);
 
 		AM1DExpressionAB* teyn = qobject_cast<AM1DExpressionAB*>(s1.analyzedDataSources()->at(0));
 		AM1DExpressionAB* tfyn = qobject_cast<AM1DExpressionAB*>(s1.analyzedDataSources()->at(1));
@@ -1060,21 +1060,21 @@ private slots:
 		QVERIFY(s1.at(3) == 3);
 		QVERIFY(s1.at(4) == 4);
 
-		QVERIFY(s1.indexOf("0") == 0);
-		QVERIFY(s1.indexOf("1") == 1);
-		QVERIFY(s1.indexOf("2") == 2);
-		QVERIFY(s1.indexOf("3") == 3);
-		QVERIFY(s1.indexOf("4") == 4);
+		QVERIFY(s1.indexOfKey("0") == 0);
+		QVERIFY(s1.indexOfKey("1") == 1);
+		QVERIFY(s1.indexOfKey("2") == 2);
+		QVERIFY(s1.indexOfKey("3") == 3);
+		QVERIFY(s1.indexOfKey("4") == 4);
 
 		// test remove in middle:
 		s1.remove(2);
 		QVERIFY(s1.count() == 4);
 
-		QVERIFY(s1.indexOf("0") == 0);
-		QVERIFY(s1.indexOf("1") == 1);
-		QVERIFY(s1.indexOf("2") == -1);
-		QVERIFY(s1.indexOf("3") == 2);	// index moves down
-		QVERIFY(s1.indexOf("4") == 3);
+		QVERIFY(s1.indexOfKey("0") == 0);
+		QVERIFY(s1.indexOfKey("1") == 1);
+		QVERIFY(s1.indexOfKey("2") == -1);
+		QVERIFY(s1.indexOfKey("3") == 2);	// index moves down
+		QVERIFY(s1.indexOfKey("4") == 3);
 
 		QVERIFY(s1.at(0) == 0);
 		QVERIFY(s1.at(1) == 1);
@@ -1087,12 +1087,12 @@ private slots:
 
 		QVERIFY(s1.count() == 5);
 
-		QVERIFY(s1.indexOf("0") == 0);
-		QVERIFY(s1.indexOf("eighty-eight") == 1);
-		QVERIFY(s1.indexOf("1") == 2);	// index moves up; was inserted in front
-		QVERIFY(s1.indexOf("2") == -1);
-		QVERIFY(s1.indexOf("3") == 3);
-		QVERIFY(s1.indexOf("4") == 4);
+		QVERIFY(s1.indexOfKey("0") == 0);
+		QVERIFY(s1.indexOfKey("eighty-eight") == 1);
+		QVERIFY(s1.indexOfKey("1") == 2);	// index moves up; was inserted in front
+		QVERIFY(s1.indexOfKey("2") == -1);
+		QVERIFY(s1.indexOfKey("3") == 3);
+		QVERIFY(s1.indexOfKey("4") == 4);
 
 		QVERIFY(s1.at(0) == 0);
 		QVERIFY(s1.at(1) == 88);
@@ -1101,11 +1101,11 @@ private slots:
 		QVERIFY(s1.at(4) == 4);
 
 		QVERIFY(s1.replace(1, 77, "seventyseven") == 88);
-		QVERIFY(s1.indexOf("eighty-eight") == -1);
-		QVERIFY(s1.indexOf("seventyseven") == 1);
+		QVERIFY(s1.indexOfKey("eighty-eight") == -1);
+		QVERIFY(s1.indexOfKey("seventyseven") == 1);
 
 		s1.clear();
-		QVERIFY(s1.indexOf("seventyseven") == -1);
+		QVERIFY(s1.indexOfKey("seventyseven") == -1);
 		QVERIFY(s1.count() == 0);
 
 	}
