@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dataman/AMSamplePlate.h"
 
+
 SGMBeamline* SGMBeamline::instance_ = 0;
 
 void SGMBeamline::usingSGMBeamline(){

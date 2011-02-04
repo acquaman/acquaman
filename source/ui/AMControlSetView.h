@@ -122,6 +122,8 @@ protected:
 	MPlotRealtimeModel *model_;
 };
 
+#include "acquaman/AMControlOptimization.h"
+
 class AMControlOptimizationSetView : public AMControlSetView
 {
 	Q_OBJECT
@@ -265,6 +267,8 @@ protected:
 	QList<QWidget*> allBoxes_;
 	QFormLayout *fl_;
 };
+
+#include "acquaman/AMDetectorInfoList.h"
 
 class AMDetectorInfoSetView : public QGroupBox
 {
