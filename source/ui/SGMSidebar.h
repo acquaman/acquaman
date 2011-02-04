@@ -47,6 +47,7 @@ protected slots:
 	void onVisibleLightStatusChanged(const QString& status);
 	void onVisibleLightClicked();
 	void onCloseVacuumButtonClicked();
+	void onStopMotorsButtonClicked();
 
 protected:
 	QGroupBox *mainBox_;
@@ -70,6 +71,7 @@ protected:
 	AMControlEdit *entranceSlitNC_;
 	AMControlEdit *exitSlitNC_;
 
+	AMBeamlineParallelActionsList *al;
 //	AMControlEdit *moveStatusLabel_;
 };
 

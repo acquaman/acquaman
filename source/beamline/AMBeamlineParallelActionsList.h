@@ -10,7 +10,7 @@
 
 class AMBeamlineParallelActionsListHolder;
 class AMBeamlineParallelActionListModel;
-/*
+
 class AMBeamlineParallelActionsList : public QObject
 {
 	Q_OBJECT
@@ -19,31 +19,53 @@ class AMBeamlineParallelActionsList : public QObject
 		AMBeamlineParallelActionsList(QObject *parent = 0);
 
 		AMBeamlineParallelActionListModel* model();
+		int stageCount();
 		int count();
-		AMBeamlineActionItem* action(int index) const;
+		int countAt(int stageIndex);
+		#warning "Hey David, check the const - ness of these"
+		QList<AMBeamlineActionItem*>* stage(int stageIndex) const;
+		AMBeamlineActionItem* action(int stageIndex, int index) const;
+		int stageIndexOf(QList<AMBeamlineActionItem*> *iList);
+		int indexOf(QList<AMBeamlineActionItem*> *iList);
+		int stageIndexOf(AMBeamlineActionItem *iAction);
 		int indexOf(AMBeamlineActionItem *iAction);
+		QPair<int,int> indicesOf(AMBeamlineActionItem *iAction);
+
+		void puke();
 
 	public slots:
-		bool setAction(int index, AMBeamlineActionItem *action);
-		virtual bool addAction(int index, AMBeamlineActionItem *action);
-		virtual bool appendAction(AMBeamlineActionItem *action);
-		bool deleteAction(int index);
+		bool setStage(int stageIndex, QList<AMBeamlineActionItem*> *stageList);
+		bool setAction(int stageIndex, int index, AMBeamlineActionItem *action);
+		virtual bool addStage(int stageIndex, QList<AMBeamlineActionItem*> *stageList);
+		virtual bool addAction(int stageIndex, int index, AMBeamlineActionItem *action);
+		virtual bool appendStage(QList<AMBeamlineActionItem*> *stageList);
+		virtual bool appendAction(int stageIndex, AMBeamlineActionItem *action);
+		bool deleteStage(int stageIndex);
+		bool deleteAction(int stageIndex, int index);
+		void start();
 
 	signals:
-		void actionChanged(int index);
-		void actionAdded(int index);
-		void actionRemoved(int index);
-		void actionStarted(int index);
-		void actionSucceeded(int index);
-		void actionReady(int index, bool ready);
-		void actionFailed(int index, int explanation);
+		void stageChanged(int stageIndex);
+		void actionChanged(int stageIndex, int index);
+		void stageAdded(int stageIndex);
+		void actionAdded(int stageIndex, int index);
+		void stageRemoved(int stageIndex);
+		void actionRemoved(int stageIndex, int index);
+		void stageStarted(int stageIndex);
+		void actionStarted(int stageIndex, int index);
+		void stageSucceeded(int stageIndex);
+		void actionSucceeded(int stageIndex, int index);
+		void stageReady(int stageIndex);
+		void actionReady(int stageIndex, int index, bool ready);
+		void stageFailed(int stageIndex, QList<int> index, int explanation);
+		void actionFailed(int stageIndex, int index, int explanation);
 
 	private slots:
-		void onDataChanged(QModelIndex a,QModelIndex b);//{ Q_UNUSED(a); Q_UNUSED(b); emit actionsChanged();}
+		void onDataChanged(QModelIndex a,QModelIndex b);
 		void onRowsInserted(QModelIndex parent, int start, int end);
 		void onRowsRemoved(QModelIndex parent, int start, int end);
-		void onColumnsInserted(QModelIndex parent, int start, int end);
-		void onColumnsRemoved(QModelIndex parent, int start, int end);
+		//void onColumnsInserted(QModelIndex parent, int start, int end);
+		//void onColumnsRemoved(QModelIndex parent, int start, int end);
 		void onActionStarted();
 		void onActionSucceeded();
 		void onActionReady(bool ready);
@@ -51,13 +73,14 @@ class AMBeamlineParallelActionsList : public QObject
 
 	protected:
 		AMBeamlineParallelActionListModel *actions_;
+		AMBiHash<QList<AMBeamlineActionItem*>*, AMBeamlineParallelActionsListHolder*> holdersHash_;
 
 		virtual bool setupModel();
 
 	private:
 		int insertRowLatch_;
 };
-*/
+
 
 
 class AMBeamlineParallelActionsListHolder : public QObject
@@ -67,7 +90,8 @@ public:
 	AMBeamlineParallelActionsListHolder(QObject *parent = 0);
 
 public slots:
-	void addAction(AMBeamlineActionItem* ai);
+	void addAction(AMBeamlineActionItem *ai);
+	void removeAction(AMBeamlineActionItem *ai);
 	void actionFinished();
 
 signals:
@@ -93,9 +117,7 @@ public:
 	bool setData(const QModelIndex &index, const QVariant &value, int role);
 	bool insertRows(int row, int count, const QModelIndex &parent = QModelIndex());
 	bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex());
-	/*
-	Qt::ItemFlags flags(const QModelIndex &index) const;
-	*/
+	/*Qt::ItemFlags flags(const QModelIndex &index) const;*/
 
 protected:
 	QList< QList<AMBeamlineActionItem*>* > *actions_;

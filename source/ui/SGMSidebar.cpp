@@ -47,6 +47,7 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	stopMotorsButton_ = new QToolButton();
 	stopMotorsButton_->setText("Emergency\nMotor Stop");
 	stopMotorsButton_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+	connect(stopMotorsButton_, SIGNAL(clicked()), this, SLOT(onStopMotorsButtonClicked()));
 	closeVacuumButton_ = new QToolButton();
 	closeVacuumButton_->setText("Close Vacuum");
 	closeVacuumButton_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
@@ -94,169 +95,12 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	setLayout(mainLayout_);
 
 	qDebug() << "\n\n\nPLAYING WITH PARALLEL LIST";
-	AMBeamlineParallelActionListModel *myModel = new AMBeamlineParallelActionListModel(this);
-
-	myModel->insertRows(0, 1, QModelIndex());
-	myModel->insertRows(0, 3, myModel->index(0, 0, QModelIndex()));
-
-	myModel->insertRows(1, 2, QModelIndex());
-	myModel->insertRows(0, 2, myModel->index(1, 0, QModelIndex()));
-	myModel->insertRows(0, 1, myModel->index(2, 0, QModelIndex()));
-
-	myModel->insertRows(3, 1, QModelIndex());
-	myModel->insertRows(0, 3, myModel->index(3, 0, QModelIndex()));
-
-	myModel->insertRows(4, 1, QModelIndex());
-	myModel->insertRows(0, 1, myModel->index(4, 0, QModelIndex()));
-
-	myModel->insertRows(3, 1, myModel->index(3, 0, QModelIndex()));
-
-	myModel->setData(myModel->index(0, 0, myModel->index(0, 0, QModelIndex())), qVariantFromValue((void*)new AMBeamlineNumberAction(27, this)), Qt::EditRole);
-	myModel->setData(myModel->index(1, 0, myModel->index(0, 0, QModelIndex())), qVariantFromValue((void*)new AMBeamlineNumberAction(270, this)), Qt::EditRole);
-	myModel->setData(myModel->index(2, 0, myModel->index(0, 0, QModelIndex())), qVariantFromValue((void*)new AMBeamlineNumberAction(2700, this)), Qt::EditRole);
-	myModel->setData(myModel->index(0, 0, myModel->index(1, 0, QModelIndex())), qVariantFromValue((void*)new AMBeamlineNumberAction(12, this)), Qt::EditRole);
-	myModel->setData(myModel->index(1, 0, myModel->index(1, 0, QModelIndex())), qVariantFromValue((void*)new AMBeamlineNumberAction(120, this)), Qt::EditRole);
-	myModel->setData(myModel->index(0, 0, myModel->index(2, 0, QModelIndex())), qVariantFromValue((void*)new AMBeamlineNumberAction(13, this)), Qt::EditRole);
-	myModel->setData(myModel->index(0, 0, myModel->index(3, 0, QModelIndex())), qVariantFromValue((void*)new AMBeamlineNumberAction(1227, this)), Qt::EditRole);
-	myModel->setData(myModel->index(1, 0, myModel->index(3, 0, QModelIndex())), qVariantFromValue((void*)new AMBeamlineNumberAction(2712, this)), Qt::EditRole);
-	myModel->setData(myModel->index(2, 0, myModel->index(3, 0, QModelIndex())), qVariantFromValue((void*)new AMBeamlineNumberAction(2727, this)), Qt::EditRole);
-	myModel->setData(myModel->index(3, 0, myModel->index(3, 0, QModelIndex())), qVariantFromValue((void*)new AMBeamlineNumberAction(1212, this)), Qt::EditRole);
-	myModel->setData(myModel->index(0, 0, myModel->index(4, 0, QModelIndex())), qVariantFromValue((void*)new AMBeamlineNumberAction(44, this)), Qt::EditRole);
-
-
-	qDebug() << "TEST INDEX()";
-	qDebug() << "0 = " << myModel->index(0, 0, QModelIndex()).row();
-	qDebug() << "1 = " << myModel->index(1, 0, QModelIndex()).row();
-	qDebug() << "2 = " << myModel->index(2, 0, QModelIndex()).row();
-	qDebug() << "3 = " << myModel->index(3, 0, QModelIndex()).row();
-	qDebug() << "4 = " << myModel->index(4, 0, QModelIndex()).row();
-	qDebug() << "0 = " << myModel->index(0, 0, myModel->index(0, 0, QModelIndex())).row();
-	qDebug() << "1 = " << myModel->index(1, 0, myModel->index(0, 0, QModelIndex())).row();
-	qDebug() << "2 = " << myModel->index(2, 0, myModel->index(0, 0, QModelIndex())).row();
-	qDebug() << "0 = " << myModel->index(0, 0, myModel->index(1, 0, QModelIndex())).row();
-	qDebug() << "1 = " << myModel->index(1, 0, myModel->index(1, 0, QModelIndex())).row();
-	qDebug() << "0 = " << myModel->index(0, 0, myModel->index(2, 0, QModelIndex())).row();
-	qDebug() << "0 = " << myModel->index(0, 0, myModel->index(3, 0, QModelIndex())).row();
-	qDebug() << "1 = " << myModel->index(1, 0, myModel->index(3, 0, QModelIndex())).row();
-	qDebug() << "2 = " << myModel->index(2, 0, myModel->index(3, 0, QModelIndex())).row();
-	qDebug() << "3 = " << myModel->index(3, 0, myModel->index(3, 0, QModelIndex())).row();
-	qDebug() << "0 = " << myModel->index(0, 0, myModel->index(4, 0, QModelIndex())).row();
-	qDebug() << "FALSE = " << myModel->index(0, 0, myModel->index(0, 0, myModel->index(0, 0, QModelIndex()))).isValid();
-
-
-	qDebug() << "TEST ROWCOUNT()";
-	qDebug() << "5 = " << myModel->rowCount(QModelIndex());
-	qDebug() << "3 = " << myModel->rowCount(myModel->index(0, 0, QModelIndex()));
-	qDebug() << "2 = " << myModel->rowCount(myModel->index(1, 0, QModelIndex()));
-	qDebug() << "1 = " << myModel->rowCount(myModel->index(2, 0, QModelIndex()));
-	qDebug() << "4 = " << myModel->rowCount(myModel->index(3, 0, QModelIndex()));
-	qDebug() << "1 = " << myModel->rowCount(myModel->index(4, 0, QModelIndex()));
-	qDebug() << "Should fail but, 5 = " << myModel->rowCount(myModel->index(5, 0, QModelIndex()));
-	qDebug() << "Testing lowest level";
-	qDebug() << "0 = " << myModel->rowCount(myModel->index(1, 0, myModel->index(1, 0, QModelIndex())));
-
-	qDebug() << "TEST PARENT()";
-	qDebug() << "FALSE = " << myModel->parent(myModel->index(1, 0, QModelIndex())).isValid();
-	qDebug() << "0 = " << myModel->parent(myModel->index(0, 0, myModel->index(0, 0, QModelIndex()))).row();
-	qDebug() << "0 = " << myModel->parent(myModel->index(2, 0, myModel->index(0, 0, QModelIndex()))).row();
-	qDebug() << "1 = " << myModel->parent(myModel->index(0, 0, myModel->index(1, 0, QModelIndex()))).row();
-	qDebug() << "2 = " << myModel->parent(myModel->index(0, 0, myModel->index(2, 0, QModelIndex()))).row();
-	qDebug() << "3 = " << myModel->parent(myModel->index(0, 0, myModel->index(3, 0, QModelIndex()))).row();
-	qDebug() << "3 = " << myModel->parent(myModel->index(3, 0, myModel->index(3, 0, QModelIndex()))).row();
-	qDebug() << "4 = " << myModel->parent(myModel->index(0, 0, myModel->index(4, 0, QModelIndex()))).row();
-	qDebug() << "FALSE = " << myModel->parent(QModelIndex()).isValid();
-
-	qDebug() << "TEST DATA()";
-	qDebug() << "27 = " << ((AMBeamlineNumberAction*)myModel->data(myModel->index(0, 0, myModel->index(0, 0, QModelIndex())), Qt::DisplayRole).value<void*>())->getNumber();
-	qDebug() << "270 = " << ((AMBeamlineNumberAction*)myModel->data(myModel->index(1, 0, myModel->index(0, 0, QModelIndex())), Qt::DisplayRole).value<void*>())->getNumber();
-	qDebug() << "2700 = " << ((AMBeamlineNumberAction*)myModel->data(myModel->index(2, 0, myModel->index(0, 0, QModelIndex())), Qt::DisplayRole).value<void*>())->getNumber();
-	qDebug() << "12 = " << ((AMBeamlineNumberAction*)myModel->data(myModel->index(0, 0, myModel->index(1, 0, QModelIndex())), Qt::DisplayRole).value<void*>())->getNumber();
-	qDebug() << "120 = " << ((AMBeamlineNumberAction*)myModel->data(myModel->index(1, 0, myModel->index(1, 0, QModelIndex())), Qt::DisplayRole).value<void*>())->getNumber();
-	qDebug() << "13 = " << ((AMBeamlineNumberAction*)myModel->data(myModel->index(0, 0, myModel->index(2, 0, QModelIndex())), Qt::DisplayRole).value<void*>())->getNumber();
-	qDebug() << "1227 = " << ((AMBeamlineNumberAction*)myModel->data(myModel->index(0, 0, myModel->index(3, 0, QModelIndex())), Qt::DisplayRole).value<void*>())->getNumber();
-	qDebug() << "2712 = " << ((AMBeamlineNumberAction*)myModel->data(myModel->index(1, 0, myModel->index(3, 0, QModelIndex())), Qt::DisplayRole).value<void*>())->getNumber();
-	qDebug() << "2727 = " << ((AMBeamlineNumberAction*)myModel->data(myModel->index(2, 0, myModel->index(3, 0, QModelIndex())), Qt::DisplayRole).value<void*>())->getNumber();
-	qDebug() << "1212 = " << ((AMBeamlineNumberAction*)myModel->data(myModel->index(3, 0, myModel->index(3, 0, QModelIndex())), Qt::DisplayRole).value<void*>())->getNumber();
-	qDebug() << "44 = " << ((AMBeamlineNumberAction*)myModel->data(myModel->index(0, 0, myModel->index(4, 0, QModelIndex())), Qt::DisplayRole).value<void*>())->getNumber();
-
-	qDebug() << "3 = " << ((QList<AMBeamlineActionItem*>*)myModel->data(myModel->index(0, 0, QModelIndex()), Qt::DisplayRole).value<void*>())->count();
-	qDebug() << "2 = " << ((QList<AMBeamlineActionItem*>*)myModel->data(myModel->index(1, 0, QModelIndex()), Qt::DisplayRole).value<void*>())->count();
-	qDebug() << "1 = " << ((QList<AMBeamlineActionItem*>*)myModel->data(myModel->index(2, 0, QModelIndex()), Qt::DisplayRole).value<void*>())->count();
-	qDebug() << "4 = " << ((QList<AMBeamlineActionItem*>*)myModel->data(myModel->index(3, 0, QModelIndex()), Qt::DisplayRole).value<void*>())->count();
-	qDebug() << "1 = " << ((QList<AMBeamlineActionItem*>*)myModel->data(myModel->index(4, 0, QModelIndex()), Qt::DisplayRole).value<void*>())->count();
-
-	qDebug() << "TEST SETDATA()";
-	AMBeamlineActionItem *tmpItem = new AMBeamlineNumberAction(28, this);
-	qDebug() << "TRUE = " << myModel->setData(myModel->index(0, 0, myModel->index(0, 0, QModelIndex())), qVariantFromValue((void*)tmpItem), Qt::EditRole);
-	qDebug() << "28 = " << ((AMBeamlineNumberAction*)myModel->data(myModel->index(0, 0, myModel->index(0, 0, QModelIndex())), Qt::DisplayRole).value<void*>())->getNumber();
-
-	tmpItem = new AMBeamlineNumberAction(2121, this);
-	qDebug() << "TRUE = " << myModel->setData(myModel->index(3, 0, myModel->index(3, 0, QModelIndex())), qVariantFromValue((void*)tmpItem), Qt::EditRole);
-	qDebug() << "2121 = " << ((AMBeamlineNumberAction*)myModel->data(myModel->index(3, 0, myModel->index(3, 0, QModelIndex())), Qt::DisplayRole).value<void*>())->getNumber();
-
-	qDebug() << "TESTING INSERTROWS";
-	int moveby = 3;
-	myModel->insertRows(0, moveby, QModelIndex());
-	qDebug() << "28 = " << ((AMBeamlineNumberAction*)myModel->data(myModel->index(0, 0, myModel->index(0+moveby, 0, QModelIndex())), Qt::DisplayRole).value<void*>())->getNumber();
-	qDebug() << "270 = " << ((AMBeamlineNumberAction*)myModel->data(myModel->index(1, 0, myModel->index(0+moveby, 0, QModelIndex())), Qt::DisplayRole).value<void*>())->getNumber();
-	qDebug() << "2700 = " << ((AMBeamlineNumberAction*)myModel->data(myModel->index(2, 0, myModel->index(0+moveby, 0, QModelIndex())), Qt::DisplayRole).value<void*>())->getNumber();
-	qDebug() << "12 = " << ((AMBeamlineNumberAction*)myModel->data(myModel->index(0, 0, myModel->index(1+moveby, 0, QModelIndex())), Qt::DisplayRole).value<void*>())->getNumber();
-	qDebug() << "120 = " << ((AMBeamlineNumberAction*)myModel->data(myModel->index(1, 0, myModel->index(1+moveby, 0, QModelIndex())), Qt::DisplayRole).value<void*>())->getNumber();
-	qDebug() << "13 = " << ((AMBeamlineNumberAction*)myModel->data(myModel->index(0, 0, myModel->index(2+moveby, 0, QModelIndex())), Qt::DisplayRole).value<void*>())->getNumber();
-	qDebug() << "1227 = " << ((AMBeamlineNumberAction*)myModel->data(myModel->index(0, 0, myModel->index(3+moveby, 0, QModelIndex())), Qt::DisplayRole).value<void*>())->getNumber();
-	qDebug() << "2712 = " << ((AMBeamlineNumberAction*)myModel->data(myModel->index(1, 0, myModel->index(3+moveby, 0, QModelIndex())), Qt::DisplayRole).value<void*>())->getNumber();
-	qDebug() << "2727 = " << ((AMBeamlineNumberAction*)myModel->data(myModel->index(2, 0, myModel->index(3+moveby, 0, QModelIndex())), Qt::DisplayRole).value<void*>())->getNumber();
-	qDebug() << "2121 = " << ((AMBeamlineNumberAction*)myModel->data(myModel->index(3, 0, myModel->index(3+moveby, 0, QModelIndex())), Qt::DisplayRole).value<void*>())->getNumber();
-	qDebug() << "44 = " << ((AMBeamlineNumberAction*)myModel->data(myModel->index(0, 0, myModel->index(4+moveby, 0, QModelIndex())), Qt::DisplayRole).value<void*>())->getNumber();
-
-	qDebug() << "0 = " << ((QList<AMBeamlineActionItem*>*)myModel->data(myModel->index(0, 0, QModelIndex()), Qt::DisplayRole).value<void*>())->count();
-	qDebug() << "0 = " << ((QList<AMBeamlineActionItem*>*)myModel->data(myModel->index(1, 0, QModelIndex()), Qt::DisplayRole).value<void*>())->count();
-	qDebug() << "0 = " << ((QList<AMBeamlineActionItem*>*)myModel->data(myModel->index(2, 0, QModelIndex()), Qt::DisplayRole).value<void*>())->count();
-	qDebug() << "3 = " << ((QList<AMBeamlineActionItem*>*)myModel->data(myModel->index(0+moveby, 0, QModelIndex()), Qt::DisplayRole).value<void*>())->count();
-	qDebug() << "2 = " << ((QList<AMBeamlineActionItem*>*)myModel->data(myModel->index(1+moveby, 0, QModelIndex()), Qt::DisplayRole).value<void*>())->count();
-	qDebug() << "1 = " << ((QList<AMBeamlineActionItem*>*)myModel->data(myModel->index(2+moveby, 0, QModelIndex()), Qt::DisplayRole).value<void*>())->count();
-	qDebug() << "4 = " << ((QList<AMBeamlineActionItem*>*)myModel->data(myModel->index(3+moveby, 0, QModelIndex()), Qt::DisplayRole).value<void*>())->count();
-	qDebug() << "1 = " << ((QList<AMBeamlineActionItem*>*)myModel->data(myModel->index(4+moveby, 0, QModelIndex()), Qt::DisplayRole).value<void*>())->count();
-
-	/*
-	myModel->insertRows(1, 3, myModel->index(3, 0, QModelIndex()));
-	myModel->insertRows(0, 1, myModel->index(0, 0, QModelIndex()));
-	*/
-	qDebug() << "FALSE = " << myModel->insertRows(0, 0, myModel->index(1, 0, myModel->index(4, 0, QModelIndex())));
-
-	qDebug() << "\nTEST REMOVEROWS()";
-	myModel->removeRows(3, 2, QModelIndex());
-	qDebug() << "13 = " << ((AMBeamlineNumberAction*)myModel->data(myModel->index(0, 0, myModel->index(3, 0, QModelIndex())), Qt::DisplayRole).value<void*>())->getNumber();
-	qDebug() << "1227 = " << ((AMBeamlineNumberAction*)myModel->data(myModel->index(0, 0, myModel->index(4, 0, QModelIndex())), Qt::DisplayRole).value<void*>())->getNumber();
-	qDebug() << "2712 = " << ((AMBeamlineNumberAction*)myModel->data(myModel->index(1, 0, myModel->index(4, 0, QModelIndex())), Qt::DisplayRole).value<void*>())->getNumber();
-	qDebug() << "2727 = " << ((AMBeamlineNumberAction*)myModel->data(myModel->index(2, 0, myModel->index(4, 0, QModelIndex())), Qt::DisplayRole).value<void*>())->getNumber();
-	qDebug() << "2121 = " << ((AMBeamlineNumberAction*)myModel->data(myModel->index(3, 0, myModel->index(4, 0, QModelIndex())), Qt::DisplayRole).value<void*>())->getNumber();
-	qDebug() << "44 = " << ((AMBeamlineNumberAction*)myModel->data(myModel->index(0, 0, myModel->index(5, 0, QModelIndex())), Qt::DisplayRole).value<void*>())->getNumber();
-
-	qDebug() << "0 = " << ((QList<AMBeamlineActionItem*>*)myModel->data(myModel->index(0, 0, QModelIndex()), Qt::DisplayRole).value<void*>())->count();
-	qDebug() << "0 = " << ((QList<AMBeamlineActionItem*>*)myModel->data(myModel->index(1, 0, QModelIndex()), Qt::DisplayRole).value<void*>())->count();
-	qDebug() << "0 = " << ((QList<AMBeamlineActionItem*>*)myModel->data(myModel->index(2, 0, QModelIndex()), Qt::DisplayRole).value<void*>())->count();
-	qDebug() << "1 = " << ((QList<AMBeamlineActionItem*>*)myModel->data(myModel->index(3, 0, QModelIndex()), Qt::DisplayRole).value<void*>())->count();
-	qDebug() << "4 = " << ((QList<AMBeamlineActionItem*>*)myModel->data(myModel->index(4, 0, QModelIndex()), Qt::DisplayRole).value<void*>())->count();
-	qDebug() << "1 = " << ((QList<AMBeamlineActionItem*>*)myModel->data(myModel->index(5, 0, QModelIndex()), Qt::DisplayRole).value<void*>())->count();
-
-	qDebug() << "\n\n";
-	myModel->removeRows(1, 2, myModel->index(4, 0, QModelIndex()));
-	qDebug() << "13 = " << ((AMBeamlineNumberAction*)myModel->data(myModel->index(0, 0, myModel->index(3, 0, QModelIndex())), Qt::DisplayRole).value<void*>())->getNumber();
-	qDebug() << "1227 = " << ((AMBeamlineNumberAction*)myModel->data(myModel->index(0, 0, myModel->index(4, 0, QModelIndex())), Qt::DisplayRole).value<void*>())->getNumber();
-	qDebug() << "2121 = " << ((AMBeamlineNumberAction*)myModel->data(myModel->index(1, 0, myModel->index(4, 0, QModelIndex())), Qt::DisplayRole).value<void*>())->getNumber();
-	qDebug() << "44 = " << ((AMBeamlineNumberAction*)myModel->data(myModel->index(0, 0, myModel->index(5, 0, QModelIndex())), Qt::DisplayRole).value<void*>())->getNumber();
-
-	qDebug() << "0 = " << ((QList<AMBeamlineActionItem*>*)myModel->data(myModel->index(0, 0, QModelIndex()), Qt::DisplayRole).value<void*>())->count();
-	qDebug() << "0 = " << ((QList<AMBeamlineActionItem*>*)myModel->data(myModel->index(1, 0, QModelIndex()), Qt::DisplayRole).value<void*>())->count();
-	qDebug() << "0 = " << ((QList<AMBeamlineActionItem*>*)myModel->data(myModel->index(2, 0, QModelIndex()), Qt::DisplayRole).value<void*>())->count();
-	qDebug() << "1 = " << ((QList<AMBeamlineActionItem*>*)myModel->data(myModel->index(3, 0, QModelIndex()), Qt::DisplayRole).value<void*>())->count();
-	qDebug() << "2 = " << ((QList<AMBeamlineActionItem*>*)myModel->data(myModel->index(4, 0, QModelIndex()), Qt::DisplayRole).value<void*>())->count();
-	qDebug() << "1 = " << ((QList<AMBeamlineActionItem*>*)myModel->data(myModel->index(5, 0, QModelIndex()), Qt::DisplayRole).value<void*>())->count();
-
-	qDebug() << "FALSE = " << myModel->removeRows(0, 1, myModel->index(1, 0, myModel->index(4, 0, QModelIndex())));
-	qDebug() << "FALSE = " << myModel->removeRows(1, 1, myModel->index(1, 0, QModelIndex()));
-	qDebug() << "FALSE = " << myModel->removeRows(1, 5, myModel->index(4, 0, QModelIndex()));
+	AMBeamlineControlMoveAction *tmpAction;
+	al = new AMBeamlineParallelActionsList(this);
+	al->appendStage(new QList<AMBeamlineActionItem*>());
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->energy(),this);
+	tmpAction->setSetpoint(500);
+	al->appendAction(0, tmpAction);
 }
 
 void SGMSidebar::showEvent(QShowEvent *se){
@@ -287,4 +131,9 @@ void SGMSidebar::onVisibleLightClicked(){
 
 void SGMSidebar::onCloseVacuumButtonClicked(){
 	SGMBeamline::sgm()->closeVacuum();
+}
+
+void SGMSidebar::onStopMotorsButtonClicked(){
+	qDebug() << "Starting the parallel actions list";
+	al->start();
 }
