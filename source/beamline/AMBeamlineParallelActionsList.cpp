@@ -139,9 +139,11 @@ bool AMBeamlineParallelActionsList::setStage(int stageIndex, QList<AMBeamlineAct
 			#warning "Hey David, What connections need to be made (added to) the holder?"
 			for(int x = 0; x < stageList->count(); x++)
 				connect(stageList->at(x), SIGNAL(succeeded()), holdersHash_.valueF(stageList), SLOT(actionFinished()));
-			if(prevStageList && nextStageList)
+			if(prevStageList && nextStageList){
+				qDebug() << "Doing disconnects";
 				for(int x = 0; x < nextStageList->count(); x++)
 					disconnect(holdersHash_.valueF(prevStageList), SIGNAL(everythingFinished()), nextStageList->at(x), SLOT(start()));
+			}
 			if(prevStageList)
 				for(int x = 0; x < stageList->count(); x++)
 					connect(holdersHash_.valueF(prevStageList), SIGNAL(everythingFinished()), stageList->at(x), SLOT(start()));
@@ -164,16 +166,18 @@ bool AMBeamlineParallelActionsList::setStage(int stageIndex, QList<AMBeamlineAct
 bool AMBeamlineParallelActionsList::setAction(int stageIndex, int index, AMBeamlineActionItem *action){
 	QModelIndex modelIndex = actions_->index(index, actions_->index(stageIndex, QModelIndex()));
 	if(modelIndex.isValid() && action){
+		AMBeamlineActionItem *oldAction = NULL;
+		oldAction= (AMBeamlineActionItem*)actions_->data(actions_->index(index, actions_->index(stageIndex, QModelIndex())), Qt::DisplayRole).value<void*>();
+		QList<AMBeamlineActionItem*> *thisStageList = (QList<AMBeamlineActionItem*>*)actions_->data(actions_->index(stageIndex, QModelIndex()), Qt::DisplayRole).value<void*>();
+		QList<AMBeamlineActionItem*> *prevStageList = NULL;
 		bool retVal;
 		retVal = actions_->setData(modelIndex, qVariantFromValue((void*)action), Qt::EditRole);
 		if(retVal){
-			AMBeamlineActionItem *oldAction = (AMBeamlineActionItem*)actions_->data(actions_->index(index, actions_->index(stageIndex, QModelIndex())), Qt::DisplayRole).value<void*>();
-			QList<AMBeamlineActionItem*> *thisStageList = (QList<AMBeamlineActionItem*>*)actions_->data(actions_->index(stageIndex, QModelIndex()), Qt::DisplayRole).value<void*>();
-			QList<AMBeamlineActionItem*> *prevStageList = NULL;
 			if(stageIndex != 0)
 				prevStageList = (QList<AMBeamlineActionItem*>*)actions_->data(actions_->index(stageIndex-1, QModelIndex()), Qt::DisplayRole).value<void*>();
 			if(prevStageList)
 				connect(holdersHash_.valueF(prevStageList), SIGNAL(everythingFinished()), action, SLOT(start()));
+//			qDebug() << "TRYING TO CONNECT TO HOLDER " << (int)holdersHash_.valueF(thisStageList);
 			connect(action, SIGNAL(succeeded()), holdersHash_.valueF(thisStageList), SLOT(actionFinished()));
 			if(oldAction){//replace
 				if(prevStageList)
@@ -344,6 +348,7 @@ void AMBeamlineParallelActionsList::onActionStarted(){
 
 void AMBeamlineParallelActionsList::onActionSucceeded(){
 	AMBeamlineActionItem *tmpItem = (AMBeamlineActionItem*)QObject::sender();
+	qDebug() << "The list sees that " << (int)tmpItem << " succeeded";
 	QPair<int,int> indices = indicesOf(tmpItem);
 	emit actionSucceeded(indices.first, indices.second);
 }
@@ -391,6 +396,7 @@ void AMBeamlineParallelActionsListHolder::removeAction(AMBeamlineActionItem *ai)
 
 void AMBeamlineParallelActionsListHolder::actionFinished(){
 	AMBeamlineActionItem *ai = (AMBeamlineActionItem*)QObject::sender();
+//	qDebug() << "Heard an action finished " << (int)ai;
 	waitingOn_.removeOne(ai);
 	if(waitingOn_.isEmpty())
 		emit everythingFinished();
@@ -550,7 +556,7 @@ bool AMBeamlineParallelActionListModel::insertRows(int row, int count, const QMo
 				actionsHash_.set(internalID, QPair<int,int>(topIndex, x+count));
 			}
 		}
-		AMBeamlineActionItem *actionItem;
+		AMBeamlineActionItem *actionItem = NULL;
 		for(int x = 0; x < count; x++){
 			actions_->at(topIndex)->insert(row, actionItem);
 			actionsHash_.set(nextIndex_, QPair<int,int>(topIndex, row+count-1-x));

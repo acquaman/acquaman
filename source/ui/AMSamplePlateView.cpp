@@ -500,12 +500,8 @@ bool AMSamplePositionItemView::onSavePositionClicked(){
 	qDebug() << "Trying to save position in AMSamplePositionItemView";
 	if(!manipulator_)
 		return false;
-<<<<<<< HEAD
 	qDebug() << "Doing that save position";
-	*(samplePosition_->position()) = *(manipulator_->info());
-=======
 	*(samplePosition_->position()) = manipulator_->toInfoList();
->>>>>>> 41af124940f95384601299a775c61c50907ce7fe
 	samplePosition_->position()->storeToDb(AMDatabase::userdb());
 	return true;
 }
@@ -514,12 +510,8 @@ bool AMSamplePositionItemView::onRecallPositionClicked(){
 	qDebug() << "Trying to recall position in AMSamplePositionItemView";
 	if(!manipulator_)
 		return false;
-<<<<<<< HEAD
 	qDebug() << "Doing that recall position";
-	manipulator_->setFromInfo(samplePosition_->position());
-=======
 	manipulator_->setFromInfoList(*(samplePosition_->position()));
->>>>>>> 41af124940f95384601299a775c61c50907ce7fe
 	return true;
 }
 
