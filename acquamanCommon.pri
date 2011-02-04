@@ -111,10 +111,6 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/acquaman/dacq3_2/qepicsacqclass.h \
 	source/acquaman/dacq3_2/qepicsacqlocal.h \
 	source/acquaman/dacq3_2/qepicsadvacq.h \
-	source/acquaman/SGM/SGMScanConfiguration.h \
-	source/acquaman/SGM/SGMXASDacqScanController.h \
-	source/acquaman/SGM/SGMXASScanConfiguration.h \
-	source/acquaman/SGM/SGMXASScanController.h \
 	source/AMAppController.h \
 	source/AMBiHash.h \
 	source/AMErrorMonitor.h \
@@ -138,7 +134,6 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/beamline/AMSampleHolder.h \
 	source/beamline/AMSpectrometer.h \
 	source/beamline/AMVariableAperture.h \
-	source/beamline/SGMBeamline.h \
 	source/dataman/AMDatabase.h \
 	source/dataman/AMDbObject.h \
 	source/dataman/AMDetectorInfo.h \
@@ -180,12 +175,9 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/BottomBar.h \
 	source/ui/AMBeamlineCameraWidget.h \
 	source/ui/AMNumericControl.h \
-	source/ui/SGMSampleTransferView.h \
-	source/ui/SGMXASScanConfigurationViewer.h \
 	source/acquaman.h \
 	source/ui/AMNewRunDialog.h \
 	source/ui/AMDetectorView.h \
-	source/ui/SGMXASScanConfigurationWizard.h \
 	source/ui/AMWorkflowManagerView.h \
 	source/beamline/AMBeamlineScanAction.h \
 	source/dataman/AMAbstractFileLoader.h \
@@ -209,11 +201,9 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMDataSourcesEditor.h \
 	source/beamline/AMBeamlineActionsList.h \
 	source/ui/AMWrappingLineEdit.h \
-	source/ui/SGMSidebar.h \
 	source/beamline/AMBeamlineControlSetMoveAction.h \
 	source/ui/AMStartScreen.h \
 	source/ui/AMSignallingGraphicsScene.h \
-	source/ui/SGMBeamlineAtAGlanceBar.h \
 	source/dataman/AMUser.h \
 	source/ui/AMVideoPlayerWidget.h \
 	source/dataman/AMXESScan.h \
@@ -238,12 +228,8 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/dataman/AMMeasurementInfo.h \
 	source/dataman/AMInMemoryDataStore.h \
 	source/acquaman/AMFastScanConfiguration.h \
-	source/acquaman/SGM/SGMFastScanConfiguration.h \
-	source/ui/SGMFastScanConfigurationViewer.h \
 	source/ui/AMScanConfigurationViewer.h \
-	source/acquaman/SGM/SGMFastDacqScanController.h \
 	source/dataman/AMFastScan.h \
-	source/acquaman/SGM/SGMFastScanController.h \
 	source/analysis/AM2DSummingAB.h \
 	source/analysis/AMStandardAnalysisBlock.h \
 	source/analysis/AM2DSummingABEditor.h \
@@ -259,7 +245,6 @@ FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMImportControllerWidget.ui \
 	source/ui/AMScanConfigurationView.ui \
 	source/ui/BottomBar.ui \
-	source/ui/SGMXASScanConfigurationViewer.ui \
 	source/ui/AMGenericScanEditor.ui \
 	source/ui/AMDataSourcesEditor.ui \
 	source/ui/AMSamplePlateSelector.ui
@@ -310,10 +295,6 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/acquaman/dacq3_2/update.c \
 	source/acquaman/dacq3_2/xmlRead.cpp \
 	source/acquaman/dacq3_2/xmlWrite.cpp \
-	source/acquaman/SGM/SGMScanConfiguration.cpp \
-	source/acquaman/SGM/SGMXASDacqScanController.cpp \
-	source/acquaman/SGM/SGMXASScanConfiguration.cpp \
-	source/acquaman/SGM/SGMXASScanController.cpp \
 	source/AMAppController.cpp \
 	source/AMErrorMonitor.cpp \
 	source/AMSettings.cpp \
@@ -334,7 +315,6 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/beamline/AMSampleHolder.cpp \
 	source/beamline/AMSpectrometer.cpp \
 	source/beamline/AMVariableAperture.cpp \
-	source/beamline/SGMBeamline.cpp \
 	source/dataman/AMDatabase.cpp \
 	source/dataman/AMDbObject.cpp \
 	source/dataman/AMDetectorInfo.cpp \
@@ -370,11 +350,8 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/BottomBar.cpp \
 	source/ui/AMBeamlineCameraWidget.cpp \
 	source/ui/AMNumericControl.cpp \
-	source/ui/SGMSampleTransferView.cpp \
-	source/ui/SGMXASScanConfigurationViewer.cpp \
 	source/ui/AMDetectorView.cpp \
 	source/ui/AMNewRunDialog.cpp \
-	source/ui/SGMXASScanConfigurationWizard.cpp \
 	source/ui/AMWorkflowManagerView.cpp \
 	source/beamline/AMBeamlineScanAction.cpp \
 	source/beamline/AMBeamlineControlMoveAction.cpp \
@@ -397,11 +374,9 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMDataSourcesEditor.cpp \
 	source/beamline/AMBeamlineActionsList.cpp \
 	source/ui/AMWrappingLineEdit.cpp \
-	source/ui/SGMSidebar.cpp \
 	source/beamline/AMBeamlineControlSetMoveAction.cpp \
 	source/ui/AMStartScreen.cpp \
 	source/ui/AMSignallingGraphicsScene.cpp \
-	source/ui/SGMBeamlineAtAGlanceBar.cpp \
 	source/dataman/AMUser.cpp \
 	source/ui/AMVideoPlayerWidget.cpp \
 	source/dataman/AMXESScan.cpp \
@@ -425,12 +400,8 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/analysis/AM1DExpressionABEditor.cpp \
 	source/dataman/AMInMemoryDataStore.cpp \
 	source/acquaman/AMFastScanConfiguration.cpp \
-	source/acquaman/SGM/SGMFastScanConfiguration.cpp \
-	source/ui/SGMFastScanConfigurationViewer.cpp \
 	source/ui/AMScanConfigurationViewer.cpp \
-	source/acquaman/SGM/SGMFastDacqScanController.cpp \
 	source/dataman/AMFastScan.cpp \
-	source/acquaman/SGM/SGMFastScanController.cpp \
 	source/analysis/AM2DSummingAB.cpp \
 	source/analysis/AMStandardAnalysisBlock.cpp \
 	source/analysis/AM2DSummingABEditor.cpp \
