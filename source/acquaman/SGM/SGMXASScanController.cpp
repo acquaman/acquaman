@@ -61,9 +61,9 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 		if(pScan_()->rawDataSources()->at(i)->rank() == 1)
 			raw1DDataSources << pScan_()->rawDataSources()->at(i);
 
-	int rawTeyIndex = pScan_()->rawDataSources()->indexOf("tey");
-	int rawTfyIndex = pScan_()->rawDataSources()->indexOf("tfy");
-	int rawI0Index = pScan_()->rawDataSources()->indexOf("I0");
+	int rawTeyIndex = pScan_()->rawDataSources()->indexOfKey("tey");
+	int rawTfyIndex = pScan_()->rawDataSources()->indexOfKey("tfy");
+	int rawI0Index = pScan_()->rawDataSources()->indexOfKey("I0");
 
 	if(rawTeyIndex != -1 && rawI0Index != -1) {
 		AM1DExpressionAB* teyChannel = new AM1DExpressionAB("tey_n");

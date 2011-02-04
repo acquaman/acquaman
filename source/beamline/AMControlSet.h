@@ -25,11 +25,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMControl.h"
 #include "dataman/AMControlInfoList.h"
-#include "dataman/AMDetectorInfo.h"
+
+#include "util/AMOrderedSet.h"
 
 /// An AMControlSet is designed to hold a logical group of controls.
 /*!
-  Controls that are heirarchically linked should be children of an AMControl. On the other hand, AMControls that are logically linked should be in an AMControlSet.
+  Internally, AMControl provides a way of organizing controls hierarchichally, using its childrenControls().  This relationship implies ownership and exclusivity. On the other hand, AMControlSet provides a way of organizing controls that are logically linked together.
   For example, beamline energy might be related to several other controls (say mono angle, undulator gap, and exit slit position).
   These are heirarchically linked, so should be children of an energy AMControl.
   This way you could monitor the status of each child to get the status of the control as a whole.
@@ -37,58 +38,87 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
   These are logically linked, and should be in an AMControlSet. The convenience is that a large control object can list its logical groups, which can be displayed together or operated on as a group.
   As well, heirarchically linked controls should not likely wind up as a child of more than one control; however, logically grouped controls have no real problem overlapping.
 
-  All that is required to make an AMControlSet is to give the set a name and to add controls by passing a pointer to the AMControl. A function to remove controls is also offered for convenience.
+  AMControlSet provides a container for a logical group of controls.  The container does NOT take ownership of the controls that are placed in it, nor delete these controls when removing from the container or deleting the container.
   */
-class AMControlSet : public QObject
+class AMControlSet : public QObject, public AMOrderedSet<QString, AMControl*>
 {
 Q_OBJECT
 public:
-	/// Constructor, only needs a QObject to act as a parent.
+	/// Constructor
 	explicit AMControlSet(QObject *parent = 0);
-
-	~AMControlSet(){
-		ctrls_.clear();
-	}
 
 	/// Returns the name defined for the control set.
 	QString name() const { return name_;}
-	int count() { return ctrls_.count();}
-	AMControl* controlAt(int index) { return ctrls_.at(index);}
-	int indexOf(const QString &name);
-	AMControl* controlByName(const QString &name);
 
-	AMControlInfoList* info() { return info_; }
+	/// Converts all the controls to their simplified AMControlInfo form, and returns a list like this
+	AMControlInfoList toInfoList() const;
 
-	bool isConnected();
+	/// Returns true if ALL the controls in this set are connected.
+	bool isConnected() const;
+
+	/// Return the index of a given \c control in the set. You can then access the control using at() or operator[].  (Returns -1 if not found in the set.)
+	int indexOf(AMControl* control) { return indexOfValue(control); }
+	/// Return the index of the control named \c controlName. (Returns -1 if not found in the set.)
+	int indexOf(const QString& controlName) { return indexOfKey(controlName); }
+	/// Returns the control named \c controlName, or 0 if not found in the set.
+	AMControl* controlNamed(const QString& controlName) {
+		int index = indexOfKey(controlName);
+		if(index < 0)
+			return 0;
+
+		return at(index);
+	}
+
+	/// Adds an AMControl to the control set. Returns true if the addition was successful. Failure could result from adding the same AMControl twice.
+	bool addControl(AMControl* newControl) {
+		if(!newControl)
+			return false;
+
+		if( append(newControl, newControl->name()) ) {
+			connect(newControl, SIGNAL(connected(bool)), this, SLOT(onConnected(bool)));
+			return true;
+		}
+		return false;
+	}
+
+	/// Removes an AMControl \c control from the set. Returns true if the removal was successful. Failure could result from removing an AMControl not in the set.
+	bool removeControl(AMControl* control) {
+		int index = indexOfValue(control);
+		if(index < 0)
+			return false;
+
+		disconnect(control, 0, this, 0);
+		remove(index);
+		return true;
+	}
+
+
+	/// Set the position of all the controls in the set from the simplified AMControlInfoList \c infoList.  The controls in \c infoList are matched by name, and for each corresponding name in this set, the real control's value is set.
+	void setFromInfoList(AMControlInfoList *info);
 
 signals:
+	/// This signal is emitted whenever isConnected() changes
 	void connected(bool groupConnected);
 
 public slots:
 	/// Sets the name of the control set.
-	void setName(const QString &name);
-	/// Adds an AMControl to the control set. Returns true if the addition was successful. Failure could result from adding the same AMControl twice.
-	bool addControl(AMControl* ctrl);
-	/// Removes an AMControl from the control set. Returns true if the removal was successful. Failure could result from removing an AMControl not in the set.
-	bool removeControl(AMControl* ctrl);
+	void setName(const QString &name) { name_ = name; }
 
-//	void syncInfo();
-	void setFromInfo(AMControlInfoList *info);
+
+
 
 protected slots:
+	/// Handles when any of the controls become connected or disconnected
 	void onConnected(bool ctrlConnected);
 	void onConnectionsTimedOut();
-	void onValueChanged(double value);
 
 protected:
 	/// Holds the name of the control set. Should be descriptive of the logical relationship.
 	/// AMControlSetView will use this value as the title of the group box being displayed.
 	QString name_;
-	/// Local list of AMControl pointers, which represent the controls in the set.
-	QList<AMControl*> ctrls_;
 
-	AMControlInfoList *info_;
 
+	/// Caches whether all the controls in this set were previously connected.
 	bool wasConnected_;
 };
 

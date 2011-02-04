@@ -303,9 +303,9 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 			if(scan->rawDataSources()->at(i)->rank() == 1)
 				raw1DDataSources << scan->rawDataSources()->at(i);
 
-		int rawTeyIndex = scan->rawDataSources()->indexOf("tey");
-		int rawTfyIndex = scan->rawDataSources()->indexOf("tfy");
-		int rawI0Index = scan->rawDataSources()->indexOf("I0");
+		int rawTeyIndex = scan->rawDataSources()->indexOfKey("tey");
+		int rawTfyIndex = scan->rawDataSources()->indexOfKey("tfy");
+		int rawI0Index = scan->rawDataSources()->indexOfKey("I0");
 
 		if(rawTeyIndex != -1 && rawI0Index != -1) {
 			AM1DExpressionAB* teyChannel = new AM1DExpressionAB("tey_n");
@@ -326,7 +326,7 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 		}
 
 
-		int rawSddIndex = scan->rawDataSources()->indexOf("sdd");
+		int rawSddIndex = scan->rawDataSources()->indexOfKey("sdd");
 		if(rawSddIndex != -1) {
 			AMRawDataSource* sddRaw = scan->rawDataSources()->at(rawSddIndex);
 			AM2DSummingAB* sddSum = new AM2DSummingAB("sddSummed");

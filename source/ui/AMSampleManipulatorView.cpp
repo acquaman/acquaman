@@ -58,10 +58,10 @@ SGMSampleManipulatorView::SGMSampleManipulatorView(QWidget *parent) :
 	mCCWButton_ = new QPushButton(ccwIcon_, "");
 	mCCWButton_->setToolTip("Move Counter-Clockwise");
 
-	mVerticalCtrl_ = manipulator_->controlByName("ssaManipulatorZ");
-	mHorizontalCtrl_ = manipulator_->controlByName("ssaManipulatorX");
-	mInPlaneCtrl_ = manipulator_->controlByName("ssaManipulatorY");
-	mRotationCtrl_ = manipulator_->controlByName("ssaManipulatorRot");
+	mVerticalCtrl_ = manipulator_->controlNamed("ssaManipulatorZ");
+	mHorizontalCtrl_ = manipulator_->controlNamed("ssaManipulatorX");
+	mInPlaneCtrl_ = manipulator_->controlNamed("ssaManipulatorY");
+	mRotationCtrl_ = manipulator_->controlNamed("ssaManipulatorRot");
 
 	mVerticalNC_ = new AMNumericControl(mVerticalCtrl_);
 	mVerticalNC_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);

@@ -28,7 +28,7 @@ AMBeamlineControlSetMoveAction::AMBeamlineControlSetMoveAction(AMControlSet *con
 	type_ = "controlSetMoveAction";
 	if(controlSet){
 		setControlSet(controlSet);
-		setpoint_ = new AMControlInfoList(*controlSet_->info());
+		setpoint_ = new AMControlInfoList(controlSet_->toInfoList());
 		setpoint_->setParent(this);
 	}
 	else
@@ -51,15 +51,15 @@ void AMBeamlineControlSetMoveAction::start(){
 	if(isReady()){
 		connect(this, SIGNAL(finished()), this, SLOT(onFinished()));
 		for(int x = 0; x < controlSet_->count(); x++){
-			connect(controlSet_->controlAt(x), SIGNAL(moveSucceeded()), this, SLOT(onSucceeded()));
-			connect(controlSet_->controlAt(x), SIGNAL(moveFailed(int)), this, SLOT(onFailed(int)));
-			connect(controlSet_->controlAt(x), SIGNAL(moveStarted()), this, SLOT(onStarted()));
+			connect(controlSet_->at(x), SIGNAL(moveSucceeded()), this, SLOT(onSucceeded()));
+			connect(controlSet_->at(x), SIGNAL(moveFailed(int)), this, SLOT(onFailed(int)));
+			connect(controlSet_->at(x), SIGNAL(moveStarted()), this, SLOT(onStarted()));
 		}
-		startPoint_ = new AMControlInfoList(*controlSet_->info());
+		startPoint_ = new AMControlInfoList(controlSet_->toInfoList());
 		startPoint_->setParent(this);
 		connect(&progressTimer_, SIGNAL(timeout()), this, SLOT(calculateProgress()) );
 		progressTimer_.start(500);
-		controlSet_->setFromInfo(setpoint_);
+		controlSet_->setFromInfoList(setpoint_);
 	}
 	else
 		connect(this, SIGNAL(ready(bool)), this, SLOT(delayedStart(bool)));
@@ -68,19 +68,19 @@ void AMBeamlineControlSetMoveAction::start(){
 void AMBeamlineControlSetMoveAction::cancel(){
 	if(controlSet_ && isRunning())
 		for(int x = 0; x < controlSet_->count(); x++)
-			controlSet_->controlAt(x)->stop();
+			controlSet_->at(x)->stop();
 }
 
 void AMBeamlineControlSetMoveAction::setControlSet(AMControlSet *controlSet){
 	if(controlSet_){
 		for(int x = 0; x < controlSet_->count(); x++)
-			disconnect(controlSet_->controlAt(x), 0, this, 0);
+			disconnect(controlSet_->at(x), 0, this, 0);
 	}
 	controlSet_ = controlSet;
 	if(controlSet_){
 		for(int x = 0; x < controlSet_->count(); x++){
-			connect(controlSet_->controlAt(x), SIGNAL(movingChanged(bool)), this, SLOT(onMovingChanged(bool)));
-			connect(controlSet_->controlAt(x), SIGNAL(connected(bool)), this, SLOT(onConnected(bool)));
+			connect(controlSet_->at(x), SIGNAL(movingChanged(bool)), this, SLOT(onMovingChanged(bool)));
+			connect(controlSet_->at(x), SIGNAL(connected(bool)), this, SLOT(onConnected(bool)));
 		}
 	}
 	if(!controlSet_){
@@ -90,13 +90,13 @@ void AMBeamlineControlSetMoveAction::setControlSet(AMControlSet *controlSet){
 	}
 	else if(controlSet_ && setpoint_){
 		for(int x = 0; x < controlSet_->count(); x++){
-			if(controlSet_->controlAt(x)->name() != setpoint_->at(x).name()){
+			if(controlSet_->at(x)->name() != setpoint_->at(x).name()){
 				delete setpoint_;
 				setpoint_ = NULL;
 				break;
 			}
-			else if(controlSet_->controlAt(x)->valueOutOfRange(setpoint_->at(x).value()))
-				(*setpoint_)[x].setValue(controlSet_->controlAt(x)->value());
+			else if(controlSet_->at(x)->valueOutOfRange(setpoint_->at(x).value()))
+				(*setpoint_)[x].setValue(controlSet_->at(x)->value());
 		}
 	}
 	checkReady();
@@ -106,9 +106,9 @@ bool AMBeamlineControlSetMoveAction::setSetpoint(AMControlInfoList *setpoint){
 	if(!controlSet_)
 		return false;
 	for(int x = 0; x < controlSet_->count(); x++){
-		if(controlSet_->controlAt(x)->name() != setpoint_->at(x).name())
+		if(controlSet_->at(x)->name() != setpoint_->at(x).name())
 			return false;
-		else if(controlSet_->controlAt(x)->valueOutOfRange(setpoint_->at(x).value()))
+		else if(controlSet_->at(x)->valueOutOfRange(setpoint_->at(x).value()))
 			return false;
 	}
 	if(setpoint_)
@@ -147,7 +147,7 @@ void AMBeamlineControlSetMoveAction::checkReady(){
 		setReady(false);
 	else{
 		for(int x = 0; x < controlSet_->count(); x++)
-			if(!controlSet_->controlAt(x)->isConnected() || controlSet_->controlAt(x)->isMoving())
+			if(!controlSet_->at(x)->isConnected() || controlSet_->at(x)->isMoving())
 				setReady(false);
 	}
 	setReady(true);
@@ -160,10 +160,10 @@ void AMBeamlineControlSetMoveAction::onStarted(){
 
 void AMBeamlineControlSetMoveAction::onSucceeded(){
 	for(int x = 0; x < controlSet_->count(); x++)
-		if(controlSet_->controlAt(x)->moveInProgress())
+		if(controlSet_->at(x)->moveInProgress())
 			return;
 	for(int x = 0; x < controlSet_->count(); x++)
-		disconnect(controlSet_->controlAt(x), 0, this, 0);
+		disconnect(controlSet_->at(x), 0, this, 0);
 	setSucceeded(true);
 }
 
@@ -186,10 +186,10 @@ void AMBeamlineControlSetMoveAction::calculateProgress(){
 		if( fabs(setpoint_->at(x).value() - startPoint_->at(x).value()) < 0.0001 )
 			iPercent = 100;
 		else
-			iPercent = (fabs(controlSet_->controlAt(x)->value()-startPoint_->at(x).value())/fabs(setpoint_->at(x).value() - startPoint_->at(x).value())*100);
+			iPercent = (fabs(controlSet_->at(x)->value()-startPoint_->at(x).value())/fabs(setpoint_->at(x).value() - startPoint_->at(x).value())*100);
 		avgPercent += iPercent/csCount;
 		qDebug() << "i " << iPercent << " avg " << avgPercent;
-//		avgPercent += (fabs(controlSet_->controlAt(x)->value()-startPoint_->valueAt(x))/fabs(setpoint_->valueAt(x) - startPoint_->valueAt(x))*100)/csCount;
+//		avgPercent += (fabs(controlSet_->at(x)->value()-startPoint_->valueAt(x))/fabs(setpoint_->valueAt(x) - startPoint_->valueAt(x))*100)/csCount;
 	}
 	qDebug() << "\n\n";
 	emit progress(avgPercent, 100);

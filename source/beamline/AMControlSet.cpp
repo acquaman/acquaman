@@ -21,69 +21,39 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMControlSet.h"
 
 AMControlSet::AMControlSet(QObject *parent) :
-	QObject(parent)
+	QObject(parent), AMOrderedSet<QString, AMControl*>(false)
 {
 	wasConnected_ = false;
-	info_ = new AMControlInfoList(this);
-	QTimer connectionsTimedOut;
-	connectionsTimedOut.singleShot(AMCONTROLSET_CONTROL_TIMEOUT_MS, this, SLOT(onConnectionsTimedOut()));
+	QTimer::singleShot(AMCONTROLSET_CONTROL_TIMEOUT_MS, this, SLOT(onConnectionsTimedOut()));
 }
 
-int AMControlSet::indexOf(const QString &name){
-	for(int x = 0; x < ctrls_.count(); x++)
-		if(name == ctrls_.at(x)->name())
-			return x;
-	return -1;
-}
 
-AMControl* AMControlSet::controlByName(const QString &name){
-	int index = indexOf(name);
-	if(index != -1)
-		return controlAt(index);
-	else
-		return NULL;
-}
 
-bool AMControlSet::isConnected(){
-	for(int x = 0; x < ctrls_.count(); x++)
-		if(!controlAt(x)->isConnected())
+bool AMControlSet::isConnected() const {
+	int num = count();
+	for(int x = 0; x < num; x++)
+		if(!at(x)->isConnected())
 			return false;
 	return true;
 }
 
-void AMControlSet::setName(const QString &name) {
-	name_ = name;
-	info_->setName(name);
-}
+AMControlInfoList AMControlSet::toInfoList() const {
+	AMControlInfoList rv;
 
-
-/// Returns false if the AMControl to be added is already in the list; otherwise adds the control and returns true.
-bool AMControlSet::addControl(AMControl* ctrl) {
-	if(ctrls_.contains(ctrl))
-		return false;
-	ctrls_.append(ctrl);
-	connect(ctrl, SIGNAL(connected(bool)), this, SLOT(onConnected(bool)));
-	connect(ctrl, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged(double)));
-	info_->append(AMControlInfo(ctrl->name(), ctrl->value(), ctrl->minimumValue(), ctrl->maximumValue(), ctrl->units()));
-	return true;
-}
-
-/// Returns false if the AMControl to be removed is not present; otherwise removes the control and returns true.
-bool AMControlSet::removeControl(AMControl* ctrl) {
-	int index = ctrls_.indexOf(ctrl);
-	info_->remove(index);
-	bool retVal = ctrls_.removeOne(ctrl);
-	if(retVal){
-		disconnect(ctrl, SIGNAL(connected(bool)), this, SLOT(onConnected(bool)));
-		disconnect(ctrl, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged(double)));
+	int numControls = count();
+	for(int i=0; i<numControls; i++) {
+		AMControl* c = at(i);
+		rv.append( AMControlInfo(c->name(), c->value(), c->minimumValue(), c->maximumValue(), c->units()) );
 	}
-	return retVal;
+
+	return rv;
 }
 
-void AMControlSet::setFromInfo(AMControlInfoList *info){
+
+void AMControlSet::setFromInfoList(AMControlInfoList *info){
 	AMControl *tmpCtrl;
 	for(int x = 0; x < info->count(); x++){
-		tmpCtrl = controlByName(info->at(x).name());
+		tmpCtrl = controlNamed(info->at(x).name());
 		if(tmpCtrl)
 			tmpCtrl->move(info->at(x).value());
 	}
@@ -94,11 +64,7 @@ void AMControlSet::onConnected(bool ctrlConnected){
 		wasConnected_ = false;
 		emit connected(false);
 	}
-	AMControl *ctrl = qobject_cast<AMControl*>(QObject::sender());
-	if(!ctrl || !ctrlConnected)
-		return;
-	int index = ctrls_.indexOf(ctrl);
-	info_->replace(index, AMControlInfo(ctrl->name(), ctrl->value(), ctrl->minimumValue(), ctrl->maximumValue(), ctrl->units()));
+
 	if(isConnected() && !wasConnected_){
 		wasConnected_ = true;
 		emit connected(true);
@@ -110,10 +76,3 @@ void AMControlSet::onConnectionsTimedOut(){
 		emit connected(false);
 }
 
-void AMControlSet::onValueChanged(double value){
-	AMControl *ctrl = qobject_cast<AMControl*>(QObject::sender());
-	if(!ctrl)
-		return;
-	int index = ctrls_.indexOf(ctrl);
-	(*info_)[index].setValue(value);
-}

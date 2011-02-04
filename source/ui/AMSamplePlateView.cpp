@@ -407,7 +407,7 @@ void AMSampleListView::addNewSampleToPlate(int id){ //HEY DAVE, OPTIONALLY TAKE 
 		return;
 	AMSample *tmpSample = new AMSample("", this);
 	tmpSample->loadFromDb(AMDatabase::userdb(), id);
-	AMControlInfoList *tmpPosition = new AMControlInfoList(manipulator_->info());
+	AMControlInfoList *tmpPosition = new AMControlInfoList(manipulator_->toInfoList());
 	tmpPosition->setParent(this);	/// \bug possible memory leak. this will delete when AMSampleListView is deleted... is that enough?
 	tmpPosition->storeToDb(AMDatabase::userdb());
 	samplePlate_->appendSamplePosition(tmpSample, tmpPosition);
@@ -499,7 +499,7 @@ void AMSamplePositionItemView::setManipulator(AMControlSet *manipulator){
 bool AMSamplePositionItemView::onSavePositionClicked(){
 	if(!manipulator_)
 		return false;
-	*(samplePosition_->position()) = *(manipulator_->info());
+	*(samplePosition_->position()) = manipulator_->toInfoList();
 	samplePosition_->position()->storeToDb(AMDatabase::userdb());
 	return true;
 }
@@ -507,7 +507,7 @@ bool AMSamplePositionItemView::onSavePositionClicked(){
 bool AMSamplePositionItemView::onRecallPositionClicked(){
 	if(!manipulator_)
 		return false;
-	manipulator_->setFromInfo(samplePosition_->position());
+	manipulator_->setFromInfoList(samplePosition_->position());
 	return true;
 }
 

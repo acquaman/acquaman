@@ -249,7 +249,9 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/analysis/AM2DSummingABEditor.h \
 	source/util/AMOrderedList.h \
     source/acquaman/AMControlOptimization.h \
-    source/acquaman/AMDetectorInfoList.h
+    source/acquaman/AMDetectorInfoList.h \
+    source/ui/AMDetectorInfoView.h \
+    source/ui/AMControlOptimizationView.h
 FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
 	source/ui/AMDataViewSection.ui \
@@ -432,6 +434,8 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/analysis/AMStandardAnalysisBlock.cpp \
 	source/analysis/AM2DSummingABEditor.cpp \
     source/acquaman/AMControlOptimization.cpp \
-    source/acquaman/AMDetectorInfoList.cpp
+    source/acquaman/AMDetectorInfoList.cpp \
+    source/ui/AMDetectorInfoView.cpp \
+    source/ui/AMControlOptimizationView.cpp
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc

@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QWizard>
 #include <QWizardPage>
 #include "AMControlSetView.h"
+#include "ui/AMControlOptimizationView.h"
 #include "AMDetectorView.h"
 #include "AMXASRegionsView.h"
 #include "AMRegionsLineView.h"

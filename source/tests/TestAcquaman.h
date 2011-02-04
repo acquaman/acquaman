@@ -282,10 +282,10 @@ private slots:
 			QCOMPARE(sxsc->usingDetectors().at(x)->name(), xasDefaultDetectors.at(x)->name());
 		// Should be using SGM Flux/Resolution ControlSet
 		for(int x = 0; x < sxsc->fluxResolutionSet()->count(); x++)
-			QCOMPARE(sxsc->fluxResolutionSet()->controlAt(x)->name(), SGMBeamline::sgm()->fluxResolutionSet()->controlAt(x)->name());
+			QCOMPARE(sxsc->fluxResolutionSet()->at(x)->name(), SGMBeamline::sgm()->fluxResolutionSet()->at(x)->name());
 		// Should be using SGM Tracking ControlSet
 		for(int x = 0; x < sxsc->trackingSet()->count(); x++)
-			QCOMPARE(sxsc->trackingSet()->controlAt(x)->name(), SGMBeamline::sgm()->trackingSet()->controlAt(x)->name());
+			QCOMPARE(sxsc->trackingSet()->at(x)->name(), SGMBeamline::sgm()->trackingSet()->at(x)->name());
 		QString fileName = "testFile.%03d.dat";
 		QVERIFY(sxsc->setFileName(fileName));
 		QCOMPARE(sxsc->fileName(), fileName);
@@ -316,10 +316,10 @@ private slots:
 		QVERIFY(sxsc->setUsingPGT(1));
 		// Should be using SGM Flux/Resolution ControlSet
 		for(int x = 0; x < sxsc->fluxResolutionSet()->count(); x++)
-			QCOMPARE(sxsc->fluxResolutionSet()->controlAt(x)->name(), SGMBeamline::sgm()->fluxResolutionSet()->controlAt(x)->name());
+			QCOMPARE(sxsc->fluxResolutionSet()->at(x)->name(), SGMBeamline::sgm()->fluxResolutionSet()->at(x)->name());
 		// Should be using SGM Tracking ControlSet
 		for(int x = 0; x < sxsc->trackingSet()->count(); x++)
-			QCOMPARE(sxsc->trackingSet()->controlAt(x)->name(), SGMBeamline::sgm()->trackingSet()->controlAt(x)->name());
+			QCOMPARE(sxsc->trackingSet()->at(x)->name(), SGMBeamline::sgm()->trackingSet()->at(x)->name());
 		QString fileName = "testFile.%03d.dat";
 		QVERIFY(sxsc->setFileName(fileName));
 		QCOMPARE(sxsc->fileName(), fileName);

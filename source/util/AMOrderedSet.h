@@ -98,7 +98,7 @@ public:
 
 
 	/// Returns the index of the first item with key \c key, or -1 if the key isn't found. The item can then be returned using at() or operator[].
-	int indexOf(const Tkey& key) const {
+	int indexOfKey(const Tkey& key) const {
 		typename QHash<Tkey,int>::const_iterator ih = hash_.find(key);
 		int lowestIndexFound = count();
 		// go through all entries found with that key (there may be multiple, if duplicates allowed!) and find the lowest index -- aka, the first.
@@ -113,6 +113,18 @@ public:
 			return -1; // no key found
 
 	}
+
+	/// Returns the index of the first item with value \c value, or -1 if the value isn't found. The item can then be returned using at() or operator[].
+	/*! Performance note: Unlike indexOfKey(), this requires a linear search. */
+	int indexOfValue(const Tvalue& value) const {
+		int count = values_.count();
+		for(int i=0; i<count; i++) {
+			if(values_.at(i) == value)
+				return i;
+		}
+		return -1;
+	}
+
 
 	/// Returns true if an item with this \c key exists in the set:
 	bool contains(const Tkey& key) const {
