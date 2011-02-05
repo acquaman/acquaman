@@ -3,6 +3,5 @@
 # #####################################################################
 
 TEMPLATE = subdirs
-SUBDIRS +=	BareBonesAcquaman.pro \
-	SGMAcquaman.pro \
+SUBDIRS +=	SGMAcquaman.pro \
 	acquamanTest.pro

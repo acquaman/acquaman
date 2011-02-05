@@ -23,35 +23,19 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMSettings.h"
 #include "acquaman.h"
 
-#include "ui/AMMainWindow.h"
 
 #include "beamline/AMPVNames.h"
-#include "beamline/AMBeamline.h"
-#include "beamline/SGMBeamline.h"
-#include "beamline/AMControlState.h"
-//#include "acquaman/AMXASDacqScanController.h"
 #include "dataman/AMDatabase.h"
 #include "dataman/AMFirstTimeController.h"
 #include "dataman/AMImportController.h"
 
-
-
-#include "ui/SGMSampleTransferView.h"
-#include "ui/AMSamplePositionView.h"
-#include "ui/AMScanConfigurationView.h"
-#include "ui/SGMXASScanConfigurationViewer.h"
+#include "ui/AMMainWindow.h"
 #include "ui/AMWorkflowManagerView.h"
 #include "ui/BottomBar.h"
 #include "ui/AMDataView.h"
 #include "ui/AMRunExperimentInsert.h"
-
-#include <QStandardItemModel>
 #include "ui/AMGenericScanEditor.h"
-
 #include "ui/AMStartScreen.h"
-
-
-#include "acquaman/AMScanController.h"
 
 #include "AMErrorMonitor.h"
 
@@ -62,8 +46,6 @@ AMAppController::AMAppController(QObject *parent) :
 {
 	isStarting_ = true;
 	isShuttingDown_ = false;
-
-	scanControllerActiveEditor_ = 0;
 }
 
 bool AMAppController::startup() {
@@ -96,56 +78,16 @@ bool AMAppController::startup() {
 	// Create panes in the main window:
 	////////////////////////////////////
 
-	//connectionSettings_ = new ConnectionSettings();
-	// mw_->addPane(connectionSettings_, "Beamline Control", "Dev Playground", ":/network-workgroup.png");
-
-
-
-	//	samplePositionView_ = new AMSamplePositionView();
-	samplePositionView_ = new SGMSamplePositionView();
-	mw_->addPane(samplePositionView_, "Beamline Control", "SGM Sample Position", ":/system-software-update.png");
-
-	sampleTransferView_ = new SGMSampleTransferView();
-	mw_->addPane(sampleTransferView_, "Beamline Control", "SGM Sample Transfer", ":/system-software-update.png");
-
-	//	samplePositions_ = new SamplePositions();
-	//	mw_->addPane(samplePositions_, "Beamline Control", "Sample Positions", ":/system-software-update.png");
-
-	// gratingResolution_ = new GratingResolution();
-	// mw_->addPane(gratingResolution_, "Beamline Control", "Gratings and Resolution", ":/system-search.png");
-
-//	absorptionScanController_ = new AbsorptionScanController();
-//	mw_->addPane(absorptionScanController_, "Experiment Setup", "Absorption Scan", ":/utilities-system-monitor.png");
-
-	//emissionScanController_ = new EmissionScanController();
-	//mw_->addPane(emissionScanController_, "Experiment Setup", "Emission Scan", ":/multimedia-volume-control.png");
-
-	scanConfigurationHolder_ = new AMXASScanConfigurationHolder();
-	mw_->addPane(scanConfigurationHolder_, "Experiment Setup", "SGM XAS Scan", ":/utilities-system-monitor.png");
-
-	fastScanConfigurationHolder_ = new AMFastScanConfigurationHolder();
-	mw_->addPane(fastScanConfigurationHolder_, "Experiment Setup", "SGM Fast Scan", ":/utilities-system-monitor.png");
-
-	workflowManagerView_ = new AMWorkflowManagerView();
-	mw_->addPane(workflowManagerView_, "Experiment Tools", "Workflow", ":/user-away.png");
-	connect(workflowManagerView_, SIGNAL(freeToScan(bool, bool)), scanConfigurationHolder_, SLOT(onFreeToScan(bool, bool)));
-	connect(workflowManagerView_, SIGNAL(lockdownScanning(bool,QString)), scanConfigurationHolder_, SLOT(onLockdownScanning(bool,QString)));
-	connect(scanConfigurationHolder_, SIGNAL(addToQueueRequested(AMScanConfiguration*, bool)), workflowManagerView_, SLOT(onAddScanRequested(AMScanConfiguration*, bool)));
-	connect(scanConfigurationHolder_, SIGNAL(cancelAddToQueueRequest()), workflowManagerView_, SLOT(onCancelAddScanRequest()));
-	connect(workflowManagerView_, SIGNAL(addedScan(AMScanConfiguration*)), scanConfigurationHolder_, SLOT(onAddedToQueue(AMScanConfiguration*)));
-
-	connect(fastScanConfigurationHolder_, SIGNAL(addToQueueRequested(AMScanConfiguration*,bool)), workflowManagerView_, SLOT(onAddScanRequested(AMScanConfiguration*,bool)));
-
-	connect(scanConfigurationHolder_, SIGNAL(goToQueueRequested()), this, SLOT(goToWorkflow()));
-	connect(scanConfigurationHolder_, SIGNAL(newScanConfigurationView()), workflowManagerView_, SLOT(onNewScanConfigurationView()));
-
-	// mw_->addPane(new Scheduler(), "Experiment Tools", "Scheduler", ":/user-away.png");
-	// mw_->addPane(new PeriodicTable(), "Experiment Tools", "Periodic Table", ":/applications-science.png");
-	// mw_->addPane(new ProtocolViewer(), "Experiment Tools", "Protocol", ":/accessories-text-editor.png");
-
+	// A heading for the scan editors
 	scanEditorsParentItem_ = mw_->windowPaneModel()->headingItem("Open Scans");
 
-	// Make a dataview widget and add it under two links/headings: "Runs" and "Experiments". Here we use the AMMainWindowModel for more power
+	// a heading for the workflow manager...
+	workflowManagerView_ = new AMWorkflowManagerView();
+	mw_->addPane(workflowManagerView_, "Experiment Tools", "Workflow", ":/user-away.png");
+
+
+	// Make a dataview widget and add it under two links/headings: "Runs" and "Experiments". See AMMainWindowModel for more information.
+	////////////////////////////////////
 	dataView_ = new AMDataView();
 	dataView_->setWindowTitle("Data");
 
@@ -167,22 +109,15 @@ bool AMAppController::startup() {
 	mw_->windowPaneModel()->initAliasItem(experimentsParentItem_, dataViewItem, "Experiments", -1);
 	dataViewItem->appendRow(experimentsParentItem_);
 
-
 	// Hook into the sidebar and add Run and Experiment links below these headings.
 	runExperimentInsert_ = new AMRunExperimentInsert(AMDatabase::userdb(), runsParentItem_, experimentsParentItem_, this);
 	connect(runExperimentInsert_, SIGNAL(newExperimentAdded(QModelIndex)), this, SLOT(onNewExperimentAdded(QModelIndex)));
-
 
 	// connect the activated signal from the dataview to our own slot
 	connect(dataView_, SIGNAL(activated(QList<QUrl>)), this, SLOT(onDataViewItemsActivated(QList<QUrl>)));
 	// When 'alias' links are clicked in the main window sidebar, we might need to notify some widgets of the details
 	connect(mw_, SIGNAL(aliasItemActivated(QWidget*,QString,QVariant)), this, SLOT(onMainWindowAliasItemActivated(QWidget*,QString,QVariant)));
-
-
-
-	connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerCreated()), this, SLOT(onCurrentScanControllerCreated()));
-	connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerDestroyed()), this, SLOT(onCurrentScanControllerDestroyed()));
-	connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerReinitialized(bool)), this, SLOT(onCurrentScanControllerReinitialized(bool)));
+	/////////////////////////
 
 	// Make connections:
 	//////////////////////////////
@@ -190,15 +125,6 @@ bool AMAppController::startup() {
 	connect(mw_, SIGNAL(currentPaneChanged(QWidget*)), this, SLOT(onCurrentPaneChanged(QWidget*)));
 
 
-
-	/*! \todo: hook up bottom-bar signals to the active scan controller.
-void MainWindow::onScanControllerReady(AMScanController *scanController){
-	qDebug() << "\n\nScan controller is ready\n\n";
-	connect(bottomBar_, SIGNAL(pauseScanIssued()), scanController, SLOT(pause()));
-	connect(bottomBar_, SIGNAL(stopScanIssued()), scanController, SLOT(cancel()));
-	connect(scanController, SIGNAL(progress(double,double)), bottomBar_, SLOT(updateScanProgress(double,double)));
-}
-*/
 
 	// make/install actions:
 	/////////////////////////////////
@@ -241,23 +167,12 @@ void AMAppController::shutdown() {
 
 	isShuttingDown_ = true;
 
-	// need to delete the runs/experiments tree insert first, before the tree gets deleted
-	/// \todo IMPORTANT replace: delete runExperimentInsert_;
-
 	// destroy the main window. This will delete everything else within it.
 	delete mw_;
 
-	// Make sure we release/clean-up the beamline interface
-	AMBeamline::releaseBl();
-	SGMBeamline::releaseSGM();
 	// Close down connection to the user Database
 	AMDatabase::releaseUserDb();
 
-	// Debug only: store settings to files to ensure created:
-	// Not recommended for future... if anything changes these variables in memory, will be stored permanently
-	//AMSettings::save();
-	//AMUserSettings::save();
-	//AMPVNames::save();
 
 }
 
@@ -274,13 +189,7 @@ void AMAppController::goToWorkflow() {
 }
 
 void AMAppController::onCurrentPaneChanged(QWidget *pane) {
-
-	// If the scanConfigurationHolder pane was activated, let it know:
-	if(pane == scanConfigurationHolder_)
-		scanConfigurationHolder_->onBecameCurrentWidget();
-	else if(pane == fastScanConfigurationHolder_)
-		fastScanConfigurationHolder_->onBecameCurrentWidget();
-
+	Q_UNUSED(pane)
 }
 
 void AMAppController::onMainWindowAliasItemActivated(QWidget *target, const QString &key, const QVariant &value) {
@@ -299,58 +208,17 @@ void AMAppController::onNewExperimentAdded(const QModelIndex &index) {
 	mw_->sidebar()->edit(index);
 }
 
-#include "dataman/AMScanEditorModelItem.h"
 
-void AMAppController::onCurrentScanControllerCreated(){
-	qDebug() << "Detected creation of " << (int)AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController();
-
-	AMGenericScanEditor *scanEditor = new AMGenericScanEditor();
-	scanEditorsParentItem_->appendRow(new AMScanEditorModelItem(scanEditor, ":/applications-science.png"));
-
-	scanEditor->addScan(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan());
-	mw_->goToPane(scanEditor);
-
-	scanEditors_ << scanEditor;
-
-	scanControllerActiveEditor_ = scanEditor;
-
-	/// \todo add user preference: should new scans open in a new window, or docked?
-	// mw_->undock(scanEditor);
-	// QPoint newPos;
-	// newPos.setX(scanEditor->pos().x()+100);
-	// newPos.setY(scanEditor->pos().y()+150);
-	// scanEditor->move(newPos);
-}
-
-void AMAppController::onCurrentScanControllerDestroyed(){
-	qDebug() << "Detected deletion of " << (int)AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController();
-	scanControllerActiveEditor_ = 0;
-}
-
-void AMAppController::onCurrentScanControllerReinitialized(bool removeScan){
-	qDebug() << "Trying to reinitialize with scan editor " << scanControllerActiveEditor_;
-
-	if(!scanControllerActiveEditor_) {
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -13, "Error while re-initializing the scan controller; there is no active scan editor window. This is a bug and you should report it to the Acquaman developers."));
-		return;
-	}
-
-	/// \bug How do you know that the last scan in this scan editor is the one to remove? What if they've opened another scan since onCurrentScanControllerCreated()?
-#warning "Bug for David: how do you know that the last scan in this scan editor is the one to remove? What if they've opened another scan since onCurrentScanControllerCreated()?"
-	if(removeScan)
-		scanControllerActiveEditor_->removeScan(scanControllerActiveEditor_->scanAt(scanControllerActiveEditor_->scanCount()-1));
-
-	scanControllerActiveEditor_->addScan(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan());
-}
 
 #include "dataman/AMExperiment.h"
 void AMAppController::onAddButtonClicked() {
 
-	// For now, we simply create a new experiment
+	// For now, we simply create a new experiment. Later on, this could pop up a menu to create a new experiment, run, sample plate, whatever...
 	AMExperiment e("New Experiment");
 	e.storeToDb(AMDatabase::userdb());
 }
 
+#include "dataman/AMScanEditorModelItem.h"
 
 void AMAppController::onDataViewItemsActivated(const QList<QUrl>& itemUrls) {
 
@@ -359,7 +227,6 @@ void AMAppController::onDataViewItemsActivated(const QList<QUrl>& itemUrls) {
 
 	AMGenericScanEditor* editor = new AMGenericScanEditor();
 	scanEditorsParentItem_->appendRow(new AMScanEditorModelItem(editor, ":/applications-science.png"));
-	scanEditors_ << editor;
 	mw_->goToPane(editor);
 
 	editor->dropScanURLs(itemUrls);
@@ -377,12 +244,6 @@ void AMAppController::onWindowPaneCloseButtonClicked(const QModelIndex& index) {
 		if(!editor)
 			return;
 
-		/// \todo Move this functionality into the scan window itself. Also provide more usability... ask if they want to stop the scan
-		if(editor == scanControllerActiveEditor_) {
-			QMessageBox::information(editor, "Cannot close this window while acquiring", "A scan is still acquiring data inside this scan window.\n\nTo close it, stop the scan first.", QMessageBox::Ok);
-			return;
-		}
-
 		// delete all scans in the editor, and ask the user for confirmation. If they 'cancel' on any, give up here and don't close the window.
 		while(editor->scanCount()) {
 			if(!editor->deleteScanWithModifiedCheck(editor->scanAt(editor->scanCount()-1)))
@@ -390,9 +251,7 @@ void AMAppController::onWindowPaneCloseButtonClicked(const QModelIndex& index) {
 		}
 		mw_->removePane(editor);
 		delete editor;
-		scanEditors_.removeAll(editor);
 	}
-
 
 	// is this an experiment asking to be deleted?
 	/// \todo bad code; improve this with better architecture and functionality in expItem.  Don't like trusting dynamic_cast; there's no guarantee that someone didn't put a non-AMExperimentModelItem into the model under experimentsParentItem_.

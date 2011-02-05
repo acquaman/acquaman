@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDebug>
 #include "ui/AMCloseItemDelegate.h"
 
-/// Default constructor
+// Default constructor
 AMMainWindow::AMMainWindow(QWidget *parent) : QWidget(parent) {
 
 	model_ = new AMWindowPaneModel(this);
@@ -113,7 +113,7 @@ QStandardItem* AMMainWindow::addPane(QWidget* pane, const QString& categoryName,
 
 
 
-/// Removes and deletes a pane widget (whether docked or undocked)
+// Removes and deletes a pane widget (whether docked or undocked)
 void AMMainWindow::deletePane(QWidget* pane) {
 
 	removePane(pane);
@@ -124,13 +124,20 @@ void AMMainWindow::deletePane(QWidget* pane) {
 
 
 
-/// Removes a pane widget but does not delete it.  Ownership is now the responsibility of the caller. The pane becomes a top-level window.
+// Removes a pane widget but does not delete it.  Ownership is now the responsibility of the caller. The pane becomes a top-level window.
 void AMMainWindow::removePane(QWidget* pane) {
 
 	QModelIndex i = model_->indexForPane(pane);
 
 	if(i.isValid())
 		model_->removeRow(i.row(), i.parent());
+}
+
+
+// Insert a new heading item at a given index.  This can be used in situations where you want a pane added using addPane() to appear at a given \c position (from top to bottom).  Call insertHeading() first, with the top-level \c position and \c title of the heading, and then call addPane() with the same heading title.
+/* If \c position is less than 0 or > than the number of existing headings, the heading will be inserted at the bottom.  Returns the newly-created heading item.  */
+QStandardItem* AMMainWindow::insertHeading(const QString& title, int position) {
+	return model_->headingItem(title, QModelIndex(), position);
 }
 
 
@@ -272,7 +279,7 @@ void AMMainWindow::onSidebarItemDoubleClicked(const QModelIndex& index) {
 	model_->undock(index);
 }
 
-/// We intercept and forward the currentChanged(int) signal from the QStackedWidget, to keep the sidebar's highlighted link consistent with the current widget.
+// We intercept and forward the currentChanged(int) signal from the QStackedWidget, to keep the sidebar's highlighted link consistent with the current widget.
 void AMMainWindow::onFwdCurrentWidgetChanged(int currentIndex) {
 
 	if(currentIndex < 0)

@@ -66,6 +66,10 @@ public:
 	void removePane(QWidget* pane);
 
 
+	/// Insert a new heading item at a given index.  This can be used in situations where you want a pane added using addPane() to appear at a given \c position (from top to bottom).  Call insertHeading() first, with the top-level position and name of the heading, and then call addPane() with the same heading name.
+	/*! If \c position is less than 0 or > than the number of existing headings, the heading will be inserted at the bottom.  Returns the newly-created heading item.  */
+	QStandardItem* insertHeading(const QString& title, int position);
+
 	/// Full access to the window panes and their attributes can be retrieved through this model
 	AMWindowPaneModel* windowPaneModel() { return model_; }
 

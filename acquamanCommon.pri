@@ -111,7 +111,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/acquaman/dacq3_2/qepicsacqclass.h \
 	source/acquaman/dacq3_2/qepicsacqlocal.h \
 	source/acquaman/dacq3_2/qepicsadvacq.h \
-	source/AMAppController.h \
+	source/application/AMAppController.h \
 	source/AMBiHash.h \
 	source/AMErrorMonitor.h \
 	source/AMObservable.h \
@@ -295,7 +295,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/acquaman/dacq3_2/update.c \
 	source/acquaman/dacq3_2/xmlRead.cpp \
 	source/acquaman/dacq3_2/xmlWrite.cpp \
-	source/AMAppController.cpp \
+	source/application/AMAppController.cpp \
 	source/AMErrorMonitor.cpp \
 	source/AMSettings.cpp \
 	source/beamline/AMAmpDetector.cpp \

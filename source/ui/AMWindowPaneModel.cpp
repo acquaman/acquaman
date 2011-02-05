@@ -29,8 +29,8 @@ AMWindowPaneModel::AMWindowPaneModel(QObject* parent)
 	connect(this, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)), this, SLOT(onRowsAboutToBeRemoved(QModelIndex,int,int)));
 }
 
-/// Returns a heading item with the given text. Will create and add a new heading under parentIndex if no heading with that text exists yet.  If \c text is empty, will return the top-level (invisible root) item.
-QStandardItem* AMWindowPaneModel::headingItem(const QString& text, QModelIndex parentIndex) {
+// Returns a heading item with the given text. Will create and add a new heading under \c parentIndex at \c position if no heading with that text exists yet.  (Use -1 for \c position to append at the bottom.) If \c text is empty, will return the top-level (invisible root) item.
+QStandardItem* AMWindowPaneModel::headingItem(const QString& text, QModelIndex parentIndex, int position) {
 	if(text.isEmpty())
 		return invisibleRootItem();
 
@@ -50,10 +50,16 @@ QStandardItem* AMWindowPaneModel::headingItem(const QString& text, QModelIndex p
 	newHeading->setData(QBrush(QColor::fromRgb(100, 109, 125)), Qt::ForegroundRole);
 
 	QStandardItem* parent = itemFromIndex(parentIndex);
-	if(parent)
-		parent->appendRow(newHeading);
-	else
-		appendRow(newHeading);
+	if(parent) {
+		if(position < 0 || position > parent->rowCount())
+			position = parent->rowCount();
+		parent->insertRow(position, newHeading);
+	}
+	else {
+		if(position < 0 || position > rowCount())
+			position = rowCount();
+		insertRow(position, newHeading);
+	}
 
 	return newHeading;
 }

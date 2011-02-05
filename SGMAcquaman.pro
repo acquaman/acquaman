@@ -4,7 +4,8 @@ TARGET = SGMAcquaman
 
 FORMS += 	source/ui/SGMXASScanConfigurationViewer.ui
 
-HEADERS += 	source/acquaman/SGM/SGMScanConfiguration.h \
+HEADERS += 	source/application/SGM/SGMAppController.h \
+	source/acquaman/SGM/SGMScanConfiguration.h \
 	source/acquaman/SGM/SGMXASDacqScanController.h \
 	source/acquaman/SGM/SGMXASScanConfiguration.h \
 	source/acquaman/SGM/SGMXASScanController.h \
@@ -19,7 +20,8 @@ HEADERS += 	source/acquaman/SGM/SGMScanConfiguration.h \
 	source/ui/SGMBeamlineAtAGlanceBar.h \
 	source/ui/SGMFastScanConfigurationViewer.h
 
-SOURCES +=	source/main.cpp \
+SOURCES +=	source/application/SGM/SGMMain.cpp \
+	source/application/SGM/SGMAppController.cpp \
 	source/acquaman/SGM/SGMScanConfiguration.cpp \
 	source/acquaman/SGM/SGMXASDacqScanController.cpp \
 	source/acquaman/SGM/SGMXASScanConfiguration.cpp \
