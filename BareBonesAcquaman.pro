@@ -2,8 +2,8 @@ include ( acquamanCommon.pri )
 
 TARGET = Acquaman
 
-FORMS += 
+FORMS +=
 
-HEADERS += 
+HEADERS +=
 
-SOURCES +=	source/main.cpp
+SOURCES +=	source/application/BareBones/BareBonesMain.cpp

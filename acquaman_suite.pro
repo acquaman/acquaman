@@ -4,4 +4,5 @@
 
 TEMPLATE = subdirs
 SUBDIRS +=	SGMAcquaman.pro \
+	BareBonesAcquaman.pro \
 	acquamanTest.pro

@@ -72,8 +72,6 @@ public:
 	}
 
 
-	/// Convenience function to test if the detector has a dimesion > 0.
-	virtual bool isSpectralOutput() const { return (rank() > 0); }
 	/// I don't know what this is for.
 	virtual bool hasDetails() const { return false; }
 
