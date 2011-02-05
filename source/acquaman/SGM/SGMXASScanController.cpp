@@ -31,14 +31,12 @@ typedef QPair<QString, QString> chPair;
 SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 	specificCfg_ = cfg;
 	_pCfg_ = & specificCfg_;
+	initializationActions_ = NULL;
 	beamlineInitialized_ = false;
 
 	QList<AMDetectorInfo*> scanDetectors = pCfg_()->usingDetectors();
 	//scanDetectors.prepend(SGMBeamline::sgm()->i0Detector());
 	//scanDetectors.prepend(SGMBeamline::sgm()->eVFbkDetector());
-
-
-
 
 	specificScan_ = new AMXASScan();
 	_pScan_ = &specificScan_;
@@ -92,12 +90,38 @@ bool SGMXASScanController::isBeamlineInitialized() {
 }
 
 bool SGMXASScanController::beamlineInitialize(){
+	/*
 	SGMBeamline::sgm()->exitSlitGap()->move( pCfg_()->exitSlitGap() );
 	SGMBeamline::sgm()->grating()->move( pCfg_()->grating() );
 	SGMBeamline::sgm()->harmonic()->move( pCfg_()->harmonic());
 	SGMBeamline::sgm()->undulatorTracking()->move( pCfg_()->undulatorTracking() );
 	SGMBeamline::sgm()->monoTracking()->move( pCfg_()->monoTracking() );
 	SGMBeamline::sgm()->exitSlitTracking()->move( pCfg_()->exitSlitTracking() );
+	*/
+	AMBeamlineControlMoveAction *tmpAction = NULL;
+	#warning "Hey David, who's going to delete the list and the actions?"
+	initializationActions_ = new AMBeamlineParallelActionsList();
+	/**/
+	initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->exitSlitGap());
+	tmpAction->setSetpoint(pCfg_()->exitSlitGap());
+	initializationActions_->appendAction(0, tmpAction);
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->grating());
+	tmpAction->setSetpoint(pCfg_()->grating());
+	initializationActions_->appendAction(0, tmpAction);
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->harmonic());
+	tmpAction->setSetpoint(pCfg_()->harmonic());
+	initializationActions_->appendAction(0, tmpAction);
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->undulatorTracking());
+	tmpAction->setSetpoint(pCfg_()->undulatorTracking());
+	initializationActions_->appendAction(0, tmpAction);
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->monoTracking());
+	tmpAction->setSetpoint(pCfg_()->monoTracking());
+	initializationActions_->appendAction(0, tmpAction);
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->exitSlitTracking());
+	tmpAction->setSetpoint(pCfg_()->exitSlitTracking());
+	initializationActions_->appendAction(0, tmpAction);
+	/**/
 
 	AMDetectorInfo* tmpDI;
 	#warning "David: Why are we using detectorSet() and not usingDetectors() besides the list versus class thing? Conversion function anyone?"

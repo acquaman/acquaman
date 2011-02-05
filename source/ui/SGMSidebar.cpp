@@ -93,53 +93,6 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	gl_->addWidget(exitSlitNC_,		6, 3, 1, 3, 0);
 
 	setLayout(mainLayout_);
-
-	qDebug() << "\n\n\nPLAYING WITH PARALLEL LIST";
-	AMBeamlineControlMoveAction *tmpAction;
-	al = new AMBeamlineParallelActionsList(this);
-	connect(al, SIGNAL(listSucceeded()), this, SLOT(onActionsListSucceeded()));
-//	qDebug() << "Appending stage 0";
-	al->appendStage(new QList<AMBeamlineActionItem*>());
-	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->energy(),this);
-	tmpAction->setSetpoint(500);
-//	qDebug() << "Appended action 0 0";
-	al->appendAction(0, tmpAction);
-//	qDebug() << "Appending stage 1";
-	al->appendStage(new QList<AMBeamlineActionItem*>());
-	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->exitSlitGap(),this);
-	tmpAction->setSetpoint(250);
-//	qDebug() << "Appending action 1 0";
-	al->appendAction(1, tmpAction);
-	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->entranceSlitGap(),this);
-	tmpAction->setSetpoint(110);
-//	qDebug() << "Appending action 1 1";
-	al->appendAction(1, tmpAction);
-
-
-	al->appendStage(new QList<AMBeamlineActionItem*>());
-	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->ssaManipulatorX(),this);
-	tmpAction->setSetpoint(12);
-	al->appendAction(2, tmpAction);
-	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->ssaManipulatorY(),this);
-	tmpAction->setSetpoint(-12);
-	al->appendAction(2, tmpAction);
-
-	al->appendStage(new QList<AMBeamlineActionItem*>());
-	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->ssaManipulatorZ(),this);
-	tmpAction->setSetpoint(100);
-	al->appendAction(3, tmpAction);
-	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->ssaManipulatorRot(),this);
-	tmpAction->setSetpoint(240);
-	al->appendAction(3, tmpAction);
-
-	al->deleteStage(2);
-	al->appendStage(new QList<AMBeamlineActionItem*>());
-	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->ssaManipulatorX(),this);
-	tmpAction->setSetpoint(12);
-	al->appendAction(3, tmpAction);
-	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->ssaManipulatorY(),this);
-	tmpAction->setSetpoint(-12);
-	al->appendAction(3, tmpAction);
 }
 
 void SGMSidebar::showEvent(QShowEvent *se){
