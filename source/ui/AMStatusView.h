@@ -34,7 +34,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QParallelAnimationGroup>
 #include <QMetaProperty>
 
-#include <AMErrorMonitor.h>
+#include <util/AMErrorMonitor.h>
 
 #define AMSTATUSVIEW_LOG_WIDTH 250
 #define AMSTATUSVIEW_LOG_HEIGHT 300

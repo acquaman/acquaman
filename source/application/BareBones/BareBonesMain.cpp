@@ -18,4 +18,34 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-/* This class encapsulates
+
+
+#include <QApplication>
+#include "application/AMAppController.h"
+
+
+int main(int argc, char *argv[])
+{
+
+	/// Program Startup:
+	// =================================
+	QApplication app(argc, argv);
+	app.setApplicationName("Acquaman");
+
+
+	AMAppController* appController = new AMAppController();
+
+
+	/// Program Run-loop:
+	// =================================
+	int retVal = -1;
+	if(appController->startup())
+		retVal = app.exec();
+
+	/// Program Shutdown:
+	// =================================
+	delete appController;
+
+	return retVal;
+}
+

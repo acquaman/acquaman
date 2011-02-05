@@ -24,7 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMPVNames.h"
 #include "AMDetector.h"
 #include "AMControlSet.h"
-#include "AMBiHash.h"
+#include "util/AMBiHash.h"
 #include "AMBeamlineControlAction.h"
 #include "AMBeamlineControlMoveAction.h"
 #include "AMBeamlineActionsList.h"

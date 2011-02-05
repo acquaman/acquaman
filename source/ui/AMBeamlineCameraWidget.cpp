@@ -141,7 +141,7 @@ AMBeamlineCameraWidget::~AMBeamlineCameraWidget()
 }
 
 
-#include "AMErrorMonitor.h"
+#include "util/AMErrorMonitor.h"
 
 void AMBeamlineCameraWidget::onSourceChanged(int index) {
 

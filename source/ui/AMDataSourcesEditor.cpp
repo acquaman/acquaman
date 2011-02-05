@@ -190,7 +190,7 @@ void AMDataSourcesEditor::onAddDataSourceButtonClicked() {
 
 }
 
-#include "AMErrorMonitor.h"
+#include "util/AMErrorMonitor.h"
 #include "analysis/AM1DExpressionAB.h"
 /// \todo Eventually, this button should support creating all kinds of available data sources (raw, and analysis blocks), using a beautiful popup dialogue with buttons and icons and descriptions. For now, we only create AM1DExpressionAB (expression editors for 1D channels, to allow simply 1D normalization and calibration)
 void AMDataSourcesEditor::onNewDataSourceNamed() {

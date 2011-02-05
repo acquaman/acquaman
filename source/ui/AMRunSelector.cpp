@@ -27,7 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QListView>
 
 #include "acquaman.h"
-#include "AMErrorMonitor.h"
+#include "util/AMErrorMonitor.h"
 
 #include "ui/AMDetailedItemDelegate.h"
 

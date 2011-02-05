@@ -19,7 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AMAnalysisBlock.h"
-#include "AMErrorMonitor.h"
+#include "util/AMErrorMonitor.h"
 
 /// Note that AMDbObject and AMDataSource both have a name(). (These are not virtual, for now.)  In this constructor, we initialize AMDataSource() with \c outputName, and also AMDbObject::setName() with the same.  As long as no one calls AMDbObject::setName(), these will stay consistent.  AMDataSource names are not supposed to change...
 AMAnalysisBlock::AMAnalysisBlock(const QString& outputName, QObject* parent)

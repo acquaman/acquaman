@@ -27,7 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class AMObservable {
 
-	/// AMObservable is a base class that can be inherited to provide a standard interface for notifying AMObserver's of changes to its state.  It's not as safe or as powerful as Qt's signals and slots, but it avoids the problem with the inability to do multiple-inheritance of QObjects.
+	/// AMObservable is a base class that can be inherited to provide a standard interface for notifying AMObserver's of changes to its state.  It's not as safe or as powerful as Qt's signals and slots, but it avoids the problem with the inability to do multiple-inheritance of QObjects.  THIS CLASS IS NOT CURRENTLY USED.
 public:
 	AMObservable() {}
 

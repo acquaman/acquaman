@@ -23,8 +23,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
-#include "AMErrorMonitor.h"
-#include <AMSettings.h>
+#include "util/AMErrorMonitor.h"
+#include <util/AMSettings.h>
 #include <dataman/AMDatabase.h>
 #include <ui/AMFirstTimeWidget.h>
 

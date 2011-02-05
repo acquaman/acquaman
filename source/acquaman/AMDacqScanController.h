@@ -25,7 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStringList>
 #include <QDir>
 
-#include "AMErrorMonitor.h"
+#include "util/AMErrorMonitor.h"
 
 #include "AMScanController.h"
 #include "qdebug.h"

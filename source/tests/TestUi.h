@@ -20,7 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QtTest/QtTest>
 
-#include "AMSettings.h"
+#include "util/AMSettings.h"
 #include "dataman/AMXASScan.h"
 #include "dataman/SGM2004FileLoader.h"
 
@@ -32,7 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMThumbnailScrollViewer.h"
 
 #include "dataman/AMFirstTimeController.h"
-#include "AMErrorMonitor.h"
+#include "util/AMErrorMonitor.h"
 
 #include "analysis/AM1DExpressionAB.h"
 #include <QTreeView>

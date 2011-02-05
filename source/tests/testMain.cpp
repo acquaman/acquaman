@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QApplication>
 #include <QtTest/QtTest>
-#include "AMSettings.h"
+#include "util/AMSettings.h"
 #include "beamline/AMPVNames.h"
 #include "dataman/AMFirstTimeController.h"
 #include "tests/TestDataman.h"

@@ -19,7 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AM1DExpressionAB.h"
-#include "AMErrorMonitor.h"
+#include "util/AMErrorMonitor.h"
 #include "AM1DExpressionABEditor.h"
 
 AM1DExpressionAB::AM1DExpressionAB(const QString& outputName, QObject* parent)

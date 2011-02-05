@@ -18,7 +18,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "AMSettings.h"
+#include "util/AMSettings.h"
 #include <QtTest/QtTest>
 #include "beamline/SGMBeamline.h"
 #include "dataman/AMDatabase.h"
@@ -27,7 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/SGM/SGMXASDacqScanController.h"
 
 #include "dataman/AMFirstTimeController.h"
-#include "AMErrorMonitor.h"
+#include "util/AMErrorMonitor.h"
 
 class TestAcquaman: public QObject
 {

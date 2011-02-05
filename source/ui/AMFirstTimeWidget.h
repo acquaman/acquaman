@@ -32,7 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QValidator>
 #include <QFileDialog>
 
-#include <AMSettings.h>
+#include <util/AMSettings.h>
 
 class AMFolderPathValidator : public QValidator {
 

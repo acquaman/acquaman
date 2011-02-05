@@ -5,7 +5,7 @@
 #include <QAbstractItemModel>
 
 #include "beamline/AMBeamlineActionItem.h"
-#include "AMBiHash.h"
+#include "util/AMBiHash.h"
 
 
 class AMBeamlineParallelActionsListHolder;

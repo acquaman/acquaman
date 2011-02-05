@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef ACQMAN_DATABASE_H
 #define ACQMAN_DATABASE_H
 
-#include "AMSettings.h"
+#include "util/AMSettings.h"
 #include <QObject>
 #include <QSqlDatabase>
 #include <QSqlError>

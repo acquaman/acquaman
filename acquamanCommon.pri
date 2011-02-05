@@ -112,11 +112,9 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/acquaman/dacq3_2/qepicsacqlocal.h \
 	source/acquaman/dacq3_2/qepicsadvacq.h \
 	source/application/AMAppController.h \
-	source/AMBiHash.h \
-	source/AMErrorMonitor.h \
-	source/AMObservable.h \
-	source/AMObserver.h \
-	source/AMSettings.h \
+	source/util/AMBiHash.h \
+	source/util/AMErrorMonitor.h \
+	source/util/AMSettings.h \
 	source/beamline/AMAmpDetector.h \
 	source/beamline/AMBeamline.h \
 	source/beamline/AMBeamlineActionItem.h \
@@ -296,8 +294,8 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/acquaman/dacq3_2/xmlRead.cpp \
 	source/acquaman/dacq3_2/xmlWrite.cpp \
 	source/application/AMAppController.cpp \
-	source/AMErrorMonitor.cpp \
-	source/AMSettings.cpp \
+	source/util/AMErrorMonitor.cpp \
+	source/util/AMSettings.cpp \
 	source/beamline/AMAmpDetector.cpp \
 	source/beamline/AMBeamline.cpp \
 	source/beamline/AMBeamlineActionItem.cpp \

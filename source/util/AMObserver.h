@@ -23,7 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class AMObservable;
 
-/// The AMObserver defines the interface for classes that can receive updates from AMObservables.  It's up to you to implement onObservableChanged(), and you can interpret the arguments as you like.
+/// The AMObserver defines the interface for classes that can receive updates from AMObservables.  It's up to you to implement onObservableChanged(), and you can interpret the arguments as you like.  THIS CLASS IS NOT CURRENTLY USED.
 class AMObserver {
 public:
 	AMObserver() {}

@@ -25,7 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMetaObject>
 #include <QMetaProperty>
 #include <QMetaClassInfo>
-#include "AMErrorMonitor.h"
+#include "util/AMErrorMonitor.h"
 
 #include <QDebug>
 

@@ -25,7 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/SGM2004FileLoader.h"
 #include "dataman/ALSBL8XASFileLoader.h"
 #include "ui/AMImportControllerWidget.h"
-#include "AMErrorMonitor.h"
+#include "util/AMErrorMonitor.h"
 
 #include <QDir>
 #include <QFileDialog>

@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QStringList>
 
-#include "AMErrorMonitor.h"
+#include "util/AMErrorMonitor.h"
 
 /// Internal instance pointers
 AMDatabase* AMDatabase::userInstance_ = 0;

@@ -28,7 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMSample.h"
 #include "AMControlInfoList.h"
-#include "AMBiHash.h"
+#include "util/AMBiHash.h"
 #include "AMDbObject.h"
 #include "acquaman.h"
 

@@ -27,7 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSet>
 #include "acquaman.h"
 #include "dataman/AMDatabase.h"
-#include "AMErrorMonitor.h"
+#include "util/AMErrorMonitor.h"
 
 
 class AMDbObject;

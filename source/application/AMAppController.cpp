@@ -20,7 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMAppController.h"
 
-#include "AMSettings.h"
+#include "util/AMSettings.h"
 #include "acquaman.h"
 
 
@@ -37,7 +37,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMGenericScanEditor.h"
 #include "ui/AMStartScreen.h"
 
-#include "AMErrorMonitor.h"
+#include "util/AMErrorMonitor.h"
 
 #include <QMenuBar>
 

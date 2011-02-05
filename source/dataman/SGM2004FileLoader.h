@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define SGM2004FileLoader_H
 
 #include "dataman/AMAbstractFileLoader.h"
-#include "AMBiHash.h"
+#include "util/AMBiHash.h"
 #include "dataman/AMDetectorInfo.h"
 
 

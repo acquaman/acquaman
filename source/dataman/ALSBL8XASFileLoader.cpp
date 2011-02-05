@@ -27,7 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDateTime>
 #include "dataman/AMXASScan.h"
 #include "dataman/AMDetectorInfo.h"
-#include "AMErrorMonitor.h"
+#include "util/AMErrorMonitor.h"
 #include "analysis/AM1DExpressionAB.h"
 
 #include <QDebug>

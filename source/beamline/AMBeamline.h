@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef ACQMAN_BEAMLINE_H_
 #define ACQMAN_BEAMLINE_H_
 
-#include "AMSettings.h"
+#include "util/AMSettings.h"
 #include "AMPVNames.h"
 
 #include <QObject>

@@ -20,7 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AMNewRunDialog.h"
-#include "AMErrorMonitor.h"
+#include "util/AMErrorMonitor.h"
 
 //Constructor:
 

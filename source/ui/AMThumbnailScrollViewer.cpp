@@ -20,7 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMThumbnailScrollViewer.h"
 #include "dataman/AMDbObjectSupport.h"
-#include "AMErrorMonitor.h"
+#include "util/AMErrorMonitor.h"
 
 #include <QVBoxLayout>
 

@@ -19,7 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AMXASScan.h"
-#include "AMErrorMonitor.h"
+#include "util/AMErrorMonitor.h"
 #include <qdebug.h>
 
 AMXASScan::AMXASScan(QObject *parent)

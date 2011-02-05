@@ -20,7 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMStatusView.h"
 #include <QDateTime>
-#include "AMSettings.h"
+#include "util/AMSettings.h"
 #include <QHBoxLayout>
 #include "dataman/AMUser.h"
 

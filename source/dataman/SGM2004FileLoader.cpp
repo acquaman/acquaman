@@ -28,7 +28,7 @@ AMBiHash<QString, QString> SGM2004FileLoader::columns2pvNames_;
 #include <QStringList>
 #include <QDateTime>
 #include "dataman/AMXASScan.h"
-#include "AMErrorMonitor.h"
+#include "util/AMErrorMonitor.h"
 #include "analysis/AM1DExpressionAB.h"
 #include "analysis/AM2DSummingAB.h"
 
