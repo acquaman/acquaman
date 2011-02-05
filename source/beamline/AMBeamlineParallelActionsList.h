@@ -45,6 +45,7 @@ class AMBeamlineParallelActionsList : public QObject
 		void start();
 
 	signals:
+		void listSucceeded();
 		void stageChanged(int stageIndex);
 		void actionChanged(int stageIndex, int index);
 		void stageAdded(int stageIndex);
@@ -70,6 +71,7 @@ class AMBeamlineParallelActionsList : public QObject
 		void onActionSucceeded();
 		void onActionReady(bool ready);
 		void onActionFailed(int explanation);
+		void onStageSucceeded();
 
 	protected:
 		AMBeamlineParallelActionListModel *actions_;
