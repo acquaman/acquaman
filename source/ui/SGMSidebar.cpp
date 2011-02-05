@@ -31,7 +31,7 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	//mainBox_->setLayout(vl_);
 	mainBox_->setLayout(gl_);
 
-	readyLabel_ = new AMControlEdit(SGMBeamline::sgm()->beamlineReady(), NULL, true);
+	readyLabel_ = new AMControlEditor(SGMBeamline::sgm()->beamlineReady(), NULL, true);
 	readyLabel_->setNoUnitsBox(true);
 	readyLabel_->overrideTitle("");
 //	beamOnCButton_ = new AMControlButton(SGMBeamline::sgm()->beamOn());
@@ -57,7 +57,7 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	visibleLightButton_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 	connect(visibleLightButton_, SIGNAL(clicked()), this, SLOT(onVisibleLightClicked()));
 	connect(SGMBeamline::sgm(), SIGNAL(visibleLightStatusChanged(QString)), this, SLOT(onVisibleLightStatusChanged(QString)));
-	energyNC_ = new AMControlEdit(SGMBeamline::sgm()->energy(), SGMBeamline::sgm()->energyMovingStatus());
+	energyNC_ = new AMControlEditor(SGMBeamline::sgm()->energy(), SGMBeamline::sgm()->energyMovingStatus());
 	energyNC_->overrideTitle("Energy");
 	trackUndulatorCButton_ = new AMControlButton(SGMBeamline::sgm()->undulatorTracking());
 	trackUndulatorCButton_->overrideText("Undulator");
@@ -71,11 +71,11 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	trackExitSlitCButton_->overrideText("Exit Slit");
 	trackExitSlitCButton_->setCheckable(true);
 	trackExitSlitCButton_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
-	gratingNC_ = new AMControlEdit(SGMBeamline::sgm()->grating());
+	gratingNC_ = new AMControlEditor(SGMBeamline::sgm()->grating());
 	gratingNC_->overrideTitle("Grating");
-	entranceSlitNC_ = new AMControlEdit(SGMBeamline::sgm()->entranceSlitGap());
+	entranceSlitNC_ = new AMControlEditor(SGMBeamline::sgm()->entranceSlitGap());
 	entranceSlitNC_->overrideTitle("Entrance Slit");
-	exitSlitNC_ = new AMControlEdit(SGMBeamline::sgm()->exitSlitGap());
+	exitSlitNC_ = new AMControlEditor(SGMBeamline::sgm()->exitSlitGap());
 	exitSlitNC_->overrideTitle("Exit Slit");
 
 	gl_->addWidget(readyLabel_,		0, 0, 1, 6, 0);

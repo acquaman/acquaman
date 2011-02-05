@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ACQMAN_NUMERICCONTROL_H
-#define ACQMAN_NUMERICCONTROL_H
+#ifndef AM_CONTROLEDITOR_H
+#define AM_CONTROLEDITOR_H
 
 #include <QFrame>
 #include <QDialog>
@@ -40,10 +40,10 @@ class QPushButton;
 // TODO: finish this for numeric controls only... and then generalize this and Control to: Numeric, Item, String.
 
 // Helper class: the dialog box to get new setpoints:
-class StyledInputDialog : public QDialog {
+class AMBasicControlEditorStyledInputDialog : public QDialog {
 	Q_OBJECT
 public:
-	StyledInputDialog( QWidget * parent = 0, Qt::WindowFlags flags = (Qt::Dialog | Qt::FramelessWindowHint) );
+	AMBasicControlEditorStyledInputDialog( QWidget * parent = 0, Qt::WindowFlags flags = (Qt::Dialog | Qt::FramelessWindowHint) );
 
 public slots:
 	void setDoubleValue(double d);
@@ -67,14 +67,13 @@ protected slots:
 	void onAccepted();
 
 };
-// TODO: moving indicator
-// TODO: move dialog
 
-class AMNumericControl : public QFrame
+
+class AMBasicControlEditor : public QFrame
 {
 Q_OBJECT
 public:
-	explicit AMNumericControl(AMControl *control, QWidget *parent = 0);
+	explicit AMBasicControlEditor(AMControl *control, QWidget *parent = 0);
 
 signals:
 	void moveRequested(double);
@@ -96,16 +95,16 @@ protected:
 	AMControl *control_;
 	QLabel *valueLabel_;
 	QLabel *unitsLabel_;
-	StyledInputDialog* dialog_;
+	AMBasicControlEditorStyledInputDialog* dialog_;
 
 	void mouseReleaseEvent ( QMouseEvent *event );
 
 };
 
-class StyledControlInputDialog : public QDialog {
+class AMControlEditorStyledInputDialog : public QDialog {
 	Q_OBJECT
 public:
-	StyledControlInputDialog( QStringList enumNames = QStringList(), QWidget *parent = 0, Qt::WindowFlags flags = (Qt::Dialog | Qt::FramelessWindowHint) );
+	AMControlEditorStyledInputDialog( QStringList enumNames = QStringList(), QWidget *parent = 0, Qt::WindowFlags flags = (Qt::Dialog | Qt::FramelessWindowHint) );
 
 public slots:
 	void setDoubleValue(double d);
@@ -137,11 +136,11 @@ protected:
 	QHBoxLayout *hl_;
 };
 
-class AMControlEdit : public QGroupBox
+class AMControlEditor : public QGroupBox
 {
 Q_OBJECT
 public:
-	explicit AMControlEdit(AMControl* control, AMControl* statusTagControl = NULL, bool readOnly = false, QWidget *parent = 0);
+	explicit AMControlEditor(AMControl* control, AMControl* statusTagControl = NULL, bool readOnly = false, QWidget *parent = 0);
 
 signals:
 	void moveRequested(double);
@@ -178,7 +177,7 @@ protected:
 	QLabel* unitsLabel_;
 	QLabel* statusLabel_;
 	//QLabel* nameLabel_;
-	StyledControlInputDialog* dialog_;
+	AMControlEditorStyledInputDialog* dialog_;
 };
 
 //class AMControlButton : public QPushButton
@@ -229,4 +228,4 @@ protected:
 	AMBeamlineActionsList *actionsList_;
 };
 
-#endif // NUMERICCONTROL_H
+#endif // AM_CONTROLEDITOR_H

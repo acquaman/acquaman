@@ -26,7 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QVBoxLayout>
 #include <QGridLayout>
 
-#include "AMNumericControl.h"
+#include "AMControlEditor.h"
 #include "beamline/SGMBeamline.h"
 #include "beamline/AMBeamlineParallelActionsList.h"
 
@@ -56,20 +56,20 @@ protected:
 	//QVBoxLayout *vl_;
 	QGridLayout *gl_;
 
-	AMControlEdit *readyLabel_;
+	AMControlEditor *readyLabel_;
 	//AMControlButton *beamOnCButton_;
 	AMBeamlineActionsListButton *beamOnBALButton_;
 	AMControlButton *beamOffCButton_;
 	QToolButton *stopMotorsButton_;
 	QToolButton *closeVacuumButton_;
 	QToolButton *visibleLightButton_;
-	AMControlEdit *energyNC_;
+	AMControlEditor *energyNC_;
 	AMControlButton *trackUndulatorCButton_;
 	AMControlButton *trackGratingCButton_;
 	AMControlButton *trackExitSlitCButton_;
-	AMControlEdit *gratingNC_;
-	AMControlEdit *entranceSlitNC_;
-	AMControlEdit *exitSlitNC_;
+	AMControlEditor *gratingNC_;
+	AMControlEditor *entranceSlitNC_;
+	AMControlEditor *exitSlitNC_;
 
 	AMBeamlineParallelActionsList *al;
 //	AMControlEdit *moveStatusLabel_;

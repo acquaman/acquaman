@@ -63,16 +63,16 @@ SGMSampleManipulatorView::SGMSampleManipulatorView(QWidget *parent) :
 	mInPlaneCtrl_ = manipulator_->controlNamed("ssaManipulatorY");
 	mRotationCtrl_ = manipulator_->controlNamed("ssaManipulatorRot");
 
-	mVerticalNC_ = new AMNumericControl(mVerticalCtrl_);
+	mVerticalNC_ = new AMBasicControlEditor(mVerticalCtrl_);
 	mVerticalNC_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 	mVerticalNC_->setMinimumSize(92, 24);
-	mHorizontalNC_ = new AMNumericControl(mHorizontalCtrl_);
+	mHorizontalNC_ = new AMBasicControlEditor(mHorizontalCtrl_);
 	mHorizontalNC_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 	mHorizontalNC_->setMinimumSize(92, 24);
-	mInPlaneNC_ = new AMNumericControl(mInPlaneCtrl_);
+	mInPlaneNC_ = new AMBasicControlEditor(mInPlaneCtrl_);
 	mInPlaneNC_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 	mInPlaneNC_->setMinimumSize(92, 24);
-	mRotationNC_ = new AMNumericControl(mRotationCtrl_);
+	mRotationNC_ = new AMBasicControlEditor(mRotationCtrl_);
 	mRotationNC_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 	mRotationNC_->setMinimumSize(92, 24);
 

@@ -24,7 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFrame>
 #include <QHBoxLayout>
 
-#include "AMNumericControl.h"
+#include "AMControlEditor.h"
 #include "beamline/SGMBeamline.h"
 
 class SGMBeamlineAtAGlanceBar : public QFrame
@@ -40,10 +40,10 @@ public slots:
 protected:
 	QHBoxLayout *hl_;
 
-	AMControlEdit *energyNC_;
-	AMControlEdit *gratingNC_;
-	AMControlEdit *readyLabel_;
-	AMControlEdit *moveStatusLabel_;
+	AMControlEditor *energyNC_;
+	AMControlEditor *gratingNC_;
+	AMControlEditor *readyLabel_;
+	AMControlEditor *moveStatusLabel_;
 
 };
 

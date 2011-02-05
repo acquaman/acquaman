@@ -25,10 +25,10 @@ SGMBeamlineAtAGlanceBar::SGMBeamlineAtAGlanceBar(QWidget *parent) :
 {
 	hl_ = new QHBoxLayout();
 
-	energyNC_ = new AMControlEdit(SGMBeamline::sgm()->energy());
-	gratingNC_ = new AMControlEdit(SGMBeamline::sgm()->grating());
-	readyLabel_ = new AMControlEdit(SGMBeamline::sgm()->beamlineReady());
-	moveStatusLabel_ = new AMControlEdit(SGMBeamline::sgm()->energyMovingStatus());
+	energyNC_ = new AMControlEditor(SGMBeamline::sgm()->energy());
+	gratingNC_ = new AMControlEditor(SGMBeamline::sgm()->grating());
+	readyLabel_ = new AMControlEditor(SGMBeamline::sgm()->beamlineReady());
+	moveStatusLabel_ = new AMControlEditor(SGMBeamline::sgm()->energyMovingStatus());
 	hl_->addWidget(energyNC_);
 	hl_->addWidget(gratingNC_);
 	hl_->addSpacing(40);

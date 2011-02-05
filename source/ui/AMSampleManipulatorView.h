@@ -27,7 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QIcon>
 #include "beamline/AMControlSet.h"
 #include "beamline/SGMBeamline.h"
-#include "AMNumericControl.h"
+#include "AMControlEditor.h"
 
 class AMSampleManipulatorView : public QGroupBox
 {
@@ -84,10 +84,10 @@ protected:
 	AMControl *mInPlaneCtrl_;
 	AMControl *mRotationCtrl_;
 
-	AMNumericControl *mVerticalNC_;
-	AMNumericControl *mHorizontalNC_;
-	AMNumericControl *mInPlaneNC_;
-	AMNumericControl *mRotationNC_;
+	AMBasicControlEditor *mVerticalNC_;
+	AMBasicControlEditor *mHorizontalNC_;
+	AMBasicControlEditor *mInPlaneNC_;
+	AMBasicControlEditor *mRotationNC_;
 
 	QIcon upIcon_, downIcon_, inboardIcon_, outboardIcon_, upstreamIcon_, downstreamIcon_, cwIcon_, ccwIcon_;
 

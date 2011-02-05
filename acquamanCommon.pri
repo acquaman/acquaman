@@ -174,7 +174,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMXASRegionsView.h \
 	source/ui/BottomBar.h \
 	source/ui/AMBeamlineCameraWidget.h \
-	source/ui/AMNumericControl.h \
+	source/ui/AMControlEditor.h \
 	source/acquaman.h \
 	source/ui/AMNewRunDialog.h \
 	source/ui/AMDetectorView.h \
@@ -349,7 +349,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMXASRegionsView.cpp \
 	source/ui/BottomBar.cpp \
 	source/ui/AMBeamlineCameraWidget.cpp \
-	source/ui/AMNumericControl.cpp \
+	source/ui/AMControlEditor.cpp \
 	source/ui/AMDetectorView.cpp \
 	source/ui/AMNewRunDialog.cpp \
 	source/ui/AMWorkflowManagerView.cpp \
