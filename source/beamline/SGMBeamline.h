@@ -28,6 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMBeamlineControlAction.h"
 #include "AMBeamlineControlMoveAction.h"
 #include "AMBeamlineActionsList.h"
+#include "AMBeamlineParallelActionsList.h"
 
 #include "acquaman/AMDetectorInfoList.h"
 #include "acquaman/AMControlOptimization.h"

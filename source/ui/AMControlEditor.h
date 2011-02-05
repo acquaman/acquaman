@@ -209,6 +209,7 @@ protected:
 	AMControl *control_;
 	double downValue_;
 	double upValue_;
+	bool programaticToggle_;
 };
 
 // Starts the first action in the actionsList as long as it isn't already finished (that would put us in a problematic state)

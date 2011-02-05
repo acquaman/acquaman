@@ -4,30 +4,6 @@
 #include "acquaman/AMDacqScanController.h"
 #include "SGMFastScanController.h"
 
-//class SGMFastScanController;
-/*
-class SGMFastScanController
-{
-public:
-	SGMFastScanController(SGMFastScanConfiguration *cfg);
-
-	bool isBeamlineInitialized();
-	virtual bool beamlineInitialize();
-	virtual void reinitialize();
-
-protected:
-	SGMFastScanConfiguration *specificCfg_;
-	bool beamlineInitialized_;
-	AMFastScan *specificScan_;
-
-private:
-	SGMFastScanConfiguration* pCfg() { return qobject_cast<SGMFastScanConfiguration*>(specificCfg_);}
-	AMFastScan* pScan() { return qobject_cast<AMFastScan*>(specificScan_);}
-
-	void beamlineInitializeSecondStep();
-};
-*/
-
 class SGMFastDacqScanController : public AMDacqScanController, public SGMFastScanController
 {
 	Q_OBJECT
@@ -51,33 +27,12 @@ protected:
 	bool event(QEvent *e);
 	AMnDIndex toScanIndex(QMap<int, double> aeData);
 
+protected slots:
+	void onInitializationActionsSucceeded();
+
 private:
-//	SGMFastScanConfiguration *pCfg() { return qobject_cast<SGMFastScanConfiguration*>(generalCfg_);}
-//	AMFastScan* pScan() { return qobject_cast<AMFastScan*>(generalScan_);}
 	SGMFastScanConfiguration *pCfg() { return qobject_cast<SGMFastScanConfiguration*>(specificCfg_);}
 	AMFastScan* pScan() { return qobject_cast<AMFastScan*>(specificScan_);}
 };
-
-
-/*
-class SGMFastScanController
-{
-public:
-	SGMFastScanController(SGMFastScanConfiguration *cfg);
-
-	bool isBeamlineInitialized();
-	virtual bool beamlineInitialize();
-	virtual void reinitialize();
-
-protected:
-	SGMFastScanConfiguration *specificCfg_;
-	bool beamlineInitialized_;
-	AMFastScan *specificScan_;
-
-private:
-	SGMFastScanConfiguration* pCfg() { return qobject_cast<SGMFastScanConfiguration*>(generalCfg_);}
-	AMFastScan* pScan() { return qobject_cast<AMFastScan*>(generalScan);}
-};
-*/
 
 #endif // SGMFASTDACQSCANCONTROLLER_H

@@ -18,6 +18,8 @@ public:
 
 	QStringList options() const;
 
+	SGMFastScanParameters* currentParameters() const;
+
 	AMDetectorInfoSet* cfgDetectorInfoSet() const { return cfgFastDetectors_;}
 	QList<AMDetectorInfo*> usingDetectors() const;
 
@@ -28,6 +30,7 @@ public slots:
 //	bool setRunTime(double runTime);
 
 protected:
+	int currentSettingsIndex_;
 	QString element_;
 	double runTime_;
 	AMDetectorInfoSet *cfgFastDetectors_;

@@ -54,6 +54,9 @@ public slots:
 protected:
 	AMnDIndex toScanIndex(QMap<int, double> aeData);
 
+protected slots:
+	void onInitializationActionsSucceeded();
+
 private:
 	/// \todo Why the double pointers?
 	SGMXASScanConfiguration **_pCfg_;

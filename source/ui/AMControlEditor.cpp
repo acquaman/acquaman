@@ -517,6 +517,7 @@ AMControlButton::AMControlButton(AMControl *control, QWidget *parent) :
 	control_ = control;
 	downValue_ = 1;
 	upValue_ = 0;
+	programaticToggle_ = false;
 	if(control_)
 		setText(control_->name());
 	setHappy(false);
@@ -530,6 +531,7 @@ AMControlButton::AMControlButton(AMControl *control, QWidget *parent) :
 	connect(this, SIGNAL(toggled(bool)), this, SLOT(onToggled(bool)));
 
 	if(control_ && control_->isConnected()){
+		programaticToggle_ = true;
 		onValueChanged(control_->value());
 		setHappy(control_->isConnected());
 	}
@@ -575,6 +577,10 @@ void AMControlButton::onClicked(){
 }
 
 void AMControlButton::onToggled(bool toggled){
+	if(programaticToggle_){
+		programaticToggle_ = false;
+		return;
+	}
 	qDebug() << "Detected toggle";
 	if(toggled){
 		qDebug() << "Toggled, go down";

@@ -106,16 +106,20 @@ void AMBeamlineScanAction::start(){
 		else
 			qDebug() << "Reinitialized, no controller creation";
 		//((SGMXASDacqScanController*)ctrl_)->initialize(); //Can I make a pure virtual initialize in AMScanController?
-		if(sxdc)
+		if(sxdc){
+			connect(sxdc, SIGNAL(initialized()), ctrl_, SLOT(start()));
 			sxdc->initialize();
-		else if(sfdc)
+		}
+		else if(sfdc){
+			connect(sfdc, SIGNAL(initialized()), ctrl_, SLOT(start()));
 			sfdc->initialize();
+		}
 		else{
 			qDebug() << "(2)Honestly, how did we get here? We should have already failed. Okay, Acquaman, you've got me, we fail again.";
 			setFailed(true, AMBEAMLINEACTIONITEM_INVALID_SCAN_TYPE);
 			return;
 		}
-		ctrl_->start();
+		//ctrl_->start();
 	}
 	else
 		setFailed(true, AMBEAMLINEACTIONITEM_INVALID_SCAN_TYPE);

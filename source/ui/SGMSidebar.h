@@ -48,6 +48,7 @@ protected slots:
 	void onVisibleLightClicked();
 	void onCloseVacuumButtonClicked();
 	void onStopMotorsButtonClicked();
+	void onActionsListSucceeded();
 
 protected:
 	QGroupBox *mainBox_;

@@ -16,6 +16,7 @@ public:
 
 protected:
 	SGMFastScanConfiguration *specificCfg_;
+	AMBeamlineParallelActionsList *initializationActions_;
 	bool beamlineInitialized_;
 	AMFastScan *specificScan_;
 

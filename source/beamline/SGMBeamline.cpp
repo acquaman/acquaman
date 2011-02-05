@@ -290,7 +290,7 @@ void SGMBeamline::usingFakeBeamline(){
 	sgmPVName = amNames2pvNames_.valueF("undulatorTracking");
 	undulatorTracking_ = new AMPVControl("undulatorTracking", sgmPVName, sgmPVName, "", this, 0.1);
 	sgmPVName = amNames2pvNames_.valueF("monoTracking");
-	monoTracking_ = new AMPVControl("monoTracking", sgmPVName, sgmPVName, "", this, 0.1, 10);
+	monoTracking_ = new AMPVControl("monoTracking", sgmPVName, sgmPVName, "", this, 0.1);
 	sgmPVName = amNames2pvNames_.valueF("exitSlitTracking");
 	exitSlitTracking_ = new AMPVControl("exitSlitTracking", sgmPVName, sgmPVName, "", this, 0.1);
 	sgmPVName = amNames2pvNames_.valueF("tey");

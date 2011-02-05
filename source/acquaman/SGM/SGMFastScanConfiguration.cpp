@@ -4,6 +4,7 @@ SGMFastScanConfiguration::SGMFastScanConfiguration(QObject *parent) : AMFastScan
 {
 	element_ = "";
 	runTime_ = -1;
+	currentSettingsIndex_ = -1;
 
 	settings_.append( new SGMFastScanParameters("Nitrogen", 5.0, 400.0, 415.0, 430.0, 10000, 10000, 10000, 5.0, this));
 	settings_.append( new SGMFastScanParameters("Nitrogen", 20.0, 400.0, 415.0, 430.0, 1000, 1000, 1000, 25.0, this));
@@ -11,6 +12,8 @@ SGMFastScanConfiguration::SGMFastScanConfiguration(QObject *parent) : AMFastScan
 	settings_.append( new SGMFastScanParameters("Oxygen", 20.0, 530.0, 545.0, 560.0, 1000, 1000, 1000, 25.0, this));
 	settings_.append( new SGMFastScanParameters("Copper", 5.0, 940.0, 955.0, 970.0, 10000, 10000, 10000, 5.0, this));
 	settings_.append( new SGMFastScanParameters("Copper", 20.0, 940.0, 955.0, 970.0, 1000, 1000, 1000, 25.0, this));
+
+	setParameters("Nitrogen", 5.0);
 }
 
 SGMFastScanConfiguration::~SGMFastScanConfiguration(){
@@ -24,6 +27,13 @@ QStringList SGMFastScanConfiguration::options() const{
 	for(int x = 0; x < settings_.count(); x++)
 		retVal << settings_.at(x)->element() + " " + tmpStr.setNum(settings_.at(x)->runSeconds());
 	return retVal;
+}
+
+SGMFastScanParameters* SGMFastScanConfiguration::currentParameters() const{
+	if(currentSettingsIndex_ != -1)
+		return settings_.at(currentSettingsIndex_);
+	#warning "Hey David, what to return if not valid index?"
+	//return settings_.at(0);
 }
 
 QList<AMDetectorInfo*> SGMFastScanConfiguration::usingDetectors() const{
@@ -40,6 +50,7 @@ QList<AMDetectorInfo*> SGMFastScanConfiguration::usingDetectors() const{
 bool SGMFastScanConfiguration::setParameters(const QString &element, double runTime){
 	for(int x = 0; x < settings_.count(); x++)
 		if(settings_.at(x)->element() == element && settings_.at(x)->runSeconds() == runTime){
+			currentSettingsIndex_ = x;
 			element_ = element;
 			runTime_ = runTime;
 			start_ = settings_.at(x)->energyStart();

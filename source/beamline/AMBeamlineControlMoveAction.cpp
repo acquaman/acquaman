@@ -47,7 +47,9 @@ double AMBeamlineControlMoveAction::setpoint(){
 
 void AMBeamlineControlMoveAction::start(){
 //	if(control_ && control_->canMove() && ready_){
+	qDebug() << "Trying to start " << (int)this;
 	if(isReady()){
+		qDebug() << "Ready so start " << (int)this;
 		connect(this, SIGNAL(finished()), this, SLOT(onFinished()));
 		connect(control_, SIGNAL(moveSucceeded()), this, SLOT(onSucceeded()));
 		connect(control_, SIGNAL(moveFailed(int)), this, SLOT(onFailed(int)));
@@ -117,8 +119,10 @@ void AMBeamlineControlMoveAction::onConnected(bool connected){
 void AMBeamlineControlMoveAction::checkReady(){
 	if(!control_)
 		setReady(false);
-	else
+	else{
+		qDebug() << "CMA says " << (int)this << control_->isConnected() << !control_->isMoving();
 		setReady(control_->isConnected() && !control_->isMoving());
+	}
 }
 
 void AMBeamlineControlMoveAction::onStarted(){

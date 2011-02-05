@@ -36,6 +36,7 @@ public:
 
 protected:
 	SGMXASScanConfiguration *specificCfg_;
+	AMBeamlineParallelActionsList *initializationActions_;
 	bool beamlineInitialized_;
 	AMXASScan *specificScan_;
 

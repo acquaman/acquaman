@@ -7,11 +7,16 @@ SGMFastDacqScanController::SGMFastDacqScanController(SGMFastScanConfiguration *c
 }
 
 void SGMFastDacqScanController::initialize(){
-	if(SGMFastScanController::beamlineInitialize())
+	if(SGMFastScanController::beamlineInitialize() && initializationActions_){
 		initialized_ = true;
-#warning "Do we need to also clear any raw data sources here, or just the raw data itself?"
-	pScan()->clearRawDataPoints();
-	emit initialized();
+		#warning "Do we need to also clear any raw data sources here, or just the raw data itself?"
+		pScan()->clearRawDataPoints();
+		connect(initializationActions_, SIGNAL(listSucceeded()), this, SLOT(onInitializationActionsSucceeded()));
+		initializationActions_->start();
+		/*
+		emit initialized();
+		*/
+	}
 }
 
 void SGMFastDacqScanController::reinitialize(bool removeScan){
@@ -44,6 +49,9 @@ void SGMFastDacqScanController::start(){
 		qDebug() << "LIBRARY FAILED TO LOAD CONFIG FILE";
 		return;
 	}
+	advAcq_->setStart(0, pCfg()->start());
+	advAcq_->setDelta(0, pCfg()->end()-pCfg()->start());
+	advAcq_->setEnd(0, pCfg()->end());
 	/*
 	foreach(const AMDetectorInfo *dtctr, pCfg()->usingDetectors() ){
 		if(dtctr->name() == SGMBeamline::sgm()->pgtDetector()->name()){
@@ -131,4 +139,9 @@ bool SGMFastDacqScanController::event(QEvent *e){
 AMnDIndex SGMFastDacqScanController::toScanIndex(QMap<int, double> aeData){
 	// SGM XAS Scan has only one dimension (energy), simply append to the end of this
 	return AMnDIndex(pScan()->rawData()->scanSize(0));
+}
+
+void SGMFastDacqScanController::onInitializationActionsSucceeded(){
+	qDebug() << "Fast Scan: Initialization Actions Succeeded and emiting initialized";
+	emit initialized();
 }

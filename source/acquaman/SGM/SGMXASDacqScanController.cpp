@@ -29,11 +29,19 @@ SGMXASDacqScanController::SGMXASDacqScanController(SGMXASScanConfiguration *cfg,
 }
 
 void SGMXASDacqScanController::initialize(){
-	if(SGMXASScanController::beamlineInitialize())
+	if(SGMXASScanController::beamlineInitialize() && initializationActions_){
 		initialized_ = true;
-#warning "Do we need to also clear any raw data sources here, or just the raw data itself?"
-	pScan_()->clearRawDataPoints();
-	emit initialized();
+		#warning "Do we need to also clear any raw data sources here, or just the raw data itself?"
+		pScan_()->clearRawDataPoints();
+		/**/
+		//connect(initializationActions_, SIGNAL(listSucceeded()), this, SIGNAL(initialized()));
+		connect(initializationActions_, SIGNAL(listSucceeded()), this, SLOT(onInitializationActionsSucceeded()));
+		initializationActions_->start();
+		/**/
+		/*
+		emit initialized();
+		*/
+	}
 }
 
 void SGMXASDacqScanController::reinitialize(bool removeScan){
@@ -87,4 +95,9 @@ void SGMXASDacqScanController::start(){
 AMnDIndex SGMXASDacqScanController::toScanIndex(QMap<int, double> aeData){
 	// SGM XAS Scan has only one dimension (energy), simply append to the end of this
 	return AMnDIndex(pScan_()->rawData()->scanSize(0));
+}
+
+void SGMXASDacqScanController::onInitializationActionsSucceeded(){
+	qDebug() << "XAS Scan: Initialization Actions Succeeded and emiting initialized";
+	emit initialized();
 }
