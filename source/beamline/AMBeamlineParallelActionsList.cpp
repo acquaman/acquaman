@@ -108,7 +108,6 @@ bool AMBeamlineParallelActionsList::setStage(int stageIndex, QList<AMBeamlineAct
 			nextStageList = (QList<AMBeamlineActionItem*>*)actions_->data(actions_->index(stageIndex+1, QModelIndex()), Qt::DisplayRole).value<void*>();
 
 		if(oldStageList){//replace
-			qDebug() << "setStage() detected a replace";
 			AMBeamlineParallelActionsListHolder *thisStageHolder = holdersHash_.valueF(oldStageList);
 			for(int x = 0; x < oldStageList->count(); x++){
 				disconnect(oldStageList->at(x), SIGNAL(started()), this, SLOT(onActionStarted()));
@@ -125,22 +124,18 @@ bool AMBeamlineParallelActionsList::setStage(int stageIndex, QList<AMBeamlineAct
 			if(nextStageList){
 				for(int x = 0; x < oldStageList->count(); x++)
 					thisStageHolder->removeAction(oldStageList->at(x));
-			//		disconnect(oldStageList->at(x), SIGNAL(succeeded()), thisStageHolder, SLOT(actionFinished()));
 			}
 			for(int x = 0; x < stageList->count(); x++)
 				thisStageHolder->addAction(stageList->at(x));
-			//	connect(stageList->at(x), SIGNAL(succeeded()), thisStageHolder, SLOT(actionFinished()));
 			holdersHash_.removeF(oldStageList);
 			holdersHash_.set(stageList, thisStageHolder);
 		}
 		else{//insert
-			qDebug() << "setStage() detected an insert";
 			holdersHash_.set(stageList, new AMBeamlineParallelActionsListHolder(this));
 			connect(holdersHash_.valueF(stageList), SIGNAL(everythingFinished()), this, SLOT(onStageSucceeded()));
 			#warning "Hey David, What connections need to be made (added to) the holder?"
 			for(int x = 0; x < stageList->count(); x++)
 				holdersHash_.valueF(stageList)->addAction(stageList->at(x));
-			//	connect(stageList->at(x), SIGNAL(succeeded()), holdersHash_.valueF(stageList), SLOT(actionFinished()));
 			if(prevStageList && nextStageList)
 				for(int x = 0; x < nextStageList->count(); x++)
 					disconnect(holdersHash_.valueF(prevStageList), SIGNAL(everythingFinished()), nextStageList->at(x), SLOT(start()));
@@ -177,13 +172,10 @@ bool AMBeamlineParallelActionsList::setAction(int stageIndex, int index, AMBeaml
 				prevStageList = (QList<AMBeamlineActionItem*>*)actions_->data(actions_->index(stageIndex-1, QModelIndex()), Qt::DisplayRole).value<void*>();
 			if(prevStageList)
 				connect(holdersHash_.valueF(prevStageList), SIGNAL(everythingFinished()), action, SLOT(start()));
-//			qDebug() << "TRYING TO CONNECT TO HOLDER " << (int)holdersHash_.valueF(thisStageList);
-			//connect(action, SIGNAL(succeeded()), holdersHash_.valueF(thisStageList), SLOT(actionFinished()));
 			holdersHash_.valueF(thisStageList)->addAction(action);
 			if(oldAction){//replace
 				if(prevStageList)
 					disconnect(holdersHash_.valueF(prevStageList), SIGNAL(everythingFinished()), oldAction, SLOT(start()));
-				//disconnect(oldAction, SIGNAL(succeeded()), holdersHash_.valueF(thisStageList), SLOT(actionFinished()));
 				holdersHash_.valueF(thisStageList)->removeAction(oldAction);
 				disconnect(oldAction, SIGNAL(started()), this, SLOT(onActionStarted()));
 				disconnect(oldAction, SIGNAL(succeeded()), this, SLOT(onActionSucceeded()));
@@ -252,7 +244,6 @@ bool AMBeamlineParallelActionsList::deleteStage(int stageIndex){
 				disconnect(oldStageList->at(x), SIGNAL(succeeded()), this, SLOT(onActionSucceeded()));
 				disconnect(oldStageList->at(x), SIGNAL(ready(bool)), this, SLOT(onActionReady(bool)));
 				disconnect(oldStageList->at(x), SIGNAL(failed(int)), this, SLOT(onActionFailed(int)));
-				//disconnect(oldStageList->at(x), SIGNAL(succeeded()), thisStageHolder, SLOT(actionFinished()));
 				thisStageHolder->removeAction(oldStageList->at(x));
 			}
 			if(prevStageList){
@@ -288,11 +279,9 @@ bool AMBeamlineParallelActionsList::deleteAction(int stageIndex, int index){
 			prevStageList = (QList<AMBeamlineActionItem*>*)actions_->data(actions_->index(stageIndex-1, QModelIndex()), Qt::DisplayRole).value<void*>();
 		if(prevStageList)
 			disconnect(holdersHash_.valueF(prevStageList), SIGNAL(everythingFinished()), oldAction, SLOT(start()));
-		//disconnect(oldAction, SIGNAL(succeeded()), holdersHash_.valueF(thisStageList), SLOT(actionFinished()));
 		if(prevStageList)
 			disconnect(holdersHash_.valueF(prevStageList), SIGNAL(everythingFinished()), oldAction, SLOT(start()));
 		holdersHash_.valueF(thisStageList)->removeAction(oldAction);
-		//disconnect(oldAction, SIGNAL(succeeded()), holdersHash_.valueF(thisStageList), SLOT(actionFinished()));
 		disconnect(oldAction, SIGNAL(started()), this, SLOT(onActionStarted()));
 		disconnect(oldAction, SIGNAL(succeeded()), this, SLOT(onActionSucceeded()));
 		disconnect(oldAction, SIGNAL(ready(bool)), this, SLOT(onActionReady(bool)));
@@ -353,7 +342,6 @@ void AMBeamlineParallelActionsList::onActionStarted(){
 
 void AMBeamlineParallelActionsList::onActionSucceeded(){
 	AMBeamlineActionItem *tmpItem = (AMBeamlineActionItem*)QObject::sender();
-	qDebug() << "The list sees that " << (int)tmpItem << " succeeded";
 	QPair<int,int> indices = indicesOf(tmpItem);
 	emit actionSucceeded(indices.first, indices.second);
 }
@@ -373,12 +361,9 @@ void AMBeamlineParallelActionsList::onActionFailed(int explanation){
 void AMBeamlineParallelActionsList::onStageSucceeded(){
 	AMBeamlineParallelActionsListHolder *tmpHolder = (AMBeamlineParallelActionsListHolder*)QObject::sender();
 	int stageIndex = indexOf(holdersHash_.valueR(tmpHolder));
-	qDebug() << "Stage " << stageIndex << " succeeded";
 	emit stageSucceeded(stageIndex);
-	if(stageIndex == stageCount()-1){
-		qDebug() << "\n\nLIST HAS SUCCEEDED\n";
+	if(stageIndex == stageCount()-1)
 		emit listSucceeded();
-	}
 }
 
 bool AMBeamlineParallelActionsList::setupModel(){
@@ -416,7 +401,6 @@ void AMBeamlineParallelActionsListHolder::removeAction(AMBeamlineActionItem *ai)
 
 void AMBeamlineParallelActionsListHolder::actionFinished(){
 	AMBeamlineActionItem *ai = (AMBeamlineActionItem*)QObject::sender();
-//	qDebug() << "Heard an action finished " << (int)ai;
 	waitingOn_.removeOne(ai);
 	if(waitingOn_.isEmpty())
 		emit everythingFinished();
@@ -626,8 +610,6 @@ bool AMBeamlineParallelActionListModel::removeRows(int row, int count, const QMo
 		endRemoveRows();
 		return true;
 	}
-	if(row == 2 && count == 1)
-		qDebug() << listHash_.containsF(parent.internalId()) << (row >= 0) << (row+count <= actions_->at(listHash_.valueF(parent.internalId()))->count());
 	if(listHash_.containsF(parent.internalId()) && (row >= 0) && (row+count <= actions_->at(listHash_.valueF(parent.internalId()))->count()) ){
 		beginRemoveRows(parent, row, row+count-1);
 

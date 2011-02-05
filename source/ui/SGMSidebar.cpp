@@ -97,6 +97,7 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	qDebug() << "\n\n\nPLAYING WITH PARALLEL LIST";
 	AMBeamlineControlMoveAction *tmpAction;
 	al = new AMBeamlineParallelActionsList(this);
+	connect(al, SIGNAL(listSucceeded()), this, SLOT(onActionsListSucceeded()));
 //	qDebug() << "Appending stage 0";
 	al->appendStage(new QList<AMBeamlineActionItem*>());
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->energy(),this);
@@ -122,9 +123,23 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->ssaManipulatorY(),this);
 	tmpAction->setSetpoint(-12);
 	al->appendAction(2, tmpAction);
+
+	al->appendStage(new QList<AMBeamlineActionItem*>());
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->ssaManipulatorZ(),this);
 	tmpAction->setSetpoint(100);
-	al->appendAction(2, tmpAction);
+	al->appendAction(3, tmpAction);
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->ssaManipulatorRot(),this);
+	tmpAction->setSetpoint(240);
+	al->appendAction(3, tmpAction);
+
+	al->deleteStage(2);
+	al->appendStage(new QList<AMBeamlineActionItem*>());
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->ssaManipulatorX(),this);
+	tmpAction->setSetpoint(12);
+	al->appendAction(3, tmpAction);
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->ssaManipulatorY(),this);
+	tmpAction->setSetpoint(-12);
+	al->appendAction(3, tmpAction);
 }
 
 void SGMSidebar::showEvent(QShowEvent *se){
@@ -160,4 +175,8 @@ void SGMSidebar::onCloseVacuumButtonClicked(){
 void SGMSidebar::onStopMotorsButtonClicked(){
 	qDebug() << "Starting the parallel actions list";
 	al->start();
+}
+
+void SGMSidebar::onActionsListSucceeded(){
+	qDebug() << "Actions List SUCCEEDED";
 }
