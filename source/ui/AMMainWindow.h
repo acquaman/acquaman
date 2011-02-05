@@ -53,6 +53,10 @@ public:
 	void addTopWidget(QWidget* topWidget) {
 		vlayout_->insertWidget(0, topWidget);
 	}
+	/// Add a custom widget beside the main window area on the right (ie: like the sidebar, but on the other side)
+	void addRightWidget(QWidget* rightWidget) {
+		hlayout_->addWidget(rightWidget);
+	}
 
 	/// Add a new \c pane to manage.  It will show up in the sidebar under category \c categoryName, with a \c title and an icon from \c iconFileName.  Returns a pointer to the newly-created window pane item in the model.
 	/*! \note Don't use this to add the same pane more than once. If you want to add an alias entry to an existing pane, use the model() directly. You can call AMWindowPaneModel::initAliasItem() to setup an item suitable for adding to the model as an alias. */
@@ -134,6 +138,7 @@ protected:
 	QTreeView* sidebar_;
 
 	QVBoxLayout* vlayout_;
+	QHBoxLayout* hlayout_;
 
 	QWidget* previousPane_;
 

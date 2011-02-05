@@ -62,14 +62,13 @@ AMMainWindow::AMMainWindow(QWidget *parent) : QWidget(parent) {
 	vlayout_ = new QVBoxLayout(this);
 	vlayout_->setContentsMargins(0, 0, 0, 0);
 	vlayout_->setSpacing(0);
-	QHBoxLayout* hl1 = new QHBoxLayout();
-	hl1->setContentsMargins(0, 0, 0, 0);
-	hl1->setSpacing(0);
-	vlayout_->addLayout(hl1);
+	hlayout_ = new QHBoxLayout();
+	hlayout_->setContentsMargins(0, 0, 0, 0);
+	hlayout_->setSpacing(0);
+	vlayout_->addLayout(hlayout_);
 
-
-	hl1->addWidget(sidebar_);
-	hl1->addWidget(stackWidget_);
+	hlayout_->addWidget(sidebar_);
+	hlayout_->addWidget(stackWidget_);
 
 	// connect signals from the model:
 	connect(model_, SIGNAL(dockStateChanged(QWidget*,bool)), this, SLOT(onDockStateChanged(QWidget*,bool)));

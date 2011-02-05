@@ -71,6 +71,7 @@ bool SGMAppController::startup() {
 	}
 	*/
 
+		mw_->addRightWidget(new QLabel("Hi dave!"));
 
 		return true;
 	}
