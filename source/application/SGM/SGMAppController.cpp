@@ -6,6 +6,7 @@
 #include "ui/AMSamplePositionView.h"
 #include "ui/AMScanConfigurationView.h"
 #include "ui/SGMXASScanConfigurationViewer.h"
+#include "ui/SGMSidebar.h"
 #include "acquaman/AMScanController.h"
 
 #include "ui/AMMainWindow.h"
@@ -70,8 +71,8 @@ bool SGMAppController::startup() {
 		connect(scanController, SIGNAL(progress(double,double)), bottomBar_, SLOT(updateScanProgress(double,double)));
 	}
 	*/
-
-		mw_->addRightWidget(new QLabel("Hi dave!"));
+		sgmSidebar_ = new SGMSidebar();
+		mw_->addRightWidget(sgmSidebar_);
 
 		return true;
 	}

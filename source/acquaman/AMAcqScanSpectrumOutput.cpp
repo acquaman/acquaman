@@ -190,8 +190,6 @@ int AMAcqScanSpectrumOutput::putValue( acqKey_t key, int eventno, int pvno, cons
 			value = (char  *)value + pvpr->colp->dataSize;
 		}
 	}
-
-
 	if((eventno == 1) && !pvpr->isSpectrum){
 		if( (pvno == 0) && (eventno == 1) )
 			to->dataPackage_.insert(0, dataVal);

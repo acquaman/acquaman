@@ -202,12 +202,14 @@ AMControlEditor::AMControlEditor(AMControl* control, AMControl* statusTagControl
 		readOnly_ = true;
 
 	// Create objects:
-	valueLabel_ = new QLabel("[unconnected]");
+//	valueLabel_ = new QLabel("[unconnected]");
+	valueLabel_ = new QLabel("[NC]");
 	unitsLabel_ = new QLabel("?");
 	if(statusTagControl_){
 		QFont statusFont;
 		statusFont.setPointSize(10);
-		statusLabel_ = new QLabel("[unconnected]");
+		//statusLabel_ = new QLabel("[unconnected]");
+		statusLabel_ = new QLabel("[NC]");
 		statusLabel_->setFont(statusFont);
 		statusLabel_->setMargin(1);
 	}

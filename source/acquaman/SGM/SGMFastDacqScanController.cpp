@@ -83,6 +83,7 @@ bool SGMFastDacqScanController::event(QEvent *e){
 		QMap<int, QList<double> > aeSpectra = ((AMAcqEvent*)e)->spectraPackage_;
 		QMap<int, double>::const_iterator i = aeData.constBegin();
 		QMap<int, QList<double> >::const_iterator j = aeSpectra.constBegin();
+		qDebug() << "Fast Scan accepted an event " << i.key() << aeData.count() << aeSpectra.count();
 		// Fast scan should be one scalar value (the initial energy value) and one spectral value (the scaler with all the data)
 		// There will be N*1000 elements of the scaler waveform, where N is the number of channels (detectors) being acquired
 		// We have already set the energy axis as uniform with the proper start and increment, so we can ignore the energy value in aeData

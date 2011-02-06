@@ -239,8 +239,11 @@ void SGMBeamline::usingFakeBeamline(){
 	amNames2pvNames_.set("beamlineReady", "reixsHost:ready");
 	amNames2pvNames_.set("energyMovingStatus", "reixsHost:Energy:moving:status");
 	amNames2pvNames_.set("fastShutterVoltage", "reixsHost:fastShutter:V");
-	amNames2pvNames_.set("scalarMode", "reixsHost:fast:trigger");
-	amNames2pvNames_.set("scalarStart", "reixsHost:scalar:start");
+	amNames2pvNames_.set("scalerMode", "reixsHost:scaler:continuous");
+	amNames2pvNames_.set("scalerStart", "reixsHost:scaler:start");
+	amNames2pvNames_.set("scaler", "reixsHost:scaler:spectrum");
+	amNames2pvNames_.set("scalerIntegrationTime", "reixsHost:scaler:integrationTime");
+	amNames2pvNames_.set("scalerNumBins", "reixsHost:scaler:numBins");
 	amNames2pvNames_.set("gratingVelocity", "reixsHost:mono:velo");
 	amNames2pvNames_.set("gratingBaseVelocity", "reixsHost:mono:veloBase");
 	amNames2pvNames_.set("gratingAcceleration", "reixsHost:mono:accel");
@@ -367,6 +370,13 @@ void SGMBeamline::usingFakeBeamline(){
 	visibleLightStatus_ = new AMReadOnlyPVControl("visibleLightStatus", sgmPVName, this);
 	sgmPVName = amNames2pvNames_.valueF("activeEndstation");
 	activeEndstation_ = new AMPVControl("activeEndstation", sgmPVName, sgmPVName, "", this);
+
+	sgmPVName = amNames2pvNames_.valueF("scalerIntegrationTime");
+	scalerIntegrationTime_ = new AMPVControl("scalerIntegrationTime", sgmPVName, sgmPVName, "", this);
+	sgmPVName = amNames2pvNames_.valueF("scalerNumBins");
+	scalerNumBins_ = new AMPVControl("scalerNumBins", sgmPVName, sgmPVName, "", this);
+	sgmPVName = amNames2pvNames_.valueF("scalerMode");
+	scalerMode_ = new AMPVControl("scalerMode", sgmPVName, sgmPVName, "", this);
 }
 
 SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
@@ -417,6 +427,9 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	connect(visibleLightToggle_, SIGNAL(valueChanged(double)), this, SLOT(onVisibleLightChanged(double)));
 	addChildControl(visibleLightStatus_);
 	connect(visibleLightStatus_, SIGNAL(valueChanged(double)), this, SLOT(onVisibleLightChanged(double)));
+	addChildControl(scalerIntegrationTime_);
+	addChildControl(scalerNumBins_);
+	addChildControl(scalerMode_);
 
 	criticalControlsSet_ = new AMControlSet(this);
 	criticalControlsSet_->setName("Critical Beamline Controls");
@@ -881,15 +894,15 @@ void SGMBeamline::onVisibleLightChanged(double value){
 	Q_UNUSED(value);
 	AMPVwStatusControl *lMono = qobject_cast<AMPVwStatusControl*>(mono());
 	if(visibleLightToggle_->value() == 1 && visibleLightStatus_->value() == 8)
-		emit visibleLightStatusChanged("Visible Light is ON");
+		emit visibleLightStatusChanged("Visible Light\n is ON");
 	else if( visibleLightToggle_->value() == 1 && visibleLightStatus_->value() == 0 && lMono->movingPV()->getString() == "MOVING - CCW" )
-		emit visibleLightStatusChanged("Visible Light is moving to ON");
+		emit visibleLightStatusChanged("Visible Light\n is moving to ON");
 	else if( visibleLightToggle_->value() == 1 && visibleLightStatus_->value() == 0 && lMono->movingPV()->getString() == "MOVING +  CW" )
 		visibleLightToggle_->move(0);
 	else if( visibleLightStatus_->value() == 8)
-		emit visibleLightStatusChanged("Visible Light is moving to OFF");
+		emit visibleLightStatusChanged("Visible Light\n is moving to OFF");
 	else if( visibleLightStatus_->value() == 0)
-		emit visibleLightStatusChanged("Visible Light is OFF");
+		emit visibleLightStatusChanged("Visible Light\n is OFF");
 }
 
 SGMBeamline* SGMBeamline::sgm() {

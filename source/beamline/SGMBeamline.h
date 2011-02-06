@@ -108,6 +108,9 @@ public:
 	AMControl* visibleLightToggle() const { return visibleLightToggle_;}
 	AMControl* visibleLightStatus() const { return visibleLightStatus_;}
 	AMControl* activeEndstation() const { return activeEndstation_;}
+	AMControl* scalerIntegrationTime() const { return scalerIntegrationTime_;}
+	AMControl* scalerNumBins() const { return scalerNumBins_;}
+	AMControl* scalerMode() const { return scalerMode_;}
 
 
 	AMControlSet* fluxResolutionSet() const { return fluxResolutionSet_;}
@@ -218,6 +221,9 @@ protected:
 	AMControl *visibleLightToggle_;
 	AMControl *visibleLightStatus_;
 	AMControl *activeEndstation_;
+	AMControl *scalerIntegrationTime_;
+	AMControl *scalerNumBins_;
+	AMControl *scalerMode_;
 
 	AMControlSet *teyControlSet_;
 	AMDetectorInfo *teyDetector_;

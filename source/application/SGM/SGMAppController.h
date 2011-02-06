@@ -10,6 +10,7 @@ class AMFastScanConfigurationHolder;
 class AMScanConfigurationView;
 class SGMXASScanConfigurationViewer;
 class SGMFastScanConfigurationViewer;
+class SGMSidebar;
 
 
 class SGMAppController : public AMAppController {
@@ -54,7 +55,7 @@ protected:
 	SGMFastScanConfigurationViewer* fastScanConfigurationViewer_;
 	AMXASScanConfigurationHolder* scanConfigurationHolder_;
 	AMFastScanConfigurationHolder* fastScanConfigurationHolder_;
-
+	SGMSidebar* sgmSidebar_;
 
 
 	/// The scan editor belonging to the active scan controller. (0 if not initialized)
