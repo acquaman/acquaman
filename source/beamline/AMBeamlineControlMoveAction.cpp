@@ -119,10 +119,8 @@ void AMBeamlineControlMoveAction::onConnected(bool connected){
 void AMBeamlineControlMoveAction::checkReady(){
 	if(!control_)
 		setReady(false);
-	else{
-		qDebug() << "CMA says " << (int)this << control_->isConnected() << !control_->isMoving();
+	else
 		setReady(control_->isConnected() && !control_->isMoving());
-	}
 }
 
 void AMBeamlineControlMoveAction::onStarted(){

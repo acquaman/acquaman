@@ -60,6 +60,7 @@ protected:
 
 protected:
 	QEpicsAdvAcq *advAcq_;
+	bool usingSpectraDotDatFile_;
 	bool cancelled_;
 	QTime startTime_;
 

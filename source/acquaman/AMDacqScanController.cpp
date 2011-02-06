@@ -45,6 +45,7 @@ AMDacqScanController::AMDacqScanController(AMScanConfiguration *cfg, QObject *pa
 	connect(advAcq_, SIGNAL(onStop()), this, SLOT(onStop()));
 	connect(advAcq_, SIGNAL(onPause(int)), this, SLOT(onPause(int)));
 	connect(advAcq_, SIGNAL(sendCompletion(int)), this, SLOT(onSendCompletion(int)));
+	usingSpectraDotDatFile_ = false;
 }
 
 void AMDacqScanController::start(){
@@ -63,6 +64,11 @@ void AMDacqScanController::start(){
 			abop->setProperty( "File Template", file.toStdString());
 			abop->setProperty( "File Path", path.toStdString());
 			pScan_()->setFilePath(fullPath+".dat");
+			if(usingSpectraDotDatFile_){
+				QStringList additionalFiles;
+				additionalFiles << fullPath+"_spectra.dat";
+				pScan_()->setAdditionalFilePaths(additionalFiles);
+			}
 
 			((AMAcqScanSpectrumOutput*)abop)->setScan(pScan_());
 			((AMAcqScanSpectrumOutput*)abop)->setScanController(this);

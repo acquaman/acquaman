@@ -74,6 +74,7 @@ void SGMFastDacqScanController::start(){
 	}
 	*/
 	generalScan_ = specificScan_;
+	usingSpectraDotDatFile_ = true;
 	AMDacqScanController::start();
 }
 

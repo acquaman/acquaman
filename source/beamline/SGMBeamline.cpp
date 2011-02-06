@@ -57,6 +57,8 @@ void SGMBeamline::usingSGMBeamline(){
 	amNames2pvNames_.set("pgtIntegrationMode", "MCA1611-01:Preset:Live");
 	//amNames2pvNames_.set("I0", "A1611-4-14:A:fbk");
 	amNames2pvNames_.set("I0", "BL1611-ID-1:mcs01:fbk");
+	//amNames2pvNames_.set("photodiode", "A1611-4-13:A:fbk");
+	amNames2pvNames_.set("photodiode", "BL1611-ID-1:mcs03:fbk");
 	amNames2pvNames_.set("loadlockCCG", "CCG1611-4-I10-09:vac:p");
 	amNames2pvNames_.set("loadlockTCG", "TCGC1611-426:pressure:fbk");
 	amNames2pvNames_.set("ssaManipulatorX", "BL1611-ID-1:EA2:x");
@@ -152,6 +154,8 @@ void SGMBeamline::usingSGMBeamline(){
 	i0_ = new AMReadOnlyPVControl("I0", sgmPVName, this);
 	sgmPVName = amNames2pvNames_.valueF("eVFbk");
 	eVFbk_ = new AMReadOnlyPVControl("eVFbk", sgmPVName, this);
+	sgmPVName = amNames2pvNames_.valueF("photodiode");
+	photodiode_ = new AMReadOnlyPVControl("photodiode", sgmPVName, this);
 	sgmPVName = amNames2pvNames_.valueF("loadlockCCG");
 	loadlockCCG_ = new AMReadOnlyPVControl("loadlockCCG", sgmPVName, this);
 	sgmPVName = amNames2pvNames_.valueF("loadlockTCG");
@@ -229,6 +233,7 @@ void SGMBeamline::usingFakeBeamline(){
 	amNames2pvNames_.set("pgtIntegrationTime", "reixsHost:sdd:integration:time");
 	amNames2pvNames_.set("pgtIntegrationMode", "reixsHost:sdd:integration:mode");
 	amNames2pvNames_.set("I0", "reixsHost:I0");
+	amNames2pvNames_.set("photodiode", "reixsHost:photodiode");
 	amNames2pvNames_.set("loadlockCCG", "reixsHost:Endstation:loadlock:ccg");
 	amNames2pvNames_.set("loadlockTCG", "reixsHost:Endstation:loadlock:tcg");
 	amNames2pvNames_.set("ssaManipulatorX", "reixsHost:ssa:x");
@@ -322,6 +327,9 @@ void SGMBeamline::usingFakeBeamline(){
 
 	sgmPVName = amNames2pvNames_.valueF("eVFbk");
 	eVFbk_ = new AMReadOnlyPVControl("eVFbk", sgmPVName, this);
+
+	sgmPVName = amNames2pvNames_.valueF("photodiode");
+	photodiode_ = new AMReadOnlyPVControl("photodiode", sgmPVName, this);
 
 	sgmPVName = amNames2pvNames_.valueF("loadlockCCG");
 	loadlockCCG_ = new AMReadOnlyPVControl("loadlockCCG", sgmPVName, this);
@@ -492,10 +500,17 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 
 	eVFbkControlSet_ = new AMControlSet(this);
 	eVFbkControlSet_->setName("Energy Feedback Controls");
-	eVFbkControlSet_->addControl(eVFbk_);
+	eVFbkControlSet_->addControl(photodiode_);
 	eVFbkDetector_ = NULL;
 	unconnectedSets_.append(eVFbkControlSet_);
 	connect(eVFbkControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
+
+	photodiodeControlSet_ = new AMControlSet(this);
+	photodiodeControlSet_->setName("Photodiode Controls");
+	photodiodeControlSet_->addControl(photodiode_);
+	photodiodeDetector_ = NULL;
+	unconnectedSets_.append(photodiodeControlSet_);
+	connect(photodiodeControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
 	fluxOptimization_ = new SGMFluxOptimization(this);
 	fluxOptimization_->setDescription("Flux");
@@ -839,6 +854,11 @@ void SGMBeamline::onControlSetConnected(bool csConnected){
 			allDetectors_->addDetector(eVFbkDetector_, true);
 			feedbackDetectors_->addDetector(eVFbkDetector_, true);
 		}
+		else if(!photodiodeDetector_ && ctrlSet->name() == "Photodiode Controls"){
+			photodiodeDetector_ = new AMSingleControlDetector(photodiode_->name(), photodiode_, this);
+			photodiodeDetector_->setDescription("Photodiode");
+			allDetectors_->addDetector(photodiodeDetector_, true);
+		}
 		emit controlSetConnectionschanged();
 	}
 	else{
@@ -860,11 +880,9 @@ void SGMBeamline::createBeamOnActions(){
 	if(!beamOnControlSet_->isConnected())
 		return;
 	if(!beamOnActionsList_){
-		qDebug() << "\n\nMY ACTION: NEED TO CREATE LIST";
 		beamOnActionsList_ = new AMBeamlineActionsList(this);
 	}
 	if(!beamOnAction1_ && !beamOnAction2_){
-		qDebug() << "\n\nMY ACTION: NEED TO CREATE ACTIONS";
 		// Action to turn on beam for SGM:
 		// Set beamOn to "1"
 		// Set fastShutterVoltage to "0 V"
@@ -880,7 +898,6 @@ void SGMBeamline::createBeamOnActions(){
 
 void SGMBeamline::onBeamOnActionsFinsihed(){
 	if(beamOnAction1_ && beamOnAction2_ && beamOnAction1_->hasFinished() && beamOnAction2_->hasFinished()){
-		qDebug() << "\n\nMY ACTION: NEED TO DELETE B/C FINISHED";
 		disconnect(beamOnAction2_, SIGNAL(finished()), this, SLOT(onBeamOnActionsFinsihed()));
 		beamOnActionsList_->deleteAction(1);
 		beamOnActionsList_->deleteAction(0);

@@ -11,6 +11,7 @@ SGMFastScanController::SGMFastScanController(SGMFastScanConfiguration *cfg){
 	pScan()->setName("SGM Fast Scan");
 	pScan()->setFilePath(pCfg()->filePath()+pCfg()->fileName());
 	pScan()->setFileFormat("sgm2010Fast");
+	pScan()->setRunId(AMUser::user()->currentRunId());
 
 	// The energy axis will be slightly miscalibrated, but can be approximated as uniform with 1000 points between the
 	//  start energy and the final energy

@@ -84,6 +84,7 @@ public:
 	AMDetectorInfo* pgtDetector() const { return pgtDetector_;}
 	AMDetectorInfo* i0Detector() const { return i0Detector_;}
 	AMDetectorInfo* eVFbkDetector() const { return eVFbkDetector_;}
+	AMDetectorInfo* photodiodeDetector() const { return photodiodeDetector_;}
 	AMControl* loadlockCCG() const { return loadlockCCG_;}
 	AMControl* loadlockTCG() const { return loadlockTCG_;}
 	AMControl* ssaManipulatorX() const { return ssaManipulatorX_;}
@@ -197,6 +198,7 @@ protected:
 	AMControl *pgtIntegrationMode_;
 	AMControl *i0_;
 	AMControl *eVFbk_;
+	AMControl *photodiode_;
 	AMControl *loadlockCCG_;
 	AMControl *loadlockTCG_;
 	AMControl *ssaManipulatorX_;
@@ -235,6 +237,8 @@ protected:
 	AMControlSet *i0ControlSet_;
 	AMDetectorInfo *eVFbkDetector_;
 	AMControlSet *eVFbkControlSet_;
+	AMDetectorInfo *photodiodeDetector_;
+	AMControlSet *photodiodeControlSet_;
 
 	AMControlSet* criticalControlsSet_;
 	AMControlSet* beamOnControlSet_;

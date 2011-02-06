@@ -38,12 +38,10 @@ SGMFastScanParameters* SGMFastScanConfiguration::currentParameters() const{
 
 QList<AMDetectorInfo*> SGMFastScanConfiguration::usingDetectors() const{
 	QList<AMDetectorInfo*> usingDetectors;
-//	if(usingTEY_)
 	usingDetectors << SGMBeamline::sgm()->XASDetectors()->detectorByName("tey");
-//	if(usingTFY_)
 	usingDetectors << SGMBeamline::sgm()->XASDetectors()->detectorByName("tfy");
 	usingDetectors << SGMBeamline::sgm()->feedbackDetectors()->detectorByName("I0");
-	usingDetectors << SGMBeamline::sgm()->feedbackDetectors()->detectorByName("eVFbk");
+	usingDetectors << SGMBeamline::sgm()->allDetectors()->detectorByName("photodiode");
 	return usingDetectors;
 }
 

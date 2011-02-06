@@ -4,6 +4,7 @@
 #include "dataman/AMFastScan.h"
 #include "SGMFastScanConfiguration.h"
 #include "analysis/AM1DExpressionAB.h"
+#include "dataman/AMUser.h"
 
 class SGMFastScanController
 {
