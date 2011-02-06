@@ -24,7 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/AMDacqScanController.h"
 //#include "AMXASScanConfiguration.h"
 #include "SGMXASScanController.h"
-//#include "beamline/SGMBeamline.h"
+//#include "beamline/SGM/SGMBeamline.h"
 
 class SGMXASDacqScanController : public AMDacqScanController, public SGMXASScanController
 {

@@ -1,11 +1,6 @@
 #include "REIXSAppController.h"
 
-#include "beamline/SGMBeamline.h"
-
-//#include "ui/SGMSampleTransferView.h"
-//#include "ui/AMSamplePositionView.h"
-//#include "ui/AMScanConfigurationView.h"
-//#include "ui/SGMXASScanConfigurationViewer.h"
+#include "beamline/REIXS/REIXSBeamline.h"
 
 #include "ui/AMScanConfigurationView.h"
 #include "ui/REIXS/REIXSXESScanConfigurationView.h"
@@ -14,6 +9,8 @@
 #include "ui/AMMainWindow.h"
 #include "ui/AMWorkflowManagerView.h"
 
+#include "util/AMErrorMonitor.h"
+
 REIXSAppController::REIXSAppController(QObject *parent) :
 	AMAppController(parent)
 {
@@ -21,6 +18,9 @@ REIXSAppController::REIXSAppController(QObject *parent) :
 }
 
 bool REIXSAppController::startup() {
+
+	// Initialize central beamline object
+	REIXSBeamline::bl();
 
 	if(AMAppController::startup()) {
 
@@ -44,7 +44,7 @@ bool REIXSAppController::startup() {
 		connect(workflowManagerView_, SIGNAL(addedScan(AMScanConfiguration*)), scanConfigurationHolder_, SLOT(onAddedToQueue(AMScanConfiguration*)));
 
 		connect(scanConfigurationHolder_, SIGNAL(goToQueueRequested()), this, SLOT(goToWorkflow()));
-		connect(scanConfigurationHolder_, SIGNAL(newScanConfigurationView()), workflowManagerView_, SLOT(onNewScanConfigurationView()));
+		// removed: what does this do? connect(scanConfigurationHolder_, SIGNAL(newScanConfigurationView()), workflowManagerView_, SLOT(onNewScanConfigurationView()));
 
 
 
@@ -76,8 +76,7 @@ bool REIXSAppController::startup() {
 
 void REIXSAppController::shutdown() {
 	// Make sure we release/clean-up the beamline interface
-#warning "We need a general AMBeamline class again..."
-	// REIXSBeamline::release();
+	AMBeamline::releaseBl();
 }
 
 

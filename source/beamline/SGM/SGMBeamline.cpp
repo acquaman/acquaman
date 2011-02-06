@@ -23,8 +23,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMSamplePlate.h"
 
 
-SGMBeamline* SGMBeamline::instance_ = 0;
-
 void SGMBeamline::usingSGMBeamline(){
 	amNames2pvNames_.set("energy", "BL1611-ID-1:Energy");
 	amNames2pvNames_.set("eV_Fbk", "BL1611-ID-1:Energy:fbk");
@@ -369,7 +367,7 @@ void SGMBeamline::usingFakeBeamline(){
 	activeEndstation_ = new AMPVControl("activeEndstation", sgmPVName, sgmPVName, "", this);
 }
 
-SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
+SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	usingFakeBeamline();
 	//usingSGMBeamline();
 
@@ -696,7 +694,7 @@ QList<AM1BeamlineActionItem*> SGMBeamline::transferChamberInActions() const {
 	return rVal;
 }
 
-bool SGMBeamline::isScanning(){
+bool SGMBeamline::isBeamlineScanning(){
 	if( fabs(beamlineScanning_->value() -1.0) < beamlineScanning_->tolerance() )
 		return true;
 	return false;
@@ -897,18 +895,11 @@ SGMBeamline* SGMBeamline::sgm() {
 	if(instance_ == 0)
 		instance_ = new SGMBeamline();
 
-	return instance_;
+	return static_cast<SGMBeamline*>(instance_);
 
 }
 
-void SGMBeamline::releaseSGM() {
 
-	if(instance_) {
-		delete instance_;
-		instance_ = 0;
-	}
-
-}
 
 
 

@@ -33,7 +33,7 @@ class AMBeamlineScanAction : public AMBeamlineActionItem
 {
 Q_OBJECT
 public:
-	explicit AMBeamlineScanAction(AMScanConfiguration *cfg, QString scanType = "", QObject *parent = 0);
+	explicit AMBeamlineScanAction(AMScanConfiguration *cfg, QObject *parent = 0);
 
 	AMScanConfiguration* cfg() const { return cfg_;}
 	virtual QString type() const;
@@ -61,7 +61,6 @@ protected slots:
 	virtual void onBeamlineScanningChanged(bool isScanning);
 
 protected:
-	QString scanType_;
 	AMScanConfiguration *cfg_;
 	AMScanController * ctrl_;
 	bool keepOnCancel_;

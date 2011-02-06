@@ -26,7 +26,7 @@ void SGMFastDacqScanController::reinitialize(bool removeScan){
 }
 
 void SGMFastDacqScanController::start(){
-	if(SGMBeamline::sgm()->isScanning()){
+	if(SGMBeamline::sgm()->isBeamlineScanning()){
 		qDebug() << "Beamline already scanning";
 		return;
 	}

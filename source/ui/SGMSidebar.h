@@ -27,7 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QGridLayout>
 
 #include "AMControlEditor.h"
-#include "beamline/SGMBeamline.h"
+#include "beamline/SGM/SGMBeamline.h"
 #include "beamline/AMBeamlineParallelActionsList.h"
 
 class SGMSidebar : public QWidget

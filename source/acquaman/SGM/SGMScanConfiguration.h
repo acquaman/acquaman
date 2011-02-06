@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef ACQMAN_SGMSCANCONFIG_H
 #define ACQMAN_SGMSCANCONFIG_H
 
-#include "beamline/SGMBeamline.h"
+#include "beamline/SGM/SGMBeamline.h"
 
 class SGMScanConfiguration
 {

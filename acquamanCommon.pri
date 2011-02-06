@@ -115,7 +115,6 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/util/AMBiHash.h \
 	source/util/AMErrorMonitor.h \
 	source/util/AMSettings.h \
-	source/beamline/AMAmpDetector.h \
 	source/beamline/AMBeamline.h \
 	source/beamline/AMBeamlineActionItem.h \
 	source/beamline/AMBeamlineControlAction.h \
@@ -123,15 +122,8 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/beamline/AMControlSet.h \
 	source/beamline/AMControlState.h \
 	source/beamline/AMDetector.h \
-	source/beamline/AMDiagnosticPaddle.h \
-	source/beamline/AMInsertionDevice.h \
-	source/beamline/AMLoadLock.h \
-	source/beamline/AMMono.h \
 	source/beamline/AMProcessVariable.h \
 	source/beamline/AMPVNames.h \
-	source/beamline/AMSampleHolder.h \
-	source/beamline/AMSpectrometer.h \
-	source/beamline/AMVariableAperture.h \
 	source/dataman/AMDatabase.h \
 	source/dataman/AMDbObject.h \
 	source/dataman/AMDetectorInfo.h \
@@ -296,23 +288,15 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/application/AMAppController.cpp \
 	source/util/AMErrorMonitor.cpp \
 	source/util/AMSettings.cpp \
-	source/beamline/AMAmpDetector.cpp \
 	source/beamline/AMBeamline.cpp \
+	source/beamline/AMDetector.cpp \
 	source/beamline/AMBeamlineActionItem.cpp \
 	source/beamline/AMBeamlineControlAction.cpp \
 	source/beamline/AMControl.cpp \
 	source/beamline/AMControlSet.cpp \
 	source/beamline/AMControlState.cpp \
-	source/beamline/AMDetector.cpp \
-	source/beamline/AMDiagnosticPaddle.cpp \
-	source/beamline/AMInsertionDevice.cpp \
-	source/beamline/AMLoadLock.cpp \
-	source/beamline/AMMono.cpp \
 	source/beamline/AMProcessVariable.cpp \
 	source/beamline/AMPVNames.cpp \
-	source/beamline/AMSampleHolder.cpp \
-	source/beamline/AMSpectrometer.cpp \
-	source/beamline/AMVariableAperture.cpp \
 	source/dataman/AMDatabase.cpp \
 	source/dataman/AMDbObject.cpp \
 	source/dataman/AMDetectorInfo.cpp \

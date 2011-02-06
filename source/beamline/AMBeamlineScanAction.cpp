@@ -21,20 +21,21 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMBeamlineScanAction.h"
 #include "acquaman/AMScanController.h"
 
+#include "beamline/AMBeamline.h"
+
 #define AMBEAMLINEACTIONITEM_INVALID_SCAN_TYPE 101
 #define AMBEAMLINEACTIONITEM_SCAN_CANCELLED 102
 #define AMBEAMLINEACTIONITEM_CANT_SET_CURRENT_CONTROLLER 103
 
-AMBeamlineScanAction::AMBeamlineScanAction(AMScanConfiguration *cfg, QString scanType, QObject *parent) :
+AMBeamlineScanAction::AMBeamlineScanAction(AMScanConfiguration *cfg, QObject *parent) :
 		AMBeamlineActionItem(true, parent)
 {
 	cfg_ = cfg;
 	ctrl_ = NULL;
-	scanType_ = scanType;
 	type_ = "scanAction";
 	keepOnCancel_ = false;
-#warning "Need to renable this check for if the beamline is scanning, but in a general (non bl-specific) way.  Need an AMBeamline interface?"
-	// connect(SGMBeamline::sgm(), SIGNAL(beamlineScanningChanged(bool)), this, SLOT(onBeamlineScanningChanged(bool)));
+
+	connect(AMBeamline::bl(), SIGNAL(beamlineScanningChanged(bool)), this, SLOT(onBeamlineScanningChanged(bool)));
 
 	initialize();
 }
@@ -125,9 +126,8 @@ void AMBeamlineScanAction::pause(bool pause){
 
 void AMBeamlineScanAction::initialize(){
 	AMBeamlineActionItem::initialize();
-#warning "Need to renable this check for if the beamline is scanning, but in a general (non bl-specific) way.  Need an AMBeamline interface?"
 
-	//onBeamlineScanningChanged(SGMBeamline::sgm()->isScanning());
+	onBeamlineScanningChanged(AMBeamline::bl()->isBeamlineScanning());
 }
 
 void AMBeamlineScanAction::delayedStart(bool ready){

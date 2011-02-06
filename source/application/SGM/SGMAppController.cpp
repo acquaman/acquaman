@@ -1,8 +1,9 @@
 #include "SGMAppController.h"
 
-#include "beamline/SGMBeamline.h"
+#include "beamline/SGM/SGMBeamline.h"
 
 #include "ui/SGMSampleTransferView.h"
+#include "ui/SGM/SGMSampleManipulatorView.h"
 #include "ui/AMSamplePositionView.h"
 #include "ui/AMScanConfigurationView.h"
 #include "ui/SGMXASScanConfigurationViewer.h"
@@ -19,6 +20,9 @@ SGMAppController::SGMAppController(QObject *parent) :
 
 bool SGMAppController::startup() {
 
+	// Initialize AMBeamline::bl() as an SGMBeamline::sgm() instance. FIRST!
+	SGMBeamline::sgm();
+
 	if(AMAppController::startup()) {
 
 		// Create panes in the main window:
@@ -26,7 +30,9 @@ bool SGMAppController::startup() {
 
 		mw_->insertHeading("Beamline Control", 0);
 		//////////
-		samplePositionView_ = new SGMSamplePositionView();
+		samplePositionView_ = new AMSamplePositionView(new SGMSampleManipulatorView(),
+													   QUrl("http://ccd1611-403/axis-cgi/mjpg/video.cgi?resolution=1280x1024&.mjpg"),
+													   SGMBeamline::sgm()->currentSamplePlate());
 		mw_->addPane(samplePositionView_, "Beamline Control", "SGM Sample Position", ":/system-software-update.png");
 
 		sampleTransferView_ = new SGMSampleTransferView();

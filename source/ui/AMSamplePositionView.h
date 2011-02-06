@@ -30,11 +30,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMSampleManipulatorView.h"
 #include "ui/AMBeamlineCameraWidget.h"
 
+/// This widget provides a complete full-screen view for users to view, move, align, and tag samples in the machine.  You must provide it with a pointer to a manipulator widget (for moving the samples), a URL for the video stream from the sample camera, and a pointer to the sample plate object that we'll tag samples on.
 class AMSamplePositionView : public QWidget
 {
 Q_OBJECT
 public:
-	explicit AMSamplePositionView(QWidget *parent = 0, AMSampleManipulatorView *manipulatorView = 0);
+	explicit AMSamplePositionView(AMSampleManipulatorView *manipulatorView, const QUrl& sampleCameraUrl, AMSamplePlate* samplePlate, QWidget *parent = 0);
 
 signals:
 
@@ -45,16 +46,9 @@ protected:
 	AMSamplePlateView *plateView_;
 	AMSampleManipulatorView *manipulatorView_;
 
-	AMControlSet *manipulator_;
-
 	QGridLayout *gl_;
 };
 
-class SGMSamplePositionView : public AMSamplePositionView
-{
-Q_OBJECT
-public:
-	SGMSamplePositionView(QWidget *parent = 0);
-};
+
 
 #endif // AMSAMPLEPOSITIONVIEW_H

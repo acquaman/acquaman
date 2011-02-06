@@ -25,7 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QHBoxLayout>
 
 #include "AMControlEditor.h"
-#include "beamline/SGMBeamline.h"
+#include "beamline/SGM/SGMBeamline.h"
 
 class SGMBeamlineAtAGlanceBar : public QFrame
 {
