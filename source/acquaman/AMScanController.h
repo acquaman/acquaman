@@ -34,17 +34,17 @@ Q_PROPERTY(bool running READ isRunning)
 Q_PROPERTY(bool paused READ isPaused)
 
 public:
-	explicit AMScanController(AMScanConfiguration *cfg, QObject *parent = 0);
+	explicit AMScanController(AMScanConfiguration *configuration, QObject *parent = 0);
 
 	/// Returns true if the scan is running but not paused
-	bool isRunning() const {return running_ && !paused_;}
+	virtual bool isRunning() const {return running_ && !paused_;}
 	/// Convenience call, returns true if the scan is not running
-	bool isStopped() const {return !isRunning();}
+	virtual bool isStopped() const {return !isRunning();}
 	/// Returns true if the scan is running and paused
-	bool isPaused() const {return paused_;}
-	bool isInitialized() const {return initialized_;}
+	virtual bool isPaused() const {return paused_;}
+	virtual bool isInitialized() const {return initialized_;}
 
-	virtual AMScan* scan() {return pScan_();}
+	virtual AMScan* scan() { return generalScan_; } // one change that was required to remove _pScan_ and pScan_(); changed from return pScan_();
 
 signals:
 	/// Scan has started
@@ -73,7 +73,9 @@ public slots:
 	virtual void pause() = 0;
 	/// Resume scan if currently paused
 	virtual void resume() = 0;
+
 	virtual void initialize() = 0;
+	virtual void reinitialize(bool removeScan) = 0;
 
 protected:
 	/// Configuration for this scan
@@ -86,11 +88,11 @@ protected:
 	bool initialized_;
 
 private:
-	AMScanConfiguration **_pCfg_;
-	AMScan **_pScan_;
+	// unused: AMScanConfiguration **_pCfg_;
+	// unused: AMScan **_pScan_;
 
-	AMScanConfiguration* pCfg_() { return *_pCfg_;}
-	AMScan* pScan_() {return *_pScan_;}
+	// unused: AMScanConfiguration* pCfg_() { return *_pCfg_;}
+	// unused: AMScan* pScan_() {return *_pScan_;}
 };
 
 class AMScanControllerSupervisor : public QObject

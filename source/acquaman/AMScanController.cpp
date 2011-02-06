@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
+#include <QDebug>
 #include "AMScanController.h"
 
 AMScanControllerSupervisor* AMScanControllerSupervisor::instance_ = 0;
@@ -26,9 +26,9 @@ AMScanController::AMScanController(AMScanConfiguration *cfg, QObject *parent) :
 	QObject(parent)
 {
 	generalCfg_ = cfg;
-	_pCfg_ = & generalCfg_;
+	// unused: _pCfg_ = & generalCfg_;
 	generalScan_ = NULL;
-	_pScan_ = &generalScan_;
+	// unused: _pScan_ = &generalScan_;
 }
 
 

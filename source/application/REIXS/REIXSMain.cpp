@@ -18,13 +18,35 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "AMXASScanConfiguration.h"
 
 
-/// Constructor simply passes arguments up to AMScanConfiguration constructor.
-AMXASScanConfiguration::AMXASScanConfiguration(QObject *parent) : AMScanConfiguration(parent)
+
+#include <QApplication>
+#include "application/REIXS/REIXSAppController.h"
+
+
+int main(int argc, char *argv[])
 {
-	regions_ = new AMXASRegionsList(this);
-	connect(regions_, SIGNAL(regionsChanged()), this, SIGNAL(regionsChanged()));
+
+	/// Program Startup:
+	// =================================
+	QApplication app(argc, argv);
+	app.setApplicationName("Acquaman");
+
+
+	REIXSAppController* appController = new REIXSAppController();
+
+
+	/// Program Run-loop:
+	// =================================
+	int retVal = -1;
+	if(appController->startup())
+		retVal = app.exec();
+
+	/// Program Shutdown:
+	// =================================
+	delete appController;
+
+	return retVal;
 }
 

@@ -27,10 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTime>
 #include <QMessageBox>
 #include "AMBeamlineActionItem.h"
-#include "acquaman/SGM/SGMXASScanConfiguration.h"
-#include "acquaman/SGM/SGMFastScanConfiguration.h"
-#include "acquaman/SGM/SGMXASDacqScanController.h"
-#include "acquaman/SGM/SGMFastDacqScanController.h"
+#include "acquaman/AMScanConfiguration.h"
 
 class AMBeamlineScanAction : public AMBeamlineActionItem
 {
@@ -42,7 +39,7 @@ public:
 	virtual QString type() const;
 	virtual bool isRunning() const;
 	virtual bool isPaused() const;
-	bool isReinitialized() const;
+	// unused and unimplemented: virtual bool isReinitialized() const;
 
 signals:
 	void progress(double, double);

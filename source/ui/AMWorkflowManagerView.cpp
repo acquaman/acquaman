@@ -22,6 +22,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QScrollArea>
 #include <QPushButton>
 
+#warning "Need to remove SGMBeamline from here:"
+#include "beamline/SGMBeamline.h"
+
+#warning "Also need to remove coupling so that you can use the workflow manager even if you don't have a sample plate"
+
 AMWorkflowManagerView::AMWorkflowManagerView(QWidget *parent) :
 	QWidget(parent)
 {

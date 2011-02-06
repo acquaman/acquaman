@@ -20,8 +20,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMScanConfiguration.h"
 
-/// Constructor, passes QObject pointer along to constructor for QObject
 AMScanConfiguration::AMScanConfiguration(QObject *parent) :
-	QObject(parent)
+	AMDbObject(parent)
 {
 }
+

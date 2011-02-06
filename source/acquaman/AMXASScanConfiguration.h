@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QObject>
 #include "AMScanConfiguration.h"
+#include "acquaman/AMRegionsList.h"
 
 /// An AMXASScanConfiguration is the parent class for any beamline that wants to implement a simple XAS (X-Ray Absorption Spectroscopy) scan.
 /*!
@@ -46,6 +47,11 @@ public:
 	double regionEnd(int index) const { return regions_->end(index);}
 	int regionCount() const { return regions_->count();}
 	AMXASRegionsList* regions() { return regions_;}
+
+	/// A human-readable description of this scan configuration. Can be re-implemented to provide more details.
+	virtual QString description() const {
+		return QString("SGM XAS Scan from %1 to %2").arg(regionStart(0)).arg(regionEnd(regionCount()-1));
+	}
 
 public slots:
 	/// Sets the start value of the region refered to by index. Returns true if sucessful, returns false if the index is invalid or the energy is out of range.
