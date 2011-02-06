@@ -45,12 +45,12 @@ bool AMControl::setState(const QMap<QString, double> controlList, unsigned int e
 		return FALSE;
 	// Run through original list. If it's not in "unfounds" list and if it's outside the tolerance, move it to the specified position
 	QMap<QString, double>::const_iterator i = controlList.constBegin();
-	 while (i != controlList.constEnd()) {
-		 if(!tmpList->contains(i.key()) && fabs(i.value() - executeList->value(i.key())->value()) > executeList->value(i.key())->tolerance() )
-			 executeList->value(i.key())->move(i.value());
-//             qDebug() << "Name is " << i.key() << " value should be " << i.value() << " value is " << executeList->value(i.key())->value();
-		 ++i;
-	 }
+	while (i != controlList.constEnd()) {
+		if(!tmpList->contains(i.key()) && fabs(i.value() - executeList->value(i.key())->value()) > executeList->value(i.key())->tolerance() )
+			executeList->value(i.key())->move(i.value());
+		//             qDebug() << "Name is " << i.key() << " value should be " << i.value() << " value is " << executeList->value(i.key())->value();
+		++i;
+	}
 	return TRUE;
 }
 
@@ -74,11 +74,11 @@ bool AMControl::searchSetChildren(QMap<QString, double> *controlList, QMap<QStri
 			}
 		}
 		// Call recursively on all grandchildren (CHECK TO SEE IF NO CHILDREN?, SAVE A CALL)
- //       for(int y = 0; y < tmpCtrl->numChildren(); y++){
+		//       for(int y = 0; y < tmpCtrl->numChildren(); y++){
 		if(tmpCtrl->childControlCount() > 0)
 			if(!tmpCtrl->searchSetChildren(controlList, executeList, errorLevel))
 				return false;
- //       }
+		//       }
 	}
 	return true;
 }
@@ -122,7 +122,7 @@ void AMReadOnlyPVControl::onPVError(int error) {
 void AMReadOnlyPVControl::onReadPVInitialized() {
 	setUnits(readPV_->units());	// copy over the new unit string
 	setEnumStates(readPV_->enumStrings());	// todo: for subclasses, what to do if readPV and writePV have different number of enum states? Protect against invalid access somehow...
-//	qDebug() << QString("ReadOnlyPVControl: read PV initialized correctly.");
+	//	qDebug() << QString("ReadOnlyPVControl: read PV initialized correctly.");
 }
 
 
@@ -182,16 +182,26 @@ void AMPVControl::move(double setpoint) {
 	if( canMove() ) {
 		// Issue the move
 		writePV_->setValue(setpoint_);
-//		qDebug() << QString("Moving %1 to %2").arg(writePV_->pvName()).arg(setpoint_);
+		//		qDebug() << QString("Moving %1 to %2").arg(writePV_->pvName()).arg(setpoint_);
 
-		// We're now moving! Let's hope this hoofedinkus makes it...
-		moveInProgress_ = true;
+		// We're now moving! Let's hope this hoofedinkus makes it... (No way to actually check.)
+		emit movingChanged(moveInProgress_ = true);
 
 		// emit the signal that we started:
 		emit this->moveStarted();
 
-		// start the countdown to see if we get there in time or stall out: (completionTimeout_ is in seconds)
-		completionTimer_.start((int)completionTimeout_*1000.0);
+		// Special case added:
+		// =======================
+		// If we're already in-position (ie: moving to where we are already). In this situation, you won't see any feedback values change (onNewFeedbackValue() won't be called), but probably want to get the moveSucceeded() signal right away -- ie: instead of waiting for the move timeout.
+		// This check is only possible if you've actually specified a non-default, appropriate timeout:
+		if(tolerance() != AMCONTROL_TOLERANCE_DONT_CARE && inPosition()) {
+			emit movingChanged(moveInProgress_ = false);
+			emit this->moveSucceeded();
+		}
+		else {
+			// start the countdown to see if we get there in time or stall out: (completionTimeout_ is in seconds)
+			completionTimer_.start((int)completionTimeout_*1000.0);
+		}
 	}
 	else {
 		qDebug() << QString("Could not move %1 to %2").arg(writePV_->pvName()).arg(setpoint_);
@@ -199,7 +209,8 @@ void AMPVControl::move(double setpoint) {
 		// Notify the failure right away:
 		emit moveFailed(AMControl::NotConnectedFailure);
 		// And we're definitely not moving.
-		moveInProgress_ = false;
+		if(moveInProgress_)
+			emit movingChanged(moveInProgress_ = false);
 	}
 
 }
@@ -214,7 +225,7 @@ void AMPVControl::onNewFeedbackValue(double) {
 	// Did we make it?
 	if( inPosition() ) {
 		// move is now done:
-		moveInProgress_ = false;
+		emit movingChanged(moveInProgress_ = false);
 		// disable the timer, so it doesn't trigger an error later
 		completionTimer_.stop();
 		// let everyone know we succeeded:
@@ -234,7 +245,7 @@ void AMPVControl::onCompletionTimeout() {
 	}
 
 	// No matter what, this move is over:
-	moveInProgress_ = false;
+	emit movingChanged(moveInProgress_ = false);
 	completionTimer_.stop();
 
 	// Did we make it?
@@ -370,8 +381,19 @@ void AMPVwStatusControl::move(double setpoint) {
 	writePV_->setValue(setpoint_);
 	// Flag that "our" move started:
 	moveInProgress_ = true;
-	// start the timer to check if our move failed to start:
-	moveStartTimer_.start((int)moveStartTimeout_*1000.0);
+
+	// Special case added:
+	// =======================
+	// If we're already in-position (ie: moving to where we are already). In this situation, you won't see any feedback values change (onNewFeedbackValue() won't be called), but probably want to get the moveSucceeded() signal right away -- ie: instead of waiting for the move timeout.
+	// This check is only possible if you've actually specified a non-default, appropriate timeout:
+	if(tolerance() != AMCONTROL_TOLERANCE_DONT_CARE && inPosition()) {
+		moveInProgress_ = false;
+		emit this->moveSucceeded();
+	}
+	else {
+		// start the timer to check if our move failed to start:
+		moveStartTimer_.start((int)moveStartTimeout_*1000.0);
+	}
 
 }
 

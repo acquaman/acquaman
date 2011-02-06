@@ -878,7 +878,7 @@ public:
 	/// Indicates that all three process variables are ready for action:
 	virtual bool isConnected() const { return canMeasure() && canMove() && movingPV_->canRead(); }
 	/// Indicates that a move (that you requested) is currently completing... hasn't reached destination, and hasn't time'd out.
-	virtual bool moveInProgress() const { return moveInProgress_ && AMReadOnlyPVwStatusControl::isMoving(); }	// mip_ will be true as soon as move() is requested.  moveInProgress() isn't happening until the device starts moving as well.)
+	virtual bool moveInProgress() const { return moveInProgress_ && AMReadOnlyPVwStatusControl::isMoving(); }	// moveInProgress_ will be true as soon as move() is requested.  moveInProgress() isn't happening until the device starts moving as well.)
 	/// Indicates that this control currently can cause moves:
 	virtual bool canMove() const { return writePV_->canWrite(); }
 	/// Theoretically, if we're connected, this control type should be able to move:
