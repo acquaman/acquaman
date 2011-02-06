@@ -83,50 +83,21 @@ bool SGMFastDacqScanController::event(QEvent *e){
 		QMap<int, QList<double> > aeSpectra = ((AMAcqEvent*)e)->spectraPackage_;
 		QMap<int, double>::const_iterator i = aeData.constBegin();
 		QMap<int, QList<double> >::const_iterator j = aeSpectra.constBegin();
-		qDebug() << "Fast Scan accepted an event " << i.key() << aeData.count() << aeSpectra.count();
 		// Fast scan should be one scalar value (the initial energy value) and one spectral value (the scaler with all the data)
 		// There will be N*1000 elements of the scaler waveform, where N is the number of channels (detectors) being acquired
 		// We have already set the energy axis as uniform with the proper start and increment, so we can ignore the energy value in aeData
-//		if(i.key() == 0 && (aeData.count()+aeSpectra.count()) > 1){
 		if(i.key() == 0 && aeData.count() == 1 && aeSpectra.count() == 1){
-			/*
-			AMnDIndex insertIndex = toScanIndex(aeData);
-			pScan()->rawData()->beginInsertRowsAsNecessaryForScanPoint(insertIndex);
-			/// \bug CRITICAL: This is ASSUMING ONE AXIS, need to fix that somewhere
-			pScan()->rawData()->setAxisValue(0, insertIndex.row(), i.value());
-			++i;
-			while(i != aeData.constEnd()){
-				pScan()->rawData()->setValue(insertIndex, i.key()-1, AMnDIndex(), i.value());
-				++i;
-			}
-			*/
 			while(j != aeSpectra.constEnd()){
-				int numPoints = j.value().at(0);
 				for(int x = 0; x < j.value().count()-1; x++){
 					if(x%4 == 0){
 						pScan()->rawData()->beginInsertRows(0);
 						pScan()->rawData()->setAxisValue(0, x/4, x/4);
-						qDebug() << "NEW ROW";
 					}
-					qDebug() << "Column " << x%4 << " row " << x/4 << " value " << j.value().at(x+1);
 					pScan()->rawData()->setValue(AMnDIndex(x/4), x%4, AMnDIndex(), j.value().at(x+1));
-					if(x%4 == 3 || x == j.value().count()-2){
+					if(x%4 == 3 || x == j.value().count()-2)
 						pScan()->rawData()->endInsertRows();
-						qDebug() << "ROW DONE";
-					}
 				}
 				++j;
-			}
-			/*
-			pScan()->rawData()->endInsertRows();
-			*/
-			qDebug() << "From data store";
-			for(int x = 0; x < pScan()->rawData()->scanSize(0); x++){
-				qDebug() << (double)(pScan()->rawData()->axisValue(0, x))
-						<< (int)(pScan()->rawData()->value(AMnDIndex(x), 0, AMnDIndex()))
-						<< (int)(pScan()->rawData()->value(AMnDIndex(x), 1, AMnDIndex()))
-						<< (int)(pScan()->rawData()->value(AMnDIndex(x), 2, AMnDIndex()))
-						<< (int)(pScan()->rawData()->value(AMnDIndex(x), 3, AMnDIndex()));
 			}
 		}
 		e->accept();

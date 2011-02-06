@@ -27,8 +27,10 @@ AMStartScreen::AMStartScreen(QWidget *parent) :
 {
 	//QPixmap pixmap(":/ ")
 	runSelector_ = new AMRunSelector(AMDatabase::userdb(),this);
-	QVBoxLayout *overallLayout = new QVBoxLayout(this);
-	QGridLayout *startLayout = new QGridLayout(this);
+	//QVBoxLayout *overallLayout = new QVBoxLayout(this);
+	//QGridLayout *startLayout = new QGridLayout(this);
+	QVBoxLayout *overallLayout = new QVBoxLayout();
+	QGridLayout *startLayout = new QGridLayout();
 	QLabel *selectRunLabel = new QLabel(tr("Welcome to Acquaman!\n\nThis is your current run.\nIt will be used to organize your data for this visit to the facility.\n\nYou can change it, or create a new one."),this);
 	QPushButton *ok= new QPushButton("Start",this);
 
@@ -38,6 +40,7 @@ AMStartScreen::AMStartScreen(QWidget *parent) :
 
 	//overallLayout->addItem(pixmap);
 	overallLayout->addLayout(startLayout);
+	setLayout(overallLayout);
 
 	setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
 	setAttribute(Qt::WA_DeleteOnClose, true);

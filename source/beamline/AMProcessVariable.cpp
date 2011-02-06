@@ -242,8 +242,6 @@ void AMProcessVariable::connectionChangedCB(struct connection_handler_args connA
 		// Discover the type of this channel:
 		serverType_ = ca_field_type(chid_);
 
-		qDebug() << "Type of channel" << this->pvName() << "is " << serverType_;
-
 		// We simplify all floating-point types to double, all integer types to long, and leave strings as strings and enums as enums:
 		ourType_ = serverType2ourType(serverType_);
 

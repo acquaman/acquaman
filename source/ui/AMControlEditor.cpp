@@ -561,20 +561,14 @@ void AMControlButton::onValueChanged(double newVal) {
 	if(isCheckable()){
 		if(control_->value() == downValue_)
 			setChecked(true);
-			//setDown(true);
 		else if(control_->value() == upValue_)
 			setChecked(false);
-			//setDown(false);
-
-		qDebug() << "Down " << isDown() << " Checked " << isChecked();
 	}
 }
 
 void AMControlButton::onClicked(){
-	qDebug() << "Detected clicked";
 	if(isCheckable())
 		return;
-	qDebug() << "Moved for clicked";
 	control_->move(downValue_);
 }
 
@@ -583,15 +577,10 @@ void AMControlButton::onToggled(bool toggled){
 		programaticToggle_ = false;
 		return;
 	}
-	qDebug() << "Detected toggle";
-	if(toggled){
-		qDebug() << "Toggled, go down";
+	if(toggled)
 		control_->move(downValue_);
-	}
-	else{
-		qDebug() << "Untoggled, go up";
+	else
 		control_->move(upValue_);
-	}
 }
 
 void AMControlButton::setHappy(bool happy) {

@@ -350,11 +350,11 @@ void SGMBeamline::usingFakeBeamline(){
 	sgmPVName = amNames2pvNames_.valueF("fastShutterVoltage");
 	fastShutterVoltage_ = new AMPVControl("fastShutterVoltage", sgmPVName, sgmPVName, "", this);
 	sgmPVName = amNames2pvNames_.valueF("gratingVelocity");
-	gratingVelocity_ = new AMPVControl("gratingVelocity", sgmPVName, sgmPVName, "", this);
+	gratingVelocity_ = new AMPVControl("gratingVelocity", sgmPVName, sgmPVName, "", this, 0.1);
 	sgmPVName = amNames2pvNames_.valueF("gratingBaseVelocity");
-	gratingBaseVelocity_ = new AMPVControl("gratingBaseVelocity", sgmPVName, sgmPVName, "", this);
+	gratingBaseVelocity_ = new AMPVControl("gratingBaseVelocity", sgmPVName, sgmPVName, "", this, 0.1);
 	sgmPVName = amNames2pvNames_.valueF("gratingAcceleration");
-	gratingAcceleration_ = new AMPVControl("gratingAcceleration", sgmPVName, sgmPVName, "", this);
+	gratingAcceleration_ = new AMPVControl("gratingAcceleration", sgmPVName, sgmPVName, "", this, 0.1);
 
 	sgmPVName = amNames2pvNames_.valueF("ea1CloseVacuum1");
 	ea1CloseVacuum1_ = new AMPVControl("ea1CloseVacuum1", sgmPVName, sgmPVName, "", this);
@@ -807,7 +807,7 @@ void SGMBeamline::onControlSetConnected(bool csConnected){
 	AMControlSet *ctrlSet = (AMControlSet*)QObject::sender();
 
 	if(csConnected){
-		qDebug() << ctrlSet->name() << " is connected";
+		//qDebug() << ctrlSet->name() << " is connected";
 		unconnectedSets_.removeAll(ctrlSet);
 		if(!teyDetector_ && ctrlSet->name() == "TEY Controls"){
 			teyDetector_ = new AMSingleControlDetector(tey_->name(), tey_, this);
@@ -846,12 +846,14 @@ void SGMBeamline::onControlSetConnected(bool csConnected){
 			unconnectedSets_.append(ctrlSet);
 			emit controlSetConnectionschanged();
 		}
-		qDebug() << ctrlSet->name() << " is NOT connected";
+		//qDebug() << ctrlSet->name() << " is NOT connected";
 	}
+	/*
 	QString tmpStr = "Unconnected at end";
 	for(int x = 0; x < unconnectedSets_.count(); x++)
 		tmpStr.append(" "+unconnectedSets_.at(x)->name());
 	qDebug() << tmpStr;
+	*/
 }
 
 void SGMBeamline::createBeamOnActions(){
