@@ -263,14 +263,25 @@ void AMBeamlineScanActionView::updateScanNameLabel(){
 		scanName.setNum(index_);
 		scanName.append(". ");
 	}
-	if(qobject_cast<SGMXASScanConfiguration*>(scanAction_->cfg())){
+	SGMXASScanConfiguration *xasCfg = 0;
+	SGMFastScanConfiguration *fastCfg = 0;
+
+//	if(qobject_cast<SGMXASScanConfiguration*>(scanAction_->cfg())){
+	if(xasCfg = qobject_cast<SGMXASScanConfiguration*>(scanAction_->cfg())){
 		scanName += "SGM XAS Scan from ";
-		tmpStr.setNum( ((SGMXASScanConfiguration*)scanAction_->cfg())->regionStart(0) );
+		//tmpStr.setNum( ((SGMXASScanConfiguration*)scanAction_->cfg())->regionStart(0) );
+		tmpStr.setNum( xasCfg->regionStart(0) );
 		scanName.append(tmpStr+" to ");
-		tmpStr.setNum( ((SGMXASScanConfiguration*)scanAction_->cfg())->regionEnd(((SGMXASScanConfiguration*)scanAction_->cfg())->regionCount()-1) );
+		//tmpStr.setNum( ((SGMXASScanConfiguration*)scanAction_->cfg())->regionEnd(((SGMXASScanConfiguration*)scanAction_->cfg())->regionCount()-1) );
+		tmpStr.setNum( xasCfg->regionEnd(xasCfg->regionCount()-1) );
 		scanName.append(tmpStr);
 		scanNameLabel_->setText(scanName);
 	}
+	if(fastCfg = qobject_cast<SGMFastScanConfiguration*>(scanAction_->cfg())){
+		scanName += QString("SGM Fast Scan from %1 to %2").arg(fastCfg->start()).arg(fastCfg->end());
+		scanNameLabel_->setText(scanName);
+	}
+
 }
 
 void AMBeamlineScanActionView::updateProgressBar(double elapsed, double total){

@@ -53,7 +53,7 @@ protected:
 	AMScanConfigurationView* scanConfigurationView_;
 	SGMXASScanConfigurationViewer* xasScanConfigurationViewer_;
 	SGMFastScanConfigurationViewer* fastScanConfigurationViewer_;
-	AMXASScanConfigurationHolder* scanConfigurationHolder_;
+	AMXASScanConfigurationHolder* xasScanConfigurationHolder_;
 	AMFastScanConfigurationHolder* fastScanConfigurationHolder_;
 	SGMSidebar* sgmSidebar_;
 

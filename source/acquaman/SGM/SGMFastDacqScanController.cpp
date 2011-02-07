@@ -75,6 +75,11 @@ void SGMFastDacqScanController::start(){
 	*/
 	generalScan_ = specificScan_;
 	usingSpectraDotDatFile_ = true;
+	//if(!autoSavePath_.isEmpty())
+	if(!pCfg()->sensibleFileSavePath().isEmpty()){
+		qDebug() << "Setting an auto save path: " << pCfg()->finalizedSavePath();
+		pScan()->setAutoExportFilePath(pCfg()->finalizedSavePath());
+	}
 	AMDacqScanController::start();
 }
 
@@ -107,7 +112,6 @@ bool SGMFastDacqScanController::event(QEvent *e){
 	else
 		return AMDacqScanController::event(e);
 }
-
 
 AMnDIndex SGMFastDacqScanController::toScanIndex(QMap<int, double> aeData){
 	// SGM XAS Scan has only one dimension (energy), simply append to the end of this

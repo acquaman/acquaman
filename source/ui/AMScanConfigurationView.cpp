@@ -82,6 +82,7 @@ void AMScanConfigurationHolder::goToQueue(){
 }
 
 void AMScanConfigurationHolder::goToNewScan(){
+	qDebug() << "goToNewScan";
 	destroyScanConfigurationViewer();
 	onBecameCurrentWidget();
 }
@@ -340,6 +341,18 @@ AMFastScanConfigurationHolder::AMFastScanConfigurationHolder(QWidget *parent) :
 	vl_ = NULL;
 	cfg_ = NULL;
 	sfscViewer_ = NULL;
+
+	autoSavePath_ = "";
+
+	requestedStart_ = false;
+	canStartImmediately_ = false;
+	director = new AMScanConfigurationQueueDirector();
+	director->setWindowModality(Qt::ApplicationModal);
+	sDirector = new AMScanConfigurationScanDirector();
+	sDirector->setWindowModality(Qt::ApplicationModal);
+
+	connect(director, SIGNAL(goToQueue()), this, SLOT(goToQueue()));
+	connect(director, SIGNAL(goToNewScan()), this, SLOT(goToNewScan()));
 }
 
 AMFastScanConfigurationHolder::~AMFastScanConfigurationHolder()
@@ -352,6 +365,9 @@ void AMFastScanConfigurationHolder::onBecameCurrentWidget()
 		createScanConfiguration();
 		sfscViewer_ = new SGMFastScanConfigurationViewer(cfg());
 		connect(sfscViewer_, SIGNAL(startScanRequested()), this, SLOT(onStartScanRequested()));
+		connect(sfscViewer_, SIGNAL(addToQueueRequested()), this, SLOT(onAddToQueueRequested()));
+		connect(sfscViewer_, SIGNAL(queueDirectorRequested()), director, SLOT(show()));
+		connect(this, SIGNAL(lockdownScanning(bool,QString)), sfscViewer_, SLOT(onLockdowScanning(bool,QString)));
 		/*
 		connect(sxscViewer, SIGNAL(startScanRequested()), this, SLOT(onStartScanRequested()));
 		connect(sxscViewer, SIGNAL(addToQueueRequested()), this, SLOT(onAddToQueueRequested()));
@@ -373,6 +389,9 @@ void AMFastScanConfigurationHolder::createScanConfiguration(){
 	cfg_ = new SGMFastScanConfiguration(this);
 	cfg_->setFileName("daveData.%03d.dat");
 	cfg_->setFilePath(AMUserSettings::userDataFolder);
+	if(!autoSavePath_.isEmpty())
+		cfg()->setSensibleFileSavePath(autoSavePath_);
+	connect(cfg(), SIGNAL(onSensibleFileSavePathChanged(QString)), this, SLOT(setAutoSavePath(QString)));
 
 	/*
 	cfgDetectorInfoSet_ = new AMDetectorInfoSet(this);
@@ -395,15 +414,18 @@ void AMFastScanConfigurationHolder::createScanConfiguration(){
 }
 
 void AMFastScanConfigurationHolder::destroyScanConfigurationViewer(){
-	/*
-	if(sfscViewer){
-		disconnect(sxscViewer, SIGNAL(startScanRequested()), this, SLOT(onStartScanRequested()));
-		disconnect(sxscViewer, SIGNAL(addToQueueRequested()), this, SLOT(onAddToQueueRequested()));
-		disconnect(sxscViewer, SIGNAL(queueDirectorRequested()), director, SLOT(show()));
-		disconnect(this, SIGNAL(lockdownScanning(bool,QString)), sxscViewer, SLOT(onLockdowScanning(bool,QString)));
-		vl_->removeWidget(sxscViewer);
-		delete sxscViewer;
-		sxscViewer = NULL;
+	qDebug() << "Trying to destroy fast scan viewer";
+	if(sfscViewer_){
+		disconnect(sfscViewer_, SIGNAL(startScanRequested()), this, SLOT(onStartScanRequested()));
+		disconnect(sfscViewer_, SIGNAL(addToQueueRequested()), this, SLOT(onAddToQueueRequested()));
+		disconnect(sfscViewer_, SIGNAL(queueDirectorRequested()), director, SLOT(show()));
+		disconnect(this, SIGNAL(lockdownScanning(bool,QString)), sfscViewer_, SLOT(onLockdowScanning(bool,QString)));
+		vl_->removeWidget(sfscViewer_);
+		delete sfscViewer_;
+		sfscViewer_ = NULL;
 	}
-	*/
+}
+
+void AMFastScanConfigurationHolder::setAutoSavePath(const QString &autoSavePath){
+	autoSavePath_ = autoSavePath;
 }

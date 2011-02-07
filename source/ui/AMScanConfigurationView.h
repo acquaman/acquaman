@@ -189,11 +189,15 @@ protected slots:
 	void createScanConfiguration();
 	void destroyScanConfigurationViewer();
 
+	void setAutoSavePath(const QString& autoSavePath);
+
 private:
 	SGMFastScanConfiguration* cfg() { return qobject_cast<SGMFastScanConfiguration*>(cfg_);}
 
 protected:
 	SGMFastScanConfigurationViewer *sfscViewer_;
+
+	QString autoSavePath_;
 
 	QVBoxLayout *vl_;
 };

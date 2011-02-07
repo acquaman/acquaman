@@ -21,10 +21,12 @@ signals:
 	// inherits dataChanged(AMScan*)
 
 public slots:
+	void setAutoExportFilePath(const QString &autoExportFilePath);
 
 protected slots:
 
 protected:
+	QString autoExportFilePath_;
 	friend class SGM2010FastFileLoader;
 	friend class SGM2010FastSensibleFileLoader;
 };

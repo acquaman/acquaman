@@ -36,26 +36,30 @@ bool SGMAppController::startup() {
 
 		mw_->insertHeading("Experiment Setup", 1);
 		//////////
-		scanConfigurationHolder_ = new AMXASScanConfigurationHolder();
-		mw_->addPane(scanConfigurationHolder_, "Experiment Setup", "SGM XAS Scan", ":/utilities-system-monitor.png");
+		xasScanConfigurationHolder_ = new AMXASScanConfigurationHolder();
+		mw_->addPane(xasScanConfigurationHolder_, "Experiment Setup", "SGM XAS Scan", ":/utilities-system-monitor.png");
 
 		fastScanConfigurationHolder_ = new AMFastScanConfigurationHolder();
 		mw_->addPane(fastScanConfigurationHolder_, "Experiment Setup", "SGM Fast Scan", ":/utilities-system-monitor.png");
 
 
-		connect(workflowManagerView_, SIGNAL(freeToScan(bool, bool)), scanConfigurationHolder_, SLOT(onFreeToScan(bool, bool)));
-		connect(workflowManagerView_, SIGNAL(lockdownScanning(bool,QString)), scanConfigurationHolder_, SLOT(onLockdownScanning(bool,QString)));
-		connect(scanConfigurationHolder_, SIGNAL(addToQueueRequested(AMScanConfiguration*, bool)), workflowManagerView_, SLOT(onAddScanRequested(AMScanConfiguration*, bool)));
-		connect(scanConfigurationHolder_, SIGNAL(cancelAddToQueueRequest()), workflowManagerView_, SLOT(onCancelAddScanRequest()));
-		connect(workflowManagerView_, SIGNAL(addedScan(AMScanConfiguration*)), scanConfigurationHolder_, SLOT(onAddedToQueue(AMScanConfiguration*)));
-		connect(fastScanConfigurationHolder_, SIGNAL(addToQueueRequested(AMScanConfiguration*,bool)), workflowManagerView_, SLOT(onAddScanRequested(AMScanConfiguration*,bool)));
+		connect(workflowManagerView_, SIGNAL(freeToScan(bool, bool)), xasScanConfigurationHolder_, SLOT(onFreeToScan(bool, bool)));
+		connect(workflowManagerView_, SIGNAL(lockdownScanning(bool,QString)), xasScanConfigurationHolder_, SLOT(onLockdownScanning(bool,QString)));
+		connect(xasScanConfigurationHolder_, SIGNAL(addToQueueRequested(AMScanConfiguration*, bool)), workflowManagerView_, SLOT(onAddScanRequested(AMScanConfiguration*, bool)));
+		connect(xasScanConfigurationHolder_, SIGNAL(cancelAddToQueueRequest()), workflowManagerView_, SLOT(onCancelAddScanRequest()));
+		connect(workflowManagerView_, SIGNAL(addedScan(AMScanConfiguration*)), xasScanConfigurationHolder_, SLOT(onAddedToQueue(AMScanConfiguration*)));
 
-		connect(scanConfigurationHolder_, SIGNAL(goToQueueRequested()), this, SLOT(goToWorkflow()));
-		connect(scanConfigurationHolder_, SIGNAL(newScanConfigurationView()), workflowManagerView_, SLOT(onNewScanConfigurationView()));
+		connect(xasScanConfigurationHolder_, SIGNAL(goToQueueRequested()), this, SLOT(goToWorkflow()));
+		connect(xasScanConfigurationHolder_, SIGNAL(newScanConfigurationView()), workflowManagerView_, SLOT(onNewScanConfigurationView()));
 
+		connect(workflowManagerView_, SIGNAL(freeToScan(bool, bool)), fastScanConfigurationHolder_, SLOT(onFreeToScan(bool, bool)));
+		connect(workflowManagerView_, SIGNAL(lockdownScanning(bool,QString)), fastScanConfigurationHolder_, SLOT(onLockdownScanning(bool,QString)));
+		connect(fastScanConfigurationHolder_, SIGNAL(addToQueueRequested(AMScanConfiguration*, bool)), workflowManagerView_, SLOT(onAddScanRequested(AMScanConfiguration*, bool)));
+		connect(fastScanConfigurationHolder_, SIGNAL(cancelAddToQueueRequest()), workflowManagerView_, SLOT(onCancelAddScanRequest()));
+		connect(workflowManagerView_, SIGNAL(addedScan(AMScanConfiguration*)), fastScanConfigurationHolder_, SLOT(onAddedToQueue(AMScanConfiguration*)));
 
-
-
+		connect(fastScanConfigurationHolder_, SIGNAL(goToQueueRequested()), this, SLOT(goToWorkflow()));
+		connect(fastScanConfigurationHolder_, SIGNAL(newScanConfigurationView()), workflowManagerView_, SLOT(onNewScanConfigurationView()));
 
 
 		connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerCreated()), this, SLOT(onCurrentScanControllerCreated()));
@@ -90,8 +94,8 @@ void SGMAppController::shutdown() {
 void SGMAppController::onCurrentPaneChanged(QWidget *pane) {
 
 	// If the scanConfigurationHolder pane was activated, let it know:
-	if(pane == scanConfigurationHolder_)
-		scanConfigurationHolder_->onBecameCurrentWidget();
+	if(pane == xasScanConfigurationHolder_)
+		xasScanConfigurationHolder_->onBecameCurrentWidget();
 	else if(pane == fastScanConfigurationHolder_)
 		fastScanConfigurationHolder_->onBecameCurrentWidget();
 
