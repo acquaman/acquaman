@@ -12,6 +12,9 @@ void SGMFastDacqScanController::initialize(){
 		#warning "Do we need to also clear any raw data sources here, or just the raw data itself?"
 		pScan()->clearRawDataPoints();
 		connect(initializationActions_, SIGNAL(listSucceeded()), this, SLOT(onInitializationActionsSucceeded()));
+		connect(initializationActions_, SIGNAL(stageStarted(int)), this, SLOT(onInitializationActionsStageStarted(int)));
+		connect(initializationActions_, SIGNAL(stageSucceeded(int)), this, SLOT(onInitializationActionsStageSucceeded(int)));
+		connect(initializationActions_, SIGNAL(stageProgress(double,double)), this, SLOT(onInitializationActionsStageProgress(double,double)));
 		initializationActions_->start();
 		/*
 		emit initialized();
@@ -43,7 +46,6 @@ void SGMFastDacqScanController::start(){
 	else
 		loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/defaultEnergy.cfg"));
 	*/
-	qDebug() << "Trying to load FAST SCAN";
 	loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/Scalar_Fast.config"));
 	if(!loadSuccess){
 		qDebug() << "LIBRARY FAILED TO LOAD CONFIG FILE";
@@ -76,10 +78,8 @@ void SGMFastDacqScanController::start(){
 	generalScan_ = specificScan_;
 	usingSpectraDotDatFile_ = true;
 	//if(!autoSavePath_.isEmpty())
-	if(!pCfg()->sensibleFileSavePath().isEmpty()){
-		qDebug() << "Setting an auto save path: " << pCfg()->finalizedSavePath();
+	if(!pCfg()->sensibleFileSavePath().isEmpty())
 		pScan()->setAutoExportFilePath(pCfg()->finalizedSavePath());
-	}
 	AMDacqScanController::start();
 }
 
@@ -89,10 +89,12 @@ bool SGMFastDacqScanController::event(QEvent *e){
 		QMap<int, QList<double> > aeSpectra = ((AMAcqEvent*)e)->spectraPackage_;
 		QMap<int, double>::const_iterator i = aeData.constBegin();
 		QMap<int, QList<double> >::const_iterator j = aeSpectra.constBegin();
+		qDebug() << "Received fast scan data event " << i.key() << aeData.count() << aeSpectra.count();
 		// Fast scan should be one scalar value (the initial energy value) and one spectral value (the scaler with all the data)
 		// There will be N*1000 elements of the scaler waveform, where N is the number of channels (detectors) being acquired
 		// We have already set the energy axis as uniform with the proper start and increment, so we can ignore the energy value in aeData
 		if(i.key() == 0 && aeData.count() == 1 && aeSpectra.count() == 1){
+			qDebug() << "And doing something with it";
 			while(j != aeSpectra.constEnd()){
 				for(int x = 0; x < j.value().count()-1; x++){
 					if(x%4 == 0){
@@ -106,6 +108,7 @@ bool SGMFastDacqScanController::event(QEvent *e){
 				++j;
 			}
 		}
+		qDebug() << "But not doing anything with it";
 		e->accept();
 		return true;
 	}
@@ -118,7 +121,6 @@ AMnDIndex SGMFastDacqScanController::toScanIndex(QMap<int, double> aeData){
 	return AMnDIndex(pScan()->rawData()->scanSize(0));
 }
 void SGMFastDacqScanController::onStop(){
-	qDebug() << "Called onStop() in FastDacqScanController";
 	running_ = FALSE;
 	if(cancelled_)
 		cancelled_ = FALSE;
@@ -126,9 +128,26 @@ void SGMFastDacqScanController::onStop(){
 		onScanFinished();
 }
 
+void SGMFastDacqScanController::onSendCompletion(int completion){
+	qDebug() << "Dacq stage " << advAcq_->getStatus() << " is " << completion << " complete";
+}
+
 void SGMFastDacqScanController::onInitializationActionsSucceeded(){
-	qDebug() << "Fast Scan: Initialization Actions Succeeded and emiting initialized";
+	qDebug() << "Initialization actions done for fast scan";
+	SGMBeamline::sgm()->scalerTotalNumberOfScans()->move(1000);
 	emit initialized();
+}
+
+void SGMFastDacqScanController::onInitializationActionsStageStarted(int stageIndex){
+	qDebug() << "Initialization stage " << stageIndex << " started";
+}
+
+void SGMFastDacqScanController::onInitializationActionsStageSucceeded(int stageIndex){
+	qDebug() << "Initialization stage " << stageIndex << " succeeded";
+}
+
+void SGMFastDacqScanController::onInitializationActionsStageProgress(double elapsed, double total){
+	qDebug() << "Stage is " << (elapsed/total)*100 << " percent done";
 }
 
 void SGMFastDacqScanController::onScanFinished(){

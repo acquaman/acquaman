@@ -45,6 +45,7 @@ AMDacqScanController::AMDacqScanController(AMScanConfiguration *cfg, QObject *pa
 	connect(advAcq_, SIGNAL(onStop()), this, SLOT(onStop()));
 	connect(advAcq_, SIGNAL(onPause(int)), this, SLOT(onPause(int)));
 	connect(advAcq_, SIGNAL(sendCompletion(int)), this, SLOT(onSendCompletion(int)));
+	connect(advAcq_, SIGNAL(onState(QString)), this, SLOT(onState(QString)));
 	usingSpectraDotDatFile_ = false;
 }
 
@@ -159,4 +160,8 @@ void AMDacqScanController::onSendCompletion(int completion){
 	double remaining = (completion != 0) ? (100*tc)/((double)completion) - tc : tc*100000;
 	emit timeRemaining(remaining);
 	emit progress(tc, tc+remaining);
+}
+
+void AMDacqScanController::onState(const QString& state){
+	qDebug() << "State of dacq is " << state;
 }

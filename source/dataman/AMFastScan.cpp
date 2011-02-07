@@ -38,7 +38,7 @@ bool AMFastScan::storeToDb(AMDatabase *db){
 	if(succeeded){
 		SGM2010FastSensibleFileLoader sgmLoader(this);
 		//sgmLoader.saveToFile("/Users/fawkes/Documents/CLS/SGM/ACQUAMANDATA/"+QDateTime::currentDateTime().toString()+".dat");
-		qDebug() << "I want to auto save the fast scan to " << autoExportFilePath_;
+		//qDebug() << "I want to auto save the fast scan to " << autoExportFilePath_;
 		if(!autoExportFilePath_.isEmpty()){
 			if(QFile::exists(autoExportFilePath_)){
 				autoExportFilePath_.truncate(autoExportFilePath_.indexOf('_'));
@@ -55,7 +55,7 @@ bool AMFastScan::storeToDb(AMDatabase *db){
 					aIndex = f.indexOf(".dat");
 					maxIndex = std::max(f.mid(pIndex+1, aIndex-(pIndex+1)).toInt(), maxIndex);
 				}
-				qDebug() << "File will be renamed" << QString("%1_%2.dat").arg(file).arg(maxIndex+1);
+				//qDebug() << "File will be renamed" << QString("%1_%2.dat").arg(file).arg(maxIndex+1);
 				autoExportFilePath_.append(QString("_%2.dat").arg(maxIndex+1));
 			}
 			sgmLoader.saveToFile(autoExportFilePath_);

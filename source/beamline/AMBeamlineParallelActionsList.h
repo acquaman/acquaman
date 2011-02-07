@@ -60,6 +60,7 @@ class AMBeamlineParallelActionsList : public QObject
 		void actionReady(int stageIndex, int index, bool ready);
 		void stageFailed(int stageIndex, QList<int> index, int explanation);
 		void actionFailed(int stageIndex, int index, int explanation);
+		void stageProgress(double, double);
 
 	private slots:
 		void onDataChanged(QModelIndex a,QModelIndex b);
@@ -71,11 +72,14 @@ class AMBeamlineParallelActionsList : public QObject
 		void onActionSucceeded();
 		void onActionReady(bool ready);
 		void onActionFailed(int explanation);
+		void onActionProgress(double, double);
+		void onStageStarted(int stageIndex);
 		void onStageSucceeded();
 
 	protected:
 		AMBeamlineParallelActionListModel *actions_;
 		AMBiHash<QList<AMBeamlineActionItem*>*, AMBeamlineParallelActionsListHolder*> holdersHash_;
+		QList<double> lastIndexProgress_;
 
 		virtual bool setupModel();
 

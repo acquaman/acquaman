@@ -337,6 +337,11 @@ void AMProcessVariable::controlInfoCB(struct event_handler_args eventArgs) {
 			lowerLimit_ = -DBL_MAX;
 			upperLimit_ = DBL_MAX;
 		}
+		else if(ctrlValue->lower_ctrl_limit > ctrlValue->upper_ctrl_limit){
+			//In this case we're pinned again
+			lowerLimit_ = -DBL_MAX;
+			upperLimit_ = DBL_MAX;
+		}
 		else {
 			lowerLimit_ = ctrlValue->lower_ctrl_limit;
 			upperLimit_ = ctrlValue->upper_ctrl_limit;

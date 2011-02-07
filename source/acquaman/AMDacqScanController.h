@@ -65,10 +65,11 @@ protected:
 	QTime startTime_;
 
 protected slots:
-	void onStart();
+	virtual void onStart();
 	virtual void onStop();
-	void onPause(int mode);
-	void onSendCompletion(int completion);
+	virtual void onPause(int mode);
+	virtual void onSendCompletion(int completion);
+	virtual void onState(const QString& state);
 
 private:
 	AMScanConfiguration **_pCfg_;

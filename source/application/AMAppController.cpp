@@ -184,7 +184,6 @@ void AMAppController::onActionImport() {
 }
 
 void AMAppController::goToWorkflow() {
-	qDebug() << "goToWorkflow goes to queue";
 	mw_->goToPane(workflowManagerView_);
 }
 

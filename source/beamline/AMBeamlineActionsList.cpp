@@ -367,7 +367,7 @@ void AMBeamlineActionsQueue::onActionAdded(int index){
 }
 
 void AMBeamlineActionsQueue::onActionRemoved(int index){
-	qDebug() << "Want to remove row " << index << " head is " << index;
+	//qDebug() << "Want to remove row " << index << " head is " << index;
 	if(index == headIndex_){
 		if(headIndex_ == fullList_->count()){
 			headIndex_ = -1;

@@ -106,7 +106,7 @@ void SGMAppController::onCurrentPaneChanged(QWidget *pane) {
 #include "ui/AMGenericScanEditor.h"
 
 void SGMAppController::onCurrentScanControllerCreated(){
-	qDebug() << "Detected creation of " << (int)AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController();
+	//qDebug() << "Detected creation of " << (int)AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController();
 
 	AMGenericScanEditor *scanEditor = new AMGenericScanEditor();
 	scanEditorsParentItem_->appendRow(new AMScanEditorModelItem(scanEditor, ":/applications-science.png"));
@@ -125,12 +125,12 @@ void SGMAppController::onCurrentScanControllerCreated(){
 }
 
 void SGMAppController::onCurrentScanControllerDestroyed(){
-	qDebug() << "Detected deletion of " << (int)AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController();
+	//qDebug() << "Detected deletion of " << (int)AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController();
 	scanControllerActiveEditor_ = 0;
 }
 
 void SGMAppController::onCurrentScanControllerReinitialized(bool removeScan){
-	qDebug() << "Trying to reinitialize with scan editor " << scanControllerActiveEditor_;
+	//qDebug() << "Trying to reinitialize with scan editor " << scanControllerActiveEditor_;
 
 	if(!scanControllerActiveEditor_) {
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -13, "Error while re-initializing the scan controller; there is no active scan editor window. This is a bug and you should report it to the Acquaman developers."));

@@ -69,8 +69,12 @@ void SGMBeamline::usingSGMBeamline(){
 	amNames2pvNames_.set("beamlineReady", "BL1611-ID-1:beam:status");
 	amNames2pvNames_.set("energyMovingStatus", "BL1611-ID-1:ready");
 	amNames2pvNames_.set("fastShutterVoltage", "PSH16114I1001:V");
-	amNames2pvNames_.set("scalarMode", "BL1611-ID-1:mcs:continuous");
-	amNames2pvNames_.set("scalarStart", "BL1611-ID-1:mcs:startScan");
+	amNames2pvNames_.set("scalerMode", "BL1611-ID-1:mcs:continuous");
+	amNames2pvNames_.set("scalerStart", "BL1611-ID-1:mcs:startScan");
+	amNames2pvNames_.set("scaler", "BL1611-ID-1:mcs:scan");
+	amNames2pvNames_.set("scalerIntegrationTime", "BL1611-ID-1:mcs:delay");
+	amNames2pvNames_.set("scalerScansPerBuffer", "BL1611-ID-1:mcs:nscan");
+	amNames2pvNames_.set("scalerTotalNumberOfScans", "BL1611-ID-1:mcs:scanCount");
 	amNames2pvNames_.set("gratingVelocity", "SMTR16114I1002:velo");
 	amNames2pvNames_.set("gratingBaseVelocity", "SMTR16114I1002:veloBase");
 	amNames2pvNames_.set("gratingAcceleration", "SMTR16114I1002:accel");
@@ -91,7 +95,7 @@ void SGMBeamline::usingSGMBeamline(){
 	energy_ = new AMPVwStatusControl("energy", sgmPVName+":fbk", sgmPVName, "BL1611-ID-1:ready", sgmPVName, this, 0.01);
 	sgmPVName = amNames2pvNames_.valueF("mono");
 	//AMReadOnlyPVwStatusControl *mono = new AMReadOnlyPVwStatusControl("mono", sgmPVName+":enc:fbk", sgmPVName+":moving", energy_);
-	AMPVwStatusControl *mono = new AMPVwStatusControl("mono", sgmPVName+":enc:fbk", sgmPVName+"encTarget", sgmPVName+":moving", "SMTR1611I1002:stop", energy_, 5);
+	AMPVwStatusControl *mono = new AMPVwStatusControl("mono", sgmPVName+":enc:fbk", sgmPVName+":encTarget", sgmPVName+":moving", "SMTR16114I1002:stop", energy_, 5);
 	sgmPVName = amNames2pvNames_.valueF("undulator");
 	//AMReadOnlyPVwStatusControl *undulator = new AMReadOnlyPVwStatusControl("undulator", sgmPVName+":gap:mm:fbk", sgmPVName+":moveStatus", energy_);
 	AMPVwStatusControl *undulator = new AMPVwStatusControl("undulator", sgmPVName+":gap:mm:fbk", sgmPVName+":gap:mm", sgmPVName+":moveStatus", "UND1411-01:stop", energy_, 0.1);
@@ -183,11 +187,11 @@ void SGMBeamline::usingSGMBeamline(){
 	sgmPVName = amNames2pvNames_.valueF("fastShutterVoltage");
 	fastShutterVoltage_ = new AMPVControl("fastShutterVoltage", sgmPVName, sgmPVName, "", this);
 	sgmPVName = amNames2pvNames_.valueF("gratingVelocity");
-	gratingVelocity_ = new AMPVControl("gratingVelocity", sgmPVName, sgmPVName, "", this);
+	gratingVelocity_ = new AMPVControl("gratingVelocity", sgmPVName, sgmPVName, "", this, 1);
 	sgmPVName = amNames2pvNames_.valueF("gratingBaseVelocity");
-	gratingBaseVelocity_ = new AMPVControl("gratingBaseVelocity", sgmPVName, sgmPVName, "", this);
+	gratingBaseVelocity_ = new AMPVControl("gratingBaseVelocity", sgmPVName, sgmPVName, "", this, 1);
 	sgmPVName = amNames2pvNames_.valueF("gratingAcceleration");
-	gratingAcceleration_ = new AMPVControl("gratingAcceleration", sgmPVName, sgmPVName, "", this);
+	gratingAcceleration_ = new AMPVControl("gratingAcceleration", sgmPVName, sgmPVName, "", this, 1);
 	sgmPVName = amNames2pvNames_.valueF("ea1CloseVacuum1");
 	ea1CloseVacuum1_ = new AMPVControl("ea1CloseVacuum1", sgmPVName, sgmPVName, "", this);
 	sgmPVName = amNames2pvNames_.valueF("ea1CloseVacuum2");
@@ -202,6 +206,15 @@ void SGMBeamline::usingSGMBeamline(){
 	visibleLightStatus_ = new AMReadOnlyPVControl("visibleLightStatus", sgmPVName, this);
 	sgmPVName = amNames2pvNames_.valueF("activeEndstation");
 	activeEndstation_ = new AMPVControl("activeEndstation", sgmPVName, sgmPVName, "", this);
+
+	sgmPVName = amNames2pvNames_.valueF("scalerIntegrationTime");
+	scalerIntegrationTime_ = new AMPVControl("scalerIntegrationTime", sgmPVName, sgmPVName, "", this, 0.1);
+	sgmPVName = amNames2pvNames_.valueF("scalerMode");
+	scalerMode_ = new AMPVControl("scalerMode", sgmPVName, sgmPVName, "", this, 0.1);
+	sgmPVName = amNames2pvNames_.valueF("scalerTotalNumberOfScans");
+	scalerTotalNumberOfScans_ = new AMPVControl("scalerTotalNumberOfScans", sgmPVName, sgmPVName, "", this, 0.5);
+	sgmPVName = amNames2pvNames_.valueF("scalerScansPerBuffer");
+	scalerScansPerBuffer_ = new AMPVControl("scalerScansPerBuffer", sgmPVName, sgmPVName, "", this, 0.5);
 }
 
 void SGMBeamline::usingFakeBeamline(){
@@ -248,7 +261,8 @@ void SGMBeamline::usingFakeBeamline(){
 	amNames2pvNames_.set("scalerStart", "reixsHost:scaler:start");
 	amNames2pvNames_.set("scaler", "reixsHost:scaler:spectrum");
 	amNames2pvNames_.set("scalerIntegrationTime", "reixsHost:scaler:integrationTime");
-	amNames2pvNames_.set("scalerNumBins", "reixsHost:scaler:numBins");
+	amNames2pvNames_.set("scalerScansPerBuffer", "reixsHost:scaler:nscan");
+	amNames2pvNames_.set("scalerTotalNumberOfScans", "reixsHost:scaler:scanCount");
 	amNames2pvNames_.set("gratingVelocity", "reixsHost:mono:velo");
 	amNames2pvNames_.set("gratingBaseVelocity", "reixsHost:mono:veloBase");
 	amNames2pvNames_.set("gratingAcceleration", "reixsHost:mono:accel");
@@ -381,15 +395,17 @@ void SGMBeamline::usingFakeBeamline(){
 
 	sgmPVName = amNames2pvNames_.valueF("scalerIntegrationTime");
 	scalerIntegrationTime_ = new AMPVControl("scalerIntegrationTime", sgmPVName, sgmPVName, "", this);
-	sgmPVName = amNames2pvNames_.valueF("scalerNumBins");
-	scalerNumBins_ = new AMPVControl("scalerNumBins", sgmPVName, sgmPVName, "", this);
+	sgmPVName = amNames2pvNames_.valueF("scalerScansPerBuffer");
+	scalerScansPerBuffer_ = new AMPVControl("scalerScansPerBuffer", sgmPVName, sgmPVName, "", this);
+	sgmPVName = amNames2pvNames_.valueF("scalerTotalNumberOfScans");
+	scalerTotalNumberOfScans_ = new AMPVControl("scalerTotalNumberOfScans", sgmPVName, sgmPVName, "", this);
 	sgmPVName = amNames2pvNames_.valueF("scalerMode");
 	scalerMode_ = new AMPVControl("scalerMode", sgmPVName, sgmPVName, "", this);
 }
 
 SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
-	usingFakeBeamline();
-	//usingSGMBeamline();
+	//usingFakeBeamline();
+	usingSGMBeamline();
 
 	beamlineWarnings_ = "";
 	connect(this, SIGNAL(criticalControlsConnectionsChanged()), this, SLOT(recomputeWarnings()));
@@ -439,7 +455,8 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	addChildControl(visibleLightStatus_);
 	connect(visibleLightStatus_, SIGNAL(valueChanged(double)), this, SLOT(onVisibleLightChanged(double)));
 	addChildControl(scalerIntegrationTime_);
-	addChildControl(scalerNumBins_);
+	addChildControl(scalerScansPerBuffer_);
+	addChildControl(scalerTotalNumberOfScans_);
 	addChildControl(scalerMode_);
 
 	criticalControlsSet_ = new AMControlSet(this);

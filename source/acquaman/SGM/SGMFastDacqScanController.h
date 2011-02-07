@@ -30,8 +30,13 @@ protected:
 protected slots:
 	// Re-implementing to intercept finished() signal and do cleanup
 	void onStop();
+	// Re-implementing to incorporate initialization actions into progress
+	void onSendCompletion(int completion);
 
 	void onInitializationActionsSucceeded();
+	void onInitializationActionsStageStarted(int stageIndex);
+	void onInitializationActionsStageSucceeded(int stageIndex);
+	void onInitializationActionsStageProgress(double elapsed, double total);
 
 	void onScanFinished();
 

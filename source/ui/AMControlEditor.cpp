@@ -605,9 +605,9 @@ void AMBeamlineActionsListButton::overrideText(const QString &text){
 }
 
 void AMBeamlineActionsListButton::onClicked(){
-	qDebug() << "Trying to start actionsList";
+	//qDebug() << "Trying to start actionsList";
 	if(actionsList_ && actionsList_->count() > 0 && !actionsList_->action(0)->hasFinished()){
-		qDebug() << "Starting it";
+	//	qDebug() << "Starting it";
 		actionsList_->action(0)->start();
 	}
 }

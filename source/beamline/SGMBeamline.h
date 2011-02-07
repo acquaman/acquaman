@@ -114,7 +114,8 @@ public:
 	AMControl* visibleLightStatus() const { return visibleLightStatus_;}
 	AMControl* activeEndstation() const { return activeEndstation_;}
 	AMControl* scalerIntegrationTime() const { return scalerIntegrationTime_;}
-	AMControl* scalerNumBins() const { return scalerNumBins_;}
+	AMControl* scalerScansPerBuffer() const { return scalerScansPerBuffer_;}
+	AMControl* scalerTotalNumberOfScans() const { return scalerTotalNumberOfScans_;}
 	AMControl* scalerMode() const { return scalerMode_;}
 
 
@@ -234,7 +235,8 @@ protected:
 	AMControl *visibleLightStatus_;
 	AMControl *activeEndstation_;
 	AMControl *scalerIntegrationTime_;
-	AMControl *scalerNumBins_;
+	AMControl *scalerScansPerBuffer_;
+	AMControl *scalerTotalNumberOfScans_;
 	AMControl *scalerMode_;
 
 	AMControlSet *teyControlSet_;

@@ -148,7 +148,7 @@ class QEpicsAdvAcq : public QObject
 		void onStart();
 		void onPause(int pause);
 		void onStop();
-		void onState(acqState);
+		void onState(const QString&);
 		void sendStatus(const QString&);
 		void sendCompletion(int);
 		void nextOutputFile(const QString&);

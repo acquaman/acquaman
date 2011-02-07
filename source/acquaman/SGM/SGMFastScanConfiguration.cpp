@@ -193,7 +193,6 @@ bool SGMFastScanConfiguration::setSensibleFileSavePath(const QString &sensibleFi
 		savePathWatcher_.removePath(sensibleFileSavePath_.section('/', 0, -2));
 	sensibleFileSavePath_ = sensibleFileSavePath;
 	savePathWatcher_.addPath(path);
-	qDebug() << "Watching paths: " << savePathWatcher_.directories();
 	QStringList filefilters, likeFiles;
 	filefilters << QString("%1_*.dat").arg(file);
 	likeFiles = dir.entryList(filefilters, QDir::Files);
@@ -204,7 +203,6 @@ bool SGMFastScanConfiguration::setSensibleFileSavePath(const QString &sensibleFi
 		aIndex = f.indexOf(".dat");
 		maxIndex = std::max(f.mid(pIndex+1, aIndex-(pIndex+1)).toInt(), maxIndex);
 	}
-	qDebug() << "File will be called" << QString("%1_%2.dat").arg(file).arg(maxIndex+1);
 	finalizedSavePath_ = QString("%1/%2_%3.dat").arg(path).arg(file).arg(maxIndex+1);
 	emit onNewFinalizedSavePath(finalizedSavePath_);
 	emit onSensibleFileSavePathChanged(sensibleFileSavePath_);
@@ -212,7 +210,6 @@ bool SGMFastScanConfiguration::setSensibleFileSavePath(const QString &sensibleFi
 }
 
 void SGMFastScanConfiguration::onSaveDirectoryChanged(const QString &directory){
-	//qDebug() << "APPARENTLY THE DIRECTORY CHANGED";
 	setSensibleFileSavePath(sensibleFileSavePath_);
 }
 

@@ -170,7 +170,7 @@ void AMBeamlineActionItem::setFinished(bool isFinished){
 }
 
 void AMBeamlineActionItem::initialize(){
-	qDebug() << "AMBeamlineActionItem::initialize()";
+	//qDebug() << "AMBeamlineActionItem::initialize()";
 	ready_.setState(false);
 	started_.setState(false);
 	succeeded_.setState(false);

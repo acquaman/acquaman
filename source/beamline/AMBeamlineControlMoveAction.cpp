@@ -47,9 +47,9 @@ double AMBeamlineControlMoveAction::setpoint(){
 
 void AMBeamlineControlMoveAction::start(){
 //	if(control_ && control_->canMove() && ready_){
-	qDebug() << "Trying to start " << (int)this;
+	//qDebug() << "Trying to start " << (int)this;
 	if(isReady()){
-		qDebug() << "Ready so start " << (int)this;
+		//qDebug() << "Ready so start " << (int)this;
 		connect(this, SIGNAL(finished()), this, SLOT(onFinished()));
 		connect(control_, SIGNAL(moveSucceeded()), this, SLOT(onSucceeded()));
 		connect(control_, SIGNAL(moveFailed(int)), this, SLOT(onFailed(int)));
@@ -128,24 +128,24 @@ void AMBeamlineControlMoveAction::onStarted(){
 }
 
 void AMBeamlineControlMoveAction::onSucceeded(){
-	qDebug() << (int)this << "SUCEEDED";
+	//qDebug() << (int)this << "SUCEEDED";
 	disconnect(control_, 0, this, 0);
 	setSucceeded(true);
 }
 
 void AMBeamlineControlMoveAction::onFailed(int explanation){
-	qDebug() << (int)this << "FAILED";
+	//qDebug() << (int)this << "FAILED";
 	setFailed(true, explanation);
 }
 
 void AMBeamlineControlMoveAction::onFinished(){
-	qDebug() << (int)this << "FINISHED";
+	//qDebug() << (int)this << "FINISHED";
 	progressTimer_.stop();
 	emit progress(1, 1);
 }
 
 void AMBeamlineControlMoveAction::calculateProgress(){
-	qDebug() << "Calculate progress for " << (int)this;
+	//qDebug() << "Calculate progress for " << (int)this;
 	if(control_)
 		emit progress(fabs(control_->value()-startPoint_), fabs(setpoint_-startPoint_));
 }
@@ -275,7 +275,7 @@ void AMBeamlineControlMoveActionView::onStarted(){
 }
 
 void AMBeamlineControlMoveActionView::onSucceeded(){
-	qDebug() << "In move action (view) succeeded";
+	//qDebug() << "In move action (view) succeeded";
 	progressBar_->setValue(progressBar_->maximum());
 
 	progressBar_->setMaximum(100);
