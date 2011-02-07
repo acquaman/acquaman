@@ -23,6 +23,33 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMXESScan::AMXESScan(QObject *parent) :
 	AMScan(parent)
 {
-	//il_ << 3 << 4 << 5;
-	//dl_ << 42.2 << 42.3 << -13.7;
+
 }
+
+
+
+#include "dataman/REIXS/REIXSXESRawFileLoader.h"
+#include "util/AMErrorMonitor.h"
+
+bool AMXESScan::loadDataImplementation() {
+
+	REIXSXESRawFileLoader rawLoader(this);
+
+	if(fileFormat() == rawLoader.formatTag()) {
+		if(rawLoader.loadFromFile(filePath(), false, false, false)) {
+			return true;
+		}
+		else {
+			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, -1, QString("Could not load raw XES scan data from '%1'").arg(filePath())));
+			return false;
+		}
+	}
+
+
+
+	AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, -1, QString("Could not load raw XES scan data. The '%1' file format isn't supported.").arg(fileFormat())));
+	return false;
+}
+
+
+

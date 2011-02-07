@@ -22,44 +22,33 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMXESSCAN_H
 
 #include "dataman/AMScan.h"
-#include "acquaman.h"
 
-class AMXESScan : public AMScan
-{
+
+/// This is a practical subclass of AMScan which provides the details to represent an emission scan (ex: one 2D spectrometer detector, acquired over time, but not scanned in incident energy
+/*! 	\todo detailed doc.
+  */
+class AMXESScan : public AMScan {
 	Q_OBJECT
-	Q_CLASSINFO("AMDbObject_Attributes", "shareTableWithClass=AMScan;description=XRay Absorption Scan")
-
-	Q_PROPERTY(AMIntList intList READ intList WRITE setIntList)
-
-	Q_PROPERTY(AMDoubleList doubleList READ doubleList WRITE setDoubleList)
-	Q_PROPERTY(AMDbObjectList objectList READ objectList WRITE setObjectList)
-
+	Q_CLASSINFO("AMDbObject_Attributes", "shareTableWithClass=AMScan;description=XRay Emission Scan")
 
 public:
-	explicit AMXESScan(QObject *parent = 0);
+	/// create a new XAS scan with the following named \c detectors. Each "detector" is a source of a datapoint, that will be stored/logged, available as a column of raw data, and accessible through channel(s).
+	Q_INVOKABLE explicit AMXESScan(QObject *parent = 0);
 
-	AMIntList intList() const { return il_; }
-	void setIntList(const AMIntList& il) { il_ = il; }
-	AMDoubleList doubleList() const { return dl_; }
-	void setDoubleList(const AMDoubleList& dl) {dl_ = dl; }
-	AMDbObjectList objectList() const { return ol_; }
-	void setObjectList(const AMDbObjectList& ol) { ol_ = ol; }
+	/// Re-implemented from AMScan. Currently only the reixsXESRaw format is supported.
+	virtual bool loadDataImplementation();
 
 signals:
+	// inherits dataChanged(AMScan*)
 
 public slots:
 
+protected slots:
+
 protected:
-	AMIntList il_;
 
 
-	AMDoubleList dl_;
-
-
-	AMDbObjectList ol_;
-
-
-
+	friend class REIXSXESRawFileLoader;
 
 };
 
