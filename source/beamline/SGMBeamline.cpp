@@ -391,6 +391,9 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	usingFakeBeamline();
 	//usingSGMBeamline();
 
+	beamlineWarnings_ = "";
+	connect(this, SIGNAL(criticalControlsConnectionsChanged()), this, SLOT(recomputeWarnings()));
+
 	addChildControl(energy_);
 	addChildControl(exitSlitGap_);
 	addChildControl(entranceSlitGap_);
@@ -456,6 +459,7 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 
 	unconnectedSets_.append(criticalControlsSet_);
 	connect(criticalControlsSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
+	connect(criticalControlsSet_, SIGNAL(controlConnectedChanged(bool,AMControl*)), this, SLOT(onCriticalControlsConnectedChanged(bool,AMControl*)));
 
 	beamOnControlSet_ = new AMControlSet(this);
 	beamOnControlSet_->setName("Beam On Controls");
@@ -659,12 +663,20 @@ QString SGMBeamline::sgmHarmonicName(SGMBeamline::sgmHarmonic harmonic) const {
 		return "thirdHarmonic";
 }
 
+QStringList SGMBeamline::unconnectedCriticals() const{
+	return criticalControlsSet_->unconnected();
+}
+
 bool SGMBeamline::detectorConnectedByName(QString name){
 	for(int x = 0; x < unconnectedSets_.count(); x++){
 		if( QString::compare(unconnectedSets_.at(x)->name().section(' ', 0, 0), name, Qt::CaseInsensitive) == 0)
 			return false;
 	}
 	return true;
+}
+
+QString SGMBeamline::beamlineWarnings(){
+	return beamlineWarnings_;
 }
 
 AMBeamlineControlMoveAction* SGMBeamline::beamOnAction(){
@@ -859,12 +871,12 @@ void SGMBeamline::onControlSetConnected(bool csConnected){
 			photodiodeDetector_->setDescription("Photodiode");
 			allDetectors_->addDetector(photodiodeDetector_, true);
 		}
-		emit controlSetConnectionschanged();
+		emit controlSetConnectionsChanged();
 	}
 	else{
 		if( !unconnectedSets_.contains(ctrlSet) ){
 			unconnectedSets_.append(ctrlSet);
-			emit controlSetConnectionschanged();
+			emit controlSetConnectionsChanged();
 		}
 		//qDebug() << ctrlSet->name() << " is NOT connected";
 	}
@@ -874,6 +886,23 @@ void SGMBeamline::onControlSetConnected(bool csConnected){
 		tmpStr.append(" "+unconnectedSets_.at(x)->name());
 	qDebug() << tmpStr;
 	*/
+}
+
+void SGMBeamline::onCriticalControlsConnectedChanged(bool isConnected, AMControl *control){
+	//qDebug() << "Detected a critical contorl change " << control->name();
+	emit criticalControlsConnectionsChanged();
+}
+
+void SGMBeamline::recomputeWarnings(){
+	if(!criticalControlsSet_->isConnected()){
+		beamlineWarnings_ = "Warning some critical beamline\ncontrols are not connected:\n";
+		foreach(QString ctrlName, unconnectedCriticals())
+			beamlineWarnings_.append("  "+ctrlName+"\n");
+	}
+	else
+		beamlineWarnings_ = "";
+
+	emit beamlineWarningsChanged(beamlineWarnings_);
 }
 
 void SGMBeamline::createBeamOnActions(){

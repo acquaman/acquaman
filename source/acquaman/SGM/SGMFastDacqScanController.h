@@ -28,7 +28,12 @@ protected:
 	AMnDIndex toScanIndex(QMap<int, double> aeData);
 
 protected slots:
+	// Re-implementing to intercept finished() signal and do cleanup
+	void onStop();
+
 	void onInitializationActionsSucceeded();
+
+	void onScanFinished();
 
 private:
 	SGMFastScanConfiguration *pCfg() { return qobject_cast<SGMFastScanConfiguration*>(specificCfg_);}

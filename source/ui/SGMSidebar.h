@@ -71,6 +71,7 @@ protected:
 	AMControlEditor *gratingNC_;
 	AMControlEditor *entranceSlitNC_;
 	AMControlEditor *exitSlitNC_;
+	QLabel *beamlineWarningsLabel_;
 
 	AMBeamlineParallelActionsList *al;
 //	AMControlEdit *moveStatusLabel_;

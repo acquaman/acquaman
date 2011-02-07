@@ -117,8 +117,25 @@ AMnDIndex SGMFastDacqScanController::toScanIndex(QMap<int, double> aeData){
 	// SGM XAS Scan has only one dimension (energy), simply append to the end of this
 	return AMnDIndex(pScan()->rawData()->scanSize(0));
 }
+void SGMFastDacqScanController::onStop(){
+	qDebug() << "Called onStop() in FastDacqScanController";
+	running_ = FALSE;
+	if(cancelled_)
+		cancelled_ = FALSE;
+	else
+		onScanFinished();
+}
 
 void SGMFastDacqScanController::onInitializationActionsSucceeded(){
 	qDebug() << "Fast Scan: Initialization Actions Succeeded and emiting initialized";
 	emit initialized();
+}
+
+void SGMFastDacqScanController::onScanFinished(){
+	if(cleanUpActions_){
+		connect(cleanUpActions_, SIGNAL(listSucceeded()), this, SIGNAL(finished()));
+		cleanUpActions_->start();
+	}
+	else
+		emit finished();
 }

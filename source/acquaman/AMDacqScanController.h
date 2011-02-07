@@ -66,7 +66,7 @@ protected:
 
 protected slots:
 	void onStart();
-	void onStop();
+	virtual void onStop();
 	void onPause(int mode);
 	void onSendCompletion(int completion);
 

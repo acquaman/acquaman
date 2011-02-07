@@ -78,7 +78,7 @@ SGMFastScanConfigurationViewer::SGMFastScanConfigurationViewer(SGMFastScanConfig
 
 		saveLabel_ = new QLabel("Save a copy to:");
 		saveEdit_ = new QLineEdit();
-		saveEdit_->setMinimumWidth(300);
+		saveEdit_->setMinimumWidth(400);
 		saveEdit_->setText(sfsc->sensibleFileSavePath());
 		connect(saveEdit_, SIGNAL(editingFinished()), this, SLOT(onSavePathEditingFinished()));
 		if(!sfsc->finalizedSavePath().isEmpty())
@@ -90,8 +90,6 @@ SGMFastScanConfigurationViewer::SGMFastScanConfigurationViewer(SGMFastScanConfig
 		fl2_->addRow(saveFbkLabel_);
 
 		connect(sfsc, SIGNAL(onNewFinalizedSavePath(QString)), this, SLOT(onNewFinalizedSavePath(QString)));
-
-//		SGMSidebar *ssb = new SGMSidebar();
 
 		startScanButton_ = new QPushButton();
 		startScanButton_->setText("Start Scan");
@@ -111,7 +109,6 @@ SGMFastScanConfigurationViewer::SGMFastScanConfigurationViewer(SGMFastScanConfig
 		connect(queueDirectorButton_, SIGNAL(clicked()), this, SIGNAL(queueDirectorRequested()));
 
 		gl_.addWidget(presetsComboBox_,		0, 0, 1, 1, Qt::AlignCenter);
-//		gl_.addWidget(ssb,			0, 1, 1, 1, Qt::AlignRight);
 		gl_.addLayout(fl_,			0, 1, 1, 1, Qt::AlignCenter);
 		gl_.addLayout(fl2_,			1, 0, 1, 2, Qt::AlignCenter);
 		gl_.addWidget(startScanButton_,		5, 3, 1, 2, Qt::AlignRight);

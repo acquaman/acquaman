@@ -83,6 +83,10 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	exitSlitNC_->overrideTitle("Exit Slit");
 	exitSlitNC_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 
+	beamlineWarningsLabel_ = new QLabel(SGMBeamline::sgm()->beamlineWarnings());
+	connect(SGMBeamline::sgm(), SIGNAL(beamlineWarningsChanged(QString)), beamlineWarningsLabel_, SLOT(setText(QString)));
+
+
 	gl_->addWidget(readyLabel_,		0, 0, 1, 6, 0);
 	gl_->addWidget(beamOnBALButton_,	1, 0, 1, 2, 0);
 	gl_->addWidget(beamOffCButton_,		1, 2, 1, 2, 0);
@@ -96,6 +100,7 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	gl_->addWidget(gratingNC_,		5, 0, 1, 6, 0);
 	gl_->addWidget(entranceSlitNC_,		6, 0, 1, 3, 0);
 	gl_->addWidget(exitSlitNC_,		6, 3, 1, 3, 0);
+	gl_->addWidget(beamlineWarningsLabel_,	8, 0, 1, 6, 0);
 
 	gl_->setRowStretch(7, 10);
 

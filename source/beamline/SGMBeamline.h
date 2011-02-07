@@ -61,7 +61,11 @@ public:
 		return criticalControlsSet_->isConnected();
 	}
 
+	QStringList unconnectedCriticals() const;
+
 	bool detectorConnectedByName(QString name);
+
+	QString beamlineWarnings();
 
 	QString pvName(const QString &amName) const { return amNames2pvNames_.valueF(amName);}
 	QString amName(const QString &pvName) const { return amNames2pvNames_.valueR(pvName);}
@@ -147,9 +151,12 @@ public:
 
 signals:
 	void beamlineScanningChanged(bool scanning);
-	void controlSetConnectionschanged();
+	void controlSetConnectionsChanged();
+	void criticalControlsConnectionsChanged();
 
 	void visibleLightStatusChanged(const QString& status);
+
+	void beamlineWarningsChanged(const QString& warnings);
 
 public slots:
 	void startTransfer() { transferAction1_->start(); }
@@ -162,6 +169,9 @@ public slots:
 protected slots:
 	void onBeamlineScanningValueChanged(double value);
 	void onControlSetConnected(bool csConnected);
+	void onCriticalControlsConnectedChanged(bool isConnected, AMControl *controll);
+
+	void recomputeWarnings();
 
 	void createBeamOnActions();
 	void onBeamOnActionsFinsihed();
@@ -287,6 +297,8 @@ protected:
 	AMBeamlineControlMoveAction *beamOnAction1_;
 	AMBeamlineControlMoveAction *beamOnAction2_;
 	AMBeamlineActionsList *beamOnActionsList_;
+
+	QString beamlineWarnings_;
 
 	AMBiHash<QString, QString> amNames2pvNames_;
 

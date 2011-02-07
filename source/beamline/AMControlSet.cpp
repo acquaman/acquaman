@@ -37,6 +37,15 @@ bool AMControlSet::isConnected() const {
 	return true;
 }
 
+QStringList AMControlSet::unconnected() const {
+	int num = count();
+	QStringList retVal;
+	for(int x = 0; x < num; x++)
+		if(!at(x)->isConnected())
+			retVal.append(at(x)->name());
+	return retVal;
+}
+
 AMControlInfoList AMControlSet::toInfoList() const {
 	AMControlInfoList rv;
 
@@ -60,6 +69,9 @@ void AMControlSet::setFromInfoList(const AMControlInfoList& info){
 }
 
 void AMControlSet::onConnected(bool ctrlConnected){
+	AMControl *tmpCtrl = 0; //NULL
+	if(tmpCtrl = qobject_cast<AMControl*>(QObject::sender()))
+		emit controlConnectedChanged(ctrlConnected, tmpCtrl);
 	if(wasConnected_ == true && !ctrlConnected){
 		wasConnected_ = false;
 		emit connected(false);
