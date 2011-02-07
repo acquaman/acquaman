@@ -47,6 +47,8 @@ public:
 	virtual AMScan* scan() { return generalScan_; } // one change that was required to remove _pScan_ and pScan_(); changed from return pScan_();
 
 signals:
+	// QQ: For all: Do I have to emit these? Does the top-level API do it?
+
 	/// Scan has started
 	void started();
 	/// Scan completed
@@ -59,6 +61,7 @@ signals:
 	void resumed();
 	/// Time left in scan
 	void timeRemaining(double seconds);
+	// QQ: What are the units? When do I need to emit this? both this and timeRemaining?
 	void progress(double elapsed, double total);
 
 	void scanCreated(AMScan *scan);
@@ -75,6 +78,8 @@ public slots:
 	virtual void resume() = 0;
 
 	virtual void initialize() = 0;
+
+	// QQ: What does this mean, and what does a scan controller need to do in this situation?
 	virtual void reinitialize(bool removeScan) = 0;
 
 protected:

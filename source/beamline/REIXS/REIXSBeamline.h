@@ -21,7 +21,80 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define REIXSBEAMLINE_H
 
 #include "beamline/AMBeamline.h"
+#include "beamline/AMControlSet.h"
 
+
+/// The REIXSHexapod control is just a container for the set of coupled controls which make up the hexapod:
+/*!
+- x(), y(), z(): Stage position in mm
+- u(), v(), w(): Stage angle, in deg
+- r(), s(), t(): Rotation point relative to stage origin, in mm
+*/
+
+class REIXSHexapod : public AMControl {
+	Q_OBJECT
+public:
+	REIXSHexapod(QObject* parent = 0);
+
+	AMControl* x() { return x_; }
+	AMControl* y() { return y_; }
+	AMControl* z() { return z_; }
+	AMControl* u() { return u_; }
+	AMControl* v() { return v_; }
+	AMControl* w() { return w_; }
+	AMControl* r() { return r_; }
+	AMControl* s() { return s_; }
+	AMControl* t() { return t_; }
+
+
+protected:
+	/// Controls, connected to the hexapod PVs
+	AMControl *x_, *y_, *z_, *u_, *v_, *w_, *r_, *s_, *t_;
+};
+
+/// The REIXSSpectrometer control is a container for the set of (low-level, physical) controls which make up the spectrometer:
+/*!
+- angleDrive(): The position of the ball screw that lifts the spectrometer, in mm, up from the home (lowered) position.
+- detectorTranslation(): The position of the ball screw that translates the detector along the chamber, in mm, away from the upstream home position
+- detectorTiltDrive():  The position of the linear stage that tilts the detector, in mm, up from its vertically lowest home position
+- detectorRotationDrive(): The position of the linear stage which rotates the detector, in mm, away from the most upstream home position
+- hexapod(): The REIXSHexapod controls
+*/
+class REIXSSpectrometer : public AMControl {
+	Q_OBJECT
+public:
+	REIXSSpectrometer(QObject* parent = 0);
+
+	AMControl* angleDrive() { return angleDrive_; }
+	AMControl* detectorTranslation() { return detectorTranslation_; }
+	AMControl* detectorTiltDrive() { return detectorTiltDrive_; }
+	AMControl* detectorRotationDrive() { return detectorRotationDrive_; }
+	REIXSHexapod* hexapod() { return hexapod_; }
+
+protected:
+	AMControl *angleDrive_, *detectorTranslation_, *detectorTiltDrive_, *detectorRotationDrive_;
+	REIXSHexapod* hexapod_;
+};
+
+/// The REIXSSampleChamber control is a container for the motor controls that make up the sample manipulator and load lock.
+class REIXSSampleChamber : public AMControl {
+	Q_OBJECT
+public:
+	REIXSSampleChamber(QObject* parent = 0);
+
+	AMControl* x() { return x_; }
+	AMControl* y() { return y_; }
+	AMControl* z() { return z_; }
+	AMControl* r() { return r_; }
+
+	AMControl* loadLockZ() { return loadLockZ_; }
+	AMControl* loadLockR() { return loadLockR_; }
+
+protected:
+	AMControl* x_, *y_, *z_, *r_, *loadLockZ_, *loadLockR_;
+};
+
+/// This class
 class REIXSBeamline : public AMBeamline
 {
 	Q_OBJECT
@@ -32,12 +105,44 @@ public:
 		return static_cast<REIXSBeamline*>(instance_);
 	}
 
+	// Accessing control elements:
+
+	/// Access the spectromter controls:
+	REIXSSpectrometer* spectrometer() { return spectrometer_; }
+	/// Access the sample chamber and load-lock controls:
+	REIXSSampleChamber* sampleChamber() { return sampleChamber_; }
+
+	// These Control Sets are logical groups of controls, that are commonly used by different Acquaman components
+
+	/// The sampleX, sampleY, sampleZ, and sampleR (ie: theta) controls for moving the sample plate, used by the Sample Manipulator
+	AMControlSet* sampleManipulatorSet() { return sampleManipulatorSet_; }
+	/// All the controls for positioning the Spectrometer
+	AMControlSet* spectrometerPositionSet() { return spectrometerPositionSet_; }
+
 signals:
 
 public slots:
 
 protected:
+	/// Constructor. This is a singleton class; access it through REIXSBeamline::bl().
 	explicit REIXSBeamline(QObject *parent = 0);
+
+	/// \todo: beamline front-end controls
+	// AMControl* incidentEV_;
+	// AMControl* monoGrating_;
+
+	/// A hierarchichal group of controls making up the spectrometer
+	REIXSSpectrometer* spectrometer_;
+	/// A hierarchichal group of controls making up the sample chamber
+	REIXSSampleChamber* sampleChamber_;
+
+
+	// These Control Sets are logical groups of controls, that are commonly used by different Acquaman components
+	/// The sampleX, sampleY, sampleZ, and sampleR (ie: theta) controls for moving the sample plate, used by the Sample Manipulator
+	AMControlSet* sampleManipulatorSet_;
+	/// All the controls for positioning the Spectrometer (angleDrive, detectorTranslation, detectorTiltDrive, detectorRotationDrive, hexapod{X, Y, Z, U, V, W, R, S, T}
+	AMControlSet* spectrometerPositionSet_;
+
 
 };
 
@@ -46,25 +151,7 @@ protected:
 
 
 
-//#ifndef ACQMAN_BEAMLINE_H_
-//#define ACQMAN_BEAMLINE_H_
 
-//#include "util/AMSettings.h"
-//#include "AMPVNames.h"
-
-//#include <QObject>
-//#include <QList>
-//#include "AMControl.h"
-//#include "AMAmpDetector.h"
-//#include "AMDiagnosticPaddle.h"
-//#include "AMInsertionDevice.h"
-//#include "AMLoadLock.h"
-//#include "AMMono.h"
-//#include "AMSampleHolder.h"
-//#include "AMSpectrometer.h"
-//#include "AMVariableAperture.h"
-
-///*! THIS CLASS IS DEPRECATED... DO NOT USE OR WORRY ABOUT */
 
 ///* [This is comment is really old. ignore...]
 // * This class is a software-representation of the controllable aspects of the whole beamline.
@@ -176,66 +263,5 @@ protected:
 // * */
 
 
-//class AMBeamline : public AMControl {
-
-//	Q_OBJECT
-
-//public:
-//		static AMBeamline* bl();		// singleton-class accessor
-//		static void releaseBl();	// releases memory for AMBeamline
-
-//		virtual ~AMBeamline();
-
-//		// What does this AMBeamline have? (These objects will be useful in the scripting world too!)
-//	///////////////////////////////////
-
-//		AMReadOnlyPVControl* ringCurrent() const			{ return ringCurrent_; }
-//	//	double ringCurrent() const								{ return ringCurrentPV_->lastValue(); }
-
-//		AMInsertionDevice* reixsID() const						{ return reixsID_; }
-//		AMInsertionDevice* smID() const							{ return smID_; }
-
-//		AMControl* variableAperture() const				{ return variableAperture_; }
-//		AMMono* mono() const										{ return mono_; }
-//		AMSpectrometer* spectrometer() const						{ return spectrometer_; }
-
-//		AMAmpDetector* meshCurrent() const						{ return xasDetectors_[0]; }
-//		AMAmpDetector* electronYield() const						{ return xasDetectors_[1]; }
-//		AMAmpDetector* fluorescenceYield() const					{ return xasDetectors_[2]; }
-
-//		const QList<AMAmpDetector*>& xasDetectorsAvailable() const{ return xasDetectors_; }
-
-//		AMControl* sampleHolder() const						{ return sampleHolder_; }
-//		AMControl* loadLock() const								{ return loadLock_; }
-
-//		AMControl* diagnosticPaddle(int num) const		{ return diagnosticPaddles_[num % diagnosticPaddles_.size()]; }
-
-
-
-//protected:
-//	// Singleton implementation:
-//		AMBeamline();					// protected constructor... only access through AMBeamline::bl()
-//		static AMBeamline* instance_;
-
-//	// Parts of this beamline:
-//	///////////////////////////////
-
-//		AMReadOnlyPVControl* ringCurrent_;
-
-//		AMInsertionDevice* reixsID_, *smID_;
-
-//		AMControl* variableAperture_;
-//		AMMono* mono_;
-//		AMSpectrometer* spectrometer_;
-
-//		QList<AMAmpDetector*> xasDetectors_;
-
-//		AMControl* sampleHolder_;
-//		AMControl* loadLock_;
-
-//		QList<AMControl*> diagnosticPaddles_;
-
-
-//};
 
 //#endif /*BEAMLINE_H_*/
