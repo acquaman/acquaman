@@ -58,8 +58,7 @@ class AMDbObjectInfo;
 
 
 /// This is the base class for all persistent user-data objects that can be stored in the database.  A generic AMScan inherits from this class.
-/*!
-<b>Introduction to the AMDbObject persistent object system</b>
+/*! <b>Introduction to the AMDbObject persistent object system</b>
 
 The AMDbObject system provides a way to make QObjects persistent, ie: storable and reloadable from a permanent database.  It is highly integrated with the Qt meta object system. Some of the features that set it apart from other C++ ORM (Object-Relational Management) systems:
 
