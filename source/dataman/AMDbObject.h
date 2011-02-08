@@ -55,7 +55,26 @@ public:
 
 class AMDbObjectInfo;
 
+// Macro for declaring AMDbObject object attributes. \c paramString is set of "key=value;key=value..." arguments
+/* For example:
+  \code
+  AM_DBOBJECTINFO("description=Xray Absorption Scan; version=2; doNotReuseIds=true")
+  \endcode
 
+  It's a bummer this doesn't work. Unfortunately moc runs before the C++ pre-processor, so you can't put moc statements like Q_CLASSINFO() into a macro, or use macros inside Q_CLASSINFO statements.
+  */
+// #define AM_DBOBJECTINFO(paramString) Q_CLASSINFO("AMDbObject_Attributes", paramString)
+
+// Macro for declaring AMDbObject attributes for the property \c propertyName. \c paramString is a set of "key=value;key=value..." arguments
+/* For example:
+  \code
+  AM_DBPROPERTYINFO(numCounts, "doNotLoad=true;hidden=true")
+  AM_DBPROPERTYINFO(sampleId, "createIndex=true")
+  \endcode
+
+  Also doesn't work : (
+  */
+// #define AM_DBPROPERTYINFO(propertyName, paramString) Q_CLASSINFO(#propertyName, paramString)
 
 /// This is the base class for all persistent user-data objects that can be stored in the database.  A generic AMScan inherits from this class.
 /*! <b>Introduction to the AMDbObject persistent object system</b>
