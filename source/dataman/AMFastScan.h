@@ -15,22 +15,20 @@ public:
 	/// Re-implemented from AMScan. Currently only the SGM2004 and ALS Bl8.0.1 file formats are supported.
 	virtual bool loadDataImplementation();
 
+	bool storeToDb(AMDatabase *db);
+
 signals:
 	// inherits dataChanged(AMScan*)
 
 public slots:
+	void setAutoExportFilePath(const QString &autoExportFilePath);
 
 protected slots:
 
 protected:
-
-	/*
-	QString legacyGrating_;
-	QString legacyIntegrationTime_;
-
-	friend class SGM2004FileLoader;
-	friend class ALSBL8XASFileLoader;
-	*/
+	QString autoExportFilePath_;
+	friend class SGM2010FastFileLoader;
+	friend class SGM2010FastSensibleFileLoader;
 };
 
 #endif // AMFASTSCAN_H

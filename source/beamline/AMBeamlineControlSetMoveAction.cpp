@@ -181,17 +181,17 @@ void AMBeamlineControlSetMoveAction::calculateProgress(){
 		return;
 	double avgPercent, iPercent;
 	double csCount = (double)controlSet_->count();
-	qDebug() << "Count is " << csCount;
+	//qDebug() << "Count is " << csCount;
 	for(int x = 0; x < controlSet_->count(); x++){
 		if( fabs(setpoint_->at(x).value() - startPoint_->at(x).value()) < 0.0001 )
 			iPercent = 100;
 		else
 			iPercent = (fabs(controlSet_->at(x)->value()-startPoint_->at(x).value())/fabs(setpoint_->at(x).value() - startPoint_->at(x).value())*100);
 		avgPercent += iPercent/csCount;
-		qDebug() << "i " << iPercent << " avg " << avgPercent;
+		//qDebug() << "i " << iPercent << " avg " << avgPercent;
 //		avgPercent += (fabs(controlSet_->at(x)->value()-startPoint_->valueAt(x))/fabs(setpoint_->valueAt(x) - startPoint_->valueAt(x))*100)/csCount;
 	}
-	qDebug() << "\n\n";
+	//qDebug() << "\n\n";
 	emit progress(avgPercent, 100);
 }
 
@@ -317,7 +317,7 @@ void AMBeamlineControlSetMoveActionView::onStarted(){
 }
 
 void AMBeamlineControlSetMoveActionView::onSucceeded(){
-	qDebug() << "In control set move action (view) succeeded";
+	//qDebug() << "In control set move action (view) succeeded";
 	progressBar_->setValue(progressBar_->maximum());
 
 	progressBar_->setMaximum(100);

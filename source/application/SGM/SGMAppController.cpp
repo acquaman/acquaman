@@ -6,6 +6,7 @@
 #include "ui/AMSamplePositionView.h"
 #include "ui/AMScanConfigurationView.h"
 #include "ui/SGMXASScanConfigurationViewer.h"
+#include "ui/SGMSidebar.h"
 #include "acquaman/AMScanController.h"
 
 #include "ui/AMMainWindow.h"
@@ -35,26 +36,30 @@ bool SGMAppController::startup() {
 
 		mw_->insertHeading("Experiment Setup", 1);
 		//////////
-		scanConfigurationHolder_ = new AMXASScanConfigurationHolder();
-		mw_->addPane(scanConfigurationHolder_, "Experiment Setup", "SGM XAS Scan", ":/utilities-system-monitor.png");
+		xasScanConfigurationHolder_ = new AMXASScanConfigurationHolder();
+		mw_->addPane(xasScanConfigurationHolder_, "Experiment Setup", "SGM XAS Scan", ":/utilities-system-monitor.png");
 
 		fastScanConfigurationHolder_ = new AMFastScanConfigurationHolder();
 		mw_->addPane(fastScanConfigurationHolder_, "Experiment Setup", "SGM Fast Scan", ":/utilities-system-monitor.png");
 
 
-		connect(workflowManagerView_, SIGNAL(freeToScan(bool, bool)), scanConfigurationHolder_, SLOT(onFreeToScan(bool, bool)));
-		connect(workflowManagerView_, SIGNAL(lockdownScanning(bool,QString)), scanConfigurationHolder_, SLOT(onLockdownScanning(bool,QString)));
-		connect(scanConfigurationHolder_, SIGNAL(addToQueueRequested(AMScanConfiguration*, bool)), workflowManagerView_, SLOT(onAddScanRequested(AMScanConfiguration*, bool)));
-		connect(scanConfigurationHolder_, SIGNAL(cancelAddToQueueRequest()), workflowManagerView_, SLOT(onCancelAddScanRequest()));
-		connect(workflowManagerView_, SIGNAL(addedScan(AMScanConfiguration*)), scanConfigurationHolder_, SLOT(onAddedToQueue(AMScanConfiguration*)));
-		connect(fastScanConfigurationHolder_, SIGNAL(addToQueueRequested(AMScanConfiguration*,bool)), workflowManagerView_, SLOT(onAddScanRequested(AMScanConfiguration*,bool)));
+		connect(workflowManagerView_, SIGNAL(freeToScan(bool, bool)), xasScanConfigurationHolder_, SLOT(onFreeToScan(bool, bool)));
+		connect(workflowManagerView_, SIGNAL(lockdownScanning(bool,QString)), xasScanConfigurationHolder_, SLOT(onLockdownScanning(bool,QString)));
+		connect(xasScanConfigurationHolder_, SIGNAL(addToQueueRequested(AMScanConfiguration*, bool)), workflowManagerView_, SLOT(onAddScanRequested(AMScanConfiguration*, bool)));
+		connect(xasScanConfigurationHolder_, SIGNAL(cancelAddToQueueRequest()), workflowManagerView_, SLOT(onCancelAddScanRequest()));
+		connect(workflowManagerView_, SIGNAL(addedScan(AMScanConfiguration*)), xasScanConfigurationHolder_, SLOT(onAddedToQueue(AMScanConfiguration*)));
 
-		connect(scanConfigurationHolder_, SIGNAL(goToQueueRequested()), this, SLOT(goToWorkflow()));
-		connect(scanConfigurationHolder_, SIGNAL(newScanConfigurationView()), workflowManagerView_, SLOT(onNewScanConfigurationView()));
+		connect(xasScanConfigurationHolder_, SIGNAL(goToQueueRequested()), this, SLOT(goToWorkflow()));
+		connect(xasScanConfigurationHolder_, SIGNAL(newScanConfigurationView()), workflowManagerView_, SLOT(onNewScanConfigurationView()));
 
+		connect(workflowManagerView_, SIGNAL(freeToScan(bool, bool)), fastScanConfigurationHolder_, SLOT(onFreeToScan(bool, bool)));
+		connect(workflowManagerView_, SIGNAL(lockdownScanning(bool,QString)), fastScanConfigurationHolder_, SLOT(onLockdownScanning(bool,QString)));
+		connect(fastScanConfigurationHolder_, SIGNAL(addToQueueRequested(AMScanConfiguration*, bool)), workflowManagerView_, SLOT(onAddScanRequested(AMScanConfiguration*, bool)));
+		connect(fastScanConfigurationHolder_, SIGNAL(cancelAddToQueueRequest()), workflowManagerView_, SLOT(onCancelAddScanRequest()));
+		connect(workflowManagerView_, SIGNAL(addedScan(AMScanConfiguration*)), fastScanConfigurationHolder_, SLOT(onAddedToQueue(AMScanConfiguration*)));
 
-
-
+		connect(fastScanConfigurationHolder_, SIGNAL(goToQueueRequested()), this, SLOT(goToWorkflow()));
+		connect(fastScanConfigurationHolder_, SIGNAL(newScanConfigurationView()), workflowManagerView_, SLOT(onNewScanConfigurationView()));
 
 
 		connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerCreated()), this, SLOT(onCurrentScanControllerCreated()));
@@ -70,8 +75,8 @@ bool SGMAppController::startup() {
 		connect(scanController, SIGNAL(progress(double,double)), bottomBar_, SLOT(updateScanProgress(double,double)));
 	}
 	*/
-
-		mw_->addRightWidget(new QLabel("Hi dave!"));
+		sgmSidebar_ = new SGMSidebar();
+		mw_->addRightWidget(sgmSidebar_);
 
 		return true;
 	}
@@ -89,8 +94,8 @@ void SGMAppController::shutdown() {
 void SGMAppController::onCurrentPaneChanged(QWidget *pane) {
 
 	// If the scanConfigurationHolder pane was activated, let it know:
-	if(pane == scanConfigurationHolder_)
-		scanConfigurationHolder_->onBecameCurrentWidget();
+	if(pane == xasScanConfigurationHolder_)
+		xasScanConfigurationHolder_->onBecameCurrentWidget();
 	else if(pane == fastScanConfigurationHolder_)
 		fastScanConfigurationHolder_->onBecameCurrentWidget();
 
@@ -101,7 +106,7 @@ void SGMAppController::onCurrentPaneChanged(QWidget *pane) {
 #include "ui/AMGenericScanEditor.h"
 
 void SGMAppController::onCurrentScanControllerCreated(){
-	qDebug() << "Detected creation of " << (int)AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController();
+	//qDebug() << "Detected creation of " << (int)AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController();
 
 	AMGenericScanEditor *scanEditor = new AMGenericScanEditor();
 	scanEditorsParentItem_->appendRow(new AMScanEditorModelItem(scanEditor, ":/applications-science.png"));
@@ -120,12 +125,12 @@ void SGMAppController::onCurrentScanControllerCreated(){
 }
 
 void SGMAppController::onCurrentScanControllerDestroyed(){
-	qDebug() << "Detected deletion of " << (int)AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController();
+	//qDebug() << "Detected deletion of " << (int)AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController();
 	scanControllerActiveEditor_ = 0;
 }
 
 void SGMAppController::onCurrentScanControllerReinitialized(bool removeScan){
-	qDebug() << "Trying to reinitialize with scan editor " << scanControllerActiveEditor_;
+	//qDebug() << "Trying to reinitialize with scan editor " << scanControllerActiveEditor_;
 
 	if(!scanControllerActiveEditor_) {
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -13, "Error while re-initializing the scan controller; there is no active scan editor window. This is a bug and you should report it to the Acquaman developers."));

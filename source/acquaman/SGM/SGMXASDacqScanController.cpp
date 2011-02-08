@@ -98,6 +98,6 @@ AMnDIndex SGMXASDacqScanController::toScanIndex(QMap<int, double> aeData){
 }
 
 void SGMXASDacqScanController::onInitializationActionsSucceeded(){
-	qDebug() << "XAS Scan: Initialization Actions Succeeded and emiting initialized";
+	//qDebug() << "XAS Scan: Initialization Actions Succeeded and emiting initialized";
 	emit initialized();
 }

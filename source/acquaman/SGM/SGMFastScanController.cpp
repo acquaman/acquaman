@@ -2,7 +2,8 @@
 
 SGMFastScanController::SGMFastScanController(SGMFastScanConfiguration *cfg){
 	specificCfg_ = cfg;
-	initializationActions_ = NULL;
+	initializationActions_ = 0; //NULL
+	cleanUpActions_ = 0; //NULL
 	beamlineInitialized_ = false;
 
 	QList<AMDetectorInfo*> scanDetectors = pCfg()->usingDetectors();
@@ -11,6 +12,7 @@ SGMFastScanController::SGMFastScanController(SGMFastScanConfiguration *cfg){
 	pScan()->setName("SGM Fast Scan");
 	pScan()->setFilePath(pCfg()->filePath()+pCfg()->fileName());
 	pScan()->setFileFormat("sgm2010Fast");
+	pScan()->setRunId(AMUser::user()->currentRunId());
 
 	// The energy axis will be slightly miscalibrated, but can be approximated as uniform with 1000 points between the
 	//  start energy and the final energy
@@ -77,44 +79,102 @@ bool SGMFastScanController::beamlineInitialize(){
 	SGMBeamline::sgm()->exitSlitTracking()->move( pCfg()->exitSlitTracking() );
 	*/
 	AMBeamlineControlMoveAction *tmpAction = NULL;
+
+	cleanUpActions_ = new AMBeamlineParallelActionsList();
+
+	//Prepare the actions for clean up by making a one stage list with the current values for:
+	// Undulator and Exit Slit Tracking
+	// Mono Velocity, Base Velocity, and Acceleration
+	// Scaler intergration time, scans per buffer, total # of scans, and mode
+	cleanUpActions_->appendStage(new QList<AMBeamlineActionItem*>());
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->undulatorTracking());
+	tmpAction->setSetpoint(SGMBeamline::sgm()->undulatorTracking()->value());
+	cleanUpActions_->appendAction(cleanUpActions_->stageCount()-1, tmpAction);
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->exitSlitTracking());
+	tmpAction->setSetpoint(SGMBeamline::sgm()->exitSlitTracking()->value());
+	cleanUpActions_->appendAction(cleanUpActions_->stageCount()-1, tmpAction);
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->gratingVelocity());
+	tmpAction->setSetpoint(SGMBeamline::sgm()->gratingVelocity()->value());
+	cleanUpActions_->appendAction(cleanUpActions_->stageCount()-1, tmpAction);
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->gratingBaseVelocity());
+	tmpAction->setSetpoint(SGMBeamline::sgm()->gratingBaseVelocity()->value());
+	cleanUpActions_->appendAction(cleanUpActions_->stageCount()-1, tmpAction);
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->gratingAcceleration());
+	tmpAction->setSetpoint(SGMBeamline::sgm()->gratingAcceleration()->value());
+	cleanUpActions_->appendAction(cleanUpActions_->stageCount()-1, tmpAction);
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerIntegrationTime());
+	tmpAction->setSetpoint(SGMBeamline::sgm()->scalerIntegrationTime()->value());
+	cleanUpActions_->appendAction(cleanUpActions_->stageCount()-1, tmpAction);
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerMode());
+	tmpAction->setSetpoint(SGMBeamline::sgm()->scalerMode()->value());
+	cleanUpActions_->appendAction(cleanUpActions_->stageCount()-1, tmpAction);
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerScansPerBuffer());
+	tmpAction->setSetpoint(SGMBeamline::sgm()->scalerScansPerBuffer()->value());
+	cleanUpActions_->appendAction(cleanUpActions_->stageCount()-1, tmpAction);
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerTotalNumberOfScans());
+	tmpAction->setSetpoint(SGMBeamline::sgm()->scalerTotalNumberOfScans()->value());
+	cleanUpActions_->appendAction(cleanUpActions_->stageCount()-1, tmpAction);
+
+
+
 	SGMFastScanParameters *settings = pCfg()->currentParameters();
 	#warning "Hey David, who's going to delete the list and the actions?"
 	initializationActions_ = new AMBeamlineParallelActionsList();
 	/**/
 	//Go to midpoint of energy range
-	qDebug() << initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
+	initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->energy());
-	qDebug() << tmpAction->setSetpoint(settings->energyMidpoint());
-	qDebug() << initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
+	tmpAction->setSetpoint(settings->energyMidpoint());
+	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
 
 	//Turn off undulator and exit slit tracking
-	qDebug() << initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
+	initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->undulatorTracking());
-	qDebug() << tmpAction->setSetpoint(0);
-	qDebug() << initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
+	tmpAction->setSetpoint(0);
+	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->exitSlitTracking());
-	qDebug() << tmpAction->setSetpoint(0);
-	qDebug() << initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
+	tmpAction->setSetpoint(0);
+	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
 
 	//Go to start of energy range
-	qDebug() << initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
+	//Mode needs to change before time, buffer, and total
+	initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->energy());
-	qDebug() << tmpAction->setSetpoint(settings->energyStart());
-	qDebug() << initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
+	tmpAction->setSetpoint(settings->energyStart());
+	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerMode());
+	tmpAction->setSetpoint(0);
+	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
 
-	//Set the grating motor velocity, base velocity, and acceleration
-	qDebug() << initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
+	//Set the grating motor velocity, base velocity, and acceleration as well as scaler mode, scans per buffer, total # of scans, and intergration time
+	initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->gratingVelocity());
-	qDebug() << tmpAction->setSetpoint(settings->velocity());
-	qDebug() << initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
+	tmpAction->setSetpoint(settings->velocity());
+	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->gratingBaseVelocity());
-	qDebug() << tmpAction->setSetpoint(settings->velocityBase());
-	qDebug() << initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
+	tmpAction->setSetpoint(settings->velocityBase());
+	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->gratingAcceleration());
-	qDebug() << tmpAction->setSetpoint(settings->acceleration());
-	qDebug() << initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
+	tmpAction->setSetpoint(settings->acceleration());
+	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerIntegrationTime());
+	tmpAction->setSetpoint(settings->scalerTime());
+	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerScansPerBuffer());
+	tmpAction->setSetpoint(1000);
+	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerTotalNumberOfScans());
+	tmpAction->setSetpoint(1000);
+	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
 
-	qDebug() << initializationActions_->stageCount() << initializationActions_->countAt(0) << initializationActions_->countAt(1) << initializationActions_->countAt(2) << initializationActions_->countAt(3);
+	/*
+	AMPVControl *tnos = qobject_cast<AMPVControl*>(SGMBeamline::scalerTotalNumberOfScans());
+	if(!tnos)
+		qDebug() << "SUPER FAIL!";
+	else{
+		qDebug() << tnos->readPV()
+	}
+	*/
 
 	//tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->);
 	//tmpAction->setSetpoint(settings->velocity());

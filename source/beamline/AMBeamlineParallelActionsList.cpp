@@ -6,6 +6,7 @@ AMBeamlineParallelActionsList::AMBeamlineParallelActionsList(QObject *parent) :
 	insertRowLatch_ = -1;
 	actions_ = NULL;
 	setupModel();
+	connect(this, SIGNAL(stageStarted(int)), this, SLOT(onStageStarted(int)));
 }
 
 AMBeamlineParallelActionListModel* AMBeamlineParallelActionsList::model(){
@@ -114,6 +115,7 @@ bool AMBeamlineParallelActionsList::setStage(int stageIndex, QList<AMBeamlineAct
 				disconnect(oldStageList->at(x), SIGNAL(succeeded()), this, SLOT(onActionSucceeded()));
 				disconnect(oldStageList->at(x), SIGNAL(ready(bool)), this, SLOT(onActionReady(bool)));
 				disconnect(oldStageList->at(x), SIGNAL(failed(int)), this, SLOT(onActionFailed(int)));
+				disconnect(oldStageList->at(x), SIGNAL(progress(double,double)), this, SLOT(onActionProgress(double,double)));
 			}
 			if(prevStageList){
 				for(int x = 0; x < oldStageList->count(); x++)
@@ -151,6 +153,7 @@ bool AMBeamlineParallelActionsList::setStage(int stageIndex, QList<AMBeamlineAct
 			connect(stageList->at(x), SIGNAL(succeeded()), this, SLOT(onActionSucceeded()));
 			connect(stageList->at(x), SIGNAL(ready(bool)), this, SLOT(onActionReady(bool)));
 			connect(stageList->at(x), SIGNAL(failed(int)), this, SLOT(onActionFailed(int)));
+			connect(stageList->at(x), SIGNAL(progress(double,double)), this, SLOT(onActionProgress(double,double)));
 		}
 		return actions_->setData(modelIndex, qVariantFromValue((void*)stageList), Qt::EditRole);
 	}
@@ -181,11 +184,13 @@ bool AMBeamlineParallelActionsList::setAction(int stageIndex, int index, AMBeaml
 				disconnect(oldAction, SIGNAL(succeeded()), this, SLOT(onActionSucceeded()));
 				disconnect(oldAction, SIGNAL(ready(bool)), this, SLOT(onActionReady(bool)));
 				disconnect(oldAction, SIGNAL(failed(int)), this, SLOT(onActionFailed(int)));
+				disconnect(oldAction, SIGNAL(progress(double,double)), this, SLOT(onActionProgress(double,double)));
 			}
 			connect(action, SIGNAL(started()), this, SLOT(onActionStarted()));
 			connect(action, SIGNAL(succeeded()), this, SLOT(onActionSucceeded()));
 			connect(action, SIGNAL(ready(bool)), this, SLOT(onActionReady(bool)));
 			connect(action, SIGNAL(failed(int)), this, SLOT(onActionFailed(int)));
+			connect(action, SIGNAL(progress(double,double)), this, SLOT(onActionProgress(double,double)));
 		}
 		return retVal;
 	}
@@ -244,6 +249,7 @@ bool AMBeamlineParallelActionsList::deleteStage(int stageIndex){
 				disconnect(oldStageList->at(x), SIGNAL(succeeded()), this, SLOT(onActionSucceeded()));
 				disconnect(oldStageList->at(x), SIGNAL(ready(bool)), this, SLOT(onActionReady(bool)));
 				disconnect(oldStageList->at(x), SIGNAL(failed(int)), this, SLOT(onActionFailed(int)));
+				disconnect(oldStageList->at(x), SIGNAL(progress(double,double)), this, SLOT(onActionProgress(double,double)));
 				thisStageHolder->removeAction(oldStageList->at(x));
 			}
 			if(prevStageList){
@@ -286,6 +292,7 @@ bool AMBeamlineParallelActionsList::deleteAction(int stageIndex, int index){
 		disconnect(oldAction, SIGNAL(succeeded()), this, SLOT(onActionSucceeded()));
 		disconnect(oldAction, SIGNAL(ready(bool)), this, SLOT(onActionReady(bool)));
 		disconnect(oldAction, SIGNAL(failed(int)), this, SLOT(onActionFailed(int)));
+		disconnect(oldAction, SIGNAL(progress(double,double)), this, SLOT(onActionProgress(double,double)));
 		oldAction->cleanup();
 	}
 	return retVal;
@@ -338,6 +345,8 @@ void AMBeamlineParallelActionsList::onActionStarted(){
 	AMBeamlineActionItem *tmpItem = (AMBeamlineActionItem*)QObject::sender();
 	QPair<int,int> indices = indicesOf(tmpItem);
 	emit actionStarted(indices.first, indices.second);
+	if(indices.second == 0)
+		emit stageStarted(indices.first);
 }
 
 void AMBeamlineParallelActionsList::onActionSucceeded(){
@@ -356,6 +365,24 @@ void AMBeamlineParallelActionsList::onActionFailed(int explanation){
 	AMBeamlineActionItem *tmpItem = (AMBeamlineActionItem*)QObject::sender();
 	QPair<int,int> indices = indicesOf(tmpItem);
 	emit actionFailed(indices.first, indices.second, explanation);
+}
+
+void AMBeamlineParallelActionsList::onActionProgress(double elapsed, double total){
+	AMBeamlineActionItem *tmpAction;
+	if(tmpAction = qobject_cast<AMBeamlineActionItem*>(QObject::sender())){
+		QPair<int,int> indices = indicesOf(tmpAction);
+		lastIndexProgress_.replace(indices.second, (elapsed/total));
+		double sum = 0;
+		for(int x = 0; x < countAt(indices.first); x++)
+			sum += lastIndexProgress_.at(x);
+		emit stageProgress(sum/lastIndexProgress_.count(), 1.0);
+	}
+}
+
+void AMBeamlineParallelActionsList::onStageStarted(int stageIndex){
+	lastIndexProgress_.clear();
+	for(int x = 0; x < countAt(stageIndex); x++)
+		lastIndexProgress_.append(0);
 }
 
 void AMBeamlineParallelActionsList::onStageSucceeded(){

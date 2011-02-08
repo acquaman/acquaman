@@ -53,7 +53,7 @@ QEpicsAdvAcq::QEpicsAdvAcq(QEpicsAcqLocal *acq)
 	connect(_acq, SIGNAL(onStart()), SIGNAL(onStart()));
 	connect(_acq, SIGNAL(onPause(int)), SIGNAL(onPause(int)));
 	connect(_acq, SIGNAL(onStop()), SIGNAL(onStop()));
-//	connect(_acq, SIGNAL(onState(acqState)), SIGNAL(onState(acqState)));
+	connect(_acq, SIGNAL(onState(const QString&)), SIGNAL(onState(const QString&)));
 	connect(_acq, SIGNAL(sendStatus(const QString&)), SIGNAL(sendStatus(const QString&)));
 	connect(_acq, SIGNAL(sendCompletion(int)), SIGNAL(sendCompletion(int)));
 //	connect(_acq, SIGNAL(nextOutputFile(const QString&)), SIGNAL(nextOutputFile(const QString&)));

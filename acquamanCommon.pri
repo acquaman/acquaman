@@ -144,6 +144,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/dataman/AMScanSetModel.h \
 	source/dataman/AMXASScan.h \
 	source/dataman/SGM2004FileLoader.h \
+	source/dataman/SGM2010FastFileLoader.h \
 	source/muParser/muParser.h \
 	source/muParser/muParserBase.h \
 	source/muParser/muParserBytecode.h \
@@ -236,7 +237,8 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/acquaman/AMControlOptimization.h \
 	source/acquaman/AMDetectorInfoList.h \
 	source/ui/AMDetectorInfoView.h \
-	source/ui/AMControlOptimizationView.h
+	source/ui/AMControlOptimizationView.h \
+    source/dataman/SGM2010FastSensibleFileLoader.h
 FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
 	source/ui/AMDataViewSection.ui \
@@ -325,6 +327,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/dataman/AMScanSetModel.cpp \
 	source/dataman/AMXASScan.cpp \
 	source/dataman/SGM2004FileLoader.cpp \
+	source/dataman/SGM2010FastFileLoader.cpp \
 	source/muParser/muParser.cpp \
 	source/muParser/muParserBase.cpp \
 	source/muParser/muParserBytecode.cpp \
@@ -407,6 +410,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/acquaman/AMControlOptimization.cpp \
 	source/acquaman/AMDetectorInfoList.cpp \
 	source/ui/AMDetectorInfoView.cpp \
-	source/ui/AMControlOptimizationView.cpp
+	source/ui/AMControlOptimizationView.cpp \
+    source/dataman/SGM2010FastSensibleFileLoader.cpp
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc

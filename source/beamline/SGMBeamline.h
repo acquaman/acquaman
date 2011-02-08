@@ -61,7 +61,11 @@ public:
 		return criticalControlsSet_->isConnected();
 	}
 
+	QStringList unconnectedCriticals() const;
+
 	bool detectorConnectedByName(QString name);
+
+	QString beamlineWarnings();
 
 	QString pvName(const QString &amName) const { return amNames2pvNames_.valueF(amName);}
 	QString amName(const QString &pvName) const { return amNames2pvNames_.valueR(pvName);}
@@ -84,6 +88,7 @@ public:
 	AMDetectorInfo* pgtDetector() const { return pgtDetector_;}
 	AMDetectorInfo* i0Detector() const { return i0Detector_;}
 	AMDetectorInfo* eVFbkDetector() const { return eVFbkDetector_;}
+	AMDetectorInfo* photodiodeDetector() const { return photodiodeDetector_;}
 	AMControl* loadlockCCG() const { return loadlockCCG_;}
 	AMControl* loadlockTCG() const { return loadlockTCG_;}
 	AMControl* ssaManipulatorX() const { return ssaManipulatorX_;}
@@ -108,6 +113,10 @@ public:
 	AMControl* visibleLightToggle() const { return visibleLightToggle_;}
 	AMControl* visibleLightStatus() const { return visibleLightStatus_;}
 	AMControl* activeEndstation() const { return activeEndstation_;}
+	AMControl* scalerIntegrationTime() const { return scalerIntegrationTime_;}
+	AMControl* scalerScansPerBuffer() const { return scalerScansPerBuffer_;}
+	AMControl* scalerTotalNumberOfScans() const { return scalerTotalNumberOfScans_;}
+	AMControl* scalerMode() const { return scalerMode_;}
 
 
 	AMControlSet* fluxResolutionSet() const { return fluxResolutionSet_;}
@@ -143,9 +152,12 @@ public:
 
 signals:
 	void beamlineScanningChanged(bool scanning);
-	void controlSetConnectionschanged();
+	void controlSetConnectionsChanged();
+	void criticalControlsConnectionsChanged();
 
 	void visibleLightStatusChanged(const QString& status);
+
+	void beamlineWarningsChanged(const QString& warnings);
 
 public slots:
 	void startTransfer() { transferAction1_->start(); }
@@ -158,6 +170,9 @@ public slots:
 protected slots:
 	void onBeamlineScanningValueChanged(double value);
 	void onControlSetConnected(bool csConnected);
+	void onCriticalControlsConnectedChanged(bool isConnected, AMControl *controll);
+
+	void recomputeWarnings();
 
 	void createBeamOnActions();
 	void onBeamOnActionsFinsihed();
@@ -194,6 +209,7 @@ protected:
 	AMControl *pgtIntegrationMode_;
 	AMControl *i0_;
 	AMControl *eVFbk_;
+	AMControl *photodiode_;
 	AMControl *loadlockCCG_;
 	AMControl *loadlockTCG_;
 	AMControl *ssaManipulatorX_;
@@ -218,6 +234,10 @@ protected:
 	AMControl *visibleLightToggle_;
 	AMControl *visibleLightStatus_;
 	AMControl *activeEndstation_;
+	AMControl *scalerIntegrationTime_;
+	AMControl *scalerScansPerBuffer_;
+	AMControl *scalerTotalNumberOfScans_;
+	AMControl *scalerMode_;
 
 	AMControlSet *teyControlSet_;
 	AMDetectorInfo *teyDetector_;
@@ -229,6 +249,8 @@ protected:
 	AMControlSet *i0ControlSet_;
 	AMDetectorInfo *eVFbkDetector_;
 	AMControlSet *eVFbkControlSet_;
+	AMDetectorInfo *photodiodeDetector_;
+	AMControlSet *photodiodeControlSet_;
 
 	AMControlSet* criticalControlsSet_;
 	AMControlSet* beamOnControlSet_;
@@ -277,6 +299,8 @@ protected:
 	AMBeamlineControlMoveAction *beamOnAction1_;
 	AMBeamlineControlMoveAction *beamOnAction2_;
 	AMBeamlineActionsList *beamOnActionsList_;
+
+	QString beamlineWarnings_;
 
 	AMBiHash<QString, QString> amNames2pvNames_;
 

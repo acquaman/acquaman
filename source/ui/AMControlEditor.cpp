@@ -202,12 +202,14 @@ AMControlEditor::AMControlEditor(AMControl* control, AMControl* statusTagControl
 		readOnly_ = true;
 
 	// Create objects:
-	valueLabel_ = new QLabel("[unconnected]");
+//	valueLabel_ = new QLabel("[unconnected]");
+	valueLabel_ = new QLabel("[NC]");
 	unitsLabel_ = new QLabel("?");
 	if(statusTagControl_){
 		QFont statusFont;
 		statusFont.setPointSize(10);
-		statusLabel_ = new QLabel("[unconnected]");
+		//statusLabel_ = new QLabel("[unconnected]");
+		statusLabel_ = new QLabel("[NC]");
 		statusLabel_->setFont(statusFont);
 		statusLabel_->setMargin(1);
 	}
@@ -559,20 +561,14 @@ void AMControlButton::onValueChanged(double newVal) {
 	if(isCheckable()){
 		if(control_->value() == downValue_)
 			setChecked(true);
-			//setDown(true);
 		else if(control_->value() == upValue_)
 			setChecked(false);
-			//setDown(false);
-
-		qDebug() << "Down " << isDown() << " Checked " << isChecked();
 	}
 }
 
 void AMControlButton::onClicked(){
-	qDebug() << "Detected clicked";
 	if(isCheckable())
 		return;
-	qDebug() << "Moved for clicked";
 	control_->move(downValue_);
 }
 
@@ -581,15 +577,10 @@ void AMControlButton::onToggled(bool toggled){
 		programaticToggle_ = false;
 		return;
 	}
-	qDebug() << "Detected toggle";
-	if(toggled){
-		qDebug() << "Toggled, go down";
+	if(toggled)
 		control_->move(downValue_);
-	}
-	else{
-		qDebug() << "Untoggled, go up";
+	else
 		control_->move(upValue_);
-	}
 }
 
 void AMControlButton::setHappy(bool happy) {
@@ -614,9 +605,9 @@ void AMBeamlineActionsListButton::overrideText(const QString &text){
 }
 
 void AMBeamlineActionsListButton::onClicked(){
-	qDebug() << "Trying to start actionsList";
+	//qDebug() << "Trying to start actionsList";
 	if(actionsList_ && actionsList_->count() > 0 && !actionsList_->action(0)->hasFinished()){
-		qDebug() << "Starting it";
+	//	qDebug() << "Starting it";
 		actionsList_->action(0)->start();
 	}
 }

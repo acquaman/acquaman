@@ -4,6 +4,7 @@
 #include "dataman/AMFastScan.h"
 #include "SGMFastScanConfiguration.h"
 #include "analysis/AM1DExpressionAB.h"
+#include "dataman/AMUser.h"
 
 class SGMFastScanController
 {
@@ -17,6 +18,7 @@ public:
 protected:
 	SGMFastScanConfiguration *specificCfg_;
 	AMBeamlineParallelActionsList *initializationActions_;
+	AMBeamlineParallelActionsList *cleanUpActions_;
 	bool beamlineInitialized_;
 	AMFastScan *specificScan_;
 

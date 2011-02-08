@@ -171,7 +171,6 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 
 
 	// add scalar (0D) measurements to the raw data store, for each data column.  If setRawDataSources is true, also add raw data sources to the scan, which expose this data.
-	QString spectraPath = "";
 	foreach(QString colName, colNames1) {
 		if(colName != "eV" && colName != "Event-ID") {
 			scan->rawData()->addMeasurement(AMMeasurementInfo(colName, colName));	/// \todo nice descriptions for the common column names; not just 'tey' or 'tfy'.

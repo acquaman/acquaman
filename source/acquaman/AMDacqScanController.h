@@ -60,14 +60,16 @@ protected:
 
 protected:
 	QEpicsAdvAcq *advAcq_;
+	bool usingSpectraDotDatFile_;
 	bool cancelled_;
 	QTime startTime_;
 
 protected slots:
-	void onStart();
-	void onStop();
-	void onPause(int mode);
-	void onSendCompletion(int completion);
+	virtual void onStart();
+	virtual void onStop();
+	virtual void onPause(int mode);
+	virtual void onSendCompletion(int completion);
+	virtual void onState(const QString& state);
 
 private:
 	AMScanConfiguration **_pCfg_;

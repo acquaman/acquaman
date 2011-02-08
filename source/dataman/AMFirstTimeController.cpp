@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QApplication>
 
 #include <dataman/AMXASScan.h>
+#include <dataman/AMFastScan.h>
 #include <dataman/AMRun.h>
 #include <dataman/AMSample.h>
 #include <dataman/AMExperiment.h>
@@ -146,6 +147,7 @@ bool AMFirstTimeController::databaseInitialization(bool newUser) {
 	AMDbObjectSupport::registerClass<AMDbObject>();
 	AMDbObjectSupport::registerClass<AMScan>();
 	AMDbObjectSupport::registerClass<AMXASScan>();
+	AMDbObjectSupport::registerClass<AMFastScan>();
 
 	AMDbObjectSupport::registerClass<AMRun>();
 	AMDbObjectSupport::registerClass<AMExperiment>();

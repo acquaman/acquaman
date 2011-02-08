@@ -242,8 +242,6 @@ void AMProcessVariable::connectionChangedCB(struct connection_handler_args connA
 		// Discover the type of this channel:
 		serverType_ = ca_field_type(chid_);
 
-		qDebug() << "Type of channel" << this->pvName() << "is " << serverType_;
-
 		// We simplify all floating-point types to double, all integer types to long, and leave strings as strings and enums as enums:
 		ourType_ = serverType2ourType(serverType_);
 
@@ -336,6 +334,11 @@ void AMProcessVariable::controlInfoCB(struct event_handler_args eventArgs) {
 		//If the record's DRV_HIGH and DRV_LOW limits haven't been set, we're receiving them as max(0), min(0).
 		// That's a problem, because it pins our minValue() and maxValue() to 0.
 		if(ctrlValue->lower_ctrl_limit == 0 && ctrlValue->upper_ctrl_limit == 0) {
+			lowerLimit_ = -DBL_MAX;
+			upperLimit_ = DBL_MAX;
+		}
+		else if(ctrlValue->lower_ctrl_limit > ctrlValue->upper_ctrl_limit){
+			//In this case we're pinned again
 			lowerLimit_ = -DBL_MAX;
 			upperLimit_ = DBL_MAX;
 		}

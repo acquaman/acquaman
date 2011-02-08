@@ -61,7 +61,7 @@ AMScanController* AMScanControllerSupervisor::currentScanController(){
 }
 
 bool AMScanControllerSupervisor::setCurrentScanController(AMScanController *newScanController){
-	qDebug() << "In setCurrentSC with " << (int)currentScanController_;
+//	qDebug() << "In setCurrentSC with " << (int)currentScanController_;
 	if(currentScanController_)
 		return false;
 	currentScanController_ = newScanController;

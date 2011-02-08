@@ -56,6 +56,9 @@ public:
 	/// Returns true if ALL the controls in this set are connected.
 	bool isConnected() const;
 
+	/// Returns the names of the subset of controls which are not currently connected
+	QStringList unconnected() const;
+
 	/// Return the index of a given \c control in the set. You can then access the control using at() or operator[].  (Returns -1 if not found in the set.)
 	int indexOf(AMControl* control) { return indexOfValue(control); }
 	/// Return the index of the control named \c controlName. (Returns -1 if not found in the set.)
@@ -99,6 +102,7 @@ public:
 signals:
 	/// This signal is emitted whenever isConnected() changes
 	void connected(bool groupConnected);
+	void controlConnectedChanged(bool isConnected, AMControl *control);
 
 public slots:
 	/// Sets the name of the control set.

@@ -45,6 +45,8 @@ AMDacqScanController::AMDacqScanController(AMScanConfiguration *cfg, QObject *pa
 	connect(advAcq_, SIGNAL(onStop()), this, SLOT(onStop()));
 	connect(advAcq_, SIGNAL(onPause(int)), this, SLOT(onPause(int)));
 	connect(advAcq_, SIGNAL(sendCompletion(int)), this, SLOT(onSendCompletion(int)));
+	connect(advAcq_, SIGNAL(onState(QString)), this, SLOT(onState(QString)));
+	usingSpectraDotDatFile_ = false;
 }
 
 void AMDacqScanController::start(){
@@ -63,6 +65,11 @@ void AMDacqScanController::start(){
 			abop->setProperty( "File Template", file.toStdString());
 			abop->setProperty( "File Path", path.toStdString());
 			pScan_()->setFilePath(fullPath+".dat");
+			if(usingSpectraDotDatFile_){
+				QStringList additionalFiles;
+				additionalFiles << fullPath+"_spectra.dat";
+				pScan_()->setAdditionalFilePaths(additionalFiles);
+			}
 
 			((AMAcqScanSpectrumOutput*)abop)->setScan(pScan_());
 			((AMAcqScanSpectrumOutput*)abop)->setScanController(this);
@@ -153,4 +160,8 @@ void AMDacqScanController::onSendCompletion(int completion){
 	double remaining = (completion != 0) ? (100*tc)/((double)completion) - tc : tc*100000;
 	emit timeRemaining(remaining);
 	emit progress(tc, tc+remaining);
+}
+
+void AMDacqScanController::onState(const QString& state){
+	qDebug() << "State of dacq is " << state;
 }

@@ -34,49 +34,58 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	readyLabel_ = new AMControlEditor(SGMBeamline::sgm()->beamlineReady(), NULL, true);
 	readyLabel_->setNoUnitsBox(true);
 	readyLabel_->overrideTitle("");
+	readyLabel_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 //	beamOnCButton_ = new AMControlButton(SGMBeamline::sgm()->beamOn());
 //	beamOnCButton_->overrideText("Beam On");
-//	beamOnCButton_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+//	beamOnCButton_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 	beamOnBALButton_ = new AMBeamlineActionsListButton(SGMBeamline::sgm()->beamOnActionsList());
 	beamOnBALButton_->overrideText("Beam On");
-	beamOnBALButton_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+	beamOnBALButton_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 	beamOffCButton_ = new AMControlButton(SGMBeamline::sgm()->fastShutterVoltage());
 	beamOffCButton_->overrideText("Beam Off");
 	beamOffCButton_->setDownValue(5);
-	beamOffCButton_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+	beamOffCButton_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 	stopMotorsButton_ = new QToolButton();
 	stopMotorsButton_->setText("Emergency\nMotor Stop");
-	stopMotorsButton_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+	stopMotorsButton_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 	connect(stopMotorsButton_, SIGNAL(clicked()), this, SLOT(onStopMotorsButtonClicked()));
 	closeVacuumButton_ = new QToolButton();
 	closeVacuumButton_->setText("Close Vacuum");
-	closeVacuumButton_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+	closeVacuumButton_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 	connect(closeVacuumButton_, SIGNAL(clicked()), this, SLOT(onCloseVacuumButtonClicked()));
 	visibleLightButton_ = new QToolButton();
 	visibleLightButton_->setText("Visible Light");
-	visibleLightButton_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+	visibleLightButton_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 	connect(visibleLightButton_, SIGNAL(clicked()), this, SLOT(onVisibleLightClicked()));
 	connect(SGMBeamline::sgm(), SIGNAL(visibleLightStatusChanged(QString)), this, SLOT(onVisibleLightStatusChanged(QString)));
 	energyNC_ = new AMControlEditor(SGMBeamline::sgm()->energy(), SGMBeamline::sgm()->energyMovingStatus());
 	energyNC_->overrideTitle("Energy");
+	energyNC_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 	trackUndulatorCButton_ = new AMControlButton(SGMBeamline::sgm()->undulatorTracking());
 	trackUndulatorCButton_->overrideText("Undulator");
 	trackUndulatorCButton_->setCheckable(true);
-	trackUndulatorCButton_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+	trackUndulatorCButton_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 	trackGratingCButton_ = new AMControlButton(SGMBeamline::sgm()->monoTracking());
 	trackGratingCButton_->overrideText("Grating");
 	trackGratingCButton_->setCheckable(true);
-	trackGratingCButton_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+	trackGratingCButton_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 	trackExitSlitCButton_ = new AMControlButton(SGMBeamline::sgm()->exitSlitTracking());
 	trackExitSlitCButton_->overrideText("Exit Slit");
 	trackExitSlitCButton_->setCheckable(true);
-	trackExitSlitCButton_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+	trackExitSlitCButton_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 	gratingNC_ = new AMControlEditor(SGMBeamline::sgm()->grating());
 	gratingNC_->overrideTitle("Grating");
+	gratingNC_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 	entranceSlitNC_ = new AMControlEditor(SGMBeamline::sgm()->entranceSlitGap());
 	entranceSlitNC_->overrideTitle("Entrance Slit");
+	entranceSlitNC_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 	exitSlitNC_ = new AMControlEditor(SGMBeamline::sgm()->exitSlitGap());
 	exitSlitNC_->overrideTitle("Exit Slit");
+	exitSlitNC_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+
+	beamlineWarningsLabel_ = new QLabel(SGMBeamline::sgm()->beamlineWarnings());
+	connect(SGMBeamline::sgm(), SIGNAL(beamlineWarningsChanged(QString)), beamlineWarningsLabel_, SLOT(setText(QString)));
+
 
 	gl_->addWidget(readyLabel_,		0, 0, 1, 6, 0);
 	gl_->addWidget(beamOnBALButton_,	1, 0, 1, 2, 0);
@@ -91,8 +100,12 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	gl_->addWidget(gratingNC_,		5, 0, 1, 6, 0);
 	gl_->addWidget(entranceSlitNC_,		6, 0, 1, 3, 0);
 	gl_->addWidget(exitSlitNC_,		6, 3, 1, 3, 0);
+	gl_->addWidget(beamlineWarningsLabel_,	8, 0, 1, 6, 0);
+
+	gl_->setRowStretch(7, 10);
 
 	setLayout(mainLayout_);
+	setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
 }
 
 void SGMSidebar::showEvent(QShowEvent *se){

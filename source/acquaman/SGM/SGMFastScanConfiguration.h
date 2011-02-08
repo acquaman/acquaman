@@ -3,6 +3,7 @@
 
 #include "acquaman/AMFastScanConfiguration.h"
 #include "SGMScanConfiguration.h"
+#include <QFileSystemWatcher>
 
 class SGMFastScanParameters;
 
@@ -13,28 +14,67 @@ public:
 	SGMFastScanConfiguration(QObject *parent = 0);
 	~SGMFastScanConfiguration();
 
-	QString element() const { return element_;}
-	double runTime() const { return runTime_;}
+	QString element() const;
+	double runTime() const;
+	double energyStart() const;
+	double energyMidpoint() const;
+	double energyEnd() const;
+	int velocity() const;
+	int velocityBase() const;
+	int acceleration() const;
+	double scalerTime() const;
 
-	QStringList options() const;
+	QString sensibleFileSavePath() const;
+	QString finalizedSavePath() const;
+	QString sensibleFileSaveWarning() const;
 
+	QStringList presets() const;
 	SGMFastScanParameters* currentParameters() const;
 
 	AMDetectorInfoSet* cfgDetectorInfoSet() const { return cfgFastDetectors_;}
 	QList<AMDetectorInfo*> usingDetectors() const;
 
 public slots:
-	bool setParameters(const QString &element, double runTime);
+	bool setParametersFromPreset(int index);
+	bool setParameters(SGMFastScanParameters *settings);
+	bool setElement(const QString& element);
+	bool setRunSeconds(double runSeconds);
+	bool setEnergyStart(double energyStart);
+	bool setEnergyMidpoint(double energyMidpoint);
+	bool setEnergyEnd(double energyEnd);
+	bool setVelocity(int velocity);
+	bool setVelocityBase(int velocityBase);
+	bool setAcceleration(int acceleration);
+	bool setScalerTime(double scalerTime);
+	bool setSensibleFileSavePath(const QString& sensibleFileSavePath);
 	bool setCfgDetectorInfoSet(AMDetectorInfoSet *cfgDetectorInfoSet) { cfgFastDetectors_ = cfgDetectorInfoSet; return true; }
-//	bool setElement(const QString &element);
-//	bool setRunTime(double runTime);
+
+signals:
+	void onElementChanged(const QString& element);
+	void onRunSecondsChanged(double runSeconds);
+	void onEnergyStartChanged(double energyStart);
+	void onEnergyMidpointChanged(double energyMidpoint);
+	void onEnergyEndChanged(double energyEnd);
+	void onVelocityChanged(int velocity);
+	void onVelocityBaseChanged(int velocityBase);
+	void onAccelerationChanged(int acceleration);
+	void onScalerTimeChanged(double scalerTime);
+
+	void onSensibleFileSavePathChanged(const QString& sensibleFileSavePath);
+	void onNewFinalizedSavePath(const QString& finalizedSavePath);
+
+protected slots:
+	void onSaveDirectoryChanged(const QString& directory);
 
 protected:
-	int currentSettingsIndex_;
-	QString element_;
-	double runTime_;
 	AMDetectorInfoSet *cfgFastDetectors_;
 	QList<SGMFastScanParameters*> settings_;
+	SGMFastScanParameters *currentSettings_;
+
+	QString sensibleFileSavePath_;
+	QString finalizedSavePath_;
+	QString sensibleFileSaveWarning_;
+	QFileSystemWatcher savePathWatcher_;
 };
 
 class SGMFastScanParameters : public QObject

@@ -57,13 +57,13 @@ bool AMBeamlineScanAction::isPaused() const{
 
 void AMBeamlineScanAction::start(){
 	if(!isReady()){
-		qDebug() << "Not ready, connecting and waiting";
+		//qDebug() << "Not ready, connecting and waiting";
 		connect(this, SIGNAL(ready(bool)), this, SLOT(delayedStart(bool)));
 		return;
 	}
 	//if(scanType_ == "SGMXASScan"){
 	if(scanType_ == "DacqScan"){
-		qDebug() << "Ready, so get rolling";
+		//qDebug() << "Ready, so get rolling";
 		SGMXASScanConfiguration *sxsc = NULL;
 		SGMFastScanConfiguration *sfsc = NULL;
 		SGMXASDacqScanController *sxdc = NULL;
@@ -77,7 +77,7 @@ void AMBeamlineScanAction::start(){
 			return;
 		}
 		if(!AMBeamlineActionItem::isReinitialized()){
-			qDebug() << "Not reinitalized, creating new controller";
+			//qDebug() << "Not reinitalized, creating new controller";
 			if(sxsc){
 				sxdc = new SGMXASDacqScanController( sxsc, this);
 				ctrl_ = sxdc;
@@ -85,16 +85,16 @@ void AMBeamlineScanAction::start(){
 			else if(sfsc){
 				sfdc = new SGMFastDacqScanController( sfsc, this);
 				ctrl_ = sfdc;
-				qDebug() << "Looks like we set ctrl_ right" << (int)sfdc << " " << (int)ctrl_;
+				//qDebug() << "Looks like we set ctrl_ right" << (int)sfdc << " " << (int)ctrl_;
 			}
 			else{
-				qDebug() << "(1)Honestly, how did we get here? We should have already failed. Okay, Acquaman, you've got me, we fail again.";
+				//qDebug() << "(1)Honestly, how did we get here? We should have already failed. Okay, Acquaman, you've got me, we fail again.";
 				setFailed(true, AMBEAMLINEACTIONITEM_INVALID_SCAN_TYPE);
 				return;
 			}
 			if( !AMScanControllerSupervisor::scanControllerSupervisor()->setCurrentScanController(ctrl_) ){
 				delete ctrl_;
-				qDebug() << "Failed to set current scan controller";
+				//qDebug() << "Failed to set current scan controller";
 				setFailed(true, AMBEAMLINEACTIONITEM_CANT_SET_CURRENT_CONTROLLER);
 				return;
 			}
@@ -115,7 +115,7 @@ void AMBeamlineScanAction::start(){
 			sfdc->initialize();
 		}
 		else{
-			qDebug() << "(2)Honestly, how did we get here? We should have already failed. Okay, Acquaman, you've got me, we fail again.";
+			//qDebug() << "(2)Honestly, how did we get here? We should have already failed. Okay, Acquaman, you've got me, we fail again.";
 			setFailed(true, AMBEAMLINEACTIONITEM_INVALID_SCAN_TYPE);
 			return;
 		}
@@ -138,7 +138,7 @@ void AMBeamlineScanAction::cancelButKeep(){
 }
 
 void AMBeamlineScanAction::reset(bool delayInitialized){
-	qDebug() << "Reseting with keepOnCancel " << keepOnCancel_;
+	//qDebug() << "Reseting with keepOnCancel " << keepOnCancel_;
 	((SGMXASDacqScanController*)ctrl_)->reinitialize(!keepOnCancel_);
 	AMBeamlineActionItem::reset(true);
 	initialize();
@@ -263,14 +263,25 @@ void AMBeamlineScanActionView::updateScanNameLabel(){
 		scanName.setNum(index_);
 		scanName.append(". ");
 	}
-	if(qobject_cast<SGMXASScanConfiguration*>(scanAction_->cfg())){
+	SGMXASScanConfiguration *xasCfg = 0;
+	SGMFastScanConfiguration *fastCfg = 0;
+
+//	if(qobject_cast<SGMXASScanConfiguration*>(scanAction_->cfg())){
+	if(xasCfg = qobject_cast<SGMXASScanConfiguration*>(scanAction_->cfg())){
 		scanName += "SGM XAS Scan from ";
-		tmpStr.setNum( ((SGMXASScanConfiguration*)scanAction_->cfg())->regionStart(0) );
+		//tmpStr.setNum( ((SGMXASScanConfiguration*)scanAction_->cfg())->regionStart(0) );
+		tmpStr.setNum( xasCfg->regionStart(0) );
 		scanName.append(tmpStr+" to ");
-		tmpStr.setNum( ((SGMXASScanConfiguration*)scanAction_->cfg())->regionEnd(((SGMXASScanConfiguration*)scanAction_->cfg())->regionCount()-1) );
+		//tmpStr.setNum( ((SGMXASScanConfiguration*)scanAction_->cfg())->regionEnd(((SGMXASScanConfiguration*)scanAction_->cfg())->regionCount()-1) );
+		tmpStr.setNum( xasCfg->regionEnd(xasCfg->regionCount()-1) );
 		scanName.append(tmpStr);
 		scanNameLabel_->setText(scanName);
 	}
+	if(fastCfg = qobject_cast<SGMFastScanConfiguration*>(scanAction_->cfg())){
+		scanName += QString("SGM Fast Scan from %1 to %2").arg(fastCfg->start()).arg(fastCfg->end());
+		scanNameLabel_->setText(scanName);
+	}
+
 }
 
 void AMBeamlineScanActionView::updateProgressBar(double elapsed, double total){
@@ -325,7 +336,7 @@ void AMBeamlineScanActionView::onScanFailed(int explanation){
 }
 
 void AMBeamlineScanActionView::onStopCancelButtonClicked(){
-	qDebug() << "Running " << scanAction_->isRunning() << " started " << scanAction_->hasStarted() << " finished " << scanAction_->hasFinished() << " paused " << scanAction_->isPaused();
+	//qDebug() << "Running " << scanAction_->isRunning() << " started " << scanAction_->hasStarted() << " finished " << scanAction_->hasFinished() << " paused " << scanAction_->isPaused();
 	if(scanAction_->isRunning()){
 		scanAction_->pause(true);
 		QMessageBox msgBox;
