@@ -104,6 +104,7 @@ AMProcessVariable::AMProcessVariable(const QString& pvName, bool autoMonitor, QO
 
 	// This PV is not initialized yet:
 	initialized_ = false;
+	hasValues_ = false;
 	serverType_ = Unconnected;
 	ourType_ = Unconnected;
 
@@ -409,6 +410,7 @@ void AMProcessVariable::valueChangedCB(struct event_handler_args eventArgs) {
 	case FloatingPoint:
 		for(int i=0; i<eventArgs.count; i++)
 			data_dbl_[i] = ((dbr_double_t*)eventArgs.dbr)[i];
+		hasValues_ = true;
 		emit valueChanged(data_dbl_.at(0));
 		emit valueChanged(int(data_dbl_.at(0)));
 		emit valueChanged();
@@ -417,6 +419,7 @@ void AMProcessVariable::valueChangedCB(struct event_handler_args eventArgs) {
 	case Integer:
 		for(int i=0; i<eventArgs.count; i++)
 			data_int_[i] = ((dbr_long_t*)eventArgs.dbr)[i];
+		hasValues_ = true;
 		emit valueChanged(data_int_.at(0));
 		emit valueChanged(double(data_int_.at(0)));
 		emit valueChanged();
@@ -425,6 +428,7 @@ void AMProcessVariable::valueChangedCB(struct event_handler_args eventArgs) {
 	case Enum: {
 		for(int i=0; i<eventArgs.count; i++)
 			data_int_[i] = ((dbr_enum_t*)eventArgs.dbr)[i];
+		hasValues_ = true;
 		int newValue = data_int_.at(0);
 		emit valueChanged(newValue);
 		emit valueChanged(double(newValue));
@@ -444,6 +448,7 @@ void AMProcessVariable::valueChangedCB(struct event_handler_args eventArgs) {
 		data_str_.clear();
 		for(int i=0; i<eventArgs.count; i++)
 			data_str_ << QString( ((dbr_string_t*)eventArgs.dbr)[i] );
+		hasValues_ = true;
 		emit valueChanged(data_str_.at(0));
 		emit valueChanged();
 		break;

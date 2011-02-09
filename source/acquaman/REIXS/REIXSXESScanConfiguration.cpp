@@ -1,7 +1,7 @@
 #include "REIXSXESScanConfiguration.h"
 
 REIXSXESScanConfiguration::REIXSXESScanConfiguration(QObject *parent) :
-	AMScanConfiguration(parent)
+	AMScanConfiguration(parent), mcpDetectorInfo_()
 {
 	gratingNumber_ = 0;
 	centerEV_ = 400;

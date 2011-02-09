@@ -1,0 +1,232 @@
+#ifndef REIXSXESMCPDETECTOR_H
+#define REIXSXESMCPDETECTOR_H
+
+#include <QObject>
+#include "beamline/AMControl.h"
+#include "dataman/AMDataSource.h"
+#include "dataman/REIXS/REIXSXESMCPDetectorInfo.h"
+
+/// This class exposes an array process variable as an AMDataSource, for use with REIXSXESMCPDetector.
+/*! \todo Should there be an abstract class above this one, that doesn't tie this to an EPICS PV implementation? */
+class REIXSXESMCPDataSource : public QObject, public AMDataSource {
+	Q_OBJECT
+public:
+	/// Constructor. \c name is the AMDataSource::name() for this source, and imagePV is the process variable containing the image data. We also need the PVs which describe the
+	REIXSXESMCPDataSource(const QString& name, AMProcessVariable* imagePV, AMProcessVariable* resolutionXPV, AMProcessVariable* resolutionYPV, QObject* parent = 0);
+
+	/// Human-readable description of the type of data source this is (ex: "One-dimensional math expression").  Subclasses should re-implement this.
+	virtual QString typeDescription() const { return "XES Imaging Detector"; }
+
+	/// Returns an OR-combination of StateFlags describing the current state of the data. We return InvalidFlag before we're connected and ProcessingFlag afterwards (because the data might be changing.)
+	virtual int state() const { return isConnected_ ? ProcessingFlag : InvalidFlag; }
+
+	// Axis Information
+	//////////////////////
+	/// Returns axis information for all axes
+	virtual QList<AMAxisInfo> axes() const { return axes_; }
+	/// Returns the rank (number of dimensions) of this data set: 2 (image)
+	virtual int rank() const { return 2; }
+	/// Returns the size of (ie: count along) each dimension
+	virtual AMnDIndex size() const {
+		return AMnDIndex(pixelsX_, pixelsY_);
+	}
+	/// Returns the size along a single axis \c axisNumber. This should be fast. \c axisNumber is assumed to be between 0 and rank()-1.
+	virtual int size(int axisNumber) const {
+		return axes_.at(axisNumber).size;
+	}
+	/// Returns a bunch of information about a particular axis. \c axisNumber is assumed to be between 0 and rank()-1.
+	virtual AMAxisInfo axisInfoAt(int axisNumber) const {
+		return axes_.at(axisNumber);
+	}
+	/// Returns the id of an axis, by name. (By id, we mean the index of the axis. We called it id to avoid ambiguity with indexes <i>into</i> axes.) This could be slow, so users shouldn't call it repeatedly. Returns -1 if not found.
+	virtual int idOfAxis(const QString& axisName) {
+		if(axisName == axes_.at(0).name)
+			return 0;
+		if(axisName == axes_.at(1).name)
+			return 1;
+		return -1;
+	}
+
+	// Data value access
+	////////////////////////////
+
+	/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient or any are out of range, or if the data is not ready.
+	virtual AMNumber value(const AMnDIndex& indexes) const {
+		if(!isConnected_)
+			return AMNumber();
+		if(indexes.rank() != 2)
+			return AMNumber(AMNumber::DimensionError);
+		if(indexes.i() >= pixelsX_ || indexes.j() >= pixelsY_)
+			return AMNumber(AMNumber::OutOfBoundsError);
+
+		return imagePV_->getInt(indexes.i()*pixelsY_ + indexes.j());
+	}
+
+	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index)
+	virtual AMNumber axisValue(int axisNumber, int index) const {
+		Q_UNUSED(axisNumber)
+		return index;
+	}
+
+
+protected slots:
+	/// Called whenever the connection state of any PV changes; emits valuesChanged(), sizeChanged(), and stateChanged() as required.
+	void onConnectionStateChanged();
+	/// Called when the image PV changes. emits valuesChanged().
+	void onImageValuesChanged();
+
+protected:
+	/// Retains axis information
+	QList<AMAxisInfo> axes_;
+	/// PVs to access detector data
+	AMProcessVariable* imagePV_, *resolutionXPV_, *resolutionYPV_;
+	/// Connection state: true if all 3 PVs are connected
+	bool isConnected_;
+	/// Caches the size of the image, for speed. Same as axes_.at(0).size and axes_.at(1).size
+	int pixelsX_, pixelsY_;
+
+
+};
+
+/// This object is a "live" link that can be used to control the MCP detector in the REIXS spectrometer, and access its real-time data.  It exposes the accumulated image, and the instantaneous image on the detector, as AMDataSources. It also provides methods to clear the accumulated image.
+/*! This implementation is tied to the usb2401 Epics Driver and digital interface module from the MCP position analyzer. \todo Re-implement an abstract version of an imaging detector interface that can be used by general scan controllers? */
+class REIXSXESMCPDetector : public QObject
+{
+	Q_OBJECT
+public:
+	/// Construct a new detector object.   \c name is an abitrary name, that will be used for the data sources. \c basePVName is the base of the Process Variable names we use to read and control the detector (ex: [basePVName]:image, [basePVName]:clear, etc.)
+	REIXSXESMCPDetector(const QString& name, const QString& basePVName, QObject *parent = 0);
+
+	QString name() const { return name_; }
+	QString description() const { return description_; }
+	void setName(const QString& name) { name_ = name; }
+	void setDescription(const QString& description) { description_ = description; }
+
+	// Is the detector "live" and connected?
+	//////////////////
+
+	/// Is the connection to the detector up, and able to read values/images?
+	bool canRead() const {
+		return totalCountsPV_->canRead() && countsPerSecondPV_->canRead() && orientationPV_->canRead() && imagePV_->canRead() && instantaneousImagePV_->canRead();
+	}
+
+	/// Are we able to configure the detector? (Connection established and permission to write to the configure PVs)
+	bool canConfigure() const {
+		return orientationPV_->canWrite() && clearPV_->canWrite() && averagingPeriodSecsPV_->canWrite() && persistTimeSecsPV_->canWrite();
+	}
+
+	/// \todo Signals when canRead() / canConfigure() change? (or an isConnected() and signals for that?)
+
+	// Reading the detector
+	////////////////////////
+
+	/// Access a data source corresponding to the detector's accumulated image
+	AMDataSource* image() const { return image_; }
+	/// Access a data source corresponding to the detector's real-time (persist-delay) image
+	AMDataSource* instantaneousImage() const { return instantaneousImage_; }
+
+	/// Read the total counts in the image:
+	double totalCounts() const { return totalCountsPV_->lastValue(); }
+	/// Access the counts per second at this instant in time
+	double countsPerSecond() const { return countsPerSecondPV_->lastValue(); }
+	/// Return the orientation configuration of the detector (0 for horizontal, 1 for vertical)
+	bool orientation() const { return orientationPV_->getInt(); }
+
+	/// Returns (or casts) this detector as an REIXSXESMCPDetectorInfo, which contains this detector's current configuration information but not the live control abilities.
+	operator REIXSXESMCPDetectorInfo() {
+		REIXSXESMCPDetectorInfo rv(name(), description());
+		rv.setSize(image_->size());
+		rv.setOrientation(orientation());
+		return rv;
+	}
+
+	// Controlling the detector
+	/////////////////////////////
+
+	/// Change the detector's configuration RIGHT NOW, from a saved set (REIXSXESDetectorInfo) of values. Note: the REIXSXESMCPDetectorInfo::size() of \c info is ignored.  Note: this will clear the accumulated image, because setting the orientation always clears the image.
+	bool setFromInfo(const REIXSXESMCPDetectorInfo& info) {
+		bool success = true;
+
+		setName(info.name());
+		setDescription(info.description());
+
+		/// \todo: set HV. (No current way to set it; no PV control)
+		success |= setOrientation(info.orientation());
+
+		return success;
+	}
+
+
+
+public slots:
+
+	/// Clear the accumulated detector image
+	bool clearImage() {
+		if(clearPV_->canWrite()) {
+			clearPV_->setValue(1);
+			return true;
+		}
+		return false;
+	}
+
+	/// set the orientation (swap the way the detector interprets X and Y axes)
+	bool setOrientation(bool isHorizontal) {
+		if(orientationPV_->canWrite()) {
+			orientationPV_->setValue((int)isHorizontal);
+			return true;
+		}
+		return false;
+	}
+
+	/// set the number of seconds over which the count rate is averaged
+	bool setAveragingPeriod(double seconds) {
+		if(averagingPeriodSecsPV_->canWrite()) {
+			averagingPeriodSecsPV_->setValue(seconds);
+			return true;
+		}
+		return false;
+	}
+
+	/// set the number of seconds that counts persist for on the instantaneous image
+	bool setPersistDuration(double seconds) {
+		if(persistTimeSecsPV_->canWrite()) {
+			persistTimeSecsPV_->setValue(seconds);
+			return true;
+		}
+		return false;
+	}
+
+
+
+signals:
+
+	/// Emitted whenever the countsPerSecond changes
+	void countsPerSecondChanged(double);
+	/// Emitted whenever the total number of counts changes
+	void totalCountsChanged(double);
+
+public slots:
+
+protected:
+	AMProcessVariable* totalCountsPV_;
+	AMProcessVariable* countsPerSecondPV_;
+	AMProcessVariable* imagePV_;
+	AMProcessVariable* instantaneousImagePV_;
+	AMProcessVariable* resolutionXPV_;
+	AMProcessVariable* resolutionYPV_;
+
+	AMProcessVariable* clearPV_;
+	AMProcessVariable* orientationPV_;
+	AMProcessVariable* averagingPeriodSecsPV_;
+	AMProcessVariable* persistTimeSecsPV_;
+
+	REIXSXESMCPDataSource* image_, *instantaneousImage_;
+
+	QString basePVName_;
+	QString name_, description_;
+
+
+
+};
+
+#endif // REIXSXESMCPDETECTOR_H

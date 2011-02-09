@@ -44,7 +44,7 @@ public:
 	// Constructors and destructors
 	/////////////////////////////////////
 	/// Default constructor. \c name is a unique programmer's name to access this detector with. \c description is a human-readable version.
-	AMDetectorInfo(const QString& name, const QString& description, QObject *parent = 0);
+	Q_INVOKABLE AMDetectorInfo(const QString& name = "unknownDetector", const QString& description = "Generic Detector", QObject *parent = 0);
 
 	~AMDetectorInfo() {}
 

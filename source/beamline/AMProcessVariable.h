@@ -147,6 +147,10 @@ public:
 
 	/// Indicates that a connection is established to the Epics CA server for this Process Variable.
 	bool isConnected() const { return ca_state(chid_) == cs_conn; }
+	/// Indicates that a connection was established to the Epics CA server, and we managed to download control information (meta information) for this Process Variable.
+	bool isInitialized() const { return initialized_; }
+	/// Indicates that we've received the actual values for this PV at some point in history. (Note that isConnected() will be true as soon as a connection to the CA server is established, but we won't have the value yet when connected() gets emitted.)  valueChanged() will be emitted when the first value is received, but in case you're not watching that, you can call hasValues() to check if this has already happened.
+	bool hasValues() const { return hasValues_; }
 
 	/// Checks read access ability. (Verifies also that we are connected, since reading is impossible if not.)
 	bool canRead() const { return isConnected() && ca_read_access(chid_); }
@@ -368,6 +372,8 @@ protected:
 	bool shouldBeMonitoring_;
 	/// true after the channel connects and we receive the control information:
 	bool initialized_;
+	/// true after we receive the first value response
+	bool hasValues_;
 
 	/// Last error experienced.
 	int lastError_;

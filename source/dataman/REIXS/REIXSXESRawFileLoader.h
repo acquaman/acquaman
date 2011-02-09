@@ -6,10 +6,11 @@
 
 /// This class implements loading and saving of raw XES data in the "reixsXESRaw" file format.  The file format is binary, big endian format, and consists of the following data:
 /*!
- - Magic string, in ASCII encoding: "REIXSXESRAW2011"
+ - Magic string, in ASCII encoding: "REIXSXESRAW2011.1"
  - Number of x pixels (32-bit integer)
  - Number of y pixels (32-bit integer)
  - all the pixels (32-bit integer each) starting from x=0, y=0, with y varying the fastest (ie: outer loop on x, inner loop on y)
+ - A closing magic string, in ASCII encoding: "REIXSXESRAW2011.1"
  */
 class REIXSXESRawFileLoader : public AMAbstractFileLoader
 {

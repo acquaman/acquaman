@@ -50,7 +50,7 @@ public:
 
 	/// A human-readable description of this scan configuration. Can be re-implemented to provide more details.
 	virtual QString description() const {
-		return QString("SGM XAS Scan from %1 to %2").arg(regionStart(0)).arg(regionEnd(regionCount()-1));
+		return QString("XAS Scan from %1 to %2").arg(regionStart(0)).arg(regionEnd(regionCount()-1));
 	}
 
 public slots:

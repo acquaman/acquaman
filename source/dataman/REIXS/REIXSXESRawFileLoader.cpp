@@ -6,6 +6,9 @@
 
 #include <QPair>
 
+/// Magic string found and the beginning and end of the file to identify the file type and version
+#define REIXSXESRAWFILELOADER_MAGIC_STRING "REIXSXESRAW2011.1"
+
 typedef QPair<int, QString> REIXSXESRawFileException;
 
 REIXSXESRawFileLoader::REIXSXESRawFileLoader(AMXESScan *scan)
@@ -33,13 +36,14 @@ bool REIXSXESRawFileLoader::loadFromFile(const QString &filepath, bool setMetaDa
 		if(!file.open(QIODevice::ReadOnly))
 			throw REIXSXESRawFileException(-1, "Could not open the data file");
 
-		// check the magic number (ascii encoded "REIXSXESRAW2011" at the start of the file)
-		QByteArray magicTextShouldBe("REIXSXESRAW2011");
+		// check the magic string (ascii encoded string at the start of the file)
+		QByteArray magicTextShouldBe(REIXSXESRAWFILELOADER_MAGIC_STRING);
 		QByteArray magicText = file.read(magicTextShouldBe.length());
 		if(magicText != magicTextShouldBe)
 			throw REIXSXESRawFileException(-2, "Couldn't load invalid file format");
 
 
+		// read number of pixels in X and Y
 		QDataStream ds(&file);
 		ds >> pixelsX;
 		ds >> pixelsY;
@@ -47,16 +51,15 @@ bool REIXSXESRawFileLoader::loadFromFile(const QString &filepath, bool setMetaDa
 		if(pixelsX == 0 || pixelsY == 0)
 			throw REIXSXESRawFileException(-3, "Couldn't load corrupted file");
 
-
+		// read all the pixel values
 		image = new qint32[pixelsX*pixelsY];
-		for(int i=0; i<pixelsX; i++)
-			for(int j=0; j<pixelsY; j++)
-				ds >> *(image++);
+		for(int i=0; i<pixelsX*pixelsY; i++)
+			ds >> *(image++);
 
-		if(ds.atEnd()) {
-			delete [] image;
-			throw REIXSXESRawFileException(-4, "Couldn't load corrupted file -- there wasn't enough data.");
-		}
+		// read the magic string at the end of the file (makes sure we had all the data)
+		magicText = file.read(magicTextShouldBe.length());
+		if(magicText != magicTextShouldBe)
+			throw REIXSXESRawFileException(-2, "Couldn't load corrupted file -- there wasn't enough data.");
 
 		file.close();
 	}
@@ -131,15 +134,16 @@ bool REIXSXESRawFileLoader::saveToFile(const QString &filepath) {
 
 		qint32 pixelsX = mi.size(0), pixelsY = mi.size(1);
 
-		// output the magic number (ascii encoded "REIXSXESRAW2011" at the start of the file)
-		QByteArray magicTextShouldBe("REIXSXESRAW2011");
+		// output the magic number (ascii encoded string at the start of the file)
+		QByteArray magicText(REIXSXESRAWFILELOADER_MAGIC_STRING);
 		QDataStream ds(&file);
-		ds << magicTextShouldBe;
+		ds << magicText;
 
 		// Output the number of pixels in each dimension
 		ds << pixelsX;
 		ds << pixelsY;
 
+		// output the pixels.  (outer loop on x, inner loop on y)
 		for(int i=0; i<pixelsX; i++) {
 			for(int j=0; j<pixelsY; j++) {
 				qint32 counts = scan->rawData()->value(AMnDIndex(), measurementId, AMnDIndex(i,j));
@@ -147,10 +151,13 @@ bool REIXSXESRawFileLoader::saveToFile(const QString &filepath) {
 			}
 		}
 
+		// output the magic string at the end of the file (used as check on reading to make sure we have it all)
+		ds << magicText;
+
 		file.close();
 	}
 	catch(REIXSXESRawFileException e) {
-		AMErrorMon::report(AMErrorReport(scan, AMErrorReport::Alert, e.first, QString("REIXS XES Raw File Exporter: %1\n\nFile: '%2'").arg(e.second).arg(filepath)));
+		AMErrorMon::report(AMErrorReport(scan, AMErrorReport::Alert, e.first, QString("REIXS XES Raw File Saver: %1\n\nFile: '%2'").arg(e.second).arg(filepath)));
 		file.close();
 		return false;
 	}
