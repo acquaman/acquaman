@@ -101,14 +101,20 @@ void REIXSXESMCPDetectorView::onCountsPerSecondChanged(double countsPerSecond) {
 
 	countsPerSecondIndicator_->setText(QString("%1").arg(countsPerSecond, 5, 'e', 1));
 
+	// log(0) is undefined...
+	if(countsPerSecond == 0)
+		countsPerSecond = 1;
+
 	countsPerSecondBar_->setValue(log10(countsPerSecond)*100);	// integer scale goes up to 600.  Highest count rate we'll see is 1e6.
 }
 
 void REIXSXESMCPDetectorView::onImageSelectorChanged(int index) {
 
-	if(index == 0)
+	if(index == 0) {
 		image_->setModel(new AMDataSourceImageData(detector_->instantaneousImage()), true);
+	}
 	else
 		image_->setModel(new AMDataSourceImageData(detector_->image()), true);
+
 }
 

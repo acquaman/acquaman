@@ -21,37 +21,59 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMnDIndex.h"
 
 /// Create an invalid index (rank of 0)
-AMnDIndex::AMnDIndex() : QVarLengthArray<int, AMNDARRAY_BASE_SIZE>(0) {
+AMnDIndex::AMnDIndex() {
+	rank_ = 0;
+	extras_ = 0;
 }
 
 /// Create an index for 1D data
-AMnDIndex::AMnDIndex(int row) : QVarLengthArray<int, AMNDARRAY_BASE_SIZE>(1) {
-	(*this)[0] = row;
+AMnDIndex::AMnDIndex(int row) {
+	rank_ = 1;
+	extras_ = 0;
+	i_ = row;
 }
 
 /// Create an index for 2D data
-AMnDIndex::AMnDIndex(int row, int col)	: QVarLengthArray<int, AMNDARRAY_BASE_SIZE>(2) {
-	(*this)[0] = row;
-	(*this)[1] = col;
+AMnDIndex::AMnDIndex(int row, int col) {
+	rank_ = 2;
+	extras_ = 0;
+	i_ = row;
+	j_ = col;
 }
 /// Create an index for 3D data
-AMnDIndex::AMnDIndex(int row, int col, int slice) : QVarLengthArray<int, AMNDARRAY_BASE_SIZE>(3) {
-	(*this)[0] = row;
-	(*this)[1] = col;
-	(*this)[2] = slice;
+AMnDIndex::AMnDIndex(int row, int col, int slice) {
+	rank_ = 3;
+	extras_ = 0;
+	i_ = row;
+	j_ = col;
+	k_ = slice;
 }
 
 /// Create an index for 4D data
-AMnDIndex::AMnDIndex(int i, int j, int k, int l) : QVarLengthArray<int, AMNDARRAY_BASE_SIZE>(4) {
-	(*this)[0] = i;
-	(*this)[1] = j;
-	(*this)[2] = k;
-	(*this)[3] = l;
+AMnDIndex::AMnDIndex(int i, int j, int k, int l) {
+	rank_ = 4;
+	extras_ = 0;
+	i_ = i;
+	j_ = j;
+	k_ = k;
+	l_ = l;
 }
 
-AMnDIndex::AMnDIndex(int dimension, bool initToZero) : QVarLengthArray<int, AMNDARRAY_BASE_SIZE>(dimension) {
-	if(initToZero)
-		for(int i=0; i<dimension; i++)
-			(*this)[i] = 0;
+AMnDIndex::AMnDIndex(int dimension, bool initToZero)  {
+	rank_ = dimension;
+	if(initToZero) {
+		if(rank_ > 8)
+			extras_ = new QVector<int>(rank_-8, 0);
+		else
+			extras_ = 0;
+		i_ = j_ = k_ = l_ = m_ = n_ = o_ = p_ = 0;
+	}
+
+	else {	// do not init
+		if(rank_ > 8)
+			extras_ = new QVector<int>(rank_-8);
+		else
+			extras_ = 0;
+	}
 }
 

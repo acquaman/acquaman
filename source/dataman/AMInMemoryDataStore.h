@@ -234,7 +234,7 @@ public:
 
 #ifdef AMINMEMORYDATASTORE_BOUNDS_CHECKING_ENABLED
 		for(int mu=0; mu<axes_.count(); mu++)
-			if((unsigned)scanIndex[mu] >= (unsigned)scanSize(mu))
+			if((unsigned)scanIndex.at(mu) >= (unsigned)scanSize(mu))
 				return AMNumber(AMNumber::OutOfBoundsError);
 #endif
 
@@ -299,7 +299,7 @@ public:
 
 	#ifdef AMINMEMORYDATASTORE_BOUNDS_CHECKING_ENABLED
 		for(int mu=0; mu<axes_.count(); mu++)
-			if((unsigned)scanIndex[mu] >= (unsigned)scanSize(mu)) {
+			if((unsigned)scanIndex.at(mu) >= (unsigned)scanSize(mu)) {
 				//qDebug() << "err 2";
 				return false;
 			}
@@ -371,7 +371,7 @@ public:
 
 #ifdef AMINMEMORYDATASTORE_BOUNDS_CHECKING_ENABLED
 		for(int mu=0; mu<axes_.count(); mu++)
-			if((unsigned)scanIndex[mu] >= (unsigned)scanSize(mu))
+			if((unsigned)scanIndex.at(mu) >= (unsigned)scanSize(mu))
 				return false;
 #endif
 
@@ -430,7 +430,7 @@ public:
 
 #ifdef AMINMEMORYDATASTORE_BOUNDS_CHECKING_ENABLED
 		for(int mu=0; mu<axes_.count(); mu++)
-			if((unsigned)scanIndex[mu] >= (unsigned)scanSize(mu))
+			if((unsigned)scanIndex.at(mu) >= (unsigned)scanSize(mu))
 				return false;
 #endif
 
@@ -544,9 +544,9 @@ protected:
 	/*! No checking is done to see if the data structure pointers are valid; it's assumed we have enough dimensions to succeed. It's up to the caller to verify this.*/
 	AMIMDSScanPoint* findScanPointRecursive(const AMnDIndex& scanIndex, const AMIMDSColumn* dataRoot, int atDimension) const {
 		if(atDimension == 0)
-			return dataRoot->at(scanIndex[0]).scanPoint;
+			return dataRoot->at(scanIndex.i()).scanPoint;
 		else
-			return findScanPointRecursive(scanIndex, dataRoot->at(scanIndex[atDimension]).nextColumn, atDimension-1);
+			return findScanPointRecursive(scanIndex, dataRoot->at(scanIndex.at(atDimension)).nextColumn, atDimension-1);
 	}
 
 	/// Returns the flat array index for a multi-dimensional measurement.  For example, for a 4-dimensional \c measurementIndex AMnDIndex(3,4,5,600) and a measurement that has dimensions (5,10,100,1000), the flat index is 3*10*100*1000 + 4*100*1000 + 5*1000 + 600.
@@ -587,7 +587,7 @@ protected:
 				int multiplier = 1;
 				for(int nu=mu+1; nu<rank; nu++)
 					multiplier *= mi.size(nu);
-				rv += measurementIndex[mu]*multiplier;
+				rv += measurementIndex.at(mu)*multiplier;
 			}
 			break; }
 		}

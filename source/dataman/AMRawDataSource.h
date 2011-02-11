@@ -100,20 +100,20 @@ public:
 		case 1:
 			switch(measurementAxesCount_) {
 			case 0:
-				return dataStore_->value(indexes[0], measurementId_, AMnDIndex());	// 1d data: one scan axis, scalar measurements
+				return dataStore_->value(indexes.i(), measurementId_, AMnDIndex());	// 1d data: one scan axis, scalar measurements
 			case 1:
-				return dataStore_->value(indexes[0], measurementId_, indexes[1]); // 2d data: one scan axis, one measurement axis (ie: XAS scan with 1D detector, like SDD)
+				return dataStore_->value(indexes.i(), measurementId_, indexes.j()); // 2d data: one scan axis, one measurement axis (ie: XAS scan with 1D detector, like SDD)
 			case 2:
-				return dataStore_->value(indexes[0], measurementId_, AMnDIndex(indexes[1], indexes[2]));	// 3d data: one scan axis, two measurement axes (ie: XAS scan with 2D detector, like XES)
+				return dataStore_->value(indexes.i(), measurementId_, AMnDIndex(indexes.j(), indexes.k()));	// 3d data: one scan axis, two measurement axes (ie: XAS scan with 2D detector, like XES)
 			}
 		case 2:
 			switch(measurementAxesCount_) {
 			case 0:
-				return dataStore_->value(AMnDIndex(indexes[0], indexes[1]), measurementId_, AMnDIndex());
+				return dataStore_->value(AMnDIndex(indexes.i(), indexes.j()), measurementId_, AMnDIndex());
 			case 1:
-				return dataStore_->value(AMnDIndex(indexes[0], indexes[1]), measurementId_, indexes[2]);
+				return dataStore_->value(AMnDIndex(indexes.i(), indexes.j()), measurementId_, indexes.k());
 			case 2:
-				return dataStore_->value(AMnDIndex(indexes[0], indexes[1]), measurementId_, AMnDIndex(indexes[2], indexes[3]));	// 4D data: really?
+				return dataStore_->value(AMnDIndex(indexes.i(), indexes.j()), measurementId_, AMnDIndex(indexes.k(), indexes.l()));	// 4D data: really?
 			}
 
 		default:
@@ -123,11 +123,11 @@ public:
 		// general case:
 		AMnDIndex scanIndex(scanAxesCount_, false);
 		for(int i=0; i<scanAxesCount_; i++)
-			scanIndex[i] = indexes[i];
+			scanIndex[i] = indexes.at(i);
 
 		AMnDIndex measurementIndex(measurementAxesCount_, false);
 		for(int i=0; i<measurementAxesCount_; i++)
-			measurementIndex[i] = indexes[i+scanAxesCount_];
+			measurementIndex[i] = indexes.at(i+scanAxesCount_);
 
 		return dataStore_->value(scanIndex, measurementId_, measurementIndex);
 	}

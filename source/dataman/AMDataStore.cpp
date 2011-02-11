@@ -80,8 +80,8 @@ bool AMDataStore::beginInsertRowsAsNecessaryForScanPoint(const AMnDIndex& scanIn
 
 	// go through each axis and insert the number of rows required.
 	for(int mu=0; mu<scanRank(); mu++) {
-		if(scanIndex[mu] >= scanSpaceStartIndex_[mu]) {
-			int numRows = scanIndex[mu]-scanSpaceStartIndex_[mu]+1;
+		if(scanIndex.at(mu) >= scanSpaceStartIndex_[mu]) {
+			int numRows = scanIndex.at(mu)-scanSpaceStartIndex_[mu]+1;
 			int atRowIndex = scanSpaceStartIndex_[mu];
 			beginInsertRowsImplementation(mu, numRows, atRowIndex);
 			endInsertRowsImplementation(mu, numRows, atRowIndex);	// need to do this here, so as not to nest inserts.

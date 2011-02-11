@@ -88,13 +88,13 @@ void REIXSXESMCPDataSource::onConnectionStateChanged() {
 
 	// becoming connected...
 	if(!wasConnected && isConnected_) {
-		pixelsX_ = axes_[0].size = pow(2, resolutionXPV_->getInt())-1;
-		pixelsY_ = axes_[1].size = pow(2, resolutionYPV_->getInt())-1;
+		pixelsX_ = axes_[0].size = pow(2, resolutionXPV_->getInt());
+		pixelsY_ = axes_[1].size = pow(2, resolutionYPV_->getInt());
 		emitValuesChanged();
 		emitSizeChanged();
 		emitStateChanged(AMDataSource::ProcessingFlag);
 
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, "Connection established to MCP Detector " + imagePV_->pvName()));
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, "Connection established to MCP Detector " + imagePV_->pvName() + QString(" Size: %1 x %2").arg(pixelsX_).arg(pixelsY_)));
 	}
 }
 
