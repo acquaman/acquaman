@@ -7,7 +7,6 @@
 class REIXSXESMCPDetectorInfo : public AMDetectorInfo
 {
 	Q_OBJECT
-	Q_PROPERTY(AMnDIndex size READ size WRITE setSize)
 	Q_PROPERTY(bool orientation READ orientation WRITE setOrientation)
 	Q_PROPERTY(double biasVoltage READ biasVoltage WRITE setBiasVoltage)
 
@@ -44,7 +43,7 @@ public:
 	bool orientation() const { return orientation_; }
 
 	/// Set the number of pixels across the detector image
-	void setSize(const AMnDIndex& newSize) { if(newSize.rank() != 2) return; pixelsX_ = newSize.i(); pixelsY_ = newSize.j(); setModified(true); }
+	bool setSize(const AMnDIndex& newSize) { if(newSize.rank() != 2) return false; pixelsX_ = newSize.i(); pixelsY_ = newSize.j(); setModified(true); }
 	/// Bias voltage (HV), in volts, applied across the detector
 	void setBiasVoltage(double biasVoltage) { biasVoltage_ = biasVoltage; setModified(true); }
 	/// The orientation of the detector: 0 for horizontal (wide window, low resolution), 1 for vertical (narrow window, high resolution)

@@ -23,7 +23,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMXESScan::AMXESScan(QObject *parent) :
 	AMScan(parent)
 {
-
+	/// \todo Move this to AMScan eventually?
+	configuration_ = 0;
 }
 
 

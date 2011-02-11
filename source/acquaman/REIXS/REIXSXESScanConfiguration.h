@@ -17,6 +17,7 @@ class REIXSXESScanConfiguration : public AMScanConfiguration
 	Q_PROPERTY(double defocusDistanceMm READ defocusDistanceMm WRITE setDefocusDistanceMm)
 	Q_PROPERTY(int spectrometerCalibrationId READ spectrometerCalibrationId WRITE setSpectrometerCalibrationId)
 	Q_PROPERTY(bool detectorOrientation READ detectorOrientation WRITE setDetectorOrientation)
+	Q_PROPERTY(double detectorTilt READ detectorTilt WRITE setDetectorTilt)
 	Q_PROPERTY(bool shouldStartFromCurrentPosition READ shouldStartFromCurrentPosition WRITE setShouldStartFromCurrentPosition)
 	Q_PROPERTY(AMDbObject* mcpDetectorInfo READ dbGetMcpDetectorInfo WRITE dbLoadMcpDetectorInfo)
 	// Not here for now: Q_PROPERTY(AMDbObject* spectrometerPosition READ spectrometerPosition WRITE dbLoadSpectrometerPosition)
@@ -40,6 +41,8 @@ public:
 	int spectrometerCalibrationId() const { return spectrometerCalibrationId_; }
 	/// The orientation of the detector: 0 for horizontal (wide window, low resolution), 1 for vertical (narrow window, high resolution)
 	bool detectorOrientation() const { return detectorOrientation_; }
+	/// The detector incidence angle (tilt), in degrees, up from perfectly grazing. (ie: 0 would line up the detector surface with the light direction, and you wouldn't see anything)
+	double detectorTilt() const { return detectorTilt_; }
 	/// A flag indicating that we should start the scan in whatever position the spectrometer is now. (ie: don't compute the desired position and move it)
 	bool shouldStartFromCurrentPosition() const { return shouldStartFromCurrentPosition_; }
 	/// Configuration information for the MCP detector itself
@@ -75,13 +78,15 @@ public slots:
 	void setMaximumTotalCounts(double counts) { maximumTotalCounts_ = counts; setModified(true); }
 	/// Set how long to count for. We should stop this scan after this many seconds have elapsed
 	void setMaximumDurationSeconds(int seconds) { maximumDurationSeconds_ = seconds; setModified(true); }
-	/// Any lateral offset we should introduce along the angle at this energy, to slide the detector into or out of the focus position (Useful for calibration and testing)
+	/// Set any lateral offset we should introduce along the angle at this energy, to slide the detector into or out of the focus position (Useful for calibration and testing)
 	void setDefocusDistanceMm(double defocusDistanceMm) { defocusDistanceMm_ = defocusDistanceMm; setModified(true); }
-	/// The database id of the stored spectrometer calibration we should use. (This spectromter calibration is found in the user database, for now)
+	/// Set the database id of the stored spectrometer calibration we should use. (This spectromter calibration is found in the user database, for now)
 	void setSpectrometerCalibrationId(int id) { spectrometerCalibrationId_ = id; setModified(true); }
-	/// The orientation of the detector: 0 for horizontal (wide window, low resolution), 1 for vertical (narrow window, high resolution)
+	/// Set the orientation of the detector: 0 for horizontal (wide window, low resolution), 1 for vertical (narrow window, high resolution)
 	void setDetectorOrientation(bool orientationIsHorizontal) { detectorOrientation_ = orientationIsHorizontal; setModified(true); }
-	/// A flag indicating that we should start the scan in whatever position the spectrometer is now. (ie: don't compute the desired position and move things before starting the scan)
+	/// Set the detector incidence angle (tilt), in degrees, up from perfectly grazing (ie: 0 would line up the detector surface with the light direction, and you wouldn't see anything)
+	void setDetectorTilt(double detectorTilt) { detectorTilt_ = detectorTilt; setModified(true); }
+	/// Set a flag indicating that we should start the scan in whatever position the spectrometer is now. (ie: don't compute the desired position and move things before starting the scan)
 	void setShouldStartFromCurrentPosition(bool startInCurrentPosition) { shouldStartFromCurrentPosition_ = startInCurrentPosition; setModified(true); }
 
 
@@ -99,6 +104,8 @@ protected:
 	double defocusDistanceMm_;
 	/// The orientation of the detector: 0 for horizontal (wide window, low resolution), 1 for vertical (narrow window, high resolution)
 	bool detectorOrientation_;
+	/// The detector incidence angle (tilt), in degrees, up from perfectly grazing (ie: 0 would line up the detector surface with the light direction, and you wouldn't see anything)
+	double detectorTilt_;
 	/// The database id of the stored spectrometer calibration we should use. (This spectromter calibration is found in the user database, for now)
 	int spectrometerCalibrationId_;
 	/// A flag indicating that we should start the scan in whatever position the spectrometer is now. (ie: don't compute the desired position and move it)

@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
-REIXSBeamline::REIXSBeamline(QObject *parent) :
+REIXSBeamline::REIXSBeamline() :
 	AMBeamline("REIXSBeamline")
 {
 	// Spectromter: controls and control set for positioners:
@@ -51,6 +51,9 @@ REIXSBeamline::REIXSBeamline(QObject *parent) :
 	sampleManipulatorSet_->addControl(sampleChamber()->y());
 	sampleManipulatorSet_->addControl(sampleChamber()->z());
 	sampleManipulatorSet_->addControl(sampleChamber()->r());
+
+	// MCP detector
+	mcpDetector_ = new REIXSXESMCPDetector("xesImage", "MCP1610-401", this);
 
 }
 

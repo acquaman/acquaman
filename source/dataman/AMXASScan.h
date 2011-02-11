@@ -51,8 +51,8 @@ protected:
 	QString legacyGrating_;
 	QString legacyIntegrationTime_;
 
-	friend class SGM2004FileLoader;
-	friend class ALSBL8XASFileLoader;
+//	friend class SGM2004FileLoader;
+//	friend class ALSBL8XASFileLoader;
 
 };
 

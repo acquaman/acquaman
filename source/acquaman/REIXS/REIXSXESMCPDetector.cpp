@@ -18,9 +18,9 @@ REIXSXESMCPDetector::REIXSXESMCPDetector(const QString& name, const QString& bas
 	resolutionYPV_ = new AMProcessVariable(basePVName_+":resolutionY", true, this);
 
 	clearPV_ = new AMProcessVariable(basePVName_+":clear", true, this);
-	orientationPV_ = new AMProcessVariable(basePVName_+":orientation", true, this);
-	averagingPeriodSecsPV_ = new AMProcessVariable(basePVName_+":averagingPeriodSecs", true, this);
-	persistTimeSecsPV_ = new AMProcessVariable(basePVName_+":persistTimeSecs", true, this);
+	orientationControl_ = new AMPVControl("mcpOrientation", basePVName_+":orientation", basePVName_+":orientation", QString(), this, 0.1);
+	averagingPeriodSecsControl_ = new AMPVControl("mcpAveragingPeriod", basePVName_+":averagingPeriodSecs", basePVName_+":averagingPeriodSecs", QString(), this, 0.1);
+	persistTimeSecsControl_ = new AMPVControl("mcpPersistDuration", basePVName_+":persistTimeSecs", basePVName_+":persistTimeSecs", QString(), this, 0.1);
 
 	image_ = new REIXSXESMCPDataSource("xesImage", imagePV_, resolutionXPV_, resolutionYPV_, this);
 	image_->setDescription("Accumulated Detector Image");
@@ -29,11 +29,13 @@ REIXSXESMCPDetector::REIXSXESMCPDetector(const QString& name, const QString& bas
 
 	connect(totalCountsPV_, SIGNAL(valueChanged(double)), this, SIGNAL(totalCountsChanged(double)));
 	connect(countsPerSecondPV_, SIGNAL(valueChanged(double)), this, SIGNAL(totalCountsChanged(double)));
+	connect(imagePV_, SIGNAL(valueChanged()), this, SIGNAL(imageDataChanged()));
+	connect(instantaneousImagePV_, SIGNAL(valueChanged()), this, SIGNAL(instantaneousImageDataChanged()));
 }
 
 
 REIXSXESMCPDataSource::REIXSXESMCPDataSource(const QString &name, AMProcessVariable *imagePV, AMProcessVariable *resolutionXPV, AMProcessVariable *resolutionYPV, QObject *parent)
-	: AMDataSource(name) {
+	: QObject(parent), AMDataSource(name) {
 
 	setDescription("XES Detector Image");
 	isConnected_ = false;

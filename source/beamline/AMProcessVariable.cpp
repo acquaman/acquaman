@@ -22,6 +22,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <float.h>
 #include <QDebug>
 
+#include <cstdlib>
+
+
+
 ///////////////////////////////
 // AMProcessVariableHeartbeat
 ///////////////////////////////
@@ -32,6 +36,9 @@ AMProcessVariableHeartbeat* AMProcessVariableHeartbeat::instance_ = 0;
 AMProcessVariableHeartbeat::AMProcessVariableHeartbeat() : QObject() {
 
 	qDebug("Starting up channel access...");
+
+	putenv("EPICS_CA_MAX_ARRAY_BYTES=" AMPROCESSVARIABLE_MAX_CA_ARRAY_BYTES);
+
 	int lastError = ca_context_create(ca_disable_preemptive_callback);
 	if(lastError != ECA_NORMAL )
 		throw lastError;
@@ -243,7 +250,7 @@ void AMProcessVariable::connectionChangedCB(struct connection_handler_args connA
 		// Discover the type of this channel:
 		serverType_ = ca_field_type(chid_);
 
-		qDebug() << "Type of channel" << this->pvName() << "is " << serverType_;
+		// qDebug() << "Type of channel" << this->pvName() << "is " << serverType_;
 
 		// We simplify all floating-point types to double, all integer types to long, and leave strings as strings and enums as enums:
 		ourType_ = serverType2ourType(serverType_);

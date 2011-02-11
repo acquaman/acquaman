@@ -44,7 +44,7 @@ public:
 	virtual bool isPaused() const {return paused_;}
 	virtual bool isInitialized() const {return initialized_;}
 
-	virtual AMScan* scan() { return generalScan_; } // one change that was required to remove _pScan_ and pScan_(); changed from return pScan_();
+	virtual AMScan* scan() { return generalScan_; }
 
 signals:
 	// QQ: For all: Do I have to emit these? Does the top-level API do it?
@@ -64,7 +64,13 @@ signals:
 	// QQ: What are the units? When do I need to emit this? both this and timeRemaining?
 	void progress(double elapsed, double total);
 
+	// QQ: apears unused
 	void scanCreated(AMScan *scan);
+
+	// QQ: had to add here; BeamlineScanAction receives from ScanController and uses to start scan.
+	void initialized();
+
+	// QQ: but not this one
 	void reinitialized(bool removeScan);
 
 public slots:

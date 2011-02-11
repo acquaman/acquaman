@@ -25,8 +25,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMRawDataSource.h"
 #include "dataman/AMUser.h"
 
-/// If this had a one-line documented comment, I would know how to interpret these two strings. Are they the name and the channel expression? The expression and the x-expression?
-typedef QPair<QString, QString> chPair;
 
 SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 	specificCfg_ = cfg;
@@ -80,9 +78,6 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 
 		pScan_()->addAnalyzedDataSource(tfyChannel);
 	}
-
-	/// \bug CRITICAL Removed creating default channels. They were never set anyway (nothing called the old AMXASScan::setDefaultChannels(); )
-
 }
 
 bool SGMXASScanController::isBeamlineInitialized() {
@@ -178,8 +173,6 @@ void SGMXASScanController::reinitialize(){
 		pScan_()->rawData()->addMeasurement(AMMeasurementInfo(*detectorInfo));
 		pScan_()->addRawDataSource(new AMRawDataSource(pScan_()->rawData(), i));
 	}
-
-	/// \bug CRITICAL removed creating default channels. Was never used anyway.
 }
 
 SGMXASScanConfiguration* SGMXASScanController::pCfg_(){

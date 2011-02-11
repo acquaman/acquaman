@@ -36,7 +36,7 @@ Q_OBJECT
 	Q_PROPERTY(QString description READ description WRITE setDescription)
 	Q_PROPERTY(QString units READ units WRITE setUnits)
 	Q_PROPERTY(int rank READ rank)
-	Q_PROPERTY(AMnDIndex size READ size)
+	Q_PROPERTY(AMnDIndex size READ size WRITE setSize)
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Generic Detector")
 
@@ -88,6 +88,9 @@ public slots:
 		units_ = units;
 		setModified(true);
 	}
+
+	/// Set the size of the detector. This may not be applicable or valid for some detectors (for example, a single-point detector, or one with a fixed dimensionality.  Returns false if it's invalid to set the size.
+	virtual bool setSize(const AMnDIndex& size) { Q_UNUSED(size); return false; }
 
 protected:
 	QString description_;

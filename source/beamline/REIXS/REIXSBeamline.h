@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMBeamline.h"
 #include "beamline/AMControlSet.h"
+#include "acquaman/REIXS/REIXSXESMCPDetector.h"	///< \todo Move this to beamline, not acquaman.
 
 
 /// The REIXSHexapod control is just a container for the set of coupled controls which make up the hexapod:
@@ -111,6 +112,8 @@ public:
 	REIXSSpectrometer* spectrometer() { return spectrometer_; }
 	/// Access the sample chamber and load-lock controls:
 	REIXSSampleChamber* sampleChamber() { return sampleChamber_; }
+	/// Access the live MCP detector object
+	REIXSXESMCPDetector* mcpDetector() { return mcpDetector_; }
 
 	// These Control Sets are logical groups of controls, that are commonly used by different Acquaman components
 
@@ -125,7 +128,7 @@ public slots:
 
 protected:
 	/// Constructor. This is a singleton class; access it through REIXSBeamline::bl().
-	explicit REIXSBeamline(QObject *parent = 0);
+	REIXSBeamline();
 
 	/// \todo: beamline front-end controls
 	// AMControl* incidentEV_;
@@ -135,6 +138,8 @@ protected:
 	REIXSSpectrometer* spectrometer_;
 	/// A hierarchichal group of controls making up the sample chamber
 	REIXSSampleChamber* sampleChamber_;
+	/// An object for controlling the MCP detector and downloading its image values
+	REIXSXESMCPDetector* mcpDetector_;
 
 
 	// These Control Sets are logical groups of controls, that are commonly used by different Acquaman components

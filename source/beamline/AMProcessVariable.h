@@ -33,7 +33,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTimer>
 #include <QDebug>
 
+/// This defines the default value for a channel-access search connection timeout, in milliseconds.  If a connection takes longer than this to establish, we'll keep on trying, but we'll issue the connectionTimeout() signal.
 #define EPICS_CA_CONN_TIMEOUT_MS 1000
+
+/// We use to set the EPICS_CA_MAX_ARRAY_BYTES environment variable before starting up channel access.  It's necessary to allow the transfer of large arrays as EPICS channel access data.  Here we set it to (2^12)*(2^12)*8, or enough room for a 4096 x 4096 2D image with doubles stored at each point.  If that's not enough for you, feel free to increase it ; )
+
+#define AMPROCESSVARIABLE_MAX_CA_ARRAY_BYTES "134217728"
 
 /**
   \addtogroup control

@@ -10,6 +10,12 @@
 #include "ui/AMWorkflowManagerView.h"
 
 #include "util/AMErrorMonitor.h"
+#include "dataman/AMDbObjectSupport.h"
+
+// For database registration:
+#include "dataman/REIXS/REIXSXESCalibration.h"
+#include "dataman/REIXS/REIXSXESMCPDetectorInfo.h"
+#include "acquaman/REIXS/REIXSXESScanConfiguration.h"
 
 REIXSAppController::REIXSAppController(QObject *parent) :
 	AMAppController(parent)
@@ -23,6 +29,10 @@ bool REIXSAppController::startup() {
 	REIXSBeamline::bl();
 
 	if(AMAppController::startup()) {
+
+		AMDbObjectSupport::registerClass<REIXSXESScanConfiguration>();
+		AMDbObjectSupport::registerClass<REIXSXESMCPDetectorInfo>();
+		AMDbObjectSupport::registerClass<REIXSXESCalibration>();
 
 		// Create panes in the main window:
 		////////////////////////////////////

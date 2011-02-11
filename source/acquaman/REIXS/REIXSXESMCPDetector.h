@@ -107,12 +107,12 @@ public:
 
 	/// Is the connection to the detector up, and able to read values/images?
 	bool canRead() const {
-		return totalCountsPV_->canRead() && countsPerSecondPV_->canRead() && orientationPV_->canRead() && imagePV_->canRead() && instantaneousImagePV_->canRead();
+		return totalCountsPV_->canRead() && countsPerSecondPV_->canRead() && orientationControl_->canMeasure() && imagePV_->canRead() && instantaneousImagePV_->canRead();
 	}
 
 	/// Are we able to configure the detector? (Connection established and permission to write to the configure PVs)
 	bool canConfigure() const {
-		return orientationPV_->canWrite() && clearPV_->canWrite() && averagingPeriodSecsPV_->canWrite() && persistTimeSecsPV_->canWrite();
+		return orientationControl_->isConnected() && averagingPeriodSecsControl_->isConnected() && persistTimeSecsControl_->isConnected() && clearPV_->canWrite();
 	}
 
 	/// \todo Signals when canRead() / canConfigure() change? (or an isConnected() and signals for that?)
@@ -125,12 +125,21 @@ public:
 	/// Access a data source corresponding to the detector's real-time (persist-delay) image
 	AMDataSource* instantaneousImage() const { return instantaneousImage_; }
 
+	/// What is the size of the detector?
+	AMnDIndex size() const { return image_->size(); }
+
 	/// Read the total counts in the image:
 	double totalCounts() const { return totalCountsPV_->lastValue(); }
 	/// Access the counts per second at this instant in time
 	double countsPerSecond() const { return countsPerSecondPV_->lastValue(); }
 	/// Return the orientation configuration of the detector (0 for horizontal, 1 for vertical)
-	bool orientation() const { return orientationPV_->getInt(); }
+	bool orientation() const { return (int)orientationControl_->value(); }
+
+	/// AMDataSource* image() exposes the data nicely for plotting or analysis. For performance, sometimes it's nice to have a raw pointer to the image data arrays. This returns a vector of the raw image data, with the y-axis varying the fastest.  Returning this vector is fast because of QVector's implicit sharing.
+	QVector<int> imageData() const { return imagePV_->lastIntegerValues(); }
+
+	/// Returns the raw instantaneous image data, organized with the y-axis varying the fastest. Returning this vector is fast, because of QVector's implicit sharing.
+	QVector<int> instantaneousImageData() const { return instantaneousImagePV_->lastIntegerValues(); }
 
 	/// Returns (or casts) this detector as an REIXSXESMCPDetectorInfo, which contains this detector's current configuration information but not the live control abilities.
 	operator REIXSXESMCPDetectorInfo() {
@@ -156,6 +165,10 @@ public:
 		return success;
 	}
 
+	AMControl* orientationControl() { return orientationControl_; }
+	AMControl* averagingPeriodControl() { return averagingPeriodSecsControl_; }
+	AMControl* persistDurationControl() { return persistTimeSecsControl_; }
+
 
 
 public slots:
@@ -171,8 +184,8 @@ public slots:
 
 	/// set the orientation (swap the way the detector interprets X and Y axes)
 	bool setOrientation(bool isHorizontal) {
-		if(orientationPV_->canWrite()) {
-			orientationPV_->setValue((int)isHorizontal);
+		if(orientationControl_->canMove()) {
+			orientationControl_->move((int)isHorizontal);
 			return true;
 		}
 		return false;
@@ -180,8 +193,8 @@ public slots:
 
 	/// set the number of seconds over which the count rate is averaged
 	bool setAveragingPeriod(double seconds) {
-		if(averagingPeriodSecsPV_->canWrite()) {
-			averagingPeriodSecsPV_->setValue(seconds);
+		if(averagingPeriodSecsControl_->canMove()) {
+			averagingPeriodSecsControl_->move(seconds);
 			return true;
 		}
 		return false;
@@ -189,8 +202,8 @@ public slots:
 
 	/// set the number of seconds that counts persist for on the instantaneous image
 	bool setPersistDuration(double seconds) {
-		if(persistTimeSecsPV_->canWrite()) {
-			persistTimeSecsPV_->setValue(seconds);
+		if(persistTimeSecsControl_->canMove()) {
+			persistTimeSecsControl_->move(seconds);
 			return true;
 		}
 		return false;
@@ -204,6 +217,10 @@ signals:
 	void countsPerSecondChanged(double);
 	/// Emitted whenever the total number of counts changes
 	void totalCountsChanged(double);
+	/// Emitted when the image and imageData() changes (ie: has new values)
+	void imageDataChanged();
+	/// Emitted when the instantaneousImage() and instantaneousImageData() changes (ie: has new values)
+	void instantaneousImageDataChanged();
 
 public slots:
 
@@ -216,9 +233,9 @@ protected:
 	AMProcessVariable* resolutionYPV_;
 
 	AMProcessVariable* clearPV_;
-	AMProcessVariable* orientationPV_;
-	AMProcessVariable* averagingPeriodSecsPV_;
-	AMProcessVariable* persistTimeSecsPV_;
+	AMPVControl* orientationControl_;
+	AMPVControl* averagingPeriodSecsControl_;
+	AMPVControl* persistTimeSecsControl_;
 
 	REIXSXESMCPDataSource* image_, *instantaneousImage_;
 

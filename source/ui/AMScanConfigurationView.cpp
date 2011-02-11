@@ -50,6 +50,8 @@ AMScanConfigurationHolder::AMScanConfigurationHolder(AMScanConfigurationView* vi
 
 	vl->addLayout(hl);
 
+	setLayout(vl);
+
 	connect(startScanButton_, SIGNAL(clicked()), this, SLOT(onStartScanRequested()));
 	connect(addToQueueButton_, SIGNAL(clicked()), this, SLOT(onAddToQueueRequested()));
 }
