@@ -5,6 +5,7 @@
 
 #include "dataman/REIXS/REIXSXESCalibration.h"
 #include "beamline/AMBeamlineControlSetMoveAction.h"
+#include "util/AMSettings.h"
 
 REIXSXESScanController::REIXSXESScanController(REIXSXESScanConfiguration* configuration, QObject *parent) :
 	AMScanController(configuration, parent)
@@ -21,7 +22,9 @@ REIXSXESScanController::REIXSXESScanController(REIXSXESScanConfiguration* config
 	// create our new scan object
 	generalScan_ = new AMXESScan();
 	generalScan_->setName("REIXS XES Scan");
-	generalScan_->setFilePath(generalCfg_->filePath() + generalCfg_->fileName());
+	/// \todo These never get set: generalScan_->setFilePath(generalCfg_->filePath() + generalCfg_->fileName());
+	// instead:
+	generalScan_->setFilePath(AMUserSettings::defaultFilePath(QDateTime::currentDateTime()));
 	generalScan_->setFileFormat("reixsXESRaw");
 	generalScan_->setRunId(AMUser::user()->currentRunId());
 

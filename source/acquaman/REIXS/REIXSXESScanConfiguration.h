@@ -26,6 +26,7 @@ public:
 	/// Default Constructor
 	Q_INVOKABLE explicit REIXSXESScanConfiguration(QObject *parent = 0);
 
+	virtual QString description() const { return QString("XES Scan: %1 eV").arg(centerEV()); }
 
 	/// The number of the grating to use for this scan
 	int gratingNumber() const { return gratingNumber_; }

@@ -3,7 +3,7 @@
 #include "beamline/REIXS/REIXSBeamline.h"
 
 #include "ui/AMScanConfigurationView.h"
-#include "ui/REIXS/REIXSXESScanConfigurationView.h"
+#include "ui/REIXS/REIXSXESScanConfigurationDetailedView.h"
 #include "acquaman/AMScanController.h"
 
 #include "ui/AMMainWindow.h"
@@ -41,7 +41,7 @@ bool REIXSAppController::startup() {
 
 		mw_->insertHeading("Experiment Setup", 1);
 		//////////
-		xesScanConfigurationView_ = new REIXSXESScanConfigurationView();
+		xesScanConfigurationView_ = new REIXSXESScanConfigurationDetailedView(REIXSBeamline::bl()->mcpDetector());
 		scanConfigurationHolder_ = new AMScanConfigurationHolder(xesScanConfigurationView_);
 		mw_->addPane(scanConfigurationHolder_, "Experiment Setup", "Emission Scan", ":/utilities-system-monitor.png");
 
@@ -75,7 +75,7 @@ bool REIXSAppController::startup() {
 	}
 	*/
 
-		mw_->addRightWidget(new QLabel("Hi REIXS!"));
+		// mw_->addRightWidget(new QLabel("[]"));
 
 		return true;
 	}

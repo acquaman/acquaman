@@ -50,11 +50,11 @@ REIXSXESScanConfigurationView::REIXSXESScanConfigurationView(QWidget *parent) :
 	fl->addRow("Defocus by (mm)", defocusDistanceMmBox_);
 	fl->addRow("Detector tilt (deg)", detectorTiltBox_);
 
-	QHBoxLayout* hl1 = new QHBoxLayout();
-	hl1->addWidget(horizontalDetectorButton_);
-	hl1->addWidget(verticalDetectorButton_);
+	QVBoxLayout* vl1 = new QVBoxLayout();
+	vl1->addWidget(horizontalDetectorButton_);
+	vl1->addWidget(verticalDetectorButton_);
 
-	fl->addRow("Detector orientation", hl1);
+	fl->addRow("Detector orientation", vl1);
 	fl->addRow("Start from", startFromCurrentPositionOption_);
 
 	detectorOptions->setLayout(fl);

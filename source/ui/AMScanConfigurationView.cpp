@@ -28,7 +28,7 @@ AMScanConfigurationHolder::AMScanConfigurationHolder(AMScanConfigurationView* vi
 	view_ = view;
 
 	startScanButton_ = new QPushButton("Start Scan");
-	startScanButton_->setDisabled(true);
+	// startScanButton_->setDisabled(true);
 	addToQueueButton_ = new QPushButton("Add to Workflow");
 
 	goToWorkflowOption_ = new QRadioButton("Show me the workflow");
@@ -41,6 +41,7 @@ AMScanConfigurationHolder::AMScanConfigurationHolder(AMScanConfigurationView* vi
 	QHBoxLayout* hl = new QHBoxLayout();
 
 	hl->addWidget(statusLabel_);
+	hl->addStretch();
 	hl->addWidget(new QLabel("When I'm done here:"));
 	hl->addWidget(goToWorkflowOption_);
 	hl->addWidget(setupAnotherScanOption_);

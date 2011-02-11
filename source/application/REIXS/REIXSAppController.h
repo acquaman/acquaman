@@ -11,7 +11,7 @@
 //class SGMXASScanConfigurationViewer;
 //class SGMFastScanConfigurationViewer;
 
-class REIXSXESScanConfigurationView;
+class REIXSXESScanConfigurationDetailedView;
 class AMScanConfigurationHolder;
 
 
@@ -59,7 +59,7 @@ protected:
 //	AMFastScanConfigurationHolder* fastScanConfigurationHolder_;
 
 	AMScanConfigurationHolder* scanConfigurationHolder_;
-	REIXSXESScanConfigurationView* xesScanConfigurationView_;
+	REIXSXESScanConfigurationDetailedView* xesScanConfigurationView_;
 
 
 	/// The scan editor belonging to the active scan controller. (0 if not initialized)
