@@ -10,18 +10,12 @@ REIXSXESScanController::REIXSXESScanController(REIXSXESScanConfiguration* config
 	AMScanController(configuration, parent)
 {
 
-	generalScan_ = 0;
-
 	initialMoveAction_ = new AMBeamlineControlSetMoveAction(REIXSBeamline::bl()->spectrometerPositionSet(), this);
 
-}
-
-
-
-/// Called before starting to satisfy any prerequisites (ie: setting up the beamline, setting up files, etc.)
-void REIXSXESScanController::initialize() {
-
 	/// \todo could this all be done at the abstract level, once we go to a single scan class?  ie: within AMScanController::initialize() ?
+
+	/// \todo Would it be okay for controllers to create their scans in initialize()? Saves memory because every scan action in the queue doesn't need to create its scan object (and associated memory) until actually running.  Currently doesn't work because AMBeamlineScanAction calls AMScanControllerSupervisor::setCurrentScanController() before calling AMScanController::initialize().
+
 	/////////////////////////
 
 	// create our new scan object
@@ -46,6 +40,14 @@ void REIXSXESScanController::initialize() {
 
 	pScan()->rawData()->addMeasurement(configuredDetector);
 	pScan()->addRawDataSource(new AMRawDataSource(pScan()->rawData(), 0));
+
+}
+
+
+
+/// Called before starting to satisfy any prerequisites (ie: setting up the beamline, setting up files, etc.)
+void REIXSXESScanController::initialize() {
+
 
 
 	// configure and clear the MCP detector

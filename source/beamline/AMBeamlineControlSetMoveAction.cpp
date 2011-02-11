@@ -181,7 +181,8 @@ void AMBeamlineControlSetMoveAction::calculateProgress(){
 		return;
 	double avgPercent, iPercent;
 	double csCount = (double)controlSet_->count();
-	qDebug() << "Count is " << csCount;
+	qDebug() << "control set Count is " << csCount;
+	qDebug() << "start point count is " << startPoint_->count();
 	for(int x = 0; x < controlSet_->count(); x++){
 		if( fabs(setpoint_->at(x).value() - startPoint_->at(x).value()) < 0.0001 )
 			iPercent = 100;

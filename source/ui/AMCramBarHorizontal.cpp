@@ -111,5 +111,5 @@ void AMCramBarHorizontal::onScrollAreaResized() {
 
 void AMCramBarHorizontal::onScrollWidgetResized(const QSize&) {
 	scrollArea_->updateGeometry();		//or, could use: outerLayout_->activate();
-	QTimer::singleShot(0, this, SLOT(onScrollAreaResized(QSize)));
+	QTimer::singleShot(0, this, SLOT(onScrollAreaResized()));
 }
