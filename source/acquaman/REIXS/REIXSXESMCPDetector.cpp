@@ -24,11 +24,11 @@ REIXSXESMCPDetector::REIXSXESMCPDetector(const QString& name, const QString& bas
 
 	image_ = new REIXSXESMCPDataSource("xesImage", imagePV_, resolutionXPV_, resolutionYPV_, this);
 	image_->setDescription("Accumulated Detector Image");
-	instantaneousImage_ = new REIXSXESMCPDataSource("xesRealtimeImage", imagePV_, resolutionXPV_, resolutionYPV_, this);
+	instantaneousImage_ = new REIXSXESMCPDataSource("xesRealtimeImage", instantaneousImagePV_, resolutionXPV_, resolutionYPV_, this);
 	instantaneousImage_->setDescription("Instantaneous Detector Image");
 
 	connect(totalCountsPV_, SIGNAL(valueChanged(double)), this, SIGNAL(totalCountsChanged(double)));
-	connect(countsPerSecondPV_, SIGNAL(valueChanged(double)), this, SIGNAL(totalCountsChanged(double)));
+	connect(countsPerSecondPV_, SIGNAL(valueChanged(double)), this, SIGNAL(countsPerSecondChanged(double)));
 	connect(imagePV_, SIGNAL(valueChanged()), this, SIGNAL(imageDataChanged()));
 	connect(instantaneousImagePV_, SIGNAL(valueChanged()), this, SIGNAL(instantaneousImageDataChanged()));
 }

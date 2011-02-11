@@ -32,6 +32,9 @@ protected slots:
 	/// called when the selected grating changes
 	void onSelectedGratingChanged(int newGrating);
 
+	/// Forwards the signal when you adjust the time edit to control the maximum duration of the scan
+	void onMaximumTimeEditChanged(const QTime& time);
+
 
 protected:
 	/// The internal configuration that we modify

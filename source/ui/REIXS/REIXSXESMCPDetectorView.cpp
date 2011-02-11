@@ -34,7 +34,9 @@ REIXSXESMCPDetectorView::REIXSXESMCPDetectorView(REIXSXESMCPDetector* detector, 
 
 	// configure UI elements
 
-	imagePlot_->enableAutoScale(MPlotAxis::Left | MPlotAxis::Bottom);
+	//imagePlot_->enableAutoScale(MPlotAxis::Left | MPlotAxis::Bottom | MPlotAxis::Right);
+	imagePlot_->axisBottom()->setRange(0, 1024);
+	imagePlot_->axisLeft()->setRange(0, 256);
 	imagePlot_->plotArea()->setBrush(QBrush(QColor(Qt::white)));
 	imagePlot_->axisRight()->setTicks(4);
 	imagePlot_->axisBottom()->setTicks(4);
@@ -43,6 +45,7 @@ REIXSXESMCPDetectorView::REIXSXESMCPDetectorView(REIXSXESMCPDetector* detector, 
 	imagePlot_->axisLeft()->showAxisName(false);
 
 	image_->setColorMap(MPlotColorMap::Bone);
+	imagePlot_->addItem(image_);
 
 	imageSelector_->addItem("Realtime Image");
 	imageSelector_->addItem("Accumulated Image");

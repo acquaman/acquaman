@@ -170,3 +170,10 @@ void REIXSXESScanConfigurationView::onSelectedGratingChanged(int newGrating) {
 
 	configuration_.setGratingNumber(newGrating);
 }
+
+void REIXSXESScanConfigurationView::onMaximumTimeEditChanged(const QTime &time) {
+
+	QTime baseTime(0,0);
+	double totalSeconds = baseTime.secsTo(time);
+	configuration_.setMaximumDurationSeconds(totalSeconds);
+}

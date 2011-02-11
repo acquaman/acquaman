@@ -53,7 +53,7 @@ REIXSBeamline::REIXSBeamline() :
 	sampleManipulatorSet_->addControl(sampleChamber()->r());
 
 	// MCP detector
-	mcpDetector_ = new REIXSXESMCPDetector("xesImage", "MCP1610-401", this);
+	mcpDetector_ = new REIXSXESMCPDetector("xesImage", "MCD1610-401", this);
 
 }
 
