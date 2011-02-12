@@ -80,6 +80,7 @@ class AMBeamlineParallelActionsList : public QObject
 		AMBeamlineParallelActionListModel *actions_;
 		AMBiHash<QList<AMBeamlineActionItem*>*, AMBeamlineParallelActionsListHolder*> holdersHash_;
 		QList<double> lastIndexProgress_;
+		int currentStage_;
 
 		virtual bool setupModel();
 
