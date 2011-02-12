@@ -146,10 +146,10 @@ public:
 	virtual ~AMProcessVariable();
 
 	/// Some PVs provide a whole array of values.  This is the number of elements in the array.
-	unsigned count() const { QReadLocker rl(&lock_); return ca_element_count(chid_); }
+	unsigned count() const { return ca_element_count(chid_); }	// ca_ functions are thread-safe by design; does not require locker
 
 	/// The name of this process variable:
-	QString pvName() const { QReadLocker rl(&lock_); return QString(ca_name(chid_)); }
+	QString pvName() const { return QString(ca_name(chid_)); } // ca_ functions are thread-safe by design; does not require locker
 
 	/// Provides detailed information on the status of this connection.  Usually isConnected() is all you need.
 	enum channel_state connectionState() const { QReadLocker rl(&lock_); return ca_state(chid_); }
@@ -290,7 +290,7 @@ public:
 
 		Returns Unconnected == -1 if we haven't figured it out yet.
 		*/
-	PVDataType dataType() const { return ourType_; }
+	PVDataType dataType() const { QReadLocker rl(&lock_); return ourType_; }
 
 signals:
 	/// Emits connected(true) when connection is established; connected(false) when lost.

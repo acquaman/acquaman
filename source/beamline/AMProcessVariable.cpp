@@ -259,10 +259,10 @@ void AMProcessVariable::connectionChangedCB(struct connection_handler_args connA
 		switch(ourType_) {
 		case Integer:
 		case Enum:
-			data_int_.resize(count());
+			data_int_.resize(ca_element_count(chid_));
 			break;
 		case FloatingPoint:
-			data_dbl_.resize(count());
+			data_dbl_.resize(ca_element_count(chid_));
 			break;
 		case String:
 			data_str_.clear();
@@ -300,7 +300,7 @@ void AMProcessVariable::connectionChangedCB(struct connection_handler_args connA
 		/// \bug Currently, if the type is not an enum, integer, floating-point, or string, PV's will not emit initialized().
 
 		// It's useful to automatically-request the value, after we are first connected:
-		this->requestValue(count());
+		this->requestValue(ca_element_count(chid_));
 
 		if(shouldBeMonitoring_)
 			startMonitoring();
@@ -501,7 +501,7 @@ bool AMProcessVariable::startMonitoring() {
 
 	QWriteLocker wl(&lock_);	// just for lastError_
 
-	lastError_ = ca_create_subscription(dataType(), count(), chid_, DBE_VALUE | DBE_LOG | DBE_ALARM, PVValueChangedCBWrapper, this, &evid_ );
+	lastError_ = ca_create_subscription(ourType_, ca_element_count(chid_), chid_, DBE_VALUE | DBE_LOG | DBE_ALARM, PVValueChangedCBWrapper, this, &evid_ );
 	if(lastError_ != ECA_NORMAL) {
 		qDebug() << QString("AMProcessVariable: Error starting monitoring: %1: %2").arg(pvName()).arg(ca_message(lastError_));
 		emit error(lastError_);
@@ -526,7 +526,7 @@ bool AMProcessVariable::requestValue(int numberOfValues) {
 	//	return false;
 	//}
 
-	lastError_ = ca_array_get_callback(dataType(), numberOfValues, chid_, PVValueChangedCBWrapper, this);
+	lastError_ = ca_array_get_callback(ourType_, numberOfValues, chid_, PVValueChangedCBWrapper, this);
 	if(lastError_ != ECA_NORMAL) {
 		qDebug() << QString("AMProcessVariable: Error while trying to request value: %1: %2").arg(pvName()).arg(ca_message(lastError_));
 		emit error(lastError_);
