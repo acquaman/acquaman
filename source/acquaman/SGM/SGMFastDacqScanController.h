@@ -27,16 +27,27 @@ protected:
 	bool event(QEvent *e);
 	AMnDIndex toScanIndex(QMap<int, double> aeData);
 
+	double lastProgress_;
+	int initializationStagesComplete_;
+	bool dacqRunUpStarted_;
+	bool dacqRunUpCompleted_;
+	bool dacqRunCompleted_;
+	QTimer *fastScanTimer_;
+	int timerSeconds_;
+
 protected slots:
 	// Re-implementing to intercept finished() signal and do cleanup
 	void onStop();
 	// Re-implementing to incorporate initialization actions into progress
 	void onSendCompletion(int completion);
+	// Re-implementing to incorporate initialization actions into progress
+	void onState(const QString &state);
 
 	void onInitializationActionsSucceeded();
-	void onInitializationActionsStageStarted(int stageIndex);
 	void onInitializationActionsStageSucceeded(int stageIndex);
-	void onInitializationActionsStageProgress(double elapsed, double total);
+	void onFastScanTimerTimeout();
+
+	void calculateProgress(double elapsed, double total);
 
 	void onScanFinished();
 

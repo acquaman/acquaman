@@ -3,6 +3,12 @@
 SGMFastDacqScanController::SGMFastDacqScanController(SGMFastScanConfiguration *cfg, QObject *parent) :
 		AMDacqScanController(cfg, parent), SGMFastScanController(cfg)
 {
+	lastProgress_ = 0.0;
+	initializationStagesComplete_ = 0;
+	timerSeconds_ = 0;
+	dacqRunUpStarted_ = false;
+	dacqRunUpCompleted_ = false;
+	dacqRunCompleted_ = false;
 	emit scanCreated(scan());
 }
 
@@ -12,9 +18,9 @@ void SGMFastDacqScanController::initialize(){
 		#warning "Do we need to also clear any raw data sources here, or just the raw data itself?"
 		pScan()->clearRawDataPoints();
 		connect(initializationActions_, SIGNAL(listSucceeded()), this, SLOT(onInitializationActionsSucceeded()));
-		connect(initializationActions_, SIGNAL(stageStarted(int)), this, SLOT(onInitializationActionsStageStarted(int)));
+		//connect(initializationActions_, SIGNAL(stageStarted(int)), this, SLOT(onInitializationActionsStageStarted(int)));
 		connect(initializationActions_, SIGNAL(stageSucceeded(int)), this, SLOT(onInitializationActionsStageSucceeded(int)));
-		connect(initializationActions_, SIGNAL(stageProgress(double,double)), this, SLOT(onInitializationActionsStageProgress(double,double)));
+		connect(initializationActions_, SIGNAL(stageProgress(double,double)), this, SLOT(calculateProgress(double,double)));
 		initializationActions_->start();
 		/*
 		emit initialized();
@@ -23,6 +29,12 @@ void SGMFastDacqScanController::initialize(){
 }
 
 void SGMFastDacqScanController::reinitialize(bool removeScan){
+	lastProgress_ = 0.0;
+	initializationStagesComplete_ = 0;
+	timerSeconds_ = 0;
+	dacqRunUpStarted_ = false;
+	dacqRunUpCompleted_ = false;
+	dacqRunCompleted_ = false;
 	SGMFastScanController::reinitialize();
 	qDebug() << "Emitting reinitialized with removeScan " << removeScan;
 	emit reinitialized(removeScan);
@@ -77,6 +89,8 @@ void SGMFastDacqScanController::start(){
 	*/
 	generalScan_ = specificScan_;
 	usingSpectraDotDatFile_ = true;
+	fastScanTimer_ = new QTimer(this);
+	connect(fastScanTimer_, SIGNAL(timeout()), this, SLOT(onFastScanTimerTimeout()));
 	//if(!autoSavePath_.isEmpty())
 	if(!pCfg()->sensibleFileSavePath().isEmpty())
 		pScan()->setAutoExportFilePath(pCfg()->finalizedSavePath());
@@ -96,7 +110,12 @@ bool SGMFastDacqScanController::event(QEvent *e){
 		if(i.key() == 0 && aeData.count() == 1 && aeSpectra.count() == 1){
 			qDebug() << "And doing something with it";
 			while(j != aeSpectra.constEnd()){
-				for(int x = 0; x < j.value().count()-1; x++){
+				int maxVal = j.value().count()-1;
+				if(maxVal > 4000)
+					maxVal = 4000;
+				//for(int x = 0; x < j.value().count()-1; x++){
+				//for(int x = 0; x < 4000; x++){
+				for(int x = 0; x < maxVal; x++){
 					if(x%4 == 0){
 						pScan()->rawData()->beginInsertRows(0);
 						pScan()->rawData()->setAxisValue(0, x/4, x/4);
@@ -129,25 +148,69 @@ void SGMFastDacqScanController::onStop(){
 }
 
 void SGMFastDacqScanController::onSendCompletion(int completion){
-	qDebug() << "Dacq stage " << advAcq_->getStatus() << " is " << completion << " complete";
+	//calculateProgress(completion, 100.0);
+}
+
+void SGMFastDacqScanController::onState(const QString &state){
+	if(state == "Runup")
+		dacqRunUpStarted_ = true;
+	if(state == "Run" && dacqRunUpStarted_){
+		dacqRunUpCompleted_ = true;
+		fastScanTimer_->start(1000);
+	}
+	if(state == "Off")
+		dacqRunCompleted_ = true;
+	calculateProgress(-1, -1);
 }
 
 void SGMFastDacqScanController::onInitializationActionsSucceeded(){
-	qDebug() << "Initialization actions done for fast scan";
-	SGMBeamline::sgm()->scalerTotalNumberOfScans()->move(1000);
+	//qDebug() << "Initialization actions done for fast scan";
 	emit initialized();
-}
-
-void SGMFastDacqScanController::onInitializationActionsStageStarted(int stageIndex){
-	qDebug() << "Initialization stage " << stageIndex << " started";
 }
 
 void SGMFastDacqScanController::onInitializationActionsStageSucceeded(int stageIndex){
 	qDebug() << "Initialization stage " << stageIndex << " succeeded";
+	initializationStagesComplete_ = stageIndex+1;
+	calculateProgress(-1, -1);
 }
 
-void SGMFastDacqScanController::onInitializationActionsStageProgress(double elapsed, double total){
-	qDebug() << "Stage is " << (elapsed/total)*100 << " percent done";
+void SGMFastDacqScanController::onFastScanTimerTimeout(){
+	timerSeconds_++;
+	calculateProgress(timerSeconds_, pCfg()->runTime());
+}
+
+void SGMFastDacqScanController::calculateProgress(double elapsed, double total){
+	double localProgress = 0;
+	// I'm guessing the initialization actions are 3/8, the dacq initialization is 1/4, and the dacq run is 3/8
+	if(!dacqRunCompleted_){
+		// Take the fraction of completed initialization stages and multiply by 3/8
+		localProgress += (3.0/8.0)*((double)initializationStagesComplete_/((double)initializationActions_->stageCount()));
+		// If one of the stages is running, add its fraction
+		if( (initializationStagesComplete_ != initializationActions_->stageCount()) && (elapsed != -1) &&(total != -1) )
+			localProgress += (elapsed/total)*(3.0/8.0)*(1.0/(double)initializationActions_->stageCount());
+		// If the run up is started but not finished, add that fraction
+		if(dacqRunUpStarted_ && !dacqRunUpCompleted_ && (elapsed != -1) &&(total != -1) )
+			localProgress += (elapsed/total)*(1.0/4.0);
+		// If the run up is completed, add the 1/4 and whatever fraction of the scan run is completed
+		if(dacqRunUpCompleted_ && (elapsed != -1) &&(total != -1) )
+			localProgress += (elapsed/total)*(3.0/8.0) + (1.0/4.0);
+	}
+	else
+		localProgress = 1.0;
+	if(localProgress > lastProgress_)
+		lastProgress_ = localProgress;
+
+	emit progress(lastProgress_, 1.0);
+
+	int stars = (lastProgress_*100);
+	QString starProgress = "";
+	for(int x = 0; x < 100; x++){
+		if(x <= stars)
+			starProgress.append("*");
+		else
+			starProgress.append("-");
+	}
+	qDebug() << QString("%1 (%2)").arg(starProgress).arg(lastProgress_);
 }
 
 void SGMFastDacqScanController::onScanFinished(){

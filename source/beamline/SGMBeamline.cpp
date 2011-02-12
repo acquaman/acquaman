@@ -90,33 +90,51 @@ void SGMBeamline::usingSGMBeamline(){
 	ringCurrent_ = new AMReadOnlyPVControl("ringCurrent", AMPVNames::toPV("ringCurrent"), this);
 	addChildControl(ringCurrent_);
 
+	bool pvNameLookUpFail = false;
+
 	QString sgmPVName = amNames2pvNames_.valueF("energy");
-	//energy_ = new AMPVwStatusControl("energy", sgmPVName+":fbk", sgmPVName, amNames2pvNames_.valueF("energyMovingStatus"), "", this, 0.01);
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
 	energy_ = new AMPVwStatusControl("energy", sgmPVName+":fbk", sgmPVName, "BL1611-ID-1:ready", sgmPVName, this, 0.01);
 	sgmPVName = amNames2pvNames_.valueF("mono");
-	//AMReadOnlyPVwStatusControl *mono = new AMReadOnlyPVwStatusControl("mono", sgmPVName+":enc:fbk", sgmPVName+":moving", energy_);
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
 	AMPVwStatusControl *mono = new AMPVwStatusControl("mono", sgmPVName+":enc:fbk", sgmPVName+":encTarget", sgmPVName+":moving", "SMTR16114I1002:stop", energy_, 5);
 	sgmPVName = amNames2pvNames_.valueF("undulator");
-	//AMReadOnlyPVwStatusControl *undulator = new AMReadOnlyPVwStatusControl("undulator", sgmPVName+":gap:mm:fbk", sgmPVName+":moveStatus", energy_);
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
 	AMPVwStatusControl *undulator = new AMPVwStatusControl("undulator", sgmPVName+":gap:mm:fbk", sgmPVName+":gap:mm", sgmPVName+":moveStatus", "UND1411-01:stop", energy_, 0.1);
 	sgmPVName = amNames2pvNames_.valueF("exitSlit");
-	//AMReadOnlyPVwStatusControl *exitSlit = new AMReadOnlyPVwStatusControl("exitSlit", sgmPVName+":Y:mm:encsp", "SMTR16114I1003:moving", energy_);
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
 	AMPVwStatusControl *exitSlit = new AMPVwStatusControl("exitSlit", sgmPVName+":Y:mm:encsp", "SMTR16114I1003:mm", "SMTR16114I1003:moving", "SMTR16114I1003:stop", energy_, 0.1);
 	energy_->addChildControl(mono);
 	energy_->addChildControl(undulator);
 	energy_->addChildControl(exitSlit);
 
 	sgmPVName = amNames2pvNames_.valueF("exitSlitGap");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
 	exitSlitGap_ = new AMPVwStatusControl("exitSlitGap", sgmPVName+":Y:mm:fbk", sgmPVName+":Y:mm:encsp", "SMTR16114I1017:status", "SMTR16114I1017:stop", this, 0.1);
 	sgmPVName = amNames2pvNames_.valueF("entranceSlitGap");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
 	entranceSlitGap_ = new AMPVwStatusControl("entranceSlitGap", sgmPVName+":Y:mm:fbk", sgmPVName+":Y:mm:encsp", "SMTR16114I1001:status", "SMTR16114I1001:stop", this, 0.1);
 	sgmPVName = amNames2pvNames_.valueF("M4");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
 	m4_ = new AMReadOnlyPVwStatusControl("M4", sgmPVName, sgmPVName, this);
 	sgmPVName = amNames2pvNames_.valueF("M4Inboard");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
 	AMPVwStatusControl *m4inboard = new AMPVwStatusControl("M4Inboard", sgmPVName, sgmPVName, sgmPVName, "", this, 0.1);
 	sgmPVName = amNames2pvNames_.valueF("M4Outboard");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
 	AMPVwStatusControl *m4outboard = new AMPVwStatusControl("M4Outboard", sgmPVName, sgmPVName, sgmPVName, "", this, 0.1);
 	sgmPVName = amNames2pvNames_.valueF("M4Downstream");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
 
 	AMPVwStatusControl *m4downstream = new AMPVwStatusControl("M4Downstream", sgmPVName, sgmPVName, sgmPVName, "", this, 0.1);
 	m4_->addChildControl(m4inboard);
@@ -124,97 +142,181 @@ void SGMBeamline::usingSGMBeamline(){
 	m4_->addChildControl(m4downstream);
 
 	sgmPVName = amNames2pvNames_.valueF("grating");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
 	grating_ = new AMPVwStatusControl("grating", sgmPVName, sgmPVName, "SMTR16114I1016:state", "", this, 0.1);
 	sgmPVName = amNames2pvNames_.valueF("harmonic");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
 	harmonic_ = new AMPVwStatusControl("harmonic", sgmPVName, sgmPVName, "UND1411-01:moveStatus", "", this, 0.1);
 	sgmPVName = amNames2pvNames_.valueF("undulatorTracking");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
 	undulatorTracking_ = new AMPVControl("undulatorTracking", sgmPVName, sgmPVName, "", this, 0.1);
 	sgmPVName = amNames2pvNames_.valueF("monoTracking");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
 	monoTracking_ = new AMPVControl("monoTracking", sgmPVName, sgmPVName, "", this, 0.1, 10);
 	sgmPVName = amNames2pvNames_.valueF("exitSlitTracking");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
 	exitSlitTracking_ = new AMPVControl("exitSlitTracking", sgmPVName, sgmPVName, "", this, 0.1);
 	sgmPVName = amNames2pvNames_.valueF("tey");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
 	tey_ = new AMReadOnlyPVControl("tey", sgmPVName, this);
 	sgmPVName = amNames2pvNames_.valueF("tfy");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
 	tfy_ = new AMReadOnlyPVControl("tfy", sgmPVName, this);
 	sgmPVName = amNames2pvNames_.valueF("tfyHVSetpoint");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
 	tfyHVSetpoint_ = new AMPVControl("tfyHVSetpoint", amNames2pvNames_.valueF("tfyHVFbk"), amNames2pvNames_.valueF("tfyHVSetpoint"), "", this, 10.0);
 	sgmPVName = amNames2pvNames_.valueF("tfyHVFbk");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
 	tfyHVFbk_ = new AMPVControl("tfyHVFbk", sgmPVName, sgmPVName, "", this, 10.0);
 
 	sgmPVName = amNames2pvNames_.valueF("pgt");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
 	pgt_ = new AMReadOnlyPVControl("pgt", sgmPVName, this);
 	sgmPVName = amNames2pvNames_.valueF("pgtHVSetpoint");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
 	//    pgtHVSetpoint_ = new AMPVControl("pgtHVSetpoint", amNames2pvNames_.valueF("pgtHVFbk"), amNames2pvNames_.valueF("pgtHVSetpoint"), this, 0.5);
 	pgtHVSetpoint_ = new AMPVControl("pgtHVSetpoint", amNames2pvNames_.valueF("pgtHVSetpoint"), amNames2pvNames_.valueF("pgtHVSetpoint"), "", this, 0.5);
 	sgmPVName = amNames2pvNames_.valueF("pgtHVFbk");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
 	pgtHVFbk_ = new AMReadOnlyPVControl("pgtHVFbk", sgmPVName, this);
 	sgmPVName = amNames2pvNames_.valueF("pgtIntegrationTime");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
 	pgtIntegrationTime_ = new AMPVControl("pgtIntegrationTime", sgmPVName, sgmPVName, "", this, 0.1);
 	sgmPVName = amNames2pvNames_.valueF("pgtIntegrationMode");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
 	pgtIntegrationMode_ = new AMPVControl("pgtIntegrationMode", sgmPVName, sgmPVName, "", this, 0.1);
 
 	sgmPVName = amNames2pvNames_.valueF("I0");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
 	i0_ = new AMReadOnlyPVControl("I0", sgmPVName, this);
 	sgmPVName = amNames2pvNames_.valueF("eVFbk");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
 	eVFbk_ = new AMReadOnlyPVControl("eVFbk", sgmPVName, this);
 	sgmPVName = amNames2pvNames_.valueF("photodiode");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
 	photodiode_ = new AMReadOnlyPVControl("photodiode", sgmPVName, this);
 	sgmPVName = amNames2pvNames_.valueF("loadlockCCG");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
 	loadlockCCG_ = new AMReadOnlyPVControl("loadlockCCG", sgmPVName, this);
 	sgmPVName = amNames2pvNames_.valueF("loadlockTCG");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
 	loadlockTCG_ = new AMReadOnlyPVControl("loadlockTCG", sgmPVName, this);
 	sgmPVName = amNames2pvNames_.valueF("ssaManipulatorX");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
 	/// \todo Now that we have stop integrated into the AMControls... Remove separate stop PVs.
 	ssaManipulatorX_ = new AMPVwStatusControl("ssaManipulatorX", sgmPVName+":fbk", sgmPVName+":sp", sgmPVName+":sp", "", this, 0.1);
 	ssaManipulatorXStop_ = new AMPVControl("ssaManipulatorXStop", "SMTR16114I1012:emergStop", "SMTR16114I1012:emergStop", "", this, 0.1);
 	sgmPVName = amNames2pvNames_.valueF("ssaManipulatorY");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
 	ssaManipulatorY_ = new AMPVwStatusControl("ssaManipulatorY", sgmPVName+":fbk", sgmPVName+":sp", sgmPVName+":sp", "", this, 0.1);
 	ssaManipulatorYStop_ = new AMPVControl("ssaManipulatorYStop", "SMTR16114I1013:emergStop", "SMTR16114I1013:emergStop", "", this, 0.1);
 	sgmPVName = amNames2pvNames_.valueF("ssaManipulatorZ");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
 	ssaManipulatorZ_ = new AMPVwStatusControl("ssaManipulatorZ", sgmPVName+":fbk", sgmPVName+":sp", sgmPVName+":sp", "", this, 0.1);
 	ssaManipulatorZStop_ = new AMPVControl("ssaManipulatorZStop", "SMTR16114I1014:emergStop", "SMTR16114I1014:emergStop", "", this, 0.1);
 	sgmPVName = amNames2pvNames_.valueF("ssaManipulatorRot");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
 	ssaManipulatorRot_ = new AMPVwStatusControl("ssaManipulatorRot", sgmPVName+":fbk", sgmPVName+":sp", sgmPVName+":sp", "", this, 0.1);
 	ssaManipulatorRotStop_ = new AMPVControl("ssaManipulatorRotStop", "SMTR16114I1015:emergStop", "SMTR16114I1015:emergStop", "", this, 0.1);
 
 	sgmPVName = amNames2pvNames_.valueF("beamlineScanning");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
 	beamlineScanning_ = new AMPVControl("beamlineScanning", sgmPVName, sgmPVName, "", this, 0.1);
 	sgmPVName = amNames2pvNames_.valueF("beamlineReady");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
 	beamlineReady_ = new AMReadOnlyPVControl("beamlineReady", sgmPVName, this);
 	sgmPVName = amNames2pvNames_.valueF("energyMovingStatus");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
 	energyMovingStatus_ = new AMReadOnlyPVControl("energyMovingStatus", sgmPVName, this);
 	sgmPVName = amNames2pvNames_.valueF("fastShutterVoltage");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
 	fastShutterVoltage_ = new AMPVControl("fastShutterVoltage", sgmPVName, sgmPVName, "", this);
 	sgmPVName = amNames2pvNames_.valueF("gratingVelocity");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
 	gratingVelocity_ = new AMPVControl("gratingVelocity", sgmPVName, sgmPVName, "", this, 1);
 	sgmPVName = amNames2pvNames_.valueF("gratingBaseVelocity");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
 	gratingBaseVelocity_ = new AMPVControl("gratingBaseVelocity", sgmPVName, sgmPVName, "", this, 1);
 	sgmPVName = amNames2pvNames_.valueF("gratingAcceleration");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
 	gratingAcceleration_ = new AMPVControl("gratingAcceleration", sgmPVName, sgmPVName, "", this, 1);
 	sgmPVName = amNames2pvNames_.valueF("ea1CloseVacuum1");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
 	ea1CloseVacuum1_ = new AMPVControl("ea1CloseVacuum1", sgmPVName, sgmPVName, "", this);
 	sgmPVName = amNames2pvNames_.valueF("ea1CloseVacuum2");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
 	ea1CloseVacuum2_ = new AMPVControl("ea1CloseVacuum2", sgmPVName, sgmPVName, "", this);
 	sgmPVName = amNames2pvNames_.valueF("ea2CloseVacuum");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
 	ea2CloseVacuum_ = new AMPVControl("ea2CloseVacuum", sgmPVName, sgmPVName, "", this);
 	sgmPVName = amNames2pvNames_.valueF("beamOn");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
 	beamOn_ = new AMPVControl("beamOn", sgmPVName, sgmPVName, "", this);
 	sgmPVName = amNames2pvNames_.valueF("visibleLightToggle");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
 	visibleLightToggle_ = new AMPVControl("visibleLightToggle", sgmPVName, sgmPVName, "", this);
 	sgmPVName = amNames2pvNames_.valueF("visibleLightStatus");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
 	visibleLightStatus_ = new AMReadOnlyPVControl("visibleLightStatus", sgmPVName, this);
 	sgmPVName = amNames2pvNames_.valueF("activeEndstation");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
 	activeEndstation_ = new AMPVControl("activeEndstation", sgmPVName, sgmPVName, "", this);
 
 	sgmPVName = amNames2pvNames_.valueF("scalerIntegrationTime");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
 	scalerIntegrationTime_ = new AMPVControl("scalerIntegrationTime", sgmPVName, sgmPVName, "", this, 0.1);
 	sgmPVName = amNames2pvNames_.valueF("scalerMode");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
 	scalerMode_ = new AMPVControl("scalerMode", sgmPVName, sgmPVName, "", this, 0.1);
 	sgmPVName = amNames2pvNames_.valueF("scalerTotalNumberOfScans");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
 	scalerTotalNumberOfScans_ = new AMPVControl("scalerTotalNumberOfScans", sgmPVName, sgmPVName, "", this, 0.5);
 	sgmPVName = amNames2pvNames_.valueF("scalerScansPerBuffer");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
 	scalerScansPerBuffer_ = new AMPVControl("scalerScansPerBuffer", sgmPVName, sgmPVName, "", this, 0.5);
+
+	qDebug() << "\nPV Name Look Ups Succeeded: " << pvNameLookUpFail << "\n";
 }
 
 void SGMBeamline::usingFakeBeamline(){
@@ -293,7 +395,7 @@ void SGMBeamline::usingFakeBeamline(){
 	sgmPVName = amNames2pvNames_.valueF("entranceSlitGap");
 	entranceSlitGap_ = new AMPVwStatusControl("entranceSlitGap", sgmPVName+":fbk", sgmPVName, sgmPVName+":moving", sgmPVName+":stop", this, 0.1);
 	sgmPVName = amNames2pvNames_.valueF("M4");
-	m4_ = new AMReadOnlyPVwStatusControl("M4", sgmPVName, sgmPVName+":moving", this);
+	m4_ = new AMReadOnlyPVwStatusControl("M4", sgmPVName, sgmPVName+":moving", this, 0.1);
 	sgmPVName = amNames2pvNames_.valueF("M4Inboard");
 	AMPVwStatusControl *m4inboard = new AMPVwStatusControl("M4Inboard", sgmPVName, sgmPVName, sgmPVName+":moving", "", this, 0.1);
 	sgmPVName = amNames2pvNames_.valueF("M4Outboard");
@@ -379,33 +481,33 @@ void SGMBeamline::usingFakeBeamline(){
 	gratingAcceleration_ = new AMPVControl("gratingAcceleration", sgmPVName, sgmPVName, "", this, 0.1);
 
 	sgmPVName = amNames2pvNames_.valueF("ea1CloseVacuum1");
-	ea1CloseVacuum1_ = new AMPVControl("ea1CloseVacuum1", sgmPVName, sgmPVName, "", this);
+	ea1CloseVacuum1_ = new AMPVControl("ea1CloseVacuum1", sgmPVName, sgmPVName, "", this, 0.5);
 	sgmPVName = amNames2pvNames_.valueF("ea1CloseVacuum2");
-	ea1CloseVacuum2_ = new AMPVControl("ea1CloseVacuum2", sgmPVName, sgmPVName, "", this);
+	ea1CloseVacuum2_ = new AMPVControl("ea1CloseVacuum2", sgmPVName, sgmPVName, "", this, 0.5);
 	sgmPVName = amNames2pvNames_.valueF("ea2CloseVacuum");
-	ea2CloseVacuum_ = new AMPVControl("ea2CloseVacuum", sgmPVName, sgmPVName, "", this);
+	ea2CloseVacuum_ = new AMPVControl("ea2CloseVacuum", sgmPVName, sgmPVName, "", this, 0.5);
 	sgmPVName = amNames2pvNames_.valueF("beamOn");
-	beamOn_ = new AMPVControl("beamOn", sgmPVName, sgmPVName, "", this);
+	beamOn_ = new AMPVControl("beamOn", sgmPVName, sgmPVName, "", this, 0.5);
 	sgmPVName = amNames2pvNames_.valueF("visibleLightToggle");
-	visibleLightToggle_ = new AMPVControl("visibleLightToggle", sgmPVName, sgmPVName, "", this);
+	visibleLightToggle_ = new AMPVControl("visibleLightToggle", sgmPVName, sgmPVName, "", this, 0.5);
 	sgmPVName = amNames2pvNames_.valueF("visibleLightStatus");
 	visibleLightStatus_ = new AMReadOnlyPVControl("visibleLightStatus", sgmPVName, this);
 	sgmPVName = amNames2pvNames_.valueF("activeEndstation");
-	activeEndstation_ = new AMPVControl("activeEndstation", sgmPVName, sgmPVName, "", this);
+	activeEndstation_ = new AMPVControl("activeEndstation", sgmPVName, sgmPVName, "", this, 0.5);
 
 	sgmPVName = amNames2pvNames_.valueF("scalerIntegrationTime");
-	scalerIntegrationTime_ = new AMPVControl("scalerIntegrationTime", sgmPVName, sgmPVName, "", this);
+	scalerIntegrationTime_ = new AMPVControl("scalerIntegrationTime", sgmPVName, sgmPVName, "", this, 0.1);
 	sgmPVName = amNames2pvNames_.valueF("scalerScansPerBuffer");
-	scalerScansPerBuffer_ = new AMPVControl("scalerScansPerBuffer", sgmPVName, sgmPVName, "", this);
+	scalerScansPerBuffer_ = new AMPVControl("scalerScansPerBuffer", sgmPVName, sgmPVName, "", this, 0.5);
 	sgmPVName = amNames2pvNames_.valueF("scalerTotalNumberOfScans");
-	scalerTotalNumberOfScans_ = new AMPVControl("scalerTotalNumberOfScans", sgmPVName, sgmPVName, "", this);
+	scalerTotalNumberOfScans_ = new AMPVControl("scalerTotalNumberOfScans", sgmPVName, sgmPVName, "", this, 0.5);
 	sgmPVName = amNames2pvNames_.valueF("scalerMode");
-	scalerMode_ = new AMPVControl("scalerMode", sgmPVName, sgmPVName, "", this);
+	scalerMode_ = new AMPVControl("scalerMode", sgmPVName, sgmPVName, "", this, 0.5);
 }
 
 SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
-	//usingFakeBeamline();
-	usingSGMBeamline();
+	usingFakeBeamline();
+	//usingSGMBeamline();
 
 	beamlineWarnings_ = "";
 	connect(this, SIGNAL(criticalControlsConnectionsChanged()), this, SLOT(recomputeWarnings()));

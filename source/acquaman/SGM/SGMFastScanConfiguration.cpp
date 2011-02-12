@@ -16,6 +16,7 @@ SGMFastScanConfiguration::SGMFastScanConfiguration(QObject *parent) : AMFastScan
 	settings_.append( new SGMFastScanParameters("Oxygen", 20.0, 530.0, 545.0, 560.0, 1000, 1000, 1000, 25.0, this));
 	settings_.append( new SGMFastScanParameters("Copper", 5.0, 940.0, 955.0, 970.0, 10000, 10000, 10000, 5.0, this));
 	settings_.append( new SGMFastScanParameters("Copper", 20.0, 940.0, 955.0, 970.0, 1000, 1000, 1000, 25.0, this));
+	settings_.append( new SGMFastScanParameters("Carbon", 5.0, 280.0, 295.0, 320.0, 19000, 19000, 19000, 5.0, this));
 
 	setParametersFromPreset(0);
 
@@ -133,9 +134,9 @@ bool SGMFastScanConfiguration::setRunSeconds(double runSeconds){
 }
 
 bool SGMFastScanConfiguration::setEnergyStart(double energyStart){
-	emit onEnergyStartChanged(currentSettings_->energyStart());
 	currentSettings_->setEnergyStart(energyStart);
 	setStart(energyStart);
+	emit onEnergyStartChanged(currentSettings_->energyStart());
 	return true;
 }
 

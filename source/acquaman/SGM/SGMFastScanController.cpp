@@ -34,6 +34,7 @@ SGMFastScanController::SGMFastScanController(SGMFastScanConfiguration *cfg){
 		pScan()->addRawDataSource(new AMRawDataSource(pScan()->rawData(), i));
 	}
 
+	/*
 	QList<AMDataSource*> raw1DDataSources;
 	for(int i=0; i<pScan()->rawDataSources()->count(); i++)
 		if(pScan()->rawDataSources()->at(i)->rank() == 1)
@@ -60,6 +61,7 @@ SGMFastScanController::SGMFastScanController(SGMFastScanConfiguration *cfg){
 
 		pScan()->addAnalyzedDataSource(tfyChannel);
 	}
+	*/
 
 	/// \bug CRITICAL Removed creating default channels. They were never set anyway (nothing called the old AMXASScan::setDefaultChannels(); )
 
@@ -120,6 +122,9 @@ bool SGMFastScanController::beamlineInitialize(){
 	SGMFastScanParameters *settings = pCfg()->currentParameters();
 	#warning "Hey David, who's going to delete the list and the actions?"
 	initializationActions_ = new AMBeamlineParallelActionsList();
+	/*
+	if( (fabs(SGMBeamline::sgm()->undulatorTracking()->value()-1.0) < SGMBeamline::sgm()->undulatorTracking()->tolerance()))
+	*/
 	/**/
 	//Go to midpoint of energy range
 	initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());

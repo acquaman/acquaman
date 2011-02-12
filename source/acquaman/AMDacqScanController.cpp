@@ -163,5 +163,5 @@ void AMDacqScanController::onSendCompletion(int completion){
 }
 
 void AMDacqScanController::onState(const QString& state){
-	qDebug() << "State of dacq is " << state;
+	//qDebug() << "State of dacq is " << state;
 }
