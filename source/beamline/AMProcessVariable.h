@@ -32,6 +32,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QHash>
 #include <QTimer>
 #include <QDebug>
+#include <QReadWriteLock>
+#include <QReadLocker>
+#include <QWriteLocker>
 
 /// This defines the default value for a channel-access search connection timeout, in milliseconds.  If a connection takes longer than this to establish, we'll keep on trying, but we'll issue the connectionTimeout() signal.
 #define EPICS_CA_CONN_TIMEOUT_MS 1000
@@ -52,20 +55,20 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
-/// Poll the epics channel-access layer every PV_HEARTBEAT_MS milliseconds
-#define PV_HEARTBEAT_MS 48
+// removed: Poll the epics channel-access layer every PV_HEARTBEAT_MS milliseconds
+// #define PV_HEARTBEAT_MS 12
 
 class AMProcessVariable;
 
 /// This class provides support to all AMProcessVariables, by setting up a channel-access context and handling signal delivery. You should never need to use it directly.
 /*!
  Singleton support class for AMProcessVariables.  Manages global-context Channel Access business:
- -# Calls ca_poll on a timer, and
+ -# Sets up the channel access environment
  -# Maintains a map between chid's and AMProcessVariable objects, so he can route exceptions.
 
  Automatically creates himself when needed, and deletes himself when no longer necessary...
   */
-class AMProcessVariableHeartbeat : public QObject {
+class AMProcessVariableSupport : public QObject {
 
 	Q_OBJECT
 
@@ -73,7 +76,7 @@ public:
 
 	/// AMProcessVariables must call this FIRST in their constructor.
 
-	/// Ensures that channel access is initialized, timer is running, etc.
+	/// Ensures that channel access environment is initialized.
 	static void ensureChannelAccess() { getInstance(); }
 
 	/// Once they have a chid, they should call this to make sure they receive exceptions routed properly:
@@ -87,25 +90,26 @@ public:
 
 protected:
 
-	/// constructor: starts the ca_poll timer and installs us as the global exception handler.
-	AMProcessVariableHeartbeat();
+	/// constructor: sets upf the channel access environement and installs us as the global exception handler.
+	AMProcessVariableSupport();
 
 	/// singleton class. Use getInstance() method to access.
-	static AMProcessVariableHeartbeat* getInstance();
+	static AMProcessVariableSupport* getInstance();
 
 	/// the implementation of AMProcessVariableHeartbeat::removePV():
 	void removePVImplementation(chid c);
 
-	/// Timer event handler: calls ca_poll()
-	void timerEvent(QTimerEvent*) { ca_poll(); }
+	// Timer event handler: calls ca_poll()
+	// removed: void timerEvent(QTimerEvent*) { ca_poll(); }
 
 
 	/// singleton class instance variable
-	static AMProcessVariableHeartbeat* instance_;
+	static AMProcessVariableSupport* instance_;
 	/// Mapping from \c chid channel-id's to process variable objects
 	QHash<int, AMProcessVariable*> map_;
-	/// ID of the timer
-	int timerId_;
+
+	// ID of the timer
+	// removed: int timerId_;
 
 };
 
@@ -128,7 +132,7 @@ public:
 					  String = DBF_STRING		///< Used for records that can only be accessed as a string.
 					};
 
-	friend class AMProcessVariableHeartbeat;
+	friend class AMProcessVariableSupport;
 
 	/// Constructor
 	/*! \param pvName is the process variable channel-access name.
@@ -142,25 +146,25 @@ public:
 	virtual ~AMProcessVariable();
 
 	/// Some PVs provide a whole array of values.  This is the number of elements in the array.
-	unsigned count() const { return ca_element_count(chid_); }
+	unsigned count() const { QReadLocker rl(&lock_); return ca_element_count(chid_); }
 
 	/// The name of this process variable:
-	QString pvName() const { return QString(ca_name(chid_)); }
+	QString pvName() const { QReadLocker rl(&lock_); return QString(ca_name(chid_)); }
 
 	/// Provides detailed information on the status of this connection.  Usually isConnected() is all you need.
-	enum channel_state connectionState() const { return ca_state(chid_); }
+	enum channel_state connectionState() const { QReadLocker rl(&lock_); return ca_state(chid_); }
 
 	/// Indicates that a connection is established to the Epics CA server for this Process Variable.
-	bool isConnected() const { return ca_state(chid_) == cs_conn; }
+	bool isConnected() const { QReadLocker rl(&lock_); return ca_state(chid_) == cs_conn; }
 	/// Indicates that a connection was established to the Epics CA server, and we managed to download control information (meta information) for this Process Variable.
-	bool isInitialized() const { return initialized_; }
+	bool isInitialized() const { QReadLocker rl(&lock_); return initialized_; }
 	/// Indicates that we've received the actual values for this PV at some point in history. (Note that isConnected() will be true as soon as a connection to the CA server is established, but we won't have the value yet when connected() gets emitted.)  valueChanged() will be emitted when the first value is received, but in case you're not watching that, you can call hasValues() to check if this has already happened.
-	bool hasValues() const { return hasValues_; }
+	bool hasValues() const { QReadLocker rl(&lock_); return hasValues_; }
 
 	/// Checks read access ability. (Verifies also that we are connected, since reading is impossible if not.)
-	bool canRead() const { return isConnected() && ca_read_access(chid_); }
+	bool canRead() const { QReadLocker rl(&lock_); return isConnected() && ca_read_access(chid_); }
 	/// Checks write access ability. (Verifies also that we are connected, since writing is impossible if not.)
-	bool canWrite() const { return isConnected() && ca_write_access(chid_); }
+	bool canWrite() const { QReadLocker rl(&lock_); return isConnected() && ca_write_access(chid_); }
 
 	/*! This function changes whether the the PV sets values through using ca_put() or ca_put_callback().  Generally ca_put_callback() is preferred since it returns debug messages after all process requests.  However, some of the more exotic record types in EPICS do not handle the ca_put_callback() effectively which causes the IOC to delay writing the value for a very long time (seconds per value).  An except from Jeff Hill about the differences between ca_put() and ca_put_callback():
 
@@ -184,15 +188,15 @@ public:
 	/// Returns the most recent array values of the PV. (Will be empty unless this PV's dataType() is Integer or Enum)
 
 	/// This is fast because it doesn't require a memory copy, thanks to Qt's implicit sharing on QVectors and other container types.
-	QVector<int> lastIntegerValues() const { return data_int_; }
+	QVector<int> lastIntegerValues() const { QReadLocker rl(&lock_); return data_int_; }
 
 	/// Returns the most recent array values of the PV. (Will be empty unless this PV's dataType() is FloatingPoint)
 
 	/// This is fast because it doesn't require a memory copy, thanks to Qt's implicit sharing on QVectors and other container types.
-	QVector<double> lastFloatingPointValues() const { return data_dbl_; }
+	QVector<double> lastFloatingPointValues() const { QReadLocker rl(&lock_); return data_dbl_; }
 
 	/// error reporting: returns the last error code that occurred:
-	int lastError() const { return lastError_; }
+	int lastError() const { QReadLocker rl(&lock_); return lastError_; }
 	/// Returns a string explanation of a particular error code:
 	static QString errorString(int errorCode) { return QString(ca_message(errorCode)); }
 
@@ -256,25 +260,25 @@ public:
 	/// These functions provide detailed information about the channel. (The are only meaningful after the initialized() signal.)
 	//@{
 	/// Provides the units for this PV, as known to epics.
-	QString units() const { return units_; }
+	QString units() const { QReadLocker rl(&lock_); return units_; }
 
 	/// Provides the recommended number of decimal places for displaying this (numeric) PV
-	int displayPrecision() const  { return precision_; }
+	int displayPrecision() const  { QReadLocker rl(&lock_); return precision_; }
 
 	/// Provides the minimum and maximum (driven) range of this PV, as enforced by EPICS:
-	double upperControlLimit() const { return upperLimit_; }
-	double lowerControlLimit() const { return lowerLimit_; }
+	double upperControlLimit() const { QReadLocker rl(&lock_); return upperLimit_; }
+	double lowerControlLimit() const { QReadLocker rl(&lock_); return lowerLimit_; }
 	/// Provides the recommended graphical limits of this PV:
-	double upperGraphicalLimit() const { return upperGraphLimit_; }
-	double lowerGraphicalLimit() const { return lowerGraphLimit_; }
+	double upperGraphicalLimit() const { QReadLocker rl(&lock_); return upperGraphLimit_; }
+	double lowerGraphicalLimit() const { QReadLocker rl(&lock_); return lowerGraphLimit_; }
 
 
 	/// All PV dataTypes() except for String can always be retrieved as numbers. However, some integer types are used to provide a list of choices. For example, a grating selector might let you choose Grating #1, 2, 3.  For PVs of this nature, isEnum() will be true.  It's just a convenient way of checking that dataType() == AMProcessVariable::Enum.
-	bool isEnum() const { return (ourType_ == Enum); }
+	bool isEnum() const { QReadLocker rl(&lock_); return (ourType_ == Enum); }
 	/// For Enum dataType()s, sometimes a list of descriptions are provided for each numeric option.  For example, the gratings might be described as "LEG", "MEG", and "HEG".  enumStrings() will give you these titles.
-	QStringList enumStrings() const { return enumStrings_; }
+	QStringList enumStrings() const { QReadLocker rl(&lock_); return enumStrings_; }
 	/// Provides the number of choices for an Enum ProcessVariable:
-	unsigned enumCount() const { return enumStrings_.count(); }
+	unsigned enumCount() const { QReadLocker rl(&lock_); return enumStrings_.count(); }
 	//@}
 
 	// ignoring alarms for now:
@@ -410,6 +414,10 @@ protected:
 
 	/// True almost always. False if the initial attempt to create the channel-access channel failed.
 	bool channelCreated_;
+
+	/// A multiple-reader, single-writer mutex used to thread-safe the channel-access library's premptive callbacks.
+	mutable QReadWriteLock lock_;
+
 
 };
 

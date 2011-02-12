@@ -27,19 +27,19 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 ///////////////////////////////
-// AMProcessVariableHeartbeat
+// AMProcessVariableSupport
 ///////////////////////////////
 
-AMProcessVariableHeartbeat* AMProcessVariableHeartbeat::instance_ = 0;
+AMProcessVariableSupport* AMProcessVariableSupport::instance_ = 0;
 
 // constructor: initializes channel access, starts the ca_poll timer, and installs us as the global exception handler.
-AMProcessVariableHeartbeat::AMProcessVariableHeartbeat() : QObject() {
+AMProcessVariableSupport::AMProcessVariableSupport() : QObject() {
 
 	qDebug("Starting up channel access...");
 
 	putenv("EPICS_CA_MAX_ARRAY_BYTES=" AMPROCESSVARIABLE_MAX_CA_ARRAY_BYTES);
 
-	int lastError = ca_context_create(ca_disable_preemptive_callback);
+	int lastError = ca_context_create(ca_enable_preemptive_callback);
 	if(lastError != ECA_NORMAL )
 		throw lastError;
 
@@ -47,22 +47,22 @@ AMProcessVariableHeartbeat::AMProcessVariableHeartbeat() : QObject() {
 	if(lastError != ECA_NORMAL )
 		throw lastError;
 
-	timerId_ = startTimer( PV_HEARTBEAT_MS );
+	// timerId_ = startTimer( PV_HEARTBEAT_MS );
 
 }
 
 // standard singleton-pattern getInstance() method.
-AMProcessVariableHeartbeat* AMProcessVariableHeartbeat::getInstance() {
+AMProcessVariableSupport* AMProcessVariableSupport::getInstance() {
 
 	if (instance_ == 0)  { // is it the first call?
-		instance_ = new AMProcessVariableHeartbeat(); // create sole instance
+		instance_ = new AMProcessVariableSupport(); // create sole instance
 	}
 
 	return instance_;
 }
 
-// the implementation of AMProcessVariableHeartbeat::removePV():
-void AMProcessVariableHeartbeat::removePVImplementation(chid c) {
+// the implementation of AMProcessVariableSupport::removePV():
+void AMProcessVariableSupport::removePVImplementation(chid c) {
 
 	// unregister this channel:
 	map_.remove(int(c));
@@ -71,7 +71,7 @@ void AMProcessVariableHeartbeat::removePVImplementation(chid c) {
 	if(map_.count() == 0) {
 
 		qDebug("Shutting down channel access...");
-		killTimer(timerId_);			// stop the ca_poll() timer.
+		// removed: killTimer(timerId_);			// stop the ca_poll() timer.
 		ca_add_exception_event(0, 0);	// return the default exception handler
 		ca_context_destroy();			// shut down Channel Access
 		instance_ = 0;					// We are no more...
@@ -79,7 +79,7 @@ void AMProcessVariableHeartbeat::removePVImplementation(chid c) {
 	}
 }
 
-void AMProcessVariableHeartbeat::PVExceptionCB(struct exception_handler_args args) {
+void AMProcessVariableSupport::PVExceptionCB(struct exception_handler_args args) {
 
 	// If there's a specific channel, pass it on to the channel's exception handler:
 	if(args.chid && getInstance()->map_.contains(int(args.chid)) ) {
@@ -92,7 +92,7 @@ void AMProcessVariableHeartbeat::PVExceptionCB(struct exception_handler_args arg
 	else {
 
 		char buf[512];
-		sprintf ( buf, "AMProcessVariableHeartbeat: Epics exception: %s - with request op=%d data type=%s count=%d", args.ctx, (int)args.op, dbr_type_to_text ( args.type ), (int)args.count );
+		sprintf ( buf, "AMProcessVariableSupport: Epics exception: %s - with request op=%d data type=%s count=%d", args.ctx, (int)args.op, dbr_type_to_text ( args.type ), (int)args.count );
 		qDebug() << buf;
 		ca_signal ( args.stat, buf );
 	}
@@ -101,7 +101,7 @@ void AMProcessVariableHeartbeat::PVExceptionCB(struct exception_handler_args arg
 
 
 
-AMProcessVariable::AMProcessVariable(const QString& pvName, bool autoMonitor, QObject* parent, int timeoutMs) : QObject(parent), shouldBeMonitoring_(autoMonitor) {
+AMProcessVariable::AMProcessVariable(const QString& pvName, bool autoMonitor, QObject* parent, int timeoutMs) : QObject(parent), shouldBeMonitoring_(autoMonitor), lock_(QReadWriteLock::Recursive) {
 
 	setObjectName("AMProcessVariable_" + pvName);
 
@@ -132,7 +132,7 @@ AMProcessVariable::AMProcessVariable(const QString& pvName, bool autoMonitor, QO
 
 	try {
 
-		AMProcessVariableHeartbeat::ensureChannelAccess();
+		AMProcessVariableSupport::ensureChannelAccess();
 
 		// attempt to search/connect:
 		lastError_ = ca_create_channel (pvName.toAscii().constData(), PVConnectionChangedCBWrapper, this, CA_PRIORITY_DEFAULT, &chid_ );
@@ -143,7 +143,7 @@ AMProcessVariable::AMProcessVariable(const QString& pvName, bool autoMonitor, QO
 		QTimer::singleShot(timeoutMs, this, SLOT(onConnectionTimeout()));
 
 		// register ourself to the support class:
-		AMProcessVariableHeartbeat::registerPV(chid_, this);
+		AMProcessVariableSupport::registerPV(chid_, this);
 		// qDebug() << QString("AMProcessVariable: Creating AMProcessVariable %1").arg(pvName);
 
 	}
@@ -171,7 +171,7 @@ AMProcessVariable::~AMProcessVariable() {
 		ca_clear_channel(chid_);
 
 		// deregister ourself from the support class:
-		AMProcessVariableHeartbeat::removePV(chid_);
+		AMProcessVariableSupport::removePV(chid_);
 	}
 
 }
@@ -220,6 +220,8 @@ void AMProcessVariable::PVPutRequestCBWrapper(struct event_handler_args eventArg
 /////////////////////
 void AMProcessVariable::exceptionCB(struct exception_handler_args args) {
 
+	QWriteLocker wl(&lock_);
+
 	// One thing for sure:
 	emit error(lastError_ = args.stat);
 
@@ -230,7 +232,7 @@ void AMProcessVariable::exceptionCB(struct exception_handler_args args) {
 
 void AMProcessVariable::connectionChangedCB(struct connection_handler_args connArgs) {
 
-	emit connectionStateChanged( ca_state(connArgs.chid) );
+	QWriteLocker wl(&lock_);
 
 	//
 	//  cs_ - `channel state'
@@ -244,8 +246,6 @@ void AMProcessVariable::connectionChangedCB(struct connection_handler_args connA
 
 	// Possibility 1: Connection gained:
 	if( ca_state(connArgs.chid) == cs_conn && connArgs.op == CA_OP_CONN_UP) {
-
-		emit connected(true);
 
 		// Discover the type of this channel:
 		serverType_ = ca_field_type(chid_);
@@ -304,19 +304,25 @@ void AMProcessVariable::connectionChangedCB(struct connection_handler_args connA
 
 		if(shouldBeMonitoring_)
 			startMonitoring();
+
+		emit connected(true);
 	}
 	// Possibility 2: anything but a connection gained:
 	else {
-		emit connected(false);
 		initialized_ = false;
 		serverType_ = Unconnected;
 		ourType_ = Unconnected;
+		emit connected(false);
 	}
+
+	emit connectionStateChanged( ca_state(connArgs.chid) );
 
 }
 
 
 void AMProcessVariable::controlInfoCB(struct event_handler_args eventArgs) {
+
+	QWriteLocker wl(&lock_);
 
 	struct dbr_ctrl_double* ctrlValue;
 	struct dbr_ctrl_enum* enumCtrlValue;
@@ -400,6 +406,7 @@ void AMProcessVariable::controlInfoCB(struct event_handler_args eventArgs) {
 
 void AMProcessVariable::valueChangedCB(struct event_handler_args eventArgs) {
 
+	QWriteLocker wl(&lock_);
 
 	if( (lastError_ = eventArgs.status) != ECA_NORMAL) {
 		qDebug() << QString("Error in value-changed callback: %1: %2").arg(pvName()).arg(ca_message(lastError_));
@@ -466,16 +473,19 @@ void AMProcessVariable::valueChangedCB(struct event_handler_args eventArgs) {
 
 void AMProcessVariable::putRequestCB(struct event_handler_args eventArgs) {
 
-	emit putRequestReturned(eventArgs.status);
-
 	if(eventArgs.status != ECA_NORMAL) {
+		QWriteLocker wl(&lock_);
+
 		qDebug() << QString("AMProcessVariable: Error in put request: %1: %2").arg(pvName()).arg(ca_message(eventArgs.status));
 		emit error(lastError_ = eventArgs.status);
 	}
 
+	emit putRequestReturned(eventArgs.status);
 }
 
 void AMProcessVariable::onConnectionTimeout() {
+
+	QReadLocker rl(&lock_);
 
 	// If we haven't connected by now:
 	if(this->connectionState() != cs_conn) {
@@ -488,6 +498,8 @@ void AMProcessVariable::onConnectionTimeout() {
 
 
 bool AMProcessVariable::startMonitoring() {
+
+	QWriteLocker wl(&lock_);	// just for lastError_
 
 	lastError_ = ca_create_subscription(dataType(), count(), chid_, DBE_VALUE | DBE_LOG | DBE_ALARM, PVValueChangedCBWrapper, this, &evid_ );
 	if(lastError_ != ECA_NORMAL) {
@@ -505,6 +517,8 @@ void AMProcessVariable::stopMonitoring() {
 }
 
 bool AMProcessVariable::requestValue(int numberOfValues) {
+
+	QWriteLocker wl(&lock_);	//just for lastError_
 
 	// Not necessary. Connection status is checked by ca_array_get_callback:
 	//if(ca_state(chid_) != cs_conn) {
@@ -524,6 +538,8 @@ bool AMProcessVariable::requestValue(int numberOfValues) {
 
 void AMProcessVariable::setValue(int value) {
 
+	QWriteLocker wl(&lock_);	//just for lastError_
+
 	dbr_long_t setpoint = value;
 
 	if (disablePutCallback_)
@@ -539,6 +555,8 @@ void AMProcessVariable::setValue(int value) {
 
 void AMProcessVariable::setValues(dbr_long_t setpoints[], int num) {
 
+	QWriteLocker wl(&lock_);	//just for lastError_
+
 	if (disablePutCallback_)
 		lastError_ = ca_array_put( DBR_LONG, num, chid_, setpoints );
 	else
@@ -551,6 +569,8 @@ void AMProcessVariable::setValues(dbr_long_t setpoints[], int num) {
 }
 
 void AMProcessVariable::setValue(double value) {
+
+	QWriteLocker wl(&lock_);	//just for lastError_
 
 	dbr_double_t setpoint = value;
 
@@ -567,6 +587,8 @@ void AMProcessVariable::setValue(double value) {
 
 void AMProcessVariable::setValues(dbr_double_t setpoints[], int num) {
 
+	QWriteLocker wl(&lock_);	//just for lastError_
+
 	if (disablePutCallback_)
 		lastError_ = ca_array_put( DBR_DOUBLE, num, chid_, setpoints );
 	else
@@ -579,6 +601,8 @@ void AMProcessVariable::setValues(dbr_double_t setpoints[], int num) {
 }
 
 void AMProcessVariable::setValue(const QString& value) {
+
+	QWriteLocker wl(&lock_);	//just for lastError_
 
 	dbr_string_t setpoint;
 	QByteArray d1 = value.toAscii();
@@ -597,6 +621,8 @@ void AMProcessVariable::setValue(const QString& value) {
 
 // TODO: not sure if this is right...
 void AMProcessVariable::setValues(const QStringList& setpoints) {
+
+	QWriteLocker wl(&lock_);	//just for lastError_
 
 	QList<QByteArray> asciiData;	// will hold the ascii form of our strings
 	const char** stringArray = new const char*[setpoints.size()];		// an array of strings (array of char*... ie: char**) which ca_array_put_callback requires.
@@ -622,6 +648,9 @@ void AMProcessVariable::setValues(const QStringList& setpoints) {
 
 
 double AMProcessVariable::lastValue(unsigned index) const {
+
+	QReadLocker rl(&lock_);
+
 	// Depending on our type, we need to know where to look and how to convert:
 	switch(ourType_) {
 
@@ -650,6 +679,9 @@ double AMProcessVariable::lastValue(unsigned index) const {
 // double AMProcessVariable::getDouble() is just a synonym for lastValue().
 
 int AMProcessVariable::getInt(unsigned index) const {
+
+	QReadLocker rl(&lock_);
+
 	// Depending on our type, we need to know where to look and how to convert:
 	switch(ourType_) {
 
@@ -677,6 +709,9 @@ int AMProcessVariable::getInt(unsigned index) const {
 
 
 QString AMProcessVariable::getString(unsigned index) const {
+
+	QReadLocker rl(&lock_);
+
 	// Depending on our type, we need to know where to look and how to convert:
 	switch(ourType_) {
 
