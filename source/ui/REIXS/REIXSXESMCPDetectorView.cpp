@@ -37,8 +37,15 @@ REIXSXESMCPDetectorView::REIXSXESMCPDetectorView(REIXSXESMCPDetector* detector, 
 	image_->setYAxisTarget(MPlotAxis::Left);
 
 	imagePlot_->enableAutoScale(MPlotAxis::Left | MPlotAxis::Bottom);
-	// imagePlot_->axisBottom()->setRange(0, 1024);
-	// imagePlot_->axisLeft()->setRange(0, 256);
+	imagePlot_->setScalePadding(1);
+	// imagePlot_->setXDataRange(0, 1023);
+	// imagePlot_->setYDataRangeLeft(0, 63);
+	imagePlot_->setMarginBottom(10);
+	imagePlot_->setMarginLeft(10);
+	imagePlot_->setMarginRight(5);
+	imagePlot_->setMarginTop(5);
+
+
 	imagePlot_->plotArea()->setBrush(QBrush(QColor(Qt::white)));
 	imagePlot_->axisRight()->setTicks(4);
 	imagePlot_->axisBottom()->setTicks(4);
@@ -111,7 +118,6 @@ void REIXSXESMCPDetectorView::onCountsPerSecondChanged(double countsPerSecond) {
 		countsPerSecond = 1;
 
 	countsPerSecondBar_->setValue(log10(countsPerSecond)*100);	// integer scale goes up to 600.  Highest count rate we'll see is 1e6.
-	qDebug() << "New count rate:" << countsPerSecond;
 }
 
 

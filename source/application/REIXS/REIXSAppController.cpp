@@ -17,6 +17,8 @@
 #include "dataman/REIXS/REIXSXESMCPDetectorInfo.h"
 #include "acquaman/REIXS/REIXSXESScanConfiguration.h"
 
+#include "ui/REIXS/REIXSXESHexapodControlEditor.h"
+
 REIXSAppController::REIXSAppController(QObject *parent) :
 	AMAppController(parent)
 {
@@ -75,7 +77,7 @@ bool REIXSAppController::startup() {
 	}
 	*/
 
-		// mw_->addRightWidget(new QLabel("[]"));
+		mw_->addRightWidget(new REIXSXESHexapodControlEditor(REIXSBeamline::bl()->spectrometer()->hexapod()));
 
 		return true;
 	}

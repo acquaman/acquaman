@@ -64,15 +64,15 @@ REIXSHexapod::REIXSHexapod(QObject* parent)
 	: AMControl("hexapod", "n/a", parent) {
 
 	QString baseName = "HXPD1610-401-01:";
-	x_ = new AMPVwStatusControl("hexapodX", baseName+"X:sp", baseName+"X", baseName+":moving", QString(), this, 0.1);
-	y_ = new AMPVwStatusControl("hexapodY", baseName+"Y:sp", baseName+"Y", baseName+":moving", QString(), this, 0.1);
-	z_ = new AMPVwStatusControl("hexapodZ", baseName+"Z:sp", baseName+"Z", baseName+":moving", QString(), this, 0.1);
-	u_ = new AMPVwStatusControl("hexapodU", baseName+"U:sp", baseName+"U", baseName+":moving", QString(), this, 0.5);
-	v_ = new AMPVwStatusControl("hexapodV", baseName+"V:sp", baseName+"V", baseName+":moving", QString(), this, 0.5);
-	w_ = new AMPVwStatusControl("hexapodW", baseName+"W:sp", baseName+"W", baseName+":moving", QString(), this, 0.5);
-	r_ = new AMPVwStatusControl("hexapodR", baseName+"R:sp", baseName+"R", baseName+":moving", QString(), this, 0.1);
-	s_ = new AMPVwStatusControl("hexapodS", baseName+"S:sp", baseName+"S", baseName+":moving", QString(), this, 0.1);
-	t_ = new AMPVwStatusControl("hexapodT", baseName+"T:sp", baseName+"T", baseName+":moving", QString(), this, 0.1);
+	x_ = new AMPVwStatusControl("hexapodX", baseName+"X:sp", baseName+"X", baseName+"moving", QString(), this, 0.1);
+	y_ = new AMPVwStatusControl("hexapodY", baseName+"Y:sp", baseName+"Y", baseName+"moving", QString(), this, 0.1);
+	z_ = new AMPVwStatusControl("hexapodZ", baseName+"Z:sp", baseName+"Z", baseName+"moving", QString(), this, 0.1);
+	u_ = new AMPVwStatusControl("hexapodU", baseName+"U:sp", baseName+"U", baseName+"moving", QString(), this, 0.5);
+	v_ = new AMPVwStatusControl("hexapodV", baseName+"V:sp", baseName+"V", baseName+"moving", QString(), this, 0.5);
+	w_ = new AMPVwStatusControl("hexapodW", baseName+"W:sp", baseName+"W", baseName+"moving", QString(), this, 0.5);
+	r_ = new AMPVwStatusControl("hexapodR", baseName+"R:sp", baseName+"R", baseName+"moving", QString(), this, 0.1);
+	s_ = new AMPVwStatusControl("hexapodS", baseName+"S:sp", baseName+"S", baseName+"moving", QString(), this, 0.1);
+	t_ = new AMPVwStatusControl("hexapodT", baseName+"T:sp", baseName+"T", baseName+"moving", QString(), this, 0.1);
 
 	addChildControl(x_);
 	addChildControl(y_);

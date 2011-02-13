@@ -36,6 +36,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QReadLocker>
 #include <QWriteLocker>
 
+#include "util/AMDeferredFunctionCall.h"
+
 /// This defines the default value for a channel-access search connection timeout, in milliseconds.  If a connection takes longer than this to establish, we'll keep on trying, but we'll issue the connectionTimeout() signal.
 #define EPICS_CA_CONN_TIMEOUT_MS 1000
 
@@ -50,13 +52,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 ///////////////////////////////
-// AMProcessVariableHeartbeat
+// AMProcessVariableSupport
 ///////////////////////////////
 
 
 
-// removed: Poll the epics channel-access layer every PV_HEARTBEAT_MS milliseconds
-// #define PV_HEARTBEAT_MS 12
+/// Process additional epics channel-access events every PV_HEARTBEAT_MS milliseconds
+/*! Now that we're using the channel-access library's preemptive callback, we don't need to do this quickly. However, some events (for ex: notifications of servers connecting or re-connecting) seem to be only delivered when requesting ca_poll.  We call ca_poll() every PV_HEARTBEAT_MS. */
+#define PV_HEARTBEAT_MS 998
 
 class AMProcessVariable;
 
@@ -88,7 +91,21 @@ public:
 	/// This is the global epics channel-access exception handler:
 	static void PVExceptionCB(struct exception_handler_args args);
 
+	/// Call this function to flush Channel-access requests to the network.
+	/*! Because we are using the preemptive callback mode of the channel access library, we're not calling ca_poll on a timer anymore. This means that we must call ca_flush_io() after each network request if we want it go out immediately (otherwise it will be buffered until the output buffer is full).  However, calling ca_flush_io() after EACH (put, subscription request, etc.) is network-expensive, and good EPICS practices encourage you to buffer as much as possible.  This function will ensure that ca_flush_io() is called as soon as program control returns to the Qt event loop. Multiple calls to this function within one event loop cycle will result in a single ca_flush_io(), achieving the desired efficiency.
+	  */
+	static void flushIO() {
+		getInstance()->flushIOCaller_.schedule();
+	}
+
+protected slots:
+	/// Executes one call to ca_flush_io() for all the flushIO() requests that happened during the past event loop.
+	void executeFlushIO() {
+		ca_flush_io();
+	}
+
 protected:
+
 
 	/// constructor: sets upf the channel access environement and installs us as the global exception handler.
 	AMProcessVariableSupport();
@@ -96,11 +113,13 @@ protected:
 	/// singleton class. Use getInstance() method to access.
 	static AMProcessVariableSupport* getInstance();
 
+
+
 	/// the implementation of AMProcessVariableHeartbeat::removePV():
 	void removePVImplementation(chid c);
 
-	// Timer event handler: calls ca_poll()
-	// removed: void timerEvent(QTimerEvent*) { ca_poll(); }
+	/// Timer event handler: calls ca_poll()
+	void timerEvent(QTimerEvent*) { ca_poll(); }
 
 
 	/// singleton class instance variable
@@ -108,8 +127,10 @@ protected:
 	/// Mapping from \c chid channel-id's to process variable objects
 	QHash<int, AMProcessVariable*> map_;
 
-	// ID of the timer
-	// removed: int timerId_;
+	/// ID of the ca_poll timer
+	int timerId_;
+	/// This schedules and combines requests to flush channel-access IO a maximum of once every event loop.
+	AMDeferredFunctionCall flushIOCaller_;
 
 };
 

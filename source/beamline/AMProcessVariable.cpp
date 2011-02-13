@@ -35,6 +35,8 @@ AMProcessVariableSupport* AMProcessVariableSupport::instance_ = 0;
 // constructor: initializes channel access, starts the ca_poll timer, and installs us as the global exception handler.
 AMProcessVariableSupport::AMProcessVariableSupport() : QObject() {
 
+	connect(&flushIOCaller_, SIGNAL(executed()), this, SLOT(executeFlushIO()));
+
 	qDebug("Starting up channel access...");
 
 	putenv("EPICS_CA_MAX_ARRAY_BYTES=" AMPROCESSVARIABLE_MAX_CA_ARRAY_BYTES);
@@ -47,7 +49,7 @@ AMProcessVariableSupport::AMProcessVariableSupport() : QObject() {
 	if(lastError != ECA_NORMAL )
 		throw lastError;
 
-	// timerId_ = startTimer( PV_HEARTBEAT_MS );
+	timerId_ = startTimer( PV_HEARTBEAT_MS );
 
 }
 
@@ -138,6 +140,8 @@ AMProcessVariable::AMProcessVariable(const QString& pvName, bool autoMonitor, QO
 		lastError_ = ca_create_channel (pvName.toAscii().constData(), PVConnectionChangedCBWrapper, this, CA_PRIORITY_DEFAULT, &chid_ );
 		if(lastError_ != ECA_NORMAL)
 			throw lastError_;
+
+		AMProcessVariableSupport::flushIO();
 
 		// This will notice if the search times out:
 		QTimer::singleShot(timeoutMs, this, SLOT(onConnectionTimeout()));
@@ -304,6 +308,8 @@ void AMProcessVariable::connectionChangedCB(struct connection_handler_args connA
 
 		if(shouldBeMonitoring_)
 			startMonitoring();
+
+		AMProcessVariableSupport::flushIO();
 
 		emit connected(true);
 	}
@@ -508,12 +514,15 @@ bool AMProcessVariable::startMonitoring() {
 		return false;
 	}
 
+	AMProcessVariableSupport::flushIO();
+
 	return true;
 }
 
 void AMProcessVariable::stopMonitoring() {
 
 	ca_clear_subscription(evid_);
+	AMProcessVariableSupport::flushIO();
 }
 
 bool AMProcessVariable::requestValue(int numberOfValues) {
@@ -533,6 +542,8 @@ bool AMProcessVariable::requestValue(int numberOfValues) {
 		return false;
 	}
 
+	AMProcessVariableSupport::flushIO();
+
 	return true;
 }
 
@@ -551,6 +562,8 @@ void AMProcessVariable::setValue(int value) {
 		qDebug() << QString("AMProcessVariable: Error while trying to put value: %1: %2").arg(pvName()).arg(ca_message(lastError_));
 		emit error(lastError_);
 	}
+
+	AMProcessVariableSupport::flushIO();
 }
 
 void AMProcessVariable::setValues(dbr_long_t setpoints[], int num) {
@@ -566,6 +579,8 @@ void AMProcessVariable::setValues(dbr_long_t setpoints[], int num) {
 		qDebug() << QString("AMProcessVariable: Error while trying to put values: %1: %2").arg(pvName()).arg(ca_message(lastError_));
 		emit error(lastError_);
 	}
+
+	AMProcessVariableSupport::flushIO();
 }
 
 void AMProcessVariable::setValue(double value) {
@@ -583,6 +598,8 @@ void AMProcessVariable::setValue(double value) {
 		qDebug() << QString("Error while trying to put AMProcessVariable value: %1: %2").arg(pvName()).arg(ca_message(lastError_));
 		emit error(lastError_);
 	}
+
+	AMProcessVariableSupport::flushIO();
 }
 
 void AMProcessVariable::setValues(dbr_double_t setpoints[], int num) {
@@ -598,6 +615,8 @@ void AMProcessVariable::setValues(dbr_double_t setpoints[], int num) {
 		qDebug() << QString("Error while trying to put AMProcessVariable values: %1: %2").arg(pvName()).arg(ca_message(lastError_));
 		emit error(lastError_);
 	}
+
+	AMProcessVariableSupport::flushIO();
 }
 
 void AMProcessVariable::setValue(const QString& value) {
@@ -617,6 +636,8 @@ void AMProcessVariable::setValue(const QString& value) {
 		qDebug() << QString("Error while trying to put AMProcessVariable value: %1: %2").arg(pvName()).arg(ca_message(lastError_));
 		emit error(lastError_);
 	}
+
+	AMProcessVariableSupport::flushIO();
 }
 
 // TODO: not sure if this is right...
@@ -643,6 +664,8 @@ void AMProcessVariable::setValues(const QStringList& setpoints) {
 	}
 	// TODO: check that ca_array_put_callback doesn't require this left in memory after this function goes out of scope?
 	delete[] stringArray;
+
+	AMProcessVariableSupport::flushIO();
 
 }
 
