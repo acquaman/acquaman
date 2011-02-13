@@ -70,9 +70,9 @@ bool AMAppController::startup() {
 	mw_->setWindowTitle("Acquaman");
 	connect(mw_, SIGNAL(itemCloseButtonClicked(QModelIndex)), this, SLOT(onWindowPaneCloseButtonClicked(QModelIndex)));
 
-	BottomBar* b = new BottomBar();
-	mw_->addBottomWidget(b);
-	connect(b, SIGNAL(addButtonClicked()), this, SLOT(onAddButtonClicked()));
+	bottomBar_ = new BottomBar();
+	mw_->addBottomWidget(bottomBar_);
+	connect(bottomBar_, SIGNAL(addButtonClicked()), this, SLOT(onAddButtonClicked()));
 
 
 	// Create panes in the main window:
@@ -215,6 +215,10 @@ void AMAppController::onAddButtonClicked() {
 	// For now, we simply create a new experiment. Later on, this could pop up a menu to create a new experiment, run, sample plate, whatever...
 	AMExperiment e("New Experiment");
 	e.storeToDb(AMDatabase::userdb());
+}
+
+void AMAppController::onProgressUpdated(double elapsed, double total){
+	bottomBar_->updateScanProgress(elapsed, total);
 }
 
 #include "dataman/AMScanEditorModelItem.h"

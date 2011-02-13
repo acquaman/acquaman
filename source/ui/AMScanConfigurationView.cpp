@@ -343,6 +343,7 @@ AMFastScanConfigurationHolder::AMFastScanConfigurationHolder(QWidget *parent) :
 	sfscViewer_ = NULL;
 
 	autoSavePath_ = "";
+	lastSettings_ = 0; //NULL
 
 	requestedStart_ = false;
 	canStartImmediately_ = false;
@@ -367,6 +368,7 @@ void AMFastScanConfigurationHolder::onBecameCurrentWidget()
 		connect(sfscViewer_, SIGNAL(startScanRequested()), this, SLOT(onStartScanRequested()));
 		connect(sfscViewer_, SIGNAL(addToQueueRequested()), this, SLOT(onAddToQueueRequested()));
 		connect(sfscViewer_, SIGNAL(queueDirectorRequested()), director, SLOT(show()));
+		connect(sfscViewer_, SIGNAL(lastSettings(SGMFastScanParameters*)), this, SLOT(setLastSettings(SGMFastScanParameters*)));
 		connect(this, SIGNAL(lockdownScanning(bool,QString)), sfscViewer_, SLOT(onLockdowScanning(bool,QString)));
 		/*
 		connect(sxscViewer, SIGNAL(startScanRequested()), this, SLOT(onStartScanRequested()));
@@ -392,6 +394,8 @@ void AMFastScanConfigurationHolder::createScanConfiguration(){
 	if(!autoSavePath_.isEmpty())
 		cfg()->setSensibleFileSavePath(autoSavePath_);
 	connect(cfg(), SIGNAL(onSensibleFileSavePathChanged(QString)), this, SLOT(setAutoSavePath(QString)));
+	if(lastSettings_)
+		cfg()->setParameters(lastSettings_);
 
 	/*
 	cfgDetectorInfoSet_ = new AMDetectorInfoSet(this);
@@ -419,6 +423,7 @@ void AMFastScanConfigurationHolder::destroyScanConfigurationViewer(){
 		disconnect(sfscViewer_, SIGNAL(startScanRequested()), this, SLOT(onStartScanRequested()));
 		disconnect(sfscViewer_, SIGNAL(addToQueueRequested()), this, SLOT(onAddToQueueRequested()));
 		disconnect(sfscViewer_, SIGNAL(queueDirectorRequested()), director, SLOT(show()));
+		disconnect(sfscViewer_, SIGNAL(lastSettings(SGMFastScanParameters*)), this, SLOT(setLastSettings(SGMFastScanParameters*)));
 		disconnect(this, SIGNAL(lockdownScanning(bool,QString)), sfscViewer_, SLOT(onLockdowScanning(bool,QString)));
 		vl_->removeWidget(sfscViewer_);
 		delete sfscViewer_;
@@ -428,4 +433,8 @@ void AMFastScanConfigurationHolder::destroyScanConfigurationViewer(){
 
 void AMFastScanConfigurationHolder::setAutoSavePath(const QString &autoSavePath){
 	autoSavePath_ = autoSavePath;
+}
+
+void AMFastScanConfigurationHolder::setLastSettings(SGMFastScanParameters *lastSettings){
+	lastSettings_ = lastSettings;
 }

@@ -22,6 +22,7 @@ public slots:
 	void initialize();
 	void reinitialize(bool removeScan);
 	void start();
+	void cancel();
 
 protected:
 	bool event(QEvent *e);

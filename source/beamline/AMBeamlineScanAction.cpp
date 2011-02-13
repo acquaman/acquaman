@@ -287,7 +287,6 @@ void AMBeamlineScanActionView::updateScanNameLabel(){
 void AMBeamlineScanActionView::updateProgressBar(double elapsed, double total){
 	if(cancelLatch_)
 		return;
-
 	progressBar_->setMaximum((int)total);
 	progressBar_->setValue((int)elapsed);
 

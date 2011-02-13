@@ -6,6 +6,7 @@ AMBeamlineParallelActionsList::AMBeamlineParallelActionsList(QObject *parent) :
 	insertRowLatch_ = -1;
 	actions_ = NULL;
 	currentStage_ = -1;
+	isRunning_ = false;
 	setupModel();
 	connect(this, SIGNAL(stageStarted(int)), this, SLOT(onStageStarted(int)));
 }
@@ -78,6 +79,10 @@ QPair<int,int> AMBeamlineParallelActionsList::indicesOf(AMBeamlineActionItem *iA
 			if(action(x, y) == iAction)
 				return QPair<int,int>(x,y);
 	return QPair<int,int>(-1,-1);
+}
+
+bool AMBeamlineParallelActionsList::isRunning(){
+	return isRunning_;
 }
 
 void AMBeamlineParallelActionsList::puke(){
@@ -300,9 +305,15 @@ bool AMBeamlineParallelActionsList::deleteAction(int stageIndex, int index){
 }
 
 void AMBeamlineParallelActionsList::start(){
-	if(stageCount() > 0)
+	if(stageCount() > 0){
+		isRunning_ = true;
 		for(int x = 0; x < stage(0)->count(); x++)
 			action(0,x)->start();
+	}
+}
+
+void AMBeamlineParallelActionsList::cancel(){
+	// do something here
 }
 
 void AMBeamlineParallelActionsList::onDataChanged(QModelIndex a,QModelIndex b){
@@ -395,6 +406,7 @@ void AMBeamlineParallelActionsList::onStageSucceeded(){
 	emit stageSucceeded(stageIndex);
 	if(stageIndex == stageCount()-1){
 		currentStage_ = -1;
+		isRunning_ = false;
 		emit listSucceeded();
 	}
 }

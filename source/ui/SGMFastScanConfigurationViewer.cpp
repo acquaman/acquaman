@@ -7,6 +7,7 @@ SGMFastScanConfigurationViewer::SGMFastScanConfigurationViewer(SGMFastScanConfig
 {
 	cfg_ = NULL;
 	autoSavePath_ = "";
+	autoSaveDialog_ = 0; //NULL
 	if(SGMBeamline::sgm()->isConnected()){
 		cfg_ = sfsc;
 
@@ -20,7 +21,7 @@ SGMFastScanConfigurationViewer::SGMFastScanConfigurationViewer(SGMFastScanConfig
 		energyMidpointLabel_ = new QLabel("Energy Midpoint");
 		endEnergyLabel_ = new QLabel("End Energy");
 		motorSettingsLabel_ = new QLabel("Motor Settings");
-		scalerTimeLabel_ = new QLabel("Scaler Time");
+		//scalerTimeLabel_ = new QLabel("Scaler Time");
 
 		elementEdit_ = new QLineEdit();
 		elementEdit_->setText(sfsc->element());
@@ -44,10 +45,12 @@ SGMFastScanConfigurationViewer::SGMFastScanConfigurationViewer(SGMFastScanConfig
 		motorSettingsSB_->setMinimum(100);
 		motorSettingsSB_->setMaximum(50000);
 		motorSettingsSB_->setValue(sfsc->velocity());
+		/*
 		scalerTimeDSB_ = new QDoubleSpinBox();
 		scalerTimeDSB_->setMinimum(1.0);
 		scalerTimeDSB_->setMaximum(1000.0);
 		scalerTimeDSB_->setValue(sfsc->scalerTime());
+		*/
 
 		connect(sfsc, SIGNAL(onElementChanged(QString)), elementEdit_, SLOT(setText(QString)));
 		connect(sfsc, SIGNAL(onRunSecondsChanged(double)), runTimeDSB_, SLOT(setValue(double)));
@@ -55,17 +58,18 @@ SGMFastScanConfigurationViewer::SGMFastScanConfigurationViewer(SGMFastScanConfig
 		connect(sfsc, SIGNAL(onEnergyMidpointChanged(double)), energyMidpointDSB_, SLOT(setValue(double)));
 		connect(sfsc, SIGNAL(onEnergyEndChanged(double)), endEnergyDSB_, SLOT(setValue(double)));
 		connect(sfsc, SIGNAL(onVelocityChanged(int)), motorSettingsSB_, SLOT(setValue(int)));
-		connect(sfsc, SIGNAL(onScalerTimeChanged(double)), scalerTimeDSB_, SLOT(setValue(double)));
+		//connect(sfsc, SIGNAL(onScalerTimeChanged(double)), scalerTimeDSB_, SLOT(setValue(double)));
 
 		connect(elementEdit_, SIGNAL(textEdited(QString)), sfsc, SLOT(setElement(QString)));
 		connect(runTimeDSB_, SIGNAL(valueChanged(double)), sfsc, SLOT(setRunSeconds(double)));
+		connect(runTimeDSB_, SIGNAL(valueChanged(double)), sfsc, SLOT(setScalerTime(double)));
 		connect(startEnergyDSB_, SIGNAL(valueChanged(double)), sfsc, SLOT(setEnergyStart(double)));
 		connect(energyMidpointDSB_, SIGNAL(valueChanged(double)), sfsc, SLOT(setEnergyMidpoint(double)));
 		connect(endEnergyDSB_, SIGNAL(valueChanged(double)), sfsc, SLOT(setEnergyEnd(double)));
 		connect(motorSettingsSB_, SIGNAL(valueChanged(int)), sfsc, SLOT(setVelocity(int)));
 		connect(motorSettingsSB_, SIGNAL(valueChanged(int)), sfsc, SLOT(setVelocityBase(int)));
 		connect(motorSettingsSB_, SIGNAL(valueChanged(int)), sfsc, SLOT(setAcceleration(int)));
-		connect(scalerTimeDSB_, SIGNAL(valueChanged(double)), sfsc, SLOT(setScalerTime(double)));
+		//connect(scalerTimeDSB_, SIGNAL(valueChanged(double)), sfsc, SLOT(setScalerTime(double)));
 
 		fl_ = new QFormLayout();
 		fl_->addRow(elementLabel_, elementEdit_);
@@ -74,20 +78,31 @@ SGMFastScanConfigurationViewer::SGMFastScanConfigurationViewer(SGMFastScanConfig
 		fl_->addRow(energyMidpointLabel_, energyMidpointDSB_);
 		fl_->addRow(endEnergyLabel_, endEnergyDSB_);
 		fl_->addRow(motorSettingsLabel_, motorSettingsSB_);
-		fl_->addRow(scalerTimeLabel_, scalerTimeDSB_);
+		//fl_->addRow(scalerTimeLabel_, scalerTimeDSB_);
 
 		saveLabel_ = new QLabel("Save a copy to:");
 		saveEdit_ = new QLineEdit();
 		saveEdit_->setMinimumWidth(400);
 		saveEdit_->setText(sfsc->sensibleFileSavePath());
+		autoSaveDialog_ = new QFileDialog(0, "Choose a Directory for Auto Save");
+		autoSaveDialog_->setFileMode(QFileDialog::Directory);
+		autoSaveDialogButton_ = new QPushButton();
+		autoSaveDialogButton_->setText("Choose");
 		connect(saveEdit_, SIGNAL(editingFinished()), this, SLOT(onSavePathEditingFinished()));
+		connect(autoSaveDialogButton_, SIGNAL(clicked()), autoSaveDialog_, SLOT(show()));
+		connect(autoSaveDialog_, SIGNAL(fileSelected(QString)), this, SLOT(onSaveDialogDirectoryChosen(QString)));
 		if(!sfsc->finalizedSavePath().isEmpty())
 			saveFbkLabel_ = new QLabel("\tFile will be saved as "+sfsc->finalizedSavePath().section('/', -1));
 		else
 			saveFbkLabel_ = new QLabel("\tEnter a path and a file root");
 		fl2_ = new QFormLayout();
 		fl2_->addRow(saveLabel_, saveEdit_);
-		fl2_->addRow(saveFbkLabel_);
+		QHBoxLayout *hl = new QHBoxLayout();
+		hl->addWidget(saveFbkLabel_);
+		hl->addStretch(1);
+		hl->addWidget(autoSaveDialogButton_);
+		//fl2_->addRow(saveFbkLabel_, autoSaveDialogButton_);
+		fl2_->addRow(hl);
 
 		connect(sfsc, SIGNAL(onNewFinalizedSavePath(QString)), this, SLOT(onNewFinalizedSavePath(QString)));
 
@@ -145,4 +160,25 @@ void SGMFastScanConfigurationViewer::onSavePathEditingFinished(){
 
 void SGMFastScanConfigurationViewer::onNewFinalizedSavePath(const QString &savePath){
 	saveFbkLabel_->setText("\tFile will be saved as "+savePath.section('/', -1));
+}
+
+void SGMFastScanConfigurationViewer::onSaveDialogDirectoryChosen(const QString &savePath){
+	SGMFastScanConfiguration *sfsc = qobject_cast<SGMFastScanConfiguration*>(cfg_);
+	QString saveFile = savePath+"/default";
+	if(saveFile.isEmpty())
+		return;
+	if(sfsc && sfsc->setSensibleFileSavePath(saveFile)){
+		saveEdit_->setText(saveFile);
+		saveFbkLabel_->setText("\tFile will be saved as "+sfsc->finalizedSavePath().section('/', -1));
+	}
+	else{
+		saveEdit_->setText(sfsc->sensibleFileSavePath());
+		saveFbkLabel_->setText("\t"+sfsc->sensibleFileSaveWarning());
+	}
+}
+
+void SGMFastScanConfigurationViewer::onStartScanClicked(){
+	SGMFastScanConfiguration *sfsc = qobject_cast<SGMFastScanConfiguration*>(cfg_);
+	emit lastSettings(sfsc->currentParameters());
+	AMScanConfigurationViewer::onStartScanClicked();
 }

@@ -97,13 +97,18 @@ void SGMFastDacqScanController::start(){
 	AMDacqScanController::start();
 }
 
+void SGMFastDacqScanController::cancel(){
+	if(initializationActions_ && initializationActions_->isRunning())
+		qDebug() << "Need to stop the intialization actions";
+	AMDacqScanController::cancel();
+}
+
 bool SGMFastDacqScanController::event(QEvent *e){
 	if(e->type() == (QEvent::Type)AM::AcqEvent){
 		QMap<int, double> aeData = ((AMAcqEvent*)e)->dataPackage_;
 		QMap<int, QList<double> > aeSpectra = ((AMAcqEvent*)e)->spectraPackage_;
 		QMap<int, double>::const_iterator i = aeData.constBegin();
 		QMap<int, QList<double> >::const_iterator j = aeSpectra.constBegin();
-		qDebug() << "Received fast scan data event " << i.key() << aeData.count() << aeSpectra.count();
 		// Fast scan should be one scalar value (the initial energy value) and one spectral value (the scaler with all the data)
 		// There will be N*1000 elements of the scaler waveform, where N is the number of channels (detectors) being acquired
 		// We have already set the energy axis as uniform with the proper start and increment, so we can ignore the energy value in aeData
@@ -127,7 +132,6 @@ bool SGMFastDacqScanController::event(QEvent *e){
 				++j;
 			}
 		}
-		qDebug() << "But not doing anything with it";
 		e->accept();
 		return true;
 	}
@@ -156,10 +160,13 @@ void SGMFastDacqScanController::onState(const QString &state){
 		dacqRunUpStarted_ = true;
 	if(state == "Run" && dacqRunUpStarted_){
 		dacqRunUpCompleted_ = true;
-		fastScanTimer_->start(1000);
+		fastScanTimer_->start(500);
 	}
-	if(state == "Off")
+	if(state == "Off"){
 		dacqRunCompleted_ = true;
+		if(fastScanTimer_->isActive())
+			fastScanTimer_->stop();
+	}
 	calculateProgress(-1, -1);
 }
 
@@ -175,8 +182,11 @@ void SGMFastDacqScanController::onInitializationActionsStageSucceeded(int stageI
 }
 
 void SGMFastDacqScanController::onFastScanTimerTimeout(){
-	timerSeconds_++;
-	calculateProgress(timerSeconds_, pCfg()->runTime());
+	//timerSeconds_++;
+	//calculateProgress(timerSeconds_, pCfg()->runTime());
+	calculateProgress(SGMBeamline::sgm()->energy()->value()-pCfg()->start(), pCfg()->end()-pCfg()->start());
+	if( fabs(SGMBeamline::sgm()->energy()->value()-pCfg()->end()) <  SGMBeamline::sgm()->energy()->tolerance())
+		fastScanTimer_->stop();
 }
 
 void SGMFastDacqScanController::calculateProgress(double elapsed, double total){
@@ -192,15 +202,16 @@ void SGMFastDacqScanController::calculateProgress(double elapsed, double total){
 		if(dacqRunUpStarted_ && !dacqRunUpCompleted_ && (elapsed != -1) &&(total != -1) )
 			localProgress += (elapsed/total)*(1.0/4.0);
 		// If the run up is completed, add the 1/4 and whatever fraction of the scan run is completed
-		if(dacqRunUpCompleted_ && (elapsed != -1) &&(total != -1) )
+		if(dacqRunUpCompleted_ && (elapsed != -1) && (total != -1) )
 			localProgress += (elapsed/total)*(3.0/8.0) + (1.0/4.0);
 	}
 	else
 		localProgress = 1.0;
+
 	if(localProgress > lastProgress_)
 		lastProgress_ = localProgress;
 
-	emit progress(lastProgress_, 1.0);
+	emit progress(lastProgress_*100, 100.0);
 
 	int stars = (lastProgress_*100);
 	QString starProgress = "";

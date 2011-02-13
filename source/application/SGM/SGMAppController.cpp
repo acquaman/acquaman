@@ -116,6 +116,8 @@ void SGMAppController::onCurrentScanControllerCreated(){
 
 	scanControllerActiveEditor_ = scanEditor;
 
+	connect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), this, SLOT(onProgressUpdated(double,double)));
+
 	/// \todo add user preference: should new scans open in a new window, or docked?
 	// mw_->undock(scanEditor);
 	// QPoint newPos;
