@@ -238,7 +238,8 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/acquaman/AMDetectorInfoList.h \
 	source/ui/AMDetectorInfoView.h \
 	source/ui/AMControlOptimizationView.h \
-    source/dataman/SGM2010FastSensibleFileLoader.h
+	source/dataman/SGM2010FastSensibleFileLoader.h \
+	source/beamline/AMBeamlineControlStopAction.h
 FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
 	source/ui/AMDataViewSection.ui \
@@ -411,6 +412,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/acquaman/AMDetectorInfoList.cpp \
 	source/ui/AMDetectorInfoView.cpp \
 	source/ui/AMControlOptimizationView.cpp \
-    source/dataman/SGM2010FastSensibleFileLoader.cpp
+	source/dataman/SGM2010FastSensibleFileLoader.cpp \
+	source/beamline/AMBeamlineControlStopAction.cpp
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc

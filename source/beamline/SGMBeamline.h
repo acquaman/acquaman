@@ -89,6 +89,8 @@ public:
 	AMDetectorInfo* i0Detector() const { return i0Detector_;}
 	AMDetectorInfo* eVFbkDetector() const { return eVFbkDetector_;}
 	AMDetectorInfo* photodiodeDetector() const { return photodiodeDetector_;}
+	AMDetectorInfo* encoderUpDetector() const { return encoderUpDetector_;}
+	AMDetectorInfo* encoderDownDetector() const { return encoderDownDetector_;}
 	AMControl* loadlockCCG() const { return loadlockCCG_;}
 	AMControl* loadlockTCG() const { return loadlockTCG_;}
 	AMControl* ssaManipulatorX() const { return ssaManipulatorX_;}
@@ -130,7 +132,9 @@ public:
 	AMSamplePlate* currentSamplePlate() const { return currentSamplePlate_; }
 
 	AMBeamlineControlMoveAction* beamOnAction();
-	AMBeamlineActionsList* beamOnActionsList();
+	AMBeamlineParallelActionsList* beamOnActionsList();
+
+	AMBeamlineParallelActionsList* stopMotorsActionsList();
 
 	QList<AM1BeamlineActionItem*> transferLoadlockOutActions() const;
 
@@ -177,6 +181,9 @@ protected slots:
 	void createBeamOnActions();
 	void onBeamOnActionsFinsihed();
 
+	void createStopMotorsActions();
+	void onStopMotorsActionsFinished();
+
 	void onVisibleLightChanged(double value);
 
 protected:
@@ -210,6 +217,8 @@ protected:
 	AMControl *i0_;
 	AMControl *eVFbk_;
 	AMControl *photodiode_;
+	AMControl *encoderUp_;
+	AMControl *encoderDown_;
 	AMControl *loadlockCCG_;
 	AMControl *loadlockTCG_;
 	AMControl *ssaManipulatorX_;
@@ -251,6 +260,10 @@ protected:
 	AMControlSet *eVFbkControlSet_;
 	AMDetectorInfo *photodiodeDetector_;
 	AMControlSet *photodiodeControlSet_;
+	AMDetectorInfo *encoderUpDetector_;
+	AMControlSet *encoderUpControlSet_;
+	AMDetectorInfo *encoderDownDetector_;
+	AMControlSet *encoderDownControlSet_;
 
 	AMControlSet* criticalControlsSet_;
 	AMControlSet* beamOnControlSet_;
@@ -298,7 +311,13 @@ protected:
 
 	AMBeamlineControlMoveAction *beamOnAction1_;
 	AMBeamlineControlMoveAction *beamOnAction2_;
-	AMBeamlineActionsList *beamOnActionsList_;
+	AMBeamlineParallelActionsList *beamOnActionsList_;
+
+	AMBeamlineControlMoveAction *stopMotorsActions1_;
+	AMBeamlineControlMoveAction *stopMotorsActions2_;
+	AMBeamlineControlMoveAction *stopMotorsActions3_;
+	AMBeamlineControlMoveAction *stopMotorsActions4_;
+	AMBeamlineParallelActionsList *stopMotorsActionsList_;
 
 	QString beamlineWarnings_;
 

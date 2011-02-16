@@ -593,7 +593,7 @@ void AMControlButton::setHappy(bool happy) {
 	*/
 }
 
-AMBeamlineActionsListButton::AMBeamlineActionsListButton(AMBeamlineActionsList *actionsList, QWidget *parent) :
+AMBeamlineActionsListButton::AMBeamlineActionsListButton(AMBeamlineParallelActionsList *actionsList, QWidget *parent) :
 		QToolButton(parent)
 {
 	actionsList_ = actionsList;
@@ -605,9 +605,8 @@ void AMBeamlineActionsListButton::overrideText(const QString &text){
 }
 
 void AMBeamlineActionsListButton::onClicked(){
-	//qDebug() << "Trying to start actionsList";
-	if(actionsList_ && actionsList_->count() > 0 && !actionsList_->action(0)->hasFinished()){
-	//	qDebug() << "Starting it";
-		actionsList_->action(0)->start();
-	}
+//	if(actionsList_ && actionsList_->count() > 0 && !actionsList_->action(0)->hasFinished()){
+	if(actionsList_ && actionsList_->count() > 0)
+		actionsList_->start();
+//		actionsList_->action(0)->start();
 }

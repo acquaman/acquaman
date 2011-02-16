@@ -112,6 +112,7 @@ bool SGMFastDacqScanController::event(QEvent *e){
 		// Fast scan should be one scalar value (the initial energy value) and one spectral value (the scaler with all the data)
 		// There will be N*1000 elements of the scaler waveform, where N is the number of channels (detectors) being acquired
 		// We have already set the energy axis as uniform with the proper start and increment, so we can ignore the energy value in aeData
+		/*
 		if(i.key() == 0 && aeData.count() == 1 && aeSpectra.count() == 1){
 			qDebug() << "And doing something with it";
 			while(j != aeSpectra.constEnd()){
@@ -131,6 +132,56 @@ bool SGMFastDacqScanController::event(QEvent *e){
 				}
 				++j;
 			}
+		}
+		*/
+		int deltaEncoder = 0;
+		double energyFbk = 0.0;
+		if(i.key() == 0 && aeData.count() == 2 && aeSpectra.count() == 1){
+			qDebug() << "And doing something with it";
+			++i;
+			qDebug() << "Encoder starting point is " << i.value();
+			int encoderEndpoint = i.value();
+			while(j != aeSpectra.constEnd()){
+				int maxVal = j.value().count()-1;
+				if(maxVal > 6000)
+					maxVal = 6000;
+				//for(int x = 0; x < j.value().count()-1; x++){
+				//for(int x = 0; x < 4000; x++){
+				for(int x = 0; x < maxVal; x++){
+					if(x%6 == 0){
+						pScan()->rawData()->beginInsertRows(0);
+						pScan()->rawData()->setAxisValue(0, x/6, x/6);
+					}
+					pScan()->rawData()->setValue(AMnDIndex(x/6), x%6, AMnDIndex(), j.value().at(x+1));
+					if( (x%6 == 4) && (j.value().at(x+1) < 40) )
+						deltaEncoder = j.value().at(x+1);
+					else if( x%6 == 4){
+						qDebug() << "Bad value, WTF";
+						deltaEncoder = 0;
+					}
+					if( (x%6 == 5) && (j.value().at(x+1) < 40) )
+						deltaEncoder -= j.value().at(x+1);
+					if( x%6 == 5 ){
+						if(x != 5)
+							deltaEncoder += (int)pScan()->rawData()->value(AMnDIndex(x/6-1), 6, AMnDIndex());
+						pScan()->rawData()->setValue(AMnDIndex(x/6), 6, AMnDIndex(), deltaEncoder);
+					}
+					if(x%6 == 5 || x == j.value().count()-2)
+						pScan()->rawData()->endInsertRows();
+				}
+				++j;
+			}
+
+			int encoderRange = pScan()->rawData()->value(AMnDIndex(pScan()->rawData()->scanSize(0)-1), 6, AMnDIndex());
+			int encoderStartPoint = encoderEndpoint + encoderRange;
+			int encoderReading = 0;
+			qDebug() << "Encoder range is " << encoderRange;
+			for(int x = 0; x < pScan()->rawData()->scanSize(0); x++){
+				encoderReading = encoderStartPoint-(int)pScan()->rawData()->value(AMnDIndex(x), 6, AMnDIndex());
+				energyFbk = (1.0e-9*1239.842*511.292)/(2*9.16358e-7*2.46204e-5*-1.59047*(double)encoderReading*cos(3.05478/2));
+				pScan()->rawData()->setValue(AMnDIndex(x), 6, AMnDIndex(), energyFbk);
+			}
+
 		}
 		e->accept();
 		return true;

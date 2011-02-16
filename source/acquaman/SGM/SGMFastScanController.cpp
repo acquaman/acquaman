@@ -33,6 +33,8 @@ SGMFastScanController::SGMFastScanController(SGMFastScanConfiguration *cfg){
 		pScan()->rawData()->addMeasurement(AMMeasurementInfo(*detectorInfo));
 		pScan()->addRawDataSource(new AMRawDataSource(pScan()->rawData(), i));
 	}
+	pScan()->rawData()->addMeasurement(AMMeasurementInfo("energyFbk", "Energy Feedback", "eV"));
+	pScan()->addRawDataSource(new AMRawDataSource(pScan()->rawData(), scanDetectors.count()));
 
 	/*
 	QList<AMDataSource*> raw1DDataSources;
@@ -99,8 +101,8 @@ bool SGMFastScanController::beamlineInitialize(){
 		cleanUpActions_->appendAction(cleanUpActions_->stageCount()-1, tmpAction);
 		tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->exitSlitTracking());
 		tmpAction->setSetpoint(SGMBeamline::sgm()->exitSlitTracking()->value());
+		cleanUpActions_->appendAction(cleanUpActions_->stageCount()-1, tmpAction);
 	}
-	cleanUpActions_->appendAction(cleanUpActions_->stageCount()-1, tmpAction);
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->gratingVelocity());
 	tmpAction->setSetpoint(SGMBeamline::sgm()->gratingVelocity()->value());
 	cleanUpActions_->appendAction(cleanUpActions_->stageCount()-1, tmpAction);

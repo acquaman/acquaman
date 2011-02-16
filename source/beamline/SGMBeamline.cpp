@@ -59,6 +59,8 @@ void SGMBeamline::usingSGMBeamline(){
 	amNames2pvNames_.set("I0", "BL1611-ID-1:mcs01:fbk");
 	//amNames2pvNames_.set("photodiode", "A1611-4-13:A:fbk");
 	amNames2pvNames_.set("photodiode", "BL1611-ID-1:mcs03:fbk");
+	amNames2pvNames_.set("encoderUp", "BL1611-ID-1:mcs04:fbk");
+	amNames2pvNames_.set("encoderDown", "BL1611-ID-1:mcs05:fbk");
 	amNames2pvNames_.set("loadlockCCG", "CCG1611-4-I10-09:vac:p");
 	amNames2pvNames_.set("loadlockTCG", "TCGC1611-426:pressure:fbk");
 	amNames2pvNames_.set("ssaManipulatorX", "BL1611-ID-1:EA2:x");
@@ -212,6 +214,15 @@ void SGMBeamline::usingSGMBeamline(){
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	photodiode_ = new AMReadOnlyPVControl("photodiode", sgmPVName, this);
+	sgmPVName = amNames2pvNames_.valueF("encoderUp");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
+	encoderUp_ = new AMReadOnlyPVControl("encoderUp", sgmPVName, this);
+	sgmPVName = amNames2pvNames_.valueF("encoderDown");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
+	encoderDown_ = new AMReadOnlyPVControl("encoderDown", sgmPVName, this);
+
 	sgmPVName = amNames2pvNames_.valueF("loadlockCCG");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
@@ -506,8 +517,8 @@ void SGMBeamline::usingFakeBeamline(){
 }
 
 SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
-	usingFakeBeamline();
-	//usingSGMBeamline();
+	//usingFakeBeamline();
+	usingSGMBeamline();
 
 	beamlineWarnings_ = "";
 	connect(this, SIGNAL(criticalControlsConnectionsChanged()), this, SLOT(recomputeWarnings()));
@@ -532,6 +543,8 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	addChildControl(pgtIntegrationMode_);
 	addChildControl(i0_);
 	addChildControl(eVFbk_);
+	addChildControl(encoderUp_);
+	addChildControl(encoderDown_);
 	addChildControl(ssaManipulatorX_);
 	addChildControl(ssaManipulatorXStop_);
 	addChildControl(ssaManipulatorY_);
@@ -634,6 +647,20 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	photodiodeDetector_ = NULL;
 	unconnectedSets_.append(photodiodeControlSet_);
 	connect(photodiodeControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
+
+	encoderUpControlSet_ = new AMControlSet(this);
+	encoderUpControlSet_->setName("Encoder Up Controls");
+	encoderUpControlSet_->addControl(encoderUp_);
+	encoderUpDetector_ = NULL;
+	unconnectedSets_.append(encoderUpControlSet_);
+	connect(encoderUpControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
+
+	encoderDownControlSet_ = new AMControlSet(this);
+	encoderDownControlSet_->setName("Encoder Down Controls");
+	encoderDownControlSet_->addControl(encoderDown_);
+	encoderDownDetector_ = NULL;
+	unconnectedSets_.append(encoderDownControlSet_);
+	connect(encoderDownControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
 	fluxOptimization_ = new SGMFluxOptimization(this);
 	fluxOptimization_->setDescription("Flux");
@@ -757,9 +784,15 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	transferAction24_->setNext(transferAction25_);
 	transferAction25_->setPrevious(transferAction24_);
 
-	beamOnAction1_ = NULL;
-	beamOnAction2_ = NULL;
-	beamOnActionsList_ = NULL;
+	beamOnAction1_ = 0; //NULL
+	beamOnAction2_ = 0; //NULL
+	beamOnActionsList_ = 0; //NULL
+
+	stopMotorsActions1_ = 0; //NULL
+	stopMotorsActions2_ = 0; //NULL
+	stopMotorsActions3_ = 0; //NULL
+	stopMotorsActions4_ = 0; //NULL
+	stopMotorsActionsList_ = 0; //NULL
 }
 
 SGMBeamline::~SGMBeamline()
@@ -804,10 +837,16 @@ AMBeamlineControlMoveAction* SGMBeamline::beamOnAction(){
 	return beamOnAction1_;
 }
 
-AMBeamlineActionsList* SGMBeamline::beamOnActionsList(){
+AMBeamlineParallelActionsList* SGMBeamline::beamOnActionsList(){
 	if(!beamOnActionsList_)
 		createBeamOnActions();
 	return beamOnActionsList_;
+}
+
+AMBeamlineParallelActionsList* SGMBeamline::stopMotorsActionsList(){
+	if(!stopMotorsActionsList_)
+		createStopMotorsActions();
+	return stopMotorsActionsList_;
 }
 
 QList<AM1BeamlineActionItem*> SGMBeamline::transferLoadlockOutActions() const {
@@ -990,6 +1029,16 @@ void SGMBeamline::onControlSetConnected(bool csConnected){
 			photodiodeDetector_->setDescription("Photodiode");
 			allDetectors_->addDetector(photodiodeDetector_, true);
 		}
+		else if(!encoderUpDetector_ && ctrlSet->name() == "Encoder Up Controls"){
+			encoderUpDetector_ = new AMSingleControlDetector(encoderUp_->name(), encoderUp_, this);
+			encoderUpDetector_->setDescription("Encoder Up");
+			allDetectors_->addDetector(encoderUpDetector_, true);
+		}
+		else if(!encoderDownDetector_ && ctrlSet->name() == "Encoder Down Controls"){
+			encoderDownDetector_ = new AMSingleControlDetector(encoderDown_->name(), encoderDown_, this);
+			encoderDownDetector_->setDescription("Encoder Down");
+			allDetectors_->addDetector(encoderDownDetector_, true);
+		}
 		emit controlSetConnectionsChanged();
 	}
 	else{
@@ -1028,7 +1077,7 @@ void SGMBeamline::createBeamOnActions(){
 	if(!beamOnControlSet_->isConnected())
 		return;
 	if(!beamOnActionsList_){
-		beamOnActionsList_ = new AMBeamlineActionsList(this);
+		beamOnActionsList_ = new AMBeamlineParallelActionsList(this);
 	}
 	if(!beamOnAction1_ && !beamOnAction2_){
 		// Action to turn on beam for SGM:
@@ -1038,24 +1087,68 @@ void SGMBeamline::createBeamOnActions(){
 		beamOnAction1_->setSetpoint(1);
 		beamOnAction2_ = new AMBeamlineControlMoveAction(fastShutterVoltage(), this);
 		beamOnAction2_->setSetpoint(0);
-		beamOnActionsList_->addAction(0, beamOnAction1_);
-		beamOnActionsList_->appendAction(beamOnAction2_);
-		connect(beamOnAction2_, SIGNAL(finished()), this, SLOT(onBeamOnActionsFinsihed()));
+//		beamOnActionsList_->addAction(0, beamOnAction1_);
+//		beamOnActionsList_->appendAction(beamOnAction2_);
+//		connect(beamOnAction2_, SIGNAL(finished()), this, SLOT(onBeamOnActionsFinsihed()));
+		beamOnActionsList_->appendStage(new QList<AMBeamlineActionItem*>());
+		beamOnActionsList_->appendAction(beamOnActionsList_->stageCount(), beamOnAction1_);
+		beamOnActionsList_->appendAction(beamOnActionsList_->stageCount(), beamOnAction2_);
+		connect(beamOnActionsList_, SIGNAL(listSucceeded()), this, SLOT(onBeamOnActionsFinsihed()));
 	}
 }
 
 void SGMBeamline::onBeamOnActionsFinsihed(){
 	if(beamOnAction1_ && beamOnAction2_ && beamOnAction1_->hasFinished() && beamOnAction2_->hasFinished()){
-		disconnect(beamOnAction2_, SIGNAL(finished()), this, SLOT(onBeamOnActionsFinsihed()));
-		beamOnActionsList_->deleteAction(1);
-		beamOnActionsList_->deleteAction(0);
+		disconnect(beamOnActionsList_, SIGNAL(listSucceeded()), this, SLOT(onBeamOnActionsFinsihed()));
+//		beamOnActionsList_->deleteAction(1);
+//		beamOnActionsList_->deleteAction(0);
+		beamOnActionsList_->deleteStage(beamOnActionsList_->stageCount());
 		delete beamOnAction1_;
 		delete beamOnAction2_;
-		beamOnAction1_ = NULL;
-		beamOnAction2_ = NULL;
+		beamOnAction1_ = 0; //NULL
+		beamOnAction2_ = 0; //NULL
 		createBeamOnActions();
 	}
 }
+
+void SGMBeamline::createStopMotorsActions(){
+	/*
+	//if(!beamOnControlSet_->isConnected())
+	//	return;
+	if(!stopMotorsActionsList_){
+		stopMotorsActionsList_ = new AMBeamlineParallelActionsList(this);
+	}
+	if(!stopMotorsActions1_ && !stopMotorsActions2_ && !stopMotorsActions3_ && !stopMotorsActions4_){
+		// Action to stop motors for SGM:
+		// Stop mono, exit slit,
+		beamOnAction1_ = new AMBeamlineControlMoveAction(beamOn(), this);
+		beamOnAction1_->setSetpoint(1);
+		beamOnAction2_ = new AMBeamlineControlMoveAction(fastShutterVoltage(), this);
+		beamOnAction2_->setSetpoint(0);
+		stopMotorsActionsList_->appendStage(new QList<AMBeamlineActionItem*>());
+		stopMotorsActionsList_->appendAction(beamOnActionsList_->stageCount(), beamOnAction1_);
+		stopMotorsActionsList_->appendAction(beamOnActionsList_->stageCount(), beamOnAction2_);
+		connect(stopMotorsActionsList_, SIGNAL(listSucceeded()), this, SLOT(onBeamOnActionsFinsihed()));
+	}
+	*/
+}
+
+void SGMBeamline::onStopMotorsActionsFinished(){
+	/*
+	if(beamOnAction1_ && beamOnAction2_ && beamOnAction1_->hasFinished() && beamOnAction2_->hasFinished()){
+		disconnect(beamOnActionsList_, SIGNAL(listSucceeded()), this, SLOT(onBeamOnActionsFinsihed()));
+//		beamOnActionsList_->deleteAction(1);
+//		beamOnActionsList_->deleteAction(0);
+		beamOnActionsList_->deleteStage(beamOnActionsList_->stageCount());
+		delete beamOnAction1_;
+		delete beamOnAction2_;
+		beamOnAction1_ = 0; //NULL
+		beamOnAction2_ = 0; //NULL
+		createStopMotorsActions();
+	}
+	*/
+}
+
 
 void SGMBeamline::onVisibleLightChanged(double value){
 	Q_UNUSED(value);

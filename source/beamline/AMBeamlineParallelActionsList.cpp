@@ -313,6 +313,11 @@ void AMBeamlineParallelActionsList::start(){
 }
 
 void AMBeamlineParallelActionsList::cancel(){
+	/*
+	if(isRunning_)
+		for(int x = 0; x < stage(currentStage_)->count(); x++)
+			action(currentStage_,x)
+	*/
 	// do something here
 }
 
