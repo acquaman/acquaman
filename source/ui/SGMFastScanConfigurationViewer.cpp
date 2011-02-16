@@ -22,6 +22,7 @@ SGMFastScanConfigurationViewer::SGMFastScanConfigurationViewer(SGMFastScanConfig
 		endEnergyLabel_ = new QLabel("End Energy");
 		motorSettingsLabel_ = new QLabel("Motor Settings");
 		//scalerTimeLabel_ = new QLabel("Scaler Time");
+		baseLineLabel_ = new QLabel("Baseline Counts");
 
 		elementEdit_ = new QLineEdit();
 		elementEdit_->setText(sfsc->element());
@@ -51,6 +52,10 @@ SGMFastScanConfigurationViewer::SGMFastScanConfigurationViewer(SGMFastScanConfig
 		scalerTimeDSB_->setMaximum(1000.0);
 		scalerTimeDSB_->setValue(sfsc->scalerTime());
 		*/
+		baseLineSB_ = new QSpinBox();
+		baseLineSB_->setMinimum(0);
+		baseLineSB_->setMaximum(50000);
+		baseLineSB_->setValue(sfsc->baseLine());
 
 		connect(sfsc, SIGNAL(onElementChanged(QString)), elementEdit_, SLOT(setText(QString)));
 		connect(sfsc, SIGNAL(onRunSecondsChanged(double)), runTimeDSB_, SLOT(setValue(double)));
@@ -59,6 +64,7 @@ SGMFastScanConfigurationViewer::SGMFastScanConfigurationViewer(SGMFastScanConfig
 		connect(sfsc, SIGNAL(onEnergyEndChanged(double)), endEnergyDSB_, SLOT(setValue(double)));
 		connect(sfsc, SIGNAL(onVelocityChanged(int)), motorSettingsSB_, SLOT(setValue(int)));
 		//connect(sfsc, SIGNAL(onScalerTimeChanged(double)), scalerTimeDSB_, SLOT(setValue(double)));
+		connect(sfsc, SIGNAL(onBaseLineChanged(int)), baseLineSB_, SLOT(setValue(int)));
 
 		connect(elementEdit_, SIGNAL(textEdited(QString)), sfsc, SLOT(setElement(QString)));
 		connect(runTimeDSB_, SIGNAL(valueChanged(double)), sfsc, SLOT(setRunSeconds(double)));
@@ -70,6 +76,7 @@ SGMFastScanConfigurationViewer::SGMFastScanConfigurationViewer(SGMFastScanConfig
 		connect(motorSettingsSB_, SIGNAL(valueChanged(int)), sfsc, SLOT(setVelocityBase(int)));
 		connect(motorSettingsSB_, SIGNAL(valueChanged(int)), sfsc, SLOT(setAcceleration(int)));
 		//connect(scalerTimeDSB_, SIGNAL(valueChanged(double)), sfsc, SLOT(setScalerTime(double)));
+		connect(baseLineSB_, SIGNAL(valueChanged(int)), sfsc, SLOT(setBaseLine(int)));
 
 		fl_ = new QFormLayout();
 		fl_->addRow(elementLabel_, elementEdit_);
@@ -79,6 +86,7 @@ SGMFastScanConfigurationViewer::SGMFastScanConfigurationViewer(SGMFastScanConfig
 		fl_->addRow(endEnergyLabel_, endEnergyDSB_);
 		fl_->addRow(motorSettingsLabel_, motorSettingsSB_);
 		//fl_->addRow(scalerTimeLabel_, scalerTimeDSB_);
+		fl_->addRow(baseLineLabel_, baseLineSB_);
 
 		saveLabel_ = new QLabel("Save a copy to:");
 		saveEdit_ = new QLineEdit();

@@ -317,7 +317,7 @@ void SGMBeamline::usingSGMBeamline(){
 	sgmPVName = amNames2pvNames_.valueF("scalerMode");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
-	scalerMode_ = new AMPVControl("scalerMode", sgmPVName, sgmPVName, "", this, 0.1);
+	scalerMode_ = new AMPVControl("scalerMode", sgmPVName, sgmPVName, "", this, 0.5);
 	sgmPVName = amNames2pvNames_.valueF("scalerTotalNumberOfScans");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;

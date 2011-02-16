@@ -134,54 +134,80 @@ bool SGMFastDacqScanController::event(QEvent *e){
 			}
 		}
 		*/
-		int deltaEncoder = 0;
+		int encoderEndpoint = 0;
+		int encoderStartPoint = 0;
+		int encoderReading = 0;
 		double energyFbk = 0.0;
+		QList<double> readings;
 		if(i.key() == 0 && aeData.count() == 2 && aeSpectra.count() == 1){
 			qDebug() << "And doing something with it";
 			++i;
-			qDebug() << "Encoder starting point is " << i.value();
-			int encoderEndpoint = i.value();
+			encoderEndpoint = i.value();
+			while(j != aeSpectra.constEnd()){
+				encoderStartPoint = encoderEndpoint;
+				int maxVal = j.value().count()-1;
+				if(maxVal > 6000)
+					maxVal = 6000;
+				for(int x = 0; x < maxVal; x++){
+					if( (x%6 == 4) && (j.value().at(x+1) < 40) )
+						encoderStartPoint += j.value().at(x+1);
+					if( (x%6 == 5) && (j.value().at(x+1) < 40) )
+						encoderStartPoint -= j.value().at(x+1);
+				}
+				++j;
+			}
+			qDebug() << "Encoder start point is " << encoderStartPoint << " encoder end point is " << encoderEndpoint << " range is " << encoderStartPoint-encoderEndpoint;
+			encoderReading = encoderStartPoint;
+			j = aeSpectra.constBegin();
 			while(j != aeSpectra.constEnd()){
 				int maxVal = j.value().count()-1;
 				if(maxVal > 6000)
 					maxVal = 6000;
-				//for(int x = 0; x < j.value().count()-1; x++){
-				//for(int x = 0; x < 4000; x++){
 				for(int x = 0; x < maxVal; x++){
-					if(x%6 == 0){
-						pScan()->rawData()->beginInsertRows(0);
-						pScan()->rawData()->setAxisValue(0, x/6, x/6);
+					if(x%6 == 0)
+						readings.clear();
+					if( x%6 == 0 || x%6 == 1 || x%6 == 2 || x%6 == 3 )
+						readings.append(j.value().at(x+1));
+					if( (x%6 == 4) && (j.value().at(x+1) < 40) )
+						encoderReading -= j.value().at(x+1);
+					if( (x%6 == 5) && (j.value().at(x+1) < 40) )
+						encoderReading += j.value().at(x+1);
+					if( x%6 == 5 ){
+						energyFbk = (1.0e-9*1239.842*511.292)/(2*9.16358e-7*2.46204e-5*-1.59047*(double)encoderReading*cos(3.05478/2));
+						//if( (readings.at(0) > 300) && (pScan()->rawData()->scanSize(0) == 0 || fabs(energyFbk - (double)pScan()->rawData()->axisValue(0, pScan()->rawData()->scanSize(0)-1)) > 0.001) ){
+						if( ( (readings.at(0) > pCfg()->baseLine()) && (pScan()->rawData()->scanSize(0) == 0) ) || ( (pScan()->rawData()->scanSize(0) > 0) && (fabs(energyFbk - (double)pScan()->rawData()->axisValue(0, pScan()->rawData()->scanSize(0)-1)) > 0.001) ) ){
+							qDebug() << "Inserting energy at " << energyFbk << " with TEY " << readings.at(0);
+							pScan()->rawData()->beginInsertRows(0);
+							pScan()->rawData()->setAxisValue(0, pScan()->rawData()->scanSize(0)-1, energyFbk);
+							pScan()->rawData()->setValue(AMnDIndex(pScan()->rawData()->scanSize(0)-1), 0, AMnDIndex(), readings.at(0));
+							pScan()->rawData()->setValue(AMnDIndex(pScan()->rawData()->scanSize(0)-1), 1, AMnDIndex(), readings.at(1));
+							pScan()->rawData()->setValue(AMnDIndex(pScan()->rawData()->scanSize(0)-1), 2, AMnDIndex(), readings.at(2));
+							pScan()->rawData()->setValue(AMnDIndex(pScan()->rawData()->scanSize(0)-1), 3, AMnDIndex(), readings.at(3));
+							//pScan()->rawData()->setValue(AMnDIndex(pScan()->rawData()->scanSize(0)-1), 4, AMnDIndex(), readings.at(4));
+							pScan()->rawData()->endInsertRows();
+						}
 					}
+				}
+				/*
+				for(int x = 0; x < maxVal; x++){
+					if(x%6 == 0)
+						pScan()->rawData()->beginInsertRows(0);
 					pScan()->rawData()->setValue(AMnDIndex(x/6), x%6, AMnDIndex(), j.value().at(x+1));
 					if( (x%6 == 4) && (j.value().at(x+1) < 40) )
-						deltaEncoder = j.value().at(x+1);
-					else if( x%6 == 4){
-						qDebug() << "Bad value, WTF";
-						deltaEncoder = 0;
-					}
+						encoderReading -= j.value().at(x+1);
 					if( (x%6 == 5) && (j.value().at(x+1) < 40) )
-						deltaEncoder -= j.value().at(x+1);
+						encoderReading += j.value().at(x+1);
 					if( x%6 == 5 ){
-						if(x != 5)
-							deltaEncoder += (int)pScan()->rawData()->value(AMnDIndex(x/6-1), 6, AMnDIndex());
-						pScan()->rawData()->setValue(AMnDIndex(x/6), 6, AMnDIndex(), deltaEncoder);
+						energyFbk = (1.0e-9*1239.842*511.292)/(2*9.16358e-7*2.46204e-5*-1.59047*(double)encoderReading*cos(3.05478/2));
+						qDebug() << "New energy is " << energyFbk;
+						pScan()->rawData()->setAxisValue(0, x/6, energyFbk);
 					}
 					if(x%6 == 5 || x == j.value().count()-2)
 						pScan()->rawData()->endInsertRows();
 				}
+				*/
 				++j;
 			}
-
-			int encoderRange = pScan()->rawData()->value(AMnDIndex(pScan()->rawData()->scanSize(0)-1), 6, AMnDIndex());
-			int encoderStartPoint = encoderEndpoint + encoderRange;
-			int encoderReading = 0;
-			qDebug() << "Encoder range is " << encoderRange;
-			for(int x = 0; x < pScan()->rawData()->scanSize(0); x++){
-				encoderReading = encoderStartPoint-(int)pScan()->rawData()->value(AMnDIndex(x), 6, AMnDIndex());
-				energyFbk = (1.0e-9*1239.842*511.292)/(2*9.16358e-7*2.46204e-5*-1.59047*(double)encoderReading*cos(3.05478/2));
-				pScan()->rawData()->setValue(AMnDIndex(x), 6, AMnDIndex(), energyFbk);
-			}
-
 		}
 		e->accept();
 		return true;

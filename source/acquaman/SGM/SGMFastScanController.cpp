@@ -33,8 +33,8 @@ SGMFastScanController::SGMFastScanController(SGMFastScanConfiguration *cfg){
 		pScan()->rawData()->addMeasurement(AMMeasurementInfo(*detectorInfo));
 		pScan()->addRawDataSource(new AMRawDataSource(pScan()->rawData(), i));
 	}
-	pScan()->rawData()->addMeasurement(AMMeasurementInfo("energyFbk", "Energy Feedback", "eV"));
-	pScan()->addRawDataSource(new AMRawDataSource(pScan()->rawData(), scanDetectors.count()));
+	//pScan()->rawData()->addMeasurement(AMMeasurementInfo("energyFbk", "Energy Feedback", "eV"));
+	//pScan()->addRawDataSource(new AMRawDataSource(pScan()->rawData(), scanDetectors.count()));
 
 	/*
 	QList<AMDataSource*> raw1DDataSources;

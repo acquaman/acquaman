@@ -24,6 +24,8 @@ public:
 	int acceleration() const;
 	double scalerTime() const;
 
+	int baseLine() const;
+
 	QString sensibleFileSavePath() const;
 	QString finalizedSavePath() const;
 	QString sensibleFileSaveWarning() const;
@@ -46,6 +48,7 @@ public slots:
 	bool setVelocityBase(int velocityBase);
 	bool setAcceleration(int acceleration);
 	bool setScalerTime(double scalerTime);
+	bool setBaseLine(int baseLine);
 	bool setSensibleFileSavePath(const QString& sensibleFileSavePath);
 	bool setCfgDetectorInfoSet(AMDetectorInfoSet *cfgDetectorInfoSet) { cfgFastDetectors_ = cfgDetectorInfoSet; return true; }
 
@@ -59,6 +62,7 @@ signals:
 	void onVelocityBaseChanged(int velocityBase);
 	void onAccelerationChanged(int acceleration);
 	void onScalerTimeChanged(double scalerTime);
+	void onBaseLineChanged(int baseLine);
 
 	void onSensibleFileSavePathChanged(const QString& sensibleFileSavePath);
 	void onNewFinalizedSavePath(const QString& finalizedSavePath);
@@ -82,7 +86,7 @@ class SGMFastScanParameters : public QObject
 	Q_OBJECT
 public:
 	SGMFastScanParameters(QObject *parent = 0);
-	SGMFastScanParameters(const QString &element, double runSeconds, double energyStart, double energyMidpoint, double energyEnd, int velocity, int velocityBase, int acceleration, double scalerTime, QObject *parent = 0);
+	SGMFastScanParameters(const QString &element, double runSeconds, double energyStart, double energyMidpoint, double energyEnd, int velocity, int velocityBase, int acceleration, double scalerTime, int baseLine, QObject *parent = 0);
 
 	QString element() const { return element_;}
 	double runSeconds() const { return runSeconds_;}
@@ -93,6 +97,7 @@ public:
 	int velocityBase() const { return velocityBase_;}
 	int acceleration() const { return acceleration_;}
 	double scalerTime() const { return scalerTime_;}
+	int baseLine() const { return baseLine_;}
 
 public slots:
 	void setElement(const QString &element) { element_ = element;}
@@ -104,6 +109,7 @@ public slots:
 	void setVelocityBase(int velocityBase) { velocityBase_ = velocityBase;}
 	void setAcceleration(int acceleration) { acceleration_ = acceleration;}
 	void setScalerTime(double scalerTime) { scalerTime_ = scalerTime;}
+	void setBaseLine(int baseLine) { baseLine_ = baseLine;}
 
 protected:
 	QString element_;
@@ -115,6 +121,7 @@ protected:
 	int velocityBase_;
 	int acceleration_;
 	double scalerTime_;
+	int baseLine_;
 };
 
 #endif // SGMFASTSCANCONFIGURATION_H

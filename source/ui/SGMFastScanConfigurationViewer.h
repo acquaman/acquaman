@@ -42,6 +42,7 @@ protected:
 	QLabel *endEnergyLabel_;
 	QLabel *motorSettingsLabel_;
 //	QLabel *scalerTimeLabel_;
+	QLabel *baseLineLabel_;
 
 	QLineEdit *elementEdit_;
 	QDoubleSpinBox *runTimeDSB_;
@@ -50,6 +51,7 @@ protected:
 	QDoubleSpinBox *endEnergyDSB_;
 	QSpinBox *motorSettingsSB_;
 	//    QDoubleSpinBox *scalerTimeDSB_;
+	QSpinBox *baseLineSB_;
 
 	QLabel *saveLabel_;
 	QLineEdit *saveEdit_;
