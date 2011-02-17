@@ -53,6 +53,7 @@ public:
 };
 
 
+class AMDbObjectInfo;
 
 // Macro for declaring AMDbObject object attributes. \c paramString is set of "key=value;key=value..." arguments
 /* For example:
@@ -208,9 +209,6 @@ storeToDb() and loadFromDb() work the same as in the case of single variables.
 	- Otherwise, if there are any discrepencies, a whole new set of objects is created with AMDbObjectSupport::createAndLoadObjectAt() based on the stored versions, and setProperty() is called with the list of new objects.  (Note that if createAndLoadObjectAt() fails, there may be null pointers in this list.)  It's the responsibility of the setPropert() write function to delete the old existing objects (if required) and re-establish connections to the new objects.   Note that it is NOT possible to reuse some of the existing objects in the list, but not others.
 
 */
-
-class AMDbObjectInfo;
-
 class AMDbObject : public QObject
 {
 	Q_OBJECT
