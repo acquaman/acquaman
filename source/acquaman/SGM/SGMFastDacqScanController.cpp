@@ -112,32 +112,15 @@ bool SGMFastDacqScanController::event(QEvent *e){
 		// Fast scan should be one scalar value (the initial energy value) and one spectral value (the scaler with all the data)
 		// There will be N*1000 elements of the scaler waveform, where N is the number of channels (detectors) being acquired
 		// We have already set the energy axis as uniform with the proper start and increment, so we can ignore the energy value in aeData
-		/*
-		if(i.key() == 0 && aeData.count() == 1 && aeSpectra.count() == 1){
-			qDebug() << "And doing something with it";
-			while(j != aeSpectra.constEnd()){
-				int maxVal = j.value().count()-1;
-				if(maxVal > 4000)
-					maxVal = 4000;
-				//for(int x = 0; x < j.value().count()-1; x++){
-				//for(int x = 0; x < 4000; x++){
-				for(int x = 0; x < maxVal; x++){
-					if(x%4 == 0){
-						pScan()->rawData()->beginInsertRows(0);
-						pScan()->rawData()->setAxisValue(0, x/4, x/4);
-					}
-					pScan()->rawData()->setValue(AMnDIndex(x/4), x%4, AMnDIndex(), j.value().at(x+1));
-					if(x%4 == 3 || x == j.value().count()-2)
-						pScan()->rawData()->endInsertRows();
-				}
-				++j;
-			}
-		}
-		*/
 		int encoderEndpoint = 0;
 		int encoderStartPoint = 0;
 		int encoderReading = 0;
 		double energyFbk = 0.0;
+		double spacingParam = SGMBeamline::sgm()->energySpacingParam()->value();
+		double c1Param = SGMBeamline::sgm()->energyC1Param()->value();
+		double c2Param = SGMBeamline::sgm()->energyC2Param()->value();
+		double sParam = SGMBeamline::sgm()->energySParam()->value();
+		double thetaParam = SGMBeamline::sgm()->energyThetaParam()->value();
 		QList<double> readings;
 		if(i.key() == 0 && aeData.count() == 2 && aeSpectra.count() == 1){
 			qDebug() << "And doing something with it";
@@ -156,7 +139,6 @@ bool SGMFastDacqScanController::event(QEvent *e){
 				}
 				++j;
 			}
-			qDebug() << "Encoder start point is " << encoderStartPoint << " encoder end point is " << encoderEndpoint << " range is " << encoderStartPoint-encoderEndpoint;
 			encoderReading = encoderStartPoint;
 			j = aeSpectra.constBegin();
 			while(j != aeSpectra.constEnd()){
@@ -173,39 +155,19 @@ bool SGMFastDacqScanController::event(QEvent *e){
 					if( (x%6 == 5) && (j.value().at(x+1) < 40) )
 						encoderReading += j.value().at(x+1);
 					if( x%6 == 5 ){
-						energyFbk = (1.0e-9*1239.842*511.292)/(2*9.16358e-7*2.46204e-5*-1.59047*(double)encoderReading*cos(3.05478/2));
-						//if( (readings.at(0) > 300) && (pScan()->rawData()->scanSize(0) == 0 || fabs(energyFbk - (double)pScan()->rawData()->axisValue(0, pScan()->rawData()->scanSize(0)-1)) > 0.001) ){
+						//energyFbk = (1.0e-9*1239.842*511.292)/(2*9.16358e-7*2.46204e-5*-1.59047*(double)encoderReading*cos(3.05478/2));
+						energyFbk = (1.0e-9*1239.842*sParam)/(2*spacingParam*c1Param*c2Param*(double)encoderReading*cos(thetaParam/2));
 						if( ( (readings.at(0) > pCfg()->baseLine()) && (pScan()->rawData()->scanSize(0) == 0) ) || ( (pScan()->rawData()->scanSize(0) > 0) && (fabs(energyFbk - (double)pScan()->rawData()->axisValue(0, pScan()->rawData()->scanSize(0)-1)) > 0.001) ) ){
-							qDebug() << "Inserting energy at " << energyFbk << " with TEY " << readings.at(0);
 							pScan()->rawData()->beginInsertRows(0);
 							pScan()->rawData()->setAxisValue(0, pScan()->rawData()->scanSize(0)-1, energyFbk);
 							pScan()->rawData()->setValue(AMnDIndex(pScan()->rawData()->scanSize(0)-1), 0, AMnDIndex(), readings.at(0));
 							pScan()->rawData()->setValue(AMnDIndex(pScan()->rawData()->scanSize(0)-1), 1, AMnDIndex(), readings.at(1));
 							pScan()->rawData()->setValue(AMnDIndex(pScan()->rawData()->scanSize(0)-1), 2, AMnDIndex(), readings.at(2));
 							pScan()->rawData()->setValue(AMnDIndex(pScan()->rawData()->scanSize(0)-1), 3, AMnDIndex(), readings.at(3));
-							//pScan()->rawData()->setValue(AMnDIndex(pScan()->rawData()->scanSize(0)-1), 4, AMnDIndex(), readings.at(4));
 							pScan()->rawData()->endInsertRows();
 						}
 					}
 				}
-				/*
-				for(int x = 0; x < maxVal; x++){
-					if(x%6 == 0)
-						pScan()->rawData()->beginInsertRows(0);
-					pScan()->rawData()->setValue(AMnDIndex(x/6), x%6, AMnDIndex(), j.value().at(x+1));
-					if( (x%6 == 4) && (j.value().at(x+1) < 40) )
-						encoderReading -= j.value().at(x+1);
-					if( (x%6 == 5) && (j.value().at(x+1) < 40) )
-						encoderReading += j.value().at(x+1);
-					if( x%6 == 5 ){
-						energyFbk = (1.0e-9*1239.842*511.292)/(2*9.16358e-7*2.46204e-5*-1.59047*(double)encoderReading*cos(3.05478/2));
-						qDebug() << "New energy is " << energyFbk;
-						pScan()->rawData()->setAxisValue(0, x/6, energyFbk);
-					}
-					if(x%6 == 5 || x == j.value().count()-2)
-						pScan()->rawData()->endInsertRows();
-				}
-				*/
 				++j;
 			}
 		}

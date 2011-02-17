@@ -72,6 +72,11 @@ public:
 
 	AMControl* ringCurrent() const { return ringCurrent_; }
 	AMControl* energy() const { return energy_;}
+	AMControl* energySpacingParam() const { return energySpacingParam_;}
+	AMControl* energyC1Param() const { return energyC1Param_;}
+	AMControl* energyC2Param() const { return energyC2Param_;}
+	AMControl* energySParam() const { return energySParam_;}
+	AMControl* energyThetaParam() const { return energyThetaParam_;}
 	AMControl* exitSlitGap() const { return exitSlitGap_;}
 	AMControl* entranceSlitGap() const { return entranceSlitGap_;}
 	AMControl* mono() const { return energy_->childControlAt(0);}
@@ -196,6 +201,11 @@ protected:
 
 	AMControl *ringCurrent_;
 	AMControl *energy_;
+	AMControl *energySpacingParam_;
+	AMControl *energyC1Param_;
+	AMControl *energyC2Param_;
+	AMControl *energySParam_;
+	AMControl *energyThetaParam_;
 	AMControl *exitSlitGap_;
 	AMControl *entranceSlitGap_;
 	AMControl *m4_;

@@ -17,6 +17,7 @@ SGM2010FastFileLoader::SGM2010FastFileLoader(AMFastScan *scan) : AMAbstractFileL
 		columns2pvNames_.set("scaler_fileOffset", "BL1611-ID-1:mcs:scan");
 		columns2pvNames_.set("time", "Absolute-Time-Stamp");
 		columns2pvNames_.set("grating", "SG16114I1001:choice");
+		columns2pvNames_.set("encoder", "SMTR16114I1002:enc:fbk");
 	}
 
 	defaultUserVisibleColumns_ << "tey";
@@ -37,6 +38,7 @@ bool SGM2010FastFileLoader::loadFromFile(const QString& filepath, bool setMetaDa
 	QString comments;
 	QDateTime datetime;
 	QString grating;
+	int encoderEndpoint = 0;
 
 	// used in parsing the data file
 	QString line;
@@ -122,6 +124,12 @@ bool SGM2010FastFileLoader::loadFromFile(const QString& filepath, bool setMetaDa
 
 	while(!fs.atEnd()) {
 		line = fs.readLine();
+		if(line.startsWith("1,") && (lp = line.split(',')).count() == colNames1.count() ) {
+			for(int i=1; i<colNames1.count(); i++) {
+				if(colNames1.at(i) == "encoder")
+					encoderEndpoint = lp.at(i).toDouble();
+			}
+		}
 		// event id 2.  If the line starts with "# 2," and there are the correct number of columns:
 		if(line.startsWith("# 2,") && (lp = line.split(',')).count() == colNames2.count() ) {
 			// see if we recognize any of the translated column names as useful:
@@ -153,15 +161,68 @@ bool SGM2010FastFileLoader::loadFromFile(const QString& filepath, bool setMetaDa
 			QString sfl = sfs.readAll().replace(',', ' ');
 			sfls.setString(&sfl, QIODevice::ReadOnly);
 			sfls >> numScalerReadings;
-			for(int x = 0; x < numScalerReadings; x++){
-				if(x%4 == 0){
-					scan->rawData()->beginInsertRows(0);
-					scan->rawData()->setAxisValue(0, x/4, x/4);
+			if(numScalerReadings == 4000){
+				qDebug() << "Going for fast scan without energy calib";
+				for(int x = 0; x < numScalerReadings; x++){
+					if(x%4 == 0){
+						scan->rawData()->beginInsertRows(0);
+						scan->rawData()->setAxisValue(0, x/4, x/4);
+					}
+					sfls >> scalerVal;
+					scan->rawData()->setValue(AMnDIndex(x/4), x%4, AMnDIndex(), scalerVal);
+					if(x%4 == 3 || x == numScalerReadings-1)
+						scan->rawData()->endInsertRows();
 				}
+			}
+			else if(numScalerReadings == 6000){
+
+				qDebug() << "Going for fast scan with energy calib";
+				int encoderStartPoint = 0;
+				int encoderReading = 0;
+				double energyFbk = 0.0;
+				double spacingParam = 9.15358e-7;
+				double c1Param = 2.46204e-5;
+				double c2Param = -1.59047;
+				double sParam = 511.292;
+				double thetaParam = 3.05478;
+				QList<double> readings;
+
+				encoderStartPoint = encoderEndpoint;
+				for(int x = 0; x < numScalerReadings; x++){
+					sfls >> scalerVal;
+					if( (x%6 == 4) && (scalerVal < 40) )
+						encoderStartPoint += scalerVal;
+					if( (x%6 == 5) && (scalerVal < 40) )
+						encoderStartPoint -= scalerVal;
+				}
+				encoderReading = encoderStartPoint;
+				sfls.setString(&sfl, QIODevice::ReadOnly);
 				sfls >> scalerVal;
-				scan->rawData()->setValue(AMnDIndex(x/4), x%4, AMnDIndex(), scalerVal);
-				if(x%4 == 3 || x == numScalerReadings-1)
-					scan->rawData()->endInsertRows();
+				for(int x = 0; x < numScalerReadings; x++){
+					if(x%6 == 0)
+						readings.clear();
+					sfls >> scalerVal;
+					if( x%6 == 0 || x%6 == 1 || x%6 == 2 || x%6 == 3 )
+						readings.append(scalerVal);
+					if( (x%6 == 4) && (scalerVal < 40) )
+						encoderReading -= scalerVal;
+					if( (x%6 == 5) && (scalerVal < 40) )
+						encoderReading += scalerVal;
+					if( x%6 == 5 ){
+						//energyFbk = (1.0e-9*1239.842*511.292)/(2*9.16358e-7*2.46204e-5*-1.59047*(double)encoderReading*cos(3.05478/2));
+						energyFbk = (1.0e-9*1239.842*sParam)/(2*spacingParam*c1Param*c2Param*(double)encoderReading*cos(thetaParam/2));
+						if( ( (readings.at(0) > 200) && (scan->rawData()->scanSize(0) == 0) ) || ( (scan->rawData()->scanSize(0) > 0) && (fabs(energyFbk - (double)scan->rawData()->axisValue(0, scan->rawData()->scanSize(0)-1)) > 0.001) ) ){
+							scan->rawData()->beginInsertRows(0);
+							scan->rawData()->setAxisValue(0, scan->rawData()->scanSize(0)-1, energyFbk);
+							scan->rawData()->setValue(AMnDIndex(scan->rawData()->scanSize(0)-1), 0, AMnDIndex(), readings.at(0));
+							scan->rawData()->setValue(AMnDIndex(scan->rawData()->scanSize(0)-1), 1, AMnDIndex(), readings.at(1));
+							scan->rawData()->setValue(AMnDIndex(scan->rawData()->scanSize(0)-1), 2, AMnDIndex(), readings.at(2));
+							scan->rawData()->setValue(AMnDIndex(scan->rawData()->scanSize(0)-1), 3, AMnDIndex(), readings.at(3));
+							scan->rawData()->endInsertRows();
+						}
+					}
+				}
+
 			}
 			/*
 			AMAxisInfo sddEVAxisInfo("energy", 1024, "SDD Energy", "eV");

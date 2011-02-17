@@ -32,9 +32,9 @@ bool SGM2010FastSensibleFileLoader::saveToFile(const QString &filepath){
 	}
 	QTextStream fs(&f);
 
-	fs << "Energy TEY TFY I0 Photodiode";
+	fs << "Energy TEY TFY I0 Photodiode\n";
 	for(int x = 0; x < scan->rawData()->scanSize(0); x++){
-		fs << (int)(scan->rawData()->axisValue(0, x)) << " "
+		fs << (double)(scan->rawData()->axisValue(0, x)) << " "
 				<< (int)(scan->rawData()->value(AMnDIndex(x), 0, AMnDIndex())) << " "
 				<< (int)(scan->rawData()->value(AMnDIndex(x), 1, AMnDIndex())) << " "
 				<< (int)(scan->rawData()->value(AMnDIndex(x), 2, AMnDIndex())) << " "

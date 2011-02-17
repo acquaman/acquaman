@@ -27,6 +27,11 @@ SGMBeamline* SGMBeamline::instance_ = 0;
 
 void SGMBeamline::usingSGMBeamline(){
 	amNames2pvNames_.set("energy", "BL1611-ID-1:Energy");
+	amNames2pvNames_.set("energySpacingParam", "SG16114I1001:selI");
+	amNames2pvNames_.set("energyC1Param", "SG16114I1001:selG");
+	amNames2pvNames_.set("energyC2Param", "SG16114I1001:selH");
+	amNames2pvNames_.set("energySParam", "SG16114I1001:selE");
+	amNames2pvNames_.set("energyThetaParam", "SG16114I1001:selF");
 	amNames2pvNames_.set("eV_Fbk", "BL1611-ID-1:Energy:fbk");
 	amNames2pvNames_.set("eVFbk", "BL1611-ID-1:Energy:fbk");
 	amNames2pvNames_.set("mono", "SMTR16114I1002");
@@ -97,7 +102,28 @@ void SGMBeamline::usingSGMBeamline(){
 	QString sgmPVName = amNames2pvNames_.valueF("energy");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
-	energy_ = new AMPVwStatusControl("energy", sgmPVName+":fbk", sgmPVName, "BL1611-ID-1:ready", sgmPVName, this, 0.01);
+	energy_ = new AMPVwStatusControl("energy", sgmPVName+":fbk", sgmPVName, "BL1611-ID-1:ready", sgmPVName, this, 0.05);
+	sgmPVName = amNames2pvNames_.valueF("energySpacingParam");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
+	energySpacingParam_ = new AMReadOnlyPVControl("energySpacingParam", sgmPVName, this);
+	sgmPVName = amNames2pvNames_.valueF("energyC1Param");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
+	energyC1Param_ = new AMReadOnlyPVControl("energyC1Param", sgmPVName, this);
+	sgmPVName = amNames2pvNames_.valueF("energyC2Param");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
+	energyC2Param_ = new AMReadOnlyPVControl("energyC2Param", sgmPVName, this);
+	sgmPVName = amNames2pvNames_.valueF("energySParam");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
+	energySParam_ = new AMReadOnlyPVControl("energySParam", sgmPVName, this);
+	sgmPVName = amNames2pvNames_.valueF("energyThetaParam");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
+	energyThetaParam_ = new AMReadOnlyPVControl("energyThetaParam", sgmPVName, this);
+
 	sgmPVName = amNames2pvNames_.valueF("mono");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
@@ -524,6 +550,11 @@ SGMBeamline::SGMBeamline() : AMControl("SGMBeamline", "n/a") {
 	connect(this, SIGNAL(criticalControlsConnectionsChanged()), this, SLOT(recomputeWarnings()));
 
 	addChildControl(energy_);
+	addChildControl(energySpacingParam_);
+	addChildControl(energyC1Param_);
+	addChildControl(energyC2Param_);
+	addChildControl(energySParam_);
+	addChildControl(energyThetaParam_);
 	addChildControl(exitSlitGap_);
 	addChildControl(entranceSlitGap_);
 	addChildControl(m4_);
