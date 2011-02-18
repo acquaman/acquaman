@@ -122,11 +122,42 @@ bool SGMFastDacqScanController::event(QEvent *e){
 		double sParam = SGMBeamline::sgm()->energySParam()->value();
 		double thetaParam = SGMBeamline::sgm()->energyThetaParam()->value();
 		double avgUp = 0.0;
+                int upCounts = 0;
 		double avgDown = 0.0;
+                int downCounts = 0;
 		QList<double> readings;
 		if(i.key() == 0 && aeData.count() == 2 && aeSpectra.count() == 1){
 			qDebug() << "And doing something with it";
 			++i;
+
+			while(j != aeSpectra.constEnd()){
+				encoderStartPoint = encoderEndpoint;
+				qDebug() << "First couple " << j.value().at(0) << j.value().at(1) << j.value().at(2) << j.value().at(3) << j.value().at(4);
+				int maxVal = j.value().count()-1;
+				if(maxVal > 6000)
+					maxVal = 6000;
+				for(int x = 0; x < maxVal; x++){
+					if( (x%6 == 4) && j.value().at(x+1) != 0 ){
+						avgUp += ((double)j.value().at(x+1));
+						upCounts++;
+					}
+					if( (x%6 == 5) && j.value().at(x+1) != 0){
+						avgDown += ((double)j.value().at(x+1));
+						downCounts++;
+					}
+				}
+				++j;
+			}
+			avgUp = avgUp/((double)upCounts);
+			avgDown = avgDown/((double)downCounts);
+			int upMax = 40;
+			int downMax = 40;
+			if(avgUp > avgDown)
+			    upMax = 2*ceil(avgUp);
+			if(avgDown > avgUp)
+			    downMax = 2*ceil(avgDown);
+			j = aeSpectra.constBegin();
+
 			encoderEndpoint = i.value();
 			while(j != aeSpectra.constEnd()){
 				encoderStartPoint = encoderEndpoint;
@@ -134,21 +165,19 @@ bool SGMFastDacqScanController::event(QEvent *e){
 				if(maxVal > 6000)
 					maxVal = 6000;
 				for(int x = 0; x < maxVal; x++){
-					//if( (x%6 == 4) && (j.value().at(x+1) < 40) ){
-					if( (x%6 == 4) ){
+					if( (x%6 == 4) && (j.value().at(x+1) < upMax) )
 						encoderStartPoint += j.value().at(x+1);
-						avgUp += j.value().at(x+1)*(1/maxVal);
-					}
-					//if( (x%6 == 5) && (j.value().at(x+1) < 40) ){
-				if( (x%6 == 5) ){
+					if( (x%6 == 4) && (j.value().at(x+1) > upMax) )
+						qDebug() << "NOISE UP! of " << j.value().at(x+1) << " at " << x;
+					if( (x%6 == 5) && (j.value().at(x+1) < downMax) )
 						encoderStartPoint -= j.value().at(x+1);
-						avgDown += j.value().at(x+1)*(1/maxVal);
-					}
+					if( (x%6 == 5) && (j.value().at(x+1) > downMax) )
+						qDebug() << "NOISE DOWN! of " << j.value().at(x+1) << " at " << x;
 				}
 				++j;
 			}
 			encoderReading = encoderStartPoint;
-			qDebug() << "\n\nEnoder start was " << encoderStartPoint << " avg up is " << avgUp << " down is " << avgDown;
+			qDebug() << "\n\nEnoder start was " << encoderStartPoint << " avg up is " << avgUp << " down is " << avgDown << " thresholds " << upMax << downMax;
 			j = aeSpectra.constBegin();
 			while(j != aeSpectra.constEnd()){
 				int maxVal = j.value().count()-1;
@@ -159,9 +188,9 @@ bool SGMFastDacqScanController::event(QEvent *e){
 						readings.clear();
 					if( x%6 == 0 || x%6 == 1 || x%6 == 2 || x%6 == 3 )
 						readings.append(j.value().at(x+1));
-					if( (x%6 == 4) && (j.value().at(x+1) < 4*avgUp) )
+                                        if( (x%6 == 4) && (j.value().at(x+1) < 3*ceil(avgUp)) )
 						encoderReading -= j.value().at(x+1);
-					if( (x%6 == 5) && (j.value().at(x+1) < 4*avgDown) )
+                                        if( (x%6 == 5) && (j.value().at(x+1) < 3*ceil(avgDown)) )
 						encoderReading += j.value().at(x+1);
 					if( x%6 == 5 ){
 						//energyFbk = (1.0e-9*1239.842*511.292)/(2*9.16358e-7*2.46204e-5*-1.59047*(double)encoderReading*cos(3.05478/2));
