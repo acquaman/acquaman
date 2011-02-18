@@ -36,7 +36,7 @@ SGMFastScanController::SGMFastScanController(SGMFastScanConfiguration *cfg){
 	//pScan()->rawData()->addMeasurement(AMMeasurementInfo("energyFbk", "Energy Feedback", "eV"));
 	//pScan()->addRawDataSource(new AMRawDataSource(pScan()->rawData(), scanDetectors.count()));
 
-	/*
+
 	QList<AMDataSource*> raw1DDataSources;
 	for(int i=0; i<pScan()->rawDataSources()->count(); i++)
 		if(pScan()->rawDataSources()->at(i)->rank() == 1)
@@ -59,11 +59,11 @@ SGMFastScanController::SGMFastScanController(SGMFastScanConfiguration *cfg){
 		AM1DExpressionAB* tfyChannel = new AM1DExpressionAB("tfy_n");
 		tfyChannel->setDescription("Normalized TFY");
 		tfyChannel->setInputDataSources(raw1DDataSources);
-		tfyChannel->setExpression("-tfy/I0");
+		tfyChannel->setExpression("tfy/I0");
 
 		pScan()->addAnalyzedDataSource(tfyChannel);
 	}
-	*/
+
 
 	/// \bug CRITICAL Removed creating default channels. They were never set anyway (nothing called the old AMXASScan::setDefaultChannels(); )
 

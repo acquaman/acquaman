@@ -121,6 +121,8 @@ bool SGMFastDacqScanController::event(QEvent *e){
 		double c2Param = SGMBeamline::sgm()->energyC2Param()->value();
 		double sParam = SGMBeamline::sgm()->energySParam()->value();
 		double thetaParam = SGMBeamline::sgm()->energyThetaParam()->value();
+		double avgUp = 0.0;
+		double avgDown = 0.0;
 		QList<double> readings;
 		if(i.key() == 0 && aeData.count() == 2 && aeSpectra.count() == 1){
 			qDebug() << "And doing something with it";
@@ -132,14 +134,21 @@ bool SGMFastDacqScanController::event(QEvent *e){
 				if(maxVal > 6000)
 					maxVal = 6000;
 				for(int x = 0; x < maxVal; x++){
-					if( (x%6 == 4) && (j.value().at(x+1) < 40) )
+					//if( (x%6 == 4) && (j.value().at(x+1) < 40) ){
+					if( (x%6 == 4) ){
 						encoderStartPoint += j.value().at(x+1);
-					if( (x%6 == 5) && (j.value().at(x+1) < 40) )
+						avgUp += j.value().at(x+1)*(1/maxVal);
+					}
+					//if( (x%6 == 5) && (j.value().at(x+1) < 40) ){
+				if( (x%6 == 5) ){
 						encoderStartPoint -= j.value().at(x+1);
+						avgDown += j.value().at(x+1)*(1/maxVal);
+					}
 				}
 				++j;
 			}
 			encoderReading = encoderStartPoint;
+			qDebug() << "\n\nEnoder start was " << encoderStartPoint << " avg up is " << avgUp << " down is " << avgDown;
 			j = aeSpectra.constBegin();
 			while(j != aeSpectra.constEnd()){
 				int maxVal = j.value().count()-1;
@@ -150,9 +159,9 @@ bool SGMFastDacqScanController::event(QEvent *e){
 						readings.clear();
 					if( x%6 == 0 || x%6 == 1 || x%6 == 2 || x%6 == 3 )
 						readings.append(j.value().at(x+1));
-					if( (x%6 == 4) && (j.value().at(x+1) < 40) )
+					if( (x%6 == 4) && (j.value().at(x+1) < 4*avgUp) )
 						encoderReading -= j.value().at(x+1);
-					if( (x%6 == 5) && (j.value().at(x+1) < 40) )
+					if( (x%6 == 5) && (j.value().at(x+1) < 4*avgDown) )
 						encoderReading += j.value().at(x+1);
 					if( x%6 == 5 ){
 						//energyFbk = (1.0e-9*1239.842*511.292)/(2*9.16358e-7*2.46204e-5*-1.59047*(double)encoderReading*cos(3.05478/2));
