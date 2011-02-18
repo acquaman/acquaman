@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QApplication>
 #include "application/SGM/SGMAppController.h"
+#include <cstdlib>
 
 
 int main(int argc, char *argv[])
