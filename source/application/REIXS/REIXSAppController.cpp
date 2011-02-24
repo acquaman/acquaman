@@ -19,6 +19,8 @@
 
 #include "ui/REIXS/REIXSXESHexapodControlEditor.h"
 
+#include "ui/AMVideoWidget.h"
+
 REIXSAppController::REIXSAppController(QObject *parent) :
 	AMAppController(parent)
 {
@@ -46,6 +48,45 @@ bool REIXSAppController::startup() {
 		xesScanConfigurationView_ = new REIXSXESScanConfigurationDetailedView(REIXSBeamline::bl()->mcpDetector());
 		scanConfigurationHolder_ = new AMScanConfigurationHolder(xesScanConfigurationView_);
 		mw_->addPane(scanConfigurationHolder_, "Experiment Setup", "Emission Scan", ":/utilities-system-monitor.png");
+
+		////////////////// move somewhere clean ////////////////////
+		QWidget* spectrometerControlWidget = new QWidget();
+		QHBoxLayout* hl = new QHBoxLayout();
+		hl->addWidget(new REIXSXESHexapodControlEditor(REIXSBeamline::bl()->spectrometer()->hexapod()));
+
+		QGroupBox* gb = new QGroupBox("Motors");
+		QVBoxLayout* vl = new QVBoxLayout();
+		vl->addWidget(new QLabel("Spectrometer Rotation"));
+		vl->addWidget(new AMBasicControlEditor(REIXSBeamline::bl()->spectrometer()->angleDrive()));
+
+		vl->addWidget(new QLabel("Detector Translation"));
+		vl->addWidget(new AMBasicControlEditor(REIXSBeamline::bl()->spectrometer()->detectorTranslation()));
+
+		vl->addWidget(new QLabel("Detector Tilt"));
+		vl->addWidget(new AMBasicControlEditor(REIXSBeamline::bl()->spectrometer()->detectorTiltDrive()));
+
+		vl->addWidget(new QLabel("Detector Rotation"));
+		vl->addWidget(new AMBasicControlEditor(REIXSBeamline::bl()->spectrometer()->detectorRotationDrive()));
+
+		gb->setLayout(vl);
+
+		hl->addWidget(gb);
+
+		hl->addStretch(1);
+
+		AMVideoWidget* vw = new AMVideoWidget();
+		hl->addWidget(vw);
+		vw->openVideoUrl("http://v2e1607-001.cs.clsi.ca/mjpg/1/video.mjpg");
+		vw->play();
+
+
+		spectrometerControlWidget->setLayout(hl);
+		mw_->addPane(spectrometerControlWidget, "Experiment Setup", "Spectrometer controls", ":/utilities-system-monitor.png");
+
+
+
+
+		///////////////////////////
 
 
 
@@ -77,7 +118,7 @@ bool REIXSAppController::startup() {
 	}
 	*/
 
-		mw_->addRightWidget(new REIXSXESHexapodControlEditor(REIXSBeamline::bl()->spectrometer()->hexapod()));
+		//mw_->addRightWidget(new REIXSXESHexapodControlEditor(REIXSBeamline::bl()->spectrometer()->hexapod()));
 
 		return true;
 	}

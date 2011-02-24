@@ -229,8 +229,9 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/acquaman/AMDetectorInfoList.h \
 	source/ui/AMDetectorInfoView.h \
 	source/ui/AMControlOptimizationView.h \
-    source/dataman/REIXS/REIXSXESRawFileLoader.h \
-    source/util/AMDeferredFunctionCall.h
+	source/dataman/REIXS/REIXSXESRawFileLoader.h \
+	source/util/AMDeferredFunctionCall.h \
+	source/ui/AMVideoWidget.h
 FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
 	source/ui/AMDataViewSection.ui \
@@ -394,7 +395,13 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/acquaman/AMDetectorInfoList.cpp \
 	source/ui/AMDetectorInfoView.cpp \
 	source/ui/AMControlOptimizationView.cpp \
-    source/dataman/REIXS/REIXSXESRawFileLoader.cpp \
-    source/util/AMDeferredFunctionCall.cpp
+	source/dataman/REIXS/REIXSXESRawFileLoader.cpp \
+	source/util/AMDeferredFunctionCall.cpp
+
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc
+
+macx {
+OBJECTIVE_SOURCES += 	source/ui/AMVideoWidget_mac.mm
+LIBS += -framework AppKit
+}
