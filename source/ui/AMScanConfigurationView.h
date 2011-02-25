@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QRadioButton>
 #include <QPushButton>
 #include <QLabel>
+#include <QVBoxLayout>
 
 class AMScanConfiguration;
 
@@ -56,9 +57,13 @@ class AMScanConfigurationHolder : public QWidget
 {
 	Q_OBJECT
 public:
-	/// Construct a holder for an existing AMScanConfigurationView \c view.
-	AMScanConfigurationHolder(AMScanConfigurationView* view, QWidget *parent = 0);
+	/// Construct a holder for an AMScanConfigurationView \c view or 0 if no view is ready yet.
+	AMScanConfigurationHolder(AMScanConfigurationView* view = 0, QWidget *parent = 0);
 	~AMScanConfigurationHolder();
+
+	/// Set the \c view contained within the holder.  If there is an existing view, the old view is deleted.
+	/*! You can pass in 0 to remove the existing view from the holder.*/
+	void setView(AMScanConfigurationView* view);
 
 public slots:
 	virtual void onFreeToScan(bool queueEmpty, bool queueNotRunning);
@@ -93,6 +98,7 @@ protected:
 	QPushButton* startScanButton_, *addToQueueButton_;
 	QRadioButton* goToWorkflowOption_, *setupAnotherScanOption_;
 	QLabel* statusLabel_;
+	QVBoxLayout* layout_;
 
 	/// This is the scan configuration widget we're wrapping
 	AMScanConfigurationView* view_;

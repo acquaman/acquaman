@@ -50,6 +50,14 @@ QList<AMDetectorInfo*> SGMXASScanConfiguration::usingDetectors() const{
 	return usingDetectors;
 }
 
+AMScanConfiguration* SGMXASScanConfiguration::createCopy() const{
+
+}
+
+AMScanController* SGMXASScanConfiguration::createController(){
+
+}
+
 bool SGMXASScanConfiguration::setExitSlitGap(double exitSlitGap) {
 	bool rVal = SGMScanConfiguration::setExitSlitGap(exitSlitGap);
 	emit exitSlitGapChanged(exitSlitGap);

@@ -42,10 +42,12 @@ bool SGMAppController::startup() {
 
 		mw_->insertHeading("Experiment Setup", 1);
 		//////////
-		xasScanConfigurationHolder_ = new AMXASScanConfigurationHolder();
+		//xasScanConfigurationHolder_ = new AMXASScanConfigurationHolder();
+		xasScanConfigurationHolder_ = new AMScanConfigurationHolder();
 		mw_->addPane(xasScanConfigurationHolder_, "Experiment Setup", "SGM XAS Scan", ":/utilities-system-monitor.png");
 
-		fastScanConfigurationHolder_ = new AMFastScanConfigurationHolder();
+		//fastScanConfigurationHolder_ = new AMFastScanConfigurationHolder();
+		fastScanConfigurationHolder_ = new AMScanConfigurationHolder();
 		mw_->addPane(fastScanConfigurationHolder_, "Experiment Setup", "SGM Fast Scan", ":/utilities-system-monitor.png");
 
 
@@ -93,7 +95,7 @@ bool SGMAppController::startup() {
 
 void SGMAppController::shutdown() {
 	// Make sure we release/clean-up the beamline interface
-	SGMBeamline::releaseSGM();
+	AMBeamline::releaseBl();
 }
 
 

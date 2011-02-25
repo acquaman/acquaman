@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef ACQMAN_SGMBEAMLINE_H
 #define ACQMAN_SGMBEAMLINE_H
 
-// unused: #include "beamline/AMPVNames.h"
+// unused #include "beamline/AMPVNames.h"
 #include "beamline/AMBeamline.h"
 #include "beamline/AMDetector.h"
 #include "beamline/AMControlSet.h"

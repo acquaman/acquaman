@@ -28,16 +28,19 @@ AMScanConfigurationHolder::AMScanConfigurationHolder(AMScanConfigurationView* vi
 	view_ = view;
 
 	startScanButton_ = new QPushButton("Start Scan");
-	// startScanButton_->setDisabled(true);
+	startScanButton_->setDisabled(view_ == 0);
 	addToQueueButton_ = new QPushButton("Add to Workflow");
+	addToQueueButton_->setDisabled(view_ == 0);
 
 	goToWorkflowOption_ = new QRadioButton("Show me the workflow");
 	setupAnotherScanOption_ = new QRadioButton("Setup another scan");
 
 	statusLabel_ = new QLabel("Ready To Start Scan");
 
-	QVBoxLayout* vl = new QVBoxLayout();
-	vl->addWidget(view_);
+	layout_ = new QVBoxLayout();
+	if(view_)
+		layout_->addWidget(view_);
+
 	QHBoxLayout* hl = new QHBoxLayout();
 
 	hl->addWidget(statusLabel_);
@@ -49,17 +52,36 @@ AMScanConfigurationHolder::AMScanConfigurationHolder(AMScanConfigurationView* vi
 	hl->addWidget(addToQueueButton_);
 	hl->addWidget(startScanButton_);
 
-	vl->addLayout(hl);
+	layout_->addLayout(hl);
 
-	setLayout(vl);
+	setLayout(layout_);
 
 	connect(startScanButton_, SIGNAL(clicked()), this, SLOT(onStartScanRequested()));
 	connect(addToQueueButton_, SIGNAL(clicked()), this, SLOT(onAddToQueueRequested()));
 }
 
 
+
 AMScanConfigurationHolder::~AMScanConfigurationHolder()
 {
+}
+
+void AMScanConfigurationHolder::setView(AMScanConfigurationView *view) {
+	// delete old view, if it exists
+	if(view_)
+		delete view_;
+
+	view_ = view;
+	/// \todo check if view has a valid configuration, that's okay to start scanning with
+	if(view_) {
+		layout_->insertWidget(0, view_);
+		startScanButton_->setEnabled(true);
+		addToQueueButton_->setEnabled(true);
+	}
+	else {
+		startScanButton_->setEnabled(false);
+		addToQueueButton_->setEnabled(false);
+	}
 }
 
 void AMScanConfigurationHolder::onFreeToScan(bool queueEmpty, bool queueNotRunning){
@@ -72,7 +94,7 @@ void AMScanConfigurationHolder::onFreeToScan(bool queueEmpty, bool queueNotRunni
 		qDebug() << "Queue is not running but also not empty, have to ask user what to do";
 		scanDirector_->showDirector("The workflow is not empty");
 		statusLabel_->setText("Scans are waiting in the workflow");
-//		emit cancelAddToQueueRequest();
+		//		emit cancelAddToQueueRequest();
 	}
 	else if(!queueNotRunning && queueEmpty){
 		qDebug() << "Queue is running, but is empty after this, ask user what to do";
@@ -97,21 +119,28 @@ void AMScanConfigurationHolder::onAddedToQueue(AMScanConfiguration *configuratio
 	/* if(configuration == configuration_ && !canStartImmediately_)
 	//	director->showDirector();
 	else */ if(configuration == configuration_ && canStartImmediately_){
-		canStartImmediately_ = false;
-		goToQueue();
+			canStartImmediately_ = false;
+			goToQueue();
+		}
+	}
+
+void AMScanConfigurationHolder::onStartScanRequested(){
+
+	if(view_ && view_->configuration()) {
+		requestedStart_ = true;
+		qDebug() << "A holder is requesting a scan start";
+		configuration_ = view_->configuration()->createCopy();
+		emit addToQueueRequested(configuration_, true);
 	}
 }
 
-void AMScanConfigurationHolder::onStartScanRequested(){
-	requestedStart_ = true;
-	qDebug() << "A holder is requesting a scan start";
-	configuration_ = view_->configuration()->createCopy();
-	emit addToQueueRequested(configuration_, true);
-}
+void AMScanConfigurationHolder::onAddToQueueRequested() {
 
-void AMScanConfigurationHolder::onAddToQueueRequested(){
-	configuration_ = view_->configuration()->createCopy();
-	emit addToQueueRequested(configuration_);
+	if(view_ && view_->configuration()) {
+
+		configuration_ = view_->configuration()->createCopy();
+		emit addToQueueRequested(configuration_);
+	}
 }
 
 void AMScanConfigurationHolder::goToQueue(){
