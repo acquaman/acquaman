@@ -19,20 +19,24 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AMBeamlineScanAction.h"
+#include "acquaman/AMScanController.h"
+
+#include "beamline/AMBeamline.h"
 
 #define AMBEAMLINEACTIONITEM_INVALID_SCAN_TYPE 101
 #define AMBEAMLINEACTIONITEM_SCAN_CANCELLED 102
 #define AMBEAMLINEACTIONITEM_CANT_SET_CURRENT_CONTROLLER 103
 
-AMBeamlineScanAction::AMBeamlineScanAction(AMScanConfiguration *cfg, QString scanType, QObject *parent) :
-	AMBeamlineActionItem(true, parent)
+AMBeamlineScanAction::AMBeamlineScanAction(AMScanConfiguration *cfg, QObject *parent) :
+		AMBeamlineActionItem(true, parent)
 {
 	cfg_ = cfg;
 	ctrl_ = NULL;
-	scanType_ = scanType;
 	type_ = "scanAction";
 	keepOnCancel_ = false;
-	connect(SGMBeamline::sgm(), SIGNAL(beamlineScanningChanged(bool)), this, SLOT(onBeamlineScanningChanged(bool)));
+
+	connect(AMBeamline::bl(), SIGNAL(beamlineScanningChanged(bool)), this, SLOT(onBeamlineScanningChanged(bool)));
+
 	initialize();
 }
 
@@ -47,12 +51,8 @@ bool AMBeamlineScanAction::isRunning() const{
 bool AMBeamlineScanAction::isPaused() const{
 	if(!ctrl_)
 		return false;
-	//if(scanType_ == "SGMXASScan"){
-	if(scanType_ == "DacqScan"){
-			SGMXASDacqScanController *lCtrl = (SGMXASDacqScanController*)ctrl_;
-			return lCtrl->isPaused();
-	}
-	return false;
+
+	return ctrl_->isPaused();
 }
 
 void AMBeamlineScanAction::start(){
@@ -61,75 +61,41 @@ void AMBeamlineScanAction::start(){
 		connect(this, SIGNAL(ready(bool)), this, SLOT(delayedStart(bool)));
 		return;
 	}
-	//if(scanType_ == "SGMXASScan"){
-	if(scanType_ == "DacqScan"){
-		//qDebug() << "Ready, so get rolling";
-		SGMXASScanConfiguration *sxsc = NULL;
-		SGMFastScanConfiguration *sfsc = NULL;
-		SGMXASDacqScanController *sxdc = NULL;
-		SGMFastDacqScanController *sfdc = NULL;
-		if( sxsc = qobject_cast<SGMXASScanConfiguration*>(cfg_) )
-			sxdc = qobject_cast<SGMXASDacqScanController*>(ctrl_);
-		else if( sfsc = qobject_cast<SGMFastScanConfiguration*>(cfg_) )
-			sfdc = qobject_cast<SGMFastDacqScanController*>(ctrl_);
-		else{
-			setFailed(true, AMBEAMLINEACTIONITEM_INVALID_SCAN_TYPE);
+
+	qDebug() << "Ready, so get rolling";
+
+	if(!AMBeamlineActionItem::isReinitialized()){
+		qDebug() << "Not reinitalized, creating new controller";
+		ctrl_ = cfg_->createController();
+		if(!ctrl_) {
+			qDebug() << "Failed to create controller.";
+			setFailed(true, AMBEAMLINEACTIONITEM_INVALID_SCAN_TYPE);	// might want to rename this now.
 			return;
 		}
-		if(!AMBeamlineActionItem::isReinitialized()){
-			//qDebug() << "Not reinitalized, creating new controller";
-			if(sxsc){
-				sxdc = new SGMXASDacqScanController( sxsc, this);
-				ctrl_ = sxdc;
-			}
-			else if(sfsc){
-				sfdc = new SGMFastDacqScanController( sfsc, this);
-				ctrl_ = sfdc;
-				//qDebug() << "Looks like we set ctrl_ right" << (int)sfdc << " " << (int)ctrl_;
-			}
-			else{
-				//qDebug() << "(1)Honestly, how did we get here? We should have already failed. Okay, Acquaman, you've got me, we fail again.";
-				setFailed(true, AMBEAMLINEACTIONITEM_INVALID_SCAN_TYPE);
-				return;
-			}
-			if( !AMScanControllerSupervisor::scanControllerSupervisor()->setCurrentScanController(ctrl_) ){
-				delete ctrl_;
-				//qDebug() << "Failed to set current scan controller";
-				setFailed(true, AMBEAMLINEACTIONITEM_CANT_SET_CURRENT_CONTROLLER);
-				return;
-			}
-			connect(ctrl_, SIGNAL(finished()), this, SLOT(onScanSucceeded()));
-			connect(ctrl_, SIGNAL(cancelled()), this, SLOT(onScanCancelled()));
-			connect(ctrl_, SIGNAL(started()), this, SLOT(onScanStarted()));
-			connect(ctrl_, SIGNAL(progress(double,double)), this, SIGNAL(progress(double,double)));
-		}
-		else
-			qDebug() << "Reinitialized, no controller creation";
-		//((SGMXASDacqScanController*)ctrl_)->initialize(); //Can I make a pure virtual initialize in AMScanController?
-		if(sxdc){
-			connect(sxdc, SIGNAL(initialized()), ctrl_, SLOT(start()));
-			sxdc->initialize();
-		}
-		else if(sfdc){
-			connect(sfdc, SIGNAL(initialized()), ctrl_, SLOT(start()));
-			sfdc->initialize();
-		}
-		else{
-			//qDebug() << "(2)Honestly, how did we get here? We should have already failed. Okay, Acquaman, you've got me, we fail again.";
-			setFailed(true, AMBEAMLINEACTIONITEM_INVALID_SCAN_TYPE);
+
+		if( !AMScanControllerSupervisor::scanControllerSupervisor()->setCurrentScanController(ctrl_) ){
+			delete ctrl_;
+			qDebug() << "Failed to set current scan controller";
+			setFailed(true, AMBEAMLINEACTIONITEM_CANT_SET_CURRENT_CONTROLLER);
 			return;
 		}
-		//ctrl_->start();
+		connect(ctrl_, SIGNAL(finished()), this, SLOT(onScanSucceeded()));
+		connect(ctrl_, SIGNAL(cancelled()), this, SLOT(onScanCancelled()));
+		connect(ctrl_, SIGNAL(started()), this, SLOT(onScanStarted()));
+		connect(ctrl_, SIGNAL(progress(double,double)), this, SIGNAL(progress(double,double)));
 	}
-	else
-		setFailed(true, AMBEAMLINEACTIONITEM_INVALID_SCAN_TYPE);
+	else {
+		qDebug() << "Reinitialized, no controller creation";
+	}
+
+
+	// should this connection happen all the time, even if controller re-initialized?
+	connect(ctrl_, SIGNAL(initialized()), ctrl_, SLOT(start()));
+	ctrl_->initialize();
 }
 
 void AMBeamlineScanAction::cancel(){
-	if(scanType_ == "SGMXASScan"){
-		SGMXASDacqScanController *lCtrl = (SGMXASDacqScanController*)ctrl_;
-		return lCtrl->cancel();
-	}
+	ctrl_->cancel();
 }
 
 void AMBeamlineScanAction::cancelButKeep(){
@@ -138,8 +104,8 @@ void AMBeamlineScanAction::cancelButKeep(){
 }
 
 void AMBeamlineScanAction::reset(bool delayInitialized){
-	//qDebug() << "Reseting with keepOnCancel " << keepOnCancel_;
-	((SGMXASDacqScanController*)ctrl_)->reinitialize(!keepOnCancel_);
+	qDebug() << "Reseting with keepOnCancel " << keepOnCancel_;
+	ctrl_->reinitialize(!keepOnCancel_);
 	AMBeamlineActionItem::reset(true);
 	initialize();
 }
@@ -150,18 +116,18 @@ void AMBeamlineScanAction::cleanup(){
 }
 
 void AMBeamlineScanAction::pause(bool pause){
-	if(scanType_ == "SGMXASScan"){
-		SGMXASDacqScanController *lCtrl = (SGMXASDacqScanController*)ctrl_;
-		if(pause)
-			lCtrl->pause();
-		else
-			lCtrl->resume();
-	}
+
+	if(pause)
+		ctrl_->pause();
+	else
+		ctrl_->resume();
+
 }
 
 void AMBeamlineScanAction::initialize(){
 	AMBeamlineActionItem::initialize();
-	onBeamlineScanningChanged(SGMBeamline::sgm()->isScanning());
+
+	onBeamlineScanningChanged(AMBeamline::bl()->isBeamlineScanning());
 }
 
 void AMBeamlineScanAction::delayedStart(bool ready){
@@ -263,24 +229,9 @@ void AMBeamlineScanActionView::updateScanNameLabel(){
 		scanName.setNum(index_);
 		scanName.append(". ");
 	}
-	SGMXASScanConfiguration *xasCfg = 0;
-	SGMFastScanConfiguration *fastCfg = 0;
 
-//	if(qobject_cast<SGMXASScanConfiguration*>(scanAction_->cfg())){
-	if(xasCfg = qobject_cast<SGMXASScanConfiguration*>(scanAction_->cfg())){
-		scanName += "SGM XAS Scan from ";
-		//tmpStr.setNum( ((SGMXASScanConfiguration*)scanAction_->cfg())->regionStart(0) );
-		tmpStr.setNum( xasCfg->regionStart(0) );
-		scanName.append(tmpStr+" to ");
-		//tmpStr.setNum( ((SGMXASScanConfiguration*)scanAction_->cfg())->regionEnd(((SGMXASScanConfiguration*)scanAction_->cfg())->regionCount()-1) );
-		tmpStr.setNum( xasCfg->regionEnd(xasCfg->regionCount()-1) );
-		scanName.append(tmpStr);
-		scanNameLabel_->setText(scanName);
-	}
-	if(fastCfg = qobject_cast<SGMFastScanConfiguration*>(scanAction_->cfg())){
-		scanName += QString("SGM Fast Scan from %1 to %2").arg(fastCfg->start()).arg(fastCfg->end());
-		scanNameLabel_->setText(scanName);
-	}
+	scanName.append(scanAction_->cfg()->description());
+	scanNameLabel_->setText(scanName);
 
 }
 
@@ -358,7 +309,7 @@ void AMBeamlineScanActionView::onStopCancelButtonClicked(){
 			// should never be reached
 			break;
 		}
-//		scanAction_->cancel();
+		//		scanAction_->cancel();
 	}
 	else{
 		emit removeRequested(scanAction_);

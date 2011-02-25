@@ -41,7 +41,7 @@ AMRawDataSource::AMRawDataSource(const AMDataStore* dataStore, int measurementId
 	axes_ << measurementInfo.axes;	// adds detector axes
 
 	measurementIndexEnd_ = measurementIndexStart_ = measurementInfo.size();
-	for(int a=0; a<measurementIndexEnd_.count(); a++) {	// a: dimension index.
+	for(int a=0; a<measurementIndexEnd_.rank(); a++) {	// a: dimension index.
 		measurementIndexEnd_[a]--;	// end index should be size-1 in all dimensions.
 		measurementIndexStart_[a] = 0;	// start index should be 0 in all dimensions.
 	}
@@ -95,7 +95,7 @@ bool AMRawDataSource::setDataStore(const AMDataStore *dataStore) {
 	axes_ << measurementInfo.axes;			// appends measurement axes
 
 	measurementIndexEnd_ = measurementIndexStart_ = measurementInfo.size();
-	for(int a=0; a<measurementIndexEnd_.count(); a++) {	// a: dimension index.
+	for(int a=0; a<measurementIndexEnd_.rank(); a++) {	// a: dimension index.
 		measurementIndexEnd_[a]--;	// end index should be size-1 in all dimensions.
 		measurementIndexStart_[a] = 0;	// start index should be 0 in all dimensions.
 	}

@@ -22,38 +22,59 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMSCANCONFIGURATIONVIEW_H
 
 #include <QWidget>
-#include "ui/SGMXASScanConfigurationViewer.h"
-#include "ui/SGMXASScanConfigurationWizard.h"
-#include "ui/SGMFastScanConfigurationViewer.h"
+#include <QRadioButton>
+#include <QPushButton>
+#include <QLabel>
 
-class AMScanConfigurationQueueDirector;
+class AMScanConfiguration;
+
+/// If you want your scan configuration widget to easily be able to start scans, you should inherit from AMScanConfigurationView, and install it within an AMScanConfigurationHolder.
+class AMScanConfigurationView : public QWidget {
+	Q_OBJECT
+
+public:
+	/// Default constructor
+	explicit AMScanConfigurationView(QWidget* parent = 0) : QWidget(parent) {}
+
+	/// This function must return a pointer to the scan configuration, that is being configure within your view.
+	/*! Any functions that use this will make a copy of the configuration immediately, so you don't need to worry about making changes to the pointed-to object.*/
+	virtual const AMScanConfiguration* configuration() const = 0;
+};
+
+
 class AMScanConfigurationScanDirector;
 
+/// This widget holds a scan configuration widget, and provides user controls to start the configured scan within the workflow.  It can be constructed to surround any AMScanConfigurationView. Below the widget, it adds buttons to start the configured scan or add it to the queue.
+/*! This widget takes ownership of the view specifified in its constructor.
+
+When the "Start Scan" button or "Add to Workflow" button is pressed, a copy of the scan configuration view's current scan configuration is made, and this is what gets added to the queue.
+
+\todo Consider using a workflow API instead of all these signals and slots that must be hoooked up to communicate with the workflow.
+Justification: you've decoupled it from the workflow completely, by sending a whole API through signals and slots.  Yes, decoupling good, but the result is a crapton of signals that need to be connected (for ex: in AMAppController / SGMAppController), so this requires a lot of code to be added for each holder instance, and is prone to bugs if the user doesn't connect it all.  With this much detail in those signals and slots... is there any way you would use the holder WITHOUT a workflow manager (ie: with another object?).  If not, consider coupling the two, and just calling the workflow functions.  Simplifies the holder code, and simplifies the usage of it.  (External users have to write much less code.)  More coupling, theoretically, but less encapsulation/work done for them.
+*/
 class AMScanConfigurationHolder : public QWidget
 {
 	Q_OBJECT
 public:
-	AMScanConfigurationHolder(QWidget *parent = 0);
+	/// Construct a holder for an existing AMScanConfigurationView \c view.
+	AMScanConfigurationHolder(AMScanConfigurationView* view, QWidget *parent = 0);
 	~AMScanConfigurationHolder();
 
 public slots:
 	virtual void onFreeToScan(bool queueEmpty, bool queueNotRunning);
 	virtual void onLockdownScanning(bool isLocked, QString reason);
-	virtual void onAddedToQueue(AMScanConfiguration *cfg);
+	virtual void onAddedToQueue(AMScanConfiguration *configuration);
 
 	/// This slot will be used to notify this widget when it becomes the current (active) widget
-	virtual void onBecameCurrentWidget() = 0;
+	virtual void onBecameCurrentWidget() {}
 
 signals:
-	void addToQueueRequested(AMScanConfiguration *cfg, bool startNow = false);
+	void addToQueueRequested(AMScanConfiguration *configuration, bool startNow = false);
 	void cancelAddToQueueRequest();
 	void goToQueueRequested();
 	void lockdownScanning(bool isLocked, QString reason);
-	void newScanConfigurationView();
 
 protected slots:
-	virtual void createScanConfiguration() = 0;
-	virtual void destroyScanConfigurationViewer() = 0;
 
 	virtual void onStartScanRequested();
 	virtual void onAddToQueueRequested();
@@ -62,70 +83,27 @@ protected slots:
 	virtual void goToNewScan();
 
 protected:
-	AMScanConfiguration *cfg_;
+	/// This is the scan configuration we've last attempted to add to the workflow.
+	AMScanConfiguration* configuration_;
+
 	bool requestedStart_;
 	bool canStartImmediately_;
 
-	AMScanConfigurationQueueDirector *director;
-	AMScanConfigurationScanDirector *sDirector;
+	/// UI elements
+	QPushButton* startScanButton_, *addToQueueButton_;
+	QRadioButton* goToWorkflowOption_, *setupAnotherScanOption_;
+	QLabel* statusLabel_;
+
+	/// This is the scan configuration widget we're wrapping
+	AMScanConfigurationView* view_;
+
+
+	AMScanConfigurationScanDirector *scanDirector_;
 };
 
-class AMXASScanConfigurationHolder : public AMScanConfigurationHolder
-{
-	Q_OBJECT
-public:
-	AMXASScanConfigurationHolder(QWidget *parent = 0);
-	~AMXASScanConfigurationHolder();
-
-public slots:
-	/// This slot will be used to notify this widget when it becomes the current (active) widget
-	void onBecameCurrentWidget();
-
-protected slots:
-	void createScanConfiguration();
-	void destroyScanConfigurationViewer();
-
-private:
-	SGMXASScanConfiguration* cfg() { return qobject_cast<SGMXASScanConfiguration*>(cfg_);}
-
-protected:
-	AMDetectorInfoSet *cfgDetectorInfoSet_;
-
-	SGMXASScanConfigurationViewer *sxscViewer;
-	SGMXASScanConfigurationWizard *sxscWizard;
-	QVBoxLayout *vl_;
-};
-
-class AMScanConfigurationQueueDirector : public QWidget
-{
-	Q_OBJECT
-public:
-	AMScanConfigurationQueueDirector(QWidget *parent = 0);
-
-public slots:
-	void showDirector();
-
-signals:
-	void goToQueue();
-	void goToNewScan();
-
-protected slots:
-	void onAlwaysQueueCheck(bool checked);
-	void onAlwaysNewScanCheck(bool checked);
-
-protected:
-	bool alwaysGoToQueue_;
-	bool alwaysGoToNewScan_;
-
-	QVBoxLayout *vl_;
-	QLabel *message_;
-	QFormLayout *choices_;
-	QPushButton *goToQueueButton_;
-	QPushButton *goToNewScanButton_;
-	QCheckBox *goToQueueCheck_;
-	QCheckBox *goToNewScanCheck_;
-};
-
+#include <QBoxLayout>
+#include <QGridLayout>
+#include <QCheckBox>
 class AMScanConfigurationScanDirector : public QWidget
 {
 Q_OBJECT
@@ -133,7 +111,7 @@ public:
 	AMScanConfigurationScanDirector(QWidget *parent = 0);
 
 public slots:
-	void showDirector(QString reason);
+	void showDirector(const QString& reason);
 
 signals:
 	void cancel();
@@ -174,6 +152,7 @@ protected:
 	QCheckBox *cancelCheck_;
 };
 
+/*
 class AMFastScanConfigurationHolder : public AMScanConfigurationHolder
 {
 	Q_OBJECT
@@ -203,5 +182,6 @@ protected:
 
 	QVBoxLayout *vl_;
 };
+*/
 
 #endif // AMSCANCONFIGURATIONVIEW_H

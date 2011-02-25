@@ -38,7 +38,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "dataman/AMSamplePlate.h"
-#include "beamline/SGMBeamline.h"
+#include "beamline/SGM/SGMBeamline.h"
 #include "dataman/AMDatabase.h"
 #include "AMDetailedItemDelegate.h"
 

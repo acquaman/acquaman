@@ -18,14 +18,35 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ACQMAN_MONO_H_
-#define ACQMAN_MONO_H_
 
-class AMMono
+
+
+#include <QApplication>
+#include "application/REIXS/REIXSAppController.h"
+
+
+int main(int argc, char *argv[])
 {
-public:
-        AMMono();
-        virtual ~AMMono();
-};
 
-#endif /*ACQMAN_MONO_H_*/
+	/// Program Startup:
+	// =================================
+	QApplication app(argc, argv);
+	app.setApplicationName("Acquaman");
+
+
+	REIXSAppController* appController = new REIXSAppController();
+
+
+	/// Program Run-loop:
+	// =================================
+	int retVal = -1;
+	if(appController->startup())
+		retVal = app.exec();
+
+	/// Program Shutdown:
+	// =================================
+	delete appController;
+
+	return retVal;
+}
+

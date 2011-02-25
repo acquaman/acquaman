@@ -31,6 +31,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFileDialog>
 #include <QSignalMapper>
 
+#include <QTimer>
+
 /// Attempt to import, and return a pointer to a new scan object, or 0 if the import fails.  It's the caller's responsibility to delete the scan when done with it.
 AMScan* SGMLegacyImporter::import(const QString& fullPath) {
 

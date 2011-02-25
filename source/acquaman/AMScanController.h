@@ -34,19 +34,21 @@ Q_PROPERTY(bool running READ isRunning)
 Q_PROPERTY(bool paused READ isPaused)
 
 public:
-	explicit AMScanController(AMScanConfiguration *cfg, QObject *parent = 0);
+	explicit AMScanController(AMScanConfiguration *configuration, QObject *parent = 0);
 
 	/// Returns true if the scan is running but not paused
-	bool isRunning() const {return running_ && !paused_;}
+	virtual bool isRunning() const {return running_ && !paused_;}
 	/// Convenience call, returns true if the scan is not running
-	bool isStopped() const {return !isRunning();}
+	virtual bool isStopped() const {return !isRunning();}
 	/// Returns true if the scan is running and paused
-	bool isPaused() const {return paused_;}
-	bool isInitialized() const {return initialized_;}
+	virtual bool isPaused() const {return paused_;}
+	virtual bool isInitialized() const {return initialized_;}
 
-	virtual AMScan* scan() {return pScan_();}
+	virtual AMScan* scan() { return generalScan_; }
 
 signals:
+	// QQ: For all: Do I have to emit these? Does the top-level API do it?
+
 	/// Scan has started
 	void started();
 	/// Scan completed
@@ -59,9 +61,16 @@ signals:
 	void resumed();
 	/// Time left in scan
 	void timeRemaining(double seconds);
+	// QQ: What are the units? When do I need to emit this? both this and timeRemaining?
 	void progress(double elapsed, double total);
 
+	// QQ: apears unused
 	void scanCreated(AMScan *scan);
+
+	// QQ: had to add here; BeamlineScanAction receives from ScanController and uses to start scan.
+	void initialized();
+
+	// QQ: but not this one
 	void reinitialized(bool removeScan);
 
 public slots:
@@ -73,7 +82,11 @@ public slots:
 	virtual void pause() = 0;
 	/// Resume scan if currently paused
 	virtual void resume() = 0;
+
 	virtual void initialize() = 0;
+
+	// QQ: What does this mean, and what does a scan controller need to do in this situation?
+	virtual void reinitialize(bool removeScan) = 0;
 
 protected:
 	/// Configuration for this scan
@@ -86,11 +99,11 @@ protected:
 	bool initialized_;
 
 private:
-	AMScanConfiguration **_pCfg_;
-	AMScan **_pScan_;
+	// unused: AMScanConfiguration **_pCfg_;
+	// unused: AMScan **_pScan_;
 
-	AMScanConfiguration* pCfg_() { return *_pCfg_;}
-	AMScan* pScan_() {return *_pScan_;}
+	// unused: AMScanConfiguration* pCfg_() { return *_pCfg_;}
+	// unused: AMScan* pScan_() {return *_pScan_;}
 };
 
 class AMScanControllerSupervisor : public QObject

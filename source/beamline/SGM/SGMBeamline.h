@@ -21,14 +21,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef ACQMAN_SGMBEAMLINE_H
 #define ACQMAN_SGMBEAMLINE_H
 
-#include "AMPVNames.h"
-#include "AMDetector.h"
-#include "AMControlSet.h"
+// unused: #include "beamline/AMPVNames.h"
+#include "beamline/AMBeamline.h"
+#include "beamline/AMDetector.h"
+#include "beamline/AMControlSet.h"
 #include "util/AMBiHash.h"
-#include "AMBeamlineControlAction.h"
-#include "AMBeamlineControlMoveAction.h"
-#include "AMBeamlineActionsList.h"
-#include "AMBeamlineParallelActionsList.h"
+#include "beamline/AMBeamlineControlAction.h"
+#include "beamline/AMBeamlineControlMoveAction.h"
+#include "beamline/AMBeamlineActionsList.h"
+#include "beamline/AMBeamlineParallelActionsList.h"
 
 #include "acquaman/AMDetectorInfoList.h"
 #include "acquaman/AMControlOptimization.h"
@@ -42,7 +43,7 @@ class SGMTransferAction4;
 
 class AMSamplePlate;
 
-class SGMBeamline : public AMControl
+class SGMBeamline : public AMBeamline
 {
 	Q_OBJECT
 
@@ -53,7 +54,6 @@ public:
 	QString sgmHarmonicName(SGMBeamline::sgmHarmonic harmonic) const;
 
 	static SGMBeamline* sgm();		// singleton-class accessor
-	static void releaseSGM();	// releases memory for Beamline
 
 	virtual ~SGMBeamline();
 
@@ -149,7 +149,7 @@ public:
 
 	QList<AM1BeamlineActionItem*> transferChamberInActions() const;
 
-	bool isScanning();
+	bool isBeamlineScanning();
 
 	bool isVisibleLightOn();
 
@@ -194,7 +194,6 @@ protected slots:
 protected:
 	// Singleton implementation:
 	SGMBeamline();					// protected constructor... only access through Beamline::bl()
-	static SGMBeamline* instance_;
 
 	// Parts of this beamline:
 	///////////////////////////////

@@ -22,17 +22,26 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QScrollArea>
 #include <QPushButton>
 
+#include "beamline/AMBeamline.h"
+
+
+#warning "there's some application logic in this UI class... particularly beamlineScanningChanged() and onBeamlineScanningChanged(), as well as queue is running, etc. Should these critical security checks be done elsewhere (for ex: AMWorkflowManager?)"
+#warning "Also need to remove coupling so that you can use the workflow manager even if you don't have a sample plate"
+
 AMWorkflowManagerView::AMWorkflowManagerView(QWidget *parent) :
 	QWidget(parent)
 {
 	cancelAddRequest_ = false;
-	adder_ = new AMBeamlineActionAdder();
-	adder_->hide();
-	connect(adder_, SIGNAL(insertActionRequested(AMBeamlineActionItem*,int)), this, SLOT(onInsertActionRequested(AMBeamlineActionItem*,int)));
-	connect(SGMBeamline::sgm()->currentSamplePlate(), SIGNAL(samplePlateChanged(bool)), adder_, SLOT(onSamplePlateChanged(bool)));
-	connect(SGMBeamline::sgm()->currentSamplePlate(), SIGNAL(samplePositionAdded(int)), adder_, SLOT(onSamplePlateUpdate(int)));
-	connect(SGMBeamline::sgm()->currentSamplePlate(), SIGNAL(samplePositionChanged(int)), adder_, SLOT(onSamplePlateUpdate(int)));
-	connect(SGMBeamline::sgm()->currentSamplePlate(), SIGNAL(samplePositionRemoved(int)), adder_, SLOT(onSamplePlateUpdate(int)));
+
+	// removed for now:
+//	adder_ = new AMBeamlineActionAdder();
+//	adder_->hide();
+//	connect(adder_, SIGNAL(insertActionRequested(AMBeamlineActionItem*,int)), this, SLOT(onInsertActionRequested(AMBeamlineActionItem*,int)));
+//	connect(SGMBeamline::sgm()->currentSamplePlate(), SIGNAL(samplePlateChanged(bool)), adder_, SLOT(onSamplePlateChanged(bool)));
+//	connect(SGMBeamline::sgm()->currentSamplePlate(), SIGNAL(samplePositionAdded(int)), adder_, SLOT(onSamplePlateUpdate(int)));
+//	connect(SGMBeamline::sgm()->currentSamplePlate(), SIGNAL(samplePositionChanged(int)), adder_, SLOT(onSamplePlateUpdate(int)));
+//	connect(SGMBeamline::sgm()->currentSamplePlate(), SIGNAL(samplePositionRemoved(int)), adder_, SLOT(onSamplePlateUpdate(int)));
+
 	startWorkflowButton_ = new QPushButton("Start This Workflow\nReady");
 	startWorkflowButton_->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
 	addActionButton_ = new QPushButton("Add an Action");
@@ -42,14 +51,15 @@ AMWorkflowManagerView::AMWorkflowManagerView(QWidget *parent) :
 	hl->addWidget(addActionButton_, 0, Qt::AlignRight);
 	hl->addWidget(startWorkflowButton_, 0, Qt::AlignRight);
 	connect(startWorkflowButton_, SIGNAL(clicked()), this, SLOT(onStartQueueRequested()));
-	connect(SGMBeamline::sgm(), SIGNAL(beamlineScanningChanged(bool)), this, SLOT(onBeamlineScanningChanged(bool)));
+	connect(AMBeamline::bl(), SIGNAL(beamlineScanningChanged(bool)), this, SLOT(onBeamlineScanningChanged(bool)));
 	connect(addActionButton_, SIGNAL(clicked()), this, SLOT(onAddActionRequested()));
 	workflowActions_ = new AMBeamlineActionsList(this);
 	workflowQueue_ = new AMBeamlineActionsQueue(workflowActions_, this);
 	workflowView_ = new AMBeamlineActionsListView(workflowActions_, workflowQueue_, this);
 	connect(workflowQueue_, SIGNAL(isRunningChanged(bool)), this, SLOT(onQueueIsRunningChanged(bool)));
 	connect(workflowQueue_, SIGNAL(isEmptyChanged(bool)), this, SLOT(onQueueIsEmptyChanged(bool)));
-	connect(workflowView_, SIGNAL(queueUpdated(int)), adder_, SLOT(onQueueUpdated(int)));
+
+//	connect(workflowView_, SIGNAL(queueUpdated(int)), adder_, SLOT(onQueueUpdated(int)));
 
 	vl_ = new QVBoxLayout();
 	vl_->addLayout(hl);
@@ -84,9 +94,13 @@ void AMWorkflowManagerView::onStartQueueRequested(){
 	*/
 }
 
+#include <QMessageBox>
 void AMWorkflowManagerView::onAddActionRequested(){
-	adder_->move(addActionButton_->pos());
-	adder_->show();
+	// disabled for now...
+//	adder_->move(addActionButton_->pos());
+//	adder_->show();
+
+	QMessageBox::information(this, "Sorry, This Action Not Available Yet", "Sorry, we haven't implemented this yet.\n\nWe're working on it...", QMessageBox::Ok);
 }
 
 void AMWorkflowManagerView::onAddScanRequested(AMScanConfiguration *cfg, bool startNow){
@@ -102,12 +116,7 @@ void AMWorkflowManagerView::onAddScanRequested(AMScanConfiguration *cfg, bool st
 		return;
 	}
 
-	/*
-	SGMXASScanConfiguration *sxsc = (SGMXASScanConfiguration*)cfg;
-
-	AMBeamlineScanAction *scanAction = new AMBeamlineScanAction(sxsc, "SGMXASScan", this);
-	*/
-	AMBeamlineScanAction *scanAction = new AMBeamlineScanAction(cfg, "DacqScan", this);
+	AMBeamlineScanAction *scanAction = new AMBeamlineScanAction(cfg, this);
 	workflowActions_->appendAction(scanAction);
 	emit addedScan(cfg);
 	if(startNow)
@@ -151,10 +160,11 @@ void AMWorkflowManagerView::onNewScanConfigurationView(){
 	onQueueAndScanningStatusChanged();
 }
 
+/// \todo Remove critical safety logic from UI code.  AMWorkflowManager should have a way to read whether you can start the workflow, and signals to indicate changes in this.
 void AMWorkflowManagerView::onQueueAndScanningStatusChanged(){
 	bool qEmpty = workflowQueue_->isEmpty();
 	bool qRunning = workflowQueue_->isRunning();
-	bool blScanning = SGMBeamline::sgm()->isScanning();
+	bool blScanning = AMBeamline::bl()->isBeamlineScanning();
 	if(qEmpty || qRunning || blScanning)
 		startWorkflowButton_->setEnabled(false);
 	else{
@@ -238,6 +248,8 @@ int AMBeamlineActionsListView::visibleIndexOfFirst(){
 	return visibleViewList_.count()-actionsQueue_.count();
 }
 */
+#include "beamline/AMBeamlineControlMoveAction.h"
+#include "beamline/AMBeamlineControlSetMoveAction.h"
 
 void AMBeamlineActionsListView::onActionChanged(int index){
 	AMBeamlineActionItem *tmpItem = actionsList_->action(index);
@@ -530,177 +542,3 @@ void AMBeamlineActionsListView::reindexViews(){
 }
 
 
-AMBeamlineActionAdder::AMBeamlineActionAdder(QWidget *parent) :
-		QWidget(parent)
-{
-	xPosLabel_ = NULL;
-	yPosLabel_ = NULL;
-	zPosLabel_ = NULL;
-	rPosLabel_ = NULL;
-	addWhereBox_ = new QComboBox();
-	onQueueUpdated(NULL);
-	actionTypeBox_ = new QComboBox();
-	QStringList actionTypes;
-	actionTypes << "Choose Action Type" << "Go To Sample";// << "Move Action" << "Scan Action";
-	actionTypeBox_->addItems(actionTypes);
-	actionSubTypeBox_ = new QComboBox();
-	QStringList actionSubTypes;
-	actionSubTypes << "Choose Option";
-	subTypesLists_.append(actionSubTypes);
-	actionSubTypes.clear();
-	actionSubTypes << "Position 1" << "Position 2";
-	subTypesLists_.append(actionSubTypes);
-	actionSubTypes.clear();/*
-	actionSubTypes << "SSA X" << "SSA Y" << "SSA Z";
-	subTypesLists_.append(actionSubTypes);
-	actionSubTypes << "SGM XAS Scan";
-	subTypesLists_.append(actionSubTypes);
-	actionSubTypes.clear();
-	*/
-	actionSubTypeBox_->addItems(subTypesLists_.at(0));
-	nextStepWidget_ = new QLabel(".....");
-	connect(actionTypeBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onActionTypeBoxUpdate(int)));
-	/// \note temporary fix for crash bug described on line 645. Changed from currentIndexChanged(int) to activated(int) signal, which only is issued by the user clicking. However, it could mean that that combo box gets out of sync.
-	connect(actionSubTypeBox_, SIGNAL(activated(int)), this, SLOT(onActionSubTypeBoxUpdate(int)));
-	vl_ = new QVBoxLayout();
-	vl_->addWidget(addWhereBox_);
-	vl_->addWidget(actionTypeBox_);
-	vl_->addWidget(actionSubTypeBox_);
-	vl_->addWidget(nextStepWidget_);
-	setLayout(vl_);
-	moveSetpointDSB_ = NULL;
-}
-
-void AMBeamlineActionAdder::onQueueUpdated(int count){
-	addWhereBox_->clear();
-	QStringList positions;
-	positions << "Front of queue";
-	QString tmpStr;
-	for(int x = 0; x < count; x++)
-		positions << "After "+tmpStr.setNum(x+1);
-	addWhereBox_->addItems(positions);
-}
-
-void AMBeamlineActionAdder::onSamplePlateChanged(bool valid){
-	qDebug() << "Rewriting sample list in adder, valid is " << valid;
-	QStringList samples;
-	if(valid){
-		AMSamplePlate *sp = SGMBeamline::sgm()->currentSamplePlate();
-		for(int x = 0; x < sp->count(); x++)
-			samples << sp->sampleAt(x)->name();
-	}
-	subTypesLists_.replace(1, samples);
-}
-
-/// \todo optimize this. I don't need to redo the whole list for one insertion/deletion/change
-void AMBeamlineActionAdder::onSamplePlateUpdate(int index){
-	onSamplePlateChanged(SGMBeamline::sgm()->currentSamplePlate()->valid());
-}
-
-void AMBeamlineActionAdder::onActionTypeBoxUpdate(int curIndex){
-	actionSubTypeBox_->clear();
-	actionSubTypeBox_->addItems(subTypesLists_.at(curIndex));
-	vl_->removeWidget(nextStepWidget_);
-	delete nextStepWidget_;
-	nextStepWidget_ = NULL;
-	moveSetpointDSB_ = NULL;
-	QPushButton *tmpPush;
-	QVBoxLayout *tmpVl;
-	switch(curIndex){
-	case 0:
-		nextStepWidget_ = new QLabel(".....");
-		break;
-	case 1:
-		nextStepWidget_ = new QGroupBox(actionSubTypeBox_->currentText());
-		tmpVl = new QVBoxLayout();
-		xPosLabel_ = new QLabel("");
-		yPosLabel_ = new QLabel("");
-		zPosLabel_ = new QLabel("");
-		rPosLabel_ = new QLabel("");
-		tmpPush = new QPushButton("Add to Workflow");
-		tmpVl->addWidget(xPosLabel_);
-		tmpVl->addWidget(yPosLabel_);
-		tmpVl->addWidget(zPosLabel_);
-		tmpVl->addWidget(rPosLabel_);
-		tmpVl->addWidget(tmpPush);
-		nextStepWidget_->setLayout(tmpVl);
-		connect(tmpPush, SIGNAL(clicked()), this, SLOT(onAddControlSetMoveAction()));
-		onActionSubTypeBoxUpdate(actionSubTypeBox_->currentIndex());
-		break;
-	case 2:
-		nextStepWidget_ = new QGroupBox(actionSubTypeBox_->currentText());
-		tmpVl = new QVBoxLayout();
-		moveSetpointDSB_ = new QDoubleSpinBox();
-		tmpPush = new QPushButton("Add to Workflow");
-		tmpVl->addWidget(moveSetpointDSB_);
-		tmpVl->addWidget(tmpPush);
-		nextStepWidget_->setLayout(tmpVl);
-		connect(moveSetpointDSB_, SIGNAL(valueChanged(double)), this, SLOT(onNewMoveSetpoint(double)));
-		connect(tmpPush, SIGNAL(clicked()), this, SLOT(onAddMoveAction()));
-		onActionSubTypeBoxUpdate(actionSubTypeBox_->currentIndex());
-		break;
-	case 3:
-		nextStepWidget_ = new QPushButton("Configure Scan");
-		break;
-	}
-	vl_->addWidget(nextStepWidget_);
-}
-
-void AMBeamlineActionAdder::onActionSubTypeBoxUpdate(int curIndex){
-	if(curIndex < 0)
-		return;
-	if(actionTypeBox_->currentIndex() == 2 && nextStepWidget_ && moveSetpointDSB_){
-		((QGroupBox*)(nextStepWidget_))->setTitle(actionSubTypeBox_->currentText());
-		switch(curIndex){
-		case 0:
-			movePV_ = (AMPVwStatusControl*)SGMBeamline::sgm()->ssaManipulatorX();
-			break;
-		case 1:
-			movePV_ = (AMPVwStatusControl*)SGMBeamline::sgm()->ssaManipulatorY();
-			break;
-		case 2:
-			movePV_ = (AMPVwStatusControl*)SGMBeamline::sgm()->ssaManipulatorZ();
-			break;
-		}
-		moveSetpointDSB_->setRange(movePV_->minimumValue(), movePV_->maximumValue());
-		moveSetpointDSB_->setValue(movePV_->value());
-	}
-	/// \bug Checking for xPosLabel_ and posse is not enough. Sure, their not 0, because they were allocated at least once. But then they got deleted when you switched type boxes and nextStepWidget_ (their parent) was deleted.   This results in a crash if you choose "Action type -> Go To Sample -> Choose Action Type -> Go to Sample (2nd time)".
-	if(actionTypeBox_->currentIndex() == 1 && xPosLabel_ && yPosLabel_ && zPosLabel_ && rPosLabel_){
-		AMSamplePlate *sp = SGMBeamline::sgm()->currentSamplePlate();
-		onSamplePlateChanged(sp->valid());
-		if( sp->valid() ){
-			xPosLabel_->setText(QString("%1").arg(sp->positionAt(curIndex)->at(0).value()));
-			yPosLabel_->setText(QString("%1").arg(sp->positionAt(curIndex)->at(1).value()));
-			zPosLabel_->setText(QString("%1").arg(sp->positionAt(curIndex)->at(2).value()));
-			rPosLabel_->setText(QString("%1").arg(sp->positionAt(curIndex)->at(3).value()));
-		}
-		else{
-			xPosLabel_->setText("N/A");
-			yPosLabel_->setText("N/A");
-			zPosLabel_->setText("N/A");
-			rPosLabel_->setText("N/A");
-		}
-	}
-}
-
-void AMBeamlineActionAdder::onNewMoveSetpoint(double value){
-	moveSetpoint_ = value;
-}
-
-void AMBeamlineActionAdder::onAddControlSetMoveAction(){
-	AMSamplePlate *sp = SGMBeamline::sgm()->currentSamplePlate();
-	if(sp->valid()){
-		AMBeamlineActionItem *tmpItem = new AMBeamlineControlSetMoveAction(SGMBeamline::sgm()->ssaManipulatorSet());
-		((AMBeamlineControlSetMoveAction*)tmpItem)->setSetpoint(sp->positionAt(actionSubTypeBox_->currentIndex()));
-		emit insertActionRequested(tmpItem, addWhereBox_->currentIndex());
-		hide();
-	}
-}
-
-void AMBeamlineActionAdder::onAddMoveAction(){
-	AMBeamlineActionItem *tmpItem = new AMBeamlineControlMoveAction(movePV_);
-	((AMBeamlineControlMoveAction*)tmpItem)->setSetpoint(moveSetpoint_);
-	emit insertActionRequested(tmpItem, addWhereBox_->currentIndex());
-	hide();
-}

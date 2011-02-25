@@ -241,7 +241,7 @@ bool ALSBL8XASFileLoader::loadFromFile(const QString& filepath, bool setMetaData
 		}
 	}
 
-	scan->onDataChanged();	/// \todo Is this still used? What does it mean?
+	/// scan->onDataChanged();	\todo Is this still used? What does it mean?
 
 	return true;
 }
