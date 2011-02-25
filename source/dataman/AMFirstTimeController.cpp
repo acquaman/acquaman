@@ -36,6 +36,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AM1DExpressionAB.h"
 #include "analysis/AM2DSummingAB.h"
 
+
+
 #include "dataman/AMDbObjectSupport.h"
 
 #include <QDebug>
@@ -148,6 +150,7 @@ bool AMFirstTimeController::databaseInitialization(bool newUser) {
 	AMDbObjectSupport::registerClass<AMScan>();
 	AMDbObjectSupport::registerClass<AMXASScan>();
 	AMDbObjectSupport::registerClass<AMFastScan>();
+	AMDbObjectSupport::registerClass<AMXESScan>();
 
 	AMDbObjectSupport::registerClass<AMRun>();
 	AMDbObjectSupport::registerClass<AMExperiment>();
@@ -175,6 +178,7 @@ bool AMFirstTimeController::databaseInitialization(bool newUser) {
 		AMUser::user()->loadFromDb(AMDatabase::userdb(), 1);// otherwise load existing user settings
 
 	/// \bug Better error checking. Complicated because some calls could fail even though the process completes successfully. (ie: creating db table columns that already exist will fail)
+
 
 	return true;
 }

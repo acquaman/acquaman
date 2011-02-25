@@ -17,13 +17,46 @@ You should have received a copy of the GNU General Public License
 along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <QDebug>
 
 #include "AMScanConfigurationView.h"
+#include "acquaman/AMScanConfiguration.h"
 
-AMScanConfigurationHolder::AMScanConfigurationHolder(QWidget *parent) :
+AMScanConfigurationHolder::AMScanConfigurationHolder(AMScanConfigurationView* view, QWidget *parent) :
 		QWidget(parent)
 {
+	view_ = view;
+
+	startScanButton_ = new QPushButton("Start Scan");
+	// startScanButton_->setDisabled(true);
+	addToQueueButton_ = new QPushButton("Add to Workflow");
+
+	goToWorkflowOption_ = new QRadioButton("Show me the workflow");
+	setupAnotherScanOption_ = new QRadioButton("Setup another scan");
+
+	statusLabel_ = new QLabel("Ready To Start Scan");
+
+	QVBoxLayout* vl = new QVBoxLayout();
+	vl->addWidget(view_);
+	QHBoxLayout* hl = new QHBoxLayout();
+
+	hl->addWidget(statusLabel_);
+	hl->addStretch();
+	hl->addWidget(new QLabel("When I'm done here:"));
+	hl->addWidget(goToWorkflowOption_);
+	hl->addWidget(setupAnotherScanOption_);
+	hl->addStretch();
+	hl->addWidget(addToQueueButton_);
+	hl->addWidget(startScanButton_);
+
+	vl->addLayout(hl);
+
+	setLayout(vl);
+
+	connect(startScanButton_, SIGNAL(clicked()), this, SLOT(onStartScanRequested()));
+	connect(addToQueueButton_, SIGNAL(clicked()), this, SLOT(onAddToQueueRequested()));
 }
+
 
 AMScanConfigurationHolder::~AMScanConfigurationHolder()
 {
@@ -33,20 +66,24 @@ void AMScanConfigurationHolder::onFreeToScan(bool queueEmpty, bool queueNotRunni
 	qDebug() << "In onFreeToScan";
 	if(queueNotRunning && queueEmpty){
 		canStartImmediately_ = true;
+		statusLabel_->setText("Ready to Start Scan");
 	}
 	else if(queueNotRunning && !queueEmpty){
 		qDebug() << "Queue is not running but also not empty, have to ask user what to do";
-		sDirector->showDirector("Queue is not empty");
+		scanDirector_->showDirector("The workflow is not empty");
+		statusLabel_->setText("Scans are waiting in the workflow");
 //		emit cancelAddToQueueRequest();
 	}
 	else if(!queueNotRunning && queueEmpty){
 		qDebug() << "Queue is running, but is empty after this, ask user what to do";
-		sDirector->showDirector("Queue is running but empty after current action");
+		scanDirector_->showDirector("The workflow is running but empty after the current action");
+		statusLabel_->setText("Scans are running, but the last one is about to finish.");
 		emit cancelAddToQueueRequest();
 	}
 	else{
 		qDebug() << "Queue is running and has stuff in it, ask user what to do";
-		sDirector->showDirector("Queue is running");
+		scanDirector_->showDirector("The workflow is running");
+		statusLabel_->setText("Scans are running in the workflow.");
 		emit cancelAddToQueueRequest();
 	}
 }
@@ -55,11 +92,11 @@ void AMScanConfigurationHolder::onLockdownScanning(bool isLocked, QString reason
 	emit lockdownScanning(isLocked, reason);
 }
 
-void AMScanConfigurationHolder::onAddedToQueue(AMScanConfiguration *cfg){
+void AMScanConfigurationHolder::onAddedToQueue(AMScanConfiguration *configuration){
 	qDebug() << "In onAddedToQueue";
-	if(cfg == cfg_ && !canStartImmediately_)
-		director->showDirector();
-	else if(cfg == cfg_ && canStartImmediately_){
+	/* if(configuration == configuration_ && !canStartImmediately_)
+	//	director->showDirector();
+	else */ if(configuration == configuration_ && canStartImmediately_){
 		canStartImmediately_ = false;
 		goToQueue();
 	}
@@ -68,178 +105,32 @@ void AMScanConfigurationHolder::onAddedToQueue(AMScanConfiguration *cfg){
 void AMScanConfigurationHolder::onStartScanRequested(){
 	requestedStart_ = true;
 	qDebug() << "A holder is requesting a scan start";
-	emit addToQueueRequested(cfg_, true);
+	configuration_ = view_->configuration()->createCopy();
+	emit addToQueueRequested(configuration_, true);
 }
 
 void AMScanConfigurationHolder::onAddToQueueRequested(){
-	emit addToQueueRequested(cfg_);
+	configuration_ = view_->configuration()->createCopy();
+	emit addToQueueRequested(configuration_);
 }
 
 void AMScanConfigurationHolder::goToQueue(){
 	qDebug() << "goToQueue emits";
-	destroyScanConfigurationViewer();
 	emit goToQueueRequested();
 }
 
 void AMScanConfigurationHolder::goToNewScan(){
+	/*
+<<<<<<< HEAD
 	qDebug() << "goToNewScan";
 	destroyScanConfigurationViewer();
+=======
+>>>>>>> 3c1c17f0ec27cce452cc8f8501c27ba8c060a70d
+	*/
 	onBecameCurrentWidget();
 }
 
-AMXASScanConfigurationHolder::AMXASScanConfigurationHolder(QWidget *parent) :
-	AMScanConfigurationHolder(parent)
-{
-	cfg_ = NULL;
-	cfgDetectorInfoSet_ = NULL;
-	sxscViewer = NULL;
-	sxscWizard = NULL;
-	vl_ = NULL;
-	requestedStart_ = false;
-	canStartImmediately_ = false;
-	director = new AMScanConfigurationQueueDirector();
-	director->setWindowModality(Qt::ApplicationModal);
-	sDirector = new AMScanConfigurationScanDirector();
-	sDirector->setWindowModality(Qt::ApplicationModal);
 
-	connect(director, SIGNAL(goToQueue()), this, SLOT(goToQueue()));
-	connect(director, SIGNAL(goToNewScan()), this, SLOT(goToNewScan()));
-}
-
-AMXASScanConfigurationHolder::~AMXASScanConfigurationHolder(){
-	delete director;
-	delete sDirector;
-}
-
-void AMXASScanConfigurationHolder::createScanConfiguration(){
-	cfg_ = new SGMXASScanConfiguration(this);
-	cfg()->setFileName("daveData.%03d.dat");
-	cfg()->setFilePath(AMUserSettings::userDataFolder);
-	cfg()->addRegion(0, 950, 1, 960);
-
-	cfgDetectorInfoSet_ = new AMDetectorInfoSet(this);
-	cfg()->setCfgDetectorInfoSet(cfgDetectorInfoSet_);
-	AMDetectorInfo* tmpDI, *tdi;
-	for(int x = 0; x < cfg()->detectorSet()->count(); x++){
-		tdi = cfg()->detectorSet()->detectorAt(x);
-		#warning "D: same edit to review. Was tdi a PGTDetector or a PGTDetectorInfo?"
-		if( qobject_cast<PGTDetector*>(tdi) )
-			tmpDI = new PGTDetectorInfo(tdi->name(), tdi->description(), this);
-		else if( qobject_cast<MCPDetector*>(tdi) )
-			tmpDI = new MCPDetectorInfo(tdi->name(), tdi->description(), this);
-		else
-			tmpDI = new AMDetectorInfo(tdi->name(), tdi->description(), this);
-
-		/*! \bug Removed with metaData change.  Need to repair. What's going on here? Is this function even still being used? What's up with the "daveData.xxx.dat" file name?
-		QList<AMMetaMetaData> all = tmpDI->metaDataAllKeys();
-		for(int y = 0; y < all.count(); y++)
-			tmpDI->setMetaData(all.at(y).key, tdi->metaData(all.at(y).key));
-			*/
-		cfgDetectorInfoSet_->addDetector(tmpDI, cfg()->detectorSet()->isDefaultAt(x));
-	}
-}
-
-void AMXASScanConfigurationHolder::destroyScanConfigurationViewer(){
-	if(sxscViewer){
-		disconnect(sxscViewer, SIGNAL(startScanRequested()), this, SLOT(onStartScanRequested()));
-		disconnect(sxscViewer, SIGNAL(addToQueueRequested()), this, SLOT(onAddToQueueRequested()));
-		disconnect(sxscViewer, SIGNAL(queueDirectorRequested()), director, SLOT(show()));
-		disconnect(this, SIGNAL(lockdownScanning(bool,QString)), sxscViewer, SLOT(onLockdowScanning(bool,QString)));
-		vl_->removeWidget(sxscViewer);
-		delete sxscViewer;
-		sxscViewer = NULL;
-	}
-}
-
-void AMXASScanConfigurationHolder::onBecameCurrentWidget(){
-	if(!sxscViewer && isVisible() && SGMBeamline::sgm()->isConnected()){
-		createScanConfiguration();
-		sxscViewer = new SGMXASScanConfigurationViewer(cfg(), cfgDetectorInfoSet_);
-		connect(sxscViewer, SIGNAL(startScanRequested()), this, SLOT(onStartScanRequested()));
-		connect(sxscViewer, SIGNAL(addToQueueRequested()), this, SLOT(onAddToQueueRequested()));
-		connect(sxscViewer, SIGNAL(queueDirectorRequested()), director, SLOT(show()));
-		connect(this, SIGNAL(lockdownScanning(bool,QString)), sxscViewer, SLOT(onLockdowScanning(bool,QString)));
-		if(!vl_)
-			vl_ = new QVBoxLayout();
-		vl_->addWidget(sxscViewer);
-		if(layout() != vl_){
-			delete layout();
-			this->setLayout(vl_);
-		}
-		emit newScanConfigurationView();
-	}
-//	if(!sxscWizard && isVisible() && SGMBeamline::sgm()->isConnected()){
-//		sxscWizard = new SGMXASScanConfigurationWizard(cfg_, cfgDetectorInfoSet_);
-//		connect(sxscWizard, SIGNAL(scanStartRequested()), this, SLOT(onStartScanRequested()));
-//		sxscWizard->show();
-//	}
-}
-
-AMScanConfigurationQueueDirector::AMScanConfigurationQueueDirector(QWidget *parent) :
-		QWidget(parent)
-{
-	alwaysGoToQueue_ = false;
-	alwaysGoToNewScan_ = false;
-
-	vl_ = new QVBoxLayout();
-	message_ = new QLabel("<h3>What would you like to do now?</h3>");
-	vl_->addWidget(message_);
-	QSpacerItem *tmpSpc = new QSpacerItem(10, 20, QSizePolicy::Preferred, QSizePolicy::Maximum);
-	vl_->addSpacerItem(tmpSpc);
-	choices_ = new QFormLayout();
-	QHBoxLayout *tmpHB;
-	tmpHB = new QHBoxLayout();
-	goToQueueButton_ = new QPushButton("Workflow Queue");
-	goToQueueCheck_ = new QCheckBox("Always do this");
-	tmpHB->addSpacerItem(new QSpacerItem(25, 10, QSizePolicy::Maximum, QSizePolicy::Preferred));
-	tmpHB->addWidget(goToQueueButton_);
-	tmpHB->addWidget(goToQueueCheck_);
-	choices_->addRow("Go to the Workflow Queue", tmpHB);
-	tmpHB = new QHBoxLayout();
-	goToNewScanButton_ = new QPushButton("New Scan");
-	goToNewScanCheck_ = new QCheckBox("Always do this");
-	tmpHB->addSpacerItem(new QSpacerItem(25, 10, QSizePolicy::Maximum, QSizePolicy::Preferred));
-	tmpHB->addWidget(goToNewScanButton_);
-	tmpHB->addWidget(goToNewScanCheck_);
-	choices_->addRow("Create a New Scan Configuration", tmpHB);
-	vl_->addLayout(choices_);
-	connect(goToQueueButton_, SIGNAL(clicked()), this, SIGNAL(goToQueue()));
-	connect(goToQueueButton_, SIGNAL(clicked()), this, SLOT(hide()));
-	connect(goToNewScanButton_, SIGNAL(clicked()), this, SIGNAL(goToNewScan()));
-	connect(goToNewScanButton_, SIGNAL(clicked()), this, SLOT(hide()));
-	connect(goToQueueCheck_, SIGNAL(toggled(bool)), this, SLOT(onAlwaysQueueCheck(bool)));
-	connect(goToNewScanCheck_, SIGNAL(toggled(bool)), this, SLOT(onAlwaysNewScanCheck(bool)));
-	setLayout(vl_);
-}
-
-void AMScanConfigurationQueueDirector::showDirector(){
-	if(alwaysGoToQueue_)
-		emit goToQueue();
-	else if(alwaysGoToNewScan_)
-		emit goToNewScan();
-	else
-		show();
-}
-
-void AMScanConfigurationQueueDirector::onAlwaysQueueCheck(bool checked){
-	alwaysGoToQueue_ = checked;
-	if(checked && alwaysGoToNewScan_)
-		goToNewScanCheck_->setChecked(false);
-	if(alwaysGoToQueue_)
-		goToNewScanButton_->setEnabled(false);
-	else
-		goToNewScanButton_->setEnabled(true);
-}
-
-void AMScanConfigurationQueueDirector::onAlwaysNewScanCheck(bool checked){
-	alwaysGoToNewScan_ = checked;
-	if(checked && alwaysGoToQueue_)
-		goToQueueCheck_->setChecked(false);
-	if(alwaysGoToNewScan_)
-		goToQueueButton_->setEnabled(false);
-	else
-		goToQueueButton_->setEnabled(true);
-}
 
 AMScanConfigurationScanDirector::AMScanConfigurationScanDirector(QWidget *parent) :
 		QWidget(parent)
@@ -296,7 +187,7 @@ AMScanConfigurationScanDirector::AMScanConfigurationScanDirector(QWidget *parent
 	connect(cancelCheck_, SIGNAL(toggled(bool)), this, SLOT(onAlwaysCancel(bool)));
 }
 
-void AMScanConfigurationScanDirector::showDirector(QString reason){
+void AMScanConfigurationScanDirector::showDirector(const QString& reason){
 	message_ = reason;
 	messageLabel_->setText(message_);
 	if(alwaysStartNow_)
@@ -335,6 +226,7 @@ void AMScanConfigurationScanDirector::onAlwaysCancel(bool checked){
 	alwaysCancel_ = checked;
 }
 
+/*
 AMFastScanConfigurationHolder::AMFastScanConfigurationHolder(QWidget *parent) :
 		AMScanConfigurationHolder(parent)
 {
@@ -343,6 +235,7 @@ AMFastScanConfigurationHolder::AMFastScanConfigurationHolder(QWidget *parent) :
 	sfscViewer_ = NULL;
 
 	autoSavePath_ = "";
+	lastSettings_ = 0; //NULL
 
 	requestedStart_ = false;
 	canStartImmediately_ = false;
@@ -367,13 +260,9 @@ void AMFastScanConfigurationHolder::onBecameCurrentWidget()
 		connect(sfscViewer_, SIGNAL(startScanRequested()), this, SLOT(onStartScanRequested()));
 		connect(sfscViewer_, SIGNAL(addToQueueRequested()), this, SLOT(onAddToQueueRequested()));
 		connect(sfscViewer_, SIGNAL(queueDirectorRequested()), director, SLOT(show()));
+		connect(sfscViewer_, SIGNAL(lastSettings(SGMFastScanParameters*)), this, SLOT(setLastSettings(SGMFastScanParameters*)));
 		connect(this, SIGNAL(lockdownScanning(bool,QString)), sfscViewer_, SLOT(onLockdowScanning(bool,QString)));
-		/*
-		connect(sxscViewer, SIGNAL(startScanRequested()), this, SLOT(onStartScanRequested()));
-		connect(sxscViewer, SIGNAL(addToQueueRequested()), this, SLOT(onAddToQueueRequested()));
-		connect(sxscViewer, SIGNAL(queueDirectorRequested()), director, SLOT(show()));
-		connect(this, SIGNAL(lockdownScanning(bool,QString)), sxscViewer, SLOT(onLockdowScanning(bool,QString)));
-		*/
+
 		if(!vl_)
 			vl_ = new QVBoxLayout();
 		vl_->addWidget(sfscViewer_);
@@ -392,25 +281,10 @@ void AMFastScanConfigurationHolder::createScanConfiguration(){
 	if(!autoSavePath_.isEmpty())
 		cfg()->setSensibleFileSavePath(autoSavePath_);
 	connect(cfg(), SIGNAL(onSensibleFileSavePathChanged(QString)), this, SLOT(setAutoSavePath(QString)));
-
-	/*
-	cfgDetectorInfoSet_ = new AMDetectorInfoSet(this);
-	cfg_->setCfgDetectorInfoSet(cfgDetectorInfoSet_);
-	AMDetectorInfo* tmpDI, *tdi;
-	for(int x = 0; x < cfg_->detectorSet()->count(); x++){
-		tdi = cfg_->detectorSet()->detectorAt(x);
-		#warning "D: same edit to review. Was tdi a PGTDetector or a PGTDetectorInfo?"
-		if( qobject_cast<PGTDetector*>(tdi) )
-			tmpDI = new PGTDetectorInfo(tdi->name(), tdi->description(), this);
-		else if( qobject_cast<MCPDetector*>(tdi) )
-			tmpDI = new MCPDetectorInfo(tdi->name(), tdi->description(), this);
-		else
-			tmpDI = new AMDetectorInfo(tdi->name(), tdi->description(), this);
+	if(lastSettings_)
+		cfg()->setParameters(lastSettings_);
 
 
-		cfgDetectorInfoSet_->addDetector(tmpDI, cfg_->detectorSet()->isDefaultAt(x));
-	}
-	*/
 }
 
 void AMFastScanConfigurationHolder::destroyScanConfigurationViewer(){
@@ -419,6 +293,7 @@ void AMFastScanConfigurationHolder::destroyScanConfigurationViewer(){
 		disconnect(sfscViewer_, SIGNAL(startScanRequested()), this, SLOT(onStartScanRequested()));
 		disconnect(sfscViewer_, SIGNAL(addToQueueRequested()), this, SLOT(onAddToQueueRequested()));
 		disconnect(sfscViewer_, SIGNAL(queueDirectorRequested()), director, SLOT(show()));
+		disconnect(sfscViewer_, SIGNAL(lastSettings(SGMFastScanParameters*)), this, SLOT(setLastSettings(SGMFastScanParameters*)));
 		disconnect(this, SIGNAL(lockdownScanning(bool,QString)), sfscViewer_, SLOT(onLockdowScanning(bool,QString)));
 		vl_->removeWidget(sfscViewer_);
 		delete sfscViewer_;
@@ -429,3 +304,8 @@ void AMFastScanConfigurationHolder::destroyScanConfigurationViewer(){
 void AMFastScanConfigurationHolder::setAutoSavePath(const QString &autoSavePath){
 	autoSavePath_ = autoSavePath;
 }
+
+void AMFastScanConfigurationHolder::setLastSettings(SGMFastScanParameters *lastSettings){
+	lastSettings_ = lastSettings;
+}
+*/

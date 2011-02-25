@@ -31,9 +31,24 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QVector>
 #include <QHash>
 #include <QTimer>
-#include <QDebug>
+#include <QMetaType>
 
-#define EPICS_CA_CONN_TIMEOUT_MS 1000
+#include "util/AMDeferredFunctionCall.h"
+
+/// Qt does not register QVector<int> and QVector<double> with qRegisterMetaType(), so we'll need to do this to use them in queued signal-slot connections.
+typedef QVector<double> AMProcessVariableDoubleVector;
+typedef QVector<int> AMProcessVariableIntVector;
+
+Q_DECLARE_METATYPE(AMProcessVariableDoubleVector)
+Q_DECLARE_METATYPE(AMProcessVariableIntVector)
+
+
+/// This defines the default value for a channel-access search connection timeout, in milliseconds.  If a connection takes longer than this to establish, we'll keep on trying, but we'll issue the connectionTimeout() signal.
+#define EPICS_CA_CONN_TIMEOUT_MS 3000
+
+/// We use to set the EPICS_CA_MAX_ARRAY_BYTES environment variable before starting up channel access.  It's necessary to allow the transfer of large arrays as EPICS channel access data.  Here we set it to (2^12)*(2^12)*8, or enough room for a 4096 x 4096 2D image with doubles stored at each point.  If that's not enough for you, feel free to increase it ; )
+
+#define AMPROCESSVARIABLE_MAX_CA_ARRAY_BYTES "134217728"
 
 /**
   \addtogroup control
@@ -42,25 +57,26 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 ///////////////////////////////
-// AMProcessVariableHeartbeat
+// AMProcessVariableSupport
 ///////////////////////////////
 
 
 
-/// Poll the epics channel-access layer every PV_HEARTBEAT_MS milliseconds
-#define PV_HEARTBEAT_MS 48
+/// Process additional epics channel-access events every PV_HEARTBEAT_MS milliseconds
+/*! Now that we're using the channel-access library's preemptive callback, we don't need to do this quickly. However, some events (for ex: notifications of servers connecting or re-connecting) seem to be only delivered when requesting ca_poll.  We call ca_poll() every PV_HEARTBEAT_MS. */
+#define PV_HEARTBEAT_MS 998
 
 class AMProcessVariable;
 
 /// This class provides support to all AMProcessVariables, by setting up a channel-access context and handling signal delivery. You should never need to use it directly.
 /*!
  Singleton support class for AMProcessVariables.  Manages global-context Channel Access business:
- -# Calls ca_poll on a timer, and
+ -# Sets up the channel access environment
  -# Maintains a map between chid's and AMProcessVariable objects, so he can route exceptions.
 
  Automatically creates himself when needed, and deletes himself when no longer necessary...
   */
-class AMProcessVariableHeartbeat : public QObject {
+class AMProcessVariableSupport : public QObject {
 
 	Q_OBJECT
 
@@ -68,7 +84,7 @@ public:
 
 	/// AMProcessVariables must call this FIRST in their constructor.
 
-	/// Ensures that channel access is initialized, timer is running, etc.
+	/// Ensures that channel access environment is initialized.
 	static void ensureChannelAccess() { getInstance(); }
 
 	/// Once they have a chid, they should call this to make sure they receive exceptions routed properly:
@@ -80,13 +96,29 @@ public:
 	/// This is the global epics channel-access exception handler:
 	static void PVExceptionCB(struct exception_handler_args args);
 
+	/// Call this function to flush Channel-access requests to the network.
+	/*! Because we are using the preemptive callback mode of the channel access library, we're not calling ca_poll on a timer anymore. This means that we must call ca_flush_io() after each network request if we want it go out immediately (otherwise it will be buffered until the output buffer is full).  However, calling ca_flush_io() after EACH (put, subscription request, etc.) is network-expensive, and good EPICS practices encourage you to buffer as much as possible.  This function will ensure that ca_flush_io() is called as soon as program control returns to the Qt event loop. Multiple calls to this function within one event loop cycle will result in a single ca_flush_io(), achieving the desired efficiency.
+	  */
+	static void flushIO() {
+		getInstance()->flushIOCaller_.schedule();
+	}
+
+protected slots:
+	/// Executes one call to ca_flush_io() for all the flushIO() requests that happened during the past event loop.
+	void executeFlushIO() {
+		ca_flush_io();
+	}
+
 protected:
 
-	/// constructor: starts the ca_poll timer and installs us as the global exception handler.
-	AMProcessVariableHeartbeat();
+
+	/// constructor: sets upf the channel access environement and installs us as the global exception handler.
+	AMProcessVariableSupport();
 
 	/// singleton class. Use getInstance() method to access.
-	static AMProcessVariableHeartbeat* getInstance();
+	static AMProcessVariableSupport* getInstance();
+
+
 
 	/// the implementation of AMProcessVariableHeartbeat::removePV():
 	void removePVImplementation(chid c);
@@ -96,11 +128,14 @@ protected:
 
 
 	/// singleton class instance variable
-	static AMProcessVariableHeartbeat* instance_;
+	static AMProcessVariableSupport* instance_;
 	/// Mapping from \c chid channel-id's to process variable objects
 	QHash<int, AMProcessVariable*> map_;
-	/// ID of the timer
+
+	/// ID of the ca_poll timer
 	int timerId_;
+	/// This schedules and combines requests to flush channel-access IO a maximum of once every event loop.
+	AMDeferredFunctionCall flushIOCaller_;
 
 };
 
@@ -123,7 +158,7 @@ public:
 					  String = DBF_STRING		///< Used for records that can only be accessed as a string.
 					};
 
-	friend class AMProcessVariableHeartbeat;
+	friend class AMProcessVariableSupport;
 
 	/// Constructor
 	/*! \param pvName is the process variable channel-access name.
@@ -137,21 +172,25 @@ public:
 	virtual ~AMProcessVariable();
 
 	/// Some PVs provide a whole array of values.  This is the number of elements in the array.
-	unsigned count() const { return ca_element_count(chid_); }
+	unsigned count() const { return count_; }
 
 	/// The name of this process variable:
-	QString pvName() const { return QString(ca_name(chid_)); }
+	QString pvName() const { return QString(ca_name(chid_)); } // ca_ functions are thread-safe by design; does not require locker
 
 	/// Provides detailed information on the status of this connection.  Usually isConnected() is all you need.
-	enum channel_state connectionState() const { return ca_state(chid_); }
+	enum channel_state connectionState() const {  return ca_state(chid_); }
 
 	/// Indicates that a connection is established to the Epics CA server for this Process Variable.
-	bool isConnected() const { return ca_state(chid_) == cs_conn; }
+	bool isConnected() const {  return ca_state(chid_) == cs_conn; }
+	/// Indicates that a connection was established to the Epics CA server, and we managed to download control information (meta information) for this Process Variable.
+	bool isInitialized() const {  return initialized_; }
+	/// Indicates that we've received the actual values for this PV at some point in history. (Note that isConnected() will be true as soon as a connection to the CA server is established, but we won't have the value yet when connected() gets emitted.)  valueChanged() will be emitted when the first value is received, but in case you're not watching that, you can call hasValues() to check if this has already happened.
+	bool hasValues() const {  return hasValues_; }
 
 	/// Checks read access ability. (Verifies also that we are connected, since reading is impossible if not.)
-	bool canRead() const { return isConnected() && ca_read_access(chid_); }
+	bool canRead() const {  return isConnected() && ca_read_access(chid_); }
 	/// Checks write access ability. (Verifies also that we are connected, since writing is impossible if not.)
-	bool canWrite() const { return isConnected() && ca_write_access(chid_); }
+	bool canWrite() const {  return isConnected() && ca_write_access(chid_); }
 
 	/*! This function changes whether the the PV sets values through using ca_put() or ca_put_callback().  Generally ca_put_callback() is preferred since it returns debug messages after all process requests.  However, some of the more exotic record types in EPICS do not handle the ca_put_callback() effectively which causes the IOC to delay writing the value for a very long time (seconds per value).  An except from Jeff Hill about the differences between ca_put() and ca_put_callback():
 
@@ -175,15 +214,15 @@ public:
 	/// Returns the most recent array values of the PV. (Will be empty unless this PV's dataType() is Integer or Enum)
 
 	/// This is fast because it doesn't require a memory copy, thanks to Qt's implicit sharing on QVectors and other container types.
-	QVector<int> lastIntegerValues() const { return data_int_; }
+	QVector<int> lastIntegerValues() const {  return data_int_; }
 
 	/// Returns the most recent array values of the PV. (Will be empty unless this PV's dataType() is FloatingPoint)
 
 	/// This is fast because it doesn't require a memory copy, thanks to Qt's implicit sharing on QVectors and other container types.
-	QVector<double> lastFloatingPointValues() const { return data_dbl_; }
+	QVector<double> lastFloatingPointValues() const {  return data_dbl_; }
 
 	/// error reporting: returns the last error code that occurred:
-	int lastError() const { return lastError_; }
+	int lastError() const {  return lastError_; }
 	/// Returns a string explanation of a particular error code:
 	static QString errorString(int errorCode) { return QString(ca_message(errorCode)); }
 
@@ -247,25 +286,25 @@ public:
 	/// These functions provide detailed information about the channel. (The are only meaningful after the initialized() signal.)
 	//@{
 	/// Provides the units for this PV, as known to epics.
-	QString units() const { return units_; }
+	QString units() const {  return units_; }
 
 	/// Provides the recommended number of decimal places for displaying this (numeric) PV
-	int displayPrecision() const  { return precision_; }
+	int displayPrecision() const  {  return precision_; }
 
 	/// Provides the minimum and maximum (driven) range of this PV, as enforced by EPICS:
-	double upperControlLimit() const { return upperLimit_; }
-	double lowerControlLimit() const { return lowerLimit_; }
+	double upperControlLimit() const {  return upperLimit_; }
+	double lowerControlLimit() const {  return lowerLimit_; }
 	/// Provides the recommended graphical limits of this PV:
-	double upperGraphicalLimit() const { return upperGraphLimit_; }
-	double lowerGraphicalLimit() const { return lowerGraphLimit_; }
+	double upperGraphicalLimit() const {  return upperGraphLimit_; }
+	double lowerGraphicalLimit() const {  return lowerGraphLimit_; }
 
 
 	/// All PV dataTypes() except for String can always be retrieved as numbers. However, some integer types are used to provide a list of choices. For example, a grating selector might let you choose Grating #1, 2, 3.  For PVs of this nature, isEnum() will be true.  It's just a convenient way of checking that dataType() == AMProcessVariable::Enum.
-	bool isEnum() const { return (ourType_ == Enum); }
+	bool isEnum() const {  return (ourType_ == Enum); }
 	/// For Enum dataType()s, sometimes a list of descriptions are provided for each numeric option.  For example, the gratings might be described as "LEG", "MEG", and "HEG".  enumStrings() will give you these titles.
-	QStringList enumStrings() const { return enumStrings_; }
+	QStringList enumStrings() const {  return enumStrings_; }
 	/// Provides the number of choices for an Enum ProcessVariable:
-	unsigned enumCount() const { return enumStrings_.count(); }
+	unsigned enumCount() const {  return enumStrings_.count(); }
 	//@}
 
 	// ignoring alarms for now:
@@ -277,7 +316,7 @@ public:
 
 		Returns Unconnected == -1 if we haven't figured it out yet.
 		*/
-	PVDataType dataType() const { return ourType_; }
+	PVDataType dataType() const {  return ourType_; }
 
 signals:
 	/// Emits connected(true) when connection is established; connected(false) when lost.
@@ -329,6 +368,27 @@ protected slots:
 	/// these are simply here to generate the connected()/disconnected() signals, from connected(bool)
 	void signalForwardOnConnected(bool isConnected) { if(isConnected) emit connected(); else emit disconnected(); }
 
+	// The following slots are used internally for thread-safe passing of values out of the callback functions (which my be called from other channel-access threads)
+	void internal_onError(int lastError) {
+		emit error(lastError_ = lastError);
+	}
+	void internal_onConnectionStateChanged(bool connected, int count, int serverType, int ourType);
+	void internal_onControlInfoChanged(int controlInfoType, QString units, int precision, double upperGraphLimit, double lowerGraphLimit, double upperLimit, double lowerLimit, QStringList enumStrings);
+	void internal_onFloatingPointValueChanged(AMProcessVariableDoubleVector doubleData);
+	void internal_onIntegerValueChanged(AMProcessVariableIntVector intData);
+	void internal_onEnumValueChanged(AMProcessVariableIntVector enumData);
+	void internal_onStringValueChanged(QStringList stringData);
+
+signals:
+	// The following signals are used internally for thread-safe passing of values out of the callback functions (which my be called from other channel-access threads)
+	void internal_error(int lastError);
+	void internal_connectionStateChanged(bool connected, int count, int serverType, int ourType);
+	void internal_controlInfoChanged(int controlInfoType, QString units, int precision, double upperGraphLimit, double lowerGraphLimit, double upperLimit, double lowerLimit, QStringList enumStrings);
+	void internal_floatingPointValueChanged(AMProcessVariableDoubleVector doubleData);
+	void internal_integerValueChanged(AMProcessVariableIntVector intData);
+	void internal_enumValueChanged(AMProcessVariableIntVector enumData);
+	void internal_stringValueChanged(QStringList stringData);
+
 protected:
 
 	/// \name Callbacks:
@@ -359,6 +419,9 @@ protected:
 	/// A convenience function to map an epics type (ex: from ca_field_type) to our simplified types:
 	static PVDataType serverType2ourType(chtype serverType);
 
+	/// Number of array elements (for array PVs)
+	int count_;
+
 	/// channel ID for channel access
 	chid chid_;
 	/// Event ID for subscriptions (monitoring)
@@ -368,6 +431,8 @@ protected:
 	bool shouldBeMonitoring_;
 	/// true after the channel connects and we receive the control information:
 	bool initialized_;
+	/// true after we receive the first value response
+	bool hasValues_;
 
 	/// Last error experienced.
 	int lastError_;
@@ -391,16 +456,21 @@ protected:
 	PVDataType ourType_;
 
 	//@{
-	/// Our actual data storage: (only one of these will be used at a time, once we find out the channel type)
+	/// Our actual (read-accessible) data storage: (only one of these will be used at a time, once we find out the channel type)
 	QVector<double> data_dbl_;
 	QVector<int> data_int_;
 	QStringList data_str_;
+	/// Storage used internally by the valueChangedCB() function. These variables are written premptively from channel-access threads and NEVER read from the main thread -- You don't know what state it will be in! We use the internal_xxxValueChanged() signals and internal_onXXXValueChanged() slots to pass this data safely between threads.
+	//QVector<double> data_dbl_internal_;
+	//QVector<int> data_int_internal_;
+	//QStringList data_str_internal_;
 	//@}
 
 	/// True almost always. False if the initial attempt to create the channel-access channel failed.
 	bool channelCreated_;
 
 };
+
 
 /**
   \addtogroup control

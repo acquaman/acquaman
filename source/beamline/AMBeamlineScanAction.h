@@ -27,22 +27,19 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTime>
 #include <QMessageBox>
 #include "AMBeamlineActionItem.h"
-#include "acquaman/SGM/SGMXASScanConfiguration.h"
-#include "acquaman/SGM/SGMFastScanConfiguration.h"
-#include "acquaman/SGM/SGMXASDacqScanController.h"
-#include "acquaman/SGM/SGMFastDacqScanController.h"
+#include "acquaman/AMScanConfiguration.h"
 
 class AMBeamlineScanAction : public AMBeamlineActionItem
 {
 Q_OBJECT
 public:
-	explicit AMBeamlineScanAction(AMScanConfiguration *cfg, QString scanType = "", QObject *parent = 0);
+	explicit AMBeamlineScanAction(AMScanConfiguration *cfg, QObject *parent = 0);
 
 	AMScanConfiguration* cfg() const { return cfg_;}
 	virtual QString type() const;
 	virtual bool isRunning() const;
 	virtual bool isPaused() const;
-	bool isReinitialized() const;
+	// unused and unimplemented: virtual bool isReinitialized() const;
 
 signals:
 	void progress(double, double);
@@ -64,7 +61,6 @@ protected slots:
 	virtual void onBeamlineScanningChanged(bool isScanning);
 
 protected:
-	QString scanType_;
 	AMScanConfiguration *cfg_;
 	AMScanController * ctrl_;
 	bool keepOnCancel_;

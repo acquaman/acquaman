@@ -21,9 +21,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef ACQMAN_SCANCONFIGURATION_H
 #define ACQMAN_SCANCONFIGURATION_H
 
-#include <QObject>
-//#include "AMRegion.h"
-#include "AMRegionsList.h"
+#include "dataman/AMDbObject.h"
+
+/// Forward declaration of AMScanController.  See note on circular coupling in AMScanConfiguration
+class AMScanController;
 
 /// An AMScanConfiguration is the abstract parent class of all scan configurations.
 /*!
@@ -35,20 +36,24 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
   Additionally, there will be many scan configuration implementation classes. Each technique, on each beamline will require a different implementation.
   For example, one might consider the SGM and REIXS beamlines, where both are capable of doing absorption spectroscopy (XAS) and emission spectroscopy (XES).
-  Therefore, there will be four implementation classes: SGM's XAS Scan Configuration, SGM's XES Scan Configuration, REIXS' XAS Scan Configuration, and REIXS' XES Scan Configuration.
-  There is obvious parallelism between these classes. First, there are two classes which will do XAS Scans and two classes that will do XES Scans.
-  Second, there are two classes that will do scans on SGM and two classes that will do scans on REIXS.
-  Clearly, this is a case for multiple inheritance; unfortunately, QObjects cannot be multiply inherited.
-  The solution chosen, was to make all scan configuration implementation classes QObjects by making AMScanConfiguration inherit QObject.
-  This means the SGMScanConfiguration and REIXSScanConfiguration classes are not QObjects.
-  However, a particular implementation class - say SGMXASScanConfiguration - will be a QObject as it inherits AMXASScanConfiguration (which inherits AMScanConfiguration).
-  This is different from the manner in which Scan Controllers are organized.
+  Therefore, there could be four implementation classes: SGM's XAS Scan Configuration, SGM's XES Scan Configuration, REIXS' XAS Scan Configuration, and REIXS' XES Scan Configuration.  For each kind of scan configuration, there is an associated kind of scan controller, which takes care of actually executing the scan according to the configuration's parameters (when it comes time to do so).  For example, REIXSXESScanConfigurations are executed by a REIXSXESScanController.  (See AMScanController for details.)
+
+
   A scan configuration needs to record configuration values but not move the controls in anyway; therefore, a copy of the beamline object or any other control is not sufficient.
 
   As AMScanConfiguration is the base class from which all other scan configuration classes are derived, only information common to all scan configurations is kept here.
-  At this time, only the file name and the file path for where to write the data are common to all scan configurations.
+  At this time, only the file name and the file path for where to write the data are common to all scan configurations.  This class inherits AMDbObject so that it can easily be recorded to the database (for example: to record the user's scan parameters associated with a scan).
+
+  To implement a scan configuration object that works within the acquisition system, you need to provide at least two virtual functions:
+  - createCopy() returns a pointer to a newly-created copy of this scan configuration.  (It takes the role of a copy constructor, but is virtual so that our high-level classes can copy a scan configuration without knowing exactly what kind it is.)
+  - createController() returns a pointer to a newly-created AMScanController that is appropriate for executing this scan configuration.
+
+\note On Circular Coupling and programming practice:
+The createController() function introduces a circular coupling: Configurations create their Controller, and Controllers have a Configuration that they execute.
+
+In theory, these relationships should normally be avoided.  However, at this point in time, the Configuration is the only class that has exact knowledge of its type (and hence knows what type of Controller needs to be created), so it actually introduces the least external coupling if we do it here.  In practice, this coupling is not a problem, and works well, because we always expect a one-to-one relationship between Controller and Configuration types.  Eventually this could be removed by a registration system that links configuration types to controller types.)
   */
-class AMScanConfiguration : public QObject
+class AMScanConfiguration : public AMDbObject
 {
 Q_OBJECT
 
@@ -58,20 +63,36 @@ Q_PROPERTY(QString fileName READ fileName WRITE setFileName)
 Q_PROPERTY(QString filePath READ filePath WRITE setFilePath)
 
 public:
-	/// Constructor, takes a pointer to a QObject as its parent
+	/// Default Constructor
 	explicit AMScanConfiguration(QObject *parent = 0);
+
+	/// Empty Destructor
+	virtual ~AMScanConfiguration() {}
 
 	/// Returns the name of the file to save raw data in
 	QString fileName() const { return fileName_;}
 	/// Returns the path to save the raw data file to
 	QString filePath() const { return filePath_; }
 
+	/// A human-readable description of this scan configuration. Can be re-implemented to provide more details.
+	virtual QString description() const {
+		return QString();
+	}
+
+	// Virtual functions which must be re-implemented:
+
+	/// Returns a pointer to a newly-created copy of this scan configuration.  (It takes the role of a copy constructor, but is virtual so that our high-level classes can copy a scan configuration without knowing exactly what kind it is.)
+	virtual AMScanConfiguration* createCopy() const = 0;
+
+	/// Returns a pointer to a newly-created AMScanController that is appropriate for executing this kind of scan configuration.  The controller should be initialized to use this scan configuration object as its scan configuration.  Ownership of the new controller becomes the responsibility of the caller.
+	virtual AMScanController* createController() = 0;
+
 
 public slots:
 	/// Sets the file name
-	bool setFileName(const QString &fileName) { fileName_ = fileName; return true;}
+	void setFileName(const QString &fileName) { fileName_ = fileName; setModified(true); }
 	/// Sets the file path
-	bool setFilePath(const QString &filePath) { filePath_ = filePath; return true;}
+	void setFilePath(const QString &filePath) { filePath_ = filePath; setModified(true); }
 
 
 protected:

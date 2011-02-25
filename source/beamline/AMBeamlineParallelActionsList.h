@@ -31,6 +31,8 @@ class AMBeamlineParallelActionsList : public QObject
 		int indexOf(AMBeamlineActionItem *iAction);
 		QPair<int,int> indicesOf(AMBeamlineActionItem *iAction);
 
+		bool isRunning();
+
 		void puke();
 
 	public slots:
@@ -43,6 +45,7 @@ class AMBeamlineParallelActionsList : public QObject
 		bool deleteStage(int stageIndex);
 		bool deleteAction(int stageIndex, int index);
 		void start();
+		void cancel();
 
 	signals:
 		void listSucceeded();
@@ -80,6 +83,8 @@ class AMBeamlineParallelActionsList : public QObject
 		AMBeamlineParallelActionListModel *actions_;
 		AMBiHash<QList<AMBeamlineActionItem*>*, AMBeamlineParallelActionsListHolder*> holdersHash_;
 		QList<double> lastIndexProgress_;
+		int currentStage_;
+		bool isRunning_;
 
 		virtual bool setupModel();
 

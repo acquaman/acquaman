@@ -20,18 +20,16 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMSamplePositionView.h"
 
-AMSamplePositionView::AMSamplePositionView(QWidget *parent, AMSampleManipulatorView *manipulatorView) :
+AMSamplePositionView::AMSamplePositionView(AMSampleManipulatorView *manipulatorView, const QUrl& sampleCameraUrl, AMSamplePlate* samplePlate, QWidget *parent) :
 	QWidget(parent)
 {
-	/// \todo temporary. (find a place to get this location from)
-	QUrl source("http://ccd1611-403/axis-cgi/mjpg/video.cgi?resolution=1280x1024&.mjpg");
-	cam_ = new AMBeamlineCameraWidget("Camera 1", source);
+	cam_ = new AMBeamlineCameraWidget("Sample Camera", sampleCameraUrl);
 	// cam_->addSource("Camera 2", source2);
 
-	manipulator_ = NULL;
-	/// \todo move this out of AM framework level... (or move currentSamplePlate() up to AM framework level)
-	plateView_ = new AMSamplePlateView(SGMBeamline::sgm()->currentSamplePlate());
+	plateView_ = new AMSamplePlateView(samplePlate);
 	plateView_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
+
+	/* PREVIOUSLY on the OC:
 	if(!manipulatorView)
 		manipulatorView_ = new AMSampleManipulatorView();
 	else
@@ -39,7 +37,12 @@ AMSamplePositionView::AMSamplePositionView(QWidget *parent, AMSampleManipulatorV
 	if(manipulatorView_->manipulator()){
 		manipulator_ = manipulatorView_->manipulator();
 		plateView_->setManipulator(manipulator_);
-	}
+	}*/
+
+	// Now assuming that all passed-in objects must be valid: (made it not an option to default to 0)
+	manipulatorView_ = manipulatorView;
+	// Access the sample manipulator through the manipulatorView, and set the plateView_'s manipulator to use the same.
+	plateView_->setManipulator(manipulatorView_->manipulator());
 
 	manipulatorView_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
@@ -52,8 +55,3 @@ AMSamplePositionView::AMSamplePositionView(QWidget *parent, AMSampleManipulatorV
 	setLayout(gl_);
 }
 
-SGMSamplePositionView::SGMSamplePositionView(QWidget *parent) :
-		AMSamplePositionView(parent, new SGMSampleManipulatorView() )
-{
-
-}

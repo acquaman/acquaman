@@ -22,44 +22,60 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMXESSCAN_H
 
 #include "dataman/AMScan.h"
-#include "acquaman.h"
+#include "acquaman/AMScanConfiguration.h"	/// \todo Move this to dataman; make sure it's just the information to do the scan, not the controls.
 
-class AMXESScan : public AMScan
-{
+
+/// This is a practical subclass of AMScan which provides the details to represent an emission scan (ex: one 2D spectrometer detector, acquired over time, but not scanned in incident energy
+/*! 	\todo detailed doc.
+  */
+class AMXESScan : public AMScan {
 	Q_OBJECT
-	Q_CLASSINFO("AMDbObject_Attributes", "shareTableWithClass=AMScan;description=XRay Absorption Scan")
-
-	Q_PROPERTY(AMIntList intList READ intList WRITE setIntList)
-
-	Q_PROPERTY(AMDoubleList doubleList READ doubleList WRITE setDoubleList)
-	Q_PROPERTY(AMDbObjectList objectList READ objectList WRITE setObjectList)
-
+	Q_PROPERTY(AMDbObject* scanConfiguration READ dbGetScanConfiguration WRITE dbLoadScanConfiguration)
+	Q_CLASSINFO("AMDbObject_Attributes", "shareTableWithClass=AMScan;description=XRay Emission Scan")
 
 public:
-	explicit AMXESScan(QObject *parent = 0);
+	/// create a new XAS scan with the following named \c detectors. Each "detector" is a source of a datapoint, that will be stored/logged, available as a column of raw data, and accessible through channel(s).
+	Q_INVOKABLE explicit AMXESScan(QObject *parent = 0);
 
-	AMIntList intList() const { return il_; }
-	void setIntList(const AMIntList& il) { il_ = il; }
-	AMDoubleList doubleList() const { return dl_; }
-	void setDoubleList(const AMDoubleList& dl) {dl_ = dl; }
-	AMDbObjectList objectList() const { return ol_; }
-	void setObjectList(const AMDbObjectList& ol) { ol_ = ol; }
+	/// Re-implemented from AMScan. Currently only the 'reixsXESRaw' format is supported.
+	virtual bool loadDataImplementation();
+
+
+	///  Access the scan's configuration
+	AMScanConfiguration* scanConfiguration() { return configuration_; }
+	const AMScanConfiguration* scanConfiguration() const { return configuration_; }
+	AMDbObject* dbGetScanConfiguration() const { return configuration_; }
+
+	/// \todo Move this to AMScan eventually? Set the scan configuration. Deletes the existing scan configuration if there is one.
+	void setScanConfiguration(AMScanConfiguration* newConfiguration) {
+		if(!newConfiguration)
+			return;
+		if(configuration_)
+			delete configuration_;
+		configuration_ = newConfiguration;
+		setModified(true);
+	}
+
+	/// \todo Move this to AMScanConfiguration eventually?
+	void dbLoadScanConfiguration(AMDbObject* newObject) {
+		AMScanConfiguration* sc;
+		if((sc = qobject_cast<AMScanConfiguration*>(newObject)))
+			setScanConfiguration(sc);
+	}
 
 signals:
+	// inherits dataChanged(AMScan*)
 
 public slots:
 
+protected slots:
+
 protected:
-	AMIntList il_;
 
+	/// \todo Move this to AMScan eventually?
+	AMScanConfiguration* configuration_;
 
-	AMDoubleList dl_;
-
-
-	AMDbObjectList ol_;
-
-
-
+	// friend class REIXSXESRawFileLoader;
 
 };
 

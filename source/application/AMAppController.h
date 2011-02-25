@@ -85,6 +85,9 @@ public slots:
 	/// this slot is called when the "add something" button is pushed. For now, it just creates a new experiment. This could be expanded to a drop-down menu that offers creating a new experiment, a new scan, a new run...
 	void onAddButtonClicked();
 
+	/// Calling this updates the master progress bar
+	void onProgressUpdated(double elapsed, double total);
+
 
 protected slots:
 

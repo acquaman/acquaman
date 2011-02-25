@@ -65,6 +65,7 @@ void AMControlSet::setFromInfoList(const AMControlInfoList& info){
 		tmpCtrl = controlNamed(info.at(x).name());
 		if(tmpCtrl)
 			tmpCtrl->move(info.at(x).value());
+		/// \todo error checking on else
 	}
 }
 

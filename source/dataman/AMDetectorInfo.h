@@ -36,7 +36,7 @@ Q_OBJECT
 	Q_PROPERTY(QString description READ description WRITE setDescription)
 	Q_PROPERTY(QString units READ units WRITE setUnits)
 	Q_PROPERTY(int rank READ rank)
-	Q_PROPERTY(AMnDIndex size READ size)
+	Q_PROPERTY(AMnDIndex size READ size WRITE setSize)
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Generic Detector")
 
@@ -44,7 +44,7 @@ public:
 	// Constructors and destructors
 	/////////////////////////////////////
 	/// Default constructor. \c name is a unique programmer's name to access this detector with. \c description is a human-readable version.
-	AMDetectorInfo(const QString& name, const QString& description, QObject *parent = 0);
+	Q_INVOKABLE AMDetectorInfo(const QString& name = "unknownDetector", const QString& description = "Generic Detector", QObject *parent = 0);
 
 	~AMDetectorInfo() {}
 
@@ -88,6 +88,9 @@ public slots:
 		units_ = units;
 		setModified(true);
 	}
+
+	/// Set the size of the detector. This may not be applicable or valid for some detectors (for example, a single-point detector, or one with a fixed dimensionality.  Returns false if it's invalid to set the size.
+	virtual bool setSize(const AMnDIndex& size) { Q_UNUSED(size); return false; }
 
 protected:
 	QString description_;

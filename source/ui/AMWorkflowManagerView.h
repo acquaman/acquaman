@@ -80,7 +80,7 @@ protected:
 	AMBeamlineActionsListView *workflowView_;
 	bool cancelAddRequest_;
 
-	AMBeamlineActionAdder *adder_;
+	// disabled for now: AMBeamlineActionAdder *adder_;
 };
 
 class AMBeamlineActionsListView : public QWidget
@@ -144,40 +144,5 @@ protected:
 	*/
 };
 
-class AMBeamlineActionAdder : public QWidget
-{
-	Q_OBJECT
-public:
-	AMBeamlineActionAdder(QWidget *parent = 0);
-
-public slots:
-	virtual void onQueueUpdated(int count);
-	virtual void onSamplePlateChanged(bool valid);
-	virtual void onSamplePlateUpdate(int index);
-
-signals:
-	void insertActionRequested(AMBeamlineActionItem *action, int index);
-
-protected slots:
-	virtual void onActionTypeBoxUpdate(int curIndex);
-	virtual void onActionSubTypeBoxUpdate(int curIndex);
-
-	virtual void onNewMoveSetpoint(double value);
-	virtual void onAddControlSetMoveAction();
-	virtual void onAddMoveAction();
-
-protected:
-	QList<QStringList> subTypesLists_;
-	AMPVwStatusControl *movePV_;
-	double moveSetpoint_;
-
-	QVBoxLayout *vl_;
-	QComboBox *addWhereBox_;
-	QComboBox *actionTypeBox_;
-	QComboBox *actionSubTypeBox_;
-	QWidget *nextStepWidget_;
-	QDoubleSpinBox *moveSetpointDSB_;
-	QLabel *xPosLabel_, *yPosLabel_, *zPosLabel_, *rPosLabel_;
-};
 
 #endif // AMWORKFLOWMANAGERVIEW_H

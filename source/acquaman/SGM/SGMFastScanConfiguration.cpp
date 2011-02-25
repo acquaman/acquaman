@@ -10,12 +10,13 @@ SGMFastScanConfiguration::SGMFastScanConfiguration(QObject *parent) : AMFastScan
 	finalizedSavePath_ = "";
 	sensibleFileSaveWarning_ = "";
 
-	settings_.append( new SGMFastScanParameters("Nitrogen", 5.0, 400.0, 415.0, 430.0, 10000, 10000, 10000, 5.0, this));
-	settings_.append( new SGMFastScanParameters("Nitrogen", 20.0, 400.0, 415.0, 430.0, 1000, 1000, 1000, 25.0, this));
-	settings_.append( new SGMFastScanParameters("Oxygen", 5.0, 530.0, 545.0, 560.0, 10000, 10000, 10000, 5.0, this));
-	settings_.append( new SGMFastScanParameters("Oxygen", 20.0, 530.0, 545.0, 560.0, 1000, 1000, 1000, 25.0, this));
-	settings_.append( new SGMFastScanParameters("Copper", 5.0, 940.0, 955.0, 970.0, 10000, 10000, 10000, 5.0, this));
-	settings_.append( new SGMFastScanParameters("Copper", 20.0, 940.0, 955.0, 970.0, 1000, 1000, 1000, 25.0, this));
+	settings_.append( new SGMFastScanParameters("Nitrogen", 5.0, 400.0, 415.0, 430.0, 10000, 10000, 10000, 5.0, 200, this));
+	settings_.append( new SGMFastScanParameters("Nitrogen", 20.0, 400.0, 415.0, 430.0, 1000, 1000, 1000, 20.0, 800, this));
+	settings_.append( new SGMFastScanParameters("Oxygen", 5.0, 530.0, 545.0, 560.0, 10000, 10000, 10000, 5.0, 200, this));
+	settings_.append( new SGMFastScanParameters("Oxygen", 20.0, 530.0, 545.0, 560.0, 1000, 1000, 1000, 20.0, 800, this));
+	settings_.append( new SGMFastScanParameters("Copper", 5.0, 925.0, 935.0, 945.0, 3000, 3000, 3000, 5.0, 200, this));
+	settings_.append( new SGMFastScanParameters("Copper", 20.0, 925.0, 935.0, 945.0, 450, 450, 450, 20.0, 800, this));
+	settings_.append( new SGMFastScanParameters("Carbon", 5.0, 280.0, 295.0, 320.0, 19000, 19000, 19000, 5.0, 200, this));
 
 	setParametersFromPreset(0);
 
@@ -63,6 +64,10 @@ double SGMFastScanConfiguration::scalerTime() const{
 	return currentSettings_->scalerTime();
 }
 
+int SGMFastScanConfiguration::baseLine() const{
+	return currentSettings_->baseLine();
+}
+
 QString SGMFastScanConfiguration::sensibleFileSavePath() const{
 	return sensibleFileSavePath_;
 }
@@ -90,9 +95,11 @@ SGMFastScanParameters* SGMFastScanConfiguration::currentParameters() const{
 QList<AMDetectorInfo*> SGMFastScanConfiguration::usingDetectors() const{
 	QList<AMDetectorInfo*> usingDetectors;
 	usingDetectors << SGMBeamline::sgm()->XASDetectors()->detectorByName("tey");
-	usingDetectors << SGMBeamline::sgm()->XASDetectors()->detectorByName("tfy");
 	usingDetectors << SGMBeamline::sgm()->feedbackDetectors()->detectorByName("I0");
+	usingDetectors << SGMBeamline::sgm()->XASDetectors()->detectorByName("tfy");
 	usingDetectors << SGMBeamline::sgm()->allDetectors()->detectorByName("photodiode");
+	//usingDetectors << SGMBeamline::sgm()->allDetectors()->detectorByName("encoderUp");
+	//usingDetectors << SGMBeamline::sgm()->allDetectors()->detectorByName("encoderDown");
 	return usingDetectors;
 }
 
@@ -117,6 +124,7 @@ bool SGMFastScanConfiguration::setParameters(SGMFastScanParameters *settings){
 	emit onVelocityBaseChanged(currentSettings_->velocityBase());
 	emit onAccelerationChanged(currentSettings_->acceleration());
 	emit onScalerTimeChanged(currentSettings_->scalerTime());
+	emit onBaseLineChanged(currentSettings_->baseLine());
 	return true;
 }
 
@@ -133,9 +141,9 @@ bool SGMFastScanConfiguration::setRunSeconds(double runSeconds){
 }
 
 bool SGMFastScanConfiguration::setEnergyStart(double energyStart){
-	emit onEnergyStartChanged(currentSettings_->energyStart());
 	currentSettings_->setEnergyStart(energyStart);
 	setStart(energyStart);
+	emit onEnergyStartChanged(currentSettings_->energyStart());
 	return true;
 }
 
@@ -173,6 +181,12 @@ bool SGMFastScanConfiguration::setAcceleration(int acceleration){
 bool SGMFastScanConfiguration::setScalerTime(double scalerTime){
 	currentSettings_->setScalerTime(scalerTime);
 	emit onScalerTimeChanged(currentSettings_->scalerTime());
+	return true;
+}
+
+bool SGMFastScanConfiguration::setBaseLine(int baseLine){
+	currentSettings_->setBaseLine(baseLine);
+	emit onBaseLineChanged(currentSettings_->baseLine());
 	return true;
 }
 
@@ -217,7 +231,7 @@ SGMFastScanParameters::SGMFastScanParameters(QObject *parent) : QObject(parent)
 {
 }
 
-SGMFastScanParameters::SGMFastScanParameters(const QString &element, double runSeconds, double energyStart, double energyMidpoint, double energyEnd, int velocity, int velocityBase, int acceleration, double scalerTime, QObject *parent) :
+SGMFastScanParameters::SGMFastScanParameters(const QString &element, double runSeconds, double energyStart, double energyMidpoint, double energyEnd, int velocity, int velocityBase, int acceleration, double scalerTime, int baseLine, QObject *parent) :
 		QObject(parent)
 {
 	setElement(element);
@@ -229,4 +243,5 @@ SGMFastScanParameters::SGMFastScanParameters(const QString &element, double runS
 	setVelocityBase(velocityBase);
 	setAcceleration(acceleration);
 	setScalerTime(scalerTime);
+	setBaseLine(baseLine);
 }

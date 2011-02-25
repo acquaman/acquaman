@@ -22,17 +22,29 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <float.h>
 #include <QDebug>
 
+#include <cstdlib>
+
+
+
 ///////////////////////////////
-// AMProcessVariableHeartbeat
+// AMProcessVariableSupport
 ///////////////////////////////
 
-AMProcessVariableHeartbeat* AMProcessVariableHeartbeat::instance_ = 0;
+AMProcessVariableSupport* AMProcessVariableSupport::instance_ = 0;
 
 // constructor: initializes channel access, starts the ca_poll timer, and installs us as the global exception handler.
-AMProcessVariableHeartbeat::AMProcessVariableHeartbeat() : QObject() {
+AMProcessVariableSupport::AMProcessVariableSupport() : QObject() {
+
+	qRegisterMetaType<AMProcessVariableDoubleVector>();
+	qRegisterMetaType<AMProcessVariableIntVector>();
+
+	connect(&flushIOCaller_, SIGNAL(executed()), this, SLOT(executeFlushIO()));
 
 	qDebug("Starting up channel access...");
-	int lastError = ca_context_create(ca_disable_preemptive_callback);
+
+	putenv("EPICS_CA_MAX_ARRAY_BYTES=" AMPROCESSVARIABLE_MAX_CA_ARRAY_BYTES);
+
+	int lastError = ca_context_create(ca_enable_preemptive_callback);
 	if(lastError != ECA_NORMAL )
 		throw lastError;
 
@@ -45,17 +57,17 @@ AMProcessVariableHeartbeat::AMProcessVariableHeartbeat() : QObject() {
 }
 
 // standard singleton-pattern getInstance() method.
-AMProcessVariableHeartbeat* AMProcessVariableHeartbeat::getInstance() {
+AMProcessVariableSupport* AMProcessVariableSupport::getInstance() {
 
 	if (instance_ == 0)  { // is it the first call?
-		instance_ = new AMProcessVariableHeartbeat(); // create sole instance
+		instance_ = new AMProcessVariableSupport(); // create sole instance
 	}
 
 	return instance_;
 }
 
-// the implementation of AMProcessVariableHeartbeat::removePV():
-void AMProcessVariableHeartbeat::removePVImplementation(chid c) {
+// the implementation of AMProcessVariableSupport::removePV():
+void AMProcessVariableSupport::removePVImplementation(chid c) {
 
 	// unregister this channel:
 	map_.remove(int(c));
@@ -64,7 +76,7 @@ void AMProcessVariableHeartbeat::removePVImplementation(chid c) {
 	if(map_.count() == 0) {
 
 		qDebug("Shutting down channel access...");
-		killTimer(timerId_);			// stop the ca_poll() timer.
+		// removed: killTimer(timerId_);			// stop the ca_poll() timer.
 		ca_add_exception_event(0, 0);	// return the default exception handler
 		ca_context_destroy();			// shut down Channel Access
 		instance_ = 0;					// We are no more...
@@ -72,7 +84,7 @@ void AMProcessVariableHeartbeat::removePVImplementation(chid c) {
 	}
 }
 
-void AMProcessVariableHeartbeat::PVExceptionCB(struct exception_handler_args args) {
+void AMProcessVariableSupport::PVExceptionCB(struct exception_handler_args args) {
 
 	// If there's a specific channel, pass it on to the channel's exception handler:
 	if(args.chid && getInstance()->map_.contains(int(args.chid)) ) {
@@ -85,7 +97,7 @@ void AMProcessVariableHeartbeat::PVExceptionCB(struct exception_handler_args arg
 	else {
 
 		char buf[512];
-		sprintf ( buf, "AMProcessVariableHeartbeat: Epics exception: %s - with request op=%d data type=%s count=%d", args.ctx, (int)args.op, dbr_type_to_text ( args.type ), (int)args.count );
+		sprintf ( buf, "AMProcessVariableSupport: Epics exception: %s - with request op=%d data type=%s count=%d", args.ctx, (int)args.op, dbr_type_to_text ( args.type ), (int)args.count );
 		qDebug() << buf;
 		ca_signal ( args.stat, buf );
 	}
@@ -98,14 +110,27 @@ AMProcessVariable::AMProcessVariable(const QString& pvName, bool autoMonitor, QO
 
 	setObjectName("AMProcessVariable_" + pvName);
 
-	// Install convenience signal generators:
+	// connect signals and slots we use to pass data safely back from callback functions called in other threads:
+	connect(this, SIGNAL(internal_error(int)), this, SLOT(internal_onError(int)));
+	connect(this, SIGNAL(internal_connectionStateChanged(bool,int,int,int)), this, SLOT(internal_onConnectionStateChanged(bool,int,int,int)));
+	connect(this, SIGNAL(internal_controlInfoChanged(int,QString,int,double,double,double,double,QStringList)), this, SLOT(internal_onControlInfoChanged(int,QString,int,double,double,double,double,QStringList)));
+	connect(this, SIGNAL(internal_floatingPointValueChanged(AMProcessVariableDoubleVector)), this, SLOT(internal_onFloatingPointValueChanged(AMProcessVariableDoubleVector)));
+	connect(this, SIGNAL(internal_integerValueChanged(AMProcessVariableIntVector)), this, SLOT(internal_onIntegerValueChanged(AMProcessVariableIntVector)));
+	connect(this, SIGNAL(internal_enumValueChanged(AMProcessVariableIntVector)), this, SLOT(internal_onEnumValueChanged(AMProcessVariableIntVector)));
+	connect(this, SIGNAL(internal_stringValueChanged(QStringList)), this,  SLOT(internal_onStringValueChanged(QStringList)));
+
+
+	// Install convenience signal generators: (these create the error(QString message) and connected() and disconnected() signals.
 	connect(this, SIGNAL(error(int)), this, SLOT(signalForwardOnError(int)));
 	connect(this, SIGNAL(connected(bool)), this, SLOT(signalForwardOnConnected(bool)));
 
 	// This PV is not initialized yet:
 	initialized_ = false;
+	hasValues_ = false;
 	serverType_ = Unconnected;
 	ourType_ = Unconnected;
+
+	count_ = 0;
 
 	// Initialize control information:
 	units_ = "?";
@@ -124,18 +149,20 @@ AMProcessVariable::AMProcessVariable(const QString& pvName, bool autoMonitor, QO
 
 	try {
 
-		AMProcessVariableHeartbeat::ensureChannelAccess();
+		AMProcessVariableSupport::ensureChannelAccess();
 
 		// attempt to search/connect:
 		lastError_ = ca_create_channel (pvName.toAscii().constData(), PVConnectionChangedCBWrapper, this, CA_PRIORITY_DEFAULT, &chid_ );
 		if(lastError_ != ECA_NORMAL)
 			throw lastError_;
 
+		AMProcessVariableSupport::flushIO();
+
 		// This will notice if the search times out:
 		QTimer::singleShot(timeoutMs, this, SLOT(onConnectionTimeout()));
 
 		// register ourself to the support class:
-		AMProcessVariableHeartbeat::registerPV(chid_, this);
+		AMProcessVariableSupport::registerPV(chid_, this);
 		// qDebug() << QString("AMProcessVariable: Creating AMProcessVariable %1").arg(pvName);
 
 	}
@@ -163,7 +190,7 @@ AMProcessVariable::~AMProcessVariable() {
 		ca_clear_channel(chid_);
 
 		// deregister ourself from the support class:
-		AMProcessVariableHeartbeat::removePV(chid_);
+		AMProcessVariableSupport::removePV(chid_);
 	}
 
 }
@@ -212,8 +239,9 @@ void AMProcessVariable::PVPutRequestCBWrapper(struct event_handler_args eventArg
 /////////////////////
 void AMProcessVariable::exceptionCB(struct exception_handler_args args) {
 
-	// One thing for sure:
-	emit error(lastError_ = args.stat);
+
+
+	emit internal_error(args.stat);	// will notify eventually with error() signals
 
 	qDebug() << QString("AMProcessVariable: EPICS exception: %1\n  Operation: %2\n  Channel: %3\n  Data type: %4\n  Count: %5\n\n  Epics says: %6\n").arg(ca_message(args.stat)).arg(args.op).arg(pvName()).arg(dbr_type_to_text ( args.type )).arg(args.count).arg(args.ctx);
 	ca_signal( args.stat, args.ctx );
@@ -222,7 +250,10 @@ void AMProcessVariable::exceptionCB(struct exception_handler_args args) {
 
 void AMProcessVariable::connectionChangedCB(struct connection_handler_args connArgs) {
 
-	emit connectionStateChanged( ca_state(connArgs.chid) );
+
+	int lastError;
+	chtype serverType;
+	PVDataType ourType;
 
 	//
 	//  cs_ - `channel state'
@@ -237,83 +268,100 @@ void AMProcessVariable::connectionChangedCB(struct connection_handler_args connA
 	// Possibility 1: Connection gained:
 	if( ca_state(connArgs.chid) == cs_conn && connArgs.op == CA_OP_CONN_UP) {
 
-		emit connected(true);
-
 		// Discover the type of this channel:
-		serverType_ = ca_field_type(chid_);
+		serverType = ca_field_type(chid_);
 
 		// We simplify all floating-point types to double, all integer types to long, and leave strings as strings and enums as enums:
-		ourType_ = serverType2ourType(serverType_);
+		ourType = serverType2ourType(serverType);
 
-		// Make sure we have room for storage. Integers and Enums held in data_int_.  FloatingPoints in data_dbl_.
-		switch(ourType_) {
+		// Make sure we have room for storage. Integers and Enums held in data_int_internal_.  FloatingPoints in data_dbl_internal_. (NOTE: this storage is just a performance optimization, and only accessed by the callback functions within channel-access thread-space. It prevents these functions from having to allocate storage each time new values arrive. These arrays may be accessed from various channel-access threads at any point in time (although channel-access guarantees that no more than one premptive callback will be made simultaneously), and therefore should not be read or written from the main thread.
+		/*
+		switch(ourType) {
 		case Integer:
 		case Enum:
-			data_int_.resize(count());
+			data_int_internal_.resize(ca_element_count(chid_));
 			break;
 		case FloatingPoint:
-			data_dbl_.resize(count());
+			data_dbl_internal_.resize(ca_element_count(chid_));
 			break;
 		case String:
-			data_str_.clear();
+			data_str_internal_.clear();
 			break;
 		case Unconnected:
 			break;// won't happen, but if it does, nothing required.
-		}
+		}*/
 
 		// Request some information about the PV (units, control limits, etc.).
 		// For enum types, we want the list of string names:
-		if(ourType_ == Enum) {
-			lastError_ = ca_get_callback(DBR_CTRL_ENUM, chid_, PVControlInfoCBWrapper, this);
+		if(ourType == Enum) {
+			lastError = ca_get_callback(DBR_CTRL_ENUM, chid_, PVControlInfoCBWrapper, this);
 
-			if(lastError_ != ECA_NORMAL) {
-				qDebug() << QString("AMProcessVariable: Error while trying to request enum control information: %1: %2").arg(pvName()).arg(ca_message(lastError_));
-				emit error(lastError_);
+			if(lastError != ECA_NORMAL) {
+				qDebug() << QString("AMProcessVariable: Error while trying to request enum control information: %1: %2").arg(pvName()).arg(ca_message(lastError));
+				emit internal_error(lastError);
 			}
 		}
 		// otherwise, requesting control information as DBR_CTRL_DOUBLE because this gives the most information that could possibly be available (precision, limits, units)
-		else if (ourType_ == Integer || ourType_ == FloatingPoint){
-			lastError_ = ca_get_callback(DBR_CTRL_DOUBLE, chid_, PVControlInfoCBWrapper, this);
-			if(lastError_ != ECA_NORMAL) {
-				qDebug() << QString("AMProcessVariable: Error while trying to request value: %1: %2").arg(pvName()).arg(ca_message(lastError_));
-				emit error(lastError_);
+		else if (ourType == Integer || ourType == FloatingPoint){
+			lastError = ca_get_callback(DBR_CTRL_DOUBLE, chid_, PVControlInfoCBWrapper, this);
+			if(lastError != ECA_NORMAL) {
+				qDebug() << QString("AMProcessVariable: Error while trying to request value: %1: %2").arg(pvName()).arg(ca_message(lastError));
+				emit internal_error(lastError);
 			}
 		}
-		else if(ourType_ == String){
-			lastError_ = ca_get_callback(DBR_CTRL_STRING, chid_, PVControlInfoCBWrapper, this);
-			if(lastError_ != ECA_NORMAL) {
-				qDebug() << QString("AMProcessVariable: Error while trying to request value: %1: %2").arg(pvName()).arg(ca_message(lastError_));
-				emit error(lastError_);
+		else if(ourType == String){
+			lastError = ca_get_callback(DBR_CTRL_STRING, chid_, PVControlInfoCBWrapper, this);
+			if(lastError != ECA_NORMAL) {
+				qDebug() << QString("AMProcessVariable: Error while trying to request value: %1: %2").arg(pvName()).arg(ca_message(lastError));
+				emit internal_error(lastError);
 			}
 		}
 		/// \todo What control type to request if type is not any of these?
 		/// \bug Currently, if the type is not an enum, integer, floating-point, or string, PV's will not emit initialized().
 
 		// It's useful to automatically-request the value, after we are first connected:
-		this->requestValue(count());
+		lastError = ca_array_get_callback(ourType, ca_element_count(chid_), chid_, PVValueChangedCBWrapper, this);
+		if(lastError != ECA_NORMAL) {
+			qDebug() << QString("AMProcessVariable: Error while trying to request value: %1: %2").arg(pvName()).arg(ca_message(lastError));
+			emit internal_error(lastError);
+		}
 
-		if(shouldBeMonitoring_)
-			startMonitoring();
+		if(shouldBeMonitoring_) {
+			lastError = ca_create_subscription(ourType, ca_element_count(chid_), chid_, DBE_VALUE | DBE_LOG | DBE_ALARM, PVValueChangedCBWrapper, this, &evid_ );
+			if(lastError != ECA_NORMAL) {
+				qDebug() << QString("AMProcessVariable: Error starting monitoring: %1: %2").arg(pvName()).arg(ca_message(lastError));
+				emit internal_error(lastError);
+			}
+		}
+
+		// AMProcessVariableSupport::flushIO() may not be thread-safe... Use ca_flush_io directly instead.
+		ca_flush_io();
+
+		emit internal_connectionStateChanged(true, ca_element_count(chid_), serverType, ourType);
 	}
 	// Possibility 2: anything but a connection gained:
 	else {
-		emit connected(false);
-		initialized_ = false;
-		serverType_ = Unconnected;
-		ourType_ = Unconnected;
+		emit internal_connectionStateChanged(false, 0, 0, 0);
 	}
+
+	emit connectionStateChanged( ca_state(connArgs.chid) );
 
 }
 
 
 void AMProcessVariable::controlInfoCB(struct event_handler_args eventArgs) {
 
+
+	int lastError;
+
+	QStringList enumStrings;
+
 	struct dbr_ctrl_double* ctrlValue;
 	struct dbr_ctrl_enum* enumCtrlValue;
 
-	if( (lastError_ = eventArgs.status) != ECA_NORMAL) {
-		qDebug() << QString("Error in control-info-changed callback: %1: %2").arg(pvName()).arg(ca_message(lastError_));
-		emit error(lastError_);
+	if( (lastError = eventArgs.status) != ECA_NORMAL) {
+		qDebug() << QString("Error in control-info-changed callback: %1: %2").arg(pvName()).arg(ca_message(lastError));
+		emit internal_error(lastError);
 		return;
 	}
 
@@ -326,62 +374,38 @@ void AMProcessVariable::controlInfoCB(struct event_handler_args eventArgs) {
 		// Is this limit-precision-unit information?
 	case DBR_CTRL_DOUBLE:
 		ctrlValue =  (struct dbr_ctrl_double*)eventArgs.dbr;
-
-		units_ = QString(ctrlValue->units);
-		precision_ = ctrlValue->precision;
-		upperGraphLimit_ = ctrlValue->upper_disp_limit;
-		lowerGraphLimit_ = ctrlValue->lower_disp_limit;
-		//If the record's DRV_HIGH and DRV_LOW limits haven't been set, we're receiving them as max(0), min(0).
-		// That's a problem, because it pins our minValue() and maxValue() to 0.
-		if(ctrlValue->lower_ctrl_limit == 0 && ctrlValue->upper_ctrl_limit == 0) {
-			lowerLimit_ = -DBL_MAX;
-			upperLimit_ = DBL_MAX;
-		}
-		else if(ctrlValue->lower_ctrl_limit > ctrlValue->upper_ctrl_limit){
-			//In this case we're pinned again
-			lowerLimit_ = -DBL_MAX;
-			upperLimit_ = DBL_MAX;
-		}
-		else {
-			lowerLimit_ = ctrlValue->lower_ctrl_limit;
-			upperLimit_ = ctrlValue->upper_ctrl_limit;
-		}
-		enumStrings_.clear();
-		initialized_ = true;
-		emit initialized();
+		emit internal_controlInfoChanged(DBR_CTRL_DOUBLE,
+										 QString(ctrlValue->units),
+										 ctrlValue->precision,
+										 ctrlValue->upper_disp_limit,
+										 ctrlValue->lower_disp_limit,
+										 ctrlValue->upper_ctrl_limit,
+										 ctrlValue->lower_ctrl_limit,
+										 QStringList());
 		break;
 
-	// Is this enum count/string information?
+		// Is this enum count/string information?
 	case DBR_CTRL_ENUM:
 		enumCtrlValue = (struct dbr_ctrl_enum*)eventArgs.dbr;
-
-		units_ = QString("[choice]");
-		precision_ = 0;
-		lowerGraphLimit_ = lowerLimit_ = 0;
-		upperGraphLimit_ = upperLimit_ = enumCtrlValue->no_str - 1;	// limits are inclusive. Check for outside limits with > and < (not >=, <=)
-		enumStrings_.clear();
 		for(int i=0; i<enumCtrlValue->no_str; i++)
-			enumStrings_ << QString(enumCtrlValue->strs[i]);
-
-		initialized_ = true;
-		emit initialized();
+			enumStrings << QString(enumCtrlValue->strs[i]);
+		emit internal_controlInfoChanged(DBR_CTRL_ENUM,
+										 "[choice]",
+										 0,
+										 enumCtrlValue->no_str - 1, 0,
+										 enumCtrlValue->no_str - 1, 0,
+										 enumStrings);
 		break;
 
 	case DBR_CTRL_STRING:
-		units_ = QString();
-		precision_ = 0;
-		lowerLimit_ = -DBL_MAX;
-		upperLimit_ = DBL_MAX;
-		enumStrings_.clear();
-		initialized_ = true;
-		emit initialized();
+		emit internal_controlInfoChanged(DBR_CTRL_STRING,
+										 QString(),
+										 0,
+										 DBL_MAX,	-DBL_MAX,
+										 DBL_MAX, -DBL_MAX,
+										 QStringList());
 		break;
-
-
 	}
-
-
-
 }
 
 // eventArgs:
@@ -396,9 +420,10 @@ void AMProcessVariable::controlInfoCB(struct event_handler_args eventArgs) {
 void AMProcessVariable::valueChangedCB(struct event_handler_args eventArgs) {
 
 
-	if( (lastError_ = eventArgs.status) != ECA_NORMAL) {
-		qDebug() << QString("Error in value-changed callback: %1: %2").arg(pvName()).arg(ca_message(lastError_));
-		emit error(lastError_);
+	int lastError;
+	if( (lastError = eventArgs.status) != ECA_NORMAL) {
+		qDebug() << QString("Error in value-changed callback: %1: %2").arg(pvName()).arg(ca_message(lastError));
+		emit internal_error(lastError);
 		return;
 	}
 
@@ -409,47 +434,37 @@ void AMProcessVariable::valueChangedCB(struct event_handler_args eventArgs) {
 	// Note: the onConnectionChanged handler should have got the vector sizes right before we get any of this data.
 	switch(eventArgs.type) {
 
-	case FloatingPoint:
-		for(int i=0; i<eventArgs.count; i++)
-			data_dbl_[i] = ((dbr_double_t*)eventArgs.dbr)[i];
-		emit valueChanged(data_dbl_.at(0));
-		emit valueChanged(int(data_dbl_.at(0)));
-		emit valueChanged();
-		break;
+	case FloatingPoint: {
+			AMProcessVariableDoubleVector rv(eventArgs.count);
+			for(int i=0; i<eventArgs.count; i++)
+				rv[i] = ((dbr_double_t*)eventArgs.dbr)[i];
+			emit internal_floatingPointValueChanged(rv);
+			break;
+		}
 
-	case Integer:
-		for(int i=0; i<eventArgs.count; i++)
-			data_int_[i] = ((dbr_long_t*)eventArgs.dbr)[i];
-		emit valueChanged(data_int_.at(0));
-		emit valueChanged(double(data_int_.at(0)));
-		emit valueChanged();
-		break;
+	case Integer: {
+			AMProcessVariableIntVector rv(eventArgs.count);
+			for(int i=0; i<eventArgs.count; i++)
+				rv[i] = ((dbr_long_t*)eventArgs.dbr)[i];
+			emit internal_integerValueChanged(rv);
+			break;
+		}
 
 	case Enum: {
-		for(int i=0; i<eventArgs.count; i++)
-			data_int_[i] = ((dbr_enum_t*)eventArgs.dbr)[i];
-		int newValue = data_int_.at(0);
-		emit valueChanged(newValue);
-		emit valueChanged(double(newValue));
-		if(initialized_) {
-			// check to make sure that the enum value is within the allowed enum range
-				// Some bad IOCs might send an enum value that is not within their set of enum options. Dude!?
-			if((unsigned)newValue < (unsigned)enumStrings_.count())
-				emit valueChanged(enumStrings_.at(newValue));
-			else
-				emit valueChanged(QString("[enum value out of range]"));
-		}
-		emit valueChanged();
-		break;
+			AMProcessVariableIntVector rv(eventArgs.count);
+			for(int i=0; i<eventArgs.count; i++)
+				rv[i] = ((dbr_enum_t*)eventArgs.dbr)[i];
+			emit internal_enumValueChanged(rv);
+			break;
 		}
 
-	case String:
-		data_str_.clear();
-		for(int i=0; i<eventArgs.count; i++)
-			data_str_ << QString( ((dbr_string_t*)eventArgs.dbr)[i] );
-		emit valueChanged(data_str_.at(0));
-		emit valueChanged();
-		break;
+	case String: {
+			QStringList rv;
+			for(int i=0; i<eventArgs.count; i++)
+				rv << QString( ((dbr_string_t*)eventArgs.dbr)[i] );
+			emit internal_stringValueChanged(rv);
+			break;
+		}
 	}
 }
 
@@ -457,16 +472,106 @@ void AMProcessVariable::valueChangedCB(struct event_handler_args eventArgs) {
 
 void AMProcessVariable::putRequestCB(struct event_handler_args eventArgs) {
 
-	emit putRequestReturned(eventArgs.status);
-
 	if(eventArgs.status != ECA_NORMAL) {
+
+
 		qDebug() << QString("AMProcessVariable: Error in put request: %1: %2").arg(pvName()).arg(ca_message(eventArgs.status));
-		emit error(lastError_ = eventArgs.status);
+		emit internal_error(eventArgs.status);
 	}
 
+	emit putRequestReturned(eventArgs.status);
 }
 
+void AMProcessVariable::internal_onConnectionStateChanged(bool isConnected, int count, int serverType, int ourType) {
+
+	if(isConnected) {
+		count_ = count;
+		serverType_ = serverType;
+		ourType_ = (PVDataType)ourType;
+	}
+
+	else {
+		initialized_ = false;
+		hasValues_ = false;
+	}
+
+	emit connected(isConnected);
+}
+
+
+void AMProcessVariable::internal_onControlInfoChanged(int controlInfoType, QString units, int precision, double upperGraphLimit, double lowerGraphLimit, double upperLimit, double lowerLimit, QStringList enumStrings) {
+
+	Q_UNUSED(controlInfoType)
+
+	units_ = units;
+	precision_ = precision;
+	upperGraphLimit_ = upperGraphLimit;
+	lowerGraphLimit_ = lowerGraphLimit;
+	upperLimit_ = upperLimit;
+	lowerLimit_ = lowerLimit;
+	enumStrings_ = enumStrings;
+
+	//If the record's DRV_HIGH and DRV_LOW limits haven't been set, we're receiving them as max(0), min(0).
+	// That's a problem, because it pins our minValue() and maxValue() to 0.
+	if(lowerLimit_ == 0 && upperLimit_ == 0) {
+		lowerLimit_ = -DBL_MAX;
+		upperLimit_ = DBL_MAX;
+	}
+	else if(lowerLimit_ > upperLimit_){
+		//In this case we're pinned again
+		lowerLimit_ = -DBL_MAX;
+		upperLimit_ = DBL_MAX;
+	}
+
+	initialized_ = true;
+	emit initialized();
+}
+
+void AMProcessVariable::internal_onFloatingPointValueChanged(AMProcessVariableDoubleVector doubleData) {
+	hasValues_ = true;
+	data_dbl_ = doubleData;
+	emit valueChanged(data_dbl_.at(0));
+	emit valueChanged(int(data_dbl_.at(0)));
+	emit valueChanged();
+}
+
+void AMProcessVariable::internal_onIntegerValueChanged(AMProcessVariableIntVector intData) {
+	hasValues_ = true;
+	data_int_ = intData;
+	emit valueChanged(data_int_.at(0));
+	emit valueChanged(double(data_int_.at(0)));
+	emit valueChanged();
+}
+
+void AMProcessVariable::internal_onEnumValueChanged(AMProcessVariableIntVector enumData) {
+	hasValues_ = true;
+	data_int_ = enumData;
+	int newValue = data_int_.at(0);
+	emit valueChanged(newValue);
+	emit valueChanged(double(newValue));
+	if(initialized_) {
+		// check to make sure that the enum value is within the allowed enum range
+		// Some bad IOCs might send an enum value that is not within their set of enum options.
+		if((unsigned)newValue < (unsigned)enumStrings_.count())
+			emit valueChanged(enumStrings_.at(newValue));
+		else
+			emit valueChanged(QString("[enum value out of range]"));
+	}
+	emit valueChanged();
+}
+
+
+void AMProcessVariable::internal_onStringValueChanged(QStringList stringData) {
+	hasValues_ = true;
+	data_str_ = stringData;
+	emit valueChanged(data_str_.at(0));
+	emit valueChanged();
+}
+
+
 void AMProcessVariable::onConnectionTimeout() {
+
+
 
 	// If we haven't connected by now:
 	if(this->connectionState() != cs_conn) {
@@ -480,12 +585,14 @@ void AMProcessVariable::onConnectionTimeout() {
 
 bool AMProcessVariable::startMonitoring() {
 
-	lastError_ = ca_create_subscription(dataType(), count(), chid_, DBE_VALUE | DBE_LOG | DBE_ALARM, PVValueChangedCBWrapper, this, &evid_ );
+	lastError_ = ca_create_subscription(ourType_, ca_element_count(chid_), chid_, DBE_VALUE | DBE_LOG | DBE_ALARM, PVValueChangedCBWrapper, this, &evid_ );
 	if(lastError_ != ECA_NORMAL) {
 		qDebug() << QString("AMProcessVariable: Error starting monitoring: %1: %2").arg(pvName()).arg(ca_message(lastError_));
 		emit error(lastError_);
 		return false;
 	}
+
+	AMProcessVariableSupport::flushIO();
 
 	return true;
 }
@@ -493,9 +600,12 @@ bool AMProcessVariable::startMonitoring() {
 void AMProcessVariable::stopMonitoring() {
 
 	ca_clear_subscription(evid_);
+	AMProcessVariableSupport::flushIO();
 }
 
 bool AMProcessVariable::requestValue(int numberOfValues) {
+
+	//just for lastError_
 
 	// Not necessary. Connection status is checked by ca_array_get_callback:
 	//if(ca_state(chid_) != cs_conn) {
@@ -503,17 +613,21 @@ bool AMProcessVariable::requestValue(int numberOfValues) {
 	//	return false;
 	//}
 
-	lastError_ = ca_array_get_callback(dataType(), numberOfValues, chid_, PVValueChangedCBWrapper, this);
+	lastError_ = ca_array_get_callback(ourType_, numberOfValues, chid_, PVValueChangedCBWrapper, this);
 	if(lastError_ != ECA_NORMAL) {
 		qDebug() << QString("AMProcessVariable: Error while trying to request value: %1: %2").arg(pvName()).arg(ca_message(lastError_));
 		emit error(lastError_);
 		return false;
 	}
 
+	AMProcessVariableSupport::flushIO();
+
 	return true;
 }
 
 void AMProcessVariable::setValue(int value) {
+
+	//just for lastError_
 
 	dbr_long_t setpoint = value;
 
@@ -526,9 +640,13 @@ void AMProcessVariable::setValue(int value) {
 		qDebug() << QString("AMProcessVariable: Error while trying to put value: %1: %2").arg(pvName()).arg(ca_message(lastError_));
 		emit error(lastError_);
 	}
+
+	AMProcessVariableSupport::flushIO();
 }
 
 void AMProcessVariable::setValues(dbr_long_t setpoints[], int num) {
+
+	//just for lastError_
 
 	if (disablePutCallback_)
 		lastError_ = ca_array_put( DBR_LONG, num, chid_, setpoints );
@@ -539,9 +657,13 @@ void AMProcessVariable::setValues(dbr_long_t setpoints[], int num) {
 		qDebug() << QString("AMProcessVariable: Error while trying to put values: %1: %2").arg(pvName()).arg(ca_message(lastError_));
 		emit error(lastError_);
 	}
+
+	AMProcessVariableSupport::flushIO();
 }
 
 void AMProcessVariable::setValue(double value) {
+
+	//just for lastError_
 
 	dbr_double_t setpoint = value;
 
@@ -554,9 +676,13 @@ void AMProcessVariable::setValue(double value) {
 		qDebug() << QString("Error while trying to put AMProcessVariable value: %1: %2").arg(pvName()).arg(ca_message(lastError_));
 		emit error(lastError_);
 	}
+
+	AMProcessVariableSupport::flushIO();
 }
 
 void AMProcessVariable::setValues(dbr_double_t setpoints[], int num) {
+
+	//just for lastError_
 
 	if (disablePutCallback_)
 		lastError_ = ca_array_put( DBR_DOUBLE, num, chid_, setpoints );
@@ -567,9 +693,13 @@ void AMProcessVariable::setValues(dbr_double_t setpoints[], int num) {
 		qDebug() << QString("Error while trying to put AMProcessVariable values: %1: %2").arg(pvName()).arg(ca_message(lastError_));
 		emit error(lastError_);
 	}
+
+	AMProcessVariableSupport::flushIO();
 }
 
 void AMProcessVariable::setValue(const QString& value) {
+
+	//just for lastError_
 
 	dbr_string_t setpoint;
 	QByteArray d1 = value.toAscii();
@@ -584,10 +714,14 @@ void AMProcessVariable::setValue(const QString& value) {
 		qDebug() << QString("Error while trying to put AMProcessVariable value: %1: %2").arg(pvName()).arg(ca_message(lastError_));
 		emit error(lastError_);
 	}
+
+	AMProcessVariableSupport::flushIO();
 }
 
 // TODO: not sure if this is right...
 void AMProcessVariable::setValues(const QStringList& setpoints) {
+
+	//just for lastError_
 
 	QList<QByteArray> asciiData;	// will hold the ascii form of our strings
 	const char** stringArray = new const char*[setpoints.size()];		// an array of strings (array of char*... ie: char**) which ca_array_put_callback requires.
@@ -609,10 +743,15 @@ void AMProcessVariable::setValues(const QStringList& setpoints) {
 	// TODO: check that ca_array_put_callback doesn't require this left in memory after this function goes out of scope?
 	delete[] stringArray;
 
+	AMProcessVariableSupport::flushIO();
+
 }
 
 
 double AMProcessVariable::lastValue(unsigned index) const {
+
+
+
 	// Depending on our type, we need to know where to look and how to convert:
 	switch(ourType_) {
 
@@ -632,7 +771,7 @@ double AMProcessVariable::lastValue(unsigned index) const {
 			return -1.0;
 		return data_str_.at(index).toDouble();
 
-	// default case, including Unconnected:
+		// default case, including Unconnected:
 	default:
 		return -1.0;
 	}
@@ -641,6 +780,9 @@ double AMProcessVariable::lastValue(unsigned index) const {
 // double AMProcessVariable::getDouble() is just a synonym for lastValue().
 
 int AMProcessVariable::getInt(unsigned index) const {
+
+
+
 	// Depending on our type, we need to know where to look and how to convert:
 	switch(ourType_) {
 
@@ -660,7 +802,7 @@ int AMProcessVariable::getInt(unsigned index) const {
 			return -1;
 		return data_str_.at(index).toInt();
 
-	// default case, including Unconnected:
+		// default case, including Unconnected:
 	default:
 		return -1;
 	}
@@ -668,6 +810,9 @@ int AMProcessVariable::getInt(unsigned index) const {
 
 
 QString AMProcessVariable::getString(unsigned index) const {
+
+
+
 	// Depending on our type, we need to know where to look and how to convert:
 	switch(ourType_) {
 
@@ -687,7 +832,7 @@ QString AMProcessVariable::getString(unsigned index) const {
 		if(initialized_) {
 			int intValue = data_int_.at(index);
 			// check to make sure that the enum value is within the allowed enum range
-				// Some bad IOCs might send an enum value that is not within their set of enum options. Dude!?
+			// Some bad IOCs might send an enum value that is not within their set of enum options. Dude!?
 			if((unsigned)intValue < (unsigned)enumStrings_.count())
 				return enumStrings_.at(intValue);
 			else
@@ -702,7 +847,7 @@ QString AMProcessVariable::getString(unsigned index) const {
 			return "[array index out of range]";
 		return data_str_.at(index);
 
-	// default case, including Unconnected:
+		// default case, including Unconnected:
 	default:
 		return "[PV not connected]";
 	}

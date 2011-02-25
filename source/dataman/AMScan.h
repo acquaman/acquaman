@@ -342,10 +342,11 @@ signals:
 protected slots:
 
 	// Is it okay to remove this? All notification should be through AMDataSources.
+	/*
 	/// Called by friends after finished updating / loading from file, etc.
 	void onDataChanged() {
 		emit dataChanged(this);
-	}
+	}*/
 
 	/// Receives itemAboutToBeAdded() signals from rawDataSources_ and analyzedDataSources, and emits dataSourceAboutToBeAdded().
 	void onDataSourceAboutToBeAdded(int index);

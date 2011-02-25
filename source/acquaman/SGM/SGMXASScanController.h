@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef AMSGMXASSCANCONTROLLER_H
 #define AMSGMXASSCANCONTROLLER_H
 
-#include "beamline/SGMBeamline.h"
+#include "beamline/SGM/SGMBeamline.h"
 #include "SGMXASScanConfiguration.h"
 #include "dataman/AMXASScan.h"
 

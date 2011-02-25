@@ -12,13 +12,14 @@ HEADERS += 	source/application/SGM/SGMAppController.h \
 	source/acquaman/SGM/SGMFastScanConfiguration.h \
 	source/acquaman/SGM/SGMFastDacqScanController.h \
 	source/acquaman/SGM/SGMFastScanController.h \
-	source/beamline/SGMBeamline.h \
+	source/beamline/SGM/SGMBeamline.h \
 	source/ui/SGMSampleTransferView.h \
 	source/ui/SGMXASScanConfigurationViewer.h \
 	source/ui/SGMXASScanConfigurationWizard.h \
 	source/ui/SGMSidebar.h \
 	source/ui/SGMBeamlineAtAGlanceBar.h \
-	source/ui/SGMFastScanConfigurationViewer.h
+	source/ui/SGMFastScanConfigurationViewer.h \
+	source/ui/SGM/SGMSampleManipulatorView.h
 
 SOURCES +=	source/application/SGM/SGMMain.cpp \
 	source/application/SGM/SGMAppController.cpp \
@@ -29,10 +30,11 @@ SOURCES +=	source/application/SGM/SGMMain.cpp \
 	source/acquaman/SGM/SGMFastScanConfiguration.cpp \
 	source/acquaman/SGM/SGMFastScanController.cpp \
 	source/acquaman/SGM/SGMFastDacqScanController.cpp \
-	source/beamline/SGMBeamline.cpp \
+	source/beamline/SGM/SGMBeamline.cpp \
 	source/ui/SGMSampleTransferView.cpp \
 	source/ui/SGMXASScanConfigurationViewer.cpp \
 	source/ui/SGMXASScanConfigurationWizard.cpp \
 	source/ui/SGMSidebar.cpp \
 	source/ui/SGMBeamlineAtAGlanceBar.cpp \
-	source/ui/SGMFastScanConfigurationViewer.cpp
+	source/ui/SGMFastScanConfigurationViewer.cpp \
+	source/ui/SGM/SGMSampleManipulatorView.cpp

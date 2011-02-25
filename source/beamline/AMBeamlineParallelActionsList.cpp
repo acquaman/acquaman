@@ -5,6 +5,8 @@ AMBeamlineParallelActionsList::AMBeamlineParallelActionsList(QObject *parent) :
 {
 	insertRowLatch_ = -1;
 	actions_ = NULL;
+	currentStage_ = -1;
+	isRunning_ = false;
 	setupModel();
 	connect(this, SIGNAL(stageStarted(int)), this, SLOT(onStageStarted(int)));
 }
@@ -77,6 +79,10 @@ QPair<int,int> AMBeamlineParallelActionsList::indicesOf(AMBeamlineActionItem *iA
 			if(action(x, y) == iAction)
 				return QPair<int,int>(x,y);
 	return QPair<int,int>(-1,-1);
+}
+
+bool AMBeamlineParallelActionsList::isRunning(){
+	return isRunning_;
 }
 
 void AMBeamlineParallelActionsList::puke(){
@@ -299,9 +305,20 @@ bool AMBeamlineParallelActionsList::deleteAction(int stageIndex, int index){
 }
 
 void AMBeamlineParallelActionsList::start(){
-	if(stageCount() > 0)
+	if(stageCount() > 0){
+		isRunning_ = true;
 		for(int x = 0; x < stage(0)->count(); x++)
 			action(0,x)->start();
+	}
+}
+
+void AMBeamlineParallelActionsList::cancel(){
+	/*
+	if(isRunning_)
+		for(int x = 0; x < stage(currentStage_)->count(); x++)
+			action(currentStage_,x)
+	*/
+	// do something here
 }
 
 void AMBeamlineParallelActionsList::onDataChanged(QModelIndex a,QModelIndex b){
@@ -371,6 +388,8 @@ void AMBeamlineParallelActionsList::onActionProgress(double elapsed, double tota
 	AMBeamlineActionItem *tmpAction;
 	if(tmpAction = qobject_cast<AMBeamlineActionItem*>(QObject::sender())){
 		QPair<int,int> indices = indicesOf(tmpAction);
+		if(indices.first != currentStage_)
+			return;
 		lastIndexProgress_.replace(indices.second, (elapsed/total));
 		double sum = 0;
 		for(int x = 0; x < countAt(indices.first); x++)
@@ -381,6 +400,7 @@ void AMBeamlineParallelActionsList::onActionProgress(double elapsed, double tota
 
 void AMBeamlineParallelActionsList::onStageStarted(int stageIndex){
 	lastIndexProgress_.clear();
+	currentStage_ = stageIndex;
 	for(int x = 0; x < countAt(stageIndex); x++)
 		lastIndexProgress_.append(0);
 }
@@ -389,8 +409,11 @@ void AMBeamlineParallelActionsList::onStageSucceeded(){
 	AMBeamlineParallelActionsListHolder *tmpHolder = (AMBeamlineParallelActionsListHolder*)QObject::sender();
 	int stageIndex = indexOf(holdersHash_.valueR(tmpHolder));
 	emit stageSucceeded(stageIndex);
-	if(stageIndex == stageCount()-1)
+	if(stageIndex == stageCount()-1){
+		currentStage_ = -1;
+		isRunning_ = false;
 		emit listSucceeded();
+	}
 }
 
 bool AMBeamlineParallelActionsList::setupModel(){
@@ -428,7 +451,8 @@ void AMBeamlineParallelActionsListHolder::removeAction(AMBeamlineActionItem *ai)
 
 void AMBeamlineParallelActionsListHolder::actionFinished(){
 	AMBeamlineActionItem *ai = (AMBeamlineActionItem*)QObject::sender();
-	waitingOn_.removeOne(ai);
+	//waitingOn_.removeOne(ai);
+	removeAction(ai);
 	if(waitingOn_.isEmpty())
 		emit everythingFinished();
 }

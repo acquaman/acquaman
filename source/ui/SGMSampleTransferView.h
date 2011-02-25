@@ -27,7 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLabel>
 #include <QPushButton>
 #include <QGroupBox>
-#include <beamline/SGMBeamline.h>
+#include <beamline/SGM/SGMBeamline.h>
 
 class SGMSampleTransferPaneView;
 class SGMSampleTransferProceduresView;

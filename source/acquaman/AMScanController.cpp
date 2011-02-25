@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
+#include <QDebug>
 #include "AMScanController.h"
 
 AMScanControllerSupervisor* AMScanControllerSupervisor::instance_ = 0;
@@ -26,16 +26,20 @@ AMScanController::AMScanController(AMScanConfiguration *cfg, QObject *parent) :
 	QObject(parent)
 {
 	generalCfg_ = cfg;
-	_pCfg_ = & generalCfg_;
-	generalScan_ = NULL;
-	_pScan_ = &generalScan_;
+	// unused: _pCfg_ = & generalCfg_;
+	generalScan_ = 0;
+	// unused: _pScan_ = &generalScan_;
+
+	running_ = false;
+	paused_ = false;
+	initialized_ = false;
 }
 
 
 AMScanControllerSupervisor::AMScanControllerSupervisor(QObject *parent) :
 		QObject(parent)
 {
-	currentScanController_ = NULL;
+	currentScanController_ = 0;
 }
 
 
@@ -86,7 +90,7 @@ void AMScanControllerSupervisor::onCurrentScanControllerFinished(){
 	disconnect(currentScanController_, SIGNAL(finished()), this, SLOT(onCurrentScanControllerFinished()));
 	disconnect(currentScanController_, SIGNAL(reinitialized(bool)), this, SLOT(onCurrentScanControllerReinitialized(bool)));
 	currentScanController_->deleteLater();
-	currentScanController_ = NULL;
+	currentScanController_ = 0;
 }
 
 void AMScanControllerSupervisor::onCurrentScanControllerReinitialized(bool removeScan){

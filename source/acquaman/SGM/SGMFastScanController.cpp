@@ -33,6 +33,9 @@ SGMFastScanController::SGMFastScanController(SGMFastScanConfiguration *cfg){
 		pScan()->rawData()->addMeasurement(AMMeasurementInfo(*detectorInfo));
 		pScan()->addRawDataSource(new AMRawDataSource(pScan()->rawData(), i));
 	}
+	//pScan()->rawData()->addMeasurement(AMMeasurementInfo("energyFbk", "Energy Feedback", "eV"));
+	//pScan()->addRawDataSource(new AMRawDataSource(pScan()->rawData(), scanDetectors.count()));
+
 
 	QList<AMDataSource*> raw1DDataSources;
 	for(int i=0; i<pScan()->rawDataSources()->count(); i++)
@@ -56,10 +59,11 @@ SGMFastScanController::SGMFastScanController(SGMFastScanConfiguration *cfg){
 		AM1DExpressionAB* tfyChannel = new AM1DExpressionAB("tfy_n");
 		tfyChannel->setDescription("Normalized TFY");
 		tfyChannel->setInputDataSources(raw1DDataSources);
-		tfyChannel->setExpression("-tfy/I0");
+		tfyChannel->setExpression("tfy/I0");
 
 		pScan()->addAnalyzedDataSource(tfyChannel);
 	}
+
 
 	/// \bug CRITICAL Removed creating default channels. They were never set anyway (nothing called the old AMXASScan::setDefaultChannels(); )
 
@@ -78,6 +82,10 @@ bool SGMFastScanController::beamlineInitialize(){
 	SGMBeamline::sgm()->monoTracking()->move( pCfg()->monoTracking() );
 	SGMBeamline::sgm()->exitSlitTracking()->move( pCfg()->exitSlitTracking() );
 	*/
+
+	bool undulatorTrackingOn = (fabs(SGMBeamline::sgm()->undulatorTracking()->value()-1.0) < SGMBeamline::sgm()->undulatorTracking()->tolerance());
+	bool exitSlitTrackingOn = (fabs(SGMBeamline::sgm()->exitSlitTracking()->value()-1.0) < SGMBeamline::sgm()->exitSlitTracking()->tolerance());
+
 	AMBeamlineControlMoveAction *tmpAction = NULL;
 
 	cleanUpActions_ = new AMBeamlineParallelActionsList();
@@ -87,12 +95,14 @@ bool SGMFastScanController::beamlineInitialize(){
 	// Mono Velocity, Base Velocity, and Acceleration
 	// Scaler intergration time, scans per buffer, total # of scans, and mode
 	cleanUpActions_->appendStage(new QList<AMBeamlineActionItem*>());
-	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->undulatorTracking());
-	tmpAction->setSetpoint(SGMBeamline::sgm()->undulatorTracking()->value());
-	cleanUpActions_->appendAction(cleanUpActions_->stageCount()-1, tmpAction);
-	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->exitSlitTracking());
-	tmpAction->setSetpoint(SGMBeamline::sgm()->exitSlitTracking()->value());
-	cleanUpActions_->appendAction(cleanUpActions_->stageCount()-1, tmpAction);
+	if( undulatorTrackingOn || exitSlitTrackingOn ){
+		tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->undulatorTracking());
+		tmpAction->setSetpoint(SGMBeamline::sgm()->undulatorTracking()->value());
+		cleanUpActions_->appendAction(cleanUpActions_->stageCount()-1, tmpAction);
+		tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->exitSlitTracking());
+		tmpAction->setSetpoint(SGMBeamline::sgm()->exitSlitTracking()->value());
+		cleanUpActions_->appendAction(cleanUpActions_->stageCount()-1, tmpAction);
+	}
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->gratingVelocity());
 	tmpAction->setSetpoint(SGMBeamline::sgm()->gratingVelocity()->value());
 	cleanUpActions_->appendAction(cleanUpActions_->stageCount()-1, tmpAction);
@@ -120,21 +130,24 @@ bool SGMFastScanController::beamlineInitialize(){
 	SGMFastScanParameters *settings = pCfg()->currentParameters();
 	#warning "Hey David, who's going to delete the list and the actions?"
 	initializationActions_ = new AMBeamlineParallelActionsList();
-	/**/
-	//Go to midpoint of energy range
-	initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
-	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->energy());
-	tmpAction->setSetpoint(settings->energyMidpoint());
-	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
+	// Only need to do this if tracking is currently on
+	if( undulatorTrackingOn || exitSlitTrackingOn ){
+		qDebug() << "Need to optimize for middle of energy range";
+		//Go to midpoint of energy range
+		initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
+		tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->energy());
+		tmpAction->setSetpoint(settings->energyMidpoint());
+		initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
 
-	//Turn off undulator and exit slit tracking
-	initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
-	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->undulatorTracking());
-	tmpAction->setSetpoint(0);
-	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
-	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->exitSlitTracking());
-	tmpAction->setSetpoint(0);
-	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
+		//Turn off undulator and exit slit tracking
+		initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
+		tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->undulatorTracking());
+		tmpAction->setSetpoint(0);
+		initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
+		tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->exitSlitTracking());
+		tmpAction->setSetpoint(0);
+		initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
+	}
 
 	//Go to start of energy range
 	//Mode needs to change before time, buffer, and total
