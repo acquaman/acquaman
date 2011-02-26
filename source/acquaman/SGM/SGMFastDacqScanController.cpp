@@ -9,7 +9,7 @@ SGMFastDacqScanController::SGMFastDacqScanController(SGMFastScanConfiguration *c
 	dacqRunUpStarted_ = false;
 	dacqRunUpCompleted_ = false;
 	dacqRunCompleted_ = false;
-	emit scanCreated(scan());
+	// unused: emit scanCreated(scan());
 }
 
 void SGMFastDacqScanController::initialize(){
@@ -122,9 +122,9 @@ bool SGMFastDacqScanController::event(QEvent *e){
 		double sParam = SGMBeamline::sgm()->energySParam()->value();
 		double thetaParam = SGMBeamline::sgm()->energyThetaParam()->value();
 		double avgUp = 0.0;
-                int upCounts = 0;
+				int upCounts = 0;
 		double avgDown = 0.0;
-                int downCounts = 0;
+				int downCounts = 0;
 		QList<double> readings;
 		if(i.key() == 0 && aeData.count() == 2 && aeSpectra.count() == 1){
 			qDebug() << "And doing something with it";
@@ -153,9 +153,9 @@ bool SGMFastDacqScanController::event(QEvent *e){
 			int upMax = 40;
 			int downMax = 40;
 			if(avgUp > avgDown)
-			    upMax = 2*ceil(avgUp);
+				upMax = 2*ceil(avgUp);
 			if(avgDown > avgUp)
-			    downMax = 2*ceil(avgDown);
+				downMax = 2*ceil(avgDown);
 			j = aeSpectra.constBegin();
 
 			encoderEndpoint = i.value();
@@ -188,9 +188,9 @@ bool SGMFastDacqScanController::event(QEvent *e){
 						readings.clear();
 					if( x%6 == 0 || x%6 == 1 || x%6 == 2 || x%6 == 3 )
 						readings.append(j.value().at(x+1));
-                                        if( (x%6 == 4) && (j.value().at(x+1) < 3*ceil(avgUp)) )
+										if( (x%6 == 4) && (j.value().at(x+1) < 3*ceil(avgUp)) )
 						encoderReading -= j.value().at(x+1);
-                                        if( (x%6 == 5) && (j.value().at(x+1) < 3*ceil(avgDown)) )
+										if( (x%6 == 5) && (j.value().at(x+1) < 3*ceil(avgDown)) )
 						encoderReading += j.value().at(x+1);
 					if( x%6 == 5 ){
 						//energyFbk = (1.0e-9*1239.842*511.292)/(2*9.16358e-7*2.46204e-5*-1.59047*(double)encoderReading*cos(3.05478/2));

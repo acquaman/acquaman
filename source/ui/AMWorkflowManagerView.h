@@ -41,7 +41,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMBeamlineControlSetMoveAction.h"
 
 class AMBeamlineActionsListView;
-class AMBeamlineActionAdder;
 
 class AMWorkflowManagerView : public QWidget
 {
@@ -49,28 +48,45 @@ Q_OBJECT
 public:
 	explicit AMWorkflowManagerView(QWidget *parent = 0);
 
+	/// Attempt to queue up an \c action in the workflow.  The action is added at position \c index (where 0 is immediately following the currently executing action.)  The workflow takes ownership of the action.  If \c startNow is true and the workflow isn't already running, the workflow will start executing immediately (from the first item).
+	/*! If \c index is -1 or >= count(), the action is appended to the end of the queue. */
+	void insertBeamlineAction(int index, AMBeamlineActionItem* action, bool startNow = false);
+
+	/// Number of actions items left to run (not including the currently running action)
+	int actionItemCount() const { return workflowQueue_->count(); }
+	/// Returns true if the workflow is running (executing action items) right now
+	bool isRunning() const { return workflowQueue_->isRunning(); }
+	/// Returns true if it's currently impossible to start the workflow because another program has exclusive access to the beamline
+	bool beamlineBusy() const;
+
 signals:
-	void freeToScan(bool queueEmpty, bool queueNotRunning);
-	void lockdownScanning(bool isLocked, QString reason);
-	void addedScan(AMScanConfiguration *cfg);
+	/// Signals changes in workflowItemCount()
+	void actionItemCountChanged(int actionItemsLeftToRun);
+	/// Signals changes in isRunning()
+	void runningChanged(bool isRunning);
+	/// Signals changes in the status of the workflow: \c beamlineBusy means that it's impossible to start running the workflow because another program, etc. has exclusive access to it. \c queueEmpty means that there are no items (except for possibly the currently-running action) in the workflow. \c workflowRunning means that we are executing actions right now.
+	void workflowStatusChanged(bool beamlineBusy, bool queueEmpty, bool workflowRunning);
 
 public slots:
-	void onStartQueueRequested();
+
+	/// Start running the actions in the queue (if not already running)
+	void startQueue();
+
+	/// Responds to clicks of the addActionButton_.  Add an action to the workflow queue (\todo This does nothing for now... Make a flexible system for choosing from all available actions)
 	void onAddActionRequested();
-	void onAddScanRequested(AMScanConfiguration *cfg, bool startNow = false);
-	void onCancelAddScanRequest();
-	void onInsertActionRequested(AMBeamlineActionItem *action, int index);
-	void onBeamlineScanningChanged(bool scanning);
+
+// removed for now. Do we need these?
+//	void onAddActionRequested();
+//	void onAddScanRequested(AMScanConfiguration *cfg, bool startNow = false);
+//	void onCancelAddScanRequest();
+//	void onInsertActionRequested(AMBeamlineActionItem *action, int index);
+//	void onBeamlineScanningChanged(bool scanning);
 
 protected slots:
-	void onQueueIsRunningChanged(bool isRunning);
-	void onQueueIsEmptyChanged(bool isEmpty);
-
-	void onNewScanConfigurationView();
-	void onQueueAndScanningStatusChanged();
+	/// Triggered by changes in the beamline scanning status, queue size, and queue running state. Emits actionItemCountChanged(), runningChanged(), and workflowStatusChanged().
+	void reviewWorkflowStatus();
 
 protected:
-	QLabel *placeHolder_;
 	QPushButton *startWorkflowButton_;
 	QPushButton *addActionButton_;
 	QVBoxLayout *vl_;
@@ -78,7 +94,6 @@ protected:
 	AMBeamlineActionsList *workflowActions_;
 	AMBeamlineActionsQueue *workflowQueue_;
 	AMBeamlineActionsListView *workflowView_;
-	bool cancelAddRequest_;
 
 	// disabled for now: AMBeamlineActionAdder *adder_;
 };

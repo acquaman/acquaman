@@ -31,7 +31,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMWorkflowManagerView::AMWorkflowManagerView(QWidget *parent) :
 	QWidget(parent)
 {
-	cancelAddRequest_ = false;
 
 	// removed for now:
 //	adder_ = new AMBeamlineActionAdder();
@@ -50,16 +49,17 @@ AMWorkflowManagerView::AMWorkflowManagerView(QWidget *parent) :
 	hl->addItem(new QSpacerItem(10, 10, QSizePolicy::MinimumExpanding, QSizePolicy::Preferred));
 	hl->addWidget(addActionButton_, 0, Qt::AlignRight);
 	hl->addWidget(startWorkflowButton_, 0, Qt::AlignRight);
-	connect(startWorkflowButton_, SIGNAL(clicked()), this, SLOT(onStartQueueRequested()));
-	connect(AMBeamline::bl(), SIGNAL(beamlineScanningChanged(bool)), this, SLOT(onBeamlineScanningChanged(bool)));
+	connect(startWorkflowButton_, SIGNAL(clicked()), this, SLOT(startQueue()));
 	connect(addActionButton_, SIGNAL(clicked()), this, SLOT(onAddActionRequested()));
 	workflowActions_ = new AMBeamlineActionsList(this);
 	workflowQueue_ = new AMBeamlineActionsQueue(workflowActions_, this);
 	workflowView_ = new AMBeamlineActionsListView(workflowActions_, workflowQueue_, this);
-	connect(workflowQueue_, SIGNAL(isRunningChanged(bool)), this, SLOT(onQueueIsRunningChanged(bool)));
-	connect(workflowQueue_, SIGNAL(isEmptyChanged(bool)), this, SLOT(onQueueIsEmptyChanged(bool)));
 
-//	connect(workflowView_, SIGNAL(queueUpdated(int)), adder_, SLOT(onQueueUpdated(int)));
+	connect(AMBeamline::bl(), SIGNAL(beamlineScanningChanged(bool)), this, SLOT(reviewWorkflowStatus()));
+	connect(workflowQueue_, SIGNAL(isRunningChanged(bool)), this, SLOT(reviewWorkflowStatus()));
+	connect(workflowQueue_, SIGNAL(isEmptyChanged(bool)), this, SLOT(reviewWorkflowStatus()));
+
+	//	removed with adder: connect(workflowView_, SIGNAL(queueUpdated(int)), adder_, SLOT(onQueueUpdated(int)));
 
 	vl_ = new QVBoxLayout();
 	vl_->addLayout(hl);
@@ -67,7 +67,7 @@ AMWorkflowManagerView::AMWorkflowManagerView(QWidget *parent) :
 	setLayout(vl_);
 }
 
-void AMWorkflowManagerView::onStartQueueRequested(){
+void AMWorkflowManagerView::startQueue(){
 	if(!workflowQueue_->isEmpty()){
 		qDebug() << "Trying to start queue";
 		if(!workflowQueue_->head()->hasFinished() ){
@@ -79,19 +79,7 @@ void AMWorkflowManagerView::onStartQueueRequested(){
 			workflowQueue_->head()->reset();
 			workflowQueue_->startQueue();
 		}
-		//workflowQueue_->head()->start();
 	}
-//	if(workflowActions_->count() > 0)
-//		workflowActions_->action(0)->start();
-	/*
-//	if(workflowActions_->count() > 0)
-//		workflowActions_->action(0)->start();
-	AMBeamlineActionItem *goItem = workflowView_->firstInQueue();
-	if(!goItem)
-		qDebug() << "Nothing in queue";
-	else
-		goItem->start();
-	*/
 }
 
 #include <QMessageBox>
@@ -103,87 +91,58 @@ void AMWorkflowManagerView::onAddActionRequested(){
 	QMessageBox::information(this, "Sorry, This Action Not Available Yet", "Sorry, we haven't implemented this yet.\n\nWe're working on it...", QMessageBox::Ok);
 }
 
-void AMWorkflowManagerView::onAddScanRequested(AMScanConfiguration *cfg, bool startNow){
-	/// \todo fix for general scan type
-	if(startNow && !workflowQueue_->isRunning())
-		emit freeToScan(workflowQueue_->isEmpty(), !workflowQueue_->isRunning());
-	else if(startNow && workflowQueue_->isRunning())
-		emit freeToScan(workflowQueue_->peekIsEmpty(), !workflowQueue_->isRunning());
-	//NOT THREAD SAFE IF WORKFLOW AND SXSCVIEWER IN DIFFERENT THREADS
-	if(cancelAddRequest_){
-		cancelAddRequest_ = false;
-		qDebug() << "Request cancelled, doing nothing";
-		return;
+
+
+void AMWorkflowManagerView::insertBeamlineAction(int index, AMBeamlineActionItem *action, bool startNow) {
+	if(index < 0 || index > workflowQueue_->count()) {
+		index = workflowQueue_->count();
 	}
 
-	AMBeamlineScanAction *scanAction = new AMBeamlineScanAction(cfg, this);
-	workflowActions_->appendAction(scanAction);
-	emit addedScan(cfg);
-	if(startNow)
-		onStartQueueRequested();
-}
-
-void AMWorkflowManagerView::onCancelAddScanRequest(){
-	cancelAddRequest_ = true;
-}
-
-void AMWorkflowManagerView::onInsertActionRequested(AMBeamlineActionItem *action, int index){
-	if(!workflowQueue_->isEmpty())
-		workflowActions_->addAction(workflowQueue_->indexOfHead()+index, action);
-	else
+	if(workflowQueue_->isEmpty())
 		workflowActions_->appendAction(action);
-//		qDebug() << "Insert request with iof " << workflowView_->indexOfFirst() << " so to " << workflowView_->indexOfFirst()+index;
-//		workflowActions_->addAction(workflowView_->indexOfFirst()+index, action);
+	else
+		workflowActions_->addAction(workflowQueue_->indexOfHead()+index, action);
+
+	if(startNow)
+		startQueue();
+
 }
 
-void AMWorkflowManagerView::onBeamlineScanningChanged(bool scanning){
-//	if(scanning)
-//		startWorkflowButton_->setEnabled(false);
-//	else
-//		startWorkflowButton_->setEnabled(true);
-	onQueueAndScanningStatusChanged();
-}
 
-void AMWorkflowManagerView::onQueueIsRunningChanged(bool isRunning){
-//	if(isRunning)
-//		startWorkflowButton_->setEnabled(false);
-//	else
-//		startWorkflowButton_->setEnabled(true);
-	onQueueAndScanningStatusChanged();
-}
-
-void AMWorkflowManagerView::onQueueIsEmptyChanged(bool isEmpty){
-	onQueueAndScanningStatusChanged();
-}
-
-void AMWorkflowManagerView::onNewScanConfigurationView(){
-	onQueueAndScanningStatusChanged();
-}
-
-/// \todo Remove critical safety logic from UI code.  AMWorkflowManager should have a way to read whether you can start the workflow, and signals to indicate changes in this.
-void AMWorkflowManagerView::onQueueAndScanningStatusChanged(){
+void AMWorkflowManagerView::reviewWorkflowStatus(){
 	bool qEmpty = workflowQueue_->isEmpty();
 	bool qRunning = workflowQueue_->isRunning();
 	bool blScanning = AMBeamline::bl()->isBeamlineScanning();
+
+	/// \todo Move this code out of the UI and into the workflow proper.
 	if(qEmpty || qRunning || blScanning)
 		startWorkflowButton_->setEnabled(false);
 	else{
 		startWorkflowButton_->setEnabled(true);
-		startWorkflowButton_->setText("Start This Workflow\nReady");
-		emit lockdownScanning(false, "Ready");
+		startWorkflowButton_->setText("Start This Workflow\n-- Ready --");
 	}
+
 	if(blScanning && !qRunning){
-			startWorkflowButton_->setText("Start This Workflow\nExternal Scan");
-			emit lockdownScanning(true, "-- External Scan --");
+			startWorkflowButton_->setText("Start This Workflow\n-- Beamline Busy --");
 	}
 	else if(qEmpty){
 		startWorkflowButton_->setText("Start This Workflow\n-- No Items --");
 	}
 	else if(qRunning){
-		startWorkflowButton_->setText("Start This Workflow\n-- Running --");
+		startWorkflowButton_->setText("Start This Workflow\n-- Already Running --");
 	}
+	/////////////////////////
+
+	emit workflowStatusChanged(blScanning, qEmpty, qRunning);
+	/// \todo Emit the following only when they change:
+	emit actionItemCountChanged(workflowQueue_->count());
+	emit runningChanged(qRunning);
+	// emit beamlineBusyChanged(blScanning);
 }
 
+bool AMWorkflowManagerView::beamlineBusy() const {
+	return AMBeamline::bl()->isBeamlineScanning();
+}
 AMBeamlineActionsListView::AMBeamlineActionsListView(AMBeamlineActionsList *actionsList, AMBeamlineActionsQueue *actionsQueue, QWidget *parent) :
 		QWidget(parent)
 {
@@ -251,6 +210,7 @@ int AMBeamlineActionsListView::visibleIndexOfFirst(){
 #include "beamline/AMBeamlineControlMoveAction.h"
 #include "beamline/AMBeamlineControlSetMoveAction.h"
 
+/// \bug What happens if the action at \c index has changed type? This assumes the subclass of view is correct for the subclass of actionItem
 void AMBeamlineActionsListView::onActionChanged(int index){
 	AMBeamlineActionItem *tmpItem = actionsList_->action(index);
 	if(tmpItem->type() == "actionItem.scanAction")

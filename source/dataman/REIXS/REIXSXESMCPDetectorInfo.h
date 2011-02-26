@@ -43,7 +43,7 @@ public:
 	bool orientation() const { return orientation_; }
 
 	/// Set the number of pixels across the detector image
-	bool setSize(const AMnDIndex& newSize) { if(newSize.rank() != 2) return false; pixelsX_ = newSize.i(); pixelsY_ = newSize.j(); setModified(true); }
+	bool setSize(const AMnDIndex& newSize) { if(newSize.rank() != 2) return false; pixelsX_ = newSize.i(); pixelsY_ = newSize.j(); setModified(true); return true; }
 	/// Bias voltage (HV), in volts, applied across the detector
 	void setBiasVoltage(double biasVoltage) { biasVoltage_ = biasVoltage; setModified(true); }
 	/// The orientation of the detector: 0 for horizontal (wide window, low resolution), 1 for vertical (narrow window, high resolution)

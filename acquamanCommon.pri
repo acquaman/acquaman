@@ -234,7 +234,8 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/beamline/AMBeamlineControlStopAction.h \
 	source/dataman/REIXS/REIXSXESRawFileLoader.h \
 	source/util/AMDeferredFunctionCall.h \
-	source/ui/AMVideoWidget.h
+	source/ui/AMVideoWidget.h \
+    source/ui/AMScanConfigurationViewHolder.h
 FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
 	source/ui/AMDataViewSection.ui \
@@ -330,7 +331,6 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMMainWindow.cpp \
 	source/ui/AMRegionsLineView.cpp \
 	source/ui/AMRunExperimentInsert.cpp \
-	source/ui/AMScanConfigurationView.cpp \
 	source/ui/AMScanView.cpp \
 	source/ui/AMSidebar.cpp \
 	source/ui/AMStatusView.cpp \
@@ -402,7 +402,8 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/dataman/SGM2010FastSensibleFileLoader.cpp \
 	source/beamline/AMBeamlineControlStopAction.cpp \
 	source/dataman/REIXS/REIXSXESRawFileLoader.cpp \
-	source/util/AMDeferredFunctionCall.cpp
+	source/util/AMDeferredFunctionCall.cpp \
+    source/ui/AMScanConfigurationViewHolder.cpp
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc
 

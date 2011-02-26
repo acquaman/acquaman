@@ -48,8 +48,11 @@ public slots:
 	virtual void start();
 	virtual void pause(bool pause);
 	virtual void cancel();
-	virtual void cancelButKeep();
-	virtual void reset(bool delayInitialized = false);
+
+	/// move this scan action's partially completed scan to the user's recycle bin. Only call after calling cancel().
+	/// \todo REALLY IMPORTANT!
+	void discardScan() {}
+
 	virtual void cleanup();
 
 protected slots:
@@ -84,9 +87,10 @@ public slots:
 	void setAction(AMBeamlineScanAction *scanAction);
 
 signals:
-	void scanStarted(AMBeamlineActionItem *action);
-	void scanSuceeded(AMBeamlineActionItem *action);
-	void scanCancelled(AMBeamlineActionItem *action);
+	// removed: this is just a view on a scan action. It shouldn't need to notify anyone else of what's going on.
+//	void scanStarted(AMBeamlineActionItem *action);
+//	void scanSuceeded(AMBeamlineActionItem *action);
+//	void scanCancelled(AMBeamlineActionItem *action);
 
 protected slots:
 	void onInfoChanged();

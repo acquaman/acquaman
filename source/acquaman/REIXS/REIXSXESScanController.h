@@ -31,8 +31,8 @@ public slots:
 	/// Called before starting to satisfy any prerequisites (ie: setting up the beamline, setting up files, etc.)
 	virtual void initialize();
 
-	/// Called when a scan is re-initialized. \todo I don't know exactly when or what this means, or what removeScan should do.
-	virtual void reinitialize(bool removeScan) {}
+//	/// Called when a scan is re-initialized. \todo I don't know exactly when or what this means, or what removeScan should do.
+//	virtual void reinitialize(bool removeScan) {}
 
 
 protected slots:

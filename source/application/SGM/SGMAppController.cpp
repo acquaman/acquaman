@@ -5,7 +5,7 @@
 #include "ui/SGMSampleTransferView.h"
 #include "ui/SGM/SGMSampleManipulatorView.h"
 #include "ui/AMSamplePositionView.h"
-#include "ui/AMScanConfigurationView.h"
+#include "ui/AMScanConfigurationViewHolder.h"
 #include "ui/SGMXASScanConfigurationViewer.h"
 #include "ui/SGMSidebar.h"
 #include "acquaman/AMScanController.h"
@@ -43,31 +43,17 @@ bool SGMAppController::startup() {
 		mw_->insertHeading("Experiment Setup", 1);
 		//////////
 		//xasScanConfigurationHolder_ = new AMXASScanConfigurationHolder();
-		xasScanConfigurationHolder_ = new AMScanConfigurationHolder();
+		xasScanConfigurationHolder_ = new AMScanConfigurationHolder(workflowManagerView_);
 		mw_->addPane(xasScanConfigurationHolder_, "Experiment Setup", "SGM XAS Scan", ":/utilities-system-monitor.png");
 
 		//fastScanConfigurationHolder_ = new AMFastScanConfigurationHolder();
-		fastScanConfigurationHolder_ = new AMScanConfigurationHolder();
+		fastScanConfigurationHolder_ = new AMScanConfigurationHolder(workflowManagerView_);
 		mw_->addPane(fastScanConfigurationHolder_, "Experiment Setup", "SGM Fast Scan", ":/utilities-system-monitor.png");
 
 
-		connect(workflowManagerView_, SIGNAL(freeToScan(bool, bool)), xasScanConfigurationHolder_, SLOT(onFreeToScan(bool, bool)));
-		connect(workflowManagerView_, SIGNAL(lockdownScanning(bool,QString)), xasScanConfigurationHolder_, SLOT(onLockdownScanning(bool,QString)));
-		connect(xasScanConfigurationHolder_, SIGNAL(addToQueueRequested(AMScanConfiguration*, bool)), workflowManagerView_, SLOT(onAddScanRequested(AMScanConfiguration*, bool)));
-		connect(xasScanConfigurationHolder_, SIGNAL(cancelAddToQueueRequest()), workflowManagerView_, SLOT(onCancelAddScanRequest()));
-		connect(workflowManagerView_, SIGNAL(addedScan(AMScanConfiguration*)), xasScanConfigurationHolder_, SLOT(onAddedToQueue(AMScanConfiguration*)));
 
-		connect(xasScanConfigurationHolder_, SIGNAL(goToQueueRequested()), this, SLOT(goToWorkflow()));
-		connect(xasScanConfigurationHolder_, SIGNAL(newScanConfigurationView()), workflowManagerView_, SLOT(onNewScanConfigurationView()));
-
-		connect(workflowManagerView_, SIGNAL(freeToScan(bool, bool)), fastScanConfigurationHolder_, SLOT(onFreeToScan(bool, bool)));
-		connect(workflowManagerView_, SIGNAL(lockdownScanning(bool,QString)), fastScanConfigurationHolder_, SLOT(onLockdownScanning(bool,QString)));
-		connect(fastScanConfigurationHolder_, SIGNAL(addToQueueRequested(AMScanConfiguration*, bool)), workflowManagerView_, SLOT(onAddScanRequested(AMScanConfiguration*, bool)));
-		connect(fastScanConfigurationHolder_, SIGNAL(cancelAddToQueueRequest()), workflowManagerView_, SLOT(onCancelAddScanRequest()));
-		connect(workflowManagerView_, SIGNAL(addedScan(AMScanConfiguration*)), fastScanConfigurationHolder_, SLOT(onAddedToQueue(AMScanConfiguration*)));
-
-		connect(fastScanConfigurationHolder_, SIGNAL(goToQueueRequested()), this, SLOT(goToWorkflow()));
-		connect(fastScanConfigurationHolder_, SIGNAL(newScanConfigurationView()), workflowManagerView_, SLOT(onNewScanConfigurationView()));
+		connect(xasScanConfigurationHolder_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
+		connect(fastScanConfigurationHolder_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
 
 
 		connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerCreated()), this, SLOT(onCurrentScanControllerCreated()));
@@ -101,11 +87,11 @@ void SGMAppController::shutdown() {
 
 void SGMAppController::onCurrentPaneChanged(QWidget *pane) {
 
-	// If the scanConfigurationHolder pane was activated, let it know:
-	if(pane == xasScanConfigurationHolder_)
-		xasScanConfigurationHolder_->onBecameCurrentWidget();
-	else if(pane == fastScanConfigurationHolder_)
-		fastScanConfigurationHolder_->onBecameCurrentWidget();
+//	// If the scanConfigurationHolder pane was activated, let it know:
+//	if(pane == xasScanConfigurationHolder_)
+//		xasScanConfigurationHolder_->onBecameCurrentWidget();
+//	else if(pane == fastScanConfigurationHolder_)
+//		fastScanConfigurationHolder_->onBecameCurrentWidget();
 
 }
 

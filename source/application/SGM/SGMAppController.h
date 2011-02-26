@@ -5,7 +5,7 @@
 
 class SGMSampleTransferView;
 class AMSamplePositionView;
-class AMScanConfigurationHolder;
+class AMScanConfigurationViewHolder;
 class SGMXASScanConfigurationViewer;
 class SGMFastScanConfigurationViewer;
 class SGMSidebar;
@@ -51,8 +51,8 @@ protected:
 	//AMScanConfigurationView* scanConfigurationView_;
 	//SGMXASScanConfigurationViewer* xasScanConfigurationViewer_;
 	//SGMFastScanConfigurationViewer* fastScanConfigurationViewer_;
-	AMScanConfigurationHolder* xasScanConfigurationHolder_;
-	AMScanConfigurationHolder* fastScanConfigurationHolder_;
+	AMScanConfigurationViewHolder* xasScanConfigurationHolder_;
+	AMScanConfigurationViewHolder* fastScanConfigurationHolder_;
 	SGMSidebar* sgmSidebar_;
 
 

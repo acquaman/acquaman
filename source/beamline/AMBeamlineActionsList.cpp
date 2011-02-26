@@ -300,6 +300,9 @@ AMBeamlineActionItem* AMBeamlineActionsQueue::peek(){
 }
 
 int AMBeamlineActionsQueue::count(){
+	// weird behaviour... seems to return 1 when empty otherwise...
+	if(isEmpty())
+		return 0;
 	return fullList_->count()-indexOfHead();
 }
 

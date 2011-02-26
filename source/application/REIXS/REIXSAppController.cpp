@@ -3,6 +3,7 @@
 #include "beamline/REIXS/REIXSBeamline.h"
 
 #include "ui/AMScanConfigurationView.h"
+#include "ui/AMScanConfigurationViewHolder.h"
 #include "ui/REIXS/REIXSXESScanConfigurationDetailedView.h"
 #include "acquaman/AMScanController.h"
 
@@ -46,7 +47,7 @@ bool REIXSAppController::startup() {
 		mw_->insertHeading("Experiment Setup", 1);
 		//////////
 		xesScanConfigurationView_ = new REIXSXESScanConfigurationDetailedView(REIXSBeamline::bl()->mcpDetector());
-		scanConfigurationHolder_ = new AMScanConfigurationHolder(xesScanConfigurationView_);
+		scanConfigurationHolder_ = new AMScanConfigurationHolder(workflowManagerView_, xesScanConfigurationView_);
 		mw_->addPane(scanConfigurationHolder_, "Experiment Setup", "Emission Scan", ":/utilities-system-monitor.png");
 
 		////////////////// move somewhere clean ////////////////////
@@ -85,22 +86,7 @@ bool REIXSAppController::startup() {
 
 
 
-
-		///////////////////////////
-
-
-
-		connect(workflowManagerView_, SIGNAL(freeToScan(bool, bool)), scanConfigurationHolder_, SLOT(onFreeToScan(bool, bool)));
-		connect(workflowManagerView_, SIGNAL(lockdownScanning(bool,QString)), scanConfigurationHolder_, SLOT(onLockdownScanning(bool,QString)));
-		connect(scanConfigurationHolder_, SIGNAL(addToQueueRequested(AMScanConfiguration*, bool)), workflowManagerView_, SLOT(onAddScanRequested(AMScanConfiguration*, bool)));
-		connect(scanConfigurationHolder_, SIGNAL(cancelAddToQueueRequest()), workflowManagerView_, SLOT(onCancelAddScanRequest()));
-		connect(workflowManagerView_, SIGNAL(addedScan(AMScanConfiguration*)), scanConfigurationHolder_, SLOT(onAddedToQueue(AMScanConfiguration*)));
-
-		connect(scanConfigurationHolder_, SIGNAL(goToQueueRequested()), this, SLOT(goToWorkflow()));
-		// removed: what does this do? connect(scanConfigurationHolder_, SIGNAL(newScanConfigurationView()), workflowManagerView_, SLOT(onNewScanConfigurationView()));
-
-
-
+		connect(scanConfigurationHolder_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
 
 
 
@@ -135,9 +121,9 @@ void REIXSAppController::shutdown() {
 
 void REIXSAppController::onCurrentPaneChanged(QWidget *pane) {
 
-	// If the scanConfigurationHolder pane was activated, let it know:
-	if(pane == scanConfigurationHolder_)
-		scanConfigurationHolder_->onBecameCurrentWidget();
+//	// If the scanConfigurationHolder pane was activated, let it know:
+//	if(pane == scanConfigurationHolder_)
+//		scanConfigurationHolder_->onBecameCurrentWidget();
 
 }
 

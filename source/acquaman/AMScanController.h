@@ -43,12 +43,16 @@ public:
 	/// Returns true if the scan is running and paused
 	virtual bool isPaused() const {return paused_;}
 	virtual bool isInitialized() const {return initialized_;}
+	virtual bool hasFailed() const { return failed_; }
+	virtual bool hasFinished() const { return finished_; }
 
 	virtual AMScan* scan() { return generalScan_; }
 
 signals:
-	// QQ: For all: Do I have to emit these? Does the top-level API do it?
+	// Implementations are responsible for emitting the following signals as events happen during the scan.
 
+	/// Scan has initialized (ie: the beamline has been configured and moved into position, etc. Ready to start() the scan.)
+	void initialized();
 	/// Scan has started
 	void started();
 	/// Scan completed
@@ -57,23 +61,22 @@ signals:
 	void cancelled();
 	/// Scan paused
 	void paused();
-	/// Scan resumed
+	/// Scan resumed from being paused
 	void resumed();
-	/// Time left in scan
+	/// Scan failed (due to some reason out of the user's control)
+	void failed();
+
+	/// Time left in scan. Implementations should emit this periodically
 	void timeRemaining(double seconds);
-	// QQ: What are the units? When do I need to emit this? both this and timeRemaining?
+	/// Progress of scan (arbitrary units: some amount \c elapsed of a \c total amount). Implementations should emit this periodically.
 	void progress(double elapsed, double total);
 
-	// QQ: apears unused
-	void scanCreated(AMScan *scan);
 
-	// QQ: had to add here; BeamlineScanAction receives from ScanController and uses to start scan.
-	void initialized();
 
-	// QQ: but not this one
-	void reinitialized(bool removeScan);
 
 public slots:
+	/// This function will be called to let a scan controller do any beamline or software initialization that is required. Implementations should emit the initialized() signal when complete.
+	virtual void initialize() = 0;
 	/// Start scan running if not currently running or paused
 	virtual void start() = 0;
 	/// Cancel scan if currently running or paused
@@ -83,10 +86,8 @@ public slots:
 	/// Resume scan if currently paused
 	virtual void resume() = 0;
 
-	virtual void initialize() = 0;
 
-	// QQ: What does this mean, and what does a scan controller need to do in this situation?
-	virtual void reinitialize(bool removeScan) = 0;
+
 
 protected:
 	/// Configuration for this scan
@@ -97,6 +98,8 @@ protected:
 	/// Holds whether this scan is currently paused
 	bool paused_;
 	bool initialized_;
+	bool failed_;
+	bool finished_;
 
 private:
 	// unused: AMScanConfiguration **_pCfg_;
@@ -124,11 +127,11 @@ public slots:
 signals:
 	void currentScanControllerCreated();
 	void currentScanControllerDestroyed();
-	void currentScanControllerReinitialized(bool removeScan);
+//	void currentScanControllerReinitialized(bool removeScan);
 
 protected slots:
 	void onCurrentScanControllerFinished();
-	void onCurrentScanControllerReinitialized(bool removeScan);
+	// void onCurrentScanControllerReinitialized(bool removeScan);
 
 protected:
 	AMScanControllerSupervisor(QObject *parent = 0);

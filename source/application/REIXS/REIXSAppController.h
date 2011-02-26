@@ -12,7 +12,7 @@
 //class SGMFastScanConfigurationViewer;
 
 class REIXSXESScanConfigurationDetailedView;
-class AMScanConfigurationHolder;
+class AMScanConfigurationViewHolder;
 
 
 class REIXSAppController : public AMAppController {
@@ -58,7 +58,7 @@ protected:
 //	AMXASScanConfigurationHolder* scanConfigurationHolder_;
 //	AMFastScanConfigurationHolder* fastScanConfigurationHolder_;
 
-	AMScanConfigurationHolder* scanConfigurationHolder_;
+	AMScanConfigurationViewHolder* scanConfigurationHolder_;
 	REIXSXESScanConfigurationDetailedView* xesScanConfigurationView_;
 
 

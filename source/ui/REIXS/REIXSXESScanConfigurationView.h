@@ -8,6 +8,9 @@
 #include <QComboBox>
 #include <QDoubleSpinBox>
 #include <QTimeEdit>
+#include <QRadioButton>
+#include <QCheckBox>
+
 
 class REIXSXESScanConfigurationView : public AMScanConfigurationView
 {

@@ -33,6 +33,8 @@ AMScanController::AMScanController(AMScanConfiguration *cfg, QObject *parent) :
 	running_ = false;
 	paused_ = false;
 	initialized_ = false;
+	failed_ = false;
+	finished_ = false;
 }
 
 
@@ -73,7 +75,6 @@ bool AMScanControllerSupervisor::setCurrentScanController(AMScanController *newS
 	if(!currentScanController_->scan())
 		return false;
 	connect(currentScanController_, SIGNAL(finished()), this, SLOT(onCurrentScanControllerFinished()));
-	connect(currentScanController_, SIGNAL(reinitialized(bool)), this, SLOT(onCurrentScanControllerReinitialized(bool)));
 	emit currentScanControllerCreated();
 	return true;
 }
@@ -88,11 +89,10 @@ bool AMScanControllerSupervisor::deleteCurrentScanController(){
 void AMScanControllerSupervisor::onCurrentScanControllerFinished(){
 	emit currentScanControllerDestroyed();
 	disconnect(currentScanController_, SIGNAL(finished()), this, SLOT(onCurrentScanControllerFinished()));
-	disconnect(currentScanController_, SIGNAL(reinitialized(bool)), this, SLOT(onCurrentScanControllerReinitialized(bool)));
 	currentScanController_->deleteLater();
 	currentScanController_ = 0;
 }
 
-void AMScanControllerSupervisor::onCurrentScanControllerReinitialized(bool removeScan){
-	emit currentScanControllerReinitialized(removeScan);
-}
+//void AMScanControllerSupervisor::onCurrentScanControllerReinitialized(bool removeScan){
+//	emit currentScanControllerReinitialized(removeScan);
+//}
