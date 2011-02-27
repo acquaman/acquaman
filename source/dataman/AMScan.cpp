@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMSample.h"
 #include "dataman/AMDbObjectSupport.h"
 #include "dataman/AMInMemoryDataStore.h"
+#include "acquaman/AMScanConfiguration.h"
 
 
 AMScan::AMScan(QObject *parent)
@@ -37,6 +38,8 @@ AMScan::AMScan(QObject *parent)
 	notes_ = QString();
 	filePath_ = QString();
 	fileFormat_ = "unknown";
+
+	configuration_ = 0;
 
 	data_ = new AMInMemoryDataStore();	// data store is initially empty. Needs axes configured in specific subclasses.
 	//data_ = new AMDataTreeDataStore(AMAxisInfo("eV", 0, "Incidence Energy", "eV"));
@@ -74,6 +77,10 @@ AMScan::~AMScan() {
 		rawDataSources_.remove(count-1);
 		delete deleteMe;
 	}
+
+	// delete the scan configuration, if we have one
+	if(configuration_)
+		delete configuration_;
 
 	// delete the raw data store, which was allocated in the constructor.
 	delete data_;
@@ -336,6 +343,28 @@ void AMScan::onDataSourceRemoved(int index) {
 		emit dataSourceRemoved(index+rawDataSources_.count());
 }
 
+
+
+// Set the scan configuration. Deletes the existing scanConfiguration() if there is one.  The scan takes ownership of the \c newConfiguration and will delete it when being deleted.
+void AMScan::setScanConfiguration(AMScanConfiguration* newConfiguration) {
+	if(!newConfiguration)
+		return;
+	if(configuration_)
+		delete configuration_;
+	configuration_ = newConfiguration;
+	setModified(true);
+}
+
+
+// Used by the database system (storeToDb()) to read and store the scan configuration
+AMDbObject* AMScan::dbGetScanConfiguration() const { return configuration_; }
+
+// Used by the database system (loadFromDb()) to load a saved scan configuration (if there is no existing scan configuration yet, or if the existing one doesn't match the type stored in the database).
+void AMScan::dbLoadScanConfiguration(AMDbObject* newObject) {
+	AMScanConfiguration* sc;
+	if((sc = qobject_cast<AMScanConfiguration*>(newObject)))
+		setScanConfiguration(sc);
+}
 
 
 

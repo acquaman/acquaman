@@ -34,6 +34,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 typedef AMOrderedSet<QString, AMRawDataSource*> AMRawDataSourceSet;
 typedef AMOrderedSet<QString, AMAnalysisBlock*> AMAnalyzedDataSourceSet;
 
+class AMScanConfiguration;
+
 /// This class is the base of all objects that represent a single 'scan' on a beamline.  It's also used as the standard container for a set of raw and/or processed AMDataSources, which can be visualized together in
 class AMScan : public AMDbObject {
 
@@ -78,7 +80,7 @@ public:
 
 	/// \todo copy constructor and assignment operator required, but not yet implemented. Do not copy. (implementation note: handle channels as children?)
 
-	// Meta Data Elements
+	// Role 1: Meta Data Elements
 	////////////////////////////////
 	/// Returns a user-given number
 	int number() const { return number_;}
@@ -106,7 +108,7 @@ public:
 	QString sampleName() const;
 
 
-	// Database system
+	// Role 2: Database system
 	///////////////////////////////////////////
 	/// Loads a saved scan from the database into self. Returns true on success.
 	/*! Re-implemented from AMDbObject::loadFromDb(), this version also loads the scan's raw data if autoLoadData() is set to true, and the stored filePath doesn't match the existing filePath()*/
@@ -117,7 +119,7 @@ public:
 	virtual bool storeToDb(AMDatabase* db);
 
 
-	// Data Sources (Raw and Analyzed)
+	// Role 3: Data Sources (Raw and Analyzed)
 	////////////////////////////////
 
 	/// Returns read-only access to the set of raw data sources. (A data source represents a single "stream" or "channel" of data. For example, in a simple absorption scan, the electron yield measurements are one raw data source, and the fluorescence yield measurements are another data source.)
@@ -196,7 +198,7 @@ public:
 
 
 
-	// Raw Data Loading
+	// Role 4: Loading/Clearing Raw Data
 	////////////////////////////
 	/// Load raw data into memory from storage. Returns true on success.
 	/*! Subclasses should not reimplement this function, but must provide an implementation for loadDataImplementation(), which attempts to use the scan's current filePath() and fileFormat() as the source, and handles their set of readable file formats.  This function calls loadDataImplementation(), and then calls setDataStore() on all the raw data sources, to hopefully restore them to a valid state, now that there is valid raw data.*/
@@ -242,7 +244,7 @@ public:
 	}
 
 
-	// DataStore (Raw Data) Interface
+	// Role 5: DataStore (Raw Data) Interface
 	//////////////////////////////////
 
 	/// This should only be exposed to certain objects (such as scan controllers), which are allowed to modify the raw data store.
@@ -260,13 +262,23 @@ public:
 
 
 
-	// Beamline conditions
+	// Role 6: Beamline conditions
 	//////////////////////////////
 	/// Independent from the hardware you're connected to right now, an AMControlSetInfo can remember values and descriptions of how some hardware was set at the time of the scan.
 	const AMControlInfoList* scanInitialConditions() const { return &scanInitialConditions_; }
 	AMControlInfoList* scanInitialConditions() { return &scanInitialConditions_; }
 
-	// Thumbnail system:
+	// Role 7: Access to Scan Configuration
+	///////////////////////////////
+
+	///  Access the scan's configuration
+	AMScanConfiguration* scanConfiguration() { return configuration_; }
+	///  Read-only access the scan's configuration
+	const AMScanConfiguration* scanConfiguration() const { return configuration_; }
+	/// Set the scan configuration. Deletes the existing scanConfiguration() if there is one.  The scan takes ownership of the \c newConfiguration and will delete it when being deleted.
+	void setScanConfiguration(AMScanConfiguration* newConfiguration);
+
+	// Role 8: Thumbnail system:
 	////////////////////////////////
 
 	/// This is an arbitrary decision, but let's define it like this (for usability): If we have any analyzed data sources, we have a thumbnail for each analyzed data source. Otherwise, rather than showing nothing, we have a thumbnail for each raw data source.
@@ -290,7 +302,7 @@ public:
 
 public slots:
 
-	// Setting Meta-Data
+	// Role 1: Setting Meta-Data
 	///////////////////////////////
 
 	/// Sets appended number
@@ -314,9 +326,6 @@ public slots:
 
 signals:
 
-	// Is it okay to remove this?
-	/// Emitted when raw data changes / new data accepted
-	void dataChanged(AMScan* me);
 
 	// Meta-data changed signals:
 	/////////////////
@@ -341,12 +350,9 @@ signals:
 
 protected slots:
 
-	// Is it okay to remove this? All notification should be through AMDataSources.
-	/*
-	/// Called by friends after finished updating / loading from file, etc.
-	void onDataChanged() {
-		emit dataChanged(this);
-	}*/
+
+	// Combined Data Source Model: insert/remove handling
+	////////////////////////////////////////
 
 	/// Receives itemAboutToBeAdded() signals from rawDataSources_ and analyzedDataSources, and emits dataSourceAboutToBeAdded().
 	void onDataSourceAboutToBeAdded(int index);
@@ -361,6 +367,7 @@ protected:
 
 	// meta data values
 	//////////////////////
+
 	/// user-given number for this scan
 	int number_;
 	/// Scan start time
@@ -392,10 +399,12 @@ protected:
 	AMAnalyzedDataSourceSet analyzedDataSources_;
 	/// Conditions of the beamline/experimental hardware at the beginning of the scan
 	AMControlInfoList scanInitialConditions_;
+	/// The scan configuration (0 if none has been provided with setScanConfiguration() ). The scan object takes ownership of the scan configuration.
+	AMScanConfiguration* configuration_;
 
 
 
-	// Protected functions to support loading and storing of composite properties (scanInitialConditions, rawDataSources, analyzeDataSources) in the database. You should never need to use these directly.
+	// Database loading and storing.  Protected functions to support loading and storing of composite properties (scanInitialConditions, rawDataSources, analyzeDataSources) in the database. You should never need to use these directly.
 	///////////////////////////////
 
 	/// Called when a stored scanInitialCondition is loaded out of the database, but scanInitialConditions() is not returning a pointer to a valid AMControlInfoList. Note: this should never happen, unless the database storage was corrupted and is loading the wrong object type.
@@ -410,6 +419,11 @@ protected:
 	/// Called when loadFromDb() finds a different number (or types) of stored analyzed data sources than we currently have in-memory.
 	/*! Usually, this would only happen when calling loadFromDb() on a scan object for the first time, or when re-loading after creating additional analyzed data sources but not saving them.*/
 	void dbLoadAnalyzedDataSources(const AMDbObjectList& newAnalyzedSources);
+
+	/// Used by the database system (storeToDb()) to read and store the scan configuration
+	AMDbObject* dbGetScanConfiguration() const;
+	/// Used by the database system (loadFromDb()) to load a saved scan configuration (if there is no existing scan configuration yet, or if the existing one doesn't match the type stored in the database).
+	void dbLoadScanConfiguration(AMDbObject* newObject);
 
 	/// This returns a string describing the input connections of all the analyzed data sources. It's used to save and restore these connections when loading from the database.  (This system is necessary because AMAnalysisBlocks use pointers to AMDataSources to specify their inputs; these pointers will not be the same after new objects are created when restoring from the database.)
 	/*! Implementation note: The string contains one line for each AMAnalysisBlock in analyzedDataSources_, in order.  Every line is a sequence of comma-separated numbers, where the number represents the index of a datasource in dataSourceAt().  So for an analysis block using the 1st, 2nd, and 5th sources (in order), the line would be "0,1,4".
@@ -426,25 +440,12 @@ Lines are separated by single '\n', so a full string could look like:
 	void dbLoadAnalyzedDataSourcesConnections(const QString& connectionString);
 
 
-/*
-	/// Allow channels to tell us when they (and hence us) have been modified:
-	friend void AMChannel::informScanModified();
-*/
 
 	// Raw Data Loading
 	////////////////////////
 	/// Controls whether raw data is automatically loaded when restoring this scan from the database (ie: loadData() is called automatically inside loadFromDb().)  This is true by default, but you may want to turn it off for performance reasons when loading a large group of scans just to look at their meta-data.
 	bool autoLoadData_;
 
-
-
-
-	/* removed: this is now accomplished through the AMDataStore public API.
-	friend class AMAcqScanOutput;
-	friend class AMAcqScanSpectrumOutput;
-	friend class AMDacqScanController;
-	friend class SGMXASDacqScanController;
-	*/
 
 private:
 

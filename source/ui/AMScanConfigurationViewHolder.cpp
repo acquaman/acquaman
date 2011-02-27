@@ -24,7 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMScanConfigurationView.h"
 #include "ui/AMWorkflowManagerView.h"
 
-AMScanConfigurationHolder::AMScanConfigurationHolder(AMWorkflowManagerView* workflow, AMScanConfigurationView* view, QWidget *parent) :
+AMScanConfigurationViewHolder::AMScanConfigurationViewHolder(AMWorkflowManagerView* workflow, AMScanConfigurationView* view, QWidget *parent) :
 		QWidget(parent)
 {
 	view_ = view;
@@ -69,11 +69,11 @@ AMScanConfigurationHolder::AMScanConfigurationHolder(AMWorkflowManagerView* work
 
 
 
-AMScanConfigurationHolder::~AMScanConfigurationHolder()
+AMScanConfigurationViewHolder::~AMScanConfigurationViewHolder()
 {
 }
 
-void AMScanConfigurationHolder::setView(AMScanConfigurationView *view) {
+void AMScanConfigurationViewHolder::setView(AMScanConfigurationView *view) {
 	// delete old view, if it exists
 	if(view_)
 		delete view_;
@@ -88,7 +88,7 @@ void AMScanConfigurationHolder::setView(AMScanConfigurationView *view) {
 
 
 
-void AMScanConfigurationHolder::reviewStartScanButtonState() {
+void AMScanConfigurationViewHolder::reviewStartScanButtonState() {
 
 	// if the scan configuration view, or its actual configuration, is not valid...
 	if(!view_ || !view_->configuration()) {
@@ -119,7 +119,7 @@ void AMScanConfigurationHolder::reviewStartScanButtonState() {
 
 
 #include <QMessageBox>
-void AMScanConfigurationHolder::onStartScanRequested(){
+void AMScanConfigurationViewHolder::onStartScanRequested(){
 
 	if(!view_ || !view_->configuration())
 		return;
@@ -140,9 +140,9 @@ void AMScanConfigurationHolder::onStartScanRequested(){
 		questionBox.setInformativeText("What do you want to do with this scan?");
 		questionBox.setIcon(QMessageBox::Question);
 		QPushButton* cancel = questionBox.addButton("Cancel", QMessageBox::RejectRole);
-		QPushButton* addToEnd = questionBox.addButton("Add to end", QMessageBox::YesRole);
-		QPushButton* addToEndAndStart = questionBox.addButton("Add to end, and start workflow", QMessageBox::YesRole);
 		QPushButton* addToBeginningAndStart = questionBox.addButton("Add to beginning and start", QMessageBox::YesRole);
+		QPushButton* addToEndAndStart = questionBox.addButton("Add to end and start workflow", QMessageBox::YesRole);
+		QPushButton* addToEnd = questionBox.addButton("Add to end", QMessageBox::YesRole);
 		questionBox.setDefaultButton(addToEndAndStart);
 
 		questionBox.exec();
@@ -169,7 +169,7 @@ void AMScanConfigurationHolder::onStartScanRequested(){
 	workflow_->insertBeamlineAction(position, action, startNow);
 }
 
-void AMScanConfigurationHolder::onAddToQueueRequested() {
+void AMScanConfigurationViewHolder::onAddToQueueRequested() {
 
 	if(!view_ || !view_->configuration())
 		return;

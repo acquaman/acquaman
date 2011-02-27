@@ -47,7 +47,7 @@ bool REIXSAppController::startup() {
 		mw_->insertHeading("Experiment Setup", 1);
 		//////////
 		xesScanConfigurationView_ = new REIXSXESScanConfigurationDetailedView(REIXSBeamline::bl()->mcpDetector());
-		scanConfigurationHolder_ = new AMScanConfigurationHolder(workflowManagerView_, xesScanConfigurationView_);
+		scanConfigurationHolder_ = new AMScanConfigurationViewHolder(workflowManagerView_, xesScanConfigurationView_);
 		mw_->addPane(scanConfigurationHolder_, "Experiment Setup", "Emission Scan", ":/utilities-system-monitor.png");
 
 		////////////////// move somewhere clean ////////////////////
@@ -92,7 +92,7 @@ bool REIXSAppController::startup() {
 
 		connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerCreated()), this, SLOT(onCurrentScanControllerCreated()));
 		connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerDestroyed()), this, SLOT(onCurrentScanControllerDestroyed()));
-		connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerReinitialized(bool)), this, SLOT(onCurrentScanControllerReinitialized(bool)));
+		// connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerReinitialized(bool)), this, SLOT(onCurrentScanControllerReinitialized(bool)));
 
 
 		/*! \todo: hook up bottom-bar signals to the active scan controller.

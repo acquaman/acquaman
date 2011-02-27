@@ -43,11 +43,11 @@ bool SGMAppController::startup() {
 		mw_->insertHeading("Experiment Setup", 1);
 		//////////
 		//xasScanConfigurationHolder_ = new AMXASScanConfigurationHolder();
-		xasScanConfigurationHolder_ = new AMScanConfigurationHolder(workflowManagerView_);
+		xasScanConfigurationHolder_ = new AMScanConfigurationViewHolder(workflowManagerView_);
 		mw_->addPane(xasScanConfigurationHolder_, "Experiment Setup", "SGM XAS Scan", ":/utilities-system-monitor.png");
 
 		//fastScanConfigurationHolder_ = new AMFastScanConfigurationHolder();
-		fastScanConfigurationHolder_ = new AMScanConfigurationHolder(workflowManagerView_);
+		fastScanConfigurationHolder_ = new AMScanConfigurationViewHolder(workflowManagerView_);
 		mw_->addPane(fastScanConfigurationHolder_, "Experiment Setup", "SGM Fast Scan", ":/utilities-system-monitor.png");
 
 
@@ -58,7 +58,7 @@ bool SGMAppController::startup() {
 
 		connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerCreated()), this, SLOT(onCurrentScanControllerCreated()));
 		connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerDestroyed()), this, SLOT(onCurrentScanControllerDestroyed()));
-		connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerReinitialized(bool)), this, SLOT(onCurrentScanControllerReinitialized(bool)));
+		// removed: connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerReinitialized(bool)), this, SLOT(onCurrentScanControllerReinitialized(bool)));
 
 
 		/*! \todo: hook up bottom-bar signals to the active scan controller.

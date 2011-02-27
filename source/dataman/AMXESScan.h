@@ -41,30 +41,8 @@ public:
 	virtual bool loadDataImplementation();
 
 
-	///  Access the scan's configuration
-	AMScanConfiguration* scanConfiguration() { return configuration_; }
-	const AMScanConfiguration* scanConfiguration() const { return configuration_; }
-	AMDbObject* dbGetScanConfiguration() const { return configuration_; }
-
-	/// \todo Move this to AMScan eventually? Set the scan configuration. Deletes the existing scan configuration if there is one.
-	void setScanConfiguration(AMScanConfiguration* newConfiguration) {
-		if(!newConfiguration)
-			return;
-		if(configuration_)
-			delete configuration_;
-		configuration_ = newConfiguration;
-		setModified(true);
-	}
-
-	/// \todo Move this to AMScanConfiguration eventually?
-	void dbLoadScanConfiguration(AMDbObject* newObject) {
-		AMScanConfiguration* sc;
-		if((sc = qobject_cast<AMScanConfiguration*>(newObject)))
-			setScanConfiguration(sc);
-	}
-
 signals:
-	// inherits dataChanged(AMScan*)
+
 
 public slots:
 
