@@ -41,4 +41,5 @@ bool SGM2010FastSensibleFileLoader::saveToFile(const QString &filepath){
 				<< (int)(scan->rawData()->value(AMnDIndex(x), 3, AMnDIndex())) << "\n";
 	}
 
+	return true;
 }
