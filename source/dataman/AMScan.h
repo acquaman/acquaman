@@ -54,6 +54,7 @@ class AMScan : public AMDbObject {
 	Q_PROPERTY(AMDbObjectList rawDataSources READ dbReadRawDataSources WRITE dbLoadRawDataSources)
 	Q_PROPERTY(AMDbObjectList analyzedDataSources READ dbReadAnalyzedDataSources WRITE dbLoadAnalyzedDataSources)
 	Q_PROPERTY(QString analyzedDataSourcesConnections READ dbReadAnalyzedDataSourcesConnections WRITE dbLoadAnalyzedDataSourcesConnections)
+	Q_PROPERTY(AMDbObject* scanConfiguration READ dbGetScanConfiguration WRITE dbLoadScanConfiguration)
 
 	Q_CLASSINFO("dateTime", "createIndex=true")
 	Q_CLASSINFO("sampleId", "createIndex=true")
@@ -63,6 +64,7 @@ class AMScan : public AMDbObject {
 	Q_CLASSINFO("analyzedDataSources", "hidden=true")
 	Q_CLASSINFO("scanInitialConditions", "hidden=true")
 	Q_CLASSINFO("analyzedDataSourcesConnections", "hidden=true")
+	Q_CLASSINFO("scanConfiguration", "hidden=true")
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Generic Scan")
 
