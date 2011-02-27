@@ -34,6 +34,11 @@ AMVideoWidget::AMVideoWidget(QWidget *parent)
 	: QFrame(parent) {
 
 	setMinimumSize(100,100);
+	setFrameStyle(QFrame::Box);
+	QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	sp.setHorizontalStretch(2);
+	sp.setVerticalStretch(2);
+	setSizePolicy(sp);
 
 	QVBoxLayout* vl = new QVBoxLayout();
 	macViewContainer_ = new QMacCocoaViewContainer(0);

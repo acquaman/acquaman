@@ -31,7 +31,7 @@ public:
 
 	/// isPlaying is true when video is in playback
 	bool isPlaying() const { return libvlc_media_player_is_playing(vlcPlayer_); }
-	/// returns the exact state of playback (see
+	/// returns the exact state of playback (see libvlc_state_t)
 	libvlc_state_t state() const { return libvlc_media_player_get_state(vlcPlayer_); }
 
 signals:

@@ -73,11 +73,12 @@ bool REIXSAppController::startup() {
 
 		hl->addWidget(gb);
 
-		hl->addStretch(1);
+		//hl->addStretch(1);
 
 		AMVideoWidget* vw = new AMVideoWidget();
 		hl->addWidget(vw);
-		vw->openVideoUrl("http://v2e1607-001.cs.clsi.ca/mjpg/1/video.mjpg");
+		//vw->openVideoUrl("http://v2e1607-001.cs.clsi.ca/mjpg/1/video.mjpg");
+		vw->openVideoUrl("/Users/mboots/Movies/000_0026.MOV");
 		vw->play();
 
 

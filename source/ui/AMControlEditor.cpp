@@ -31,12 +31,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMBasicControlEditor::AMBasicControlEditor(AMControl* control, QWidget *parent) :
 	QFrame(parent)
 {
-	setObjectName("AMNumericControl");
+	setObjectName("AMControlEditor");
 
 	control_ = control;
 
 	// Create objects:
-	valueLabel_ = new QLabel("[unconnected]");
+	valueLabel_ = new QLabel("[Not Connected]");
 	unitsLabel_ = new QLabel("?");
 
 
@@ -51,11 +51,11 @@ AMBasicControlEditor::AMBasicControlEditor(AMControl* control, QWidget *parent) 
 
 	// Style: TODO: move out of this constructor into app-wide stylesheet
 	valueLabel_->setStyleSheet("color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);");
-	valueLabel_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+	valueLabel_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 	setFrameStyle(QFrame::StyledPanel);
-	setStyleSheet("QFrame#AMNumericControl { background: white; } ");
+	setStyleSheet("QFrame#AMControlEditor { background: white; } ");
 	setHappy(false);
-	setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+	setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 
 
 	// Make connections:
@@ -202,14 +202,12 @@ AMControlEditor::AMControlEditor(AMControl* control, AMControl* statusTagControl
 		readOnly_ = true;
 
 	// Create objects:
-//	valueLabel_ = new QLabel("[unconnected]");
-	valueLabel_ = new QLabel("[NC]");
+	valueLabel_ = new QLabel("[Not Connected]");
 	unitsLabel_ = new QLabel("?");
 	if(statusTagControl_){
 		QFont statusFont;
 		statusFont.setPointSize(10);
-		//statusLabel_ = new QLabel("[unconnected]");
-		statusLabel_ = new QLabel("[NC]");
+		statusLabel_ = new QLabel("[Not Connected]");
 		statusLabel_->setFont(statusFont);
 		statusLabel_->setMargin(1);
 	}
@@ -243,13 +241,13 @@ AMControlEditor::AMControlEditor(AMControl* control, AMControl* statusTagControl
 
 	// Style: TODO: move out of this constructor into app-wide stylesheet
 	valueLabel_->setStyleSheet("color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);");
-	valueLabel_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+	valueLabel_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 
 	//setFrameStyle(QFrame::StyledPanel);
 	//setStyleSheet("QFrame#AMControlEdit { background: white; } ");
 	//setStyleSheet("QGroupBox#AMControlEdit { background: white; } ");
 	setHappy(false);
-	setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+	setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 
 
 	// Make connections:
