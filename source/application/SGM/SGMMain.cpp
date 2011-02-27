@@ -29,8 +29,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 int main(int argc, char *argv[])
 {
 
-	putenv("EPICS_CA_MAX_ARRAY_BYTES=400000");
-
 	/// Program Startup:
 	// =================================
 	QApplication app(argc, argv);
