@@ -17,55 +17,55 @@
 
 void displayAlias::localUpdate(Connector *conp)
 {
-    displayAlias *ptr;
-    char result[100];
-    QString oldAlias;
-    
-    ptr = (displayAlias *)conp->private_data;
-    con_val_to_string( conp, result, sizeof result, 0);
-    oldAlias = ptr->alias;
-    ptr->alias = result;
-    
-    emit ptr->newAlias( oldAlias, ptr->alias);
-    
+	displayAlias *ptr;
+	char result[100];
+	QString oldAlias;
+
+	ptr = (displayAlias *)conp->private_data;
+	con_val_to_string( conp, result, sizeof result, 0);
+	oldAlias = ptr->alias;
+	ptr->alias = result;
+
+	emit ptr->newAlias( oldAlias, ptr->alias);
+
 }
 
 displayAlias * displayAlias::head;
 //
-displayAlias::displayAlias() : pv_name(NULL), alias(NULL), pv_desc(NULL), isIndirect(0), isAlias(0)
+displayAlias::displayAlias() : pv_name(), alias(), pv_desc(), isIndirect(0), isAlias(0)
 {
-    if( head == NULL)
+	if( head == NULL)
  head = prevp = nextp = this;
-    else
-    {
+	else
+	{
  nextp = head;
  prevp = head->prevp;
  nextp->prevp = this;
  prevp->nextp = this;
-    }
+	}
 }
 
 displayAlias::~displayAlias()
 {
-    if( head == this)
-    {
+	if( head == this)
+	{
  if( head->nextp == this)
  {
-     head = NULL;
-     return;
+	 head = NULL;
+	 return;
  }
  head = head->nextp;
-    }
-    nextp->prevp = prevp;
-    prevp->nextp = nextp;
+	}
+	nextp->prevp = prevp;
+	prevp->nextp = nextp;
 }
 
 void displayAlias::setPvName(const QString &pvn)
 {
-    QString descName;
-    if( pvn == "" || pvn == pv_name)
-	    return;
-    pv_name = pvn;
+	QString descName;
+	if( pvn == "" || pvn == pv_name)
+		return;
+	pv_name = pvn;
 }
 
 void displayAlias::setAlias(const QString &aliasName)
@@ -85,7 +85,7 @@ void displayAlias::setAlias(const QString &aliasName)
 			localUpdate( pv_desc);
 		return;
 	}
-	
+
 	alias = aliasName;
 	emit haveAlias(aliasName);
 }
@@ -107,22 +107,22 @@ void displayAlias::setIndirect()
 
 void displayAlias::setCategory( int whichCategory)
 {
-    iCategory.push_back(whichCategory);
+	iCategory.push_back(whichCategory);
 }
 
 void displayAlias::setCategory( const QString &category)
 {
-    sCategory.push_back( category);
-    if( category == "indirect")
-	    setIndirect();
+	sCategory.push_back( category);
+	if( category == "indirect")
+		setIndirect();
 }
 
 void displayAlias::setCategoryList( const QString &category)
 {
-	
+
 //	QStringList qlist = QStringList::split(",", category);
-    QStringList qlist = category.split(",");
-    for( QStringList::Iterator it = qlist.begin(); it != qlist.end(); ++it)
+	QStringList qlist = category.split(",");
+	for( QStringList::Iterator it = qlist.begin(); it != qlist.end(); ++it)
 	{
 		bool ok;
 		int icat = (*it).toInt(&ok);
@@ -137,120 +137,120 @@ void displayAlias::setCategoryList( const QString &category)
 
 displayAlias  *displayAlias::find(const QString &name, int searchCategory)
 {
-    displayAlias *ptr;
-    
-    for( ptr=displayAlias::first(searchCategory); ptr; ptr=ptr->next(searchCategory) )
-    {
+	displayAlias *ptr;
+
+	for( ptr=displayAlias::first(searchCategory); ptr; ptr=ptr->next(searchCategory) )
+	{
 	 if( ptr->pv_name == name || ptr->alias == name)
 	 {
-		     return ptr;
+			 return ptr;
 	 }
-    }
-    return NULL;
-    
+	}
+	return NULL;
+
 }
 
 bool
 displayAlias::testCategory(int icat)
 {
-	
-     for(unsigned int idx=0; idx < iCategory.size(); idx++)
+
+	 for(unsigned int idx=0; idx < iCategory.size(); idx++)
 	if( iCategory[idx] == icat)
 		return TRUE;
-     return FALSE;
+	 return FALSE;
 }
 
 bool
 displayAlias::testCategory(const QString &scat)
 {
-     for(unsigned int idx=0; idx < sCategory.size(); idx++)
+	 for(unsigned int idx=0; idx < sCategory.size(); idx++)
 	if( sCategory[idx] == scat)
 		return TRUE;
-     return FALSE;
-     
+	 return FALSE;
+
 }
 
 displayAlias *displayAlias::find(const QString &name, const QString &searchCategory)
 {
-    displayAlias *ptr;
-    
-    for( ptr=first(searchCategory); ptr; ptr=ptr->next(searchCategory) )
-    {
+	displayAlias *ptr;
+
+	for( ptr=first(searchCategory); ptr; ptr=ptr->next(searchCategory) )
+	{
 	 if( ptr->pv_name == name || ptr->alias == name)
 	 {
-	     return ptr;
+		 return ptr;
 	 }
-    }
-    return NULL;
+	}
+	return NULL;
 }
 
 displayAlias *displayAlias::first(int searchCategory)
 {
-    displayAlias *ptr;
-    if( searchCategory < 0)
+	displayAlias *ptr;
+	if( searchCategory < 0)
  return displayAlias::head;
-    for( ptr=displayAlias::head; ptr ; ptr =(ptr->nextp == displayAlias::head?NULL:ptr->nextp) )
-    {
-	    if( ptr->testCategory( searchCategory) )
-	     return ptr;
-    }
-    return NULL;
+	for( ptr=displayAlias::head; ptr ; ptr =(ptr->nextp == displayAlias::head?NULL:ptr->nextp) )
+	{
+		if( ptr->testCategory( searchCategory) )
+		 return ptr;
+	}
+	return NULL;
 }
 
 displayAlias *displayAlias::next(int searchCategory)
 {
-    if( searchCategory < 0)
+	if( searchCategory < 0)
 	 return fastNext();
-    
-    for( displayAlias *ptr=fastNext(); ptr ; ptr = ptr->fastNext() )
-    {
-	    if( ptr->testCategory(searchCategory))
-	     return ptr;
-    }
-    return NULL;
+
+	for( displayAlias *ptr=fastNext(); ptr ; ptr = ptr->fastNext() )
+	{
+		if( ptr->testCategory(searchCategory))
+		 return ptr;
+	}
+	return NULL;
 }
 
 displayAlias *displayAlias::first(const QString & searchCategory)
 {
-    displayAlias *ptr;
+	displayAlias *ptr;
 
-    for( ptr=head; ptr ; ptr = ptr->fastNext() )
-    {
-	    if( ptr->testCategory( searchCategory) )
-	     return ptr;
-    }
-    return NULL;
+	for( ptr=head; ptr ; ptr = ptr->fastNext() )
+	{
+		if( ptr->testCategory( searchCategory) )
+		 return ptr;
+	}
+	return NULL;
 }
 
 displayAlias *displayAlias::next(const QString & searchCategory)
 {
-    
-    for( displayAlias *ptr=this->fastNext(); ptr ; ptr = ptr->fastNext() )
-    {
-	    if( ptr->testCategory(searchCategory))
-	     return ptr;
-    }
-    return NULL;
+
+	for( displayAlias *ptr=this->fastNext(); ptr ; ptr = ptr->fastNext() )
+	{
+		if( ptr->testCategory(searchCategory))
+		 return ptr;
+	}
+	return NULL;
 }
 
 displayAlias *displayAlias::nextInCategory()
 {
-    if( this == NULL)
+	if( this == NULL)
  return NULL;
-    
-    return next(this->iCategory[0]);
+
+	return next(this->iCategory[0]);
 }
 
 QString displayAlias::getName()
 {
-    if( !alias.isEmpty() )
+	if( !alias.isEmpty() )
 	 return alias;
-    return pv_name;
+	return pv_name;
 }
 
 QString displayAlias::getPvName()
 {
-    return pv_name;
+	return pv_name;
 }
 
 QString displayAlias::getExpandedPvName()
@@ -264,7 +264,7 @@ QString displayAlias::getExpandedPvName()
 
 QString displayAlias::getAlias()
 {
-    return alias;
+	return alias;
 }
 
 Connector * displayAlias::get_connector( void *private_data, const QString &pv_name)
@@ -272,7 +272,7 @@ Connector * displayAlias::get_connector( void *private_data, const QString &pv_n
 	QString realName;
 	displayAlias *ptr;
 	Connector *result;
-	
+
 	ptr = displayAlias::find(pv_name, "alias");
 	if( ptr)
 		realName = ptr->getPvName();
@@ -289,9 +289,9 @@ Connector *get_connector( void *private_data, const QString &pv_name)
 }
 
 // $Log: displayAlias.cpp  $
-// Revision 1.2.1.3 2009/03/04 15:22:17CST Glen Wright (wrightg) 
+// Revision 1.2.1.3 2009/03/04 15:22:17CST Glen Wright (wrightg)
 // Updates for: use of color rules; version 3.x acquisition library.
-// Revision 1.2 2007/05/19 12:12:24CST Elder Matias (matiase) 
+// Revision 1.2 2007/05/19 12:12:24CST Elder Matias (matiase)
 // Added header/log
 
 

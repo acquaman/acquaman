@@ -4,19 +4,23 @@
 # ####################################################################
 HOME_FOLDER = $$system(echo $HOME)
 macx {
-	EPICS_INCLUDE_DIRS = $$HOME_FOLDER/dev/epics/14-11/base/include \
-		$$HOME_FOLDER/dev/epics/14-11/base/include/os/Darwin
-	EPICS_LIB_DIR = $$HOME_FOLDER/dev/epics/14-11/base/lib/darwin-x86
+	EPICS_INCLUDE_DIRS = $$HOME_FOLDER/dev/acquaman/contrib/base-3.14.12/include \
+		$$HOME_FOLDER/dev/acquaman/contrib/base-3.14.12/include/os/Darwin
+	EPICS_LIB_DIR = $$HOME_FOLDER/dev/acquaman/contrib/base-3.14.12/lib/darwin-x86
 	MPLOT_INCLUDE_DIR = $$HOME_FOLDER/dev/MPlot/src
-	GSL_INCLUDE_DIR = $$HOME_FOLDER/dev/gsl-install/include
-	GSL_LIB = -L$$HOME_FOLDER/dev/gsl-install/lib \
-		-lgsl
-	GSL_CBLAS_LIB = -L$$HOME_FOLDER/dev/gsl-install/lib \
-		-lgslcblas
+	GSL_INCLUDE_DIR = $$HOME_FOLDER/dev/acquaman/contrib/gsl-install/include
+	GSL_LIB = -L$$HOME_FOLDER/dev/acquaman/contrib/gsl-install/lib -lgsl
+	GSL_CBLAS_LIB = -L$$HOME_FOLDER/dev/acquaman/contrib/gsl-install/lib -lgslcblas
 
-	VLC_LIB = -L$$HOME_FOLDER/dev/vlc-install/lib -lvlc
-	VLC_INCLUDE_DIR = $$HOME_FOLDER/dev/vlc-install/include
-	VLC_PLUGIN_PATH = $$HOME_FOLDER/dev/vlc-install/lib/vlc/plugins/
+	#VLC_LIB = -L$$HOME_FOLDER/dev/vlc-1.1/projects/macosx/framework/build/Release/vlc_build_dir/i386/vlc_install_dir/lib -lvlc
+	VLC_LIB = -L$$HOME_FOLDER/dev/acquaman/contrib/vlc-install/lib -lvlc
+	#VLC_INCLUDE_DIR = $$HOME_FOLDER/dev/vlc-1.1/projects/macosx/framework/build/Release/vlc_build_dir/i386/vlc_install_dir/include
+	VLC_INCLUDE_DIR = $$HOME_FOLDER/dev/acquaman/contrib/vlc-install/include
+	VLC_PLUGIN_PATH = $$HOME_FOLDER/dev/acquaman/contrib/vlc-install/VLC-release.app/Contents/MacOS/plugins
+
+	#VLCKIT = -F$$HOME_FOLDER/dev/vlc-1.1/projects/macosx/framework/build/Release -framework VLCKit
+	#VLCKIT_INCLUDE_DIR = $$HOME_FOLDER/dev/vlc-1.1/projects/macosx/framework/build/Release/VLCKit.framework/Headers
+
 }
 linux-g++ {
 	EPICS_INCLUDE_DIRS = $$HOME_FOLDER/beamline/programming/epics/base/include \
@@ -235,7 +239,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/dataman/REIXS/REIXSXESRawFileLoader.h \
 	source/util/AMDeferredFunctionCall.h \
 	source/ui/AMVideoWidget.h \
-    source/ui/AMScanConfigurationViewHolder.h
+	source/ui/AMScanConfigurationViewHolder.h
 FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
 	source/ui/AMDataViewSection.ui \
@@ -403,11 +407,13 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/beamline/AMBeamlineControlStopAction.cpp \
 	source/dataman/REIXS/REIXSXESRawFileLoader.cpp \
 	source/util/AMDeferredFunctionCall.cpp \
-    source/ui/AMScanConfigurationViewHolder.cpp
+	source/ui/AMScanConfigurationViewHolder.cpp
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc
 
 macx {
 OBJECTIVE_SOURCES += 	source/ui/AMVideoWidget_mac.mm
 LIBS += -framework AppKit
+#LIBS += $$VLCKIT
+#INCLUDEPATH += $$VLCKIT_INCLUDE_DIR
 }

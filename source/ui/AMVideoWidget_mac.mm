@@ -2,6 +2,11 @@
 #include <QMacCocoaViewContainer>
 #include <QVBoxLayout>
 #include "/System/Library/Frameworks/AppKit.framework/Headers/NSView.h"
+#include "/System/Library/Frameworks/AppKit.framework/Headers/NSSearchField.h"
+// #include <VLCVideoView.h>
+// #include "/System/Library/Frameworks/Cocoa.framework/Headers/Cocoa.h"
+
+#include <QLabel>
 
 /// Macro to take a non-quoted expression \c s and place quotes around it ("Stringify" it)
 #define stringify(s) #s
@@ -10,24 +15,27 @@
 #define stringify2(s) stringify(s)
 
 
+
 @interface VideoView : NSView
-- (void)addVoutSubview:(NSView *)view;
+		- (void)addVoutSubview:(NSView *)view;
 - (void)removeVoutSubview:(NSView *)view;
 @end
 
 @implementation VideoView
-- (void)addVoutSubview:(NSView *)view
+		- (void)addVoutSubview:(NSView *)view
 {
-	  [view setFrame:[self bounds]];
-	  [self addSubview:view];
-	  [view setAutoresizingMask: NSViewHeightSizable |
-NSViewWidthSizable];
+	[view setFrame:[self bounds]];
+	[self addSubview:view];
+	[view setAutoresizingMask: NSViewHeightSizable | NSViewWidthSizable];
 }
 - (void)removeVoutSubview:(NSView *)view
 {
-	  [view removeFromSuperview];
+	[view removeFromSuperview];
 }
 @end
+
+
+
 
 
 AMVideoWidget::AMVideoWidget(QWidget *parent)
@@ -45,11 +53,10 @@ AMVideoWidget::AMVideoWidget(QWidget *parent)
 	vl->addWidget(macViewContainer_);
 	setLayout(vl);
 
-
 	const char* const vlcArgs[] = {
-					"--no-video-title",
-					"--plugin-path=" stringify2(VLC_PLUGIN_PATH)
-			};
+		"--no-video-title",
+		"--plugin-path=" stringify2(VLC_PLUGIN_PATH)
+	};
 
 	// Create a vlc instance for this widget
 	vlcInstance_ = libvlc_new (2, vlcArgs);
@@ -61,6 +68,7 @@ AMVideoWidget::AMVideoWidget(QWidget *parent)
 
 	VideoView *nsView = [[VideoView alloc] init];
 	macViewContainer_->setCocoaView(nsView);
+
 	libvlc_media_player_set_nsobject(vlcPlayer_, nsView);
 
 	[nsView release];
@@ -108,5 +116,5 @@ void AMVideoWidget::togglePause() {
 
 void AMVideoWidget::stop() {
 	// if(isPlaying())	/// \todo change to all non-stopped states?
-		libvlc_media_player_stop(vlcPlayer_);
+	libvlc_media_player_stop(vlcPlayer_);
 }

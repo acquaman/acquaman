@@ -112,12 +112,12 @@ SGMXASScanConfigurationWizard::SGMXASScanConfigurationWizard(SGMXASScanConfigura
 		addPage(reviewPage);
 
 		setWindowTitle(tr("SGM XAS Scan Wizard"));
-		qDebug() << "End of constructor, cfg_ is " << (int)cfg_;
+		qDebug() << "End of constructor, cfg_ is " << cfg_;
 	}
 }
 
 void SGMXASScanConfigurationWizard::accept(){
-	qDebug() << "In accept, cfg_ is " << (int)cfg_;
+	qDebug() << "In accept, cfg_ is " << cfg_;
 	SGMXASDacqScanController *xasCtrl = new SGMXASDacqScanController(cfg_, SGMBeamline::sgm());
 	emit scanControllerReady((AMScanController*)xasCtrl);
 	xasCtrl->initialize();

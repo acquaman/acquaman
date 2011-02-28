@@ -88,7 +88,7 @@ public:
 	static void ensureChannelAccess() { getInstance(); }
 
 	/// Once they have a chid, they should call this to make sure they receive exceptions routed properly:
-	static void registerPV(chid c, AMProcessVariable* pv) { getInstance()->map_.insert(int(c), pv); }
+	static void registerPV(chid c, AMProcessVariable* pv) { getInstance()->map_.insert(qint64(c), pv); }
 
 	/// AMProcessVariables must call this in their destructor to de-register.
 	static void removePV(chid c) { getInstance()->removePVImplementation(c); }

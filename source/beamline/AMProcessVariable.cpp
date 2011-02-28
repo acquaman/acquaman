@@ -70,7 +70,7 @@ AMProcessVariableSupport* AMProcessVariableSupport::getInstance() {
 void AMProcessVariableSupport::removePVImplementation(chid c) {
 
 	// unregister this channel:
-	map_.remove(int(c));
+	map_.remove(qint64(c));
 
 	// if that was the last one out, tear down Channel Access:
 	if(map_.count() == 0) {
@@ -87,9 +87,9 @@ void AMProcessVariableSupport::removePVImplementation(chid c) {
 void AMProcessVariableSupport::PVExceptionCB(struct exception_handler_args args) {
 
 	// If there's a specific channel, pass it on to the channel's exception handler:
-	if(args.chid && getInstance()->map_.contains(int(args.chid)) ) {
+	if(args.chid && getInstance()->map_.contains(qint64(args.chid)) ) {
 
-		getInstance()->map_.value(int(args.chid))->exceptionCB(args);
+		getInstance()->map_.value(qint64(args.chid))->exceptionCB(args);
 
 	}
 

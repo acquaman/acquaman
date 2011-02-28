@@ -96,7 +96,7 @@ QEpicsAcqLocal::localOnStop( acqMaster_t *master)
 //
 // class QEpicsAcqLocal methods
 //
-QEpicsAcqLocal::QEpicsAcqLocal( QWidget *parent, const char *name ) : QEpicsAcqClass(parent, name ), running(0), config_file(NULL)
+QEpicsAcqLocal::QEpicsAcqLocal( QWidget *parent, const char *name ) : QEpicsAcqClass(parent, name ), running(0), config_file()
 {
 	signalOnNewConfig = 0;
 	signalOnPause = 0;
@@ -272,7 +272,7 @@ QEpicsAcqLocal::setConfigFile( const QString &cfname)
 		return;
 	char expand[512];
 	config_file = cfname;
-        macro_expand(cfname.toAscii(), expand, NULL);
+		macro_expand(cfname.toAscii(), expand, NULL);
 	acq_file_load( expand, master);
 	showMode(AS_OFF);
 	threadTimerLock.lock();
@@ -385,10 +385,10 @@ QEpicsAcqLocal::defVariable(  const QString &varName, const QString &scan, const
 {
 	acqScan_t *sc;
 	char **nameAddr = NULL;
-        macroTable *ptr = find_macro(varName.toAscii(), NULL);
+		macroTable *ptr = find_macro(varName.toAscii(), NULL);
 	if( ptr)
 		return;
-        sc = lookup_acqScan( scan.toAscii(), master);
+		sc = lookup_acqScan( scan.toAscii(), master);
 	if( sc == NULL)
 		return;
 	if( type == "first" || type == "start" )
@@ -505,7 +505,7 @@ int
 QEpicsAcqLocal::setValue(char *name, char *field, double value)
 {
 	return setValue(name, field, 0, value);
-	
+
 }
 
 void QEpicsAcqLocal::setRuns(int runCount)           // sets the number of runs
@@ -531,7 +531,7 @@ int QEpicsAcqLocal::pvIndex(const char *event, const char *pvname)
 	if( dap)
 		alternate = dap->getPvName();
 	if( !alternate.isEmpty() )
-                pvname = alternate.toAscii();
+				pvname = alternate.toAscii();
 	return getPVcolumn(event, pvname, master);
 }
 
@@ -558,7 +558,7 @@ int QEpicsAcqLocal::setVariable( const char *name, const char *value)
 	//
 	displayAlias *dap = displayAlias::find(value);
 	if( dap)
-                alternate = dap->getPvName().toAscii();
+				alternate = dap->getPvName().toAscii();
 
 	// printf("setVariable(%s,%s,%s)\n", name, value, alternate?alternate:"(NULL)");
 	if( alternate)
@@ -661,5 +661,5 @@ QEpicsAcqLocal::setControlLine(char*, int, double, double, double)
 
 
 // $Log: qepicsacq.cpp  $
-// Revision 1.5.1.1 2007/05/19 12:25:35CST Glen Wright (wrightg) 
+// Revision 1.5.1.1 2007/05/19 12:25:35CST Glen Wright (wrightg)
 // Duplicate revision

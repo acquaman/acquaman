@@ -128,24 +128,24 @@ void AMBeamlineControlMoveAction::onStarted(){
 }
 
 void AMBeamlineControlMoveAction::onSucceeded(){
-	qDebug() << (int)this << "SUCEEDED";
+	qDebug() << this << "SUCEEDED";
 	disconnect(control_, 0, this, 0);
 	setSucceeded(true);
 }
 
 void AMBeamlineControlMoveAction::onFailed(int explanation){
-	qDebug() << (int)this << "FAILED as " << control_->name();
+	qDebug() << this << "FAILED as " << control_->name();
 	setFailed(true, explanation);
 }
 
 void AMBeamlineControlMoveAction::onFinished(){
-	qDebug() << (int)this << "FINISHED";
+	qDebug() << this << "FINISHED";
 	progressTimer_.stop();
 	emit progress(1, 1);
 }
 
 void AMBeamlineControlMoveAction::calculateProgress(){
-	qDebug() << "Calculate progress for " << (int)this;
+	qDebug() << "Calculate progress for " << this;
 	if(control_)
 		emit progress(fabs(control_->value()-startPoint_), fabs(setpoint_-startPoint_));
 }

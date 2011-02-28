@@ -78,7 +78,7 @@ bool REIXSAppController::startup() {
 		AMVideoWidget* vw = new AMVideoWidget();
 		hl->addWidget(vw);
 		//vw->openVideoUrl("http://v2e1607-001.cs.clsi.ca/mjpg/1/video.mjpg");
-		vw->openVideoUrl("/Users/mboots/Movies/000_0026.MOV");
+		vw->openVideoUrl("/Users/mboots/Pictures/iPhoto Library/Originals/2010/mine movies/101_0216.M4V");
 		vw->play();
 
 
@@ -133,7 +133,7 @@ void REIXSAppController::onCurrentPaneChanged(QWidget *pane) {
 #include "ui/AMGenericScanEditor.h"
 
 void REIXSAppController::onCurrentScanControllerCreated(){
-	qDebug() << "Detected creation of " << (int)AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController();
+	qDebug() << "Detected creation of " << AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController();
 
 	AMGenericScanEditor *scanEditor = new AMGenericScanEditor();
 	scanEditorsParentItem_->appendRow(new AMScanEditorModelItem(scanEditor, ":/applications-science.png"));
@@ -152,7 +152,7 @@ void REIXSAppController::onCurrentScanControllerCreated(){
 }
 
 void REIXSAppController::onCurrentScanControllerDestroyed(){
-	qDebug() << "Detected deletion of " << (int)AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController();
+	qDebug() << "Detected deletion of " << AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController();
 	scanControllerActiveEditor_ = 0;
 }
 

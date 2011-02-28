@@ -94,7 +94,7 @@ void AMBeamlineParallelActionsList::puke(){
 			if(nAction = qobject_cast<AMBeamlineNumberAction*>(action(x, y)))
 				tmpStr.setNum(nAction->getNumber());
 			else
-				tmpStr.setNum( ((int)action(x,y)) );
+				tmpStr.setNum( qint64(action(x,y)) );
 			stageString.append(tmpStr+" ");
 		}
 		if(x != stageCount()-1)
