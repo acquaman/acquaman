@@ -20,12 +20,22 @@ SGMFastScanConfiguration::SGMFastScanConfiguration(QObject *parent) : AMFastScan
 
 	setParametersFromPreset(0);
 
-	connect(&savePathWatcher_, SIGNAL(directoryChanged(QString)), this, SLOT(onSaveDirectoryChanged(QString)));
+//	connect(&savePathWatcher_, SIGNAL(directoryChanged(QString)), this, SLOT(onSaveDirectoryChanged(QString)));
 }
 
 SGMFastScanConfiguration::~SGMFastScanConfiguration(){
 	while(settings_.count() > 0)
 		delete settings_.takeLast();
+}
+
+AMScanConfiguration* SGMFastScanConfiguration::createCopy() const{
+	return new SGMFastScanConfiguration(*this);
+}
+
+#include "SGMFastDacqScanController.h"
+
+AMScanController* SGMFastScanConfiguration::createController(){
+	return new SGMFastDacqScanController(this);
 }
 
 QString SGMFastScanConfiguration::element() const{
@@ -191,6 +201,7 @@ bool SGMFastScanConfiguration::setBaseLine(int baseLine){
 }
 
 bool SGMFastScanConfiguration::setSensibleFileSavePath(const QString &sensibleFileSavePath){
+	/*
 	QString path = sensibleFileSavePath.section('/', 0, -2);
 	QString file = sensibleFileSavePath.section('/', -1);
 	//file.append(".dat");
@@ -221,6 +232,7 @@ bool SGMFastScanConfiguration::setSensibleFileSavePath(const QString &sensibleFi
 	emit onNewFinalizedSavePath(finalizedSavePath_);
 	emit onSensibleFileSavePathChanged(sensibleFileSavePath_);
 	return true;
+	*/
 }
 
 void SGMFastScanConfiguration::onSaveDirectoryChanged(const QString &directory){

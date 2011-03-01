@@ -23,7 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMSamplePositionView::AMSamplePositionView(AMSampleManipulatorView *manipulatorView, const QUrl& sampleCameraUrl, AMSamplePlate* samplePlate, QWidget *parent) :
 	QWidget(parent)
 {
-	cam_ = new AMBeamlineCameraWidget("Sample Camera", sampleCameraUrl);
+	// cam_ = new AMBeamlineCameraWidget("Sample Camera", sampleCameraUrl);
 	// cam_->addSource("Camera 2", source2);
 
 	plateView_ = new AMSamplePlateView(samplePlate);
@@ -48,7 +48,7 @@ AMSamplePositionView::AMSamplePositionView(AMSampleManipulatorView *manipulatorV
 
 
 	gl_ = new QGridLayout();
-	gl_->addWidget(cam_, 0, 0, 3, 1, Qt::AlignLeft);
+	//gl_->addWidget(cam_, 0, 0, 3, 1, Qt::AlignLeft);
 	gl_->addWidget(plateView_, 0, 1, 5, 1, Qt::AlignLeft);
 	gl_->addWidget(manipulatorView_, 3, 0, 2, 1, Qt::AlignLeft);
 

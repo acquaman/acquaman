@@ -20,9 +20,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SGMXASScanConfigurationViewer.h"
 
-SGMXASScanConfigurationViewer::SGMXASScanConfigurationViewer(SGMXASScanConfiguration *sxsc, AMDetectorInfoSet *cfgDetectorInfoSet, QWidget *parent)  :
+SGMXASScanConfigurationView::SGMXASScanConfigurationView(SGMXASScanConfiguration *sxsc, AMDetectorInfoSet *cfgDetectorInfoSet, QWidget *parent)  :
 		//QWidget(parent){
-		AMScanConfigurationViewer(sxsc, parent){
+		AMScanConfigurationView(parent){
 	setupUi(this);
 	cfg_ = NULL;
 	if(SGMBeamline::sgm()->isConnected()){
@@ -55,6 +55,7 @@ SGMXASScanConfigurationViewer::SGMXASScanConfigurationViewer(SGMXASScanConfigura
 		if( SGMBeamline::sgm()->detectorConnectedByName("sdd") )
 			connect( ((QCheckBox*)(detectorView_->boxByName("pgt"))), SIGNAL(stateChanged(int)), sxsc, SLOT(setUsingPGT(int)) );
 
+		/*
 		startScanButton_ = new QPushButton();
 		startScanButton_->setText("Start Scan");
 		addToQueueButton_ = new QPushButton();
@@ -72,6 +73,7 @@ SGMXASScanConfigurationViewer::SGMXASScanConfigurationViewer(SGMXASScanConfigura
 		connect(startScanButton_, SIGNAL(clicked()), this, SLOT(onStartScanClicked()));
 		connect(addToQueueButton_, SIGNAL(clicked()), this, SLOT(onAddToQueueRequested()));
 		connect(queueDirectorButton_, SIGNAL(clicked()), this, SIGNAL(queueDirectorRequested()));
+		*/
 
 		delete doLayoutButton;
 		delete layout();
@@ -84,9 +86,11 @@ SGMXASScanConfigurationViewer::SGMXASScanConfigurationViewer(SGMXASScanConfigura
 		gl_.addWidget(fluxResolutionView_,	3, 0, 2, 3, Qt::AlignLeft);
 		gl_.addWidget(trackingView_,		1, 3, 2, 2, Qt::AlignLeft);
 		gl_.addWidget(detectorView_,		3, 3, 2, 2, Qt::AlignLeft);
+		/*
 		gl_.addWidget(startScanButton_,		5, 3, 1, 2, Qt::AlignRight);
 		gl_.addWidget(addToQueueButton_,	6, 3, 1, 2, Qt::AlignRight);
 		gl_.addWidget(queueDirectorButton_,	7, 3, 1, 2, Qt::AlignRight);
+		*/
 		gl_.addItem(spc1,			8, 0, 2, 3, Qt::AlignLeft);
 		gl_.addItem(spc2,			8, 3, 2, 2, Qt::AlignLeft);
 //		gl_.addItem(spc3,			9, 3, 1, 2, Qt::AlignLeft);
@@ -95,10 +99,14 @@ SGMXASScanConfigurationViewer::SGMXASScanConfigurationViewer(SGMXASScanConfigura
 	}
 }
 
-SGMXASScanConfigurationViewer::~SGMXASScanConfigurationViewer(){
+SGMXASScanConfigurationView::~SGMXASScanConfigurationView(){
 }
 
-void SGMXASScanConfigurationViewer::onAddRegionClicked(){
+const AMScanConfiguration* SGMXASScanConfigurationView::configuration() const{
+	return cfg_;
+}
+
+void SGMXASScanConfigurationView::onAddRegionClicked(){
 /*
 	if(!cfg_)
 		return;
@@ -118,7 +126,8 @@ void SGMXASScanConfigurationViewer::onAddRegionClicked(){
 */
 }
 
-void SGMXASScanConfigurationViewer::onLockdowScanning(bool isLocked, QString reason){
+void SGMXASScanConfigurationView::onLockdowScanning(bool isLocked, QString reason){
+	/*
 	if(isLocked){
 		startScanButton_->setEnabled(false);
 		startScanButton_->setText("Start Scan\n"+reason);
@@ -127,5 +136,6 @@ void SGMXASScanConfigurationViewer::onLockdowScanning(bool isLocked, QString rea
 		startScanButton_->setEnabled(true);
 		startScanButton_->setText("Start Scan");
 	}
+	*/
 }
 

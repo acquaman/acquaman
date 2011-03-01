@@ -10,9 +10,27 @@ class SGMFastScanParameters;
 class SGMFastScanConfiguration : public AMFastScanConfiguration, public SGMScanConfiguration
 {
 	Q_OBJECT
+
+	Q_PROPERTY(QString element READ element WRITE setElement)
+	Q_PROPERTY(double runTime READ runTime WRITE setRunSeconds)
+	Q_PROPERTY(double energyStart READ energyStart WRITE setEnergyStart)
+	Q_PROPERTY(double energyMidpoint READ energyMidpoint WRITE setEnergyMidpoint)
+	Q_PROPERTY(double energyEnd READ energyEnd WRITE setEnergyEnd)
+	Q_PROPERTY(int velocity READ velocity WRITE setVelocity)
+	Q_PROPERTY(int velocityBase READ velocityBase WRITE setVelocityBase)
+	Q_PROPERTY(int acceleration READ acceleration WRITE setAcceleration)
+	Q_PROPERTY(double scalerTime READ scalerTime WRITE setScalerTime)
+	//NEED Q_PROPERTY for cfgFastDetectors_
+
 public:
-	SGMFastScanConfiguration(QObject *parent = 0);
+	Q_INVOKABLE explicit SGMFastScanConfiguration(QObject *parent = 0);
 	~SGMFastScanConfiguration();
+
+	/// Returns a pointer to a newly-created copy of this scan configuration.  (It takes the role of a copy constructor, but is virtual so that our high-level classes can copy a scan configuration without knowing exactly what kind it is.)
+	virtual AMScanConfiguration* createCopy() const;
+
+	/// Returns a pointer to a newly-created AMScanController that is appropriate for executing this kind of scan configuration.  The controller should be initialized to use this scan configuration object as its scan configuration.  Ownership of the new controller becomes the responsibility of the caller.
+	virtual AMScanController* createController();
 
 	QString element() const;
 	double runTime() const;
@@ -78,7 +96,7 @@ protected:
 	QString sensibleFileSavePath_;
 	QString finalizedSavePath_;
 	QString sensibleFileSaveWarning_;
-	QFileSystemWatcher savePathWatcher_;
+	//QFileSystemWatcher savePathWatcher_;
 };
 
 class SGMFastScanParameters : public QObject

@@ -51,11 +51,13 @@ QList<AMDetectorInfo*> SGMXASScanConfiguration::usingDetectors() const{
 }
 
 AMScanConfiguration* SGMXASScanConfiguration::createCopy() const{
-
+	return new SGMXASScanConfiguration(*this);
 }
 
-AMScanController* SGMXASScanConfiguration::createController(){
+#include "SGMXASDacqScanController.h"
 
+AMScanController* SGMXASScanConfiguration::createController(){
+	return new SGMXASDacqScanController(this);
 }
 
 bool SGMXASScanConfiguration::setExitSlitGap(double exitSlitGap) {

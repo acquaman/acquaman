@@ -2,8 +2,8 @@
 
 #include "SGMSidebar.h"
 
-SGMFastScanConfigurationViewer::SGMFastScanConfigurationViewer(SGMFastScanConfiguration *sfsc, QWidget *parent) :
-		AMScanConfigurationViewer(sfsc, parent)
+SGMFastScanConfigurationView::SGMFastScanConfigurationView(SGMFastScanConfiguration *sfsc, QWidget *parent) :
+		AMScanConfigurationView(parent)
 {
 	cfg_ = NULL;
 	autoSavePath_ = "";
@@ -114,6 +114,7 @@ SGMFastScanConfigurationViewer::SGMFastScanConfigurationViewer(SGMFastScanConfig
 
 		connect(sfsc, SIGNAL(onNewFinalizedSavePath(QString)), this, SLOT(onNewFinalizedSavePath(QString)));
 
+		/*
 		startScanButton_ = new QPushButton();
 		startScanButton_->setText("Start Scan");
 		addToQueueButton_ = new QPushButton();
@@ -130,19 +131,27 @@ SGMFastScanConfigurationViewer::SGMFastScanConfigurationViewer(SGMFastScanConfig
 		connect(startScanButton_, SIGNAL(clicked()), this, SLOT(onStartScanClicked()));
 		connect(addToQueueButton_, SIGNAL(clicked()), this, SLOT(onAddToQueueRequested()));
 		connect(queueDirectorButton_, SIGNAL(clicked()), this, SIGNAL(queueDirectorRequested()));
+		*/
 
 		gl_.addWidget(presetsComboBox_,		0, 0, 1, 1, Qt::AlignCenter);
 		gl_.addLayout(fl_,			0, 1, 1, 1, Qt::AlignCenter);
 		gl_.addLayout(fl2_,			1, 0, 1, 2, Qt::AlignCenter);
+		/*
 		gl_.addWidget(startScanButton_,		5, 3, 1, 2, Qt::AlignRight);
 		gl_.addWidget(addToQueueButton_,	6, 3, 1, 2, Qt::AlignRight);
 		gl_.addWidget(queueDirectorButton_,	7, 3, 1, 2, Qt::AlignRight);
+		*/
 		this->setLayout(&gl_);
 		this->setMaximumSize(700, 800);
 	}
 }
 
-void SGMFastScanConfigurationViewer::onLockdowScanning(bool isLocked, QString reason){
+const AMScanConfiguration* SGMFastScanConfigurationView::configuration() const{
+	return cfg_;
+}
+
+void SGMFastScanConfigurationView::onLockdowScanning(bool isLocked, QString reason){
+	/*
 	if(isLocked){
 		startScanButton_->setEnabled(false);
 		startScanButton_->setText("Start Scan\n"+reason);
@@ -151,9 +160,10 @@ void SGMFastScanConfigurationViewer::onLockdowScanning(bool isLocked, QString re
 		startScanButton_->setEnabled(true);
 		startScanButton_->setText("Start Scan");
 	}
+	*/
 }
 
-void SGMFastScanConfigurationViewer::onSavePathEditingFinished(){
+void SGMFastScanConfigurationView::onSavePathEditingFinished(){
 	SGMFastScanConfiguration *sfsc = qobject_cast<SGMFastScanConfiguration*>(cfg_);
 	if(saveEdit_->text().isEmpty())
 		return;
@@ -166,11 +176,11 @@ void SGMFastScanConfigurationViewer::onSavePathEditingFinished(){
 	}
 }
 
-void SGMFastScanConfigurationViewer::onNewFinalizedSavePath(const QString &savePath){
+void SGMFastScanConfigurationView::onNewFinalizedSavePath(const QString &savePath){
 	saveFbkLabel_->setText("\tFile will be saved as "+savePath.section('/', -1));
 }
 
-void SGMFastScanConfigurationViewer::onSaveDialogDirectoryChosen(const QString &savePath){
+void SGMFastScanConfigurationView::onSaveDialogDirectoryChosen(const QString &savePath){
 	SGMFastScanConfiguration *sfsc = qobject_cast<SGMFastScanConfiguration*>(cfg_);
 	QString saveFile = savePath+"/default";
 	if(saveFile.isEmpty())
@@ -185,8 +195,10 @@ void SGMFastScanConfigurationViewer::onSaveDialogDirectoryChosen(const QString &
 	}
 }
 
-void SGMFastScanConfigurationViewer::onStartScanClicked(){
+void SGMFastScanConfigurationView::onStartScanClicked(){
+	/*
 	SGMFastScanConfiguration *sfsc = qobject_cast<SGMFastScanConfiguration*>(cfg_);
 	emit lastSettings(sfsc->currentParameters());
 	AMScanConfigurationViewer::onStartScanClicked();
+	*/
 }

@@ -6,6 +6,10 @@
 class AMFastScanConfiguration : public AMScanConfiguration
 {
 	Q_OBJECT
+
+	Q_PROPERTY(double start READ start WRITE setStart)
+	Q_PROPERTY(double end READ end WRITE setEnd)
+
 public:
 	AMFastScanConfiguration(QObject *parent = 0);
 

@@ -542,8 +542,8 @@ void SGMBeamline::usingFakeBeamline(){
 }
 
 SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
-	//usingFakeBeamline();
-	usingSGMBeamline();
+	usingFakeBeamline();
+	//usingSGMBeamline();
 
 	beamlineWarnings_ = "";
 	connect(this, SIGNAL(criticalControlsConnectionsChanged()), this, SLOT(recomputeWarnings()));

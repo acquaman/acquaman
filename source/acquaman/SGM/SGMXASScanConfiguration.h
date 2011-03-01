@@ -27,8 +27,20 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class SGMXASScanConfiguration : public AMXASScanConfiguration, public SGMScanConfiguration
 {
 	Q_OBJECT
+
+	Q_PROPERTY(double exitSlitGap READ exitSlitGap WRITE setExitSlitGap)
+	Q_PROPERTY(int grating READ grating WRITE setGrating)
+	Q_PROPERTY(int harmonic READ harmonic WRITE setHarmonic)
+	Q_PROPERTY(bool undulatorTracking READ undulatorTracking WRITE setUndulatorTracking)
+	Q_PROPERTY(bool monoTracking READ monoTracking WRITE setMonoTracking)
+	Q_PROPERTY(bool exitSlitTracking READ exitSlitTracking WRITE setExitSlitTracking)
+	Q_PROPERTY(bool usingTEY READ usingTEY WRITE setUsingTEY)
+	Q_PROPERTY(bool usingTFY READ usingTFY WRITE setUsingTFY)
+	Q_PROPERTY(bool usingPGT READ usingPGT WRITE setUsingPGT)
+	//NEED Q_PROPERTY for cfgXASDetectors_
+
 public:
-	SGMXASScanConfiguration(QObject *parent=0);
+	Q_INVOKABLE explicit SGMXASScanConfiguration(QObject *parent=0);
 
 	AMControlSet *fluxResolutionSet() const { return fluxResolutionSet_;}
 	AMControlSet *trackingSet() const { return trackingSet_;}

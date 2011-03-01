@@ -33,37 +33,47 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSpacerItem>
 #include "acquaman/SGM/SGMXASScanConfiguration.h"
 #include "acquaman/SGM/SGMXASDacqScanController.h"
-#include "AMScanConfigurationViewer.h"
+//#include "AMScanConfigurationViewer.h"
+#include "AMScanConfigurationView.h"
 #include "ui/AMControlOptimizationView.h"
 
 
-class SGMXASScanConfigurationViewer : public AMScanConfigurationViewer, private Ui::SGMXASScanConfigurationViewer {
+//class SGMXASScanConfigurationViewer : public AMScanConfigurationViewer, private Ui::SGMXASScanConfigurationViewer {
+class SGMXASScanConfigurationView : public AMScanConfigurationView, private Ui::SGMXASScanConfigurationViewer {
 Q_OBJECT
 public:
-		SGMXASScanConfigurationViewer(SGMXASScanConfiguration *sxsc, AMDetectorInfoSet *cfgDetectorInfoSet, QWidget *parent = 0);
-		~SGMXASScanConfigurationViewer();
+		SGMXASScanConfigurationView(SGMXASScanConfiguration *sxsc, AMDetectorInfoSet *cfgDetectorInfoSet, QWidget *parent = 0);
+		~SGMXASScanConfigurationView();
+
+		const AMScanConfiguration* configuration() const;
 
 public slots:
 	void onAddRegionClicked();
 
 protected slots:
 	void onRegionsChanged(){
+		/* DAVID CHECK ME
 		if(cfg_ && fluxResolutionView_){
 			fluxResolutionView_->onRegionsUpdate( ((SGMXASScanConfiguration*)cfg_)->regions() );
 		}
+		*/
 	}
 	void onLockdowScanning(bool isLocked, QString reason);
 
 protected:
+	SGMXASScanConfiguration *cfg_;
+
 	AMXASRegionsView *regionsView_;
 	AMRegionsLineView *regionsLineView_;
 	AMCompactControlOptimizationSetView *fluxResolutionView_;
 	AMControlSetView *trackingView_;
 	AMDetectorInfoSetView *detectorView_;
 	AMDetectorInfoSet *cfgDetectorInfoSet_;
+	/*
 	QPushButton *startScanButton_;
 	QPushButton *addToQueueButton_;
 	QPushButton *queueDirectorButton_;
+	*/
 	QVBoxLayout vl_;
 	QGridLayout gl_;
 };

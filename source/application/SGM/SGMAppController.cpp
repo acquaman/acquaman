@@ -7,6 +7,7 @@
 #include "ui/AMSamplePositionView.h"
 #include "ui/AMScanConfigurationViewHolder.h"
 #include "ui/SGMXASScanConfigurationViewer.h"
+#include "ui/SGMFastScanConfigurationViewer.h"
 #include "ui/SGMSidebar.h"
 #include "acquaman/AMScanController.h"
 
@@ -43,10 +44,12 @@ bool SGMAppController::startup() {
 		mw_->insertHeading("Experiment Setup", 1);
 		//////////
 		//xasScanConfigurationHolder_ = new AMXASScanConfigurationHolder();
+		xasScanConfigurationViewer_ = 0; //NULL
 		xasScanConfigurationHolder_ = new AMScanConfigurationViewHolder(workflowManagerView_);
 		mw_->addPane(xasScanConfigurationHolder_, "Experiment Setup", "SGM XAS Scan", ":/utilities-system-monitor.png");
 
 		//fastScanConfigurationHolder_ = new AMFastScanConfigurationHolder();
+		fastScanConfigurationViewer_ = 0; //NULL
 		fastScanConfigurationHolder_ = new AMScanConfigurationViewHolder(workflowManagerView_);
 		mw_->addPane(fastScanConfigurationHolder_, "Experiment Setup", "SGM Fast Scan", ":/utilities-system-monitor.png");
 
@@ -60,6 +63,7 @@ bool SGMAppController::startup() {
 		connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerDestroyed()), this, SLOT(onCurrentScanControllerDestroyed()));
 		// removed: connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerReinitialized(bool)), this, SLOT(onCurrentScanControllerReinitialized(bool)));
 
+		connect(SGMBeamline::sgm(), SIGNAL(criticalControlsConnectionsChanged()), this, SLOT(onSGMBeamlineConnected()));
 
 		/*! \todo: hook up bottom-bar signals to the active scan controller.
 	void MainWindow::onScanControllerReady(AMScanController *scanController){
@@ -95,6 +99,66 @@ void SGMAppController::onCurrentPaneChanged(QWidget *pane) {
 
 }
 
+void SGMAppController::onSGMBeamlineConnected(){
+	if(SGMBeamline::sgm()->isConnected() && !xasScanConfigurationViewer_ && !fastScanConfigurationViewer_){
+		qDebug() << "\n\nSGM CONNECTED, CREATING VIEWERS\n\n";
+		SGMXASScanConfiguration *sxsc = new SGMXASScanConfiguration(this);
+		sxsc->setFileName("daveData.%03d.dat");
+		sxsc->setFilePath(AMUserSettings::userDataFolder);
+		sxsc->addRegion(0, 950, 1, 960);
+
+		AMDetectorInfoSet *sxscDetectorInfoSet = new AMDetectorInfoSet(this);
+		sxsc->setCfgDetectorInfoSet(sxscDetectorInfoSet);
+		AMDetectorInfo* tmpDI, *tdi;
+		for(int x = 0; x < sxsc->detectorSet()->count(); x++){
+			tdi = sxsc->detectorSet()->detectorAt(x);
+			#warning "D: same edit to review. Was tdi a PGTDetector or a PGTDetectorInfo?"
+			if( qobject_cast<PGTDetector*>(tdi) )
+				tmpDI = new PGTDetectorInfo(tdi->name(), tdi->description(), this);
+			else if( qobject_cast<MCPDetector*>(tdi) )
+				tmpDI = new MCPDetectorInfo(tdi->name(), tdi->description(), this);
+			else
+				tmpDI = new AMDetectorInfo(tdi->name(), tdi->description(), this);
+
+			/*! \bug Removed with metaData change. Need to repair. What's going on here? Is this function even still being used? What's up with the "daveData.xxx.dat" file name?
+		QList<AMMetaMetaData> all = tmpDI->metaDataAllKeys();
+		for(int y = 0; y < all.count(); y++)
+		tmpDI->setMetaData(all.at(y).key, tdi->metaData(all.at(y).key));
+		*/
+			sxscDetectorInfoSet->addDetector(tmpDI, sxsc->detectorSet()->isDefaultAt(x));
+		}
+		xasScanConfigurationViewer_ = new SGMXASScanConfigurationView(sxsc, sxscDetectorInfoSet);
+		/*
+		connect(sxscViewer, SIGNAL(startScanRequested()), this, SLOT(onStartScanRequested()));
+		connect(sxscViewer, SIGNAL(addToQueueRequested()), this, SLOT(onAddToQueueRequested()));
+		connect(sxscViewer, SIGNAL(queueDirectorRequested()), director, SLOT(show()));
+		connect(this, SIGNAL(lockdownScanning(bool,QString)), sxscViewer, SLOT(onLockdowScanning(bool,QString)));
+		if(!vl_)
+		vl_ = new QVBoxLayout();
+		vl_->addWidget(sxscViewer);
+		if(layout() != vl_){
+		delete layout();
+		this->setLayout(vl_);
+		}
+		emit newScanConfigurationView();
+		*/
+		xasScanConfigurationHolder_->setView(xasScanConfigurationViewer_);
+
+
+		SGMFastScanConfiguration *sfsc = new SGMFastScanConfiguration(this);
+		sfsc->setFileName("daveData.%03d.dat");
+		sfsc->setFilePath(AMUserSettings::userDataFolder);
+		/*
+		if(!autoSavePath_.isEmpty())
+			sfsc->setSensibleFileSavePath(autoSavePath_);
+		connect(sfsc, SIGNAL(onSensibleFileSavePathChanged(QString)), this, SLOT(setAutoSavePath(QString)));
+		if(lastSettings_)
+			sfsc->setParameters(lastSettings_);
+		*/
+		fastScanConfigurationViewer_ = new SGMFastScanConfigurationView(sfsc);
+		fastScanConfigurationHolder_->setView(fastScanConfigurationViewer_);
+	}
+}
 
 #include "dataman/AMScanEditorModelItem.h"
 #include "ui/AMGenericScanEditor.h"

@@ -5,17 +5,24 @@
 #include <QComboBox>
 #include <QLabel>
 #include <QFileDialog>
+#include <QDoubleSpinBox>
+#include <QSpinBox>
+#include <QLineEdit>
+#include <QFormLayout>
 
 #include <algorithm>
 
-#include "AMScanConfigurationViewer.h"
+//#include "AMScanConfigurationViewer.h"
+#include "AMScanConfigurationView.h"
 #include "acquaman/SGM/SGMFastScanConfiguration.h"
 
-class SGMFastScanConfigurationViewer : public AMScanConfigurationViewer
+class SGMFastScanConfigurationView : public AMScanConfigurationView
 {
 	Q_OBJECT
 public:
-	SGMFastScanConfigurationViewer(SGMFastScanConfiguration *sfsc, QWidget *parent = 0);
+	SGMFastScanConfigurationView(SGMFastScanConfiguration *sfsc, QWidget *parent = 0);
+
+	const AMScanConfiguration* configuration() const;
 
 signals:
 	void lastSettings(SGMFastScanParameters *lastSettings);
@@ -30,7 +37,7 @@ protected slots:
 	void onStartScanClicked();
 
 protected:
-	AMScanConfiguration *cfg_;
+	SGMFastScanConfiguration *cfg_;
 
 	QString autoSavePath_;
 
@@ -60,9 +67,11 @@ protected:
 	QFileDialog *autoSaveDialog_;
 	QPushButton *autoSaveDialogButton_;
 
+	/*
 	QPushButton *startScanButton_;
 	QPushButton *addToQueueButton_;
 	QPushButton *queueDirectorButton_;
+	*/
 	QGridLayout gl_;
 	QFormLayout *fl_;
 	QFormLayout *fl2_;
