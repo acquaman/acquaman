@@ -36,15 +36,16 @@ bool REIXSXESRawFileLoader::loadFromFile(const QString &filepath, bool setMetaDa
 		if(!file.open(QIODevice::ReadOnly))
 			throw REIXSXESRawFileException(-1, "Could not open the data file");
 
+
 		// check the magic string (ascii encoded string at the start of the file)
 		QByteArray magicTextShouldBe(REIXSXESRAWFILELOADER_MAGIC_STRING);
 		QByteArray magicText = file.read(magicTextShouldBe.length());
 		if(magicText != magicTextShouldBe)
-			throw REIXSXESRawFileException(-2, "Couldn't load invalid file format");
+			throw REIXSXESRawFileException(-2, QString("Couldn't load invalid file format. Should read '%1', read '%2' instead").arg((QString::fromAscii(magicTextShouldBe.constData()))).arg(QString::fromAscii(magicText.constData())));
 
 
-		// read number of pixels in X and Y
 		QDataStream ds(&file);
+		// read number of pixels in X and Y
 		ds >> pixelsX;
 		ds >> pixelsY;
 
@@ -136,9 +137,9 @@ bool REIXSXESRawFileLoader::saveToFile(const QString &filepath) {
 
 		// output the magic number (ascii encoded string at the start of the file)
 		QByteArray magicText(REIXSXESRAWFILELOADER_MAGIC_STRING);
-		QDataStream ds(&file);
-		ds << magicText;
+		file.write(magicText);
 
+		QDataStream ds(&file);
 		// Output the number of pixels in each dimension
 		ds << pixelsX;
 		ds << pixelsY;
@@ -152,7 +153,7 @@ bool REIXSXESRawFileLoader::saveToFile(const QString &filepath) {
 		}
 
 		// output the magic string at the end of the file (used as check on reading to make sure we have it all)
-		ds << magicText;
+		file.write(magicText);
 
 		file.close();
 	}

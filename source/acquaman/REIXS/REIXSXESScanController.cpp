@@ -64,7 +64,8 @@ void REIXSXESScanController::initialize() {
 
 
 	// Do we actually need to move into position?
-	if(pCfg()->shouldStartFromCurrentPosition()) {
+	//if(pCfg()->shouldStartFromCurrentPosition()) {
+	if(true) {
 		onInitialSetupMoveSucceeded();
 		return;
 	}
@@ -192,10 +193,15 @@ void REIXSXESScanController::onScanProgressCheck() {
 	// every 5 seconds, save the raw data to disk.
 	/// \todo Make this a define adjustable
 	if((int)secondsElapsed % 5 == 0) {
-		REIXSXESRawFileLoader exporter(pScan());
-		if(!exporter.saveToFile(pScan()->filePath()))
-			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 38, "Error saving the currently-running XES scan's raw data file to disk. Watch out... your data may not be saved! Please report this bug to the Acquaman developers."));
+		saveRawData();
 	}
+}
+
+
+void REIXSXESScanController::saveRawData() {
+	REIXSXESRawFileLoader exporter(pScan());
+	if(!exporter.saveToFile(pScan()->filePath()))
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 38, "Error saving the currently-running XES scan's raw data file to disk. Watch out... your data may not be saved! Please report this bug to the Acquaman developers."));
 }
 
 void REIXSXESScanController::onScanFinished() {
@@ -204,6 +210,7 @@ void REIXSXESScanController::onScanFinished() {
 	disconnect(&scanProgressTimer_, SIGNAL(timeout()), this, SLOT(onScanProgressCheck()));
 	disconnect(REIXSBeamline::bl()->mcpDetector(), SIGNAL(imageDataChanged()), this, SLOT(onNewImageValues()));
 	running_ = false;
+	saveRawData();
 	emit finished();
 
 }

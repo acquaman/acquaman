@@ -49,6 +49,9 @@ protected slots:
 	/// Called to clean up when the scan is finished.
 	void onScanFinished();
 
+	/// Called to save the current raw data to disk
+	void saveRawData();
+
 protected:
 	/// \todo Move to AMScanController? Time that scan was started
 	QTime startTime_;

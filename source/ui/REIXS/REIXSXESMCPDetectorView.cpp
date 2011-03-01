@@ -25,7 +25,7 @@ REIXSXESMCPDetectorView::REIXSXESMCPDetectorView(REIXSXESMCPDetector* detector, 
 
 	persistDurationControl_ = new AMBasicControlEditor(detector_->persistDurationControl());
 
-	orientationControl_ = new AMControlEditor(detector_->orientationControl());
+	orientationControl_ = new AMBasicControlEditor(detector_->orientationControl());
 
 	countsPerSecondIndicator_ = new QLabel();
 	countsPerSecondBar_ = new QProgressBar();
@@ -80,7 +80,10 @@ REIXSXESMCPDetectorView::REIXSXESMCPDetectorView(REIXSXESMCPDetector* detector, 
 	hl2->addWidget(clearButton_);
 	hl2->addStretch();
 	hl2->addWidget(imageSelector_);
+
 	hl2->addStretch();
+
+	hl2->addWidget(orientationControl_);
 	hl2->addWidget(new QLabel("Persist:"));
 	hl2->addWidget(persistDurationControl_);
 	hl2->addWidget(new QLabel("Averaging Period:"));
