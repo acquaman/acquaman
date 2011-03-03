@@ -92,7 +92,8 @@ AMReadOnlyPVControl::AMReadOnlyPVControl(const QString& name, const QString& rea
 	readPV_ = new AMProcessVariable(readPVname, true, this);
 
 	connect(readPV_, SIGNAL(valueChanged(double)), this, SIGNAL(valueChanged(double)));
-	connect(readPV_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
+	//connect(readPV_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
+	connect(readPV_, SIGNAL(readReadyChanged(bool)), this, SLOT(onPVConnected(bool)));
 	connect(readPV_, SIGNAL(connectionTimeout()), this, SIGNAL(readConnectionTimeoutOccurred()));
 	connect(readPV_, SIGNAL(error(int)), this, SLOT(onPVError(int)));
 	connect(readPV_, SIGNAL(connectionTimeout()), this, SLOT(onConnectionTimeout()));
@@ -148,7 +149,8 @@ AMPVControl::AMPVControl(const QString& name, const QString& readPVname, const Q
 
 	// process variable:
 	writePV_ = new AMProcessVariable(writePVname, true, this);
-	connect(writePV_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
+	//connect(writePV_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
+	connect(writePV_, SIGNAL(writeReadyChanged(bool)), this, SLOT(onPVConnected(bool)));
 	connect(writePV_, SIGNAL(error(int)), this, SLOT(onPVError(int)));
 	connect(writePV_, SIGNAL(connectionTimeout()), this, SIGNAL(writeConnectionTimeoutOccurred()));
 	connect(writePV_, SIGNAL(connectionTimeout()), this, SLOT(onConnectionTimeout()));
@@ -295,7 +297,8 @@ AMReadOnlyPVwStatusControl::AMReadOnlyPVwStatusControl(const QString& name, cons
 	// Create the movingPV and hook it up:
 	movingPV_ = new AMProcessVariable(movingPVname, true, this);
 	connect(movingPV_, SIGNAL(valueChanged(int)), this, SLOT(onMovingChanged(int)));
-	connect(movingPV_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
+	//connect(movingPV_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
+	connect(movingPV_, SIGNAL(readReadyChanged(bool)), this, SLOT(onPVConnected(bool)));
 	connect(movingPV_, SIGNAL(error(int)), this, SLOT(onPVError(int)));
 	connect(movingPV_, SIGNAL(connectionTimeout()), this, SIGNAL(movingConnectionTimeoutOccurred()));
 	connect(movingPV_, SIGNAL(connectionTimeout()), this, SLOT(onConnectionTimeout()));
@@ -345,7 +348,8 @@ AMPVwStatusControl::AMPVwStatusControl(const QString& name, const QString& readP
 	writePV_ = new AMProcessVariable(writePVname, true, this);
 
 	// connect:
-	connect(writePV_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
+	//connect(writePV_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
+	connect(writePV_, SIGNAL(writeReadyChanged(bool)), this, SLOT(onPVConnected(bool)));
 	connect(writePV_, SIGNAL(error(int)), this, SLOT(onPVError(int)));
 	connect(writePV_, SIGNAL(connectionTimeout()), this, SIGNAL(writeConnectionTimeoutOccurred()));
 	connect(writePV_, SIGNAL(connectionTimeout()), this, SLOT(onConnectionTimeout()));

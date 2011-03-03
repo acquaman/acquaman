@@ -496,7 +496,8 @@ public:
 	/// most recent value of this measurement
 	virtual double value() const { return readPV_->lastValue(); }
 	/// Indicates that the Control is ready for use.  In this case, means that the readPV is connected and readable.
-	virtual bool isConnected() const { return canMeasure(); }
+	virtual bool isConnected() const { return readPV_->readReady(); }
+	//virtual bool isConnected() const { return canMeasure(); }
 	/// Indicates whether the readPV is readable.
 	virtual bool canMeasure() const { return readPV_->canRead(); }
 	/// Indicates that we \em should be able to measure from this Control.  Always true.
@@ -603,7 +604,8 @@ public:
 	virtual bool moveInProgress() const { return moveInProgress_; }
 
 	/// Implies that we can read from the feedback PV and write to the setpoint PV.
-	virtual bool isConnected() const { return canMeasure() && canMove(); }
+	//virtual bool isConnected() const { return canMeasure() && canMove(); }
+	virtual bool isConnected() const { return readPV_->readReady() && writePV_->writeReady(); }
 	/// Indicates that we can currently write to the setpoint PV.
 	virtual bool canMove() const { return writePV_->canWrite(); }
 	/// This Control class has the theoretical ability to move. Always true.
@@ -764,7 +766,8 @@ public:
 	/// \name Reimplemented Public Functions:
 	//@{
 	/// Implies that we can read from both the feedback PV and move-status PV.
-	virtual bool isConnected() const { return canMeasure() && movingPV_->canRead(); }
+	//virtual bool isConnected() const { return canMeasure() && movingPV_->canRead(); }
+	virtual bool isConnected() const { return readPV_->readReady() && movingPV_->readReady(); }
 
 	/// The movingPV now provides our moving status. (Masked with isMovingMask and compared to isMovingValue)
 	virtual bool isMoving() const { return ( int(movingPV_->getInt() & isMovingMask_) == isMovingValue_); }
@@ -876,7 +879,8 @@ public:
 	/// \name Reimplemented Public Functions:
 	//@{
 	/// Indicates that all three process variables are ready for action:
-	virtual bool isConnected() const { return canMeasure() && canMove() && movingPV_->canRead(); }
+	//virtual bool isConnected() const { return canMeasure() && canMove() && movingPV_->canRead(); }
+	virtual bool isConnected() const { return readPV_->readReady() && writePV_->writeReady() && movingPV_->readReady(); }
 	/// Indicates that a move (that you requested) is currently completing... hasn't reached destination, and hasn't time'd out.
 	virtual bool moveInProgress() const { return moveInProgress_ && AMReadOnlyPVwStatusControl::isMoving(); }	// moveInProgress_ will be true as soon as move() is requested.  moveInProgress() isn't happening until the device starts moving as well.)
 	/// Indicates that this control currently can cause moves:
