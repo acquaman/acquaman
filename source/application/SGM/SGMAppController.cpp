@@ -6,8 +6,8 @@
 #include "ui/SGM/SGMSampleManipulatorView.h"
 #include "ui/AMSamplePositionView.h"
 #include "ui/AMScanConfigurationViewHolder.h"
-#include "ui/SGMXASScanConfigurationViewer.h"
-#include "ui/SGMFastScanConfigurationViewer.h"
+#include "ui/SGMXASScanConfigurationView.h"
+#include "ui/SGMFastScanConfigurationView.h"
 #include "ui/SGMSidebar.h"
 #include "acquaman/AMScanController.h"
 

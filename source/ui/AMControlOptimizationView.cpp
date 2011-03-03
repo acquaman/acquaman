@@ -47,7 +47,7 @@ void AMQuickDataSet::setDataMap(QMap<double, double> dataMap){
 }
 
 AMControlOptimizationSetView::AMControlOptimizationSetView(AMControlOptimizationSet *viewSet, QWidget *parent) :
-		AMControlSetView((AMControlSet*)viewSet, parent)
+		AMOldControlSetView((AMControlSet*)viewSet, parent)
 {
 	lastContextParams_ = NULL;
 	numPoints = 50;

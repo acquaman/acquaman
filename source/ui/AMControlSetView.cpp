@@ -23,7 +23,34 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 /// Sets the title of the group box based on the name() function of the AMControlSet.
 /// Loops through the list of AMControls in the AMControlSet and create an appropriate spinbox.
 /// Adds the spin box and a label (from the AMControl objectName() function) and add to an internal form layout.
-AMControlSetView::AMControlSetView(AMControlSet *viewSet, QWidget *parent) :
+AMControlSetView::AMControlSetView(AMControlSet *viewSet, bool configureOnly, QWidget *parent) :
+		QGroupBox(parent)
+{
+	viewSet_ = viewSet;
+	configureOnly_ = configureOnly;
+	setTitle(viewSet->name());
+	QVBoxLayout *vl = new QVBoxLayout();
+	AMControlEditor *tmpCE;
+	AMControl *tmpCtrl;
+	for(int x = 0; x < viewSet_->count(); x++){
+		tmpCtrl = viewSet_->at(x);
+		tmpCE = new AMControlEditor(tmpCtrl, 0, false, configureOnly_);
+		vl->addWidget(tmpCE);
+		controlBoxes_.append(tmpCE);
+	}
+
+	hl_ = new QHBoxLayout(this);
+	hl_->addLayout(vl);
+	setLayout(hl_);
+	setFixedSize(300, 200);
+}
+
+
+
+/// Sets the title of the group box based on the name() function of the AMControlSet.
+/// Loops through the list of AMControls in the AMControlSet and create an appropriate spinbox.
+/// Adds the spin box and a label (from the AMControl objectName() function) and add to an internal form layout.
+AMOldControlSetView::AMOldControlSetView(AMControlSet *viewSet, QWidget *parent) :
 		QGroupBox(parent)
 {
 	viewSet_ = viewSet;
@@ -73,7 +100,7 @@ AMControlSetView::AMControlSetView(AMControlSet *viewSet, QWidget *parent) :
 	setFixedSize(300, 200);
 }
 
-void AMControlSetView::onBoxUpdate(const QString &value){
+void AMOldControlSetView::onBoxUpdate(const QString &value){
 	Q_UNUSED(value);
 	AMControl *tmpCtrl;
 	QString tmpName;
@@ -108,7 +135,7 @@ void AMControlSetView::onBoxUpdate(const QString &value){
 	}
 }
 
-void AMControlSetView::setConfigValues(QMap<QString, QVariant> configValues){
+void AMOldControlSetView::setConfigValues(QMap<QString, QVariant> configValues){
 	QMap<QString, QVariant>::const_iterator i = configValues.constBegin();
 	while(i != configValues.constEnd()){
 		if( viewSet_->controlNamed(i.key()) && configValues_.value(i.key()) != i.value() ){

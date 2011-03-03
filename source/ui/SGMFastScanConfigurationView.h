@@ -25,9 +25,11 @@ public:
 	const AMScanConfiguration* configuration() const;
 
 signals:
-	void lastSettings(SGMFastScanParameters *lastSettings);
+	//void lastSettings(SGMFastScanParameters *lastSettings);
 
 protected slots:
+	void onSGMBeamlineCriticalControlsConnectedChanged();
+	/*
 	void onLockdowScanning(bool isLocked, QString reason);
 	void onSavePathEditingFinished();
 	void onNewFinalizedSavePath(const QString& savePath);
@@ -35,11 +37,12 @@ protected slots:
 
 	//Cluge for now to save last settings
 	void onStartScanClicked();
+	*/
 
 protected:
 	SGMFastScanConfiguration *cfg_;
 
-	QString autoSavePath_;
+	//QString autoSavePath_;
 
 	QComboBox *presetsComboBox_;
 	QLabel *elementLabel_;
@@ -50,6 +53,7 @@ protected:
 	QLabel *motorSettingsLabel_;
 //	QLabel *scalerTimeLabel_;
 	QLabel *baseLineLabel_;
+	QLabel *warningsLabel_;
 
 	QLineEdit *elementEdit_;
 	QDoubleSpinBox *runTimeDSB_;
@@ -60,6 +64,7 @@ protected:
 	//    QDoubleSpinBox *scalerTimeDSB_;
 	QSpinBox *baseLineSB_;
 
+	/*
 	QLabel *saveLabel_;
 	QLineEdit *saveEdit_;
 	QLabel *saveFbkLabel_;
@@ -67,7 +72,7 @@ protected:
 	QFileDialog *autoSaveDialog_;
 	QPushButton *autoSaveDialogButton_;
 
-	/*
+
 	QPushButton *startScanButton_;
 	QPushButton *addToQueueButton_;
 	QPushButton *queueDirectorButton_;

@@ -38,7 +38,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMControlOptimizationView.h"
 
 
-//class SGMXASScanConfigurationViewer : public AMScanConfigurationViewer, private Ui::SGMXASScanConfigurationViewer {
 class SGMXASScanConfigurationView : public AMScanConfigurationView, private Ui::SGMXASScanConfigurationViewer {
 Q_OBJECT
 public:
@@ -58,7 +57,12 @@ protected slots:
 		}
 		*/
 	}
+
+	void onSGMBeamlineCriticalControlsConnectedChanged();
+
+	/*
 	void onLockdowScanning(bool isLocked, QString reason);
+	*/
 
 protected:
 	SGMXASScanConfiguration *cfg_;
@@ -66,6 +70,7 @@ protected:
 	AMXASRegionsView *regionsView_;
 	AMRegionsLineView *regionsLineView_;
 	AMCompactControlOptimizationSetView *fluxResolutionView_;
+	//AMOldControlSetView *trackingView_;
 	AMControlSetView *trackingView_;
 	AMDetectorInfoSetView *detectorView_;
 	AMDetectorInfoSet *cfgDetectorInfoSet_;
@@ -74,6 +79,7 @@ protected:
 	QPushButton *addToQueueButton_;
 	QPushButton *queueDirectorButton_;
 	*/
+	QLabel *warningsLabel_;
 	QVBoxLayout vl_;
 	QGridLayout gl_;
 };

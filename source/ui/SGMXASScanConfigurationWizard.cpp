@@ -200,7 +200,7 @@ AMControlSetWizardPage::AMControlSetWizardPage(AMControlSet *trackingSet, QStrin
 		QWizardPage(parent)
 {
 	trackingSet_ = trackingSet;
-	trackingView_ = new AMControlSetView(trackingSet_, this);
+	trackingView_ = new AMOldControlSetView(trackingSet_, this);
 	gl_ = new QGridLayout();
 	textLabel_ = new QLabel(subTitle);
 	textLabel_->setAlignment(Qt::AlignJustify);

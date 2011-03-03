@@ -127,7 +127,7 @@ protected slots:
 protected:
 	AMControlSet *trackingSet_;
 
-	AMControlSetView *trackingView_;
+	AMOldControlSetView *trackingView_;
 	QGridLayout *gl_;
 	QLabel *textLabel_;
 };
