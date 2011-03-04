@@ -78,7 +78,7 @@ class AMDetectorSetView : public AMDetectorInfoSetView
 {
 	Q_OBJECT
 public:
-	AMDetectorSetView(AMDetectorInfoSet *viewSet, AMDetectorInfoSet *configSet = 0, bool setup = true, QWidget *parent = 0);
+	AMDetectorSetView(AMOldDetectorInfoSet *viewSet, AMOldDetectorInfoSet *configSet = 0, bool setup = true, QWidget *parent = 0);
 
 public slots:
 	void setEditMode(bool editMode);

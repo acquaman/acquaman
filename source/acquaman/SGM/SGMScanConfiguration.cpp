@@ -26,9 +26,6 @@ SGMScanConfiguration::SGMScanConfiguration()
 	setGrating((SGMBeamline::sgm()->grating()->value() < 1) ? SGMBeamline::lowGrating : ((SGMBeamline::sgm()->grating()->value() < 2) ? SGMBeamline::mediumGrating : SGMBeamline::highGrating));
 	setHarmonic((SGMBeamline::sgm()->harmonic()->value() < 1) ? SGMBeamline::firstHarmonic : ((SGMBeamline::sgm()->grating()->value() < 2) ? SGMBeamline::firstHarmonic : SGMBeamline::thirdHarmonic));
 
-//	setUndulatorTracking(SGMBeamline::sgm()->undulatorTracking()->value());
-//	setMonoTracking(SGMBeamline::sgm()->monoTracking()->value());
-//	setExitSlitTracking(SGMBeamline::sgm()->exitSlitTracking()->value());
 	setTrackingGroup(SGMBeamline::sgm()->trackingSet()->toInfoList());
 
 	if(SGMBeamline::sgm()->teyDetector())

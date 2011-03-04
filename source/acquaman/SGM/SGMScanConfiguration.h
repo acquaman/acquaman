@@ -31,18 +31,12 @@ public:
 	double exitSlitGap() const { return exitSlitGap_;}
 	SGMBeamline::sgmGrating grating() const { return grating_;}
 	SGMBeamline::sgmHarmonic harmonic() const { return harmonic_;}
-	//bool undulatorTracking() { return undulatorTracking_;}
-	//bool monoTracking() { return monoTracking_;}
-	//bool exitSlitTracking() { return exitSlitTracking_;}
 	AMControlInfoList trackingGroup() { return trackingGroup_;}
 
 	bool setExitSlitGap(double exitSlitGap);
 	bool setGrating(SGMBeamline::sgmGrating grating) {grating_ = grating; return true;}
 	bool setHarmonic(SGMBeamline::sgmHarmonic harmonic) { harmonic_ = harmonic; return true;}
 
-	//bool setUndulatorTracking(bool track){undulatorTracking_ = track; return true;}
-	//bool setMonoTracking(bool track){monoTracking_ = track; return true;}
-	//bool setExitSlitTracking(bool track){exitSlitTracking_ = track; return true;}
 	bool setTrackingGroup(AMControlInfoList trackingGroup);
 
 	bool setUsingTEY(bool active) { usingTEY_ = active; return true;}

@@ -41,7 +41,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class SGMXASScanConfigurationView : public AMScanConfigurationView, private Ui::SGMXASScanConfigurationViewer {
 Q_OBJECT
 public:
-		SGMXASScanConfigurationView(SGMXASScanConfiguration *sxsc, AMDetectorInfoSet *cfgDetectorInfoSet, QWidget *parent = 0);
+		SGMXASScanConfigurationView(SGMXASScanConfiguration *sxsc, AMOldDetectorInfoSet *cfgDetectorInfoSet, QWidget *parent = 0);
 		~SGMXASScanConfigurationView();
 
 		const AMScanConfiguration* configuration() const;
@@ -72,7 +72,7 @@ protected:
 	AMCompactControlOptimizationSetView *fluxResolutionView_;
 	AMControlSetView *trackingView_;
 	AMDetectorInfoSetView *detectorView_;
-	AMDetectorInfoSet *cfgDetectorInfoSet_;
+	AMOldDetectorInfoSet *cfgDetectorInfoSet_;
 
 	QLabel *warningsLabel_;
 	QVBoxLayout vl_;

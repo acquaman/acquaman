@@ -107,7 +107,7 @@ void SGMAppController::onSGMBeamlineConnected(){
 		sxsc->setFilePath(AMUserSettings::userDataFolder);
 		sxsc->addRegion(0, 950, 1, 960);
 
-		AMDetectorInfoSet *sxscDetectorInfoSet = new AMDetectorInfoSet(this);
+		AMOldDetectorInfoSet *sxscDetectorInfoSet = new AMOldDetectorInfoSet(this);
 		sxsc->setCfgDetectorInfoSet(sxscDetectorInfoSet);
 		AMDetectorInfo* tmpDI, *tdi;
 		for(int x = 0; x < sxsc->detectorSet()->count(); x++){

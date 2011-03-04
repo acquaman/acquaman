@@ -42,7 +42,7 @@ class SGMXASScanConfigurationWizard : public QWizard
 {
 Q_OBJECT
 public:
-	explicit SGMXASScanConfigurationWizard(SGMXASScanConfiguration *sxsc, AMDetectorInfoSet *cfgDetectorInfoSet, QWidget *parent = 0);
+	explicit SGMXASScanConfigurationWizard(SGMXASScanConfiguration *sxsc, AMOldDetectorInfoSet *cfgDetectorInfoSet, QWidget *parent = 0);
 
 	void accept();
 
@@ -52,7 +52,7 @@ signals:
 
 protected:
 	SGMXASScanConfiguration *cfg_;
-	AMDetectorInfoSet *cfgDetectorInfoSet_;
+	AMOldDetectorInfoSet *cfgDetectorInfoSet_;
 
 	SGMXASScanConfigurationIntroWizardPage *introPage;
 	AMXASRegionsWizardPage *regionsPage;
@@ -136,14 +136,14 @@ class AMDetectorSetWizardPage : public QWizardPage
 {
 	Q_OBJECT
 public:
-	AMDetectorSetWizardPage(AMDetectorInfoSet *detectorSet, AMDetectorInfoSet *cfgDetectorInfoSet, QString title, QString subTitle, QWidget *parent = 0);
+	AMDetectorSetWizardPage(AMOldDetectorInfoSet *detectorSet, AMOldDetectorInfoSet *cfgDetectorInfoSet, QString title, QString subTitle, QWidget *parent = 0);
 
 protected slots:
 	void resizeEvent(QResizeEvent *);
 
 protected:
-	AMDetectorInfoSet *detectorSet_;
-	AMDetectorInfoSet *cfgDetectorInfoSet_;
+	AMOldDetectorInfoSet *detectorSet_;
+	AMOldDetectorInfoSet *cfgDetectorInfoSet_;
 
 	AMDetectorInfoSetView *detectorView_;
 	QGridLayout *gl_;

@@ -3,16 +3,77 @@
 
 #include <QObject>
 #include <beamline/AMDetector.h>
+#include <util/AMOrderedList.h>
 
-class AMDetectorInfoSet : public QObject
+class AMDetectorInfoSet : public AMDbObject, public AMOrderedList<AMDetectorInfo>
+{
+Q_OBJECT
+	Q_PROPERTY(QString description READ description WRITE setDescription)
+	Q_PROPERTY(AMDbObjectList detectorInfos READ dbReadDetectorInfos WRITE dbLoadDetectorInfos)
+
+public:
+	explicit AMDetectorInfoSet(QObject *parent = 0);
+	/// Loading-from-database constructor
+	Q_INVOKABLE AMDetectorInfoSet(AMDatabase* db, int id);
+	/// Copy constructor
+	AMDetectorInfoSet(const AMDetectorInfoSet& other);
+	/// Assignment operator
+	AMDetectorInfoSet& operator=(const AMDetectorInfoSet& other);
+
+	/// Destructor
+	~AMDetectorInfoSet() {}
+
+
+	QString description();
+
+	/// Returns a list of pointers to the AMDetectorInfo objects we store, for use by the database system in storeToDb() / loadFromDb().
+	AMDbObjectList dbReadDetectorInfos();
+	/// Called by the database system on loadFromDb() to give us our new set of AMDetectorlInfo objects. We copy these ones into our internal list and then delete them.
+	void dbLoadDetectorInfos(const AMDbObjectList& newControlInfos);
+
+public slots:
+	void setDescription(const QString& description);
+
+signals:
+	/// Forwarded from signalSource()->itemChanged(). Emitted when a detector is replaced, OR after a detector is accessed for modification and program execution returns back to the event loop.
+	void detectorValuesChanged(int index);
+	/// Forwarded from signalSource()->itemAdded(). Emitted after a new detector is added at \c index.
+	void detectorAdded(int index);
+	/// Forwarded from signalSource()->itemRemoved(). Emitted after a detector was removed (previously at \c index).
+	void detectorRemoved(int index);
+
+protected slots:
+	/// Called when a control is accessed and potentially modified.
+	void onControlValuesChanged(int index) {
+		setModified(true);
+		emit detectorValuesChanged(index);
+	}
+	/// Called after a control is added at \c index
+	void onControlAdded(int index) {
+		setModified(true);
+		emit detectorAdded(index);
+	}
+
+	/// Called after a control is removed from \c index
+	void onControlRemoved(int index) {
+		setModified(true);
+		emit detectorRemoved(index);
+	}
+
+protected:
+	QString description_;
+
+};
+
+class AMOldDetectorInfoSet : public QObject
 {
 Q_OBJECT
 public:
 	/// Constructor, only needs a QObject to act as a parent.
-	explicit AMDetectorInfoSet(QObject *parent = 0);
+	explicit AMOldDetectorInfoSet(QObject *parent = 0);
 	//AMDetectorInfoSet(AMDetectorInfoSet *copy, QObject *parent = 0);
 
-	~AMDetectorInfoSet(){
+	~AMOldDetectorInfoSet(){
 		detectors_.clear();
 	}
 

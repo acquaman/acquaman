@@ -723,14 +723,14 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	unconnectedSets_.append(ssaManipulatorSet_);
 	connect(ssaManipulatorSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
-	allDetectors_ = new AMDetectorInfoSet(this);
+	allDetectors_ = new AMOldDetectorInfoSet(this);
 	allDetectors_->setName("All Detectors");
 
 
-	feedbackDetectors_ = new AMDetectorInfoSet(this);
+	feedbackDetectors_ = new AMOldDetectorInfoSet(this);
 	feedbackDetectors_->setName("Feedback Detectors");
 
-	XASDetectors_ = new AMDetectorInfoSet(this);
+	XASDetectors_ = new AMOldDetectorInfoSet(this);
 	XASDetectors_->setName("XAS Detectors");
 
 	currentSamplePlate_ = new AMSamplePlate(this);

@@ -51,7 +51,7 @@ public:
 	QStringList presets() const;
 	SGMFastScanParameters* currentParameters() const;
 
-	AMDetectorInfoSet* cfgDetectorInfoSet() const { return cfgFastDetectors_;}
+	AMOldDetectorInfoSet* cfgDetectorInfoSet() const { return cfgFastDetectors_;}
 	QList<AMDetectorInfo*> usingDetectors() const;
 
 public slots:
@@ -68,7 +68,7 @@ public slots:
 	bool setScalerTime(double scalerTime);
 	bool setBaseLine(int baseLine);
 	bool setSensibleFileSavePath(const QString& sensibleFileSavePath);
-	bool setCfgDetectorInfoSet(AMDetectorInfoSet *cfgDetectorInfoSet) { cfgFastDetectors_ = cfgDetectorInfoSet; return true; }
+	bool setCfgDetectorInfoSet(AMOldDetectorInfoSet *cfgDetectorInfoSet) { cfgFastDetectors_ = cfgDetectorInfoSet; return true; }
 
 signals:
 	void onElementChanged(const QString& element);
@@ -89,7 +89,7 @@ protected slots:
 	void onSaveDirectoryChanged(const QString& directory);
 
 protected:
-	AMDetectorInfoSet *cfgFastDetectors_;
+	AMOldDetectorInfoSet *cfgFastDetectors_;
 	QList<SGMFastScanParameters*> settings_;
 	SGMFastScanParameters *currentSettings_;
 

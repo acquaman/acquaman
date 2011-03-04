@@ -196,7 +196,7 @@ void MCPDetectorView::setEditable(){
 	setEditMode(!editMode_);
 }
 
-AMDetectorSetView::AMDetectorSetView(AMDetectorInfoSet *viewSet, AMDetectorInfoSet *configSet, bool setup, QWidget *parent) :
+AMDetectorSetView::AMDetectorSetView(AMOldDetectorInfoSet *viewSet, AMOldDetectorInfoSet *configSet, bool setup, QWidget *parent) :
 		AMDetectorInfoSetView(viewSet, configSet, false, parent)
 {
 	editMode_ = true;

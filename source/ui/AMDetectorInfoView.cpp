@@ -89,7 +89,7 @@ MCPDetectorInfoView::MCPDetectorInfoView(MCPDetectorInfo *detectorInfo, AMDetect
 	setMinimumWidth(250);
 }
 
-AMDetectorInfoSetView::AMDetectorInfoSetView(AMDetectorInfoSet *viewSet, AMDetectorInfoSet *writeSet, bool setup, QWidget *parent) :
+AMDetectorInfoSetView::AMDetectorInfoSetView(AMOldDetectorInfoSet *viewSet, AMOldDetectorInfoSet *writeSet, bool setup, QWidget *parent) :
 		QGroupBox(parent)
 {
 	viewSet_ = viewSet;

@@ -20,7 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SGMXASScanConfigurationWizard.h"
 
-SGMXASScanConfigurationWizard::SGMXASScanConfigurationWizard(SGMXASScanConfiguration *sxsc, AMDetectorInfoSet *cfgDetectorInfoSet, QWidget *parent) :
+SGMXASScanConfigurationWizard::SGMXASScanConfigurationWizard(SGMXASScanConfiguration *sxsc, AMOldDetectorInfoSet *cfgDetectorInfoSet, QWidget *parent) :
 	QWizard(parent)
 {
 	cfg_ = NULL;
@@ -217,7 +217,7 @@ void AMControlSetWizardPage::resizeEvent(QResizeEvent *e){
 	QWizardPage::resizeEvent(e);
 }
 
-AMDetectorSetWizardPage::AMDetectorSetWizardPage(AMDetectorInfoSet *detectorSet, AMDetectorInfoSet *cfgDetectorInfoSet, QString title, QString subTitle, QWidget *parent) :
+AMDetectorSetWizardPage::AMDetectorSetWizardPage(AMOldDetectorInfoSet *detectorSet, AMOldDetectorInfoSet *cfgDetectorInfoSet, QString title, QString subTitle, QWidget *parent) :
 		QWizardPage(parent)
 {
 	detectorSet_ = detectorSet;
