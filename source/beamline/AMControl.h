@@ -221,6 +221,16 @@ public:
 		OtherFailure 			///<  an error code defined by the specific control implementation
 };
 
+	/// This enum type is used to describe problematic states the control can be in
+	/*! Possible explanation codes are:
+	  */
+	enum ErrorExplanation{
+		CannotConnectError = 1, ///< Cannot connect to part of the control
+		CannotReadError,	///< Cannot read when we are connected and expect to be able to
+		CannotWriteError,	///< Cannot write when we are connected and expect to be able to
+		CannotGetStatusError,	///< Cannot read the status when we are connected
+	};
+
 	/// Base Class Constructor
 	/*! \param name A unique descriptive name for this control.
 		\param units The default unit description.
@@ -430,6 +440,11 @@ signals:
 		*/
 	void connected(bool);
 
+	/// Announces error states
+	/*! Emits error codes defined above or passes along error messages if available
+		*/
+	void error(int);
+	void error(const QString&);
 
 protected:
 	/// List of pointers to our subcontrols
@@ -537,12 +552,12 @@ protected slots:
 	/// Override this if you want custom handling if the readPV fails to connect.
 
 	/// You can also monitor the readConnectionTimeoutOccurred() signal.
-	void onConnectionTimeout() { setUnits("?"); emit connected(false); }
+	void onConnectionTimeout() { setUnits("?"); emit connected(false); emit error(AMControl::CannotConnectError); }
 
 	/// This is called when a PV channel connects or disconnects
 	void onPVConnected(bool connected);
-	/// This is called when there is a PV channel error:
-	void onPVError(int error);
+	/// This is called when there is a Read PV channel error:
+	void onReadPVError(int errorCode);
 
 };
 
@@ -696,10 +711,13 @@ protected slots:
 	/// (overridden) Handle a connection timeout from either the readPV_ or writePV_
 	/*! The units come from the readPV, so if it's out, we don't know what the units are.
 		In any case, if either one doesn't connected, we're not connected.*/
-	void onConnectionTimeout() { if(sender() == readPV_) { setUnits("?"); } emit connected(false); }
+	void onConnectionTimeout() { if(sender() == readPV_) { setUnits("?"); } emit connected(false); emit error(AMControl::CannotConnectError); }
 
 	/// This is called when a PV channel (read or write) connects or disconnects
 	void onPVConnected(bool connected);
+
+	/// This is called when there is a Write PV channel error:
+	void onWritePVError(int errorCode);
 
 	/// This is used to handle the timeout of a move
 	void onCompletionTimeout();
@@ -804,10 +822,13 @@ protected slots:
 
 	/// Since the units come from the read-PV, we need the readPV for that.
 	/// All connection timeouts cause us to be not connected.
-	void onConnectionTimeout() { if(sender() == readPV_) { setUnits("?"); } emit connected(false); }
+	void onConnectionTimeout() { if(sender() == readPV_) { setUnits("?"); } emit connected(false); emit error(AMControl::CannotConnectError); }
 
 	/// This is called when a PV channel connects or disconnects
 	void onPVConnected(bool connected);
+
+	/// This is called when there is a Status PV channel error:
+	void onStatusPVError(int errorCode);
 
 	/// This is called whenever there is an update from the move status PV
 	void onMovingChanged(int isMovingValue);
@@ -958,6 +979,9 @@ protected:
 	int stopValue_;
 
 protected slots:
+
+	/// This is called when there is a Status PV channel error:
+	void onStatusPVError(int errorCode);
 
 	/// This is used to handle the timeout of a move start:
 	void onMoveStartTimeout();

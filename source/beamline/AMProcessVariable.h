@@ -50,6 +50,10 @@ Q_DECLARE_METATYPE(AMProcessVariableIntVector)
 
 #define AMPROCESSVARIABLE_MAX_CA_ARRAY_BYTES "134217728"
 
+/// We use these to return erros from AMProcessVariable. EPICS already defines errors in the range of 0 to 60 in caerr.h, so choose arbitrarily high number to avoid collision
+#define AMPROCESSVARIABLE_CANNOT_READ  270000
+#define AMPROCESSVARIABLE_CANNOT_WRITE 270001
+
 /**
   \addtogroup control
   @{

@@ -611,6 +611,16 @@ void AMProcessVariable::onConnectionTimeout() {
 }
 
 void AMProcessVariable::checkReadWriteReady(){
+	// We aren't readReady, but the only problem is ca_read_access failed
+	if(!readReady() && isConnected() && isInitialized() && hasValues()){
+		emit error(AMPROCESSVARIABLE_CANNOT_READ);
+		emit error("Lacking read access to PV");
+	}
+	// We aren't writeReady, but the only problem is ca_write_access failed
+	if(!writeReady() && readReady()){
+		emit error(AMPROCESSVARIABLE_CANNOT_WRITE);
+		emit error("Lacking write access to PV");
+	}
 	if(lastReadReady_ != readReady()){
 		lastReadReady_ = readReady();
 		emit readReadyChanged(lastReadReady_);
