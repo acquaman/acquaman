@@ -981,7 +981,7 @@ protected:
 protected slots:
 
 	/// This is called when there is a Status PV channel error:
-	void onStatusPVError(int errorCode);
+	void onWritePVError(int errorCode);
 
 	/// This is used to handle the timeout of a move start:
 	void onMoveStartTimeout();

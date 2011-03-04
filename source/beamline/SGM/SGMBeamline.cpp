@@ -413,7 +413,8 @@ void SGMBeamline::usingFakeBeamline(){
 	amNames2pvNames_.set("activeEndstation", "reixsHost:endstation:active");
 
 	//ringCurrent_ = new AMReadOnlyPVControl("ringCurrent", "PCT1402-01:mA:fbk", this);
-	ringCurrent_ = new AMPVControl("ringCurrent", "PCT1402-01:mA:fbk", "PCT1402-01:mA:fbk", QString(), this);
+	//ringCurrent_ = new AMPVControl("ringCurrent", "PCT1402-01:mA:fbk", "PCT1402-01:mA:fbk", QString(), this);
+	ringCurrent_ = new AMPVwStatusControl("ringCurrent", "PCT1402-01:mA:fbk", "PCT1402-01:mA:fbk", "PCT1402-01:mA:fbk", QString(), this);
 	addChildControl(ringCurrent_);
 
 	QString sgmPVName = amNames2pvNames_.valueF("energy");
