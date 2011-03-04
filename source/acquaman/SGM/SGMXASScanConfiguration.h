@@ -31,9 +31,9 @@ class SGMXASScanConfiguration : public AMXASScanConfiguration, public SGMScanCon
 	Q_PROPERTY(double exitSlitGap READ exitSlitGap WRITE setExitSlitGap)
 	Q_PROPERTY(int grating READ grating WRITE setGrating)
 	Q_PROPERTY(int harmonic READ harmonic WRITE setHarmonic)
-	Q_PROPERTY(bool undulatorTracking READ undulatorTracking WRITE setUndulatorTracking)
-	Q_PROPERTY(bool monoTracking READ monoTracking WRITE setMonoTracking)
-	Q_PROPERTY(bool exitSlitTracking READ exitSlitTracking WRITE setExitSlitTracking)
+	//Q_PROPERTY(bool undulatorTracking READ undulatorTracking WRITE setUndulatorTracking)
+	//Q_PROPERTY(bool monoTracking READ monoTracking WRITE setMonoTracking)
+	//Q_PROPERTY(bool exitSlitTracking READ exitSlitTracking WRITE setExitSlitTracking)
 	Q_PROPERTY(bool usingTEY READ usingTEY WRITE setUsingTEY)
 	Q_PROPERTY(bool usingTFY READ usingTFY WRITE setUsingTFY)
 	Q_PROPERTY(bool usingPGT READ usingPGT WRITE setUsingPGT)
@@ -63,12 +63,15 @@ public slots:
 	bool setGrating(int grating);
 	bool setHarmonic(SGMBeamline::sgmHarmonic harmonic);
 	bool setHarmonic(int harmonic);
-	bool setUndulatorTracking(bool track);
-	bool setUndulatorTracking(int track);
-	bool setMonoTracking(bool track);
-	bool setMonoTracking(int track);
-	bool setExitSlitTracking(bool track);
-	bool setExitSlitTracking(int track);
+
+	//bool setUndulatorTracking(bool track);
+	//bool setUndulatorTracking(int track);
+	//bool setMonoTracking(bool track);
+	//bool setMonoTracking(int track);
+	//bool setExitSlitTracking(bool track);
+	//bool setExitSlitTracking(int track);
+	bool setTrackingGroup(AMControlInfoList trackingList);
+
 	bool setUsingTEY(bool active);
 	bool setUsingTEY(int checkedState);
 	bool setUsingTFY(bool active);
@@ -83,9 +86,12 @@ signals:
 	void exitSlitGapChanged(double exitSlitGap);
 	void gratingChanged(int grating);
 	void harmonicChanged(int harmonic);
-	void undulatorTrackingChanged(int track);
-	void monoTrackingChanged(int track);
-	void exitSlitTrackingChanged(int track);
+
+	//void undulatorTrackingChanged(int track);
+	//void monoTrackingChanged(int track);
+	//void exitSlitTrackingChanged(int track);
+	void trackingGroupChanged(AMControlInfoList);
+
 	void usingTEYChanged(bool active);
 	void usingTFYChanged(bool active);
 	void usingPGTChanged(bool active);

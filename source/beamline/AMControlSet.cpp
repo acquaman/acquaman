@@ -58,6 +58,16 @@ AMControlInfoList AMControlSet::toInfoList() const {
 	return rv;
 }
 
+bool AMControlSet::validInfoList(const AMControlInfoList &info){
+	/// \todo alternate orderings or subsets of the entire list
+	AMControl *tmpCtrl;
+	for(int x = 0; x < info.count(); x++){
+		tmpCtrl = controlNamed(info.at(x).name());
+		if(!tmpCtrl)
+			return false;
+	}
+	return true;
+}
 
 void AMControlSet::setFromInfoList(const AMControlInfoList& info){
 	AMControl *tmpCtrl;
@@ -87,5 +97,9 @@ void AMControlSet::onConnected(bool ctrlConnected){
 void AMControlSet::onConnectionsTimedOut(){
 	if(!wasConnected_)
 		emit connected(false);
+}
+
+void AMControlSet::onControlValueChanged(){
+	emit controlSetValuesChanged(toInfoList());
 }
 

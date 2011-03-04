@@ -108,13 +108,16 @@ bool SGMXASScanController::beamlineInitialize(){
 	tmpAction->setSetpoint(pCfg_()->harmonic());
 	initializationActions_->appendAction(0, tmpAction);
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->undulatorTracking());
-	tmpAction->setSetpoint(pCfg_()->undulatorTracking());
+	//tmpAction->setSetpoint(pCfg_()->undulatorTracking());
+	tmpAction->setSetpoint(pCfg_()->trackingGroup().at(0).value() );
 	initializationActions_->appendAction(0, tmpAction);
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->monoTracking());
-	tmpAction->setSetpoint(pCfg_()->monoTracking());
+	//tmpAction->setSetpoint(pCfg_()->monoTracking());
+	tmpAction->setSetpoint(pCfg_()->trackingGroup().at(1).value() );
 	initializationActions_->appendAction(0, tmpAction);
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->exitSlitTracking());
-	tmpAction->setSetpoint(pCfg_()->exitSlitTracking());
+	//tmpAction->setSetpoint(pCfg_()->exitSlitTracking());
+	tmpAction->setSetpoint(pCfg_()->trackingGroup().at(2).value() );
 	initializationActions_->appendAction(0, tmpAction);
 	/**/
 

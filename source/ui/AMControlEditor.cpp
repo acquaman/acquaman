@@ -280,9 +280,9 @@ AMControlEditor::AMControlEditor(AMControl* control, AMControl* statusTagControl
 	if(control_ && control_->isConnected()){
 		//onValueChanged(control_->value());
 		//onUnitsChanged(control_->units());
-		setHappy(control_->isConnected());
 		if(control_->isEnum())
 			dialog_->setEnumNames(control_->enumNames());
+		setHappy(control_->isConnected());
 	}
 
 	if(statusTagControl_ && statusTagControl_->isConnected())
@@ -291,6 +291,10 @@ AMControlEditor::AMControlEditor(AMControl* control, AMControl* statusTagControl
 
 double AMControlEditor::setpoint() const{
 	return dialog_->setpoint();
+}
+
+AMControl* AMControlEditor::control() const{
+	return control_;
 }
 
 void AMControlEditor::setReadOnly(bool readOnly){
@@ -340,8 +344,12 @@ void AMControlEditor::setHappy(bool happy) {
 		readOnly_ = !control_->canMove();
 		onUnitsChanged(control_->units());
 		onValueChanged(control_->value());
-		if(!connectedOnce_)
+		if(!connectedOnce_){
+			dialog_->setDoubleMaximum(control_->maximumValue());
+			dialog_->setDoubleMinimum(control_->minimumValue());
+			dialog_->setDoubleValue(control_->value());
 			connectedOnce_ = true;
+		}
 	}
 	else
 		unitsLabel_->setStyleSheet("border: 1px outset #f20000; background: #ffdfdf;	padding: 1px; color: #f20000;");
@@ -363,10 +371,10 @@ void AMControlEditor::onEditStart() {
 
 	//bool ok;
 
-	if(!configureOnly_)
-		dialog_->setDoubleValue(control_->value());
 	dialog_->setDoubleMaximum(control_->maximumValue());
 	dialog_->setDoubleMinimum(control_->minimumValue());
+	if(!configureOnly_)
+		dialog_->setDoubleValue(control_->value());
 	dialog_->setDoubleDecimals(3);	// todo: display precision?
 	dialog_->setLabelText(control_->objectName());
 	dialog_->setSuffix(control_->units());

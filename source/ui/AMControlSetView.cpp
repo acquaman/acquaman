@@ -37,14 +37,49 @@ AMControlSetView::AMControlSetView(AMControlSet *viewSet, bool configureOnly, QW
 		tmpCE = new AMControlEditor(tmpCtrl, 0, false, configureOnly_);
 		vl->addWidget(tmpCE);
 		controlBoxes_.append(tmpCE);
+		connect(tmpCE, SIGNAL(setpointRequested(double)), this, SLOT(onConfigurationValueChanged()));
 	}
 
 	hl_ = new QHBoxLayout(this);
 	hl_->addLayout(vl);
 	setLayout(hl_);
 	setFixedSize(300, 200);
+
+	connect(viewSet_, SIGNAL(controlSetValuesChanged(AMControlInfoList)), this, SLOT(onControlSetValuesChanged(AMControlInfoList)));
 }
 
+AMControlInfoList AMControlSetView::currentValues(){
+	return viewSet_->toInfoList();
+}
+
+AMControlInfoList AMControlSetView::configValues(){
+	AMControlInfoList rv;
+
+	if(!configureOnly_)
+		return currentValues();
+
+	int numControls = viewSet_->count();
+	for(int i=0; i<numControls; i++) {
+		AMControl* c = boxAt(i)->control();
+		rv.append( AMControlInfo(c->name(), boxAt(i)->setpoint(), c->minimumValue(), c->maximumValue(), c->units()) );
+	}
+
+	return rv;
+}
+
+void AMControlSetView::onControlSetValuesChanged(AMControlInfoList infoList){
+	if(!configureOnly_){
+		qDebug() << "Live controlSetView has new values";
+		emit currentValuesChanged(infoList);
+	}
+}
+
+void AMControlSetView::onConfigurationValueChanged(){
+	if(configureOnly_){
+		qDebug() << "Config controlSetView has new config values";
+		emit configValuesChanged(configValues());
+	}
+}
 
 
 /// Sets the title of the group box based on the name() function of the AMControlSet.

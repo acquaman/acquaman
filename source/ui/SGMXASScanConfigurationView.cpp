@@ -44,6 +44,7 @@ SGMXASScanConfigurationView::SGMXASScanConfigurationView(SGMXASScanConfiguration
 
 		//trackingView_ = new AMOldControlSetView(sxsc->trackingSet(), this);
 		trackingView_ = new AMControlSetView(sxsc->trackingSet(), true, this);
+		connect(trackingView_, SIGNAL(configValuesChanged(AMControlInfoList)), sxsc, SLOT(setTrackingGroup(AMControlInfoList)));
 		/*
 		connect( ((QComboBox*)(trackingView_->boxByName("undulatorTracking"))), SIGNAL(currentIndexChanged(int)), sxsc, SLOT(setUndulatorTracking(int)) );
 		connect( ((QComboBox*)(trackingView_->boxByName("monoTracking"))), SIGNAL(currentIndexChanged(int)), sxsc, SLOT(setMonoTracking(int)) );

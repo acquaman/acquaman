@@ -70,15 +70,10 @@ protected:
 	AMXASRegionsView *regionsView_;
 	AMRegionsLineView *regionsLineView_;
 	AMCompactControlOptimizationSetView *fluxResolutionView_;
-	//AMOldControlSetView *trackingView_;
 	AMControlSetView *trackingView_;
 	AMDetectorInfoSetView *detectorView_;
 	AMDetectorInfoSet *cfgDetectorInfoSet_;
-	/*
-	QPushButton *startScanButton_;
-	QPushButton *addToQueueButton_;
-	QPushButton *queueDirectorButton_;
-	*/
+
 	QLabel *warningsLabel_;
 	QVBoxLayout vl_;
 	QGridLayout gl_;

@@ -79,6 +79,7 @@ public:
 
 		if( append(newControl, newControl->name()) ) {
 			connect(newControl, SIGNAL(connected(bool)), this, SLOT(onConnected(bool)));
+			connect(newControl, SIGNAL(valueChanged(double)), this, SLOT(onControlValueChanged()));
 			return true;
 		}
 		return false;
@@ -96,6 +97,9 @@ public:
 	}
 
 
+	/// Checks to see if this control set can be set from the given AMControlInfoList (they refer to the same controls)
+	bool validInfoList(const AMControlInfoList& info);
+
 	/// Set the position of all the controls in the set from the simplified AMControlInfoList \c infoList.  The controls in \c infoList are matched by name, and for each corresponding name in this set, the real control's value is set.
 	void setFromInfoList(const AMControlInfoList& info);
 
@@ -103,6 +107,9 @@ signals:
 	/// This signal is emitted whenever isConnected() changes
 	void connected(bool groupConnected);
 	void controlConnectedChanged(bool isConnected, AMControl *control);
+
+	/// This signal is emitted whenever one of the controls has a new value
+	void controlSetValuesChanged(AMControlInfoList);
 
 public slots:
 	/// Sets the name of the control set.
@@ -115,6 +122,9 @@ protected slots:
 	/// Handles when any of the controls become connected or disconnected
 	void onConnected(bool ctrlConnected);
 	void onConnectionsTimedOut();
+
+	/// Handles when any of the controls has a new value
+	void onControlValueChanged();
 
 protected:
 	/// Holds the name of the control set. Should be descriptive of the logical relationship.

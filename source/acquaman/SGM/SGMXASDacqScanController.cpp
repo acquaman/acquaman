@@ -36,6 +36,7 @@ void SGMXASDacqScanController::initialize(){
 		/**/
 		//connect(initializationActions_, SIGNAL(listSucceeded()), this, SIGNAL(initialized()));
 		connect(initializationActions_, SIGNAL(listSucceeded()), this, SLOT(onInitializationActionsSucceeded()));
+		qDebug() << "STARTING XAS INITIALIZATION ACTIONS";
 		initializationActions_->start();
 		/**/
 		/*
@@ -89,7 +90,9 @@ void SGMXASDacqScanController::start(){
 	}
 	advAcq_->saveConfigFile("/Users/fawkes/dev/acquaman/devConfigurationFiles/davidTest.cfg");
 	generalScan_ = specificScan_;
-	AMDacqScanController::start();
+
+	qDebug() << "Ready to start XAS Scan";
+	//AMDacqScanController::start();
 }
 
 AMnDIndex SGMXASDacqScanController::toScanIndex(QMap<int, double> aeData){

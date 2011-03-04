@@ -32,9 +32,10 @@ SGMXASScanConfiguration::SGMXASScanConfiguration(QObject *parent) : AMXASScanCon
 
 	emit exitSlitGapChanged(exitSlitGap_);
 	emit gratingChanged(grating_);
-	emit undulatorTrackingChanged(undulatorTracking_);
-	emit monoTrackingChanged(monoTracking_);
-	emit exitSlitTrackingChanged(exitSlitTracking_);
+//	emit undulatorTrackingChanged(undulatorTracking_);
+//	emit monoTrackingChanged(monoTracking_);
+//	emit exitSlitTrackingChanged(exitSlitTracking_);
+	emit trackingGroupChanged(trackingGroup_);
 }
 
 QList<AMDetectorInfo*> SGMXASScanConfiguration::usingDetectors() const{
@@ -86,6 +87,7 @@ bool SGMXASScanConfiguration::setHarmonic(int harmonic) {
 	return setHarmonic( (SGMBeamline::sgmHarmonic)harmonic );
 }
 
+/*
 bool SGMXASScanConfiguration::setUndulatorTracking(bool track){
 	bool rVal = SGMScanConfiguration::setUndulatorTracking(track);
 	emit undulatorTrackingChanged(track);
@@ -108,11 +110,19 @@ bool SGMXASScanConfiguration::setMonoTracking(int track){
 
 bool SGMXASScanConfiguration::setExitSlitTracking(bool track){
 	bool rVal = SGMScanConfiguration::setExitSlitTracking(track);
-	emit exitSlitTrackingChanged(track); return rVal;
+	emit exitSlitTrackingChanged(track);
+	return rVal;
 }
 
 bool SGMXASScanConfiguration::setExitSlitTracking(int track){
 	return setExitSlitTracking( (bool)track );
+}
+*/
+
+bool SGMXASScanConfiguration::setTrackingGroup(AMControlInfoList trackingList){
+	bool rVal = SGMScanConfiguration::setTrackingGroup(trackingList);
+	emit trackingGroupChanged(trackingList);
+	return rVal;
 }
 
 bool SGMXASScanConfiguration::setUsingTEY(bool active) {

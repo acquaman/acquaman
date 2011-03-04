@@ -145,6 +145,7 @@ public:
 	explicit AMControlEditor(AMControl* control, AMControl* statusTagControl = NULL, bool readOnly = false, bool configureOnly = false, QWidget *parent = 0);
 
 	double setpoint() const;
+	AMControl* control() const;
 
 signals:
 	void moveRequested(double);
