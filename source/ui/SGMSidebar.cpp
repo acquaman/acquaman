@@ -20,6 +20,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SGMSidebar.h"
 
+#include "ui/AMDetectorView.h"
+
 SGMSidebar::SGMSidebar(QWidget *parent) :
     QWidget(parent)
 {
@@ -86,7 +88,6 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	beamlineWarningsLabel_ = new QLabel(SGMBeamline::sgm()->beamlineWarnings());
 	connect(SGMBeamline::sgm(), SIGNAL(beamlineWarningsChanged(QString)), beamlineWarningsLabel_, SLOT(setText(QString)));
 
-
 	gl_->addWidget(readyLabel_,		0, 0, 1, 6, 0);
 	gl_->addWidget(beamOnBALButton_,	1, 0, 1, 2, 0);
 	gl_->addWidget(beamOffCButton_,		1, 2, 1, 2, 0);
@@ -101,6 +102,7 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	gl_->addWidget(entranceSlitNC_,		6, 0, 1, 3, 0);
 	gl_->addWidget(exitSlitNC_,		6, 3, 1, 3, 0);
 	gl_->addWidget(beamlineWarningsLabel_,	8, 0, 1, 6, 0);
+	gl_->addWidget(new AMDetectorSetView(SGMBeamline::sgm()->XASDetectorsNew()),	9, 0, 3, 6, 0);
 
 	gl_->setRowStretch(7, 10);
 

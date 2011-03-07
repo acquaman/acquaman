@@ -33,6 +33,8 @@ public:
 	AMSingleControlDetector(const QString& name, AMControl *control, QObject *parent = 0);
 	~AMSingleControlDetector(){ control_ = NULL;}
 
+	AMControl* control() { return control_;}
+
 public slots:
 	virtual bool setControls(AMDetectorInfo *detectorSettings);
 
@@ -87,6 +89,7 @@ public:
 	MCPDetector(const QString& name, AMControl *reading, AMControl *hvSetpoint, AMControl *hvFbk, QObject *parent = 0);
 	~MCPDetector();
 
+	AMControl* readingCtrl() const { return reading_; }
 	AMControl* hvSetpointCtrl() const { return hvSetpoint_; }
 	AMControl* hvFbkCtrl() const { return hvFbk_; }
 

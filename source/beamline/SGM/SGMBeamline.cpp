@@ -730,13 +730,19 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 
 	allDetectors_ = new AMOldDetectorInfoSet(this);
 	allDetectors_->setName("All Detectors");
+	allDetectorsNew_ = new AMDetectorSet(this);
+	allDetectorsNew_->setName("All Detectors");
 
 
 	feedbackDetectors_ = new AMOldDetectorInfoSet(this);
 	feedbackDetectors_->setName("Feedback Detectors");
+	feedbackDetectorsNew_ = new AMDetectorSet(this);
+	feedbackDetectorsNew_->setName("Feedback Detectors");
 
 	XASDetectors_ = new AMOldDetectorInfoSet(this);
 	XASDetectors_->setName("XAS Detectors");
+	XASDetectorsNew_ = new AMDetectorSet(this);
+	XASDetectorsNew_->setName("XAS Detectors");
 
 	currentSamplePlate_ = new AMSamplePlate(this);
 
@@ -1034,45 +1040,58 @@ void SGMBeamline::onControlSetConnected(bool csConnected){
 			teyDetector_->setDescription("TEY");
 			allDetectors_->addDetector(teyDetector_, true);
 			XASDetectors_->addDetector(teyDetector_, true);
+			allDetectorsNew_->addDetector(teyDetector_);
+			XASDetectorsNew_->addDetector(teyDetector_);
 		}
 		else if(!tfyDetector_ && ctrlSet->name() == "TFY Controls"){
 			tfyDetector_ = new MCPDetector(tfy_->name(), tfy_, tfyHVSetpoint_, tfyHVFbk_, this);
 			tfyDetector_->setDescription("TFY");
 			allDetectors_->addDetector(tfyDetector_, true);
 			XASDetectors_->addDetector(tfyDetector_, true);
+			allDetectorsNew_->addDetector(tfyDetector_);
+			XASDetectorsNew_->addDetector(tfyDetector_);
 		}
 		else if(!pgtDetector_ && ctrlSet->name() == "SDD Controls"){
 			pgtDetector_ = new PGTDetector(pgt_->name(), pgt_, pgtHVSetpoint_, pgtHVFbk_, pgtIntegrationTime_, pgtIntegrationMode_, this);
 			pgtDetector_->setDescription("SDD");
 			allDetectors_->addDetector(pgtDetector_, false);
 			XASDetectors_->addDetector(pgtDetector_, false);
+			allDetectorsNew_->addDetector(pgtDetector_);
+			XASDetectorsNew_->addDetector(pgtDetector_);
 		}
 		else if(!i0Detector_ && ctrlSet->name() == "I0 Controls"){
 			i0Detector_ = new AMSingleControlDetector(i0_->name(), i0_, this);
 			i0Detector_->setDescription("I0");
 			allDetectors_->addDetector(i0Detector_, true);
 			feedbackDetectors_->addDetector(i0Detector_, true);
+			allDetectorsNew_->addDetector(i0Detector_);
+			feedbackDetectorsNew_->addDetector(i0Detector_);
 		}
 		else if(!eVFbkDetector_ && ctrlSet->name() == "Energy Feedback Controls"){
 			eVFbkDetector_ = new AMSingleControlDetector(eVFbk_->name(), eVFbk_, this);
 			eVFbkDetector_->setDescription("Energy Feedback");
 			allDetectors_->addDetector(eVFbkDetector_, true);
 			feedbackDetectors_->addDetector(eVFbkDetector_, true);
+			allDetectorsNew_->addDetector(eVFbkDetector_);
+			feedbackDetectorsNew_->addDetector(eVFbkDetector_);
 		}
 		else if(!photodiodeDetector_ && ctrlSet->name() == "Photodiode Controls"){
 			photodiodeDetector_ = new AMSingleControlDetector(photodiode_->name(), photodiode_, this);
 			photodiodeDetector_->setDescription("Photodiode");
 			allDetectors_->addDetector(photodiodeDetector_, true);
+			allDetectorsNew_->addDetector(photodiodeDetector_);
 		}
 		else if(!encoderUpDetector_ && ctrlSet->name() == "Encoder Up Controls"){
 			encoderUpDetector_ = new AMSingleControlDetector(encoderUp_->name(), encoderUp_, this);
 			encoderUpDetector_->setDescription("Encoder Up");
 			allDetectors_->addDetector(encoderUpDetector_, true);
+			allDetectorsNew_->addDetector(encoderUpDetector_);
 		}
 		else if(!encoderDownDetector_ && ctrlSet->name() == "Encoder Down Controls"){
 			encoderDownDetector_ = new AMSingleControlDetector(encoderDown_->name(), encoderDown_, this);
 			encoderDownDetector_->setDescription("Encoder Down");
 			allDetectors_->addDetector(encoderDownDetector_, true);
+			allDetectorsNew_->addDetector(encoderDownDetector_);
 		}
 		emit controlSetConnectionsChanged();
 	}

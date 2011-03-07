@@ -37,6 +37,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMScanConfigurationView.h"
 #include "ui/AMControlOptimizationView.h"
 
+#include "AMDetectorView.h"
+
 
 class SGMXASScanConfigurationView : public AMScanConfigurationView, private Ui::SGMXASScanConfigurationViewer {
 Q_OBJECT

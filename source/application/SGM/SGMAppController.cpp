@@ -10,6 +10,7 @@
 #include "ui/SGMFastScanConfigurationView.h"
 #include "ui/SGMSidebar.h"
 #include "acquaman/AMScanController.h"
+#include "ui/AMDetectorView.h"
 
 #include "ui/AMMainWindow.h"
 #include "ui/AMWorkflowManagerView.h"
@@ -26,6 +27,10 @@ bool SGMAppController::startup() {
 	SGMBeamline::sgm();
 
 	if(AMAppController::startup()) {
+
+		AMDetectorViewSupport::registerClass<AMSingleControlDetectorView, AMSingleControlDetector>();
+		AMDetectorViewSupport::registerClass<MCPDetectorView, MCPDetector>();
+		AMDetectorViewSupport::registerClass<PGTDetectorView, PGTDetector>();
 
 		// Create panes in the main window:
 		////////////////////////////////////

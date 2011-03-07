@@ -72,6 +72,108 @@ void AMDetectorInfoSet::setDescription(const QString &description){
 	setModified(true);
 }
 
+
+
+
+
+
+AMDetectorSet::AMDetectorSet(QObject *parent) :
+	QObject(parent), AMOrderedSet<QString, AMDetectorInfo*>(false)
+{
+	connect(AMOrderedSet<QString, AMDetectorInfo*>::signalSource(), SIGNAL(itemAdded(int)), this, SIGNAL(detectorAdded(int)));
+	/*
+	wasConnected_ = false;
+	QTimer::singleShot(AMCONTROLSET_CONTROL_TIMEOUT_MS, this, SLOT(onConnectionsTimedOut()));
+	*/
+}
+
+/*
+bool AMDetectorSet::isConnected() const {
+	int num = count();
+	for(int x = 0; x < num; x++)
+		if(!at(x)->isConnected())
+			return false;
+	return true;
+}
+*/
+
+/*
+QStringList AMControlSet::unconnected() const {
+	int num = count();
+	QStringList retVal;
+	for(int x = 0; x < num; x++)
+		if(!at(x)->isConnected())
+			retVal.append(at(x)->name());
+	return retVal;
+}
+*/
+
+/*
+AMDetectorInfoSet AMDetectorSet::toInfoSet() const {
+	AMDetectorInfoSet rv;
+
+	int numControls = count();
+	for(int i=0; i<numControls; i++) {
+		AMControl* c = at(i);
+		rv.append( AMControlInfo(c->name(), c->value(), c->minimumValue(), c->maximumValue(), c->units()) );
+	}
+
+	return rv;
+}
+*/
+
+/*
+bool AMControlSet::validInfoList(const AMControlInfoList &info){
+	/// \todo alternate orderings or subsets of the entire list
+	AMControl *tmpCtrl;
+	for(int x = 0; x < info.count(); x++){
+		tmpCtrl = controlNamed(info.at(x).name());
+		if(!tmpCtrl)
+			return false;
+	}
+	return true;
+}
+
+void AMControlSet::setFromInfoList(const AMControlInfoList& info){
+	AMControl *tmpCtrl;
+	for(int x = 0; x < info.count(); x++){
+		tmpCtrl = controlNamed(info.at(x).name());
+		if(tmpCtrl)
+			tmpCtrl->move(info.at(x).value());
+		/// \todo error checking on else
+	}
+}
+
+void AMControlSet::onConnected(bool ctrlConnected){
+	AMControl *tmpCtrl = 0; //NULL
+	if(tmpCtrl = qobject_cast<AMControl*>(QObject::sender()))
+		emit controlConnectedChanged(ctrlConnected, tmpCtrl);
+	if(wasConnected_ == true && !ctrlConnected){
+		wasConnected_ = false;
+		emit connected(false);
+	}
+
+	if(isConnected() && !wasConnected_){
+		wasConnected_ = true;
+		emit connected(true);
+	}
+}
+
+void AMControlSet::onConnectionsTimedOut(){
+	if(!wasConnected_)
+		emit connected(false);
+}
+
+void AMControlSet::onControlValueChanged(){
+	emit controlSetValuesChanged(toInfoList());
+}
+*/
+
+
+
+
+
+
 AMOldDetectorInfoSet::AMOldDetectorInfoSet(QObject *parent) :
 	QObject(parent)
 {

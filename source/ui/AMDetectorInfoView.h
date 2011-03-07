@@ -25,11 +25,11 @@ protected:
 	QVBoxLayout *vl_;
 };
 
-class PGTDetectorInfoView : public AMDetectorInfoView
+class PGTOldDetectorInfoView : public AMDetectorInfoView
 {
 	Q_OBJECT
 public:
-	PGTDetectorInfoView(PGTDetectorInfo *detectorInfo, AMDetectorInfo *writeDetectorInfo = 0, bool interactive = false, QWidget *parent = 0);
+	PGTOldDetectorInfoView(PGTDetectorInfo *detectorInfo, AMDetectorInfo *writeDetectorInfo = 0, bool interactive = false, QWidget *parent = 0);
 
 protected:
 	PGTDetectorInfo *sDetectorInfo_;
@@ -40,11 +40,11 @@ protected:
 	QFormLayout *fl_;
 };
 
-class MCPDetectorInfoView : public AMDetectorInfoView
+class MCPOldDetectorInfoView : public AMDetectorInfoView
 {
 	Q_OBJECT
 public:
-	MCPDetectorInfoView(MCPDetectorInfo *detectorInfo, AMDetectorInfo *writeDetectorInfo = 0, bool interactive = false, QWidget *parent = 0);
+	MCPOldDetectorInfoView(MCPDetectorInfo *detectorInfo, AMDetectorInfo *writeDetectorInfo = 0, bool interactive = false, QWidget *parent = 0);
 
 protected:
 	MCPDetectorInfo *sDetectorInfo_;

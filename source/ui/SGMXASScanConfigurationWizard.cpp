@@ -222,7 +222,7 @@ AMDetectorSetWizardPage::AMDetectorSetWizardPage(AMOldDetectorInfoSet *detectorS
 {
 	detectorSet_ = detectorSet;
 	cfgDetectorInfoSet_ = cfgDetectorInfoSet;
-	detectorView_ = new AMDetectorSetView(detectorSet_, cfgDetectorInfoSet_, true, this);
+	detectorView_ = new AMOldDetectorSetView(detectorSet_, cfgDetectorInfoSet_, true, this);
 	gl_ = new QGridLayout();
 	textLabel_ = new QLabel(subTitle);
 	textLabel_->setAlignment(Qt::AlignJustify);
