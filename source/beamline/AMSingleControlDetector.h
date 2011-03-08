@@ -20,6 +20,9 @@ public:
 public slots:
 	virtual bool setControls(AMDetectorInfo *detectorSettings);
 
+protected slots:
+	void onControlConnected(bool connected);
+
 protected:
 	AMControl *control_;
 };

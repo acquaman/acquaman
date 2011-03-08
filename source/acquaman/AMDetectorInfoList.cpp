@@ -72,6 +72,21 @@ void AMDetectorInfoSet::setDescription(const QString &description){
 	setModified(true);
 }
 
+void AMDetectorInfoSet::onDetectorValuesChanged(int index) {
+	setModified(true);
+	emit detectorValuesChanged(index);
+}
+
+void AMDetectorInfoSet::onDetectorAdded(int index) {
+	setModified(true);
+	emit detectorAdded(index);
+}
+
+void AMDetectorInfoSet::onDetectorRemoved(int index) {
+	setModified(true);
+	emit detectorRemoved(index);
+}
+
 
 
 

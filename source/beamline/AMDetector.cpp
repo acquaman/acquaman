@@ -46,6 +46,7 @@ void AMDetectorSignalSource::emitDeleted() {
 AMDetector::AMDetector(const QString& name)
 	: name_(name)
 {
+	connected_ = false;
 	signalSource_ = new AMDetectorSignalSource(this);
 }
 
@@ -57,6 +58,10 @@ AMDetector::~AMDetector() {
 
 AMDetectorSignalSource* AMDetector::signalSource() const {
 	return signalSource_;
+}
+
+bool AMDetector::isConnected(){
+	return connected_;
 }
 
 const QMetaObject* AMDetector::getMetaObject() {
@@ -74,6 +79,11 @@ QString AMDetector::description() const {
 void AMDetector::setDescription(const QString& description) {
 	description_ = description;
 	emitInfoChanged();
+}
+
+void AMDetector::setConnected(bool isConnected){
+	connected_ = isConnected;
+	emitConnected(isConnected);
 }
 
 void AMDetector::emitConnected(bool isConnected) {

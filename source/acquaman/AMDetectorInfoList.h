@@ -46,22 +46,12 @@ signals:
 	void detectorRemoved(int index);
 
 protected slots:
-	/// Called when a control is accessed and potentially modified.
-	void onControlValuesChanged(int index) {
-		setModified(true);
-		emit detectorValuesChanged(index);
-	}
-	/// Called after a control is added at \c index
-	void onControlAdded(int index) {
-		setModified(true);
-		emit detectorAdded(index);
-	}
-
-	/// Called after a control is removed from \c index
-	void onControlRemoved(int index) {
-		setModified(true);
-		emit detectorRemoved(index);
-	}
+	/// Called when a detector is accessed and potentially modified.
+	void onDetectorValuesChanged(int index);
+	/// Called after a detector is added at \c index
+	void onDetectorAdded(int index);
+	/// Called after a detector is removed from \c index
+	void onDetectorRemoved(int index);
 
 protected:
 	QString description_;

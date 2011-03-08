@@ -66,6 +66,8 @@ public:
 
 	AMDetectorSignalSource* signalSource() const;
 
+	bool isConnected();
+
 	/// AMDetector is not a QObject, but it's children should be. To allow its for generalized GUI creation, children that are QObjects MUST implement this (likely just child->metaObject() )
 	virtual const QMetaObject* getMetaObject();
 
@@ -82,6 +84,8 @@ public:
 	virtual bool setFromInfo(const AMDetectorInfo& info) = 0;
 
 protected:
+	void setConnected(bool isConnected);
+
 	void emitConnected(bool isConnected);
 	/// This is emitted when the meta-info changes. (Right now, this only includes a detector's description() )
 	void emitInfoChanged();
@@ -92,10 +96,11 @@ protected:
 	/// Human-readable description for it
 	QString description_;
 
-
 private:
 	/// QObject proxy for emitting signals. (This interface class can't emit directly, because it doesn't want to inherit QObject.)
 	AMDetectorSignalSource* signalSource_;
+	/// Internal state for connection, use setConnected(bool) to change so signals are emitted
+	bool connected_;
 };
 
 #endif // AMDETECTOR_H

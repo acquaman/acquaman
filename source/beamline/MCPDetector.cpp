@@ -1,19 +1,37 @@
 #include "MCPDetector.h"
 
+MCPDetector::MCPDetector(const QString &name, AMControlSet *controls, QObject *parent) :
+		MCPDetectorInfo(name, name, parent), AMDetector(name)
+{
+	ownsControlSet_ = false;
+	initializeFromControlSet(controls);
+}
+
+
 MCPDetector::MCPDetector(const QString &name, AMControl *reading, AMControl *hvSetpoint, AMControl *hvFbk, QObject *parent) :
 		MCPDetectorInfo(name, name, parent), AMDetector(name)
 {
+	ownsControlSet_ = true;
+	AMControlSet *lControls = new AMControlSet(this);
+	lControls->addControl(reading);
+	lControls->addControl(hvSetpoint);
+	lControls->addControl(hvFbk);
+	initializeFromControlSet(lControls);
+	/*
 	reading_ = reading;
 	hvSetpoint_ = hvSetpoint;
 	hvFbk_ = hvFbk;
 	connect(reading_, SIGNAL(connected(bool)), AMDetector::signalSource(), SIGNAL(connected(bool)));
 	connect(reading_, SIGNAL(valueChanged(double)), AMDetector::signalSource(), SIGNAL(valuesChanged()));
+	*/
 }
 
 MCPDetector::~MCPDetector(){
+	/*
 	reading_ = NULL;
 	hvSetpoint_ = NULL;
 	hvFbk_ = NULL;
+	*/
 }
 
 const QMetaObject* MCPDetector::getMetaObject() {
@@ -25,22 +43,25 @@ AMDetectorInfo MCPDetector::toInfo(){
 }
 
 AMControl* MCPDetector::readingCtrl() const {
-	return reading_;
+	if(controls_->isConnected())
+		return controls_->at(0);
 }
 
 AMControl* MCPDetector::hvSetpointCtrl() const {
-	return hvSetpoint_;
+	if(controls_->isConnected())
+		return controls_->at(1);
 }
 
 AMControl* MCPDetector::hvFbkCtrl() const {
-	return hvFbk_;
+	if(controls_->isConnected())
+		return controls_->at(2);
 }
 
 bool MCPDetector::setFromInfo(const AMDetectorInfo &info){
 	const MCPDetectorInfo *di = qobject_cast<const MCPDetectorInfo*>(&info);
 	if(!di)
 		return false;
-	hvSetpoint_->move(di->hvSetpoint());
+	hvSetpointCtrl()->move(di->hvSetpoint());
 	return true;
 }
 
@@ -55,6 +76,29 @@ bool MCPDetector::settingsMatchFbk(MCPDetectorInfo *settings){
 }
 
 bool MCPDetector::setControls(MCPDetectorInfo *mcpSettings){
-	hvSetpoint_->move( mcpSettings->hvSetpoint() );
+	hvSetpointCtrl()->move( mcpSettings->hvSetpoint() );
 	return true;
+}
+
+void MCPDetector::onControlsConnected(bool connected){
+	if(connected != isConnected())
+		setConnected(connected);
+}
+
+void MCPDetector::onControlValuesChanged(){
+	if(isConnected()){
+		setHVSetpoint(hvSetpointCtrl()->value());
+	}
+}
+
+void MCPDetector::initializeFromControlSet(AMControlSet *controls){
+	controls_ = 0; //NULL
+
+	if(controls->count() == 3){
+		controls_ = controls;
+		connect(signalSource(), SIGNAL(connected(bool)), this, SLOT(onControlValuesChanged()));
+		connect(controls_, SIGNAL(connected(bool)), this, SLOT(onControlsConnected(bool)));
+		connect(controls_, SIGNAL(controlSetValuesChanged(AMControlInfoList)), this, SLOT(onControlValuesChanged()));
+		onControlsConnected(controls_->isConnected());
+	}
 }

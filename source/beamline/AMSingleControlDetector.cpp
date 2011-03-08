@@ -4,7 +4,7 @@ AMSingleControlDetector::AMSingleControlDetector(const QString& name, AMControl 
 		AMDetectorInfo(name, name, parent), AMDetector(name)
 {
 	control_ = control;
-	connect(control_, SIGNAL(connected(bool)), AMDetector::signalSource(), SIGNAL(connected(bool)));
+	connect(control_, SIGNAL(connected(bool)), this, SLOT(onControlConnected(bool)));
 	connect(control_, SIGNAL(valueChanged(double)), AMDetector::signalSource(), SIGNAL(valuesChanged()));
 }
 
@@ -18,7 +18,7 @@ const QMetaObject* AMSingleControlDetector::getMetaObject() {
 
 
 AMDetectorInfo AMSingleControlDetector::toInfo(){
-
+	return AMDetectorInfo(*this);
 }
 
 bool AMSingleControlDetector::setControls(AMDetectorInfo *detectorSettings){
@@ -31,4 +31,8 @@ AMControl* AMSingleControlDetector::control() {
 
 bool AMSingleControlDetector::setFromInfo(const AMDetectorInfo &info){
 	return false;
+}
+
+void AMSingleControlDetector::onControlConnected(bool connected){
+	setConnected(connected);
 }

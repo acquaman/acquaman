@@ -61,6 +61,8 @@ namespace AMDetectorViewSupport{
 	}
 
 	AMDetectorView* createDetectorView(AMDetector *detector){
+		if(!detector)
+			return 0;
 		//qDebug() << "Trying to create view for detector named " << detector->detectorName();
 		QList<AMDetectorViewObjectInfo> supported = supportedClasses(detector);
 		if(supported.count() > 0){

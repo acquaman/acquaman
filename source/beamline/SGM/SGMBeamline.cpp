@@ -385,6 +385,8 @@ void SGMBeamline::usingFakeBeamline(){
 	amNames2pvNames_.set("pgtIntegrationMode", "reixsHost:sdd:integration:mode");
 	amNames2pvNames_.set("I0", "reixsHost:I0");
 	amNames2pvNames_.set("photodiode", "reixsHost:photodiode");
+	amNames2pvNames_.set("encoderUp", "reixsHost:photodiode");
+	amNames2pvNames_.set("encoderDown", "reixsHost:photodiode");
 	amNames2pvNames_.set("loadlockCCG", "reixsHost:Endstation:loadlock:ccg");
 	amNames2pvNames_.set("loadlockTCG", "reixsHost:Endstation:loadlock:tcg");
 	amNames2pvNames_.set("ssaManipulatorX", "reixsHost:ssa:x");
@@ -487,6 +489,11 @@ void SGMBeamline::usingFakeBeamline(){
 
 	sgmPVName = amNames2pvNames_.valueF("photodiode");
 	photodiode_ = new AMReadOnlyPVControl("photodiode", sgmPVName, this);
+
+	sgmPVName = amNames2pvNames_.valueF("encoderUp");
+	encoderUp_ = new AMReadOnlyPVControl("encoderUp", sgmPVName, this);
+	sgmPVName = amNames2pvNames_.valueF("encoderDown");
+	encoderDown_ = new AMReadOnlyPVControl("encoderDown", sgmPVName, this);
 
 	sgmPVName = amNames2pvNames_.valueF("loadlockCCG");
 	loadlockCCG_ = new AMReadOnlyPVControl("loadlockCCG", sgmPVName, this);

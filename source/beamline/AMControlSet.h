@@ -48,7 +48,7 @@ public:
 	explicit AMControlSet(QObject *parent = 0);
 
 	/// Returns the name defined for the control set.
-	QString name() const { return name_;}
+	QString name() const;
 
 	/// Converts all the controls to their simplified AMControlInfo form, and returns a list like this
 	AMControlInfoList toInfoList() const;
@@ -60,41 +60,17 @@ public:
 	QStringList unconnected() const;
 
 	/// Return the index of a given \c control in the set. You can then access the control using at() or operator[].  (Returns -1 if not found in the set.)
-	int indexOf(AMControl* control) { return indexOfValue(control); }
+	int indexOf(AMControl* control);
 	/// Return the index of the control named \c controlName. (Returns -1 if not found in the set.)
-	int indexOf(const QString& controlName) { return indexOfKey(controlName); }
+	int indexOf(const QString& controlName);
 	/// Returns the control named \c controlName, or 0 if not found in the set.
-	AMControl* controlNamed(const QString& controlName) {
-		int index = indexOfKey(controlName);
-		if(index < 0)
-			return 0;
-
-		return at(index);
-	}
+	AMControl* controlNamed(const QString& controlName);
 
 	/// Adds an AMControl to the control set. Returns true if the addition was successful. Failure could result from adding the same AMControl twice.
-	bool addControl(AMControl* newControl) {
-		if(!newControl)
-			return false;
-
-		if( append(newControl, newControl->name()) ) {
-			connect(newControl, SIGNAL(connected(bool)), this, SLOT(onConnected(bool)));
-			connect(newControl, SIGNAL(valueChanged(double)), this, SLOT(onControlValueChanged()));
-			return true;
-		}
-		return false;
-	}
+	bool addControl(AMControl* newControl);
 
 	/// Removes an AMControl \c control from the set. Returns true if the removal was successful. Failure could result from removing an AMControl not in the set.
-	bool removeControl(AMControl* control) {
-		int index = indexOfValue(control);
-		if(index < 0)
-			return false;
-
-		disconnect(control, 0, this, 0);
-		remove(index);
-		return true;
-	}
+	bool removeControl(AMControl* control);
 
 
 	/// Checks to see if this control set can be set from the given AMControlInfoList (they refer to the same controls)

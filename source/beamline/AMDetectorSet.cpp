@@ -13,24 +13,20 @@ QString AMDetectorSet::name() const {
 }
 
 bool AMDetectorSet::isConnected() const {
-	/*
 	int num = count();
 	for(int x = 0; x < num; x++)
 		if(!at(x)->isConnected())
 			return false;
-	*/
 	return true;
 }
 
 QStringList AMDetectorSet::unconnected() const {
-	/*
 	int num = count();
 	QStringList retVal;
 	for(int x = 0; x < num; x++)
 		if(!at(x)->isConnected())
-			retVal.append(at(x)->name());
+			retVal.append(at(x)->detectorName());
 	return retVal;
-	*/
 }
 
 AMDetectorInfoSet AMDetectorSet::toInfoSet() const {
@@ -39,7 +35,7 @@ AMDetectorInfoSet AMDetectorSet::toInfoSet() const {
 	int numDetectors = count();
 	for(int i=0; i<numDetectors; i++) {
 		AMDetector *c = at(i);
-		//rv.append( AMControlInfo(c->name(), c->value(), c->minimumValue(), c->maximumValue(), c->units()) );
+		rv.append( c->toInfo() );
 	}
 
 	return rv;
@@ -79,42 +75,39 @@ bool AMDetectorSet::removeDetector(AMDetector* detector) {
 		return false;
 
 	// Check this one for a qobject_cast or the signal source or both
-	//disconnect(detector, 0, this, 0);
+	disconnect(detector->signalSource(), 0, this, 0);
 	remove(index);
 	return true;
 }
 
 bool AMDetectorSet::validInfoSet(const AMDetectorInfoSet &info){
-	/*
 	/// \todo alternate orderings or subsets of the entire list
-	AMControl *tmpCtrl;
+	AMDetector *tmpDtctr;
 	for(int x = 0; x < info.count(); x++){
-		tmpCtrl = controlNamed(info.at(x).name());
-		if(!tmpCtrl)
+		tmpDtctr = detectorNamed(info.at(x).name());
+		if(!tmpDtctr)
 			return false;
 	}
-	*/
 	return true;
 }
 
 void AMDetectorSet::setFromInfoSet(const AMDetectorInfoSet& info){
-	/*
-	AMControl *tmpCtrl;
+	AMDetector *tmpDtctr;
 	for(int x = 0; x < info.count(); x++){
-		tmpCtrl = controlNamed(info.at(x).name());
-		if(tmpCtrl)
-			tmpCtrl->move(info.at(x).value());
+		tmpDtctr = detectorNamed(info.at(x).name());
+		if(tmpDtctr)
+			tmpDtctr->setFromInfo(info.at(x));
 		/// \todo error checking on else
 	}
-	*/
 }
 
-void AMDetectorSet::onConnected(bool ctrlConnected){
-	/*
-	AMControl *tmpCtrl = 0; //NULL
-	if(tmpCtrl = qobject_cast<AMControl*>(QObject::sender()))
-		emit controlConnectedChanged(ctrlConnected, tmpCtrl);
-	if(wasConnected_ == true && !ctrlConnected){
+void AMDetectorSet::onConnected(bool dtctrConnected){
+	/* Need to figure this one out
+	AMDetector *tmpDtctr = 0; //NULL
+	if(tmpDtctr = qobject_cast<AMDetectorInfo*>(QObject::sender()))
+		emit detectorConnectedChanged(dtctrConnected, tmpDtctr);
+	*/
+	if(wasConnected_ == true && !dtctrConnected){
 		wasConnected_ = false;
 		emit connected(false);
 	}
@@ -123,7 +116,6 @@ void AMDetectorSet::onConnected(bool ctrlConnected){
 		wasConnected_ = true;
 		emit connected(true);
 	}
-	*/
 }
 
 void AMDetectorSet::onConnectionsTimedOut(){
@@ -132,7 +124,5 @@ void AMDetectorSet::onConnectionsTimedOut(){
 }
 
 void AMDetectorSet::onDetectorValueChanged(){
-	/*
-	emit controlSetValuesChanged(toInfoList());
-	*/
+	emit detectorSetValuesChanged(toInfoSet());
 }
