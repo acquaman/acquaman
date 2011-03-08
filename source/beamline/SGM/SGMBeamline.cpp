@@ -1053,6 +1053,7 @@ void SGMBeamline::onControlSetConnected(bool csConnected){
 		if(!teyDetector_ && ctrlSet->name() == "TEY Controls"){
 			teyDetector_ = new AMSingleControlDetector(tey_->name(), tey_, this);
 			teyDetector_->setDescription("TEY");
+			//teyDetector_->setDetectorDescription("TEY");
 			teyDetectorNew_ = (AMSingleControlDetector*)teyDetector_;
 			allDetectors_->addDetector(teyDetector_, true);
 			XASDetectors_->addDetector(teyDetector_, true);
@@ -1062,6 +1063,7 @@ void SGMBeamline::onControlSetConnected(bool csConnected){
 		else if(!tfyDetector_ && ctrlSet->name() == "TFY Controls"){
 			tfyDetector_ = new MCPDetector(tfy_->name(), tfy_, tfyHVSetpoint_, tfyHVFbk_, this);
 			tfyDetector_->setDescription("TFY");
+			//tfyDetector_->setDetectorDescription("TFY");
 			tfyDetectorNew_ = (MCPDetector*)tfyDetector_;
 			allDetectors_->addDetector(tfyDetector_, true);
 			XASDetectors_->addDetector(tfyDetector_, true);
@@ -1071,6 +1073,7 @@ void SGMBeamline::onControlSetConnected(bool csConnected){
 		else if(!pgtDetector_ && ctrlSet->name() == "SDD Controls"){
 			pgtDetector_ = new PGTDetector(pgt_->name(), pgt_, pgtHVSetpoint_, pgtHVFbk_, pgtIntegrationTime_, pgtIntegrationMode_, this);
 			pgtDetector_->setDescription("SDD");
+			//pgtDetector_->setDetectorDescription("SDD");
 			pgtDetectorNew_ = (PGTDetector*)pgtDetector_;
 			allDetectors_->addDetector(pgtDetector_, false);
 			XASDetectors_->addDetector(pgtDetector_, false);
@@ -1080,6 +1083,7 @@ void SGMBeamline::onControlSetConnected(bool csConnected){
 		else if(!i0Detector_ && ctrlSet->name() == "I0 Controls"){
 			i0Detector_ = new AMSingleControlDetector(i0_->name(), i0_, this);
 			i0Detector_->setDescription("I0");
+			//i0Detector_->setDetectorDescription("I0");
 			i0DetectorNew_ = (AMSingleControlDetector*)i0Detector_;
 			allDetectors_->addDetector(i0Detector_, true);
 			feedbackDetectors_->addDetector(i0Detector_, true);
@@ -1089,6 +1093,7 @@ void SGMBeamline::onControlSetConnected(bool csConnected){
 		else if(!eVFbkDetector_ && ctrlSet->name() == "Energy Feedback Controls"){
 			eVFbkDetector_ = new AMSingleControlDetector(eVFbk_->name(), eVFbk_, this);
 			eVFbkDetector_->setDescription("Energy Feedback");
+			//eVFbkDetector_->setDetctorDescription("Energy Feedback");
 			eVFbkDetectorNew_ = (AMSingleControlDetector*)eVFbkDetector_;
 			allDetectors_->addDetector(eVFbkDetector_, true);
 			feedbackDetectors_->addDetector(eVFbkDetector_, true);

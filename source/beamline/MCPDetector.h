@@ -24,7 +24,10 @@ public:
 
 	bool settingsMatchFbk(MCPDetectorInfo* settings);
 
+	QString description() const;
+
 public slots:
+	void setDescription(const QString &description);
 	virtual bool setControls(MCPDetectorInfo *mcpSettings);
 
 protected slots:

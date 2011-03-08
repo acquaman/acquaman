@@ -72,14 +72,16 @@ QString AMDetector::detectorName() const {
 	return name_;
 }
 
-QString AMDetector::description() const {
+/*
+QString AMDetector::detectorDescription() const {
 	return description_;
 }
 
-void AMDetector::setDescription(const QString& description) {
+void AMDetector::setDetectorDescription(const QString& description) {
 	description_ = description;
 	emitInfoChanged();
 }
+*/
 
 void AMDetector::setConnected(bool isConnected){
 	connected_ = isConnected;

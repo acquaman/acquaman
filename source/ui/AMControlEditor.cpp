@@ -322,7 +322,7 @@ void AMControlEditor::onValueChanged(double newVal) {
 		unitsLabel_->setText("");
 	}
 	else
-		valueLabel_->setText(QString("%1").arg(newVal));
+		valueLabel_->setText(QString("%1").arg(newVal, 0, 'g', 3));
 }
 
 void AMControlEditor::onUnitsChanged(const QString& units) {

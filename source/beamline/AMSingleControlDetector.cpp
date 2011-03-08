@@ -33,6 +33,14 @@ bool AMSingleControlDetector::setFromInfo(const AMDetectorInfo &info){
 	return false;
 }
 
+QString AMSingleControlDetector::description() const{
+	return AMDetectorInfo::description();
+}
+
+void AMSingleControlDetector::setDescription(const QString &description){
+	AMDetectorInfo::setDescription(description);
+}
+
 void AMSingleControlDetector::onControlConnected(bool connected){
 	setConnected(connected);
 }

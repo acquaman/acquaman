@@ -17,7 +17,10 @@ public:
 
 	bool setFromInfo(const AMDetectorInfo &info);
 
+	QString description() const;
+
 public slots:
+	void setDescription(const QString &description);
 	virtual bool setControls(AMDetectorInfo *detectorSettings);
 
 protected slots:

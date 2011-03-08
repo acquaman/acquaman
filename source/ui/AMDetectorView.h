@@ -34,6 +34,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class AMDetectorView : public QWidget
 {
 Q_OBJECT
+
 public:
 	Q_INVOKABLE explicit AMDetectorView(QWidget *parent = 0);
 
@@ -43,11 +44,35 @@ protected:
 	/// We are trusting createDetectorView to pass in the correct type of detector, sub classes should trust AMDetector is actually their type
 	virtual bool setDetector(AMDetector *detector);
 	friend AMDetectorView* AMDetectorViewSupport::createDetectorView(AMDetector *detector);
+	friend AMDetectorView* AMDetectorViewSupport::createBriefDetectorView(AMDetector *detector);
+	friend AMDetectorView* AMDetectorViewSupport::createDetailedDetectorView(AMDetector *detector);
 
 signals:
 
 public slots:
 
+};
+
+class AMBriefDetectorView : public AMDetectorView
+{
+Q_OBJECT
+public:
+	Q_INVOKABLE explicit AMBriefDetectorView(QWidget *parent = 0);
+
+protected:
+	/// We are trusting createDetectorView to pass in the correct type of detector, sub classes should trust AMDetector is actually their type
+	virtual bool setDetector(AMDetector *detector);
+};
+
+class AMDetailedDetectorView : public AMDetectorView
+{
+Q_OBJECT
+public:
+	Q_INVOKABLE explicit AMDetailedDetectorView(QWidget *parent = 0);
+
+protected:
+	/// We are trusting createDetectorView to pass in the correct type of detector, sub classes should trust AMDetector is actually their type
+	virtual bool setDetector(AMDetector *detector);
 };
 
 class PGTOldDetectorView : public PGTOldDetectorInfoView

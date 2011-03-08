@@ -31,9 +31,11 @@ bool SGMAppController::startup() {
 
 	if(AMAppController::startup()) {
 
-		AMDetectorViewSupport::registerClass<AMSingleControlDetectorView, AMSingleControlDetector>();
-		AMDetectorViewSupport::registerClass<MCPDetectorView, MCPDetector>();
-		AMDetectorViewSupport::registerClass<PGTDetectorView, PGTDetector>();
+		AMDetectorViewSupport::registerClass<AMSingleControlBriefDetectorView, AMSingleControlDetector>();
+		AMDetectorViewSupport::registerClass<MCPBriefDetectorView, MCPDetector>();
+		AMDetectorViewSupport::registerClass<MCPDetailedDetectorView, MCPDetector>();
+		AMDetectorViewSupport::registerClass<PGTBriefDetectorView, PGTDetector>();
+		AMDetectorViewSupport::registerClass<PGTDetailedDetectorView, PGTDetector>();
 
 		// Create panes in the main window:
 		////////////////////////////////////

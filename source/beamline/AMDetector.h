@@ -77,9 +77,9 @@ public:
 	/// the identifying name() of a detector can sometimes be used to select one from a set of detector. Therefore, it's not really recommended to change the name after a detector is created.
 	QString detectorName() const;
 	/// The description() of a detector is a human-readable, free-form string.
-	QString description() const;
+	virtual QString description() const = 0;
 	/// Descriptions can be changed at will, and the detector will emit infoChanged() when this happens.
-	void setDescription(const QString& description);
+	virtual void setDescription(const QString& description) = 0;
 
 	virtual bool setFromInfo(const AMDetectorInfo& info) = 0;
 
@@ -94,7 +94,7 @@ protected:
 	/// identifying name for this detector
 	QString name_;
 	/// Human-readable description for it
-	QString description_;
+	//QString description_;
 
 private:
 	/// QObject proxy for emitting signals. (This interface class can't emit directly, because it doesn't want to inherit QObject.)

@@ -1,18 +1,18 @@
 #include "AMSingleControlDetectorView.h"
 
-AMSingleControlDetectorView::AMSingleControlDetectorView(AMSingleControlDetector *detector, QWidget *parent) :
-		AMDetectorView(parent)
+AMSingleControlBriefDetectorView::AMSingleControlBriefDetectorView(AMSingleControlDetector *detector, QWidget *parent) :
+		AMBriefDetectorView(parent)
 {
 	hl_ = 0;
 	fbk_ = 0;
 	setDetector(detector);
 }
 
-AMDetector* AMSingleControlDetectorView::detector(){
+AMDetector* AMSingleControlBriefDetectorView::detector(){
 	return detector_;
 }
 
-bool AMSingleControlDetectorView::setDetector(AMDetector *detector){
+bool AMSingleControlBriefDetectorView::setDetector(AMDetector *detector){
 	/*
 	AMSingleControlDetector *d = qobject_cast<AMSingleControlDetector*>(detector);
 	if(!d)

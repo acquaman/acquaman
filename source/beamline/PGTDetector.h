@@ -26,7 +26,10 @@ public:
 
 	bool settingsMatchFbk(PGTDetectorInfo* settings);
 
+	QString description() const;
+
 public slots:
+	void setDescription(const QString &description);
 	virtual bool setControls(PGTDetectorInfo *pgtSettings);
 
 signals:

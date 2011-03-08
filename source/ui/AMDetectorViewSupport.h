@@ -22,6 +22,18 @@ public:
 	/// Indicates this AMDbObjectInfo represents a valid object.
 	bool isValid() const { return (viewMetaObject != 0); }
 
+	bool isBriefView() const {
+		if(isValid())
+			return inheritsBriefView(viewMetaObject);
+		return false;
+	}
+
+	bool isDetailedView() const{
+		if(isValid())
+			return inheritsDetailedView(viewMetaObject);
+		return false;
+	}
+
 	QString viewClassName;	///< the class name (C++ type name) of the view objects
 	QString detectorClassName; ///< the class name (C++ type name) of the detector objects
 	const QMetaObject* viewMetaObject;	///< QMetaObject pointer with the complete class meta-information. The remaining values can be determined by parsing the metaObject's classInfo parameters, but are stored here for efficiency.
@@ -32,10 +44,16 @@ private:
 	void initWithMetaObject(const QMetaObject *classMetaObject, const QMetaObject *supportsMetaObject);
 
 	/// checks to make sure a QMetaObject inherits AMDetectorView
-	bool inheritsDetectorView(const QMetaObject *metaObject);
+	bool inheritsDetectorView(const QMetaObject *metaObject) const;
+
+	/// checks to make sure a QMetaObject inherits AMBriefDetectorView
+	bool inheritsBriefView(const QMetaObject *metaObject) const;
+
+	/// checks to make sure a QMetaObject inherits AMDetailedDetectorView
+	bool inheritsDetailedView(const QMetaObject *metaObject) const;
 
 	/// checks to make sure a QMetaObject inherits AMDetectorInfo
-	bool inheritsDetectorInfo(const QMetaObject *metaObject);
+	bool inheritsDetectorInfo(const QMetaObject *metaObject) const;
 };
 
 namespace AMDetectorViewSupport{
@@ -89,9 +107,17 @@ namespace AMDetectorViewSupport{
 	/// returns a const pointer to a list of AMDetectorViewObjectInfo classes supporting the AMDetector
 	const QList<AMDetectorViewObjectInfo> supportedClasses(AMDetector *detector);
 
+	const QList<AMDetectorViewObjectInfo> supportedBriefViews(AMDetector *detector);
+
+	const QList<AMDetectorViewObjectInfo> supportedDetailedViews(AMDetector *detector);
+
 	/// Useful for gui generation, this creates the first view available from the supportedClasses for the AMDetector. You can use qobject_cast<>() or type() to find out the detailed type of the new object.  Returns 0 if no object found.
 	/*! Ownership of the newly-created object becomes the responsibility of the caller. */
 	AMDetectorView* createDetectorView(AMDetector *detector);
+
+	AMDetectorView* createBriefDetectorView(AMDetector *detector);
+
+	AMDetectorView* createDetailedDetectorView(AMDetector *detector);
 }
 
 

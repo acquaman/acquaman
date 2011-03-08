@@ -22,46 +22,31 @@ public:
 		return detectorBoxes_.at(row);
 	}
 
-	/*
 	/// Returns the current values of the control set
-	AMControlInfoList currentValues();
+	AMDetectorInfoSet currentValues();
 	/// Returns the desired values if the view is used for configuration only (returns the current values if the view is not for configuration only)
-	AMControlInfoList configValues();
-	//QMap<QString, QVariant> configValues() { return configValues_;}
-	//bool boxTrigger() const { return boxTrigger_;}
-	*/
+	AMDetectorInfoSet configValues();
 
 signals:
-	/*
-	//void configValuesChanged();
 	/// Emitted when any control value in the control set changes (but ONLY when the view is not configure only)
-	void currentValuesChanged(AMControlInfoList);
+	void currentValuesChanged(AMDetectorInfoSet);
 	/// Emitted when any configuration value changes (but ONLY when the view is configure only)
-	void configValuesChanged(AMControlInfoList);
-	*/
+	void configValuesChanged(AMDetectorInfoSet);
 
 public slots:
-	//void setConfigValues(QMap<QString, QVariant> configValues);
-	//void resetBoxTrigger(){boxTrigger_ = false;}
 
 protected slots:
 	void onDetectorAddedToSet(int index);
-	/*
-	void onControlSetValuesChanged(AMControlInfoList infoList);
+	void onControlSetValuesChanged(AMDetectorInfoSet infoList);
 	void onConfigurationValueChanged();
-	//void onBoxUpdate(const QString& value);
-	*/
 
 protected:
 	/// Pointer to the AMControlSet which is the subject of this view.
 	AMDetectorSet *viewSet_;
 	bool configureOnly_;
-	//QMap<QString, QVariant> configValues_;
 	QList<AMDetectorView*> detectorBoxes_;
-	//QList<bool> dirty_;
-	//bool boxTrigger_;
-	QVBoxLayout *vl_;
-	QHBoxLayout *hl_;
+	QList<AMDetectorView*> detectorDetails_;
+	QGridLayout *gl_;
 };
 
 

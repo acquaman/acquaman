@@ -102,7 +102,7 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	gl_->addWidget(entranceSlitNC_,		6, 0, 1, 3, 0);
 	gl_->addWidget(exitSlitNC_,		6, 3, 1, 3, 0);
 	gl_->addWidget(beamlineWarningsLabel_,	8, 0, 1, 6, 0);
-	gl_->addWidget(new AMDetectorSetView(SGMBeamline::sgm()->XASDetectorsNew()),	9, 0, 3, 6, 0);
+	gl_->addWidget(new AMDetectorSetView(SGMBeamline::sgm()->XASDetectorsNew(), false),	9, 0, 3, 6, 0);
 
 	gl_->setRowStretch(7, 10);
 

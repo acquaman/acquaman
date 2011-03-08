@@ -33,8 +33,23 @@ bool AMDetectorView::setDetector(AMDetector *detector){
 	return false;
 }
 
+AMBriefDetectorView::AMBriefDetectorView(QWidget *parent) :
+		AMDetectorView(parent)
+{
+}
 
+bool AMBriefDetectorView::setDetector(AMDetector *detector){
+	return false;
+}
 
+AMDetailedDetectorView::AMDetailedDetectorView(QWidget *parent) :
+		AMDetectorView(parent)
+{
+}
+
+bool AMDetailedDetectorView::setDetector(AMDetector *detector){
+	return false;
+}
 
 PGTOldDetectorView::PGTOldDetectorView(PGTDetector *detector, AMDetectorInfo *configDetector, bool editMode, QWidget *parent) :
 		PGTOldDetectorInfoView(detector, configDetector, true, parent)

@@ -75,9 +75,17 @@ bool MCPDetector::settingsMatchFbk(MCPDetectorInfo *settings){
 	}
 }
 
+QString MCPDetector::description() const{
+	return AMDetectorInfo::description();
+}
+
 bool MCPDetector::setControls(MCPDetectorInfo *mcpSettings){
 	hvSetpointCtrl()->move( mcpSettings->hvSetpoint() );
 	return true;
+}
+
+void MCPDetector::setDescription(const QString &description){
+	AMDetectorInfo::setDescription(description);
 }
 
 void MCPDetector::onControlsConnected(bool connected){

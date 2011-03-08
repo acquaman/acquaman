@@ -3,11 +3,11 @@
 
 #include "AMDetectorView.h"
 
-class AMSingleControlDetectorView : public AMDetectorView
+class AMSingleControlBriefDetectorView : public AMBriefDetectorView
 {
 Q_OBJECT
 public:
-	Q_INVOKABLE explicit AMSingleControlDetectorView(AMSingleControlDetector *detector = 0, QWidget *parent = 0);
+	Q_INVOKABLE explicit AMSingleControlBriefDetectorView(AMSingleControlDetector *detector = 0, QWidget *parent = 0);
 
 	AMDetector* detector();
 

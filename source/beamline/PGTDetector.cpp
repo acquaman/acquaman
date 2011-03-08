@@ -117,6 +117,14 @@ bool PGTDetector::settingsMatchFbk(PGTDetectorInfo *settings){
 	}
 }
 
+QString PGTDetector::description() const{
+	return AMDetectorInfo::description();
+}
+
+void PGTDetector::setDescription(const QString &description){
+	AMDetectorInfo::setDescription(description);
+}
+
 bool PGTDetector::setControls(PGTDetectorInfo *pgtSettings){
 	hvSetpointCtrl()->move( pgtSettings->hvSetpoint() );
 	integrationTimeCtrl()->move( pgtSettings->integrationTime() );
