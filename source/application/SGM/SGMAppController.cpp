@@ -11,6 +11,9 @@
 #include "ui/SGMSidebar.h"
 #include "acquaman/AMScanController.h"
 #include "ui/AMDetectorView.h"
+#include "ui/AMSingleControlDetectorView.h"
+#include "ui/MCPDetectorView.h"
+#include "ui/PGTDetectorView.h"
 
 #include "ui/AMMainWindow.h"
 #include "ui/AMWorkflowManagerView.h"
@@ -106,7 +109,7 @@ void SGMAppController::onCurrentPaneChanged(QWidget *pane) {
 
 void SGMAppController::onSGMBeamlineConnected(){
 	if(SGMBeamline::sgm()->isConnected() && !xasScanConfigurationViewer_ && !fastScanConfigurationViewer_){
-		qDebug() << "\n\nSGM CONNECTED, CREATING VIEWERS\n\n";
+//		qDebug() << "\n\nSGM CONNECTED, CREATING VIEWERS\n\n";
 		SGMXASScanConfiguration *sxsc = new SGMXASScanConfiguration(this);
 		sxsc->setFileName("daveData.%03d.dat");
 		sxsc->setFilePath(AMUserSettings::userDataFolder);

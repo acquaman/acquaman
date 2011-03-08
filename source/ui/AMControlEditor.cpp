@@ -317,8 +317,6 @@ void AMControlEditor::overrideTitle(const QString &title){
 void AMControlEditor::onValueChanged(double newVal) {
 	if(configureOnly_ && connectedOnce_)
 		return;
-	if(configureOnly_)
-		qDebug() << "New value for " << control_->name() << newVal << "(" << (long)this << ")";
 	if(control_->isEnum()){
 		valueLabel_->setText(control_->enumNameAt(newVal));
 		unitsLabel_->setText("");
@@ -338,7 +336,6 @@ void AMControlEditor::onUnitsChanged(const QString& units) {
 
 
 void AMControlEditor::setHappy(bool happy) {
-	qDebug() << "Connected for " << control_->name() << happy << "(" << (long)this << ")";
 	if(happy){
 		unitsLabel_->setStyleSheet("border: 1px outset #00df00; background: #d4ffdf; padding: 1px; width: 100%; color: #00df00;");
 		readOnly_ = !control_->canMove();

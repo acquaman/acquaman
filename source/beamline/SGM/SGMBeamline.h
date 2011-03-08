@@ -24,6 +24,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 // unused #include "beamline/AMPVNames.h"
 #include "beamline/AMBeamline.h"
 #include "beamline/AMDetector.h"
+#include "beamline/AMSingleControlDetector.h"
+#include "beamline/MCPDetector.h"
+#include "beamline/PGTDetector.h"
 #include "beamline/AMControlSet.h"
 #include "util/AMBiHash.h"
 #include "beamline/AMBeamlineControlAction.h"
@@ -31,7 +34,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMBeamlineActionsList.h"
 #include "beamline/AMBeamlineParallelActionsList.h"
 
-#include "acquaman/AMDetectorInfoList.h"
+#include "beamline/AMDetectorSet.h"
+
 #include "acquaman/AMControlOptimization.h"
 
 
@@ -96,6 +100,16 @@ public:
 	AMDetectorInfo* photodiodeDetector() const { return photodiodeDetector_;}
 	AMDetectorInfo* encoderUpDetector() const { return encoderUpDetector_;}
 	AMDetectorInfo* encoderDownDetector() const { return encoderDownDetector_;}
+
+	AMDetector* teyDetectorNew() const { return teyDetectorNew_;}
+	AMDetector* tfyDetectorNew() const { return tfyDetectorNew_;}
+	AMDetector* pgtDetectorNew() const { return pgtDetectorNew_;}
+	AMDetector* i0DetectorNew() const { return i0DetectorNew_;}
+	AMDetector* eVFbkDetectorNew() const { return eVFbkDetectorNew_;}
+	AMDetector* photodiodeDetectorNew() const { return photodiodeDetectorNew_;}
+	AMDetector* encoderUpDetectorNew() const { return encoderUpDetectorNew_;}
+	AMDetector* encoderDownDetectorNew() const { return encoderDownDetectorNew_;}
+
 	AMControl* loadlockCCG() const { return loadlockCCG_;}
 	AMControl* loadlockTCG() const { return loadlockTCG_;}
 	AMControl* ssaManipulatorX() const { return ssaManipulatorX_;}
@@ -262,19 +276,27 @@ protected:
 
 	AMControlSet *teyControlSet_;
 	AMDetectorInfo *teyDetector_;
+	AMDetector *teyDetectorNew_;
 	AMControlSet *tfyControlSet_;
 	AMDetectorInfo *tfyDetector_;
+	AMDetector *tfyDetectorNew_;
 	AMControlSet *pgtControlSet_;
 	AMDetectorInfo *pgtDetector_;
+	AMDetector *pgtDetectorNew_;
 	AMDetectorInfo *i0Detector_;
+	AMDetector *i0DetectorNew_;
 	AMControlSet *i0ControlSet_;
 	AMDetectorInfo *eVFbkDetector_;
+	AMDetector *eVFbkDetectorNew_;
 	AMControlSet *eVFbkControlSet_;
 	AMDetectorInfo *photodiodeDetector_;
+	AMDetector *photodiodeDetectorNew_;
 	AMControlSet *photodiodeControlSet_;
 	AMDetectorInfo *encoderUpDetector_;
+	AMDetector *encoderUpDetectorNew_;
 	AMControlSet *encoderUpControlSet_;
 	AMDetectorInfo *encoderDownDetector_;
+	AMDetector *encoderDownDetectorNew_;
 	AMControlSet *encoderDownControlSet_;
 
 	AMControlSet* criticalControlsSet_;

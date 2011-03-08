@@ -20,7 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SGMSidebar.h"
 
-#include "ui/AMDetectorView.h"
+#include "ui/AMDetectorSetView.h"
 
 SGMSidebar::SGMSidebar(QWidget *parent) :
     QWidget(parent)

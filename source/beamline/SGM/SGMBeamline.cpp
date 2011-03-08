@@ -412,9 +412,9 @@ void SGMBeamline::usingFakeBeamline(){
 	amNames2pvNames_.set("visibleLightStatus", "reixsHost:visible:cal");
 	amNames2pvNames_.set("activeEndstation", "reixsHost:endstation:active");
 
-	//ringCurrent_ = new AMReadOnlyPVControl("ringCurrent", "PCT1402-01:mA:fbk", this);
+	ringCurrent_ = new AMReadOnlyPVControl("ringCurrent", "PCT1402-01:mA:fbk", this);
 	//ringCurrent_ = new AMPVControl("ringCurrent", "PCT1402-01:mA:fbk", "PCT1402-01:mA:fbk", QString(), this);
-	ringCurrent_ = new AMPVwStatusControl("ringCurrent", "PCT1402-01:mA:fbk", "PCT1402-01:mA:fbk", "PCT1402-01:mA:fbk", QString(), this);
+	//ringCurrent_ = new AMPVwStatusControl("ringCurrent", "PCT1402-01:mA:fbk", "PCT1402-01:mA:fbk", "PCT1402-01:mA:fbk", QString(), this);
 	addChildControl(ringCurrent_);
 
 	QString sgmPVName = amNames2pvNames_.valueF("energy");
@@ -639,6 +639,7 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	teyControlSet_->setName("TEY Controls");
 	teyControlSet_->addControl(tey_);
 	teyDetector_ = NULL;
+	teyDetectorNew_ = NULL;
 	unconnectedSets_.append(teyControlSet_);
 	connect(teyControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
@@ -648,6 +649,7 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	tfyControlSet_->addControl(tfyHVSetpoint_);
 	tfyControlSet_->addControl(tfyHVFbk_);
 	tfyDetector_ = NULL;
+	tfyDetectorNew_ = NULL;
 	unconnectedSets_.append(tfyControlSet_);
 	connect(tfyControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
@@ -659,6 +661,7 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	pgtControlSet_->addControl(pgtIntegrationTime_);
 	pgtControlSet_->addControl(pgtIntegrationMode_);
 	pgtDetector_ = NULL;
+	pgtDetectorNew_ = NULL;
 	unconnectedSets_.append(pgtControlSet_);
 	connect(pgtControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
@@ -666,6 +669,7 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	i0ControlSet_->setName("I0 Controls");
 	i0ControlSet_->addControl(i0_);
 	i0Detector_ = NULL;
+	i0DetectorNew_ = NULL;
 	unconnectedSets_.append(i0ControlSet_);
 	connect(i0ControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
@@ -673,6 +677,7 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	eVFbkControlSet_->setName("Energy Feedback Controls");
 	eVFbkControlSet_->addControl(photodiode_);
 	eVFbkDetector_ = NULL;
+	eVFbkDetectorNew_ = NULL;
 	unconnectedSets_.append(eVFbkControlSet_);
 	connect(eVFbkControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
@@ -680,6 +685,7 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	photodiodeControlSet_->setName("Photodiode Controls");
 	photodiodeControlSet_->addControl(photodiode_);
 	photodiodeDetector_ = NULL;
+	photodiodeDetectorNew_ = NULL;
 	unconnectedSets_.append(photodiodeControlSet_);
 	connect(photodiodeControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
@@ -687,6 +693,7 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	encoderUpControlSet_->setName("Encoder Up Controls");
 	encoderUpControlSet_->addControl(encoderUp_);
 	encoderUpDetector_ = NULL;
+	encoderUpDetectorNew_ = NULL;
 	unconnectedSets_.append(encoderUpControlSet_);
 	connect(encoderUpControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
@@ -694,6 +701,7 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	encoderDownControlSet_->setName("Encoder Down Controls");
 	encoderDownControlSet_->addControl(encoderDown_);
 	encoderDownDetector_ = NULL;
+	encoderDownDetectorNew_ = NULL;
 	unconnectedSets_.append(encoderDownControlSet_);
 	connect(encoderDownControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
@@ -1038,60 +1046,68 @@ void SGMBeamline::onControlSetConnected(bool csConnected){
 		if(!teyDetector_ && ctrlSet->name() == "TEY Controls"){
 			teyDetector_ = new AMSingleControlDetector(tey_->name(), tey_, this);
 			teyDetector_->setDescription("TEY");
+			teyDetectorNew_ = (AMSingleControlDetector*)teyDetector_;
 			allDetectors_->addDetector(teyDetector_, true);
 			XASDetectors_->addDetector(teyDetector_, true);
-			allDetectorsNew_->addDetector(teyDetector_);
-			XASDetectorsNew_->addDetector(teyDetector_);
+			allDetectorsNew_->addDetector(teyDetectorNew_);
+			XASDetectorsNew_->addDetector(teyDetectorNew_);
 		}
 		else if(!tfyDetector_ && ctrlSet->name() == "TFY Controls"){
 			tfyDetector_ = new MCPDetector(tfy_->name(), tfy_, tfyHVSetpoint_, tfyHVFbk_, this);
 			tfyDetector_->setDescription("TFY");
+			tfyDetectorNew_ = (MCPDetector*)tfyDetector_;
 			allDetectors_->addDetector(tfyDetector_, true);
 			XASDetectors_->addDetector(tfyDetector_, true);
-			allDetectorsNew_->addDetector(tfyDetector_);
-			XASDetectorsNew_->addDetector(tfyDetector_);
+			allDetectorsNew_->addDetector(tfyDetectorNew_);
+			XASDetectorsNew_->addDetector(tfyDetectorNew_);
 		}
 		else if(!pgtDetector_ && ctrlSet->name() == "SDD Controls"){
 			pgtDetector_ = new PGTDetector(pgt_->name(), pgt_, pgtHVSetpoint_, pgtHVFbk_, pgtIntegrationTime_, pgtIntegrationMode_, this);
 			pgtDetector_->setDescription("SDD");
+			pgtDetectorNew_ = (PGTDetector*)pgtDetector_;
 			allDetectors_->addDetector(pgtDetector_, false);
 			XASDetectors_->addDetector(pgtDetector_, false);
-			allDetectorsNew_->addDetector(pgtDetector_);
-			XASDetectorsNew_->addDetector(pgtDetector_);
+			allDetectorsNew_->addDetector(pgtDetectorNew_);
+			XASDetectorsNew_->addDetector(pgtDetectorNew_);
 		}
 		else if(!i0Detector_ && ctrlSet->name() == "I0 Controls"){
 			i0Detector_ = new AMSingleControlDetector(i0_->name(), i0_, this);
 			i0Detector_->setDescription("I0");
+			i0DetectorNew_ = (AMSingleControlDetector*)i0Detector_;
 			allDetectors_->addDetector(i0Detector_, true);
 			feedbackDetectors_->addDetector(i0Detector_, true);
-			allDetectorsNew_->addDetector(i0Detector_);
-			feedbackDetectorsNew_->addDetector(i0Detector_);
+			allDetectorsNew_->addDetector(i0DetectorNew_);
+			feedbackDetectorsNew_->addDetector(i0DetectorNew_);
 		}
 		else if(!eVFbkDetector_ && ctrlSet->name() == "Energy Feedback Controls"){
 			eVFbkDetector_ = new AMSingleControlDetector(eVFbk_->name(), eVFbk_, this);
 			eVFbkDetector_->setDescription("Energy Feedback");
+			eVFbkDetectorNew_ = (AMSingleControlDetector*)eVFbkDetector_;
 			allDetectors_->addDetector(eVFbkDetector_, true);
 			feedbackDetectors_->addDetector(eVFbkDetector_, true);
-			allDetectorsNew_->addDetector(eVFbkDetector_);
-			feedbackDetectorsNew_->addDetector(eVFbkDetector_);
+			allDetectorsNew_->addDetector(eVFbkDetectorNew_);
+			feedbackDetectorsNew_->addDetector(eVFbkDetectorNew_);
 		}
 		else if(!photodiodeDetector_ && ctrlSet->name() == "Photodiode Controls"){
 			photodiodeDetector_ = new AMSingleControlDetector(photodiode_->name(), photodiode_, this);
 			photodiodeDetector_->setDescription("Photodiode");
+			photodiodeDetectorNew_ = (AMSingleControlDetector*)photodiodeDetector_;
 			allDetectors_->addDetector(photodiodeDetector_, true);
-			allDetectorsNew_->addDetector(photodiodeDetector_);
+			allDetectorsNew_->addDetector(photodiodeDetectorNew_);
 		}
 		else if(!encoderUpDetector_ && ctrlSet->name() == "Encoder Up Controls"){
 			encoderUpDetector_ = new AMSingleControlDetector(encoderUp_->name(), encoderUp_, this);
 			encoderUpDetector_->setDescription("Encoder Up");
+			encoderUpDetectorNew_ = (AMSingleControlDetector*)encoderUpDetector_;
 			allDetectors_->addDetector(encoderUpDetector_, true);
-			allDetectorsNew_->addDetector(encoderUpDetector_);
+			allDetectorsNew_->addDetector(encoderUpDetectorNew_);
 		}
 		else if(!encoderDownDetector_ && ctrlSet->name() == "Encoder Down Controls"){
 			encoderDownDetector_ = new AMSingleControlDetector(encoderDown_->name(), encoderDown_, this);
 			encoderDownDetector_->setDescription("Encoder Down");
+			encoderDownDetectorNew_ = (AMSingleControlDetector*)encoderDownDetector_;
 			allDetectors_->addDetector(encoderDownDetector_, true);
-			allDetectorsNew_->addDetector(encoderDownDetector_);
+			allDetectorsNew_->addDetector(encoderDownDetectorNew_);
 		}
 		emit controlSetConnectionsChanged();
 	}

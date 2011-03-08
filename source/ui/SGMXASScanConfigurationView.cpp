@@ -105,10 +105,10 @@ SGMXASScanConfigurationView::SGMXASScanConfigurationView(SGMXASScanConfiguration
 		QWidget *dv2 = qobject_cast<AMDetectorView*>( (AMDetectorViewSupport::supportedClasses(SGMBeamline::sgm()->pgtDetector())).first().viewMetaObject->newInstance() );
 		*/
 
-		QWidget *dv = AMDetectorViewSupport::createDetectorView(SGMBeamline::sgm()->teyDetector());
+		QWidget *dv = AMDetectorViewSupport::createDetectorView(SGMBeamline::sgm()->teyDetectorNew());
 		//QWidget *dv = AMDetectorViewSupport::createDetectorView(SGMBeamline::sgm()->i0Detector());
-		QWidget *dv1 = AMDetectorViewSupport::createDetectorView(SGMBeamline::sgm()->tfyDetector());
-		QWidget *dv2 = AMDetectorViewSupport::createDetectorView(SGMBeamline::sgm()->pgtDetector());
+		QWidget *dv1 = AMDetectorViewSupport::createDetectorView(SGMBeamline::sgm()->tfyDetectorNew());
+		QWidget *dv2 = AMDetectorViewSupport::createDetectorView(SGMBeamline::sgm()->pgtDetectorNew());
 		//QWidget *dv2 = AMDetectorViewSupport::createDetectorView(SGMBeamline::sgm()->i0Detector());
 
 		QSpacerItem *spc1 = new QSpacerItem(10, 10, QSizePolicy::Minimum, QSizePolicy::Maximum);

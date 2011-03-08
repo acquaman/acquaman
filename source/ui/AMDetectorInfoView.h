@@ -3,7 +3,8 @@
 
 #include <QGroupBox>
 #include "acquaman/AMDetectorInfoList.h"
-#include "acquaman/AMDetectorInfoList.h"
+#include "dataman/PGTDetectorInfo.h"
+#include "dataman/MCPDetectorInfo.h"
 #include <QBoxLayout>
 #include <QPushButton>
 #include <QDoubleSpinBox>

@@ -27,53 +27,22 @@ AMDetectorInfo::AMDetectorInfo(const QString& name, const QString& description, 
 	description_ = description;
 }
 
-
-
-/*
-#include <QImage>
-#include <QBuffer>
-
-AMDbThumbnail AMDetectorInfo::thumbnail(int index) const {
-
-	Q_UNUSED(index)
-
-	QImage image(":/multimedia-volumne-control.png");
-
-	QImage thumbnailImage = image.scaled(QSize(240,180), Qt::KeepAspectRatio, Qt::SmoothTransformation);
-	QBuffer boutput;
-	boutput.open(QIODevice::WriteOnly);
-	thumbnailImage.save(&boutput, "PNG");
-	boutput.close();
-	return AMDbThumbnail(name(), description(), AMDbThumbnail::PNGType, boutput.buffer());
-
-}*/
-
-
-AMSpectralOutputDetectorInfo::AMSpectralOutputDetectorInfo(const QString& name, const QString& description, int binCount, QString axisName, QStringList binNames, QObject *parent) :
-		AMDetectorInfo(name, description, parent)
+AMDetectorInfo::AMDetectorInfo(const AMDetectorInfo &original) :
+		AMDbObject(original)
 {
-	binCount_ = binCount;
-	axisName_ = axisName;
-	binNames_ = binNames;
-	integrationTime_ = double(1.0);
-	integrationTimeRangeMin_ = double(0.0);
-	integrationTimeRangeMax_ = double(10.0);
-	integrationModeList_ << "Real" << "Live" << "Peak";
-	integrationMode_ = integrationModeList_.at(0);
-	units_ = "counts";
+	retreiveAndSetProperties(original);
 }
 
-MCPDetectorInfo::MCPDetectorInfo(const QString& name, const QString& description, QObject *parent) : AMDetectorInfo(name, description, parent)
-{
-	hvSetpoint_ = double(0.0);
-	hvSetpointRangeMin_ = double(0.0);
-	hvSetpointRangeMax_ = double(1400.0);
-	units_ = "counts";
-}
+void AMDetectorInfo::retreiveAndSetProperties(const AMDetectorInfo &original){
+	const QMetaObject *metaobject = original.metaObject();
+	int count = metaobject->propertyCount();
 
-PGTDetectorInfo::PGTDetectorInfo(const QString& name, const QString& description, QObject *parent) : AMSpectralOutputDetectorInfo(name, description, 1024, "energy", QStringList(), parent)
-{
-	hvSetpoint_ = double(0.0);
-	hvSetpointRangeMin_ = double(0.0);
-	hvSetpointRangeMax_ = double(180.0);
+	for (int i=0; i<count; ++i) {
+		QMetaProperty metaproperty = metaobject->property(i);
+		const char *name = metaproperty.name();
+		QVariant value = original.property(name);
+		bool isWritable = original.metaObject()->property((original.metaObject()->indexOfProperty(name))).isWritable();
+		if(isWritable)
+			this->setProperty(name, value);
+	}
 }
