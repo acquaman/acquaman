@@ -18,11 +18,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "SGMXASScanConfigurationViewer.h"
+#include "SGMXASScanConfigurationView.h"
 
-SGMXASScanConfigurationViewer::SGMXASScanConfigurationViewer(SGMXASScanConfiguration *sxsc, AMDetectorInfoSet *cfgDetectorInfoSet, QWidget *parent)  :
+SGMXASScanConfigurationView::SGMXASScanConfigurationView(SGMXASScanConfiguration *sxsc, AMOldDetectorInfoSet *cfgDetectorInfoSet, QWidget *parent)  :
 		//QWidget(parent){
-		AMScanConfigurationViewer(sxsc, parent){
+		AMScanConfigurationView(parent){
 	setupUi(this);
 	cfg_ = NULL;
 	if(SGMBeamline::sgm()->isConnected()){
@@ -42,12 +42,16 @@ SGMXASScanConfigurationViewer::SGMXASScanConfigurationViewer(SGMXASScanConfigura
 		connect( ((QDoubleSpinBox*)(fluxResolutionView_->detailView()->boxByName("exitSlitGap"))), SIGNAL(valueChanged(double)), sxsc, SLOT(setExitSlitGap(double)) );
 		fluxResolutionView_->onRegionsUpdate(sxsc->regions());
 
-		trackingView_ = new AMControlSetView(sxsc->trackingSet(), this);
+		//trackingView_ = new AMOldControlSetView(sxsc->trackingSet(), this);
+		trackingView_ = new AMControlSetView(sxsc->trackingSet(), true, this);
+		connect(trackingView_, SIGNAL(configValuesChanged(AMControlInfoList)), sxsc, SLOT(setTrackingGroup(AMControlInfoList)));
+		/*
 		connect( ((QComboBox*)(trackingView_->boxByName("undulatorTracking"))), SIGNAL(currentIndexChanged(int)), sxsc, SLOT(setUndulatorTracking(int)) );
 		connect( ((QComboBox*)(trackingView_->boxByName("monoTracking"))), SIGNAL(currentIndexChanged(int)), sxsc, SLOT(setMonoTracking(int)) );
 		connect( ((QComboBox*)(trackingView_->boxByName("exitSlitTracking"))), SIGNAL(currentIndexChanged(int)), sxsc, SLOT(setExitSlitTracking(int)) );
+		*/
 
-		detectorView_ = new AMDetectorSetView(sxsc->detectorSet(), cfgDetectorInfoSet_, true, this);
+		detectorView_ = new AMOldDetectorSetView(sxsc->detectorSet(), cfgDetectorInfoSet_, true, this);
 		if( SGMBeamline::sgm()->detectorConnectedByName("tey") )
 			connect( ((QCheckBox*)(detectorView_->boxByName("tey"))), SIGNAL(stateChanged(int)), sxsc, SLOT(setUsingTEY(int)) );
 		if( SGMBeamline::sgm()->detectorConnectedByName("tfy") )
@@ -55,6 +59,12 @@ SGMXASScanConfigurationViewer::SGMXASScanConfigurationViewer(SGMXASScanConfigura
 		if( SGMBeamline::sgm()->detectorConnectedByName("sdd") )
 			connect( ((QCheckBox*)(detectorView_->boxByName("pgt"))), SIGNAL(stateChanged(int)), sxsc, SLOT(setUsingPGT(int)) );
 
+		warningsLabel_ = new QLabel("");
+		QFont warningsFont;
+		warningsFont.setPointSize(48);
+		warningsLabel_->setFont(warningsFont);
+		warningsLabel_->setStyleSheet( "QLabel{ color: red }" );
+		/*
 		startScanButton_ = new QPushButton();
 		startScanButton_->setText("Start Scan");
 		addToQueueButton_ = new QPushButton();
@@ -72,9 +82,35 @@ SGMXASScanConfigurationViewer::SGMXASScanConfigurationViewer(SGMXASScanConfigura
 		connect(startScanButton_, SIGNAL(clicked()), this, SLOT(onStartScanClicked()));
 		connect(addToQueueButton_, SIGNAL(clicked()), this, SLOT(onAddToQueueRequested()));
 		connect(queueDirectorButton_, SIGNAL(clicked()), this, SIGNAL(queueDirectorRequested()));
+		*/
 
 		delete doLayoutButton;
 		delete layout();
+
+		/*
+		AMDetectorViewSupport::registerClass<AMSingleControlDetectorView, AMSingleControlDetector>();
+		AMDetectorViewSupport::registerClass<MCPDetectorView, MCPDetector>();
+		AMDetectorViewSupport::registerClass<PGTDetectorView, PGTDetector>();
+		*/
+
+		/*
+		QWidget *dv = qobject_cast<AMDetectorView*>( (AMDetectorViewSupport::registeredClasses()->value(AMDetectorView::staticMetaObject.className())).viewMetaObject->newInstance() );
+		QWidget *dv1 = qobject_cast<AMDetectorView*>( (AMDetectorViewSupport::registeredClasses()->value(AMDetector1View::staticMetaObject.className())).viewMetaObject->newInstance() );
+		QWidget *dv2 = qobject_cast<AMDetectorView*>( (AMDetectorViewSupport::registeredClasses()->value(AMDetector2View::staticMetaObject.className())).viewMetaObject->newInstance() );
+		*/
+
+		/*
+		QWidget *dv = qobject_cast<AMDetectorView*>( (AMDetectorViewSupport::supportedClasses(SGMBeamline::sgm()->teyDetector())).first().viewMetaObject->newInstance() );
+		QWidget *dv1 = qobject_cast<AMDetectorView*>( (AMDetectorViewSupport::supportedClasses(SGMBeamline::sgm()->tfyDetector())).first().viewMetaObject->newInstance() );
+		QWidget *dv2 = qobject_cast<AMDetectorView*>( (AMDetectorViewSupport::supportedClasses(SGMBeamline::sgm()->pgtDetector())).first().viewMetaObject->newInstance() );
+		*/
+
+		QWidget *dv = AMDetectorViewSupport::createDetectorView(SGMBeamline::sgm()->teyDetectorNew());
+		//QWidget *dv = AMDetectorViewSupport::createDetectorView(SGMBeamline::sgm()->i0Detector());
+		QWidget *dv1 = AMDetectorViewSupport::createDetectorView(SGMBeamline::sgm()->tfyDetectorNew());
+		QWidget *dv2 = AMDetectorViewSupport::createDetectorView(SGMBeamline::sgm()->pgtDetectorNew());
+		//QWidget *dv2 = AMDetectorViewSupport::createDetectorView(SGMBeamline::sgm()->i0Detector());
+
 		QSpacerItem *spc1 = new QSpacerItem(10, 10, QSizePolicy::Minimum, QSizePolicy::Maximum);
 		QSpacerItem *spc2 = new QSpacerItem(10, 10, QSizePolicy::Minimum, QSizePolicy::Maximum);
 //		QSpacerItem *spc3 = new QSpacerItem(10, 10, QSizePolicy::Minimum, QSizePolicy::Maximum);
@@ -84,21 +120,31 @@ SGMXASScanConfigurationViewer::SGMXASScanConfigurationViewer(SGMXASScanConfigura
 		gl_.addWidget(fluxResolutionView_,	3, 0, 2, 3, Qt::AlignLeft);
 		gl_.addWidget(trackingView_,		1, 3, 2, 2, Qt::AlignLeft);
 		gl_.addWidget(detectorView_,		3, 3, 2, 2, Qt::AlignLeft);
-		gl_.addWidget(startScanButton_,		5, 3, 1, 2, Qt::AlignRight);
-		gl_.addWidget(addToQueueButton_,	6, 3, 1, 2, Qt::AlignRight);
-		gl_.addWidget(queueDirectorButton_,	7, 3, 1, 2, Qt::AlignRight);
+		/**/
+		gl_.addWidget(dv,			5, 0, 1, 1, Qt::AlignLeft);
+		gl_.addWidget(dv1,			5, 1, 1, 1, Qt::AlignLeft);
+		gl_.addWidget(dv2,			5, 2, 1, 1, Qt::AlignLeft);
+		/**/
+		gl_.addWidget(warningsLabel_,		2, 0, 1, 5, Qt::AlignCenter);
 		gl_.addItem(spc1,			8, 0, 2, 3, Qt::AlignLeft);
 		gl_.addItem(spc2,			8, 3, 2, 2, Qt::AlignLeft);
 //		gl_.addItem(spc3,			9, 3, 1, 2, Qt::AlignLeft);
 		this->setLayout(&gl_);
 		this->setMaximumSize(800, 800);
+
+		connect(SGMBeamline::sgm(), SIGNAL(criticalControlsConnectionsChanged()), this, SLOT(onSGMBeamlineCriticalControlsConnectedChanged()));
+		onSGMBeamlineCriticalControlsConnectedChanged();
 	}
 }
 
-SGMXASScanConfigurationViewer::~SGMXASScanConfigurationViewer(){
+SGMXASScanConfigurationView::~SGMXASScanConfigurationView(){
 }
 
-void SGMXASScanConfigurationViewer::onAddRegionClicked(){
+const AMScanConfiguration* SGMXASScanConfigurationView::configuration() const{
+	return cfg_;
+}
+
+void SGMXASScanConfigurationView::onAddRegionClicked(){
 /*
 	if(!cfg_)
 		return;
@@ -118,7 +164,27 @@ void SGMXASScanConfigurationViewer::onAddRegionClicked(){
 */
 }
 
-void SGMXASScanConfigurationViewer::onLockdowScanning(bool isLocked, QString reason){
+void SGMXASScanConfigurationView::onSGMBeamlineCriticalControlsConnectedChanged(){
+	if(SGMBeamline::sgm()->isConnected()){
+		regionsView_->setEnabled(true);
+		regionsLineView_->setEnabled(true);
+		fluxResolutionView_->setEnabled(true);
+		trackingView_->setEnabled(true);
+		detectorView_->setEnabled(true);
+		warningsLabel_->setText("");
+	}
+	else{
+		regionsView_->setEnabled(false);
+		regionsLineView_->setEnabled(false);
+		fluxResolutionView_->setEnabled(false);
+		trackingView_->setEnabled(false);
+		detectorView_->setEnabled(false);
+		warningsLabel_->setText("SGM Beamline Unavailable");
+	}
+}
+
+/*
+void SGMXASScanConfigurationView::onLockdowScanning(bool isLocked, QString reason){
 	if(isLocked){
 		startScanButton_->setEnabled(false);
 		startScanButton_->setText("Start Scan\n"+reason);
@@ -128,4 +194,4 @@ void SGMXASScanConfigurationViewer::onLockdowScanning(bool isLocked, QString rea
 		startScanButton_->setText("Start Scan");
 	}
 }
-
+*/

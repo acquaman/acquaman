@@ -24,7 +24,7 @@ AMDetectorInfoView::AMDetectorInfoView(AMDetectorInfo *detectorInfo, AMDetectorI
 	vl_->addLayout(hl_);
 }
 
-PGTDetectorInfoView::PGTDetectorInfoView(PGTDetectorInfo *detectorInfo, AMDetectorInfo *writeDetectorInfo, bool interactive, QWidget *parent) :
+PGTOldDetectorInfoView::PGTOldDetectorInfoView(PGTDetectorInfo *detectorInfo, AMDetectorInfo *writeDetectorInfo, bool interactive, QWidget *parent) :
 		AMDetectorInfoView(detectorInfo, writeDetectorInfo, interactive, parent)
 {
 	sDetectorInfo_ = detectorInfo;
@@ -66,7 +66,7 @@ PGTDetectorInfoView::PGTDetectorInfoView(PGTDetectorInfo *detectorInfo, AMDetect
 	setMinimumWidth(250);
 }
 
-MCPDetectorInfoView::MCPDetectorInfoView(MCPDetectorInfo *detectorInfo, AMDetectorInfo *writeDetectorInfo, bool interactive, QWidget *parent) :
+MCPOldDetectorInfoView::MCPOldDetectorInfoView(MCPDetectorInfo *detectorInfo, AMDetectorInfo *writeDetectorInfo, bool interactive, QWidget *parent) :
 		AMDetectorInfoView(detectorInfo, writeDetectorInfo, interactive, parent)
 {
 	sDetectorInfo_ = detectorInfo;
@@ -89,7 +89,7 @@ MCPDetectorInfoView::MCPDetectorInfoView(MCPDetectorInfo *detectorInfo, AMDetect
 	setMinimumWidth(250);
 }
 
-AMDetectorInfoSetView::AMDetectorInfoSetView(AMDetectorInfoSet *viewSet, AMDetectorInfoSet *writeSet, bool setup, QWidget *parent) :
+AMDetectorInfoSetView::AMDetectorInfoSetView(AMOldDetectorInfoSet *viewSet, AMOldDetectorInfoSet *writeSet, bool setup, QWidget *parent) :
 		QGroupBox(parent)
 {
 	viewSet_ = viewSet;
@@ -149,9 +149,9 @@ QWidget* AMDetectorInfoSetView::detailViewByType(AMDetectorInfo *detectorInfo, A
 	MCPDetectorInfo* mcpDetectorInfo;
 
 	if( (pgtDetectorInfo = qobject_cast<PGTDetectorInfo*>(detectorInfo)) )
-		return new PGTDetectorInfoView(pgtDetectorInfo, writeDetectorInfo, true);
+		return new PGTOldDetectorInfoView(pgtDetectorInfo, writeDetectorInfo, true);
 	else if( (mcpDetectorInfo = qobject_cast<MCPDetectorInfo*>(detectorInfo)) )
-		return new MCPDetectorInfoView(mcpDetectorInfo, writeDetectorInfo, true);
+		return new MCPOldDetectorInfoView(mcpDetectorInfo, writeDetectorInfo, true);
 	else
 		return new QGroupBox();
 

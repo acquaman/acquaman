@@ -238,7 +238,20 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/dataman/REIXS/REIXSXESRawFileLoader.h \
 	source/util/AMDeferredFunctionCall.h \
 	source/ui/AMVideoWidget.h \
-	source/ui/AMScanConfigurationViewHolder.h
+	source/ui/AMScanConfigurationViewHolder.h \
+    source/dataman/AMSpectralOutputDetectorInfo.h \
+    source/dataman/MCPDetectorInfo.h \
+    source/dataman/PGTDetectorInfo.h \
+    source/beamline/AMSingleControlDetector.h \
+    source/beamline/AMSpectralOutputDetector.h \
+    source/beamline/PGTDetector.h \
+    source/beamline/MCPDetector.h \
+    source/ui/AMDetectorViewSupport.h \
+    source/ui/AMSingleControlDetectorView.h \
+    source/ui/MCPDetectorView.h \
+    source/ui/PGTDetectorView.h \
+    source/ui/AMDetectorSetView.h \
+    source/beamline/AMDetectorSet.h
 FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
 	source/ui/AMDataViewSection.ui \
@@ -406,7 +419,20 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/beamline/AMBeamlineControlStopAction.cpp \
 	source/dataman/REIXS/REIXSXESRawFileLoader.cpp \
 	source/util/AMDeferredFunctionCall.cpp \
-	source/ui/AMScanConfigurationViewHolder.cpp
+	source/ui/AMScanConfigurationViewHolder.cpp \
+    source/dataman/AMSpectralOutputDetectorInfo.cpp \
+    source/dataman/MCPDetectorInfo.cpp \
+    source/dataman/PGTDetectorInfo.cpp \
+    source/beamline/AMSingleControlDetector.cpp \
+    source/beamline/AMSpectralOutputDetector.cpp \
+    source/beamline/PGTDetector.cpp \
+    source/beamline/MCPDetector.cpp \
+    source/ui/AMDetectorViewSupport.cpp \
+    source/ui/AMSingleControlDetectorView.cpp \
+    source/ui/MCPDetectorView.cpp \
+    source/ui/PGTDetectorView.cpp \
+    source/ui/AMDetectorSetView.cpp \
+    source/beamline/AMDetectorSet.cpp
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc
 

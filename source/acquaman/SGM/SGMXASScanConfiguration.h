@@ -27,13 +27,23 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class SGMXASScanConfiguration : public AMXASScanConfiguration, public SGMScanConfiguration
 {
 	Q_OBJECT
+
+	Q_PROPERTY(double exitSlitGap READ exitSlitGap WRITE setExitSlitGap)
+	Q_PROPERTY(int grating READ grating WRITE setGrating)
+	Q_PROPERTY(int harmonic READ harmonic WRITE setHarmonic)
+	//NEED Q_PROPERTY for trackingGroup
+	Q_PROPERTY(bool usingTEY READ usingTEY WRITE setUsingTEY)
+	Q_PROPERTY(bool usingTFY READ usingTFY WRITE setUsingTFY)
+	Q_PROPERTY(bool usingPGT READ usingPGT WRITE setUsingPGT)
+	//NEED Q_PROPERTY for cfgXASDetectors_
+
 public:
-	SGMXASScanConfiguration(QObject *parent=0);
+	Q_INVOKABLE explicit SGMXASScanConfiguration(QObject *parent=0);
 
 	AMControlSet *fluxResolutionSet() const { return fluxResolutionSet_;}
 	AMControlSet *trackingSet() const { return trackingSet_;}
-	AMDetectorInfoSet *detectorSet() const { return XASDetectors_;}
-	AMDetectorInfoSet *cfgDetectorInfoSet() const { return cfgXASDetectors_;}
+	AMOldDetectorInfoSet *detectorSet() const { return XASDetectors_;}
+	AMOldDetectorInfoSet *cfgDetectorInfoSet() const { return cfgXASDetectors_;}
 
 	QList<AMDetectorInfo*> usingDetectors() const;
 
@@ -51,12 +61,9 @@ public slots:
 	bool setGrating(int grating);
 	bool setHarmonic(SGMBeamline::sgmHarmonic harmonic);
 	bool setHarmonic(int harmonic);
-	bool setUndulatorTracking(bool track);
-	bool setUndulatorTracking(int track);
-	bool setMonoTracking(bool track);
-	bool setMonoTracking(int track);
-	bool setExitSlitTracking(bool track);
-	bool setExitSlitTracking(int track);
+
+	bool setTrackingGroup(AMControlInfoList trackingList);
+
 	bool setUsingTEY(bool active);
 	bool setUsingTEY(int checkedState);
 	bool setUsingTFY(bool active);
@@ -64,16 +71,15 @@ public slots:
 	bool setUsingPGT(bool active);
 	bool setUsingPGT(int checkedState);
 
-	bool setCfgDetectorInfoSet(AMDetectorInfoSet *cfgDetectorInfoSet) { cfgXASDetectors_ = cfgDetectorInfoSet; return true; }
+	bool setCfgDetectorInfoSet(AMOldDetectorInfoSet *cfgDetectorInfoSet) { cfgXASDetectors_ = cfgDetectorInfoSet; return true; }
 
 
 signals:
 	void exitSlitGapChanged(double exitSlitGap);
 	void gratingChanged(int grating);
 	void harmonicChanged(int harmonic);
-	void undulatorTrackingChanged(int track);
-	void monoTrackingChanged(int track);
-	void exitSlitTrackingChanged(int track);
+	void trackingGroupChanged(AMControlInfoList);
+
 	void usingTEYChanged(bool active);
 	void usingTFYChanged(bool active);
 	void usingPGTChanged(bool active);
@@ -81,9 +87,9 @@ signals:
 protected:
 	AMControlSet *fluxResolutionSet_;
 	AMControlSet *trackingSet_;
-	AMDetectorInfoSet *feedbackDetectors_;
-	AMDetectorInfoSet *XASDetectors_;
-	AMDetectorInfoSet *cfgXASDetectors_;
+	AMOldDetectorInfoSet *feedbackDetectors_;
+	AMOldDetectorInfoSet *XASDetectors_;
+	AMOldDetectorInfoSet *cfgXASDetectors_;
 
 };
 

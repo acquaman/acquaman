@@ -10,9 +10,27 @@ class SGMFastScanParameters;
 class SGMFastScanConfiguration : public AMFastScanConfiguration, public SGMScanConfiguration
 {
 	Q_OBJECT
+
+	Q_PROPERTY(QString element READ element WRITE setElement)
+	Q_PROPERTY(double runTime READ runTime WRITE setRunSeconds)
+	Q_PROPERTY(double energyStart READ energyStart WRITE setEnergyStart)
+	Q_PROPERTY(double energyMidpoint READ energyMidpoint WRITE setEnergyMidpoint)
+	Q_PROPERTY(double energyEnd READ energyEnd WRITE setEnergyEnd)
+	Q_PROPERTY(int velocity READ velocity WRITE setVelocity)
+	Q_PROPERTY(int velocityBase READ velocityBase WRITE setVelocityBase)
+	Q_PROPERTY(int acceleration READ acceleration WRITE setAcceleration)
+	Q_PROPERTY(double scalerTime READ scalerTime WRITE setScalerTime)
+	//NEED Q_PROPERTY for cfgFastDetectors_
+
 public:
-	SGMFastScanConfiguration(QObject *parent = 0);
+	Q_INVOKABLE explicit SGMFastScanConfiguration(QObject *parent = 0);
 	~SGMFastScanConfiguration();
+
+	/// Returns a pointer to a newly-created copy of this scan configuration.  (It takes the role of a copy constructor, but is virtual so that our high-level classes can copy a scan configuration without knowing exactly what kind it is.)
+	virtual AMScanConfiguration* createCopy() const;
+
+	/// Returns a pointer to a newly-created AMScanController that is appropriate for executing this kind of scan configuration.  The controller should be initialized to use this scan configuration object as its scan configuration.  Ownership of the new controller becomes the responsibility of the caller.
+	virtual AMScanController* createController();
 
 	QString element() const;
 	double runTime() const;
@@ -33,7 +51,7 @@ public:
 	QStringList presets() const;
 	SGMFastScanParameters* currentParameters() const;
 
-	AMDetectorInfoSet* cfgDetectorInfoSet() const { return cfgFastDetectors_;}
+	AMOldDetectorInfoSet* cfgDetectorInfoSet() const { return cfgFastDetectors_;}
 	QList<AMDetectorInfo*> usingDetectors() const;
 
 public slots:
@@ -50,7 +68,7 @@ public slots:
 	bool setScalerTime(double scalerTime);
 	bool setBaseLine(int baseLine);
 	bool setSensibleFileSavePath(const QString& sensibleFileSavePath);
-	bool setCfgDetectorInfoSet(AMDetectorInfoSet *cfgDetectorInfoSet) { cfgFastDetectors_ = cfgDetectorInfoSet; return true; }
+	bool setCfgDetectorInfoSet(AMOldDetectorInfoSet *cfgDetectorInfoSet) { cfgFastDetectors_ = cfgDetectorInfoSet; return true; }
 
 signals:
 	void onElementChanged(const QString& element);
@@ -71,14 +89,14 @@ protected slots:
 	void onSaveDirectoryChanged(const QString& directory);
 
 protected:
-	AMDetectorInfoSet *cfgFastDetectors_;
+	AMOldDetectorInfoSet *cfgFastDetectors_;
 	QList<SGMFastScanParameters*> settings_;
 	SGMFastScanParameters *currentSettings_;
 
 	QString sensibleFileSavePath_;
 	QString finalizedSavePath_;
 	QString sensibleFileSaveWarning_;
-	QFileSystemWatcher savePathWatcher_;
+	//QFileSystemWatcher savePathWatcher_;
 };
 
 class SGMFastScanParameters : public QObject

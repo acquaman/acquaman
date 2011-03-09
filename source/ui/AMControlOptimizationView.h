@@ -31,7 +31,7 @@ protected:
 
 
 
-class AMControlOptimizationSetView : public AMControlSetView
+class AMControlOptimizationSetView : public AMOldControlSetView
 {
 	Q_OBJECT
 public:

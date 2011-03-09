@@ -1,13 +1,13 @@
-#include "SGMFastScanConfigurationViewer.h"
+#include "SGMFastScanConfigurationView.h"
 
 #include "SGMSidebar.h"
 
-SGMFastScanConfigurationViewer::SGMFastScanConfigurationViewer(SGMFastScanConfiguration *sfsc, QWidget *parent) :
-		AMScanConfigurationViewer(sfsc, parent)
+SGMFastScanConfigurationView::SGMFastScanConfigurationView(SGMFastScanConfiguration *sfsc, QWidget *parent) :
+		AMScanConfigurationView(parent)
 {
 	cfg_ = NULL;
-	autoSavePath_ = "";
-	autoSaveDialog_ = 0; //NULL
+	//autoSavePath_ = "";
+	//autoSaveDialog_ = 0; //NULL
 	if(SGMBeamline::sgm()->isConnected()){
 		cfg_ = sfsc;
 
@@ -23,6 +23,11 @@ SGMFastScanConfigurationViewer::SGMFastScanConfigurationViewer(SGMFastScanConfig
 		motorSettingsLabel_ = new QLabel("Motor Settings");
 		//scalerTimeLabel_ = new QLabel("Scaler Time");
 		baseLineLabel_ = new QLabel("Baseline Counts");
+		warningsLabel_ = new QLabel("");
+		QFont warningsFont;
+		warningsFont.setPointSize(48);
+		warningsLabel_->setFont(warningsFont);
+		warningsLabel_->setStyleSheet( "QLabel{ color: red }" );
 
 		elementEdit_ = new QLineEdit();
 		elementEdit_->setText(sfsc->element());
@@ -88,6 +93,7 @@ SGMFastScanConfigurationViewer::SGMFastScanConfigurationViewer(SGMFastScanConfig
 		//fl_->addRow(scalerTimeLabel_, scalerTimeDSB_);
 		fl_->addRow(baseLineLabel_, baseLineSB_);
 
+		/*
 		saveLabel_ = new QLabel("Save a copy to:");
 		saveEdit_ = new QLineEdit();
 		saveEdit_->setMinimumWidth(400);
@@ -113,7 +119,9 @@ SGMFastScanConfigurationViewer::SGMFastScanConfigurationViewer(SGMFastScanConfig
 		fl2_->addRow(hl);
 
 		connect(sfsc, SIGNAL(onNewFinalizedSavePath(QString)), this, SLOT(onNewFinalizedSavePath(QString)));
+		*/
 
+		/*
 		startScanButton_ = new QPushButton();
 		startScanButton_->setText("Start Scan");
 		addToQueueButton_ = new QPushButton();
@@ -130,19 +138,72 @@ SGMFastScanConfigurationViewer::SGMFastScanConfigurationViewer(SGMFastScanConfig
 		connect(startScanButton_, SIGNAL(clicked()), this, SLOT(onStartScanClicked()));
 		connect(addToQueueButton_, SIGNAL(clicked()), this, SLOT(onAddToQueueRequested()));
 		connect(queueDirectorButton_, SIGNAL(clicked()), this, SIGNAL(queueDirectorRequested()));
+		*/
 
 		gl_.addWidget(presetsComboBox_,		0, 0, 1, 1, Qt::AlignCenter);
 		gl_.addLayout(fl_,			0, 1, 1, 1, Qt::AlignCenter);
+		/*
 		gl_.addLayout(fl2_,			1, 0, 1, 2, Qt::AlignCenter);
 		gl_.addWidget(startScanButton_,		5, 3, 1, 2, Qt::AlignRight);
 		gl_.addWidget(addToQueueButton_,	6, 3, 1, 2, Qt::AlignRight);
 		gl_.addWidget(queueDirectorButton_,	7, 3, 1, 2, Qt::AlignRight);
+		*/
+		gl_.addWidget(warningsLabel_,		0, 0, 1, 2, Qt::AlignCenter);
+		gl_.setRowStretch(1, 10);
 		this->setLayout(&gl_);
 		this->setMaximumSize(700, 800);
+
+		connect(SGMBeamline::sgm(), SIGNAL(criticalControlsConnectionsChanged()), this, SLOT(onSGMBeamlineCriticalControlsConnectedChanged()));
+		onSGMBeamlineCriticalControlsConnectedChanged();
 	}
 }
 
-void SGMFastScanConfigurationViewer::onLockdowScanning(bool isLocked, QString reason){
+const AMScanConfiguration* SGMFastScanConfigurationView::configuration() const{
+	return cfg_;
+}
+
+void SGMFastScanConfigurationView::onSGMBeamlineCriticalControlsConnectedChanged(){
+	if(SGMBeamline::sgm()->isConnected()){
+		presetsComboBox_->setEnabled(true);
+		elementLabel_->setEnabled(true);
+		runTimeLabel_->setEnabled(true);
+		startEnergyLabel_->setEnabled(true);
+		energyMidpointLabel_->setEnabled(true);
+		endEnergyLabel_->setEnabled(true);
+		motorSettingsLabel_->setEnabled(true);
+		baseLineLabel_->setEnabled(true);
+		elementEdit_->setEnabled(true);
+		runTimeDSB_->setEnabled(true);
+		startEnergyDSB_->setEnabled(true);
+		energyMidpointDSB_->setEnabled(true);
+		endEnergyDSB_->setEnabled(true);
+		motorSettingsSB_->setEnabled(true);
+		baseLineSB_->setEnabled(true);
+		warningsLabel_->setText("");
+	}
+	else{
+		presetsComboBox_->setEnabled(false);
+		elementLabel_->setEnabled(false);
+		runTimeLabel_->setEnabled(false);
+		startEnergyLabel_->setEnabled(false);
+		energyMidpointLabel_->setEnabled(false);
+		endEnergyLabel_->setEnabled(false);
+		motorSettingsLabel_->setEnabled(false);
+		baseLineLabel_->setEnabled(false);
+		elementEdit_->setEnabled(false);
+		runTimeDSB_->setEnabled(false);
+		startEnergyDSB_->setEnabled(false);
+		energyMidpointDSB_->setEnabled(false);
+		endEnergyDSB_->setEnabled(false);
+		motorSettingsSB_->setEnabled(false);
+		baseLineSB_->setEnabled(false);
+		warningsLabel_->setText("SGM Beamline Unavailable");
+	}
+}
+
+/*
+void SGMFastScanConfigurationView::onLockdowScanning(bool isLocked, QString reason){
+
 	if(isLocked){
 		startScanButton_->setEnabled(false);
 		startScanButton_->setText("Start Scan\n"+reason);
@@ -151,9 +212,12 @@ void SGMFastScanConfigurationViewer::onLockdowScanning(bool isLocked, QString re
 		startScanButton_->setEnabled(true);
 		startScanButton_->setText("Start Scan");
 	}
-}
 
-void SGMFastScanConfigurationViewer::onSavePathEditingFinished(){
+}
+*/
+
+/*
+void SGMFastScanConfigurationView::onSavePathEditingFinished(){
 	SGMFastScanConfiguration *sfsc = qobject_cast<SGMFastScanConfiguration*>(cfg_);
 	if(saveEdit_->text().isEmpty())
 		return;
@@ -165,12 +229,16 @@ void SGMFastScanConfigurationViewer::onSavePathEditingFinished(){
 		saveFbkLabel_->setText("\t"+sfsc->sensibleFileSaveWarning());
 	}
 }
+*/
 
-void SGMFastScanConfigurationViewer::onNewFinalizedSavePath(const QString &savePath){
+/*
+void SGMFastScanConfigurationView::onNewFinalizedSavePath(const QString &savePath){
 	saveFbkLabel_->setText("\tFile will be saved as "+savePath.section('/', -1));
 }
+*/
 
-void SGMFastScanConfigurationViewer::onSaveDialogDirectoryChosen(const QString &savePath){
+/*
+void SGMFastScanConfigurationView::onSaveDialogDirectoryChosen(const QString &savePath){
 	SGMFastScanConfiguration *sfsc = qobject_cast<SGMFastScanConfiguration*>(cfg_);
 	QString saveFile = savePath+"/default";
 	if(saveFile.isEmpty())
@@ -184,9 +252,12 @@ void SGMFastScanConfigurationViewer::onSaveDialogDirectoryChosen(const QString &
 		saveFbkLabel_->setText("\t"+sfsc->sensibleFileSaveWarning());
 	}
 }
+*/
 
-void SGMFastScanConfigurationViewer::onStartScanClicked(){
+/*
+void SGMFastScanConfigurationView::onStartScanClicked(){
 	SGMFastScanConfiguration *sfsc = qobject_cast<SGMFastScanConfiguration*>(cfg_);
 	emit lastSettings(sfsc->currentParameters());
 	AMScanConfigurationViewer::onStartScanClicked();
 }
+*/

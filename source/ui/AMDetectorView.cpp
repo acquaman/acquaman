@@ -21,12 +21,38 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMDetectorView.h"
 
 AMDetectorView::AMDetectorView(QWidget *parent) :
-	QGroupBox(parent)
+	QWidget(parent)
 {
 }
 
-PGTDetectorView::PGTDetectorView(PGTDetector *detector, AMDetectorInfo *configDetector, bool editMode, QWidget *parent) :
-		PGTDetectorInfoView(detector, configDetector, true, parent)
+AMDetector* AMDetectorView::detector(){
+	return 0;
+}
+
+bool AMDetectorView::setDetector(AMDetector *detector){
+	return false;
+}
+
+AMBriefDetectorView::AMBriefDetectorView(QWidget *parent) :
+		AMDetectorView(parent)
+{
+}
+
+bool AMBriefDetectorView::setDetector(AMDetector *detector){
+	return false;
+}
+
+AMDetailedDetectorView::AMDetailedDetectorView(QWidget *parent) :
+		AMDetectorView(parent)
+{
+}
+
+bool AMDetailedDetectorView::setDetector(AMDetector *detector){
+	return false;
+}
+
+PGTOldDetectorView::PGTOldDetectorView(PGTDetector *detector, AMDetectorInfo *configDetector, bool editMode, QWidget *parent) :
+		PGTOldDetectorInfoView(detector, configDetector, true, parent)
 {
 	detector_ = detector;
 	editMode_ = editMode;
@@ -47,15 +73,15 @@ PGTDetectorView::PGTDetectorView(PGTDetector *detector, AMDetectorInfo *configDe
 	connect(switchToEditBox_, SIGNAL(clicked()), this, SLOT(setEditable()));
 }
 
-void PGTDetectorView::onIntegrationModeUpdate(double value){
+void PGTOldDetectorView::onIntegrationModeUpdate(double value){
 	integrationModeFbk_->setCurrentIndex((int)value);
 }
 
-void PGTDetectorView::onIntegrationModeChange(int index){
+void PGTOldDetectorView::onIntegrationModeChange(int index){
 	detector_->integrationModeCtrl()->move(index);
 }
 
-void PGTDetectorView::setEditMode(bool editMode){
+void PGTOldDetectorView::setEditMode(bool editMode){
 	editMode_ = editMode;
 	QHBoxLayout *tmpHB;
 	QPair<double, double> tmpRange;
@@ -132,12 +158,12 @@ void PGTDetectorView::setEditMode(bool editMode){
 	}
 }
 
-void PGTDetectorView::setEditable(){
+void PGTOldDetectorView::setEditable(){
 	setEditMode(!editMode_);
 }
 
-MCPDetectorView::MCPDetectorView(MCPDetector *detector, AMDetectorInfo *configDetector, bool editMode, QWidget *parent) :
-		MCPDetectorInfoView(detector, configDetector, true, parent)
+MCPOldDetectorView::MCPOldDetectorView(MCPDetector *detector, AMDetectorInfo *configDetector, bool editMode, QWidget *parent) :
+		MCPOldDetectorInfoView(detector, configDetector, true, parent)
 {
 	detector_ = detector;
 	editMode_ = editMode;
@@ -150,7 +176,7 @@ MCPDetectorView::MCPDetectorView(MCPDetector *detector, AMDetectorInfo *configDe
 	connect(switchToEditBox_, SIGNAL(clicked()), this, SLOT(setEditable()));
 }
 
-void MCPDetectorView::setEditMode(bool editMode){
+void MCPOldDetectorView::setEditMode(bool editMode){
 	editMode_ = editMode;
 	QHBoxLayout *tmpHB;
 	QPair<double, double> tmpRange;
@@ -192,11 +218,11 @@ void MCPDetectorView::setEditMode(bool editMode){
 	}
 }
 
-void MCPDetectorView::setEditable(){
+void MCPOldDetectorView::setEditable(){
 	setEditMode(!editMode_);
 }
 
-AMDetectorSetView::AMDetectorSetView(AMDetectorInfoSet *viewSet, AMDetectorInfoSet *configSet, bool setup, QWidget *parent) :
+AMOldDetectorSetView::AMOldDetectorSetView(AMOldDetectorInfoSet *viewSet, AMOldDetectorInfoSet *configSet, bool setup, QWidget *parent) :
 		AMDetectorInfoSetView(viewSet, configSet, false, parent)
 {
 	editMode_ = true;
@@ -204,29 +230,29 @@ AMDetectorSetView::AMDetectorSetView(AMDetectorInfoSet *viewSet, AMDetectorInfoS
 		AMDetectorInfoSetView::runSetup();
 }
 
-void AMDetectorSetView::setEditMode(bool editMode){
+void AMOldDetectorSetView::setEditMode(bool editMode){
 	editMode_ = editMode;
 }
 
-void AMDetectorSetView::setEditable(){
+void AMOldDetectorSetView::setEditable(){
 	editMode_ = true;
 }
 
-void AMDetectorSetView::runSetup(){
+void AMOldDetectorSetView::runSetup(){
 	runSetup();
 }
 
-QWidget* AMDetectorSetView::detailViewByType(AMDetectorInfo *detector, AMDetectorInfo *configDetector){
+QWidget* AMOldDetectorSetView::detailViewByType(AMDetectorInfo *detector, AMDetectorInfo *configDetector){
 
 	if(!editMode_)
 		return AMDetectorInfoSetView::detailViewByType(detector, configDetector);
 	#warning "D: same edit to review:"
 
 	else if( qobject_cast<PGTDetector*>(detector) ){
-		return new PGTDetectorView( qobject_cast<PGTDetector*>(detector), configDetector);
+		return new PGTOldDetectorView( qobject_cast<PGTDetector*>(detector), configDetector);
 	}
 	else if( qobject_cast<MCPDetector*>(detector) )
-		return new MCPDetectorView( qobject_cast<MCPDetector*>(detector), configDetector);
+		return new MCPOldDetectorView( qobject_cast<MCPDetector*>(detector), configDetector);
 
 	else
 		return new QGroupBox();

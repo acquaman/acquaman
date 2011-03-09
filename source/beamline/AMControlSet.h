@@ -48,7 +48,7 @@ public:
 	explicit AMControlSet(QObject *parent = 0);
 
 	/// Returns the name defined for the control set.
-	QString name() const { return name_;}
+	QString name() const;
 
 	/// Converts all the controls to their simplified AMControlInfo form, and returns a list like this
 	AMControlInfoList toInfoList() const;
@@ -60,41 +60,21 @@ public:
 	QStringList unconnected() const;
 
 	/// Return the index of a given \c control in the set. You can then access the control using at() or operator[].  (Returns -1 if not found in the set.)
-	int indexOf(AMControl* control) { return indexOfValue(control); }
+	int indexOf(AMControl* control);
 	/// Return the index of the control named \c controlName. (Returns -1 if not found in the set.)
-	int indexOf(const QString& controlName) { return indexOfKey(controlName); }
+	int indexOf(const QString& controlName);
 	/// Returns the control named \c controlName, or 0 if not found in the set.
-	AMControl* controlNamed(const QString& controlName) {
-		int index = indexOfKey(controlName);
-		if(index < 0)
-			return 0;
-
-		return at(index);
-	}
+	AMControl* controlNamed(const QString& controlName);
 
 	/// Adds an AMControl to the control set. Returns true if the addition was successful. Failure could result from adding the same AMControl twice.
-	bool addControl(AMControl* newControl) {
-		if(!newControl)
-			return false;
-
-		if( append(newControl, newControl->name()) ) {
-			connect(newControl, SIGNAL(connected(bool)), this, SLOT(onConnected(bool)));
-			return true;
-		}
-		return false;
-	}
+	bool addControl(AMControl* newControl);
 
 	/// Removes an AMControl \c control from the set. Returns true if the removal was successful. Failure could result from removing an AMControl not in the set.
-	bool removeControl(AMControl* control) {
-		int index = indexOfValue(control);
-		if(index < 0)
-			return false;
+	bool removeControl(AMControl* control);
 
-		disconnect(control, 0, this, 0);
-		remove(index);
-		return true;
-	}
 
+	/// Checks to see if this control set can be set from the given AMControlInfoList (they refer to the same controls)
+	bool validInfoList(const AMControlInfoList& info);
 
 	/// Set the position of all the controls in the set from the simplified AMControlInfoList \c infoList.  The controls in \c infoList are matched by name, and for each corresponding name in this set, the real control's value is set.
 	void setFromInfoList(const AMControlInfoList& info);
@@ -103,6 +83,9 @@ signals:
 	/// This signal is emitted whenever isConnected() changes
 	void connected(bool groupConnected);
 	void controlConnectedChanged(bool isConnected, AMControl *control);
+
+	/// This signal is emitted whenever one of the controls has a new value
+	void controlSetValuesChanged(AMControlInfoList);
 
 public slots:
 	/// Sets the name of the control set.
@@ -115,6 +98,9 @@ protected slots:
 	/// Handles when any of the controls become connected or disconnected
 	void onConnected(bool ctrlConnected);
 	void onConnectionsTimedOut();
+
+	/// Handles when any of the controls has a new value
+	void onControlValueChanged();
 
 protected:
 	/// Holds the name of the control set. Should be descriptive of the logical relationship.

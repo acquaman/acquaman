@@ -20,7 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SGMXASScanConfigurationWizard.h"
 
-SGMXASScanConfigurationWizard::SGMXASScanConfigurationWizard(SGMXASScanConfiguration *sxsc, AMDetectorInfoSet *cfgDetectorInfoSet, QWidget *parent) :
+SGMXASScanConfigurationWizard::SGMXASScanConfigurationWizard(SGMXASScanConfiguration *sxsc, AMOldDetectorInfoSet *cfgDetectorInfoSet, QWidget *parent) :
 	QWizard(parent)
 {
 	cfg_ = NULL;
@@ -200,7 +200,7 @@ AMControlSetWizardPage::AMControlSetWizardPage(AMControlSet *trackingSet, QStrin
 		QWizardPage(parent)
 {
 	trackingSet_ = trackingSet;
-	trackingView_ = new AMControlSetView(trackingSet_, this);
+	trackingView_ = new AMOldControlSetView(trackingSet_, this);
 	gl_ = new QGridLayout();
 	textLabel_ = new QLabel(subTitle);
 	textLabel_->setAlignment(Qt::AlignJustify);
@@ -217,12 +217,12 @@ void AMControlSetWizardPage::resizeEvent(QResizeEvent *e){
 	QWizardPage::resizeEvent(e);
 }
 
-AMDetectorSetWizardPage::AMDetectorSetWizardPage(AMDetectorInfoSet *detectorSet, AMDetectorInfoSet *cfgDetectorInfoSet, QString title, QString subTitle, QWidget *parent) :
+AMDetectorSetWizardPage::AMDetectorSetWizardPage(AMOldDetectorInfoSet *detectorSet, AMOldDetectorInfoSet *cfgDetectorInfoSet, QString title, QString subTitle, QWidget *parent) :
 		QWizardPage(parent)
 {
 	detectorSet_ = detectorSet;
 	cfgDetectorInfoSet_ = cfgDetectorInfoSet;
-	detectorView_ = new AMDetectorSetView(detectorSet_, cfgDetectorInfoSet_, true, this);
+	detectorView_ = new AMOldDetectorSetView(detectorSet_, cfgDetectorInfoSet_, true, this);
 	gl_ = new QGridLayout();
 	textLabel_ = new QLabel(subTitle);
 	textLabel_->setAlignment(Qt::AlignJustify);

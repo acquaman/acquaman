@@ -92,9 +92,10 @@ AMReadOnlyPVControl::AMReadOnlyPVControl(const QString& name, const QString& rea
 	readPV_ = new AMProcessVariable(readPVname, true, this);
 
 	connect(readPV_, SIGNAL(valueChanged(double)), this, SIGNAL(valueChanged(double)));
-	connect(readPV_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
+	//connect(readPV_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
+	connect(readPV_, SIGNAL(readReadyChanged(bool)), this, SLOT(onPVConnected(bool)));	
 	connect(readPV_, SIGNAL(connectionTimeout()), this, SIGNAL(readConnectionTimeoutOccurred()));
-	connect(readPV_, SIGNAL(error(int)), this, SLOT(onPVError(int)));
+	connect(readPV_, SIGNAL(error(int)), this, SLOT(onReadPVError(int)));
 	connect(readPV_, SIGNAL(connectionTimeout()), this, SLOT(onConnectionTimeout()));
 
 	connect(readPV_, SIGNAL(initialized()), this, SLOT(onReadPVInitialized()));
@@ -111,12 +112,16 @@ void AMReadOnlyPVControl::onPVConnected(bool) {
 	// don't need to do anything else here.  isConnected() and canRead() come dynamically from the PV state canRead().
 }
 
-void AMReadOnlyPVControl::onPVError(int error) {
+void AMReadOnlyPVControl::onReadPVError(int errorCode) {
 	// TODO: figure out how to handle this best.
 	// For now, just report it.
 	AMProcessVariable* source = qobject_cast<AMProcessVariable*>(sender());
-	if(source)
-		qDebug() << QString("Process Variable error %1: %2.").arg(source->pvName()).arg(error);
+	if(source){
+		if( (errorCode == AMPROCESSVARIABLE_CANNOT_READ) && shouldMeasure() ){
+			emit error(AMControl::CannotReadError);
+			qDebug() << QString("Read Process Variable error %1: %2.").arg(source->pvName()).arg(errorCode);
+		}
+	}
 }
 
 void AMReadOnlyPVControl::onReadPVInitialized() {
@@ -148,8 +153,9 @@ AMPVControl::AMPVControl(const QString& name, const QString& readPVname, const Q
 
 	// process variable:
 	writePV_ = new AMProcessVariable(writePVname, true, this);
-	connect(writePV_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
-	connect(writePV_, SIGNAL(error(int)), this, SLOT(onPVError(int)));
+	//connect(writePV_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
+	connect(writePV_, SIGNAL(writeReadyChanged(bool)), this, SLOT(onPVConnected(bool)));
+	connect(writePV_, SIGNAL(error(int)), this, SLOT(onWritePVError(int)));
 	connect(writePV_, SIGNAL(connectionTimeout()), this, SIGNAL(writeConnectionTimeoutOccurred()));
 	connect(writePV_, SIGNAL(connectionTimeout()), this, SLOT(onConnectionTimeout()));
 	connect(writePV_, SIGNAL(valueChanged(double)), this, SIGNAL(writePVValueChanged(double)));
@@ -164,7 +170,7 @@ AMPVControl::AMPVControl(const QString& name, const QString& readPVname, const Q
 	}
 	else {
 		stopPV_ = new AMProcessVariable(stopPVname, false, this);
-		connect(stopPV_, SIGNAL(error(int)), this, SLOT(onPVError(int)));	/// \todo Does this need separate error handling? What if the stop write fails? That's really important.
+		connect(stopPV_, SIGNAL(error(int)), this, SLOT(onReadPVError(int)));	/// \todo Does this need separate error handling? What if the stop write fails? That's really important.
 	}
 	stopValue_ = stopValue;
 }
@@ -234,6 +240,19 @@ void AMPVControl::onNewFeedbackValue(double) {
 	}
 }
 
+// This is used to handle errors from the write pv
+void AMPVControl::onWritePVError(int errorCode) {
+	// TODO: figure out how to handle this best.
+	// For now, just report it.
+	AMProcessVariable* source = qobject_cast<AMProcessVariable*>(sender());
+	if(source){
+		if(errorCode == AMPROCESSVARIABLE_CANNOT_WRITE && shouldMove() ){
+			emit error(AMControl::CannotWriteError);
+			qDebug() << QString("Write Process Variable error %1: %2.").arg(source->pvName()).arg(errorCode);
+		}
+	}
+}
+
 // This is used to handle the timeout of a move:
 void AMPVControl::onCompletionTimeout() {
 
@@ -295,8 +314,9 @@ AMReadOnlyPVwStatusControl::AMReadOnlyPVwStatusControl(const QString& name, cons
 	// Create the movingPV and hook it up:
 	movingPV_ = new AMProcessVariable(movingPVname, true, this);
 	connect(movingPV_, SIGNAL(valueChanged(int)), this, SLOT(onMovingChanged(int)));
-	connect(movingPV_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
-	connect(movingPV_, SIGNAL(error(int)), this, SLOT(onPVError(int)));
+	//connect(movingPV_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
+	connect(movingPV_, SIGNAL(readReadyChanged(bool)), this, SLOT(onPVConnected(bool)));
+	connect(movingPV_, SIGNAL(error(int)), this, SLOT(onStatusPVError(int)));
 	connect(movingPV_, SIGNAL(connectionTimeout()), this, SIGNAL(movingConnectionTimeoutOccurred()));
 	connect(movingPV_, SIGNAL(connectionTimeout()), this, SLOT(onConnectionTimeout()));
 
@@ -316,6 +336,19 @@ void AMReadOnlyPVwStatusControl::onPVConnected(bool) {
 	// connection gained:
 	if(!wasConnected_ && nowConnected)
 		emit connected(wasConnected_ = nowConnected);
+}
+
+// This is used to handle errors from the status pv
+void AMReadOnlyPVwStatusControl::onStatusPVError(int errorCode) {
+	// TODO: figure out how to handle this best.
+	// For now, just report it.
+	AMProcessVariable* source = qobject_cast<AMProcessVariable*>(sender());
+	if(source){
+		if(errorCode == AMPROCESSVARIABLE_CANNOT_READ){
+			emit error(AMControl::CannotGetStatusError);
+			qDebug() << QString("Status Process Variable error %1: %2.").arg(source->pvName()).arg(errorCode);
+		}
+	}
 }
 
 // This is called whenever there is an update from the move status PV
@@ -345,8 +378,9 @@ AMPVwStatusControl::AMPVwStatusControl(const QString& name, const QString& readP
 	writePV_ = new AMProcessVariable(writePVname, true, this);
 
 	// connect:
-	connect(writePV_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
-	connect(writePV_, SIGNAL(error(int)), this, SLOT(onPVError(int)));
+	//connect(writePV_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
+	connect(writePV_, SIGNAL(writeReadyChanged(bool)), this, SLOT(onPVConnected(bool)));
+	connect(writePV_, SIGNAL(error(int)), this, SLOT(onWritePVError(int)));
 	connect(writePV_, SIGNAL(connectionTimeout()), this, SIGNAL(writeConnectionTimeoutOccurred()));
 	connect(writePV_, SIGNAL(connectionTimeout()), this, SLOT(onConnectionTimeout()));
 	connect(writePV_, SIGNAL(valueChanged(double)), this, SIGNAL(writePVValueChanged(double)));
@@ -364,7 +398,7 @@ AMPVwStatusControl::AMPVwStatusControl(const QString& name, const QString& readP
 	}
 	else {
 		stopPV_ = new AMProcessVariable(stopPVname, false, this);
-		connect(stopPV_, SIGNAL(error(int)), this, SLOT(onPVError(int)));	/// \todo Does this need separate error handling? What if the stop write fails? That's really important.
+		connect(stopPV_, SIGNAL(error(int)), this, SLOT(onReadPVError(int)));	/// \todo Does this need separate error handling? What if the stop write fails? That's really important.
 	}
 	stopValue_ = stopValue;
 
@@ -406,6 +440,19 @@ bool AMPVwStatusControl::stop() {
 	stopInProgress_ = true;	// flag that a stop is "in progress" -- we've issued the stop command.
 	moveInProgress_ = false;	// one of "our" moves is no longer in progress.
 	return true;
+}
+
+// This is used to handle errors from the status pv
+void AMPVwStatusControl::onWritePVError(int errorCode) {
+	// TODO: figure out how to handle this best.
+	// For now, just report it.
+	AMProcessVariable* source = qobject_cast<AMProcessVariable*>(sender());
+	if(source){
+		if(errorCode == AMPROCESSVARIABLE_CANNOT_WRITE && shouldMove()){
+			emit error(AMControl::CannotWriteError);
+			qDebug() << QString("Write Process Variable error %1: %2.").arg(source->pvName()).arg(errorCode);
+		}
+	}
 }
 
 // This is used to handle the timeout of a move start:

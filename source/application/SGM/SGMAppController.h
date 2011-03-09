@@ -6,8 +6,8 @@
 class SGMSampleTransferView;
 class AMSamplePositionView;
 class AMScanConfigurationViewHolder;
-class SGMXASScanConfigurationViewer;
-class SGMFastScanConfigurationViewer;
+class SGMXASScanConfigurationView;
+class SGMFastScanConfigurationView;
 class SGMSidebar;
 
 
@@ -34,6 +34,8 @@ protected slots:
 	  */
 	virtual void onCurrentPaneChanged(QWidget* pane);
 
+	void onSGMBeamlineConnected();
+
 	/// \todo comment this, David...
 	void onCurrentScanControllerCreated();
 	void onCurrentScanControllerDestroyed();
@@ -49,8 +51,8 @@ protected:
 	SGMSampleTransferView* sampleTransferView_;
 	AMSamplePositionView* samplePositionView_;
 	//AMScanConfigurationView* scanConfigurationView_;
-	//SGMXASScanConfigurationViewer* xasScanConfigurationViewer_;
-	//SGMFastScanConfigurationViewer* fastScanConfigurationViewer_;
+	SGMXASScanConfigurationView* xasScanConfigurationViewer_;
+	SGMFastScanConfigurationView* fastScanConfigurationViewer_;
 	AMScanConfigurationViewHolder* xasScanConfigurationHolder_;
 	AMScanConfigurationViewHolder* fastScanConfigurationHolder_;
 	SGMSidebar* sgmSidebar_;

@@ -190,13 +190,16 @@ void AMBasicControlEditorStyledInputDialog::setSuffix(const QString& s) { spinBo
 void AMBasicControlEditorStyledInputDialog::showEvent ( QShowEvent * event ) { QDialog::showEvent(event); spinBox_->setFocus(); }
 
 
-AMControlEditor::AMControlEditor(AMControl* control, AMControl* statusTagControl, bool readOnly, QWidget *parent) :
+AMControlEditor::AMControlEditor(AMControl* control, AMControl* statusTagControl, bool readOnly, bool configureOnly, QWidget *parent) :
 	QGroupBox(parent)
 {
 	setObjectName("AMControlEdit");
 
 	control_ = control;
 	readOnly_ = readOnly;
+	configureOnly_ = configureOnly;
+	connectedOnce_ = false;
+	newValueOnce_ = false;
 	statusTagControl_ = statusTagControl;
 	if(!control_->canMove())
 		readOnly_ = true;
@@ -251,7 +254,7 @@ AMControlEditor::AMControlEditor(AMControl* control, AMControl* statusTagControl
 
 
 	// Make connections:
-	if(control_) {
+	if(control_){
 		connect(control_, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged(double)));
 		connect(control_, SIGNAL(unitsChanged(QString)), this, SLOT(onUnitsChanged(QString)));
 		connect(control_, SIGNAL(connected(bool)), this, SLOT(setHappy(bool)));
@@ -267,18 +270,31 @@ AMControlEditor::AMControlEditor(AMControl* control, AMControl* statusTagControl
 	// dialog_->setInputMode(QInputDialog::DoubleInput);
 	dialog_->hide();
 	dialog_->setWindowModality(Qt::NonModal);
-	connect(dialog_, SIGNAL(doubleValueSelected(double)), control_, SLOT(move(double)));
+	if(!configureOnly_)
+		connect(dialog_, SIGNAL(doubleValueSelected(double)), control_, SLOT(move(double)));
+	else
+		connect(dialog_, SIGNAL(doubleValueSelected(double)), this, SLOT(onNewSetpoint(double)));
 	connect(control_, SIGNAL(enumChanges(QStringList)), dialog_, SLOT(setEnumNames(QStringList)));
 
+
 	if(control_ && control_->isConnected()){
-		onValueChanged(control_->value());
-		onUnitsChanged(control_->units());
-		setHappy(control_->isConnected());
+		//onValueChanged(control_->value());
+		//onUnitsChanged(control_->units());
 		if(control_->isEnum())
 			dialog_->setEnumNames(control_->enumNames());
+		setHappy(control_->isConnected());
 	}
+
 	if(statusTagControl_ && statusTagControl_->isConnected())
 		onStatusValueChanged(statusTagControl_->value());
+}
+
+double AMControlEditor::setpoint() const{
+	return dialog_->setpoint();
+}
+
+AMControl* AMControlEditor::control() const{
+	return control_;
 }
 
 void AMControlEditor::setReadOnly(bool readOnly){
@@ -299,15 +315,19 @@ void AMControlEditor::overrideTitle(const QString &title){
 }
 
 void AMControlEditor::onValueChanged(double newVal) {
+	if(configureOnly_ && connectedOnce_)
+		return;
 	if(control_->isEnum()){
 		valueLabel_->setText(control_->enumNameAt(newVal));
 		unitsLabel_->setText("");
 	}
 	else
-		valueLabel_->setText(QString("%1").arg(newVal));
+		valueLabel_->setText(QString("%1").arg(newVal, 0, 'g', 3));
 }
 
 void AMControlEditor::onUnitsChanged(const QString& units) {
+	if(configureOnly_ && connectedOnce_)
+		return;
 	if(control_->isEnum())
 		unitsLabel_->setText("");
 	else
@@ -320,6 +340,13 @@ void AMControlEditor::setHappy(bool happy) {
 		unitsLabel_->setStyleSheet("border: 1px outset #00df00; background: #d4ffdf; padding: 1px; width: 100%; color: #00df00;");
 		readOnly_ = !control_->canMove();
 		onUnitsChanged(control_->units());
+		onValueChanged(control_->value());
+		if(!connectedOnce_){
+			dialog_->setDoubleMaximum(control_->maximumValue());
+			dialog_->setDoubleMinimum(control_->minimumValue());
+			dialog_->setDoubleValue(control_->value());
+			connectedOnce_ = true;
+		}
 	}
 	else
 		unitsLabel_->setStyleSheet("border: 1px outset #f20000; background: #ffdfdf;	padding: 1px; color: #f20000;");
@@ -341,15 +368,35 @@ void AMControlEditor::onEditStart() {
 
 	//bool ok;
 
-	dialog_->setDoubleValue(control_->value());
 	dialog_->setDoubleMaximum(control_->maximumValue());
 	dialog_->setDoubleMinimum(control_->minimumValue());
+	if(!configureOnly_)
+		dialog_->setDoubleValue(control_->value());
 	dialog_->setDoubleDecimals(3);	// todo: display precision?
 	dialog_->setLabelText(control_->objectName());
 	dialog_->setSuffix(control_->units());
 	dialog_->show();
 	dialog_->move( mapToGlobal(QPoint(width()/2,height()/2)) - QPoint(dialog_->width()/2, dialog_->height()/2) );
 
+}
+
+void AMControlEditor::onNewSetpoint(double newVal){
+	if(!configureOnly_)
+		return;
+	if(control_->isEnum()){
+		if( fabs(control_->value()-newVal) < control_->tolerance() )
+			valueLabel_->setText(QString("%1").arg(control_->enumNameAt(newVal)));
+		else
+			valueLabel_->setText(QString("%1 (from %2)").arg(control_->enumNameAt(newVal)).arg(control_->enumNameAt(control_->value())) );
+		unitsLabel_->setText("");
+	}
+	else{
+		if( fabs(control_->value()-newVal) < control_->tolerance() )
+			valueLabel_->setText(QString("%1").arg(newVal));
+		else
+			valueLabel_->setText(QString("%1 (from %2)").arg(newVal).arg(control_->value()));
+	}
+	emit setpointRequested(newVal);
 }
 
 void AMControlEditor::onStatusValueChanged(double newVal){
@@ -419,6 +466,13 @@ AMControlEditorStyledInputDialog::AMControlEditorStyledInputDialog( QStringList 
 	connect(cancelButton_, SIGNAL(clicked()), this, SLOT(reject()));
 
 	okButton_->setDefault(true);
+}
+
+double AMControlEditorStyledInputDialog::setpoint() const{
+	if(!isEnum_)
+		spinBox_->value();
+	else
+		comboBox_->currentIndex();
 }
 
 void AMControlEditorStyledInputDialog::setDoubleValue(double d) {

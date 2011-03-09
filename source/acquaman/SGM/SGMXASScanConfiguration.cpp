@@ -32,9 +32,7 @@ SGMXASScanConfiguration::SGMXASScanConfiguration(QObject *parent) : AMXASScanCon
 
 	emit exitSlitGapChanged(exitSlitGap_);
 	emit gratingChanged(grating_);
-	emit undulatorTrackingChanged(undulatorTracking_);
-	emit monoTrackingChanged(monoTracking_);
-	emit exitSlitTrackingChanged(exitSlitTracking_);
+	emit trackingGroupChanged(trackingGroup_);
 }
 
 QList<AMDetectorInfo*> SGMXASScanConfiguration::usingDetectors() const{
@@ -51,11 +49,13 @@ QList<AMDetectorInfo*> SGMXASScanConfiguration::usingDetectors() const{
 }
 
 AMScanConfiguration* SGMXASScanConfiguration::createCopy() const{
-
+	return new SGMXASScanConfiguration(*this);
 }
 
-AMScanController* SGMXASScanConfiguration::createController(){
+#include "SGMXASDacqScanController.h"
 
+AMScanController* SGMXASScanConfiguration::createController(){
+	return new SGMXASDacqScanController(this);
 }
 
 bool SGMXASScanConfiguration::setExitSlitGap(double exitSlitGap) {
@@ -84,33 +84,10 @@ bool SGMXASScanConfiguration::setHarmonic(int harmonic) {
 	return setHarmonic( (SGMBeamline::sgmHarmonic)harmonic );
 }
 
-bool SGMXASScanConfiguration::setUndulatorTracking(bool track){
-	bool rVal = SGMScanConfiguration::setUndulatorTracking(track);
-	emit undulatorTrackingChanged(track);
+bool SGMXASScanConfiguration::setTrackingGroup(AMControlInfoList trackingList){
+	bool rVal = SGMScanConfiguration::setTrackingGroup(trackingList);
+	emit trackingGroupChanged(trackingList);
 	return rVal;
-}
-
-bool SGMXASScanConfiguration::setUndulatorTracking(int track){
-	return setUndulatorTracking( (bool)track);
-}
-
-bool SGMXASScanConfiguration::setMonoTracking(bool track){
-	bool rVal = SGMScanConfiguration::setMonoTracking(track);
-	emit monoTrackingChanged(track);
-	return rVal;
-}
-
-bool SGMXASScanConfiguration::setMonoTracking(int track){
-	return setMonoTracking( (bool)track );
-}
-
-bool SGMXASScanConfiguration::setExitSlitTracking(bool track){
-	bool rVal = SGMScanConfiguration::setExitSlitTracking(track);
-	emit exitSlitTrackingChanged(track); return rVal;
-}
-
-bool SGMXASScanConfiguration::setExitSlitTracking(int track){
-	return setExitSlitTracking( (bool)track );
 }
 
 bool SGMXASScanConfiguration::setUsingTEY(bool active) {

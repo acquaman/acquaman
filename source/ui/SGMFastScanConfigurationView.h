@@ -5,22 +5,31 @@
 #include <QComboBox>
 #include <QLabel>
 #include <QFileDialog>
+#include <QDoubleSpinBox>
+#include <QSpinBox>
+#include <QLineEdit>
+#include <QFormLayout>
 
 #include <algorithm>
 
-#include "AMScanConfigurationViewer.h"
+//#include "AMScanConfigurationViewer.h"
+#include "AMScanConfigurationView.h"
 #include "acquaman/SGM/SGMFastScanConfiguration.h"
 
-class SGMFastScanConfigurationViewer : public AMScanConfigurationViewer
+class SGMFastScanConfigurationView : public AMScanConfigurationView
 {
 	Q_OBJECT
 public:
-	SGMFastScanConfigurationViewer(SGMFastScanConfiguration *sfsc, QWidget *parent = 0);
+	SGMFastScanConfigurationView(SGMFastScanConfiguration *sfsc, QWidget *parent = 0);
+
+	const AMScanConfiguration* configuration() const;
 
 signals:
-	void lastSettings(SGMFastScanParameters *lastSettings);
+	//void lastSettings(SGMFastScanParameters *lastSettings);
 
 protected slots:
+	void onSGMBeamlineCriticalControlsConnectedChanged();
+	/*
 	void onLockdowScanning(bool isLocked, QString reason);
 	void onSavePathEditingFinished();
 	void onNewFinalizedSavePath(const QString& savePath);
@@ -28,11 +37,12 @@ protected slots:
 
 	//Cluge for now to save last settings
 	void onStartScanClicked();
+	*/
 
 protected:
-	AMScanConfiguration *cfg_;
+	SGMFastScanConfiguration *cfg_;
 
-	QString autoSavePath_;
+	//QString autoSavePath_;
 
 	QComboBox *presetsComboBox_;
 	QLabel *elementLabel_;
@@ -43,6 +53,7 @@ protected:
 	QLabel *motorSettingsLabel_;
 //	QLabel *scalerTimeLabel_;
 	QLabel *baseLineLabel_;
+	QLabel *warningsLabel_;
 
 	QLineEdit *elementEdit_;
 	QDoubleSpinBox *runTimeDSB_;
@@ -53,6 +64,7 @@ protected:
 	//    QDoubleSpinBox *scalerTimeDSB_;
 	QSpinBox *baseLineSB_;
 
+	/*
 	QLabel *saveLabel_;
 	QLineEdit *saveEdit_;
 	QLabel *saveFbkLabel_;
@@ -60,9 +72,11 @@ protected:
 	QFileDialog *autoSaveDialog_;
 	QPushButton *autoSaveDialogButton_;
 
+
 	QPushButton *startScanButton_;
 	QPushButton *addToQueueButton_;
 	QPushButton *queueDirectorButton_;
+	*/
 	QGridLayout gl_;
 	QFormLayout *fl_;
 	QFormLayout *fl2_;

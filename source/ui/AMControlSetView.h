@@ -22,6 +22,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMCONTROLSETVIEW_H
 
 #include "beamline/AMControlSet.h"
+#include "ui/AMControlEditor.h"
+
 #include <QWidget>
 #include <QGroupBox>
 #include <QHBoxLayout>
@@ -65,7 +67,67 @@ public:
 	/*! \param viewSet Pointer to the AMControlSet to view.
 	  \param parent Pointer to QWidget to act as parent.
 	  */
-	explicit AMControlSetView(AMControlSet *viewSet, QWidget *parent = 0);
+	explicit AMControlSetView(AMControlSet *viewSet, bool configureOnly = false, QWidget *parent = 0);
+
+	AMControlEditor* boxByName(const QString &name){
+		return controlBoxes_.at(viewSet_->indexOfKey(name));
+	}
+
+	AMControlEditor* boxAt(int row){
+		return controlBoxes_.at(row);
+	}
+
+	/// Returns the current values of the control set
+	AMControlInfoList currentValues();
+	/// Returns the desired values if the view is used for configuration only (returns the current values if the view is not for configuration only)
+	AMControlInfoList configValues();
+	//QMap<QString, QVariant> configValues() { return configValues_;}
+	//bool boxTrigger() const { return boxTrigger_;}
+
+signals:
+	//void configValuesChanged();
+	/// Emitted when any control value in the control set changes (but ONLY when the view is not configure only)
+	void currentValuesChanged(AMControlInfoList);
+	/// Emitted when any configuration value changes (but ONLY when the view is configure only)
+	void configValuesChanged(AMControlInfoList);
+
+public slots:
+	//void setConfigValues(QMap<QString, QVariant> configValues);
+	//void resetBoxTrigger(){boxTrigger_ = false;}
+
+protected slots:
+	void onControlSetValuesChanged(AMControlInfoList infoList);
+	void onConfigurationValueChanged();
+	//void onBoxUpdate(const QString& value);
+
+protected:
+	/// Pointer to the AMControlSet which is the subject of this view.
+	AMControlSet *viewSet_;
+	bool configureOnly_;
+	//QMap<QString, QVariant> configValues_;
+	QList<AMControlEditor*> controlBoxes_;
+	//QList<bool> dirty_;
+	//bool boxTrigger_;
+	QHBoxLayout *hl_;
+};
+
+/// An AMControlSetView is a means of generating a default view for an AMControlSet
+/*!
+  Inheriting from QGroupBox, the AMControlSetView displays the contents of an AMControlSet in a group box.
+  Simplying calling the constructor while passing an AMControlSet allows the AMControlSetView to:
+  - set the title of the group box from the name of the AMControlSet; and,
+  - generate a label for each AMControl in the AMControlSet from the objectName() function; and,
+  - generate a spin box (integer for enums and double for all others) for each AMControl in the AMControlSet.
+  */
+class AMOldControlSetView : public QGroupBox
+{
+Q_OBJECT
+public:
+	/// Constructor
+	/*! \param viewSet Pointer to the AMControlSet to view.
+	  \param parent Pointer to QWidget to act as parent.
+	  */
+	explicit AMOldControlSetView(AMControlSet *viewSet, QWidget *parent = 0);
 
 	QWidget* boxByName(const QString &name){
 		return controlBoxes_.at(viewSet_->indexOfKey(name));

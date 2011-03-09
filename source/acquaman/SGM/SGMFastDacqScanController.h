@@ -8,7 +8,7 @@ class SGMFastDacqScanController : public AMDacqScanController, public SGMFastSca
 {
 	Q_OBJECT
 public:
-	SGMFastDacqScanController(SGMFastScanConfiguration *cfg, QObject *parent = 0);
+	explicit SGMFastDacqScanController(SGMFastScanConfiguration *cfg, QObject *parent = 0);
 
 	bool isInitialized() { return (initialized_ && beamlineInitialized_);}
 

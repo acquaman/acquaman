@@ -3,7 +3,8 @@
 
 #include <QGroupBox>
 #include "acquaman/AMDetectorInfoList.h"
-#include "acquaman/AMDetectorInfoList.h"
+#include "dataman/PGTDetectorInfo.h"
+#include "dataman/MCPDetectorInfo.h"
 #include <QBoxLayout>
 #include <QPushButton>
 #include <QDoubleSpinBox>
@@ -25,11 +26,11 @@ protected:
 	QVBoxLayout *vl_;
 };
 
-class PGTDetectorInfoView : public AMDetectorInfoView
+class PGTOldDetectorInfoView : public AMDetectorInfoView
 {
 	Q_OBJECT
 public:
-	PGTDetectorInfoView(PGTDetectorInfo *detectorInfo, AMDetectorInfo *writeDetectorInfo = 0, bool interactive = false, QWidget *parent = 0);
+	PGTOldDetectorInfoView(PGTDetectorInfo *detectorInfo, AMDetectorInfo *writeDetectorInfo = 0, bool interactive = false, QWidget *parent = 0);
 
 protected:
 	PGTDetectorInfo *sDetectorInfo_;
@@ -40,11 +41,11 @@ protected:
 	QFormLayout *fl_;
 };
 
-class MCPDetectorInfoView : public AMDetectorInfoView
+class MCPOldDetectorInfoView : public AMDetectorInfoView
 {
 	Q_OBJECT
 public:
-	MCPDetectorInfoView(MCPDetectorInfo *detectorInfo, AMDetectorInfo *writeDetectorInfo = 0, bool interactive = false, QWidget *parent = 0);
+	MCPOldDetectorInfoView(MCPDetectorInfo *detectorInfo, AMDetectorInfo *writeDetectorInfo = 0, bool interactive = false, QWidget *parent = 0);
 
 protected:
 	MCPDetectorInfo *sDetectorInfo_;
@@ -59,7 +60,7 @@ class AMDetectorInfoSetView : public QGroupBox
 {
 	Q_OBJECT
 public:
-	AMDetectorInfoSetView(AMDetectorInfoSet *viewSet, AMDetectorInfoSet *writeSet = 0, bool setup = true, QWidget *parent = 0);
+	AMDetectorInfoSetView(AMOldDetectorInfoSet *viewSet, AMOldDetectorInfoSet *writeSet = 0, bool setup = true, QWidget *parent = 0);
 
 	QWidget* boxByName(const QString &name){
 		return detectorBoxes_.at(viewSet_->indexOf(name));
@@ -70,8 +71,8 @@ public:
 	}
 
 protected:
-	AMDetectorInfoSet *viewSet_;
-	AMDetectorInfoSet *writeSet_;
+	AMOldDetectorInfoSet *viewSet_;
+	AMOldDetectorInfoSet *writeSet_;
 	QList< QWidget* > detectorBoxes_;
 	QList< QWidget* > detectorDetails_;
 	QList< QWidget* > detailViews_;

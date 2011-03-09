@@ -35,7 +35,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
   */
 class AMXASScanConfiguration : public AMScanConfiguration
 {
-	Q_OBJECT
+	Q_OBJECT	
 public:
 	/// Constructor, needs only a pointer to a QObject to act as a parent.
 	AMXASScanConfiguration(QObject *parent = 0);

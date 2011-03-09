@@ -50,6 +50,10 @@ Q_DECLARE_METATYPE(AMProcessVariableIntVector)
 
 #define AMPROCESSVARIABLE_MAX_CA_ARRAY_BYTES "134217728"
 
+/// We use these to return erros from AMProcessVariable. EPICS already defines errors in the range of 0 to 60 in caerr.h, so choose arbitrarily high number to avoid collision
+#define AMPROCESSVARIABLE_CANNOT_READ  270000
+#define AMPROCESSVARIABLE_CANNOT_WRITE 270001
+
 /**
   \addtogroup control
   @{
@@ -191,6 +195,11 @@ public:
 	bool canRead() const {  return isConnected() && ca_read_access(chid_); }
 	/// Checks write access ability. (Verifies also that we are connected, since writing is impossible if not.)
 	bool canWrite() const {  return isConnected() && ca_write_access(chid_); }
+
+	/// Checks that we are completely ready to read (we are connected, initialized, have received at least one set of values, and we have read access)
+	bool readReady() const { return canRead() && isInitialized() && hasValues(); }
+	/// Check that we are completely readdy to write(we are connected, initialized, have received at least one set of values, and we have both read and write access)
+	bool writeReady() const { return readReady() && canWrite(); }
 
 	/*! This function changes whether the the PV sets values through using ca_put() or ca_put_callback().  Generally ca_put_callback() is preferred since it returns debug messages after all process requests.  However, some of the more exotic record types in EPICS do not handle the ca_put_callback() effectively which causes the IOC to delay writing the value for a very long time (seconds per value).  An except from Jeff Hill about the differences between ca_put() and ca_put_callback():
 
@@ -335,6 +344,13 @@ signals:
 
 	/// Connection was established, and control information was accessed. A good indicator that everything is ready to go.
 	void initialized();
+	/// Has just obtained values
+	void hasValuesChanged(bool);
+
+	/// Emits readReadyChanged(true) when readyReady changes from false to true, and readReadyChanged(false) when readReady changes from true to false
+	void readReadyChanged(bool);
+	/// Emits writeReadyChanged(true) when writeReady changes from false to true, and writeReadyChanged(false) when write ready changes from true to false
+	void writeReadyChanged(bool);
 
 	// TODO. Alarms neglected for now. Never emitted.
 	// void alarm(dbr_short_t severity, dbr_short_t reason);
@@ -362,6 +378,9 @@ signals:
 protected slots:
 	/// Runs when a connection timeout occurs (PV fails to connect)
 	void onConnectionTimeout();
+
+	/// Runs to determine the status of readReady and writeReady, watches connected(), initialized(), and hasValuesChanged()
+	void checkReadWriteReady();
 
 	/// these are simply here to generate the error(QString) signals, from error(int)
 	void signalForwardOnError(int errorCode) { emit error(errorString(errorCode)); }
@@ -433,6 +452,10 @@ protected:
 	bool initialized_;
 	/// true after we receive the first value response
 	bool hasValues_;
+	/// last value for readReady, for watching for actual changes
+	bool lastReadReady_;
+	/// last value for writeReady, for watching for actual changes
+	bool lastWriteReady_;
 
 	/// Last error experienced.
 	int lastError_;

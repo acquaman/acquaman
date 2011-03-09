@@ -106,6 +106,8 @@ class AMControlEditorStyledInputDialog : public QDialog {
 public:
 	AMControlEditorStyledInputDialog( QStringList enumNames = QStringList(), QWidget *parent = 0, Qt::WindowFlags flags = (Qt::Dialog | Qt::FramelessWindowHint) );
 
+	double setpoint() const;
+
 public slots:
 	void setDoubleValue(double d);
 	void setDoubleMaximum(double d);
@@ -140,10 +142,14 @@ class AMControlEditor : public QGroupBox
 {
 Q_OBJECT
 public:
-	explicit AMControlEditor(AMControl* control, AMControl* statusTagControl = NULL, bool readOnly = false, QWidget *parent = 0);
+	explicit AMControlEditor(AMControl* control, AMControl* statusTagControl = NULL, bool readOnly = false, bool configureOnly = false, QWidget *parent = 0);
+
+	double setpoint() const;
+	AMControl* control() const;
 
 signals:
 	void moveRequested(double);
+	void setpointRequested(double);
 	void clicked();
 
 public slots:
@@ -162,6 +168,7 @@ protected slots:
 	void onMotion(bool moving);
 
 	void onEditStart();
+	void onNewSetpoint(double newVal);
 
 	void onStatusValueChanged(double newVal);
 
@@ -173,6 +180,9 @@ protected:
 	AMControl* control_;
 	AMControl* statusTagControl_;
 	bool readOnly_;
+	bool configureOnly_;
+	bool connectedOnce_;
+	bool newValueOnce_;
 	QLabel* valueLabel_;
 	QLabel* unitsLabel_;
 	QLabel* statusLabel_;

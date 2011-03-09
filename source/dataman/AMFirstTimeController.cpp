@@ -29,7 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <dataman/AMExperiment.h>
 #include <dataman/AMControlInfoList.h>
 #include <dataman/AMSamplePlate.h>
-#include <dataman/AMDetectorInfo.h>
+#include <dataman/AMSpectralOutputDetectorInfo.h>
 #include "dataman/AMUser.h"
 #include "dataman/AMXESScan.h"
 

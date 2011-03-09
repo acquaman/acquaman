@@ -130,6 +130,12 @@ AMProcessVariable::AMProcessVariable(const QString& pvName, bool autoMonitor, QO
 	serverType_ = Unconnected;
 	ourType_ = Unconnected;
 
+	lastReadReady_ = false;
+	lastWriteReady_ = false;
+	connect(this, SIGNAL(connected()), this, SLOT(checkReadWriteReady()));
+	connect(this, SIGNAL(initialized()), this, SLOT(checkReadWriteReady()));
+	connect(this, SIGNAL(hasValuesChanged(bool)), this, SLOT(checkReadWriteReady()));
+
 	count_ = 0;
 
 	// Initialize control information:
@@ -492,6 +498,8 @@ void AMProcessVariable::internal_onConnectionStateChanged(bool isConnected, int 
 
 	else {
 		initialized_ = false;
+		if(hasValues_)
+			emit hasValuesChanged(false);
 		hasValues_ = false;
 	}
 
@@ -528,25 +536,40 @@ void AMProcessVariable::internal_onControlInfoChanged(int controlInfoType, QStri
 }
 
 void AMProcessVariable::internal_onFloatingPointValueChanged(AMProcessVariableDoubleVector doubleData) {
+	bool hasChanged = false;
+	if(!hasValues_)
+		hasChanged = true;
 	hasValues_ = true;
 	data_dbl_ = doubleData;
+	if(hasChanged)
+		emit hasValuesChanged(true);
 	emit valueChanged(data_dbl_.at(0));
 	emit valueChanged(int(data_dbl_.at(0)));
 	emit valueChanged();
 }
 
 void AMProcessVariable::internal_onIntegerValueChanged(AMProcessVariableIntVector intData) {
+	bool hasChanged = false;
+	if(!hasValues_)
+		hasChanged = true;
 	hasValues_ = true;
 	data_int_ = intData;
+	if(hasChanged)
+		emit hasValuesChanged(true);
 	emit valueChanged(data_int_.at(0));
 	emit valueChanged(double(data_int_.at(0)));
 	emit valueChanged();
 }
 
 void AMProcessVariable::internal_onEnumValueChanged(AMProcessVariableIntVector enumData) {
+	bool hasChanged = false;
+	if(!hasValues_)
+		hasChanged = true;
 	hasValues_ = true;
 	data_int_ = enumData;
 	int newValue = data_int_.at(0);
+	if(hasChanged)
+		emit hasValuesChanged(true);
 	emit valueChanged(newValue);
 	emit valueChanged(double(newValue));
 	if(initialized_) {
@@ -562,8 +585,13 @@ void AMProcessVariable::internal_onEnumValueChanged(AMProcessVariableIntVector e
 
 
 void AMProcessVariable::internal_onStringValueChanged(QStringList stringData) {
+	bool hasChanged = false;
+	if(!hasValues_)
+		hasChanged = true;
 	hasValues_ = true;
 	data_str_ = stringData;
+	if(hasChanged)
+		emit hasValuesChanged(true);
 	emit valueChanged(data_str_.at(0));
 	emit valueChanged();
 }
@@ -580,6 +608,27 @@ void AMProcessVariable::onConnectionTimeout() {
 	}
 
 	// Don't call ca_clear_channel here.  Channel access will keep on trying in the background. (Channel access handles this automatically for us.)  Will emit connected() signal when successful.
+}
+
+void AMProcessVariable::checkReadWriteReady(){
+	// We aren't readReady, but the only problem is ca_read_access failed
+	if(!readReady() && isConnected() && isInitialized() && hasValues()){
+		emit error(AMPROCESSVARIABLE_CANNOT_READ);
+		emit error("Lacking read access to PV");
+	}
+	// We aren't writeReady, but the only problem is ca_write_access failed
+	if(!writeReady() && readReady()){
+		emit error(AMPROCESSVARIABLE_CANNOT_WRITE);
+		emit error("Lacking write access to PV");
+	}
+	if(lastReadReady_ != readReady()){
+		lastReadReady_ = readReady();
+		emit readReadyChanged(lastReadReady_);
+	}
+	if(lastWriteReady_ != writeReady()){
+		lastWriteReady_ = writeReady();
+		emit writeReadyChanged(lastWriteReady_);
+	}
 }
 
 

@@ -221,6 +221,16 @@ public:
 		OtherFailure 			///<  an error code defined by the specific control implementation
 };
 
+	/// This enum type is used to describe problematic states the control can be in
+	/*! Possible explanation codes are:
+	  */
+	enum ErrorExplanation{
+		CannotConnectError = 1, ///< Cannot connect to part of the control
+		CannotReadError,	///< Cannot read when we are connected and expect to be able to
+		CannotWriteError,	///< Cannot write when we are connected and expect to be able to
+		CannotGetStatusError,	///< Cannot read the status when we are connected
+	};
+
 	/// Base Class Constructor
 	/*! \param name A unique descriptive name for this control.
 		\param units The default unit description.
@@ -430,6 +440,11 @@ signals:
 		*/
 	void connected(bool);
 
+	/// Announces error states
+	/*! Emits error codes defined above or passes along error messages if available
+		*/
+	void error(int);
+	void error(const QString&);
 
 protected:
 	/// List of pointers to our subcontrols
@@ -496,7 +511,8 @@ public:
 	/// most recent value of this measurement
 	virtual double value() const { return readPV_->lastValue(); }
 	/// Indicates that the Control is ready for use.  In this case, means that the readPV is connected and readable.
-	virtual bool isConnected() const { return canMeasure(); }
+	virtual bool isConnected() const { return readPV_->readReady(); }
+	//virtual bool isConnected() const { return canMeasure(); }
 	/// Indicates whether the readPV is readable.
 	virtual bool canMeasure() const { return readPV_->canRead(); }
 	/// Indicates that we \em should be able to measure from this Control.  Always true.
@@ -536,12 +552,12 @@ protected slots:
 	/// Override this if you want custom handling if the readPV fails to connect.
 
 	/// You can also monitor the readConnectionTimeoutOccurred() signal.
-	void onConnectionTimeout() { setUnits("?"); emit connected(false); }
+	void onConnectionTimeout() { setUnits("?"); emit connected(false); emit error(AMControl::CannotConnectError); }
 
 	/// This is called when a PV channel connects or disconnects
 	void onPVConnected(bool connected);
-	/// This is called when there is a PV channel error:
-	void onPVError(int error);
+	/// This is called when there is a Read PV channel error:
+	void onReadPVError(int errorCode);
 
 };
 
@@ -603,7 +619,8 @@ public:
 	virtual bool moveInProgress() const { return moveInProgress_; }
 
 	/// Implies that we can read from the feedback PV and write to the setpoint PV.
-	virtual bool isConnected() const { return canMeasure() && canMove(); }
+	//virtual bool isConnected() const { return canMeasure() && canMove(); }
+	virtual bool isConnected() const { return readPV_->readReady() && writePV_->writeReady(); }
 	/// Indicates that we can currently write to the setpoint PV.
 	virtual bool canMove() const { return writePV_->canWrite(); }
 	/// This Control class has the theoretical ability to move. Always true.
@@ -694,10 +711,13 @@ protected slots:
 	/// (overridden) Handle a connection timeout from either the readPV_ or writePV_
 	/*! The units come from the readPV, so if it's out, we don't know what the units are.
 		In any case, if either one doesn't connected, we're not connected.*/
-	void onConnectionTimeout() { if(sender() == readPV_) { setUnits("?"); } emit connected(false); }
+	void onConnectionTimeout() { if(sender() == readPV_) { setUnits("?"); } emit connected(false); emit error(AMControl::CannotConnectError); }
 
 	/// This is called when a PV channel (read or write) connects or disconnects
 	void onPVConnected(bool connected);
+
+	/// This is called when there is a Write PV channel error:
+	void onWritePVError(int errorCode);
 
 	/// This is used to handle the timeout of a move
 	void onCompletionTimeout();
@@ -764,7 +784,8 @@ public:
 	/// \name Reimplemented Public Functions:
 	//@{
 	/// Implies that we can read from both the feedback PV and move-status PV.
-	virtual bool isConnected() const { return canMeasure() && movingPV_->canRead(); }
+	//virtual bool isConnected() const { return canMeasure() && movingPV_->canRead(); }
+	virtual bool isConnected() const { return readPV_->readReady() && movingPV_->readReady(); }
 
 	/// The movingPV now provides our moving status. (Masked with isMovingMask and compared to isMovingValue)
 	virtual bool isMoving() const { return ( int(movingPV_->getInt() & isMovingMask_) == isMovingValue_); }
@@ -801,10 +822,13 @@ protected slots:
 
 	/// Since the units come from the read-PV, we need the readPV for that.
 	/// All connection timeouts cause us to be not connected.
-	void onConnectionTimeout() { if(sender() == readPV_) { setUnits("?"); } emit connected(false); }
+	void onConnectionTimeout() { if(sender() == readPV_) { setUnits("?"); } emit connected(false); emit error(AMControl::CannotConnectError); }
 
 	/// This is called when a PV channel connects or disconnects
 	void onPVConnected(bool connected);
+
+	/// This is called when there is a Status PV channel error:
+	void onStatusPVError(int errorCode);
 
 	/// This is called whenever there is an update from the move status PV
 	void onMovingChanged(int isMovingValue);
@@ -876,7 +900,8 @@ public:
 	/// \name Reimplemented Public Functions:
 	//@{
 	/// Indicates that all three process variables are ready for action:
-	virtual bool isConnected() const { return canMeasure() && canMove() && movingPV_->canRead(); }
+	//virtual bool isConnected() const { return canMeasure() && canMove() && movingPV_->canRead(); }
+	virtual bool isConnected() const { return readPV_->readReady() && writePV_->writeReady() && movingPV_->readReady(); }
 	/// Indicates that a move (that you requested) is currently completing... hasn't reached destination, and hasn't time'd out.
 	virtual bool moveInProgress() const { return moveInProgress_ && AMReadOnlyPVwStatusControl::isMoving(); }	// moveInProgress_ will be true as soon as move() is requested.  moveInProgress() isn't happening until the device starts moving as well.)
 	/// Indicates that this control currently can cause moves:
@@ -954,6 +979,9 @@ protected:
 	int stopValue_;
 
 protected slots:
+
+	/// This is called when there is a Status PV channel error:
+	void onWritePVError(int errorCode);
 
 	/// This is used to handle the timeout of a move start:
 	void onMoveStartTimeout();
