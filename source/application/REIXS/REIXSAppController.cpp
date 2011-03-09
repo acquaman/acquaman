@@ -75,11 +75,11 @@ bool REIXSAppController::startup() {
 
 		hl->addStretch(1);
 
-//		AMVideoWidget* vw = new AMVideoWidget();
-//		hl->addWidget(vw);
-//		//vw->openVideoUrl("http://v2e1607-001.cs.clsi.ca/mjpg/1/video.mjpg");
-//		vw->openVideoUrl("/Users/mboots/Pictures/iPhoto Library/Originals/2010/mine movies/101_0216.M4V");
-//		vw->play();
+		AMVideoWidget* vw = new AMVideoWidget();
+		hl->addWidget(vw);
+		//vw->openVideoUrl("http://v2e1607-001.cs.clsi.ca/mjpg/1/video.mjpg");
+		vw->openVideoUrl("/Users/mboots/Pictures/iPhoto Library/Originals/2010/mine movies/101_0216.M4V");
+		vw->play();
 
 
 		spectrometerControlWidget->setLayout(hl);

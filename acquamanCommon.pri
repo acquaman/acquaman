@@ -12,15 +12,14 @@ macx {
 	GSL_LIB = -L$$HOME_FOLDER/dev/acquaman/contrib/gsl-install/lib -lgsl
 	GSL_CBLAS_LIB = -L$$HOME_FOLDER/dev/acquaman/contrib/gsl-install/lib -lgslcblas
 
-	#VLC_LIB = -L$$HOME_FOLDER/dev/vlc-1.1/projects/macosx/framework/build/Release/vlc_build_dir/i386/vlc_install_dir/lib -lvlc
 	VLC_LIB = -L$$HOME_FOLDER/dev/acquaman/contrib/vlc-install/lib -lvlc
-	#VLC_INCLUDE_DIR = $$HOME_FOLDER/dev/vlc-1.1/projects/macosx/framework/build/Release/vlc_build_dir/i386/vlc_install_dir/include
+	#VLC_LIB = -L$$HOME_FOLDER/dev/acquaman/contrib/vlc-1.1.8/VLC.app/Contents/MacOS/lib -lvlc
+
 	VLC_INCLUDE_DIR = $$HOME_FOLDER/dev/acquaman/contrib/vlc-install/include
-	VLC_PLUGIN_PATH = $$HOME_FOLDER/dev/acquaman/contrib/vlc-install/VLC-release.app/Contents/MacOS/plugins
+	#VLC_INCLUDE_DIR = $$HOME_FOLDER/dev/acquaman/contrib/vlc-1.1.8/VLC.app/Contents/MacOS/include
 
-	#VLCKIT = -F$$HOME_FOLDER/dev/vlc-1.1/projects/macosx/framework/build/Release -framework VLCKit
-	#VLCKIT_INCLUDE_DIR = $$HOME_FOLDER/dev/vlc-1.1/projects/macosx/framework/build/Release/VLCKit.framework/Headers
-
+	VLC_PLUGIN_PATH = $$HOME_FOLDER/dev/acquaman/contrib/vlc-install/lib/vlc/plugins
+	#VLC_PLUGIN_PATH = $$HOME_FOLDER/dev/acquaman/contrib/vlc-1.1.8/VLC.app/Contents/MacOS/plugins
 }
 linux-g++ {
 	EPICS_INCLUDE_DIRS = $$HOME_FOLDER/beamline/programming/epics/base/include \
@@ -414,6 +413,4 @@ RESOURCES = source/icons/icons.qrc \
 macx {
 OBJECTIVE_SOURCES += 	source/ui/AMVideoWidget_mac.mm
 LIBS += -framework AppKit
-#LIBS += $$VLCKIT
-#INCLUDEPATH += $$VLCKIT_INCLUDE_DIR
 }

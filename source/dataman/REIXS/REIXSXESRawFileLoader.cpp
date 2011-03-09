@@ -28,7 +28,7 @@ bool REIXSXESRawFileLoader::loadFromFile(const QString &filepath, bool setMetaDa
 
 	QFile file(filepath);
 	qint32 pixelsX, pixelsY;
-	qint32* image;
+	qint32* imageArray = 0;
 	QList<AMAxisInfo> detectorAxes;
 
 	try {
@@ -53,9 +53,9 @@ bool REIXSXESRawFileLoader::loadFromFile(const QString &filepath, bool setMetaDa
 			throw REIXSXESRawFileException(-3, "Couldn't load corrupted file");
 
 		// read all the pixel values
-		image = new qint32[pixelsX*pixelsY];
+		imageArray = new qint32[pixelsX*pixelsY];
 		for(int i=0; i<pixelsX*pixelsY; i++)
-			ds >> *(image++);
+			ds >> *(imageArray++);
 
 		// read the magic string at the end of the file (makes sure we had all the data)
 		magicText = file.read(magicTextShouldBe.length());
@@ -67,6 +67,8 @@ bool REIXSXESRawFileLoader::loadFromFile(const QString &filepath, bool setMetaDa
 	catch(REIXSXESRawFileException e) {
 		AMErrorMon::report(AMErrorReport(scan, AMErrorReport::Alert, e.first, QString("REIXS XES Raw File Loader: %1\n\nFile: '%2'").arg(e.second).arg(filepath)));
 		file.close();
+		if(imageArray)
+			delete [] imageArray;
 		return false;
 	}
 
@@ -83,8 +85,10 @@ bool REIXSXESRawFileLoader::loadFromFile(const QString &filepath, bool setMetaDa
 													  "counts",
 													  detectorAxes));
 
-	scan->rawData()->setValue(AMnDIndex(), 0, image, pixelsX*pixelsY);
-	delete [] image;
+	if(!scan->rawData()->setValue(AMnDIndex(), 0, imageArray, pixelsX*pixelsY))
+		AMErrorMon::report(AMErrorReport(scan, AMErrorReport::Alert, -39, "Could not set detector image value. Please report this bug to the acquaman developers."));
+
+	// delete [] imageArray;
 
 
 	if(setRawDataSources) {
