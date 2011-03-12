@@ -24,7 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QtGui>
 #include "ui_SGMXASScanConfigurationViewer.h"
 #include "AMControlSetView.h"
-#include "AMDetectorView.h"
+#include "AMDetectorSetView.h"
 #include "AMXASRegionsView.h"
 #include "AMRegionsLineView.h"
 #include <QPushButton>
@@ -75,6 +75,7 @@ protected:
 	AMControlSetView *trackingView_;
 	AMDetectorInfoSetView *detectorView_;
 	AMOldDetectorInfoSet *cfgDetectorInfoSet_;
+	AMDetectorSetView *xasDetectorsView_;
 
 	QLabel *warningsLabel_;
 	QVBoxLayout vl_;

@@ -86,6 +86,8 @@ bool SGMAppController::startup() {
 		sgmSidebar_ = new SGMSidebar();
 		mw_->addRightWidget(sgmSidebar_);
 
+		mw_->move(0, 0);
+
 		return true;
 	}
 	else

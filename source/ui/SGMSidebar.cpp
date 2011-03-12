@@ -89,9 +89,6 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	beamlineWarningsLabel_ = new QLabel(SGMBeamline::sgm()->beamlineWarnings());
 	connect(SGMBeamline::sgm(), SIGNAL(beamlineWarningsChanged(QString)), beamlineWarningsLabel_, SLOT(setText(QString)));
 
-	xasSetView_ = new AMDetectorSetView(SGMBeamline::sgm()->XASDetectorsNew(), true);
-	connect(xasSetView_, SIGNAL(configValuesChanged()), this, SLOT(testDSConfigure()));
-
 	gl_->addWidget(readyLabel_,		0, 0, 1, 6, 0);
 	gl_->addWidget(beamOnBALButton_,	1, 0, 1, 2, 0);
 	gl_->addWidget(beamOffCButton_,		1, 2, 1, 2, 0);
@@ -106,7 +103,6 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	gl_->addWidget(entranceSlitNC_,		6, 0, 1, 3, 0);
 	gl_->addWidget(exitSlitNC_,		6, 3, 1, 3, 0);
 	gl_->addWidget(beamlineWarningsLabel_,	8, 0, 1, 6, 0);
-	gl_->addWidget(xasSetView_,	9, 0, 3, 6, 0);
 
 	gl_->setRowStretch(7, 10);
 
@@ -151,11 +147,4 @@ void SGMSidebar::onStopMotorsButtonClicked(){
 
 void SGMSidebar::onActionsListSucceeded(){
 	qDebug() << "Actions List SUCCEEDED";
-}
-
-void SGMSidebar::testDSConfigure(){
-	/*
-	qDebug() << "Sidebar hears that the desired configuration changed";
-	qDebug() << *xasSetView_;
-	*/
 }

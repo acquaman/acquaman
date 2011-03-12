@@ -29,7 +29,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMControlEditor.h"
 #include "beamline/SGM/SGMBeamline.h"
 #include "beamline/AMBeamlineParallelActionsList.h"
-#include "ui/AMDetectorSetView.h"
 
 class SGMSidebar : public QWidget
 {
@@ -50,8 +49,6 @@ protected slots:
 	void onCloseVacuumButtonClicked();
 	void onStopMotorsButtonClicked();
 	void onActionsListSucceeded();
-
-	void testDSConfigure();
 
 protected:
 	QGroupBox *mainBox_;
@@ -75,7 +72,6 @@ protected:
 	AMControlEditor *entranceSlitNC_;
 	AMControlEditor *exitSlitNC_;
 	QLabel *beamlineWarningsLabel_;
-	AMDetectorSetView *xasSetView_;
 
 	AMBeamlineParallelActionsList *al;
 //	AMControlEdit *moveStatusLabel_;
