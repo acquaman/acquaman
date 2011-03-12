@@ -9,18 +9,24 @@ class MCPDetector : public MCPDetectorInfo, public AMDetector
 {
 	Q_OBJECT
 public:
-	MCPDetector(const QString &name, AMControlSet *controls, QObject *parent = 0);
-	MCPDetector(const QString& name, AMControl *reading, AMControl *hvSetpoint, AMControl *hvFbk, QObject *parent = 0);
+	MCPDetector(const QString &name, AMControlSet *readingsControls, AMControlSet *settingsControls, QObject *parent = 0);
+	MCPDetector(const QString& name, AMControl *reading, AMControl *hv, QObject *parent = 0);
 	~MCPDetector();
 
 	const QMetaObject* getMetaObject();
-	AMDetectorInfo toInfo();
+
+	/// NEEDS TO RETURN A NEW INSTANCE, CALLER IS RESPONSIBLE FOR MEMORY.
+	AMDetectorInfo* toInfo() const;
+	MCPDetectorInfo toMCPInfo() const;
+
+	bool isPoweredOn();
 
 	AMControl* readingCtrl() const;
-	AMControl* hvSetpointCtrl() const;
-	AMControl* hvFbkCtrl() const;
+	AMControl* hvCtrl() const;
 
-	bool setFromInfo(const AMDetectorInfo &info);
+	//bool setFromInfo(const AMDetectorInfo &info);
+	bool setFromInfo(const AMDetectorInfo *info);
+	bool setFromInfo(const MCPDetectorInfo &info);
 
 	bool settingsMatchFbk(MCPDetectorInfo* settings);
 
@@ -30,21 +36,24 @@ public slots:
 	void setDescription(const QString &description);
 	virtual bool setControls(MCPDetectorInfo *mcpSettings);
 
+signals:
+	void poweredOnChanged(bool poweredOn);
+
 protected slots:
 	void onControlsConnected(bool connected);
-	void onControlValuesChanged();
+	void onReadingsControlValuesChanged();
+	void onSettingsControlValuesChanged();
 
 protected:
-	void initializeFromControlSet(AMControlSet *controls);
+	void initializeFromControlSet(AMControlSet *readingsControls, AMControlSet *settingsControls);
 
 protected:
-	AMControlSet *controls_;
-	bool ownsControlSet_;
-	/*
-	AMControl *reading_;
-	AMControl *hvSetpoint_;
-	AMControl *hvFbk_;
-	*/
+	AMControlSet *readingsControls_;
+	AMControlSet *settingsControls_;
+	bool ownsControlSets_;
+
+private:
+	bool poweredOn_;
 };
 
 

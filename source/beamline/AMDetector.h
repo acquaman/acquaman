@@ -38,7 +38,8 @@ public:
 protected slots:
 	void emitConnected(bool isConnected);
 	void emitInfoChanged();
-	void emitValuesChanged();
+	void emitReadingsChanged();
+	void emitSettingsChanged();
 	void emitDeleted();
 
 protected:
@@ -51,7 +52,8 @@ signals:
 	void connected(bool isConnected);
 	/// Indicates that the meta-information for this detector (currently just description()) has changed.
 	void infoChanged();
-	void valuesChanged();
+	void readingsChanged();
+	void settingsChanged();
 	/// Emitted before the data source is deleted. \c deletedSource is a pointer to the deleted source. Observers can use this to detect when AMDataSource objects no longer exist.
 	/*! (In a direct signal-slot connection, the \c deletedSource will still exist, inside ~AMDataSource(), when this is called. In a queued signal-slot connection, you should assume that \c deletedSource is already deleted. */
 	void deleted(void* deletedSource);
@@ -66,13 +68,13 @@ public:
 
 	AMDetectorSignalSource* signalSource() const;
 
-	bool isConnected();
+	bool isConnected() const;
 
 	/// AMDetector is not a QObject, but it's children should be. To allow its for generalized GUI creation, children that are QObjects MUST implement this (likely just child->metaObject() )
 	virtual const QMetaObject* getMetaObject();
 
-	/// AMDetector sub classes need to reimplement this to return their own detectorInfo class
-	virtual AMDetectorInfo toInfo() = 0;
+	/// AMDetector sub classes need to reimplement this to return their own detectorInfo class. NEEDS TO RETURN A NEW INSTANCE, CALLER IS RESPONSIBLE FOR MEMORY.
+	virtual AMDetectorInfo* toInfo() const = 0;
 
 	/// the identifying name() of a detector can sometimes be used to select one from a set of detector. Therefore, it's not really recommended to change the name after a detector is created.
 	QString detectorName() const;
@@ -81,7 +83,8 @@ public:
 	/// Descriptions can be changed at will, and the detector will emit infoChanged() when this happens.
 	virtual void setDescription(const QString& description) = 0;
 
-	virtual bool setFromInfo(const AMDetectorInfo& info) = 0;
+	//virtual bool setFromInfo(const AMDetectorInfo& info) = 0;
+	virtual bool setFromInfo(const AMDetectorInfo *info) = 0;
 
 protected:
 	void setConnected(bool isConnected);
@@ -89,7 +92,8 @@ protected:
 	void emitConnected(bool isConnected);
 	/// This is emitted when the meta-info changes. (Right now, this only includes a detector's description() )
 	void emitInfoChanged();
-	void emitValuesChanged();
+	void emitReadingsChanged();
+	void emitSettingsChanged();
 
 	/// identifying name for this detector
 	QString name_;

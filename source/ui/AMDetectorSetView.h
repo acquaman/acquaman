@@ -14,31 +14,49 @@ public:
 	  */
 	explicit AMDetectorSetView(AMDetectorSet *viewSet, bool configureOnly = false, QWidget *parent = 0);
 
+	int count() const{
+		return viewSet_->count();
+	}
+
+	AMDetectorSet* detectorSet(){
+		return viewSet_;
+	}
+
 	AMDetectorView* boxByName(const QString &name){
 		return detectorBoxes_.at(viewSet_->indexOfKey(name));
 	}
 
-	AMDetectorView* boxAt(int row){
+	AMDetectorView const * const boxAt(int row) const{
 		return detectorBoxes_.at(row);
 	}
 
-	/// Returns the current values of the control set
+	AMDetectorView* detailByName(const QString &name){
+		return detectorDetails_.at(viewSet_->indexOf(name));
+	}
+
+	AMDetectorView const * const detailAt(int row) const{
+		return detectorDetails_.at(row);
+	}
+
+	/// Returns the current values of the detector set
 	AMDetectorInfoSet currentValues();
 	/// Returns the desired values if the view is used for configuration only (returns the current values if the view is not for configuration only)
 	AMDetectorInfoSet configValues();
 
+	friend QDebug operator<<(QDebug d, const AMDetectorSetView& dsv);
+
 signals:
 	/// Emitted when any control value in the control set changes (but ONLY when the view is not configure only)
-	void currentValuesChanged(AMDetectorInfoSet);
+	void currentValuesChanged();
 	/// Emitted when any configuration value changes (but ONLY when the view is configure only)
-	void configValuesChanged(AMDetectorInfoSet);
+	void configValuesChanged();
 
 public slots:
 
 protected slots:
 	void onDetectorAddedToSet(int index);
-	void onControlSetValuesChanged(AMDetectorInfoSet infoList);
-	void onConfigurationValueChanged();
+	void onDetectorSetSettingsChanged();
+	void onDetectorSetConfigurationRequested();
 
 protected:
 	/// Pointer to the AMControlSet which is the subject of this view.

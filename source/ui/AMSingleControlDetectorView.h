@@ -17,7 +17,7 @@ protected:
 	AMSingleControlDetector *detector_;
 
 	/// We are trusting createDetectorView to pass in the correct type of detector, sub classes should trust AMDetector is actually their type
-	bool setDetector(AMDetector *detector);
+	bool setDetector(AMDetector *detector, bool configureOnly = false);
 };
 
 #endif // AMSINGLECONTROLDETECTORVIEW_H

@@ -49,8 +49,9 @@ signals:
 	void connected(bool groupConnected);
 	void detectorConnectedChanged(bool isConnected, AMDetector *detector);
 
-	/// This signal is emitted whenever one of the controls has a new value
-	void detectorSetValuesChanged(AMDetectorInfoSet);
+	void detectorSetReadingsChanged();
+	/// This signal is emitted whenever one of the controls has new settings
+	void detectorSetSettingsChanged();
 
 public slots:
 	/// Sets the name of the control set.
@@ -61,9 +62,6 @@ protected slots:
 	/// Handles when any of the detectors become connected or disconnected
 	void onConnected(bool detectorConnected);
 	void onConnectionsTimedOut();
-
-	/// Handles when any of the detectors has a new value
-	void onDetectorValueChanged();
 
 protected:
 	/// Holds the name of the control set. Should be descriptive of the logical relationship.

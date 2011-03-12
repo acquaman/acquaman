@@ -36,43 +36,49 @@ class AMDetectorView : public QWidget
 Q_OBJECT
 
 public:
-	Q_INVOKABLE explicit AMDetectorView(QWidget *parent = 0);
+	Q_INVOKABLE explicit AMDetectorView(bool configureOnly = false, QWidget *parent = 0);
 
 	virtual AMDetector* detector();
 
-protected:
-	/// We are trusting createDetectorView to pass in the correct type of detector, sub classes should trust AMDetector is actually their type
-	virtual bool setDetector(AMDetector *detector);
-	friend AMDetectorView* AMDetectorViewSupport::createDetectorView(AMDetector *detector);
-	friend AMDetectorView* AMDetectorViewSupport::createBriefDetectorView(AMDetector *detector);
-	friend AMDetectorView* AMDetectorViewSupport::createDetailedDetectorView(AMDetector *detector);
-
-signals:
+	virtual AMDetectorInfo* configurationSettings() const;
 
 public slots:
 
+signals:
+	void settingsChangeRequested();
+	void settingsConfigureRequested();
+
+protected:
+	/// We are trusting createDetectorView to pass in the correct type of detector, sub classes should trust AMDetector is actually their type
+	virtual bool setDetector(AMDetector *detector, bool configureOnly = false);
+	friend AMDetectorView* AMDetectorViewSupport::createDetectorView(AMDetector *detector, bool configureOnly);
+	friend AMDetectorView* AMDetectorViewSupport::createBriefDetectorView(AMDetector *detector, bool configureOnly);
+	friend AMDetectorView* AMDetectorViewSupport::createDetailedDetectorView(AMDetector *detector, bool configureOnly);
+
+protected:
+	bool configureOnly_;
 };
 
 class AMBriefDetectorView : public AMDetectorView
 {
 Q_OBJECT
 public:
-	Q_INVOKABLE explicit AMBriefDetectorView(QWidget *parent = 0);
+	Q_INVOKABLE explicit AMBriefDetectorView(bool configureOnly = false, QWidget *parent = 0);
 
 protected:
 	/// We are trusting createDetectorView to pass in the correct type of detector, sub classes should trust AMDetector is actually their type
-	virtual bool setDetector(AMDetector *detector);
+	virtual bool setDetector(AMDetector *detector, bool configureOnly = false);
 };
 
 class AMDetailedDetectorView : public AMDetectorView
 {
 Q_OBJECT
 public:
-	Q_INVOKABLE explicit AMDetailedDetectorView(QWidget *parent = 0);
+	Q_INVOKABLE explicit AMDetailedDetectorView(bool configureOnly = false, QWidget *parent = 0);
 
 protected:
 	/// We are trusting createDetectorView to pass in the correct type of detector, sub classes should trust AMDetector is actually their type
-	virtual bool setDetector(AMDetector *detector);
+	virtual bool setDetector(AMDetector *detector, bool configureOnly = false);
 };
 
 class PGTOldDetectorView : public PGTOldDetectorInfoView

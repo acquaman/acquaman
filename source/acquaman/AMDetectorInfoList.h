@@ -8,7 +8,7 @@
 
 #define AMDETECTORSET_CONTROL_TIMEOUT_MS 5000
 
-class AMDetectorInfoSet : public AMDbObject, public AMOrderedList<AMDetectorInfo>
+class AMDetectorInfoSet : public AMDbObject, public AMOrderedList<AMDetectorInfo*>
 {
 Q_OBJECT
 	Q_PROPERTY(QString description READ description WRITE setDescription)

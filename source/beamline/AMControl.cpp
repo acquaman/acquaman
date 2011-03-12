@@ -500,3 +500,25 @@ void AMPVwStatusControl::onIsMovingChanged(bool isMoving) {
 	}
 
 }
+
+
+AMReadOnlyWaveformPVControl::AMReadOnlyWaveformPVControl(const QString &name, const QString &readPVname, int lowIndex, int highIndex, QObject *parent) :
+		AMReadOnlyPVControl(name, readPVname, parent)
+{
+	disconnect(readPV_, SIGNAL(valueChanged(double)), this, SIGNAL(valueChanged(double)));
+	setBinParameters(lowIndex, highIndex);
+	connect(readPV_, SIGNAL(valueChanged()), this, SLOT(onReadPVValueChanged()));
+}
+
+double AMReadOnlyWaveformPVControl::value() const{
+	return readPV_->binIntegerValues(lowIndex_, highIndex_);
+}
+
+void AMReadOnlyWaveformPVControl::setBinParameters(int lowIndex, int highIndex){
+	lowIndex_ = lowIndex;
+	highIndex_ = highIndex;
+}
+
+void AMReadOnlyWaveformPVControl::onReadPVValueChanged(){
+	emit valueChanged(value());
+}

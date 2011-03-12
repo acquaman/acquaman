@@ -200,6 +200,9 @@ AMControlEditor::AMControlEditor(AMControl* control, AMControl* statusTagControl
 	configureOnly_ = configureOnly;
 	connectedOnce_ = false;
 	newValueOnce_ = false;
+	format_ = 'g';
+	precision_ = 3;
+
 	statusTagControl_ = statusTagControl;
 	if(!control_->canMove())
 		readOnly_ = true;
@@ -297,6 +300,17 @@ AMControl* AMControlEditor::control() const{
 	return control_;
 }
 
+bool AMControlEditor::setControlFormat(const QChar& format, int precision){
+	if(format == 'g' || format == 'G' || format == 'e' || format == 'E' || format == 'f'){
+		format_ = format;
+		precision_ = precision;
+		if(control_->isConnected())
+			onValueChanged(control_->value());
+		return true;
+	}
+	return false;
+}
+
 void AMControlEditor::setReadOnly(bool readOnly){
 	readOnly_ = readOnly;
 	if(!control_->canMove())
@@ -322,7 +336,7 @@ void AMControlEditor::onValueChanged(double newVal) {
 		unitsLabel_->setText("");
 	}
 	else
-		valueLabel_->setText(QString("%1").arg(newVal, 0, 'g', 3));
+		valueLabel_->setText(QString("%1").arg(newVal, 0, format_.toAscii(), precision_));
 }
 
 void AMControlEditor::onUnitsChanged(const QString& units) {
@@ -470,9 +484,9 @@ AMControlEditorStyledInputDialog::AMControlEditorStyledInputDialog( QStringList 
 
 double AMControlEditorStyledInputDialog::setpoint() const{
 	if(!isEnum_)
-		spinBox_->value();
+		return spinBox_->value();
 	else
-		comboBox_->currentIndex();
+		return comboBox_->currentIndex();
 }
 
 void AMControlEditorStyledInputDialog::setDoubleValue(double d) {

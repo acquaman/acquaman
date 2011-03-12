@@ -33,6 +33,19 @@ AMDetectorInfo::AMDetectorInfo(const AMDetectorInfo &original) :
 	retreiveAndSetProperties(original);
 }
 
+AMDetectorInfo* AMDetectorInfo::toNewInfo() const{
+	return new AMDetectorInfo(*this);
+}
+
+QDebug operator<<(QDebug d, const AMDetectorInfo& di){
+	return di.qDebugPrint(d);
+}
+
+QDebug AMDetectorInfo::qDebugPrint(QDebug &d) const{
+	d << "AMDetectorInfo";
+	return d;
+}
+
 void AMDetectorInfo::retreiveAndSetProperties(const AMDetectorInfo &original){
 	const QMetaObject *metaobject = original.metaObject();
 	int count = metaobject->propertyCount();

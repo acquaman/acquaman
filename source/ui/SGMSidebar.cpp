@@ -20,8 +20,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SGMSidebar.h"
 
-#include "ui/AMDetectorSetView.h"
-
 SGMSidebar::SGMSidebar(QWidget *parent) :
     QWidget(parent)
 {
@@ -61,6 +59,7 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	connect(visibleLightButton_, SIGNAL(clicked()), this, SLOT(onVisibleLightClicked()));
 	connect(SGMBeamline::sgm(), SIGNAL(visibleLightStatusChanged(QString)), this, SLOT(onVisibleLightStatusChanged(QString)));
 	energyNC_ = new AMControlEditor(SGMBeamline::sgm()->energy(), SGMBeamline::sgm()->energyMovingStatus());
+	energyNC_->setControlFormat('f', 2);
 	energyNC_->overrideTitle("Energy");
 	energyNC_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 	trackUndulatorCButton_ = new AMControlButton(SGMBeamline::sgm()->undulatorTracking());
@@ -79,14 +78,19 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	gratingNC_->overrideTitle("Grating");
 	gratingNC_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 	entranceSlitNC_ = new AMControlEditor(SGMBeamline::sgm()->entranceSlitGap());
+	entranceSlitNC_->setControlFormat('f', 1);
 	entranceSlitNC_->overrideTitle("Entrance Slit");
 	entranceSlitNC_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 	exitSlitNC_ = new AMControlEditor(SGMBeamline::sgm()->exitSlitGap());
+	exitSlitNC_->setControlFormat('f', 1);
 	exitSlitNC_->overrideTitle("Exit Slit");
 	exitSlitNC_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 
 	beamlineWarningsLabel_ = new QLabel(SGMBeamline::sgm()->beamlineWarnings());
 	connect(SGMBeamline::sgm(), SIGNAL(beamlineWarningsChanged(QString)), beamlineWarningsLabel_, SLOT(setText(QString)));
+
+	xasSetView_ = new AMDetectorSetView(SGMBeamline::sgm()->XASDetectorsNew(), true);
+	connect(xasSetView_, SIGNAL(configValuesChanged()), this, SLOT(testDSConfigure()));
 
 	gl_->addWidget(readyLabel_,		0, 0, 1, 6, 0);
 	gl_->addWidget(beamOnBALButton_,	1, 0, 1, 2, 0);
@@ -102,7 +106,7 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	gl_->addWidget(entranceSlitNC_,		6, 0, 1, 3, 0);
 	gl_->addWidget(exitSlitNC_,		6, 3, 1, 3, 0);
 	gl_->addWidget(beamlineWarningsLabel_,	8, 0, 1, 6, 0);
-	gl_->addWidget(new AMDetectorSetView(SGMBeamline::sgm()->XASDetectorsNew(), false),	9, 0, 3, 6, 0);
+	gl_->addWidget(xasSetView_,	9, 0, 3, 6, 0);
 
 	gl_->setRowStretch(7, 10);
 
@@ -147,4 +151,11 @@ void SGMSidebar::onStopMotorsButtonClicked(){
 
 void SGMSidebar::onActionsListSucceeded(){
 	qDebug() << "Actions List SUCCEEDED";
+}
+
+void SGMSidebar::testDSConfigure(){
+	/*
+	qDebug() << "Sidebar hears that the desired configuration changed";
+	qDebug() << *xasSetView_;
+	*/
 }

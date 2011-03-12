@@ -50,12 +50,14 @@ void SGMBeamline::usingSGMBeamline(){
 	amNames2pvNames_.set("tey", "BL1611-ID-1:mcs00:fbk");
 	//amNames2pvNames_.set("tfy", "A1611-4-16:A:fbk");
 	amNames2pvNames_.set("tfy", "BL1611-ID-1:mcs02:fbk");
-	amNames2pvNames_.set("tfyHVSetpoint", "PS1611401:109:v0set");
-	amNames2pvNames_.set("tfyHVFbk", "PS1611401:109:vmon");
+	amNames2pvNames_.set("tfyHV", "PS1611401:109");
+	//amNames2pvNames_.set("tfyHVSetpoint", "PS1611401:109:v0set");
+	//amNames2pvNames_.set("tfyHVFbk", "PS1611401:109:vmon");
 	amNames2pvNames_.set("pgt", "MCA1611-01:GetChannels");
-	amNames2pvNames_.set("pgtHVSetpoint", "MCA1611-01:Bias:Volt");
-	amNames2pvNames_.set("pgtHVFbk", "MCA1611-01:Bias:VoltActual:fbk");
-	amNames2pvNames_.set("pgtHVRamping", "MCA1611-01:Bias:Volt:fbk");
+	amNames2pvNames_.set("pgtHV", "MCA1611-01:Bias:Volt");
+	//amNames2pvNames_.set("pgtHVSetpoint", "MCA1611-01:Bias:Volt");
+	//amNames2pvNames_.set("pgtHVFbk", "MCA1611-01:Bias:VoltActual:fbk");
+	//amNames2pvNames_.set("pgtHVRamping", "MCA1611-01:Bias:Volt:fbk");
 	amNames2pvNames_.set("pgtIntegrationTime", "MCA1611-01:Preset:Live");
 	amNames2pvNames_.set("pgtIntegrationMode", "MCA1611-01:Preset:Live");
 	//amNames2pvNames_.set("I0", "A1611-4-14:A:fbk");
@@ -196,6 +198,10 @@ void SGMBeamline::usingSGMBeamline(){
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	tfy_ = new AMReadOnlyPVControl("tfy", sgmPVName, this);
+
+	sgmPVName = amNames2pvNames_.valueF("tfyHV");
+	tfyHV_ = new AMPVControl("tfyHV", sgmPVName+":vmon", sgmPVName+":v0set", QString(), this, 0.5);
+	/*
 	sgmPVName = amNames2pvNames_.valueF("tfyHVSetpoint");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
@@ -204,11 +210,16 @@ void SGMBeamline::usingSGMBeamline(){
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	tfyHVFbk_ = new AMPVControl("tfyHVFbk", sgmPVName, sgmPVName, "", this, 10.0);
+	*/
 
 	sgmPVName = amNames2pvNames_.valueF("pgt");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	pgt_ = new AMReadOnlyPVControl("pgt", sgmPVName, this);
+
+	sgmPVName = amNames2pvNames_.valueF("pgtHV");
+	pgtHV_ = new AMPVControl("pgtHV", sgmPVName+"Actual:fbk", sgmPVName, QString(), this, 0.5);
+	/*
 	sgmPVName = amNames2pvNames_.valueF("pgtHVSetpoint");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
@@ -218,6 +229,8 @@ void SGMBeamline::usingSGMBeamline(){
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	pgtHVFbk_ = new AMReadOnlyPVControl("pgtHVFbk", sgmPVName, this);
+	*/
+
 	sgmPVName = amNames2pvNames_.valueF("pgtIntegrationTime");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
@@ -375,12 +388,14 @@ void SGMBeamline::usingFakeBeamline(){
 	amNames2pvNames_.set("exitSlitTracking", "reixsHost:Energy:exitSlit:tracking");
 	amNames2pvNames_.set("tey", "reixsHost:tey");
 	amNames2pvNames_.set("tfy", "reixsHost:tfy");
-	amNames2pvNames_.set("tfyHVSetpoint", "reixsHost:tfy:hv:sp");
-	amNames2pvNames_.set("tfyHVFbk", "reixsHost:tfy:hv:fbk");
+	amNames2pvNames_.set("tfyHV", "reixsHost:tfy:hv");
+	//amNames2pvNames_.set("tfyHVSetpoint", "reixsHost:tfy:hv:sp");
+	//amNames2pvNames_.set("tfyHVFbk", "reixsHost:tfy:hv:fbk");
 	amNames2pvNames_.set("pgt", "reixsHost:sdd:spectrum");
-	amNames2pvNames_.set("pgtHVSetpoint", "reixsHost:sdd:hv:sp");
-	amNames2pvNames_.set("pgtHVFbk", "reixsHost:sdd:hv:fbk");
-	amNames2pvNames_.set("pgtHVRamping", "reixsHost:sdd:hv:ramping");
+	amNames2pvNames_.set("pgtHV", "reixsHost:sdd:hv");
+	//amNames2pvNames_.set("pgtHVSetpoint", "reixsHost:sdd:hv:sp");
+	//amNames2pvNames_.set("pgtHVFbk", "reixsHost:sdd:hv:fbk");
+	//amNames2pvNames_.set("pgtHVRamping", "reixsHost:sdd:hv:ramping");
 	amNames2pvNames_.set("pgtIntegrationTime", "reixsHost:sdd:integration:time");
 	amNames2pvNames_.set("pgtIntegrationMode", "reixsHost:sdd:integration:mode");
 	amNames2pvNames_.set("I0", "reixsHost:I0");
@@ -465,17 +480,26 @@ void SGMBeamline::usingFakeBeamline(){
 
 	sgmPVName = amNames2pvNames_.valueF("tfy");
 	tfy_ = new AMReadOnlyPVControl("tfy", sgmPVName, this);
+	sgmPVName = amNames2pvNames_.valueF("tfyHV");
+	tfyHV_ = new AMPVControl("tfyHV", sgmPVName+":fbk", sgmPVName+":sp", QString(), this, 0.5);
+	/*
 	sgmPVName = amNames2pvNames_.valueF("tfyHVSetpoint");
 	tfyHVSetpoint_ = new AMPVControl("tfyHVSetpoint", amNames2pvNames_.valueF("tfyHVFbk"), amNames2pvNames_.valueF("tfyHVSetpoint"), "", this, 10.0);
 	sgmPVName = amNames2pvNames_.valueF("tfyHVFbk");
 	tfyHVFbk_ = new AMPVControl("tfyHVFbk", sgmPVName, sgmPVName, "", this, 10.0);
+	*/
 
 	sgmPVName = amNames2pvNames_.valueF("pgt");
-	pgt_ = new AMReadOnlyPVControl("pgt", sgmPVName, this);
+//	pgt_ = new AMReadOnlyPVControl("pgt", sgmPVName, this);
+	pgt_ = new AMReadOnlyWaveformPVControl("pgt", sgmPVName, 0, 1024, this);
+	sgmPVName = amNames2pvNames_.valueF("pgtHV");
+	pgtHV_ = new AMPVControl("pgtHV", sgmPVName+":fbk", sgmPVName+":sp", QString(), this, 0.5);
+	/*
 	sgmPVName = amNames2pvNames_.valueF("pgtHVSetpoint");
 	pgtHVSetpoint_ = new AMPVControl("pgtHVSetpoint", amNames2pvNames_.valueF("pgtHVSetpoint"), amNames2pvNames_.valueF("pgtHVSetpoint"), "", this, 0.5);
 	sgmPVName = amNames2pvNames_.valueF("pgtHVFbk");
 	pgtHVFbk_ = new AMReadOnlyPVControl("pgtHVFbk", sgmPVName, this);
+	*/
 	sgmPVName = amNames2pvNames_.valueF("pgtIntegrationTime");
 	pgtIntegrationTime_ = new AMPVControl("pgtIntegrationTime", sgmPVName, sgmPVName, "", this, 0.1);
 	sgmPVName = amNames2pvNames_.valueF("pgtIntegrationMode");
@@ -576,11 +600,13 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	addChildControl(exitSlitTracking_);
 	addChildControl(tey_);
 	addChildControl(tfy_);
-	addChildControl(tfyHVSetpoint_);
-	addChildControl(tfyHVFbk_);
+	addChildControl(tfyHV_);
+	//addChildControl(tfyHVSetpoint_);
+	//addChildControl(tfyHVFbk_);
 	addChildControl(pgt_);
-	addChildControl(pgtHVSetpoint_);
-	addChildControl(pgtHVFbk_);
+	addChildControl(pgtHV_);
+	//addChildControl(pgtHVSetpoint_);
+	//addChildControl(pgtHVFbk_);
 	addChildControl(pgtIntegrationTime_);
 	addChildControl(pgtIntegrationMode_);
 	addChildControl(i0_);
@@ -653,8 +679,7 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	tfyControlSet_ = new AMControlSet(this);
 	tfyControlSet_->setName("TFY Controls");
 	tfyControlSet_->addControl(tfy_);
-	tfyControlSet_->addControl(tfyHVSetpoint_);
-	tfyControlSet_->addControl(tfyHVFbk_);
+	tfyControlSet_->addControl(tfyHV_);
 	tfyDetector_ = NULL;
 	tfyDetectorNew_ = NULL;
 	unconnectedSets_.append(tfyControlSet_);
@@ -663,8 +688,7 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	pgtControlSet_ = new AMControlSet(this);
 	pgtControlSet_->setName("SDD Controls");
 	pgtControlSet_->addControl(pgt_);
-	pgtControlSet_->addControl(pgtHVSetpoint_);
-	pgtControlSet_->addControl(pgtHVFbk_);
+	pgtControlSet_->addControl(pgtHV_);
 	pgtControlSet_->addControl(pgtIntegrationTime_);
 	pgtControlSet_->addControl(pgtIntegrationMode_);
 	pgtDetector_ = NULL;
@@ -758,6 +782,8 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	XASDetectors_->setName("XAS Detectors");
 	XASDetectorsNew_ = new AMDetectorSet(this);
 	XASDetectorsNew_->setName("XAS Detectors");
+	connect(XASDetectorsNew_, SIGNAL(detectorSetReadingsChanged()), this, SLOT(testDetectorSetReadingsChanged()));
+	connect(XASDetectorsNew_, SIGNAL(detectorSetSettingsChanged()), this, SLOT(testDetectorSetSettingsChanged()));
 
 	currentSamplePlate_ = new AMSamplePlate(this);
 
@@ -1061,7 +1087,7 @@ void SGMBeamline::onControlSetConnected(bool csConnected){
 			XASDetectorsNew_->addDetector(teyDetectorNew_);
 		}
 		else if(!tfyDetector_ && ctrlSet->name() == "TFY Controls"){
-			tfyDetector_ = new MCPDetector(tfy_->name(), tfy_, tfyHVSetpoint_, tfyHVFbk_, this);
+			tfyDetector_ = new MCPDetector(tfy_->name(), tfy_, tfyHV_, this);
 			tfyDetector_->setDescription("TFY");
 			//tfyDetector_->setDetectorDescription("TFY");
 			tfyDetectorNew_ = (MCPDetector*)tfyDetector_;
@@ -1071,7 +1097,7 @@ void SGMBeamline::onControlSetConnected(bool csConnected){
 			XASDetectorsNew_->addDetector(tfyDetectorNew_);
 		}
 		else if(!pgtDetector_ && ctrlSet->name() == "SDD Controls"){
-			pgtDetector_ = new PGTDetector(pgt_->name(), pgt_, pgtHVSetpoint_, pgtHVFbk_, pgtIntegrationTime_, pgtIntegrationMode_, this);
+			pgtDetector_ = new PGTDetector(pgt_->name(), pgt_, pgtHV_, pgtIntegrationTime_, pgtIntegrationMode_, this);
 			pgtDetector_->setDescription("SDD");
 			//pgtDetector_->setDetectorDescription("SDD");
 			pgtDetectorNew_ = (PGTDetector*)pgtDetector_;
@@ -1245,6 +1271,18 @@ void SGMBeamline::onVisibleLightChanged(double value){
 		emit visibleLightStatusChanged("Visible Light\n is moving to OFF");
 	else if( visibleLightStatus_->value() == 0)
 		emit visibleLightStatusChanged("Visible Light\n is OFF");
+}
+
+void SGMBeamline::testDetectorSetReadingsChanged(){
+	qDebug() << "Detector set sent readings update";
+}
+
+void SGMBeamline::testDetectorSetSettingsChanged(){
+	qDebug() << "Detector set sent settings update";
+	AMDetectorInfoSet settings = XASDetectorsNew_->toInfoSet();
+	for(int x = 0; x < settings.count(); x++){
+		qDebug() << settings.at(x)->description() << *(settings.at(x));
+	}
 }
 
 SGMBeamline* SGMBeamline::sgm() {

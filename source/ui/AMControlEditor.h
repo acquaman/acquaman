@@ -147,6 +147,8 @@ public:
 	double setpoint() const;
 	AMControl* control() const;
 
+	bool setControlFormat(const QChar& format, int precision);
+
 signals:
 	void moveRequested(double);
 	void setpointRequested(double);
@@ -183,6 +185,9 @@ protected:
 	bool configureOnly_;
 	bool connectedOnce_;
 	bool newValueOnce_;
+	QChar format_;
+	int precision_;
+
 	QLabel* valueLabel_;
 	QLabel* unitsLabel_;
 	QLabel* statusLabel_;

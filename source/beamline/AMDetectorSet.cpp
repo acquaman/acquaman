@@ -34,8 +34,8 @@ AMDetectorInfoSet AMDetectorSet::toInfoSet() const {
 
 	int numDetectors = count();
 	for(int i=0; i<numDetectors; i++) {
-		AMDetector *c = at(i);
-		rv.append( c->toInfo() );
+		AMDetector *d = at(i);
+		rv.append( d->toInfo() );
 	}
 
 	return rv;
@@ -63,7 +63,10 @@ bool AMDetectorSet::addDetector(AMDetector* newDetector) {
 
 	if( append(newDetector, newDetector->detectorName()) ) {
 		connect(newDetector->signalSource(), SIGNAL(connected(bool)), this, SLOT(onConnected(bool)));
-		connect(newDetector->signalSource(), SIGNAL(valuesChanged()), this, SLOT(onDetectorValueChanged()));
+		connect(newDetector->signalSource(), SIGNAL(readingsChanged()), this, SIGNAL(detectorSetReadingsChanged()));
+		connect(newDetector->signalSource(), SIGNAL(settingsChanged()), this, SIGNAL(detectorSetSettingsChanged()));
+		//connect(newDetector->signalSource(), SIGNAL(readingsChanged()), this, SLOT(onDetectorReadingsChanged()));
+		//connect(newDetector->signalSource(), SIGNAL(settingsChanged()), this, SLOT(onDetectorSettingsChanged()));
 		return true;
 	}
 	return false;
@@ -84,7 +87,7 @@ bool AMDetectorSet::validInfoSet(const AMDetectorInfoSet &info){
 	/// \todo alternate orderings or subsets of the entire list
 	AMDetector *tmpDtctr;
 	for(int x = 0; x < info.count(); x++){
-		tmpDtctr = detectorNamed(info.at(x).name());
+		tmpDtctr = detectorNamed(info.at(x)->name());
 		if(!tmpDtctr)
 			return false;
 	}
@@ -94,7 +97,7 @@ bool AMDetectorSet::validInfoSet(const AMDetectorInfoSet &info){
 void AMDetectorSet::setFromInfoSet(const AMDetectorInfoSet& info){
 	AMDetector *tmpDtctr;
 	for(int x = 0; x < info.count(); x++){
-		tmpDtctr = detectorNamed(info.at(x).name());
+		tmpDtctr = detectorNamed(info.at(x)->name());
 		if(tmpDtctr)
 			tmpDtctr->setFromInfo(info.at(x));
 		/// \todo error checking on else
@@ -121,8 +124,4 @@ void AMDetectorSet::onConnected(bool dtctrConnected){
 void AMDetectorSet::onConnectionsTimedOut(){
 	if(!wasConnected_)
 		emit connected(false);
-}
-
-void AMDetectorSet::onDetectorValueChanged(){
-	emit detectorSetValuesChanged(toInfoSet());
 }

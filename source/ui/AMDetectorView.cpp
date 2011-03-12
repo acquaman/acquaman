@@ -20,34 +20,39 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMDetectorView.h"
 
-AMDetectorView::AMDetectorView(QWidget *parent) :
+AMDetectorView::AMDetectorView(bool configureOnly, QWidget *parent) :
 	QWidget(parent)
 {
+	configureOnly_ = configureOnly;
 }
 
 AMDetector* AMDetectorView::detector(){
 	return 0;
 }
 
-bool AMDetectorView::setDetector(AMDetector *detector){
+AMDetectorInfo* AMDetectorView::configurationSettings() const{
+	return 0;
+}
+
+bool AMDetectorView::setDetector(AMDetector *detector, bool configureOnly){
 	return false;
 }
 
-AMBriefDetectorView::AMBriefDetectorView(QWidget *parent) :
-		AMDetectorView(parent)
+AMBriefDetectorView::AMBriefDetectorView(bool configureOnly, QWidget *parent) :
+		AMDetectorView(configureOnly, parent)
 {
 }
 
-bool AMBriefDetectorView::setDetector(AMDetector *detector){
+bool AMBriefDetectorView::setDetector(AMDetector *detector, bool configureOnly){
 	return false;
 }
 
-AMDetailedDetectorView::AMDetailedDetectorView(QWidget *parent) :
-		AMDetectorView(parent)
+AMDetailedDetectorView::AMDetailedDetectorView(bool configureOnly, QWidget *parent) :
+		AMDetectorView(configureOnly, parent)
 {
 }
 
-bool AMDetailedDetectorView::setDetector(AMDetector *detector){
+bool AMDetailedDetectorView::setDetector(AMDetector *detector, bool configureOnly){
 	return false;
 }
 
@@ -66,9 +71,11 @@ PGTOldDetectorView::PGTOldDetectorView(PGTDetector *detector, AMDetectorInfo *co
 	integrationModeBox_->clear();
 	integrationModeBox_->addItems(detector_->integrationModeCtrl()->enumNames());
 	integrationModeBox_->setCurrentIndex( (int)detector_->integrationModeCtrl()->value() );
-	tmpRange = detector_->hvSetpointCtrl()->range();
+	//tmpRange = detector_->hvSetpointCtrl()->range();
+	tmpRange = detector_->hvCtrl()->range();
 	hvSetpointBox_->setRange(tmpRange.first, tmpRange.second);
-	hvSetpointBox_->setValue(detector_->hvSetpointCtrl()->value());
+	//hvSetpointBox_->setValue(detector_->hvSetpointCtrl()->value());
+	hvSetpointBox_->setValue(detector_->hvCtrl()->value());
 	switchToEditBox_->setEnabled(true);
 	connect(switchToEditBox_, SIGNAL(clicked()), this, SLOT(setEditable()));
 }
@@ -107,12 +114,15 @@ void PGTOldDetectorView::setEditMode(bool editMode){
 			hvFbk_->setEnabled(false);
 			tmpRange = detector_->hvSetpointRange();
 			hvFbk_->setRange(tmpRange.first, tmpRange.second);
-			hvFbk_->setValue(detector_->hvFbkCtrl()->value());
-			connect(detector_->hvFbkCtrl(), SIGNAL(valueChanged(double)), hvFbk_, SLOT(setValue(double)));
+			//hvFbk_->setValue(detector_->hvFbkCtrl()->value());
+			hvFbk_->setValue(detector_->hvCtrl()->value());
+			//connect(detector_->hvFbkCtrl(), SIGNAL(valueChanged(double)), hvFbk_, SLOT(setValue(double)));
+			connect(detector_->hvCtrl(), SIGNAL(valueChanged(double)), hvFbk_, SLOT(setValue(double)));
 		}
 		connect(integrationTimeBox_, SIGNAL(valueChanged(double)), detector_->integrationTimeCtrl(), SLOT(move(double)));
 		connect(integrationModeBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onIntegrationModeChange(int)));
-		connect(hvSetpointBox_, SIGNAL(valueChanged(double)), detector_->hvSetpointCtrl(), SLOT(move(double)));
+		//connect(hvSetpointBox_, SIGNAL(valueChanged(double)), detector_->hvSetpointCtrl(), SLOT(move(double)));
+		connect(hvSetpointBox_, SIGNAL(valueChanged(double)), detector_->hvCtrl(), SLOT(move(double)));
 		tmpHB = (QHBoxLayout*)fl_->itemAt(0, QFormLayout::FieldRole);
 		tmpHB->addWidget(integrationTimeFbk_);
 		integrationTimeFbk_->show();
@@ -133,7 +143,8 @@ void PGTOldDetectorView::setEditMode(bool editMode){
 				integrationTimeBox_->setValue( ((PGTDetectorInfo*)writeDetectorInfo_)->integrationTime() );
 				((PGTDetectorInfo*)writeDetectorInfo_)->setIntegrationMode(detector_->integrationModeList().at(detector_->integrationModeCtrl()->value()));
 				integrationModeBox_->setCurrentIndex( ((PGTDetectorInfo*)writeDetectorInfo_)->integrationModeList().indexOf(((PGTDetectorInfo*)writeDetectorInfo_)->integrationMode()) );
-				((PGTDetectorInfo*)writeDetectorInfo_)->setHVSetpoint(detector_->hvSetpointCtrl()->value());
+				//((PGTDetectorInfo*)writeDetectorInfo_)->setHVSetpoint(detector_->hvSetpointCtrl()->value());
+				((PGTDetectorInfo*)writeDetectorInfo_)->setHVSetpoint(detector_->hvCtrl()->value());
 				hvSetpointBox_->setValue( ((PGTDetectorInfo*)writeDetectorInfo_)->hvSetpoint() );
 			}
 			else
@@ -143,7 +154,8 @@ void PGTOldDetectorView::setEditMode(bool editMode){
 	else{
 		disconnect(integrationTimeBox_, SIGNAL(valueChanged(double)), detector_->integrationTimeCtrl(), SLOT(move(double)));
 		disconnect(integrationModeBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onIntegrationModeChange(int)));
-		disconnect(hvSetpointBox_, SIGNAL(valueChanged(double)), detector_->hvSetpointCtrl(), SLOT(move(double)));
+		//disconnect(hvSetpointBox_, SIGNAL(valueChanged(double)), detector_->hvSetpointCtrl(), SLOT(move(double)));
+		disconnect(hvSetpointBox_, SIGNAL(valueChanged(double)), detector_->hvCtrl(), SLOT(move(double)));
 		switchToEditBox_->setText("Switch to Edit Mode");
 		tmpHB = (QHBoxLayout*)fl_->itemAt(0, QFormLayout::FieldRole);
 		tmpHB->removeWidget(integrationTimeFbk_);
@@ -169,9 +181,11 @@ MCPOldDetectorView::MCPOldDetectorView(MCPDetector *detector, AMDetectorInfo *co
 	editMode_ = editMode;
 	hvFbk_ = NULL;
 	QPair<double, double> tmpRange;
-	tmpRange = detector_->hvSetpointCtrl()->range();
+	//tmpRange = detector_->hvSetpointCtrl()->range();
+	tmpRange = detector_->hvCtrl()->range();
 	hvSetpointBox_->setRange(tmpRange.first, tmpRange.second);
-	hvSetpointBox_->setValue(detector_->hvSetpointCtrl()->value());
+	//hvSetpointBox_->setValue(detector_->hvSetpointCtrl()->value());
+	hvSetpointBox_->setValue(detector_->hvCtrl()->value());
 	switchToEditBox_->setEnabled(true);
 	connect(switchToEditBox_, SIGNAL(clicked()), this, SLOT(setEditable()));
 }
@@ -187,12 +201,15 @@ void MCPOldDetectorView::setEditMode(bool editMode){
 			hvFbk_->setEnabled(false);
 			tmpRange = detector_->hvSetpointRange();
 			hvFbk_->setRange(tmpRange.first, tmpRange.second);
-			hvFbk_->setValue(detector_->hvFbkCtrl()->value());
-			connect(detector_->hvFbkCtrl(), SIGNAL(valueChanged(double)), hvFbk_, SLOT(setValue(double)));
+			//hvFbk_->setValue(detector_->hvFbkCtrl()->value());
+			hvFbk_->setValue(detector_->hvCtrl()->value());
+			//connect(detector_->hvFbkCtrl(), SIGNAL(valueChanged(double)), hvFbk_, SLOT(setValue(double)));
+			connect(detector_->hvCtrl(), SIGNAL(valueChanged(double)), hvFbk_, SLOT(setValue(double)));
 		}
 		tmpHB = (QHBoxLayout*)fl_->itemAt(0, QFormLayout::FieldRole);
 		tmpHB->addWidget(hvFbk_);
-		connect(hvSetpointBox_, SIGNAL(valueChanged(double)), detector_->hvSetpointCtrl(), SLOT(move(double)));
+		//connect(hvSetpointBox_, SIGNAL(valueChanged(double)), detector_->hvSetpointCtrl(), SLOT(move(double)));
+		connect(hvSetpointBox_, SIGNAL(valueChanged(double)), detector_->hvCtrl(), SLOT(move(double)));
 		hvFbk_->show();
 		resize(width()+hvSetpointBox_->width(), height());
 		if( !detector_->settingsMatchFbk((MCPDetectorInfo*)writeDetectorInfo_) ){
@@ -201,7 +218,8 @@ void MCPOldDetectorView::setEditMode(bool editMode){
 											QMessageBox::Yes,
 											QMessageBox::No);
 			if(ret != QMessageBox::Yes){
-				((MCPDetectorInfo*)writeDetectorInfo_)->setHVSetpoint(detector_->hvSetpointCtrl()->value());
+				//((MCPDetectorInfo*)writeDetectorInfo_)->setHVSetpoint(detector_->hvSetpointCtrl()->value());
+				((MCPDetectorInfo*)writeDetectorInfo_)->setHVSetpoint(detector_->hvCtrl()->value());
 				hvSetpointBox_->setValue( ((MCPDetectorInfo*)writeDetectorInfo_)->hvSetpoint() );
 			}
 			else
@@ -209,7 +227,8 @@ void MCPOldDetectorView::setEditMode(bool editMode){
 		}
 	}
 	else{
-		disconnect(hvSetpointBox_, SIGNAL(valueChanged(double)), detector_->hvSetpointCtrl(), SLOT(move(double)));
+		//disconnect(hvSetpointBox_, SIGNAL(valueChanged(double)), detector_->hvSetpointCtrl(), SLOT(move(double)));
+		disconnect(hvSetpointBox_, SIGNAL(valueChanged(double)), detector_->hvCtrl(), SLOT(move(double)));
 		switchToEditBox_->setText("Switch to Edit Mode");
 		tmpHB = (QHBoxLayout*)fl_->itemAt(0, QFormLayout::FieldRole);
 		tmpHB->removeWidget(hvFbk_);

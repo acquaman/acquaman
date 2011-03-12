@@ -57,6 +57,9 @@ public:
 
 	~AMDetectorInfo() {}
 
+	/// Creates a new info pointer from this one, caller is responsible for memory
+	virtual AMDetectorInfo* toNewInfo() const;
+
 	// Basic meta-data:
 	////////////////////////////////////
 	/// Access the unique name of this detector. (Implemented in AMDbObject)
@@ -80,6 +83,8 @@ public:
 		return AMMeasurementInfo(name(), description(), units(), axes());
 	}
 
+	friend QDebug operator<<(QDebug d, const AMDetectorInfo& di);
+	virtual QDebug qDebugPrint(QDebug &d) const;
 
 	/// I don't know what this is for.
 	virtual bool hasDetails() const { return false; }

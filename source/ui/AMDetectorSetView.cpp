@@ -16,7 +16,8 @@ AMDetectorSetView::AMDetectorSetView(AMDetectorSet *viewSet, bool configureOnly,
 	AMDetectorView *tmpDetails;
 	for(int x = 0; x < viewSet_->count(); x++){
 		tmpD = viewSet_->at(x);
-		tmpDV = AMDetectorViewSupport::createBriefDetectorView(tmpD);
+		tmpDV = AMDetectorViewSupport::createBriefDetectorView(tmpD, configureOnly_);
+		connect(tmpDV, SIGNAL(settingsConfigureRequested()), this, SLOT(onDetectorSetConfigurationRequested()));
 		tmpLabel = new QLabel(tmpD->description());
 		tmpButton = new QPushButton("Details");
 		if(AMDetectorViewSupport::supportedDetailedViews(tmpD).count() == 0){
@@ -24,19 +25,20 @@ AMDetectorSetView::AMDetectorSetView(AMDetectorSet *viewSet, bool configureOnly,
 			detectorDetails_.append(0);
 		}
 		else{
-			tmpDetails = AMDetectorViewSupport::createDetailedDetectorView(tmpD);
+			tmpDetails = AMDetectorViewSupport::createDetailedDetectorView(tmpD, configureOnly_);
 			detectorDetails_.append(tmpDetails);
 			connect(tmpButton, SIGNAL(clicked()), tmpDetails, SLOT(show()));
+			connect(tmpDetails, SIGNAL(settingsConfigureRequested()), this, SLOT(onDetectorSetConfigurationRequested()));
 		}
 		if(configureOnly_)
 			tmpCheck = new QCheckBox();
 		detectorBoxes_.append(tmpDV);
+
 		gl_->addWidget(tmpLabel,		x, 0, 1, 1, 0);
 		gl_->addWidget(tmpDV,			x, 2, 1, 1, 0);
 		if(configureOnly_)
 			gl_->addWidget(tmpCheck,	x, 1, 1, 1, 0);
 		gl_->addWidget(tmpButton,		x, 3, 1, 1, 0);
-		//connect(tmpCE, SIGNAL(setpointRequested(double)), this, SLOT(onConfigurationValueChanged()));
 	}
 
 	gl_->setRowStretch(viewSet_->count(), 10);
@@ -50,6 +52,31 @@ AMDetectorSetView::AMDetectorSetView(AMDetectorSet *viewSet, bool configureOnly,
 	//connect(viewSet_, SIGNAL(controlSetValuesChanged(AMControlInfoList)), this, SLOT(onControlSetValuesChanged(AMControlInfoList)));
 }
 
+AMDetectorInfoSet AMDetectorSetView::currentValues(){
+	viewSet_->toInfoSet();
+}
+
+AMDetectorInfoSet AMDetectorSetView::configValues(){
+	AMDetectorInfoSet rv;
+
+	if(!configureOnly_)
+		return currentValues();
+
+	for(int x = 0; x < viewSet_->count(); x++)
+		rv.append(boxAt(x)->configurationSettings());
+	return rv;
+}
+
+QDebug operator<<(QDebug d, const AMDetectorSetView& dsv){
+	for(int x = 0; x < dsv.count(); x++){
+		if(dsv.boxAt(x) && dsv.boxAt(x)->configurationSettings())
+			d << *(dsv.boxAt(x)->configurationSettings());
+		if(dsv.detailAt(x) && dsv.detailAt(x)->configurationSettings())
+			d << *(dsv.detailAt(x)->configurationSettings());
+	}
+	return d;
+}
+
 void AMDetectorSetView::onDetectorAddedToSet(int index){
 	AMDetectorView *tmpDV;
 	AMDetector *tmpD;
@@ -58,7 +85,8 @@ void AMDetectorSetView::onDetectorAddedToSet(int index){
 	QCheckBox *tmpCheck;
 	AMDetectorView *tmpDetails;
 	tmpD = viewSet_->at(index);
-	tmpDV = AMDetectorViewSupport::createBriefDetectorView(tmpD);
+	tmpDV = AMDetectorViewSupport::createBriefDetectorView(tmpD, configureOnly_);
+	connect(tmpDV, SIGNAL(settingsConfigureRequested()), this, SLOT(onDetectorSetConfigurationRequested()));
 	tmpLabel = new QLabel(tmpD->description());
 	tmpButton = new QPushButton("Details");
 	if(AMDetectorViewSupport::supportedDetailedViews(tmpD).count() == 0){
@@ -66,9 +94,10 @@ void AMDetectorSetView::onDetectorAddedToSet(int index){
 		detectorDetails_.append(0);
 	}
 	else{
-		tmpDetails = AMDetectorViewSupport::createDetailedDetectorView(tmpD);
+		tmpDetails = AMDetectorViewSupport::createDetailedDetectorView(tmpD, configureOnly_);
 		detectorDetails_.append(tmpDetails);
 		connect(tmpButton, SIGNAL(clicked()), tmpDetails, SLOT(show()));
+		connect(tmpDetails, SIGNAL(settingsConfigureRequested()), this, SLOT(onDetectorSetConfigurationRequested()));
 	}
 	if(configureOnly_)
 		tmpCheck = new QCheckBox();
@@ -85,10 +114,14 @@ void AMDetectorSetView::onDetectorAddedToSet(int index){
 	gl_->setRowStretch(viewSet_->count(), 10);
 }
 
-void AMDetectorSetView::onControlSetValuesChanged(AMDetectorInfoSet infoList){
+void AMDetectorSetView::onDetectorSetSettingsChanged(){
 
 }
 
-void AMDetectorSetView::onConfigurationValueChanged(){
-
+void AMDetectorSetView::onDetectorSetConfigurationRequested(){
+	/*
+	qDebug() << "In DetectorSetView, heard configuration was requested";
+	qDebug() << *this;
+	*/
+	emit configValuesChanged();
 }

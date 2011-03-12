@@ -33,8 +33,12 @@ void AMDetectorSignalSource::emitInfoChanged() {
 	emit infoChanged();
 }
 
-void AMDetectorSignalSource::emitValuesChanged() {
-	emit valuesChanged();
+void AMDetectorSignalSource::emitReadingsChanged(){
+	emit readingsChanged();
+}
+
+void AMDetectorSignalSource::emitSettingsChanged() {
+	emit settingsChanged();
 }
 
 void AMDetectorSignalSource::emitDeleted() {
@@ -60,7 +64,7 @@ AMDetectorSignalSource* AMDetector::signalSource() const {
 	return signalSource_;
 }
 
-bool AMDetector::isConnected(){
+bool AMDetector::isConnected() const{
 	return connected_;
 }
 
@@ -96,6 +100,10 @@ void AMDetector::emitInfoChanged() {
 	signalSource_->emitInfoChanged();
 }
 
-void AMDetector::emitValuesChanged() {
-	signalSource_->emitValuesChanged();
+void AMDetector::emitReadingsChanged(){
+	signalSource_->emitReadingsChanged();
+}
+
+void AMDetector::emitSettingsChanged() {
+	signalSource_->emitSettingsChanged();
 }
