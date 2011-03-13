@@ -20,20 +20,18 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SGMXASScanConfigurationView.h"
 
-SGMXASScanConfigurationView::SGMXASScanConfigurationView(SGMXASScanConfiguration *sxsc, AMOldDetectorInfoSet *cfgDetectorInfoSet, QWidget *parent)  :
-		//QWidget(parent){
-		AMScanConfigurationView(parent){
+SGMXASScanConfigurationView::SGMXASScanConfigurationView(SGMXASScanConfiguration *sxsc, QWidget *parent)  :
+		AMScanConfigurationView(parent)
+{
 	setupUi(this);
 	cfg_ = NULL;
 	if(SGMBeamline::sgm()->isConnected()){
 		cfg_ = sxsc;
-		cfgDetectorInfoSet_ = cfgDetectorInfoSet;
 
 		regionsLineView_ = new AMRegionsLineView(sxsc->regions(), this);
 
 		regionsView_ = new AMXASRegionsView(sxsc->regions(), this);
 		regionsView_->setBeamlineEnergy(SGMBeamline::sgm()->energy());
-		connect(regionsView_, SIGNAL(addRegionClicked()), this, SLOT(onAddRegionClicked()));
 		connect(sxsc, SIGNAL(regionsChanged()), this, SLOT(onRegionsChanged()));
 
 		fluxResolutionView_ = new AMCompactControlOptimizationSetView((AMControlOptimizationSet*)(sxsc->fluxResolutionSet()), this);
@@ -42,21 +40,9 @@ SGMXASScanConfigurationView::SGMXASScanConfigurationView(SGMXASScanConfiguration
 		connect( ((QDoubleSpinBox*)(fluxResolutionView_->detailView()->boxByName("exitSlitGap"))), SIGNAL(valueChanged(double)), sxsc, SLOT(setExitSlitGap(double)) );
 		fluxResolutionView_->onRegionsUpdate(sxsc->regions());
 
-		//trackingView_ = new AMOldControlSetView(sxsc->trackingSet(), this);
 		trackingView_ = new AMControlSetView(sxsc->trackingSet(), true, this);
 		connect(trackingView_, SIGNAL(configValuesChanged(AMControlInfoList)), sxsc, SLOT(setTrackingGroup(AMControlInfoList)));
 
-		/*
-		detectorView_ = new AMOldDetectorSetView(sxsc->detectorSet(), cfgDetectorInfoSet_, true, this);
-		if( SGMBeamline::sgm()->detectorConnectedByName("tey") )
-			connect( ((QCheckBox*)(detectorView_->boxByName("tey"))), SIGNAL(stateChanged(int)), sxsc, SLOT(setUsingTEY(int)) );
-		if( SGMBeamline::sgm()->detectorConnectedByName("tfy") )
-			connect( ((QCheckBox*)(detectorView_->boxByName("tfy"))), SIGNAL(stateChanged(int)), sxsc, SLOT(setUsingTFY(int)) );
-		if( SGMBeamline::sgm()->detectorConnectedByName("sdd") )
-			connect( ((QCheckBox*)(detectorView_->boxByName("pgt"))), SIGNAL(stateChanged(int)), sxsc, SLOT(setUsingPGT(int)) );
-		*/
-
-		//xasDetectorsView_ = new AMDetectorSetView(SGMBeamline::sgm()->XASDetectorsNew(), true);
 		xasDetectorsView_ = new AMDetectorSetView(sxsc->detectorChoices(), true);
 
 		warningsLabel_ = new QLabel("");
@@ -67,12 +53,6 @@ SGMXASScanConfigurationView::SGMXASScanConfigurationView(SGMXASScanConfiguration
 
 		delete doLayoutButton;
 		delete layout();
-
-		/*
-		QWidget *dv = AMDetectorViewSupport::createBriefDetectorView(SGMBeamline::sgm()->teyDetectorNew());
-		QWidget *dv1 = AMDetectorViewSupport::createBriefDetectorView(SGMBeamline::sgm()->tfyDetectorNew());
-		QWidget *dv2 = AMDetectorViewSupport::createBriefDetectorView(SGMBeamline::sgm()->pgtDetectorNew());
-		*/
 
 		QSpacerItem *spc1 = new QSpacerItem(10, 10, QSizePolicy::Minimum, QSizePolicy::Maximum);
 		QSpacerItem *spc2 = new QSpacerItem(10, 10, QSizePolicy::Minimum, QSizePolicy::Maximum);
@@ -97,27 +77,12 @@ SGMXASScanConfigurationView::~SGMXASScanConfigurationView(){
 }
 
 const AMScanConfiguration* SGMXASScanConfigurationView::configuration() const{
-	return cfg_;
-}
+	cfg_->setDetectorConfigurations(xasDetectorsView_->configValues());
 
-void SGMXASScanConfigurationView::onAddRegionClicked(){
-/*
-	if(!cfg_)
-		return;
-	SGMXASScanConfiguration *sxsc = (SGMXASScanConfiguration*)cfg_;
-	for(int x = 0; x < sxsc->count(); x++)
-		qDebug() << "Region " << x << ": " << sxsc->start(x) << " " << sxsc->delta(x) << " " << sxsc->end(x);
-	if(regionsView_->addRegion(sxsc->count(), 500, 1, 510))
-		qDebug() << "Passed add valid";
-	else
-		qDebug() << "Failed add valid?";
-	if(regionsView_->addRegion(sxsc->count(), 100, 1, 110))
-		qDebug() << "Failed add invalid?";
-	else
-		qDebug() << "Passed add invalid";
-	for(int x = 0; x < sxsc->count(); x++)
-		qDebug() << "Region " << x << ": " << sxsc->start(x) << " " << sxsc->delta(x) << " " << sxsc->end(x);
-*/
+	qDebug() << "In call for configuration() all detectors says ";
+	qDebug() << cfg_->allDetectorConfigurations();
+
+	return cfg_;
 }
 
 void SGMXASScanConfigurationView::onSGMBeamlineCriticalControlsConnectedChanged(){

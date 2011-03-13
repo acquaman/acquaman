@@ -35,7 +35,7 @@ AMDetectorInfoSet AMDetectorSet::toInfoSet() const {
 	int numDetectors = count();
 	for(int i=0; i<numDetectors; i++) {
 		AMDetector *d = at(i).first;
-		rv.addDetectorInfo( d->toInfo() );
+		rv.addDetectorInfo( d->toInfo(), isDefaultAt(i) );
 	}
 
 	return rv;

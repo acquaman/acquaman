@@ -113,60 +113,17 @@ void SGMAppController::onCurrentPaneChanged(QWidget *pane) {
 
 void SGMAppController::onSGMBeamlineConnected(){
 	if(SGMBeamline::sgm()->isConnected() && !xasScanConfigurationViewer_ && !fastScanConfigurationViewer_){
-//		qDebug() << "\n\nSGM CONNECTED, CREATING VIEWERS\n\n";
 		SGMXASScanConfiguration *sxsc = new SGMXASScanConfiguration(this);
 		sxsc->setFileName("daveData.%03d.dat");
 		sxsc->setFilePath(AMUserSettings::userDataFolder);
 		sxsc->addRegion(0, 950, 1, 960);
-
-		AMOldDetectorInfoSet *sxscDetectorInfoSet = new AMOldDetectorInfoSet(this);
-		sxsc->setCfgDetectorInfoSet(sxscDetectorInfoSet);
-		AMDetectorInfo* tmpDI, *tdi;
-		for(int x = 0; x < sxsc->oldDetectorSet()->count(); x++){
-			tdi = sxsc->oldDetectorSet()->detectorAt(x);
-			#warning "D: same edit to review. Was tdi a PGTDetector or a PGTDetectorInfo?"
-			if( qobject_cast<PGTDetector*>(tdi) )
-				tmpDI = new PGTDetectorInfo(tdi->name(), tdi->description(), this);
-			else if( qobject_cast<MCPDetector*>(tdi) )
-				tmpDI = new MCPDetectorInfo(tdi->name(), tdi->description(), this);
-			else
-				tmpDI = new AMDetectorInfo(tdi->name(), tdi->description(), this);
-
-			/*! \bug Removed with metaData change. Need to repair. What's going on here? Is this function even still being used? What's up with the "daveData.xxx.dat" file name?
-		QList<AMMetaMetaData> all = tmpDI->metaDataAllKeys();
-		for(int y = 0; y < all.count(); y++)
-		tmpDI->setMetaData(all.at(y).key, tdi->metaData(all.at(y).key));
-		*/
-			sxscDetectorInfoSet->addDetector(tmpDI, sxsc->oldDetectorSet()->isDefaultAt(x));
-		}
-		xasScanConfigurationViewer_ = new SGMXASScanConfigurationView(sxsc, sxscDetectorInfoSet);
-		/*
-		connect(sxscViewer, SIGNAL(startScanRequested()), this, SLOT(onStartScanRequested()));
-		connect(sxscViewer, SIGNAL(addToQueueRequested()), this, SLOT(onAddToQueueRequested()));
-		connect(sxscViewer, SIGNAL(queueDirectorRequested()), director, SLOT(show()));
-		connect(this, SIGNAL(lockdownScanning(bool,QString)), sxscViewer, SLOT(onLockdowScanning(bool,QString)));
-		if(!vl_)
-		vl_ = new QVBoxLayout();
-		vl_->addWidget(sxscViewer);
-		if(layout() != vl_){
-		delete layout();
-		this->setLayout(vl_);
-		}
-		emit newScanConfigurationView();
-		*/
+		xasScanConfigurationViewer_ = new SGMXASScanConfigurationView(sxsc);
 		xasScanConfigurationHolder_->setView(xasScanConfigurationViewer_);
 
 
 		SGMFastScanConfiguration *sfsc = new SGMFastScanConfiguration(this);
 		sfsc->setFileName("daveData.%03d.dat");
 		sfsc->setFilePath(AMUserSettings::userDataFolder);
-		/*
-		if(!autoSavePath_.isEmpty())
-			sfsc->setSensibleFileSavePath(autoSavePath_);
-		connect(sfsc, SIGNAL(onSensibleFileSavePathChanged(QString)), this, SLOT(setAutoSavePath(QString)));
-		if(lastSettings_)
-			sfsc->setParameters(lastSettings_);
-		*/
 		fastScanConfigurationViewer_ = new SGMFastScanConfigurationView(sfsc);
 		fastScanConfigurationHolder_->setView(fastScanConfigurationViewer_);
 	}

@@ -34,6 +34,10 @@ SGMXASScanConfiguration::SGMXASScanConfiguration(QObject *parent) : AMXASScanCon
 		allDetectors_->addDetector(xasDetectors_->detectorAt(x), xasDetectors_->isDefaultAt(x));
 	xasDetectorsCfg_ = xasDetectors_->toInfoSet();
 
+	qDebug() << "In constructor for XASScanCfg ";// << xasDetectorsCfg_;
+	for(int x = 0; x < xasDetectorsCfg_.count(); x++)
+		qDebug() << xasDetectorsCfg_.detectorInfoAt(x)->name() << *(xasDetectorsCfg_.detectorInfoAt(x));
+
 	feedbackDetectorsOld_ = SGMBeamline::sgm()->feedbackDetectors();
 	XASDetectorsOld_ = SGMBeamline::sgm()->XASDetectors();
 
@@ -42,6 +46,15 @@ SGMXASScanConfiguration::SGMXASScanConfiguration(QObject *parent) : AMXASScanCon
 	emit exitSlitGapChanged(exitSlitGap_);
 	emit gratingChanged(grating_);
 	emit trackingGroupChanged(trackingGroup_);
+}
+
+AMDetectorInfoSet SGMXASScanConfiguration::allDetectorConfigurations() const{
+	AMDetectorInfoSet allConfigurations;
+	for(int x = 0; x < SGMBeamline::sgm()->feedbackDetectorsNew()->count(); x++)
+		allConfigurations.addDetectorInfo(SGMBeamline::sgm()->feedbackDetectorsNew()->detectorAt(x)->toInfo(), true);
+	for(int x = 0; x < xasDetectorsCfg_.count(); x++)
+		allConfigurations.addDetectorInfo(xasDetectorsCfg_.detectorInfoAt(x), xasDetectorsCfg_.isActiveAt(x));
+	return allConfigurations;
 }
 
 QList<AMDetectorInfo*> SGMXASScanConfiguration::usingDetectors() const{
@@ -127,4 +140,8 @@ bool SGMXASScanConfiguration::setUsingPGT(bool active) {
 
 bool SGMXASScanConfiguration::setUsingPGT(int checkedState) {
 	return setUsingPGT( (bool)checkedState);
+}
+
+bool SGMXASScanConfiguration::setDetectorConfigurations(const AMDetectorInfoSet &xasDetectorsCfg){
+	xasDetectorsCfg_ = xasDetectorsCfg;
 }

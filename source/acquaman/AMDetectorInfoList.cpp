@@ -43,6 +43,17 @@ AMDetectorInfoSet& AMDetectorInfoSet::operator=(const AMDetectorInfoSet& other) 
 	return *this;
 }
 
+QDebug operator<<(QDebug d, const AMDetectorInfoSet& dis){
+	for(int x = 0; x < dis.count(); x++){
+		if(dis.isActiveAt(x))
+			d << "Is Active ";
+		else
+			d << "Is Not Active ";
+		d << *(dis.detectorInfoAt(x)) << "\n";
+	}
+	return d;
+}
+
 QString AMDetectorInfoSet::description(){
 	return description_;
 }
@@ -101,11 +112,19 @@ AMDetectorInfo* AMDetectorInfoSet::detectorInfoAt(int index){
 	return at(index).first;
 }
 
+AMDetectorInfo* AMDetectorInfoSet::detectorInfoAt(int index) const{
+	if(index < 0 || index >= count())
+		return 0; //NULL
+	return new AMDetectorInfo( *(at(index).first) );
+}
+
+/*
 const AMDetectorInfo* const AMDetectorInfoSet::detectorInfoAt(int index) const{
 	if(index < 0 || index >= count())
 		return 0; //NULL
 	return at(index).first;
 }
+*/
 
 bool AMDetectorInfoSet::isActiveNamed(const QString& detectorName) const{
 	int index = indexOf(detectorName);

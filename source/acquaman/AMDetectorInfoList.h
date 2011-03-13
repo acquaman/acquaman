@@ -26,6 +26,7 @@ public:
 	/// Destructor
 	~AMDetectorInfoSet() {}
 
+	friend QDebug operator<<(QDebug d, const AMDetectorInfoSet& dis);
 
 	QString description();
 
@@ -43,7 +44,9 @@ public:
 	const AMDetectorInfo* const detectorInfoNamed(const QString &detectorName) const;
 	/// Returns the detectorInfo at the given index. (A NULL pointer is returned if the index is out of bounds.)
 	AMDetectorInfo* detectorInfoAt(int index);
-	const AMDetectorInfo* const detectorInfoAt(int index) const;
+	// THIS WILL HAVE TO COPY AND CREATE A NEW ONE
+	AMDetectorInfo* detectorInfoAt(int index) const;
+	//const AMDetectorInfo* const detectorInfoAt(int index) const;
 	/// Returns whether or not the detectorInfo named \c detectorName has been requested for a scan.
 	bool isActiveNamed(const QString& detectorName) const;
 	/// Returns whether or not the \c detectorInfo has been requested for a scan. The comparison is done on the name() function returned by the detectorInfo passed into the function, not the pointer value.

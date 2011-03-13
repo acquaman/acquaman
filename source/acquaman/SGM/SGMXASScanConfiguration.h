@@ -47,8 +47,10 @@ public:
 	AMDetectorSet* detectorChoices() const { return xasDetectors_; }
 	/// Returns an AMDetectorSet that consists of all the detectors this scan can/will use (adds detectors that are always collected to the detectorChoices(), such as I0 and energy feedback)
 	AMDetectorSet* allDetectors() const { return allDetectors_; }
-	/// Returns the current configuration requested for the detectors
-	AMDetectorInfoSet detectorConfigurations() const { return xasDetectorsCfg_; }
+	/// Returns the current configuration requested for the user selectable detectors
+	AMDetectorInfoSet detectorChoiceConfigurations() const { return xasDetectorsCfg_; }
+	/// Returns the current configuration requested for all of the detectors
+	AMDetectorInfoSet allDetectorConfigurations() const;
 
 	AMOldDetectorInfoSet *oldDetectorSet() const { return XASDetectorsOld_;}
 	AMOldDetectorInfoSet *cfgDetectorInfoSet() const { return cfgXASDetectorsOld_;}
@@ -81,6 +83,7 @@ public slots:
 
 	bool setCfgDetectorInfoSet(AMOldDetectorInfoSet *cfgDetectorInfoSet) { cfgXASDetectorsOld_ = cfgDetectorInfoSet; return true; }
 
+	bool setDetectorConfigurations(const AMDetectorInfoSet& xasDetectorsCfg);
 
 signals:
 	void exitSlitGapChanged(double exitSlitGap);
