@@ -15,7 +15,7 @@ AMDetectorSetView::AMDetectorSetView(AMDetectorSet *viewSet, bool configureOnly,
 	QCheckBox *tmpCheck;
 	AMDetectorView *tmpDetails;
 	for(int x = 0; x < viewSet_->count(); x++){
-		tmpD = viewSet_->at(x);
+		tmpD = viewSet_->detectorAt(x);
 		tmpDV = AMDetectorViewSupport::createBriefDetectorView(tmpD, configureOnly_);
 		connect(tmpDV, SIGNAL(settingsConfigureRequested()), this, SLOT(onDetectorSetConfigurationRequested()));
 		tmpLabel = new QLabel(tmpD->description());
@@ -30,8 +30,12 @@ AMDetectorSetView::AMDetectorSetView(AMDetectorSet *viewSet, bool configureOnly,
 			connect(tmpButton, SIGNAL(clicked()), tmpDetails, SLOT(show()));
 			connect(tmpDetails, SIGNAL(settingsConfigureRequested()), this, SLOT(onDetectorSetConfigurationRequested()));
 		}
-		if(configureOnly_)
+		if(configureOnly_){
 			tmpCheck = new QCheckBox();
+			if(viewSet_->isDefaultAt(x))
+				tmpCheck->setChecked(true);
+			checkBoxes_.append(tmpCheck);
+		}
 		detectorBoxes_.append(tmpDV);
 
 		gl_->addWidget(tmpLabel,		x, 0, 1, 1, 0);
@@ -63,7 +67,7 @@ AMDetectorInfoSet AMDetectorSetView::configValues(){
 		return currentValues();
 
 	for(int x = 0; x < viewSet_->count(); x++)
-		rv.append(boxAt(x)->configurationSettings());
+		rv.addDetectorInfo(boxAt(x)->configurationSettings(), checkedAt(x));
 	return rv;
 }
 
@@ -84,23 +88,27 @@ void AMDetectorSetView::onDetectorAddedToSet(int index){
 	QPushButton *tmpButton;
 	QCheckBox *tmpCheck;
 	AMDetectorView *tmpDetails;
-	tmpD = viewSet_->at(index);
+	tmpD = viewSet_->detectorAt(index);
 	tmpDV = AMDetectorViewSupport::createBriefDetectorView(tmpD, configureOnly_);
 	connect(tmpDV, SIGNAL(settingsConfigureRequested()), this, SLOT(onDetectorSetConfigurationRequested()));
 	tmpLabel = new QLabel(tmpD->description());
 	tmpButton = new QPushButton("Details");
 	if(AMDetectorViewSupport::supportedDetailedViews(tmpD).count() == 0){
 		tmpButton->setEnabled(false);
-		detectorDetails_.append(0);
+		detectorDetails_.insert(index, 0);
 	}
 	else{
 		tmpDetails = AMDetectorViewSupport::createDetailedDetectorView(tmpD, configureOnly_);
-		detectorDetails_.append(tmpDetails);
+		detectorDetails_.insert(index, tmpDetails);
 		connect(tmpButton, SIGNAL(clicked()), tmpDetails, SLOT(show()));
 		connect(tmpDetails, SIGNAL(settingsConfigureRequested()), this, SLOT(onDetectorSetConfigurationRequested()));
 	}
-	if(configureOnly_)
+	if(configureOnly_){
 		tmpCheck = new QCheckBox();
+		if(viewSet_->isDefaultAt(index))
+			tmpCheck->setChecked(true);
+		checkBoxes_.insert(index, tmpCheck);
+	}
 	detectorBoxes_.insert(index, tmpDV);
 	gl_->addWidget(tmpLabel,		index, 0, 1, 1, 0);
 	gl_->addWidget(tmpDV,			index, 2, 1, 1, 0);

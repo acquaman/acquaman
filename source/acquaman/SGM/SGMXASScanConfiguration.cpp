@@ -25,8 +25,17 @@ SGMXASScanConfiguration::SGMXASScanConfiguration(QObject *parent) : AMXASScanCon
 	regions_->setEnergyControl(SGMBeamline::sgm()->energy());
 	fluxResolutionSet_ = SGMBeamline::sgm()->fluxResolutionSet();
 	trackingSet_ = SGMBeamline::sgm()->trackingSet();
-	feedbackDetectors_ = SGMBeamline::sgm()->feedbackDetectors();
-	XASDetectors_ = SGMBeamline::sgm()->XASDetectors();
+
+	xasDetectors_ = SGMBeamline::sgm()->XASDetectorsNew();
+	allDetectors_ = new AMDetectorSet(this);
+	for(int x = 0; x < SGMBeamline::sgm()->feedbackDetectorsNew()->count(); x++)
+		allDetectors_->addDetector(SGMBeamline::sgm()->feedbackDetectorsNew()->detectorAt(x), true);
+	for(int x = 0; x < xasDetectors_->count(); x++)
+		allDetectors_->addDetector(xasDetectors_->detectorAt(x), xasDetectors_->isDefaultAt(x));
+	xasDetectorsCfg_ = xasDetectors_->toInfoSet();
+
+	feedbackDetectorsOld_ = SGMBeamline::sgm()->feedbackDetectors();
+	XASDetectorsOld_ = SGMBeamline::sgm()->XASDetectors();
 
 	// default channels removed. Need to come up with new replacement system to create default analysis blocks instead.
 
@@ -37,14 +46,14 @@ SGMXASScanConfiguration::SGMXASScanConfiguration(QObject *parent) : AMXASScanCon
 
 QList<AMDetectorInfo*> SGMXASScanConfiguration::usingDetectors() const{
 	QList<AMDetectorInfo*> usingDetectors;
-	usingDetectors << feedbackDetectors_->detectorByName("I0");
-	usingDetectors << feedbackDetectors_->detectorByName("eVFbk");
+	usingDetectors << feedbackDetectorsOld_->detectorByName("I0");
+	usingDetectors << feedbackDetectorsOld_->detectorByName("eVFbk");
 	if(usingTEY_)
-		usingDetectors << XASDetectors_->detectorByName("tey");
+		usingDetectors << XASDetectorsOld_->detectorByName("tey");
 	if(usingTFY_)
-		usingDetectors << XASDetectors_->detectorByName("tfy");
+		usingDetectors << XASDetectorsOld_->detectorByName("tfy");
 	if(usingPGT_)
-		usingDetectors << XASDetectors_->detectorByName("pgt");
+		usingDetectors << XASDetectorsOld_->detectorByName("pgt");
 	return usingDetectors;
 }
 

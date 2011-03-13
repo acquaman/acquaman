@@ -42,8 +42,16 @@ public:
 
 	AMControlSet *fluxResolutionSet() const { return fluxResolutionSet_;}
 	AMControlSet *trackingSet() const { return trackingSet_;}
-	AMOldDetectorInfoSet *detectorSet() const { return XASDetectors_;}
-	AMOldDetectorInfoSet *cfgDetectorInfoSet() const { return cfgXASDetectors_;}
+
+	/// Returns an AMDetectorSet that consists of the detectors a user can choose (or choose not) to use. In this case TEY, TFY, and SDD
+	AMDetectorSet* detectorChoices() const { return xasDetectors_; }
+	/// Returns an AMDetectorSet that consists of all the detectors this scan can/will use (adds detectors that are always collected to the detectorChoices(), such as I0 and energy feedback)
+	AMDetectorSet* allDetectors() const { return allDetectors_; }
+	/// Returns the current configuration requested for the detectors
+	AMDetectorInfoSet detectorConfigurations() const { return xasDetectorsCfg_; }
+
+	AMOldDetectorInfoSet *oldDetectorSet() const { return XASDetectorsOld_;}
+	AMOldDetectorInfoSet *cfgDetectorInfoSet() const { return cfgXASDetectorsOld_;}
 
 	QList<AMDetectorInfo*> usingDetectors() const;
 
@@ -71,7 +79,7 @@ public slots:
 	bool setUsingPGT(bool active);
 	bool setUsingPGT(int checkedState);
 
-	bool setCfgDetectorInfoSet(AMOldDetectorInfoSet *cfgDetectorInfoSet) { cfgXASDetectors_ = cfgDetectorInfoSet; return true; }
+	bool setCfgDetectorInfoSet(AMOldDetectorInfoSet *cfgDetectorInfoSet) { cfgXASDetectorsOld_ = cfgDetectorInfoSet; return true; }
 
 
 signals:
@@ -87,9 +95,14 @@ signals:
 protected:
 	AMControlSet *fluxResolutionSet_;
 	AMControlSet *trackingSet_;
-	AMOldDetectorInfoSet *feedbackDetectors_;
-	AMOldDetectorInfoSet *XASDetectors_;
-	AMOldDetectorInfoSet *cfgXASDetectors_;
+
+	AMDetectorSet *xasDetectors_;
+	AMDetectorSet *allDetectors_;
+	AMDetectorInfoSet xasDetectorsCfg_;
+
+	AMOldDetectorInfoSet *feedbackDetectorsOld_;
+	AMOldDetectorInfoSet *XASDetectorsOld_;
+	AMOldDetectorInfoSet *cfgXASDetectorsOld_;
 
 };
 

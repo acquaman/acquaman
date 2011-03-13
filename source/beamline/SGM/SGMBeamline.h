@@ -208,9 +208,6 @@ protected slots:
 
 	void onVisibleLightChanged(double value);
 
-	void testDetectorSetReadingsChanged();
-	void testDetectorSetSettingsChanged();
-
 protected:
 	// Singleton implementation:
 	SGMBeamline();					// protected constructor... only access through Beamline::bl()

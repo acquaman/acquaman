@@ -123,8 +123,8 @@ bool SGMXASScanController::beamlineInitialize(){
 
 	AMDetectorInfo* tmpDI;
 	#warning "David: Why are we using detectorSet() and not usingDetectors() besides the list versus class thing? Conversion function anyone?"
-	for(int x = 0; x < pCfg_()->detectorSet()->count(); x++){
-		tmpDI = pCfg_()->detectorSet()->detectorAt(x);
+	for(int x = 0; x < pCfg_()->oldDetectorSet()->count(); x++){
+		tmpDI = pCfg_()->oldDetectorSet()->detectorAt(x);
 		#warning "David please review... Had to change because of removed AMDbObject::typeDescription"
 		/* previously: typeDescription()s were never the safest way to tell what class something was anyway.
 		if(tmpDI->typeDescription() == "PGT SDD Spectrum-Output Detector")

@@ -782,8 +782,6 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	XASDetectors_->setName("XAS Detectors");
 	XASDetectorsNew_ = new AMDetectorSet(this);
 	XASDetectorsNew_->setName("XAS Detectors");
-	connect(XASDetectorsNew_, SIGNAL(detectorSetReadingsChanged()), this, SLOT(testDetectorSetReadingsChanged()));
-	connect(XASDetectorsNew_, SIGNAL(detectorSetSettingsChanged()), this, SLOT(testDetectorSetSettingsChanged()));
 
 	currentSamplePlate_ = new AMSamplePlate(this);
 
@@ -1084,7 +1082,7 @@ void SGMBeamline::onControlSetConnected(bool csConnected){
 			allDetectors_->addDetector(teyDetector_, true);
 			XASDetectors_->addDetector(teyDetector_, true);
 			allDetectorsNew_->addDetector(teyDetectorNew_);
-			XASDetectorsNew_->addDetector(teyDetectorNew_);
+			XASDetectorsNew_->addDetector(teyDetectorNew_, true);
 		}
 		else if(!tfyDetector_ && ctrlSet->name() == "TFY Controls"){
 			tfyDetector_ = new MCPDetector(tfy_->name(), tfy_, tfyHV_, this);
@@ -1094,7 +1092,7 @@ void SGMBeamline::onControlSetConnected(bool csConnected){
 			allDetectors_->addDetector(tfyDetector_, true);
 			XASDetectors_->addDetector(tfyDetector_, true);
 			allDetectorsNew_->addDetector(tfyDetectorNew_);
-			XASDetectorsNew_->addDetector(tfyDetectorNew_);
+			XASDetectorsNew_->addDetector(tfyDetectorNew_, true);
 		}
 		else if(!pgtDetector_ && ctrlSet->name() == "SDD Controls"){
 			pgtDetector_ = new PGTDetector(pgt_->name(), pgt_, pgtHV_, pgtIntegrationTime_, pgtIntegrationMode_, this);
@@ -1271,18 +1269,6 @@ void SGMBeamline::onVisibleLightChanged(double value){
 		emit visibleLightStatusChanged("Visible Light\n is moving to OFF");
 	else if( visibleLightStatus_->value() == 0)
 		emit visibleLightStatusChanged("Visible Light\n is OFF");
-}
-
-void SGMBeamline::testDetectorSetReadingsChanged(){
-	qDebug() << "Detector set sent readings update";
-}
-
-void SGMBeamline::testDetectorSetSettingsChanged(){
-	qDebug() << "Detector set sent settings update";
-	AMDetectorInfoSet settings = XASDetectorsNew_->toInfoSet();
-	for(int x = 0; x < settings.count(); x++){
-		qDebug() << settings.at(x)->description() << *(settings.at(x));
-	}
 }
 
 SGMBeamline* SGMBeamline::sgm() {

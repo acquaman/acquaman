@@ -55,7 +55,9 @@ SGMXASScanConfigurationView::SGMXASScanConfigurationView(SGMXASScanConfiguration
 		if( SGMBeamline::sgm()->detectorConnectedByName("sdd") )
 			connect( ((QCheckBox*)(detectorView_->boxByName("pgt"))), SIGNAL(stateChanged(int)), sxsc, SLOT(setUsingPGT(int)) );
 		*/
-		xasDetectorsView_ = new AMDetectorSetView(SGMBeamline::sgm()->XASDetectorsNew(), true);
+
+		//xasDetectorsView_ = new AMDetectorSetView(SGMBeamline::sgm()->XASDetectorsNew(), true);
+		xasDetectorsView_ = new AMDetectorSetView(sxsc->detectorChoices(), true);
 
 		warningsLabel_ = new QLabel("");
 		QFont warningsFont;
@@ -74,23 +76,15 @@ SGMXASScanConfigurationView::SGMXASScanConfigurationView(SGMXASScanConfiguration
 
 		QSpacerItem *spc1 = new QSpacerItem(10, 10, QSizePolicy::Minimum, QSizePolicy::Maximum);
 		QSpacerItem *spc2 = new QSpacerItem(10, 10, QSizePolicy::Minimum, QSizePolicy::Maximum);
-//		QSpacerItem *spc3 = new QSpacerItem(10, 10, QSizePolicy::Minimum, QSizePolicy::Maximum);
 		gl_.setSpacing(0);
 		gl_.addWidget(regionsLineView_,		0, 0, 1, 5, Qt::AlignCenter);
 		gl_.addWidget(regionsView_,		1, 0, 2, 3, Qt::AlignLeft);
 		gl_.addWidget(fluxResolutionView_,	3, 0, 2, 3, Qt::AlignLeft);
 		gl_.addWidget(trackingView_,		1, 3, 2, 2, Qt::AlignLeft);
 		gl_.addWidget(xasDetectorsView_,	3, 3, 2, 2, Qt::AlignLeft);
-		//gl_.addWidget(detectorView_,		3, 3, 2, 2, Qt::AlignLeft);
-		/*
-		gl_.addWidget(dv,			5, 0, 1, 1, Qt::AlignLeft);
-		gl_.addWidget(dv1,			5, 1, 1, 1, Qt::AlignLeft);
-		gl_.addWidget(dv2,			5, 2, 1, 1, Qt::AlignLeft);
-		*/
 		gl_.addWidget(warningsLabel_,		2, 0, 1, 5, Qt::AlignCenter);
 		gl_.addItem(spc1,			8, 0, 2, 3, Qt::AlignLeft);
 		gl_.addItem(spc2,			8, 3, 2, 2, Qt::AlignLeft);
-//		gl_.addItem(spc3,			9, 3, 1, 2, Qt::AlignLeft);
 		this->setLayout(&gl_);
 		this->setMaximumSize(800, 800);
 
@@ -132,7 +126,6 @@ void SGMXASScanConfigurationView::onSGMBeamlineCriticalControlsConnectedChanged(
 		regionsLineView_->setEnabled(true);
 		fluxResolutionView_->setEnabled(true);
 		trackingView_->setEnabled(true);
-		//detectorView_->setEnabled(true);
 		xasDetectorsView_->setEnabled(true);
 		warningsLabel_->setText("");
 	}
@@ -141,7 +134,6 @@ void SGMXASScanConfigurationView::onSGMBeamlineCriticalControlsConnectedChanged(
 		regionsLineView_->setEnabled(false);
 		fluxResolutionView_->setEnabled(false);
 		trackingView_->setEnabled(false);
-		//detectorView_->setEnabled(false);
 		xasDetectorsView_->setEnabled(false);
 		warningsLabel_->setText("SGM Beamline Unavailable");
 	}

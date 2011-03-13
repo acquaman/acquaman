@@ -38,6 +38,13 @@ public:
 		return detectorDetails_.at(row);
 	}
 
+	bool checkedAt(int row) const{
+		if(!configureOnly_)
+			return false;
+		if(checkBoxes_.at(row))
+			return checkBoxes_.at(row)->isChecked();
+	}
+
 	/// Returns the current values of the detector set
 	AMDetectorInfoSet currentValues();
 	/// Returns the desired values if the view is used for configuration only (returns the current values if the view is not for configuration only)
@@ -64,6 +71,7 @@ protected:
 	bool configureOnly_;
 	QList<AMDetectorView*> detectorBoxes_;
 	QList<AMDetectorView*> detectorDetails_;
+	QList<QCheckBox*> checkBoxes_;
 	QGridLayout *gl_;
 };
 

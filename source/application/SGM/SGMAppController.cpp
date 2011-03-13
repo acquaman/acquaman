@@ -122,8 +122,8 @@ void SGMAppController::onSGMBeamlineConnected(){
 		AMOldDetectorInfoSet *sxscDetectorInfoSet = new AMOldDetectorInfoSet(this);
 		sxsc->setCfgDetectorInfoSet(sxscDetectorInfoSet);
 		AMDetectorInfo* tmpDI, *tdi;
-		for(int x = 0; x < sxsc->detectorSet()->count(); x++){
-			tdi = sxsc->detectorSet()->detectorAt(x);
+		for(int x = 0; x < sxsc->oldDetectorSet()->count(); x++){
+			tdi = sxsc->oldDetectorSet()->detectorAt(x);
 			#warning "D: same edit to review. Was tdi a PGTDetector or a PGTDetectorInfo?"
 			if( qobject_cast<PGTDetector*>(tdi) )
 				tmpDI = new PGTDetectorInfo(tdi->name(), tdi->description(), this);
@@ -137,7 +137,7 @@ void SGMAppController::onSGMBeamlineConnected(){
 		for(int y = 0; y < all.count(); y++)
 		tmpDI->setMetaData(all.at(y).key, tdi->metaData(all.at(y).key));
 		*/
-			sxscDetectorInfoSet->addDetector(tmpDI, sxsc->detectorSet()->isDefaultAt(x));
+			sxscDetectorInfoSet->addDetector(tmpDI, sxsc->oldDetectorSet()->isDefaultAt(x));
 		}
 		xasScanConfigurationViewer_ = new SGMXASScanConfigurationView(sxsc, sxscDetectorInfoSet);
 		/*
