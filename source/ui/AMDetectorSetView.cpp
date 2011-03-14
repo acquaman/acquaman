@@ -35,6 +35,7 @@ AMDetectorSetView::AMDetectorSetView(AMDetectorSet *viewSet, bool configureOnly,
 			if(viewSet_->isDefaultAt(x))
 				tmpCheck->setChecked(true);
 			checkBoxes_.append(tmpCheck);
+			connect(tmpCheck, SIGNAL(toggled(bool)), this, SLOT(onDetectorSetConfigurationRequested()));
 		}
 		detectorBoxes_.append(tmpDV);
 
@@ -66,8 +67,13 @@ AMDetectorInfoSet AMDetectorSetView::configValues(){
 	if(!configureOnly_)
 		return currentValues();
 
-	for(int x = 0; x < viewSet_->count(); x++)
-		rv.addDetectorInfo(boxAt(x)->configurationSettings(), checkedAt(x));
+	for(int x = 0; x < viewSet_->count(); x++){
+		//rv.addDetectorInfo(boxAt(x)->configurationSettings(), checkedAt(x));
+		if(detailAt(x))
+			rv.addDetectorInfo(detailAt(x)->configurationSettings(), checkedAt(x));
+		else
+			rv.addDetectorInfo(boxAt(x)->configurationSettings(), checkedAt(x));
+	}
 	return rv;
 }
 
@@ -108,6 +114,7 @@ void AMDetectorSetView::onDetectorAddedToSet(int index){
 		if(viewSet_->isDefaultAt(index))
 			tmpCheck->setChecked(true);
 		checkBoxes_.insert(index, tmpCheck);
+		connect(tmpCheck, SIGNAL(toggled(bool)), this, SLOT(onDetectorSetConfigurationRequested()));
 	}
 	detectorBoxes_.insert(index, tmpDV);
 	gl_->addWidget(tmpLabel,		index, 0, 1, 1, 0);

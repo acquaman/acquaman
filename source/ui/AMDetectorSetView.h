@@ -55,7 +55,7 @@ public:
 signals:
 	/// Emitted when any control value in the control set changes (but ONLY when the view is not configure only)
 	void currentValuesChanged();
-	/// Emitted when any configuration value changes (but ONLY when the view is configure only)
+	/// Emitted when any configuration value changes or when a detector is enabled/disabled (but ONLY when the view is configure only)
 	void configValuesChanged();
 
 public slots:

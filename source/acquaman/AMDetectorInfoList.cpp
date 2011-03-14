@@ -29,6 +29,7 @@ AMDetectorInfoSet::AMDetectorInfoSet(AMDatabase* db, int id)
 AMDetectorInfoSet& AMDetectorInfoSet::operator=(const AMDetectorInfoSet& other) {
 	// always: check for self-assignment
 	if(this != &other) {
+		this->clear();
 		//AMOrderedList<AMDetectorInfo>::operator=(other);
 		for(int x = 0; x < other.count(); x++)
 			addDetectorInfo(other.detectorInfoAt(x)->toNewInfo(), other.isActiveAt(x));
@@ -115,7 +116,7 @@ AMDetectorInfo* AMDetectorInfoSet::detectorInfoAt(int index){
 AMDetectorInfo* AMDetectorInfoSet::detectorInfoAt(int index) const{
 	if(index < 0 || index >= count())
 		return 0; //NULL
-	return new AMDetectorInfo( *(at(index).first) );
+	return at(index).first->toNewInfo();
 }
 
 /*

@@ -152,8 +152,8 @@ bool SGMXASScanController::beamlineInitialize(){
 //	}
 
 
-	AMDetector *dd = 0;
-	dd->detectorName();
+	//AMDetector *dd = 0;
+	//dd->detectorName();
 	beamlineInitialized_ = true;
 	return beamlineInitialized_;
 }

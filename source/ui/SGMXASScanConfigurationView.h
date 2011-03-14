@@ -57,6 +57,8 @@ protected slots:
 		*/
 	}
 
+	void onDetectorConfigurationsChanged();
+
 	void onSGMBeamlineCriticalControlsConnectedChanged();
 
 protected:

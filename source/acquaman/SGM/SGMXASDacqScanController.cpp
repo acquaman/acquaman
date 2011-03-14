@@ -92,7 +92,7 @@ void SGMXASDacqScanController::start(){
 	generalScan_ = specificScan_;
 
 	qDebug() << "Ready to start XAS Scan";
-	//AMDacqScanController::start();
+	AMDacqScanController::start();
 }
 
 AMnDIndex SGMXASDacqScanController::toScanIndex(QMap<int, double> aeData){

@@ -27,16 +27,13 @@ SGMXASScanConfiguration::SGMXASScanConfiguration(QObject *parent) : AMXASScanCon
 	trackingSet_ = SGMBeamline::sgm()->trackingSet();
 
 	xasDetectors_ = SGMBeamline::sgm()->XASDetectorsNew();
+
 	allDetectors_ = new AMDetectorSet(this);
 	for(int x = 0; x < SGMBeamline::sgm()->feedbackDetectorsNew()->count(); x++)
 		allDetectors_->addDetector(SGMBeamline::sgm()->feedbackDetectorsNew()->detectorAt(x), true);
 	for(int x = 0; x < xasDetectors_->count(); x++)
 		allDetectors_->addDetector(xasDetectors_->detectorAt(x), xasDetectors_->isDefaultAt(x));
 	xasDetectorsCfg_ = xasDetectors_->toInfoSet();
-
-	qDebug() << "In constructor for XASScanCfg ";// << xasDetectorsCfg_;
-	for(int x = 0; x < xasDetectorsCfg_.count(); x++)
-		qDebug() << xasDetectorsCfg_.detectorInfoAt(x)->name() << *(xasDetectorsCfg_.detectorInfoAt(x));
 
 	feedbackDetectorsOld_ = SGMBeamline::sgm()->feedbackDetectors();
 	XASDetectorsOld_ = SGMBeamline::sgm()->XASDetectors();

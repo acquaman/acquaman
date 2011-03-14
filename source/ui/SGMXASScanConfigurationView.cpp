@@ -44,6 +44,7 @@ SGMXASScanConfigurationView::SGMXASScanConfigurationView(SGMXASScanConfiguration
 		connect(trackingView_, SIGNAL(configValuesChanged(AMControlInfoList)), sxsc, SLOT(setTrackingGroup(AMControlInfoList)));
 
 		xasDetectorsView_ = new AMDetectorSetView(sxsc->detectorChoices(), true);
+		connect(xasDetectorsView_, SIGNAL(configValuesChanged()), this, SLOT(onDetectorConfigurationsChanged()));
 
 		warningsLabel_ = new QLabel("");
 		QFont warningsFont;
@@ -78,11 +79,11 @@ SGMXASScanConfigurationView::~SGMXASScanConfigurationView(){
 
 const AMScanConfiguration* SGMXASScanConfigurationView::configuration() const{
 	cfg_->setDetectorConfigurations(xasDetectorsView_->configValues());
-
-	qDebug() << "In call for configuration() all detectors says ";
-	qDebug() << cfg_->allDetectorConfigurations();
-
 	return cfg_;
+}
+
+void SGMXASScanConfigurationView::onDetectorConfigurationsChanged(){
+	cfg_->setDetectorConfigurations(xasDetectorsView_->configValues());
 }
 
 void SGMXASScanConfigurationView::onSGMBeamlineCriticalControlsConnectedChanged(){

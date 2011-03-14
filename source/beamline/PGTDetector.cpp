@@ -61,9 +61,11 @@ PGTDetectorInfo PGTDetector::toPGTInfo() const{
 }
 
 bool PGTDetector::setFromInfo(const AMDetectorInfo *info){
+	qDebug() << "Setting PGT to " << *info;
 	const PGTDetectorInfo *di = qobject_cast<const PGTDetectorInfo*>(info);
 	if(!di)
 		return false;
+	qDebug() << "Passed the cast test " << di->integrationTime() << integrationModeCtrl()->enumNames().indexOf(di->integrationMode()) << di->hvSetpoint();
 	integrationTimeCtrl()->move(di->integrationTime());
 	integrationModeCtrl()->move(integrationModeCtrl()->enumNames().indexOf(di->integrationMode()));
 	hvCtrl()->move(di->hvSetpoint());
