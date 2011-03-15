@@ -24,7 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QtGui>
 #include "ui_SGMXASScanConfigurationViewer.h"
 #include "AMControlSetView.h"
-#include "AMDetectorView.h"
+#include "AMDetectorSetView.h"
 #include "AMXASRegionsView.h"
 #include "AMRegionsLineView.h"
 #include <QPushButton>
@@ -33,7 +33,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSpacerItem>
 #include "acquaman/SGM/SGMXASScanConfiguration.h"
 #include "acquaman/SGM/SGMXASDacqScanController.h"
-//#include "AMScanConfigurationViewer.h"
 #include "AMScanConfigurationView.h"
 #include "ui/AMControlOptimizationView.h"
 
@@ -43,28 +42,23 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class SGMXASScanConfigurationView : public AMScanConfigurationView, private Ui::SGMXASScanConfigurationViewer {
 Q_OBJECT
 public:
-		SGMXASScanConfigurationView(SGMXASScanConfiguration *sxsc, AMOldDetectorInfoSet *cfgDetectorInfoSet, QWidget *parent = 0);
+		SGMXASScanConfigurationView(SGMXASScanConfiguration *sxsc, QWidget *parent = 0);
 		~SGMXASScanConfigurationView();
 
 		const AMScanConfiguration* configuration() const;
 
-public slots:
-	void onAddRegionClicked();
-
 protected slots:
 	void onRegionsChanged(){
-		/* DAVID CHECK ME
+		/* NTBA March 14, 2011 David Chevrier
 		if(cfg_ && fluxResolutionView_){
 			fluxResolutionView_->onRegionsUpdate( ((SGMXASScanConfiguration*)cfg_)->regions() );
 		}
 		*/
 	}
 
-	void onSGMBeamlineCriticalControlsConnectedChanged();
+	void onDetectorConfigurationsChanged();
 
-	/*
-	void onLockdowScanning(bool isLocked, QString reason);
-	*/
+	void onSGMBeamlineCriticalControlsConnectedChanged();
 
 protected:
 	SGMXASScanConfiguration *cfg_;
@@ -73,8 +67,7 @@ protected:
 	AMRegionsLineView *regionsLineView_;
 	AMCompactControlOptimizationSetView *fluxResolutionView_;
 	AMControlSetView *trackingView_;
-	AMDetectorInfoSetView *detectorView_;
-	AMOldDetectorInfoSet *cfgDetectorInfoSet_;
+	AMDetectorSetView *xasDetectorsView_;
 
 	QLabel *warningsLabel_;
 	QVBoxLayout vl_;

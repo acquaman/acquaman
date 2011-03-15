@@ -51,7 +51,6 @@ AMDacqScanController::AMDacqScanController(AMScanConfiguration *cfg, QObject *pa
 
 void AMDacqScanController::start(){
 	if(initialized_){
-	//	acqBaseOutput *abop = acqOutputHandlerFactory::new_acqOutput("AMScan", "File");
 		acqBaseOutput *abop = acqOutputHandlerFactory::new_acqOutput("AMScanSpectrum", "File");
 		if( abop)
 		{

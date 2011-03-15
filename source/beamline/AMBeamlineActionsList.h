@@ -26,11 +26,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QQueue>
 
 #include "beamline/AMBeamlineActionItem.h"
-/*
-#include "beamline/AMBeamlineScanAction.h"
-#include "beamline/AMBeamlineControlMoveAction.h"
-#include "beamline/AMBeamlineControlSetMoveAction.h"
-*/
 
 class AMBeamlineActionListModel;
 
@@ -62,7 +57,7 @@ signals:
 	void actionFailed(int index, int explanation);
 
 private slots:
-	void onDataChanged(QModelIndex a,QModelIndex b);//{ Q_UNUSED(a); Q_UNUSED(b); emit actionsChanged();}
+	void onDataChanged(QModelIndex a,QModelIndex b);
 	void onRowsInserted(QModelIndex parent, int start, int end);
 	void onRowsRemoved(QModelIndex parent, int start, int end);
 	void onActionStarted();

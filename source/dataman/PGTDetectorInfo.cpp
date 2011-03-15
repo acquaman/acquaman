@@ -13,6 +13,16 @@ PGTDetectorInfo::PGTDetectorInfo(const PGTDetectorInfo &original) :
 	retreiveAndSetProperties(original);
 }
 
+AMDetectorInfo* PGTDetectorInfo::toNewInfo() const{
+	return new PGTDetectorInfo(*this);
+}
+
+PGTDetectorInfo& PGTDetectorInfo::operator =(const PGTDetectorInfo &other){
+	if(this != &other)
+		retreiveAndSetProperties(other);
+	return *this;
+}
+
 
 double PGTDetectorInfo::hvSetpoint() const {
 	return hvSetpoint_;
@@ -28,6 +38,13 @@ double PGTDetectorInfo::hvSetpointRangeMax() const {
 
 QPair<double, double> PGTDetectorInfo::hvSetpointRange() const {
 	return QPair<double, double>(hvSetpointRangeMin_, hvSetpointRangeMax_);
+}
+
+QDebug PGTDetectorInfo::qDebugPrint(QDebug &d) const{
+	d << hvSetpoint() << "[hvSetpoint]"
+			<< integrationMode() << "[integrationMode]"
+			<< integrationTime() << "[integrationTime]";
+	return d;
 }
 
 bool PGTDetectorInfo::hasDetails() const {

@@ -14,31 +14,33 @@ public:
 	  */
 	explicit AMDetectorSetView(AMDetectorSet *viewSet, bool configureOnly = false, QWidget *parent = 0);
 
-	AMDetectorView* boxByName(const QString &name){
-		return detectorBoxes_.at(viewSet_->indexOfKey(name));
-	}
+	int count() const;
+	AMDetectorSet* detectorSet();
+	AMDetectorView* boxByName(const QString &name);
+	AMDetectorView const * const boxAt(int row) const;
+	AMDetectorView* detailByName(const QString &name);
+	AMDetectorView const * const detailAt(int row) const;
+	bool checkedAt(int row) const;
 
-	AMDetectorView* boxAt(int row){
-		return detectorBoxes_.at(row);
-	}
-
-	/// Returns the current values of the control set
+	/// Returns the current values of the detector set
 	AMDetectorInfoSet currentValues();
 	/// Returns the desired values if the view is used for configuration only (returns the current values if the view is not for configuration only)
 	AMDetectorInfoSet configValues();
 
+	friend QDebug operator<<(QDebug d, const AMDetectorSetView& dsv);
+
 signals:
 	/// Emitted when any control value in the control set changes (but ONLY when the view is not configure only)
-	void currentValuesChanged(AMDetectorInfoSet);
-	/// Emitted when any configuration value changes (but ONLY when the view is configure only)
-	void configValuesChanged(AMDetectorInfoSet);
+	void currentValuesChanged();
+	/// Emitted when any configuration value changes or when a detector is enabled/disabled (but ONLY when the view is configure only)
+	void configValuesChanged();
 
 public slots:
 
 protected slots:
 	void onDetectorAddedToSet(int index);
-	void onControlSetValuesChanged(AMDetectorInfoSet infoList);
-	void onConfigurationValueChanged();
+	void onDetectorSetSettingsChanged();
+	void onDetectorSetConfigurationRequested();
 
 protected:
 	/// Pointer to the AMControlSet which is the subject of this view.
@@ -46,6 +48,7 @@ protected:
 	bool configureOnly_;
 	QList<AMDetectorView*> detectorBoxes_;
 	QList<AMDetectorView*> detectorDetails_;
+	QList<QCheckBox*> checkBoxes_;
 	QGridLayout *gl_;
 };
 

@@ -127,11 +127,9 @@ public slots:
 signals:
 	void currentScanControllerCreated();
 	void currentScanControllerDestroyed();
-//	void currentScanControllerReinitialized(bool removeScan);
 
 protected slots:
 	void onCurrentScanControllerFinished();
-	// void onCurrentScanControllerReinitialized(bool removeScan);
 
 protected:
 	AMScanControllerSupervisor(QObject *parent = 0);

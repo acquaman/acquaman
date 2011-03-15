@@ -50,12 +50,9 @@ void SGMBeamline::usingSGMBeamline(){
 	amNames2pvNames_.set("tey", "BL1611-ID-1:mcs00:fbk");
 	//amNames2pvNames_.set("tfy", "A1611-4-16:A:fbk");
 	amNames2pvNames_.set("tfy", "BL1611-ID-1:mcs02:fbk");
-	amNames2pvNames_.set("tfyHVSetpoint", "PS1611401:109:v0set");
-	amNames2pvNames_.set("tfyHVFbk", "PS1611401:109:vmon");
+	amNames2pvNames_.set("tfyHV", "PS1611401:109");
 	amNames2pvNames_.set("pgt", "MCA1611-01:GetChannels");
-	amNames2pvNames_.set("pgtHVSetpoint", "MCA1611-01:Bias:Volt");
-	amNames2pvNames_.set("pgtHVFbk", "MCA1611-01:Bias:VoltActual:fbk");
-	amNames2pvNames_.set("pgtHVRamping", "MCA1611-01:Bias:Volt:fbk");
+	amNames2pvNames_.set("pgtHV", "MCA1611-01:Bias:Volt");
 	amNames2pvNames_.set("pgtIntegrationTime", "MCA1611-01:Preset:Live");
 	amNames2pvNames_.set("pgtIntegrationMode", "MCA1611-01:Preset:Live");
 	//amNames2pvNames_.set("I0", "A1611-4-14:A:fbk");
@@ -92,7 +89,6 @@ void SGMBeamline::usingSGMBeamline(){
 	amNames2pvNames_.set("visibleLightStatus", "BL1611-ID-1:visible:cal");
 	amNames2pvNames_.set("activeEndstation", "david:endstation:active");
 
-	//ringCurrent_ = new AMReadOnlyPVControl("ringCurrent", AMPVNames::toPV("ringCurrent"), this);
 	ringCurrent_ = new AMReadOnlyPVControl("ringCurrent", "PCT1402-01:mA:fbk", this);
 	addChildControl(ringCurrent_);
 
@@ -196,28 +192,18 @@ void SGMBeamline::usingSGMBeamline(){
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	tfy_ = new AMReadOnlyPVControl("tfy", sgmPVName, this);
-	sgmPVName = amNames2pvNames_.valueF("tfyHVSetpoint");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	tfyHVSetpoint_ = new AMPVControl("tfyHVSetpoint", amNames2pvNames_.valueF("tfyHVFbk"), amNames2pvNames_.valueF("tfyHVSetpoint"), "", this, 10.0);
-	sgmPVName = amNames2pvNames_.valueF("tfyHVFbk");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	tfyHVFbk_ = new AMPVControl("tfyHVFbk", sgmPVName, sgmPVName, "", this, 10.0);
+
+	sgmPVName = amNames2pvNames_.valueF("tfyHV");
+	tfyHV_ = new AMPVControl("tfyHV", sgmPVName+":vmon", sgmPVName+":v0set", QString(), this, 0.5);
 
 	sgmPVName = amNames2pvNames_.valueF("pgt");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	pgt_ = new AMReadOnlyPVControl("pgt", sgmPVName, this);
-	sgmPVName = amNames2pvNames_.valueF("pgtHVSetpoint");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	//    pgtHVSetpoint_ = new AMPVControl("pgtHVSetpoint", amNames2pvNames_.valueF("pgtHVFbk"), amNames2pvNames_.valueF("pgtHVSetpoint"), this, 0.5);
-	pgtHVSetpoint_ = new AMPVControl("pgtHVSetpoint", amNames2pvNames_.valueF("pgtHVSetpoint"), amNames2pvNames_.valueF("pgtHVSetpoint"), "", this, 0.5);
-	sgmPVName = amNames2pvNames_.valueF("pgtHVFbk");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	pgtHVFbk_ = new AMReadOnlyPVControl("pgtHVFbk", sgmPVName, this);
+
+	sgmPVName = amNames2pvNames_.valueF("pgtHV");
+	pgtHV_ = new AMPVControl("pgtHV", sgmPVName+"Actual:fbk", sgmPVName, QString(), this, 0.5);
+
 	sgmPVName = amNames2pvNames_.valueF("pgtIntegrationTime");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
@@ -375,12 +361,9 @@ void SGMBeamline::usingFakeBeamline(){
 	amNames2pvNames_.set("exitSlitTracking", "reixsHost:Energy:exitSlit:tracking");
 	amNames2pvNames_.set("tey", "reixsHost:tey");
 	amNames2pvNames_.set("tfy", "reixsHost:tfy");
-	amNames2pvNames_.set("tfyHVSetpoint", "reixsHost:tfy:hv:sp");
-	amNames2pvNames_.set("tfyHVFbk", "reixsHost:tfy:hv:fbk");
+	amNames2pvNames_.set("tfyHV", "reixsHost:tfy:hv");
 	amNames2pvNames_.set("pgt", "reixsHost:sdd:spectrum");
-	amNames2pvNames_.set("pgtHVSetpoint", "reixsHost:sdd:hv:sp");
-	amNames2pvNames_.set("pgtHVFbk", "reixsHost:sdd:hv:fbk");
-	amNames2pvNames_.set("pgtHVRamping", "reixsHost:sdd:hv:ramping");
+	amNames2pvNames_.set("pgtHV", "reixsHost:sdd:hv");
 	amNames2pvNames_.set("pgtIntegrationTime", "reixsHost:sdd:integration:time");
 	amNames2pvNames_.set("pgtIntegrationMode", "reixsHost:sdd:integration:mode");
 	amNames2pvNames_.set("I0", "reixsHost:I0");
@@ -415,20 +398,15 @@ void SGMBeamline::usingFakeBeamline(){
 	amNames2pvNames_.set("activeEndstation", "reixsHost:endstation:active");
 
 	ringCurrent_ = new AMReadOnlyPVControl("ringCurrent", "PCT1402-01:mA:fbk", this);
-	//ringCurrent_ = new AMPVControl("ringCurrent", "PCT1402-01:mA:fbk", "PCT1402-01:mA:fbk", QString(), this);
-	//ringCurrent_ = new AMPVwStatusControl("ringCurrent", "PCT1402-01:mA:fbk", "PCT1402-01:mA:fbk", "PCT1402-01:mA:fbk", QString(), this);
 	addChildControl(ringCurrent_);
 
 	QString sgmPVName = amNames2pvNames_.valueF("energy");
 	energy_ = new AMPVwStatusControl("energy", sgmPVName+":fbk", sgmPVName, sgmPVName+":moving", "", this, 0.01);
 	sgmPVName = amNames2pvNames_.valueF("mono");
-	//AMReadOnlyPVwStatusControl *mono = new AMReadOnlyPVwStatusControl("mono", sgmPVName, sgmPVName+":moving", energy_);
 	AMPVwStatusControl *mono = new AMPVwStatusControl("mono", sgmPVName, sgmPVName, sgmPVName+":moving", sgmPVName+":stop", energy_, 5);
 	sgmPVName = amNames2pvNames_.valueF("undulator");
-	//AMReadOnlyPVwStatusControl *undulator = new AMReadOnlyPVwStatusControl("undulator", sgmPVName, sgmPVName+":moving", energy_);
 	AMPVwStatusControl *undulator = new AMPVwStatusControl("undulator", sgmPVName, sgmPVName, sgmPVName+":moving", sgmPVName+":stop", energy_, 0.1);
 	sgmPVName = amNames2pvNames_.valueF("exitSlit");
-	//AMReadOnlyPVwStatusControl *exitSlit = new AMReadOnlyPVwStatusControl("exitSlit", sgmPVName, sgmPVName+":moving", energy_);
 	AMPVwStatusControl *exitSlit = new AMPVwStatusControl("exitSlit", sgmPVName, sgmPVName, sgmPVName+":moving", sgmPVName+":stop", energy_, 0.1);
 	energy_->addChildControl(mono);
 	energy_->addChildControl(undulator);
@@ -465,17 +443,13 @@ void SGMBeamline::usingFakeBeamline(){
 
 	sgmPVName = amNames2pvNames_.valueF("tfy");
 	tfy_ = new AMReadOnlyPVControl("tfy", sgmPVName, this);
-	sgmPVName = amNames2pvNames_.valueF("tfyHVSetpoint");
-	tfyHVSetpoint_ = new AMPVControl("tfyHVSetpoint", amNames2pvNames_.valueF("tfyHVFbk"), amNames2pvNames_.valueF("tfyHVSetpoint"), "", this, 10.0);
-	sgmPVName = amNames2pvNames_.valueF("tfyHVFbk");
-	tfyHVFbk_ = new AMPVControl("tfyHVFbk", sgmPVName, sgmPVName, "", this, 10.0);
+	sgmPVName = amNames2pvNames_.valueF("tfyHV");
+	tfyHV_ = new AMPVControl("tfyHV", sgmPVName+":fbk", sgmPVName+":sp", QString(), this, 0.5);
 
 	sgmPVName = amNames2pvNames_.valueF("pgt");
-	pgt_ = new AMReadOnlyPVControl("pgt", sgmPVName, this);
-	sgmPVName = amNames2pvNames_.valueF("pgtHVSetpoint");
-	pgtHVSetpoint_ = new AMPVControl("pgtHVSetpoint", amNames2pvNames_.valueF("pgtHVSetpoint"), amNames2pvNames_.valueF("pgtHVSetpoint"), "", this, 0.5);
-	sgmPVName = amNames2pvNames_.valueF("pgtHVFbk");
-	pgtHVFbk_ = new AMReadOnlyPVControl("pgtHVFbk", sgmPVName, this);
+	pgt_ = new AMReadOnlyWaveformPVControl("pgt", sgmPVName, 0, 1024, this);
+	sgmPVName = amNames2pvNames_.valueF("pgtHV");
+	pgtHV_ = new AMPVControl("pgtHV", sgmPVName+":fbk", sgmPVName+":sp", QString(), this, 0.5);
 	sgmPVName = amNames2pvNames_.valueF("pgtIntegrationTime");
 	pgtIntegrationTime_ = new AMPVControl("pgtIntegrationTime", sgmPVName, sgmPVName, "", this, 0.1);
 	sgmPVName = amNames2pvNames_.valueF("pgtIntegrationMode");
@@ -576,11 +550,9 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	addChildControl(exitSlitTracking_);
 	addChildControl(tey_);
 	addChildControl(tfy_);
-	addChildControl(tfyHVSetpoint_);
-	addChildControl(tfyHVFbk_);
+	addChildControl(tfyHV_);
 	addChildControl(pgt_);
-	addChildControl(pgtHVSetpoint_);
-	addChildControl(pgtHVFbk_);
+	addChildControl(pgtHV_);
 	addChildControl(pgtIntegrationTime_);
 	addChildControl(pgtIntegrationMode_);
 	addChildControl(i0_);
@@ -646,29 +618,24 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	teyControlSet_->setName("TEY Controls");
 	teyControlSet_->addControl(tey_);
 	teyDetector_ = NULL;
-	teyDetectorNew_ = NULL;
 	unconnectedSets_.append(teyControlSet_);
 	connect(teyControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
 	tfyControlSet_ = new AMControlSet(this);
 	tfyControlSet_->setName("TFY Controls");
 	tfyControlSet_->addControl(tfy_);
-	tfyControlSet_->addControl(tfyHVSetpoint_);
-	tfyControlSet_->addControl(tfyHVFbk_);
+	tfyControlSet_->addControl(tfyHV_);
 	tfyDetector_ = NULL;
-	tfyDetectorNew_ = NULL;
 	unconnectedSets_.append(tfyControlSet_);
 	connect(tfyControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
 	pgtControlSet_ = new AMControlSet(this);
 	pgtControlSet_->setName("SDD Controls");
 	pgtControlSet_->addControl(pgt_);
-	pgtControlSet_->addControl(pgtHVSetpoint_);
-	pgtControlSet_->addControl(pgtHVFbk_);
+	pgtControlSet_->addControl(pgtHV_);
 	pgtControlSet_->addControl(pgtIntegrationTime_);
 	pgtControlSet_->addControl(pgtIntegrationMode_);
 	pgtDetector_ = NULL;
-	pgtDetectorNew_ = NULL;
 	unconnectedSets_.append(pgtControlSet_);
 	connect(pgtControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
@@ -676,7 +643,6 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	i0ControlSet_->setName("I0 Controls");
 	i0ControlSet_->addControl(i0_);
 	i0Detector_ = NULL;
-	i0DetectorNew_ = NULL;
 	unconnectedSets_.append(i0ControlSet_);
 	connect(i0ControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
@@ -684,7 +650,6 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	eVFbkControlSet_->setName("Energy Feedback Controls");
 	eVFbkControlSet_->addControl(photodiode_);
 	eVFbkDetector_ = NULL;
-	eVFbkDetectorNew_ = NULL;
 	unconnectedSets_.append(eVFbkControlSet_);
 	connect(eVFbkControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
@@ -692,7 +657,6 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	photodiodeControlSet_->setName("Photodiode Controls");
 	photodiodeControlSet_->addControl(photodiode_);
 	photodiodeDetector_ = NULL;
-	photodiodeDetectorNew_ = NULL;
 	unconnectedSets_.append(photodiodeControlSet_);
 	connect(photodiodeControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
@@ -700,7 +664,6 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	encoderUpControlSet_->setName("Encoder Up Controls");
 	encoderUpControlSet_->addControl(encoderUp_);
 	encoderUpDetector_ = NULL;
-	encoderUpDetectorNew_ = NULL;
 	unconnectedSets_.append(encoderUpControlSet_);
 	connect(encoderUpControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
@@ -708,7 +671,6 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	encoderDownControlSet_->setName("Encoder Down Controls");
 	encoderDownControlSet_->addControl(encoderDown_);
 	encoderDownDetector_ = NULL;
-	encoderDownDetectorNew_ = NULL;
 	unconnectedSets_.append(encoderDownControlSet_);
 	connect(encoderDownControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
@@ -743,21 +705,14 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	unconnectedSets_.append(ssaManipulatorSet_);
 	connect(ssaManipulatorSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
-	allDetectors_ = new AMOldDetectorInfoSet(this);
+	allDetectors_ = new AMDetectorSet(this);
 	allDetectors_->setName("All Detectors");
-	allDetectorsNew_ = new AMDetectorSet(this);
-	allDetectorsNew_->setName("All Detectors");
 
-
-	feedbackDetectors_ = new AMOldDetectorInfoSet(this);
+	feedbackDetectors_ = new AMDetectorSet(this);
 	feedbackDetectors_->setName("Feedback Detectors");
-	feedbackDetectorsNew_ = new AMDetectorSet(this);
-	feedbackDetectorsNew_->setName("Feedback Detectors");
 
-	XASDetectors_ = new AMOldDetectorInfoSet(this);
+	XASDetectors_ = new AMDetectorSet(this);
 	XASDetectors_->setName("XAS Detectors");
-	XASDetectorsNew_ = new AMDetectorSet(this);
-	XASDetectorsNew_->setName("XAS Detectors");
 
 	currentSamplePlate_ = new AMSamplePlate(this);
 
@@ -967,10 +922,8 @@ bool SGMBeamline::energyValidForSettings(sgmGrating grating, sgmHarmonic harmoni
 		return true;
 	else if( (grating == 1) && (harmonic == 1) && (energy > 440) && (energy < 1200) )
 		return true;
-	//else if( (grating == 2) && (harmonic == 1) && (energy > 800) && (energy < 1100) )
 	else if( (grating == 2) && (harmonic == 1) && (energy > 800) && (energy < 1150) )
 		return true;
-	//else if( (grating == 2) && (harmonic == 3) && (energy > 1100) && (energy < 2000) )
 	else if( (grating == 2) && (harmonic == 3) && (energy > 1050) && (energy < 2000) )
 		return true;
 	else
@@ -982,10 +935,8 @@ bool SGMBeamline::energyRangeValidForSettings(sgmGrating grating, sgmHarmonic ha
 		return true;
 	else if( (grating == 1) && (harmonic == 1) && (maxEnergy > 440) && (minEnergy < 1200) )
 		return true;
-	//else if( (grating == 2) && (harmonic == 1) && (maxEnergy > 800) && (minEnergy < 1100) )
 	else if( (grating == 2) && (harmonic == 1) && (maxEnergy > 800) && (minEnergy < 1150) )
 		return true;
-	//else if( (grating == 2) && (harmonic == 3) && (maxEnergy > 1100) && (minEnergy < 2000) )
 	else if( (grating == 2) && (harmonic == 3) && (maxEnergy > 1050) && (minEnergy < 2000) )
 		return true;
 	else
@@ -1048,78 +999,43 @@ void SGMBeamline::onControlSetConnected(bool csConnected){
 	AMControlSet *ctrlSet = (AMControlSet*)QObject::sender();
 
 	if(csConnected){
-		//qDebug() << ctrlSet->name() << " is connected";
 		unconnectedSets_.removeAll(ctrlSet);
 		if(!teyDetector_ && ctrlSet->name() == "TEY Controls"){
 			teyDetector_ = new AMSingleControlDetector(tey_->name(), tey_, this);
-			teyDetector_->setDescription("TEY");
-			//teyDetector_->setDetectorDescription("TEY");
-			teyDetectorNew_ = (AMSingleControlDetector*)teyDetector_;
-			allDetectors_->addDetector(teyDetector_, true);
+			allDetectors_->addDetector(teyDetector_);
 			XASDetectors_->addDetector(teyDetector_, true);
-			allDetectorsNew_->addDetector(teyDetectorNew_);
-			XASDetectorsNew_->addDetector(teyDetectorNew_);
 		}
 		else if(!tfyDetector_ && ctrlSet->name() == "TFY Controls"){
-			tfyDetector_ = new MCPDetector(tfy_->name(), tfy_, tfyHVSetpoint_, tfyHVFbk_, this);
-			tfyDetector_->setDescription("TFY");
-			//tfyDetector_->setDetectorDescription("TFY");
-			tfyDetectorNew_ = (MCPDetector*)tfyDetector_;
-			allDetectors_->addDetector(tfyDetector_, true);
+			tfyDetector_ = new MCPDetector(tfy_->name(), tfy_, tfyHV_, this);
+			allDetectors_->addDetector(tfyDetector_);
 			XASDetectors_->addDetector(tfyDetector_, true);
-			allDetectorsNew_->addDetector(tfyDetectorNew_);
-			XASDetectorsNew_->addDetector(tfyDetectorNew_);
 		}
 		else if(!pgtDetector_ && ctrlSet->name() == "SDD Controls"){
-			pgtDetector_ = new PGTDetector(pgt_->name(), pgt_, pgtHVSetpoint_, pgtHVFbk_, pgtIntegrationTime_, pgtIntegrationMode_, this);
-			pgtDetector_->setDescription("SDD");
-			//pgtDetector_->setDetectorDescription("SDD");
-			pgtDetectorNew_ = (PGTDetector*)pgtDetector_;
-			allDetectors_->addDetector(pgtDetector_, false);
-			XASDetectors_->addDetector(pgtDetector_, false);
-			allDetectorsNew_->addDetector(pgtDetectorNew_);
-			XASDetectorsNew_->addDetector(pgtDetectorNew_);
+			pgtDetector_ = new PGTDetector(pgt_->name(), pgt_, pgtHV_, pgtIntegrationTime_, pgtIntegrationMode_, this);
+			allDetectors_->addDetector(pgtDetector_);
+			XASDetectors_->addDetector(pgtDetector_);
 		}
 		else if(!i0Detector_ && ctrlSet->name() == "I0 Controls"){
 			i0Detector_ = new AMSingleControlDetector(i0_->name(), i0_, this);
-			i0Detector_->setDescription("I0");
-			//i0Detector_->setDetectorDescription("I0");
-			i0DetectorNew_ = (AMSingleControlDetector*)i0Detector_;
-			allDetectors_->addDetector(i0Detector_, true);
-			feedbackDetectors_->addDetector(i0Detector_, true);
-			allDetectorsNew_->addDetector(i0DetectorNew_);
-			feedbackDetectorsNew_->addDetector(i0DetectorNew_);
+			allDetectors_->addDetector(i0Detector_);
+			feedbackDetectors_->addDetector(i0Detector_);
 		}
 		else if(!eVFbkDetector_ && ctrlSet->name() == "Energy Feedback Controls"){
 			eVFbkDetector_ = new AMSingleControlDetector(eVFbk_->name(), eVFbk_, this);
-			eVFbkDetector_->setDescription("Energy Feedback");
-			//eVFbkDetector_->setDetctorDescription("Energy Feedback");
-			eVFbkDetectorNew_ = (AMSingleControlDetector*)eVFbkDetector_;
-			allDetectors_->addDetector(eVFbkDetector_, true);
-			feedbackDetectors_->addDetector(eVFbkDetector_, true);
-			allDetectorsNew_->addDetector(eVFbkDetectorNew_);
-			feedbackDetectorsNew_->addDetector(eVFbkDetectorNew_);
+			allDetectors_->addDetector(eVFbkDetector_);
+			feedbackDetectors_->addDetector(eVFbkDetector_);
 		}
 		else if(!photodiodeDetector_ && ctrlSet->name() == "Photodiode Controls"){
 			photodiodeDetector_ = new AMSingleControlDetector(photodiode_->name(), photodiode_, this);
-			photodiodeDetector_->setDescription("Photodiode");
-			photodiodeDetectorNew_ = (AMSingleControlDetector*)photodiodeDetector_;
-			allDetectors_->addDetector(photodiodeDetector_, true);
-			allDetectorsNew_->addDetector(photodiodeDetectorNew_);
+			allDetectors_->addDetector(photodiodeDetector_);
 		}
 		else if(!encoderUpDetector_ && ctrlSet->name() == "Encoder Up Controls"){
 			encoderUpDetector_ = new AMSingleControlDetector(encoderUp_->name(), encoderUp_, this);
-			encoderUpDetector_->setDescription("Encoder Up");
-			encoderUpDetectorNew_ = (AMSingleControlDetector*)encoderUpDetector_;
-			allDetectors_->addDetector(encoderUpDetector_, true);
-			allDetectorsNew_->addDetector(encoderUpDetectorNew_);
+			allDetectors_->addDetector(encoderUpDetector_);
 		}
 		else if(!encoderDownDetector_ && ctrlSet->name() == "Encoder Down Controls"){
 			encoderDownDetector_ = new AMSingleControlDetector(encoderDown_->name(), encoderDown_, this);
-			encoderDownDetector_->setDescription("Encoder Down");
-			encoderDownDetectorNew_ = (AMSingleControlDetector*)encoderDownDetector_;
-			allDetectors_->addDetector(encoderDownDetector_, true);
-			allDetectorsNew_->addDetector(encoderDownDetectorNew_);
+			allDetectors_->addDetector(encoderDownDetector_);
 		}
 		emit controlSetConnectionsChanged();
 	}
@@ -1128,18 +1044,10 @@ void SGMBeamline::onControlSetConnected(bool csConnected){
 			unconnectedSets_.append(ctrlSet);
 			emit controlSetConnectionsChanged();
 		}
-		//qDebug() << ctrlSet->name() << " is NOT connected";
 	}
-	/*
-	QString tmpStr = "Unconnected at end";
-	for(int x = 0; x < unconnectedSets_.count(); x++)
-		tmpStr.append(" "+unconnectedSets_.at(x)->name());
-	qDebug() << tmpStr;
-	*/
 }
 
 void SGMBeamline::onCriticalControlsConnectedChanged(bool isConnected, AMControl *control){
-	//qDebug() << "Detected a critical contorl change " << control->name();
 	emit criticalControlsConnectionsChanged();
 }
 
@@ -1169,9 +1077,6 @@ void SGMBeamline::createBeamOnActions(){
 		beamOnAction1_->setSetpoint(1);
 		beamOnAction2_ = new AMBeamlineControlMoveAction(fastShutterVoltage(), this);
 		beamOnAction2_->setSetpoint(0);
-//		beamOnActionsList_->addAction(0, beamOnAction1_);
-//		beamOnActionsList_->appendAction(beamOnAction2_);
-//		connect(beamOnAction2_, SIGNAL(finished()), this, SLOT(onBeamOnActionsFinsihed()));
 		beamOnActionsList_->appendStage(new QList<AMBeamlineActionItem*>());
 		beamOnActionsList_->appendAction(beamOnActionsList_->stageCount(), beamOnAction1_);
 		beamOnActionsList_->appendAction(beamOnActionsList_->stageCount(), beamOnAction2_);
@@ -1182,8 +1087,6 @@ void SGMBeamline::createBeamOnActions(){
 void SGMBeamline::onBeamOnActionsFinsihed(){
 	if(beamOnAction1_ && beamOnAction2_ && beamOnAction1_->hasFinished() && beamOnAction2_->hasFinished()){
 		disconnect(beamOnActionsList_, SIGNAL(listSucceeded()), this, SLOT(onBeamOnActionsFinsihed()));
-//		beamOnActionsList_->deleteAction(1);
-//		beamOnActionsList_->deleteAction(0);
 		beamOnActionsList_->deleteStage(beamOnActionsList_->stageCount());
 		delete beamOnAction1_;
 		delete beamOnAction2_;
@@ -1194,7 +1097,7 @@ void SGMBeamline::onBeamOnActionsFinsihed(){
 }
 
 void SGMBeamline::createStopMotorsActions(){
-	/*
+	/* NTBA March 14, 2011 David Chevrier
 	//if(!beamOnControlSet_->isConnected())
 	//	return;
 	if(!stopMotorsActionsList_){
@@ -1216,7 +1119,7 @@ void SGMBeamline::createStopMotorsActions(){
 }
 
 void SGMBeamline::onStopMotorsActionsFinished(){
-	/*
+	/* NTBA March 14, 2011 David Chevrier
 	if(beamOnAction1_ && beamOnAction2_ && beamOnAction1_->hasFinished() && beamOnAction2_->hasFinished()){
 		disconnect(beamOnActionsList_, SIGNAL(listSucceeded()), this, SLOT(onBeamOnActionsFinsihed()));
 //		beamOnActionsList_->deleteAction(1);
@@ -1328,7 +1231,6 @@ QMap< QString, QMap<double, double> > SGMFluxOptimization::collapse(AMRegionsLis
 	h1 << 250.0 << 2 << 1;
 	h3 << 250.0 << 2 << 3;
 	int numPoints = 50;
-	//int numPoints = 100;
 	double stepSize = 250/(numPoints-1);
 	QMap<double, double> fluxL1, fluxM1, fluxH1, fluxH3;
 	for(double x = stepSize; x < 250; x+=stepSize){
@@ -1503,10 +1405,6 @@ QMap<double, double> SGMResolutionOptimization::curve(QList<QVariant> stateParam
 					rCurve[y] = 0.0;
 				else{
 					rCurve[y] = y/(pow(10, C(2)*y*y + C(1)*y + C(0))*1e-3);
-					/*
-				tmpVal = y/(pow(10, C(2)*y*y + C(1)*y + C(0))*1e-3);
-				rCurve[y] = tmpVal - (1-exp(-tmpVal))*(tmpVal-_maxRes);
-				*/
 				}
 			}
 		}
@@ -1530,7 +1428,6 @@ QMap< QString, QMap<double, double> > SGMResolutionOptimization::collapse(AMRegi
 	h1 << 250.0 << 2 << 1;
 	h3 << 250.0 << 2 << 3;
 	int numPoints = 50;
-	//int numPoints = 100;
 	double stepSize = 250/(numPoints-1);
 	QMap<double, double> resL1, resM1, resH1, resH3;
 	for(double x = stepSize; x < 250; x+=stepSize){

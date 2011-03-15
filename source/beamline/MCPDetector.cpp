@@ -1,36 +1,27 @@
 #include "MCPDetector.h"
 
-MCPDetector::MCPDetector(const QString &name, AMControlSet *controls, QObject *parent) :
+MCPDetector::MCPDetector(const QString &name, AMControlSet *readingsControls, AMControlSet *settingsControls, QObject *parent) :
 		MCPDetectorInfo(name, name, parent), AMDetector(name)
 {
-	ownsControlSet_ = false;
-	initializeFromControlSet(controls);
+	ownsControlSets_ = false;
+	initializeFromControlSet(readingsControls, settingsControls);
 }
 
 
-MCPDetector::MCPDetector(const QString &name, AMControl *reading, AMControl *hvSetpoint, AMControl *hvFbk, QObject *parent) :
+MCPDetector::MCPDetector(const QString &name, AMControl *reading, AMControl *hv, QObject *parent) :
 		MCPDetectorInfo(name, name, parent), AMDetector(name)
 {
-	ownsControlSet_ = true;
-	AMControlSet *lControls = new AMControlSet(this);
-	lControls->addControl(reading);
-	lControls->addControl(hvSetpoint);
-	lControls->addControl(hvFbk);
-	initializeFromControlSet(lControls);
-	/*
-	reading_ = reading;
-	hvSetpoint_ = hvSetpoint;
-	hvFbk_ = hvFbk;
-	connect(reading_, SIGNAL(connected(bool)), AMDetector::signalSource(), SIGNAL(connected(bool)));
-	connect(reading_, SIGNAL(valueChanged(double)), AMDetector::signalSource(), SIGNAL(valuesChanged()));
-	*/
+	ownsControlSets_ = true;
+	AMControlSet *readingsControls = new AMControlSet(this);
+	readingsControls->addControl(reading);
+	AMControlSet *settingsControls = new AMControlSet(this);
+	settingsControls->addControl(hv);
+	initializeFromControlSet(readingsControls, settingsControls);
 }
 
 MCPDetector::~MCPDetector(){
-	/*
-	reading_ = NULL;
-	hvSetpoint_ = NULL;
-	hvFbk_ = NULL;
+	/* NTBA March 14, 2011 David Chevrier
+	   Need to take care of ownsControlSet_
 	*/
 }
 
@@ -38,36 +29,46 @@ const QMetaObject* MCPDetector::getMetaObject() {
 	return metaObject();
 }
 
-AMDetectorInfo MCPDetector::toInfo(){
+AMDetectorInfo* MCPDetector::toInfo() const{
+	return new MCPDetectorInfo(*this);
+}
+
+MCPDetectorInfo MCPDetector::toMCPInfo() const{
 	return MCPDetectorInfo(*this);
 }
 
+bool MCPDetector::isPoweredOn(){
+	return poweredOn_;
+}
+
 AMControl* MCPDetector::readingCtrl() const {
-	if(controls_->isConnected())
-		return controls_->at(0);
+	if(isConnected())
+		return readingsControls_->at(0);
+	return 0;
 }
 
-AMControl* MCPDetector::hvSetpointCtrl() const {
-	if(controls_->isConnected())
-		return controls_->at(1);
+AMControl* MCPDetector::hvCtrl() const {
+	if(isConnected())
+		return settingsControls_->at(0);
+	return 0;
 }
 
-AMControl* MCPDetector::hvFbkCtrl() const {
-	if(controls_->isConnected())
-		return controls_->at(2);
-}
-
-bool MCPDetector::setFromInfo(const AMDetectorInfo &info){
-	const MCPDetectorInfo *di = qobject_cast<const MCPDetectorInfo*>(&info);
+bool MCPDetector::setFromInfo(const AMDetectorInfo *info){
+	const MCPDetectorInfo *di = qobject_cast<const MCPDetectorInfo*>(info);
 	if(!di)
 		return false;
-	hvSetpointCtrl()->move(di->hvSetpoint());
+	hvCtrl()->move(di->hvSetpoint());
+	return true;
+}
+
+bool MCPDetector::setFromInfo(const MCPDetectorInfo& info){
+	hvCtrl()->move(info.hvSetpoint());
 	return true;
 }
 
 bool MCPDetector::settingsMatchFbk(MCPDetectorInfo *settings){
 	bool rVal = false;
-	if( fabs(settings->hvSetpoint() - hvFbkCtrl()->value()) > hvFbkCtrl()->tolerance())
+	if( fabs(settings->hvSetpoint() - hvCtrl()->value()) > hvCtrl()->tolerance())
 		return rVal;
 	else{
 		rVal = true;
@@ -80,7 +81,7 @@ QString MCPDetector::description() const{
 }
 
 bool MCPDetector::setControls(MCPDetectorInfo *mcpSettings){
-	hvSetpointCtrl()->move( mcpSettings->hvSetpoint() );
+	hvCtrl()->move( mcpSettings->hvSetpoint() );
 	return true;
 }
 
@@ -89,24 +90,44 @@ void MCPDetector::setDescription(const QString &description){
 }
 
 void MCPDetector::onControlsConnected(bool connected){
-	if(connected != isConnected())
-		setConnected(connected);
+	bool allConnected = readingsControls_->isConnected() && settingsControls_->isConnected();
+	if(allConnected != isConnected())
+		setConnected(allConnected);
 }
 
-void MCPDetector::onControlValuesChanged(){
+void MCPDetector::onReadingsControlValuesChanged(){
+	if(isConnected())
+		emitReadingsChanged();
+}
+
+void MCPDetector::onSettingsControlValuesChanged(){
 	if(isConnected()){
-		setHVSetpoint(hvSetpointCtrl()->value());
+		setHVSetpoint(hvCtrl()->value());
+		bool lastPoweredOn = poweredOn_;
+		poweredOn_ = (hvCtrl()->value() >= 1200);
+		if(poweredOn_ != lastPoweredOn)
+			emit poweredOnChanged(poweredOn_);
+		emitSettingsChanged();
 	}
 }
 
-void MCPDetector::initializeFromControlSet(AMControlSet *controls){
-	controls_ = 0; //NULL
+void MCPDetector::initializeFromControlSet(AMControlSet *readingsControls, AMControlSet *settingsControls){
+	readingsControls_ = 0; //NULL
+	settingsControls_ = 0; //NULL
+	poweredOn_ = false;
 
-	if(controls->count() == 3){
-		controls_ = controls;
-		connect(signalSource(), SIGNAL(connected(bool)), this, SLOT(onControlValuesChanged()));
-		connect(controls_, SIGNAL(connected(bool)), this, SLOT(onControlsConnected(bool)));
-		connect(controls_, SIGNAL(controlSetValuesChanged(AMControlInfoList)), this, SLOT(onControlValuesChanged()));
-		onControlsConnected(controls_->isConnected());
+	if(readingsControls->count() == 1 && settingsControls->count() == 1){
+		readingsControls_ = readingsControls;
+		settingsControls_ = settingsControls;
+		connect(signalSource(), SIGNAL(connected(bool)), this, SLOT(onSettingsControlValuesChanged()));
+		connect(readingsControls_, SIGNAL(connected(bool)), this, SLOT(onControlsConnected(bool)));
+		connect(settingsControls_, SIGNAL(connected(bool)), this, SLOT(onControlsConnected(bool)));
+		connect(readingsControls_, SIGNAL(controlSetValuesChanged(AMControlInfoList)), this, SLOT(onReadingsControlValuesChanged()));
+		connect(settingsControls_, SIGNAL(controlSetValuesChanged(AMControlInfoList)), this, SLOT(onSettingsControlValuesChanged()));
+		onControlsConnected(readingsControls_->isConnected()&&settingsControls_->isConnected());
+		if(isConnected()){
+			onReadingsControlValuesChanged();
+			onSettingsControlValuesChanged();
+		}
 	}
 }

@@ -46,10 +46,7 @@ double AMBeamlineControlMoveAction::setpoint(){
 }
 
 void AMBeamlineControlMoveAction::start(){
-//	if(control_ && control_->canMove() && ready_){
-	//qDebug() << "Trying to start " << (int)this;
 	if(isReady()){
-		//qDebug() << "Ready so start " << (int)this;
 		connect(this, SIGNAL(finished()), this, SLOT(onFinished()));
 		connect(control_, SIGNAL(moveSucceeded()), this, SLOT(onSucceeded()));
 		connect(control_, SIGNAL(moveFailed(int)), this, SLOT(onFailed(int)));
@@ -58,7 +55,6 @@ void AMBeamlineControlMoveAction::start(){
 		connect(&progressTimer_, SIGNAL(timeout()), this, SLOT(calculateProgress()));
 		progressTimer_.start(500);
 		control_->move(setpoint_);
-//		AMBeamlineActionItem::start();
 	}
 	else
 		connect(this, SIGNAL(ready(bool)), this, SLOT(delayedStart(bool)));
@@ -128,24 +124,28 @@ void AMBeamlineControlMoveAction::onStarted(){
 }
 
 void AMBeamlineControlMoveAction::onSucceeded(){
-	qDebug() << this << "SUCEEDED";
+	if(VERBOSE_ACTION_ITEMS)
+		qDebug() << this << "SUCEEDED";
 	disconnect(control_, 0, this, 0);
 	setSucceeded(true);
 }
 
 void AMBeamlineControlMoveAction::onFailed(int explanation){
-	qDebug() << this << "FAILED as " << control_->name();
+	if(VERBOSE_ACTION_ITEMS)
+		qDebug() << this << "FAILED as " << control_->name();
 	setFailed(true, explanation);
 }
 
 void AMBeamlineControlMoveAction::onFinished(){
-	qDebug() << this << "FINISHED";
+	if(VERBOSE_ACTION_ITEMS)
+		qDebug() << this << "FINISHED";
 	progressTimer_.stop();
 	emit progress(1, 1);
 }
 
 void AMBeamlineControlMoveAction::calculateProgress(){
-	qDebug() << "Calculate progress for " << this;
+	if(VERBOSE_ACTION_ITEMS)
+		qDebug() << "Calculate progress for " << this;
 	if(control_)
 		emit progress(fabs(control_->value()-startPoint_), fabs(setpoint_-startPoint_));
 }
@@ -153,7 +153,6 @@ void AMBeamlineControlMoveAction::calculateProgress(){
 AMBeamlineControlMoveActionView::AMBeamlineControlMoveActionView(AMBeamlineControlMoveAction *moveAction, int index, QWidget *parent) :
 		AMBeamlineActionView(moveAction, index, parent)
 {
-	//moveAction_ = moveAction;
 	moveAction_ = NULL;
 	setAction(moveAction);
 	viewType_ = "controlMoveView";
@@ -231,7 +230,6 @@ void AMBeamlineControlMoveActionView::onInfoChanged(){
 	adjName.replace(QRegExp("([A-Z])"), " \\1");
 	QChar fCap = adjName[0].toUpper();
 	adjName.replace(0, 1, fCap);
-	//infoText += moveAction_->control()->name();
 	infoText += adjName;
 	infoText += " to ";
 	tmpStr.setNum( moveAction_->setpoint() );
@@ -266,18 +264,14 @@ void AMBeamlineControlMoveActionView::onPlayPauseButtonClicked(){
 }
 
 void AMBeamlineControlMoveActionView::onStarted(){
-//	cancelLatch_ = false;
 	stopCancelButton_->setIcon(stopIcon_);
 	playPauseButton_->setIcon(pauseIcon_);
 	playPauseButton_->setEnabled(true);
-//	updateLook();
 	emit actionStarted(moveAction_);
 }
 
 void AMBeamlineControlMoveActionView::onSucceeded(){
-	//qDebug() << "In move action (view) succeeded";
 	progressBar_->setValue(progressBar_->maximum());
-
 	progressBar_->setMaximum(100);
 	progressBar_->setValue(100);
 	timeRemainingLabel_->setText("Move Complete");
@@ -285,20 +279,14 @@ void AMBeamlineControlMoveActionView::onSucceeded(){
 	disconnect(playPauseButton_, SIGNAL(clicked()), this, SLOT(onPlayPauseButtonClicked()));
 	hl_->removeWidget(stopCancelButton_);
 	stopCancelButton_->hide();
-	//delete hl_->takeAt(hl_->indexOf(stopCancelButton_));
 	hl_->removeWidget(playPauseButton_);
 	playPauseButton_->hide();
-	//delete hl_->takeAt(hl_->indexOf(playPauseButton_));
 	emit actionSucceeded(moveAction_);
 }
 
 void AMBeamlineControlMoveActionView::onFailed(int explanation){
-//	if(explanation == 102){//102 is cancelled
-//		cancelLatch_ = true;
 		stopCancelButton_->setIcon(closeIcon_);
 		playPauseButton_->setIcon(startIcon_);
 		playPauseButton_->setEnabled(false);
 		timeRemainingLabel_->setText("Move Cancelled");
-//		emit scanCancelled(scanAction_);
-//	}
 }

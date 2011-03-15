@@ -8,7 +8,7 @@
 
 #define AMDETECTORSET_CONTROL_TIMEOUT_MS 5000
 
-class AMDetectorInfoSet : public AMDbObject, public AMOrderedList<AMDetectorInfo>
+class AMDetectorInfoSet : public AMDbObject, public AMOrderedSet<QString, QPair<AMDetectorInfo*, bool> >
 {
 Q_OBJECT
 	Q_PROPERTY(QString description READ description WRITE setDescription)
@@ -26,6 +26,7 @@ public:
 	/// Destructor
 	~AMDetectorInfoSet() {}
 
+	friend QDebug operator<<(QDebug d, const AMDetectorInfoSet& dis);
 
 	QString description();
 
@@ -33,6 +34,41 @@ public:
 	AMDbObjectList dbReadDetectorInfos();
 	/// Called by the database system on loadFromDb() to give us our new set of AMDetectorlInfo objects. We copy these ones into our internal list and then delete them.
 	void dbLoadDetectorInfos(const AMDbObjectList& newControlInfos);
+
+	/// Return the index of a given \c detectorInfo in the set. The comparison is done on the name() function returned by the detectorInfo passed into the function, not the pointer value. (Returns -1 if not found in the set.)
+	int indexOf(AMDetectorInfo *detectorInfo) const;
+	/// Return the index of the detectorInfo named \c detectorName. (Returns -1 if not found in the set.)
+	int indexOf(const QString& detectorName) const;
+	/// Returns the detectorInfo named \c detectorName. (A NULL pointer is returned if there is nothing by that name in the set.)
+	AMDetectorInfo* detectorInfoNamed(const QString& detectorName);
+	const AMDetectorInfo* const detectorInfoNamed(const QString &detectorName) const;
+	/// Returns the detectorInfo at the given index. (A NULL pointer is returned if the index is out of bounds.)
+	AMDetectorInfo* detectorInfoAt(int index);
+	// THIS WILL HAVE TO COPY AND CREATE A NEW ONE
+	AMDetectorInfo* detectorInfoAt(int index) const;
+	/* NTBA March 14, 2011 David Chevrier
+	   Need to figure out these const conditions for returned pointers
+	const AMDetectorInfo* const detectorInfoAt(int index) const;
+	*/
+	/// Returns whether or not the detectorInfo named \c detectorName has been requested for a scan.
+	bool isActiveNamed(const QString& detectorName) const;
+	/// Returns whether or not the \c detectorInfo has been requested for a scan. The comparison is done on the name() function returned by the detectorInfo passed into the function, not the pointer value.
+	bool isActiveDetectorInfo(AMDetectorInfo *detectorInfo) const;
+	/// Returns whether or not the detectorInfo at the given index has been requested for a scan.
+	bool isActiveAt(int index) const;
+
+	/// Adds an AMDetectorInfo to the detectorInfo set. Returns true if the addition was successful. Failure could result from adding an AMDetectorInfo when one with the same name is already in the set.
+	bool addDetectorInfo(AMDetectorInfo *newDetectorInfo, bool isActive = false);
+
+	/// Removes an AMDetectorInfo \c detectorInfo from the set. Returns true if the removal was successful. Failure could result from removing an AMDetectorInfo not in the set.
+	bool removeDetector(AMDetectorInfo *detectorInfo);
+
+	/// Changes whether or not the detectorInfo named \c detectorName has been requested for a scan.
+	bool setActiveNamed(const QString& detectorName, bool active);
+	/// Changes whether or not the \c detectorInfo has been requested for a scan. The comparison is done on the name() function returned by the detectorInfo passed into the function, not the pointer value.
+	bool setActiveDetectorInfo(AMDetectorInfo *detectorInfo, bool active);
+	/// Changes whether or not the detectorInfo at the given index has been requested for a scan.
+	bool setActiveAt(int index, bool active);
 
 public slots:
 	void setDescription(const QString& description);
@@ -54,50 +90,11 @@ protected slots:
 	void onDetectorRemoved(int index);
 
 protected:
-	QString description_;
-
-};
-
-
-
-class AMOldDetectorInfoSet : public QObject
-{
-Q_OBJECT
-public:
-	/// Constructor, only needs a QObject to act as a parent.
-	explicit AMOldDetectorInfoSet(QObject *parent = 0);
-	//AMDetectorInfoSet(AMDetectorInfoSet *copy, QObject *parent = 0);
-
-	~AMOldDetectorInfoSet(){
-		detectors_.clear();
-	}
-
-	/// Returns the name defined for the control set.
-	QString name() const { return name_;}
-	int count() { return detectors_.count();}
-	AMDetectorInfo* detectorAt(int index) { return detectors_.at(index);}
-	int indexOf(const QString &name);
-	AMDetectorInfo* detectorByName(const QString &name);
-	bool isDefaultAt(int index) { return defaultDetectors_.at(index);}
-	bool isDefaultByName(const QString &name);
-
-signals:
-
-public slots:
-	/// Sets the name of the control set.
-	void setName(const QString &name) { name_ = name;}
-	/// Adds an AMControl to the control set. Returns true if the addition was successful. Failure could result from adding the same AMControl twice.
-	bool addDetector(AMDetectorInfo* detector, bool defaultDetector = false);
-	/// Removes an AMControl from the control set. Returns true if the removal was successful. Failure could result from removing an AMControl not in the set.
-	bool removeDetector(AMDetectorInfo* detector);
+	int indexOfValue(const AMDetectorInfo *detectorInfo) const;
 
 protected:
-	/// Holds the name of the control set. Should be descriptive of the logical relationship.
-	/// AMControlSetView will use this value as the title of the group box being displayed.
-	QString name_;
-	/// Local list of AMControl pointers, which represent the controls in the set.
-	QList<AMDetectorInfo*> detectors_;
-	QList<bool> defaultDetectors_;
+	QString description_;
+
 };
 
 #endif // AMDETECTORINFOLIST_H

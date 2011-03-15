@@ -17,9 +17,6 @@ public:
 
 	bool storeToDb(AMDatabase *db);
 
-signals:
-	// inherits dataChanged(AMScan*)
-
 public slots:
 	void setAutoExportFilePath(const QString &autoExportFilePath);
 

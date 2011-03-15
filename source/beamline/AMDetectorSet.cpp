@@ -1,9 +1,9 @@
 #include "AMDetectorSet.h"
 
 AMDetectorSet::AMDetectorSet(QObject *parent) :
-	QObject(parent), AMOrderedSet<QString, AMDetector*>(false)
+	QObject(parent), AMOrderedSet<QString, QPair<AMDetector*, bool> >(false)
 {
-	connect(AMOrderedSet<QString, AMDetector*>::signalSource(), SIGNAL(itemAdded(int)), this, SIGNAL(detectorAdded(int)));
+	connect(AMOrderedSet<QString, QPair<AMDetector*, bool> >::signalSource(), SIGNAL(itemAdded(int)), this, SIGNAL(detectorAdded(int)));
 	wasConnected_ = false;
 	QTimer::singleShot(AMDETECTORSET_CONTROL_TIMEOUT_MS, this, SLOT(onConnectionsTimedOut()));
 }
@@ -15,7 +15,7 @@ QString AMDetectorSet::name() const {
 bool AMDetectorSet::isConnected() const {
 	int num = count();
 	for(int x = 0; x < num; x++)
-		if(!at(x)->isConnected())
+		if(!at(x).first->isConnected())
 			return false;
 	return true;
 }
@@ -24,8 +24,8 @@ QStringList AMDetectorSet::unconnected() const {
 	int num = count();
 	QStringList retVal;
 	for(int x = 0; x < num; x++)
-		if(!at(x)->isConnected())
-			retVal.append(at(x)->detectorName());
+		if(!at(x).first->isConnected())
+			retVal.append(at(x).first->detectorName());
 	return retVal;
 }
 
@@ -34,43 +34,72 @@ AMDetectorInfoSet AMDetectorSet::toInfoSet() const {
 
 	int numDetectors = count();
 	for(int i=0; i<numDetectors; i++) {
-		AMDetector *c = at(i);
-		rv.append( c->toInfo() );
+		AMDetector *d = at(i).first;
+		rv.addDetectorInfo( d->toInfo(), isDefaultAt(i) );
 	}
 
 	return rv;
 }
 
-int AMDetectorSet::indexOf(AMDetector* detector) {
-	return indexOfValue(detector);
+int AMDetectorSet::indexOf(AMDetector* detector) const{
+	int indexWFalse = indexOfValue(QPair<AMDetector*, bool>(detector, false));
+	int indexWTrue = indexOfValue(QPair<AMDetector*, bool>(detector, true));
+	return std::max(indexWFalse, indexWTrue);
 }
 
-int AMDetectorSet::indexOf(const QString& detectorName) {
+int AMDetectorSet::indexOf(const QString& detectorName) const{
 	return indexOfKey(detectorName);
 }
 
 AMDetector* AMDetectorSet::detectorNamed(const QString& detectorName) {
 	int index = indexOfKey(detectorName);
 	if(index < 0)
-		return 0;
+		return 0; //NULL
 
-	return at(index);
+	return at(index).first;
 }
 
-bool AMDetectorSet::addDetector(AMDetector* newDetector) {
+AMDetector* AMDetectorSet::detectorAt(int index) {
+	if(index < 0 || index >= count())
+		return 0; //NULL
+	return at(index).first;
+}
+
+bool AMDetectorSet::isDefaultNamed(const QString &detectorName) const{
+	int index = indexOf(detectorName);
+	if(index > 0)
+		return at(index).second;
+	return false;
+}
+
+bool AMDetectorSet::isDefaultDetector(AMDetector *detector) const{
+	int index = indexOf(detector);
+	if(index > 0)
+		return at(index).second;
+	return false;
+}
+
+bool AMDetectorSet::isDefaultAt(int index) const{
+	if(index < 0 || index >= count())
+		return false;
+	return at(index).second;
+}
+
+bool AMDetectorSet::addDetector(AMDetector* newDetector, bool isDefault) {
 	if(!newDetector)
 		return false;
 
-	if( append(newDetector, newDetector->detectorName()) ) {
+	if( append(QPair<AMDetector*, bool>(newDetector, isDefault), newDetector->detectorName()) ) {
 		connect(newDetector->signalSource(), SIGNAL(connected(bool)), this, SLOT(onConnected(bool)));
-		connect(newDetector->signalSource(), SIGNAL(valuesChanged()), this, SLOT(onDetectorValueChanged()));
+		connect(newDetector->signalSource(), SIGNAL(readingsChanged()), this, SIGNAL(detectorSetReadingsChanged()));
+		connect(newDetector->signalSource(), SIGNAL(settingsChanged()), this, SIGNAL(detectorSetSettingsChanged()));
 		return true;
 	}
 	return false;
 }
 
 bool AMDetectorSet::removeDetector(AMDetector* detector) {
-	int index = indexOfValue(detector);
+	int index = indexOf(detector);
 	if(index < 0)
 		return false;
 
@@ -84,7 +113,7 @@ bool AMDetectorSet::validInfoSet(const AMDetectorInfoSet &info){
 	/// \todo alternate orderings or subsets of the entire list
 	AMDetector *tmpDtctr;
 	for(int x = 0; x < info.count(); x++){
-		tmpDtctr = detectorNamed(info.at(x).name());
+		tmpDtctr = detectorNamed(info.detectorInfoAt(x)->name());
 		if(!tmpDtctr)
 			return false;
 	}
@@ -94,15 +123,15 @@ bool AMDetectorSet::validInfoSet(const AMDetectorInfoSet &info){
 void AMDetectorSet::setFromInfoSet(const AMDetectorInfoSet& info){
 	AMDetector *tmpDtctr;
 	for(int x = 0; x < info.count(); x++){
-		tmpDtctr = detectorNamed(info.at(x).name());
+		tmpDtctr = detectorNamed(info.detectorInfoAt(x)->name());
 		if(tmpDtctr)
-			tmpDtctr->setFromInfo(info.at(x));
+			tmpDtctr->setFromInfo(info.at(x).first);
 		/// \todo error checking on else
 	}
 }
 
 void AMDetectorSet::onConnected(bool dtctrConnected){
-	/* Need to figure this one out
+	/* NTBA March 14, 2011 David Chevrier
 	AMDetector *tmpDtctr = 0; //NULL
 	if(tmpDtctr = qobject_cast<AMDetectorInfo*>(QObject::sender()))
 		emit detectorConnectedChanged(dtctrConnected, tmpDtctr);
@@ -121,8 +150,4 @@ void AMDetectorSet::onConnected(bool dtctrConnected){
 void AMDetectorSet::onConnectionsTimedOut(){
 	if(!wasConnected_)
 		emit connected(false);
-}
-
-void AMDetectorSet::onDetectorValueChanged(){
-	emit detectorSetValuesChanged(toInfoSet());
 }

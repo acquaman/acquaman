@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SGMBeamlineAtAGlanceBar.h"
 
+/*
 SGMBeamlineAtAGlanceBar::SGMBeamlineAtAGlanceBar(QWidget *parent) :
 	QFrame(parent)
 {
@@ -41,3 +42,4 @@ SGMBeamlineAtAGlanceBar::SGMBeamlineAtAGlanceBar(QWidget *parent) :
 	setObjectName("SGMBeamlineAtAGlanceBar");
 	// setStyleSheet("QFrame#SGMBeamlineAtAGlanceBar {	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(81, 81, 81, 255), stop:0.494444 rgba(81, 81, 81, 255), stop:0.5 rgba(64, 64, 64, 255), stop:1 rgba(64, 64, 64, 255)); border-bottom: 1px solid black; }");
 }
+*/

@@ -27,7 +27,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/MCPDetector.h"
 #include "beamline/PGTDetector.h"
 #include "ui/AMControlEditor.h"
-#include "ui/AMDetectorInfoView.h"
 #include "QMessageBox"
 #include "QMetaMethod"
 
@@ -36,97 +35,49 @@ class AMDetectorView : public QWidget
 Q_OBJECT
 
 public:
-	Q_INVOKABLE explicit AMDetectorView(QWidget *parent = 0);
+	Q_INVOKABLE explicit AMDetectorView(bool configureOnly = false, QWidget *parent = 0);
 
 	virtual AMDetector* detector();
 
-protected:
-	/// We are trusting createDetectorView to pass in the correct type of detector, sub classes should trust AMDetector is actually their type
-	virtual bool setDetector(AMDetector *detector);
-	friend AMDetectorView* AMDetectorViewSupport::createDetectorView(AMDetector *detector);
-	friend AMDetectorView* AMDetectorViewSupport::createBriefDetectorView(AMDetector *detector);
-	friend AMDetectorView* AMDetectorViewSupport::createDetailedDetectorView(AMDetector *detector);
-
-signals:
+	virtual AMDetectorInfo* configurationSettings() const;
 
 public slots:
 
+signals:
+	void settingsChangeRequested();
+	void settingsConfigureRequested();
+
+protected:
+	/// We are trusting createDetectorView to pass in the correct type of detector, sub classes should trust AMDetector is actually their type
+	virtual bool setDetector(AMDetector *detector, bool configureOnly = false);
+	friend AMDetectorView* AMDetectorViewSupport::createDetectorView(AMDetector *detector, bool configureOnly);
+	friend AMDetectorView* AMDetectorViewSupport::createBriefDetectorView(AMDetector *detector, bool configureOnly);
+	friend AMDetectorView* AMDetectorViewSupport::createDetailedDetectorView(AMDetector *detector, bool configureOnly);
+
+protected:
+	bool configureOnly_;
 };
 
 class AMBriefDetectorView : public AMDetectorView
 {
 Q_OBJECT
 public:
-	Q_INVOKABLE explicit AMBriefDetectorView(QWidget *parent = 0);
+	Q_INVOKABLE explicit AMBriefDetectorView(bool configureOnly = false, QWidget *parent = 0);
 
 protected:
 	/// We are trusting createDetectorView to pass in the correct type of detector, sub classes should trust AMDetector is actually their type
-	virtual bool setDetector(AMDetector *detector);
+	virtual bool setDetector(AMDetector *detector, bool configureOnly = false);
 };
 
 class AMDetailedDetectorView : public AMDetectorView
 {
 Q_OBJECT
 public:
-	Q_INVOKABLE explicit AMDetailedDetectorView(QWidget *parent = 0);
+	Q_INVOKABLE explicit AMDetailedDetectorView(bool configureOnly = false, QWidget *parent = 0);
 
 protected:
 	/// We are trusting createDetectorView to pass in the correct type of detector, sub classes should trust AMDetector is actually their type
-	virtual bool setDetector(AMDetector *detector);
+	virtual bool setDetector(AMDetector *detector, bool configureOnly = false);
 };
-
-class PGTOldDetectorView : public PGTOldDetectorInfoView
-{
-	Q_OBJECT
-public:
-	PGTOldDetectorView(PGTDetector *detector, AMDetectorInfo *configDetector = 0, bool editMode = false, QWidget *parent = 0);
-
-protected slots:
-	void onIntegrationModeUpdate(double value);
-	void onIntegrationModeChange(int index);
-	void setEditMode(bool editMode);
-	void setEditable();
-
-protected:
-	PGTDetector *detector_;
-	bool editMode_;
-	QDoubleSpinBox *integrationTimeFbk_;
-	QComboBox *integrationModeFbk_;
-	QDoubleSpinBox *hvFbk_;
-};
-
-class MCPOldDetectorView : public MCPOldDetectorInfoView
-{
-	Q_OBJECT
-public:
-	MCPOldDetectorView(MCPDetector *detector, AMDetectorInfo *configDetector = 0, bool editMode = false, QWidget *parent = 0);
-
-protected slots:
-	void setEditMode(bool editMode);
-	void setEditable();
-
-protected:
-	MCPDetector *detector_;
-	bool editMode_;
-	QDoubleSpinBox *hvFbk_;
-};
-
-class AMOldDetectorSetView : public AMDetectorInfoSetView
-{
-	Q_OBJECT
-public:
-	AMOldDetectorSetView(AMOldDetectorInfoSet *viewSet, AMOldDetectorInfoSet *configSet = 0, bool setup = true, QWidget *parent = 0);
-
-public slots:
-	void setEditMode(bool editMode);
-	void setEditable();
-
-protected:
-	bool editMode_;
-
-	virtual void runSetup();
-	virtual QWidget* detailViewByType(AMDetectorInfo *detector, AMDetectorInfo *configDetector);
-};
-
 
 #endif // AMDETECTORVIEW_H

@@ -22,9 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define ACQMAN_SGMXASDACQSCANCONTROLLER_H
 
 #include "acquaman/AMDacqScanController.h"
-//#include "AMXASScanConfiguration.h"
 #include "SGMXASScanController.h"
-//#include "beamline/SGM/SGMBeamline.h"
 
 class SGMXASDacqScanController : public AMDacqScanController, public SGMXASScanController
 {
@@ -38,18 +36,10 @@ public:
 
 signals:
 	void initialized();
-	void reinitialized(bool removeScan);
 
 public slots:
 	void initialize();
-	void reinitialize(bool removeScan);
 	void start();
-
-//	AMXASScan* scan(){ return pScan_();}
-
-//protected:
-//	virtual void reinitialize();
-
 
 protected:
 	AMnDIndex toScanIndex(QMap<int, double> aeData);

@@ -3,7 +3,7 @@
 
 #include "acquaman/AMDetectorInfoList.h"
 
-class AMDetectorSet : public QObject, public AMOrderedSet<QString, AMDetector*>
+class AMDetectorSet : public QObject, public AMOrderedSet<QString, QPair<AMDetector*, bool> >
 {
 Q_OBJECT
 public:
@@ -22,15 +22,23 @@ public:
 	/// Returns the names of the subset of detectors which are not currently connected
 	QStringList unconnected() const;
 
-	/// Return the index of a given \c control in the set. You can then access the control using at() or operator[].  (Returns -1 if not found in the set.)
-	int indexOf(AMDetector* detector) ;
-	/// Return the index of the control named \c controlName. (Returns -1 if not found in the set.)
-	int indexOf(const QString& detectorName);
-	/// Returns the control named \c controlName, or 0 if not found in the set.
+	/// Return the index of a given \c detector in the set. You can then access the control using at() or operator[].  (Returns -1 if not found in the set.)
+	int indexOf(AMDetector* detector) const;
+	/// Return the index of the detector named \c detectorName. (Returns -1 if not found in the set.)
+	int indexOf(const QString& detectorName) const;
+	/// Returns the detector named \c detectorName, or 0 if not found in the set.
 	AMDetector* detectorNamed(const QString& detectorName);
+	/// Returns the detector at the index specified
+	AMDetector* detectorAt(int index);
+	/// Returns whether or not the detector named \c detectorName has been defined as default for this set (If no detector by that name is in the set then false will be returned)
+	bool isDefaultNamed(const QString& detectorName) const;
+	/// Returns whether or not the AMDetector has been defined as default for this set (If the AMDetector is not in the set then false will be returned)
+	bool isDefaultDetector(AMDetector *detector) const;
+	/// Returns whether or not the detector at the specified index has been defined as default for this set
+	bool isDefaultAt(int index) const;
 
-	/// Adds an AMControl to the control set. Returns true if the addition was successful. Failure could result from adding the same AMControl twice.
-	bool addDetector(AMDetector* newDetector);
+	/// Adds an AMDetector to the detector set. Returns true if the addition was successful. Failure could result from adding the same AMControl twice.
+	bool addDetector(AMDetector* newDetector, bool isDefault = false);
 
 	/// Removes an AMControl \c control from the set. Returns true if the removal was successful. Failure could result from removing an AMControl not in the set.
 	bool removeDetector(AMDetector* detector);
@@ -49,8 +57,9 @@ signals:
 	void connected(bool groupConnected);
 	void detectorConnectedChanged(bool isConnected, AMDetector *detector);
 
-	/// This signal is emitted whenever one of the controls has a new value
-	void detectorSetValuesChanged(AMDetectorInfoSet);
+	void detectorSetReadingsChanged();
+	/// This signal is emitted whenever one of the controls has new settings
+	void detectorSetSettingsChanged();
 
 public slots:
 	/// Sets the name of the control set.
@@ -61,9 +70,6 @@ protected slots:
 	/// Handles when any of the detectors become connected or disconnected
 	void onConnected(bool detectorConnected);
 	void onConnectionsTimedOut();
-
-	/// Handles when any of the detectors has a new value
-	void onDetectorValueChanged();
 
 protected:
 	/// Holds the name of the control set. Should be descriptive of the logical relationship.

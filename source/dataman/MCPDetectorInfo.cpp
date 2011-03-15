@@ -14,6 +14,16 @@ MCPDetectorInfo::MCPDetectorInfo(const MCPDetectorInfo &original) :
 	retreiveAndSetProperties(original);
 }
 
+AMDetectorInfo* MCPDetectorInfo::toNewInfo() const{
+	return new MCPDetectorInfo(*this);
+}
+
+MCPDetectorInfo& MCPDetectorInfo::operator =(const MCPDetectorInfo& other){
+	if(this != &other)
+		retreiveAndSetProperties(other);
+	return *this;
+}
+
 double MCPDetectorInfo::hvSetpoint() const
 {
 	return hvSetpoint_;
@@ -32,6 +42,11 @@ double MCPDetectorInfo::hvSetpointRangeMax() const
 QPair<double, double> MCPDetectorInfo::hvSetpointRange() const
 {
 	return QPair<double, double>(hvSetpointRangeMin_, hvSetpointRangeMax_);
+}
+
+QDebug MCPDetectorInfo::qDebugPrint(QDebug &d) const{
+	d << hvSetpoint() << "[hvSetpoint]";
+	return d;
 }
 
 bool MCPDetectorInfo::hasDetails() const

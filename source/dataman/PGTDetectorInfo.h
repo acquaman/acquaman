@@ -17,11 +17,18 @@ public:
 
 	PGTDetectorInfo(const PGTDetectorInfo &original);
 
+	/// Creates a new info pointer from this one, caller is responsible for memory
+	virtual AMDetectorInfo* toNewInfo() const;
+
+	PGTDetectorInfo& operator=(const PGTDetectorInfo& other);
+
 	/// Operational setpoint for High Voltage (HV)
 	double hvSetpoint() const;
 	double hvSetpointRangeMin() const;
 	double hvSetpointRangeMax() const;
 	QPair<double, double> hvSetpointRange() const;
+
+	QDebug qDebugPrint(QDebug &d) const;
 
 	// Dimensionality and size:
 	////////////////////////////////////

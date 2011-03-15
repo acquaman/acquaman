@@ -25,7 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QWizardPage>
 #include "AMControlSetView.h"
 #include "ui/AMControlOptimizationView.h"
-#include "AMDetectorView.h"
+#include "AMDetectorSetView.h"
 #include "AMXASRegionsView.h"
 #include "AMRegionsLineView.h"
 #include "acquaman/SGM/SGMXASScanConfiguration.h"
@@ -42,7 +42,7 @@ class SGMXASScanConfigurationWizard : public QWizard
 {
 Q_OBJECT
 public:
-	explicit SGMXASScanConfigurationWizard(SGMXASScanConfiguration *sxsc, AMOldDetectorInfoSet *cfgDetectorInfoSet, QWidget *parent = 0);
+	explicit SGMXASScanConfigurationWizard(SGMXASScanConfiguration *sxsc, const AMDetectorInfoSet &cfgDetectorInfoSet, QWidget *parent = 0);
 
 	void accept();
 
@@ -52,7 +52,6 @@ signals:
 
 protected:
 	SGMXASScanConfiguration *cfg_;
-	AMOldDetectorInfoSet *cfgDetectorInfoSet_;
 
 	SGMXASScanConfigurationIntroWizardPage *introPage;
 	AMXASRegionsWizardPage *regionsPage;
@@ -127,7 +126,7 @@ protected slots:
 protected:
 	AMControlSet *trackingSet_;
 
-	AMOldControlSetView *trackingView_;
+	AMControlSetView *trackingView_;
 	QGridLayout *gl_;
 	QLabel *textLabel_;
 };
@@ -136,16 +135,16 @@ class AMDetectorSetWizardPage : public QWizardPage
 {
 	Q_OBJECT
 public:
-	AMDetectorSetWizardPage(AMOldDetectorInfoSet *detectorSet, AMOldDetectorInfoSet *cfgDetectorInfoSet, QString title, QString subTitle, QWidget *parent = 0);
+	AMDetectorSetWizardPage(AMDetectorSet *detectorSet, AMDetectorInfoSet *cfgDetectorInfoSet, QString title, QString subTitle, QWidget *parent = 0);
 
 protected slots:
 	void resizeEvent(QResizeEvent *);
 
 protected:
-	AMOldDetectorInfoSet *detectorSet_;
-	AMOldDetectorInfoSet *cfgDetectorInfoSet_;
+	AMDetectorSet *detectorSet_;
+	AMDetectorInfoSet *configurationSettings_;
 
-	AMDetectorInfoSetView *detectorView_;
+	AMDetectorSetView *detectorView_;
 	QGridLayout *gl_;
 	QLabel *textLabel_;
 };

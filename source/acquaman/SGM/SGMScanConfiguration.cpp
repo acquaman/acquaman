@@ -28,12 +28,9 @@ SGMScanConfiguration::SGMScanConfiguration()
 
 	setTrackingGroup(SGMBeamline::sgm()->trackingSet()->toInfoList());
 
-	if(SGMBeamline::sgm()->teyDetector())
-		setUsingTEY(SGMBeamline::sgm()->XASDetectors()->isDefaultByName(SGMBeamline::sgm()->teyDetector()->name()) );
-	if(SGMBeamline::sgm()->tfyDetector())
-		setUsingTFY(SGMBeamline::sgm()->XASDetectors()->isDefaultByName(SGMBeamline::sgm()->tfyDetector()->name()) );
-	if(SGMBeamline::sgm()->pgtDetector())
-		setUsingPGT(SGMBeamline::sgm()->XASDetectors()->isDefaultByName(SGMBeamline::sgm()->pgtDetector()->name()) );
+	/* NTBA March 14, 2011 David Chevrier
+	   Need something like setTrackingGroup for the detectorSet
+	*/
 }
 
 bool SGMScanConfiguration::setTrackingGroup(AMControlInfoList trackingGroup){

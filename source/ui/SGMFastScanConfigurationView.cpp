@@ -6,8 +6,11 @@ SGMFastScanConfigurationView::SGMFastScanConfigurationView(SGMFastScanConfigurat
 		AMScanConfigurationView(parent)
 {
 	cfg_ = NULL;
-	//autoSavePath_ = "";
-	//autoSaveDialog_ = 0; //NULL
+	/* NTBA March 14, 2011 David Chevrier
+	   Part of exporter package
+	autoSavePath_ = "";
+	autoSaveDialog_ = 0; //NULL
+	*/
 	if(SGMBeamline::sgm()->isConnected()){
 		cfg_ = sfsc;
 
@@ -21,7 +24,6 @@ SGMFastScanConfigurationView::SGMFastScanConfigurationView(SGMFastScanConfigurat
 		energyMidpointLabel_ = new QLabel("Energy Midpoint");
 		endEnergyLabel_ = new QLabel("End Energy");
 		motorSettingsLabel_ = new QLabel("Motor Settings");
-		//scalerTimeLabel_ = new QLabel("Scaler Time");
 		baseLineLabel_ = new QLabel("Baseline Counts");
 		warningsLabel_ = new QLabel("");
 		QFont warningsFont;
@@ -51,12 +53,6 @@ SGMFastScanConfigurationView::SGMFastScanConfigurationView(SGMFastScanConfigurat
 		motorSettingsSB_->setMinimum(100);
 		motorSettingsSB_->setMaximum(50000);
 		motorSettingsSB_->setValue(sfsc->velocity());
-		/*
-		scalerTimeDSB_ = new QDoubleSpinBox();
-		scalerTimeDSB_->setMinimum(1.0);
-		scalerTimeDSB_->setMaximum(1000.0);
-		scalerTimeDSB_->setValue(sfsc->scalerTime());
-		*/
 		baseLineSB_ = new QSpinBox();
 		baseLineSB_->setMinimum(0);
 		baseLineSB_->setMaximum(50000);
@@ -68,7 +64,6 @@ SGMFastScanConfigurationView::SGMFastScanConfigurationView(SGMFastScanConfigurat
 		connect(sfsc, SIGNAL(onEnergyMidpointChanged(double)), energyMidpointDSB_, SLOT(setValue(double)));
 		connect(sfsc, SIGNAL(onEnergyEndChanged(double)), endEnergyDSB_, SLOT(setValue(double)));
 		connect(sfsc, SIGNAL(onVelocityChanged(int)), motorSettingsSB_, SLOT(setValue(int)));
-		//connect(sfsc, SIGNAL(onScalerTimeChanged(double)), scalerTimeDSB_, SLOT(setValue(double)));
 		connect(sfsc, SIGNAL(onBaseLineChanged(int)), baseLineSB_, SLOT(setValue(int)));
 
 		connect(elementEdit_, SIGNAL(textEdited(QString)), sfsc, SLOT(setElement(QString)));
@@ -80,7 +75,6 @@ SGMFastScanConfigurationView::SGMFastScanConfigurationView(SGMFastScanConfigurat
 		connect(motorSettingsSB_, SIGNAL(valueChanged(int)), sfsc, SLOT(setVelocity(int)));
 		connect(motorSettingsSB_, SIGNAL(valueChanged(int)), sfsc, SLOT(setVelocityBase(int)));
 		connect(motorSettingsSB_, SIGNAL(valueChanged(int)), sfsc, SLOT(setAcceleration(int)));
-		//connect(scalerTimeDSB_, SIGNAL(valueChanged(double)), sfsc, SLOT(setScalerTime(double)));
 		connect(baseLineSB_, SIGNAL(valueChanged(int)), sfsc, SLOT(setBaseLine(int)));
 
 		fl_ = new QFormLayout();
@@ -90,10 +84,10 @@ SGMFastScanConfigurationView::SGMFastScanConfigurationView(SGMFastScanConfigurat
 		fl_->addRow(energyMidpointLabel_, energyMidpointDSB_);
 		fl_->addRow(endEnergyLabel_, endEnergyDSB_);
 		fl_->addRow(motorSettingsLabel_, motorSettingsSB_);
-		//fl_->addRow(scalerTimeLabel_, scalerTimeDSB_);
 		fl_->addRow(baseLineLabel_, baseLineSB_);
 
-		/*
+		/* NTBA March 14, 2011 David Chevrier
+		   Part of exporter package
 		saveLabel_ = new QLabel("Save a copy to:");
 		saveEdit_ = new QLineEdit();
 		saveEdit_->setMinimumWidth(400);
@@ -115,39 +109,13 @@ SGMFastScanConfigurationView::SGMFastScanConfigurationView(SGMFastScanConfigurat
 		hl->addWidget(saveFbkLabel_);
 		hl->addStretch(1);
 		hl->addWidget(autoSaveDialogButton_);
-		//fl2_->addRow(saveFbkLabel_, autoSaveDialogButton_);
 		fl2_->addRow(hl);
 
 		connect(sfsc, SIGNAL(onNewFinalizedSavePath(QString)), this, SLOT(onNewFinalizedSavePath(QString)));
 		*/
 
-		/*
-		startScanButton_ = new QPushButton();
-		startScanButton_->setText("Start Scan");
-		addToQueueButton_ = new QPushButton();
-		addToQueueButton_->setText("Add Scan to Queue");
-		queueDirectorButton_ = new QPushButton();
-		queueDirectorButton_->setText("Queue Director");
-		int buttonWidth = std::max(startScanButton_->sizeHint().width(), addToQueueButton_->sizeHint().width());
-		buttonWidth = std::max(buttonWidth, queueDirectorButton_->sizeHint().width());
-		int buttonHeight = std::max(startScanButton_->sizeHint().height(), addToQueueButton_->sizeHint().height());
-		buttonHeight = std::max(buttonHeight, queueDirectorButton_->sizeHint().height());
-		startScanButton_->setMinimumSize(buttonWidth, (int)(1.75*buttonHeight));
-		addToQueueButton_->setMinimumSize(buttonWidth, buttonHeight);
-		queueDirectorButton_->setMinimumSize(buttonWidth, buttonHeight);
-		connect(startScanButton_, SIGNAL(clicked()), this, SLOT(onStartScanClicked()));
-		connect(addToQueueButton_, SIGNAL(clicked()), this, SLOT(onAddToQueueRequested()));
-		connect(queueDirectorButton_, SIGNAL(clicked()), this, SIGNAL(queueDirectorRequested()));
-		*/
-
 		gl_.addWidget(presetsComboBox_,		0, 0, 1, 1, Qt::AlignCenter);
 		gl_.addLayout(fl_,			0, 1, 1, 1, Qt::AlignCenter);
-		/*
-		gl_.addLayout(fl2_,			1, 0, 1, 2, Qt::AlignCenter);
-		gl_.addWidget(startScanButton_,		5, 3, 1, 2, Qt::AlignRight);
-		gl_.addWidget(addToQueueButton_,	6, 3, 1, 2, Qt::AlignRight);
-		gl_.addWidget(queueDirectorButton_,	7, 3, 1, 2, Qt::AlignRight);
-		*/
 		gl_.addWidget(warningsLabel_,		0, 0, 1, 2, Qt::AlignCenter);
 		gl_.setRowStretch(1, 10);
 		this->setLayout(&gl_);
@@ -201,22 +169,8 @@ void SGMFastScanConfigurationView::onSGMBeamlineCriticalControlsConnectedChanged
 	}
 }
 
-/*
-void SGMFastScanConfigurationView::onLockdowScanning(bool isLocked, QString reason){
-
-	if(isLocked){
-		startScanButton_->setEnabled(false);
-		startScanButton_->setText("Start Scan\n"+reason);
-	}
-	else{
-		startScanButton_->setEnabled(true);
-		startScanButton_->setText("Start Scan");
-	}
-
-}
-*/
-
-/*
+/* NTBA March 14, 2011 David Chevrier
+   Part of exporter package
 void SGMFastScanConfigurationView::onSavePathEditingFinished(){
 	SGMFastScanConfiguration *sfsc = qobject_cast<SGMFastScanConfiguration*>(cfg_);
 	if(saveEdit_->text().isEmpty())
@@ -231,13 +185,15 @@ void SGMFastScanConfigurationView::onSavePathEditingFinished(){
 }
 */
 
-/*
+/* NTBA March 14, 2011 David Chevrier
+   Part of exporter package
 void SGMFastScanConfigurationView::onNewFinalizedSavePath(const QString &savePath){
 	saveFbkLabel_->setText("\tFile will be saved as "+savePath.section('/', -1));
 }
 */
 
-/*
+/* NTBA March 14, 2011 David Chevrier
+   Part of exporter package
 void SGMFastScanConfigurationView::onSaveDialogDirectoryChosen(const QString &savePath){
 	SGMFastScanConfiguration *sfsc = qobject_cast<SGMFastScanConfiguration*>(cfg_);
 	QString saveFile = savePath+"/default";
@@ -251,13 +207,5 @@ void SGMFastScanConfigurationView::onSaveDialogDirectoryChosen(const QString &sa
 		saveEdit_->setText(sfsc->sensibleFileSavePath());
 		saveFbkLabel_->setText("\t"+sfsc->sensibleFileSaveWarning());
 	}
-}
-*/
-
-/*
-void SGMFastScanConfigurationView::onStartScanClicked(){
-	SGMFastScanConfiguration *sfsc = qobject_cast<SGMFastScanConfiguration*>(cfg_);
-	emit lastSettings(sfsc->currentParameters());
-	AMScanConfigurationViewer::onStartScanClicked();
 }
 */

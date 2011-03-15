@@ -33,8 +33,12 @@ void AMDetectorSignalSource::emitInfoChanged() {
 	emit infoChanged();
 }
 
-void AMDetectorSignalSource::emitValuesChanged() {
-	emit valuesChanged();
+void AMDetectorSignalSource::emitReadingsChanged(){
+	emit readingsChanged();
+}
+
+void AMDetectorSignalSource::emitSettingsChanged() {
+	emit settingsChanged();
 }
 
 void AMDetectorSignalSource::emitDeleted() {
@@ -60,7 +64,7 @@ AMDetectorSignalSource* AMDetector::signalSource() const {
 	return signalSource_;
 }
 
-bool AMDetector::isConnected(){
+bool AMDetector::isConnected() const{
 	return connected_;
 }
 
@@ -71,17 +75,6 @@ const QMetaObject* AMDetector::getMetaObject() {
 QString AMDetector::detectorName() const {
 	return name_;
 }
-
-/*
-QString AMDetector::detectorDescription() const {
-	return description_;
-}
-
-void AMDetector::setDetectorDescription(const QString& description) {
-	description_ = description;
-	emitInfoChanged();
-}
-*/
 
 void AMDetector::setConnected(bool isConnected){
 	connected_ = isConnected;
@@ -96,6 +89,10 @@ void AMDetector::emitInfoChanged() {
 	signalSource_->emitInfoChanged();
 }
 
-void AMDetector::emitValuesChanged() {
-	signalSource_->emitValuesChanged();
+void AMDetector::emitReadingsChanged(){
+	signalSource_->emitReadingsChanged();
+}
+
+void AMDetector::emitSettingsChanged() {
+	signalSource_->emitSettingsChanged();
 }

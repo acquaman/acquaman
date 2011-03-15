@@ -225,6 +225,9 @@ public:
 	/// This is fast because it doesn't require a memory copy, thanks to Qt's implicit sharing on QVectors and other container types.
 	QVector<int> lastIntegerValues() const {  return data_int_; }
 
+	/// Returns the sum of the values from lowIndex to highIndex (inclusive). If the lowIndex or highIndex is out of range, any valid subrange is returned
+	int binIntegerValues(int lowIndex, int highIndex) const;
+
 	/// Returns the most recent array values of the PV. (Will be empty unless this PV's dataType() is FloatingPoint)
 
 	/// This is fast because it doesn't require a memory copy, thanks to Qt's implicit sharing on QVectors and other container types.

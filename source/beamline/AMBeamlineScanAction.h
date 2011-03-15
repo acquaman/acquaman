@@ -39,7 +39,6 @@ public:
 	virtual QString type() const;
 	virtual bool isRunning() const;
 	virtual bool isPaused() const;
-	// unused and unimplemented: virtual bool isReinitialized() const;
 
 signals:
 	void progress(double, double);
@@ -85,12 +84,6 @@ public:
 public slots:
 	void setIndex(int index);
 	void setAction(AMBeamlineScanAction *scanAction);
-
-signals:
-	// removed: this is just a view on a scan action. It shouldn't need to notify anyone else of what's going on.
-//	void scanStarted(AMBeamlineActionItem *action);
-//	void scanSuceeded(AMBeamlineActionItem *action);
-//	void scanCancelled(AMBeamlineActionItem *action);
 
 protected slots:
 	void onInfoChanged();

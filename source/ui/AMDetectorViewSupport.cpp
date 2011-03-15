@@ -111,40 +111,40 @@ namespace AMDetectorViewSupport{
 		return rv;
 	}
 
-	AMDetectorView* createDetectorView(AMDetector *detector){
+	AMDetectorView* createDetectorView(AMDetector *detector, bool configureOnly){
 		if(!detector)
 			return 0;
 		//qDebug() << "Trying to create view for detector named " << detector->detectorName();
 		QList<AMDetectorViewObjectInfo> supported = supportedClasses(detector);
 		if(supported.count() > 0){
 			AMDetectorView *dv = qobject_cast<AMDetectorView*>(supported.first().viewMetaObject->newInstance());
-			if(dv && dv->setDetector(detector))
+			if(dv && dv->setDetector(detector, configureOnly))
 				return dv;
 		}
 		return 0;
 	}
 
-	AMDetectorView* createBriefDetectorView(AMDetector *detector){
+	AMDetectorView* createBriefDetectorView(AMDetector *detector, bool configureOnly){
 		if(!detector)
 			return 0;
 		//qDebug() << "Trying to create view for detector named " << detector->detectorName();
 		QList<AMDetectorViewObjectInfo> supported = supportedBriefViews(detector);
 		if(supported.count() > 0){
 			AMDetectorView *dv = qobject_cast<AMDetectorView*>(supported.first().viewMetaObject->newInstance());
-			if(dv && dv->setDetector(detector))
+			if(dv && dv->setDetector(detector, configureOnly))
 				return dv;
 		}
 		return 0;
 	}
 
-	AMDetectorView* createDetailedDetectorView(AMDetector *detector){
+	AMDetectorView* createDetailedDetectorView(AMDetector *detector, bool configureOnly){
 		if(!detector)
 			return 0;
 		//qDebug() << "Trying to create view for detector named " << detector->detectorName();
 		QList<AMDetectorViewObjectInfo> supported = supportedDetailedViews(detector);
 		if(supported.count() > 0){
 			AMDetectorView *dv = qobject_cast<AMDetectorView*>(supported.first().viewMetaObject->newInstance());
-			if(dv && dv->setDetector(detector))
+			if(dv && dv->setDetector(detector, configureOnly))
 				return dv;
 		}
 		return 0;

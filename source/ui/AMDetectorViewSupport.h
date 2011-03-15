@@ -113,11 +113,11 @@ namespace AMDetectorViewSupport{
 
 	/// Useful for gui generation, this creates the first view available from the supportedClasses for the AMDetector. You can use qobject_cast<>() or type() to find out the detailed type of the new object.  Returns 0 if no object found.
 	/*! Ownership of the newly-created object becomes the responsibility of the caller. */
-	AMDetectorView* createDetectorView(AMDetector *detector);
+	AMDetectorView* createDetectorView(AMDetector *detector, bool configureOnly = false);
 
-	AMDetectorView* createBriefDetectorView(AMDetector *detector);
+	AMDetectorView* createBriefDetectorView(AMDetector *detector, bool configureOnly = false);
 
-	AMDetectorView* createDetailedDetectorView(AMDetector *detector);
+	AMDetectorView* createDetailedDetectorView(AMDetector *detector, bool configureOnly = false);
 }
 
 

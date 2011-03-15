@@ -50,9 +50,8 @@ protected:
 
 	SGMSampleTransferView* sampleTransferView_;
 	AMSamplePositionView* samplePositionView_;
-	//AMScanConfigurationView* scanConfigurationView_;
-	SGMXASScanConfigurationView* xasScanConfigurationViewer_;
-	SGMFastScanConfigurationView* fastScanConfigurationViewer_;
+	SGMXASScanConfigurationView* xasScanConfigurationView_;
+	SGMFastScanConfigurationView* fastScanConfigurationView_;
 	AMScanConfigurationViewHolder* xasScanConfigurationHolder_;
 	AMScanConfigurationViewHolder* fastScanConfigurationHolder_;
 	SGMSidebar* sgmSidebar_;

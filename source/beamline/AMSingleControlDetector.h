@@ -11,11 +11,16 @@ public:
 	~AMSingleControlDetector();
 
 	const QMetaObject* getMetaObject();
-	AMDetectorInfo toInfo();
+
+	/// NEEDS TO RETURN A NEW INSTANCE, CALLER IS RESPONSIBLE FOR MEMORY.
+	AMDetectorInfo* toInfo() const;
 
 	AMControl* control();
 
+	/* NTBA March 14, 2011 David Chevrier
 	bool setFromInfo(const AMDetectorInfo &info);
+	*/
+	bool setFromInfo(const AMDetectorInfo *info);
 
 	QString description() const;
 
