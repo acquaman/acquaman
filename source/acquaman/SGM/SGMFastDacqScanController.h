@@ -10,17 +10,12 @@ class SGMFastDacqScanController : public AMDacqScanController, public SGMFastSca
 public:
 	explicit SGMFastDacqScanController(SGMFastScanConfiguration *cfg, QObject *parent = 0);
 
-	bool isInitialized() { return (initialized_ && beamlineInitialized_);}
-
 	virtual AMScan* scan() { return pScan();}
 
-signals:
-	void initialized();
-
-public slots:
-	void initialize();
-	void start();
-	void cancel();
+protected:
+	void initializeImplementation();
+	void startImplementation();
+	void cancelImplementation();
 
 protected:
 	bool event(QEvent *e);
@@ -36,11 +31,11 @@ protected:
 
 protected slots:
 	// Re-implementing to intercept finished() signal and do cleanup
-	void onStop();
+	void onDacqStop();
 	// Re-implementing to incorporate initialization actions into progress
-	void onSendCompletion(int completion);
+	void onDacqSendCompletion(int completion);
 	// Re-implementing to incorporate initialization actions into progress
-	void onState(const QString &state);
+	void onDacqState(const QString &state);
 
 	void onInitializationActionsSucceeded();
 	void onInitializationActionsStageSucceeded(int stageIndex);

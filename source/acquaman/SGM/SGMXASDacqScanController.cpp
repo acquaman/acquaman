@@ -27,9 +27,8 @@ SGMXASDacqScanController::SGMXASDacqScanController(SGMXASScanConfiguration *cfg,
 	_pScan_ = &specificScan_;
 }
 
-void SGMXASDacqScanController::initialize(){
+void SGMXASDacqScanController::initializeImplementation(){
 	if(SGMXASScanController::beamlineInitialize() && initializationActions_){
-		initialized_ = true;
 		#warning "Do we need to also clear any raw data sources here, or just the raw data itself?"
 		pScan_()->clearRawDataPoints();
 		connect(initializationActions_, SIGNAL(listSucceeded()), this, SLOT(onInitializationActionsSucceeded()));
@@ -37,7 +36,7 @@ void SGMXASDacqScanController::initialize(){
 	}
 }
 
-void SGMXASDacqScanController::start(){
+void SGMXASDacqScanController::startImplementation(){
 	if(SGMBeamline::sgm()->isBeamlineScanning()){
 		qDebug() << "Beamline already scanning";
 		return;
@@ -80,7 +79,7 @@ void SGMXASDacqScanController::start(){
 	advAcq_->saveConfigFile("/Users/fawkes/dev/acquaman/devConfigurationFiles/davidTest.cfg");
 	generalScan_ = specificScan_;
 
-	AMDacqScanController::start();
+	AMDacqScanController::startImplementation();
 }
 
 AMnDIndex SGMXASDacqScanController::toScanIndex(QMap<int, double> aeData){
@@ -89,5 +88,5 @@ AMnDIndex SGMXASDacqScanController::toScanIndex(QMap<int, double> aeData){
 }
 
 void SGMXASDacqScanController::onInitializationActionsSucceeded(){
-	emit initialized();
+	setInitialized();
 }

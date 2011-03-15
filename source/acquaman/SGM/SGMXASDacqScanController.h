@@ -30,18 +30,11 @@ Q_OBJECT
 public:
 	explicit SGMXASDacqScanController(SGMXASScanConfiguration *cfg, QObject *parent = 0);
 
-	bool isInitialized() { return (initialized_ && beamlineInitialized_);}
-
 	virtual AMScan* scan() {return pScan_();}
 
-signals:
-	void initialized();
-
-public slots:
-	void initialize();
-	void start();
-
 protected:
+	void initializeImplementation();
+	void startImplementation();
 	AMnDIndex toScanIndex(QMap<int, double> aeData);
 
 protected slots:

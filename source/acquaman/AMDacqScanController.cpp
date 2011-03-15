@@ -36,21 +36,18 @@ AMDacqScanController::AMDacqScanController(AMScanConfiguration *cfg, QObject *pa
 	_pCfg_ = &generalCfg_;
 	_pScan_ = &generalScan_;
 
-	running_ = FALSE;
-	paused_ = FALSE;
-	cancelled_ = FALSE;
+	dacqCancelled_ = false;
 	QEpicsAcqLocal *lAcq = new QEpicsAcqLocal((QWidget*)parent);
 	advAcq_ = new QEpicsAdvAcq(lAcq);
-	connect(advAcq_, SIGNAL(onStart()), this, SLOT(onStart()));
-	connect(advAcq_, SIGNAL(onStop()), this, SLOT(onStop()));
-	connect(advAcq_, SIGNAL(onPause(int)), this, SLOT(onPause(int)));
-	connect(advAcq_, SIGNAL(sendCompletion(int)), this, SLOT(onSendCompletion(int)));
-	connect(advAcq_, SIGNAL(onState(QString)), this, SLOT(onState(QString)));
+	connect(advAcq_, SIGNAL(onStart()), this, SLOT(onDacqStart()));
+	connect(advAcq_, SIGNAL(onStop()), this, SLOT(onDacqStop()));
+	connect(advAcq_, SIGNAL(onPause(int)), this, SLOT(onDacqPause(int)));
+	connect(advAcq_, SIGNAL(sendCompletion(int)), this, SLOT(onDacqSendCompletion(int)));
+	connect(advAcq_, SIGNAL(onState(QString)), this, SLOT(onDacqState(QString)));
 	usingSpectraDotDatFile_ = false;
 }
 
-void AMDacqScanController::start(){
-	if(initialized_){
+void AMDacqScanController::startImplementation(){
 		acqBaseOutput *abop = acqOutputHandlerFactory::new_acqOutput("AMScanSpectrum", "File");
 		if( abop)
 		{
@@ -77,17 +74,25 @@ void AMDacqScanController::start(){
 		else{
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -1, "AMDacqScanController: could not create output handler."));
 		}
-	}
-	else
-		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -1, "AMDacqScanController: attempted start on uninitialized controller."));
+}
+
+bool AMDacqScanController::canPause(){
+	return true;
+}
+
+void AMDacqScanController::pauseImplementation(){
+	advAcq_->Pause(1);
+}
+
+void AMDacqScanController::resumeImplementation(){
+	advAcq_->Pause(0);
 }
 
 /// Cancel scan if currently running or paused
-void AMDacqScanController::cancel()
+void AMDacqScanController::cancelImplementation()
 {
+	dacqCancelled_ = true;
 	advAcq_->Stop();
-	cancelled_ = TRUE;
-	emit cancelled();
 }
 
 bool AMDacqScanController::event(QEvent *e){
@@ -126,41 +131,35 @@ AMnDIndex AMDacqScanController::toScanIndex(QMap<int, double> aeData){
 	return AMnDIndex(pScan_()->rawData()->scanSize(0));
 }
 
-void AMDacqScanController::onStart()
+void AMDacqScanController::onDacqStart()
 {
-	running_ = TRUE;
 	startTime_.start();
-	emit started();
+	setStarted();
 }
 
-void AMDacqScanController::onStop()
+void AMDacqScanController::onDacqStop()
 {
-	running_ = FALSE;
-	if(cancelled_)
-		cancelled_ = FALSE;
+	if(dacqCancelled_)
+		setCancelled();
 	else
-		emit finished();
+		setFinished();
 }
 
-void AMDacqScanController::onPause(int mode)
+void AMDacqScanController::onDacqPause(int mode)
 {
-	if(mode == 1){
-		paused_ = TRUE;
-		emit paused();
-	}
-	else if(mode == 0){
-		paused_ = FALSE;
-		emit resumed();
-	}
+	if(mode == 1)
+		setPaused();
+	else if(mode == 0)
+		setResumed();
 }
 
-void AMDacqScanController::onSendCompletion(int completion){
+void AMDacqScanController::onDacqSendCompletion(int completion){
 	double tc = ((double)startTime_.elapsed())/1000;
 	double remaining = (completion != 0) ? (100*tc)/((double)completion) - tc : tc*100000;
 	emit timeRemaining(remaining);
 	emit progress(tc, tc+remaining);
 }
 
-void AMDacqScanController::onState(const QString& state){
+void AMDacqScanController::onDacqState(const QString& state){
 	//qDebug() << "State of dacq is " << state;
 }

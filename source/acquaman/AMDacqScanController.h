@@ -42,17 +42,12 @@ Q_OBJECT
 public:
 	AMDacqScanController(AMScanConfiguration *cfg, QObject *parent = 0);
 
-public slots:
-//    /// Sets a new scan configuration
-//    virtual void newConfigurationLoad(AMScanConfiguration &cfg);
-	/// Start scan running if not currently running or paused
-	virtual void start();
-	/// Cancel scan if currently running or paused
-	virtual void cancel();
-	/// Pause scan if currently running
-	virtual void pause() { advAcq_->Pause(1);}
-	/// Resume scan if currently paused
-	virtual void resume(){ advAcq_->Pause(0);}
+protected:
+	void startImplementation();
+	bool canPause();
+	void pauseImplementation();
+	void resumeImplementation();
+	void cancelImplementation();
 
 protected:
 	bool event(QEvent *e);
@@ -61,15 +56,15 @@ protected:
 protected:
 	QEpicsAdvAcq *advAcq_;
 	bool usingSpectraDotDatFile_;
-	bool cancelled_;
+	bool dacqCancelled_;
 	QTime startTime_;
 
 protected slots:
-	virtual void onStart();
-	virtual void onStop();
-	virtual void onPause(int mode);
-	virtual void onSendCompletion(int completion);
-	virtual void onState(const QString& state);
+	virtual void onDacqStart();
+	virtual void onDacqStop();
+	virtual void onDacqPause(int mode);
+	virtual void onDacqSendCompletion(int completion);
+	virtual void onDacqState(const QString& state);
 
 private:
 	AMScanConfiguration **_pCfg_;
