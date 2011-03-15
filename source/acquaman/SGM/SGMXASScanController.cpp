@@ -32,10 +32,6 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 	initializationActions_ = NULL;
 	beamlineInitialized_ = false;
 
-	//QList<AMDetectorInfo*> scanDetectors = pCfg_()->usingDetectors();
-	//scanDetectors.prepend(SGMBeamline::sgm()->i0Detector());
-	//scanDetectors.prepend(SGMBeamline::sgm()->eVFbkDetector());
-
 	specificScan_ = new AMXASScan();
 	_pScan_ = &specificScan_;
 	pScan_()->setName("SGM XAS Scan");
@@ -45,12 +41,9 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 
 	// Create space in raw data store, and create raw data channels, for each detector.
 
-	//for(int i=0; i<scanDetectors.count(); i++) {
 	for(int i = 0; i < pCfg_()->allDetectorConfigurations().count(); i++){
-		qDebug() << "DetectorInfo at " << i << " is " << pCfg_()->allDetectorConfigurations().detectorInfoAt(i)->name() ;
 		AMDetectorInfo* detectorInfo = pCfg_()->allDetectorConfigurations().detectorInfoAt(i);
 		if(pCfg_()->allDetectorConfigurations().isActiveAt(i)){
-			qDebug() << pCfg_()->allDetectorConfigurations().detectorInfoAt(i)->name() << " is active";
 			pScan_()->rawData()->addMeasurement(AMMeasurementInfo(*detectorInfo));
 			pScan_()->addRawDataSource(new AMRawDataSource(pScan_()->rawData(), i));
 		}
@@ -92,7 +85,6 @@ bool SGMXASScanController::beamlineInitialize(){
 	AMBeamlineControlMoveAction *tmpAction = NULL;
 	#warning "Hey David, who's going to delete the list and the actions?"
 	initializationActions_ = new AMBeamlineParallelActionsList();
-	/**/
 	initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->exitSlitGap());
 	tmpAction->setSetpoint(pCfg_()->exitSlitGap());
@@ -104,84 +96,21 @@ bool SGMXASScanController::beamlineInitialize(){
 	tmpAction->setSetpoint(pCfg_()->harmonic());
 	initializationActions_->appendAction(0, tmpAction);
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->undulatorTracking());
-	//tmpAction->setSetpoint(pCfg_()->undulatorTracking());
 	tmpAction->setSetpoint(pCfg_()->trackingGroup().at(0).value() );
 	initializationActions_->appendAction(0, tmpAction);
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->monoTracking());
-	//tmpAction->setSetpoint(pCfg_()->monoTracking());
 	tmpAction->setSetpoint(pCfg_()->trackingGroup().at(1).value() );
 	initializationActions_->appendAction(0, tmpAction);
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->exitSlitTracking());
-	//tmpAction->setSetpoint(pCfg_()->exitSlitTracking());
 	tmpAction->setSetpoint(pCfg_()->trackingGroup().at(2).value() );
 	initializationActions_->appendAction(0, tmpAction);
-	/**/
 
-	for(int x = 0; x < pCfg_()->allDetectors()->count(); x++){
-		if(pCfg_()->allDetectorConfigurations().isActiveAt(x)){
-			qDebug() << "Need to setFromInfo for " << pCfg_()->allDetectors()->detectorAt(x)->detectorName() << " to " << *(pCfg_()->allDetectorConfigurations().detectorInfoAt(x));
+	for(int x = 0; x < pCfg_()->allDetectors()->count(); x++)
+		if(pCfg_()->allDetectorConfigurations().isActiveAt(x))
 			pCfg_()->allDetectors()->detectorAt(x)->setFromInfo(pCfg_()->allDetectorConfigurations().detectorInfoAt(x));
-		}
-	}
 
-//	AMDetectorInfo* tmpDI;
-//	#warning "David: Why are we using detectorSet() and not usingDetectors() besides the list versus class thing? Conversion function anyone?"
-//	for(int x = 0; x < pCfg_()->oldDetectorSet()->count(); x++){
-//		tmpDI = pCfg_()->oldDetectorSet()->detectorAt(x);
-//		#warning "David please review... Had to change because of removed AMDbObject::typeDescription"
-//		/* previously: typeDescription()s were never the safest way to tell what class something was anyway.
-//		if(tmpDI->typeDescription() == "PGT SDD Spectrum-Output Detector")
-//			((PGTDetector*)(pCfg_()->detectorSet()->detectorAt(x)))->setControls( (PGTDetectorInfo*)pCfg_()->cfgDetectorInfoSet()->detectorAt(x) );
-//		else if(tmpDI->typeDescription() == "MCP Detector")
-//			((MCPDetector*)(pCfg_()->detectorSet()->detectorAt(x)))->setControls( (MCPDetectorInfo*)pCfg_()->cfgDetectorInfoSet()->detectorAt(x) );
-//		else
-//			((AMSingleControlDetector*)(pCfg_()->detectorSet()->detectorAt(x)))->setControls( (AMDetectorInfo*)pCfg_()->cfgDetectorInfoSet()->detectorAt(x) );
-//			*/
-//		// replaced with: use qobject_cast<toType*>(genericType*).  Returns 0 if genericType* is not of the toType type.
-//		PGTDetector* pgtDetector;
-//		MCPDetector* mcpDetector;
-//		AMSingleControlDetector* scDetector;
-
-//		if( (pgtDetector = qobject_cast<PGTDetector*>(tmpDI)) )
-//			pgtDetector->setControls( (PGTDetectorInfo*)pCfg_()->cfgDetectorInfoSet()->detectorAt(x) );
-//		else if( (mcpDetector = qobject_cast<MCPDetector*>(tmpDI)) )
-//			mcpDetector->setControls( (MCPDetectorInfo*)pCfg_()->cfgDetectorInfoSet()->detectorAt(x) );
-//		else if( (scDetector = qobject_cast<AMSingleControlDetector*>(tmpDI)) )
-//			scDetector->setControls( (AMDetectorInfo*)pCfg_()->cfgDetectorInfoSet()->detectorAt(x) );
-
-//	}
-
-
-	//AMDetector *dd = 0;
-	//dd->detectorName();
 	beamlineInitialized_ = true;
 	return beamlineInitialized_;
-}
-
-void SGMXASScanController::reinitialize(){
-	/// \bug CRITICAL this was commented out. Why?
-	delete specificScan_;
-
-	QList<AMDetectorInfo*> scanDetectors;
-	scanDetectors = pCfg_()->usingDetectors();
-	//scanDetectors.prepend(SGMBeamline::sgm()->i0Detector());
-	//scanDetectors.prepend(SGMBeamline::sgm()->eVFbkDetector());
-
-
-	specificScan_ = new AMXASScan();
-	_pScan_ = &specificScan_;
-	pScan_()->setName("SGM XAS Scan");
-	pScan_()->setFilePath(pCfg_()->filePath()+pCfg_()->fileName());
-	pScan_()->setFileFormat("sgm2004");
-
-	// Create space in raw data store, and create raw data channels, for each detector.
-
-	for(int i=0; i<scanDetectors.count(); i++) {
-		AMDetectorInfo* detectorInfo = scanDetectors.at(i);
-
-		pScan_()->rawData()->addMeasurement(AMMeasurementInfo(*detectorInfo));
-		pScan_()->addRawDataSource(new AMRawDataSource(pScan_()->rawData(), i));
-	}
 }
 
 SGMXASScanConfiguration* SGMXASScanController::pCfg_(){

@@ -128,7 +128,9 @@ public:
 	bool setData(const QModelIndex &index, const QVariant &value, int role);
 	bool insertRows(int row, int count, const QModelIndex &parent = QModelIndex());
 	bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex());
-	/*Qt::ItemFlags flags(const QModelIndex &index) const;*/
+	/* NTBA March 14, 2011 David Chevrier
+	Qt::ItemFlags flags(const QModelIndex &index) const;
+	*/
 
 protected:
 	QList< QList<AMBeamlineActionItem*>* > *actions_;

@@ -62,10 +62,8 @@ void AMBeamlineScanAction::start(){
 		return;
 	}
 
-	qDebug() << "Ready, so get rolling";
-
 	if(!AMBeamlineActionItem::isReinitialized()){
-		qDebug() << "Not reinitalized, creating new controller";
+//		qDebug() << "Not reinitalized, creating new controller";
 		ctrl_ = cfg_->createController();
 		if(!ctrl_) {
 			qDebug() << "Failed to create controller.";
@@ -92,7 +90,6 @@ void AMBeamlineScanAction::start(){
 	// should this connection happen all the time, even if controller re-initialized?
 	connect(ctrl_, SIGNAL(initialized()), ctrl_, SLOT(start()));
 	ctrl_->initialize();
-
 }
 
 void AMBeamlineScanAction::cancel(){

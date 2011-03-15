@@ -217,10 +217,6 @@ bool AMBeamlineParallelActionsList::addAction(int stageIndex, int index, AMBeaml
 	bool retVal = actions_->insertRows(index, 1, actions_->index(stageIndex, QModelIndex()));
 	if(!retVal)
 		return false;
-	/*
-	if(!actions_->insertRows(index, 1, actions_->index(stageIndex, QModelIndex())));
-		return false;
-	*/
 	return setAction(stageIndex, index, action);
 }
 
@@ -313,12 +309,11 @@ void AMBeamlineParallelActionsList::start(){
 }
 
 void AMBeamlineParallelActionsList::cancel(){
-	/*
+	/*  NTBA March 14, 2011 David Chevrier
 	if(isRunning_)
 		for(int x = 0; x < stage(currentStage_)->count(); x++)
 			action(currentStage_,x)
 	*/
-	// do something here
 }
 
 void AMBeamlineParallelActionsList::onDataChanged(QModelIndex a,QModelIndex b){
@@ -683,3 +678,4 @@ bool AMBeamlineParallelActionListModel::removeRows(int row, int count, const QMo
 	}
 	return false;
 }
+

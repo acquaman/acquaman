@@ -18,34 +18,10 @@ PGTDetector::PGTDetector(const QString &name, AMControl *dataWaveform, AMControl
 	settingsControls->addControl(integrationTime);
 	settingsControls->addControl(integrationMode);
 	initializeFromControlSet(readingsControls, settingsControls);
-	/*
-	dataWaveform_ = dataWaveform;
-	hvSetpoint_ = hvSetpoint;
-	hvFbk_ = hvFbk;
-	integrationTime_ = integrationTime;
-	integrationMode_ = integrationMode;
-
-	if(hvSetpoint_->isConnected())
-		setHVSetpoint(hvSetpoint_->value());
-	if(integrationTime_->isConnected())
-		setIntegrationTime(integrationTime_->value());
-	if(integrationMode_->isConnected())
-		setIntegrationMode(integrationMode_->enumNameAt(integrationMode_->value()));
-
-	connect(dataWaveform_, SIGNAL(connected(bool)), AMDetector::signalSource(), SIGNAL(connected(bool)));
-	connect(dataWaveform_, SIGNAL(valueChanged(double)), AMDetector::signalSource(), SIGNAL(valuesChanged()));
-	*/
 }
 
 PGTDetector::~PGTDetector()
 {
-	/*
-	dataWaveform_ = NULL;
-	hvSetpoint_ = NULL;
-	hvFbk_ = NULL;
-	integrationTime_ = NULL;
-	integrationMode_ = NULL;
-	*/
 }
 
 const QMetaObject* PGTDetector::getMetaObject() {
@@ -61,11 +37,9 @@ PGTDetectorInfo PGTDetector::toPGTInfo() const{
 }
 
 bool PGTDetector::setFromInfo(const AMDetectorInfo *info){
-	qDebug() << "Setting PGT to " << *info;
 	const PGTDetectorInfo *di = qobject_cast<const PGTDetectorInfo*>(info);
 	if(!di)
 		return false;
-	qDebug() << "Passed the cast test " << di->integrationTime() << integrationModeCtrl()->enumNames().indexOf(di->integrationMode()) << di->hvSetpoint();
 	integrationTimeCtrl()->move(di->integrationTime());
 	integrationModeCtrl()->move(integrationModeCtrl()->enumNames().indexOf(di->integrationMode()));
 	hvCtrl()->move(di->hvSetpoint());
@@ -157,7 +131,6 @@ void PGTDetector::onSettingsControlValuesChanged(){
 		poweredOn_ = (hvCtrl()->value() >= 170);
 		if(lastPoweredOn != poweredOn_)
 			emit poweredOnChanged(poweredOn_);
-		//qDebug() << "In PGTDetector " << *toInfo() << " or " << *this;
 		emitSettingsChanged();
 	}
 }

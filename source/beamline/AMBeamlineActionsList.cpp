@@ -370,7 +370,6 @@ void AMBeamlineActionsQueue::onActionAdded(int index){
 }
 
 void AMBeamlineActionsQueue::onActionRemoved(int index){
-	//qDebug() << "Want to remove row " << index << " head is " << index;
 	if(index == headIndex_){
 		if(headIndex_ == fullList_->count()){
 			headIndex_ = -1;
@@ -381,13 +380,6 @@ void AMBeamlineActionsQueue::onActionRemoved(int index){
 			emit headChanged();
 			emit isEmptyChanged(false);
 		}
-/*		if(peekIsEmpty())
-			headIndex_ = -1;
-		else
-			headIndex_ = headIndex_+1;
-		emit headChanged();
-		emit isEmptyChanged(false);
-*/
 	}
 }
 

@@ -18,26 +18,10 @@ void SGMFastDacqScanController::initialize(){
 		#warning "Do we need to also clear any raw data sources here, or just the raw data itself?"
 		pScan()->clearRawDataPoints();
 		connect(initializationActions_, SIGNAL(listSucceeded()), this, SLOT(onInitializationActionsSucceeded()));
-		//connect(initializationActions_, SIGNAL(stageStarted(int)), this, SLOT(onInitializationActionsStageStarted(int)));
 		connect(initializationActions_, SIGNAL(stageSucceeded(int)), this, SLOT(onInitializationActionsStageSucceeded(int)));
 		connect(initializationActions_, SIGNAL(stageProgress(double,double)), this, SLOT(calculateProgress(double,double)));
 		initializationActions_->start();
-		/*
-		emit initialized();
-		*/
 	}
-}
-
-void SGMFastDacqScanController::reinitialize(bool removeScan){
-	lastProgress_ = 0.0;
-	initializationStagesComplete_ = 0;
-	timerSeconds_ = 0;
-	dacqRunUpStarted_ = false;
-	dacqRunUpCompleted_ = false;
-	dacqRunCompleted_ = false;
-	SGMFastScanController::reinitialize();
-	qDebug() << "Emitting reinitialized with removeScan " << removeScan;
-	emit reinitialized(removeScan);
 }
 
 void SGMFastDacqScanController::start(){
@@ -52,12 +36,6 @@ void SGMFastDacqScanController::start(){
 	else if( QDir(homeDir+"/beamline/programming").exists())
 		homeDir.append("/beamline/programming");
 
-	/*
-	if(pCfg()->usingPGT())
-		loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/pgt.cfg"));
-	else
-		loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/defaultEnergy.cfg"));
-	*/
 	loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/Scalar_Fast.config"));
 	if(!loadSuccess){
 		qDebug() << "LIBRARY FAILED TO LOAD CONFIG FILE";
@@ -66,27 +44,7 @@ void SGMFastDacqScanController::start(){
 	advAcq_->setStart(0, pCfg()->start());
 	advAcq_->setDelta(0, pCfg()->end()-pCfg()->start());
 	advAcq_->setEnd(0, pCfg()->end());
-	/*
-	foreach(const AMDetectorInfo *dtctr, pCfg()->usingDetectors() ){
-		if(dtctr->name() == SGMBeamline::sgm()->pgtDetector()->name()){
-			advAcq_->appendRecord(SGMBeamline::sgm()->pvName(dtctr->name()), true, true, 0);
-		}
-		else{
-			advAcq_->appendRecord(SGMBeamline::sgm()->pvName(dtctr->name()), true, false, 0);
-		}
 
-		//for(int x = 0; x < pCfg()->count(); x++){
-		//	if(advAcq_->getNumRegions() == x)
-		//		advAcq_->addRegion(x, pCfg_()->start(x), pCfg_()->delta(x), pCfg_()->end(x), 1);
-		//	else{
-		//		advAcq_->setStart(x, pCfg_()->start(x));
-		//		advAcq_->setDelta(x, pCfg_()->delta(x));
-		//		advAcq_->setEnd(x, pCfg_()->end(x));
-		//	}
-		//}
-
-	}
-	*/
 	generalScan_ = specificScan_;
 	usingSpectraDotDatFile_ = true;
 	fastScanTimer_ = new QTimer(this);

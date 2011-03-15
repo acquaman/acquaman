@@ -13,7 +13,6 @@ public:
 
 	bool isBeamlineInitialized();
 	virtual bool beamlineInitialize();
-	virtual void reinitialize();
 
 protected:
 	SGMFastScanConfiguration *specificCfg_;

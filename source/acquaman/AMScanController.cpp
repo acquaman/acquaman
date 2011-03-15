@@ -67,11 +67,9 @@ AMScanController* AMScanControllerSupervisor::currentScanController(){
 }
 
 bool AMScanControllerSupervisor::setCurrentScanController(AMScanController *newScanController){
-//	qDebug() << "In setCurrentSC with " << (int)currentScanController_;
 	if(currentScanController_)
 		return false;
 	currentScanController_ = newScanController;
-	qDebug()  << " and " << currentScanController_->scan();
 	if(!currentScanController_->scan())
 		return false;
 	connect(currentScanController_, SIGNAL(finished()), this, SLOT(onCurrentScanControllerFinished()));

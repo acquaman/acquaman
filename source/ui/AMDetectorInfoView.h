@@ -11,6 +11,7 @@
 #include <QComboBox>
 #include <QFormLayout>
 
+/*
 class AMDetectorInfoView : public QGroupBox
 {
 	Q_OBJECT
@@ -81,5 +82,6 @@ protected:
 	virtual void runSetup();
 	virtual QWidget* detailViewByType(AMDetectorInfo *detectorInfo, AMDetectorInfo *writeDetectorInfo);
 };
+*/
 
 #endif // AMDETECTORINFOVIEW_H

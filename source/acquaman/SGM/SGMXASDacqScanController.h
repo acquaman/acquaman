@@ -38,18 +38,10 @@ public:
 
 signals:
 	void initialized();
-	void reinitialized(bool removeScan);
 
 public slots:
 	void initialize();
-	void reinitialize(bool removeScan);
 	void start();
-
-//	AMXASScan* scan(){ return pScan_();}
-
-//protected:
-//	virtual void reinitialize();
-
 
 protected:
 	AMnDIndex toScanIndex(QMap<int, double> aeData);

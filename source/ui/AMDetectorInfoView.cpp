@@ -3,6 +3,7 @@
 #include <QCheckBox>
 #include <QLabel>
 
+/*
 AMDetectorInfoView::AMDetectorInfoView(AMDetectorInfo *detectorInfo, AMDetectorInfo *writeDetectorInfo, bool interactive, QWidget *parent) :
 		QGroupBox(parent)
 {
@@ -133,26 +134,27 @@ void AMDetectorInfoSetView::runSetup(){
 	hl_->addLayout(gl);
 	setLayout(hl_);
 }
+*/
 
-QWidget* AMDetectorInfoSetView::detailViewByType(AMDetectorInfo *detectorInfo, AMDetectorInfo *writeDetectorInfo){
-	#warning "David... please review. Needed to change because of removed AMDbObject::typeDescription."
+//QWidget* AMDetectorInfoSetView::detailViewByType(AMDetectorInfo *detectorInfo, AMDetectorInfo *writeDetectorInfo){
+//	#warning "David... please review. Needed to change because of removed AMDbObject::typeDescription."
 
-	/* typeDescription was never the safest way to tell what type a class was anyway... nor the fastest.
-	if(detectorInfo->typeDescription() == "PGT SDD Spectrum-Output Detector")
-		return new PGTDetectorInfoView( (PGTDetectorInfo*)detectorInfo, writeDetectorInfo, true);
-	else if(detectorInfo->typeDescription() == "MCP Detector")
-		return new MCPDetectorInfoView( (MCPDetectorInfo*)detectorInfo, writeDetectorInfo, true );
-	else
-		return new QGroupBox();
-		*/
-	PGTDetectorInfo* pgtDetectorInfo;
-	MCPDetectorInfo* mcpDetectorInfo;
+//	/* typeDescription was never the safest way to tell what type a class was anyway... nor the fastest.
+//	if(detectorInfo->typeDescription() == "PGT SDD Spectrum-Output Detector")
+//		return new PGTDetectorInfoView( (PGTDetectorInfo*)detectorInfo, writeDetectorInfo, true);
+//	else if(detectorInfo->typeDescription() == "MCP Detector")
+//		return new MCPDetectorInfoView( (MCPDetectorInfo*)detectorInfo, writeDetectorInfo, true );
+//	else
+//		return new QGroupBox();
+//		*/
+//	PGTDetectorInfo* pgtDetectorInfo;
+//	MCPDetectorInfo* mcpDetectorInfo;
 
-	if( (pgtDetectorInfo = qobject_cast<PGTDetectorInfo*>(detectorInfo)) )
-		return new PGTOldDetectorInfoView(pgtDetectorInfo, writeDetectorInfo, true);
-	else if( (mcpDetectorInfo = qobject_cast<MCPDetectorInfo*>(detectorInfo)) )
-		return new MCPOldDetectorInfoView(mcpDetectorInfo, writeDetectorInfo, true);
-	else
-		return new QGroupBox();
+//	if( (pgtDetectorInfo = qobject_cast<PGTDetectorInfo*>(detectorInfo)) )
+//		return new PGTOldDetectorInfoView(pgtDetectorInfo, writeDetectorInfo, true);
+//	else if( (mcpDetectorInfo = qobject_cast<MCPDetectorInfo*>(detectorInfo)) )
+//		return new MCPOldDetectorInfoView(mcpDetectorInfo, writeDetectorInfo, true);
+//	else
+//		return new QGroupBox();
 
-}
+//}

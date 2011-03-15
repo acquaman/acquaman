@@ -16,11 +16,9 @@ public:
 
 signals:
 	void initialized();
-	void reinitialized(bool removeScan);
 
 public slots:
 	void initialize();
-	void reinitialize(bool removeScan);
 	void start();
 	void cancel();
 

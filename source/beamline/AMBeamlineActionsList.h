@@ -26,11 +26,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QQueue>
 
 #include "beamline/AMBeamlineActionItem.h"
-/*
-#include "beamline/AMBeamlineScanAction.h"
-#include "beamline/AMBeamlineControlMoveAction.h"
-#include "beamline/AMBeamlineControlSetMoveAction.h"
-*/
 
 class AMBeamlineActionListModel;
 

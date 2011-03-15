@@ -32,9 +32,9 @@ class SGMXASScanConfiguration : public AMXASScanConfiguration, public SGMScanCon
 	Q_PROPERTY(int grating READ grating WRITE setGrating)
 	Q_PROPERTY(int harmonic READ harmonic WRITE setHarmonic)
 	//NEED Q_PROPERTY for trackingGroup
-	Q_PROPERTY(bool usingTEY READ usingTEY WRITE setUsingTEY)
-	Q_PROPERTY(bool usingTFY READ usingTFY WRITE setUsingTFY)
-	Q_PROPERTY(bool usingPGT READ usingPGT WRITE setUsingPGT)
+	//Q_PROPERTY(bool usingTEY READ usingTEY WRITE setUsingTEY)
+	//Q_PROPERTY(bool usingTFY READ usingTFY WRITE setUsingTFY)
+	//Q_PROPERTY(bool usingPGT READ usingPGT WRITE setUsingPGT)
 	//NEED Q_PROPERTY for cfgXASDetectors_
 
 public:
@@ -52,10 +52,10 @@ public:
 	/// Returns the current configuration requested for all of the detectors
 	AMDetectorInfoSet allDetectorConfigurations() const;
 
-	AMOldDetectorInfoSet *oldDetectorSet() const { return XASDetectorsOld_;}
-	AMOldDetectorInfoSet *cfgDetectorInfoSet() const { return cfgXASDetectorsOld_;}
+	//AMOldDetectorInfoSet *oldDetectorSet() const { return XASDetectorsOld_;}
+	//AMOldDetectorInfoSet *cfgDetectorInfoSet() const { return cfgXASDetectorsOld_;}
 
-	QList<AMDetectorInfo*> usingDetectors() const;
+	//QList<AMDetectorInfo*> usingDetectors() const;
 
 	/// Returns a pointer to a newly-created copy of this scan configuration.  (It takes the role of a copy constructor, but is virtual so that our high-level classes can copy a scan configuration without knowing exactly what kind it is.)
 	virtual AMScanConfiguration* createCopy() const;
@@ -74,14 +74,14 @@ public slots:
 
 	bool setTrackingGroup(AMControlInfoList trackingList);
 
-	bool setUsingTEY(bool active);
-	bool setUsingTEY(int checkedState);
-	bool setUsingTFY(bool active);
-	bool setUsingTFY(int checkedState);
-	bool setUsingPGT(bool active);
-	bool setUsingPGT(int checkedState);
+	//bool setUsingTEY(bool active);
+	//bool setUsingTEY(int checkedState);
+	//bool setUsingTFY(bool active);
+	//bool setUsingTFY(int checkedState);
+	//bool setUsingPGT(bool active);
+	//bool setUsingPGT(int checkedState);
 
-	bool setCfgDetectorInfoSet(AMOldDetectorInfoSet *cfgDetectorInfoSet) { cfgXASDetectorsOld_ = cfgDetectorInfoSet; return true; }
+	//bool setCfgDetectorInfoSet(AMOldDetectorInfoSet *cfgDetectorInfoSet) { cfgXASDetectorsOld_ = cfgDetectorInfoSet; return true; }
 
 	bool setDetectorConfigurations(const AMDetectorInfoSet& xasDetectorsCfg);
 
@@ -91,9 +91,9 @@ signals:
 	void harmonicChanged(int harmonic);
 	void trackingGroupChanged(AMControlInfoList);
 
-	void usingTEYChanged(bool active);
-	void usingTFYChanged(bool active);
-	void usingPGTChanged(bool active);
+	//void usingTEYChanged(bool active);
+	//void usingTFYChanged(bool active);
+	//void usingPGTChanged(bool active);
 
 protected:
 	AMControlSet *fluxResolutionSet_;
@@ -103,9 +103,9 @@ protected:
 	AMDetectorSet *allDetectors_;
 	AMDetectorInfoSet xasDetectorsCfg_;
 
-	AMOldDetectorInfoSet *feedbackDetectorsOld_;
-	AMOldDetectorInfoSet *XASDetectorsOld_;
-	AMOldDetectorInfoSet *cfgXASDetectorsOld_;
+	//AMOldDetectorInfoSet *feedbackDetectorsOld_;
+	//AMOldDetectorInfoSet *XASDetectorsOld_;
+	//AMOldDetectorInfoSet *cfgXASDetectorsOld_;
 
 };
 

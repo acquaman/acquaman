@@ -134,7 +134,7 @@ void AMDetectorSet::setFromInfoSet(const AMDetectorInfoSet& info){
 }
 
 void AMDetectorSet::onConnected(bool dtctrConnected){
-	/* Need to figure this one out
+	/* NTBA March 14, 2011 David Chevrier
 	AMDetector *tmpDtctr = 0; //NULL
 	if(tmpDtctr = qobject_cast<AMDetectorInfo*>(QObject::sender()))
 		emit detectorConnectedChanged(dtctrConnected, tmpDtctr);

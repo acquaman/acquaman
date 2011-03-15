@@ -26,17 +26,17 @@ SGMXASScanConfiguration::SGMXASScanConfiguration(QObject *parent) : AMXASScanCon
 	fluxResolutionSet_ = SGMBeamline::sgm()->fluxResolutionSet();
 	trackingSet_ = SGMBeamline::sgm()->trackingSet();
 
-	xasDetectors_ = SGMBeamline::sgm()->XASDetectorsNew();
+	xasDetectors_ = SGMBeamline::sgm()->XASDetectors();
 
 	allDetectors_ = new AMDetectorSet(this);
-	for(int x = 0; x < SGMBeamline::sgm()->feedbackDetectorsNew()->count(); x++)
-		allDetectors_->addDetector(SGMBeamline::sgm()->feedbackDetectorsNew()->detectorAt(x), true);
+	for(int x = 0; x < SGMBeamline::sgm()->feedbackDetectors()->count(); x++)
+		allDetectors_->addDetector(SGMBeamline::sgm()->feedbackDetectors()->detectorAt(x), true);
 	for(int x = 0; x < xasDetectors_->count(); x++)
 		allDetectors_->addDetector(xasDetectors_->detectorAt(x), xasDetectors_->isDefaultAt(x));
 	xasDetectorsCfg_ = xasDetectors_->toInfoSet();
 
-	feedbackDetectorsOld_ = SGMBeamline::sgm()->feedbackDetectors();
-	XASDetectorsOld_ = SGMBeamline::sgm()->XASDetectors();
+	//feedbackDetectorsOld_ = SGMBeamline::sgm()->feedbackDetectors();
+	//XASDetectorsOld_ = SGMBeamline::sgm()->XASDetectors();
 
 	// default channels removed. Need to come up with new replacement system to create default analysis blocks instead.
 
@@ -47,24 +47,11 @@ SGMXASScanConfiguration::SGMXASScanConfiguration(QObject *parent) : AMXASScanCon
 
 AMDetectorInfoSet SGMXASScanConfiguration::allDetectorConfigurations() const{
 	AMDetectorInfoSet allConfigurations;
-	for(int x = 0; x < SGMBeamline::sgm()->feedbackDetectorsNew()->count(); x++)
-		allConfigurations.addDetectorInfo(SGMBeamline::sgm()->feedbackDetectorsNew()->detectorAt(x)->toInfo(), true);
+	for(int x = 0; x < SGMBeamline::sgm()->feedbackDetectors()->count(); x++)
+		allConfigurations.addDetectorInfo(SGMBeamline::sgm()->feedbackDetectors()->detectorAt(x)->toInfo(), true);
 	for(int x = 0; x < xasDetectorsCfg_.count(); x++)
 		allConfigurations.addDetectorInfo(xasDetectorsCfg_.detectorInfoAt(x), xasDetectorsCfg_.isActiveAt(x));
 	return allConfigurations;
-}
-
-QList<AMDetectorInfo*> SGMXASScanConfiguration::usingDetectors() const{
-	QList<AMDetectorInfo*> usingDetectors;
-	usingDetectors << feedbackDetectorsOld_->detectorByName("I0");
-	usingDetectors << feedbackDetectorsOld_->detectorByName("eVFbk");
-	if(usingTEY_)
-		usingDetectors << XASDetectorsOld_->detectorByName("tey");
-	if(usingTFY_)
-		usingDetectors << XASDetectorsOld_->detectorByName("tfy");
-	if(usingPGT_)
-		usingDetectors << XASDetectorsOld_->detectorByName("pgt");
-	return usingDetectors;
 }
 
 AMScanConfiguration* SGMXASScanConfiguration::createCopy() const{
@@ -76,6 +63,7 @@ AMScanConfiguration* SGMXASScanConfiguration::createCopy() const{
 AMScanController* SGMXASScanConfiguration::createController(){
 	return new SGMXASDacqScanController(this);
 }
+
 
 bool SGMXASScanConfiguration::setExitSlitGap(double exitSlitGap) {
 	bool rVal = SGMScanConfiguration::setExitSlitGap(exitSlitGap);
@@ -107,36 +95,6 @@ bool SGMXASScanConfiguration::setTrackingGroup(AMControlInfoList trackingList){
 	bool rVal = SGMScanConfiguration::setTrackingGroup(trackingList);
 	emit trackingGroupChanged(trackingList);
 	return rVal;
-}
-
-bool SGMXASScanConfiguration::setUsingTEY(bool active) {
-	bool rVal = SGMScanConfiguration::setUsingTEY(active);
-	emit usingTEYChanged(active);
-	return rVal;
-}
-
-bool SGMXASScanConfiguration::setUsingTEY(int checkedState) {
-	return setUsingTEY( (bool)checkedState);
-}
-
-bool SGMXASScanConfiguration::setUsingTFY(bool active) {
-	bool rVal = SGMScanConfiguration::setUsingTFY(active);
-	emit usingTFYChanged(active);
-	return rVal;
-}
-
-bool SGMXASScanConfiguration::setUsingTFY(int checkedState) {
-	return setUsingTFY( (bool)checkedState);
-}
-
-bool SGMXASScanConfiguration::setUsingPGT(bool active) {
-	bool rVal = SGMScanConfiguration::setUsingPGT(active);
-	emit usingPGTChanged(active);
-	return rVal;
-}
-
-bool SGMXASScanConfiguration::setUsingPGT(int checkedState) {
-	return setUsingPGT( (bool)checkedState);
 }
 
 bool SGMXASScanConfiguration::setDetectorConfigurations(const AMDetectorInfoSet &xasDetectorsCfg){

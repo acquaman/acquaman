@@ -56,6 +56,7 @@ bool AMDetailedDetectorView::setDetector(AMDetector *detector, bool configureOnl
 	return false;
 }
 
+/*
 PGTOldDetectorView::PGTOldDetectorView(PGTDetector *detector, AMDetectorInfo *configDetector, bool editMode, QWidget *parent) :
 		PGTOldDetectorInfoView(detector, configDetector, true, parent)
 {
@@ -276,3 +277,4 @@ QWidget* AMOldDetectorSetView::detailViewByType(AMDetectorInfo *detector, AMDete
 	else
 		return new QGroupBox();
 }
+*/

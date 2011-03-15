@@ -81,6 +81,8 @@ protected:
 	virtual bool setDetector(AMDetector *detector, bool configureOnly = false);
 };
 
+
+/*
 class PGTOldDetectorView : public PGTOldDetectorInfoView
 {
 	Q_OBJECT
@@ -133,6 +135,7 @@ protected:
 	virtual void runSetup();
 	virtual QWidget* detailViewByType(AMDetectorInfo *detector, AMDetectorInfo *configDetector);
 };
+*/
 
 
 #endif // AMDETECTORVIEW_H
