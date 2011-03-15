@@ -37,7 +37,9 @@ linux-g++ {
 }
 QT += core \
 	network \
-	sql
+	sql \
+	opengl \
+	phonon
 
 DESTDIR = build
 DEPENDPATH += . \
@@ -53,15 +55,16 @@ LIBS += $$GSL_CBLAS_LIB
 LIBS += $$VLC_LIB
 
 # Epics channel access linking:
-LIBS += -L$$EPICS_LIB_DIR
-LIBS += -lca -lCom
+LIBS += -L$$EPICS_LIB_DIR -lca -lCom
 
 # VLC plugin path: define as pre-processor symbol
 DEFINES += "VLC_PLUGIN_PATH=$$VLC_PLUGIN_PATH"
 
 # search locations for libraries:
 macx {
-	QMAKE_LFLAGS_RPATH += "$$EPICS_LIB_DIR"
+	#QMAKE_LFLAGS_RPATH += "$$EPICS_LIB_DIR"
+	QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
+	QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
 }
 linux-g++ {
 	QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
@@ -237,21 +240,22 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/beamline/AMBeamlineControlStopAction.h \
 	source/dataman/REIXS/REIXSXESRawFileLoader.h \
 	source/util/AMDeferredFunctionCall.h \
-	source/ui/AMVideoWidget.h \
+	#source/ui/AMVideoWidget.h \
 	source/ui/AMScanConfigurationViewHolder.h \
-    source/dataman/AMSpectralOutputDetectorInfo.h \
-    source/dataman/MCPDetectorInfo.h \
-    source/dataman/PGTDetectorInfo.h \
-    source/beamline/AMSingleControlDetector.h \
-    source/beamline/AMSpectralOutputDetector.h \
-    source/beamline/PGTDetector.h \
-    source/beamline/MCPDetector.h \
-    source/ui/AMDetectorViewSupport.h \
-    source/ui/AMSingleControlDetectorView.h \
-    source/ui/MCPDetectorView.h \
-    source/ui/PGTDetectorView.h \
-    source/ui/AMDetectorSetView.h \
-    source/beamline/AMDetectorSet.h
+	source/dataman/AMSpectralOutputDetectorInfo.h \
+	source/dataman/MCPDetectorInfo.h \
+	source/dataman/PGTDetectorInfo.h \
+	source/beamline/AMSingleControlDetector.h \
+	source/beamline/AMSpectralOutputDetector.h \
+	source/beamline/PGTDetector.h \
+	source/beamline/MCPDetector.h \
+	source/ui/AMDetectorViewSupport.h \
+	source/ui/AMSingleControlDetectorView.h \
+	source/ui/MCPDetectorView.h \
+	source/ui/PGTDetectorView.h \
+	source/ui/AMDetectorSetView.h \
+	source/beamline/AMDetectorSet.h \
+	source/ui/AMOverlayVideoWidget.h
 FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
 	source/ui/AMDataViewSection.ui \
@@ -420,23 +424,25 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/dataman/REIXS/REIXSXESRawFileLoader.cpp \
 	source/util/AMDeferredFunctionCall.cpp \
 	source/ui/AMScanConfigurationViewHolder.cpp \
-    source/dataman/AMSpectralOutputDetectorInfo.cpp \
-    source/dataman/MCPDetectorInfo.cpp \
-    source/dataman/PGTDetectorInfo.cpp \
-    source/beamline/AMSingleControlDetector.cpp \
-    source/beamline/AMSpectralOutputDetector.cpp \
-    source/beamline/PGTDetector.cpp \
-    source/beamline/MCPDetector.cpp \
-    source/ui/AMDetectorViewSupport.cpp \
-    source/ui/AMSingleControlDetectorView.cpp \
-    source/ui/MCPDetectorView.cpp \
-    source/ui/PGTDetectorView.cpp \
-    source/ui/AMDetectorSetView.cpp \
-    source/beamline/AMDetectorSet.cpp
+	source/dataman/AMSpectralOutputDetectorInfo.cpp \
+	source/dataman/MCPDetectorInfo.cpp \
+	source/dataman/PGTDetectorInfo.cpp \
+	source/beamline/AMSingleControlDetector.cpp \
+	source/beamline/AMSpectralOutputDetector.cpp \
+	source/beamline/PGTDetector.cpp \
+	source/beamline/MCPDetector.cpp \
+	source/ui/AMDetectorViewSupport.cpp \
+	source/ui/AMSingleControlDetectorView.cpp \
+	source/ui/MCPDetectorView.cpp \
+	source/ui/PGTDetectorView.cpp \
+	source/ui/AMDetectorSetView.cpp \
+	source/beamline/AMDetectorSet.cpp \
+	#source/ui/AMVideoWidget.cpp \
+	source/ui/AMOverlayVideoWidget.cpp
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc
 
 macx {
-OBJECTIVE_SOURCES += 	source/ui/AMVideoWidget_mac.mm
-LIBS += -framework AppKit
+#OBJECTIVE_SOURCES += 	source/ui/AMVideoWidget_mac.mm
+#LIBS += -framework AppKit
 }

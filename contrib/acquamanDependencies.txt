@@ -63,3 +63,20 @@ make install
 
 
 
+
+
+
+New approach to VLC: using phonon-backend-vlc and phonon...
+
+Latest stable phonon-backend-vlc: http://mirrors.mit.edu/kde/stable/phonon-backend-vlc/0.3.1/src/phonon-backend-vlc-0.3.1.tar.bz2
+
+VLC (libVLC): using git 1.1 branch as above
+
+Phonon: using default that comes with Qt 4.7.0 (version: )
+
+
+Trying Qt 4.7.2 built from source so that I can debug properly.  Configure with:
+
+./configure -arch x86_64
+
+(cocoa by default)

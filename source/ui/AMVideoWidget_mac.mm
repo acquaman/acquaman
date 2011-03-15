@@ -3,7 +3,7 @@
 #include <QVBoxLayout>
 #include "/System/Library/Frameworks/AppKit.framework/Headers/NSView.h"
 
-#include <QLabel>
+#ifdef Q_WS_MAC
 
 /// Macro to take a non-quoted expression \c s and place quotes around it ("Stringify" it)
 #define stringify(s) #s
@@ -59,40 +59,5 @@ AMVideoWidget::~AMVideoWidget() {
 	libvlc_release(vlcInstance_);
 }
 
-bool AMVideoWidget::openVideoUrl(const QString &videoUrl) {
 
-	libvlc_media_t* media = libvlc_media_new_path( vlcInstance_, videoUrl.toAscii().constData() );
-	if(media == 0)
-		return false;
-
-	/// \todo Look at:
-	// libvlc_state_t state = libvlc_media_get_state(media);
-
-	libvlc_media_player_stop(vlcPlayer_);
-	libvlc_media_player_set_media(vlcPlayer_, media);
-	libvlc_media_release(media);
-
-
-	return true;
-}
-
-void AMVideoWidget::play() {
-	libvlc_media_player_play(vlcPlayer_);
-}
-
-void AMVideoWidget::pause() {
-	libvlc_media_player_set_pause(vlcPlayer_, true);
-}
-
-void AMVideoWidget::unPause() {
-	libvlc_media_player_set_pause(vlcPlayer_, false);
-}
-
-void AMVideoWidget::togglePause() {
-	libvlc_media_player_pause(vlcPlayer_);
-}
-
-void AMVideoWidget::stop() {
-	// if(isPlaying())	/// \todo change to all non-stopped states?
-	libvlc_media_player_stop(vlcPlayer_);
-}
+#endif

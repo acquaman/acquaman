@@ -39,23 +39,26 @@ signals:
 public slots:
 
 	/// Start playback
-	void play();
+	void play() { libvlc_media_player_play(vlcPlayer_); }
 
 	/// Pause playback
-	void pause();
+	void pause() { libvlc_media_player_set_pause(vlcPlayer_, true); }
 	/// Resume playback
-	void unPause();
+	void unPause() { libvlc_media_player_set_pause(vlcPlayer_, false); }
 	/// Convenience function to toggle pause on/off
-	void togglePause();
+	void togglePause() { libvlc_media_player_pause(vlcPlayer_); }
 
 	/// Stop playback and rewind to the beginning
-	void stop();
+	void stop() { libvlc_media_player_stop(vlcPlayer_); }
 
 protected:
-	QMacCocoaViewContainer* macViewContainer_;
 
 	libvlc_instance_t* vlcInstance_;
 	libvlc_media_player_t* vlcPlayer_;
+
+#ifdef Q_WS_MAC
+	QMacCocoaViewContainer* macViewContainer_;
+#endif
 
 };
 
