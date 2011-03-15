@@ -183,9 +183,12 @@ public slots:
 	}
 
 	/// set the orientation (swap the way the detector interprets X and Y axes)
-	bool setOrientation(bool isHorizontal) {
+	bool setOrientation(bool isVertical) {
 		if(orientationControl_->canMove()) {
-			orientationControl_->move((int)isHorizontal);
+			if(isVertical)
+				orientationControl_->move(1.0);
+			else
+				orientationControl_->move(0.0);
 			return true;
 		}
 		return false;

@@ -44,7 +44,7 @@ protected:
 	QComboBox* imageSelector_;
 	AMBasicControlEditor* averagingPeriodControl_;
 	AMBasicControlEditor* persistDurationControl_;
-	AMControlEditor* orientationControl_;
+	AMBasicControlEditor* orientationControl_;
 
 	QLabel* countsPerSecondIndicator_;
 	QProgressBar* countsPerSecondBar_;
