@@ -24,7 +24,9 @@ public:
 	AMControl* readingCtrl() const;
 	AMControl* hvCtrl() const;
 
-	//bool setFromInfo(const AMDetectorInfo &info);
+	/* NTBA March 14, 2011 David Chevrier
+	bool setFromInfo(const AMDetectorInfo &info);
+	   */
 	bool setFromInfo(const AMDetectorInfo *info);
 	bool setFromInfo(const MCPDetectorInfo &info);
 

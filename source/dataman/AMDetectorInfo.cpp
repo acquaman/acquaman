@@ -42,7 +42,7 @@ QDebug operator<<(QDebug d, const AMDetectorInfo& di){
 }
 
 QDebug AMDetectorInfo::qDebugPrint(QDebug &d) const{
-	d << "AMDetectorInfo";
+	d << "AMDetectorInfo default";
 	return d;
 }
 

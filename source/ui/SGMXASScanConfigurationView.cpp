@@ -104,16 +104,3 @@ void SGMXASScanConfigurationView::onSGMBeamlineCriticalControlsConnectedChanged(
 		warningsLabel_->setText("SGM Beamline Unavailable");
 	}
 }
-
-/*
-void SGMXASScanConfigurationView::onLockdowScanning(bool isLocked, QString reason){
-	if(isLocked){
-		startScanButton_->setEnabled(false);
-		startScanButton_->setText("Start Scan\n"+reason);
-	}
-	else{
-		startScanButton_->setEnabled(true);
-		startScanButton_->setText("Start Scan");
-	}
-}
-*/

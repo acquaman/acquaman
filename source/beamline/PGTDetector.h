@@ -19,7 +19,9 @@ public:
 	AMDetectorInfo* toInfo() const;
 	PGTDetectorInfo toPGTInfo() const;
 
-	//bool setFromInfo(const AMDetectorInfo &info);
+	/* NTBA March 14, 2011 David Chevrier
+	bool setFromInfo(const AMDetectorInfo &info);
+	*/
 	bool setFromInfo(const AMDetectorInfo *info);
 	bool setFromInfo(const PGTDetectorInfo &info);
 

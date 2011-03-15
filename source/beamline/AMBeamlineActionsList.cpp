@@ -233,7 +233,6 @@ QVariant AMBeamlineActionListModel::headerData(int section, Qt::Orientation orie
 
 bool AMBeamlineActionListModel::setData(const QModelIndex &index, const QVariant &value, int role){
 	if (index.isValid()  && index.row() < actions_->count() && role == Qt::EditRole) {
-//		bool conversionOK = false;
 		AMBeamlineActionItem* actionItem;
 		actionItem = (AMBeamlineActionItem*) value.value<void*>();
 

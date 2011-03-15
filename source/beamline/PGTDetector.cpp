@@ -22,6 +22,9 @@ PGTDetector::PGTDetector(const QString &name, AMControl *dataWaveform, AMControl
 
 PGTDetector::~PGTDetector()
 {
+	/* NTBA March 14, 2011 David Chevrier
+	   Need to take care of ownsControlSet_
+	   */
 }
 
 const QMetaObject* PGTDetector::getMetaObject() {

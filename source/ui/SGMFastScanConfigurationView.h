@@ -12,7 +12,6 @@
 
 #include <algorithm>
 
-//#include "AMScanConfigurationViewer.h"
 #include "AMScanConfigurationView.h"
 #include "acquaman/SGM/SGMFastScanConfiguration.h"
 
@@ -29,14 +28,11 @@ signals:
 
 protected slots:
 	void onSGMBeamlineCriticalControlsConnectedChanged();
-	/*
-	void onLockdowScanning(bool isLocked, QString reason);
+	/* NTBA March 14, 2011 David Chevrier
 	void onSavePathEditingFinished();
 	void onNewFinalizedSavePath(const QString& savePath);
 	void onSaveDialogDirectoryChosen(const QString& savePath);
-
 	//Cluge for now to save last settings
-	void onStartScanClicked();
 	*/
 
 protected:
@@ -51,7 +47,6 @@ protected:
 	QLabel *energyMidpointLabel_;
 	QLabel *endEnergyLabel_;
 	QLabel *motorSettingsLabel_;
-//	QLabel *scalerTimeLabel_;
 	QLabel *baseLineLabel_;
 	QLabel *warningsLabel_;
 
@@ -61,21 +56,15 @@ protected:
 	QDoubleSpinBox *energyMidpointDSB_;
 	QDoubleSpinBox *endEnergyDSB_;
 	QSpinBox *motorSettingsSB_;
-	//    QDoubleSpinBox *scalerTimeDSB_;
 	QSpinBox *baseLineSB_;
 
-	/*
+	/* NTBA March 14, 2011 David Chevrier
 	QLabel *saveLabel_;
 	QLineEdit *saveEdit_;
 	QLabel *saveFbkLabel_;
 
 	QFileDialog *autoSaveDialog_;
 	QPushButton *autoSaveDialogButton_;
-
-
-	QPushButton *startScanButton_;
-	QPushButton *addToQueueButton_;
-	QPushButton *queueDirectorButton_;
 	*/
 	QGridLayout gl_;
 	QFormLayout *fl_;

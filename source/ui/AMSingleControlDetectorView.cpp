@@ -19,11 +19,6 @@ AMDetectorInfo* AMSingleControlBriefDetectorView::configurationSettings() const{
 }
 
 bool AMSingleControlBriefDetectorView::setDetector(AMDetector *detector, bool configureOnly){
-	/*
-	AMSingleControlDetector *d = qobject_cast<AMSingleControlDetector*>(detector);
-	if(!d)
-		return false;
-		*/
 	if(!detector)
 		return false;
 	if(configurationSettings_)

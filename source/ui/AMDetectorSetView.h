@@ -14,36 +14,13 @@ public:
 	  */
 	explicit AMDetectorSetView(AMDetectorSet *viewSet, bool configureOnly = false, QWidget *parent = 0);
 
-	int count() const{
-		return viewSet_->count();
-	}
-
-	AMDetectorSet* detectorSet(){
-		return viewSet_;
-	}
-
-	AMDetectorView* boxByName(const QString &name){
-		return detectorBoxes_.at(viewSet_->indexOfKey(name));
-	}
-
-	AMDetectorView const * const boxAt(int row) const{
-		return detectorBoxes_.at(row);
-	}
-
-	AMDetectorView* detailByName(const QString &name){
-		return detectorDetails_.at(viewSet_->indexOf(name));
-	}
-
-	AMDetectorView const * const detailAt(int row) const{
-		return detectorDetails_.at(row);
-	}
-
-	bool checkedAt(int row) const{
-		if(!configureOnly_)
-			return false;
-		if(checkBoxes_.at(row))
-			return checkBoxes_.at(row)->isChecked();
-	}
+	int count() const;
+	AMDetectorSet* detectorSet();
+	AMDetectorView* boxByName(const QString &name);
+	AMDetectorView const * const boxAt(int row) const;
+	AMDetectorView* detailByName(const QString &name);
+	AMDetectorView const * const detailAt(int row) const;
+	bool checkedAt(int row) const;
 
 	/// Returns the current values of the detector set
 	AMDetectorInfoSet currentValues();

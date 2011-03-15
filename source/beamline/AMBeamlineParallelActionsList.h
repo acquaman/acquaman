@@ -69,8 +69,6 @@ class AMBeamlineParallelActionsList : public QObject
 		void onDataChanged(QModelIndex a,QModelIndex b);
 		void onRowsInserted(QModelIndex parent, int start, int end);
 		void onRowsRemoved(QModelIndex parent, int start, int end);
-		//void onColumnsInserted(QModelIndex parent, int start, int end);
-		//void onColumnsRemoved(QModelIndex parent, int start, int end);
 		void onActionStarted();
 		void onActionSucceeded();
 		void onActionReady(bool ready);

@@ -45,7 +45,7 @@ QString AMBeamlineScanAction::type() const{
 }
 
 bool AMBeamlineScanAction::isRunning() const{
-	return AMBeamlineActionItem::isRunning();// && !isPaused();
+	return AMBeamlineActionItem::isRunning();
 }
 
 bool AMBeamlineScanAction::isPaused() const{
@@ -57,13 +57,15 @@ bool AMBeamlineScanAction::isPaused() const{
 
 void AMBeamlineScanAction::start(){
 	if(!isReady()){
-		//qDebug() << "Not ready, connecting and waiting";
+		if(VERBOSE_ACTION_ITEMS)
+			qDebug() << "Not ready, connecting and waiting";
 		connect(this, SIGNAL(ready(bool)), this, SLOT(start(bool)));
 		return;
 	}
 
 	if(!AMBeamlineActionItem::isReinitialized()){
-//		qDebug() << "Not reinitalized, creating new controller";
+		if(VERBOSE_ACTION_ITEMS)
+			qDebug() << "Not reinitalized, creating new controller";
 		ctrl_ = cfg_->createController();
 		if(!ctrl_) {
 			qDebug() << "Failed to create controller.";
@@ -95,18 +97,6 @@ void AMBeamlineScanAction::start(){
 void AMBeamlineScanAction::cancel(){
 	ctrl_->cancel();
 }
-
-//void AMBeamlineScanAction::cancelButKeep(){
-//	keepOnCancel_ = true;
-//	cancel();
-//}
-
-//void AMBeamlineScanAction::reset(bool delayInitialized){
-//	qDebug() << "Reseting with keepOnCancel " << keepOnCancel_;
-//	ctrl_->reinitialize(!keepOnCancel_);
-//	AMBeamlineActionItem::reset(true);
-//	initialize();
-//}
 
 void AMBeamlineScanAction::cleanup(){
 	if( ctrl_ == AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController() )
@@ -251,7 +241,6 @@ void AMBeamlineScanActionView::onScanStarted(){
 	playPauseButton_->setIcon(pauseIcon_);
 	playPauseButton_->setEnabled(true);
 	updateLook();
-	// emit scanStarted(scanAction_);
 }
 
 void AMBeamlineScanActionView::onScanFinished(){
@@ -269,7 +258,6 @@ void AMBeamlineScanActionView::onScanFinished(){
 	stopCancelButton_->hide();
 	playPauseButton_->hide();
 	updateLook();
-	// emit scanSuceeded(scanAction_);
 }
 
 void AMBeamlineScanActionView::onScanFailed(int explanation){
@@ -279,12 +267,10 @@ void AMBeamlineScanActionView::onScanFailed(int explanation){
 		playPauseButton_->setIcon(startIcon_);
 		playPauseButton_->setEnabled(false);
 		timeRemainingLabel_->setText("Scan Cancelled");
-		// emit scanCancelled(scanAction_);
 	}
 }
 
 void AMBeamlineScanActionView::onStopCancelButtonClicked(){
-	//qDebug() << "Running " << scanAction_->isRunning() << " started " << scanAction_->hasStarted() << " finished " << scanAction_->hasFinished() << " paused " << scanAction_->isPaused();
 	/// \todo isRunning is not true if paused (or stopped). In this case, we should do this check for any scans that have been started but not finished. How to determine that from states?
 	if(scanAction_->isRunning()){
 		scanAction_->pause(true);

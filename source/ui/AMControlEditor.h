@@ -175,7 +175,6 @@ protected slots:
 	void onStatusValueChanged(double newVal);
 
 protected:
-//	QSize sizeHint() const;
 	void mouseReleaseEvent ( QMouseEvent * event );
 
 protected:
@@ -191,11 +190,9 @@ protected:
 	QLabel* valueLabel_;
 	QLabel* unitsLabel_;
 	QLabel* statusLabel_;
-	//QLabel* nameLabel_;
 	AMControlEditorStyledInputDialog* dialog_;
 };
 
-//class AMControlButton : public QPushButton
 class AMControlButton : public QToolButton
 {
 Q_OBJECT

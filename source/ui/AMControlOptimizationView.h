@@ -30,6 +30,45 @@ protected:
 };
 
 
+class AMOldControlSetView : public QGroupBox
+{
+Q_OBJECT
+public:
+	/// Constructor
+
+	explicit AMOldControlSetView(AMControlSet *viewSet, QWidget *parent = 0);
+
+	QWidget* boxByName(const QString &name){
+		return controlBoxes_.at(viewSet_->indexOfKey(name));
+	}
+
+	QWidget* boxAt(int row){
+		return controlBoxes_.at(row);
+	}
+
+	QMap<QString, QVariant> configValues() { return configValues_;}
+	bool boxTrigger() const { return boxTrigger_;}
+
+signals:
+	void configValuesChanged();
+
+public slots:
+	void setConfigValues(QMap<QString, QVariant> configValues);
+	void resetBoxTrigger(){boxTrigger_ = false;}
+
+protected slots:
+	void onBoxUpdate(const QString& value);
+
+protected:
+	/// Pointer to the AMControlSet which is the subject of this view.
+	AMControlSet *viewSet_;
+	QMap<QString, QVariant> configValues_;
+	QList<QWidget*> controlBoxes_;
+	QList<bool> dirty_;
+	bool boxTrigger_;
+	QHBoxLayout *hl_;
+};
+
 
 class AMControlOptimizationSetView : public AMOldControlSetView
 {
@@ -131,7 +170,6 @@ protected:
 	AMControlOptimizationSetView *detailView_;
 	double maxUpper, minUpper, maxLower, minLower;
 };
-
 
 
 #endif // AMCONTROLOPTIMIZATIONVIEW_H

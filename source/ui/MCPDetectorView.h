@@ -31,6 +31,10 @@ Q_OBJECT
 public:
 	Q_INVOKABLE explicit MCPDetailedDetectorView(MCPDetector *detector = 0, bool configureOnly = false, QWidget *parent = 0);
 
+	/* NTBA March 14, 2011 David Chevrier
+	   Needs a destructor for configurationSettings_
+	   */
+
 	AMDetector* detector();
 
 	/// The view is managing this created object, hook up to destroyed() if you need long-term notification

@@ -446,7 +446,6 @@ void AMBeamlineParallelActionsListHolder::removeAction(AMBeamlineActionItem *ai)
 
 void AMBeamlineParallelActionsListHolder::actionFinished(){
 	AMBeamlineActionItem *ai = (AMBeamlineActionItem*)QObject::sender();
-	//waitingOn_.removeOne(ai);
 	removeAction(ai);
 	if(waitingOn_.isEmpty())
 		emit everythingFinished();
@@ -584,8 +583,10 @@ bool AMBeamlineParallelActionListModel::insertRows(int row, int count, const QMo
 		}
 		QList<AMBeamlineActionItem*> *tmpList = NULL;
 		for(int x = 0; x < count; x++){
-			//the actionsList likes it better when it starts as NULL
-			//tmpList = new QList<AMBeamlineActionItem*>();
+			/* NTBA March 14, 2011 David Chevrier
+			the actionsList likes it better when it starts as NULL
+			tmpList = new QList<AMBeamlineActionItem*>();
+			*/
 			actions_->insert(row, tmpList);
 			listHash_.set(nextIndex_, row+count-1-x);
 			nextIndex_++;

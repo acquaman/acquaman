@@ -17,7 +17,9 @@ public:
 
 	AMControl* control();
 
-	//bool setFromInfo(const AMDetectorInfo &info);
+	/* NTBA March 14, 2011 David Chevrier
+	bool setFromInfo(const AMDetectorInfo &info);
+	*/
 	bool setFromInfo(const AMDetectorInfo *info);
 
 	QString description() const;

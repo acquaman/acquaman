@@ -23,7 +23,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMBeamlineControlAction::AMBeamlineControlAction(AMControl *control, QObject *parent) :
 	AMBeamlineActionItem(parent)
 {
-	//needsInput_ = true;
 	type_ = "controlAction";
 	control_ = control;
 	connect(control_, SIGNAL(moveStarted()), this, SIGNAL(started()));

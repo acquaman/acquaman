@@ -29,6 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDebug>
 #include <QMouseEvent>
 
+#define VERBOSE_ACTION_ITEMS 0
 #define NATURAL_ACTION_VIEW_HEIGHT 62
 
 class AMBeamlineActionItemStateFlag : public QObject
@@ -77,6 +78,7 @@ signals:
 public slots:
 	virtual void start() = 0;//Pure virtual. Sub-classes need to implement and they better set start_ = true at some point and cause start() to be emitted
 	//Calling reset always set reintialized to true
+	// NTBA March 14, 2011 David Chevrier Is this still needed?
 	virtual void reset(bool delayInitialize = false);//NOT Pure virtual. Sub-classes better call this at the end of their reset (AMBeamlineActionItem::reset) or call initialize themselves
 	virtual void cleanup() = 0;
 	bool setPrevious(AMBeamlineActionItem* previous);

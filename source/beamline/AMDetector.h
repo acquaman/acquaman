@@ -83,7 +83,10 @@ public:
 	/// Descriptions can be changed at will, and the detector will emit infoChanged() when this happens.
 	virtual void setDescription(const QString& description) = 0;
 
-	//virtual bool setFromInfo(const AMDetectorInfo& info) = 0;
+	/* NTBA March 14, 2011 David Chevrier
+	   Should have something like this
+	virtual bool setFromInfo(const AMDetectorInfo& info) = 0;
+	*/
 	virtual bool setFromInfo(const AMDetectorInfo *info) = 0;
 
 protected:
@@ -97,8 +100,6 @@ protected:
 
 	/// identifying name for this detector
 	QString name_;
-	/// Human-readable description for it
-	//QString description_;
 
 private:
 	/// QObject proxy for emitting signals. (This interface class can't emit directly, because it doesn't want to inherit QObject.)

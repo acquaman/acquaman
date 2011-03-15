@@ -50,7 +50,7 @@ public:
 
 protected slots:
 	void onRegionsChanged(){
-		/* DAVID CHECK ME
+		/* NTBA March 14, 2011 David Chevrier
 		if(cfg_ && fluxResolutionView_){
 			fluxResolutionView_->onRegionsUpdate( ((SGMXASScanConfiguration*)cfg_)->regions() );
 		}

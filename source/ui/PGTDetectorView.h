@@ -15,7 +15,6 @@ protected slots:
 	void onPoweredOnChanged(bool poweredOn);
 
 protected:
-	//QLabel *controlLabel_;
 	AMControlEditor *readingCE_;
 	QToolButton *powerState_;
 	QIcon powerOnState_, powerOffState_;
@@ -31,6 +30,10 @@ class PGTDetailedDetectorView : public AMDetailedDetectorView
 Q_OBJECT
 public:
 	Q_INVOKABLE explicit PGTDetailedDetectorView(PGTDetector *detector = 0, bool configureOnly = false, QWidget *parent = 0);
+
+	/* NTBA March 14, 2011 David Chevrier
+	   Needs a destructor for configurationSettings_
+	   */
 
 	AMDetector* detector();
 

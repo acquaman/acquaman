@@ -46,7 +46,10 @@ public:
 	AMDetectorInfo* detectorInfoAt(int index);
 	// THIS WILL HAVE TO COPY AND CREATE A NEW ONE
 	AMDetectorInfo* detectorInfoAt(int index) const;
-	//const AMDetectorInfo* const detectorInfoAt(int index) const;
+	/* NTBA March 14, 2011 David Chevrier
+	   Need to figure out these const conditions for returned pointers
+	const AMDetectorInfo* const detectorInfoAt(int index) const;
+	*/
 	/// Returns whether or not the detectorInfo named \c detectorName has been requested for a scan.
 	bool isActiveNamed(const QString& detectorName) const;
 	/// Returns whether or not the \c detectorInfo has been requested for a scan. The comparison is done on the name() function returned by the detectorInfo passed into the function, not the pointer value.

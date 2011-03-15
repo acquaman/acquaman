@@ -90,7 +90,3 @@ void AMScanControllerSupervisor::onCurrentScanControllerFinished(){
 	currentScanController_->deleteLater();
 	currentScanController_ = 0;
 }
-
-//void AMScanControllerSupervisor::onCurrentScanControllerReinitialized(bool removeScan){
-//	emit currentScanControllerReinitialized(removeScan);
-//}

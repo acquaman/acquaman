@@ -20,10 +20,8 @@ MCPDetector::MCPDetector(const QString &name, AMControl *reading, AMControl *hv,
 }
 
 MCPDetector::~MCPDetector(){
-	/*
-	reading_ = NULL;
-	hvSetpoint_ = NULL;
-	hvFbk_ = NULL;
+	/* NTBA March 14, 2011 David Chevrier
+	   Need to take care of ownsControlSet_
 	*/
 }
 

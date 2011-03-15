@@ -93,15 +93,12 @@ bool AMDetectorSet::addDetector(AMDetector* newDetector, bool isDefault) {
 		connect(newDetector->signalSource(), SIGNAL(connected(bool)), this, SLOT(onConnected(bool)));
 		connect(newDetector->signalSource(), SIGNAL(readingsChanged()), this, SIGNAL(detectorSetReadingsChanged()));
 		connect(newDetector->signalSource(), SIGNAL(settingsChanged()), this, SIGNAL(detectorSetSettingsChanged()));
-		//connect(newDetector->signalSource(), SIGNAL(readingsChanged()), this, SLOT(onDetectorReadingsChanged()));
-		//connect(newDetector->signalSource(), SIGNAL(settingsChanged()), this, SLOT(onDetectorSettingsChanged()));
 		return true;
 	}
 	return false;
 }
 
 bool AMDetectorSet::removeDetector(AMDetector* detector) {
-	//int index = indexOfValue(detector);
 	int index = indexOf(detector);
 	if(index < 0)
 		return false;

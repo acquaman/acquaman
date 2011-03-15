@@ -9,6 +9,10 @@ Q_OBJECT
 public:
 	Q_INVOKABLE explicit AMSingleControlBriefDetectorView(AMSingleControlDetector *detector = 0, QWidget *parent = 0);
 
+	/* NTBA March 14, 2011 David Chevrier
+	   Needs a Destructor
+	   */
+
 	AMDetector* detector();
 
 	AMDetectorInfo* configurationSettings() const;

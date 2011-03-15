@@ -187,10 +187,7 @@ void AMBeamlineControlSetMoveAction::calculateProgress(){
 		else
 			iPercent = (fabs(controlSet_->at(x)->value()-startPoint_->at(x).value())/fabs(setpoint_->at(x).value() - startPoint_->at(x).value())*100);
 		avgPercent += iPercent/csCount;
-		//qDebug() << "i " << iPercent << " avg " << avgPercent;
-//		avgPercent += (fabs(controlSet_->at(x)->value()-startPoint_->valueAt(x))/fabs(setpoint_->valueAt(x) - startPoint_->valueAt(x))*100)/csCount;
 	}
-	//qDebug() << "\n\n";
 	emit progress(avgPercent, 100);
 }
 
@@ -275,9 +272,6 @@ void AMBeamlineControlSetMoveActionView::onInfoChanged(){
 	QChar fCap = adjName[0].toUpper();
 	adjName.replace(0, 1, fCap);
 	infoText += adjName;
-//	infoText += " to ";
-//	tmpStr.setNum( controlSetAction_->setpoint() );
-//	infoText.append(tmpStr);
 	infoLabel_->setText(infoText);
 }
 
@@ -311,12 +305,10 @@ void AMBeamlineControlSetMoveActionView::onStarted(){
 	stopCancelButton_->setIcon(stopIcon_);
 	playPauseButton_->setIcon(pauseIcon_);
 	playPauseButton_->setEnabled(true);
-//	updateLook();
 	emit actionStarted(controlSetAction_);
 }
 
 void AMBeamlineControlSetMoveActionView::onSucceeded(){
-	//qDebug() << "In control set move action (view) succeeded";
 	progressBar_->setValue(progressBar_->maximum());
 
 	progressBar_->setMaximum(100);
@@ -326,10 +318,8 @@ void AMBeamlineControlSetMoveActionView::onSucceeded(){
 	disconnect(playPauseButton_, SIGNAL(clicked()), this, SLOT(onPlayPauseButtonClicked()));
 	hl_->removeWidget(stopCancelButton_);
 	stopCancelButton_->hide();
-	//delete hl_->takeAt(hl_->indexOf(stopCancelButton_));
 	hl_->removeWidget(playPauseButton_);
 	playPauseButton_->hide();
-	//delete hl_->takeAt(hl_->indexOf(playPauseButton_));
 	emit actionSucceeded(controlSetAction_);
 }
 

@@ -30,10 +30,8 @@ AMDetectorInfoSet& AMDetectorInfoSet::operator=(const AMDetectorInfoSet& other) 
 	// always: check for self-assignment
 	if(this != &other) {
 		this->clear();
-		//AMOrderedList<AMDetectorInfo>::operator=(other);
 		for(int x = 0; x < other.count(); x++)
 			addDetectorInfo(other.detectorInfoAt(x)->toNewInfo(), other.isActiveAt(x));
-			//append(other.at(x)->toNewInfo());
 		AMDbObject::operator=(other);
 
 		// if the items in other have been modified, but the signal hasn't been emitted yet, other.modified_ will not be set to true yet. We know that things have changed, so ours should be true.
@@ -59,6 +57,9 @@ QString AMDetectorInfoSet::description(){
 	return description_;
 }
 
+/* NTBA March 14, 2011 David Chevrier
+   Still not sure about these
+*/
 #warning "DAVID, CHECK THESE OVER CAREFULLY"
 // Returns a list of pointers to the AMDetectorInfo objects we store, for use by the database system in storeToDb() / loadFromDb().
 AMDbObjectList AMDetectorInfoSet::dbReadDetectorInfos() {
@@ -118,14 +119,6 @@ AMDetectorInfo* AMDetectorInfoSet::detectorInfoAt(int index) const{
 		return 0; //NULL
 	return at(index).first->toNewInfo();
 }
-
-/*
-const AMDetectorInfo* const AMDetectorInfoSet::detectorInfoAt(int index) const{
-	if(index < 0 || index >= count())
-		return 0; //NULL
-	return at(index).first;
-}
-*/
 
 bool AMDetectorInfoSet::isActiveNamed(const QString& detectorName) const{
 	int index = indexOf(detectorName);

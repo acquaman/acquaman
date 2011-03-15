@@ -6,7 +6,6 @@ AMDetectorSetView::AMDetectorSetView(AMDetectorSet *viewSet, bool configureOnly,
 	viewSet_ = viewSet;
 	configureOnly_ = configureOnly;
 	setTitle(viewSet->name());
-	//vl_ = new QVBoxLayout();
 	gl_ = new QGridLayout();
 	AMDetectorView *tmpDV;
 	AMDetector *tmpD;
@@ -53,8 +52,37 @@ AMDetectorSetView::AMDetectorSetView(AMDetectorSet *viewSet, bool configureOnly,
 
 	connect(viewSet_, SIGNAL(detectorAdded(int)), this, SLOT(onDetectorAddedToSet(int)));
 	setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
+}
 
-	//connect(viewSet_, SIGNAL(controlSetValuesChanged(AMControlInfoList)), this, SLOT(onControlSetValuesChanged(AMControlInfoList)));
+int AMDetectorSetView::count() const{
+	return viewSet_->count();
+}
+
+AMDetectorSet* AMDetectorSetView::detectorSet(){
+	return viewSet_;
+}
+
+AMDetectorView* AMDetectorSetView::boxByName(const QString &name){
+	return detectorBoxes_.at(viewSet_->indexOfKey(name));
+}
+
+AMDetectorView const * const AMDetectorSetView::boxAt(int row) const{
+	return detectorBoxes_.at(row);
+}
+
+AMDetectorView* AMDetectorSetView::detailByName(const QString &name){
+	return detectorDetails_.at(viewSet_->indexOf(name));
+}
+
+AMDetectorView const * const AMDetectorSetView::detailAt(int row) const{
+	return detectorDetails_.at(row);
+}
+
+bool AMDetectorSetView::checkedAt(int row) const{
+	if(!configureOnly_)
+		return false;
+	if(checkBoxes_.at(row))
+		return checkBoxes_.at(row)->isChecked();
 }
 
 AMDetectorInfoSet AMDetectorSetView::currentValues(){
@@ -68,7 +96,6 @@ AMDetectorInfoSet AMDetectorSetView::configValues(){
 		return currentValues();
 
 	for(int x = 0; x < viewSet_->count(); x++){
-		//rv.addDetectorInfo(boxAt(x)->configurationSettings(), checkedAt(x));
 		if(detailAt(x))
 			rv.addDetectorInfo(detailAt(x)->configurationSettings(), checkedAt(x));
 		else
@@ -134,9 +161,5 @@ void AMDetectorSetView::onDetectorSetSettingsChanged(){
 }
 
 void AMDetectorSetView::onDetectorSetConfigurationRequested(){
-	/*
-	qDebug() << "In DetectorSetView, heard configuration was requested";
-	qDebug() << *this;
-	*/
 	emit configValuesChanged();
 }
