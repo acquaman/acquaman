@@ -26,18 +26,13 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	mainBox_ = new QGroupBox("SGM Beamline");
 	mainLayout_ = new QVBoxLayout();
 	mainLayout_->addWidget(mainBox_);
-	//vl_ = new QVBoxLayout();
 	gl_ = new QGridLayout();
-	//mainBox_->setLayout(vl_);
 	mainBox_->setLayout(gl_);
 
 	readyLabel_ = new AMControlEditor(SGMBeamline::sgm()->beamlineReady(), NULL, true);
 	readyLabel_->setNoUnitsBox(true);
 	readyLabel_->overrideTitle("");
 	readyLabel_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-//	beamOnCButton_ = new AMControlButton(SGMBeamline::sgm()->beamOn());
-//	beamOnCButton_->overrideText("Beam On");
-//	beamOnCButton_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 	beamOnBALButton_ = new AMBeamlineActionsListButton(SGMBeamline::sgm()->beamOnActionsList());
 	beamOnBALButton_->overrideText("Beam On");
 	beamOnBALButton_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);

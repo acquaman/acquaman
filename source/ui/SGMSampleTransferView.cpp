@@ -92,17 +92,6 @@ void SGMSampleTransferView::drawIndex4(){
 	transferPanes_.at(3)->startPane();
 }
 
-//void SGMSampleTransferView::drawLoadlockOut(){
-//	mainLayout_->setCurrentIndex(1);
-//	loadlockOut_->startPane();
-//}
-
-//void SGMSampleTransferView::drawLoadlockIn(){
-//	mainLayout_->setCurrentIndex(2);
-//	loadlockIn_->startPane();
-//}
-
-
 SGMSampleTransferProceduresView::SGMSampleTransferProceduresView(const QString &title, QList<QPushButton*> procedureButtons, QWidget *parent) :
 		QGroupBox(title, parent)
 {

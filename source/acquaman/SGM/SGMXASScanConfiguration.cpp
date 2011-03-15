@@ -35,9 +35,6 @@ SGMXASScanConfiguration::SGMXASScanConfiguration(QObject *parent) : AMXASScanCon
 		allDetectors_->addDetector(xasDetectors_->detectorAt(x), xasDetectors_->isDefaultAt(x));
 	xasDetectorsCfg_ = xasDetectors_->toInfoSet();
 
-	//feedbackDetectorsOld_ = SGMBeamline::sgm()->feedbackDetectors();
-	//XASDetectorsOld_ = SGMBeamline::sgm()->XASDetectors();
-
 	// default channels removed. Need to come up with new replacement system to create default analysis blocks instead.
 
 	emit exitSlitGapChanged(exitSlitGap_);

@@ -49,7 +49,6 @@ void SGMXASDacqScanController::start(){
 	else if( QDir(homeDir+"/beamline/programming").exists())
 		homeDir.append("/beamline/programming");
 
-	//if(pCfg_()->usingPGT())
 	if(pCfg_()->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->pgtDetector()->detectorName()))
 		loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/pgt.cfg"));
 	else
@@ -58,7 +57,7 @@ void SGMXASDacqScanController::start(){
 		qDebug() << "LIBRARY FAILED TO LOAD CONFIG FILE";
 		return;
 	}
-	//foreach(const AMDetectorInfo *dtctr, pCfg_()->usingDetectors() ){
+
 	for(int i = 0; i < pCfg_()->allDetectors()->count(); i++){
 		AMDetector *dtctr = pCfg_()->allDetectors()->detectorAt(i);
 
@@ -90,6 +89,5 @@ AMnDIndex SGMXASDacqScanController::toScanIndex(QMap<int, double> aeData){
 }
 
 void SGMXASDacqScanController::onInitializationActionsSucceeded(){
-	//qDebug() << "XAS Scan: Initialization Actions Succeeded and emiting initialized";
 	emit initialized();
 }

@@ -53,25 +53,19 @@ bool SGMAppController::startup() {
 
 		mw_->insertHeading("Experiment Setup", 1);
 		//////////
-		//xasScanConfigurationHolder_ = new AMXASScanConfigurationHolder();
-		xasScanConfigurationViewer_ = 0; //NULL
+		xasScanConfigurationView_ = 0; //NULL
 		xasScanConfigurationHolder_ = new AMScanConfigurationViewHolder(workflowManagerView_);
 		mw_->addPane(xasScanConfigurationHolder_, "Experiment Setup", "SGM XAS Scan", ":/utilities-system-monitor.png");
 
-		//fastScanConfigurationHolder_ = new AMFastScanConfigurationHolder();
-		fastScanConfigurationViewer_ = 0; //NULL
+		fastScanConfigurationView_ = 0; //NULL
 		fastScanConfigurationHolder_ = new AMScanConfigurationViewHolder(workflowManagerView_);
 		mw_->addPane(fastScanConfigurationHolder_, "Experiment Setup", "SGM Fast Scan", ":/utilities-system-monitor.png");
-
-
 
 		connect(xasScanConfigurationHolder_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
 		connect(fastScanConfigurationHolder_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
 
-
 		connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerCreated()), this, SLOT(onCurrentScanControllerCreated()));
 		connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerDestroyed()), this, SLOT(onCurrentScanControllerDestroyed()));
-		// removed: connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerReinitialized(bool)), this, SLOT(onCurrentScanControllerReinitialized(bool)));
 
 		connect(SGMBeamline::sgm(), SIGNAL(criticalControlsConnectionsChanged()), this, SLOT(onSGMBeamlineConnected()));
 
@@ -102,30 +96,23 @@ void SGMAppController::shutdown() {
 
 
 void SGMAppController::onCurrentPaneChanged(QWidget *pane) {
-
-//	// If the scanConfigurationHolder pane was activated, let it know:
-//	if(pane == xasScanConfigurationHolder_)
-//		xasScanConfigurationHolder_->onBecameCurrentWidget();
-//	else if(pane == fastScanConfigurationHolder_)
-//		fastScanConfigurationHolder_->onBecameCurrentWidget();
-
 }
 
 void SGMAppController::onSGMBeamlineConnected(){
-	if(SGMBeamline::sgm()->isConnected() && !xasScanConfigurationViewer_ && !fastScanConfigurationViewer_){
+	if(SGMBeamline::sgm()->isConnected() && !xasScanConfigurationView_ && !fastScanConfigurationView_){
 		SGMXASScanConfiguration *sxsc = new SGMXASScanConfiguration(this);
 		sxsc->setFileName("daveData.%03d.dat");
 		sxsc->setFilePath(AMUserSettings::userDataFolder);
 		sxsc->addRegion(0, 950, 1, 960);
-		xasScanConfigurationViewer_ = new SGMXASScanConfigurationView(sxsc);
-		xasScanConfigurationHolder_->setView(xasScanConfigurationViewer_);
+		xasScanConfigurationView_ = new SGMXASScanConfigurationView(sxsc);
+		xasScanConfigurationHolder_->setView(xasScanConfigurationView_);
 
 
 		SGMFastScanConfiguration *sfsc = new SGMFastScanConfiguration(this);
 		sfsc->setFileName("daveData.%03d.dat");
 		sfsc->setFilePath(AMUserSettings::userDataFolder);
-		fastScanConfigurationViewer_ = new SGMFastScanConfigurationView(sfsc);
-		fastScanConfigurationHolder_->setView(fastScanConfigurationViewer_);
+		fastScanConfigurationView_ = new SGMFastScanConfigurationView(sfsc);
+		fastScanConfigurationHolder_->setView(fastScanConfigurationView_);
 	}
 }
 
@@ -133,8 +120,6 @@ void SGMAppController::onSGMBeamlineConnected(){
 #include "ui/AMGenericScanEditor.h"
 
 void SGMAppController::onCurrentScanControllerCreated(){
-	//qDebug() << "Detected creation of " << (int)AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController();
-
 	AMGenericScanEditor *scanEditor = new AMGenericScanEditor();
 	scanEditorsParentItem_->appendRow(new AMScanEditorModelItem(scanEditor, ":/applications-science.png"));
 
@@ -154,13 +139,10 @@ void SGMAppController::onCurrentScanControllerCreated(){
 }
 
 void SGMAppController::onCurrentScanControllerDestroyed(){
-	//qDebug() << "Detected deletion of " << (int)AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController();
 	scanControllerActiveEditor_ = 0;
 }
 
 void SGMAppController::onCurrentScanControllerReinitialized(bool removeScan){
-	//qDebug() << "Trying to reinitialize with scan editor " << scanControllerActiveEditor_;
-
 	if(!scanControllerActiveEditor_) {
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -13, "Error while re-initializing the scan controller; there is no active scan editor window. This is a bug and you should report it to the Acquaman developers."));
 		return;

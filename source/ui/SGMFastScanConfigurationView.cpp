@@ -6,8 +6,11 @@ SGMFastScanConfigurationView::SGMFastScanConfigurationView(SGMFastScanConfigurat
 		AMScanConfigurationView(parent)
 {
 	cfg_ = NULL;
-	//autoSavePath_ = "";
-	//autoSaveDialog_ = 0; //NULL
+	/* NTBA March 14, 2011 David Chevrier
+	   Part of exporter package
+	autoSavePath_ = "";
+	autoSaveDialog_ = 0; //NULL
+	*/
 	if(SGMBeamline::sgm()->isConnected()){
 		cfg_ = sfsc;
 
@@ -84,6 +87,7 @@ SGMFastScanConfigurationView::SGMFastScanConfigurationView(SGMFastScanConfigurat
 		fl_->addRow(baseLineLabel_, baseLineSB_);
 
 		/* NTBA March 14, 2011 David Chevrier
+		   Part of exporter package
 		saveLabel_ = new QLabel("Save a copy to:");
 		saveEdit_ = new QLineEdit();
 		saveEdit_->setMinimumWidth(400);
@@ -166,6 +170,7 @@ void SGMFastScanConfigurationView::onSGMBeamlineCriticalControlsConnectedChanged
 }
 
 /* NTBA March 14, 2011 David Chevrier
+   Part of exporter package
 void SGMFastScanConfigurationView::onSavePathEditingFinished(){
 	SGMFastScanConfiguration *sfsc = qobject_cast<SGMFastScanConfiguration*>(cfg_);
 	if(saveEdit_->text().isEmpty())
@@ -181,12 +186,14 @@ void SGMFastScanConfigurationView::onSavePathEditingFinished(){
 */
 
 /* NTBA March 14, 2011 David Chevrier
+   Part of exporter package
 void SGMFastScanConfigurationView::onNewFinalizedSavePath(const QString &savePath){
 	saveFbkLabel_->setText("\tFile will be saved as "+savePath.section('/', -1));
 }
 */
 
 /* NTBA March 14, 2011 David Chevrier
+   Part of exporter package
 void SGMFastScanConfigurationView::onSaveDialogDirectoryChosen(const QString &savePath){
 	SGMFastScanConfiguration *sfsc = qobject_cast<SGMFastScanConfiguration*>(cfg_);
 	QString saveFile = savePath+"/default";

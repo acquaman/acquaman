@@ -89,7 +89,6 @@ void SGMBeamline::usingSGMBeamline(){
 	amNames2pvNames_.set("visibleLightStatus", "BL1611-ID-1:visible:cal");
 	amNames2pvNames_.set("activeEndstation", "david:endstation:active");
 
-	//ringCurrent_ = new AMReadOnlyPVControl("ringCurrent", AMPVNames::toPV("ringCurrent"), this);
 	ringCurrent_ = new AMReadOnlyPVControl("ringCurrent", "PCT1402-01:mA:fbk", this);
 	addChildControl(ringCurrent_);
 
@@ -404,13 +403,10 @@ void SGMBeamline::usingFakeBeamline(){
 	QString sgmPVName = amNames2pvNames_.valueF("energy");
 	energy_ = new AMPVwStatusControl("energy", sgmPVName+":fbk", sgmPVName, sgmPVName+":moving", "", this, 0.01);
 	sgmPVName = amNames2pvNames_.valueF("mono");
-	//AMReadOnlyPVwStatusControl *mono = new AMReadOnlyPVwStatusControl("mono", sgmPVName, sgmPVName+":moving", energy_);
 	AMPVwStatusControl *mono = new AMPVwStatusControl("mono", sgmPVName, sgmPVName, sgmPVName+":moving", sgmPVName+":stop", energy_, 5);
 	sgmPVName = amNames2pvNames_.valueF("undulator");
-	//AMReadOnlyPVwStatusControl *undulator = new AMReadOnlyPVwStatusControl("undulator", sgmPVName, sgmPVName+":moving", energy_);
 	AMPVwStatusControl *undulator = new AMPVwStatusControl("undulator", sgmPVName, sgmPVName, sgmPVName+":moving", sgmPVName+":stop", energy_, 0.1);
 	sgmPVName = amNames2pvNames_.valueF("exitSlit");
-	//AMReadOnlyPVwStatusControl *exitSlit = new AMReadOnlyPVwStatusControl("exitSlit", sgmPVName, sgmPVName+":moving", energy_);
 	AMPVwStatusControl *exitSlit = new AMPVwStatusControl("exitSlit", sgmPVName, sgmPVName, sgmPVName+":moving", sgmPVName+":stop", energy_, 0.1);
 	energy_->addChildControl(mono);
 	energy_->addChildControl(undulator);
@@ -451,7 +447,6 @@ void SGMBeamline::usingFakeBeamline(){
 	tfyHV_ = new AMPVControl("tfyHV", sgmPVName+":fbk", sgmPVName+":sp", QString(), this, 0.5);
 
 	sgmPVName = amNames2pvNames_.valueF("pgt");
-//	pgt_ = new AMReadOnlyPVControl("pgt", sgmPVName, this);
 	pgt_ = new AMReadOnlyWaveformPVControl("pgt", sgmPVName, 0, 1024, this);
 	sgmPVName = amNames2pvNames_.valueF("pgtHV");
 	pgtHV_ = new AMPVControl("pgtHV", sgmPVName+":fbk", sgmPVName+":sp", QString(), this, 0.5);
@@ -927,10 +922,8 @@ bool SGMBeamline::energyValidForSettings(sgmGrating grating, sgmHarmonic harmoni
 		return true;
 	else if( (grating == 1) && (harmonic == 1) && (energy > 440) && (energy < 1200) )
 		return true;
-	//else if( (grating == 2) && (harmonic == 1) && (energy > 800) && (energy < 1100) )
 	else if( (grating == 2) && (harmonic == 1) && (energy > 800) && (energy < 1150) )
 		return true;
-	//else if( (grating == 2) && (harmonic == 3) && (energy > 1100) && (energy < 2000) )
 	else if( (grating == 2) && (harmonic == 3) && (energy > 1050) && (energy < 2000) )
 		return true;
 	else
@@ -942,10 +935,8 @@ bool SGMBeamline::energyRangeValidForSettings(sgmGrating grating, sgmHarmonic ha
 		return true;
 	else if( (grating == 1) && (harmonic == 1) && (maxEnergy > 440) && (minEnergy < 1200) )
 		return true;
-	//else if( (grating == 2) && (harmonic == 1) && (maxEnergy > 800) && (minEnergy < 1100) )
 	else if( (grating == 2) && (harmonic == 1) && (maxEnergy > 800) && (minEnergy < 1150) )
 		return true;
-	//else if( (grating == 2) && (harmonic == 3) && (maxEnergy > 1100) && (minEnergy < 2000) )
 	else if( (grating == 2) && (harmonic == 3) && (maxEnergy > 1050) && (minEnergy < 2000) )
 		return true;
 	else
@@ -1008,7 +999,6 @@ void SGMBeamline::onControlSetConnected(bool csConnected){
 	AMControlSet *ctrlSet = (AMControlSet*)QObject::sender();
 
 	if(csConnected){
-		//qDebug() << ctrlSet->name() << " is connected";
 		unconnectedSets_.removeAll(ctrlSet);
 		if(!teyDetector_ && ctrlSet->name() == "TEY Controls"){
 			teyDetector_ = new AMSingleControlDetector(tey_->name(), tey_, this);
@@ -1058,7 +1048,6 @@ void SGMBeamline::onControlSetConnected(bool csConnected){
 }
 
 void SGMBeamline::onCriticalControlsConnectedChanged(bool isConnected, AMControl *control){
-	//qDebug() << "Detected a critical contorl change " << control->name();
 	emit criticalControlsConnectionsChanged();
 }
 
@@ -1088,9 +1077,6 @@ void SGMBeamline::createBeamOnActions(){
 		beamOnAction1_->setSetpoint(1);
 		beamOnAction2_ = new AMBeamlineControlMoveAction(fastShutterVoltage(), this);
 		beamOnAction2_->setSetpoint(0);
-//		beamOnActionsList_->addAction(0, beamOnAction1_);
-//		beamOnActionsList_->appendAction(beamOnAction2_);
-//		connect(beamOnAction2_, SIGNAL(finished()), this, SLOT(onBeamOnActionsFinsihed()));
 		beamOnActionsList_->appendStage(new QList<AMBeamlineActionItem*>());
 		beamOnActionsList_->appendAction(beamOnActionsList_->stageCount(), beamOnAction1_);
 		beamOnActionsList_->appendAction(beamOnActionsList_->stageCount(), beamOnAction2_);
@@ -1101,8 +1087,6 @@ void SGMBeamline::createBeamOnActions(){
 void SGMBeamline::onBeamOnActionsFinsihed(){
 	if(beamOnAction1_ && beamOnAction2_ && beamOnAction1_->hasFinished() && beamOnAction2_->hasFinished()){
 		disconnect(beamOnActionsList_, SIGNAL(listSucceeded()), this, SLOT(onBeamOnActionsFinsihed()));
-//		beamOnActionsList_->deleteAction(1);
-//		beamOnActionsList_->deleteAction(0);
 		beamOnActionsList_->deleteStage(beamOnActionsList_->stageCount());
 		delete beamOnAction1_;
 		delete beamOnAction2_;
@@ -1247,7 +1231,6 @@ QMap< QString, QMap<double, double> > SGMFluxOptimization::collapse(AMRegionsLis
 	h1 << 250.0 << 2 << 1;
 	h3 << 250.0 << 2 << 3;
 	int numPoints = 50;
-	//int numPoints = 100;
 	double stepSize = 250/(numPoints-1);
 	QMap<double, double> fluxL1, fluxM1, fluxH1, fluxH3;
 	for(double x = stepSize; x < 250; x+=stepSize){
@@ -1445,7 +1428,6 @@ QMap< QString, QMap<double, double> > SGMResolutionOptimization::collapse(AMRegi
 	h1 << 250.0 << 2 << 1;
 	h3 << 250.0 << 2 << 3;
 	int numPoints = 50;
-	//int numPoints = 100;
 	double stepSize = 250/(numPoints-1);
 	QMap<double, double> resL1, resM1, resH1, resH3;
 	for(double x = stepSize; x < 250; x+=stepSize){

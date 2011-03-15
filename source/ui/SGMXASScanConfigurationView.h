@@ -33,7 +33,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSpacerItem>
 #include "acquaman/SGM/SGMXASScanConfiguration.h"
 #include "acquaman/SGM/SGMXASDacqScanController.h"
-//#include "AMScanConfigurationViewer.h"
 #include "AMScanConfigurationView.h"
 #include "ui/AMControlOptimizationView.h"
 

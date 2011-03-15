@@ -9,7 +9,6 @@ SGMFastDacqScanController::SGMFastDacqScanController(SGMFastScanConfiguration *c
 	dacqRunUpStarted_ = false;
 	dacqRunUpCompleted_ = false;
 	dacqRunCompleted_ = false;
-	// unused: emit scanCreated(scan());
 }
 
 void SGMFastDacqScanController::initialize(){
@@ -49,7 +48,6 @@ void SGMFastDacqScanController::start(){
 	usingSpectraDotDatFile_ = true;
 	fastScanTimer_ = new QTimer(this);
 	connect(fastScanTimer_, SIGNAL(timeout()), this, SLOT(onFastScanTimerTimeout()));
-	//if(!autoSavePath_.isEmpty())
 	if(!pCfg()->sensibleFileSavePath().isEmpty())
 		pScan()->setAutoExportFilePath(pCfg()->finalizedSavePath());
 	AMDacqScanController::start();
@@ -206,7 +204,6 @@ void SGMFastDacqScanController::onState(const QString &state){
 }
 
 void SGMFastDacqScanController::onInitializationActionsSucceeded(){
-	//qDebug() << "Initialization actions done for fast scan";
 	emit initialized();
 }
 
@@ -217,8 +214,6 @@ void SGMFastDacqScanController::onInitializationActionsStageSucceeded(int stageI
 }
 
 void SGMFastDacqScanController::onFastScanTimerTimeout(){
-	//timerSeconds_++;
-	//calculateProgress(timerSeconds_, pCfg()->runTime());
 	calculateProgress(SGMBeamline::sgm()->energy()->value()-pCfg()->start(), pCfg()->end()-pCfg()->start());
 	if( fabs(SGMBeamline::sgm()->energy()->value()-pCfg()->end()) <  SGMBeamline::sgm()->energy()->tolerance())
 		fastScanTimer_->stop();

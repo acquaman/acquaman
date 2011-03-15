@@ -24,7 +24,10 @@ public:
 	const AMScanConfiguration* configuration() const;
 
 signals:
-	//void lastSettings(SGMFastScanParameters *lastSettings);
+	/* NTBA March 14, 2011 David Chevrier
+	   Part of exporter package
+	void lastSettings(SGMFastScanParameters *lastSettings);
+	*/
 
 protected slots:
 	void onSGMBeamlineCriticalControlsConnectedChanged();
@@ -38,7 +41,10 @@ protected slots:
 protected:
 	SGMFastScanConfiguration *cfg_;
 
-	//QString autoSavePath_;
+	/* NTBA March 14, 2011 David Chevrier
+	   Part of exporter package
+	QString autoSavePath_;
+	*/
 
 	QComboBox *presetsComboBox_;
 	QLabel *elementLabel_;
@@ -59,6 +65,7 @@ protected:
 	QSpinBox *baseLineSB_;
 
 	/* NTBA March 14, 2011 David Chevrier
+	   Part of exporter package
 	QLabel *saveLabel_;
 	QLineEdit *saveEdit_;
 	QLabel *saveFbkLabel_;

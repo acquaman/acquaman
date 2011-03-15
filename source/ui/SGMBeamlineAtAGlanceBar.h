@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMControlEditor.h"
 #include "beamline/SGM/SGMBeamline.h"
 
+/*
 class SGMBeamlineAtAGlanceBar : public QFrame
 {
 Q_OBJECT
@@ -46,5 +47,6 @@ protected:
 	AMControlEditor *moveStatusLabel_;
 
 };
+*/
 
 #endif // SGMBEAMLINEATAGLANCEBAR_H

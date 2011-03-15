@@ -174,7 +174,6 @@ AMControlSetWizardPage::AMControlSetWizardPage(AMControlSet *trackingSet, QStrin
 		QWizardPage(parent)
 {
 	trackingSet_ = trackingSet;
-	//trackingView_ = new AMOldControlSetView(trackingSet_, this);
 	trackingView_ = new AMControlSetView(trackingSet_, true);
 	gl_ = new QGridLayout();
 	textLabel_ = new QLabel(subTitle);
@@ -196,8 +195,6 @@ AMDetectorSetWizardPage::AMDetectorSetWizardPage(AMDetectorSet *detectorSet, AMD
 		QWizardPage(parent)
 {
 	detectorSet_ = detectorSet;
-	//cfgDetectorInfoSet_ = cfgDetectorInfoSet;
-	//detectorView_ = new AMOldDetectorSetView(detectorSet_, cfgDetectorInfoSet_, true, this);
 	detectorView_ = new AMDetectorSetView(detectorSet, true);
 	gl_ = new QGridLayout();
 	textLabel_ = new QLabel(subTitle);

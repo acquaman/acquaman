@@ -16,7 +16,6 @@ SGMFastScanController::SGMFastScanController(SGMFastScanConfiguration *cfg){
 
 	// Create space in raw data store, and create raw data channels, for each detector.
 
-	//qDebug() << "Count is " << scanDetectors.count();
 	for(int i=0; i<scanDetectors.count(); i++) {
 		AMDetector* detector = scanDetectors.at(i);
 		pScan()->rawData()->addMeasurement(AMMeasurementInfo(*(detector->toInfo())));

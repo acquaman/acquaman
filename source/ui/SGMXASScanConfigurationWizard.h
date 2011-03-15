@@ -52,7 +52,6 @@ signals:
 
 protected:
 	SGMXASScanConfiguration *cfg_;
-	//AMOldDetectorInfoSet *cfgDetectorInfoSet_;
 
 	SGMXASScanConfigurationIntroWizardPage *introPage;
 	AMXASRegionsWizardPage *regionsPage;
@@ -127,7 +126,6 @@ protected slots:
 protected:
 	AMControlSet *trackingSet_;
 
-	//AMOldControlSetView *trackingView_;
 	AMControlSetView *trackingView_;
 	QGridLayout *gl_;
 	QLabel *textLabel_;
@@ -145,10 +143,7 @@ protected slots:
 protected:
 	AMDetectorSet *detectorSet_;
 	AMDetectorInfoSet *configurationSettings_;
-	//AMOldDetectorInfoSet *detectorSet_;
-	//AMOldDetectorInfoSet *cfgDetectorInfoSet_;
 
-	//AMDetectorInfoSetView *detectorView_;
 	AMDetectorSetView *detectorView_;
 	QGridLayout *gl_;
 	QLabel *textLabel_;

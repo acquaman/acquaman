@@ -20,7 +20,10 @@ SGMFastScanConfiguration::SGMFastScanConfiguration(QObject *parent) : AMFastScan
 
 	setParametersFromPreset(0);
 
-//	connect(&savePathWatcher_, SIGNAL(directoryChanged(QString)), this, SLOT(onSaveDirectoryChanged(QString)));
+	/* NTBA March 14, 2011 David Chevrier
+	   Save directory and such goes to exporter
+	connect(&savePathWatcher_, SIGNAL(directoryChanged(QString)), this, SLOT(onSaveDirectoryChanged(QString)));
+	*/
 }
 
 SGMFastScanConfiguration::~SGMFastScanConfiguration(){
@@ -108,8 +111,6 @@ QList<AMDetector*> SGMFastScanConfiguration::usingDetectors() const{
 	usingDetectors << SGMBeamline::sgm()->feedbackDetectors()->detectorNamed("I0");
 	usingDetectors << SGMBeamline::sgm()->XASDetectors()->detectorNamed("tfy");
 	usingDetectors << SGMBeamline::sgm()->allDetectors()->detectorNamed("photodiode");
-	//usingDetectors << SGMBeamline::sgm()->allDetectors()->detectorByName("encoderUp");
-	//usingDetectors << SGMBeamline::sgm()->allDetectors()->detectorByName("encoderDown");
 	return usingDetectors;
 }
 
