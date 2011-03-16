@@ -4,78 +4,90 @@
 # ####################################################################
 HOME_FOLDER = $$system(echo $HOME)
 macx {
+	# EPICS Dependencies:
 	EPICS_INCLUDE_DIRS = $$HOME_FOLDER/dev/acquaman/contrib/base-3.14.12/include \
 		$$HOME_FOLDER/dev/acquaman/contrib/base-3.14.12/include/os/Darwin
 	EPICS_LIB_DIR = $$HOME_FOLDER/dev/acquaman/contrib/base-3.14.12/lib/darwin-x86
+
+	# MPlot Source
 	MPLOT_INCLUDE_DIR = $$HOME_FOLDER/dev/MPlot/src
 	GSL_INCLUDE_DIR = $$HOME_FOLDER/dev/acquaman/contrib/gsl-install/include
+
+	# GSL Dependencies
 	GSL_LIB = -L$$HOME_FOLDER/dev/acquaman/contrib/gsl-install/lib -lgsl
 	GSL_CBLAS_LIB = -L$$HOME_FOLDER/dev/acquaman/contrib/gsl-install/lib -lgslcblas
 
+	# VLC Dependencies
 	VLC_LIB = -L$$HOME_FOLDER/dev/acquaman/contrib/vlc-install/lib -lvlc
-	#VLC_LIB = -L$$HOME_FOLDER/dev/acquaman/contrib/vlc-1.1.8/VLC.app/Contents/MacOS/lib -lvlc
-
 	VLC_INCLUDE_DIR = $$HOME_FOLDER/dev/acquaman/contrib/vlc-install/include
-	#VLC_INCLUDE_DIR = $$HOME_FOLDER/dev/acquaman/contrib/vlc-1.1.8/VLC.app/Contents/MacOS/include
-
 	VLC_PLUGIN_PATH = $$HOME_FOLDER/dev/acquaman/contrib/vlc-install/lib/vlc/plugins
-	#VLC_PLUGIN_PATH = $$HOME_FOLDER/dev/acquaman/contrib/vlc-1.1.8/VLC.app/Contents/MacOS/plugins
+
+	# LibXML Dependencies (required by dacq library)
+	XML_LIB = -lxml2
+	XML_INCLUDE_DIR = /usr/include/libxml2
 }
 linux-g++ {
+	# EPICS Dependencies:
 	EPICS_INCLUDE_DIRS = $$HOME_FOLDER/beamline/programming/epics/base/include \
 		$$HOME_FOLDER/beamline/programming/epics/base/include/os/Linux
 	EPICS_LIB_DIR = $$HOME_FOLDER/beamline/programming/epics/base/lib/linux-x86
 
-	# include path for MPlot library (header-files only)
+	# MPlot Source
 	MPLOT_INCLUDE_DIR = $$HOME_FOLDER/beamline/programming/MPlot/src
+
+	# GSL Dependencies
 	GSL_LIB = -lgsl
 	GSL_CBLAS_LIB = -lgslcblas
 
+	# VLC Dependencies
 	VLC_LIB = -lvlc
 	VLC_INCLUDE_DIR = /usr/include
 	VLC_PLUGIN_PATH = /usr/lib/vlc/plugins/
+
+	# LibXML Dependencies (required by dacq library)
+	XML_LIB = -lxml2
+	XML_INCLUDE_DIR = /usr/include/libxml2
 }
-QT += core \
-	network \
-	sql \
-	opengl \
-	phonon
+
+QT += core network sql opengl	phonon
 
 DESTDIR = build
-DEPENDPATH += . \
-	source
-INCLUDEPATH += . \
-	source
-INCLUDEPATH += $$EPICS_INCLUDE_DIRS
-INCLUDEPATH += $$MPLOT_INCLUDE_DIR
-INCLUDEPATH += $$GSL_INCLUDE_DIR
-INCLUDEPATH += $$VLC_INCLUDE_DIR
-LIBS += $$GSL_LIB
-LIBS += $$GSL_CBLAS_LIB
-LIBS += $$VLC_LIB
+DEPENDPATH += . source
+INCLUDEPATH += . source
 
-# Epics channel access linking:
-LIBS += -L$$EPICS_LIB_DIR -lca -lCom
+INCLUDEPATH += $$EPICS_INCLUDE_DIRS \
+	$$MPLOT_INCLUDE_DIR \
+	$$GSL_INCLUDE_DIR \
+	$$VLC_INCLUDE_DIR \
+	$$XML_INCLUDE_DIR
+
+LIBS += $$GSL_LIB \
+	$$GSL_CBLAS_LIB \
+	$$VLC_LIB \
+	$$XML_LIB \
+	-L$$EPICS_LIB_DIR -lca -lCom
 
 # VLC plugin path: define as pre-processor symbol
 DEFINES += "VLC_PLUGIN_PATH=$$VLC_PLUGIN_PATH"
 
-# search locations for libraries:
+# Specify runtime search locations for libraries (Must change for release bundle, if epics in a different location)
 macx {
-	QMAKE_LFLAGS_RPATH += "$$EPICS_LIB_DIR"
-	#QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
-	#QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
+	# 4.7.0 and earlier:
+	# QMAKE_LFLAGS_RPATH += "$$EPICS_LIB_DIR"
+
+	# 4.7.2: Use same as linux-g++
+	QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
+	QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
 }
 linux-g++ {
 	QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
 	QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
 }
 
-# include and library paths for libxml:
-INCLUDEPATH += /usr/include/libxml2
-LIBS += -lxml2
 
-# Input
+# Source Files (Acquaman Common)
+#######################
+
 HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	../MPlot/src/MPlot/MPlotAbstractTool.h \
 	../MPlot/src/MPlot/MPlotAxis.h \
@@ -441,6 +453,7 @@ RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc
 
 macx {
+# Removed for now: OS-native video implementation
 #OBJECTIVE_SOURCES += 	source/ui/AMVideoWidget_mac.mm
 #LIBS += -framework AppKit
 }
