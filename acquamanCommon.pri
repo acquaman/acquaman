@@ -2,38 +2,49 @@
 # QMake project file for acquaman.  		January 2010. mark.boots@usask.ca
 # Note: Set EPICS_INCLUDE_DIRS, EPICS_LIB_DIR, VLC_*, and GSL_* correctly for platform
 # ####################################################################
+
+# Automatically determines a user's home folder
 HOME_FOLDER = $$system(echo $HOME)
+
 macx {
+
+	# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
+	DEV_PATH = dev
+
 	# EPICS Dependencies:
-	EPICS_INCLUDE_DIRS = $$HOME_FOLDER/dev/acquaman/contrib/base-3.14.12/include \
-		$$HOME_FOLDER/dev/acquaman/contrib/base-3.14.12/include/os/Darwin
-	EPICS_LIB_DIR = $$HOME_FOLDER/dev/acquaman/contrib/base-3.14.12/lib/darwin-x86
+	EPICS_INCLUDE_DIRS = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/base-3.14.12/include \
+		$$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/base-3.14.12/include/os/Darwin
+	EPICS_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/base-3.14.12/lib/darwin-x86
 
 	# MPlot Source
-	MPLOT_INCLUDE_DIR = $$HOME_FOLDER/dev/MPlot/src
-	GSL_INCLUDE_DIR = $$HOME_FOLDER/dev/acquaman/contrib/gsl-install/include
+	MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/src
+	GSL_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/gsl-install/include
 
 	# GSL Dependencies
-	GSL_LIB = -L$$HOME_FOLDER/dev/acquaman/contrib/gsl-install/lib -lgsl
-	GSL_CBLAS_LIB = -L$$HOME_FOLDER/dev/acquaman/contrib/gsl-install/lib -lgslcblas
+	GSL_LIB = -L$$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/gsl-install/lib -lgsl
+	GSL_CBLAS_LIB = -L$$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/gsl-install/lib -lgslcblas
 
 	# VLC Dependencies
-	VLC_LIB = -L$$HOME_FOLDER/dev/acquaman/contrib/vlc-install/lib -lvlc
-	VLC_INCLUDE_DIR = $$HOME_FOLDER/dev/acquaman/contrib/vlc-install/include
-	VLC_PLUGIN_PATH = $$HOME_FOLDER/dev/acquaman/contrib/vlc-install/lib/vlc/plugins
+	VLC_LIB = -L$$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/vlc-install/lib -lvlc
+	VLC_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/vlc-install/include
+	VLC_PLUGIN_PATH = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/vlc-install/lib/vlc/plugins
 
 	# LibXML Dependencies (required by dacq library)
 	XML_LIB = -lxml2
 	XML_INCLUDE_DIR = /usr/include/libxml2
 }
 linux-g++ {
+
+	# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
+	DEV_PATH = beamline/programming
+
 	# EPICS Dependencies:
-	EPICS_INCLUDE_DIRS = $$HOME_FOLDER/beamline/programming/epics/base/include \
-		$$HOME_FOLDER/beamline/programming/epics/base/include/os/Linux
-	EPICS_LIB_DIR = $$HOME_FOLDER/beamline/programming/epics/base/lib/linux-x86
+	EPICS_INCLUDE_DIRS = $$HOME_FOLDER/$$DEV_PATH/epics/base/include \
+		$$HOME_FOLDER/$$DEV_PATH/epics/base/include/os/Linux
+	EPICS_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/epics/base/lib/linux-x86
 
 	# MPlot Source
-	MPLOT_INCLUDE_DIR = $$HOME_FOLDER/beamline/programming/MPlot/src
+	MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/src
 
 	# GSL Dependencies
 	GSL_LIB = -lgsl
@@ -73,11 +84,11 @@ DEFINES += "VLC_PLUGIN_PATH=$$VLC_PLUGIN_PATH"
 # Specify runtime search locations for libraries (Must change for release bundle, if epics in a different location)
 macx {
 	# 4.7.0 and earlier:
-	QMAKE_LFLAGS_RPATH += "$$EPICS_LIB_DIR"
+	#QMAKE_LFLAGS_RPATH += "$$EPICS_LIB_DIR"
 
 	# 4.7.2: Use same as linux-g++
-	#QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
-	#QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
+	QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
+	QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
 }
 linux-g++ {
 	QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
