@@ -19,8 +19,38 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "acquaman.h"
-
 #include "dataman/AMDbObject.h"
+
+/*!
+
+  \mainpage Acquaman: The Comic-book Hero of Synchrotron Science since 2011
+
+  \section intro What is Acquaman?
+
+  Acquaman is a framework used to develop applications the <em>acqu</em>isition and <em>man</em>agement of scientific data.  It is used initially on the SGM and REIXS beamlines at the Canadian Light Source.
+
+  \section userDocIntro Introduction For Beamline users...
+
+Acquaman is used in various forms to build applications with different functionality for each beamline.  Consult your beamline staff for user manuals specific to your version of Acquaman.
+
+
+  \section programmerDocIntro Introduction For Programmers...
+
+  \subsection architecture Architecture and Modules
+  \image html architecture.png "Figure 1: Architecture of the Acquaman Framework"
+
+  The Acquaman framework is divided into 6 modules that group related functionality.  The dependency of the modules is shown in Figure 1: each block makes use of the components directly below it.
+
+  \b Modules
+  - \c beamline : Control interface to the actual beamline hardware
+  - \c acquaman : Manages setting up and executing scans
+  - \c dataman : Responsible for the representation (top layer), and storage and retrieval (bottom layer) of experimental data.
+  - \c workflow : A program-wide system for scheduling and running a series of "user-level" actions
+  - \c script : Provides the advanced user with powerful and direct access to the beamline, acquaman, and dataman layers
+  - \c ui : Contains all user-interface widgets. These may depend on code in other modules, but all of the other modules are free of any GUI code, and can therefore be used on systems without a GUI.
+
+  */
+
 
 namespace AM {
 	/// Register acquaman-defined types with the QMetaType system. Call on application startup before using these types.
@@ -30,22 +60,4 @@ namespace AM {
 		qRegisterMetaType<AMDbObjectList>();
 		qRegisterMetaType<AMDbObject*>();
 	}
-	// test section
-	/*
-	AMIntList b;
-	b << 3 << 6 << 8;
-
-	AMDoubleList dl;
-	dl << 3.0 << 6.0 << 8.0;
-
-	QVariant vb = QVariant::fromValue(b);
-	qDebug() << "type of AMIntList:" << vb.type() << "userType" << vb.userType() << "QMetaType type():" << QMetaType::type("AMIntList") << "and" << qMetaTypeId<AMIntList>();
-	qDebug() << "Can convert? " << vb.canConvert<AMIntList>() << vb.canConvert<AMDoubleList>();
-
-	QVariant vdl = QVariant::fromValue(dl);
-	qDebug() << "type of AMDoubleList:" << vdl.type() << "userType" << vdl.userType() << "QMetaType type():" << QMetaType::type("AMDoubleList") << "and" << qMetaTypeId<AMDoubleList>();
-
-	qDebug() << "Can convert? " << vdl.canConvert<AMDoubleList>() << vdl.canConvert<AMIntList>();
-	*/
-	/////////////
 }
