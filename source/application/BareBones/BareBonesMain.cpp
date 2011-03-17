@@ -26,6 +26,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMProcessVariable.h"
 #include <QDoubleSpinBox>
 #include "ui/AMControlEditor.h"
+#include "dataman/AMScan.h"
+#include "ui/AMScanView.h"
+#include "ui/AMGenericScanEditor.h"
 
 int main(int argc, char *argv[])
 {
@@ -97,6 +100,25 @@ int main(int argc, char *argv[])
 
 //	AMBeamline::bl()
 
+
+
+//AMScan s;
+//// Get it full and interesting...
+//// ...
+//int databaseId = s.storeToDb(AMDatabase::userdb());
+
+//// Restore it back from the database:
+//AMScan s2;
+//s2.loadFromDb(AMDatabase::userdb(), databaseId);
+
+	AMScanView* view = new AMScanView();
+	AMScan* scan1 = getFromSomewhere();
+	AMScan* scan2 = getFromSomewhere();
+
+	view->addScan(scan1);
+	view->addScan(scan2);
+
+	AMGenericScanEditor* editor = new AMGenericScanEditor();
 
 
 
