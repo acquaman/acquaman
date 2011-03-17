@@ -111,16 +111,27 @@ int main(int argc, char *argv[])
 //AMScan s2;
 //s2.loadFromDb(AMDatabase::userdb(), databaseId);
 
-	AMScanView* view = new AMScanView();
-	AMScan* scan1 = getFromSomewhere();
-	AMScan* scan2 = getFromSomewhere();
+//	AMScanView* view = new AMScanView();
+//	AMScan* scan1 = getFromSomewhere();
+//	AMScan* scan2 = getFromSomewhere();
 
-	view->addScan(scan1);
-	view->addScan(scan2);
-
-	AMGenericScanEditor* editor = new AMGenericScanEditor();
+//	view->addScan(scan1);
+//	view->addScan(scan2);
 
 
+
+//MyAnalysisBlock* b1  = new MyAnalysisBlock(...);
+//My2ndAnalysisBlock* b2 = new My2ndAnalysisBlock(...);
+
+//QList<AMDataSources*> input1;
+//input1 << src1;
+//input1 << src2;
+//b1->setInputDataSources(input1);
+
+//QList<AMDataSource*> input2;
+//intput2 << b1;
+//input2 << src3;
+//b2->setInputDataSources(input2);
 
 
 
