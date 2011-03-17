@@ -111,14 +111,14 @@ int main(int argc, char *argv[])
 //AMScan s2;
 //s2.loadFromDb(AMDatabase::userdb(), databaseId);
 
-	AMScanView* view = new AMScanView();
-	AMScan* scan1 = getFromSomewhere();
-	AMScan* scan2 = getFromSomewhere();
+//	AMScanView* view = new AMScanView();
+//	AMScan* scan1 = getFromSomewhere();
+//	AMScan* scan2 = getFromSomewhere();
 
-	view->addScan(scan1);
-	view->addScan(scan2);
+//	view->addScan(scan1);
+//	view->addScan(scan2);
 
-	AMGenericScanEditor* editor = new AMGenericScanEditor();
+//	AMGenericScanEditor* editor = new AMGenericScanEditor();
 
 
 
