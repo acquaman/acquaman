@@ -23,6 +23,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QApplication>
 #include "application/AMAppController.h"
 
+#include "beamline/AMProcessVariable.h"
+#include <QDoubleSpinBox>
+#include "ui/AMControlEditor.h"
 
 int main(int argc, char *argv[])
 {
@@ -34,6 +37,70 @@ int main(int argc, char *argv[])
 
 
 	AMAppController* appController = new AMAppController();
+
+//	// Create a process variable connection:
+//	AMProcessVariable* myPV = new AMProcessVariable("PCT1402-01:mA:fbk", true);
+
+//	// Make some widgets to watch it:
+//	QDoubleSpinBox* readbackMonitor = new QDoubleSpinBox();
+//	QDoubleSpinBox* setpointEditor = new QDoubleSpinBox();
+
+//	// widget layout code here
+//	// ...
+//	/////////////
+
+//	// Make connections
+//	connect(myPV, SIGNAL(valueChanged(double)), readbackMonitor, SLOT(setValue(double)));
+//	connect(setpointEditor, SIGNAL(valueChanged(double)), myPV, SLOT(setValue(double)));
+
+//	// Let's assume we have one already:
+//	AMProcessVariable* myPV = MyBeamline::bl()->myPV1();
+//	// Or create and connect one:
+//	AMProcessVariable* myPV = new AMProcessVariable("PCT1402-01:mA:fbk", true);
+
+//	myPV->setValue(3.0);
+//	myPV->setValue(QString("3.4"));
+//	myPV->setValue(3);
+
+//	myPV->lastValue();	// 3.0 (most recent monitored value)
+//						// (If monitoring is on)
+
+//	myPV->getInt();		// 3
+//	myPV->getDouble();	// 3.0
+//	myPV->getString();	// "3.0"
+
+//	connect(myPV, SIGNAL(valueChanged(double)), someObject, SLOT(someSlot(double)));
+
+
+//	// Is it connected?
+//	myPV->isConnected();	// true  (After some time)
+//	// permissions:
+//	myPV->canRead();	// true
+//	myPV->canWrite();	// also true (interesting, for the ring current)
+
+//	// Other handy tricks:
+//	myPV->units();	// "mA"
+
+
+
+//	AMPVControl* myControl =
+//	        new AMPVwStatusControl("hexapodX",
+//	                               "HXPD1610-401:X:sp",
+//	                               "HXPD1610-401:X",
+//	                               "HXPD1610-401:moving",
+//	                               QString(),
+//	                               this,
+//	                               0.1);
+
+//	AMBasicControlEditor* myEditor =
+//	        new AMBasicControlEditor(myControl, this);
+
+//	AMBeamline::bl()
+
+
+
+
+
 
 
 	/// Program Run-loop:
