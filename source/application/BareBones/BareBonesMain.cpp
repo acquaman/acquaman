@@ -118,6 +118,7 @@ int main(int argc, char *argv[])
 //	view->addScan(scan1);
 //	view->addScan(scan2);
 
+//	AMGenericScanEditor* editor = new AMGenericScanEditor();
 
 
 //MyAnalysisBlock* b1  = new MyAnalysisBlock(...);
