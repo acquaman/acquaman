@@ -239,7 +239,10 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/dataman/REIXS/REIXSXESRawFileLoader.h \
 	source/util/AMDeferredFunctionCall.h \
 	source/ui/AMVideoWidget.h \
-	source/ui/AMScanConfigurationViewHolder.h
+	source/ui/AMScanConfigurationViewHolder.h \
+	source/ui/AMPeriodicTableView.h \
+	source/util/AMPeriodicTable.h \
+	source/util/AMElement.h
 FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
 	source/ui/AMDataViewSection.ui \
@@ -407,9 +410,13 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/beamline/AMBeamlineControlStopAction.cpp \
 	source/dataman/REIXS/REIXSXESRawFileLoader.cpp \
 	source/util/AMDeferredFunctionCall.cpp \
-	source/ui/AMScanConfigurationViewHolder.cpp
+	source/ui/AMScanConfigurationViewHolder.cpp \
+	source/ui/AMPeriodicTableView.cpp \
+	source/util/AMPeriodicTable.cpp \
+	source/util/AMElement.cpp
 RESOURCES = source/icons/icons.qrc \
-	source/configurationFiles/configurationFiles.qrc
+	source/configurationFiles/configurationFiles.qrc \
+	source/util/ElementData.qrc
 
 macx {
 OBJECTIVE_SOURCES += 	source/ui/AMVideoWidget_mac.mm

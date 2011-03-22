@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>ElementalInformation.txt</file>
+    </qresource>
+</RCC>
