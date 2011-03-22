@@ -54,11 +54,9 @@ protected:
 	QGroupBox *mainBox_;
 
 	QVBoxLayout *mainLayout_;
-	//QVBoxLayout *vl_;
 	QGridLayout *gl_;
 
 	AMControlEditor *readyLabel_;
-	//AMControlButton *beamOnCButton_;
 	AMBeamlineActionsListButton *beamOnBALButton_;
 	AMControlButton *beamOffCButton_;
 	QToolButton *stopMotorsButton_;
@@ -74,7 +72,6 @@ protected:
 	QLabel *beamlineWarningsLabel_;
 
 	AMBeamlineParallelActionsList *al;
-//	AMControlEdit *moveStatusLabel_;
 };
 
 #endif // SGMSIDEBAR_H

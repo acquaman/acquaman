@@ -21,9 +21,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef ACQMAN_SGMBEAMLINE_H
 #define ACQMAN_SGMBEAMLINE_H
 
-// unused #include "beamline/AMPVNames.h"
 #include "beamline/AMBeamline.h"
 #include "beamline/AMDetector.h"
+#include "beamline/AMSingleControlDetector.h"
+#include "beamline/MCPDetector.h"
+#include "beamline/PGTDetector.h"
 #include "beamline/AMControlSet.h"
 #include "util/AMBiHash.h"
 #include "beamline/AMBeamlineControlAction.h"
@@ -31,7 +33,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMBeamlineActionsList.h"
 #include "beamline/AMBeamlineParallelActionsList.h"
 
-#include "acquaman/AMDetectorInfoList.h"
+#include "beamline/AMDetectorSet.h"
+
 #include "acquaman/AMControlOptimization.h"
 
 
@@ -88,14 +91,16 @@ public:
 	AMControl* undulatorTracking() const { return undulatorTracking_;}
 	AMControl* monoTracking() const { return monoTracking_;}
 	AMControl* exitSlitTracking() const { return exitSlitTracking_;}
-	AMDetectorInfo* teyDetector() const { return teyDetector_;}
-	AMDetectorInfo* tfyDetector() const { return tfyDetector_;}
-	AMDetectorInfo* pgtDetector() const { return pgtDetector_;}
-	AMDetectorInfo* i0Detector() const { return i0Detector_;}
-	AMDetectorInfo* eVFbkDetector() const { return eVFbkDetector_;}
-	AMDetectorInfo* photodiodeDetector() const { return photodiodeDetector_;}
-	AMDetectorInfo* encoderUpDetector() const { return encoderUpDetector_;}
-	AMDetectorInfo* encoderDownDetector() const { return encoderDownDetector_;}
+
+	AMDetector* teyDetector() const { return teyDetector_;}
+	AMDetector* tfyDetector() const { return tfyDetector_;}
+	AMDetector* pgtDetector() const { return pgtDetector_;}
+	AMDetector* i0Detector() const { return i0Detector_;}
+	AMDetector* eVFbkDetector() const { return eVFbkDetector_;}
+	AMDetector* photodiodeDetector() const { return photodiodeDetector_;}
+	AMDetector* encoderUpDetector() const { return encoderUpDetector_;}
+	AMDetector* encoderDownDetector() const { return encoderDownDetector_;}
+
 	AMControl* loadlockCCG() const { return loadlockCCG_;}
 	AMControl* loadlockTCG() const { return loadlockTCG_;}
 	AMControl* ssaManipulatorX() const { return ssaManipulatorX_;}
@@ -130,9 +135,9 @@ public:
 	AMControlSet* trackingSet() const { return trackingSet_;}
 	AMControlSet* ssaManipulatorSet() const { return ssaManipulatorSet_; }
 
-	AMOldDetectorInfoSet* allDetectors() const { return allDetectors_;}
-	AMOldDetectorInfoSet* feedbackDetectors() const { return feedbackDetectors_;}
-	AMOldDetectorInfoSet* XASDetectors() const { return XASDetectors_;}
+	AMDetectorSet* allDetectors() const { return allDetectors_;}
+	AMDetectorSet* feedbackDetectors() const { return feedbackDetectors_;}
+	AMDetectorSet* XASDetectors() const { return XASDetectors_;}
 
 	AMSamplePlate* currentSamplePlate() const { return currentSamplePlate_; }
 
@@ -215,12 +220,9 @@ protected:
 	AMControl *exitSlitTracking_;
 	AMControl *tey_;
 	AMControl *tfy_;
-	AMControl *tfyHVSetpoint_;
-	AMControl *tfyHVFbk_;
+	AMControl *tfyHV_;
 	AMControl *pgt_;
-	AMControl *pgtHVSetpoint_;
-	AMControl *pgtHVFbk_;
-	AMControl *pgtHVRamping_;
+	AMControl *pgtHV_;
 	AMControl *pgtIntegrationTime_;
 	AMControl *pgtIntegrationMode_;
 	AMControl *i0_;
@@ -258,20 +260,20 @@ protected:
 	AMControl *scalerMode_;
 
 	AMControlSet *teyControlSet_;
-	AMDetectorInfo *teyDetector_;
+	AMDetector *teyDetector_;
 	AMControlSet *tfyControlSet_;
-	AMDetectorInfo *tfyDetector_;
+	AMDetector *tfyDetector_;
 	AMControlSet *pgtControlSet_;
-	AMDetectorInfo *pgtDetector_;
-	AMDetectorInfo *i0Detector_;
+	AMDetector *pgtDetector_;
+	AMDetector *i0Detector_;
 	AMControlSet *i0ControlSet_;
-	AMDetectorInfo *eVFbkDetector_;
+	AMDetector *eVFbkDetector_;
 	AMControlSet *eVFbkControlSet_;
-	AMDetectorInfo *photodiodeDetector_;
+	AMDetector *photodiodeDetector_;
 	AMControlSet *photodiodeControlSet_;
-	AMDetectorInfo *encoderUpDetector_;
+	AMDetector *encoderUpDetector_;
 	AMControlSet *encoderUpControlSet_;
-	AMDetectorInfo *encoderDownDetector_;
+	AMDetector *encoderDownDetector_;
 	AMControlSet *encoderDownControlSet_;
 
 	AMControlSet* criticalControlsSet_;
@@ -283,9 +285,10 @@ protected:
 
 	AMControlSet *trackingSet_;
 	AMControlSet *ssaManipulatorSet_;
-	AMOldDetectorInfoSet *allDetectors_;
-	AMOldDetectorInfoSet *feedbackDetectors_;
-	AMOldDetectorInfoSet *XASDetectors_;
+
+	AMDetectorSet *allDetectors_;
+	AMDetectorSet *feedbackDetectors_;
+	AMDetectorSet *XASDetectors_;
 
 	QList<AMControlSet*> unconnectedSets_;
 

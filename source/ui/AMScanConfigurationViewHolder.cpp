@@ -37,17 +37,12 @@ AMScanConfigurationViewHolder::AMScanConfigurationViewHolder(AMWorkflowManagerVi
 	goToWorkflowOption_->setChecked(true);
 	setupAnotherScanOption_ = new QRadioButton("Setup another scan");
 
-
-	//	statusLabel_ = new QLabel("Ready To Start Scan");
-
 	layout_ = new QVBoxLayout();
 	if(view_)
 		layout_->addWidget(view_);
 
 	QHBoxLayout* hl = new QHBoxLayout();
 
-	//	hl->addWidget(statusLabel_);
-	//	hl->addStretch();
 	hl->addWidget(new QLabel("When I'm done here:"));
 	hl->addWidget(goToWorkflowOption_);
 	hl->addWidget(setupAnotherScanOption_);
@@ -180,91 +175,3 @@ void AMScanConfigurationViewHolder::onAddToQueueRequested() {
 	if(goToWorkflowOption_->isChecked())
 		emit showWorkflowRequested();
 }
-
-
-
-
-// From old version: AMFastScanConfigurationHolder:
-
-//AMFastScanConfigurationHolder::AMFastScanConfigurationHolder(QWidget *parent) :
-//		AMScanConfigurationHolder(parent)
-//{
-//	vl_ = NULL;
-//	cfg_ = NULL;
-//	sfscViewer_ = NULL;
-
-//	autoSavePath_ = "";
-//	lastSettings_ = 0; //NULL
-
-//	requestedStart_ = false;
-//	canStartImmediately_ = false;
-//	director = new AMScanConfigurationQueueDirector();
-//	director->setWindowModality(Qt::ApplicationModal);
-//	sDirector = new AMScanConfigurationScanDirector();
-//	sDirector->setWindowModality(Qt::ApplicationModal);
-
-//	connect(director, SIGNAL(goToQueue()), this, SLOT(goToQueue()));
-//	connect(director, SIGNAL(goToNewScan()), this, SLOT(goToNewScan()));
-//}
-
-//AMFastScanConfigurationHolder::~AMFastScanConfigurationHolder()
-//{
-//}
-
-//void AMFastScanConfigurationHolder::onBecameCurrentWidget()
-//{
-//	if(!sfscViewer_ && isVisible() && SGMBeamline::sgm()->isConnected()){
-//		createScanConfiguration();
-//		sfscViewer_ = new SGMFastScanConfigurationViewer(cfg());
-//		connect(sfscViewer_, SIGNAL(startScanRequested()), this, SLOT(onStartScanRequested()));
-//		connect(sfscViewer_, SIGNAL(addToQueueRequested()), this, SLOT(onAddToQueueRequested()));
-//		connect(sfscViewer_, SIGNAL(queueDirectorRequested()), director, SLOT(show()));
-//		connect(sfscViewer_, SIGNAL(lastSettings(SGMFastScanParameters*)), this, SLOT(setLastSettings(SGMFastScanParameters*)));
-//		connect(this, SIGNAL(lockdownScanning(bool,QString)), sfscViewer_, SLOT(onLockdowScanning(bool,QString)));
-
-//		if(!vl_)
-//			vl_ = new QVBoxLayout();
-//		vl_->addWidget(sfscViewer_);
-//		if(layout() != vl_){
-//			delete layout();
-//			this->setLayout(vl_);
-//		}
-//		emit newScanConfigurationView();
-//	}
-//}
-
-//void AMFastScanConfigurationHolder::createScanConfiguration(){
-//	cfg_ = new SGMFastScanConfiguration(this);
-//	cfg_->setFileName("daveData.%03d.dat");
-//	cfg_->setFilePath(AMUserSettings::userDataFolder);
-//	if(!autoSavePath_.isEmpty())
-//		cfg()->setSensibleFileSavePath(autoSavePath_);
-//	connect(cfg(), SIGNAL(onSensibleFileSavePathChanged(QString)), this, SLOT(setAutoSavePath(QString)));
-//	if(lastSettings_)
-//		cfg()->setParameters(lastSettings_);
-
-
-//}
-
-//void AMFastScanConfigurationHolder::destroyScanConfigurationViewer(){
-//	qDebug() << "Trying to destroy fast scan viewer";
-//	if(sfscViewer_){
-//		disconnect(sfscViewer_, SIGNAL(startScanRequested()), this, SLOT(onStartScanRequested()));
-//		disconnect(sfscViewer_, SIGNAL(addToQueueRequested()), this, SLOT(onAddToQueueRequested()));
-//		disconnect(sfscViewer_, SIGNAL(queueDirectorRequested()), director, SLOT(show()));
-//		disconnect(sfscViewer_, SIGNAL(lastSettings(SGMFastScanParameters*)), this, SLOT(setLastSettings(SGMFastScanParameters*)));
-//		disconnect(this, SIGNAL(lockdownScanning(bool,QString)), sfscViewer_, SLOT(onLockdowScanning(bool,QString)));
-//		vl_->removeWidget(sfscViewer_);
-//		delete sfscViewer_;
-//		sfscViewer_ = NULL;
-//	}
-//}
-
-//void AMFastScanConfigurationHolder::setAutoSavePath(const QString &autoSavePath){
-//	autoSavePath_ = autoSavePath;
-//}
-
-//void AMFastScanConfigurationHolder::setLastSettings(SGMFastScanParameters *lastSettings){
-//	lastSettings_ = lastSettings;
-//}
-

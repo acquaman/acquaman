@@ -147,6 +147,8 @@ public:
 	double setpoint() const;
 	AMControl* control() const;
 
+	bool setControlFormat(const QChar& format, int precision);
+
 signals:
 	void moveRequested(double);
 	void setpointRequested(double);
@@ -173,7 +175,6 @@ protected slots:
 	void onStatusValueChanged(double newVal);
 
 protected:
-//	QSize sizeHint() const;
 	void mouseReleaseEvent ( QMouseEvent * event );
 
 protected:
@@ -183,14 +184,15 @@ protected:
 	bool configureOnly_;
 	bool connectedOnce_;
 	bool newValueOnce_;
+	QChar format_;
+	int precision_;
+
 	QLabel* valueLabel_;
 	QLabel* unitsLabel_;
 	QLabel* statusLabel_;
-	//QLabel* nameLabel_;
 	AMControlEditorStyledInputDialog* dialog_;
 };
 
-//class AMControlButton : public QPushButton
 class AMControlButton : public QToolButton
 {
 Q_OBJECT

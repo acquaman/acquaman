@@ -27,7 +27,9 @@ AMControlSet::AMControlSet(QObject *parent) :
 	QTimer::singleShot(AMCONTROLSET_CONTROL_TIMEOUT_MS, this, SLOT(onConnectionsTimedOut()));
 }
 
-
+QString AMControlSet::name() const {
+	return name_;
+}
 
 bool AMControlSet::isConnected() const {
 	int num = count();
@@ -44,6 +46,47 @@ QStringList AMControlSet::unconnected() const {
 		if(!at(x)->isConnected())
 			retVal.append(at(x)->name());
 	return retVal;
+}
+
+int AMControlSet::indexOf(AMControl* control) {
+	return indexOfValue(control);
+}
+
+int AMControlSet::indexOf(const QString& controlName) {
+	return indexOfKey(controlName);
+}
+
+AMControl* AMControlSet::controlNamed(const QString& controlName) {
+	int index = indexOfKey(controlName);
+	if(index < 0)
+		return 0;
+
+	return at(index);
+}
+
+bool AMControlSet::addControl(AMControl* newControl) {
+	if(!newControl)
+		return false;
+
+	if( append(newControl, newControl->name()) ) {
+		connect(newControl, SIGNAL(connected(bool)), this, SLOT(onConnected(bool)));
+		connect(newControl, SIGNAL(valueChanged(double)), this, SLOT(onControlValueChanged()));
+		onConnected(newControl->isConnected());
+		if(newControl->isConnected())
+			onControlValueChanged();
+		return true;
+	}
+	return false;
+}
+
+bool AMControlSet::removeControl(AMControl* control) {
+	int index = indexOfValue(control);
+	if(index < 0)
+		return false;
+
+	disconnect(control, 0, this, 0);
+	remove(index);
+	return true;
 }
 
 AMControlInfoList AMControlSet::toInfoList() const {

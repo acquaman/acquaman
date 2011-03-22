@@ -32,6 +32,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class SGMSampleTransferPaneView;
 class SGMSampleTransferProceduresView;
 
+/* NTBA March 14, 2011 David Chevrier
+   Need to upgrade all of these actions to new action style
+   */
+
 class SGMSampleTransferView : public QWidget
 {
 Q_OBJECT
@@ -44,20 +48,14 @@ public slots:
 
 private slots:
 	void drawMain();
-//	void drawLoadlockOut();
-//	void drawLoadlockIn();
-	void drawIndex1();// { mainLayout_->setCurrentIndex(1); transferPanes_.at(0)->startPane();}
-	void drawIndex2();// { mainLayout_->setCurrentIndex(2); transferPanes_.at(1)->startPane();}
-	void drawIndex3();// { mainLayout_->setCurrentIndex(3); transferPanes_.at(2)->startPane();}
-	void drawIndex4();// { mainLayout_->setCurrentIndex(4); transferPanes_.at(3)->startPane();}
+	void drawIndex1();
+	void drawIndex2();
+	void drawIndex3();
+	void drawIndex4();
 
 protected:
-//	QPushButton *loadlockOutButton_;
-//	QPushButton *loadlockInButton_;
 	QList<QPushButton*> transferButtons_;
 	QList<SGMSampleTransferPaneView*> transferPanes_;
-//	SGMSampleTransferPaneView *loadlockOut_;
-//	SGMSampleTransferPaneView *loadlockIn_;
 	SGMSampleTransferProceduresView *transferBox_;
 	QStackedLayout *mainLayout_;
 };

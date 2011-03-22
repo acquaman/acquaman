@@ -20,7 +20,7 @@
 
 #include "ui/REIXS/REIXSXESHexapodControlEditor.h"
 
-#include "ui/AMVideoWidget.h"
+#include "ui/AMOverlayVideoWidget.h"
 
 REIXSAppController::REIXSAppController(QObject *parent) :
 	AMAppController(parent)
@@ -50,7 +50,7 @@ bool REIXSAppController::startup() {
 		scanConfigurationHolder_ = new AMScanConfigurationViewHolder(workflowManagerView_, xesScanConfigurationView_);
 		mw_->addPane(scanConfigurationHolder_, "Experiment Setup", "Emission Scan", ":/utilities-system-monitor.png");
 
-		////////////////// move somewhere clean ////////////////////
+		////////////////// Testing junk; move somewhere clean ////////////////////
 		QWidget* spectrometerControlWidget = new QWidget();
 		QHBoxLayout* hl = new QHBoxLayout();
 		hl->addWidget(new REIXSXESHexapodControlEditor(REIXSBeamline::bl()->spectrometer()->hexapod()));
@@ -73,13 +73,27 @@ bool REIXSAppController::startup() {
 
 		hl->addWidget(gb);
 
-		//hl->addStretch(1);
+		hl->addStretch(1);
 
-		AMVideoWidget* vw = new AMVideoWidget();
-		hl->addWidget(vw);
-		//vw->openVideoUrl("http://v2e1607-001.cs.clsi.ca/mjpg/1/video.mjpg");
-		vw->openVideoUrl("/Users/mboots/Pictures/iPhoto Library/Originals/2010/mine movies/101_0216.M4V");
-		vw->play();
+//		AMVideoWidget* vw = new AMVideoWidget();
+//		hl->addWidget(vw);
+//		vw->openVideoUrl("http://v2e1607-001.cs.clsi.ca/mjpg/1/video.mjpg");
+//		// vw->openVideoUrl("/Users/mboots/Pictures/iPhoto Library/Originals/2010/mine movies/101_0216.M4V");
+//		vw->play();
+
+
+
+//		vw->videoWidget()->openVideoUrl("/Users/mboots/Pictures/iPhoto Library/Originals/2010/mine movies/101_0216.M4V");
+//		vw->videoWidget()->play();
+
+//		AMOverlayVideoWidget* vw = new AMOverlayVideoWidget();
+//		hl->addWidget(vw, 1);
+//		vw->videoPlayer()->play(QString("/Users/mboots/Pictures/iPhoto Library/Originals/2010/mine movies/101_0216.M4V"));
+
+//		Phonon::VideoPlayer* vp = new Phonon::VideoPlayer();
+//		hl->addWidget(vp, 1);
+//		vp->play(QString("/Users/mboots/Pictures/iPhoto Library/Originals/2010/mine movies/101_0216.M4V"));
+
 
 
 		spectrometerControlWidget->setLayout(hl);
@@ -104,8 +118,6 @@ bool REIXSAppController::startup() {
 		connect(scanController, SIGNAL(progress(double,double)), bottomBar_, SLOT(updateScanProgress(double,double)));
 	}
 	*/
-
-		//mw_->addRightWidget(new REIXSXESHexapodControlEditor(REIXSBeamline::bl()->spectrometer()->hexapod()));
 
 		return true;
 	}

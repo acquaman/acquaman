@@ -25,80 +25,87 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMDetectorInfo.h"
 #include "AMControl.h"
 
-/// \todo Comment this file, add detector description, and flesh out into actual hardware detectors.
-class AMSingleControlDetector : public AMDetectorInfo
-{
-Q_OBJECT
-public:
-	AMSingleControlDetector(const QString& name, AMControl *control, QObject *parent = 0);
-	~AMSingleControlDetector(){ control_ = NULL;}
+class AMDetector;
 
-public slots:
-	virtual bool setControls(AMDetectorInfo *detectorSettings);
-
-protected:
-	AMControl *control_;
-};
-
-class AMSpectralOutputDetector : public AMSpectralOutputDetectorInfo
-{
-Q_OBJECT
-public:
-	AMSpectralOutputDetector(const QString& name, AMControl *control, int numSpectrumBins = 0, QString xElementName = "", QStringList yElementNames = QStringList(), QObject *parent = 0);
-	~AMSpectralOutputDetector() { control_ = NULL; }
-
-public slots:
-	virtual bool setControls(AMSpectralOutputDetectorInfo *detectorSettings);
-
-protected:
-	AMControl *control_;
-};
-
-class PGTDetector : public PGTDetectorInfo
-{
+/// This class acts as a proxy to emit signals for AMDetector. You can receive the connected(), etc. signals by hooking up to AMDetector::signalSource().  You should never need to create an instance of this class directly.
+/*! To allow classes that implement AMDetector to also inherit QObject, AMDetector does NOT inherit QObject.  However, it still needs a way to emit signals notifying of changes to the detector, which is the role of this class.
+  */
+class AMDetectorSignalSource : public QObject {
 	Q_OBJECT
 public:
-	PGTDetector(const QString& name, AMControl *dataWaveform, AMControl *hvSetpoint, AMControl *hvFbk, AMControl *integrationTime, AMControl *integrationMode, QObject *parent = 0);
-	~PGTDetector();
+	AMDetector* detector() const { return detector_; }
 
-	AMControl* dataWaveformCtrl() const { return dataWaveform_; }
-	AMControl* hvSetpointCtrl() const { return hvSetpoint_; }
-	AMControl* hvFbkCtrl() const { return hvFbk_; }
-	AMControl* integrationTimeCtrl() const { return integrationTime_; }
-	AMControl* integrationModeCtrl() const { return integrationMode_; }
-
-	bool settingsMatchFbk(PGTDetectorInfo* settings);
-
-public slots:
-	virtual bool setControls(PGTDetectorInfo *pgtSettings);
+protected slots:
+	void emitConnected(bool isConnected);
+	void emitInfoChanged();
+	void emitReadingsChanged();
+	void emitSettingsChanged();
+	void emitDeleted();
 
 protected:
-	AMControl *dataWaveform_;
-	AMControl *hvSetpoint_;
-	AMControl *hvFbk_;
-	AMControl *integrationTime_;
-	AMControl *integrationMode_;
+	AMDetectorSignalSource(AMDetector* parent);
+	AMDetector* detector_;
+	friend class AMDetector;
+
+signals:
+	/// Indicates that the detector is ready (each detector sub class can define this however makes most sense)
+	void connected(bool isConnected);
+	/// Indicates that the meta-information for this detector (currently just description()) has changed.
+	void infoChanged();
+	void readingsChanged();
+	void settingsChanged();
+	/// Emitted before the data source is deleted. \c deletedSource is a pointer to the deleted source. Observers can use this to detect when AMDataSource objects no longer exist.
+	/*! (In a direct signal-slot connection, the \c deletedSource will still exist, inside ~AMDataSource(), when this is called. In a queued signal-slot connection, you should assume that \c deletedSource is already deleted. */
+	void deleted(void* deletedSource);
 };
 
-class MCPDetector : public MCPDetectorInfo
+class AMDetector
 {
-	Q_OBJECT
 public:
-	MCPDetector(const QString& name, AMControl *reading, AMControl *hvSetpoint, AMControl *hvFbk, QObject *parent = 0);
-	~MCPDetector();
+	AMDetector(const QString& name);
 
-	AMControl* hvSetpointCtrl() const { return hvSetpoint_; }
-	AMControl* hvFbkCtrl() const { return hvFbk_; }
+	virtual ~AMDetector();
 
-	bool settingsMatchFbk(MCPDetectorInfo* settings);
+	AMDetectorSignalSource* signalSource() const;
 
-public slots:
-	virtual bool setControls(MCPDetectorInfo *mcpSettings);
+	bool isConnected() const;
+
+	/// AMDetector is not a QObject, but it's children should be. To allow its for generalized GUI creation, children that are QObjects MUST implement this (likely just child->metaObject() )
+	virtual const QMetaObject* getMetaObject();
+
+	/// AMDetector sub classes need to reimplement this to return their own detectorInfo class. NEEDS TO RETURN A NEW INSTANCE, CALLER IS RESPONSIBLE FOR MEMORY.
+	virtual AMDetectorInfo* toInfo() const = 0;
+
+	/// the identifying name() of a detector can sometimes be used to select one from a set of detector. Therefore, it's not really recommended to change the name after a detector is created.
+	QString detectorName() const;
+	/// The description() of a detector is a human-readable, free-form string.
+	virtual QString description() const = 0;
+	/// Descriptions can be changed at will, and the detector will emit infoChanged() when this happens.
+	virtual void setDescription(const QString& description) = 0;
+
+	/* NTBA March 14, 2011 David Chevrier
+	   Should have something like this
+	virtual bool setFromInfo(const AMDetectorInfo& info) = 0;
+	*/
+	virtual bool setFromInfo(const AMDetectorInfo *info) = 0;
 
 protected:
-	AMControl *reading_;
-	AMControl *hvSetpoint_;
-	AMControl *hvFbk_;
+	void setConnected(bool isConnected);
+
+	void emitConnected(bool isConnected);
+	/// This is emitted when the meta-info changes. (Right now, this only includes a detector's description() )
+	void emitInfoChanged();
+	void emitReadingsChanged();
+	void emitSettingsChanged();
+
+	/// identifying name for this detector
+	QString name_;
+
+private:
+	/// QObject proxy for emitting signals. (This interface class can't emit directly, because it doesn't want to inherit QObject.)
+	AMDetectorSignalSource* signalSource_;
+	/// Internal state for connection, use setConnected(bool) to change so signals are emitted
+	bool connected_;
 };
 
 #endif // AMDETECTOR_H

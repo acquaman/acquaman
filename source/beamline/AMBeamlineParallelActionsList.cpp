@@ -217,10 +217,6 @@ bool AMBeamlineParallelActionsList::addAction(int stageIndex, int index, AMBeaml
 	bool retVal = actions_->insertRows(index, 1, actions_->index(stageIndex, QModelIndex()));
 	if(!retVal)
 		return false;
-	/*
-	if(!actions_->insertRows(index, 1, actions_->index(stageIndex, QModelIndex())));
-		return false;
-	*/
 	return setAction(stageIndex, index, action);
 }
 
@@ -313,12 +309,11 @@ void AMBeamlineParallelActionsList::start(){
 }
 
 void AMBeamlineParallelActionsList::cancel(){
-	/*
+	/*  NTBA March 14, 2011 David Chevrier
 	if(isRunning_)
 		for(int x = 0; x < stage(currentStage_)->count(); x++)
 			action(currentStage_,x)
 	*/
-	// do something here
 }
 
 void AMBeamlineParallelActionsList::onDataChanged(QModelIndex a,QModelIndex b){
@@ -451,7 +446,6 @@ void AMBeamlineParallelActionsListHolder::removeAction(AMBeamlineActionItem *ai)
 
 void AMBeamlineParallelActionsListHolder::actionFinished(){
 	AMBeamlineActionItem *ai = (AMBeamlineActionItem*)QObject::sender();
-	//waitingOn_.removeOne(ai);
 	removeAction(ai);
 	if(waitingOn_.isEmpty())
 		emit everythingFinished();
@@ -589,8 +583,10 @@ bool AMBeamlineParallelActionListModel::insertRows(int row, int count, const QMo
 		}
 		QList<AMBeamlineActionItem*> *tmpList = NULL;
 		for(int x = 0; x < count; x++){
-			//the actionsList likes it better when it starts as NULL
-			//tmpList = new QList<AMBeamlineActionItem*>();
+			/* NTBA March 14, 2011 David Chevrier
+			the actionsList likes it better when it starts as NULL
+			tmpList = new QList<AMBeamlineActionItem*>();
+			*/
 			actions_->insert(row, tmpList);
 			listHash_.set(nextIndex_, row+count-1-x);
 			nextIndex_++;
@@ -683,3 +679,4 @@ bool AMBeamlineParallelActionListModel::removeRows(int row, int count, const QMo
 	}
 	return false;
 }
+

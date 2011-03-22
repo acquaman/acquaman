@@ -19,20 +19,13 @@ public:
 
 signals:
 
-public slots:
+protected:
 	/// Start scan running if not currently running or paused
-	virtual void start();
+	virtual void startImplementation();
 	/// Cancel scan if currently running or paused
-	virtual void cancel();
-	/// Pause scan if currently running \todo This is unimplemented for now.
-	virtual void pause() {}
-	/// Resume scan if currently paused. \todo This is unimplemented for now.
-	virtual void resume() {}
+	virtual void cancelImplementation();
 	/// Called before starting to satisfy any prerequisites (ie: setting up the beamline, setting up files, etc.)
-	virtual void initialize();
-
-//	/// Called when a scan is re-initialized. \todo I don't know exactly when or what this means, or what removeScan should do.
-//	virtual void reinitialize(bool removeScan) {}
+	virtual void initializeImplementation();
 
 
 protected slots:
@@ -48,6 +41,9 @@ protected slots:
 	void onScanProgressCheck();
 	/// Called to clean up when the scan is finished.
 	void onScanFinished();
+
+	/// Called to save the current raw data to disk
+	void saveRawData();
 
 protected:
 	/// \todo Move to AMScanController? Time that scan was started

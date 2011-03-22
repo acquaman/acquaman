@@ -32,9 +32,6 @@ class SGMXASScanConfiguration : public AMXASScanConfiguration, public SGMScanCon
 	Q_PROPERTY(int grating READ grating WRITE setGrating)
 	Q_PROPERTY(int harmonic READ harmonic WRITE setHarmonic)
 	//NEED Q_PROPERTY for trackingGroup
-	Q_PROPERTY(bool usingTEY READ usingTEY WRITE setUsingTEY)
-	Q_PROPERTY(bool usingTFY READ usingTFY WRITE setUsingTFY)
-	Q_PROPERTY(bool usingPGT READ usingPGT WRITE setUsingPGT)
 	//NEED Q_PROPERTY for cfgXASDetectors_
 
 public:
@@ -42,10 +39,15 @@ public:
 
 	AMControlSet *fluxResolutionSet() const { return fluxResolutionSet_;}
 	AMControlSet *trackingSet() const { return trackingSet_;}
-	AMOldDetectorInfoSet *detectorSet() const { return XASDetectors_;}
-	AMOldDetectorInfoSet *cfgDetectorInfoSet() const { return cfgXASDetectors_;}
 
-	QList<AMDetectorInfo*> usingDetectors() const;
+	/// Returns an AMDetectorSet that consists of the detectors a user can choose (or choose not) to use. In this case TEY, TFY, and SDD
+	AMDetectorSet* detectorChoices() const { return xasDetectors_; }
+	/// Returns an AMDetectorSet that consists of all the detectors this scan can/will use (adds detectors that are always collected to the detectorChoices(), such as I0 and energy feedback)
+	AMDetectorSet* allDetectors() const { return allDetectors_; }
+	/// Returns the current configuration requested for the user selectable detectors
+	AMDetectorInfoSet detectorChoiceConfigurations() const { return xasDetectorsCfg_; }
+	/// Returns the current configuration requested for all of the detectors
+	AMDetectorInfoSet allDetectorConfigurations() const;
 
 	/// Returns a pointer to a newly-created copy of this scan configuration.  (It takes the role of a copy constructor, but is virtual so that our high-level classes can copy a scan configuration without knowing exactly what kind it is.)
 	virtual AMScanConfiguration* createCopy() const;
@@ -63,34 +65,28 @@ public slots:
 	bool setHarmonic(int harmonic);
 
 	bool setTrackingGroup(AMControlInfoList trackingList);
+	/* NTBA March 14, 2011 David Chevrier
+	   Need something similar for detector set
+	*/
 
-	bool setUsingTEY(bool active);
-	bool setUsingTEY(int checkedState);
-	bool setUsingTFY(bool active);
-	bool setUsingTFY(int checkedState);
-	bool setUsingPGT(bool active);
-	bool setUsingPGT(int checkedState);
-
-	bool setCfgDetectorInfoSet(AMOldDetectorInfoSet *cfgDetectorInfoSet) { cfgXASDetectors_ = cfgDetectorInfoSet; return true; }
-
+	bool setDetectorConfigurations(const AMDetectorInfoSet& xasDetectorsCfg);
 
 signals:
 	void exitSlitGapChanged(double exitSlitGap);
 	void gratingChanged(int grating);
 	void harmonicChanged(int harmonic);
 	void trackingGroupChanged(AMControlInfoList);
-
-	void usingTEYChanged(bool active);
-	void usingTFYChanged(bool active);
-	void usingPGTChanged(bool active);
+	/* NTBA March 14, 2011 David Chevrier
+	   Need something similar for detector set
+	*/
 
 protected:
 	AMControlSet *fluxResolutionSet_;
 	AMControlSet *trackingSet_;
-	AMOldDetectorInfoSet *feedbackDetectors_;
-	AMOldDetectorInfoSet *XASDetectors_;
-	AMOldDetectorInfoSet *cfgXASDetectors_;
 
+	AMDetectorSet *xasDetectors_;
+	AMDetectorSet *allDetectors_;
+	AMDetectorInfoSet xasDetectorsCfg_;
 };
 
 #endif // ACQMAN_SGMXASSCANCONFIGURATION_H

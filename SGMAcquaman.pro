@@ -17,7 +17,6 @@ HEADERS += 	source/application/SGM/SGMAppController.h \
 	source/ui/SGMXASScanConfigurationView.h \
 	source/ui/SGMXASScanConfigurationWizard.h \
 	source/ui/SGMSidebar.h \
-	source/ui/SGMBeamlineAtAGlanceBar.h \
 	source/ui/SGMFastScanConfigurationView.h \
 	source/ui/SGM/SGMSampleManipulatorView.h
 
@@ -35,6 +34,5 @@ SOURCES +=	source/application/SGM/SGMMain.cpp \
 	source/ui/SGMXASScanConfigurationView.cpp \
 	source/ui/SGMXASScanConfigurationWizard.cpp \
 	source/ui/SGMSidebar.cpp \
-	source/ui/SGMBeamlineAtAGlanceBar.cpp \
 	source/ui/SGMFastScanConfigurationView.cpp \
 	source/ui/SGM/SGMSampleManipulatorView.cpp

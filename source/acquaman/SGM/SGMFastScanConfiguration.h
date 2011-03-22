@@ -51,8 +51,11 @@ public:
 	QStringList presets() const;
 	SGMFastScanParameters* currentParameters() const;
 
-	AMOldDetectorInfoSet* cfgDetectorInfoSet() const { return cfgFastDetectors_;}
-	QList<AMDetectorInfo*> usingDetectors() const;
+	/* NTBA March 14, 2011 David Chevrier
+	   Needs to be updated to match style of SGMXASScanConfiguration
+	   */
+	AMDetectorInfoSet detectorConfigurations() const { return detectorConfigurations_;}
+	QList<AMDetector*> usingDetectors() const;
 
 public slots:
 	bool setParametersFromPreset(int index);
@@ -68,7 +71,7 @@ public slots:
 	bool setScalerTime(double scalerTime);
 	bool setBaseLine(int baseLine);
 	bool setSensibleFileSavePath(const QString& sensibleFileSavePath);
-	bool setCfgDetectorInfoSet(AMOldDetectorInfoSet *cfgDetectorInfoSet) { cfgFastDetectors_ = cfgDetectorInfoSet; return true; }
+	bool setDetectorConfigurations(AMDetectorInfoSet detectorConfigurations) { detectorConfigurations_ = detectorConfigurations; return true;}
 
 signals:
 	void onElementChanged(const QString& element);
@@ -89,14 +92,17 @@ protected slots:
 	void onSaveDirectoryChanged(const QString& directory);
 
 protected:
-	AMOldDetectorInfoSet *cfgFastDetectors_;
+	AMDetectorInfoSet detectorConfigurations_;
 	QList<SGMFastScanParameters*> settings_;
 	SGMFastScanParameters *currentSettings_;
 
 	QString sensibleFileSavePath_;
 	QString finalizedSavePath_;
 	QString sensibleFileSaveWarning_;
-	//QFileSystemWatcher savePathWatcher_;
+	/* NTBA March 14, 2011 David Chevrier
+	   Needs to be addressed with general exporter
+	QFileSystemWatcher savePathWatcher_;
+	*/
 };
 
 class SGMFastScanParameters : public QObject

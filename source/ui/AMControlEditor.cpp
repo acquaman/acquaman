@@ -69,7 +69,6 @@ AMBasicControlEditor::AMBasicControlEditor(AMControl* control, QWidget *parent) 
 
 	// Create the editor dialog:
 	dialog_ = new AMBasicControlEditorStyledInputDialog(this);
-	// dialog_->setInputMode(QInputDialog::DoubleInput);
 	dialog_->hide();
 	dialog_->setWindowModality(Qt::NonModal);
 	connect(dialog_, SIGNAL(doubleValueSelected(double)), control_, SLOT(move(double)));
@@ -105,8 +104,6 @@ void AMBasicControlEditor::onEditStart() {
 		return;
 	}
 
-	//bool ok;
-
 	dialog_->setDoubleValue(control_->value());
 	dialog_->setDoubleMaximum(control_->maximumValue());
 	dialog_->setDoubleMinimum(control_->minimumValue());
@@ -132,8 +129,6 @@ void AMBasicControlEditorStyledInputDialog::resizeEvent(QResizeEvent *  event )
 {
 	QDialog::resizeEvent(event);
 
-
-	//int side = qMin(width(), height());
 	// Create a rounded-rectangle mask to shape this window:
 	QPainterPath path;
 	path.addRoundedRect(0, 0, width(), height(), 14, 14);
@@ -146,7 +141,6 @@ void AMBasicControlEditorStyledInputDialog::resizeEvent(QResizeEvent *  event )
 AMBasicControlEditorStyledInputDialog::AMBasicControlEditorStyledInputDialog( QWidget * parent, Qt::WindowFlags flags ) : QDialog(parent, flags) {
 	setObjectName("styledDialog");
 	setStyleSheet("#styledDialog { background-color: rgb(31,62,125); border: 2px outset white; border-radius: 10px; }  QLabel { color: white; font: bold 12pt \"Helvetica\"; } QPushButton { color: white; /* font: bold 12pt  \"Helvetica\"*/; border: 1px outset rgb(158,158,158); border-radius: 5px; min-height: 24px; padding: 3px; width: 80px; margin: 3px;} #okButton { background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(191, 218, 178, 255), stop:0.34 rgba(135, 206, 96, 255), stop:1 rgba(65, 157, 0, 255));} #cancelButton { background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(232, 209, 209, 255), stop:0.34 rgba(229, 112, 119, 255), stop:1 rgba(197, 20, 32, 255)); } QDoubleSpinBox { padding: 3px; color: black; font: bold 12pt \"Helvetica\"; border: 1px outset rgb(158,158,158); selection-background-color: rgb(205, 220, 243); selection-color: black;}");// TODO: continue here...
-	// setStyleSheet("#styledDialog {  border: 1px outset black; }  QLabel { color: black; font: bold 12pt \"Helvetica\"; } QPushButton { min-height: 24px; padding: 3px; width: 80px; margin: 3px;} #okButton {border: 1px outset #00df00; background: #d4ffdf; padding: 1px; width: 100%; color: #00df00; } #cancelButton { border: 1px outset #f20000; background: #ffdfdf;	padding: 1px; color: #f20000; } QDoubleSpinBox { padding: 3px; color: black; font: bold 12pt \"Helvetica\"; border: 1px outset rgb(158,158,158); selection-background-color: rgb(205, 220, 243); selection-color: black;}");// TODO: continue here...
 
 	label_ = new QLabel("New value:");
 	label_->setAlignment(Qt::AlignCenter);
@@ -200,6 +194,9 @@ AMControlEditor::AMControlEditor(AMControl* control, AMControl* statusTagControl
 	configureOnly_ = configureOnly;
 	connectedOnce_ = false;
 	newValueOnce_ = false;
+	format_ = 'g';
+	precision_ = 3;
+
 	statusTagControl_ = statusTagControl;
 	if(!control_->canMove())
 		readOnly_ = true;
@@ -214,7 +211,6 @@ AMControlEditor::AMControlEditor(AMControl* control, AMControl* statusTagControl
 		statusLabel_->setFont(statusFont);
 		statusLabel_->setMargin(1);
 	}
-//	nameLabel_ = new QLabel("?");
 	if(control_)
 		setTitle(control_->name());
 
@@ -230,25 +226,17 @@ AMControlEditor::AMControlEditor(AMControl* control, AMControl* statusTagControl
 		QHBoxLayout* hl2 = new QHBoxLayout();
 		hl2->addWidget(statusLabel_, Qt::AlignCenter);
 		hl2->setStretch(0, 2);
-		//vl->addWidget(statusLabel_, Qt::AlignHCenter);
 		vl->addLayout(hl2);
 	}
 	vl->setSpacing(1);
 	vl->setMargin(2);
 
-//	QVBoxLayout *vl = new QVBoxLayout();
-//	vl->addWidget(nameLabel_, 0, Qt::AlignLeft);
-//	vl->addLayout(hl, 2);
 	setLayout(vl);
-//	setLayout(hl);
 
 	// Style: TODO: move out of this constructor into app-wide stylesheet
 	valueLabel_->setStyleSheet("color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);");
 	valueLabel_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 
-	//setFrameStyle(QFrame::StyledPanel);
-	//setStyleSheet("QFrame#AMControlEdit { background: white; } ");
-	//setStyleSheet("QGroupBox#AMControlEdit { background: white; } ");
 	setHappy(false);
 	setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 
@@ -267,7 +255,6 @@ AMControlEditor::AMControlEditor(AMControl* control, AMControl* statusTagControl
 	// Create the editor dialog:
 	QStringList enumNames = QStringList();
 	dialog_ = new AMControlEditorStyledInputDialog(enumNames, this);
-	// dialog_->setInputMode(QInputDialog::DoubleInput);
 	dialog_->hide();
 	dialog_->setWindowModality(Qt::NonModal);
 	if(!configureOnly_)
@@ -278,8 +265,6 @@ AMControlEditor::AMControlEditor(AMControl* control, AMControl* statusTagControl
 
 
 	if(control_ && control_->isConnected()){
-		//onValueChanged(control_->value());
-		//onUnitsChanged(control_->units());
 		if(control_->isEnum())
 			dialog_->setEnumNames(control_->enumNames());
 		setHappy(control_->isConnected());
@@ -295,6 +280,17 @@ double AMControlEditor::setpoint() const{
 
 AMControl* AMControlEditor::control() const{
 	return control_;
+}
+
+bool AMControlEditor::setControlFormat(const QChar& format, int precision){
+	if(format == 'g' || format == 'G' || format == 'e' || format == 'E' || format == 'f'){
+		format_ = format;
+		precision_ = precision;
+		if(control_->isConnected())
+			onValueChanged(control_->value());
+		return true;
+	}
+	return false;
 }
 
 void AMControlEditor::setReadOnly(bool readOnly){
@@ -317,14 +313,12 @@ void AMControlEditor::overrideTitle(const QString &title){
 void AMControlEditor::onValueChanged(double newVal) {
 	if(configureOnly_ && connectedOnce_)
 		return;
-	if(configureOnly_)
-		qDebug() << "New value for " << control_->name() << newVal << "(" << (long)this << ")";
 	if(control_->isEnum()){
 		valueLabel_->setText(control_->enumNameAt(newVal));
 		unitsLabel_->setText("");
 	}
 	else
-		valueLabel_->setText(QString("%1").arg(newVal));
+		valueLabel_->setText(QString("%1").arg(newVal, 0, format_.toAscii(), precision_));
 }
 
 void AMControlEditor::onUnitsChanged(const QString& units) {
@@ -338,7 +332,6 @@ void AMControlEditor::onUnitsChanged(const QString& units) {
 
 
 void AMControlEditor::setHappy(bool happy) {
-	qDebug() << "Connected for " << control_->name() << happy << "(" << (long)this << ")";
 	if(happy){
 		unitsLabel_->setStyleSheet("border: 1px outset #00df00; background: #d4ffdf; padding: 1px; width: 100%; color: #00df00;");
 		readOnly_ = !control_->canMove();
@@ -368,8 +361,6 @@ void AMControlEditor::onEditStart() {
 		QApplication::beep();
 		return;
 	}
-
-	//bool ok;
 
 	dialog_->setDoubleMaximum(control_->maximumValue());
 	dialog_->setDoubleMinimum(control_->minimumValue());
@@ -428,7 +419,6 @@ void AMControlEditor::mouseReleaseEvent ( QMouseEvent * event ) {
 AMControlEditorStyledInputDialog::AMControlEditorStyledInputDialog( QStringList enumNames, QWidget * parent, Qt::WindowFlags flags ) : QDialog(parent, flags) {
 	setObjectName("styledDialog");
 	setStyleSheet("#styledDialog { background-color: rgb(31,62,125); border: 2px outset white; border-radius: 10px; }  QLabel { color: white; font: bold 12pt \"Helvetica\"; } QPushButton { color: white; /* font: bold 12pt  \"Helvetica\"*/; border: 1px outset rgb(158,158,158); border-radius: 5px; min-height: 24px; padding: 3px; width: 80px; margin: 3px;} #okButton { background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(191, 218, 178, 255), stop:0.34 rgba(135, 206, 96, 255), stop:1 rgba(65, 157, 0, 255));} #cancelButton { background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(232, 209, 209, 255), stop:0.34 rgba(229, 112, 119, 255), stop:1 rgba(197, 20, 32, 255)); } QDoubleSpinBox { padding: 3px; color: black; font: bold 12pt \"Helvetica\"; border: 1px outset rgb(158,158,158); selection-background-color: rgb(205, 220, 243); selection-color: black;}");// TODO: continue here...
-	// setStyleSheet("#styledDialog {  border: 1px outset black; }  QLabel { color: black; font: bold 12pt \"Helvetica\"; } QPushButton { min-height: 24px; padding: 3px; width: 80px; margin: 3px;} #okButton {border: 1px outset #00df00; background: #d4ffdf; padding: 1px; width: 100%; color: #00df00; } #cancelButton { border: 1px outset #f20000; background: #ffdfdf;	padding: 1px; color: #f20000; } QDoubleSpinBox { padding: 3px; color: black; font: bold 12pt \"Helvetica\"; border: 1px outset rgb(158,158,158); selection-background-color: rgb(205, 220, 243); selection-color: black;}");// TODO: continue here...
 
 	label_ = new QLabel("New value:");
 	label_->setAlignment(Qt::AlignCenter);
@@ -473,9 +463,9 @@ AMControlEditorStyledInputDialog::AMControlEditorStyledInputDialog( QStringList 
 
 double AMControlEditorStyledInputDialog::setpoint() const{
 	if(!isEnum_)
-		spinBox_->value();
+		return spinBox_->value();
 	else
-		comboBox_->currentIndex();
+		return comboBox_->currentIndex();
 }
 
 void AMControlEditorStyledInputDialog::setDoubleValue(double d) {
@@ -546,8 +536,6 @@ void AMControlEditorStyledInputDialog::resizeEvent(QResizeEvent *  event )
 {
 	QDialog::resizeEvent(event);
 
-
-	//int side = qMin(width(), height());
 	// Create a rounded-rectangle mask to shape this window:
 	QPainterPath path;
 	path.addRoundedRect(0, 0, width(), height(), 14, 14);
@@ -566,7 +554,6 @@ void AMControlEditorStyledInputDialog::showEvent ( QShowEvent * event ) {
 }
 
 AMControlButton::AMControlButton(AMControl *control, QWidget *parent) :
-//		QPushButton(parent)
 		QToolButton(parent)
 {
 	setObjectName("AMControlButton");
@@ -607,7 +594,6 @@ void AMControlButton::overrideText(const QString &text){
 }
 
 void AMControlButton::setCheckable(bool checkable){
-	//QPushButton::setCheckable(checkable);
 	QToolButton::setCheckable(checkable);
 	onValueChanged(control_->value());
 }
@@ -639,13 +625,6 @@ void AMControlButton::onToggled(bool toggled){
 }
 
 void AMControlButton::setHappy(bool happy) {
-	/*
-	if(happy){
-		setStyleSheet("border: 1px outset #00df00; background: #d4ffdf; padding: 1px; width: 100%; color: #00df00;");
-	}
-	else
-		setStyleSheet("border: 1px outset #f20000; background: #ffdfdf;	padding: 1px; color: #f20000;");
-	*/
 }
 
 AMBeamlineActionsListButton::AMBeamlineActionsListButton(AMBeamlineParallelActionsList *actionsList, QWidget *parent) :
@@ -660,8 +639,6 @@ void AMBeamlineActionsListButton::overrideText(const QString &text){
 }
 
 void AMBeamlineActionsListButton::onClicked(){
-//	if(actionsList_ && actionsList_->count() > 0 && !actionsList_->action(0)->hasFinished()){
 	if(actionsList_ && actionsList_->count() > 0)
 		actionsList_->start();
-//		actionsList_->action(0)->start();
 }

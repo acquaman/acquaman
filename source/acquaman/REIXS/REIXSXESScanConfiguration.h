@@ -84,7 +84,7 @@ public slots:
 	/// Set the database id of the stored spectrometer calibration we should use. (This spectromter calibration is found in the user database, for now)
 	void setSpectrometerCalibrationId(int id) { spectrometerCalibrationId_ = id; setModified(true); }
 	/// Set the orientation of the detector: 0 for horizontal (wide window, low resolution), 1 for vertical (narrow window, high resolution)
-	void setDetectorOrientation(bool orientationIsHorizontal) { detectorOrientation_ = orientationIsHorizontal; setModified(true); }
+	void setDetectorOrientation(bool orientationIsVertical) { detectorOrientation_ = orientationIsVertical; setModified(true); }
 	/// Set the detector incidence angle (tilt), in degrees, up from perfectly grazing (ie: 0 would line up the detector surface with the light direction, and you wouldn't see anything)
 	void setDetectorTilt(double detectorTilt) { detectorTilt_ = detectorTilt; setModified(true); }
 	/// Set a flag indicating that we should start the scan in whatever position the spectrometer is now. (ie: don't compute the desired position and move things before starting the scan)

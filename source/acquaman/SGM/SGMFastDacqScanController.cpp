@@ -9,38 +9,20 @@ SGMFastDacqScanController::SGMFastDacqScanController(SGMFastScanConfiguration *c
 	dacqRunUpStarted_ = false;
 	dacqRunUpCompleted_ = false;
 	dacqRunCompleted_ = false;
-	// unused: emit scanCreated(scan());
 }
 
-void SGMFastDacqScanController::initialize(){
+void SGMFastDacqScanController::initializeImplementation(){
 	if(SGMFastScanController::beamlineInitialize() && initializationActions_){
-		initialized_ = true;
 		#warning "Do we need to also clear any raw data sources here, or just the raw data itself?"
 		pScan()->clearRawDataPoints();
 		connect(initializationActions_, SIGNAL(listSucceeded()), this, SLOT(onInitializationActionsSucceeded()));
-		//connect(initializationActions_, SIGNAL(stageStarted(int)), this, SLOT(onInitializationActionsStageStarted(int)));
 		connect(initializationActions_, SIGNAL(stageSucceeded(int)), this, SLOT(onInitializationActionsStageSucceeded(int)));
 		connect(initializationActions_, SIGNAL(stageProgress(double,double)), this, SLOT(calculateProgress(double,double)));
 		initializationActions_->start();
-		/*
-		emit initialized();
-		*/
 	}
 }
 
-void SGMFastDacqScanController::reinitialize(bool removeScan){
-	lastProgress_ = 0.0;
-	initializationStagesComplete_ = 0;
-	timerSeconds_ = 0;
-	dacqRunUpStarted_ = false;
-	dacqRunUpCompleted_ = false;
-	dacqRunCompleted_ = false;
-	SGMFastScanController::reinitialize();
-	qDebug() << "Emitting reinitialized with removeScan " << removeScan;
-	emit reinitialized(removeScan);
-}
-
-void SGMFastDacqScanController::start(){
+void SGMFastDacqScanController::startImplementation(){
 	if(SGMBeamline::sgm()->isBeamlineScanning()){
 		qDebug() << "Beamline already scanning";
 		return;
@@ -52,12 +34,6 @@ void SGMFastDacqScanController::start(){
 	else if( QDir(homeDir+"/beamline/programming").exists())
 		homeDir.append("/beamline/programming");
 
-	/*
-	if(pCfg()->usingPGT())
-		loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/pgt.cfg"));
-	else
-		loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/defaultEnergy.cfg"));
-	*/
 	loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/Scalar_Fast.config"));
 	if(!loadSuccess){
 		qDebug() << "LIBRARY FAILED TO LOAD CONFIG FILE";
@@ -66,41 +42,20 @@ void SGMFastDacqScanController::start(){
 	advAcq_->setStart(0, pCfg()->start());
 	advAcq_->setDelta(0, pCfg()->end()-pCfg()->start());
 	advAcq_->setEnd(0, pCfg()->end());
-	/*
-	foreach(const AMDetectorInfo *dtctr, pCfg()->usingDetectors() ){
-		if(dtctr->name() == SGMBeamline::sgm()->pgtDetector()->name()){
-			advAcq_->appendRecord(SGMBeamline::sgm()->pvName(dtctr->name()), true, true, 0);
-		}
-		else{
-			advAcq_->appendRecord(SGMBeamline::sgm()->pvName(dtctr->name()), true, false, 0);
-		}
 
-		//for(int x = 0; x < pCfg()->count(); x++){
-		//	if(advAcq_->getNumRegions() == x)
-		//		advAcq_->addRegion(x, pCfg_()->start(x), pCfg_()->delta(x), pCfg_()->end(x), 1);
-		//	else{
-		//		advAcq_->setStart(x, pCfg_()->start(x));
-		//		advAcq_->setDelta(x, pCfg_()->delta(x));
-		//		advAcq_->setEnd(x, pCfg_()->end(x));
-		//	}
-		//}
-
-	}
-	*/
 	generalScan_ = specificScan_;
 	usingSpectraDotDatFile_ = true;
 	fastScanTimer_ = new QTimer(this);
 	connect(fastScanTimer_, SIGNAL(timeout()), this, SLOT(onFastScanTimerTimeout()));
-	//if(!autoSavePath_.isEmpty())
 	if(!pCfg()->sensibleFileSavePath().isEmpty())
 		pScan()->setAutoExportFilePath(pCfg()->finalizedSavePath());
-	AMDacqScanController::start();
+	AMDacqScanController::startImplementation();
 }
 
-void SGMFastDacqScanController::cancel(){
+void SGMFastDacqScanController::cancelImplementation(){
 	if(initializationActions_ && initializationActions_->isRunning())
 		qDebug() << "Need to stop the intialization actions";
-	AMDacqScanController::cancel();
+	AMDacqScanController::cancelImplementation();
 }
 
 bool SGMFastDacqScanController::event(QEvent *e){
@@ -220,19 +175,18 @@ AMnDIndex SGMFastDacqScanController::toScanIndex(QMap<int, double> aeData){
 	// SGM XAS Scan has only one dimension (energy), simply append to the end of this
 	return AMnDIndex(pScan()->rawData()->scanSize(0));
 }
-void SGMFastDacqScanController::onStop(){
-	running_ = FALSE;
-	if(cancelled_)
-		cancelled_ = FALSE;
+void SGMFastDacqScanController::onDacqStop(){
+	if(dacqCancelled_)
+		AMDacqScanController::onDacqStop();
 	else
 		onScanFinished();
 }
 
-void SGMFastDacqScanController::onSendCompletion(int completion){
+void SGMFastDacqScanController::onDacqSendCompletion(int completion){
 	//calculateProgress(completion, 100.0);
 }
 
-void SGMFastDacqScanController::onState(const QString &state){
+void SGMFastDacqScanController::onDacqState(const QString &state){
 	if(state == "Runup")
 		dacqRunUpStarted_ = true;
 	if(state == "Run" && dacqRunUpStarted_){
@@ -248,8 +202,7 @@ void SGMFastDacqScanController::onState(const QString &state){
 }
 
 void SGMFastDacqScanController::onInitializationActionsSucceeded(){
-	//qDebug() << "Initialization actions done for fast scan";
-	emit initialized();
+	setInitialized();
 }
 
 void SGMFastDacqScanController::onInitializationActionsStageSucceeded(int stageIndex){
@@ -259,8 +212,6 @@ void SGMFastDacqScanController::onInitializationActionsStageSucceeded(int stageI
 }
 
 void SGMFastDacqScanController::onFastScanTimerTimeout(){
-	//timerSeconds_++;
-	//calculateProgress(timerSeconds_, pCfg()->runTime());
 	calculateProgress(SGMBeamline::sgm()->energy()->value()-pCfg()->start(), pCfg()->end()-pCfg()->start());
 	if( fabs(SGMBeamline::sgm()->energy()->value()-pCfg()->end()) <  SGMBeamline::sgm()->energy()->tolerance())
 		fastScanTimer_->stop();
@@ -303,9 +254,9 @@ void SGMFastDacqScanController::calculateProgress(double elapsed, double total){
 
 void SGMFastDacqScanController::onScanFinished(){
 	if(cleanUpActions_){
-		connect(cleanUpActions_, SIGNAL(listSucceeded()), this, SIGNAL(finished()));
+		connect(cleanUpActions_, SIGNAL(listSucceeded()), this, SLOT(setFinished()));
 		cleanUpActions_->start();
 	}
 	else
-		emit finished();
+		AMDacqScanController::onDacqStop();
 }

@@ -39,13 +39,9 @@ public:
 
 	bool setTrackingGroup(AMControlInfoList trackingGroup);
 
-	bool setUsingTEY(bool active) { usingTEY_ = active; return true;}
-	bool setUsingTFY(bool active) { usingTFY_ = active; return true;}
-	bool setUsingPGT(bool active) { usingPGT_ = active; return true;}
-
-	bool usingPGT() const { return usingPGT_; }
-	bool usingTEY() const { return usingTEY_; }
-	bool usingTFY() const { return usingTFY_; }
+	/* NTBA March 14, 2011 David Chevrier
+	   Need something like setTrackingGroup for the detectorSet
+	*/
 
 protected:
 	double exitSlitGap_;
@@ -55,9 +51,6 @@ protected:
 	bool undulatorTracking_;
 	bool monoTracking_;
 	bool exitSlitTracking_;
-	bool usingTEY_;
-	bool usingTFY_;
-	bool usingPGT_;
 };
 
 #endif // ACQMAN_SGMSCANCONFIG_H

@@ -2,78 +2,103 @@
 # QMake project file for acquaman.  		January 2010. mark.boots@usask.ca
 # Note: Set EPICS_INCLUDE_DIRS, EPICS_LIB_DIR, VLC_*, and GSL_* correctly for platform
 # ####################################################################
+
+# Automatically determines a user's home folder
 HOME_FOLDER = $$system(echo $HOME)
+
 macx {
-	EPICS_INCLUDE_DIRS = $$HOME_FOLDER/dev/acquaman/contrib/base-3.14.12/include \
-		$$HOME_FOLDER/dev/acquaman/contrib/base-3.14.12/include/os/Darwin
-	EPICS_LIB_DIR = $$HOME_FOLDER/dev/acquaman/contrib/base-3.14.12/lib/darwin-x86
-	MPLOT_INCLUDE_DIR = $$HOME_FOLDER/dev/MPlot/src
-	GSL_INCLUDE_DIR = $$HOME_FOLDER/dev/acquaman/contrib/gsl-install/include
-	GSL_LIB = -L$$HOME_FOLDER/dev/acquaman/contrib/gsl-install/lib -lgsl
-	GSL_CBLAS_LIB = -L$$HOME_FOLDER/dev/acquaman/contrib/gsl-install/lib -lgslcblas
 
-	#VLC_LIB = -L$$HOME_FOLDER/dev/vlc-1.1/projects/macosx/framework/build/Release/vlc_build_dir/i386/vlc_install_dir/lib -lvlc
-	VLC_LIB = -L$$HOME_FOLDER/dev/acquaman/contrib/vlc-install/lib -lvlc
-	#VLC_INCLUDE_DIR = $$HOME_FOLDER/dev/vlc-1.1/projects/macosx/framework/build/Release/vlc_build_dir/i386/vlc_install_dir/include
-	VLC_INCLUDE_DIR = $$HOME_FOLDER/dev/acquaman/contrib/vlc-install/include
-	VLC_PLUGIN_PATH = $$HOME_FOLDER/dev/acquaman/contrib/vlc-install/VLC-release.app/Contents/MacOS/plugins
+	# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
+	DEV_PATH = dev
 
-	#VLCKIT = -F$$HOME_FOLDER/dev/vlc-1.1/projects/macosx/framework/build/Release -framework VLCKit
-	#VLCKIT_INCLUDE_DIR = $$HOME_FOLDER/dev/vlc-1.1/projects/macosx/framework/build/Release/VLCKit.framework/Headers
+	# EPICS Dependencies:
+	EPICS_INCLUDE_DIRS = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/base-3.14.12/include \
+		$$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/base-3.14.12/include/os/Darwin
+	EPICS_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/base-3.14.12/lib/darwin-x86
 
+	# MPlot Source
+	MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/src
+	GSL_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/gsl-install/include
+
+	# GSL Dependencies
+	GSL_LIB = -L$$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/gsl-install/lib -lgsl
+	GSL_CBLAS_LIB = -L$$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/gsl-install/lib -lgslcblas
+
+	# VLC Dependencies
+	VLC_LIB = -L$$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/vlc-install/lib -lvlc
+	VLC_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/vlc-install/include
+	VLC_PLUGIN_PATH = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/vlc-install/lib/vlc/plugins
+
+	# LibXML Dependencies (required by dacq library)
+	XML_LIB = -lxml2
+	XML_INCLUDE_DIR = /usr/include/libxml2
 }
 linux-g++ {
-	EPICS_INCLUDE_DIRS = $$HOME_FOLDER/beamline/programming/epics/base/include \
-		$$HOME_FOLDER/beamline/programming/epics/base/include/os/Linux
-	EPICS_LIB_DIR = $$HOME_FOLDER/beamline/programming/epics/base/lib/linux-x86
 
-	# include path for MPlot library (header-files only)
-	MPLOT_INCLUDE_DIR = $$HOME_FOLDER/beamline/programming/MPlot/src
+	# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
+	DEV_PATH = beamline/programming
+
+	# EPICS Dependencies:
+	EPICS_INCLUDE_DIRS = $$HOME_FOLDER/$$DEV_PATH/epics/base/include \
+		$$HOME_FOLDER/$$DEV_PATH/epics/base/include/os/Linux
+	EPICS_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/epics/base/lib/linux-x86
+
+	# MPlot Source
+	MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/src
+
+	# GSL Dependencies
 	GSL_LIB = -lgsl
 	GSL_CBLAS_LIB = -lgslcblas
 
+	# VLC Dependencies
 	VLC_LIB = -lvlc
 	VLC_INCLUDE_DIR = /usr/include
 	VLC_PLUGIN_PATH = /usr/lib/vlc/plugins/
+
+	# LibXML Dependencies (required by dacq library)
+	XML_LIB = -lxml2
+	XML_INCLUDE_DIR = /usr/include/libxml2
 }
-QT += core \
-	network \
-	sql
+
+QT += core network sql opengl	phonon
 
 DESTDIR = build
-DEPENDPATH += . \
-	source
-INCLUDEPATH += . \
-	source
-INCLUDEPATH += $$EPICS_INCLUDE_DIRS
-INCLUDEPATH += $$MPLOT_INCLUDE_DIR
-INCLUDEPATH += $$GSL_INCLUDE_DIR
-INCLUDEPATH += $$VLC_INCLUDE_DIR
-LIBS += $$GSL_LIB
-LIBS += $$GSL_CBLAS_LIB
-LIBS += $$VLC_LIB
+DEPENDPATH += . source
+INCLUDEPATH += . source
 
-# Epics channel access linking:
-LIBS += -L$$EPICS_LIB_DIR
-LIBS += -lca -lCom
+INCLUDEPATH += $$EPICS_INCLUDE_DIRS \
+	$$MPLOT_INCLUDE_DIR \
+	$$GSL_INCLUDE_DIR \
+	$$VLC_INCLUDE_DIR \
+	$$XML_INCLUDE_DIR
+
+LIBS += $$GSL_LIB \
+	$$GSL_CBLAS_LIB \
+	$$VLC_LIB \
+	$$XML_LIB \
+	-L$$EPICS_LIB_DIR -lca -lCom
 
 # VLC plugin path: define as pre-processor symbol
 DEFINES += "VLC_PLUGIN_PATH=$$VLC_PLUGIN_PATH"
 
-# search locations for libraries:
+# Specify runtime search locations for libraries (Must change for release bundle, if epics in a different location)
 macx {
-	QMAKE_LFLAGS_RPATH += "$$EPICS_LIB_DIR"
+	# 4.7.0 and earlier:
+	#QMAKE_LFLAGS_RPATH += "$$EPICS_LIB_DIR"
+
+	# 4.7.2: Use same as linux-g++
+	QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
+	QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
 }
 linux-g++ {
 	QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
 	QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
 }
 
-# include and library paths for libxml:
-INCLUDEPATH += /usr/include/libxml2
-LIBS += -lxml2
 
-# Input
+# Source Files (Acquaman Common)
+#######################
+
 HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	../MPlot/src/MPlot/MPlotAbstractTool.h \
 	../MPlot/src/MPlot/MPlotAxis.h \
@@ -232,7 +257,6 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/beamline/AMBeamlineParallelActionsList.h \
 	source/acquaman/AMControlOptimization.h \
 	source/acquaman/AMDetectorInfoList.h \
-	source/ui/AMDetectorInfoView.h \
 	source/ui/AMControlOptimizationView.h \
 	source/dataman/SGM2010FastSensibleFileLoader.h \
 	source/beamline/AMBeamlineControlStopAction.h \
@@ -242,7 +266,23 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMScanConfigurationViewHolder.h \
 	source/ui/AMPeriodicTableView.h \
 	source/util/AMPeriodicTable.h \
-	source/util/AMElement.h
+	source/util/AMElement.h \
+	#source/ui/AMVideoWidget.h \
+	source/ui/AMScanConfigurationViewHolder.h \
+	source/dataman/AMSpectralOutputDetectorInfo.h \
+	source/dataman/MCPDetectorInfo.h \
+	source/dataman/PGTDetectorInfo.h \
+	source/beamline/AMSingleControlDetector.h \
+	source/beamline/AMSpectralOutputDetector.h \
+	source/beamline/PGTDetector.h \
+	source/beamline/MCPDetector.h \
+	source/ui/AMDetectorViewSupport.h \
+	source/ui/AMSingleControlDetectorView.h \
+	source/ui/MCPDetectorView.h \
+	source/ui/PGTDetectorView.h \
+	source/ui/AMDetectorSetView.h \
+	source/beamline/AMDetectorSet.h \
+	source/ui/AMOverlayVideoWidget.h
 FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
 	source/ui/AMDataViewSection.ui \
@@ -404,7 +444,6 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/beamline/AMBeamlineParallelActionsList.cpp \
 	source/acquaman/AMControlOptimization.cpp \
 	source/acquaman/AMDetectorInfoList.cpp \
-	source/ui/AMDetectorInfoView.cpp \
 	source/ui/AMControlOptimizationView.cpp \
 	source/dataman/SGM2010FastSensibleFileLoader.cpp \
 	source/beamline/AMBeamlineControlStopAction.cpp \
@@ -413,14 +452,28 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMScanConfigurationViewHolder.cpp \
 	source/ui/AMPeriodicTableView.cpp \
 	source/util/AMPeriodicTable.cpp \
-	source/util/AMElement.cpp
+	source/util/AMElement.cpp \
+	source/dataman/AMSpectralOutputDetectorInfo.cpp \
+	source/dataman/MCPDetectorInfo.cpp \
+	source/dataman/PGTDetectorInfo.cpp \
+	source/beamline/AMSingleControlDetector.cpp \
+	source/beamline/AMSpectralOutputDetector.cpp \
+	source/beamline/PGTDetector.cpp \
+	source/beamline/MCPDetector.cpp \
+	source/ui/AMDetectorViewSupport.cpp \
+	source/ui/AMSingleControlDetectorView.cpp \
+	source/ui/MCPDetectorView.cpp \
+	source/ui/PGTDetectorView.cpp \
+	source/ui/AMDetectorSetView.cpp \
+	source/beamline/AMDetectorSet.cpp \
+	#source/ui/AMVideoWidget.cpp \
+	source/ui/AMOverlayVideoWidget.cpp
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc \
 	source/util/ElementData.qrc
 
 macx {
-OBJECTIVE_SOURCES += 	source/ui/AMVideoWidget_mac.mm
-LIBS += -framework AppKit
-#LIBS += $$VLCKIT
-#INCLUDEPATH += $$VLCKIT_INCLUDE_DIR
+# Removed for now: OS-native video implementation
+#OBJECTIVE_SOURCES += 	source/ui/AMVideoWidget_mac.mm
+#LIBS += -framework AppKit
 }

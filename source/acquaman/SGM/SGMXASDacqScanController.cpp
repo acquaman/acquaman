@@ -25,33 +25,18 @@ SGMXASDacqScanController::SGMXASDacqScanController(SGMXASScanConfiguration *cfg,
 {
 	_pCfg_ = &specificCfg_;
 	_pScan_ = &specificScan_;
-	// unused: emit scanCreated(scan());
 }
 
-void SGMXASDacqScanController::initialize(){
+void SGMXASDacqScanController::initializeImplementation(){
 	if(SGMXASScanController::beamlineInitialize() && initializationActions_){
-		initialized_ = true;
 		#warning "Do we need to also clear any raw data sources here, or just the raw data itself?"
 		pScan_()->clearRawDataPoints();
-		/**/
-		//connect(initializationActions_, SIGNAL(listSucceeded()), this, SIGNAL(initialized()));
 		connect(initializationActions_, SIGNAL(listSucceeded()), this, SLOT(onInitializationActionsSucceeded()));
-		qDebug() << "STARTING XAS INITIALIZATION ACTIONS";
 		initializationActions_->start();
-		/**/
-		/*
-		emit initialized();
-		*/
 	}
 }
 
-void SGMXASDacqScanController::reinitialize(bool removeScan){
-	SGMXASScanController::reinitialize();
-	qDebug() << "Emitting reinitialized with removeScan " << removeScan;
-	emit reinitialized(removeScan);
-}
-
-void SGMXASDacqScanController::start(){
+void SGMXASDacqScanController::startImplementation(){
 	if(SGMBeamline::sgm()->isBeamlineScanning()){
 		qDebug() << "Beamline already scanning";
 		return;
@@ -63,7 +48,7 @@ void SGMXASDacqScanController::start(){
 	else if( QDir(homeDir+"/beamline/programming").exists())
 		homeDir.append("/beamline/programming");
 
-	if(pCfg_()->usingPGT())
+	if(pCfg_()->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->pgtDetector()->detectorName()))
 		loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/pgt.cfg"));
 	else
 		loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/defaultEnergy.cfg"));
@@ -71,12 +56,15 @@ void SGMXASDacqScanController::start(){
 		qDebug() << "LIBRARY FAILED TO LOAD CONFIG FILE";
 		return;
 	}
-	foreach(const AMDetectorInfo *dtctr, pCfg_()->usingDetectors() ){
-		if(dtctr->name() == SGMBeamline::sgm()->pgtDetector()->name()){
-			advAcq_->appendRecord(SGMBeamline::sgm()->pvName(dtctr->name()), true, true, 0);
+
+	for(int i = 0; i < pCfg_()->allDetectors()->count(); i++){
+		AMDetector *dtctr = pCfg_()->allDetectors()->detectorAt(i);
+
+		if(dtctr->detectorName() == SGMBeamline::sgm()->pgtDetector()->detectorName()){
+			advAcq_->appendRecord(SGMBeamline::sgm()->pvName(dtctr->detectorName()), true, true, 0);
 		}
 		else{
-			advAcq_->appendRecord(SGMBeamline::sgm()->pvName(dtctr->name()), true, false, 0);
+			advAcq_->appendRecord(SGMBeamline::sgm()->pvName(dtctr->detectorName()), true, false, 0);
 		}
 		for(int x = 0; x < pCfg_()->regionCount(); x++){
 			if(advAcq_->getNumRegions() == x)
@@ -91,8 +79,7 @@ void SGMXASDacqScanController::start(){
 	advAcq_->saveConfigFile("/Users/fawkes/dev/acquaman/devConfigurationFiles/davidTest.cfg");
 	generalScan_ = specificScan_;
 
-	qDebug() << "Ready to start XAS Scan";
-	//AMDacqScanController::start();
+	AMDacqScanController::startImplementation();
 }
 
 AMnDIndex SGMXASDacqScanController::toScanIndex(QMap<int, double> aeData){
@@ -101,6 +88,5 @@ AMnDIndex SGMXASDacqScanController::toScanIndex(QMap<int, double> aeData){
 }
 
 void SGMXASDacqScanController::onInitializationActionsSucceeded(){
-	//qDebug() << "XAS Scan: Initialization Actions Succeeded and emiting initialized";
-	emit initialized();
+	setInitialized();
 }

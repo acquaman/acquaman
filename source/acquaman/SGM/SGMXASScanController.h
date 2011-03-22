@@ -32,7 +32,6 @@ public:
 
 	bool isBeamlineInitialized();
 	virtual bool beamlineInitialize();
-	virtual void reinitialize();
 
 protected:
 	SGMXASScanConfiguration *specificCfg_;

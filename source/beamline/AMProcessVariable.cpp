@@ -826,6 +826,22 @@ double AMProcessVariable::lastValue(unsigned index) const {
 	}
 }
 
+int AMProcessVariable::binIntegerValues(int lowIndex, int highIndex) const{
+	QVector<int> lastInts = lastIntegerValues();
+	int lIndex = lowIndex;
+	int hIndex = highIndex;
+	int rVal = 0;
+	if(hIndex < lIndex)
+		return rVal;
+	if(lIndex < 0)
+		lIndex = 0;
+	if(hIndex > lastInts.count())
+		hIndex = lastInts.count();
+	for(int x = lIndex; x < hIndex; x++)
+		rVal += lastInts.at(x);
+	return rVal;
+}
+
 // double AMProcessVariable::getDouble() is just a synonym for lastValue().
 
 int AMProcessVariable::getInt(unsigned index) const {

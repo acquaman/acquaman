@@ -20,38 +20,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SGMXASScanConfigurationWizard.h"
 
-SGMXASScanConfigurationWizard::SGMXASScanConfigurationWizard(SGMXASScanConfiguration *sxsc, AMOldDetectorInfoSet *cfgDetectorInfoSet, QWidget *parent) :
+SGMXASScanConfigurationWizard::SGMXASScanConfigurationWizard(SGMXASScanConfiguration *sxsc, const AMDetectorInfoSet& cfgDetectorInfoSet, QWidget *parent) :
 	QWizard(parent)
 {
 	cfg_ = NULL;
-	cfgDetectorInfoSet_ = NULL;
 	if(SGMBeamline::sgm()->isConnected()){
 		cfg_ = sxsc;
-		cfgDetectorInfoSet_ = cfgDetectorInfoSet;
-		/*
-		SGMXASScanConfiguration *cfg_ = new SGMXASScanConfiguration(this);
-		cfg_->setFileName("daveData.%03d.dat");
-		cfg_->setFilePath(AMUserSettings::userDataFolder);
-		cfg_->addRegion(0, 500, 5, 600);
-		cfgDetectorInfoSet_ = new AMDetectorInfoSet(this);
-		cfg_->setCfgDetectorInfoSet(cfgDetectorInfoSet_);
-		qDebug() << "Using cfg_ as " << (int)cfg_;
-		AMDetectorInfo* tmpDI, *tdi;
-		for(int x = 0; x < cfg_->detectorSet()->count(); x++){
-			tdi = cfg_->detectorSet()->detectorAt(x);
-			if(tdi->typeDescription() == "PGT SDD Spectrum-Output Detector")
-				tmpDI = new PGTDetectorInfo(tdi->name(), tdi->description(), this);
-			else if(tdi->typeDescription() == "MCP Detector")
-				tmpDI = new MCPDetectorInfo(tdi->name(), tdi->description(), this);
-			else
-				tmpDI = new AMDetectorInfo(tdi->name(), tdi->description(), this);
-
-			QList<AMMetaMetaData> all = tmpDI->metaDataAllKeys();
-			for(int y = 0; y < all.count(); y++)
-				tmpDI->setMetaData(all.at(y).key, tdi->metaData(all.at(y).key));
-			cfgDetectorInfoSet_->addDetector(tmpDI, cfg_->detectorSet()->isDefaultAt(x));
-		}
-		*/
 
 		introPage = new SGMXASScanConfigurationIntroWizardPage("Welcome to SGM's XAS Scan Wizard",
 															   "This wizard will guide you through all of the steps required to configure an XAS on the SGM Beamline.");
@@ -68,7 +42,7 @@ SGMXASScanConfigurationWizard::SGMXASScanConfigurationWizard(SGMXASScanConfigura
 												  "Enable or Disable Energy Tracking for Your Scan",
 												  "By unchecking the boxes below, you will disable the energy tracking of each element. "
 												  "Normally, all of these devices track energy; however, certain scan types and certain energy regions can operate without tracking for increased stability.");
-		detectorsPage = new AMDetectorSetWizardPage(cfg_->detectorSet(), cfgDetectorInfoSet_,
+		detectorsPage = new AMDetectorSetWizardPage(cfg_->detectorChoices(), &cfg_->detectorChoiceConfigurations(),
 													"Choose which Detectors Your Scan will Collect Data From",
 													"Checking the boxes below will enable each detector for this scan. "
 													"Additional setup information can be found by clicking the appropriate Details button.");
@@ -200,7 +174,7 @@ AMControlSetWizardPage::AMControlSetWizardPage(AMControlSet *trackingSet, QStrin
 		QWizardPage(parent)
 {
 	trackingSet_ = trackingSet;
-	trackingView_ = new AMOldControlSetView(trackingSet_, this);
+	trackingView_ = new AMControlSetView(trackingSet_, true);
 	gl_ = new QGridLayout();
 	textLabel_ = new QLabel(subTitle);
 	textLabel_->setAlignment(Qt::AlignJustify);
@@ -217,12 +191,11 @@ void AMControlSetWizardPage::resizeEvent(QResizeEvent *e){
 	QWizardPage::resizeEvent(e);
 }
 
-AMDetectorSetWizardPage::AMDetectorSetWizardPage(AMOldDetectorInfoSet *detectorSet, AMOldDetectorInfoSet *cfgDetectorInfoSet, QString title, QString subTitle, QWidget *parent) :
+AMDetectorSetWizardPage::AMDetectorSetWizardPage(AMDetectorSet *detectorSet, AMDetectorInfoSet *cfgDetectorInfoSet, QString title, QString subTitle, QWidget *parent) :
 		QWizardPage(parent)
 {
 	detectorSet_ = detectorSet;
-	cfgDetectorInfoSet_ = cfgDetectorInfoSet;
-	detectorView_ = new AMDetectorSetView(detectorSet_, cfgDetectorInfoSet_, true, this);
+	detectorView_ = new AMDetectorSetView(detectorSet, true);
 	gl_ = new QGridLayout();
 	textLabel_ = new QLabel(subTitle);
 	textLabel_->setAlignment(Qt::AlignJustify);

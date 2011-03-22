@@ -694,13 +694,14 @@ protected:
 
 	/// Implementing subclasses must provide a clearImplementation(), which removes all data values and sets the size of each axis to 1... except for the first axis (axisId == 0), which should have a size of 0.  It should leave the set of configured measurements as-is.
 	virtual void clearScanDataPointsImplementation() {
-		clearScanDataPointsImplementationRecursive(dataRoot_, axes_.count()-1, true);
+		if(axes_.count() >= 1) {
+			clearScanDataPointsImplementationRecursive(dataRoot_, axes_.count()-1, true);
 
-		for(int mu = axes_.count()-1; mu >=1; mu--)
-			axes_[mu].size = 1;
+			for(int mu = axes_.count()-1; mu >=1; mu--)
+				axes_[mu].size = 1;
 
-		if(axes_.count() >= 1)
 			axes_[0].size = 0;
+		}
 	}
 
 	/// Recursive helper function to delete all scan points in the data structure. For higher dimensions, it leaves a column with 1 node pointing to the next dimension. For the final dimension, it deletes all scan points and leaves a column with no nodes.
@@ -745,6 +746,7 @@ protected:
 
 	/// Implementing subclasses must provide a clearMeasurementsImplementation(), which clears the set of configured measurements.  They can assume that the set of scan data values is already cleared.
 	virtual void clearMeasurementsImplementation() {
+		scalarScanPoint_->clear();
 		measurements_.clear();
 	}
 };

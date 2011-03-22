@@ -42,21 +42,18 @@ public:
 	AMControlInfo(const QString& name, double value, double minimum, double maximum, const QString& units, QObject* parent = 0);
 	Q_INVOKABLE AMControlInfo(AMDatabase* db, int id);
 
-	// QString name() const { return name_; }
 	double value() const { return value_; }
 	double minimum() const { return minimum_; }
 	double maximum() const { return maximum_; }
 	QString units() const { return units_; }
 
 public slots:
-	// void setName(const QString& name) { name_ = name; }
 	void setValue(double value) { value_ = value; }
 	void setMinimum(double minimum) { minimum_ = minimum; }
 	void setMaximum(double maximum) { maximum_ = maximum; }
 	void setUnits(const QString &units) { units_ = units; }
 
 protected:
-	// QString name_;
 	double value_;
 	double minimum_;
 	double maximum_;

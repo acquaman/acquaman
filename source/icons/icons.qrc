@@ -65,5 +65,8 @@
         <file>22x22/viewThumb-22x22.png</file>
         <file>22x22/viewListInv-22x22.png</file>
         <file>22x22/viewThumbInv-22x22.png</file>
+        <file>power_green.png</file>
+        <file>power_red.png</file>
+        <file>power_yellow.png</file>
     </qresource>
 </RCC>

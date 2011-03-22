@@ -20,7 +20,10 @@ SGMFastScanConfiguration::SGMFastScanConfiguration(QObject *parent) : AMFastScan
 
 	setParametersFromPreset(0);
 
-//	connect(&savePathWatcher_, SIGNAL(directoryChanged(QString)), this, SLOT(onSaveDirectoryChanged(QString)));
+	/* NTBA March 14, 2011 David Chevrier
+	   Save directory and such goes to exporter
+	connect(&savePathWatcher_, SIGNAL(directoryChanged(QString)), this, SLOT(onSaveDirectoryChanged(QString)));
+	*/
 }
 
 SGMFastScanConfiguration::~SGMFastScanConfiguration(){
@@ -102,14 +105,12 @@ SGMFastScanParameters* SGMFastScanConfiguration::currentParameters() const{
 	return currentSettings_;
 }
 
-QList<AMDetectorInfo*> SGMFastScanConfiguration::usingDetectors() const{
-	QList<AMDetectorInfo*> usingDetectors;
-	usingDetectors << SGMBeamline::sgm()->XASDetectors()->detectorByName("tey");
-	usingDetectors << SGMBeamline::sgm()->feedbackDetectors()->detectorByName("I0");
-	usingDetectors << SGMBeamline::sgm()->XASDetectors()->detectorByName("tfy");
-	usingDetectors << SGMBeamline::sgm()->allDetectors()->detectorByName("photodiode");
-	//usingDetectors << SGMBeamline::sgm()->allDetectors()->detectorByName("encoderUp");
-	//usingDetectors << SGMBeamline::sgm()->allDetectors()->detectorByName("encoderDown");
+QList<AMDetector*> SGMFastScanConfiguration::usingDetectors() const{
+	QList<AMDetector*> usingDetectors;
+	usingDetectors << SGMBeamline::sgm()->XASDetectors()->detectorNamed("tey");
+	usingDetectors << SGMBeamline::sgm()->feedbackDetectors()->detectorNamed("I0");
+	usingDetectors << SGMBeamline::sgm()->XASDetectors()->detectorNamed("tfy");
+	usingDetectors << SGMBeamline::sgm()->allDetectors()->detectorNamed("photodiode");
 	return usingDetectors;
 }
 
@@ -201,7 +202,7 @@ bool SGMFastScanConfiguration::setBaseLine(int baseLine){
 }
 
 bool SGMFastScanConfiguration::setSensibleFileSavePath(const QString &sensibleFileSavePath){
-	/*
+	/* NTBA March 14, 2011 David Chevrier
 	QString path = sensibleFileSavePath.section('/', 0, -2);
 	QString file = sensibleFileSavePath.section('/', -1);
 	//file.append(".dat");

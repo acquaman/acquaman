@@ -26,18 +26,13 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	mainBox_ = new QGroupBox("SGM Beamline");
 	mainLayout_ = new QVBoxLayout();
 	mainLayout_->addWidget(mainBox_);
-	//vl_ = new QVBoxLayout();
 	gl_ = new QGridLayout();
-	//mainBox_->setLayout(vl_);
 	mainBox_->setLayout(gl_);
 
 	readyLabel_ = new AMControlEditor(SGMBeamline::sgm()->beamlineReady(), NULL, true);
 	readyLabel_->setNoUnitsBox(true);
 	readyLabel_->overrideTitle("");
 	readyLabel_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-//	beamOnCButton_ = new AMControlButton(SGMBeamline::sgm()->beamOn());
-//	beamOnCButton_->overrideText("Beam On");
-//	beamOnCButton_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 	beamOnBALButton_ = new AMBeamlineActionsListButton(SGMBeamline::sgm()->beamOnActionsList());
 	beamOnBALButton_->overrideText("Beam On");
 	beamOnBALButton_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
@@ -59,6 +54,7 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	connect(visibleLightButton_, SIGNAL(clicked()), this, SLOT(onVisibleLightClicked()));
 	connect(SGMBeamline::sgm(), SIGNAL(visibleLightStatusChanged(QString)), this, SLOT(onVisibleLightStatusChanged(QString)));
 	energyNC_ = new AMControlEditor(SGMBeamline::sgm()->energy(), SGMBeamline::sgm()->energyMovingStatus());
+	energyNC_->setControlFormat('f', 2);
 	energyNC_->overrideTitle("Energy");
 	energyNC_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 	trackUndulatorCButton_ = new AMControlButton(SGMBeamline::sgm()->undulatorTracking());
@@ -77,15 +73,16 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	gratingNC_->overrideTitle("Grating");
 	gratingNC_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 	entranceSlitNC_ = new AMControlEditor(SGMBeamline::sgm()->entranceSlitGap());
+	entranceSlitNC_->setControlFormat('f', 1);
 	entranceSlitNC_->overrideTitle("Entrance Slit");
 	entranceSlitNC_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 	exitSlitNC_ = new AMControlEditor(SGMBeamline::sgm()->exitSlitGap());
+	exitSlitNC_->setControlFormat('f', 1);
 	exitSlitNC_->overrideTitle("Exit Slit");
 	exitSlitNC_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 
 	beamlineWarningsLabel_ = new QLabel(SGMBeamline::sgm()->beamlineWarnings());
 	connect(SGMBeamline::sgm(), SIGNAL(beamlineWarningsChanged(QString)), beamlineWarningsLabel_, SLOT(setText(QString)));
-
 
 	gl_->addWidget(readyLabel_,		0, 0, 1, 6, 0);
 	gl_->addWidget(beamOnBALButton_,	1, 0, 1, 2, 0);

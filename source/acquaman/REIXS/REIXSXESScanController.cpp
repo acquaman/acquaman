@@ -49,22 +49,22 @@ REIXSXESScanController::REIXSXESScanController(REIXSXESScanConfiguration* config
 
 
 /// Called before starting to satisfy any prerequisites (ie: setting up the beamline, setting up files, etc.)
-void REIXSXESScanController::initialize() {
+void REIXSXESScanController::initializeImplementation() {
 
 
 
 	// configure and clear the MCP detector
 	if( !REIXSBeamline::bl()->mcpDetector()->setFromInfo(*(pCfg()->mcpDetectorInfo())) ) {
-		/// \todo How to notify init failed?
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 3, "Could not connect to and configure the MCP detector before starting XES scan."));
-		emit cancelled();
+		setFailed();
 		return;
 	}
 
 
 
 	// Do we actually need to move into position?
-	if(pCfg()->shouldStartFromCurrentPosition()) {
+	//if(pCfg()->shouldStartFromCurrentPosition()) {
+	if(true) {
 		onInitialSetupMoveSucceeded();
 		return;
 	}
@@ -98,29 +98,22 @@ void REIXSXESScanController::initialize() {
 
 
 void REIXSXESScanController::onInitialSetupMoveFailed() {
-	/// \todo How to notify init failed?
 	AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 3, "Could not move the spectrometer into position before starting a scan."));
 	disconnect(initialMoveAction_, 0, this, 0);
-	emit cancelled();
+	setFailed();
 }
 
 void REIXSXESScanController::onInitialSetupMoveSucceeded() {
 	// remember the positions of the spectrometer
 	*(pScan()->scanInitialConditions()) = REIXSBeamline::bl()->spectrometerPositionSet()->toInfoList();
 	// emit initialized... Tells everyone we're ready to go.
-	initialized_ = true;
 	disconnect(initialMoveAction_, 0, this, 0);
-	emit initialized();
+
+	// tell the controller API we're now ready to go.
+	setInitialized();
 }
 
-void REIXSXESScanController::start() {
-
-	/// \todo Is this check required? Will anything ever try to call this
-	if(!initialized_) {
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, -1, "Attempted start on uninitialized controller."));
-		/// \todo how to notify init failed?
-		emit cancelled();
-	}
+void REIXSXESScanController::startImplementation() {
 
 	REIXSBeamline::bl()->mcpDetector()->clearImage();
 
@@ -129,20 +122,21 @@ void REIXSXESScanController::start() {
 
 	startTime_.start();
 	scanProgressTimer_.start(1000);
-	running_ = true;
-	emit started();
+
+	setStarted();
 }
 
 /// Cancel scan if currently running or paused
-void REIXSXESScanController::cancel() {
+void REIXSXESScanController::cancelImplementation() {
 
-	if(running_) {
+	ScanState currentState = state();
+
+	if(currentState == Running || currentState == Paused) {
 		scanProgressTimer_.stop();
 		disconnect(&scanProgressTimer_, SIGNAL(timeout()), this, SLOT(onScanProgressCheck()));
 		disconnect(REIXSBeamline::bl()->mcpDetector(), SIGNAL(imageDataChanged()), this, SLOT(onNewImageValues()));
 	}
-	running_ = false;
-	emit cancelled();
+	setCancelled();
 }
 
 void REIXSXESScanController::onNewImageValues() {
@@ -192,10 +186,15 @@ void REIXSXESScanController::onScanProgressCheck() {
 	// every 5 seconds, save the raw data to disk.
 	/// \todo Make this a define adjustable
 	if((int)secondsElapsed % 5 == 0) {
-		REIXSXESRawFileLoader exporter(pScan());
-		if(!exporter.saveToFile(pScan()->filePath()))
-			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 38, "Error saving the currently-running XES scan's raw data file to disk. Watch out... your data may not be saved! Please report this bug to the Acquaman developers."));
+		saveRawData();
 	}
+}
+
+
+void REIXSXESScanController::saveRawData() {
+	REIXSXESRawFileLoader exporter(pScan());
+	if(!exporter.saveToFile(pScan()->filePath()))
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 38, "Error saving the currently-running XES scan's raw data file to disk. Watch out... your data may not be saved! Please report this bug to the Acquaman developers."));
 }
 
 void REIXSXESScanController::onScanFinished() {
@@ -203,9 +202,8 @@ void REIXSXESScanController::onScanFinished() {
 	scanProgressTimer_.stop();
 	disconnect(&scanProgressTimer_, SIGNAL(timeout()), this, SLOT(onScanProgressCheck()));
 	disconnect(REIXSBeamline::bl()->mcpDetector(), SIGNAL(imageDataChanged()), this, SLOT(onNewImageValues()));
-	running_ = false;
-	emit finished();
-
+	saveRawData();
+	setFinished();
 }
 
 /// to disconnect: scan progress check, onNewImageValues... Where else?

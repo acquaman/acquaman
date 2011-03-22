@@ -62,34 +62,4 @@ protected:
 
 };
 
-//class AMFastScanConfigurationHolder : public AMScanConfigurationHolder
-//{
-//	Q_OBJECT
-//public:
-//	AMFastScanConfigurationHolder(QWidget *parent = 0);
-//	~AMFastScanConfigurationHolder();
-
-//public slots:
-//	/// This slot will be used to notify this widget when it becomes the current (active) widget
-//	void onBecameCurrentWidget();
-
-//protected slots:
-//	void createScanConfiguration();
-//	void destroyScanConfigurationViewer();
-
-//	void setAutoSavePath(const QString& autoSavePath);
-//	void setLastSettings(SGMFastScanParameters *lastSettings);
-
-//private:
-//	SGMFastScanConfiguration* cfg() { return qobject_cast<SGMFastScanConfiguration*>(cfg_);}
-
-//protected:
-//	SGMFastScanConfigurationViewer *sfscViewer_;
-
-//	QString autoSavePath_;
-//	SGMFastScanParameters *lastSettings_;
-
-//	QVBoxLayout *vl_;
-//};
-
 #endif // AMSCANCONFIGURATIONVIEWHOLDER_H

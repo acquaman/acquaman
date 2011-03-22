@@ -993,6 +993,68 @@ protected slots:
 
 };
 
+
+
+/// This class provides an AMControl with measure-only capability, based on an Epics Process Variable Waveform implementation.
+/*!
+The AMControl interface should be inherited to implement real-world control devices.  The exact meaning of the properties might change depending on the physical device and its capabilities.  As a useful example, we've provided a set of real controls with different levels of capability that implement Epics Process-Variable type connections.
+
+This class measures values using a single Process Variable Waveform. This subclass can bin a waveform's values into a single value.  It cannot be used to set values.  An example usage would be measuring a spectral detector. The waveform represents each bin individually, but the ability to bin regions of interest is useful.  There is no way to decide whether the control is "moving" or not (How do you define if the ring current is "moving"?), so this behavior is undefined.
+
+The unique behavior is defined as:
+
+<table>
+<tr><td>isConnected means:		<td>the feedback process variable is connected.
+<tr><td>isMoving() means:		<td>[always false; no good way to determine this]
+<tr><td>moveSucceeded() means:	<td>[never happens]
+<tr><td>moveFailed() means:		<td>[happens on any attempted move; can't do that!]
+</table>
+
+Most useful members for using this class:
+
+- value()
+- name()
+- setBinParameters(int, int)
+- isConnected()
+- valueChanged()
+
+*/
+class AMReadOnlyWaveformPVControl : public AMReadOnlyPVControl {
+
+	Q_OBJECT
+
+public:
+	/// Constructor
+	/*! \param name A unique description of this control
+		\param readPVname The EPICS channel-access name for this Process Variable
+		\param parent QObject parent class
+		*/
+	AMReadOnlyWaveformPVControl(const QString& name, const QString& readPVname, int lowIndex = 0, int highIndex = 1, QObject* parent = 0);
+
+	/// \name Reimplemented Public Functions:
+	//@{
+	/// most recent value of this measurement
+	virtual double value() const;
+
+	//@}
+
+	/// \name Additional public functions:
+	//@{
+	/// Set the parameters for binning. A low index and a high index.
+	virtual void setBinParameters(int lowIndex, int highIndex);
+	//@}
+
+
+protected slots:
+	/// This is called when the read PV has new values
+	void onReadPVValueChanged();
+
+protected:
+	int lowIndex_;
+	int highIndex_;
+};
+
+
 // End of doxygen group: control
 /**
  @}
