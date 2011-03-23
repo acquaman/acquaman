@@ -141,6 +141,7 @@ bool AMBeamlineParallelActionsList::setStage(int stageIndex, QList<AMBeamlineAct
 		else{//insert
 			holdersHash_.set(stageList, new AMBeamlineParallelActionsListHolder(this));
 			connect(holdersHash_.valueF(stageList), SIGNAL(everythingFinished()), this, SLOT(onStageSucceeded()));
+			connect(holdersHash_.valueF(stageList), SIGNAL(somethingFailed(QList<AMBeamlineActionItem*>,int)), this, SLOT(onStageFailed(QList<AMBeamlineActionItem*>,int)));
 			#warning "Hey David, What connections need to be made (added to) the holder?"
 			for(int x = 0; x < stageList->count(); x++)
 				holdersHash_.valueF(stageList)->addAction(stageList->at(x));
@@ -387,9 +388,11 @@ void AMBeamlineParallelActionsList::onActionProgress(double elapsed, double tota
 			return;
 		lastIndexProgress_.replace(indices.second, (elapsed/total));
 		double sum = 0;
-		for(int x = 0; x < countAt(indices.first); x++)
+		for(int x = 0; x < countAt(indices.first); x++){
 			sum += lastIndexProgress_.at(x);
+		}
 		emit stageProgress(sum/lastIndexProgress_.count(), 1.0);
+		emit stageProgress(currentStage_, sum/lastIndexProgress_.count(), 1.0);
 	}
 }
 
@@ -411,6 +414,16 @@ void AMBeamlineParallelActionsList::onStageSucceeded(){
 	}
 }
 
+void AMBeamlineParallelActionsList::onStageFailed(QList<AMBeamlineActionItem *> failureList, int explanation){
+	AMBeamlineParallelActionsListHolder *tmpHolder = (AMBeamlineParallelActionsListHolder*)QObject::sender();
+	int stageIndex = indexOf(holdersHash_.valueR(tmpHolder));
+	QList<int> failureIndices;
+	for(int x = 0; x < failureList.count(); x++)
+		failureIndices.append(indexOf(failureList.at(x)));
+	emit stageFailed(stageIndex, failureIndices, explanation);
+	emit listFailed(explanation);
+}
+
 bool AMBeamlineParallelActionsList::setupModel(){
 	actions_ = new AMBeamlineParallelActionListModel(this);
 	if(actions_){
@@ -427,28 +440,50 @@ bool AMBeamlineParallelActionsList::setupModel(){
 AMBeamlineParallelActionsListHolder::AMBeamlineParallelActionsListHolder(QObject *parent) :
 		QObject(parent)
 {
-
+	hasFailed_ = false;
+	firstFailureExplanation_ = -1;
 }
 
 void AMBeamlineParallelActionsListHolder::addAction(AMBeamlineActionItem *ai){
 	if(!waitingOn_.contains(ai)){
-		connect(ai, SIGNAL(succeeded()), this, SLOT(actionFinished()));
+		connect(ai, SIGNAL(succeeded()), this, SLOT(actionSucceeded()));
+		connect(ai, SIGNAL(failed(int)), this, SLOT(actionFailed(int)));
 		waitingOn_.append(ai);
 	}
 }
 
 void AMBeamlineParallelActionsListHolder::removeAction(AMBeamlineActionItem *ai){
 	if(waitingOn_.contains(ai)){
-		disconnect(ai, SIGNAL(succeeded()), this, SLOT(actionFinished()));
+		disconnect(ai, SIGNAL(succeeded()), this, SLOT(actionSucceeded()));
 		waitingOn_.removeOne(ai);
 	}
 }
 
-void AMBeamlineParallelActionsListHolder::actionFinished(){
+void AMBeamlineParallelActionsListHolder::actionSucceeded(){
 	AMBeamlineActionItem *ai = (AMBeamlineActionItem*)QObject::sender();
 	removeAction(ai);
-	if(waitingOn_.isEmpty())
-		emit everythingFinished();
+	if(waitingOn_.isEmpty()){
+		if(hasFailed_)
+			emit somethingFailed(failures_, firstFailureExplanation_);
+		else
+			emit everythingFinished();
+	}
+}
+
+void AMBeamlineParallelActionsListHolder::actionFailed(int explanation){
+	AMBeamlineActionItem *ai = (AMBeamlineActionItem*)QObject::sender();
+	removeAction(ai);
+	failures_.append(ai);
+	if(!hasFailed_){
+		firstFailureExplanation_ = explanation;
+		hasFailed_ = true;
+	}
+	if(waitingOn_.isEmpty()){
+		if(hasFailed_)
+			emit somethingFailed(failures_, firstFailureExplanation_);
+		else
+			emit everythingFinished();
+	}
 }
 
 AMBeamlineParallelActionListModel::AMBeamlineParallelActionListModel(QObject *parent) :

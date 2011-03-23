@@ -60,6 +60,7 @@ protected slots:
 	virtual void onScanStarted();
 	virtual void onScanCancelled();
 	virtual void onScanSucceeded();
+	virtual void onScanFailed();
 	virtual void onBeamlineScanningChanged(bool isScanning);
 
 protected:

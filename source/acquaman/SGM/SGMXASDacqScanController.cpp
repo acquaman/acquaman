@@ -19,6 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "SGMXASDacqScanController.h"
+#include "beamline/AMBeamlineListAction.h"
 
 SGMXASDacqScanController::SGMXASDacqScanController(SGMXASScanConfiguration *cfg, QObject *parent) :
 		AMDacqScanController(cfg, parent) , SGMXASScanController(cfg)
@@ -31,8 +32,12 @@ void SGMXASDacqScanController::initializeImplementation(){
 	if(SGMXASScanController::beamlineInitialize() && initializationActions_){
 		#warning "Do we need to also clear any raw data sources here, or just the raw data itself?"
 		pScan_()->clearRawDataPoints();
-		connect(initializationActions_, SIGNAL(listSucceeded()), this, SLOT(onInitializationActionsSucceeded()));
-		initializationActions_->start();
+
+		AMBeamlineListAction *listAction = new AMBeamlineListAction(initializationActions_);
+		connect(listAction, SIGNAL(succeeded()), this, SLOT(onInitializationActionsSucceeded()));
+		connect(listAction, SIGNAL(failed(int)), this, SLOT(onInitializationActionsFailed(int)));
+		connect(listAction, SIGNAL(progress(double,double)), this, SLOT(onInitializationActionsProgress(double,double)));
+		listAction->start();
 	}
 }
 
@@ -88,5 +93,15 @@ AMnDIndex SGMXASDacqScanController::toScanIndex(QMap<int, double> aeData){
 }
 
 void SGMXASDacqScanController::onInitializationActionsSucceeded(){
+	//qDebug() << "The actions list succeeded";
 	setInitialized();
+}
+
+void SGMXASDacqScanController::onInitializationActionsFailed(int explanation){
+	//qDebug() << "The actions list failed";
+	setFailed();
+}
+
+void SGMXASDacqScanController::onInitializationActionsProgress(double elapsed, double total){
+	//qDebug() << "Initialization is " << elapsed/total << "% completed";
 }

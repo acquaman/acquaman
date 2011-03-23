@@ -277,7 +277,8 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/PGTDetectorView.h \
 	source/ui/AMDetectorSetView.h \
 	source/beamline/AMDetectorSet.h \
-	source/ui/AMOverlayVideoWidget.h
+	source/ui/AMOverlayVideoWidget.h \
+    source/beamline/AMBeamlineListAction.h
 FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
 	source/ui/AMDataViewSection.ui \
@@ -459,7 +460,8 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMDetectorSetView.cpp \
 	source/beamline/AMDetectorSet.cpp \
 	#source/ui/AMVideoWidget.cpp \
-	source/ui/AMOverlayVideoWidget.cpp
+	source/ui/AMOverlayVideoWidget.cpp \
+    source/beamline/AMBeamlineListAction.cpp
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc
 

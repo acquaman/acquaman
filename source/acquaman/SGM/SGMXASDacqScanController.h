@@ -39,6 +39,8 @@ protected:
 
 protected slots:
 	void onInitializationActionsSucceeded();
+	void onInitializationActionsFailed(int explanation);
+	void onInitializationActionsProgress(double elapsed, double total);
 
 private:
 	/// \todo Why the double pointers?

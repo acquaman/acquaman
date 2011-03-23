@@ -87,7 +87,8 @@ bool SGMXASScanController::beamlineInitialize(){
 	initializationActions_ = new AMBeamlineParallelActionsList();
 	initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->exitSlitGap());
-	tmpAction->setSetpoint(pCfg_()->exitSlitGap());
+	//tmpAction->setSetpoint(pCfg_()->exitSlitGap());
+	tmpAction->setSetpoint(250.0);
 	initializationActions_->appendAction(0, tmpAction);
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->grating());
 	tmpAction->setSetpoint(pCfg_()->grating());
