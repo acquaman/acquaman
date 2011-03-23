@@ -121,6 +121,18 @@ int main(int argc, char *argv[])
 //	AMGenericScanEditor* editor = new AMGenericScanEditor();
 
 
+//MyAnalysisBlock* b1  = new MyAnalysisBlock(...);
+//My2ndAnalysisBlock* b2 = new My2ndAnalysisBlock(...);
+
+//QList<AMDataSources*> input1;
+//input1 << src1;
+//input1 << src2;
+//b1->setInputDataSources(input1);
+
+//QList<AMDataSource*> input2;
+//intput2 << b1;
+//input2 << src3;
+//b2->setInputDataSources(input2);
 
 
 
