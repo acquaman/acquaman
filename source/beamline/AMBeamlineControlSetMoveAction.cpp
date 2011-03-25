@@ -28,6 +28,10 @@ AMBeamlineControlSetMoveAction::AMBeamlineControlSetMoveAction(AMControlSet *con
 		setControlSet(controlSet);
 }
 
+AMBeamlineActionView* AMBeamlineControlSetMoveAction::createView(int index){
+	return new AMBeamlineControlSetMoveActionView(this, index);
+}
+
 AMControlSet* AMBeamlineControlSetMoveAction::controlSet(){
 	return controlSet_;
 }
@@ -168,7 +172,6 @@ AMBeamlineControlSetMoveActionView::AMBeamlineControlSetMoveActionView(AMBeamlin
 {
 	controlSetAction_ = NULL;
 	setAction(controlSetAction);
-	viewType_ = "controlSetMoveView";
 
 	setMinimumHeight(NATURAL_ACTION_VIEW_HEIGHT);
 	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
@@ -207,16 +210,13 @@ AMBeamlineControlSetMoveActionView::AMBeamlineControlSetMoveActionView(AMBeamlin
 	setLayout(hl_);
 }
 
-QString AMBeamlineControlSetMoveActionView::viewType() const{
-	return AMBeamlineActionView::viewType()+"."+viewType_;
-}
-
 void AMBeamlineControlSetMoveActionView::setIndex(int index){
 	index_ = index;
 	onInfoChanged();
 }
 
-void AMBeamlineControlSetMoveActionView::setAction(AMBeamlineControlSetMoveAction *controlSetAction){
+void AMBeamlineControlSetMoveActionView::setAction(AMBeamlineActionItem *action){
+	AMBeamlineControlSetMoveAction *controlSetAction = qobject_cast<AMBeamlineControlSetMoveAction*>(action);
 	if(controlSetAction_){
 		disconnect(controlSetAction_, SIGNAL(progress(double,double)), this, SLOT(updateProgressBar(double,double)));
 		disconnect(controlSetAction_, SIGNAL(started()), this, SLOT(onStarted()));

@@ -42,7 +42,6 @@ AMBeamlineActionItem::AMBeamlineActionItem(QObject *parent) :
 {
 	previous_ = NULL;
 	next_ = NULL;
-	type_ = "actionItem";
 	reinitialized_.setState(false);
 	connect(&ready_, SIGNAL(stateChanged(bool)), this, SLOT(dirtyInitialized()));
 	connect(&started_, SIGNAL(stateChanged(bool)), this, SLOT(dirtyInitialized()));
@@ -55,7 +54,6 @@ AMBeamlineActionItem::AMBeamlineActionItem(QObject *parent) :
 AMBeamlineActionItem::AMBeamlineActionItem(bool delayInitialize, QObject *parent){
 	previous_ = NULL;
 	next_ = NULL;
-	type_ = "actionItem";
 	reinitialized_.setState(false);
 	connect(&ready_, SIGNAL(stateChanged(bool)), this, SLOT(dirtyInitialized()));
 	connect(&started_, SIGNAL(stateChanged(bool)), this, SLOT(dirtyInitialized()));
@@ -104,10 +102,6 @@ AMBeamlineActionItem* AMBeamlineActionItem::previous() const {
 
 AMBeamlineActionItem* AMBeamlineActionItem::next() const {
 	return next_;
-}
-
-QString AMBeamlineActionItem::type() const {
-	return type_;
 }
 
 void AMBeamlineActionItem::reset(bool delayInitialize){
@@ -194,7 +188,6 @@ AMBeamlineActionView::AMBeamlineActionView(AMBeamlineActionItem *action, int ind
 	action_ = action;
 	index_ = index;
 	inFocus_ = false;
-	viewType_ = "actionView";
 	setLineWidth(1);
 	setFrameStyle(QFrame::StyledPanel);
 	setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
@@ -202,10 +195,6 @@ AMBeamlineActionView::AMBeamlineActionView(AMBeamlineActionItem *action, int ind
 
 AMBeamlineActionItem* AMBeamlineActionView::action(){
 	return action_;
-}
-
-QString AMBeamlineActionView::viewType() const{
-	return viewType_;
 }
 
 void AMBeamlineActionView::setIndex(int index){

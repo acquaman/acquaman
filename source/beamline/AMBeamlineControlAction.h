@@ -30,16 +30,11 @@ Q_OBJECT
 public:
 	AMBeamlineControlAction(AMControl *control, QObject *parent = 0);
 
-	virtual QString type() const;
-
 public slots:
 	virtual void cleanup() {}
 
 protected:
 	AMControl *control_;
-
-private:
-	QString type_;
 };
 
 

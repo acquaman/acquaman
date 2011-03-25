@@ -33,6 +33,8 @@ Q_OBJECT
 public:
 	explicit AMBeamlineControlSetMoveAction(AMControlSet *controlSet, QObject *parent = 0);
 
+	virtual AMBeamlineActionView* createView(int index = 0);
+
 	virtual AMControlSet* controlSet();
 	virtual AMControlInfoList setpoint();
 
@@ -71,11 +73,9 @@ Q_OBJECT
 public:
 	AMBeamlineControlSetMoveActionView(AMBeamlineControlSetMoveAction *controlSetAction, int index = 0, QWidget *parent = 0);
 
-	virtual QString viewType() const;
-
 public slots:
 	void setIndex(int index);
-	void setAction(AMBeamlineControlSetMoveAction *controlSetAction);
+	void setAction(AMBeamlineActionItem *action);
 
 signals:
 	void actionStarted(AMBeamlineActionItem *action);
@@ -102,9 +102,6 @@ protected:
 	QHBoxLayout *hl_;
 
 	QIcon closeIcon_, stopIcon_, startIcon_, pauseIcon_;
-
-private:
-	QString viewType_;
 };
 
 #endif // AMBEAMLINECONTROLSETMOVEACTION_H
