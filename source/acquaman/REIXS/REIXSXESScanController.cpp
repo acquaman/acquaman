@@ -79,7 +79,7 @@ void REIXSXESScanController::initializeImplementation() {
 
 		if(initialMoveAction_->isRunning())
 			initialMoveAction_->cancel();
-		if(!initialMoveAction_->setSetpoint(&moveValues)) {
+		if(!initialMoveAction_->setSetpoint(moveValues)) {
 			/// \todo How to notify init failed?
 			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 3, "Could not start moving the spectrometer into position; maybe the move positions were out of range?"));
 			emit cancelled();

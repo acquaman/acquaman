@@ -87,8 +87,7 @@ bool SGMXASScanController::beamlineInitialize(){
 	initializationActions_ = new AMBeamlineParallelActionsList();
 	initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->exitSlitGap());
-	//tmpAction->setSetpoint(pCfg_()->exitSlitGap());
-	tmpAction->setSetpoint(250.0);
+	tmpAction->setSetpoint(pCfg_()->exitSlitGap());
 	initializationActions_->appendAction(0, tmpAction);
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->grating());
 	tmpAction->setSetpoint(pCfg_()->grating());
@@ -96,15 +95,9 @@ bool SGMXASScanController::beamlineInitialize(){
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->harmonic());
 	tmpAction->setSetpoint(pCfg_()->harmonic());
 	initializationActions_->appendAction(0, tmpAction);
-	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->undulatorTracking());
-	tmpAction->setSetpoint(pCfg_()->trackingGroup().at(0).value() );
-	initializationActions_->appendAction(0, tmpAction);
-	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->monoTracking());
-	tmpAction->setSetpoint(pCfg_()->trackingGroup().at(1).value() );
-	initializationActions_->appendAction(0, tmpAction);
-	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->exitSlitTracking());
-	tmpAction->setSetpoint(pCfg_()->trackingGroup().at(2).value() );
-	initializationActions_->appendAction(0, tmpAction);
+	AMBeamlineControlSetMoveAction* tmpSetAction = new AMBeamlineControlSetMoveAction(SGMBeamline::sgm()->trackingSet());
+	tmpSetAction->setSetpoint(pCfg_()->trackingGroup());
+	initializationActions_->appendAction(0, tmpSetAction);
 
 	for(int x = 0; x < pCfg_()->allDetectors()->count(); x++)
 		if(pCfg_()->allDetectorConfigurations().isActiveAt(x))

@@ -7,8 +7,8 @@
 #include <QToolButton>
 #include <QMouseEvent>
 
-#include "AMElement.h"
-#include "AMPeriodicTable.h"
+#include "util/AMElement.h"
+#include "util/AMPeriodicTable.h"
 #include <QDebug>
 
 class AMPeriodicTableView : public QWidget

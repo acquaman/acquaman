@@ -33,23 +33,18 @@ Q_OBJECT
 public:
 	explicit AMBeamlineControlSetMoveAction(AMControlSet *controlSet, QObject *parent = 0);
 
-	virtual QString type() const;
 	virtual AMControlSet* controlSet();
-	virtual AMControlInfoList* setpoint();
+	virtual AMControlInfoList setpoint();
 
 signals:
-	void progress(double, double);
+	void progress(double elapsed, double total);
 
 public slots:
 	virtual void start();
 	virtual void cancel();
-	/* NTBA March 14, 2011 David Chevrier
-	   Look into passing const references
-	   */
 	virtual void setControlSet(AMControlSet *controlSet);
-	// It's copying from this controlSetInfo. So if you change your copy it won't do anything
-	virtual bool setSetpoint(AMControlInfoList *setpoint);
-	virtual void cleanup(){}
+	virtual bool setSetpoint(const AMControlInfoList &setpoint);
+	virtual void cleanup();
 
 protected slots:
 	void delayedStart(bool ready);
@@ -64,12 +59,10 @@ protected slots:
 
 protected:
 	AMControlSet *controlSet_;
-	AMControlInfoList *setpoint_;
-	AMControlInfoList *startPoint_;
+	AMControlInfoList setpoint_;
+	AMControlInfoList fullSetpoint_; // Includes setpoint for all of the controls, even if the setpoint is a subset or a superset
+	AMControlInfoList startpoint_;
 	QTimer progressTimer_;
-
-private:
-	QString type_;
 };
 
 class AMBeamlineControlSetMoveActionView : public AMBeamlineActionView
