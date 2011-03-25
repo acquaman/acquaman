@@ -145,6 +145,7 @@ void AMBeamlineActionItem::setSucceeded(bool isSucceeded){
 	if(succeeded_.state() != isSucceeded){
 		succeeded_.setState(isSucceeded);
 		if(succeeded_.state()){
+			emit progress(1.0, 1.0);
 			emit succeeded();
 			setFinished(true);
 		}
@@ -164,8 +165,9 @@ void AMBeamlineActionItem::setFailed(bool isFailed, int explanation){
 void AMBeamlineActionItem::setFinished(bool isFinished){
 	if(finished_.state() != isFinished){
 		finished_.setState(isFinished);
-		if(finished_.state())
+		if(finished_.state()){
 			emit finished();
+		}
 	}
 }
 

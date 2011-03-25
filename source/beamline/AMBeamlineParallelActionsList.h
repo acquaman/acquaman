@@ -49,6 +49,7 @@ class AMBeamlineParallelActionsList : public QObject
 
 	signals:
 		void listSucceeded();
+		void listFailed(int firstExplanation);
 		void stageChanged(int stageIndex);
 		void actionChanged(int stageIndex, int index);
 		void stageAdded(int stageIndex);
@@ -63,7 +64,8 @@ class AMBeamlineParallelActionsList : public QObject
 		void actionReady(int stageIndex, int index, bool ready);
 		void stageFailed(int stageIndex, QList<int> index, int explanation);
 		void actionFailed(int stageIndex, int index, int explanation);
-		void stageProgress(double, double);
+		void stageProgress(double elasped, double total);
+		void stageProgress(int stageIndex, double elapsed, double total);
 
 	private slots:
 		void onDataChanged(QModelIndex a,QModelIndex b);
@@ -76,6 +78,7 @@ class AMBeamlineParallelActionsList : public QObject
 		void onActionProgress(double, double);
 		void onStageStarted(int stageIndex);
 		void onStageSucceeded();
+		void onStageFailed(QList<AMBeamlineActionItem*> failureList, int explanation);
 
 	protected:
 		AMBeamlineParallelActionListModel *actions_;
@@ -101,13 +104,19 @@ public:
 public slots:
 	void addAction(AMBeamlineActionItem *ai);
 	void removeAction(AMBeamlineActionItem *ai);
-	void actionFinished();
+	void actionSucceeded();
+	void actionFailed(int explanation);
 
 signals:
 	void everythingFinished();
+	void somethingFailed(QList<AMBeamlineActionItem*> failureList, int explanation);
 
 protected:
 	QList<AMBeamlineActionItem*> waitingOn_;
+	QList<AMBeamlineActionItem*> failures_;
+
+	bool hasFailed_;
+	int firstFailureExplanation_;
 };
 
 class AMBeamlineParallelActionListModel : public QAbstractItemModel

@@ -81,6 +81,7 @@ void AMBeamlineScanAction::start(){
 		}
 		connect(ctrl_, SIGNAL(finished()), this, SLOT(onScanSucceeded()));
 		connect(ctrl_, SIGNAL(cancelled()), this, SLOT(onScanCancelled()));
+		connect(ctrl_, SIGNAL(failed()), this, SLOT(onScanFailed()));
 		connect(ctrl_, SIGNAL(started()), this, SLOT(onScanStarted()));
 		connect(ctrl_, SIGNAL(progress(double,double)), this, SIGNAL(progress(double,double)));
 	}
@@ -132,6 +133,10 @@ void AMBeamlineScanAction::onScanCancelled(){
 
 void AMBeamlineScanAction::onScanSucceeded(){
 	setSucceeded(true);
+}
+
+void AMBeamlineScanAction::onScanFailed(){
+	setFailed(true);
 }
 
 void AMBeamlineScanAction::onBeamlineScanningChanged(bool isScanning){
@@ -261,13 +266,16 @@ void AMBeamlineScanActionView::onScanFinished(){
 }
 
 void AMBeamlineScanActionView::onScanFailed(int explanation){
-	if(explanation == 102){//102 is scan cancelled
-		cancelLatch_ = true;
-		stopCancelButton_->setIcon(closeIcon_);
-		playPauseButton_->setIcon(startIcon_);
-		playPauseButton_->setEnabled(false);
+	//if(explanation == 102){//102 is scan cancelled
+	cancelLatch_ = true;
+	stopCancelButton_->setIcon(closeIcon_);
+	playPauseButton_->setIcon(startIcon_);
+	playPauseButton_->setEnabled(false);
+	if(explanation == 102)//102 is scan cancelled
 		timeRemainingLabel_->setText("Scan Cancelled");
-	}
+	else
+		timeRemainingLabel_->setText("Scan Failed");
+		//}
 }
 
 void AMBeamlineScanActionView::onStopCancelButtonClicked(){
