@@ -1,4 +1,4 @@
-#include "AMPeriodicTableView.h"
+#include "ui/AMPeriodicTableView.h"
 
 #include <QToolButton>
 #include <QGridLayout>

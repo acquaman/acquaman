@@ -30,6 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QDebug>
 
+
 /// This class is an upgrade for AMVideoPlayerWidget, that can display a cross-hair and emit signals when clicked in a specific position.  The cross hair position and click locations are reported as a percentage of the video height and width, from 0 to 1.
 class AMCrosshairVideoWidget : public AMVideoPlayerWidget {
 
@@ -138,5 +139,6 @@ protected:
 
 
 };
+
 
 #endif /*AMBEAMLINECAMERAWIDGET_H*/
