@@ -25,6 +25,14 @@ VESPERSBeamline::VESPERSBeamline()
 	/// \todo delete this three
 	ccdDetector_ = new AMPVwStatusControl("CCD", "SMTR1607-2-B21-18:mm:sp", "SMTR1607-2-B21-18:mm", "SMTR1607-2-B21-18:status", "SMTR1607-2-B21-18:stop", this, 1);
 
+	setupDiagnostics();
+	setupControlSets();
+
+	QTimer::singleShot(2000, this, SLOT(pressureError()));
+}
+
+void VESPERSBeamline::setupDiagnostics()
+{
 	// Pressure controls.
 	ccgFE1_ =  new AMReadOnlyPVwStatusControl("Pressure FE1", "CCG1408-B20-01:vac:p", "CCG1408-B20-01:vac", this, 0);
 	ccgFE2a_ =  new AMReadOnlyPVwStatusControl("Pressure FE2a", "CCG1408-B20-02:vac:p", "CCG1408-B20-02:vac", this, 0);
@@ -46,24 +54,25 @@ VESPERSBeamline::VESPERSBeamline()
 	ccgPostWindow_ =  new AMReadOnlyPVwStatusControl("Pressure Post-Window", "CCG1607-2-B21-03:vac:p", "CCG1607-2-B21-03:vac", this, 0);
 
 	// Valve controls.
-	vvrFE1_;
-	vvrFE2a_;
-	vvrFE2b_;
-	vvrFE3a_;
-	vvrFE3b_;
-	vvrM1_;
-	vvrM2_;
-	vvrBPM1_;
-	vvrBPM2_;
-	vvrMono_;
-	vvrExitSlits_;
-	vvrStraightSection_;
-	vvrBPM3_;
-	vvrSSH_;
-	vvrBeamTransfer1_;
-	vvrBeamTransfer2_;
-	vvrPreWindow_;
-	vvrPostWindow_;
+	/// \todo This only reads the status right now.  Will need to change to a dual state control when I get around to making it.
+	vvrFE1_ = new AMReadOnlyPVControl("Valve FE1", "VVR1408-B20-01:state", this);
+	vvrFE2a_ = new AMReadOnlyPVControl("Valve FE2a", "VVR1408-B20-02:state", this);
+	vvrFE2b_ = new AMReadOnlyPVControl("Valve FE2b", "VVR1408-B20-03:state", this);
+	vvrFE3a_ = new AMReadOnlyPVControl("Valve FE3a", "VVR1607-1-B20-02:state", this);
+	vvrFE3b_ = new AMReadOnlyPVControl("Valve FE3b", "VVR1607-1-B20-03:state", this);
+	vvrM1_ = new AMReadOnlyPVControl("Valve M1", "VVR1607-1-B20-04:state", this);
+	vvrM2_ = new AMReadOnlyPVControl("Valve M2", "VVR1607-1-B20-05:state", this);
+	vvrBPM1_ = new AMReadOnlyPVControl("Valve BPM1", "VVR1607-1-B20-06:state", this);
+	vvrBPM2_ = new AMReadOnlyPVControl("Valve BPM2", "VVR1607-1-B20-07:state", this);
+	vvrMono_ = new AMReadOnlyPVControl("Valve Mono", "VVR1607-1-B20-08:state", this);
+	vvrExitSlits_ = new AMReadOnlyPVControl("Valve Exit Slits", "VVR1607-1-B20-09:state", this);
+	vvrStraightSection_ = new AMReadOnlyPVControl("Valve Straight Section", "VVR1607-1-B20-10:state", this);
+	vvrBPM3_ = new AMReadOnlyPVControl("Valve BPM3", "VVR1607-1-B20-11:state", this);
+	vvrSSH_ = new AMReadOnlyPVControl("Valve SSH", "VVR1607-1-B20-12:state", this);
+	vvrBeamTransfer1_ = new AMReadOnlyPVControl("Valve Beam Transfer 1", "VVR1607-1-B21-01:state", this);
+	vvrBeamTransfer2_ = new AMReadOnlyPVControl("Valve Beam Transfer 2", "VVR1607-2-B21-01:state", this);
+	vvrPreWindow_ = new AMReadOnlyPVControl("Valve Pre-Window", "VVR1607-2-B21-02:state", this);
+	vvrPostWindow_ = new AMReadOnlyPVControl("Valve Post-Window", "VVR1607-2-B21-03:state", this);
 
 	// Ion pump controls.
 	iopFE1a_ = new AMReadOnlyPVControl("Ion Pump FE1 a", "IOP1408-B20-01", this);
@@ -135,4 +144,208 @@ VESPERSBeamline::VESPERSBeamline()
 	fltPoeSsh1_ = new AMReadOnlyPVControl("Flow Transducer POE SSH1", "FLT1607-1-B21-04:lowflow", this);
 	fltPoeSsh2_ = new AMReadOnlyPVControl("Flow Transducer POE SSH2", "FLT1607-1-B22-02:lowflow", this);
 	fltSoeCcd_ = new AMReadOnlyPVControl("Flow Transducer SOE CCD", "FLT1607-2-B21-01:lowflow", this);
+}
+
+void VESPERSBeamline::setupControlSets()
+{
+	pressureSet_ = new AMControlSet(this);
+	pressureSet_->addControl(ccgFE1_);
+	pressureSet_->addControl(ccgFE2a_);
+	pressureSet_->addControl(ccgFE2b_);
+	pressureSet_->addControl(ccgFE3a_);
+	pressureSet_->addControl(ccgFE3b_);
+	pressureSet_->addControl(ccgM1_);
+	pressureSet_->addControl(ccgM2_);
+	pressureSet_->addControl(ccgBPM1_);
+	pressureSet_->addControl(ccgBPM2_);
+	pressureSet_->addControl(ccgMono_);
+	pressureSet_->addControl(ccgExitSlits_);
+	pressureSet_->addControl(ccgStraightSection_);
+	pressureSet_->addControl(ccgBPM3_);
+	pressureSet_->addControl(ccgSSH_);
+	pressureSet_->addControl(ccgBeamTransfer1_);
+	pressureSet_->addControl(ccgBeamTransfer2_);
+	pressureSet_->addControl(ccgPreWindow_);
+	pressureSet_->addControl(ccgPostWindow_);
+
+	connect(pressureSet_, SIGNAL(controlSetValuesChanged(AMControlInfoList)), this, SLOT(pressureError()));
+
+	valveSet_ = new AMControlSet(this);
+	valveSet_->addControl(vvrFE1_);
+	valveSet_->addControl(vvrFE2a_);
+	valveSet_->addControl(vvrFE2b_);
+	valveSet_->addControl(vvrFE3a_);
+	valveSet_->addControl(vvrFE3b_);
+	valveSet_->addControl(vvrM1_);
+	valveSet_->addControl(vvrM2_);
+	valveSet_->addControl(vvrBPM1_);
+	valveSet_->addControl(vvrBPM2_);
+	valveSet_->addControl(vvrMono_);
+	valveSet_->addControl(vvrExitSlits_);
+	valveSet_->addControl(vvrStraightSection_);
+	valveSet_->addControl(vvrBPM3_);
+	valveSet_->addControl(vvrSSH_);
+	valveSet_->addControl(vvrBeamTransfer1_);
+	valveSet_->addControl(vvrBeamTransfer2_);
+	valveSet_->addControl(vvrPreWindow_);
+	valveSet_->addControl(vvrPostWindow_);
+
+	ionPumpSet_ = new AMControlSet(this);
+	ionPumpSet_->addControl(iopFE1a_);
+	ionPumpSet_->addControl(iopFE1b_);
+	ionPumpSet_->addControl(iopFE2a_);
+	ionPumpSet_->addControl(iopFE2b_);
+	ionPumpSet_->addControl(iopFE2c_);
+	ionPumpSet_->addControl(iopFE2d_);
+	ionPumpSet_->addControl(iopFE3a_);
+	ionPumpSet_->addControl(iopFE3b_);
+	ionPumpSet_->addControl(iopM1_);
+	ionPumpSet_->addControl(iopM2_);
+	ionPumpSet_->addControl(iopBPM1_);
+	ionPumpSet_->addControl(iopBPM2_);
+	ionPumpSet_->addControl(iopMono_);
+	ionPumpSet_->addControl(iopExitSlits_);
+	ionPumpSet_->addControl(iopStraightSection_);
+	ionPumpSet_->addControl(iopBPM3_);
+	ionPumpSet_->addControl(iopSSH_);
+	ionPumpSet_->addControl(iopBeamTransfer1_);
+	ionPumpSet_->addControl(iopBeamTransfer2_);
+	ionPumpSet_->addControl(iopPreWindow_);
+
+	connect(ionPumpSet_, SIGNAL(controlSetValuesChanged(AMControlInfoList)), this, SLOT(ionPumpError()));
+
+	temperatureSet_ = new AMControlSet(this);
+	temperatureSet_->addControl(tmWaterSupply1_);
+	temperatureSet_->addControl(tmWaterSupply2_);
+	temperatureSet_->addControl(tmM1A1_);
+	temperatureSet_->addControl(tmM1A2_);
+	temperatureSet_->addControl(tmM1A3_);
+	temperatureSet_->addControl(tmM1B1_);
+	temperatureSet_->addControl(tmM1B2_);
+	temperatureSet_->addControl(tmM1B3_);
+	temperatureSet_->addControl(tmM2A1_);
+	temperatureSet_->addControl(tmM2A2_);
+	temperatureSet_->addControl(tmM2A3_);
+	temperatureSet_->addControl(tmM2B1_);
+	temperatureSet_->addControl(tmM2B2_);
+	temperatureSet_->addControl(tmM2B3_);
+	temperatureSet_->addControl(tmMono1_);
+	temperatureSet_->addControl(tmMono2_);
+	temperatureSet_->addControl(tmMono3_);
+	temperatureSet_->addControl(tmMono4_);
+	temperatureSet_->addControl(tmMono5_);
+	temperatureSet_->addControl(tmMono6_);
+	temperatureSet_->addControl(tmMono7_);
+
+	connect(temperatureSet_, SIGNAL(controlSetValuesChanged(AMControlInfoList)), this, SLOT(temperatureError()));
+
+	flowSwitchSet_ = new AMControlSet(this);
+	flowSwitchSet_->addControl(swfM1A_);
+	flowSwitchSet_->addControl(swfM1B_);
+	flowSwitchSet_->addControl(swfM2A_);
+	flowSwitchSet_->addControl(swfM2B_);
+	flowSwitchSet_->addControl(swfMono_);
+	flowSwitchSet_->addControl(swfExitSlits_);
+	flowSwitchSet_->addControl(swfInterimSlits1_);
+	flowSwitchSet_->addControl(swfInterimSlits2_);
+	flowSwitchSet_->addControl(swfPoeSsh1_);
+	flowSwitchSet_->addControl(swfPoeSsh2_);
+	flowSwitchSet_->addControl(swfSoeCcd_);
+
+	connect(flowSwitchSet_, SIGNAL(controlSetValuesChanged(AMControlInfoList)), this, SLOT(flowSwitchError()));
+
+	flowTransducerSet_ = new AMControlSet(this);
+	flowTransducerSet_->addControl(fltM1A_);
+	flowTransducerSet_->addControl(fltM1B_);
+	flowTransducerSet_->addControl(fltM2A_);
+	flowTransducerSet_->addControl(fltM2B_);
+	flowTransducerSet_->addControl(fltMono_);
+	flowTransducerSet_->addControl(fltExitSlits_);
+	flowTransducerSet_->addControl(fltInterimSlits1_);
+	flowTransducerSet_->addControl(fltInterimSlits2_);
+	flowTransducerSet_->addControl(fltPoeSsh1_);
+	flowTransducerSet_->addControl(fltPoeSsh2_);
+	flowTransducerSet_->addControl(fltSoeCcd_);
+
+	connect(flowTransducerSet_, SIGNAL(controlSetValuesChanged(AMControlInfoList)), this, SLOT(flowTransducerError()));
+}
+
+void VESPERSBeamline::pressureError()
+{
+	QString error("The following pressure readings are at a critical level:\n");
+	AMReadOnlyPVwStatusControl *current;
+
+	for (int i = 0; i < pressureSet_->count(); i++){
+
+		current = (AMReadOnlyPVwStatusControl *)pressureSet_->at(i);
+
+		if (current->isMoving())
+			error += tr("%1 (%2) %3 %4\n").arg(current->name(), current->readPVName(), QString::number(current->value(), 'e', 3), current->units());
+	}
+
+	AMErrorMon::report(AMErrorReport(pressureSet_, AMErrorReport::Serious, 0, error));
+}
+
+void VESPERSBeamline::ionPumpError()
+{
+	QString error("The following ion pumps are no longer operating correctly:\n");
+	AMReadOnlyPVControl *current;
+
+	for (int i = 0; i < ionPumpSet_->count(); i++){
+
+		current = (AMReadOnlyPVControl *)ionPumpSet_->at(i);
+
+		if (current->isMoving())
+			error += tr("%1 (%2)\n").arg(current->name(), current->readPVName());
+	}
+
+	AMErrorMon::report(AMErrorReport(ionPumpSet_, AMErrorReport::Serious, 0, error));
+}
+
+void VESPERSBeamline::temperatureError()
+{
+	QString error("The following temperature sensors are reading too high:\n");
+	AMReadOnlyPVControl *current;
+
+	for (int i = 0; i < temperatureSet_->count(); i++){
+
+		current = (AMReadOnlyPVControl *)temperatureSet_->at(i);
+
+		if (current->isMoving())
+			error += tr("%1 (%2)\n").arg(current->name(), current->readPVName());
+	}
+
+	AMErrorMon::report(AMErrorReport(temperatureSet_, AMErrorReport::Serious, 0, error));
+}
+
+void VESPERSBeamline::flowSwitchError()
+{
+	QString error("The following flow switches have tripped:\n");
+	AMReadOnlyPVControl *current;
+
+	for (int i = 0; i < flowSwitchSet_->count(); i++){
+
+		current = (AMReadOnlyPVControl *)flowSwitchSet_->at(i);
+
+		if (current->isMoving())
+			error += tr("%1 (%2)\n").arg(current->name(), current->readPVName());
+	}
+
+	AMErrorMon::report(AMErrorReport(flowSwitchSet_, AMErrorReport::Serious, 0, error));
+}
+
+void VESPERSBeamline::flowTransducerError()
+{
+	QString error("The following flow transducers are measuring too low:\n");
+	AMReadOnlyPVControl *current;
+
+	for (int i = 0; i < flowTransducerSet_->count(); i++){
+
+		current = (AMReadOnlyPVControl *)flowTransducerSet_->at(i);
+
+		if (current->isMoving())
+			error += tr("%1 (%2)\n").arg(current->name(), current->readPVName());
+	}
+
+	AMErrorMon::report(AMErrorReport(flowTransducerSet_, AMErrorReport::Serious, 0, error));
 }

@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMBeamline.h"
 #include "beamline/AMControlSet.h"
+#include "util/AMErrorMonitor.h"
 
 /// This class
 class VESPERSBeamline : public AMBeamline
@@ -245,11 +246,39 @@ public:
 
 	// These Control Sets are logical groups of controls, that are commonly used by different Acquaman components
 
+	/// Returns the pressure control set.
+	AMControlSet *pressureSet() const { return pressureSet_; }
+	/// Returns the valve control set.
+	AMControlSet *valveSet() const { return valveSet_; }
+	/// Returns the ion pump set.
+	AMControlSet *ionPumpSet() const { return ionPumpSet_; }
+	/// Returns the temperature control set.
+	AMControlSet *temperatureSet() const { return temperatureSet_; }
+	/// Returns the water flow switches control set.
+	AMControlSet *flowSwitchSet() const { return flowSwitchSet_; }
+	/// Returns the water flow transducer control set.
+	AMControlSet *flowTransducerSet() const { return flowTransducerSet_; }
+
 signals:
 
 public slots:
+	/// Slot used to deal with pressure errors.
+	void pressureError();
+	/// Slot used to deal with ion pump errors.
+	void ionPumpError();
+	/// Slot used to deal with temperature errors.
+	void temperatureError();
+	/// Slot used to deal with flow switch errors.
+	void flowSwitchError();
+	/// Slot used to deal with flow transducer errors.
+	void flowTransducerError();
 
 protected:
+	/// Sets up the readings such as pressure, flow switches, temperature, etc.
+	void setupDiagnostics();
+	/// Sets up logical groupings of controls into sets.
+	void setupControlSets();
+
 	/// Constructor. This is a singleton class; access it through VESPERSBeamline::vespers().
 	VESPERSBeamline();
 
@@ -366,6 +395,14 @@ protected:
 	AMControl *fltPoeSsh1_;
 	AMControl *fltPoeSsh2_;
 	AMControl *fltSoeCcd_;
+
+	// Control sets.
+	AMControlSet *pressureSet_;
+	AMControlSet *valveSet_;
+	AMControlSet *ionPumpSet_;
+	AMControlSet *temperatureSet_;
+	AMControlSet *flowSwitchSet_;
+	AMControlSet *flowTransducerSet_;
 };
 
 #endif // VESPERSBEAMLINE_H
