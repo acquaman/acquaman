@@ -23,7 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMBeamlineControlMoveAction::AMBeamlineControlMoveAction(AMControl *control, QObject *parent) :
 	AMBeamlineActionItem(parent)
 {
-	control_ = NULL;
+	control_ = 0; //NULL
 	if(control){
 		setControl(control);
 		setpoint_ = control_->value();

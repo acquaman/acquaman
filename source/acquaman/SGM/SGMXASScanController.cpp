@@ -99,6 +99,11 @@ bool SGMXASScanController::beamlineInitialize(){
 	tmpSetAction->setSetpoint(pCfg_()->trackingGroup());
 	initializationActions_->appendAction(0, tmpSetAction);
 
+	AMBeamlineControlWaitAction *tmpWaitAction = new AMBeamlineControlWaitAction(SGMBeamline::sgm()->loadlockCCG(), AMBeamlineControlWaitAction::LessThanTarget);
+	tmpWaitAction->setWaitpoint(1e-7);
+	tmpWaitAction->setHoldTime(1000);
+	initializationActions_->appendAction(0, tmpWaitAction);
+
 	for(int x = 0; x < pCfg_()->allDetectors()->count(); x++)
 		if(pCfg_()->allDetectorConfigurations().isActiveAt(x))
 			pCfg_()->allDetectors()->detectorAt(x)->setFromInfo(pCfg_()->allDetectorConfigurations().detectorInfoAt(x));
