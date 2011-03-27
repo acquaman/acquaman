@@ -99,15 +99,17 @@ bool SGMXASScanController::beamlineInitialize(){
 	tmpSetAction->setSetpoint(pCfg_()->trackingGroup());
 	initializationActions_->appendAction(0, tmpSetAction);
 
-	AMBeamlineControlWaitAction *tmpWaitAction = new AMBeamlineControlWaitAction(SGMBeamline::sgm()->loadlockCCG(), AMBeamlineControlWaitAction::EqualToTarget);
+	//AMBeamlineControlWaitAction *tmpWaitAction = new AMBeamlineControlWaitAction(SGMBeamline::sgm()->loadlockCCG(), AMBeamlineControlWaitAction::EqualToTarget);
+	AMBeamlineControlWaitAction *tmpWaitAction = new AMBeamlineControlWaitAction(SGMBeamline::sgm()->loadlockCCG(), AMBeamlineControlWaitAction::LessThanTarget);
 	tmpWaitAction->setWaitpoint(2.2e-8);
 	tmpWaitAction->setActionTolerance(1.0e-8);
 	tmpWaitAction->setHoldTime(1000);
 	initializationActions_->appendAction(0, tmpWaitAction);
 
 	tmpWaitAction = new AMBeamlineControlWaitAction(SGMBeamline::sgm()->loadlockTCG(), AMBeamlineControlWaitAction::NotEqualToTarget);
+	//tmpWaitAction = new AMBeamlineControlWaitAction(SGMBeamline::sgm()->loadlockTCG(), AMBeamlineControlWaitAction::GreaterThanTarget);
 	tmpWaitAction->setWaitpoint(720);
-	tmpWaitAction->setActionTolerance(2.5);
+	tmpWaitAction->setActionTolerance(20);
 	tmpWaitAction->setHoldTime(1000);
 	initializationActions_->appendAction(0, tmpWaitAction);
 

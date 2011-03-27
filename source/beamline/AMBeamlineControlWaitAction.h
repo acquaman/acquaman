@@ -45,7 +45,6 @@ protected slots:
 	virtual void onValueChanged(double newValue);
 	virtual void onConnected(bool connected);
 	virtual void checkReady();
-	virtual void onStarted();
 	virtual void calculateProgress();
 	virtual void onHoldTimeReached();
 
@@ -55,6 +54,7 @@ protected:
 	double actionTolerance_;
 	AMBeamlineControlWaitAction::waitTargetType targetType_;
 	double startpoint_;
+	double outlierpoint_;
 	QTimer progressTimer_;
 	double holdTime_; //In milliseconds
 	QTimer holdTimeTimer_; //How long the wait needs to be held

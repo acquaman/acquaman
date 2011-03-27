@@ -38,9 +38,11 @@ double AMBeamlineControlWaitAction::holdTime() const{
 
 void AMBeamlineControlWaitAction::start(){
 	if(isReady()){
-		qDebug() << "Holla! Wait action has started";
 		connect(control_, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged(double)));
 		startpoint_ = control_->value();
+		outlierpoint_ = startpoint_;
+		if( (targetType_ == AMBeamlineControlWaitAction::LessThanTarget) || (targetType_ == AMBeamlineControlWaitAction::GreaterThanTarget) )
+			actionTolerance_ = 0;
 		connect(&progressTimer_, SIGNAL(timeout()), this, SLOT(calculateProgress()));
 		progressTimer_.start(500);
 		setStarted(true);
@@ -102,7 +104,6 @@ void AMBeamlineControlWaitAction::delayedStart(bool ready){
 }
 
 void AMBeamlineControlWaitAction::onValueChanged(double newValue){
-	qDebug() << "Heard control value changed " << newValue << " versus " << waitpoint_;
 	bool startTimer = false;
 	bool stopTimer = false;
 	bool timerRunning = holdTimeTimer_.isActive();
@@ -141,46 +142,9 @@ void AMBeamlineControlWaitAction::onValueChanged(double newValue){
 		disconnect(&holdTimeTimer_, SIGNAL(timeout()), this, SLOT(onHoldTimeReached()));
 		holdTimeTimer_.stop();
 	}
-
-	/*
-	switch(targetType_){
-	case AMBeamlineControlWaitAction::LessThanTarget :
-		if( (!holdTimeTimer_.isActive()) && (newValue < waitpoint_) ){
-			qDebug() << "Start the timer, value is good";
-			//holdTimeTimer_.singleShot(holdTime_, this, SLOT(onHoldTimeReached()));
-			connect(&holdTimeTimer_, SIGNAL(timeout()), this, SLOT(onHoldTimeReached()));
-			holdTimeTimer_.start(holdTime_);
-		}
-		else if( (holdTimeTimer_.isActive()) && (newValue >= waitpoint_) ){
-			qDebug() << "Stop the timer, value is no longer good";
-			disconnect(&holdTimeTimer_, SIGNAL(timeout()), this, SLOT(onHoldTimeReached()));
-			holdTimeTimer_.stop();
-		}
-		break;
-	case AMBeamlineControlWaitAction::GreaterThanTarget :
-		if( (!holdTimeTimer_.isActive()) && (newValue > waitpoint_) )
-			holdTimeTimer_.singleShot(holdTime_, this, SLOT(onHoldTimeReached()));
-		else if( (holdTimeTimer_.isActive()) && (newValue <= waitpoint_) )
-			holdTimeTimer_.stop();
-		break;
-	case AMBeamlineControlWaitAction::EqualToTarget :
-		if( (!holdTimeTimer_.isActive()) && (fabs(newValue-waitpoint_) < actionTolerance_) )
-			holdTimeTimer_.singleShot(holdTime_, this, SLOT(onHoldTimeReached()));
-		else if( (holdTimeTimer_.isActive()) && (fabs(newValue-waitpoint_) >= actionTolerance_) )
-			holdTimeTimer_.stop();
-		break;
-	case AMBeamlineControlWaitAction::NotEqualToTarget :
-		if( (!holdTimeTimer_.isActive()) && (fabs(newValue-waitpoint_) > actionTolerance_) )
-			holdTimeTimer_.singleShot(holdTime_, this, SLOT(onHoldTimeReached()));
-		else if( (holdTimeTimer_.isActive()) && (fabs(newValue-waitpoint_) <= actionTolerance_) )
-			holdTimeTimer_.stop();
-		break;
-	}
-	*/
 }
 
 void AMBeamlineControlWaitAction::onConnected(bool connected){
-	qDebug() << "Heard connected changed to " << connected << " in wait action";
 	if(!hasStarted()){
 		if(control_->valueOutOfRange(waitpoint_))
 			waitpoint_ = 0;
@@ -191,21 +155,26 @@ void AMBeamlineControlWaitAction::onConnected(bool connected){
 void AMBeamlineControlWaitAction::checkReady(){
 	if(!control_ || !control_->isConnected())
 		setReady(false);
-	qDebug() << "Check ready passed in wait action";
 	setReady(true);
 }
 
-void AMBeamlineControlWaitAction::onStarted(){
-	//setStarted(true);
-}
-
 void AMBeamlineControlWaitAction::calculateProgress(){
-
+	double elapsed;
+	if(targetType_ != AMBeamlineControlWaitAction::NotEqualToTarget){
+		if( fabs(control_->value()-waitpoint_) > fabs(outlierpoint_-waitpoint_) )
+			outlierpoint_ = control_->value();
+		elapsed = 1.0 - (fabs(control_->value()-waitpoint_)-actionTolerance_)/(fabs(outlierpoint_-waitpoint_)-actionTolerance_);
+	}
+	else
+		elapsed = fabs(control_->value()-waitpoint_)/actionTolerance_;
+	qDebug() << "Progress is " << elapsed/1.0;
+	emit progress(elapsed, 1.0);
 }
 
 void AMBeamlineControlWaitAction::onHoldTimeReached(){
-	qDebug() << "Double HOLLA! Hold Time Reached and wait action succeeded";
 	disconnect(&holdTimeTimer_, SIGNAL(timeout()), this, SLOT(onHoldTimeReached()));
 	holdTimeTimer_.stop();
+	progressTimer_.stop();
+	emit progress(1.0, 1.0);
 	setSucceeded(true);
 }
