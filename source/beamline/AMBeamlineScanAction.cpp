@@ -32,7 +32,6 @@ AMBeamlineScanAction::AMBeamlineScanAction(AMScanConfiguration *cfg, QObject *pa
 {
 	cfg_ = cfg;
 	ctrl_ = NULL;
-	type_ = "scanAction";
 	keepOnCancel_ = false;
 
 	connect(AMBeamline::bl(), SIGNAL(beamlineScanningChanged(bool)), this, SLOT(onBeamlineScanningChanged(bool)));
@@ -40,8 +39,8 @@ AMBeamlineScanAction::AMBeamlineScanAction(AMScanConfiguration *cfg, QObject *pa
 	initialize();
 }
 
-QString AMBeamlineScanAction::type() const{
-	return AMBeamlineActionItem::type()+"."+type_;
+AMBeamlineActionView* AMBeamlineScanAction::createView(int index){
+	return new AMBeamlineScanActionView(this, index);
 }
 
 bool AMBeamlineScanAction::isRunning() const{
@@ -81,6 +80,7 @@ void AMBeamlineScanAction::start(){
 		}
 		connect(ctrl_, SIGNAL(finished()), this, SLOT(onScanSucceeded()));
 		connect(ctrl_, SIGNAL(cancelled()), this, SLOT(onScanCancelled()));
+		connect(ctrl_, SIGNAL(failed()), this, SLOT(onScanFailed()));
 		connect(ctrl_, SIGNAL(started()), this, SLOT(onScanStarted()));
 		connect(ctrl_, SIGNAL(progress(double,double)), this, SIGNAL(progress(double,double)));
 	}
@@ -134,6 +134,10 @@ void AMBeamlineScanAction::onScanSucceeded(){
 	setSucceeded(true);
 }
 
+void AMBeamlineScanAction::onScanFailed(){
+	setFailed(true);
+}
+
 void AMBeamlineScanAction::onBeamlineScanningChanged(bool isScanning){
 	setReady(!isScanning);
 }
@@ -143,7 +147,6 @@ AMBeamlineScanActionView::AMBeamlineScanActionView(AMBeamlineScanAction *scanAct
 {
 	index_ = index;
 	cancelLatch_ = false;
-	viewType_ = "scanView";
 	scanAction_ = scanAction;
 	setMinimumHeight(NATURAL_ACTION_VIEW_HEIGHT);
 	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
@@ -187,24 +190,25 @@ AMBeamlineScanActionView::AMBeamlineScanActionView(AMBeamlineScanAction *scanAct
 	setLayout(hl_);
 }
 
-QString AMBeamlineScanActionView::viewType() const{
-	return AMBeamlineActionView::viewType()+"."+viewType_;
-}
-
 void AMBeamlineScanActionView::setIndex(int index){
 	index_ = index;
 	updateScanNameLabel();
 }
 
-void AMBeamlineScanActionView::setAction(AMBeamlineScanAction *scanAction){
-	disconnect(scanAction_, SIGNAL(progress(double,double)), this, SLOT(updateProgressBar(double,double)));
-	disconnect(scanAction_, SIGNAL(started()), this, SLOT(onScanStarted()));
-	disconnect(scanAction_, SIGNAL(succeeded()), this, SLOT(onScanFinished()));
+void AMBeamlineScanActionView::setAction(AMBeamlineActionItem *action){
+	AMBeamlineScanAction *scanAction = qobject_cast<AMBeamlineScanAction*>(action);
+	if(scanAction_){
+		disconnect(scanAction_, SIGNAL(progress(double,double)), this, SLOT(updateProgressBar(double,double)));
+		disconnect(scanAction_, SIGNAL(started()), this, SLOT(onScanStarted()));
+		disconnect(scanAction_, SIGNAL(succeeded()), this, SLOT(onScanFinished()));
+	}
 	scanAction_ = scanAction;
-	updateScanNameLabel();
-	connect(scanAction_, SIGNAL(progress(double,double)), this, SLOT(updateProgressBar(double,double)));
-	connect(scanAction_, SIGNAL(started()), this, SLOT(onScanStarted()));
-	connect(scanAction_, SIGNAL(succeeded()), this, SLOT(onScanFinished()));
+	if(scanAction_){
+		updateScanNameLabel();
+		connect(scanAction_, SIGNAL(progress(double,double)), this, SLOT(updateProgressBar(double,double)));
+		connect(scanAction_, SIGNAL(started()), this, SLOT(onScanStarted()));
+		connect(scanAction_, SIGNAL(succeeded()), this, SLOT(onScanFinished()));
+	}
 }
 
 void AMBeamlineScanActionView::onInfoChanged(){
@@ -261,13 +265,16 @@ void AMBeamlineScanActionView::onScanFinished(){
 }
 
 void AMBeamlineScanActionView::onScanFailed(int explanation){
-	if(explanation == 102){//102 is scan cancelled
-		cancelLatch_ = true;
-		stopCancelButton_->setIcon(closeIcon_);
-		playPauseButton_->setIcon(startIcon_);
-		playPauseButton_->setEnabled(false);
+	//if(explanation == 102){//102 is scan cancelled
+	cancelLatch_ = true;
+	stopCancelButton_->setIcon(closeIcon_);
+	playPauseButton_->setIcon(startIcon_);
+	playPauseButton_->setEnabled(false);
+	if(explanation == 102)//102 is scan cancelled
 		timeRemainingLabel_->setText("Scan Cancelled");
-	}
+	else
+		timeRemainingLabel_->setText("Scan Failed");
+		//}
 }
 
 void AMBeamlineScanActionView::onStopCancelButtonClicked(){

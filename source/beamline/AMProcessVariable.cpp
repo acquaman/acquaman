@@ -531,6 +531,18 @@ void AMProcessVariable::internal_onControlInfoChanged(int controlInfoType, QStri
 		upperLimit_ = DBL_MAX;
 	}
 
+	//If the record's OPR_HIGH and OPR_LOW limits haven't been set, we're receiving them as max(0), min(0).
+	// That's a problem, because it pins our minValue() and maxValue() to 0 for readonly.
+	if(lowerGraphLimit_ == 0 && upperGraphLimit_ == 0) {
+		lowerGraphLimit_ = -DBL_MAX;
+		upperGraphLimit_ = DBL_MAX;
+	}
+	else if(lowerGraphLimit_ > upperGraphLimit_){
+		//In this case we're pinned again
+		lowerGraphLimit_ = -DBL_MAX;
+		upperGraphLimit_ = DBL_MAX;
+	}
+
 	initialized_ = true;
 	emit initialized();
 }

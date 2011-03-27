@@ -23,13 +23,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMBeamlineControlAction::AMBeamlineControlAction(AMControl *control, QObject *parent) :
 	AMBeamlineActionItem(parent)
 {
-	type_ = "controlAction";
 	control_ = control;
 	connect(control_, SIGNAL(moveStarted()), this, SIGNAL(started()));
 	connect(control_, SIGNAL(moveSucceeded()), this, SIGNAL(succeeded()));
 	connect(control_, SIGNAL(moveFailed(int)), this, SIGNAL(failed(int)));
-}
-
-QString AMBeamlineControlAction::type() const{
-	return AMBeamlineActionItem::type()+"."+type_;
 }

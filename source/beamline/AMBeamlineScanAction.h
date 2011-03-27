@@ -35,8 +35,9 @@ Q_OBJECT
 public:
 	explicit AMBeamlineScanAction(AMScanConfiguration *cfg, QObject *parent = 0);
 
+	virtual AMBeamlineActionView* createView(int index = 0);
+
 	AMScanConfiguration* cfg() const { return cfg_;}
-	virtual QString type() const;
 	virtual bool isRunning() const;
 	virtual bool isPaused() const;
 
@@ -60,15 +61,13 @@ protected slots:
 	virtual void onScanStarted();
 	virtual void onScanCancelled();
 	virtual void onScanSucceeded();
+	virtual void onScanFailed();
 	virtual void onBeamlineScanningChanged(bool isScanning);
 
 protected:
 	AMScanConfiguration *cfg_;
 	AMScanController * ctrl_;
 	bool keepOnCancel_;
-
-private:
-	QString type_;
 };
 
 class AMBeamlineScanActionView : public AMBeamlineActionView
@@ -79,11 +78,9 @@ public:
 
 	AMBeamlineActionItem* action() { return scanAction_;}
 
-	virtual QString viewType() const;
-
 public slots:
 	void setIndex(int index);
-	void setAction(AMBeamlineScanAction *scanAction);
+	void setAction(AMBeamlineActionItem *action);
 
 protected slots:
 	void onInfoChanged();
@@ -110,9 +107,6 @@ protected:
 	QHBoxLayout *hl_;
 
 	QIcon closeIcon_, stopIcon_, startIcon_, pauseIcon_;
-
-private:
-	QString viewType_;
 };
 
 #endif // AMBEAMLINESCANACTION_H

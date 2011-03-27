@@ -4,12 +4,7 @@ AMBeamlineControlStopAction::AMBeamlineControlStopAction(AMControl *control, QOb
 		AMBeamlineActionItem(parent)
 {
 	control_ = 0; //NULL
-	type_ = "controlStopAction";
 	setControl(control);
-}
-
-QString AMBeamlineControlStopAction::type() const{
-	return AMBeamlineActionItem::type()+"."+type_;
 }
 
 AMControl* AMBeamlineControlStopAction::control(){
