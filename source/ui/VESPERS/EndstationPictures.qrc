@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/">
+        <file>blue_arrows_left.png</file>
+        <file>blue_arrows_right.png</file>
+        <file>lightbulb.png</file>
+        <file>Save.png</file>
+        <file>configure.png</file>
+        <file>Endstation-background.png</file>
+    </qresource>
+</RCC>

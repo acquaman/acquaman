@@ -37,9 +37,6 @@ public:
 
 	// Accessing control elements:
 
-	/// \todo delete this
-	AMControl *ccdDetector() const { return ccdDetector_; }
-
 	/// Returns the pressure control for Front End section 1.
 	AMControl *ccgFE1() const { return ccgFE1_; }
 	/// Returns the pressure control for Front End section 2a.
@@ -244,6 +241,26 @@ public:
 	/// Returns the water flow transducer control for the SOE Roper CCD.
 	AMControl *fltSoeCcd() const { return fltSoeCcd_; }
 
+	/// Returns the CCD motor control.
+	AMControl *ccdMotor() const { return ccdMotor_; }
+	/// Returns the microscope motor contorl.
+	AMControl *microscopeMotor() const { return microscopeMotor_; }
+	/// Returns the four element detector motor control.
+	AMControl *fourElMotor() const { return fourElMotor_; }
+	/// Returns the single element detector motor control.
+	AMControl *singleElMotor() const { return singleElMotor_; }
+	/// Returns the beam focus motor control.
+	AMControl *focusMotor() const { return focusMotor_; }
+
+	/// Returns the CCD motor control feedback.
+	AMControl *ccdMotorfbk() const { return ccdMotorfbk_; }
+	/// Returns the four element detector motor control feedback.
+	AMControl *fourElMotorfbk() const { return fourElMotorfbk_; }
+	/// Returns the single element detector motor control feedback.
+	AMControl *singleElMotorfbk() const { return singleElMotorfbk_; }
+	/// Returns the beam focus motor control feedback.
+	AMControl *focusMotorfbk() const { return focusMotorfbk_; }
+
 	// These Control Sets are logical groups of controls, that are commonly used by different Acquaman components
 
 	/// Returns the pressure control set.
@@ -258,10 +275,23 @@ public:
 	AMControlSet *flowSwitchSet() const { return flowSwitchSet_; }
 	/// Returns the water flow transducer control set.
 	AMControlSet *flowTransducerSet() const { return flowTransducerSet_; }
+	/// Returns the endstation motor control set.
+	AMControlSet *endstationMotorSet() const { return endstationMotorSet_; }
+
+	// These are PVs that are needed for random small jobs around the beamline.
+
+	/// Returns the process variable for the microscope light.
+	AMProcessVariable *micLight() const { return micLight_; }
+	/// Returns the process variable for the CCD file path.  Needs special write function to get the info in or out.  See VESPERSEndstationView for example.
+	AMProcessVariable *ccdPath() const { return ccdPath_; }
+	/// Returns the process variable for the CCD file name.  Needs special write function to get the info in or out.  See VESPERSEndstationView for example.
+	AMProcessVariable *ccdFile() const { return ccdFile_; }
+	/// Returns the process variable for the CCD file number.
+	AMProcessVariable *ccdNumber() const { return ccdNumber_; }
 
 signals:
 
-public slots:
+protected slots:
 	/// Slot used to deal with pressure errors.
 	void pressureError();
 	/// Slot used to deal with ion pump errors.
@@ -278,13 +308,13 @@ protected:
 	void setupDiagnostics();
 	/// Sets up logical groupings of controls into sets.
 	void setupControlSets();
+	/// Sets up all the controls and PVs for the VESPERSEndstationView.
+	void setupEndstation();
 
 	/// Constructor. This is a singleton class; access it through VESPERSBeamline::vespers().
 	VESPERSBeamline();
 
-	/// \todo delete this too
-	AMControl *ccdDetector_;
-
+	// Beamline Diagnostics.
 	// Pressure controls.
 	AMControl *ccgFE1_;
 	AMControl *ccgFE2a_;
@@ -403,6 +433,33 @@ protected:
 	AMControlSet *temperatureSet_;
 	AMControlSet *flowSwitchSet_;
 	AMControlSet *flowTransducerSet_;
+	AMControlSet *endstationMotorSet_;
+
+	// End Diagnostic Controls.
+
+	// Endstation controls
+	// The controls used for the control window.
+	AMControl *ccdMotor_;
+	AMControl *microscopeMotor_;
+	AMControl *fourElMotor_;
+	AMControl *singleElMotor_;
+	AMControl *focusMotor_;
+
+	// The process variables that have the feedback value used for the button.  The microscope doesn't need one because it's encoder doesn't work.
+	AMControl *ccdMotorfbk_;
+	AMControl *fourElMotorfbk_;
+	AMControl *singleElMotorfbk_;
+	AMControl *focusMotorfbk_;
+
+	// Microscope light PV.
+	AMProcessVariable *micLight_;
+
+	// Various CCD file path PVs.
+	AMProcessVariable *ccdPath_;
+	AMProcessVariable *ccdFile_;
+	AMProcessVariable *ccdNumber_;
+
+	// End Endstation controls.
 };
 
 #endif // VESPERSBEAMLINE_H

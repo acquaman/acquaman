@@ -22,13 +22,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 VESPERSBeamline::VESPERSBeamline()
 	: AMBeamline("VESPERSBeamline")
 {
-	/// \todo delete this three
-	ccdDetector_ = new AMPVwStatusControl("CCD", "SMTR1607-2-B21-18:mm:sp", "SMTR1607-2-B21-18:mm", "SMTR1607-2-B21-18:status", "SMTR1607-2-B21-18:stop", this, 1);
-
 	setupDiagnostics();
+	setupEndstation();
 	setupControlSets();
-
-	QTimer::singleShot(2000, this, SLOT(pressureError()));
 }
 
 void VESPERSBeamline::setupDiagnostics()
@@ -146,8 +142,34 @@ void VESPERSBeamline::setupDiagnostics()
 	fltSoeCcd_ = new AMReadOnlyPVControl("Flow Transducer SOE CCD", "FLT1607-2-B21-01:lowflow", this);
 }
 
+void VESPERSBeamline::setupEndstation()
+{
+	// The controls used for the control window.
+	ccdMotor_ = new AMPVwStatusControl("CCD motor", "SMTR1607-2-B21-18:mm:sp", "SMTR1607-2-B21-18:mm", "SMTR1607-2-B21-18:status", "SMTR1607-2-B21-18:stop", this, 1);
+	microscopeMotor_ = new AMPVwStatusControl("Microscope motor", "SMTR1607-2-B21-17:mm:sp", "SMTR1607-2-B21-17:mm", "SMTR1607-2-B21-17:status", "SMTR1607-2-B21-17:stop", this, 1);
+	fourElMotor_ = new AMPVwStatusControl("4-Element Vortex motor", "SMTR1607-2-B21-27:mm:sp", "SMTR1607-2-B21-27:mm", "SMTR1607-2-B21-27:status", "SMTR1607-2-B21-27:stop", this, 1);
+	singleElMotor_ = new AMPVwStatusControl("1-Element Vortex motor", "SMTR1607-2-B21-15:mm:sp", "SMTR1607-2-B21-15:mm", "SMTR1607-2-B21-15:status", "SMTR1607-2-B21-15:stop", this, 1);
+	focusMotor_ = new AMPVwStatusControl("Focus motor", "TS1607-2-B21-01:N:user:mm:sp", "TS1607-2-B21-01:N:user:mm", "TS1607-2-B21-01:N:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 1);
+
+	// The process variables that have the feedback value used for the button.  The microscope doesn't need one because it's encoder doesn't work.
+	ccdMotorfbk_ = new AMReadOnlyPVControl("CCD motor feedback", "SMTR1607-2-B21-18:mm:fbk", this);
+	fourElMotorfbk_ = new AMReadOnlyPVControl("4-Element Vortex motor feedback", "SMTR1607-2-B21-27:mm:fbk", this);
+	singleElMotorfbk_ = new AMReadOnlyPVControl("1-Element Vortex motor feedback", "SMTR1607-2-B21-15:mm:fbk", this);
+	focusMotorfbk_ = new AMReadOnlyPVControl("Focus motor feedback", "TS1607-2-B21-01:N:user:mm:fbk", this);
+
+	// Microscope light PV.
+	micLight_ = new AMProcessVariable("07B2_PLC_Mic_Light_Inten", true, this);
+	micLight_->disablePutCallbackMode(true);
+
+	// Various CCD file path PVs.
+	ccdPath_ = new AMProcessVariable("IOC1607-003:det1:FilePath", true, this);
+	ccdFile_ = new AMProcessVariable("IOC1607-003:det1:FileName", true, this);
+	ccdNumber_ = new AMProcessVariable("IOC1607-003:det1:FileNumber", true, this);
+}
+
 void VESPERSBeamline::setupControlSets()
 {
+	// Grouping the pressure controls together.
 	pressureSet_ = new AMControlSet(this);
 	pressureSet_->addControl(ccgFE1_);
 	pressureSet_->addControl(ccgFE2a_);
@@ -168,8 +190,10 @@ void VESPERSBeamline::setupControlSets()
 	pressureSet_->addControl(ccgPreWindow_);
 	pressureSet_->addControl(ccgPostWindow_);
 
-	connect(pressureSet_, SIGNAL(controlSetValuesChanged(AMControlInfoList)), this, SLOT(pressureError()));
+	for (int i = 0; i < pressureSet_->count(); i++)
+		connect((AMReadOnlyPVwStatusControl *)(pressureSet_->at(i)), SIGNAL(movingChanged(bool)), this, SLOT(pressureError()));
 
+	// Grouping the valve controls together.
 	valveSet_ = new AMControlSet(this);
 	valveSet_->addControl(vvrFE1_);
 	valveSet_->addControl(vvrFE2a_);
@@ -190,6 +214,7 @@ void VESPERSBeamline::setupControlSets()
 	valveSet_->addControl(vvrPreWindow_);
 	valveSet_->addControl(vvrPostWindow_);
 
+	// Grouping the ion pump controls together.
 	ionPumpSet_ = new AMControlSet(this);
 	ionPumpSet_->addControl(iopFE1a_);
 	ionPumpSet_->addControl(iopFE1b_);
@@ -214,6 +239,7 @@ void VESPERSBeamline::setupControlSets()
 
 	connect(ionPumpSet_, SIGNAL(controlSetValuesChanged(AMControlInfoList)), this, SLOT(ionPumpError()));
 
+	// Grouping the temperature controls together.
 	temperatureSet_ = new AMControlSet(this);
 	temperatureSet_->addControl(tmWaterSupply1_);
 	temperatureSet_->addControl(tmWaterSupply2_);
@@ -239,6 +265,7 @@ void VESPERSBeamline::setupControlSets()
 
 	connect(temperatureSet_, SIGNAL(controlSetValuesChanged(AMControlInfoList)), this, SLOT(temperatureError()));
 
+	// Grouping the water flow switch controls together.
 	flowSwitchSet_ = new AMControlSet(this);
 	flowSwitchSet_->addControl(swfM1A_);
 	flowSwitchSet_->addControl(swfM1B_);
@@ -254,6 +281,7 @@ void VESPERSBeamline::setupControlSets()
 
 	connect(flowSwitchSet_, SIGNAL(controlSetValuesChanged(AMControlInfoList)), this, SLOT(flowSwitchError()));
 
+	// Grouping the water flow transducer controls together.
 	flowTransducerSet_ = new AMControlSet(this);
 	flowTransducerSet_->addControl(fltM1A_);
 	flowTransducerSet_->addControl(fltM1B_);
@@ -268,6 +296,18 @@ void VESPERSBeamline::setupControlSets()
 	flowTransducerSet_->addControl(fltSoeCcd_);
 
 	connect(flowTransducerSet_, SIGNAL(controlSetValuesChanged(AMControlInfoList)), this, SLOT(flowTransducerError()));
+
+	// Grouping the enstation motors together.
+	endstationMotorSet_ = new AMControlSet(this);
+	endstationMotorSet_->addControl(ccdMotor_);
+	endstationMotorSet_->addControl(ccdMotorfbk_);
+	endstationMotorSet_->addControl(microscopeMotor_);
+	endstationMotorSet_->addControl(fourElMotor_);
+	endstationMotorSet_->addControl(fourElMotorfbk_);
+	endstationMotorSet_->addControl(singleElMotor_);
+	endstationMotorSet_->addControl(singleElMotorfbk_);
+	endstationMotorSet_->addControl(focusMotor_);
+	endstationMotorSet_->addControl(focusMotorfbk_);
 }
 
 void VESPERSBeamline::pressureError()

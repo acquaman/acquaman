@@ -21,8 +21,8 @@ bool VESPERSAppController::startup() {
 		////////////////////////////////////
 
 		vespersView_ = new VESPERSBeamlineView;
-		mw_->insertHeading("Blah", 0);
-		mw_->addPane(vespersView_, "Blah", "The Bestest!", ":/utilities-system-monitor.png");
+		mw_->insertHeading("VESPERS", 0);
+		mw_->addPane(vespersView_, "VESPERS", "Endstation Control", ":/utilities-system-monitor.png");
 
 		return true;
 	}
