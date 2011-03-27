@@ -94,6 +94,8 @@ public:
 	/// Called by the database system on loadFromDb() to give us our new set of AMControlInfo objects. We copy these ones into our internal list and then delete them.
 	void dbLoadControlInfos(const AMDbObjectList& newControlInfos);
 
+	/// Re-implemented from AMDbObject::storeToDb() to check first if we've been modified within the last run loop.  (Accessing the non-const operator[]
+
 
 signals:
 	/// Forwarded from signalSource()->itemChanged(). Emitted when a control is replaced, OR after a control is accessed for modification and program execution returns back to the event loop.

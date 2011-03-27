@@ -21,37 +21,196 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef AMSAMPLEPLATEVIEW_H
 #define AMSAMPLEPLATEVIEW_H
 
-#include <QGroupBox>
-#include <QLabel>
-#include <QComboBox>
-#include <QVBoxLayout>
-#include <QFrame>
-#include <QScrollArea>
-#include <QPushButton>
-#include <QMouseEvent>
-#include <QIcon>
-#include <QScrollBar>
-#include <QDebug>
+
+
 #include <QListView>
-#include <QLineEdit>
-#include <QPropertyAnimation>
+#include <QPushButton>
+#include <QStyledItemDelegate>
 
 
 #include "dataman/AMSamplePlate.h"
-#include "beamline/SGM/SGMBeamline.h"
 #include "dataman/AMDatabase.h"
-#include "AMDetailedItemDelegate.h"
 
 #include "ui_AMSamplePlateSelector.h"
+#include "ui/AMSamplePlateItemWidget.h"
+#include "ui/AMSampleEditor.h"
 
-class AMSampleListView;
-class AMSamplePositionItemView;
-class AMSamplePositionItemExpandingAdder;
+#include "util/AMDeferredFunctionCall.h"
+#include "beamline/AMControlSet.h"
+
+#include "ui/AMDateTimeUtils.h"
+
+
+/* Classes
+
+AMSamplePlateItemModel:
+ - exposes information from the sample plate's items (positions) as a QAbstractListModel
+
+AMSamplePlateItemDelegate: custom drawing for samples
+
+AMSamplePositionViewActionsWidget: editor widget provided by the delegate; placed on top of AMSamplePosition items in view; with buttons to mark, move, remove
+
+*/
+
+class AMSamplePlateItemModel : public QAbstractListModel {
+
+	Q_OBJECT
+
+public:
+	/// Constructor requires a valid \c plate to expose as a QAbstractListModel. The sample/position pairs (AMSamplePosition) will provide the data for the items in the list.
+	AMSamplePlateItemModel(AMSamplePlate* plate, QObject* parent = 0);
+
+	/// Reimplemented from QAbstractListModel
+	int rowCount(const QModelIndex &parent) const {
+		if(parent.isValid())
+			return 0;
+
+		return plate_->count();
+	}
+
+	/// Reimplemented from QAbstractListModel. Exposes data from the samples (DisplayRole and EditRole: sample name; DecorationRole: picture, DateTimeRole and DescriptionRole: creation date/time; AM::UserRole: sample elements, as a string of element symbols; AM::UserRole + 1: string of positions and labels; AM::UserRole+2: facility name)
+	QVariant data(const QModelIndex &index, int role) const {
+		if(index.parent().isValid() || index.column() > 0)
+			return QVariant();
+
+		switch(role) {
+		case Qt::DisplayRole:
+		case Qt::EditRole:
+			return sampleName(index.row());
+		case Qt::DecorationRole:
+			return QApplication::style()->standardIcon(QStyle::SP_FileIcon);	/// \todo implement pictures
+		case AM::DateTimeRole:
+			return sampleDateTime(index.row());
+		case AM::DescriptionRole:
+			return QString("created ") +  AMDateTimeUtils::prettyDateTime(sampleDateTime(index.row()));
+
+		case AM::UserRole:
+			return sampleElements(index.row());
+		case AM::UserRole + 1:
+			return positionsString(index.row());
+		case AM::UserRole + 2:
+			return facilityName(index.row());
+
+			/// Returns a pointer to the AMSamplePosition object here. Can access all the additional information directly.
+		case AM::PointerRole:
+			return QVariant::fromValue((QObject*)&(plate_->at(index.row())));
+
+		default:
+			return QVariant();
+		}
+	}
+
+	Qt::ItemFlags flags(const QModelIndex &index) const {
+		Q_UNUSED(index)
+
+		return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
+	}
+
+	QVariant headerData(int section, Qt::Orientation orientation, int role) const {
+		Q_UNUSED(section)
+
+		if(orientation == Qt::Horizontal && role == Qt::DisplayRole)
+			return QString("Samples");
+		else
+			return QVariant();
+	}
+
+
+	/// Return the name of the sample
+	QString sampleName(int index) const {
+		return getCachedSample(index).name();
+	}
+
+	/// Return the creation date/time of a sample
+	QDateTime sampleDateTime(int index) const {
+		return getCachedSample(index).dateTime();
+	}
+
+	/// Return the elements in a sample, as a string: ex: "B, N, Cl"
+	QString sampleElements(int index) const {
+		return getCachedSample(index).elementString();
+	}
+
+	/// Return the sample position, formatted as a string: ex: X: 33mm Y: 47.9mm Z: -92mm
+	QString positionsString(int index) const;
+
+	/// Return the facility name corresponding to the facility ID:
+	QString facilityName(int index) const {
+		return QString("%1").arg(plate_->at(index).facilityId());	/// \todo Map to name
+	}
+
+protected slots:
+	/// Received from AMSamplePlate. Used to implement beginInsertRows.
+	void onSamplePositionAboutToBeAdded(int index);
+
+	/// Received from AMSamplePlate. Used to implement endInsertRows.
+	void onSamplePositionAdded(int index);
+
+	/// Received from AMSamplePlate. Used to implement beginRemoveRows.
+	void onSamplePositionAboutToBeRemoved(int index);
+
+	/// Received from AMSamplePlate. Used to implement endRemoveRows.
+	void onSamplePositionRemoved(int index);
+
+
+	/// Watches the database for update signals... To see if sample information changes for one of our existing sample ids...
+	void onDatabaseItemUpdated(const QString& tableName, int id);
+	void onDatabaseItemRemoved(const QString& tableName, int id);
+
+protected:
+
+	/// Access a cached sample object, ensuring it is loaded from the database and up-to-date
+	const AMSample& getCachedSample(int index) const;
+
+	AMSamplePlate* plate_;
+	mutable QList<AMSample> cachedSamples_;
+
+	QString sampleTableName_;
+};
+
+
+
+/// This delegate draws samples and their position (from AMSamplePlateItemModel) in a list view.  You can use it by calling setItemDelegate(new AMSamplePlateItemDelegate) on your QListView.
+class AMSamplePlateItemDelegate : public QStyledItemDelegate {
+	Q_OBJECT
+public:
+
+	AMSamplePlateItemDelegate(QObject* parent = 0);
+	virtual ~AMSamplePlateItemDelegate();
+
+	// Reimplemented delegate functions
+	////////////////////////
+	virtual void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+	virtual QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
+	QWidget* createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+	void setEditorData(QWidget *editor, const QModelIndex &index) const;
+	void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+	/// Don't do anything to set back the model data...
+	void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const;
+	///////////////////////////
+
+signals:
+	/// Emitted when the "Mark" button is pressed on a specific row in the list
+	void rowMarkPressed(int row);
+	/// Emitted when the "Move To" button is pressed on a specific row in the list
+	void rowMoveToPressed(int row);
+	/// Emitted when the "Remove" button is pressed on a specific row in the list
+	void rowRemovePressed(int row);
+
+protected:
+	/// disable the editor closing / committing?
+	bool eventFilter(QObject *object, QEvent *event) {
+		// qDebug() << "Event:" << event << "Type:" << event->type();
+
+		if(event->type() == QEvent::FocusOut)
+			return false;
+
+		return QStyledItemDelegate::eventFilter(object, event);
+	}
+};
 
 /// This class provides a widget that can be used to select and load a sample plate object, out of the available set of user-defined sample plates. It can also be used to create new sample plates.
 /*! This widget operates on an "active" or "current" sample plate, and causes it to be re-loaded to become a different plate when activated by the user.  This active plate can be retrieved with samplePlate().  If an AMSamplePlate pointer is provided in the constructor, we use this as the active plate; otherwise we create an internal AMSamplePlate object.
-
-You can use the complete AMSamplePlate interface, including the changeSamplePlate(newId) slot and samplePlateChanged(newId) signal, on the object returned from samplePlate().
   */
 class AMSamplePlateSelector : public QWidget, private Ui::AMSamplePlateSelector {
 	Q_OBJECT
@@ -63,18 +222,14 @@ public:
 
 	/// Convenience function for samplePlate()->id()
 	int samplePlateId() const { return plate_->id(); }
-	/// Convenience function for samplePlate()->changeSamplePlate(newId);
-	void changeSamplePlate(int newId) { plate_->changeSamplePlate(newId); }
 
-signals:
-	/// Convenience signal, connected to samplePlate()->samplePlateChanged(bool isValid)
-	void samplePlateChanged(bool);
-
+	/// reload the sample plate out of the database to become a different sample plate
+	void changeSamplePlate(int newId) { plate_->loadFromDb(AMDatabase::userdb(), newId); }
 
 
 protected slots:
 	/// Called when the active sample plate is changed substantially (ie: reloaded out of the db)... we need to refresh what's currently highlighted in the list, and refresh the name, date, and notes display
-	void onSamplePlateChanged(bool isValid);
+	void onSamplePlateChanged(/*bool isValid*/);
 
 	/// called when an option in the list of sample plates is activated by the user
 	void onComboBoxActivated(int index);
@@ -93,8 +248,7 @@ protected slots:
 	/// Called when an item in the database is removed. Need to watch for changes in the sample plate table.
 	void onDatabaseRemoved(const QString& tableName, int id);
 
-	/// Call this to request a refresh of the list of sample plates
-	void schedulePlateRefresh();
+
 
 	// UI event responders:
 	/// Called when the user finishes editing the text in a plate name, or the notes box
@@ -109,173 +263,206 @@ protected slots:
 protected:
 	Ui::AMSamplePlateSelector ui_;
 
-	bool plateRefreshRequired_;
 	AMSamplePlate* plate_;
+
+	/// Deferred call to re-load all the available plates from the database
+	AMDeferredFunctionCall plateRefreshScheduler_;
+
+	/// name of the sample plate table in the database
+	QString samplePlateTableName_;
 
 };
 
+
+
+
+
+
+
 class AMSamplePlateView : public QWidget
 {
-Q_OBJECT
+	Q_OBJECT
 public:
 	/// Create a sample plate editor, to modify/view an existing sample plate \c existingPlate.  If \c existingPlate is 0, it will create a new sample plate to work with.
 	explicit AMSamplePlateView(AMSamplePlate* existingPlate = 0, QWidget *parent = 0);
 
-
-
 public slots:
-	void setManipulator(AMControlSet *manipulator);
+	void setManipulator(AMControlSet *manipulator) { manipulator_ = manipulator; }
 
 protected slots:
-	void changeSamplePlate(int newPlateId);
+	//	void changeSamplePlate(int newPlateId);
 
-	void onSampleTableItemUpdated(QString tableName, int id);
-	void onSampleTableItemCreated(QString tableName, int id);
-	void onSampleTableItemRemoved(QString tableName, int id);
+	//	void onSampleTableItemUpdated(QString tableName, int id);
+	//	void onSampleTableItemCreated(QString tableName, int id);
+	//	void onSampleTableItemRemoved(QString tableName, int id);
 
-	void refreshSamples();
+	//	void refreshSamples();
+
+	void onAddSampleButtonClicked();
+
+	/// \todo Should these be handled by a controller-type object outside of the UI class?
+
+	/// called by the delegate when the editor buttons (Mark, Move To, Remove) are clicked
+	void onRowMarkPressed(int row);
+	/// called by the delegate when the editor buttons (Mark, Move To, Remove) are clicked
+	void onRowMoveToPressed(int row);
+	/// called by the delegate when the editor buttons (Mark, Move To, Remove) are clicked
+	void onRowRemovePressed(int row);
 
 protected:
+	/// Widget to select and swap current sample plate
 	AMSamplePlateSelector* samplePlateSelector_;
-	AMSampleListView *sampleListView_;
+	/// List view (with custom delegate) to see the samples and positions on the plate
+	QListView *sampleListView_;
+	/// A widget to select a sample
+	AMSampleEditor* sampleSelector_;
+	/// A button to add a sample / current position to the sample plate
+	QPushButton* addSampleButton_;
+	/// Layout for GUI items
 	QVBoxLayout *vl_;
 
+	/// Pointer to the sample plate object we display / change
 	AMSamplePlate* samplePlate_;
+	/// Manipulator used to move samples into position / grab current positions
 	AMControlSet *manipulator_;
 
-	QStandardItemModel *sampleTableModel_;
-	bool sampleRefreshScheduled_;
-	QList<int> sampleRefreshIDs_;
-	QList<int> sampleRefreshInstructions_;
+	/// A model that wraps an AMSamplePlate object for exposing as a list view
+	AMSamplePlateItemModel* samplePlateModel_;
+
+	///
 
 
+	//	QStandardItemModel *sampleTableModel_;
+	//	bool sampleRefreshScheduled_;
+	//	QList<int> sampleRefreshIDs_;
+	//	QList<int> sampleRefreshInstructions_;
 };
 
-class AMSampleListView : public QFrame
-{
-Q_OBJECT
-public:
-	AMSampleListView(AMSamplePlate *samplePlate, QStandardItemModel *sampleTableModel, QWidget *parent = 0);
+//class AMSampleListView : public QFrame
+//{
+//Q_OBJECT
+//public:
+//	AMSampleListView(AMSamplePlate *samplePlate, QStandardItemModel *sampleTableModel, QWidget *parent = 0);
 
-public slots:
-	void setManipulator(AMControlSet *manipulator);
+//public slots:
+//	void setManipulator(AMControlSet *manipulator);
 
-signals:
+//signals:
 
-protected slots:
-	void addNewSampleToPlate(int id);
-	void onSamplePositionChanged(int index);
-	void onSamplePositionAdded(int index);
-	void onSamplePositionRemoved(int index);
+//protected slots:
+//	void addNewSampleToPlate(int id);
+//	void onSamplePositionChanged(int index);
+//	void onSamplePositionAdded(int index);
+//	void onSamplePositionRemoved(int index);
 
-protected:
-	QSize sizeHint() const;
+//protected:
+//	QSize sizeHint() const;
 
-protected:
-	AMSamplePlate *samplePlate_;
-	AMControlSet *manipulator_;
-	QStandardItemModel *sampleTableModel_;
+//protected:
+//	AMSamplePlate *samplePlate_;
+//	AMControlSet *manipulator_;
+//	QStandardItemModel *sampleTableModel_;
 
-	QScrollArea *sa_;
-	QVBoxLayout *il_;
-	QFrame *saf_;
-	//QPushButton *adder_;
-	AMSamplePositionItemExpandingAdder *adder_;
-};
+//	QScrollArea *sa_;
+//	QVBoxLayout *il_;
+//	QFrame *saf_;
+//	//QPushButton *adder_;
+//	AMSamplePositionItemExpandingAdder *adder_;
+//};
 
-class AMSamplePositionItemView : public QFrame
-{
-Q_OBJECT
-public:
-	AMSamplePositionItemView(AMSamplePosition *samplePosition, QStandardItemModel *sampleTableModel, AMControlSet *manipulator = 0, int index = -1, QWidget *parent = 0);
-	int index();
-	AMControlSet* manipulator();
+//class AMSamplePositionItemView : public QFrame
+//{
+//Q_OBJECT
+//public:
+//	AMSamplePositionItemView(AMSamplePosition *samplePosition, QStandardItemModel *sampleTableModel, AMControlSet *manipulator = 0, int index = -1, QWidget *parent = 0);
+//	int index();
+//	AMControlSet* manipulator();
 
-public slots:
-	void setIndex(int index);
-	void setManipulator(AMControlSet* manipulator);
+//public slots:
+//	void setIndex(int index);
+//	void setManipulator(AMControlSet* manipulator);
 
-protected slots:
-	bool onSavePositionClicked();
-	bool onRecallPositionClicked();
-	bool onSampleBoxIndexChanged(int index);
-	bool onSampleNameChanged();
+//protected slots:
+//	bool onSavePositionClicked();
+//	bool onRecallPositionClicked();
+//	bool onSampleBoxIndexChanged(int index);
+//	bool onSampleNameChanged();
 
-	void updateLook();
-	void onSamplePositionUpdate(int index);
-	void defocusItem();
+//	void updateLook();
+//	void onSamplePositionUpdate(int index);
+//	void defocusItem();
 
-protected:
-	void mousePressEvent(QMouseEvent *event);
+//protected:
+//	void mousePressEvent(QMouseEvent *event);
 
-protected:
-	AMSamplePosition *samplePosition_;
+//protected:
+//	AMSamplePosition *samplePosition_;
 
-	AMControlSet *manipulator_;
-	QStandardItemModel *sampleTableModel_;
-	bool ignoreNameChanged_;
-	int index_;
-	bool inFocus_;
+//	AMControlSet *manipulator_;
+//	QStandardItemModel *sampleTableModel_;
+//	bool ignoreNameChanged_;
+//	int index_;
+//	bool inFocus_;
 
-	QHBoxLayout *hl_;
-	QVBoxLayout *vl_;
-	QLabel *indexLabel_;
-	QComboBox *sampleBox_;
-	QLabel *positionLabel_;
-	QPushButton *savePositionButton_;
-	QPushButton *recallPositionButton_;
-};
+//	QHBoxLayout *hl_;
+//	QVBoxLayout *vl_;
+//	QLabel *indexLabel_;
+//	QComboBox *sampleBox_;
+//	QLabel *positionLabel_;
+//	QPushButton *savePositionButton_;
+//	QPushButton *recallPositionButton_;
+//};
 
-class AMTrickComboBox;
+//class AMTrickComboBox;
 
-class AMSamplePositionItemExpandingAdder : public QFrame
-{
-Q_OBJECT
-public:
-	AMSamplePositionItemExpandingAdder(QStandardItemModel *sampleTableModel, QWidget *parent = 0);
-	bool expanded() const;
+//class AMSamplePositionItemExpandingAdder : public QFrame
+//{
+//Q_OBJECT
+//public:
+//	AMSamplePositionItemExpandingAdder(QStandardItemModel *sampleTableModel, QWidget *parent = 0);
+//	bool expanded() const;
 
-public slots:
-	void resetAdder();
+//public slots:
+//	void resetAdder();
 
-signals:
-	void sampleToAddChosen(int id);
+//signals:
+//	void sampleToAddChosen(int id);
 
-protected slots:
-	void onMarkNewButtonClicked();
-	void onGoNewButtonClicked();
-	void onGoExistingButtonClicked();
+//protected slots:
+//	void onMarkNewButtonClicked();
+//	void onGoNewButtonClicked();
+//	void onGoExistingButtonClicked();
 
-	void shrinkBack();
-	void switchBoxes();
+//	void shrinkBack();
+//	void switchBoxes();
 
-protected:
-	QStandardItemModel *sampleTableModel_;
+//protected:
+//	QStandardItemModel *sampleTableModel_;
 
-	QPushButton *markNewButton_;
-	QLineEdit *newNameEdit_;
-	QLabel *newNameLabel_;
-	QComboBox *chooseExistingBox_;
-	//QComboBox *emptyChooseExistingBox_;
-	AMTrickComboBox *emptyChooseExistingBox_;
-	QPushButton *goNewButton_;
-	QPushButton *goExistingButton_;
-	QPushButton *cancelButton_;
+//	QPushButton *markNewButton_;
+//	QLineEdit *newNameEdit_;
+//	QLabel *newNameLabel_;
+//	QComboBox *chooseExistingBox_;
+//	//QComboBox *emptyChooseExistingBox_;
+//	AMTrickComboBox *emptyChooseExistingBox_;
+//	QPushButton *goNewButton_;
+//	QPushButton *goExistingButton_;
+//	QPushButton *cancelButton_;
 
-	QGridLayout *gl_;
-};
+//	QGridLayout *gl_;
+//};
 
-class AMTrickComboBox : public QComboBox
-{
-Q_OBJECT
-public:
-	AMTrickComboBox(QWidget *parent = 0);
+//class AMTrickComboBox : public QComboBox
+//{
+//Q_OBJECT
+//public:
+//	AMTrickComboBox(QWidget *parent = 0);
 
-signals:
-	void clicked();
+//signals:
+//	void clicked();
 
-protected:
-	void mousePressEvent(QMouseEvent *e);
-};
+//protected:
+//	void mousePressEvent(QMouseEvent *e);
+//};
 
 #endif // AMSAMPLEPLATEVIEW_H

@@ -18,9 +18,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "AMSamplePositionView.h"
+#include "AMSampleManagementWidget.h"
 
-AMSamplePositionView::AMSamplePositionView(AMSampleManipulatorView *manipulatorView, const QUrl& sampleCameraUrl, AMSamplePlate* samplePlate, QWidget *parent) :
+AMSampleManagementWidget::AMSampleManagementWidget(AMSampleManipulatorView *manipulatorView, const QUrl& sampleCameraUrl, AMSamplePlate* samplePlate, QWidget *parent) :
 	QWidget(parent)
 {
 	// cam_ = new AMBeamlineCameraWidget("Sample Camera", sampleCameraUrl);

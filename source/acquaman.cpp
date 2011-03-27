@@ -38,6 +38,7 @@ Acquaman is used in various forms to build applications with different functiona
 
   For an introductory workshop to the Acquaman Framework, see these <a href="http://beamteam.usask.ca/mark/acquaman/AcquamanOrientationWorkshop_March2011.pdf">slides from March 2011</a>, which cover:
 
+
 	- Core principles and programming paradigms
 	- Support systems: How to get, build, use, and learn about Acquaman
 	- Features and Functionality: What it can do

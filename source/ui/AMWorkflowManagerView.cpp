@@ -25,9 +25,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMBeamline.h"
 
 
-#warning "there's some application logic in this UI class... particularly beamlineScanningChanged() and onBeamlineScanningChanged(), as well as queue is running, etc. Should these critical security checks be done elsewhere (for ex: AMWorkflowManager?)"
-#warning "Also need to remove coupling so that you can use the workflow manager even if you don't have a sample plate"
-
 AMWorkflowManagerView::AMWorkflowManagerView(QWidget *parent) :
 	QWidget(parent)
 {

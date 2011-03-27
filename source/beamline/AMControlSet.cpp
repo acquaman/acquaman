@@ -131,7 +131,7 @@ void AMControlSet::onConnected(bool ctrlConnected){
 		emit connected(false);
 	}
 
-	if(isConnected() && !wasConnected_){
+	if(!wasConnected_ && isConnected()){
 		wasConnected_ = true;
 		emit connected(true);
 	}

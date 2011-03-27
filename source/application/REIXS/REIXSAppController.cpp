@@ -21,6 +21,7 @@
 #include "ui/REIXS/REIXSXESHexapodControlEditor.h"
 
 #include "ui/AMOverlayVideoWidget.h"
+#include "ui/AMSamplePlateView.h"
 
 REIXSAppController::REIXSAppController(QObject *parent) :
 	AMAppController(parent)
@@ -74,6 +75,8 @@ bool REIXSAppController::startup() {
 		hl->addWidget(gb);
 
 		hl->addStretch(1);
+
+		hl->addWidget(new AMSamplePlateView());
 
 //		AMVideoWidget* vw = new AMVideoWidget();
 //		hl->addWidget(vw);

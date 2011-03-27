@@ -5,5 +5,5 @@
 TEMPLATE = subdirs
 SUBDIRS +=	REIXSAcquaman.pro \
 	SGMAcquaman.pro \
-	BareBonesAcquaman.pro
-	# acquamanTest.pro
+	BareBonesAcquaman.pro \
+	acquamanTest.pro

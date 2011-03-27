@@ -81,7 +81,7 @@ protected:
 	// UI components:
 	QComboBox* sampleSelector_;
 	QLineEdit* sampleName_, *sampleElements_;
-	QLabel* sampleDate_, *sampleTime_;
+	QLabel* sampleDate_;
 
 	/// Flag to indicate that a refresh is required, because the database was updated.
 	bool refreshScheduled_;
@@ -98,6 +98,11 @@ protected:
 	bool newSampleActive_;
 
 
+	/// Holds the name of the sample table in the database
+	QString sampleTableName_;
+
+	/// Parse a string of elements, and return a list of atomic numbers.  The elements can be separated by whitespace, commas, and semicolons... and can be either the full element name or just the symbol. Case doesn't matter.
+	QList<int> parseElementString(const QString& elementString);
 
 };
 

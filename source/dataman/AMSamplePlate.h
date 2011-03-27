@@ -23,166 +23,126 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QList>
 #include <QDateTime>
-#include <QAbstractListModel>
-#include <QDebug>
 
 #include "AMSample.h"
 #include "AMControlInfoList.h"
-#include "util/AMBiHash.h"
 #include "AMDbObject.h"
 #include "acquaman.h"
 
-class AMSamplePosition;
-class AMSamplePlateModel;
+/// This is a small helper class for AMSamplePlate, which stores a set of samples and their associated positions on the sample plate/manipulator
+class AMSamplePosition : public AMDbObject {
+	Q_OBJECT
 
-class AMSamplePlate : public AMDbObject
+	Q_PROPERTY(int sampleId READ sampleId WRITE setSampleId)
+	Q_PROPERTY(int facilityId READ facilityId WRITE setFacilityId)
+	Q_PROPERTY(AMDbObject* position READ dbGetPosition WRITE dbLoadPosition)
+
+public:
+	/// Constructor: can specify initial values for sampleId, position, and facilityId
+	Q_INVOKABLE AMSamplePosition(int sampleId = 0, const AMControlInfoList& position = AMControlInfoList(), int facilityId = 0 ) :
+		sampleId_(sampleId), position_(position), facilityId_(facilityId) {}
+
+	/// Returns the database id of the sample associated with this marked position. This corresponds to the samples in the database's AMSample table.
+	int sampleId() const { return sampleId_; }
+	/// Returns the facilityId that this sample position is relevant for.  (The motor positions from the SGM sample manipulator won't make sense to the REIXS positioner, etc.)  This corresponds to the facilities in the database's AMFacility table.
+	int facilityId() const { return facilityId_; }
+	/// Returns a non-modifiable reference to the sample position (stored as an AMControlInfoList). If you need a by-value copy of the position, just assign this to a local AMControlInfoList.
+	const AMControlInfoList& position() const { return position_; }
+
+
+	/// Set the database id of the stored sample at this position. This corresponds to the id of a sample in the database's AMSample table.
+	void setSampleId(int id) { sampleId_ = id; setModified(true); }
+	/// Set the database id of the facility (ie: beamline) to which this position is relevant. This corresponds to the id of a facilty in the database's AMFacility table.
+	void setFacilityId(int id) { facilityId_ = id; setModified(true); }
+	/// Set the position of this sample on the plate, as an AMControlInfoList.
+	void setPosition(const AMControlInfoList& newPosition) { position_ = newPosition; setModified(true); }
+
+protected:
+	/// The database id of the stored sample at this position
+	int sampleId_;
+	/// The position (ie: of the sample manipulator, whatever you want) that this sample is found at, expressed as an AMControlInfoList.
+	AMControlInfoList position_;
+	/// The facility (ie: beamline) to which this position is relevant. The motor positions from the SGM sample manipulator won't make sense to the REIXS sample manipulator, etc.
+	int facilityId_;
+
+	/// Store the position to the database
+	AMDbObject* dbGetPosition() { return &position_; }
+	/// Load the position from the database: Never called, because dbGetPosition() is always valid.
+	void dbLoadPosition(AMDbObject*) {} // never called
+};
+
+
+
+/// An AMSamplePlate is a database object that can be associated with users and their scans.  A sample plate contains one or (most often) more samples. We also remember the position for each sample (ie: from a set of positioning motors, etc.) necessary to reposition the sample in the same spot later.
+class AMSamplePlate : public AMDbObject, public AMOrderedList<AMSamplePosition>
 {
 Q_OBJECT
-	Q_PROPERTY(QDateTime createTime READ createTime WRITE loadCreateTime)
-	Q_PROPERTY(AMIntList sampleIDs READ sampleIDs WRITE loadSampleIDs)
-	Q_PROPERTY(AMIntList positionIDs READ positionIDs WRITE loadPositionIDs)
+	Q_PROPERTY(QDateTime dateTime READ dateTime WRITE dbLoadDateTime)
+	Q_PROPERTY(AMDbObjectList positions READ dbGetPositions WRITE dbLoadPositions)
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=List of Samples and their Positions on a Sample Plate")
 	Q_CLASSINFO("createTime", "createIndex=true")
 
 public:
+	/// Default constructor: an empty sample plate with no samples.
+	Q_INVOKABLE explicit AMSamplePlate(QObject *parent = 0);
+	/// Copy constructor
+	AMSamplePlate(const AMSamplePlate& other);
 
-	explicit AMSamplePlate(QObject *parent = 0);
 
-	~AMSamplePlate() {}
+	// Meta-data access
+	////////////////////////
 
-	AMSamplePlateModel* model();
-	QString plateName() const;
-	QString userName() const;
-	QDateTime createTime() const;
-	QString timeString() const;
-	int count();
+	/// When this sample plate was first created
+	QDateTime dateTime() const { return dateTime_; }
 
-	AMSamplePosition* samplePositionAt(int index);
-	AMSamplePosition* samplePositionByName(const QString &name);
 
-	AMSample* sampleAt(int index);
-	AMSample* sampleByName(const QString &name);
 
-	AMControlInfoList* positionAt(int index);
-	AMControlInfoList* positionByName(const QString &name);
+// Required?
+//	/// Sample plates are valid after being loaded or saved. You can also manually mark a sample plate as invalid by calling setInvalid(). (For example, at the beginning of a sample transfer.)
+//	bool valid() const { return valid_; }
+//	/// Mark a sample plate as 'invalid' (ie: non-existent, or not trustworthy. It won't become valid until successfully saved to the db, or loaded from the db.)
+//	void setInvalid() { valid_ = false; }
+//	/// This is a convenience function that tells a sample plate object to "become another sample plate" that already exists in the user's database.  It's equivalent to "loadFromDb(AMDatabase::userdb(), newSamplePlateId);"
+//	void changeSamplePlate(int newSamplePlateId) { loadFromDb(AMDatabase::userdb(), newSamplePlateId); }
 
-	int indexOf(const QString &name);
-
-	/// Sample plates are valid after being loaded or saved. You can also manually mark a sample plate as invalid by calling setInvalid(). (For example, at the beginning of a sample transfer.)
-	bool valid() const { return valid_; }
-	/// Mark a sample plate as 'invalid' (ie: non-existent, or not trustworthy. It won't become valid until successfully saved to the db, or loaded from the db.)
-	void setInvalid() { valid_ = false; }
-	/// This is a convenience function that tells a sample plate object to "become another sample plate" that already exists in the user's database.  It's equivalent to "loadFromDb(AMDatabase::userdb(), newSamplePlateId);"
-	void changeSamplePlate(int newSamplePlateId) { loadFromDb(AMDatabase::userdb(), newSamplePlateId); }
-
-	/// Load yourself from the database. (returns true on success)
-	/*! Re-implemented from AMDbObject. */
-	virtual bool loadFromDb(AMDatabase* db, int id);
-
-	/// Store or update self in the database. (returns true on success)
-	/*! Re-implemented from AMDbObject::storeToDb(), this version also writes out the dimension and rank, even though they aren't strictly part of the meta-data.
-	  */
-	virtual bool storeToDb(AMDatabase* db);
 
 
 
 signals:
+	// The following signals are forwarded from our signalSource().
 	void samplePositionChanged(int index);
 	void samplePositionAdded(int index);
 	void samplePositionRemoved(int index);
+	void samplePositionAboutToBeAdded(int index);
+	void samplePositionAboutToBeRemoved(int index);
 
-	/// This signal is emitted when the sample plate is "changed out", or re-loaded. It may now contain completely different samples, at completely different positions.
-	void samplePlateChanged(bool isValid);
+//	/// This signal is emitted when the sample plate is "changed out", or re-loaded. It may now contain completely different samples, at completely different positions. \todo Re-implement if required?
+//	void samplePlateChanged(bool isValid);
 
 public slots:
 
-	bool setSamplePosition(int index, AMSamplePosition *sp);
-
-	bool addSamplePosition(int index, AMSamplePosition *sp);
-	bool addSamplePosition(int index, AMSample *sample, AMControlInfoList *position);
-	bool appendSamplePosition(AMSamplePosition *sp);
-	bool appendSamplePosition(AMSample *sample, AMControlInfoList *position);
-
-	bool removeSamplePosition(AMSamplePosition *sp);
-	bool removeSamplePosition(int index);
-
 protected slots:
-	void onDataChanged(QModelIndex a, QModelIndex b);
-	void onRowsInserted(QModelIndex parent, int start, int end);
-	void onRowsRemoved(QModelIndex parent, int start, int end);
+
 
 protected:
-	bool setupModel();
 
-protected:
-	AMSamplePlateModel *samples_;
-	AMBiHash<QString, AMSamplePosition*> sampleName2samplePosition_;
-
-	/// Sample plates are valid when they've been successfully stored to or loaded from the Db.
-	bool valid_;
-
+//	/// Sample plates are valid when they've been successfully stored to or loaded from the Db.
+// necessary? bool valid_;
 
 	/// Time when this sample plate was first created
-	QDateTime createTime_;
-	void loadCreateTime(const QDateTime& createTime) { createTime_ = createTime; }
-	/// list of sample ids, used for storing in the DB. May not be up to date always...
-	AMIntList sampleIDs_;
-	AMIntList sampleIDs() const { return sampleIDs_; }
-	void loadSampleIDs(const AMIntList& sampleIDs) { sampleIDs_ = sampleIDs; }
+	QDateTime dateTime_;
 
-	/// list of position ids, used for storing in the DB. Maynot be up to date always...
-	AMIntList positionIDs_;
-	AMIntList positionIDs() const { return positionIDs_; }
-	void loadPositionIDs(const AMIntList& positionIDs) { positionIDs_ = positionIDs; }
+	/// Set the createTime(); used when restoring a sample plate from the database.
+	void dbLoadDateTime(const QDateTime& createTime) { dateTime_ = createTime; }
 
-private:
-	int insertRowLatch;
+	/// Export the current positions to the database
+	AMDbObjectList dbGetPositions();
+	/// Load the positions for an existing sample plate from the database
+	void dbLoadPositions(const AMDbObjectList& newPositions);
+
+
 };
 
-class AMSamplePlateModel : public QAbstractListModel
-{
-Q_OBJECT
-public:
-	AMSamplePlateModel(QObject *parent = 0);
-
-	int rowCount(const QModelIndex & /*parent*/) const;
-	QVariant data(const QModelIndex &index, int role) const;
-	QVariant headerData(int section, Qt::Orientation orientation, int role) const;
-	bool setData(const QModelIndex &index, const QVariant &value, int role);
-	bool insertRows(int position, int rows, const QModelIndex &index = QModelIndex());
-	bool removeRows(int position, int rows, const QModelIndex &index = QModelIndex());
-	Qt::ItemFlags flags(const QModelIndex &index) const;
-
-protected slots:
-	void onSampleLoadedFromDb();
-	void onPositionLoadedFromDb();
-
-protected:
-	QList<AMSamplePosition*> *samples_;
-};
-
-class AMSamplePosition : public QObject
-{
-Q_OBJECT
-public:
-	AMSamplePosition(AMSample *sample, AMControlInfoList *position, QObject *parent = 0);
-
-	AMSample* sample();
-	AMControlInfoList* position();
-
-public slots:
-	void setSample(AMSample *sample);
-	void setPosition(AMControlInfoList *position);
-
-signals:
-	void positionValuesChanged(int index);
-	void sampleLoadedFromDb();
-	void positionLoadedFromDb();
-
-protected:
-	AMSample *sample_;
-	AMControlInfoList *position_;
-};
 
 #endif // AMSAMPLEPLATE_H
