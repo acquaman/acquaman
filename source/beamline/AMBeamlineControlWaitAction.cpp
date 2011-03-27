@@ -44,6 +44,7 @@ void AMBeamlineControlWaitAction::start(){
 		connect(&progressTimer_, SIGNAL(timeout()), this, SLOT(calculateProgress()));
 		progressTimer_.start(500);
 		setStarted(true);
+		onValueChanged(control_->value());
 	}
 	else
 		connect(this, SIGNAL(ready(bool)), this, SLOT(delayedStart(bool)));
@@ -68,11 +69,8 @@ void AMBeamlineControlWaitAction::setControl(AMControl *control){
 bool AMBeamlineControlWaitAction::setWaitpoint(double waitpoint){
 	if(!control_)
 		return false;
-	qDebug() << "Min " << control_->minimumValue() << " max " << control_->maximumValue() << " value is " << control_->value();
-	if(control_->isConnected() && control_->valueOutOfRange(waitpoint)){
-		qDebug() << "Failed on the waipoint valueOutOfRange front";
+	if(control_->isConnected() && control_->valueOutOfRange(waitpoint))
 		return false;
-	}
 	waitpoint_ = waitpoint;
 	return true;
 }
@@ -105,14 +103,57 @@ void AMBeamlineControlWaitAction::delayedStart(bool ready){
 
 void AMBeamlineControlWaitAction::onValueChanged(double newValue){
 	qDebug() << "Heard control value changed " << newValue << " versus " << waitpoint_;
+	bool startTimer = false;
+	bool stopTimer = false;
+	bool timerRunning = holdTimeTimer_.isActive();
+
+	switch(targetType_){
+	case AMBeamlineControlWaitAction::LessThanTarget :
+		if( !timerRunning && (newValue < waitpoint_) )
+			startTimer = true;
+		else if( timerRunning && (newValue >= waitpoint_) )
+			stopTimer = true;
+		break;
+	case AMBeamlineControlWaitAction::GreaterThanTarget :
+		if( !timerRunning && (newValue > waitpoint_) )
+			startTimer = true;
+		else if( timerRunning && (newValue <= waitpoint_) )
+			stopTimer = true;
+		break;
+	case AMBeamlineControlWaitAction::EqualToTarget :
+		if( !timerRunning && (fabs(newValue-waitpoint_) < actionTolerance_) )
+			startTimer = true;
+		else if( timerRunning && (fabs(newValue-waitpoint_) >= actionTolerance_) )
+			stopTimer = true;
+		break;
+	case AMBeamlineControlWaitAction::NotEqualToTarget :
+		if( !timerRunning && (fabs(newValue-waitpoint_) > actionTolerance_) )
+			startTimer = true;
+		else if( timerRunning && (fabs(newValue-waitpoint_) <= actionTolerance_) )
+			stopTimer = true;
+		break;
+	}
+	if(startTimer){
+		connect(&holdTimeTimer_, SIGNAL(timeout()), this, SLOT(onHoldTimeReached()));
+		holdTimeTimer_.start(holdTime_);
+	}
+	else if(stopTimer){
+		disconnect(&holdTimeTimer_, SIGNAL(timeout()), this, SLOT(onHoldTimeReached()));
+		holdTimeTimer_.stop();
+	}
+
+	/*
 	switch(targetType_){
 	case AMBeamlineControlWaitAction::LessThanTarget :
 		if( (!holdTimeTimer_.isActive()) && (newValue < waitpoint_) ){
 			qDebug() << "Start the timer, value is good";
-			holdTimeTimer_.singleShot(holdTime_, this, SLOT(onHoldTimeReached()));
+			//holdTimeTimer_.singleShot(holdTime_, this, SLOT(onHoldTimeReached()));
+			connect(&holdTimeTimer_, SIGNAL(timeout()), this, SLOT(onHoldTimeReached()));
+			holdTimeTimer_.start(holdTime_);
 		}
 		else if( (holdTimeTimer_.isActive()) && (newValue >= waitpoint_) ){
 			qDebug() << "Stop the timer, value is no longer good";
+			disconnect(&holdTimeTimer_, SIGNAL(timeout()), this, SLOT(onHoldTimeReached()));
 			holdTimeTimer_.stop();
 		}
 		break;
@@ -135,6 +176,7 @@ void AMBeamlineControlWaitAction::onValueChanged(double newValue){
 			holdTimeTimer_.stop();
 		break;
 	}
+	*/
 }
 
 void AMBeamlineControlWaitAction::onConnected(bool connected){
@@ -163,5 +205,7 @@ void AMBeamlineControlWaitAction::calculateProgress(){
 
 void AMBeamlineControlWaitAction::onHoldTimeReached(){
 	qDebug() << "Double HOLLA! Hold Time Reached and wait action succeeded";
+	disconnect(&holdTimeTimer_, SIGNAL(timeout()), this, SLOT(onHoldTimeReached()));
+	holdTimeTimer_.stop();
 	setSucceeded(true);
 }
