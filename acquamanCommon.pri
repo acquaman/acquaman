@@ -294,7 +294,6 @@ FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMGenericScanEditor.ui \
 	source/ui/AMDataSourcesEditor.ui \
 	source/ui/AMSamplePlateSelector.ui \
-	source/ui/AMSamplePlateItemWidget.ui \
     source/ui/AMSamplePositionViewActionsWidget.ui
 SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	../MPlot/src/MPlot/MPlotAbstractTool.cpp \
