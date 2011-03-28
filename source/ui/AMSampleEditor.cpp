@@ -20,6 +20,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMSampleEditor.h"
 
+#include <QComboBox>
+#include <QLineEdit>
+#include <QLabel>
+
+#include "dataman/AMSample.h"
+#include "dataman/AMDatabase.h"
+
 #include <QVBoxLayout>
 #include <QGridLayout>
 #include <QTimer>
@@ -36,11 +43,11 @@ AMSampleEditor::AMSampleEditor(AMDatabase* db, QWidget *parent) :
 	db_ = db;
 	sampleTableName_ = AMDbObjectSupport::tableNameForClass<AMSample>();
 
-	QVBoxLayout* vl = new QVBoxLayout();
-	vl->setContentsMargins(0, 0, 0, 0);
-	vl->setSpacing(6);
+	vl_ = new QVBoxLayout();
+	vl_->setContentsMargins(0, 0, 0, 0);
+	vl_->setSpacing(6);
 
-	setLayout(vl);
+	setLayout(vl_);
 
 	sampleSelector_ = new QComboBox();
 	QListView* lview = new QListView();
@@ -51,11 +58,11 @@ AMSampleEditor::AMSampleEditor(AMDatabase* db, QWidget *parent) :
 	lview->setItemDelegate(del);
 	lview->setAlternatingRowColors(true);
 	sampleSelector_->setView(lview);
-	vl->addWidget(sampleSelector_);
+	vl_->addWidget(sampleSelector_);
 
 
 	QGridLayout* gl = new QGridLayout();
-	vl->addLayout(gl);
+	vl_->addLayout(gl);
 
 	QLabel* l = new QLabel("name");
 	l->setObjectName("AMSampleEditorLabel");

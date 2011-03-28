@@ -23,6 +23,8 @@
 #include "ui/AMOverlayVideoWidget.h"
 #include "ui/AMSamplePlateView.h"
 
+#include <QMessageBox>
+
 REIXSAppController::REIXSAppController(QObject *parent) :
 	AMAppController(parent)
 {

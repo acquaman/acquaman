@@ -22,14 +22,17 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMSAMPLEEDITOR_H
 
 #include <QWidget>
-#include <QComboBox>
-#include <QLineEdit>
-#include <QLabel>
-
-#include "dataman/AMSample.h"
-#include "dataman/AMDatabase.h"
 #include <QHash>
 
+#include <QModelIndex>
+
+class AMSample;
+class AMDatabase;
+
+class QComboBox;
+class QLineEdit;
+class QLabel;
+class QVBoxLayout;
 
 /// The AMSampleEditor class provides a widget that lets the user choose a sample from the list of samples, and edit characteristics of the sample.  The changes made to the sample are saved back to the database immediately.
 class AMSampleEditor : public QWidget
@@ -103,6 +106,9 @@ protected:
 
 	/// Parse a string of elements, and return a list of atomic numbers.  The elements can be separated by whitespace, commas, and semicolons... and can be either the full element name or just the symbol. Case doesn't matter.
 	QList<int> parseElementString(const QString& elementString);
+
+	/// Layout used to hold the GUI elements
+	QVBoxLayout* vl_;
 
 };
 

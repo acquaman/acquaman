@@ -21,8 +21,17 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMWorkflowManagerView.h"
 #include <QScrollArea>
 #include <QPushButton>
+#include <QVBoxLayout>
+
+
+
+#include "acquaman/AMScanConfiguration.h"
+#include "beamline/AMBeamlineScanAction.h"
+#include "beamline/AMBeamlineControlSetMoveAction.h"
 
 #include "beamline/AMBeamline.h"
+#include "ui/AMVerticalStackWidget.h"
+
 
 
 AMWorkflowManagerView::AMWorkflowManagerView(QWidget *parent) :
@@ -52,6 +61,10 @@ AMWorkflowManagerView::AMWorkflowManagerView(QWidget *parent) :
 	workflowQueue_ = new AMBeamlineActionsQueue(workflowActions_, this);
 	workflowView_ = new AMBeamlineActionsListView(workflowActions_, workflowQueue_, this);
 
+	QScrollArea* scrollArea = new QScrollArea();
+	scrollArea->setWidget(workflowView_);
+	scrollArea->setWidgetResizable(true);
+
 	connect(AMBeamline::bl(), SIGNAL(beamlineScanningChanged(bool)), this, SLOT(reviewWorkflowStatus()));
 	connect(workflowQueue_, SIGNAL(isRunningChanged(bool)), this, SLOT(reviewWorkflowStatus()));
 	connect(workflowQueue_, SIGNAL(isEmptyChanged(bool)), this, SLOT(reviewWorkflowStatus()));
@@ -60,7 +73,7 @@ AMWorkflowManagerView::AMWorkflowManagerView(QWidget *parent) :
 
 	vl_ = new QVBoxLayout();
 	vl_->addLayout(hl);
-	vl_->addWidget(workflowView_);
+	vl_->addWidget(scrollArea);
 	setLayout(vl_);
 }
 
