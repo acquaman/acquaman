@@ -333,6 +333,8 @@ void AMScanViewSourceSelector::setExclusiveModeOn(bool exclusiveModeOn) {
 
 #include <QCheckBox>
 #include <QDoubleSpinBox>
+#include <QApplication>
+#include <QStyle>
 
 AMScanViewModeBar::AMScanViewModeBar(QWidget* parent)
 	: QFrame(parent)
@@ -341,17 +343,22 @@ AMScanViewModeBar::AMScanViewModeBar(QWidget* parent)
 	QHBoxLayout* hl2 = new QHBoxLayout();
 	hl2->setSpacing(0);
 
+	QStyle* style = QApplication::style();
 
 	QToolButton* tabButton_ = new QToolButton();
-	tabButton_->setAttribute(Qt::WA_MacBrushedMetal, true);
+	// tabButton_->setAttribute(Qt::WA_MacBrushedMetal, true);
+	tabButton_->setIcon(style->standardIcon(QStyle::SP_FileDialogInfoView));
 	tabButton_->setText("1");
 	QToolButton* overplotButton_ = new QToolButton();
+	overplotButton_->setIcon(style->standardIcon(QStyle::SP_FileDialogDetailedView));
 	overplotButton_->setText("OP");
-	overplotButton_->setAttribute(Qt::WA_MacBrushedMetal, true);
+	//overplotButton_->setAttribute(Qt::WA_MacBrushedMetal, true);
 	QToolButton* multiScansButton_ = new QToolButton();
+	multiScansButton_->setIcon(style->standardIcon(QStyle::SP_FileDialogListView));
 	multiScansButton_->setText("M-S");
-	multiScansButton_->setAttribute(Qt::WA_MacBrushedMetal, true);
+	//multiScansButton_->setAttribute(Qt::WA_MacBrushedMetal, true);
 	QToolButton* multiSourcesButton = new QToolButton();
+	multiSourcesButton->setIcon(style->standardIcon(QStyle::SP_FileDialogListView));
 	multiSourcesButton->setText("M-C");
 	multiSourcesButton->setAttribute(Qt::WA_MacBrushedMetal, true);
 
