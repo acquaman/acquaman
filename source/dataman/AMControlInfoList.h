@@ -131,7 +131,7 @@ public slots:
 protected slots:
 	/// Called when a control is accessed and potentially modified.  This will be emitted after any non-const operator[] access is used, but only after control returns back to the event loop.
 	void onControlValuesChanged(int index) {
-		//setModified(true);
+		setModified(true);
 		emit controlValuesChanged(index);
 	}
 	/// Called after a control is added at \c index
