@@ -126,7 +126,6 @@ void VESPERSBeamline::setupDiagnostics()
 	swfInterimSlits2_ = new AMReadOnlyPVControl("Flow Switch Interim Slits 2", "SWF1607-1-B21-03", this);
 	swfPoeSsh1_ = new AMReadOnlyPVControl("Flow Switch POE SSH1", "SWF1607-1-B21-04", this);
 	swfPoeSsh2_ = new AMReadOnlyPVControl("Flow Switch POE SSH2", "SWF1607-1-B22-02", this);
-	swfSoeCcd_ = new AMReadOnlyPVControl("Flow Switch SOE CCD", "SWF1607-2-B21-01", this);
 
 	// Flow transducer controls.
 	fltM1A_ = new AMReadOnlyPVControl("Flow Transducer M1A", "FLT1607-1-B20-02:lowflow", this);
@@ -139,7 +138,6 @@ void VESPERSBeamline::setupDiagnostics()
 	fltInterimSlits2_ = new AMReadOnlyPVControl("Flow Transducer Interim Slits 2", "FLT1607-1-B21-03:lowflow", this);
 	fltPoeSsh1_ = new AMReadOnlyPVControl("Flow Transducer POE SSH1", "FLT1607-1-B21-04:lowflow", this);
 	fltPoeSsh2_ = new AMReadOnlyPVControl("Flow Transducer POE SSH2", "FLT1607-1-B22-02:lowflow", this);
-	fltSoeCcd_ = new AMReadOnlyPVControl("Flow Transducer SOE CCD", "FLT1607-2-B21-01:lowflow", this);
 }
 
 void VESPERSBeamline::setupEndstation()
@@ -191,7 +189,7 @@ void VESPERSBeamline::setupControlSets()
 	pressureSet_->addControl(ccgPostWindow_);
 
 	for (int i = 0; i < pressureSet_->count(); i++)
-		connect((AMReadOnlyPVwStatusControl *)(pressureSet_->at(i)), SIGNAL(movingChanged(bool)), this, SLOT(pressureError()));
+		connect(qobject_cast<AMReadOnlyPVwStatusControl *>(pressureSet_->at(i)), SIGNAL(movingChanged(bool)), this, SLOT(pressureError()));
 
 	// Grouping the valve controls together.
 	valveSet_ = new AMControlSet(this);
@@ -277,7 +275,6 @@ void VESPERSBeamline::setupControlSets()
 	flowSwitchSet_->addControl(swfInterimSlits2_);
 	flowSwitchSet_->addControl(swfPoeSsh1_);
 	flowSwitchSet_->addControl(swfPoeSsh2_);
-	flowSwitchSet_->addControl(swfSoeCcd_);
 
 	connect(flowSwitchSet_, SIGNAL(controlSetValuesChanged(AMControlInfoList)), this, SLOT(flowSwitchError()));
 
@@ -293,7 +290,6 @@ void VESPERSBeamline::setupControlSets()
 	flowTransducerSet_->addControl(fltInterimSlits2_);
 	flowTransducerSet_->addControl(fltPoeSsh1_);
 	flowTransducerSet_->addControl(fltPoeSsh2_);
-	flowTransducerSet_->addControl(fltSoeCcd_);
 
 	connect(flowTransducerSet_, SIGNAL(controlSetValuesChanged(AMControlInfoList)), this, SLOT(flowTransducerError()));
 
@@ -312,80 +308,100 @@ void VESPERSBeamline::setupControlSets()
 
 void VESPERSBeamline::pressureError()
 {
-	QString error("The following pressure readings are at a critical level:\n");
+	QString error("");
 	AMReadOnlyPVwStatusControl *current;
 
 	for (int i = 0; i < pressureSet_->count(); i++){
 
-		current = (AMReadOnlyPVwStatusControl *)pressureSet_->at(i);
+		current = qobject_cast<AMReadOnlyPVwStatusControl *>(pressureSet_->at(i));
 
 		if (current->isMoving())
 			error += tr("%1 (%2) %3 %4\n").arg(current->name(), current->readPVName(), QString::number(current->value(), 'e', 3), current->units());
 	}
 
-	AMErrorMon::report(AMErrorReport(pressureSet_, AMErrorReport::Serious, 0, error));
+	if (!error.isEmpty()){
+
+		error.prepend("The following pressure readings are at a critical level:\n");
+		AMErrorMon::report(AMErrorReport(pressureSet_, AMErrorReport::Serious, 0, error));
+	}
 }
 
 void VESPERSBeamline::ionPumpError()
 {
-	QString error("The following ion pumps are no longer operating correctly:\n");
+	QString error("");
 	AMReadOnlyPVControl *current;
 
 	for (int i = 0; i < ionPumpSet_->count(); i++){
 
-		current = (AMReadOnlyPVControl *)ionPumpSet_->at(i);
+		current = qobject_cast<AMReadOnlyPVControl *>(ionPumpSet_->at(i));
 
-		if (current->isMoving())
+		if (!current->readPV()->getInt())
 			error += tr("%1 (%2)\n").arg(current->name(), current->readPVName());
 	}
 
-	AMErrorMon::report(AMErrorReport(ionPumpSet_, AMErrorReport::Serious, 0, error));
+	if (!error.isEmpty()){
+
+		error.prepend("The following ion pumps are no longer operating correctly:\n");
+		AMErrorMon::report(AMErrorReport(ionPumpSet_, AMErrorReport::Serious, 0, error));
+	}
 }
 
 void VESPERSBeamline::temperatureError()
 {
-	QString error("The following temperature sensors are reading too high:\n");
+	QString error("");
 	AMReadOnlyPVControl *current;
 
 	for (int i = 0; i < temperatureSet_->count(); i++){
 
-		current = (AMReadOnlyPVControl *)temperatureSet_->at(i);
+		current = qobject_cast<AMReadOnlyPVControl *>(temperatureSet_->at(i));
 
-		if (current->isMoving())
+		if (!current->readPV()->getInt())
 			error += tr("%1 (%2)\n").arg(current->name(), current->readPVName());
 	}
 
-	AMErrorMon::report(AMErrorReport(temperatureSet_, AMErrorReport::Serious, 0, error));
+	if (!error.isEmpty()){
+
+		error.prepend("The following temperature sensors are reading too high:\n");
+		AMErrorMon::report(AMErrorReport(temperatureSet_, AMErrorReport::Serious, 0, error));
+	}
 }
 
 void VESPERSBeamline::flowSwitchError()
 {
-	QString error("The following flow switches have tripped:\n");
+	QString error("");
 	AMReadOnlyPVControl *current;
 
 	for (int i = 0; i < flowSwitchSet_->count(); i++){
 
-		current = (AMReadOnlyPVControl *)flowSwitchSet_->at(i);
+		current = qobject_cast<AMReadOnlyPVControl *>(flowSwitchSet_->at(i));
 
-		if (current->isMoving())
+		if (!current->readPV()->getInt())
 			error += tr("%1 (%2)\n").arg(current->name(), current->readPVName());
 	}
 
-	AMErrorMon::report(AMErrorReport(flowSwitchSet_, AMErrorReport::Serious, 0, error));
+	if (!error.isEmpty()){
+
+		error.prepend("The following flow switches have tripped:\n");
+		AMErrorMon::report(AMErrorReport(flowSwitchSet_, AMErrorReport::Serious, 0, error));
+	}
 }
 
 void VESPERSBeamline::flowTransducerError()
 {
-	QString error("The following flow transducers are measuring too low:\n");
+	QString error("");
 	AMReadOnlyPVControl *current;
 
 	for (int i = 0; i < flowTransducerSet_->count(); i++){
 
-		current = (AMReadOnlyPVControl *)flowTransducerSet_->at(i);
+		current = qobject_cast<AMReadOnlyPVControl *>(flowTransducerSet_->at(i));
 
-		if (current->isMoving())
+		if (!current->readPV()->getInt())
 			error += tr("%1 (%2)\n").arg(current->name(), current->readPVName());
 	}
 
-	AMErrorMon::report(AMErrorReport(flowTransducerSet_, AMErrorReport::Serious, 0, error));
+	if (!error.isEmpty()){
+
+		error.prepend("The following flow transducers are measuring too low:\n");
+		AMErrorMon::report(AMErrorReport(flowTransducerSet_, AMErrorReport::Serious, 0, error));
+	}
 }

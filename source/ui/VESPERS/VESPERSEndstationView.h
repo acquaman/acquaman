@@ -88,7 +88,7 @@ private slots:
 	void ccdNumberUpdate() { ccdNumberEdit_->setText(QString::number(ccdNumber_->getInt())); }
 
 	/// Used to initialize the Microscope Light slider.
-	void micLightInit() { micLight_->setValue(micLightPV_->getInt()); }
+	void micLightUpdate() { micLight_->setValue(micLightPV_->getInt()); }
 	/// Used when the light bulb button is toggled.
 	void lightBulbToggled(bool pressed);
 	/// Loads the config file and then puts the respective values in their place.

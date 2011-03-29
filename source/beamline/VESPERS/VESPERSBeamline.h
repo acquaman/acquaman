@@ -215,8 +215,6 @@ public:
 	AMControl *swfPoeSsh1() const { return swfPoeSsh1_; }
 	/// Returns the water flow switch control for the POE SSH2.
 	AMControl *swfPoeSsh2() const { return swfPoeSsh2_; }
-	/// Returns the water flow switch control for the SOE Roper CCD.
-	AMControl *swfSoeCcd() const { return swfSoeCcd_; }
 
 	/// Returns the water flow transducer control for M1A.
 	AMControl *fltM1A() const { return fltM1A_; }
@@ -238,8 +236,6 @@ public:
 	AMControl *fltPoeSsh1() const { return fltPoeSsh1_; }
 	/// Returns the water flow transducer control for the POE SSH2.
 	AMControl *fltPoeSsh2() const { return fltPoeSsh2_; }
-	/// Returns the water flow transducer control for the SOE Roper CCD.
-	AMControl *fltSoeCcd() const { return fltSoeCcd_; }
 
 	/// Returns the CCD motor control.
 	AMControl *ccdMotor() const { return ccdMotor_; }
@@ -411,7 +407,6 @@ protected:
 	AMControl *swfInterimSlits2_;
 	AMControl *swfPoeSsh1_;
 	AMControl *swfPoeSsh2_;
-	AMControl *swfSoeCcd_;
 
 	// Flow transducer controls.
 	AMControl *fltM1A_;
@@ -424,7 +419,6 @@ protected:
 	AMControl *fltInterimSlits2_;
 	AMControl *fltPoeSsh1_;
 	AMControl *fltPoeSsh2_;
-	AMControl *fltSoeCcd_;
 
 	// Control sets.
 	AMControlSet *pressureSet_;

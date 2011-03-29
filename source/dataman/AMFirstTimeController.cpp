@@ -32,6 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <dataman/AMSpectralOutputDetectorInfo.h>
 #include "dataman/AMUser.h"
 #include "dataman/AMXESScan.h"
+#include "dataman/AMROIInfo.h"
 
 #include "analysis/AM1DExpressionAB.h"
 #include "analysis/AM2DSummingAB.h"
@@ -168,6 +169,7 @@ bool AMFirstTimeController::databaseInitialization(bool newUser) {
 	AMDbObjectSupport::registerClass<AMControlInfo>();
 	AMDbObjectSupport::registerClass<AMControlInfoList>();
 	AMDbObjectSupport::registerClass<AMSamplePlate>();
+	AMDbObjectSupport::registerClass<AMROIInfo>();
 
 
 	AMDbObjectSupport::registerClass<AMUser>();

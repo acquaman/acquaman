@@ -281,7 +281,9 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/MCPDetectorView.h \
 	source/ui/PGTDetectorView.h \
 	source/ui/AMDetectorSetView.h \
-	source/beamline/AMDetectorSet.h
+	source/beamline/AMDetectorSet.h \
+	source/dataman/AMROIInfo.h \
+    source/beamline/AMROI.h
 	#source/ui/AMOverlayVideoWidget.h \
 	#source/beamline/AMBeamlineListAction.h
 FORMS +=	source/ui/AMDataView.ui \
@@ -466,7 +468,9 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/MCPDetectorView.cpp \
 	source/ui/PGTDetectorView.cpp \
 	source/ui/AMDetectorSetView.cpp \
-	source/beamline/AMDetectorSet.cpp
+	source/beamline/AMDetectorSet.cpp \
+	source/dataman/AMROIInfo.cpp \
+    source/beamline/AMROI.cpp
 	#source/ui/AMVideoWidget.cpp \
 	#source/ui/AMOverlayVideoWidget.cpp \
 	#source/beamline/AMBeamlineListAction.cpp

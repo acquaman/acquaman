@@ -22,17 +22,17 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	: QWidget(parent)
 {
 	// The controls.
-	ccdControl_ = (AMPVwStatusControl *)VESPERSBeamline::vespers()->ccdMotor();
-	microscopeControl_ = (AMPVwStatusControl *)VESPERSBeamline::vespers()->microscopeMotor();
-	fourElControl_ = (AMPVwStatusControl *)VESPERSBeamline::vespers()->fourElMotor();
-	singleElControl_ = (AMPVwStatusControl *)VESPERSBeamline::vespers()->singleElMotor();
-	focusControl_ = (AMPVwStatusControl *)VESPERSBeamline::vespers()->focusMotor();
+	ccdControl_ = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->ccdMotor());
+	microscopeControl_ = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->microscopeMotor());
+	fourElControl_ = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->fourElMotor());
+	singleElControl_ = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->singleElMotor());
+	focusControl_ = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->focusMotor());
 
 	// The feedback PVs associated with the controls.
-	ccdfbk_ = (AMReadOnlyPVControl *)VESPERSBeamline::vespers()->ccdMotorfbk();
-	fourElfbk_ = (AMReadOnlyPVControl *)VESPERSBeamline::vespers()->fourElMotorfbk();
-	singleElfbk_ = (AMReadOnlyPVControl *)VESPERSBeamline::vespers()->singleElMotorfbk();
-	focusfbk_ = (AMReadOnlyPVControl *)VESPERSBeamline::vespers()->focusMotorfbk();
+	ccdfbk_ = qobject_cast<AMReadOnlyPVControl *>(VESPERSBeamline::vespers()->ccdMotorfbk());
+	fourElfbk_ = qobject_cast<AMReadOnlyPVControl *>(VESPERSBeamline::vespers()->fourElMotorfbk());
+	singleElfbk_ = qobject_cast<AMReadOnlyPVControl *>(VESPERSBeamline::vespers()->singleElMotorfbk());
+	focusfbk_ = qobject_cast<AMReadOnlyPVControl *>(VESPERSBeamline::vespers()->focusMotorfbk());
 
 	// The microscope light and CCD file path PVs.
 	micLightPV_ = VESPERSBeamline::vespers()->micLight();
