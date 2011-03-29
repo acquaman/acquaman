@@ -55,7 +55,16 @@ public:
 	/// Set the database id of the facility (ie: beamline) to which this position is relevant. This corresponds to the id of a facilty in the database's AMFacility table.
 	void setFacilityId(int id) { facilityId_ = id; setModified(true); }
 	/// Set the position of this sample on the plate, as an AMControlInfoList.
-	void setPosition(const AMControlInfoList& newPosition) { position_ = newPosition; setModified(true); }
+	void setPosition(const AMControlInfoList& newPosition) { position_.setValuesFrom(newPosition); setModified(true); }
+
+
+	/// Copy all the values from \c other (including sampleId(), facilityId(), and position()), but retain our old database identity.  (Unlike the default assignment operator and copy constructor, our database() and id() will remain the same after calling this function.)
+	void setValuesFrom(const AMSamplePosition& other) {
+		sampleId_ = other.sampleId_;
+		facilityId_ = other.facilityId_;
+		position_.setValuesFrom(other.position_);
+		setModified(true);
+	}
 
 protected:
 	/// The database id of the stored sample at this position

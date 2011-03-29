@@ -39,19 +39,27 @@ class AMControlInfo : public AMDbObject {
 
 
 public:
-	AMControlInfo(const QString& name, double value, double minimum, double maximum, const QString& units, QObject* parent = 0);
-	Q_INVOKABLE AMControlInfo(AMDatabase* db, int id);
+	Q_INVOKABLE AMControlInfo(const QString& name = "Invalid Control Info", double value = 0.0, double minimum = 0.0, double maximum = 0.0, const QString& units = "n/a", QObject* parent = 0);
 
 	double value() const { return value_; }
 	double minimum() const { return minimum_; }
 	double maximum() const { return maximum_; }
 	QString units() const { return units_; }
 
+	/// The default copy constructor and assignment operator will copy the values from \c other, but they will also copy over the database identity (ie: id(), database(), modified() state, etc.).  This means that calling storeToDb() will now save to \c other's database location.  If you want to copy the values but retain your old database identity, call this function instead.
+	void setValuesFrom(const AMControlInfo& other) {
+		value_ = other.value_;
+		minimum_ = other.minimum_;
+		maximum_ = other.maximum_;
+		units_ = other.units_;
+		setName(other.name());	// will take care of calling setModified().
+	}
+
 public slots:
-	void setValue(double value) { value_ = value; }
-	void setMinimum(double minimum) { minimum_ = minimum; }
-	void setMaximum(double maximum) { maximum_ = maximum; }
-	void setUnits(const QString &units) { units_ = units; }
+	void setValue(double value) { value_ = value; setModified(true); }
+	void setMinimum(double minimum) { minimum_ = minimum; setModified(true); }
+	void setMaximum(double maximum) { maximum_ = maximum; setModified(true); }
+	void setUnits(const QString &units) { units_ = units; setModified(true); }
 
 protected:
 	double value_;
@@ -71,12 +79,11 @@ Q_OBJECT
 
 public:
 	/// Default constructor
-	explicit AMControlInfoList(QObject *parent = 0);
-	/// Loading-from-database constructor
-	Q_INVOKABLE AMControlInfoList(AMDatabase* db, int id);
-	/// Copy constructor
+	Q_INVOKABLE explicit AMControlInfoList(QObject *parent = 0);
+
+	/// Copy constructor. Note that this copies the values from the \c other list, but it also copies over the database identify (ie: id(), database(), and modified() state) of \c other.
 	AMControlInfoList(const AMControlInfoList& other);
-	/// Assignment operator
+	/// Assignment operator.  Note that this copies the values from the \c other list, but it also copies over the database identify (ie: id(), database(), and modified() state) of \c other.  Saving with storeToDb() will now save to \c other's database location.  If you want to copy the values but retain your old database identity, call setValuesFrom().
 	AMControlInfoList& operator=(const AMControlInfoList& other);
 
 	/// Destructor
@@ -94,11 +101,18 @@ public:
 	/// Called by the database system on loadFromDb() to give us our new set of AMControlInfo objects. We copy these ones into our internal list and then delete them.
 	void dbLoadControlInfos(const AMDbObjectList& newControlInfos);
 
-	/// Re-implemented from AMDbObject::storeToDb() to check first if we've been modified within the last run loop.  (Accessing the non-const operator[]
+
+	/// This is just like the assignment operator, but it retains the existing database identity of ourself (and any existing AMControlInfo's we have).  For example, id() and database() will return what they did before calling this, but our AMControlInfo values will be set to match \c other.
+	/*! If \c other has more AMControlInfo elements than we do, we will call setFromValues() on the number that we have in common, and create new (independent) AMControlInfo items for the rest.
+
+If we have more AMControlInfo objects than \c other, we'll orphan our extras... (\todo These should be removed from the db somehow... possibly in a new storeToDb() that takes care of deleting orphans (at AMDbObject level).
+
+Either way, using setFromValues() instead of the assignment operator means that all of our AMControlInfo items will have separate database identities from \c other's items.*/
+	void setValuesFrom(const AMControlInfoList& other);
 
 
 signals:
-	/// Forwarded from signalSource()->itemChanged(). Emitted when a control is replaced, OR after a control is accessed for modification and program execution returns back to the event loop.
+	/// Forwarded from signalSource()->itemChanged(). Emitted when a control is replaced, OR after a control is accessed for modification using operator[]() and program execution returns back to the event loop.
 	void controlValuesChanged(int index);
 	/// Forwarded from signalSource()->itemAdded(). Emitted after a new control is added at \c index.
 	void controlAdded(int index);
@@ -114,9 +128,9 @@ public slots:
 
 
 protected slots:
-	/// Called when a control is accessed and potentially modified.
+	/// Called when a control is accessed and potentially modified.  This will be emitted after any non-const operator[] access is used, but only after control returns back to the event loop.
 	void onControlValuesChanged(int index) {
-		setModified(true);
+		//setModified(true);
 		emit controlValuesChanged(index);
 	}
 	/// Called after a control is added at \c index
