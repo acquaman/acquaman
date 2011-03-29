@@ -81,8 +81,7 @@ void AMControlInfoList::dbLoadControlInfos(const AMDbObjectList& newControlInfos
 			append(*newControlInfo);	// note: makes a copy of object pointed to by newControlInfo, and stores in our internal list.
 		}
 
-		if(newControlInfos.at(i))
-			delete newControlInfos.at(i);	// we're copying these; don't need to keep these ones around. Our responsibility to delete.
+		delete newControlInfos.at(i);	// we're copying these; don't need to keep these ones around. They're our responsibility to delete.
 	}
 }
 

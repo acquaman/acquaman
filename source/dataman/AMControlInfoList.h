@@ -69,7 +69,8 @@ protected:
 };
 
 
-/// This is a container class for AMControlInfo, most commonly used to represent an arbitrary set of control positions.
+/// This is a container class for AMControlInfo, most commonly used to represent an arbitrary set of control positions.  It is an AMDbObject subclass that can be stored to the database, but it's also a lightweight class that can be copied and passed around by value.
+/*! Note that the assignment operator and copy constructor copy the other object's <i>database identity</i> as well as its values; these are a "shallow copy" from the perspective of the database: both source and destination will point to the same location in the database, although they are separate objects in C++ memory. If you want to copy all the values from another AMControlInfoList, but preserve your database identity, use setValuesFrom() instead. For more information, see setValuesFrom(). */
 class AMControlInfoList : public AMDbObject, public AMOrderedList<AMControlInfo>
 {
 Q_OBJECT
