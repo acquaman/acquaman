@@ -20,6 +20,8 @@ public:
 
 signals:
 
+#warning "This class needs to be finished:  AMROI"
+
 public slots:
 	/// Sets the name of the ROI and passes it to all PV's.
 	void setName(QString name);

@@ -4,6 +4,11 @@
 #include "ui/VESPERS/VESPERSBeamlineView.h"
 #include "ui/AMMainWindow.h"
 
+#include "dataman/AMDbObjectSupport.h"
+
+// For database registration:
+#include "dataman/VESPERS/XRFDetectorInfo.h"
+
 VESPERSAppController::VESPERSAppController(QObject *parent) :
 	AMAppController(parent)
 {
@@ -16,6 +21,8 @@ bool VESPERSAppController::startup() {
 	VESPERSBeamline::vespers();
 
 	if(AMAppController::startup()) {
+
+		AMDbObjectSupport::registerClass<XRFDetectorInfo>();
 
 		// Create panes in the main window:
 		////////////////////////////////////

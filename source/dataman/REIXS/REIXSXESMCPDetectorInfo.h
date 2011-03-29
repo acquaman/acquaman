@@ -50,7 +50,6 @@ public:
 	void setOrientation(bool orientation) { orientation_ = orientation; setModified(true); }
 
 
-
 signals:
 
 public slots:
