@@ -1,5 +1,4 @@
 #include "VESPERSBeamlineView.h"
-#include "ui/AMControlEditor.h"
 #include "ui/VESPERS/VESPERSEndstationView.h"
 #include <QHBoxLayout>
 

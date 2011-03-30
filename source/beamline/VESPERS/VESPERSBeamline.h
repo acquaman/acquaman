@@ -35,6 +35,8 @@ public:
 		return static_cast<VESPERSBeamline*>(instance_);
 	}
 
+	~VESPERSBeamline();
+
 	// Accessing control elements:
 
 	/// Returns the pressure control for Front End section 1.
