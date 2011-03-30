@@ -11,8 +11,14 @@ class AMROI : public QObject
 {
 	Q_OBJECT
 public:
-	/// Constructor.  All PV's provided to this class MUST be valid.
-	explicit AMROI(QObject *parent = 0);
+	/// Constructor.  Used for single element detectors. All PV's provided to this class MUST be valid.
+	explicit AMROI(QString name, double energy, double width, double scale, AMProcessVariable *namePV, AMProcessVariable *lowPV, AMProcessVariable *highPV, QObject *parent = 0);
+	/// Constructor.  Used for single element detectors using an AMROIInfo.  All PVs provided must be valid.
+	explicit AMROI(AMROIInfo info, AMProcessVariable *namePV, AMProcessVariable *lowPV, AMProcessVariable *highPV, QObject *parent = 0);
+	/// Constructor.  Used for n > 1 element detectors.  All PVs provided must be valid.
+	explicit AMROI(QString name, double energy, double width, double scale, QList<AMProcessVariable *> namePVs, QList<AMProcessVariable *> lowPVs, QList<AMProcessVariable *> highPVs, QObject *parent = 0);
+	/// Constructor.  Used for n > 1 element detectors.  All PVs provided must be valid.
+	explicit AMROI(AMROIInfo info, QList<AMProcessVariable *> namePVs, QList<AMProcessVariable *> lowPVs, QList<AMProcessVariable *> highPVs, QObject *parent = 0);
 
 	/// Takes an AMROIInfo and sets the AMROI to match it.
 	void fromInfo(const AMROIInfo &info);
@@ -84,6 +90,12 @@ public slots:
 protected slots:
 	/// Used to compute the current value based on the current state of the PVs.
 	void updateValue();
+	/// Updates the ROI if changes were made to the name outside of the program.
+	void onNamePVChanged(QString name) { name_ = name; }
+	/// Updates the ROI if changes were made to the lower bound outside of the program.
+	void onLowPVChanged(int low) { low_ = low; }
+	/// Updates the ROI if changes were made to the higher bound outside of the program.
+	void onHighPVChanged(int high) { high_ = high; }
 
 protected:
 
