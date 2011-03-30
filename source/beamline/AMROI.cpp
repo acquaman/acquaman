@@ -5,7 +5,7 @@ AMROI::AMROI(QObject *parent) :
 {
 }
 
-const AMROIInfo &AMROI::toInfo()
+AMROIInfo AMROI::toInfo()
 {
 	return AMROIInfo(name_, energy_, width_, scale_);
 }

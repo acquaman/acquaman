@@ -11,7 +11,8 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
 	source/ui/AMStopButton.h \
 	source/ui/VESPERS/VESPERSEndstationView.h \
 	source/ui/VESPERS/VESPERSMotorView.h \
-    source/dataman/VESPERS/XRFDetectorInfo.h
+    source/dataman/VESPERS/XRFDetectorInfo.h \
+    source/beamline/VESPERS/XRFDetector.h
 
 SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/application/VESPERS/VESPERSMain.cpp \
@@ -20,7 +21,8 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/ui/AMShutterButton.cpp \
 	source/ui/VESPERS/VESPERSEndstationView.cpp \
 	source/ui/VESPERS/VESPERSMotorView.cpp \
-    source/dataman/VESPERS/XRFDetectorInfo.cpp
+    source/dataman/VESPERS/XRFDetectorInfo.cpp \
+    source/beamline/VESPERS/XRFDetector.cpp
 
 RESOURCES += \
 	source/ui/VESPERS/EndstationPictures.qrc

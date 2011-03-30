@@ -17,7 +17,7 @@ public:
 	/// Takes an AMROIInfo and sets the AMROI to match it.
 	void fromInfo(const AMROIInfo &info);
 	/// Takes the current state of the AMROI and returns an AMROIInfo.
-	const AMROIInfo &toInfo();
+	AMROIInfo toInfo();
 
 	/// Returns the name of the region of interest.
 	QString name() const { return name_; }
