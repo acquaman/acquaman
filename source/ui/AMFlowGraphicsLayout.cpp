@@ -208,14 +208,15 @@ QSizeF AMFlowGraphicsLayout::sizeHint(Qt::SizeHint which, const QSizeF &constrai
 	case Qt::PreferredSize:
 	case Qt::MinimumSize:
 	case Qt::MaximumSize:
-	default:
-		//if(uniformItemSizes_)
-		//	height = heightForWidth(constraint.width());
-		//else
-			height = doLayout(QRectF(QPointF(0,0), constraint), false);
+
+		if(uniformItemSizes_)
+			height = heightForWidth(sh.width());
+		else
+			height = doLayout(QRectF(QPointF(0,0), sh), false);
 
 		sh = QSizeF(constraint.width(), height);
 		break;
+	default: break;
 	}
 
 	return sh;
@@ -235,10 +236,11 @@ qreal AMFlowGraphicsLayout::heightForWidth(qreal width) const
 	if(itemsPerRow < 1)
 		itemsPerRow = 1;
 
+
 	int rowsRequired = ceil(m_items.count() / double(itemsPerRow));	// round up here
 
 	qreal itemsHeight = rowsRequired*itemSize.height();
-	if(rowsRequired > 1)
+	if(rowsRequired > 1)	// add spacing (x the number of spaces, not the number of rows!) if there's more than one row.
 		itemsHeight += (rowsRequired-1)*spacing(Qt::Vertical);
 
 	return itemsHeight + top + bottom;
