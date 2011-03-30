@@ -31,6 +31,8 @@ public:
 	int low() const { return low_; }
 	/// Returns the higher bound off the region of interest as a channel number.
 	int high() const { return high_; }
+	/// Returns the current value of the ROI.
+	double value() const { return value_; }
 
 	/// Sets the name PVs using the given QList of AMProcessVariables.
 	void setNamePVs(QList<AMProcessVariable *> namePVs);
@@ -78,6 +80,10 @@ public slots:
 	void setRegion(QString name, double energy, double width);
 	/// Overloaded function.  Sets all the parameters for the region with low and high bounds.
 	void setRegion(QString name, int low, int high);
+
+protected slots:
+	/// Used to compute the current value based on the current state of the PVs.
+	void updateValue();
 
 protected:
 
