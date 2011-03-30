@@ -10,7 +10,6 @@ Q_OBJECT
 public:
     AMBeamlineControlStopAction(AMControl *control, QObject *parent = 0);
 
-    virtual QString type() const;
     virtual AMControl* control();
 
 public slots:
@@ -25,9 +24,6 @@ protected slots:
 
 protected:
 	AMControl *control_;
-
-private:
-	QString type_;
 };
 
 #endif // AMBEAMLINECONTROLSTOPACTION_H

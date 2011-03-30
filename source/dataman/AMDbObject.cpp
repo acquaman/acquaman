@@ -122,6 +122,7 @@ const AMDbObjectInfo* AMDbObject::dbObjectInfo() const {
 	return 0;
 }*/
 
+#include <QDebug>
 
 /// This member function updates a scan in the database (if it exists already in that database), otherwise it adds it to the database.
 bool AMDbObject::storeToDb(AMDatabase* db) {
@@ -187,6 +188,7 @@ bool AMDbObject::storeToDb(AMDatabase* db) {
 		// add value to values list. First, some special processing is needed for StringList, IntList, and DoubleList types, to join their values into a single string. Other property types simply get written out in their native QVariant form. EXCEPTION: AMDbObjectList doesn't get written here; it gets its own table later.
 
 		if(columnType == qMetaTypeId<AMnDIndex>()) {
+
 			AMnDIndex output = property(columnName).value<AMnDIndex>();
 			QStringList resultString;
 			for(int i=0; i<output.size(); i++)
@@ -196,6 +198,7 @@ bool AMDbObject::storeToDb(AMDatabase* db) {
 		}
 		else if(columnType == qMetaTypeId<AMIntList>()) {
 			AMIntList intList = property(columnName).value<AMIntList>();
+			qDebug() << "Storing AMIntList to Database:" << columnName << intList.count();
 			QStringList resultString;
 			foreach(int i, intList)
 				resultString << QString("%1").arg(i);
@@ -470,27 +473,28 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 			}
 			else if(columnType == qMetaTypeId<AMnDIndex>()) {
 				AMnDIndex ndIndex;
-				QStringList stringList = values.at(ri).toString().split(AMDbObjectSupport::listSeparator());
+				QStringList stringList = values.at(ri).toString().split(AMDbObjectSupport::listSeparator(), QString::SkipEmptyParts);
 				foreach(QString i, stringList)
 					ndIndex.append(i.toInt());
 				setProperty(columnName, QVariant::fromValue(ndIndex));
 			}
 			else if(columnType == qMetaTypeId<AMIntList>()) {	// integer lists: must convert back from separated string.
 				AMIntList intList;
-				QStringList stringList = values.at(ri).toString().split(AMDbObjectSupport::listSeparator());
+				QStringList stringList = values.at(ri).toString().split(AMDbObjectSupport::listSeparator(), QString::SkipEmptyParts);
 				foreach(QString i, stringList)
 					intList << i.toInt();
+				qDebug() << "Reloading AMIntList from Database:" << columnName << intList.count();
 				setProperty(columnName, QVariant::fromValue(intList));
 			}
 			else if(columnType == qMetaTypeId<AMDoubleList>()) {	// double lists: must convert back from separated string.
 				AMDoubleList doubleList;
-				QStringList stringList = values.at(ri).toString().split(AMDbObjectSupport::listSeparator());
+				QStringList stringList = values.at(ri).toString().split(AMDbObjectSupport::listSeparator(), QString::SkipEmptyParts);
 				foreach(QString d, stringList)
 					doubleList << d.toDouble();
 				setProperty(columnName, QVariant::fromValue(doubleList));
 			}
 			else if(columnType == QVariant::StringList || columnType == QVariant::List) {	// string list, and anything-else-lists saved as string lists: must convert back from separated string.
-				setProperty(columnName, values.at(ri).toString().split(AMDbObjectSupport::stringListSeparator()));
+				setProperty(columnName, values.at(ri).toString().split(AMDbObjectSupport::stringListSeparator(), QString::SkipEmptyParts));
 			}
 			else {	// the simple case.
 				setProperty(columnName, values.at(ri));
@@ -503,12 +507,8 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 	// we were just loaded out of the database, so we must be in-sync.
 	setModified(false);
 
-	/*! \bug removed: foreach(QString key, keys)
-			emit metaDataChanged(key);*/
 	emit loadedFromDb();
 	return true;
-
-
 }
 
 

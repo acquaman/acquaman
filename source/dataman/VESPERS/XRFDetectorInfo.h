@@ -2,6 +2,7 @@
 #define XRFDETECTORINFO_H
 
 #include "dataman/AMDetectorInfo.h"
+#include "dataman/AMROIInfo.h"
 
 /// This class contains the run-time configuration parameters for Silicon Drift detectors.
 class XRFDetectorInfo : public AMDetectorInfo
@@ -14,15 +15,17 @@ class XRFDetectorInfo : public AMDetectorInfo
 	Q_PROPERTY(MCAUpdateRate refreshRate READ refreshRate WRITE setRefreshRate)
 	Q_PROPERTY(double integrationTime READ integrationTime WRITE setIntegrationTime)
 	Q_PROPERTY(double peakingTime READ peakingTime WRITE setPeakingTime)
+	Q_PROPERTY(AMDbObject* roiList READ dbGetROIList WRITE dbLoadROIList)
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=XRF Detector")
 
 public:
 
 	/*! This is the enum for the spectrum update rate.
-			Passive waits until the accumlation time has expired before updating the spectrum.
-			Slow waits for a moderate amount of time before asking the spectrum for its current state.  Typically around 1 second.
-			Fast waits for a very short amount of time before asking the spectrum for its current state.  Typically 200 msec.
+
+			- Passive waits until the accumlation time has expired before updating the spectrum.
+			- Slow waits for a moderate amount of time before asking the spectrum for its current state.  Typically around 1 second.
+			- Fast waits for a very short amount of time before asking the spectrum for its current state.  Typically 200 msec.
 	  */
 	enum MCAUpdateRate { Passive, Slow, Fast };
 
@@ -61,6 +64,19 @@ public:
 	/// The peaking time used for the detector.
 	double peakingTime() const { return peakingTime_; }
 
+	/// Returns a constant reference of the current ROI List.
+	const AMROIInfoList *roiList() const { return &roiList_; }
+	/// Returns a modifiable reference to the current ROI List.
+	AMROIInfoList *roiList() { return &roiList_; }
+
+	// Database loading and storing
+	///////////////////////
+
+	/// The database reading member function.
+	AMDbObject *dbGetROIList() { return &roiList_; }
+	/// Don't need to do anything because dbGetROIList always returns a valid AMDbObject.
+	void dbLoadROIList(AMDbObject *) {}
+
 public slots:
 
 	/// Set the number of channels in the spectral output.
@@ -93,6 +109,8 @@ public slots:
 	void setIntegrationTime(double time) { integrationTime_ = time; setModified(true); }
 	/// Sets the peaking time for the detector.
 	void setPeakingTime(double time) { peakingTime_ = time; setModified(true); }
+	/// Sets the ROI list for the detector.
+	void setROIList(const AMROIInfoList &roiList) { roiList_.setValuesFrom(roiList); setModified(true); }
 
 protected:
 	/// Number of channels in the spectral output.
@@ -109,6 +127,8 @@ protected:
 	double integrationTime_;
 	/// The peaking time for the detector.  The rest time between photon events.
 	double peakingTime_;
+	/// The list holding all the current ROIs for the detector.
+	AMROIInfoList roiList_;
 };
 
 #endif // XRFDETECTORINFO_H

@@ -60,6 +60,8 @@ protected:
 	bool state_;
 };
 
+class AMBeamlineActionView;
+
 /// Base class for all actionItems.
 class AMBeamlineActionItem : public QObject
 {
@@ -90,10 +92,8 @@ public:
 	AMBeamlineActionItem* previous() const;
 	/// Returns a pointer to the next action (if the action is not in a parallel list)
 	AMBeamlineActionItem* next() const;
-	/* NTBA March 14, 2011 David Chevrier
-	   Is this necessary any more?
-	*/
-	virtual QString type() const;
+
+	virtual AMBeamlineActionView* createView(int index = 0) = 0;
 
 signals:
 	/// All signal emitting is taken care of if the setReady/setStarted/setSucceeded/etc functions are used. These functions will emit the signals as necessary
@@ -168,10 +168,6 @@ private slots:
 	void dirtyInitialized();
 
 private:
-	/* NTBA March 14, 2011 David Chevrier
-	   Necessary?
-	*/
-	QString type_;
 	/// Kept private, access with initialize(). Only true when initialized and nothing else has happened. Setting any flag below will change initialized to false
 	AMBeamlineActionItemStateFlag initialized_;
 	/* NTBA March 14, 2011 David Chevrier
@@ -198,7 +194,6 @@ public:
 
 	int index() const { return index_;}
 	virtual AMBeamlineActionItem* action();
-	virtual QString viewType() const;
 
 public slots:
 	virtual void setIndex(int index);
@@ -226,9 +221,6 @@ protected:
 	AMBeamlineActionItem *action_;
 	int index_;
 	bool inFocus_;
-
-private:
-	QString viewType_;
 };
 
 class AM1BeamlineActionItem : public QObject

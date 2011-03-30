@@ -4,7 +4,7 @@
 #include "application/AMAppController.h"
 
 class SGMSampleTransferView;
-class AMSamplePositionView;
+class AMSampleManagementWidget;
 class AMScanConfigurationViewHolder;
 class SGMXASScanConfigurationView;
 class SGMFastScanConfigurationView;
@@ -49,7 +49,7 @@ protected slots:
 protected:
 
 	SGMSampleTransferView* sampleTransferView_;
-	AMSamplePositionView* samplePositionView_;
+	AMSampleManagementWidget* samplePositionView_;
 	SGMXASScanConfigurationView* xasScanConfigurationView_;
 	SGMFastScanConfigurationView* fastScanConfigurationView_;
 	AMScanConfigurationViewHolder* xasScanConfigurationHolder_;

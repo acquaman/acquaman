@@ -65,8 +65,11 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 
 
 	// Add detailed editor widgets:
+	QWidget* sampleEditorHolder = new QWidget();	// just used to add a margin around the sample editor itself, which has no margins.
+	sampleEditorHolder->setLayout(new QVBoxLayout);
 	sampleEditor_ = new AMSampleEditor(AMDatabase::userdb());
-	stackWidget_->addItem(sampleEditor_, "Sample Information");
+	sampleEditorHolder->layout()->addWidget(sampleEditor_);
+	stackWidget_->addItem(sampleEditorHolder, "Sample Information");
 
 	dataSourcesEditor_ = new AMDataSourcesEditor(scanSetModel_);
 	stackWidget_->addItem(dataSourcesEditor_, "Plot Data");

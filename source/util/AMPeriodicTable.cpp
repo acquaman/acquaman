@@ -5,6 +5,9 @@
 #include <QTextStream>
 #include <QDebug>
 
+// Singleton instance
+AMPeriodicTable* AMPeriodicTable::instance_ = 0;
+
 AMPeriodicTable::AMPeriodicTable(QObject *parent) :
 	QObject(parent)
 {

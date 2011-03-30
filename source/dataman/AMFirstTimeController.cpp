@@ -168,8 +168,10 @@ bool AMFirstTimeController::databaseInitialization(bool newUser) {
 	AMDbObjectSupport::registerClass<AMSpectralOutputDetectorInfo>();
 	AMDbObjectSupport::registerClass<AMControlInfo>();
 	AMDbObjectSupport::registerClass<AMControlInfoList>();
+	AMDbObjectSupport::registerClass<AMSamplePosition>();
 	AMDbObjectSupport::registerClass<AMSamplePlate>();
 	AMDbObjectSupport::registerClass<AMROIInfo>();
+	AMDbObjectSupport::registerClass<AMROIInfoList>();
 
 
 	AMDbObjectSupport::registerClass<AMUser>();

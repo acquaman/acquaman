@@ -21,29 +21,22 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMBeamlineControlSetMoveAction.h"
 
 AMBeamlineControlSetMoveAction::AMBeamlineControlSetMoveAction(AMControlSet *controlSet, QObject *parent) :
-	AMBeamlineActionItem(parent)
+		AMBeamlineActionItem(parent)
 {
-	controlSet_ = NULL;
-	setpoint_ = NULL;
-	type_ = "controlSetMoveAction";
-	if(controlSet){
+	controlSet_ = 0; //NULL
+	if(controlSet)
 		setControlSet(controlSet);
-		setpoint_ = new AMControlInfoList(controlSet_->toInfoList());
-		setpoint_->setParent(this);
-	}
-	else
-		setpoint_ = NULL;
 }
 
-QString AMBeamlineControlSetMoveAction::type() const{
-	return AMBeamlineActionItem::type()+"."+type_;
+AMBeamlineActionView* AMBeamlineControlSetMoveAction::createView(int index){
+	return new AMBeamlineControlSetMoveActionView(this, index);
 }
 
 AMControlSet* AMBeamlineControlSetMoveAction::controlSet(){
 	return controlSet_;
 }
 
-AMControlInfoList* AMBeamlineControlSetMoveAction::setpoint(){
+AMControlInfoList AMBeamlineControlSetMoveAction::setpoint(){
 	return setpoint_;
 }
 
@@ -55,11 +48,10 @@ void AMBeamlineControlSetMoveAction::start(){
 			connect(controlSet_->at(x), SIGNAL(moveFailed(int)), this, SLOT(onFailed(int)));
 			connect(controlSet_->at(x), SIGNAL(moveStarted()), this, SLOT(onStarted()));
 		}
-		startPoint_ = new AMControlInfoList(controlSet_->toInfoList());
-		startPoint_->setParent(this);
-		connect(&progressTimer_, SIGNAL(timeout()), this, SLOT(calculateProgress()) );
+		startpoint_ = controlSet_->toInfoList();
+		connect(&progressTimer_, SIGNAL(timeout()), this, SLOT(calculateProgress()));
 		progressTimer_.start(500);
-		controlSet_->setFromInfoList(*setpoint_);
+		controlSet_->setFromInfoList(setpoint_);
 	}
 	else
 		connect(this, SIGNAL(ready(bool)), this, SLOT(delayedStart(bool)));
@@ -72,10 +64,9 @@ void AMBeamlineControlSetMoveAction::cancel(){
 }
 
 void AMBeamlineControlSetMoveAction::setControlSet(AMControlSet *controlSet){
-	if(controlSet_){
+	if(controlSet_)
 		for(int x = 0; x < controlSet_->count(); x++)
 			disconnect(controlSet_->at(x), 0, this, 0);
-	}
 	controlSet_ = controlSet;
 	if(controlSet_){
 		for(int x = 0; x < controlSet_->count(); x++){
@@ -83,39 +74,24 @@ void AMBeamlineControlSetMoveAction::setControlSet(AMControlSet *controlSet){
 			connect(controlSet_->at(x), SIGNAL(connected(bool)), this, SLOT(onConnected(bool)));
 		}
 	}
-	if(!controlSet_){
-		if(setpoint_)
-			delete setpoint_;
-		setpoint_ = NULL;
-	}
-	else if(controlSet_ && setpoint_){
-		for(int x = 0; x < controlSet_->count(); x++){
-			if(controlSet_->at(x)->name() != setpoint_->at(x).name()){
-				delete setpoint_;
-				setpoint_ = NULL;
-				break;
-			}
-			else if(controlSet_->at(x)->valueOutOfRange(setpoint_->at(x).value()))
-				(*setpoint_)[x].setValue(controlSet_->at(x)->value());
-		}
-	}
 	checkReady();
 }
 
-bool AMBeamlineControlSetMoveAction::setSetpoint(AMControlInfoList *setpoint){
+bool AMBeamlineControlSetMoveAction::setSetpoint(const AMControlInfoList &setpoint){
 	if(!controlSet_)
 		return false;
-	for(int x = 0; x < controlSet_->count(); x++){
-		if(controlSet_->at(x)->name() != setpoint_->at(x).name())
-			return false;
-		else if(controlSet_->at(x)->valueOutOfRange(setpoint_->at(x).value()))
-			return false;
+	setpoint_ = setpoint;
+	fullSetpoint_ = controlSet_->toInfoList();
+	for(int x = 0; x < fullSetpoint_.count(); x++){
+		for(int y = 0; y < setpoint_.count(); y++)
+			if(fullSetpoint_.at(x).name() == setpoint_.at(y).name())
+				fullSetpoint_[x].setValue(setpoint_.at(y).value());
 	}
-	if(setpoint_)
-		delete setpoint_;
-	setpoint_ = new AMControlInfoList(*setpoint);
-	setpoint_->setParent(this);
 	return true;
+}
+
+void AMBeamlineControlSetMoveAction::cleanup(){
+
 }
 
 void AMBeamlineControlSetMoveAction::delayedStart(bool ready){
@@ -143,11 +119,11 @@ void AMBeamlineControlSetMoveAction::onConnected(bool connected){
 }
 
 void AMBeamlineControlSetMoveAction::checkReady(){
-	if(!controlSet_ || !setpoint_)
+	if(!controlSet_ || !controlSet_->isConnected())
 		setReady(false);
 	else{
 		for(int x = 0; x < controlSet_->count(); x++)
-			if(!controlSet_->at(x)->isConnected() || controlSet_->at(x)->isMoving())
+			if(controlSet_->at(x)->isMoving())
 				setReady(false);
 	}
 	setReady(true);
@@ -173,7 +149,7 @@ void AMBeamlineControlSetMoveAction::onFailed(int explanation){
 
 void AMBeamlineControlSetMoveAction::onFinished(){
 	progressTimer_.stop();
-	emit progress(1,1);
+	emit progress(1.0, 1.0);
 }
 
 void AMBeamlineControlSetMoveAction::calculateProgress(){
@@ -182,10 +158,10 @@ void AMBeamlineControlSetMoveAction::calculateProgress(){
 	double avgPercent, iPercent;
 	double csCount = (double)controlSet_->count();
 	for(int x = 0; x < controlSet_->count(); x++){
-		if( fabs(setpoint_->at(x).value() - startPoint_->at(x).value()) < 0.0001 )
+		if( fabs(fullSetpoint_.at(x).value() - startpoint_.at(x).value()) < 0.0001 )
 			iPercent = 100;
 		else
-			iPercent = (fabs(controlSet_->at(x)->value()-startPoint_->at(x).value())/fabs(setpoint_->at(x).value() - startPoint_->at(x).value())*100);
+			iPercent = (fabs(controlSet_->at(x)->value()-startpoint_.at(x).value())/fabs(fullSetpoint_.at(x).value() - startpoint_.at(x).value())*100);
 		avgPercent += iPercent/csCount;
 	}
 	emit progress(avgPercent, 100);
@@ -196,7 +172,6 @@ AMBeamlineControlSetMoveActionView::AMBeamlineControlSetMoveActionView(AMBeamlin
 {
 	controlSetAction_ = NULL;
 	setAction(controlSetAction);
-	viewType_ = "controlSetMoveView";
 
 	setMinimumHeight(NATURAL_ACTION_VIEW_HEIGHT);
 	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
@@ -235,16 +210,13 @@ AMBeamlineControlSetMoveActionView::AMBeamlineControlSetMoveActionView(AMBeamlin
 	setLayout(hl_);
 }
 
-QString AMBeamlineControlSetMoveActionView::viewType() const{
-	return AMBeamlineActionView::viewType()+"."+viewType_;
-}
-
 void AMBeamlineControlSetMoveActionView::setIndex(int index){
 	index_ = index;
 	onInfoChanged();
 }
 
-void AMBeamlineControlSetMoveActionView::setAction(AMBeamlineControlSetMoveAction *controlSetAction){
+void AMBeamlineControlSetMoveActionView::setAction(AMBeamlineActionItem *action){
+	AMBeamlineControlSetMoveAction *controlSetAction = qobject_cast<AMBeamlineControlSetMoveAction*>(action);
 	if(controlSetAction_){
 		disconnect(controlSetAction_, SIGNAL(progress(double,double)), this, SLOT(updateProgressBar(double,double)));
 		disconnect(controlSetAction_, SIGNAL(started()), this, SLOT(onStarted()));

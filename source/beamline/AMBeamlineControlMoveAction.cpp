@@ -23,8 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMBeamlineControlMoveAction::AMBeamlineControlMoveAction(AMControl *control, QObject *parent) :
 	AMBeamlineActionItem(parent)
 {
-	control_ = NULL;
-	type_ = "controlMoveAction";
+	control_ = 0; //NULL
 	if(control){
 		setControl(control);
 		setpoint_ = control_->value();
@@ -33,8 +32,8 @@ AMBeamlineControlMoveAction::AMBeamlineControlMoveAction(AMControl *control, QOb
 		setpoint_ = 0;
 }
 
-QString AMBeamlineControlMoveAction::type() const{
-	return AMBeamlineActionItem::type()+"."+type_;
+AMBeamlineActionView* AMBeamlineControlMoveAction::createView(int index){
+	return new AMBeamlineControlMoveActionView(this, index);
 }
 
 AMControl* AMBeamlineControlMoveAction::control(){
@@ -155,7 +154,6 @@ AMBeamlineControlMoveActionView::AMBeamlineControlMoveActionView(AMBeamlineContr
 {
 	moveAction_ = NULL;
 	setAction(moveAction);
-	viewType_ = "controlMoveView";
 
 	setMinimumHeight(NATURAL_ACTION_VIEW_HEIGHT);
 	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
@@ -194,16 +192,13 @@ AMBeamlineControlMoveActionView::AMBeamlineControlMoveActionView(AMBeamlineContr
 	setLayout(hl_);
 }
 
-QString AMBeamlineControlMoveActionView::viewType() const{
-	return AMBeamlineActionView::viewType()+"."+viewType_;
-}
-
 void AMBeamlineControlMoveActionView::setIndex(int index){
 	index_ = index;
 	onInfoChanged();
 }
 
-void AMBeamlineControlMoveActionView::setAction(AMBeamlineControlMoveAction *moveAction){
+void AMBeamlineControlMoveActionView::setAction(AMBeamlineActionItem *action){
+	AMBeamlineControlMoveAction *moveAction = qobject_cast<AMBeamlineControlMoveAction*>(action);
 	if(moveAction_){
 		disconnect(moveAction_, SIGNAL(progress(double,double)), this, SLOT(updateProgressBar(double,double)));
 		disconnect(moveAction_, SIGNAL(started()), this, SLOT(onStarted()));

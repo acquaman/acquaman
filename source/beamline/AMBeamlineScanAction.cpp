@@ -32,7 +32,6 @@ AMBeamlineScanAction::AMBeamlineScanAction(AMScanConfiguration *cfg, QObject *pa
 {
 	cfg_ = cfg;
 	ctrl_ = NULL;
-	type_ = "scanAction";
 	keepOnCancel_ = false;
 
 	connect(AMBeamline::bl(), SIGNAL(beamlineScanningChanged(bool)), this, SLOT(onBeamlineScanningChanged(bool)));
@@ -40,8 +39,8 @@ AMBeamlineScanAction::AMBeamlineScanAction(AMScanConfiguration *cfg, QObject *pa
 	initialize();
 }
 
-QString AMBeamlineScanAction::type() const{
-	return AMBeamlineActionItem::type()+"."+type_;
+AMBeamlineActionView* AMBeamlineScanAction::createView(int index){
+	return new AMBeamlineScanActionView(this, index);
 }
 
 bool AMBeamlineScanAction::isRunning() const{
@@ -148,7 +147,6 @@ AMBeamlineScanActionView::AMBeamlineScanActionView(AMBeamlineScanAction *scanAct
 {
 	index_ = index;
 	cancelLatch_ = false;
-	viewType_ = "scanView";
 	scanAction_ = scanAction;
 	setMinimumHeight(NATURAL_ACTION_VIEW_HEIGHT);
 	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
@@ -192,24 +190,25 @@ AMBeamlineScanActionView::AMBeamlineScanActionView(AMBeamlineScanAction *scanAct
 	setLayout(hl_);
 }
 
-QString AMBeamlineScanActionView::viewType() const{
-	return AMBeamlineActionView::viewType()+"."+viewType_;
-}
-
 void AMBeamlineScanActionView::setIndex(int index){
 	index_ = index;
 	updateScanNameLabel();
 }
 
-void AMBeamlineScanActionView::setAction(AMBeamlineScanAction *scanAction){
-	disconnect(scanAction_, SIGNAL(progress(double,double)), this, SLOT(updateProgressBar(double,double)));
-	disconnect(scanAction_, SIGNAL(started()), this, SLOT(onScanStarted()));
-	disconnect(scanAction_, SIGNAL(succeeded()), this, SLOT(onScanFinished()));
+void AMBeamlineScanActionView::setAction(AMBeamlineActionItem *action){
+	AMBeamlineScanAction *scanAction = qobject_cast<AMBeamlineScanAction*>(action);
+	if(scanAction_){
+		disconnect(scanAction_, SIGNAL(progress(double,double)), this, SLOT(updateProgressBar(double,double)));
+		disconnect(scanAction_, SIGNAL(started()), this, SLOT(onScanStarted()));
+		disconnect(scanAction_, SIGNAL(succeeded()), this, SLOT(onScanFinished()));
+	}
 	scanAction_ = scanAction;
-	updateScanNameLabel();
-	connect(scanAction_, SIGNAL(progress(double,double)), this, SLOT(updateProgressBar(double,double)));
-	connect(scanAction_, SIGNAL(started()), this, SLOT(onScanStarted()));
-	connect(scanAction_, SIGNAL(succeeded()), this, SLOT(onScanFinished()));
+	if(scanAction_){
+		updateScanNameLabel();
+		connect(scanAction_, SIGNAL(progress(double,double)), this, SLOT(updateProgressBar(double,double)));
+		connect(scanAction_, SIGNAL(started()), this, SLOT(onScanStarted()));
+		connect(scanAction_, SIGNAL(succeeded()), this, SLOT(onScanFinished()));
+	}
 }
 
 void AMBeamlineScanActionView::onInfoChanged(){

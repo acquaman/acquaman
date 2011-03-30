@@ -112,14 +112,17 @@ bool AMControlSet::validInfoList(const AMControlInfoList &info){
 	return true;
 }
 
-void AMControlSet::setFromInfoList(const AMControlInfoList& info){
+int AMControlSet::setFromInfoList(const AMControlInfoList& info){
 	AMControl *tmpCtrl;
+	int controlsSet = 0;
 	for(int x = 0; x < info.count(); x++){
 		tmpCtrl = controlNamed(info.at(x).name());
-		if(tmpCtrl)
+		if(tmpCtrl){
+			controlsSet++;
 			tmpCtrl->move(info.at(x).value());
-		/// \todo error checking on else
+		}
 	}
+	return controlsSet;
 }
 
 void AMControlSet::onConnected(bool ctrlConnected){
@@ -131,7 +134,7 @@ void AMControlSet::onConnected(bool ctrlConnected){
 		emit connected(false);
 	}
 
-	if(isConnected() && !wasConnected_){
+	if(!wasConnected_ && isConnected()){
 		wasConnected_ = true;
 		emit connected(true);
 	}

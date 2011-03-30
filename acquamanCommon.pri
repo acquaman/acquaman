@@ -84,7 +84,7 @@ LIBS += $$GSL_LIB \
 # Specify runtime search locations for libraries (Must change for release bundle, if epics in a different location)
 macx {
 	# 4.7.0 and earlier:
-	#QMAKE_LFLAGS_RPATH += "$$EPICS_LIB_DIR"
+	# QMAKE_LFLAGS_RPATH += "$$EPICS_LIB_DIR"
 
 	# 4.7.2: Use same as linux-g++
 	QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
@@ -205,7 +205,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMPrefixSuffixLineEdit.h \
 	source/ui/AMDragDropItemModel.h \
 	source/dataman/AMRunExperimentItems.h \
-	#source/ui/AMSamplePositionView.h \
+	#source/ui/AMSampleManagementWidget.h \
 	source/ui/AMSampleManipulatorView.h \
 	source/ui/AMSamplePlateView.h \
 	source/dataman/AMControlInfoList.h \
@@ -267,8 +267,6 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMPeriodicTableView.h \
 	source/util/AMPeriodicTable.h \
 	source/util/AMElement.h \
-	#source/ui/AMVideoWidget.h \
-	source/ui/AMScanConfigurationViewHolder.h \
 	source/dataman/AMSpectralOutputDetectorInfo.h \
 	source/dataman/MCPDetectorInfo.h \
 	source/dataman/PGTDetectorInfo.h \
@@ -283,9 +281,11 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMDetectorSetView.h \
 	source/beamline/AMDetectorSet.h \
 	source/dataman/AMROIInfo.h \
-    source/beamline/AMROI.h
+	source/beamline/AMROI.h \
 	#source/ui/AMOverlayVideoWidget.h \
-	#source/beamline/AMBeamlineListAction.h
+	source/ui/AMSamplePositionViewActionsWidget.h \
+	source/beamline/AMBeamlineListAction.h \
+	source/beamline/AMBeamlineControlWaitAction.h
 FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
 	source/ui/AMDataViewSection.ui \
@@ -294,7 +294,8 @@ FORMS +=	source/ui/AMDataView.ui \
 	source/ui/BottomBar.ui \
 	source/ui/AMGenericScanEditor.ui \
 	source/ui/AMDataSourcesEditor.ui \
-	source/ui/AMSamplePlateSelector.ui
+	source/ui/AMSamplePlateSelector.ui \
+	source/ui/AMSamplePositionViewActionsWidget.ui
 SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	../MPlot/src/MPlot/MPlotAbstractTool.cpp \
 	../MPlot/src/MPlot/MPlotAxis.cpp \
@@ -397,7 +398,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMPrefixSuffixLineEdit.cpp \
 	source/ui/AMDragDropItemModel.cpp \
 	source/dataman/AMRunExperimentItems.cpp \
-	#source/ui/AMSamplePositionView.cpp \
+	#source/ui/AMSampleManagementWidget.cpp \
 	source/ui/AMSampleManipulatorView.cpp \
 	source/ui/AMSamplePlateView.cpp \
 	source/dataman/AMControlInfoList.cpp \
@@ -470,10 +471,13 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMDetectorSetView.cpp \
 	source/beamline/AMDetectorSet.cpp \
 	source/dataman/AMROIInfo.cpp \
-    source/beamline/AMROI.cpp
+	source/beamline/AMROI.cpp \
 	#source/ui/AMVideoWidget.cpp \
 	#source/ui/AMOverlayVideoWidget.cpp \
 	#source/beamline/AMBeamlineListAction.cpp
+	source/ui/AMSamplePositionViewActionsWidget.cpp \
+	source/beamline/AMBeamlineListAction.cpp \
+	source/beamline/AMBeamlineControlWaitAction.cpp
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc \
 	source/util/ElementData.qrc
