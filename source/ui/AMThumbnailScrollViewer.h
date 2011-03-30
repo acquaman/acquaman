@@ -120,11 +120,6 @@ protected:
 #include <QPainterPath>
 
 /// This is a high-performance version of AMThumbnailScrollWidget for use inside the QGraphicsView system
-/*! NEEDED!
-  You can start by reimplementing important functions: the protected sizeHint() function, as well as the public setGeometry() function. If you want your items to be aware of immediate geometry changes, you can also reimplement updateGeometry().
-  */
-
-
 class AMThumbnailScrollGraphicsWidget : public QGraphicsItem, public QGraphicsLayoutItem {
 
 public:

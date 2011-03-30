@@ -304,9 +304,10 @@ void AMThumbnailScrollGraphicsWidget::paint(QPainter *painter, const QStyleOptio
 
 	painter->drawRect(0,0,width_, height);
 
-	if( !qFuzzyCompare(c1Rect.height() + c2Rect.height() + 2*textLineSpacing(), textHeight_ ) ) {
+	double actualTextHeight = c1Rect.height() + c2Rect.height() + 2*textLineSpacing();
+	if( !qFuzzyCompare(actualTextHeight, textHeight_ ) ) {
 		prepareGeometryChange();
-		textHeight_ = c1Rect.height() + c2Rect.height() + 2*textLineSpacing();
+		textHeight_ = actualTextHeight;
 	}
 
 	if(isSelected()) {

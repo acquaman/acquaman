@@ -89,6 +89,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 	 QGraphicsLayoutItem *itemAt(int index) const;
 	 void removeAt(int index);
 
+	 /// If you know the items are all the same size as the first one, this can be used to optimize the layout performance
+	 void setUniformItemSizes(bool itemsAreUniform) { uniformItemSizes_ = itemsAreUniform; }
+
  protected:
 
 
@@ -96,15 +99,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
  private:
 	 qreal doLayout(const QRectF &geom, bool applyNewGeometry) const;
-	 QSizeF minSize(const QSizeF &constraint) const;
-	 QSizeF prefSize() const;
-	 QSizeF maxSize() const;
+	 /// calculate the height required, if the whole width available is \c width, and all the items have the same size. (This is a shortcut optimization when uniformItemSizes_ is true.)
+	qreal heightForWidth(qreal width) const;
 
 
 	 QList<QGraphicsLayoutItem*> m_items;
 	 qreal m_spacing[2];
 
 	 double widthConstraint_;
+	 bool uniformItemSizes_;
  };
 
  inline void AMFlowGraphicsLayout::addItem(QGraphicsLayoutItem *item)

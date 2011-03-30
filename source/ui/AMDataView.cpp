@@ -928,6 +928,7 @@ AMDataViewSectionThumbnailView::AMDataViewSectionThumbnailView(AMDatabase* db, c
 	layout_ = new AMFlowGraphicsLayout();
 	layout_->setSpacing(Qt::Vertical, 30);
 	layout_->setSpacing(Qt::Horizontal, 30);
+	layout_->setUniformItemSizes(true);
 	// layout_ = new QGraphicsLinearLayout(Qt::Vertical);
 
 	setWidthConstraint(initialWidthConstraint);
