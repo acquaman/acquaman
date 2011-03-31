@@ -15,7 +15,7 @@ class XRFDetectorInfo : public AMDetectorInfo
 	Q_PROPERTY(MCAUpdateRate refreshRate READ refreshRate WRITE setRefreshRate)
 	Q_PROPERTY(double integrationTime READ integrationTime WRITE setIntegrationTime)
 	Q_PROPERTY(double peakingTime READ peakingTime WRITE setPeakingTime)
-	Q_PROPERTY(AMDbObject* roiList READ dbGetROIList WRITE dbLoadROIList)
+	Q_PROPERTY(AMDbObject* roiInfoList READ dbGetROIInfoList WRITE dbLoadROIInfoList)
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=XRF Detector")
 
@@ -31,6 +31,11 @@ public:
 
 	/// Default constructor.
 	Q_INVOKABLE XRFDetectorInfo(const QString& name = "xrfSpectrum", const QString& description = "XRF Detector", QObject *parent = 0);
+	/// Constructor that takes in a detectorInfo and retrieves all the settings.
+	XRFDetectorInfo(const XRFDetectorInfo &original);
+
+	/// Implement an = operator for this class.
+	XRFDetectorInfo &operator =(const XRFDetectorInfo &other);
 
 	// Dimensionality and size:
 	///////////////////////////
@@ -65,17 +70,17 @@ public:
 	double peakingTime() const { return peakingTime_; }
 
 	/// Returns a constant reference of the current ROI List.
-	const AMROIInfoList *roiList() const { return &roiList_; }
+	const AMROIInfoList *roiInfoList() const { return &roiInfoList_; }
 	/// Returns a modifiable reference to the current ROI List.
-	AMROIInfoList *roiList() { return &roiList_; }
+	AMROIInfoList *roiInfoList() { return &roiInfoList_; }
 
 	// Database loading and storing
 	///////////////////////
 
 	/// The database reading member function.
-	AMDbObject *dbGetROIList() { return &roiList_; }
+	AMDbObject *dbGetROIInfoList() { return &roiInfoList_; }
 	/// Don't need to do anything because dbGetROIList always returns a valid AMDbObject.
-	void dbLoadROIList(AMDbObject *) {}
+	void dbLoadROIInfoList(AMDbObject *) {}
 
 public slots:
 
@@ -90,7 +95,7 @@ public slots:
 		return true;
 	}
 	/// Sets the maximum energy calibration for the detector.
-	void setMaximumEnergy(double energy) { maxEnergy_ = energy; setModified(true); }
+	void setMaximumEnergy(double energy);
 	/// Sets the number of elements in the detector.
 	void setElements(int num) { elements_ = num; setModified(true); }
 	/// Sets the number of active elements in the detector.
@@ -110,7 +115,7 @@ public slots:
 	/// Sets the peaking time for the detector.
 	void setPeakingTime(double time) { peakingTime_ = time; setModified(true); }
 	/// Sets the ROI list for the detector.
-	void setROIList(const AMROIInfoList &roiList) { roiList_.setValuesFrom(roiList); setModified(true); }
+	void setROIList(const AMROIInfoList &roiInfoList) { roiInfoList_.setValuesFrom(roiInfoList); setModified(true); }
 
 protected:
 	/// Number of channels in the spectral output.
@@ -128,7 +133,7 @@ protected:
 	/// The peaking time for the detector.  The rest time between photon events.
 	double peakingTime_;
 	/// The list holding all the current ROIs for the detector.
-	AMROIInfoList roiList_;
+	AMROIInfoList roiInfoList_;
 };
 
 #endif // XRFDETECTORINFO_H

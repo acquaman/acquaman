@@ -30,6 +30,7 @@ public:
 	{
 		energy_ = other.energy_;
 		width_ = other.width_;
+		scale_ = other.scale_;
 		setName(other.name());	// will take care of calling setModified().
 	}
 
@@ -74,6 +75,8 @@ public:
 	/// A human-readable description for this set of ROIs
 	QString description() const { return description_; }
 
+	/// Sorts the current list by energy from lowest to highest.
+	void sort();
 
 	// Support for saving / restoring an AMROIInfoSet to the database
 	////////////////////////////////

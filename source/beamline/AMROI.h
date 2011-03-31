@@ -6,7 +6,10 @@
 #include "dataman/AMROIInfo.h"
 #include "beamline/AMProcessVariable.h"
 
-/// This class is used to set PVs based on either an AMROIInfo class or through other means (ex: a detector view).  It is meant to encapsulate the different pieces of an ROI into a single class.  For instance, the energy, the low limit, the high limit, and the name are all useful to group together.
+/*! This class is used to set PVs based on either an AMROIInfo class or through other means (ex: a detector view).  It is meant to encapsulate the different pieces of an ROI into a single class.  For instance, the energy, the low limit, the high limit, and the name are all useful to group together.
+
+  \todo This class is not implementation independent.  Because there does not exist an AMControl that handles arbitrary QStrings, I have chosen to implement the entire thing using PVs. Once the AMControl class can handle all things required by this class I will port it over to AMControls and AMControlSets.
+  */
 class AMROI : public QObject
 {
 	Q_OBJECT
@@ -40,6 +43,9 @@ public:
 	/// Returns the current value of the ROI.
 	double value() const { return value_; }
 
+	/// Returns whether the entire region of interest is connected.
+	bool isConnected() const { return connected_; }
+
 	/// Sets the name PVs using the given QList of AMProcessVariables.
 	void setNamePVs(QList<AMProcessVariable *> namePVs);
 	/// Convenience function for single element detectors.
@@ -62,6 +68,8 @@ public:
 	void setAllPVs(AMProcessVariable *namePV, AMProcessVariable *lowPV, AMProcessVariable *highPV, AMProcessVariable *valuePV);
 
 signals:
+	/// Signal emitted when the ROIs connected status changes.  This is only true if ALL PVs are connected.
+	void roiConnected(bool);
 
 public slots:
 	/// Sets the name of the ROI and passes it to all PV's.
@@ -86,6 +94,8 @@ public slots:
 	void setRegion(QString name, double energy, double width);
 	/// Overloaded function.  Sets all the parameters for the region with low and high bounds.
 	void setRegion(QString name, int low, int high);
+	/// Overloaded function.  Takes in an AMROIInfo and sets everything appropriately.
+	void setRegion(const AMROIInfo &info);
 
 protected slots:
 	/// Used to compute the current value based on the current state of the PVs.
@@ -96,6 +106,8 @@ protected slots:
 	void onLowPVChanged(int low) { low_ = low; }
 	/// Updates the ROI if changes were made to the higher bound outside of the program.
 	void onHighPVChanged(int high) { high_ = high; }
+	/// Used to determine if the entire region of interest is connected or not.
+	void connected();
 
 protected:
 
@@ -113,6 +125,8 @@ protected:
 	int high_;
 	/// The current integrated value of the region of interest based on the current energy and width.
 	double value_;
+	/// Holds the current state of whether the region of interest is connected.
+	bool connected_;
 
 	/// A list of all the name PVs.  The size of the list will correspond to how many elements in the detector there is.
 	QList<AMProcessVariable *> pvNames_;

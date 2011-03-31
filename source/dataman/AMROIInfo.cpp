@@ -86,3 +86,24 @@ void AMROIInfoList::setValuesFrom(const AMROIInfoList &other)
 
 	setModified(true);
 }
+
+void AMROIInfoList::sort()
+{
+	QList<AMROIInfo> list = toList();
+	int smallest;
+
+	for (int i = 0; i < list.size(); i++){
+
+		smallest = i;
+
+		for (int j = i; j < list.size(); j++)
+			if (list.at(smallest).energy() > list.at(j).energy())
+				smallest = j;
+
+		if (i != smallest)
+			list.swap(i, smallest);
+	}
+
+	for (int i = 0; i < count(); i++)
+		replace(i, list.at(i));
+}
