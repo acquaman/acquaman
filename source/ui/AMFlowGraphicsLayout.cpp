@@ -76,7 +76,7 @@ AMFlowGraphicsLayout::AMFlowGraphicsLayout()
 	sp.setHeightForWidth(true);
 	setSizePolicy(sp);
 
-	widthConstraint_ = -1;
+	defaultWidth_ = 400;
 	uniformItemSizes_ = false;
 
 }
@@ -199,7 +199,8 @@ QSizeF AMFlowGraphicsLayout::sizeHint(Qt::SizeHint which, const QSizeF &constrai
 
 	if(sh.width() < 0) {
 
-		sh.setWidth(widthConstraint_);
+		qDebug() << "AMFlowGraphicsLayout: Warning... Calling sizeHint() without specifying a width constraint. We need to know how wide we are, to estimate a height.  Assuming a default width of " << defaultWidth_;
+		sh.setWidth(defaultWidth_);
 	}
 
 	qreal height;
