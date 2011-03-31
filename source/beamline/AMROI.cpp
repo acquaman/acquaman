@@ -1,32 +1,32 @@
 #include "AMROI.h"
 
-AMROI::AMROI(QString name, double energy, double width, double scale, AMProcessVariable *namePV, AMProcessVariable *lowPV, AMProcessVariable *highPV, QObject *parent)
+AMROI::AMROI(QString name, double energy, double width, double scale, AMProcessVariable *namePV, AMProcessVariable *lowPV, AMProcessVariable *highPV, AMProcessVariable *valuePV, QObject *parent)
 	: QObject(parent)
 {
 	setScale(scale);
-	setAllPVs(namePV, lowPV, highPV);
+	setAllPVs(namePV, lowPV, highPV, valuePV);
 	setRegion(name, energy, width);
 }
 
-AMROI::AMROI(AMROIInfo info, AMProcessVariable *namePV, AMProcessVariable *lowPV, AMProcessVariable *highPV, QObject *parent)
+AMROI::AMROI(AMROIInfo info, AMProcessVariable *namePV, AMProcessVariable *lowPV, AMProcessVariable *highPV, AMProcessVariable *valuePV, QObject *parent)
 	: QObject(parent)
 {
-	setAllPVs(namePV, lowPV, highPV);
+	setAllPVs(namePV, lowPV, highPV, valuePV);
 	setRegion(info.name(), info.energy(), info.width());
 }
 
-AMROI::AMROI(QString name, double energy, double width, double scale, QList<AMProcessVariable *> namePVs, QList<AMProcessVariable *> lowPVs, QList<AMProcessVariable *> highPVs, QObject *parent)
+AMROI::AMROI(QString name, double energy, double width, double scale, QList<AMProcessVariable *> namePVs, QList<AMProcessVariable *> lowPVs, QList<AMProcessVariable *> highPVs, QList<AMProcessVariable *> valuePVs, QObject *parent)
 	: QObject(parent)
 {
 	setScale(scale);
-	setAllPVs(namePVs, lowPVs, highPVs);
+	setAllPVs(namePVs, lowPVs, highPVs, valuePVs);
 	setRegion(name, energy, width);
 }
 
-AMROI::AMROI(AMROIInfo info, QList<AMProcessVariable *> namePVs, QList<AMProcessVariable *> lowPVs, QList<AMProcessVariable *> highPVs, QObject *parent)
+AMROI::AMROI(AMROIInfo info, QList<AMProcessVariable *> namePVs, QList<AMProcessVariable *> lowPVs, QList<AMProcessVariable *> highPVs, QList<AMProcessVariable *> valuePVs, QObject *parent)
 	: QObject(parent)
 {
-	setAllPVs(namePVs, lowPVs, highPVs);
+	setAllPVs(namePVs, lowPVs, highPVs, valuePVs);
 	setRegion(info.name(), info.energy(), info.width());
 }
 
@@ -75,7 +75,7 @@ void AMROI::setLow(int low)
 	low_ = low;
 
 	for (int i = 0; i < pvLowerBounds_.size(); i++)
-		pvLowerBounds_.at(i)->value();
+		pvLowerBounds_.at(i)->setValue(low);
 }
 
 void AMROI::setLow(double low)
@@ -185,13 +185,13 @@ void AMROI::setHigherBoundPV(AMProcessVariable *highPV)
 void AMROI::setValuePVs(QList<AMProcessVariable *> valuePVs)
 {
 	// Disconnecting all the old PVs from the slots here and then connecting the new PVs to those slots.
-	for (int i = 0; i < valuePVs_.size(); i++)
-		disconnect(valuePVs_.at(i), SIGNAL(valueChanged()), this, SLOT(updateValue()));
+	for (int i = 0; i < pvValues_.size(); i++)
+		disconnect(pvValues_.at(i), SIGNAL(valueChanged()), this, SLOT(updateValue()));
 
-	valuePVs_ = valuePVs;
+	pvValues_ = valuePVs;
 
-	for (int i = 0; i < valuePVs_.size(); i++)
-		connect(valuePVs_.at(i), SIGNAL(valueChanged()), this, SLOT(updateValue()));
+	for (int i = 0; i < pvValues_.size(); i++)
+		connect(pvValues_.at(i), SIGNAL(valueChanged()), this, SLOT(updateValue()));
 }
 
 void AMROI::setValuePV(AMProcessVariable *valuePV)
@@ -200,9 +200,9 @@ void AMROI::setValuePV(AMProcessVariable *valuePV)
 	if (pvValues_.size() != 1)
 		return;
 
-	disconnect(valuePVs_.first(), SIGNAL(valueChanged()), this, SLOT(updateValue()));
-	valuePVs_.replace(0, valuePV);
-	connect(valuePVs_.first(), SIGNAL(valueChanged()), this, SLOT(updateValue()));
+	disconnect(pvValues_.first(), SIGNAL(valueChanged()), this, SLOT(updateValue()));
+	pvValues_.replace(0, valuePV);
+	connect(pvValues_.first(), SIGNAL(valueChanged()), this, SLOT(updateValue()));
 }
 
 void AMROI::setAllPVs(QList<AMProcessVariable *> namePVs, QList<AMProcessVariable *> lowPVs, QList<AMProcessVariable *> highPVs, QList<AMProcessVariable *> valuePVs)
@@ -223,14 +223,14 @@ void AMROI::setAllPVs(AMProcessVariable *namePV, AMProcessVariable *lowPV, AMPro
 
 void AMROI::updateValue()
 {
-	if (valuePVs_.size() == 1)
-		value_ = valuePVs_.first()->getDouble();
+	if (pvValues_.size() == 1)
+		value_ = pvValues_.first()->getDouble();
 
 	else{
 
 		value_ = 0;
 
-		for (int i = 0; i < valuePVs_.size(); i++)
-			value_ += valuePVs_.at(i)->getDouble();
+		for (int i = 0; i < pvValues_.size(); i++)
+			value_ += pvValues_.at(i)->getDouble();
 	}
 }

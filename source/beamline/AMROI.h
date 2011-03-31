@@ -12,13 +12,13 @@ class AMROI : public QObject
 	Q_OBJECT
 public:
 	/// Constructor.  Used for single element detectors. All PV's provided to this class MUST be valid.
-	explicit AMROI(QString name, double energy, double width, double scale, AMProcessVariable *namePV, AMProcessVariable *lowPV, AMProcessVariable *highPV, QObject *parent = 0);
+	explicit AMROI(QString name, double energy, double width, double scale, AMProcessVariable *namePV, AMProcessVariable *lowPV, AMProcessVariable *highPV, AMProcessVariable *valuePV, QObject *parent = 0);
 	/// Constructor.  Used for single element detectors using an AMROIInfo.  All PVs provided must be valid.
-	explicit AMROI(AMROIInfo info, AMProcessVariable *namePV, AMProcessVariable *lowPV, AMProcessVariable *highPV, QObject *parent = 0);
+	explicit AMROI(AMROIInfo info, AMProcessVariable *namePV, AMProcessVariable *lowPV, AMProcessVariable *highPV, AMProcessVariable *valuePV, QObject *parent = 0);
 	/// Constructor.  Used for n > 1 element detectors.  All PVs provided must be valid.
-	explicit AMROI(QString name, double energy, double width, double scale, QList<AMProcessVariable *> namePVs, QList<AMProcessVariable *> lowPVs, QList<AMProcessVariable *> highPVs, QObject *parent = 0);
+	explicit AMROI(QString name, double energy, double width, double scale, QList<AMProcessVariable *> namePVs, QList<AMProcessVariable *> lowPVs, QList<AMProcessVariable *> highPVs, QList<AMProcessVariable *> valuePVs, QObject *parent = 0);
 	/// Constructor.  Used for n > 1 element detectors.  All PVs provided must be valid.
-	explicit AMROI(AMROIInfo info, QList<AMProcessVariable *> namePVs, QList<AMProcessVariable *> lowPVs, QList<AMProcessVariable *> highPVs, QObject *parent = 0);
+	explicit AMROI(AMROIInfo info, QList<AMProcessVariable *> namePVs, QList<AMProcessVariable *> lowPVs, QList<AMProcessVariable *> highPVs, QList<AMProcessVariable *> valuePVs, QObject *parent = 0);
 
 	/// Takes an AMROIInfo and sets the AMROI to match it.
 	void fromInfo(const AMROIInfo &info);
