@@ -201,34 +201,47 @@ color: rgb(79, 79, 79);</string>
       <number>12</number>
      </property>
      <property name="topMargin">
-      <number>6</number>
+      <number>2</number>
      </property>
      <property name="rightMargin">
       <number>12</number>
      </property>
      <property name="bottomMargin">
-      <number>6</number>
+      <number>2</number>
      </property>
      <item>
-      <widget class="QToolButton" name="openButton1">
-       <property name="text">
-        <string>...</string>
+      <layout class="QHBoxLayout" name="horizontalLayout_4">
+       <property name="topMargin">
+        <number>6</number>
        </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="opeButton2">
-       <property name="text">
-        <string>...</string>
+       <property name="rightMargin">
+        <number>0</number>
        </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="openButton3">
-       <property name="text">
-        <string>...</string>
+       <property name="bottomMargin">
+        <number>6</number>
        </property>
-      </widget>
+       <item>
+        <widget class="QToolButton" name="opeButton2">
+         <property name="text">
+          <string>...</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="openButton1">
+         <property name="text">
+          <string>...</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="openButton3">
+         <property name="text">
+          <string>...</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
      <item>
       <spacer name="horizontalSpacer_3">
@@ -244,18 +257,28 @@ color: rgb(79, 79, 79);</string>
       </spacer>
      </item>
      <item>
-      <widget class="QToolButton" name="expandAllButton">
-       <property name="text">
-        <string>Expand All</string>
+      <layout class="QHBoxLayout" name="horizontalLayout_5">
+       <property name="topMargin">
+        <number>6</number>
        </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="collapseAllButton">
-       <property name="text">
-        <string>Collapse All</string>
+       <property name="bottomMargin">
+        <number>6</number>
        </property>
-      </widget>
+       <item>
+        <widget class="QToolButton" name="expandAllButton">
+         <property name="text">
+          <string>Expand All</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="collapseAllButton">
+         <property name="text">
+          <string>Collapse All</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
      <item>
       <widget class="QFrame" name="frame">
@@ -263,7 +286,7 @@ color: rgb(79, 79, 79);</string>
         <enum>QFrame::VLine</enum>
        </property>
        <property name="frameShadow">
-        <enum>QFrame::Raised</enum>
+        <enum>QFrame::Sunken</enum>
        </property>
       </widget>
      </item>

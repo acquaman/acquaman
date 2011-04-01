@@ -266,11 +266,11 @@ void AMThumbnailScrollGraphicsWidget::paint(QPainter *painter, const QStyleOptio
 	if(deferredUpdate_required_)
 		displayThumbnail(deferredUpdate_db_, deferredUpdate_id_);
 
-	double height = width_*3/4;
+	int height = width_*3/4;
+	if(scaledPixmap_.size() != QSize(width_, height))
+		scaledPixmap_ = pixmap_.scaled(width_, height, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);	// this caches the scaled version of the pixmap, in case we need it again.
 
-	painter->drawPixmap( QRectF(0,0,width_, height),
-						 pixmap_,
-						 QRectF(0,0,240,180) );
+	painter->drawPixmap(QPointF(0,0), scaledPixmap_);
 
 	// draw title and subtitle (thumbnail content)
 	QRectF tRect;
@@ -329,9 +329,11 @@ void AMThumbnailScrollGraphicsWidget::displayThumbnail(AMDbThumbnail t) {
 	if(t.type == AMDbThumbnail::PNGType) {
 		pixmap_ = QPixmap(240, 180);
 		pixmap_.loadFromData(t.thumbnail, "PNG");
+		scaledPixmap_ = QPixmap();
 	}
 	else {
 		pixmap_ = invalidPixmap();
+		scaledPixmap_ = QPixmap();
 	}
 
 	update();
@@ -350,6 +352,7 @@ void AMThumbnailScrollGraphicsWidget::displayThumbnail(AMDatabase* db, int id) {
 		title_ = QString();
 		subtitle_ = QString();
 		pixmap_ = invalidPixmap();
+		scaledPixmap_ = QPixmap();
 		if(!deferredUpdate_required_)
 			update();
 		deferredUpdate_required_ = false;
@@ -368,10 +371,12 @@ void AMThumbnailScrollGraphicsWidget::displayThumbnail(AMDatabase* db, int id) {
 			QPixmap p;
 			p.loadFromData(q.value(3).toByteArray(), "PNG");
 			pixmap_ = p;
+			scaledPixmap_ = QPixmap();
 		}
 		else {
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -1, "AMThumbnailScrollViewerGraphicsWidget: Invalid/un-implemented thumbnail type."));
 			pixmap_ = invalidPixmap();
+			scaledPixmap_ = QPixmap();
 		}
 	}
 	else {
@@ -559,7 +564,7 @@ QDrag* AMThumbnailScrollGraphicsWidget::createDragObject(QWidget* dragSourceWidg
 	mime->setUrls(urlList);
 	mime->setText(uri);
 
-	drag->setPixmap(pixmap_.scaledToHeight(100, Qt::FastTransformation));
+	drag->setPixmap(pixmap_.scaledToHeight(100, Qt::SmoothTransformation));
 	drag->setHotSpot(QPoint(15,15));
 
 	return drag;

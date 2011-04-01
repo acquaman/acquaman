@@ -284,7 +284,10 @@ protected:
 	static double shadowBlurRadius() { return 12; }
 
 	double preferredWidth_, width_, textHeight_;
+	/// The pixmap holding the original thumbnail image
 	QPixmap pixmap_;
+	/// The pixmap_ scaled to the last size we had to draw it at
+	QPixmap scaledPixmap_;
 
 	/// title and subtitle are written on top of the thumbnail itself.  They are found from the content inside the thumbnail
 	QString title_, subtitle_;
