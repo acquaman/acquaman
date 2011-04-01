@@ -78,6 +78,8 @@ AMDataView::AMDataView(AMDatabase* database, QWidget *parent) :
 	connect(organizeModeBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onOrganizeModeBoxCurrentIndexChanged(int)));
 
 	connect(sizeSlider, SIGNAL(valueChanged(int)), this, SLOT(onItemSizeSliderChanged(int)));
+	connect(expandAllButton, SIGNAL(clicked()), this, SLOT(expandAll()));
+	connect(collapseAllButton, SIGNAL(clicked()), this, SLOT(collapseAll()));
 
 	// install organize mode options? Nope... we'll do that when showRun or showExperiment is called, in order to install the right ones.
 
@@ -844,6 +846,21 @@ void AMDataView::onItemSizeSliderChanged(int newItemSize)
 	}
 }
 
+void AMDataView::expandAll()
+{
+	foreach(AMAbstractDataViewSection* s, sections__) {
+		s->expand();
+	}
+}
+
+void AMDataView::collapseAll()
+{
+	foreach(AMAbstractDataViewSection* s, sections__) {
+		s->collapse();
+	}
+}
+
+
 
 AMDataViewSection::AMDataViewSection(const QString& title, const QString& subtitle, const QString& whereClause, AMDataViews::ViewMode viewMode, AMDatabase* db, bool expanded, QGraphicsItem* parent, double initialWidthConstraint, int initialItemSize) : QGraphicsWidget(parent) {
 
@@ -1115,6 +1132,7 @@ void AMLayoutControlledGraphicsWidget::resizeEvent(QGraphicsSceneResizeEvent *ev
 	QGraphicsWidget::resizeEvent(event);
 	emit resized();
 }
+
 
 
 

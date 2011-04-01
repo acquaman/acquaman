@@ -96,7 +96,14 @@ public:
 	virtual void setItemSize(int relativeItemSize) {
 		Q_UNUSED(relativeItemSize)
 	}
+
+	/// Expand or collapse this section (ie: show or hide everything except for header). The default implementation does nothing and must be overridden if you have more than a header.
+	virtual void expand(bool expanded = true) {}
+	/// Overloaded as an alternative for expand(false). You don't need to re-implement this.
+	virtual void collapse() { expand(false); }
 };
+
+
 
 /// This class implements a supremely awesome view of all the scan data found that can be found in a given database.  It can show scans from just one run, or just one experiment, or all runs or all experiments.  Beyond that, it can organize its data into sections based on the run, experiment, sample, element, or scan type.
 /*! Implementation note: this class  acts as a QGraphicsView container and a controller for AMDataViewSections and the specialized views employed by them.
@@ -134,6 +141,11 @@ public slots:
 	/// Set the view mode, where \c mode is one of AMDataViews::ViewMode (ThumbnailView, ListView, FlowView, or DetailView)
 	void setViewMode(int mode);
 
+	/// Called when the user wants to expand all the sections in the view
+	void expandAll();
+	/// Called when the user wants to collapse all the sections in the view
+	void collapseAll();
+
 
 protected slots:
 	/// called when the combo box is used to change the organizeMode
@@ -151,6 +163,8 @@ protected slots:
 
 	/// Called when the item size slider is moved. It's up to each section to decide what item sizes mean, but they should all adjust their item sizes based on the new user value (from 1 to 100).
 	void onItemSizeSliderChanged(int newItemSize);
+
+
 
 
 protected:
@@ -243,9 +257,8 @@ public:
 	void setGeometry(const QRectF &rect);
 
 public slots:
-	/// Expand or collapse this section (ie: show or hide everything below the header)
-	void expand(bool expanded = true);
-	void collapse() { expand(false); }
+	/// Expand or collapse this section (ie: show or hide everything below the header).
+	virtual void expand(bool expanded = true);
 
 	/// Called from setGeometry(), this places the header at the correct location. It's a slot so that it can be connected to be called whenever the view scrolls.
 	void layoutHeaderItem();

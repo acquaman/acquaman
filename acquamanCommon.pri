@@ -281,21 +281,20 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMDetectorSetView.h \
 	source/beamline/AMDetectorSet.h \
 	source/ui/AMOverlayVideoWidget.h \
-    source/ui/AMSamplePositionViewActionsWidget.h \
-    source/beamline/AMBeamlineListAction.h \
-    source/beamline/AMBeamlineControlWaitAction.h
+	source/ui/AMSamplePositionViewActionsWidget.h \
+	source/beamline/AMBeamlineListAction.h \
+	source/beamline/AMBeamlineControlWaitAction.h
 
 FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
-	source/ui/AMDataViewSection.ui \
+	source/ui/AMDataViewSectionHeader.ui \
 	source/ui/AMImportControllerWidget.ui \
 	source/ui/AMScanConfigurationView.ui \
 	source/ui/BottomBar.ui \
 	source/ui/AMGenericScanEditor.ui \
 	source/ui/AMDataSourcesEditor.ui \
 	source/ui/AMSamplePlateSelector.ui \
-    source/ui/AMSamplePositionViewActionsWidget.ui \
-    source/ui/AMDataViewSectionHeader.ui
+	source/ui/AMSamplePositionViewActionsWidget.ui
 SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	../MPlot/src/MPlot/MPlotAbstractTool.cpp \
 	../MPlot/src/MPlot/MPlotAxis.cpp \
@@ -472,9 +471,9 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/beamline/AMDetectorSet.cpp \
 	#source/ui/AMVideoWidget.cpp \
 	source/ui/AMOverlayVideoWidget.cpp \
-    source/ui/AMSamplePositionViewActionsWidget.cpp \
-    source/beamline/AMBeamlineListAction.cpp \
-    source/beamline/AMBeamlineControlWaitAction.cpp
+	source/ui/AMSamplePositionViewActionsWidget.cpp \
+	source/beamline/AMBeamlineListAction.cpp \
+	source/beamline/AMBeamlineControlWaitAction.cpp
 
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc \

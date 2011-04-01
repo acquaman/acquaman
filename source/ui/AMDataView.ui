@@ -207,7 +207,7 @@ color: rgb(79, 79, 79);</string>
       <number>12</number>
      </property>
      <property name="bottomMargin">
-      <number>12</number>
+      <number>6</number>
      </property>
      <item>
       <widget class="QToolButton" name="openButton1">
@@ -242,6 +242,30 @@ color: rgb(79, 79, 79);</string>
         </size>
        </property>
       </spacer>
+     </item>
+     <item>
+      <widget class="QToolButton" name="expandAllButton">
+       <property name="text">
+        <string>Expand All</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="collapseAllButton">
+       <property name="text">
+        <string>Collapse All</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QFrame" name="frame">
+       <property name="frameShape">
+        <enum>QFrame::VLine</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
+      </widget>
      </item>
      <item>
       <widget class="QLabel" name="sizeIconSmall">
