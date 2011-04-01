@@ -107,3 +107,18 @@ void AMROIInfoList::sort()
 	for (int i = 0; i < count(); i++)
 		replace(i, list.at(i));
 }
+
+int AMROIInfoList::indexOf(QString name)
+{
+	AMROIInfo temp;
+
+	for (int i = 0; i < count(); i++){
+
+		temp = at(i);
+
+		if (name.compare(temp.name()) == 0)
+			return i;
+	}
+
+	return -1;
+}

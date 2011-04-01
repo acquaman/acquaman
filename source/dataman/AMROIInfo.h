@@ -78,6 +78,9 @@ public:
 	/// Sorts the current list by energy from lowest to highest.
 	void sort();
 
+	/// Convenience function that gives the index of an AMROIInfo using the name.  This means that having an instance of an AMROIInfo is necessary to find particular information inside the list.  The name was chosen as the finding parameter.  Returns the first instance inside the list and doesn't continue looking for repeats.  Returns -1 if the result if no match is found.
+	int indexOf(QString name);
+
 	// Support for saving / restoring an AMROIInfoSet to the database
 	////////////////////////////////
 

@@ -5,6 +5,7 @@ XRFDetector::XRFDetector(QString name, int elements, AMControl *refreshRate, AMC
 {
 	setElements(elements);
 	setActiveElements(elements);
+	usingSingleElement_ = false;
 
 	refreshRateControl_ = refreshRate;
 	peakingTimeControl_ = peakingTime;
@@ -46,6 +47,7 @@ XRFDetector::XRFDetector(QString name, AMControl *refreshRate, AMControl *peakin
 {
 	setElements(1);
 	setActiveElements(1);
+	usingSingleElement_ = true;
 
 	refreshRateControl_ = refreshRate;
 	peakingTimeControl_ = peakingTime;
@@ -53,10 +55,13 @@ XRFDetector::XRFDetector(QString name, AMControl *refreshRate, AMControl *peakin
 	integrationTimeControl_ = integrationTime;
 	liveTimeControl_ = liveTime;
 	elapsedTimeControl_ = elapsedTime;
-	deadTimeControl_->addControl(deadTime);
-	spectraControl_->addControl(spectra);
 	startControl_ = start;
 	stopControl_ = stop;
+
+	deadTimeControl_ = new AMControlSet(this);
+	deadTimeControl_->addControl(deadTime);
+	spectraControl_ = new AMControlSet(this);
+	spectraControl_->addControl(spectra);
 
 	readingControls_ = new AMControlSet(this);
 	settingsControls_ = new AMControlSet(this);
@@ -84,6 +89,12 @@ XRFDetector::XRFDetector(QString name, AMControl *refreshRate, AMControl *peakin
 
 XRFDetector::~XRFDetector()
 {
+	if (usingSingleElement_){
+
+		delete deadTimeControl_;
+		delete spectraControl_;
+	}
+
 	delete readingControls_;
 	delete settingsControls_;
 }
@@ -125,4 +136,45 @@ void XRFDetector::detectorConnected()
 	detectorConnected_ = detectorConnected_ && readingControls_->isConnected() && settingsControls_->isConnected();
 
 	emit connected(detectorConnected_);
+}
+
+bool XRFDetector::addRegionOfInterest(AMROIInfo roi)
+{
+	// No more ROIs.
+	if (roiInfoList()->count() == roiList().size())
+		return false;
+
+	// Appending to the list means that the old size of the Info list is where the new values should be set in the ROI list.
+	roiList().at(roiInfoList()->count())->fromInfo(roi);
+	roiInfoList()->append(roi);
+
+	return true;
+}
+
+bool XRFDetector::removeRegionOfInterest(QString name)
+{
+	int indexOfRemoved = roiInfoList()->indexOf(name);
+
+	if (indexOfRemoved == -1)
+		return false;
+
+	for (int i = indexOfRemoved; i < roiInfoList()->count(); i++){
+
+		if (i+1 == roiInfoList()->count())
+			roiList().at(i)->fromInfo(AMROIInfo(""));
+
+		roiList().at(i)->fromInfo(roiInfoList()->at(i+1));
+	}
+
+	roiInfoList()->remove(indexOfRemoved);
+
+	return true;
+}
+
+void XRFDetector::sort()
+{
+	roiInfoList()->sort();
+
+	for (int i = 0; i < roiInfoList()->count(); i++)
+		roiList().at(i)->fromInfo(roiInfoList()->at(i));
 }

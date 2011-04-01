@@ -58,6 +58,13 @@ public:
 	/// Returns the AMROI list.
 	QList<AMROI *> roiList() const { return roiList_; }
 
+	/// Adds a region of interest.  The new ROI is appended to the end of the list.  Returns whether the addition was successful or not; it will only fail if there are no longer any ROIs to place values in.
+	bool addRegionOfInterest(AMROIInfo roi);
+	/// Removes a region of interest.  Uses the name of the ROI to find and remove it.  Returns whether the remove was successful or not.
+	bool removeRegionOfInterest(QString name);
+	/// Sorts the list of ROIs.
+	void sort();
+
 public slots:
 
 	/// Erases the current spectrum and starts collecting data.
@@ -114,6 +121,10 @@ protected:
 	// Helper control sets.
 	AMControlSet *readingControls_;
 	AMControlSet *settingsControls_;
+
+private:
+	// Keeps track of whether the single element version was used or not.
+	bool usingSingleElement_;
 };
 
 #endif // XRFDETECTOR_H
