@@ -26,7 +26,7 @@ VESPERSBeamline::VESPERSBeamline()
 	setupEndstation();
 	setupControlSets();
 }
-
+#error "Need to new all the controsl for the single element detector."
 void VESPERSBeamline::setupDiagnostics()
 {
 	// Pressure controls.

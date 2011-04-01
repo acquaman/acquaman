@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMBeamline.h"
 #include "beamline/AMControlSet.h"
 #include "util/AMErrorMonitor.h"
+#include "beamline/AMDetector.h"
 
 /// This class
 class VESPERSBeamline : public AMBeamline
@@ -312,6 +313,11 @@ protected:
 	/// Constructor. This is a singleton class; access it through VESPERSBeamline::vespers().
 	VESPERSBeamline();
 
+	// Detectors.
+	AMDetector *vortex1E_;
+
+	// End detectors.
+
 	// Beamline Diagnostics.
 	// Pressure controls.
 	AMControl *ccgFE1_;
@@ -456,6 +462,22 @@ protected:
 	AMProcessVariable *ccdNumber_;
 
 	// End Endstation controls.
+
+	// Single element vortex detector.
+
+	AMControl *elapsedTime1E_;
+	AMControl *integrationTime1E_;
+	AMControl *liveTime1E_;
+	AMControl *start1E_;
+	AMControl *stop1E_;
+	AMControl *deadTime1E_;
+	AMControl *maxEnergy1E_;
+	AMControl *mcaUpdateRate1E_;
+	AMControl *peakingTime1E_;
+	AMControl *spectrum1E_;
+
+	AMControlSet *vortex1EControls_;
+	// End single element vortex detector.
 };
 
 #endif // VESPERSBEAMLINE_H

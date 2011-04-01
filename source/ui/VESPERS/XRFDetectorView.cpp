@@ -1,6 +1,6 @@
 #include "XRFDetectorView.h"
 
-XRFDetectorView::XRFDetectorView(QWidget *parent) :
-    QWidget(parent)
+XRFDetectorView::XRFDetectorView(QWidget *parent)
+	: AMDetectorView()
 {
 }

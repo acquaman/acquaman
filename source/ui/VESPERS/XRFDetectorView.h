@@ -1,13 +1,13 @@
 #ifndef XRFDETECTORVIEW_H
 #define XRFDETECTORVIEW_H
 
-#include <QWidget>
+#include "ui/AMDetectorView.h"
 
-class XRFDetectorView : public QWidget
+class XRFDetectorView : public AMDetectorView
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    explicit XRFDetectorView(QWidget *parent = 0);
+	explicit XRFDetectorView(QWidget *parent = 0);
 
 signals:
 
