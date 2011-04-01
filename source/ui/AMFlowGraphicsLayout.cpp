@@ -162,7 +162,7 @@ qreal AMFlowGraphicsLayout::doLayout(const QRectF &geom, bool applyNewGeometry) 
 	QSizeF pref;
 	for (int i = 0; i < m_items.count(); ++i) {
 		QGraphicsLayoutItem *item = m_items.at(i);
-		pref = item->effectiveSizeHint(Qt::PreferredSize);
+		pref = item->effectiveSizeHint(Qt::PreferredSize, itemSizeConstraint_);
 		maxRowHeight = qMax(maxRowHeight, pref.height());
 
 		qreal next_x;
@@ -198,8 +198,6 @@ QSizeF AMFlowGraphicsLayout::sizeHint(Qt::SizeHint which, const QSizeF &constrai
 	QSizeF sh = constraint;
 
 	if(sh.width() < 0) {
-
-		qDebug() << "AMFlowGraphicsLayout: Warning... Calling sizeHint() without specifying a width constraint. We need to know how wide we are, to estimate a height.  Assuming a default width of " << defaultWidth_;
 		sh.setWidth(defaultWidth_);
 	}
 
@@ -230,7 +228,7 @@ qreal AMFlowGraphicsLayout::heightForWidth(qreal width) const
 
 
 	qreal maxWidth = width - left - right;
-	QSizeF itemSize = m_items.count() > 0 ? m_items.first()->effectiveSizeHint(Qt::PreferredSize) : QSizeF(10,10);
+	QSizeF itemSize = m_items.count() > 0 ? m_items.first()->effectiveSizeHint(Qt::PreferredSize, itemSizeConstraint_) : QSizeF(10,10);
 	qreal horizontalSpacing = spacing(Qt::Horizontal);
 
 	int itemsPerRow = (maxWidth + horizontalSpacing) / (itemSize.width() + horizontalSpacing);	// algebra from: maxWidth = num*width + (num-1)*horizontalSpacing

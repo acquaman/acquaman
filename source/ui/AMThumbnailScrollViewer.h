@@ -247,8 +247,10 @@ public:
 		objectId_ = objectId;
 	}
 
-	/// Use this to set the size hint that the thumbnail requests within layouts. You can use this to dynamically resize
-	void setWidth(double width) {
+	/// Use this to set the size hint that the thumbnail requests within layouts, if a constraint is not provided. You can use this to dynamically resize the thumbnail item in layouts that don't specify a QSizeF constraint when calling sizeHint(int which, QSizeF constraint).
+	void setDefaultWidth(double width) {
+		if(preferredWidth_ == width)
+			return;
 
 		preferredWidth_ = width;
 		updateGeometry();
@@ -347,9 +349,34 @@ protected:
 	QSizeF sizeHint(Qt::SizeHint which, const QSizeF &constraint) const {
 
 		Q_UNUSED(which)
-		Q_UNUSED(constraint)
 
-		return QSizeF(preferredWidth_, preferredWidth_*3/4 + textHeight_);
+		if(constraint.width() < 0 && constraint.height() < 0) {
+			return QSizeF(preferredWidth_, preferredWidth_*3/4 + textHeight_);
+		}
+
+		// OK, a constraint has been specified. Assuming either width-constrained or height constrained.
+		QSizeF widthConstrained, heightConstrained;
+
+		if(constraint.width() > 0) {
+			widthConstrained = QSizeF(constraint.width(), constraint.width()*3/4 + textHeight_);
+			if(constraint.height() > 0) {	// constrained in both width and height
+				heightConstrained = QSizeF((constraint.height()-textHeight_)*4/3, constraint.height());
+				if(widthConstrained.height() > constraint.height()) {
+					return heightConstrained;
+				}
+				else {
+					return widthConstrained;
+				}
+			}
+			else {
+				// only width constrained
+				return widthConstrained;
+			}
+		}
+		else {
+			// only height constrained
+			return QSizeF((constraint.height()-textHeight_)*4/3, constraint.height());
+		}
 	}
 
 };

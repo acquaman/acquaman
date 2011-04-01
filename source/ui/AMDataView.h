@@ -37,7 +37,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMFlowGraphicsLayout.h"
 
 
-#include <QDebug>
 
 
 
@@ -53,44 +52,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
   */
 
 
-/// Support for "heightForWidth" mode is broken in QGraphicsLayout, at least up to Qt 4.7.2.  This is a workaround: a subclass of QGraphicsLinearLayout that lets you specify a width (and/or height) constraint. If either of these constraints are specified, then sizeHint() will always be called with these constraints.
-/*! HeightForWidth mode means that the item's preferred height (returned via QGraphicsLayoutItem::sizeHint()) depends on the width available. (For example, a paragraph of wrapping text, or an image with a constant aspect ratio.)  It _should_ be activated by doing a setSizePolicy() on the item, where the size policy object has had setHeightForWidth(true) called on it.  When heightForWidth is set, layouts should always provide a width constraint when calling sizeHint(), but they don't.
 
-(In Qt 4.7.1, they do, but it breaks spanning in row layouts. In Qt 4.7.2, it's "fixed", but layout performance is terrible, taking a minute or more with nested layouts.  See http://bugreports.qt.nokia.com/browse/QTBUG-12835 and http://bugreports.qt.nokia.com/browse/QTBUG-15333).
-
-This is our workaround for the time-being.  Do not setHeightForWidth(true) on the QGraphicsLayoutItem's sizePolicy().  Instead, just call setSizeConstraint() on this top-level layout. (This will invalidate the layout if the new size constraint is different.) To remove a size constraint, specify an invalid width or height: for example, to un-set the width constraint, specify a setSizeConstraint(QSizeF(-1, whatever)).
-
-
-Note: sizeHint() ignores the \constraint provided and replaces it with our internal constraint. Therefore, you should only use this layout as a top-level layout; child layouts will receive their size constraints through the sizeHint() function argument like normal.
-*/
-class AMConstrainedLinearLayout : public QGraphicsLinearLayout {
-public:
-	AMConstrainedLinearLayout( Qt::Orientation orientation, QSizeF initialConstraint = QSizeF(), QGraphicsLayoutItem * parent = 0 );
-
-	/// Set the size constraint which will be inserted whenever sizeHint() is called.
-	void setSizeConstraint(const QSizeF& newConstraint) {
-		if(newConstraint == constraint_)
-			return;
-
-		constraint_ = newConstraint;
-		updateGeometry();	// with a different sizeConstraint, our preferred geometry may have changed. This notifies any parent layouts, and clears the cached sizeHints.
-	}
-
-	/// Returns the user-enforced size constraint which is used for all calls to sizeHint().
-	QSizeF sizeConstraint() const { return constraint_; }
-
-protected:
-	/// Re-implemented from QGraphicsLinearLayout to always enforce a size constraint.
-	QSizeF sizeHint(Qt::SizeHint which, const QSizeF &constraint) const {
-		Q_UNUSED(constraint)
-
-		qDebug() << "Calling top-level sizeHint with constraint_" << constraint_;
-
-		return QGraphicsLinearLayout::sizeHint(which, constraint_);
-	}
-
-	QSizeF constraint_;
-};
 
 
 /// This subclass of QGraphicsWidget is designed to resize itself to the preferred sizeHint() of its layout.  (This is the opposite of what usually happens: layouts resize themselves to match the size of their widget.)
@@ -121,7 +83,19 @@ namespace AMDataViews {
 /// All sub-sections in an AMDataView need to be QGraphicsLayoutItems. Additionally, they also need a setWidthConstraint function as defined by this interface.  This is a standard way of notifying them of the current width available inside the DataView. It will be called after creation, and also whenever the view resizes.
 class AMAbstractDataViewSection {
 public:
-	// virtual void setWidthConstraint(double widthConstraint) = 0;
+	/// Support for "heightForWidth" mode is broken in QGraphicsLayout, at least up to Qt 4.7.2.  This is a workaround: we create and call a setWidthConstraint() on all the items in the top-level layout; they use this width in their sizeHint() function if a constraint is not provided.
+	/*! HeightForWidth mode means that the item's preferred height (returned via QGraphicsLayoutItem::sizeHint()) depends on the width available. (For example, a paragraph of wrapping text, or an image with a constant aspect ratio.)  It _should_ be activated by doing a setSizePolicy() on the item, where the size policy object has had setHeightForWidth(true) called on it.  When heightForWidth is set, layouts should always provide a width constraint when calling sizeHint(), but they don't.
+
+	(In Qt 4.7.1, they do, but it breaks spanning in row layouts. In Qt 4.7.2, it's "fixed", but layout performance is terrible, taking a minute or more with nested layouts.  See http://bugreports.qt.nokia.com/browse/QTBUG-12835 and http://bugreports.qt.nokia.com/browse/QTBUG-15333).
+
+	This is our workaround for the time-being.  Do not setHeightForWidth(true) on the QGraphicsLayoutItem's sizePolicy().  Instead, call setWidthConstraint() on all the items in the top-level layout.
+	*/
+	virtual void setWidthConstraint(double widthConstraint) = 0;
+
+	/// This is the interface used to tell the section views to set the size of their items.  It's up to them what the item size means... it's just  relative scale from 1 (smallest useful) to 100 (largest useful). The default implementation does nothing.
+	virtual void setItemSize(int relativeItemSize) {
+		Q_UNUSED(relativeItemSize)
+	}
 };
 
 /// This class implements a supremely awesome view of all the scan data found that can be found in a given database.  It can show scans from just one run, or just one experiment, or all runs or all experiments.  Beyond that, it can organize its data into sections based on the run, experiment, sample, element, or scan type.
@@ -175,6 +149,9 @@ protected slots:
 	/// call this to adjust the accessible region of the graphicsview (gview_) to match the size of the graphicswidget gwidget_ inside it. (Called from a signal after the gwidget_ is resized.)
 	void adjustViewScrollableArea();
 
+	/// Called when the item size slider is moved. It's up to each section to decide what item sizes mean, but they should all adjust their item sizes based on the new user value (from 1 to 100).
+	void onItemSizeSliderChanged(int newItemSize);
+
 
 protected:
 	// Logic components:
@@ -210,7 +187,7 @@ protected:
 	QGraphicsView* gview_;
 	AMSignallingGraphicsScene* gscene_;
 	AMLayoutControlledGraphicsWidget* gwidget_;
-	AMConstrainedLinearLayout* sectionLayout_;
+	QGraphicsLinearLayout* sectionLayout_;
 
 	/// This function runs everytime showRun() or showExperiment() is called, or a change is made to the OrganizeMode or ViewMode.  It re-populates the view from scratch.
 	void refreshView();
@@ -238,15 +215,28 @@ class AMDataViewSection : public QGraphicsWidget, public AMAbstractDataViewSecti
 
 public:
 	/// Create a new "section view" of the data set.  \c title and \c subtitle are used for the header. A chunk of an SQL search string, suitable for appending behind a WHERE keyword, should be contained in \c whereClause.  The section will create a view type based on the \c viewMode.  If you want this section initially collapsed (for performance reasons), specify \c expanded = false.  \c parent is the QGraphicsItem parent for this section.
-	explicit AMDataViewSection(const QString& title, const QString& subtitle, const QString& whereClause, AMDataViews::ViewMode viewMode, AMDatabase* db, bool expanded = true, QGraphicsItem* parent = 0, double initialWidthConstraint = 400);
+	explicit AMDataViewSection(const QString& title, const QString& subtitle, const QString& whereClause, AMDataViews::ViewMode viewMode, AMDatabase* db, bool expanded = true, QGraphicsItem* parent = 0, double initialWidthConstraint = 400, int initialItemSize = 50);
 	virtual ~AMDataViewSection() {}
 
-//	void setWidthConstraint(double widthConstraint) {
-//		widthConstraint_ = widthConstraint;
-//		if(subview__)
-//			subview__->setWidthConstraint(widthConstraint_);
-//		updateGeometry();
-//	}
+	void setWidthConstraint(double widthConstraint) {
+		widthConstraint_ = widthConstraint;
+		if(subview__)
+			subview__->setWidthConstraint(widthConstraint_);
+		updateGeometry();
+	}
+
+
+	void setItemSize(int relativeItemSize) {
+		itemSize_ = relativeItemSize;
+		if(subview__) {
+			subview__->setItemSize(itemSize_);
+
+			// ideally, the subview or its layout calls updateGeometry() or invalidate() here because it's size has changed.  If we were the "parent layout", we would get called and continue forwarding updateGeometry() up the nested layouts. Instead, we need to do this:
+			updateGeometry(); /// \todo Optimization: if the old and new sizeHint()s of the subview are the same, don't updateGeometry().
+				// this is a hint that we should be managing the header and subview as a custom layout, not simply as a parent graphics item. Maybe later... this works for now.
+				// Note that we could install an event filter on the subview, to catch the LayoutRequest event instead.  But this doesn't let us benefit from layout event compression (ie: doing all the updateGeometry() / size changed notification synchronously, and posting one master re-layout for later), which means we could be laid out twice, which is inefficient.
+		}
+	}
 
 
 	/// Re-implemented function, to manage the size and position of our child items: the header, and the subview.
@@ -271,7 +261,8 @@ protected:
 
 	QGraphicsLayoutItem* subview_;
 	AMAbstractDataViewSection* subview__;
-	// double widthConstraint_;
+	 double widthConstraint_;
+	 int itemSize_;
 
 	/// Reimplemented from QGraphicsLayoutItem to combine the sizeHint() of our header and subview.
 	QSizeF sizeHint(Qt::SizeHint which, const QSizeF &constraint) const;
@@ -291,18 +282,18 @@ class AMDataViewSectionThumbnailView : public QGraphicsWidget, public AMAbstract
 	Q_OBJECT
 
 public:
-	explicit AMDataViewSectionThumbnailView(AMDatabase* db, const QString& dbTableName, const QString& whereClause, QGraphicsItem* parent = 0, double initialWidthConstraint = 400);
+	explicit AMDataViewSectionThumbnailView(AMDatabase* db, const QString& dbTableName, const QString& whereClause, QGraphicsItem* parent = 0, double initialWidthConstraint = 400, int initialItemSize = 50);
 	virtual ~AMDataViewSectionThumbnailView() {}
 
-//	void setWidthConstraint(double widthConstraint) {
-//		layout_->setWidthConstraint(widthConstraint);
-//	}
-
-public slots:
-	void setThumbnailWidth(int width) {
-		setThumbnailWidth(double(width));
+	void setWidthConstraint(double widthConstraint) {
+		layout_->setDefaultWidth(widthConstraint);
 	}
-	void setThumbnailWidth(double width);
+
+	/// We use relativeItemSize to scale the thumbnails from 120px wide to ___ wide.  The \c relativeItemSize is from 0 to 100, where 50 is normal, 0 is "smallest useful", and 100 is "largest useful".
+	void setItemSize(int relativeItemSize) {
+		int width = (double)relativeItemSize/50.0*120.0 + 120;
+		layout_->setItemSizeConstraint(QSizeF(width, -1));
+	}
 
 protected slots:
 
@@ -313,7 +304,6 @@ protected:
 
 	AMFlowGraphicsLayout* layout_;
 	QList<AMThumbnailScrollGraphicsWidget*> thumbs_;
-	double thumbnailWidth_;
 
 	/// This helper function populates the view / layout with all of the thumbnails we need.
 	void populate();
@@ -341,7 +331,7 @@ public:
 	}
 	virtual ~AMDataViewEmptyHeader() {}
 
-//	void setWidthConstraint(double widthConstraint) { Q_UNUSED(widthConstraint); }
+	void setWidthConstraint(double widthConstraint) { Q_UNUSED(widthConstraint); }
 
 	QString messageText() const { return messageText_->text(); }
 

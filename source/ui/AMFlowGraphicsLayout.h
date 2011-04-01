@@ -75,8 +75,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 	 /// Added by mark.boots@usask.ca to fix crashes when a layout is deleted before the layout items it contains.
 	 virtual ~AMFlowGraphicsLayout();
 
-//	 /// Added to manually allow setting a width constraint, which will be used whenever the supplied width constraint is < 0:
-//	 void setWidthConstraint(double widthConstraint) { widthConstraint_ = widthConstraint; updateGeometry();  }
+	 /// Added to manually allow setting a width constraint, which will be used inside sizeHint() whenever the supplied width constraint is < 0:
+	 void setDefaultWidth(double widthConstraint) { defaultWidth_ = widthConstraint; updateGeometry();  }
+
+	 /// Set the size constraint used for the individual items in the layout
+	 void setItemSizeConstraint(const QSizeF& itemSizeConstraint) {
+		 itemSizeConstraint_ = itemSizeConstraint;
+		 updateGeometry();
+	 }
 
 	 inline void addItem(QGraphicsLayoutItem *item);
 	 void insertItem(int index, QGraphicsLayoutItem *item);
@@ -110,6 +116,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 	 /// used as the width assumed when calculating the sizeHint, if no width constraint is provided.
 	double defaultWidth_;
 	 bool uniformItemSizes_;
+
+	 QSizeF itemSizeConstraint_;
  };
 
  inline void AMFlowGraphicsLayout::addItem(QGraphicsLayoutItem *item)
