@@ -45,6 +45,7 @@ AMDataView::AMDataView(AMDatabase* database, QWidget *parent) :
 	// add additional UI components: the QGraphicsView and QGraphicsScene
 	gview_ = this->graphicsView;
 	gview_->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+	gview_->setAlignment(Qt::AlignLeft | Qt::AlignTop);
 
 	gscene_ = new AMSignallingGraphicsScene(this);
 	connect(gscene_, SIGNAL(selectionChanged()), this, SLOT(onSceneSelectionChanged()));
