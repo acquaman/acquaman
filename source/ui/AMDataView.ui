@@ -251,12 +251,6 @@ color: rgb(79, 79, 79);</string>
          <height>12</height>
         </size>
        </property>
-       <property name="frameShape">
-        <enum>QFrame::StyledPanel</enum>
-       </property>
-       <property name="frameShadow">
-        <enum>QFrame::Raised</enum>
-       </property>
        <property name="pixmap">
         <pixmap resource="../icons/icons.qrc">:/32x32/folder.png</pixmap>
        </property>
@@ -291,12 +285,6 @@ color: rgb(79, 79, 79);</string>
          <width>24</width>
          <height>24</height>
         </size>
-       </property>
-       <property name="frameShape">
-        <enum>QFrame::StyledPanel</enum>
-       </property>
-       <property name="frameShadow">
-        <enum>QFrame::Raised</enum>
        </property>
        <property name="pixmap">
         <pixmap resource="../icons/icons.qrc">:/32x32/folder.png</pixmap>

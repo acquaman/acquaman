@@ -847,7 +847,7 @@ void AMDataView::onItemSizeSliderChanged(int newItemSize)
 
 AMDataViewSection::AMDataViewSection(const QString& title, const QString& subtitle, const QString& whereClause, AMDataViews::ViewMode viewMode, AMDatabase* db, bool expanded, QGraphicsItem* parent, double initialWidthConstraint, int initialItemSize) : QGraphicsWidget(parent) {
 
-	proxiedWidget_ = new QWidget();
+	proxiedWidget_ = new QFrame();
 	setupUi(proxiedWidget_);
 	proxyWidget_ = new QGraphicsProxyWidget(this);
 	proxyWidget_->setWidget(proxiedWidget_);

@@ -23,7 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QWidget>
 #include "ui_AMDataView.h"
-#include "ui_AMDataViewSection.h"
+#include "ui_AMDataViewSectionHeader.h"
 #include "ui_AMDataViewEmptyHeader.h"
 #include "dataman/AMDatabase.h"
 
@@ -210,7 +210,7 @@ protected:
 
 
 /// This class provides a view of one "section" of a multi-part database view.  What is shown inside the section depends on the filter specified using an SQL "WHERE" clause.  The section can be collapsed (hidden) or expanded (shown), to save screen real-estate and reduce the amount of data that must be loaded.
-class AMDataViewSection : public QGraphicsWidget, public AMAbstractDataViewSection, private Ui::AMDataViewSection {
+class AMDataViewSection : public QGraphicsWidget, public AMAbstractDataViewSection, private Ui::AMDataViewSectionHeader {
 	Q_OBJECT
 
 public:
@@ -256,7 +256,7 @@ protected:
 	QString whereClause_, title_, subtitle_;
 	bool expanded_;
 	// for now, the section header we made in the UI editor is proxy-widgeted into the graphics view:
-	QWidget* proxiedWidget_;
+	QFrame* proxiedWidget_;
 	QGraphicsProxyWidget* proxyWidget_;
 
 	QGraphicsLayoutItem* subview_;
