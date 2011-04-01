@@ -262,6 +262,9 @@ public:
 		prepareGeometryChange();
 		setPos(rect.left(), rect.top());
 		width_ = rect.width();
+		// clear this cache
+		c1_elided_.clear();
+		c2_elided_.clear();
 		update();
 	}
 
@@ -272,9 +275,11 @@ public:
 public:
 	void setCaption1(const QString& text) {
 		c1_ = text;
+		c1_elided_.clear();
 	}
 	void setCaption2(const QString& text) {
 		c2_ = text;
+		c2_elided_.clear();
 	}
 
 protected:
@@ -293,6 +298,8 @@ protected:
 	QString title_, subtitle_;
 	/// captions (c1_, c2_) are written below the thumbnail
 	QString c1_, c2_;
+	/// Caches the elided text (the text we have room to display)
+	QString c1_elided_, c2_elided_;
 
 	/// index of the current thumbnail (if showing a set a thumbnails)
 	int tIndex_;

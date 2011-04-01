@@ -304,7 +304,7 @@ public:
 
 	/// We use relativeItemSize to scale the thumbnails from 120px wide to ___ wide.  The \c relativeItemSize is from 0 to 100, where 50 is normal, 0 is "smallest useful", and 100 is "largest useful".
 	void setItemSize(int relativeItemSize) {
-		int width = (double)relativeItemSize/50.0*120.0 + 120;
+		int width = (double)relativeItemSize/50.0*160.0 + 80;
 		layout_->setItemSizeConstraint(QSizeF(width, -1));
 	}
 

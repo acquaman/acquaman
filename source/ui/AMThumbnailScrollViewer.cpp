@@ -272,15 +272,22 @@ void AMThumbnailScrollGraphicsWidget::paint(QPainter *painter, const QStyleOptio
 
 	painter->drawPixmap(QPointF(0,0), scaledPixmap_);
 
+
+	int fontSize = width_ > 180 ? 12 : 10;
+	QFont font = QFont("Lucida Grande", fontSize, QFont::DemiBold);
+
 	// draw title and subtitle (thumbnail content)
 	QRectF tRect;
-	painter->setFont(QFont("Lucida Grande", 12, QFont::DemiBold));
+
+	painter->setFont(font);
 	painter->setPen(QColor::fromRgb(25,25,25));
 	painter->drawText( QRectF(0,marginTop(), width_-marginLeft(), 30),
 					   Qt::AlignRight | Qt::AlignTop,
 					   title_,
 					   &tRect);
-	painter->setFont(QFont("Lucida Grande", 12, QFont::Light, true));
+	font.setWeight(QFont::Light);
+	font.setItalic(true);
+	painter->setFont(font);
 	painter->setPen(QColor::fromRgb(167,167,167));
 	painter->drawText( QRectF(0,textLineSpacing()+marginTop()+tRect.height(),width_-marginLeft(), 30),
 					   Qt::AlignRight | Qt::AlignTop,
@@ -289,17 +296,32 @@ void AMThumbnailScrollGraphicsWidget::paint(QPainter *painter, const QStyleOptio
 
 	// draw captions (lines 1 and 2): property of this widget
 	QRectF c1Rect, c2Rect;
-	painter->setFont(QFont("Lucida Grande", 12, QFont::DemiBold));
+
+	font.setWeight(QFont::DemiBold);
+	font.setItalic(false);
+	// Do we need to update the elided text?
+	if(c1_elided_.isEmpty() && !c1_.isEmpty()) {
+		QFontMetrics fm(font);
+		c1_elided_ = fm.elidedText(c1_, Qt::ElideMiddle, width_);
+	}
+	painter->setFont(font);
 	painter->setPen(QColor::fromRgb(25,25,25));
 	painter->drawText( QRectF(0,height + textLineSpacing(), width_, 30),
 					   Qt::AlignHCenter | Qt::AlignTop,
-					   c1_,
+					   c1_elided_,
 					   &c1Rect);
-	painter->setFont(QFont("Lucida Grande", 12, QFont::Light, true));
+	font.setWeight(QFont::Light);
+	font.setItalic(true);
+	// Do we need to update the elided text?
+	if(c2_elided_.isEmpty() && !c2_.isEmpty()) {
+		QFontMetrics fm(font);
+		c2_elided_ = fm.elidedText(c2_, Qt::ElideMiddle, width_);
+	}
+	painter->setFont(font);
 	painter->setPen(QColor::fromRgb(167,167,167));
 	painter->drawText( QRectF(0,height+c1Rect.height()+2*textLineSpacing(),width_, 30),
 					   Qt::AlignHCenter | Qt::AlignTop,
-					   c2_,
+					   c2_elided_,
 					   &c2Rect);
 
 	painter->drawRect(0,0,width_, height);
