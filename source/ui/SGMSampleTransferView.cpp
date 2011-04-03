@@ -40,6 +40,7 @@ SGMSampleTransferView::SGMSampleTransferView(QWidget *parent) :
 
 	transferBox_ = new SGMSampleTransferProceduresView("Transfer Procedures", transferButtons_);
 	SGMSampleTransferPaneView* tmpPane;
+	/*
 	tmpPane = new SGMSampleTransferPaneView(SGMBeamline::sgm()->transferLoadlockOutActions(), "Transfer Out of Loadlock");
 	transferPanes_.append(tmpPane);
 	tmpPane = new SGMSampleTransferPaneView(SGMBeamline::sgm()->transferLoadlockInActions(), "Transfer Into Loadlock");
@@ -68,6 +69,7 @@ SGMSampleTransferView::SGMSampleTransferView(QWidget *parent) :
 			break;
 		}
 	}
+	*/
 	setLayout(mainLayout_);
 }
 
@@ -131,6 +133,7 @@ SGMSampleTransferProceduresView::SGMSampleTransferProceduresView(const QString &
 SGMSampleTransferPaneView::SGMSampleTransferPaneView(QList<AM1BeamlineActionItem*> items, const QString &title, QWidget *parent) :
 		QGroupBox(title, parent)
 {
+	/*
 	vl_ = new QVBoxLayout();
 	mainLayout_ = new QGridLayout();
 	QList<AM1BeamlineActionItem*> transferActions = items;
@@ -168,6 +171,7 @@ SGMSampleTransferPaneView::SGMSampleTransferPaneView(QList<AM1BeamlineActionItem
 	vl_->addLayout(hl);
 	mainLayout_->addLayout(vl_, 0, 0, 1, 1, Qt::AlignLeft|Qt::AlignTop);
 	setLayout(mainLayout_);
+	*/
 }
 
 void SGMSampleTransferPaneView::initialize(){
