@@ -284,7 +284,8 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/beamline/AMDetectorSet.h \
 	source/ui/AMOverlayVideoWidget.h \
     source/beamline/AMBeamlineListAction.h \
-    source/beamline/AMBeamlineControlWaitAction.h
+    source/beamline/AMBeamlineControlWaitAction.h \
+    source/beamline/AMBeamlineUserConfirmAction.h
 FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
 	source/ui/AMDataViewSection.ui \
@@ -471,13 +472,19 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	#source/ui/AMVideoWidget.cpp \
 	source/ui/AMOverlayVideoWidget.cpp \
     source/beamline/AMBeamlineListAction.cpp \
-    source/beamline/AMBeamlineControlWaitAction.cpp
+    source/beamline/AMBeamlineControlWaitAction.cpp \
+    source/beamline/AMBeamlineUserConfirmAction.cpp
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc \
-	source/util/ElementData.qrc
+	source/util/ElementData.qrc \
+    source/stylesheets/stylesheets.qrc
 
 macx {
 # Removed for now: OS-native video implementation
 #OBJECTIVE_SOURCES += 	source/ui/AMVideoWidget_mac.mm
 #LIBS += -framework AppKit
 }
+
+OTHER_FILES += \
+    source/stylesheets/sliderWaitLessThan.qss \
+    source/stylesheets/sliderWaitGreaterThan.qss

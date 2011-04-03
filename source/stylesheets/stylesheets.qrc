@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>sliderWaitLessThan.qss</file>
+        <file>sliderWaitGreaterThan.qss</file>
+    </qresource>
+</RCC>

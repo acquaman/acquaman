@@ -20,6 +20,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SGMSampleTransferView.h"
 
+#include "beamline/AMBeamlineControlWaitAction.h"
+#include "beamline/AMBeamlineUserConfirmAction.h"
+
 SGMSampleTransferView::SGMSampleTransferView(QWidget *parent) :
 	QWidget(parent)
 {
@@ -101,6 +104,27 @@ SGMSampleTransferProceduresView::SGMSampleTransferProceduresView(const QString &
 	for(int x = 0; x < procedureButtons_.count(); x++ )
 		vl_->addWidget(procedureButtons_.at(x));
 	mainLayout_->addLayout(vl_, 0, 0, 1, 1, Qt::AlignLeft|Qt::AlignTop);
+
+	AMBeamlineControlWaitAction *ccgAction = new AMBeamlineControlWaitAction(SGMBeamline::sgm()->loadlockCCG(), AMBeamlineControlWaitAction::LessThanTarget, this);
+	ccgAction->setWaitpoint(5e-9);
+	ccgAction->setMessage("Wait for the CCG to reach 5e-9");
+	ccgAction->start();
+	AMBeamlineControlWaitDetailedActionView *ccgView = new AMBeamlineControlWaitDetailedActionView(ccgAction);
+	mainLayout_->addWidget(ccgView);
+
+	AMBeamlineControlWaitAction *tcgAction = new AMBeamlineControlWaitAction(SGMBeamline::sgm()->loadlockTCG(), AMBeamlineControlWaitAction::GreaterThanTarget, this);
+	tcgAction->setWaitpoint(720);
+	tcgAction->setMessage("Wait for the TCG to reach 720");
+	tcgAction->start();
+	AMBeamlineControlWaitDetailedActionView *tcgView = new AMBeamlineControlWaitDetailedActionView(tcgAction);
+	mainLayout_->addWidget(tcgView);
+
+	AMBeamlineUserConfirmAction *kickAction = new AMBeamlineUserConfirmAction(this);
+	kickAction->setMessage("Please go ahead and kick Matt in the balls");
+	kickAction->start();
+	AMBeamlineUserConfirmDetailedActionView *kickView = new AMBeamlineUserConfirmDetailedActionView(kickAction);
+	mainLayout_->addWidget(kickView);
+
 	setLayout(mainLayout_);
 }
 
