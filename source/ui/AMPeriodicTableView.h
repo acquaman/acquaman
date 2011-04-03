@@ -22,7 +22,7 @@ public:
 	AMPeriodicTableView(QWidget *parent = 0);
 	~AMPeriodicTableView();
 
-	/// Returns the copy of the periodic table used by the view.
+	/// Returns a pointer to the periodic table model used by the view.
 	AMPeriodicTable *table() const { return table_; }
 
 signals:
@@ -44,7 +44,7 @@ private:
 		button->setText(element->symbol());
 		button->setFixedSize(35, 25);
 		connect(button, SIGNAL(clicked()), elementMapper_, SLOT(map()));
-		elementMapper_->setMapping(button, element->atomicNumber().toInt());
+		elementMapper_->setMapping(button, element->atomicNumber());
 		return button;
 	}
 

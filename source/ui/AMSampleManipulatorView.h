@@ -26,7 +26,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPushButton>
 #include <QIcon>
 #include "beamline/AMControlSet.h"
-#include "beamline/SGM/SGMBeamline.h"
 #include "AMControlEditor.h"
 
 class AMSampleManipulatorView : public QGroupBox

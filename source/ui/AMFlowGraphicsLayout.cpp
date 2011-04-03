@@ -76,7 +76,8 @@ AMFlowGraphicsLayout::AMFlowGraphicsLayout()
 	sp.setHeightForWidth(true);
 	setSizePolicy(sp);
 
-	widthConstraint_ = -1;
+	defaultWidth_ = 400;
+	uniformItemSizes_ = false;
 
 }
 
@@ -161,7 +162,7 @@ qreal AMFlowGraphicsLayout::doLayout(const QRectF &geom, bool applyNewGeometry) 
 	QSizeF pref;
 	for (int i = 0; i < m_items.count(); ++i) {
 		QGraphicsLayoutItem *item = m_items.at(i);
-		pref = item->effectiveSizeHint(Qt::PreferredSize);
+		pref = item->effectiveSizeHint(Qt::PreferredSize, itemSizeConstraint_);
 		maxRowHeight = qMax(maxRowHeight, pref.height());
 
 		qreal next_x;
@@ -187,75 +188,9 @@ qreal AMFlowGraphicsLayout::doLayout(const QRectF &geom, bool applyNewGeometry) 
 	return top + y + maxRowHeight + bottom;
 }
 
-QSizeF AMFlowGraphicsLayout::minSize(const QSizeF &constraint) const
-{
-	QSizeF size(0, 0);
-	qreal left, top, right, bottom;
-	getContentsMargins(&left, &top, &right, &bottom);
-	// this mode gives a minimum size based on a constrained width, producing the height for that width.
-	if (constraint.width() >= 0) {   // height for width
-		const qreal height = doLayout(QRectF(QPointF(0,0), constraint), false);
-		size = QSizeF(constraint.width(), height);
-	}
-	// this mode is not implemented
-	else if (constraint.height() >= 0) {  // width for height?
-		qDebug() << "AMFlowGraphicsLayout: warning: width for height mode not supported by sizeHint(). Please specify a width constraint.";
-	}
-	// this mode returns the size of the largest item in the set of items.
-	else {
-		qDebug() << "AMFlowGraphicsLayout: warning: calling buggy version of sizeHint(Qt::MinimumSize). Please specify a width constraint.";
-
-		QGraphicsLayoutItem *item;
-		foreach (item, m_items)
-			size = size.expandedTo(item->effectiveSizeHint(Qt::MinimumSize));
-		size += QSize(left + right, top + bottom);
-	}
-	return size;
-}
 
 
-QSizeF AMFlowGraphicsLayout::prefSize() const
-{
-	qreal left, right;
-	getContentsMargins(&left, 0, &right, 0);
 
-	QGraphicsLayoutItem *item;
-	qreal maxh = 0;
-	qreal totalWidth = 0;
-	foreach (item, m_items) {
-		if (totalWidth > 0)
-			totalWidth += spacing(Qt::Horizontal);
-		QSizeF pref = item->effectiveSizeHint(Qt::PreferredSize);
-		totalWidth += pref.width();
-		maxh = qMax(maxh, pref.height());
-	}
-	maxh += spacing(Qt::Vertical);
-
-	const qreal goldenAspectRatio = 1.61803399;
-	qreal w = qSqrt(totalWidth * maxh * goldenAspectRatio) + left + right;
-
-	return minSize(QSizeF(w, -1));
-}
-
-QSizeF AMFlowGraphicsLayout::maxSize() const
-{
-	QGraphicsLayoutItem *item;
-	qreal totalWidth = 0;
-	qreal totalHeight = 0;
-	foreach (item, m_items) {
-		if (totalWidth > 0)
-			totalWidth += spacing(Qt::Horizontal);
-		if (totalHeight > 0)
-			totalHeight += spacing(Qt::Vertical);
-		QSizeF pref = item->effectiveSizeHint(Qt::PreferredSize);
-		totalWidth += pref.width();
-		totalHeight += pref.height();
-	}
-
-	qreal left, top, right, bottom;
-	getContentsMargins(&left, &top, &right, &bottom);
-	return QSizeF(left + totalWidth + right, top + totalHeight + bottom);
-}
 
 
 QSizeF AMFlowGraphicsLayout::sizeHint(Qt::SizeHint which, const QSizeF &constraint) const
@@ -263,24 +198,51 @@ QSizeF AMFlowGraphicsLayout::sizeHint(Qt::SizeHint which, const QSizeF &constrai
 	QSizeF sh = constraint;
 
 	if(sh.width() < 0) {
-
-		sh.setWidth(widthConstraint_);
+		sh.setWidth(defaultWidth_);
 	}
+
+	qreal height;
 
 	switch (which) {
 	case Qt::PreferredSize:
-		//sh = prefSize();
-		sh = minSize(sh);
-		break;
 	case Qt::MinimumSize:
-		sh = minSize(sh);
-		break;
 	case Qt::MaximumSize:
-		sh = maxSize();
+
+		if(uniformItemSizes_)
+			height = heightForWidth(sh.width());
+		else
+			height = doLayout(QRectF(QPointF(0,0), sh), false);
+
+		sh = QSizeF(constraint.width(), height);
 		break;
-	default:
-		break;
+	default: break;
 	}
+
 	return sh;
+}
+
+qreal AMFlowGraphicsLayout::heightForWidth(qreal width) const
+{
+	qreal left, top, right, bottom;
+	getContentsMargins(&left, &top, &right, &bottom);
+
+
+	qreal maxWidth = width - left - right;
+	QSizeF itemSize = m_items.count() > 0 ? m_items.first()->effectiveSizeHint(Qt::PreferredSize, itemSizeConstraint_) : QSizeF(10,10);
+	qreal horizontalSpacing = spacing(Qt::Horizontal);
+
+	int itemsPerRow = (maxWidth + horizontalSpacing) / (itemSize.width() + horizontalSpacing);	// algebra from: maxWidth = num*width + (num-1)*horizontalSpacing
+	if(itemsPerRow < 1)
+		itemsPerRow = 1;
+
+
+	int rowsRequired = ceil(m_items.count() / double(itemsPerRow));	// round up here
+
+	qreal itemsHeight = rowsRequired*itemSize.height();
+	if(rowsRequired > 1)	// add spacing (x the number of spaces, not the number of rows!) if there's more than one row.
+		itemsHeight += (rowsRequired-1)*spacing(Qt::Vertical);
+
+	return itemsHeight + top + bottom;
+
 }
 

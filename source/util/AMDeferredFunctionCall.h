@@ -27,6 +27,14 @@ public slots:
 		}
 	}
 
+	/// Cancel any (possible) previous calls to schedule().  The function won't be executed until you call schedule() again.
+	void unschedule() {
+		scheduled_ = false;
+	}
+
+	/// Returns true if the function call has been scheduled and will execute on the next run loop cycle.
+	bool isScheduled() const { return scheduled_; }
+
 	/// Run the function call(s). The base class version does nothing. You can re-implement this to do work required in a custom class (or alternatively, connect the executed() signal to your desired slots.)
 	virtual void execute() {
 	}
@@ -42,9 +50,11 @@ protected:
 	bool event(QEvent* e) {
 		if(e->type() == eventType_) {
 			e->accept();
-			scheduled_ = false;
-			emit executed();
-			execute();
+			if(scheduled_) {
+				scheduled_ = false;
+				emit executed();
+				execute();
+			}
 			return true;
 		}
 		else

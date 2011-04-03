@@ -266,21 +266,28 @@ void AMThumbnailScrollGraphicsWidget::paint(QPainter *painter, const QStyleOptio
 	if(deferredUpdate_required_)
 		displayThumbnail(deferredUpdate_db_, deferredUpdate_id_);
 
-	double height = width_*3/4;
+	int height = width_*3/4;
+	if(scaledPixmap_.size() != QSize(width_, height))
+		scaledPixmap_ = pixmap_.scaled(width_, height, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);	// this caches the scaled version of the pixmap, in case we need it again.
 
-	painter->drawPixmap( QRectF(0,0,width_, height),
-						 pixmap_,
-						 QRectF(0,0,240,180) );
+	painter->drawPixmap(QPointF(0,0), scaledPixmap_);
+
+
+	int fontSize = width_ > 180 ? 12 : 10;
+	QFont font = QFont("Lucida Grande", fontSize, QFont::DemiBold);
 
 	// draw title and subtitle (thumbnail content)
 	QRectF tRect;
-	painter->setFont(QFont("Lucida Grande", 12, QFont::DemiBold));
+
+	painter->setFont(font);
 	painter->setPen(QColor::fromRgb(25,25,25));
 	painter->drawText( QRectF(0,marginTop(), width_-marginLeft(), 30),
 					   Qt::AlignRight | Qt::AlignTop,
 					   title_,
 					   &tRect);
-	painter->setFont(QFont("Lucida Grande", 12, QFont::Light, true));
+	font.setWeight(QFont::Light);
+	font.setItalic(true);
+	painter->setFont(font);
 	painter->setPen(QColor::fromRgb(167,167,167));
 	painter->drawText( QRectF(0,textLineSpacing()+marginTop()+tRect.height(),width_-marginLeft(), 30),
 					   Qt::AlignRight | Qt::AlignTop,
@@ -289,24 +296,40 @@ void AMThumbnailScrollGraphicsWidget::paint(QPainter *painter, const QStyleOptio
 
 	// draw captions (lines 1 and 2): property of this widget
 	QRectF c1Rect, c2Rect;
-	painter->setFont(QFont("Lucida Grande", 12, QFont::DemiBold));
+
+	font.setWeight(QFont::DemiBold);
+	font.setItalic(false);
+	// Do we need to update the elided text?
+	if(c1_elided_.isEmpty() && !c1_.isEmpty()) {
+		QFontMetrics fm(font);
+		c1_elided_ = fm.elidedText(c1_, Qt::ElideMiddle, width_);
+	}
+	painter->setFont(font);
 	painter->setPen(QColor::fromRgb(25,25,25));
 	painter->drawText( QRectF(0,height + textLineSpacing(), width_, 30),
 					   Qt::AlignHCenter | Qt::AlignTop,
-					   c1_,
+					   c1_elided_,
 					   &c1Rect);
-	painter->setFont(QFont("Lucida Grande", 12, QFont::Light, true));
+	font.setWeight(QFont::Light);
+	font.setItalic(true);
+	// Do we need to update the elided text?
+	if(c2_elided_.isEmpty() && !c2_.isEmpty()) {
+		QFontMetrics fm(font);
+		c2_elided_ = fm.elidedText(c2_, Qt::ElideMiddle, width_);
+	}
+	painter->setFont(font);
 	painter->setPen(QColor::fromRgb(167,167,167));
 	painter->drawText( QRectF(0,height+c1Rect.height()+2*textLineSpacing(),width_, 30),
 					   Qt::AlignHCenter | Qt::AlignTop,
-					   c2_,
+					   c2_elided_,
 					   &c2Rect);
 
 	painter->drawRect(0,0,width_, height);
 
-	if( !qFuzzyCompare(c1Rect.height() + c2Rect.height() + 2*textLineSpacing(), textHeight_ ) ) {
+	double actualTextHeight = c1Rect.height() + c2Rect.height() + 2*textLineSpacing();
+	if( !qFuzzyCompare(actualTextHeight, textHeight_ ) ) {
 		prepareGeometryChange();
-		textHeight_ = c1Rect.height() + c2Rect.height() + 2*textLineSpacing();
+		textHeight_ = actualTextHeight;
 	}
 
 	if(isSelected()) {
@@ -328,9 +351,11 @@ void AMThumbnailScrollGraphicsWidget::displayThumbnail(AMDbThumbnail t) {
 	if(t.type == AMDbThumbnail::PNGType) {
 		pixmap_ = QPixmap(240, 180);
 		pixmap_.loadFromData(t.thumbnail, "PNG");
+		scaledPixmap_ = QPixmap();
 	}
 	else {
 		pixmap_ = invalidPixmap();
+		scaledPixmap_ = QPixmap();
 	}
 
 	update();
@@ -349,6 +374,7 @@ void AMThumbnailScrollGraphicsWidget::displayThumbnail(AMDatabase* db, int id) {
 		title_ = QString();
 		subtitle_ = QString();
 		pixmap_ = invalidPixmap();
+		scaledPixmap_ = QPixmap();
 		if(!deferredUpdate_required_)
 			update();
 		deferredUpdate_required_ = false;
@@ -367,10 +393,12 @@ void AMThumbnailScrollGraphicsWidget::displayThumbnail(AMDatabase* db, int id) {
 			QPixmap p;
 			p.loadFromData(q.value(3).toByteArray(), "PNG");
 			pixmap_ = p;
+			scaledPixmap_ = QPixmap();
 		}
 		else {
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -1, "AMThumbnailScrollViewerGraphicsWidget: Invalid/un-implemented thumbnail type."));
 			pixmap_ = invalidPixmap();
+			scaledPixmap_ = QPixmap();
 		}
 	}
 	else {
@@ -558,7 +586,7 @@ QDrag* AMThumbnailScrollGraphicsWidget::createDragObject(QWidget* dragSourceWidg
 	mime->setUrls(urlList);
 	mime->setText(uri);
 
-	drag->setPixmap(pixmap_.scaledToHeight(100, Qt::FastTransformation));
+	drag->setPixmap(pixmap_.scaledToHeight(100, Qt::SmoothTransformation));
 	drag->setHotSpot(QPoint(15,15));
 
 	return drag;

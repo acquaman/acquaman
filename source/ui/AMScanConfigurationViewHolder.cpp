@@ -20,9 +20,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDebug>
 
 #include "AMScanConfigurationViewHolder.h"
+#include "beamline/AMBeamlineScanAction.h"
 #include "acquaman/AMScanConfiguration.h"
 #include "ui/AMScanConfigurationView.h"
 #include "ui/AMWorkflowManagerView.h"
+
+#include <QButtonGroup>
 
 AMScanConfigurationViewHolder::AMScanConfigurationViewHolder(AMWorkflowManagerView* workflow, AMScanConfigurationView* view, QWidget *parent) :
 		QWidget(parent)
@@ -34,8 +37,12 @@ AMScanConfigurationViewHolder::AMScanConfigurationViewHolder(AMWorkflowManagerVi
 	addToQueueButton_ = new QPushButton("Add to Workflow");
 
 	goToWorkflowOption_ = new QRadioButton("Show me the workflow");
-	goToWorkflowOption_->setChecked(true);
 	setupAnotherScanOption_ = new QRadioButton("Setup another scan");
+	QButtonGroup* bg = new QButtonGroup(this);
+	bg->addButton(goToWorkflowOption_, 0);
+	bg->addButton(setupAnotherScanOption_, 1);
+	goToWorkflowOption_->setChecked(true);
+
 
 	layout_ = new QVBoxLayout();
 	if(view_)
@@ -58,6 +65,8 @@ AMScanConfigurationViewHolder::AMScanConfigurationViewHolder(AMWorkflowManagerVi
 	connect(addToQueueButton_, SIGNAL(clicked()), this, SLOT(onAddToQueueRequested()));
 
 	connect(workflow_, SIGNAL(workflowStatusChanged(bool,bool,bool)), this, SLOT(reviewStartScanButtonState()));
+
+
 
 	reviewStartScanButtonState();
 }

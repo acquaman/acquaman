@@ -21,12 +21,18 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMWorkflowManagerView.h"
 #include <QScrollArea>
 #include <QPushButton>
+#include <QVBoxLayout>
+
+
+
+#include "acquaman/AMScanConfiguration.h"
+#include "beamline/AMBeamlineScanAction.h"
+#include "beamline/AMBeamlineControlSetMoveAction.h"
 
 #include "beamline/AMBeamline.h"
+#include "ui/AMVerticalStackWidget.h"
 
 
-#warning "there's some application logic in this UI class... particularly beamlineScanningChanged() and onBeamlineScanningChanged(), as well as queue is running, etc. Should these critical security checks be done elsewhere (for ex: AMWorkflowManager?)"
-#warning "Also need to remove coupling so that you can use the workflow manager even if you don't have a sample plate"
 
 AMWorkflowManagerView::AMWorkflowManagerView(QWidget *parent) :
 	QWidget(parent)
@@ -55,6 +61,10 @@ AMWorkflowManagerView::AMWorkflowManagerView(QWidget *parent) :
 	workflowQueue_ = new AMBeamlineActionsQueue(workflowActions_, this);
 	workflowView_ = new AMBeamlineActionsListView(workflowActions_, workflowQueue_, this);
 
+	QScrollArea* scrollArea = new QScrollArea();
+	scrollArea->setWidget(workflowView_);
+	scrollArea->setWidgetResizable(true);
+
 	connect(AMBeamline::bl(), SIGNAL(beamlineScanningChanged(bool)), this, SLOT(reviewWorkflowStatus()));
 	connect(workflowQueue_, SIGNAL(isRunningChanged(bool)), this, SLOT(reviewWorkflowStatus()));
 	connect(workflowQueue_, SIGNAL(isEmptyChanged(bool)), this, SLOT(reviewWorkflowStatus()));
@@ -63,7 +73,7 @@ AMWorkflowManagerView::AMWorkflowManagerView(QWidget *parent) :
 
 	vl_ = new QVBoxLayout();
 	vl_->addLayout(hl);
-	vl_->addWidget(workflowView_);
+	vl_->addWidget(scrollArea);
 	setLayout(vl_);
 }
 
