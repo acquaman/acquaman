@@ -647,6 +647,8 @@ public:
 	double writePVValue() const { return writePV_->lastValue(); }
 	/// Returns the number of seconds allowed for a move() to reach its target setpoint().
 	double completionTimeout() const { return completionTimeout_; }
+	/// Switches the writePV to using ca_put instead of ca_put_callback.  This seems to be necessary when using some of the more exotic record types such as the mca record type.  This is set to false by default.
+	void disableWritePVPutCallback(bool disable) { writePV_->disablePutCallbackMode(disable); }
 	//@}
 
 public slots:

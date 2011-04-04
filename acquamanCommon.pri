@@ -466,7 +466,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/MCPDetectorView.cpp \
 	source/ui/PGTDetectorView.cpp \
 	source/ui/AMDetectorSetView.cpp \
-	source/beamline/AMDetectorSet.cpp
+	source/beamline/AMDetectorSet.cpp \
 	#source/ui/AMVideoWidget.cpp \
 	#source/ui/AMOverlayVideoWidget.cpp \
 	source/beamline/AMBeamlineListAction.cpp
