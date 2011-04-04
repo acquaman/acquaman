@@ -285,3 +285,4 @@ void AMBeamlineControlMoveActionView::onFailed(int explanation){
 		playPauseButton_->setEnabled(false);
 		timeRemainingLabel_->setText("Move Cancelled");
 }
+

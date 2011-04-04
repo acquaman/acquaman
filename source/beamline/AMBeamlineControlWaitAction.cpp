@@ -24,6 +24,10 @@ double AMBeamlineControlWaitAction::waitpoint() const{
 	return waitpoint_;
 }
 
+double AMBeamlineControlWaitAction::outlier() const{
+	return outlierpoint_;
+}
+
 double AMBeamlineControlWaitAction::actionTolerance() const{
 	return actionTolerance_;
 }
@@ -38,9 +42,12 @@ double AMBeamlineControlWaitAction::holdTime() const{
 
 void AMBeamlineControlWaitAction::start(){
 	if(isReady()){
-		qDebug() << "Holla! Wait action has started";
 		connect(control_, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged(double)));
+		connect(control_, SIGNAL(valueChanged(double)), this, SIGNAL(controlValueChanged(double)));
 		startpoint_ = control_->value();
+		outlierpoint_ = startpoint_;
+		if( (targetType_ == AMBeamlineControlWaitAction::LessThanTarget) || (targetType_ == AMBeamlineControlWaitAction::GreaterThanTarget) )
+			actionTolerance_ = 0;
 		connect(&progressTimer_, SIGNAL(timeout()), this, SLOT(calculateProgress()));
 		progressTimer_.start(500);
 		setStarted(true);
@@ -102,7 +109,6 @@ void AMBeamlineControlWaitAction::delayedStart(bool ready){
 }
 
 void AMBeamlineControlWaitAction::onValueChanged(double newValue){
-	qDebug() << "Heard control value changed " << newValue << " versus " << waitpoint_;
 	bool startTimer = false;
 	bool stopTimer = false;
 	bool timerRunning = holdTimeTimer_.isActive();
@@ -141,46 +147,9 @@ void AMBeamlineControlWaitAction::onValueChanged(double newValue){
 		disconnect(&holdTimeTimer_, SIGNAL(timeout()), this, SLOT(onHoldTimeReached()));
 		holdTimeTimer_.stop();
 	}
-
-	/*
-	switch(targetType_){
-	case AMBeamlineControlWaitAction::LessThanTarget :
-		if( (!holdTimeTimer_.isActive()) && (newValue < waitpoint_) ){
-			qDebug() << "Start the timer, value is good";
-			//holdTimeTimer_.singleShot(holdTime_, this, SLOT(onHoldTimeReached()));
-			connect(&holdTimeTimer_, SIGNAL(timeout()), this, SLOT(onHoldTimeReached()));
-			holdTimeTimer_.start(holdTime_);
-		}
-		else if( (holdTimeTimer_.isActive()) && (newValue >= waitpoint_) ){
-			qDebug() << "Stop the timer, value is no longer good";
-			disconnect(&holdTimeTimer_, SIGNAL(timeout()), this, SLOT(onHoldTimeReached()));
-			holdTimeTimer_.stop();
-		}
-		break;
-	case AMBeamlineControlWaitAction::GreaterThanTarget :
-		if( (!holdTimeTimer_.isActive()) && (newValue > waitpoint_) )
-			holdTimeTimer_.singleShot(holdTime_, this, SLOT(onHoldTimeReached()));
-		else if( (holdTimeTimer_.isActive()) && (newValue <= waitpoint_) )
-			holdTimeTimer_.stop();
-		break;
-	case AMBeamlineControlWaitAction::EqualToTarget :
-		if( (!holdTimeTimer_.isActive()) && (fabs(newValue-waitpoint_) < actionTolerance_) )
-			holdTimeTimer_.singleShot(holdTime_, this, SLOT(onHoldTimeReached()));
-		else if( (holdTimeTimer_.isActive()) && (fabs(newValue-waitpoint_) >= actionTolerance_) )
-			holdTimeTimer_.stop();
-		break;
-	case AMBeamlineControlWaitAction::NotEqualToTarget :
-		if( (!holdTimeTimer_.isActive()) && (fabs(newValue-waitpoint_) > actionTolerance_) )
-			holdTimeTimer_.singleShot(holdTime_, this, SLOT(onHoldTimeReached()));
-		else if( (holdTimeTimer_.isActive()) && (fabs(newValue-waitpoint_) <= actionTolerance_) )
-			holdTimeTimer_.stop();
-		break;
-	}
-	*/
 }
 
 void AMBeamlineControlWaitAction::onConnected(bool connected){
-	qDebug() << "Heard connected changed to " << connected << " in wait action";
 	if(!hasStarted()){
 		if(control_->valueOutOfRange(waitpoint_))
 			waitpoint_ = 0;
@@ -191,21 +160,252 @@ void AMBeamlineControlWaitAction::onConnected(bool connected){
 void AMBeamlineControlWaitAction::checkReady(){
 	if(!control_ || !control_->isConnected())
 		setReady(false);
-	qDebug() << "Check ready passed in wait action";
-	setReady(true);
-}
-
-void AMBeamlineControlWaitAction::onStarted(){
-	//setStarted(true);
+	else
+		setReady(true);
 }
 
 void AMBeamlineControlWaitAction::calculateProgress(){
-
+	double elapsed;
+	if(targetType_ != AMBeamlineControlWaitAction::NotEqualToTarget){
+		if( fabs(control_->value()-waitpoint_) > fabs(outlierpoint_-waitpoint_) ){
+			outlierpoint_ = control_->value();
+			emit outlierValueChanged(outlierpoint_);
+		}
+		elapsed = 1.0 - (fabs(control_->value()-waitpoint_)-actionTolerance_)/(fabs(outlierpoint_-waitpoint_)-actionTolerance_);
+	}
+	else
+		elapsed = fabs(control_->value()-waitpoint_)/actionTolerance_;
+	//qDebug() << "Progress is " << elapsed/1.0;
+	emit progress(elapsed, 1.0);
 }
 
 void AMBeamlineControlWaitAction::onHoldTimeReached(){
-	qDebug() << "Double HOLLA! Hold Time Reached and wait action succeeded";
 	disconnect(&holdTimeTimer_, SIGNAL(timeout()), this, SLOT(onHoldTimeReached()));
 	holdTimeTimer_.stop();
+	progressTimer_.stop();
+	emit progress(1.0, 1.0);
 	setSucceeded(true);
+}
+
+AMBeamlineControlWaitDetailedActionView::AMBeamlineControlWaitDetailedActionView(AMBeamlineControlWaitAction *waitAction, int index, QWidget *parent) :
+		AMBeamlineActionView(waitAction, index, parent)
+{
+	waitAction_ = 0; //NULL
+	setAction(waitAction);
+
+	setMinimumHeight(NATURAL_ACTION_VIEW_HEIGHT);
+	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
+
+	messageLabel_ = new QLabel();
+	messageLabel_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Maximum);
+
+	if(waitAction_ && waitAction_->targetType() == AMBeamlineControlWaitAction::GreaterThanTarget)
+		progressSlider_ = new AMDoubleSlider(AMDoubleSlider::logrithmic, AMDoubleSlider::destinationRight);
+	else if(waitAction_ && waitAction_->targetType() == AMBeamlineControlWaitAction::LessThanTarget)
+		progressSlider_ = new AMDoubleSlider(AMDoubleSlider::logrithmic, AMDoubleSlider::destinationLeft);
+	else
+		progressSlider_ = new AMDoubleSlider();
+
+	finishedState_ = new QToolButton();
+	finishedState_->setContentsMargins(0, 0, 0, 0);
+	finishedState_->setEnabled(false);
+	finishedState_->setIcon(QIcon(":/greenCheck.png"));
+
+	mainHL_ = new QHBoxLayout();
+	mainHL_->addWidget(messageLabel_);
+	mainHL_->addWidget(progressSlider_);
+
+	mainHL_->setContentsMargins(1, 1, 1, 1);
+	setLayout(mainHL_);
+
+	onInfoChanged();
+}
+
+void AMBeamlineControlWaitDetailedActionView::setIndex(int index){
+	index_ = index;
+	onInfoChanged();
+}
+
+void AMBeamlineControlWaitDetailedActionView::setAction(AMBeamlineActionItem *action){
+	AMBeamlineControlWaitAction *waitAction = qobject_cast<AMBeamlineControlWaitAction*>(action);
+	if(waitAction_){
+		disconnect(waitAction_, SIGNAL(controlValueChanged(double)), this, SLOT(onInfoChanged()));
+		disconnect(waitAction_->control(), SIGNAL(connected(bool)), this, SLOT(onInfoChanged()));
+		disconnect(waitAction_, SIGNAL(outlierValueChanged(double)), this, SLOT(onInfoChanged()));
+		disconnect(waitAction_, SIGNAL(started()), this, SLOT(onActionStarted()));
+		disconnect(waitAction_, SIGNAL(succeeded()), this, SLOT(onActionSucceeded()));
+		disconnect(waitAction_, SIGNAL(failed(int)), this, SLOT(onActionFailed(int)));
+	}
+	waitAction_ = waitAction;
+	if(waitAction_){
+		connect(waitAction_, SIGNAL(controlValueChanged(double)), this, SLOT(onInfoChanged()));
+		connect(waitAction_->control(), SIGNAL(connected(bool)), this, SLOT(onInfoChanged()));
+		connect(waitAction_, SIGNAL(outlierValueChanged(double)), this, SLOT(onInfoChanged()));
+		connect(waitAction_, SIGNAL(started()), this, SLOT(onActionStarted()));
+		connect(waitAction_, SIGNAL(succeeded()), this, SLOT(onActionSucceeded()));
+		connect(waitAction_, SIGNAL(failed(int)), this, SLOT(onActionFailed(int)));
+	}
+	onInfoChanged();
+}
+
+void AMBeamlineControlWaitDetailedActionView::onInfoChanged(){
+	if(waitAction_ && messageLabel_ && progressSlider_){
+		messageLabel_->setText(waitAction_->message());
+		double outlier;
+		if(waitAction_->isRunning())
+			outlier = waitAction_->outlier();
+		else
+			outlier = waitAction_->control()->value();
+		if(outlier > waitAction_->waitpoint()){
+			progressSlider_->setMaximum(outlier);
+			progressSlider_->setMinimum(waitAction_->waitpoint());
+		}
+		else{
+			progressSlider_->setMaximum(waitAction_->waitpoint());
+			progressSlider_->setMinimum(outlier);
+		}
+		if(waitAction_->isRunning())
+			progressSlider_->setCurrentValue(waitAction_->control()->value());
+	}
+}
+
+void AMBeamlineControlWaitDetailedActionView::onPlayPauseButtonClicked(){
+	//UNUSED
+}
+
+void AMBeamlineControlWaitDetailedActionView::onStopCancelButtonClicked(){
+	//UNUSED
+}
+
+void AMBeamlineControlWaitDetailedActionView::onActionStarted(){
+	emit actionStarted(waitAction_);
+}
+
+void AMBeamlineControlWaitDetailedActionView::onActionSucceeded(){
+	mainHL_->addWidget(finishedState_);
+}
+
+void AMBeamlineControlWaitDetailedActionView::onActionFailed(int explanation){
+
+}
+
+AMDoubleSlider::AMDoubleSlider(AMDoubleSlider::scalingModeType scalingMode, AMDoubleSlider::destinationType destinationMode, QWidget *parent):
+		QWidget(parent)
+{
+	scalingMode_ = scalingMode;
+	destinationMode_ = destinationMode;
+	slider_ = new QSlider(Qt::Horizontal);
+	slider_->setMinimum(0);
+	slider_->setMaximum(120);
+	slider_->setEnabled(false);
+
+	QFile file;
+	if(destinationMode_ == AMDoubleSlider::destinationRight)
+		file.setFileName(":sliderWaitGreaterThan.qss");
+	else
+		file.setFileName(":sliderWaitLessThan.qss");
+	file.open(QFile::ReadOnly);
+	QString sliderStyleSheet = QLatin1String(file.readAll());
+	slider_->setStyleSheet(sliderStyleSheet);
+
+	valLabel_ = new QLabel("");
+	minLabel_ = new QLabel("");
+	maxLabel_ = new QLabel("");
+
+	linearButton_ = new QToolButton();
+	linearButton_->setText("lin");
+	linearButton_->setCheckable(true);
+	linearButton_->setContentsMargins(1, 1, 1, 1);
+	logrithmicButton_ = new QToolButton();
+	logrithmicButton_->setText("log");
+	logrithmicButton_->setCheckable(true);
+	logrithmicButton_->setContentsMargins(1, 1, 1, 1);
+	scalingGroup_ = new QButtonGroup();
+	scalingGroup_->addButton(linearButton_, AMDoubleSlider::linear);
+	scalingGroup_->addButton(logrithmicButton_, AMDoubleSlider::logrithmic);
+	if(scalingMode_ == AMDoubleSlider::linear)
+		linearButton_->setChecked(true);
+	else if(scalingMode_ == AMDoubleSlider::logrithmic)
+		logrithmicButton_->setChecked(true);
+	connect(scalingGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onScalingButtonClicked(int)));
+
+	QHBoxLayout *hl= new QHBoxLayout();
+	hl->addWidget(minLabel_);
+	hl->addStretch(10);
+	hl->addWidget(linearButton_);
+	hl->addWidget(valLabel_);
+	hl->addWidget(logrithmicButton_);
+	hl->addStretch(10);
+	hl->addWidget(maxLabel_);
+	hl->setContentsMargins(1, 1, 1, 1);
+	hl->setMargin(2);
+
+	vl_ = new QVBoxLayout();
+	vl_->addWidget(slider_);
+	vl_->addSpacing(0);
+	vl_->addLayout(hl);
+	setLayout(vl_);
+}
+
+double AMDoubleSlider::currentValue() const{
+	return curValue_;
+}
+
+double AMDoubleSlider::minimum() const{
+	return minValue_;
+}
+
+double AMDoubleSlider::maximum() const{
+	return maxValue_;
+}
+
+AMDoubleSlider::scalingModeType AMDoubleSlider::scalingMode() const{
+	return scalingMode_;
+}
+
+void AMDoubleSlider::setCurrentValue(double value){
+	if(value < minValue_)
+		curValue_ = minValue_;
+	else if(value > maxValue_)
+		curValue_ = maxValue_;
+	else
+		curValue_ = value;
+
+	double percent;
+	if(scalingMode_ == AMDoubleSlider::logrithmic)
+		percent = 100.0*(log10(curValue_/minValue_))/(log10(maxValue_/minValue_));
+	else//presume linear
+		percent = 100.0*(curValue_-minValue_)/(maxValue_-minValue_);
+
+	valLabel_->setText(QString("%1").arg(curValue_));
+	slider_->setValue((int)percent+10);
+}
+
+void AMDoubleSlider::setMinimum(double minimum){
+	minValue_ = minimum;
+	minLabel_->setText(QString("%1").arg(minValue_));
+}
+
+void AMDoubleSlider::setMaximum(double maximum){
+	maxValue_ = maximum;
+	maxLabel_->setText(QString("%1").arg(maxValue_));
+}
+
+void AMDoubleSlider::setScalingMode(int scalingMode){
+	if(trySetScalingMode(scalingMode))
+		scalingGroup_->button(scalingMode)->setChecked(true);
+}
+
+bool AMDoubleSlider::trySetScalingMode(int scalingMode){
+	if(scalingMode < AMDoubleSlider::linear || scalingMode > AMDoubleSlider::logrithmic)
+		return false;
+	if(scalingMode_ == scalingMode)
+		return false;
+	scalingMode_ = (AMDoubleSlider::scalingModeType)scalingMode;
+	setCurrentValue(curValue_);
+	return true;
+}
+
+void AMDoubleSlider::onScalingButtonClicked(int scalingMode){
+	trySetScalingMode(scalingMode);
 }

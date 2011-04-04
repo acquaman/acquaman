@@ -95,6 +95,8 @@ public:
 
 	virtual AMBeamlineActionView* createView(int index = 0) = 0;
 
+	virtual QString message() const;
+
 signals:
 	/// All signal emitting is taken care of if the setReady/setStarted/setSucceeded/etc functions are used. These functions will emit the signals as necessary
 	/// Emitted at the end of the initial() function, conveys that all other flags are false (actionItem constructed, but nothing has happened yet)
@@ -131,6 +133,8 @@ public slots:
 	/// Sets the next action but does not connect signals and slots
 	bool setNext(AMBeamlineActionItem* next);
 
+	void setMessage(const QString &message);
+
 protected slots:
 	// Interface to internal state. If sub-classes want to change something, call these.
 	// They will cause the corresponding signal to be emitted if the state changed (in the right direction)
@@ -162,6 +166,8 @@ protected:
 	AMBeamlineActionItem *previous_;
 	/// Holds pointer to next action (only meaningful if not in parallel list)
 	AMBeamlineActionItem *next_;
+
+	QString message_;
 
 private slots:
 	/// Connected internally so that any other state change makes sure that initialized is set to false. Any change means we are no longer in the initialized state

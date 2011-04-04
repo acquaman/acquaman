@@ -84,11 +84,11 @@ DEFINES += "VLC_PLUGIN_PATH=$$VLC_PLUGIN_PATH"
 # Specify runtime search locations for libraries (Must change for release bundle, if epics in a different location)
 macx {
 	# 4.7.0 and earlier:
-	# QMAKE_LFLAGS_RPATH += "$$EPICS_LIB_DIR"
+	QMAKE_LFLAGS_RPATH += "$$EPICS_LIB_DIR"
 
 	# 4.7.2: Use same as linux-g++
-	QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
-	QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
+	# QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
+	# QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
 }
 linux-g++ {
 	QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
@@ -283,8 +283,8 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMOverlayVideoWidget.h \
 	source/ui/AMSamplePositionViewActionsWidget.h \
 	source/beamline/AMBeamlineListAction.h \
-	source/beamline/AMBeamlineControlWaitAction.h
-
+	source/beamline/AMBeamlineControlWaitAction.h \
+	source/beamline/AMBeamlineUserConfirmAction.h
 FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
 	source/ui/AMDataViewSectionHeader.ui \
@@ -473,14 +473,19 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMOverlayVideoWidget.cpp \
 	source/ui/AMSamplePositionViewActionsWidget.cpp \
 	source/beamline/AMBeamlineListAction.cpp \
-	source/beamline/AMBeamlineControlWaitAction.cpp
-
+	source/beamline/AMBeamlineControlWaitAction.cpp \
+	source/beamline/AMBeamlineUserConfirmAction.cpp
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc \
-	source/util/ElementData.qrc
+	source/util/ElementData.qrc \
+    source/stylesheets/stylesheets.qrc
 
 macx {
 # Removed for now: OS-native video implementation
 #OBJECTIVE_SOURCES += 	source/ui/AMVideoWidget_mac.mm
 #LIBS += -framework AppKit
 }
+
+OTHER_FILES += \
+    source/stylesheets/sliderWaitLessThan.qss \
+    source/stylesheets/sliderWaitGreaterThan.qss
