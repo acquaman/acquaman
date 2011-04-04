@@ -26,6 +26,8 @@ bool VESPERSAppController::startup() {
 
 		AMDbObjectSupport::registerClass<XRFDetectorInfo>();
 
+		AMDetectorViewSupport::registerClass<XRFBriefDetectorView, XRFDetector>();
+
 		// Create panes in the main window:
 		////////////////////////////////////
 

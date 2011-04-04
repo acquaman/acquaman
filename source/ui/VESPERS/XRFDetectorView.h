@@ -44,4 +44,9 @@ protected:
 
 };
 
+/*class XRFDetailedView : public AMDetailedDetectorView
+{
+
+};*/
+
 #endif // XRFDETECTORVIEW_H
