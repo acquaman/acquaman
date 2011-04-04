@@ -6,8 +6,8 @@ AMBeamlineUserConfirmAction::AMBeamlineUserConfirmAction(QObject *parent) :
 	setReady(true);
 }
 
-AMBeamlineActionView* AMBeamlineUserConfirmAction::createView(int index){
-	return 0;
+AMBeamlineActionItemView* AMBeamlineUserConfirmAction::createView(int index){
+	return new AMBeamlineUserConfirmDetailedActionView(this);
 }
 
 void AMBeamlineUserConfirmAction::start(){
@@ -32,8 +32,9 @@ void AMBeamlineUserConfirmAction::userCancel(){
 
 
 AMBeamlineUserConfirmDetailedActionView::AMBeamlineUserConfirmDetailedActionView(AMBeamlineUserConfirmAction *userConfirmAction, int index, QWidget *parent) :
-		AMBeamlineActionView(userConfirmAction, index, parent)
+		AMBeamlineActionItemView(userConfirmAction, index, parent)
 {
+	messageLabel_ = 0; //NULL
 	userConfirmAction_ = 0; //NULL
 	setAction(userConfirmAction);
 
@@ -65,6 +66,10 @@ AMBeamlineUserConfirmDetailedActionView::AMBeamlineUserConfirmDetailedActionView
 	mainHL_->addLayout(buttonsVL_);
 
 	setLayout(mainHL_);
+	QMargins mainHLMargins = mainHL_->contentsMargins();
+	mainHLMargins.setTop(1);
+	mainHLMargins.setBottom(1);
+	mainHL_->setContentsMargins(mainHLMargins);
 
 	onInfoChanged();
 }

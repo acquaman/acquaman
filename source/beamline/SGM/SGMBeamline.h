@@ -55,10 +55,25 @@ class SGMBeamline : public AMBeamline
 	Q_OBJECT
 
 public:
-	enum sgmGrating {lowGrating=0, mediumGrating=1, highGrating=2};
+	enum sgmGrating{
+		lowGrating = 0,
+		mediumGrating = 1,
+		highGrating = 2
+	};
 	QString sgmGratingName(SGMBeamline::sgmGrating grating) const;
-	enum sgmHarmonic {firstHarmonic=1, thirdHarmonic=3};
+
+	enum sgmHarmonic{
+		firstHarmonic = 1,
+		thirdHarmonic = 3
+	};
 	QString sgmHarmonicName(SGMBeamline::sgmHarmonic harmonic) const;
+
+	enum sgmTransferType{
+		loadlockOut = 1,
+		loadlockIn,
+		ChamberOut,
+		ChamberIn
+	};
 
 	static SGMBeamline* sgm();		// singleton-class accessor
 
@@ -150,6 +165,7 @@ public:
 
 	AMBeamlineParallelActionsList* stopMotorsActionsList();
 
+	AMBeamlineListAction* transferActions(SGMBeamline::sgmTransferType transferType);
 	AMBeamlineListAction* transferLoadlockOutActions();
 	AMBeamlineListAction* transferLoadlockInActions();
 	AMBeamlineListAction* transferChamberOutActions();

@@ -655,7 +655,9 @@ bool AMBeamlineParallelActionListModel::insertRows(int row, int count, const QMo
 }
 
 bool AMBeamlineParallelActionListModel::removeRows(int row, int count, const QModelIndex &parent){
-	if( !parent.isValid() && (row >= 0) && (row+count < actions_->count()) ){
+	qDebug() << parent.isValid() << row << row+count << actions_->count();
+	//Need to check logic on this, looks like last row can't be removed if row+count<actions_->count() is used
+	if( !parent.isValid() && (row >= 0) && (row+count <= actions_->count()) ){
 		beginRemoveRows(parent, row, row+count-1);
 		int internalID;
 		QList<AMBeamlineActionItem*> *tmpList;

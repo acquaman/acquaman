@@ -13,7 +13,7 @@ Q_OBJECT
 public:
 	explicit AMBeamlineUserConfirmAction(QObject *parent = 0);
 
-	virtual AMBeamlineActionView* createView(int index);
+	virtual AMBeamlineActionItemView* createView(int index = 0);
 
 public slots:
 	virtual void start();
@@ -24,7 +24,7 @@ public slots:
 	virtual void userCancel();
 };
 
-class AMBeamlineUserConfirmDetailedActionView : public AMBeamlineActionView
+class AMBeamlineUserConfirmDetailedActionView : public AMBeamlineActionItemView
 {
 Q_OBJECT
 public:

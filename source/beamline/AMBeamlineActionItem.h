@@ -60,7 +60,7 @@ protected:
 	bool state_;
 };
 
-class AMBeamlineActionView;
+class AMBeamlineActionItemView;
 
 /// Base class for all actionItems.
 class AMBeamlineActionItem : public QObject
@@ -93,7 +93,7 @@ public:
 	/// Returns a pointer to the next action (if the action is not in a parallel list)
 	AMBeamlineActionItem* next() const;
 
-	virtual AMBeamlineActionView* createView(int index = 0) = 0;
+	virtual AMBeamlineActionItemView* createView(int index = 0) = 0;
 
 	virtual QString message() const;
 
@@ -192,11 +192,11 @@ private:
 	AMBeamlineActionItemStateFlag finished_;
 };
 
-class AMBeamlineActionView : public QFrame
+class AMBeamlineActionItemView : public QFrame
 {
 	Q_OBJECT
 public:
-	AMBeamlineActionView(AMBeamlineActionItem *action, int index = 0, QWidget *parent = 0);
+	AMBeamlineActionItemView(AMBeamlineActionItem *action, int index = 0, QWidget *parent = 0);
 
 	int index() const { return index_;}
 	virtual AMBeamlineActionItem* action();
@@ -227,73 +227,6 @@ protected:
 	AMBeamlineActionItem *action_;
 	int index_;
 	bool inFocus_;
-};
-
-class AM1BeamlineActionItem : public QObject
-{
-Q_OBJECT
-public:
-	explicit AM1BeamlineActionItem(QString message = "", QObject *parent = 0);
-	bool isRunning() { return running_; }
-	bool hasStarted() { return started_; }
-	bool hasSucceeded() { return succeeded_; }
-	bool hasFailed() { return failed_; }
-	bool hasFeedback() { return hasFeedback_; }
-	bool needsInput() { return needsInput_; }
-	AM1BeamlineActionItem* previous() const { return previous_;}
-	AM1BeamlineActionItem* next() const { return next_;}
-	QString message() const { return message_; }
-	virtual QString type() const { return type_; }
-
-signals:
-	void started();
-	void ready(bool ready);
-	void succeeded();
-	void failed(int explanation);
-
-public slots:
-	virtual void start(){ running_ = true; started_ = true; emit started(); }
-	bool setPrevious(AM1BeamlineActionItem* previous);
-	bool setNext(AM1BeamlineActionItem* next);
-protected:
-	bool started_;
-	bool succeeded_;
-	bool failed_;
-	bool running_;
-	bool hasFeedback_;
-	bool needsInput_;
-
-	QString message_;
-	AM1BeamlineActionItem *previous_;
-	AM1BeamlineActionItem *next_;
-
-private:
-	QString type_;
-};
-
-class AMBeamlineActionItemView : public QWidget
-{
-	Q_OBJECT
-public:
-	AMBeamlineActionItemView(AM1BeamlineActionItem *item, QWidget *parent = 0);
-	int messageHint(){ return message_->sizeHint().width(); }
-	int lightHint(){ return light_->sizeHint().width(); }
-	int proceedHint() { return proceed_->sizeHint().width(); }
-
-public slots:
-	virtual void initializeView();
-	virtual void onStart();
-	virtual void onReady(bool ready);
-	virtual void fixMessageSize(int width);
-	virtual void fixLightSize(int width);
-	virtual void fixProceedSize(int width);
-
-protected:
-	AM1BeamlineActionItem *item_;
-	QHBoxLayout *hl_;
-	QLabel *message_;
-	QPushButton *light_;
-	QPushButton *proceed_;
 };
 
 #endif // AMBEAMLINEACTIONITEM_H

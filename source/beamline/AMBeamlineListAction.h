@@ -9,7 +9,7 @@ Q_OBJECT
 public:
 	explicit AMBeamlineListAction(AMBeamlineParallelActionsList *list, QObject *parent = 0);
 
-	virtual AMBeamlineActionView* createView(int index = 0);
+	virtual AMBeamlineActionItemView* createView(int index = 0);
 
 	virtual AMBeamlineParallelActionsList* list();
 	virtual void cleanup();
@@ -21,6 +21,8 @@ public slots:
 
 protected slots:
 	void delayedStart(bool ready);
+	void onListSucceeded();
+	void onListFailed(int explanation);
 	virtual void checkReady();
 	virtual void initialize();
 	virtual void calculateProgress(int stageIndex, double elapsed, double total);
@@ -30,5 +32,36 @@ protected:
 };
 
 
+class AMBeamlineListDetailedActionView : public AMBeamlineActionItemView
+{
+Q_OBJECT
+public:
+	AMBeamlineListDetailedActionView(AMBeamlineListAction *listAction, int index = 0, QWidget *parent = 0);
+
+public slots:
+	void setIndex(int index);
+	virtual void setAction(AMBeamlineActionItem *action);
+
+signals:
+	void actionStarted(AMBeamlineActionItem *action);
+	void actionSucceeded(AMBeamlineActionItem *action);
+	void actionFailed(AMBeamlineActionItem *action);
+
+protected slots:
+	virtual void onInfoChanged();
+	virtual void onStopCancelButtonClicked();
+	virtual void onPlayPauseButtonClicked();
+
+	void onActionStarted();
+	void onActionSucceeded();
+	void onActionFailed(int explanation);
+
+protected:
+	AMBeamlineListAction *listAction_;
+
+	QLabel *messageLabel_;
+	QList<AMBeamlineActionItemView*> actionViews_;
+	QVBoxLayout *mainVL_;
+};
 
 #endif // AMBEAMLINELISTACTION_H

@@ -39,7 +39,7 @@ AMBeamlineScanAction::AMBeamlineScanAction(AMScanConfiguration *cfg, QObject *pa
 	initialize();
 }
 
-AMBeamlineActionView* AMBeamlineScanAction::createView(int index){
+AMBeamlineActionItemView* AMBeamlineScanAction::createView(int index){
 	return new AMBeamlineScanActionView(this, index);
 }
 
@@ -143,7 +143,7 @@ void AMBeamlineScanAction::onBeamlineScanningChanged(bool isScanning){
 }
 
 AMBeamlineScanActionView::AMBeamlineScanActionView(AMBeamlineScanAction *scanAction, int index, QWidget *parent) :
-		AMBeamlineActionView(scanAction, index, parent)
+		AMBeamlineActionItemView(scanAction, index, parent)
 {
 	index_ = index;
 	cancelLatch_ = false;
