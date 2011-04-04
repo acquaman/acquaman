@@ -20,6 +20,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SGMSampleTransferView.h"
 
+#include "beamline/AMBeamlineControlWaitAction.h"
+#include "beamline/AMBeamlineUserConfirmAction.h"
+
 SGMSampleTransferView::SGMSampleTransferView(QWidget *parent) :
 	QWidget(parent)
 {
@@ -37,6 +40,7 @@ SGMSampleTransferView::SGMSampleTransferView(QWidget *parent) :
 
 	transferBox_ = new SGMSampleTransferProceduresView("Transfer Procedures", transferButtons_);
 	SGMSampleTransferPaneView* tmpPane;
+	/*
 	tmpPane = new SGMSampleTransferPaneView(SGMBeamline::sgm()->transferLoadlockOutActions(), "Transfer Out of Loadlock");
 	transferPanes_.append(tmpPane);
 	tmpPane = new SGMSampleTransferPaneView(SGMBeamline::sgm()->transferLoadlockInActions(), "Transfer Into Loadlock");
@@ -65,6 +69,7 @@ SGMSampleTransferView::SGMSampleTransferView(QWidget *parent) :
 			break;
 		}
 	}
+	*/
 	setLayout(mainLayout_);
 }
 
@@ -101,12 +106,34 @@ SGMSampleTransferProceduresView::SGMSampleTransferProceduresView(const QString &
 	for(int x = 0; x < procedureButtons_.count(); x++ )
 		vl_->addWidget(procedureButtons_.at(x));
 	mainLayout_->addLayout(vl_, 0, 0, 1, 1, Qt::AlignLeft|Qt::AlignTop);
+
+	AMBeamlineControlWaitAction *ccgAction = new AMBeamlineControlWaitAction(SGMBeamline::sgm()->loadlockCCG(), AMBeamlineControlWaitAction::LessThanTarget, this);
+	ccgAction->setWaitpoint(5e-9);
+	ccgAction->setMessage("Wait for the CCG to reach 5e-9");
+	ccgAction->start();
+	AMBeamlineControlWaitDetailedActionView *ccgView = new AMBeamlineControlWaitDetailedActionView(ccgAction);
+	mainLayout_->addWidget(ccgView);
+
+	AMBeamlineControlWaitAction *tcgAction = new AMBeamlineControlWaitAction(SGMBeamline::sgm()->loadlockTCG(), AMBeamlineControlWaitAction::GreaterThanTarget, this);
+	tcgAction->setWaitpoint(720);
+	tcgAction->setMessage("Wait for the TCG to reach 720");
+	tcgAction->start();
+	AMBeamlineControlWaitDetailedActionView *tcgView = new AMBeamlineControlWaitDetailedActionView(tcgAction);
+	mainLayout_->addWidget(tcgView);
+
+	AMBeamlineUserConfirmAction *kickAction = new AMBeamlineUserConfirmAction(this);
+	kickAction->setMessage("Please go ahead and kick Matt in the balls");
+	kickAction->start();
+	AMBeamlineUserConfirmDetailedActionView *kickView = new AMBeamlineUserConfirmDetailedActionView(kickAction);
+	mainLayout_->addWidget(kickView);
+
 	setLayout(mainLayout_);
 }
 
 SGMSampleTransferPaneView::SGMSampleTransferPaneView(QList<AM1BeamlineActionItem*> items, const QString &title, QWidget *parent) :
 		QGroupBox(title, parent)
 {
+	/*
 	vl_ = new QVBoxLayout();
 	mainLayout_ = new QGridLayout();
 	QList<AM1BeamlineActionItem*> transferActions = items;
@@ -144,6 +171,7 @@ SGMSampleTransferPaneView::SGMSampleTransferPaneView(QList<AM1BeamlineActionItem
 	vl_->addLayout(hl);
 	mainLayout_->addLayout(vl_, 0, 0, 1, 1, Qt::AlignLeft|Qt::AlignTop);
 	setLayout(mainLayout_);
+	*/
 }
 
 void SGMSampleTransferPaneView::initialize(){

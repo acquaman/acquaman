@@ -25,8 +25,10 @@ public:
 	QString name() const { return name_; }
 	/// Returns the symbol of the element.
 	QString symbol() const { return symbol_; }
-	/// Returns the atomic number (as a QString) of the element.
-	QString atomicNumber() const { return atomicNumber_; }
+	/// Returns the atomic number.
+	int atomicNumber() const { return atomicNumber_; }
+	/// Returns the atomic number as a string
+	QString atomicNumberString() const { return QString("%1").arg(atomicNumber_); }
 	/// Returns the entire list of edges.
 	QList<QPair<QString, QString> > edges() const { return edges_; }
 	/// Returns the entire list of emission lines.
@@ -125,7 +127,7 @@ private:
 	// Symbol.
 	QString symbol_;
 	// Atomic number saved as a string.
-	QString atomicNumber_;
+	int atomicNumber_;
 	// Name, Energy.
 	QList<QPair<QString, QString> > edges_;
 	// Name, Energy.

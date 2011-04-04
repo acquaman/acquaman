@@ -74,8 +74,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 	 /// Added by mark.boots@usask.ca to fix crashes when a layout is deleted before the layout items it contains.
 	 virtual ~AMFlowGraphicsLayout();
-	 /// Added to manually allow setting a width constraint, which will be used whenever the supplied width constraint is < 0:
-	 void setWidthConstraint(double widthConstraint) { widthConstraint_ = widthConstraint; updateGeometry();  }
+
+	 /// Added to manually allow setting a width constraint, which will be used inside sizeHint() whenever the supplied width constraint is < 0:
+	 void setDefaultWidth(double widthConstraint) { defaultWidth_ = widthConstraint; updateGeometry();  }
+
+	 /// Set the size constraint used for the individual items in the layout
+	 void setItemSizeConstraint(const QSizeF& itemSizeConstraint) {
+		 itemSizeConstraint_ = itemSizeConstraint;
+		 updateGeometry();
+	 }
 
 	 inline void addItem(QGraphicsLayoutItem *item);
 	 void insertItem(int index, QGraphicsLayoutItem *item);
@@ -89,6 +96,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 	 QGraphicsLayoutItem *itemAt(int index) const;
 	 void removeAt(int index);
 
+	 /// If you know the items are all the same size as the first one, this can be used to optimize the layout performance
+	 void setUniformItemSizes(bool itemsAreUniform) { uniformItemSizes_ = itemsAreUniform; }
+
  protected:
 
 
@@ -96,15 +106,18 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
  private:
 	 qreal doLayout(const QRectF &geom, bool applyNewGeometry) const;
-	 QSizeF minSize(const QSizeF &constraint) const;
-	 QSizeF prefSize() const;
-	 QSizeF maxSize() const;
+	 /// calculate the height required, if the whole width available is \c width, and all the items have the same size. (This is a shortcut optimization when uniformItemSizes_ is true.)
+	qreal heightForWidth(qreal width) const;
 
 
 	 QList<QGraphicsLayoutItem*> m_items;
 	 qreal m_spacing[2];
 
-	 double widthConstraint_;
+	 /// used as the width assumed when calculating the sizeHint, if no width constraint is provided.
+	double defaultWidth_;
+	 bool uniformItemSizes_;
+
+	 QSizeF itemSizeConstraint_;
  };
 
  inline void AMFlowGraphicsLayout::addItem(QGraphicsLayoutItem *item)

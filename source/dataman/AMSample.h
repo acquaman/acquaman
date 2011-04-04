@@ -35,9 +35,12 @@ Q_OBJECT
 	Q_PROPERTY(QDateTime dateTime READ dateTime WRITE setDateTime)
 	Q_PROPERTY(QString notes READ notes WRITE setNotes)
 	Q_PROPERTY(QByteArray image READ rawImage WRITE setRawImage)
+	/// \todo This should be an indexed related table, so we can quickly find all the samples that contain a certain element.
+	Q_PROPERTY(AMIntList elementList READ elementList WRITE setElementList)
 
 	/// Do not reuse ids in the sample database... when deleting samples, we want any scans that reference their ids to become invalid; not to refer to new samples that would reuse the deleted ids.
 	Q_CLASSINFO("AMDbObject_Attributes", "doNotReuseIds=true;description=Sample")
+	Q_CLASSINFO("elementIds", "hidden=true")
 
 public:
 	/// Default constructor.
@@ -56,7 +59,10 @@ public:
 
 
 
-	// Convenient access methods for our meta-data:
+
+
+
+	// Metadata access
 	/////////////////////////
 
 	/// Date/time when the sample was first entered into the system.
@@ -68,6 +74,13 @@ public:
 	QString notes() const {
 		return notes_;
 	}
+
+	/// Returns a list of the elements the user has declared to be in this sample, by atomic number. ex: Hydrogen is 1, Helium is 2, etc.)
+	QList<int> elementList() const { return elements_; }
+
+	/// Format the elements into a string: ex: "B, N, Cl"
+	QString elementString() const;
+
 
 
 	// Thumbnail System
@@ -100,17 +113,25 @@ signals:
 
 public slots:
 
-	/// Convenience function to set the creation date/time associated with this sample.  We call setMetaData(), since this takes care of emitting the metaDataChanged() signal for us.
+
+	// Metadata access
+	/////////////////////////
+
+	/// Set the creation date/time associated with this sample.  We call setMetaData(), since this takes care of emitting the metaDataChanged() signal for us.
 	void setDateTime(const QDateTime& dateTime) {
 		dateTime_ = dateTime;
 		setModified(true);
 	}
 
-	/// Convenience function to set the notes/comments on this sample
+	/// Set the notes/comments on this sample
 	void setNotes(const QString& notes) {
 		notes_ = notes;
 		setModified(true);
 	}
+
+	/// Set the complete list of elements which are in this sample. Elements are specified atomic number.
+	void setElementList(const QList<int>& elements) { elements_ = elements; setModified(true); }
+
 
 	/// Add a photograph or image of this sample. These will be used as thumbnails in the database views as well.
 	void setImage(const QImage& sampleImage) {
@@ -132,7 +153,7 @@ protected:
 
 	QString notes_;
 	QDateTime dateTime_;
-
+	AMIntList elements_;
 };
 
 #endif // AMSAMPLE_H

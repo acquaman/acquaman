@@ -33,7 +33,8 @@ Q_OBJECT
 public:
 	explicit AMBeamlineControlMoveAction(AMControl *control, QObject *parent = 0);
 
-	virtual QString type() const;
+	virtual AMBeamlineActionView* createView(int index = 0);
+
 	virtual AMControl* control();
 	virtual double setpoint();
 
@@ -64,9 +65,6 @@ protected:
 	double setpoint_;
 	double startPoint_;
 	QTimer progressTimer_;
-
-private:
-	QString type_;
 };
 
 class AMBeamlineControlMoveActionView : public AMBeamlineActionView
@@ -75,11 +73,9 @@ class AMBeamlineControlMoveActionView : public AMBeamlineActionView
 public:
 	AMBeamlineControlMoveActionView(AMBeamlineControlMoveAction *moveAction, int index = 0, QWidget *parent = 0);
 
-	virtual QString viewType() const;
-
 public slots:
 	void setIndex(int index);
-	void setAction(AMBeamlineControlMoveAction *moveAction);
+	virtual void setAction(AMBeamlineActionItem *action);
 
 signals:
 	void actionStarted(AMBeamlineActionItem *action);
@@ -107,9 +103,6 @@ protected:
 	QHBoxLayout *hl_;
 
 	QIcon closeIcon_, stopIcon_, startIcon_, pauseIcon_;
-
-private:
-	QString viewType_;
 };
 
 #endif // AMBEAMLINECONTROLMOVEACTION_H

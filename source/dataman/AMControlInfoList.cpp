@@ -30,16 +30,6 @@ AMControlInfo::AMControlInfo(const QString& name, double value, double minimum, 
 	units_ = units;
 }
 
-AMControlInfo::AMControlInfo(AMDatabase *db, int id)
-	: AMDbObject() {
-
-	setName("Invalid Control Info");
-	value_ = 0;
-	minimum_ = 0;
-	maximum_ = 0;
-
-	loadFromDb(db, id);
-}
 
 AMControlInfoList::AMControlInfoList(QObject *parent)
 	: AMDbObject(parent), AMOrderedList<AMControlInfo>()
@@ -57,15 +47,7 @@ AMControlInfoList::AMControlInfoList(const AMControlInfoList& other)
 	connect(signalSource(), SIGNAL(itemChanged(int)), this, SLOT(onControlValuesChanged(int)));
 }
 
-AMControlInfoList::AMControlInfoList(AMDatabase* db, int id)
-	: AMDbObject(), AMOrderedList<AMControlInfo>() {
 
-	connect(signalSource(), SIGNAL(itemAdded(int)), this, SLOT(onControlAdded(int)));
-	connect(signalSource(), SIGNAL(itemRemoved(int)), this, SLOT(onControlRemoved(int)));
-	connect(signalSource(), SIGNAL(itemChanged(int)), this, SLOT(onControlValuesChanged(int)));
-
-	loadFromDb(db, id);
-}
 
 AMControlInfoList& AMControlInfoList::operator=(const AMControlInfoList& other) {
 	// always: check for self-assignment
@@ -99,9 +81,32 @@ void AMControlInfoList::dbLoadControlInfos(const AMDbObjectList& newControlInfos
 			append(*newControlInfo);	// note: makes a copy of object pointed to by newControlInfo, and stores in our internal list.
 		}
 
-		if(newControlInfos.at(i))
-			delete newControlInfos.at(i);	// we're copying these; don't need to keep these ones around. Our responsibility to delete.
+		delete newControlInfos.at(i);	// we're copying these; don't need to keep these ones around. They're our responsibility to delete.
 	}
+}
+
+void AMControlInfoList::setValuesFrom(const AMControlInfoList &other)
+{
+	int otherCount = other.count();
+
+	// remove any extras we have.
+	/// \todo \bug Watch out... these are being orphaned in the database.
+	while(count() > otherCount)
+		remove(count()-1);
+
+	// loop through and modify the ones we have in common. In the case where us and other have the same size, this will be all we do.  No new rows will be needed in the database.
+	for(int i=0; i<count(); i++) {
+		(*this)[i].setValuesFrom(other.at(i));
+	}
+
+	// add any extras
+	for(int i=count(); i<otherCount; i++) {
+		AMControlInfo newCI;
+		newCI.setValuesFrom(other.at(i));
+		append(newCI);
+	}
+
+	setModified(true);
 }
 
 

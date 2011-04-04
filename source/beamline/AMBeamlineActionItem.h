@@ -60,6 +60,8 @@ protected:
 	bool state_;
 };
 
+class AMBeamlineActionView;
+
 /// Base class for all actionItems.
 class AMBeamlineActionItem : public QObject
 {
@@ -90,10 +92,10 @@ public:
 	AMBeamlineActionItem* previous() const;
 	/// Returns a pointer to the next action (if the action is not in a parallel list)
 	AMBeamlineActionItem* next() const;
-	/* NTBA March 14, 2011 David Chevrier
-	   Is this necessary any more?
-	*/
-	virtual QString type() const;
+
+	virtual AMBeamlineActionView* createView(int index = 0) = 0;
+
+	virtual QString message() const;
 
 signals:
 	/// All signal emitting is taken care of if the setReady/setStarted/setSucceeded/etc functions are used. These functions will emit the signals as necessary
@@ -131,6 +133,8 @@ public slots:
 	/// Sets the next action but does not connect signals and slots
 	bool setNext(AMBeamlineActionItem* next);
 
+	void setMessage(const QString &message);
+
 protected slots:
 	// Interface to internal state. If sub-classes want to change something, call these.
 	// They will cause the corresponding signal to be emitted if the state changed (in the right direction)
@@ -163,15 +167,13 @@ protected:
 	/// Holds pointer to next action (only meaningful if not in parallel list)
 	AMBeamlineActionItem *next_;
 
+	QString message_;
+
 private slots:
 	/// Connected internally so that any other state change makes sure that initialized is set to false. Any change means we are no longer in the initialized state
 	void dirtyInitialized();
 
 private:
-	/* NTBA March 14, 2011 David Chevrier
-	   Necessary?
-	*/
-	QString type_;
 	/// Kept private, access with initialize(). Only true when initialized and nothing else has happened. Setting any flag below will change initialized to false
 	AMBeamlineActionItemStateFlag initialized_;
 	/* NTBA March 14, 2011 David Chevrier
@@ -198,7 +200,6 @@ public:
 
 	int index() const { return index_;}
 	virtual AMBeamlineActionItem* action();
-	virtual QString viewType() const;
 
 public slots:
 	virtual void setIndex(int index);
@@ -226,9 +227,6 @@ protected:
 	AMBeamlineActionItem *action_;
 	int index_;
 	bool inFocus_;
-
-private:
-	QString viewType_;
 };
 
 class AM1BeamlineActionItem : public QObject

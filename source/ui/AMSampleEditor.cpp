@@ -20,6 +20,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMSampleEditor.h"
 
+#include <QComboBox>
+#include <QLineEdit>
+#include <QLabel>
+
+#include "dataman/AMSample.h"
+#include "dataman/AMDatabase.h"
+
 #include <QVBoxLayout>
 #include <QGridLayout>
 #include <QTimer>
@@ -27,68 +34,57 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMDbObjectSupport.h"
 #include "ui/AMDetailedItemDelegate.h"
 
-#include "ui/AMElementListEdit.h"
+//#include "ui/AMElementListEdit.h"
 #include <QListView>
 
 AMSampleEditor::AMSampleEditor(AMDatabase* db, QWidget *parent) :
 		QWidget(parent)
 {
 	db_ = db;
+	sampleTableName_ = AMDbObjectSupport::tableNameForClass<AMSample>();
 
-	QVBoxLayout* vl = new QVBoxLayout();
-	vl->setContentsMargins(12,12,12,12);
-	vl->setSpacing(6);
+	vl_ = new QVBoxLayout();
+	vl_->setContentsMargins(0, 0, 0, 0);
+	vl_->setSpacing(6);
 
-	setLayout(vl);
+	setLayout(vl_);
+
+	sampleSelector_ = new QComboBox();
+	QListView* lview = new QListView();
+	// lview->setResizeMode(QListView::Adjust);
+	AMDetailedItemDelegate* del = new AMDetailedItemDelegate(this);
+	del->setCloseButtonsEnabled(true);
+	connect(del, SIGNAL(closeButtonClicked(QModelIndex)), this, SLOT(onSampleDeleteButtonClicked(QModelIndex)));
+	lview->setItemDelegate(del);
+	lview->setAlternatingRowColors(true);
+	sampleSelector_->setView(lview);
+	vl_->addWidget(sampleSelector_);
+
 
 	QGridLayout* gl = new QGridLayout();
-	vl->addLayout(gl);
+	vl_->addLayout(gl);
 
 	QLabel* l = new QLabel("name");
 	l->setObjectName("AMSampleEditorLabel");
 	gl->addWidget(l, 0, 0);
 
 	sampleName_ = new QLineEdit();
-	sampleName_->setFrame(false);
+	// sampleName_->setFrame(false);
 	gl->addWidget(sampleName_, 0, 1);
 
-	l = new QLabel("date");
+	l = new QLabel("created");
 	l->setObjectName("AMSampleEditorLabel");
 	gl->addWidget(l, 1, 0);
 	sampleDate_ = new QLabel();
 	gl->addWidget(sampleDate_, 1, 1);
 
-	l = new QLabel("time");
-	l->setObjectName("AMSampleEditorLabel");
-	gl->addWidget(l, 2, 0);
-	sampleTime_ = new QLabel();
-	gl->addWidget(sampleTime_, 2, 1);
-
 	l = new QLabel("elements");
 	l->setObjectName("AMSampleEditorLabel");
-	gl->addWidget(l, 3, 0);
+	gl->addWidget(l, 2, 0);
 
-	sampleElements_ = new AMElementListEdit();
-	sampleElements_->setFrame(false);
-	gl->addWidget(sampleElements_, 3, 1);
-
-
-	l = new QLabel("Choose a different sample...");
-	// l->setObjectName("AMSampleEditorLabel");
-	gl->addWidget(l, 4, 0, 1, 2);
-
-	sampleSelector_ = new QComboBox();
-	QListView* lview = new QListView();
-	sampleSelector_->setView(lview);
-	lview->setResizeMode(QListView::Adjust);
-	AMDetailedItemDelegate* del = new AMDetailedItemDelegate(this);
-	del->setCloseButtonsEnabled(true);
-	connect(del, SIGNAL(closeButtonClicked(QModelIndex)), this, SLOT(onSampleDeleteButtonClicked(QModelIndex)));
-	lview->setItemDelegate(del);
-	vl->addWidget(sampleSelector_);
-
-	vl->addSpacing(24);
-	vl->addStretch(0);
+	sampleElements_ = new QLineEdit();
+	// sampleElements_->setFrame(false);
+	gl->addWidget(sampleElements_, 2, 1);
 
 	setStyleSheet( "#AMSampleEditorLabel {"
 				   "color: rgb(121, 121, 121);"
@@ -109,9 +105,10 @@ AMSampleEditor::AMSampleEditor(AMDatabase* db, QWidget *parent) :
 
 	// responds to changes in the editor fields:
 	connect(sampleName_, SIGNAL(editingFinished()), this, SLOT(saveCurrentSample()));
+	connect(sampleElements_, SIGNAL(editingFinished()), this, SLOT(saveCurrentSample()));
 
 	refreshScheduled_ = false;
-	onDatabaseUpdated(AMDbObjectSupport::tableNameForClass<AMSample>(), -1);
+	onDatabaseUpdated(sampleTableName_, -1);
 }
 
 
@@ -132,10 +129,10 @@ void AMSampleEditor::setCurrentSample(int id) {
 	if(sample_->loadFromDb(db_, id)) {
 		sampleName_->setReadOnly(false);
 		sampleName_->setText(sample_->name());
-		sampleDate_->setText(AMDateTimeUtils::prettyDate(sample_->dateTime()));
-		sampleTime_->setText(sample_->dateTime().toString("h:mmap"));
-		// todo: elements .  bwaa?
-		// todo: notes
+		sampleDate_->setText(AMDateTimeUtils::prettyDateTime(sample_->dateTime()));
+
+		sampleElements_->setText(sample_->elementString());
+
 
 		// don't cause infinite loop here... disable signal first?
 		sampleSelector_->blockSignals(true);
@@ -155,7 +152,6 @@ void AMSampleEditor::setCurrentSample(int id) {
 		sampleName_->setText("[no sample]");
 		sampleName_->setReadOnly(true);
 		sampleDate_->setText(QString());
-		sampleTime_->setText(QString());
 		sampleElements_->setText(QString());
 		// todo: notes
 
@@ -189,7 +185,7 @@ void AMSampleEditor::refreshSamples() {
 
 		int index = sampleId2Index_.value(refreshId_);
 		QSqlQuery q = db_->query();
-		q.prepare(QString("SELECT id,name,dateTime FROM %1 WHERE id = ?").arg(AMDbObjectSupport::tableNameForClass<AMSample>()));
+		q.prepare(QString("SELECT id,name,dateTime FROM %1 WHERE id = ?").arg(sampleTableName_));
 		q.bindValue(0, refreshId_);
 		if(q.exec() && q.first()) {
 			sampleSelector_->setItemData(index, q.value(1).toString(), Qt::DisplayRole);
@@ -218,7 +214,7 @@ void AMSampleEditor::refreshSamples() {
 
 		// Fill the combo box with all samples in the db:
 		QSqlQuery q = db_->query();
-		q.prepare(QString("SELECT id,name,dateTime FROM %1 ORDER BY dateTime DESC").arg(AMDbObjectSupport::tableNameForClass<AMSample>()));
+		q.prepare(QString("SELECT id,name,dateTime FROM %1 ORDER BY dateTime DESC").arg(sampleTableName_));
 		q.exec();
 		int index = 0;
 		while(q.next()) {
@@ -251,7 +247,7 @@ void AMSampleEditor::refreshSamples() {
 void AMSampleEditor::onDatabaseUpdated(const QString& tableName, int id) {
 	Q_UNUSED(id);
 
-	if(tableName != AMDbObjectSupport::tableNameForClass<AMSample>())
+	if(tableName != sampleTableName_)
 		return;
 
 	// single-row precision update? That's cool if this :
@@ -299,15 +295,42 @@ void AMSampleEditor::createNewSample() {
 
 void AMSampleEditor::saveCurrentSample() {
 
+	qDebug() << "saving sample";
+
 	/// clear focus on the editors. \todo Move this to subclass of qlineedit?
+	sampleName_->blockSignals(true);
+	sampleElements_->blockSignals(true);
 	sampleName_->clearFocus();
 	sampleElements_->clearFocus();
+	sampleName_->blockSignals(false);
+	sampleElements_->blockSignals(false);
 
 	if(currentSample() > 0) {
 		sample_->setName(sampleName_->text());
-		// nothin' else?
+		sample_->setElementList(parseElementString(sampleElements_->text()));
 		sample_->storeToDb(db_);
 	}
+}
+
+#include "util/AMPeriodicTable.h"
+QList<int> AMSampleEditor::parseElementString(const QString &elementString) {
+	QList<int> rv;
+
+
+	QStringList elements = elementString.split(QRegExp("[\\,\\;\\s]+"), QString::SkipEmptyParts);
+
+	foreach(QString s, elements) {
+		s = s.toLower();
+		s = s.left(1).toUpper() + s.mid(1);	// Capitalize as Cl, Chlorine, etc.
+		AMElement* element;
+		if((element = AMPeriodicTable::table()->elementByName(s)))
+			rv << element->atomicNumber();
+		else if((element = AMPeriodicTable::table()->elementBySymbol(s)))
+			rv << element->atomicNumber();
+	}
+
+	return rv;
+	/// \todo Validator / red-green hinting for element editor box
 }
 
 #include <QMessageBox>

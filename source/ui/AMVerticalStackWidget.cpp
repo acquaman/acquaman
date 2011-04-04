@@ -32,7 +32,8 @@ AMVerticalStackWidget::AMVerticalStackWidget(QWidget *parent) :
 	vl_->setContentsMargins(0,0,0,0);
 	//spacer_ = new QSpacerItem(0,0,QSizePolicy::Preferred, QSizePolicy::Expanding);
 	//vl_->addSpacerItem(spacer_);
-	vl_->addStretch(1);
+	//vl_->addStretch(1);
+	vl_->setAlignment(Qt::AlignTop);
 	setLayout(vl_);
 
 	setFrameShape(QFrame::StyledPanel);

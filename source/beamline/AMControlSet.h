@@ -76,8 +76,8 @@ public:
 	/// Checks to see if this control set can be set from the given AMControlInfoList (they refer to the same controls)
 	bool validInfoList(const AMControlInfoList& info);
 
-	/// Set the position of all the controls in the set from the simplified AMControlInfoList \c infoList.  The controls in \c infoList are matched by name, and for each corresponding name in this set, the real control's value is set.
-	void setFromInfoList(const AMControlInfoList& info);
+	/// Sets positions of the controls in the set from the available info in the AMControlInfoList \c infoList. Returns the number of controls that were set (matched by name)
+	int setFromInfoList(const AMControlInfoList& info);
 
 signals:
 	/// This signal is emitted whenever isConnected() changes

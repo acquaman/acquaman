@@ -22,23 +22,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMWORKFLOWMANAGERVIEW_H
 
 #include <QWidget>
-#include <QLabel>
-#include <QGroupBox>
-#include <QVBoxLayout>
-#include <QFormLayout>
-#include <QDebug>
-#include <QQueue>
-#include <QComboBox>
-#include <QDoubleSpinBox>
-#include <QStringListModel>
-#include <QAbstractListModel>
-#include "beamline/AMBeamlineActionsList.h"
-#include "ui/AMVerticalStackWidget.h"
-#include "dataman/AMSamplePlate.h"
 
-#include "acquaman/AMScanConfiguration.h"
-#include "beamline/AMBeamlineScanAction.h"
-#include "beamline/AMBeamlineControlSetMoveAction.h"
+class QPushButton;
+class QVBoxLayout;
+class AMVerticalStackWidget;
+
+#include "beamline/AMBeamlineActionsList.h"
 
 class AMBeamlineActionsListView;
 
@@ -142,6 +131,7 @@ protected slots:
 protected:
 	AMBeamlineActionsList *actionsList_;
 	AMBeamlineActionsQueue *actionsQueue_;
+
 	AMVerticalStackWidget *actionsViewList_;
 	int focusAction_;
 

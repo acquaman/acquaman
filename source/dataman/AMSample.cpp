@@ -20,13 +20,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMSample.h"
 
+
 AMSample::AMSample(QObject *parent) :
 	AMDbObject(parent)
 {
 
 }
 
-/// This constructor initializes a sample with a given name.
+
+// This constructor initializes a sample with a given name.
 AMSample::AMSample(const QString& sampleName, QObject* parent)
 	: AMDbObject(parent)
 {
@@ -34,7 +36,7 @@ AMSample::AMSample(const QString& sampleName, QObject* parent)
 	setName(sampleName);
 }
 
-/// This constructor immediately loads a stored sample from the database.
+// This constructor immediately loads a stored sample from the database.
 AMSample::AMSample(int databaseId, AMDatabase* database, QObject* parent)
 	: AMDbObject(parent)
 {
@@ -47,6 +49,22 @@ void AMSample::destroySample(AMDatabase* db, int id) {
 	if(db == 0)
 		return;
 	db->deleteRow(id, AMDbObjectSupport::tableNameForClass<AMSample>());
+}
+
+#include "util/AMPeriodicTable.h"
+
+#include <QDebug>
+
+// Format the elements into a string: ex: "B, N, Cl"
+QString AMSample::elementString() const {
+
+	QStringList sl;
+
+	for(int i=0; i<elements_.count(); i++) {
+		sl.append(AMPeriodicTable::table()->elementByAtomicNumber(elements_.at(i))->symbol());
+	}
+
+	return sl.join(", ");
 }
 
 

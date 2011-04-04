@@ -5,7 +5,7 @@ AMElement::AMElement(QString name, QString symbol, QString atomicNumber, QString
 {
 	name_ = name;
 	symbol_ = symbol;
-	atomicNumber_ = atomicNumber;
+	atomicNumber_ = atomicNumber.toInt();	/// \todo What if this fails?
 	edgeSize_ = edgeList.size();
 	emissionLineSize_ = emissionLineList.size();
 

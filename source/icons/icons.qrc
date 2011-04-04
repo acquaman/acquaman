@@ -68,5 +68,6 @@
         <file>power_green.png</file>
         <file>power_red.png</file>
         <file>power_yellow.png</file>
+        <file>greenCheck.png</file>
     </qresource>
 </RCC>
