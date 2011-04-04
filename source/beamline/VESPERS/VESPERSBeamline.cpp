@@ -24,9 +24,10 @@ VESPERSBeamline::VESPERSBeamline()
 {
 	setupDiagnostics();
 	setupEndstation();
+	setupSingleElementDetector();
 	setupControlSets();
 }
-#error "Need to new all the controsl for the single element detector."
+
 void VESPERSBeamline::setupDiagnostics()
 {
 	// Pressure controls.
@@ -163,6 +164,36 @@ void VESPERSBeamline::setupEndstation()
 	ccdPath_ = new AMProcessVariable("IOC1607-003:det1:FilePath", true, this);
 	ccdFile_ = new AMProcessVariable("IOC1607-003:det1:FileName", true, this);
 	ccdNumber_ = new AMProcessVariable("IOC1607-003:det1:FileNumber", true, this);
+}
+
+void VESPERSBeamline::setupSingleElementDetector()
+{
+	elapsedTime1E_ = new AMReadOnlyPVControl("1-el Elapsed Time", "IOC1607-004:mca1.ERTM", this);
+	integrationTime1E_ = new AMPVControl("1-el Integration Time", "IOC1607-004:mca1.PRTM", "IOC1607-004::mca1.PRTM", QString(), this);
+	liveTime1E_ = new AMPVControl("1-el Live Time", "IOC1607-004:mca1.PLTM", "IOC1607-004:mca1.PLTM", QString(), this);
+	start1E_ = new AMPVControl("1-el Start", "IOC1607-004:mca1.ERST", "IOC1607-004:mca1.ERST", QString(), this);
+	stop1E_ = new AMPVControl("1-el Stop", "IOC1607-004:mca1.STOP", "IOC1607-004:mca1.STOP", QString(), this);
+	deadTime1E_ = new AMReadOnlyPVControl("1-el Dead Time", "IOC1607-004:mca1.IDTM", this);
+	maxEnergy1E_ = new AMPVControl("1-el Maximum Energy", "IOC1607-004:dxp1.EMAX", "IOC1607-004:dxp1.EMAX", QString(), this);
+	mcaUpdateRate1E_ = new AMPVControl("1-el MCA Update Rate", "IOC1607-004:mca1Read.SCAN", "IOC1607-004:mca1Read.SCAN", QString(), this);
+	peakingTime1E_ = new AMPVControl("1-el Peaking Time", "IOC1607-004:dxp1.PKTIM", "IOC1607-004:dxp1.PKTIM", QString(), this);
+	spectrum1E_ = new AMReadOnlyPVControl("1-el Spectrum", "IOC1607-004:mca1", this);
+
+	/// \todo For all the AMPVControl's add a disablePutCallback so that the system works as expected.  Needs an implementation of disablePutCallback for the control.
+	// MCA records behave incorrectly when using the ca_put_callback epics callback.  Need to use ca_put only.
+	//integrationTime1E_->
+
+	vortex1EControls_ = new AMControlSet(this);
+	vortex1EControls_->addControl(elapsedTime1E_);
+	vortex1EControls_->addControl(integrationTime1E_);
+	vortex1EControls_->addControl(liveTime1E_);
+	vortex1EControls_->addControl(start1E_);
+	vortex1EControls_->addControl(stop1E_);
+	vortex1EControls_->addControl(deadTime1E_);
+	vortex1EControls_->addControl(maxEnergy1E_);
+	vortex1EControls_->addControl(mcaUpdateRate1E_);
+	vortex1EControls_->addControl(peakingTime1E_);
+	vortex1EControls_->addControl(spectrum1E_);
 }
 
 void VESPERSBeamline::setupControlSets()
@@ -525,4 +556,15 @@ VESPERSBeamline::~VESPERSBeamline()
 	delete ccdPath_;
 	delete ccdFile_;
 	delete ccdNumber_;
+	delete elapsedTime1E_;
+	delete integrationTime1E_;
+	delete liveTime1E_;
+	delete start1E_;
+	delete stop1E_;
+	delete deadTime1E_;
+	delete maxEnergy1E_;
+	delete mcaUpdateRate1E_;
+	delete peakingTime1E_;
+	delete spectrum1E_;
+	delete vortex1EControls_;
 }

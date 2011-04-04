@@ -25,8 +25,8 @@ public:
 protected slots:
 
 protected:
+	/// This contains the general endstation view.
 	VESPERSBeamlineView *vespersView_;
-
 };
 
 #endif // VESPERSAPPCONTROLLER_H

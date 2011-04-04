@@ -260,6 +260,29 @@ public:
 	/// Returns the beam focus motor control feedback.
 	AMControl *focusMotorfbk() const { return focusMotorfbk_; }
 
+	// These are the single element vortex controls.
+
+	/// Returns the elapsed time control for the single element vortex detector.
+	AMControl *elapsedTime1E() const { return elapsedTime1E_; }
+	/// Returns the integration time control for the single element vortex detector.
+	AMControl *integrationTime1E() const { return integrationTime1E_; }
+	/// Returns the live time control for the single element vortex detector.
+	AMControl *liveTime1E() const { return liveTime1E_; }
+	/// Returns the start control for the single element vortex detector.
+	AMControl *start1E() const { return start1E_; }
+	/// Returns the stop control for the single element vortex detector.
+	AMControl *stop1E() const { return stop1E_; }
+	/// Returns the dead time control for the single element vortex detector.
+	AMControl *deadTime1E() const { return deadTime1E_; }
+	/// Returns the maximum energy control for the single element vortex detector.
+	AMControl *maxEnergy1E() const { return maxEnergy1E_; }
+	/// Returns the spectrum refresh rate control for the single element vortex detector.
+	AMControl *mcaUpdateRate1E() const { return mcaUpdateRate1E_; }
+	/// Returns the peaking time control for the single element vortex detector.
+	AMControl *peakingTime1E() const { return peakingTime1E_; }
+	/// Returns the spectrum control for the single element vortex detector.
+	AMControl *spectrum1E() const { return spectrum1E_; }
+
 	// These Control Sets are logical groups of controls, that are commonly used by different Acquaman components
 
 	/// Returns the pressure control set.
@@ -276,6 +299,8 @@ public:
 	AMControlSet *flowTransducerSet() const { return flowTransducerSet_; }
 	/// Returns the endstation motor control set.
 	AMControlSet *endstationMotorSet() const { return endstationMotorSet_; }
+	/// Returns the single element vortex control set.
+	AMControlSet *vortex1EControls() const { return vortex1EControls_; }
 
 	// These are PVs that are needed for random small jobs around the beamline.
 
@@ -309,6 +334,8 @@ protected:
 	void setupControlSets();
 	/// Sets up all the controls and PVs for the VESPERSEndstationView.
 	void setupEndstation();
+	/// Sets up all the controls for the single element detector.
+	void setupSingleElementDetector();
 
 	/// Constructor. This is a singleton class; access it through VESPERSBeamline::vespers().
 	VESPERSBeamline();

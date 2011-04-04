@@ -81,7 +81,9 @@ XRFDetector::XRFDetector(QString name, AMControl *refreshRate, AMControl *peakin
 	settingsControls_->addControl(stopControl_);
 
 	connect(readingControls_, SIGNAL(connected(bool)), this, SLOT(detectorConnected(bool)));
+	connect(readingControls_, SIGNAL(controlSetValuesChanged(AMControlInfoList)), this, SIGNAL(readingsChanged(AMControlInfoList)));
 	connect(settingsControls_, SIGNAL(connected(bool)), this, SLOT(detectorConnected(bool)));
+	connect(settingsControls_, SIGNAL(controlSetValuesChanged(AMControlInfoList)), this, SIGNAL(settingsChanged(AMControlInfoList)));
 
 	for (int i = 0; i < roiList().size(); i++)
 		connect(roiList().at(i), SIGNAL(roiConnected(bool)), this, SLOT(detectorConnected(bool)));
@@ -97,6 +99,42 @@ XRFDetector::~XRFDetector()
 
 	delete readingControls_;
 	delete settingsControls_;
+}
+
+double XRFDetector::deadTime() const
+{
+	if (elements_ == 1)
+		return deadTimeControl()->at(0)->value();
+	else {
+
+		double dt = 0;
+
+		for (int i = 0; i < elements_; i++) {
+
+			if (dt < deadTimeControl()->at(i)->value())
+				dt = deadTimeControl()->at(i)->value();
+		}
+
+		return dt;
+	}
+}
+
+bool XRFDetector::setFromInfo(const AMDetectorInfo *info)
+{
+	const XRFDetectorInfo *detectorInfo = qobject_cast<const XRFDetectorInfo *>(info);
+
+	// Check to make sure the detector info was valid.  If it isn't, then don't do anything to the detector.
+	if (!detectorInfo)
+		return false;
+
+	refreshRateControl()->move(detectorInfo->refreshRate());
+	peakingTimeControl()->move(detectorInfo->peakingTime());
+	maximumEnergyControl()->move(detectorInfo->maximumEnergy());
+	integrationTimeControl()->move(detectorInfo->integrationTime());
+	for (int i = 0; i < detectorInfo->roiInfoList()->count(); i++)
+		roiList().at(i)->setRegion(detectorInfo->roiInfoList()->at(i));
+
+	return true;
 }
 
 void XRFDetector::fromXRFInfo(const XRFDetectorInfo &info)
@@ -131,7 +169,7 @@ void XRFDetector::detectorConnected()
 	bool detectorConnected_ = true;
 
 	for (int i = 0; i < roiList().size(); i++)
-		detectorConnected_ &= roiList().at(i)->isConnected();
+		detectorConnected_ = detectorConnected_ && roiList().at(i)->isConnected();
 
 	detectorConnected_ = detectorConnected_ && readingControls_->isConnected() && settingsControls_->isConnected();
 

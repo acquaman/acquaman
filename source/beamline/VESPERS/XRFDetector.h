@@ -20,13 +20,31 @@ public:
 	/// Return the meta object.
 	const QMetaObject *getMetaObject() { return metaObject(); }
 
+	/// Returns the description for the detector.
+	virtual QString description() const { return XRFDetectorInfo::description(); }
+
+	/// Transforms current settings into a detector into. Returns a new instance-- caller is responsible for memory.
+	virtual AMDetectorInfo *toInfo() const { return new XRFDetectorInfo(*this); }
 	/// Transforms current settings into a detector info.
 	XRFDetectorInfo toXRFInfo() const { return XRFDetectorInfo(*this); }
+	/// Takes a detector info and sets all the settings for the detector.
+	virtual bool setFromInfo(const AMDetectorInfo *info);
 	/// Takes in a detector info and sets all the settings for the detector.
 	void fromXRFInfo(const XRFDetectorInfo &info);
 
 	/// Holds whether the entire detector is connected.
 	bool isConnected() const { return detectorConnected_; }
+
+	// Getters that aren't included in the info.  These are convenience functions that grab the current value from the control.
+	//////////////////////////////////////////////////
+
+	/// Returns the current elapsed time.
+	double elapsedTime() const { return elapsedTimeControl()->value(); }
+	/// Returns the current dead time. For detectors with more than one element, it returns the worst value.
+	double deadTime() const;
+
+	// End of getters that aren't included in the info.
+	/////////////////////////////////////////////////////
 
 	// Controls and PVs.
 	////////////////////////////////
@@ -52,7 +70,7 @@ public:
 	/// Returns the stop control.
 	AMControl *stopControl() const { return stopControl_; }
 
-	// End of Controsl and PVs.
+	// End of Controls and PVs.
 	////////////////////////////////
 
 	/// Returns the AMROI list.
@@ -80,9 +98,17 @@ public slots:
 	/// Sets the spectrum refresh rate.
 	void setRefreshRateControl(XRFDetectorInfo::MCAUpdateRate rate);
 
+	/// Sets the description of the detector.
+	void setDescription(const QString &description) { XRFDetectorInfo::setDescription(description); }
+
+
 signals:
 	/// Emitted when the connected state changes.
-	void connected(bool isConnected);
+	void connected(bool);
+	/// Emitted when the settings control set changes.
+	void settingsChanged(AMControlInfoList);
+	/// Emitted when the readings control set changes.
+	void readingsChanged(AMControlInfoList);
 
 protected slots:
 	/// Determines if the detector is connected to ALL controls and process variables.
