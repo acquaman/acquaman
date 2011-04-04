@@ -645,6 +645,8 @@ public:
 	QString writePVName() const { return writePV_->pvName(); }
 	/// The value of the writePV. This will match setpoint() unless someone else (another program or person in the facility) is changing the setpoint.
 	double writePVValue() const { return writePV_->lastValue(); }
+	/// Read-only access to the writePV.  Using this to change the writePVs value by connecting to its slots is not allowed/not supported.
+	const AMProcessVariable* writePV() const { return writePV_; }
 	/// Returns the number of seconds allowed for a move() to reach its target setpoint().
 	double completionTimeout() const { return completionTimeout_; }
 	/// Switches the writePV to using ca_put instead of ca_put_callback.  This seems to be necessary when using some of the more exotic record types such as the mca record type.  This is set to false by default.
@@ -934,6 +936,8 @@ public:
 	const AMProcessVariable* writePV() const { return writePV_; }
 	/// The maximum time allowed for the Control to start isMoving() after a move() is issued.
 	double moveStartTimeout() { return moveStartTimeout_; }
+	/// Switches the writePV to using ca_put instead of ca_put_callback.  This seems to be necessary when using some of the more exotic record types such as the mca record type.  This is set to false by default.
+	void disableWritePVPutCallback(bool disable) { writePV_->disablePutCallbackMode(disable); }
 	//@}
 
 public slots:
