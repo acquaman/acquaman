@@ -120,11 +120,6 @@ protected:
 #include <QPainterPath>
 
 /// This is a high-performance version of AMThumbnailScrollWidget for use inside the QGraphicsView system
-/*! NEEDED!
-  You can start by reimplementing important functions: the protected sizeHint() function, as well as the public setGeometry() function. If you want your items to be aware of immediate geometry changes, you can also reimplement updateGeometry().
-  */
-
-
 class AMThumbnailScrollGraphicsWidget : public QGraphicsItem, public QGraphicsLayoutItem {
 
 public:
@@ -252,8 +247,10 @@ public:
 		objectId_ = objectId;
 	}
 
-	/// Use this to set the size hint that the thumbnail requests within layouts. You can use this to dynamically resize
-	void setWidth(double width) {
+	/// Use this to set the size hint that the thumbnail requests within layouts, if a constraint is not provided. You can use this to dynamically resize the thumbnail item in layouts that don't specify a QSizeF constraint when calling sizeHint(int which, QSizeF constraint).
+	void setDefaultWidth(double width) {
+		if(preferredWidth_ == width)
+			return;
 
 		preferredWidth_ = width;
 		updateGeometry();
@@ -265,6 +262,9 @@ public:
 		prepareGeometryChange();
 		setPos(rect.left(), rect.top());
 		width_ = rect.width();
+		// clear this cache
+		c1_elided_.clear();
+		c2_elided_.clear();
 		update();
 	}
 
@@ -275,9 +275,11 @@ public:
 public:
 	void setCaption1(const QString& text) {
 		c1_ = text;
+		c1_elided_.clear();
 	}
 	void setCaption2(const QString& text) {
 		c2_ = text;
+		c2_elided_.clear();
 	}
 
 protected:
@@ -287,12 +289,17 @@ protected:
 	static double shadowBlurRadius() { return 12; }
 
 	double preferredWidth_, width_, textHeight_;
+	/// The pixmap holding the original thumbnail image
 	QPixmap pixmap_;
+	/// The pixmap_ scaled to the last size we had to draw it at
+	QPixmap scaledPixmap_;
 
 	/// title and subtitle are written on top of the thumbnail itself.  They are found from the content inside the thumbnail
 	QString title_, subtitle_;
 	/// captions (c1_, c2_) are written below the thumbnail
 	QString c1_, c2_;
+	/// Caches the elided text (the text we have room to display)
+	QString c1_elided_, c2_elided_;
 
 	/// index of the current thumbnail (if showing a set a thumbnails)
 	int tIndex_;
@@ -352,9 +359,34 @@ protected:
 	QSizeF sizeHint(Qt::SizeHint which, const QSizeF &constraint) const {
 
 		Q_UNUSED(which)
-		Q_UNUSED(constraint)
 
-		return QSizeF(preferredWidth_, preferredWidth_*3/4 + textHeight_);
+		if(constraint.width() < 0 && constraint.height() < 0) {
+			return QSizeF(preferredWidth_, preferredWidth_*3/4 + textHeight_);
+		}
+
+		// OK, a constraint has been specified. Assuming either width-constrained or height constrained.
+		QSizeF widthConstrained, heightConstrained;
+
+		if(constraint.width() > 0) {
+			widthConstrained = QSizeF(constraint.width(), constraint.width()*3/4 + textHeight_);
+			if(constraint.height() > 0) {	// constrained in both width and height
+				heightConstrained = QSizeF((constraint.height()-textHeight_)*4/3, constraint.height());
+				if(widthConstrained.height() > constraint.height()) {
+					return heightConstrained;
+				}
+				else {
+					return widthConstrained;
+				}
+			}
+			else {
+				// only width constrained
+				return widthConstrained;
+			}
+		}
+		else {
+			// only height constrained
+			return QSizeF((constraint.height()-textHeight_)*4/3, constraint.height());
+		}
 	}
 
 };

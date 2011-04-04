@@ -46,6 +46,7 @@ protected:
 
 /*class XRFDetailedView : public AMDetailedDetectorView
 {
+	/// This class builds the detailed view for viewing XRF detector data.  It should be able to read in an XRFDetector object and build a view based on the data contained within it.
 
 };*/
 

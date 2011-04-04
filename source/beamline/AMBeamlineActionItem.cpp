@@ -42,6 +42,7 @@ AMBeamlineActionItem::AMBeamlineActionItem(QObject *parent) :
 {
 	previous_ = NULL;
 	next_ = NULL;
+	message_ = "";
 	reinitialized_.setState(false);
 	connect(&ready_, SIGNAL(stateChanged(bool)), this, SLOT(dirtyInitialized()));
 	connect(&started_, SIGNAL(stateChanged(bool)), this, SLOT(dirtyInitialized()));
@@ -104,6 +105,10 @@ AMBeamlineActionItem* AMBeamlineActionItem::next() const {
 	return next_;
 }
 
+QString AMBeamlineActionItem::message() const{
+	return message_;
+}
+
 void AMBeamlineActionItem::reset(bool delayInitialize){
 	reinitialized_.setState(true);
 	if(!delayInitialize)
@@ -118,6 +123,10 @@ bool AMBeamlineActionItem::setPrevious(AMBeamlineActionItem *previous){
 bool AMBeamlineActionItem::setNext(AMBeamlineActionItem *next){
 	next_ = next;
 	return true;
+}
+
+void AMBeamlineActionItem::setMessage(const QString &message){
+	message_ = message;
 }
 
 void AMBeamlineActionItem::setReady(bool isReady){

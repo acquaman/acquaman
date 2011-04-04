@@ -23,7 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QWidget>
 #include "ui_AMDataView.h"
-#include "ui_AMDataViewSection.h"
+#include "ui_AMDataViewSectionHeader.h"
 #include "ui_AMDataViewEmptyHeader.h"
 #include "dataman/AMDatabase.h"
 
@@ -40,9 +40,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
-
 /*!
-  \todo
+  \todo Fall 2010
   - convert entire scroll area to QGraphicsView [in progress]
   - additional 3 views
   - buttons: expand all, collapse all, set default thumbnail, slider for size
@@ -52,6 +51,30 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
   - figure out item ownership when installed in layouts...
   */
 
+
+
+
+
+/// This subclass of QGraphicsWidget is designed to resize itself to the preferred sizeHint() of its layout.  (This is the opposite of what usually happens: layouts resize themselves to match the size of their widget.)
+class AMLayoutControlledGraphicsWidget : public QGraphicsWidget {
+	Q_OBJECT
+public:
+	AMLayoutControlledGraphicsWidget(QGraphicsItem* parent = 0, Qt::WindowFlags wFlags = 0);
+
+signals:
+	/// Emitted after the widget is resized
+	void resized();
+
+protected:
+	/// Re-implemented to catch the first LayoutEvent and resize ourself to match the layout's sizeHint (if necessary).
+	virtual bool event(QEvent *event);
+
+	/// Re-implemented to emit the resized() signal after handling
+	virtual void resizeEvent(QGraphicsSceneResizeEvent *event);
+
+};
+
+
 namespace AMDataViews {
 	enum ViewMode { ThumbnailView, ListView, FlowView, DetailView };
 	enum OrganizeMode { OrganizeNone, OrganizeRuns, OrganizeExperiments, OrganizeScanTypes, OrganizeSamples, OrganizeElements };
@@ -60,8 +83,27 @@ namespace AMDataViews {
 /// All sub-sections in an AMDataView need to be QGraphicsLayoutItems. Additionally, they also need a setWidthConstraint function as defined by this interface.  This is a standard way of notifying them of the current width available inside the DataView. It will be called after creation, and also whenever the view resizes.
 class AMAbstractDataViewSection {
 public:
+	/// Support for "heightForWidth" mode is broken in QGraphicsLayout, at least up to Qt 4.7.2.  This is a workaround: we create and call a setWidthConstraint() on all the items in the top-level layout; they use this width in their sizeHint() function if a constraint is not provided.
+	/*! HeightForWidth mode means that the item's preferred height (returned via QGraphicsLayoutItem::sizeHint()) depends on the width available. (For example, a paragraph of wrapping text, or an image with a constant aspect ratio.)  It _should_ be activated by doing a setSizePolicy() on the item, where the size policy object has had setHeightForWidth(true) called on it.  When heightForWidth is set, layouts should always provide a width constraint when calling sizeHint(), but they don't.
+
+	(In Qt 4.7.1, they do, but it breaks spanning in row layouts. In Qt 4.7.2, it's "fixed", but layout performance is terrible, taking a minute or more with nested layouts.  See http://bugreports.qt.nokia.com/browse/QTBUG-12835 and http://bugreports.qt.nokia.com/browse/QTBUG-15333).
+
+	This is our workaround for the time-being.  Do not setHeightForWidth(true) on the QGraphicsLayoutItem's sizePolicy().  Instead, call setWidthConstraint() on all the items in the top-level layout.
+	*/
 	virtual void setWidthConstraint(double widthConstraint) = 0;
+
+	/// This is the interface used to tell the section views to set the size of their items.  It's up to them what the item size means... it's just  relative scale from 1 (smallest useful) to 100 (largest useful). The default implementation does nothing.
+	virtual void setItemSize(int relativeItemSize) {
+		Q_UNUSED(relativeItemSize)
+	}
+
+	/// Expand or collapse this section (ie: show or hide everything except for header). The default implementation does nothing and must be overridden if you have more than a header.
+	virtual void expand(bool expanded = true) {}
+	/// Overloaded as an alternative for expand(false). You don't need to re-implement this.
+	virtual void collapse() { expand(false); }
 };
+
+
 
 /// This class implements a supremely awesome view of all the scan data found that can be found in a given database.  It can show scans from just one run, or just one experiment, or all runs or all experiments.  Beyond that, it can organize its data into sections based on the run, experiment, sample, element, or scan type.
 /*! Implementation note: this class  acts as a QGraphicsView container and a controller for AMDataViewSections and the specialized views employed by them.
@@ -99,11 +141,16 @@ public slots:
 	/// Set the view mode, where \c mode is one of AMDataViews::ViewMode (ThumbnailView, ListView, FlowView, or DetailView)
 	void setViewMode(int mode);
 
+	/// Called when the user wants to expand all the sections in the view
+	void expandAll();
+	/// Called when the user wants to collapse all the sections in the view
+	void collapseAll();
+
 
 protected slots:
 	/// called when the combo box is used to change the organizeMode
 	void onOrganizeModeBoxCurrentIndexChanged(int newIndex);
-	/// called when the widget is resized
+	/// called when the view is resized
 	void onResize();
 
 	/// called when the scene selection changes. We use this to determine the selected items that represent scan objects
@@ -111,8 +158,13 @@ protected slots:
 	/// Called when something in the scene is double-clicked. We use this to send the activated() signal
 	void onSceneDoubleClicked();
 
-	/// call this to adjust the accessible height of the scroll area to match the height required inside it
-	void adjustViewScrollHeight();
+	/// call this to adjust the accessible region of the graphicsview (gview_) to match the size of the graphicswidget gwidget_ inside it. (Called from a signal after the gwidget_ is resized.)
+	void adjustViewScrollableArea();
+
+	/// Called when the item size slider is moved. It's up to each section to decide what item sizes mean, but they should all adjust their item sizes based on the new user value (from 1 to 100).
+	void onItemSizeSliderChanged(int newItemSize);
+
+
 
 
 protected:
@@ -148,7 +200,7 @@ protected:
 
 	QGraphicsView* gview_;
 	AMSignallingGraphicsScene* gscene_;
-	QGraphicsWidget* gwidget_;
+	AMLayoutControlledGraphicsWidget* gwidget_;
 	QGraphicsLinearLayout* sectionLayout_;
 
 	/// This function runs everytime showRun() or showExperiment() is called, or a change is made to the OrganizeMode or ViewMode.  It re-populates the view from scratch.
@@ -162,7 +214,7 @@ protected:
 	double effectiveWidth() const { return this->width() - 20; }
 
 
-	/// Overidden so that we can notify the contents of the scroll area to change width with us.
+	/// Overidden so that we can notify the contents _inside_ the scroll area to change width with us.
 	virtual void resizeEvent(QResizeEvent *event);
 
 
@@ -172,24 +224,44 @@ protected:
 
 
 /// This class provides a view of one "section" of a multi-part database view.  What is shown inside the section depends on the filter specified using an SQL "WHERE" clause.  The section can be collapsed (hidden) or expanded (shown), to save screen real-estate and reduce the amount of data that must be loaded.
-class AMDataViewSection : public QGraphicsWidget, public AMAbstractDataViewSection, private Ui::AMDataViewSection {
+class AMDataViewSection : public QGraphicsWidget, public AMAbstractDataViewSection, private Ui::AMDataViewSectionHeader {
 	Q_OBJECT
 
 public:
-	/// Create a new "section view" of the data set.  \c title and \c subtitle are used for the header. A chunk of an SQL search string, suitable for appending behind a WHERE keyword, should be contained in \c whereClause.  The section will create a view type based on the \c viewMode.  If you want this section initially collapsed (for performance reasons), specify \c expanded = false.
-	explicit AMDataViewSection(const QString& title, const QString& subtitle, const QString& whereClause, AMDataViews::ViewMode viewMode, AMDatabase* db, bool expanded = true, QGraphicsItem* parent = 0, double initialWidthConstraint = 400);
+	/// Create a new "section view" of the data set.  \c title and \c subtitle are used for the header. A chunk of an SQL search string, suitable for appending behind a WHERE keyword, should be contained in \c whereClause.  The section will create a view type based on the \c viewMode.  If you want this section initially collapsed (for performance reasons), specify \c expanded = false.  \c parent is the QGraphicsItem parent for this section.
+	explicit AMDataViewSection(const QString& title, const QString& subtitle, const QString& whereClause, AMDataViews::ViewMode viewMode, AMDatabase* db, bool expanded = true, QGraphicsItem* parent = 0, double initialWidthConstraint = 400, int initialItemSize = 50);
 	virtual ~AMDataViewSection() {}
 
 	void setWidthConstraint(double widthConstraint) {
 		widthConstraint_ = widthConstraint;
 		if(subview__)
 			subview__->setWidthConstraint(widthConstraint_);
+		updateGeometry();
 	}
 
+
+	void setItemSize(int relativeItemSize) {
+		itemSize_ = relativeItemSize;
+		if(subview__) {
+			subview__->setItemSize(itemSize_);
+
+			// ideally, the subview or its layout calls updateGeometry() or invalidate() here because it's size has changed.  If we were the "parent layout", we would get called and continue forwarding updateGeometry() up the nested layouts. Instead, we need to do this:
+			updateGeometry(); /// \todo Optimization: if the old and new sizeHint()s of the subview are the same, don't updateGeometry().
+				// this is a hint that we should be managing the header and subview as a custom layout, not simply as a parent graphics item. Maybe later... this works for now.
+				// Note that we could install an event filter on the subview, to catch the LayoutRequest event instead.  But this doesn't let us benefit from layout event compression (ie: doing all the updateGeometry() / size changed notification synchronously, and posting one master re-layout for later), which means we could be laid out twice, which is inefficient.
+		}
+	}
+
+
+	/// Re-implemented function, to manage the size and position of our child items: the header, and the subview.
+	void setGeometry(const QRectF &rect);
+
 public slots:
-	/// Expand or collapse this section (ie: show or hide everything below the header)
-	void expand(bool expanded = true);
-	void collapse() { expand(false); }
+	/// Expand or collapse this section (ie: show or hide everything below the header).
+	virtual void expand(bool expanded = true);
+
+	/// Called from setGeometry(), this places the header at the correct location. It's a slot so that it can be connected to be called whenever the view scrolls.
+	void layoutHeaderItem();
 
 protected:
 	AMDatabase* db_;
@@ -197,11 +269,18 @@ protected:
 	QString whereClause_, title_, subtitle_;
 	bool expanded_;
 	// for now, the section header we made in the UI editor is proxy-widgeted into the graphics view:
-	QWidget* proxiedWidget_;
-	QGraphicsLinearLayout* layout_;
+	QFrame* proxiedWidget_;
+	QGraphicsProxyWidget* proxyWidget_;
+
 	QGraphicsLayoutItem* subview_;
 	AMAbstractDataViewSection* subview__;
-	double widthConstraint_;
+	 double widthConstraint_;
+	 int itemSize_;
+
+	/// Reimplemented from QGraphicsLayoutItem to combine the sizeHint() of our header and subview.
+	QSizeF sizeHint(Qt::SizeHint which, const QSizeF &constraint) const;
+	/// Called from setGeometry(), this places the contents at the correct location
+	void layoutContents();
 
 	/// count the number of results that would appear for the given database and whereClause_.
 	int countResults();
@@ -216,22 +295,20 @@ class AMDataViewSectionThumbnailView : public QGraphicsWidget, public AMAbstract
 	Q_OBJECT
 
 public:
-	explicit AMDataViewSectionThumbnailView(AMDatabase* db, const QString& dbTableName, const QString& whereClause, QGraphicsItem* parent = 0, double initialWidthConstraint = 400);
+	explicit AMDataViewSectionThumbnailView(AMDatabase* db, const QString& dbTableName, const QString& whereClause, QGraphicsItem* parent = 0, double initialWidthConstraint = 400, int initialItemSize = 50);
 	virtual ~AMDataViewSectionThumbnailView() {}
 
 	void setWidthConstraint(double widthConstraint) {
-		layout_->setWidthConstraint(widthConstraint);
+		layout_->setDefaultWidth(widthConstraint);
 	}
 
-public slots:
-	void setThumbnailWidth(int width) {
-		setThumbnailWidth(double(width));
+	/// We use relativeItemSize to scale the thumbnails from 120px wide to ___ wide.  The \c relativeItemSize is from 0 to 100, where 50 is normal, 0 is "smallest useful", and 100 is "largest useful".
+	void setItemSize(int relativeItemSize) {
+		int width = (double)relativeItemSize/50.0*160.0 + 80;
+		layout_->setItemSizeConstraint(QSizeF(width, -1));
 	}
-	void setThumbnailWidth(double width);
 
 protected slots:
-	/// This slot is delay-called when the graphics view widget is resized... Inside, we update the internal widget in the scene to the same width, and just enough height as required.
-	// void onResize();
 
 protected:
 	AMDatabase* db_;
@@ -240,7 +317,6 @@ protected:
 
 	AMFlowGraphicsLayout* layout_;
 	QList<AMThumbnailScrollGraphicsWidget*> thumbs_;
-	double thumbnailWidth_;
 
 	/// This helper function populates the view / layout with all of the thumbnails we need.
 	void populate();

@@ -277,13 +277,13 @@ void AMROI::connected()
 	connected_ = true;
 
 	for (int i = 0; i < pvNames_.size(); i++)
-		connected_ &= pvNames_.at(i)->isConnected();
+		connected_ = connected_ && pvNames_.at(i)->isConnected();
 	for (int i = 0; i < pvLowerBounds_.size(); i++)
-		connected_ &= pvLowerBounds_.at(i)->isConnected();
+		connected_ = connected_ && pvLowerBounds_.at(i)->isConnected();
 	for (int i = 0; i < pvHigherBounds_.size(); i++)
-		connected_ &= pvHigherBounds_.at(i)->isConnected();
+		connected_ = connected_ && pvHigherBounds_.at(i)->isConnected();
 	for (int i = 0; i < pvValues_.size(); i++)
-		connected_ &= pvValues_.at(i)->isConnected();
+		connected_ = connected_ && pvValues_.at(i)->isConnected();
 
 	emit roiConnected(connected_);
 }

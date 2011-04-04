@@ -614,6 +614,16 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	unconnectedSets_.append(beamOnControlSet_);
 	connect(beamOnControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
+	transferLoadLockOutControlSet_ = new AMControlSet(this);
+	transferLoadLockOutControlSet_->setName("Transfer Load Lock Out Controls");
+	transferLoadLockOutControlSet_->addControl(loadlockCCG_);
+	transferLoadLockOutControlSet_->addControl(loadlockTCG_);
+
+	transferLoadLockInControlSet_ = new AMControlSet(this);
+	transferLoadLockInControlSet_->setName("Transfer Load Lock In Controls");
+	transferLoadLockInControlSet_->addControl(loadlockCCG_);
+	transferLoadLockInControlSet_->addControl(loadlockTCG_);
+
 	teyControlSet_ = new AMControlSet(this);
 	teyControlSet_->setName("TEY Controls");
 	teyControlSet_->addControl(tey_);
@@ -716,85 +726,6 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 
 	currentSamplePlate_ = new AMSamplePlate(this);
 
-	transferAction1_ = new SGMTransferAction1(this);
-	transferAction2_ = new SGMTransferAction2(this);
-	connect(loadlockCCG_, SIGNAL(valueChanged(double)), transferAction2_, SLOT(checkValue(double)));
-	transferAction3_ = new SGMTransferAction3(this);
-	transferAction4_ = new SGMTransferAction4(this);
-	transferAction5_ = new SGMTransferAction5(this);
-	connect(loadlockTCG_, SIGNAL(valueChanged(double)), transferAction5_, SLOT(checkValue(double)));
-	transferAction6_ = new SGMTransferAction6(this);
-
-	transferAction7_ = new SGMTransferAction7(this);
-	transferAction8_ = new SGMTransferAction8(this);
-	transferAction9_ = new SGMTransferAction9(this);
-	connect(loadlockTCG_, SIGNAL(valueChanged(double)), transferAction9_, SLOT(checkValue(double)));
-	transferAction10_ = new SGMTransferAction10(this);
-	transferAction11_ = new SGMTransferAction11(this);
-	connect(loadlockCCG_, SIGNAL(valueChanged(double)), transferAction11_, SLOT(checkValue(double)));
-	transferAction12_ = new SGMTransferAction12(this);
-	connect(loadlockCCG_, SIGNAL(valueChanged(double)), transferAction12_, SLOT(checkValue(double)));
-
-	transferAction13_ = new SGMTransferAction13(this);
-	transferAction14_ = new SGMTransferAction14(this);
-	transferAction15_ = new SGMTransferAction15(this);
-	transferAction16_ = new SGMTransferAction16(this);
-	transferAction17_ = new SGMTransferAction17(this);
-	transferAction18_ = new SGMTransferAction18(this);
-	transferAction19_ = new SGMTransferAction19(this);
-	transferAction20_ = new SGMTransferAction20(this);
-	transferAction21_ = new SGMTransferAction21(this);
-	transferAction22_ = new SGMTransferAction22(this);
-	transferAction23_ = new SGMTransferAction23(this);
-	transferAction24_ = new SGMTransferAction24(this);
-	transferAction25_ = new SGMTransferAction25(this);
-
-	transferAction1_->setNext(transferAction2_);
-	transferAction2_->setPrevious(transferAction1_);
-	transferAction2_->setNext(transferAction3_);
-	transferAction3_->setPrevious(transferAction2_);
-	transferAction3_->setNext(transferAction4_);
-	transferAction4_->setPrevious(transferAction3_);
-	transferAction4_->setNext(transferAction5_);
-	transferAction5_->setPrevious(transferAction4_);
-	transferAction5_->setNext(transferAction6_);
-	transferAction6_->setPrevious(transferAction5_);
-
-	transferAction7_->setNext(transferAction8_);
-	transferAction8_->setPrevious(transferAction7_);
-	transferAction8_->setNext(transferAction9_);
-	transferAction9_->setPrevious(transferAction8_);
-	transferAction9_->setNext(transferAction10_);
-	transferAction10_->setPrevious(transferAction9_);
-	transferAction10_->setNext(transferAction11_);
-	transferAction11_->setPrevious(transferAction10_);
-	transferAction11_->setNext(transferAction12_);
-	transferAction12_->setPrevious(transferAction11_);
-
-	transferAction13_->setNext(transferAction14_);
-	transferAction14_->setPrevious(transferAction13_);
-	transferAction14_->setNext(transferAction15_);
-	transferAction15_->setPrevious(transferAction14_);
-	transferAction15_->setNext(transferAction16_);
-	transferAction16_->setPrevious(transferAction15_);
-	transferAction16_->setNext(transferAction17_);
-	transferAction17_->setPrevious(transferAction16_);
-	transferAction17_->setNext(transferAction18_);
-	transferAction18_->setPrevious(transferAction17_);
-	transferAction18_->setNext(transferAction19_);
-	transferAction19_->setPrevious(transferAction18_);
-	transferAction19_->setNext(transferAction20_);
-	transferAction20_->setPrevious(transferAction19_);
-
-	transferAction21_->setNext(transferAction22_);
-	transferAction22_->setPrevious(transferAction21_);
-	transferAction22_->setNext(transferAction23_);
-	transferAction23_->setPrevious(transferAction22_);
-	transferAction23_->setNext(transferAction24_);
-	transferAction24_->setPrevious(transferAction23_);
-	transferAction24_->setNext(transferAction25_);
-	transferAction25_->setPrevious(transferAction24_);
-
 	beamOnAction1_ = 0; //NULL
 	beamOnAction2_ = 0; //NULL
 	beamOnActionsList_ = 0; //NULL
@@ -804,6 +735,43 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	stopMotorsActions3_ = 0; //NULL
 	stopMotorsActions4_ = 0; //NULL
 	stopMotorsActionsList_ = 0; //NULL
+
+	transferLoadLockOutAction1_ = 0; //NULL
+	transferLoadLockOutAction2_ = 0; //NULL
+	transferLoadLockOutAction3_ = 0; //NULL
+	transferLoadLockOutAction4_ = 0; //NULL
+	transferLoadLockOutAction5_ = 0; //NULL
+	transferLoadLockOutAction6_ = 0; //NULL
+	transferLoadLockOutList_ = 0; //NULL
+	transferLoadLockOutAction_ = 0; //NULL
+
+	transferLoadLockInAction1_ = 0; //NULL
+	transferLoadLockInAction2_ = 0; //NULL
+	transferLoadLockInAction3_ = 0; //NULL
+	transferLoadLockInAction4_ = 0; //NULL
+	transferLoadLockInAction5_ = 0; //NULL
+	transferLoadLockInAction6_ = 0; //NULL
+	transferLoadLockInList_ = 0; //NULL
+	transferLoadLockInAction_ = 0; //NULL
+
+	transferChamberOutAction1_ = 0; //NULL
+	transferChamberOutAction2_ = 0; //NULL
+	transferChamberOutAction3_ = 0; //NULL
+	transferChamberOutAction4_ = 0; //NULL
+	transferChamberOutAction5_ = 0; //NULL
+	transferChamberOutAction6_ = 0; //NULL
+	transferChamberOutAction7_ = 0; //NULL
+	transferChamberOutAction8_ = 0; //NULL
+	transferChamberOutList_ = 0; //NULL
+	transferChamberOutAction_ = 0; //NULL
+
+	transferChamberInAction1_ = 0; //NULL
+	transferChamberInAction2_ = 0; //NULL
+	transferChamberInAction3_ = 0; //NULL
+	transferChamberInAction4_ = 0; //NULL
+	transferChamberInAction5_ = 0; //NULL
+	transferChamberInList_ = 0; //NULL
+	transferChamberInAction_ = 0; //NULL
 }
 
 SGMBeamline::~SGMBeamline()
@@ -860,49 +828,28 @@ AMBeamlineParallelActionsList* SGMBeamline::stopMotorsActionsList(){
 	return stopMotorsActionsList_;
 }
 
-QList<AM1BeamlineActionItem*> SGMBeamline::transferLoadlockOutActions() const {
-	QList<AM1BeamlineActionItem*> rVal;
-	rVal.append(transferAction1_);
-	rVal.append(transferAction2_);
-	rVal.append(transferAction3_);
-	rVal.append(transferAction4_);
-	rVal.append(transferAction5_);
-	rVal.append(transferAction6_);
-	return rVal;
+AMBeamlineListAction* SGMBeamline::transferLoadlockOutActions(){
+	if(!transferLoadLockOutAction_)
+		createTransferLoadLockOutActions();
+	return transferLoadLockOutAction_;
 }
 
-QList<AM1BeamlineActionItem*> SGMBeamline::transferLoadlockInActions() const {
-	QList<AM1BeamlineActionItem*> rVal;
-	rVal.append(transferAction7_);
-	rVal.append(transferAction8_);
-	rVal.append(transferAction9_);
-	rVal.append(transferAction10_);
-	rVal.append(transferAction11_);
-	rVal.append(transferAction12_);
-	return rVal;
+AMBeamlineListAction* SGMBeamline::transferLoadlockInActions(){
+	if(!transferLoadLockInAction_)
+		createTransferLoadLockInActions();
+	return transferLoadLockInAction_;
 }
 
-QList<AM1BeamlineActionItem*> SGMBeamline::transferChamberOutActions() const {
-	QList<AM1BeamlineActionItem*> rVal;
-	rVal.append(transferAction13_);
-	rVal.append(transferAction14_);
-	rVal.append(transferAction15_);
-	rVal.append(transferAction16_);
-	rVal.append(transferAction17_);
-	rVal.append(transferAction18_);
-	rVal.append(transferAction19_);
-	rVal.append(transferAction20_);
-	return rVal;
+AMBeamlineListAction* SGMBeamline::transferChamberOutActions(){
+	if(!transferChamberOutAction_)
+		createTransferChamberOutActions();
+	return transferChamberOutAction_;
 }
 
-QList<AM1BeamlineActionItem*> SGMBeamline::transferChamberInActions() const {
-	QList<AM1BeamlineActionItem*> rVal;
-	rVal.append(transferAction21_);
-	rVal.append(transferAction22_);
-	rVal.append(transferAction23_);
-	rVal.append(transferAction24_);
-	rVal.append(transferAction25_);
-	return rVal;
+AMBeamlineListAction* SGMBeamline::transferChamberInActions(){
+	if(!transferChamberInAction_)
+		createTransferChamberInActions();
+	return transferChamberInAction_;
 }
 
 bool SGMBeamline::isBeamlineScanning(){
@@ -1061,6 +1008,279 @@ void SGMBeamline::recomputeWarnings(){
 		beamlineWarnings_ = "";
 
 	emit beamlineWarningsChanged(beamlineWarnings_);
+}
+
+void SGMBeamline::createTransferLoadLockOutActions(){
+	if(!transferLoadLockOutControlSet_->isConnected())
+		return;
+	if(!transferLoadLockOutList_)
+		transferLoadLockOutList_ = new AMBeamlineParallelActionsList(this);
+	if(!transferLoadLockOutAction_)
+		transferLoadLockOutAction_ = new AMBeamlineListAction(transferLoadLockOutList_, this);
+	if(!transferLoadLockOutAction1_ && !transferLoadLockOutAction2_ && !transferLoadLockOutAction3_
+	   && !transferLoadLockOutAction4_ && !transferLoadLockOutAction5_ && !transferLoadLockOutAction6_){
+
+		transferLoadLockOutAction1_ = new AMBeamlineUserConfirmAction(this);
+		transferLoadLockOutAction1_->setMessage("Close the valve between the endstation and the loadlock");
+		transferLoadLockOutAction2_ = new AMBeamlineControlWaitAction(loadlockCCG_, AMBeamlineControlWaitAction::GreaterThanTarget, this);
+		transferLoadLockOutAction2_->setMessage("Turn off the CCG");
+		transferLoadLockOutAction2_->setWaitpoint(1e-3);
+		transferLoadLockOutAction3_ = new AMBeamlineUserConfirmAction(this);
+		transferLoadLockOutAction3_->setMessage("Close the roughing pump valve");
+		transferLoadLockOutAction4_ = new AMBeamlineUserConfirmAction(this);
+		transferLoadLockOutAction4_->setMessage("Turn off the turbo pump power");
+		transferLoadLockOutAction5_ = new AMBeamlineControlWaitAction(loadlockTCG_, AMBeamlineControlWaitAction::GreaterThanTarget, this);
+		transferLoadLockOutAction5_->setMessage("Wait for loadlock to reach air pressure");
+		transferLoadLockOutAction5_->setWaitpoint(700);
+		transferLoadLockOutAction6_ = new AMBeamlineUserConfirmAction(this);
+		transferLoadLockOutAction6_->setMessage("Open loadlock port");
+
+		/* NTBA April 1, 2011 David Chevrier
+		   Really concerned about this type of new-ing
+		*/
+		transferLoadLockOutList_->appendStage(new QList<AMBeamlineActionItem*>());
+		transferLoadLockOutList_->appendAction(0, transferLoadLockOutAction1_);
+		transferLoadLockOutList_->appendStage(new QList<AMBeamlineActionItem*>());
+		transferLoadLockOutList_->appendAction(0, transferLoadLockOutAction2_);
+		transferLoadLockOutList_->appendStage(new QList<AMBeamlineActionItem*>());
+		transferLoadLockOutList_->appendAction(0, transferLoadLockOutAction3_);
+		transferLoadLockOutList_->appendStage(new QList<AMBeamlineActionItem*>());
+		transferLoadLockOutList_->appendAction(0, transferLoadLockOutAction4_);
+		transferLoadLockOutList_->appendStage(new QList<AMBeamlineActionItem*>());
+		transferLoadLockOutList_->appendAction(0, transferLoadLockOutAction5_);
+		transferLoadLockOutList_->appendStage(new QList<AMBeamlineActionItem*>());
+		transferLoadLockOutList_->appendAction(0, transferLoadLockOutAction6_);
+		connect(transferLoadLockOutList_, SIGNAL(listSucceeded()), this, SLOT(onTransferLoadLockOutActionsFinished()));
+	}
+}
+
+void SGMBeamline::onTransferLoadLockOutActionsFinished(){
+	if(transferLoadLockOutAction1_ && transferLoadLockOutAction2_ && transferLoadLockOutAction3_
+	   && transferLoadLockOutAction4_ && transferLoadLockOutAction5_ && transferLoadLockOutAction6_){
+		disconnect(transferLoadLockOutList_, SIGNAL(listSucceeded()), this, SLOT(onTransferLoadLockOutActionsFinished()));
+		while(transferLoadLockOutList_->stageCount() > 0)
+			transferLoadLockOutList_->deleteStage(transferLoadLockOutList_->stageCount()-1);
+		delete transferLoadLockOutAction1_;
+		delete transferLoadLockOutAction2_;
+		delete transferLoadLockOutAction3_;
+		delete transferLoadLockOutAction4_;
+		delete transferLoadLockOutAction5_;
+		delete transferLoadLockOutAction6_;
+		delete transferLoadLockOutAction_;
+		transferLoadLockOutAction1_ = 0; //NULL
+		transferLoadLockOutAction2_ = 0; //NULL
+		transferLoadLockOutAction3_ = 0; //NULL
+		transferLoadLockOutAction4_ = 0; //NULL
+		transferLoadLockOutAction5_ = 0; //NULL
+		transferLoadLockOutAction6_ = 0; //NULL
+		transferLoadLockOutAction_ = 0; //NULL
+		createTransferLoadLockOutActions();
+	}
+}
+
+void SGMBeamline::createTransferLoadLockInActions(){
+	if(!transferLoadLockInControlSet_->isConnected())
+		return;
+	if(!transferLoadLockInList_)
+		transferLoadLockInList_ = new AMBeamlineParallelActionsList(this);
+	if(!transferLoadLockInAction_)
+		transferLoadLockInAction_ = new AMBeamlineListAction(transferLoadLockInList_, this);
+	if(!transferLoadLockInAction1_ && !transferLoadLockInAction2_ && !transferLoadLockInAction3_
+	   && !transferLoadLockInAction4_ && !transferLoadLockInAction5_ && !transferLoadLockInAction6_){
+
+		transferLoadLockInAction1_ = new AMBeamlineUserConfirmAction(this);
+		transferLoadLockInAction1_->setMessage("Close loadlock port");
+		transferLoadLockInAction2_ = new AMBeamlineUserConfirmAction(this);
+		transferLoadLockInAction2_->setMessage("Open the roughing pump valve");
+		transferLoadLockInAction3_ = new AMBeamlineControlWaitAction(loadlockTCG_, AMBeamlineControlWaitAction::LessThanTarget, this);
+		transferLoadLockInAction3_->setMessage("Wait for loadlock to reach rough vacuum");
+		transferLoadLockInAction3_->setWaitpoint(100);
+		transferLoadLockInAction4_ = new AMBeamlineUserConfirmAction(this);
+		transferLoadLockInAction4_->setMessage("Turn on the turbo pump power");
+		transferLoadLockInAction5_ = new AMBeamlineControlWaitAction(loadlockCCG_, AMBeamlineControlWaitAction::LessThanTarget, this);
+		transferLoadLockInAction5_->setMessage("Turn on the CCG");
+		transferLoadLockInAction5_->setWaitpoint(1e-4);
+		transferLoadLockInAction6_ = new AMBeamlineControlWaitAction(loadlockCCG_, AMBeamlineControlWaitAction::LessThanTarget, this);
+		transferLoadLockInAction6_->setMessage("Wait for loadlock to reach high vacuum");
+		transferLoadLockInAction6_->setWaitpoint(5e-6);
+
+		/* NTBA April 1, 2011 David Chevrier
+		   Really concerned about this type of new-ing
+		*/
+		transferLoadLockInList_->appendStage(new QList<AMBeamlineActionItem*>());
+		transferLoadLockInList_->appendAction(0, transferLoadLockInAction1_);
+		transferLoadLockInList_->appendStage(new QList<AMBeamlineActionItem*>());
+		transferLoadLockInList_->appendAction(0, transferLoadLockInAction2_);
+		transferLoadLockInList_->appendStage(new QList<AMBeamlineActionItem*>());
+		transferLoadLockInList_->appendAction(0, transferLoadLockInAction3_);
+		transferLoadLockInList_->appendStage(new QList<AMBeamlineActionItem*>());
+		transferLoadLockInList_->appendAction(0, transferLoadLockInAction4_);
+		transferLoadLockInList_->appendStage(new QList<AMBeamlineActionItem*>());
+		transferLoadLockInList_->appendAction(0, transferLoadLockInAction5_);
+		transferLoadLockInList_->appendStage(new QList<AMBeamlineActionItem*>());
+		transferLoadLockInList_->appendAction(0, transferLoadLockInAction6_);
+		connect(transferLoadLockInList_, SIGNAL(listSucceeded()), this, SLOT(onTransferLoadLockInActionsFinished()));
+	}
+}
+
+void SGMBeamline::onTransferLoadLockInActionsFinished(){
+	if(transferLoadLockInAction1_ && transferLoadLockInAction2_ && transferLoadLockInAction3_
+	   && transferLoadLockInAction4_ && transferLoadLockInAction5_ && transferLoadLockInAction6_){
+		disconnect(transferLoadLockInList_, SIGNAL(listSucceeded()), this, SLOT(onTransferLoadLockInActionsFinished()));
+		while(transferLoadLockInList_->stageCount() > 0)
+			transferLoadLockInList_->deleteStage(transferLoadLockInList_->stageCount()-1);
+		delete transferLoadLockInAction1_;
+		delete transferLoadLockInAction2_;
+		delete transferLoadLockInAction3_;
+		delete transferLoadLockInAction4_;
+		delete transferLoadLockInAction5_;
+		delete transferLoadLockInAction6_;
+		delete transferLoadLockInAction_;
+		transferLoadLockInAction1_ = 0; //NULL
+		transferLoadLockInAction2_ = 0; //NULL
+		transferLoadLockInAction3_ = 0; //NULL
+		transferLoadLockInAction4_ = 0; //NULL
+		transferLoadLockInAction5_ = 0; //NULL
+		transferLoadLockInAction6_ = 0; //NULL
+		transferLoadLockInAction_ = 0; //NULL
+		createTransferLoadLockInActions();
+	}
+}
+
+void SGMBeamline::createTransferChamberOutActions(){
+	if(!transferChamberOutList_)
+		transferChamberOutList_ = new AMBeamlineParallelActionsList(this);
+	if(!transferChamberOutAction_)
+		transferChamberOutAction_ = new AMBeamlineListAction(transferChamberOutList_, this);
+	if(!transferChamberOutAction1_ && !transferChamberOutAction2_ && !transferChamberOutAction3_
+	   && !transferChamberOutAction4_ && !transferChamberOutAction5_ && !transferChamberOutAction6_
+	   && !transferChamberOutAction7_ && !transferChamberOutAction8_){
+
+		transferChamberOutAction1_ = new AMBeamlineUserConfirmAction(this);
+		transferChamberOutAction1_->setMessage("Close Endstation Vacuum Valve");
+		transferChamberOutAction2_ = new AMBeamlineUserConfirmAction(this);
+		transferChamberOutAction2_->setMessage("Turn off Detector High Voltage");
+		transferChamberOutAction3_ = new AMBeamlineUserConfirmAction(this);
+		transferChamberOutAction3_->setMessage("Retract Detectors");
+		transferChamberOutAction4_ = new AMBeamlineUserConfirmAction(this);
+		transferChamberOutAction4_->setMessage("Move to Transfer Position");
+		transferChamberOutAction5_ = new AMBeamlineUserConfirmAction(this);
+		transferChamberOutAction5_->setMessage("Confirm Loadlock at High Vacuum");
+		transferChamberOutAction6_ = new AMBeamlineUserConfirmAction(this);
+		transferChamberOutAction6_->setMessage("Open Transfer Valve");
+		transferChamberOutAction7_ = new AMBeamlineUserConfirmAction(this);
+		transferChamberOutAction7_->setMessage("Transfer Sample Out");
+		transferChamberOutAction8_ = new AMBeamlineUserConfirmAction(this);
+		transferChamberOutAction8_->setMessage("Close Transfer Valve");
+
+		/* NTBA April 1, 2011 David Chevrier
+		   Really concerned about this type of new-ing
+		*/
+		transferChamberOutList_->appendStage(new QList<AMBeamlineActionItem*>());
+		transferChamberOutList_->appendAction(0, transferChamberOutAction1_);
+		transferChamberOutList_->appendStage(new QList<AMBeamlineActionItem*>());
+		transferChamberOutList_->appendAction(0, transferChamberOutAction2_);
+		transferChamberOutList_->appendStage(new QList<AMBeamlineActionItem*>());
+		transferChamberOutList_->appendAction(0, transferChamberOutAction3_);
+		transferChamberOutList_->appendStage(new QList<AMBeamlineActionItem*>());
+		transferChamberOutList_->appendAction(0, transferChamberOutAction4_);
+		transferChamberOutList_->appendStage(new QList<AMBeamlineActionItem*>());
+		transferChamberOutList_->appendAction(0, transferChamberOutAction5_);
+		transferChamberOutList_->appendStage(new QList<AMBeamlineActionItem*>());
+		transferChamberOutList_->appendAction(0, transferChamberOutAction6_);
+		transferChamberOutList_->appendStage(new QList<AMBeamlineActionItem*>());
+		transferChamberOutList_->appendAction(0, transferChamberOutAction7_);
+		transferChamberOutList_->appendStage(new QList<AMBeamlineActionItem*>());
+		transferChamberOutList_->appendAction(0, transferChamberOutAction8_);
+		connect(transferChamberOutList_, SIGNAL(listSucceeded()), this, SLOT(onTransferChamberOutActionsFinished()));
+	}
+}
+
+void SGMBeamline::onTransferChamberOutActionsFinished(){
+	if(transferChamberOutAction1_ && transferChamberOutAction2_ && transferChamberOutAction3_
+	   && transferChamberOutAction4_ && transferChamberOutAction5_ && transferChamberOutAction6_
+	   && transferChamberOutAction7_ && transferChamberOutAction8_){
+		disconnect(transferChamberOutList_, SIGNAL(listSucceeded()), this, SLOT(onTransferChamberOutActionsFinished()));
+		while(transferChamberOutList_->stageCount() > 0)
+			transferChamberOutList_->deleteStage(transferChamberOutList_->stageCount()-1);
+		delete transferChamberOutAction1_;
+		delete transferChamberOutAction2_;
+		delete transferChamberOutAction3_;
+		delete transferChamberOutAction4_;
+		delete transferChamberOutAction5_;
+		delete transferChamberOutAction6_;
+		delete transferChamberOutAction7_;
+		delete transferChamberOutAction8_;
+		delete transferChamberOutAction_;
+		transferChamberOutAction1_ = 0; //NULL
+		transferChamberOutAction2_ = 0; //NULL
+		transferChamberOutAction3_ = 0; //NULL
+		transferChamberOutAction4_ = 0; //NULL
+		transferChamberOutAction5_ = 0; //NULL
+		transferChamberOutAction6_ = 0; //NULL
+		transferChamberOutAction7_ = 0; //NULL
+		transferChamberOutAction8_ = 0; //NULL
+		transferChamberOutAction_ = 0; //NULL
+		createTransferChamberOutActions();
+	}
+}
+
+void SGMBeamline::createTransferChamberInActions(){
+	if(!transferChamberInList_)
+		transferChamberInList_ = new AMBeamlineParallelActionsList(this);
+	if(!transferChamberInAction_)
+		transferChamberInAction_ = new AMBeamlineListAction(transferChamberInList_, this);
+	if(!transferChamberInAction1_ && !transferChamberInAction2_ && !transferChamberInAction3_
+	   && !transferChamberInAction4_ && !transferChamberInAction5_){
+
+		transferChamberInAction1_ = new AMBeamlineUserConfirmAction(this);
+		transferChamberInAction1_->setMessage("Confirm Loadlock at High Vacuum");
+		transferChamberInAction2_ = new AMBeamlineUserConfirmAction(this);
+		transferChamberInAction2_->setMessage("Open Transfer Valve");
+		transferChamberInAction3_ = new AMBeamlineUserConfirmAction(this);
+		transferChamberInAction3_->setMessage("Transfer Sample In");
+		transferChamberInAction4_ = new AMBeamlineUserConfirmAction(this);
+		transferChamberInAction4_->setMessage("Close Transfer Valve");
+		transferChamberInAction5_ = new AMBeamlineUserConfirmAction(this);
+		transferChamberInAction5_->setMessage("Turn on Detector High Voltage");
+
+		/* NTBA April 1, 2011 David Chevrier
+		   Really concerned about this type of new-ing
+		*/
+		transferChamberInList_->appendStage(new QList<AMBeamlineActionItem*>());
+		transferChamberInList_->appendAction(0, transferChamberInAction1_);
+		transferChamberInList_->appendStage(new QList<AMBeamlineActionItem*>());
+		transferChamberInList_->appendAction(0, transferChamberInAction2_);
+		transferChamberInList_->appendStage(new QList<AMBeamlineActionItem*>());
+		transferChamberInList_->appendAction(0, transferChamberInAction3_);
+		transferChamberInList_->appendStage(new QList<AMBeamlineActionItem*>());
+		transferChamberInList_->appendAction(0, transferChamberInAction4_);
+		transferChamberInList_->appendStage(new QList<AMBeamlineActionItem*>());
+		transferChamberInList_->appendAction(0, transferChamberInAction5_);
+		connect(transferChamberInList_, SIGNAL(listSucceeded()), this, SLOT(onTransferChamberInActionsFinished()));
+	}
+}
+
+void SGMBeamline::onTransferChamberInActionsFinished(){
+	if(transferChamberInAction1_ && transferChamberInAction2_ && transferChamberInAction3_
+	   && transferChamberInAction4_ && transferChamberInAction5_){
+		disconnect(transferChamberInList_, SIGNAL(listSucceeded()), this, SLOT(onTransferChamberInActionsFinished()));
+		while(transferChamberInList_->stageCount() > 0)
+			transferChamberInList_->deleteStage(transferChamberInList_->stageCount()-1);
+		delete transferChamberInAction1_;
+		delete transferChamberInAction2_;
+		delete transferChamberInAction3_;
+		delete transferChamberInAction4_;
+		delete transferChamberInAction5_;
+		delete transferChamberInAction_;
+		transferChamberInAction1_ = 0; //NULL
+		transferChamberInAction2_ = 0; //NULL
+		transferChamberInAction3_ = 0; //NULL
+		transferChamberInAction4_ = 0; //NULL
+		transferChamberInAction5_ = 0; //NULL
+		transferChamberInAction_ = 0; //NULL
+		createTransferChamberInActions();
+	}
 }
 
 void SGMBeamline::createBeamOnActions(){

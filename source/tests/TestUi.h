@@ -165,7 +165,7 @@ private slots:
 		scene->addItem(g);
 		g->setVisible(true);
 		g->setGeometry(QRectF(0,0,240,180));
-		g->setWidth(240);
+		g->setDefaultWidth(240);
 		view->setSceneRect(0,0,400,400);
 		qDebug() << "widget is active:" << g->isActive();
 		qDebug() << "scene is active:" << scene->isActive();
