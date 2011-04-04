@@ -179,10 +179,7 @@ void VESPERSBeamline::setupSingleElementDetector()
 	peakingTime1E_ = new AMPVControl("1-el Peaking Time", "IOC1607-004:dxp1.PKTIM", "IOC1607-004:dxp1.PKTIM", QString(), this);
 	spectrum1E_ = new AMReadOnlyPVControl("1-el Spectrum", "IOC1607-004:mca1", this);
 
-	/// \todo For all the AMPVControl's add a disablePutCallback so that the system works as expected.  Needs an implementation of disablePutCallback for the control.
-	// MCA records behave incorrectly when using the ca_put_callback epics callback.  Need to use ca_put only.
-	//integrationTime1E_->
-
+	// Putting the controls into their own control set.
 	vortex1EControls_ = new AMControlSet(this);
 	vortex1EControls_->addControl(elapsedTime1E_);
 	vortex1EControls_->addControl(integrationTime1E_);
@@ -194,6 +191,15 @@ void VESPERSBeamline::setupSingleElementDetector()
 	vortex1EControls_->addControl(mcaUpdateRate1E_);
 	vortex1EControls_->addControl(peakingTime1E_);
 	vortex1EControls_->addControl(spectrum1E_);
+
+	// MCA records behave incorrectly when using the ca_put_callback epics callback.  Need to use ca_put only.
+	AMPVControl *temp;
+	for (int i = 0; i < vortex1EControls_->count(); i++){
+
+		temp = qobject_cast<AMPVControl *>(vortex1EControls_->at(i)); // Since AMReadOnlyPVControl is an ancestor of AMPVControl, this will return null if it's not AMPVControl.
+		if (temp)
+			temp->disableWritePVPutCallback(true);
+	}
 }
 
 void VESPERSBeamline::setupControlSets()
