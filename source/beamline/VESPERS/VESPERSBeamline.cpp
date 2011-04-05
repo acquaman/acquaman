@@ -25,6 +25,7 @@ VESPERSBeamline::VESPERSBeamline()
 	setupDiagnostics();
 	setupEndstation();
 	setupSingleElementDetector();
+	setupFourElementDetector();
 	setupControlSets();
 }
 
@@ -200,6 +201,57 @@ void VESPERSBeamline::setupSingleElementDetector()
 		if (temp)
 			temp->disableWritePVPutCallback(true);
 	}
+}
+
+void VESPERSBeamline::setupFourElementDetector()
+{
+	elapsedTime4E_ = new AMReadOnlyPVControl("4-el Elapsed Time", "dxp1607-B21-04:ElaspedReal", this);
+	integrationTime4E_ = new AMPVControl("4-el Integration Time", "dxp1607-B21-04:PresetReal", "dxp1607-B21-04:PresetReal", QString(), this);
+	liveTime4E_ = new AMPVControl("4-el Live Time", "dxp1607-B21-04:PresetLive", "dxp1607-B21-04:PresetLive", QString(), this);
+	start4E_ = new AMPVControl("4-el Start", "dxp1607-B21-04:EraseStart", "dxp1607-B21-04:EraseStart", QString(), this);
+	stop4E_ = new AMPVControl("4-el Stop", "dxp1607-B21-04:StopAll", "dxp1607-B21-04:StopAll", QString(), this);
+	maxEnergy4E_ = new AMPVControl("4-el Maximum Energy", "dxp1607-B21-04:mcaEMax", "dxp1607-B21-04:mcaEMax", QString(), this);
+	mcaUpdateRate4E_ = new AMPVControl("4-el MCA Update Rate", "dxp1607-B21-04:ReadAll.SCAN", "dxp1607-B21-04:ReadAll.SCAN", QString(), this);
+	peakingTime4E_ = new AMPVControl("4-el Peaking Time", "dxp1607-B21-04:EnergyPkTime", "dxp1607-B21-04:EnergyPkTime", QString(), this);
+	deadTime14E_ = new AMReadOnlyPVControl("4-el Dead Time 1", "dxp1607-B21-04:dxp1.NetDTP", this);
+	deadTime24E_ = new AMReadOnlyPVControl("4-el Dead Time 2", "dxp1607-B21-04:dxp2.NetDTP", this);
+	deadTime34E_ = new AMReadOnlyPVControl("4-el Dead Time 3", "dxp1607-B21-04:dxp3.NetDTP", this);
+	deadTime44E_ = new AMReadOnlyPVControl("4-el Dead Time 4", "dxp1607-B21-04:dxp4.NetDTP", this);
+	rawSpectrum14E_ = new AMReadOnlyPVControl("4-el Raw Spectrum 1", "dxp1607-B21-04:mca1", this);
+	rawSpectrum24E_ = new AMReadOnlyPVControl("4-el Raw Spectrum 2", "dxp1607-B21-04:mca2", this);
+	rawSpectrum34E_ = new AMReadOnlyPVControl("4-el Raw Spectrum 3", "dxp1607-B21-04:mca3", this);
+	rawSpectrum44E_ = new AMReadOnlyPVControl("4-el Raw Spectrum 4", "dxp1607-B21-04:mca4", this);
+
+	deadTime4E_ = new AMControlSet(this);
+	deadTime4E_->addControl(deadTime14E_);
+	deadTime4E_->addControl(deadTime24E_);
+	deadTime4E_->addControl(deadTime34E_);
+	deadTime4E_->addControl(deadTime44E_);
+
+	spectra4E_ = new AMControlSet(this);
+	spectra4E_->addControl(rawSpectrum14E_);
+	spectra4E_->addControl(rawSpectrum24E_);
+	spectra4E_->addControl(rawSpectrum34E_);
+	spectra4E_->addControl(rawSpectrum44E_);
+
+	// This will hold all of the controls.  Unfortunately, the grouping for the dead time and spectra will be lost.  If those are what you'd actually be interested in then use their specific control sets.  That's why they were created.
+	vortex4EControls_ = new AMControlSet(this);
+	vortex4EControls_->addControl(elapsedTime4E_);
+	vortex4EControls_->addControl(integrationTime4E_);
+	vortex4EControls_->addControl(liveTime4E_);
+	vortex4EControls_->addControl(start4E_);
+	vortex4EControls_->addControl(stop4E_);
+	vortex4EControls_->addControl(maxEnergy4E_);
+	vortex4EControls_->addControl(mcaUpdateRate4E_);
+	vortex4EControls_->addControl(peakingTime4E_);
+	vortex4EControls_->addControl(deadTime14E_);
+	vortex4EControls_->addControl(deadTime24E_);
+	vortex4EControls_->addControl(deadTime34E_);
+	vortex4EControls_->addControl(deadTime44E_);
+	vortex4EControls_->addControl(rawSpectrum14E_);
+	vortex4EControls_->addControl(rawSpectrum24E_);
+	vortex4EControls_->addControl(rawSpectrum34E_);
+	vortex4EControls_->addControl(rawSpectrum44E_);
 }
 
 void VESPERSBeamline::setupControlSets()
@@ -573,4 +625,23 @@ VESPERSBeamline::~VESPERSBeamline()
 	delete peakingTime1E_;
 	delete spectrum1E_;
 	delete vortex1EControls_;
+	delete elapsedTime4E_;
+	delete integrationTime4E_;
+	delete liveTime4E_;
+	delete start4E_;
+	delete stop4E_;
+	delete maxEnergy4E_;
+	delete mcaUpdateRate4E_;
+	delete peakingTime4E_;
+	delete deadTime14E_;
+	delete deadTime24E_;
+	delete deadTime34E_;
+	delete deadTime44E_;
+	delete rawSpectrum14E_;
+	delete rawSpectrum24E_;
+	delete rawSpectrum34E_;
+	delete rawSpectrum44E_;
+	delete deadTime4E_;
+	delete spectra4E_;
+	delete vortex4EControls_;
 }

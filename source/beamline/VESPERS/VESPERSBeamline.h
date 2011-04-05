@@ -283,6 +283,45 @@ public:
 	/// Returns the spectrum control for the single element vortex detector.
 	AMControl *spectrum1E() const { return spectrum1E_; }
 
+	// These are the four element vortex controls.
+
+	/// Returns the elapsed time control for the four element vortex detector.
+	AMControl *elapsedTime4E() const { return elapsedTime4E_; }
+	/// Returns the integration time control for the four element vortex detector.
+	AMControl *integrationTime4E() const { return integrationTime4E_; }
+	/// Returns the live time control for the four element vortex detector.
+	AMControl *liveTime4E() const { return liveTime4E_; }
+	/// Returns the start control for the four element vortex detector.
+	AMControl *start4E() const { return start4E_; }
+	/// Returns the stop control for the four element vortex detector.
+	AMControl *stop4E() const { return stop4E_; }
+	/// Returns the maximum energy control for the four element vortex detector.
+	AMControl *maxEnergy4E() const { return maxEnergy4E_; }
+	/// Returns the spectrum refresh rate control for the four element vortex detector.
+	AMControl *mcaUpdateRate4E() const { return mcaUpdateRate4E_; }
+	/// Returns the peaking time control for the four element vortex detector.
+	AMControl *peakingTime4E() const { return peakingTime4E_; }
+	/// Returns the dead time of element 1 for the four element vortex detector.
+	AMControl *deadTime14E() const { return deadTime14E_; }
+	/// Returns the dead time of element 2 for the four element vortex detector.
+	AMControl *deadTime24E() const { return deadTime24E_; }
+	/// Returns the dead time of element 3 for the four element vortex detector.
+	AMControl *deadTime34E() const { return deadTime34E_; }
+	/// Returns the dead time of element 4 for the four element vortex detector.
+	AMControl *deadTime44E() const { return deadTime44E_; }
+	/// Returns dead time set with all four dead time sets.
+	AMControlSet *deadTime4E() const { return deadTime4E_; }
+	/// Returns raw spectrum 1 for the four element vortex detector.
+	AMControl *rawSpectrum14E() const { return rawSpectrum14E_; }
+	/// Returns raw spectrum 2 for the four element vortex detector.
+	AMControl *rawSpectrum24E() const { return rawSpectrum24E_; }
+	/// Returns raw spectrum 3 for the four element vortex detector.
+	AMControl *rawSpectrum34E() const { return rawSpectrum34E_; }
+	/// Returns raw spectrum 4 for the four element vortex detector.
+	AMControl *rawSpectrum44E() const { return rawSpectrum44E_; }
+	/// Returns the raw spectrum set with all four raw spectra in the four element detector.
+	AMControlSet *spectra4E() const { return spectra4E_; }
+
 	// These Control Sets are logical groups of controls, that are commonly used by different Acquaman components
 
 	/// Returns the pressure control set.
@@ -301,6 +340,8 @@ public:
 	AMControlSet *endstationMotorSet() const { return endstationMotorSet_; }
 	/// Returns the single element vortex control set.
 	AMControlSet *vortex1EControls() const { return vortex1EControls_; }
+	/// Returns the four element vortex control set.
+	AMControlSet *vortex4EControls() const { return vortex4EControls_; }
 
 	// These are PVs that are needed for random small jobs around the beamline.
 
@@ -336,6 +377,8 @@ protected:
 	void setupEndstation();
 	/// Sets up all the controls for the single element detector.
 	void setupSingleElementDetector();
+	/// Sets up all the controls for the four element detector.
+	void setupFourElementDetector();
 
 	/// Constructor. This is a singleton class; access it through VESPERSBeamline::vespers().
 	VESPERSBeamline();
@@ -505,6 +548,30 @@ protected:
 
 	AMControlSet *vortex1EControls_;
 	// End single element vortex detector.
+
+	// Four element vortex detector.
+
+	AMControl *elapsedTime4E_;
+	AMControl *integrationTime4E_;
+	AMControl *liveTime4E_;
+	AMControl *start4E_;
+	AMControl *stop4E_;
+	AMControl *maxEnergy4E_;
+	AMControl *mcaUpdateRate4E_;
+	AMControl *peakingTime4E_;
+	AMControl *deadTime14E_;
+	AMControl *deadTime24E_;
+	AMControl *deadTime34E_;
+	AMControl *deadTime44E_;
+	AMControl *rawSpectrum14E_;
+	AMControl *rawSpectrum24E_;
+	AMControl *rawSpectrum34E_;
+	AMControl *rawSpectrum44E_;
+
+	AMControlSet *deadTime4E_;
+	AMControlSet *spectra4E_;
+	AMControlSet *vortex4EControls_;
+	// End four element vortex detector.
 };
 
 #endif // VESPERSBEAMLINE_H
