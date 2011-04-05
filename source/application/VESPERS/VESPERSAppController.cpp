@@ -35,22 +35,11 @@ bool VESPERSAppController::startup() {
 		mw_->insertHeading("VESPERS", 0);
 		mw_->addPane(vespersView_, "VESPERS", "Endstation Control", ":/utilities-system-monitor.png");
 
-		XRFDetector *xrf1E = new XRFDetector("Single Element XRF",
-					VESPERSBeamline::vespers()->mcaUpdateRate1E(),
-					VESPERSBeamline::vespers()->peakingTime1E(),
-					VESPERSBeamline::vespers()->maxEnergy1E(),
-					VESPERSBeamline::vespers()->integrationTime1E(),
-					VESPERSBeamline::vespers()->liveTime1E(),
-					VESPERSBeamline::vespers()->elapsedTime1E(),
-					VESPERSBeamline::vespers()->start1E(),
-					VESPERSBeamline::vespers()->stop1E(),
-					VESPERSBeamline::vespers()->deadTime1E(),
-					VESPERSBeamline::vespers()->spectrum1E(),
-					this);
+		XRFBriefDetectorView *xrf1EView = new XRFBriefDetectorView(VESPERSBeamline::vespers()->vortexXRF1E());
+		XRFBriefDetectorView *xrf4EView = new XRFBriefDetectorView(VESPERSBeamline::vespers()->vortexXRF4E());
 
-		XRFBriefDetectorView *xrfView = new XRFBriefDetectorView(xrf1E, false);
-
-		mw_->addPane(xrfView, "VESPERS", "Fluorescence", ":/utilities-system-monitor.png");
+		mw_->addPane(xrf1EView, "VESPERS", "Fluorescence", ":/utilities-system-monitor.png");
+		mw_->addPane(xrf4EView, "VESPERS", "4-el Vortex", ":/utilities-system-monitor.png");
 
 		return true;
 	}

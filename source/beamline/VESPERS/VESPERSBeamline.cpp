@@ -201,6 +201,19 @@ void VESPERSBeamline::setupSingleElementDetector()
 		if (temp)
 			temp->disableWritePVPutCallback(true);
 	}
+
+	vortex1E_ = new XRFDetector("Single Element XRF",
+								mcaUpdateRate1E_,
+								peakingTime1E_,
+								maxEnergy1E_,
+								integrationTime1E_,
+								liveTime1E_,
+								elapsedTime1E_,
+								start1E_,
+								stop1E_,
+								deadTime1E_,
+								spectrum1E_,
+								this);
 }
 
 void VESPERSBeamline::setupFourElementDetector()
@@ -252,6 +265,29 @@ void VESPERSBeamline::setupFourElementDetector()
 	vortex4EControls_->addControl(rawSpectrum24E_);
 	vortex4EControls_->addControl(rawSpectrum34E_);
 	vortex4EControls_->addControl(rawSpectrum44E_);
+
+	// MCA records behave incorrectly when using the ca_put_callback epics callback.  Need to use ca_put only.
+	AMPVControl *temp;
+	for (int i = 0; i < vortex4EControls_->count(); i++){
+
+		temp = qobject_cast<AMPVControl *>(vortex4EControls_->at(i)); // Since AMReadOnlyPVControl is an ancestor of AMPVControl, this will return null if it's not AMPVControl.
+		if (temp)
+			temp->disableWritePVPutCallback(true);
+	}
+
+	vortex4E_ = new XRFDetector("Four Element XRF",
+								4,
+								mcaUpdateRate4E_,
+								peakingTime4E_,
+								maxEnergy4E_,
+								integrationTime4E_,
+								liveTime4E_,
+								elapsedTime4E_,
+								start4E_,
+								stop4E_,
+								deadTime4E_,
+								spectra4E_,
+								this);
 }
 
 void VESPERSBeamline::setupControlSets()

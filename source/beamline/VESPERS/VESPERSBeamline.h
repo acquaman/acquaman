@@ -23,7 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMBeamline.h"
 #include "beamline/AMControlSet.h"
 #include "util/AMErrorMonitor.h"
-#include "beamline/AMDetector.h"
+#include "beamline/VESPERS/XRFDetector.h"
 
 /// This class
 class VESPERSBeamline : public AMBeamline
@@ -37,6 +37,17 @@ public:
 	}
 
 	~VESPERSBeamline();
+
+	// Accessing detectors.
+
+	/// Returns a general AMDetector pointer of the single element XRF detector.
+	AMDetector *vortexAM1E() const { return vortex1E_; }
+	/// Returns the specific XRFDetector pointer of the single element XRF detector.
+	XRFDetector *vortexXRF1E() const { return (XRFDetector *)vortex1E_; }
+	/// Returns a general AMDetector pointer of the four element XRF detector.
+	AMDetector *vortexAM4E() const { return vortex4E_; }
+	/// Returns the specific XRFDetector pointer of the single element XRF detector.
+	XRFDetector *vortexXRF4E() const { return (XRFDetector *)vortex4E_; }
 
 	// Accessing control elements:
 
@@ -385,6 +396,7 @@ protected:
 
 	// Detectors.
 	AMDetector *vortex1E_;
+	AMDetector *vortex4E_;
 
 	// End detectors.
 
