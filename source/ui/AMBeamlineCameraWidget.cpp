@@ -161,3 +161,4 @@ void AMBeamlineCameraWidget::addSource(const QString& cameraName, const QUrl& ca
 
 	cameraList_->addItem(cameraName, QVariant::fromValue(cameraAddress));
 }
+
