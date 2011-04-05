@@ -170,6 +170,8 @@ AMStatusLogView::AMStatusLogView(QWidget *parent)
 	logView_->setMinimumWidth(320);
 
 	logView_->setSelectionBehavior(QAbstractItemView::SelectRows);
+	logView_->setSelectionMode(QAbstractItemView::ExtendedSelection);
+	logView_->setEditTriggers(QTableView::NoEditTriggers);
 
 	resize(400, 120);
 

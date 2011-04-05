@@ -31,17 +31,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 /// This class represents instances of objects that map to Runs in the database of user information. It provides a simple example of how to subclass AMDbObject to create your own C++ object that can be easily stored in the database, and exploit the general meta-data management system.
 
-/*!
-<b>Notes for subclassing AMDbObject, to create more detailed storable data types:</b>
-- Include the Q_OBJECT macro so that Qt's meta-object system knows your class is a distinct type.
-- You must re-implement metaDataKeys(), metaDataUniqueKeys(), and metaDataAllKeys(), calling the base class where appropriate.
-- It's recommended to initialize your meta-data pieces (metaDataUniqueKeys()) inside metaData_ in the constructor.
-- If you need to load or save anything more than your metaData_, you must re-implement loadFromDb() and storeToDb()
-- If you want to store yourself anywhere but in the main object table, you must re-implement databaseTableName().  (For example, AMRuns overload databaseTableName() to return AMDatabaseDefinition::RunTableName(), hence making sure that they are stored in a separate table.)
-- If you want to have non-blank thumbnails, you must provide thumbnailCount() and thumbnail(int index).
-*/
-
-
 /// AMRun's happen at AMFacility's... This is a lightweight class to store facility information in the database.
 class AMFacility : public AMDbObject
 {
