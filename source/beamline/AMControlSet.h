@@ -84,6 +84,9 @@ signals:
 	void connected(bool groupConnected);
 	void controlConnectedChanged(bool isConnected, AMControl *control);
 
+	/// This signal is emitted if any of the controls in the set have timed out.
+	void controlSetTimedOut();
+
 	/// This signal is emitted whenever one of the controls has a new value
 	void controlSetValuesChanged(AMControlInfoList);
 
