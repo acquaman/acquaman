@@ -32,14 +32,15 @@ bool VESPERSAppController::startup() {
 		////////////////////////////////////
 
 		vespersView_ = new VESPERSBeamlineView;
-		mw_->insertHeading("VESPERS", 0);
-		mw_->addPane(vespersView_, "VESPERS", "Endstation Control", ":/utilities-system-monitor.png");
+		mw_->insertHeading("Beamline Control", 0);
+		mw_->addPane(vespersView_, "Beamline Control", "Endstation", ":/system-software-update.png");
 
 		XRFBriefDetectorView *xrf1EView = new XRFBriefDetectorView(VESPERSBeamline::vespers()->vortexXRF1E());
 		XRFBriefDetectorView *xrf4EView = new XRFBriefDetectorView(VESPERSBeamline::vespers()->vortexXRF4E());
 
-		mw_->addPane(xrf1EView, "VESPERS", "Fluorescence", ":/utilities-system-monitor.png");
-		mw_->addPane(xrf4EView, "VESPERS", "4-el Vortex", ":/utilities-system-monitor.png");
+		mw_->insertHeading("Experiment Setup", 1);
+		mw_->addPane(xrf1EView, "Experiment Setup", "Fluorescence", ":/utilities-system-monitor.png");
+		mw_->addPane(xrf4EView, "Experiment Setup", "4-el Vortex", ":/utilities-system-monitor.png");
 
 		return true;
 	}

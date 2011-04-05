@@ -3,6 +3,9 @@
 #include <QToolButton>
 #include <QHBoxLayout>
 
+// Brief detector view
+/////////////////////////////////////////////
+
 XRFBriefDetectorView::XRFBriefDetectorView(XRFDetector *detector, bool configureOnly, QWidget *parent)
 	: AMBriefDetectorView(configureOnly, parent)
 {
@@ -44,3 +47,22 @@ void XRFBriefDetectorView::onDeadTimeUpdate()
 {
 	deadTime_->setText(QString::number(detector_->deadTime()) + " %");
 }
+
+// End brief detector view
+////////////////////////////////////////////////////
+
+// Detailed detector view
+///////////////////////////////////////////////////
+XRFDetailedDetectorView::XRFDetailedDetectorView(XRFDetector *detector, bool configureOnly, QWidget *parent)
+	: AMDetailedDetectorView(configureOnly, parent)
+{
+
+}
+
+bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOnly)
+{
+	return false;
+}
+
+// End detailed detector view
+/////////////////////////////////////////////////////

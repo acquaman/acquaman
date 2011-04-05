@@ -44,10 +44,29 @@ protected:
 
 };
 
-/*class XRFDetailedView : public AMDetailedDetectorView
+class XRFDetailedDetectorView : public AMDetailedDetectorView
 {
 	/// This class builds the detailed view for viewing XRF detector data.  It should be able to read in an XRFDetector object and build a view based on the data contained within it.
 
-};*/
+	Q_OBJECT
+public:
+
+	/// Default contructor.  Can build a view with a null pointer (ie: not a useful view) if necessary.
+	Q_INVOKABLE explicit XRFDetailedDetectorView(XRFDetector *detector = 0, bool configureOnly = false, QWidget *parent = 0);
+
+	/// Returns a pointer to the detector being viewed.
+	AMDetector *detector() { return detector_; }
+
+signals:
+
+protected:
+
+	/*! Sets up the view based with the given detector.
+	 We are trusting createDetectorView to pass in the correct type of detector, sub classes should trust AMDetector is actually their type. */
+	bool setDetector(AMDetector *detector, bool configureOnly);
+
+	/// The pointer to the detector.
+	XRFDetector *detector_;
+};
 
 #endif // XRFDETECTORVIEW_H

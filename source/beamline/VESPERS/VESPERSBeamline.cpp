@@ -337,6 +337,9 @@ void VESPERSBeamline::setupControlSets()
 	valveSet_->addControl(vvrPreWindow_);
 	valveSet_->addControl(vvrPostWindow_);
 
+	connect(valveSet_, SIGNAL(connected(bool)), this, SLOT(valveError()));
+	connect(valveSet_, SIGNAL(controlSetValuesChanged(AMControlInfoList)), this, SLOT(valveError()));
+
 	// Grouping the ion pump controls together.
 	ionPumpSet_ = new AMControlSet(this);
 	ionPumpSet_->addControl(iopFE1a_);
@@ -448,6 +451,29 @@ void VESPERSBeamline::pressureError()
 
 		error.prepend("The following pressure readings are at a critical level:\n");
 		AMErrorMon::report(AMErrorReport(pressureSet_, AMErrorReport::Serious, 0, error));
+	}
+}
+
+void VESPERSBeamline::valveError()
+{qDebug() << valveSet_->isConnected();
+	if (!valveSet_->isConnected())
+		return;
+
+	QString error("");
+	AMReadOnlyPVControl *current;
+
+	for (int i = 0; i < valveSet_->count(); i++){
+
+		current = qobject_cast<AMReadOnlyPVControl *>(valveSet_->at(i));
+
+		if (current->readPV()->getInt() == 4) // Closed is enum = 4.
+			error += QString("%1 (%2)\n").arg(current->name(), current->readPVName());
+	}
+
+	if (!error.isEmpty()){
+
+		error.prepend("The following valves are closed:\n");
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, 0, error));
 	}
 }
 

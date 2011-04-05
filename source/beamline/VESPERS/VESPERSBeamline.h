@@ -370,6 +370,8 @@ signals:
 protected slots:
 	/// Slot used to deal with pressure errors.
 	void pressureError();
+	/// Slot used to deal with valve errors.
+	void valveError();
 	/// Slot used to deal with ion pump errors.
 	void ionPumpError();
 	/// Slot used to deal with temperature errors.
