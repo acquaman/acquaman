@@ -5,6 +5,7 @@
 #include "beamline/VESPERS/XRFDetector.h"
 
 #include <QLabel>
+#include <QDoubleSpinBox>
 
 class XRFBriefDetectorView : public AMBriefDetectorView
 {
@@ -67,6 +68,15 @@ protected:
 
 	/// The pointer to the detector.
 	XRFDetector *detector_;
+
+	/// The integration time line edit.
+	QDoubleSpinBox *integrationTime_;
+	/// The elapsed time label.
+	QLabel *elapsedTime_;
+	/// The dead time label.
+	QLabel *deadTime_;
+	/// The waterfall separation spin box.
+	QDoubleSpinBox *waterfall_;
 };
 
 #endif // XRFDETECTORVIEW_H

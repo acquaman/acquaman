@@ -27,4 +27,5 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
     source/ui/VESPERS/XRFDetectorView.cpp
 
 RESOURCES += \
-	source/ui/VESPERS/EndstationPictures.qrc
+	source/ui/VESPERS/EndstationPictures.qrc \
+    source/ui/VESPERS/vespersIcons.qrc

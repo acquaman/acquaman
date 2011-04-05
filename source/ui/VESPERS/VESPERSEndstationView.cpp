@@ -79,10 +79,10 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	connect(micLightPV_, SIGNAL(valueChanged()), this, SLOT(micLightUpdate()));
 	connect(micLight_, SIGNAL(valueChanged(int)), micLightPV_, SLOT(setValue(int)));
 
-	QToolButton *lightBulb = new QToolButton;
-	lightBulb->setIcon(QIcon(":/lightbulb.png"));
-	lightBulb->setCheckable(true);
-	connect(lightBulb, SIGNAL(toggled(bool)), this, SLOT(lightBulbToggled(bool)));
+	lightBulb_ = new QToolButton;
+	lightBulb_->setIcon(QIcon(":/lightbulb.png"));
+	lightBulb_->setCheckable(true);
+	connect(lightBulb_, SIGNAL(toggled(bool)), this, SLOT(lightBulbToggled(bool)));
 
 	// Main control group box setup.
 	QGroupBox *controlGB = new QGroupBox;
@@ -100,7 +100,7 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	controlGBLayout->addWidget(singleElButton_, 15, 5, 2, 3);
 	controlGBLayout->addWidget(fourElButton_, 16, 11, 2, 3);
 	controlGBLayout->addWidget(focusButton_, 12, 11, 2, 3);
-	controlGBLayout->addWidget(lightBulb, 7, 5, 2, 2);
+	controlGBLayout->addWidget(lightBulb_, 7, 5, 2, 2);
 	controlGBLayout->addWidget(micLight_, 0, 0, 8, 1);
 	controlGB->setLayout(controlGBLayout);
 
@@ -195,12 +195,14 @@ void VESPERSEndstationView::lightBulbToggled(bool pressed)
 		disconnect(micLight_, SIGNAL(valueChanged(int)), micLightPV_, SLOT(setValue(int)));
 		disconnect(micLightPV_, SIGNAL(valueChanged()), this, SLOT(micLightUpdate()));
 		micLightPV_->setValue(0);
+		lightBulb_->setIcon(QIcon(":/dialog-information.png"));
 	}
 	else{
 
 		connect(micLight_, SIGNAL(valueChanged(int)), micLightPV_, SLOT(setValue(int)));
 		connect(micLightPV_, SIGNAL(valueChanged()), this, SLOT(micLightUpdate()));
 		micLightPV_->setValue(micLight_->value());
+		lightBulb_->setIcon(QIcon(":/lightbulb.png"));
 	}
 
 }

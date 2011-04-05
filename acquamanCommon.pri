@@ -193,7 +193,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMThumbnailScrollViewer.h \
 	source/ui/AMXASRegionsView.h \
 	source/ui/BottomBar.h \
-	source/ui/AMBeamlineCameraWidget.h \
+	#source/ui/AMBeamlineCameraWidget.h \
 	source/ui/AMControlEditor.h \
 	source/acquaman.h \
 	source/ui/AMNewRunDialog.h \
@@ -225,7 +225,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMStartScreen.h \
 	source/ui/AMSignallingGraphicsScene.h \
 	source/dataman/AMUser.h \
-	source/ui/AMVideoPlayerWidget.h \
+	#source/ui/AMVideoPlayerWidget.h \
 	source/dataman/AMXESScan.h \
 	source/dataman/ALSBL8XESDetectorInfo.h \
 	source/dataman/ALSBL8XASFileLoader.h \
@@ -390,7 +390,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMThumbnailScrollViewer.cpp \
 	source/ui/AMXASRegionsView.cpp \
 	source/ui/BottomBar.cpp \
-	source/ui/AMBeamlineCameraWidget.cpp \
+	#source/ui/AMBeamlineCameraWidget.cpp \
 	source/ui/AMControlEditor.cpp \
 	source/ui/AMDetectorView.cpp \
 	source/ui/AMNewRunDialog.cpp \
@@ -420,7 +420,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMStartScreen.cpp \
 	source/ui/AMSignallingGraphicsScene.cpp \
 	source/dataman/AMUser.cpp \
-	source/ui/AMVideoPlayerWidget.cpp \
+	#source/ui/AMVideoPlayerWidget.cpp \
 	source/dataman/AMXESScan.cpp \
 	source/dataman/ALSBL8XESDetectorInfo.cpp \
 	source/dataman/ALSBL8XASFileLoader.cpp \

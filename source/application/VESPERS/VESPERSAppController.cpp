@@ -27,6 +27,7 @@ bool VESPERSAppController::startup() {
 		AMDbObjectSupport::registerClass<XRFDetectorInfo>();
 
 		AMDetectorViewSupport::registerClass<XRFBriefDetectorView, XRFDetector>();
+		AMDetectorViewSupport::registerClass<XRFDetailedDetectorView, XRFDetector>();
 
 		// Create panes in the main window:
 		////////////////////////////////////
@@ -37,10 +38,12 @@ bool VESPERSAppController::startup() {
 
 		XRFBriefDetectorView *xrf1EView = new XRFBriefDetectorView(VESPERSBeamline::vespers()->vortexXRF1E());
 		XRFBriefDetectorView *xrf4EView = new XRFBriefDetectorView(VESPERSBeamline::vespers()->vortexXRF4E());
+		XRFDetailedDetectorView *xrf1EViewDetailed = new XRFDetailedDetectorView(VESPERSBeamline::vespers()->vortexXRF1E());
 
 		mw_->insertHeading("Experiment Setup", 1);
 		mw_->addPane(xrf1EView, "Experiment Setup", "Fluorescence", ":/utilities-system-monitor.png");
 		mw_->addPane(xrf4EView, "Experiment Setup", "4-el Vortex", ":/utilities-system-monitor.png");
+		mw_->addPane(xrf1EViewDetailed, "Experiment Setup", "Detailed", ":/utilities-system-monitor.png");
 
 		return true;
 	}

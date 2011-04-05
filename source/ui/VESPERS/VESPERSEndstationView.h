@@ -186,6 +186,7 @@ private:
 
 	// Microscope light setup.
 	QSlider *micLight_;
+	QToolButton *lightBulb_;
 
 	// Config window.
 	VESPERSEndstationConfiguration *config_;

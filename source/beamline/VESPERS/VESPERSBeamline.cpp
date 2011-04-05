@@ -20,7 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "VESPERSBeamline.h"
 
 VESPERSBeamline::VESPERSBeamline()
-	: AMBeamline("VESPERSBeamline")
+	: AMBeamline("VESPERS Beamline")
 {
 	setupDiagnostics();
 	setupEndstation();
@@ -313,6 +313,7 @@ void VESPERSBeamline::setupControlSets()
 	pressureSet_->addControl(ccgPreWindow_);
 	pressureSet_->addControl(ccgPostWindow_);
 
+	connect(pressureSet_, SIGNAL(connected(bool)), this, SLOT(pressureError()));
 	for (int i = 0; i < pressureSet_->count(); i++)
 		connect(qobject_cast<AMReadOnlyPVwStatusControl *>(pressureSet_->at(i)), SIGNAL(movingChanged(bool)), this, SLOT(pressureError()));
 
@@ -363,6 +364,7 @@ void VESPERSBeamline::setupControlSets()
 	ionPumpSet_->addControl(iopBeamTransfer2_);
 	ionPumpSet_->addControl(iopPreWindow_);
 
+	connect(ionPumpSet_, SIGNAL(connected(bool)), this, SLOT(ionPumpError()));
 	connect(ionPumpSet_, SIGNAL(controlSetValuesChanged(AMControlInfoList)), this, SLOT(ionPumpError()));
 
 	// Grouping the temperature controls together.
@@ -389,6 +391,7 @@ void VESPERSBeamline::setupControlSets()
 	temperatureSet_->addControl(tmMono6_);
 	temperatureSet_->addControl(tmMono7_);
 
+	connect(temperatureSet_, SIGNAL(connected(bool)), this, SLOT(temperatureError()));
 	connect(temperatureSet_, SIGNAL(controlSetValuesChanged(AMControlInfoList)), this, SLOT(temperatureError()));
 
 	// Grouping the water flow switch controls together.
@@ -404,6 +407,7 @@ void VESPERSBeamline::setupControlSets()
 	flowSwitchSet_->addControl(swfPoeSsh1_);
 	flowSwitchSet_->addControl(swfPoeSsh2_);
 
+	connect(flowSwitchSet_, SIGNAL(connected(bool)), this, SLOT(flowSwitchError()));
 	connect(flowSwitchSet_, SIGNAL(controlSetValuesChanged(AMControlInfoList)), this, SLOT(flowSwitchError()));
 
 	// Grouping the water flow transducer controls together.
@@ -419,6 +423,7 @@ void VESPERSBeamline::setupControlSets()
 	flowTransducerSet_->addControl(fltPoeSsh1_);
 	flowTransducerSet_->addControl(fltPoeSsh2_);
 
+	connect(flowTransducerSet_, SIGNAL(connected(bool)), this, SLOT(flowTransducerError()));
 	connect(flowTransducerSet_, SIGNAL(controlSetValuesChanged(AMControlInfoList)), this, SLOT(flowTransducerError()));
 
 	// Grouping the enstation motors together.
@@ -436,6 +441,9 @@ void VESPERSBeamline::setupControlSets()
 
 void VESPERSBeamline::pressureError()
 {
+	if (!pressureSet_->isConnected())
+		return;
+
 	QString error("");
 	AMReadOnlyPVwStatusControl *current;
 
@@ -450,12 +458,12 @@ void VESPERSBeamline::pressureError()
 	if (!error.isEmpty()){
 
 		error.prepend("The following pressure readings are at a critical level:\n");
-		AMErrorMon::report(AMErrorReport(pressureSet_, AMErrorReport::Serious, 0, error));
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, 0, error));
 	}
 }
 
 void VESPERSBeamline::valveError()
-{qDebug() << valveSet_->isConnected();
+{
 	if (!valveSet_->isConnected())
 		return;
 
@@ -479,6 +487,9 @@ void VESPERSBeamline::valveError()
 
 void VESPERSBeamline::ionPumpError()
 {
+	if (ionPumpSet_->isConnected())
+		return;
+
 	QString error("");
 	AMReadOnlyPVControl *current;
 
@@ -493,12 +504,15 @@ void VESPERSBeamline::ionPumpError()
 	if (!error.isEmpty()){
 
 		error.prepend("The following ion pumps are no longer operating correctly:\n");
-		AMErrorMon::report(AMErrorReport(ionPumpSet_, AMErrorReport::Serious, 0, error));
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, 0, error));
 	}
 }
 
 void VESPERSBeamline::temperatureError()
 {
+	if (temperatureSet_->isConnected())
+		return;
+
 	QString error("");
 	AMReadOnlyPVControl *current;
 
@@ -513,12 +527,15 @@ void VESPERSBeamline::temperatureError()
 	if (!error.isEmpty()){
 
 		error.prepend("The following temperature sensors are reading too high:\n");
-		AMErrorMon::report(AMErrorReport(temperatureSet_, AMErrorReport::Serious, 0, error));
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, 0, error));
 	}
 }
 
 void VESPERSBeamline::flowSwitchError()
 {
+	if (flowSwitchSet_->isConnected())
+		return;
+
 	QString error("");
 	AMReadOnlyPVControl *current;
 
@@ -533,12 +550,15 @@ void VESPERSBeamline::flowSwitchError()
 	if (!error.isEmpty()){
 
 		error.prepend("The following flow switches have tripped:\n");
-		AMErrorMon::report(AMErrorReport(flowSwitchSet_, AMErrorReport::Serious, 0, error));
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, 0, error));
 	}
 }
 
 void VESPERSBeamline::flowTransducerError()
 {
+	if (flowTransducerSet_->isConnected())
+		return;
+
 	QString error("");
 	AMReadOnlyPVControl *current;
 
@@ -553,7 +573,7 @@ void VESPERSBeamline::flowTransducerError()
 	if (!error.isEmpty()){
 
 		error.prepend("The following flow transducers are measuring too low:\n");
-		AMErrorMon::report(AMErrorReport(flowTransducerSet_, AMErrorReport::Serious, 0, error));
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, 0, error));
 	}
 }
 
