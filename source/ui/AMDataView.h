@@ -98,7 +98,9 @@ public:
 	}
 
 	/// Expand or collapse this section (ie: show or hide everything except for header). The default implementation does nothing and must be overridden if you have more than a header.
-	virtual void expand(bool expanded = true) {}
+	virtual void expand(bool expanded = true) {
+		Q_UNUSED(expanded)
+	}
 	/// Overloaded as an alternative for expand(false). You don't need to re-implement this.
 	virtual void collapse() { expand(false); }
 };
@@ -106,7 +108,7 @@ public:
 
 
 /// This class implements a supremely awesome view of all the scan data found that can be found in a given database.  It can show scans from just one run, or just one experiment, or all runs or all experiments.  Beyond that, it can organize its data into sections based on the run, experiment, sample, element, or scan type.
-/*! Implementation note: this class  acts as a QGraphicsView container and a controller for AMDataViewSections and the specialized views employed by them.
+/*! Implementation note: this class  acts as a QGraphicsView container, and a controller for AMDataViewSections and the specialized views employed by them.
 
 The container functionality consists of a QGraphicsView, holding a QGraphicsScene with one top-level QGraphicsWidget. That internal QGraphicsWidget is resized in width whenever the AMDataView widget is resized, so that contained views may expand or shrink in height but always fill the width exactly. Only a vertical scroll bar is needed to scroll through the data.
 
@@ -288,7 +290,6 @@ protected:
 
 class AMFlowGraphicsLayout;
 class AMThumbnailScrollGraphicsWidget;
-#include <QGraphicsView>
 
 /// This widget is used inside an AMDataViewSection to show the section's items using thumbnails.
 class AMDataViewSectionThumbnailView : public QGraphicsWidget, public AMAbstractDataViewSection {
@@ -302,7 +303,7 @@ public:
 		layout_->setDefaultWidth(widthConstraint);
 	}
 
-	/// We use relativeItemSize to scale the thumbnails from 120px wide to ___ wide.  The \c relativeItemSize is from 0 to 100, where 50 is normal, 0 is "smallest useful", and 100 is "largest useful".
+	/// We use relativeItemSize to scale the thumbnails from 80px wide to ___ wide.  The \c relativeItemSize is from 0 to 100, where 50 is normal, 0 is "smallest useful", and 100 is "largest useful".
 	void setItemSize(int relativeItemSize) {
 		int width = (double)relativeItemSize/50.0*160.0 + 80;
 		layout_->setItemSizeConstraint(QSizeF(width, -1));
@@ -323,6 +324,36 @@ protected:
 
 };
 
+#include <QTableView>
+#include "ui/AMScanQueryModel.h"
+
+/// This widget is used inside an AMDataViewSection to show the section's items in a table (list, or detail) view.
+class AMDataViewSectionListView : public QGraphicsWidget, public AMAbstractDataViewSection {
+	Q_OBJECT
+
+public:
+	explicit AMDataViewSectionListView(AMDatabase* db, const QString& dbTableName, const QString& whereClause, QGraphicsItem* parent = 0, double initialWidthConstraint = 400, int initialItemSize = 50);
+
+	virtual void setWidthConstraint(double widthConstraint);
+
+protected slots:
+	/// The AMScanQueryModel loads a maximum of 256 rows at once... and this is what will be loaded when we call refreshQuery().  We need to catch the signal when rows are inserted in the model, and use this to signal that our desired sizeHint has changed.
+	void onRowsAddedOrRemoved() { updateGeometry(); }
+
+protected:
+	QGraphicsProxyWidget* proxyWidget_;
+	QTableView* tableView_;
+	AMScanQueryModel* tableModel_;
+
+	QGraphicsLinearLayout* layout_;
+
+	double widthConstraint_;
+
+	/// Re-implemented to return a height based on the model's rowCount() and the height of each row (according to the QHeaderView). This ensures that we ask to be large enough to fit the whole view, without scroll bars.
+	QSizeF sizeHint(Qt::SizeHint which, const QSizeF &constraint) const;
+
+
+};
 
 #include <QGraphicsProxyWidget>
 

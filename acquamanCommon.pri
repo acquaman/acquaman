@@ -69,12 +69,12 @@ INCLUDEPATH += . source
 INCLUDEPATH += $$EPICS_INCLUDE_DIRS \
 	$$MPLOT_INCLUDE_DIR \
 	$$GSL_INCLUDE_DIR \
-#	$$VLC_INCLUDE_DIR \
+	$$VLC_INCLUDE_DIR \
 	$$XML_INCLUDE_DIR
 
 LIBS += $$GSL_LIB \
 	$$GSL_CBLAS_LIB \
-#	$$VLC_LIB \
+	$$VLC_LIB \
 	$$XML_LIB \
 	-L$$EPICS_LIB_DIR -lca -lCom
 
@@ -84,11 +84,11 @@ LIBS += $$GSL_LIB \
 # Specify runtime search locations for libraries (Must change for release bundle, if epics in a different location)
 macx {
 	# 4.7.0 and earlier:
-	QMAKE_LFLAGS_RPATH += "$$EPICS_LIB_DIR"
+	#QMAKE_LFLAGS_RPATH += "$$EPICS_LIB_DIR"
 
 	# 4.7.2: Use same as linux-g++
-	# QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
-	# QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
+	QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
+	QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
 }
 linux-g++ {
 	QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
@@ -193,7 +193,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMThumbnailScrollViewer.h \
 	source/ui/AMXASRegionsView.h \
 	source/ui/BottomBar.h \
-	#source/ui/AMBeamlineCameraWidget.h \
+	source/ui/AMBeamlineCameraWidget.h \
 	source/ui/AMControlEditor.h \
 	source/acquaman.h \
 	source/ui/AMNewRunDialog.h \
@@ -225,7 +225,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMStartScreen.h \
 	source/ui/AMSignallingGraphicsScene.h \
 	source/dataman/AMUser.h \
-	#source/ui/AMVideoPlayerWidget.h \
+	source/ui/AMVideoPlayerWidget.h \
 	source/dataman/AMXESScan.h \
 	source/dataman/ALSBL8XESDetectorInfo.h \
 	source/dataman/ALSBL8XASFileLoader.h \
@@ -286,7 +286,8 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMSamplePositionViewActionsWidget.h \
 	source/beamline/AMBeamlineListAction.h \
 	source/beamline/AMBeamlineControlWaitAction.h \
-	source/beamline/AMBeamlineUserConfirmAction.h
+	source/beamline/AMBeamlineUserConfirmAction.h \
+	source/ui/AMScanQueryModel.h
 FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
 	source/ui/AMDataViewSectionHeader.ui \
@@ -389,7 +390,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMThumbnailScrollViewer.cpp \
 	source/ui/AMXASRegionsView.cpp \
 	source/ui/BottomBar.cpp \
-	#source/ui/AMBeamlineCameraWidget.cpp \
+	source/ui/AMBeamlineCameraWidget.cpp \
 	source/ui/AMControlEditor.cpp \
 	source/ui/AMDetectorView.cpp \
 	source/ui/AMNewRunDialog.cpp \
@@ -419,7 +420,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMStartScreen.cpp \
 	source/ui/AMSignallingGraphicsScene.cpp \
 	source/dataman/AMUser.cpp \
-	#source/ui/AMVideoPlayerWidget.cpp \
+	source/ui/AMVideoPlayerWidget.cpp \
 	source/dataman/AMXESScan.cpp \
 	source/dataman/ALSBL8XESDetectorInfo.cpp \
 	source/dataman/ALSBL8XASFileLoader.cpp \
@@ -479,7 +480,8 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMSamplePositionViewActionsWidget.cpp \
 	source/beamline/AMBeamlineListAction.cpp \
 	source/beamline/AMBeamlineControlWaitAction.cpp \
-	source/beamline/AMBeamlineUserConfirmAction.cpp
+	source/beamline/AMBeamlineUserConfirmAction.cpp \
+	source/ui/AMScanQueryModel.cpp
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc \
 	source/util/ElementData.qrc \

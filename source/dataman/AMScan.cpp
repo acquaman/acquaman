@@ -35,6 +35,7 @@ AMScan::AMScan(QObject *parent)
 	dateTime_ = QDateTime::currentDateTime();
 	runId_ = -1;
 	sampleId_ = -1;
+	facilityId_ = -1;
 	notes_ = QString();
 	filePath_ = QString();
 	fileFormat_ = "unknown";
@@ -113,8 +114,18 @@ void AMScan::setSampleId(int newSampleId) {
 	sampleNameLoaded_ = false;	// invalidate the sample name cache
 	if(newSampleId <= 0) sampleId_ = -1;
 	else sampleId_ = newSampleId;
+
 	setModified(true);
 	emit sampleIdChanged(sampleId_);
+}
+
+void AMScan::setFacilityId(int newFacilityId) {
+	if(newFacilityId == facilityId_)
+		return;
+
+	if(newFacilityId <= 0) facilityId_ = -1;
+	else facilityId_ = newFacilityId;
+	setModified(true);
 }
 
 // Convenience function: returns the name of the sample (if a sample is set)
