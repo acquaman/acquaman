@@ -36,3 +36,6 @@ SOURCES +=	source/application/SGM/SGMMain.cpp \
 	source/ui/SGMSidebar.cpp \
 	source/ui/SGMFastScanConfigurationView.cpp \
 	source/ui/SGM/SGMSampleManipulatorView.cpp
+
+RESOURCES += \
+    source/beamline/SGM/TransferHelpImages/SGMTransferHelpImages.qrc

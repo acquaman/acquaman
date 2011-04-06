@@ -30,7 +30,6 @@ void AMBeamlineUserConfirmAction::userCancel(){
 	cancel();
 }
 
-
 AMBeamlineUserConfirmDetailedActionView::AMBeamlineUserConfirmDetailedActionView(AMBeamlineUserConfirmAction *userConfirmAction, int index, QWidget *parent) :
 		AMBeamlineActionItemView(userConfirmAction, index, parent)
 {
@@ -60,6 +59,10 @@ AMBeamlineUserConfirmDetailedActionView::AMBeamlineUserConfirmDetailedActionView
 	finishedState_->setContentsMargins(0, 0, 0, 0);
 	finishedState_->setEnabled(false);
 	finishedState_->setIcon(QIcon(":/greenCheck.png"));
+
+	helpButton_ = new QToolButton();
+	helpButton_->setIcon(style()->standardIcon(QStyle::SP_MessageBoxQuestion));
+	connect(helpButton_, SIGNAL(clicked()), this, SLOT(onHelpButtonClicked()));
 
 	mainHL_ = new QHBoxLayout();
 	mainHL_->addWidget(messageLabel_);
@@ -98,6 +101,8 @@ void AMBeamlineUserConfirmDetailedActionView::setAction(AMBeamlineActionItem *ac
 void AMBeamlineUserConfirmDetailedActionView::onInfoChanged(){
 	if(userConfirmAction_ && messageLabel_){
 		messageLabel_->setText(userConfirmAction_->message());
+		if(userConfirmAction_->hasHelp())
+			mainHL_->addWidget(helpButton_);
 	}
 }
 
@@ -125,4 +130,9 @@ void AMBeamlineUserConfirmDetailedActionView::onActionSucceeded(){
 
 void AMBeamlineUserConfirmDetailedActionView::onActionFailed(int explanation){
 
+}
+
+void AMBeamlineUserConfirmDetailedActionView::onHelpButtonClicked(){
+	AMImageListView *helpImagesView = new AMImageListView(userConfirmAction_->helpImages());
+	helpImagesView->show();
 }

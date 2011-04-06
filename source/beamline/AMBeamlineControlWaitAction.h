@@ -113,12 +113,15 @@ protected slots:
 	void onActionSucceeded();
 	void onActionFailed(int explanation);
 
+	void onHelpButtonClicked();
+
 protected:
 	AMBeamlineControlWaitAction *waitAction_;
 
 	QLabel *messageLabel_;
 	AMDoubleSlider *progressSlider_;
 	QToolButton *finishedState_;
+	QToolButton *helpButton_;
 	QHBoxLayout *mainHL_;
 };
 

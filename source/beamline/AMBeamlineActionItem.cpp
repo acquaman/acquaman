@@ -43,6 +43,7 @@ AMBeamlineActionItem::AMBeamlineActionItem(QObject *parent) :
 	previous_ = NULL;
 	next_ = NULL;
 	message_ = "";
+	helpImages_.clear();
 	reinitialized_.setState(false);
 	connect(&ready_, SIGNAL(stateChanged(bool)), this, SLOT(dirtyInitialized()));
 	connect(&started_, SIGNAL(stateChanged(bool)), this, SLOT(dirtyInitialized()));
@@ -109,6 +110,14 @@ QString AMBeamlineActionItem::message() const{
 	return message_;
 }
 
+bool AMBeamlineActionItem::hasHelp() const{
+	return !helpImages_.isEmpty();
+}
+
+AMOrderedSet<QString, QPixmap> AMBeamlineActionItem::helpImages() const{
+	return helpImages_;
+}
+
 void AMBeamlineActionItem::reset(bool delayInitialize){
 	reinitialized_.setState(true);
 	if(!delayInitialize)
@@ -127,6 +136,10 @@ bool AMBeamlineActionItem::setNext(AMBeamlineActionItem *next){
 
 void AMBeamlineActionItem::setMessage(const QString &message){
 	message_ = message;
+}
+
+void AMBeamlineActionItem::setHelp(const AMOrderedSet<QString, QPixmap> &helpImages){
+	helpImages_ = helpImages;
 }
 
 void AMBeamlineActionItem::setReady(bool isReady){
@@ -242,4 +255,41 @@ void AMBeamlineActionItemView::updateLook(){
 		setStyleSheet("AMBeamlineScanActionView { background : rgb(230, 222, 214) }");
 		setFrameStyle(QFrame::StyledPanel);
 	}
+}
+
+
+
+AMImageListView::AMImageListView(const AMOrderedSet<QString, QPixmap> &images, QWidget *parent) :
+		QWidget(parent)
+{
+	QGridLayout *gl = new QGridLayout();
+	int columnCount = 0;
+	int scaledHeight = 0;
+	if(images.count() <= 4){
+		columnCount = 2;
+		scaledHeight = 300;
+	}
+	else if(images.count() <= 9){
+		columnCount = 3;
+		scaledHeight = 200;
+	}
+	else{
+		columnCount = 4;
+		scaledHeight = 100;
+	}
+	int currentRow = 0;
+	int currentColumn = 0;
+	QLabel *tmpLabel;
+	for(int x = 0; x < images.count(); x++){
+		tmpLabel = new QLabel();
+		tmpLabel->setPixmap(images.at(x).scaledToHeight(scaledHeight, Qt::SmoothTransformation));
+		gl->addWidget(tmpLabel, currentRow, currentColumn);
+		currentColumn++;
+		if(currentColumn == columnCount){
+			currentColumn = 0;
+			currentRow++;
+		}
+	}
+	setLayout(gl);
+	gl->setContentsMargins(2, 2, 2, 2);
 }

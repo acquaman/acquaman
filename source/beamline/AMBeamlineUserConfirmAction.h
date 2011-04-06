@@ -48,12 +48,15 @@ protected slots:
 	void onActionSucceeded();
 	void onActionFailed(int explanation);
 
+	void onHelpButtonClicked();
+
 protected:
 	AMBeamlineUserConfirmAction *userConfirmAction_;
 	QLabel *messageLabel_;
 	QPushButton *proceedButton_;
 	QPushButton *cancelButton_;
 	QToolButton *finishedState_;
+	QToolButton *helpButton_;
 	QHBoxLayout *mainHL_;
 	QVBoxLayout *buttonsVL_;
 };

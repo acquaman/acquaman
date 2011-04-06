@@ -212,6 +212,10 @@ AMBeamlineControlWaitDetailedActionView::AMBeamlineControlWaitDetailedActionView
 	finishedState_->setEnabled(false);
 	finishedState_->setIcon(QIcon(":/greenCheck.png"));
 
+	helpButton_ = new QToolButton();
+	helpButton_->setIcon(style()->standardIcon(QStyle::SP_MessageBoxQuestion));
+	connect(helpButton_, SIGNAL(clicked()), this, SLOT(onHelpButtonClicked()));
+
 	mainHL_ = new QHBoxLayout();
 	mainHL_->addWidget(messageLabel_);
 	mainHL_->addWidget(progressSlider_);
@@ -270,6 +274,8 @@ void AMBeamlineControlWaitDetailedActionView::onInfoChanged(){
 		}
 		if(waitAction_->isRunning())
 			progressSlider_->setCurrentValue(waitAction_->control()->value());
+		if(waitAction_->hasHelp() && (mainHL_->indexOf(helpButton_) == -1) )
+			mainHL_->addWidget(helpButton_);
 	}
 }
 
@@ -292,6 +298,11 @@ void AMBeamlineControlWaitDetailedActionView::onActionSucceeded(){
 
 void AMBeamlineControlWaitDetailedActionView::onActionFailed(int explanation){
 
+}
+
+void AMBeamlineControlWaitDetailedActionView::onHelpButtonClicked(){
+	AMImageListView *helpImagesView = new AMImageListView(waitAction_->helpImages());
+	helpImagesView->show();
 }
 
 AMDoubleSlider::AMDoubleSlider(AMDoubleSlider::scalingModeType scalingMode, AMDoubleSlider::destinationType destinationMode, QWidget *parent):

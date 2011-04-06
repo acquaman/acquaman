@@ -21,6 +21,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef AMBEAMLINEACTIONITEM_H
 #define AMBEAMLINEACTIONITEM_H
 
+#include "util/AMOrderedSet.h"
+
 #include <QObject>
 #include <QWidget>
 #include <QHBoxLayout>
@@ -28,6 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPushButton>
 #include <QDebug>
 #include <QMouseEvent>
+#include <QStyle>
 
 /// Using this for debuggging purposes in all ActionItem descendents and views
 #define VERBOSE_ACTION_ITEMS 0
@@ -97,6 +100,9 @@ public:
 
 	virtual QString message() const;
 
+	bool hasHelp() const;
+	AMOrderedSet<QString, QPixmap> helpImages() const;
+
 signals:
 	/// All signal emitting is taken care of if the setReady/setStarted/setSucceeded/etc functions are used. These functions will emit the signals as necessary
 	/// Emitted at the end of the initial() function, conveys that all other flags are false (actionItem constructed, but nothing has happened yet)
@@ -134,6 +140,7 @@ public slots:
 	bool setNext(AMBeamlineActionItem* next);
 
 	void setMessage(const QString &message);
+	void setHelp(const AMOrderedSet<QString, QPixmap> &helpImages);
 
 protected slots:
 	// Interface to internal state. If sub-classes want to change something, call these.
@@ -168,6 +175,7 @@ protected:
 	AMBeamlineActionItem *next_;
 
 	QString message_;
+	AMOrderedSet<QString, QPixmap> helpImages_;
 
 private slots:
 	/// Connected internally so that any other state change makes sure that initialized is set to false. Any change means we are no longer in the initialized state
@@ -227,6 +235,13 @@ protected:
 	AMBeamlineActionItem *action_;
 	int index_;
 	bool inFocus_;
+};
+
+class AMImageListView : public QWidget
+{
+Q_OBJECT
+public:
+	AMImageListView(const AMOrderedSet<QString, QPixmap> &images, QWidget *parent = 0);
 };
 
 #endif // AMBEAMLINEACTIONITEM_H
