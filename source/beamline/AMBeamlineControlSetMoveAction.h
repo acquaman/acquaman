@@ -33,7 +33,7 @@ Q_OBJECT
 public:
 	explicit AMBeamlineControlSetMoveAction(AMControlSet *controlSet, QObject *parent = 0);
 
-	virtual AMBeamlineActionView* createView(int index = 0);
+	virtual AMBeamlineActionItemView* createView(int index = 0);
 
 	virtual AMControlSet* controlSet();
 	virtual AMControlInfoList setpoint();
@@ -67,7 +67,7 @@ protected:
 	QTimer progressTimer_;
 };
 
-class AMBeamlineControlSetMoveActionView : public AMBeamlineActionView
+class AMBeamlineControlSetMoveActionView : public AMBeamlineActionItemView
 {
 Q_OBJECT
 public:

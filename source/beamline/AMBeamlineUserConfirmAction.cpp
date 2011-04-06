@@ -6,8 +6,8 @@ AMBeamlineUserConfirmAction::AMBeamlineUserConfirmAction(QObject *parent) :
 	setReady(true);
 }
 
-AMBeamlineActionView* AMBeamlineUserConfirmAction::createView(int index){
-	return 0;
+AMBeamlineActionItemView* AMBeamlineUserConfirmAction::createView(int index){
+	return new AMBeamlineUserConfirmDetailedActionView(this);
 }
 
 void AMBeamlineUserConfirmAction::start(){
@@ -30,10 +30,10 @@ void AMBeamlineUserConfirmAction::userCancel(){
 	cancel();
 }
 
-
 AMBeamlineUserConfirmDetailedActionView::AMBeamlineUserConfirmDetailedActionView(AMBeamlineUserConfirmAction *userConfirmAction, int index, QWidget *parent) :
-		AMBeamlineActionView(userConfirmAction, index, parent)
+		AMBeamlineActionItemView(userConfirmAction, index, parent)
 {
+	messageLabel_ = 0; //NULL
 	userConfirmAction_ = 0; //NULL
 	setAction(userConfirmAction);
 
@@ -60,11 +60,19 @@ AMBeamlineUserConfirmDetailedActionView::AMBeamlineUserConfirmDetailedActionView
 	finishedState_->setEnabled(false);
 	finishedState_->setIcon(QIcon(":/greenCheck.png"));
 
+	helpButton_ = new QToolButton();
+	helpButton_->setIcon(style()->standardIcon(QStyle::SP_MessageBoxQuestion));
+	connect(helpButton_, SIGNAL(clicked()), this, SLOT(onHelpButtonClicked()));
+
 	mainHL_ = new QHBoxLayout();
 	mainHL_->addWidget(messageLabel_);
 	mainHL_->addLayout(buttonsVL_);
 
 	setLayout(mainHL_);
+	QMargins mainHLMargins = mainHL_->contentsMargins();
+	mainHLMargins.setTop(1);
+	mainHLMargins.setBottom(1);
+	mainHL_->setContentsMargins(mainHLMargins);
 
 	onInfoChanged();
 }
@@ -93,6 +101,8 @@ void AMBeamlineUserConfirmDetailedActionView::setAction(AMBeamlineActionItem *ac
 void AMBeamlineUserConfirmDetailedActionView::onInfoChanged(){
 	if(userConfirmAction_ && messageLabel_){
 		messageLabel_->setText(userConfirmAction_->message());
+		if(userConfirmAction_->hasHelp())
+			mainHL_->addWidget(helpButton_);
 	}
 }
 
@@ -120,4 +130,9 @@ void AMBeamlineUserConfirmDetailedActionView::onActionSucceeded(){
 
 void AMBeamlineUserConfirmDetailedActionView::onActionFailed(int explanation){
 
+}
+
+void AMBeamlineUserConfirmDetailedActionView::onHelpButtonClicked(){
+	AMImageListView *helpImagesView = new AMImageListView(userConfirmAction_->helpImages());
+	helpImagesView->show();
 }

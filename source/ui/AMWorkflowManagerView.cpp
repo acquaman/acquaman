@@ -177,12 +177,12 @@ AMBeamlineActionsListView::AMBeamlineActionsListView(AMBeamlineActionsList *acti
 /// \bug What happens if the action at \c index has changed type? This assumes the subclass of view is correct for the subclass of actionItem
 void AMBeamlineActionsListView::onActionChanged(int index){
 	AMBeamlineActionItem *tmpItem = actionsList_->action(index);
-	((AMBeamlineActionView*)actionsViewList_->widget(index))->setAction(tmpItem);
+	((AMBeamlineActionItemView*)actionsViewList_->widget(index))->setAction(tmpItem);
 }
 
 void AMBeamlineActionsListView::onActionAdded(int index){
 	AMBeamlineActionItem *tmpItem = actionsList_->action(index);
-	AMBeamlineActionView *tmpView = tmpItem->createView(index);
+	AMBeamlineActionItemView *tmpView = tmpItem->createView(index);
 	if(!tmpView)
 		return;
 	actionsViewList_->insertItem(index, tmpView, "", true);
@@ -205,16 +205,16 @@ void AMBeamlineActionsListView::onActionRemoveRequested(AMBeamlineActionItem *it
 void AMBeamlineActionsListView::reindexViews(){
 	if(actionsQueue_->indexOfHead() != -1){
 		for(int x = 0; x < actionsQueue_->indexOfHead(); x++)
-			if(actionsViewList_->widget(x) && ((AMBeamlineActionView*)(actionsViewList_->widget(x)))->index() != -1 )
-				((AMBeamlineActionView*)(actionsViewList_->widget(x)))->setIndex(-1);
+			if(actionsViewList_->widget(x) && ((AMBeamlineActionItemView*)(actionsViewList_->widget(x)))->index() != -1 )
+				((AMBeamlineActionItemView*)(actionsViewList_->widget(x)))->setIndex(-1);
 		for(int x = actionsQueue_->indexOfHead(); x < actionsList_->count(); x++)
-			if(actionsViewList_->widget(x) && ((AMBeamlineActionView*)(actionsViewList_->widget(x)))->index() != x-actionsQueue_->indexOfHead()+1 )
-				((AMBeamlineActionView*)(actionsViewList_->widget(x)))->setIndex(x-actionsQueue_->indexOfHead()+1);
+			if(actionsViewList_->widget(x) && ((AMBeamlineActionItemView*)(actionsViewList_->widget(x)))->index() != x-actionsQueue_->indexOfHead()+1 )
+				((AMBeamlineActionItemView*)(actionsViewList_->widget(x)))->setIndex(x-actionsQueue_->indexOfHead()+1);
 	}
 	else
 		for(int x = 0; x < actionsList_->count(); x++)
-			if(actionsViewList_->widget(x) && ((AMBeamlineActionView*)(actionsViewList_->widget(x)))->index() != -1 )
-				((AMBeamlineActionView*)(actionsViewList_->widget(x)))->setIndex(-1);
+			if(actionsViewList_->widget(x) && ((AMBeamlineActionItemView*)(actionsViewList_->widget(x)))->index() != -1 )
+				((AMBeamlineActionItemView*)(actionsViewList_->widget(x)))->setIndex(-1);
 }
 
 
