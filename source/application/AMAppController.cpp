@@ -115,7 +115,7 @@ bool AMAppController::startup() {
 	connect(runExperimentInsert_, SIGNAL(newExperimentAdded(QModelIndex)), this, SLOT(onNewExperimentAdded(QModelIndex)));
 
 	// connect the activated signal from the dataview to our own slot
-	connect(dataView_, SIGNAL(activated(QList<QUrl>)), this, SLOT(onDataViewItemsActivated(QList<QUrl>)));
+	connect(dataView_, SIGNAL(selectionActivated(QList<QUrl>)), this, SLOT(onDataViewItemsActivated(QList<QUrl>)));
 	// When 'alias' links are clicked in the main window sidebar, we might need to notify some widgets of the details
 	connect(mw_, SIGNAL(aliasItemActivated(QWidget*,QString,QVariant)), this, SLOT(onMainWindowAliasItemActivated(QWidget*,QString,QVariant)));
 	/////////////////////////

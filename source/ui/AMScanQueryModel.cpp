@@ -29,6 +29,7 @@ AMScanQueryModel::AMScanQueryModel(AMDatabase* db,
 
 	if(columnsToShow.isEmpty()) {
 		columns_ = QList<AMScanQueryModelColumnInfo>()
+				<< AMScanQueryModelColumnInfo("Row", "id")
 				<< AMScanQueryModelColumnInfo("Name", "name")
 				<< AMScanQueryModelColumnInfo("#", "number")
 				<< AMScanQueryModelColumnInfo("When", "dateTime")
