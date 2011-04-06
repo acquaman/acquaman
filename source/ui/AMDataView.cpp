@@ -209,6 +209,17 @@ void AMDataView::onOrganizeModeBoxCurrentIndexChanged(int newIndex) {
 // Called when the scene selection changes (useful for AMDataViewSectionThumbnailView)
 void AMDataView::onScanItemsSelectionChanged() {
 	selectedUrlsUpdateRequired_ = true;
+
+	if(numberOfSelectedItems() > 0) {
+		openSeparateEditorButton->setEnabled(true);
+		openSameEditorButton->setEnabled(true);
+		exportButton->setEnabled(true);
+	}
+	else {
+		openSeparateEditorButton->setEnabled(false);
+		openSameEditorButton->setEnabled(false);
+		exportButton->setEnabled(false);
+	}
 	emit selectionChanged();
 }
 
@@ -252,6 +263,31 @@ void AMDataView::updateSelectedUrls() const {
 	default:
 		break;
 	}
+}
+
+int AMDataView::numberOfSelectedItems() const
+{
+	if(!selectedUrlsUpdateRequired_)
+		return selectedUrls_.count();
+
+	int rv = 0;
+
+	// selectedUrls_ isn't up to date.
+	switch(viewMode_) {
+		case AMDataViews::ThumbnailView:
+		rv = gscene_->selectedItems().count();
+		break;
+
+	case AMDataViews::ListView:
+		foreach(const AMAbstractDataViewSection* s, sections_)
+			rv += s->numberOfSelectedItems();
+		break;
+
+	default:
+		break;
+	}
+
+	return rv;
 }
 
 void AMDataView::onSceneDoubleClicked() {
@@ -1290,6 +1326,13 @@ bool AMIgnoreScrollTableView::event(QEvent *event)
 	}
 	return QTableView::event(event);
 }
+
+int AMDataViewSectionListView::numberOfSelectedItems() const
+{
+	return tableView_->selectionModel()->selectedRows().count();
+}
+
+
 
 
 
