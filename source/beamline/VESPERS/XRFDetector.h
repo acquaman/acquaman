@@ -73,6 +73,11 @@ public:
 	// End of Controls and PVs.
 	////////////////////////////////
 
+	/// Enables a previously disabled element.  Takes the \param id as an index of the list of elements.
+	void enableElement(int id);
+	/// Disables a previously enabled element.  Takes the \param id as an index of the list of elements.
+	void disableElement(int id);
+
 	/// Returns the AMROI list.
 	QList<AMROI *> roiList() const { return roiList_; }
 

@@ -1,10 +1,13 @@
 #include "XRFDetectorView.h"
+#include "DeadTimeButton.h"
+
 #include <QString>
 #include <QToolButton>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QGridLayout>
 #include <QGroupBox>
+#include <QButtonGroup>
 
 // Brief detector view
 /////////////////////////////////////////////
@@ -91,6 +94,28 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 
 	deadTime_ = new QLabel(tr(" %"));
 
+	// Using a button group so I know which element I need to disable.
+	DeadTimeButton *temp;
+	deadTimeGroup_ = new QButtonGroup(this);
+	deadTimeGroup_->setExclusive(false);
+	QHBoxLayout *deadTimeLayout = new QHBoxLayout;
+	deadTimeLayout->setSpacing(0);
+
+	for (int i = 0; i < detector_->elements(); i++){
+
+		temp = new DeadTimeButton(15.0, 30.0);
+		temp->setCheckable(true);
+		temp->setCurrent(10);
+		temp->setFixedSize(20, 20);
+		deadTimeLayout->addWidget(temp);
+		deadTimeGroup_->addButton(temp, i);
+	}
+
+	connect(deadTimeGroup_, SIGNAL(buttonClicked(int)), this, SLOT(elementClicked(int)));
+	QGroupBox *deadTimeBox = new QGroupBox;
+	deadTimeBox->setFlat(true);
+	deadTimeBox->setLayout(deadTimeLayout);
+
 	QToolButton *log = new QToolButton;
 	log->setCheckable(true);
 	log->setText("Log");
@@ -117,6 +142,7 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	controlsLayout->addWidget(integrationTime_, 1, 0);
 	controlsLayout->addWidget(elapsedTime_, 1, 1);
 	controlsLayout->addWidget(deadTime_, 2, 0);
+	controlsLayout->addWidget(deadTimeBox, 2, 1);
 	controlsLayout->addWidget(log, 3, 0);
 	controlsLayout->addWidget(channels, 3, 1);
 	controlsLayout->addWidget(waterfallButton, 4, 0);
@@ -137,6 +163,15 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	setLayout(viewLayout);
 
 	return true;
+}
+
+void XRFDetailedDetectorView::elementClicked(int elementId)
+{
+	// If the button is checked then it means the element should be disabled.
+	if (deadTimeGroup_->button(elementId)->isChecked())
+		detector_->disableElement(elementId);
+	else
+		detector_->enableElement(elementId);
 }
 
 // End detailed detector view

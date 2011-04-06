@@ -60,6 +60,12 @@ public:
 
 signals:
 
+protected slots:
+	/// Handles the update from the dead time control.
+	//void onDeadTimeUpdate();
+	/// Handles enabling/disabling of elements based on which button is clicked in the dead time button group.
+	void elementClicked(int elementId);
+
 protected:
 
 	/*! Sets up the view based with the given detector.
@@ -77,6 +83,9 @@ protected:
 	QLabel *deadTime_;
 	/// The waterfall separation spin box.
 	QDoubleSpinBox *waterfall_;
+
+	/// The button group used for the dead time tool buttons.
+	QButtonGroup *deadTimeGroup_;
 };
 
 #endif // XRFDETECTORVIEW_H

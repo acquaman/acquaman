@@ -218,3 +218,13 @@ void XRFDetector::sort()
 	for (int i = 0; i < roiInfoList()->count(); i++)
 		roiList().at(i)->fromInfo(roiInfoList()->at(i));
 }
+
+void XRFDetector::enableElement(int id)
+{
+	/// \todo Need to implement enabling waveforms.
+}
+
+void XRFDetector::disableElement(int id)
+{
+	/// \todo Need to implement disabling waveforms.
+}

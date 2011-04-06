@@ -38,7 +38,7 @@ bool VESPERSAppController::startup() {
 
 		XRFBriefDetectorView *xrf1EView = new XRFBriefDetectorView(VESPERSBeamline::vespers()->vortexXRF1E());
 		XRFBriefDetectorView *xrf4EView = new XRFBriefDetectorView(VESPERSBeamline::vespers()->vortexXRF4E());
-		XRFDetailedDetectorView *xrf1EViewDetailed = new XRFDetailedDetectorView(VESPERSBeamline::vespers()->vortexXRF1E());
+		XRFDetailedDetectorView *xrf1EViewDetailed = new XRFDetailedDetectorView(VESPERSBeamline::vespers()->vortexXRF4E());
 
 		mw_->insertHeading("Experiment Setup", 1);
 		mw_->addPane(xrf1EView, "Experiment Setup", "Fluorescence", ":/utilities-system-monitor.png");
