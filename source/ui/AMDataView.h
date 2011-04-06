@@ -37,24 +37,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMFlowGraphicsLayout.h"
 
 
-
-
-
-/*!
-  \todo Fall 2010
-  - convert entire scroll area to QGraphicsView [in progress]
-  - additional 3 views
-  - buttons: expand all, collapse all, set default thumbnail, slider for size
-  - progress bar or loading throbber (and process system events)
-  - drag to experiment to add to exp.
-  - double-click: open editor window (through AMAppController)
-  - figure out item ownership when installed in layouts...
-  */
-
-
-
-
-
 /// This subclass of QGraphicsWidget is designed to resize itself to the preferred sizeHint() of its layout.  (This is the opposite of what usually happens: layouts resize themselves to match the size of their widget.)
 class AMLayoutControlledGraphicsWidget : public QGraphicsWidget {
 	Q_OBJECT
@@ -80,15 +62,18 @@ namespace AMDataViews {
 	enum OrganizeMode { OrganizeNone, OrganizeRuns, OrganizeExperiments, OrganizeScanTypes, OrganizeSamples, OrganizeElements };
 }
 
-/// All sub-sections in an AMDataView need to be QGraphicsLayoutItems. Additionally, they also need a setWidthConstraint function as defined by this interface.  This is a standard way of notifying them of the current width available inside the DataView. It will be called after creation, and also whenever the view resizes.
-class AMAbstractDataViewSection {
+/// All sub-sections in an AMDataView need to be an AMAbstractDataViewSection.
+class AMAbstractDataViewSection : public QGraphicsWidget {
+	Q_OBJECT
 public:
+	AMAbstractDataViewSection(QGraphicsItem* parent = 0) : QGraphicsWidget(parent) {}
+
 	/// Support for "heightForWidth" mode is broken in QGraphicsLayout, at least up to Qt 4.7.2.  This is a workaround: we create and call a setWidthConstraint() on all the items in the top-level layout; they use this width in their sizeHint() function if a constraint is not provided.
 	/*! HeightForWidth mode means that the item's preferred height (returned via QGraphicsLayoutItem::sizeHint()) depends on the width available. (For example, a paragraph of wrapping text, or an image with a constant aspect ratio.)  It _should_ be activated by doing a setSizePolicy() on the item, where the size policy object has had setHeightForWidth(true) called on it.  When heightForWidth is set, layouts should always provide a width constraint when calling sizeHint(), but they don't.
 
 	(In Qt 4.7.1, they do, but it breaks spanning in row layouts. In Qt 4.7.2, it's "fixed", but layout performance is terrible, taking a minute or more with nested layouts.  See http://bugreports.qt.nokia.com/browse/QTBUG-12835 and http://bugreports.qt.nokia.com/browse/QTBUG-15333).
 
-	This is our workaround for the time-being.  Do not setHeightForWidth(true) on the QGraphicsLayoutItem's sizePolicy().  Instead, call setWidthConstraint() on all the items in the top-level layout.
+	This is our workaround for the time-being.  Do not setHeightForWidth(true) on the QGraphicsLayoutItem's sizePolicy().  Instead, call setWidthConstraint() on all the items in the top-level layout.  This causes them to re-calculate their sizeHints(), after which they should call updateGeometry(), posting a bunch of LayoutRequest events that will be gathered into one overall re-layout of the master layout.
 	*/
 	virtual void setWidthConstraint(double widthConstraint) = 0;
 
@@ -98,15 +83,28 @@ public:
 	}
 
 	/// Expand or collapse this section (ie: show or hide everything except for header). The default implementation does nothing and must be overridden if you have more than a header.
-	virtual void expand(bool expanded = true) {}
+	virtual void expand(bool expanded = true) {
+		Q_UNUSED(expanded)
+	}
 	/// Overloaded as an alternative for expand(false). You don't need to re-implement this.
 	virtual void collapse() { expand(false); }
+
+	/// Child sections that aren't part of a layout but directly managed by their parent... must call this on their parent whenever their sizeHint() has changed. The default version simply calls updateGeometry() at the parent level, which assumes that the parent's sizeHint() has automatically changed to reflect its child's new size.
+	virtual void notifyThatChildSizeHintChanged() { updateGeometry(); }
+
+	/// Access the currently-selected items (as a list of amd:// URLs).  Only meaningful for sections that know how to identify their selected items; the base implementation returns an empty list.
+	virtual QList<QUrl> selectedItems() const { return QList<QUrl>(); }
+
+signals:
+
+	/// For sections that know how to identify their selected items, this is emitted when the selection changes.
+	void selectionChanged();
 };
 
 
 
 /// This class implements a supremely awesome view of all the scan data found that can be found in a given database.  It can show scans from just one run, or just one experiment, or all runs or all experiments.  Beyond that, it can organize its data into sections based on the run, experiment, sample, element, or scan type.
-/*! Implementation note: this class  acts as a QGraphicsView container and a controller for AMDataViewSections and the specialized views employed by them.
+/*! Implementation note: this class  acts as a QGraphicsView container, and a controller for AMDataViewSections and the specialized views employed by them.
 
 The container functionality consists of a QGraphicsView, holding a QGraphicsScene with one top-level QGraphicsWidget. That internal QGraphicsWidget is resized in width whenever the AMDataView widget is resized, so that contained views may expand or shrink in height but always fill the width exactly. Only a vertical scroll bar is needed to scroll through the data.
 
@@ -114,7 +112,7 @@ The controller functionality consists of responding to signals from the Organize
 
 Some careful programmers will suggest that the controller functionality and view functionality (especially the QGraphicsView/resizing widget system) should be split into separate classes. All the power to you ; )
 
-Last of all, this class emits the selected(QList<QUrl>) and activated(QList<QUrl>) signals, to notify you when the user has selected or attempted to open a set of scans/objects. The format of the QUrls is the same as used for drag and drop events:
+Last of all, this class emits the selectionChanged() and selectionActivated(QList<QUrl>) signals, to notify you when the user has selected or attempted to open a set of scans/objects. The format of the QUrls is the same as used for drag and drop events:
 - amd://databaseConnectionName/tableName/objectId
 */
 class AMDataView : public QWidget, private Ui::AMDataView
@@ -125,9 +123,16 @@ public:
 	explicit AMDataView(AMDatabase* database = AMDatabase::userdb(), QWidget *parent = 0);
 
 
+	/// Access a list of the selected items, in the standard URL format: amd://databaseConnectionName/tableName/objectId
+	QList<QUrl> selectedItems() const { updateSelectedUrls(); return selectedUrls_; }
+
 signals:
-	void selected(const QList<QUrl>&);
-	void activated(const QList<QUrl>&);
+	/// Emitted whenever the selected scans change
+	void selectionChanged();
+	/// Emitted when the user attempts to open the selected scans
+	void selectionActivated(const QList<QUrl>&);
+	/// Emitted when the user attempts to open the selected scans in separate windows
+	void selectionActivatedSeparateWindows(const QList<QUrl> &);
 
 public slots:
 	/// setup this view to show a specific run (or use \c runId = -1 to see all runs)
@@ -147,15 +152,19 @@ public slots:
 	void collapseAll();
 
 
+
+
+
 protected slots:
 	/// called when the combo box is used to change the organizeMode
 	void onOrganizeModeBoxCurrentIndexChanged(int newIndex);
 	/// called when the view is resized
 	void onResize();
 
-	/// called when the scene selection changes. We use this to determine the selected items that represent scan objects
-	void onSceneSelectionChanged();
-	/// Called when something in the scene is double-clicked. We use this to send the activated() signal
+	/// called when the scene selection or item-views selection changes. Invalidates the selectedUrls_. When working with item-view based subviews, cancels the selection in other sections except the sender().
+	void onScanItemsSelectionChanged();
+
+	/// Called when something in the scene is double-clicked. We use this to send the selectionActivated() signal
 	void onSceneDoubleClicked();
 
 	/// call this to adjust the accessible region of the graphicsview (gview_) to match the size of the graphicswidget gwidget_ inside it. (Called from a signal after the gwidget_ is resized.)
@@ -167,6 +176,21 @@ protected slots:
 
 
 
+	/// When the "open in same window" action happens
+	void onCompareScansAction() {
+		updateSelectedUrls();
+		emit selectionActivated(selectedUrls_);
+	}
+
+	/// When the "open in separate window" action
+	void onEditScansAction() {
+		updateSelectedUrls();
+		emit selectionActivatedSeparateWindows(selectedUrls_);
+	}
+
+
+
+
 protected:
 	// Logic components:
 	AMDataViews::ViewMode viewMode_;
@@ -174,22 +198,22 @@ protected:
 	int runId_, experimentId_;
 	bool runOrExp_;
 
-	/// all the items inside the different "sections" need to be QGraphicsLayoutItems, as they are part of a QGraphicsLinearLayout
-	QList<QGraphicsLayoutItem*> sections_;
-	/// They also need to be AMAbstractDataViewSections, to let us constrain their width when the size of the view changes. Since making AMAbstractDataViewSection inherit from QGraphicsLayoutItem would cause a host of virtual inheritance problems for real objects, instead we just store the pointers for each section twice, under both types.
-	QList<AMAbstractDataViewSection*> sections__;
+	/// All of the top-level sections in our view.
+	QList<AMAbstractDataViewSection*> sections_;
 
 	/// The database explored with this view
 	AMDatabase* db_;
 	/// the user's name, with appropriate possesive ending to be tacked onto "Data".  (ie: Mark Boots's )
 	QString userName_;
 
-	/// The database id's of currently selected scans
-	QList<int> selectedIds_;
-	QStringList selectedTableNames_;
-	QList<QUrl> selectedUrls_;
-	/// This helper function packages the selectedIds_ and selectedTableNames_ into the selectedUrls_ format, and emits the selected() signal.
-	void processNewSelectedIds();
+
+	/// A prepared list the selected items, as amd://databaseConnectionName/tableName/objectId URLs.
+	mutable QList<QUrl> selectedUrls_;
+	/// True if the selection has changed and selectedUrls_ is dirty.
+	mutable bool selectedUrlsUpdateRequired_;
+
+	/// This helper function analyzes the current selection and updates selectedUrls_;
+	void updateSelectedUrls() const;
 
 
 
@@ -224,7 +248,7 @@ protected:
 
 
 /// This class provides a view of one "section" of a multi-part database view.  What is shown inside the section depends on the filter specified using an SQL "WHERE" clause.  The section can be collapsed (hidden) or expanded (shown), to save screen real-estate and reduce the amount of data that must be loaded.
-class AMDataViewSection : public QGraphicsWidget, public AMAbstractDataViewSection, private Ui::AMDataViewSectionHeader {
+class AMDataViewSection : public AMAbstractDataViewSection, private Ui::AMDataViewSectionHeader {
 	Q_OBJECT
 
 public:
@@ -234,24 +258,24 @@ public:
 
 	void setWidthConstraint(double widthConstraint) {
 		widthConstraint_ = widthConstraint;
-		if(subview__)
-			subview__->setWidthConstraint(widthConstraint_);
+		if(subview_)
+			subview_->setWidthConstraint(widthConstraint_);
 		updateGeometry();
 	}
 
 
 	void setItemSize(int relativeItemSize) {
 		itemSize_ = relativeItemSize;
-		if(subview__) {
-			subview__->setItemSize(itemSize_);
-
-			// ideally, the subview or its layout calls updateGeometry() or invalidate() here because it's size has changed.  If we were the "parent layout", we would get called and continue forwarding updateGeometry() up the nested layouts. Instead, we need to do this:
-			updateGeometry(); /// \todo Optimization: if the old and new sizeHint()s of the subview are the same, don't updateGeometry().
-				// this is a hint that we should be managing the header and subview as a custom layout, not simply as a parent graphics item. Maybe later... this works for now.
-				// Note that we could install an event filter on the subview, to catch the LayoutRequest event instead.  But this doesn't let us benefit from layout event compression (ie: doing all the updateGeometry() / size changed notification synchronously, and posting one master re-layout for later), which means we could be laid out twice, which is inefficient.
+		if(subview_) {
+			subview_->setItemSize(itemSize_);
 		}
 	}
 
+	virtual QList<QUrl> selectedItems() const {
+		if(subview_)
+			return subview_->selectedItems();
+		return QList<QUrl>();
+	}
 
 	/// Re-implemented function, to manage the size and position of our child items: the header, and the subview.
 	void setGeometry(const QRectF &rect);
@@ -272,8 +296,7 @@ protected:
 	QFrame* proxiedWidget_;
 	QGraphicsProxyWidget* proxyWidget_;
 
-	QGraphicsLayoutItem* subview_;
-	AMAbstractDataViewSection* subview__;
+	AMAbstractDataViewSection* subview_;
 	 double widthConstraint_;
 	 int itemSize_;
 
@@ -288,10 +311,9 @@ protected:
 
 class AMFlowGraphicsLayout;
 class AMThumbnailScrollGraphicsWidget;
-#include <QGraphicsView>
 
 /// This widget is used inside an AMDataViewSection to show the section's items using thumbnails.
-class AMDataViewSectionThumbnailView : public QGraphicsWidget, public AMAbstractDataViewSection {
+class AMDataViewSectionThumbnailView : public AMAbstractDataViewSection {
 	Q_OBJECT
 
 public:
@@ -302,10 +324,14 @@ public:
 		layout_->setDefaultWidth(widthConstraint);
 	}
 
-	/// We use relativeItemSize to scale the thumbnails from 120px wide to ___ wide.  The \c relativeItemSize is from 0 to 100, where 50 is normal, 0 is "smallest useful", and 100 is "largest useful".
+	/// We use relativeItemSize to scale the thumbnails from 80px wide to ___ wide.  The \c relativeItemSize is from 0 to 100, where 50 is normal, 0 is "smallest useful", and 100 is "largest useful".
 	void setItemSize(int relativeItemSize) {
 		int width = (double)relativeItemSize/50.0*160.0 + 80;
-		layout_->setItemSizeConstraint(QSizeF(width, -1));
+		layout_->setItemSizeConstraint(QSizeF(width, -1));	// this will change our size hint
+
+		AMAbstractDataViewSection* parent = qobject_cast<AMAbstractDataViewSection*>(parentWidget());
+		if(parent)
+			parent->notifyThatChildSizeHintChanged();
 	}
 
 protected slots:
@@ -323,14 +349,69 @@ protected:
 
 };
 
+#include <QTableView>
+#include <QKeyEvent>
+
+/// This QTableView is reimplemented to ignore scroll events
+class AMIgnoreScrollTableView : public QTableView {
+	Q_OBJECT
+
+public:
+	AMIgnoreScrollTableView(QWidget* parent = 0) : QTableView(parent) {}
+
+	virtual bool event(QEvent *event);
+};
+
+#include "ui/AMScanQueryModel.h"
+
+/// This widget is used inside an AMDataViewSection to show the section's items in a table (list, or detail) view.
+class AMDataViewSectionListView : public AMAbstractDataViewSection {
+	Q_OBJECT
+
+public:
+	explicit AMDataViewSectionListView(AMDatabase* db, const QString& dbTableName, const QString& whereClause, QGraphicsItem* parent = 0, double initialWidthConstraint = 400, int initialItemSize = 50);
+
+	virtual ~AMDataViewSectionListView() {
+		delete tableView_;
+		delete tableModel_;
+	}
+
+	virtual void setWidthConstraint(double widthConstraint);
+
+	/// Returns the currently selected items, in the amd://databaseConnectionName/tableName/objectId URL format.
+	QList<QUrl> selectedItems() const;
+
+protected slots:
+	/// The AMScanQueryModel loads a maximum of 256 rows at once... and this is what will be loaded when we call refreshQuery().  We need to catch the signal when rows are inserted in the model, and use this to signal that our desired sizeHint has changed.
+	void onRowsAddedOrRemoved();
+
+protected:
+
+protected:
+	QGraphicsProxyWidget* proxyWidget_;
+	AMIgnoreScrollTableView* tableView_;
+	AMScanQueryModel* tableModel_;
+
+	QGraphicsLinearLayout* layout_;
+
+	double widthConstraint_;
+
+	AMDatabase* db_;
+	QString tableName_, whereClause_;
+
+	/// Re-implemented to return a height based on the model's rowCount() and the height of each row (according to the QHeaderView). This ensures that we ask to be large enough to fit the whole view, without scroll bars.
+	QSizeF sizeHint(Qt::SizeHint which, const QSizeF &constraint) const;
+
+
+};
 
 #include <QGraphicsProxyWidget>
 
-class AMDataViewEmptyHeader : public QGraphicsWidget, public AMAbstractDataViewSection, private Ui::AMDataViewEmptyHeader {
+class AMDataViewEmptyHeader : public AMAbstractDataViewSection, private Ui::AMDataViewEmptyHeader {
 	Q_OBJECT
 public:
 	explicit AMDataViewEmptyHeader(const QString& message, QGraphicsItem* parent = 0)
-		: QGraphicsWidget(parent) {
+		: AMAbstractDataViewSection(parent) {
 		proxiedWidget_ = new QWidget();
 		setupUi(proxiedWidget_);
 		QGraphicsProxyWidget* proxy = new QGraphicsProxyWidget(this);

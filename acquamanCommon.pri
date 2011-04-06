@@ -51,9 +51,9 @@ linux-g++ {
 	GSL_CBLAS_LIB = -lgslcblas
 
 	# VLC Dependencies
-	VLC_LIB = -lvlc
-	VLC_INCLUDE_DIR = /usr/include
-	VLC_PLUGIN_PATH = /usr/lib/vlc/plugins/
+	#VLC_LIB = -lvlc
+	#VLC_INCLUDE_DIR = /usr/include
+	#VLC_PLUGIN_PATH = /usr/lib/vlc/plugins/
 
 	# LibXML Dependencies (required by dacq library)
 	XML_LIB = -lxml2
@@ -79,16 +79,16 @@ LIBS += $$GSL_LIB \
 	-L$$EPICS_LIB_DIR -lca -lCom
 
 # VLC plugin path: define as pre-processor symbol
-DEFINES += "VLC_PLUGIN_PATH=$$VLC_PLUGIN_PATH"
+#DEFINES += "VLC_PLUGIN_PATH=$$VLC_PLUGIN_PATH"
 
 # Specify runtime search locations for libraries (Must change for release bundle, if epics in a different location)
 macx {
 	# 4.7.0 and earlier:
-	QMAKE_LFLAGS_RPATH += "$$EPICS_LIB_DIR"
+	#QMAKE_LFLAGS_RPATH += "$$EPICS_LIB_DIR"
 
 	# 4.7.2: Use same as linux-g++
-	# QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
-	# QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
+	QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
+	QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
 }
 linux-g++ {
 	QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
@@ -284,7 +284,8 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMSamplePositionViewActionsWidget.h \
 	source/beamline/AMBeamlineListAction.h \
 	source/beamline/AMBeamlineControlWaitAction.h \
-	source/beamline/AMBeamlineUserConfirmAction.h
+	source/beamline/AMBeamlineUserConfirmAction.h \
+	source/ui/AMScanQueryModel.h
 FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
 	source/ui/AMDataViewSectionHeader.ui \
@@ -474,11 +475,12 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMSamplePositionViewActionsWidget.cpp \
 	source/beamline/AMBeamlineListAction.cpp \
 	source/beamline/AMBeamlineControlWaitAction.cpp \
-	source/beamline/AMBeamlineUserConfirmAction.cpp
+	source/beamline/AMBeamlineUserConfirmAction.cpp \
+	source/ui/AMScanQueryModel.cpp
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc \
 	source/util/ElementData.qrc \
-    source/stylesheets/stylesheets.qrc
+	source/stylesheets/stylesheets.qrc
 
 macx {
 # Removed for now: OS-native video implementation
@@ -487,5 +489,5 @@ macx {
 }
 
 OTHER_FILES += \
-    source/stylesheets/sliderWaitLessThan.qss \
-    source/stylesheets/sliderWaitGreaterThan.qss
+	source/stylesheets/sliderWaitLessThan.qss \
+	source/stylesheets/sliderWaitGreaterThan.qss

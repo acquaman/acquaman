@@ -98,15 +98,15 @@ bool AMCloseItemDelegate::editorEvent ( QEvent * event, QAbstractItemModel * mod
 		mouseDownPosition_ = static_cast<QMouseEvent*>(event)->pos();
 		QPoint localPos = mouseDownPosition_ - option.rect.topLeft();
 
-		qDebug() << "CLOSE ITEM: mouseDownPosition" << mouseDownPosition_ << "local pos:" << localPos << "close button rect:" << closeButtonRect_;
+		// qDebug() << "CLOSE ITEM: mouseDownPosition" << mouseDownPosition_ << "local pos:" << localPos << "close button rect:" << closeButtonRect_;
 
 		if(closeButtonRect_.contains(localPos)) {
-			qDebug() << "CLOSE ITEM: do close!";
+			// qDebug() << "CLOSE ITEM: do close!";
 
 			// On mac, qlistviews in comboboxes don't report mouse-button release events. So we have to handle it here.
 #ifdef Q_WS_MAC
 			emit closeButtonClicked(index);
-			qDebug() << "CLOSE ITEM: do close!";
+			// qDebug() << "CLOSE ITEM: do close!";
 
 			if(closeButtonAction_ == RemoveFromModel) {
 				model->removeRow(index.row(), index.parent());

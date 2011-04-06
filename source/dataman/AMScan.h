@@ -46,6 +46,7 @@ class AMScan : public AMDbObject {
 	Q_PROPERTY(QDateTime dateTime READ dateTime WRITE setDateTime NOTIFY dateTimeChanged)
 	Q_PROPERTY(int runId READ runId WRITE setRunId)
 	Q_PROPERTY(int sampleId READ sampleId WRITE setSampleId NOTIFY sampleIdChanged)
+	Q_PROPERTY(int facilityId READ facilityId WRITE setFacilityId)
 	Q_PROPERTY(QString notes READ notes WRITE setNotes)
 	Q_PROPERTY(QString fileFormat READ fileFormat WRITE setFileFormat)
 	Q_PROPERTY(QString filePath READ filePath WRITE setFilePath)
@@ -92,6 +93,8 @@ public:
 	int runId() const { return runId_; }
 	/// Returns id of the scan's sample (or -1 if a sample has not been assigned)
 	int sampleId() const { return sampleId_; }
+	/// Returns the id of the facility where this scan was done (or -1 if a facility has not been assigned)
+	int facilityId() const { return facilityId_; }
 	/// Returns notes/comments for scan
 	QString notes() const { return notes_; }
 
@@ -316,6 +319,8 @@ public slots:
 	void setRunId(int newRunId);
 	/// Sets the sample associated with this scan.
 	void setSampleId(int newSampleId);
+	/// Set the facility where this scan was performed.
+	void setFacilityId(int newFacilityId);
 
 	/// Sets notes for scan
 	void setNotes(const QString &notes) { notes_ = notes; setModified(true); }
@@ -374,8 +379,8 @@ protected:
 	int number_;
 	/// Scan start time
 	QDateTime dateTime_;
-	/// database id of the run and sample that this scan is associated with
-	int runId_, sampleId_;
+	/// database id of the run, sample, and facility that this scan is associated with
+	int runId_, sampleId_, facilityId_;
 	/// notes for this sample. Can be plain or rich text, as long as you want it...
 	QString notes_;
 	/// The absolute file path where this scan's data is stored (if there is an external data file), and the format tag describing the data format.
