@@ -165,11 +165,11 @@ public:
 
 	AMBeamlineParallelActionsList* stopMotorsActionsList();
 
-	AMBeamlineListAction* transferActions(SGMBeamline::sgmTransferType transferType);
-	AMBeamlineListAction* transferLoadlockOutActions();
-	AMBeamlineListAction* transferLoadlockInActions();
-	AMBeamlineListAction* transferChamberOutActions();
-	AMBeamlineListAction* transferChamberInActions();
+	AMBeamlineListAction* createTransferActions(SGMBeamline::sgmTransferType transferType);
+	AMBeamlineListAction* createTransferLoadLockOutActions();
+	AMBeamlineListAction* createTransferLoadLockInActions();
+	AMBeamlineListAction* createTransferChamberOutActions();
+	AMBeamlineListAction* createTransferChamberInActions();
 
 	bool isBeamlineScanning();
 
@@ -202,18 +202,6 @@ protected slots:
 	void onCriticalControlsConnectedChanged(bool isConnected, AMControl *controll);
 
 	void recomputeWarnings();
-
-	void createTransferLoadLockOutActions();
-	void onTransferLoadLockOutActionsFinished();
-
-	void createTransferLoadLockInActions();
-	void onTransferLoadLockInActionsFinished();
-
-	void createTransferChamberOutActions();
-	void onTransferChamberOutActionsFinished();
-
-	void createTransferChamberInActions();
-	void onTransferChamberInActionsFinished();
 
 	void createBeamOnActions();
 	void onBeamOnActionsFinsihed();
@@ -324,44 +312,19 @@ protected:
 	/// The sample plate currently in the SSA chamber:
 	AMSamplePlate* currentSamplePlate_;
 
-	AMBeamlineUserConfirmAction *transferLoadLockOutAction1_;
-	AMBeamlineControlWaitAction *transferLoadLockOutAction2_;
-	AMBeamlineUserConfirmAction *transferLoadLockOutAction3_;
-	AMBeamlineUserConfirmAction *transferLoadLockOutAction4_;
-	AMBeamlineControlWaitAction *transferLoadLockOutAction5_;
-	AMBeamlineUserConfirmAction *transferLoadLockOutAction6_;
-	AMBeamlineParallelActionsList *transferLoadLockOutList_;
-	AMBeamlineListAction *transferLoadLockOutAction_;
+
 	AMOrderedSet<QString, QPixmap> transferLoadLockOutAction1Help_;
 	AMOrderedSet<QString, QPixmap> transferLoadLockOutAction2Help_;
 	AMOrderedSet<QString, QPixmap> transferLoadLockOutAction3Help_;
 	AMOrderedSet<QString, QPixmap> transferLoadLockOutAction4Help_;
 	AMOrderedSet<QString, QPixmap> transferLoadLockOutAction5Help_;
 
-	AMBeamlineUserConfirmAction *transferLoadLockInAction1_;
-	AMBeamlineUserConfirmAction *transferLoadLockInAction2_;
-	AMBeamlineControlWaitAction *transferLoadLockInAction3_;
-	AMBeamlineUserConfirmAction *transferLoadLockInAction4_;
-	AMBeamlineControlWaitAction *transferLoadLockInAction5_;
-	AMBeamlineControlWaitAction *transferLoadLockInAction6_;
-	AMBeamlineParallelActionsList *transferLoadLockInList_;
-	AMBeamlineListAction *transferLoadLockInAction_;
 	AMOrderedSet<QString, QPixmap> transferLoadLockInAction2Help_;
 	AMOrderedSet<QString, QPixmap> transferLoadLockInAction3Help_;
 	AMOrderedSet<QString, QPixmap> transferLoadLockInAction4Help_;
 	AMOrderedSet<QString, QPixmap> transferLoadLockInAction5Help_;
 	AMOrderedSet<QString, QPixmap> transferLoadLockInAction6Help_;
 
-	AMBeamlineUserConfirmAction *transferChamberOutAction1_;
-	AMBeamlineUserConfirmAction *transferChamberOutAction2_;
-	AMBeamlineUserConfirmAction *transferChamberOutAction3_;
-	AMBeamlineUserConfirmAction *transferChamberOutAction4_;
-	AMBeamlineUserConfirmAction *transferChamberOutAction5_;
-	AMBeamlineUserConfirmAction *transferChamberOutAction6_;
-	AMBeamlineUserConfirmAction *transferChamberOutAction7_;
-	AMBeamlineUserConfirmAction *transferChamberOutAction8_;
-	AMBeamlineParallelActionsList *transferChamberOutList_;
-	AMBeamlineListAction *transferChamberOutAction_;
 	AMOrderedSet<QString, QPixmap> transferChamberOutAction1Help_;
 	AMOrderedSet<QString, QPixmap> transferChamberOutAction3Help_;
 	AMOrderedSet<QString, QPixmap> transferChamberOutAction5Help_;
@@ -369,13 +332,6 @@ protected:
 	AMOrderedSet<QString, QPixmap> transferChamberOutAction7Help_;
 	AMOrderedSet<QString, QPixmap> transferChamberOutAction8Help_;
 
-	AMBeamlineUserConfirmAction *transferChamberInAction1_;
-	AMBeamlineUserConfirmAction *transferChamberInAction2_;
-	AMBeamlineUserConfirmAction *transferChamberInAction3_;
-	AMBeamlineUserConfirmAction *transferChamberInAction4_;
-	AMBeamlineUserConfirmAction *transferChamberInAction5_;
-	AMBeamlineParallelActionsList *transferChamberInList_;
-	AMBeamlineListAction *transferChamberInAction_;
 	AMOrderedSet<QString, QPixmap> transferChamberInAction1Help_;
 	AMOrderedSet<QString, QPixmap> transferChamberInAction2Help_;
 	AMOrderedSet<QString, QPixmap> transferChamberInAction3Help_;
