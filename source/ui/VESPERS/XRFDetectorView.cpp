@@ -1,5 +1,8 @@
 #include "XRFDetectorView.h"
 #include "DeadTimeButton.h"
+#include "MPlot/MPlotTools.h"
+#include "MPlot/MPlotMarker.h"
+#include "ui/AMPeriodicTableView.h"
 
 #include <QString>
 #include <QToolButton>
@@ -80,19 +83,84 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 
 	detector_ = static_cast<XRFDetector *>(detector);
 
+	AMPeriodicTableView *table = new AMPeriodicTableView;
+
+	QHBoxLayout *viewLayout = new QHBoxLayout;
+	viewLayout->addLayout(setupPlot());
+	viewLayout->addLayout(setupControls());
+
+	QVBoxLayout *tableLayout = new QVBoxLayout;
+	tableLayout->addLayout(viewLayout);
+	tableLayout->addWidget(table);
+
+	setLayout(tableLayout);
+
+	return true;
+}
+
+void XRFDetailedDetectorView::elementClicked(int elementId)
+{
+	// If the button is checked then it means the element should be disabled.
+	if (deadTimeGroup_->button(elementId)->isChecked())
+		detector_->disableElement(elementId);
+	else
+		detector_->enableElement(elementId);
+}
+
+void XRFDetailedDetectorView::onDeadTimeUpdate()
+{
+	deadTime_->setText(QString::number(detector_->deadTime()) + " %");
+}
+
+void XRFDetailedDetectorView::onElapsedTimeUpdate(double time)
+{
+	elapsedTime_->setText(QString::number(time, 'f', 2) + " s");
+}
+
+void XRFDetailedDetectorView::applyLog(bool apply)
+{
+	/// \todo implement the applyLog method
+}
+
+void XRFDetailedDetectorView::applyChannel(bool apply)
+{
+	if (apply){
+
+		//plot_->axisBottom()->setScale(detector_->scale());
+		plot_->axisBottom()->setAxisName("Energy, eV");
+	}
+	else{
+
+		//plot_->axisBottom()->setScale(1.0/detector_->scale());
+		plot_->axisBottom()->setAxisName("Channel #");
+	}
+}
+
+void XRFDetailedDetectorView::applyWaterfall(bool apply)
+{
+	/// \todo implement the applyWaterfall method.
+}
+
+QLayout *XRFDetailedDetectorView::setupControls()
+{
 	QToolButton *start = new QToolButton;
 	start->setIcon(QIcon(":/play_button_green.png"));
+	connect(start, SIGNAL(clicked()), detector_, SLOT(start()));
 
 	QToolButton *stop = new QToolButton;
 	stop->setIcon(QIcon(":/red-stop-button.png"));
+	connect(stop, SIGNAL(clicked()), detector_, SLOT(stop()));
 
 	integrationTime_ = new QDoubleSpinBox;
 	integrationTime_->setSuffix(" s");
 	integrationTime_->setSingleStep(0.1);
+	connect(detector_->integrationTimeControl(), SIGNAL(valueChanged(double)), integrationTime_, SLOT(setValue(double)));
 
 	elapsedTime_ = new QLabel(tr(" s"));
+	connect(detector_->elapsedTimeControl(), SIGNAL(valueChanged(double)), this, SLOT(onElapsedTimeUpdate(double)));
 
 	deadTime_ = new QLabel(tr(" %"));
+	connect(detector_->deadTimeControl(), SIGNAL(controlSetValuesChanged(AMControlInfoList)), this, SLOT(onDeadTimeUpdate()));
 
 	// Using a button group so I know which element I need to disable.
 	DeadTimeButton *temp;
@@ -105,13 +173,17 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 
 		temp = new DeadTimeButton(15.0, 30.0);
 		temp->setCheckable(true);
-		temp->setCurrent(10);
 		temp->setFixedSize(20, 20);
+		connect(detector_->deadTimeControl()->at(i), SIGNAL(valueChanged(double)), temp, SLOT(setCurrent(double)));
 		deadTimeLayout->addWidget(temp);
 		deadTimeGroup_->addButton(temp, i);
 	}
 
-	connect(deadTimeGroup_, SIGNAL(buttonClicked(int)), this, SLOT(elementClicked(int)));
+	if (detector_->elements() == 1)
+		deadTimeGroup_->button(0)->setCheckable(false);
+	else
+		connect(deadTimeGroup_, SIGNAL(buttonClicked(int)), this, SLOT(elementClicked(int)));
+
 	QGroupBox *deadTimeBox = new QGroupBox;
 	deadTimeBox->setFlat(true);
 	deadTimeBox->setLayout(deadTimeLayout);
@@ -119,14 +191,17 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	QToolButton *log = new QToolButton;
 	log->setCheckable(true);
 	log->setText("Log");
+	connect(log, SIGNAL(toggled(bool)), this, SLOT(applyLog(bool)));
 
 	QToolButton *channels = new QToolButton;
 	channels->setCheckable(true);
 	channels->setText("Channel #");
+	connect(channels, SIGNAL(toggled(bool)), this, SLOT(applyChannel(bool)));
 
 	QToolButton *waterfallButton = new QToolButton;
 	waterfallButton->setCheckable(true);
 	waterfallButton->setText("Raw Data");
+	connect(waterfallButton, SIGNAL(toggled(bool)), this, SLOT(applyWaterfall(bool)));
 
 	waterfall_ = new QDoubleSpinBox;
 	waterfall_->setValue(0.1);
@@ -135,6 +210,12 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	waterfall_->setEnabled(false);
 
 	connect(waterfallButton, SIGNAL(toggled(bool)), waterfall_, SLOT(setEnabled(bool)));
+
+	if (detector_->elements() == 1){
+
+		waterfallButton->hide();
+		waterfall_->hide();
+	}
 
 	QGridLayout *controlsLayout = new QGridLayout;
 	controlsLayout->addWidget(start, 0, 0);
@@ -152,26 +233,57 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	controls->setLayout(controlsLayout);
 	controls->setFlat(true);
 
-	QVBoxLayout *tempStretch = new QVBoxLayout;
-	tempStretch->addWidget(controls);
-	tempStretch->addStretch();
+	QVBoxLayout *layout = new QVBoxLayout;
+	layout->addWidget(controls);
+	layout->addStretch();
 
-	QHBoxLayout *viewLayout = new QHBoxLayout;
-	viewLayout->addStretch();
-	viewLayout->addLayout(tempStretch);
-
-	setLayout(viewLayout);
-
-	return true;
+	return layout;
 }
 
-void XRFDetailedDetectorView::elementClicked(int elementId)
+QLayout *XRFDetailedDetectorView::setupPlot()
 {
-	// If the button is checked then it means the element should be disabled.
-	if (deadTimeGroup_->button(elementId)->isChecked())
-		detector_->disableElement(elementId);
-	else
-		detector_->enableElement(elementId);
+	// Create the plot window.
+	plotWindow_ = new MPlotWidget;
+	plotWindow_->enableAntiAliasing(true);
+
+	// Create the plot and setup all the axes.
+	plot_ = new MPlot;
+	plot_->axisBottom()->setAxisNameFont(QFont("Helvetica", 11));
+	plot_->axisBottom()->setTickLabelFont(QFont("Helvetica", 11));
+	plot_->axisBottom()->setAxisName("Channel number");
+	plot_->axisLeft()->setAxisNameFont(QFont("Helvetica", 11));
+	plot_->axisLeft()->setTickLabelFont(QFont("Helvetica", 11));
+	plot_->axisLeft()->setAxisName("Counts");
+
+	// Set the margins for the plot.
+	plot_->setMarginLeft(15);
+	plot_->setMarginBottom(15);
+	plot_->setMarginRight(2);
+	plot_->setMarginTop(2);
+
+	// Enable autoscaling on the left axis only.  The bottom axis is static: either chan. or eV.
+	plot_->enableAutoScaleLeft(true);
+	plot_->enableAutoScaleBottom(true);
+
+	// Enable some convenient zoom tools.
+	plot_->addTool(new MPlotDragZoomerTool());
+	plot_->addTool(new MPlotWheelZoomerTool());
+	plotWindow_->setPlot(plot_);
+
+	// Set the number of ticks.  A balance between readability and being practical.
+	plot_->axisBottom()->setTicks(3);
+	plot_->axisTop()->setTicks(0);
+	plot_->axisLeft()->setTicks(4);
+	plot_->axisRight()->setTicks(0);
+
+	// Set the name of the left axis.
+	plot_->axisLeft()->setAxisName("Counts");
+
+	// Put it in a layout for viewing.
+	QHBoxLayout *plotLayout = new QHBoxLayout;
+	plotLayout->addWidget(plotWindow_);
+
+	return plotLayout;
 }
 
 // End detailed detector view

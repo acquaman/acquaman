@@ -214,6 +214,8 @@ void VESPERSBeamline::setupSingleElementDetector()
 								deadTime1E_,
 								spectrum1E_,
 								this);
+
+	connect(vortexXRF1E(), SIGNAL(connected(bool)), this, SLOT(singleElVortexError()));
 }
 
 void VESPERSBeamline::setupFourElementDetector()
@@ -288,6 +290,8 @@ void VESPERSBeamline::setupFourElementDetector()
 								deadTime4E_,
 								spectra4E_,
 								this);
+
+	connect(vortexXRF4E(), SIGNAL(connected(bool)), this, SLOT(fourElVortexError()));
 }
 
 void VESPERSBeamline::setupControlSets()
@@ -575,6 +579,16 @@ void VESPERSBeamline::flowTransducerError()
 		error.prepend("The following flow transducers are measuring too low:\n");
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, 0, error));
 	}
+}
+
+void VESPERSBeamline::singleElVortexError()
+{
+	AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "The single element vortex detector is no longer connected."));
+}
+
+void VESPERSBeamline::fourElVortexError()
+{
+	AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "The four element vortex detector is no longer connected."));
 }
 
 VESPERSBeamline::~VESPERSBeamline()

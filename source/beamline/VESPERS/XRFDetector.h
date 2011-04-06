@@ -40,7 +40,7 @@ public:
 
 	/// Returns the current elapsed time.
 	double elapsedTime() const { return elapsedTimeControl()->value(); }
-	/// Returns the current dead time. For detectors with more than one element, it returns the worst value.
+	/// Returns the current dead time. For detectors with more than one element, it returns the highest value.
 	double deadTime() const;
 
 	// End of getters that aren't included in the info.
@@ -108,7 +108,7 @@ public slots:
 
 
 signals:
-	/// Emitted when the connected state changes.
+	/// Only emitted as true when all of the controls in the detector are connected. Is emitted false when any of the controls within the detector become unconnected.
 	void connected(bool);
 	/// Emitted when the settings control set changes.
 	void settingsChanged(AMControlInfoList);

@@ -20,6 +20,7 @@ void DeadTimeButton::paintEvent(QPaintEvent *e)
 	// Main button box.  Uses the standand push button style for the basic aspects of the box.
 	QStyleOptionButton option;
 	option.initFrom(this);
+	option.state = QStyle::State_Off;
 
 	if (current() < good())
 		setPalette(QPalette(Qt::black, QColor(20, 220, 20), Qt::gray, Qt::darkGray, QColor(170, 170, 170), Qt::black, Qt::red, Qt::green, QColor(0, 200, 0)));
@@ -28,16 +29,10 @@ void DeadTimeButton::paintEvent(QPaintEvent *e)
 	else
 		setPalette(QPalette(Qt::black, QColor(220, 20, 20), Qt::gray, Qt::darkGray, QColor(170, 170, 170), Qt::black, Qt::red, Qt::red, QColor(200, 0, 0)));
 
-	if (!isChecked()){
-
-		option.state = QStyle::State_Off;
+	if (!isChecked())
 		option.palette = palette();
-	}
-	else{
-
-		option.state = QStyle::State_On;
-		option.palette = QPalette(Qt::black, QColor(175, 175, 175), Qt::gray, Qt::darkGray, QColor(170, 170, 170), Qt::black, Qt::red, Qt::darkGray, QColor(150, 150, 150));
-	}
+	else
+		option.palette = QPalette(Qt::black, QColor(225, 225, 225, 100), Qt::gray, Qt::gray, QColor(225, 225, 225), Qt::gray, Qt::gray, Qt::gray, QColor(225, 225, 225));
 
 	style()->drawControl(QStyle::CE_PushButton, &option, &painter, this);
 }

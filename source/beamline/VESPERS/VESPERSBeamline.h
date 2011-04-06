@@ -380,6 +380,10 @@ protected slots:
 	void flowSwitchError();
 	/// Slot used to deal with flow transducer errors.
 	void flowTransducerError();
+	/// Slot used to deal with single element detector errors.
+	void singleElVortexError();
+	/// Slot used to deal with four element vortex detector errors.
+	void fourElVortexError();
 
 protected:
 	/// Sets up the readings such as pressure, flow switches, temperature, etc.

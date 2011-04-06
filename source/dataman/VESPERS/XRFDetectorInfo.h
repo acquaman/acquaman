@@ -58,6 +58,8 @@ public:
 	int channels() const { return channels_; }
 	/// The maximum energy calibration for the detector.  Primary indicator for energy divisions per channel number.
 	double maximumEnergy() const { return maxEnergy_; }
+	/// Returns the scale that would transform an energy and width into upper and lower bounds for a detector.
+	double scale() const { return maximumEnergy()*1000/channels(); }
 	/// The number of elements in the detector.
 	int elements() const { return elements_; }
 	/// The number of active elements.  The number currently being used (note: #active <= #elements).
