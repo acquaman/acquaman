@@ -84,7 +84,7 @@ class AMScanQueryModel : public QSqlQueryModel
 {
 	Q_OBJECT
 public:
-	/// Construct a model exposing the given database \c db.  If \c tableName is left empty, the default table is AMDbObjectSupport::tableForClass<AMScan>().  If \c columnsToShow is left empty, the default columns are: {name, number, dateTime, scanInfo, sampleId, notes, AMDbObjectType, facilityId}.  \c whereClause allows you to specify a filter on the results, that is suitable for appending after an SQL "WHERE" statement; you can leave this empty if you don't want to filter the results.
+	/// Construct a model exposing the given database \c db.  If \c tableName is left empty, the default table is AMDbObjectSupport::tableForClass<AMScan>().  If \c columnsToShow is left empty, the default columns are: {id, name, number, dateTime, scanInfo, sampleId, notes, AMDbObjectType, facilityId}.  \c whereClause allows you to specify a filter on the results, that is suitable for appending after an SQL "WHERE" statement; you can leave this empty if you don't want to filter the results.
 	explicit AMScanQueryModel(AMDatabase* db,
 							  QObject *parent = 0,
 							  const QString& tableName = QString(),

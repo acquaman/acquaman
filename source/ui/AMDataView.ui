@@ -212,32 +212,125 @@ color: rgb(79, 79, 79);</string>
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_4">
        <property name="topMargin">
-        <number>6</number>
+        <number>0</number>
        </property>
        <property name="rightMargin">
         <number>0</number>
        </property>
        <property name="bottomMargin">
-        <number>6</number>
+        <number>0</number>
        </property>
        <item>
-        <widget class="QToolButton" name="opeButton2">
+        <widget class="QToolButton" name="openSeparateEditorButton">
+         <property name="toolTip">
+          <string>Open in Separate Editors</string>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QToolButton:hover {
+	border-top: 1px solid transparent;
+}
+
+QToolButton:pressed {
+border-top: 3px solid transparent;
+}
+
+QToolButton {
+border: none;
+}
+
+</string>
+         </property>
          <property name="text">
-          <string>...</string>
+          <string>Edit</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../icons/icons.qrc">
+           <normaloff>:/32x32/edit-find-replace.png</normaloff>:/32x32/edit-find-replace.png</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>32</width>
+           <height>32</height>
+          </size>
+         </property>
+         <property name="toolButtonStyle">
+          <enum>Qt::ToolButtonTextUnderIcon</enum>
+         </property>
+         <property name="autoRaise">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QToolButton" name="openButton1">
+        <widget class="QToolButton" name="openSameEditorButton">
+         <property name="toolTip">
+          <string>Open in Same Editor</string>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QToolButton:hover {
+	border-top: 1px solid transparent;
+}
+
+QToolButton:pressed {
+border-top: 3px solid transparent;
+}
+
+QToolButton {
+border: none;
+}
+
+</string>
+         </property>
          <property name="text">
-          <string>...</string>
+          <string>Compare</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../icons/icons.qrc">
+           <normaloff>:/32x32/preferences-desktop-theme.png</normaloff>:/32x32/preferences-desktop-theme.png</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>32</width>
+           <height>32</height>
+          </size>
+         </property>
+         <property name="toolButtonStyle">
+          <enum>Qt::ToolButtonTextUnderIcon</enum>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QToolButton" name="openButton3">
+        <widget class="QToolButton" name="exportButton">
+         <property name="styleSheet">
+          <string notr="true">QToolButton:hover {
+	border-top: 1px solid transparent;
+}
+
+QToolButton:pressed {
+border-top: 3px solid transparent;
+}
+
+QToolButton {
+border: none;
+}
+
+</string>
+         </property>
          <property name="text">
-          <string>...</string>
+          <string>Export</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../icons/icons.qrc">
+           <normaloff>:/32x32/system-file-manager.png</normaloff>:/32x32/system-file-manager.png</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>32</width>
+           <height>32</height>
+          </size>
+         </property>
+         <property name="toolButtonStyle">
+          <enum>Qt::ToolButtonTextUnderIcon</enum>
          </property>
         </widget>
        </item>
@@ -259,22 +352,80 @@ color: rgb(79, 79, 79);</string>
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_5">
        <property name="topMargin">
-        <number>6</number>
+        <number>0</number>
        </property>
        <property name="bottomMargin">
-        <number>6</number>
+        <number>0</number>
        </property>
        <item>
         <widget class="QToolButton" name="expandAllButton">
+         <property name="styleSheet">
+          <string notr="true">QToolButton:hover {
+	border: 1px solid transparent;
+}
+
+QToolButton:pressed {
+	border: 1px solid gray;
+background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(233, 233, 233, 255), stop:0.502513 rgba(199, 198, 198, 255), stop:1 rgba(163, 162, 162, 255));
+}
+
+QToolButton {
+border: none;
+}
+
+</string>
+         </property>
          <property name="text">
           <string>Expand All</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../icons/icons.qrc">
+           <normaloff>:/32x32/list-add.png</normaloff>:/32x32/list-add.png</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>32</width>
+           <height>32</height>
+          </size>
+         </property>
+         <property name="toolButtonStyle">
+          <enum>Qt::ToolButtonTextUnderIcon</enum>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QToolButton" name="collapseAllButton">
+         <property name="styleSheet">
+          <string notr="true">QToolButton:hover {
+	border: 1px solid transparent;
+}
+
+QToolButton:pressed {
+	border: 1px solid gray;
+background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(233, 233, 233, 255), stop:0.502513 rgba(199, 198, 198, 255), stop:1 rgba(163, 162, 162, 255));
+}
+
+QToolButton {
+border: none;
+}
+
+</string>
+         </property>
          <property name="text">
           <string>Collapse All</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../icons/icons.qrc">
+           <normaloff>:/32x32/list-remove.png</normaloff>:/32x32/list-remove.png</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>32</width>
+           <height>32</height>
+          </size>
+         </property>
+         <property name="toolButtonStyle">
+          <enum>Qt::ToolButtonTextUnderIcon</enum>
          </property>
         </widget>
        </item>
@@ -346,9 +497,6 @@ color: rgb(79, 79, 79);</string>
   </layout>
  </widget>
  <resources>
-  <include location="../icons/icons.qrc"/>
-  <include location="../icons/icons.qrc"/>
-  <include location="../icons/icons.qrc"/>
   <include location="../icons/icons.qrc"/>
  </resources>
  <connections/>
