@@ -86,6 +86,9 @@ AMDataView::AMDataView(AMDatabase* database, QWidget *parent) :
 	connect(expandAllButton, SIGNAL(clicked()), this, SLOT(expandAll()));
 	connect(collapseAllButton, SIGNAL(clicked()), this, SLOT(collapseAll()));
 
+	connect(openSameEditorButton, SIGNAL(clicked()), this, SLOT(onCompareScansAction()));
+	connect(openSeparateEditorButton, SIGNAL(clicked()), this, SLOT(onEditScansAction()));
+
 	// install organize mode options? Nope... we'll do that when showRun or showExperiment is called, in order to install the right ones.
 
 	// change this to change the default first view. (In this case, we show all runs)
@@ -207,7 +210,6 @@ void AMDataView::onOrganizeModeBoxCurrentIndexChanged(int newIndex) {
 void AMDataView::onScanItemsSelectionChanged() {
 	selectedUrlsUpdateRequired_ = true;
 	emit selectionChanged();
-	qDebug() << "Selection Changed!";
 }
 
 void AMDataView::updateSelectedUrls() const {
@@ -255,8 +257,6 @@ void AMDataView::updateSelectedUrls() const {
 void AMDataView::onSceneDoubleClicked() {
 
 	updateSelectedUrls();
-
-	qDebug() << "Activated this many urls:" << selectedUrls_.count();
 
 	if(selectedUrls_.count() > 0)
 		emit selectionActivated(selectedUrls_);

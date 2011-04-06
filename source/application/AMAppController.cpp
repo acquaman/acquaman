@@ -116,6 +116,7 @@ bool AMAppController::startup() {
 
 	// connect the activated signal from the dataview to our own slot
 	connect(dataView_, SIGNAL(selectionActivated(QList<QUrl>)), this, SLOT(onDataViewItemsActivated(QList<QUrl>)));
+	connect(dataView_, SIGNAL(selectionActivatedSeparateWindows(QList<QUrl>)), this, SLOT(onDataViewItemsActivatedSeparateWindows(QList<QUrl>)));
 	// When 'alias' links are clicked in the main window sidebar, we might need to notify some widgets of the details
 	connect(mw_, SIGNAL(aliasItemActivated(QWidget*,QString,QVariant)), this, SLOT(onMainWindowAliasItemActivated(QWidget*,QString,QVariant)));
 	/////////////////////////
@@ -236,6 +237,23 @@ void AMAppController::onDataViewItemsActivated(const QList<QUrl>& itemUrls) {
 	editor->dropScanURLs(itemUrls);
 }
 
+void AMAppController::onDataViewItemsActivatedSeparateWindows(const QList<QUrl> &itemUrls)
+{
+	AMGenericScanEditor* editor;
+
+	for(int i=0; i<itemUrls.count(); i++) {
+		QList<QUrl> singleUrl;
+		editor = new AMGenericScanEditor();
+		scanEditorsParentItem_->appendRow(new AMScanEditorModelItem(editor, ":/applications-science.png"));
+
+		singleUrl << itemUrls.at(i);
+		editor->dropScanURLs(singleUrl);
+	}
+
+	if(itemUrls.count())
+		mw_->goToPane(editor);
+}
+
 #include "dataman/AMRunExperimentItems.h"
 
 void AMAppController::onWindowPaneCloseButtonClicked(const QModelIndex& index) {
@@ -280,3 +298,5 @@ void AMAppController::onWindowPaneCloseButtonClicked(const QModelIndex& index) {
 		}
 	}
 }
+
+

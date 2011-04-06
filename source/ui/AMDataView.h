@@ -131,6 +131,8 @@ signals:
 	void selectionChanged();
 	/// Emitted when the user attempts to open the selected scans
 	void selectionActivated(const QList<QUrl>&);
+	/// Emitted when the user attempts to open the selected scans in separate windows
+	void selectionActivatedSeparateWindows(const QList<QUrl> &);
 
 public slots:
 	/// setup this view to show a specific run (or use \c runId = -1 to see all runs)
@@ -150,6 +152,9 @@ public slots:
 	void collapseAll();
 
 
+
+
+
 protected slots:
 	/// called when the combo box is used to change the organizeMode
 	void onOrganizeModeBoxCurrentIndexChanged(int newIndex);
@@ -167,6 +172,21 @@ protected slots:
 
 	/// Called when the item size slider is moved. It's up to each section to decide what item sizes mean, but they should all adjust their item sizes based on the new user value (from 1 to 100).
 	void onItemSizeSliderChanged(int newItemSize);
+
+
+
+
+	/// When the "open in same window" action happens
+	void onCompareScansAction() {
+		updateSelectedUrls();
+		emit selectionActivated(selectedUrls_);
+	}
+
+	/// When the "open in separate window" action
+	void onEditScansAction() {
+		updateSelectedUrls();
+		emit selectionActivatedSeparateWindows(selectedUrls_);
+	}
 
 
 
