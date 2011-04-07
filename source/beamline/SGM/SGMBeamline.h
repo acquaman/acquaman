@@ -43,10 +43,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 class SGMGratingAction;
+/*
 class SGMTransferAction1;
 class SGMTransferAction2;
 class SGMTransferAction3;
 class SGMTransferAction4;
+*/
 
 class AMSamplePlate;
 
@@ -311,7 +313,6 @@ protected:
 
 	/// The sample plate currently in the SSA chamber:
 	AMSamplePlate* currentSamplePlate_;
-
 
 	AMOrderedSet<QString, QPixmap> transferLoadLockOutAction1Help_;
 	AMOrderedSet<QString, QPixmap> transferLoadLockOutAction2Help_;
