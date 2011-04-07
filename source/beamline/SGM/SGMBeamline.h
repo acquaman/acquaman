@@ -183,6 +183,9 @@ public:
 	QList< QPair<sgmGrating, sgmHarmonic> > gratingHarmonicForEnergyRange(double minEnergy, double maxEnergy);
 	QPair<double, double> energyRangeForGratingHarmonic(sgmGrating grating, sgmHarmonic harmonic);
 
+	QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic> forBestFlux(double minEnergy, double maxEnergy) const;
+	QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic> forBestResolution(double minEnergy, double maxEnergy) const;
+
 signals:
 	void beamlineScanningChanged(bool scanning);
 	void controlSetConnectionsChanged();

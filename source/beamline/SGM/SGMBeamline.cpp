@@ -1091,6 +1091,68 @@ QPair<double, double> SGMBeamline::energyRangeForGratingHarmonic(SGMBeamline::sg
 	return rVal;
 }
 
+QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic> SGMBeamline::forBestFlux(double minEnergy, double maxEnergy) const{
+	bool straddlesTransition = false;
+	double testEnergy = 0;
+	QList<double> transitionPoints;
+	transitionPoints << 625 << 1200;
+	for(int x = 0; x < transitionPoints.count(); x++){
+		if(minEnergy < transitionPoints.at(x) && maxEnergy > transitionPoints.at(x)){
+			straddlesTransition = true;
+			if( (transitionPoints.at(x)-minEnergy) >= (maxEnergy-transitionPoints.at(x)) ){
+				testEnergy = minEnergy;
+				qDebug() << "\nStraddles Flux, choose low";
+			}
+			else{
+				testEnergy = maxEnergy;
+				qDebug() << "\nStraddles Flux, choose high";
+			}
+		}
+	}
+
+	if(!straddlesTransition)
+		testEnergy = minEnergy;
+
+	if(testEnergy < 625)
+		return QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic>(SGMBeamline::lowGrating, SGMBeamline::firstHarmonic);
+	else if(testEnergy < 1200)
+		return QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic>(SGMBeamline::mediumGrating, SGMBeamline::firstHarmonic);
+	else
+		return QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic>(SGMBeamline::highGrating, SGMBeamline::thirdHarmonic);
+}
+
+QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic> SGMBeamline::forBestResolution(double minEnergy, double maxEnergy) const{
+	bool straddlesTransition = false;
+	double testEnergy = 0;
+	QList<double> transitionPoints;
+	transitionPoints << 400 << 800 << 1100;
+	for(int x = 0; x < transitionPoints.count(); x++){
+		if(minEnergy < transitionPoints.at(x) && maxEnergy > transitionPoints.at(x)){
+			straddlesTransition = true;
+			if( (transitionPoints.at(x)-minEnergy) >= (maxEnergy-transitionPoints.at(x)) ){
+				testEnergy = minEnergy;
+				qDebug() << "\nStraddles Resolution, choose low";
+			}
+			else{
+				testEnergy = maxEnergy;
+				qDebug() << "\nStraddles Resolution, choose high";
+			}
+		}
+	}
+
+	if(!straddlesTransition)
+		testEnergy = minEnergy;
+
+	if(testEnergy < 400)
+		return QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic>(SGMBeamline::lowGrating, SGMBeamline::firstHarmonic);
+	else if(testEnergy < 800)
+		return QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic>(SGMBeamline::mediumGrating, SGMBeamline::firstHarmonic);
+	else if(testEnergy < 1100)
+		return QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic>(SGMBeamline::highGrating, SGMBeamline::firstHarmonic);
+	else
+		return QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic>(SGMBeamline::highGrating, SGMBeamline::thirdHarmonic);
+}
+
 void SGMBeamline::visibleLightOn(){
 	visibleLightToggle_->move(1);
 }

@@ -40,6 +40,40 @@ SGMXASScanConfigurationView::SGMXASScanConfigurationView(SGMXASScanConfiguration
 		connect( ((QDoubleSpinBox*)(fluxResolutionView_->detailView()->boxByName("exitSlitGap"))), SIGNAL(valueChanged(double)), sxsc, SLOT(setExitSlitGap(double)) );
 		fluxResolutionView_->onRegionsUpdate(sxsc->regions());
 
+		qDebug() << "Flux 250 - 270: " << SGMBeamline::sgm()->forBestFlux(250, 270);
+		qDebug() << "Flux 380 - 410: " << SGMBeamline::sgm()->forBestFlux(380, 410);
+		qDebug() << "Flux 395 - 425: " << SGMBeamline::sgm()->forBestFlux(395, 425);
+		qDebug() << "Flux 410 - 485: " << SGMBeamline::sgm()->forBestFlux(410, 485);
+		qDebug() << "Flux 600 - 635: " << SGMBeamline::sgm()->forBestFlux(600, 635);
+		qDebug() << "Flux 620 - 660: " << SGMBeamline::sgm()->forBestFlux(620, 660);
+		qDebug() << "Flux 770 - 790: " << SGMBeamline::sgm()->forBestFlux(770, 790);
+		qDebug() << "Flux 780 - 810: " << SGMBeamline::sgm()->forBestFlux(780, 810);
+		qDebug() << "Flux 780 - 850: " << SGMBeamline::sgm()->forBestFlux(780, 850);
+		qDebug() << "Flux 840 - 1000: " << SGMBeamline::sgm()->forBestFlux(840, 1000);
+		qDebug() << "Flux 1090 - 1105: " << SGMBeamline::sgm()->forBestFlux(1090, 1105);
+		qDebug() << "Flux 1080 - 1150: " << SGMBeamline::sgm()->forBestFlux(1080, 1150);
+		qDebug() << "Flux 1110 - 1170: " << SGMBeamline::sgm()->forBestFlux(1110, 1170);
+		qDebug() << "Flux 1170 - 1205: " << SGMBeamline::sgm()->forBestFlux(1170, 1205);
+		qDebug() << "Flux 1180 - 1320: " << SGMBeamline::sgm()->forBestFlux(1180, 1320);
+		qDebug() << "Flux 1400 - 1600: " << SGMBeamline::sgm()->forBestFlux(1400, 1600);
+
+		qDebug() << "Resolution 250 - 270: " << SGMBeamline::sgm()->forBestResolution(250, 270);
+		qDebug() << "Resolution 380 - 410: " << SGMBeamline::sgm()->forBestResolution(380, 410);
+		qDebug() << "Resolution 395 - 425: " << SGMBeamline::sgm()->forBestResolution(395, 425);
+		qDebug() << "Resolution 410 - 485: " << SGMBeamline::sgm()->forBestResolution(410, 485);
+		qDebug() << "Resolution 600 - 635: " << SGMBeamline::sgm()->forBestResolution(600, 635);
+		qDebug() << "Resolution 620 - 660: " << SGMBeamline::sgm()->forBestResolution(620, 660);
+		qDebug() << "Resolution 770 - 790: " << SGMBeamline::sgm()->forBestResolution(770, 790);
+		qDebug() << "Resolution 780 - 810: " << SGMBeamline::sgm()->forBestResolution(780, 810);
+		qDebug() << "Resolution 780 - 850: " << SGMBeamline::sgm()->forBestResolution(780, 850);
+		qDebug() << "Resolution 840 - 1000: " << SGMBeamline::sgm()->forBestResolution(840, 1000);
+		qDebug() << "Resolution 1090 - 1105: " << SGMBeamline::sgm()->forBestResolution(1090, 1105);
+		qDebug() << "Resolution 1080 - 1150: " << SGMBeamline::sgm()->forBestResolution(1080, 1150);
+		qDebug() << "Resolution 1110 - 1170: " << SGMBeamline::sgm()->forBestResolution(1110, 1170);
+		qDebug() << "Resolution 1170 - 1205: " << SGMBeamline::sgm()->forBestResolution(1170, 1205);
+		qDebug() << "Resolution 1180 - 1320: " << SGMBeamline::sgm()->forBestResolution(1180, 1320);
+		qDebug() << "Resolution 1400 - 1600: " << SGMBeamline::sgm()->forBestResolution(1400, 1600);
+
 		trackingView_ = new AMControlSetView(sxsc->trackingSet(), true, this);
 		connect(trackingView_, SIGNAL(configValuesChanged(AMControlInfoList)), sxsc, SLOT(setTrackingGroup(AMControlInfoList)));
 
