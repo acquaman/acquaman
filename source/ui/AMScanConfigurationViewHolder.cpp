@@ -33,6 +33,8 @@ AMScanConfigurationViewHolder::AMScanConfigurationViewHolder(AMWorkflowManagerVi
 	view_ = view;
 	workflow_ = workflow;
 
+	whenDoneLabel_ = new QLabel("When I'm done here:");
+
 	startScanButton_ = new QPushButton("Start Scan");
 	addToQueueButton_ = new QPushButton("Add to Workflow");
 
@@ -50,7 +52,7 @@ AMScanConfigurationViewHolder::AMScanConfigurationViewHolder(AMWorkflowManagerVi
 
 	QHBoxLayout* hl = new QHBoxLayout();
 
-	hl->addWidget(new QLabel("When I'm done here:"));
+	hl->addWidget(whenDoneLabel_);
 	hl->addWidget(goToWorkflowOption_);
 	hl->addWidget(setupAnotherScanOption_);
 	hl->addStretch();

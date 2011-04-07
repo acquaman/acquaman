@@ -228,3 +228,16 @@ void XRFDetector::disableElement(int id)
 {
 	/// \todo Need to implement disabling waveforms.
 }
+
+const double *XRFDetector::spectraAt(int index)
+{
+	if (index < elements() && index >= 0){
+
+		AMReadOnlyPVControl *temp = qobject_cast<AMReadOnlyPVControl *>(spectraControl_->at(index));
+		QVector<double> array(temp->readPV()->lastFloatingPointValues());
+		return array.constData();
+	}
+
+	return 0;
+}
+

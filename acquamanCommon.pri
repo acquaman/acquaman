@@ -287,7 +287,8 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/beamline/AMBeamlineListAction.h \
 	source/beamline/AMBeamlineControlWaitAction.h \
 	source/beamline/AMBeamlineUserConfirmAction.h \
-	source/ui/AMScanQueryModel.h
+	source/ui/AMScanQueryModel.h \
+    source/ui/AMFreeRunScanConfigurationViewHolder.h
 FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
 	source/ui/AMDataViewSectionHeader.ui \
@@ -481,7 +482,8 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/beamline/AMBeamlineListAction.cpp \
 	source/beamline/AMBeamlineControlWaitAction.cpp \
 	source/beamline/AMBeamlineUserConfirmAction.cpp \
-	source/ui/AMScanQueryModel.cpp
+	source/ui/AMScanQueryModel.cpp \
+    source/ui/AMFreeRunScanConfigurationViewHolder.cpp
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc \
 	source/util/ElementData.qrc \

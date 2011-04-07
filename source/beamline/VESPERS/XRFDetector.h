@@ -73,6 +73,9 @@ public:
 	// End of Controls and PVs.
 	////////////////////////////////
 
+	/// Turns the spectra controls into an array of doubles and returns the spectra at \c index.
+	const double *spectraAt(int index);
+
 	/// Enables a previously disabled element.  Takes the \param id as an index of the list of elements.
 	void enableElement(int id);
 	/// Disables a previously enabled element.  Takes the \param id as an index of the list of elements.
@@ -114,6 +117,10 @@ signals:
 	void settingsChanged(AMControlInfoList);
 	/// Emitted when the readings control set changes.
 	void readingsChanged(AMControlInfoList);
+	/// This signal is emitted when the acquisition is finished.
+	void acquisitionFinished();
+	/// This signal is emitted when the spectra update.
+	void acquisitionUpdate();
 
 protected slots:
 	/// Determines if the detector is connected to ALL controls and process variables.

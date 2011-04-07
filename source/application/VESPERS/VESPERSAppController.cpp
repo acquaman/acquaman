@@ -5,6 +5,9 @@
 #include "ui/AMMainWindow.h"
 
 #include "ui/VESPERS/XRFDetectorView.h"
+#include "ui/VESPERS/VESPERSXRFScanConfigurationView.h"
+#include "ui/AMScanConfigurationViewHolder.h"
+#include "ui/AMFreeRunScanConfigurationViewHolder.h"
 
 #include "dataman/AMDbObjectSupport.h"
 
@@ -36,14 +39,16 @@ bool VESPERSAppController::startup() {
 		mw_->insertHeading("Beamline Control", 0);
 		mw_->addPane(vespersView_, "Beamline Control", "Endstation", ":/system-software-update.png");
 
-		XRFBriefDetectorView *xrf1EView = new XRFBriefDetectorView(VESPERSBeamline::vespers()->vortexXRF1E());
-		XRFBriefDetectorView *xrf4EView = new XRFBriefDetectorView(VESPERSBeamline::vespers()->vortexXRF4E());
-		XRFDetailedDetectorView *xrf1EViewDetailed = new XRFDetailedDetectorView(VESPERSBeamline::vespers()->vortexXRF4E());
+		//XRFDetailedDetectorView *xrf1EViewDetailed = new XRFDetailedDetectorView(VESPERSBeamline::vespers()->vortexXRF4E());
 
-		mw_->insertHeading("Experiment Setup", 1);
-		mw_->addPane(xrf1EView, "Experiment Setup", "Fluorescence", ":/utilities-system-monitor.png");
-		mw_->addPane(xrf4EView, "Experiment Setup", "4-el Vortex", ":/utilities-system-monitor.png");
-		mw_->addPane(xrf1EViewDetailed, "Experiment Setup", "Detailed", ":/utilities-system-monitor.png");
+		xrf1EConfigView_ = new VESPERSXRFScanConfigurationView(new VESPERSXRFScanConfiguration(VESPERSBeamline::vespers()->vortexXRF1E()));
+		xrf4EConfigView_ = new VESPERSXRFScanConfigurationView(new VESPERSXRFScanConfiguration(VESPERSBeamline::vespers()->vortexXRF4E()));
+		xrf1EConfigHolder_ = new AMFreeRunScanConfigurationViewHolder(workflowManagerView_, xrf1EConfigView_);
+		xrf4EConfigHolder_ = new AMFreeRunScanConfigurationViewHolder(workflowManagerView_, xrf4EConfigView_);
+
+		mw_->insertHeading("Free run", 1);
+		mw_->addPane(xrf1EConfigHolder_, "Free run", "XRF 1-el", ":/utilities-system-monitor.png");
+		mw_->addPane(xrf4EConfigHolder_, "Free run", "XRF 4-el", ":/utilities-system-monitor.png");
 
 		return true;
 	}

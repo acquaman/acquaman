@@ -1,7 +1,6 @@
 #include "XRFDetectorView.h"
 #include "DeadTimeButton.h"
-#include "MPlot/MPlotTools.h"
-#include "MPlot/MPlotMarker.h"
+#include "acquaman/VESPERS/VESPERSXRFScanController.h"
 #include "ui/AMPeriodicTableView.h"
 
 #include <QString>
@@ -122,34 +121,26 @@ void XRFDetailedDetectorView::applyLog(bool apply)
 	/// \todo implement the applyLog method
 }
 
-void XRFDetailedDetectorView::applyChannel(bool apply)
+void XRFDetailedDetectorView::onStart()
 {
-	if (apply){
-
-		//plot_->axisBottom()->setScale(detector_->scale());
-		plot_->axisBottom()->setAxisName("Energy, eV");
-	}
-	else{
-
-		//plot_->axisBottom()->setScale(1.0/detector_->scale());
-		plot_->axisBottom()->setAxisName("Channel #");
-	}
+	emit
 }
 
-void XRFDetailedDetectorView::applyWaterfall(bool apply)
+void XRFDetailedDetectorView::onStop()
 {
-	/// \todo implement the applyWaterfall method.
+
 }
+
 
 QLayout *XRFDetailedDetectorView::setupControls()
 {
 	QToolButton *start = new QToolButton;
 	start->setIcon(QIcon(":/play_button_green.png"));
-	connect(start, SIGNAL(clicked()), detector_, SLOT(start()));
+	connect(start, SIGNAL(clicked()), this, SLOT(onStart()));
 
 	QToolButton *stop = new QToolButton;
 	stop->setIcon(QIcon(":/red-stop-button.png"));
-	connect(stop, SIGNAL(clicked()), detector_, SLOT(stop()));
+	connect(stop, SIGNAL(clicked()), this, SLOT(onStop()));
 
 	integrationTime_ = new QDoubleSpinBox;
 	integrationTime_->setSuffix(" s");
@@ -193,30 +184,6 @@ QLayout *XRFDetailedDetectorView::setupControls()
 	log->setText("Log");
 	connect(log, SIGNAL(toggled(bool)), this, SLOT(applyLog(bool)));
 
-	QToolButton *channels = new QToolButton;
-	channels->setCheckable(true);
-	channels->setText("Channel #");
-	connect(channels, SIGNAL(toggled(bool)), this, SLOT(applyChannel(bool)));
-
-	QToolButton *waterfallButton = new QToolButton;
-	waterfallButton->setCheckable(true);
-	waterfallButton->setText("Raw Data");
-	connect(waterfallButton, SIGNAL(toggled(bool)), this, SLOT(applyWaterfall(bool)));
-
-	waterfall_ = new QDoubleSpinBox;
-	waterfall_->setValue(0.1);
-	waterfall_->setSingleStep(0.01);
-	waterfall_->setAlignment(Qt::AlignCenter);
-	waterfall_->setEnabled(false);
-
-	connect(waterfallButton, SIGNAL(toggled(bool)), waterfall_, SLOT(setEnabled(bool)));
-
-	if (detector_->elements() == 1){
-
-		waterfallButton->hide();
-		waterfall_->hide();
-	}
-
 	QGridLayout *controlsLayout = new QGridLayout;
 	controlsLayout->addWidget(start, 0, 0);
 	controlsLayout->addWidget(stop, 0, 1);
@@ -225,9 +192,6 @@ QLayout *XRFDetailedDetectorView::setupControls()
 	controlsLayout->addWidget(deadTime_, 2, 0);
 	controlsLayout->addWidget(deadTimeBox, 2, 1);
 	controlsLayout->addWidget(log, 3, 0);
-	controlsLayout->addWidget(channels, 3, 1);
-	controlsLayout->addWidget(waterfallButton, 4, 0);
-	controlsLayout->addWidget(waterfall_, 4, 1);
 
 	QGroupBox *controls = new QGroupBox;
 	controls->setLayout(controlsLayout);
@@ -242,46 +206,11 @@ QLayout *XRFDetailedDetectorView::setupControls()
 
 QLayout *XRFDetailedDetectorView::setupPlot()
 {
-	// Create the plot window.
-	plotWindow_ = new MPlotWidget;
-	plotWindow_->enableAntiAliasing(true);
-
-	// Create the plot and setup all the axes.
-	plot_ = new MPlot;
-	plot_->axisBottom()->setAxisNameFont(QFont("Helvetica", 11));
-	plot_->axisBottom()->setTickLabelFont(QFont("Helvetica", 11));
-	plot_->axisBottom()->setAxisName("Channel number");
-	plot_->axisLeft()->setAxisNameFont(QFont("Helvetica", 11));
-	plot_->axisLeft()->setTickLabelFont(QFont("Helvetica", 11));
-	plot_->axisLeft()->setAxisName("Counts");
-
-	// Set the margins for the plot.
-	plot_->setMarginLeft(15);
-	plot_->setMarginBottom(15);
-	plot_->setMarginRight(2);
-	plot_->setMarginTop(2);
-
-	// Enable autoscaling on the left axis only.  The bottom axis is static: either chan. or eV.
-	plot_->enableAutoScaleLeft(true);
-	plot_->enableAutoScaleBottom(true);
-
-	// Enable some convenient zoom tools.
-	plot_->addTool(new MPlotDragZoomerTool());
-	plot_->addTool(new MPlotWheelZoomerTool());
-	plotWindow_->setPlot(plot_);
-
-	// Set the number of ticks.  A balance between readability and being practical.
-	plot_->axisBottom()->setTicks(3);
-	plot_->axisTop()->setTicks(0);
-	plot_->axisLeft()->setTicks(4);
-	plot_->axisRight()->setTicks(0);
-
-	// Set the name of the left axis.
-	plot_->axisLeft()->setAxisName("Counts");
+	view_ = new AMScanView();
 
 	// Put it in a layout for viewing.
 	QHBoxLayout *plotLayout = new QHBoxLayout;
-	plotLayout->addWidget(plotWindow_);
+	plotLayout->addWidget(view_);
 
 	return plotLayout;
 }

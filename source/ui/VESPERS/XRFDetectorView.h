@@ -3,8 +3,7 @@
 
 #include "ui/AMDetectorView.h"
 #include "beamline/VESPERS/XRFDetector.h"
-#include "MPlot/MPlot.h"
-#include "MPlot/MPlotWidget.h"
+#include "ui/AMScanView.h"
 
 #include <QLabel>
 #include <QDoubleSpinBox>
@@ -61,6 +60,9 @@ public:
 	AMDetector *detector() { return detector_; }
 
 signals:
+	/// Signal used to say that a scan should start.
+	void startScan();
+	/// Signal used
 
 protected slots:
 	/// Handles the update from the dead time control.
@@ -71,10 +73,10 @@ protected slots:
 	void elementClicked(int elementId);
 	/// Takes the current plot and applies a log transformation to the y-axis. If true then apply the log, if false undo it.
 	void applyLog(bool apply);
-	/// Takes the current plot and applies a channel transformation on the x-axis (channel # <-> energy).  If true then apply the conversion from energy to channel #, if false undo it.
-	void applyChannel(bool apply);
-	/// Takes the current plot and shows all the raw data instead of the corrected sum.  Only valid for detectors with more than one element.  If true create the waterfall plot, if false undo it.
-	void applyWaterfall(bool apply);
+	/// Handles the start signal.  Creates the controller and modifies the scan view.
+	void onStart();
+	/// Handles the stop signal.
+	void onStop();
 
 protected:
 
@@ -96,16 +98,12 @@ protected:
 	QLabel *elapsedTime_;
 	/// The dead time label.
 	QLabel *deadTime_;
-	/// The waterfall separation spin box.
-	QDoubleSpinBox *waterfall_;
 
 	/// The button group used for the dead time tool buttons.
 	QButtonGroup *deadTimeGroup_;
 
-	/// This is the plot for the view.
-	MPlot *plot_;
-	/// This is the plot viewing widget.
-	MPlotWidget *plotWindow_;
+	/// This is the scan view that is used for viewing the spectra.
+	AMScanView *view_;
 };
 
 #endif // XRFDETECTORVIEW_H

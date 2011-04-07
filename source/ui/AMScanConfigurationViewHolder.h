@@ -51,6 +51,7 @@ protected slots:
 protected:
 
 	/// UI elements
+	QLabel *whenDoneLabel_;
 	QPushButton* startScanButton_, *addToQueueButton_;
 	QRadioButton* goToWorkflowOption_, *setupAnotherScanOption_;
 	QVBoxLayout* layout_;
