@@ -1,0 +1,10 @@
+#ifndef VESPERSXRFDATALOADER_H
+#define VESPERSXRFDATALOADER_H
+
+class VESPERSXRFDataLoader
+{
+public:
+    VESPERSXRFDataLoader();
+};
+
+#endif // VESPERSXRFDATALOADER_H
