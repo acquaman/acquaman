@@ -34,7 +34,9 @@ protected slots:
 	/// Handles changes in the moving flags of the sample stages.
 	void onMovingChanged(bool isMoving);
 	/// Handles changes in the connection of the sample stages.
-	void onConnectedChagned(bool isConnected);
+	void onConnectedChanged(bool isConnected);
+	/// Handles if the motors time out.
+	void onTimedOut() { onConnectedChanged(false); }
 
 protected:
 	/// Holds the jog value.  All movements are relative to this number.

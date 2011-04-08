@@ -62,7 +62,8 @@ public:
 signals:
 	/// Signal used to say that a scan should start.
 	void startScan();
-	/// Signal used
+	/// Signal used to say that a scan should be stopped.
+	void stopScan();
 
 protected slots:
 	/// Handles the update from the dead time control.
@@ -71,12 +72,6 @@ protected slots:
 	void onElapsedTimeUpdate(double time);
 	/// Handles enabling/disabling of elements based on which button is clicked in the dead time button group.
 	void elementClicked(int elementId);
-	/// Takes the current plot and applies a log transformation to the y-axis. If true then apply the log, if false undo it.
-	void applyLog(bool apply);
-	/// Handles the start signal.  Creates the controller and modifies the scan view.
-	void onStart();
-	/// Handles the stop signal.
-	void onStop();
 
 protected:
 

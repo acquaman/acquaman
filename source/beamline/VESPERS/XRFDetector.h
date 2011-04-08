@@ -94,9 +94,9 @@ public:
 public slots:
 
 	/// Erases the current spectrum and starts collecting data.
-	void start() { startControl()->move(1); }
+	void start() { startControl()->move(1); emit startScan();}
 	/// Stops collection of data.
-	void stop() { stopControl()->move(1); }
+	void stop() { stopControl()->move(1); emit stopScan(); }
 	/// Set the accumulation time.
 	void setTime(double time) { setIntegrationTime(time); integrationTimeControl()->move(time); liveTimeControl()->move(0.0); }
 	/// Set the maximum energy of the detector.
@@ -121,6 +121,10 @@ signals:
 	void acquisitionFinished();
 	/// This signal is emitted when the spectra update.
 	void acquisitionUpdate();
+	/// This signal is emitted when the detector has been asked to start scanning.
+	void startScan();
+	/// This signal is emitted when the detector has been asked to stop scanning.
+	void stopScan();
 
 protected slots:
 	/// Determines if the detector is connected to ALL controls and process variables.

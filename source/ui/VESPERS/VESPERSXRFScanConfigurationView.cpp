@@ -7,6 +7,7 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 {
 	configuration_ = scanConfig;
 	view_ = new XRFDetailedDetectorView(scanConfig->detector());
+	connect(view_, SIGNAL(startScan()), this, SIGNAL(startScan()));
 
 	QHBoxLayout *configViewLayout = new QHBoxLayout;
 	configViewLayout->addWidget(view_);

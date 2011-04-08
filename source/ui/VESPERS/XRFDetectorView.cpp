@@ -116,31 +116,15 @@ void XRFDetailedDetectorView::onElapsedTimeUpdate(double time)
 	elapsedTime_->setText(QString::number(time, 'f', 2) + " s");
 }
 
-void XRFDetailedDetectorView::applyLog(bool apply)
-{
-	/// \todo implement the applyLog method
-}
-
-void XRFDetailedDetectorView::onStart()
-{
-
-}
-
-void XRFDetailedDetectorView::onStop()
-{
-
-}
-
-
 QLayout *XRFDetailedDetectorView::setupControls()
 {
 	QToolButton *start = new QToolButton;
 	start->setIcon(QIcon(":/play_button_green.png"));
-	connect(start, SIGNAL(clicked()), this, SLOT(onStart()));
+	connect(start, SIGNAL(clicked()), this, SIGNAL(startScan()));
 
 	QToolButton *stop = new QToolButton;
 	stop->setIcon(QIcon(":/red-stop-button.png"));
-	connect(stop, SIGNAL(clicked()), this, SLOT(onStop()));
+	connect(stop, SIGNAL(clicked()), this, SIGNAL(stopScan()));
 
 	integrationTime_ = new QDoubleSpinBox;
 	integrationTime_->setSuffix(" s");
@@ -179,22 +163,22 @@ QLayout *XRFDetailedDetectorView::setupControls()
 	deadTimeBox->setFlat(true);
 	deadTimeBox->setLayout(deadTimeLayout);
 
-	QToolButton *log = new QToolButton;
-	log->setCheckable(true);
-	log->setText("Log");
-	connect(log, SIGNAL(toggled(bool)), this, SLOT(applyLog(bool)));
+	QHBoxLayout *startAndStopLayout = new QHBoxLayout;
+	startAndStopLayout->addWidget(start);
+	startAndStopLayout->addWidget(stop);
 
-	QGridLayout *controlsLayout = new QGridLayout;
-	controlsLayout->addWidget(start, 0, 0);
-	controlsLayout->addWidget(stop, 0, 1);
-	controlsLayout->addWidget(integrationTime_, 1, 0);
-	controlsLayout->addWidget(elapsedTime_, 1, 1);
-	controlsLayout->addWidget(deadTime_, 2, 0);
-	controlsLayout->addWidget(deadTimeBox, 2, 1);
-	controlsLayout->addWidget(log, 3, 0);
+	QHBoxLayout *timeLayout = new QHBoxLayout;
+	timeLayout->addWidget(elapsedTime_);
+	timeLayout->addWidget(integrationTime_);
+
+	QVBoxLayout *controlLayout = new QVBoxLayout;
+	controlLayout->addLayout(startAndStopLayout);
+	controlLayout->addLayout(timeLayout);
+	controlLayout->addWidget(deadTime_);
+	controlLayout->addWidget(deadTimeBox);
 
 	QGroupBox *controls = new QGroupBox;
-	controls->setLayout(controlsLayout);
+	controls->setLayout(controlLayout);
 	controls->setFlat(true);
 
 	QVBoxLayout *layout = new QVBoxLayout;

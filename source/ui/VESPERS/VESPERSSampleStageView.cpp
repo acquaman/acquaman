@@ -97,7 +97,7 @@ void VESPERSSampleStageView::onMovingChanged(bool isMoving)
 		buttons_->button(i)->setDisabled(isMoving);
 }
 
-void VESPERSSampleStageView::onConnectedChagned(bool isConnected)
+void VESPERSSampleStageView::onConnectedChanged(bool isConnected)
 {
 	setEnabled(isConnected);
 }

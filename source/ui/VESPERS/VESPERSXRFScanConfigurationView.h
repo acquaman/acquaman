@@ -15,6 +15,10 @@ public:
 	/// Returns a pointer to the current configuration.
 	const AMScanConfiguration *configuration() const { return configuration_; }
 
+signals:
+	/// Passes along the detector view's start scan signal.
+	void startScan();
+
 protected:
 	/// The current configuration.
 	VESPERSXRFScanConfiguration *configuration_;
