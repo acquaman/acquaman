@@ -121,12 +121,13 @@ bool AMFirstTimeController::onFirstTime() {
 		blank.storeToDb(AMDatabase::userdb());
 		AMFacility als801("8.0.1", "Advanced Light Source Beamline 8.0.1", ":/alsIcon.png");
 		als801.storeToDb(AMDatabase::userdb());
-		AMFacility sgm("SGM", "Canadian Light Source SGM Beamline", ":/clsIcon.png");
+		AMFacility sgm("SGM", "CLS SGM Beamline", ":/clsIcon.png");
 		sgm.storeToDb(AMDatabase::userdb());
+		AMFacility vespers("VESPERS", "CLS VESPERS Beamline", ":/clsIcon.png");
+		vespers.storeToDb(AMDatabase::userdb());
+		AMFacility reixs("REIXS", "CLS REIXS Beamline", ":/clsIcon.png");
+		reixs.storeToDb(AMDatabase::userdb());
 
-		/// Usability tweak: the first time users launch the program, we can assume they're going to do some acquisition, so let's create an initial run. (\todo This is SGM-specific... should be moved elsewhere)
-		AMRun newRun("SGM", sgm.id());
-		newRun.storeToDb(AMDatabase::userdb());
 	}
 
 	return success;

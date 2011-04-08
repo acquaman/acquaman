@@ -35,7 +35,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMDataView.h"
 #include "ui/AMRunExperimentInsert.h"
 #include "ui/AMGenericScanEditor.h"
-#include "ui/AMStartScreen.h"
 
 #include "util/AMErrorMonitor.h"
 
@@ -61,10 +60,6 @@ bool AMAppController::startup() {
 	// ensure user data folder and database are ready for use, if this is the first time the program is ever run.
 	if(!AMFirstTimeController::firstTimeCheck())
 		return false;
-
-	// Show the splash screen. (It will delete itself when closed)
-	AMStartScreen* startScreen = new AMStartScreen(0);
-	startScreen->show();
 
 	//Create the main tab window:
 	mw_ = new AMMainWindow();
