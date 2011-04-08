@@ -8,7 +8,7 @@
 #include "ui/VESPERS/VESPERSXRFScanConfigurationView.h"
 #include "ui/AMScanConfigurationViewHolder.h"
 #include "ui/AMFreeRunScanConfigurationViewHolder.h"
-#include "ui/VESPERS/VESPERSTopBarView.h"
+#include "ui/VESPERS/VESPERSPersistentView.h"
 
 #include "dataman/AMDbObjectSupport.h"
 
@@ -51,8 +51,8 @@ bool VESPERSAppController::startup() {
 		mw_->addPane(xrf1EConfigHolder_, "Free run", "XRF 1-el", ":/utilities-system-monitor.png");
 		mw_->addPane(xrf4EConfigHolder_, "Free run", "XRF 4-el", ":/utilities-system-monitor.png");
 
-		topBar_ = new VESPERSTopBarView;
-		mw_->addTopWidget(topBar_);
+		persistentView_ = new VESPERSPersistentView;
+		mw_->addRightWidget(persistentView_);
 
 		return true;
 	}

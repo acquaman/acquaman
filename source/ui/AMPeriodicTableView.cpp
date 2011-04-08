@@ -57,7 +57,6 @@ AMPeriodicTableView::AMPeriodicTableView(QWidget *parent)
 
 AMPeriodicTableView::~AMPeriodicTableView()
 {
-	delete table_;
 	delete elementMapper_;
 }
 

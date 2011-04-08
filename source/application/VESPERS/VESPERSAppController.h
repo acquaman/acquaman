@@ -6,7 +6,7 @@
 class VESPERSBeamlineView;
 class AMFreeRunScanConfigurationViewHolder;
 class VESPERSXRFScanConfigurationView;
-class VESPERSTopBarView;
+class VESPERSPersistentView;
 
 class VESPERSAppController : public AMAppController {
 	Q_OBJECT
@@ -30,8 +30,8 @@ protected slots:
 protected:
 	/// This contains the general endstation view.
 	VESPERSBeamlineView *vespersView_;
-	/// This is the top bar, which is persistant in the application regardless of what is currently active.
-	VESPERSTopBarView *topBar_;
+	/// This is the top bar, which is persistent in the application regardless of what is currently active.
+	VESPERSPersistentView *persistentView_;
 	/// This is a holder for the VESPERSXRFScanConfigurationView for the single element detector.
 	AMFreeRunScanConfigurationViewHolder *xrf1EConfigHolder_;
 	/// This is a holder for the VESPERSXRFScanConfigurationView for the four element detector.

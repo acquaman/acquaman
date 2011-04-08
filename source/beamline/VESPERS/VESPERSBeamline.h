@@ -251,6 +251,8 @@ public:
 	/// Returns the water flow transducer control for the POE SSH2.
 	AMControl *fltPoeSsh2() const { return fltPoeSsh2_; }
 
+	// Endstation controls.
+
 	/// Returns the CCD motor control.
 	AMControl *ccdMotor() const { return ccdMotor_; }
 	/// Returns the microscope motor contorl.
@@ -270,6 +272,13 @@ public:
 	AMControl *singleElMotorfbk() const { return singleElMotorfbk_; }
 	/// Returns the beam focus motor control feedback.
 	AMControl *focusMotorfbk() const { return focusMotorfbk_; }
+
+	// Sample stage motor controls.
+
+	/// Returns the horizontal sample stage control.
+	AMControl *sampleStageHorizontal() const { return sampleStageHorizontal_; }
+	/// Returns the vertical sample stage control.
+	AMControl *sampleStageVertical() const { return sampleStageVertical_; }
 
 	// These are the single element vortex controls.
 
@@ -333,7 +342,7 @@ public:
 	/// Returns the raw spectrum set with all four raw spectra in the four element detector.
 	AMControlSet *spectra4E() const { return spectra4E_; }
 
-	// These Control Sets are logical groups of controls, that are commonly used by different Acquaman components
+	// These Control Sets are logical groups of controls that are commonly used by different Acquaman components
 
 	/// Returns the pressure control set.
 	AMControlSet *pressureSet() const { return pressureSet_; }
@@ -349,6 +358,8 @@ public:
 	AMControlSet *flowTransducerSet() const { return flowTransducerSet_; }
 	/// Returns the endstation motor control set.
 	AMControlSet *endstationMotorSet() const { return endstationMotorSet_; }
+	/// Returns the sample stage motor control set.
+	AMControlSet *sampleStageMotorSet() const { return sampleStageMotorSet_; }
 	/// Returns the single element vortex control set.
 	AMControlSet *vortex1EControls() const { return vortex1EControls_; }
 	/// Returns the four element vortex control set.
@@ -384,6 +395,8 @@ protected slots:
 	void singleElVortexError();
 	/// Slot used to deal with four element vortex detector errors.
 	void fourElVortexError();
+	/// Slot used to dead with sample stage motor errors.
+	void sampleStageError();
 
 protected:
 	/// Sets up the readings such as pressure, flow switches, temperature, etc.
@@ -396,6 +409,8 @@ protected:
 	void setupSingleElementDetector();
 	/// Sets up all the controls for the four element detector.
 	void setupFourElementDetector();
+	/// Sets up the sample stage motors.
+	void setupSampleStage();
 
 	/// Constructor. This is a singleton class; access it through VESPERSBeamline::vespers().
 	VESPERSBeamline();
@@ -524,6 +539,7 @@ protected:
 	AMControlSet *flowSwitchSet_;
 	AMControlSet *flowTransducerSet_;
 	AMControlSet *endstationMotorSet_;
+	AMControlSet *sampleStageMotorSet_;
 
 	// End Diagnostic Controls.
 
@@ -550,6 +566,12 @@ protected:
 	AMProcessVariable *ccdNumber_;
 
 	// End Endstation controls.
+
+	// Sample stage controls.
+	AMControl *sampleStageHorizontal_;
+	AMControl *sampleStageVertical_;
+
+	// End sample stage controls.
 
 	// Single element vortex detector.
 

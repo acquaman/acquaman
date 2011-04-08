@@ -23,6 +23,7 @@ VESPERSBeamline::VESPERSBeamline()
 	: AMBeamline("VESPERS Beamline")
 {
 	setupDiagnostics();
+	setupSampleStage();
 	setupEndstation();
 	setupSingleElementDetector();
 	setupFourElementDetector();
@@ -140,6 +141,18 @@ void VESPERSBeamline::setupDiagnostics()
 	fltInterimSlits2_ = new AMReadOnlyPVControl("Flow Transducer Interim Slits 2", "FLT1607-1-B21-03:lowflow", this);
 	fltPoeSsh1_ = new AMReadOnlyPVControl("Flow Transducer POE SSH1", "FLT1607-1-B21-04:lowflow", this);
 	fltPoeSsh2_ = new AMReadOnlyPVControl("Flow Transducer POE SSH2", "FLT1607-1-B22-02:lowflow", this);
+}
+
+void VESPERSBeamline::setupSampleStage()
+{
+	sampleStageHorizontal_ = new AMPVwStatusControl("Horizontal Sample Stage", "TS1607-2-B21-01:H:user:mm:sp", "TS1607-2-B21-01:H:user:mm", "TS1607-2-B21-01:H:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
+	sampleStageVertical_ = new AMPVwStatusControl("Vertical Sample Stage", "TS1607-2-B21-01:V:user:mm:sp", "TS1607-2-B21-01:V:user:mm", "TS1607-2-B21-01:V:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
+
+	sampleStageMotorSet_ = new AMControlSet(this);
+	sampleStageMotorSet_->addControl(sampleStageHorizontal_);
+	sampleStageMotorSet_->addControl(sampleStageVertical_);
+
+	connect(sampleStageMotorSet_, SIGNAL(connected(bool)), this, SLOT(sampleStageError()));
 }
 
 void VESPERSBeamline::setupEndstation()
@@ -591,6 +604,11 @@ void VESPERSBeamline::fourElVortexError()
 	AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "The four element vortex detector is no longer connected."));
 }
 
+void VESPERSBeamline::sampleStageError()
+{
+	AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "The sample stage is no longer connected."));
+}
+
 VESPERSBeamline::~VESPERSBeamline()
 {
 	delete ccgFE1_;
@@ -740,4 +758,7 @@ VESPERSBeamline::~VESPERSBeamline()
 	delete deadTime4E_;
 	delete spectra4E_;
 	delete vortex4EControls_;
+	delete sampleStageHorizontal_;
+	delete sampleStageVertical_;
+	delete sampleStageMotorSet_;
 }

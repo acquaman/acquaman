@@ -123,7 +123,7 @@ void XRFDetailedDetectorView::applyLog(bool apply)
 
 void XRFDetailedDetectorView::onStart()
 {
-	emit
+
 }
 
 void XRFDetailedDetectorView::onStop()
