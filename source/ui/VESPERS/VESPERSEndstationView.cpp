@@ -1,6 +1,5 @@
 #include "ui/VESPERS/VESPERSEndstationView.h"
 #include "ui/AMStopButton.h"
-#include "ui/AMShutterButton.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
 
 #include <QPushButton>
@@ -39,12 +38,6 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	ccdPath_ = VESPERSBeamline::vespers()->ccdPath();
 	ccdFile_ = VESPERSBeamline::vespers()->ccdFile();
 	ccdNumber_ = VESPERSBeamline::vespers()->ccdNumber();
-
-	// The shutter buttons.
-	AMShutterButton *psh1 = new AMShutterButton("PSH1", "PSH1408-B20-01:state", "PSH1408-B20-01:opr:open", "PSH1408-B20-01:opr:close");
-	AMShutterButton *psh2 = new AMShutterButton("PSH2", "PSH1408-B20-02:state", "PSH1408-B20-02:opr:open", "PSH1408-B20-02:opr:close");
-	AMShutterButton *ssh1 = new AMShutterButton("SSH1", "SSH1408-B20-01:state");
-	AMShutterButton *ssh2 = new AMShutterButton("SSH2", "SSH1607-1-B21-01:state");
 
 	// Get the current soft limits.
 	loadConfiguration();
@@ -134,15 +127,6 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	ccdGBLayout->setLabelAlignment(Qt::AlignRight);
 	ccdGB->setLayout(ccdGBLayout);
 
-	// Shutter layout.
-	QGroupBox *shStatusGB = new QGroupBox(tr("Photon Shutter Control"));
-	QHBoxLayout *shStatusLayout = new QHBoxLayout;
-	shStatusLayout->addWidget(psh1);
-	shStatusLayout->addWidget(psh2);
-	shStatusLayout->addWidget(ssh1);
-	shStatusLayout->addWidget(ssh2);
-	shStatusGB->setLayout(shStatusLayout);
-
 	// Setup the GUI with the soft limits.
 	config_ = new VESPERSEndstationConfiguration;
 	config_->hide();
@@ -157,7 +141,6 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 
 	QGridLayout *layout = new QGridLayout;
 	layout->addWidget(ccdGB, 2, 1, 1, 6);
-	layout->addWidget(shStatusGB, 0, 1, 1, 6);
 	layout->addWidget(windowGB, 1, 1, 1, 6);
 	layout->addWidget(controlGB, 0, 0, 4, 1);
 
