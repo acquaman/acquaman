@@ -38,8 +38,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMDetectorView.h"
 
+class SGMFluxResolutionPickerView;
 
-class SGMXASScanConfigurationView : public AMScanConfigurationView, private Ui::SGMXASScanConfigurationViewer {
+class SGMXASScanConfigurationView : public AMScanConfigurationView{
 Q_OBJECT
 public:
 		SGMXASScanConfigurationView(SGMXASScanConfiguration *sxsc, QWidget *parent = 0);
@@ -65,13 +66,49 @@ protected:
 
 	AMXASRegionsView *regionsView_;
 	AMRegionsLineView *regionsLineView_;
-	AMCompactControlOptimizationSetView *fluxResolutionView_;
+	//AMCompactControlOptimizationSetView *fluxResolutionView_;
+	SGMFluxResolutionPickerView *fluxResolutionView_;
 	AMControlSetView *trackingView_;
 	AMDetectorSetView *xasDetectorsView_;
 
 	QLabel *warningsLabel_;
-	QVBoxLayout vl_;
-	QGridLayout gl_;
+
+	QVBoxLayout *mainVL_;
+	QGridLayout *bottomGL_;
+};
+
+class SGMFluxResolutionPickerView : public QGroupBox{
+Q_OBJECT
+public:
+	SGMFluxResolutionPickerView(AMXASRegionsList *regions, QWidget *parent = 0);
+
+protected slots:
+	void onRegionsChanged();
+	void onSetpointsChanged();
+
+	void onBestFluxButtonClicked();
+	void onBestResolutionButtonClicked();
+
+signals:
+	void configValuesChanged(AMControlInfoList);
+
+protected:
+	AMXASRegionsList *regions_;
+	double minEnergy_;
+	double maxEnergy_;
+
+	QPushButton *bestFluxButton_;
+	QPushButton *bestResolutionButton_;
+	AMControlEditor *exitSlitGapCE_;
+	AMControlEditor *gratingCE_;
+	AMControlEditor *harmonicCE_;
+	QLabel *warningsLabel_;
+
+	QVBoxLayout *buttonsVL_;
+	QVBoxLayout *ceVL_;
+	QHBoxLayout *settingsHL_;
+	QVBoxLayout *mainVL_;
+
 };
 
 #endif // SGMXASSCANCONFIGURATIONVIEWER_H

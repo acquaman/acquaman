@@ -310,6 +310,11 @@ void AMControlEditor::overrideTitle(const QString &title){
 	setTitle(title);
 }
 
+void AMControlEditor::setSetpoint(double newSetpoint){
+	dialog_->setDoubleValue(newSetpoint);
+	onNewSetpoint(newSetpoint);
+}
+
 void AMControlEditor::onValueChanged(double newVal) {
 	if(configureOnly_ && connectedOnce_)
 		return;

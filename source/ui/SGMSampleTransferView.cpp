@@ -85,7 +85,7 @@ void SGMSampleTransferView::drawPane(int index){
 	mainLayout_->setCurrentIndex(index);
 	if(index != 0){
 		qDebug() << "Using enum to call on " << index;
-		transferPanes_.at(index-1)->startPane(SGMBeamline::sgm()->transferActions((SGMBeamline::sgmTransferType)index));
+		transferPanes_.at(index-1)->startPane(SGMBeamline::sgm()->createTransferActions((SGMBeamline::sgmTransferType)index));
 	}
 }
 

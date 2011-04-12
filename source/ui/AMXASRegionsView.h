@@ -66,6 +66,9 @@ public slots:
 	bool removeRegion(){ return regions_->deleteRegionSqueeze(removeIndex_); }
 
 protected:
+	void resizeEvent(QResizeEvent *event);
+
+protected:
 	/// The table view used to interact with the group of AMXASRegion.
 	QTableView *tv_;
 
