@@ -36,8 +36,8 @@ AMScanQueryModel::AMScanQueryModel(AMDatabase* db,
 				   // << AMScanQueryModelColumnInfo("About", "scanInfo")
 				<< AMScanQueryModelColumnInfo("Sample", "sampleId", true, AMDbObjectSupport::tableNameForClass<AMSample>(), "name")
 				<< AMScanQueryModelColumnInfo("Technique", "AMDbObjectType", true, "AMDbObjectTypes_table", "description", "AMDbObjectType")
-				<< AMScanQueryModelColumnInfo("Where", "facilityId", true, AMDbObjectSupport::tableNameForClass<AMFacility>(), "description")
-				   // << AMScanQueryModelColumnInfo("Run", "runId", true, AMDbObjectSupport::tableNameForClass<AMRun>(), "name")
+				// << AMScanQueryModelColumnInfo("Where", "facilityId", true, AMDbObjectSupport::tableNameForClass<AMFacility>(), "description")
+				<< AMScanQueryModelColumnInfo("Where", "runId", true, AMDbObjectSupport::tableNameForClass<AMRun>(), "name")
 				<< AMScanQueryModelColumnInfo("Notes", "notes");
 
 		orderClause_ = "dateTime ASC";
