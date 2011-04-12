@@ -163,6 +163,7 @@ AMStatusLogView::AMStatusLogView(QWidget *parent)
 	logView_->horizontalHeader()->setResizeMode(2, QHeaderView::Interactive);
 	logView_->horizontalHeader()->setResizeMode(3, QHeaderView::Interactive);
 	logView_->horizontalHeader()->setResizeMode(4, QHeaderView::Interactive);
+	logView_->verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);
 	logView_->setColumnWidth(0, 24);
 	logView_->setColumnWidth(2, 80);
 	logView_->setColumnWidth(3, 80);
