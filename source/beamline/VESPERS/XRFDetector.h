@@ -34,6 +34,8 @@ public:
 
 	/// Holds whether the entire detector is connected.
 	bool isConnected() const { return detectorConnected_; }
+	/// Holds whether the detector was connected previously.  Primarily useful at startup.
+	bool wasConnected() const { return wasConnected_; }
 
 	// Getters that aren't included in the info.  These are convenience functions that grab the current value from the control.
 	//////////////////////////////////////////////////
@@ -94,15 +96,15 @@ public:
 public slots:
 
 	/// Erases the current spectrum and starts collecting data.
-	void start() { startControl()->move(1); emit startScan();}
+	void start() { startControl()->move(1); }
 	/// Stops collection of data.
-	void stop() { stopControl()->move(1); emit stopScan(); }
+	void stop() { stopControl()->move(1); }
 	/// Set the accumulation time.
-	void setTime(double time) { setIntegrationTime(time); integrationTimeControl()->move(time); liveTimeControl()->move(0.0); }
+	void setTime(double time);
 	/// Set the maximum energy of the detector.
-	void setMaximumEnergyControl(double energy) { setMaximumEnergy(energy); maximumEnergyControl()->move(energy); }
+	void setMaximumEnergyControl(double energy);
 	/// Sets the peaking time of the detector.
-	void setPeakingTimeControl(double time) { setPeakingTime(time); peakingTimeControl()->move(time); }
+	void setPeakingTimeControl(double time);
 	/// Sets the spectrum refresh rate.
 	void setRefreshRateControl(XRFDetectorInfo::MCAUpdateRate rate);
 
@@ -112,7 +114,7 @@ public slots:
 
 signals:
 	/// Only emitted as true when all of the controls in the detector are connected. Is emitted false when any of the controls within the detector become unconnected.
-	void connected(bool);
+	void detectorConnected(bool);
 	/// Emitted when the settings control set changes.
 	void settingsChanged(AMControlInfoList);
 	/// Emitted when the readings control set changes.
@@ -121,10 +123,6 @@ signals:
 	void acquisitionFinished();
 	/// This signal is emitted when the spectra update.
 	void acquisitionUpdate();
-	/// This signal is emitted when the detector has been asked to start scanning.
-	void startScan();
-	/// This signal is emitted when the detector has been asked to stop scanning.
-	void stopScan();
 
 protected slots:
 	/// Determines if the detector is connected to ALL controls and process variables.
@@ -132,8 +130,10 @@ protected slots:
 
 protected:
 
-	/// Bool handling whether the ROIs are connected.
+	/// Bool handling whether the detector is connected.
 	bool detectorConnected_;
+	/// Bool handling whether the detector was connected.
+	bool wasConnected_;
 
 	/// The list of regions of interest.
 	QList<AMROI *> roiList_;

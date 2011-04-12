@@ -22,7 +22,7 @@ protected slots:
 
 protected:
 	/// Initializes the scan
-	virtual void initializeImplementation(){}
+	virtual void initializeImplementation() { setInitialized(); }
 	/// Starts current scan.
 	virtual void startImplementation();
 	/// Cancels current scan.  Treated as finishing early.

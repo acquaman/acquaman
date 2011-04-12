@@ -29,6 +29,7 @@ void VESPERSXRFScanController::startImplementation()
 	connect(detector_, SIGNAL(acquisitionUpdate()), this, SLOT(onDetectorAcquisitionUpdate()));
 	connect(detector_, SIGNAL(stopScan()), this, SLOT(cancel())); // Need to take into account stopping a scan (this only makes sense in free run scans).
 	detector_->start();
+	setStarted();
 }
 
 void VESPERSXRFScanController::onDetectorAcquisitionUpdate()

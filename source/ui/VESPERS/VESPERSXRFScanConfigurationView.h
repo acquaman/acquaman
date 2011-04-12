@@ -18,6 +18,8 @@ public:
 signals:
 	/// Passes along the detector view's start scan signal.
 	void startScan();
+	/// Passes along the detector view's stop scan signal.
+	void stopScan();
 
 protected:
 	/// The current configuration.

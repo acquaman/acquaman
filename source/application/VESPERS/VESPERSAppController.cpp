@@ -58,6 +58,8 @@ bool VESPERSAppController::startup() {
 		persistentView_ = new VESPERSPersistentView;
 		mw_->addRightWidget(persistentView_);
 
+		mw_->goToPane(vespersView_);
+
 		return true;
 	}
 	else

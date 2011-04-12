@@ -81,6 +81,7 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 		return false;
 
 	detector_ = static_cast<XRFDetector *>(detector);
+	connect(detector_, SIGNAL(detectorConnected(bool)), this, SLOT(setEnabled(bool)));
 
 	AMPeriodicTableView *table = new AMPeriodicTableView;
 
@@ -108,12 +109,17 @@ void XRFDetailedDetectorView::elementClicked(int elementId)
 
 void XRFDetailedDetectorView::onDeadTimeUpdate()
 {
-	deadTime_->setText(QString::number(detector_->deadTime()) + " %");
+	deadTime_->setText(QString::number(detector_->deadTime(), 'f', 2) + " %");
 }
 
 void XRFDetailedDetectorView::onElapsedTimeUpdate(double time)
 {
 	elapsedTime_->setText(QString::number(time, 'f', 2) + " s");
+}
+
+void XRFDetailedDetectorView::onIntegrationTimeUpdate()
+{
+	detector_->setTime(integrationTime_->value());
 }
 
 QLayout *XRFDetailedDetectorView::setupControls()
@@ -129,6 +135,8 @@ QLayout *XRFDetailedDetectorView::setupControls()
 	integrationTime_ = new QDoubleSpinBox;
 	integrationTime_->setSuffix(" s");
 	integrationTime_->setSingleStep(0.1);
+	integrationTime_->setMaximum(1000.00);
+	connect(integrationTime_, SIGNAL(editingFinished()), this, SLOT(onIntegrationTimeUpdate()));
 	connect(detector_->integrationTimeControl(), SIGNAL(valueChanged(double)), integrationTime_, SLOT(setValue(double)));
 
 	elapsedTime_ = new QLabel(tr(" s"));

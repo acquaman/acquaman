@@ -91,21 +91,13 @@ public:
 	/// Returns the valve control for Front End section 1.
 	AMControl *vvrFE1() const { return vvrFE1_; }
 	/// Returns the valve control for Front End section 2a.
-	AMControl *vvrFE2a() const { return vvrFE2a_; }
-	/// Returns the valve control for Front End section 2b.
-	AMControl *vvrFE2b() const { return vvrFE2b_; }
-	/// Returns the valve control for Front End section 3a.
-	AMControl *vvrFE3a() const { return vvrFE3a_; }
-	/// Returns the valve control for Front End section 3b.
-	AMControl *vvrFE3b() const { return vvrFE3b_; }
+	AMControl *vvrFE2() const { return vvrFE2_; }
 	/// Returns the valve control for M1.
 	AMControl *vvrM1() const { return vvrM1_; }
 	/// Returns the valve control for M2.
 	AMControl *vvrM2() const { return vvrM2_; }
 	/// Returns the valve control for BPM1.
 	AMControl *vvrBPM1() const { return vvrBPM1_; }
-	/// Returns the valve control for BPM2.
-	AMControl *vvrBPM2() const { return vvrBPM2_; }
 	/// Returns the valve control for the Mono.
 	AMControl *vvrMono() const { return vvrMono_; }
 	/// Returns the valve control for the exit slits.
@@ -117,13 +109,7 @@ public:
 	/// Returns the valve control at the POE SSH.
 	AMControl *vvrSSH() const { return vvrSSH_; }
 	/// Returns the valve control for the beam transfer section (1).
-	AMControl *vvrBeamTransfer1() const { return vvrBeamTransfer1_; }
-	/// Returns the valve control for the beam transfer section (2).
-	AMControl *vvrBeamTransfer2() const { return vvrBeamTransfer2_; }
-	/// Returns the valve control for the pre-window section.
-	AMControl *vvrPreWindow() const { return vvrPreWindow_; }
-	/// Returns the valve control for the post-window section.
-	AMControl *vvrPostWindow() const { return vvrPostWindow_; }
+	AMControl *vvrBeamTransfer() const { return vvrBeamTransfer_; }
 
 	/// Returns the ion pump control for Front End section 1.a
 	AMControl *iopFE1a() const { return iopFE1a_; }
@@ -444,23 +430,16 @@ protected:
 
 	// Valve controls.
 	AMControl *vvrFE1_;
-	AMControl *vvrFE2a_;
-	AMControl *vvrFE2b_;
-	AMControl *vvrFE3a_;
-	AMControl *vvrFE3b_;
+	AMControl *vvrFE2_;
 	AMControl *vvrM1_;
 	AMControl *vvrM2_;
 	AMControl *vvrBPM1_;
-	AMControl *vvrBPM2_;
 	AMControl *vvrMono_;
 	AMControl *vvrExitSlits_;
 	AMControl *vvrStraightSection_;
 	AMControl *vvrBPM3_;
 	AMControl *vvrSSH_;
-	AMControl *vvrBeamTransfer1_;
-	AMControl *vvrBeamTransfer2_;
-	AMControl *vvrPreWindow_;
-	AMControl *vvrPostWindow_;
+	AMControl *vvrBeamTransfer_;
 
 	// Ion pump controls.
 	AMControl *iopFE1a_;

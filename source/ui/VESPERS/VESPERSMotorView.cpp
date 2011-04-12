@@ -22,9 +22,9 @@ VESPERSMotorView::VESPERSMotorView(QWidget *parent) :
 	units_ = new QLabel;
 	jogUnits_ = new QLabel;
 	jogLeft_ = new QToolButton;
-	jogLeft_->setIcon(QIcon(":/blue_arrows_left.png"));
+	jogLeft_->setIcon(QIcon(":/go-previous.png"));
 	jogRight_ = new QToolButton;
-	jogRight_->setIcon(QIcon(":/blue_arrows_right.png"));
+	jogRight_->setIcon(QIcon(":/go-next.png"));
 	firstSetpointButton_ = new QToolButton;
 	firstSetpointButton_->setMinimumSize(100, 63);
 	firstSetpointButton_->setFont(QFont("Times New Roman", 28, 50));

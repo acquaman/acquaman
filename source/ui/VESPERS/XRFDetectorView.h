@@ -66,6 +66,8 @@ signals:
 	void stopScan();
 
 protected slots:
+	/// Handles new values set from the integration time spin box and passes it along to the control.
+	void onIntegrationTimeUpdate();
 	/// Handles the update from the dead time control.
 	void onDeadTimeUpdate();
 	/// Handles the update from the elapsed time control.
