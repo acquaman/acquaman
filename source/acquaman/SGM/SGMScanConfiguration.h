@@ -32,12 +32,14 @@ public:
 	SGMBeamline::sgmGrating grating() const { return grating_;}
 	SGMBeamline::sgmHarmonic harmonic() const { return harmonic_;}
 	AMControlInfoList trackingGroup() { return trackingGroup_;}
+	AMControlInfoList fluxResolutionGroup() { return fluxResolutionGroup_;}
 
 	bool setExitSlitGap(double exitSlitGap);
 	bool setGrating(SGMBeamline::sgmGrating grating) {grating_ = grating; return true;}
 	bool setHarmonic(SGMBeamline::sgmHarmonic harmonic) { harmonic_ = harmonic; return true;}
 
 	bool setTrackingGroup(AMControlInfoList trackingGroup);
+	bool setFluxResolutionGroup(AMControlInfoList fluxResolutionGroup);
 
 	/* NTBA March 14, 2011 David Chevrier
 	   Need something like setTrackingGroup for the detectorSet
@@ -48,6 +50,7 @@ protected:
 	SGMBeamline::sgmGrating grating_;
 	SGMBeamline::sgmHarmonic harmonic_;
 	AMControlInfoList trackingGroup_;
+	AMControlInfoList fluxResolutionGroup_;
 	bool undulatorTracking_;
 	bool monoTracking_;
 	bool exitSlitTracking_;

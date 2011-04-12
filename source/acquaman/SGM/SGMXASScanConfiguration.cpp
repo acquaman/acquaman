@@ -94,6 +94,12 @@ bool SGMXASScanConfiguration::setTrackingGroup(AMControlInfoList trackingList){
 	return rVal;
 }
 
+bool SGMXASScanConfiguration::setFluxResolutionGroup(AMControlInfoList fluxResolutionList){
+	bool rVal = SGMScanConfiguration::setFluxResolutionGroup(fluxResolutionList);
+	emit fluxResolutionGroupChanged(fluxResolutionList);
+	return rVal;
+}
+
 bool SGMXASScanConfiguration::setDetectorConfigurations(const AMDetectorInfoSet &xasDetectorsCfg){
 	xasDetectorsCfg_ = xasDetectorsCfg;
 }

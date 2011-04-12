@@ -43,13 +43,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 class SGMGratingAction;
-/*
-class SGMTransferAction1;
-class SGMTransferAction2;
-class SGMTransferAction3;
-class SGMTransferAction4;
-*/
-
 class AMSamplePlate;
 
 class SGMBeamline : public AMBeamline

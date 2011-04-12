@@ -27,7 +27,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMXASRegionsView::AMXASRegionsView(AMXASRegionsList *regions, QWidget *parent) :
 	QWidget(parent)
 {
-//	this->setMaximumWidth(400);
 	addButton_ = new QPushButton("Add Region", this);
 	deleteButton_ = new QPushButton("Delete Region", this);
 	QHBoxLayout *hl_ = new QHBoxLayout();
@@ -39,22 +38,13 @@ AMXASRegionsView::AMXASRegionsView(AMXASRegionsList *regions, QWidget *parent) :
 	tv_->hideColumn(0);
 	tv_->hideColumn(4);
 	tv_->hideColumn(5);
-	tv_->setMaximumWidth(350);
-	tv_->setMinimumHeight(100);
-	tv_->setMaximumHeight(100);
+	tv_->verticalHeader()->setVisible(false);
 	tv_->resize(tv_->sizeHint());
-	tv_->horizontalHeader()->setStretchLastSection(true);
-//	int totalWidth = tv_->columnWidth(1) + tv_->columnWidth(2) + tv_->columnWidth(3);
-//	tv_->setColumnWidth(1, 2*totalWidth/5);
-//	tv_->setColumnWidth(3, 2*totalWidth/5);
-//	tv_->setColumnWidth(2, totalWidth-tv_->columnWidth(1)-tv_->columnWidth(3));
 
 	QFormLayout *fl_ = new QFormLayout(this);
 	fl_->addRow(tv_);
 	fl_->addRow(hl_);
 	setLayout(fl_);
-	this->setMaximumSize(350, 200);
-	this->setMinimumSize(350, 200);
 	addRegionMenu_= NULL;
 	deleteRegionMenu_ = NULL;
 	connect(addButton_, SIGNAL(clicked()), this, SLOT(addRegion()));
@@ -119,4 +109,11 @@ void AMXASRegionsView::setRemoveIndex(){
 	QAction *tmpAction;
 	tmpAction = deleteRegionMenu_->activeAction();
 	removeIndex_ = tmpAction->data().toInt();
+}
+
+void AMXASRegionsView::resizeEvent(QResizeEvent *event){
+	int totalWidth = tv_->size().width();
+	tv_->setColumnWidth(1, 3*totalWidth/8);
+	tv_->setColumnWidth(2, (2*totalWidth/8)-1);
+	tv_->setColumnWidth(3, 3*totalWidth/8);
 }

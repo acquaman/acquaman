@@ -23,7 +23,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 SGMXASScanConfigurationView::SGMXASScanConfigurationView(SGMXASScanConfiguration *sxsc, QWidget *parent)  :
 		AMScanConfigurationView(parent)
 {
-	setupUi(this);
 	cfg_ = NULL;
 	if(SGMBeamline::sgm()->isConnected()){
 		cfg_ = sxsc;
@@ -34,45 +33,16 @@ SGMXASScanConfigurationView::SGMXASScanConfigurationView(SGMXASScanConfiguration
 		regionsView_->setBeamlineEnergy(SGMBeamline::sgm()->energy());
 		connect(sxsc, SIGNAL(regionsChanged()), this, SLOT(onRegionsChanged()));
 
+		/*
 		fluxResolutionView_ = new AMCompactControlOptimizationSetView((AMControlOptimizationSet*)(sxsc->fluxResolutionSet()), this);
 		connect( ((QComboBox*)(fluxResolutionView_->detailView()->boxByName("grating"))), SIGNAL(currentIndexChanged(int)), sxsc, SLOT(setGrating(int)) );
 		connect( ((QComboBox*)(fluxResolutionView_->detailView()->boxByName("harmonic"))), SIGNAL(currentIndexChanged(int)), sxsc, SLOT(setHarmonic(int)) );
 		connect( ((QDoubleSpinBox*)(fluxResolutionView_->detailView()->boxByName("exitSlitGap"))), SIGNAL(valueChanged(double)), sxsc, SLOT(setExitSlitGap(double)) );
 		fluxResolutionView_->onRegionsUpdate(sxsc->regions());
-
-		qDebug() << "Flux 250 - 270: " << SGMBeamline::sgm()->forBestFlux(250, 270);
-		qDebug() << "Flux 380 - 410: " << SGMBeamline::sgm()->forBestFlux(380, 410);
-		qDebug() << "Flux 395 - 425: " << SGMBeamline::sgm()->forBestFlux(395, 425);
-		qDebug() << "Flux 410 - 485: " << SGMBeamline::sgm()->forBestFlux(410, 485);
-		qDebug() << "Flux 600 - 635: " << SGMBeamline::sgm()->forBestFlux(600, 635);
-		qDebug() << "Flux 620 - 660: " << SGMBeamline::sgm()->forBestFlux(620, 660);
-		qDebug() << "Flux 770 - 790: " << SGMBeamline::sgm()->forBestFlux(770, 790);
-		qDebug() << "Flux 780 - 810: " << SGMBeamline::sgm()->forBestFlux(780, 810);
-		qDebug() << "Flux 780 - 850: " << SGMBeamline::sgm()->forBestFlux(780, 850);
-		qDebug() << "Flux 840 - 1000: " << SGMBeamline::sgm()->forBestFlux(840, 1000);
-		qDebug() << "Flux 1090 - 1105: " << SGMBeamline::sgm()->forBestFlux(1090, 1105);
-		qDebug() << "Flux 1080 - 1150: " << SGMBeamline::sgm()->forBestFlux(1080, 1150);
-		qDebug() << "Flux 1110 - 1170: " << SGMBeamline::sgm()->forBestFlux(1110, 1170);
-		qDebug() << "Flux 1170 - 1205: " << SGMBeamline::sgm()->forBestFlux(1170, 1205);
-		qDebug() << "Flux 1180 - 1320: " << SGMBeamline::sgm()->forBestFlux(1180, 1320);
-		qDebug() << "Flux 1400 - 1600: " << SGMBeamline::sgm()->forBestFlux(1400, 1600);
-
-		qDebug() << "Resolution 250 - 270: " << SGMBeamline::sgm()->forBestResolution(250, 270);
-		qDebug() << "Resolution 380 - 410: " << SGMBeamline::sgm()->forBestResolution(380, 410);
-		qDebug() << "Resolution 395 - 425: " << SGMBeamline::sgm()->forBestResolution(395, 425);
-		qDebug() << "Resolution 410 - 485: " << SGMBeamline::sgm()->forBestResolution(410, 485);
-		qDebug() << "Resolution 600 - 635: " << SGMBeamline::sgm()->forBestResolution(600, 635);
-		qDebug() << "Resolution 620 - 660: " << SGMBeamline::sgm()->forBestResolution(620, 660);
-		qDebug() << "Resolution 770 - 790: " << SGMBeamline::sgm()->forBestResolution(770, 790);
-		qDebug() << "Resolution 780 - 810: " << SGMBeamline::sgm()->forBestResolution(780, 810);
-		qDebug() << "Resolution 780 - 850: " << SGMBeamline::sgm()->forBestResolution(780, 850);
-		qDebug() << "Resolution 840 - 1000: " << SGMBeamline::sgm()->forBestResolution(840, 1000);
-		qDebug() << "Resolution 1090 - 1105: " << SGMBeamline::sgm()->forBestResolution(1090, 1105);
-		qDebug() << "Resolution 1080 - 1150: " << SGMBeamline::sgm()->forBestResolution(1080, 1150);
-		qDebug() << "Resolution 1110 - 1170: " << SGMBeamline::sgm()->forBestResolution(1110, 1170);
-		qDebug() << "Resolution 1170 - 1205: " << SGMBeamline::sgm()->forBestResolution(1170, 1205);
-		qDebug() << "Resolution 1180 - 1320: " << SGMBeamline::sgm()->forBestResolution(1180, 1320);
-		qDebug() << "Resolution 1400 - 1600: " << SGMBeamline::sgm()->forBestResolution(1400, 1600);
+		*/
+		fluxResolutionView_ = new SGMFluxResolutionPickerView(sxsc->regions(), this);
+		fluxResolutionView_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
+		connect(fluxResolutionView_, SIGNAL(configValuesChanged(AMControlInfoList)), sxsc, SLOT(setFluxResolutionGroup(AMControlInfoList)));
 
 		trackingView_ = new AMControlSetView(sxsc->trackingSet(), true, this);
 		connect(trackingView_, SIGNAL(configValuesChanged(AMControlInfoList)), sxsc, SLOT(setTrackingGroup(AMControlInfoList)));
@@ -86,23 +56,19 @@ SGMXASScanConfigurationView::SGMXASScanConfigurationView(SGMXASScanConfiguration
 		warningsLabel_->setFont(warningsFont);
 		warningsLabel_->setStyleSheet( "QLabel{ color: red }" );
 
-		delete doLayoutButton;
-		delete layout();
+		mainVL_ = new QVBoxLayout();
+		mainVL_->addWidget(regionsLineView_);
+		bottomGL_ = new QGridLayout();
+		mainVL_->addLayout(bottomGL_, 10);
+		bottomGL_->addWidget(regionsView_,		0, 0);
+		bottomGL_->addWidget(fluxResolutionView_,	1, 0);
+		bottomGL_->addWidget(trackingView_,		0, 2);
+		bottomGL_->addWidget(xasDetectorsView_,	1, 2);
+		bottomGL_->setColumnStretch(0, 10);
+		bottomGL_->setColumnMinimumWidth(1, 40);
+		setLayout(mainVL_);
 
-		QSpacerItem *spc1 = new QSpacerItem(10, 10, QSizePolicy::Minimum, QSizePolicy::Maximum);
-		QSpacerItem *spc2 = new QSpacerItem(10, 10, QSizePolicy::Minimum, QSizePolicy::Maximum);
-		gl_.setSpacing(0);
-		gl_.addWidget(regionsLineView_,		0, 0, 1, 5, Qt::AlignCenter);
-		gl_.addWidget(regionsView_,		1, 0, 2, 3, Qt::AlignLeft);
-		gl_.addWidget(fluxResolutionView_,	3, 0, 2, 3, Qt::AlignLeft);
-		gl_.addWidget(trackingView_,		1, 3, 2, 2, Qt::AlignLeft);
-		gl_.addWidget(xasDetectorsView_,	3, 3, 2, 2, Qt::AlignLeft);
-		gl_.addWidget(warningsLabel_,		2, 0, 1, 5, Qt::AlignCenter);
-		gl_.addItem(spc1,			8, 0, 2, 3, Qt::AlignLeft);
-		gl_.addItem(spc2,			8, 3, 2, 2, Qt::AlignLeft);
-		this->setLayout(&gl_);
 		this->setMaximumSize(800, 800);
-
 		connect(SGMBeamline::sgm(), SIGNAL(criticalControlsConnectionsChanged()), this, SLOT(onSGMBeamlineCriticalControlsConnectedChanged()));
 		onSGMBeamlineCriticalControlsConnectedChanged();
 	}
@@ -136,5 +102,102 @@ void SGMXASScanConfigurationView::onSGMBeamlineCriticalControlsConnectedChanged(
 		trackingView_->setEnabled(false);
 		xasDetectorsView_->setEnabled(false);
 		warningsLabel_->setText("SGM Beamline Unavailable");
+	}
+}
+
+
+SGMFluxResolutionPickerView::SGMFluxResolutionPickerView(AMXASRegionsList *regions, QWidget *parent) :
+		QGroupBox("Flux/Resolution", parent)
+{
+	regions_ = regions;
+	minEnergy_ = -1;
+	maxEnergy_ = -1;
+
+	bestFluxButton_ = new QPushButton("Best Flux");
+	bestResolutionButton_ = new QPushButton("Best Resolution");
+
+	exitSlitGapCE_ = new AMControlEditor(SGMBeamline::sgm()->exitSlitGap(), 0, false, true);
+	gratingCE_ = new AMControlEditor(SGMBeamline::sgm()->grating(), 0, false, true);
+	harmonicCE_ = new AMControlEditor(SGMBeamline::sgm()->harmonic(), 0, false, true);
+
+	warningsLabel_ = new QLabel("");
+	QFont warningsFont;
+	warningsFont.setPointSize(18);
+	warningsLabel_->setFont(warningsFont);
+	warningsLabel_->setStyleSheet( "QLabel{ color: red }" );
+
+	buttonsVL_ = new QVBoxLayout();
+	buttonsVL_->addWidget(bestFluxButton_);
+	buttonsVL_->addWidget(bestResolutionButton_);
+	buttonsVL_->addStretch(8);
+	buttonsVL_->insertSpacing(0, 4);
+
+	ceVL_ = new QVBoxLayout();
+	ceVL_->addWidget(exitSlitGapCE_);
+	ceVL_->addWidget(gratingCE_);
+	ceVL_->addWidget(harmonicCE_);
+	ceVL_->addStretch(10);
+
+	settingsHL_ = new QHBoxLayout();
+	settingsHL_->addLayout(buttonsVL_);
+	settingsHL_->addSpacing(5);
+	settingsHL_->addLayout(ceVL_, 10);
+
+	mainVL_ = new QVBoxLayout();
+	mainVL_->addLayout(settingsHL_);
+	mainVL_->addWidget(warningsLabel_);
+	setLayout(mainVL_);
+
+	connect(regions_, SIGNAL(regionsChanged()), this, SLOT(onRegionsChanged()));
+	connect(exitSlitGapCE_, SIGNAL(setpointRequested(double)), this, SLOT(onSetpointsChanged()));
+	connect(gratingCE_, SIGNAL(setpointRequested(double)), this, SLOT(onSetpointsChanged()));
+	connect(harmonicCE_, SIGNAL(setpointRequested(double)), this, SLOT(onSetpointsChanged()));
+	connect(bestFluxButton_, SIGNAL(clicked()), this, SLOT(onBestFluxButtonClicked()));
+	connect(bestResolutionButton_, SIGNAL(clicked()), this, SLOT(onBestResolutionButtonClicked()));
+	onRegionsChanged();
+}
+
+void SGMFluxResolutionPickerView::onRegionsChanged(){
+	if( (minEnergy_ != regions_->start(0)) || (maxEnergy_ != regions_->end(regions_->count()-1)) ){
+		minEnergy_ = regions_->start(0);
+		maxEnergy_ = regions_->end(regions_->count()-1);
+		if(!SGMBeamline::sgm()->energyRangeValidForSettings((SGMBeamline::sgmGrating)gratingCE_->setpoint(), (SGMBeamline::sgmHarmonic)harmonicCE_->setpoint(), minEnergy_, maxEnergy_))
+			warningsLabel_->setText("Grating and/or harmonic are \ninvalid for current energy range");
+		else
+			warningsLabel_->setText("");
+	}
+}
+
+void SGMFluxResolutionPickerView::onSetpointsChanged(){
+	if(!SGMBeamline::sgm()->energyRangeValidForSettings((SGMBeamline::sgmGrating)gratingCE_->setpoint(), (SGMBeamline::sgmHarmonic)harmonicCE_->setpoint(), minEnergy_, maxEnergy_))
+		warningsLabel_->setText("Grating and/or harmonic are \ninvalid for current energy range");
+	else
+		warningsLabel_->setText("");
+	AMControlInfoList setpoints;
+	AMControlInfoList originals = SGMBeamline::sgm()->fluxResolutionSet()->toInfoList();
+	QList<double> newSettings;
+	newSettings << gratingCE_->setpoint() << harmonicCE_->setpoint() << exitSlitGapCE_->setpoint();
+	for(int x = 0; x < originals.count(); x++){
+		AMControlInfo tmpCI = originals.at(x);
+		setpoints.append( AMControlInfo(tmpCI.name(), newSettings.at(x), tmpCI.minimum(), tmpCI.maximum(), tmpCI.units()));
+	}
+	emit configValuesChanged(setpoints);
+}
+
+void SGMFluxResolutionPickerView::onBestFluxButtonClicked(){
+	QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic> bestFlux = SGMBeamline::sgm()->forBestFlux(minEnergy_, maxEnergy_);
+	if( SGMBeamline::sgm()->energyRangeValidForSettings(bestFlux.first, bestFlux.second, minEnergy_, maxEnergy_)){
+		exitSlitGapCE_->setSetpoint(150);
+		gratingCE_->setSetpoint(bestFlux.first);
+		harmonicCE_->setSetpoint(bestFlux.second);
+	}
+}
+
+void SGMFluxResolutionPickerView::onBestResolutionButtonClicked(){
+	QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic> bestResolution = SGMBeamline::sgm()->forBestResolution(minEnergy_, maxEnergy_);
+	if( SGMBeamline::sgm()->energyRangeValidForSettings(bestResolution.first, bestResolution.second, minEnergy_, maxEnergy_)){
+		exitSlitGapCE_->setSetpoint(10);
+		gratingCE_->setSetpoint(bestResolution.first);
+		harmonicCE_->setSetpoint(bestResolution.second);
 	}
 }

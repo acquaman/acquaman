@@ -1053,13 +1053,13 @@ bool SGMBeamline::energyValidForSettings(sgmGrating grating, sgmHarmonic harmoni
 }
 
 bool SGMBeamline::energyRangeValidForSettings(sgmGrating grating, sgmHarmonic harmonic, double minEnergy, double maxEnergy){
-	if( (grating == 0) && (harmonic == 1) && (maxEnergy > 240) && (minEnergy < 750) )
+	if( (grating == 0) && (harmonic == 1) && (minEnergy > 240) && (maxEnergy > 240) && (minEnergy < 750) && (maxEnergy < 750) )
 		return true;
-	else if( (grating == 1) && (harmonic == 1) && (maxEnergy > 440) && (minEnergy < 1200) )
+	else if( (grating == 1) && (harmonic == 1) && (minEnergy > 440) && (maxEnergy > 440) && (minEnergy < 1200) && (maxEnergy < 1200) )
 		return true;
-	else if( (grating == 2) && (harmonic == 1) && (maxEnergy > 800) && (minEnergy < 1150) )
+	else if( (grating == 2) && (harmonic == 1) && (minEnergy > 800) && (maxEnergy > 800) && (minEnergy < 1150) && (maxEnergy < 1150) )
 		return true;
-	else if( (grating == 2) && (harmonic == 3) && (maxEnergy > 1050) && (minEnergy < 2000) )
+	else if( (grating == 2) && (harmonic == 3) && (minEnergy > 1050) && (maxEnergy > 1050) && (minEnergy < 2000) && (maxEnergy < 2000) )
 		return true;
 	else
 		return false;
@@ -1099,14 +1099,10 @@ QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic> SGMBeamline::forBestFlu
 	for(int x = 0; x < transitionPoints.count(); x++){
 		if(minEnergy < transitionPoints.at(x) && maxEnergy > transitionPoints.at(x)){
 			straddlesTransition = true;
-			if( (transitionPoints.at(x)-minEnergy) >= (maxEnergy-transitionPoints.at(x)) ){
+			if( (transitionPoints.at(x)-minEnergy) >= (maxEnergy-transitionPoints.at(x)) )
 				testEnergy = minEnergy;
-				qDebug() << "\nStraddles Flux, choose low";
-			}
-			else{
+			else
 				testEnergy = maxEnergy;
-				qDebug() << "\nStraddles Flux, choose high";
-			}
 		}
 	}
 
@@ -1129,14 +1125,10 @@ QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic> SGMBeamline::forBestRes
 	for(int x = 0; x < transitionPoints.count(); x++){
 		if(minEnergy < transitionPoints.at(x) && maxEnergy > transitionPoints.at(x)){
 			straddlesTransition = true;
-			if( (transitionPoints.at(x)-minEnergy) >= (maxEnergy-transitionPoints.at(x)) ){
+			if( (transitionPoints.at(x)-minEnergy) >= (maxEnergy-transitionPoints.at(x)) )
 				testEnergy = minEnergy;
-				qDebug() << "\nStraddles Resolution, choose low";
-			}
-			else{
+			else
 				testEnergy = maxEnergy;
-				qDebug() << "\nStraddles Resolution, choose high";
-			}
 		}
 	}
 
