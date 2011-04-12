@@ -35,7 +35,7 @@ Q_OBJECT
 public:
 	explicit AMBeamlineScanAction(AMScanConfiguration *cfg, QObject *parent = 0);
 
-	virtual AMBeamlineActionView* createView(int index = 0);
+	virtual AMBeamlineActionItemView* createView(int index = 0);
 
 	AMScanConfiguration* cfg() const { return cfg_;}
 	virtual bool isRunning() const;
@@ -70,7 +70,7 @@ protected:
 	bool keepOnCancel_;
 };
 
-class AMBeamlineScanActionView : public AMBeamlineActionView
+class AMBeamlineScanActionView : public AMBeamlineActionItemView
 {
 Q_OBJECT
 public:

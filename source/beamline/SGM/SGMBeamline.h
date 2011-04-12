@@ -43,11 +43,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 class SGMGratingAction;
-class SGMTransferAction1;
-class SGMTransferAction2;
-class SGMTransferAction3;
-class SGMTransferAction4;
-
 class AMSamplePlate;
 
 class SGMBeamline : public AMBeamline
@@ -55,10 +50,25 @@ class SGMBeamline : public AMBeamline
 	Q_OBJECT
 
 public:
-	enum sgmGrating {lowGrating=0, mediumGrating=1, highGrating=2};
+	enum sgmGrating{
+		lowGrating = 0,
+		mediumGrating = 1,
+		highGrating = 2
+	};
 	QString sgmGratingName(SGMBeamline::sgmGrating grating) const;
-	enum sgmHarmonic {firstHarmonic=1, thirdHarmonic=3};
+
+	enum sgmHarmonic{
+		firstHarmonic = 1,
+		thirdHarmonic = 3
+	};
 	QString sgmHarmonicName(SGMBeamline::sgmHarmonic harmonic) const;
+
+	enum sgmTransferType{
+		loadlockOut = 1,
+		loadlockIn,
+		ChamberOut,
+		ChamberIn
+	};
 
 	static SGMBeamline* sgm();		// singleton-class accessor
 
@@ -150,10 +160,11 @@ public:
 
 	AMBeamlineParallelActionsList* stopMotorsActionsList();
 
-	AMBeamlineListAction* transferLoadlockOutActions();
-	AMBeamlineListAction* transferLoadlockInActions();
-	AMBeamlineListAction* transferChamberOutActions();
-	AMBeamlineListAction* transferChamberInActions();
+	AMBeamlineListAction* createTransferActions(SGMBeamline::sgmTransferType transferType);
+	AMBeamlineListAction* createTransferLoadLockOutActions();
+	AMBeamlineListAction* createTransferLoadLockInActions();
+	AMBeamlineListAction* createTransferChamberOutActions();
+	AMBeamlineListAction* createTransferChamberInActions();
 
 	bool isBeamlineScanning();
 
@@ -164,6 +175,9 @@ public:
 
 	QList< QPair<sgmGrating, sgmHarmonic> > gratingHarmonicForEnergyRange(double minEnergy, double maxEnergy);
 	QPair<double, double> energyRangeForGratingHarmonic(sgmGrating grating, sgmHarmonic harmonic);
+
+	QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic> forBestFlux(double minEnergy, double maxEnergy) const;
+	QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic> forBestResolution(double minEnergy, double maxEnergy) const;
 
 signals:
 	void beamlineScanningChanged(bool scanning);
@@ -186,18 +200,6 @@ protected slots:
 	void onCriticalControlsConnectedChanged(bool isConnected, AMControl *controll);
 
 	void recomputeWarnings();
-
-	void createTransferLoadLockOutActions();
-	void onTransferLoadLockOutActionsFinished();
-
-	void createTransferLoadLockInActions();
-	void onTransferLoadLockInActionsFinished();
-
-	void createTransferChamberOutActions();
-	void onTransferChamberOutActionsFinished();
-
-	void createTransferChamberInActions();
-	void onTransferChamberInActionsFinished();
 
 	void createBeamOnActions();
 	void onBeamOnActionsFinsihed();
@@ -308,42 +310,29 @@ protected:
 	/// The sample plate currently in the SSA chamber:
 	AMSamplePlate* currentSamplePlate_;
 
-	AMBeamlineUserConfirmAction *transferLoadLockOutAction1_;
-	AMBeamlineControlWaitAction *transferLoadLockOutAction2_;
-	AMBeamlineUserConfirmAction *transferLoadLockOutAction3_;
-	AMBeamlineUserConfirmAction *transferLoadLockOutAction4_;
-	AMBeamlineControlWaitAction *transferLoadLockOutAction5_;
-	AMBeamlineUserConfirmAction *transferLoadLockOutAction6_;
-	AMBeamlineParallelActionsList *transferLoadLockOutList_;
-	AMBeamlineListAction *transferLoadLockOutAction_;
+	AMOrderedSet<QString, QPixmap> transferLoadLockOutAction1Help_;
+	AMOrderedSet<QString, QPixmap> transferLoadLockOutAction2Help_;
+	AMOrderedSet<QString, QPixmap> transferLoadLockOutAction3Help_;
+	AMOrderedSet<QString, QPixmap> transferLoadLockOutAction4Help_;
+	AMOrderedSet<QString, QPixmap> transferLoadLockOutAction5Help_;
 
-	AMBeamlineUserConfirmAction *transferLoadLockInAction1_;
-	AMBeamlineUserConfirmAction *transferLoadLockInAction2_;
-	AMBeamlineControlWaitAction *transferLoadLockInAction3_;
-	AMBeamlineUserConfirmAction *transferLoadLockInAction4_;
-	AMBeamlineControlWaitAction *transferLoadLockInAction5_;
-	AMBeamlineControlWaitAction *transferLoadLockInAction6_;
-	AMBeamlineParallelActionsList *transferLoadLockInList_;
-	AMBeamlineListAction *transferLoadLockInAction_;
+	AMOrderedSet<QString, QPixmap> transferLoadLockInAction2Help_;
+	AMOrderedSet<QString, QPixmap> transferLoadLockInAction3Help_;
+	AMOrderedSet<QString, QPixmap> transferLoadLockInAction4Help_;
+	AMOrderedSet<QString, QPixmap> transferLoadLockInAction5Help_;
+	AMOrderedSet<QString, QPixmap> transferLoadLockInAction6Help_;
 
-	AMBeamlineUserConfirmAction *transferChamberOutAction1_;
-	AMBeamlineUserConfirmAction *transferChamberOutAction2_;
-	AMBeamlineUserConfirmAction *transferChamberOutAction3_;
-	AMBeamlineUserConfirmAction *transferChamberOutAction4_;
-	AMBeamlineUserConfirmAction *transferChamberOutAction5_;
-	AMBeamlineUserConfirmAction *transferChamberOutAction6_;
-	AMBeamlineUserConfirmAction *transferChamberOutAction7_;
-	AMBeamlineUserConfirmAction *transferChamberOutAction8_;
-	AMBeamlineParallelActionsList *transferChamberOutList_;
-	AMBeamlineListAction *transferChamberOutAction_;
+	AMOrderedSet<QString, QPixmap> transferChamberOutAction1Help_;
+	AMOrderedSet<QString, QPixmap> transferChamberOutAction3Help_;
+	AMOrderedSet<QString, QPixmap> transferChamberOutAction5Help_;
+	AMOrderedSet<QString, QPixmap> transferChamberOutAction6Help_;
+	AMOrderedSet<QString, QPixmap> transferChamberOutAction7Help_;
+	AMOrderedSet<QString, QPixmap> transferChamberOutAction8Help_;
 
-	AMBeamlineUserConfirmAction *transferChamberInAction1_;
-	AMBeamlineUserConfirmAction *transferChamberInAction2_;
-	AMBeamlineUserConfirmAction *transferChamberInAction3_;
-	AMBeamlineUserConfirmAction *transferChamberInAction4_;
-	AMBeamlineUserConfirmAction *transferChamberInAction5_;
-	AMBeamlineParallelActionsList *transferChamberInList_;
-	AMBeamlineListAction *transferChamberInAction_;
+	AMOrderedSet<QString, QPixmap> transferChamberInAction1Help_;
+	AMOrderedSet<QString, QPixmap> transferChamberInAction2Help_;
+	AMOrderedSet<QString, QPixmap> transferChamberInAction3Help_;
+	AMOrderedSet<QString, QPixmap> transferChamberInAction4Help_;
 
 	AMBeamlineControlMoveAction *beamOnAction1_;
 	AMBeamlineControlMoveAction *beamOnAction2_;

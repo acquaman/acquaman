@@ -151,7 +151,7 @@ public:
 
 	// Adding new data points: increasing the size of the scan space
 	//////////////////////////////////////////////////////
-	/// Call this to increase the size of the dataset along an axis \c axisId. "Rows" (or columns, or slices, or whatever they might be depending on the axis in question) are inserted starting \c atRowIndex.  (Use -1 to append to the end.)  Returns true on success.
+	/// Call this to increase the size of the dataset along a scan axis \c axisId. "Rows" (or columns, or slices, or whatever they might be depending on the axis in question) are inserted starting \c atRowIndex.  (Use -1 to append to the end.)  Returns true on success.
 	/*! After calling this, you must call setValue and setAxisValue to fill in the data for all the new scan points that were created, and then call endInsertRows().  Nested calls to beginInsertRows()/endInsertRows() to increase the size along multiple dimensions simultaneously are not supported.
 
 	  This function, in addition to creating space for the new data, suppresses the dataChanged() signal until endInsertRows() is called.  This allows you to insert valid data for all detectors and scan points within the new space, and the dataChanged() signal is only emitted once for the whole affected region.

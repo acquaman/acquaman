@@ -95,6 +95,9 @@ public:
 	/// Access the currently-selected items (as a list of amd:// URLs).  Only meaningful for sections that know how to identify their selected items; the base implementation returns an empty list.
 	virtual QList<QUrl> selectedItems() const { return QList<QUrl>(); }
 
+	/// Retrieving selectedItems() could take time (especially if there are many many selected items), as it needs to build the URLs. This is a faster way to find out if any items are selected.  The base implementation returns 0.
+	virtual int numberOfSelectedItems() const { return 0; }
+
 signals:
 
 	/// For sections that know how to identify their selected items, this is emitted when the selection changes.
@@ -125,6 +128,9 @@ public:
 
 	/// Access a list of the selected items, in the standard URL format: amd://databaseConnectionName/tableName/objectId
 	QList<QUrl> selectedItems() const { updateSelectedUrls(); return selectedUrls_; }
+
+	/// Retrieving selectedItems() could take time (especially if there are many many selected items), as it needs to build the URLs. This is a faster way to find out if any items are selected.
+	int numberOfSelectedItems() const;
 
 signals:
 	/// Emitted whenever the selected scans change
@@ -277,6 +283,11 @@ public:
 		return QList<QUrl>();
 	}
 
+	virtual int numberOfSelectedItems() const {
+		if(subview_)
+			return subview_->numberOfSelectedItems();
+	}
+
 	/// Re-implemented function, to manage the size and position of our child items: the header, and the subview.
 	void setGeometry(const QRectF &rect);
 
@@ -379,7 +390,10 @@ public:
 	virtual void setWidthConstraint(double widthConstraint);
 
 	/// Returns the currently selected items, in the amd://databaseConnectionName/tableName/objectId URL format.
-	QList<QUrl> selectedItems() const;
+	virtual QList<QUrl> selectedItems() const;
+
+	/// Retrieving selectedItems() could take time (especially if there are many many selected items), as it needs to build the URLs. This is a faster way to find out if any items are selected.
+	virtual int numberOfSelectedItems() const;
 
 protected slots:
 	/// The AMScanQueryModel loads a maximum of 256 rows at once... and this is what will be loaded when we call refreshQuery().  We need to catch the signal when rows are inserted in the model, and use this to signal that our desired sizeHint has changed.

@@ -13,7 +13,7 @@ Q_OBJECT
 public:
 	explicit AMBeamlineUserConfirmAction(QObject *parent = 0);
 
-	virtual AMBeamlineActionView* createView(int index);
+	virtual AMBeamlineActionItemView* createView(int index = 0);
 
 public slots:
 	virtual void start();
@@ -24,7 +24,7 @@ public slots:
 	virtual void userCancel();
 };
 
-class AMBeamlineUserConfirmDetailedActionView : public AMBeamlineActionView
+class AMBeamlineUserConfirmDetailedActionView : public AMBeamlineActionItemView
 {
 Q_OBJECT
 public:
@@ -48,12 +48,15 @@ protected slots:
 	void onActionSucceeded();
 	void onActionFailed(int explanation);
 
+	void onHelpButtonClicked();
+
 protected:
 	AMBeamlineUserConfirmAction *userConfirmAction_;
 	QLabel *messageLabel_;
 	QPushButton *proceedButton_;
 	QPushButton *cancelButton_;
 	QToolButton *finishedState_;
+	QToolButton *helpButton_;
 	QHBoxLayout *mainHL_;
 	QVBoxLayout *buttonsVL_;
 };

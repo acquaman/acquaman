@@ -222,6 +222,9 @@ color: rgb(79, 79, 79);</string>
        </property>
        <item>
         <widget class="QToolButton" name="openSeparateEditorButton">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="toolTip">
           <string>Open in Separate Editors</string>
          </property>
@@ -263,6 +266,9 @@ border: none;
        </item>
        <item>
         <widget class="QToolButton" name="openSameEditorButton">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="toolTip">
           <string>Open in Same Editor</string>
          </property>
@@ -301,6 +307,9 @@ border: none;
        </item>
        <item>
         <widget class="QToolButton" name="exportButton">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="styleSheet">
           <string notr="true">QToolButton:hover {
 	border-top: 1px solid transparent;
@@ -497,6 +506,9 @@ border: none;
   </layout>
  </widget>
  <resources>
+  <include location="../icons/icons.qrc"/>
+  <include location="../icons/icons.qrc"/>
+  <include location="../icons/icons.qrc"/>
   <include location="../icons/icons.qrc"/>
  </resources>
  <connections/>

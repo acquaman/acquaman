@@ -25,7 +25,7 @@ public:
 
 	explicit AMBeamlineControlWaitAction(AMControl *control, AMBeamlineControlWaitAction::waitTargetType targetType, QObject *parent = 0);
 
-	virtual AMBeamlineActionView* createView(int index = 0);
+	virtual AMBeamlineActionItemView* createView(int index = 0);
 
 	/// The AMControl that this action will operate on
 	virtual AMControl* control();
@@ -89,7 +89,7 @@ protected:
 
 class AMDoubleSlider;
 
-class AMBeamlineControlWaitDetailedActionView : public AMBeamlineActionView
+class AMBeamlineControlWaitDetailedActionView : public AMBeamlineActionItemView
 {
 	Q_OBJECT
 public:
@@ -113,12 +113,15 @@ protected slots:
 	void onActionSucceeded();
 	void onActionFailed(int explanation);
 
+	void onHelpButtonClicked();
+
 protected:
 	AMBeamlineControlWaitAction *waitAction_;
 
 	QLabel *messageLabel_;
 	AMDoubleSlider *progressSlider_;
 	QToolButton *finishedState_;
+	QToolButton *helpButton_;
 	QHBoxLayout *mainHL_;
 };
 

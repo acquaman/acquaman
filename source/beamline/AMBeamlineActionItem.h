@@ -21,6 +21,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef AMBEAMLINEACTIONITEM_H
 #define AMBEAMLINEACTIONITEM_H
 
+#include "util/AMOrderedSet.h"
+
 #include <QObject>
 #include <QWidget>
 #include <QHBoxLayout>
@@ -28,6 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPushButton>
 #include <QDebug>
 #include <QMouseEvent>
+#include <QStyle>
 
 /// Using this for debuggging purposes in all ActionItem descendents and views
 #define VERBOSE_ACTION_ITEMS 0
@@ -60,7 +63,7 @@ protected:
 	bool state_;
 };
 
-class AMBeamlineActionView;
+class AMBeamlineActionItemView;
 
 /// Base class for all actionItems.
 class AMBeamlineActionItem : public QObject
@@ -93,9 +96,12 @@ public:
 	/// Returns a pointer to the next action (if the action is not in a parallel list)
 	AMBeamlineActionItem* next() const;
 
-	virtual AMBeamlineActionView* createView(int index = 0) = 0;
+	virtual AMBeamlineActionItemView* createView(int index = 0) = 0;
 
 	virtual QString message() const;
+
+	bool hasHelp() const;
+	AMOrderedSet<QString, QPixmap> helpImages() const;
 
 signals:
 	/// All signal emitting is taken care of if the setReady/setStarted/setSucceeded/etc functions are used. These functions will emit the signals as necessary
@@ -134,6 +140,7 @@ public slots:
 	bool setNext(AMBeamlineActionItem* next);
 
 	void setMessage(const QString &message);
+	void setHelp(const AMOrderedSet<QString, QPixmap> &helpImages);
 
 protected slots:
 	// Interface to internal state. If sub-classes want to change something, call these.
@@ -168,6 +175,7 @@ protected:
 	AMBeamlineActionItem *next_;
 
 	QString message_;
+	AMOrderedSet<QString, QPixmap> helpImages_;
 
 private slots:
 	/// Connected internally so that any other state change makes sure that initialized is set to false. Any change means we are no longer in the initialized state
@@ -192,11 +200,11 @@ private:
 	AMBeamlineActionItemStateFlag finished_;
 };
 
-class AMBeamlineActionView : public QFrame
+class AMBeamlineActionItemView : public QFrame
 {
 	Q_OBJECT
 public:
-	AMBeamlineActionView(AMBeamlineActionItem *action, int index = 0, QWidget *parent = 0);
+	AMBeamlineActionItemView(AMBeamlineActionItem *action, int index = 0, QWidget *parent = 0);
 
 	int index() const { return index_;}
 	virtual AMBeamlineActionItem* action();
@@ -229,71 +237,11 @@ protected:
 	bool inFocus_;
 };
 
-class AM1BeamlineActionItem : public QObject
+class AMImageListView : public QWidget
 {
 Q_OBJECT
 public:
-	explicit AM1BeamlineActionItem(QString message = "", QObject *parent = 0);
-	bool isRunning() { return running_; }
-	bool hasStarted() { return started_; }
-	bool hasSucceeded() { return succeeded_; }
-	bool hasFailed() { return failed_; }
-	bool hasFeedback() { return hasFeedback_; }
-	bool needsInput() { return needsInput_; }
-	AM1BeamlineActionItem* previous() const { return previous_;}
-	AM1BeamlineActionItem* next() const { return next_;}
-	QString message() const { return message_; }
-	virtual QString type() const { return type_; }
-
-signals:
-	void started();
-	void ready(bool ready);
-	void succeeded();
-	void failed(int explanation);
-
-public slots:
-	virtual void start(){ running_ = true; started_ = true; emit started(); }
-	bool setPrevious(AM1BeamlineActionItem* previous);
-	bool setNext(AM1BeamlineActionItem* next);
-protected:
-	bool started_;
-	bool succeeded_;
-	bool failed_;
-	bool running_;
-	bool hasFeedback_;
-	bool needsInput_;
-
-	QString message_;
-	AM1BeamlineActionItem *previous_;
-	AM1BeamlineActionItem *next_;
-
-private:
-	QString type_;
-};
-
-class AMBeamlineActionItemView : public QWidget
-{
-	Q_OBJECT
-public:
-	AMBeamlineActionItemView(AM1BeamlineActionItem *item, QWidget *parent = 0);
-	int messageHint(){ return message_->sizeHint().width(); }
-	int lightHint(){ return light_->sizeHint().width(); }
-	int proceedHint() { return proceed_->sizeHint().width(); }
-
-public slots:
-	virtual void initializeView();
-	virtual void onStart();
-	virtual void onReady(bool ready);
-	virtual void fixMessageSize(int width);
-	virtual void fixLightSize(int width);
-	virtual void fixProceedSize(int width);
-
-protected:
-	AM1BeamlineActionItem *item_;
-	QHBoxLayout *hl_;
-	QLabel *message_;
-	QPushButton *light_;
-	QPushButton *proceed_;
+	AMImageListView(const AMOrderedSet<QString, QPixmap> &images, QWidget *parent = 0);
 };
 
 #endif // AMBEAMLINEACTIONITEM_H

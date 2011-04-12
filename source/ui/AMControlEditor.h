@@ -159,6 +159,11 @@ public slots:
 	void setNoUnitsBox(bool noUnitsBox);
 	void overrideTitle(const QString& title);
 
+	void setSetpoint(double newSetpoint);
+
+	/* NTBA April 11, 2011 David Chevrier
+	   Why is this here?
+	*/
 	QSize sizeHint() const;
 
 protected slots:

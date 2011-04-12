@@ -43,6 +43,7 @@ AMBeamlineActionItem::AMBeamlineActionItem(QObject *parent) :
 	previous_ = NULL;
 	next_ = NULL;
 	message_ = "";
+	helpImages_.clear();
 	reinitialized_.setState(false);
 	connect(&ready_, SIGNAL(stateChanged(bool)), this, SLOT(dirtyInitialized()));
 	connect(&started_, SIGNAL(stateChanged(bool)), this, SLOT(dirtyInitialized()));
@@ -109,6 +110,14 @@ QString AMBeamlineActionItem::message() const{
 	return message_;
 }
 
+bool AMBeamlineActionItem::hasHelp() const{
+	return !helpImages_.isEmpty();
+}
+
+AMOrderedSet<QString, QPixmap> AMBeamlineActionItem::helpImages() const{
+	return helpImages_;
+}
+
 void AMBeamlineActionItem::reset(bool delayInitialize){
 	reinitialized_.setState(true);
 	if(!delayInitialize)
@@ -127,6 +136,10 @@ bool AMBeamlineActionItem::setNext(AMBeamlineActionItem *next){
 
 void AMBeamlineActionItem::setMessage(const QString &message){
 	message_ = message;
+}
+
+void AMBeamlineActionItem::setHelp(const AMOrderedSet<QString, QPixmap> &helpImages){
+	helpImages_ = helpImages;
 }
 
 void AMBeamlineActionItem::setReady(bool isReady){
@@ -191,7 +204,7 @@ void AMBeamlineActionItem::dirtyInitialized(){
 	}
 }
 
-AMBeamlineActionView::AMBeamlineActionView(AMBeamlineActionItem *action, int index, QWidget *parent) :
+AMBeamlineActionItemView::AMBeamlineActionItemView(AMBeamlineActionItem *action, int index, QWidget *parent) :
 		QFrame(parent)
 {
 	action_ = action;
@@ -202,24 +215,24 @@ AMBeamlineActionView::AMBeamlineActionView(AMBeamlineActionItem *action, int ind
 	setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
 }
 
-AMBeamlineActionItem* AMBeamlineActionView::action(){
+AMBeamlineActionItem* AMBeamlineActionItemView::action(){
 	return action_;
 }
 
-void AMBeamlineActionView::setIndex(int index){
+void AMBeamlineActionItemView::setIndex(int index){
 	index_ = index;
 }
 
-void AMBeamlineActionView::setAction(AMBeamlineActionItem *action){
+void AMBeamlineActionItemView::setAction(AMBeamlineActionItem *action){
 	action_ = action;
 }
 
-void AMBeamlineActionView::defocusItem(){
+void AMBeamlineActionItemView::defocusItem(){
 	inFocus_ = false;
 	updateLook();
 }
 
-void AMBeamlineActionView::mousePressEvent(QMouseEvent *event){
+void AMBeamlineActionItemView::mousePressEvent(QMouseEvent *event){
 	if (event->button() != Qt::LeftButton) {
 		event->ignore();
 		return;
@@ -233,7 +246,7 @@ void AMBeamlineActionView::mousePressEvent(QMouseEvent *event){
 	}
 }
 
-void AMBeamlineActionView::updateLook(){
+void AMBeamlineActionItemView::updateLook(){
 	if(inFocus_)
 		setFrameStyle(QFrame::Box);
 	if(inFocus_)
@@ -244,113 +257,39 @@ void AMBeamlineActionView::updateLook(){
 	}
 }
 
-/*****************************************************************************
-*
-*
-*   COMPATABILITY CLASSES
-*
-*
-*
-******************************************************************************/
-
-AM1BeamlineActionItem::AM1BeamlineActionItem(QString message, QObject *parent) :
-	QObject(parent)
-{
-	message_ = message;
-	previous_ = NULL;
-	next_ = NULL;
-	started_ = false;
-	succeeded_ = false;
-	failed_ = false;
-	running_ = false;
-	hasFeedback_ = false;
-	needsInput_ = false;
-	type_ = "actionItem";
-}
-
-bool AM1BeamlineActionItem::setPrevious(AM1BeamlineActionItem *previous){
-	previous_ = previous;
-	return true;
-}
-
-bool AM1BeamlineActionItem::setNext(AM1BeamlineActionItem *next){
-	next_ = next;
-	return true;
-}
 
 
-AMBeamlineActionItemView::AMBeamlineActionItemView(AM1BeamlineActionItem *item, QWidget *parent) :
+AMImageListView::AMImageListView(const AMOrderedSet<QString, QPixmap> &images, QWidget *parent) :
 		QWidget(parent)
 {
-	item_ = item;
-	hl_ = new QHBoxLayout();
-	message_ = new QLabel(item_->message(), this);
-	message_->setWordWrap(true);
-	light_ = new QPushButton("", this);
-	proceed_ = new QPushButton("Proceed", this);
-	hl_->addWidget(message_);
-	hl_->addWidget(light_);
-	hl_->addWidget(proceed_);
-	initializeView();
-	setLayout(hl_);
-
-	connect(item_, SIGNAL(started()), this, SLOT(onStart()));
-	connect(proceed_, SIGNAL(clicked()), item_, SIGNAL(succeeded()));
-	if(item_->previous())
-		connect(item_->previous(), SIGNAL(succeeded()), item_, SLOT(start()));
-
-	if(!item_->hasFeedback())
-		connect(proceed_, SIGNAL(clicked(bool)), this, SLOT(onReady(bool)));
-	else
-		connect(item_, SIGNAL(ready(bool)), this, SLOT(onReady(bool)));
-	QString masterStyle = "QPushButton { max-width: 72px }";
-	setStyleSheet(masterStyle);
-}
-
-void AMBeamlineActionItemView::initializeView(){
-	QString lightDisableStyle = "QPushButton { background: lightgray; border: 1px solid lightgray; }";
-	message_->setEnabled(false);
-	light_->setEnabled(false);
-	proceed_->setEnabled(false);
-	light_->setStyleSheet(lightDisableStyle);
-}
-
-void AMBeamlineActionItemView::onStart(){
-	QString lightStopStyle = "QPushButton { background: red; border: 1px solid red; }";
-	QString lightYieldStyle = "QPushButton { background: yellow; border: 1px solid yellow; }";
-	message_->setEnabled(true);
-	if(!item_->hasFeedback()){
-		light_->setStyleSheet(lightYieldStyle);
-		proceed_->setEnabled(true);
+	QGridLayout *gl = new QGridLayout();
+	int columnCount = 0;
+	int scaledHeight = 0;
+	if(images.count() <= 4){
+		columnCount = 2;
+		scaledHeight = 300;
 	}
-	else
-		light_->setStyleSheet(lightStopStyle);
-}
-
-void AMBeamlineActionItemView::onReady(bool ready){
-	QString lightStopStyle = "QPushButton { background: red; border: 1px solid red; }";
-	QString lightGoStyle = "QPushButton { background: green; border: 1px solid green; }";
-	QString lightGoYieldStyle = "QPushButton { background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0.4 yellow, stop:1 green); border: 1px qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0.4 yellow, stop:1 green); }";
-	if(item_->hasFeedback()){
-		if(ready)
-			light_->setStyleSheet(lightGoStyle);
-		else
-			light_->setStyleSheet(lightStopStyle);
-		proceed_->setEnabled(ready);
+	else if(images.count() <= 9){
+		columnCount = 3;
+		scaledHeight = 200;
 	}
 	else{
-		light_->setStyleSheet(lightGoYieldStyle);
+		columnCount = 4;
+		scaledHeight = 100;
 	}
-}
-
-void AMBeamlineActionItemView::fixMessageSize(int width){
-	message_->setMinimumWidth(width);
-}
-
-void AMBeamlineActionItemView::fixLightSize(int width){
-	light_->setMinimumWidth(width);
-}
-
-void AMBeamlineActionItemView::fixProceedSize(int width){
-	proceed_->setMinimumWidth(width);
+	int currentRow = 0;
+	int currentColumn = 0;
+	QLabel *tmpLabel;
+	for(int x = 0; x < images.count(); x++){
+		tmpLabel = new QLabel();
+		tmpLabel->setPixmap(images.at(x).scaledToHeight(scaledHeight, Qt::SmoothTransformation));
+		gl->addWidget(tmpLabel, currentRow, currentColumn);
+		currentColumn++;
+		if(currentColumn == columnCount){
+			currentColumn = 0;
+			currentRow++;
+		}
+	}
+	setLayout(gl);
+	gl->setContentsMargins(2, 2, 2, 2);
 }

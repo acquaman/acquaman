@@ -32,7 +32,7 @@ AMBeamlineControlMoveAction::AMBeamlineControlMoveAction(AMControl *control, QOb
 		setpoint_ = 0;
 }
 
-AMBeamlineActionView* AMBeamlineControlMoveAction::createView(int index){
+AMBeamlineActionItemView* AMBeamlineControlMoveAction::createView(int index){
 	return new AMBeamlineControlMoveActionView(this, index);
 }
 
@@ -150,7 +150,7 @@ void AMBeamlineControlMoveAction::calculateProgress(){
 }
 
 AMBeamlineControlMoveActionView::AMBeamlineControlMoveActionView(AMBeamlineControlMoveAction *moveAction, int index, QWidget *parent) :
-		AMBeamlineActionView(moveAction, index, parent)
+		AMBeamlineActionItemView(moveAction, index, parent)
 {
 	moveAction_ = NULL;
 	setAction(moveAction);

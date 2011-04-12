@@ -27,6 +27,7 @@ SGMScanConfiguration::SGMScanConfiguration()
 	setHarmonic((SGMBeamline::sgm()->harmonic()->value() < 1) ? SGMBeamline::firstHarmonic : ((SGMBeamline::sgm()->grating()->value() < 2) ? SGMBeamline::firstHarmonic : SGMBeamline::thirdHarmonic));
 
 	setTrackingGroup(SGMBeamline::sgm()->trackingSet()->toInfoList());
+	setFluxResolutionGroup(SGMBeamline::sgm()->fluxResolutionSet()->toInfoList());
 
 	/* NTBA March 14, 2011 David Chevrier
 	   Need something like setTrackingGroup for the detectorSet
@@ -36,6 +37,14 @@ SGMScanConfiguration::SGMScanConfiguration()
 bool SGMScanConfiguration::setTrackingGroup(AMControlInfoList trackingGroup){
 	if(SGMBeamline::sgm()->trackingSet()->validInfoList(trackingGroup)){
 		trackingGroup_ = trackingGroup;
+		return true;
+	}
+	return false;
+}
+
+bool SGMScanConfiguration::setFluxResolutionGroup(AMControlInfoList fluxResolutionGroup){
+	if(SGMBeamline::sgm()->fluxResolutionSet()->validInfoList(fluxResolutionGroup)){
+		fluxResolutionGroup_ = fluxResolutionGroup;
 		return true;
 	}
 	return false;

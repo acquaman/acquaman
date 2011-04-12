@@ -65,6 +65,7 @@ public slots:
 	bool setHarmonic(int harmonic);
 
 	bool setTrackingGroup(AMControlInfoList trackingList);
+	bool setFluxResolutionGroup(AMControlInfoList fluxResolutionList);
 	/* NTBA March 14, 2011 David Chevrier
 	   Need something similar for detector set
 	*/
@@ -76,6 +77,7 @@ signals:
 	void gratingChanged(int grating);
 	void harmonicChanged(int harmonic);
 	void trackingGroupChanged(AMControlInfoList);
+	void fluxResolutionGroupChanged(AMControlInfoList);
 	/* NTBA March 14, 2011 David Chevrier
 	   Need something similar for detector set
 	*/

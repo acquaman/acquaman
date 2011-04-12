@@ -235,7 +235,7 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 	if(spectraFile != ""){
 		QFile sf(spectraFile);
 		if(!sf.open(QIODevice::ReadOnly)) {
-			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -1, "SGM2004FileLoader parse error while loading scan data from file. Missing spectra file."));
+			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -1, "SGM2004FileLoader parse error while loading scan data from file. Missing SDD spectra file."));
 			return false;
 		}
 		QTextStream sfs(&sf);
@@ -258,7 +258,12 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 			sfls.setString(&sfl, QIODevice::ReadOnly);
 
 			while(!sfls.atEnd()){
+				if(sfls.status() == QTextStream::ReadCorruptData) {
+					AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -1, "SGM2004FileLoader found corrupted data in the SDD spectra file."));
+					return false;
+				}
 				sfls >> specVal;
+
 				scan->rawData()->setValue(AMnDIndex(x), scan->rawData()->idOfMeasurement("sdd"), AMnDIndex(specCounter), specVal);
 				specCounter++;
 			}

@@ -32,8 +32,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class SGMSampleTransferPaneView;
 class SGMSampleTransferProceduresView;
 
-/* NTBA March 14, 2011 David Chevrier
-   Need to upgrade all of these actions to new action style
+/* NTBA April 2, 2011 David Chevrier
+   Need to re-request listActions when completed
    */
 
 class SGMSampleTransferView : public QWidget
@@ -47,14 +47,15 @@ signals:
 public slots:
 
 private slots:
+	void delayedDrawWidget();
+	void drawPane(int index);
 	void drawMain();
-	void drawIndex1();
-	void drawIndex2();
-	void drawIndex3();
-	void drawIndex4();
 
 protected:
-	QList<QPushButton*> transferButtons_;
+	void drawWidget();
+
+protected:
+	QButtonGroup *transferButtons_;
 	QList<SGMSampleTransferPaneView*> transferPanes_;
 	SGMSampleTransferProceduresView *transferBox_;
 	QStackedLayout *mainLayout_;
@@ -64,11 +65,11 @@ class SGMSampleTransferProceduresView : public QGroupBox
 {
 Q_OBJECT
 public:
-	SGMSampleTransferProceduresView(const QString &title, QList<QPushButton*> procedureButtons, QWidget *parent = 0);
+	SGMSampleTransferProceduresView(const QString &title, QButtonGroup *procedureButtons, QWidget *parent = 0);
 
 protected:
 	QVBoxLayout *vl_;
-	QList<QPushButton*> procedureButtons_;
+	QButtonGroup *procedureButtons_;
 	QGridLayout *mainLayout_;
 };
 
@@ -76,13 +77,13 @@ class SGMSampleTransferPaneView : public QGroupBox
 {
 Q_OBJECT
 public:
-	explicit SGMSampleTransferPaneView(QList<AM1BeamlineActionItem*> items, const QString &title, QWidget *parent = 0);
+	explicit SGMSampleTransferPaneView(QWidget *parent = 0);
 
 signals:
 	void completed();
 
 public slots:
-	virtual void startPane(){ initialize(); firstItem_->start();}
+	virtual void startPane(AMBeamlineListAction *listAction);
 
 private slots:
 	virtual void initialize();
@@ -90,8 +91,7 @@ private slots:
 
 protected:
 	QVBoxLayout *vl_;
-	QList<AMBeamlineActionItemView*> itemViews_;
-	AM1BeamlineActionItem* firstItem_;
+	AMBeamlineActionItemView *listView_;
 	QLabel *completeLabel_;
 	QPushButton *completeButton_;
 	QGridLayout *mainLayout_;

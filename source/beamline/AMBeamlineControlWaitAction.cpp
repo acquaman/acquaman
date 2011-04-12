@@ -12,8 +12,8 @@ AMBeamlineControlWaitAction::AMBeamlineControlWaitAction(AMControl *control, AMB
 	}
 }
 
-AMBeamlineActionView* AMBeamlineControlWaitAction::createView(int index){
-	return 0;
+AMBeamlineActionItemView* AMBeamlineControlWaitAction::createView(int index){
+	return new AMBeamlineControlWaitDetailedActionView(this);
 }
 
 AMControl* AMBeamlineControlWaitAction::control(){
@@ -188,8 +188,10 @@ void AMBeamlineControlWaitAction::onHoldTimeReached(){
 }
 
 AMBeamlineControlWaitDetailedActionView::AMBeamlineControlWaitDetailedActionView(AMBeamlineControlWaitAction *waitAction, int index, QWidget *parent) :
-		AMBeamlineActionView(waitAction, index, parent)
+		AMBeamlineActionItemView(waitAction, index, parent)
 {
+	messageLabel_ = 0; //NULL
+	progressSlider_ = 0; //NULL
 	waitAction_ = 0; //NULL
 	setAction(waitAction);
 
@@ -207,16 +209,22 @@ AMBeamlineControlWaitDetailedActionView::AMBeamlineControlWaitDetailedActionView
 		progressSlider_ = new AMDoubleSlider();
 
 	finishedState_ = new QToolButton();
-	finishedState_->setContentsMargins(0, 0, 0, 0);
 	finishedState_->setEnabled(false);
 	finishedState_->setIcon(QIcon(":/greenCheck.png"));
+
+	helpButton_ = new QToolButton();
+	helpButton_->setIcon(style()->standardIcon(QStyle::SP_MessageBoxQuestion));
+	connect(helpButton_, SIGNAL(clicked()), this, SLOT(onHelpButtonClicked()));
 
 	mainHL_ = new QHBoxLayout();
 	mainHL_->addWidget(messageLabel_);
 	mainHL_->addWidget(progressSlider_);
 
-	mainHL_->setContentsMargins(1, 1, 1, 1);
 	setLayout(mainHL_);
+	QMargins mainHLMargins = mainHL_->contentsMargins();
+	mainHLMargins.setTop(1);
+	mainHLMargins.setBottom(1);
+	mainHL_->setContentsMargins(mainHLMargins);
 
 	onInfoChanged();
 }
@@ -266,6 +274,8 @@ void AMBeamlineControlWaitDetailedActionView::onInfoChanged(){
 		}
 		if(waitAction_->isRunning())
 			progressSlider_->setCurrentValue(waitAction_->control()->value());
+		if(waitAction_->hasHelp() && (mainHL_->indexOf(helpButton_) == -1) )
+			mainHL_->addWidget(helpButton_);
 	}
 }
 
@@ -283,10 +293,16 @@ void AMBeamlineControlWaitDetailedActionView::onActionStarted(){
 
 void AMBeamlineControlWaitDetailedActionView::onActionSucceeded(){
 	mainHL_->addWidget(finishedState_);
+	emit actionSucceeded(waitAction_);
 }
 
 void AMBeamlineControlWaitDetailedActionView::onActionFailed(int explanation){
 
+}
+
+void AMBeamlineControlWaitDetailedActionView::onHelpButtonClicked(){
+	AMImageListView *helpImagesView = new AMImageListView(waitAction_->helpImages());
+	helpImagesView->show();
 }
 
 AMDoubleSlider::AMDoubleSlider(AMDoubleSlider::scalingModeType scalingMode, AMDoubleSlider::destinationType destinationMode, QWidget *parent):
