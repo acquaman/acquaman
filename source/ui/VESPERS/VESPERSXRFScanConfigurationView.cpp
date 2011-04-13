@@ -1,6 +1,7 @@
 #include "VESPERSXRFScanConfigurationView.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
 #include "ui/AMPeriodicTableView.h"
+#include "acquaman/AMScanController.h"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -18,7 +19,7 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 
 	QToolButton *start = new QToolButton;
 	start->setIcon(QIcon(":/play_button_green.png"));
-	connect(start, SIGNAL(clicked()), this, SIGNAL(startScan()));
+	connect(start, SIGNAL(clicked()), this, SIGNAL(onStartClicked()));
 
 	QToolButton *stop = new QToolButton;
 	stop->setIcon(QIcon(":/red-stop-button.png"));
@@ -29,7 +30,6 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 	integrationTime_->setSingleStep(0.1);
 	integrationTime_->setMaximum(1000.00);
 	connect(integrationTime_, SIGNAL(editingFinished()), this, SLOT(onIntegrationTimeUpdate()));
-	connect(detector_->integrationTimeControl(), SIGNAL(valueChanged(double)), integrationTime_, SLOT(setValue(double)));
 
 	QHBoxLayout *startAndStopLayout = new QHBoxLayout;
 	startAndStopLayout->addWidget(start);

@@ -175,6 +175,7 @@ void VESPERSBeamline::setupEndstation()
 
 void VESPERSBeamline::setupSingleElementDetector()
 {
+	status1E_ = new AMReadOnlyPVControl("1-el Status", "IOC1607-004:mca1.ACQG", this);
 	elapsedTime1E_ = new AMReadOnlyPVControl("1-el Elapsed Time", "IOC1607-004:mca1.ERTM", this);
 	integrationTime1E_ = new AMPVControl("1-el Integration Time", "IOC1607-004:mca1.PRTM", "IOC1607-004:mca1.PRTM", QString(), this);
 	liveTime1E_ = new AMPVControl("1-el Live Time", "IOC1607-004:mca1.PLTM", "IOC1607-004:mca1.PLTM", QString(), this);
@@ -188,6 +189,7 @@ void VESPERSBeamline::setupSingleElementDetector()
 
 	// Putting the controls into their own control set.
 	vortex1EControls_ = new AMControlSet(this);
+	vortex1EControls_->addControl(status1E_);
 	vortex1EControls_->addControl(elapsedTime1E_);
 	vortex1EControls_->addControl(integrationTime1E_);
 	vortex1EControls_->addControl(liveTime1E_);
@@ -209,6 +211,7 @@ void VESPERSBeamline::setupSingleElementDetector()
 	}
 
 	vortex1E_ = new XRFDetector("Single Element XRF",
+								status1E_,
 								mcaUpdateRate1E_,
 								peakingTime1E_,
 								maxEnergy1E_,
@@ -226,6 +229,7 @@ void VESPERSBeamline::setupSingleElementDetector()
 
 void VESPERSBeamline::setupFourElementDetector()
 {
+	status4E_ = new AMReadOnlyPVControl("4-el Status", "dxp1607-B21-04:Status", this);
 	elapsedTime4E_ = new AMReadOnlyPVControl("4-el Elapsed Time", "dxp1607-B21-04:ElaspedReal", this);
 	integrationTime4E_ = new AMPVControl("4-el Integration Time", "dxp1607-B21-04:PresetReal", "dxp1607-B21-04:PresetReal", QString(), this);
 	liveTime4E_ = new AMPVControl("4-el Live Time", "dxp1607-B21-04:PresetLive", "dxp1607-B21-04:PresetLive", QString(), this);
@@ -257,6 +261,7 @@ void VESPERSBeamline::setupFourElementDetector()
 
 	// This will hold all of the controls.  Unfortunately, the grouping for the dead time and spectra will be lost.  If those are what you'd actually be interested in then use their specific control sets.  That's why they were created.
 	vortex4EControls_ = new AMControlSet(this);
+	vortex4EControls_->addControl(status4E_);
 	vortex4EControls_->addControl(elapsedTime4E_);
 	vortex4EControls_->addControl(integrationTime4E_);
 	vortex4EControls_->addControl(liveTime4E_);
@@ -285,6 +290,7 @@ void VESPERSBeamline::setupFourElementDetector()
 
 	vortex4E_ = new XRFDetector("Four Element XRF",
 								4,
+								status4E_,
 								mcaUpdateRate4E_,
 								peakingTime4E_,
 								maxEnergy4E_,

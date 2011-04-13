@@ -268,6 +268,8 @@ public:
 
 	// These are the single element vortex controls.
 
+	/// Returns the status control for the single element vortex detector.
+	AMControl *status1E() const { return status1E_; }
 	/// Returns the elapsed time control for the single element vortex detector.
 	AMControl *elapsedTime1E() const { return elapsedTime1E_; }
 	/// Returns the integration time control for the single element vortex detector.
@@ -291,6 +293,8 @@ public:
 
 	// These are the four element vortex controls.
 
+	/// Returns the status control for the four element vortex detector.
+	AMControl *status4E() const { return status4E_; }
 	/// Returns the elapsed time control for the four element vortex detector.
 	AMControl *elapsedTime4E() const { return elapsedTime4E_; }
 	/// Returns the integration time control for the four element vortex detector.
@@ -566,6 +570,7 @@ protected:
 
 	// Single element vortex detector.
 
+	AMControl *status1E_;
 	AMControl *elapsedTime1E_;
 	AMControl *integrationTime1E_;
 	AMControl *liveTime1E_;
@@ -582,6 +587,7 @@ protected:
 
 	// Four element vortex detector.
 
+	AMControl *status4E_;
 	AMControl *elapsedTime4E_;
 	AMControl *integrationTime4E_;
 	AMControl *liveTime4E_;

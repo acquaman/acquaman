@@ -20,7 +20,9 @@ protected slots:
 	/// Slot that updates the data stored in the scan.
 	void onDetectorAcquisitionUpdate();
 	/// Helper slot that emits the current progress of the scan.
-	void onElapsedTimeUpdate(double time);
+	void onProgressUpdate();
+	/// Checks to see if the scan has finished.  If it is, then the finish scan sequence is started.
+	void onStatusChanged();
 
 protected:
 	/// Initializes the scan
@@ -28,7 +30,7 @@ protected:
 	/// Starts current scan.
 	virtual void startImplementation();
 	/// Cancels current scan.  Treated as finishing early.
-	virtual void cancelImplementation() { onDetectorAcquisitionFinished(); }
+	virtual void cancelImplementation() { detector_->stop(); onDetectorAcquisitionFinished(); }
 
 	// Member variables.
 	/// XRF detector.

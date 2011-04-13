@@ -9,6 +9,7 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QButtonGroup>
+#include <QGroupBox>
 #include <QComboBox>
 
 // Brief detector view
@@ -119,9 +120,14 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	viewControlLayout->addLayout(deadTimeLayout);
 	viewControlLayout->addStretch();
 
+	QGroupBox *controlBox = new QGroupBox;
+	controlBox->setLayout(viewControlLayout);
+	controlBox->setMinimumWidth(80);
+	controlBox->setFlat(true);
+
 	QHBoxLayout *viewLayout = new QHBoxLayout;
 	viewLayout->addWidget(view_);
-	viewLayout->addLayout(viewControlLayout);
+	viewLayout->addWidget(controlBox);
 
 	setLayout(viewLayout);
 
@@ -203,6 +209,8 @@ QColor XRFDetailedDetectorView::getColor(int index)
 	case 9:
 		return Qt::darkBlue;
 	}
+
+	return QColor(100, 100, 100);
 }
 
 void XRFDetailedDetectorView::elementClicked(int elementId)

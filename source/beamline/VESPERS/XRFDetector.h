@@ -82,7 +82,7 @@ public:
 	{
 		Q_UNUSED(axisNumber)
 
-		return index;
+		return index*10;
 	}
 
 	/// Returns the current scale used for the independent axis.
@@ -108,9 +108,9 @@ class XRFDetector : public XRFDetectorInfo, public AMDetector
 	Q_OBJECT
 public:
 	/// Constructor.  Requires all the AMProcessVariables and AMControls required to function.  These should remain static for the entirety of the life of this class and therefore setters are no provided.
-	XRFDetector(QString name, int elements, AMControl *refreshRate, AMControl *peakingTime, AMControl *maximumEnergy, AMControl *integrationTime, AMControl *liveTime, AMControl *elapsedTime, AMControl *start, AMControl *stop, AMControlSet *deadTime, AMControlSet *spectra, QObject *parent = 0);
+	XRFDetector(QString name, int elements, AMControl *status, AMControl *refreshRate, AMControl *peakingTime, AMControl *maximumEnergy, AMControl *integrationTime, AMControl *liveTime, AMControl *elapsedTime, AMControl *start, AMControl *stop, AMControlSet *deadTime, AMControlSet *spectra, QObject *parent = 0);
 	/// Constructor.  Convenience version for single element detectors.
-	XRFDetector(QString name, AMControl *refreshRate, AMControl *peakingTime, AMControl *maximumEnergy, AMControl *integrationTime, AMControl *liveTime, AMControl *elapsedTime, AMControl *start, AMControl *stop, AMControl *deadTime, AMControl *spectra, QObject *parent = 0);
+	XRFDetector(QString name, AMControl *status, AMControl *refreshRate, AMControl *peakingTime, AMControl *maximumEnergy, AMControl *integrationTime, AMControl *liveTime, AMControl *elapsedTime, AMControl *start, AMControl *stop, AMControl *deadTime, AMControl *spectra, QObject *parent = 0);
 
 	~XRFDetector();
 
@@ -141,6 +141,8 @@ public:
 	double elapsedTime() const { return elapsedTimeControl()->value(); }
 	/// Returns the current dead time. For detectors with more than one element, it returns the highest value.
 	double deadTime() const;
+	/// Returns the status as an int.  1 is acquiring, 0 is done.
+	int status() const { return (int)statusControl_->value(); }
 
 	// End of getters that aren't included in the info.
 	/////////////////////////////////////////////////////
@@ -148,6 +150,8 @@ public:
 	// Controls and PVs.
 	////////////////////////////////
 
+	/// Returns the status control.
+	AMControl *statusControl() const { return statusControl_; }
 	/// Returns the refresh rate control.
 	AMControl *refreshRateControl() const { return refreshRateControl_; }
 	/// Returns the peaking time control.
@@ -225,10 +229,8 @@ signals:
 	void settingsChanged(AMControlInfoList);
 	/// Emitted when the readings control set changes.
 	void readingsChanged(AMControlInfoList);
-	/// This signal is emitted when the acquisition is finished.
-	void acquisitionFinished();
-	/// This signal is emitted when the spectra update.
-	void acquisitionUpdate();
+	/// This signal is emitted when the status changes.
+	void statusChanged();
 
 protected slots:
 	/// Determines if the detector is connected to ALL controls and process variables.
@@ -245,6 +247,8 @@ protected:
 	QList<AMROI *> roiList_;
 
 	// The controls and PVs.
+	/// The status of the scan.
+	AMControl *statusControl_;
 	/// The spectra refresh rate.
 	AMControl *refreshRateControl_;
 	/// The peaking time.

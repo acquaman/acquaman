@@ -26,6 +26,8 @@ signals:
 protected slots:
 	/// Handles new values set from the integration time spin box and passes it along to the control.
 	void onIntegrationTimeUpdate();
+	/// Handles what happens when the start button is clicked.
+	void onStartClicked() { detector_->setTime(integrationTime_->value()); emit startScan(); }
 
 protected:
 	/// The current configuration.
