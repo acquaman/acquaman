@@ -30,7 +30,7 @@ public:
 	// State of the data
 	//////////////////////////
 	/// Returns an OR-combination of StateFlags describing the current state of the data. The base class interface indicates that it does not have valid data. Implementing classes should return InvalidFlag when they don't have valid data, and/or ProcessingFlag if their data might be changing. No flags indicate the data is valid and generally static.
-	virtual int state() const { return control_->readPV()->hasValues() ? ProcessingFlag : InvalidFlag; }
+	virtual int state() const { return data_->readPV()->hasValues() ? ProcessingFlag : InvalidFlag; }
 
 	// Axis Information
 	//////////////////////
@@ -38,7 +38,7 @@ public:
 	virtual QList<AMAxisInfo> axes() const
 	{
 		QList<AMAxisInfo> axisInfo;
-		axisInfo << AMAxisInfo("n", control_->readPV()->count(), "n - Channel Number");
+		axisInfo << AMAxisInfo("n", data_->readPV()->count(), "n - Channel Number");
 		return axisInfo;
 	}
 
@@ -68,17 +68,17 @@ public:
 	/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient or any are out of range, or if the data is not ready.
 	virtual AMNumber value(const AMnDIndex& indexes) const
 	{
-		if(!control_->isConnected())
+		if(!data_->isConnected())
 			return AMNumber();
 		if(indexes.rank() != 1)
 			return AMNumber(AMNumber::DimensionError);
 		if(indexes.i() >= axes().first().size)
 			return AMNumber(AMNumber::OutOfBoundsError);
 
-		return control_->readPV();
+		return data_->getInt(indexes.i());
 	}
 	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index)
-	virtual AMNumber axisValue(int axisNumber, int index) const = 0;
+	virtual AMNumber axisValue(int axisNumber, int index) const { Q_UNUSED(axisNumber) return index; }
 
 protected slots:
 	/// Emits the data changed signal when the control gets new data.
@@ -86,7 +86,7 @@ protected slots:
 
 protected:
 	/// The control being used as a data source.
-	AMReadOnlyPVControl *control_;
+	AMProcessVariable *data_;
 };
 
 class XRFDetector : public XRFDetectorInfo, public AMDetector

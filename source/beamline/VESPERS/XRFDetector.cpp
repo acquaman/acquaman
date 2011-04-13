@@ -1,10 +1,10 @@
 #include "XRFDetector.h"
 
-XRFDetectorDataSource::XRFDetectorDataSource(AMReadOnlyPVControl *data, const QString &name, QObject *parent)
+XRFDetectorDataSource::XRFDetectorDataSource(AMProcessVariable *data, const QString &name, QObject *parent)
 	: QObject(parent), AMDataSource(name)
 {
-	control_ = data;
-	connect(control_, SIGNAL(valueChanged(double)), this, SLOT(onDataChanged()));
+	data_ = data;
+	connect(data_, SIGNAL(valueChanged()), this, SLOT(onDataChanged()));
 }
 
 void XRFDetectorDataSource::onDataChanged()
