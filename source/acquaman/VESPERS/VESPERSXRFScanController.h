@@ -19,6 +19,8 @@ protected slots:
 	void onDetectorAcquisitionFinished();
 	/// Slot that updates the data stored in the scan.
 	void onDetectorAcquisitionUpdate();
+	/// Helper slot that emits the current progress of the scan.
+	void onElapsedTimeUpdate(double time);
 
 protected:
 	/// Initializes the scan

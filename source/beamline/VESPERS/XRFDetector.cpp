@@ -1,15 +1,16 @@
 #include "XRFDetector.h"
 
-XRFDetectorDataSource::XRFDetectorDataSource(AMProcessVariable *data, const QString &name, QObject *parent)
+XRFDetectorDataSource::XRFDetectorDataSource(const AMProcessVariable *data, const QString &name, QObject *parent)
 	: QObject(parent), AMDataSource(name)
 {
 	data_ = data;
+	scale_ = 0;
 	connect(data_, SIGNAL(valueChanged()), this, SLOT(onDataChanged()));
 }
 
 void XRFDetectorDataSource::onDataChanged()
 {
-	emitDataChanged();
+	emitValuesChanged();
 }
 
 XRFDetector::XRFDetector(QString name, int elements, AMControl *refreshRate, AMControl *peakingTime, AMControl *maximumEnergy, AMControl *integrationTime, AMControl *liveTime, AMControl *elapsedTime, AMControl *start, AMControl *stop, AMControlSet *deadTime, AMControlSet *spectra, QObject *parent)
@@ -57,6 +58,20 @@ XRFDetector::XRFDetector(QString name, int elements, AMControl *refreshRate, AMC
 
 	for (int i = 0; i < roiList().size(); i++)
 		connect(roiList().at(i), SIGNAL(roiConnected(bool)), this, SLOT(detectorConnected(bool)));
+
+	XRFDetectorDataSource *temp;
+	AMReadOnlyPVControl *spectrum;
+
+	for (int i = 0; i < elements; i++){
+
+		spectrum = qobject_cast<AMReadOnlyPVControl *>(spectraControl_->at(i));
+
+		if (spectrum){
+
+			temp = new XRFDetectorDataSource(spectrum->readPV(), QString("Element %1").arg(i+1), this);
+			dataSources_ << temp;
+		}
+	}
 }
 
 XRFDetector::XRFDetector(QString name, AMControl *refreshRate, AMControl *peakingTime, AMControl *maximumEnergy, AMControl *integrationTime, AMControl *liveTime, AMControl *elapsedTime, AMControl *start, AMControl *stop, AMControl *deadTime, AMControl *spectra, QObject *parent)
@@ -107,6 +122,14 @@ XRFDetector::XRFDetector(QString name, AMControl *refreshRate, AMControl *peakin
 
 	for (int i = 0; i < roiList().size(); i++)
 		connect(roiList().at(i), SIGNAL(roiConnected(bool)), this, SLOT(detectorConnected(bool)));
+
+	AMReadOnlyPVControl *spectrum = qobject_cast<AMReadOnlyPVControl *>(spectraControl_->at(0));
+
+	if (spectrum){
+
+		XRFDetectorDataSource *temp = new XRFDetectorDataSource(spectrum->readPV(), "Corrected Spectrum", this);
+		dataSources_ << temp;
+	}
 }
 
 XRFDetector::~XRFDetector()

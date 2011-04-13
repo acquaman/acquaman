@@ -18,9 +18,9 @@ public:
 	const AMScanConfiguration *configuration() const { return configuration_; }
 
 signals:
-	/// Passes along the detector view's start scan signal.
+	/// Passes along the configuration view's start scan signal.
 	void startScan();
-	/// Passes along the detector view's stop scan signal.
+	/// Passes along the configuration view's stop scan signal.
 	void stopScan();
 
 protected slots:

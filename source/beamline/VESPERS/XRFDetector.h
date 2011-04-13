@@ -19,7 +19,7 @@ class XRFDetectorDataSource : public QObject, public AMDataSource
 
 public:
 	/// Constructor.  Takes in an AMReadOnlyPVControl.
-	XRFDetectorDataSource(AMProcessVariable *data, const QString& name, QObject *parent = 0);
+	XRFDetectorDataSource(const AMProcessVariable *data, const QString& name, QObject *parent = 0);
 
 	// Data source type
 	//////////////////////////
@@ -30,7 +30,7 @@ public:
 	// State of the data
 	//////////////////////////
 	/// Returns an OR-combination of StateFlags describing the current state of the data. The base class interface indicates that it does not have valid data. Implementing classes should return InvalidFlag when they don't have valid data, and/or ProcessingFlag if their data might be changing. No flags indicate the data is valid and generally static.
-	virtual int state() const { return data_->readPV()->hasValues() ? ProcessingFlag : InvalidFlag; }
+	virtual int state() const { return data_->hasValues() ? ProcessingFlag : InvalidFlag; }
 
 	// Axis Information
 	//////////////////////
@@ -38,7 +38,7 @@ public:
 	virtual QList<AMAxisInfo> axes() const
 	{
 		QList<AMAxisInfo> axisInfo;
-		axisInfo << AMAxisInfo("n", data_->readPV()->count(), "n - Channel Number");
+		axisInfo << AMAxisInfo("n", data_->count(), "n - Channel Number");
 		return axisInfo;
 	}
 
@@ -47,7 +47,7 @@ public:
 	/// Returns the rank (number of dimensions) of this data set
 	virtual int rank() const { return axes().count(); }
 	/// Returns the size of (ie: count along) each dimension
-	virtual AMnDIndex size() const { AMnDIndex s(); foreach(AMAxisInfo a, axes()) s << a.count(); return s; }
+	virtual AMnDIndex size() const { return AMnDIndex(axes().count()); }
 	/// Returns the size along a single axis \c axisNumber. This should be fast. \c axisNumber is assumed to be between 0 and rank()-1.
 	virtual int size(int axisNumber) const { return axes().at(axisNumber).size; }
 	/// Returns a bunch of information about a particular axis. \c axisNumber is assumed to be between 0 and rank()-1.
@@ -78,7 +78,19 @@ public:
 		return data_->getInt(indexes.i());
 	}
 	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index)
-	virtual AMNumber axisValue(int axisNumber, int index) const { Q_UNUSED(axisNumber) return index; }
+	virtual AMNumber axisValue(int axisNumber, int index) const
+	{
+		Q_UNUSED(axisNumber)
+
+		return index;
+	}
+
+	/// Returns the current scale used for the independent axis.
+	double scale() const { return scale_; }
+
+public slots:
+	/// Changes the scale used in the plot if that scale changes.
+	void setScale(double scale) { scale_ = scale; onDataChanged(); }
 
 protected slots:
 	/// Emits the data changed signal when the control gets new data.
@@ -86,7 +98,9 @@ protected slots:
 
 protected:
 	/// The control being used as a data source.
-	AMProcessVariable *data_;
+	const AMProcessVariable *data_;
+	/// Holds the current scale.
+	double scale_;
 };
 
 class XRFDetector : public XRFDetectorInfo, public AMDetector
@@ -176,6 +190,15 @@ public:
 	/// Sorts the list of ROIs.
 	void sort();
 
+	// Data sources
+	///////////////////////////////////////
+	/// Returns the data source for element \c index.  It is assumed that the data sources will be in order of element.  Must be between 0 and size()-1 where size is the number of elements in the detector.
+	XRFDetectorDataSource *dataSource(int index) const { return dataSources_.at(index); }
+	/// Overloaded function.  Convenience function for grabbing the first data source.
+	XRFDetectorDataSource *dataSource() const { return dataSources_.first(); }
+	/// Returns the list of all the raw data sources in the detector as a QList.
+	QList<XRFDetectorDataSource *> dataSources() const { return dataSources_; }
+
 public slots:
 
 	/// Erases the current spectrum and starts collecting data.
@@ -244,8 +267,13 @@ protected:
 	AMControl *stopControl_;
 
 	// Helper control sets.
+	/// Control set holding the controls used for reading.
 	AMControlSet *readingControls_;
+	/// Control set holding the controls used for setting the configuration of the detector.
 	AMControlSet *settingsControls_;
+
+	/// The list of data sources.
+	QList<XRFDetectorDataSource *> dataSources_;
 
 private:
 	// Keeps track of whether the single element version was used or not.

@@ -1,6 +1,8 @@
 #include "XRFDetectorView.h"
 #include "DeadTimeButton.h"
 #include "acquaman/VESPERS/VESPERSXRFScanController.h"
+#include "MPlot/MPlotSeries.h"
+#include "dataman/AMDataSourceSeriesData.h"
 
 #include <QString>
 #include <QToolButton>
@@ -136,7 +138,7 @@ void XRFDetailedDetectorView::setupPlot()
 	plot_ = new MPlot;
 	plot_->axisBottom()->setAxisNameFont(QFont("Helvetica", 11));
 	plot_->axisBottom()->setTickLabelFont(QFont("Helvetica", 11));
-	plot_->axisBottom()->setAxisName("Channel number");
+	plot_->axisBottom()->setAxisName("Energy, eV");
 	plot_->axisLeft()->setAxisNameFont(QFont("Helvetica", 11));
 	plot_->axisLeft()->setTickLabelFont(QFont("Helvetica", 11));
 	plot_->axisLeft()->setAxisName("Counts");
@@ -146,6 +148,22 @@ void XRFDetailedDetectorView::setupPlot()
 	plot_->setMarginBottom(15);
 	plot_->setMarginRight(2);
 	plot_->setMarginTop(2);
+
+	MPlotSeriesBasic *series;
+
+	for (int i = 0; i < detector_->elements(); i++){
+
+		series = new MPlotSeriesBasic;
+		series->setModel(new AMDataSourceSeriesData(detector_->dataSource(i)));
+		series->setMarker(MPlotMarkerShape::None);
+		series->setDescription(detector_->dataSource(i)->name());
+		series->setLinePen(QPen(getColor(i)));
+		plot_->addItem(series);
+	}
+
+	// Enable autoscaling of both axes.
+	plot_->enableAutoScaleLeft(true);
+	plot_->enableAutoScaleBottom(true);
 
 	// Enable some convenient zoom tools.
 	plot_->addTool(new MPlotDragZoomerTool());
@@ -157,6 +175,34 @@ void XRFDetailedDetectorView::setupPlot()
 	plot_->axisTop()->setTicks(0);
 	plot_->axisLeft()->setTicks(4);
 	plot_->axisRight()->setTicks(0);
+}
+
+QColor XRFDetailedDetectorView::getColor(int index)
+{
+	int i = index%10;
+
+	switch(i){
+	case 0:
+		return Qt::red;
+	case 1:
+		return Qt::blue;
+	case 2:
+		return Qt::green;
+	case 3:
+		return Qt::yellow;
+	case 4:
+		return Qt::black;
+	case 5:
+		return QColor(255, 127, 0);
+	case 6:
+		return Qt::magenta;
+	case 7:
+		return Qt::cyan;
+	case 8:
+		return Qt::darkRed;
+	case 9:
+		return Qt::darkBlue;
+	}
 }
 
 void XRFDetailedDetectorView::elementClicked(int elementId)

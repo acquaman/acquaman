@@ -23,11 +23,17 @@ VESPERSXRFScanController::VESPERSXRFScanController(VESPERSXRFScanConfiguration *
 	/// \todo Add analyzed data sources.
 }
 
+void VESPERSXRFScanController::onElapsedTimeUpdate(double time)
+{
+	emit progress(time, detector_->integrationTime());
+}
+
 void VESPERSXRFScanController::startImplementation()
 {
 	connect(detector_, SIGNAL(acquisitionFinished()), this, SLOT(onDetectorAcquisitionFinished()));
 	connect(detector_, SIGNAL(acquisitionUpdate()), this, SLOT(onDetectorAcquisitionUpdate()));
 	connect(detector_, SIGNAL(stopScan()), this, SLOT(cancel())); // Need to take into account stopping a scan (this only makes sense in free run scans).
+	connect(detector_->elapsedTimeControl(), SIGNAL(valueChanged(double)), this, SLOT(onElapsedTimeUpdate(double)));
 	detector_->start();
 	setStarted();
 }
@@ -43,6 +49,7 @@ void VESPERSXRFScanController::onDetectorAcquisitionFinished()
 	disconnect(detector_, SIGNAL(acquisitionFinished()), this, SLOT(onDetectorAcquisitionFinished()));
 	disconnect(detector_, SIGNAL(acquisitionUpdate()), this, SLOT(onDetectorAcquisitionUpdate()));
 	disconnect(detector_, SIGNAL(stopScan()), this, SLOT(cancel()));
+	disconnect(detector_->elapsedTimeControl(), SIGNAL(valueChanged(double)), this, SLOT(onElapsedTimeUpdate(double)));
 
 	onDetectorAcquisitionUpdate();
 

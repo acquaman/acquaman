@@ -3,6 +3,7 @@
 
 #include "ui/AMDetectorView.h"
 #include "beamline/VESPERS/XRFDetector.h"
+
 #include "MPlot/MPlot.h"
 #include "MPlot/MPlotWidget.h"
 
@@ -82,6 +83,8 @@ protected:
 
 	/// Sets up the plot.  Can add the plot widget to the layout after calling this function.
 	void setupPlot();
+	/// Get a color for the color of a line on the plot.
+	QColor getColor(int index);
 
 	/// The pointer to the detector.
 	XRFDetector *detector_;
