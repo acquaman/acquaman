@@ -139,6 +139,8 @@ signals:
 	void selectionActivated(const QList<QUrl>&);
 	/// Emitted when the user attempts to open the selected scans in separate windows
 	void selectionActivatedSeparateWindows(const QList<QUrl> &);
+	/// Emitted when the user attempts to export the selected scans. (This action is (hopefully) completed elsewhere, so that we don't couple the AMDataView to the export system)
+	void selectionExported(const QList<QUrl>&);
 
 public slots:
 	/// setup this view to show a specific run (or use \c runId = -1 to see all runs)
@@ -192,6 +194,12 @@ protected slots:
 	void onEditScansAction() {
 		updateSelectedUrls();
 		emit selectionActivatedSeparateWindows(selectedUrls_);
+	}
+
+	/// When the "export scans" action happens
+	void onExportScansAction() {
+		updateSelectedUrls();
+		emit selectionExported(selectedUrls_);
 	}
 
 

@@ -88,6 +88,7 @@ AMDataView::AMDataView(AMDatabase* database, QWidget *parent) :
 
 	connect(openSameEditorButton, SIGNAL(clicked()), this, SLOT(onCompareScansAction()));
 	connect(openSeparateEditorButton, SIGNAL(clicked()), this, SLOT(onEditScansAction()));
+	connect(exportButton, SIGNAL(clicked()), this, SLOT(onExportScansAction()));
 
 	// install organize mode options? Nope... we'll do that when showRun or showExperiment is called, in order to install the right ones.
 
