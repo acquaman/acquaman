@@ -44,4 +44,5 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 
 RESOURCES += \
 	source/ui/VESPERS/EndstationPictures.qrc \
-    source/ui/VESPERS/vespersIcons.qrc
+    source/ui/VESPERS/vespersIcons.qrc \
+    source/ui/StopButton.qrc

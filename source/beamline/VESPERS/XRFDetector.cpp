@@ -1,5 +1,17 @@
 #include "XRFDetector.h"
 
+XRFDetectorDataSource::XRFDetectorDataSource(AMReadOnlyPVControl *data, const QString &name, QObject *parent)
+	: QObject(parent), AMDataSource(name)
+{
+	control_ = data;
+	connect(control_, SIGNAL(valueChanged(double)), this, SLOT(onDataChanged()));
+}
+
+void XRFDetectorDataSource::onDataChanged()
+{
+	emitDataChanged();
+}
+
 XRFDetector::XRFDetector(QString name, int elements, AMControl *refreshRate, AMControl *peakingTime, AMControl *maximumEnergy, AMControl *integrationTime, AMControl *liveTime, AMControl *elapsedTime, AMControl *start, AMControl *stop, AMControlSet *deadTime, AMControlSet *spectra, QObject *parent)
 	: XRFDetectorInfo(name, name, parent), AMDetector(name)
 {

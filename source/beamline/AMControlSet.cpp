@@ -127,7 +127,7 @@ int AMControlSet::setFromInfoList(const AMControlInfoList& info){
 
 void AMControlSet::onConnected(bool ctrlConnected){
 	AMControl *tmpCtrl = 0; //NULL
-	if(tmpCtrl = qobject_cast<AMControl*>(QObject::sender()))
+	if((tmpCtrl = qobject_cast<AMControl*>(QObject::sender())))
 		emit controlConnectedChanged(ctrlConnected, tmpCtrl);
 	if(wasConnected_ == true && !ctrlConnected){
 		wasConnected_ = false;
@@ -148,5 +148,6 @@ void AMControlSet::onConnectionsTimedOut(){
 
 void AMControlSet::onControlValueChanged(){
 	emit controlSetValuesChanged(toInfoList());
+	emit controlSetValuesChanged();
 }
 

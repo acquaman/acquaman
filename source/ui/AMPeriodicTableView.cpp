@@ -14,6 +14,7 @@ AMPeriodicTableView::AMPeriodicTableView(QWidget *parent)
 
 	// Build the periodic table.
 	QGridLayout *tableLayout = new QGridLayout;
+	tableLayout->setSpacing(0);
 
 	tableLayout->addWidget(mapElement(table_->elementByAtomicNumber(1)), 0, 0);
 	tableLayout->addWidget(mapElement(table_->elementByAtomicNumber(2)), 0, 17);

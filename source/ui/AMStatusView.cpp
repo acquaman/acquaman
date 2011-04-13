@@ -163,6 +163,7 @@ AMStatusLogView::AMStatusLogView(QWidget *parent)
 	logView_->horizontalHeader()->setResizeMode(2, QHeaderView::Interactive);
 	logView_->horizontalHeader()->setResizeMode(3, QHeaderView::Interactive);
 	logView_->horizontalHeader()->setResizeMode(4, QHeaderView::Interactive);
+	logView_->verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);
 	logView_->setColumnWidth(0, 24);
 	logView_->setColumnWidth(2, 80);
 	logView_->setColumnWidth(3, 80);
@@ -200,6 +201,8 @@ void AMStatusLogView::addError(const AMErrorReport &e)
 		icon->setToolTip("Serious");
 		break;
 	}
+
+	icon->setData(Qt::AlignTop, Qt::DecorationPropertyRole);
 
 	time = new QStandardItem(QDateTime::currentDateTime().toString("h:mm:ss ap MMM d"));
 

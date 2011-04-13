@@ -6,6 +6,89 @@
 #include "beamline/AMControlSet.h"
 #include "beamline/AMROI.h"
 
+#include "dataman/AMDataSource.h"
+#include "dataman/AMAxisInfo.h"
+
+/*!
+  This class encapsulates AMProcessVariable and puts them into an AMDataSource.  This will allow easy insertion into MPlots for viewing purposes.
+  */
+
+class XRFDetectorDataSource : public QObject, public AMDataSource
+{
+	Q_OBJECT
+
+public:
+	/// Constructor.  Takes in an AMReadOnlyPVControl.
+	XRFDetectorDataSource(AMProcessVariable *data, const QString& name, QObject *parent = 0);
+
+	// Data source type
+	//////////////////////////
+
+	/// Human-readable description of the type of data source this is (ex: "One-dimensional math expression").  Subclasses should re-implement this.
+	virtual QString typeDescription() const { return "XRF Detector Data Source"; }
+
+	// State of the data
+	//////////////////////////
+	/// Returns an OR-combination of StateFlags describing the current state of the data. The base class interface indicates that it does not have valid data. Implementing classes should return InvalidFlag when they don't have valid data, and/or ProcessingFlag if their data might be changing. No flags indicate the data is valid and generally static.
+	virtual int state() const { return control_->readPV()->hasValues() ? ProcessingFlag : InvalidFlag; }
+
+	// Axis Information
+	//////////////////////
+	/// Returns axis information for all axes
+	virtual QList<AMAxisInfo> axes() const
+	{
+		QList<AMAxisInfo> axisInfo;
+		axisInfo << AMAxisInfo("n", control_->readPV()->count(), "n - Channel Number");
+		return axisInfo;
+	}
+
+	// Following can all be determined from above. Included anyway for convenience of classes that use the interface, and for performance. Calling size(axisNumber) should be fast; using axes() to return a full list of AMAxisInfo and extracting the desired axis would be much slower.
+	//////////////////////////////////////////////
+	/// Returns the rank (number of dimensions) of this data set
+	virtual int rank() const { return axes().count(); }
+	/// Returns the size of (ie: count along) each dimension
+	virtual AMnDIndex size() const { AMnDIndex s(); foreach(AMAxisInfo a, axes()) s << a.count(); return s; }
+	/// Returns the size along a single axis \c axisNumber. This should be fast. \c axisNumber is assumed to be between 0 and rank()-1.
+	virtual int size(int axisNumber) const { return axes().at(axisNumber).size; }
+	/// Returns a bunch of information about a particular axis. \c axisNumber is assumed to be between 0 and rank()-1.
+	virtual AMAxisInfo axisInfoAt(int axisNumber) const { return axes().at(axisNumber); }
+	/// Returns the id of an axis, by name. (By id, we mean the index of the axis. We called it id to avoid ambiguity with indexes <i>into</i> axes.) This could be slow, so users shouldn't call it repeatedly. Returns -1 if not found.
+	virtual int idOfAxis(const QString& axisName)
+	{
+		for (int i = 0; i < axes().count(); i++)
+			if (axes().at(i).name.compare(axisName) == 0)
+				return i;
+
+		return -1;
+	}
+
+	// Data value access
+	////////////////////////////
+
+	/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient or any are out of range, or if the data is not ready.
+	virtual AMNumber value(const AMnDIndex& indexes) const
+	{
+		if(!control_->isConnected())
+			return AMNumber();
+		if(indexes.rank() != 1)
+			return AMNumber(AMNumber::DimensionError);
+		if(indexes.i() >= axes().first().size)
+			return AMNumber(AMNumber::OutOfBoundsError);
+
+		return control_->readPV();
+	}
+	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index)
+	virtual AMNumber axisValue(int axisNumber, int index) const = 0;
+
+protected slots:
+	/// Emits the data changed signal when the control gets new data.
+	void onDataChanged();
+
+protected:
+	/// The control being used as a data source.
+	AMReadOnlyPVControl *control_;
+};
+
 class XRFDetector : public XRFDetectorInfo, public AMDetector
 {
 	Q_OBJECT

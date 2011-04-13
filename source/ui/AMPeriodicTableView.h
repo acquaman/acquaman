@@ -40,9 +40,9 @@ private:
 	QToolButton *mapElement(AMElement *element)
 	{
 		QToolButton *button = new QToolButton;
-		button->setFont(QFont("Times New Roman", 14));
+		button->setFont(QFont("Times New Roman", 12));
 		button->setText(element->symbol());
-		button->setFixedSize(35, 25);
+		button->setFixedSize(30, 25);
 		connect(button, SIGNAL(clicked()), elementMapper_, SLOT(map()));
 		elementMapper_->setMapping(button, element->atomicNumber());
 		return button;

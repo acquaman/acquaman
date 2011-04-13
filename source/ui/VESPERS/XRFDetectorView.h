@@ -3,7 +3,8 @@
 
 #include "ui/AMDetectorView.h"
 #include "beamline/VESPERS/XRFDetector.h"
-#include "ui/AMScanView.h"
+#include "MPlot/MPlot.h"
+#include "MPlot/MPlotWidget.h"
 
 #include <QLabel>
 #include <QDoubleSpinBox>
@@ -66,8 +67,6 @@ signals:
 	void stopScan();
 
 protected slots:
-	/// Handles new values set from the integration time spin box and passes it along to the control.
-	void onIntegrationTimeUpdate();
 	/// Handles the update from the dead time control.
 	void onDeadTimeUpdate();
 	/// Handles the update from the elapsed time control.
@@ -81,16 +80,12 @@ protected:
 	 We are trusting createDetectorView to pass in the correct type of detector, sub classes should trust AMDetector is actually their type. */
 	bool setDetector(AMDetector *detector, bool configureOnly);
 
-	/// Sets up the controls for the view.  Things like starting, stopping, etc.  Returns the layout to be added to the master layout.
-	QLayout *setupControls();
-	/// Sets up the plot view.  Returns the layout to be added to the master layout.
-	QLayout *setupPlot();
+	/// Sets up the plot.  Can add the plot widget to the layout after calling this function.
+	void setupPlot();
 
 	/// The pointer to the detector.
 	XRFDetector *detector_;
 
-	/// The integration time line edit.
-	QDoubleSpinBox *integrationTime_;
 	/// The elapsed time label.
 	QLabel *elapsedTime_;
 	/// The dead time label.
@@ -99,8 +94,10 @@ protected:
 	/// The button group used for the dead time tool buttons.
 	QButtonGroup *deadTimeGroup_;
 
-	/// This is the scan view that is used for viewing the spectra.
-	AMScanView *view_;
+	/// This is the plot widget that holds the plot used for viewing the spectra.
+	MPlotWidget *view_;
+	/// This is the plot itself.
+	MPlot *plot_;
 };
 
 #endif // XRFDETECTORVIEW_H

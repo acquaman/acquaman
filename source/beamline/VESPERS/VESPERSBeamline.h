@@ -365,16 +365,28 @@ public:
 signals:
 
 protected slots:
+	/// Sets up any connections for the pressure controls once the whole set is connected.  Also checks if there are any errors with everything started up.
+	void pressureConnected(bool connected);
 	/// Slot used to deal with pressure errors.
 	void pressureError();
+	/// Sets up any connections for the valve controls once the whole set is connected.  Also checks if there are any errors with everything started up.
+	void valveConnected(bool connected);
 	/// Slot used to deal with valve errors.
 	void valveError();
+	/// Sets up any connections for the ion pump controls once the whole set is connected.  Also checks if there are any errors with everything started up.
+	void ionPumpConnected(bool connected);
 	/// Slot used to deal with ion pump errors.
 	void ionPumpError();
+	/// Sets up any connections for the temperature controls once the whole set is connected.  Also checks if there are any errors with everything started up.
+	void temperatureConnected(bool connected);
 	/// Slot used to deal with temperature errors.
 	void temperatureError();
+	/// Sets up any connections for the flow switch controls once the whole set is connected.  Also checks if there are any errors with everything started up.
+	void flowSwitchConnected(bool connected);
 	/// Slot used to deal with flow switch errors.
 	void flowSwitchError();
+	/// Sets up any connections for the flow transducers controls once the whole set is connected.  Also checks if there are any errors with everything started up.
+	void flowTransducerConnected(bool connected);
 	/// Slot used to deal with flow transducer errors.
 	void flowTransducerError();
 	/// Slot used to deal with single element detector errors.

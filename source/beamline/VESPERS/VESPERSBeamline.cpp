@@ -323,8 +323,7 @@ void VESPERSBeamline::setupControlSets()
 	pressureSet_->addControl(ccgPreWindow_);
 	pressureSet_->addControl(ccgPostWindow_);
 
-	for (int i = 0; i < pressureSet_->count(); i++)
-		connect(qobject_cast<AMReadOnlyPVwStatusControl *>(pressureSet_->at(i)), SIGNAL(movingChanged(bool)), this, SLOT(pressureError()));
+	connect(pressureSet_, SIGNAL(connected(bool)), this, SLOT(pressureConnected(bool)));
 
 	// Grouping the valve controls together.
 	valveSet_ = new AMControlSet(this);
@@ -340,7 +339,7 @@ void VESPERSBeamline::setupControlSets()
 	valveSet_->addControl(vvrSSH_);
 	valveSet_->addControl(vvrBeamTransfer_);
 
-	connect(valveSet_, SIGNAL(controlSetValuesChanged(AMControlInfoList)), this, SLOT(valveError()));
+	connect(valveSet_, SIGNAL(connected(bool)), this, SLOT(valveConnected(bool)));
 
 	// Grouping the ion pump controls together.
 	ionPumpSet_ = new AMControlSet(this);
@@ -365,7 +364,7 @@ void VESPERSBeamline::setupControlSets()
 	ionPumpSet_->addControl(iopBeamTransfer2_);
 	ionPumpSet_->addControl(iopPreWindow_);
 
-	connect(ionPumpSet_, SIGNAL(controlSetValuesChanged(AMControlInfoList)), this, SLOT(ionPumpError()));
+	connect(ionPumpSet_, SIGNAL(connected(bool)), this, SLOT(ionPumpConnected(bool)));
 
 	// Grouping the temperature controls together.
 	temperatureSet_ = new AMControlSet(this);
@@ -391,7 +390,7 @@ void VESPERSBeamline::setupControlSets()
 	temperatureSet_->addControl(tmMono6_);
 	temperatureSet_->addControl(tmMono7_);
 
-	connect(temperatureSet_, SIGNAL(controlSetValuesChanged(AMControlInfoList)), this, SLOT(temperatureError()));
+	connect(temperatureSet_, SIGNAL(connected(bool)), this, SLOT(temperatureConnected(bool)));
 
 	// Grouping the water flow switch controls together.
 	flowSwitchSet_ = new AMControlSet(this);
@@ -406,7 +405,7 @@ void VESPERSBeamline::setupControlSets()
 	flowSwitchSet_->addControl(swfPoeSsh1_);
 	flowSwitchSet_->addControl(swfPoeSsh2_);
 
-	connect(flowSwitchSet_, SIGNAL(controlSetValuesChanged(AMControlInfoList)), this, SLOT(flowSwitchError()));
+	connect(flowSwitchSet_, SIGNAL(connected(bool)), this, SLOT(flowSwitchConnected(bool)));
 
 	// Grouping the water flow transducer controls together.
 	flowTransducerSet_ = new AMControlSet(this);
@@ -421,7 +420,7 @@ void VESPERSBeamline::setupControlSets()
 	flowTransducerSet_->addControl(fltPoeSsh1_);
 	flowTransducerSet_->addControl(fltPoeSsh2_);
 
-	connect(flowTransducerSet_, SIGNAL(controlSetValuesChanged(AMControlInfoList)), this, SLOT(flowTransducerError()));
+	connect(flowTransducerSet_, SIGNAL(connected(bool)), this, SLOT(flowTransducerConnected(bool)));
 
 	// Grouping the enstation motors together.
 	endstationMotorSet_ = new AMControlSet(this);
@@ -436,13 +435,50 @@ void VESPERSBeamline::setupControlSets()
 	endstationMotorSet_->addControl(focusMotorfbk_);
 }
 
+void VESPERSBeamline::pressureConnected(bool connected)
+{
+	if (connected)
+		for (int i = 0; i < pressureSet_->count(); i++)
+			connect(qobject_cast<AMReadOnlyPVwStatusControl *>(pressureSet_->at(i)), SIGNAL(movingChanged(bool)), this, SLOT(pressureError()));
+}
+
+void VESPERSBeamline::valveConnected(bool connected)
+{
+	if (connected)
+		connect(valveSet_, SIGNAL(controlSetValuesChanged(AMControlInfoList)), this, SLOT(valveError()));
+}
+
+void VESPERSBeamline::ionPumpConnected(bool connected)
+{
+	if (connected)
+		connect(ionPumpSet_, SIGNAL(controlSetValuesChanged(AMControlInfoList)), this, SLOT(ionPumpError()));
+}
+
+void VESPERSBeamline::temperatureConnected(bool connected)
+{
+	if (connected)
+		connect(temperatureSet_, SIGNAL(controlSetValuesChanged(AMControlInfoList)), this, SLOT(temperatureError()));
+}
+
+void VESPERSBeamline::flowSwitchConnected(bool connected)
+{
+	if (connected)
+		connect(flowSwitchSet_, SIGNAL(controlSetValuesChanged(AMControlInfoList)), this, SLOT(flowSwitchError()));
+}
+
+void VESPERSBeamline::flowTransducerConnected(bool connected)
+{
+	if (connected)
+		connect(flowTransducerSet_, SIGNAL(controlSetValuesChanged(AMControlInfoList)), this, SLOT(flowTransducerError()));
+}
+
 void VESPERSBeamline::pressureError()
 {
 	if (!pressureSet_->isConnected())
 		return;
 
 	QString error("");
-	AMReadOnlyPVwStatusControl *current;
+	AMReadOnlyPVwStatusControl *current = 0;
 
 	for (int i = 0; i < pressureSet_->count(); i++){
 
@@ -465,7 +501,7 @@ void VESPERSBeamline::valveError()
 		return;
 
 	QString error("");
-	AMReadOnlyPVControl *current;
+	AMReadOnlyPVControl *current = 0;
 
 	for (int i = 0; i < valveSet_->count(); i++){
 
@@ -488,7 +524,7 @@ void VESPERSBeamline::ionPumpError()
 		return;
 
 	QString error("");
-	AMReadOnlyPVControl *current;
+	AMReadOnlyPVControl *current = 0;
 
 	for (int i = 0; i < ionPumpSet_->count(); i++){
 
@@ -511,7 +547,7 @@ void VESPERSBeamline::temperatureError()
 		return;
 
 	QString error("");
-	AMReadOnlyPVControl *current;
+	AMReadOnlyPVControl *current = 0;
 
 	for (int i = 0; i < temperatureSet_->count(); i++){
 
@@ -534,7 +570,7 @@ void VESPERSBeamline::flowSwitchError()
 		return;
 
 	QString error("");
-	AMReadOnlyPVControl *current;
+	AMReadOnlyPVControl *current = 0;
 
 	for (int i = 0; i < flowSwitchSet_->count(); i++){
 
@@ -557,7 +593,7 @@ void VESPERSBeamline::flowTransducerError()
 		return;
 
 	QString error("");
-	AMReadOnlyPVControl *current;
+	AMReadOnlyPVControl *current = 0;
 
 	for (int i = 0; i < flowTransducerSet_->count(); i++){
 

@@ -3,6 +3,7 @@
 #include "beamline/VESPERS/VESPERSBeamline.h"
 #include "ui/VESPERS/VESPERSBeamlineView.h"
 #include "ui/AMMainWindow.h"
+#include "ui/AMStartScreen.h"
 
 #include "ui/VESPERS/XRFDetectorView.h"
 #include "ui/VESPERS/VESPERSXRFScanConfigurationView.h"
@@ -33,6 +34,20 @@ bool VESPERSAppController::startup() {
 
 		AMDetectorViewSupport::registerClass<XRFBriefDetectorView, XRFDetector>();
 		AMDetectorViewSupport::registerClass<XRFDetailedDetectorView, XRFDetector>();
+
+		// Testing and making the first run in the database, if there isn't one already.  Make this it's own function if you think startup() is getting too big ; )
+		////////////////////////////////////////
+
+		AMRun existingRun;
+		if(!existingRun.loadFromDb(AMDatabase::userdb(), 1)) {
+			// no run yet... let's create one.
+			AMRun firstRun("VESPERS", 4);	/// \todo For now, we know that 5 is the ID of the REIXS facility, but this is a hardcoded hack. See AMFirstTimeController::onFirstTime() for where the facilities are created.
+			firstRun.storeToDb(AMDatabase::userdb());
+		}
+
+		// Show the splash screen, to let the user pick their current run. (It will delete itself when closed)
+		AMStartScreen* startScreen = new AMStartScreen(0);
+		startScreen->show();
 
 		// Create panes in the main window:
 		////////////////////////////////////

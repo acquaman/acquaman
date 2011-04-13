@@ -1,15 +1,13 @@
 #include "XRFDetectorView.h"
 #include "DeadTimeButton.h"
 #include "acquaman/VESPERS/VESPERSXRFScanController.h"
-#include "ui/AMPeriodicTableView.h"
 
 #include <QString>
 #include <QToolButton>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
-#include <QGridLayout>
-#include <QGroupBox>
 #include <QButtonGroup>
+#include <QComboBox>
 
 // Brief detector view
 /////////////////////////////////////////////
@@ -83,62 +81,6 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	detector_ = static_cast<XRFDetector *>(detector);
 	connect(detector_, SIGNAL(detectorConnected(bool)), this, SLOT(setEnabled(bool)));
 
-	AMPeriodicTableView *table = new AMPeriodicTableView;
-
-	QHBoxLayout *viewLayout = new QHBoxLayout;
-	viewLayout->addLayout(setupPlot());
-	viewLayout->addLayout(setupControls());
-
-	QVBoxLayout *tableLayout = new QVBoxLayout;
-	tableLayout->addLayout(viewLayout);
-	tableLayout->addWidget(table);
-
-	setLayout(tableLayout);
-
-	return true;
-}
-
-void XRFDetailedDetectorView::elementClicked(int elementId)
-{
-	// If the button is checked then it means the element should be disabled.
-	if (deadTimeGroup_->button(elementId)->isChecked())
-		detector_->disableElement(elementId);
-	else
-		detector_->enableElement(elementId);
-}
-
-void XRFDetailedDetectorView::onDeadTimeUpdate()
-{
-	deadTime_->setText(QString::number(detector_->deadTime(), 'f', 2) + " %");
-}
-
-void XRFDetailedDetectorView::onElapsedTimeUpdate(double time)
-{
-	elapsedTime_->setText(QString::number(time, 'f', 2) + " s");
-}
-
-void XRFDetailedDetectorView::onIntegrationTimeUpdate()
-{
-	detector_->setTime(integrationTime_->value());
-}
-
-QLayout *XRFDetailedDetectorView::setupControls()
-{
-	QToolButton *start = new QToolButton;
-	start->setIcon(QIcon(":/play_button_green.png"));
-	connect(start, SIGNAL(clicked()), this, SIGNAL(startScan()));
-
-	QToolButton *stop = new QToolButton;
-	stop->setIcon(QIcon(":/red-stop-button.png"));
-	connect(stop, SIGNAL(clicked()), this, SIGNAL(stopScan()));
-
-	integrationTime_ = new QDoubleSpinBox;
-	integrationTime_->setSuffix(" s");
-	integrationTime_->setSingleStep(0.1);
-	integrationTime_->setMaximum(1000.00);
-	connect(integrationTime_, SIGNAL(editingFinished()), this, SLOT(onIntegrationTimeUpdate()));
-	connect(detector_->integrationTimeControl(), SIGNAL(valueChanged(double)), integrationTime_, SLOT(setValue(double)));
-
 	elapsedTime_ = new QLabel(tr(" s"));
 	connect(detector_->elapsedTimeControl(), SIGNAL(valueChanged(double)), this, SLOT(onElapsedTimeUpdate(double)));
 
@@ -167,44 +109,73 @@ QLayout *XRFDetailedDetectorView::setupControls()
 	else
 		connect(deadTimeGroup_, SIGNAL(buttonClicked(int)), this, SLOT(elementClicked(int)));
 
-	QGroupBox *deadTimeBox = new QGroupBox;
-	deadTimeBox->setFlat(true);
-	deadTimeBox->setLayout(deadTimeLayout);
+	setupPlot();
 
-	QHBoxLayout *startAndStopLayout = new QHBoxLayout;
-	startAndStopLayout->addWidget(start);
-	startAndStopLayout->addWidget(stop);
+	QVBoxLayout *viewControlLayout = new QVBoxLayout;
+	viewControlLayout->addWidget(elapsedTime_);
+	viewControlLayout->addWidget(deadTime_);
+	viewControlLayout->addLayout(deadTimeLayout);
+	viewControlLayout->addStretch();
 
-	QHBoxLayout *timeLayout = new QHBoxLayout;
-	timeLayout->addWidget(elapsedTime_);
-	timeLayout->addWidget(integrationTime_);
+	QHBoxLayout *viewLayout = new QHBoxLayout;
+	viewLayout->addWidget(view_);
+	viewLayout->addLayout(viewControlLayout);
 
-	QVBoxLayout *controlLayout = new QVBoxLayout;
-	controlLayout->addLayout(startAndStopLayout);
-	controlLayout->addLayout(timeLayout);
-	controlLayout->addWidget(deadTime_);
-	controlLayout->addWidget(deadTimeBox);
+	setLayout(viewLayout);
 
-	QGroupBox *controls = new QGroupBox;
-	controls->setLayout(controlLayout);
-	controls->setFlat(true);
-
-	QVBoxLayout *layout = new QVBoxLayout;
-	layout->addWidget(controls);
-	layout->addStretch();
-
-	return layout;
+	return true;
 }
 
-QLayout *XRFDetailedDetectorView::setupPlot()
+void XRFDetailedDetectorView::setupPlot()
 {
-	view_ = new AMScanView();
+	// Create the plot window.
+	view_ = new MPlotWidget;
+	view_->enableAntiAliasing(true);
 
-	// Put it in a layout for viewing.
-	QHBoxLayout *plotLayout = new QHBoxLayout;
-	plotLayout->addWidget(view_);
+	// Create the plot and setup all the axes.
+	plot_ = new MPlot;
+	plot_->axisBottom()->setAxisNameFont(QFont("Helvetica", 11));
+	plot_->axisBottom()->setTickLabelFont(QFont("Helvetica", 11));
+	plot_->axisBottom()->setAxisName("Channel number");
+	plot_->axisLeft()->setAxisNameFont(QFont("Helvetica", 11));
+	plot_->axisLeft()->setTickLabelFont(QFont("Helvetica", 11));
+	plot_->axisLeft()->setAxisName("Counts");
 
-	return plotLayout;
+	// Set the margins for the plot.
+	plot_->setMarginLeft(10);
+	plot_->setMarginBottom(15);
+	plot_->setMarginRight(2);
+	plot_->setMarginTop(2);
+
+	// Enable some convenient zoom tools.
+	plot_->addTool(new MPlotDragZoomerTool());
+	plot_->addTool(new MPlotWheelZoomerTool());
+	view_->setPlot(plot_);
+
+	// Set the number of ticks.  A balance between readability and being practical.
+	plot_->axisBottom()->setTicks(3);
+	plot_->axisTop()->setTicks(0);
+	plot_->axisLeft()->setTicks(4);
+	plot_->axisRight()->setTicks(0);
+}
+
+void XRFDetailedDetectorView::elementClicked(int elementId)
+{
+	// If the button is checked then it means the element should be disabled.
+	if (deadTimeGroup_->button(elementId)->isChecked())
+		detector_->disableElement(elementId);
+	else
+		detector_->enableElement(elementId);
+}
+
+void XRFDetailedDetectorView::onDeadTimeUpdate()
+{
+	deadTime_->setText(QString::number(detector_->deadTime(), 'f', 2) + " %");
+}
+
+void XRFDetailedDetectorView::onElapsedTimeUpdate(double time)
+{
+	elapsedTime_->setText(QString::number(time, 'f', 2) + " s");
 }
 
 // End detailed detector view
