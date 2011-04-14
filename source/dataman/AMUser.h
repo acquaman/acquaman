@@ -27,6 +27,7 @@ class AMUser : public AMDbObject
 {
 Q_OBJECT
 	Q_PROPERTY(int currentRunId READ currentRunId WRITE setCurrentRunId)
+	Q_PROPERTY(QString lastExportDestination READ lastExportDestination WRITE setLastExportDestination)
 
 public:
 
@@ -46,13 +47,17 @@ public:
 	}
 
 
-	// Convenient access methods for our meta-data:
+	// User settings and meta-data
 	/////////////////////////
 
 	/// Returns the id of the run the user is currently working inside
 	int currentRunId() const {
 		return currentRunId_;
 	}
+
+	/// Returns the last folder that the user used as an export destination (Provided as default next time)
+	QString lastExportDestination() const { return lastExportDestination_; }
+
 
 
 
@@ -66,6 +71,12 @@ public slots:
 	}
 
 
+	/// Set the folder that the user last used as an export destination (Provided as default next time)
+	void setLastExportDestination(const QString& exportDestinationFolder) {
+		lastExportDestination_ = exportDestinationFolder;
+		setModified(true);
+	}
+
 protected:
 
 	/// Protected constructor. Access the singleton instance with AMUser::user().
@@ -76,6 +87,8 @@ protected:
 
 	/// the id of the run the user is currently working inside of
 	int currentRunId_;
+	/// The last folder that the user used as an export destination (Provided as default next time)
+	QString lastExportDestination_;
 
 };
 
