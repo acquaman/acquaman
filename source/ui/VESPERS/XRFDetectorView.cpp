@@ -3,6 +3,8 @@
 #include "acquaman/VESPERS/VESPERSXRFScanController.h"
 #include "MPlot/MPlotSeries.h"
 #include "dataman/AMDataSourceSeriesData.h"
+#include "ui/AMPeriodicTableView.h"
+#include "ui/VESPERS/VESPERSXRFElementView.h"
 
 #include <QString>
 #include <QToolButton>
@@ -114,6 +116,12 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 
 	setupPlot();
 
+	AMPeriodicTableView *table = new AMPeriodicTableView;
+	table->setMaximumWidth(600);
+	VESPERSXRFElementView *elView = new VESPERSXRFElementView(AMPeriodicTable::table()->elementByName("Iron"));
+	connect(table, SIGNAL(elementSelected(AMElement*)), elView, SLOT(setElement(AMElement*)));
+	connect(table, SIGNAL(elementSelected(AMElement*)), this, SLOT(showEmissionLines(AMElement*)));
+
 	QVBoxLayout *viewControlLayout = new QVBoxLayout;
 	viewControlLayout->addWidget(elapsedTime_);
 	viewControlLayout->addWidget(deadTime_);
@@ -129,13 +137,23 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	viewLayout->addWidget(view_);
 	viewLayout->addWidget(controlBox);
 
-	setLayout(viewLayout);
+	QHBoxLayout *tableLayout = new QHBoxLayout;
+	tableLayout->addWidget(table, Qt::AlignLeft);
+	tableLayout->addWidget(elView);
+
+	QVBoxLayout *detectorLayout = new QVBoxLayout;
+	detectorLayout->addLayout(viewLayout);
+	detectorLayout->addLayout(tableLayout);
+
+	setLayout(detectorLayout);
 
 	return true;
 }
 
 void XRFDetailedDetectorView::setupPlot()
 {
+	lines_ = new QList<MPlotPoint *>;
+
 	// Create the plot window.
 	view_ = new MPlotWidget;
 	view_->enableAntiAliasing(true);
@@ -181,6 +199,63 @@ void XRFDetailedDetectorView::setupPlot()
 	plot_->axisTop()->setTicks(0);
 	plot_->axisLeft()->setTicks(4);
 	plot_->axisRight()->setTicks(0);
+}
+
+void XRFDetailedDetectorView::showEmissionLines(AMElement *el)
+{
+	QList<QPair<QString, QString> > toBeAdded;
+	QString lineName;
+
+	for (int i = 0; i < el->emissionLines().size(); i++){
+
+		lineName = el->emissionLines().at(i).first;
+
+		if (el->emissionLines().at(i).second.toDouble() <= detector_->maximumEnergy()*1000
+			&& (lineName.compare("Ka2") && lineName.compare("La2") && lineName.compare("Lb2") && lineName.compare("-")))
+
+			toBeAdded << el->emissionLines().at(i);
+	}
+
+	if (!lines_->isEmpty()){
+
+		for (int i = 0; i < lines_->size(); i++){
+
+			plot_->removeItem(lines_->at(i));
+		}
+
+		lines_->clear();
+	}
+
+	MPlotPoint *point;
+	QPair<QString, QString> current;
+
+	for (int i = 0; i < toBeAdded.size(); i++){
+
+		current = toBeAdded.at(i);
+		point = new MPlotPoint(QPoint(current.second.toDouble(), 0));
+		point->setMarker(MPlotMarkerShape::VerticalBeam, 1e20, getColor(current.first));
+		point->setDescription(current.first + ": " + current.second + " eV");
+		plot_->insertItem(point, i+detector_->elements());
+		lines_->append(point);
+	}
+}
+
+QColor XRFDetailedDetectorView::getColor(QString name)
+{
+	if (name.compare("Ka1") == 0)
+		return Qt::red;
+	if (name.compare("Kb1") == 0)
+		return Qt::magenta;
+	if (name.compare("La1") == 0)
+		return Qt::darkBlue;
+	if (name.compare("Lb1") == 0)
+		return Qt::blue;
+	if (name.compare("Lg1") == 0)
+		return Qt::darkCyan;
+	if (name.compare("Ma1") == 0)
+		return Qt::darkGreen;
+
+	return Qt::black;
 }
 
 QColor XRFDetailedDetectorView::getColor(int index)

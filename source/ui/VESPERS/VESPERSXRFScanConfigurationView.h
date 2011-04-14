@@ -4,6 +4,7 @@
 #include "ui/AMScanConfigurationView.h"
 #include "acquaman/VESPERS/VESPERSXRFScanConfiguration.h"
 #include "ui/VESPERS/XRFDetectorView.h"
+#include "acquaman/AMScanController.h"
 
 #include <QDoubleSpinBox>
 
@@ -20,14 +21,14 @@ public:
 signals:
 	/// Passes along the configuration view's start scan signal.
 	void startScan();
-	/// Passes along the configuration view's stop scan signal.
-	void stopScan();
 
 protected slots:
 	/// Handles new values set from the integration time spin box and passes it along to the control.
 	void onIntegrationTimeUpdate();
 	/// Handles what happens when the start button is clicked.
 	void onStartClicked() { detector_->setTime(integrationTime_->value()); emit startScan(); }
+	/// Handles what happens when the stop button is clicked.
+	void onStopClicked();
 
 protected:
 	/// The current configuration.

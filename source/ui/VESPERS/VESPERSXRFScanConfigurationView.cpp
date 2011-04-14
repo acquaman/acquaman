@@ -1,7 +1,6 @@
 #include "VESPERSXRFScanConfigurationView.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
-#include "ui/AMPeriodicTableView.h"
-#include "acquaman/AMScanController.h"
+#include "acquaman/VESPERS/VESPERSXRFScanController.h"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -14,22 +13,22 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 	view_ = new XRFDetailedDetectorView(scanConfig->detector());
 	detector_ = scanConfig->detector();
 
-	AMPeriodicTableView *table = new AMPeriodicTableView;
-	table->setMaximumWidth(600);
+	connect(detector_, SIGNAL(detectorConnected(bool)), this, SLOT(setEnabled(bool)));
 
 	QToolButton *start = new QToolButton;
 	start->setIcon(QIcon(":/play_button_green.png"));
-	connect(start, SIGNAL(clicked()), this, SIGNAL(onStartClicked()));
+	connect(start, SIGNAL(clicked()), this, SLOT(onStartClicked()));
 
 	QToolButton *stop = new QToolButton;
 	stop->setIcon(QIcon(":/red-stop-button.png"));
-	connect(stop, SIGNAL(clicked()), this, SIGNAL(stopScan()));
+	connect(stop, SIGNAL(clicked()), this, SLOT(onStopClicked()));
 
 	integrationTime_ = new QDoubleSpinBox;
 	integrationTime_->setSuffix(" s");
 	integrationTime_->setSingleStep(0.1);
 	integrationTime_->setMaximum(1000.00);
 	connect(integrationTime_, SIGNAL(editingFinished()), this, SLOT(onIntegrationTimeUpdate()));
+	connect(detector_->integrationTimeControl(), SIGNAL(valueChanged(double)), integrationTime_, SLOT(setValue(double)));
 
 	QHBoxLayout *startAndStopLayout = new QHBoxLayout;
 	startAndStopLayout->addWidget(start);
@@ -44,14 +43,18 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 	plotControlLayout->addWidget(view_);
 	plotControlLayout->addLayout(controlLayout);
 
-	QVBoxLayout *configViewLayout = new QVBoxLayout;
-	configViewLayout->addLayout(plotControlLayout);
-	configViewLayout->addWidget(table);
-
-	setLayout(configViewLayout);
+	setLayout(plotControlLayout);
 }
 
 void VESPERSXRFScanConfigurationView::onIntegrationTimeUpdate()
 {
 	detector_->setTime(integrationTime_->value());
+}
+
+void VESPERSXRFScanConfigurationView::onStopClicked()
+{
+	VESPERSXRFScanController *current = qobject_cast<VESPERSXRFScanController *>(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController());
+
+	if (current)
+		current->cancel();
 }

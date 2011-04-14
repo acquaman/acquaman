@@ -43,6 +43,8 @@ private:
 		button->setFont(QFont("Times New Roman", 12));
 		button->setText(element->symbol());
 		button->setFixedSize(30, 25);
+		if (element->emissionLines().isEmpty())
+			button->setEnabled(false);
 		connect(button, SIGNAL(clicked()), elementMapper_, SLOT(map()));
 		elementMapper_->setMapping(button, element->atomicNumber());
 		return button;

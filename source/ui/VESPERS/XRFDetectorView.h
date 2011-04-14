@@ -3,6 +3,7 @@
 
 #include "ui/AMDetectorView.h"
 #include "beamline/VESPERS/XRFDetector.h"
+#include "util/AMElement.h"
 
 #include "MPlot/MPlot.h"
 #include "MPlot/MPlotWidget.h"
@@ -60,6 +61,8 @@ public:
 
 	/// Returns a pointer to the detector being viewed.
 	AMDetector *detector() { return detector_; }
+	/// Returns a pointer to the plot.
+	MPlot *plot() const { return plot_; }
 
 signals:
 	/// Signal used to say that a scan should start.
@@ -74,6 +77,8 @@ protected slots:
 	void onElapsedTimeUpdate(double time);
 	/// Handles enabling/disabling of elements based on which button is clicked in the dead time button group.
 	void elementClicked(int elementId);
+	/// Places coloured markers on the plot to show where the acceptable emission lines are in the range of the detector.
+	void showEmissionLines(AMElement *el);
 
 protected:
 
@@ -85,6 +90,8 @@ protected:
 	void setupPlot();
 	/// Get a color for the color of a line on the plot.
 	QColor getColor(int index);
+	/// Gets a color based on an emission line.
+	QColor getColor(QString name);
 
 	/// The pointer to the detector.
 	XRFDetector *detector_;
@@ -101,6 +108,8 @@ protected:
 	MPlotWidget *view_;
 	/// This is the plot itself.
 	MPlot *plot_;
+	/// This holds the plot markers for showing emission lines.
+	QList<MPlotPoint *> *lines_;
 };
 
 #endif // XRFDETECTORVIEW_H

@@ -3,6 +3,7 @@
 #include <QRadialGradient>
 #include <QStyleOption>
 #include <QFontMetrics>
+#include <QDebug>
 
 AMShutterButton::AMShutterButton(QString title, QString statusPV, QWidget *parent)
 	: QPushButton(parent), state_(Between), title_(title)
@@ -98,6 +99,7 @@ void AMShutterButton::paintEvent(QPaintEvent *e)
 		// Main button box.  Uses the standand push button style for the basic aspects of the box.
 		QStyleOptionButton option;
 		option.initFrom(this);
+		option.state |= isDown() ? QStyle::State_Sunken : QStyle::State_Raised;
 		style()->drawControl(QStyle::CE_PushButton, &option, &painter, this);
 	}
 
