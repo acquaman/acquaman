@@ -42,15 +42,22 @@ Second, AMTagReplacementParser provides information on the number of tags found,
 
 
 <b>Limitations</b>
-AMTagReplacementParser does not support nested tags. Tags must match the format:
 
-<start character>tagTextNoSpaces<argument start character>free-form argument string, spaces allowed<argument end character>
+1. AMTagReplacementParser does not support nested tags.
+
+2. Tags must match the format:
+
+\code
+{start character}tagTextAlphaNumericNoSpaces{argument start character}free-form argument string, spaces allowed{argument end character}
+\endcode
 
 or
 
-<start character>tagTextNoSpaces
+\code
+{start character}tagTextAlphaNumericNoSpaces
+\endcode
 
-There are no error messages or parsing help provided if (for example) you accidentally forget to close an argument, etc.
+3. There are no error messages or parsing help provided if (for example) you accidentally forget to close an argument, etc.
 
 */
 
