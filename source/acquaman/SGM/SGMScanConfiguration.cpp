@@ -24,7 +24,8 @@ SGMScanConfiguration::SGMScanConfiguration()
 {
 	setExitSlitGap(SGMBeamline::sgm()->exitSlitGap()->value());
 	setGrating((SGMBeamline::sgm()->grating()->value() < 1) ? SGMBeamline::lowGrating : ((SGMBeamline::sgm()->grating()->value() < 2) ? SGMBeamline::mediumGrating : SGMBeamline::highGrating));
-	setHarmonic((SGMBeamline::sgm()->harmonic()->value() < 1) ? SGMBeamline::firstHarmonic : ((SGMBeamline::sgm()->grating()->value() < 2) ? SGMBeamline::firstHarmonic : SGMBeamline::thirdHarmonic));
+	//setHarmonic((SGMBeamline::sgm()->harmonic()->value() < 1) ? SGMBeamline::firstHarmonic : ((SGMBeamline::sgm()->grating()->value() < 2) ? SGMBeamline::firstHarmonic : SGMBeamline::thirdHarmonic));
+	setHarmonic((SGMBeamline::sgm()->harmonic()->value() == 0) ? SGMBeamline::firstHarmonic : SGMBeamline::thirdHarmonic);
 
 	setTrackingGroup(SGMBeamline::sgm()->trackingSet()->toInfoList());
 	setFluxResolutionGroup(SGMBeamline::sgm()->fluxResolutionSet()->toInfoList());

@@ -47,8 +47,10 @@ protected slots:
 	void onVisibleLightStatusChanged(const QString& status);
 	void onVisibleLightClicked();
 	void onCloseVacuumButtonClicked();
+	void onBeamOnButtonClicked();
+	void onBeamOnActionFinished();
 	void onStopMotorsButtonClicked();
-	void onActionsListSucceeded();
+	void onStopMotorsActionFinished();
 
 protected:
 	QGroupBox *mainBox_;
@@ -57,7 +59,8 @@ protected:
 	QGridLayout *gl_;
 
 	AMControlEditor *readyLabel_;
-	AMBeamlineActionsListButton *beamOnBALButton_;
+	//AMBeamlineActionButton *beamOnBALButton_;
+	QToolButton *beamOnButton_;
 	AMControlButton *beamOffCButton_;
 	QToolButton *stopMotorsButton_;
 	QToolButton *closeVacuumButton_;
@@ -71,7 +74,9 @@ protected:
 	AMControlEditor *exitSlitNC_;
 	QLabel *beamlineWarningsLabel_;
 
-	AMBeamlineParallelActionsList *al;
+	//AMBeamlineParallelActionsList *al;
+	AMBeamlineListAction *beamOnAction_;
+	AMBeamlineListAction *stopMotorsAction_;
 };
 
 #endif // SGMSIDEBAR_H

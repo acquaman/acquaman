@@ -52,6 +52,7 @@ public:
 
 signals:
 	void detectorAdded(int index);
+	void detectorRemoved(int index);
 
 	/// This signal is emitted whenever isConnected() changes
 	void connected(bool groupConnected);

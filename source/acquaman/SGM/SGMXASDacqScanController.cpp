@@ -46,17 +46,26 @@ void SGMXASDacqScanController::startImplementation(){
 		qDebug() << "Beamline already scanning";
 		return;
 	}
-	bool loadSuccess;
+	bool loadSuccess = false;
 	QString homeDir = QDir::homePath();
 	if( QDir(homeDir+"/dev").exists())
 		homeDir.append("/dev");
 	else if( QDir(homeDir+"/beamline/programming").exists())
 		homeDir.append("/beamline/programming");
 
+	for(int x = 0; x < pCfg_()->allDetectorConfigurations().count(); x++){
+		if(!SGMBeamline::sgm()->detectorValidForCurrentSignalSource(pCfg_()->allDetectorConfigurations().detectorInfoAt(x)))
+			qDebug() << "Hey, looks like the signal source is incorrect (wanting scalers when picos are in use or vice versa)";
+	}
+
 	if(pCfg_()->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->pgtDetector()->detectorName()))
 		loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/pgt.cfg"));
-	else
-		loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/defaultEnergy.cfg"));
+	else if(SGMBeamline::sgm()->usingPicoammeterSource())
+		loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/defaultEnergyPicoammeter.cfg"));
+	else if(SGMBeamline::sgm()->usingScalerSource())
+		loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/defaultEnergyScaler.cfg"));
+	//else
+	//	loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/defaultEnergy.cfg"));
 	if(!loadSuccess){
 		qDebug() << "LIBRARY FAILED TO LOAD CONFIG FILE";
 		return;

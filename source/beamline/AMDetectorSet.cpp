@@ -4,6 +4,7 @@ AMDetectorSet::AMDetectorSet(QObject *parent) :
 	QObject(parent), AMOrderedSet<QString, QPair<AMDetector*, bool> >(false)
 {
 	connect(AMOrderedSet<QString, QPair<AMDetector*, bool> >::signalSource(), SIGNAL(itemAdded(int)), this, SIGNAL(detectorAdded(int)));
+	connect(AMOrderedSet<QString, QPair<AMDetector*, bool> >::signalSource(), SIGNAL(itemRemoved(int)), this, SIGNAL(detectorRemoved(int)));
 	wasConnected_ = false;
 	QTimer::singleShot(AMDETECTORSET_CONTROL_TIMEOUT_MS, this, SLOT(onConnectionsTimedOut()));
 }

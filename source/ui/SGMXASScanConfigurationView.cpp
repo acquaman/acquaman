@@ -158,6 +158,7 @@ SGMFluxResolutionPickerView::SGMFluxResolutionPickerView(AMXASRegionsList *regio
 }
 
 void SGMFluxResolutionPickerView::onRegionsChanged(){
+	qDebug() << "Current harmonic is " << harmonicCE_->setpoint() << (SGMBeamline::sgmHarmonic)harmonicCE_->setpoint();
 	if( (minEnergy_ != regions_->start(0)) || (maxEnergy_ != regions_->end(regions_->count()-1)) ){
 		minEnergy_ = regions_->start(0);
 		maxEnergy_ = regions_->end(regions_->count()-1);

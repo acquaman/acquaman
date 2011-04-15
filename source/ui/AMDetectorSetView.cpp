@@ -51,6 +51,7 @@ AMDetectorSetView::AMDetectorSetView(AMDetectorSet *viewSet, bool configureOnly,
 	setLayout(gl_);
 
 	connect(viewSet_, SIGNAL(detectorAdded(int)), this, SLOT(onDetectorAddedToSet(int)));
+	connect(viewSet_, SIGNAL(detectorRemoved(int)), this, SLOT(onDetectorRemovedFromSet(int)));
 	setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
 }
 
@@ -154,6 +155,97 @@ void AMDetectorSetView::onDetectorAddedToSet(int index){
 		gl_->setRowStretch(x ,1);
 	}
 	gl_->setRowStretch(viewSet_->count(), 10);
+}
+
+#warning "Hey David: Working, but SUPER INNEFFICIENT. Redraws the whole thing every time"
+void AMDetectorSetView::onDetectorRemovedFromSet(int index){
+	for(int x = gl_->rowCount()-1; x >= 0; x--){
+		if(gl_->itemAtPosition(x, 0))
+			gl_->itemAtPosition(x, 0)->widget()->hide();
+		if(gl_->itemAtPosition(x, 1))
+			gl_->itemAtPosition(x, 1)->widget()->hide();
+		if(gl_->itemAtPosition(x, 2))
+			gl_->itemAtPosition(x, 2)->widget()->hide();
+		if(gl_->itemAtPosition(x, 3))
+			gl_->itemAtPosition(x, 3)->widget()->hide();
+	}
+	delete layout();
+	detectorBoxes_.clear();
+	detectorDetails_.clear();
+	checkBoxes_.clear();
+	gl_ = new QGridLayout();
+	AMDetectorView *tmpDV;
+	AMDetector *tmpD;
+	QLabel *tmpLabel;
+	QPushButton *tmpButton;
+	QCheckBox *tmpCheck;
+	AMDetectorView *tmpDetails;
+	for(int x = 0; x < viewSet_->count(); x++){
+		tmpD = viewSet_->detectorAt(x);
+		tmpDV = AMDetectorViewSupport::createBriefDetectorView(tmpD, configureOnly_);
+		connect(tmpDV, SIGNAL(settingsConfigureRequested()), this, SLOT(onDetectorSetConfigurationRequested()));
+		tmpLabel = new QLabel(tmpD->description());
+		tmpButton = new QPushButton("Details");
+		if(AMDetectorViewSupport::supportedDetailedViews(tmpD).count() == 0){
+			tmpButton->setEnabled(false);
+			detectorDetails_.append(0);
+		}
+		else{
+			tmpDetails = AMDetectorViewSupport::createDetailedDetectorView(tmpD, configureOnly_);
+			detectorDetails_.append(tmpDetails);
+			connect(tmpButton, SIGNAL(clicked()), tmpDetails, SLOT(show()));
+			connect(tmpDetails, SIGNAL(settingsConfigureRequested()), this, SLOT(onDetectorSetConfigurationRequested()));
+		}
+		if(configureOnly_){
+			tmpCheck = new QCheckBox();
+			if(viewSet_->isDefaultAt(x))
+				tmpCheck->setChecked(true);
+			checkBoxes_.append(tmpCheck);
+			connect(tmpCheck, SIGNAL(toggled(bool)), this, SLOT(onDetectorSetConfigurationRequested()));
+		}
+		detectorBoxes_.append(tmpDV);
+
+		gl_->addWidget(tmpLabel,		x, 0, 1, 1, 0);
+		gl_->addWidget(tmpDV,			x, 2, 1, 1, 0);
+		if(configureOnly_)
+			gl_->addWidget(tmpCheck,	x, 1, 1, 1, 0);
+		gl_->addWidget(tmpButton,		x, 3, 1, 1, 0);
+	}
+
+	gl_->setRowStretch(viewSet_->count(), 10);
+	gl_->setVerticalSpacing(1);
+	gl_->setHorizontalSpacing(1);
+	setLayout(gl_);
+
+
+	/*
+	int viewIndex = -1;
+	qDebug() << "About to remove " << index << viewSet_->detectorAt(index) << viewSet_->count() << gl_->rowCount()-1;
+	AMDetectorView *removeDV;
+	for(int x = 0; x < gl_->rowCount()-1; x++){
+		if(gl_->itemAtPosition(x, 2)){
+			removeDV = qobject_cast<AMDetectorView*>(gl_->itemAtPosition(x, 2)->widget());
+			if(removeDV->detector() == viewSet_->detectorAt(index)){
+				viewIndex = x;
+				qDebug() << "Found the detector at " << viewIndex;
+			}
+		}
+	}
+	removeDV = qobject_cast<AMDetectorView*>(gl_->itemAtPosition(viewIndex, 2)->widget());
+	if(removeDV){
+		gl_->removeWidget(removeDV);
+		disconnect(removeDV, SIGNAL(settingsConfigureRequested()), this, SLOT(onDetectorSetConfigurationRequested()));
+	}
+	QLabel *removeLabel = qobject_cast<QLabel*>(gl_->itemAtPosition(viewIndex, 0)->widget());
+	if(removeLabel)
+		gl_->removeWidget(removeLabel);
+	QPushButton *removeButton = qobject_cast<QPushButton*>(gl_->itemAtPosition(viewIndex, 3)->widget());
+	if(removeButton)
+		gl_->removeWidget(removeButton);
+	QCheckBox *removeCheck = qobject_cast<QCheckBox*>(gl_->itemAtPosition(viewIndex, 1)->widget());
+	if(removeCheck)
+		gl_->removeWidget(removeCheck);
+	*/
 }
 
 void AMDetectorSetView::onDetectorSetSettingsChanged(){
