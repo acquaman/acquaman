@@ -31,6 +31,8 @@ AMBeamlineScanAction::AMBeamlineScanAction(AMScanConfiguration *cfg, QObject *pa
 		AMBeamlineActionItem(true, parent)
 {
 	cfg_ = cfg;
+	if(cfg_)
+		setDescription(cfg_->description());
 	ctrl_ = NULL;
 	keepOnCancel_ = false;
 
@@ -151,6 +153,8 @@ AMBeamlineScanActionView::AMBeamlineScanActionView(AMBeamlineScanAction *scanAct
 	setMinimumHeight(NATURAL_ACTION_VIEW_HEIGHT);
 	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
+	configurationView_ = 0; //NULL
+
 	scanNameLabel_ = new QLabel();
 	scanNameLabel_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 	scanNameLabel_->setAlignment(Qt::AlignVCenter);
@@ -222,7 +226,7 @@ void AMBeamlineScanActionView::updateScanNameLabel(){
 		scanName.append(". ");
 	}
 
-	scanName.append(scanAction_->cfg()->description());
+	scanName.append(scanAction_->cfg()->detailedDescription());
 	scanNameLabel_->setText(scanName);
 
 }
@@ -320,6 +324,15 @@ void AMBeamlineScanActionView::onPlayPauseButtonClicked(){
 		scanAction_->pause(false);
 		emit resumeRequested(scanAction_);
 	}
+}
+
+#include "ui/AMScanConfigurationView.h"
+
+void AMBeamlineScanActionView::mouseDoubleClickEvent(QMouseEvent *){
+	if(configurationView_ == 0)
+		configurationView_ = scanAction_->cfg()->createView();
+	configurationView_->setWindowModality(Qt::WindowModal);
+	configurationView_->show();
 }
 
 void AMBeamlineScanActionView::updateLook(){

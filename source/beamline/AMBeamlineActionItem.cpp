@@ -42,6 +42,7 @@ AMBeamlineActionItem::AMBeamlineActionItem(QObject *parent) :
 {
 	previous_ = NULL;
 	next_ = NULL;
+	description_ = "Generic Action";
 	message_ = "";
 	helpImages_.clear();
 	reinitialized_.setState(false);
@@ -56,6 +57,7 @@ AMBeamlineActionItem::AMBeamlineActionItem(QObject *parent) :
 AMBeamlineActionItem::AMBeamlineActionItem(bool delayInitialize, QObject *parent){
 	previous_ = NULL;
 	next_ = NULL;
+	description_ = "Generic Action";
 	reinitialized_.setState(false);
 	connect(&ready_, SIGNAL(stateChanged(bool)), this, SLOT(dirtyInitialized()));
 	connect(&started_, SIGNAL(stateChanged(bool)), this, SLOT(dirtyInitialized()));
@@ -106,6 +108,11 @@ AMBeamlineActionItem* AMBeamlineActionItem::next() const {
 	return next_;
 }
 
+QString AMBeamlineActionItem::description() const{
+	qDebug() << "Description is " << description_;
+	return description_;
+}
+
 QString AMBeamlineActionItem::message() const{
 	return message_;
 }
@@ -132,6 +139,10 @@ bool AMBeamlineActionItem::setPrevious(AMBeamlineActionItem *previous){
 bool AMBeamlineActionItem::setNext(AMBeamlineActionItem *next){
 	next_ = next;
 	return true;
+}
+
+void AMBeamlineActionItem::setDescription(const QString &description){
+	description_ = description;
 }
 
 void AMBeamlineActionItem::setMessage(const QString &message){

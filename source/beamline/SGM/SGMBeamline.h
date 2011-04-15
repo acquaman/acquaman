@@ -57,6 +57,7 @@ public:
 		highGrating = 2
 	};
 	QString sgmGratingName(SGMBeamline::sgmGrating grating) const;
+	QString sgmGratingDescription(SGMBeamline::sgmGrating grating) const;
 
 	/*
 	enum sgmHarmonic{
@@ -69,6 +70,7 @@ public:
 		thirdHarmonic = 1
 	};
 	QString sgmHarmonicName(SGMBeamline::sgmHarmonic harmonic) const;
+	QString sgmHarmonicDescription(SGMBeamline::sgmHarmonic harmonic) const;
 
 	enum sgmTransferType{
 		loadlockOut = 1,
@@ -82,7 +84,6 @@ public:
 	virtual ~SGMBeamline();
 
 	bool isConnected() const {
-		qDebug() << unconnectedCriticals();
 		return criticalControlsSet_->isConnected();
 	}
 

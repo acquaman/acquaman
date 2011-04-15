@@ -838,19 +838,35 @@ SGMBeamline::~SGMBeamline()
 }
 
 QString SGMBeamline::sgmGratingName(SGMBeamline::sgmGrating grating) const {
-	if(grating == 0)
+	if(grating == SGMBeamline::lowGrating)
 		return "lowGrating";
-	else if(grating == 1)
+	else if(grating == SGMBeamline::mediumGrating)
 		return "mediumGrating";
-	else if(grating == 2)
+	else if(grating == SGMBeamline::highGrating)
 		return "highGrating";
 }
 
+QString SGMBeamline::sgmGratingDescription(SGMBeamline::sgmGrating grating) const{
+	if(grating == SGMBeamline::lowGrating)
+		return "Low Energy";
+	else if(grating == SGMBeamline::mediumGrating)
+		return "Medium Energy";
+	else if(grating == SGMBeamline::highGrating)
+		return "High Energy";
+}
+
 QString SGMBeamline::sgmHarmonicName(SGMBeamline::sgmHarmonic harmonic) const {
-	if(harmonic == 0)
+	if(harmonic == SGMBeamline::firstHarmonic)
 		return "firstHarmonic";
-	else if(harmonic == 1)
+	else if(harmonic == SGMBeamline::thirdHarmonic)
 		return "thirdHarmonic";
+}
+
+QString SGMBeamline::sgmHarmonicDescription(SGMBeamline::sgmHarmonic harmonic) const{
+	if(harmonic == SGMBeamline::firstHarmonic)
+		return "First";
+	else if(harmonic == SGMBeamline::thirdHarmonic)
+		return "Third";
 }
 
 QStringList SGMBeamline::unconnectedCriticals() const{

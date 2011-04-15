@@ -31,8 +31,8 @@ public:
 	double exitSlitGap() const { return exitSlitGap_;}
 	SGMBeamline::sgmGrating grating() const { return grating_;}
 	SGMBeamline::sgmHarmonic harmonic() const { return harmonic_;}
-	AMControlInfoList trackingGroup() { return trackingGroup_;}
-	AMControlInfoList fluxResolutionGroup() { return fluxResolutionGroup_;}
+	AMControlInfoList trackingGroup() const { return trackingGroup_;}
+	AMControlInfoList fluxResolutionGroup() const { return fluxResolutionGroup_;}
 
 	bool setExitSlitGap(double exitSlitGap);
 	bool setGrating(SGMBeamline::sgmGrating grating) {grating_ = grating; return true;}

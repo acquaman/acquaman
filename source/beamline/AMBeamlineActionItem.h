@@ -98,6 +98,7 @@ public:
 
 	virtual AMBeamlineActionItemView* createView(int index = 0) = 0;
 
+	virtual QString description() const;
 	virtual QString message() const;
 
 	bool hasHelp() const;
@@ -139,6 +140,7 @@ public slots:
 	/// Sets the next action but does not connect signals and slots
 	bool setNext(AMBeamlineActionItem* next);
 
+	void setDescription(const QString &description);
 	void setMessage(const QString &message);
 	void setHelp(const AMOrderedSet<QString, QPixmap> &helpImages);
 
@@ -174,6 +176,7 @@ protected:
 	/// Holds pointer to next action (only meaningful if not in parallel list)
 	AMBeamlineActionItem *next_;
 
+	QString description_;
 	QString message_;
 	AMOrderedSet<QString, QPixmap> helpImages_;
 

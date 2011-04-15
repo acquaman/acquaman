@@ -48,8 +48,13 @@ public:
 	int regionCount() const { return regions_->count();}
 	AMXASRegionsList* regions() { return regions_;}
 
-	/// A human-readable description of this scan configuration. Can be re-implemented to provide more details.
+	/// A human-readable description of this scan configuration. Can be re-implemented to provide more details. Used by AMBeamlineScanAction to set the title for the action view.
 	virtual QString description() const {
+		return QString("XAS Scan from %1 to %2").arg(regionStart(0)).arg(regionEnd(regionCount()-1));
+	}
+
+	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by AMBeamlineScanAction to set the main text in the action view.
+	virtual QString detailedDescription() const{
 		return QString("XAS Scan from %1 to %2").arg(regionStart(0)).arg(regionEnd(regionCount()-1));
 	}
 

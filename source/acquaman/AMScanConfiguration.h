@@ -26,6 +26,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 /// Forward declaration of AMScanController.  See note on circular coupling in AMScanConfiguration
 class AMScanController;
 
+/// Foward declaration of AMScanConfigurationView
+class AMScanConfigurationView;
+
 /// An AMScanConfiguration is the abstract parent class of all scan configurations.
 /*!
   The AMScanConfiguration class acts as the abstract parent class from which all scan configuration classes descend.
@@ -74,9 +77,14 @@ public:
 	/// Returns the path to save the raw data file to
 	QString filePath() const { return filePath_; }
 
-	/// A human-readable description of this scan configuration. Can be re-implemented to provide more details.
+	/// A human-readable description of this scan configuration. Can be re-implemented to provide more details. Used by AMBeamlineScanAction to set the title for the action view.
 	virtual QString description() const {
-		return QString();
+		return "Generic Scan";
+	}
+
+	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by AMBeamlineScanAction to set the main text in the action view.
+	virtual QString detailedDescription() const{
+		return "Generic Scan Details";
 	}
 
 	// Virtual functions which must be re-implemented:
@@ -86,6 +94,10 @@ public:
 	/// Returns a pointer to a newly-created AMScanController that is appropriate for executing this kind of scan configuration.  The controller should be initialized to use this scan configuration object as its scan configuration.  Ownership of the new controller becomes the responsibility of the caller.
 	virtual AMScanController* createController() = 0;
 
+	/// Returns a new copy of the default view (caller responsible for memory). Returns 0 (NULL) if no default view.
+	virtual AMScanConfigurationView* createView(){
+		return 0; //NULL
+	}
 
 public slots:
 	/// Sets the file name

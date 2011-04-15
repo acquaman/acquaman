@@ -45,6 +45,7 @@ SGMXASScanConfigurationView::SGMXASScanConfigurationView(SGMXASScanConfiguration
 		connect(fluxResolutionView_, SIGNAL(configValuesChanged(AMControlInfoList)), sxsc, SLOT(setFluxResolutionGroup(AMControlInfoList)));
 
 		trackingView_ = new AMControlSetView(sxsc->trackingSet(), true, this);
+		trackingView_->setFromInfoList(sxsc->trackingGroup());
 		connect(trackingView_, SIGNAL(configValuesChanged(AMControlInfoList)), sxsc, SLOT(setTrackingGroup(AMControlInfoList)));
 
 		xasDetectorsView_ = new AMDetectorSetView(sxsc->detectorChoices(), true);
@@ -158,7 +159,6 @@ SGMFluxResolutionPickerView::SGMFluxResolutionPickerView(AMXASRegionsList *regio
 }
 
 void SGMFluxResolutionPickerView::onRegionsChanged(){
-	qDebug() << "Current harmonic is " << harmonicCE_->setpoint() << (SGMBeamline::sgmHarmonic)harmonicCE_->setpoint();
 	if( (minEnergy_ != regions_->start(0)) || (maxEnergy_ != regions_->end(regions_->count()-1)) ){
 		minEnergy_ = regions_->start(0);
 		maxEnergy_ = regions_->end(regions_->count()-1);

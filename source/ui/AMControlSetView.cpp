@@ -67,6 +67,17 @@ AMControlInfoList AMControlSetView::configValues(){
 	return rv;
 }
 
+void AMControlSetView::setFromInfoList(const AMControlInfoList &infoList){
+	if(!configureOnly_){
+		viewSet_->setFromInfoList(infoList);
+		return;
+	}
+
+	int numControls = viewSet_->count();
+	for(int x = 0; x < numControls; x++)
+		boxAt(x)->setSetpoint(infoList.at(x).value());
+}
+
 void AMControlSetView::onControlSetValuesChanged(AMControlInfoList infoList){
 	if(!configureOnly_)
 		emit currentValuesChanged(infoList);

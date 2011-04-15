@@ -42,6 +42,27 @@ SGMXASScanConfiguration::SGMXASScanConfiguration(QObject *parent) : AMXASScanCon
 	emit trackingGroupChanged(trackingGroup_);
 }
 
+SGMXASScanConfiguration::SGMXASScanConfiguration(const SGMXASScanConfiguration &original){
+	regions_->setEnergyControl(SGMBeamline::sgm()->energy());
+	for(int x = 0; x < original.regionCount(); x++)
+		regions_->addRegion(x, original.regionStart(x), original.regionDelta(x), original.regionEnd(x));
+
+	fluxResolutionSet_ = SGMBeamline::sgm()->fluxResolutionSet();
+	trackingSet_ = SGMBeamline::sgm()->trackingSet();
+
+	xasDetectors_ = SGMBeamline::sgm()->XASDetectors();
+
+	allDetectors_ = new AMDetectorSet(this);
+	for(int x = 0; x < SGMBeamline::sgm()->feedbackDetectors()->count(); x++)
+		allDetectors_->addDetector(SGMBeamline::sgm()->feedbackDetectors()->detectorAt(x), true);
+	for(int x = 0; x < xasDetectors_->count(); x++)
+		allDetectors_->addDetector(xasDetectors_->detectorAt(x), xasDetectors_->isDefaultAt(x));
+
+	setTrackingGroup(original.trackingGroup());
+	setFluxResolutionGroup(original.fluxResolutionGroup());
+	setDetectorConfigurations(original.detectorChoiceConfigurations());
+}
+
 AMDetectorInfoSet SGMXASScanConfiguration::allDetectorConfigurations() const{
 	AMDetectorInfoSet allConfigurations;
 	for(int x = 0; x < SGMBeamline::sgm()->feedbackDetectors()->count(); x++)
@@ -61,6 +82,26 @@ AMScanController* SGMXASScanConfiguration::createController(){
 	return new SGMXASDacqScanController(this);
 }
 
+#include "ui/SGMXASScanConfigurationView.h"
+
+AMScanConfigurationView* SGMXASScanConfiguration::createView(){
+	return new SGMXASScanConfigurationView(this);
+}
+
+QString SGMXASScanConfiguration::detailedDescription() const{
+	double exitSlit;
+	double grating;
+	double harmonic;
+	for(int x = 0; x < fluxResolutionGroup_.count(); x++){
+		if(fluxResolutionGroup_.at(x).name() == SGMBeamline::sgm()->exitSlitGap()->name())
+			exitSlit = fluxResolutionGroup_.at(x).value();
+		if(fluxResolutionGroup_.at(x).name() == SGMBeamline::sgm()->grating()->name())
+			grating = fluxResolutionGroup_.at(x).value();
+		if(fluxResolutionGroup_.at(x).name() == SGMBeamline::sgm()->harmonic()->name())
+			harmonic = fluxResolutionGroup_.at(x).value();
+	}
+	return QString("XAS Scan from %1 to %2\nExit Slit: %3\nGrating: %4\nHarmonic: %5").arg(regionStart(0)).arg(regionEnd(regionCount()-1)).arg(exitSlit, 0, 'f', 1).arg(SGMBeamline::sgm()->sgmGratingDescription(SGMBeamline::sgmGrating(grating))).arg(SGMBeamline::sgm()->sgmHarmonicDescription(SGMBeamline::sgmHarmonic(harmonic)));
+}
 
 bool SGMXASScanConfiguration::setExitSlitGap(double exitSlitGap) {
 	bool rVal = SGMScanConfiguration::setExitSlitGap(exitSlitGap);

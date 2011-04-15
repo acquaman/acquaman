@@ -93,6 +93,8 @@ protected slots:
 	void onPlayPauseButtonClicked();
 
 protected:
+	void mouseDoubleClickEvent(QMouseEvent *);
+
 	void updateLook();
 
 protected:
@@ -105,6 +107,8 @@ protected:
 	QPushButton *stopCancelButton_;
 	QPushButton *playPauseButton_;
 	QHBoxLayout *hl_;
+
+	AMScanConfigurationView *configurationView_;
 
 	QIcon closeIcon_, stopIcon_, startIcon_, pauseIcon_;
 };

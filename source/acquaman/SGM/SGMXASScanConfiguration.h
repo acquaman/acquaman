@@ -36,6 +36,7 @@ class SGMXASScanConfiguration : public AMXASScanConfiguration, public SGMScanCon
 
 public:
 	Q_INVOKABLE explicit SGMXASScanConfiguration(QObject *parent=0);
+	SGMXASScanConfiguration(const SGMXASScanConfiguration &original);
 
 	AMControlSet *fluxResolutionSet() const { return fluxResolutionSet_;}
 	AMControlSet *trackingSet() const { return trackingSet_;}
@@ -54,6 +55,12 @@ public:
 
 	/// Returns a pointer to a newly-created AMScanController that is appropriate for executing this kind of scan configuration.  The controller should be initialized to use this scan configuration object as its scan configuration.  Ownership of the new controller becomes the responsibility of the caller.
 	virtual AMScanController* createController();
+
+	/// Returns a pointer to a newly-created AMScanConfigurationView that is appropriate for viewing and editing this kind of scan configuration. Ownership of the new controller becomes the responsibility of the caller.
+	virtual AMScanConfigurationView* createView();
+
+	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by AMBeamlineScanAction to set the main text in the action view.
+	virtual QString detailedDescription() const;
 
 public slots:
 	virtual bool addRegion(int index, double start, double delta, double end) { return regions_->addRegion(index, start, delta, end);}
