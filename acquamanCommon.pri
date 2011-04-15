@@ -75,7 +75,8 @@ linux-g++-64 {
 	MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/src
 
 	# GSL Dependencies
-	GSL_LIB = -lgsl
+	GSL_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/gsl-install/include
+	GSL_LIB = -L$$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/gsl-install/lib -lgsl
 	GSL_CBLAS_LIB = -lgslcblas
 
 	# VLC Dependencies
@@ -233,7 +234,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMPrefixSuffixLineEdit.h \
 	source/ui/AMDragDropItemModel.h \
 	source/dataman/AMRunExperimentItems.h \
-	source/ui/AMSampleManagementWidget.h \
+#	source/ui/AMSampleManagementWidget.h \
 	source/ui/AMSampleManipulatorView.h \
 	source/ui/AMSamplePlateView.h \
 	source/dataman/AMControlInfoList.h \
@@ -435,7 +436,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMPrefixSuffixLineEdit.cpp \
 	source/ui/AMDragDropItemModel.cpp \
 	source/dataman/AMRunExperimentItems.cpp \
-	source/ui/AMSampleManagementWidget.cpp \
+#	source/ui/AMSampleManagementWidget.cpp \
 	source/ui/AMSampleManipulatorView.cpp \
 	source/ui/AMSamplePlateView.cpp \
 	source/dataman/AMControlInfoList.cpp \
