@@ -36,12 +36,16 @@ macx {
 linux-g++ {
 
 	# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
-	DEV_PATH = beamline/programming
+	#DEV_PATH = beamline/programming
+	DEV_PATH = mark/dev
 
 	# EPICS Dependencies:
-	EPICS_INCLUDE_DIRS = $$HOME_FOLDER/$$DEV_PATH/epics/base/include \
-		$$HOME_FOLDER/$$DEV_PATH/epics/base/include/os/Linux
-	EPICS_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/epics/base/lib/linux-x86
+	#EPICS_INCLUDE_DIRS = $$HOME_FOLDER/$$DEV_PATH/epics/base/include \
+	#	$$HOME_FOLDER/$$DEV_PATH/epics/base/include/os/Linux
+	#EPICS_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/epics/base/lib/linux-x86
+	EPICS_INCLUDE_DIRS = /home/epics/src/R3.14.12-SL-5/base/include \
+		/home/epics/src/R3.14.12-SL-5/base/include/os/Linux
+	EPICS_LIB_DIR = /home/epics/src/R3.14.12-SL-5/base/lib/linux-x86_64
 
 	# MPlot Source
 	MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/src
@@ -60,7 +64,7 @@ linux-g++ {
 	XML_INCLUDE_DIR = /usr/include/libxml2
 }
 
-QT += core network sql opengl	phonon
+QT += core gui sql opengl
 
 DESTDIR = build
 DEPENDPATH += . source
