@@ -1,0 +1,65 @@
+#Building Acquaman for beamline OPI machines.
+
+#Build Host: VMSL54
+#Shell: I'm using bash... might have to change "export" if using csh.
+
+#1.  Setup environment: (for Qt 4.7.2, built statically)
+
+export PATH=/home/reixs/mark/qt/qt-4.7.2-SL54/bin:$PATH
+
+#Check:
+
+qmake --version
+QMake version 2.01a
+Using Qt version 4.7.2 in /home/reixs/mark/qt/qt-4.7.2-SL54/lib
+
+
+
+#2.  Get Acquaman
+
+#Via git:
+#Need git... I installed locally for reixs account.
+
+tar -zxf git-1.6.6.tar.gz
+cd git-1.6.6
+./configure --prefix=/home/reixs/local
+make
+make install
+
+
+Yay!
+
+#Get acquaman (requires git)
+
+mkdir dev
+cd dev
+
+git clone git@github.com:acquaman/acquaman.git
+
+#Or download from site: https://github.com/acquaman/acquaman/tarball/master
+
+
+#Get MPlot
+
+git clone git@github.com:acquaman/MPlot.git
+
+
+# Get GSL:
+
+cd contrib
+wget http://mirror.csclub.uwaterloo.ca/gnu/gsl/gsl-1.14.tar.gz
+tar -zxf gsl-1.14.tar.gz 
+cd gsl-1.14
+./configure --disable-shared --prefix=/home/reixs/mark/dev/acquaman/contrib/gsl-install
+make
+make install
+
+
+# Modified acquamanCommon.pri for epics path (system build of R3.14.12-SL5) and removing vlc video.
+
+# Run qmake on your project
+
+qmake REIXSAcquaman.pro
+make
+
+
