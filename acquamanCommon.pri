@@ -36,13 +36,37 @@ macx {
 linux-g++ {
 
 	# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
-	#DEV_PATH = beamline/programming
+	DEV_PATH = beamline/programming
+
+	# EPICS Dependencies:
+	EPICS_INCLUDE_DIRS = $$HOME_FOLDER/$$DEV_PATH/epics/base/include \
+		$$HOME_FOLDER/$$DEV_PATH/epics/base/include/os/Linux
+	EPICS_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/epics/base/lib/linux-x86
+
+	# MPlot Source
+	MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/src
+
+	# GSL Dependencies
+	GSL_LIB = -lgsl
+	GSL_CBLAS_LIB = -lgslcblas
+
+	# VLC Dependencies
+	#VLC_LIB = -lvlc
+	#VLC_INCLUDE_DIR = /usr/include
+	#VLC_PLUGIN_PATH = /usr/lib/vlc/plugins/
+
+	# LibXML Dependencies (required by dacq library)
+	XML_LIB = -lxml2
+	XML_INCLUDE_DIR = /usr/include/libxml2
+}
+# The following works well for CLS beamline OPI machines, built using VMSL54.cs.clsi.ca
+
+linux-g++-64 {
+
+	# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
 	DEV_PATH = mark/dev
 
 	# EPICS Dependencies:
-	#EPICS_INCLUDE_DIRS = $$HOME_FOLDER/$$DEV_PATH/epics/base/include \
-	#	$$HOME_FOLDER/$$DEV_PATH/epics/base/include/os/Linux
-	#EPICS_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/epics/base/lib/linux-x86
 	EPICS_INCLUDE_DIRS = /home/epics/src/R3.14.12-SL-5/base/include \
 		/home/epics/src/R3.14.12-SL-5/base/include/os/Linux
 	EPICS_LIB_DIR = /home/epics/src/R3.14.12-SL-5/base/lib/linux-x86_64
@@ -197,7 +221,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMThumbnailScrollViewer.h \
 	source/ui/AMXASRegionsView.h \
 	source/ui/BottomBar.h \
-	source/ui/AMBeamlineCameraWidget.h \
+#	source/ui/AMBeamlineCameraWidget.h \
 	source/ui/AMControlEditor.h \
 	source/acquaman.h \
 	source/ui/AMNewRunDialog.h \
@@ -229,7 +253,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMStartScreen.h \
 	source/ui/AMSignallingGraphicsScene.h \
 	source/dataman/AMUser.h \
-	source/ui/AMVideoPlayerWidget.h \
+#	source/ui/AMVideoPlayerWidget.h \
 	source/dataman/AMXESScan.h \
 	source/dataman/ALSBL8XESDetectorInfo.h \
 	source/dataman/ALSBL8XASFileLoader.h \
@@ -266,7 +290,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/beamline/AMBeamlineControlStopAction.h \
 	source/dataman/REIXS/REIXSXESRawFileLoader.h \
 	source/util/AMDeferredFunctionCall.h \
-	#source/ui/AMVideoWidget.h \
+#	source/ui/AMVideoWidget.h \
 	source/ui/AMScanConfigurationViewHolder.h \
 	source/ui/AMPeriodicTableView.h \
 	source/util/AMPeriodicTable.h \
@@ -284,7 +308,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/PGTDetectorView.h \
 	source/ui/AMDetectorSetView.h \
 	source/beamline/AMDetectorSet.h \
-	source/ui/AMOverlayVideoWidget.h \
+#	source/ui/AMOverlayVideoWidget.h \
 	source/ui/AMSamplePositionViewActionsWidget.h \
 	source/beamline/AMBeamlineListAction.h \
 	source/beamline/AMBeamlineControlWaitAction.h \
@@ -401,7 +425,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMThumbnailScrollViewer.cpp \
 	source/ui/AMXASRegionsView.cpp \
 	source/ui/BottomBar.cpp \
-	source/ui/AMBeamlineCameraWidget.cpp \
+#	source/ui/AMBeamlineCameraWidget.cpp \
 	source/ui/AMControlEditor.cpp \
 	source/ui/AMDetectorView.cpp \
 	source/ui/AMNewRunDialog.cpp \
@@ -431,7 +455,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMStartScreen.cpp \
 	source/ui/AMSignallingGraphicsScene.cpp \
 	source/dataman/AMUser.cpp \
-	source/ui/AMVideoPlayerWidget.cpp \
+#	source/ui/AMVideoPlayerWidget.cpp \
 	source/dataman/AMXESScan.cpp \
 	source/dataman/ALSBL8XESDetectorInfo.cpp \
 	source/dataman/ALSBL8XASFileLoader.cpp \
@@ -483,8 +507,8 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/PGTDetectorView.cpp \
 	source/ui/AMDetectorSetView.cpp \
 	source/beamline/AMDetectorSet.cpp \
-	#source/ui/AMVideoWidget.cpp \
-	source/ui/AMOverlayVideoWidget.cpp \
+#	source/ui/AMVideoWidget.cpp \
+#	source/ui/AMOverlayVideoWidget.cpp \
 	source/ui/AMSamplePositionViewActionsWidget.cpp \
 	source/beamline/AMBeamlineListAction.cpp \
 	source/beamline/AMBeamlineControlWaitAction.cpp \
