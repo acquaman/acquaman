@@ -307,10 +307,13 @@ void AMAppController::onWindowPaneCloseButtonClicked(const QModelIndex& index) {
 }
 
 #include "dataman/AMExportController.h"
+#include "ui/AMExportWizard.h"
 
 void AMAppController::onDataViewItemsExported(const QList<QUrl> &itemUrls)
 {
 	AMExportController* exportController = new AMExportController(itemUrls);
+	AMExportWizard* wizard = new AMExportWizard(exportController);
+	wizard->show();
 
 	Q_UNUSED(exportController)
 }

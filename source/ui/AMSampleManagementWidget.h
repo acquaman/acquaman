@@ -28,7 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMSamplePlateView.h"
 #include "AMSampleManipulatorView.h"
-#include "ui/AMBeamlineCameraWidget.h"
+// #include "ui/AMBeamlineCameraWidget.h"
 
 
 /// This widget provides a complete full-screen view for users to view, move, align, and tag samples in the machine.  You must provide it with a pointer to a manipulator widget (for moving the samples), a URL for the video stream from the sample camera, and a pointer to the sample plate object that we'll tag samples on.
@@ -43,7 +43,7 @@ signals:
 public slots:
 
 protected:
-	AMBeamlineCameraWidget *cam_;
+// 	AMBeamlineCameraWidget *cam_;
 	AMSamplePlateView *plateView_;
 	AMSampleManipulatorView *manipulatorView_;
 

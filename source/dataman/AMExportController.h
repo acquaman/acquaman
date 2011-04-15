@@ -9,8 +9,6 @@
 
 
 
-class AMExportWizard;
-
 /// This helper class is used by AMExportController to register the available exporters.  You should normally not need to use it directly.
 class AMExporterInfo {
 public:
@@ -26,14 +24,14 @@ public:
 	bool isValid() const { return metaObject != 0; }
 
 	const QMetaObject* metaObject;
-	QString description, longDescription;
-	QString optionClassName;
+	QString description, optionClassName, longDescription;
+
 };
 
+class AMExporter;
 
-#include <QDebug>
 
-/// Construct an AMExportController to supervise exporting a set of AMScans from the user's database.  The user will be given options of different exporters ("file formats") to choose from, and will be able to review the option/template for their chosen exporter.  Finally, a progress bar will be displayed as the scans are exported.
+/// Construct an AMExportController to supervise exporting a set of AMScans from the user's database.  Used in conjunction with an AMExportWizard, the user will be given options of different exporters ("file formats") to choose from, and will be able to review the option/template for their chosen exporter.  Finally, a progress bar will be displayed as the scans are exported.
 class AMExportController : public QObject
 {
 	Q_OBJECT
@@ -83,20 +81,42 @@ public:
 	/// How many scans are being exporter?
 	int scanCount() const { return scansToExport_.count(); }
 
+
+	/// Call this to select and load an exporter subclass (using the class name of an exporter registered previously, using registerExporter()).  Returns true if valid.  Once this has been called and has returned true, exporter() will return a valid instance.
+	bool chooseExporter(const QString& exporterClassName);
+
+	/// The exporter instance to use.  This returns 0 until chooseExporter() is called with a valid exporter class name for the first time.
+	AMExporter* exporter() { return exporter_; }
+
+	/// Returns the complete path to the folder where exported files should be saved
+	QString destinationFolderPath() const {
+		return destinationFolderPath_;
+	}
+
+
+
 signals:
 
 public slots:
+
+	/// Set the destination folder path. Exported files will be saved to here.
+	void setDestinationFolderPath(const QString& fullPathToFolder) {
+		destinationFolderPath_ = fullPathToFolder;
+	}
 
 protected:
 
 	/// The set of registered, available AMExporter classes
 	static QHash<QString, AMExporterInfo> registeredExporters_;
 
-	/// A GUI object to interact with the user through the export process
-	AMExportWizard* wizard_;
-
 	/// The list of scans to export
 	QList<QUrl> scansToExport_;
+
+	/// Instance of the AMExporter subclass to use.  0 until chooseExporter() is called with a valid exporter class name.
+	AMExporter* exporter_;
+
+	/// Where to save the exported files (complete path to folder/directory)
+	QString destinationFolderPath_;
 
 };
 
