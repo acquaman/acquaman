@@ -56,5 +56,5 @@ void VESPERSXRFScanConfigurationView::onStopClicked()
 	VESPERSXRFScanController *current = qobject_cast<VESPERSXRFScanController *>(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController());
 
 	if (current)
-		current->cancel();
+		current->finish();
 }

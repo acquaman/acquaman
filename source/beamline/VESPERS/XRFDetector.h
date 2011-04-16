@@ -82,7 +82,7 @@ public:
 	{
 		Q_UNUSED(axisNumber)
 
-		return index*10;
+		return index*scale();
 	}
 
 	/// Returns the current scale used for the independent axis.
@@ -177,7 +177,7 @@ public:
 	////////////////////////////////
 
 	/// Turns the spectra controls into an array of doubles and returns the spectra at \c index.
-	const double *spectraAt(int index);
+	const int *spectraAt(int index);
 
 	/// Enables a previously disabled element.  Takes the \param id as an index of the list of elements.
 	void enableElement(int id);
@@ -217,7 +217,8 @@ public slots:
 	void setPeakingTimeControl(double time);
 	/// Sets the spectrum refresh rate.
 	void setRefreshRateControl(XRFDetectorInfo::MCAUpdateRate rate);
-
+	/// Sets the size of the spectra channels.
+	void setChannelSize();
 	/// Sets the description of the detector.
 	void setDescription(const QString &description) { XRFDetectorInfo::setDescription(description); }
 

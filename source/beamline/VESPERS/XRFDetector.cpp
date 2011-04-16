@@ -133,6 +133,7 @@ XRFDetector::XRFDetector(QString name, AMControl *status, AMControl *refreshRate
 	connect(integrationTimeControl_, SIGNAL(valueChanged(double)), this, SLOT(setIntegrationTime(double)));
 	connect(peakingTimeControl_, SIGNAL(valueChanged(double)), this, SLOT(setPeakingTime(double)));
 	connect(maximumEnergyControl_, SIGNAL(valueChanged(double)), this, SLOT(setMaximumEnergy(double)));
+	connect(spectraControl_, SIGNAL(controlSetValuesChanged()), this, SLOT(setChannelSize()));
 
 	for (int i = 0; i < roiList().size(); i++)
 		connect(roiList().at(i), SIGNAL(roiConnected(bool)), this, SLOT(detectorConnected(bool)));
@@ -173,6 +174,19 @@ double XRFDetector::deadTime() const
 		}
 
 		return dt;
+	}
+}
+
+void XRFDetector::setChannelSize()
+{
+	AMReadOnlyPVControl *spectra = qobject_cast<AMReadOnlyPVControl *>(spectraControl_->at(0));
+	if (spectra){
+
+		setSize(AMnDIndex(spectra->readPV()->count()));
+		for (int i = 0; i < dataSources_.size(); i++)
+			dataSources_.at(i)->setScale(scale());
+		// Don't need to come here again because the size of the detector is static.
+		disconnect(spectraControl_, SIGNAL(controlSetValuesChanged()), this, SLOT(setChannelSize()));
 	}
 }
 
@@ -286,12 +300,12 @@ void XRFDetector::disableElement(int id)
 	/// \todo Need to implement disabling waveforms.
 }
 
-const double *XRFDetector::spectraAt(int index)
+const int *XRFDetector::spectraAt(int index)
 {
 	if (index < elements() && index >= 0){
 
 		AMReadOnlyPVControl *temp = qobject_cast<AMReadOnlyPVControl *>(spectraControl_->at(index));
-		QVector<double> array(temp->readPV()->lastFloatingPointValues());
+		QVector<int> array(temp->readPV()->lastIntegerValues());
 		return array.constData();
 	}
 

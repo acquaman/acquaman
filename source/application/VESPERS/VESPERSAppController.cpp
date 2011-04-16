@@ -11,6 +11,7 @@
 #include "ui/AMFreeRunScanConfigurationViewHolder.h"
 #include "ui/VESPERS/VESPERSPersistentView.h"
 #include "ui/AMWorkflowManagerView.h"
+#include "dataman/VESPERS/AMXRFScan.h"
 
 #include "dataman/AMDbObjectSupport.h"
 
@@ -31,6 +32,7 @@ bool VESPERSAppController::startup() {
 	if(AMAppController::startup()) {
 
 		AMDbObjectSupport::registerClass<XRFDetectorInfo>();
+		AMDbObjectSupport::registerClass<AMXRFScan>();
 
 		AMDetectorViewSupport::registerClass<XRFBriefDetectorView, XRFDetector>();
 		AMDetectorViewSupport::registerClass<XRFDetailedDetectorView, XRFDetector>();
