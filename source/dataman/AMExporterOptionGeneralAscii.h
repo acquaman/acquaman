@@ -11,7 +11,7 @@ class AMExporterOptionGeneralAscii : public AMExporterOptionGeneral
 	Q_PROPERTY(QString newlineDelimiter READ newlineDelimiter WRITE setNewlineDelimiter)
 
 public:
-	explicit AMExporterOptionGeneralAscii(QObject *parent = 0);
+	Q_INVOKABLE explicit AMExporterOptionGeneralAscii(QObject *parent = 0);
 
 	/// The delimiter to use between columns
 	QString columnDelimiter() const { return columnDelimiter_; }

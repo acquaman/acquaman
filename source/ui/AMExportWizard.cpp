@@ -13,6 +13,9 @@
 #include "ui/AMFolderPathLineEdit.h"
 #include <QFileDialog>
 #include <QDir>
+#include <QInputDialog>
+#include <QMessageBox>
+#include <QStringBuilder>
 
 #include "acquaman.h"
 
@@ -137,6 +140,7 @@ AMExportWizardOptionPage::AMExportWizardOptionPage(QWidget *parent)
 	saveOptionButton_ = new QPushButton("Save Settings");
 
 	QHBoxLayout* hl = new QHBoxLayout();
+	hl->addWidget(new QLabel("Saved Templates:"));
 	hl->addWidget(optionSelector_);
 	hl->addStretch();
 	hl->addWidget(saveOptionButton_);
@@ -148,10 +152,41 @@ AMExportWizardOptionPage::AMExportWizardOptionPage(QWidget *parent)
 	setLayout(vl);
 
 	connect(optionSelector_, SIGNAL(currentIndexChanged(int)), this, SLOT(onOptionSelectorIndexChanged(int)));
+	connect(saveOptionButton_, SIGNAL(clicked()), this, SLOT(onSaveOptionButtonClicked()));
 
 	setTitle("Choose Export Options");
-	setSubTitle(("The options available here depend on the file format you've selected.  You can save a set of options as a template for next time using the 'Save Settings' button."));
+	setSubTitle(("The options available here depend on the file format you've selected.  You can save a set of options as a template for next time using the 'Save'/'Save As...' button."));
 }
+
+void AMExportWizardOptionPage::onSaveOptionButtonClicked() {
+	// is this option previously saved?
+	if(option_->database() != 0 && option_->id() > 0) {
+		option_->storeToDb(option_->database());
+	}
+
+	else {
+
+		// not stored yet... Need to ask for a name
+		bool ok = true;
+		QString name;
+		while(ok && name.isEmpty()) {	// on second round, means they accepted the dialog, but gave a blank name.
+			name = QInputDialog::getText(this, "Save Settings As...",
+											 "Please provide a name for this template:",
+											 QLineEdit::Normal,
+											 exporter_->description() % QDateTime::currentDateTime().toString("MMM d yyyy"),
+											 &ok);
+
+			if(name.isEmpty())
+				QMessageBox::information(this, "Missing name", "You must provide a name if you want to save this template.", QMessageBox::Ok);
+			else {
+				option_->setName(name);
+				option_->storeToDb(AMDatabase::userdb());
+				populateOptionSelector();
+			}
+		}
+	}
+}
+
 
 bool AMExportWizardOptionPage::validatePage()
 {
@@ -168,12 +203,12 @@ void AMExportWizardOptionPage::initializePage()
 	delete option_;	// might be 0 if no option yet... but that's okay.
 	delete optionView_;	// might be 0 if no option yet... or if last option couldn't create an editor. but that's okay.
 
-	saveOptionButton_->setDisabled(true);
 	populateOptionSelector();
 
 	// if we don't have any existing options... make a default one.
 	if(optionSelector_->count() == 0) {
 		option_ = exporter_->createDefaultOption();
+		saveOptionButton_->setText("Save As...");
 	}
 	else {
 		option_ = qobject_cast<AMExporterOption*>(
@@ -181,14 +216,15 @@ void AMExportWizardOptionPage::initializePage()
 						AMDatabase::userdb(),
 						AMDbObjectSupport::tableNameForClass(exporter_->exporterOptionClassName()),
 						optionSelector_->itemData(optionSelector_->currentIndex()).toInt()));
-	}
 
-	qDebug() << "Option: " << option_;
+		saveOptionButton_->setText("Save");
+	}
 
 	optionView_ = option_->createEditorWidget();
 	if(optionView_)
 		optionViewContainer_->layout()->addWidget(optionView_);
 
+	saveOptionButton_->setEnabled(option_->modified());
 	connect(option_, SIGNAL(modifiedChanged(bool)), saveOptionButton_, SLOT(setEnabled(bool)));
 }
 
@@ -202,6 +238,11 @@ void AMExportWizardOptionPage::onOptionSelectorIndexChanged(int index)
 					AMDatabase::userdb(),
 					AMDbObjectSupport::tableNameForClass(exporter_->exporterOptionClassName()),
 					optionSelector_->itemData(optionSelector_->currentIndex()).toInt()));
+
+	saveOptionButton_->setText("Save");
+	saveOptionButton_->setEnabled(option_->modified());
+
+	// need a place to display the option name.
 
 	optionView_ = option_->createEditorWidget();
 	if(optionView_)
