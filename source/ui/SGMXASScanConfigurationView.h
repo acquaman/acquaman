@@ -82,6 +82,8 @@ Q_OBJECT
 public:
 	SGMFluxResolutionPickerView(AMXASRegionsList *regions, QWidget *parent = 0);
 
+	void setFromInfoList(const AMControlInfoList &infoList);
+
 protected slots:
 	void onRegionsChanged();
 	void onSetpointsChanged();

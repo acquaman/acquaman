@@ -93,6 +93,7 @@ void SGMXASDacqScanController::startImplementation(){
 	advAcq_->saveConfigFile("/Users/fawkes/dev/acquaman/devConfigurationFiles/davidTest.cfg");
 	generalScan_ = specificScan_;
 
+	qDebug() << "Calling startImplementation for dacq";
 	AMDacqScanController::startImplementation();
 }
 
@@ -102,7 +103,7 @@ AMnDIndex SGMXASDacqScanController::toScanIndex(QMap<int, double> aeData){
 }
 
 void SGMXASDacqScanController::onInitializationActionsSucceeded(){
-	//qDebug() << "The actions list succeeded";
+	qDebug() << "The actions list succeeded";
 	setInitialized();
 }
 

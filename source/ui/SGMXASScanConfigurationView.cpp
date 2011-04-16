@@ -41,6 +41,7 @@ SGMXASScanConfigurationView::SGMXASScanConfigurationView(SGMXASScanConfiguration
 		fluxResolutionView_->onRegionsUpdate(sxsc->regions());
 		*/
 		fluxResolutionView_ = new SGMFluxResolutionPickerView(sxsc->regions(), this);
+		fluxResolutionView_->setFromInfoList(sxsc->fluxResolutionGroup());
 		fluxResolutionView_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
 		connect(fluxResolutionView_, SIGNAL(configValuesChanged(AMControlInfoList)), sxsc, SLOT(setFluxResolutionGroup(AMControlInfoList)));
 
@@ -156,6 +157,17 @@ SGMFluxResolutionPickerView::SGMFluxResolutionPickerView(AMXASRegionsList *regio
 	connect(bestFluxButton_, SIGNAL(clicked()), this, SLOT(onBestFluxButtonClicked()));
 	connect(bestResolutionButton_, SIGNAL(clicked()), this, SLOT(onBestResolutionButtonClicked()));
 	onRegionsChanged();
+}
+
+void SGMFluxResolutionPickerView::setFromInfoList(const AMControlInfoList &infoList){
+	for(int x = 0; x < infoList.count(); x++){
+		if(infoList.at(x).name() == SGMBeamline::sgm()->exitSlitGap()->name())
+			exitSlitGapCE_->setSetpoint(infoList.at(x).value());
+		if(infoList.at(x).name() == SGMBeamline::sgm()->grating()->name())
+			gratingCE_->setSetpoint(infoList.at(x).value());
+		if(infoList.at(x).name() == SGMBeamline::sgm()->harmonic()->name())
+			harmonicCE_->setSetpoint(infoList.at(x).value());
+	}
 }
 
 void SGMFluxResolutionPickerView::onRegionsChanged(){
