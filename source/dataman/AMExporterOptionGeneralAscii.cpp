@@ -9,6 +9,9 @@ AMExporterOptionGeneralAscii::AMExporterOptionGeneralAscii(QObject *parent) :
 	newlineDelimiter_ = "\r\n";
 
 	fileName_ = "$name_$number_$dateTime.txt";
+	separateSectionFileName_ = "$name_$number_$dataSource_$dateTime.txt";
+
+	setModified(false);
 }
 
 QWidget * AMExporterOptionGeneralAscii::createEditorWidget()

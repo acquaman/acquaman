@@ -26,7 +26,7 @@ protected slots:
 	void onOptionSelectorIndexChanged(int index);
 
 protected:
-	QGroupBox* optionViewContainer_;
+	QWidget* optionViewContainer_;
 	QComboBox* optionSelector_;
 	QPushButton* saveOptionButton_;
 

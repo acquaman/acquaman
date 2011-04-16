@@ -131,10 +131,10 @@ AMExportWizardOptionPage::AMExportWizardOptionPage(QWidget *parent)
 	optionView_ = 0;
 
 	optionSelector_ = new QComboBox();
-	optionViewContainer_ = new QGroupBox();
+	optionViewContainer_ = new QWidget();
 	optionViewContainer_->setLayout(new QVBoxLayout());
+	optionViewContainer_->layout()->setContentsMargins(0,0,0,0);
 	saveOptionButton_ = new QPushButton("Save Settings");
-	saveOptionButton_->setDisabled(true);
 
 	QHBoxLayout* hl = new QHBoxLayout();
 	hl->addWidget(optionSelector_);
@@ -168,6 +168,7 @@ void AMExportWizardOptionPage::initializePage()
 	delete option_;	// might be 0 if no option yet... but that's okay.
 	delete optionView_;	// might be 0 if no option yet... or if last option couldn't create an editor. but that's okay.
 
+	saveOptionButton_->setDisabled(true);
 	populateOptionSelector();
 
 	// if we don't have any existing options... make a default one.
@@ -187,6 +188,8 @@ void AMExportWizardOptionPage::initializePage()
 	optionView_ = option_->createEditorWidget();
 	if(optionView_)
 		optionViewContainer_->layout()->addWidget(optionView_);
+
+	connect(option_, SIGNAL(modifiedChanged(bool)), saveOptionButton_, SLOT(setEnabled(bool)));
 }
 
 void AMExportWizardOptionPage::onOptionSelectorIndexChanged(int index)

@@ -10,15 +10,22 @@ class AMExporterOptionGeneral : public AMExporterOption
 	Q_OBJECT
 
 	Q_PROPERTY(QString headerText READ headerText WRITE setHeaderText)
+	Q_PROPERTY(bool headerIncluded READ headerIncluded WRITE setHeaderIncluded)
+
 	Q_PROPERTY(QString columnHeader READ columnHeader WRITE setColumnHeader)
-	Q_PROPERTY(bool isColumnHeaderIncluded READ isColumnHeaderIncluded WRITE setColumnHeaderIncluded)
+	Q_PROPERTY(bool columnHeaderIncluded READ columnHeaderIncluded WRITE setColumnHeaderIncluded)
 	Q_PROPERTY(QString columnHeaderDelimiter READ columnHeaderDelimiter WRITE setColumnHeaderDelimiter)
-	Q_PROPERTY(QString sectionDelimiter READ sectionDelimiter WRITE setSectionDelimiter)
+
+	Q_PROPERTY(QString sectionHeader READ sectionHeader WRITE setSectionHeader)
+	Q_PROPERTY(bool sectionHeaderIncluded READ sectionHeaderIncluded WRITE setSectionHeaderIncluded)
+
 	Q_PROPERTY(bool includeAllDataSources READ includeAllDataSources WRITE setIncludeAllDataSources)
 	Q_PROPERTY(QStringList dataSources READ dataSources WRITE dbLoadDataSources)
 	Q_PROPERTY(AMIntList dataSourceOrganizeModes READ dataSourceOrganizeModes WRITE dbLoadDataSourceOrganizeModes)
 	Q_PROPERTY(AMIntList dataSourceIsRequired READ dataSourceIsRequired WRITE dbLoadDataSourceIsRequired)
 	Q_PROPERTY(AMIntList dataSourceOmitAxisValueColumns READ dataSourceOmitAxisValueColumns WRITE dbLoadDataSourceOmitAxisValueColumns)
+
+	Q_PROPERTY(QString separateSectionFileName READ separateSectionFileName WRITE setSeparateSectionFileName)
 
 public:
 
@@ -34,10 +41,13 @@ public:
 
 
 	QString headerText() const { return headerText_; }
-	bool isColumnHeaderIncluded() const { return isColumnHeaderIncluded_; }
+	bool headerIncluded() const { return headerIncluded_; }
 	QString columnHeader() const { return columnHeader_; }
+	bool columnHeaderIncluded() const { return columnHeaderIncluded_; }
 	QString columnHeaderDelimiter() const { return columnHeaderDelimiter_; }
-	QString sectionDelimiter() const { return sectionDelimiter_; }
+	QString sectionHeader() const { return sectionHeader_; }
+	bool sectionHeaderIncluded() const { return sectionHeaderIncluded_; }
+
 	QStringList dataSources() const { return dataSources_; }
 	bool includeAllDataSources() const { return includeAllDataSources_; }
 	AMIntList dataSourceOrganizeModes() const { return dataSourceOrganizeMode_; }
@@ -48,15 +58,19 @@ public:
 	bool isDataSourceAxisValueColumnOmitted(int index) const { return dataSourceOmitAxisValueColumn_.at(index); }
 	int dataSourceOrganizeMode(int index) const { return dataSourceOrganizeMode_.at(index); }
 
+	QString separateSectionFileName() const { return separateSectionFileName_; }
+
 
 public slots:
 	void setHeaderText(const QString& t) { headerText_ = t; setModified(true); }
+	void setHeaderIncluded(bool isIncluded) { headerIncluded_ = isIncluded; setModified(true); }
 	void setColumnHeader(const QString& t) { columnHeader_ = t; setModified(true); }
-	void setColumnHeaderIncluded(bool isIncluded) { isColumnHeaderIncluded_ = isIncluded;  setModified(true); }
+	void setColumnHeaderIncluded(bool isIncluded) { columnHeaderIncluded_ = isIncluded;  setModified(true); }
 	void setColumnHeaderDelimiter(const QString& t) { columnHeaderDelimiter_ = t; setModified(true); }
-	void setSectionDelimiter(const QString& t) { sectionDelimiter_ = t; setModified(true); }
-	void setIncludeAllDataSources(bool includeAll) { includeAllDataSources_ = includeAll; setModified(true); }
+	void setSectionHeader(const QString& t) { sectionHeader_ = t; setModified(true); }
+	void setSectionHeaderIncluded(bool isIncluded) { sectionHeaderIncluded_ = isIncluded; setModified(true); }
 
+	void setIncludeAllDataSources(bool includeAll) { includeAllDataSources_ = includeAll; setModified(true); }
 
 	void addDataSource(const QString& name, bool omitAxisValueColumn, int organizeMode = CombineInColumnsMode, bool isRequired = true) {
 		dataSources_ << name;
@@ -79,6 +93,8 @@ public slots:
 	void setDataSourceOrganizeMode(int index, int organizeMode) { dataSourceOrganizeMode_[index] = organizeMode; setModified(true); }
 
 
+	void setSeparateSectionFileName(const QString& fileName) { separateSectionFileName_ = fileName; setModified(true); }
+
 public:
 	void dbLoadDataSources(const QStringList& sources) { dataSources_ = sources; setModified(true); }
 	void dbLoadDataSourceOrganizeModes(const AMIntList& om) { dataSourceOrganizeMode_ = om; setModified(true);}
@@ -94,17 +110,20 @@ protected:
 	/// user-configurable header text. Can include "$keyword" replacement tags.  "\n" will be replaced with the newline delimiter, and "\t" will be replaced by the column delimiter.
 	QString headerText_;
 
+	/// True if the header text should be written
+	bool headerIncluded_;
 
 	/// Column header for 1D data sources.  "$d" will be replaced with the data source number.  "$keyword" replacement tags are allowed.  (Note: this string is repeated for each column)
 	QString columnHeader_;
 	/// True if the column header should be written
-	bool isColumnHeaderIncluded_;
+	bool columnHeaderIncluded_;
 
 	/// Delimiter to insert between the column header and the actual columns
 	QString columnHeaderDelimiter_;
 
 	/// Delimiter to insert between sections (ie: separate tables of different data sources).  \todo Special tags okay?
-	QString sectionDelimiter_;
+	QString sectionHeader_;
+	bool sectionHeaderIncluded_;
 
 
 	/// list of the data sources to include, in order.  Data sources are specified by their name().
@@ -120,6 +139,8 @@ protected:
 	AMIntList dataSourceOmitAxisValueColumn_;
 
 
+	/// If data sources are to be saved to separate files, this gives the file name for the extra file.  ($keyword tags are allowed here)
+	QString separateSectionFileName_;
 
 
 };
