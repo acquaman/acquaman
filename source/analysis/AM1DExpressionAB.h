@@ -59,6 +59,8 @@ class AM1DExpressionAB : public AMAnalysisBlock
 	Q_PROPERTY(QString expression READ expression WRITE setExpression)
 	Q_PROPERTY(QString xExpression READ xExpression WRITE setXExpression)
 
+	Q_CLASSINFO("AMDbObject_Attributes", "description=1D Math Expression")
+
 public:
 	/// Constructor. \c outputName is the name() for the output data source.
 	AM1DExpressionAB(const QString& outputName, QObject* parent = 0);

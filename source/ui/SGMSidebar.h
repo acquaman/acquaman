@@ -29,6 +29,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMControlEditor.h"
 #include "beamline/SGM/SGMBeamline.h"
 #include "beamline/AMBeamlineParallelActionsList.h"
+#include "MPlot/MPlotWidget.h"
+#include "MPlot/MPlotSeriesData.h"
+#include "MPlot/MPlotSeries.h"
 
 class SGMSidebar : public QWidget
 {
@@ -52,6 +55,8 @@ protected slots:
 	void onStopMotorsButtonClicked();
 	void onStopMotorsActionFinished();
 
+	void onStripToolTimerTimeout();
+
 protected:
 	QGroupBox *mainBox_;
 
@@ -73,6 +78,15 @@ protected:
 	AMControlEditor *entranceSlitNC_;
 	AMControlEditor *exitSlitNC_;
 	QLabel *beamlineWarningsLabel_;
+
+	/// UI components:
+	MPlotWidget* imageView_;
+	MPlot* imagePlot_;
+	MPlotRealtimeModel *i0Model_, *teyModel_, *tfyModel_, *pdModel_;
+	MPlotSeriesBasic *i0Series_, *teySeries_, *tfySeries_, *pdSeries_;
+
+	QTimer *stripToolTimer_;
+	int stripToolCounter_;
 
 	//AMBeamlineParallelActionsList *al;
 	AMBeamlineListAction *beamOnAction_;

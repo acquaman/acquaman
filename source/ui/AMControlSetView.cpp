@@ -75,7 +75,8 @@ void AMControlSetView::setFromInfoList(const AMControlInfoList &infoList){
 
 	int numControls = viewSet_->count();
 	for(int x = 0; x < numControls; x++)
-		boxAt(x)->setSetpoint(infoList.at(x).value());
+		if(boxAt(x)->setpoint() != infoList.at(x).value())
+			boxAt(x)->setSetpoint(infoList.at(x).value());
 }
 
 void AMControlSetView::onControlSetValuesChanged(AMControlInfoList infoList){

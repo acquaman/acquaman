@@ -63,6 +63,14 @@ AMControlInfoList& AMControlInfoList::operator=(const AMControlInfoList& other) 
 	return *this;
 }
 
+QDebug operator<<(QDebug d, const AMControlInfoList& cil){
+	d << "(";
+	for(int x = 0; x < cil.count(); x++)
+		d << "[" << cil.at(x).name() << "=" << cil.at(x).value() << "]";
+	d << ")";
+	return d;
+}
+
 // Returns a list of pointers to the AMControlInfo objects we store, for use by the database system in storeToDb() / loadFromDb().
 AMDbObjectList AMControlInfoList::dbReadControlInfos() {
 	AMDbObjectList rv;

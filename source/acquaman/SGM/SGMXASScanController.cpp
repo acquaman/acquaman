@@ -35,9 +35,9 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 	specificScan_ = new AMXASScan();
 	_pScan_ = &specificScan_;
 	pScan_()->setName("SGM XAS Scan");
-	pScan_()->setFilePath(pCfg_()->filePath()+pCfg_()->fileName());
 	pScan_()->setFileFormat("sgm2004");
 	pScan_()->setRunId(AMUser::user()->currentRunId());
+	pScan_()->setScanConfiguration(pCfg_());
 
 	// Create space in raw data store, and create raw data channels, for each detector.
 

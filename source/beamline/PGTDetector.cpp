@@ -31,6 +31,13 @@ const QMetaObject* PGTDetector::getMetaObject() {
 	return metaObject();
 }
 
+double PGTDetector::reading() const{
+	if(isConnected())
+		return dataWaveformCtrl()->value();
+	else
+		return -1;
+}
+
 AMDetectorInfo* PGTDetector::toInfo() const{
 	return new PGTDetectorInfo(*this);
 }

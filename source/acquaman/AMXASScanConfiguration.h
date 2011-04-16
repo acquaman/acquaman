@@ -35,7 +35,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
   */
 class AMXASScanConfiguration : public AMScanConfiguration
 {
-	Q_OBJECT	
+	Q_OBJECT
+
+	Q_PROPERTY(QString XASRegions READ dbReadXASRegions WRITE dbLoadXASRegions)
+	Q_PROPERTY(double startEnergy READ startEnergy WRITE setStartEnergy)
+	Q_PROPERTY(double endEnergy READ endEnergy WRITE setEndEnergy)
+	Q_CLASSINFO("AMDbObject_Attributes", "description=Generic XAS Scan Configuration")
+
 public:
 	/// Constructor, needs only a pointer to a QObject to act as a parent.
 	AMXASScanConfiguration(QObject *parent = 0);
@@ -47,6 +53,11 @@ public:
 	double regionEnd(int index) const { return regions_->end(index);}
 	int regionCount() const { return regions_->count();}
 	AMXASRegionsList* regions() { return regions_;}
+
+	/// Quick accessor for the start of the first region. If no regions are set, returns -1
+	double startEnergy() const;
+	/// Quick accessor for the end of the final region. If no reginos are set, returns -1
+	double endEnergy() const;
 
 	/// A human-readable description of this scan configuration. Can be re-implemented to provide more details. Used by AMBeamlineScanAction to set the title for the action view.
 	virtual QString description() const {
@@ -71,8 +82,19 @@ public slots:
 	/// Deletes the region refered to by index and renumbers subsequent regions accordingly. Returns true if successful, return false if index is invalid.
 	bool deleteRegion(int index) { return regions_->deleteRegion(index);}
 
+	/// Quick setter for the start of the first region. Returns false if there are no regions or the energy is out of range
+	bool setStartEnergy(double startEnergy);
+	/// Quick setter for the end of the final region. Returns false if there are no regions or the energy is out of range
+	bool setEndEnergy(double endEnergy);
+
 signals:
 	void regionsChanged();
+
+protected:
+	/// This returns a string that describes the current regions. Regions are stored in order as common separated start, delta, and end values. New lines divide regions. Empty string is no regions.
+	QString dbReadXASRegions() const;
+	/// When loadFromDb() is called, this receives the string describing the regions and restores them.
+	void dbLoadXASRegions(const QString &XASRegionsString);
 
 protected:
 	/// Holds the list of AMXASRegion pointers.

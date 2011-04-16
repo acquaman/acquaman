@@ -73,6 +73,8 @@ public:
 	/// AMDetector is not a QObject, but it's children should be. To allow its for generalized GUI creation, children that are QObjects MUST implement this (likely just child->metaObject() )
 	virtual const QMetaObject* getMetaObject();
 
+	virtual double reading() const;
+
 	/// AMDetector sub classes need to reimplement this to return their own detectorInfo class. NEEDS TO RETURN A NEW INSTANCE, CALLER IS RESPONSIBLE FOR MEMORY.
 	virtual AMDetectorInfo* toInfo() const = 0;
 

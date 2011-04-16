@@ -103,15 +103,90 @@ QString SGMXASScanConfiguration::detailedDescription() const{
 	return QString("XAS Scan from %1 to %2\nExit Slit: %3\nGrating: %4\nHarmonic: %5").arg(regionStart(0)).arg(regionEnd(regionCount()-1)).arg(exitSlit, 0, 'f', 1).arg(SGMBeamline::sgm()->sgmGratingDescription(SGMBeamline::sgmGrating(grating))).arg(SGMBeamline::sgm()->sgmHarmonicDescription(SGMBeamline::sgmHarmonic(harmonic)));
 }
 
+
+bool SGMXASScanConfiguration::setTrackingGroup(AMControlInfoList trackingList){
+	bool oldUndulator = undulatorTracking_;
+	bool oldMono = monoTracking_;
+	bool oldExitSlit = exitSlitTracking_;
+
+	bool rVal = SGMScanConfiguration::setTrackingGroup(trackingList);
+	if(rVal){
+		emit trackingGroupChanged(trackingList);
+		if(oldUndulator != undulatorTracking_)
+			emit undulatorTrackingChanged(undulatorTracking_);
+		if(oldMono != monoTracking_)
+			emit monoTrackingChanged(monoTracking_);
+		if(oldExitSlit != exitSlitTracking_)
+			emit exitSlitTrackingChanged(exitSlitTracking_);
+	}
+	return rVal;
+}
+
+bool SGMXASScanConfiguration::setFluxResolutionGroup(AMControlInfoList fluxResolutionList){
+	double oldExitSlit = exitSlitGap_;
+	SGMBeamline::sgmGrating oldGrating = grating_;
+	SGMBeamline::sgmHarmonic oldHarmonic = harmonic_;
+
+	bool rVal = SGMScanConfiguration::setFluxResolutionGroup(fluxResolutionList);
+	if(rVal){
+		emit fluxResolutionGroupChanged(fluxResolutionList);
+		if(oldExitSlit != exitSlitGap_)
+			emit exitSlitGapChanged(exitSlitGap_);
+		if(oldGrating != grating_)
+			emit gratingChanged(grating_);
+		if(oldHarmonic != harmonic_)
+			emit harmonicChanged(harmonic_);
+	}
+	return rVal;
+}
+
+bool SGMXASScanConfiguration::setUndulatorTracking(bool undulatorTracking){
+	bool oldUndulator = undulatorTracking_;
+	bool rVal = SGMScanConfiguration::setUndulatorTracking(undulatorTracking);
+	if(rVal && oldUndulator != undulatorTracking_){
+		emit undulatorTrackingChanged(undulatorTracking_);
+		emit trackingGroupChanged(trackingGroup_);
+	}
+	return rVal;
+}
+
+bool SGMXASScanConfiguration::setMonoTracking(bool monoTracking){
+	bool oldMono = monoTracking_;
+	bool rVal = SGMScanConfiguration::setMonoTracking(monoTracking);
+	if(rVal && oldMono != monoTracking_){
+		emit undulatorTrackingChanged(monoTracking_);
+		emit trackingGroupChanged(trackingGroup_);
+	}
+	return rVal;
+}
+
+bool SGMXASScanConfiguration::setExitSlitTracking(bool exitSlitTracking){
+	bool oldExitSlit = exitSlitTracking_;
+	bool rVal = SGMScanConfiguration::setExitSlitTracking(exitSlitTracking);
+	if(rVal && oldExitSlit != exitSlitTracking_){
+		emit undulatorTrackingChanged(exitSlitTracking_);
+		emit trackingGroupChanged(trackingGroup_);
+	}
+	return rVal;
+}
+
 bool SGMXASScanConfiguration::setExitSlitGap(double exitSlitGap) {
+	double oldExitSlit = exitSlitGap_;
 	bool rVal = SGMScanConfiguration::setExitSlitGap(exitSlitGap);
-	emit exitSlitGapChanged(exitSlitGap);
+	if(rVal && oldExitSlit != exitSlitGap_){
+		emit exitSlitGapChanged(exitSlitGap);
+		emit fluxResolutionGroupChanged(fluxResolutionGroup_);
+	}
 	return rVal;
 }
 
 bool SGMXASScanConfiguration::setGrating(SGMBeamline::sgmGrating grating) {
+	SGMBeamline::sgmGrating oldGrating = grating_;
 	bool rVal = SGMScanConfiguration::setGrating(grating);
-	emit gratingChanged(grating);
+	if(rVal && oldGrating != grating_){
+		emit gratingChanged(grating);
+		emit fluxResolutionGroupChanged(fluxResolutionGroup_);
+	}
 	return rVal;
 }
 
@@ -120,25 +195,17 @@ bool SGMXASScanConfiguration::setGrating(int grating) {
 }
 
 bool SGMXASScanConfiguration::setHarmonic(SGMBeamline::sgmHarmonic harmonic) {
+	SGMBeamline::sgmHarmonic oldHarmonic = harmonic_;
 	bool rVal = SGMScanConfiguration::setHarmonic(harmonic);
-	emit harmonicChanged(harmonic);
+	if(rVal && oldHarmonic != harmonic_){
+		emit harmonicChanged(harmonic);
+		emit fluxResolutionGroupChanged(fluxResolutionGroup_);
+	}
 	return rVal;
 }
 
 bool SGMXASScanConfiguration::setHarmonic(int harmonic) {
 	return setHarmonic( (SGMBeamline::sgmHarmonic)harmonic );
-}
-
-bool SGMXASScanConfiguration::setTrackingGroup(AMControlInfoList trackingList){
-	bool rVal = SGMScanConfiguration::setTrackingGroup(trackingList);
-	emit trackingGroupChanged(trackingList);
-	return rVal;
-}
-
-bool SGMXASScanConfiguration::setFluxResolutionGroup(AMControlInfoList fluxResolutionList){
-	bool rVal = SGMScanConfiguration::setFluxResolutionGroup(fluxResolutionList);
-	emit fluxResolutionGroupChanged(fluxResolutionList);
-	return rVal;
 }
 
 bool SGMXASScanConfiguration::setDetectorConfigurations(const AMDetectorInfoSet &xasDetectorsCfg){

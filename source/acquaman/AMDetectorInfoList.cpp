@@ -64,8 +64,12 @@ QString AMDetectorInfoSet::description(){
 // Returns a list of pointers to the AMDetectorInfo objects we store, for use by the database system in storeToDb() / loadFromDb().
 AMDbObjectList AMDetectorInfoSet::dbReadDetectorInfos() {
 	AMDbObjectList rv;
+	for(int x = 0; x < count(); x++)
+		rv << at(x).first;
+	/*
 	for(int i=0; i<count(); i++)
 		rv << &( *( ((*this)[i]).first) );
+	*/
 	return rv;
 }
 
@@ -81,8 +85,10 @@ void AMDetectorInfoSet::dbLoadDetectorInfos(const AMDbObjectList& newDetectorInf
 			//append(newDetectorInfo);	// note: makes a copy of object pointed to by newControlInfo, and stores in our internal list.
 		}
 
+		/*
 		if(newDetectorInfos.at(i))
 			delete newDetectorInfos.at(i);	// we're copying these; don't need to keep these ones around. Our responsibility to delete.
+		*/
 	}
 }
 

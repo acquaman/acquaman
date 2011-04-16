@@ -15,6 +15,8 @@ public:
 
 	const QMetaObject* getMetaObject();
 
+	virtual double reading() const;
+
 	/// NEEDS TO RETURN A NEW INSTANCE, CALLER IS RESPONSIBLE FOR MEMORY.
 	AMDetectorInfo* toInfo() const;
 	PGTDetectorInfo toPGTInfo() const;

@@ -44,10 +44,12 @@ SGMXASScanConfigurationView::SGMXASScanConfigurationView(SGMXASScanConfiguration
 		fluxResolutionView_->setFromInfoList(sxsc->fluxResolutionGroup());
 		fluxResolutionView_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
 		connect(fluxResolutionView_, SIGNAL(configValuesChanged(AMControlInfoList)), sxsc, SLOT(setFluxResolutionGroup(AMControlInfoList)));
+		connect(sxsc, SIGNAL(fluxResolutionGroupChanged(AMControlInfoList)), fluxResolutionView_, SLOT(setFromInfoList(AMControlInfoList)));
 
 		trackingView_ = new AMControlSetView(sxsc->trackingSet(), true, this);
 		trackingView_->setFromInfoList(sxsc->trackingGroup());
 		connect(trackingView_, SIGNAL(configValuesChanged(AMControlInfoList)), sxsc, SLOT(setTrackingGroup(AMControlInfoList)));
+		connect(sxsc, SIGNAL(trackingGroupChanged(AMControlInfoList)), trackingView_, SLOT(setFromInfoList(AMControlInfoList)));
 
 		xasDetectorsView_ = new AMDetectorSetView(sxsc->detectorChoices(), true);
 		connect(xasDetectorsView_, SIGNAL(configValuesChanged()), this, SLOT(onDetectorConfigurationsChanged()));
@@ -161,11 +163,11 @@ SGMFluxResolutionPickerView::SGMFluxResolutionPickerView(AMXASRegionsList *regio
 
 void SGMFluxResolutionPickerView::setFromInfoList(const AMControlInfoList &infoList){
 	for(int x = 0; x < infoList.count(); x++){
-		if(infoList.at(x).name() == SGMBeamline::sgm()->exitSlitGap()->name())
+		if( (infoList.at(x).name() == SGMBeamline::sgm()->exitSlitGap()->name()) && (infoList.at(x).value() != exitSlitGapCE_->setpoint()) )
 			exitSlitGapCE_->setSetpoint(infoList.at(x).value());
-		if(infoList.at(x).name() == SGMBeamline::sgm()->grating()->name())
+		if( (infoList.at(x).name() == SGMBeamline::sgm()->grating()->name()) && (infoList.at(x).value() != gratingCE_->setpoint()) )
 			gratingCE_->setSetpoint(infoList.at(x).value());
-		if(infoList.at(x).name() == SGMBeamline::sgm()->harmonic()->name())
+		if( (infoList.at(x).name() == SGMBeamline::sgm()->harmonic()->name()) && (infoList.at(x).value() != harmonicCE_->setpoint()) )
 			harmonicCE_->setSetpoint(infoList.at(x).value());
 	}
 }

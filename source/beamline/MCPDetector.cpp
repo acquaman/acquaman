@@ -29,6 +29,13 @@ const QMetaObject* MCPDetector::getMetaObject() {
 	return metaObject();
 }
 
+double MCPDetector::reading() const{
+	if(isConnected())
+		return readingsControls_->at(0)->value();
+	else
+		return -1;
+}
+
 AMDetectorInfo* MCPDetector::toInfo() const{
 	return new MCPDetectorInfo(*this);
 }

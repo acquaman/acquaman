@@ -88,6 +88,56 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	beamlineWarningsLabel_ = new QLabel(SGMBeamline::sgm()->beamlineWarnings());
 	connect(SGMBeamline::sgm(), SIGNAL(beamlineWarningsChanged(QString)), beamlineWarningsLabel_, SLOT(setText(QString)));
 
+	// create UI elements
+	imageView_ = new MPlotWidget();
+	imageView_->setMinimumHeight(200);
+	imagePlot_ = new MPlot();
+	imageView_->setPlot(imagePlot_);
+	imagePlot_->enableAutoScale(MPlotAxis::Left | MPlotAxis::Bottom);
+	imagePlot_->setScalePadding(1);
+	imagePlot_->setMarginBottom(10);
+	imagePlot_->setMarginLeft(10);
+	imagePlot_->setMarginRight(5);
+	imagePlot_->setMarginTop(5);
+	imagePlot_->plotArea()->setBrush(QBrush(QColor(Qt::white)));
+	imagePlot_->axisRight()->setTicks(4);
+	imagePlot_->axisBottom()->setTicks(4);
+	imagePlot_->axisLeft()->showGrid(false);
+	imagePlot_->axisBottom()->showAxisName(false);
+	imagePlot_->axisLeft()->showAxisName(false);
+
+	i0Model_ = new MPlotRealtimeModel(this);
+	teyModel_ = new MPlotRealtimeModel(this);
+	tfyModel_ = new MPlotRealtimeModel(this);
+	pdModel_ = new MPlotRealtimeModel(this);
+
+	i0Series_ = new MPlotSeriesBasic(i0Model_);
+	i0Series_->setDescription("I0");
+	i0Series_->setLinePen(QPen(QColor(255, 0, 0)));
+	i0Series_->setMarker(MPlotMarkerShape::None);
+	teySeries_ = new MPlotSeriesBasic(teyModel_);
+	teySeries_->setDescription("TEY");
+	teySeries_->setLinePen(QPen(QColor(0, 255, 0)));
+	teySeries_->setMarker(MPlotMarkerShape::None);
+	tfySeries_ = new MPlotSeriesBasic(tfyModel_);
+	tfySeries_->setDescription("TFY");
+	tfySeries_->setLinePen(QPen(QColor(0, 0, 255)));
+	tfySeries_->setMarker(MPlotMarkerShape::None);
+	pdSeries_ = new MPlotSeriesBasic(pdModel_);
+	pdSeries_->setDescription("PD");
+	pdSeries_->setLinePen(QPen(QColor(255, 0, 255)));
+	pdSeries_->setMarker(MPlotMarkerShape::None);
+
+	imagePlot_->addItem(i0Series_);
+	imagePlot_->addItem(teySeries_);
+	imagePlot_->addItem(tfySeries_);
+	imagePlot_->addItem(pdSeries_);
+
+	stripToolCounter_ = 0;
+	stripToolTimer_ = new QTimer(this);
+	connect(stripToolTimer_, SIGNAL(timeout()), this, SLOT(onStripToolTimerTimeout()));
+	stripToolTimer_->start(1000);
+
 	gl_->addWidget(readyLabel_,		0, 0, 1, 6, 0);
 	gl_->addWidget(beamOnButton_,		1, 0, 1, 2, 0);
 	gl_->addWidget(beamOffCButton_,		1, 2, 1, 2, 0);
@@ -101,7 +151,8 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	gl_->addWidget(gratingNC_,		5, 0, 1, 6, 0);
 	gl_->addWidget(entranceSlitNC_,		6, 0, 1, 3, 0);
 	gl_->addWidget(exitSlitNC_,		6, 3, 1, 3, 0);
-	gl_->addWidget(beamlineWarningsLabel_,	8, 0, 1, 6, 0);
+	//gl_->addWidget(beamlineWarningsLabel_,	8, 0, 1, 6, 0);
+	gl_->addWidget(imageView_,		8, 0, 1, 6, 0);
 
 	gl_->setRowStretch(7, 10);
 
@@ -166,4 +217,22 @@ void SGMSidebar::onStopMotorsActionFinished(){
 	qDebug() << "Motor stop SUCCEEDED";
 	delete stopMotorsAction_;
 	stopMotorsAction_ = 0;//NULL
+}
+
+void SGMSidebar::onStripToolTimerTimeout(){
+	if(i0Model_->count() > 50){
+		i0Model_->removePointFront();
+		teyModel_->removePointFront();
+		tfyModel_->removePointFront();
+		pdModel_->removePointFront();
+	}
+	i0Series_->setDescription(QString("I0 %1").arg(SGMBeamline::sgm()->i0Detector()->reading(), 0, 'e', 2));
+	i0Model_->insertPointBack(stripToolCounter_, SGMBeamline::sgm()->i0Detector()->reading());
+	teySeries_->setDescription(QString("TEY %1").arg(SGMBeamline::sgm()->teyDetector()->reading(), 0, 'e', 2));
+	teyModel_->insertPointBack(stripToolCounter_, SGMBeamline::sgm()->teyDetector()->reading());
+	tfySeries_->setDescription(QString("TFY %1").arg(SGMBeamline::sgm()->tfyDetector()->reading(), 0, 'e', 2));
+	tfyModel_->insertPointBack(stripToolCounter_, SGMBeamline::sgm()->tfyDetector()->reading());
+	pdSeries_->setDescription(QString("PD %1").arg(SGMBeamline::sgm()->photodiodeDetector()->reading(), 0, 'e', 2));
+	pdModel_->insertPointBack(stripToolCounter_, SGMBeamline::sgm()->photodiodeDetector()->reading());
+	stripToolCounter_++;
 }

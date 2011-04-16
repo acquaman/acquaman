@@ -22,10 +22,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 SGMScanConfiguration::SGMScanConfiguration()
 {
+	/*
 	setExitSlitGap(SGMBeamline::sgm()->exitSlitGap()->value());
 	setGrating((SGMBeamline::sgm()->grating()->value() < 1) ? SGMBeamline::lowGrating : ((SGMBeamline::sgm()->grating()->value() < 2) ? SGMBeamline::mediumGrating : SGMBeamline::highGrating));
 	//setHarmonic((SGMBeamline::sgm()->harmonic()->value() < 1) ? SGMBeamline::firstHarmonic : ((SGMBeamline::sgm()->grating()->value() < 2) ? SGMBeamline::firstHarmonic : SGMBeamline::thirdHarmonic));
 	setHarmonic((SGMBeamline::sgm()->harmonic()->value() == 0) ? SGMBeamline::firstHarmonic : SGMBeamline::thirdHarmonic);
+	*/
+	exitSlitGap_ = -1;
+	grating_ = SGMBeamline::lowGrating;
+	harmonic_ = SGMBeamline::firstHarmonic;
 
 	setTrackingGroup(SGMBeamline::sgm()->trackingSet()->toInfoList());
 	setFluxResolutionGroup(SGMBeamline::sgm()->fluxResolutionSet()->toInfoList());
@@ -35,9 +40,49 @@ SGMScanConfiguration::SGMScanConfiguration()
 	*/
 }
 
+bool SGMScanConfiguration::undulatorTracking() const{
+	return undulatorTracking_;
+}
+
+bool SGMScanConfiguration::monoTracking() const{
+	return monoTracking_;
+}
+
+bool SGMScanConfiguration::exitSlitTracking() const{
+	return exitSlitTracking_;
+}
+
+double SGMScanConfiguration::exitSlitGap() const{
+	return exitSlitGap_;
+}
+
+SGMBeamline::sgmGrating SGMScanConfiguration::grating() const{
+	return grating_;
+}
+
+SGMBeamline::sgmHarmonic SGMScanConfiguration::harmonic() const{
+	return harmonic_;
+}
+
+AMControlInfoList SGMScanConfiguration::trackingGroup() const{
+	return trackingGroup_;
+}
+
+AMControlInfoList SGMScanConfiguration::fluxResolutionGroup() const{
+	return fluxResolutionGroup_;
+}
+
 bool SGMScanConfiguration::setTrackingGroup(AMControlInfoList trackingGroup){
 	if(SGMBeamline::sgm()->trackingSet()->validInfoList(trackingGroup)){
 		trackingGroup_ = trackingGroup;
+		for(int x = 0; x < trackingGroup_.count(); x++){
+			if(trackingGroup_.at(x).name() == SGMBeamline::sgm()->undulatorTracking()->name() && trackingGroup_.at(x).value() != undulatorTracking_)
+				undulatorTracking_ = trackingGroup_.at(x).value();
+			if(trackingGroup_.at(x).name() == SGMBeamline::sgm()->monoTracking()->name() && trackingGroup_.at(x).value() != monoTracking_)
+				monoTracking_ = trackingGroup_.at(x).value();
+			if(trackingGroup_.at(x).name() == SGMBeamline::sgm()->exitSlitTracking()->name() && trackingGroup_.at(x).value() != exitSlitTracking_)
+				exitSlitTracking_ = trackingGroup_.at(x).value();
+		}
 		return true;
 	}
 	return false;
@@ -46,6 +91,14 @@ bool SGMScanConfiguration::setTrackingGroup(AMControlInfoList trackingGroup){
 bool SGMScanConfiguration::setFluxResolutionGroup(AMControlInfoList fluxResolutionGroup){
 	if(SGMBeamline::sgm()->fluxResolutionSet()->validInfoList(fluxResolutionGroup)){
 		fluxResolutionGroup_ = fluxResolutionGroup;
+		for(int x = 0; x < fluxResolutionGroup_.count(); x++){
+			if(fluxResolutionGroup_.at(x).name() == SGMBeamline::sgm()->exitSlitGap()->name() && fluxResolutionGroup_.at(x).value() != exitSlitGap_)
+				exitSlitGap_ = fluxResolutionGroup_.at(x).value();
+			if(fluxResolutionGroup_.at(x).name() == SGMBeamline::sgm()->grating()->name() && fluxResolutionGroup_.at(x).value() != grating_)
+				grating_ = (SGMBeamline::sgmGrating)(fluxResolutionGroup_.at(x).value());
+			if(fluxResolutionGroup_.at(x).name() == SGMBeamline::sgm()->harmonic()->name() && fluxResolutionGroup_.at(x).value() != harmonic_)
+				harmonic_ = (SGMBeamline::sgmHarmonic)(fluxResolutionGroup_.at(x).value());
+		}
 		return true;
 	}
 	return false;
@@ -53,7 +106,50 @@ bool SGMScanConfiguration::setFluxResolutionGroup(AMControlInfoList fluxResoluti
 
 bool SGMScanConfiguration::setExitSlitGap(double exitSlitGap){
 	if(SGMBeamline::sgm()->exitSlitGap()->valueOutOfRange(exitSlitGap))
-		return FALSE;
+		return false;
 	exitSlitGap_ = exitSlitGap;
-	return TRUE;
+	for(int x = 0; x < fluxResolutionGroup_.count(); x++)
+		if(fluxResolutionGroup_.at(x).name() == SGMBeamline::sgm()->exitSlitGap()->name() && fluxResolutionGroup_.at(x).value() != exitSlitGap_)
+			fluxResolutionGroup_[x].setValue(exitSlitGap_);
+	return true;
+}
+
+bool SGMScanConfiguration::setGrating(SGMBeamline::sgmGrating grating){
+	grating_ = grating;
+	for(int x = 0; x < fluxResolutionGroup_.count(); x++)
+		if(fluxResolutionGroup_.at(x).name() == SGMBeamline::sgm()->grating()->name() && fluxResolutionGroup_.at(x).value() != grating_)
+			fluxResolutionGroup_[x].setValue(grating_);
+	return true;
+}
+
+bool SGMScanConfiguration::setHarmonic(SGMBeamline::sgmHarmonic harmonic){
+	harmonic_ = harmonic;
+	for(int x = 0; x < fluxResolutionGroup_.count(); x++)
+		if(fluxResolutionGroup_.at(x).name() == SGMBeamline::sgm()->harmonic()->name() && fluxResolutionGroup_.at(x).value() != harmonic_)
+			fluxResolutionGroup_[x].setValue(harmonic_);
+	return true;
+}
+
+bool SGMScanConfiguration::setUndulatorTracking(bool undulatorTracking){
+	undulatorTracking_ = undulatorTracking;
+	for(int x = 0; x < trackingGroup_.count(); x++)
+		if(trackingGroup_.at(x).name() == SGMBeamline::sgm()->undulatorTracking()->name() && trackingGroup_.at(x).value() != undulatorTracking_)
+			trackingGroup_[x].setValue(undulatorTracking_);
+	return true;
+}
+
+bool SGMScanConfiguration::setMonoTracking(bool monoTracking){
+	monoTracking_ = monoTracking;
+	for(int x = 0; x < trackingGroup_.count(); x++)
+		if(trackingGroup_.at(x).name() == SGMBeamline::sgm()->monoTracking()->name() && trackingGroup_.at(x).value() != monoTracking_)
+			trackingGroup_[x].setValue(monoTracking_);
+	return true;
+}
+
+bool SGMScanConfiguration::setExitSlitTracking(bool exitSlitTracking){
+	exitSlitTracking_ = exitSlitTracking;
+	for(int x = 0; x < trackingGroup_.count(); x++)
+		if(trackingGroup_.at(x).name() == SGMBeamline::sgm()->exitSlitTracking()->name() && trackingGroup_.at(x).value() != exitSlitTracking_)
+			trackingGroup_[x].setValue(exitSlitTracking_);
+	return true;
 }

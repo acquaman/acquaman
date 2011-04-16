@@ -72,6 +72,10 @@ const QMetaObject* AMDetector::getMetaObject() {
 	return 0;
 }
 
+double AMDetector::reading() const{
+	return -1;
+}
+
 QString AMDetector::detectorName() const {
 	return name_;
 }

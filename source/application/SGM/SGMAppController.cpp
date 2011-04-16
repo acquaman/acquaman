@@ -18,6 +18,7 @@
 #include "ui/AMMainWindow.h"
 #include "ui/AMWorkflowManagerView.h"
 
+#include "dataman/AMDbObjectSupport.h"
 #include "dataman/AMRun.h"
 #include "ui/AMStartScreen.h"
 
@@ -33,6 +34,10 @@ bool SGMAppController::startup() {
 	SGMBeamline::sgm();
 
 	if(AMAppController::startup()) {
+
+		AMDbObjectSupport::registerClass<MCPDetectorInfo>();
+		AMDbObjectSupport::registerClass<PGTDetectorInfo>();
+		AMDbObjectSupport::registerClass<SGMXASScanConfiguration>();
 
 		AMDetectorViewSupport::registerClass<AMSingleControlBriefDetectorView, AMSingleControlDetector>();
 		AMDetectorViewSupport::registerClass<MCPBriefDetectorView, MCPDetector>();
@@ -120,16 +125,12 @@ void SGMAppController::onCurrentPaneChanged(QWidget *pane) {
 void SGMAppController::onSGMBeamlineConnected(){
 	if(SGMBeamline::sgm()->isConnected() && !xasScanConfigurationView_ && !fastScanConfigurationView_){
 		SGMXASScanConfiguration *sxsc = new SGMXASScanConfiguration(this);
-		sxsc->setFileName("daveData.%03d.dat");
-		sxsc->setFilePath(AMUserSettings::userDataFolder);
 		sxsc->addRegion(0, 950, 1, 960);
 		xasScanConfigurationView_ = new SGMXASScanConfigurationView(sxsc);
 		xasScanConfigurationHolder_->setView(xasScanConfigurationView_);
 
 
 		SGMFastScanConfiguration *sfsc = new SGMFastScanConfiguration(this);
-		sfsc->setFileName("daveData.%03d.dat");
-		sfsc->setFilePath(AMUserSettings::userDataFolder);
 		fastScanConfigurationView_ = new SGMFastScanConfigurationView(sfsc);
 		fastScanConfigurationHolder_->setView(fastScanConfigurationView_);
 	}
