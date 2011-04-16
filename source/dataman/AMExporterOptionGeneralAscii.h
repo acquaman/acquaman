@@ -18,15 +18,18 @@ public:
 	/// The delimiter to use between lines (newline character)
 	QString newlineDelimiter() const { return newlineDelimiter_; }
 
-	/// Set delimiter to use between columns
-	void setColumnDelimiter(const QString& t) { columnDelimiter_ = t; setModified(true); }
-	/// Set the delimiter to use between lines (newline character)
-	void setNewlineDelimiter(const QString& t) { newlineDelimiter_ = t; setModified(true); }
+
+
+	virtual QWidget* createEditorWidget();
 
 
 signals:
 
 public slots:
+	/// Set delimiter to use between columns
+	void setColumnDelimiter(const QString& t) { columnDelimiter_ = t; setModified(true); }
+	/// Set the delimiter to use between lines (newline character)
+	void setNewlineDelimiter(const QString& t) { newlineDelimiter_ = t; setModified(true); }
 
 protected:
 	/// The delimiter to use between columns

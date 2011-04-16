@@ -446,7 +446,7 @@ void SGMBeamline::usingFakeBeamline(){
 	sgmPVName = amNames2pvNames_.valueF("entranceSlitGap");
 	entranceSlitGap_ = new AMPVwStatusControl("entranceSlitGap", sgmPVName+":fbk", sgmPVName, sgmPVName+":moving", sgmPVName+":stop", this, 0.1);
 	sgmPVName = amNames2pvNames_.valueF("M4");
-	m4_ = new AMReadOnlyPVwStatusControl("M4", sgmPVName, sgmPVName+":moving", this, 0.1);
+	m4_ = new AMReadOnlyPVwStatusControl("M4", sgmPVName, sgmPVName+":moving", this, new AMControlStatusCheckerDefault(0));	/// \note Is this actually 0 for moving?  You were using 0.1, which was being integerized to 0.
 	sgmPVName = amNames2pvNames_.valueF("M4Inboard");
 	AMPVwStatusControl *m4inboard = new AMPVwStatusControl("M4Inboard", sgmPVName, sgmPVName, sgmPVName+":moving", "", this, 0.1);
 	sgmPVName = amNames2pvNames_.valueF("M4Outboard");
@@ -477,7 +477,7 @@ void SGMBeamline::usingFakeBeamline(){
 	tfyHV_ = new AMPVControl("tfyHV", sgmPVName+":fbk", sgmPVName+":sp", QString(), this, 0.5);
 
 	sgmPVName = amNames2pvNames_.valueF("pgt");
-	pgt_ = new AMReadOnlyWaveformPVControl("pgt", sgmPVName, 0, 1024, this);
+	pgt_ = new AMReadOnlyWaveformBinningPVControl("pgt", sgmPVName, 0, 1024, this);
 	sgmPVName = amNames2pvNames_.valueF("pgtHV");
 	pgtHV_ = new AMPVControl("pgtHV", sgmPVName+":fbk", sgmPVName+":sp", QString(), this, 0.5);
 	sgmPVName = amNames2pvNames_.valueF("pgtIntegrationTime");

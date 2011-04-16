@@ -70,7 +70,7 @@ private:
 
 };
 
-/// This class provides support for registering AMDbObject classes into the AMDbObject system. All the methods are static for now; this should really be turned into a singleton class.
+/// The functions in the AMDbObjectSupport namespace provides support for registering AMDbObject classes into the AMDbObject system.
 /*!
 When you register a new class with registerClass<Class>(), the class is added to the class registry, and tables are made for it (if necessary) in all registered databases.
 
@@ -95,6 +95,9 @@ namespace AMDbObjectSupport
 
 	/// Returns the name of the table that should be used to store this class. If the class is registered already, it returns the registered name. If it's not registered, but it has the dbObjectProperty 'shareTableWithClass' set to another registered class, then it returns the table used by that class. Otherwise, it provides a default table name of 'className' + '_table'.
 	QString tableNameForClass(const QMetaObject* object);
+
+	/// Returns the name of the database table where this class is stored.  Only works for classes that are ALREADY REGISTERED using registerClass()
+	QString tableNameForClass(const QString& className);
 
 	/// Convenient alternative for tableNameForClass() when you have the class type (but not an instance)
 	template <class T>
@@ -196,12 +199,27 @@ namespace AMDbObjectSupport
 	QString listSeparator();
 
 
+
 	/// Useful for database introspection, this returns the type() (ie: class name) of the object stored in database \c db, under table \c tableName, at row \c id.
 	QString typeOfObjectAt(AMDatabase* db, const QString& tableName, int id);
 
 	/// Useful for database introspection, this creates and dynamically loads an object stored in database \c db, under table \c tableName, at row \c id. You can use qobject_cast<>() or type() to find out the detailed type of the new object.  Returns 0 if no object found.
 	/*! Ownership of the newly-created object becomes the responsibility of the caller. */
 	AMDbObject* createAndLoadObjectAt(AMDatabase* db, const QString& tableName, int id);
+
+
+
+	/// Convenience function for doing a select query on only some of the fields that an AMDbObject table has.
+	QSqlQuery select(AMDatabase* db, const QString& className, const QString& columnNames, const QString& whereClause = QString());
+
+
+	/// Overloaded version of select(), useful when you know the class type but don't have its name.
+	template <class T>
+	QSqlQuery select(AMDatabase* db, const QString& columnNames, const QString& whereClause = QString()) {
+		QString className = (T::staticMetaObject)->className();
+		return select(db, className, columnNames, whereClause);
+	}
+
 }
 
 #endif // AMDBOBJECTSUPPORT_H

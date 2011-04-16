@@ -14,6 +14,7 @@ class AMExporterOptionGeneral : public AMExporterOption
 	Q_PROPERTY(bool isColumnHeaderIncluded READ isColumnHeaderIncluded WRITE setColumnHeaderIncluded)
 	Q_PROPERTY(QString columnHeaderDelimiter READ columnHeaderDelimiter WRITE setColumnHeaderDelimiter)
 	Q_PROPERTY(QString sectionDelimiter READ sectionDelimiter WRITE setSectionDelimiter)
+	Q_PROPERTY(bool includeAllDataSources READ includeAllDataSources WRITE setIncludeAllDataSources)
 	Q_PROPERTY(QStringList dataSources READ dataSources WRITE dbLoadDataSources)
 	Q_PROPERTY(AMIntList dataSourceOrganizeModes READ dataSourceOrganizeModes WRITE dbLoadDataSourceOrganizeModes)
 	Q_PROPERTY(AMIntList dataSourceIsRequired READ dataSourceIsRequired WRITE dbLoadDataSourceIsRequired)
@@ -38,6 +39,7 @@ public:
 	QString columnHeaderDelimiter() const { return columnHeaderDelimiter_; }
 	QString sectionDelimiter() const { return sectionDelimiter_; }
 	QStringList dataSources() const { return dataSources_; }
+	bool includeAllDataSources() const { return includeAllDataSources_; }
 	AMIntList dataSourceOrganizeModes() const { return dataSourceOrganizeMode_; }
 	AMIntList dataSourceIsRequired() const{ return dataSourceIsRequired_; }
 	AMIntList dataSourceOmitAxisValueColumns() const { return dataSourceOmitAxisValueColumn_; }
@@ -53,6 +55,7 @@ public slots:
 	void setColumnHeaderIncluded(bool isIncluded) { isColumnHeaderIncluded_ = isIncluded;  setModified(true); }
 	void setColumnHeaderDelimiter(const QString& t) { columnHeaderDelimiter_ = t; setModified(true); }
 	void setSectionDelimiter(const QString& t) { sectionDelimiter_ = t; setModified(true); }
+	void setIncludeAllDataSources(bool includeAll) { includeAllDataSources_ = includeAll; setModified(true); }
 
 
 	void addDataSource(const QString& name, bool omitAxisValueColumn, int organizeMode = CombineInColumnsMode, bool isRequired = true) {
@@ -106,6 +109,8 @@ protected:
 
 	/// list of the data sources to include, in order.  Data sources are specified by their name().
 	QStringList dataSources_;
+	/// If instead you want to include all data sources in the scan (and ignore dataSources_), set this:
+	bool includeAllDataSources_;
 
 	/// parallel list to dataSources_: specifies where to place each data source (Interpret as AMExporterOptionGeneral::DataSourceLocation)
 	AMIntList dataSourceOrganizeMode_;

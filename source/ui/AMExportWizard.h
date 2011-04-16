@@ -9,14 +9,32 @@ class QGroupBox;
 class QLabel;
 class AMFolderPathLineEdit;
 class QPushButton;
+class AMExporterOption;
+class AMExporter;
 
-class AMExportWizardChooseDestinationFolderPage : public QWizardPage {
+class AMExportWizardOptionPage : public QWizardPage {
 	Q_OBJECT
 
 public:
-	explicit AMExportWizardChooseDestinationFolderPage(QWidget* parent = 0);
+	explicit AMExportWizardOptionPage(QWidget* parent = 0);
 
+	virtual void initializePage();
 	virtual bool validatePage();
+
+protected slots:
+	/// Called when the user chooses a different pre-saved option from the selector list.
+	void onOptionSelectorIndexChanged(int index);
+
+protected:
+	QGroupBox* optionViewContainer_;
+	QComboBox* optionSelector_;
+	QPushButton* saveOptionButton_;
+
+	AMExporterOption* option_;
+	AMExporter* exporter_;
+	QWidget* optionView_;
+
+	void populateOptionSelector();
 };
 
 class AMExportWizardChooseExporterPage : public QWizardPage {

@@ -35,8 +35,8 @@ For example: AMExporterGeneralAscii::exporterOptionClassName() would probably re
 	/// Exports the given \c scan object, using the option set \c option, to the complete destination file path \c destinationPath
 	virtual bool exportScan(const AMScan* scan, const QString& destinationPath, const AMExporterOption* option) const = 0;
 
-//	/// create an "exporter option" (an instance of an AMExporterOption subclass) that is a valid default for this type of exporter
-//	virtual AMExporterOption* createDefaultOption() const = 0;
+	/// create an "exporter option" (an instance of an AMExporterOption subclass) that is a valid default for this type of exporter
+	virtual AMExporterOption* createDefaultOption() const = 0;
 
 signals:
 

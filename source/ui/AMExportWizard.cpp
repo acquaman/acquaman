@@ -1,5 +1,7 @@
 #include "AMExportWizard.h"
 #include "dataman/AMExportController.h"
+#include "dataman/AMExporter.h"
+#include "dataman/AMExporterOption.h"
 
 #include <QHashIterator>
 #include <QFormLayout>
@@ -24,7 +26,7 @@ AMExportWizard::AMExportWizard(AMExportController* controller, QWidget *parent) 
 	controller_ = controller;
 
 	addPage(new AMExportWizardChooseExporterPage);
-	addPage(new AMExportWizardChooseDestinationFolderPage);
+	addPage(new AMExportWizardOptionPage);
 
 	setWindowTitle(QString("Exporting %1 Scans...").arg(controller_->scanCount()));
 }
@@ -122,12 +124,97 @@ void AMExportWizardChooseExporterPage::onBrowseButtonClicked()
 }
 
 
-AMExportWizardChooseDestinationFolderPage::AMExportWizardChooseDestinationFolderPage(QWidget *parent)
+AMExportWizardOptionPage::AMExportWizardOptionPage(QWidget *parent)
 {
 
+	option_ = 0;
+	optionView_ = 0;
+
+	optionSelector_ = new QComboBox();
+	optionViewContainer_ = new QGroupBox();
+	optionViewContainer_->setLayout(new QVBoxLayout());
+	saveOptionButton_ = new QPushButton("Save Settings");
+	saveOptionButton_->setDisabled(true);
+
+	QHBoxLayout* hl = new QHBoxLayout();
+	hl->addWidget(optionSelector_);
+	hl->addStretch();
+	hl->addWidget(saveOptionButton_);
+
+	QVBoxLayout* vl = new QVBoxLayout();
+	vl->addLayout(hl);
+	vl->addWidget(optionViewContainer_);
+
+	setLayout(vl);
+
+	connect(optionSelector_, SIGNAL(currentIndexChanged(int)), this, SLOT(onOptionSelectorIndexChanged(int)));
+
+	setTitle("Choose Export Options");
+	setSubTitle(("The options available here depend on the file format you've selected.  You can save a set of options as a template for next time using the 'Save Settings' button."));
 }
 
-bool AMExportWizardChooseDestinationFolderPage::validatePage()
+bool AMExportWizardOptionPage::validatePage()
 {
 	return true;
+}
+
+#include "dataman/AMDbObjectSupport.h"
+
+
+void AMExportWizardOptionPage::initializePage()
+{
+	exporter_ = qobject_cast<AMExportWizard*>(wizard())->controller()->exporter();
+
+	delete option_;	// might be 0 if no option yet... but that's okay.
+	delete optionView_;	// might be 0 if no option yet... or if last option couldn't create an editor. but that's okay.
+
+	populateOptionSelector();
+
+	// if we don't have any existing options... make a default one.
+	if(optionSelector_->count() == 0) {
+		option_ = exporter_->createDefaultOption();
+	}
+	else {
+		option_ = qobject_cast<AMExporterOption*>(
+					AMDbObjectSupport::createAndLoadObjectAt(
+						AMDatabase::userdb(),
+						AMDbObjectSupport::tableNameForClass(exporter_->exporterOptionClassName()),
+						optionSelector_->itemData(optionSelector_->currentIndex()).toInt()));
+	}
+
+	qDebug() << "Option: " << option_;
+
+	optionView_ = option_->createEditorWidget();
+	if(optionView_)
+		optionViewContainer_->layout()->addWidget(optionView_);
+}
+
+void AMExportWizardOptionPage::onOptionSelectorIndexChanged(int index)
+{
+	delete option_;
+	delete optionView_;
+
+	option_ = qobject_cast<AMExporterOption*>(
+				AMDbObjectSupport::createAndLoadObjectAt(
+					AMDatabase::userdb(),
+					AMDbObjectSupport::tableNameForClass(exporter_->exporterOptionClassName()),
+					optionSelector_->itemData(optionSelector_->currentIndex()).toInt()));
+
+	optionView_ = option_->createEditorWidget();
+	if(optionView_)
+		optionViewContainer_->layout()->addWidget(optionView_);
+}
+
+void AMExportWizardOptionPage::populateOptionSelector()
+{
+	optionSelector_->blockSignals(true);
+	optionSelector_->clear();
+	// fill option combo box
+	QSqlQuery q = AMDbObjectSupport::select(AMDatabase::userdb(), exporter_->exporterOptionClassName(), "id, name");
+	while(q.next()) {
+		optionSelector_->addItem(q.value(1).toString(),
+								 q.value(0).toInt());	// note: putting the database id in Qt::UserRole.
+	}
+	optionSelector_->setCurrentIndex(optionSelector_->count()-1);
+	optionSelector_->blockSignals(false);
 }

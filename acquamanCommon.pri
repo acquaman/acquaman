@@ -327,7 +327,8 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/dataman/AMExporterGeneralAscii.h \
     source/ui/AMExportWizard.h \
     source/ui/AMFolderPathLineEdit.h \
-    source/util/AMTagReplacementParser.h
+    source/util/AMTagReplacementParser.h \
+    source/ui/AMExporterOptionGeneralAsciiView.h
 FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
 	source/ui/AMDataViewSectionHeader.ui \
@@ -337,7 +338,8 @@ FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMGenericScanEditor.ui \
 	source/ui/AMDataSourcesEditor.ui \
 	source/ui/AMSamplePlateSelector.ui \
-	source/ui/AMSamplePositionViewActionsWidget.ui
+	source/ui/AMSamplePositionViewActionsWidget.ui \
+    source/ui/AMExporterOptionGeneralAsciiView.ui
 SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	../MPlot/src/MPlot/MPlotAbstractTool.cpp \
 	../MPlot/src/MPlot/MPlotAxis.cpp \
@@ -526,7 +528,8 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/dataman/AMExporterGeneralAscii.cpp \
     source/ui/AMExportWizard.cpp \
     source/ui/AMFolderPathLineEdit.cpp \
-    source/util/AMTagReplacementParser.cpp
+    source/util/AMTagReplacementParser.cpp \
+    source/ui/AMExporterOptionGeneralAsciiView.cpp
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc \
 	source/util/ElementData.qrc \
