@@ -89,8 +89,8 @@ bool SGMXASScanController::beamlineInitialize(){
 	initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
 	AMBeamlineControlSetMoveAction* tmpSetAction = new AMBeamlineControlSetMoveAction(SGMBeamline::sgm()->fluxResolutionSet());
 	tmpSetAction->setSetpoint((pCfg_()->fluxResolutionGroup()));
-
 	initializationActions_->appendAction(0, tmpSetAction);
+
 	tmpSetAction = new AMBeamlineControlSetMoveAction(SGMBeamline::sgm()->trackingSet());
 	tmpSetAction->setSetpoint(pCfg_()->trackingGroup());
 	initializationActions_->appendAction(0, tmpSetAction);
