@@ -1,4 +1,6 @@
 #include "AMExporterOptionGeneralAscii.h"
+#include <QPushButton>
+#include "ui/AMExporterOptionGeneralAsciiView.h"
 
 AMExporterOptionGeneralAscii::AMExporterOptionGeneralAscii(QObject *parent) :
 	AMExporterOptionGeneral(parent)
@@ -6,5 +8,10 @@ AMExporterOptionGeneralAscii::AMExporterOptionGeneralAscii(QObject *parent) :
 	columnDelimiter_ = "\t";
 	newlineDelimiter_ = "\r\n";
 
-	fileName_ = "\\name_\\number[3]_\\dateTime.txt";
+	fileName_ = "$name_$number_$dateTime.txt";
+}
+
+QWidget * AMExporterOptionGeneralAscii::createEditorWidget()
+{
+	return new AMExporterOptionGeneralAsciiView(this);
 }

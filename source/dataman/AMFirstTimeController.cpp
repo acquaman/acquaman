@@ -36,6 +36,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AM1DExpressionAB.h"
 #include "analysis/AM2DSummingAB.h"
 
+#include "dataman/AMExporterOptionGeneralAscii.h"
 
 
 #include "dataman/AMDbObjectSupport.h"
@@ -170,6 +171,8 @@ bool AMFirstTimeController::databaseInitialization(bool newUser) {
 	AMDbObjectSupport::registerClass<AMControlInfoList>();
 	AMDbObjectSupport::registerClass<AMSamplePosition>();
 	AMDbObjectSupport::registerClass<AMSamplePlate>();
+
+	AMDbObjectSupport::registerClass<AMExporterOptionGeneralAscii>();
 
 
 	AMDbObjectSupport::registerClass<AMUser>();

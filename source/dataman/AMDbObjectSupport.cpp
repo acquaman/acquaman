@@ -27,6 +27,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMetaClassInfo>
 #include "util/AMErrorMonitor.h"
 
+#include <QStringBuilder>
+
 #include <QDebug>
 
 // fill the className, tableName, metaObject, columns, columnTypes, isVisible, isLoadable, and doNotReuseIds properties based on a prototype AMDbObject.
@@ -154,6 +156,15 @@ namespace AMDbObjectSupport {
 		return className + "_table";
 	}
 
+
+
+	QString tableNameForClass(const QString& className) {
+		QHash<QString, AMDbObjectInfo>::const_iterator iInfo = registeredClasses()->find(className);
+		if(iInfo != registeredClasses()->end())
+			return iInfo.value().tableName;
+
+		return QString();
+	}
 
 
 
@@ -484,6 +495,21 @@ namespace AMDbObjectSupport {
 
 		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -93, QString("[AMDbObjectSupport] Could not load the object with ID %1 from the table '%2', because there are no suitable constructors.").arg(id).arg(tableName)));
 		return 0;
+	}
+
+
+
+
+	QSqlQuery select(AMDatabase* db, const QString& className, const QString& columnNames, const QString& whereClause) {
+
+		QSqlQuery q = db->query();
+		QString whereString = whereClause.isEmpty() ? QString() : " WHERE " % whereClause;
+
+		QString query = "SELECT " % columnNames % " FROM " % tableNameForClass(className) % whereString % ";";
+		q.prepare(query);
+		q.exec();
+
+		return q;
 	}
 
 }	// END OF NAMESPACE AMDbObjectSupport

@@ -21,6 +21,8 @@ public:
 	/// \todo
 	virtual bool exportScan(const AMScan *scan, const QString &destinationPath, const AMExporterOption *option) const { return false; }
 
+	virtual AMExporterOption* createDefaultOption() const;
+
 signals:
 
 public slots:
