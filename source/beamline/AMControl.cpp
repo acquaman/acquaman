@@ -93,7 +93,7 @@ AMReadOnlyPVControl::AMReadOnlyPVControl(const QString& name, const QString& rea
 
 	connect(readPV_, SIGNAL(valueChanged(double)), this, SIGNAL(valueChanged(double)));
 	//connect(readPV_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
-	connect(readPV_, SIGNAL(readReadyChanged(bool)), this, SLOT(onPVConnected(bool)));	
+	connect(readPV_, SIGNAL(readReadyChanged(bool)), this, SLOT(onPVConnected(bool)));
 	connect(readPV_, SIGNAL(connectionTimeout()), this, SIGNAL(readConnectionTimeoutOccurred()));
 	connect(readPV_, SIGNAL(error(int)), this, SLOT(onReadPVError(int)));
 	connect(readPV_, SIGNAL(connectionTimeout()), this, SLOT(onConnectionTimeout()));
@@ -303,12 +303,11 @@ void AMPVControl::onPVConnected(bool) {
 // Class AMReadOnlyPVwStatusControl
 ///////////////////////////////////////
 
-AMReadOnlyPVwStatusControl::AMReadOnlyPVwStatusControl(const QString& name, const QString& readPVname, const QString& movingPVname, QObject* parent, int isMovingValue, quint32 isMovingMask)
+AMReadOnlyPVwStatusControl::AMReadOnlyPVwStatusControl(const QString& name, const QString& readPVname, const QString& movingPVname, QObject* parent, AMAbstractControlStatusChecker* statusChecker)
 	: AMReadOnlyPVControl(name, readPVname, parent)
 {
 	// Initializing:
-	isMovingValue_ = isMovingValue;
-	isMovingMask_ = isMovingMask;
+	statusChecker_ = statusChecker;
 	wasMoving_ = false;
 
 	// Create the movingPV and hook it up:
@@ -355,7 +354,7 @@ void AMReadOnlyPVwStatusControl::onStatusPVError(int errorCode) {
 // In it we simply do change detection of the moving status, and emit signals if it has changed.
 void AMReadOnlyPVwStatusControl::onMovingChanged(int movingValue) {
 
-	bool nowMoving = ( int(movingValue & isMovingMask_) == isMovingValue_);
+	bool nowMoving = (*statusChecker_)(movingValue);
 
 	if(wasMoving_ && !nowMoving)
 		emit movingChanged(wasMoving_ = nowMoving);
@@ -364,8 +363,8 @@ void AMReadOnlyPVwStatusControl::onMovingChanged(int movingValue) {
 		emit movingChanged(wasMoving_ = nowMoving);
 }
 
-AMPVwStatusControl::AMPVwStatusControl(const QString& name, const QString& readPVname, const QString& writePVname, const QString& movingPVname, const QString& stopPVname, QObject* parent, double tolerance, double moveStartTimeoutSeconds, int isMovingValue, quint32 isMovingMask, int stopValue)
-	: AMReadOnlyPVwStatusControl(name, readPVname, movingPVname, parent, isMovingValue, isMovingMask) {
+AMPVwStatusControl::AMPVwStatusControl(const QString& name, const QString& readPVname, const QString& writePVname, const QString& movingPVname, const QString& stopPVname, QObject* parent, double tolerance, double moveStartTimeoutSeconds, AMAbstractControlStatusChecker* statusChecker, int stopValue)
+	: AMReadOnlyPVwStatusControl(name, readPVname, movingPVname, parent, statusChecker) {
 
 	// Initialize:
 	moveInProgress_ = false;
@@ -502,7 +501,7 @@ void AMPVwStatusControl::onIsMovingChanged(bool isMoving) {
 }
 
 
-AMReadOnlyWaveformPVControl::AMReadOnlyWaveformPVControl(const QString &name, const QString &readPVname, int lowIndex, int highIndex, QObject *parent) :
+AMReadOnlyWaveformBinningPVControl::AMReadOnlyWaveformBinningPVControl(const QString &name, const QString &readPVname, int lowIndex, int highIndex, QObject *parent) :
 		AMReadOnlyPVControl(name, readPVname, parent)
 {
 	disconnect(readPV_, SIGNAL(valueChanged(double)), this, SIGNAL(valueChanged(double)));
@@ -510,15 +509,15 @@ AMReadOnlyWaveformPVControl::AMReadOnlyWaveformPVControl(const QString &name, co
 	connect(readPV_, SIGNAL(valueChanged()), this, SLOT(onReadPVValueChanged()));
 }
 
-double AMReadOnlyWaveformPVControl::value() const{
+double AMReadOnlyWaveformBinningPVControl::value() const{
 	return readPV_->binIntegerValues(lowIndex_, highIndex_);
 }
 
-void AMReadOnlyWaveformPVControl::setBinParameters(int lowIndex, int highIndex){
+void AMReadOnlyWaveformBinningPVControl::setBinParameters(int lowIndex, int highIndex){
 	lowIndex_ = lowIndex;
 	highIndex_ = highIndex;
 }
 
-void AMReadOnlyWaveformPVControl::onReadPVValueChanged(){
+void AMReadOnlyWaveformBinningPVControl::onReadPVValueChanged(){
 	emit valueChanged(value());
 }
