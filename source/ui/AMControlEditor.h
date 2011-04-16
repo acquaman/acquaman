@@ -229,12 +229,14 @@ protected:
 	bool programaticToggle_;
 };
 
+
+/*
 // Starts the first action in the actionsList as long as it isn't already finished (that would put us in a problematic state)
-class AMBeamlineActionsListButton : public QToolButton
+class AMBeamlineActionButton : public QToolButton
 {
 Q_OBJECT
 public:
-	AMBeamlineActionsListButton(AMBeamlineParallelActionsList *actionsList, QWidget *parent = 0);
+	AMBeamlineActionButton(AMBeamlineActionItem* (SGMBeamline::*creationFunction)(), QWidget *parent = 0);
 
 public slots:
 	void overrideText(const QString& text);
@@ -243,7 +245,9 @@ protected slots:
 	void onClicked();
 
 protected:
-	AMBeamlineParallelActionsList *actionsList_;
+	AMBeamlineActionItem* (SGMBeamline::*creationFunction_)();
+	AMBeamlineActionItem *action_;
 };
+*/
 
 #endif // AM_CONTROLEDITOR_H

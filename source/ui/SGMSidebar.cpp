@@ -33,13 +33,17 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	readyLabel_->setNoUnitsBox(true);
 	readyLabel_->overrideTitle("");
 	readyLabel_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-	beamOnBALButton_ = new AMBeamlineActionsListButton(SGMBeamline::sgm()->beamOnActionsList());
-	beamOnBALButton_->overrideText("Beam On");
-	beamOnBALButton_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+	//beamOnBALButton_ = new AMBeamlineActionButton(SGMBeamline::sgm()->createBeamOnActions());
+	beamOnAction_ = 0;//NULL
+	beamOnButton_ = new QToolButton();
+	beamOnButton_->setText("Beam On");
+	beamOnButton_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+	connect(beamOnButton_, SIGNAL(clicked()), this, SLOT(onBeamOnButtonClicked()));
 	beamOffCButton_ = new AMControlButton(SGMBeamline::sgm()->fastShutterVoltage());
 	beamOffCButton_->overrideText("Beam Off");
 	beamOffCButton_->setDownValue(5);
 	beamOffCButton_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+	stopMotorsAction_ = 0;//NULL
 	stopMotorsButton_ = new QToolButton();
 	stopMotorsButton_->setText("Emergency\nMotor Stop");
 	stopMotorsButton_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
@@ -85,7 +89,7 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	connect(SGMBeamline::sgm(), SIGNAL(beamlineWarningsChanged(QString)), beamlineWarningsLabel_, SLOT(setText(QString)));
 
 	gl_->addWidget(readyLabel_,		0, 0, 1, 6, 0);
-	gl_->addWidget(beamOnBALButton_,	1, 0, 1, 2, 0);
+	gl_->addWidget(beamOnButton_,		1, 0, 1, 2, 0);
 	gl_->addWidget(beamOffCButton_,		1, 2, 1, 2, 0);
 	gl_->addWidget(stopMotorsButton_,	1, 4, 1, 2, 0);
 	gl_->addWidget(closeVacuumButton_,	2, 0, 1, 3, 0);
@@ -135,11 +139,31 @@ void SGMSidebar::onCloseVacuumButtonClicked(){
 	SGMBeamline::sgm()->closeVacuum();
 }
 
-void SGMSidebar::onStopMotorsButtonClicked(){
-	qDebug() << "Starting the parallel actions list";
-	al->start();
+void SGMSidebar::onBeamOnButtonClicked(){
+	if(beamOnAction_)
+		return;
+	beamOnAction_ = SGMBeamline::sgm()->createBeamOnActions();
+	connect(beamOnAction_, SIGNAL(finished()), this, SLOT(onBeamOnActionFinished()));
+	beamOnAction_->start();
 }
 
-void SGMSidebar::onActionsListSucceeded(){
-	qDebug() << "Actions List SUCCEEDED";
+void SGMSidebar::onBeamOnActionFinished(){
+#warning "David, probably need to delete the internals too, list, actions, etc"
+	delete beamOnAction_;
+	beamOnAction_ = 0;//NULL
+}
+
+void SGMSidebar::onStopMotorsButtonClicked(){
+	if(stopMotorsAction_)
+		return;
+	qDebug() << "Starting the stop motors action";
+	stopMotorsAction_ = SGMBeamline::sgm()->createStopMotorsAction();
+	connect(stopMotorsAction_, SIGNAL(finished()), this, SLOT(onStopMotorsActionFinished()));
+	stopMotorsAction_->start();
+}
+
+void SGMSidebar::onStopMotorsActionFinished(){
+	qDebug() << "Motor stop SUCCEEDED";
+	delete stopMotorsAction_;
+	stopMotorsAction_ = 0;//NULL
 }

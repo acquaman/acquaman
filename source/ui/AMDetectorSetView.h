@@ -39,6 +39,7 @@ public slots:
 
 protected slots:
 	void onDetectorAddedToSet(int index);
+	void onDetectorRemovedFromSet(int index);
 	void onDetectorSetSettingsChanged();
 	void onDetectorSetConfigurationRequested();
 

@@ -32,6 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMBeamlineControlMoveAction.h"
 #include "beamline/AMBeamlineControlSetMoveAction.h"
 #include "beamline/AMBeamlineControlWaitAction.h"
+#include "beamline/AMBeamlineControlStopAction.h"
 #include "beamline/AMBeamlineUserConfirmAction.h"
 #include "beamline/AMBeamlineActionsList.h"
 #include "beamline/AMBeamlineParallelActionsList.h"
@@ -57,9 +58,15 @@ public:
 	};
 	QString sgmGratingName(SGMBeamline::sgmGrating grating) const;
 
+	/*
 	enum sgmHarmonic{
 		firstHarmonic = 1,
 		thirdHarmonic = 3
+	};
+	*/
+	enum sgmHarmonic{
+		firstHarmonic = 0,
+		thirdHarmonic = 1
 	};
 	QString sgmHarmonicName(SGMBeamline::sgmHarmonic harmonic) const;
 
@@ -75,6 +82,7 @@ public:
 	virtual ~SGMBeamline();
 
 	bool isConnected() const {
+		qDebug() << unconnectedCriticals();
 		return criticalControlsSet_->isConnected();
 	}
 
@@ -106,14 +114,39 @@ public:
 	AMControl* monoTracking() const { return monoTracking_;}
 	AMControl* exitSlitTracking() const { return exitSlitTracking_;}
 
-	AMDetector* teyDetector() const { return teyDetector_;}
-	AMDetector* tfyDetector() const { return tfyDetector_;}
+	AMDetector* teyDetector() const {
+		if(detectorSignalSource_->value() == 0)
+			return teyPicoDetector_;
+		else
+			return teyScalerDetector_;
+	}
+	AMDetector* tfyDetector() const {
+		if(detectorSignalSource_->value() == 0)
+			return tfyPicoDetector_;
+		else
+			return tfyScalerDetector_;
+	}
 	AMDetector* pgtDetector() const { return pgtDetector_;}
-	AMDetector* i0Detector() const { return i0Detector_;}
+	AMDetector* i0Detector() const {
+		if(detectorSignalSource_->value() == 0)
+			return i0PicoDetector_;
+		else
+			return i0ScalerDetector_;
+	}
 	AMDetector* eVFbkDetector() const { return eVFbkDetector_;}
-	AMDetector* photodiodeDetector() const { return photodiodeDetector_;}
+	AMDetector* photodiodeDetector() const {
+		if(detectorSignalSource_->value() == 0)
+			return photodiodePicoDetector_;
+		else
+			return photodiodeScalerDetector_;
+	}
 	AMDetector* encoderUpDetector() const { return encoderUpDetector_;}
 	AMDetector* encoderDownDetector() const { return encoderDownDetector_;}
+
+	bool detectorValidForCurrentSignalSource(AMDetector *detector);
+	bool detectorValidForCurrentSignalSource(AMDetectorInfo *detectorInfo);
+	bool usingPicoammeterSource();
+	bool usingScalerSource();
 
 	AMControl* loadlockCCG() const { return loadlockCCG_;}
 	AMControl* loadlockTCG() const { return loadlockTCG_;}
@@ -155,10 +188,8 @@ public:
 
 	AMSamplePlate* currentSamplePlate() const { return currentSamplePlate_; }
 
-	AMBeamlineControlMoveAction* beamOnAction();
-	AMBeamlineParallelActionsList* beamOnActionsList();
-
-	AMBeamlineParallelActionsList* stopMotorsActionsList();
+	AMBeamlineListAction* createBeamOnActions();
+	AMBeamlineListAction* createStopMotorsAction();
 
 	AMBeamlineListAction* createTransferActions(SGMBeamline::sgmTransferType transferType);
 	AMBeamlineListAction* createTransferLoadLockOutActions();
@@ -199,13 +230,9 @@ protected slots:
 	void onControlSetConnected(bool csConnected);
 	void onCriticalControlsConnectedChanged(bool isConnected, AMControl *controll);
 
+	void onDetectorSignalSourceChanged(double value);
+
 	void recomputeWarnings();
-
-	void createBeamOnActions();
-	void onBeamOnActionsFinsihed();
-
-	void createStopMotorsActions();
-	void onStopMotorsActionsFinished();
 
 	void onVisibleLightChanged(double value);
 
@@ -231,16 +258,20 @@ protected:
 	AMControl *undulatorTracking_;
 	AMControl *monoTracking_;
 	AMControl *exitSlitTracking_;
-	AMControl *tey_;
-	AMControl *tfy_;
+	AMControl *teyPico_;
+	AMControl *teyScaler_;
+	AMControl *tfyPico_;
+	AMControl *tfyScaler_;
 	AMControl *tfyHV_;
 	AMControl *pgt_;
 	AMControl *pgtHV_;
 	AMControl *pgtIntegrationTime_;
 	AMControl *pgtIntegrationMode_;
-	AMControl *i0_;
+	AMControl *i0Pico_;
+	AMControl *i0Scaler_;
 	AMControl *eVFbk_;
-	AMControl *photodiode_;
+	AMControl *photodiodePico_;
+	AMControl *photodiodeScaler_;
 	AMControl *encoderUp_;
 	AMControl *encoderDown_;
 	AMControl *loadlockCCG_;
@@ -271,19 +302,28 @@ protected:
 	AMControl *scalerScansPerBuffer_;
 	AMControl *scalerTotalNumberOfScans_;
 	AMControl *scalerMode_;
+	AMControl *detectorSignalSource_;
 
-	AMControlSet *teyControlSet_;
-	AMDetector *teyDetector_;
-	AMControlSet *tfyControlSet_;
-	AMDetector *tfyDetector_;
+	AMControlSet *teyPicoControlSet_;
+	AMDetector *teyPicoDetector_;
+	AMControlSet *teyScalerControlSet_;
+	AMDetector *teyScalerDetector_;
+	AMControlSet *tfyPicoControlSet_;
+	AMDetector *tfyPicoDetector_;
+	AMControlSet *tfyScalerControlSet_;
+	AMDetector *tfyScalerDetector_;
 	AMControlSet *pgtControlSet_;
 	AMDetector *pgtDetector_;
-	AMDetector *i0Detector_;
-	AMControlSet *i0ControlSet_;
+	AMDetector *i0PicoDetector_;
+	AMControlSet *i0PicoControlSet_;
+	AMDetector *i0ScalerDetector_;
+	AMControlSet *i0ScalerControlSet_;
 	AMDetector *eVFbkDetector_;
 	AMControlSet *eVFbkControlSet_;
-	AMDetector *photodiodeDetector_;
-	AMControlSet *photodiodeControlSet_;
+	AMDetector *photodiodePicoDetector_;
+	AMControlSet *photodiodePicoControlSet_;
+	AMDetector *photodiodeScalerDetector_;
+	AMControlSet *photodiodeScalerControlSet_;
 	AMDetector *encoderUpDetector_;
 	AMControlSet *encoderUpControlSet_;
 	AMDetector *encoderDownDetector_;
@@ -333,16 +373,6 @@ protected:
 	AMOrderedSet<QString, QPixmap> transferChamberInAction2Help_;
 	AMOrderedSet<QString, QPixmap> transferChamberInAction3Help_;
 	AMOrderedSet<QString, QPixmap> transferChamberInAction4Help_;
-
-	AMBeamlineControlMoveAction *beamOnAction1_;
-	AMBeamlineControlMoveAction *beamOnAction2_;
-	AMBeamlineParallelActionsList *beamOnActionsList_;
-
-	AMBeamlineControlMoveAction *stopMotorsActions1_;
-	AMBeamlineControlMoveAction *stopMotorsActions2_;
-	AMBeamlineControlMoveAction *stopMotorsActions3_;
-	AMBeamlineControlMoveAction *stopMotorsActions4_;
-	AMBeamlineParallelActionsList *stopMotorsActionsList_;
 
 	QString beamlineWarnings_;
 
