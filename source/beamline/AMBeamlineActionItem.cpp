@@ -108,6 +108,10 @@ AMBeamlineActionItem* AMBeamlineActionItem::next() const {
 	return next_;
 }
 
+AMBeamlineActionItem* AMBeamlineActionItem::createCopy() const{
+	return 0; //NULL
+}
+
 QString AMBeamlineActionItem::description() const{
 	qDebug() << "Description is " << description_;
 	return description_;
@@ -142,7 +146,12 @@ bool AMBeamlineActionItem::setNext(AMBeamlineActionItem *next){
 }
 
 void AMBeamlineActionItem::setDescription(const QString &description){
+	bool changed = false;
+	if(description_ != description)
+		changed = true;
 	description_ = description;
+	if(changed)
+		emit descriptionChanged(description_);
 }
 
 void AMBeamlineActionItem::setMessage(const QString &message){
@@ -218,9 +227,12 @@ void AMBeamlineActionItem::dirtyInitialized(){
 AMBeamlineActionItemView::AMBeamlineActionItemView(AMBeamlineActionItem *action, int index, QWidget *parent) :
 		QFrame(parent)
 {
-	action_ = action;
+	//action_ = action;
+	action_ = 0;//NULL
+	setAction(action);
 	index_ = index;
 	inFocus_ = false;
+	optionsMenu_ = 0; //NULL
 	setLineWidth(1);
 	setFrameStyle(QFrame::StyledPanel);
 	setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
@@ -235,7 +247,13 @@ void AMBeamlineActionItemView::setIndex(int index){
 }
 
 void AMBeamlineActionItemView::setAction(AMBeamlineActionItem *action){
+	if(action_){
+		disconnect(action_, SIGNAL(descriptionChanged(QString)), this, SIGNAL(descriptionChanged(QString)));
+	}
 	action_ = action;
+	if(action_){
+		connect(action_, SIGNAL(descriptionChanged(QString)), this, SIGNAL(descriptionChanged(QString)));
+	}
 }
 
 void AMBeamlineActionItemView::defocusItem(){
@@ -243,17 +261,42 @@ void AMBeamlineActionItemView::defocusItem(){
 	updateLook();
 }
 
+void AMBeamlineActionItemView::onCreateCopyClicked(){
+	AMBeamlineActionItem *actionCopy = action_->createCopy();
+	if(actionCopy){
+		qDebug() << "ActionView has a copy to send out";
+		emit copyRequested(actionCopy);
+	}
+}
+
 void AMBeamlineActionItemView::mousePressEvent(QMouseEvent *event){
-	if (event->button() != Qt::LeftButton) {
+	/*if (event->button() != Qt::LeftButton) {
 		event->ignore();
 		return;
+	}*/
+	if(event->button() == Qt::LeftButton){
+		if(inFocus_)
+			defocusItem();
+		else{
+			inFocus_ = true;
+			updateLook();
+			emit focusRequested(action_);
+		}
 	}
-	if(inFocus_)
-		defocusItem();
+	else if(event->button() == Qt::RightButton){
+		if(optionsMenu_)
+			delete optionsMenu_;
+		optionsMenu_ = new QMenu(this);
+		QAction *tmpAction;
+		tmpAction = optionsMenu_->addAction("Copy this Action");
+		tmpAction->setData(0);
+		connect(tmpAction, SIGNAL(triggered()), this, SLOT(onCreateCopyClicked()));
+		optionsMenu_->popup(QCursor::pos());
+		optionsMenu_->show();
+	}
 	else{
-		inFocus_ = true;
-		updateLook();
-		emit focusRequested(action_);
+		event->ignore();
+		return;
 	}
 }
 

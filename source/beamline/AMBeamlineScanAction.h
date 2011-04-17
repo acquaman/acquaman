@@ -37,12 +37,15 @@ public:
 
 	virtual AMBeamlineActionItemView* createView(int index = 0);
 
+	virtual AMBeamlineActionItem* createCopy() const;
+
 	AMScanConfiguration* cfg() const { return cfg_;}
 	virtual bool isRunning() const;
 	virtual bool isPaused() const;
 
 signals:
 	void progress(double, double);
+	void descriptionChanged();
 
 public slots:
 	virtual void start();
@@ -63,10 +66,11 @@ protected slots:
 	virtual void onScanSucceeded();
 	virtual void onScanFailed();
 	virtual void onBeamlineScanningChanged(bool isScanning);
+	virtual void onConfigurationChanged();
 
 protected:
 	AMScanConfiguration *cfg_;
-	AMScanController * ctrl_;
+	AMScanController *ctrl_;
 	bool keepOnCancel_;
 };
 

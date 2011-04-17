@@ -74,6 +74,7 @@ QWidget* AMVerticalStackWidget::widget(int index) const {
 	return model_.data(model_.index(index,0), AM::PointerRole).value<QWidget*>();
 }
 
+#include "beamline/AMBeamlineActionItem.h"
 /// Insert a widget at a specific index in the stack. Inserting at \c index = -1 is equivalent to appending to the end. The AMVerticalStackWidget takes ownership of the widget.
 void AMVerticalStackWidget::insertItem(int index, QWidget* widget, const QString& text, bool collapsable) {
 	if(index < 0 || index > count())
@@ -89,6 +90,9 @@ void AMVerticalStackWidget::insertItem(int index, QWidget* widget, const QString
 	header->setArrowType(Qt::DownArrow);
 	item->setData(qVariantFromValue(header), AM::WidgetRole);
 	connect(header, SIGNAL(clicked()), this, SLOT(onHeaderButtonClicked()));
+	AMBeamlineActionItemView *actionView = qobject_cast<AMBeamlineActionItemView*>(widget);
+	if(actionView)
+		connect(actionView, SIGNAL(descriptionChanged(QString)), header, SLOT(setText(QString)));
 
 	QSizePolicy sp = widget->sizePolicy();
 	sp.setVerticalPolicy(QSizePolicy::Preferred);

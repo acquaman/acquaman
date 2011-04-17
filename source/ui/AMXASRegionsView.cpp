@@ -45,8 +45,8 @@ AMXASRegionsView::AMXASRegionsView(AMXASRegionsList *regions, QWidget *parent) :
 	fl_->addRow(tv_);
 	fl_->addRow(hl_);
 	setLayout(fl_);
-	addRegionMenu_= NULL;
-	deleteRegionMenu_ = NULL;
+	addRegionMenu_= 0;//NULL
+	deleteRegionMenu_ = 0;//NULL
 	connect(addButton_, SIGNAL(clicked()), this, SLOT(addRegion()));
 	connect(deleteButton_, SIGNAL(clicked()), this, SLOT(deleteRegion()));
 }

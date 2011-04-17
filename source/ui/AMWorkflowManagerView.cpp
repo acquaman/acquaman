@@ -60,6 +60,7 @@ AMWorkflowManagerView::AMWorkflowManagerView(QWidget *parent) :
 	workflowActions_ = new AMBeamlineActionsList(this);
 	workflowQueue_ = new AMBeamlineActionsQueue(workflowActions_, this);
 	workflowView_ = new AMBeamlineActionsListView(workflowActions_, workflowQueue_, this);
+	connect(workflowView_, SIGNAL(copyRequested(AMBeamlineActionItem*)), this, SLOT(onCopyActionRequested(AMBeamlineActionItem*)));
 
 	QScrollArea* scrollArea = new QScrollArea();
 	scrollArea->setWidget(workflowView_);
@@ -101,6 +102,10 @@ void AMWorkflowManagerView::onAddActionRequested(){
 	QMessageBox::information(this, "Sorry, This Action Not Available Yet", "Sorry, we haven't implemented this yet.\n\nWe're working on it...", QMessageBox::Ok);
 }
 
+void AMWorkflowManagerView::onCopyActionRequested(AMBeamlineActionItem *action){
+	qDebug() << "Copy requested!";
+	insertBeamlineAction(-1, action);
+}
 
 
 void AMWorkflowManagerView::insertBeamlineAction(int index, AMBeamlineActionItem *action, bool startNow) {
@@ -187,6 +192,7 @@ void AMBeamlineActionsListView::onActionAdded(int index){
 		return;
 	actionsViewList_->insertItem(index, tmpView, tmpItem->description(), true);
 	connect(tmpView, SIGNAL(removeRequested(AMBeamlineActionItem*)), this, SLOT(onActionRemoveRequested(AMBeamlineActionItem*)));
+	connect(tmpView, SIGNAL(copyRequested(AMBeamlineActionItem*)), this, SIGNAL(copyRequested(AMBeamlineActionItem*)));
 	reindexViews();
 	emit queueUpdated(actionsQueue_->count());
 }

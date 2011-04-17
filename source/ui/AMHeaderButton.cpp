@@ -74,3 +74,7 @@ void AMHeaderButton::setArrowType(Qt::ArrowType type) {
 	QToolButton::setArrowType(Qt::NoArrow);
 	update();
 }
+
+void AMHeaderButton::setText(const QString &text){
+	QToolButton::setText(text);
+}

@@ -31,8 +31,10 @@ AMBeamlineScanAction::AMBeamlineScanAction(AMScanConfiguration *cfg, QObject *pa
 		AMBeamlineActionItem(true, parent)
 {
 	cfg_ = cfg;
-	if(cfg_)
+	if(cfg_){
+		connect(cfg_, SIGNAL(configurationChanged()), this, SLOT(onConfigurationChanged()));
 		setDescription(cfg_->description());
+	}
 	ctrl_ = NULL;
 	keepOnCancel_ = false;
 
@@ -43,6 +45,12 @@ AMBeamlineScanAction::AMBeamlineScanAction(AMScanConfiguration *cfg, QObject *pa
 
 AMBeamlineActionItemView* AMBeamlineScanAction::createView(int index){
 	return new AMBeamlineScanActionView(this, index);
+}
+
+AMBeamlineActionItem* AMBeamlineScanAction::createCopy() const{
+	if(cfg_)
+		return new AMBeamlineScanAction(cfg_->createCopy());
+	return 0;//NULL
 }
 
 bool AMBeamlineScanAction::isRunning() const{
@@ -107,8 +115,11 @@ void AMBeamlineScanAction::cleanup(){
 
 void AMBeamlineScanAction::pause(bool pause){
 
-	if(pause)
+	if(pause){
+		setDescription(cfg_->description()+" [Paused]");
+		emit descriptionChanged();
 		ctrl_->pause();
+	}
 	else
 		ctrl_->resume();
 
@@ -125,14 +136,20 @@ void AMBeamlineScanAction::delayedStart(bool ready){
 }
 
 void AMBeamlineScanAction::onScanStarted(){
+	setDescription(cfg_->description()+" [Running]");
+	emit descriptionChanged();
 	setStarted(true);
 }
 
 void AMBeamlineScanAction::onScanCancelled(){
+	setDescription(cfg_->description()+" [Cancelled]");
+	emit descriptionChanged();
 	setFailed(true, AMBEAMLINEACTIONITEM_SCAN_CANCELLED);
 }
 
 void AMBeamlineScanAction::onScanSucceeded(){
+	setDescription(cfg_->description()+" [Completed "+QDateTime::currentDateTime().toString("h:mm ap")+"]");
+	emit descriptionChanged();
 	setSucceeded(true);
 }
 
@@ -142,6 +159,12 @@ void AMBeamlineScanAction::onScanFailed(){
 
 void AMBeamlineScanAction::onBeamlineScanningChanged(bool isScanning){
 	setReady(!isScanning);
+}
+
+void AMBeamlineScanAction::onConfigurationChanged(){
+	qDebug() << "Description is " << cfg_->description();
+	setDescription(cfg_->description());
+	emit descriptionChanged();
 }
 
 AMBeamlineScanActionView::AMBeamlineScanActionView(AMBeamlineScanAction *scanAction, int index, QWidget *parent) :
@@ -167,6 +190,7 @@ AMBeamlineScanActionView::AMBeamlineScanActionView(AMBeamlineScanAction *scanAct
 	QVBoxLayout *progressVL = new QVBoxLayout();
 	progressVL->addWidget(progressBar_);
 	progressVL->addWidget(timeRemainingLabel_);
+	connect(scanAction_, SIGNAL(descriptionChanged()), this, SLOT(updateScanNameLabel()));
 	connect(scanAction_, SIGNAL(progress(double,double)), this, SLOT(updateProgressBar(double,double)));
 	connect(scanAction_, SIGNAL(started()), this, SLOT(onScanStarted()));
 	connect(scanAction_, SIGNAL(succeeded()), this, SLOT(onScanFinished()));
@@ -202,6 +226,7 @@ void AMBeamlineScanActionView::setIndex(int index){
 void AMBeamlineScanActionView::setAction(AMBeamlineActionItem *action){
 	AMBeamlineScanAction *scanAction = qobject_cast<AMBeamlineScanAction*>(action);
 	if(scanAction_){
+		disconnect(scanAction_, SIGNAL(descriptionChanged()), this, SLOT(updateScanNameLabel()));
 		disconnect(scanAction_, SIGNAL(progress(double,double)), this, SLOT(updateProgressBar(double,double)));
 		disconnect(scanAction_, SIGNAL(started()), this, SLOT(onScanStarted()));
 		disconnect(scanAction_, SIGNAL(succeeded()), this, SLOT(onScanFinished()));
@@ -209,6 +234,7 @@ void AMBeamlineScanActionView::setAction(AMBeamlineActionItem *action){
 	scanAction_ = scanAction;
 	if(scanAction_){
 		updateScanNameLabel();
+		connect(scanAction_, SIGNAL(descriptionChanged()), this, SLOT(updateScanNameLabel()));
 		connect(scanAction_, SIGNAL(progress(double,double)), this, SLOT(updateProgressBar(double,double)));
 		connect(scanAction_, SIGNAL(started()), this, SLOT(onScanStarted()));
 		connect(scanAction_, SIGNAL(succeeded()), this, SLOT(onScanFinished()));

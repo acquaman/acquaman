@@ -64,6 +64,9 @@ public slots:
 	/// Responds to clicks of the addActionButton_.  Add an action to the workflow queue (\todo This does nothing for now... Make a flexible system for choosing from all available actions)
 	void onAddActionRequested();
 
+	/// Responds to requests from existing actions to place a new action (often a copy of themselves) at the end of the workflow
+	void onCopyActionRequested(AMBeamlineActionItem *action);
+
 // removed for now. Do we need these?
 //	void onAddActionRequested();
 //	void onAddScanRequested(AMScanConfiguration *cfg, bool startNow = false);
@@ -100,8 +103,8 @@ public:
 	*/
 
 signals:
-
 	void queueUpdated(int count);
+	void copyRequested(AMBeamlineActionItem *itemCopy);
 
 
 protected slots:

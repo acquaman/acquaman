@@ -30,6 +30,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPushButton>
 #include <QDebug>
 #include <QMouseEvent>
+#include <QMenu>
+#include <QAction>
 #include <QStyle>
 
 /// Using this for debuggging purposes in all ActionItem descendents and views
@@ -96,7 +98,11 @@ public:
 	/// Returns a pointer to the next action (if the action is not in a parallel list)
 	AMBeamlineActionItem* next() const;
 
+	/// Returns a newly created view this a given action (memory is responsibilitiy of the caller)
 	virtual AMBeamlineActionItemView* createView(int index = 0) = 0;
+
+	/// Returns a newly created beamlineActionItem which is the same as this one (memory is the responsibility of the caller). Need to check for NULL (0-valued) return, some actions may not be able to do this.
+	virtual AMBeamlineActionItem* createCopy() const;
 
 	virtual QString description() const;
 	virtual QString message() const;
@@ -123,6 +129,8 @@ signals:
 	void finished();
 	/// Should be emitted periodically to relay how much of the action has completed. Format: first argument is how much is done, second argument is the total to be done (could be % completed and 100%, for example)
 	void progress(double, double);
+
+	void descriptionChanged(const QString &description);
 
 public slots:
 	/// Pure virtual. Sub-classes need to implement and they better call setStart(true) at some point causing started() to be emitted
@@ -224,10 +232,15 @@ signals:
 	void resumeRequested(AMBeamlineActionItem *action);
 	void stopRequested(AMBeamlineActionItem *action);
 
+	void copyRequested(AMBeamlineActionItem *action);
+	void descriptionChanged(const QString &description);
+
 protected slots:
 	virtual void onInfoChanged() = 0;
 	virtual void onStopCancelButtonClicked() = 0;
 	virtual void onPlayPauseButtonClicked() = 0;
+
+	virtual void onCreateCopyClicked();
 
 protected:
 	void mousePressEvent(QMouseEvent *event);
@@ -238,6 +251,7 @@ protected:
 	AMBeamlineActionItem *action_;
 	int index_;
 	bool inFocus_;
+	QMenu *optionsMenu_;
 };
 
 class AMImageListView : public QWidget

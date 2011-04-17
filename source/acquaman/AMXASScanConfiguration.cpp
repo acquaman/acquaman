@@ -27,6 +27,7 @@ AMXASScanConfiguration::AMXASScanConfiguration(QObject *parent) : AMScanConfigur
 {
 	regions_ = new AMXASRegionsList(this);
 	connect(regions_, SIGNAL(regionsChanged()), this, SIGNAL(regionsChanged()));
+	connect(regions_, SIGNAL(regionsChanged()), this, SIGNAL(configurationChanged()));
 }
 
 double AMXASScanConfiguration::startEnergy() const{

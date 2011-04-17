@@ -59,6 +59,7 @@ In theory, these relationships should normally be avoided.  However, at this poi
 class AMScanConfiguration : public AMDbObject
 {
 Q_OBJECT
+
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Generic Scan Configuration")
 
 public:
@@ -89,6 +90,10 @@ public:
 	virtual AMScanConfigurationView* createView(){
 		return 0; //NULL
 	}
+
+signals:
+	/// General signal that something about the configuration has changed
+	void configurationChanged();
 };
 
 #endif // ACQMAN_SCANCONFIGURATION_H
