@@ -26,9 +26,9 @@ protected slots:
 	void onOptionSelectorIndexChanged(int index);
 
 	/// Called when the save button is clicked to save a current option.
-	void onSaveOptionButtonClicked();
+	bool onSaveOptionButtonClicked();
 
-	/// Fills the option selector with available stored options.
+	/// Fills the option selector with available stored options. Returns true if saved, false if cancelled.
 	void populateOptionSelector();
 
 protected:

@@ -158,10 +158,11 @@ AMExportWizardOptionPage::AMExportWizardOptionPage(QWidget *parent)
 	setSubTitle(("The options available here depend on the file format you've selected.  You can save a set of options as a template for next time using the 'Save'/'Save As...' button."));
 }
 
-void AMExportWizardOptionPage::onSaveOptionButtonClicked() {
+bool AMExportWizardOptionPage::onSaveOptionButtonClicked() {
 	// is this option previously saved?
 	if(option_->database() != 0 && option_->id() > 0) {
 		option_->storeToDb(option_->database());
+		return true;
 	}
 
 	else {
@@ -173,23 +174,65 @@ void AMExportWizardOptionPage::onSaveOptionButtonClicked() {
 			name = QInputDialog::getText(this, "Save Settings As...",
 											 "Please provide a name for this template:",
 											 QLineEdit::Normal,
-											 exporter_->description() % QDateTime::currentDateTime().toString("MMM d yyyy"),
+											 exporter_->description() % " " % QDateTime::currentDateTime().toString("MMM d yyyy"),
 											 &ok);
 
-			if(name.isEmpty())
+			if(ok && name.isEmpty())
 				QMessageBox::information(this, "Missing name", "You must provide a name if you want to save this template.", QMessageBox::Ok);
-			else {
+			else if(ok) {
 				option_->setName(name);
-				option_->storeToDb(AMDatabase::userdb());
-				populateOptionSelector();
+				if(option_->storeToDb(AMDatabase::userdb())) {
+					// populateOptionSelector(); instead... sneak it into the list without forcing a re-load.
+					optionSelector_->blockSignals(true);
+					optionSelector_->addItem(option_->name(), option_->id());
+					optionSelector_->setCurrentIndex(optionSelector_->count()-1);
+					optionSelector_->blockSignals(false);
+					saveOptionButton_->setText("Save");
+					saveOptionButton_->setEnabled(option_->modified());
+					return true;
+				}
+				else
+					return false;	// storeToDb save failed.
 			}
 		}
+		// prompt was cancelled; not saved.
+		return false;
 	}
 }
 
 
 bool AMExportWizardOptionPage::validatePage()
 {
+	// new option, unsaved, and modified. Do they want to save it?
+	if(option_->modified() && option_->id() < 1) {
+		int response = QMessageBox::question(this, "Save changes to template?", "You've made changes to this template.\n\nDo you want to store this template to use again next time?", QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel, QMessageBox::Save);
+		switch(response) {
+		case QMessageBox::Save:
+			return onSaveOptionButtonClicked();
+		case QMessageBox::Discard:
+			return true;		// proceed on to next page.
+		case QMessageBox::Cancel:
+			return false;	// don't go on to next page.
+		}
+	}
+	// existing option, modified but unsaved
+	else if(option_->modified()) {
+		int response = QMessageBox::question(this,
+											"Save changes to template?",
+											"You've made changes to the template '" % option_->name() % "'.\n\nDo you want to save these changes for next time?",
+											QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel,
+											QMessageBox::Save);
+		switch(response) {
+		case QMessageBox::Save:
+			return onSaveOptionButtonClicked();
+		case QMessageBox::Discard:
+			return true;		// proceed on to next page.
+		case QMessageBox::Cancel:
+			return false;	// don't go on to next page.
+		}
+	}
+
+	// no changes.  Good to keep on going.
 	return true;
 }
 
@@ -200,16 +243,21 @@ void AMExportWizardOptionPage::initializePage()
 {
 	exporter_ = qobject_cast<AMExportWizard*>(wizard())->controller()->exporter();
 
+	populateOptionSelector();
+}
+
+void AMExportWizardOptionPage::onOptionSelectorIndexChanged(int index)
+{
 	delete option_;	// might be 0 if no option yet... but that's okay.
 	delete optionView_;	// might be 0 if no option yet... or if last option couldn't create an editor. but that's okay.
 
-	populateOptionSelector();
-
-	// if we don't have any existing options... make a default one.
-	if(optionSelector_->count() == 0) {
+	// add new option...
+	if(index < 1) {
 		option_ = exporter_->createDefaultOption();
 		saveOptionButton_->setText("Save As...");
 	}
+
+	// or load saved option
 	else {
 		option_ = qobject_cast<AMExporterOption*>(
 					AMDbObjectSupport::createAndLoadObjectAt(
@@ -220,45 +268,31 @@ void AMExportWizardOptionPage::initializePage()
 		saveOptionButton_->setText("Save");
 	}
 
+	/// \todo need a place to display the option name.
+
 	optionView_ = option_->createEditorWidget();
 	if(optionView_)
 		optionViewContainer_->layout()->addWidget(optionView_);
+
 
 	saveOptionButton_->setEnabled(option_->modified());
 	connect(option_, SIGNAL(modifiedChanged(bool)), saveOptionButton_, SLOT(setEnabled(bool)));
-}
-
-void AMExportWizardOptionPage::onOptionSelectorIndexChanged(int index)
-{
-	delete option_;
-	delete optionView_;
-
-	option_ = qobject_cast<AMExporterOption*>(
-				AMDbObjectSupport::createAndLoadObjectAt(
-					AMDatabase::userdb(),
-					AMDbObjectSupport::tableNameForClass(exporter_->exporterOptionClassName()),
-					optionSelector_->itemData(optionSelector_->currentIndex()).toInt()));
-
-	saveOptionButton_->setText("Save");
-	saveOptionButton_->setEnabled(option_->modified());
-
-	// need a place to display the option name.
-
-	optionView_ = option_->createEditorWidget();
-	if(optionView_)
-		optionViewContainer_->layout()->addWidget(optionView_);
 }
 
 void AMExportWizardOptionPage::populateOptionSelector()
 {
 	optionSelector_->blockSignals(true);
 	optionSelector_->clear();
+
+	// add "New Option" item
+	optionSelector_->addItem("New Template", -1);
+
 	// fill option combo box
 	QSqlQuery q = AMDbObjectSupport::select(AMDatabase::userdb(), exporter_->exporterOptionClassName(), "id, name");
 	while(q.next()) {
 		optionSelector_->addItem(q.value(1).toString(),
 								 q.value(0).toInt());	// note: putting the database id in Qt::UserRole.
 	}
-	optionSelector_->setCurrentIndex(optionSelector_->count()-1);
 	optionSelector_->blockSignals(false);
+	optionSelector_->setCurrentIndex(optionSelector_->count()-1);	// this will call onOptionSelectorChanged
 }
