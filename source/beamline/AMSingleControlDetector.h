@@ -7,7 +7,7 @@ class AMSingleControlDetector : public AMDetectorInfo, public AMDetector
 {
 Q_OBJECT
 public:
-	AMSingleControlDetector(const QString& name, AMControl *control, QObject *parent = 0);
+	AMSingleControlDetector(const QString& name, AMControl *control, AMDetector::ReadMethod readMethod = AMDetector::ImmediateRead, QObject *parent = 0);
 	~AMSingleControlDetector();
 
 	const QMetaObject* getMetaObject();

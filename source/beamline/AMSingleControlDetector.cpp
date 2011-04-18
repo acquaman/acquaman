@@ -1,7 +1,7 @@
 #include "AMSingleControlDetector.h"
 
-AMSingleControlDetector::AMSingleControlDetector(const QString& name, AMControl *control, QObject *parent) :
-		AMDetectorInfo(name, name, parent), AMDetector(name)
+AMSingleControlDetector::AMSingleControlDetector(const QString &name, AMControl *control, AMDetector::ReadMethod readMethod, QObject *parent) :
+		AMDetectorInfo(name, name, parent), AMDetector(name, readMethod)
 {
 	control_ = control;
 	connect(control_, SIGNAL(connected(bool)), this, SLOT(onControlConnected(bool)));

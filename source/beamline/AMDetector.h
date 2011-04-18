@@ -62,7 +62,16 @@ signals:
 class AMDetector
 {
 public:
-	AMDetector(const QString& name);
+	/// This enum type is used to describe the way a detector reports its readings.
+	/*! Possible explanation codes are:
+	*/
+	enum ReadMethod {
+		ImmediateRead = 1,	///< Just reports the current value (cached) for the readings (call value() for an AMControl)
+		RequestRead,		///< Should request a new value before reporting (probably need to set a trigger AMControl)
+		WaitRead,		///< Should wait for a new value before reporting (connect to valueChanged() for an AMControl)
+	};
+
+	AMDetector(const QString& name, AMDetector::ReadMethod readMethod = AMDetector::ImmediateRead);
 
 	virtual ~AMDetector();
 
@@ -73,6 +82,10 @@ public:
 	/// AMDetector is not a QObject, but it's children should be. To allow its for generalized GUI creation, children that are QObjects MUST implement this (likely just child->metaObject() )
 	virtual const QMetaObject* getMetaObject();
 
+	/// The read method this detector is using (see AMDetector::ReadMethod enum)
+	virtual AMDetector::ReadMethod readMethod() const;
+
+	/// Get the current reading
 	virtual double reading() const;
 
 	/// AMDetector sub classes need to reimplement this to return their own detectorInfo class. NEEDS TO RETURN A NEW INSTANCE, CALLER IS RESPONSIBLE FOR MEMORY.
@@ -80,10 +93,15 @@ public:
 
 	/// the identifying name() of a detector can sometimes be used to select one from a set of detector. Therefore, it's not really recommended to change the name after a detector is created.
 	QString detectorName() const;
+
 	/// The description() of a detector is a human-readable, free-form string.
 	virtual QString description() const = 0;
+
 	/// Descriptions can be changed at will, and the detector will emit infoChanged() when this happens.
 	virtual void setDescription(const QString& description) = 0;
+
+	/// Read Method can be changed if necessary (see AMDetector::ReadMethod enum)
+	virtual void setReadMethod(AMDetector::ReadMethod readMethod);
 
 	/* NTBA March 14, 2011 David Chevrier
 	   Should have something like this
@@ -100,8 +118,12 @@ protected:
 	void emitReadingsChanged();
 	void emitSettingsChanged();
 
+protected:
 	/// identifying name for this detector
 	QString name_;
+
+	/// Read Method for this detector (see readMethod enum)
+	AMDetector::ReadMethod readMethod_;
 
 private:
 	/// QObject proxy for emitting signals. (This interface class can't emit directly, because it doesn't want to inherit QObject.)

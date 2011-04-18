@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMBEAMLINEACTIONITEM_H
 
 #include "util/AMOrderedSet.h"
+#include "util/AMErrorMonitor.h"
 
 #include <QObject>
 #include <QWidget>

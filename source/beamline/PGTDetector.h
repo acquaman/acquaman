@@ -9,8 +9,8 @@ class PGTDetector : public PGTDetectorInfo, public AMDetector
 {
 	Q_OBJECT
 public:
-	PGTDetector(const QString &name, AMControlSet *readingsControls, AMControlSet *settingsControls, QObject *parent = 0);
-	PGTDetector(const QString& name, AMControl *dataWaveform, AMControl *hv, AMControl *integrationTime, AMControl *integrationMode, QObject *parent = 0);
+	PGTDetector(const QString &name, AMControlSet *readingsControls, AMControlSet *settingsControls, AMDetector::ReadMethod readMethod = AMDetector::ImmediateRead, QObject *parent = 0);
+	PGTDetector(const QString& name, AMControl *dataWaveform, AMControl *hv, AMControl *integrationTime, AMControl *integrationMode, AMDetector::ReadMethod readMethod = AMDetector::ImmediateRead, QObject *parent = 0);
 	~PGTDetector();
 
 	const QMetaObject* getMetaObject();

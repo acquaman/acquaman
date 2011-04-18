@@ -29,6 +29,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMBeamlineActionItem.h"
 #include "acquaman/AMScanConfiguration.h"
 
+#define AMBEAMLINEACTIONITEM_CANT_CREATE_CONTROLLER 27101
+#define AMBEAMLINEACTIONITEM_SCAN_CANCELLED 27102
+#define AMBEAMLINEACTIONITEM_CANT_SET_CURRENT_CONTROLLER 27103
+#define AMBEAMLINEACTIONITEM_CANT_INITIALIZE_CONTROLLER 27104
+#define AMBEAMLINEACTIONITEM_CANT_START_CONTROLLER 27105
+
 class AMBeamlineScanAction : public AMBeamlineActionItem
 {
 Q_OBJECT
@@ -61,6 +67,7 @@ public slots:
 protected slots:
 	virtual void initialize();
 	void delayedStart(bool ready);
+	virtual void onScanInitialized();
 	virtual void onScanStarted();
 	virtual void onScanCancelled();
 	virtual void onScanSucceeded();

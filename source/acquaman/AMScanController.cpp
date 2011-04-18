@@ -90,16 +90,20 @@ bool AMScanController::isFailed() const {
 
 bool AMScanController::initialize(){
 	if(changeState(AMScanController::Initializing)){
-		initializeImplementation();
-		return true;
+		if(initializeImplementation())
+			return true;
+		else
+			return false;
 	}
 	return false;
 }
 
 bool AMScanController::start(){
 	if(changeState(AMScanController::Starting)){
-		startImplementation();
-		return true;
+		if(startImplementation())
+			return true;
+		else
+			return false;
 	}
 	return false;
 }

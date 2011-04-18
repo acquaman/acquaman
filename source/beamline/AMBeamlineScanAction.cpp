@@ -22,10 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/AMScanController.h"
 
 #include "beamline/AMBeamline.h"
-
-#define AMBEAMLINEACTIONITEM_INVALID_SCAN_TYPE 101
-#define AMBEAMLINEACTIONITEM_SCAN_CANCELLED 102
-#define AMBEAMLINEACTIONITEM_CANT_SET_CURRENT_CONTROLLER 103
+#include "ui/AMDateTimeUtils.h"
 
 AMBeamlineScanAction::AMBeamlineScanAction(AMScanConfiguration *cfg, QObject *parent) :
 		AMBeamlineActionItem(true, parent)
@@ -77,14 +74,20 @@ void AMBeamlineScanAction::start(){
 			qDebug() << "Not reinitalized, creating new controller";
 		ctrl_ = cfg_->createController();
 		if(!ctrl_) {
-			qDebug() << "Failed to create controller.";
-			setFailed(true, AMBEAMLINEACTIONITEM_INVALID_SCAN_TYPE);	// might want to rename this now.
+			AMErrorMon::report(AMErrorReport(this,
+					AMErrorReport::Alert,
+					AMBEAMLINEACTIONITEM_CANT_INITIALIZE_CONTROLLER,
+					"Error, could not create scan controller. Please report this bug to the Acquaman developers."));
+			setFailed(true, AMBEAMLINEACTIONITEM_CANT_CREATE_CONTROLLER);
 			return;
 		}
 
 		if( !AMScanControllerSupervisor::scanControllerSupervisor()->setCurrentScanController(ctrl_) ){
 			delete ctrl_;
-			qDebug() << "Failed to set current scan controller";
+			AMErrorMon::report(AMErrorReport(this,
+					AMErrorReport::Alert,
+					AMBEAMLINEACTIONITEM_CANT_INITIALIZE_CONTROLLER,
+					"Error, could not set current scan controller. Please report this bug to the Acquaman developers."));
 			setFailed(true, AMBEAMLINEACTIONITEM_CANT_SET_CURRENT_CONTROLLER);
 			return;
 		}
@@ -100,8 +103,17 @@ void AMBeamlineScanAction::start(){
 
 
 	// should this connection happen all the time, even if controller re-initialized?
-	connect(ctrl_, SIGNAL(initialized()), ctrl_, SLOT(start()));
-	ctrl_->initialize();
+	//connect(ctrl_, SIGNAL(initialized()), ctrl_, SLOT(start()));
+	connect(ctrl_, SIGNAL(initialized()), this, SLOT(onScanInitialized()));
+	if(!ctrl_->initialize()){
+		AMErrorMon::report(AMErrorReport(this,
+				AMErrorReport::Alert,
+				AMBEAMLINEACTIONITEM_CANT_INITIALIZE_CONTROLLER,
+				"Error, could not initialize scan controller. Please report this bug to the Acquaman developers."));
+		delete ctrl_;
+		setFailed(true, AMBEAMLINEACTIONITEM_CANT_INITIALIZE_CONTROLLER);
+		return;
+	}
 }
 
 void AMBeamlineScanAction::cancel(){
@@ -135,6 +147,18 @@ void AMBeamlineScanAction::delayedStart(bool ready){
 	start();
 }
 
+void AMBeamlineScanAction::onScanInitialized(){
+	if(!ctrl_->start()){
+		AMErrorMon::report(AMErrorReport(this,
+				AMErrorReport::Alert,
+				AMBEAMLINEACTIONITEM_CANT_START_CONTROLLER,
+				"Error, could not start scan controller. Please report this bug to the Acquaman developers."));
+		delete ctrl_;
+		setFailed(true, AMBEAMLINEACTIONITEM_CANT_START_CONTROLLER);
+		return;
+	}
+}
+
 void AMBeamlineScanAction::onScanStarted(){
 	setDescription(cfg_->description()+" [Running]");
 	emit descriptionChanged();
@@ -148,7 +172,8 @@ void AMBeamlineScanAction::onScanCancelled(){
 }
 
 void AMBeamlineScanAction::onScanSucceeded(){
-	setDescription(cfg_->description()+" [Completed "+QDateTime::currentDateTime().toString("h:mm ap")+"]");
+	//setDescription(cfg_->description()+" [Completed "+QDateTime::currentDateTime().toString("h:mm ap")+"]");
+	setDescription(cfg_->description()+" [Completed "+AMDateTimeUtils::prettyDateTime(QDateTime::currentDateTime())+"]");
 	emit descriptionChanged();
 	setSucceeded(true);
 }
@@ -162,7 +187,6 @@ void AMBeamlineScanAction::onBeamlineScanningChanged(bool isScanning){
 }
 
 void AMBeamlineScanAction::onConfigurationChanged(){
-	qDebug() << "Description is " << cfg_->description();
 	setDescription(cfg_->description());
 	emit descriptionChanged();
 }

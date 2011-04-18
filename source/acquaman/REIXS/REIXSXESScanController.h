@@ -21,11 +21,11 @@ signals:
 
 protected:
 	/// Start scan running if not currently running or paused
-	virtual void startImplementation();
+	virtual bool startImplementation();
 	/// Cancel scan if currently running or paused
 	virtual void cancelImplementation();
 	/// Called before starting to satisfy any prerequisites (ie: setting up the beamline, setting up files, etc.)
-	virtual void initializeImplementation();
+	virtual bool initializeImplementation();
 
 
 protected slots:

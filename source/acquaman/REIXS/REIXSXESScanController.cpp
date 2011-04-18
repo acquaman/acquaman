@@ -49,15 +49,15 @@ REIXSXESScanController::REIXSXESScanController(REIXSXESScanConfiguration* config
 
 
 /// Called before starting to satisfy any prerequisites (ie: setting up the beamline, setting up files, etc.)
-void REIXSXESScanController::initializeImplementation() {
+bool REIXSXESScanController::initializeImplementation() {
 
 
 
 	// configure and clear the MCP detector
 	if( !REIXSBeamline::bl()->mcpDetector()->setFromInfo(*(pCfg()->mcpDetectorInfo())) ) {
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 3, "Could not connect to and configure the MCP detector before starting XES scan."));
-		setFailed();
-		return;
+		//setFailed();
+		return false;
 	}
 
 
@@ -66,7 +66,7 @@ void REIXSXESScanController::initializeImplementation() {
 	//if(pCfg()->shouldStartFromCurrentPosition()) {
 	if(true) {
 		onInitialSetupMoveSucceeded();
-		return;
+		return true;
 	}
 
 	else {
@@ -82,8 +82,8 @@ void REIXSXESScanController::initializeImplementation() {
 		if(!initialMoveAction_->setSetpoint(moveValues)) {
 			/// \todo How to notify init failed?
 			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 3, "Could not start moving the spectrometer into position; maybe the move positions were out of range?"));
-			emit cancelled();
-			return;
+			//emit cancelled();
+			return false;
 		}
 
 		connect(initialMoveAction_, SIGNAL(succeeded()), this, SLOT(onInitialSetupMoveSucceeded()));
@@ -91,7 +91,7 @@ void REIXSXESScanController::initializeImplementation() {
 		initialMoveAction_->start();
 
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, "Moving spectrometer into position before starting the scan..."));
-
+		return true;
 	}
 
 }
@@ -113,7 +113,7 @@ void REIXSXESScanController::onInitialSetupMoveSucceeded() {
 	setInitialized();
 }
 
-void REIXSXESScanController::startImplementation() {
+bool REIXSXESScanController::startImplementation() {
 
 	REIXSBeamline::bl()->mcpDetector()->clearImage();
 
@@ -124,6 +124,7 @@ void REIXSXESScanController::startImplementation() {
 	scanProgressTimer_.start(1000);
 
 	setStarted();
+	return true;
 }
 
 /// Cancel scan if currently running or paused

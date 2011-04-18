@@ -47,7 +47,7 @@ AMDacqScanController::AMDacqScanController(AMScanConfiguration *cfg, QObject *pa
 	usingSpectraDotDatFile_ = false;
 }
 
-void AMDacqScanController::startImplementation(){
+bool AMDacqScanController::startImplementation(){
 		acqBaseOutput *abop = acqOutputHandlerFactory::new_acqOutput("AMScanSpectrum", "File");
 		if( abop)
 		{
@@ -70,9 +70,11 @@ void AMDacqScanController::startImplementation(){
 			((AMAcqScanSpectrumOutput*)abop)->setScan(pScan_());
 			((AMAcqScanSpectrumOutput*)abop)->setScanController(this);
 			advAcq_->Start();
+			return true;
 		}
 		else{
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -1, "AMDacqScanController: could not create output handler."));
+			return false;
 		}
 }
 
@@ -93,6 +95,19 @@ void AMDacqScanController::cancelImplementation()
 {
 	dacqCancelled_ = true;
 	advAcq_->Stop();
+}
+
+int AMDacqScanController::detectorReadMethodToDacqReadMethod(AMDetector::ReadMethod readMethod){
+	switch(readMethod){
+	case AMDetector::ImmediateRead :
+		return 0;
+	case AMDetector::RequestRead :
+		return 1;
+	case AMDetector::WaitRead :
+		return 2;
+	default:
+		return 0;
+	}
 }
 
 bool AMDacqScanController::event(QEvent *e){
