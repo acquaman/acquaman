@@ -11,6 +11,7 @@ class AMFolderPathLineEdit;
 class QPushButton;
 class AMExporterOption;
 class AMExporter;
+class AMExportController;
 
 class AMExportWizardOptionPage : public QWizardPage {
 	Q_OBJECT
@@ -39,8 +40,7 @@ protected:
 	AMExporterOption* option_;
 	AMExporter* exporter_;
 	QWidget* optionView_;
-
-
+	AMExportController* controller_;
 };
 
 class AMExportWizardChooseExporterPage : public QWizardPage {
@@ -74,7 +74,7 @@ protected:
 
 };
 
-class AMExportController;
+
 
 class AMExportWizard : public QWizard
 {

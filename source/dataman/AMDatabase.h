@@ -124,6 +124,9 @@ public:
 	/// Returns a QSqlQuery object for this database. The contents of the query have not been initialized. Beware: this can give you full-power access to the database. Don't break it!
 	QSqlQuery query() { return QSqlQuery(qdb()); }
 
+	/// Returns a QSqlQuery initialized to run a SELECT on the given \c tableName.  \c columnNames is a comma-separated list of columns to include in the search.  \c whereClause is a string suitable for appending after an SQL "WHERE" statement, or empty (by default).
+	QSqlQuery select(const QString& tableName, const QString& columnNames, const QString& whereClause = QString());
+
 
 	/// Return a list of all the objects/rows (by id) that match 'value' in a certain column.
 	/// ex: AMDatabase::db()->objectsMatching("name", "Carbon60"), or AMDatabase::db()->objectsMatching("dateTime", QDateTime::currentDateTime())
@@ -152,11 +155,11 @@ public:
 
 
 signals:
-	/// Emitted when an object is newly created and stored in the db. Contains the id of the newly-inserted object.
+	/// Emitted when an object is newly created and stored in the db. Contains the id of the newly-inserted object.  \note This is only emitted when using the AMDatabase API to insert rows. If using a raw SQL query, this signal will not be emitted.
 	void created(const QString& tableName, int id);
-	/// Emitted when an object is modified. Contains the id of the modified object, or -1 if a whole refresh is recommended.
+	/// Emitted when an object is modified. Contains the id of the modified object, or -1 if a whole refresh is recommended.  \note This is only emitted when using the AMDatabase API to modify rows. If using a raw SQL query, this signal will not be emitted.
 	void updated(const QString& tableName, int id);
-	/// Emitted after an object is removed. Contains the old id of the removed object.
+	/// Emitted after an object is removed. Contains the old id of the removed object.  \note This is only emitted when using the AMDatabase API to remove rows. If using a raw SQL query, this signal will not be emitted.
 	void removed(const QString& tableName, int oldId);
 
 protected:

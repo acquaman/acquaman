@@ -241,7 +241,10 @@ bool AMExportWizardOptionPage::validatePage()
 
 void AMExportWizardOptionPage::initializePage()
 {
-	exporter_ = qobject_cast<AMExportWizard*>(wizard())->controller()->exporter();
+	controller_ = qobject_cast<AMExportWizard*>(wizard())->controller();
+	exporter_ = controller_->exporter();
+
+	controller_->searchForAvailableDataSources();
 
 	populateOptionSelector();
 }
@@ -268,11 +271,12 @@ void AMExportWizardOptionPage::onOptionSelectorIndexChanged(int index)
 		saveOptionButton_->setText("Save");
 	}
 
-	/// \todo need a place to display the option name.
+	option_->setAvailableDataSourcesModel(controller_->availableDataSourcesModel());
 
 	optionView_ = option_->createEditorWidget();
-	if(optionView_)
+	if(optionView_) {
 		optionViewContainer_->layout()->addWidget(optionView_);
+	}
 
 
 	saveOptionButton_->setEnabled(option_->modified());
@@ -293,6 +297,9 @@ void AMExportWizardOptionPage::populateOptionSelector()
 		optionSelector_->addItem(q.value(1).toString(),
 								 q.value(0).toInt());	// note: putting the database id in Qt::UserRole.
 	}
+
+	optionSelector_->setCurrentIndex(optionSelector_->count()-1);
 	optionSelector_->blockSignals(false);
-	optionSelector_->setCurrentIndex(optionSelector_->count()-1);	// this will call onOptionSelectorChanged
+
+	onOptionSelectorIndexChanged(optionSelector_->count()-1);
 }

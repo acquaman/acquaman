@@ -502,14 +502,7 @@ namespace AMDbObjectSupport {
 
 	QSqlQuery select(AMDatabase* db, const QString& className, const QString& columnNames, const QString& whereClause) {
 
-		QSqlQuery q = db->query();
-		QString whereString = whereClause.isEmpty() ? QString() : " WHERE " % whereClause;
-
-		QString query = "SELECT " % columnNames % " FROM " % tableNameForClass(className) % whereString % ";";
-		q.prepare(query);
-		q.exec();
-
-		return q;
+		return db->select(tableNameForClass(className), columnNames, whereClause);
 	}
 
 }	// END OF NAMESPACE AMDbObjectSupport

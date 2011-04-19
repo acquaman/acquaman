@@ -16,5 +16,5 @@ AMExporterOptionGeneralAscii::AMExporterOptionGeneralAscii(QObject *parent) :
 
 QWidget * AMExporterOptionGeneralAscii::createEditorWidget()
 {
-	return new AMExporterOptionGeneralAsciiView(this);
+	return new AMExporterOptionGeneralAsciiView(this, availableDataSourcesModel_);
 }
