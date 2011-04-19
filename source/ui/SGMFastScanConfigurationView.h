@@ -1,14 +1,16 @@
 #ifndef SGMFASTSCANCONFIGURATIONVIEWER_H
 #define SGMFASTSCANCONFIGURATIONVIEWER_H
 
-#include <QGridLayout>
-#include <QComboBox>
-#include <QLabel>
-#include <QFileDialog>
-#include <QDoubleSpinBox>
-#include <QSpinBox>
-#include <QLineEdit>
-#include <QFormLayout>
+class QGridLayout;
+class QComboBox;
+class QLabel;
+class QFileDialog;
+class QDoubleSpinBox;
+class QSpinBox;
+class QLineEdit;
+class QFormLayout;
+
+class AMTopFrame;
 
 #include <algorithm>
 
@@ -45,6 +47,7 @@ protected:
 	   Part of exporter package
 	QString autoSavePath_;
 	*/
+	AMTopFrame *topFrame_;
 
 	QComboBox *presetsComboBox_;
 	QLabel *elementLabel_;
@@ -73,7 +76,7 @@ protected:
 	QFileDialog *autoSaveDialog_;
 	QPushButton *autoSaveDialogButton_;
 	*/
-	QGridLayout gl_;
+	QGridLayout *gl_;
 	QFormLayout *fl_;
 	QFormLayout *fl2_;
 };

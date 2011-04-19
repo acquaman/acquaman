@@ -32,6 +32,7 @@ AMXASRegionsView::AMXASRegionsView(AMXASRegionsList *regions, QWidget *parent) :
 	QHBoxLayout *hl_ = new QHBoxLayout();
 	hl_->addWidget(addButton_);
 	hl_->addWidget(deleteButton_);
+	hl_->setContentsMargins(0, 5, 5, 0);
 	regions_ = regions;
 	tv_ = new QTableView(this);
 	tv_->setModel(regions_->model());
@@ -41,12 +42,13 @@ AMXASRegionsView::AMXASRegionsView(AMXASRegionsList *regions, QWidget *parent) :
 	tv_->verticalHeader()->setVisible(false);
 	tv_->resize(tv_->sizeHint());
 
-	QFormLayout *fl_ = new QFormLayout(this);
-	fl_->addRow(tv_);
-	fl_->addRow(hl_);
-	setLayout(fl_);
-	addRegionMenu_= NULL;
-	deleteRegionMenu_ = NULL;
+	QVBoxLayout *vl = new QVBoxLayout();
+	vl->addWidget(tv_, 10);
+	vl->addLayout(hl_);
+	vl->setContentsMargins(5, 0, 5, 0);
+	setLayout(vl);
+	addRegionMenu_= 0;//NULL
+	deleteRegionMenu_ = 0;//NULL
 	connect(addButton_, SIGNAL(clicked()), this, SLOT(addRegion()));
 	connect(deleteButton_, SIGNAL(clicked()), this, SLOT(deleteRegion()));
 }

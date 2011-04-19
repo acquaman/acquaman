@@ -172,7 +172,7 @@ void SGMBeamline::usingSGMBeamline(){
 	sgmPVName = amNames2pvNames_.valueF("grating");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
-	grating_ = new AMPVwStatusControl("grating", sgmPVName, sgmPVName, "SMTR16114I1016:state", "", this, 0.1);
+	grating_ = new AMPVwStatusControl("grating", sgmPVName+":fbk", sgmPVName, "SMTR16114I1016:state", "SMTR16114I1016:emergStop", this, 0.1, 2.0, new AMControlStatusCheckerStopped(0));
 	sgmPVName = amNames2pvNames_.valueF("harmonic");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
@@ -838,19 +838,43 @@ SGMBeamline::~SGMBeamline()
 }
 
 QString SGMBeamline::sgmGratingName(SGMBeamline::sgmGrating grating) const {
-	if(grating == 0)
+	if(grating == SGMBeamline::lowGrating)
 		return "lowGrating";
-	else if(grating == 1)
+	else if(grating == SGMBeamline::mediumGrating)
 		return "mediumGrating";
-	else if(grating == 2)
+	else if(grating == SGMBeamline::highGrating)
 		return "highGrating";
+	else
+		return "ERROR";
+}
+
+QString SGMBeamline::sgmGratingDescription(SGMBeamline::sgmGrating grating) const{
+	if(grating == SGMBeamline::lowGrating)
+		return "Low Energy";
+	else if(grating == SGMBeamline::mediumGrating)
+		return "Medium Energy";
+	else if(grating == SGMBeamline::highGrating)
+		return "High Energy";
+	else
+		return "ERROR";
 }
 
 QString SGMBeamline::sgmHarmonicName(SGMBeamline::sgmHarmonic harmonic) const {
-	if(harmonic == 0)
+	if(harmonic == SGMBeamline::firstHarmonic)
 		return "firstHarmonic";
-	else if(harmonic == 1)
+	else if(harmonic == SGMBeamline::thirdHarmonic)
 		return "thirdHarmonic";
+	else
+		return "ERROR";
+}
+
+QString SGMBeamline::sgmHarmonicDescription(SGMBeamline::sgmHarmonic harmonic) const{
+	if(harmonic == SGMBeamline::firstHarmonic)
+		return "First";
+	else if(harmonic == SGMBeamline::thirdHarmonic)
+		return "Third";
+	else
+		return "ERROR";
 }
 
 QStringList SGMBeamline::unconnectedCriticals() const{
@@ -880,11 +904,11 @@ bool SGMBeamline::detectorValidForCurrentSignalSource(AMDetector *detector){
 }
 
 bool SGMBeamline::detectorValidForCurrentSignalSource(AMDetectorInfo *detectorInfo){
-	if(detectorSignalSource_->value() == 0)//ENUM 0 is Picoammeters
-		if( (detectorInfo->name() == teyPicoDetector_->toInfo()->name()) || (detectorInfo->name() == tfyPicoDetector_->toInfo()->name()) || (detectorInfo->name() == i0PicoDetector_->toInfo()->name()) || (detectorInfo->name() == photodiodePicoDetector_->toInfo()->name()))
-			return false;
-	if(detectorSignalSource_->value() == 1)//ENUM 1 is Scaler
+	if(detectorSignalSource_->value() == 0)//ENUM 0 is Picoammeters, so if the names are Scalers we're messed up
 		if( (detectorInfo->name() == teyScalerDetector_->toInfo()->name()) || (detectorInfo->name() == tfyScalerDetector_->toInfo()->name()) || (detectorInfo->name() == i0ScalerDetector_->toInfo()->name()) || (detectorInfo->name() == photodiodeScalerDetector_->toInfo()->name()))
+			return false;
+	if(detectorSignalSource_->value() == 1)//ENUM 1 is Scalers, so if the names are Picos we're messed up
+		if( (detectorInfo->name() == teyPicoDetector_->toInfo()->name()) || (detectorInfo->name() == tfyPicoDetector_->toInfo()->name()) || (detectorInfo->name() == i0PicoDetector_->toInfo()->name()) || (detectorInfo->name() == photodiodePicoDetector_->toInfo()->name()))
 			return false;
 	return true;
 }
@@ -1279,67 +1303,67 @@ void SGMBeamline::onControlSetConnected(bool csConnected){
 	if(csConnected){
 		unconnectedSets_.removeAll(ctrlSet);
 		if(!teyPicoDetector_ && ctrlSet->name() == "TEY Pico Controls"){
-			teyPicoDetector_ = new AMSingleControlDetector(teyPico_->name(), teyPico_, this);
+			teyPicoDetector_ = new AMSingleControlDetector(teyPico_->name(), teyPico_, AMDetector::WaitRead, this);
 			teyPicoDetector_->setDescription("TEY");
 			allDetectors_->addDetector(teyPicoDetector_);
 			XASDetectors_->addDetector(teyPicoDetector_, true);
 		}
 		else if(!teyScalerDetector_ && ctrlSet->name() == "TEY Scaler Controls"){
-			teyScalerDetector_ = new AMSingleControlDetector(teyScaler_->name(), teyScaler_, this);
+			teyScalerDetector_ = new AMSingleControlDetector(teyScaler_->name(), teyScaler_, AMDetector::WaitRead, this);
 			teyScalerDetector_->setDescription("TEY");
 			allDetectors_->addDetector(teyScalerDetector_);
 			XASDetectors_->addDetector(teyScalerDetector_, true);
 		}
 		else if(!tfyPicoDetector_ && ctrlSet->name() == "TFY Pico Controls"){
-			tfyPicoDetector_ = new MCPDetector(tfyPico_->name(), tfyPico_, tfyHV_, this);
+			tfyPicoDetector_ = new MCPDetector(tfyPico_->name(), tfyPico_, tfyHV_, AMDetector::WaitRead, this);
 			tfyPicoDetector_->setDescription("TFY");
 			allDetectors_->addDetector(tfyPicoDetector_);
 			XASDetectors_->addDetector(tfyPicoDetector_, true);
 		}
 		else if(!tfyScalerDetector_ && ctrlSet->name() == "TFY Scaler Controls"){
-			tfyScalerDetector_ = new MCPDetector(tfyScaler_->name(), tfyScaler_, tfyHV_, this);
+			tfyScalerDetector_ = new MCPDetector(tfyScaler_->name(), tfyScaler_, tfyHV_, AMDetector::WaitRead, this);
 			tfyScalerDetector_->setDescription("TFY");
 			allDetectors_->addDetector(tfyScalerDetector_);
 			XASDetectors_->addDetector(tfyScalerDetector_, true);
 		}
 		else if(!pgtDetector_ && ctrlSet->name() == "SDD Controls"){
-			pgtDetector_ = new PGTDetector(pgt_->name(), pgt_, pgtHV_, pgtIntegrationTime_, pgtIntegrationMode_, this);
+			pgtDetector_ = new PGTDetector(pgt_->name(), pgt_, pgtHV_, pgtIntegrationTime_, pgtIntegrationMode_, AMDetector::WaitRead, this);
 			allDetectors_->addDetector(pgtDetector_);
 			XASDetectors_->addDetector(pgtDetector_);
 		}
 		else if(!i0PicoDetector_ && ctrlSet->name() == "I0 Pico Controls"){
-			i0PicoDetector_ = new AMSingleControlDetector(i0Pico_->name(), i0Pico_, this);
+			i0PicoDetector_ = new AMSingleControlDetector(i0Pico_->name(), i0Pico_, AMDetector::WaitRead, this);
 			i0PicoDetector_->setDescription("I0");
 			allDetectors_->addDetector(i0PicoDetector_);
 			feedbackDetectors_->addDetector(i0PicoDetector_);
 		}
 		else if(!i0ScalerDetector_ && ctrlSet->name() == "I0 Scaler Controls"){
-			i0ScalerDetector_ = new AMSingleControlDetector(i0Scaler_->name(), i0Scaler_, this);
+			i0ScalerDetector_ = new AMSingleControlDetector(i0Scaler_->name(), i0Scaler_, AMDetector::WaitRead, this);
 			i0ScalerDetector_->setDescription("I0");
 			allDetectors_->addDetector(i0ScalerDetector_);
 			feedbackDetectors_->addDetector(i0ScalerDetector_);
 		}
 		else if(!eVFbkDetector_ && ctrlSet->name() == "Energy Feedback Controls"){
-			eVFbkDetector_ = new AMSingleControlDetector(eVFbk_->name(), eVFbk_, this);
+			eVFbkDetector_ = new AMSingleControlDetector(eVFbk_->name(), eVFbk_, AMDetector::ImmediateRead, this);
 			allDetectors_->addDetector(eVFbkDetector_);
 			feedbackDetectors_->addDetector(eVFbkDetector_);
 		}
 		else if(!photodiodePicoDetector_ && ctrlSet->name() == "Photodiode Pico Controls"){
-			photodiodePicoDetector_ = new AMSingleControlDetector(photodiodePico_->name(), photodiodePico_, this);
+			photodiodePicoDetector_ = new AMSingleControlDetector(photodiodePico_->name(), photodiodePico_, AMDetector::WaitRead, this);
 			photodiodePicoDetector_->setDescription("Photodiode");
 			allDetectors_->addDetector(photodiodePicoDetector_);
 		}
 		else if(!photodiodeScalerDetector_ && ctrlSet->name() == "Photodiode Scaler Controls"){
-			photodiodeScalerDetector_ = new AMSingleControlDetector(photodiodeScaler_->name(), photodiodeScaler_, this);
+			photodiodeScalerDetector_ = new AMSingleControlDetector(photodiodeScaler_->name(), photodiodeScaler_, AMDetector::WaitRead, this);
 			photodiodeScalerDetector_->setDescription("Photodiode");
 			allDetectors_->addDetector(photodiodeScalerDetector_);
 		}
 		else if(!encoderUpDetector_ && ctrlSet->name() == "Encoder Up Controls"){
-			encoderUpDetector_ = new AMSingleControlDetector(encoderUp_->name(), encoderUp_, this);
+			encoderUpDetector_ = new AMSingleControlDetector(encoderUp_->name(), encoderUp_, AMDetector::WaitRead, this);
 			allDetectors_->addDetector(encoderUpDetector_);
 		}
 		else if(!encoderDownDetector_ && ctrlSet->name() == "Encoder Down Controls"){
-			encoderDownDetector_ = new AMSingleControlDetector(encoderDown_->name(), encoderDown_, this);
+			encoderDownDetector_ = new AMSingleControlDetector(encoderDown_->name(), encoderDown_, AMDetector::WaitRead, this);
 			allDetectors_->addDetector(encoderDownDetector_);
 		}
 		if(detectorSignalSource_->isConnected())

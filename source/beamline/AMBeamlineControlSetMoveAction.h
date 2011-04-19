@@ -65,6 +65,7 @@ protected:
 	AMControlInfoList fullSetpoint_; // Includes setpoint for all of the controls, even if the setpoint is a subset or a superset
 	AMControlInfoList startpoint_;
 	QTimer progressTimer_;
+	int numSucceeded_;
 };
 
 class AMBeamlineControlSetMoveActionView : public AMBeamlineActionItemView

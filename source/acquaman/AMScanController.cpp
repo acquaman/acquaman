@@ -90,16 +90,20 @@ bool AMScanController::isFailed() const {
 
 bool AMScanController::initialize(){
 	if(changeState(AMScanController::Initializing)){
-		initializeImplementation();
-		return true;
+		if(initializeImplementation())
+			return true;
+		else
+			return false;
 	}
 	return false;
 }
 
 bool AMScanController::start(){
 	if(changeState(AMScanController::Starting)){
-		startImplementation();
-		return true;
+		if(startImplementation())
+			return true;
+		else
+			return false;
 	}
 	return false;
 }
@@ -265,6 +269,7 @@ bool AMScanControllerSupervisor::setCurrentScanController(AMScanController *newS
 	if(!currentScanController_->scan())
 		return false;
 	connect(currentScanController_, SIGNAL(finished()), this, SLOT(onCurrentScanControllerFinished()));
+	connect(currentScanController_, SIGNAL(started()), this, SIGNAL(currentScanControllerStarted()));
 	emit currentScanControllerCreated();
 	return true;
 }
@@ -279,6 +284,7 @@ bool AMScanControllerSupervisor::deleteCurrentScanController(){
 void AMScanControllerSupervisor::onCurrentScanControllerFinished(){
 	emit currentScanControllerDestroyed();
 	disconnect(currentScanController_, SIGNAL(finished()), this, SLOT(onCurrentScanControllerFinished()));
+	disconnect(currentScanController_, SIGNAL(started()), this, SIGNAL(currentScanControllerStarted()));
 	currentScanController_->deleteLater();
 	currentScanController_ = 0;
 }

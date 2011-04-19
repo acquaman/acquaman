@@ -22,11 +22,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define SGMSAMPLETRANSFERVIEW_H
 
 #include <QWidget>
-#include <QGridLayout>
-#include <QStackedLayout>
-#include <QLabel>
-#include <QPushButton>
 #include <QGroupBox>
+
+class QGridLayout;
+class QStackedLayout;
+class QLabel;
+class QPushButton;
+
+class AMTopFrame;
+
 #include <beamline/SGM/SGMBeamline.h>
 
 class SGMSampleTransferPaneView;
@@ -59,6 +63,8 @@ protected:
 	QList<SGMSampleTransferPaneView*> transferPanes_;
 	SGMSampleTransferProceduresView *transferBox_;
 	QStackedLayout *mainLayout_;
+	QVBoxLayout *vl_;
+	AMTopFrame *topFrame_;
 };
 
 class SGMSampleTransferProceduresView : public QGroupBox

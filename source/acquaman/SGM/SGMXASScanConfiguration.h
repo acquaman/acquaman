@@ -31,11 +31,17 @@ class SGMXASScanConfiguration : public AMXASScanConfiguration, public SGMScanCon
 	Q_PROPERTY(double exitSlitGap READ exitSlitGap WRITE setExitSlitGap)
 	Q_PROPERTY(int grating READ grating WRITE setGrating)
 	Q_PROPERTY(int harmonic READ harmonic WRITE setHarmonic)
-	//NEED Q_PROPERTY for trackingGroup
-	//NEED Q_PROPERTY for cfgXASDetectors_
+	Q_PROPERTY(bool undulatorTracking READ undulatorTracking WRITE setUndulatorTracking)
+	Q_PROPERTY(bool monoTracking READ monoTracking WRITE setMonoTracking)
+	Q_PROPERTY(bool exitSlitTracking READ exitSlitTracking WRITE setExitSlitTracking)
+	Q_PROPERTY(AMDbObject* detectorConfigs READ dbReadDetectorConfigs WRITE dbLoadDetectorConfigs)
+
+	Q_CLASSINFO("AMDbObject_Attributes", "description=SGM XAS Scan Configuration")
+
 
 public:
 	Q_INVOKABLE explicit SGMXASScanConfiguration(QObject *parent=0);
+	SGMXASScanConfiguration(const SGMXASScanConfiguration &original);
 
 	AMControlSet *fluxResolutionSet() const { return fluxResolutionSet_;}
 	AMControlSet *trackingSet() const { return trackingSet_;}
@@ -55,8 +61,21 @@ public:
 	/// Returns a pointer to a newly-created AMScanController that is appropriate for executing this kind of scan configuration.  The controller should be initialized to use this scan configuration object as its scan configuration.  Ownership of the new controller becomes the responsibility of the caller.
 	virtual AMScanController* createController();
 
+	/// Returns a pointer to a newly-created AMScanConfigurationView that is appropriate for viewing and editing this kind of scan configuration. Ownership of the new controller becomes the responsibility of the caller.
+	virtual AMScanConfigurationView* createView();
+
+	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by AMBeamlineScanAction to set the main text in the action view.
+	virtual QString detailedDescription() const;
+
 public slots:
 	virtual bool addRegion(int index, double start, double delta, double end) { return regions_->addRegion(index, start, delta, end);}
+
+	bool setTrackingGroup(AMControlInfoList trackingList);
+	bool setFluxResolutionGroup(AMControlInfoList fluxResolutionList);
+
+	bool setUndulatorTracking(bool undulatorTracking);
+	bool setMonoTracking(bool monoTracking);
+	bool setExitSlitTracking(bool exitSlitTracking);
 
 	bool setExitSlitGap(double exitSlitGap);
 	bool setGrating(SGMBeamline::sgmGrating grating);
@@ -64,8 +83,6 @@ public slots:
 	bool setHarmonic(SGMBeamline::sgmHarmonic harmonic);
 	bool setHarmonic(int harmonic);
 
-	bool setTrackingGroup(AMControlInfoList trackingList);
-	bool setFluxResolutionGroup(AMControlInfoList fluxResolutionList);
 	/* NTBA March 14, 2011 David Chevrier
 	   Need something similar for detector set
 	*/
@@ -73,14 +90,23 @@ public slots:
 	bool setDetectorConfigurations(const AMDetectorInfoSet& xasDetectorsCfg);
 
 signals:
+	void trackingGroupChanged(AMControlInfoList);
+	void fluxResolutionGroupChanged(AMControlInfoList);
+
+	void undulatorTrackingChanged(bool undulatorTracking);
+	void monoTrackingChanged(bool monoTracking);
+	void exitSlitTrackingChanged(bool exitSlitTracking);
+
 	void exitSlitGapChanged(double exitSlitGap);
 	void gratingChanged(int grating);
 	void harmonicChanged(int harmonic);
-	void trackingGroupChanged(AMControlInfoList);
-	void fluxResolutionGroupChanged(AMControlInfoList);
 	/* NTBA March 14, 2011 David Chevrier
 	   Need something similar for detector set
 	*/
+
+protected:
+	AMDbObject* dbReadDetectorConfigs() { return &xasDetectorsCfg_;}
+	void dbLoadDetectorConfigs(AMDbObject*) {} //Never called, xasDetectorsCfg_ is always valid
 
 protected:
 	AMControlSet *fluxResolutionSet_;

@@ -37,6 +37,8 @@ class AMSamplePosition : public AMDbObject {
 	Q_PROPERTY(int facilityId READ facilityId WRITE setFacilityId)
 	Q_PROPERTY(AMDbObject* position READ dbGetPosition WRITE dbLoadPosition)
 
+	Q_CLASSINFO("AMDbObject_Attributes", "description=Spacial Coordinates of Sample")
+
 public:
 	/// Constructor: can specify initial values for sampleId, position, and facilityId
 	Q_INVOKABLE AMSamplePosition(int sampleId = 0, const AMControlInfoList& position = AMControlInfoList(), int facilityId = 0 ) :

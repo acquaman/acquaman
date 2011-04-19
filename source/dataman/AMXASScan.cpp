@@ -64,6 +64,3 @@ bool AMXASScan::loadDataImplementation() {
 	AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, -1, QString("Could not load raw XAS scan data. The '%1' file format isn't supported.").arg(fileFormat())));
 	return false;
 }
-
-
-

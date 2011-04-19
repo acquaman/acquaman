@@ -1,6 +1,8 @@
 #include "SGMSampleManipulatorView.h"
 #include "beamline/SGM/SGMBeamline.h"
 
+#include <QLabel>
+
 SGMSampleManipulatorView::SGMSampleManipulatorView(QWidget *parent) :
 		AMSampleManipulatorView("SGM SSA Endstation", SGMBeamline::sgm()->ssaManipulatorSet(), parent )
 {

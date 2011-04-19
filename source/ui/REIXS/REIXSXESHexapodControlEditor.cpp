@@ -2,6 +2,7 @@
 
 #include "beamline/REIXS/REIXSBeamline.h"
 #include <QBoxLayout>
+#include <QLabel>
 #include "ui/AMControlEditor.h"
 
 REIXSXESHexapodControlEditor::REIXSXESHexapodControlEditor(REIXSHexapod* hexapod, QWidget *parent) :

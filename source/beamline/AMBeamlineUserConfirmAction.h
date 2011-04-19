@@ -3,7 +3,8 @@
 
 #include "AMBeamlineActionItem.h"
 
-#include <QToolButton>
+class QToolButton;
+class QVBoxLayout;
 
 // Wait for a user to confirm that they have achieved an action (no viable control feedback)
 

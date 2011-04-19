@@ -56,8 +56,10 @@ AMScanConfigurationViewHolder::AMScanConfigurationViewHolder(AMWorkflowManagerVi
 	hl->addStretch();
 	hl->addWidget(addToQueueButton_);
 	hl->addWidget(startScanButton_);
+	hl->setContentsMargins(10, 10, 10, 20);
 
 	layout_->addLayout(hl);
+	layout_->setContentsMargins(0,0,0,0);
 
 	setLayout(layout_);
 
@@ -104,13 +106,13 @@ void AMScanConfigurationViewHolder::reviewStartScanButtonState() {
 	// if we can't start the workflow because it's already running (ie: our scans / actions)
 	else if(workflow_->isRunning()) {
 		startScanButton_->setEnabled(false);
-		addToQueueButton_->setEnabled(false);
+		addToQueueButton_->setEnabled(true);
 		startScanButton_->setText("Scans in progress");
 	}
 	// if we can't start the workflow because the beamline is busy/locked out (ie: another program is using it)
 	else if(workflow_->beamlineBusy()) {
 		startScanButton_->setEnabled(false);
-		addToQueueButton_->setEnabled(false);
+		addToQueueButton_->setEnabled(true);
 		startScanButton_->setText("Beamline Busy");
 	}
 	// Good to go. The workflow isn't running, and the beamline is not busy. Watch out: there may or may not still be scan actions already in the queue.

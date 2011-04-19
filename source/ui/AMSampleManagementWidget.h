@@ -22,9 +22,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMSAMPLEPOSITIONVIEW_H
 
 #include <QWidget>
-#include <QGridLayout>
-#include <QUrl>
-#include <QGroupBox>
+
+class QGridLayout;
+class QUrl;
+class QGroupBox;
+
+class AMTopFrame;
 
 #include "AMSamplePlateView.h"
 #include "AMSampleManipulatorView.h"
@@ -46,6 +49,8 @@ protected:
 // 	AMBeamlineCameraWidget *cam_;
 	AMSamplePlateView *plateView_;
 	AMSampleManipulatorView *manipulatorView_;
+
+	AMTopFrame *topFrame_;
 
 	QGridLayout *gl_;
 };

@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDateTime>
 #include "AMScanConfiguration.h"
 #include "dataman/AMScan.h"
+#include "util/AMErrorMonitor.h"
 
 /// This class defines the interface for all Scan Controllers.  The Scan Controller API is modeled as a state machine, with the states such as initialized, running, paused, finished, etc.  To use a scan controller, call the public functions (initialize(), start(), pause(), etc.) or use an AMBeamlineScanAction to run it automatically.  Pay attention to the public signals (started(), paused(), cancelled(), finished(), etc.) to monitor the status of the scan.
 /*!
@@ -143,10 +144,10 @@ protected:
 	// Virtual implementation functions.  Implement these as required for relevant transitions between states.  The AMScanController API guarantees that these will only be called from the states indicated.
 	///////////////////
 
-	/// Implement to initialize the beamline and prepare the scan to run.  (ie: transition from Constructed to Initialized). After initialization is complete, call setInitialized().
-	virtual void initializeImplementation() = 0;
-	/// Implement to start a scan (ie: transition from Initialized to Running).  After the scan is running, call setStarted().
-	virtual void startImplementation() = 0;
+	/// Implement to initialize the beamline and prepare the scan to run.  (ie: transition from Constructed to Initialized). Returns whether or not initialization can occur, not if it is initialized. After initialization is complete, call setInitialized().
+	virtual bool initializeImplementation() = 0;
+	/// Implement to start a scan (ie: transition from Initialized to Running).  Returns whether or not the scan can be started, not that the scan has started. After the scan is running, call setStarted().
+	virtual bool startImplementation() = 0;
 	/// Implement to define whether or not your scan controller is capable of pausing (defaults to not able to pause). If you canPause (return true), then you need to implement a pauseImplementation and a resumeImplementation.
 	virtual bool canPause() { return false; }
 	/// Implement to pause a running scan (ie: transition from Running to Paused).  After the scan is paused, call setPaused(). (Note: If it's not possible to pause this type of scan (ie: canPause() is false), this will never be called.)
@@ -193,6 +194,7 @@ public slots:
 signals:
 	void currentScanControllerCreated();
 	void currentScanControllerDestroyed();
+	void currentScanControllerStarted();
 
 protected slots:
 	void onCurrentScanControllerFinished();

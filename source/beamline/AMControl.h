@@ -760,6 +760,18 @@ protected:
 	quint32 isMovingValue_;
 };
 
+/// This function object provides the opposite of the default check for AMReadyOnlyPVwStatusControl (instead of providing the one value which represents "moving" you provide the one value which represents "stopped"). It will compare the current status against the value provided in the constuctor, and return true if not equal.
+class AMControlStatusCheckerStopped : public AMAbstractControlStatusChecker {
+public:
+	/// Status values will be compare to \c isStoppedValue, and return true if the status value is not equal to isStoppedValue (something that isn't stopped is moving)
+	AMControlStatusCheckerStopped(quint32 isStoppedValue) : isStoppedValue_(isStoppedValue) {}
+
+	/// Return true (moving) if the \c statusValue does not matche isStoppedValue_
+	virtual bool operator()(quint32 statusValue) { return statusValue != isStoppedValue_; }
+
+protected:
+	quint32 isStoppedValue_;
+};
 
 
 /// This class provides an AMControl that can measure a feedback process variable, and monitor a second PV that provides a moving indicator.

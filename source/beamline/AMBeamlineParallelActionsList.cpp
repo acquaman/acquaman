@@ -1,5 +1,7 @@
 #include "AMBeamlineParallelActionsList.h"
 
+#include <QDebug>
+
 AMBeamlineParallelActionsList::AMBeamlineParallelActionsList(QObject *parent) :
 		QObject(parent)
 {

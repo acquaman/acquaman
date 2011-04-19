@@ -23,15 +23,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPushButton>
 #include <QVBoxLayout>
 
-
-
 #include "acquaman/AMScanConfiguration.h"
 #include "beamline/AMBeamlineScanAction.h"
 #include "beamline/AMBeamlineControlSetMoveAction.h"
 
 #include "beamline/AMBeamline.h"
 #include "ui/AMVerticalStackWidget.h"
-
+#include "ui/AMTopFrame.h"
 
 
 AMWorkflowManagerView::AMWorkflowManagerView(QWidget *parent) :
@@ -47,6 +45,9 @@ AMWorkflowManagerView::AMWorkflowManagerView(QWidget *parent) :
 //	connect(SGMBeamline::sgm()->currentSamplePlate(), SIGNAL(samplePositionChanged(int)), adder_, SLOT(onSamplePlateUpdate(int)));
 //	connect(SGMBeamline::sgm()->currentSamplePlate(), SIGNAL(samplePositionRemoved(int)), adder_, SLOT(onSamplePlateUpdate(int)));
 
+	topFrame_ = new AMTopFrame("Workflow");
+	topFrame_->setIcon(QIcon(":/user-away.png"));
+
 	startWorkflowButton_ = new QPushButton("Start This Workflow\nReady");
 	startWorkflowButton_->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
 	addActionButton_ = new QPushButton("Add an Action");
@@ -60,6 +61,7 @@ AMWorkflowManagerView::AMWorkflowManagerView(QWidget *parent) :
 	workflowActions_ = new AMBeamlineActionsList(this);
 	workflowQueue_ = new AMBeamlineActionsQueue(workflowActions_, this);
 	workflowView_ = new AMBeamlineActionsListView(workflowActions_, workflowQueue_, this);
+	connect(workflowView_, SIGNAL(copyRequested(AMBeamlineActionItem*)), this, SLOT(onCopyActionRequested(AMBeamlineActionItem*)));
 
 	QScrollArea* scrollArea = new QScrollArea();
 	scrollArea->setWidget(workflowView_);
@@ -72,9 +74,23 @@ AMWorkflowManagerView::AMWorkflowManagerView(QWidget *parent) :
 	//	removed with adder: connect(workflowView_, SIGNAL(queueUpdated(int)), adder_, SLOT(onQueueUpdated(int)));
 
 	vl_ = new QVBoxLayout();
-	vl_->addLayout(hl);
+	//vl_->addLayout(hl);
 	vl_->addWidget(scrollArea);
-	setLayout(vl_);
+
+	topFrame_->frameLayout()->addLayout(hl);
+
+	QVBoxLayout *vl2 = new QVBoxLayout();
+	vl2->addWidget(topFrame_);
+	vl2->addLayout(vl_);
+	vl2->setContentsMargins(0,0,0,0);
+	vl2->setSpacing(1);
+
+	vl_->setContentsMargins(10, 5, 10, 10);
+	vl_->setSpacing(5);
+	hl->setContentsMargins(0, 2, 10, 2);
+	hl->setSpacing(5);
+
+	setLayout(vl2);
 }
 
 void AMWorkflowManagerView::startQueue(){
@@ -101,6 +117,10 @@ void AMWorkflowManagerView::onAddActionRequested(){
 	QMessageBox::information(this, "Sorry, This Action Not Available Yet", "Sorry, we haven't implemented this yet.\n\nWe're working on it...", QMessageBox::Ok);
 }
 
+void AMWorkflowManagerView::onCopyActionRequested(AMBeamlineActionItem *action){
+	qDebug() << "Copy requested!";
+	insertBeamlineAction(-1, action);
+}
 
 
 void AMWorkflowManagerView::insertBeamlineAction(int index, AMBeamlineActionItem *action, bool startNow) {
@@ -185,14 +205,15 @@ void AMBeamlineActionsListView::onActionAdded(int index){
 	AMBeamlineActionItemView *tmpView = tmpItem->createView(index);
 	if(!tmpView)
 		return;
-	actionsViewList_->insertItem(index, tmpView, "", true);
+	actionsViewList_->insertItem(index, tmpView, tmpItem->description(), true);
 	connect(tmpView, SIGNAL(removeRequested(AMBeamlineActionItem*)), this, SLOT(onActionRemoveRequested(AMBeamlineActionItem*)));
+	connect(tmpView, SIGNAL(copyRequested(AMBeamlineActionItem*)), this, SIGNAL(copyRequested(AMBeamlineActionItem*)));
 	reindexViews();
 	emit queueUpdated(actionsQueue_->count());
 }
 
 void AMBeamlineActionsListView::onActionRemoved(int index){
-	actionsViewList_->removeItem(index);
+	actionsViewList_->deleteItem(index);
 	reindexViews();
 	emit queueUpdated(actionsQueue_->count());
 }

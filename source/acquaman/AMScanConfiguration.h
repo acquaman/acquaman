@@ -26,6 +26,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 /// Forward declaration of AMScanController.  See note on circular coupling in AMScanConfiguration
 class AMScanController;
 
+/// Foward declaration of AMScanConfigurationView
+class AMScanConfigurationView;
+
 /// An AMScanConfiguration is the abstract parent class of all scan configurations.
 /*!
   The AMScanConfiguration class acts as the abstract parent class from which all scan configuration classes descend.
@@ -42,7 +45,7 @@ class AMScanController;
   A scan configuration needs to record configuration values but not move the controls in anyway; therefore, a copy of the beamline object or any other control is not sufficient.
 
   As AMScanConfiguration is the base class from which all other scan configuration classes are derived, only information common to all scan configurations is kept here.
-  At this time, only the file name and the file path for where to write the data are common to all scan configurations.  This class inherits AMDbObject so that it can easily be recorded to the database (for example: to record the user's scan parameters associated with a scan).
+  This class inherits AMDbObject so that it can easily be recorded to the database (for example: to record the user's scan parameters associated with a scan).
 
   To implement a scan configuration object that works within the acquisition system, you need to provide at least two virtual functions:
   - createCopy() returns a pointer to a newly-created copy of this scan configuration.  (It takes the role of a copy constructor, but is virtual so that our high-level classes can copy a scan configuration without knowing exactly what kind it is.)
@@ -57,10 +60,7 @@ class AMScanConfiguration : public AMDbObject
 {
 Q_OBJECT
 
-/// Holds the name of the file where data will eventually be saved.
-Q_PROPERTY(QString fileName READ fileName WRITE setFileName)
-/// Holds the path to the directory where data will eventually be saved.
-Q_PROPERTY(QString filePath READ filePath WRITE setFilePath)
+	Q_CLASSINFO("AMDbObject_Attributes", "description=Generic Scan Configuration")
 
 public:
 	/// Default Constructor
@@ -69,14 +69,14 @@ public:
 	/// Empty Destructor
 	virtual ~AMScanConfiguration() {}
 
-	/// Returns the name of the file to save raw data in
-	QString fileName() const { return fileName_;}
-	/// Returns the path to save the raw data file to
-	QString filePath() const { return filePath_; }
-
-	/// A human-readable description of this scan configuration. Can be re-implemented to provide more details.
+	/// A human-readable description of this scan configuration. Can be re-implemented to provide more details. Used by AMBeamlineScanAction to set the title for the action view.
 	virtual QString description() const {
-		return QString();
+		return "Generic Scan";
+	}
+
+	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by AMBeamlineScanAction to set the main text in the action view.
+	virtual QString detailedDescription() const{
+		return "Generic Scan Details";
 	}
 
 	// Virtual functions which must be re-implemented:
@@ -86,20 +86,14 @@ public:
 	/// Returns a pointer to a newly-created AMScanController that is appropriate for executing this kind of scan configuration.  The controller should be initialized to use this scan configuration object as its scan configuration.  Ownership of the new controller becomes the responsibility of the caller.
 	virtual AMScanController* createController() = 0;
 
+	/// Returns a new copy of the default view (caller responsible for memory). Returns 0 (NULL) if no default view.
+	virtual AMScanConfigurationView* createView(){
+		return 0; //NULL
+	}
 
-public slots:
-	/// Sets the file name
-	void setFileName(const QString &fileName) { fileName_ = fileName; setModified(true); }
-	/// Sets the file path
-	void setFilePath(const QString &filePath) { filePath_ = filePath; setModified(true); }
-
-
-protected:
-	/// File name
-	QString fileName_;
-	/// File path
-	QString filePath_;
-
+signals:
+	/// General signal that something about the configuration has changed
+	void configurationChanged();
 };
 
 #endif // ACQMAN_SCANCONFIGURATION_H

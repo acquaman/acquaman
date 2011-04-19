@@ -50,12 +50,19 @@ public:
 */
 
 	/// Add a widget at the bottom of the stack. Widgets are initially shown expanded.  The AMVerticalStackWidget takes ownership of the widget.
-	void addItem(QWidget* widget, const QString& text, bool collapsable = true) {
-		insertItem(-1, widget, text, collapsable);
+	void addItem(QWidget* widget, const QString& titleText, bool collapsable = true) {
+		insertItem(-1, widget, titleText, collapsable);
+	}
+	void addItem(QWidget* widget, bool collapsable = true) {
+		insertItem(-1, widget, collapsable);
 	}
 
 	/// Insert a widget at a specific index in the stack. Inserting at \c index = -1 is equivalent to appending to the end. The AMVerticalStackWidget takes ownership of the widget.
-	void insertItem(int index, QWidget* widget, const QString& text, bool collapsable = true);
+	void insertItem(int index, QWidget* widget, const QString& titleText, bool collapsable = true) {
+		widget->setWindowTitle(titleText);
+		insertItem(index, widget, collapsable);
+	}
+	void insertItem(int index, QWidget* widget, bool collapsable = true);
 
 
 
@@ -66,7 +73,7 @@ public:
 
 
 	/// Remove a widget, and delete it
-	void removeItem(int index) {
+	void deleteItem(int index) {
 		delete takeItem(index);
 	}
 
@@ -78,11 +85,12 @@ public:
 	/// Is this item collapsed?
 	bool itemIsCollapsed(int index) const;
 
-	/// Set the heading text for a widget
-	void setItemText(int index, const QString& text);
 
 	/// Overloaded to make sure that the horizontal size requested is as wide as all the inside widgets, even if they're collapsed and not currently shown in the layout.
 	QSize sizeHint() const;
+
+public slots:
+
 
 
 signals:
@@ -125,6 +133,11 @@ protected:
 	// QSpacerItem* spacer_;
 
 
+	/// Capture window title change events from our widgets and change our header titles accordingly
+	bool eventFilter(QObject * source, QEvent *event);
+
+	/// Set the heading text for a widget
+	void setItemText(int index, const QString& text);
 };
 
 

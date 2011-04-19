@@ -36,6 +36,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dataman/AMnDIndex.h"
 
+#include "beamline/AMDetector.h"
+
 class AMDacqScanController : public AMScanController
 {
 Q_OBJECT
@@ -43,13 +45,16 @@ public:
 	AMDacqScanController(AMScanConfiguration *cfg, QObject *parent = 0);
 
 protected:
-	void startImplementation();
+	bool startImplementation();
 	bool canPause();
 	void pauseImplementation();
 	void resumeImplementation();
 	void cancelImplementation();
 
 protected:
+	/// Convert the AMDetector::ReadMethod to the enum list used by the dacq library
+	int detectorReadMethodToDacqReadMethod(AMDetector::ReadMethod readMethod);
+
 	bool event(QEvent *e);
 	virtual AMnDIndex toScanIndex(QMap<int, double> aeData);
 

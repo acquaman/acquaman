@@ -113,11 +113,11 @@ LIBS += $$GSL_LIB \
 # Specify runtime search locations for libraries (Must change for release bundle, if epics in a different location)
 macx {
 	# 4.7.0 and earlier:
-	#QMAKE_LFLAGS_RPATH += "$$EPICS_LIB_DIR"
+	QMAKE_LFLAGS_RPATH += "$$EPICS_LIB_DIR"
 
 	# 4.7.2: Use same as linux-g++
-	QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
-	QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
+	#QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
+	#QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
 }
 linux-g++ {
 	QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
@@ -328,6 +328,8 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMExportWizard.h \
 	source/ui/AMFolderPathLineEdit.h \
 	source/util/AMTagReplacementParser.h \
+	source/ui/AMExporterOptionGeneralAsciiView.h \
+	source/ui/AMTopFrame.h \
 	source/ui/AMExporterOptionGeneralAsciiView.h
 FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
@@ -529,7 +531,8 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMExportWizard.cpp \
 	source/ui/AMFolderPathLineEdit.cpp \
 	source/util/AMTagReplacementParser.cpp \
-	source/ui/AMExporterOptionGeneralAsciiView.cpp
+	source/ui/AMExporterOptionGeneralAsciiView.cpp \
+	source/ui/AMTopFrame.cpp
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc \
 	source/util/ElementData.qrc \

@@ -28,6 +28,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <dataman/AMSample.h>
 #include <dataman/AMExperiment.h>
 #include <dataman/AMControlInfoList.h>
+#warning "Hey David, you need to move this file to dataman, clearly"
+#include <acquaman/AMDetectorInfoList.h>
 #include <dataman/AMSamplePlate.h>
 #include <dataman/AMSpectralOutputDetectorInfo.h>
 #include "dataman/AMUser.h"
@@ -169,6 +171,8 @@ bool AMFirstTimeController::databaseInitialization(bool newUser) {
 	AMDbObjectSupport::registerClass<AMSpectralOutputDetectorInfo>();
 	AMDbObjectSupport::registerClass<AMControlInfo>();
 	AMDbObjectSupport::registerClass<AMControlInfoList>();
+	AMDbObjectSupport::registerClass<AMDetectorInfo>();
+	AMDbObjectSupport::registerClass<AMDetectorInfoSet>();
 	AMDbObjectSupport::registerClass<AMSamplePosition>();
 	AMDbObjectSupport::registerClass<AMSamplePlate>();
 

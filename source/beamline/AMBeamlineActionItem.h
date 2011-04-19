@@ -22,15 +22,19 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMBEAMLINEACTIONITEM_H
 
 #include "util/AMOrderedSet.h"
+#include "util/AMErrorMonitor.h"
 
-#include <QObject>
 #include <QWidget>
-#include <QHBoxLayout>
-#include <QLabel>
-#include <QPushButton>
-#include <QDebug>
-#include <QMouseEvent>
-#include <QStyle>
+#include <QFrame>
+
+class QHBoxLayout;
+class QLabel;
+class QPushButton;
+class QMouseEvent;
+class QMenu;
+class QAction;
+class QStyle;
+
 
 /// Using this for debuggging purposes in all ActionItem descendents and views
 #define VERBOSE_ACTION_ITEMS 0
@@ -96,8 +100,13 @@ public:
 	/// Returns a pointer to the next action (if the action is not in a parallel list)
 	AMBeamlineActionItem* next() const;
 
+	/// Returns a newly created view this a given action (memory is responsibilitiy of the caller)
 	virtual AMBeamlineActionItemView* createView(int index = 0) = 0;
 
+	/// Returns a newly created beamlineActionItem which is the same as this one (memory is the responsibility of the caller). Need to check for NULL (0-valued) return, some actions may not be able to do this.
+	virtual AMBeamlineActionItem* createCopy() const;
+
+	virtual QString description() const;
 	virtual QString message() const;
 
 	bool hasHelp() const;
@@ -123,6 +132,8 @@ signals:
 	/// Should be emitted periodically to relay how much of the action has completed. Format: first argument is how much is done, second argument is the total to be done (could be % completed and 100%, for example)
 	void progress(double, double);
 
+	void descriptionChanged(const QString &description);
+
 public slots:
 	/// Pure virtual. Sub-classes need to implement and they better call setStart(true) at some point causing started() to be emitted
 	virtual void start() = 0;//
@@ -139,6 +150,7 @@ public slots:
 	/// Sets the next action but does not connect signals and slots
 	bool setNext(AMBeamlineActionItem* next);
 
+	void setDescription(const QString &description);
 	void setMessage(const QString &message);
 	void setHelp(const AMOrderedSet<QString, QPixmap> &helpImages);
 
@@ -174,6 +186,7 @@ protected:
 	/// Holds pointer to next action (only meaningful if not in parallel list)
 	AMBeamlineActionItem *next_;
 
+	QString description_;
 	QString message_;
 	AMOrderedSet<QString, QPixmap> helpImages_;
 
@@ -221,10 +234,15 @@ signals:
 	void resumeRequested(AMBeamlineActionItem *action);
 	void stopRequested(AMBeamlineActionItem *action);
 
+	void copyRequested(AMBeamlineActionItem *action);
+	void descriptionChanged(const QString &description);
+
 protected slots:
 	virtual void onInfoChanged() = 0;
 	virtual void onStopCancelButtonClicked() = 0;
 	virtual void onPlayPauseButtonClicked() = 0;
+
+	virtual void onCreateCopyClicked();
 
 protected:
 	void mousePressEvent(QMouseEvent *event);
@@ -235,6 +253,7 @@ protected:
 	AMBeamlineActionItem *action_;
 	int index_;
 	bool inFocus_;
+	QMenu *optionsMenu_;
 };
 
 class AMImageListView : public QWidget

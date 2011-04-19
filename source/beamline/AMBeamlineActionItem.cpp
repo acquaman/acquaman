@@ -20,6 +20,16 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMBeamlineActionItem.h"
 
+#include <QObject>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QPushButton>
+#include <QDebug>
+#include <QMouseEvent>
+#include <QMenu>
+#include <QAction>
+#include <QStyle>
+
 AMBeamlineActionItemStateFlag::AMBeamlineActionItemStateFlag(bool initialState, QObject *parent) :
 		QObject(parent)
 {
@@ -42,6 +52,7 @@ AMBeamlineActionItem::AMBeamlineActionItem(QObject *parent) :
 {
 	previous_ = NULL;
 	next_ = NULL;
+	description_ = "Generic Action";
 	message_ = "";
 	helpImages_.clear();
 	reinitialized_.setState(false);
@@ -56,6 +67,7 @@ AMBeamlineActionItem::AMBeamlineActionItem(QObject *parent) :
 AMBeamlineActionItem::AMBeamlineActionItem(bool delayInitialize, QObject *parent){
 	previous_ = NULL;
 	next_ = NULL;
+	description_ = "Generic Action";
 	reinitialized_.setState(false);
 	connect(&ready_, SIGNAL(stateChanged(bool)), this, SLOT(dirtyInitialized()));
 	connect(&started_, SIGNAL(stateChanged(bool)), this, SLOT(dirtyInitialized()));
@@ -106,6 +118,15 @@ AMBeamlineActionItem* AMBeamlineActionItem::next() const {
 	return next_;
 }
 
+AMBeamlineActionItem* AMBeamlineActionItem::createCopy() const{
+	return 0; //NULL
+}
+
+QString AMBeamlineActionItem::description() const{
+	qDebug() << "Description is " << description_;
+	return description_;
+}
+
 QString AMBeamlineActionItem::message() const{
 	return message_;
 }
@@ -132,6 +153,15 @@ bool AMBeamlineActionItem::setPrevious(AMBeamlineActionItem *previous){
 bool AMBeamlineActionItem::setNext(AMBeamlineActionItem *next){
 	next_ = next;
 	return true;
+}
+
+void AMBeamlineActionItem::setDescription(const QString &description){
+	bool changed = false;
+	if(description_ != description)
+		changed = true;
+	description_ = description;
+	if(changed)
+		emit descriptionChanged(description_);
 }
 
 void AMBeamlineActionItem::setMessage(const QString &message){
@@ -207,9 +237,12 @@ void AMBeamlineActionItem::dirtyInitialized(){
 AMBeamlineActionItemView::AMBeamlineActionItemView(AMBeamlineActionItem *action, int index, QWidget *parent) :
 		QFrame(parent)
 {
-	action_ = action;
+	//action_ = action;
+	action_ = 0;//NULL
+	setAction(action);
 	index_ = index;
 	inFocus_ = false;
+	optionsMenu_ = 0; //NULL
 	setLineWidth(1);
 	setFrameStyle(QFrame::StyledPanel);
 	setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
@@ -224,7 +257,13 @@ void AMBeamlineActionItemView::setIndex(int index){
 }
 
 void AMBeamlineActionItemView::setAction(AMBeamlineActionItem *action){
+	if(action_){
+		disconnect(action_, SIGNAL(descriptionChanged(QString)), this, SIGNAL(descriptionChanged(QString)));
+	}
 	action_ = action;
+	if(action_){
+		connect(action_, SIGNAL(descriptionChanged(QString)), this, SIGNAL(descriptionChanged(QString)));
+	}
 }
 
 void AMBeamlineActionItemView::defocusItem(){
@@ -232,17 +271,42 @@ void AMBeamlineActionItemView::defocusItem(){
 	updateLook();
 }
 
+void AMBeamlineActionItemView::onCreateCopyClicked(){
+	AMBeamlineActionItem *actionCopy = action_->createCopy();
+	if(actionCopy){
+		qDebug() << "ActionView has a copy to send out";
+		emit copyRequested(actionCopy);
+	}
+}
+
 void AMBeamlineActionItemView::mousePressEvent(QMouseEvent *event){
-	if (event->button() != Qt::LeftButton) {
+	/*if (event->button() != Qt::LeftButton) {
 		event->ignore();
 		return;
+	}*/
+	if(event->button() == Qt::LeftButton){
+		if(inFocus_)
+			defocusItem();
+		else{
+			inFocus_ = true;
+			updateLook();
+			emit focusRequested(action_);
+		}
 	}
-	if(inFocus_)
-		defocusItem();
+	else if(event->button() == Qt::RightButton){
+		if(optionsMenu_)
+			delete optionsMenu_;
+		optionsMenu_ = new QMenu(this);
+		QAction *tmpAction;
+		tmpAction = optionsMenu_->addAction("Copy this Action");
+		tmpAction->setData(0);
+		connect(tmpAction, SIGNAL(triggered()), this, SLOT(onCreateCopyClicked()));
+		optionsMenu_->popup(QCursor::pos());
+		optionsMenu_->show();
+	}
 	else{
-		inFocus_ = true;
-		updateLook();
-		emit focusRequested(action_);
+		event->ignore();
+		return;
 	}
 }
 
