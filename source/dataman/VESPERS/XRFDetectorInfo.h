@@ -88,12 +88,6 @@ public:
 	/// Don't need to do anything because dbGetROIList always returns a valid AMDbObject.
 	void dbLoadROIInfoList(AMDbObject *) {}
 
-	virtual bool storeToDb(AMDatabase *db){
-
-		qDebug() << maximumEnergy() << integrationTime() << peakingTime();
-		return AMDetectorInfo::storeToDb(db);
-	}
-
 public slots:
 
 	/// Set the number of channels in the spectral output.

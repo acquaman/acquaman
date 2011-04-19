@@ -24,6 +24,8 @@ public:
 
 	/// Returns a pointer to the periodic table model used by the view.
 	AMPeriodicTable *table() const { return table_; }
+	/// Returns the mapped QToolButton for a given element.
+	QToolButton *button(AMElement *el) { return qobject_cast<QToolButton *>(elementMapper_->mapping(el->atomicNumber())); }
 
 signals:
 	/// Mapped signal that passes the atomic number of an element.

@@ -18,8 +18,12 @@ public:
 	LineView(QPair<QString, QString> line, QWidget *parent = 0)
 		: QWidget(parent)
 	{
+		line_ = line;
 		lineLabel_ = new QLabel(line.first + " " + line.second + " eV");
 		checkBox_ = new QCheckBox();
+
+		connect(checkBox_, SIGNAL(stateChanged(int)), this, SLOT(onChecked()));
+
 		QHBoxLayout *layout = new QHBoxLayout;
 		layout->addWidget(checkBox_);
 		layout->addWidget(lineLabel_);
@@ -48,6 +52,14 @@ public:
 		lineLabel_->setText(line.first + ": " + line.second + " eV");
 	}
 
+signals:
+	/// This signal is emitted when the check box is checked/unchecked.  It contains the line for reference purposes.
+	void lineChecked(LineView *);
+
+private slots:
+	/// Helper slot used to emit the lineChecked signal.
+	void onChecked() { emit lineChecked(this); }
+
 private:
 	// Member variables.
 	QCheckBox *checkBox_;
@@ -68,14 +80,16 @@ signals:
 	void addCustomROI();
 	/// Signal emitted with current element and the selected emission line to be added.
 	void addROI(AMElement *, QPair<QString, QString>);
+	/// Signal emitted with the current element and selected emission line to be removed.
+	void removeROI(AMElement *, QPair<QString, QString>);
 
 public slots:
 	/// Sets the element to view.  Handles all the layout properties of the dialog.
 	void setElement(AMElement *el);
 
 private slots:
-	/// Convenience slot that emits the current selected lines.
-	void emitLines();
+	/// Convenience slot that emits the addROI signal when a line is checked or removeROI if the line is unchecked.
+	void emitLines(LineView *line);
 
 private:
 	/// Fills the emission lines group box with the emission lines of the given Element.

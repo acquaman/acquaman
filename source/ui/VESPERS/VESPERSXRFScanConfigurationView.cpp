@@ -27,15 +27,27 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 	integrationTime_->setSuffix(" s");
 	integrationTime_->setSingleStep(0.1);
 	integrationTime_->setMaximum(1000.00);
+	integrationTime_->setAlignment(Qt::AlignCenter);
 	connect(integrationTime_, SIGNAL(editingFinished()), this, SLOT(onIntegrationTimeUpdate()));
 	connect(detector_->integrationTimeControl(), SIGNAL(valueChanged(double)), integrationTime_, SLOT(setValue(double)));
+
+	QFont font(this->font());
+	font.setBold(true);
+
+	QLabel *startLabel = new QLabel("Start & Stop");
+	startLabel->setFont(font);
+	QLabel *timeLabel = new QLabel("Real Time");
+	timeLabel->setFont(font);
 
 	QHBoxLayout *startAndStopLayout = new QHBoxLayout;
 	startAndStopLayout->addWidget(start);
 	startAndStopLayout->addWidget(stop);
 
 	QVBoxLayout *controlLayout = new QVBoxLayout;
+	controlLayout->addSpacing(20);
+	controlLayout->addWidget(startLabel);
 	controlLayout->addLayout(startAndStopLayout);
+	controlLayout->addWidget(timeLabel);
 	controlLayout->addWidget(integrationTime_);
 	controlLayout->addStretch();
 

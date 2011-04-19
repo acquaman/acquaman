@@ -4,6 +4,7 @@
 #include "ui/AMDetectorView.h"
 #include "beamline/VESPERS/XRFDetector.h"
 #include "util/AMElement.h"
+#include "ui/AMPeriodicTableView.h"
 
 #include "MPlot/MPlot.h"
 #include "MPlot/MPlotWidget.h"
@@ -79,6 +80,10 @@ protected slots:
 	void elementClicked(int elementId);
 	/// Places coloured markers on the plot to show where the acceptable emission lines are in the range of the detector.
 	void showEmissionLines(AMElement *el);
+	/// Adds a region of interest from the detector.
+	void addRegionOfInterest(AMElement *el, QPair<QString, QString> line);
+	/// Removes a region of interest from the detector.
+	void removeRegionOfInterest(AMElement *el, QPair<QString, QString> line);
 
 protected:
 
@@ -95,6 +100,9 @@ protected:
 
 	/// The pointer to the detector.
 	XRFDetector *detector_;
+
+	/// The periodic table view.
+	AMPeriodicTableView *tableView_;
 
 	/// The elapsed time label.
 	QLabel *elapsedTime_;

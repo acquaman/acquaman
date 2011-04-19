@@ -4,9 +4,10 @@
 #include <QStringList>
 #include <QToolButton>
 
-VESPERSXRFElementView::VESPERSXRFElementView(QWidget *parent) :
-	QWidget(parent)
+VESPERSXRFElementView::VESPERSXRFElementView(QWidget *parent)
+	: QWidget(parent)
 {
+	element_ = 0;
 	name_ = new QLabel();
 	name_->setFont(QFont("Times New Roman", 16));
 	number_ = new QLabel();
@@ -18,17 +19,9 @@ VESPERSXRFElementView::VESPERSXRFElementView(QWidget *parent) :
 	for (int i = 0; i < 6; i++){
 
 		temp = new LineView(qMakePair(QString(), QString()));
+		connect(temp, SIGNAL(lineChecked(LineView *)), this, SLOT(emitLines(LineView *)));
 		lines_ << temp;
 	}
-
-
-	/*QToolButton *addCustomButton = new QToolButton;
-	addCustomButton->setText(tr("Add Custom"));
-	connect(addCustomButton, SIGNAL(clicked()), this, SIGNAL(addCustomROI()));
-
-	QToolButton *addROIButton = new QToolButton;
-	addROIButton->setText(tr("Add Selected"));
-	connect(addROIButton, SIGNAL(clicked()), this, SLOT(emitLines()));*/
 
 	QHBoxLayout *titleLayout = new QHBoxLayout;
 	titleLayout->addWidget(name_);
@@ -40,14 +33,9 @@ VESPERSXRFElementView::VESPERSXRFElementView(QWidget *parent) :
 	linesLayout->addStretch();
 	linesLayout->setSpacing(0);
 
-	/*QHBoxLayout *buttonLayout = new QHBoxLayout;
-	buttonLayout->addWidget(addCustomButton);
-	buttonLayout->addWidget(addROIButton);*/
-
 	QVBoxLayout *viewLayout = new QVBoxLayout;
 	viewLayout->addLayout(titleLayout);
 	viewLayout->addLayout(linesLayout);
-	//viewLayout->addLayout(buttonLayout);
 
 	setLayout(viewLayout);
 }
@@ -55,6 +43,7 @@ VESPERSXRFElementView::VESPERSXRFElementView(QWidget *parent) :
 VESPERSXRFElementView::VESPERSXRFElementView(AMElement *el, QWidget *parent)
 	: QWidget(parent)
 {
+	element_ = el;
 	name_ = new QLabel(el->name());
 	name_->setFont(QFont("Times New Roman", 16));
 	number_ = new QLabel(QString::number(el->atomicNumber()));
@@ -66,18 +55,11 @@ VESPERSXRFElementView::VESPERSXRFElementView(AMElement *el, QWidget *parent)
 	for (int i = 0; i < 6; i++){
 
 		temp = new LineView(qMakePair(QString(), QString()));
+		connect(temp, SIGNAL(lineChecked(LineView *)), this, SLOT(emitLines(LineView *)));
 		lines_ << temp;
 	}
 
 	fillEmissionLines(el);
-
-	/*QToolButton *addCustomButton = new QToolButton;
-	addCustomButton->setText(tr("Add Custom"));
-	connect(addCustomButton, SIGNAL(clicked()), this, SIGNAL(addCustomROI()));
-
-	QToolButton *addROIButton = new QToolButton;
-	addROIButton->setText(tr("Add Selected"));
-	connect(addROIButton, SIGNAL(clicked()), this, SLOT(emitLines()));*/
 
 	QHBoxLayout *titleLayout = new QHBoxLayout;
 	titleLayout->addWidget(name_);
@@ -89,14 +71,9 @@ VESPERSXRFElementView::VESPERSXRFElementView(AMElement *el, QWidget *parent)
 	linesLayout->addStretch();
 	linesLayout->setSpacing(0);
 
-	/*QHBoxLayout *buttonLayout = new QHBoxLayout;
-	buttonLayout->addWidget(addCustomButton);
-	buttonLayout->addWidget(addROIButton);*/
-
 	QVBoxLayout *viewLayout = new QVBoxLayout;
 	viewLayout->addLayout(titleLayout);
 	viewLayout->addLayout(linesLayout);
-	//viewLayout->addLayout(buttonLayout);
 
 	setLayout(viewLayout);
 }
@@ -121,9 +98,10 @@ void VESPERSXRFElementView::fillEmissionLines(AMElement *el)
 	lines_.at(5)->setLine(el->Malpha());
 }
 
-void VESPERSXRFElementView::emitLines()
+void VESPERSXRFElementView::emitLines(LineView *line)
 {
-	for (int i = 0; i < lines_.size(); i++)
-		if (lines_.at(i)->checked())
-			emit addROI(element_, lines_.at(i)->line());
+	if (line->checked())
+		emit addROI(element_, line->line());
+	else
+		emit removeROI(element_, line->line());
 }

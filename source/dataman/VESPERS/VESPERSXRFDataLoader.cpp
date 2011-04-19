@@ -43,8 +43,6 @@ bool VESPERSXRFDataLoader::loadFromFile(const QString &filepath, bool setMetaDat
 	// Clear any old data so we can start fresh.
 	scan->clearRawDataPointsAndMeasurements();
 
-	qDebug() << "Number of raw data sources: " << scan->rawDataSources()->count();
-
 	for (int i = 0; i < scan->rawDataSources()->count(); i++){
 
 		line = in.readLine();
@@ -53,7 +51,6 @@ bool VESPERSXRFDataLoader::loadFromFile(const QString &filepath, bool setMetaDat
 		for (int j = 0; j < lineTokenized.size(); j++)
 			data[j] = lineTokenized.at(j).toInt();
 
-		/// \todo This shouldn't use the current detector settings.  Use the saved ones...  need to save them first though.
 		scan->rawData()->addMeasurement(AMMeasurementInfo(QString("Element %1").arg(i+1), QString("Element %1").arg(i+1), "eV", config->detectorInfo().axes()));
 		scan->rawData()->setValue(AMnDIndex(), i, data.constData(), data.size());
 	}

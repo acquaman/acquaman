@@ -28,6 +28,8 @@ bool VESPERSAppController::startup() {
 
 	// Initialize central beamline object
 	VESPERSBeamline::vespers();
+	// Initialize the periodic table object.
+	AMPeriodicTable::table();
 
 	if(AMAppController::startup()) {
 
