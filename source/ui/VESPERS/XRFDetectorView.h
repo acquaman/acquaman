@@ -84,6 +84,10 @@ protected slots:
 	void addRegionOfInterest(AMElement *el, QPair<QString, QString> line);
 	/// Removes a region of interest from the detector.
 	void removeRegionOfInterest(AMElement *el, QPair<QString, QString> line);
+	/// Handles changes from the spectrum update rate combo box.
+	void onComboBoxUpdate(int index);
+	/// Handles the changes from the update rate control.
+	void onUpdateRateUpdate(double val);
 
 protected:
 
@@ -108,6 +112,8 @@ protected:
 	QLabel *elapsedTime_;
 	/// The dead time label.
 	QLabel *deadTime_;
+	/// The spectrum update rate combo box.
+	QComboBox *updateRate_;
 
 	/// The button group used for the dead time tool buttons.
 	QButtonGroup *deadTimeGroup_;

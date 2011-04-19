@@ -113,6 +113,13 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	else
 		connect(deadTimeGroup_, SIGNAL(buttonClicked(int)), this, SLOT(elementClicked(int)));
 
+	updateRate_ = new QComboBox;
+	updateRate_->addItem("Passive");
+	updateRate_->addItem("1 sec");
+	updateRate_->addItem("0.2 sec");
+	connect(updateRate_, SIGNAL(currentIndexChanged(int)), this, SLOT(onComboBoxUpdate(int)));
+	connect(detector_->refreshRateControl(), SIGNAL(valueChanged(double)), this, SLOT(onUpdateRateUpdate(double)));
+
 	setupPlot();
 
 	tableView_ = new AMPeriodicTableView;
@@ -130,7 +137,9 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	elapsedTimeLabel->setFont(font);
 	QLabel *deadTimeLabel = new QLabel(QString("Dead Time"));
 	deadTimeLabel->setFont(font);
-	qDebug() << QColor(Qt::green) << QColor(Qt::blue) << QColor(Qt::cyan);
+	QLabel *updateRateLabel = new QLabel(QString("Update Rate"));
+	updateRateLabel->setFont(font);
+
 	QLabel *legend = new QLabel(QString("Legend"));
 	legend->setFont(font);
 	QLabel *kLines = new QLabel(QString("K-lines"));
@@ -138,7 +147,7 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	kLines->setStyleSheet("QLabel { background-color: rgb(0,255,0) ; border-width: 2px ; border-style: solid }");
 	QLabel *lLines = new QLabel(QString("L-lines"));
 	lLines->setFont(font);
-	lLines->setStyleSheet("QLabel { background-color: rgb(0,0,255) ; border-width: 2px ; border-style: solid }");
+	lLines->setStyleSheet("QLabel { background-color: rgb(255,255,0) ; border-width: 2px ; border-style: solid }");
 	QLabel *mLines = new QLabel(QString("M-lines"));
 	mLines->setFont(font);
 	mLines->setStyleSheet("QLabel { background-color: rgb(0,255,255) ; border-width: 2px ; border-style: solid }");
@@ -148,7 +157,9 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	viewControlLayout->addWidget(elapsedTime_, 0, Qt::AlignCenter);
 	viewControlLayout->addWidget(deadTimeLabel, 0, Qt::AlignLeft);
 	viewControlLayout->addWidget(deadTime_, 0, Qt::AlignCenter);
-	viewControlLayout->addLayout(deadTimeLayout);
+	viewControlLayout->addLayout(deadTimeLayout, Qt::AlignLeft);
+	viewControlLayout->addWidget(updateRateLabel, 0, Qt::AlignLeft);
+	viewControlLayout->addWidget(updateRate_, 0, Qt::AlignCenter);
 	viewControlLayout->addStretch();
 
 	QGroupBox *controlBox = new QGroupBox;
@@ -182,6 +193,37 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	return true;
 }
 
+void XRFDetailedDetectorView::onComboBoxUpdate(int index)
+{
+	switch(index){
+
+	case 0:
+		detector_->setRefreshRateControl(XRFDetectorInfo::Passive);
+		break;
+	case 1:
+		detector_->setRefreshRateControl(XRFDetectorInfo::Slow);
+		break;
+	case 2:
+		detector_->setRefreshRateControl(XRFDetectorInfo::Fast);
+		break;
+	}
+}
+
+void XRFDetailedDetectorView::onUpdateRateUpdate(double val)
+{
+	switch((int)val){
+
+	case 0:
+		updateRate_->setCurrentIndex(0);
+		break;
+	case 6:
+		updateRate_->setCurrentIndex(1);
+		break;
+	case 8:
+		updateRate_->setCurrentIndex(2);
+	}
+}
+
 void XRFDetailedDetectorView::addRegionOfInterest(AMElement *el, QPair<QString, QString> line)
 {
 	QToolButton *clicked = tableView_->button(el);
@@ -190,7 +232,7 @@ void XRFDetailedDetectorView::addRegionOfInterest(AMElement *el, QPair<QString, 
 	if (line.first.contains("K"))
 		palette.setColor(QPalette::Button, Qt::green);
 	else if (line.first.contains("L"))
-		palette.setColor(QPalette::Button, Qt::blue);
+		palette.setColor(QPalette::Button, Qt::yellow);
 	else if (line.first.contains("M"))
 		palette.setColor(QPalette::Button, Qt::cyan);
 
@@ -266,8 +308,8 @@ void XRFDetailedDetectorView::showEmissionLines(AMElement *el)
 		lineName = el->emissionLines().at(i).first;
 
 		if (el->emissionLines().at(i).second.toDouble() <= detector_->maximumEnergy()*1000
-			&& (lineName.compare("Ka2") && lineName.compare("La2") && lineName.compare("Lb2") && lineName.compare("-")))
-
+			&& (lineName.compare(QString::fromUtf8("Kα2")) && lineName.compare(QString::fromUtf8("Lα2")) && lineName.compare(QString::fromUtf8("Lβ2"))
+				&& lineName.compare("-")))
 			toBeAdded << el->emissionLines().at(i);
 	}
 
@@ -297,17 +339,17 @@ void XRFDetailedDetectorView::showEmissionLines(AMElement *el)
 
 QColor XRFDetailedDetectorView::getColor(QString name)
 {
-	if (name.compare("Ka1") == 0)
+	if (name.compare(QString::fromUtf8("Kα1")) == 0)
 		return Qt::red;
-	if (name.compare("Kb1") == 0)
+	if (name.compare(QString::fromUtf8("Kβ1")) == 0)
 		return Qt::magenta;
-	if (name.compare("La1") == 0)
+	if (name.compare(QString::fromUtf8("Lα1")) == 0)
 		return Qt::darkBlue;
-	if (name.compare("Lb1") == 0)
+	if (name.compare(QString::fromUtf8("Lβ1")) == 0)
 		return Qt::blue;
-	if (name.compare("Lg1") == 0)
+	if (name.compare(QString::fromUtf8("Lγ1")) == 0)
 		return Qt::darkCyan;
-	if (name.compare("Ma1") == 0)
+	if (name.compare(QString::fromUtf8("Mα1")) == 0)
 		return Qt::darkGreen;
 
 	return Qt::black;

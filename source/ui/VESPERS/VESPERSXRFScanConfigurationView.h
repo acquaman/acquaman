@@ -25,6 +25,10 @@ signals:
 protected slots:
 	/// Handles new values set from the integration time spin box and passes it along to the control.
 	void onIntegrationTimeUpdate();
+	/// Handles new values set from the maximum energy spin box and passes it along to the control.
+	void onMaximumEnergyUpdate();
+	/// Handles new values set from the peaking time spin box and passes it along to the control.
+	void onPeakingTimeUpdate();
 	/// Handles what happens when the start button is clicked.
 	void onStartClicked() { detector_->setTime(integrationTime_->value()); emit startScan(); }
 	/// Handles what happens when the stop button is clicked.
@@ -40,6 +44,10 @@ protected:
 
 	/// The integration time spin box.
 	QDoubleSpinBox *integrationTime_;
+	/// The maximum energy of the detector.  Value is in keV.
+	QDoubleSpinBox *maxEnergy_;
+	/// The peaking time for the detector.  Value is in us.
+	QDoubleSpinBox *peakingTime_;
 };
 
 #endif // VESPERSXRFSCANCONFIGURATIONVIEW_H

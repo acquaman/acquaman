@@ -31,6 +31,23 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 	connect(integrationTime_, SIGNAL(editingFinished()), this, SLOT(onIntegrationTimeUpdate()));
 	connect(detector_->integrationTimeControl(), SIGNAL(valueChanged(double)), integrationTime_, SLOT(setValue(double)));
 
+	maxEnergy_ = new QDoubleSpinBox;
+	maxEnergy_->setSuffix(" keV");
+	maxEnergy_->setSingleStep(0.01);
+	maxEnergy_->setMaximum(30.00);
+	maxEnergy_->setAlignment(Qt::AlignCenter);
+	connect(maxEnergy_, SIGNAL(editingFinished()), this, SLOT(onMaximumEnergyUpdate()));
+	connect(detector_->maximumEnergyControl(), SIGNAL(valueChanged(double)), maxEnergy_, SLOT(setValue(double)));
+
+	peakingTime_ = new QDoubleSpinBox;
+	peakingTime_->setSuffix(QString(" %1s").arg(QString::fromUtf8("μ")));
+	peakingTime_->setSingleStep(0.01);
+	peakingTime_->setMaximum(100);
+	peakingTime_->setMinimum(1.0);
+	peakingTime_->setAlignment(Qt::AlignCenter);
+	connect(peakingTime_, SIGNAL(editingFinished()), this, SLOT(onPeakingTimeUpdate()));
+	connect(detector_->peakingTimeControl(), SIGNAL(valueChanged(double)), this, SLOT(onPeakingTimeUpdate()));
+
 	QFont font(this->font());
 	font.setBold(true);
 
@@ -38,6 +55,10 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 	startLabel->setFont(font);
 	QLabel *timeLabel = new QLabel("Real Time");
 	timeLabel->setFont(font);
+	QLabel *maxEnergyLabel = new QLabel("Max. Energy");
+	maxEnergyLabel->setFont(font);
+	QLabel *peakingTimeLabel = new QLabel("Peaking Time");
+	peakingTimeLabel->setFont(font);
 
 	QHBoxLayout *startAndStopLayout = new QHBoxLayout;
 	startAndStopLayout->addWidget(start);
@@ -49,6 +70,10 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 	controlLayout->addLayout(startAndStopLayout);
 	controlLayout->addWidget(timeLabel);
 	controlLayout->addWidget(integrationTime_);
+	controlLayout->addWidget(maxEnergyLabel);
+	controlLayout->addWidget(maxEnergy_);
+	controlLayout->addWidget(peakingTimeLabel);
+	controlLayout->addWidget(peakingTime_);
 	controlLayout->addStretch();
 
 	QHBoxLayout *plotControlLayout = new QHBoxLayout;
@@ -61,6 +86,16 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 void VESPERSXRFScanConfigurationView::onIntegrationTimeUpdate()
 {
 	detector_->setTime(integrationTime_->value());
+}
+
+void VESPERSXRFScanConfigurationView::onMaximumEnergyUpdate()
+{
+	detector_->setMaximumEnergyControl(maxEnergy_->value());
+}
+
+void VESPERSXRFScanConfigurationView::onPeakingTimeUpdate()
+{
+	detector_->setPeakingTimeControl(peakingTime_->value());
 }
 
 void VESPERSXRFScanConfigurationView::onStopClicked()
