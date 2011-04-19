@@ -122,9 +122,19 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	connect(table, SIGNAL(elementSelected(AMElement*)), elView, SLOT(setElement(AMElement*)));
 	connect(table, SIGNAL(elementSelected(AMElement*)), this, SLOT(showEmissionLines(AMElement*)));
 
+	QFont font(this->font());
+	font.setBold(true);
+
+	QLabel *elapsedTimeLabel = new QLabel(QString("Elapsed Time"));
+	elapsedTimeLabel->setFont(font);
+	QLabel *deadTimeLabel = new QLabel(QString("Dead Time"));
+	deadTimeLabel->setFont(font);
+
 	QVBoxLayout *viewControlLayout = new QVBoxLayout;
-	viewControlLayout->addWidget(elapsedTime_);
-	viewControlLayout->addWidget(deadTime_);
+	viewControlLayout->addWidget(elapsedTimeLabel, 0, Qt::AlignLeft);
+	viewControlLayout->addWidget(elapsedTime_, 0, Qt::AlignCenter);
+	viewControlLayout->addWidget(deadTimeLabel, 0, Qt::AlignLeft);
+	viewControlLayout->addWidget(deadTime_, 0, Qt::AlignCenter);
 	viewControlLayout->addLayout(deadTimeLayout);
 	viewControlLayout->addStretch();
 

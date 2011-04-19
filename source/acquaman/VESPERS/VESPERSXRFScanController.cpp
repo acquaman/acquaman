@@ -12,6 +12,8 @@ VESPERSXRFScanController::VESPERSXRFScanController(VESPERSXRFScanConfiguration *
 	detector_ = scanConfig->detector();
 	scan_ = new AMXRFScan;
 	generalScan_ = scan_;
+	scanConfig->setDetectorInfo(detector_->toXRFInfo());
+	scan_->setScanConfiguration(scanConfig);
 	scan_->setName("XRF Scan");
 	QString fullPath = AMUserSettings::defaultFilePath(QDateTime::currentDateTime());
 	QString path = fullPath.section('/', 0, -2);

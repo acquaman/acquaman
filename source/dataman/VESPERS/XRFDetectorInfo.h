@@ -12,7 +12,7 @@ class XRFDetectorInfo : public AMDetectorInfo
 	Q_PROPERTY(double maximumEnergy READ maximumEnergy WRITE setMaximumEnergy)
 	Q_PROPERTY(int elements READ elements WRITE setElements)
 	Q_PROPERTY(int activeElements READ activeElements WRITE setActiveElements)
-	Q_PROPERTY(MCAUpdateRate refreshRate READ refreshRate WRITE setRefreshRate)
+	Q_PROPERTY(int refreshRate READ refreshRate WRITE setRefreshRate)
 	Q_PROPERTY(double integrationTime READ integrationTime WRITE setIntegrationTime)
 	Q_PROPERTY(double peakingTime READ peakingTime WRITE setPeakingTime)
 	Q_PROPERTY(AMDbObject* roiInfoList READ dbGetROIInfoList WRITE dbLoadROIInfoList)
@@ -88,6 +88,12 @@ public:
 	/// Don't need to do anything because dbGetROIList always returns a valid AMDbObject.
 	void dbLoadROIInfoList(AMDbObject *) {}
 
+	virtual bool storeToDb(AMDatabase *db){
+
+		qDebug() << maximumEnergy() << integrationTime() << peakingTime();
+		return AMDetectorInfo::storeToDb(db);
+	}
+
 public slots:
 
 	/// Set the number of channels in the spectral output.
@@ -116,6 +122,8 @@ public slots:
 	}
 	/// Sets the refresh rate for the spectra while data is being collected.
 	void setRefreshRate(MCAUpdateRate rate) { refreshRate_ = rate; setModified(true); }
+	/// Overloaded function.
+	void setRefreshRate(int rate) { setRefreshRate((MCAUpdateRate)rate); }
 	/// Sets the integration time for the detector.
 	void setIntegrationTime(double time) { integrationTime_ = time; setModified(true); }
 	/// Sets the peaking time for the detector.

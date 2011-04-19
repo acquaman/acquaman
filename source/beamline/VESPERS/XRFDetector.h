@@ -123,7 +123,7 @@ public:
 	/// Transforms current settings into a detector into. Returns a new instance-- caller is responsible for memory.
 	virtual AMDetectorInfo *toInfo() const { return new XRFDetectorInfo(*this); }
 	/// Transforms current settings into a detector info.
-	XRFDetectorInfo toXRFInfo() const { return XRFDetectorInfo(*this); }
+	XRFDetectorInfo toXRFInfo() const { XRFDetectorInfo info(*this); qDebug() << info.maximumEnergy() << info.integrationTime() << info.peakingTime(); return info;  }
 	/// Takes a detector info and sets all the settings for the detector.
 	virtual bool setFromInfo(const AMDetectorInfo *info);
 	/// Takes in a detector info and sets all the settings for the detector.
