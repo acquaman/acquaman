@@ -20,12 +20,30 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SGMSampleTransferView.h"
 
+#include <QGridLayout>
+#include <QStackedLayout>
+#include <QLabel>
+#include <QPushButton>
+
+#include "ui/AMTopFrame.h"
+
 #include "beamline/AMBeamlineControlWaitAction.h"
 #include "beamline/AMBeamlineUserConfirmAction.h"
+
+#include <QButtonGroup>
 
 SGMSampleTransferView::SGMSampleTransferView(QWidget *parent) :
 	QWidget(parent)
 {
+	topFrame_ = new AMTopFrame("SGM Sample Transfer Guidance");
+	topFrame_->setIcon(QIcon(":/system-software-update.png"));
+
+	vl_ = new QVBoxLayout();
+	vl_->addWidget(topFrame_);
+	vl_->setContentsMargins(0,0,0,0);
+	vl_->setSpacing(1);
+	setLayout(vl_);
+
 	if(SGMBeamline::sgm()->isConnected())
 		drawWidget();
 	else
@@ -77,7 +95,10 @@ void SGMSampleTransferView::drawWidget(){
 	}
 	connect(transferButtons_, SIGNAL(buttonClicked(int)), this, SLOT(drawPane(int)));
 
-	setLayout(mainLayout_);
+	//setLayout(mainLayout_);
+	vl_->addLayout(mainLayout_);
+	mainLayout_->setContentsMargins(10, 0, 10, 0);
+	mainLayout_->setSpacing(5);
 	drawMain();
 }
 
@@ -103,6 +124,8 @@ SGMSampleTransferProceduresView::SGMSampleTransferProceduresView(const QString &
 	for(int x = 0; x < procedureButtons_->buttons().count(); x++ )
 		vl_->addWidget(procedureButtons_->button(x+1));
 	mainLayout_->addLayout(vl_, 0, 0, 1, 1, Qt::AlignLeft|Qt::AlignTop);
+	mainLayout_->setContentsMargins(10, 0, 10, 0);
+	mainLayout_->setSpacing(5);
 
 	setLayout(mainLayout_);
 }

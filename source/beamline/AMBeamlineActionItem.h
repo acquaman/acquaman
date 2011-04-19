@@ -24,16 +24,17 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMOrderedSet.h"
 #include "util/AMErrorMonitor.h"
 
-#include <QObject>
 #include <QWidget>
-#include <QHBoxLayout>
-#include <QLabel>
-#include <QPushButton>
-#include <QDebug>
-#include <QMouseEvent>
-#include <QMenu>
-#include <QAction>
-#include <QStyle>
+#include <QFrame>
+
+class QHBoxLayout;
+class QLabel;
+class QPushButton;
+class QMouseEvent;
+class QMenu;
+class QAction;
+class QStyle;
+
 
 /// Using this for debuggging purposes in all ActionItem descendents and views
 #define VERBOSE_ACTION_ITEMS 0

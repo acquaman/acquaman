@@ -56,8 +56,10 @@ AMScanConfigurationViewHolder::AMScanConfigurationViewHolder(AMWorkflowManagerVi
 	hl->addStretch();
 	hl->addWidget(addToQueueButton_);
 	hl->addWidget(startScanButton_);
+	hl->setContentsMargins(10, 10, 10, 20);
 
 	layout_->addLayout(hl);
+	layout_->setContentsMargins(0,0,0,0);
 
 	setLayout(layout_);
 

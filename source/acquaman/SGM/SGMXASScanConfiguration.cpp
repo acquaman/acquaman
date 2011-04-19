@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 SGMXASScanConfiguration::SGMXASScanConfiguration(QObject *parent) : AMXASScanConfiguration(parent) , SGMScanConfiguration()
 {
+	qDebug() << "Constructor is normal";
 	regions_->setEnergyControl(SGMBeamline::sgm()->energy());
 	fluxResolutionSet_ = SGMBeamline::sgm()->fluxResolutionSet();
 	trackingSet_ = SGMBeamline::sgm()->trackingSet();
@@ -43,6 +44,7 @@ SGMXASScanConfiguration::SGMXASScanConfiguration(QObject *parent) : AMXASScanCon
 }
 
 SGMXASScanConfiguration::SGMXASScanConfiguration(const SGMXASScanConfiguration &original){
+	qDebug() << "Constructor is copy";
 	regions_->setEnergyControl(SGMBeamline::sgm()->energy());
 	for(int x = 0; x < original.regionCount(); x++)
 		regions_->addRegion(x, original.regionStart(x), original.regionDelta(x), original.regionEnd(x));

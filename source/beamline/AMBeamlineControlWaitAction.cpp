@@ -1,5 +1,14 @@
 #include "AMBeamlineControlWaitAction.h"
 
+#include <QSlider>
+#include <QToolButton>
+#include <QButtonGroup>
+#include <QApplication>
+#include <QFile>
+#include <QVBoxLayout>
+#include <QLabel>
+#include <QStyle>
+
 AMBeamlineControlWaitAction::AMBeamlineControlWaitAction(AMControl *control, AMBeamlineControlWaitAction::waitTargetType targetType, QObject *parent) :
 		AMBeamlineActionItem(parent)
 {

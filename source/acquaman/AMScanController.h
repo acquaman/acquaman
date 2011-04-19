@@ -194,6 +194,7 @@ public slots:
 signals:
 	void currentScanControllerCreated();
 	void currentScanControllerDestroyed();
+	void currentScanControllerStarted();
 
 protected slots:
 	void onCurrentScanControllerFinished();

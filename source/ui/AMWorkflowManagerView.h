@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class QPushButton;
 class QVBoxLayout;
 class AMVerticalStackWidget;
+class AMTopFrame;
 
 #include "beamline/AMBeamlineActionsList.h"
 
@@ -81,6 +82,7 @@ protected slots:
 protected:
 	QPushButton *startWorkflowButton_;
 	QPushButton *addActionButton_;
+	AMTopFrame *topFrame_;
 	QVBoxLayout *vl_;
 
 	AMBeamlineActionsList *workflowActions_;

@@ -27,6 +27,8 @@ SGMXASScanConfigurationView::SGMXASScanConfigurationView(SGMXASScanConfiguration
 	if(SGMBeamline::sgm()->isConnected()){
 		cfg_ = sxsc;
 
+		topFrame_ = new AMTopFrame("Configure an XAS Scan to Run Later");
+		topFrame_->setIcon(QIcon(":/utilities-system-monitor.png"));
 		regionsLineView_ = new AMRegionsLineView(sxsc->regions(), this);
 
 		regionsView_ = new AMXASRegionsView(sxsc->regions(), this);
@@ -61,6 +63,7 @@ SGMXASScanConfigurationView::SGMXASScanConfigurationView(SGMXASScanConfiguration
 		warningsLabel_->setStyleSheet( "QLabel{ color: red }" );
 
 		mainVL_ = new QVBoxLayout();
+		mainVL_->addWidget(topFrame_);
 		mainVL_->addWidget(regionsLineView_);
 		bottomGL_ = new QGridLayout();
 		mainVL_->addLayout(bottomGL_, 10);
@@ -70,6 +73,10 @@ SGMXASScanConfigurationView::SGMXASScanConfigurationView(SGMXASScanConfiguration
 		bottomGL_->addWidget(xasDetectorsView_,	1, 2);
 		bottomGL_->setColumnStretch(0, 10);
 		bottomGL_->setColumnMinimumWidth(1, 40);
+		bottomGL_->setContentsMargins(10, 0, 0, 0);
+		mainVL_->addStretch(8);
+		mainVL_->setContentsMargins(0,0,0,0);
+		mainVL_->setSpacing(1);
 		setLayout(mainVL_);
 
 		this->setMaximumSize(800, 800);
@@ -108,7 +115,6 @@ void SGMXASScanConfigurationView::onSGMBeamlineCriticalControlsConnectedChanged(
 		warningsLabel_->setText("SGM Beamline Unavailable");
 	}
 }
-
 
 SGMFluxResolutionPickerView::SGMFluxResolutionPickerView(AMXASRegionsList *regions, QWidget *parent) :
 		QGroupBox("Flux/Resolution", parent)

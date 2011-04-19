@@ -1,6 +1,17 @@
 #include "SGMFastScanConfigurationView.h"
 
-#include "SGMSidebar.h"
+//#include "SGMSidebar.h"
+
+#include <QGridLayout>
+#include <QComboBox>
+#include <QLabel>
+#include <QFileDialog>
+#include <QDoubleSpinBox>
+#include <QSpinBox>
+#include <QLineEdit>
+#include <QFormLayout>
+
+#include "ui/AMTopFrame.h"
 
 SGMFastScanConfigurationView::SGMFastScanConfigurationView(SGMFastScanConfiguration *sfsc, QWidget *parent) :
 		AMScanConfigurationView(parent)
@@ -13,6 +24,9 @@ SGMFastScanConfigurationView::SGMFastScanConfigurationView(SGMFastScanConfigurat
 	*/
 	if(SGMBeamline::sgm()->isConnected()){
 		cfg_ = sfsc;
+
+		topFrame_ = new AMTopFrame("Configure a Fast Scan to Run Later");
+		topFrame_->setIcon(QIcon(":/utilities-system-monitor.png"));
 
 		presetsComboBox_ = new QComboBox();
 		presetsComboBox_->addItems(sfsc->presets());
@@ -114,11 +128,18 @@ SGMFastScanConfigurationView::SGMFastScanConfigurationView(SGMFastScanConfigurat
 		connect(sfsc, SIGNAL(onNewFinalizedSavePath(QString)), this, SLOT(onNewFinalizedSavePath(QString)));
 		*/
 
-		gl_.addWidget(presetsComboBox_,		0, 0, 1, 1, Qt::AlignCenter);
-		gl_.addLayout(fl_,			0, 1, 1, 1, Qt::AlignCenter);
-		gl_.addWidget(warningsLabel_,		0, 0, 1, 2, Qt::AlignCenter);
-		gl_.setRowStretch(1, 10);
-		this->setLayout(&gl_);
+		gl_ = new QGridLayout();
+		gl_->addWidget(presetsComboBox_,		0, 0, 1, 1, Qt::AlignCenter);
+		gl_->addLayout(fl_,			0, 1, 1, 1, Qt::AlignCenter);
+		gl_->addWidget(warningsLabel_,		0, 0, 1, 2, Qt::AlignCenter);
+		gl_->setRowStretch(1, 10);
+		QVBoxLayout *vl = new QVBoxLayout();
+		vl->addWidget(topFrame_);
+		vl->addLayout(gl_);
+		vl->setContentsMargins(0,0,0,0);
+		vl->setSpacing(1);
+		gl_->setContentsMargins(10, 0, 10, 0);
+		this->setLayout(vl);
 		this->setMaximumSize(700, 800);
 
 		connect(SGMBeamline::sgm(), SIGNAL(criticalControlsConnectionsChanged()), this, SLOT(onSGMBeamlineCriticalControlsConnectedChanged()));

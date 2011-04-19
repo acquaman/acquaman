@@ -140,25 +140,27 @@ AMRegionsLineView::AMRegionsLineView(AMXASRegionsList *regions, QWidget *parent)
 {
 	regions_ = regions;
 	int nlSize = 800;
-	this->setMaximumSize(nlSize, 100);
-	this->setMinimumSize(nlSize, 100);
+	setFixedWidth(nlSize);
+	setFixedHeight(62);
 	double range = regions_->maxEnergy() - regions_->minEnergy();
 	double ratio = range/(nlSize-60);
 	scene = new QGraphicsScene(0, -10, nlSize-50, 40);
 
 	redrawRegionsLine();
 	view = new QGraphicsView(scene);
+	view->setFrameStyle(QFrame::NoFrame);
+	view->setFrameShadow(QFrame::Plain);
 	view->setRenderHint(QPainter::Antialiasing);
 	view->setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
-	view->setBackgroundBrush(QColor(230, 200, 167));
-	view->setWindowTitle("Drag and Drop Dave Test");
+	view->setBackgroundBrush(palette().color(QPalette::Background));
 	view->resize(nlSize-50, 40);
 	view->setMaximumHeight(60);
 	view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-	QFormLayout *fl_ = new QFormLayout(this);
-	fl_->addRow(view);
-	setLayout(fl_);
+	QVBoxLayout *vl = new QVBoxLayout();
+	vl->addWidget(view);
+	vl->setContentsMargins(0,0,0,0);
+	setLayout(vl);
 	connect(regions_->model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(handleDataChanged(QModelIndex,QModelIndex)));
 	connect(regions_->model(), SIGNAL(rowsInserted(const QModelIndex,int,int)), this, SLOT(handleRowsInsert(QModelIndex,int,int)));
 	connect(regions_->model(), SIGNAL(rowsRemoved(const QModelIndex,int,int)), this, SLOT(handleRowsRemoved(QModelIndex,int,int)));

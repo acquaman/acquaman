@@ -39,6 +39,7 @@ protected slots:
 	/// \todo comment this, David...
 	void onCurrentScanControllerCreated();
 	void onCurrentScanControllerDestroyed();
+	void onCurrentScanControllerStarted();
 	void onCurrentScanControllerReinitialized(bool removeScan);
 
 

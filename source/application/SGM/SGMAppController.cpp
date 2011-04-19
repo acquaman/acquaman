@@ -90,6 +90,7 @@ bool SGMAppController::startup() {
 
 		connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerCreated()), this, SLOT(onCurrentScanControllerCreated()));
 		connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerDestroyed()), this, SLOT(onCurrentScanControllerDestroyed()));
+		connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerStarted()), this, SLOT(onCurrentScanControllerStarted()));
 
 		connect(SGMBeamline::sgm(), SIGNAL(criticalControlsConnectionsChanged()), this, SLOT(onSGMBeamlineConnected()));
 
@@ -140,14 +141,6 @@ void SGMAppController::onSGMBeamlineConnected(){
 #include "ui/AMGenericScanEditor.h"
 
 void SGMAppController::onCurrentScanControllerCreated(){
-	AMGenericScanEditor *scanEditor = new AMGenericScanEditor();
-	scanEditorsParentItem_->appendRow(new AMScanEditorModelItem(scanEditor, ":/applications-science.png"));
-
-	scanEditor->addScan(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan());
-	mw_->goToPane(scanEditor);
-
-	scanControllerActiveEditor_ = scanEditor;
-
 	connect(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController(), SIGNAL(progress(double,double)), this, SLOT(onProgressUpdated(double,double)));
 
 	/// \todo add user preference: should new scans open in a new window, or docked?
@@ -160,6 +153,16 @@ void SGMAppController::onCurrentScanControllerCreated(){
 
 void SGMAppController::onCurrentScanControllerDestroyed(){
 	scanControllerActiveEditor_ = 0;
+}
+
+void SGMAppController::onCurrentScanControllerStarted(){
+	AMGenericScanEditor *scanEditor = new AMGenericScanEditor();
+	scanEditorsParentItem_->appendRow(new AMScanEditorModelItem(scanEditor, ":/applications-science.png"));
+
+	scanEditor->addScan(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan());
+	mw_->goToPane(scanEditor);
+
+	scanControllerActiveEditor_ = scanEditor;
 }
 
 void SGMAppController::onCurrentScanControllerReinitialized(bool removeScan){

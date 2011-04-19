@@ -24,6 +24,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMBeamline.h"
 #include "ui/AMDateTimeUtils.h"
 
+#include <QPushButton>
+
 AMBeamlineScanAction::AMBeamlineScanAction(AMScanConfiguration *cfg, QObject *parent) :
 		AMBeamlineActionItem(true, parent)
 {
@@ -278,6 +280,7 @@ void AMBeamlineScanActionView::updateScanNameLabel(){
 
 	scanName.append(scanAction_->cfg()->detailedDescription());
 	scanNameLabel_->setText(scanName);
+	setWindowTitle(scanAction_->cfg()->description());
 
 }
 

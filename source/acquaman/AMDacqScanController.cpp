@@ -148,6 +148,7 @@ AMnDIndex AMDacqScanController::toScanIndex(QMap<int, double> aeData){
 
 void AMDacqScanController::onDacqStart()
 {
+	qDebug() << "Heard that the dacq started";
 	startTime_.start();
 	setStarted();
 }

@@ -20,6 +20,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMBeamlineControlSetMoveAction.h"
 
+#include <QLabel>
+#include <QVBoxLayout>
+#include <QPushButton>
+
 AMBeamlineControlSetMoveAction::AMBeamlineControlSetMoveAction(AMControlSet *controlSet, QObject *parent) :
 		AMBeamlineActionItem(parent)
 {

@@ -23,15 +23,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPushButton>
 #include <QVBoxLayout>
 
-
-
 #include "acquaman/AMScanConfiguration.h"
 #include "beamline/AMBeamlineScanAction.h"
 #include "beamline/AMBeamlineControlSetMoveAction.h"
 
 #include "beamline/AMBeamline.h"
 #include "ui/AMVerticalStackWidget.h"
-
+#include "ui/AMTopFrame.h"
 
 
 AMWorkflowManagerView::AMWorkflowManagerView(QWidget *parent) :
@@ -46,6 +44,9 @@ AMWorkflowManagerView::AMWorkflowManagerView(QWidget *parent) :
 //	connect(SGMBeamline::sgm()->currentSamplePlate(), SIGNAL(samplePositionAdded(int)), adder_, SLOT(onSamplePlateUpdate(int)));
 //	connect(SGMBeamline::sgm()->currentSamplePlate(), SIGNAL(samplePositionChanged(int)), adder_, SLOT(onSamplePlateUpdate(int)));
 //	connect(SGMBeamline::sgm()->currentSamplePlate(), SIGNAL(samplePositionRemoved(int)), adder_, SLOT(onSamplePlateUpdate(int)));
+
+	topFrame_ = new AMTopFrame("Workflow");
+	topFrame_->setIcon(QIcon(":/user-away.png"));
 
 	startWorkflowButton_ = new QPushButton("Start This Workflow\nReady");
 	startWorkflowButton_->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
@@ -73,9 +74,23 @@ AMWorkflowManagerView::AMWorkflowManagerView(QWidget *parent) :
 	//	removed with adder: connect(workflowView_, SIGNAL(queueUpdated(int)), adder_, SLOT(onQueueUpdated(int)));
 
 	vl_ = new QVBoxLayout();
-	vl_->addLayout(hl);
+	//vl_->addLayout(hl);
 	vl_->addWidget(scrollArea);
-	setLayout(vl_);
+
+	topFrame_->frameLayout()->addLayout(hl);
+
+	QVBoxLayout *vl2 = new QVBoxLayout();
+	vl2->addWidget(topFrame_);
+	vl2->addLayout(vl_);
+	vl2->setContentsMargins(0,0,0,0);
+	vl2->setSpacing(1);
+
+	vl_->setContentsMargins(10, 0, 10, 0);
+	vl_->setSpacing(5);
+	hl->setContentsMargins(0, 2, 10, 2);
+	hl->setSpacing(5);
+
+	setLayout(vl2);
 }
 
 void AMWorkflowManagerView::startQueue(){
@@ -198,7 +213,7 @@ void AMBeamlineActionsListView::onActionAdded(int index){
 }
 
 void AMBeamlineActionsListView::onActionRemoved(int index){
-	actionsViewList_->removeItem(index);
+	actionsViewList_->deleteItem(index);
 	reindexViews();
 	emit queueUpdated(actionsQueue_->count());
 }

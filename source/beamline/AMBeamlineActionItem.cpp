@@ -20,6 +20,16 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMBeamlineActionItem.h"
 
+#include <QObject>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QPushButton>
+#include <QDebug>
+#include <QMouseEvent>
+#include <QMenu>
+#include <QAction>
+#include <QStyle>
+
 AMBeamlineActionItemStateFlag::AMBeamlineActionItemStateFlag(bool initialState, QObject *parent) :
 		QObject(parent)
 {

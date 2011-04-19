@@ -20,6 +20,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SGMSidebar.h"
 
+#include <QLabel>
+
 SGMSidebar::SGMSidebar(QWidget *parent) :
     QWidget(parent)
 {
@@ -129,9 +131,9 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	pdSeries_->setMarker(MPlotMarkerShape::None);
 
 	imagePlot_->addItem(i0Series_);
-	imagePlot_->addItem(teySeries_);
-	imagePlot_->addItem(tfySeries_);
-	imagePlot_->addItem(pdSeries_);
+	//imagePlot_->addItem(teySeries_);
+	//imagePlot_->addItem(tfySeries_);
+	//imagePlot_->addItem(pdSeries_);
 
 	stripToolCounter_ = 0;
 	stripToolTimer_ = new QTimer(this);

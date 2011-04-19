@@ -35,6 +35,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/SGM/SGMXASDacqScanController.h"
 #include "AMScanConfigurationView.h"
 #include "ui/AMControlOptimizationView.h"
+#include "ui/AMTopFrame.h"
 
 #include "AMDetectorView.h"
 
@@ -64,6 +65,7 @@ protected slots:
 protected:
 	SGMXASScanConfiguration *cfg_;
 
+	AMTopFrame *topFrame_;
 	AMXASRegionsView *regionsView_;
 	AMRegionsLineView *regionsLineView_;
 	//AMCompactControlOptimizationSetView *fluxResolutionView_;

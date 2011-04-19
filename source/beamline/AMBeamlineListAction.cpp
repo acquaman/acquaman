@@ -1,5 +1,8 @@
 #include "AMBeamlineListAction.h"
 
+#include <QVBoxLayout>
+#include <QLabel>
+
 AMBeamlineListAction::AMBeamlineListAction(AMBeamlineParallelActionsList *list, QObject *parent) :
 		AMBeamlineActionItem(parent)
 {
