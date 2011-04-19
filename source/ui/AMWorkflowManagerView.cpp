@@ -85,7 +85,7 @@ AMWorkflowManagerView::AMWorkflowManagerView(QWidget *parent) :
 	vl2->setContentsMargins(0,0,0,0);
 	vl2->setSpacing(1);
 
-	vl_->setContentsMargins(10, 0, 10, 0);
+	vl_->setContentsMargins(10, 5, 10, 10);
 	vl_->setSpacing(5);
 	hl->setContentsMargins(0, 2, 10, 2);
 	hl->setSpacing(5);

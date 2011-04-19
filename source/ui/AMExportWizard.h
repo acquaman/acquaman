@@ -25,16 +25,22 @@ protected slots:
 	/// Called when the user chooses a different pre-saved option from the selector list.
 	void onOptionSelectorIndexChanged(int index);
 
+	/// Called when the save button is clicked to save a current option.
+	bool onSaveOptionButtonClicked();
+
+	/// Fills the option selector with available stored options. Returns true if saved, false if cancelled.
+	void populateOptionSelector();
+
 protected:
-	QGroupBox* optionViewContainer_;
+	QWidget* optionViewContainer_;
 	QComboBox* optionSelector_;
-	QPushButton* saveOptionButton_;
+	QPushButton* saveOptionButton_, *newOptionButton_;
 
 	AMExporterOption* option_;
 	AMExporter* exporter_;
 	QWidget* optionView_;
 
-	void populateOptionSelector();
+
 };
 
 class AMExportWizardChooseExporterPage : public QWizardPage {

@@ -4,18 +4,23 @@ AMExporterOptionGeneral::AMExporterOptionGeneral(QObject *parent) :
 	AMExporterOption(parent)
 {
 
-	headerText_ =	"Scan:\t$name #$number\n"
-					"Date:\t$dateTime\n"
-					"Sample:\t$sample\n"
-					"Facility:\t$facilityDescription\n\n";
+	includeAllDataSources_ = true;
+
+	headerText_ =	"Scan: $name #$number\n"
+					"Date: $dateTime\n"
+					"Sample: $sample\n"
+					"Facility: $facilityDescription\n\n";
+	headerIncluded_ = true;
 
 	columnHeader_ =	"$dataSourceName ($dataSourceUnits)";
-
-	isColumnHeaderIncluded_ = true;
+	columnHeaderIncluded_ = true;
 
 	columnHeaderDelimiter_ = "==========";
 
-	sectionDelimiter_ = "\n$dataSourceName: $dataSourceDescription ($dataSourceUnits)\nSize: $dataSourceSize\n"
+	sectionHeader_ = "\n$dataSourceName: $dataSourceDescription ($dataSourceUnits)\nSize: $dataSourceSize\n"
 						"----------";
+	sectionHeaderIncluded_ = true;
+
+	separateSectionFileName_ = "$name_$number_$dataSource_$dateTime.dat";
 }
 
