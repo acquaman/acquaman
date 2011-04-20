@@ -4,6 +4,7 @@
 #include "dataman/AMExporterOptionGeneralAscii.h"
 
 #include <QButtonGroup>
+#include <QInputDialog>
 
 AMExporterOptionGeneralAsciiView::AMExporterOptionGeneralAsciiView(AMExporterOptionGeneralAscii* option, QStandardItemModel* availableDataSourcesModel, QWidget *parent) :
 	QTabWidget(parent)
@@ -197,7 +198,11 @@ void AMExporterOptionGeneralAsciiView::onSourcesRemoveButtonClicked() {
 
 // dialog prompt and add source
 void AMExporterOptionGeneralAsciiView::onSourcesAddExtraButtonClicked() {
-	/// \todo
+	QString customSourceName = QInputDialog::getText(this, "Add custom data set", "Include a custom data set named:");
+	if(!customSourceName.isEmpty()) {
+		option_->addDataSource(customSourceName, false, AMExporterOptionGeneral::CombineInColumnsMode, false);
+		sourcesIncludedListWidget->addItem(customSourceName);
+	}
 }
 
 // if index valid: enable edit boxes; block signals and set info boxes to match source; re-enable signals; enable remove button.  If not valid: disable remove button, disable edit boxes

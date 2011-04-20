@@ -393,6 +393,8 @@ bool AMExportWizardProgressPage::isComplete() const
 void AMExportWizardProgressPage::onControllerStateChanged(int exportControllerState)
 {
 	emit completeChanged();
+	if(exportControllerState == AMExportController::Finished)
+		wizard()->setOption(QWizard::NoCancelButton, true);
 }
 
 void AMExportWizardProgressPage::onControllerProgressChanged(int current, int total)

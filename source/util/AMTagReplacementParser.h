@@ -3,6 +3,37 @@
 
 #include <QString>
 #include <QList>
+#include <QHash>
+
+
+/// This is the base class for functors (function objects) which take an (optional, possibly blank) argument and return a converted string. It supports advanced usage of AMTagReplacementParser by serving as entries in a hash-table which maps tags to the functions that return their replacement values. (See AMTagReplacementParser::replaceAllUsingDictionary).
+class AMAbstractTagReplacementFunctor {
+public:
+	/// Return replacement text, possibly based on an option \c argument
+	virtual QString getText(const QString& argument) = 0;
+};
+
+/// This is the template class for functors (function objects) which take an (optional, possibly blank) argument and return a converted string. It supports advanced usage of AMTagReplacementParser by serving as entries in a hash-table which maps tags to the functions that return their replacement values. (See AMTagReplacementParser::replaceAllUsingDictionary).   This template version allows you to encapsulate any member function of the correct type from any object.
+template <class TClass> class AMTagReplacementFunctor : public AMAbstractTagReplacementFunctor {
+
+public:
+	/// Construct a functor using a pointer to your \c object, and a pointer to a getText()-type member function \c function that eats and returns a QString
+	AMTagReplacementFunctor(TClass* object, QString(TClass::*function)(const QString&)) {
+		object_ = object;
+		function_ = function;
+	}
+
+	/// getText() function call: calls the encapsulated member function
+	virtual QString getText(const QString& argument) {
+		return (*object_.*function_)(argument);
+	}
+
+private:
+	TClass* object_;                  ///< pointer to object
+	QString (TClass::*function_)(const QString&);   ///< pointer to getText()-type member function
+};
+
+
 
 /// This helper struct to AMTagReplacementParser provides information about a tag and its location in the text.  It's also modified by the programmer to provided the replacement value.
 class AMTagReplacement {
@@ -27,11 +58,12 @@ The weather is $weather and I will wear my $shirtColor[3] shirt today.
 
 There are three steps to using AMTagReplacementParser:
 
-- Call setInitialText() to set the input block of text and parse the tags.
+- 1. Call setInitialText() to set the input block of text and parse the tags.
 
-- Then, go through replacementList() to examine the tags and their arguments, and provide your replacements by setting the AMTagReplacement::replacement value.
+- 2. Then, go through replacementList() to examine the tags and their arguments, and provide your replacements by setting the AMTagReplacement::replacement value. (Advanced usage: Alternatively, you can call replaceAllUsingDictionary() if you have a special hash-table of functors all ready to use to conduct the replacements.)
 
-- Finally, call getReplacedText() to receive the final text, with your substitutions in-place.
+- 3. Finally, call getReplacedText() to receive the final text, with your substitutions in-place.
+
 
 
 <b>Performance</b>
@@ -67,15 +99,21 @@ public:
 	AMTagReplacementParser(const QChar& tagStartCharacter = QChar('$'), const QChar& argumentStartCharacter = QChar('['), const QChar& argumentEndCharacter = QChar(']'));
 
 
-	/// Clears the list of replacements and sets the input text block
+	/// Step 1: Clears the list of replacements and sets the input text block
 	void setInitialText(const QString& initialText);
 	/// Returns the input text the parser is currently using
 	QString initialText() const { return initialText_; }
 
-	/// Use to access the list of tags found and provide your replacement values. Warning: Do not modify AMTagReplacement::position when you do this!
+	/// Step 2: Use to access the list of tags found and provide your replacement values. Warning: Do not modify AMTagReplacement::position when you do this!
 	AMTagReplacementList& replacementList() { return replacementList_; }
 
-	/// Returns the final text with all replacements inserted.
+	/// Step 2: Alternate: determine all of the replacement values using a dictionary of functors that return the replacement for each possible tag.
+	/*! What's going on here?
+
+It's just like using a dictionary.  We lookup the tag in the dictionary, but instead of simply finding a piece of static text, we find a pointer to an object that we can call AMTagReplacementFunctor::getText() on, possibly including the argument from the tag as payload.*/
+	void replaceAllUsingDictionary(const QHash<QString, AMAbstractTagReplacementFunctor*>& lookupDictionary);
+
+	/// Step 3: Returns the final text with all replacements inserted.
 	QString getReplacedText();
 
 protected:

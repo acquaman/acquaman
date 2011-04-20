@@ -535,7 +535,8 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMFolderPathLineEdit.cpp \
 	source/util/AMTagReplacementParser.cpp \
 	source/ui/AMExporterOptionGeneralAsciiView.cpp \
-	source/ui/AMTopFrame.cpp
+	source/ui/AMTopFrame.cpp \
+    source/dataman/AMExporter.cpp
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc \
 	source/util/ElementData.qrc \
