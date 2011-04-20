@@ -16,7 +16,7 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 	else
 		detector_ = VESPERSBeamline::vespers()->vortexXRF4E();
 
-	view_ = new XRFDetailedDetectorView(detector_);
+	view_ = new VESPERSXRFDetectorView(detector_);
 	connect(detector_, SIGNAL(detectorConnected(bool)), this, SLOT(setEnabled(bool)));
 
 	QToolButton *start = new QToolButton;

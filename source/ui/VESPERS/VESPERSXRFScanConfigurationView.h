@@ -3,7 +3,7 @@
 
 #include "ui/AMScanConfigurationView.h"
 #include "acquaman/VESPERS/VESPERSXRFScanConfiguration.h"
-#include "ui/VESPERS/XRFDetectorView.h"
+#include "ui/VESPERS/VESPERSXRFDetectorView.h"
 #include "acquaman/AMScanController.h"
 
 #include <QDoubleSpinBox>
@@ -38,7 +38,7 @@ protected:
 	/// The current configuration.
 	VESPERSXRFScanConfiguration *configuration_;
 	/// The detector view.
-	XRFDetailedDetectorView *view_;
+	VESPERSXRFDetectorView *view_;
 	/// The pointer to the detector.
 	XRFDetector *detector_;
 

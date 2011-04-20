@@ -3,7 +3,6 @@
 #include "acquaman/VESPERS/VESPERSXRFScanController.h"
 #include "MPlot/MPlotSeries.h"
 #include "dataman/AMDataSourceSeriesData.h"
-#include "ui/VESPERS/VESPERSXRFElementView.h"
 
 #include <QString>
 #include <QHBoxLayout>
@@ -122,14 +121,6 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 
 	setupPlot();
 
-	tableView_ = new AMPeriodicTableView;
-	tableView_->setMaximumWidth(600);
-	VESPERSXRFElementView *elView = new VESPERSXRFElementView(AMPeriodicTable::table()->elementBySymbol("Fe"));
-	connect(tableView_, SIGNAL(elementSelected(AMElement*)), elView, SLOT(setElement(AMElement*)));
-	connect(tableView_, SIGNAL(elementSelected(AMElement*)), this, SLOT(showEmissionLines(AMElement*)));
-	connect(elView, SIGNAL(addROI(AMElement*,QPair<QString,QString>)), this, SLOT(addRegionOfInterest(AMElement*,QPair<QString,QString>)));
-	connect(elView, SIGNAL(removeROI(AMElement*,QPair<QString,QString>)), this, SLOT(removeRegionOfInterest(AMElement*,QPair<QString,QString>)));
-
 	QFont font(this->font());
 	font.setBold(true);
 
@@ -171,22 +162,8 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	viewLayout->addWidget(view_);
 	viewLayout->addWidget(controlBox);
 
-	QVBoxLayout *legendLayout = new QVBoxLayout;
-	legendLayout->addSpacing(35);
-	legendLayout->addWidget(legend);
-	legendLayout->addWidget(kLines);
-	legendLayout->addWidget(lLines);
-	legendLayout->addWidget(mLines);
-	legendLayout->addStretch();
-
-	QHBoxLayout *tableLayout = new QHBoxLayout;
-	tableLayout->addLayout(legendLayout);
-	tableLayout->addWidget(tableView_, Qt::AlignLeft);
-	tableLayout->addWidget(elView);
-
 	QVBoxLayout *detectorLayout = new QVBoxLayout;
 	detectorLayout->addLayout(viewLayout);
-	detectorLayout->addLayout(tableLayout);
 
 	setLayout(detectorLayout);
 
@@ -222,29 +199,6 @@ void XRFDetailedDetectorView::onUpdateRateUpdate(double val)
 	case 8:
 		updateRate_->setCurrentIndex(2);
 	}
-}
-
-void XRFDetailedDetectorView::addRegionOfInterest(AMElement *el, QPair<QString, QString> line)
-{
-	QToolButton *clicked = tableView_->button(el);
-	QPalette palette(clicked->palette());
-
-	if (line.first.contains("K"))
-		palette.setColor(QPalette::Button, Qt::green);
-	else if (line.first.contains("L"))
-		palette.setColor(QPalette::Button, Qt::yellow);
-	else if (line.first.contains("M"))
-		palette.setColor(QPalette::Button, Qt::cyan);
-
-	clicked->setPalette(palette);
-}
-
-void XRFDetailedDetectorView::removeRegionOfInterest(AMElement *el, QPair<QString, QString> line)
-{
-	QToolButton *clicked = tableView_->button(el);
-	QPalette palette(clicked->palette());
-	palette.setColor(QPalette::Button, this->palette().color(QPalette::Button));
-	tableView_->button(el)->setPalette(palette);
 }
 
 void XRFDetailedDetectorView::setupPlot()
