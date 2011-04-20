@@ -21,8 +21,8 @@ XRFDetectorInfo &XRFDetectorInfo::operator =(const XRFDetectorInfo &other)
 
 void XRFDetectorInfo::setMaximumEnergy(double energy)
 {
-	double newScale = energy*1000/size().i();
 	maxEnergy_ = energy;
+	double newScale = scale();
 
 	for (int i = 0; i < roiInfoList()->count(); i++)
 		(*roiInfoList())[i].setScale(newScale);

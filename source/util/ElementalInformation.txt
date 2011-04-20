@@ -93,17 +93,17 @@ Uranium,U,92,115606 21757 20948 17166 5548 5182 4303 3728 3552 1439 1271 1043 77
 Neptunium,Np,93,118669 22427 21600 17610 5739 5366 4435 3849 3664 1501 1328 1085 816 771 414 403 338 274 206 109 101 47 29 18,- - - 13944.1 13759.7 17750.2 16840 20784.8 -
 Plutonium,Pu,94,121791 23104 22266 18057 5933 5547 4563 3970 3775 1559 1380 1123 846 798 436 424 350 283 213 113 102 46 29 16,- - - 14278.6 14084.2 18293.7 17255.3 21417.3 -
 Americium,Am,95,124982 23808 22952 18510 6133 5739 4698 4096 3890 1620 1438 1165 880 829 461 446 365 298 219 116 106 48 29 16,- - - 14617.2 14411.9 18852 17676.5 22065.2 -
-Curium,Cm,96,
-Berkelium,Bk,97,
-Californium,Cf,98,
-Einsteinium,Es,99,
-Fermium,Fm,100,
-Mendelevium,Md,101,
-Nobelium,No,102,
-Lawrencium,Lr,103,
-Rutherfordium,Rf,104,
-Dubnium,Ha,105,
-Seaborgium,Sg,106,
-Bohrium,Bh,107,
-Hassium,Hs,108,
-Meitnerium,Mt,109,
+Curium,Cm,96
+Berkelium,Bk,97
+Californium,Cf,98
+Einsteinium,Es,99
+Fermium,Fm,100
+Mendelevium,Md,101
+Nobelium,No,102
+Lawrencium,Lr,103
+Rutherfordium,Rf,104
+Dubnium,Ha,105
+Seaborgium,Sg,106
+Bohrium,Bh,107
+Hassium,Hs,108
+Meitnerium,Mt,109

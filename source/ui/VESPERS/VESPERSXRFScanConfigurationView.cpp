@@ -10,9 +10,13 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 	: AMScanConfigurationView(parent)
 {
 	configuration_ = scanConfig;
-	view_ = new XRFDetailedDetectorView(scanConfig->detector());
-	detector_ = scanConfig->detector();
 
+	if (configuration_->detectorChoice() == VESPERSBeamline::SingleElement)
+		detector_ = VESPERSBeamline::vespers()->vortexXRF1E();
+	else
+		detector_ = VESPERSBeamline::vespers()->vortexXRF4E();
+
+	view_ = new XRFDetailedDetectorView(detector_);
 	connect(detector_, SIGNAL(detectorConnected(bool)), this, SLOT(setEnabled(bool)));
 
 	QToolButton *start = new QToolButton;
@@ -43,10 +47,9 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 	peakingTime_->setSuffix(QString(" %1s").arg(QString::fromUtf8("μ")));
 	peakingTime_->setSingleStep(0.01);
 	peakingTime_->setMaximum(100);
-	peakingTime_->setMinimum(1.0);
 	peakingTime_->setAlignment(Qt::AlignCenter);
 	connect(peakingTime_, SIGNAL(editingFinished()), this, SLOT(onPeakingTimeUpdate()));
-	connect(detector_->peakingTimeControl(), SIGNAL(valueChanged(double)), this, SLOT(onPeakingTimeUpdate()));
+	connect(detector_->peakingTimeControl(), SIGNAL(valueChanged(double)), peakingTime_, SLOT(setValue(double)));
 
 	QFont font(this->font());
 	font.setBold(true);

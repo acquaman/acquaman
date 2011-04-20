@@ -125,9 +125,9 @@ XRFDetector::XRFDetector(QString name, AMControl *status, AMControl *refreshRate
 	settingsControls_->addControl(stopControl_);
 
 	connect(readingControls_, SIGNAL(connected(bool)), this, SLOT(detectorConnected()));
-	connect(readingControls_, SIGNAL(controlSetValuesChanged(AMControlInfoList)), this, SIGNAL(readingsChanged(AMControlInfoList)));
+	//connect(readingControls_, SIGNAL(controlSetValuesChanged(AMControlInfoList)), this, SIGNAL(readingsChanged(AMControlInfoList)));
 	connect(settingsControls_, SIGNAL(connected(bool)), this, SLOT(detectorConnected()));
-	connect(settingsControls_, SIGNAL(controlSetValuesChanged(AMControlInfoList)), this, SIGNAL(settingsChanged(AMControlInfoList)));
+	//connect(settingsControls_, SIGNAL(controlSetValuesChanged(AMControlInfoList)), this, SIGNAL(settingsChanged(AMControlInfoList)));
 
 	connect(statusControl_, SIGNAL(valueChanged(double)), this, SIGNAL(statusChanged()));
 	connect(integrationTimeControl_, SIGNAL(valueChanged(double)), this, SLOT(setIntegrationTime(double)));

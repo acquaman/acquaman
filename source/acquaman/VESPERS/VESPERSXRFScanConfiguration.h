@@ -18,10 +18,8 @@ public:
 	/// Default constructor.
 	Q_INVOKABLE explicit VESPERSXRFScanConfiguration(QObject *parent = 0);
 	/// Convenience constructor.
-	VESPERSXRFScanConfiguration(XRFDetector *detector, QObject *parent = 0);
+	VESPERSXRFScanConfiguration(VESPERSBeamline::XRFDetectorChoice choice, XRFDetectorInfo info, QObject *parent = 0);
 
-	/// Returns the detector used in this configuration.
-	XRFDetector *detector() const { return detector_; }
 	/// Returns the detector info for the current detector.
 	XRFDetectorInfo detectorInfo() const { return xrfDetectorInfo_; }
 
@@ -55,10 +53,6 @@ protected:
 	void setDetectorChoice(int choice) { setDetectorChoice((VESPERSBeamline::XRFDetectorChoice)choice); }
 
 	// Member variables.
-
-	/// The detector used in the configuration.  Currently, can only be the single element or the four element.
-	XRFDetector *detector_;
-
 	/// Detector info member variable.
 	XRFDetectorInfo xrfDetectorInfo_;
 

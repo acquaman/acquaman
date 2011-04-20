@@ -17,6 +17,7 @@ public:
 public slots:
 	/// Finishes the scan prematurely.  Still a valid scan.
 	void finish() { detector_->stop(); onDetectorAcquisitionFinished(); }
+
 protected slots:
 	/// Helper slot to finish up a scan.
 	void onDetectorAcquisitionFinished();

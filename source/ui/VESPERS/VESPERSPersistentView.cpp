@@ -4,6 +4,8 @@
 
 #include <QGridLayout>
 #include <QVBoxLayout>
+#include <QLabel>
+#include <QGroupBox>
 
 VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	QWidget(parent)
@@ -17,18 +19,32 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	// Sample stage widget.
 	VESPERSSampleStageView *motors = new VESPERSSampleStageView;
 
+	QFont font(this->font());
+	font.setBold(true);
+
+	QLabel *shutterLabel = new QLabel("Shutter Status");
+	shutterLabel->setFont(font);
+
 	// Shutter layout.
 	QGridLayout *shStatusLayout = new QGridLayout;
 	shStatusLayout->setSpacing(1);
-	shStatusLayout->addWidget(psh1, 0, 0);
-	shStatusLayout->addWidget(psh2, 1, 0);
-	shStatusLayout->addWidget(ssh1, 0, 1);
-	shStatusLayout->addWidget(ssh2, 1, 1);
+	shStatusLayout->addWidget(shutterLabel, 0, 0, 1, 2);
+	shStatusLayout->addWidget(psh1, 1, 0);
+	shStatusLayout->addWidget(psh2, 2, 0);
+	shStatusLayout->addWidget(ssh1, 1, 1);
+	shStatusLayout->addWidget(ssh2, 2, 1);
 
 	QVBoxLayout *persistentLayout = new QVBoxLayout;
 	persistentLayout->addLayout(shStatusLayout);
 	persistentLayout->addWidget(motors);
 	persistentLayout->addStretch();
 
-	setLayout(persistentLayout);
+	QGroupBox *vespers = new QGroupBox("VESPERS Beamline");
+	vespers->setLayout(persistentLayout);
+	vespers->setFlat(true);
+
+	QVBoxLayout *vespersLayout = new QVBoxLayout;
+	vespersLayout->addWidget(vespers);
+
+	setLayout(vespersLayout);
 }

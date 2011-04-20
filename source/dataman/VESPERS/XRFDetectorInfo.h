@@ -47,7 +47,7 @@ public:
 	/// Returns a list of AMAxisInfo describing the size and nature of each detector axis, in order.
 	virtual QList<AMAxisInfo> axes() const {
 		QList<AMAxisInfo> axisInfo;
-		AMAxisInfo ai("XRF Scan", channels_, "Energy", "eV");
+		AMAxisInfo ai("XRF Scan", size().i(), "Energy", "eV");
 		ai.increment = AMNumber(scale());
 		ai.start = AMNumber(0);
 		ai.isUniform = true;
@@ -63,7 +63,7 @@ public:
 	/// The maximum energy calibration for the detector.  Primary indicator for energy divisions per channel number.
 	double maximumEnergy() const { return maxEnergy_; }
 	/// Returns the scale that would transform an energy and width into upper and lower bounds for a detector.
-	double scale() const { return maximumEnergy()*1000/channels(); }
+	double scale() const { return maximumEnergy()*1000/size().i(); }
 	/// The number of elements in the detector.
 	int elements() const { return elements_; }
 	/// The number of active elements.  The number currently being used (note: #active <= #elements).

@@ -9,10 +9,15 @@
 VESPERSXRFScanController::VESPERSXRFScanController(VESPERSXRFScanConfiguration *scanConfig, QObject *parent)
 	: AMScanController(scanConfig, parent)
 {
-	detector_ = scanConfig->detector();
+	if (scanConfig->detectorChoice() == VESPERSBeamline::SingleElement)
+		detector_ = VESPERSBeamline::vespers()->vortexXRF1E();
+	else
+		detector_ = VESPERSBeamline::vespers()->vortexXRF4E();
+
+	scanConfig->setDetectorInfo(detector_->toXRFInfo());
+
 	scan_ = new AMXRFScan;
 	generalScan_ = scan_;
-	scanConfig->setDetectorInfo(detector_->toXRFInfo());
 	scan_->setScanConfiguration(scanConfig);
 	scan_->setName("XRF Scan");
 	QString fullPath = AMUserSettings::defaultFilePath(QDateTime::currentDateTime());

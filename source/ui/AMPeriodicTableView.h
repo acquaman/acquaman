@@ -38,14 +38,14 @@ private slots:
 	void showElement(int number);
 
 private:
-	/// This is a convenience function that takes an Element and returns a mapped QToolButton where the clicked signal is mapped to the element.  Must be called after elementMapper_ has been new'ed.
+	/// This is a convenience function that takes an Element and returns a mapped QToolButton where the clicked signal is mapped to that element.  Must be called after elementMapper_ has been new'ed.
 	QToolButton *mapElement(AMElement *element)
 	{
 		QToolButton *button = new QToolButton;
 		button->setFont(QFont("Times New Roman", 12));
 		button->setText(element->symbol());
 		button->setFixedSize(30, 25);
-		if (element->emissionLines().isEmpty())
+		if (element->emissionLines().isEmpty() && element->edges().isEmpty())
 			button->setEnabled(false);
 		connect(button, SIGNAL(clicked()), elementMapper_, SLOT(map()));
 		elementMapper_->setMapping(button, element->atomicNumber());

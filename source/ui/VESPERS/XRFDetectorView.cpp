@@ -124,7 +124,7 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 
 	tableView_ = new AMPeriodicTableView;
 	tableView_->setMaximumWidth(600);
-	VESPERSXRFElementView *elView = new VESPERSXRFElementView(AMPeriodicTable::table()->elementByName("Iron"));
+	VESPERSXRFElementView *elView = new VESPERSXRFElementView(AMPeriodicTable::table()->elementBySymbol("Fe"));
 	connect(tableView_, SIGNAL(elementSelected(AMElement*)), elView, SLOT(setElement(AMElement*)));
 	connect(tableView_, SIGNAL(elementSelected(AMElement*)), this, SLOT(showEmissionLines(AMElement*)));
 	connect(elView, SIGNAL(addROI(AMElement*,QPair<QString,QString>)), this, SLOT(addRegionOfInterest(AMElement*,QPair<QString,QString>)));

@@ -28,14 +28,15 @@ VESPERSXRFElementView::VESPERSXRFElementView(QWidget *parent)
 	titleLayout->addWidget(symbol_);
 
 	QVBoxLayout *linesLayout = new QVBoxLayout;
+	linesLayout->setSpacing(0);
 	for (int i = 0; i < lines_.size(); i++)
 		linesLayout->addWidget(lines_.at(i));
-	linesLayout->addStretch();
-	linesLayout->setSpacing(0);
 
 	QVBoxLayout *viewLayout = new QVBoxLayout;
 	viewLayout->addLayout(titleLayout);
 	viewLayout->addLayout(linesLayout);
+
+	setMaximumSize(430, 300);
 
 	setLayout(viewLayout);
 }
@@ -66,14 +67,15 @@ VESPERSXRFElementView::VESPERSXRFElementView(AMElement *el, QWidget *parent)
 	titleLayout->addWidget(symbol_);
 
 	QVBoxLayout *linesLayout = new QVBoxLayout;
+	linesLayout->setSpacing(0);
 	for (int i = 0; i < lines_.size(); i++)
 		linesLayout->addWidget(lines_.at(i), Qt::AlignRight);
-	linesLayout->addStretch();
-	linesLayout->setSpacing(0);
 
 	QVBoxLayout *viewLayout = new QVBoxLayout;
 	viewLayout->addLayout(titleLayout);
 	viewLayout->addLayout(linesLayout);
+
+	setMaximumSize(300, 300);
 
 	setLayout(viewLayout);
 }
