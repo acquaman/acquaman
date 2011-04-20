@@ -49,6 +49,7 @@ You can always use the access the indexes for the higher dimensions using at() a
 */
 
 #include <QVector>
+#include <QString>
 
 class AMnDIndex
 {
@@ -211,6 +212,9 @@ public:
 	inline bool operator!=(const AMnDIndex& other) const {
 		return !(*this == other);
 	}
+
+	/// Print out dimensions: ex: "3 x 7 x 256"
+	QString toString(const QString& separator = QString(" x ")) const;
 
 };
 

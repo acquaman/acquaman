@@ -1,7 +1,6 @@
 #include "AMTagReplacementParser.h"
 #include "util/AMErrorMonitor.h"
 
-#include <QDebug>
 
 AMTagReplacementParser::AMTagReplacementParser(const QChar& tagStartCharacter, const QChar& argumentStartCharacter, const QChar& argumentEndCharacter)
 {
@@ -136,4 +135,20 @@ void AMTagReplacementParser::endTag()
 {
 	replacementList_ << currentTag_;
 	parseState_ = NormalText;
+}
+
+
+
+void AMTagReplacementParser::replaceAllUsingDictionary(const QHash<QString, AMAbstractTagReplacementFunctor *> &lookupDictionary) {
+	// loop through all replacement items
+	for(int i=replacementList_.count()-1; i>=0; i--) {
+		QHash<QString, AMAbstractTagReplacementFunctor*>::const_iterator iFunctor = lookupDictionary.find(replacementList_.at(i).tag);
+
+		if(iFunctor != lookupDictionary.end()) {	// if there is a functor for this tag: use it.
+			replacementList_[i].replacement = iFunctor.value()->getText(replacementList_.at(i).arguments);
+		}
+		else {	// otherwise we have no idea what should go here
+			replacementList_[i].replacement = "[?]";
+		}
+	}
 }

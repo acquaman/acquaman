@@ -5,7 +5,7 @@
 #include "ui_AMExporterOptionGeneralAsciiView.h"
 
 class QButtonGroup;
-
+class QStandardItemModel;
 class AMExporterOptionGeneralAscii;
 
 class AMExporterOptionGeneralAsciiView : public QTabWidget, private Ui::AMExporterOptionGeneralAsciiView
@@ -13,7 +13,7 @@ class AMExporterOptionGeneralAsciiView : public QTabWidget, private Ui::AMExport
 	Q_OBJECT
 
 public:
-	explicit AMExporterOptionGeneralAsciiView(AMExporterOptionGeneralAscii* option, QWidget *parent = 0);
+	explicit AMExporterOptionGeneralAsciiView(AMExporterOptionGeneralAscii* option, QStandardItemModel* availableDataSourcesModel = 0, QWidget *parent = 0);
 	virtual ~AMExporterOptionGeneralAsciiView();
 
 protected:
@@ -29,7 +29,7 @@ protected:
 
 protected slots:
 	/// disable add button when none selected; enable when are.
-	void onSourcesAvailableSelectedChanged(int index);
+	void onSourcesAvailableSelectedChanged();
 
 	/// add source
 	void onSourcesAddButtonClicked();

@@ -20,7 +20,7 @@
    <string>General Export Options</string>
   </property>
   <property name="currentIndex">
-   <number>0</number>
+   <number>1</number>
   </property>
   <widget class="QWidget" name="tabHeader">
    <attribute name="title">
@@ -28,7 +28,7 @@
    </attribute>
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="QGroupBox" name="">
+     <widget class="QGroupBox" name="groupBox">
       <layout class="QHBoxLayout" name="horizontalLayout_2">
        <item>
         <widget class="QLabel" name="headerHelpText">
@@ -101,7 +101,7 @@
    </attribute>
    <layout class="QVBoxLayout" name="verticalLayout_8">
     <item>
-     <widget class="QGroupBox" name="">
+     <widget class="QGroupBox" name="groupBox2">
       <layout class="QHBoxLayout" name="horizontalLayout_3">
        <item>
         <widget class="QLabel" name="sourcesHelpText">
@@ -171,8 +171,9 @@
              <property name="text">
               <string>...</string>
              </property>
-             <property name="arrowType">
-              <enum>Qt::RightArrow</enum>
+             <property name="icon">
+              <iconset resource="../icons/icons.qrc">
+               <normaloff>:/add.png</normaloff>:/add.png</iconset>
              </property>
             </widget>
            </item>
@@ -184,8 +185,9 @@
              <property name="text">
               <string>...</string>
              </property>
-             <property name="arrowType">
-              <enum>Qt::LeftArrow</enum>
+             <property name="icon">
+              <iconset resource="../icons/icons.qrc">
+               <normaloff>:/Close.png</normaloff>:/Close.png</iconset>
              </property>
             </widget>
            </item>
@@ -197,9 +199,6 @@
             <string>+</string>
            </property>
           </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QListWidget" name="sourcesAvailableListWidget"/>
          </item>
          <item row="1" column="2" colspan="2">
           <widget class="QListWidget" name="sourcesIncludedListWidget"/>
@@ -322,6 +321,13 @@
            </item>
           </layout>
          </item>
+         <item row="1" column="0">
+          <widget class="QListView" name="sourcesAvailableListView">
+           <property name="selectionMode">
+            <enum>QAbstractItemView::ExtendedSelection</enum>
+           </property>
+          </widget>
+         </item>
         </layout>
        </item>
       </layout>
@@ -335,7 +341,7 @@
    </attribute>
    <layout class="QVBoxLayout" name="verticalLayout_6">
     <item>
-     <widget class="QGroupBox" name="">
+     <widget class="QGroupBox" name="groupBox3">
       <layout class="QHBoxLayout" name="horizontalLayout_6">
        <item>
         <widget class="QLabel" name="layoutHelpText">
@@ -630,7 +636,7 @@ p, li { white-space: pre-wrap; }
    </attribute>
    <layout class="QVBoxLayout" name="verticalLayout_7">
     <item>
-     <widget class="QGroupBox" name="">
+     <widget class="QGroupBox" name="groupBox4">
       <layout class="QHBoxLayout" name="horizontalLayout_7">
        <item>
         <widget class="QLabel" name="fileNamesHelpText">
@@ -715,6 +721,11 @@ If you've chosen to put any data sets into a separate file, provide the pattern 
    </layout>
   </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="../icons/icons.qrc"/>
+  <include location="../icons/icons.qrc"/>
+  <include location="../icons/icons.qrc"/>
+  <include location="../icons/icons.qrc"/>
+ </resources>
  <connections/>
 </ui>

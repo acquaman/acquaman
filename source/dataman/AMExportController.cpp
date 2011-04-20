@@ -4,12 +4,17 @@
 #include <QHashIterator>
 #include <QDir>
 #include "acquaman.h"
+#include <QTimer>
+#include <QStandardItemModel>
+#include <QStringBuilder>
 
 #include "dataman/AMExporter.h"
+#include "dataman/AMExporterOption.h"
 #include "dataman/AMUser.h"
 
-
-#include <QDebug>
+#include "util/AMErrorMonitor.h"
+#include "dataman/AMDbObjectSupport.h"
+#include "dataman/AMScan.h"
 
 QHash<QString, AMExporterInfo> AMExportController::registeredExporters_;
 
@@ -17,7 +22,13 @@ AMExportController::AMExportController(const QList<QUrl>& scansToExport) :
 	QObject()
 {
 	exporter_ = 0;
+	option_ = 0;
 	scansToExport_ = scansToExport;
+	state_ = Preparing;
+	availableDataSourcesModel_ = new QStandardItemModel(this);
+
+	searchScanIndex_ = -1;
+	exportScanIndex_ = -1;
 
 	destinationFolderPath_ = AMUser::user()->lastExportDestination();
 	if(destinationFolderPath_.isEmpty())
@@ -37,3 +48,228 @@ bool AMExportController::chooseExporter(const QString &exporterClassName)
 
 	return true;
 }
+
+void AMExportController::searchForAvailableDataSources()
+{
+	if(searchScanIndex_ < 0) {
+		searchScanIndex_ = 0;
+		QTimer::singleShot(10, this, SLOT(continueAvailableDataSourceSearch()));	// and we're off...
+	}
+}
+
+void AMExportController::continueAvailableDataSourceSearch()
+{
+	if(searchScanIndex_ >= scansToExport_.count())
+		return; // We're done!
+
+	const QUrl& url = scansToExport_.at(searchScanIndex_++);	// incrementing searchScanIndex_ here.
+
+	AMDatabase* db;
+	QStringList path;
+	QString tableName;
+	int id;
+	bool idOkay;
+
+	// parse the URL and make sure it's valid
+	if(url.scheme() == "amd" &&
+			(db = AMDatabase::dbByName(url.host())) &&
+			(path = url.path().split('/', QString::SkipEmptyParts)).count() == 2 &&
+			(id = path.at(1).toInt(&idOkay)) > 0 &&
+			idOkay == true &&
+			(tableName = path.at(0)).isEmpty() == false
+			) {
+
+		// let's roll.  Find all the raw data sources for this scan
+		QSqlQuery q = db->select(tableName % "_rawDataSources", "id2,table2", "id1='" % QString::number(id) % "'");	// note: checked that this is indeed using the index. Can go faster? Dunno.
+		while(q.next()) {
+			// get name, description, rank for this data source
+			QSqlQuery q2 = db->select( q.value(1).toString(),
+									  "name,description,rank",
+									  "id='" % q.value(0).toString() % "'");
+			if(q2.next()) {
+				addFoundAvailableDataSource(q2.value(0).toString(), q2.value(1).toString(), q2.value(2).toInt());
+			}
+		}
+
+		// Find all the analyzed data sources for this scan
+		q = db->select(tableName % "_analyzedDataSources", "id2,table2", "id1='" % QString::number(id) % "'");	// note: checked that this is indeed using the index. Can go faster? Dunno.
+		while(q.next()) {
+			// get name, description, rank for this data source
+			QSqlQuery q2 = db->select( q.value(1).toString(),
+									  "name,description,rank",
+									  "id='" % q.value(0).toString() % "'");
+			if(q2.next()) {
+				addFoundAvailableDataSource(q2.value(0).toString(), q2.value(1).toString(), q2.value(2).toInt());
+			}
+		}
+	}
+
+	// Schedule us to continue onto next scan.  This 10ms timer might need to be adjusted for acceptable performance.
+	QTimer::singleShot(10, this, SLOT(continueAvailableDataSourceSearch()));
+}
+
+void AMExportController::addFoundAvailableDataSource(const QString &name, const QString &description, int rank)
+{
+	// search for existing items that are duplicate. (This shouldn't be that expensive... we won't get many items in the available sources list, compared to the list of scans to export.  Short enough that we're better off linear searching than hashing and re-indexing)
+	for(int row = availableDataSourcesModel_->rowCount()-1; row >=0; row--) {
+		QStandardItem* searchItem = availableDataSourcesModel_->item(row);
+		if(searchItem &&
+				searchItem->data(AM::NameRole).toString() == name &&
+				searchItem->data(AM::DescriptionRole).toString() == description &&
+				searchItem->data(AM::UserRole).toInt() == rank
+				)
+			return;	// don't add to model... We've got it already.
+	}
+
+	QStandardItem* newItem;
+	if(name == description)
+		newItem = new QStandardItem(QString("[%1d] %2").arg(rank).arg(name));
+	else
+		newItem = new QStandardItem(QString("[%1d] %2: \"%3\"").arg(rank).arg(name).arg(description));
+
+	newItem->setData(name, AM::NameRole);
+	newItem->setData(description, AM::DescriptionRole);
+	newItem->setData(rank, AM::UserRole);
+
+	// to make sorting by rank easier, let's put the rank into column 1.
+	QStandardItem* newItemRank = new QStandardItem(QString::number(rank));
+
+	availableDataSourcesModel_->appendRow(QList<QStandardItem*>() << newItem << newItemRank);	// add to model
+	availableDataSourcesModel_->sort(1, Qt::AscendingOrder); // and (re)-sort by rank.
+}
+
+bool AMExportController::start()
+{
+	if(!exporter_)
+		return false;
+	if(!option_)
+		return false;
+
+	if(state_ != Preparing)
+		return false;	// Can't start except from this state
+
+	exportScanIndex_ = 0;
+	emit stateChanged(state_ = Exporting);
+	QTimer::singleShot(0, this, SLOT(continueScanExport()));
+
+	return true;
+}
+
+void AMExportController::continueScanExport()
+{
+	if(state_ != Exporting)
+		return;	// done, or paused. Don't keep going.
+
+	// 0. emit progress and signals
+	emit progressChanged(exportScanIndex_, scanCount());
+
+	// 1. Check for finished:
+	if(exportScanIndex_ >= scansToExport_.count()) {
+		emit stateChanged(state_ = Finished);
+		deleteLater();
+		return; // We're done!
+	}
+
+	try {
+		// 2. Load scan from db and check loaded successfully
+		const QUrl& url = scansToExport_.at(exportScanIndex_);
+
+		emit statusChanged(status_ = "Opening:  " % url.toString());
+
+		AMDatabase* db;
+		QStringList path;
+		QString tableName;
+		int id;
+		bool idOkay;
+
+		// parse the URL and make sure it's valid
+		if(!(	url.scheme() == "amd" &&
+			 (db = AMDatabase::dbByName(url.host())) &&
+			 (path = url.path().split('/', QString::SkipEmptyParts)).count() == 2 &&
+			 (id = path.at(1).toInt(&idOkay)) > 0 &&
+			 idOkay == true &&
+			 (tableName = path.at(0)).isEmpty() == false
+			 ))
+			throw QString("The export system couldn't understand the scan URL '" % url.toString() % "', so this scan has not been exported.");
+
+		AMDbObject* databaseObject = AMDbObjectSupport::createAndLoadObjectAt(db, tableName, id);
+		AMScan* scan = qobject_cast<AMScan*>(databaseObject);
+		if(!scan) {
+			delete databaseObject;
+			throw QString("The export system couldn't load a scan out of the database (" % url.toString() % "), so this scan has not been exported.");
+		}
+
+		emit statusChanged(status_ = "Writing:  " % scan->fullName());
+
+		// 3. Check that it can be exported with the exporter and option selected
+		if(!exporter_->isValidFor(scan, option_)) {
+			QString err("The exporter '" % exporter_->description() % "' and the template '" % option_->name() % "' are not compatible with this scan (" % scan->fullName() % "), so it has not been exported.");
+			emit statusChanged(status_ = err);
+			delete scan;
+			throw err;
+		}
+
+		// 4. Export
+		QString writtenFile = exporter_->exportScan(scan, destinationFolderPath_, option_);
+		if(writtenFile.isNull()) {
+			QString err("Export failed for scan '" % scan->fullName() % "'.");
+			emit statusChanged(status_ = err);
+			delete scan;
+			throw err;
+		}
+
+		emit statusChanged(status_ = "Wrote:   " % writtenFile);
+		delete scan;	// done!
+	}
+
+	catch(QString errMsg) {
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -1, errMsg));
+	}
+
+	// 5. increment exportScanIndex_ and re-schedule next one
+	exportScanIndex_++;
+	QTimer::singleShot(5, this, SLOT(continueScanExport()));
+
+}
+
+void AMExportController::setOption(AMExporterOption *option) {
+	delete option_;
+	option_ = option;
+	if(option_)
+		option_->setAvailableDataSourcesModel(availableDataSourcesModel());
+}
+
+bool AMExportController::cancel()
+{
+	if(!(state_ == Exporting || state_ == Paused))
+		return false;
+
+	emit stateChanged(state_ = Cancelled);
+	deleteLater();
+	return true;
+}
+
+AMExportController::~AMExportController() {
+	qDebug() << "Export Controller deleted.";
+}
+
+bool AMExportController::pause()
+{
+	if(state_ != Exporting)
+		return false;
+
+	emit stateChanged(state_ = Paused);
+	return true;
+}
+
+bool AMExportController::resume()
+{
+	if(state_ != Paused)
+		return false;
+
+	emit stateChanged(state_ = Exporting);
+	QTimer::singleShot(0, this, SLOT(continueScanExport()));
+
+	return true;
+}
+

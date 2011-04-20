@@ -57,6 +57,7 @@ class AMAnalysisBlock : public AMDbObject, public AMDataSource
 	Q_OBJECT
 
 	Q_PROPERTY(QString description READ description WRITE setDescription)
+	Q_PROPERTY(int rank READ rank)
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Generic Analysis Block")
 

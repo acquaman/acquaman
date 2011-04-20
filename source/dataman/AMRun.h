@@ -41,7 +41,7 @@ class AMFacility : public AMDbObject
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Facility")
 
 public:
-	explicit AMFacility(const QString& shortDescription, const QString& longDescription, const QString& iconFileName = QString(), QObject* parent = 0)
+	Q_INVOKABLE explicit AMFacility(const QString& shortDescription = "[Other]", const QString& longDescription = "Unknown Facility", const QString& iconFileName = QString(), QObject* parent = 0)
 		: AMDbObject(parent) {
 		setName(shortDescription);	// ex: "SGM"
 		description_ = longDescription;	// ex: "Canadian Light Source SGM Beamline"

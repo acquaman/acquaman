@@ -2,6 +2,7 @@
 #include "dataman/AMExportController.h"
 #include "dataman/AMExporter.h"
 #include "dataman/AMExporterOption.h"
+#include "dataman/AMDbObjectSupport.h"
 
 #include <QHashIterator>
 #include <QFormLayout>
@@ -10,6 +11,7 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QBoxLayout>
+#include <QProgressBar>
 #include "ui/AMFolderPathLineEdit.h"
 #include <QFileDialog>
 #include <QDir>
@@ -27,13 +29,41 @@ AMExportWizard::AMExportWizard(AMExportController* controller, QWidget *parent) 
 	QWizard(parent)
 {
 	controller_ = controller;
+	connect(controller_, SIGNAL(destroyed()), this, SLOT(onControllerDeleted()));
 
 	addPage(new AMExportWizardChooseExporterPage);
 	addPage(new AMExportWizardOptionPage);
+	addPage(new AMExportWizardProgressPage);
 
 	setWindowTitle(QString("Exporting %1 Scans...").arg(controller_->scanCount()));
+
+	setOption(QWizard::NoBackButtonOnLastPage, true);
 }
 
+
+void AMExportWizard::done(int result) {
+
+	// check for cancel while export in progress...
+	if(result == QDialog::Rejected && controller_ && (controller_->state() == AMExportController::Exporting || controller_->state() == AMExportController::Paused)) {
+		controller_->pause();
+
+		if(QMessageBox::question(this,
+								 "Export in Progress...",
+								 "Are you sure you want to cancel?\n\nIf you say yes here, the remaining scans will not be exported.",
+								 QMessageBox::Yes | QMessageBox::No,
+								 QMessageBox::Yes)
+				== QMessageBox::No) {
+			controller_->resume();
+			return;	// don't actually be "done".
+		}
+
+	}
+
+	if(controller_ && controller_->state() == AMExportController::Exporting)
+		controller_->cancel();
+
+	QWizard::done(result);
+}
 
 AMExportWizardChooseExporterPage::AMExportWizardChooseExporterPage(QWidget *parent)
 	: QWizardPage(parent)
@@ -172,10 +202,10 @@ bool AMExportWizardOptionPage::onSaveOptionButtonClicked() {
 		QString name;
 		while(ok && name.isEmpty()) {	// on second round, means they accepted the dialog, but gave a blank name.
 			name = QInputDialog::getText(this, "Save Settings As...",
-											 "Please provide a name for this template:",
-											 QLineEdit::Normal,
-											 exporter_->description() % " " % QDateTime::currentDateTime().toString("MMM d yyyy"),
-											 &ok);
+										 "Please provide a name for this template:",
+										 QLineEdit::Normal,
+										 exporter_->description() % " " % QDateTime::currentDateTime().toString("MMM d yyyy"),
+										 &ok);
 
 			if(ok && name.isEmpty())
 				QMessageBox::information(this, "Missing name", "You must provide a name if you want to save this template.", QMessageBox::Ok);
@@ -204,56 +234,57 @@ bool AMExportWizardOptionPage::onSaveOptionButtonClicked() {
 bool AMExportWizardOptionPage::validatePage()
 {
 	// new option, unsaved, and modified. Do they want to save it?
+	int response = QMessageBox::Discard;
+
 	if(option_->modified() && option_->id() < 1) {
-		int response = QMessageBox::question(this, "Save changes to template?", "You've made changes to this template.\n\nDo you want to store this template to use again next time?", QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel, QMessageBox::Save);
-		switch(response) {
-		case QMessageBox::Save:
-			return onSaveOptionButtonClicked();
-		case QMessageBox::Discard:
-			return true;		// proceed on to next page.
-		case QMessageBox::Cancel:
-			return false;	// don't go on to next page.
-		}
+		response = QMessageBox::question(this, "Save changes to template?",
+										 "You've made changes to this template.\n\nDo you want to store this template to use again next time?",
+										 QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel,
+										 QMessageBox::Save);
 	}
-	// existing option, modified but unsaved
 	else if(option_->modified()) {
-		int response = QMessageBox::question(this,
-											"Save changes to template?",
-											"You've made changes to the template '" % option_->name() % "'.\n\nDo you want to save these changes for next time?",
-											QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel,
-											QMessageBox::Save);
-		switch(response) {
-		case QMessageBox::Save:
-			return onSaveOptionButtonClicked();
-		case QMessageBox::Discard:
-			return true;		// proceed on to next page.
-		case QMessageBox::Cancel:
-			return false;	// don't go on to next page.
-		}
+		response = QMessageBox::question(this,
+										 "Save changes to template?",
+										 "You've made changes to the template '" % option_->name() % "'.\n\nDo you want to save these changes for next time?",
+										 QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel,
+										 QMessageBox::Save);
 	}
 
-	// no changes.  Good to keep on going.
-	return true;
+	// existing option, modified but unsaved: same as answering Discard above. Proceed no matter what.
+
+	switch(response) {
+	case QMessageBox::Save:
+		return onSaveOptionButtonClicked();
+	case QMessageBox::Cancel:
+		return false;	// don't go on to next page.
+	case QMessageBox::Discard:
+	default:
+		return true;		// proceed on to next page.
+	}
 }
 
-#include "dataman/AMDbObjectSupport.h"
+
+
 
 
 void AMExportWizardOptionPage::initializePage()
 {
-	exporter_ = qobject_cast<AMExportWizard*>(wizard())->controller()->exporter();
+	controller_ = qobject_cast<AMExportWizard*>(wizard())->controller();
+	exporter_ = controller_->exporter();
+
+	controller_->searchForAvailableDataSources();
 
 	populateOptionSelector();
 }
 
 void AMExportWizardOptionPage::onOptionSelectorIndexChanged(int index)
 {
-	delete option_;	// might be 0 if no option yet... but that's okay.
 	delete optionView_;	// might be 0 if no option yet... or if last option couldn't create an editor. but that's okay.
 
 	// add new option...
 	if(index < 1) {
 		option_ = exporter_->createDefaultOption();
+		controller_->setOption(option_);	// will delete the previous option_
 		saveOptionButton_->setText("Save As...");
 	}
 
@@ -264,15 +295,14 @@ void AMExportWizardOptionPage::onOptionSelectorIndexChanged(int index)
 						AMDatabase::userdb(),
 						AMDbObjectSupport::tableNameForClass(exporter_->exporterOptionClassName()),
 						optionSelector_->itemData(optionSelector_->currentIndex()).toInt()));
-
+		controller_->setOption(option_); // will delete the previous option_
 		saveOptionButton_->setText("Save");
 	}
 
-	/// \todo need a place to display the option name.
-
 	optionView_ = option_->createEditorWidget();
-	if(optionView_)
+	if(optionView_) {
 		optionViewContainer_->layout()->addWidget(optionView_);
+	}
 
 
 	saveOptionButton_->setEnabled(option_->modified());
@@ -293,6 +323,85 @@ void AMExportWizardOptionPage::populateOptionSelector()
 		optionSelector_->addItem(q.value(1).toString(),
 								 q.value(0).toInt());	// note: putting the database id in Qt::UserRole.
 	}
+
+	optionSelector_->setCurrentIndex(optionSelector_->count()-1);
 	optionSelector_->blockSignals(false);
-	optionSelector_->setCurrentIndex(optionSelector_->count()-1);	// this will call onOptionSelectorChanged
+
+	onOptionSelectorIndexChanged(optionSelector_->count()-1);
 }
+
+/////////////////////////////////
+// AMExportWizardProgressPage
+/////////////////////////////////
+
+AMExportWizardProgressPage::AMExportWizardProgressPage(QWidget *parent)
+{
+	controller_ = 0;
+
+	progressBar_ = new QProgressBar();
+	progressBar_->setMinimum(0);
+	progressBar_->setMaximum(0);
+	progressLabel_ = new QLabel();
+	statusLabel_ = new QLabel();
+	statusLabel_->setWordWrap(true);
+
+	QHBoxLayout* hl = new QHBoxLayout();
+	hl->addWidget(progressBar_);
+	hl->addWidget(progressLabel_);
+
+	QVBoxLayout* vl = new QVBoxLayout();
+	vl->addStretch();
+	vl->addLayout(hl);
+	vl->addWidget(statusLabel_);
+	vl->addStretch();
+
+	setLayout(vl);
+
+	setTitle("Writing files...");
+	setSubTitle("Acquaman is now exporting your scans to disk.");
+}
+
+void AMExportWizardProgressPage::initializePage()
+{
+	if(controller_) {
+		disconnect(controller_, 0, this, 0);
+		disconnect(controller_, 0, statusLabel_, 0);
+	}
+
+	controller_ = qobject_cast<AMExportWizard*>(wizard())->controller();
+
+	connect(controller_, SIGNAL(stateChanged(int)), this, SLOT(onControllerStateChanged(int)));
+	connect(controller_, SIGNAL(progressChanged(int,int)), this, SLOT(onControllerProgressChanged(int,int)));
+	connect(controller_, SIGNAL(statusChanged(QString)), statusLabel_, SLOT(setText(QString)));
+
+	// re-enable the cancel button, if it's not shown by default (ie: Mac OS X)
+	wizard()->setOption(QWizard::NoCancelButton, false);
+
+	controller_->start();
+}
+
+bool AMExportWizardProgressPage::validatePage()
+{
+	return true;
+}
+
+bool AMExportWizardProgressPage::isComplete() const
+{
+	return (!controller_) || (controller_->state() == AMExportController::Finished || controller_->state() == AMExportController::Cancelled);
+}
+
+void AMExportWizardProgressPage::onControllerStateChanged(int exportControllerState)
+{
+	emit completeChanged();
+	if(exportControllerState == AMExportController::Finished)
+		wizard()->setOption(QWizard::NoCancelButton, true);
+}
+
+void AMExportWizardProgressPage::onControllerProgressChanged(int current, int total)
+{
+	progressLabel_->setText(QString("%1 of %2").arg(current).arg(total));
+	progressBar_->setMaximum(total);
+	progressBar_->setValue(current);
+}
+
+

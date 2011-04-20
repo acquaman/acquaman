@@ -4,12 +4,9 @@
 #include "dataman/AMExporterOptionGeneralAscii.h"
 
 #include <QButtonGroup>
+#include <QInputDialog>
 
-
-#include <QDebug>
-
-
-AMExporterOptionGeneralAsciiView::AMExporterOptionGeneralAsciiView(AMExporterOptionGeneralAscii* option, QWidget *parent) :
+AMExporterOptionGeneralAsciiView::AMExporterOptionGeneralAsciiView(AMExporterOptionGeneralAscii* option, QStandardItemModel* availableDataSourcesModel, QWidget *parent) :
 	QTabWidget(parent)
 {
 	setupUi(this);
@@ -32,6 +29,10 @@ AMExporterOptionGeneralAsciiView::AMExporterOptionGeneralAsciiView(AMExporterOpt
 	newlineGroup_->addButton(newlineLFCheck, 1);
 	newlineGroup_->addButton(newlineOtherCheck, 2);
 
+	if(availableDataSourcesModel)
+		sourcesAvailableListView->setModel(availableDataSourcesModel);
+
+
 	initializeViewFromOption();
 
 	makeUIConnections();
@@ -47,8 +48,6 @@ void AMExporterOptionGeneralAsciiView::initializeViewFromOption()
 	headerText->setPlainText(option_->headerText());
 	headerIncludeCheck->setChecked(option_->headerIncluded());
 	headerText->setEnabled(option_->headerIncluded());
-
-	// sourcesAvailableListWidget->clear();
 
 	sourcesIncludedListWidget->clear();
 	QStringList dataSources = option_->dataSources();
@@ -132,6 +131,8 @@ void AMExporterOptionGeneralAsciiView::makeUIConnections()
 	connect(newlineGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onNewlineButtonChanged(int)));
 	connect(newlineOtherText, SIGNAL(textChanged(QString)), this, SLOT(onNewlineOtherTextChanged(QString)));
 
+	connect(sourcesAvailableListView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(onSourcesAvailableSelectedChanged()));
+
 }
 
 
@@ -147,25 +148,30 @@ void AMExporterOptionGeneralAsciiView::makeOptionConnections() {
 	connect(fileNameText, SIGNAL(textChanged(QString)), option_, SLOT(setFileName(QString)));
 	connect(fileNameSeparateSectionText, SIGNAL(textChanged(QString)), option_, SLOT(setSeparateSectionFileName(QString)));
 
+	connect(includeAllSourcesCheck, SIGNAL(clicked(bool)), option_, SLOT(setIncludeAllDataSources(bool)));
 }
 
 
 // disable add button when none selected; enable when one is.
-void AMExporterOptionGeneralAsciiView::onSourcesAvailableSelectedChanged(int index) {
-	if(index == -1)
-		sourcesAddButton->setEnabled(false);
-	else
+void AMExporterOptionGeneralAsciiView::onSourcesAvailableSelectedChanged() {
+
+	if(sourcesAvailableListView->selectionModel()->selectedIndexes().count() > 0)
 		sourcesAddButton->setEnabled(true);
+	else
+		sourcesAddButton->setEnabled(false);
 }
 
 // add source
 void AMExporterOptionGeneralAsciiView::onSourcesAddButtonClicked() {
-	if(sourcesAvailableListWidget->currentRow() == -1)
-		return;
 
-	QString newSourceName = sourcesAvailableListWidget->currentItem()->data(Qt::UserRole).toString();
-	option_->addDataSource(newSourceName, false);
-	sourcesIncludedListWidget->addItem(newSourceName);
+	foreach(QModelIndex index, sourcesAvailableListView->selectionModel()->selectedIndexes()) {
+		if(index.column() == 0) {
+			QString newSourceName =  index.data(AM::NameRole).toString();
+			option_->addDataSource(newSourceName, false);
+			sourcesIncludedListWidget->addItem(newSourceName);
+		}
+	}
+
 	// question... does this fire up onSourcesSelectedChanged() automatically?
 }
 
@@ -185,19 +191,22 @@ void AMExporterOptionGeneralAsciiView::onSourcesRemoveButtonClicked() {
 	sourcesIncludedListWidget->takeItem(removeAtIndex);
 	option_->removeDataSourceAt(removeAtIndex);
 	sourcesIncludedListWidget->blockSignals(false);
-	sourcesIncludedListWidget->setCurrentRow(newSelectedIndex);
-		// check that onSourcesSelectedChanged happens here?
+	sourcesIncludedListWidget->setCurrentRow(newSelectedIndex, QItemSelectionModel::ClearAndSelect);
+	// check that onSourcesSelectedChanged happens here? Nope... Need to call manually.
+	onSourcesSelectedChanged(newSelectedIndex);
 }
 
 // dialog prompt and add source
 void AMExporterOptionGeneralAsciiView::onSourcesAddExtraButtonClicked() {
-	/// \todo
+	QString customSourceName = QInputDialog::getText(this, "Add custom data set", "Include a custom data set named:");
+	if(!customSourceName.isEmpty()) {
+		option_->addDataSource(customSourceName, false, AMExporterOptionGeneral::CombineInColumnsMode, false);
+		sourcesIncludedListWidget->addItem(customSourceName);
+	}
 }
 
 // if index valid: enable edit boxes; block signals and set info boxes to match source; re-enable signals; enable remove button.  If not valid: disable remove button, disable edit boxes
 void AMExporterOptionGeneralAsciiView::onSourcesSelectedChanged(int index) {
-
-	qDebug() << "onSourcesSelectedChanged, index = " << index;
 
 	if(index == -1) {
 		sourcesRemoveButton->setEnabled(false);
@@ -230,8 +239,6 @@ void AMExporterOptionGeneralAsciiView::onSourcesRequiredClicked(bool isRequired)
 	if(index == -1)
 		return;
 
-	qDebug() << "Setting source required on index" << index << isRequired;
-
 	option_->setDataSourceRequired(index, isRequired);
 }
 
@@ -241,8 +248,6 @@ void AMExporterOptionGeneralAsciiView::onSourcesOmitAxisValuesClicked(bool isOmi
 	if(index == -1)
 		return;
 
-	qDebug() << "Setting axis values omitted on index" << index << isOmitted;
-
 	option_->setDataSourceAxisValueColumnOmitted(index, isOmitted);
 }
 
@@ -251,8 +256,6 @@ void AMExporterOptionGeneralAsciiView::onSourcesLocationChanged(int locationMode
 	int index = sourcesIncludedListWidget->currentRow();
 	if(index == -1)
 		return;
-
-	qDebug() << "Setting location mode on index" << index << locationMode;
 
 	option_->setDataSourceOrganizeMode(index, locationMode);
 }
@@ -285,7 +288,6 @@ void AMExporterOptionGeneralAsciiView::onColumnSeparatorChanged(int separatorBut
 		break;
 	}
 
-	qDebug() << "Setting option's column delimiter to '" << separator << "'";
 	option_->setColumnDelimiter(separator);
 
 	if(separatorButton == 4) {
@@ -302,7 +304,6 @@ void AMExporterOptionGeneralAsciiView::onColumnSeparatorChanged(int separatorBut
 void AMExporterOptionGeneralAsciiView::onColumnSeparatorOtherTextChanged(const QString& otherText) {
 	if(columnSeparatorOtherButton->isChecked()) {
 		option_->setColumnDelimiter(otherText); /// \todo Handle escape characters?
-		qDebug() << "Setting option's column delimiter to '" << otherText << "'";
 	}
 }
 
@@ -322,7 +323,6 @@ void AMExporterOptionGeneralAsciiView::onNewlineButtonChanged(int newlineButton)
 		break;
 	}
 
-	qDebug() << "Setting options's newline char to '" << newline << "'";
 	option_->setNewlineDelimiter(newline);
 
 	if(newlineButton == 2) {
@@ -338,7 +338,6 @@ void AMExporterOptionGeneralAsciiView::onNewlineButtonChanged(int newlineButton)
 // if "other" mode selected: set option's newline to otherText.
 void AMExporterOptionGeneralAsciiView::onNewlineOtherTextChanged(const QString& otherText) {
 	if(newlineOtherCheck->isChecked()) {
-		qDebug() << "Setting options's newline char to '" << otherText << "'";
 		option_->setNewlineDelimiter(otherText); /// \todo Handle escape chars?
 	}
 }

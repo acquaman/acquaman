@@ -311,6 +311,7 @@ void AMAppController::onWindowPaneCloseButtonClicked(const QModelIndex& index) {
 
 void AMAppController::onDataViewItemsExported(const QList<QUrl> &itemUrls)
 {
+	// will delete itself when finished
 	AMExportController* exportController = new AMExportController(itemUrls);
 	AMExportWizard* wizard = new AMExportWizard(exportController);
 	wizard->show();
