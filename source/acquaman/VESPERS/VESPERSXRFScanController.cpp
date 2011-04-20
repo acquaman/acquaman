@@ -50,13 +50,15 @@ void VESPERSXRFScanController::onStatusChanged()
 		onDetectorAcquisitionFinished();
 }
 
-void VESPERSXRFScanController::startImplementation()
+bool VESPERSXRFScanController::startImplementation()
 {
 	connect(detector_, SIGNAL(statusChanged()), this, SLOT(onStatusChanged()));
 	connect(detector_->elapsedTimeControl(), SIGNAL(valueChanged(double)), this, SLOT(onProgressUpdate()));
 	detector_->start();
 
 	setStarted();
+
+	return true;
 }
 
 void VESPERSXRFScanController::onDetectorAcquisitionUpdate()

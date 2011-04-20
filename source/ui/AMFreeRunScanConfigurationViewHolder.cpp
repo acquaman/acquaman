@@ -1,5 +1,9 @@
 #include "AMFreeRunScanConfigurationViewHolder.h"
 
+#include <QRadioButton>
+#include <QPushButton>
+#include <QLabel>
+
 AMFreeRunScanConfigurationViewHolder::AMFreeRunScanConfigurationViewHolder(AMWorkflowManagerView *workflow, AMScanConfigurationView *view, QWidget *parent)
 	: AMScanConfigurationViewHolder(workflow, view, parent)
 {

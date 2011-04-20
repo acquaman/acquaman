@@ -13,8 +13,8 @@ public:
 	virtual AMScan* scan() { return pScan();}
 
 protected:
-	void initializeImplementation();
-	void startImplementation();
+	bool initializeImplementation();
+	bool startImplementation();
 	void cancelImplementation();
 
 protected:

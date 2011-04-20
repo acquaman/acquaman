@@ -22,15 +22,20 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/AMScanController.h"
 
 #include "beamline/AMBeamline.h"
+#include "ui/AMDateTimeUtils.h"
 
-#define AMBEAMLINEACTIONITEM_INVALID_SCAN_TYPE 101
-#define AMBEAMLINEACTIONITEM_SCAN_CANCELLED 102
-#define AMBEAMLINEACTIONITEM_CANT_SET_CURRENT_CONTROLLER 103
+#include <QPushButton>
+#include <QPalette>
+#include <QApplication>
 
 AMBeamlineScanAction::AMBeamlineScanAction(AMScanConfiguration *cfg, QObject *parent) :
 		AMBeamlineActionItem(true, parent)
 {
 	cfg_ = cfg;
+	if(cfg_){
+		connect(cfg_, SIGNAL(configurationChanged()), this, SLOT(onConfigurationChanged()));
+		setDescription(cfg_->description());
+	}
 	ctrl_ = NULL;
 	keepOnCancel_ = false;
 
@@ -41,6 +46,12 @@ AMBeamlineScanAction::AMBeamlineScanAction(AMScanConfiguration *cfg, QObject *pa
 
 AMBeamlineActionItemView* AMBeamlineScanAction::createView(int index){
 	return new AMBeamlineScanActionView(this, index);
+}
+
+AMBeamlineActionItem* AMBeamlineScanAction::createCopy() const{
+	if(cfg_)
+		return new AMBeamlineScanAction(cfg_->createCopy());
+	return 0;//NULL
 }
 
 bool AMBeamlineScanAction::isRunning() const{
@@ -67,14 +78,20 @@ void AMBeamlineScanAction::start(){
 			qDebug() << "Not reinitalized, creating new controller";
 		ctrl_ = cfg_->createController();
 		if(!ctrl_) {
-			qDebug() << "Failed to create controller.";
-			setFailed(true, AMBEAMLINEACTIONITEM_INVALID_SCAN_TYPE);	// might want to rename this now.
+			AMErrorMon::report(AMErrorReport(this,
+					AMErrorReport::Alert,
+					AMBEAMLINEACTIONITEM_CANT_INITIALIZE_CONTROLLER,
+					"Error, could not create scan controller. Please report this bug to the Acquaman developers."));
+			setFailed(true, AMBEAMLINEACTIONITEM_CANT_CREATE_CONTROLLER);
 			return;
 		}
 
 		if( !AMScanControllerSupervisor::scanControllerSupervisor()->setCurrentScanController(ctrl_) ){
 			delete ctrl_;
-			qDebug() << "Failed to set current scan controller";
+			AMErrorMon::report(AMErrorReport(this,
+					AMErrorReport::Alert,
+					AMBEAMLINEACTIONITEM_CANT_INITIALIZE_CONTROLLER,
+					"Error, could not set current scan controller. Please report this bug to the Acquaman developers."));
 			setFailed(true, AMBEAMLINEACTIONITEM_CANT_SET_CURRENT_CONTROLLER);
 			return;
 		}
@@ -90,8 +107,17 @@ void AMBeamlineScanAction::start(){
 
 
 	// should this connection happen all the time, even if controller re-initialized?
-	connect(ctrl_, SIGNAL(initialized()), ctrl_, SLOT(start()));
-	ctrl_->initialize();
+	//connect(ctrl_, SIGNAL(initialized()), ctrl_, SLOT(start()));
+	connect(ctrl_, SIGNAL(initialized()), this, SLOT(onScanInitialized()));
+	if(!ctrl_->initialize()){
+		AMErrorMon::report(AMErrorReport(this,
+				AMErrorReport::Alert,
+				AMBEAMLINEACTIONITEM_CANT_INITIALIZE_CONTROLLER,
+				"Error, could not initialize scan controller. Please report this bug to the Acquaman developers."));
+		delete ctrl_;
+		setFailed(true, AMBEAMLINEACTIONITEM_CANT_INITIALIZE_CONTROLLER);
+		return;
+	}
 }
 
 void AMBeamlineScanAction::cancel(){
@@ -105,8 +131,11 @@ void AMBeamlineScanAction::cleanup(){
 
 void AMBeamlineScanAction::pause(bool pause){
 
-	if(pause)
+	if(pause){
+		setDescription(cfg_->description()+" [Paused]");
+		emit descriptionChanged();
 		ctrl_->pause();
+	}
 	else
 		ctrl_->resume();
 
@@ -122,15 +151,33 @@ void AMBeamlineScanAction::delayedStart(bool ready){
 	start();
 }
 
+void AMBeamlineScanAction::onScanInitialized(){
+	if(!ctrl_->start()){
+		AMErrorMon::report(AMErrorReport(this,
+				AMErrorReport::Alert,
+				AMBEAMLINEACTIONITEM_CANT_START_CONTROLLER,
+				"Error, could not start scan controller. Please report this bug to the Acquaman developers."));
+		delete ctrl_;
+		setFailed(true, AMBEAMLINEACTIONITEM_CANT_START_CONTROLLER);
+		return;
+	}
+}
+
 void AMBeamlineScanAction::onScanStarted(){
+	setDescription(cfg_->description()+" [Running]");
+	emit descriptionChanged();
 	setStarted(true);
 }
 
 void AMBeamlineScanAction::onScanCancelled(){
+	setDescription(cfg_->description()+" [Cancelled]");
+	emit descriptionChanged();
 	setFailed(true, AMBEAMLINEACTIONITEM_SCAN_CANCELLED);
 }
 
 void AMBeamlineScanAction::onScanSucceeded(){
+	setDescription(cfg_->description()+" [Completed "+AMDateTimeUtils::prettyDateTime(QDateTime::currentDateTime())+"]");
+	emit descriptionChanged();
 	setSucceeded(true);
 }
 
@@ -142,6 +189,11 @@ void AMBeamlineScanAction::onBeamlineScanningChanged(bool isScanning){
 	setReady(!isScanning);
 }
 
+void AMBeamlineScanAction::onConfigurationChanged(){
+	setDescription(cfg_->description());
+	emit descriptionChanged();
+}
+
 AMBeamlineScanActionView::AMBeamlineScanActionView(AMBeamlineScanAction *scanAction, int index, QWidget *parent) :
 		AMBeamlineActionItemView(scanAction, index, parent)
 {
@@ -150,6 +202,8 @@ AMBeamlineScanActionView::AMBeamlineScanActionView(AMBeamlineScanAction *scanAct
 	scanAction_ = scanAction;
 	setMinimumHeight(NATURAL_ACTION_VIEW_HEIGHT);
 	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+
+	configurationView_ = 0; //NULL
 
 	scanNameLabel_ = new QLabel();
 	scanNameLabel_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
@@ -163,6 +217,7 @@ AMBeamlineScanActionView::AMBeamlineScanActionView(AMBeamlineScanAction *scanAct
 	QVBoxLayout *progressVL = new QVBoxLayout();
 	progressVL->addWidget(progressBar_);
 	progressVL->addWidget(timeRemainingLabel_);
+	connect(scanAction_, SIGNAL(descriptionChanged()), this, SLOT(updateScanNameLabel()));
 	connect(scanAction_, SIGNAL(progress(double,double)), this, SLOT(updateProgressBar(double,double)));
 	connect(scanAction_, SIGNAL(started()), this, SLOT(onScanStarted()));
 	connect(scanAction_, SIGNAL(succeeded()), this, SLOT(onScanFinished()));
@@ -188,6 +243,13 @@ AMBeamlineScanActionView::AMBeamlineScanActionView(AMBeamlineScanAction *scanAct
 	hl_->addWidget(playPauseButton_, 0, Qt::AlignTop | Qt::AlignRight);
 	hl_->addWidget(stopCancelButton_, 0, Qt::AlignTop | Qt::AlignRight);
 	setLayout(hl_);
+
+	/*
+	setAutoFillBackground(true);
+	QPalette newPalette(palette());
+	newPalette.setColor(QPalette::Window, QColor(255, 255, 255));
+	setPalette(newPalette);
+	*/
 }
 
 void AMBeamlineScanActionView::setIndex(int index){
@@ -198,6 +260,7 @@ void AMBeamlineScanActionView::setIndex(int index){
 void AMBeamlineScanActionView::setAction(AMBeamlineActionItem *action){
 	AMBeamlineScanAction *scanAction = qobject_cast<AMBeamlineScanAction*>(action);
 	if(scanAction_){
+		disconnect(scanAction_, SIGNAL(descriptionChanged()), this, SLOT(updateScanNameLabel()));
 		disconnect(scanAction_, SIGNAL(progress(double,double)), this, SLOT(updateProgressBar(double,double)));
 		disconnect(scanAction_, SIGNAL(started()), this, SLOT(onScanStarted()));
 		disconnect(scanAction_, SIGNAL(succeeded()), this, SLOT(onScanFinished()));
@@ -205,6 +268,7 @@ void AMBeamlineScanActionView::setAction(AMBeamlineActionItem *action){
 	scanAction_ = scanAction;
 	if(scanAction_){
 		updateScanNameLabel();
+		connect(scanAction_, SIGNAL(descriptionChanged()), this, SLOT(updateScanNameLabel()));
 		connect(scanAction_, SIGNAL(progress(double,double)), this, SLOT(updateProgressBar(double,double)));
 		connect(scanAction_, SIGNAL(started()), this, SLOT(onScanStarted()));
 		connect(scanAction_, SIGNAL(succeeded()), this, SLOT(onScanFinished()));
@@ -222,8 +286,9 @@ void AMBeamlineScanActionView::updateScanNameLabel(){
 		scanName.append(". ");
 	}
 
-	scanName.append(scanAction_->cfg()->description());
+	scanName.append(scanAction_->cfg()->detailedDescription());
 	scanNameLabel_->setText(scanName);
+	setWindowTitle(scanAction_->description());
 
 }
 
@@ -261,11 +326,11 @@ void AMBeamlineScanActionView::onScanFinished(){
 	hl_->removeWidget(playPauseButton_);
 	stopCancelButton_->hide();
 	playPauseButton_->hide();
+	qDebug() << "Has succeeded " << scanAction_->hasSucceeded() << " has failed " << scanAction_->hasFailed() << " is running " << scanAction_->isRunning();
 	updateLook();
 }
 
 void AMBeamlineScanActionView::onScanFailed(int explanation){
-	//if(explanation == 102){//102 is scan cancelled
 	cancelLatch_ = true;
 	stopCancelButton_->setIcon(closeIcon_);
 	playPauseButton_->setIcon(startIcon_);
@@ -274,7 +339,7 @@ void AMBeamlineScanActionView::onScanFailed(int explanation){
 		timeRemainingLabel_->setText("Scan Cancelled");
 	else
 		timeRemainingLabel_->setText("Scan Failed");
-		//}
+	updateLook();
 }
 
 void AMBeamlineScanActionView::onStopCancelButtonClicked(){
@@ -322,17 +387,11 @@ void AMBeamlineScanActionView::onPlayPauseButtonClicked(){
 	}
 }
 
-void AMBeamlineScanActionView::updateLook(){
-	if(scanAction_->isRunning() || inFocus_)
-		setFrameStyle(QFrame::Box);
-	if(scanAction_->isRunning() && inFocus_)
-		setStyleSheet("AMBeamlineScanActionView { background : rgb(198, 202, 230) }");
-	else if(scanAction_->isRunning())
-		setStyleSheet("AMBeamlineScanActionView { background : rgb(194, 230, 208) }");
-	else if(inFocus_)
-		setStyleSheet("AMBeamlineScanActionView { background : rgb(194, 210, 215) }");
-	else{
-		setStyleSheet("AMBeamlineScanActionView { background : rgb(230, 222, 214) }");
-		setFrameStyle(QFrame::StyledPanel);
-	}
+#include "ui/AMScanConfigurationView.h"
+
+void AMBeamlineScanActionView::mouseDoubleClickEvent(QMouseEvent *){
+	if(configurationView_ == 0)
+		configurationView_ = scanAction_->cfg()->createView();
+	configurationView_->setWindowModality(Qt::WindowModal);
+	configurationView_->show();
 }

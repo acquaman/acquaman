@@ -29,6 +29,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMFirstTimeController.h"
 #include "dataman/AMImportController.h"
 
+#include "dataman/AMExportController.h"
+#include "dataman/AMExporterGeneralAscii.h"
+
 #include "ui/AMMainWindow.h"
 #include "ui/AMWorkflowManagerView.h"
 #include "ui/BottomBar.h"
@@ -112,6 +115,8 @@ bool AMAppController::startup() {
 	// connect the activated signal from the dataview to our own slot
 	connect(dataView_, SIGNAL(selectionActivated(QList<QUrl>)), this, SLOT(onDataViewItemsActivated(QList<QUrl>)));
 	connect(dataView_, SIGNAL(selectionActivatedSeparateWindows(QList<QUrl>)), this, SLOT(onDataViewItemsActivatedSeparateWindows(QList<QUrl>)));
+	connect(dataView_, SIGNAL(selectionExported(QList<QUrl>)), this, SLOT(onDataViewItemsExported(QList<QUrl>)));
+
 	// When 'alias' links are clicked in the main window sidebar, we might need to notify some widgets of the details
 	connect(mw_, SIGNAL(aliasItemActivated(QWidget*,QString,QVariant)), this, SLOT(onMainWindowAliasItemActivated(QWidget*,QString,QVariant)));
 	/////////////////////////
@@ -120,6 +125,13 @@ bool AMAppController::startup() {
 	//////////////////////////////
 
 	connect(mw_, SIGNAL(currentPaneChanged(QWidget*)), this, SLOT(onCurrentPaneChanged(QWidget*)));
+
+
+
+	// Install exporters
+	////////////////////////////////
+
+	AMExportController::registerExporter<AMExporterGeneralAscii>();
 
 
 
@@ -292,6 +304,19 @@ void AMAppController::onWindowPaneCloseButtonClicked(const QModelIndex& index) {
 			AMExperiment::deleteExperiment(experiment.id(), expItem->database());
 		}
 	}
+}
+
+#include "dataman/AMExportController.h"
+#include "ui/AMExportWizard.h"
+
+void AMAppController::onDataViewItemsExported(const QList<QUrl> &itemUrls)
+{
+	// will delete itself when finished
+	AMExportController* exportController = new AMExportController(itemUrls);
+	AMExportWizard* wizard = new AMExportWizard(exportController);
+	wizard->show();
+
+	Q_UNUSED(exportController)
 }
 
 

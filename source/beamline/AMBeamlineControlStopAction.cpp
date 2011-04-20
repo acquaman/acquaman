@@ -7,21 +7,41 @@ AMBeamlineControlStopAction::AMBeamlineControlStopAction(AMControl *control, QOb
 	setControl(control);
 }
 
+AMBeamlineActionItemView* AMBeamlineControlStopAction::createView(int index){
+	return 0;//NULL
+}
+
 AMControl* AMBeamlineControlStopAction::control(){
 	return control_;
 }
 
 void AMBeamlineControlStopAction::start(){
-	if(!control_)
+	if(!control_){
+		qDebug() << "Failed: No Stop Control";
 		onFailed(0);
-	if(!control_->isConnected())
+		return;
+	}
+	if(!control_->isConnected()){
+		qDebug() << "Failed: Stop Control not connected";
 		onFailed(1);
+		return;
+	}
 
-	if(!control_->isMoving())
+	if(!control_->isMoving()){
+		qDebug() << "Auto-Succeed: Stop Control not moving";
 		onStopped();
+		return;
+	}
 	if(control_->canStop()){
+		qDebug() << "Trying: Stop Control stop called";
 		connect(control_, SIGNAL(movingChanged(bool)), this, SLOT(onMovingChanged(bool)));
 		control_->stop();
+		return;
+	}
+	else{
+		qDebug() << "Failed: Control can't stop";
+		onFailed(2);
+		return;
 	}
 }
 

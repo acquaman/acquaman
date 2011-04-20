@@ -20,10 +20,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMBeamlineControlSetMoveAction.h"
 
+#include <QLabel>
+#include <QVBoxLayout>
+#include <QPushButton>
+
 AMBeamlineControlSetMoveAction::AMBeamlineControlSetMoveAction(AMControlSet *controlSet, QObject *parent) :
 		AMBeamlineActionItem(parent)
 {
 	controlSet_ = 0; //NULL
+	numSucceeded_ = 0;
 	if(controlSet)
 		setControlSet(controlSet);
 }
@@ -135,9 +140,9 @@ void AMBeamlineControlSetMoveAction::onStarted(){
 }
 
 void AMBeamlineControlSetMoveAction::onSucceeded(){
-	for(int x = 0; x < controlSet_->count(); x++)
-		if(controlSet_->at(x)->moveInProgress())
-			return;
+	numSucceeded_++;
+	if(numSucceeded_ != controlSet_->count())
+		return;
 	for(int x = 0; x < controlSet_->count(); x++)
 		disconnect(controlSet_->at(x), 0, this, 0);
 	setSucceeded(true);

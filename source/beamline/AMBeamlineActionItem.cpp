@@ -20,6 +20,16 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMBeamlineActionItem.h"
 
+#include <QObject>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QPushButton>
+#include <QDebug>
+#include <QMouseEvent>
+#include <QMenu>
+#include <QAction>
+#include <QStyle>
+
 AMBeamlineActionItemStateFlag::AMBeamlineActionItemStateFlag(bool initialState, QObject *parent) :
 		QObject(parent)
 {
@@ -42,6 +52,7 @@ AMBeamlineActionItem::AMBeamlineActionItem(QObject *parent) :
 {
 	previous_ = NULL;
 	next_ = NULL;
+	description_ = "Generic Action";
 	message_ = "";
 	helpImages_.clear();
 	reinitialized_.setState(false);
@@ -56,6 +67,7 @@ AMBeamlineActionItem::AMBeamlineActionItem(QObject *parent) :
 AMBeamlineActionItem::AMBeamlineActionItem(bool delayInitialize, QObject *parent){
 	previous_ = NULL;
 	next_ = NULL;
+	description_ = "Generic Action";
 	reinitialized_.setState(false);
 	connect(&ready_, SIGNAL(stateChanged(bool)), this, SLOT(dirtyInitialized()));
 	connect(&started_, SIGNAL(stateChanged(bool)), this, SLOT(dirtyInitialized()));
@@ -83,7 +95,8 @@ bool AMBeamlineActionItem::hasStarted() const{
 }
 
 bool AMBeamlineActionItem::isRunning() const{
-	return started_.state() && !finished_.state();
+	//return started_.state() && !finished_.state();
+	return started_.state() && !(finished_.state() || succeeded_.state() || failed_.state());
 }
 
 bool AMBeamlineActionItem::hasSucceeded() const{
@@ -104,6 +117,15 @@ AMBeamlineActionItem* AMBeamlineActionItem::previous() const {
 
 AMBeamlineActionItem* AMBeamlineActionItem::next() const {
 	return next_;
+}
+
+AMBeamlineActionItem* AMBeamlineActionItem::createCopy() const{
+	return 0; //NULL
+}
+
+QString AMBeamlineActionItem::description() const{
+	qDebug() << "Description is " << description_;
+	return description_;
 }
 
 QString AMBeamlineActionItem::message() const{
@@ -132,6 +154,15 @@ bool AMBeamlineActionItem::setPrevious(AMBeamlineActionItem *previous){
 bool AMBeamlineActionItem::setNext(AMBeamlineActionItem *next){
 	next_ = next;
 	return true;
+}
+
+void AMBeamlineActionItem::setDescription(const QString &description){
+	bool changed = false;
+	if(description_ != description)
+		changed = true;
+	description_ = description;
+	if(changed)
+		emit descriptionChanged(description_);
 }
 
 void AMBeamlineActionItem::setMessage(const QString &message){
@@ -207,12 +238,21 @@ void AMBeamlineActionItem::dirtyInitialized(){
 AMBeamlineActionItemView::AMBeamlineActionItemView(AMBeamlineActionItem *action, int index, QWidget *parent) :
 		QFrame(parent)
 {
-	action_ = action;
+	//action_ = action;
+	action_ = 0;//NULL
+	setAction(action);
 	index_ = index;
 	inFocus_ = false;
-	setLineWidth(1);
+	optionsMenu_ = 0; //NULL
+	setLineWidth(2);
+	setMidLineWidth(0);
 	setFrameStyle(QFrame::StyledPanel);
 	setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
+
+	setAutoFillBackground(true);
+	QPalette newPalette(palette());
+	newPalette.setColor(QPalette::Window, QColor(255, 255, 255));
+	setPalette(newPalette);
 }
 
 AMBeamlineActionItem* AMBeamlineActionItemView::action(){
@@ -224,7 +264,19 @@ void AMBeamlineActionItemView::setIndex(int index){
 }
 
 void AMBeamlineActionItemView::setAction(AMBeamlineActionItem *action){
+	if(action_){
+		disconnect(action_, SIGNAL(descriptionChanged(QString)), this, SIGNAL(descriptionChanged(QString)));
+		disconnect(action_, SIGNAL(started()), this, SLOT(updateLook()));
+		disconnect(action_, SIGNAL(failed(int)), this, SLOT(updateLook()));
+		disconnect(action_, SIGNAL(succeeded()), this, SLOT(updateLook()));
+	}
 	action_ = action;
+	if(action_){
+		connect(action_, SIGNAL(descriptionChanged(QString)), this, SIGNAL(descriptionChanged(QString)));
+		connect(action_, SIGNAL(started()), this, SLOT(updateLook()));
+		connect(action_, SIGNAL(failed(int)), this, SLOT(updateLook()));
+		connect(action_, SIGNAL(succeeded()), this, SLOT(updateLook()));
+	}
 }
 
 void AMBeamlineActionItemView::defocusItem(){
@@ -232,29 +284,67 @@ void AMBeamlineActionItemView::defocusItem(){
 	updateLook();
 }
 
+void AMBeamlineActionItemView::onCreateCopyClicked(){
+	AMBeamlineActionItem *actionCopy = action_->createCopy();
+	if(actionCopy){
+		qDebug() << "ActionView has a copy to send out";
+		emit copyRequested(actionCopy);
+	}
+}
+
 void AMBeamlineActionItemView::mousePressEvent(QMouseEvent *event){
-	if (event->button() != Qt::LeftButton) {
+	/*if (event->button() != Qt::LeftButton) {
 		event->ignore();
 		return;
+	}*/
+	if(event->button() == Qt::LeftButton){
+		if(inFocus_)
+			defocusItem();
+		else{
+			inFocus_ = true;
+			updateLook();
+			emit focusRequested(action_);
+		}
 	}
-	if(inFocus_)
-		defocusItem();
+	else if(event->button() == Qt::RightButton){
+		if(optionsMenu_)
+			delete optionsMenu_;
+		optionsMenu_ = new QMenu(this);
+		QAction *tmpAction;
+		tmpAction = optionsMenu_->addAction("Copy this Action");
+		tmpAction->setData(0);
+		connect(tmpAction, SIGNAL(triggered()), this, SLOT(onCreateCopyClicked()));
+		optionsMenu_->popup(QCursor::pos());
+		optionsMenu_->show();
+	}
 	else{
-		inFocus_ = true;
-		updateLook();
-		emit focusRequested(action_);
+		event->ignore();
+		return;
 	}
 }
 
 void AMBeamlineActionItemView::updateLook(){
-	if(inFocus_)
+	QPalette newPalette(palette());
+	if(action_->isRunning() || inFocus_)
 		setFrameStyle(QFrame::Box);
-	if(inFocus_)
-		setStyleSheet("AMBeamlineScanActionView { background : rgb(194, 210, 215) }");
-	else{
-		setStyleSheet("AMBeamlineScanActionView { background : rgb(230, 222, 214) }");
+	else
 		setFrameStyle(QFrame::StyledPanel);
-	}
+
+	if(action_->isRunning())
+		newPalette.setColor(QPalette::Window, QColor(194, 230, 208) );
+	else if(action_->hasFailed())
+		newPalette.setColor(QPalette::Window, QColor(255, 170, 170) );
+	else if(action_->hasSucceeded())
+		newPalette.setColor(QPalette::Window, QColor(200, 200, 200) );
+	else
+		newPalette.setColor(QPalette::Window, QColor(255, 255, 255) );
+
+	if(inFocus_)
+		newPalette.setColor(QPalette::WindowText, QColor(0, 255, 0));
+	else
+		newPalette.setColor(QPalette::WindowText, QColor(QPalette::WindowText));
+
+	setPalette(newPalette);
 }
 
 

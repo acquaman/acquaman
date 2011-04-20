@@ -58,6 +58,8 @@ myAMNumFunction(myFloat); // num inside the function is valid, with type Floatin
 
 */
 
+#include <QString>
+
 class AMNumber
 {
 public:
@@ -110,6 +112,15 @@ public:
 
 	bool operator==(double d) const {
 		return state_ == Valid && double(*this) == d;
+	}
+
+	/// Print as a string
+	QString toString() {
+		if(!isValid()) return "[X]";
+		if(type_ == Integer)
+			return QString::number(value_.i);
+		else
+			return QString::number(value_.d);
 	}
 
 

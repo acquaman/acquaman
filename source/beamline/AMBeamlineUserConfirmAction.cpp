@@ -1,5 +1,11 @@
 #include "AMBeamlineUserConfirmAction.h"
 
+#include <QToolButton>
+#include <QVBoxLayout>
+#include <QLabel>
+#include <QPushButton>
+#include <QStyle>
+
 AMBeamlineUserConfirmAction::AMBeamlineUserConfirmAction(QObject *parent) :
 		AMBeamlineActionItem(parent)
 {

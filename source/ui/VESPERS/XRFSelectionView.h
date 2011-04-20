@@ -1,21 +1,22 @@
-#ifndef VESPERSXRFDETECTORVIEW_H
-#define VESPERSXRFDETECTORVIEW_H
+#ifndef XRFSELECTIONVIEW_H
+#define XRFSELECTIONVIEW_H
 
 #include <QWidget>
 
-#include "ui/VESPERS/XRFDetectorView.h"
 #include "util/AMElement.h"
 #include "ui/AMPeriodicTableView.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
+#include "ui/VESPERS/VESPERSXRFElementView.h"
 
-class VESPERSXRFDetectorView : public QWidget
+class XRFSelectionView : public QWidget
 {
 	Q_OBJECT
 public:
-	/// Constructor for the detector view.  Handles setting regions of interest and other such things.  Contains a generic XRFDetector view and adds periodic tables and element views.
-	explicit VESPERSXRFDetectorView(XRFDetector *detector, QWidget *parent = 0);
+	explicit XRFSelectionView(QWidget *parent = 0);
 
 signals:
+	/// Passes on the signal that an element was selected.  Contains the element.
+	void elementSelected(AMElement *);
 
 public slots:
 
@@ -28,8 +29,6 @@ protected slots:
 
 protected:
 
-	/// The detector view.
-	XRFDetailedDetectorView *detectorView_;
 	/// A pointer to the detector.
 	XRFDetector *detector_;
 
@@ -37,4 +36,4 @@ protected:
 	AMPeriodicTableView *tableView_;
 };
 
-#endif // VESPERSXRFDETECTORVIEW_H
+#endif // XRFSELECTIONVIEW_H

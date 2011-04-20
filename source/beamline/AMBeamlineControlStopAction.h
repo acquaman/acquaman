@@ -10,6 +10,8 @@ Q_OBJECT
 public:
     AMBeamlineControlStopAction(AMControl *control, QObject *parent = 0);
 
+    virtual AMBeamlineActionItemView* createView(int index = 0);
+
     virtual AMControl* control();
 
 public slots:

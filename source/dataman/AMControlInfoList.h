@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dataman/AMDbObject.h"
 #include "util/AMOrderedList.h"
+#include <QDebug>
 
 /// This class can be used to store the essential information and state of an AMControl, without actually needing to have a live control object. This information includes the name, units, value, minimum value, and maximum value.
 class AMControlInfo : public AMDbObject {
@@ -77,6 +78,7 @@ Q_OBJECT
 	Q_PROPERTY(QString description READ description WRITE setDescription)
 	Q_PROPERTY(AMDbObjectList controlInfos READ dbReadControlInfos WRITE dbLoadControlInfos)
 
+	Q_CLASSINFO("AMDbObject_Attributes", "description=List of Saved Control States")
 
 public:
 	/// Default constructor
@@ -89,6 +91,9 @@ public:
 
 	/// Destructor
 	~AMControlInfoList() {}
+
+	/// Allows you to push a ControlInfoList into a QDebug stream
+	friend QDebug operator<<(QDebug d, const AMControlInfoList& cil);
 
 	/// A human-readable description for this set of controls
 	QString description() const { return description_; }
@@ -110,6 +115,10 @@ If we have more AMControlInfo objects than \c other, we'll orphan our extras... 
 
 Either way, using setFromValues() instead of the assignment operator means that all of our AMControlInfo items will have separate database identities from \c other's items.*/
 	void setValuesFrom(const AMControlInfoList& other);
+
+
+	/// Find the index of a control in the list by name. Returns -1 if not found.
+	int indexOf(const QString& controlName);
 
 
 signals:

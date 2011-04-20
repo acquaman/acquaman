@@ -30,9 +30,9 @@ protected slots:
 
 protected:
 	/// Initializes the scan
-	virtual void initializeImplementation() { setInitialized(); }
+	virtual bool initializeImplementation() { setInitialized(); return true; }
 	/// Starts current scan.
-	virtual void startImplementation();
+	virtual bool startImplementation();
 	/// Cancels current scan.  Treated as finishing early.
 	virtual void cancelImplementation() { setCancelled(); }
 	/// Saves the data after a scan is stopped.

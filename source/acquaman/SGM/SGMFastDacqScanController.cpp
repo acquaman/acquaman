@@ -1,5 +1,7 @@
 #include "SGMFastDacqScanController.h"
 
+#include <QDir>
+
 SGMFastDacqScanController::SGMFastDacqScanController(SGMFastScanConfiguration *cfg, QObject *parent) :
 		AMDacqScanController(cfg, parent), SGMFastScanController(cfg)
 {
@@ -11,7 +13,7 @@ SGMFastDacqScanController::SGMFastDacqScanController(SGMFastScanConfiguration *c
 	dacqRunCompleted_ = false;
 }
 
-void SGMFastDacqScanController::initializeImplementation(){
+bool SGMFastDacqScanController::initializeImplementation(){
 	if(SGMFastScanController::beamlineInitialize() && initializationActions_){
 		#warning "Do we need to also clear any raw data sources here, or just the raw data itself?"
 		pScan()->clearRawDataPoints();
@@ -19,13 +21,15 @@ void SGMFastDacqScanController::initializeImplementation(){
 		connect(initializationActions_, SIGNAL(stageSucceeded(int)), this, SLOT(onInitializationActionsStageSucceeded(int)));
 		connect(initializationActions_, SIGNAL(stageProgress(double,double)), this, SLOT(calculateProgress(double,double)));
 		initializationActions_->start();
+		return true;
 	}
+	return false;
 }
 
-void SGMFastDacqScanController::startImplementation(){
+bool SGMFastDacqScanController::startImplementation(){
 	if(SGMBeamline::sgm()->isBeamlineScanning()){
 		qDebug() << "Beamline already scanning";
-		return;
+		return false;
 	}
 	bool loadSuccess;
 	QString homeDir = QDir::homePath();
@@ -37,7 +41,7 @@ void SGMFastDacqScanController::startImplementation(){
 	loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/Scalar_Fast.config"));
 	if(!loadSuccess){
 		qDebug() << "LIBRARY FAILED TO LOAD CONFIG FILE";
-		return;
+		return false;
 	}
 	advAcq_->setStart(0, pCfg()->start());
 	advAcq_->setDelta(0, pCfg()->end()-pCfg()->start());
@@ -49,7 +53,7 @@ void SGMFastDacqScanController::startImplementation(){
 	connect(fastScanTimer_, SIGNAL(timeout()), this, SLOT(onFastScanTimerTimeout()));
 	if(!pCfg()->sensibleFileSavePath().isEmpty())
 		pScan()->setAutoExportFilePath(pCfg()->finalizedSavePath());
-	AMDacqScanController::startImplementation();
+	return AMDacqScanController::startImplementation();
 }
 
 void SGMFastDacqScanController::cancelImplementation(){

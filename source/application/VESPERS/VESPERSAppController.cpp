@@ -12,6 +12,7 @@
 #include "ui/VESPERS/VESPERSPersistentView.h"
 #include "ui/AMWorkflowManagerView.h"
 #include "dataman/VESPERS/AMXRFScan.h"
+#include "util/AMPeriodicTable.h"
 
 #include "dataman/AMDbObjectSupport.h"
 

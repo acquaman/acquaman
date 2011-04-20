@@ -1,14 +1,14 @@
 #include "PGTDetector.h"
 
-PGTDetector::PGTDetector(const QString &name, AMControlSet *readingsControls, AMControlSet *settingsControls, QObject *parent) :
-		PGTDetectorInfo(name, name, parent), AMDetector(name)
+PGTDetector::PGTDetector(const QString &name, AMControlSet *readingsControls, AMControlSet *settingsControls, AMDetector::ReadMethod readMethod, QObject *parent) :
+		PGTDetectorInfo(name, name, parent), AMDetector(name, readMethod)
 {
 	ownsControlSets_ = false;
 	initializeFromControlSet(readingsControls, settingsControls);
 }
 
-PGTDetector::PGTDetector(const QString &name, AMControl *dataWaveform, AMControl *hv, AMControl *integrationTime, AMControl *integrationMode, QObject *parent) :
-		PGTDetectorInfo(name, name, parent), AMDetector(name)
+PGTDetector::PGTDetector(const QString &name, AMControl *dataWaveform, AMControl *hv, AMControl *integrationTime, AMControl *integrationMode, AMDetector::ReadMethod readMethod, QObject *parent) :
+		PGTDetectorInfo(name, name, parent), AMDetector(name, readMethod)
 {
 	ownsControlSets_ = true;
 	AMControlSet *readingsControls = new AMControlSet(this);
@@ -29,6 +29,13 @@ PGTDetector::~PGTDetector()
 
 const QMetaObject* PGTDetector::getMetaObject() {
 	return metaObject();
+}
+
+double PGTDetector::reading() const{
+	if(isConnected())
+		return dataWaveformCtrl()->value();
+	else
+		return -1;
 }
 
 AMDetectorInfo* PGTDetector::toInfo() const{

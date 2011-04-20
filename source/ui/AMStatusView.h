@@ -33,6 +33,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/AMErrorMonitor.h"
 
+/// This widget can be used to keep a log (or history) of AMErrorReport messages in a table view.  It's opened by double-clicking on an AMStatusView.
 class AMStatusLogView : public QWidget {
 	Q_OBJECT
 

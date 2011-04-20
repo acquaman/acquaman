@@ -20,6 +20,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SGMXASScanConfigurationView.h"
 
+#include <QPushButton>
+#include <QVBoxLayout>
+#include <QGridLayout>
+#include <QSpacerItem>
+
 SGMXASScanConfigurationView::SGMXASScanConfigurationView(SGMXASScanConfiguration *sxsc, QWidget *parent)  :
 		AMScanConfigurationView(parent)
 {
@@ -27,6 +32,8 @@ SGMXASScanConfigurationView::SGMXASScanConfigurationView(SGMXASScanConfiguration
 	if(SGMBeamline::sgm()->isConnected()){
 		cfg_ = sxsc;
 
+		topFrame_ = new AMTopFrame("Configure an XAS Scan to Run Later");
+		topFrame_->setIcon(QIcon(":/utilities-system-monitor.png"));
 		regionsLineView_ = new AMRegionsLineView(sxsc->regions(), this);
 
 		regionsView_ = new AMXASRegionsView(sxsc->regions(), this);
@@ -41,11 +48,15 @@ SGMXASScanConfigurationView::SGMXASScanConfigurationView(SGMXASScanConfiguration
 		fluxResolutionView_->onRegionsUpdate(sxsc->regions());
 		*/
 		fluxResolutionView_ = new SGMFluxResolutionPickerView(sxsc->regions(), this);
+		fluxResolutionView_->setFromInfoList(sxsc->fluxResolutionGroup());
 		fluxResolutionView_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
 		connect(fluxResolutionView_, SIGNAL(configValuesChanged(AMControlInfoList)), sxsc, SLOT(setFluxResolutionGroup(AMControlInfoList)));
+		connect(sxsc, SIGNAL(fluxResolutionGroupChanged(AMControlInfoList)), fluxResolutionView_, SLOT(setFromInfoList(AMControlInfoList)));
 
 		trackingView_ = new AMControlSetView(sxsc->trackingSet(), true, this);
+		trackingView_->setFromInfoList(sxsc->trackingGroup());
 		connect(trackingView_, SIGNAL(configValuesChanged(AMControlInfoList)), sxsc, SLOT(setTrackingGroup(AMControlInfoList)));
+		connect(sxsc, SIGNAL(trackingGroupChanged(AMControlInfoList)), trackingView_, SLOT(setFromInfoList(AMControlInfoList)));
 
 		xasDetectorsView_ = new AMDetectorSetView(sxsc->detectorChoices(), true);
 		connect(xasDetectorsView_, SIGNAL(configValuesChanged()), this, SLOT(onDetectorConfigurationsChanged()));
@@ -57,6 +68,7 @@ SGMXASScanConfigurationView::SGMXASScanConfigurationView(SGMXASScanConfiguration
 		warningsLabel_->setStyleSheet( "QLabel{ color: red }" );
 
 		mainVL_ = new QVBoxLayout();
+		mainVL_->addWidget(topFrame_);
 		mainVL_->addWidget(regionsLineView_);
 		bottomGL_ = new QGridLayout();
 		mainVL_->addLayout(bottomGL_, 10);
@@ -66,6 +78,10 @@ SGMXASScanConfigurationView::SGMXASScanConfigurationView(SGMXASScanConfiguration
 		bottomGL_->addWidget(xasDetectorsView_,	1, 2);
 		bottomGL_->setColumnStretch(0, 10);
 		bottomGL_->setColumnMinimumWidth(1, 40);
+		bottomGL_->setContentsMargins(10, 0, 0, 0);
+		mainVL_->addStretch(8);
+		mainVL_->setContentsMargins(0,0,0,0);
+		mainVL_->setSpacing(1);
 		setLayout(mainVL_);
 
 		this->setMaximumSize(800, 800);
@@ -104,7 +120,6 @@ void SGMXASScanConfigurationView::onSGMBeamlineCriticalControlsConnectedChanged(
 		warningsLabel_->setText("SGM Beamline Unavailable");
 	}
 }
-
 
 SGMFluxResolutionPickerView::SGMFluxResolutionPickerView(AMXASRegionsList *regions, QWidget *parent) :
 		QGroupBox("Flux/Resolution", parent)
@@ -155,6 +170,17 @@ SGMFluxResolutionPickerView::SGMFluxResolutionPickerView(AMXASRegionsList *regio
 	connect(bestFluxButton_, SIGNAL(clicked()), this, SLOT(onBestFluxButtonClicked()));
 	connect(bestResolutionButton_, SIGNAL(clicked()), this, SLOT(onBestResolutionButtonClicked()));
 	onRegionsChanged();
+}
+
+void SGMFluxResolutionPickerView::setFromInfoList(const AMControlInfoList &infoList){
+	for(int x = 0; x < infoList.count(); x++){
+		if( (infoList.at(x).name() == SGMBeamline::sgm()->exitSlitGap()->name()) && (infoList.at(x).value() != exitSlitGapCE_->setpoint()) )
+			exitSlitGapCE_->setSetpoint(infoList.at(x).value());
+		if( (infoList.at(x).name() == SGMBeamline::sgm()->grating()->name()) && (infoList.at(x).value() != gratingCE_->setpoint()) )
+			gratingCE_->setSetpoint(infoList.at(x).value());
+		if( (infoList.at(x).name() == SGMBeamline::sgm()->harmonic()->name()) && (infoList.at(x).value() != harmonicCE_->setpoint()) )
+			harmonicCE_->setSetpoint(infoList.at(x).value());
+	}
 }
 
 void SGMFluxResolutionPickerView::onRegionsChanged(){

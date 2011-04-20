@@ -20,11 +20,20 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMSampleManagementWidget.h"
 
+#include <QGridLayout>
+#include <QUrl>
+#include <QGroupBox>
+
+#include "ui/AMTopFrame.h"
+
 AMSampleManagementWidget::AMSampleManagementWidget(AMSampleManipulatorView *manipulatorView, const QUrl& sampleCameraUrl, AMSamplePlate* samplePlate, QWidget *parent) :
 	QWidget(parent)
 {
 	// cam_ = new AMBeamlineCameraWidget("Sample Camera", sampleCameraUrl);
 	// cam_->addSource("Camera 2", source2);
+
+	topFrame_ = new AMTopFrame("Sample Management & Positioning");
+	topFrame_->setIcon(QIcon(":/system-software-update.png"));
 
 	plateView_ = new AMSamplePlateView(samplePlate);
 	plateView_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
@@ -52,6 +61,13 @@ AMSampleManagementWidget::AMSampleManagementWidget(AMSampleManipulatorView *mani
 	gl_->addWidget(plateView_, 0, 1, 5, 1, Qt::AlignLeft);
 	gl_->addWidget(manipulatorView_, 3, 0, 2, 1, Qt::AlignLeft);
 
-	setLayout(gl_);
+	QVBoxLayout *vl = new QVBoxLayout();
+	vl->addWidget(topFrame_);
+	vl->addLayout(gl_);
+	vl->setContentsMargins(0,0,0,0);
+	vl->setSpacing(1);
+	gl_->setContentsMargins(10, 0, 10, 0);
+
+	setLayout(vl);
 }
 

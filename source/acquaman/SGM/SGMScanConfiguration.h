@@ -28,32 +28,43 @@ class SGMScanConfiguration
 public:
 	SGMScanConfiguration();
 
-	double exitSlitGap() const { return exitSlitGap_;}
-	SGMBeamline::sgmGrating grating() const { return grating_;}
-	SGMBeamline::sgmHarmonic harmonic() const { return harmonic_;}
-	AMControlInfoList trackingGroup() { return trackingGroup_;}
-	AMControlInfoList fluxResolutionGroup() { return fluxResolutionGroup_;}
+	AMControlInfoList trackingGroup() const;
+	AMControlInfoList fluxResolutionGroup() const;
 
-	bool setExitSlitGap(double exitSlitGap);
-	bool setGrating(SGMBeamline::sgmGrating grating) {grating_ = grating; return true;}
-	bool setHarmonic(SGMBeamline::sgmHarmonic harmonic) { harmonic_ = harmonic; return true;}
+	bool undulatorTracking() const;
+	bool monoTracking() const;
+	bool exitSlitTracking() const;
+
+	double exitSlitGap() const;
+	SGMBeamline::sgmGrating grating() const;
+	SGMBeamline::sgmHarmonic harmonic() const;
 
 	bool setTrackingGroup(AMControlInfoList trackingGroup);
 	bool setFluxResolutionGroup(AMControlInfoList fluxResolutionGroup);
+
+	bool setUndulatorTracking(bool undulatorTracking);
+	bool setMonoTracking(bool monoTracking);
+	bool setExitSlitTracking(bool exitSlitTracking);
+
+	bool setExitSlitGap(double exitSlitGap);
+	bool setGrating(SGMBeamline::sgmGrating grating);
+	bool setHarmonic(SGMBeamline::sgmHarmonic harmonic);
 
 	/* NTBA March 14, 2011 David Chevrier
 	   Need something like setTrackingGroup for the detectorSet
 	*/
 
 protected:
-	double exitSlitGap_;
-	SGMBeamline::sgmGrating grating_;
-	SGMBeamline::sgmHarmonic harmonic_;
 	AMControlInfoList trackingGroup_;
 	AMControlInfoList fluxResolutionGroup_;
+
 	bool undulatorTracking_;
 	bool monoTracking_;
 	bool exitSlitTracking_;
+
+	double exitSlitGap_;
+	SGMBeamline::sgmGrating grating_;
+	SGMBeamline::sgmHarmonic harmonic_;
 };
 
 #endif // ACQMAN_SGMSCANCONFIG_H

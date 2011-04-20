@@ -22,13 +22,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMXASREGIONSVIEW_H
 
 #include <QWidget>
-#include <QTableView>
-#include <QPushButton>
-#include <QHBoxLayout>
-#include <QFormLayout>
-#include <QMenu>
-#include <QCursor>
 #include <QtGui>
+
+class QTableView;
+class QPushButton;
+class QHBoxLayout;
+class QMenu;
+
 #include "acquaman/AMRegionsList.h"
 
 /// An AMXASRegionsView is a means of generating a default view for a group of AMXASRegion

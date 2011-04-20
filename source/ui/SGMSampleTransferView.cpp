@@ -20,12 +20,30 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SGMSampleTransferView.h"
 
+#include <QGridLayout>
+#include <QStackedLayout>
+#include <QLabel>
+#include <QPushButton>
+
+#include "ui/AMTopFrame.h"
+
 #include "beamline/AMBeamlineControlWaitAction.h"
 #include "beamline/AMBeamlineUserConfirmAction.h"
+
+#include <QButtonGroup>
 
 SGMSampleTransferView::SGMSampleTransferView(QWidget *parent) :
 	QWidget(parent)
 {
+	topFrame_ = new AMTopFrame("SGM Sample Transfer Guidance");
+	topFrame_->setIcon(QIcon(":/system-software-update.png"));
+
+	vl_ = new QVBoxLayout();
+	vl_->addWidget(topFrame_);
+	vl_->setContentsMargins(0,0,0,0);
+	vl_->setSpacing(1);
+	setLayout(vl_);
+
 	if(SGMBeamline::sgm()->isConnected())
 		drawWidget();
 	else
@@ -57,16 +75,12 @@ void SGMSampleTransferView::drawWidget(){
 	transferBox_ = new SGMSampleTransferProceduresView("Transfer Procedures", transferButtons_);
 
 	SGMSampleTransferPaneView* tmpPane;
-	//tmpPane = new SGMSampleTransferPaneView(SGMBeamline::sgm()->transferLoadlockOutActions());
 	tmpPane = new SGMSampleTransferPaneView();
 	transferPanes_.append(tmpPane);
-	//tmpPane = new SGMSampleTransferPaneView(SGMBeamline::sgm()->transferLoadlockInActions());
 	tmpPane = new SGMSampleTransferPaneView();
 	transferPanes_.append(tmpPane);
-	//tmpPane = new SGMSampleTransferPaneView(SGMBeamline::sgm()->transferChamberOutActions());
 	tmpPane = new SGMSampleTransferPaneView();
 	transferPanes_.append(tmpPane);
-	//tmpPane = new SGMSampleTransferPaneView(SGMBeamline::sgm()->transferChamberInActions());
 	tmpPane = new SGMSampleTransferPaneView();
 	transferPanes_.append(tmpPane);
 
@@ -77,16 +91,16 @@ void SGMSampleTransferView::drawWidget(){
 	}
 	connect(transferButtons_, SIGNAL(buttonClicked(int)), this, SLOT(drawPane(int)));
 
-	setLayout(mainLayout_);
+	vl_->addLayout(mainLayout_);
+	mainLayout_->setContentsMargins(10, 0, 10, 0);
+	mainLayout_->setSpacing(5);
 	drawMain();
 }
 
 void SGMSampleTransferView::drawPane(int index){
 	mainLayout_->setCurrentIndex(index);
-	if(index != 0){
-		qDebug() << "Using enum to call on " << index;
+	if(index != 0)
 		transferPanes_.at(index-1)->startPane(SGMBeamline::sgm()->createTransferActions((SGMBeamline::sgmTransferType)index));
-	}
 }
 
 void SGMSampleTransferView::drawMain(){
@@ -99,10 +113,11 @@ SGMSampleTransferProceduresView::SGMSampleTransferProceduresView(const QString &
 	vl_ = new QVBoxLayout();
 	mainLayout_ = new QGridLayout();
 	procedureButtons_ = procedureButtons;
-	qDebug() << "Need to draw " << procedureButtons_->buttons().count() << " buttons";
 	for(int x = 0; x < procedureButtons_->buttons().count(); x++ )
 		vl_->addWidget(procedureButtons_->button(x+1));
 	mainLayout_->addLayout(vl_, 0, 0, 1, 1, Qt::AlignLeft|Qt::AlignTop);
+	mainLayout_->setContentsMargins(10, 0, 10, 0);
+	mainLayout_->setSpacing(5);
 
 	setLayout(mainLayout_);
 }
@@ -111,24 +126,18 @@ SGMSampleTransferPaneView::SGMSampleTransferPaneView(QWidget *parent) :
 		QGroupBox("", parent)
 {
 	vl_ = new QVBoxLayout();
-	/*
-	listView_ = listAction->createView();
-	connect(listAction, SIGNAL(succeeded()), this, SLOT(prepareCompletion()));
-	*/
 	listView_ = 0; //NULL
 	completeLabel_ = new QLabel("");
 	initialize();
 	completeButton_ = new QPushButton("Return to Main Transfer Menu");
 	connect(completeButton_, SIGNAL(clicked()), this, SIGNAL(completed()));
 
-	//vl_->addWidget(listView_);
 	vl_->addWidget(completeLabel_);
 	vl_->addWidget(completeButton_);
 	setLayout(vl_);
 }
 
 void SGMSampleTransferPaneView::startPane(AMBeamlineListAction *listAction){
-	qDebug() << "Trying to start pane";
 	if(listView_){
 		vl_->removeWidget(listView_);
 		delete listView_;
@@ -142,10 +151,6 @@ void SGMSampleTransferPaneView::startPane(AMBeamlineListAction *listAction){
 
 void SGMSampleTransferPaneView::initialize(){
 	completeLabel_->setText("Procedure Incomplete");
-	/*
-	for(int x = 0; x < itemViews_.count(); x++)
-		itemViews_.at(x)->initializeView();
-	*/
 }
 
 void SGMSampleTransferPaneView::prepareCompletion(){

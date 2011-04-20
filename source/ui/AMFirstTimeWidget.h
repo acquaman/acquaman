@@ -29,38 +29,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFormLayout>
 #include <QDir>
 #include <QPushButton>
-#include <QValidator>
+
 #include <QFileDialog>
 
 #include <util/AMSettings.h>
+#include <ui/AMFolderPathLineEdit.h>
 
-class AMFolderPathValidator : public QValidator {
 
-	Q_OBJECT
-
-public:
-	AMFolderPathValidator(QObject* parent = 0) : QValidator(parent) {}
-
-	State validate ( QString & input, int & pos ) const {
-		Q_UNUSED(pos)
-
-		QDir dir(input);
-		if(dir.exists()) {
-			emit validChanged(true);
-			return QValidator::Acceptable;
-		}
-
-		emit validChanged(false);
-		return QValidator::Intermediate;
-	}
-
-signals:
-	void validChanged(bool isValid) const;
-
-};
-
-#include <QCompleter>
-#include <QDirModel>
 
 // Needed for getenv():
 #include <cstdlib>
@@ -78,13 +53,8 @@ class AMFirstTimeWizardPage : public QWizardPage
 
 		QFormLayout *layout = new QFormLayout();
 		userName = new QLineEdit();
-		userDataFolder = new QLineEdit();
-		folderCompleter = new QCompleter(this);
-		folderCompleter->setModel(new QDirModel(folderCompleter));
-		userDataFolder->setCompleter(folderCompleter);
+		userDataFolder = new AMFolderPathLineEdit();
 
-		AMFolderPathValidator* v = new AMFolderPathValidator(userDataFolder);
-		userDataFolder->setValidator(v);
 		browseButton = new QPushButton("Choose...");
 
 		QHBoxLayout* hl = new QHBoxLayout();
@@ -99,7 +69,6 @@ class AMFirstTimeWizardPage : public QWizardPage
 		registerField("userDataFolder*", userDataFolder);
 
 		connect(browseButton, SIGNAL(clicked()), this, SLOT(onBrowseButtonClicked()));
-		connect(v, SIGNAL(validChanged(bool)), this, SLOT(onFolderPathValid(bool)));
 
 	}
 
@@ -108,19 +77,9 @@ protected slots:
 		userDataFolder->setText(QFileDialog::getExistingDirectory(this, "Acquaman Data Folder", userDataFolder->text()));
 	}
 
-	void onFolderPathValid(bool isValid) {
-		if(isValid)
-			userDataFolder->setStyleSheet("color: black;");
-		else
-			userDataFolder->setStyleSheet("color: red;");
-	}
-
  private:
 	 QLineEdit *userName, *userDataFolder;
-	 QCompleter* folderCompleter;
 	 QPushButton* browseButton;
-
-
  };
 
 

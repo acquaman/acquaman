@@ -20,7 +20,6 @@
 
 #include "ui/REIXS/REIXSXESHexapodControlEditor.h"
 
-#include "ui/AMOverlayVideoWidget.h"
 #include "ui/AMSamplePlateView.h"
 #include "dataman/AMRun.h"
 #include "ui/AMStartScreen.h"

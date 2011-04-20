@@ -1,6 +1,7 @@
 #include "VESPERSXRFScanConfigurationView.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
 #include "acquaman/VESPERS/VESPERSXRFScanController.h"
+#include "ui/VESPERS/XRFSelectionView.h"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -16,8 +17,11 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 	else
 		detector_ = VESPERSBeamline::vespers()->vortexXRF4E();
 
-	view_ = new VESPERSXRFDetectorView(detector_);
+	view_ = new XRFDetailedDetectorView(detector_);
 	connect(detector_, SIGNAL(detectorConnected(bool)), this, SLOT(setEnabled(bool)));
+
+	XRFSelectionView *selectionView = new XRFSelectionView;
+	connect(selectionView, SIGNAL(elementSelected(AMElement*)), view_, SLOT(showEmissionLines(AMElement*)));
 
 	QToolButton *start = new QToolButton;
 	start->setIcon(QIcon(":/play_button_green.png"));
@@ -79,8 +83,12 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 	controlLayout->addWidget(peakingTime_);
 	controlLayout->addStretch();
 
+	QVBoxLayout *viewAndSelectionLayout = new QVBoxLayout;
+	viewAndSelectionLayout->addWidget(view_);
+	viewAndSelectionLayout->addWidget(selectionView);
+
 	QHBoxLayout *plotControlLayout = new QHBoxLayout;
-	plotControlLayout->addWidget(view_);
+	plotControlLayout->addLayout(viewAndSelectionLayout);
 	plotControlLayout->addLayout(controlLayout);
 
 	setLayout(plotControlLayout);

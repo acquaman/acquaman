@@ -77,3 +77,12 @@ AMnDIndex::AMnDIndex(int dimension, bool initToZero)  {
 	}
 }
 
+#include <QStringList>
+
+QString AMnDIndex::toString(const QString &separator) const {
+	QStringList rv;
+	for(int i=0; i<rank(); i++)
+		rv << QString::number(at(i));
+	return rv.join(separator);
+}
+

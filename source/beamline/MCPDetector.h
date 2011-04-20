@@ -9,11 +9,13 @@ class MCPDetector : public MCPDetectorInfo, public AMDetector
 {
 	Q_OBJECT
 public:
-	MCPDetector(const QString &name, AMControlSet *readingsControls, AMControlSet *settingsControls, QObject *parent = 0);
-	MCPDetector(const QString& name, AMControl *reading, AMControl *hv, QObject *parent = 0);
+	MCPDetector(const QString &name, AMControlSet *readingsControls, AMControlSet *settingsControls, AMDetector::ReadMethod readMethod = AMDetector::ImmediateRead, QObject *parent = 0);
+	MCPDetector(const QString& name, AMControl *reading, AMControl *hv, AMDetector::ReadMethod readMethod = AMDetector::ImmediateRead, QObject *parent = 0);
 	~MCPDetector();
 
 	const QMetaObject* getMetaObject();
+
+	virtual double reading() const;
 
 	/// NEEDS TO RETURN A NEW INSTANCE, CALLER IS RESPONSIBLE FOR MEMORY.
 	AMDetectorInfo* toInfo() const;

@@ -22,19 +22,21 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define ACQMAN_SGMXASScanConfigurationViewer_H
 
 #include <QtGui>
-#include "ui_SGMXASScanConfigurationViewer.h"
+
+class QPushButton;
+class QVBoxLayout;
+class QGridLayout;
+class QSpacerItem;
+
 #include "AMControlSetView.h"
 #include "AMDetectorSetView.h"
 #include "AMXASRegionsView.h"
 #include "AMRegionsLineView.h"
-#include <QPushButton>
-#include <QVBoxLayout>
-#include <QGridLayout>
-#include <QSpacerItem>
 #include "acquaman/SGM/SGMXASScanConfiguration.h"
 #include "acquaman/SGM/SGMXASDacqScanController.h"
 #include "AMScanConfigurationView.h"
 #include "ui/AMControlOptimizationView.h"
+#include "ui/AMTopFrame.h"
 
 #include "AMDetectorView.h"
 
@@ -64,6 +66,7 @@ protected slots:
 protected:
 	SGMXASScanConfiguration *cfg_;
 
+	AMTopFrame *topFrame_;
 	AMXASRegionsView *regionsView_;
 	AMRegionsLineView *regionsLineView_;
 	//AMCompactControlOptimizationSetView *fluxResolutionView_;
@@ -81,6 +84,9 @@ class SGMFluxResolutionPickerView : public QGroupBox{
 Q_OBJECT
 public:
 	SGMFluxResolutionPickerView(AMXASRegionsList *regions, QWidget *parent = 0);
+
+public slots:
+	void setFromInfoList(const AMControlInfoList &infoList);
 
 protected slots:
 	void onRegionsChanged();

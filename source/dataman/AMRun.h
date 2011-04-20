@@ -37,8 +37,11 @@ class AMFacility : public AMDbObject
 	Q_OBJECT
 	Q_PROPERTY(QString description READ description WRITE setDescription)
 	Q_PROPERTY(QString iconFileName READ iconFileName WRITE setIconFileName)
+
+	Q_CLASSINFO("AMDbObject_Attributes", "description=Facility")
+
 public:
-	explicit AMFacility(const QString& shortDescription, const QString& longDescription, const QString& iconFileName = QString(), QObject* parent = 0)
+	Q_INVOKABLE explicit AMFacility(const QString& shortDescription = "[Other]", const QString& longDescription = "Unknown Facility", const QString& iconFileName = QString(), QObject* parent = 0)
 		: AMDbObject(parent) {
 		setName(shortDescription);	// ex: "SGM"
 		description_ = longDescription;	// ex: "Canadian Light Source SGM Beamline"
@@ -96,6 +99,8 @@ class AMRun : public AMDbObject
 	Q_PROPERTY(QDateTime dateTime READ dateTime WRITE setDateTime)
 	Q_PROPERTY(QDateTime endDateTime READ endDateTime WRITE setEndDateTime)
 	Q_PROPERTY(int facilityId READ facilityId WRITE setFacilityId)
+
+	Q_CLASSINFO("AMDbObject_Attributes", "description=Data Run")
 public:
 	/// Default constructor. In it we initialize the extra fields we want to store inside metaData_.
 	explicit AMRun(QObject *parent = 0);

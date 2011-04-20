@@ -92,6 +92,7 @@ public slots:
 	/* NTBA March 14, 2011 David Chevrier
 	   Need something to setFromInfo, should be able to just pass along to controlSet
 	   */
+	void setFromInfoList(const AMControlInfoList &infoList);
 
 protected slots:
 	void onControlSetValuesChanged(AMControlInfoList infoList);

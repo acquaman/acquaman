@@ -35,17 +35,19 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 	specificScan_ = new AMXASScan();
 	_pScan_ = &specificScan_;
 	pScan_()->setName("SGM XAS Scan");
-	pScan_()->setFilePath(pCfg_()->filePath()+pCfg_()->fileName());
 	pScan_()->setFileFormat("sgm2004");
 	pScan_()->setRunId(AMUser::user()->currentRunId());
+	pScan_()->setScanConfiguration(pCfg_());
 
 	// Create space in raw data store, and create raw data channels, for each detector.
 
 	for(int i = 0; i < pCfg_()->allDetectorConfigurations().count(); i++){
 		AMDetectorInfo* detectorInfo = pCfg_()->allDetectorConfigurations().detectorInfoAt(i);
 		if(pCfg_()->allDetectorConfigurations().isActiveAt(i)){
-			pScan_()->rawData()->addMeasurement(AMMeasurementInfo(*detectorInfo));
-			pScan_()->addRawDataSource(new AMRawDataSource(pScan_()->rawData(), i));
+			if(pScan_()->rawData()->addMeasurement(AMMeasurementInfo(*detectorInfo)))
+				pScan_()->addRawDataSource(new AMRawDataSource(pScan_()->rawData(), pScan_()->rawData()->measurementCount()-1));
+			else
+				qDebug() << "BIG PROBLEM!!!!!! WHAT JUST HAPPENED?!?!?" << detectorInfo->name();
 		}
 	}
 
@@ -89,23 +91,11 @@ bool SGMXASScanController::beamlineInitialize(){
 	initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
 	AMBeamlineControlSetMoveAction* tmpSetAction = new AMBeamlineControlSetMoveAction(SGMBeamline::sgm()->fluxResolutionSet());
 	tmpSetAction->setSetpoint((pCfg_()->fluxResolutionGroup()));
-
 	initializationActions_->appendAction(0, tmpSetAction);
+
 	tmpSetAction = new AMBeamlineControlSetMoveAction(SGMBeamline::sgm()->trackingSet());
 	tmpSetAction->setSetpoint(pCfg_()->trackingGroup());
 	initializationActions_->appendAction(0, tmpSetAction);
-
-	AMBeamlineControlWaitAction *tmpWaitAction = new AMBeamlineControlWaitAction(SGMBeamline::sgm()->loadlockCCG(), AMBeamlineControlWaitAction::LessThanTarget);
-	tmpWaitAction->setWaitpoint(2.2e-8);
-	tmpWaitAction->setActionTolerance(1.0e-8);
-	tmpWaitAction->setHoldTime(1000);
-	initializationActions_->appendAction(0, tmpWaitAction);
-
-	tmpWaitAction = new AMBeamlineControlWaitAction(SGMBeamline::sgm()->loadlockTCG(), AMBeamlineControlWaitAction::NotEqualToTarget);
-	tmpWaitAction->setWaitpoint(720);
-	tmpWaitAction->setActionTolerance(20);
-	tmpWaitAction->setHoldTime(1000);
-	initializationActions_->appendAction(0, tmpWaitAction);
 
 	for(int x = 0; x < pCfg_()->allDetectors()->count(); x++)
 		if(pCfg_()->allDetectorConfigurations().isActiveAt(x))

@@ -483,7 +483,6 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 				QStringList stringList = values.at(ri).toString().split(AMDbObjectSupport::listSeparator(), QString::SkipEmptyParts);
 				foreach(QString i, stringList)
 					intList << i.toInt();
-				qDebug() << "Reloading AMIntList from Database:" << columnName << intList.count();
 				setProperty(columnName, QVariant::fromValue(intList));
 			}
 			else if(columnType == qMetaTypeId<AMDoubleList>()) {	// double lists: must convert back from separated string.

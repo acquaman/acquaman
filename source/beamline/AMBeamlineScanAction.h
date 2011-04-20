@@ -29,6 +29,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMBeamlineActionItem.h"
 #include "acquaman/AMScanConfiguration.h"
 
+#define AMBEAMLINEACTIONITEM_CANT_CREATE_CONTROLLER 27101
+#define AMBEAMLINEACTIONITEM_SCAN_CANCELLED 27102
+#define AMBEAMLINEACTIONITEM_CANT_SET_CURRENT_CONTROLLER 27103
+#define AMBEAMLINEACTIONITEM_CANT_INITIALIZE_CONTROLLER 27104
+#define AMBEAMLINEACTIONITEM_CANT_START_CONTROLLER 27105
+
 class AMBeamlineScanAction : public AMBeamlineActionItem
 {
 Q_OBJECT
@@ -37,12 +43,15 @@ public:
 
 	virtual AMBeamlineActionItemView* createView(int index = 0);
 
+	virtual AMBeamlineActionItem* createCopy() const;
+
 	AMScanConfiguration* cfg() const { return cfg_;}
 	virtual bool isRunning() const;
 	virtual bool isPaused() const;
 
 signals:
 	void progress(double, double);
+	void descriptionChanged();
 
 public slots:
 	virtual void start();
@@ -58,15 +67,17 @@ public slots:
 protected slots:
 	virtual void initialize();
 	void delayedStart(bool ready);
+	virtual void onScanInitialized();
 	virtual void onScanStarted();
 	virtual void onScanCancelled();
 	virtual void onScanSucceeded();
 	virtual void onScanFailed();
 	virtual void onBeamlineScanningChanged(bool isScanning);
+	virtual void onConfigurationChanged();
 
 protected:
 	AMScanConfiguration *cfg_;
-	AMScanController * ctrl_;
+	AMScanController *ctrl_;
 	bool keepOnCancel_;
 };
 
@@ -93,7 +104,7 @@ protected slots:
 	void onPlayPauseButtonClicked();
 
 protected:
-	void updateLook();
+	void mouseDoubleClickEvent(QMouseEvent *);
 
 protected:
 	AMBeamlineScanAction *scanAction_;
@@ -105,6 +116,8 @@ protected:
 	QPushButton *stopCancelButton_;
 	QPushButton *playPauseButton_;
 	QHBoxLayout *hl_;
+
+	AMScanConfigurationView *configurationView_;
 
 	QIcon closeIcon_, stopIcon_, startIcon_, pauseIcon_;
 };

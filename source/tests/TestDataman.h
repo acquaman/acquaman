@@ -31,6 +31,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMSamplePlate.h"
 #include "util/AMOrderedSet.h"
 
+#include "util/AMTagReplacementParser.h"
+
 /// This subclass of AMDbObject is used only for test purposes.
 class AMTestDbObject : public AMDbObject {
 
@@ -104,6 +106,58 @@ private slots:
 
 	}
 
+
+	void testAMTagReplacementParser() {
+
+		QString inputText("$Today is $date and I am feeling $mood.\n\n"
+						  "The weather is $weather and I will wear my $shirtColor[3] shirt today.\n\n"
+						  "Some more fun with $words$numbers and $words[asdf fdsa]$numbers[3 4 $notHere ]\n\n"
+						  "This should stay as a $$3 dollars  and this too: $$.  $k$t[ ]$s");
+
+		AMTagReplacementParser p('$', '[', ']');
+		p.setInitialText(inputText);
+
+		QVERIFY(p.replacementList().count() == 12);
+		QVERIFY(p.replacementList().at(0).tag == "Today");
+		QVERIFY(p.replacementList().at(1).tag == "date");
+		QVERIFY(p.replacementList().at(2).tag == "mood");
+		QVERIFY(p.replacementList().at(3).tag == "weather");
+		QVERIFY(p.replacementList().at(4).tag == "shirtColor");
+		QVERIFY(p.replacementList().at(4).arguments == "3");
+		QVERIFY(p.replacementList().at(5).tag == "words");
+		QVERIFY(p.replacementList().at(5).arguments == QString());
+		QVERIFY(p.replacementList().at(6).tag == "numbers");
+		QVERIFY(p.replacementList().at(6).arguments == QString());
+		QVERIFY(p.replacementList().at(7).tag == "words");
+		QVERIFY(p.replacementList().at(7).arguments == "asdf fdsa");
+		QVERIFY(p.replacementList().at(8).tag == "numbers");
+		QVERIFY(p.replacementList().at(8).arguments == "3 4 $notHere ");
+		QVERIFY(p.replacementList().at(9).tag == "k");
+		QVERIFY(p.replacementList().at(10).tag == "t");
+		QVERIFY(p.replacementList().at(11).tag == "s");
+
+		p.replacementList()[0].replacement = "Monday";
+		p.replacementList()[1].replacement = "March 18";
+		p.replacementList()[2].replacement = "bummed out";
+		p.replacementList()[3].replacement = "rainy";
+		p.replacementList()[4].replacement = "brown";
+		p.replacementList()[5].replacement = "words";
+		p.replacementList()[6].replacement = "numbers";
+		p.replacementList()[7].replacement = "numbers";
+		p.replacementList()[8].replacement = "and words";
+		p.replacementList()[9].replacement = "k";
+		p.replacementList()[10].replacement = "thx";
+		p.replacementList()[11].replacement = "bai";
+
+
+		QString final = p.getReplacedText();
+		QString finalShouldBe("Monday is March 18 and I am feeling bummed out.\n\n"
+							  "The weather is rainy and I will wear my brown shirt today.\n\n"
+							  "Some more fun with wordsnumbers and numbersand words\n\n"
+							 "This should stay as a $3 dollars  and this too: $.  kthxbai");
+
+		QVERIFY(final == finalShouldBe);
+	}
 
 
 	void testAMControlInfoList() {

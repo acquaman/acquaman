@@ -75,20 +75,22 @@ QWidget* AMVerticalStackWidget::widget(int index) const {
 }
 
 /// Insert a widget at a specific index in the stack. Inserting at \c index = -1 is equivalent to appending to the end. The AMVerticalStackWidget takes ownership of the widget.
-void AMVerticalStackWidget::insertItem(int index, QWidget* widget, const QString& text, bool collapsable) {
+void AMVerticalStackWidget::insertItem(int index, QWidget* widget, bool collapsable) {
 	if(index < 0 || index > count())
 		index = count();
 
-	QStandardItem* item = new QStandardItem(text);
+	QStandardItem* item = new QStandardItem(widget->windowTitle());
 	item->setData(qVariantFromValue(widget), AM::PointerRole);
 	item->setData(false, Qt::CheckStateRole);
 	item->setFlags( collapsable ? (Qt::ItemIsEnabled | Qt::ItemIsUserCheckable) : Qt::ItemIsEnabled);
 
 	AMHeaderButton* header = new AMHeaderButton();
-	header->setText(text);
+	header->setText(widget->windowTitle());
 	header->setArrowType(Qt::DownArrow);
 	item->setData(qVariantFromValue(header), AM::WidgetRole);
 	connect(header, SIGNAL(clicked()), this, SLOT(onHeaderButtonClicked()));
+
+	widget->installEventFilter(this);
 
 	QSizePolicy sp = widget->sizePolicy();
 	sp.setVerticalPolicy(QSizePolicy::Preferred);
@@ -116,6 +118,8 @@ QWidget* AMVerticalStackWidget::takeItem(int index) {
 
 	delete b;
 	delete item;
+
+	w->removeEventFilter(this);
 	return w;
 }
 
@@ -199,4 +203,22 @@ QSize AMVerticalStackWidget::sizeHint() const {
 
 	rv.setWidth(width+2);
 	return rv;
+}
+
+
+
+
+/// Capture window title change events from our widgets and change our header titles accordingly
+bool AMVerticalStackWidget::eventFilter(QObject * source, QEvent *event) {
+
+	if(event->type() != QEvent::WindowTitleChange)
+		return QFrame::eventFilter(source, event);
+
+	int widgetIndex = this->indexOf(qobject_cast<QWidget*>(source));
+	if(widgetIndex < 0)
+		return QFrame::eventFilter(source, event);
+
+	setItemText(widgetIndex, widget(widgetIndex)->windowTitle());
+
+	return QFrame::eventFilter(source, event);
 }

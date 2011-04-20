@@ -27,6 +27,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMBeamlineActionItem.h"
 #include "AMControl.h"
 
+#include <QIcon>
+
 class AMBeamlineControlMoveAction : public AMBeamlineActionItem
 {
 Q_OBJECT

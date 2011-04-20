@@ -609,7 +609,14 @@ public:
 		\param parent QObject parent class
 		\param stopPVname The EPICS channel-access name for the process variable to write to cancel a move in progress. If empty (default), shouldStop() and canStop() both return false, and calls to stop() will not work.
 		*/
-	AMPVControl(const QString& name, const QString& readPVname, const QString& writePVname, const QString& stopPVname = QString(), QObject* parent = 0, double tolerance = AMCONTROL_TOLERANCE_DONT_CARE, double completionTimeoutSeconds = 10.0, int stopValue = 1);
+	AMPVControl(const QString& name,
+				const QString& readPVname,
+				const QString& writePVname,
+				const QString& stopPVname = QString(),
+				QObject* parent = 0,
+				double tolerance = AMCONTROL_TOLERANCE_DONT_CARE,
+				double completionTimeoutSeconds = 10.0,
+				int stopValue = 1);
 
 	/// \name Reimplemented Public Functions:
 	//@{
@@ -732,8 +739,40 @@ protected slots:
 
 };
 
-/// A default mask for a moving-status bit-flag that does not mask any bits.
-#define AMCONTROL_MOVING_MASK_NONE 0xffffffff
+
+/// Subclass this to create an object that specifies how to interpret a control's status value.  With this mechanism, we can accept arbitrarily complex algorithms to determine if an AMPVwStatusControl's status value means that it's moving.  For example, if your motor driver returns 4, 5, or 6 to mean that it's moving, create a subclass whose operator()() function returns true in these three cases.
+class AMAbstractControlStatusChecker {
+public:
+	/// Returns true if the \c statusValue indicates the control is moving, and false if it's not.
+	virtual bool operator()(quint32 statusValue) = 0;
+};
+
+/// This function object provides the default "isMoving" check for AMReadOnlyPVwStatusControl.  It will compare the current status value against the value provided in the constructor, and return true if equal.
+class AMControlStatusCheckerDefault : public AMAbstractControlStatusChecker {
+public:
+	/// Status values will be compared to \c isMovingValue, and return true if the status value is equal to isMovingValue.
+	AMControlStatusCheckerDefault(quint32 isMovingValue) : isMovingValue_(isMovingValue) {}
+
+	/// Returns true (moving) if the \c statusValue matches isMovingValue_;
+	virtual bool operator()(quint32 statusValue) { return statusValue == isMovingValue_; }
+
+protected:
+	quint32 isMovingValue_;
+};
+
+/// This function object provides the opposite of the default check for AMReadyOnlyPVwStatusControl (instead of providing the one value which represents "moving" you provide the one value which represents "stopped"). It will compare the current status against the value provided in the constuctor, and return true if not equal.
+class AMControlStatusCheckerStopped : public AMAbstractControlStatusChecker {
+public:
+	/// Status values will be compare to \c isStoppedValue, and return true if the status value is not equal to isStoppedValue (something that isn't stopped is moving)
+	AMControlStatusCheckerStopped(quint32 isStoppedValue) : isStoppedValue_(isStoppedValue) {}
+
+	/// Return true (moving) if the \c statusValue does not matche isStoppedValue_
+	virtual bool operator()(quint32 statusValue) { return statusValue != isStoppedValue_; }
+
+protected:
+	quint32 isStoppedValue_;
+};
+
 
 /// This class provides an AMControl that can measure a feedback process variable, and monitor a second PV that provides a moving indicator.
 /*!
@@ -741,13 +780,7 @@ The AMControl interface should be inherited to implement real-world control devi
 
 This class measures values using a single Process Variable.  It cannot be used to set values, but it watches another Process Variable to see if the control is moving.  An example usage would be monitoring the "beamline energy" PV that is common on most beamlines.
 
-isMoving() means that the (integer) numeric value of the \c isMovingPV is equal to the \c isMovingValue provided by the programmer in the constructor.  (For example, on the SGM beamline, the beamline energy's "moving" process variable defines:
-{0 = stopped, 1 = moving, 2 = at limit, 3 = forced stop}
-In this case, the programmer would specify <code>isMovingValue = 1</code>.
-
-In other cases, an \c isMovingPV could provide a set of bit-flags, where only one of the bits indicates moving.  To handle this situation, you can also provide an \c isMovingMask that is applied to the PV's value before the comparison.  The default isMovingMask = 0xffffffff (AMCONTROL_MOVING_MASK_NONE).  For example, if the isMovingPV value is a bit-flag
-{bit 3: CW limit} {bit 2: CCW limit} {bit 1: moving} {bit 0: motor power on}
-then you could specify an \c isMovingMask of \c (1<<1).
+By default, isMoving() means that the (integer) numeric value of the \c isMovingPV is equal to 1.  If you need more detail than this, define an AMAbstractControlStatusChecker subclass where the bool operator()(int statusValue) returns true for moving and false for stopped... And then pass a new instance of it in the constructor.
 
 
 <b>The unique behavior is defined as:</b>
@@ -779,11 +812,17 @@ public:
 	/*! \param name A unique description of this control
 		\param readPVname The EPICS channel-access name for the feedback Process Variable
 		\param movingPVname The EPICS channel-access name for the move-monitor Process Variable
-		\param isMovingValue isMoving() is true when the movingPV's value (masked by the \c isMovingMask) is equal to this.
-		\param isMovingMask can be used to mask certain bits in the movingPV's value before comparing it to \c isMovingValue.
+		\param statusChecker An instance of an AMAbstractControlStatusChecker.  isMoving() is true when the movingPV's value passed into its operator()() function returns true.  The default status checker compares the movingPV's value to 1.  (Note: this class takes ownership of the statusChecker and deletes it when done.)
 		\param parent QObject parent class
 		*/
-	AMReadOnlyPVwStatusControl(const QString& name, const QString& readPVname, const QString& movingPVname, QObject* parent = 0, int isMovingValue = 1, quint32 isMovingMask = AMCONTROL_MOVING_MASK_NONE);
+	AMReadOnlyPVwStatusControl(const QString& name,
+							   const QString& readPVname,
+							   const QString& movingPVname,
+							   QObject* parent = 0,
+							   AMAbstractControlStatusChecker* statusChecker = new AMControlStatusCheckerDefault(1) );
+
+	/// Destructor
+	virtual ~AMReadOnlyPVwStatusControl() { delete statusChecker_; }
 
 	/// \name Reimplemented Public Functions:
 	//@{
@@ -792,7 +831,7 @@ public:
 	virtual bool isConnected() const { return readPV_->readReady() && movingPV_->readReady(); }
 
 	/// The movingPV now provides our moving status. (Masked with isMovingMask and compared to isMovingValue)
-	virtual bool isMoving() const { return ( int(movingPV_->getInt() & isMovingMask_) == isMovingValue_); }
+	virtual bool isMoving() const { return (*statusChecker_)(movingPV_->getInt()); }
 
 	// Additional public functions:
 	/// The EPICS channel-access name of the PV that provides the moving status.
@@ -812,10 +851,8 @@ protected:
 	/// This PV is used to watch the moving status
 	AMProcessVariable* movingPV_;
 
-	/// This is the value of the movingPV that would indicate "moving == true"
-	int isMovingValue_;
-	/// This mask is applied to the movingPV's value before comparing it with \c isMovingValue
-	quint32 isMovingMask_;
+	/// An evaluator object used to determine if the status value indicates moving
+	AMAbstractControlStatusChecker* statusChecker_;
 
 	/// This is used to detect changes in the moving/not-moving status
 	bool wasMoving_;
@@ -893,13 +930,21 @@ public:
 		\param movingPVname The EPICS channel-access name for the move-monitor Process Variable
 		\param tolerance The level of accuracy (max. distance between setpoint() and final value()) required for a move() to be successful
 		\param moveStartTimeoutSeconds Time allowed after a move() for the Control to first start moving.  If it doesn't, we emit moveFailed(AMControl::TimeoutFailure).
-		\param isMovingValue isMoving() is true when the movingPV's value (masked by the \c isMovingMask) is equal to this.
-		\param isMovingMask can be used to mask certain bits in the movingPV's value before comparing it to \c isMovingValue.
+		\param statusChecker An instance of an AMAbstractControlStatusChecker.  isMoving() is true when the movingPV's value passed into its operator()() function returns true.  The default status checker compares the movingPV's value to 1.  (Note: this class takes ownership of the statusChecker and deletes it when done.)
 		\param stopPVname is the EPICS channel-access name for the Process Variable used to stop() a move in progress.
 		\param stopValue is the value that will be written to the stopPV when stop() is called.
 		\param parent QObject parent class
 		*/
-	AMPVwStatusControl(const QString& name, const QString& readPVname, const QString& writePVname, const QString& movingPVname, const QString& stopPVname = QString(), QObject* parent = 0, double tolerance = AMCONTROL_TOLERANCE_DONT_CARE, double moveStartTimeoutSeconds = 2.0, int isMovingValue = 1, quint32 isMovingMask = AMCONTROL_MOVING_MASK_NONE, int stopValue = 1);
+	AMPVwStatusControl(const QString& name,
+					   const QString& readPVname,
+					   const QString& writePVname,
+					   const QString& movingPVname,
+					   const QString& stopPVname = QString(),
+					   QObject* parent = 0,
+					   double tolerance = AMCONTROL_TOLERANCE_DONT_CARE,
+					   double moveStartTimeoutSeconds = 2.0,
+					   AMAbstractControlStatusChecker* statusChecker = new AMControlStatusCheckerDefault(1),
+					   int stopValue = 1);
 
 	/// \name Reimplemented Public Functions:
 	//@{
@@ -1025,7 +1070,7 @@ Most useful members for using this class:
 - valueChanged()
 
 */
-class AMReadOnlyWaveformPVControl : public AMReadOnlyPVControl {
+class AMReadOnlyWaveformBinningPVControl : public AMReadOnlyPVControl {
 
 	Q_OBJECT
 
@@ -1035,7 +1080,11 @@ public:
 		\param readPVname The EPICS channel-access name for this Process Variable
 		\param parent QObject parent class
 		*/
-	AMReadOnlyWaveformPVControl(const QString& name, const QString& readPVname, int lowIndex = 0, int highIndex = 1, QObject* parent = 0);
+	AMReadOnlyWaveformBinningPVControl(const QString& name,
+								const QString& readPVname,
+								int lowIndex = 0,
+								int highIndex = 1,
+								QObject* parent = 0);
 
 	/// \name Reimplemented Public Functions:
 	//@{

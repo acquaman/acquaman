@@ -175,7 +175,6 @@ AMStatusLogView::AMStatusLogView(QWidget *parent)
 	logView_->setEditTriggers(QTableView::NoEditTriggers);
 
 	resize(400, 120);
-
 }
 
 

@@ -31,6 +31,8 @@ class AM2DSummingAB : public AMStandardAnalysisBlock {
 	Q_PROPERTY(int sumRangeMin READ sumRangeMin WRITE setSumRangeMin)
 	Q_PROPERTY(int sumRangeMax READ sumRangeMax WRITE setSumRangeMax)
 
+	Q_CLASSINFO("AMDbObject_Attributes", "description=2D Binning Block")
+
 public:
 	/// Constructor. \c outputName is the name() for the output data source.
 	AM2DSummingAB(const QString& outputName, QObject* parent = 0);

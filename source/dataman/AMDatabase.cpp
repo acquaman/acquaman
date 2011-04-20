@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStringList>
 
 #include "util/AMErrorMonitor.h"
+#include <QStringBuilder>
 
 /// Internal instance pointers
 AMDatabase* AMDatabase::userInstance_ = 0;
@@ -532,4 +533,17 @@ bool AMDatabase::createIndex(const QString& tableName, const QString& columnName
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, QString("Error adding index on columns (%1) to table '%2'. Maybe it's already there? Sql reply says: %3").arg(columnNames).arg(tableName).arg(q.lastError().text())));
 		return false;
 	}
+}
+
+QSqlQuery AMDatabase::select(const QString &tableName, const QString &columnNames, const QString &whereClause)
+{
+	QSqlQuery q(qdb());
+
+	QString whereString = whereClause.isEmpty() ? QString() : " WHERE " % whereClause;
+
+	QString query = "SELECT " % columnNames % " FROM " % tableName % whereString % ";";
+	q.prepare(query);
+	q.exec();
+
+	return q;
 }

@@ -24,6 +24,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/AMDacqScanController.h"
 #include "SGMXASScanController.h"
 
+#define SGMXASDACQSCANCONTROLLER_CANT_INTIALIZE 27001
+#define SGMXASDACQSCANCONTROLLER_CANT_START_BL_SCANNING 27002
+#define SGMXASDACQSCANCONTROLLER_CANT_START_DETECTOR_SOURCE_MISMATCH 27003
+#define SGMXASDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE 27004
+
 class SGMXASDacqScanController : public AMDacqScanController, public SGMXASScanController
 {
 Q_OBJECT
@@ -33,8 +38,8 @@ public:
 	virtual AMScan* scan() {return pScan_();}
 
 protected:
-	void initializeImplementation();
-	void startImplementation();
+	bool initializeImplementation();
+	bool startImplementation();
 	AMnDIndex toScanIndex(QMap<int, double> aeData);
 
 protected slots:

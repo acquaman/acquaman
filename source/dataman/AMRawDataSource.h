@@ -37,6 +37,7 @@ class AMRawDataSource : public AMDbObject, public AMDataSource
 	Q_PROPERTY(int rank READ rank WRITE dbLoadRank)
 
 	Q_CLASSINFO("measurementId", "hidden=true")
+	Q_CLASSINFO("AMDbObject_Attributes", "description=Data Source")
 public:
 	/// Construct a raw data source which exposes measurement number \c measurementId of the specified \c dataStore. Both \c dataStore and \c measurementId must be valid.
 	AMRawDataSource(const AMDataStore* dataStore, int measurementId, QObject* parent = 0);

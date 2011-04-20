@@ -59,8 +59,37 @@ linux-g++ {
 	XML_LIB = -lxml2
 	XML_INCLUDE_DIR = /usr/include/libxml2
 }
+# The following works well for CLS beamline OPI machines, built using VMSL54.cs.clsi.ca
 
-QT += core network sql opengl	phonon
+linux-g++-64 {
+
+	# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
+	DEV_PATH = Sandbox/Acquaman2011/dev
+
+	# EPICS Dependencies:
+	EPICS_INCLUDE_DIRS = /home/epics/src/R3.14.12-SL-5/base/include \
+		/home/epics/src/R3.14.12-SL-5/base/include/os/Linux
+	EPICS_LIB_DIR = /home/epics/src/R3.14.12-SL-5/base/lib/linux-x86_64
+
+	# MPlot Source
+	MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/src
+
+	# GSL Dependencies
+	GSL_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/gsl-install/include
+	GSL_LIB = -L$$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/gsl-install/lib -lgsl
+	GSL_CBLAS_LIB = -lgslcblas
+
+	# VLC Dependencies
+	#VLC_LIB = -lvlc
+	#VLC_INCLUDE_DIR = /usr/include
+	#VLC_PLUGIN_PATH = /usr/lib/vlc/plugins/
+
+	# LibXML Dependencies (required by dacq library)
+	XML_LIB = -lxml2
+	XML_INCLUDE_DIR = /usr/include/libxml2
+}
+
+QT += core gui sql opengl
 
 DESTDIR = build
 DEPENDPATH += . source
@@ -83,14 +112,22 @@ LIBS += $$GSL_LIB \
 
 # Specify runtime search locations for libraries (Must change for release bundle, if epics in a different location)
 macx {
-	# 4.7.0 and earlier:
-	QMAKE_LFLAGS_RPATH += "$$EPICS_LIB_DIR"
 
+	contains(QT_MINOR_VERSION, 7):contains(QT_PATCH_VERSION, 2) {
 	# 4.7.2: Use same as linux-g++
-	#QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
-	#QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
+		QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
+		QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
+	} else {
+		QMAKE_LFLAGS_RPATH += "$$EPICS_LIB_DIR"
+	}
 }
+
+
 linux-g++ {
+	QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
+	QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
+}
+linux-g++-64 {
 	QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
 	QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
 }
@@ -262,7 +299,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/beamline/AMBeamlineControlStopAction.h \
 	source/dataman/REIXS/REIXSXESRawFileLoader.h \
 	source/util/AMDeferredFunctionCall.h \
-	#source/ui/AMVideoWidget.h \
+#	source/ui/AMVideoWidget.h \
 	source/ui/AMScanConfigurationViewHolder.h \
 	source/ui/AMPeriodicTableView.h \
 	source/util/AMPeriodicTable.h \
@@ -288,7 +325,18 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/beamline/AMBeamlineControlWaitAction.h \
 	source/beamline/AMBeamlineUserConfirmAction.h \
 	source/ui/AMScanQueryModel.h \
-    source/ui/AMFreeRunScanConfigurationViewHolder.h
+	source/ui/AMFreeRunScanConfigurationViewHolder.h \
+	source/dataman/AMExportController.h \
+	source/dataman/AMExporter.h \
+	source/dataman/AMExporterOption.h \
+	source/dataman/AMExporterOptionGeneral.h \
+	source/dataman/AMExporterOptionGeneralAscii.h \
+	source/dataman/AMExporterGeneralAscii.h \
+	source/ui/AMExportWizard.h \
+	source/ui/AMFolderPathLineEdit.h \
+	source/util/AMTagReplacementParser.h \
+	source/ui/AMExporterOptionGeneralAsciiView.h \
+	source/ui/AMTopFrame.h
 FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
 	source/ui/AMDataViewSectionHeader.ui \
@@ -298,7 +346,8 @@ FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMGenericScanEditor.ui \
 	source/ui/AMDataSourcesEditor.ui \
 	source/ui/AMSamplePlateSelector.ui \
-	source/ui/AMSamplePositionViewActionsWidget.ui
+	source/ui/AMSamplePositionViewActionsWidget.ui \
+	source/ui/AMExporterOptionGeneralAsciiView.ui
 SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	../MPlot/src/MPlot/MPlotAbstractTool.cpp \
 	../MPlot/src/MPlot/MPlotAxis.cpp \
@@ -483,7 +532,18 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/beamline/AMBeamlineControlWaitAction.cpp \
 	source/beamline/AMBeamlineUserConfirmAction.cpp \
 	source/ui/AMScanQueryModel.cpp \
-    source/ui/AMFreeRunScanConfigurationViewHolder.cpp
+	source/ui/AMFreeRunScanConfigurationViewHolder.cpp \
+	source/dataman/AMExportController.cpp \
+	source/dataman/AMExporterOption.cpp \
+	source/dataman/AMExporterOptionGeneral.cpp \
+	source/dataman/AMExporterOptionGeneralAscii.cpp \
+	source/dataman/AMExporterGeneralAscii.cpp \
+	source/ui/AMExportWizard.cpp \
+	source/ui/AMFolderPathLineEdit.cpp \
+	source/util/AMTagReplacementParser.cpp \
+	source/ui/AMExporterOptionGeneralAsciiView.cpp \
+	source/ui/AMTopFrame.cpp \
+	source/dataman/AMExporter.cpp
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc \
 	source/util/ElementData.qrc \

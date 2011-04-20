@@ -23,7 +23,8 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
     source/ui/VESPERS/VESPERSPersistentView.h \
     source/ui/VESPERS/VESPERSSampleStageView.h \
     source/ui/VESPERS/VESPERSXRFElementView.h \
-    source/ui/VESPERS/VESPERSXRFDetectorView.h
+    source/util/VESPERS/XRFPeriodicTable.h \
+    source/ui/VESPERS/XRFSelectionView.h
 
 SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/application/VESPERS/VESPERSMain.cpp \
@@ -44,7 +45,8 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
     source/ui/VESPERS/VESPERSPersistentView.cpp \
     source/ui/VESPERS/VESPERSSampleStageView.cpp \
     source/ui/VESPERS/VESPERSXRFElementView.cpp \
-    source/ui/VESPERS/VESPERSXRFDetectorView.cpp
+    source/util/VESPERS/XRFPeriodicTable.cpp \
+    source/ui/VESPERS/XRFSelectionView.cpp
 
 RESOURCES += \
 	source/ui/VESPERS/EndstationPictures.qrc \

@@ -3,6 +3,8 @@
 
 #include "AMBeamlineParallelActionsList.h"
 
+class QVBoxLayout;
+
 class AMBeamlineListAction : public AMBeamlineActionItem
 {
 Q_OBJECT

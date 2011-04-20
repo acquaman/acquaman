@@ -1,20 +1,10 @@
-#include "VESPERSXRFDetectorView.h"
-#include "ui/VESPERS/VESPERSXRFElementView.h"
+#include "XRFSelectionView.h"
 
-#include <QVBoxLayout>
-#include <QLabel>
 #include <QGroupBox>
 
-VESPERSXRFDetectorView::VESPERSXRFDetectorView(XRFDetector *detector, QWidget *parent)
-	: QWidget(parent)
+XRFSelectionView::XRFSelectionView(QWidget *parent) :
+	QWidget(parent)
 {
-
-	if (!detector)
-		return;
-
-	detector_ = detector;
-	detectorView_ = new XRFDetailedDetectorView(detector_);
-
 	QFont font(this->font());
 	font.setBold(true);
 
@@ -34,7 +24,7 @@ VESPERSXRFDetectorView::VESPERSXRFDetectorView(XRFDetector *detector, QWidget *p
 	tableView_->setMaximumWidth(600);
 	VESPERSXRFElementView *elView = new VESPERSXRFElementView(AMPeriodicTable::table()->elementBySymbol("Fe"));
 	connect(tableView_, SIGNAL(elementSelected(AMElement*)), elView, SLOT(setElement(AMElement*)));
-	connect(tableView_, SIGNAL(elementSelected(AMElement*)), detectorView_, SLOT(showEmissionLines(AMElement*)));
+	connect(tableView_, SIGNAL(elementSelected(AMElement*)), this, SIGNAL(elementSelected(AMElement*)));
 	connect(elView, SIGNAL(addROI(AMElement*,QPair<QString,QString>)), this, SLOT(addRegionOfInterest(AMElement*,QPair<QString,QString>)));
 	connect(elView, SIGNAL(removeROI(AMElement*,QPair<QString,QString>)), this, SLOT(removeRegionOfInterest(AMElement*,QPair<QString,QString>)));
 
@@ -56,13 +46,12 @@ VESPERSXRFDetectorView::VESPERSXRFDetectorView(XRFDetector *detector, QWidget *p
 	table->setFixedSize(900, 325);
 
 	QVBoxLayout *xrfLayout = new QVBoxLayout;
-	xrfLayout->addWidget(detectorView_);
 	xrfLayout->addWidget(table, 0, Qt::AlignCenter);
 
 	setLayout(xrfLayout);
 }
 
-void VESPERSXRFDetectorView::addRegionOfInterest(AMElement *el, QPair<QString, QString> line)
+void XRFSelectionView::addRegionOfInterest(AMElement *el, QPair<QString, QString> line)
 {
 	QToolButton *clicked = tableView_->button(el);
 	QPalette palette(clicked->palette());
@@ -77,7 +66,7 @@ void VESPERSXRFDetectorView::addRegionOfInterest(AMElement *el, QPair<QString, Q
 	clicked->setPalette(palette);
 }
 
-void VESPERSXRFDetectorView::removeRegionOfInterest(AMElement *el, QPair<QString, QString> line)
+void XRFSelectionView::removeRegionOfInterest(AMElement *el, QPair<QString, QString> line)
 {
 	QToolButton *clicked = tableView_->button(el);
 	QPalette palette(clicked->palette());

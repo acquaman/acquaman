@@ -10,7 +10,6 @@ SGMFastScanController::SGMFastScanController(SGMFastScanConfiguration *cfg){
 
 	specificScan_ = new AMFastScan();
 	pScan()->setName("SGM Fast Scan");
-	pScan()->setFilePath(pCfg()->filePath()+pCfg()->fileName());
 	pScan()->setFileFormat("sgm2010Fast");
 	pScan()->setRunId(AMUser::user()->currentRunId());
 

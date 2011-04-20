@@ -104,6 +104,10 @@ protected slots:
 	/*! the \c itemUrls are in the same format as the uri-list mime type used for drag-and-drop: "amd://databaseConnectionName/tableName/id"
 	  */
 	virtual void onDataViewItemsActivatedSeparateWindows(const QList<QUrl>& itemUrls);
+	/// This slot is called when a set of items in a data view are exported (or, more accurately, request to be exported).  We use it to fire up an AMExportController.
+	/*! the \c itemUrls are in the same format as the uri-list mime type used for drag-and-drop: "amd://databaseConnectionName/tableName/id"
+	  */
+	virtual void onDataViewItemsExported(const QList<QUrl>& itemUrls);
 
 	/// This slot is called when an 'alias' item is clicked in the sidebar of the main window.  Alias items are links that contain additional information that needs to be delivered to the widget.
 	virtual void onMainWindowAliasItemActivated(QWidget* target, const QString& key, const QVariant& value);

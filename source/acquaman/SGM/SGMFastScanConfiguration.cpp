@@ -136,18 +136,21 @@ bool SGMFastScanConfiguration::setParameters(SGMFastScanParameters *settings){
 	emit onAccelerationChanged(currentSettings_->acceleration());
 	emit onScalerTimeChanged(currentSettings_->scalerTime());
 	emit onBaseLineChanged(currentSettings_->baseLine());
+	setModified(true);
 	return true;
 }
 
 bool SGMFastScanConfiguration::setElement(const QString& element){
 	currentSettings_->setElement(element);
 	emit onElementChanged(currentSettings_->element());
+	setModified(true);
 	return true;
 }
 
 bool SGMFastScanConfiguration::setRunSeconds(double runSeconds){
 	currentSettings_->setRunSeconds(runSeconds);
 	emit onRunSecondsChanged(currentSettings_->runSeconds());
+	setModified(true);
 	return true;
 }
 
@@ -155,12 +158,14 @@ bool SGMFastScanConfiguration::setEnergyStart(double energyStart){
 	currentSettings_->setEnergyStart(energyStart);
 	setStart(energyStart);
 	emit onEnergyStartChanged(currentSettings_->energyStart());
+	setModified(true);
 	return true;
 }
 
 bool SGMFastScanConfiguration::setEnergyMidpoint(double energyMidpoint){
 	currentSettings_->setEnergyMidpoint(energyMidpoint);
 	emit onEnergyMidpointChanged(currentSettings_->energyMidpoint());
+	setModified(true);
 	return true;
 }
 
@@ -168,36 +173,42 @@ bool SGMFastScanConfiguration::setEnergyEnd(double energyEnd){
 	currentSettings_->setEnergyEnd(energyEnd);
 	setEnd(energyEnd);
 	emit onEnergyEndChanged(currentSettings_->energyEnd());
+	setModified(true);
 	return true;
 }
 
 bool SGMFastScanConfiguration::setVelocity(int velocity){
 	currentSettings_->setVelocity(velocity);
 	emit onVelocityChanged(currentSettings_->velocity());
+	setModified(true);
 	return true;
 }
 
 bool SGMFastScanConfiguration::setVelocityBase(int velocityBase){
 	currentSettings_->setVelocityBase(velocityBase);
 	emit onVelocityBaseChanged(currentSettings_->velocityBase());
+	setModified(true);
 	return true;
 }
 
 bool SGMFastScanConfiguration::setAcceleration(int acceleration){
 	currentSettings_->setAcceleration(acceleration);
 	emit onAccelerationChanged(currentSettings_->acceleration());
+	setModified(true);
 	return true;
 }
 
 bool SGMFastScanConfiguration::setScalerTime(double scalerTime){
 	currentSettings_->setScalerTime(scalerTime);
 	emit onScalerTimeChanged(currentSettings_->scalerTime());
+	setModified(true);
 	return true;
 }
 
 bool SGMFastScanConfiguration::setBaseLine(int baseLine){
 	currentSettings_->setBaseLine(baseLine);
 	emit onBaseLineChanged(currentSettings_->baseLine());
+	setModified(true);
 	return true;
 }
 

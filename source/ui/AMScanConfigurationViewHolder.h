@@ -2,10 +2,11 @@
 #define AMSCANCONFIGURATIONVIEWHOLDER_H
 
 #include <QWidget>
-#include <QRadioButton>
-#include <QPushButton>
-#include <QLabel>
-#include <QVBoxLayout>
+
+class QRadioButton;
+class QPushButton;
+class QLabel;
+class QVBoxLayout;
 
 class AMScanConfiguration;
 class AMScanConfigurationView;

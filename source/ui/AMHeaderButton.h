@@ -39,6 +39,7 @@ public:
 signals:
 
 public slots:
+	void setText(const QString &text);
 
 protected:
 	Qt::ArrowType arrowType_;

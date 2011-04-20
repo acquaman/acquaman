@@ -1,15 +1,15 @@
 #include "MCPDetector.h"
 
-MCPDetector::MCPDetector(const QString &name, AMControlSet *readingsControls, AMControlSet *settingsControls, QObject *parent) :
-		MCPDetectorInfo(name, name, parent), AMDetector(name)
+MCPDetector::MCPDetector(const QString &name, AMControlSet *readingsControls, AMControlSet *settingsControls, AMDetector::ReadMethod readMethod, QObject *parent) :
+		MCPDetectorInfo(name, name, parent), AMDetector(name, readMethod)
 {
 	ownsControlSets_ = false;
 	initializeFromControlSet(readingsControls, settingsControls);
 }
 
 
-MCPDetector::MCPDetector(const QString &name, AMControl *reading, AMControl *hv, QObject *parent) :
-		MCPDetectorInfo(name, name, parent), AMDetector(name)
+MCPDetector::MCPDetector(const QString &name, AMControl *reading, AMControl *hv, AMDetector::ReadMethod readMethod, QObject *parent) :
+		MCPDetectorInfo(name, name, parent), AMDetector(name, readMethod)
 {
 	ownsControlSets_ = true;
 	AMControlSet *readingsControls = new AMControlSet(this);
@@ -27,6 +27,13 @@ MCPDetector::~MCPDetector(){
 
 const QMetaObject* MCPDetector::getMetaObject() {
 	return metaObject();
+}
+
+double MCPDetector::reading() const{
+	if(isConnected())
+		return readingsControls_->at(0)->value();
+	else
+		return -1;
 }
 
 AMDetectorInfo* MCPDetector::toInfo() const{

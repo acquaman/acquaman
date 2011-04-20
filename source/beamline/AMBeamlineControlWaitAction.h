@@ -4,11 +4,12 @@
 #include "AMBeamlineActionItem.h"
 #include "AMControl.h"
 
-#include <QSlider>
-#include <QToolButton>
-#include <QButtonGroup>
-#include <QApplication>
-#include <QFile>
+class QSlider;
+class QToolButton;
+class QButtonGroup;
+class QApplication;
+class QFile;
+class QVBoxLayout;
 
 // Wait until a control reaches a certain value. We're not moving it, it's changing on its own.
 

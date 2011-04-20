@@ -19,17 +19,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AMDacqScanController.h"
-#include <qdebug.h>
-#include <qtableview.h>
+#include <QDebug>
+#include <QTime>
+#include <QStringList>
+#include <QDir>
 
-#include "../MPlot/src/MPlot/MPlotWidget.h"
-#include "../MPlot/src/MPlot/MPlotSeriesData.h"
-#include "../MPlot/src/MPlot/MPlotSeries.h"
-#include "../MPlot/src/MPlot/MPlotImageData.h"
-#include "../MPlot/src/MPlot/MPlotImage.h"
-#include "../MPlot/src/MPlot/MPlotTools.h"
-
-#include "ui/AMScanView.h"
 
 AMDacqScanController::AMDacqScanController(AMScanConfiguration *cfg, QObject *parent) : AMScanController(cfg, parent)
 {
@@ -47,7 +41,7 @@ AMDacqScanController::AMDacqScanController(AMScanConfiguration *cfg, QObject *pa
 	usingSpectraDotDatFile_ = false;
 }
 
-void AMDacqScanController::startImplementation(){
+bool AMDacqScanController::startImplementation(){
 		acqBaseOutput *abop = acqOutputHandlerFactory::new_acqOutput("AMScanSpectrum", "File");
 		if( abop)
 		{
@@ -70,9 +64,11 @@ void AMDacqScanController::startImplementation(){
 			((AMAcqScanSpectrumOutput*)abop)->setScan(pScan_());
 			((AMAcqScanSpectrumOutput*)abop)->setScanController(this);
 			advAcq_->Start();
+			return true;
 		}
 		else{
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -1, "AMDacqScanController: could not create output handler."));
+			return false;
 		}
 }
 
@@ -93,6 +89,19 @@ void AMDacqScanController::cancelImplementation()
 {
 	dacqCancelled_ = true;
 	advAcq_->Stop();
+}
+
+int AMDacqScanController::detectorReadMethodToDacqReadMethod(AMDetector::ReadMethod readMethod){
+	switch(readMethod){
+	case AMDetector::ImmediateRead :
+		return 0;
+	case AMDetector::RequestRead :
+		return 1;
+	case AMDetector::WaitRead :
+		return 2;
+	default:
+		return 0;
+	}
 }
 
 bool AMDacqScanController::event(QEvent *e){
@@ -133,6 +142,7 @@ AMnDIndex AMDacqScanController::toScanIndex(QMap<int, double> aeData){
 
 void AMDacqScanController::onDacqStart()
 {
+	qDebug() << "Heard that the dacq started";
 	startTime_.start();
 	setStarted();
 }
