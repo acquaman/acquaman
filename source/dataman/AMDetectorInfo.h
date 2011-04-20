@@ -24,9 +24,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman.h"
 #include "dataman/AMDbObject.h"
 #include "dataman/AMMeasurementInfo.h"
-#include <QStringList>
-#include <QDebug>
 
+class QStringList;
+
+#include <QDebug>
 #include <QMetaProperty>
 
 /// This is the base class of all customizeable detectors and detector information objects. It gets associated with AMScans to indicate how their data was collected.  Subclasses should eventually contain the unique configuration and state of a particular physical detector (ex: the integration time and gain of a pico-ammeter, the HV setting for a CMA/channeltron, the bin configuration of a spectral detector like the Silicon Drift Detector.)  This base class is suitable for an un-configurable, single-point-recording generic detector.

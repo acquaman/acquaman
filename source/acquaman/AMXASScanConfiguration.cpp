@@ -26,7 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMXASScanConfiguration::AMXASScanConfiguration(QObject *parent) : AMScanConfiguration(parent)
 {
 	regions_ = new AMXASRegionsList(this);
-	connect(regions_, SIGNAL(regionsChanged()), this, SIGNAL(regionsChanged()));
+	connect(regions_, SIGNAL(regionsChanged()), this, SLOT(onRegionsChanged()));
 	connect(regions_, SIGNAL(regionsChanged()), this, SIGNAL(configurationChanged()));
 }
 
@@ -52,6 +52,11 @@ bool AMXASScanConfiguration::setEndEnergy(double endEnergy){
 	if(regions_->count() > 0)
 		return setRegionEnd(regions_->count()-1, endEnergy);
 	return false;
+}
+
+void AMXASScanConfiguration::onRegionsChanged(){
+	setModified(true);
+	emit regionsChanged();
 }
 
 QString AMXASScanConfiguration::dbReadXASRegions() const{

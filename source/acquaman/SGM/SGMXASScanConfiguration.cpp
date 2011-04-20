@@ -22,7 +22,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 SGMXASScanConfiguration::SGMXASScanConfiguration(QObject *parent) : AMXASScanConfiguration(parent) , SGMScanConfiguration()
 {
-	qDebug() << "Constructor is normal";
 	regions_->setEnergyControl(SGMBeamline::sgm()->energy());
 	fluxResolutionSet_ = SGMBeamline::sgm()->fluxResolutionSet();
 	trackingSet_ = SGMBeamline::sgm()->trackingSet();
@@ -44,7 +43,6 @@ SGMXASScanConfiguration::SGMXASScanConfiguration(QObject *parent) : AMXASScanCon
 }
 
 SGMXASScanConfiguration::SGMXASScanConfiguration(const SGMXASScanConfiguration &original){
-	qDebug() << "Constructor is copy";
 	regions_->setEnergyControl(SGMBeamline::sgm()->energy());
 	for(int x = 0; x < original.regionCount(); x++)
 		regions_->addRegion(x, original.regionStart(x), original.regionDelta(x), original.regionEnd(x));
@@ -120,6 +118,7 @@ bool SGMXASScanConfiguration::setTrackingGroup(AMControlInfoList trackingList){
 			emit monoTrackingChanged(monoTracking_);
 		if(oldExitSlit != exitSlitTracking_)
 			emit exitSlitTrackingChanged(exitSlitTracking_);
+		setModified(true);
 		emit configurationChanged();
 	}
 	return rVal;
@@ -139,6 +138,7 @@ bool SGMXASScanConfiguration::setFluxResolutionGroup(AMControlInfoList fluxResol
 			emit gratingChanged(grating_);
 		if(oldHarmonic != harmonic_)
 			emit harmonicChanged(harmonic_);
+		setModified(true);
 		emit configurationChanged();
 	}
 	return rVal;
@@ -150,6 +150,7 @@ bool SGMXASScanConfiguration::setUndulatorTracking(bool undulatorTracking){
 	if(rVal && oldUndulator != undulatorTracking_){
 		emit undulatorTrackingChanged(undulatorTracking_);
 		emit trackingGroupChanged(trackingGroup_);
+		setModified(true);
 		emit configurationChanged();
 	}
 	return rVal;
@@ -161,6 +162,7 @@ bool SGMXASScanConfiguration::setMonoTracking(bool monoTracking){
 	if(rVal && oldMono != monoTracking_){
 		emit undulatorTrackingChanged(monoTracking_);
 		emit trackingGroupChanged(trackingGroup_);
+		setModified(true);
 		emit configurationChanged();
 	}
 	return rVal;
@@ -172,6 +174,7 @@ bool SGMXASScanConfiguration::setExitSlitTracking(bool exitSlitTracking){
 	if(rVal && oldExitSlit != exitSlitTracking_){
 		emit undulatorTrackingChanged(exitSlitTracking_);
 		emit trackingGroupChanged(trackingGroup_);
+		setModified(true);
 		emit configurationChanged();
 	}
 	return rVal;
@@ -183,6 +186,7 @@ bool SGMXASScanConfiguration::setExitSlitGap(double exitSlitGap) {
 	if(rVal && oldExitSlit != exitSlitGap_){
 		emit exitSlitGapChanged(exitSlitGap);
 		emit fluxResolutionGroupChanged(fluxResolutionGroup_);
+		setModified(true);
 		emit configurationChanged();
 	}
 	return rVal;
@@ -194,6 +198,7 @@ bool SGMXASScanConfiguration::setGrating(SGMBeamline::sgmGrating grating) {
 	if(rVal && oldGrating != grating_){
 		emit gratingChanged(grating);
 		emit fluxResolutionGroupChanged(fluxResolutionGroup_);
+		setModified(true);
 		emit configurationChanged();
 	}
 	return rVal;
@@ -209,6 +214,7 @@ bool SGMXASScanConfiguration::setHarmonic(SGMBeamline::sgmHarmonic harmonic) {
 	if(rVal && oldHarmonic != harmonic_){
 		emit harmonicChanged(harmonic);
 		emit fluxResolutionGroupChanged(fluxResolutionGroup_);
+		setModified(true);
 		emit configurationChanged();
 	}
 	return rVal;
@@ -220,4 +226,5 @@ bool SGMXASScanConfiguration::setHarmonic(int harmonic) {
 
 bool SGMXASScanConfiguration::setDetectorConfigurations(const AMDetectorInfoSet &xasDetectorsCfg){
 	xasDetectorsCfg_ = xasDetectorsCfg;
+	setModified(true);
 }

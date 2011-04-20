@@ -74,7 +74,6 @@ AMWorkflowManagerView::AMWorkflowManagerView(QWidget *parent) :
 	//	removed with adder: connect(workflowView_, SIGNAL(queueUpdated(int)), adder_, SLOT(onQueueUpdated(int)));
 
 	vl_ = new QVBoxLayout();
-	//vl_->addLayout(hl);
 	vl_->addWidget(scrollArea);
 
 	topFrame_->frameLayout()->addLayout(hl);

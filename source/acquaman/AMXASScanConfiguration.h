@@ -90,6 +90,9 @@ public slots:
 signals:
 	void regionsChanged();
 
+protected slots:
+	void onRegionsChanged();
+
 protected:
 	/// This returns a string that describes the current regions. Regions are stored in order as common separated start, delta, and end values. New lines divide regions. Empty string is no regions.
 	QString dbReadXASRegions() const;

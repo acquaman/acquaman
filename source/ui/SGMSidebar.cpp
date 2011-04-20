@@ -21,6 +21,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "SGMSidebar.h"
 
 #include <QLabel>
+#include <QGroupBox>
+#include <QVBoxLayout>
+#include <QGridLayout>
 
 SGMSidebar::SGMSidebar(QWidget *parent) :
     QWidget(parent)
@@ -35,7 +38,6 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	readyLabel_->setNoUnitsBox(true);
 	readyLabel_->overrideTitle("");
 	readyLabel_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-	//beamOnBALButton_ = new AMBeamlineActionButton(SGMBeamline::sgm()->createBeamOnActions());
 	beamOnAction_ = 0;//NULL
 	beamOnButton_ = new QToolButton();
 	beamOnButton_->setText("Beam On");

@@ -22,8 +22,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define ACQMAN_SCANCONTROLLER_H
 
 #include <QObject>
-#include <QMap>
-#include <QDateTime>
+
+class QDateTime;
+
 #include "AMScanConfiguration.h"
 #include "dataman/AMScan.h"
 #include "util/AMErrorMonitor.h"

@@ -329,8 +329,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMFolderPathLineEdit.h \
 	source/util/AMTagReplacementParser.h \
 	source/ui/AMExporterOptionGeneralAsciiView.h \
-	source/ui/AMTopFrame.h \
-	source/ui/AMExporterOptionGeneralAsciiView.h
+	source/ui/AMTopFrame.h
 FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
 	source/ui/AMDataViewSectionHeader.ui \

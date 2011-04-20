@@ -152,7 +152,7 @@ AMRegionsLineView::AMRegionsLineView(AMXASRegionsList *regions, QWidget *parent)
 	view->setFrameShadow(QFrame::Plain);
 	view->setRenderHint(QPainter::Antialiasing);
 	view->setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
-	view->setBackgroundBrush(palette().color(QPalette::Background));
+	view->setBackgroundBrush(palette().color(QPalette::Window));
 	view->resize(nlSize-50, 40);
 	view->setMaximumHeight(60);
 	view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);

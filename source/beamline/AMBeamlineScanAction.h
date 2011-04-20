@@ -106,8 +106,6 @@ protected slots:
 protected:
 	void mouseDoubleClickEvent(QMouseEvent *);
 
-	void updateLook();
-
 protected:
 	AMBeamlineScanAction *scanAction_;
 	bool cancelLatch_;

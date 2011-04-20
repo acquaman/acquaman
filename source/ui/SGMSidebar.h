@@ -22,9 +22,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define SGMSIDEBAR_H
 
 #include <QWidget>
-#include <QGroupBox>
-#include <QVBoxLayout>
-#include <QGridLayout>
+
+class QGroupBox;
+class QVBoxLayout;
+class QGridLayout;
 
 #include "AMControlEditor.h"
 #include "beamline/SGM/SGMBeamline.h"
@@ -64,7 +65,6 @@ protected:
 	QGridLayout *gl_;
 
 	AMControlEditor *readyLabel_;
-	//AMBeamlineActionButton *beamOnBALButton_;
 	QToolButton *beamOnButton_;
 	AMControlButton *beamOffCButton_;
 	QToolButton *stopMotorsButton_;
@@ -88,7 +88,6 @@ protected:
 	QTimer *stripToolTimer_;
 	int stripToolCounter_;
 
-	//AMBeamlineParallelActionsList *al;
 	AMBeamlineListAction *beamOnAction_;
 	AMBeamlineListAction *stopMotorsAction_;
 };

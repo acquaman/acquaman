@@ -19,17 +19,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AMDacqScanController.h"
-#include <qdebug.h>
-#include <qtableview.h>
+#include <QDebug>
+#include <QTime>
+#include <QStringList>
+#include <QDir>
 
-#include "../MPlot/src/MPlot/MPlotWidget.h"
-#include "../MPlot/src/MPlot/MPlotSeriesData.h"
-#include "../MPlot/src/MPlot/MPlotSeries.h"
-#include "../MPlot/src/MPlot/MPlotImageData.h"
-#include "../MPlot/src/MPlot/MPlotImage.h"
-#include "../MPlot/src/MPlot/MPlotTools.h"
-
-#include "ui/AMScanView.h"
 
 AMDacqScanController::AMDacqScanController(AMScanConfiguration *cfg, QObject *parent) : AMScanController(cfg, parent)
 {

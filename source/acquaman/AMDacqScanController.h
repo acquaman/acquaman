@@ -21,9 +21,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef ACQMAN_DACQSCANCONTROLLER_H
 #define ACQMAN_DACQSCANCONTROLLER_H
 
-#include <QTime>
-#include <QStringList>
-#include <QDir>
+class QTime;
+class QStringList;
+class QDir;
 
 #include "util/AMErrorMonitor.h"
 

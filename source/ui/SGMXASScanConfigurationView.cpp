@@ -20,6 +20,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SGMXASScanConfigurationView.h"
 
+#include <QPushButton>
+#include <QVBoxLayout>
+#include <QGridLayout>
+#include <QSpacerItem>
+
 SGMXASScanConfigurationView::SGMXASScanConfigurationView(SGMXASScanConfiguration *sxsc, QWidget *parent)  :
 		AMScanConfigurationView(parent)
 {

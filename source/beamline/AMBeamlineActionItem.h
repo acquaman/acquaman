@@ -241,13 +241,14 @@ protected slots:
 	virtual void onInfoChanged() = 0;
 	virtual void onStopCancelButtonClicked() = 0;
 	virtual void onPlayPauseButtonClicked() = 0;
+	void updateLook();
 
 	virtual void onCreateCopyClicked();
 
 protected:
 	void mousePressEvent(QMouseEvent *event);
 
-	virtual void updateLook();
+	//virtual void updateLook();
 
 protected:
 	AMBeamlineActionItem *action_;

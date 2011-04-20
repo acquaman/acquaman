@@ -17,8 +17,10 @@ You should have received a copy of the GNU General Public License
 along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #include "SGMXASDacqScanController.h"
+
+#include <QDir>
+
 #include "beamline/AMBeamlineListAction.h"
 
 SGMXASDacqScanController::SGMXASDacqScanController(SGMXASScanConfiguration *cfg, QObject *parent) :

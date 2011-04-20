@@ -1,5 +1,7 @@
 #include "SGMFastDacqScanController.h"
 
+#include <QDir>
+
 SGMFastDacqScanController::SGMFastDacqScanController(SGMFastScanConfiguration *cfg, QObject *parent) :
 		AMDacqScanController(cfg, parent), SGMFastScanController(cfg)
 {

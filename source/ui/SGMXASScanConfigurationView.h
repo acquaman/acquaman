@@ -22,15 +22,16 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define ACQMAN_SGMXASScanConfigurationViewer_H
 
 #include <QtGui>
-#include "ui_SGMXASScanConfigurationViewer.h"
+
+class QPushButton;
+class QVBoxLayout;
+class QGridLayout;
+class QSpacerItem;
+
 #include "AMControlSetView.h"
 #include "AMDetectorSetView.h"
 #include "AMXASRegionsView.h"
 #include "AMRegionsLineView.h"
-#include <QPushButton>
-#include <QVBoxLayout>
-#include <QGridLayout>
-#include <QSpacerItem>
 #include "acquaman/SGM/SGMXASScanConfiguration.h"
 #include "acquaman/SGM/SGMXASDacqScanController.h"
 #include "AMScanConfigurationView.h"

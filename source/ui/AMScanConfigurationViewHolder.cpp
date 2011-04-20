@@ -18,6 +18,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <QDebug>
+#include <QRadioButton>
+#include <QPushButton>
+#include <QLabel>
+#include <QVBoxLayout>
+#include <QButtonGroup>
 
 #include "AMScanConfigurationViewHolder.h"
 #include "beamline/AMBeamlineScanAction.h"
@@ -25,7 +30,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMScanConfigurationView.h"
 #include "ui/AMWorkflowManagerView.h"
 
-#include <QButtonGroup>
 
 AMScanConfigurationViewHolder::AMScanConfigurationViewHolder(AMWorkflowManagerView* workflow, AMScanConfigurationView* view, QWidget *parent) :
 		QWidget(parent)

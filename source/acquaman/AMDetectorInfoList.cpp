@@ -66,10 +66,6 @@ AMDbObjectList AMDetectorInfoSet::dbReadDetectorInfos() {
 	AMDbObjectList rv;
 	for(int x = 0; x < count(); x++)
 		rv << at(x).first;
-	/*
-	for(int i=0; i<count(); i++)
-		rv << &( *( ((*this)[i]).first) );
-	*/
 	return rv;
 }
 
@@ -80,15 +76,8 @@ void AMDetectorInfoSet::dbLoadDetectorInfos(const AMDbObjectList& newDetectorInf
 
 	for(int i=0; i<newDetectorInfos.count(); i++) {
 		AMDetectorInfo* newDetectorInfo = qobject_cast<AMDetectorInfo*>(newDetectorInfos.at(i));
-		if(newDetectorInfo) {
+		if(newDetectorInfo)
 			addDetectorInfo(newDetectorInfo);
-			//append(newDetectorInfo);	// note: makes a copy of object pointed to by newControlInfo, and stores in our internal list.
-		}
-
-		/*
-		if(newDetectorInfos.at(i))
-			delete newDetectorInfos.at(i);	// we're copying these; don't need to keep these ones around. Our responsibility to delete.
-		*/
 	}
 }
 

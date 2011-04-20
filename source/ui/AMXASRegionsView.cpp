@@ -20,6 +20,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMXASRegionsView.h"
 
+#include <QTableView>
+#include <QPushButton>
+#include <QHBoxLayout>
+#include <QFormLayout>
+#include <QMenu>
+#include <QCursor>
+
 /// Creates buttons for add and delete region.
 /// Defines a new model and views using table view.
 /// Adds all items to form layout.

@@ -18,6 +18,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <QDebug>
+#include <QDateTime>
 #include "AMScanController.h"
 
 AMScanControllerSupervisor* AMScanControllerSupervisor::instance_ = 0;

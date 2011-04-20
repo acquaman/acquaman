@@ -20,6 +20,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMDetectorInfo.h"
 
+#include <QStringList>
+
 AMDetectorInfo::AMDetectorInfo(const QString& name, const QString& description, QObject *parent) :
 		AMDbObject(parent)
 {

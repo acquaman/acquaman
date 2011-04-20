@@ -25,6 +25,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMDateTimeUtils.h"
 
 #include <QPushButton>
+#include <QPalette>
+#include <QApplication>
 
 AMBeamlineScanAction::AMBeamlineScanAction(AMScanConfiguration *cfg, QObject *parent) :
 		AMBeamlineActionItem(true, parent)
@@ -174,7 +176,6 @@ void AMBeamlineScanAction::onScanCancelled(){
 }
 
 void AMBeamlineScanAction::onScanSucceeded(){
-	//setDescription(cfg_->description()+" [Completed "+QDateTime::currentDateTime().toString("h:mm ap")+"]");
 	setDescription(cfg_->description()+" [Completed "+AMDateTimeUtils::prettyDateTime(QDateTime::currentDateTime())+"]");
 	emit descriptionChanged();
 	setSucceeded(true);
@@ -242,6 +243,13 @@ AMBeamlineScanActionView::AMBeamlineScanActionView(AMBeamlineScanAction *scanAct
 	hl_->addWidget(playPauseButton_, 0, Qt::AlignTop | Qt::AlignRight);
 	hl_->addWidget(stopCancelButton_, 0, Qt::AlignTop | Qt::AlignRight);
 	setLayout(hl_);
+
+	/*
+	setAutoFillBackground(true);
+	QPalette newPalette(palette());
+	newPalette.setColor(QPalette::Window, QColor(255, 255, 255));
+	setPalette(newPalette);
+	*/
 }
 
 void AMBeamlineScanActionView::setIndex(int index){
@@ -280,7 +288,7 @@ void AMBeamlineScanActionView::updateScanNameLabel(){
 
 	scanName.append(scanAction_->cfg()->detailedDescription());
 	scanNameLabel_->setText(scanName);
-	setWindowTitle(scanAction_->cfg()->description());
+	setWindowTitle(scanAction_->description());
 
 }
 
@@ -318,11 +326,11 @@ void AMBeamlineScanActionView::onScanFinished(){
 	hl_->removeWidget(playPauseButton_);
 	stopCancelButton_->hide();
 	playPauseButton_->hide();
+	qDebug() << "Has succeeded " << scanAction_->hasSucceeded() << " has failed " << scanAction_->hasFailed() << " is running " << scanAction_->isRunning();
 	updateLook();
 }
 
 void AMBeamlineScanActionView::onScanFailed(int explanation){
-	//if(explanation == 102){//102 is scan cancelled
 	cancelLatch_ = true;
 	stopCancelButton_->setIcon(closeIcon_);
 	playPauseButton_->setIcon(startIcon_);
@@ -331,7 +339,7 @@ void AMBeamlineScanActionView::onScanFailed(int explanation){
 		timeRemainingLabel_->setText("Scan Cancelled");
 	else
 		timeRemainingLabel_->setText("Scan Failed");
-		//}
+	updateLook();
 }
 
 void AMBeamlineScanActionView::onStopCancelButtonClicked(){
@@ -386,19 +394,4 @@ void AMBeamlineScanActionView::mouseDoubleClickEvent(QMouseEvent *){
 		configurationView_ = scanAction_->cfg()->createView();
 	configurationView_->setWindowModality(Qt::WindowModal);
 	configurationView_->show();
-}
-
-void AMBeamlineScanActionView::updateLook(){
-	if(scanAction_->isRunning() || inFocus_)
-		setFrameStyle(QFrame::Box);
-	if(scanAction_->isRunning() && inFocus_)
-		setStyleSheet("AMBeamlineScanActionView { background : rgb(198, 202, 230) }");
-	else if(scanAction_->isRunning())
-		setStyleSheet("AMBeamlineScanActionView { background : rgb(194, 230, 208) }");
-	else if(inFocus_)
-		setStyleSheet("AMBeamlineScanActionView { background : rgb(194, 210, 215) }");
-	else{
-		setStyleSheet("AMBeamlineScanActionView { background : rgb(230, 222, 214) }");
-		setFrameStyle(QFrame::StyledPanel);
-	}
 }
