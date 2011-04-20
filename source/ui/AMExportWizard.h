@@ -7,12 +7,38 @@
 class QComboBox;
 class QGroupBox;
 class QLabel;
+class QProgressBar;
 class AMFolderPathLineEdit;
 class QPushButton;
 class AMExporterOption;
 class AMExporter;
 class AMExportController;
 
+
+/// This widget provides the final screen in an export wizard, showing a status view and progress bar as the scans are exported, and providing a cancel button to interrupt the process.
+class AMExportWizardProgressPage : public QWizardPage {
+	Q_OBJECT
+
+public:
+	explicit AMExportWizardProgressPage(QWidget* parent = 0);
+
+	virtual void initializePage();
+	virtual bool validatePage();
+	virtual bool isComplete() const;
+
+protected slots:
+	void onControllerStateChanged(int);
+	void onControllerProgressChanged(int, int);
+
+protected:
+	AMExportController* controller_;
+
+	QProgressBar* progressBar_;
+	QLabel* progressLabel_;
+	QLabel* statusLabel_;
+};
+
+/// This widget provides the second screen in an export wizard, allowing the user to configure the options for the exporter they selected in AMExportWizardChooseExporterPage.
 class AMExportWizardOptionPage : public QWizardPage {
 	Q_OBJECT
 
@@ -43,6 +69,7 @@ protected:
 	AMExportController* controller_;
 };
 
+/// This widget provides the first screen in an export wizard, allowing the user to choose an exporter (General Ascii, Excel, etc.) from the set of registered exporters.
 class AMExportWizardChooseExporterPage : public QWizardPage {
 	Q_OBJECT
 public:
@@ -87,6 +114,13 @@ public:
 signals:
 
 public slots:
+
+protected slots:
+	void onControllerDeleted() {
+		controller_ = 0;
+	}
+
+	virtual void done(int result);
 
 protected:
 	AMExportController* controller_;

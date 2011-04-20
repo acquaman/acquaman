@@ -29,6 +29,7 @@ public:
 };
 
 class AMExporter;
+class AMExporterOption;
 
 
 /// Construct an AMExportController to supervise exporting a set of AMScans from the user's database.  Used in conjunction with an AMExportWizard, the user will be given options of different exporters ("file formats") to choose from, and will be able to review the option/template for their chosen exporter.  Finally, a progress bar will be displayed as the scans are exported.
@@ -57,8 +58,20 @@ class AMExportController : public QObject
 {
 	Q_OBJECT
 public:
+
+	/// Used to represent the state of the export process.
+	enum AMExportControllerState {
+		Preparing,
+		Exporting,
+		Paused,
+		Finished,
+		Cancelled
+	};
+
 	/// Construct an AMExportController with a list of Urls to the scan items you wish to export.  The URLs should be in the amd://databaseConnectionName/tableName/objectId format.  The controller will supervise the rest of the process, and delete itself when finished (or cancelled).
 	explicit AMExportController(const QList<QUrl>& scansToExport);
+
+	~AMExportController();
 
 	/// The export system lets the user choose from the set of available "file formats", where each file format is defined by an AMExporter subclass.  Call this static function to register all available AMExporter subclasses with the export system first, before actually using an AMExportController instance.
 	template <class T>
@@ -114,13 +127,37 @@ public:
 		return destinationFolderPath_;
 	}
 
+	/// Set the option to use for exporting this set of scans. The controller will take ownership of the option, and delete any previous option if it exists. Set to 0 to delete and clear the current option.
+	void setOption(AMExporterOption* option);
+
+	/// Returns the currently active option, which will be used for exporting this set of scans.  Returns 0 if no active option has been set.
+	AMExporterOption* option() const {
+		return option_;
+	}
+
 
 
 	/// Returns a pointer to a QStandardItemModel containing information about all the data sources available in the list of scans to export.  This model is only populated (and slowly in the background, at that!) after calling searchForAvailableDataSources().  It's merely provided to assist user interfaces in displaying the available data sources.  See availableDataSourcesModel_ for details.
 	QStandardItemModel* availableDataSourcesModel() const { return availableDataSourcesModel_; }
 
 
+
+	/// Returns the current state of the export process:
+	AMExportControllerState state() const { return state_; }
+
+	/// Returns the current progress of the export process: the current scan index (from 0 to scanCount())
+	int progress() const { return exportScanIndex_; }
+
+
+
+
+
+
 signals:
+
+	void stateChanged(int exportControllerState);
+	void statusChanged(const QString& status);
+	void progressChanged(int currentScan, int totalScans);
 
 public slots:
 
@@ -131,6 +168,19 @@ public slots:
 
 	/// Start searching the list of scans to export for all available data sources
 	void searchForAvailableDataSources();
+
+	/// Call to start the export process.  Will return false if either chooseExporter() or setOption() haven't been called yet, or if an export has already been started.
+	bool start();
+
+	/// Call to cancel an export in progress. Will return false if the export is not currently in the Exporting or Paused state(). If successfully cancelled, the state() will become Cancelled.
+	bool cancel();
+
+	/// Call to pause an export in progress.  Will return false if the export is not currently in the Exporting state().
+	bool pause();
+
+	/// Call to resume an export in progress.  Will return false if the export is not currently in the Paused state().
+	bool resume();
+
 
 protected:
 
@@ -145,6 +195,9 @@ protected:
 
 	/// Where to save the exported files (complete path to folder/directory)
 	QString destinationFolderPath_;
+
+	/// The option to use with the exporter
+	AMExporterOption* option_;
 
 	/// Used only to help users choose data sources, by letting them know what data sources are available in the list of scans.  This model is slowly filled in the background ONLY AFTER CALLING searchForAvailableDataSources(), since doing it all at once could take a long time.
 	/*! It contains:
@@ -165,9 +218,21 @@ protected:
 	/// Add an available data source we just found to the availableDataSourcesModel_, if it's not in there already.
 	void addFoundAvailableDataSource(const QString& name, const QString& description, int rank);
 
+	/// Index of the current scan in scansToExport_ that we are now exporting
+	int exportScanIndex_;
+
+	/// The current state of the export process: Preparing, Exporting, Finished, or Cancelled
+	AMExportControllerState state_;
+
+	/// Descriptive status of progress (ex: "Loading: My Scan #7")
+	QString status_;
+
 protected slots:
 	/// Called periodically to search scans for their data sources
 	void continueAvailableDataSourceSearch();
+
+	/// Called repeatedly to export the current scan
+	void continueScanExport();
 };
 
 #endif // AMEXPORTCONTROLLER_H

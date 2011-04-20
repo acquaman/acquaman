@@ -113,16 +113,11 @@ LIBS += $$GSL_LIB \
 # Specify runtime search locations for libraries (Must change for release bundle, if epics in a different location)
 macx {
 
-	eval(QT_MINOR_VERSION == 7):eval(QT_PATCH_VERSION >= 2) {
+	contains(QT_MINOR_VERSION, 7):contains(QT_PATCH_VERSION, 2) {
 	# 4.7.2: Use same as linux-g++
 		QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
 		QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
-	}
-	# 4.7.0 and earlier:
-	eval(QT_MINOR_VERSION == 7):eval(QT_PATCH_VERSION <= 1) {
-		QMAKE_LFLAGS_RPATH += "$$EPICS_LIB_DIR"
-	}
-	eval(QT_MINOR_VERSION == 6) {
+	} else {
 		QMAKE_LFLAGS_RPATH += "$$EPICS_LIB_DIR"
 	}
 }
@@ -338,8 +333,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMFolderPathLineEdit.h \
 	source/util/AMTagReplacementParser.h \
 	source/ui/AMExporterOptionGeneralAsciiView.h \
-	source/ui/AMTopFrame.h \
-	source/ui/AMExporterOptionGeneralAsciiView.h
+	source/ui/AMTopFrame.h
 FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
 	source/ui/AMDataViewSectionHeader.ui \

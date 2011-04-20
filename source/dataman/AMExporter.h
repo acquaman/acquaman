@@ -32,8 +32,8 @@ For example: AMExporterGeneralAscii::exporterOptionClassName() would probably re
 	/// Can be used to test whether this exporter is valid for a given scan and option set, without actually exporting it.  Returns true if possible.
 	virtual bool isValidFor(const AMScan* scan, const AMExporterOption* option) const = 0;
 
-	/// Exports the given \c scan object, using the option set \c option, to the complete destination file path \c destinationPath
-	virtual bool exportScan(const AMScan* scan, const QString& destinationPath, const AMExporterOption* option) const = 0;
+	/// Exports the given \c scan object, using the option set \c option.  The file name is given inside \c option, but should be placed within the folder \c destinationFolderPath.  Returns the name of the file that was written, or a null QString on error.
+	virtual QString exportScan(const AMScan* scan, const QString& destinationFolderPath, const AMExporterOption* option) const = 0;
 
 	/// create an "exporter option" (an instance of an AMExporterOption subclass) that is a valid default for this type of exporter
 	virtual AMExporterOption* createDefaultOption() const = 0;

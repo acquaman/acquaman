@@ -147,6 +147,7 @@ void AMExporterOptionGeneralAsciiView::makeOptionConnections() {
 	connect(fileNameText, SIGNAL(textChanged(QString)), option_, SLOT(setFileName(QString)));
 	connect(fileNameSeparateSectionText, SIGNAL(textChanged(QString)), option_, SLOT(setSeparateSectionFileName(QString)));
 
+	connect(includeAllSourcesCheck, SIGNAL(clicked(bool)), option_, SLOT(setIncludeAllDataSources(bool)));
 }
 
 

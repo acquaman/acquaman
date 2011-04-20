@@ -9,9 +9,12 @@
 #include <QStringBuilder>
 
 #include "dataman/AMExporter.h"
+#include "dataman/AMExporterOption.h"
 #include "dataman/AMUser.h"
 
-
+#include "util/AMErrorMonitor.h"
+#include "dataman/AMDbObjectSupport.h"
+#include "dataman/AMScan.h"
 
 QHash<QString, AMExporterInfo> AMExportController::registeredExporters_;
 
@@ -19,10 +22,13 @@ AMExportController::AMExportController(const QList<QUrl>& scansToExport) :
 	QObject()
 {
 	exporter_ = 0;
+	option_ = 0;
 	scansToExport_ = scansToExport;
+	state_ = Preparing;
 	availableDataSourcesModel_ = new QStandardItemModel(this);
 
 	searchScanIndex_ = -1;
+	exportScanIndex_ = -1;
 
 	destinationFolderPath_ = AMUser::user()->lastExportDestination();
 	if(destinationFolderPath_.isEmpty())
@@ -131,3 +137,139 @@ void AMExportController::addFoundAvailableDataSource(const QString &name, const 
 	availableDataSourcesModel_->appendRow(QList<QStandardItem*>() << newItem << newItemRank);	// add to model
 	availableDataSourcesModel_->sort(1, Qt::AscendingOrder); // and (re)-sort by rank.
 }
+
+bool AMExportController::start()
+{
+	if(!exporter_)
+		return false;
+	if(!option_)
+		return false;
+
+	if(state_ != Preparing)
+		return false;	// Can't start except from this state
+
+	exportScanIndex_ = 0;
+	emit stateChanged(state_ = Exporting);
+	QTimer::singleShot(0, this, SLOT(continueScanExport()));
+
+	return true;
+}
+
+void AMExportController::continueScanExport()
+{
+	if(state_ != Exporting)
+		return;	// done, or paused. Don't keep going.
+
+	// 0. emit progress and signals
+	emit progressChanged(exportScanIndex_, scanCount());
+
+	// 1. Check for finished:
+	if(exportScanIndex_ >= scansToExport_.count()) {
+		emit stateChanged(state_ = Finished);
+		deleteLater();
+		return; // We're done!
+	}
+
+	try {
+		// 2. Load scan from db and check loaded successfully
+		const QUrl& url = scansToExport_.at(exportScanIndex_);
+
+		emit statusChanged(status_ = "Opening:  " % url.toString());
+
+		AMDatabase* db;
+		QStringList path;
+		QString tableName;
+		int id;
+		bool idOkay;
+
+		// parse the URL and make sure it's valid
+		if(!(	url.scheme() == "amd" &&
+			 (db = AMDatabase::dbByName(url.host())) &&
+			 (path = url.path().split('/', QString::SkipEmptyParts)).count() == 2 &&
+			 (id = path.at(1).toInt(&idOkay)) > 0 &&
+			 idOkay == true &&
+			 (tableName = path.at(0)).isEmpty() == false
+			 ))
+			throw QString("The export system couldn't understand the scan URL '" % url.toString() % "', so this scan has not been exported.");
+
+		AMDbObject* databaseObject = AMDbObjectSupport::createAndLoadObjectAt(db, tableName, id);
+		AMScan* scan = qobject_cast<AMScan*>(databaseObject);
+		if(!scan) {
+			delete databaseObject;
+			throw QString("The export system couldn't load a scan out of the database (" % url.toString() % "), so this scan has not been exported.");
+		}
+
+		emit statusChanged(status_ = "Writing:  " % scan->fullName());
+
+		// 3. Check that it can be exported with the exporter and option selected
+		if(!exporter_->isValidFor(scan, option_)) {
+			QString err("The exporter '" % exporter_->description() % "' and the template '" % option_->name() % "' are not compatible with this scan (" % scan->fullName() % "), so it has not been exported.");
+			emit statusChanged(status_ = err);
+			delete scan;
+			throw err;
+		}
+
+		// 4. Export
+		QString writtenFile = exporter_->exportScan(scan, destinationFolderPath_, option_);
+		if(writtenFile.isNull()) {
+			QString err("Export failed for scan '" % scan->fullName() % "'.");
+			emit statusChanged(status_ = err);
+			delete scan;
+			throw err;
+		}
+
+		emit statusChanged(status_ = "Wrote:   " % writtenFile);
+		delete scan;	// done!
+	}
+
+	catch(QString errMsg) {
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -1, errMsg));
+	}
+
+	// 5. increment exportScanIndex_ and re-schedule next one
+	exportScanIndex_++;
+	QTimer::singleShot(5, this, SLOT(continueScanExport()));
+
+}
+
+void AMExportController::setOption(AMExporterOption *option) {
+	delete option_;
+	option_ = option;
+	if(option_)
+		option_->setAvailableDataSourcesModel(availableDataSourcesModel());
+}
+
+bool AMExportController::cancel()
+{
+	if(!(state_ == Exporting || state_ == Paused))
+		return false;
+
+	emit stateChanged(state_ = Cancelled);
+	deleteLater();
+	return true;
+}
+
+AMExportController::~AMExportController() {
+	qDebug() << "Export Controller deleted.";
+}
+
+bool AMExportController::pause()
+{
+	if(state_ != Exporting)
+		return false;
+
+	emit stateChanged(state_ = Paused);
+	return true;
+}
+
+bool AMExportController::resume()
+{
+	if(state_ != Paused)
+		return false;
+
+	emit stateChanged(state_ = Exporting);
+	QTimer::singleShot(0, this, SLOT(continueScanExport()));
+
+	return true;
+}
+

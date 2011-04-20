@@ -19,7 +19,7 @@ public:
 	virtual bool isValidFor(const AMScan *scan, const AMExporterOption *option) const { return false; }
 
 	/// \todo
-	virtual bool exportScan(const AMScan *scan, const QString &destinationPath, const AMExporterOption *option) const { return false; }
+	virtual QString exportScan(const AMScan *scan, const QString &destinationFolderPath, const AMExporterOption *option) const { return QString(); }
 
 	virtual AMExporterOption* createDefaultOption() const;
 
