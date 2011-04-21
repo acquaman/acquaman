@@ -1,6 +1,7 @@
 #include "AMTagReplacementParser.h"
 #include "util/AMErrorMonitor.h"
 
+#include <QDebug>
 
 AMTagReplacementParser::AMTagReplacementParser(const QChar& tagStartCharacter, const QChar& argumentStartCharacter, const QChar& argumentEndCharacter)
 {
@@ -29,28 +30,28 @@ void AMTagReplacementParser::setInitialText(const QString &initialText)
 
 		case InsideTag:
 			if(c == argumentStart_) {
-//				qDebug() << "starting argument" << c;
+				// qDebug() << "starting argument" << c;
 				startArgument();
 			}
 			else if(c == tagStart_) {
 				// exception: if this is the second of two start tags in a row: is an "escaped start tag"... Put one start tag into the output stream and go back to normal parsing.
 				if(currentTag_.tag.size() == 0) {
-//					qDebug() << "escaped start char" << c;
+					// qDebug() << "escaped start char" << c;
 					strippedText_.append(c);
 					parseState_ = NormalText;
 				}
 				else {	// otherwise this is just the end of one tag and the start of the next.
-//					qDebug() << "Ending AND starting tag!" << c;
+					// qDebug() << "Ending AND starting tag!" << c;
 					endTag();
 					startTag();
 				}
 			}
 			else if(c.isLetterOrNumber()) {
-//				qDebug() << "Adding to tag text:" << c;
+				// qDebug() << "Adding to tag text:" << c;
 				currentTag_.tag.append(c);
 			}
 			else {
-//				qDebug() << "ending tag at non-letterOrNumber" << c;
+				// qDebug() << "ending tag at non-letterOrNumber" << c;
 				endTag();
 				strippedText_.append(c);
 			}
@@ -60,11 +61,11 @@ void AMTagReplacementParser::setInitialText(const QString &initialText)
 
 		case InsideArg:
 			if(c == argumentEnd_) {
-//				qDebug() << "ending argument" << c;
+				// qDebug() << "ending argument" << c;
 				endArgument();
 			}
 			else {
-//				qDebug() << "Adding to arg text:" << c;
+				// qDebug() << "Adding to arg text:" << c;
 				currentTag_.arguments.append(c);
 			}
 			break;
@@ -73,11 +74,11 @@ void AMTagReplacementParser::setInitialText(const QString &initialText)
 
 		case NormalText:
 			if(c == tagStart_) {
-//				qDebug() << "Entering tag" << c;
+				// qDebug() << "Entering tag" << c;
 				startTag();
 			}
 			else {
-//				qDebug() << "Adding to normal text:" << c;
+				// qDebug() << "Adding to normal text:" << c;
 				strippedText_.append(c);
 			}
 			break;
@@ -109,6 +110,9 @@ QString AMTagReplacementParser::getReplacedText()
 
 		rv.append(currentTag.replacement);
 	}
+
+	// put on last of text after last tag
+	rv.append(strippedText_.mid(strippedTextPosition));
 
 	return rv;
 }
