@@ -1,7 +1,6 @@
 #include "VESPERSXRFScanConfigurationView.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
 #include "acquaman/VESPERS/VESPERSXRFScanController.h"
-#include "ui/VESPERS/XRFSelectionView.h"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -20,8 +19,8 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 	view_ = new XRFDetailedDetectorView(detector_);
 	connect(detector_, SIGNAL(detectorConnected(bool)), this, SLOT(setEnabled(bool)));
 
-	XRFSelectionView *selectionView = new XRFSelectionView;
-	connect(selectionView, SIGNAL(elementSelected(AMElement*)), view_, SLOT(showEmissionLines(AMElement*)));
+	selectionView_ = new XRFSelectionView(AMPeriodicTable::table()->elementBySymbol("K")->Kalpha().second.toDouble(), detector_->maximumEnergy()*1000);
+	connect(selectionView_, SIGNAL(elementSelected(AMElement*)), view_, SLOT(showEmissionLines(AMElement*)));
 
 	QToolButton *start = new QToolButton;
 	start->setIcon(QIcon(":/play_button_green.png"));
@@ -46,6 +45,7 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 	maxEnergy_->setAlignment(Qt::AlignCenter);
 	connect(maxEnergy_, SIGNAL(editingFinished()), this, SLOT(onMaximumEnergyUpdate()));
 	connect(detector_->maximumEnergyControl(), SIGNAL(valueChanged(double)), maxEnergy_, SLOT(setValue(double)));
+	connect(detector_->maximumEnergyControl(), SIGNAL(valueChanged(double)), this, SLOT(onMaximumEnergyControlUpdate(double)));
 
 	peakingTime_ = new QDoubleSpinBox;
 	peakingTime_->setSuffix(QString(" %1s").arg(QString::fromUtf8("μ")));
@@ -85,7 +85,7 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 
 	QVBoxLayout *viewAndSelectionLayout = new QVBoxLayout;
 	viewAndSelectionLayout->addWidget(view_);
-	viewAndSelectionLayout->addWidget(selectionView);
+	viewAndSelectionLayout->addWidget(selectionView_);
 
 	QHBoxLayout *plotControlLayout = new QHBoxLayout;
 	plotControlLayout->addLayout(viewAndSelectionLayout);
@@ -102,6 +102,12 @@ void VESPERSXRFScanConfigurationView::onIntegrationTimeUpdate()
 void VESPERSXRFScanConfigurationView::onMaximumEnergyUpdate()
 {
 	detector_->setMaximumEnergyControl(maxEnergy_->value());
+	selectionView_->setMaximumEnergy(maxEnergy_->value()*1000);
+}
+
+void VESPERSXRFScanConfigurationView::onMaximumEnergyControlUpdate(double val)
+{
+	selectionView_->setMaximumEnergy(val*1000);
 }
 
 void VESPERSXRFScanConfigurationView::onPeakingTimeUpdate()

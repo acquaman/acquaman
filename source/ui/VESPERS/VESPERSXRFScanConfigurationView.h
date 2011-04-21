@@ -5,6 +5,7 @@
 #include "acquaman/VESPERS/VESPERSXRFScanConfiguration.h"
 #include "ui/VESPERS/XRFDetectorView.h"
 #include "acquaman/AMScanController.h"
+#include "ui/VESPERS/XRFSelectionView.h"
 
 #include <QDoubleSpinBox>
 
@@ -27,6 +28,8 @@ protected slots:
 	void onIntegrationTimeUpdate();
 	/// Handles new values set from the maximum energy spin box and passes it along to the control.
 	void onMaximumEnergyUpdate();
+	/// Handles the new values from the maximum energy control.
+	void onMaximumEnergyControlUpdate(double val);
 	/// Handles new values set from the peaking time spin box and passes it along to the control.
 	void onPeakingTimeUpdate();
 	/// Handles what happens when the start button is clicked.
@@ -39,6 +42,8 @@ protected:
 	VESPERSXRFScanConfiguration *configuration_;
 	/// The detector view.
 	XRFDetailedDetectorView *view_;
+	/// The selection view.
+	XRFSelectionView *selectionView_;
 	/// The pointer to the detector.
 	XRFDetector *detector_;
 

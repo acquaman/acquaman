@@ -35,8 +35,9 @@ VESPERSXRFElementView::VESPERSXRFElementView(QWidget *parent)
 	QVBoxLayout *viewLayout = new QVBoxLayout;
 	viewLayout->addLayout(titleLayout);
 	viewLayout->addLayout(linesLayout);
+	viewLayout->addStretch();
 
-	setMaximumSize(430, 300);
+	setMaximumSize(300, 300);
 
 	setLayout(viewLayout);
 }
@@ -74,6 +75,7 @@ VESPERSXRFElementView::VESPERSXRFElementView(AMElement *el, QWidget *parent)
 	QVBoxLayout *viewLayout = new QVBoxLayout;
 	viewLayout->addLayout(titleLayout);
 	viewLayout->addLayout(linesLayout);
+	viewLayout->addStretch();
 
 	setMaximumSize(300, 300);
 
