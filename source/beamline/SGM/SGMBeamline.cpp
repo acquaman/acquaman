@@ -266,27 +266,41 @@ void SGMBeamline::usingSGMBeamline(){
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	loadlockTCG_ = new AMReadOnlyPVControl("loadlockTCG", sgmPVName, this);
+
+
 	sgmPVName = amNames2pvNames_.valueF("ssaManipulatorX");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	/// \todo Now that we have stop integrated into the AMControls... Remove separate stop PVs.
+	ssaManipulatorX_ = new AMPVwStatusControl("ssaManipulatorX", sgmPVName+":fbk", sgmPVName+":sp", "SMTR16114I1018:state", "SMTR16114I1018:emergStop", this, 0.1, 2.0, new AMControlStatusCheckerStopped(0));
+	/*
 	ssaManipulatorX_ = new AMPVwStatusControl("ssaManipulatorX", sgmPVName+":fbk", sgmPVName+":sp", sgmPVName+":sp", "", this, 0.1);
 	ssaManipulatorXStop_ = new AMPVControl("ssaManipulatorXStop", "SMTR16114I1012:emergStop", "SMTR16114I1012:emergStop", "", this, 0.1);
+	*/
 	sgmPVName = amNames2pvNames_.valueF("ssaManipulatorY");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
+	ssaManipulatorY_ = new AMPVwStatusControl("ssaManipulatorY", sgmPVName+":fbk", sgmPVName+":sp", "SMTR16114I1019:state", "SMTR16114I1019:emergStop", this, 0.1, 2.0, new AMControlStatusCheckerStopped(0));
+	/*
 	ssaManipulatorY_ = new AMPVwStatusControl("ssaManipulatorY", sgmPVName+":fbk", sgmPVName+":sp", sgmPVName+":sp", "", this, 0.1);
 	ssaManipulatorYStop_ = new AMPVControl("ssaManipulatorYStop", "SMTR16114I1013:emergStop", "SMTR16114I1013:emergStop", "", this, 0.1);
+	*/
 	sgmPVName = amNames2pvNames_.valueF("ssaManipulatorZ");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
+	ssaManipulatorZ_ = new AMPVwStatusControl("ssaManipulatorZ", sgmPVName+":fbk", sgmPVName+":sp", "SMTR16114I1020:state", "SMTR16114I1020:emergStop", this, 0.1, 2.0, new AMControlStatusCheckerStopped(0));
+	/*
 	ssaManipulatorZ_ = new AMPVwStatusControl("ssaManipulatorZ", sgmPVName+":fbk", sgmPVName+":sp", sgmPVName+":sp", "", this, 0.1);
 	ssaManipulatorZStop_ = new AMPVControl("ssaManipulatorZStop", "SMTR16114I1014:emergStop", "SMTR16114I1014:emergStop", "", this, 0.1);
+	*/
 	sgmPVName = amNames2pvNames_.valueF("ssaManipulatorRot");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
+	ssaManipulatorRot_ = new AMPVwStatusControl("ssaManipulatorRot", sgmPVName+":fbk", sgmPVName+":sp", "SMTR16114I1021:state", "SMTR16114I1021:emergStop", this, 0.1, 2.0, new AMControlStatusCheckerStopped(0));
+	/*
 	ssaManipulatorRot_ = new AMPVwStatusControl("ssaManipulatorRot", sgmPVName+":fbk", sgmPVName+":sp", sgmPVName+":sp", "", this, 0.1);
 	ssaManipulatorRotStop_ = new AMPVControl("ssaManipulatorRotStop", "SMTR16114I1015:emergStop", "SMTR16114I1015:emergStop", "", this, 0.1);
+	*/
 
 	sgmPVName = amNames2pvNames_.valueF("beamlineScanning");
 	if(sgmPVName.isEmpty())
@@ -594,12 +608,13 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	addChildControl(encoderUp_);
 	addChildControl(encoderDown_);
 	addChildControl(ssaManipulatorX_);
-	addChildControl(ssaManipulatorXStop_);
+//	addChildControl(ssaManipulatorXStop_);
 	addChildControl(ssaManipulatorY_);
-	addChildControl(ssaManipulatorYStop_);
-	addChildControl(ssaManipulatorZStop_);
+//	addChildControl(ssaManipulatorYStop_);
+	addChildControl(ssaManipulatorZ_);
+//	addChildControl(ssaManipulatorZStop_);
 	addChildControl(ssaManipulatorRot_);
-	addChildControl(ssaManipulatorRotStop_);
+//	addChildControl(ssaManipulatorRotStop_);
 	addChildControl(beamlineScanning_);
 	connect(beamlineScanning_, SIGNAL(valueChanged(double)), this, SLOT(onBeamlineScanningValueChanged(double)));
 
@@ -957,8 +972,51 @@ AMBeamlineListAction* SGMBeamline::createStopMotorsAction(){
 	stopMotorsActionsList->appendAction(0, stopMotorsAction1);
 	stopMotorsActionsList->appendAction(0, stopMotorsAction2);
 	stopMotorsActionsList->appendAction(0, stopMotorsAction3);
-	qDebug() << "About to return stopMotorsAction, count is " << stopMotorsActionsList->countAt(0);
 	return stopMotorsAction;
+}
+
+AMBeamlineListAction* SGMBeamline::createGoToTransferPositionActions(){
+	AMBeamlineParallelActionsList *gotoTransferPositionActionsList = new AMBeamlineParallelActionsList();
+	AMBeamlineListAction *gotoTransferPositionAction = new AMBeamlineListAction(gotoTransferPositionActionsList);
+	// Action to stop motors for SGM:
+	// Stop mono, exit slit,
+	AMBeamlineControlMoveAction *gotoTransferPositionAction1 = new AMBeamlineControlMoveAction(ssaManipulatorX());
+	gotoTransferPositionAction1->setSetpoint(0.0);
+	AMBeamlineControlMoveAction *gotoTransferPositionAction2 = new AMBeamlineControlMoveAction(ssaManipulatorY());
+	gotoTransferPositionAction2->setSetpoint(-5.0);
+	AMBeamlineControlMoveAction *gotoTransferPositionAction3 = new AMBeamlineControlMoveAction(ssaManipulatorZ());
+	gotoTransferPositionAction3->setSetpoint(-77.44);
+	AMBeamlineControlMoveAction *gotoTransferPositionAction4 = new AMBeamlineControlMoveAction(ssaManipulatorRot());
+	gotoTransferPositionAction4->setSetpoint(0.0);
+
+	gotoTransferPositionActionsList->appendStage(new QList<AMBeamlineActionItem*>());
+	gotoTransferPositionActionsList->appendAction(0, gotoTransferPositionAction1);
+	gotoTransferPositionActionsList->appendAction(0, gotoTransferPositionAction2);
+	gotoTransferPositionActionsList->appendAction(0, gotoTransferPositionAction3);
+	gotoTransferPositionActionsList->appendAction(0, gotoTransferPositionAction4);
+	return gotoTransferPositionAction;
+}
+
+AMBeamlineListAction* SGMBeamline::createGoToMeasurementPositionActions(){
+	AMBeamlineParallelActionsList *gotoMeasurementPositionActionsList = new AMBeamlineParallelActionsList();
+	AMBeamlineListAction *gotoMeasurementPositionAction = new AMBeamlineListAction(gotoMeasurementPositionActionsList);
+	// Action to stop motors for SGM:
+	// Stop mono, exit slit,
+	AMBeamlineControlMoveAction *gotoMeasurementPositionAction1 = new AMBeamlineControlMoveAction(ssaManipulatorX());
+	gotoMeasurementPositionAction1->setSetpoint(0.0);
+	AMBeamlineControlMoveAction *gotoMeasurementPositionAction2 = new AMBeamlineControlMoveAction(ssaManipulatorY());
+	gotoMeasurementPositionAction2->setSetpoint(0.0);
+	AMBeamlineControlMoveAction *gotoMeasurementPositionAction3 = new AMBeamlineControlMoveAction(ssaManipulatorZ());
+	gotoMeasurementPositionAction3->setSetpoint(0.0);
+	AMBeamlineControlMoveAction *gotoMeasurementPositionAction4 = new AMBeamlineControlMoveAction(ssaManipulatorRot());
+	gotoMeasurementPositionAction4->setSetpoint(0.0);
+
+	gotoMeasurementPositionActionsList->appendStage(new QList<AMBeamlineActionItem*>());
+	gotoMeasurementPositionActionsList->appendAction(0, gotoMeasurementPositionAction1);
+	gotoMeasurementPositionActionsList->appendAction(0, gotoMeasurementPositionAction2);
+	gotoMeasurementPositionActionsList->appendAction(0, gotoMeasurementPositionAction3);
+	gotoMeasurementPositionActionsList->appendAction(0, gotoMeasurementPositionAction4);
+	return gotoMeasurementPositionAction;
 }
 
 AMBeamlineListAction* SGMBeamline::createTransferActions(SGMBeamline::sgmTransferType transferType){

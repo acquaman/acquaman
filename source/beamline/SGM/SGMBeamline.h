@@ -59,12 +59,6 @@ public:
 	QString sgmGratingName(SGMBeamline::sgmGrating grating) const;
 	QString sgmGratingDescription(SGMBeamline::sgmGrating grating) const;
 
-	/*
-	enum sgmHarmonic{
-		firstHarmonic = 1,
-		thirdHarmonic = 3
-	};
-	*/
 	enum sgmHarmonic{
 		firstHarmonic = 0,
 		thirdHarmonic = 1
@@ -152,13 +146,9 @@ public:
 	AMControl* loadlockCCG() const { return loadlockCCG_;}
 	AMControl* loadlockTCG() const { return loadlockTCG_;}
 	AMControl* ssaManipulatorX() const { return ssaManipulatorX_;}
-	AMControl* ssaManipulatorXStop() const { return ssaManipulatorXStop_;}
 	AMControl* ssaManipulatorY() const { return ssaManipulatorY_;}
-	AMControl* ssaManipulatorYStop() const { return ssaManipulatorYStop_;}
 	AMControl* ssaManipulatorZ() const { return ssaManipulatorZ_;}
-	AMControl* ssaManipulatorZStop() const { return ssaManipulatorZStop_;}
 	AMControl* ssaManipulatorRot() const { return ssaManipulatorRot_;}
-	AMControl* ssaManipulatorRotStop() const { return ssaManipulatorRotStop_;}
 	AMControl* beamlineScanning() const { return beamlineScanning_;}
 	AMControl* beamlineReady() const { return beamlineReady_;}
 	AMControl* energyMovingStatus() const { return energyMovingStatus_;}
@@ -191,6 +181,9 @@ public:
 
 	AMBeamlineListAction* createBeamOnActions();
 	AMBeamlineListAction* createStopMotorsAction();
+
+	AMBeamlineListAction* createGoToTransferPositionActions();
+	AMBeamlineListAction* createGoToMeasurementPositionActions();
 
 	AMBeamlineListAction* createTransferActions(SGMBeamline::sgmTransferType transferType);
 	AMBeamlineListAction* createTransferLoadLockOutActions();
@@ -278,13 +271,9 @@ protected:
 	AMControl *loadlockCCG_;
 	AMControl *loadlockTCG_;
 	AMControl *ssaManipulatorX_;
-	AMControl *ssaManipulatorXStop_;
 	AMControl *ssaManipulatorY_;
-	AMControl *ssaManipulatorYStop_;
 	AMControl *ssaManipulatorZ_;
-	AMControl *ssaManipulatorZStop_;
 	AMControl *ssaManipulatorRot_;
-	AMControl *ssaManipulatorRotStop_;
 	AMControl *beamlineScanning_;
 	AMControl *beamlineReady_;
 	AMControl *energyMovingStatus_;

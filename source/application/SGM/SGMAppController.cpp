@@ -67,8 +67,8 @@ bool SGMAppController::startup() {
 		mw_->insertHeading("Beamline Control", 0);
 		//////////
 		samplePositionView_ = new AMSampleManagementWidget(new SGMSampleManipulatorView(),
-													   QUrl("http://ccd1611-403/axis-cgi/mjpg/video.cgi?resolution=1280x1024&.mjpg"),
-													   SGMBeamline::sgm()->currentSamplePlate());
+									QUrl("http://ccd1611-403/axis-cgi/mjpg/video.cgi?resolution=1280x1024&.mjpg"),
+									SGMBeamline::sgm()->currentSamplePlate());
 		mw_->addPane(samplePositionView_, "Beamline Control", "SGM Sample Position", ":/system-software-update.png");
 
 		sampleTransferView_ = new SGMSampleTransferView();

@@ -55,6 +55,7 @@ AMSampleManagementWidget::AMSampleManagementWidget(AMSampleManipulatorView *mani
 
 	manipulatorView_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
+	connect(plateView_, SIGNAL(newSamplePlateSelected()), this, SLOT(onNewSamplePlateSelected()));
 
 	gl_ = new QGridLayout();
 	//gl_->addWidget(cam_, 0, 0, 3, 1, Qt::AlignLeft);
@@ -71,3 +72,6 @@ AMSampleManagementWidget::AMSampleManagementWidget(AMSampleManipulatorView *mani
 	setLayout(vl);
 }
 
+void AMSampleManagementWidget::onNewSamplePlateSelected() {
+	qDebug() << "I heard that the current sample plate changed";
+}

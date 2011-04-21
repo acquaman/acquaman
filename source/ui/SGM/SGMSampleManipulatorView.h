@@ -3,6 +3,8 @@
 
 #include "ui/AMSampleManipulatorView.h"
 
+class AMBeamlineListAction;
+
 class SGMSampleManipulatorView : public AMSampleManipulatorView
 {
 Q_OBJECT
@@ -27,6 +29,10 @@ protected slots:
 	void onMCCWButtonPressed();
 	void onMCCWButtonReleased();
 
+	void onStopAllButtonClicked();
+	void onTransferPositionButtonClicked();
+	void onMeasurePositionButtonClicked();
+
 protected:
 	QPushButton *mUpButton_;
 	QPushButton *mDownButton_;
@@ -37,15 +43,21 @@ protected:
 	QPushButton *mCWButton_;
 	QPushButton *mCCWButton_;
 
+	QPushButton *stopAllButton_;
+	QPushButton *transferPositionButton_;
+	AMBeamlineListAction *transferPositionActions_;
+	QPushButton *measurePositionButton_;
+	AMBeamlineListAction *measurementPositionActions_;
+
 	AMControl *mVerticalCtrl_;
 	AMControl *mHorizontalCtrl_;
 	AMControl *mInPlaneCtrl_;
 	AMControl *mRotationCtrl_;
 
-	AMBasicControlEditor *mVerticalNC_;
-	AMBasicControlEditor *mHorizontalNC_;
-	AMBasicControlEditor *mInPlaneNC_;
-	AMBasicControlEditor *mRotationNC_;
+	AMControlEditor *mVerticalNC_;
+	AMControlEditor *mHorizontalNC_;
+	AMControlEditor *mInPlaneNC_;
+	AMControlEditor *mRotationNC_;
 
 	QIcon upIcon_, downIcon_, inboardIcon_, outboardIcon_, upstreamIcon_, downstreamIcon_, cwIcon_, ccwIcon_;
 
