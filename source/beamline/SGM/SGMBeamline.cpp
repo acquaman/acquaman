@@ -801,7 +801,8 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	XASDetectors_ = new AMDetectorSet(this);
 	XASDetectors_->setName("XAS Detectors");
 
-	currentSamplePlate_ = new AMSamplePlate(this);
+	//currentSamplePlate_ = new AMSamplePlate(this);
+	currentSamplePlate_ = 0;//NULL
 
 	transferLoadLockOutAction1Help_.append(QPixmap(":/LoadLockOut/action1Image1.jpg"), "1");
 	transferLoadLockOutAction1Help_.append(QPixmap(":/LoadLockOut/action1Image2.jpg"), "2");
@@ -1329,6 +1330,14 @@ QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic> SGMBeamline::forBestRes
 		return QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic>(SGMBeamline::highGrating, SGMBeamline::thirdHarmonic);
 }
 
+void SGMBeamline::setCurrentSamplePlate(AMSamplePlate *newSamplePlate){
+	if(currentSamplePlate_ != newSamplePlate){
+		currentSamplePlate_ = newSamplePlate;
+		qDebug() << "SGM got a new sample plate";
+		emit currentSamplePlateChanged(currentSamplePlate_);
+	}
+}
+
 void SGMBeamline::visibleLightOn(){
 	visibleLightToggle_->move(1);
 }
@@ -1423,6 +1432,37 @@ void SGMBeamline::onControlSetConnected(bool csConnected){
 		else if(!encoderDownDetector_ && ctrlSet->name() == "Encoder Down Controls"){
 			encoderDownDetector_ = new AMSingleControlDetector(encoderDown_->name(), encoderDown_, AMDetector::WaitRead, this);
 			allDetectors_->addDetector(encoderDownDetector_);
+		}
+		else if(ctrlSet->name() == "SSA Manipulator"){
+			AMControlInfoList ssaInfoList = ssaManipulatorSet_->toInfoList();
+			ssaInfoList[0].setValue(-1.0);
+			ssaInfoList[1].setValue( 0.0);
+			ssaInfoList[2].setValue(-1.0);
+			ssaFiducializations_.append(AMControlInfoList(ssaInfoList));
+			ssaInfoList[0].setValue( 0.0);
+			ssaInfoList[2].setValue(-1.0);
+			ssaFiducializations_.append(AMControlInfoList(ssaInfoList));
+			ssaInfoList[0].setValue( 1.0);
+			ssaInfoList[2].setValue(-1.0);
+			ssaFiducializations_.append(AMControlInfoList(ssaInfoList));
+			ssaInfoList[0].setValue(-1.0);
+			ssaInfoList[2].setValue( 0.0);
+			ssaFiducializations_.append(AMControlInfoList(ssaInfoList));
+			ssaInfoList[0].setValue( 0.0);
+			ssaInfoList[2].setValue( 0.0);
+			ssaFiducializations_.append(AMControlInfoList(ssaInfoList));
+			ssaInfoList[0].setValue( 1.0);
+			ssaInfoList[2].setValue( 0.0);
+			ssaFiducializations_.append(AMControlInfoList(ssaInfoList));
+			ssaInfoList[0].setValue(-1.0);
+			ssaInfoList[2].setValue( 1.0);
+			ssaFiducializations_.append(AMControlInfoList(ssaInfoList));
+			ssaInfoList[0].setValue( 0.0);
+			ssaInfoList[2].setValue( 1.0);
+			ssaFiducializations_.append(AMControlInfoList(ssaInfoList));
+			ssaInfoList[0].setValue( 1.0);
+			ssaInfoList[2].setValue( 1.0);
+			ssaFiducializations_.append(AMControlInfoList(ssaInfoList));
 		}
 		if(detectorSignalSource_->isConnected())
 			onDetectorSignalSourceChanged(detectorSignalSource_->value());

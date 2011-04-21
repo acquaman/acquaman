@@ -132,7 +132,12 @@ signals:
 	/// Should be emitted periodically to relay how much of the action has completed. Format: first argument is how much is done, second argument is the total to be done (could be % completed and 100%, for example)
 	void progress(double, double);
 
+	/// Emitted when the description for the action changes (sometimes changes when the state has changed)
 	void descriptionChanged(const QString &description);
+	/// Emitted when the action is set to point at a different prevoius action
+	void previousChanged();
+	/// Emitted when the aciton is set to point at a different next action
+	void nextChanged();
 
 public slots:
 	/// Pure virtual. Sub-classes need to implement and they better call setStart(true) at some point causing started() to be emitted
@@ -235,6 +240,8 @@ signals:
 	void stopRequested(AMBeamlineActionItem *action);
 
 	void copyRequested(AMBeamlineActionItem *action);
+	void moveUpRequested(AMBeamlineActionItem *action);
+	void moveDownRequested(AMBeamlineActionItem *action);
 	void descriptionChanged(const QString &description);
 
 protected slots:
@@ -242,6 +249,9 @@ protected slots:
 	virtual void onStopCancelButtonClicked() = 0;
 	virtual void onPlayPauseButtonClicked() = 0;
 	void updateLook();
+	virtual void onPreviousNextChanged();
+	virtual void onMoveUpButtonClicked();
+	virtual void onMoveDownButtonClicked();
 
 	virtual void onCreateCopyClicked();
 

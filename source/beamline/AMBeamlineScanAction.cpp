@@ -25,8 +25,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMDateTimeUtils.h"
 
 #include <QPushButton>
+#include <QToolButton>
 #include <QPalette>
 #include <QApplication>
+#include <QStyle>
 
 AMBeamlineScanAction::AMBeamlineScanAction(AMScanConfiguration *cfg, QObject *parent) :
 		AMBeamlineActionItem(true, parent)
@@ -235,21 +237,29 @@ AMBeamlineScanActionView::AMBeamlineScanActionView(AMBeamlineScanAction *scanAct
 	playPauseButton_->setFixedWidth(25);
 	playPauseButton_->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
 	playPauseButton_->setEnabled(false);
+	moveActionUpButton_ = new QToolButton();
+	moveActionUpButton_->setIcon(QApplication::style()->standardIcon(QStyle::SP_ArrowUp));
+	moveActionUpButton_->setEnabled(false);
+	moveActionDownButton_ = new QToolButton();
+	moveActionDownButton_->setIcon(QApplication::style()->standardIcon(QStyle::SP_ArrowDown));
+	moveActionDownButton_->setEnabled(false);
 	connect(stopCancelButton_, SIGNAL(clicked()), this, SLOT(onStopCancelButtonClicked()));
 	connect(playPauseButton_, SIGNAL(clicked()), this, SLOT(onPlayPauseButtonClicked()));
+	connect(moveActionUpButton_, SIGNAL(clicked()), this, SLOT(onMoveUpButtonClicked()));
+	connect(moveActionDownButton_, SIGNAL(clicked()), this, SLOT(onMoveDownButtonClicked()));
 	hl_ = new QHBoxLayout();
 	hl_->addWidget(scanNameLabel_, 0, Qt::AlignTop | Qt::AlignLeft);
 	hl_->addLayout(progressVL);
 	hl_->addWidget(playPauseButton_, 0, Qt::AlignTop | Qt::AlignRight);
 	hl_->addWidget(stopCancelButton_, 0, Qt::AlignTop | Qt::AlignRight);
+	QVBoxLayout *swapVL = new QVBoxLayout();
+	swapVL->addWidget(moveActionUpButton_);
+	swapVL->addWidget(moveActionDownButton_);
+	swapVL->setContentsMargins(0,0,0,0);
+	swapVL->setSpacing(0);
+	hl_->addLayout(swapVL);
 	setLayout(hl_);
-
-	/*
-	setAutoFillBackground(true);
-	QPalette newPalette(palette());
-	newPalette.setColor(QPalette::Window, QColor(255, 255, 255));
-	setPalette(newPalette);
-	*/
+	onPreviousNextChanged();
 }
 
 void AMBeamlineScanActionView::setIndex(int index){
@@ -264,6 +274,8 @@ void AMBeamlineScanActionView::setAction(AMBeamlineActionItem *action){
 		disconnect(scanAction_, SIGNAL(progress(double,double)), this, SLOT(updateProgressBar(double,double)));
 		disconnect(scanAction_, SIGNAL(started()), this, SLOT(onScanStarted()));
 		disconnect(scanAction_, SIGNAL(succeeded()), this, SLOT(onScanFinished()));
+		disconnect(scanAction_, SIGNAL(previousChanged()), this, SLOT(onPreviousNextChanged()));
+		disconnect(scanAction_, SIGNAL(nextChanged()), this, SLOT(onPreviousNextChanged()));
 	}
 	scanAction_ = scanAction;
 	if(scanAction_){
@@ -272,7 +284,10 @@ void AMBeamlineScanActionView::setAction(AMBeamlineActionItem *action){
 		connect(scanAction_, SIGNAL(progress(double,double)), this, SLOT(updateProgressBar(double,double)));
 		connect(scanAction_, SIGNAL(started()), this, SLOT(onScanStarted()));
 		connect(scanAction_, SIGNAL(succeeded()), this, SLOT(onScanFinished()));
+		connect(scanAction_, SIGNAL(previousChanged()), this, SLOT(onPreviousNextChanged()));
+		connect(scanAction_, SIGNAL(nextChanged()), this, SLOT(onPreviousNextChanged()));
 	}
+	onPreviousNextChanged();
 }
 
 void AMBeamlineScanActionView::onInfoChanged(){
@@ -306,6 +321,10 @@ void AMBeamlineScanActionView::updateProgressBar(double elapsed, double total){
 
 void AMBeamlineScanActionView::onScanStarted(){
 	cancelLatch_ = false;
+	disconnect(moveActionUpButton_, SIGNAL(clicked()), this, SLOT(onMoveUpButtonClicked()));
+	disconnect(moveActionDownButton_, SIGNAL(clicked()), this, SLOT(onMoveDownButtonClicked()));
+	moveActionUpButton_->setEnabled(false);
+	moveActionDownButton_->setEnabled(false);
 	stopCancelButton_->setIcon(stopIcon_);
 	playPauseButton_->setIcon(pauseIcon_);
 	playPauseButton_->setEnabled(true);
@@ -385,6 +404,25 @@ void AMBeamlineScanActionView::onPlayPauseButtonClicked(){
 		scanAction_->pause(false);
 		emit resumeRequested(scanAction_);
 	}
+}
+
+void AMBeamlineScanActionView::onPreviousNextChanged(){
+	if(scanAction_ && !scanAction_->hasFinished() && scanAction_->previous() && !scanAction_->previous()->isRunning() && !scanAction_->previous()->hasFinished())
+		moveActionUpButton_->setEnabled(true);
+	else
+		moveActionUpButton_->setEnabled(false);
+	if(scanAction_ && !scanAction_->hasFinished() && scanAction_->next())
+		moveActionDownButton_->setEnabled(true);
+	else
+		moveActionDownButton_->setEnabled(false);
+}
+
+void AMBeamlineScanActionView::onMoveUpButtonClicked(){
+	emit moveUpRequested(scanAction_);
+}
+
+void AMBeamlineScanActionView::onMoveDownButtonClicked(){
+	emit moveDownRequested(scanAction_);
 }
 
 #include "ui/AMScanConfigurationView.h"

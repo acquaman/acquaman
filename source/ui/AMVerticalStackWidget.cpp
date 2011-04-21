@@ -102,6 +102,22 @@ void AMVerticalStackWidget::insertItem(int index, QWidget* widget, bool collapsa
 	model_.insertRow(index, item);
 }
 
+bool AMVerticalStackWidget::swapItem(int indexOfFirst){
+	if(indexOfFirst < 0 || indexOfFirst > count()-2)
+		return false;
+
+	QWidget *headerOfFirst = vl_->takeAt(2*indexOfFirst)->widget();
+	QWidget *widgetOfFirst = vl_->takeAt(2*indexOfFirst)->widget();
+
+	vl_->insertWidget(2*(indexOfFirst+1), headerOfFirst);
+	vl_->insertWidget(2*(indexOfFirst+1)+1, widgetOfFirst);
+
+	//QStandardItem *itemOfFirst = model_.takeItem(indexOfFirst);
+	QStandardItem *itemOfFirst = model_.takeRow(indexOfFirst).at(0);
+	model_.insertRow(indexOfFirst+1, itemOfFirst);
+	return true;
+}
+
 
 /// Remove a widget and return it.
 QWidget* AMVerticalStackWidget::takeItem(int index) {

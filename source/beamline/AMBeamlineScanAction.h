@@ -21,6 +21,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef AMBEAMLINESCANACTION_H
 #define AMBEAMLINESCANACTION_H
 
+class QToolButton;
+
 #include <QHBoxLayout>
 #include <QProgressBar>
 #include <QLabel>
@@ -102,6 +104,9 @@ protected slots:
 	void onScanFailed(int explanation);
 	void onStopCancelButtonClicked();
 	void onPlayPauseButtonClicked();
+	void onPreviousNextChanged();
+	void onMoveUpButtonClicked();
+	void onMoveDownButtonClicked();
 
 protected:
 	void mouseDoubleClickEvent(QMouseEvent *);
@@ -115,6 +120,8 @@ protected:
 	QLabel *timeRemainingLabel_;
 	QPushButton *stopCancelButton_;
 	QPushButton *playPauseButton_;
+	QToolButton *moveActionUpButton_;
+	QToolButton *moveActionDownButton_;
 	QHBoxLayout *hl_;
 
 	AMScanConfigurationView *configurationView_;

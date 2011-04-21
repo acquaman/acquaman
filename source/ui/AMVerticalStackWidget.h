@@ -64,6 +64,8 @@ public:
 	}
 	void insertItem(int index, QWidget* widget, bool collapsable = true);
 
+	/// Swap the item at the index given with the item after it
+	bool swapItem(int indexOfFirst);
 
 
 	/// Return the index of a widget in the stack. (-1 if not found)

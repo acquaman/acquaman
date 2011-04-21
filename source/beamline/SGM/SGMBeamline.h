@@ -172,6 +172,7 @@ public:
 	AMControlSet* fluxResolutionSet() const { return fluxResolutionSet_;}
 	AMControlSet* trackingSet() const { return trackingSet_;}
 	AMControlSet* ssaManipulatorSet() const { return ssaManipulatorSet_; }
+	QList<AMControlInfoList> ssaFiducializations() const { return ssaFiducializations_; }
 
 	AMDetectorSet* allDetectors() const { return allDetectors_;}
 	AMDetectorSet* feedbackDetectors() const { return feedbackDetectors_;}
@@ -193,6 +194,9 @@ public:
 
 	bool isBeamlineScanning();
 
+	virtual AMControlSet* currentSamplePositioner() { return ssaManipulatorSet(); }
+	virtual QList<AMControlInfoList> currentFiducializations() { return ssaFiducializations(); }
+
 	bool isVisibleLightOn();
 
 	bool energyValidForSettings(sgmGrating grating, sgmHarmonic harmonic, double energy);
@@ -204,6 +208,14 @@ public:
 	QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic> forBestFlux(double minEnergy, double maxEnergy) const;
 	QPair<SGMBeamline::sgmGrating, SGMBeamline::sgmHarmonic> forBestResolution(double minEnergy, double maxEnergy) const;
 
+public slots:
+	void setCurrentSamplePlate(AMSamplePlate *newSamplePlate);
+
+	void visibleLightOn();
+	void visibleLightOff();
+
+	void closeVacuum();
+
 signals:
 	void beamlineScanningChanged(bool scanning);
 	void controlSetConnectionsChanged();
@@ -213,11 +225,7 @@ signals:
 
 	void beamlineWarningsChanged(const QString& warnings);
 
-public slots:
-	void visibleLightOn();
-	void visibleLightOff();
-
-	void closeVacuum();
+	void currentSamplePlateChanged(AMSamplePlate *newSamplePlate);
 
 protected slots:
 	void onBeamlineScanningValueChanged(double value);
@@ -330,6 +338,7 @@ protected:
 
 	AMControlSet *trackingSet_;
 	AMControlSet *ssaManipulatorSet_;
+	QList<AMControlInfoList> ssaFiducializations_;
 
 	AMDetectorSet *allDetectors_;
 	AMDetectorSet *feedbackDetectors_;

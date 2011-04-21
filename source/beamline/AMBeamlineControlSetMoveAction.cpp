@@ -149,6 +149,7 @@ void AMBeamlineControlSetMoveAction::onSucceeded(){
 }
 
 void AMBeamlineControlSetMoveAction::onFailed(int explanation){
+	qDebug() << "ControlSetMoveAction thinks someone failed";
 	setFailed(true, explanation);
 }
 

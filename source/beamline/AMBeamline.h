@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define ACQMAN_BEAMLINE_H_
 
 #include "beamline/AMControl.h"
+#include "beamline/AMControlSet.h"
 
 /// One good way for components in the Acquaman framework to access and set a variety of beamline controls is through a centralized AMBeamline object.  This class provides the basic functionality expected of every beamline, and can be subclassed to include the specific controls available on a particular machine.  It uses the singleton design pattern to ensure that only a single instance of the beamline object exists; you can access this object through AMBeamline::bl().
 
@@ -59,6 +60,13 @@ public:
 
 	/// Reports whether the beamline is currently in exclusive use, and should not be changed. (For example: you or some other program is running a scan). The base class always returns false; your should re-implement this function if you know better.
 	virtual bool isBeamlineScanning() const { return false; }
+
+	/// Returns the current beamline sample positioner (you can send a sample position to it and it will there)
+	virtual AMControlSet* currentSamplePositioner() { return 0; }
+
+	/// Returns the current static fiducializations available for the sample positioner
+	virtual QList<AMControlInfoList> currentFiducializations() { return QList<AMControlInfoList>(); }
+
 
 signals:
 	/// Emit this signal whenever isBeamlineScanning() changes.

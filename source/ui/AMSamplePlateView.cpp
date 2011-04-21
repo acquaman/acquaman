@@ -38,6 +38,10 @@ AMSamplePlateItemModel::AMSamplePlateItemModel(AMSamplePlate* plate, QObject* pa
 
 	connect(AMDatabase::userdb(), SIGNAL(updated(QString,int)), this, SLOT(onDatabaseItemUpdated(QString,int)), Qt::QueuedConnection);
 	connect(AMDatabase::userdb(), SIGNAL(removed(QString,int)), this, SLOT(onDatabaseItemRemoved(QString,int)), Qt::QueuedConnection);
+
+	cachedSamples_.reserve(plate_->count());
+	for(int i=plate_->count()-1; i>=0; i--)
+		cachedSamples_ << AMSample();
 }
 
 

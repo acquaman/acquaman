@@ -147,12 +147,18 @@ void AMBeamlineActionItem::reset(bool delayInitialize){
 }
 
 bool AMBeamlineActionItem::setPrevious(AMBeamlineActionItem *previous){
-	previous_ = previous;
+	if(previous_ != previous){
+		previous_ = previous;
+		emit previousChanged();
+	}
 	return true;
 }
 
 bool AMBeamlineActionItem::setNext(AMBeamlineActionItem *next){
-	next_ = next;
+	if(next_ != next){
+		next_ = next;
+		emit nextChanged();
+	}
 	return true;
 }
 
@@ -269,6 +275,8 @@ void AMBeamlineActionItemView::setAction(AMBeamlineActionItem *action){
 		disconnect(action_, SIGNAL(started()), this, SLOT(updateLook()));
 		disconnect(action_, SIGNAL(failed(int)), this, SLOT(updateLook()));
 		disconnect(action_, SIGNAL(succeeded()), this, SLOT(updateLook()));
+		disconnect(action_, SIGNAL(previousChanged()), this, SLOT(onPreviousNextChanged()));
+		disconnect(action_, SIGNAL(nextChanged()), this, SLOT(onPreviousNextChanged()));
 	}
 	action_ = action;
 	if(action_){
@@ -276,7 +284,10 @@ void AMBeamlineActionItemView::setAction(AMBeamlineActionItem *action){
 		connect(action_, SIGNAL(started()), this, SLOT(updateLook()));
 		connect(action_, SIGNAL(failed(int)), this, SLOT(updateLook()));
 		connect(action_, SIGNAL(succeeded()), this, SLOT(updateLook()));
+		connect(action_, SIGNAL(previousChanged()), this, SLOT(onPreviousNextChanged()));
+		connect(action_, SIGNAL(nextChanged()), this, SLOT(onPreviousNextChanged()));
 	}
+	onPreviousNextChanged();
 }
 
 void AMBeamlineActionItemView::defocusItem(){
@@ -347,6 +358,17 @@ void AMBeamlineActionItemView::updateLook(){
 	setPalette(newPalette);
 }
 
+void AMBeamlineActionItemView::onPreviousNextChanged(){
+
+}
+
+void AMBeamlineActionItemView::onMoveUpButtonClicked(){
+
+}
+
+void AMBeamlineActionItemView::onMoveDownButtonClicked(){
+
+}
 
 
 AMImageListView::AMImageListView(const AMOrderedSet<QString, QPixmap> &images, QWidget *parent) :
