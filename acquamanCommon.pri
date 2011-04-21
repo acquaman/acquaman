@@ -242,7 +242,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMPrefixSuffixLineEdit.h \
 	source/ui/AMDragDropItemModel.h \
 	source/dataman/AMRunExperimentItems.h \
-	#source/ui/AMSampleManagementWidget.h \
+	source/ui/AMSampleManagementWidget.h \
 	source/ui/AMSampleManipulatorView.h \
 	source/ui/AMSamplePlateView.h \
 	source/dataman/AMControlInfoList.h \
@@ -450,7 +450,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMPrefixSuffixLineEdit.cpp \
 	source/ui/AMDragDropItemModel.cpp \
 	source/dataman/AMRunExperimentItems.cpp \
-	#source/ui/AMSampleManagementWidget.cpp \
+	source/ui/AMSampleManagementWidget.cpp \
 	source/ui/AMSampleManipulatorView.cpp \
 	source/ui/AMSamplePlateView.cpp \
 	source/dataman/AMControlInfoList.cpp \
