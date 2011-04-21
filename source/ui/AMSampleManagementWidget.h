@@ -44,6 +44,7 @@ public:
 signals:
 
 public slots:
+	void onNewSamplePlateSelected();
 
 protected:
 // 	AMBeamlineCameraWidget *cam_;

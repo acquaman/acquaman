@@ -225,6 +225,9 @@ public:
 	/// reload the sample plate out of the database to become a different sample plate
 	void changeSamplePlate(int newId) { plate_->loadFromDb(AMDatabase::userdb(), newId); }
 
+signals:
+	/// Emitted when the sample plate is changed
+	void samplePlateChanged();
 
 protected slots:
 	/// Called when the active sample plate is changed substantially (ie: reloaded out of the db)... we need to refresh what's currently highlighted in the list, and refresh the name, date, and notes display
@@ -285,8 +288,14 @@ public:
 	/// Create a sample plate editor, to modify/view an existing sample plate \c existingPlate.  If \c existingPlate is 0, it will create a new sample plate to work with.
 	explicit AMSamplePlateView(AMSamplePlate* existingPlate = 0, QWidget *parent = 0);
 
+	/// Returns the current sample plate
+	AMSamplePlate* samplePlate() { return samplePlate_; }
+
 public slots:
 	void setManipulator(AMControlSet *manipulator) { manipulator_ = manipulator; }
+
+signals:
+	void newSamplePlateSelected();
 
 protected slots:
 	//	void changeSamplePlate(int newPlateId);
@@ -327,141 +336,6 @@ protected:
 
 	/// A model that wraps an AMSamplePlate object for exposing as a list view
 	AMSamplePlateItemModel* samplePlateModel_;
-
-	///
-
-
-	//	QStandardItemModel *sampleTableModel_;
-	//	bool sampleRefreshScheduled_;
-	//	QList<int> sampleRefreshIDs_;
-	//	QList<int> sampleRefreshInstructions_;
 };
-
-//class AMSampleListView : public QFrame
-//{
-//Q_OBJECT
-//public:
-//	AMSampleListView(AMSamplePlate *samplePlate, QStandardItemModel *sampleTableModel, QWidget *parent = 0);
-
-//public slots:
-//	void setManipulator(AMControlSet *manipulator);
-
-//signals:
-
-//protected slots:
-//	void addNewSampleToPlate(int id);
-//	void onSamplePositionChanged(int index);
-//	void onSamplePositionAdded(int index);
-//	void onSamplePositionRemoved(int index);
-
-//protected:
-//	QSize sizeHint() const;
-
-//protected:
-//	AMSamplePlate *samplePlate_;
-//	AMControlSet *manipulator_;
-//	QStandardItemModel *sampleTableModel_;
-
-//	QScrollArea *sa_;
-//	QVBoxLayout *il_;
-//	QFrame *saf_;
-//	//QPushButton *adder_;
-//	AMSamplePositionItemExpandingAdder *adder_;
-//};
-
-//class AMSamplePositionItemView : public QFrame
-//{
-//Q_OBJECT
-//public:
-//	AMSamplePositionItemView(AMSamplePosition *samplePosition, QStandardItemModel *sampleTableModel, AMControlSet *manipulator = 0, int index = -1, QWidget *parent = 0);
-//	int index();
-//	AMControlSet* manipulator();
-
-//public slots:
-//	void setIndex(int index);
-//	void setManipulator(AMControlSet* manipulator);
-
-//protected slots:
-//	bool onSavePositionClicked();
-//	bool onRecallPositionClicked();
-//	bool onSampleBoxIndexChanged(int index);
-//	bool onSampleNameChanged();
-
-//	void updateLook();
-//	void onSamplePositionUpdate(int index);
-//	void defocusItem();
-
-//protected:
-//	void mousePressEvent(QMouseEvent *event);
-
-//protected:
-//	AMSamplePosition *samplePosition_;
-
-//	AMControlSet *manipulator_;
-//	QStandardItemModel *sampleTableModel_;
-//	bool ignoreNameChanged_;
-//	int index_;
-//	bool inFocus_;
-
-//	QHBoxLayout *hl_;
-//	QVBoxLayout *vl_;
-//	QLabel *indexLabel_;
-//	QComboBox *sampleBox_;
-//	QLabel *positionLabel_;
-//	QPushButton *savePositionButton_;
-//	QPushButton *recallPositionButton_;
-//};
-
-//class AMTrickComboBox;
-
-//class AMSamplePositionItemExpandingAdder : public QFrame
-//{
-//Q_OBJECT
-//public:
-//	AMSamplePositionItemExpandingAdder(QStandardItemModel *sampleTableModel, QWidget *parent = 0);
-//	bool expanded() const;
-
-//public slots:
-//	void resetAdder();
-
-//signals:
-//	void sampleToAddChosen(int id);
-
-//protected slots:
-//	void onMarkNewButtonClicked();
-//	void onGoNewButtonClicked();
-//	void onGoExistingButtonClicked();
-
-//	void shrinkBack();
-//	void switchBoxes();
-
-//protected:
-//	QStandardItemModel *sampleTableModel_;
-
-//	QPushButton *markNewButton_;
-//	QLineEdit *newNameEdit_;
-//	QLabel *newNameLabel_;
-//	QComboBox *chooseExistingBox_;
-//	//QComboBox *emptyChooseExistingBox_;
-//	AMTrickComboBox *emptyChooseExistingBox_;
-//	QPushButton *goNewButton_;
-//	QPushButton *goExistingButton_;
-//	QPushButton *cancelButton_;
-
-//	QGridLayout *gl_;
-//};
-
-//class AMTrickComboBox : public QComboBox
-//{
-//Q_OBJECT
-//public:
-//	AMTrickComboBox(QWidget *parent = 0);
-
-//signals:
-//	void clicked();
-
-//protected:
-//	void mousePressEvent(QMouseEvent *e);
-//};
 
 #endif // AMSAMPLEPLATEVIEW_H

@@ -316,6 +316,7 @@ void AMSamplePlateSelector::onSamplePlateChanged(/*bool isValid*/) {
 		// select as current in combo box. If this plate's id is not in the list, findData will return -1 and setCurrentIndex() will select nothing
 		ui_.plateComboBox->setCurrentIndex( ui_.plateComboBox->findData(plate_->id(), AM::IdRole) );
 
+		emit samplePlateChanged();
 	}
 	else {
 		ui_.nameEdit->setText("[no sample plate selected]");
@@ -512,6 +513,8 @@ AMSamplePlateView::AMSamplePlateView(AMSamplePlate *existingPlate, QWidget *pare
 	connect(listViewDelegate, SIGNAL(rowMarkPressed(int)), this, SLOT(onRowMarkPressed(int)));
 	connect(listViewDelegate, SIGNAL(rowMoveToPressed(int)), this, SLOT(onRowMoveToPressed(int)));
 	connect(listViewDelegate, SIGNAL(rowRemovePressed(int)), this, SLOT(onRowRemovePressed(int)));
+
+	connect(samplePlateSelector_, SIGNAL(samplePlateChanged()), this, SIGNAL(newSamplePlateSelected()));
 
 	addSampleButton_->setIcon(QApplication::style()->standardIcon(QStyle::SP_ArrowUp, 0, addSampleButton_));
 
