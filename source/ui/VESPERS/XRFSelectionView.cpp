@@ -31,7 +31,7 @@ XRFSelectionView::XRFSelectionView(QWidget *parent) :
 void XRFSelectionView::addRegionOfInterest(AMElement *el, QPair<QString, QString> line)
 {
 
-	QToolButton *clicked = tableView_->button(el);
+/*	QToolButton *clicked = tableView_->button(el);
 	QPalette palette(clicked->palette());
 
 	if (line.first.contains("K"))
@@ -41,13 +41,13 @@ void XRFSelectionView::addRegionOfInterest(AMElement *el, QPair<QString, QString
 	else if (line.first.contains("M"))
 		palette.setColor(QPalette::Button, Qt::cyan);
 
-	clicked->setPalette(palette);
+	clicked->setPalette(palette);*/
 }
 
 void XRFSelectionView::removeRegionOfInterest(AMElement *el, QPair<QString, QString> line)
 {
-	QToolButton *clicked = tableView_->button(el);
+	/*QToolButton *clicked = tableView_->button(el);
 	QPalette palette(clicked->palette());
 	palette.setColor(QPalette::Button, this->palette().color(QPalette::Button));
-	tableView_->button(el)->setPalette(palette);
+	tableView_->button(el)->setPalette(palette);*/
 }

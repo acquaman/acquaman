@@ -21,8 +21,8 @@ XRFPeriodicTableView::XRFPeriodicTableView(QWidget *parent) :
 	mLines->setFont(font);
 	mLines->setStyleSheet("QLabel { background-color: rgb(0,255,255) ; border-width: 2px ; border-style: solid }");
 
-	tableView_ = new AMPeriodicTableView;
-	tableView_->setMaximumWidth(600);
+//	tableView_ = new AMPeriodicTableView;
+	//tableView_->setMaximumWidth(600);
 
 	QVBoxLayout *legendLayout = new QVBoxLayout;
 	legendLayout->addWidget(legend);
@@ -33,7 +33,7 @@ XRFPeriodicTableView::XRFPeriodicTableView(QWidget *parent) :
 
 	QHBoxLayout *tableLayout = new QHBoxLayout;
 	tableLayout->addLayout(legendLayout);
-	tableLayout->addWidget(tableView_, Qt::AlignLeft);
+	//tableLayout->addWidget(tableView_, Qt::AlignLeft);
 
 	setLayout(tableLayout);
 }
