@@ -76,8 +76,8 @@ AMExportWizardChooseExporterPage::AMExportWizardChooseExporterPage(QWidget *pare
 	connect(exporterComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onExporterComboBoxIndexChanged(int)));
 	connect(browseButton_, SIGNAL(clicked()), this, SLOT(onBrowseButtonClicked()));
 
-	registerField("exporterComboBoxIndex", exporterComboBox_);
-	registerField("exportLocation", destinationFolder_);
+	//registerField("exporterComboBoxIndex", exporterComboBox_);
+	//registerField("exportLocation", destinationFolder_);
 
 
 	QFormLayout* fl = new QFormLayout();
@@ -124,6 +124,7 @@ bool AMExportWizardChooseExporterPage::validatePage()
 {
 	AMExportController* c = qobject_cast<AMExportWizard*>(wizard())->controller();
 
+	c->setDestinationFolderPath(destinationFolder_->text());
 	QString exporterClassName = exporterComboBox_->itemData(exporterComboBox_->currentIndex(), AM::UserRole).toString();
 	return c->chooseExporter(exporterClassName);
 }
@@ -393,8 +394,14 @@ bool AMExportWizardProgressPage::isComplete() const
 void AMExportWizardProgressPage::onControllerStateChanged(int exportControllerState)
 {
 	emit completeChanged();
-	if(exportControllerState == AMExportController::Finished)
+	if(exportControllerState == AMExportController::Finished) {
 		wizard()->setOption(QWizard::NoCancelButton, true);
+		setTitle("Export Finished");
+		QString message = QString::number(controller_->succeededCount()) % " scans were exported succesfully.";
+		if(controller_->failedCount())
+			message.append("\n\n" % QString::number(controller_->failedCount()) % " scans could not be exported.");
+		setSubTitle(message);
+	}
 }
 
 void AMExportWizardProgressPage::onControllerProgressChanged(int current, int total)

@@ -118,7 +118,7 @@ Either way, using setFromValues() instead of the assignment operator means that 
 
 
 	/// Find the index of a control in the list by name. Returns -1 if not found.
-	int indexOf(const QString& controlName);
+	int indexOf(const QString& controlName) const;
 
 
 signals:

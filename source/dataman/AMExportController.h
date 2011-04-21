@@ -181,6 +181,12 @@ public slots:
 	/// Call to resume an export in progress.  Will return false if the export is not currently in the Paused state().
 	bool resume();
 
+	/// Number of scans successfully exported so far
+	int succeededCount() const { return succeededCount_; }
+	/// Number of scans that failed so far with an error
+	int failedCount() const { return failedCount_; }
+
+
 
 protected:
 
@@ -226,6 +232,9 @@ protected:
 
 	/// Descriptive status of progress (ex: "Loading: My Scan #7")
 	QString status_;
+
+	/// Number of scans exported, failed
+	int succeededCount_, failedCount_;
 
 protected slots:
 	/// Called periodically to search scans for their data sources

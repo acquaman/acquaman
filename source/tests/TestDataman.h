@@ -112,7 +112,7 @@ private slots:
 		QString inputText("$Today is $date and I am feeling $mood.\n\n"
 						  "The weather is $weather and I will wear my $shirtColor[3] shirt today.\n\n"
 						  "Some more fun with $words$numbers and $words[asdf fdsa]$numbers[3 4 $notHere ]\n\n"
-						  "This should stay as a $$3 dollars  and this too: $$.  $k$t[ ]$s");
+						  "This should stay as a $$3 dollars  and this too: $$.  $k$t[ ]$s.  Coo?");
 
 		AMTagReplacementParser p('$', '[', ']');
 		p.setInitialText(inputText);
@@ -154,7 +154,7 @@ private slots:
 		QString finalShouldBe("Monday is March 18 and I am feeling bummed out.\n\n"
 							  "The weather is rainy and I will wear my brown shirt today.\n\n"
 							  "Some more fun with wordsnumbers and numbersand words\n\n"
-							 "This should stay as a $3 dollars  and this too: $.  kthxbai");
+							 "This should stay as a $3 dollars  and this too: $.  kthxbai.  Coo?");
 
 		QVERIFY(final == finalShouldBe);
 	}
