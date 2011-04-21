@@ -4,7 +4,7 @@
 #include <QWidget>
 
 #include "util/AMElement.h"
-#include "ui/AMPeriodicTableView.h"
+#include "ui/VESPERS/XRFPeriodicTableView.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
 #include "ui/VESPERS/VESPERSXRFElementView.h"
 
@@ -32,8 +32,8 @@ protected:
 	/// A pointer to the detector.
 	XRFDetector *detector_;
 
-	/// The periodic table view.
-	AMPeriodicTableView *tableView_;
+	/// A pointer to the xrf periodic table view.
+	XRFPeriodicTableView *tableView_;
 };
 
 #endif // XRFSELECTIONVIEW_H
