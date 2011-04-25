@@ -229,8 +229,8 @@ void VESPERSBeamline::setupSingleElementDetector()
 
 void VESPERSBeamline::setupFourElementDetector()
 {
-	status4E_ = new AMReadOnlyPVControl("4-el Status", "dxp1607-B21-04:Status", this);
-	elapsedTime4E_ = new AMReadOnlyPVControl("4-el Elapsed Time", "dxp1607-B21-04:ElaspedReal", this);
+	status4E_ = new AMReadOnlyPVControl("4-el Status", "dxp1607-B21-04:mca1.ACQG", this);
+	elapsedTime4E_ = new AMReadOnlyPVControl("4-el Elapsed Time", "dxp1607-B21-04:ElapsedReal", this);
 	integrationTime4E_ = new AMPVControl("4-el Integration Time", "dxp1607-B21-04:PresetReal", "dxp1607-B21-04:PresetReal", QString(), this);
 	liveTime4E_ = new AMPVControl("4-el Live Time", "dxp1607-B21-04:PresetLive", "dxp1607-B21-04:PresetLive", QString(), this);
 	start4E_ = new AMPVControl("4-el Start", "dxp1607-B21-04:EraseStart", "dxp1607-B21-04:EraseStart", QString(), this);
@@ -238,10 +238,10 @@ void VESPERSBeamline::setupFourElementDetector()
 	maxEnergy4E_ = new AMPVControl("4-el Maximum Energy", "dxp1607-B21-04:mcaEMax", "dxp1607-B21-04:mcaEMax", QString(), this);
 	mcaUpdateRate4E_ = new AMPVControl("4-el MCA Update Rate", "dxp1607-B21-04:ReadAll.SCAN", "dxp1607-B21-04:ReadAll.SCAN", QString(), this);
 	peakingTime4E_ = new AMPVControl("4-el Peaking Time", "dxp1607-B21-04:EnergyPkTime", "dxp1607-B21-04:EnergyPkTime", QString(), this);
-	deadTime14E_ = new AMReadOnlyPVControl("4-el Dead Time 1", "dxp1607-B21-04:dxp1.NetDTP", this);
-	deadTime24E_ = new AMReadOnlyPVControl("4-el Dead Time 2", "dxp1607-B21-04:dxp2.NetDTP", this);
-	deadTime34E_ = new AMReadOnlyPVControl("4-el Dead Time 3", "dxp1607-B21-04:dxp3.NetDTP", this);
-	deadTime44E_ = new AMReadOnlyPVControl("4-el Dead Time 4", "dxp1607-B21-04:dxp4.NetDTP", this);
+	deadTime14E_ = new AMReadOnlyPVControl("4-el Dead Time 1", "dxp1607-B21-04:dxp1:NetDTP", this);
+	deadTime24E_ = new AMReadOnlyPVControl("4-el Dead Time 2", "dxp1607-B21-04:dxp2:NetDTP", this);
+	deadTime34E_ = new AMReadOnlyPVControl("4-el Dead Time 3", "dxp1607-B21-04:dxp3:NetDTP", this);
+	deadTime44E_ = new AMReadOnlyPVControl("4-el Dead Time 4", "dxp1607-B21-04:dxp4:NetDTP", this);
 	rawSpectrum14E_ = new AMReadOnlyPVControl("4-el Raw Spectrum 1", "dxp1607-B21-04:mca1", this);
 	rawSpectrum24E_ = new AMReadOnlyPVControl("4-el Raw Spectrum 2", "dxp1607-B21-04:mca2", this);
 	rawSpectrum34E_ = new AMReadOnlyPVControl("4-el Raw Spectrum 3", "dxp1607-B21-04:mca3", this);

@@ -30,9 +30,9 @@ signals:
 
 public slots:
 	/// Sets the minimum energy.
-	void setMinimumEnergy(double energy) { minimumEnergy_ = energy; tableView_->setMinimumEnergy(energy); }
+	void setMinimumEnergy(double energy) { minimumEnergy_ = energy; tableView_->setMinimumEnergy(energy); elView_->setMinimumEnergy(energy); }
 	/// Sets the maximum energy.
-	void setMaximumEnergy(double energy) { maximumEnergy_ = energy; tableView_->setMaximumEnergy(energy); }
+	void setMaximumEnergy(double energy) { maximumEnergy_ = energy; tableView_->setMaximumEnergy(energy); elView_->setMaximumEnergy(energy); }
 
 protected slots:
 

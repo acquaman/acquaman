@@ -2,6 +2,7 @@
 
 #include <QLabel>
 #include <QVBoxLayout>
+#include <QMessageBox>
 
 XRFPeriodicTableView::XRFPeriodicTableView(double minEnergy, double maxEnergy, QWidget *parent)
 	: QWidget(parent)
@@ -30,6 +31,9 @@ XRFPeriodicTableView::XRFPeriodicTableView(double minEnergy, double maxEnergy, Q
 	disableElements();
 
 	connect(tableView_, SIGNAL(elementSelected(AMElement*)), this, SIGNAL(elementSelected(AMElement*)));
+	connect(tableView_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementSelected(AMElement*)));
+
+	table_ = new XRFPeriodicTable;
 
 	QVBoxLayout *legendLayout = new QVBoxLayout;
 	legendLayout->addWidget(legend);
@@ -53,7 +57,7 @@ void XRFPeriodicTableView::disableElements()
 	for (int i = 0; i < table.size(); i++){
 
 		temp = table.at(i);
-		// Undoes any previous disabling.
+		// Resets the button state.
 		tableView_->button(temp)->setEnabled(true);
 
 		if (temp->Kalpha().second.toDouble() < minimumEnergy_
@@ -66,23 +70,29 @@ void XRFPeriodicTableView::disableElements()
 
 void XRFPeriodicTableView::regionOfInterestAdded(AMElement *el, QPair<QString, QString> line)
 {
-	QToolButton *clicked = tableView_->button(el);
-	QPalette palette(clicked->palette());
+	if (table_->addToList(el, line)){
 
-	if (line.first.contains("K"))
-		palette.setColor(QPalette::Button, Qt::green);
-	else if (line.first.contains("L"))
-		palette.setColor(QPalette::Button, Qt::yellow);
-	else if (line.first.contains("M"))
-		palette.setColor(QPalette::Button, Qt::cyan);
+		QToolButton *clicked = tableView_->button(el);
+		QPalette palette(clicked->palette());
 
-	clicked->setPalette(palette);
+		if (line.first.contains("K"))
+			palette.setColor(QPalette::Button, Qt::green);
+		else if (line.first.contains("L"))
+			palette.setColor(QPalette::Button, Qt::yellow);
+		else if (line.first.contains("M"))
+			palette.setColor(QPalette::Button, Qt::cyan);
+
+		clicked->setPalette(palette);
+	}
 }
 
 void XRFPeriodicTableView::regionOfInterestRemoved(AMElement *el, QPair<QString, QString> line)
 {
-	QToolButton *clicked = tableView_->button(el);
-	QPalette palette(clicked->palette());
-	palette.setColor(QPalette::Button, this->palette().color(QPalette::Button));
-	tableView_->button(el)->setPalette(palette);
+	if (table_->removeFromList(el, line)){
+
+		QToolButton *clicked = tableView_->button(el);
+		QPalette palette(clicked->palette());
+		palette.setColor(QPalette::Button, this->palette().color(QPalette::Button));
+		tableView_->button(el)->setPalette(palette);
+	}
 }

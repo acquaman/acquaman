@@ -4,6 +4,7 @@
 #include <QWidget>
 
 #include "ui/AMPeriodicTableView.h"
+#include "util/VESPERS/XRFPeriodicTable.h"
 
 class XRFPeriodicTableView : public QWidget
 {
@@ -20,6 +21,8 @@ public:
 signals:
 	/// Passes on the signal that an element was selected.  Contains the element.
 	void elementSelected(AMElement *);
+	/// Passes on the signal that an element was selected.  Contains the element and a list of active elements in a QPair of <atomic number, line name>.
+	void elementClicked(AMElement *, QList<QPair<int, QString> >);
 
 public slots:
 	/// Sets the minimum energy.
@@ -32,10 +35,16 @@ public slots:
 	/// Reverts the color of the button back to its original color scheme due to an ROI being deleted.
 	void regionOfInterestRemoved(AMElement *el, QPair<QString, QString> line);
 
+protected slots:
+	/// Handles the element clicked signal.
+	void onElementSelected(AMElement *el) { emit elementClicked(el, table_->checkedList()); }
+
 protected:
 	/// Helper function that disables the buttons based on the current values of maximumEnergy_ and minimumEnergy_.
 	void disableElements();
 
+	/// A pointer to the XRF periodic table.
+	XRFPeriodicTable *table_;
 	/// A generic periodic table view.
 	AMPeriodicTableView *tableView_;
 

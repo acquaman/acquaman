@@ -9,13 +9,13 @@ XRFSelectionView::XRFSelectionView(double minimumEnergy, double maximumEnergy, Q
 	maximumEnergy_ = maximumEnergy;
 
 	tableView_ = new XRFPeriodicTableView(minimumEnergy, maximumEnergy);
-	elView_ = new VESPERSXRFElementView(AMPeriodicTable::table()->elementBySymbol("Fe"));
+	elView_ = new VESPERSXRFElementView(AMPeriodicTable::table()->elementBySymbol("Fe"), minimumEnergy_, maximumEnergy_);
 
-	connect(tableView_, SIGNAL(elementSelected(AMElement*)), elView_, SLOT(setElement(AMElement*)));
+	connect(tableView_, SIGNAL(elementClicked(AMElement*,QList<QPair<int,QString> >)), elView_, SLOT(setElement(AMElement*,QList<QPair<int,QString> >)));
 	connect(tableView_, SIGNAL(elementSelected(AMElement*)), this, SIGNAL(elementSelected(AMElement*)));
-	connect(elView_, SIGNAL(addROI(AMElement*,QPair<QString,QString>)), this, SIGNAL(addRegionOfInterest(AMElement*,QPair<QString,QString>)));
+	//connect(elView_, SIGNAL(addROI(AMElement*,QPair<QString,QString>)), this, SIGNAL(addRegionOfInterest(AMElement*,QPair<QString,QString>)));
 	connect(elView_, SIGNAL(addROI(AMElement*,QPair<QString,QString>)), tableView_, SLOT(regionOfInterestAdded(AMElement*,QPair<QString,QString>)));
-	connect(elView_, SIGNAL(removeROI(AMElement*,QPair<QString,QString>)), this, SIGNAL(removeRegionOfInterest(AMElement*,QPair<QString,QString>)));
+	//connect(elView_, SIGNAL(removeROI(AMElement*,QPair<QString,QString>)), this, SIGNAL(removeRegionOfInterest(AMElement*,QPair<QString,QString>)));
 	connect(elView_, SIGNAL(removeROI(AMElement*,QPair<QString,QString>)), tableView_, SLOT(regionOfInterestRemoved(AMElement*,QPair<QString,QString>)));
 
 	QHBoxLayout *tableLayout = new QHBoxLayout;

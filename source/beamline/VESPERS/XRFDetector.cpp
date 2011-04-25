@@ -30,10 +30,15 @@ XRFDetector::XRFDetector(QString name, int elements, AMControl *status, AMContro
 	integrationTimeControl_ = integrationTime;
 	liveTimeControl_ = liveTime;
 	elapsedTimeControl_ = elapsedTime;
-	deadTimeControl_ = deadTime;
-	spectraControl_ = spectra;
 	startControl_ = start;
 	stopControl_ = stop;
+
+	deadTimeControl_ = new AMControlSet(this);
+	for (int i = 0; i < deadTime->count(); i++)
+		deadTimeControl_->addControl(deadTime->at(i));
+	spectraControl_ = new AMControlSet(this);
+	for (int i = 0; i < spectra->count(); i++)
+		spectraControl_->addControl(spectra->at(i));
 
 	readingControls_ = new AMControlSet(this);
 	settingsControls_ = new AMControlSet(this);
@@ -62,6 +67,7 @@ XRFDetector::XRFDetector(QString name, int elements, AMControl *status, AMContro
 	connect(integrationTimeControl_, SIGNAL(valueChanged(double)), this, SLOT(setTime(double)));
 	connect(peakingTimeControl_, SIGNAL(valueChanged(double)), this, SLOT(setPeakingTime(double)));
 	connect(maximumEnergyControl_, SIGNAL(valueChanged(double)), this, SLOT(setMaximumEnergy(double)));
+	connect(spectraControl_, SIGNAL(controlSetValuesChanged()), this, SLOT(setChannelSize()));
 
 	for (int i = 0; i < roiList().size(); i++)
 		connect(roiList().at(i), SIGNAL(roiConnected(bool)), this, SLOT(detectorConnected(bool)));
