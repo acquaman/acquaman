@@ -12,6 +12,7 @@ class XRFDetectorInfo : public AMDetectorInfo
 	Q_PROPERTY(double maximumEnergy READ maximumEnergy WRITE setMaximumEnergy)
 	Q_PROPERTY(int elements READ elements WRITE setElements)
 	Q_PROPERTY(int activeElements READ activeElements WRITE setActiveElements)
+	Q_PROPERTY(int channels READ channels WRITE setChannels)
 	Q_PROPERTY(int refreshRate READ refreshRate WRITE setRefreshRate)
 	Q_PROPERTY(double integrationTime READ integrationTime WRITE setIntegrationTime)
 	Q_PROPERTY(double peakingTime READ peakingTime WRITE setPeakingTime)
@@ -47,7 +48,7 @@ public:
 	/// Returns a list of AMAxisInfo describing the size and nature of each detector axis, in order.
 	virtual QList<AMAxisInfo> axes() const {
 		QList<AMAxisInfo> axisInfo;
-		AMAxisInfo ai("XRF Scan", size().i(), "Energy", "eV");
+		AMAxisInfo ai("XRF Scan", channels(), "Energy", "eV");
 		ai.increment = AMNumber(scale());
 		ai.start = AMNumber(0);
 		ai.isUniform = true;
@@ -63,7 +64,7 @@ public:
 	/// The maximum energy calibration for the detector.  Primary indicator for energy divisions per channel number.
 	double maximumEnergy() const { return maxEnergy_; }
 	/// Returns the scale that would transform an energy and width into upper and lower bounds for a detector.
-	double scale() const { return maximumEnergy()*1000/size().i(); }
+	double scale() const { return maximumEnergy()*1000/channels(); }
 	/// The number of elements in the detector.
 	int elements() const { return elements_; }
 	/// The number of active elements.  The number currently being used (note: #active <= #elements).
@@ -90,7 +91,7 @@ public:
 
 public slots:
 
-	/// Set the number of channels in the spectral output.
+	/// Set the AMnDIndex size in the spectral output.
 	bool setSize(const AMnDIndex &size)
 	{
 		if (size.rank() != 1)
@@ -100,6 +101,8 @@ public slots:
 		setModified(true);
 		return true;
 	}
+	/// Sets the number of channels in the spectral output.
+	void setChannels(int num) { channels_ = num; setModified(true); }
 	/// Sets the maximum energy calibration for the detector.
 	void setMaximumEnergy(double energy);
 	/// Sets the number of elements in the detector.

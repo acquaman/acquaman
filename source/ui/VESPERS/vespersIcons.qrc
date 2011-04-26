@@ -2,5 +2,7 @@
     <qresource prefix="/">
         <file>red-stop-button.png</file>
         <file>play_button_green.png</file>
+        <file>OFF.png</file>
+        <file>ON.png</file>
     </qresource>
 </RCC>
