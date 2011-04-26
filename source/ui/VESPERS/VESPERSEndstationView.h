@@ -13,6 +13,8 @@
 #include <QSlider>
 #include <QToolButton>
 #include <QMap>
+#include <QComboBox>
+#include <QPushButton>
 
 /// This class is used to configure the endstation control.  As the endstation expands, the things that will need to be modified will also change.  Therefore, this class should expand with any expansion of the endstation class.
 /// This will configure the buttons, as other things are added to the endstation it will do more.
@@ -176,6 +178,10 @@ private slots:
 	void onUpperFilterUpdate();
 	/// Handles updates from the lower shutter filter push button.
 	void onLowerFilterUpdate();
+	/// Handles the connection of the filter set.
+	void onFiltersConnected(bool isConnected);
+	/// Sets the filter combo box based on original values at start up and if they are changed outside of the program.
+	void onFiltersChanged();
 
 
 private:
@@ -218,6 +224,11 @@ private:
 	// Flags for message boxes.
 	bool microscopeSafe_;
 	bool ccdSafe_;
+
+	// Filter combo box and push buttons.
+	QComboBox *filterComboBox_;
+	QPushButton *filterUpperButton_;
+	QPushButton *filterLowerButton_;
 
 	// Control pointers.
 	// The controls used for the control window.

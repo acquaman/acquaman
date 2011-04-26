@@ -2,12 +2,12 @@
 #include "ui/AMStopButton.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
 
-#include <QPushButton>
 #include <QGridLayout>
 #include <QDebug>
 #include <QList>
 #include <QGroupBox>
 #include <QVBoxLayout>
+#include <QHBoxLayout>
 #include <QFormLayout>
 #include <QFile>
 #include <QTextStream>
@@ -16,7 +16,6 @@
 #include <QDir>
 #include <QLabel>
 #include <QMessageBox>
-#include <QComboBox>
 
 VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	: QWidget(parent)
@@ -138,38 +137,40 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	filterShutterUpper_ = qobject_cast<AMPVControl *>(VESPERSBeamline::vespers()->filterShutterUpper());
 	filterShutterLower_ = qobject_cast<AMPVControl *>(VESPERSBeamline::vespers()->filterShutterLower());
 
-	QComboBox *filterComboBox = new QComboBox;
-	filterComboBox->addItem("None");
-	filterComboBox->addItem(QString::fromUtf8("50 μm"));
-	filterComboBox->addItem(QString::fromUtf8("100 μm"));
-	filterComboBox->addItem(QString::fromUtf8("150 μm"));
-	filterComboBox->addItem(QString::fromUtf8("200 μm"));
-	filterComboBox->addItem(QString::fromUtf8("250 μm"));
-	filterComboBox->addItem(QString::fromUtf8("300 μm"));
-	filterComboBox->addItem(QString::fromUtf8("350 μm"));
-	filterComboBox->addItem(QString::fromUtf8("400 μm"));
-	filterComboBox->addItem(QString::fromUtf8("450 μm"));
-	filterComboBox->addItem(QString::fromUtf8("500 μm"));
-	filterComboBox->addItem(QString::fromUtf8("550 μm"));
-	filterComboBox->addItem(QString::fromUtf8("600 μm"));
-	filterComboBox->addItem(QString::fromUtf8("650 μm"));
-	filterComboBox->addItem(QString::fromUtf8("700 μm"));
-	filterComboBox->addItem(QString::fromUtf8("750 μm"));
-	filterComboBox->addItem(QString::fromUtf8("800 μm"));
-	connect(filterComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onFilterComboBoxUpdate(int)));
+	filterComboBox_ = new QComboBox;
+	filterComboBox_->addItem("None");
+	filterComboBox_->addItem(QString::fromUtf8("50 μm"));
+	filterComboBox_->addItem(QString::fromUtf8("100 μm"));
+	filterComboBox_->addItem(QString::fromUtf8("150 μm"));
+	filterComboBox_->addItem(QString::fromUtf8("200 μm"));
+	filterComboBox_->addItem(QString::fromUtf8("250 μm"));
+	filterComboBox_->addItem(QString::fromUtf8("300 μm"));
+	filterComboBox_->addItem(QString::fromUtf8("350 μm"));
+	filterComboBox_->addItem(QString::fromUtf8("400 μm"));
+	filterComboBox_->addItem(QString::fromUtf8("450 μm"));
+	filterComboBox_->addItem(QString::fromUtf8("500 μm"));
+	filterComboBox_->addItem(QString::fromUtf8("550 μm"));
+	filterComboBox_->addItem(QString::fromUtf8("600 μm"));
+	filterComboBox_->addItem(QString::fromUtf8("650 μm"));
+	filterComboBox_->addItem(QString::fromUtf8("700 μm"));
+	filterComboBox_->addItem(QString::fromUtf8("750 μm"));
+	filterComboBox_->addItem(QString::fromUtf8("800 μm"));
+	connect(filterComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onFilterComboBoxUpdate(int)));
+	connect(VESPERSBeamline::vespers()->filterSet(), SIGNAL(connected(bool)), this, SLOT(onFiltersChanged()));
+	connect(VESPERSBeamline::vespers()->filterSet(), SIGNAL(controlSetValuesChanged()), this, SLOT(onFiltersChanged()));
 
-	QPushButton *filterUpperButton = new QPushButton("Upper Shutter");
-	filterUpperButton->setCheckable(true);
-	connect(filterUpperButton, SIGNAL(toggled(bool)), this, SLOT(onUpperFilterUpdate()));
+	filterUpperButton_ = new QPushButton("Upper Shutter");
+	filterUpperButton_->setCheckable(true);
+	connect(filterUpperButton_, SIGNAL(toggled(bool)), this, SLOT(onUpperFilterUpdate()));
 
-	QPushButton *filterLowerButton = new QPushButton("Lower Shutter");
-	filterLowerButton->setCheckable(true);
-	connect(filterLowerButton, SIGNAL(toggled(bool)), this, SLOT(onLowerFilterUpdate()));
+	filterLowerButton_ = new QPushButton("Lower Shutter");
+	filterLowerButton_->setCheckable(true);
+	connect(filterLowerButton_, SIGNAL(toggled(bool)), this, SLOT(onLowerFilterUpdate()));
 
 	QHBoxLayout *filterLayout = new QHBoxLayout;
-	filterLayout->addWidget(filterComboBox);
-	filterLayout->addWidget(filterUpperButton);
-	filterLayout->addWidget(filterLowerButton);
+	filterLayout->addWidget(filterComboBox_);
+	filterLayout->addWidget(filterUpperButton_);
+	filterLayout->addWidget(filterLowerButton_);
 
 	QGroupBox *filterGroupBox = new QGroupBox("Filters");
 	filterGroupBox->setLayout(filterLayout);
@@ -186,11 +187,18 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	toolBar->addAction(configAction);
 	toolBar->setMovable(false);
 
-	QGridLayout *layout = new QGridLayout;
-	layout->addWidget(ccdGB, 2, 1);
-	layout->addWidget(windowGB, 1, 1);
-	layout->addWidget(controlGB, 0, 0, 4, 1);
-	layout->addWidget(filterGroupBox, 0, 1);
+	QVBoxLayout *extrasLayout = new QVBoxLayout;
+	extrasLayout->addStretch();
+	extrasLayout->addWidget(filterGroupBox);
+	extrasLayout->addWidget(windowGB);
+	extrasLayout->addWidget(ccdGB);
+	extrasLayout->addStretch();
+
+	QHBoxLayout *layout = new QHBoxLayout;
+	layout->addStretch();
+	layout->addWidget(controlGB);
+	layout->addLayout(extrasLayout);
+	layout->addStretch();
 
 	setLayout(layout);
 	setMinimumSize(530, 465);
@@ -201,11 +209,86 @@ VESPERSEndstationView::~VESPERSEndstationView()
 	delete config_;
 }
 
+void VESPERSEndstationView::onFiltersConnected(bool isConnected)
+{
+	if (!isConnected)
+		return;
+
+	connect(VESPERSBeamline::vespers()->filterSet(), SIGNAL(controlSetValuesChanged()), this, SLOT(onFiltersChanged()));
+}
+
+void VESPERSEndstationView::onFiltersChanged()
+{
+	int sum = 0;
+	AMPVControl *temp;
+
+	for (int i = 0; i < VESPERSBeamline::vespers()->filterSet()->count()-2; i++){
+
+		temp = qobject_cast<AMPVControl *>(VESPERSBeamline::vespers()->filterSet()->at(i));
+
+		if (temp){
+			if (temp->readPV()->getInt() == 1){
+
+				switch(i){
+
+				case 0:
+				case 1:
+					sum += 5;
+					break;
+				case 2:
+				case 3:
+					sum += 2;
+					break;
+				case 4:
+				case 5:
+					sum += 1;
+					break;
+				}
+			}
+		}
+	}
+
+	filterComboBox_->blockSignals(true);
+	filterComboBox_->setCurrentIndex(sum);
+	filterComboBox_->blockSignals(false);
+
+	// Handles the upper shutter button individually.
+	temp = qobject_cast<AMPVControl *>(VESPERSBeamline::vespers()->filterShutterUpper());
+
+	if (temp){
+
+		filterUpperButton_->blockSignals(true);
+
+		if (temp->readPV()->getInt() == 1)
+			filterUpperButton_->setChecked(true);
+		else
+			filterUpperButton_->setChecked(false);
+
+		filterUpperButton_->blockSignals(false);
+	}
+
+	// Handles the lower shutter button individually.
+	temp = qobject_cast<AMPVControl *>(VESPERSBeamline::vespers()->filterShutterLower());
+
+	if (temp){
+
+		filterLowerButton_->blockSignals(true);
+
+		if (temp->readPV()->getInt() == 1)
+			filterLowerButton_->setChecked(true);
+		else
+			filterLowerButton_->setChecked(false);
+
+		filterLowerButton_->blockSignals(false);
+	}
+}
+
 void VESPERSEndstationView::onFilterComboBoxUpdate(int index)
 {
 	AMPVControl *temp;
-	// Put all the filters back to an original state.
-	for (int i = 0; i < VESPERSBeamline::vespers()->filterSet()->count(); i++){
+
+	// Put all the filters back to an original state.  The -2 is to exclude the upper and lower shutters.
+	for (int i = 0; i < VESPERSBeamline::vespers()->filterSet()->count()-2; i++){
 
 		temp = qobject_cast<AMPVControl *>(VESPERSBeamline::vespers()->filterSet()->at(i));
 

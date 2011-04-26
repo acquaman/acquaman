@@ -53,7 +53,6 @@ void VESPERSBeamline::setupDiagnostics()
 	ccgPostWindow_ =  new AMReadOnlyPVwStatusControl("Pressure Post-Window", "CCG1607-2-B21-03:vac:p", "CCG1607-2-B21-03:vac", this, new AMControlStatusCheckerDefault(0));
 
 	// Valve controls.
-	/// \todo This only reads the status right now.  Will need to change to a dual state control when I get around to making it.
 	vvrFE1_ = new AMReadOnlyPVControl("Valve FE1", "VVR1408-B20-01:state", this);
 	vvrFE2_ = new AMReadOnlyPVControl("Valve FE2", "VVR1607-1-B20-01:state", this);
 	vvrM1_ = new AMReadOnlyPVControl("Valve M1", "VVR1607-1-B20-02:state", this);
@@ -65,6 +64,19 @@ void VESPERSBeamline::setupDiagnostics()
 	vvrBPM3_ = new AMReadOnlyPVControl("Valve BPM3", "VVR1607-1-B20-08:state", this);
 	vvrSSH_ = new AMReadOnlyPVControl("Valve SSH", "VVR1607-1-B21-01:state", this);
 	vvrBeamTransfer_ = new AMReadOnlyPVControl("Valve Beam Transfer", "VVR1607-2-B21-01:state", this);
+
+	// The actual valve control.  The reason for separating them is due to the fact that there currently does not exist an AMControl that handles setups like valves.
+	valveFE1_ = new AMValveControl("Valve Control FE1", "VVR1408-B20-01:state", "VVR1408-B20-01:opr:open", "VVR1408-B20-01:opr:close", this);
+	valveFE2_ = new AMValveControl("Valve Control FE2", "VVR1607-1-B20-01:state", "VVR1607-1-B20-01:opr:open", "VVR1607-1-B20-01:opr:close", this);
+	valveM1_ = new AMValveControl("Valve Control M1", "VVR1607-1-B20-02:state", "VVR1607-1-B20-02:opr:open", "VVR1607-1-B20-02:opr:close", this);
+	valveM2_ = new AMValveControl("Valve Control M2", "VVR1607-1-B20-03:state", "VVR1607-1-B20-03:opr:open", "VVR1607-1-B20-03:opr:close", this);
+	valveBPM1_ = new AMValveControl("Valve Control BPM1", "VVR1607-1-B20-04:state", "VVR1607-1-B20-04:opr:open", "VVR1607-1-B20-04:opr:close", this);
+	valveMono_ = new AMValveControl("Valve Control Mono", "VVR1607-1-B20-05:state", "VVR1607-1-B20-05:opr:open", "VVR1607-1-B20-05:opr:close", this);
+	valveExitSlits_ = new AMValveControl("Valve Control Exit Slits", "VVR1607-1-B20-06:state", "VVR1607-1-B20-06:opr:open", "VVR1607-1-B20-06:opr:close", this);
+	valveStraightSection_ = new AMValveControl("Valve Control Straight Section", "VVR1607-1-B20-07:state", "VVR1607-1-B20-07:opr:open", "VVR1607-1-B20-07:opr:close", this);
+	valveBPM3_ = new AMValveControl("Valve Control BPM3", "VVR1607-1-B20-08:state", "VVR1607-1-B20-08:opr:open", "VVR1607-1-B20-08:opr:close", this);
+	valveSSH_ = new AMValveControl("Valve Control SSH", "VVR1607-1-B21-01:state", "VVR1607-1-B21-01:opr:open", "VVR1607-1-B21-01:opr:close", this);
+	valveBeamTransfer_ = new AMValveControl("Valve Control Beam Transfer", "VVR1607-2-B21-01:state", "VVR1607-2-B21-01:opr:open", "VVR1607-2-B21-01:opr:close", this);
 
 	// Ion pump controls.
 	iopFE1a_ = new AMReadOnlyPVControl("Ion Pump FE1 a", "IOP1408-B20-01", this);
@@ -357,6 +369,20 @@ void VESPERSBeamline::setupControlSets()
 
 	connect(valveSet_, SIGNAL(connected(bool)), this, SLOT(valveConnected(bool)));
 
+	// Grouping the valve state modifying controls together.
+	valveList_ = new QList<AMValveControl *>;
+	valveList_->append(valveFE1_);
+	valveList_->append(valveFE2_);
+	valveList_->append(valveM1_);
+	valveList_->append(valveM2_);
+	valveList_->append(valveBPM1_);
+	valveList_->append(valveMono_);
+	valveList_->append(valveExitSlits_);
+	valveList_->append(valveStraightSection_);
+	valveList_->append(valveBPM3_);
+	valveList_->append(valveSSH_);
+	valveList_->append(valveBeamTransfer_);
+
 	// Grouping the ion pump controls together.
 	ionPumpSet_ = new AMControlSet(this);
 	ionPumpSet_->addControl(iopFE1a_);
@@ -458,6 +484,8 @@ void VESPERSBeamline::setupControlSets()
 	filterSet_->addControl(filter100umB_);
 	filterSet_->addControl(filter50umA_);
 	filterSet_->addControl(filter50umB_);
+	filterSet_->addControl(filterShutterUpper_);
+	filterSet_->addControl(filterShutterLower_);
 }
 
 void VESPERSBeamline::pressureConnected(bool connected)
@@ -683,6 +711,17 @@ VESPERSBeamline::~VESPERSBeamline()
 	delete vvrStraightSection_;
 	delete vvrBPM3_;
 	delete vvrSSH_;
+	delete valveFE1_;
+	delete valveFE2_;
+	delete valveM1_;
+	delete valveM2_;
+	delete valveBPM1_;
+	delete valveMono_;
+	delete valveExitSlits_;
+	delete valveStraightSection_;
+	delete valveBPM3_;
+	delete valveSSH_;
+	delete valveBeamTransfer_;
 	delete vvrBeamTransfer_;
 	delete iopFE1a_;
 	delete iopFE1b_;
@@ -747,6 +786,7 @@ VESPERSBeamline::~VESPERSBeamline()
 	delete fltPoeSsh2_;
 	delete pressureSet_;
 	delete valveSet_;
+	delete valveList_;
 	delete ionPumpSet_;
 	delete temperatureSet_;
 	delete flowSwitchSet_;

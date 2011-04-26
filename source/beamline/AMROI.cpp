@@ -80,7 +80,7 @@ void AMROI::setLow(int low)
 
 void AMROI::setLow(double low)
 {
-	setLow((int)low*scale_);
+	setLow((int)low/scale_);
 }
 
 void AMROI::setHigh(int high)
@@ -93,7 +93,7 @@ void AMROI::setHigh(int high)
 
 void AMROI::setHigh(double high)
 {
-	setHigh((int)high*scale_);
+	setHigh((int)high/scale_);
 }
 
 void AMROI::setRegion(QString name, double energy, double width)

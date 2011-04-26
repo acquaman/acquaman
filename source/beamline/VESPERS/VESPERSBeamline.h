@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMBeamline.h"
 #include "beamline/AMControlSet.h"
+#include "beamline/VESPERS/AMValveControl.h"
 #include "util/AMErrorMonitor.h"
 #include "beamline/VESPERS/XRFDetector.h"
 
@@ -116,6 +117,32 @@ public:
 	AMControl *vvrSSH() const { return vvrSSH_; }
 	/// Returns the valve control for the beam transfer section (1).
 	AMControl *vvrBeamTransfer() const { return vvrBeamTransfer_; }
+
+	// The valve control.
+	/// Returns the valve state modifying control for Front End section 1.
+	AMValveControl *valveFE1() const { return valveFE1_; }
+	/// Returns the valve state modifying control for Front End section 2a.
+	AMValveControl *valveFE2() const { return valveFE2_; }
+	/// Returns the valve state modifying control for M1.
+	AMValveControl *valveM1() const { return valveM1_; }
+	/// Returns the valve state modifying control for M2.
+	AMValveControl *valveM2() const { return valveM2_; }
+	/// Returns the valve state modifying control for BPM1.
+	AMValveControl *valveBPM1() const { return valveBPM1_; }
+	/// Returns the valve state modifying control for the Mono.
+	AMValveControl *valveMono() const { return valveMono_; }
+	/// Returns the valve state modifying control for the exit slits.
+	AMValveControl *valveExitSlits() const { return valveExitSlits_; }
+	/// Returns the valve state modifying control for the straight section.
+	AMValveControl *valveStraightSection() const { return valveStraightSection_; }
+	/// Returns the valve state modifying control for BPM3.
+	AMValveControl *valveBPM3() const { return valveBPM3_; }
+	/// Returns the valve state modifying control at the POE SSH.
+	AMValveControl *valveSSH() const { return valveSSH_; }
+	/// Returns the valve state modifying control for the beam transfer section (1).
+	AMValveControl *valveBeamTransfer() const { return valveBeamTransfer_; }
+	/// Returns the list of all the valves.
+	QList<AMValveControl *> *valveList() const { return valveList_; }
 
 	// Ion pumps
 	/// Returns the ion pump control for Front End section 1.a
@@ -486,6 +513,20 @@ protected:
 	AMControl *vvrBPM3_;
 	AMControl *vvrSSH_;
 	AMControl *vvrBeamTransfer_;
+
+	// The Valve controls that change the state of the valve.
+	AMValveControl *valveFE1_;
+	AMValveControl *valveFE2_;
+	AMValveControl *valveM1_;
+	AMValveControl *valveM2_;
+	AMValveControl *valveBPM1_;
+	AMValveControl *valveMono_;
+	AMValveControl *valveExitSlits_;
+	AMValveControl *valveStraightSection_;
+	AMValveControl *valveBPM3_;
+	AMValveControl *valveSSH_;
+	AMValveControl *valveBeamTransfer_;
+	QList<AMValveControl *> *valveList_;
 
 	// Ion pump controls.
 	AMControl *iopFE1a_;
