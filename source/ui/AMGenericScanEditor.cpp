@@ -25,9 +25,17 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QList>
 #include <QUrl>
 
+#include "acquaman.h"
+
 #include "dataman/AMDbObjectSupport.h"
+#include "dataman/AMScan.h"
 
 #include "ui/AMDetailedItemDelegate.h"
+#include "ui/AMScanView.h"
+#include "ui/AMVerticalStackWidget.h"
+#include "ui/AMRunSelector.h"
+#include "ui/AMSampleEditor.h"
+#include "ui/AMDataSourcesEditor.h"
 
 AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 		QWidget(parent)
@@ -69,14 +77,14 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 	sampleEditorHolder->setLayout(new QVBoxLayout);
 	sampleEditor_ = new AMSampleEditor(AMDatabase::userdb());
 	sampleEditorHolder->layout()->addWidget(sampleEditor_);
-	stackWidget_->addItem(sampleEditorHolder, "Sample Information");
+	stackWidget_->addItem("Sample Information", sampleEditorHolder);
 
 	dataSourcesEditor_ = new AMDataSourcesEditor(scanSetModel_);
-	stackWidget_->addItem(dataSourcesEditor_, "Plot Data");
+	stackWidget_->addItem("Plot Data", dataSourcesEditor_);
 
 	QWidget* temp3 = new QWidget();
 	temp3->setMinimumHeight(200);
-	stackWidget_->addItem(temp3, "Beamline Information");
+	stackWidget_->addItem("Beamline Information", temp3);
 
 
 
@@ -400,4 +408,10 @@ void AMGenericScanEditor::onSaveScanButtonClicked() {
 
 void AMGenericScanEditor::onOpenScanButtonClicked() {
 	/// \todo need open scan browser dialog
+}
+
+void AMGenericScanEditor::deleteScan(AMScan *scan) {
+	scanSetModel_->removeScan(scan);
+	delete scan;
+	refreshWindowTitle();
 }

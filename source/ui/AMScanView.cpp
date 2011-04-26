@@ -20,11 +20,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMScanView.h"
 #include <QGraphicsWidget>
+#include "dataman/AMScan.h"
 #include "dataman/AMDataSourceSeriesData.h"
 #include "dataman/AMDataSourceImageData.h"
 #include "MPlot/MPlotImage.h"
 #include "MPlot/MPlotSeries.h"
 #include <QScrollBar>
+
 
 AMScanViewScanBar::AMScanViewScanBar(AMScanSetModel* model, int scanIndex, QWidget* parent)
 	: QFrame(parent)

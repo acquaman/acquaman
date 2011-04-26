@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMVerticalStackWidget.h"
 
 #include "ui/AMHeaderButton.h"
-
+#include <QDebug>
 
 
 AMVerticalStackWidget::AMVerticalStackWidget(QWidget *parent) :
@@ -75,17 +75,21 @@ QWidget* AMVerticalStackWidget::widget(int index) const {
 }
 
 /// Insert a widget at a specific index in the stack. Inserting at \c index = -1 is equivalent to appending to the end. The AMVerticalStackWidget takes ownership of the widget.
-void AMVerticalStackWidget::insertItem(int index, QWidget* widget, bool collapsable) {
+void AMVerticalStackWidget::insertItem(int index, const QString& titleText, QWidget* widget, bool collapsable) {
 	if(index < 0 || index > count())
 		index = count();
 
-	QStandardItem* item = new QStandardItem(widget->windowTitle());
+	if(widget->windowTitle() != titleText)
+		widget->setWindowTitle(titleText);
+
+	QStandardItem* item = new QStandardItem(titleText);
 	item->setData(qVariantFromValue(widget), AM::PointerRole);
 	item->setData(false, Qt::CheckStateRole);
 	item->setFlags( collapsable ? (Qt::ItemIsEnabled | Qt::ItemIsUserCheckable) : Qt::ItemIsEnabled);
 
 	AMHeaderButton* header = new AMHeaderButton();
-	header->setText(widget->windowTitle());
+	header->setText(titleText);
+	qDebug() << "Title text (in):" << titleText;
 	header->setArrowType(Qt::DownArrow);
 	item->setData(qVariantFromValue(header), AM::WidgetRole);
 	connect(header, SIGNAL(clicked()), this, SLOT(onHeaderButtonClicked()));
