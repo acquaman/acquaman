@@ -57,7 +57,6 @@ public:
 	 \param widget The widget to include in the stack
 	 */
 	void addItem(const QString& titleText, QWidget* widget, bool collapsable = true) {
-		qDebug() << "Title text:" << titleText;
 		insertItem(-1, titleText, widget, collapsable);
 	}
 	/// Add a widget at the bottom of the stack. Widgets are initially shown expanded.  The AMVerticalStackWidget takes ownership of the widget.  The widget's windowTitle() is used for the header bar text.

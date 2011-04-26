@@ -21,7 +21,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMVerticalStackWidget.h"
 
 #include "ui/AMHeaderButton.h"
-#include <QDebug>
 
 
 AMVerticalStackWidget::AMVerticalStackWidget(QWidget *parent) :
@@ -30,51 +29,30 @@ AMVerticalStackWidget::AMVerticalStackWidget(QWidget *parent) :
 	vl_ = new QVBoxLayout();
 	vl_->setSpacing(0);
 	vl_->setContentsMargins(0,0,0,0);
-	//spacer_ = new QSpacerItem(0,0,QSizePolicy::Preferred, QSizePolicy::Expanding);
-	//vl_->addSpacerItem(spacer_);
-	//vl_->addStretch(1);
 	vl_->setAlignment(Qt::AlignTop);
 	setLayout(vl_);
 
 	setFrameShape(QFrame::StyledPanel);
 	setFrameShadow(QFrame::Sunken);
 	setStyleSheet("AMVerticalStackWidget {background:white; }");
-
-
-}
-/*
-
-void AMVerticalStackWidget::setExpanding(bool expanding) {
-	if(expanding && !spacer_) {
-		spacer_ = new QSpacerItem(0,0,QSizePolicy::Preferred, QSizePolicy::Expanding);
-		vl_->addSpacerItem(spacer_);
-	}
-
-	if(!expanding && spacer_) {
-		delete spacer_;
-		spacer_ = 0;
-	}
 }
 
-*/
 
-
-
-/// Return the index of a widget in the stack. (-1 if not found)
+// Return the index of a widget in the stack. (-1 if not found)
 int AMVerticalStackWidget::indexOf(QWidget* widget) const {
 	for(int i=0; i<count(); i++)
 		if( model_.data(model_.index(i,0), AM::PointerRole).value<QWidget*>() == widget)
 			return i;
 	return -1;
 }
-/// Return the widget at a specific index, or 0 for invalid indexes
+// Return the widget at a specific index, or 0 for invalid indexes
 QWidget* AMVerticalStackWidget::widget(int index) const {
 	if(index<0 || index>=count())
 		return 0;
 	return model_.data(model_.index(index,0), AM::PointerRole).value<QWidget*>();
 }
 
-/// Insert a widget at a specific index in the stack. Inserting at \c index = -1 is equivalent to appending to the end. The AMVerticalStackWidget takes ownership of the widget.
+// Insert a widget at a specific index in the stack. Inserting at \c index = -1 is equivalent to appending to the end. The AMVerticalStackWidget takes ownership of the widget.
 void AMVerticalStackWidget::insertItem(int index, const QString& titleText, QWidget* widget, bool collapsable) {
 	if(index < 0 || index > count())
 		index = count();
@@ -89,7 +67,6 @@ void AMVerticalStackWidget::insertItem(int index, const QString& titleText, QWid
 
 	AMHeaderButton* header = new AMHeaderButton();
 	header->setText(titleText);
-	qDebug() << "Title text (in):" << titleText;
 	header->setArrowType(Qt::DownArrow);
 	item->setData(qVariantFromValue(header), AM::WidgetRole);
 	connect(header, SIGNAL(clicked()), this, SLOT(onHeaderButtonClicked()));
@@ -107,7 +84,7 @@ void AMVerticalStackWidget::insertItem(int index, const QString& titleText, QWid
 }
 
 
-/// Remove a widget and return it.
+// Remove a widget and return it.
 QWidget* AMVerticalStackWidget::takeItem(int index) {
 	if(index<0 || index>=count())
 		return 0;
@@ -118,7 +95,6 @@ QWidget* AMVerticalStackWidget::takeItem(int index) {
 
 	vl_->takeAt(2*index);
 	vl_->takeAt(2*index);
-	//vl_->takeAt(2*index + 1);
 
 	delete b;
 	delete item;
@@ -127,7 +103,7 @@ QWidget* AMVerticalStackWidget::takeItem(int index) {
 	return w;
 }
 
-/// Is this item collapsable?
+// Is this item collapsable?
 bool AMVerticalStackWidget::itemCollapsable(int index) const {
 	if(index < 0 || index >= count())
 		return false;
@@ -135,7 +111,7 @@ bool AMVerticalStackWidget::itemCollapsable(int index) const {
 	QStandardItem* item = model_.item(index,0);
 	return (item->flags() & Qt::ItemIsUserCheckable);
 }
-/// Is this item collapsed?
+// Is this item collapsed?
 bool AMVerticalStackWidget::itemIsCollapsed(int index) const {
 	if(index < 0 || index >= count())
 		return false;
@@ -143,7 +119,7 @@ bool AMVerticalStackWidget::itemIsCollapsed(int index) const {
 	return model_.data(model_.index(index,0), Qt::CheckStateRole).toBool();
 }
 
-/// Set the heading text for a widget
+// Set the heading text for a widget
 void AMVerticalStackWidget::setItemText(int index, const QString& text) {
 	if(index < 0 || index >= count())
 		return;
@@ -156,7 +132,7 @@ void AMVerticalStackWidget::setItemText(int index, const QString& text) {
 }
 
 
-/// Expand a given widget
+// Expand a given widget
 void AMVerticalStackWidget::expandItem(int index) {
 	if(index < 0 || index >= count())
 		return;
@@ -170,7 +146,7 @@ void AMVerticalStackWidget::expandItem(int index) {
 	model_.setData(model_.index(index,0), false, Qt::CheckStateRole);
 }
 
-/// Collapse a given widget
+// Collapse a given widget
 void AMVerticalStackWidget::collapseItem(int index) {
 	if(index < 0 || index >= count())
 		return;
@@ -185,7 +161,7 @@ void AMVerticalStackWidget::collapseItem(int index) {
 }
 
 
-/// \todo Optimize this so we don't have to linear search through the whole model to find out which header was clicked
+// \todo Optimize this so we don't have to linear search through the whole model to find out which header was clicked
 void AMVerticalStackWidget::onHeaderButtonClicked() {
 	QObject* s = sender();
 	for(int i=0; i<count(); i++) {
@@ -212,7 +188,7 @@ QSize AMVerticalStackWidget::sizeHint() const {
 
 
 
-/// Capture window title change events from our widgets and change our header titles accordingly
+// Capture window title change events from our widgets and change our header titles accordingly
 bool AMVerticalStackWidget::eventFilter(QObject * source, QEvent *event) {
 
 	if(event->type() != QEvent::WindowTitleChange)

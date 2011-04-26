@@ -80,11 +80,12 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 	stackWidget_->addItem("Sample Information", sampleEditorHolder);
 
 	dataSourcesEditor_ = new AMDataSourcesEditor(scanSetModel_);
-	stackWidget_->addItem("Plot Data", dataSourcesEditor_);
+	stackWidget_->addItem("Data Sets", dataSourcesEditor_);
 
 	QWidget* temp3 = new QWidget();
 	temp3->setMinimumHeight(200);
 	stackWidget_->addItem("Beamline Information", temp3);
+	stackWidget_->collapseItem(2);
 
 
 
