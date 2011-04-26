@@ -16,6 +16,7 @@
 #include <QDir>
 #include <QLabel>
 #include <QMessageBox>
+#include <QComboBox>
 
 VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	: QWidget(parent)
@@ -127,6 +128,52 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	ccdGBLayout->setLabelAlignment(Qt::AlignRight);
 	ccdGB->setLayout(ccdGBLayout);
 
+	// Setup the filters.
+	filter250umA_ = qobject_cast<AMPVControl *>(VESPERSBeamline::vespers()->filter250umA());
+	filter250umB_ = qobject_cast<AMPVControl *>(VESPERSBeamline::vespers()->filter250umB());
+	filter100umA_ = qobject_cast<AMPVControl *>(VESPERSBeamline::vespers()->filter100umA());
+	filter100umB_ = qobject_cast<AMPVControl *>(VESPERSBeamline::vespers()->filter100umB());
+	filter50umA_ = qobject_cast<AMPVControl *>(VESPERSBeamline::vespers()->filter50umA());
+	filter50umB_ = qobject_cast<AMPVControl *>(VESPERSBeamline::vespers()->filter50umB());
+	filterShutterUpper_ = qobject_cast<AMPVControl *>(VESPERSBeamline::vespers()->filterShutterUpper());
+	filterShutterLower_ = qobject_cast<AMPVControl *>(VESPERSBeamline::vespers()->filterShutterLower());
+
+	QComboBox *filterComboBox = new QComboBox;
+	filterComboBox->addItem("None");
+	filterComboBox->addItem(QString::fromUtf8("50 μm"));
+	filterComboBox->addItem(QString::fromUtf8("100 μm"));
+	filterComboBox->addItem(QString::fromUtf8("150 μm"));
+	filterComboBox->addItem(QString::fromUtf8("200 μm"));
+	filterComboBox->addItem(QString::fromUtf8("250 μm"));
+	filterComboBox->addItem(QString::fromUtf8("300 μm"));
+	filterComboBox->addItem(QString::fromUtf8("350 μm"));
+	filterComboBox->addItem(QString::fromUtf8("400 μm"));
+	filterComboBox->addItem(QString::fromUtf8("450 μm"));
+	filterComboBox->addItem(QString::fromUtf8("500 μm"));
+	filterComboBox->addItem(QString::fromUtf8("550 μm"));
+	filterComboBox->addItem(QString::fromUtf8("600 μm"));
+	filterComboBox->addItem(QString::fromUtf8("650 μm"));
+	filterComboBox->addItem(QString::fromUtf8("700 μm"));
+	filterComboBox->addItem(QString::fromUtf8("750 μm"));
+	filterComboBox->addItem(QString::fromUtf8("800 μm"));
+	connect(filterComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onFilterComboBoxUpdate(int)));
+
+	QPushButton *filterUpperButton = new QPushButton("Upper Shutter");
+	filterUpperButton->setCheckable(true);
+	connect(filterUpperButton, SIGNAL(toggled(bool)), this, SLOT(onUpperFilterUpdate()));
+
+	QPushButton *filterLowerButton = new QPushButton("Lower Shutter");
+	filterLowerButton->setCheckable(true);
+	connect(filterLowerButton, SIGNAL(toggled(bool)), this, SLOT(onLowerFilterUpdate()));
+
+	QHBoxLayout *filterLayout = new QHBoxLayout;
+	filterLayout->addWidget(filterComboBox);
+	filterLayout->addWidget(filterUpperButton);
+	filterLayout->addWidget(filterLowerButton);
+
+	QGroupBox *filterGroupBox = new QGroupBox("Filters");
+	filterGroupBox->setLayout(filterLayout);
+
 	// Setup the GUI with the soft limits.
 	config_ = new VESPERSEndstationConfiguration;
 	config_->hide();
@@ -140,9 +187,10 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	toolBar->setMovable(false);
 
 	QGridLayout *layout = new QGridLayout;
-	layout->addWidget(ccdGB, 2, 1, 1, 6);
-	layout->addWidget(windowGB, 1, 1, 1, 6);
+	layout->addWidget(ccdGB, 2, 1);
+	layout->addWidget(windowGB, 1, 1);
 	layout->addWidget(controlGB, 0, 0, 4, 1);
+	layout->addWidget(filterGroupBox, 0, 1);
 
 	setLayout(layout);
 	setMinimumSize(530, 465);
@@ -151,6 +199,121 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 VESPERSEndstationView::~VESPERSEndstationView()
 {
 	delete config_;
+}
+
+void VESPERSEndstationView::onFilterComboBoxUpdate(int index)
+{
+	AMPVControl *temp;
+	// Put all the filters back to an original state.
+	for (int i = 0; i < VESPERSBeamline::vespers()->filterSet()->count(); i++){
+
+		temp = qobject_cast<AMPVControl *>(VESPERSBeamline::vespers()->filterSet()->at(i));
+
+		if (temp->readPV()->getInt() == 1)
+			toggleFilter(VESPERSBeamline::vespers()->filterSet()->at(i));
+	}
+
+	switch(index){
+	case 0: // Filters are already taken out with previous loop.
+		break;
+	case 1: // 50 um
+		toggleFilter(VESPERSBeamline::vespers()->filter50umA());
+		break;
+	case 2: // 100 um
+		toggleFilter(VESPERSBeamline::vespers()->filter100umA());
+		break;
+	case 3: // 150 um
+		toggleFilter(VESPERSBeamline::vespers()->filter50umA());
+		toggleFilter(VESPERSBeamline::vespers()->filter100umA());
+		break;
+	case 4: // 200 um
+		toggleFilter(VESPERSBeamline::vespers()->filter100umA());
+		toggleFilter(VESPERSBeamline::vespers()->filter100umB());
+		break;
+	case 5: // 250 um
+		toggleFilter(VESPERSBeamline::vespers()->filter250umA());
+		break;
+	case 6: // 300 um
+		toggleFilter(VESPERSBeamline::vespers()->filter250umA());
+		toggleFilter(VESPERSBeamline::vespers()->filter50umA());
+		break;
+	case 7: // 350 um
+		toggleFilter(VESPERSBeamline::vespers()->filter250umA());
+		toggleFilter(VESPERSBeamline::vespers()->filter100umA());
+		break;
+	case 8: // 400 um
+		toggleFilter(VESPERSBeamline::vespers()->filter250umA());
+		toggleFilter(VESPERSBeamline::vespers()->filter100umA());
+		toggleFilter(VESPERSBeamline::vespers()->filter50umA());
+		break;
+	case 9: // 450 um
+		toggleFilter(VESPERSBeamline::vespers()->filter250umA());
+		toggleFilter(VESPERSBeamline::vespers()->filter100umA());
+		toggleFilter(VESPERSBeamline::vespers()->filter100umB());
+		break;
+	case 10: // 500 um
+		toggleFilter(VESPERSBeamline::vespers()->filter250umA());
+		toggleFilter(VESPERSBeamline::vespers()->filter250umB());
+		break;
+	case 11: // 550 um
+		toggleFilter(VESPERSBeamline::vespers()->filter250umA());
+		toggleFilter(VESPERSBeamline::vespers()->filter250umB());
+		toggleFilter(VESPERSBeamline::vespers()->filter50umA());
+		break;
+	case 12: // 600 um
+		toggleFilter(VESPERSBeamline::vespers()->filter250umA());
+		toggleFilter(VESPERSBeamline::vespers()->filter250umB());
+		toggleFilter(VESPERSBeamline::vespers()->filter100umA());
+		break;
+	case 13: // 650 um
+		toggleFilter(VESPERSBeamline::vespers()->filter250umA());
+		toggleFilter(VESPERSBeamline::vespers()->filter250umB());
+		toggleFilter(VESPERSBeamline::vespers()->filter100umA());
+		toggleFilter(VESPERSBeamline::vespers()->filter50umA());
+		break;
+	case 14: // 700 um
+		toggleFilter(VESPERSBeamline::vespers()->filter250umA());
+		toggleFilter(VESPERSBeamline::vespers()->filter250umB());
+		toggleFilter(VESPERSBeamline::vespers()->filter100umA());
+		toggleFilter(VESPERSBeamline::vespers()->filter100umB());
+		break;
+	case 15: // 750 um
+		toggleFilter(VESPERSBeamline::vespers()->filter250umA());
+		toggleFilter(VESPERSBeamline::vespers()->filter250umB());
+		toggleFilter(VESPERSBeamline::vespers()->filter100umA());
+		toggleFilter(VESPERSBeamline::vespers()->filter100umB());
+		toggleFilter(VESPERSBeamline::vespers()->filter50umA());
+		break;
+	case 16: // 800 um
+		toggleFilter(VESPERSBeamline::vespers()->filter250umA());
+		toggleFilter(VESPERSBeamline::vespers()->filter250umB());
+		toggleFilter(VESPERSBeamline::vespers()->filter100umA());
+		toggleFilter(VESPERSBeamline::vespers()->filter100umB());
+		toggleFilter(VESPERSBeamline::vespers()->filter50umA());
+		toggleFilter(VESPERSBeamline::vespers()->filter50umB());
+		break;
+	}
+}
+
+void VESPERSEndstationView::onUpperFilterUpdate()
+{
+	toggleFilter(VESPERSBeamline::vespers()->filterShutterUpper());
+}
+
+void VESPERSEndstationView::onLowerFilterUpdate()
+{
+	toggleFilter(VESPERSBeamline::vespers()->filterShutterLower());
+}
+
+void VESPERSEndstationView::toggleFilter(AMControl *filter)
+{
+	AMPVControl *temp = qobject_cast<AMPVControl *>(filter);
+
+	if (!temp)
+		return;
+
+	temp->move(1);
+	temp->move(0);
 }
 
 void VESPERSEndstationView::updateControl()

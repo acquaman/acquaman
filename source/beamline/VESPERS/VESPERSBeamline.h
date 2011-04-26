@@ -55,6 +55,7 @@ public:
 
 	// Accessing control elements:
 
+	// Pressure
 	/// Returns the pressure control for Front End section 1.
 	AMControl *ccgFE1() const { return ccgFE1_; }
 	/// Returns the pressure control for Front End section 2a.
@@ -92,6 +93,7 @@ public:
 	/// Returns the pressure control for the post-window section.
 	AMControl *ccgPostWindow() const { return ccgPostWindow_; }
 
+	// Valves
 	/// Returns the valve control for Front End section 1.
 	AMControl *vvrFE1() const { return vvrFE1_; }
 	/// Returns the valve control for Front End section 2a.
@@ -115,6 +117,7 @@ public:
 	/// Returns the valve control for the beam transfer section (1).
 	AMControl *vvrBeamTransfer() const { return vvrBeamTransfer_; }
 
+	// Ion pumps
 	/// Returns the ion pump control for Front End section 1.a
 	AMControl *iopFE1a() const { return iopFE1a_; }
 	/// Returns the ion pump control for Front End section 1b.
@@ -156,6 +159,7 @@ public:
 	/// Returns the ion pump control for the pre-window section.
 	AMControl *iopPreWindow() const { return iopPreWindow_; }
 
+	// Temperature
 	/// Returns the temperature control for the first water supply sensor.
 	AMControl *tmWaterSupply1() const { return tmWaterSupply1_; }
 	/// Returns the temperature control for the second water supply sensor.
@@ -199,6 +203,7 @@ public:
 	/// Returns the temperature control for the seventh mono sensor.
 	AMControl *tmMono7() const { return tmMono7_; }
 
+	// Water flow switches
 	/// Returns the water flow switch control for M1A.
 	AMControl *swfM1A() const { return swfM1A_; }
 	/// Returns the water flow switch control for M1B.
@@ -220,6 +225,7 @@ public:
 	/// Returns the water flow switch control for the POE SSH2.
 	AMControl *swfPoeSsh2() const { return swfPoeSsh2_; }
 
+	// Water flow transducers
 	/// Returns the water flow transducer control for M1A.
 	AMControl *fltM1A() const { return fltM1A_; }
 	/// Returns the water flow transducer control for M1B.
@@ -240,6 +246,24 @@ public:
 	AMControl *fltPoeSsh1() const { return fltPoeSsh1_; }
 	/// Returns the water flow transducer control for the POE SSH2.
 	AMControl *fltPoeSsh2() const { return fltPoeSsh2_; }
+
+	// Attenuation filters
+	/// Returns the first 250 um filter. Note that if you wish to toggle the filters you must move(1) then move(0).  You must make two moves for one action.
+	AMControl *filter250umA() const { return filter250umA_; }
+	/// Returns the second 250 um filter. Note that if you wish to toggle the filters you must move(1) then move(0).  You must make two moves for one action.
+	AMControl *filter250umB() const { return filter250umB_; }
+	/// Returns the first 100 um filter. Note that if you wish to toggle the filters you must move(1) then move(0).  You must make two moves for one action.
+	AMControl *filter100umA() const { return filter100umA_; }
+	/// Returns the second 100 um filter. Note that if you wish to toggle the filters you must move(1) then move(0).  You must make two moves for one action.
+	AMControl *filter100umB() const { return filter100umB_; }
+	/// Returns the first 50 um filter. Note that if you wish to toggle the filters you must move(1) then move(0).  You must make two moves for one action.
+	AMControl *filter50umA() const { return filter50umA_; }
+	/// Returns the second 50 um filter. Note that if you wish to toggle the filters you must move(1) then move(0).  You must make two moves for one action.
+	AMControl *filter50umB() const { return filter50umB_; }
+	/// Returns the upper shutter filter. Note that if you wish to toggle the filters you must move(1) then move(0).  You must make two moves for one action.
+	AMControl *filterShutterUpper() const { return filterShutterUpper_; }
+	/// Returns the lower shutter filter. Note that if you wish to toggle the filters you must move(1) then move(0).  You must make two moves for one action.
+	AMControl *filterShutterLower() const { return filterShutterLower_; }
 
 	// Endstation controls.
 
@@ -358,6 +382,8 @@ public:
 	AMControlSet *vortex1EControls() const { return vortex1EControls_; }
 	/// Returns the four element vortex control set.
 	AMControlSet *vortex4EControls() const { return vortex4EControls_; }
+	/// Returns the filter control set.
+	AMControlSet *filterSet() const { return filterSet_; }
 
 	// These are PVs that are needed for random small jobs around the beamline.
 
@@ -427,7 +453,7 @@ protected:
 
 	// End detectors.
 
-	// Beamline Diagnostics.
+	// Beamline General.
 	// Pressure controls.
 	AMControl *ccgFE1_;
 	AMControl *ccgFE2a_;
@@ -539,8 +565,19 @@ protected:
 	AMControlSet *flowTransducerSet_;
 	AMControlSet *endstationMotorSet_;
 	AMControlSet *sampleStageMotorSet_;
+	AMControlSet *filterSet_;
 
-	// End Diagnostic Controls.
+	// Beam attenuation filters.
+	AMControl *filter250umA_;
+	AMControl *filter250umB_;
+	AMControl *filter100umA_;
+	AMControl *filter100umB_;
+	AMControl *filter50umA_;
+	AMControl *filter50umB_;
+	AMControl *filterShutterUpper_;
+	AMControl *filterShutterLower_;
+
+	// End General Controls.
 
 	// Endstation controls
 	// The controls used for the control window.

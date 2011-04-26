@@ -134,6 +134,16 @@ void VESPERSBeamline::setupDiagnostics()
 	fltInterimSlits2_ = new AMReadOnlyPVControl("Flow Transducer Interim Slits 2", "FLT1607-1-B21-03:lowflow", this);
 	fltPoeSsh1_ = new AMReadOnlyPVControl("Flow Transducer POE SSH1", "FLT1607-1-B21-04:lowflow", this);
 	fltPoeSsh2_ = new AMReadOnlyPVControl("Flow Transducer POE SSH2", "FLT1607-1-B22-02:lowflow", this);
+
+	// The beam attenuation filters.
+	filter250umA_ = new AMPVControl("Filter 250um A", "07B2_PLC_PFIL_01_F1_Ctrl", "07B2_PLC_PFIL_01_F1_Toggle");
+	filter250umB_ = new AMPVControl("Filter 250um B", "07B2_PLC_PFIL_01_F2_Ctrl", "07B2_PLC_PFIL_01_F2_Toggle");
+	filter100umA_ = new AMPVControl("Filter 100um A", "07B2_PLC_PFIL_02_F3_Ctrl", "07B2_PLC_PFIL_02_F3_Toggle");
+	filter100umB_ = new AMPVControl("Filter 100um B", "07B2_PLC_PFIL_02_F4_Ctrl", "07B2_PLC_PFIL_02_F4_Toggle");
+	filter50umA_ = new AMPVControl("Filter 50um A", "07B2_PLC_PFIL_02_F1_Ctrl", "07B2_PLC_PFIL_02_F1_Toggle");
+	filter50umB_ = new AMPVControl("Filter 50um B", "07B2_PLC_PFIL_02_F2_Ctrl", "07B2_PLC_PFIL_02_F2_Toggle");
+	filterShutterUpper_ = new AMPVControl("Filter Shutter Upper", "07B2_PLC_PFIL_01_F3_Ctrl", "07B2_PLC_PFIL_01_F3_Toggle");
+	filterShutterLower_ = new AMPVControl("Filter Shutter Lower", "07B2_PLC_PFIL_01_F4_Ctrl", "07B2_PLC_PFIL_01_F4_Toggle");
 }
 
 void VESPERSBeamline::setupSampleStage()
@@ -439,6 +449,15 @@ void VESPERSBeamline::setupControlSets()
 	endstationMotorSet_->addControl(singleElMotorfbk_);
 	endstationMotorSet_->addControl(focusMotor_);
 	endstationMotorSet_->addControl(focusMotorfbk_);
+
+	// Beam attenuation filters.  Only contains the filters of a certain size.  The upper and lower are used independently of these six.
+	filterSet_ = new AMControlSet(this);
+	filterSet_->addControl(filter250umA_);
+	filterSet_->addControl(filter250umB_);
+	filterSet_->addControl(filter100umA_);
+	filterSet_->addControl(filter100umB_);
+	filterSet_->addControl(filter50umA_);
+	filterSet_->addControl(filter50umB_);
 }
 
 void VESPERSBeamline::pressureConnected(bool connected)
@@ -630,7 +649,8 @@ void VESPERSBeamline::fourElVortexError()
 
 void VESPERSBeamline::sampleStageError()
 {
-	AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "The sample stage is no longer connected."));
+	if (!sampleStageMotorSet()->isConnected())
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "The sample stage is no longer connected."));
 }
 
 VESPERSBeamline::~VESPERSBeamline()
@@ -745,6 +765,14 @@ VESPERSBeamline::~VESPERSBeamline()
 	delete ccdPath_;
 	delete ccdFile_;
 	delete ccdNumber_;
+	delete filter250umA_;
+	delete filter250umB_;
+	delete filter100umA_;
+	delete filter100umB_;
+	delete filter50umA_;
+	delete filter50umB_;
+	delete filterShutterUpper_;
+	delete filterShutterLower_;
 	delete elapsedTime1E_;
 	delete integrationTime1E_;
 	delete liveTime1E_;
@@ -778,4 +806,5 @@ VESPERSBeamline::~VESPERSBeamline()
 	delete sampleStageHorizontal_;
 	delete sampleStageVertical_;
 	delete sampleStageMotorSet_;
+	delete filterSet_;
 }
