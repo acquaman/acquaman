@@ -79,10 +79,10 @@ AMScanViewScanBar::AMScanViewScanBar(AMScanSetModel* model, int scanIndex, QWidg
 	hl->addStretch(1);
 
 	/* REMOVED
-	closeButton_ = new QToolButton();
-	closeButton_->setText("X");
-	hl->addWidget(closeButton_);
-	*/
+ closeButton_ = new QToolButton();
+ closeButton_->setText("X");
+ hl->addWidget(closeButton_);
+ */
 
 	hl->setContentsMargins(6, 0, 6, 0);
 	hl->setSpacing(24);
@@ -160,7 +160,7 @@ void AMScanViewScanBar::onRowRemoved(const QModelIndex& parent, int start, int e
 	Q_UNUSED(parent)
 	Q_UNUSED(start)
 	Q_UNUSED(end)
-	}
+}
 
 // when model data changes.  Possibilities we care about: scan name, and data sources visible/not visible.
 /*! This assumes that topLeft == bottomRight, which is ok, given that AMScanSetModel always emits dataChanged() for single items. */
@@ -403,9 +403,9 @@ AMScanViewModeBar::AMScanViewModeBar(QWidget* parent)
 
 	setObjectName("AMScanViewModeBar");
 	/*setStyleSheet("QFrame#AMScanViewModeBar { "
-		"background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(81, 81, 81, 255), stop:0.494444 rgba(81, 81, 81, 255), stop:0.5 rgba(64, 64, 64, 255), stop:1 rgba(64, 64, 64, 255));"
-		"border-bottom: 1px solid black;"
-		"}");*/
+  "background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(81, 81, 81, 255), stop:0.494444 rgba(81, 81, 81, 255), stop:0.5 rgba(64, 64, 64, 255), stop:1 rgba(64, 64, 64, 255));"
+  "border-bottom: 1px solid black;"
+  "}");*/
 
 	connect(normalizationCheckBox_, SIGNAL(clicked(bool)), this, SIGNAL(normalizationEnabled(bool)));
 	connect(waterfallCheckBox_, SIGNAL(clicked(bool)), this, SIGNAL(waterfallOffsetEnabled(bool)));
@@ -418,7 +418,7 @@ AMScanViewModeBar::AMScanViewModeBar(QWidget* parent)
 
 
 AMScanView::AMScanView(AMScanSetModel* model, QWidget *parent) :
-		QWidget(parent)
+	QWidget(parent)
 {
 	mode_ = Invalid;
 
@@ -565,7 +565,7 @@ void AMScanView::removeScan(AMScan* scan) {
 
 AMScanViewInternal::AMScanViewInternal(AMScanView* masterView)
 	: QGraphicsWidget(),
-	masterView_(masterView) {
+	  masterView_(masterView) {
 
 	connect(model(), SIGNAL(rowsInserted(QModelIndex, int, int)), this, SLOT(onRowInserted(QModelIndex,int,int)));
 	connect(model(), SIGNAL(rowsAboutToBeRemoved(QModelIndex, int, int)), this, SLOT(onRowAboutToBeRemoved(QModelIndex,int,int)));
@@ -591,14 +591,7 @@ AMScanSetModel* AMScanViewInternal::model() const { return masterView_->model();
 AMScanViewExclusiveView::AMScanViewExclusiveView(AMScanView* masterView) : AMScanViewInternal(masterView) {
 
 	// create our main plot:
-	plot_ = new MPlotGW();
-	plot_->plot()->plotArea()->setBrush(QBrush(QColor(Qt::white)));
-	plot_->plot()->axisRight()->setTicks(0);
-	plot_->plot()->axisBottom()->setTicks(4);
-	plot_->plot()->axisLeft()->showGrid(false);
-	plot_->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left | MPlotAxis::Right);
-	plot_->plot()->axisBottom()->showAxisName(false);
-	plot_->plot()->axisLeft()->showAxisName(false);
+	plot_ = createDefaultPlot();
 
 	QGraphicsLinearLayout* gl = new QGraphicsLinearLayout();
 	gl->setContentsMargins(0,0,0,0);
@@ -714,7 +707,7 @@ void AMScanViewExclusiveView::onModelDataChanged(const QModelIndex& topLeft, con
 					static_cast<MPlotAbstractImage*>(plotItems_.at(si))->setColorMap(model()->plotColorMap(si, di));
 					break;
 				default:
-					break; }
+						break; }
 				}
 			}
 		}
@@ -898,14 +891,7 @@ void AMScanViewExclusiveView::setWaterfallOffset(double offset) {
 AMScanViewMultiView::AMScanViewMultiView(AMScanView* masterView) : AMScanViewInternal(masterView) {
 
 	// create our main plot:
-	plot_ = new MPlotGW();
-	plot_->plot()->plotArea()->setBrush(QBrush(QColor(Qt::white)));
-	plot_->plot()->axisRight()->setTicks(0);
-	plot_->plot()->axisBottom()->setTicks(4);
-	plot_->plot()->axisLeft()->showGrid(false);
-	plot_->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left | MPlotAxis::Right);
-	plot_->plot()->axisBottom()->showAxisName(false);
-	plot_->plot()->axisLeft()->showAxisName(false);
+	plot_ = createDefaultPlot();
 	plot_->plot()->legend()->enableDefaultLegend(false);	// turn on or turn off labels for individual scans in this plot
 
 	QGraphicsLinearLayout* gl = new QGraphicsLinearLayout();
@@ -948,12 +934,12 @@ void AMScanViewMultiView::addScan(int si) {
 AMScanViewMultiView::~AMScanViewMultiView() {
 
 	/* Not necessary; deleting the plot should delete its children.
-	for(int si=0; si<plotSeries_.count(); si++)
-		for(int ci=0; ci<model()->scanAt(si)->dataSourceCount(); ci++)
-			if(plotSeries_[si][ci]) {
-				plot_->plot()->removeItem(plotSeries_[si][ci]);
-				delete plotSeries_[si][ci];
-			}*/
+ for(int si=0; si<plotSeries_.count(); si++)
+  for(int ci=0; ci<model()->scanAt(si)->dataSourceCount(); ci++)
+   if(plotSeries_[si][ci]) {
+	plot_->plot()->removeItem(plotSeries_[si][ci]);
+	delete plotSeries_[si][ci];
+   }*/
 
 	delete plot_;
 }
@@ -1141,14 +1127,7 @@ AMScanViewMultiScansView::AMScanViewMultiScansView(AMScanView* masterView) : AMS
 
 	// we need to have at least one plot, to fill our widget,  even if there are no scans.
 	MPlotGW* plot;
-	plot = new MPlotGW();
-	plot->plot()->plotArea()->setBrush(QBrush(QColor(Qt::white)));
-	plot->plot()->axisRight()->setTicks(0);
-	plot->plot()->axisBottom()->setTicks(4);
-	plot->plot()->axisLeft()->showGrid(false);
-	plot->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left | MPlotAxis::Right);
-	plot->plot()->axisBottom()->showAxisName(false);
-	plot->plot()->axisLeft()->showAxisName(false);
+	plot = createDefaultPlot();
 	plot->plot()->legend()->enableDefaultLegend(false);	/// \todo Right now we maintain our own legend (instead of using MPlotLegend's automatic one), to keep it sorted by data source order. If you could introduce consistent ordering to MPlotLegend and MPlot::items(), we wouldn't have to.  [done, can insertPlotItem()s instead of addPlotItem()s now.]
 
 	firstPlotEmpty_ = true;
@@ -1170,14 +1149,7 @@ void AMScanViewMultiScansView::addScan(int si) {
 	}
 	else {
 		MPlotGW* plot;
-		plot = new MPlotGW();
-		plot->plot()->plotArea()->setBrush(QBrush(QColor(Qt::white)));
-		plot->plot()->axisRight()->setTicks(0);
-		plot->plot()->axisBottom()->setTicks(4);
-		plot->plot()->axisLeft()->showGrid(false);
-		plot->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left | MPlotAxis::Right);
-		plot->plot()->axisBottom()->showAxisName(false);
-		plot->plot()->axisLeft()->showAxisName(false);
+		plot = createDefaultPlot();
 		plot->plot()->legend()->enableDefaultLegend(false);
 
 		plot->plot()->enableAxisNormalizationLeft(normalizationEnabled_, normMin_, normMax_);
@@ -1205,10 +1177,10 @@ void AMScanViewMultiScansView::addScan(int si) {
 
 			QColor color = model()->plotColor(si, di);
 			sourceLegendText << QString("<font color=#%1%2%3>%4</font><br>")
-					.arg(color.red(), 2, 16, QChar('0'))
-					.arg(color.green(), 2, 16, QChar('0'))
-					.arg(color.blue(), 2, 16, QChar('0'))
-					.arg(dataSource->description());	/// \todo use data source description or name?
+								.arg(color.red(), 2, 16, QChar('0'))
+								.arg(color.green(), 2, 16, QChar('0'))
+								.arg(color.blue(), 2, 16, QChar('0'))
+								.arg(dataSource->description());	/// \todo use data source description or name?
 			/// \todo convert to using built-in legend system.
 
 		}
@@ -1230,12 +1202,12 @@ void AMScanViewMultiScansView::addScan(int si) {
 AMScanViewMultiScansView::~AMScanViewMultiScansView() {
 
 	/* NOT necessary to delete all plotSeries. As long as they are added to a plot, they will be deleted when the plot is deleted (below).
-	for(int si=0; si<plotSeries_.count(); si++)
-		for(int ci=0; ci<model()->scanAt(si)->dataSourceCount(); ci++)
-			if(plotSeries_[si][ci]) {
-				plots_[si]->plot()->removeItem(plotSeries_[si][ci]);
-				delete plotSeries_[si][ci];
-			}*/
+ for(int si=0; si<plotSeries_.count(); si++)
+  for(int ci=0; ci<model()->scanAt(si)->dataSourceCount(); ci++)
+   if(plotSeries_[si][ci]) {
+	plots_[si]->plot()->removeItem(plotSeries_[si][ci]);
+	delete plotSeries_[si][ci];
+   }*/
 
 
 	for(int pi=0; pi<plots_.count(); pi++)
@@ -1273,10 +1245,10 @@ void AMScanViewMultiScansView::onRowInserted(const QModelIndex& parent, int star
 
 				QColor color = model()->plotColor(si, di);
 				QString legendText = QString("<font color=#%1%2%3>%4</font><br>")
-									 .arg(color.red(), 2, 16, QChar('0'))
-									 .arg(color.green(), 2, 16, QChar('0'))
-									 .arg(color.blue(), 2, 16, QChar('0'))
-									 .arg(dataSource->description());
+						.arg(color.red(), 2, 16, QChar('0'))
+						.arg(color.green(), 2, 16, QChar('0'))
+						.arg(color.blue(), 2, 16, QChar('0'))
+						.arg(dataSource->description());
 				plotLegendText_[si].insert(di, legendText);
 			}
 			else { // otherwise, append null series
@@ -1332,7 +1304,7 @@ void AMScanViewMultiScansView::onRowRemoved(const QModelIndex& parent, int start
 	Q_UNUSED(parent)
 	Q_UNUSED(start)
 	Q_UNUSED(end)
-	}
+}
 
 // when data changes: (Things we care about: color, linePen, and visible)
 void AMScanViewMultiScansView::onModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight) {
@@ -1383,10 +1355,10 @@ void AMScanViewMultiScansView::onModelDataChanged(const QModelIndex& topLeft, co
 
 				QColor color = model()->plotColor(si, di);
 				plotLegendText_[si][di] = QString("<font color=#%1%2%3>%4</font><br>")
-										  .arg(color.red(), 2, 16, QChar('0'))
-										  .arg(color.green(), 2, 16, QChar('0'))
-										  .arg(color.blue(), 2, 16, QChar('0'))
-										  .arg(model()->dataSourceAt(si, di)->description());	/// \todo: warning in legend if plot item can't be displayed (ex: higher dimensionality?) -- easy to detect: plotItem would be = 0 here still.
+						.arg(color.red(), 2, 16, QChar('0'))
+						.arg(color.green(), 2, 16, QChar('0'))
+						.arg(color.blue(), 2, 16, QChar('0'))
+						.arg(model()->dataSourceAt(si, di)->description());	/// \todo: warning in legend if plot item can't be displayed (ex: higher dimensionality?) -- easy to detect: plotItem would be = 0 here still.
 			}
 
 
@@ -1470,14 +1442,7 @@ AMScanViewMultiSourcesView::AMScanViewMultiSourcesView(AMScanView* masterView) :
 	setLayout(layout_);
 
 	// we need to have at least one plot, to fill our widget,  even if there are no scans.
-	firstPlot_ = new MPlotGW();
-	firstPlot_->plot()->plotArea()->setBrush(QBrush(QColor(Qt::white)));
-	firstPlot_->plot()->axisRight()->setTicks(0);
-	firstPlot_->plot()->axisBottom()->setTicks(4);
-	firstPlot_->plot()->axisLeft()->showGrid(false);
-	firstPlot_->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left | MPlotAxis::Right);
-	firstPlot_->plot()->axisBottom()->showAxisName(false);
-	firstPlot_->plot()->axisLeft()->showAxisName(false);
+	firstPlot_ = createDefaultPlot();
 
 	firstPlotEmpty_ = true;
 
@@ -1638,29 +1603,29 @@ void AMScanViewMultiSourcesView::reLayout() {
 
 // when full list of channels in the model changes, we need to sync/match up our channel lists (channelNames_ and plots_) with the model list.
 /* Here's what changes could have happened in the model list:
-	- channels added (one or multiple)
-	- channels removed (one or multiple)
-	- order changed
+ - channels added (one or multiple)
+ - channels removed (one or multiple)
+ - order changed
 
-	Assumptions:
-	- unique channel names (no duplicates)
+ Assumptions:
+ - unique channel names (no duplicates)
 
-	Required outcome:
-	- final order the same in both lists
-	- keep entities whenever we already have them
+ Required outcome:
+ - final order the same in both lists
+ - keep entities whenever we already have them
 
-	Here's our sync algorithm:
+ Here's our sync algorithm:
 
-	- delete all in [us] not contained in [model]
-	// [us] is now the same or smaller than [model]
-	- iterate through [model] from i=0 onwards
-		- if( i >= us.count )
-			- append to us
-		- else if ( model[i] != us[i] )
-			- if ( us.contains(model[i]) )
-				- move it to i
-			- else
-				- us.insert at i
+ - delete all in [us] not contained in [model]
+ // [us] is now the same or smaller than [model]
+ - iterate through [model] from i=0 onwards
+  - if( i >= us.count )
+   - append to us
+  - else if ( model[i] != us[i] )
+   - if ( us.contains(model[i]) )
+	- move it to i
+   - else
+	- us.insert at i
 
 */
 bool AMScanViewMultiSourcesView::reviewDataSources() {
@@ -1712,14 +1677,7 @@ bool AMScanViewMultiSourcesView::reviewDataSources() {
 			firstPlotEmpty_ = false;
 		}
 		else {
-			newPlot = new MPlotGW();
-			newPlot->plot()->plotArea()->setBrush(QBrush(QColor(Qt::white)));
-			newPlot->plot()->axisRight()->setTicks(0);
-			newPlot->plot()->axisBottom()->setTicks(4);
-			newPlot->plot()->axisLeft()->showGrid(false);
-			newPlot->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left | MPlotAxis::Right);
-			newPlot->plot()->axisBottom()->showAxisName(false);
-			newPlot->plot()->axisLeft()->showAxisName(false);
+			newPlot = createDefaultPlot();
 
 			newPlot->plot()->enableAxisNormalizationLeft(normalizationEnabled_, normMin_, normMax_);
 			if(waterfallEnabled_)
@@ -1824,5 +1782,38 @@ void AMScanViewMultiSourcesView::setWaterfallOffset(double offset) {
 			i.value()->plot()->setWaterfallLeft(offset);
 		}
 	}
+}
+
+#include "MPlot/MPlotTools.h"
+
+MPlotGW * AMScanViewInternal::createDefaultPlot()
+{
+	MPlotGW* rv = new MPlotGW();
+	rv->plot()->plotArea()->setBrush(QBrush(QColor(Qt::white)));
+	rv->plot()->axisRight()->setTicks(0);
+	rv->plot()->axisBottom()->setTicks(4);
+	rv->plot()->axisLeft()->showGrid(false);
+	rv->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left | MPlotAxis::Right);
+	rv->plot()->axisBottom()->showAxisName(false);
+	rv->plot()->axisLeft()->showAxisName(false);
+
+	// DragZoomerTools need to be added first ("on the bottom") so they don't steal everyone else's mouse events
+	rv->plot()->addTool(new MPlotDragZoomerTool);
+
+	//		// this tool selects a plot with the mouse
+	//		MPlotPlotSelectorTool psTool;
+	//		plot.addTool(&psTool);
+	//		// psTool.setEnabled(false);
+
+	// this tool adds mouse-wheel based zooming
+	rv->plot()->addTool(new MPlotWheelZoomerTool);
+
+	//		// this tool adds a cursor (or more) to a plot
+	//		MPlotCursorTool crsrTool;
+	//		plot.addTool(&crsrTool);
+	//		// add an extra cursor
+	//		crsrTool.addCursor();
+	//		crsrTool.cursor(1)->marker()->setPen(QPen(QColor(Qt::blue)));
+	return rv;
 }
 
