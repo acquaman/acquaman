@@ -344,3 +344,5 @@ void AMWindowPaneModel::onRowsAboutToBeRemoved(const QModelIndex &parent, int fi
 		}
 	}
 }
+
+

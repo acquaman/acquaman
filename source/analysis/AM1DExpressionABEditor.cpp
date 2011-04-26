@@ -39,7 +39,9 @@ AM1DExpressionABEditor::AM1DExpressionABEditor(AM1DExpressionAB* expressionBlock
 	insertButton_->setText("Insert ");
 
 	expressionEdit_ = new AMWrappingLineEdit();
+	expressionEdit_->setFixedHeight(46);
 	xExpressionEdit_ = new AMWrappingLineEdit();
+	xExpressionEdit_->setFixedHeight(46);
 
 	QLabel* label = new QLabel("expression");
 	label->setStyleSheet("font: bold \"Lucida Grande\";\ncolor: rgb(121,121,121);");
