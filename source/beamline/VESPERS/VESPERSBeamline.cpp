@@ -257,9 +257,8 @@ void VESPERSBeamline::setupSingleElementDetector()
 		roi = createROI(1, i, "IOC1607-004:mca");
 		rois << roi;
 	}
-#error Need to find out why the single element rois are breaking.
-	XRFDetector *xrf = vortexXRF1E();
-	xrf->setRoiList(rois);
+
+	vortexXRF1E()->setRoiList(rois);
 }
 
 void VESPERSBeamline::setupFourElementDetector()
@@ -350,8 +349,7 @@ void VESPERSBeamline::setupFourElementDetector()
 		rois << roi;
 	}
 
-	XRFDetector *xrf = vortexXRF4E();
-	xrf->setRoiList(rois);
+	vortexXRF4E()->setRoiList(rois);
 }
 
 AMROI *VESPERSBeamline::createROI(int numElements, int roiNum, QString baseName)

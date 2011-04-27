@@ -55,7 +55,8 @@ void AMROI::setName(QString name)
 	name_ = name;
 
 	for (int i = 0; i < pvNames_.size(); i++)
-		pvNames_.at(i)->setValue(name);
+		if (pvNames_.at(i)->isConnected())
+			pvNames_.at(i)->setValue(name);
 }
 
 void AMROI::setEnergy(double energy)
@@ -75,7 +76,8 @@ void AMROI::setLow(int low)
 	low_ = low;
 
 	for (int i = 0; i < pvLowerBounds_.size(); i++)
-		pvLowerBounds_.at(i)->setValue(low);
+		if (pvLowerBounds_.at(i)->isConnected())
+			pvLowerBounds_.at(i)->setValue(low);
 }
 
 void AMROI::setLow(double low)
@@ -89,7 +91,8 @@ void AMROI::setHigh(int high)
 	high_ = high;
 
 	for (int i = 0; i < pvHigherBounds_.size(); i++)
-		pvHigherBounds_.at(i)->setValue(high);
+		if (pvHigherBounds_.at(i)->isConnected())
+			pvHigherBounds_.at(i)->setValue(high);
 }
 
 void AMROI::setHigh(double high)
@@ -140,15 +143,9 @@ void AMROI::setNamePVs(QList<AMProcessVariable *> namePVs)
 
 void AMROI::setNamePV(AMProcessVariable *namePV)
 {
-	// This is meant as a convenience function for single element detectors.  If the previous list did not have one element then there was an error somewhere, either coding or human.
-	if (pvNames_.size() != 1)
-		return;
-
-	disconnect(pvNames_.first(), SIGNAL(valueChanged(QString)), this, SLOT(setName(QString)));
-	disconnect(pvNames_.first(), SIGNAL(connected(bool)), this, SLOT(connected()));
-	pvNames_.replace(0, namePV);
-	connect(pvNames_.first(), SIGNAL(connected(bool)), this, SLOT(connected()));
-	connect(pvNames_.first(), SIGNAL(valueChanged(QString)), this, SLOT(setName(QString)));
+	QList<AMProcessVariable *> list;
+	list << namePV;
+	setNamePVs(list);
 }
 
 void AMROI::setLowerBoundPVs(QList<AMProcessVariable *> lowPVs)
@@ -171,15 +168,9 @@ void AMROI::setLowerBoundPVs(QList<AMProcessVariable *> lowPVs)
 
 void AMROI::setLowerBoundPV(AMProcessVariable *lowPV)
 {
-	// This is meant as a convenience function for single element detectors.  If the previous list did not have one element then there was an error somewhere, either coding or human.
-	if (pvLowerBounds_.size() != 1)
-		return;
-
-	disconnect(pvLowerBounds_.first(), SIGNAL(valueChanged(int)), this, SLOT(onLowPVChanged(int)));
-	disconnect(pvLowerBounds_.first(), SIGNAL(connected(bool)), this, SLOT(connected()));
-	pvLowerBounds_.replace(0, lowPV);
-	connect(pvLowerBounds_.first(), SIGNAL(connected(bool)), this, SLOT(connected()));
-	connect(pvLowerBounds_.first(), SIGNAL(valueChanged(int)), this, SLOT(onLowPVChanged(int)));
+	QList<AMProcessVariable *> list;
+	list << lowPV;
+	setLowerBoundPVs(list);
 }
 
 void AMROI::setHigherBoundPVs(QList<AMProcessVariable *> highPVs)
@@ -202,15 +193,9 @@ void AMROI::setHigherBoundPVs(QList<AMProcessVariable *> highPVs)
 
 void AMROI::setHigherBoundPV(AMProcessVariable *highPV)
 {
-	// This is meant as a convenience function for single element detectors.  If the previous list did not have one element then there was an error somewhere, either coding or human.
-	if (pvHigherBounds_.size() != 1)
-		return;
-
-	disconnect(pvHigherBounds_.first(), SIGNAL(valueChanged(int)), this, SLOT(onHighPVChanged(int)));
-	disconnect(pvHigherBounds_.first(), SIGNAL(connected(bool)), this, SLOT(connected()));
-	pvHigherBounds_.replace(0, highPV);
-	connect(pvHigherBounds_.first(), SIGNAL(connected(bool)), this, SLOT(connected()));
-	connect(pvHigherBounds_.first(), SIGNAL(valueChanged(int)), this, SLOT(onHighPVChanged(int)));
+	QList<AMProcessVariable *> list;
+	list << highPV;
+	setHigherBoundPVs(list);
 }
 
 void AMROI::setValuePVs(QList<AMProcessVariable *> valuePVs)
@@ -233,15 +218,9 @@ void AMROI::setValuePVs(QList<AMProcessVariable *> valuePVs)
 
 void AMROI::setValuePV(AMProcessVariable *valuePV)
 {
-	// This is meant as a convenience function for single element detectors.  If the previous list did not have one element then there was an error somewhere, either coding or human.
-	if (pvValues_.size() != 1)
-		return;
-
-	disconnect(pvValues_.first(), SIGNAL(valueChanged()), this, SLOT(updateValue()));
-	disconnect(pvValues_.first(), SIGNAL(connected(bool)), this, SLOT(connected()));
-	pvValues_.replace(0, valuePV);
-	connect(pvValues_.first(), SIGNAL(connected(bool)), this, SLOT(connected()));
-	connect(pvValues_.first(), SIGNAL(valueChanged()), this, SLOT(updateValue()));
+	QList<AMProcessVariable *> list;
+	list << valuePV;
+	setValuePVs(list);
 }
 
 void AMROI::setAllPVs(QList<AMProcessVariable *> namePVs, QList<AMProcessVariable *> lowPVs, QList<AMProcessVariable *> highPVs, QList<AMProcessVariable *> valuePVs)
