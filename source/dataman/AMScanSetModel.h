@@ -26,11 +26,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPen>
 #include <QColor>
 
-#include "acquaman.h"
-#include "dataman/AMDataSource.h"
-#include "dataman/AMScan.h"
 #include "MPlot/MPlotColorMap.h"
 
+class AMScan;
+class AMDataSource;
 
 /// This class holds visualization information about AMDataSources; all the plot settings that are associated with a particular plot/layout, rather than with the AMDataSource itself.
 class AMDataSourcePlotSettings {
@@ -181,65 +180,32 @@ public:
 	QModelIndex indexForScan(int scanIndex) const {
 		return index(scanIndex, 0, QModelIndex());
 	}
-	/// get a model index suitable for accessing a scan element.
-	/* deprecated
-	QModelIndex indexForScan(const AMScan* scan) const {
-		return index(indexOf(scan), 0, QModelIndex());
-	}*/
+
 
 	/// get a model index suitable for accessing a data source element:
 	QModelIndex indexForDataSource(int scanIndex, int dataSourceIndex) {
 		return index(dataSourceIndex, 0, indexForScan(scanIndex));
 	}
-	/// get a model index suitable for accessing a data source element:
-	/*
-	QModelIndex indexForDataSource(const AMScan* scan, const AMDataSource* dataSource) {
-		return index(indexOf(dataSource, scan), 0, indexForScan(scan));
-	}*/
+
 
 	/// shortcut for accessing a data source pointer:
-	AMDataSource* dataSourceAt(int scanIndex, int dataSourceIndex) const {
-		if(scanIndex < 0 || dataSourceIndex < 0 || scanIndex >= scans_.count() || dataSourceIndex >= scans_.at(scanIndex)->dataSourceCount())
-			return 0;
-
-		return scans_.at(scanIndex)->dataSourceAt(dataSourceIndex);
-	}
+	AMDataSource* dataSourceAt(int scanIndex, int dataSourceIndex) const;
 
 
 	/// returns the name of an "exclusive" data source: one that might be preferred in exclusive views.  Returns empty string if an exclusive data source is not yet established.
 	QString exclusiveDataSourceName() const { return exclusiveDataSourceName_; }
 
 	/// Set the exclusive data source, by name. To clear the exclusive data source, specify an empty string. (This will cause 'exclusive' views to show nothing.)
-	bool setExclusiveDataSourceByName(const QString& exclusiveDataSourceName) {
-		if(exclusiveDataSourceName.isEmpty() || allDataSourceNames().contains(exclusiveDataSourceName)) {
-			exclusiveDataSourceName_ = exclusiveDataSourceName;
-			emit exclusiveDataSourceChanged(exclusiveDataSourceName_);
-			return true;
-		}
-		else
-			return false;
-	}
+	bool setExclusiveDataSourceByName(const QString& exclusiveDataSourceName);
+
 	/// returns a list of all data source names that exist (over all scans in the model). Warning: this is slow.  O(n), where n is the total number of data sources in all scans.
 	/*! \todo Optimize with caching. */
-	QStringList allDataSourceNames() const {
-		QSet<QString> rv;
-		for(int si = 0; si<scans_.count(); si++)
-			for(int ci = 0; ci<scans_.at(si)->dataSourceCount(); ci++)
-				rv << scans_.at(si)->dataSourceAt(ci)->name();
-		return rv.toList();
-	}
+	QStringList allDataSourceNames() const;
 
 
 	/// returns a list of all data source names that exist and are visible in at least one scan. Warning: this is slow.  O(n), where n is the total number of data sources in all scans.
 	/*! \todo Optimize with caching. */
-	QStringList visibleDataSourceNames() const {
-		QSet<QString> rv;
-		for(int si = 0; si<scans_.count(); si++)
-			for(int ci = 0; ci<scans_.at(si)->dataSourceCount(); ci++)
-				if(sourcePlotSettings_.at(si).at(ci).visible)
-					rv << scans_.at(si)->dataSourceAt(ci)->name();
-		return rv.toList();
-	}
+	QStringList visibleDataSourceNames() const;
 
 
 	// Resizable Interface:

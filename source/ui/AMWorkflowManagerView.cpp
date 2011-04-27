@@ -335,7 +335,7 @@ void AMBeamlineActionsListView::onActionAdded(int index){
 	AMBeamlineActionItemView *tmpView = tmpItem->createView(index);
 	if(!tmpView)
 		return;
-	actionsViewList_->insertItem(index, tmpView, tmpItem->description(), true);
+	actionsViewList_->insertItem(index, tmpItem->description(), tmpView, true);
 	connect(tmpView, SIGNAL(removeRequested(AMBeamlineActionItem*)), this, SLOT(onActionRemoveRequested(AMBeamlineActionItem*)));
 	connect(tmpView, SIGNAL(copyRequested(AMBeamlineActionItem*)), this, SIGNAL(copyRequested(AMBeamlineActionItem*)));
 	connect(tmpView, SIGNAL(moveUpRequested(AMBeamlineActionItem*)), this, SIGNAL(moveUpRequested(AMBeamlineActionItem*)));

@@ -12,6 +12,8 @@ AMExporter::AMExporter(QObject *parent) : QObject(parent) {
 
 	keywordParser_ = new AMTagReplacementParser();
 
+	file_ = new QFile(this);
+
 	loadKeywordReplacementDictionary();
 }
 
@@ -22,22 +24,27 @@ AMExporter::~AMExporter() {
 	delete keywordParser_;
 }
 
-QFile* AMExporter::openFile(const QString &filePath)
+bool AMExporter::openFile(const QString &filePath)
 {
+	return openFile(file_, filePath);
+}
+
+bool AMExporter::openFile(QFile* file, const QString& filePath) {
 	if(QFile::exists(filePath))
-		return 0;
+		return false;
 
 	QFileInfo fileInfo(filePath);
 	if(!QDir::current().mkpath(fileInfo.path()))
-		return 0;
+		return false;
 
-	QFile* rv = new QFile(filePath);
-	if(!rv->open(QFile::WriteOnly)) {
-		delete rv;
-		return 0;
-	}
+	if(file->isOpen())
+		file->close();
+	file->setFileName(filePath);
 
-	return rv;
+	if(!file->open(QFile::WriteOnly))
+		return false;
+
+	return true;
 }
 
 QString AMExporter::parseKeywordString(const QString &inputString) {
@@ -78,6 +85,7 @@ void AMExporter::loadKeywordReplacementDictionary()
 	keywordDictionary_.insert("sampleNotes", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krSampleNotes));
 
 	keywordDictionary_.insert("dataSet", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krDataSource));
+	keywordDictionary_.insert("dataSetName", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krDataSourceName));
 	keywordDictionary_.insert("dataSetDescription", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krDataSourceDescription));
 	keywordDictionary_.insert("dataSetUnits", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krDataSourceUnits));
 	keywordDictionary_.insert("dataSetSize", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krDataSourceSize));
@@ -223,7 +231,7 @@ QString AMExporter::krScanConfiguration(const QString& propertyName) {
 	if(!currentScan_)
 		return "[??]";
 
-	AMScanConfiguration* scanConfig = currentScan_->scanConfiguration();
+	const AMScanConfiguration* scanConfig = currentScan_->scanConfiguration();
 	if(!scanConfig)
 		return "[??]";
 
@@ -342,6 +350,24 @@ QString AMExporter::krDataSource(const QString& dataSourceName) {
 	return krDataSourceDescription(dataSourceName);
 }
 
+QString AMExporter::krDataSourceName(const QString &dataSourceName)
+{
+	if(!currentScan_)
+		return "[??]";
+
+	int dataSourceIndex;
+	if(dataSourceName.isEmpty()) {	// use current index
+		dataSourceIndex = currentDataSourceIndex_;
+	}
+	else
+		dataSourceIndex = currentScan_->indexOfDataSource(dataSourceName);
+
+	if(dataSourceIndex < 0 || dataSourceIndex >= currentScan_->dataSourceCount())
+		return "[??]";
+
+	return currentScan_->dataSourceAt(dataSourceIndex)->name();
+}
+
 QString AMExporter::krDataSourceDescription(const QString& dataSourceName) {
 	if(!currentScan_)
 		return "[??]";
@@ -435,6 +461,8 @@ QString AMExporter::krDataSourceAxisUnits(const QString& dataSourceName) {
 
 	return ds->axisInfoAt(1).units;
 }
+
+
 
 
 

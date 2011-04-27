@@ -40,7 +40,7 @@ For example: AMExporterGeneralAscii::exporterOptionClassName() would probably re
 	virtual bool isValidFor(const AMScan* scan, const AMExporterOption* option) const = 0;
 
 	/// Exports the given \c scan object, using the option set \c option.  The file name is given inside \c option, but should be placed within the folder \c destinationFolderPath.  Returns the name of the file that was written, or a null QString on error.
-	virtual QString exportScan(const AMScan* scan, const QString& destinationFolderPath, const AMExporterOption* option) const = 0;
+	virtual QString exportScan(const AMScan* scan, const QString& destinationFolderPath, const AMExporterOption* option) = 0;
 
 	/// create an "exporter option" (an instance of an AMExporterOption subclass) that is a valid default for this type of exporter
 	virtual AMExporterOption* createDefaultOption() const = 0;
@@ -50,8 +50,15 @@ signals:
 public slots:
 
 protected:
-	/// Helper function: takes a complete directory path + file name, and attempts to open it for writing. Will create all subfolder within the path if required.  Returns 0 if there's a permissions error creating the folders, or if the file already exists.
-	QFile* openFile(const QString& filePath);
+	/// Helper function: takes a complete directory path + file name, and attempts to open it for writing using the protected file_ object. Will create all subfolders within the path if required.  Returns 0 if there's a permissions error creating the folders, or if a file already exists at that location.
+	/*! If file_ is already open, this will QFile::close() it first. */
+	bool openFile(const QString& filePath);
+
+	/// Helper function: behaves just like openFile() but operates on a programmer-specified file object.
+	bool openFile(QFile* file, const QString& filePath);
+
+	/// File access object.  Open with openFile() and close with closeFile()
+	QFile* file_;
 
 
 	///////////////////////////////////
@@ -59,8 +66,8 @@ protected:
 	//////////////////////////////////////
 
 	/// Helper function: set the current scan, which is used for keyword replacement parsing.  Does not take ownership of the scan
-	void setCurrentScan(AMScan* scan) { currentScan_ = scan; }
-	AMScan* currentScan_;
+	void setCurrentScan(const AMScan* scan) { currentScan_ = scan; }
+	const AMScan* currentScan_;
 
 	/// Helper function: set the current datasource index, which is used for keyword replacement parsing. (ex: "$dataSet" will return the information for the current data source)
 	void setCurrentDataSource(int dataSourceIndex) { currentDataSourceIndex_ = dataSourceIndex; }
@@ -123,7 +130,8 @@ protected:
 	QString krSampleNotes(const QString& arg = QString());
 
 	QString krDataSource(const QString& dataSourceName = QString());
-	QString krDataSourceDescription(const QString& dataSourceName = QString());
+	QString krDataSourceName(const QString& dataSourceName = QString());
+	QString krDataSourceDescription(const QString& dataSourceName = QString());	// returns description if it has one, otherwise defaults to name
 	QString krDataSourceUnits(const QString& dataSourceName = QString());
 	QString krDataSourceSize(const QString& dataSourceName = QString());
 

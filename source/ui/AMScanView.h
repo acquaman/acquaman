@@ -237,6 +237,8 @@ protected:
 
 	double waterfallOffset_, normMin_, normMax_;
 	bool normalizationEnabled_, waterfallEnabled_;
+
+	MPlotGW* createDefaultPlot();
 };
 
 #include <QPropertyAnimation>
