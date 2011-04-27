@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/VESPERS/AMValveControl.h"
 #include "util/AMErrorMonitor.h"
 #include "beamline/VESPERS/XRFDetector.h"
+#include "beamline/AMROI.h"
 
 /// This class
 class VESPERSBeamline : public AMBeamline
@@ -451,9 +452,9 @@ protected slots:
 	/// Slot used to deal with flow transducer errors.
 	void flowTransducerError();
 	/// Slot used to deal with single element detector errors.
-	void singleElVortexError();
+	void singleElVortexError(bool isConnected);
 	/// Slot used to deal with four element vortex detector errors.
-	void fourElVortexError();
+	void fourElVortexError(bool isConnected);
 	/// Slot used to dead with sample stage motor errors.
 	void sampleStageError();
 
@@ -470,6 +471,8 @@ protected:
 	void setupFourElementDetector();
 	/// Sets up the sample stage motors.
 	void setupSampleStage();
+	/// Helper function.  Takes in a base name, an ROI number, and number of elements and returns a pointer to a new AMROI.  Creates PVs for the name, low limit, high limit, and current value.
+	AMROI *createROI(int numElements, int roiNum, QString baseName);
 
 	/// Constructor. This is a singleton class; access it through VESPERSBeamline::vespers().
 	VESPERSBeamline();

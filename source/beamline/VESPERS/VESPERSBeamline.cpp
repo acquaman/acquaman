@@ -246,7 +246,20 @@ void VESPERSBeamline::setupSingleElementDetector()
 								spectrum1E_,
 								this);
 
-	connect(vortexXRF1E(), SIGNAL(detectorConnected(bool)), this, SLOT(singleElVortexError()));
+	connect(vortexXRF1E(), SIGNAL(detectorConnected(bool)), this, SLOT(singleElVortexError(bool)));
+
+	QList<AMROI *> rois;
+	AMROI *roi;
+
+	// Currently all detectors I'm aware of have 32 ROIs.
+	for (int i = 0; i < 32; i++){
+
+		roi = createROI(1, i, "IOC1607-004:mca");
+		rois << roi;
+	}
+#error Need to find out why the single element rois are breaking.
+	XRFDetector *xrf = vortexXRF1E();
+	xrf->setRoiList(rois);
 }
 
 void VESPERSBeamline::setupFourElementDetector()
@@ -325,7 +338,73 @@ void VESPERSBeamline::setupFourElementDetector()
 								spectra4E_,
 								this);
 
-	connect(vortexXRF4E(), SIGNAL(detectorConnected(bool)), this, SLOT(fourElVortexError()));
+	connect(vortexXRF4E(), SIGNAL(detectorConnected(bool)), this, SLOT(fourElVortexError(bool)));
+
+	QList<AMROI *> rois;
+	AMROI *roi;
+
+	// Currently all detectors I'm aware of have 32 ROIs.
+	for (int i = 0; i < 32; i++){
+
+		roi = createROI(4, i, "dxp1607-B21-04:mca");
+		rois << roi;
+	}
+
+	XRFDetector *xrf = vortexXRF4E();
+	xrf->setRoiList(rois);
+}
+
+AMROI *VESPERSBeamline::createROI(int numElements, int roiNum, QString baseName)
+{
+	AMProcessVariable *namePV;
+	AMProcessVariable *lowPV;
+	AMProcessVariable *highPV;
+	AMProcessVariable *valPV;
+
+	// Things are simpler with one element.
+	if (numElements == 1){
+
+		namePV = new AMProcessVariable(baseName+"1.R"+QString::number(roiNum)+"NM", true);
+		lowPV = new AMProcessVariable(baseName+"1.R"+QString::number(roiNum)+"LO", true);
+		highPV = new AMProcessVariable(baseName+"1.R"+QString::number(roiNum)+"HI", true);
+		valPV = new AMProcessVariable(baseName+"1.R"+QString::number(roiNum), true);
+
+		namePV->disablePutCallbackMode(true);
+		lowPV->disablePutCallbackMode(true);
+		highPV->disablePutCallbackMode(true);
+		valPV->disablePutCallbackMode(true);
+
+		// Giving null parameters because the detector might not be connected yet.  The detector can modify them as it wishes.
+		return new AMROI(QString(), -1, -1, 10, namePV, lowPV, highPV, valPV);
+	}
+
+	else{
+
+		QList<AMProcessVariable *> names;
+		QList<AMProcessVariable *> lows;
+		QList<AMProcessVariable *> highs;
+		QList<AMProcessVariable *> vals;
+
+		for (int i = 0; i < numElements; i++){
+
+			namePV = new AMProcessVariable(baseName+QString::number(i+1)+".R"+QString::number(roiNum)+"NM", true);
+			lowPV = new AMProcessVariable(baseName+QString::number(i+1)+".R"+QString::number(roiNum)+"LO", true);
+			highPV = new AMProcessVariable(baseName+QString::number(i+1)+".R"+QString::number(roiNum)+"HI", true);
+			valPV = new AMProcessVariable(baseName+QString::number(i+1)+".R"+QString::number(roiNum), true);
+
+			namePV->disablePutCallbackMode(true);
+			lowPV->disablePutCallbackMode(true);
+			highPV->disablePutCallbackMode(true);
+			valPV->disablePutCallbackMode(true);
+
+			names << namePV;
+			lows << lowPV;
+			highs << highPV;
+			vals << valPV;
+		}
+
+		return new AMROI(QString(), -1, -1, 10, names, lows, highs, vals);
+	}
 }
 
 void VESPERSBeamline::setupControlSets()
@@ -663,15 +742,15 @@ void VESPERSBeamline::flowTransducerError()
 	}
 }
 
-void VESPERSBeamline::singleElVortexError()
+void VESPERSBeamline::singleElVortexError(bool isConnected)
 {
-	if (vortexXRF1E()->wasConnected())
+	if (vortexXRF1E()->wasConnected() && !isConnected)
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, 0, "The single element vortex detector is no longer connected."));
 }
 
-void VESPERSBeamline::fourElVortexError()
+void VESPERSBeamline::fourElVortexError(bool isConnected)
 {
-	if (vortexXRF4E()->wasConnected())
+	if (vortexXRF4E()->wasConnected() && !isConnected)
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, 0, "The four element vortex detector is no longer connected."));
 }
 

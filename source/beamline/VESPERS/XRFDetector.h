@@ -107,7 +107,7 @@ class XRFDetector : public XRFDetectorInfo, public AMDetector
 {
 	Q_OBJECT
 public:
-	/// Constructor.  Requires all the AMProcessVariables and AMControls required to function.  These should remain static for the entirety of the life of this class and therefore setters are no provided.
+	/// Constructor.  Requires all the AMProcessVariables and AMControls required to function.  These should remain static for the entirety of the life of this class and therefore setters are no provided.  The ROIs are set using the setRoiList method.  All the ROIs must be created previously.
 	XRFDetector(QString name, int elements, AMControl *status, AMControl *refreshRate, AMControl *peakingTime, AMControl *maximumEnergy, AMControl *integrationTime, AMControl *liveTime, AMControl *elapsedTime, AMControl *start, AMControl *stop, AMControlSet *deadTime, AMControlSet *spectra, QObject *parent = 0);
 	/// Constructor.  Convenience version for single element detectors.
 	XRFDetector(QString name, AMControl *status, AMControl *refreshRate, AMControl *peakingTime, AMControl *maximumEnergy, AMControl *integrationTime, AMControl *liveTime, AMControl *elapsedTime, AMControl *start, AMControl *stop, AMControl *deadTime, AMControl *spectra, QObject *parent = 0);
@@ -186,6 +186,8 @@ public:
 
 	/// Returns the AMROI list.
 	QList<AMROI *> roiList() const { return roiList_; }
+	/// Sets the AMROI list.  This should be called only ONCE.
+	void setRoiList(QList<AMROI *> list);
 
 	/// Adds a region of interest.  The new ROI is appended to the end of the list.  Returns whether the addition was successful or not; it will only fail if there are no longer any ROIs to place values in.
 	bool addRegionOfInterest(AMROIInfo roi);
@@ -226,10 +228,6 @@ public slots:
 signals:
 	/// Only emitted as true when all of the controls in the detector are connected. Is emitted false when any of the controls within the detector become unconnected.
 	void detectorConnected(bool);
-	/// Emitted when the settings control set changes.
-	void settingsChanged(AMControlInfoList);
-	/// Emitted when the readings control set changes.
-	void readingsChanged(AMControlInfoList);
 	/// This signal is emitted when the status changes.
 	void statusChanged();
 
