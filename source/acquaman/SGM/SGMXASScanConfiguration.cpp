@@ -42,6 +42,7 @@ SGMXASScanConfiguration::SGMXASScanConfiguration(QObject *parent) : AMXASScanCon
 	emit trackingGroupChanged(trackingGroup_);
 }
 
+
 SGMXASScanConfiguration::SGMXASScanConfiguration(const SGMXASScanConfiguration &original){
 	regions_->setEnergyControl(SGMBeamline::sgm()->energy());
 	for(int x = 0; x < original.regionCount(); x++)

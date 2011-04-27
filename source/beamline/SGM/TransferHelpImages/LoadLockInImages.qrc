@@ -1,0 +1,13 @@
+<RCC>
+    <qresource prefix="/">
+        <file>LoadLockIn/action2Image1.jpg</file>
+        <file>LoadLockIn/action2Image2.jpg</file>
+        <file>LoadLockIn/action3Image1.jpg</file>
+        <file>LoadLockIn/action3Image2.jpg</file>
+        <file>LoadLockIn/action4Image1.jpg</file>
+        <file>LoadLockIn/action4Image2.jpg</file>
+        <file>LoadLockIn/action5Image1.jpg</file>
+        <file>LoadLockIn/action5Image2.jpg</file>
+        <file>LoadLockIn/action6Image1.jpg</file>
+    </qresource>
+</RCC>

@@ -1,0 +1,13 @@
+<RCC>
+    <qresource prefix="/">
+        <file>ChamberIn/action1Image1.jpg</file>
+        <file>ChamberIn/action1Image2.jpg</file>
+        <file>ChamberIn/action2Image1.jpg</file>
+        <file>ChamberIn/action2Image2.jpg</file>
+        <file>ChamberIn/action3Image1.jpg</file>
+        <file>ChamberIn/action3Image2.jpg</file>
+        <file>ChamberIn/action3Image3.jpg</file>
+        <file>ChamberIn/action4Image1.jpg</file>
+        <file>ChamberIn/action4Image2.jpg</file>
+    </qresource>
+</RCC>

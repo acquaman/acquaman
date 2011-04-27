@@ -160,7 +160,7 @@ void SGMAppController::onCurrentScanControllerStarted(){
 	scanEditorsParentItem_->appendRow(new AMScanEditorModelItem(scanEditor, ":/applications-science.png"));
 
 	scanEditor->addScan(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan());
-	mw_->goToPane(scanEditor);
+	mw_->setCurrentPane(scanEditor);
 
 	scanControllerActiveEditor_ = scanEditor;
 }

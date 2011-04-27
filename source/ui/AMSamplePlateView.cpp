@@ -516,7 +516,7 @@ AMSamplePlateView::AMSamplePlateView(AMSamplePlate *existingPlate, QWidget *pare
 
 	connect(samplePlateSelector_, SIGNAL(samplePlateChanged()), this, SIGNAL(newSamplePlateSelected()));
 
-	addSampleButton_->setIcon(QApplication::style()->standardIcon(QStyle::SP_ArrowUp, 0, addSampleButton_));
+	addSampleButton_->setIcon(QIcon(":/add.png"));
 
 }
 

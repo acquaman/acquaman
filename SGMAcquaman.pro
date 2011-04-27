@@ -38,4 +38,7 @@ SOURCES +=	source/application/SGM/SGMMain.cpp \
 	source/ui/SGM/SGMSampleManipulatorView.cpp
 
 RESOURCES += \
-    source/beamline/SGM/TransferHelpImages/SGMTransferHelpImages.qrc
+    source/beamline/SGM/TransferHelpImages/LoadLockOutImages.qrc \
+    source/beamline/SGM/TransferHelpImages/LoadLockInImages.qrc \
+    source/beamline/SGM/TransferHelpImages/ChamberOutImages.qrc \
+    source/beamline/SGM/TransferHelpImages/ChamberInImages.qrc

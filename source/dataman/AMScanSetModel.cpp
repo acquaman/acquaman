@@ -21,6 +21,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMScanSetModel.h"
 #include "ui/AMDateTimeUtils.h"
 
+#include "dataman/AMDataSource.h"
+#include "dataman/AMScan.h"
+
+#include "acquaman.h"
+
 QModelIndex AMScanSetModel::index ( int row, int column, const QModelIndex & parent ) const {
 	// top level:
 	if(!parent.isValid()) {
@@ -384,3 +389,46 @@ void AMScanSetModel::onScanModifiedChanged(bool isModified) {
 	if(i.isValid())
 		emit dataChanged(i, i);
 }
+
+
+// shortcut for accessing a data source pointer:
+AMDataSource* AMScanSetModel::dataSourceAt(int scanIndex, int dataSourceIndex) const {
+	if(scanIndex < 0 || dataSourceIndex < 0 || scanIndex >= scans_.count() || dataSourceIndex >= scans_.at(scanIndex)->dataSourceCount())
+		return 0;
+
+	return scans_.at(scanIndex)->dataSourceAt(dataSourceIndex);
+}
+
+
+// Set the exclusive data source, by name. To clear the exclusive data source, specify an empty string. (This will cause 'exclusive' views to show nothing.)
+bool AMScanSetModel::setExclusiveDataSourceByName(const QString& exclusiveDataSourceName) {
+	if(exclusiveDataSourceName.isEmpty() || allDataSourceNames().contains(exclusiveDataSourceName)) {
+		exclusiveDataSourceName_ = exclusiveDataSourceName;
+		emit exclusiveDataSourceChanged(exclusiveDataSourceName_);
+		return true;
+	}
+	else
+		return false;
+}
+// returns a list of all data source names that exist (over all scans in the model). Warning: this is slow.  O(n), where n is the total number of data sources in all scans.
+/* \todo Optimize with caching. */
+QStringList AMScanSetModel::allDataSourceNames() const {
+	QSet<QString> rv;
+	for(int si = 0; si<scans_.count(); si++)
+		for(int ci = 0; ci<scans_.at(si)->dataSourceCount(); ci++)
+			rv << scans_.at(si)->dataSourceAt(ci)->name();
+	return rv.toList();
+}
+
+
+// returns a list of all data source names that exist and are visible in at least one scan. Warning: this is slow.  O(n), where n is the total number of data sources in all scans.
+/* \todo Optimize with caching. */
+QStringList AMScanSetModel::visibleDataSourceNames() const {
+	QSet<QString> rv;
+	for(int si = 0; si<scans_.count(); si++)
+		for(int ci = 0; ci<scans_.at(si)->dataSourceCount(); ci++)
+			if(sourcePlotSettings_.at(si).at(ci).visible)
+				rv << scans_.at(si)->dataSourceAt(ci)->name();
+	return rv.toList();
+}
+
