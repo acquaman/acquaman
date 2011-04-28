@@ -3,6 +3,7 @@
 #include "acquaman/VESPERS/VESPERSXRFScanController.h"
 #include "MPlot/MPlotSeries.h"
 #include "dataman/AMDataSourceSeriesData.h"
+#include "ui/VESPERS/ROIPlotMarker.h"
 
 #include <QString>
 #include <QHBoxLayout>
@@ -120,6 +121,8 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	connect(detector_->refreshRateControl(), SIGNAL(valueChanged(double)), this, SLOT(onUpdateRateUpdate(double)));
 
 	setupPlot();
+
+	connect(detector_->spectraControl(), SIGNAL(controlSetValuesChanged()), this, SLOT(resizeRoiMarkers()));
 
 	QFont font(this->font());
 	font.setBold(true);
@@ -250,6 +253,48 @@ void XRFDetailedDetectorView::setupPlot()
 	plot_->axisTop()->setTicks(0);
 	plot_->axisLeft()->setTicks(4);
 	plot_->axisRight()->setTicks(0);
+}
+
+void XRFDetailedDetectorView::resizeRoiMarkers()
+{
+	if (markers_.isEmpty())
+		return;
+
+	ROIPlotMarker *temp;
+
+	for (int i = 0; i < markers_.size(); i++){
+
+		temp = (ROIPlotMarker *)(markers_.at(i));
+		temp->setHeight(plot_->axisLeft()->max());
+	}
+}
+
+void XRFDetailedDetectorView::onAdditionOfRegionOfInterest(AMElement *el, QPair<QString, QString> line)
+{
+	AMROIInfo info(el->symbol()+" "+line.first, line.second.toDouble(), 0.025, detector_->scale());
+	detector_->addRegionOfInterest(info);
+	ROIPlotMarker *newMarker = new ROIPlotMarker(info.name(), info.energy(), info.energy()*(1-info.width()), info.energy()*(1+info.width()), plot_->axisLeft()->max());
+	markers_ << newMarker;
+	plot_->addItem(newMarker);
+}
+
+void XRFDetailedDetectorView::onRemovalOfRegionOfInterest(AMElement *el, QPair<QString, QString> line)
+{
+	detector_->removeRegionOfInterest(el->name()+" "+line.first);
+
+	MPlotItem *removeMe = 0;
+	ROIPlotMarker *temp;
+
+	for (int i = 0; i < markers_.size(); i++){
+
+		temp = (ROIPlotMarker *)(markers_.at(i));
+
+		if (temp->description().compare(el->symbol()+" "+line.first) == 0)
+			removeMe = markers_.at(i);
+	}
+
+	if (removeMe)
+		plot_->removeItem(removeMe);
 }
 
 void XRFDetailedDetectorView::showEmissionLines(AMElement *el)

@@ -70,6 +70,7 @@ void XRFPeriodicTableView::disableElements()
 
 void XRFPeriodicTableView::regionOfInterestAdded(AMElement *el, QPair<QString, QString> line)
 {
+	// If the region of interest is acceptable, then it will change the periodic table appropriately.
 	if (table_->addToList(el, line)){
 
 		QToolButton *clicked = tableView_->button(el);
@@ -83,6 +84,7 @@ void XRFPeriodicTableView::regionOfInterestAdded(AMElement *el, QPair<QString, Q
 			palette.setColor(QPalette::Button, Qt::cyan);
 
 		clicked->setPalette(palette);
+		emit addRegionOfInterest(el, line);
 	}
 }
 
@@ -94,5 +96,6 @@ void XRFPeriodicTableView::regionOfInterestRemoved(AMElement *el, QPair<QString,
 		QPalette palette(clicked->palette());
 		palette.setColor(QPalette::Button, this->palette().color(QPalette::Button));
 		tableView_->button(el)->setPalette(palette);
+		emit removeRegionOfInterest(el, line);
 	}
 }

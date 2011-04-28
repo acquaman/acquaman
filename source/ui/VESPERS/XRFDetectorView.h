@@ -67,6 +67,10 @@ public:
 public slots:
 	/// Places coloured markers on the plot to show where the acceptable emission lines are in the range of the detector.
 	void showEmissionLines(AMElement *el);
+	/// Slot handling what happens when a region of interest is added.
+	void onAdditionOfRegionOfInterest(AMElement *el, QPair<QString, QString> line);
+	/// Slot handling what happens when a region of interest is removed.
+	void onRemovalOfRegionOfInterest(AMElement *el, QPair<QString, QString> line);
 
 protected slots:
 	/// Handles the update from the dead time control.
@@ -79,6 +83,8 @@ protected slots:
 	void onComboBoxUpdate(int index);
 	/// Handles the changes from the update rate control.
 	void onUpdateRateUpdate(double val);
+	/// Handles resizing the ROIPlotMarkers when the spectra updates.
+	void resizeRoiMarkers();
 
 protected:
 
@@ -111,6 +117,8 @@ protected:
 	MPlotWidget *view_;
 	/// This is the plot itself.
 	MPlot *plot_;
+	/// Holds the list of current markers.
+	QList<MPlotItem *> markers_;
 	/// This holds the plot markers for showing emission lines.
 	QList<MPlotPoint *> *lines_;
 };

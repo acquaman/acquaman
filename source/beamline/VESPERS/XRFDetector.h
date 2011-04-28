@@ -230,6 +230,8 @@ signals:
 	void detectorConnected(bool);
 	/// This signal is emitted when the status changes.
 	void statusChanged();
+	/// Signal used to say that the regions of interest now have their original values in them after being connected to.
+	void roisHaveValues(bool);
 
 protected slots:
 	/// Determines if the detector is connected to ALL controls and process variables.

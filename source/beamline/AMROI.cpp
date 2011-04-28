@@ -37,7 +37,7 @@ AMROIInfo AMROI::toInfo()
 
 void AMROI::fromInfo(const AMROIInfo &info)
 {
-	name_ = info.name();
+	setName(info.name());
 	energy_ = info.energy();
 	width_ = info.width();
 	scale_ = info.scale();

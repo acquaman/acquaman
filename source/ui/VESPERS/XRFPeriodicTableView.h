@@ -23,6 +23,10 @@ signals:
 	void elementSelected(AMElement *);
 	/// Passes on the signal that an element was selected.  Contains the element and a list of active elements in a QPair of <atomic number, line name>.
 	void elementClicked(AMElement *, QList<QPair<int, QString> >);
+	/// Signal to notify others that the new region of interest is acceptable.
+	void addRegionOfInterest(AMElement *, QPair<QString, QString>);
+	/// Signal to notify others that the selected region of interest was successfully removed.
+	void removeRegionOfInterest(AMElement *, QPair<QString, QString>);
 
 public slots:
 	/// Sets the minimum energy.

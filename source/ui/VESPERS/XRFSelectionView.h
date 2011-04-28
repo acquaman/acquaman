@@ -33,6 +33,8 @@ public slots:
 	void setMinimumEnergy(double energy) { minimumEnergy_ = energy; tableView_->setMinimumEnergy(energy); elView_->setMinimumEnergy(energy); }
 	/// Sets the maximum energy.
 	void setMaximumEnergy(double energy) { maximumEnergy_ = energy; tableView_->setMaximumEnergy(energy); elView_->setMaximumEnergy(energy); }
+	/// Used for preset regions of interest from before the program was booted up.
+	void preExistingRegionOfInterest(AMElement *el, QPair<QString, QString> line) { tableView_->regionOfInterestAdded(el, line); }
 
 protected slots:
 

@@ -22,6 +22,8 @@ public:
 signals:
 	/// Passes along the configuration view's start scan signal.
 	void startScan();
+	/// Signal used on startup to pass on information of already existing regions of interest.
+	void roiExistsAlready(AMElement *, QPair<QString, QString>);
 
 protected slots:
 	/// Handles new values set from the integration time spin box and passes it along to the control.
@@ -36,6 +38,8 @@ protected slots:
 	void onStartClicked() { detector_->setTime(integrationTime_->value()); emit startScan(); }
 	/// Handles what happens when the stop button is clicked.
 	void onStopClicked();
+	/// Handles what happens when the detector becomes connected.
+	void onRoisHaveValues(bool hasValues);
 
 protected:
 	/// The current configuration.

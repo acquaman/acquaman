@@ -170,8 +170,10 @@ void XRFDetector::setRoiList(QList<AMROI *> list)
 
 double XRFDetector::deadTime() const
 {
+	// For the single element, return the value.  For multi-element detectors, return the worst.
 	if (elements_ == 1)
 		return deadTimeControl()->at(0)->value();
+
 	else {
 
 		double dt = 0;
@@ -257,7 +259,7 @@ void XRFDetector::detectorConnected()
 
 	emit detectorConnected(detectorConnected_);
 }
-
+#error add a way of passing on that an AMROI has a has values.  A simple getter should suffice.
 bool XRFDetector::addRegionOfInterest(AMROIInfo roi)
 {
 	// No more ROIs.
@@ -280,10 +282,11 @@ bool XRFDetector::removeRegionOfInterest(QString name)
 
 	for (int i = indexOfRemoved; i < roiInfoList()->count(); i++){
 
-		if (i+1 == roiInfoList()->count())
-			roiList().at(i)->fromInfo(AMROIInfo(""));
-
-		roiList().at(i)->fromInfo(roiInfoList()->at(i+1));
+		if (i+1 == roiInfoList()->count()){
+			roiList().at(i)->setRegion("", -1, -1);
+		}
+		else
+			roiList().at(i)->fromInfo(roiInfoList()->at(i+1));
 	}
 
 	roiInfoList()->remove(indexOfRemoved);
