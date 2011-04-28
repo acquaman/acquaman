@@ -236,6 +236,8 @@ signals:
 protected slots:
 	/// Determines if the detector is connected to ALL controls and process variables.
 	void detectorConnected();
+	/// Determines if the regions of interest in the detector all have values.
+	void allRoisHaveValues();
 
 protected:
 

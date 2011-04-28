@@ -130,6 +130,7 @@ void AMROI::setNamePVs(QList<AMProcessVariable *> namePVs)
 
 		disconnect(pvNames_.at(i), SIGNAL(valueChanged(QString)), this, SLOT(onNamePVChanged(QString)));
 		disconnect(pvNames_.at(i), SIGNAL(connected(bool)), this, SLOT(connected()));
+		disconnect(pvNames_.at(i), SIGNAL(hasValuesChanged(bool)), this, SLOT(onHasValuesChanged()));
 	}
 
 	pvNames_ = namePVs;
@@ -138,6 +139,7 @@ void AMROI::setNamePVs(QList<AMProcessVariable *> namePVs)
 
 		connect(pvNames_.at(i), SIGNAL(valueChanged(QString)), this, SLOT(onNamePVChanged(QString)));
 		connect(pvNames_.at(i), SIGNAL(connected(bool)), this, SLOT(connected()));
+		connect(pvNames_.at(i), SIGNAL(hasValuesChanged(bool)), this, SLOT(onHasValuesChanged()));
 	}
 }
 
@@ -155,6 +157,7 @@ void AMROI::setLowerBoundPVs(QList<AMProcessVariable *> lowPVs)
 
 		disconnect(pvLowerBounds_.at(i), SIGNAL(valueChanged(int)), this, SLOT(onLowPVChanged(int)));
 		disconnect(pvLowerBounds_.at(i), SIGNAL(connected(bool)), this, SLOT(connected()));
+		disconnect(pvLowerBounds_.at(i), SIGNAL(hasValuesChanged(bool)), this, SLOT(onHasValuesChanged()));
 	}
 
 	pvLowerBounds_ = lowPVs;
@@ -163,6 +166,7 @@ void AMROI::setLowerBoundPVs(QList<AMProcessVariable *> lowPVs)
 
 		connect(pvLowerBounds_.at(i), SIGNAL(valueChanged(int)), this, SLOT(onLowPVChanged(int)));
 		connect(pvLowerBounds_.at(i), SIGNAL(connected(bool)), this, SLOT(connected()));
+		connect(pvLowerBounds_.at(i), SIGNAL(hasValuesChanged(bool)), this, SLOT(onHasValuesChanged()));
 	}
 }
 
@@ -180,6 +184,7 @@ void AMROI::setHigherBoundPVs(QList<AMProcessVariable *> highPVs)
 
 		disconnect(pvHigherBounds_.at(i), SIGNAL(valueChanged(int)), this, SLOT(onHighPVChanged(int)));
 		disconnect(pvHigherBounds_.at(i), SIGNAL(connected(bool)), this, SLOT(connected()));
+		disconnect(pvHigherBounds_.at(i), SIGNAL(hasValuesChanged(bool)), this, SLOT(onHasValuesChanged()));
 	}
 
 	pvHigherBounds_ = highPVs;
@@ -188,6 +193,7 @@ void AMROI::setHigherBoundPVs(QList<AMProcessVariable *> highPVs)
 
 		connect(pvHigherBounds_.at(i), SIGNAL(valueChanged(int)), this, SLOT(onHighPVChanged(int)));
 		connect(pvHigherBounds_.at(i), SIGNAL(connected(bool)), this, SLOT(connected()));
+		connect(pvHigherBounds_.at(i), SIGNAL(hasValuesChanged(bool)), this, SLOT(onHasValuesChanged()));
 	}
 }
 
@@ -205,6 +211,7 @@ void AMROI::setValuePVs(QList<AMProcessVariable *> valuePVs)
 
 		disconnect(pvValues_.at(i), SIGNAL(valueChanged()), this, SLOT(updateValue()));
 		disconnect(pvValues_.at(i), SIGNAL(connected(bool)), this, SLOT(connected()));
+		disconnect(pvValues_.at(i), SIGNAL(hasValuesChanged(bool)), this, SLOT(onHasValuesChanged()));
 	}
 
 	pvValues_ = valuePVs;
@@ -213,6 +220,7 @@ void AMROI::setValuePVs(QList<AMProcessVariable *> valuePVs)
 
 		connect(pvValues_.at(i), SIGNAL(valueChanged()), this, SLOT(updateValue()));
 		connect(pvValues_.at(i), SIGNAL(connected(bool)), this, SLOT(connected()));
+		connect(pvValues_.at(i), SIGNAL(hasValuesChanged(bool)), this, SLOT(onHasValuesChanged()));
 	}
 }
 
@@ -267,4 +275,20 @@ void AMROI::connected()
 		connected_ = connected_ && pvValues_.at(i)->isConnected();
 
 	emit roiConnected(connected_);
+}
+
+void AMROI::onHasValuesChanged()
+{
+	hasValues_ = true;
+
+	for (int i = 0; i < pvNames_.size(); i++)
+		hasValues_ = hasValues_ && pvNames_.at(i)->hasValues();
+	for (int i = 0; i < pvLowerBounds_.size(); i++)
+		hasValues_ = hasValues_ && pvLowerBounds_.at(i)->hasValues();
+	for (int i = 0; i < pvHigherBounds_.size(); i++)
+		hasValues_ = hasValues_ && pvHigherBounds_.at(i)->hasValues();
+	for (int i = 0; i < pvValues_.size(); i++)
+		hasValues_ = hasValues_ && pvValues_.at(i)->hasValues();
+
+	emit roiHasValues(hasValues_);
 }

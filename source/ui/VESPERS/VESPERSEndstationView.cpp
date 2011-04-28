@@ -1,6 +1,7 @@
 #include "ui/VESPERS/VESPERSEndstationView.h"
 #include "ui/AMStopButton.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
+#include "ui/AMTopFrame.h"
 
 #include <QGridLayout>
 #include <QDebug>
@@ -11,8 +12,7 @@
 #include <QFormLayout>
 #include <QFile>
 #include <QTextStream>
-#include <QToolBar>
-#include <QAction>
+#include <QToolButton>
 #include <QDir>
 #include <QLabel>
 #include <QMessageBox>
@@ -41,6 +41,12 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 
 	// Get the current soft limits.
 	loadConfiguration();
+
+	// Setup the GUI with the soft limits.
+	config_ = new VESPERSEndstationConfiguration;
+	config_->hide();
+	connect(config_, SIGNAL(configurationChanged()), this, SLOT(loadConfiguration()));
+	connect(config_, SIGNAL(configurationChanged()), this, SLOT(loadConfiguration()));
 
 	// Setting the flags to false as a precaution.
 	microscopeSafe_ = false;
@@ -77,6 +83,10 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	lightBulb_->setCheckable(true);
 	connect(lightBulb_, SIGNAL(toggled(bool)), this, SLOT(lightBulbToggled(bool)));
 
+	QToolButton *configButton = new QToolButton;
+	configButton->setIcon(QIcon(":/configure.png"));
+	connect(configButton, SIGNAL(clicked()), config_, SLOT(show()));
+
 	// Main control group box setup.
 	QGroupBox *controlGB = new QGroupBox;
 	controlGB->setObjectName("Control");
@@ -94,7 +104,8 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	controlGBLayout->addWidget(fourElButton_, 16, 11, 2, 3);
 	controlGBLayout->addWidget(focusButton_, 12, 11, 2, 3);
 	controlGBLayout->addWidget(lightBulb_, 7, 5, 2, 2);
-	controlGBLayout->addWidget(micLight_, 0, 0, 8, 1);
+	controlGBLayout->addWidget(micLight_, 2, 0, 8, 1);
+	controlGBLayout->addWidget(configButton, 0, 0, 2, 1);
 	controlGB->setLayout(controlGBLayout);
 
 	window_ = new VESPERSMotorView(this);
@@ -175,17 +186,7 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	QGroupBox *filterGroupBox = new QGroupBox("Filters");
 	filterGroupBox->setLayout(filterLayout);
 
-	// Setup the GUI with the soft limits.
-	config_ = new VESPERSEndstationConfiguration;
-	config_->hide();
-	connect(config_, SIGNAL(configurationChanged()), this, SLOT(loadConfiguration()));
-	connect(config_, SIGNAL(configurationChanged()), this, SLOT(loadConfiguration()));
-
-	QToolBar *toolBar = new QToolBar(this);
-	QAction *configAction = new QAction(QIcon(":/configure.png"), tr("Configure"), this);
-	connect(configAction, SIGNAL(triggered()), config_, SLOT(show()));
-	toolBar->addAction(configAction);
-	toolBar->setMovable(false);
+	AMTopFrame *topFrame = new AMTopFrame("Endstation Control Screen");
 
 	QVBoxLayout *extrasLayout = new QVBoxLayout;
 	extrasLayout->addStretch();
@@ -200,7 +201,11 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	layout->addLayout(extrasLayout);
 	layout->addStretch();
 
-	setLayout(layout);
+	QVBoxLayout *masterLayout = new QVBoxLayout;
+	masterLayout->addWidget(topFrame);
+	masterLayout->addLayout(layout);
+
+	setLayout(masterLayout);
 	setMinimumSize(530, 465);
 }
 

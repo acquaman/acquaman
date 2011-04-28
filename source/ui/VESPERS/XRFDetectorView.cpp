@@ -261,26 +261,46 @@ void XRFDetailedDetectorView::resizeRoiMarkers()
 		return;
 
 	ROIPlotMarker *temp;
+	double height = getMaximumHeight(plot_->item(0));
 
 	for (int i = 0; i < markers_.size(); i++){
 
 		temp = (ROIPlotMarker *)(markers_.at(i));
-		temp->setHeight(plot_->axisLeft()->max());
+		temp->setHeight(height);
 	}
+}
+
+double XRFDetailedDetectorView::getMaximumHeight(MPlotItem *data)
+{
+	double max = 0;
+	MPlotAbstractSeries *temp = qgraphicsitem_cast<MPlotAbstractSeries *>(data);
+
+	if (!temp)
+		return max;
+
+	AMDataSourceSeriesData *modal = (AMDataSourceSeriesData *)temp->model();
+
+	for (int i = 0; i < modal->count(); i++){
+
+		if (max < modal->y(i))
+			max = modal->y(i);
+	}
+
+	return max;
 }
 
 void XRFDetailedDetectorView::onAdditionOfRegionOfInterest(AMElement *el, QPair<QString, QString> line)
 {
 	AMROIInfo info(el->symbol()+" "+line.first, line.second.toDouble(), 0.025, detector_->scale());
 	detector_->addRegionOfInterest(info);
-	ROIPlotMarker *newMarker = new ROIPlotMarker(info.name(), info.energy(), info.energy()*(1-info.width()), info.energy()*(1+info.width()), plot_->axisLeft()->max());
+	ROIPlotMarker *newMarker = new ROIPlotMarker(info.name(), info.energy(), info.energy()*(1-info.width()/2), info.energy()*(1+info.width()/2), plot_->axisLeft()->max());
 	markers_ << newMarker;
 	plot_->addItem(newMarker);
 }
 
 void XRFDetailedDetectorView::onRemovalOfRegionOfInterest(AMElement *el, QPair<QString, QString> line)
 {
-	detector_->removeRegionOfInterest(el->name()+" "+line.first);
+	detector_->removeRegionOfInterest(el->symbol()+" "+line.first);
 
 	MPlotItem *removeMe = 0;
 	ROIPlotMarker *temp;

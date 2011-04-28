@@ -95,6 +95,9 @@ protected:
 	/// Sets up the plot.  Can add the plot widget to the layout after calling this function.
 	void setupPlot();
 
+	/// Gets the maximum height from the first data source.  Used for scaling the height of the ROI markers.
+	double getMaximumHeight(MPlotItem *data);
+
 	/// Get a color for the color of a line on the plot.
 	QColor getColor(int index);
 	/// Gets a color based on an emission line.

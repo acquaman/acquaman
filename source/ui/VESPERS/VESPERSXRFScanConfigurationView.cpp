@@ -1,6 +1,7 @@
 #include "VESPERSXRFScanConfigurationView.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
 #include "acquaman/VESPERS/VESPERSXRFScanController.h"
+#include "ui/AMTopFrame.h"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -11,10 +12,20 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 {
 	configuration_ = scanConfig;
 
-	if (configuration_->detectorChoice() == VESPERSBeamline::SingleElement)
+	AMTopFrame *topFrame;
+
+	if (configuration_->detectorChoice() == VESPERSBeamline::SingleElement){
+
 		detector_ = VESPERSBeamline::vespers()->vortexXRF1E();
-	else
+		topFrame = new AMTopFrame("XRF Configuration - Single Element Vortex");
+	}
+	else{
+
 		detector_ = VESPERSBeamline::vespers()->vortexXRF4E();
+		topFrame = new AMTopFrame("XRF Configuration - Four Element Vortex");
+	}
+
+	topFrame->setIcon(QIcon(":/utilities-system-monitor.png"));
 
 	view_ = new XRFDetailedDetectorView(detector_);
 	connect(detector_, SIGNAL(detectorConnected(bool)), this, SLOT(setEnabled(bool)));
@@ -96,7 +107,11 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 	plotControlLayout->addLayout(viewAndSelectionLayout);
 	plotControlLayout->addLayout(controlLayout);
 
-	setLayout(plotControlLayout);
+	QVBoxLayout *masterLayout = new QVBoxLayout;
+	masterLayout->addWidget(topFrame);
+	masterLayout->addLayout(plotControlLayout);
+
+	setLayout(masterLayout);
 }
 
 void VESPERSXRFScanConfigurationView::onIntegrationTimeUpdate()
@@ -146,7 +161,7 @@ void VESPERSXRFScanConfigurationView::onRoisHaveValues(bool hasValues)
 			if (name.isEmpty())
 				return;
 
-			name = name.left(name.indexOf(" ")+1);
+			name = name.left(name.indexOf(" "));
 			el = AMPeriodicTable::table()->elementBySymbol(name);
 
 			if (el){
@@ -156,7 +171,8 @@ void VESPERSXRFScanConfigurationView::onRoisHaveValues(bool hasValues)
 
 				for (int j = 0; j < el->emissionLines().count(); j++){
 
-					if (fabs((low+high)/2 - el->emissionLines().at(j).second.toDouble()/detector_->scale()) < 1)
+					if (el->emissionLines().at(j).first.contains("1")
+							&& fabs((low+high)/2 - el->emissionLines().at(j).second.toDouble()/detector_->scale()) < 1)
 						emit roiExistsAlready(el, el->emissionLines().at(j));
 				}
 			}

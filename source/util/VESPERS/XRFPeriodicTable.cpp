@@ -19,7 +19,7 @@ bool XRFPeriodicTable::addToList(AMElement *el, QPair<QString, QString> line)
 
 		temp = checkedList_.at(i);
 
-		if (temp.first != el->atomicNumber() && temp.second.compare(line.first) != 0){
+		if (temp.first != el->atomicNumber() || temp.second.compare(line.first) != 0){
 
 			checkedList_ << qMakePair(el->atomicNumber(), line.first);
 			return true;

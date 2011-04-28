@@ -45,6 +45,8 @@ public:
 
 	/// Returns whether the entire region of interest is connected.
 	bool isConnected() const { return connected_; }
+	/// Returns whether the entire region of interest has values.
+	bool hasValues() const { return hasValues_; }
 
 	/// Sets the name PVs using the given QList of AMProcessVariables.
 	void setNamePVs(QList<AMProcessVariable *> namePVs);
@@ -70,6 +72,8 @@ public:
 signals:
 	/// Signal emitted when the ROIs connected status changes.  This is only true if ALL PVs are connected.
 	void roiConnected(bool);
+	/// Signal emitted with a status indicator of whether or not all the process variables have values in them.
+	void roiHasValues(bool);
 
 public slots:
 	/// Sets the name of the ROI and passes it to all PV's.
@@ -108,6 +112,8 @@ protected slots:
 	void onHighPVChanged(int high) { high_ = high; }
 	/// Used to determine if the entire region of interest is connected or not.
 	void connected();
+	/// Used to determine if all of the process variables have values in them or not.
+	void onHasValuesChanged();
 
 protected:
 
@@ -127,6 +133,8 @@ protected:
 	double value_;
 	/// Holds the current state of whether the region of interest is connected.
 	bool connected_;
+	/// Holds the current state of whether the region of interest has values contained in it.
+	bool hasValues_;
 
 	/// A list of all the name PVs.  The size of the list will correspond to how many elements in the detector there is.
 	QList<AMProcessVariable *> pvNames_;

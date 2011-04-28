@@ -164,8 +164,11 @@ void XRFDetector::setRoiList(QList<AMROI *> list)
 {
 	roiList_ << list;
 
-	for (int i = 0; i < roiList_.size(); i++)
+	for (int i = 0; i < roiList_.size(); i++){
+
 		connect(roiList_.at(i), SIGNAL(roiConnected(bool)), this, SLOT(detectorConnected()));
+		connect(roiList_.at(i), SIGNAL(roiHasValues(bool)), this, SLOT(allRoisHaveValues()));
+	}
 }
 
 double XRFDetector::deadTime() const
@@ -259,7 +262,17 @@ void XRFDetector::detectorConnected()
 
 	emit detectorConnected(detectorConnected_);
 }
-#error add a way of passing on that an AMROI has a has values.  A simple getter should suffice.
+
+void XRFDetector::allRoisHaveValues()
+{
+	bool hasValues = true;
+
+	for (int i = 0; i < roiList().size(); i++)
+		hasValues = hasValues && roiList().at(i)->hasValues();
+
+	emit roisHaveValues(hasValues);
+}
+
 bool XRFDetector::addRegionOfInterest(AMROIInfo roi)
 {
 	// No more ROIs.
