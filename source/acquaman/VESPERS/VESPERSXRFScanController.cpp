@@ -32,7 +32,7 @@ VESPERSXRFScanController::VESPERSXRFScanController(VESPERSXRFScanConfiguration *
 
 	for (int i = 0; i < detector_->elements(); i++){
 
-		scan_->rawData()->addMeasurement(AMMeasurementInfo(QString("Element %1").arg(i+1), QString("Element %1").arg(i+1), "eV", detector_->axes()));
+		scan_->rawData()->addMeasurement(AMMeasurementInfo(QString("raw%1").arg(i+1), QString("Element %1").arg(i+1), "eV", detector_->axes()));
 		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), i));
 	}
 

@@ -14,6 +14,8 @@
 #include "dataman/VESPERS/AMXRFScan.h"
 #include "util/AMPeriodicTable.h"
 
+#include "util/VESPERS/ROIHelper.h"
+
 #include "dataman/AMDbObjectSupport.h"
 
 // For database registration:
@@ -78,6 +80,10 @@ bool VESPERSAppController::startup() {
 		mw_->addRightWidget(persistentView_);
 
 		mw_->setCurrentPane(vespersView_);
+
+		/// THIS IS HERE TO PASS ALONG THE INFORMATION TO THE SUM AND CORRECTEDSUM PVS IN THE FOUR ELEMENT DETECTOR.
+		ROIHelper *helper = new ROIHelper;
+		Q_UNUSED(helper)
 
 		return true;
 	}
