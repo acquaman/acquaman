@@ -81,6 +81,8 @@ public:
 	double minimumEnergy() const { return minimumEnergy_; }
 	/// Returns the maximum energy.
 	double maximumEnergy() const { return maximumEnergy_; }
+	/// Returns the element.
+	AMElement *element() const { return element_; }
 
 signals:
 	/// Signal emitted when a custom ROI should be created.

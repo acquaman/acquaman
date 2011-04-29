@@ -315,6 +315,14 @@ void XRFDetector::sort()
 		roiList().at(i)->fromInfo(roiInfoList()->at(i));
 }
 
+void XRFDetector::clearRegionsOfInterest()
+{
+	for (int i = 0; i < roiList().count(); i++)
+		roiList().at(i)->setRegion("", -1, -1);
+
+	roiInfoList()->clear();
+}
+
 void XRFDetector::enableElement(int id)
 {
 	/// \todo Need to implement enabling waveforms.

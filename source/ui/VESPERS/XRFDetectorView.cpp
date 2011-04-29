@@ -134,17 +134,20 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	QLabel *updateRateLabel = new QLabel(QString("Update Rate"));
 	updateRateLabel->setFont(font);
 
-	QLabel *legend = new QLabel(QString("Legend"));
-	legend->setFont(font);
-	QLabel *kLines = new QLabel(QString("K-lines"));
-	kLines->setFont(font);
-	kLines->setStyleSheet("QLabel { background-color: rgb(0,255,0) ; border-width: 2px ; border-style: solid }");
-	QLabel *lLines = new QLabel(QString("L-lines"));
-	lLines->setFont(font);
-	lLines->setStyleSheet("QLabel { background-color: rgb(255,255,0) ; border-width: 2px ; border-style: solid }");
-	QLabel *mLines = new QLabel(QString("M-lines"));
-	mLines->setFont(font);
-	mLines->setStyleSheet("QLabel { background-color: rgb(0,255,255) ; border-width: 2px ; border-style: solid }");
+
+	QPushButton *waterfallButton = new QPushButton("Raw Spectra");
+	waterfallButton->setCheckable(true);
+	connect(waterfallButton, SIGNAL(toggled(bool)), this, SLOT(onWaterfallToggled(bool)));
+
+	waterfallSeparation_ = new QDoubleSpinBox;
+	waterfallSeparation_->setMinimum(0.0);
+	waterfallSeparation_->setMaximum(1.0);
+	waterfallSeparation_->setSingleStep(0.01);
+	waterfallSeparation_->setValue(0.2);
+	waterfallSeparation_->setAlignment(Qt::AlignCenter);
+	waterfallSeparation_->setEnabled(false);
+	connect(waterfallSeparation_, SIGNAL(valueChanged(double)), this, SLOT(onWaterfallSeparationChanged(double)));
+	connect(waterfallButton, SIGNAL(toggled(bool)), waterfallSeparation_, SLOT(setEnabled(bool)));
 
 	QVBoxLayout *viewControlLayout = new QVBoxLayout;
 	viewControlLayout->addWidget(elapsedTimeLabel, 0, Qt::AlignLeft);
@@ -154,6 +157,11 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	viewControlLayout->addLayout(deadTimeLayout, Qt::AlignLeft);
 	viewControlLayout->addWidget(updateRateLabel, 0, Qt::AlignLeft);
 	viewControlLayout->addWidget(updateRate_, 0, Qt::AlignCenter);
+	if (detector_->elements() != 1){
+
+		viewControlLayout->addWidget(waterfallButton);
+		viewControlLayout->addWidget(waterfallSeparation_);
+	}
 	viewControlLayout->addStretch();
 
 	QGroupBox *controlBox = new QGroupBox;
@@ -171,6 +179,19 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	setLayout(detectorLayout);
 
 	return true;
+}
+
+void XRFDetailedDetectorView::onWaterfallToggled(bool isWaterfall)
+{
+	if (isWaterfall)
+		plot_->setWaterfallLeft(waterfallSeparation_->value()*getMaximumHeight(plot_->item(0)));
+	else
+		plot_->setWaterfallLeft(0);
+}
+
+void XRFDetailedDetectorView::onWaterfallSeparationChanged(double val)
+{
+	plot_->setWaterfallLeft(val*getMaximumHeight(plot_->item(0)));
 }
 
 void XRFDetailedDetectorView::onComboBoxUpdate(int index)
@@ -291,11 +312,24 @@ double XRFDetailedDetectorView::getMaximumHeight(MPlotItem *data)
 
 void XRFDetailedDetectorView::onAdditionOfRegionOfInterest(AMElement *el, QPair<QString, QString> line)
 {
-	AMROIInfo info(el->symbol()+" "+line.first, line.second.toDouble(), 0.025, detector_->scale());
+	AMROIInfo info(el->symbol()+" "+line.first, line.second.toDouble(), 0.04, detector_->scale());
 	detector_->addRegionOfInterest(info);
+	detector_->sort();
 	ROIPlotMarker *newMarker = new ROIPlotMarker(info.name(), info.energy(), info.energy()*(1-info.width()/2), info.energy()*(1+info.width()/2), plot_->axisLeft()->max());
-	markers_ << newMarker;
-	plot_->addItem(newMarker);
+
+	int index = 0;
+	while(index != markers_.size()){
+
+		if (info.energy() > ((ROIPlotMarker *)markers_.at(index))->center())
+			index++;
+		else
+			break;
+	}
+
+	// Insert after all existing items like the spectra and the "emission lines bars".  This places them in order of increasing energy, but still in a logical place.
+	plot_->insertItem(newMarker, index + plot_->numItems()-markers_.size());
+	markers_.insert(index + plot_->numItems()-markers_.size(), newMarker);
+	highlightMarkers(el);
 }
 
 void XRFDetailedDetectorView::onRemovalOfRegionOfInterest(AMElement *el, QPair<QString, QString> line)
@@ -315,6 +349,30 @@ void XRFDetailedDetectorView::onRemovalOfRegionOfInterest(AMElement *el, QPair<Q
 
 	if (removeMe)
 		plot_->removeItem(removeMe);
+}
+
+void XRFDetailedDetectorView::removeAllRegionsOfInterest()
+{
+	for (int i = 0; i < markers_.size(); i++)
+		plot_->removeItem(markers_.at(i));
+
+	markers_.clear();
+	detector_->clearRegionsOfInterest();
+}
+
+void XRFDetailedDetectorView::highlightMarkers(AMElement *el)
+{
+	ROIPlotMarker *temp;
+
+	for (int i = 0; i < markers_.size(); i++){
+
+		temp = (ROIPlotMarker *)markers_.at(i);
+
+		if (temp->description().contains(el->symbol()))
+			temp->setHighlighted(true);
+		else
+			temp->setHighlighted(false);
+	}
 }
 
 void XRFDetailedDetectorView::showEmissionLines(AMElement *el)

@@ -26,6 +26,8 @@ XRFSelectionView::XRFSelectionView(double minimumEnergy, double maximumEnergy, Q
 	// Passes on that a region of interest was successfully removed.
 	connect(tableView_, SIGNAL(removeRegionOfInterest(AMElement*,QPair<QString,QString>)), this, SIGNAL(removeRegionOfInterest(AMElement*,QPair<QString,QString>)));
 
+	connect(tableView_, SIGNAL(clearAllRegionsOfInterest()), this, SLOT(onClearList()));
+
 	QHBoxLayout *tableLayout = new QHBoxLayout;
 	tableLayout->addWidget(tableView_, Qt::AlignLeft);
 	tableLayout->addWidget(elView_, Qt::AlignCenter);
@@ -39,4 +41,10 @@ XRFSelectionView::XRFSelectionView(double minimumEnergy, double maximumEnergy, Q
 	xrfLayout->addWidget(table, 0, Qt::AlignCenter);
 
 	setLayout(xrfLayout);
+}
+
+void XRFSelectionView::onClearList()
+{
+	elView_->setElement(elView_->element(), QList<QPair<int, QString> >());
+	emit clearAllRegionsOfInterest();
 }

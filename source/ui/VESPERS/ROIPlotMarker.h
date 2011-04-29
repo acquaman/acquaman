@@ -54,6 +54,9 @@ public:
 	/// Updates the plot to show the new size and shape of the marker.
 	virtual void updatePlot() { prepareGeometryChange(); emitBoundsChanged(); emitLegendContentChanged(); if (low_ == -1 && high_ == -1) hide(); else show(); }
 
+	/// The color used to represent this plot item in the legend.  Subclasses can re-implement this for more detail.
+	virtual QBrush legendColor() const { return QBrush(QColor(0, 0, 0)); }
+
 private:
 	QString name_;
 	double center_;

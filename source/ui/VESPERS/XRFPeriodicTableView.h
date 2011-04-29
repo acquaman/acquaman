@@ -17,6 +17,8 @@ public:
 	double minimumEnergy() const { return minimumEnergy_; }
 	/// Returns the maximum energy.
 	double maximumEnergy() const { return maximumEnergy_; }
+	/// Returns the current list of emission lines used by this view.
+	const QList<QPair<int, QString> > roiList() const { return table_->checkedList(); }
 
 signals:
 	/// Passes on the signal that an element was selected.  Contains the element.
@@ -27,6 +29,8 @@ signals:
 	void addRegionOfInterest(AMElement *, QPair<QString, QString>);
 	/// Signal to notify others that the selected region of interest was successfully removed.
 	void removeRegionOfInterest(AMElement *, QPair<QString, QString>);
+	/// Signal to notify that all regions of interest should be removed.
+	void clearAllRegionsOfInterest();
 
 public slots:
 	/// Sets the minimum energy.
@@ -42,6 +46,8 @@ public slots:
 protected slots:
 	/// Handles the element clicked signal.
 	void onElementSelected(AMElement *el) { emit elementClicked(el, table_->checkedList()); }
+	/// Clears the entire list of regions of interest.
+	void clearList();
 
 protected:
 	/// Helper function that disables the buttons based on the current values of maximumEnergy_ and minimumEnergy_.

@@ -19,6 +19,8 @@ public:
 	double minimumEnergy() const { return minimumEnergy_; }
 	/// Returns the maximum energy.
 	double maximumEnergy() const { return maximumEnergy_; }
+	/// Sets the element view with a specific element.
+	void setElementView(AMElement *el) { elView_->setElement(el, tableView_->roiList()); }
 
 signals:
 	/// Passes on the signal that an element was selected.  Contains the element.
@@ -27,6 +29,8 @@ signals:
 	void addRegionOfInterest(AMElement *, QPair<QString, QString>);
 	/// Passes along the signal that an ROI should be removed.
 	void removeRegionOfInterest(AMElement *, QPair<QString, QString>);
+	/// Passes along the signal that all ROIs should be removed.
+	void clearAllRegionsOfInterest();
 
 public slots:
 	/// Sets the minimum energy.
@@ -37,6 +41,8 @@ public slots:
 	void preExistingRegionOfInterest(AMElement *el, QPair<QString, QString> line) { tableView_->regionOfInterestAdded(el, line); }
 
 protected slots:
+	/// Handles some of the gui changes that need to happen when the rois list is cleared.
+	void onClearList();
 
 protected:
 

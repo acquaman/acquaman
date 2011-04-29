@@ -25,6 +25,10 @@ XRFPeriodicTableView::XRFPeriodicTableView(double minEnergy, double maxEnergy, Q
 	mLines->setFont(font);
 	mLines->setStyleSheet("QLabel { background-color: rgb(0,255,255) ; border-width: 2px ; border-style: solid }");
 
+	QToolButton *trashButton = new QToolButton;
+	trashButton->setIcon(QIcon(":/trashcan.png"));
+	connect(trashButton, SIGNAL(clicked()), this, SLOT(clearList()));
+
 	tableView_ = new AMPeriodicTableView;
 	tableView_->setMaximumWidth(600);
 
@@ -41,6 +45,7 @@ XRFPeriodicTableView::XRFPeriodicTableView(double minEnergy, double maxEnergy, Q
 	legendLayout->addWidget(lLines);
 	legendLayout->addWidget(mLines);
 	legendLayout->addStretch();
+	legendLayout->addWidget(trashButton, 0, Qt::AlignCenter);
 
 	QHBoxLayout *tableLayout = new QHBoxLayout;
 	tableLayout->addLayout(legendLayout);
@@ -95,7 +100,24 @@ void XRFPeriodicTableView::regionOfInterestRemoved(AMElement *el, QPair<QString,
 		QToolButton *clicked = tableView_->button(el);
 		QPalette palette(clicked->palette());
 		palette.setColor(QPalette::Button, this->palette().color(QPalette::Button));
-		tableView_->button(el)->setPalette(palette);
+		clicked->setPalette(palette);
 		emit removeRegionOfInterest(el, line);
 	}
+}
+
+void XRFPeriodicTableView::clearList()
+{
+	QList<QPair<int, QString> > list = table_->checkedList();
+	QToolButton *clicked;
+
+	for (int i = 0; i < list.size(); i++){
+
+		clicked = tableView_->button(table_->elementByAtomicNumber(list.at(i).first));
+		QPalette palette(clicked->palette());
+		palette.setColor(QPalette::Button, this->palette().color(QPalette::Button));
+		clicked->setPalette(palette);
+	}
+
+	table_->clearList();
+	emit clearAllRegionsOfInterest();
 }

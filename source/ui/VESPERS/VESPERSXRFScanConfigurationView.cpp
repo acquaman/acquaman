@@ -34,9 +34,12 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 	// Using Potassium Ka as the lower energy limit and the maximum energy of the detector for the upper energy limit.
 	selectionView_ = new XRFSelectionView(AMPeriodicTable::table()->elementBySymbol("K")->Kalpha().second.toDouble(), detector_->maximumEnergy()*1000);
 	connect(selectionView_, SIGNAL(elementSelected(AMElement*)), view_, SLOT(showEmissionLines(AMElement*)));
+	connect(selectionView_, SIGNAL(elementSelected(AMElement*)), view_, SLOT(highlightMarkers(AMElement*)));
 	connect(selectionView_, SIGNAL(addRegionOfInterest(AMElement*,QPair<QString,QString>)), view_, SLOT(onAdditionOfRegionOfInterest(AMElement*,QPair<QString,QString>)));
 	connect(selectionView_, SIGNAL(removeRegionOfInterest(AMElement*,QPair<QString,QString>)), view_, SLOT(onRemovalOfRegionOfInterest(AMElement*,QPair<QString,QString>)));
 	connect(this, SIGNAL(roiExistsAlready(AMElement*,QPair<QString,QString>)), selectionView_, SLOT(preExistingRegionOfInterest(AMElement*,QPair<QString,QString>)));
+
+	connect(selectionView_, SIGNAL(clearAllRegionsOfInterest()), view_, SLOT(removeAllRegionsOfInterest()));
 
 	QToolButton *start = new QToolButton;
 	start->setIcon(QIcon(":/play_button_green.png"));
@@ -158,8 +161,15 @@ void VESPERSXRFScanConfigurationView::onRoisHaveValues(bool hasValues)
 			name = detector_->roiList().at(i)->name();
 
 			// If the name is empty then we've reached the end of the road for preset regions of interest.
-			if (name.isEmpty())
+			if (name.isEmpty()){
+
+				el = AMPeriodicTable::table()->elementBySymbol("Fe");
+				view_->showEmissionLines(el);
+				view_->highlightMarkers(el);
+				view_->resizeRoiMarkers();
+				selectionView_->setElementView(el);
 				return;
+			}
 
 			name = name.left(name.indexOf(" "));
 			el = AMPeriodicTable::table()->elementBySymbol(name);

@@ -67,10 +67,16 @@ public:
 public slots:
 	/// Places coloured markers on the plot to show where the acceptable emission lines are in the range of the detector.
 	void showEmissionLines(AMElement *el);
+	/// Changes the colors of the ROIMarkers for the latest element selected, if any.
+	void highlightMarkers(AMElement *el);
 	/// Slot handling what happens when a region of interest is added.
 	void onAdditionOfRegionOfInterest(AMElement *el, QPair<QString, QString> line);
 	/// Slot handling what happens when a region of interest is removed.
 	void onRemovalOfRegionOfInterest(AMElement *el, QPair<QString, QString> line);
+	/// Slot removing all the element markers.
+	void removeAllRegionsOfInterest();
+	/// Handles resizing the ROIPlotMarkers based on the maximum height of the data.
+	void resizeRoiMarkers();
 
 protected slots:
 	/// Handles the update from the dead time control.
@@ -83,8 +89,10 @@ protected slots:
 	void onComboBoxUpdate(int index);
 	/// Handles the changes from the update rate control.
 	void onUpdateRateUpdate(double val);
-	/// Handles resizing the ROIPlotMarkers when the spectra updates.
-	void resizeRoiMarkers();
+	/// Enables/Disables whether the raw spectra are displayed or the corrected sum.
+	void onWaterfallToggled(bool isWaterfall);
+	/// Changes the amount of waterfall separation between the plots.
+	void onWaterfallSeparationChanged(double val);
 
 protected:
 
@@ -112,6 +120,8 @@ protected:
 	QLabel *deadTime_;
 	/// The spectrum update rate combo box.
 	QComboBox *updateRate_;
+	/// The waterfall spin box.
+	QDoubleSpinBox *waterfallSeparation_;
 
 	/// The button group used for the dead time tool buttons.
 	QButtonGroup *deadTimeGroup_;

@@ -223,6 +223,8 @@ public slots:
 	void setChannelSize();
 	/// Sets the description of the detector.
 	void setDescription(const QString &description) { XRFDetectorInfo::setDescription(description); }
+	/// Clears the list of ROIs and clears the info list.
+	void clearRegionsOfInterest();
 
 
 signals:
