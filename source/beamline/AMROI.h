@@ -74,6 +74,12 @@ signals:
 	void roiConnected(bool);
 	/// Signal emitted with a status indicator of whether or not all the process variables have values in them.
 	void roiHasValues(bool);
+	/// Signal emitting that the name PV has changed.
+	void nameUpdate(QString);
+	/// Signal emitting that the low PV has changed.
+	void lowUpdate(int);
+	/// Signal emitting that the high PV has changed.
+	void highUpdate(int);
 
 public slots:
 	/// Sets the name of the ROI and passes it to all PV's.
@@ -105,11 +111,11 @@ protected slots:
 	/// Used to compute the current value based on the current state of the PVs.
 	void updateValue();
 	/// Updates the ROI if changes were made to the name outside of the program.
-	void onNamePVChanged(QString name) { name_ = name; }
+	void onNamePVChanged(QString name) { name_ = name; emit nameUpdate(name); }
 	/// Updates the ROI if changes were made to the lower bound outside of the program.
-	void onLowPVChanged(int low) { low_ = low; }
+	void onLowPVChanged(int low) { low_ = low; emit lowUpdate(low); }
 	/// Updates the ROI if changes were made to the higher bound outside of the program.
-	void onHighPVChanged(int high) { high_ = high; }
+	void onHighPVChanged(int high) { high_ = high; emit highUpdate(high); }
 	/// Used to determine if the entire region of interest is connected or not.
 	void connected();
 	/// Used to determine if all of the process variables have values in them or not.
