@@ -80,6 +80,8 @@ signals:
 	void lowUpdate(int);
 	/// Signal emitting that the high PV has changed.
 	void highUpdate(int);
+	/// Signal emitting the new value of the ROI.
+	void valueUpdate(double);
 
 public slots:
 	/// Sets the name of the ROI and passes it to all PV's.

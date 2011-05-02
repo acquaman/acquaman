@@ -41,6 +41,11 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 
 	connect(selectionView_, SIGNAL(clearAllRegionsOfInterest()), view_, SLOT(removeAllRegionsOfInterest()));
 
+	customize_ = new CustomizeRegionsOfInterest(detector_->roiList());
+	QToolButton *configureButton = new QToolButton;
+	configureButton->setIcon(QIcon(":/configure.png"));
+	connect(configureButton, SIGNAL(clicked()), customize_, SLOT(show()));
+
 	QToolButton *start = new QToolButton;
 	start->setIcon(QIcon(":/play_button_green.png"));
 	connect(start, SIGNAL(clicked()), this, SLOT(onStartClicked()));
@@ -101,6 +106,7 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 	controlLayout->addWidget(peakingTimeLabel);
 	controlLayout->addWidget(peakingTime_);
 	controlLayout->addStretch();
+	controlLayout->addWidget(configureButton);
 
 	QVBoxLayout *viewAndSelectionLayout = new QVBoxLayout;
 	viewAndSelectionLayout->addWidget(view_);
@@ -115,6 +121,11 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 	masterLayout->addLayout(plotControlLayout);
 
 	setLayout(masterLayout);
+}
+
+VESPERSXRFScanConfigurationView::~VESPERSXRFScanConfigurationView()
+{
+	delete customize_;
 }
 
 void VESPERSXRFScanConfigurationView::onIntegrationTimeUpdate()

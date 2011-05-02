@@ -6,6 +6,7 @@
 #include "ui/VESPERS/XRFDetectorView.h"
 #include "acquaman/AMScanController.h"
 #include "ui/VESPERS/XRFSelectionView.h"
+#include "ui/VESPERS/CustomizeRegionsOfInterest.h"
 
 #include <QDoubleSpinBox>
 
@@ -15,6 +16,8 @@ class VESPERSXRFScanConfigurationView : public AMScanConfigurationView
 public:
 	/// Default constructor.
 	VESPERSXRFScanConfigurationView(VESPERSXRFScanConfiguration *scanConfig, QWidget *parent = 0);
+	/// Destructor.
+	~VESPERSXRFScanConfigurationView();
 
 	/// Returns a pointer to the current configuration.
 	const AMScanConfiguration *configuration() const { return configuration_; }
@@ -50,6 +53,8 @@ protected:
 	XRFSelectionView *selectionView_;
 	/// The pointer to the detector.
 	XRFDetector *detector_;
+	/// The pointer to the customize view.
+	CustomizeRegionsOfInterest *customize_;
 
 	/// The integration time spin box.
 	QDoubleSpinBox *integrationTime_;
