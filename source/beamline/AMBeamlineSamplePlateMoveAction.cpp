@@ -15,12 +15,10 @@ AMBeamlineSamplePlateMoveAction::AMBeamlineSamplePlateMoveAction(int sampleID, A
 		for(int x = 0; x < samplePlateModel_->rowCount(QModelIndex()); x++){
 			AMSamplePosition* tmpSamplePos = qobject_cast<AMSamplePosition*>(samplePlateModel_->data(samplePlateModel_->index(x), AM::PointerRole).value<QObject*>());
 			if(tmpSamplePos->sampleId() == sampleID_ ){
-				qDebug() << "Found it in the model at " << x;
 				foundSampleOnPlate = true;
 				connect(samplePlateModel_, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(onSamplePlateDataChanged(QModelIndex,QModelIndex)));
 				setDescription("Move to sample \""+samplePlateModel_->data(samplePlateModel_->index(x), Qt::EditRole).toString()+"\"");
 			}
-//			tmpAction = samplePlateAddActionMenu_->addAction(samplePlateModel_->data(samplePlateModel_->index(x), Qt::EditRole).toString());
 		}
 	}
 	if(!foundSampleOnPlate){
@@ -39,12 +37,9 @@ AMBeamlineActionItemView* AMBeamlineSamplePlateMoveAction::createView(int index)
 void AMBeamlineSamplePlateMoveAction::onSamplePlateDataChanged(QModelIndex topLeft, QModelIndex bottomRight){
 	AMSamplePosition* tmpSamplePos = qobject_cast<AMSamplePosition*>(samplePlateModel_->data(topLeft, AM::PointerRole).value<QObject*>());
 	if(tmpSamplePos->sampleId() == sampleID_ ){
-		qDebug() << "Yeah it was mine that changed";
 		setDescription("Move to sample \""+samplePlateModel_->data(topLeft, Qt::EditRole).toString()+"\"");
 		emit descriptionChanged(description());
 	}
-	else
-		qDebug() << "Some other sample changed";
 }
 
 

@@ -253,18 +253,12 @@ void AMWorkflowManagerView::setFiducializationHoverIndex(){
 }
 
 void AMWorkflowManagerView::onSamplePlateAddActionClicked(){
-	qDebug() << "Sample triggered is " << samplePlateHoverIndex_;
-	qDebug() << "Position is " << currentSamplePlate_->at(samplePlateHoverIndex_).position();
-//	AMBeamlineControlSetMoveAction *sampleMoveAction = new AMBeamlineControlSetMoveAction(AMBeamline::bl()->currentSamplePositioner());
 	AMBeamlineSamplePlateMoveAction *sampleMoveAction = new AMBeamlineSamplePlateMoveAction(currentSamplePlate_->at(samplePlateHoverIndex_).sampleId(), samplePlateModel_);
 	sampleMoveAction->setSetpoint(currentSamplePlate_->at(samplePlateHoverIndex_).position());
 	insertBeamlineAction(-1, sampleMoveAction);
 }
 
 void AMWorkflowManagerView::onFiducializationMarkAddActionClicked(){ qDebug() << "Fiducialization triggered is " << fiducializationMarkHoverIndex_;
-	qDebug() << "Fiducialization position is " << AMBeamline::bl()->currentFiducializations().at(fiducializationMarkHoverIndex_);
-//	AMBeamlineControlSetMoveAction *sampleMoveAction = new AMBeamlineControlSetMoveAction(AMBeamline::bl()->currentSamplePositioner());
-//	sampleMoveAction->setSetpoint(AMBeamline::bl()->currentFiducializations().at(fiducializationMarkHoverIndex_));
 	AMBeamlineFiducializationMoveAction *fiducializationMoveAction = new AMBeamlineFiducializationMoveAction(fiducializationMarkHoverIndex_);
 	insertBeamlineAction(-1, fiducializationMoveAction);
 }
