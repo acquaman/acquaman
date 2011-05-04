@@ -28,6 +28,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QVBoxLayout>
 #include <QSpacerItem>
 
+#include <QDebug>
+
 /// The AMVerticalStackWidget class provides a column of widget items, that can be expanded or hidden.
 class AMVerticalStackWidget : public QFrame
 {
@@ -50,19 +52,39 @@ public:
 */
 
 	/// Add a widget at the bottom of the stack. Widgets are initially shown expanded.  The AMVerticalStackWidget takes ownership of the widget.
-	void addItem(QWidget* widget, const QString& titleText, bool collapsable = true) {
-		insertItem(-1, widget, titleText, collapsable);
+	/*! \param titleText The widget's windowTitle() will be changed to this, and this will be displayed used in the header bar above the widget. You can change this text later by calling setWindowTitle() on the widget.
+	  \param collapsable If true, the user can collapse the widget by clicking on the title bar
+	 \param widget The widget to include in the stack
+	 */
+	void addItem(const QString& titleText, QWidget* widget, bool collapsable = true) {
+		insertItem(-1, titleText, widget, collapsable);
 	}
+	/// Add a widget at the bottom of the stack. Widgets are initially shown expanded.  The AMVerticalStackWidget takes ownership of the widget.  The widget's windowTitle() is used for the header bar text.
+	/*!
+	  \param collapsable If true, the user can collapse the widget by clicking on the title bar
+	 \param widget The widget to include in the stack
+	 */
 	void addItem(QWidget* widget, bool collapsable = true) {
 		insertItem(-1, widget, collapsable);
 	}
 
 	/// Insert a widget at a specific index in the stack. Inserting at \c index = -1 is equivalent to appending to the end. The AMVerticalStackWidget takes ownership of the widget.
-	void insertItem(int index, QWidget* widget, const QString& titleText, bool collapsable = true) {
-		widget->setWindowTitle(titleText);
-		insertItem(index, widget, collapsable);
+	/*!
+	\param index The placement of the widget in the stack, from 0 to count().  Alternatively, -1 appends to the end.
+\param titleText The widget's windowTitle() will be changed to this, and this will be displayed used in the header bar above the widget. You can change this text later by calling setWindowTitle() on the widget.
+	  \param collapsable If true, the user can collapse the widget by clicking on the title bar
+	 \param widget The widget to include in the stack
+	 */
+	void insertItem(int index, const QString& titleText, QWidget* widget, bool collapsable = true);
+	/// Insert a widget at a specific index in the stack. Inserting at \c index = -1 is equivalent to appending to the end. The AMVerticalStackWidget takes ownership of the widget.  The widget's windowTitle() is used for the header bar text.
+	/*!
+	\param index The placement of the widget in the stack, from 0 to count().  Alternatively, -1 appends to the end.
+	  \param collapsable If true, the user can collapse the widget by clicking on the title bar
+	 \param widget The widget to include in the stack
+	 */
+	void insertItem(int index, QWidget* widget, bool collapsable = true) {
+		insertItem(index, widget->windowTitle(), widget, collapsable);
 	}
-	void insertItem(int index, QWidget* widget, bool collapsable = true);
 
 
 

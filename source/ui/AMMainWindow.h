@@ -31,6 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTreeView>
 #include "ui/AMWindowPaneModel.h"
 
+#include <QQueue>
 
 
 /// This UI class manages a set of "window panes", which can either be docked and selected using an iTunes-style sidebar, or un-docked to float as independent windows. When an un-docked pane is clicked in the sidebar or closed, it is re-docked in the main window. Finally, a layout is available to add custom widgets above and below the main area.
@@ -92,11 +93,17 @@ public slots:
 		model_->dock(model_->indexForPane(pane));
 	}
 
-	/// Set this pane as the current widget. If the pane is currently undocked, bring it to the front.
-	void goToPane(QWidget* pane);
+	/// Set this pane as the current widget. If the pane is currently undocked, bring it to the front.  If it is docked, make it the currently-selected in the sidebar of the mainwindow.
+	/*! \param pane Pointer to the widget that should be made current
+	  */
+	void setCurrentPane(QWidget* pane);
+	/// Set this pane as the current widget. If the pane is currently undocked, bring it to the front.  If it is docked, make it the currently-selected in the sidebar of the mainwindow.
+	/*! \param index The index of the pane's entry in our AMWindowPaneModel model.
+   */
+	void setCurrentIndex(const QModelIndex& index);
 
 signals:
-	/// advertises when a new widget was selected as the current widget
+	/// advertises when a new widget was selected as the current widget. \note This is only emitted for widgets that are docked within the main window itself. It is not emitted when undocked widgets become current or raised by the user.
 	void currentPaneChanged(QWidget* pane);
 
 	/// advertises when an "alias" item was selected as the current widget.  "Aliases" are items in the model that don't have their own unique window pane widgets, but instead link to another existing widget. When activated, they can deliver a message (in the form of a \c key and \c value pair) for that widget.
@@ -108,15 +115,13 @@ signals:
 protected slots:
 	// Responding to the sidebar QTreeView selections
 	//////////////////////////////////////////////////
-	/// Called when a link in the sidebar is clicked.  This should set the linked pane as the current widget, re-capturing it if necessary.
-	void onSidebarItemActivated(const QModelIndex& index, const QModelIndex& oldIndex);
+	/// Called when a link in the sidebar is clicked.  This should set the linked pane as the current widget, re-docking it if necessary.
+	void onSidebarItemSelectionChanged();
 
 
 	/// Called when a link in the sidebar is double-clicked. This should undock the linked pane and set it up as a new window.
 	void onSidebarItemDoubleClicked(const QModelIndex& index);
 
-	/// We intercept and forward the currentChanged(int) signal from the QStackedWidget, to keep the sidebar's highlighted link consistent with the current widget.
-	void onFwdCurrentWidgetChanged(int currentIndex);
 
 	// Responding to model events (widgets added, widgets removed, dock state changed...)
 	//////////////////////////////////////////////////
@@ -140,9 +145,16 @@ protected:
 	QVBoxLayout* vlayout_;
 	QHBoxLayout* hlayout_;
 
-	QWidget* previousPane_;
+	// addition for usability: when undocking or removing the current widget, we can use this to go back to the user's previous one. (Includes only docked selections)
+	QQueue<QPersistentModelIndex> previousSelections_;
 
 	AMWindowPaneModel* model_;
+
+
+	void removeFromPreviousSelectionsQueue(const QModelIndex& removed);
+	void addToPreviousSelectionsQueue(const QModelIndex& current);
+	/// returns previous index that should be switched to when removing or undocking \c current.
+	QModelIndex getPreviousSelection(const QModelIndex& current);
 
 
 };

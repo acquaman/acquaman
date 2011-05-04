@@ -5,6 +5,7 @@
 #include "acquaman/VESPERS/VESPERSXRFScanConfiguration.h"
 #include "ui/VESPERS/XRFDetectorView.h"
 #include "acquaman/AMScanController.h"
+#include "ui/VESPERS/XRFSelectionView.h"
 
 #include <QDoubleSpinBox>
 
@@ -21,24 +22,32 @@ public:
 signals:
 	/// Passes along the configuration view's start scan signal.
 	void startScan();
+	/// Signal used on startup to pass on information of already existing regions of interest.
+	void roiExistsAlready(AMElement *, QPair<QString, QString>);
 
 protected slots:
 	/// Handles new values set from the integration time spin box and passes it along to the control.
 	void onIntegrationTimeUpdate();
 	/// Handles new values set from the maximum energy spin box and passes it along to the control.
 	void onMaximumEnergyUpdate();
+	/// Handles the new values from the maximum energy control.
+	void onMaximumEnergyControlUpdate(double val);
 	/// Handles new values set from the peaking time spin box and passes it along to the control.
 	void onPeakingTimeUpdate();
 	/// Handles what happens when the start button is clicked.
 	void onStartClicked() { detector_->setTime(integrationTime_->value()); emit startScan(); }
 	/// Handles what happens when the stop button is clicked.
 	void onStopClicked();
+	/// Handles what happens when the detector becomes connected.
+	void onRoisHaveValues(bool hasValues);
 
 protected:
 	/// The current configuration.
 	VESPERSXRFScanConfiguration *configuration_;
 	/// The detector view.
 	XRFDetailedDetectorView *view_;
+	/// The selection view.
+	XRFSelectionView *selectionView_;
 	/// The pointer to the detector.
 	XRFDetector *detector_;
 

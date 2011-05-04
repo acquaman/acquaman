@@ -25,14 +25,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMetaType>
 #include "ui_AMGenericScanEditor.h"
 
-#include "acquaman.h"
-#include "dataman/AMScan.h"
 #include "dataman/AMScanSetModel.h"
-#include "ui/AMScanView.h"
-#include "ui/AMVerticalStackWidget.h"
-#include "ui/AMRunSelector.h"
-#include "ui/AMSampleEditor.h"
-#include "ui/AMDataSourcesEditor.h"
+
+class AMScan;
+
+class AMScanView;
+class AMVerticalStackWidget;
+class AMRunSelector;
+class AMSampleEditor;
+class AMDataSourcesEditor;
 
 class AMGenericScanEditor : public QWidget
 {
@@ -49,11 +50,7 @@ public:
 
 
 	/// Remove a scan from the editor and delete the scan.
-	void deleteScan(AMScan* scan) {
-		scanSetModel_->removeScan(scan);
-		delete scan;
-		refreshWindowTitle();
-	}
+	void deleteScan(AMScan* scan);
 
 	/// Remove a scan and delete it, but ask the user for confirmation if it's been modified.  Returns true if the scan was deleted, and false if the user 'cancelled' the process.
 	bool deleteScanWithModifiedCheck(AMScan* scan);

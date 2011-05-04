@@ -7,6 +7,7 @@
 #include <QWidget>
 #include <QDoubleSpinBox>
 #include <QButtonGroup>
+#include <QLabel>
 
 /*! This class builds a view on the sample stage control that does relative movement for the sample stage.  It does not change the focus distance,
   only the horizontal and vertical motors.
@@ -43,6 +44,8 @@ protected:
 	QDoubleSpinBox *jog_;
 	/// This button group holds the four directional buttons.
 	QButtonGroup *buttons_;
+	/// The status label that shows whether the sample stage is moving or not.
+	QLabel *status_;
 
 	/// The control for the horizontal sample stage control.
 	AMPVwStatusControl *horizontal_;

@@ -193,7 +193,7 @@ void AMAppController::onActionImport() {
 }
 
 void AMAppController::goToWorkflow() {
-	mw_->goToPane(workflowManagerView_);
+	mw_->setCurrentPane(workflowManagerView_);
 }
 
 void AMAppController::onCurrentPaneChanged(QWidget *pane) {
@@ -239,7 +239,7 @@ void AMAppController::onDataViewItemsActivated(const QList<QUrl>& itemUrls) {
 
 	AMGenericScanEditor* editor = new AMGenericScanEditor();
 	scanEditorsParentItem_->appendRow(new AMScanEditorModelItem(editor, ":/applications-science.png"));
-	mw_->goToPane(editor);
+	mw_->setCurrentPane(editor);
 
 	editor->dropScanURLs(itemUrls);
 }
@@ -258,7 +258,7 @@ void AMAppController::onDataViewItemsActivatedSeparateWindows(const QList<QUrl> 
 	}
 
 	if(itemUrls.count())
-		mw_->goToPane(editor);
+		mw_->setCurrentPane(editor);
 }
 
 #include "dataman/AMRunExperimentItems.h"
@@ -278,8 +278,7 @@ void AMAppController::onWindowPaneCloseButtonClicked(const QModelIndex& index) {
 			if(!editor->deleteScanWithModifiedCheck(editor->scanAt(editor->scanCount()-1)))
 				return;
 		}
-		mw_->removePane(editor);
-		delete editor;
+		mw_->deletePane(editor);
 	}
 
 	// is this an experiment asking to be deleted?

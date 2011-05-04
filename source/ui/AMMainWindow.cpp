@@ -73,14 +73,12 @@ AMMainWindow::AMMainWindow(QWidget *parent) : QWidget(parent) {
 	// connect signals from the model:
 	connect(model_, SIGNAL(dockStateChanged(QWidget*,bool)), this, SLOT(onDockStateChanged(QWidget*,bool)));
 	connect(model_, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(onModelRowsInserted(QModelIndex,int,int)));
-	connect(model_, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)), this, SLOT(onModelRowsAboutToBeRemoved(QModelIndex,int,int)));
+	connect(model_, SIGNAL(rowsAboutToBeAboutToBeRemoved(QModelIndex,int,int)), this, SLOT(onModelRowsAboutToBeRemoved(QModelIndex,int,int)));
 
 	// connect click and double-click signals from the sidebar:
-	connect(sidebar_->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(onSidebarItemActivated(QModelIndex,QModelIndex)));
+	connect(sidebar_->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(onSidebarItemSelectionChanged()));
 	connect(sidebar_, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onSidebarItemDoubleClicked(QModelIndex)));
 
-	// connect the stackWidget_'s currentWidgetChanged signal, to ensure we stay in sync with the currentIndex in the sidebar:
-	connect(stackWidget_, SIGNAL(currentChanged(int)), this, SLOT(onFwdCurrentWidgetChanged(int)));
 
 	// connect 'close' signal from AMCloseItemDelegate
 	connect(del, SIGNAL(closeButtonClicked(QModelIndex)), this, SLOT(onItemCloseButtonClicked(QModelIndex)));
@@ -93,7 +91,6 @@ AMMainWindow::~AMMainWindow() {
 	// get rid of the sidebar, so that it's not emitting signals and causing changes while we delete the widgets themselves.
 	delete sidebar_;
 
-	disconnect(stackWidget_, SIGNAL(currentChanged(int)), this, SLOT(onFwdCurrentWidgetChanged(int)));
 	// delete the model.
 	delete model_;
 
@@ -172,6 +169,8 @@ void AMMainWindow::onModelRowsAboutToBeRemoved(const QModelIndex &parent, int st
 	for(int row=start; row<=end; row++) {
 		QModelIndex i = model_->index(row, 0, parent);
 
+		removeFromPreviousSelectionsQueue(i);
+
 		// for "real" items only. Don't care about removing headings or aliases.
 		if(!model_->isAlias(i) && !model_->isHeading(i)) {
 
@@ -179,15 +178,18 @@ void AMMainWindow::onModelRowsAboutToBeRemoved(const QModelIndex &parent, int st
 				QWidget* pane = model_->pane(i);
 				if(pane) {
 
+					// ABAB if this was the currently-selected item, select something different in the main window. We don't want to have that sidebar item selected if its corresponding widget is removed.
+					if(stackWidget_->currentWidget() == pane)
+						sidebar_->setCurrentIndex(getPreviousSelection(i));
+					else
+						qDebug() << "Not current widget";
+
 					QSize oldSize = pane->size();
 					QPoint oldPos = pane->mapToGlobal(pane->geometry().topLeft());
 					stackWidget_->removeWidget(pane);
 					pane->setParent(0);
 					pane->setGeometry(QRect(oldPos + QPoint(20, 20), oldSize));
 					pane->show();
-
-					if(previousPane_ == pane)
-						previousPane_ = 0;
 				}
 			}
 		}
@@ -209,11 +211,9 @@ void AMMainWindow::onDockStateChanged(QWidget* pane, bool isDocked) {
 		QSize oldSize = pane->size();
 		QPoint oldPos = pane->mapToGlobal(pane->geometry().topLeft());
 
-		// the most intuitive thing for users would be: when undocking this pane, take them back in the main-window to the previously-visited pane.
-		// caveats: need to make sure that the previously-visited pane still exists, and is actually docked itself.
-		QModelIndex previousPaneIndex = model_->indexForPane(previousPane_);
-		if(previousPaneIndex.isValid() && model_->isDocked(previousPaneIndex) && previousPane_ != pane)
-			stackWidget_->setCurrentWidget(previousPane_);
+		// ABAB if this was the currently-selected item, select something different in the main window. (Can't have a non-existent pane selected in the sidebar)
+		if(stackWidget_->currentWidget() == pane)
+			sidebar_->setCurrentIndex(getPreviousSelection(model_->indexForPane(pane)));
 
 		stackWidget_->removeWidget(pane);
 		pane->setParent(0);
@@ -224,34 +224,48 @@ void AMMainWindow::onDockStateChanged(QWidget* pane, bool isDocked) {
 
 
 
-void AMMainWindow::goToPane(QWidget* pane){
+void AMMainWindow::setCurrentPane(QWidget* pane){
 
 	// widget doesn't exist
 	QModelIndex i = model_->indexForPane(pane);
 	if(!i.isValid())
 		return;
 
+	setCurrentIndex(i);
+
+}
+
+void AMMainWindow::setCurrentIndex(const QModelIndex &i) {
+
 	// if its a docked widget, set as current widget
 	if(model_->isDocked(i)) {
-		previousPane_ = stackWidget_->currentWidget();
-		stackWidget_->setCurrentWidget(pane);
+		sidebar_->setCurrentIndex(i);	// will trigger onSidebarItemSelectionChanged()
 	}
 
 	// if it's undocked, bring it to the front
 	else {
-		pane->activateWindow();
-		// unnecessary, since pane is a top-level window with no siblings: pane->raise();
+		model_->pane(i)->activateWindow();
 	}
+
 }
 
 
-void AMMainWindow::onSidebarItemActivated(const QModelIndex& index, const QModelIndex& oldIndex) {
+void AMMainWindow::onSidebarItemSelectionChanged() {
 
-	Q_UNUSED(oldIndex)
+	QModelIndex index;
+	QModelIndexList selectedItems(sidebar_->selectionModel()->selectedIndexes());
+	if(!selectedItems.isEmpty()) {
+		index = selectedItems.at(0);
+	}
+
+	// qDebug() << "Sidebar selection changed with index " << index;
+
+	if(!index.isValid()) {
+		// do nothing?
+		return;
+	}
 
 	QWidget* pane = model_->pane(index);
-
-	// qDebug() << "Calling onSidebarItemActivated. pane = " << pane << "index = " << index;
 
 	if(pane == 0)
 		return;
@@ -261,36 +275,49 @@ void AMMainWindow::onSidebarItemActivated(const QModelIndex& index, const QModel
 		emit aliasItemActivated(pane, model_->aliasKey(index), model_->aliasValue(index));
 	}
 
-	// already done
-	if(pane == stackWidget_->currentWidget())
-		return;
-
 	// If it's floating free, need to grab it back
 	if(!model_->isDocked(index)) {
 		model_->dock(index);
 	}
 
-	previousPane_ = stackWidget_->currentWidget();
 	stackWidget_->setCurrentWidget(pane);
+	addToPreviousSelectionsQueue(index);
+	emit currentPaneChanged(pane);
 }
 
 void AMMainWindow::onSidebarItemDoubleClicked(const QModelIndex& index) {
 	model_->undock(index);
 }
 
-// We intercept and forward the currentChanged(int) signal from the QStackedWidget, to keep the sidebar's highlighted link consistent with the current widget.
-void AMMainWindow::onFwdCurrentWidgetChanged(int currentIndex) {
-
-	if(currentIndex < 0)
-		return;
-
-	QWidget* currentPane = stackWidget_->widget(currentIndex);
-	// Normally, we want to ensure that the highlighted selection in the tree(sidebar) stays consistent with the selected pane.
-	// However, if there are multiple links for a single pane, we don't know which one to choose, so its better to not do anything at all. (For now... this could be improved with a more detailed internal model.)
-	// ??????????
-	QModelIndex i = model_->indexForPane(currentPane);
-	// sidebar_->setCurrentIndex(i);
-
-	emit currentPaneChanged(currentPane);
+void AMMainWindow::removeFromPreviousSelectionsQueue(const QModelIndex &removed)
+{
+	previousSelections_.removeAll(QPersistentModelIndex(removed));
 }
+
+void AMMainWindow::addToPreviousSelectionsQueue(const QModelIndex &current)
+{
+	previousSelections_.enqueue(QPersistentModelIndex(current));
+	if(previousSelections_.count() > 10)
+		previousSelections_.dequeue();
+}
+
+QModelIndex AMMainWindow::getPreviousSelection(const QModelIndex &current)
+{
+	// qDebug() << "Current index:" << current;
+	// qDebug()<< "Previous selections list:" << previousSelections_;
+
+	QPersistentModelIndex potential;
+	bool searchSuccess = false;
+	while(!searchSuccess && !previousSelections_.isEmpty() ) {
+		potential = previousSelections_.takeLast();
+		if(potential.isValid() && model_->isDocked(potential) && model_->pane(potential) != model_->pane(current))
+			searchSuccess = true;
+	}
+
+	QModelIndex rv = searchSuccess ? QModelIndex(potential) : QModelIndex();
+
+	// qDebug() << "Recommending go to" << rv;
+	return rv;
+}
+
 

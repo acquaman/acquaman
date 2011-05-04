@@ -8,8 +8,8 @@ AMExporterOptionGeneralAscii::AMExporterOptionGeneralAscii(QObject *parent) :
 	columnDelimiter_ = "\t";
 	newlineDelimiter_ = "\r\n";
 
-	fileName_ = "$name_$number_$dateTime.txt";
-	separateSectionFileName_ = "$name_$number_$dataSource_$dateTime.txt";
+	fileName_ = "$name_$number_$dateTime[yyyyMMdd_hhmmss].txt";
+	separateSectionFileName_ = "$name_$number_$dataSource_$dateTime[yyyyMMdd_hhmmss].txt";
 
 	setModified(false);
 }

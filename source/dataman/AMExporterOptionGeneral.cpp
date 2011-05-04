@@ -12,15 +12,15 @@ AMExporterOptionGeneral::AMExporterOptionGeneral(QObject *parent) :
 					"Facility: $facilityDescription\n\n";
 	headerIncluded_ = true;
 
-	columnHeader_ =	"$dataSourceName ($dataSourceUnits)";
+	columnHeader_ =	"$dataSet";	/// \todo Removed $dataSetUnits because we don't have that implemented yet.
 	columnHeaderIncluded_ = true;
 
 	columnHeaderDelimiter_ = "==========";
 
-	sectionHeader_ = "\n$dataSourceName: $dataSourceDescription ($dataSourceUnits)\nSize: $dataSourceSize\n"
+	sectionHeader_ = "\n$dataSetName: $dataSetDescription\nSize: $dataSetSize\n"		/// \todo Removed $dataSetUnits because we don't have that implemented yet.
 						"----------";
 	sectionHeaderIncluded_ = true;
 
-	separateSectionFileName_ = "$name_$number_$dataSource_$dateTime.dat";
+	separateSectionFileName_ = "$name_$number_$dataSet_$dateTime[yyyyMMdd_hhmmss].dat";
 }
 

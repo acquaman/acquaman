@@ -29,6 +29,7 @@ AMExportController::AMExportController(const QList<QUrl>& scansToExport) :
 
 	searchScanIndex_ = -1;
 	exportScanIndex_ = -1;
+	succeededCount_ = failedCount_ = 0;
 
 	destinationFolderPath_ = AMUser::user()->lastExportDestination();
 	if(destinationFolderPath_.isEmpty())
@@ -166,6 +167,15 @@ void AMExportController::continueScanExport()
 	// 1. Check for finished:
 	if(exportScanIndex_ >= scansToExport_.count()) {
 		emit stateChanged(state_ = Finished);
+
+		QString message = "Exported " % QString::number(succeededCount()) % " scans.";
+		if(failedCount())
+			message.append("  (" % QString::number(failedCount()) % " scans could not be exported.)");
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Information, 0, message));
+
+		AMUser::user()->setLastExportDestination(destinationFolderPath());
+		AMUser::user()->storeToDb(AMUser::user()->database());
+
 		deleteLater();
 		return; // We're done!
 	}
@@ -219,10 +229,12 @@ void AMExportController::continueScanExport()
 		}
 
 		emit statusChanged(status_ = "Wrote:   " % writtenFile);
+		succeededCount_++;
 		delete scan;	// done!
 	}
 
 	catch(QString errMsg) {
+		failedCount_++;
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -1, errMsg));
 	}
 
@@ -250,7 +262,7 @@ bool AMExportController::cancel()
 }
 
 AMExportController::~AMExportController() {
-	qDebug() << "Export Controller deleted.";
+	// nothing for now
 }
 
 bool AMExportController::pause()

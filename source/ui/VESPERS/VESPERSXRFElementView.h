@@ -39,17 +39,19 @@ public:
 	QPair<QString, QString> line() const { return line_; }
 	/// Returns the line in the form of a QLabel.
 	QLabel *lineLabel() const { return lineLabel_; }
-	/// Sets the view with a new line.
-	void setLine(QPair<QString, QString> line)
+	/// Sets the view with a new line.  Does not emit any signals while setting the all the values.
+	void setLine(QPair<QString, QString> line, bool alreadyChecked = false)
 	{
+		blockSignals(true);
 		if (line.first.isEmpty() || line.second.compare("-") == 0)
 			hide();
 		else
 			show();
 
 		line_ = line;
-		checkBox_->setChecked(false);
+		checkBox_->setChecked(alreadyChecked);
 		lineLabel_->setText(line.first + ": " + line.second + " eV");
+		blockSignals(false);
 	}
 
 signals:
@@ -72,8 +74,15 @@ class VESPERSXRFElementView : public QWidget
 	Q_OBJECT
 public:
 	/// This constructor builds an element view for the fluorescence detector.  Only the emission lines are displayed.
-	explicit VESPERSXRFElementView(QWidget *parent = 0);
-	explicit VESPERSXRFElementView(AMElement *el, QWidget *parent = 0);
+	explicit VESPERSXRFElementView(double minEnergy = 0, double maxEnergy = 1e6, QWidget *parent = 0);
+	explicit VESPERSXRFElementView(AMElement *el, double minEnergy = 0, double maxEnergy = 1e6, QWidget *parent = 0);
+
+	/// Returns the minimum energy.
+	double minimumEnergy() const { return minimumEnergy_; }
+	/// Returns the maximum energy.
+	double maximumEnergy() const { return maximumEnergy_; }
+	/// Returns the element.
+	AMElement *element() const { return element_; }
 
 signals:
 	/// Signal emitted when a custom ROI should be created.
@@ -85,7 +94,12 @@ signals:
 
 public slots:
 	/// Sets the element to view.  Handles all the layout properties of the dialog.
-	void setElement(AMElement *el);
+	void setElement(AMElement *el, QList<QPair<int, QString> > checked);
+
+	/// Sets the minimum energy.
+	void setMinimumEnergy(double energy) { minimumEnergy_ = energy; fillEmissionLines(element_); }
+	/// Sets the maximum energy.
+	void setMaximumEnergy(double energy) { maximumEnergy_ = energy; fillEmissionLines(element_); }
 
 private slots:
 	/// Convenience slot that emits the addROI signal when a line is checked or removeROI if the line is unchecked.
@@ -103,6 +117,13 @@ private:
 
 	// Lines.
 	QList<LineView *> lines_;
+	// Checked lines.
+	QList<QPair<int, QString> > checked_;
+
+	// Holds the minimum energy.  This is the lower limit and elements that don't have emission lines with energies higher then this are disabled.
+	double minimumEnergy_;
+	// Holds the maximum energy.  This is the upper limit and elements that don't have emission lines with energies lower then this are disabled.
+	double maximumEnergy_;
 };
 
 #endif // VESPERSXRFELEMENTVIEW_H

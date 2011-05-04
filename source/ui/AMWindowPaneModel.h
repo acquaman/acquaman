@@ -146,6 +146,9 @@ signals:
 	/// Emitted when the dock state changes for an item (ie: true emitted when docked, false emitted when undocked)
 	void dockStateChanged(QWidget* pane, bool isDocked);
 
+	/// The default rowsAboutToBeRemoved() signal gets delivered to Qt views before any programmer-created connections are called. This can be a problem because the attached view will change its selection in response to the removal BEFORE the programmer can respond.  If this unacceptable to you (ie: you want to change the selection yourself, and just once to avoid flicker) then you can watch for this signal instead.  Both this and the normal signal will be delivered.
+	void rowsAboutToBeAboutToBeRemoved(const QModelIndex& parent, int first, int last);
+
 protected slots:
 	/// Catch when items are added to the model. If new window panes are added, add them to the widget2item_ cache, and setup event filters as required.
 	void onRowsInserted(const QModelIndex &parent, int first, int last);
@@ -153,6 +156,13 @@ protected slots:
 	void onRowsAboutToBeRemoved(const QModelIndex &parent, int first, int last);
 
 protected:
+
+	/// Remove rows (re-implemented to provide early-warning signal rowsAboutToBeAboutToBeRemoved() BEFORE the views get notified, otherwise they will change the current selection before we get a chance to respond.)
+	virtual bool removeRows(int row, int count, const QModelIndex &parent) {
+		emit rowsAboutToBeAboutToBeRemoved(parent, row, row+count-1);
+		return AMDragDropItemModel::removeRows(row, count, parent);
+	}
+
 	/// optimized cache: map from QWidget* to QStandardItem*.  Does not include separate entries for aliases
 	QHash<QWidget*, QStandardItem*> widget2item_;
 
