@@ -336,7 +336,9 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMFolderPathLineEdit.h \
 	source/util/AMTagReplacementParser.h \
 	source/ui/AMExporterOptionGeneralAsciiView.h \
-	source/ui/AMTopFrame.h
+	source/ui/AMTopFrame.h \
+    source/beamline/AMBeamlineSamplePlateMoveAction.h \
+    source/beamline/AMBeamlineFiducializationMoveAction.h
 FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
 	source/ui/AMDataViewSectionHeader.ui \
@@ -543,7 +545,9 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/util/AMTagReplacementParser.cpp \
 	source/ui/AMExporterOptionGeneralAsciiView.cpp \
 	source/ui/AMTopFrame.cpp \
-	source/dataman/AMExporter.cpp
+	source/dataman/AMExporter.cpp \
+    source/beamline/AMBeamlineSamplePlateMoveAction.cpp \
+    source/beamline/AMBeamlineFiducializationMoveAction.cpp
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc \
 	source/util/ElementData.qrc \
