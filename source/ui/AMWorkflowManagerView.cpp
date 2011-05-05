@@ -331,12 +331,23 @@ void AMBeamlineActionsListView::onActionRemoveRequested(AMBeamlineActionItem *it
 
 void AMBeamlineActionsListView::reindexViews(){
 	if(actionsQueue_->indexOfHead() != -1){
+		QString lastSampleDescription = AMBeamline::bl()->currentSampleDescription();
 		for(int x = 0; x < actionsQueue_->indexOfHead(); x++)
 			if(actionsViewList_->widget(x) && ((AMBeamlineActionItemView*)(actionsViewList_->widget(x)))->index() != -1 )
 				((AMBeamlineActionItemView*)(actionsViewList_->widget(x)))->setIndex(-1);
-		for(int x = actionsQueue_->indexOfHead(); x < actionsList_->count(); x++)
+		for(int x = actionsQueue_->indexOfHead(); x < actionsList_->count(); x++){
 			if(actionsViewList_->widget(x) && ((AMBeamlineActionItemView*)(actionsViewList_->widget(x)))->index() != x-actionsQueue_->indexOfHead()+1 )
 				((AMBeamlineActionItemView*)(actionsViewList_->widget(x)))->setIndex(x-actionsQueue_->indexOfHead()+1);
+			AMBeamlineScanAction *scanAction = qobject_cast<AMBeamlineScanAction*>(actionsList_->action(x));
+			if(scanAction)
+				scanAction->setLastSampleDescription(lastSampleDescription);
+			AMBeamlineSamplePlateMoveAction *sampleAction = qobject_cast<AMBeamlineSamplePlateMoveAction*>(actionsList_->action(x));
+			if(sampleAction)
+				lastSampleDescription = sampleAction->sampleDescription();
+			AMBeamlineFiducializationMoveAction *fiducializationAction = qobject_cast<AMBeamlineFiducializationMoveAction*>(actionsList_->action(x));
+			if(fiducializationAction)
+				lastSampleDescription = fiducializationAction->sampleDescription();
+		}
 	}
 	else
 		for(int x = 0; x < actionsList_->count(); x++)

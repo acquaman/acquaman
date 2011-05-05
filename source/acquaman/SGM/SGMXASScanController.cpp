@@ -39,6 +39,7 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 	pScan_()->setFileFormat("sgm2004");
 	pScan_()->setRunId(AMUser::user()->currentRunId());
 	pScan_()->setScanConfiguration(pCfg_());
+	pScan_()->setSampleId(SGMBeamline::sgm()->currentSampleId());
 
 	// Create space in raw data store, and create raw data channels, for each detector.
 

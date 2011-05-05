@@ -9,8 +9,10 @@ AMBeamlineFiducializationMoveAction::AMBeamlineFiducializationMoveAction(int fid
 		AMBeamlineControlSetMoveAction(AMBeamline::bl()->currentSamplePositioner(), parent)
 {
 	fiducializationIndex_ = fiducializationIndex;
+	sampleDescription_ = "";
 	if(fiducializationIndex_ < AMBeamline::bl()->currentFiducializations().count()){
 		//Change 0-indexed source list to 1-indexed human-readable format
+		sampleDescription_ = QString("Spot #%1").arg(fiducializationIndex_+1);
 		setDescription(QString("Move to sample spot #%1").arg(fiducializationIndex_+1));
 		setSetpoint(AMBeamline::bl()->currentFiducializations().at(fiducializationIndex_));
 	}
@@ -25,6 +27,10 @@ AMBeamlineFiducializationMoveAction::AMBeamlineFiducializationMoveAction(int fid
 
 AMBeamlineActionItemView* AMBeamlineFiducializationMoveAction::createView(int index){
 	return new AMBeamlineFiducializationMoveActionView(this, index);
+}
+
+QString AMBeamlineFiducializationMoveAction::sampleDescription() const{
+	return sampleDescription_;
 }
 
 AMBeamlineFiducializationMoveActionView::AMBeamlineFiducializationMoveActionView(AMBeamlineFiducializationMoveAction *fiducializationAction, int index, QWidget *parent) :

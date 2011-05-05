@@ -13,8 +13,11 @@ public:
 
     virtual AMBeamlineActionItemView* createView(int index = 0);
 
+    QString sampleDescription() const;
+
 protected:
     int fiducializationIndex_;
+    QString sampleDescription_;
 };
 
 class AMBeamlineFiducializationMoveActionView : public AMBeamlineControlSetMoveActionView

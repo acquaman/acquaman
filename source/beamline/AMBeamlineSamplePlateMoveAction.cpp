@@ -9,6 +9,7 @@ AMBeamlineSamplePlateMoveAction::AMBeamlineSamplePlateMoveAction(int sampleID, A
 {
 	sampleID_ = sampleID;
 	samplePlateModel_ = plateModel;
+	sampleDescription_ = "";
 
 	bool foundSampleOnPlate = false;
 	if(samplePlateModel_){
@@ -17,6 +18,7 @@ AMBeamlineSamplePlateMoveAction::AMBeamlineSamplePlateMoveAction(int sampleID, A
 			if(tmpSamplePos->sampleId() == sampleID_ ){
 				foundSampleOnPlate = true;
 				connect(samplePlateModel_, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(onSamplePlateDataChanged(QModelIndex,QModelIndex)));
+				sampleDescription_ = samplePlateModel_->data(samplePlateModel_->index(x), Qt::EditRole).toString();
 				setDescription("Move to sample \""+samplePlateModel_->data(samplePlateModel_->index(x), Qt::EditRole).toString()+"\"");
 			}
 		}
@@ -32,6 +34,10 @@ AMBeamlineSamplePlateMoveAction::AMBeamlineSamplePlateMoveAction(int sampleID, A
 
 AMBeamlineActionItemView* AMBeamlineSamplePlateMoveAction::createView(int index){
 	return new AMBeamlineSamplePlateMoveActionView(this, index);
+}
+
+QString AMBeamlineSamplePlateMoveAction::sampleDescription() const{
+	return sampleDescription_;
 }
 
 void AMBeamlineSamplePlateMoveAction::onSamplePlateDataChanged(QModelIndex topLeft, QModelIndex bottomRight){

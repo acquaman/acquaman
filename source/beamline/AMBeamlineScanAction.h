@@ -51,6 +51,8 @@ public:
 	virtual bool isRunning() const;
 	virtual bool isPaused() const;
 
+	QString lastSampleDescription() const;
+
 signals:
 	void progress(double, double);
 	void descriptionChanged();
@@ -65,6 +67,8 @@ public slots:
 	void discardScan() {}
 
 	virtual void cleanup();
+
+	void setLastSampleDescription(const QString &lastSampleDescription);
 
 protected slots:
 	virtual void initialize();
@@ -81,6 +85,7 @@ protected:
 	AMScanConfiguration *cfg_;
 	AMScanController *ctrl_;
 	bool keepOnCancel_;
+	QString lastSampleDescription_;
 };
 
 class AMBeamlineScanActionView : public AMBeamlineActionItemView

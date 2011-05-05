@@ -102,6 +102,9 @@ public:
 	/// Comparison operator. Returns true if and only if the values from the \c other list match the list of values in this within the tolerance of the
 	bool operator==(const AMControlInfoList &other) const;
 
+	/// Compares this list to another with a list of alternate tolerances for the controls in the list. The lists must have the same items, in the same order, and the tolerances must be in the same order.
+	bool compareWithinTolerance(const AMControlInfoList &other, QList<double> tolerances) const;
+
 	/// Destructor
 	~AMControlInfoList() {}
 

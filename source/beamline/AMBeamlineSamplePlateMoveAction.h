@@ -15,12 +15,15 @@ public:
 
 	virtual AMBeamlineActionItemView* createView(int index = 0);
 
+	QString sampleDescription() const;
+
 protected slots:
 	void onSamplePlateDataChanged(QModelIndex topLeft, QModelIndex bottomRight);
 
 protected:
 	int sampleID_;
 	AMSamplePlateItemModel *samplePlateModel_;
+	QString sampleDescription_;
 };
 
 class AMBeamlineSamplePlateMoveActionView : public AMBeamlineControlSetMoveActionView

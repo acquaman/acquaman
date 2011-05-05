@@ -193,6 +193,7 @@ protected:
 
 	QString description_;
 	QString message_;
+	QString lastSampleDescription_;
 	AMOrderedSet<QString, QPixmap> helpImages_;
 
 private slots:

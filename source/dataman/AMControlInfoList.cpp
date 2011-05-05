@@ -74,8 +74,22 @@ bool AMControlInfoList::operator ==(const AMControlInfoList &other) const {
 	for(int x = count()-1; x >= 0; x--){
 		tmpOther = other.at(x);
 		tmpMine = at(x);
-	//	qDebug() << "Other: " << tmpOther.tolerance() << " Mine: " << tmpMine.tolerance();
 		if( (tmpOther.name() != tmpMine.name()) || ( fabs(tmpOther.value() - tmpMine.value()) > std::min(tmpOther.tolerance(), tmpMine.tolerance()) ) )
+			return false;
+	}
+	return true;
+}
+
+bool AMControlInfoList::compareWithinTolerance(const AMControlInfoList &other, QList<double> tolerances) const {
+	if( (count() != other.count()) || (count() != tolerances.count()) )
+		return false;
+	AMControlInfo tmpOther, tmpMine;
+	double tmpTolerance;
+	for(int x = count()-1; x >= 0; x--){
+		tmpOther = other.at(x);
+		tmpMine = at(x);
+		tmpTolerance = tolerances.at(x);
+		if( (tmpOther.name() != tmpMine.name()) || ( fabs(tmpOther.value() - tmpMine.value()) > tmpTolerance ) )
 			return false;
 	}
 	return true;

@@ -789,6 +789,7 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	ssaManipulatorSet_->addControl(ssaManipulatorY_);
 	ssaManipulatorSet_->addControl(ssaManipulatorZ_);
 	ssaManipulatorSet_->addControl(ssaManipulatorRot_);
+	ssaManipulatorSampleTolerances_ << 1.0 << 1.0 << 1.0 << 15.0;
 	unconnectedSets_.append(ssaManipulatorSet_);
 	connect(ssaManipulatorSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
@@ -939,6 +940,22 @@ bool SGMBeamline::usingScalerSource(){
 	if(detectorSignalSource_ && detectorSignalSource_->isConnected())
 		return (detectorSignalSource_->value() == 1);//ENUM 1 is Scaler
 	return false;
+}
+
+int SGMBeamline::currentSampleId(){
+	if(currentSamplePlate_)
+		return currentSamplePlate_->sampleIdAtPosition(currentSamplePositioner()->toInfoList(), ssaManipulatorSampleTolerances_);
+	return -1;
+}
+
+#include "dataman/AMUser.h"
+
+QString SGMBeamline::currentSampleDescription(){
+	int currentId = currentSampleId();
+	if(currentId == -1)
+		return "<Unknown Sample>";
+	else
+		return AMSample(currentId, AMUser::user()->database()).name();
 }
 
 AMBeamlineListAction* SGMBeamline::createBeamOnActions(){

@@ -179,6 +179,8 @@ public:
 	AMDetectorSet* XASDetectors() const { return XASDetectors_;}
 
 	AMSamplePlate* currentSamplePlate() const { return currentSamplePlate_; }
+	int currentSampleId();
+	QString currentSampleDescription();
 
 	AMBeamlineListAction* createBeamOnActions();
 	AMBeamlineListAction* createStopMotorsAction();
@@ -338,6 +340,7 @@ protected:
 
 	AMControlSet *trackingSet_;
 	AMControlSet *ssaManipulatorSet_;
+	QList<double> ssaManipulatorSampleTolerances_;
 	QList<AMControlInfoList> ssaFiducializations_;
 
 	AMDetectorSet *allDetectors_;
