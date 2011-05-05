@@ -25,7 +25,7 @@ public:
 	double highEnd() const { return high_*sx_; }
 	/// Sets the position of the higher end of the boundingRect.
 	void setHighEnd(double position) { high_ = position; }
-	/// Returns the height of the boundingRect.  This CANNOT be zero.
+	/// Returns the height of the boundingRect.  This CANNOT be zero and thus if the height is zero then it returns 1.
 	double height() const { if (height_ == 0) return 1; else return height_*sy_; }
 	/// Sets the height of the boundingRect.
 	void setHeight(double height) { height_ = height; }

@@ -123,6 +123,7 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	setupPlot();
 
 	connect(detector_->spectraControl(), SIGNAL(controlSetValuesChanged()), this, SLOT(resizeRoiMarkers()));
+	connect(detector_, SIGNAL(roiUpdate(AMROI*)), this, SLOT(roiWidthUpdate(AMROI*)));
 
 	QFont font(this->font());
 	font.setBold(true);
@@ -180,6 +181,23 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 
 	return true;
 }
+
+/*void XRFDetailedDetectorView::roiWidthUpdate(AMROI *roi)
+{
+	// Find the marker associated with the ROI and then change it.
+	ROIPlotMarker *temp;
+
+	for (int i = 0; i < markers_.size(); i++){
+
+		temp = (ROIPlotMarker *)markers_.at(i);
+
+		if (temp->description().compare(roi->name()) == 0){
+
+			temp->setLowEnd(roi->low());
+			temp->setHighEnd(roi->high());
+		}
+	}
+}*/
 
 void XRFDetailedDetectorView::onWaterfallToggled(bool isWaterfall)
 {
@@ -314,7 +332,9 @@ void XRFDetailedDetectorView::onAdditionOfRegionOfInterest(AMElement *el, QPair<
 {
 	AMROIInfo info(el->symbol()+" "+line.first, line.second.toDouble(), 0.04, detector_->scale());
 	detector_->addRegionOfInterest(info);
+	detector_->blockSignals(true);
 	detector_->sort();
+	detector_->blockSignals(false);
 	ROIPlotMarker *newMarker = new ROIPlotMarker(info.name(), info.energy(), info.energy()*(1-info.width()/2), info.energy()*(1+info.width()/2), plot_->axisLeft()->max());
 
 	int index = 0;

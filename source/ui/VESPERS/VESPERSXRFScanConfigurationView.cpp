@@ -62,7 +62,22 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 	connect(integrationTime_, SIGNAL(editingFinished()), this, SLOT(onIntegrationTimeUpdate()));
 	connect(detector_->integrationTimeControl(), SIGNAL(valueChanged(double)), integrationTime_, SLOT(setValue(double)));
 
+	QPushButton *customizeSettings = new QPushButton("Settings");
+	customizeSettings->setCheckable(true);
+	connect(customizeSettings, SIGNAL(toggled(bool)), this, SLOT(onAdvancedSettingsChanged(bool)));
+
+	minEnergy_ = new QDoubleSpinBox;
+	minEnergy_->hide();
+	minEnergy_->setSuffix(" keV");
+	minEnergy_->setSingleStep(0.01);
+	minEnergy_->setMinimum(0.0);
+	minEnergy_->setMaximum(30.00);
+	minEnergy_->setValue(AMPeriodicTable::table()->elementBySymbol("K")->Kalpha().second.toDouble()/1000);
+	minEnergy_->setAlignment(Qt::AlignCenter);
+	connect(minEnergy_, SIGNAL(editingFinished()), this, SLOT(onMinimumEnergyUpdate()));
+
 	maxEnergy_ = new QDoubleSpinBox;
+	maxEnergy_->hide();
 	maxEnergy_->setSuffix(" keV");
 	maxEnergy_->setSingleStep(0.01);
 	maxEnergy_->setMaximum(30.00);
@@ -72,6 +87,7 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 	connect(detector_->maximumEnergyControl(), SIGNAL(valueChanged(double)), this, SLOT(onMaximumEnergyControlUpdate(double)));
 
 	peakingTime_ = new QDoubleSpinBox;
+	peakingTime_->hide();
 	peakingTime_->setSuffix(QString::fromUtf8(" μs"));
 	peakingTime_->setSingleStep(0.01);
 	peakingTime_->setMaximum(100);
@@ -84,12 +100,18 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 
 	QLabel *startLabel = new QLabel("Start & Stop");
 	startLabel->setFont(font);
+	startLabel->setMinimumWidth(100);
 	QLabel *timeLabel = new QLabel("Real Time");
 	timeLabel->setFont(font);
-	QLabel *maxEnergyLabel = new QLabel("Max. Energy");
-	maxEnergyLabel->setFont(font);
-	QLabel *peakingTimeLabel = new QLabel("Peaking Time");
-	peakingTimeLabel->setFont(font);
+	minEnergyLabel_ = new QLabel("Min. Energy");
+	minEnergyLabel_->hide();
+	minEnergyLabel_->setFont(font);
+	maxEnergyLabel_ = new QLabel("Max. Energy");
+	maxEnergyLabel_->hide();
+	maxEnergyLabel_->setFont(font);
+	peakingTimeLabel_ = new QLabel("Peaking Time");
+	peakingTimeLabel_->hide();
+	peakingTimeLabel_->setFont(font);
 
 	QHBoxLayout *startAndStopLayout = new QHBoxLayout;
 	startAndStopLayout->addWidget(start);
@@ -101,9 +123,12 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 	controlLayout->addLayout(startAndStopLayout);
 	controlLayout->addWidget(timeLabel);
 	controlLayout->addWidget(integrationTime_);
-	controlLayout->addWidget(maxEnergyLabel);
+	controlLayout->addWidget(customizeSettings);
+	controlLayout->addWidget(minEnergyLabel_);
+	controlLayout->addWidget(minEnergy_);
+	controlLayout->addWidget(maxEnergyLabel_);
 	controlLayout->addWidget(maxEnergy_);
-	controlLayout->addWidget(peakingTimeLabel);
+	controlLayout->addWidget(peakingTimeLabel_);
 	controlLayout->addWidget(peakingTime_);
 	controlLayout->addStretch();
 	controlLayout->addWidget(configureButton);
@@ -128,9 +153,24 @@ VESPERSXRFScanConfigurationView::~VESPERSXRFScanConfigurationView()
 	delete customize_;
 }
 
+void VESPERSXRFScanConfigurationView::onAdvancedSettingsChanged(bool advanced)
+{
+	minEnergyLabel_->setVisible(advanced);
+	minEnergy_->setVisible(advanced);
+	maxEnergyLabel_->setVisible(advanced);
+	maxEnergy_->setVisible(advanced);
+	peakingTimeLabel_->setVisible(advanced);
+	peakingTime_->setVisible(advanced);
+}
+
 void VESPERSXRFScanConfigurationView::onIntegrationTimeUpdate()
 {
 	detector_->setTime(integrationTime_->value());
+}
+
+void VESPERSXRFScanConfigurationView::onMinimumEnergyUpdate()
+{
+	selectionView_->setMinimumEnergy(minEnergy_->value()*1000);
 }
 
 void VESPERSXRFScanConfigurationView::onMaximumEnergyUpdate()

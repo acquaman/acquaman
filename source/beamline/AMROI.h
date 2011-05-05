@@ -82,6 +82,8 @@ signals:
 	void highUpdate(int);
 	/// Signal emitting the new value of the ROI.
 	void valueUpdate(double);
+	/// General update signal.  Emitted when either nameUpdate, lowUpdate, highUpdate, or valueUpdate is emitted.  Passes a pointer to itself.
+	void roiUpdate(AMROI *);
 
 public slots:
 	/// Sets the name of the ROI and passes it to all PV's.
@@ -113,11 +115,11 @@ protected slots:
 	/// Used to compute the current value based on the current state of the PVs.
 	void updateValue();
 	/// Updates the ROI if changes were made to the name outside of the program.
-	void onNamePVChanged(QString name) { name_ = name; emit nameUpdate(name); }
+	void onNamePVChanged(QString name) { name_ = name; emit nameUpdate(name); emit roiUpdate(this); }
 	/// Updates the ROI if changes were made to the lower bound outside of the program.
-	void onLowPVChanged(int low) { low_ = low; emit lowUpdate(low); }
+	void onLowPVChanged(int low) { low_ = low; emit lowUpdate(low); emit roiUpdate(this); }
 	/// Updates the ROI if changes were made to the higher bound outside of the program.
-	void onHighPVChanged(int high) { high_ = high; emit highUpdate(high); }
+	void onHighPVChanged(int high) { high_ = high; emit highUpdate(high); emit roiUpdate(this); }
 	/// Used to determine if the entire region of interest is connected or not.
 	void connected();
 	/// Used to determine if all of the process variables have values in them or not.

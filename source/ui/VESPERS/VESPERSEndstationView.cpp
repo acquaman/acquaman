@@ -27,6 +27,8 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	singleElControl_ = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->singleElMotor());
 	focusControl_ = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->focusMotor());
 
+	laserPowerControl_ = qobject_cast<AMPVControl *>(VESPERSBeamline::vespers()->laserPower());
+
 	// The feedback PVs associated with the controls.
 	ccdfbk_ = qobject_cast<AMReadOnlyPVControl *>(VESPERSBeamline::vespers()->ccdMotorfbk());
 	fourElfbk_ = qobject_cast<AMReadOnlyPVControl *>(VESPERSBeamline::vespers()->fourElMotorfbk());
@@ -87,6 +89,13 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	configButton->setIcon(QIcon(":/configure.png"));
 	connect(configButton, SIGNAL(clicked()), config_, SLOT(show()));
 
+	// Laser power signal.
+	laserPowerButton_ = new QToolButton;
+	laserPowerButton_->setIcon(QIcon(":/lightning.png"));
+	laserPowerButton_->setCheckable(true);
+	connect(laserPowerButton_, SIGNAL(toggled(bool)), this, SLOT(laserPowerToggled(bool)));
+	connect(laserPowerControl_, SIGNAL(valueChanged(double)), this, SLOT(laserPowerUpdate()));
+
 	// Main control group box setup.
 	QGroupBox *controlGB = new QGroupBox;
 	controlGB->setObjectName("Control");
@@ -106,6 +115,7 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	controlGBLayout->addWidget(lightBulb_, 7, 5, 2, 2);
 	controlGBLayout->addWidget(micLight_, 2, 0, 8, 1);
 	controlGBLayout->addWidget(configButton, 0, 0, 2, 1);
+	controlGBLayout->addWidget(laserPowerButton_, 7, 17, 2, 1);
 	controlGB->setLayout(controlGBLayout);
 
 	window_ = new VESPERSMotorView(this);
@@ -170,17 +180,12 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	connect(VESPERSBeamline::vespers()->filterSet(), SIGNAL(connected(bool)), this, SLOT(onFiltersChanged()));
 	connect(VESPERSBeamline::vespers()->filterSet(), SIGNAL(controlSetValuesChanged()), this, SLOT(onFiltersChanged()));
 
-	filterUpperButton_ = new QPushButton("Upper Shutter");
-	filterUpperButton_->setCheckable(true);
-	connect(filterUpperButton_, SIGNAL(toggled(bool)), this, SLOT(onUpperFilterUpdate()));
-
-	filterLowerButton_ = new QPushButton("Lower Shutter");
+	filterLowerButton_ = new QPushButton("Endstation Shutter");
 	filterLowerButton_->setCheckable(true);
 	connect(filterLowerButton_, SIGNAL(toggled(bool)), this, SLOT(onLowerFilterUpdate()));
 
 	QHBoxLayout *filterLayout = new QHBoxLayout;
 	filterLayout->addWidget(filterComboBox_);
-	filterLayout->addWidget(filterUpperButton_);
 	filterLayout->addWidget(filterLowerButton_);
 
 	QGroupBox *filterGroupBox = new QGroupBox("Filters");
@@ -212,6 +217,33 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 VESPERSEndstationView::~VESPERSEndstationView()
 {
 	delete config_;
+}
+
+void VESPERSEndstationView::laserPowerToggled(bool pressed)
+{
+	if (pressed && ((int)laserPowerControl_->value()) == 1)
+		laserPowerControl_->move(1);
+	else if (!pressed && ((int)laserPowerControl_->value()) == 0)
+		laserPowerControl_->move(1);
+	laserPowerControl_->move(0);
+}
+
+void VESPERSEndstationView::laserPowerUpdate()
+{
+	if (((int)laserPowerControl_->value()) == 1){
+
+		laserPowerButton_->setIcon(QIcon(":/lightning.png"));
+		laserPowerButton_->blockSignals(true);
+		laserPowerButton_->setChecked(false);
+		laserPowerButton_->blockSignals(false);
+	}
+	else{
+
+		laserPowerButton_->setIcon(QIcon(":/dark-lightning.png"));
+		laserPowerButton_->blockSignals(true);
+		laserPowerButton_->setChecked(true);
+		laserPowerButton_->blockSignals(false);
+	}
 }
 
 void VESPERSEndstationView::onFiltersConnected(bool isConnected)
@@ -256,21 +288,6 @@ void VESPERSEndstationView::onFiltersChanged()
 	filterComboBox_->blockSignals(true);
 	filterComboBox_->setCurrentIndex(sum);
 	filterComboBox_->blockSignals(false);
-
-	// Handles the upper shutter button individually.
-	temp = qobject_cast<AMPVControl *>(VESPERSBeamline::vespers()->filterShutterUpper());
-
-	if (temp){
-
-		filterUpperButton_->blockSignals(true);
-
-		if (temp->readPV()->getInt() == 1)
-			filterUpperButton_->setChecked(true);
-		else
-			filterUpperButton_->setChecked(false);
-
-		filterUpperButton_->blockSignals(false);
-	}
 
 	// Handles the lower shutter button individually.
 	temp = qobject_cast<AMPVControl *>(VESPERSBeamline::vespers()->filterShutterLower());
@@ -383,13 +400,12 @@ void VESPERSEndstationView::onFilterComboBoxUpdate(int index)
 	}
 }
 
-void VESPERSEndstationView::onUpperFilterUpdate()
-{
-	toggleFilter(VESPERSBeamline::vespers()->filterShutterUpper());
-}
-
 void VESPERSEndstationView::onLowerFilterUpdate()
 {
+	// 0 = OUT.  For this to work properly, the upper shutter is to remain fixed at the out position and the lower shutter changes.  Therefore if upper is IN, put it out.
+	if (((int)VESPERSBeamline::vespers()->filterShutterUpper()->value()) == 1)
+		toggleFilter(VESPERSBeamline::vespers()->filterShutterUpper());
+
 	toggleFilter(VESPERSBeamline::vespers()->filterShutterLower());
 }
 

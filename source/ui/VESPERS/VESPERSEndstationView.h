@@ -93,6 +93,10 @@ private slots:
 	void micLightUpdate() { micLight_->setValue(micLightPV_->getInt()); }
 	/// Used when the light bulb button is toggled.
 	void lightBulbToggled(bool pressed);
+	/// Used when the power for the laser is toggled.
+	void laserPowerToggled(bool pressed);
+	/// Used to initialize the laser power button.
+	void laserPowerUpdate();
 	/// Loads the config file and then puts the respective values in their place.
 	bool loadConfiguration();
 
@@ -174,8 +178,6 @@ private slots:
 	void focusUpdate(double val) { focusButton_->setText(QString::number(val, 'f', 3) + " mm"); }
 	/// Handles changes in the filter combo box.
 	void onFilterComboBoxUpdate(int index);
-	/// Handles updates from the upper shutter filter push button.
-	void onUpperFilterUpdate();
 	/// Handles updates from the lower shutter filter push button.
 	void onLowerFilterUpdate();
 	/// Handles the connection of the filter set.
@@ -202,6 +204,9 @@ private:
 	QSlider *micLight_;
 	QToolButton *lightBulb_;
 
+	// Laser button.
+	QToolButton *laserPowerButton_;
+
 	// Config window.
 	VESPERSEndstationConfiguration *config_;
 
@@ -227,7 +232,6 @@ private:
 
 	// Filter combo box and push buttons.
 	QComboBox *filterComboBox_;
-	QPushButton *filterUpperButton_;
 	QPushButton *filterLowerButton_;
 
 	// Control pointers.
@@ -246,6 +250,9 @@ private:
 
 	// Microscope light PV.
 	AMProcessVariable *micLightPV_;
+
+	// Laser power control.
+	AMPVControl *laserPowerControl_;
 
 	// Various CCD file path PVs.
 	AMProcessVariable *ccdPath_;

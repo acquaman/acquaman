@@ -11,6 +11,8 @@ RegionOfInterestView::RegionOfInterestView(AMROI *roi, QWidget *parent)
 {
 	roi_ = roi;
 
+	connect(roi_, SIGNAL(roiHasValues(bool)), this, SLOT(onRoiInialized(bool)));
+
 	name_ = new QLabel;
 	connect(roi, SIGNAL(nameUpdate(QString)), this, SLOT(nameUpdate(QString)));
 
@@ -20,7 +22,7 @@ RegionOfInterestView::RegionOfInterestView(AMROI *roi, QWidget *parent)
 	low_->setDecimals(0);
 	low_->setSingleStep(roi->scale());
 	low_->setSuffix(" eV");
-	connect(low_, SIGNAL(valueChanged(double)), this, SLOT(setRoiLow(double)));
+	connect(low_, SIGNAL(editingFinished()), this, SLOT(setRoiLow()));
 	connect(roi, SIGNAL(lowUpdate(int)), this, SLOT(onLowUpdate(int)));
 
 	high_ = new QDoubleSpinBox;
@@ -29,7 +31,7 @@ RegionOfInterestView::RegionOfInterestView(AMROI *roi, QWidget *parent)
 	high_->setDecimals(0);
 	high_->setSingleStep(roi->scale());
 	high_->setSuffix(" eV");
-	connect(high_, SIGNAL(valueChanged(double)), this, SLOT(setRoiHigh(double)));
+	connect(high_, SIGNAL(editingFinished()), this, SLOT(setRoiHigh()));
 	connect(roi, SIGNAL(highUpdate(int)), this, SLOT(onHighUpdate(int)));
 
 	QLabel *value = new QLabel;
@@ -66,7 +68,7 @@ void RegionOfInterestView::nameUpdate(QString name)
 		for (int j = 0; j < el->emissionLines().count(); j++){
 
 			if (el->emissionLines().at(j).first.contains("1")
-					&& fabs((low+high)/2 - el->emissionLines().at(j).second.toDouble()/roi_->scale()) < 1)
+					&& fabs((low+high)/2 - el->emissionLines().at(j).second.toDouble()/roi_->scale()) < 3)
 				name_->setText(el->symbol()+" "+el->emissionLines().at(j).first);
 		}
 	}
@@ -84,11 +86,12 @@ CustomizeRegionsOfInterest::CustomizeRegionsOfInterest(QList<AMROI *> rois, QWid
 
 	listLayout->addStretch();
 
-	/*QScrollArea *scroll = new QScrollArea;
+	QScrollArea *scroll = new QScrollArea;
 	scroll->setLayout(listLayout);
 
 	QVBoxLayout *mainLayout = new QVBoxLayout;
 	mainLayout->addWidget(scroll);
-*/
-	setLayout(listLayout);
+
+	setLayout(mainLayout);
+	setMinimumSize(450, 500);
 }

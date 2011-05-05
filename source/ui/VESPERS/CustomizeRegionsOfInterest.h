@@ -17,9 +17,9 @@ public:
 
 public slots:
 	/// Sets the low value to the AMROI.
-	void setRoiLow(double val) { if (val != 0) roi_->setLow(val); }
+	void setRoiLow() { roi_->setLow(low_->value()); }
 	/// Sets the high value to the AMROI.
-	void setRoiHigh(double val) { if (val != 0) roi_->setHigh(val); }
+	void setRoiHigh() { roi_->setHigh(high_->value()); }
 
 private slots:
 	/// Checks whether the name has a name in it or not.  If the name is an empty string, the view hides itself.
@@ -28,6 +28,8 @@ private slots:
 	void onLowUpdate(int val) { if (val != 0) low_->setValue((double)val*roi_->scale()); }
 	/// Casts an into to a double for the high spin box.  If the value is zero then the ROI is not connected yet.
 	void onHighUpdate(int val) { if (val != 0) high_->setValue((double)val*roi_->scale()); }
+	/// Handles when an ROI is initialized.
+	void onRoiInialized(bool init) { if (init) nameUpdate(roi_->name()); }
 
 private:
 	// The label.

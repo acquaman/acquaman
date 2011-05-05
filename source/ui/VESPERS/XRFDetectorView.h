@@ -77,6 +77,8 @@ public slots:
 	void removeAllRegionsOfInterest();
 	/// Handles resizing the ROIPlotMarkers based on the maximum height of the data.
 	void resizeRoiMarkers();
+	/// Handles resizing the ROIPlotMarkers to a new width.
+	//void roiWidthUpdate(AMROI *roi);
 
 protected slots:
 	/// Handles the update from the dead time control.

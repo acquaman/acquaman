@@ -234,6 +234,8 @@ signals:
 	void statusChanged();
 	/// Signal used to say that the regions of interest now have their original values in them after being connected to.
 	void roisHaveValues(bool);
+	/// Notifier that the contents of an ROI has changed.  It passes a pointer to the particular ROI that has been changed.
+	void roiUpdate(AMROI *);
 
 protected slots:
 	/// Determines if the detector is connected to ALL controls and process variables.

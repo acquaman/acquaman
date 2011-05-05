@@ -261,6 +261,7 @@ void AMROI::updateValue()
 	}
 
 	emit valueUpdate(value_);
+	emit roiUpdate(this);
 }
 
 void AMROI::connected()

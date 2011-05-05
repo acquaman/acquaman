@@ -2,7 +2,7 @@
 #include "ui/AMShutterButton.h"
 #include "ui/VESPERS/VESPERSSampleStageView.h"
 
-#include <QGridLayout>
+#include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QGroupBox>
@@ -22,20 +22,33 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	QFont font(this->font());
 	font.setBold(true);
 
-	QLabel *shutterLabel = new QLabel("Shutter Status");
-	shutterLabel->setFont(font);
+	QLabel *pshShutterLabel = new QLabel("Photon Shutters");
+	pshShutterLabel->setFont(font);
+
+	QLabel *sshShutterLabel = new QLabel("Safter Shutters");
+	sshShutterLabel->setFont(font);
 
 	// Shutter layout.
-	QGridLayout *shStatusLayout = new QGridLayout;
-	shStatusLayout->setSpacing(1);
-	shStatusLayout->addWidget(shutterLabel, 0, 0, 1, 2);
-	shStatusLayout->addWidget(psh1, 1, 0);
-	shStatusLayout->addWidget(psh2, 2, 0);
-	shStatusLayout->addWidget(ssh1, 1, 1);
-	shStatusLayout->addWidget(ssh2, 2, 1);
+	QHBoxLayout *pshShutters = new QHBoxLayout;
+	pshShutters->addWidget(psh1);
+	pshShutters->addWidget(psh2);
+
+	QVBoxLayout *pshShutterLayout = new QVBoxLayout;
+	pshShutterLayout->setSpacing(1);
+	pshShutterLayout->addWidget(pshShutterLabel, 0, Qt::AlignLeft);
+	pshShutterLayout->addLayout(pshShutters);
+
+	QHBoxLayout *sshShutters = new QHBoxLayout;
+	sshShutters->addWidget(ssh1);
+	sshShutters->addWidget(ssh2);
+
+	QVBoxLayout *sshShutterLayout = new QVBoxLayout;
+	sshShutterLayout->addWidget(sshShutterLabel);
+	sshShutterLayout->addLayout(sshShutters);
 
 	QVBoxLayout *persistentLayout = new QVBoxLayout;
-	persistentLayout->addLayout(shStatusLayout);
+	persistentLayout->addLayout(pshShutterLayout);
+	persistentLayout->addLayout(sshShutterLayout);
 	persistentLayout->addWidget(motors);
 	persistentLayout->addStretch();
 

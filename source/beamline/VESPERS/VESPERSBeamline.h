@@ -417,6 +417,8 @@ public:
 
 	/// Returns the process variable for the microscope light.
 	AMProcessVariable *micLight() const { return micLight_; }
+	/// Returns the laser on/off control.
+	AMControl *laserPower() const { return laserPower_; }
 	/// Returns the process variable for the CCD file path.  Needs special write function to get the info in or out.  See VESPERSEndstationView for example.
 	AMProcessVariable *ccdPath() const { return ccdPath_; }
 	/// Returns the process variable for the CCD file name.  Needs special write function to get the info in or out.  See VESPERSEndstationView for example.
@@ -639,6 +641,9 @@ protected:
 
 	// Microscope light PV.
 	AMProcessVariable *micLight_;
+
+	// Laser on/off PV.
+	AMControl *laserPower_;
 
 	// Various CCD file path PVs.
 	AMProcessVariable *ccdPath_;
