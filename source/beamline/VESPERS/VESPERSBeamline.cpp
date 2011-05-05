@@ -163,9 +163,10 @@ void VESPERSBeamline::setupSampleStage()
 	sampleStageHorizontal_ = new AMPVwStatusControl("Horizontal Sample Stage", "TS1607-2-B21-01:H:user:mm:sp", "TS1607-2-B21-01:H:user:mm", "TS1607-2-B21-01:H:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
 	sampleStageVertical_ = new AMPVwStatusControl("Vertical Sample Stage", "TS1607-2-B21-01:V:user:mm:sp", "TS1607-2-B21-01:V:user:mm", "TS1607-2-B21-01:V:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
 	sampleStageNormal_ = new AMPVwStatusControl("Normal Sample Stage", "TS1607-2-B21-01:N:user:mm:sp", "TS1607-2-B21-01:N:user:mm", "TS1607-2-B21-01:N:status", "TS1607-2-B21-01:HNV:stop.PROC", this);
-	sampleStageX_ = new AMPVwStatusControl("X component Sample Stage", "SVM1607-2-B21-02:mm:sp", "SVM1607-2-B21-02:mm", "SVM1607-2-B21-02:status", "SVM1607-2-B21-02:stop", this, 0.01, 10.0);
-	sampleStageY_ = new AMPVwStatusControl("Y component Sample Stage", "SVM1607-2-B21-03:mm:sp", "SVM1607-2-B21-03:mm", "SVM1607-2-B21-03:status", "SVM1607-2-B21-03:stop", this, 0.01, 10.0);
-	sampleStageZ_ = new AMPVwStatusControl("Z component Sample Stage", "SVM1607-2-B21-01:mm:sp", "SVM1607-2-B21-01:mm", "SVM1607-2-B21-01:status", "SVM1607-2-B21-01:stop", this, 0.01, 10.0);
+	// These are meant for reading purposes.  They are the steps of the motor, not engineering units (ie: mm).
+	sampleStageX_ = new AMReadOnlyPVControl("X component Sample Stage", "SVM1607-2-B21-02:step:sp", this);
+	sampleStageY_ = new AMReadOnlyPVControl("Y component Sample Stage", "SVM1607-2-B21-03:step:sp", this);
+	sampleStageZ_ = new AMReadOnlyPVControl("Z component Sample Stage", "SVM1607-2-B21-01:step:sp", this);
 
 	sampleStageMotorSet_ = new AMControlSet(this);
 	sampleStageMotorSet_->addControl(sampleStageHorizontal_);

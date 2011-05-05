@@ -35,6 +35,8 @@ public:
 
 	/// XRF detector choice enum.
 	enum XRFDetectorChoice { SingleElement = 1, FourElement };
+	/// Motor status enum.
+	enum MotorStatus { MoveDone = 0, MoveActive, AtLimit, ForcedStop, Error };
 
 	static VESPERSBeamline* vespers() {
 		if(!instance_)
