@@ -29,7 +29,8 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
     source/beamline/VESPERS/AMValveControl.h \
     source/ui/VESPERS/ROIPlotMarker.h \
     source/util/VESPERS/ROIHelper.h \
-    source/ui/VESPERS/CustomizeRegionsOfInterest.h
+    source/ui/VESPERS/CustomizeRegionsOfInterest.h \
+    source/beamline/VESPERS/SampleStageControl.h
 
 SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/application/VESPERS/VESPERSMain.cpp \
@@ -56,7 +57,8 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
     source/beamline/VESPERS/AMValveControl.cpp \
     source/ui/VESPERS/ROIPlotMarker.cpp \
     source/util/VESPERS/ROIHelper.cpp \
-    source/ui/VESPERS/CustomizeRegionsOfInterest.cpp
+    source/ui/VESPERS/CustomizeRegionsOfInterest.cpp \
+    source/beamline/VESPERS/SampleStageControl.cpp
 
 RESOURCES += \
 	source/ui/VESPERS/EndstationPictures.qrc \

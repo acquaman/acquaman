@@ -25,7 +25,7 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	microscopeControl_ = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->microscopeMotor());
 	fourElControl_ = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->fourElMotor());
 	singleElControl_ = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->singleElMotor());
-	focusControl_ = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->focusMotor());
+	focusControl_ = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->sampleStageNormal());
 
 	laserPowerControl_ = qobject_cast<AMPVControl *>(VESPERSBeamline::vespers()->laserPower());
 
@@ -91,7 +91,7 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 
 	// Laser power signal.
 	laserPowerButton_ = new QToolButton;
-	laserPowerButton_->setIcon(QIcon(":/lightning.png"));
+	laserPowerButton_->setIcon(QIcon(":/red-laser.png"));
 	laserPowerButton_->setCheckable(true);
 	connect(laserPowerButton_, SIGNAL(toggled(bool)), this, SLOT(laserPowerToggled(bool)));
 	connect(laserPowerControl_, SIGNAL(valueChanged(double)), this, SLOT(laserPowerUpdate()));
@@ -115,7 +115,7 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	controlGBLayout->addWidget(lightBulb_, 7, 5, 2, 2);
 	controlGBLayout->addWidget(micLight_, 2, 0, 8, 1);
 	controlGBLayout->addWidget(configButton, 0, 0, 2, 1);
-	controlGBLayout->addWidget(laserPowerButton_, 7, 17, 2, 1);
+	controlGBLayout->addWidget(laserPowerButton_, 6, 13, 2, 1);
 	controlGB->setLayout(controlGBLayout);
 
 	window_ = new VESPERSMotorView(this);
@@ -232,14 +232,14 @@ void VESPERSEndstationView::laserPowerUpdate()
 {
 	if (((int)laserPowerControl_->value()) == 1){
 
-		laserPowerButton_->setIcon(QIcon(":/lightning.png"));
+		laserPowerButton_->setIcon(QIcon(":/red-laser.png"));
 		laserPowerButton_->blockSignals(true);
 		laserPowerButton_->setChecked(false);
 		laserPowerButton_->blockSignals(false);
 	}
 	else{
 
-		laserPowerButton_->setIcon(QIcon(":/dark-lightning.png"));
+		laserPowerButton_->setIcon(QIcon(":/black-laser.png"));
 		laserPowerButton_->blockSignals(true);
 		laserPowerButton_->setChecked(true);
 		laserPowerButton_->blockSignals(false);

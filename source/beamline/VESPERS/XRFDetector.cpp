@@ -168,7 +168,6 @@ void XRFDetector::setRoiList(QList<AMROI *> list)
 
 		connect(roiList_.at(i), SIGNAL(roiConnected(bool)), this, SLOT(detectorConnected()));
 		connect(roiList_.at(i), SIGNAL(roiHasValues(bool)), this, SLOT(allRoisHaveValues()));
-		connect(roiList_.at(i), SIGNAL(roiUpdate(AMROI*)), this, SIGNAL(roiUpdate(AMROI*)));
 	}
 }
 
@@ -272,6 +271,10 @@ void XRFDetector::allRoisHaveValues()
 		hasValues = hasValues && roiList().at(i)->hasValues();
 
 	emit roisHaveValues(hasValues);
+
+	if (hasValues)
+		for (int i = 0; i < roiList_.size(); i++)
+			connect(roiList_.at(i), SIGNAL(roiUpdate(AMROI*)), this, SIGNAL(roiUpdate(AMROI*)));
 }
 
 bool XRFDetector::addRegionOfInterest(AMROIInfo roi)

@@ -303,8 +303,6 @@ public:
 	AMControl *fourElMotor() const { return fourElMotor_; }
 	/// Returns the single element detector motor control.
 	AMControl *singleElMotor() const { return singleElMotor_; }
-	/// Returns the beam focus motor control.
-	AMControl *focusMotor() const { return focusMotor_; }
 
 	/// Returns the CCD motor control feedback.
 	AMControl *ccdMotorfbk() const { return ccdMotorfbk_; }
@@ -317,10 +315,21 @@ public:
 
 	// Sample stage motor controls.
 
+	// Psedomotors.
 	/// Returns the horizontal sample stage control.
 	AMControl *sampleStageHorizontal() const { return sampleStageHorizontal_; }
 	/// Returns the vertical sample stage control.
 	AMControl *sampleStageVertical() const { return sampleStageVertical_; }
+	/// Returns the normal motor control.
+	AMControl *sampleStageNormal() const { return sampleStageNormal_; }
+
+	// Real motors.
+	/// Returns the sample stage motor for the x-direction.
+	AMControl *sampleStageX() const { return sampleStageX_; }
+	/// Returns the sample stage motor for the y-direction.
+	AMControl *sampleStageY() const { return sampleStageY_; }
+	/// Returns the sample stage motor for the z-direction.
+	AMControl *sampleStageZ() const { return sampleStageZ_; }
 
 	// These are the single element vortex controls.
 
@@ -631,7 +640,6 @@ protected:
 	AMControl *microscopeMotor_;
 	AMControl *fourElMotor_;
 	AMControl *singleElMotor_;
-	AMControl *focusMotor_;
 
 	// The process variables that have the feedback value used for the button.  The microscope doesn't need one because it's encoder doesn't work.
 	AMControl *ccdMotorfbk_;
@@ -655,6 +663,10 @@ protected:
 	// Sample stage controls.
 	AMControl *sampleStageHorizontal_;
 	AMControl *sampleStageVertical_;
+	AMControl *sampleStageNormal_;
+	AMControl *sampleStageX_;
+	AMControl *sampleStageY_;
+	AMControl *sampleStageZ_;
 
 	// End sample stage controls.
 

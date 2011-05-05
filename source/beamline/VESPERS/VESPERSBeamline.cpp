@@ -162,10 +162,18 @@ void VESPERSBeamline::setupSampleStage()
 {
 	sampleStageHorizontal_ = new AMPVwStatusControl("Horizontal Sample Stage", "TS1607-2-B21-01:H:user:mm:sp", "TS1607-2-B21-01:H:user:mm", "TS1607-2-B21-01:H:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
 	sampleStageVertical_ = new AMPVwStatusControl("Vertical Sample Stage", "TS1607-2-B21-01:V:user:mm:sp", "TS1607-2-B21-01:V:user:mm", "TS1607-2-B21-01:V:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
+	sampleStageNormal_ = new AMPVwStatusControl("Normal Sample Stage", "TS1607-2-B21-01:N:user:mm:sp", "TS1607-2-B21-01:N:user:mm", "TS1607-2-B21-01:N:status", "TS1607-2-B21-01:HNV:stop.PROC", this);
+	sampleStageX_ = new AMPVwStatusControl("X component Sample Stage", "SVM1607-2-B21-02:mm:sp", "SVM1607-2-B21-02:mm", "SVM1607-2-B21-02:status", "SVM1607-2-B21-02:stop", this, 0.01, 10.0);
+	sampleStageY_ = new AMPVwStatusControl("Y component Sample Stage", "SVM1607-2-B21-03:mm:sp", "SVM1607-2-B21-03:mm", "SVM1607-2-B21-03:status", "SVM1607-2-B21-03:stop", this, 0.01, 10.0);
+	sampleStageZ_ = new AMPVwStatusControl("Z component Sample Stage", "SVM1607-2-B21-01:mm:sp", "SVM1607-2-B21-01:mm", "SVM1607-2-B21-01:status", "SVM1607-2-B21-01:stop", this, 0.01, 10.0);
 
 	sampleStageMotorSet_ = new AMControlSet(this);
 	sampleStageMotorSet_->addControl(sampleStageHorizontal_);
 	sampleStageMotorSet_->addControl(sampleStageVertical_);
+	sampleStageMotorSet_->addControl(sampleStageNormal_);
+	sampleStageMotorSet_->addControl(sampleStageX_);
+	sampleStageMotorSet_->addControl(sampleStageY_);
+	sampleStageMotorSet_->addControl(sampleStageZ_);
 
 	connect(sampleStageMotorSet_, SIGNAL(controlSetTimedOut()), this, SLOT(sampleStageError()));
 }
@@ -177,7 +185,6 @@ void VESPERSBeamline::setupEndstation()
 	microscopeMotor_ = new AMPVwStatusControl("Microscope motor", "SMTR1607-2-B21-17:mm:sp", "SMTR1607-2-B21-17:mm", "SMTR1607-2-B21-17:status", "SMTR1607-2-B21-17:stop", this);
 	fourElMotor_ = new AMPVwStatusControl("4-Element Vortex motor", "SMTR1607-2-B21-27:mm:sp", "SMTR1607-2-B21-27:mm", "SMTR1607-2-B21-27:status", "SMTR1607-2-B21-27:stop", this);
 	singleElMotor_ = new AMPVwStatusControl("1-Element Vortex motor", "SMTR1607-2-B21-15:mm:sp", "SMTR1607-2-B21-15:mm", "SMTR1607-2-B21-15:status", "SMTR1607-2-B21-15:stop", this);
-	focusMotor_ = new AMPVwStatusControl("Focus motor", "TS1607-2-B21-01:N:user:mm:sp", "TS1607-2-B21-01:N:user:mm", "TS1607-2-B21-01:N:status", "TS1607-2-B21-01:HNV:stop.PROC", this);
 
 	// The process variables that have the feedback value used for the button.  The microscope doesn't need one because it's encoder doesn't work.
 	ccdMotorfbk_ = new AMReadOnlyPVControl("CCD motor feedback", "SMTR1607-2-B21-18:mm:fbk", this);
@@ -553,7 +560,7 @@ void VESPERSBeamline::setupControlSets()
 	endstationMotorSet_->addControl(fourElMotorfbk_);
 	endstationMotorSet_->addControl(singleElMotor_);
 	endstationMotorSet_->addControl(singleElMotorfbk_);
-	endstationMotorSet_->addControl(focusMotor_);
+	endstationMotorSet_->addControl(sampleStageNormal_);
 	endstationMotorSet_->addControl(focusMotorfbk_);
 
 	// Beam attenuation filters.  Only contains the filters of a certain size.  The upper and lower are used independently of these six.
@@ -876,7 +883,7 @@ VESPERSBeamline::~VESPERSBeamline()
 	delete microscopeMotor_;
 	delete fourElMotor_;
 	delete singleElMotor_;
-	delete focusMotor_;
+	delete sampleStageNormal_;
 	delete ccdMotorfbk_;
 	delete fourElMotorfbk_;
 	delete singleElMotorfbk_;

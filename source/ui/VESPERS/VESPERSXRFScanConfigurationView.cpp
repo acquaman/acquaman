@@ -6,6 +6,7 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QToolButton>
+#include <QPushButton>
 
 VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanConfiguration *scanConfig, QWidget *parent)
 	: AMScanConfigurationView(parent)
@@ -41,10 +42,17 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 
 	connect(selectionView_, SIGNAL(clearAllRegionsOfInterest()), view_, SLOT(removeAllRegionsOfInterest()));
 
+	QPushButton *sortButton = new QPushButton(QIcon(":/ArrowCCW.png"), "Sort");
+	connect(sortButton, SIGNAL(clicked()), detector_, SLOT(sort()));
+
 	customize_ = new CustomizeRegionsOfInterest(detector_->roiList());
-	QToolButton *configureButton = new QToolButton;
-	configureButton->setIcon(QIcon(":/configure.png"));
-	connect(configureButton, SIGNAL(clicked()), customize_, SLOT(show()));
+	QPushButton *configureButton = new QPushButton(QIcon(":/configure.png"), "Edit ROIs");
+
+	QScrollArea *scroll = new QScrollArea;
+	scroll->setWidget(customize_);
+	scroll->setMinimumWidth(480);
+
+	connect(configureButton, SIGNAL(clicked()), scroll, SLOT(show()));
 
 	QToolButton *start = new QToolButton;
 	start->setIcon(QIcon(":/play_button_green.png"));
@@ -131,6 +139,7 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 	controlLayout->addWidget(peakingTimeLabel_);
 	controlLayout->addWidget(peakingTime_);
 	controlLayout->addStretch();
+	controlLayout->addWidget(sortButton);
 	controlLayout->addWidget(configureButton);
 
 	QVBoxLayout *viewAndSelectionLayout = new QVBoxLayout;
@@ -233,7 +242,7 @@ void VESPERSXRFScanConfigurationView::onRoisHaveValues(bool hasValues)
 				for (int j = 0; j < el->emissionLines().count(); j++){
 
 					if (el->emissionLines().at(j).first.contains("1")
-							&& fabs((low+high)/2 - el->emissionLines().at(j).second.toDouble()/detector_->scale()) < 1)
+							&& fabs((low+high)/2 - el->emissionLines().at(j).second.toDouble()/detector_->scale()) < 3)
 						emit roiExistsAlready(el, el->emissionLines().at(j));
 				}
 			}

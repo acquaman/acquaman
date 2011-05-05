@@ -3,7 +3,6 @@
 #include "util/AMPeriodicTable.h"
 
 #include <QHBoxLayout>
-#include <QScrollArea>
 #include <cmath>
 
 RegionOfInterestView::RegionOfInterestView(AMROI *roi, QWidget *parent)
@@ -46,7 +45,7 @@ RegionOfInterestView::RegionOfInterestView(AMROI *roi, QWidget *parent)
 	roiLayout->addWidget(value, 0, Qt::AlignCenter);
 
 	setLayout(roiLayout);
-	setMinimumWidth(450);
+	setMinimumWidth(420);
 }
 
 void RegionOfInterestView::nameUpdate(QString name)
@@ -86,12 +85,6 @@ CustomizeRegionsOfInterest::CustomizeRegionsOfInterest(QList<AMROI *> rois, QWid
 
 	listLayout->addStretch();
 
-	QScrollArea *scroll = new QScrollArea;
-	scroll->setLayout(listLayout);
-
-	QVBoxLayout *mainLayout = new QVBoxLayout;
-	mainLayout->addWidget(scroll);
-
-	setLayout(mainLayout);
-	setMinimumSize(450, 500);
+	setLayout(listLayout);
+	setMinimumSize(420, 500);
 }

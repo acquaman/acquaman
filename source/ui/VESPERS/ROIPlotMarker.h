@@ -16,15 +16,15 @@ public:
 	/// Returns the position of the center line.
 	double center() const { return center_*sx_; }
 	/// Sets the center position of marker.
-	void setCenter(double position) { center_ = position; }
+	void setCenter(double position) { center_ = position; updatePlot(); }
 	/// Returns the lower end of the boundingRect.
 	double lowEnd() const { return low_*sx_; }
 	/// Sets the position of the lower end of the boundingRect.
-	void setLowEnd(double position) { low_ = position; }
+	void setLowEnd(double position) { low_ = position; updatePlot(); }
 	/// Returns the higher end of the boundingRect.
 	double highEnd() const { return high_*sx_; }
 	/// Sets the position of the higher end of the boundingRect.
-	void setHighEnd(double position) { high_ = position; }
+	void setHighEnd(double position) { high_ = position; updatePlot(); }
 	/// Returns the height of the boundingRect.  This CANNOT be zero and thus if the height is zero then it returns 1.
 	double height() const { if (height_ == 0) return 1; else return height_*sy_; }
 	/// Sets the height of the boundingRect.

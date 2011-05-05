@@ -4,6 +4,7 @@
 #include "MPlot/MPlotSeries.h"
 #include "dataman/AMDataSourceSeriesData.h"
 #include "ui/VESPERS/ROIPlotMarker.h"
+#include "util/AMPeriodicTable.h"
 
 #include <QString>
 #include <QHBoxLayout>
@@ -182,7 +183,7 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	return true;
 }
 
-/*void XRFDetailedDetectorView::roiWidthUpdate(AMROI *roi)
+void XRFDetailedDetectorView::roiWidthUpdate(AMROI *roi)
 {
 	// Find the marker associated with the ROI and then change it.
 	ROIPlotMarker *temp;
@@ -191,13 +192,36 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 
 		temp = (ROIPlotMarker *)markers_.at(i);
 
-		if (temp->description().compare(roi->name()) == 0){
+		if (temp->description().compare(getName(roi)) == 0){
 
-			temp->setLowEnd(roi->low());
-			temp->setHighEnd(roi->high());
+			temp->setLowEnd(roi->low()*roi->scale());
+			temp->setHighEnd(roi->high()*roi->scale());
 		}
 	}
-}*/
+}
+
+QString XRFDetailedDetectorView::getName(AMROI *roi)
+{
+	QString name(roi->name());
+
+	name = name.left(name.indexOf(" "));
+	AMElement *el = AMPeriodicTable::table()->elementBySymbol(name);
+
+	if (el){
+
+		int low = roi->low();
+		int high = roi->high();
+
+		for (int j = 0; j < el->emissionLines().count(); j++){
+
+			if (el->emissionLines().at(j).first.contains("1")
+					&& fabs((low+high)/2 - el->emissionLines().at(j).second.toDouble()/roi->scale()) < 3)
+				name = el->symbol()+" "+el->emissionLines().at(j).first;
+		}
+	}
+
+	return name;
+}
 
 void XRFDetailedDetectorView::onWaterfallToggled(bool isWaterfall)
 {
@@ -328,27 +352,18 @@ double XRFDetailedDetectorView::getMaximumHeight(MPlotItem *data)
 	return max;
 }
 
+void XRFDetailedDetectorView::sortRegionsOfInterest()
+{
+
+}
+
 void XRFDetailedDetectorView::onAdditionOfRegionOfInterest(AMElement *el, QPair<QString, QString> line)
 {
 	AMROIInfo info(el->symbol()+" "+line.first, line.second.toDouble(), 0.04, detector_->scale());
 	detector_->addRegionOfInterest(info);
-	detector_->blockSignals(true);
-	detector_->sort();
-	detector_->blockSignals(false);
 	ROIPlotMarker *newMarker = new ROIPlotMarker(info.name(), info.energy(), info.energy()*(1-info.width()/2), info.energy()*(1+info.width()/2), plot_->axisLeft()->max());
-
-	int index = 0;
-	while(index != markers_.size()){
-
-		if (info.energy() > ((ROIPlotMarker *)markers_.at(index))->center())
-			index++;
-		else
-			break;
-	}
-
-	// Insert after all existing items like the spectra and the "emission lines bars".  This places them in order of increasing energy, but still in a logical place.
-	plot_->insertItem(newMarker, index + plot_->numItems()-markers_.size());
-	markers_.insert(index + plot_->numItems()-markers_.size(), newMarker);
+	plot_->insertItem(newMarker);
+	markers_ << newMarker;
 	highlightMarkers(el);
 }
 

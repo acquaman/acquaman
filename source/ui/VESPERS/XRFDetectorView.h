@@ -75,10 +75,12 @@ public slots:
 	void onRemovalOfRegionOfInterest(AMElement *el, QPair<QString, QString> line);
 	/// Slot removing all the element markers.
 	void removeAllRegionsOfInterest();
+	/// Slot that sorts all the regions of interst.
+	void sortRegionsOfInterest();
 	/// Handles resizing the ROIPlotMarkers based on the maximum height of the data.
 	void resizeRoiMarkers();
 	/// Handles resizing the ROIPlotMarkers to a new width.
-	//void roiWidthUpdate(AMROI *roi);
+	void roiWidthUpdate(AMROI *roi);
 
 protected slots:
 	/// Handles the update from the dead time control.
@@ -107,6 +109,9 @@ protected:
 
 	/// Gets the maximum height from the first data source.  Used for scaling the height of the ROI markers.
 	double getMaximumHeight(MPlotItem *data);
+
+	/// Returns the real name of the roi based on the jumbled name from the PV and the low/high values.
+	QString getName(AMROI *roi);
 
 	/// Get a color for the color of a line on the plot.
 	QColor getColor(int index);

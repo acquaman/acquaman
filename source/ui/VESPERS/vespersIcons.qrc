@@ -7,5 +7,7 @@
         <file>trashcan.png</file>
         <file>dark-lightning.png</file>
         <file>lightning.png</file>
+        <file>black-laser.png</file>
+        <file>red-laser.png</file>
     </qresource>
 </RCC>
