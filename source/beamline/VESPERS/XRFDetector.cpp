@@ -30,10 +30,15 @@ XRFDetector::XRFDetector(QString name, int elements, AMControl *status, AMContro
 	integrationTimeControl_ = integrationTime;
 	liveTimeControl_ = liveTime;
 	elapsedTimeControl_ = elapsedTime;
-	deadTimeControl_ = deadTime;
-	spectraControl_ = spectra;
 	startControl_ = start;
 	stopControl_ = stop;
+
+	deadTimeControl_ = new AMControlSet(this);
+	for (int i = 0; i < deadTime->count(); i++)
+		deadTimeControl_->addControl(deadTime->at(i));
+	spectraControl_ = new AMControlSet(this);
+	for (int i = 0; i < spectra->count(); i++)
+		spectraControl_->addControl(spectra->at(i));
 
 	readingControls_ = new AMControlSet(this);
 	settingsControls_ = new AMControlSet(this);
@@ -54,17 +59,13 @@ XRFDetector::XRFDetector(QString name, int elements, AMControl *status, AMContro
 	settingsControls_->addControl(stopControl_);
 
 	connect(readingControls_, SIGNAL(connected(bool)), this, SLOT(detectorConnected()));
-	//connect(readingControls_, SIGNAL(controlSetValuesChanged(AMControlInfoList)), this, SIGNAL(readingsChanged(AMControlInfoList)));
 	connect(settingsControls_, SIGNAL(connected(bool)), this, SLOT(detectorConnected()));
-	//connect(settingsControls_, SIGNAL(controlSetValuesChanged(AMControlInfoList)), this, SIGNAL(settingsChanged(AMControlInfoList)));
 
 	connect(statusControl_, SIGNAL(valueChanged(double)), this, SIGNAL(statusChanged()));
 	connect(integrationTimeControl_, SIGNAL(valueChanged(double)), this, SLOT(setTime(double)));
 	connect(peakingTimeControl_, SIGNAL(valueChanged(double)), this, SLOT(setPeakingTime(double)));
 	connect(maximumEnergyControl_, SIGNAL(valueChanged(double)), this, SLOT(setMaximumEnergy(double)));
-
-	for (int i = 0; i < roiList().size(); i++)
-		connect(roiList().at(i), SIGNAL(roiConnected(bool)), this, SLOT(detectorConnected(bool)));
+	connect(spectraControl_, SIGNAL(controlSetValuesChanged()), this, SLOT(setChannelSize()));
 
 	XRFDetectorDataSource *temp;
 	AMReadOnlyPVControl *spectrum;
@@ -125,18 +126,13 @@ XRFDetector::XRFDetector(QString name, AMControl *status, AMControl *refreshRate
 	settingsControls_->addControl(stopControl_);
 
 	connect(readingControls_, SIGNAL(connected(bool)), this, SLOT(detectorConnected()));
-	//connect(readingControls_, SIGNAL(controlSetValuesChanged(AMControlInfoList)), this, SIGNAL(readingsChanged(AMControlInfoList)));
 	connect(settingsControls_, SIGNAL(connected(bool)), this, SLOT(detectorConnected()));
-	//connect(settingsControls_, SIGNAL(controlSetValuesChanged(AMControlInfoList)), this, SIGNAL(settingsChanged(AMControlInfoList)));
 
 	connect(statusControl_, SIGNAL(valueChanged(double)), this, SIGNAL(statusChanged()));
 	connect(integrationTimeControl_, SIGNAL(valueChanged(double)), this, SLOT(setIntegrationTime(double)));
 	connect(peakingTimeControl_, SIGNAL(valueChanged(double)), this, SLOT(setPeakingTime(double)));
 	connect(maximumEnergyControl_, SIGNAL(valueChanged(double)), this, SLOT(setMaximumEnergy(double)));
 	connect(spectraControl_, SIGNAL(controlSetValuesChanged()), this, SLOT(setChannelSize()));
-
-	for (int i = 0; i < roiList().size(); i++)
-		connect(roiList().at(i), SIGNAL(roiConnected(bool)), this, SLOT(detectorConnected(bool)));
 
 	AMReadOnlyPVControl *spectrum = qobject_cast<AMReadOnlyPVControl *>(spectraControl_->at(0));
 
@@ -157,12 +153,30 @@ XRFDetector::~XRFDetector()
 
 	delete readingControls_;
 	delete settingsControls_;
+
+	while(!roiList_.isEmpty()){
+
+		delete roiList_.takeLast();
+	}
+}
+
+void XRFDetector::setRoiList(QList<AMROI *> list)
+{
+	roiList_ << list;
+
+	for (int i = 0; i < roiList_.size(); i++){
+
+		connect(roiList_.at(i), SIGNAL(roiConnected(bool)), this, SLOT(detectorConnected()));
+		connect(roiList_.at(i), SIGNAL(roiHasValues(bool)), this, SLOT(allRoisHaveValues()));
+	}
 }
 
 double XRFDetector::deadTime() const
 {
+	// For the single element, return the value.  For multi-element detectors, return the worst.
 	if (elements_ == 1)
 		return deadTimeControl()->at(0)->value();
+
 	else {
 
 		double dt = 0;
@@ -241,12 +255,22 @@ void XRFDetector::detectorConnected()
 
 	detectorConnected_ = true;
 
-	//for (int i = 0; i < roiList().size(); i++)
-		//detectorConnected_ = detectorConnected_ && roiList().at(i)->isConnected();
+	for (int i = 0; i < roiList().size(); i++)
+		detectorConnected_ = detectorConnected_ && roiList().at(i)->isConnected();
 
 	detectorConnected_ = detectorConnected_ && readingControls_->isConnected() && settingsControls_->isConnected();
 
 	emit detectorConnected(detectorConnected_);
+}
+
+void XRFDetector::allRoisHaveValues()
+{
+	bool hasValues = true;
+
+	for (int i = 0; i < roiList().size(); i++)
+		hasValues = hasValues && roiList().at(i)->hasValues();
+
+	emit roisHaveValues(hasValues);
 }
 
 bool XRFDetector::addRegionOfInterest(AMROIInfo roi)
@@ -271,10 +295,11 @@ bool XRFDetector::removeRegionOfInterest(QString name)
 
 	for (int i = indexOfRemoved; i < roiInfoList()->count(); i++){
 
-		if (i+1 == roiInfoList()->count())
-			roiList().at(i)->fromInfo(AMROIInfo(""));
-
-		roiList().at(i)->fromInfo(roiInfoList()->at(i+1));
+		if (i+1 == roiInfoList()->count()){
+			roiList().at(i)->setRegion("", -1, -1);
+		}
+		else
+			roiList().at(i)->fromInfo(roiInfoList()->at(i+1));
 	}
 
 	roiInfoList()->remove(indexOfRemoved);
@@ -288,6 +313,14 @@ void XRFDetector::sort()
 
 	for (int i = 0; i < roiInfoList()->count(); i++)
 		roiList().at(i)->fromInfo(roiInfoList()->at(i));
+}
+
+void XRFDetector::clearRegionsOfInterest()
+{
+	for (int i = 0; i < roiList().count(); i++)
+		roiList().at(i)->setRegion("", -1, -1);
+
+	roiInfoList()->clear();
 }
 
 void XRFDetector::enableElement(int id)

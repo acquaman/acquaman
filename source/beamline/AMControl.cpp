@@ -86,8 +86,8 @@ bool AMControl::searchSetChildren(QMap<QString, double> *controlList, QMap<QStri
 // Class AMReadOnlyPVControl
 ///////////////////////////////////////
 
-AMReadOnlyPVControl::AMReadOnlyPVControl(const QString& name, const QString& readPVname, QObject* parent)
-	: AMControl(name, "?", parent)  {
+AMReadOnlyPVControl::AMReadOnlyPVControl(const QString& name, const QString& readPVname, QObject* parent, const QString description)
+	: AMControl(name, "?", parent, description)  {
 
 	readPV_ = new AMProcessVariable(readPVname, true, this);
 
@@ -131,8 +131,8 @@ void AMReadOnlyPVControl::onReadPVInitialized() {
 }
 
 
-AMPVControl::AMPVControl(const QString& name, const QString& readPVname, const QString& writePVname, const QString& stopPVname, QObject* parent, double tolerance, double completionTimeoutSeconds, int stopValue)
-	: AMReadOnlyPVControl(name, readPVname, parent)
+AMPVControl::AMPVControl(const QString& name, const QString& readPVname, const QString& writePVname, const QString& stopPVname, QObject* parent, double tolerance, double completionTimeoutSeconds, int stopValue, const QString &description)
+	: AMReadOnlyPVControl(name, readPVname, parent, description)
 {
 	setTolerance(tolerance);
 
@@ -303,8 +303,8 @@ void AMPVControl::onPVConnected(bool) {
 // Class AMReadOnlyPVwStatusControl
 ///////////////////////////////////////
 
-AMReadOnlyPVwStatusControl::AMReadOnlyPVwStatusControl(const QString& name, const QString& readPVname, const QString& movingPVname, QObject* parent, AMAbstractControlStatusChecker* statusChecker)
-	: AMReadOnlyPVControl(name, readPVname, parent)
+AMReadOnlyPVwStatusControl::AMReadOnlyPVwStatusControl(const QString& name, const QString& readPVname, const QString& movingPVname, QObject* parent, AMAbstractControlStatusChecker* statusChecker, const QString &description)
+	: AMReadOnlyPVControl(name, readPVname, parent, description)
 {
 	// Initializing:
 	statusChecker_ = statusChecker;
@@ -363,8 +363,8 @@ void AMReadOnlyPVwStatusControl::onMovingChanged(int movingValue) {
 		emit movingChanged(wasMoving_ = nowMoving);
 }
 
-AMPVwStatusControl::AMPVwStatusControl(const QString& name, const QString& readPVname, const QString& writePVname, const QString& movingPVname, const QString& stopPVname, QObject* parent, double tolerance, double moveStartTimeoutSeconds, AMAbstractControlStatusChecker* statusChecker, int stopValue)
-	: AMReadOnlyPVwStatusControl(name, readPVname, movingPVname, parent, statusChecker) {
+AMPVwStatusControl::AMPVwStatusControl(const QString& name, const QString& readPVname, const QString& writePVname, const QString& movingPVname, const QString& stopPVname, QObject* parent, double tolerance, double moveStartTimeoutSeconds, AMAbstractControlStatusChecker* statusChecker, int stopValue, const QString &description)
+	: AMReadOnlyPVwStatusControl(name, readPVname, movingPVname, parent, statusChecker, description) {
 
 	// Initialize:
 	moveInProgress_ = false;
@@ -501,8 +501,8 @@ void AMPVwStatusControl::onIsMovingChanged(bool isMoving) {
 }
 
 
-AMReadOnlyWaveformBinningPVControl::AMReadOnlyWaveformBinningPVControl(const QString &name, const QString &readPVname, int lowIndex, int highIndex, QObject *parent) :
-		AMReadOnlyPVControl(name, readPVname, parent)
+AMReadOnlyWaveformBinningPVControl::AMReadOnlyWaveformBinningPVControl(const QString &name, const QString &readPVname, int lowIndex, int highIndex, QObject *parent, const QString &description) :
+		AMReadOnlyPVControl(name, readPVname, parent, description)
 {
 	disconnect(readPV_, SIGNAL(valueChanged(double)), this, SIGNAL(valueChanged(double)));
 	setBinParameters(lowIndex, highIndex);

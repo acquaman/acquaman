@@ -236,7 +236,7 @@ public:
 		\param units The default unit description.
 		\param parent QObject parent for memory management
 		*/
-	AMControl(const QString& name, const QString& units = "n/a", QObject* parent = 0) : QObject(parent), units_(units) {
+	AMControl(const QString& name, const QString& units = "n/a", QObject* parent = 0, const QString description = "") : QObject(parent), units_(units), description_(description) {
 		setObjectName(name);
 		wasConnected_ = false;
 		tolerance_ = AMCONTROL_TOLERANCE_DONT_CARE;
@@ -264,6 +264,9 @@ public:
 
 	/// Returns a descriptive and hopefully-unique name for this control:
 	QString name() const { return objectName(); }
+
+	/// Returns a human-readable description for this control
+	QString description() const { return description_;}
 
 	/// This value defines how close the final measure()d position must be to the setpoint(), for the move() to have succeeded.
 	double tolerance() const { return tolerance_; }
@@ -468,6 +471,7 @@ private:
 	double tolerance_;
 	QString units_;
 	QStringList enumNames_;
+	QString description_; //Human-readable description
 
 };
 
@@ -504,7 +508,7 @@ public:
 		\param readPVname The EPICS channel-access name for this Process Variable
 		\param parent QObject parent class
 		*/
-	AMReadOnlyPVControl(const QString& name, const QString& readPVname, QObject* parent = 0);
+	AMReadOnlyPVControl(const QString& name, const QString& readPVname, QObject* parent = 0, const QString decription = "");
 
 	/// \name Reimplemented Public Functions:
 	//@{
@@ -616,7 +620,8 @@ public:
 				QObject* parent = 0,
 				double tolerance = AMCONTROL_TOLERANCE_DONT_CARE,
 				double completionTimeoutSeconds = 10.0,
-				int stopValue = 1);
+				int stopValue = 1,
+				const QString &description = "");
 
 	/// \name Reimplemented Public Functions:
 	//@{
@@ -816,10 +821,11 @@ public:
 		\param parent QObject parent class
 		*/
 	AMReadOnlyPVwStatusControl(const QString& name,
-							   const QString& readPVname,
-							   const QString& movingPVname,
-							   QObject* parent = 0,
-							   AMAbstractControlStatusChecker* statusChecker = new AMControlStatusCheckerDefault(1) );
+					const QString& readPVname,
+					const QString& movingPVname,
+					QObject* parent = 0,
+					AMAbstractControlStatusChecker* statusChecker = new AMControlStatusCheckerDefault(1),
+					const QString &description = "");
 
 	/// Destructor
 	virtual ~AMReadOnlyPVwStatusControl() { delete statusChecker_; }
@@ -944,7 +950,8 @@ public:
 					   double tolerance = AMCONTROL_TOLERANCE_DONT_CARE,
 					   double moveStartTimeoutSeconds = 2.0,
 					   AMAbstractControlStatusChecker* statusChecker = new AMControlStatusCheckerDefault(1),
-					   int stopValue = 1);
+					   int stopValue = 1,
+					   const QString &description = "");
 
 	/// \name Reimplemented Public Functions:
 	//@{
@@ -1081,10 +1088,11 @@ public:
 		\param parent QObject parent class
 		*/
 	AMReadOnlyWaveformBinningPVControl(const QString& name,
-								const QString& readPVname,
-								int lowIndex = 0,
-								int highIndex = 1,
-								QObject* parent = 0);
+						const QString& readPVname,
+						int lowIndex = 0,
+						int highIndex = 1,
+						QObject* parent = 0,
+						const QString &description = "");
 
 	/// \name Reimplemented Public Functions:
 	//@{

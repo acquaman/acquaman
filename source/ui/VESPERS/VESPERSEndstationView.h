@@ -13,6 +13,8 @@
 #include <QSlider>
 #include <QToolButton>
 #include <QMap>
+#include <QComboBox>
+#include <QPushButton>
 
 /// This class is used to configure the endstation control.  As the endstation expands, the things that will need to be modified will also change.  Therefore, this class should expand with any expansion of the endstation class.
 /// This will configure the buttons, as other things are added to the endstation it will do more.
@@ -170,9 +172,21 @@ private slots:
 	void fourElUpdate(double val) { fourElButton_->setText(QString::number(val, 'f', 3) + " " + fourElfbk_->units()); }
 	/// Handles the focus distance update.
 	void focusUpdate(double val) { focusButton_->setText(QString::number(val, 'f', 3) + " mm"); }
+	/// Handles changes in the filter combo box.
+	void onFilterComboBoxUpdate(int index);
+	/// Handles updates from the upper shutter filter push button.
+	void onUpperFilterUpdate();
+	/// Handles updates from the lower shutter filter push button.
+	void onLowerFilterUpdate();
+	/// Handles the connection of the filter set.
+	void onFiltersConnected(bool isConnected);
+	/// Sets the filter combo box based on original values at start up and if they are changed outside of the program.
+	void onFiltersChanged();
 
 
 private:
+	/// Helper function to properly toggle the filter PVs.  Takes an AMControl *, casts it to an AMPVControl * then toggles them.
+	void toggleFilter(AMControl *filter);
 	/// Converts the bizarre string output of the pv to a real QString.
 	QString AMPVtoString(AMProcessVariable *pv);
 	/// Converts the string to the array of integers it needs to be.
@@ -211,6 +225,11 @@ private:
 	bool microscopeSafe_;
 	bool ccdSafe_;
 
+	// Filter combo box and push buttons.
+	QComboBox *filterComboBox_;
+	QPushButton *filterUpperButton_;
+	QPushButton *filterLowerButton_;
+
 	// Control pointers.
 	// The controls used for the control window.
 	AMPVwStatusControl *ccdControl_;
@@ -232,6 +251,16 @@ private:
 	AMProcessVariable *ccdPath_;
 	AMProcessVariable *ccdFile_;
 	AMProcessVariable *ccdNumber_;
+
+	// Filter controls.
+	AMPVControl *filter250umA_;
+	AMPVControl *filter250umB_;
+	AMPVControl *filter100umA_;
+	AMPVControl *filter100umB_;
+	AMPVControl *filter50umA_;
+	AMPVControl *filter50umB_;
+	AMPVControl *filterShutterUpper_;
+	AMPVControl *filterShutterLower_;
 };
 
 #endif // VESPERSENDSTATIONVIEW_H
