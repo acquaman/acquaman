@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMRawDataSource.h"
 #include "dataman/AMUser.h"
 
+#include "dataman/AMSamplePlate.h"
 
 SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 	specificCfg_ = cfg;
