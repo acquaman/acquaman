@@ -25,6 +25,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QComboBox>
 #include <QSpinBox>
 
+class MPlotWidget;
+class MPlot;
+class MPlotImageBasic;
+class MPlotRectangle;
 
 class AM2DSummingAB;
 
@@ -62,6 +66,14 @@ protected:
 	/// Gui elements
 	QComboBox* axisSelector_;
 	QSpinBox* rangeMinControl_, *rangeMaxControl_;
+
+	/// plot widget to show what region is summed
+	MPlotWidget* plotWidget_;
+	MPlot* plot_;
+	MPlotImageBasic* image_;
+	MPlotRectangle* rangeRectangle_;
+	/// called to position and show/hide the range rectangle, as appropriate.
+	void placeRangeRectangle();
 
 	/// Expanded editor, which can opened up to provide a gui for editing the fields.
 	QWidget* additionalEditor_;

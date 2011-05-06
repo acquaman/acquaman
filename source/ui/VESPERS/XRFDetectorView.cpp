@@ -226,14 +226,14 @@ QString XRFDetailedDetectorView::getName(AMROI *roi)
 void XRFDetailedDetectorView::onWaterfallToggled(bool isWaterfall)
 {
 	if (isWaterfall)
-		plot_->setWaterfallLeft(waterfallSeparation_->value()*getMaximumHeight(plot_->item(0)));
+		plot_->setAxisScaleWaterfall(MPlot::Left, waterfallSeparation_->value()*getMaximumHeight(plot_->item(0)));
 	else
-		plot_->setWaterfallLeft(0);
+		plot_->setAxisScaleWaterfall(MPlot::Left, 0);
 }
 
 void XRFDetailedDetectorView::onWaterfallSeparationChanged(double val)
 {
-	plot_->setWaterfallLeft(val*getMaximumHeight(plot_->item(0)));
+	plot_->setAxisScaleWaterfall(MPlot::Left, val*getMaximumHeight(plot_->item(0)));
 }
 
 void XRFDetailedDetectorView::onComboBoxUpdate(int index)
@@ -303,8 +303,8 @@ void XRFDetailedDetectorView::setupPlot()
 	}
 
 	// Enable autoscaling of both axes.
-	plot_->enableAutoScaleLeft(true);
-	plot_->enableAutoScaleBottom(true);
+	plot_->axisScaleLeft()->setAutoScaleEnabled();
+	plot_->axisScaleBottom()->setAutoScaleEnabled();
 
 	// Enable some convenient zoom tools.
 	plot_->addTool(new MPlotDragZoomerTool());

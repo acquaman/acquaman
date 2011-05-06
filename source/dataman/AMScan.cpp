@@ -426,16 +426,12 @@ AMDbThumbnail AMScan::thumbnail(int index) const {
 		QPen seriesPen(QBrush(AMDataSourcePlotSettings::nextColor()), 0);
 		series->setLinePen(seriesPen);
 		series->setMarker(MPlotMarkerShape::None);
-
-		plot->enableAutoScale(MPlotAxis::Left | MPlotAxis::Bottom);
 		plot->addItem(series);
 		plot->doDelayedAutoScale();
 		break; }
 	case 2: {
 		MPlotImageBasic* image = new MPlotImageBasic();
 		image->setModel(new AMDataSourceImageData(dataSource), true);
-
-		plot->enableAutoScale(MPlotAxis::Left | MPlotAxis::Bottom);
 		plot->addItem(image);
 		plot->doDelayedAutoScale();
 		break; }

@@ -23,8 +23,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AM2DSummingAB.h"
 
 #include <QFormLayout>
-#include <QHBoxLayout>
+#include <QBoxLayout>
 #include <QLabel>
+
+#include "MPlot/MPlotWidget.h"
+#include "MPlot/MPlot.h"
+#include "MPlot/MPlotImage.h"
+#include "MPlot/MPlotRectangle.h"
+#include "dataman/AMDataSourceImageData.h"
 
 AM2DSummingABEditor::AM2DSummingABEditor(AM2DSummingAB* analysisBlock, QWidget *parent) :
 	QWidget(parent)
@@ -45,7 +51,34 @@ AM2DSummingABEditor::AM2DSummingABEditor(AM2DSummingAB* analysisBlock, QWidget *
 
 	additionalEditor_ = 0;
 
+	plot_ = new MPlot();
+	plotWidget_ = new MPlotWidget();
+	plotWidget_->setPlot(plot_);
 
+	plot_->plotArea()->setBrush(QBrush(QColor(Qt::white)));
+	plot_->axisRight()->setTicks(0);
+	plot_->axisBottom()->setTicks(4);
+	plot_->axisLeft()->showGrid(false);
+	plot_->axisBottom()->showAxisName(false);
+	plot_->axisLeft()->showAxisName(false);
+	plot_->axisScaleBottom()->setPadding(0);
+	plot_->axisScaleLeft()->setPadding(0);
+	image_ = 0;
+
+	QColor white(Qt::white);
+	QPen pen(white, 2, Qt::SolidLine, Qt::SquareCap, Qt::MiterJoin);
+	white.setAlphaF(0.25);
+	rangeRectangle_ = new MPlotRectangle(QRectF(0,0,10,10), pen, QBrush(white));
+	rangeRectangle_->setSelectable(false);
+	rangeRectangle_->setIgnoreWhenAutoScaling(true);
+	rangeRectangle_->setZValue(3000);
+	plot_->addItem(rangeRectangle_);
+	rangeRectangle_->setVisible(false);
+	plot_->legend()->enableDefaultLegend(false);
+
+
+
+	QVBoxLayout* vl = new QVBoxLayout();
 	QFormLayout* fl = new QFormLayout();
 	fl->addRow("Sum", axisSelector_);
 	QHBoxLayout* hl = new QHBoxLayout();
@@ -53,7 +86,9 @@ AM2DSummingABEditor::AM2DSummingABEditor(AM2DSummingAB* analysisBlock, QWidget *
 	hl->addWidget(new QLabel("To"));
 	hl->addWidget(rangeMaxControl_);
 	fl->addRow("From (index)", hl);
-	setLayout(fl);
+	vl->addLayout(fl);
+	vl->addWidget(plotWidget_);
+	setLayout(vl);
 
 	onAnalysisBlockInputDataSourcesChanged();
 
@@ -67,6 +102,11 @@ AM2DSummingABEditor::AM2DSummingABEditor(AM2DSummingAB* analysisBlock, QWidget *
 
 
 void AM2DSummingABEditor::onAnalysisBlockInputDataSourcesChanged() {
+
+	if(image_) {
+		delete image_;
+		image_ = 0;
+	}
 
 	AMDataSource* inputSource;
 	if(analysisBlock_->inputDataSourceCount() > 0 && (inputSource=analysisBlock_->inputDataSourceAt(0))) {
@@ -98,6 +138,10 @@ void AM2DSummingABEditor::onAnalysisBlockInputDataSourcesChanged() {
 		rangeMaxControl_->setMaximum(inputSourceAxes.at(sumAxis).size-1);
 		rangeMaxControl_->setValue(analysisBlock_->sumRangeMax());
 		rangeMaxControl_->blockSignals(false);
+
+		image_ = new MPlotImageBasic();
+		image_->setModel(new AMDataSourceImageData(inputSource), true);
+		plot_->addItem(image_);
 	}
 
 	else {
@@ -106,6 +150,8 @@ void AM2DSummingABEditor::onAnalysisBlockInputDataSourcesChanged() {
 		rangeMinControl_->setEnabled(false);
 		rangeMaxControl_->setEnabled(false);
 	}
+
+	placeRangeRectangle();
 }
 
 // responds to GUI events
@@ -125,6 +171,8 @@ void AM2DSummingABEditor::onSumAxisControlChanged(int newSumAxis) {
 	}
 
 	analysisBlock_->setSumAxis(newSumAxis);
+
+	placeRangeRectangle();
 }
 
 void AM2DSummingABEditor::onRangeMinControlChanged(int newRangeMin) {
@@ -136,6 +184,8 @@ void AM2DSummingABEditor::onRangeMinControlChanged(int newRangeMin) {
 	// don't let the max go below the min.
 	if(rangeMaxControl_->value() < newRangeMin)
 		rangeMaxControl_->setValue(newRangeMin);
+
+	placeRangeRectangle();
 }
 
 void AM2DSummingABEditor::onRangeMaxControlChanged(int newRangeMax) {
@@ -147,4 +197,27 @@ void AM2DSummingABEditor::onRangeMaxControlChanged(int newRangeMax) {
 
 	if(rangeMinControl_->value() > newRangeMax)
 		rangeMinControl_->setValue(newRangeMax);
+
+	placeRangeRectangle();
+}
+
+void AM2DSummingABEditor::placeRangeRectangle()
+{
+	AMDataSource* inputSource;
+	if(analysisBlock_->inputDataSourceCount() > 0 && (inputSource=analysisBlock_->inputDataSourceAt(0))) {
+
+		QPointF p1, p2;
+		if(analysisBlock_->sumAxis() == 0) {
+			p1 = QPointF(inputSource->axisValue(0, analysisBlock_->sumRangeMin()), inputSource->axisValue(1,0));
+			p2 = QPointF(inputSource->axisValue(0, analysisBlock_->sumRangeMax()), inputSource->axisValue(1, inputSource->size(1)-1));
+		}
+		else {
+			p1 = QPointF(inputSource->axisValue(0, 0), inputSource->axisValue(1,analysisBlock_->sumRangeMin()));
+			p2 = QPointF(inputSource->axisValue(0, inputSource->size(0)-1), inputSource->axisValue(1, analysisBlock_->sumRangeMax()));
+		}
+		rangeRectangle_->setRect(QRectF(p1, p2).normalized());
+		rangeRectangle_->setVisible(true);
+	}
+	else
+		rangeRectangle_->setVisible(false);
 }
