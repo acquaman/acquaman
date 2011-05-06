@@ -26,7 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QGridLayout>
 
 SGMSidebar::SGMSidebar(QWidget *parent) :
-    QWidget(parent)
+	QWidget(parent)
 {
 	mainBox_ = new QGroupBox("SGM Beamline");
 	mainLayout_ = new QVBoxLayout();
@@ -97,8 +97,10 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	imageView_->setMinimumHeight(200);
 	imagePlot_ = new MPlot();
 	imageView_->setPlot(imagePlot_);
-	imagePlot_->enableAutoScale(MPlotAxis::Left | MPlotAxis::Bottom);
-	imagePlot_->setScalePadding(1);
+	imagePlot_->axisScaleLeft()->setAutoScaleEnabled();
+	imagePlot_->axisScaleLeft()->setPadding(2);
+	imagePlot_->axisScaleBottom()->setAutoScaleEnabled();
+	imagePlot_->axisScaleBottom()->setPadding(2);
 	imagePlot_->setMarginBottom(10);
 	imagePlot_->setMarginLeft(10);
 	imagePlot_->setMarginRight(5);

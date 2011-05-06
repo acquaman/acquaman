@@ -184,14 +184,14 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 void XRFDetailedDetectorView::onWaterfallToggled(bool isWaterfall)
 {
 	if (isWaterfall)
-		plot_->setWaterfallLeft(waterfallSeparation_->value()*getMaximumHeight(plot_->item(0)));
+		plot_->setAxisScaleWaterfall(MPlot::Left, waterfallSeparation_->value()*getMaximumHeight(plot_->item(0)));
 	else
-		plot_->setWaterfallLeft(0);
+		plot_->setAxisScaleWaterfall(MPlot::Left, 0);
 }
 
 void XRFDetailedDetectorView::onWaterfallSeparationChanged(double val)
 {
-	plot_->setWaterfallLeft(val*getMaximumHeight(plot_->item(0)));
+	plot_->setAxisScaleWaterfall(MPlot::Left, val*getMaximumHeight(plot_->item(0)));
 }
 
 void XRFDetailedDetectorView::onComboBoxUpdate(int index)
@@ -261,8 +261,8 @@ void XRFDetailedDetectorView::setupPlot()
 	}
 
 	// Enable autoscaling of both axes.
-	plot_->enableAutoScaleLeft(true);
-	plot_->enableAutoScaleBottom(true);
+	plot_->axisScaleLeft()->setAutoScaleEnabled();
+	plot_->axisScaleBottom()->setAutoScaleEnabled();
 
 	// Enable some convenient zoom tools.
 	plot_->addTool(new MPlotDragZoomerTool());
@@ -315,7 +315,7 @@ void XRFDetailedDetectorView::onAdditionOfRegionOfInterest(AMElement *el, QPair<
 	AMROIInfo info(el->symbol()+" "+line.first, line.second.toDouble(), 0.04, detector_->scale());
 	detector_->addRegionOfInterest(info);
 	detector_->sort();
-	ROIPlotMarker *newMarker = new ROIPlotMarker(info.name(), info.energy(), info.energy()*(1-info.width()/2), info.energy()*(1+info.width()/2), plot_->axisLeft()->max());
+	ROIPlotMarker *newMarker = new ROIPlotMarker(info.name(), info.energy(), info.energy()*(1-info.width()/2), info.energy()*(1+info.width()/2), plot_->axisScaleLeft()->max());
 
 	int index = 0;
 	while(index != markers_.size()){

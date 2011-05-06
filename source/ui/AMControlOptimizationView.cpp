@@ -64,8 +64,12 @@ AMControlOptimizationSetView::AMControlOptimizationSetView(AMControlOptimization
 	plot->setMarginRight(5);
 	plot->setMarginLeft(15);
 	plot->setMarginBottom(25);
-	plot->setScalePadding(5);	// set axis scale padding in percent
-	plot->enableAutoScale(MPlotAxis::Left | MPlotAxis::Bottom);
+
+	// set axis scale padding in percent
+	plot->axisScaleLeft()->setPadding(5);
+	plot->axisScaleBottom()->setPadding(5);
+	plot->axisScaleLeft()->setAutoScaleEnabled();
+	plot->axisScaleBottom()->setAutoScaleEnabled();
 	plotWindow->resize(500, 375);
 	MPlotDragZoomerTool *dzTool5 = new MPlotDragZoomerTool();
 	plot->addTool(dzTool5);

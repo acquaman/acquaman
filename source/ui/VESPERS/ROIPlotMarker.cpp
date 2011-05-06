@@ -1,4 +1,5 @@
 #include "ROIPlotMarker.h"
+#include <QPainter>
 
 ROIPlotMarker::ROIPlotMarker(QString name, double center, double low, double high, double height, double sx, double sy)
 	: MPlotItem()
