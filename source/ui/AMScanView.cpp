@@ -752,7 +752,7 @@ void AMScanViewExclusiveView::addScan(int scanIndex) {
 
 	if(newItem) {
 		newItem->setDescription(model()->scanAt(scanIndex)->fullName());
-		plot_->plot()->addItem(newItem);
+		plot_->plot()->addItem(newItem, (dataSource->rank() == 2 ? MPlot::Right : MPlot::Left));
 	}
 	plotItems_.insert(scanIndex, newItem);
 	plotItemDataSources_.insert(scanIndex, dataSource);
@@ -782,7 +782,6 @@ MPlotItem* AMScanViewInternal::createPlotItemForDataSource(const AMDataSource* d
 		MPlotImageBasic* image = new MPlotImageBasic();
 		image->setModel(new AMDataSourceImageData(dataSource), true);
 		image->setColorMap(plotSettings.colorMap);
-		image->setYAxisTarget(MPlotAxis::Right);
 		image->setZValue(-1000);
 		rv = image;
 		break; }
@@ -818,7 +817,8 @@ void AMScanViewExclusiveView::reviewScan(int scanIndex) {
 		if(plotItems_.at(scanIndex) == 0) {
 			plotItems_[scanIndex] = createPlotItemForDataSource(dataSource, model()->plotSettings(scanIndex, dataSourceIndex));
 			plotItems_.at(scanIndex)->setDescription(model()->scanAt(scanIndex)->fullName());
-			plot_->plot()->addItem(plotItems_.at(scanIndex));
+			plot_->plot()->addItem(plotItems_.at(scanIndex), (dataSource->rank() == 2? MPlot::Right : MPlot::Left));
+			/// \todo: if there are 2d images on any plots, set their right axis to show the right axisScale, and show ticks.
 			plotItemDataSources_[scanIndex] = dataSource;
 		}
 
@@ -865,7 +865,7 @@ void AMScanViewExclusiveView::reviewScan(int scanIndex) {
 void AMScanViewExclusiveView::enableNormalization(bool normalizationOn, double min, double max) {
 	AMScanViewInternal::enableNormalization(normalizationOn, min, max);
 
-	plot_->plot()->enableAxisNormalizationLeft(normalizationOn, min, max);
+	plot_->plot()->enableAxisNormalization(MPlot::Left, normalizationOn, MPlotAxisRange(min, max));
 
 }
 
@@ -873,9 +873,9 @@ void AMScanViewExclusiveView::enableWaterfallOffset(bool waterfallOn) {
 	AMScanViewInternal::enableWaterfallOffset(waterfallOn);
 
 	if(waterfallOn)
-		plot_->plot()->setWaterfallLeft(waterfallOffset_);
+		plot_->plot()->setAxisScaleWaterfall(MPlot::Left, waterfallOffset_);
 	else
-		plot_->plot()->setWaterfallLeft(0);
+		plot_->plot()->setAxisScaleWaterfall(MPlot::Left, 0);
 
 }
 
@@ -883,7 +883,7 @@ void AMScanViewExclusiveView::setWaterfallOffset(double offset) {
 	AMScanViewInternal::setWaterfallOffset(offset);
 
 	if(waterfallEnabled_)
-		plot_->plot()->setWaterfallLeft(offset);
+		plot_->plot()->setAxisScaleWaterfall(MPlot::Left, waterfallOffset_);
 
 }
 
@@ -920,7 +920,9 @@ void AMScanViewMultiView::addScan(int si) {
 
 			MPlotItem* newItem = createPlotItemForDataSource(dataSource, model()->plotSettings(si, di));
 			if(newItem) {
-				plot_->plot()->addItem(newItem);
+				plot_->plot()->addItem(newItem, (dataSource->rank() == 2 ? MPlot::Right : MPlot::Left));
+				/// \todo: if there are 2d images on any plots, set their right axis to show the right axisScale, and show ticks.
+
 				newItem->setDescription(model()->scanAt(si)->fullName() + ": " + dataSource->name());
 			}
 			scanList << newItem;
@@ -937,8 +939,8 @@ AMScanViewMultiView::~AMScanViewMultiView() {
  for(int si=0; si<plotSeries_.count(); si++)
   for(int ci=0; ci<model()->scanAt(si)->dataSourceCount(); ci++)
    if(plotSeries_[si][ci]) {
-	plot_->plot()->removeItem(plotSeries_[si][ci]);
-	delete plotSeries_[si][ci];
+ plot_->plot()->removeItem(plotSeries_[si][ci]);
+ delete plotSeries_[si][ci];
    }*/
 
 	delete plot_;
@@ -966,7 +968,10 @@ void AMScanViewMultiView::onRowInserted(const QModelIndex& parent, int start, in
 				MPlotItem* newItem = createPlotItemForDataSource(dataSource, model()->plotSettings(si, di));
 				if(newItem) {
 					newItem->setDescription(model()->scanAt(si)->fullName() + ": " + dataSource->name());
-					plot_->plot()->addItem(newItem);
+
+					plot_->plot()->addItem(newItem, (dataSource->rank() == 2 ? MPlot::Right : MPlot::Left));
+
+					/// \todo: if there are 2d images on any plots, set their right axis to show the right axisScale, and show ticks.
 				}
 				plotItems_[si].insert(di, newItem);
 			}
@@ -1041,7 +1046,8 @@ void AMScanViewMultiView::onModelDataChanged(const QModelIndex& topLeft, const Q
 				if(plotItem == 0) {
 					plotItems_[si][di] = plotItem = createPlotItemForDataSource(model()->dataSourceAt(si, di), model()->plotSettings(si, di));
 					if(plotItem) {
-						plot_->plot()->addItem(plotItem);
+						plot_->plot()->addItem(plotItem, (model()->dataSourceAt(si, di)->rank() == 2 ? MPlot::Right : MPlot::Left));
+						/// \todo: if there are 2d images on any plots, set their right axis to show the right axisScale, and show ticks.
 						plotItem->setDescription(model()->scanAt(si)->fullName() + ": " + model()->dataSourceAt(si, di)->description());
 					}
 				}
@@ -1095,23 +1101,23 @@ void AMScanViewMultiView::refreshTitles() {
 void AMScanViewMultiView::enableNormalization(bool normalizationOn, double min, double max) {
 	AMScanViewInternal::enableNormalization(normalizationOn, min, max);
 
-	plot_->plot()->enableAxisNormalizationLeft(normalizationOn, min, max);
+	plot_->plot()->enableAxisNormalization(MPlot::Left, normalizationOn, min, max);
 }
 
 void AMScanViewMultiView::enableWaterfallOffset(bool waterfallOn) {
 	AMScanViewInternal::enableWaterfallOffset(waterfallOn);
 
 	if(waterfallOn)
-		plot_->plot()->setWaterfallLeft(waterfallOffset_);
+		plot_->plot()->setAxisScaleWaterfall(MPlot::Left, waterfallOffset_);
 	else
-		plot_->plot()->setWaterfallLeft(0);
+		plot_->plot()->setAxisScaleWaterfall(MPlot::Left, 0);
 }
 
 void AMScanViewMultiView::setWaterfallOffset(double offset) {
 	AMScanViewInternal::setWaterfallOffset(offset);
 
 	if(waterfallEnabled_)
-		plot_->plot()->setWaterfallLeft(offset);
+		plot_->plot()->setAxisScaleWaterfall(MPlot::Left, offset);
 }
 
 
@@ -1152,9 +1158,9 @@ void AMScanViewMultiScansView::addScan(int si) {
 		plot = createDefaultPlot();
 		plot->plot()->legend()->enableDefaultLegend(false);
 
-		plot->plot()->enableAxisNormalizationLeft(normalizationEnabled_, normMin_, normMax_);
+		plot->plot()->enableAxisNormalization(MPlot::Left, normalizationEnabled_,  normMin_,  normMax_);
 		if(waterfallEnabled_)
-			plot->plot()->setWaterfallLeft(waterfallOffset_);
+			plot->plot()->setAxisScaleWaterfall(MPlot::Left, waterfallOffset_);
 
 		plots_.insert(si, plot);
 	}
@@ -1171,7 +1177,8 @@ void AMScanViewMultiScansView::addScan(int si) {
 			MPlotItem* newItem = createPlotItemForDataSource(dataSource, model()->plotSettings(si, di));
 			if(newItem) {
 				newItem->setDescription(dataSource->description());
-				plots_.at(si)->plot()->addItem(newItem);
+				plots_.at(si)->plot()->addItem(newItem, (dataSource->rank() == 2 ? MPlot::Right : MPlot::Left));
+				/// \todo: if there are 2d images on any plots, set their right axis to show the right axisScale, and show ticks.
 			}
 			scanList << newItem;
 
@@ -1205,8 +1212,8 @@ AMScanViewMultiScansView::~AMScanViewMultiScansView() {
  for(int si=0; si<plotSeries_.count(); si++)
   for(int ci=0; ci<model()->scanAt(si)->dataSourceCount(); ci++)
    if(plotSeries_[si][ci]) {
-	plots_[si]->plot()->removeItem(plotSeries_[si][ci]);
-	delete plotSeries_[si][ci];
+ plots_[si]->plot()->removeItem(plotSeries_[si][ci]);
+ delete plotSeries_[si][ci];
    }*/
 
 
@@ -1238,7 +1245,8 @@ void AMScanViewMultiScansView::onRowInserted(const QModelIndex& parent, int star
 				MPlotItem* newItem = createPlotItemForDataSource(dataSource, model()->plotSettings(si, di));
 				if(newItem) {
 					newItem->setDescription(dataSource->description());
-					plots_.at(si)->plot()->addItem(newItem);
+					plots_.at(si)->plot()->addItem(newItem, (dataSource->rank() == 2 ? MPlot::Right : MPlot::Left));
+					/// \todo: if there are 2d images on any plots, set their right axis to show the right axisScale, and show ticks.
 				}
 				plots_[si]->plot()->addItem(newItem);
 				plotItems_[si].insert(di, newItem);
@@ -1331,7 +1339,7 @@ void AMScanViewMultiScansView::onModelDataChanged(const QModelIndex& topLeft, co
 					plotItems_[si][di] = plotItem = createPlotItemForDataSource(model()->dataSourceAt(si, di), model()->plotSettings(si, di));
 					if(plotItem) {
 						plotItem->setDescription(model()->dataSourceAt(si, di)->description());
-						plots_[si]->plot()->addItem(plotItem);
+						plots_[si]->plot()->addItem(plotItem, (model()->dataSourceAt(si, di)->rank() == 2 ? MPlot::Right : MPlot::Left));
 					}
 				}
 				else {	// apply data changes to existing plot item
@@ -1402,7 +1410,7 @@ void AMScanViewMultiScansView::enableNormalization(bool normalizationOn, double 
 	AMScanViewInternal::enableNormalization(normalizationOn, min, max);
 
 	for(int i=0; i<plots_.count(); i++) {
-		plots_.at(i)->plot()->enableAxisNormalizationLeft(normalizationOn, min, max);
+		plots_.at(i)->plot()->enableAxisNormalization(MPlot::Left, normalizationOn,  min,  max);
 	}
 }
 
@@ -1411,9 +1419,9 @@ void AMScanViewMultiScansView::enableWaterfallOffset(bool waterfallOn) {
 
 	for(int i=0; i<plots_.count(); i++) {
 		if(waterfallOn)
-			plots_.at(i)->plot()->setWaterfallLeft(waterfallOffset_);
+			plots_.at(i)->plot()->setAxisScaleWaterfall(MPlot::Left, waterfallOffset_);
 		else
-			plots_.at(i)->plot()->setWaterfallLeft(0);
+			plots_.at(i)->plot()->setAxisScaleWaterfall(MPlot::Left, 0);
 	}
 
 }
@@ -1423,7 +1431,7 @@ void AMScanViewMultiScansView::setWaterfallOffset(double offset) {
 
 	if(waterfallEnabled_)
 		for(int i=0; i<plots_.count(); i++)
-			plots_.at(i)->plot()->setWaterfallLeft(offset);
+			plots_.at(i)->plot()->setAxisScaleWaterfall(MPlot::Left, offset);
 }
 
 
@@ -1623,9 +1631,9 @@ void AMScanViewMultiSourcesView::reLayout() {
    - append to us
   - else if ( model[i] != us[i] )
    - if ( us.contains(model[i]) )
-	- move it to i
+ - move it to i
    - else
-	- us.insert at i
+ - us.insert at i
 
 */
 bool AMScanViewMultiSourcesView::reviewDataSources() {
@@ -1679,9 +1687,9 @@ bool AMScanViewMultiSourcesView::reviewDataSources() {
 		else {
 			newPlot = createDefaultPlot();
 
-			newPlot->plot()->enableAxisNormalizationLeft(normalizationEnabled_, normMin_, normMax_);
+			newPlot->plot()->enableAxisNormalization(MPlot::Left, normalizationEnabled_,  normMin_,  normMax_);
 			if(waterfallEnabled_)
-				newPlot->plot()->setWaterfallLeft(waterfallOffset_);
+				newPlot->plot()->setAxisScaleWaterfall(MPlot::Left, waterfallOffset_);
 		}
 
 		dataSource2Plot_.insert(sourceName, newPlot);
@@ -1716,8 +1724,8 @@ bool AMScanViewMultiSourcesView::reviewDataSources() {
 				MPlotItem* newItem = createPlotItemForDataSource(scan->dataSourceAt(di), model()->plotSettings(si, di));
 				if(newItem) {
 					newItem->setDescription(scan->fullName());
-					dataSource2Plot_[sourceName]->plot()->addItem(newItem);
-					// zzzzzzzz Always add, even if 0? (requires checking everywhere for null plot items). Or only add if valid? (Going with later... hope this is okay, in event someone tries at add 0d, 3d or 4d data source.
+					dataSource2Plot_[sourceName]->plot()->addItem(newItem, (scan->dataSourceAt(di)->rank() == 2 ? MPlot::Right : MPlot::Left));
+					// zzzzzzzz Always add, even if 0? (requires checking everywhere for null plot items). Or only add if valid? (Going with latter... hope this is okay, in event someone tries at add 0d, 3d or 4d data source.
 					sourceAndScan2PlotItem_[sourceName].insert(scan, newItem);
 				}
 			}
@@ -1738,11 +1746,11 @@ void AMScanViewMultiSourcesView::enableNormalization(bool normalizationOn, doubl
 	AMScanViewInternal::enableNormalization(normalizationOn, min, max);
 
 	if(firstPlotEmpty_)
-		firstPlot_->plot()->enableAxisNormalizationLeft(normalizationOn, min, max);
+		firstPlot_->plot()->enableAxisNormalization(MPlot::Left, normalizationOn,  min,  max);
 	QMapIterator<QString, MPlotGW*> i(dataSource2Plot_);
 	while(i.hasNext()) {
 		i.next();
-		i.value()->plot()->enableAxisNormalizationLeft(normalizationOn, min, max);
+		i.value()->plot()->enableAxisNormalization(MPlot::Left, normalizationOn,  min,  max);
 	}
 }
 
@@ -1751,20 +1759,20 @@ void AMScanViewMultiSourcesView::enableWaterfallOffset(bool waterfallOn) {
 
 	if(waterfallOn) {
 		if(firstPlotEmpty_)
-			firstPlot_->plot()->setWaterfallLeft(waterfallOffset_);
+			firstPlot_->plot()->setAxisScaleWaterfall(MPlot::Left, waterfallOffset_);
 		QMapIterator<QString, MPlotGW*> i(dataSource2Plot_);
 		while(i.hasNext()) {
 			i.next();
-			i.value()->plot()->setWaterfallLeft(waterfallOffset_);
+			i.value()->plot()->setAxisScaleWaterfall(MPlot::Left, waterfallOffset_);
 		}
 	}
 	else {
 		if(firstPlotEmpty_)
-			firstPlot_->plot()->setWaterfallLeft(0);
+			firstPlot_->plot()->setAxisScaleWaterfall(MPlot::Left, 0);
 		QMapIterator<QString, MPlotGW*> i(dataSource2Plot_);
 		while(i.hasNext()) {
 			i.next();
-			i.value()->plot()->setWaterfallLeft(0);
+			i.value()->plot()->setAxisScaleWaterfall(MPlot::Left, 0);
 		}
 	}
 }
@@ -1774,12 +1782,12 @@ void AMScanViewMultiSourcesView::setWaterfallOffset(double offset) {
 
 	if(waterfallEnabled_) {
 		if(firstPlotEmpty_)
-			firstPlot_->plot()->setWaterfallLeft(offset);
+			firstPlot_->plot()->setAxisScaleWaterfall(MPlot::Left, offset);
 
 		QMapIterator<QString, MPlotGW*> i(dataSource2Plot_);
 		while(i.hasNext()) {
 			i.next();
-			i.value()->plot()->setWaterfallLeft(offset);
+			i.value()->plot()->setAxisScaleWaterfall(MPlot::Left, offset);
 		}
 	}
 }
@@ -1793,7 +1801,10 @@ MPlotGW * AMScanViewInternal::createDefaultPlot()
 	rv->plot()->axisRight()->setTicks(0);
 	rv->plot()->axisBottom()->setTicks(4);
 	rv->plot()->axisLeft()->showGrid(false);
-	rv->plot()->enableAutoScale(MPlotAxis::Bottom | MPlotAxis::Left | MPlotAxis::Right);
+	rv->plot()->axisScaleLeft()->setAutoScaleEnabled();
+	rv->plot()->axisScaleBottom()->setAutoScaleEnabled();
+	rv->plot()->axisScaleRight()->setAutoScaleEnabled();
+
 	rv->plot()->axisBottom()->showAxisName(false);
 	rv->plot()->axisLeft()->showAxisName(false);
 
@@ -1811,9 +1822,9 @@ MPlotGW * AMScanViewInternal::createDefaultPlot()
 	//		// this tool adds a cursor (or more) to a plot
 	//		MPlotCursorTool crsrTool;
 	//		plot.addTool(&crsrTool);
-	//		// add an extra cursor
+	//		// add a cursor
 	//		crsrTool.addCursor();
-	//		crsrTool.cursor(1)->marker()->setPen(QPen(QColor(Qt::blue)));
+	//		crsrTool.cursor(0)->marker()->setPen(QPen(QColor(Qt::blue)));
 	return rv;
 }
 

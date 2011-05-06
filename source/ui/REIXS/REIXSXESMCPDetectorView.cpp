@@ -34,10 +34,11 @@ REIXSXESMCPDetectorView::REIXSXESMCPDetectorView(REIXSXESMCPDetector* detector, 
 
 	// configure UI elements
 
-	image_->setYAxisTarget(MPlotAxis::Left);
+	imagePlot_->axisScaleLeft()->setAutoScaleEnabled();
+	imagePlot_->axisScaleBottom()->setAutoScaleEnabled();
+	imagePlot_->axisScaleLeft()->setPadding(1);
+	imagePlot_->axisScaleBottom()->setPadding(1);
 
-	imagePlot_->enableAutoScale(MPlotAxis::Left | MPlotAxis::Bottom);
-	imagePlot_->setScalePadding(1);
 	// imagePlot_->setXDataRange(0, 1023);
 	// imagePlot_->setYDataRangeLeft(0, 63);
 	imagePlot_->setMarginBottom(10);

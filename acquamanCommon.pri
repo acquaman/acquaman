@@ -139,6 +139,7 @@ linux-g++-64 {
 HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	../MPlot/src/MPlot/MPlotAbstractTool.h \
 	../MPlot/src/MPlot/MPlotAxis.h \
+	../MPlot/src/MPlot/MPlotAxisScale.h \
 	../MPlot/src/MPlot/MPlotColorMap.h \
 	../MPlot/src/MPlot/MPlotImage.h \
 	../MPlot/src/MPlot/MPlotImageData.h \
@@ -351,6 +352,7 @@ FORMS +=	source/ui/AMDataView.ui \
 SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	../MPlot/src/MPlot/MPlotAbstractTool.cpp \
 	../MPlot/src/MPlot/MPlotAxis.cpp \
+	../MPlot/src/MPlot/MPlotAxisScale.cpp \
 	../MPlot/src/MPlot/MPlotColorMap.cpp \
 	../MPlot/src/MPlot/MPlotImage.cpp \
 	../MPlot/src/MPlot/MPlotImageData.cpp \
