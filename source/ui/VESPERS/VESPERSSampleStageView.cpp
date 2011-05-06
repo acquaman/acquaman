@@ -10,6 +10,10 @@
 VESPERSSampleStageView::VESPERSSampleStageView(QWidget *parent) :
 	QWidget(parent)
 {
+	sampleStage_ = VESPERSBeamline::vespers()->sampleStage();
+	connect(sampleStage_, SIGNAL(movingChanged(bool)), this, SLOT(onMovingChanged(bool)));
+	connect(sampleStage_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged(bool)));
+
 	jog_ = new QDoubleSpinBox;
 	jog_->setSuffix(" mm");
 	jog_->setSingleStep(0.001);
@@ -19,15 +23,25 @@ VESPERSSampleStageView::VESPERSSampleStageView(QWidget *parent) :
 	jog_->setDecimals(3);
 	jog_->setAlignment(Qt::AlignCenter);
 
-	horizontal_ = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->sampleStageHorizontal());
-	vertical_ = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->sampleStageVertical());
+	horizontal_ = new QLineEdit;
+	horizontal_->setAlignment(Qt::AlignCenter);
+	connect(horizontal_, SIGNAL(returnPressed()), this, SLOT(onHorizontalSetpoint()));
+	connect(sampleStage_, SIGNAL(horizontalSetpointChanged(double)), this, SLOT(onHorizontalChanged(double)));
 
-	if (horizontal_ && vertical_){
+	QGridLayout *hLayout = new QGridLayout;
+	hLayout->addWidget(horizontal_, 0, 0, 1, 4, Qt::AlignCenter);
+	hLayout->addWidget(new QLabel("H:"), 0, 0, 1, 1, Qt::AlignRight);
+	hLayout->addWidget(new QLabel("mm"), 0, 3, 1, 1);
 
-		connect(horizontal_, SIGNAL(movingChanged(bool)), this, SLOT(onMovingChanged(bool)));
-		connect(vertical_, SIGNAL(movingChanged(bool)), this, SLOT(onMovingChanged(bool)));
-		connect(VESPERSBeamline::vespers()->sampleStageMotorSet(), SIGNAL(connected(bool)), this, SLOT(onConnectedChanged(bool)));
-	}
+	vertical_ = new QLineEdit;
+	vertical_->setAlignment(Qt::AlignCenter);
+	connect(vertical_, SIGNAL(returnPressed()), this, SLOT(onVerticalSetpoint()));
+	connect(sampleStage_, SIGNAL(verticalSetpointChanged(double)), this, SLOT(onVerticalChanged(double)));
+
+	QGridLayout *vLayout = new QGridLayout;
+	vLayout->addWidget(vertical_, 0, 0, 1, 4, Qt::AlignCenter);
+	vLayout->addWidget(new QLabel("V:"), 0, 0, 1, 1, Qt::AlignRight);
+	vLayout->addWidget(new QLabel("mm"), 0, 3, 1, 1);
 
 	status_ = new QLabel;
 	status_->setPixmap(QIcon(":/OFF.png").pixmap(25));
@@ -54,7 +68,7 @@ VESPERSSampleStageView::VESPERSSampleStageView(QWidget *parent) :
 	buttons_->addButton(goLeft, 2);
 	buttons_->addButton(goRight, 3);
 
-	AMGroupStopButton *stop = new AMGroupStopButton(VESPERSBeamline::vespers()->sampleStageMotorSet()->toList());
+	AMGroupStopButton *stop = new AMGroupStopButton(VESPERSBeamline::vespers()->sampleStageMotorSet()->toList().mid(0, 3));
 
 	QGridLayout *arrowLayout = new QGridLayout;
 	arrowLayout->addWidget(goUp, 0, 1);
@@ -70,6 +84,8 @@ VESPERSSampleStageView::VESPERSSampleStageView(QWidget *parent) :
 	QVBoxLayout *holderLayout = new QVBoxLayout;
 	holderLayout->addLayout(arrowLayout);
 	holderLayout->addLayout(jogAndStatusLayout);
+	holderLayout->addLayout(hLayout);
+	holderLayout->addLayout(vLayout);
 
 	QGroupBox *holder = new QGroupBox("Sample Stage Control");
 	holder->setLayout(holderLayout);
@@ -83,27 +99,27 @@ VESPERSSampleStageView::VESPERSSampleStageView(QWidget *parent) :
 
 void VESPERSSampleStageView::onUpClicked()
 {
-	vertical_->move(vertical_->value()+jog_->value());
+	sampleStage_->moveVertical(sampleStage_->verticalPosition() + jog_->value());
 }
 
 void VESPERSSampleStageView::onDownClicked()
 {
-	vertical_->move(vertical_->value()-jog_->value());
+	sampleStage_->moveVertical(sampleStage_->verticalPosition() - jog_->value());
 }
 
 void VESPERSSampleStageView::onLeftClicked()
 {
-	horizontal_->move(horizontal_->value()-jog_->value());
+	sampleStage_->moveHorizontal(sampleStage_->horizontalPosition() - jog_->value());
 }
 
 void VESPERSSampleStageView::onRightClicked()
 {
-	horizontal_->move(horizontal_->value()+jog_->value());
+	sampleStage_->moveHorizontal(sampleStage_->horizontalPosition() + jog_->value());
 }
 
 void VESPERSSampleStageView::onMovingChanged(bool isMoving)
 {
-	if (horizontal_->isMoving() || vertical_->isMoving())
+	if (isMoving)
 		status_->setPixmap(QIcon(":/ON.png").pixmap(25));
 	else
 		status_->setPixmap(QIcon(":/OFF.png").pixmap(25));
@@ -115,4 +131,24 @@ void VESPERSSampleStageView::onMovingChanged(bool isMoving)
 void VESPERSSampleStageView::onConnectedChanged(bool isConnected)
 {
 	setEnabled(isConnected);
+}
+
+void VESPERSSampleStageView::onHorizontalSetpoint()
+{
+	sampleStage_->moveHorizontal(horizontal_->text().toDouble());
+}
+
+void VESPERSSampleStageView::onVerticalSetpoint()
+{
+	sampleStage_->moveVertical(vertical_->text().toDouble());
+}
+
+void VESPERSSampleStageView::onHorizontalChanged(double val)
+{
+	horizontal_->setText(QString::number(val, 'f', 3));
+}
+
+void VESPERSSampleStageView::onVerticalChanged(double val)
+{
+	vertical_->setText(QString::number(val, 'f', 3));
 }

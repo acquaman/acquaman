@@ -5,16 +5,22 @@
 #include <QPair>
 
 #include "beamline/AMControl.h"
+
 /*!
 	This class offers an encapsulated way of using a tri-motor sample stage.  It uses the steps from the base motors for determining if the sample stage is going to over the limit.
 	It then uses the AMPVwStatusControls to move the motor as one would expect to actually moves.  The important thing is that it prevents the motor from reaching it's hard limits
 	and then possibly having unexpected behaviour.  This is why the reading stages are using the counts from the motor rather than the engineering units.  This way the protection
 	aspect of this class is always functional, even if the other motors are no longer calibrated correctly.
+
+	Note:  All the controls must exist already.
   */
 class SampleStageControl : public QObject
 {
 	Q_OBJECT
 public:
+	/// Motor status enum.
+	enum MotorStatus { MoveDone = 0, MoveActive, AtLimit, ForcedStop, Error };
+
 	/// Default constructor.  Takes in the 3 motor controls and their count readout controls.
 	explicit SampleStageControl(AMPVwStatusControl *horiz, AMPVwStatusControl *vert, AMPVwStatusControl *norm, AMReadOnlyPVControl *xMotor, AMReadOnlyPVControl *yMotor, AMReadOnlyPVControl *zMotor, QObject *parent = 0);
 
@@ -32,8 +38,37 @@ public:
 	/// Returns the range for the motor in the z direction.  Returned as a QPair<low, high>.
 	QPair<int, int> zRange() const { return qMakePair(zLow_, zHigh_); }
 
+	/// Sets the scaling for the x motor.  This is to accomodate if the directions are not simple motor movements but more sophisticated moves.
+	void setXScaler(double sx) { sx_ = sx; }
+	/// Sets the scaling for the y motor.  This is to accomodate if the directions are not simple motor movements but more sophisticated moves.
+	void setYScaler(double sy) { sy_ = sy; }
+	/// Sets the scaling for the z motor.  This is to accomodate if the directions are not simple motor movements but more sophisticated moves.
+	void setZScaler(double sz) { sz_ = sz; }
+	/// Sets the scaling for all three motors.
+	void setScalers(double sx, double sy, double sz) { sx_ = sx; sy_ = sy; sz_ = sz; }
+
+	/// Returns the scaling for the x motor.
+	double xScaler() const { return sx_; }
+	/// Returns the scaling for the y motor.
+	double yScaler() const { return sy_; }
+	/// Returns the scaling for the z motor.
+	double zScaler() const { return sz_; }
+
 	/// Returns the status of the sample stage (ie: if it's moving or not).
-	bool status() { return horiz_->isMoving() && vert_->isMoving() && norm_->isMoving(); }
+	bool status() { return horiz_->isMoving() || vert_->isMoving() || norm_->isMoving(); }
+	/// Returns the status of the horizontal motor.  This is the MotorStatus enum found in the beamline.
+	MotorStatus horizontalStatus() { return intToStatus(horiz_->movingPVValue()); }
+	/// Returns the status of the vertical motor.  This is the MotorStatus enum found in the beamline.
+	MotorStatus verticalStatus() { return intToStatus(vert_->movingPVValue()); }
+	/// Returns the status of the normal motor.  This is the MotorStatus enum found in the beamline.
+	MotorStatus normalStatus() { return intToStatus(norm_->movingPVValue()); }
+
+	/// Returns the current position of the horizontal control.
+	double horizontalPosition() const { return horiz_->value(); }
+	/// Returns the current position of the vertical control.
+	double verticalPosition() const { return vert_->value(); }
+	/// Returns the current position of the normal control.
+	double normalPosition() const { return norm_->value(); }
 
 	// Return the controls used in this class.
 	/// Returns the horizontal motor control.
@@ -50,6 +85,16 @@ public:
 	AMReadOnlyPVControl *zMotor() const { return zMotor_; }
 
 signals:
+	/// Notifies whether the sample stage is currently connected.
+	void connected(bool);
+	/// Notifies whether the sample stage is currently moving.
+	void movingChanged(bool);
+	/// Notifies whether the horizontal motor setpoint has changed.
+	void horizontalSetpointChanged(double);
+	/// Notifies whether the vertical motor setpoint has changed.
+	void verticalSetpointChanged(double);
+	/// Notifies whether the normal motor setpoint has changed.
+	void normalSetpointChanged(double);
 
 public slots:
 	/// Moves the sample stage in the horizontal direction.
@@ -59,7 +104,31 @@ public slots:
 	/// Moves the sample stage in the normal direction.
 	void moveNormal(double setpoint);
 
-private:
+protected:
+
+	/// Helper function.  Determines if the new x position falls within the x range.  If the lower limit or upper limit is not set (ie: equal to 0) then it returns true.
+	bool validNewXPosition(double setpoint);
+	/// Helper function.  Determines if the new y position falls within the y range.  If the lower limit or upper limit is not set (ie: equal to 0) then it returns true.
+	bool validNewYPosition(double setpoint);
+	/// Helper function.  Determines if the new z position falls within the z range.  If the lower limit or upper limit is not set (ie: equal to 0) then it returns true.
+	bool validNewZPosition(double setpoint);
+
+	/// Returns the motor status enum corresponding to an integer.
+	MotorStatus intToStatus(int val)
+	{
+		switch (val){
+		case 0:
+			return MoveDone;
+		case 1:
+			return MoveActive;
+		case 2:
+			return AtLimit;
+		case 3:
+			return ForcedStop;
+		default:
+			return Error;
+		}
+	}
 
 	// The limits.
 	int xLow_;
@@ -68,6 +137,11 @@ private:
 	int xHigh_;
 	int yHigh_;
 	int zHigh_;
+
+	// Scalers.
+	double sx_;
+	double sy_;
+	double sz_;
 
 	// The motor controls
 	AMPVwStatusControl *horiz_;

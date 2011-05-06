@@ -26,8 +26,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMErrorMonitor.h"
 #include "beamline/VESPERS/XRFDetector.h"
 #include "beamline/AMROI.h"
+#include "beamline/VESPERS/SampleStageControl.h"
 
-/// This class
+/// This class is the master class that holds EVERY control inside the VESPERS beamline.
 class VESPERSBeamline : public AMBeamline
 {
 	Q_OBJECT
@@ -35,8 +36,6 @@ public:
 
 	/// XRF detector choice enum.
 	enum XRFDetectorChoice { SingleElement = 1, FourElement };
-	/// Motor status enum.
-	enum MotorStatus { MoveDone = 0, MoveActive, AtLimit, ForcedStop, Error };
 
 	static VESPERSBeamline* vespers() {
 		if(!instance_)
@@ -332,6 +331,10 @@ public:
 	AMControl *sampleStageY() const { return sampleStageY_; }
 	/// Returns the sample stage motor for the z-direction.
 	AMControl *sampleStageZ() const { return sampleStageZ_; }
+
+	// The sample stage.
+	/// Returns the sample stage control.
+	SampleStageControl *sampleStage() const { return sampleStage_; }
 
 	// These are the single element vortex controls.
 
@@ -669,6 +672,8 @@ protected:
 	AMControl *sampleStageX_;
 	AMControl *sampleStageY_;
 	AMControl *sampleStageZ_;
+
+	SampleStageControl *sampleStage_;
 
 	// End sample stage controls.
 

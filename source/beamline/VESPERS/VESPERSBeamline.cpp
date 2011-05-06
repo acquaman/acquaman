@@ -18,6 +18,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "VESPERSBeamline.h"
+#include "beamline/VESPERS/SampleStageControl.h"
 
 VESPERSBeamline::VESPERSBeamline()
 	: AMBeamline("VESPERS Beamline")
@@ -177,6 +178,20 @@ void VESPERSBeamline::setupSampleStage()
 	sampleStageMotorSet_->addControl(sampleStageZ_);
 
 	connect(sampleStageMotorSet_, SIGNAL(controlSetTimedOut()), this, SLOT(sampleStageError()));
+
+	AMPVwStatusControl *h = qobject_cast<AMPVwStatusControl *>(sampleStageHorizontal_);
+	AMPVwStatusControl *v = qobject_cast<AMPVwStatusControl *>(sampleStageVertical_);
+	AMPVwStatusControl *n = qobject_cast<AMPVwStatusControl *>(sampleStageNormal_);
+	AMReadOnlyPVControl *x = qobject_cast<AMReadOnlyPVControl *>(sampleStageX_);
+	AMReadOnlyPVControl *y = qobject_cast<AMReadOnlyPVControl *>(sampleStageY_);
+	AMReadOnlyPVControl *z = qobject_cast<AMReadOnlyPVControl *>(sampleStageZ_);
+
+	sampleStage_ = new SampleStageControl(h, v, n, x, y, z);
+
+	sampleStage_->setScalers(1, 0.707, 0.707);
+	sampleStage_->setXRange(-200000, 200000);
+	sampleStage_->setYRange(-200000, 200000);
+	sampleStage_->setZRange(-750000, 750000);
 }
 
 void VESPERSBeamline::setupEndstation()
@@ -885,6 +900,10 @@ VESPERSBeamline::~VESPERSBeamline()
 	delete fourElMotor_;
 	delete singleElMotor_;
 	delete sampleStageNormal_;
+	delete sampleStageX_;
+	delete sampleStageY_;
+	delete sampleStageZ_;
+	delete sampleStage_;
 	delete ccdMotorfbk_;
 	delete fourElMotorfbk_;
 	delete singleElMotorfbk_;
