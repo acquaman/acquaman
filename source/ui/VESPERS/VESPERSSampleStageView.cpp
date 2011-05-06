@@ -28,10 +28,18 @@ VESPERSSampleStageView::VESPERSSampleStageView(QWidget *parent) :
 	connect(horizontal_, SIGNAL(returnPressed()), this, SLOT(onHorizontalSetpoint()));
 	connect(sampleStage_, SIGNAL(horizontalSetpointChanged(double)), this, SLOT(onHorizontalChanged(double)));
 
+	QFont font(this->font());
+	font.setBold(true);
+
+	QLabel *h = new QLabel("H:");
+	h->setFont(font);
+	QLabel *v = new QLabel("V:");
+	v->setFont(font);
+
 	QGridLayout *hLayout = new QGridLayout;
-	hLayout->addWidget(horizontal_, 0, 0, 1, 4, Qt::AlignCenter);
-	hLayout->addWidget(new QLabel("H:"), 0, 0, 1, 1, Qt::AlignRight);
-	hLayout->addWidget(new QLabel("mm"), 0, 3, 1, 1);
+	hLayout->addWidget(horizontal_, 0, 1, 1, 4, Qt::AlignCenter);
+	hLayout->addWidget(h, 0, 0, 1, 1, Qt::AlignCenter);
+	hLayout->addWidget(new QLabel("mm"), 0, 4, 1, 1);
 
 	vertical_ = new QLineEdit;
 	vertical_->setAlignment(Qt::AlignCenter);
@@ -39,9 +47,9 @@ VESPERSSampleStageView::VESPERSSampleStageView(QWidget *parent) :
 	connect(sampleStage_, SIGNAL(verticalSetpointChanged(double)), this, SLOT(onVerticalChanged(double)));
 
 	QGridLayout *vLayout = new QGridLayout;
-	vLayout->addWidget(vertical_, 0, 0, 1, 4, Qt::AlignCenter);
-	vLayout->addWidget(new QLabel("V:"), 0, 0, 1, 1, Qt::AlignRight);
-	vLayout->addWidget(new QLabel("mm"), 0, 3, 1, 1);
+	vLayout->addWidget(vertical_, 0, 1, 1, 4, Qt::AlignCenter);
+	vLayout->addWidget(v, 0, 0, 1, 1, Qt::AlignCenter);
+	vLayout->addWidget(new QLabel("mm"), 0, 4, 1, 1);
 
 	status_ = new QLabel;
 	status_->setPixmap(QIcon(":/OFF.png").pixmap(25));

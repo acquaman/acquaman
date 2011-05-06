@@ -70,7 +70,7 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 	connect(integrationTime_, SIGNAL(editingFinished()), this, SLOT(onIntegrationTimeUpdate()));
 	connect(detector_->integrationTimeControl(), SIGNAL(valueChanged(double)), integrationTime_, SLOT(setValue(double)));
 
-	QPushButton *customizeSettings = new QPushButton("Settings");
+	QPushButton *customizeSettings = new QPushButton(QIcon(":/hammer.png"), "Settings");
 	customizeSettings->setCheckable(true);
 	connect(customizeSettings, SIGNAL(toggled(bool)), this, SLOT(onAdvancedSettingsChanged(bool)));
 
@@ -226,7 +226,6 @@ void VESPERSXRFScanConfigurationView::onRoisHaveValues(bool hasValues)
 				el = AMPeriodicTable::table()->elementBySymbol("Fe");
 				view_->showEmissionLines(el);
 				view_->highlightMarkers(el);
-				view_->resizeRoiMarkers();
 				selectionView_->setElementView(el);
 				return;
 			}

@@ -9,5 +9,6 @@
         <file>lightning.png</file>
         <file>black-laser.png</file>
         <file>red-laser.png</file>
+        <file>hammer.png</file>
     </qresource>
 </RCC>

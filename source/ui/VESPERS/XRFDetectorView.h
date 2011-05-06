@@ -77,8 +77,6 @@ public slots:
 	void removeAllRegionsOfInterest();
 	/// Slot that sorts all the regions of interst.
 	void sortRegionsOfInterest();
-	/// Handles resizing the ROIPlotMarkers based on the maximum height of the data.
-	void resizeRoiMarkers();
 	/// Handles resizing the ROIPlotMarkers to a new width.
 	void roiWidthUpdate(AMROI *roi);
 

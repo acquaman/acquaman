@@ -123,7 +123,6 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 
 	setupPlot();
 
-	connect(detector_->spectraControl(), SIGNAL(controlSetValuesChanged()), this, SLOT(resizeRoiMarkers()));
 	connect(detector_, SIGNAL(roiUpdate(AMROI*)), this, SLOT(roiWidthUpdate(AMROI*)));
 
 	QFont font(this->font());
@@ -277,11 +276,11 @@ void XRFDetailedDetectorView::setupPlot()
 
 	// Create the plot and setup all the axes.
 	plot_ = new MPlot;
-	plot_->axisBottom()->setAxisNameFont(QFont("Helvetica", 11));
-	plot_->axisBottom()->setTickLabelFont(QFont("Helvetica", 11));
+	plot_->axisBottom()->setAxisNameFont(QFont("Helvetica", 6));
+	plot_->axisBottom()->setTickLabelFont(QFont("Helvetica", 6));
 	plot_->axisBottom()->setAxisName("Energy, eV");
-	plot_->axisLeft()->setAxisNameFont(QFont("Helvetica", 11));
-	plot_->axisLeft()->setTickLabelFont(QFont("Helvetica", 11));
+	plot_->axisLeft()->setAxisNameFont(QFont("Helvetica", 6));
+	plot_->axisLeft()->setTickLabelFont(QFont("Helvetica", 6));
 	plot_->axisLeft()->setAxisName("Counts");
 
 	// Set the margins for the plot.
@@ -310,27 +309,13 @@ void XRFDetailedDetectorView::setupPlot()
 	plot_->addTool(new MPlotDragZoomerTool());
 	plot_->addTool(new MPlotWheelZoomerTool());
 	view_->setPlot(plot_);
+	view_->setMinimumHeight(450);
 
 	// Set the number of ticks.  A balance between readability and being practical.
 	plot_->axisBottom()->setTicks(3);
 	plot_->axisTop()->setTicks(0);
 	plot_->axisLeft()->setTicks(4);
 	plot_->axisRight()->setTicks(0);
-}
-
-void XRFDetailedDetectorView::resizeRoiMarkers()
-{
-	if (markers_.isEmpty())
-		return;
-
-	ROIPlotMarker *temp;
-	double height = getMaximumHeight(plot_->item(0));
-
-	for (int i = 0; i < markers_.size(); i++){
-
-		temp = (ROIPlotMarker *)(markers_.at(i));
-		temp->setHeight(height);
-	}
 }
 
 double XRFDetailedDetectorView::getMaximumHeight(MPlotItem *data)
@@ -361,8 +346,9 @@ void XRFDetailedDetectorView::onAdditionOfRegionOfInterest(AMElement *el, QPair<
 {
 	AMROIInfo info(el->symbol()+" "+line.first, line.second.toDouble(), 0.04, detector_->scale());
 	detector_->addRegionOfInterest(info);
-	ROIPlotMarker *newMarker = new ROIPlotMarker(info.name(), info.energy(), info.energy()*(1-info.width()/2), info.energy()*(1+info.width()/2), plot_->axisLeft()->max());
+	ROIPlotMarker *newMarker = new ROIPlotMarker(info.name(), info.energy(), info.energy()*(1-info.width()/2), info.energy()*(1+info.width()/2));
 	plot_->insertItem(newMarker);
+	newMarker->setYAxisTarget(plot_->axisScale(MPlot::VerticalRelative));
 	markers_ << newMarker;
 	highlightMarkers(el);
 }
@@ -442,7 +428,7 @@ void XRFDetailedDetectorView::showEmissionLines(AMElement *el)
 
 		current = toBeAdded.at(i);
 		point = new MPlotPoint(QPoint(current.second.toDouble(), 0));
-		point->setMarker(MPlotMarkerShape::VerticalBeam, 1e5, getColor(current.first));
+		point->setMarker(MPlotMarkerShape::VerticalBeam, 1e5, QPen(getColor(current.first)), QBrush(getColor(current.first)));
 		point->setDescription(current.first + ": " + current.second + " eV");
 		plot_->insertItem(point, i+detector_->elements());
 		lines_->append(point);
