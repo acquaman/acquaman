@@ -536,7 +536,8 @@ AMOldControlSetView::AMOldControlSetView(AMControlSet *viewSet, QWidget *parent)
 	for(int x = 0; x < viewSet_->count(); x++){
 		tmpCtrl = viewSet_->at(x);
 		tmpVal.clear();
-		tmpName = tmpCtrl->name();
+		//tmpName = tmpCtrl->name();
+		tmpName = tmpCtrl->description();
 		if(tmpCtrl->isEnum()){
 			tmpCB = new QComboBox(this);
 			tmpCB->addItems(tmpCtrl->enumNames());
@@ -577,7 +578,8 @@ void AMOldControlSetView::onBoxUpdate(const QString &value){
 	bool actualChange = false;
 	for(int x = 0; x < viewSet_->count(); x++){
 		tmpCtrl = viewSet_->at(x);
-		tmpName = tmpCtrl->name();
+		//tmpName = tmpCtrl->name();
+		tmpName = tmpCtrl->description();
 		if(tmpCtrl->isEnum()){
 			if( ((QComboBox*)(controlBoxes_.at(x)))->currentText() != configValues_[tmpName].toString() ){
 				configValues_[tmpName] = ((QComboBox*)(controlBoxes_.at(x)))->currentText();

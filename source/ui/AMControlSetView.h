@@ -94,6 +94,8 @@ public slots:
 	   */
 	void setFromInfoList(const AMControlInfoList &infoList);
 
+	void setDisabled(bool disabled);
+
 protected slots:
 	void onControlSetValuesChanged(AMControlInfoList infoList);
 	void onConfigurationValueChanged();

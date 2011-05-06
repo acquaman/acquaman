@@ -36,6 +36,7 @@ signals:
 	void configValuesChanged();
 
 public slots:
+	void setDisabled(bool disabled);
 
 protected slots:
 	void onDetectorAddedToSet(int index);

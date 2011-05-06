@@ -115,6 +115,14 @@ QDebug operator<<(QDebug d, const AMDetectorSetView& dsv){
 	return d;
 }
 
+void AMDetectorSetView::setDisabled(bool disabled){
+	for(int x = checkBoxes_.count()-1; x >= 0; x--){
+		checkBoxes_[x]->setDisabled(disabled);
+		if(detectorDetails_[x])
+			gl_->itemAtPosition(x, 3)->widget()->setDisabled(disabled);
+	}
+}
+
 void AMDetectorSetView::onDetectorAddedToSet(int index){
 	AMDetectorView *tmpDV;
 	AMDetector *tmpD;

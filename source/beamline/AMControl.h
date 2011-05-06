@@ -240,6 +240,7 @@ public:
 		setObjectName(name);
 		wasConnected_ = false;
 		tolerance_ = AMCONTROL_TOLERANCE_DONT_CARE;
+		contextKnownDescription_ = "";
 	}
 
 	/// \name Accessing childControls() subcontrols:
@@ -267,6 +268,9 @@ public:
 
 	/// Returns a human-readable description for this control
 	QString description() const { return description_;}
+
+	/// Returns a short human-readable description for when the context is known or is implicit
+	QString contextKnownDescription() const { return contextKnownDescription_;}
 
 	/// This value defines how close the final measure()d position must be to the setpoint(), for the move() to have succeeded.
 	double tolerance() const { return tolerance_; }
@@ -397,6 +401,12 @@ public slots:
 	/// This sets the tolerance level: the required level of accuracy for successful move()s.
 	void setTolerance(double newTolerance) { tolerance_ = newTolerance; }
 
+	/// This sets the human-readable description for the control
+	void setDescription(const QString &description) { description_ = description; }
+
+	/// This sets the short form of a human-readable description for when the context is known or implicit
+	void setContextKnownDescription(const QString &contextKnownDescription) { contextKnownDescription_= contextKnownDescription; }
+
 	/// This is used to cancel or stop a move in progress. Must reimplement for actual controls.  It will be successful only if canStop() is true.  Returns true if the stop command was successfully sent.  (Note: this DOES NOT guarantee that the motor actually stopped!)
 	virtual bool stop() { return false; }
 
@@ -472,6 +482,7 @@ private:
 	QString units_;
 	QStringList enumNames_;
 	QString description_; //Human-readable description
+	QString contextKnownDescription_; //Human-readable description. Very short, for when the context is known. Might be "X" as opposed to "SSA Manipulator X"
 
 };
 

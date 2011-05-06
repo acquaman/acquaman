@@ -120,6 +120,12 @@ void AMXASRegionsView::setRemoveIndex(){
 	removeIndex_ = tmpAction->data().toInt();
 }
 
+void AMXASRegionsView::setDisabled(bool disabled){
+	tv_->setDisabled(disabled);
+	addButton_->setDisabled(disabled);
+	deleteButton_->setDisabled(disabled);
+}
+
 void AMXASRegionsView::resizeEvent(QResizeEvent *event){
 	int totalWidth = tv_->size().width();
 	tv_->setColumnWidth(1, 3*totalWidth/8);

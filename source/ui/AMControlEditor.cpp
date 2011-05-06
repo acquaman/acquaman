@@ -211,8 +211,12 @@ AMControlEditor::AMControlEditor(AMControl* control, AMControl* statusTagControl
 		statusLabel_->setFont(statusFont);
 		statusLabel_->setMargin(1);
 	}
-	if(control_)
-		setTitle(control_->name());
+	if(control_){
+		if(control_->description() != "")
+			setTitle(control_->description());
+		else
+			setTitle(control_->name());
+	}
 
 	// Layout:
 	QHBoxLayout* hl = new QHBoxLayout();
@@ -567,8 +571,12 @@ AMControlButton::AMControlButton(AMControl *control, QWidget *parent) :
 	downValue_ = 1;
 	upValue_ = 0;
 	programaticToggle_ = false;
-	if(control_)
-		setText(control_->name());
+	if(control_){
+		if(control_->description() != "")
+			setText(control_->description());
+		else
+			setText(control_->name());
+	}
 	setHappy(false);
 
 	// Make connections:

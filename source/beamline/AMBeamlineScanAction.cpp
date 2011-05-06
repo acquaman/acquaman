@@ -180,6 +180,13 @@ void AMBeamlineScanAction::onScanStarted(){
 	setDescription(cfg_->description()+" on "+lastSampleDescription_+" [Running]");
 	emit descriptionChanged();
 	setStarted(true);
+	ctrl_->scan()->storeToDb(AMDatabase::userdb());
+	if(!ctrl_->scan()->database()){
+		AMErrorMon::report(AMErrorReport(this,
+				AMErrorReport::Alert,
+				AMBEAMLINEACTIONITEM_CANT_SAVE_TO_DB,
+				"Error, could not save scan to database. Please report this bug to the Acquaman developers."));
+	}
 }
 
 void AMBeamlineScanAction::onScanCancelled(){
@@ -192,6 +199,8 @@ void AMBeamlineScanAction::onScanSucceeded(){
 	setDescription(cfg_->description()+" on "+lastSampleDescription_+" [Completed "+AMDateTimeUtils::prettyDateTime(QDateTime::currentDateTime())+"]");
 	emit descriptionChanged();
 	setSucceeded(true);
+	if(ctrl_->scan()->database())
+		ctrl_->scan()->storeToDb(ctrl_->scan()->database());
 }
 
 void AMBeamlineScanAction::onScanFailed(){
@@ -441,6 +450,8 @@ void AMBeamlineScanActionView::onMoveDownButtonClicked(){
 void AMBeamlineScanActionView::mouseDoubleClickEvent(QMouseEvent *){
 	if(configurationView_ == 0)
 		configurationView_ = scanAction_->cfg()->createView();
+	if(scanAction_->hasFinished())
+		configurationView_->setDisabled(true);
 	configurationView_->setWindowModality(Qt::WindowModal);
 	configurationView_->show();
 }
