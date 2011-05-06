@@ -1,7 +1,7 @@
 #include "VESPERSXRFScanConfigurationView.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
 #include "acquaman/VESPERS/VESPERSXRFScanController.h"
-#include "ui/VESPERS/XRFSelectionView.h"
+#include "ui/AMTopFrame.h"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -12,16 +12,34 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 {
 	configuration_ = scanConfig;
 
-	if (configuration_->detectorChoice() == VESPERSBeamline::SingleElement)
+	AMTopFrame *topFrame;
+
+	if (configuration_->detectorChoice() == VESPERSBeamline::SingleElement){
+
 		detector_ = VESPERSBeamline::vespers()->vortexXRF1E();
-	else
+		topFrame = new AMTopFrame("XRF Configuration - Single Element Vortex");
+	}
+	else{
+
 		detector_ = VESPERSBeamline::vespers()->vortexXRF4E();
+		topFrame = new AMTopFrame("XRF Configuration - Four Element Vortex");
+	}
+
+	topFrame->setIcon(QIcon(":/utilities-system-monitor.png"));
 
 	view_ = new XRFDetailedDetectorView(detector_);
 	connect(detector_, SIGNAL(detectorConnected(bool)), this, SLOT(setEnabled(bool)));
+	connect(detector_, SIGNAL(roisHaveValues(bool)), this, SLOT(onRoisHaveValues(bool)));
 
-	XRFSelectionView *selectionView = new XRFSelectionView;
-	connect(selectionView, SIGNAL(elementSelected(AMElement*)), view_, SLOT(showEmissionLines(AMElement*)));
+	// Using Potassium Ka as the lower energy limit and the maximum energy of the detector for the upper energy limit.
+	selectionView_ = new XRFSelectionView(AMPeriodicTable::table()->elementBySymbol("K")->Kalpha().second.toDouble(), detector_->maximumEnergy()*1000);
+	connect(selectionView_, SIGNAL(elementSelected(AMElement*)), view_, SLOT(showEmissionLines(AMElement*)));
+	connect(selectionView_, SIGNAL(elementSelected(AMElement*)), view_, SLOT(highlightMarkers(AMElement*)));
+	connect(selectionView_, SIGNAL(addRegionOfInterest(AMElement*,QPair<QString,QString>)), view_, SLOT(onAdditionOfRegionOfInterest(AMElement*,QPair<QString,QString>)));
+	connect(selectionView_, SIGNAL(removeRegionOfInterest(AMElement*,QPair<QString,QString>)), view_, SLOT(onRemovalOfRegionOfInterest(AMElement*,QPair<QString,QString>)));
+	connect(this, SIGNAL(roiExistsAlready(AMElement*,QPair<QString,QString>)), selectionView_, SLOT(preExistingRegionOfInterest(AMElement*,QPair<QString,QString>)));
+
+	connect(selectionView_, SIGNAL(clearAllRegionsOfInterest()), view_, SLOT(removeAllRegionsOfInterest()));
 
 	QToolButton *start = new QToolButton;
 	start->setIcon(QIcon(":/play_button_green.png"));
@@ -46,9 +64,10 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 	maxEnergy_->setAlignment(Qt::AlignCenter);
 	connect(maxEnergy_, SIGNAL(editingFinished()), this, SLOT(onMaximumEnergyUpdate()));
 	connect(detector_->maximumEnergyControl(), SIGNAL(valueChanged(double)), maxEnergy_, SLOT(setValue(double)));
+	connect(detector_->maximumEnergyControl(), SIGNAL(valueChanged(double)), this, SLOT(onMaximumEnergyControlUpdate(double)));
 
 	peakingTime_ = new QDoubleSpinBox;
-	peakingTime_->setSuffix(QString(" %1s").arg(QString::fromUtf8("μ")));
+	peakingTime_->setSuffix(QString::fromUtf8(" μs"));
 	peakingTime_->setSingleStep(0.01);
 	peakingTime_->setMaximum(100);
 	peakingTime_->setAlignment(Qt::AlignCenter);
@@ -85,13 +104,17 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 
 	QVBoxLayout *viewAndSelectionLayout = new QVBoxLayout;
 	viewAndSelectionLayout->addWidget(view_);
-	viewAndSelectionLayout->addWidget(selectionView);
+	viewAndSelectionLayout->addWidget(selectionView_);
 
 	QHBoxLayout *plotControlLayout = new QHBoxLayout;
 	plotControlLayout->addLayout(viewAndSelectionLayout);
 	plotControlLayout->addLayout(controlLayout);
 
-	setLayout(plotControlLayout);
+	QVBoxLayout *masterLayout = new QVBoxLayout;
+	masterLayout->addWidget(topFrame);
+	masterLayout->addLayout(plotControlLayout);
+
+	setLayout(masterLayout);
 }
 
 void VESPERSXRFScanConfigurationView::onIntegrationTimeUpdate()
@@ -102,6 +125,12 @@ void VESPERSXRFScanConfigurationView::onIntegrationTimeUpdate()
 void VESPERSXRFScanConfigurationView::onMaximumEnergyUpdate()
 {
 	detector_->setMaximumEnergyControl(maxEnergy_->value());
+	selectionView_->setMaximumEnergy(maxEnergy_->value()*1000);
+}
+
+void VESPERSXRFScanConfigurationView::onMaximumEnergyControlUpdate(double val)
+{
+	selectionView_->setMaximumEnergy(val*1000);
 }
 
 void VESPERSXRFScanConfigurationView::onPeakingTimeUpdate()
@@ -115,4 +144,48 @@ void VESPERSXRFScanConfigurationView::onStopClicked()
 
 	if (current)
 		current->finish();
+}
+
+void VESPERSXRFScanConfigurationView::onRoisHaveValues(bool hasValues)
+{
+	if (hasValues){
+
+		// Go through all the regions of interest PVs and if there are any regions set already, pass them on to the rest of the program.
+		QString name;
+		double low;
+		double high;
+		AMElement *el;
+
+		for (int i = 0; i < detector_->roiList().count(); i++){
+
+			name = detector_->roiList().at(i)->name();
+
+			// If the name is empty then we've reached the end of the road for preset regions of interest.
+			if (name.isEmpty()){
+
+				el = AMPeriodicTable::table()->elementBySymbol("Fe");
+				view_->showEmissionLines(el);
+				view_->highlightMarkers(el);
+				view_->resizeRoiMarkers();
+				selectionView_->setElementView(el);
+				return;
+			}
+
+			name = name.left(name.indexOf(" "));
+			el = AMPeriodicTable::table()->elementBySymbol(name);
+
+			if (el){
+
+				low = detector_->roiList().at(i)->low();
+				high = detector_->roiList().at(i)->high();
+
+				for (int j = 0; j < el->emissionLines().count(); j++){
+
+					if (el->emissionLines().at(j).first.contains("1")
+							&& fabs((low+high)/2 - el->emissionLines().at(j).second.toDouble()/detector_->scale()) < 1)
+						emit roiExistsAlready(el, el->emissionLines().at(j));
+				}
+			}
+		}
+	}
 }

@@ -35,17 +35,23 @@ class AMControlInfo : public AMDbObject {
 	Q_PROPERTY(double minimum READ minimum WRITE setMinimum)
 	Q_PROPERTY(double maximum READ maximum WRITE setMaximum)
 	Q_PROPERTY(QString units READ units WRITE setUnits)
+	Q_PROPERTY(double tolerance READ tolerance WRITE setTolerance)
+	Q_PROPERTY(QString description READ description WRITE setDescription)
+	Q_PROPERTY(QString contextKnownDescription READ contextKnownDescription WRITE setContextKnownDescription)
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Saved Control State")
 
 
 public:
-	Q_INVOKABLE AMControlInfo(const QString& name = "Invalid Control Info", double value = 0.0, double minimum = 0.0, double maximum = 0.0, const QString& units = "n/a", QObject* parent = 0);
+	Q_INVOKABLE AMControlInfo(const QString& name = "Invalid Control Info", double value = 0.0, double minimum = 0.0, double maximum = 0.0, const QString& units = "n/a", double tolerance = 0.0, const QString &description = "", const QString &contextKnownDescription = "", QObject* parent = 0);
 
 	double value() const { return value_; }
 	double minimum() const { return minimum_; }
 	double maximum() const { return maximum_; }
 	QString units() const { return units_; }
+	double tolerance() const { return tolerance_; }
+	QString description() const { return description_; }
+	QString contextKnownDescription() const { return contextKnownDescription_; }
 
 	/// The default copy constructor and assignment operator will copy the values from \c other, but they will also copy over the database identity (ie: id(), database(), modified() state, etc.).  This means that calling storeToDb() will now save to \c other's database location.  If you want to copy the values but retain your old database identity, call this function instead.
 	void setValuesFrom(const AMControlInfo& other) {
@@ -53,6 +59,9 @@ public:
 		minimum_ = other.minimum_;
 		maximum_ = other.maximum_;
 		units_ = other.units_;
+		tolerance_ = other.tolerance();
+		description_ = other.description();
+		contextKnownDescription_ = other.contextKnownDescription();
 		setName(other.name());	// will take care of calling setModified().
 	}
 
@@ -61,12 +70,18 @@ public slots:
 	void setMinimum(double minimum) { minimum_ = minimum; setModified(true); }
 	void setMaximum(double maximum) { maximum_ = maximum; setModified(true); }
 	void setUnits(const QString &units) { units_ = units; setModified(true); }
+	void setTolerance(double tolerance) { tolerance_ = tolerance; setModified(true); }
+	void setDescription(const QString &description) { description_ = description; setModified(true); }
+	void setContextKnownDescription(const QString &contextKnownDescription) { contextKnownDescription_ = contextKnownDescription; setModified(true); }
 
 protected:
 	double value_;
 	double minimum_;
 	double maximum_;
 	QString units_;
+	double tolerance_;
+	QString description_;
+	QString contextKnownDescription_;
 };
 
 
@@ -88,6 +103,12 @@ public:
 	AMControlInfoList(const AMControlInfoList& other);
 	/// Assignment operator.  Note that this copies the values from the \c other list, but it also copies over the database identify (ie: id(), database(), and modified() state) of \c other.  Saving with storeToDb() will now save to \c other's database location.  If you want to copy the values but retain your old database identity, call setValuesFrom().
 	AMControlInfoList& operator=(const AMControlInfoList& other);
+
+	/// Comparison operator. Returns true if and only if the values from the \c other list match the list of values in this within the tolerance of the
+	bool operator==(const AMControlInfoList &other) const;
+
+	/// Compares this list to another with a list of alternate tolerances for the controls in the list. The lists must have the same items, in the same order, and the tolerances must be in the same order.
+	bool compareWithinTolerance(const AMControlInfoList &other, QList<double> tolerances) const;
 
 	/// Destructor
 	~AMControlInfoList() {}

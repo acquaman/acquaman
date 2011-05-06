@@ -19,7 +19,7 @@ VESPERSXRFScanController::VESPERSXRFScanController(VESPERSXRFScanConfiguration *
 	scan_ = new AMXRFScan;
 	generalScan_ = scan_;
 	scan_->setScanConfiguration(scanConfig);
-	scan_->setName("XRF Scan");
+	scan_->setName(QString("XRF Scan - %1 el").arg(detector_->elements()));
 	QString fullPath = AMUserSettings::defaultFilePath(QDateTime::currentDateTime());
 	QString path = fullPath.section('/', 0, -2);
 	QString file = fullPath.section('/', -1);
@@ -32,7 +32,7 @@ VESPERSXRFScanController::VESPERSXRFScanController(VESPERSXRFScanConfiguration *
 
 	for (int i = 0; i < detector_->elements(); i++){
 
-		scan_->rawData()->addMeasurement(AMMeasurementInfo(QString("Element %1").arg(i+1), QString("Element %1").arg(i+1), "eV", detector_->axes()));
+		scan_->rawData()->addMeasurement(AMMeasurementInfo(QString("raw%1").arg(i+1), QString("Element %1").arg(i+1), "eV", detector_->axes()));
 		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), i));
 	}
 

@@ -23,5 +23,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMScanConfiguration::AMScanConfiguration(QObject *parent) :
 	AMDbObject(parent)
 {
+	userScanName_ = "";
 }
 

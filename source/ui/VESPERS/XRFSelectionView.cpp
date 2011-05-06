@@ -2,20 +2,35 @@
 
 #include <QGroupBox>
 
-XRFSelectionView::XRFSelectionView(QWidget *parent) :
-	QWidget(parent)
+XRFSelectionView::XRFSelectionView(double minimumEnergy, double maximumEnergy, QWidget *parent)
+	: QWidget(parent)
 {
-	tableView_ = new XRFPeriodicTableView;
+	minimumEnergy_ = minimumEnergy;
+	maximumEnergy_ = maximumEnergy;
 
-	VESPERSXRFElementView *elView = new VESPERSXRFElementView(AMPeriodicTable::table()->elementBySymbol("Fe"));
-	connect(tableView_, SIGNAL(elementSelected(AMElement*)), elView, SLOT(setElement(AMElement*)));
+	tableView_ = new XRFPeriodicTableView(minimumEnergy, maximumEnergy);
+	elView_ = new VESPERSXRFElementView(AMPeriodicTable::table()->elementBySymbol("Fe"), minimumEnergy_, maximumEnergy_);
+
+	// This signal takes an element that was clicked inside the view and transfers it to the element view.  It puts checks where appropriate.
+	connect(tableView_, SIGNAL(elementClicked(AMElement*,QList<QPair<int,QString> >)), elView_, SLOT(setElement(AMElement*,QList<QPair<int,QString> >)));
+	// This signal is used to pass on what the last element that has been clicked on.
 	connect(tableView_, SIGNAL(elementSelected(AMElement*)), this, SIGNAL(elementSelected(AMElement*)));
-	connect(elView, SIGNAL(addROI(AMElement*,QPair<QString,QString>)), this, SLOT(addRegionOfInterest(AMElement*,QPair<QString,QString>)));
-	connect(elView, SIGNAL(removeROI(AMElement*,QPair<QString,QString>)), this, SLOT(removeRegionOfInterest(AMElement*,QPair<QString,QString>)));
+
+	// Passes on that an emission line from the given element has been selected to be added.  The table will check if it's valid or not.
+	connect(elView_, SIGNAL(addROI(AMElement*,QPair<QString,QString>)), tableView_, SLOT(regionOfInterestAdded(AMElement*,QPair<QString,QString>)));
+	// Passes on that a region of interest was successfully added.
+	connect(tableView_, SIGNAL(addRegionOfInterest(AMElement*,QPair<QString,QString>)), this, SIGNAL(addRegionOfInterest(AMElement*,QPair<QString,QString>)));
+
+	// Passes on that an emission line from the given element has been selected to be removed.  The table will check if it's valid or not.
+	connect(elView_, SIGNAL(removeROI(AMElement*,QPair<QString,QString>)), tableView_, SLOT(regionOfInterestRemoved(AMElement*,QPair<QString,QString>)));
+	// Passes on that a region of interest was successfully removed.
+	connect(tableView_, SIGNAL(removeRegionOfInterest(AMElement*,QPair<QString,QString>)), this, SIGNAL(removeRegionOfInterest(AMElement*,QPair<QString,QString>)));
+
+	connect(tableView_, SIGNAL(clearAllRegionsOfInterest()), this, SLOT(onClearList()));
 
 	QHBoxLayout *tableLayout = new QHBoxLayout;
 	tableLayout->addWidget(tableView_, Qt::AlignLeft);
-	tableLayout->addWidget(elView);
+	tableLayout->addWidget(elView_, Qt::AlignCenter);
 
 	QGroupBox *table = new QGroupBox;
 	table->setLayout(tableLayout);
@@ -28,26 +43,8 @@ XRFSelectionView::XRFSelectionView(QWidget *parent) :
 	setLayout(xrfLayout);
 }
 
-void XRFSelectionView::addRegionOfInterest(AMElement *el, QPair<QString, QString> line)
+void XRFSelectionView::onClearList()
 {
-
-/*	QToolButton *clicked = tableView_->button(el);
-	QPalette palette(clicked->palette());
-
-	if (line.first.contains("K"))
-		palette.setColor(QPalette::Button, Qt::green);
-	else if (line.first.contains("L"))
-		palette.setColor(QPalette::Button, Qt::yellow);
-	else if (line.first.contains("M"))
-		palette.setColor(QPalette::Button, Qt::cyan);
-
-	clicked->setPalette(palette);*/
-}
-
-void XRFSelectionView::removeRegionOfInterest(AMElement *el, QPair<QString, QString> line)
-{
-	/*QToolButton *clicked = tableView_->button(el);
-	QPalette palette(clicked->palette());
-	palette.setColor(QPalette::Button, this->palette().color(QPalette::Button));
-	tableView_->button(el)->setPalette(palette);*/
+	elView_->setElement(elView_->element(), QList<QPair<int, QString> >());
+	emit clearAllRegionsOfInterest();
 }

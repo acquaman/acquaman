@@ -64,8 +64,12 @@ AMControlOptimizationSetView::AMControlOptimizationSetView(AMControlOptimization
 	plot->setMarginRight(5);
 	plot->setMarginLeft(15);
 	plot->setMarginBottom(25);
-	plot->setScalePadding(5);	// set axis scale padding in percent
-	plot->enableAutoScale(MPlotAxis::Left | MPlotAxis::Bottom);
+
+	// set axis scale padding in percent
+	plot->axisScaleLeft()->setPadding(5);
+	plot->axisScaleBottom()->setPadding(5);
+	plot->axisScaleLeft()->setAutoScaleEnabled();
+	plot->axisScaleBottom()->setAutoScaleEnabled();
 	plotWindow->resize(500, 375);
 	MPlotDragZoomerTool *dzTool5 = new MPlotDragZoomerTool();
 	plot->addTool(dzTool5);
@@ -536,7 +540,8 @@ AMOldControlSetView::AMOldControlSetView(AMControlSet *viewSet, QWidget *parent)
 	for(int x = 0; x < viewSet_->count(); x++){
 		tmpCtrl = viewSet_->at(x);
 		tmpVal.clear();
-		tmpName = tmpCtrl->name();
+		//tmpName = tmpCtrl->name();
+		tmpName = tmpCtrl->description();
 		if(tmpCtrl->isEnum()){
 			tmpCB = new QComboBox(this);
 			tmpCB->addItems(tmpCtrl->enumNames());
@@ -577,7 +582,8 @@ void AMOldControlSetView::onBoxUpdate(const QString &value){
 	bool actualChange = false;
 	for(int x = 0; x < viewSet_->count(); x++){
 		tmpCtrl = viewSet_->at(x);
-		tmpName = tmpCtrl->name();
+		//tmpName = tmpCtrl->name();
+		tmpName = tmpCtrl->description();
 		if(tmpCtrl->isEnum()){
 			if( ((QComboBox*)(controlBoxes_.at(x)))->currentText() != configValues_[tmpName].toString() ){
 				configValues_[tmpName] = ((QComboBox*)(controlBoxes_.at(x)))->currentText();

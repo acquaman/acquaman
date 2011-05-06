@@ -54,10 +54,14 @@ QString AMSamplePlateItemModel::positionsString(int index) const {
 	for(int i=0; i<positions.count(); i++) {
 		const AMControlInfo& pos = positions.at(i);
 
-		QString s = QString("%1: %2%3")
-				.arg(pos.name())
-				.arg(pos.value())
-				.arg(pos.units());
+		//QString s = QString("%1: %2%3").arg(pos.name()).arg(pos.value()).arg(pos.units());
+		QString s;
+		if(pos.contextKnownDescription() != "")
+			s = QString("%1: %2%3").arg(pos.contextKnownDescription()).arg(pos.value(), 0, 'g', 3).arg(pos.units());
+		else if(pos.description() != "")
+			s = QString("%1: %2%3").arg(pos.description()).arg(pos.value(), 0, 'g', 3).arg(pos.units());
+		else
+			s = QString("%1: %2%3").arg(pos.name()).arg(pos.value(), 0, 'g', 3).arg(pos.units());
 
 		sl << s;
 	}

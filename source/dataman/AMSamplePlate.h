@@ -107,6 +107,9 @@ public:
 	/// When this sample plate was first created
 	QDateTime dateTime() const { return dateTime_; }
 
+	/// Returns the sample id at the given position. If no sample is at the given position, -1 is returned. Can optionally take a list of alternate tolerance (rather than the motion tolerances) for the controls.
+	int sampleIdAtPosition(const AMControlInfoList &position, const QList<double> tolerances = QList<double>()) const;
+
 
 
 // Required?

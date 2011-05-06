@@ -193,6 +193,7 @@ protected:
 
 	QString description_;
 	QString message_;
+	QString lastSampleDescription_;
 	AMOrderedSet<QString, QPixmap> helpImages_;
 
 private slots:
@@ -226,11 +227,13 @@ public:
 
 	int index() const { return index_;}
 	virtual AMBeamlineActionItem* action();
+	bool movable() const;
 
 public slots:
 	virtual void setIndex(int index);
 	virtual void setAction(AMBeamlineActionItem *action);
 	virtual void defocusItem();
+	virtual void setMovable(bool movable);
 
 signals:
 	void focusRequested(AMBeamlineActionItem *action);
@@ -264,6 +267,7 @@ protected:
 	AMBeamlineActionItem *action_;
 	int index_;
 	bool inFocus_;
+	bool movable_;
 	QMenu *optionsMenu_;
 };
 

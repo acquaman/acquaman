@@ -26,7 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QGridLayout>
 
 SGMSidebar::SGMSidebar(QWidget *parent) :
-    QWidget(parent)
+	QWidget(parent)
 {
 	mainBox_ = new QGroupBox("SGM Beamline");
 	mainLayout_ = new QVBoxLayout();
@@ -96,9 +96,19 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	imageView_ = new MPlotWidget();
 	imageView_->setMinimumHeight(200);
 	imagePlot_ = new MPlot();
+
+	// ATTENTION DAVE: New special axis scale on bottom of strip tool plot:
+	stripToolSpecialAxisScale_ = new MPlotAxisScale(Qt::Horizontal);
+	stripToolSpecialAxisScale_->setPadding(2);
+	imagePlot_->addAxisScale(stripToolSpecialAxisScale_);
+	imagePlot_->axisBottom()->setAxisScale(stripToolSpecialAxisScale_);	// have the bottom (visible) axis display this axisScale instead
+	/////////////////
+
 	imageView_->setPlot(imagePlot_);
-	imagePlot_->enableAutoScale(MPlotAxis::Left | MPlotAxis::Bottom);
-	imagePlot_->setScalePadding(1);
+	imagePlot_->axisScaleLeft()->setAutoScaleEnabled();
+	imagePlot_->axisScaleLeft()->setPadding(2);
+	imagePlot_->axisScaleBottom()->setAutoScaleEnabled();
+	imagePlot_->axisScaleBottom()->setPadding(2);
 	imagePlot_->setMarginBottom(10);
 	imagePlot_->setMarginLeft(10);
 	imagePlot_->setMarginRight(5);
@@ -133,6 +143,8 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	pdSeries_->setMarker(MPlotMarkerShape::None);
 
 	imagePlot_->addItem(i0Series_);
+	// debugging:
+	// connect(i0Series_->signalSource(), SIGNAL(boundsChanged()), this, SLOT(testingBoundsChanged()));
 	//imagePlot_->addItem(teySeries_);
 	//imagePlot_->addItem(tfySeries_);
 	//imagePlot_->addItem(pdSeries_);
@@ -163,6 +175,15 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	setLayout(mainLayout_);
 	setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
 }
+
+SGMSidebar::~SGMSidebar() {
+	// must delete series objects first.  If left to ~QObject / QObject::deleteChildren() called from ~MPlot, the ~MPlotAbstractSeries() crashes when trying to disconnect from its data, because we've deleted the data already.
+	delete i0Series_;
+	delete teySeries_;
+	delete tfySeries_;
+	delete pdSeries_;
+}
+
 
 void SGMSidebar::showEvent(QShowEvent *se){
 	int minWidth = std::max(entranceSlitNC_->size().width()/3, exitSlitNC_->size().width()/3);
@@ -224,7 +245,10 @@ void SGMSidebar::onStopMotorsActionFinished(){
 }
 
 void SGMSidebar::onStripToolTimerTimeout(){
-	if(i0Model_->count() > 50){
+	if(i0Model_->count() <= 50) {
+		stripToolSpecialAxisScale_->setDataRange(MPlotAxisRange(-i0Model_->count(),0));	// would need to correct this if not doing exactly one model point per second
+	}
+	else {
 		i0Model_->removePointFront();
 		teyModel_->removePointFront();
 		tfyModel_->removePointFront();

@@ -67,6 +67,9 @@ public:
 	/// Returns the current static fiducializations available for the sample positioner
 	virtual QList<AMControlInfoList> currentFiducializations() { return QList<AMControlInfoList>(); }
 
+	/// Returns the current sample description if available (if not, should like be <Unknown Sample>)
+	virtual QString currentSampleDescription() { return "<Unknown Sample>"; }
+
 
 signals:
 	/// Emit this signal whenever isBeamlineScanning() changes.

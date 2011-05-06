@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "SGMBeamline.h"
 
 #include "dataman/AMSamplePlate.h"
-
+#include "dataman/AMUser.h"
 
 void SGMBeamline::usingSGMBeamline(){
 	amNames2pvNames_.set("energy", "BL1611-ID-1:Energy");
@@ -87,11 +87,10 @@ void SGMBeamline::usingSGMBeamline(){
 	amNames2pvNames_.set("ea1CloseVacuum1", "VVR1611-4-I10-05:opr:close");
 	amNames2pvNames_.set("ea1CloseVacuum2", "VVR1611-4-I10-06:opr:close");
 	amNames2pvNames_.set("ea2CloseVacuum", "VVR1611-4-I10-08:opr:close");
-	//amNames2pvNames_.set("beamOn", "BL1611-ID-1:beam:turnon");
-	amNames2pvNames_.set("beamOn", "david:beamon:trigger");
+	amNames2pvNames_.set("beamOn", "BL1611-ID-1:AddOns:beamon:trigger");
 	amNames2pvNames_.set("visibleLightToggle", "BL1611-ID-1:visible");
 	amNames2pvNames_.set("visibleLightStatus", "BL1611-ID-1:visible:cal");
-	amNames2pvNames_.set("activeEndstation", "david:endstation:active");
+	amNames2pvNames_.set("activeEndstation", "BL1611-ID-1:AddOns:endstation:active");
 	amNames2pvNames_.set("detectorSignalSource", "BL1611-ID-1:AddOns:signalSource");
 
 	ringCurrent_ = new AMReadOnlyPVControl("ringCurrent", "PCT1402-01:mA:fbk", this);
@@ -103,6 +102,7 @@ void SGMBeamline::usingSGMBeamline(){
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	energy_ = new AMPVwStatusControl("energy", sgmPVName+":fbk", sgmPVName, "BL1611-ID-1:ready", sgmPVName, this, 0.05);
+	energy_->setDescription("Energy");
 	sgmPVName = amNames2pvNames_.valueF("energySpacingParam");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
@@ -128,14 +128,17 @@ void SGMBeamline::usingSGMBeamline(){
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	AMPVwStatusControl *mono = new AMPVwStatusControl("mono", sgmPVName+":enc:fbk", sgmPVName+":encTarget", sgmPVName+":moving", "SMTR16114I1002:stop", energy_, 5);
+	mono->setDescription("Monochromator");
 	sgmPVName = amNames2pvNames_.valueF("undulator");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	AMPVwStatusControl *undulator = new AMPVwStatusControl("undulator", sgmPVName+":gap:mm:fbk", sgmPVName+":gap:mm", sgmPVName+":moveStatus", "UND1411-01:stop", energy_, 0.1);
+	undulator->setDescription("Undulator");
 	sgmPVName = amNames2pvNames_.valueF("exitSlit");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	AMPVwStatusControl *exitSlit = new AMPVwStatusControl("exitSlit", sgmPVName+":Y:mm:encsp", "SMTR16114I1003:mm", "SMTR16114I1003:moving", "SMTR16114I1003:stop", energy_, 0.1);
+	exitSlit->setDescription("Exit Slit Position");
 	energy_->addChildControl(mono);
 	energy_->addChildControl(undulator);
 	energy_->addChildControl(exitSlit);
@@ -144,27 +147,32 @@ void SGMBeamline::usingSGMBeamline(){
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	exitSlitGap_ = new AMPVwStatusControl("exitSlitGap", sgmPVName+":Y:mm:fbk", sgmPVName+":Y:mm:encsp", "SMTR16114I1017:status", "SMTR16114I1017:stop", this, 0.1);
+	exitSlitGap_->setDescription("Exit Slit Gap");
 	sgmPVName = amNames2pvNames_.valueF("entranceSlitGap");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	entranceSlitGap_ = new AMPVwStatusControl("entranceSlitGap", sgmPVName+":Y:mm:fbk", sgmPVName+":Y:mm:encsp", "SMTR16114I1001:status", "SMTR16114I1001:stop", this, 0.1);
+	entranceSlitGap_->setDescription("Entrance Slit Gap");
 	sgmPVName = amNames2pvNames_.valueF("M4");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	m4_ = new AMReadOnlyPVwStatusControl("M4", sgmPVName, sgmPVName, this);
+	m4_->setDescription("M4 Mirror");
 	sgmPVName = amNames2pvNames_.valueF("M4Inboard");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	AMPVwStatusControl *m4inboard = new AMPVwStatusControl("M4Inboard", sgmPVName, sgmPVName, sgmPVName, "", this, 0.1);
+	m4inboard->setDescription("M4 Inboard");
 	sgmPVName = amNames2pvNames_.valueF("M4Outboard");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	AMPVwStatusControl *m4outboard = new AMPVwStatusControl("M4Outboard", sgmPVName, sgmPVName, sgmPVName, "", this, 0.1);
+	m4outboard->setDescription("M4 Outboard");
 	sgmPVName = amNames2pvNames_.valueF("M4Downstream");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
-
 	AMPVwStatusControl *m4downstream = new AMPVwStatusControl("M4Downstream", sgmPVName, sgmPVName, sgmPVName, "", this, 0.1);
+	m4downstream->setDescription("M4 Downstream");
 	m4_->addChildControl(m4inboard);
 	m4_->addChildControl(m4outboard);
 	m4_->addChildControl(m4downstream);
@@ -173,99 +181,131 @@ void SGMBeamline::usingSGMBeamline(){
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	grating_ = new AMPVwStatusControl("grating", sgmPVName+":fbk", sgmPVName, "SMTR16114I1016:state", "SMTR16114I1016:emergStop", this, 0.1, 2.0, new AMControlStatusCheckerStopped(0));
+	grating_->setDescription("Grating Selection");
 	sgmPVName = amNames2pvNames_.valueF("harmonic");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	harmonic_ = new AMPVwStatusControl("harmonic", sgmPVName, sgmPVName, "UND1411-01:moveStatus", "", this, 0.1);
+	harmonic_->setDescription("Harmonic");
 	sgmPVName = amNames2pvNames_.valueF("undulatorTracking");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	undulatorTracking_ = new AMPVControl("undulatorTracking", sgmPVName, sgmPVName, "", this, 0.1);
+	undulatorTracking_->setDescription("Undulator Tracking");
+	undulatorTracking_->setContextKnownDescription("Undulator");
 	sgmPVName = amNames2pvNames_.valueF("monoTracking");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	monoTracking_ = new AMPVControl("monoTracking", sgmPVName, sgmPVName, "", this, 0.1, 10);
+	monoTracking_->setDescription("Mono Tracking");
+	monoTracking_->setContextKnownDescription("Mono");
 	sgmPVName = amNames2pvNames_.valueF("exitSlitTracking");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	exitSlitTracking_ = new AMPVControl("exitSlitTracking", sgmPVName, sgmPVName, "", this, 0.1);
+	exitSlitTracking_->setDescription("Exit Slit Tracking");
+	exitSlitTracking_->setContextKnownDescription("Exit Slit");
 
 	sgmPVName = amNames2pvNames_.valueF("teyPico");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	teyPico_ = new AMReadOnlyPVControl("teyPico", sgmPVName, this);
+	teyPico_->setDescription("TEY");
 	sgmPVName = amNames2pvNames_.valueF("teyScaler");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	teyScaler_ = new AMReadOnlyPVControl("teyScaler", sgmPVName, this);
+	teyScaler_->setDescription("TEY");
 	sgmPVName = amNames2pvNames_.valueF("tfyPico");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	tfyPico_ = new AMReadOnlyPVControl("tfyPico", sgmPVName, this);
+	tfyPico_->setDescription("TFY");
 	sgmPVName = amNames2pvNames_.valueF("tfyScaler");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	tfyScaler_ = new AMReadOnlyPVControl("tfyScaler", sgmPVName, this);
+	tfyScaler_->setDescription("TFY");
 
 	sgmPVName = amNames2pvNames_.valueF("tfyHV");
 	tfyHV_ = new AMPVControl("tfyHV", sgmPVName+":vmon", sgmPVName+":v0set", QString(), this, 0.5);
+	tfyHV_->setDescription("TFY High Voltage");
+	tfyHV_->setContextKnownDescription("Voltage");
 
 	sgmPVName = amNames2pvNames_.valueF("pgt");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	pgt_ = new AMReadOnlyPVControl("pgt", sgmPVName, this);
+	pgt_->setDescription("SDD");
 
 	sgmPVName = amNames2pvNames_.valueF("pgtHV");
 	pgtHV_ = new AMPVControl("pgtHV", sgmPVName+"Actual:fbk", sgmPVName, QString(), this, 0.5);
+	pgtHV_->setDescription("SDD High Voltage");
+	pgtHV_->setContextKnownDescription("Voltage");
 
 	sgmPVName = amNames2pvNames_.valueF("pgtIntegrationTime");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	pgtIntegrationTime_ = new AMPVControl("pgtIntegrationTime", sgmPVName, sgmPVName, "", this, 0.1);
+	pgtIntegrationTime_->setDescription("SDD Integration Time");
+	pgtIntegrationTime_->setContextKnownDescription("Integration Time");
 	sgmPVName = amNames2pvNames_.valueF("pgtIntegrationMode");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	pgtIntegrationMode_ = new AMPVControl("pgtIntegrationMode", sgmPVName, sgmPVName, "", this, 0.1);
+	pgtIntegrationMode_->setDescription("SDD Integration Mode");
+	pgtIntegrationMode_->setContextKnownDescription("Integration Mode");
 
 	sgmPVName = amNames2pvNames_.valueF("I0Pico");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	i0Pico_ = new AMReadOnlyPVControl("I0Pico", sgmPVName, this);
+	i0Pico_->setDescription("I0");
 	sgmPVName = amNames2pvNames_.valueF("I0Scaler");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	i0Scaler_ = new AMReadOnlyPVControl("I0Scaler", sgmPVName, this);
+	i0Scaler_->setDescription("I0");
 
 	sgmPVName = amNames2pvNames_.valueF("eVFbk");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	eVFbk_ = new AMReadOnlyPVControl("eVFbk", sgmPVName, this);
+	eVFbk_->setDescription("Energy Feedback");
 	sgmPVName = amNames2pvNames_.valueF("photodiodePico");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	photodiodePico_ = new AMReadOnlyPVControl("photodiodePico", sgmPVName, this);
+	photodiodePico_->setDescription("Photodiode");
 	sgmPVName = amNames2pvNames_.valueF("photodiodeScaler");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	photodiodeScaler_ = new AMReadOnlyPVControl("photodiodeScaler", sgmPVName, this);
+	photodiodeScaler_->setDescription("Photodiode");
 
 	sgmPVName = amNames2pvNames_.valueF("encoderUp");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	encoderUp_ = new AMReadOnlyPVControl("encoderUp", sgmPVName, this);
+	encoderUp_->setDescription("Encoder Up Counts");
 	sgmPVName = amNames2pvNames_.valueF("encoderDown");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	encoderDown_ = new AMReadOnlyPVControl("encoderDown", sgmPVName, this);
+	encoderDown_->setDescription("Encoder Down Counts");
 
 	sgmPVName = amNames2pvNames_.valueF("loadlockCCG");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	loadlockCCG_ = new AMReadOnlyPVControl("loadlockCCG", sgmPVName, this);
+	loadlockCCG_->setDescription("SSA Loadlock CCG Pressure");
+	loadlockCCG_->setContextKnownDescription("Loadlock CCG");
 	sgmPVName = amNames2pvNames_.valueF("loadlockTCG");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	loadlockTCG_ = new AMReadOnlyPVControl("loadlockTCG", sgmPVName, this);
+	loadlockTCG_->setDescription("SSA Loadlock TCG Pressure");
+	loadlockTCG_->setContextKnownDescription("Loadlock TCG");
 
 
 	sgmPVName = amNames2pvNames_.valueF("ssaManipulatorX");
@@ -273,113 +313,128 @@ void SGMBeamline::usingSGMBeamline(){
 		pvNameLookUpFail = true;
 	/// \todo Now that we have stop integrated into the AMControls... Remove separate stop PVs.
 	ssaManipulatorX_ = new AMPVwStatusControl("ssaManipulatorX", sgmPVName+":fbk", sgmPVName+":sp", "SMTR16114I1018:state", "SMTR16114I1018:emergStop", this, 0.1, 2.0, new AMControlStatusCheckerStopped(0));
-	/*
-	ssaManipulatorX_ = new AMPVwStatusControl("ssaManipulatorX", sgmPVName+":fbk", sgmPVName+":sp", sgmPVName+":sp", "", this, 0.1);
-	ssaManipulatorXStop_ = new AMPVControl("ssaManipulatorXStop", "SMTR16114I1012:emergStop", "SMTR16114I1012:emergStop", "", this, 0.1);
-	*/
+	ssaManipulatorX_->setDescription("SSA Inboard/Outboard");
+	ssaManipulatorX_->setContextKnownDescription("X");
 	sgmPVName = amNames2pvNames_.valueF("ssaManipulatorY");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	ssaManipulatorY_ = new AMPVwStatusControl("ssaManipulatorY", sgmPVName+":fbk", sgmPVName+":sp", "SMTR16114I1019:state", "SMTR16114I1019:emergStop", this, 0.1, 2.0, new AMControlStatusCheckerStopped(0));
-	/*
-	ssaManipulatorY_ = new AMPVwStatusControl("ssaManipulatorY", sgmPVName+":fbk", sgmPVName+":sp", sgmPVName+":sp", "", this, 0.1);
-	ssaManipulatorYStop_ = new AMPVControl("ssaManipulatorYStop", "SMTR16114I1013:emergStop", "SMTR16114I1013:emergStop", "", this, 0.1);
-	*/
+	ssaManipulatorY_->setDescription("SSA Upstream/Downstream");
+	ssaManipulatorY_->setContextKnownDescription("Y");
 	sgmPVName = amNames2pvNames_.valueF("ssaManipulatorZ");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	ssaManipulatorZ_ = new AMPVwStatusControl("ssaManipulatorZ", sgmPVName+":fbk", sgmPVName+":sp", "SMTR16114I1020:state", "SMTR16114I1020:emergStop", this, 0.1, 2.0, new AMControlStatusCheckerStopped(0));
-	/*
-	ssaManipulatorZ_ = new AMPVwStatusControl("ssaManipulatorZ", sgmPVName+":fbk", sgmPVName+":sp", sgmPVName+":sp", "", this, 0.1);
-	ssaManipulatorZStop_ = new AMPVControl("ssaManipulatorZStop", "SMTR16114I1014:emergStop", "SMTR16114I1014:emergStop", "", this, 0.1);
-	*/
+	ssaManipulatorZ_->setDescription("SSA Up/Down");
+	ssaManipulatorZ_->setContextKnownDescription("Z");
 	sgmPVName = amNames2pvNames_.valueF("ssaManipulatorRot");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	ssaManipulatorRot_ = new AMPVwStatusControl("ssaManipulatorRot", sgmPVName+":fbk", sgmPVName+":sp", "SMTR16114I1021:state", "SMTR16114I1021:emergStop", this, 0.1, 2.0, new AMControlStatusCheckerStopped(0));
-	/*
-	ssaManipulatorRot_ = new AMPVwStatusControl("ssaManipulatorRot", sgmPVName+":fbk", sgmPVName+":sp", sgmPVName+":sp", "", this, 0.1);
-	ssaManipulatorRotStop_ = new AMPVControl("ssaManipulatorRotStop", "SMTR16114I1015:emergStop", "SMTR16114I1015:emergStop", "", this, 0.1);
-	*/
+	ssaManipulatorRot_->setDescription("SSA Rotation");
+	ssaManipulatorRot_->setContextKnownDescription("R");
 
 	sgmPVName = amNames2pvNames_.valueF("beamlineScanning");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	beamlineScanning_ = new AMPVControl("beamlineScanning", sgmPVName, sgmPVName, "", this, 0.1);
+	beamlineScanning_->setDescription("Beamline Scanning");
 	sgmPVName = amNames2pvNames_.valueF("beamlineReady");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	beamlineReady_ = new AMReadOnlyPVControl("beamlineReady", sgmPVName, this);
+	beamlineReady_->setDescription("Beamline Status");
 	sgmPVName = amNames2pvNames_.valueF("energyMovingStatus");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	energyMovingStatus_ = new AMReadOnlyPVControl("energyMovingStatus", sgmPVName, this);
+	energyMovingStatus_->setDescription("Energy Status");
 	sgmPVName = amNames2pvNames_.valueF("fastShutterVoltage");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	fastShutterVoltage_ = new AMPVControl("fastShutterVoltage", sgmPVName, sgmPVName, "", this);
+	fastShutterVoltage_->setDescription("Fast Shutter Voltage");
 	sgmPVName = amNames2pvNames_.valueF("gratingVelocity");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	gratingVelocity_ = new AMPVControl("gratingVelocity", sgmPVName, sgmPVName, "", this, 1);
+	gratingVelocity_->setDescription("Grating Motor Velocity");
 	sgmPVName = amNames2pvNames_.valueF("gratingBaseVelocity");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	gratingBaseVelocity_ = new AMPVControl("gratingBaseVelocity", sgmPVName, sgmPVName, "", this, 1);
+	gratingBaseVelocity_->setDescription("Grating Motor Base Velocity");
 	sgmPVName = amNames2pvNames_.valueF("gratingAcceleration");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	gratingAcceleration_ = new AMPVControl("gratingAcceleration", sgmPVName, sgmPVName, "", this, 1);
+	gratingAcceleration_->setDescription("Grating Motor Acceleration");
 	sgmPVName = amNames2pvNames_.valueF("ea1CloseVacuum1");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	ea1CloseVacuum1_ = new AMPVControl("ea1CloseVacuum1", sgmPVName, sgmPVName, "", this);
+	ea1CloseVacuum1_->setDescription("XPS Upstream Close Vacuum Valve");
 	sgmPVName = amNames2pvNames_.valueF("ea1CloseVacuum2");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	ea1CloseVacuum2_ = new AMPVControl("ea1CloseVacuum2", sgmPVName, sgmPVName, "", this);
+	ea1CloseVacuum2_->setDescription("XPS Downstream Close Vacuum Valve");
 	sgmPVName = amNames2pvNames_.valueF("ea2CloseVacuum");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	ea2CloseVacuum_ = new AMPVControl("ea2CloseVacuum", sgmPVName, sgmPVName, "", this);
+	ea2CloseVacuum_->setDescription("SSA Close Vacuum Valve");
 	sgmPVName = amNames2pvNames_.valueF("beamOn");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	beamOn_ = new AMPVControl("beamOn", sgmPVName, sgmPVName, "", this);
+	beamOn_->setDescription("Beam On");
 	sgmPVName = amNames2pvNames_.valueF("visibleLightToggle");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	visibleLightToggle_ = new AMPVControl("visibleLightToggle", sgmPVName, sgmPVName, "", this);
+	visibleLightToggle_->setDescription("Visible Light On/Off");
 	sgmPVName = amNames2pvNames_.valueF("visibleLightStatus");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	visibleLightStatus_ = new AMReadOnlyPVControl("visibleLightStatus", sgmPVName, this);
+	visibleLightStatus_->setDescription("Visible Light Status");
 	sgmPVName = amNames2pvNames_.valueF("activeEndstation");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	activeEndstation_ = new AMPVControl("activeEndstation", sgmPVName, sgmPVName, "", this);
+	activeEndstation_->setDescription("Endstation Selection");
 
 	sgmPVName = amNames2pvNames_.valueF("scalerIntegrationTime");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	scalerIntegrationTime_ = new AMPVControl("scalerIntegrationTime", sgmPVName, sgmPVName, "", this, 0.1);
+	scalerIntegrationTime_->setDescription("Scaler Integration Time");
+	scalerIntegrationTime_->setContextKnownDescription("Integration Time");
 	sgmPVName = amNames2pvNames_.valueF("scalerMode");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	scalerMode_ = new AMPVControl("scalerMode", sgmPVName, sgmPVName, "", this, 0.5);
+	scalerMode_->setDescription("Scaler Mode");
+	scalerMode_->setContextKnownDescription("Mode");
 	sgmPVName = amNames2pvNames_.valueF("scalerTotalNumberOfScans");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	scalerTotalNumberOfScans_ = new AMPVControl("scalerTotalNumberOfScans", sgmPVName, sgmPVName, "", this, 0.5);
+	scalerTotalNumberOfScans_->setDescription("Scaler Number of Scans");
+	scalerTotalNumberOfScans_->setContextKnownDescription("Number of Scans");
 	sgmPVName = amNames2pvNames_.valueF("scalerScansPerBuffer");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	scalerScansPerBuffer_ = new AMPVControl("scalerScansPerBuffer", sgmPVName, sgmPVName, "", this, 0.5);
+	scalerScansPerBuffer_->setDescription("Scaler Scan per Buffer");
+	scalerScansPerBuffer_->setContextKnownDescription("Scans per Buffer");
 
 	sgmPVName = amNames2pvNames_.valueF("detectorSignalSource");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	detectorSignalSource_ = new AMPVControl("detectorSignalSource", sgmPVName, sgmPVName, "", this, 0.5);
+	detectorSignalSource_->setDescription("Detector Sources Selection");
 
 	qDebug() << "\nPV Name Look Ups Failed: " << pvNameLookUpFail << "\n";
 }
@@ -789,6 +844,7 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	ssaManipulatorSet_->addControl(ssaManipulatorY_);
 	ssaManipulatorSet_->addControl(ssaManipulatorZ_);
 	ssaManipulatorSet_->addControl(ssaManipulatorRot_);
+	ssaManipulatorSampleTolerances_ << 1.0 << 1.0 << 1.0 << 15.0;
 	unconnectedSets_.append(ssaManipulatorSet_);
 	connect(ssaManipulatorSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
@@ -939,6 +995,20 @@ bool SGMBeamline::usingScalerSource(){
 	if(detectorSignalSource_ && detectorSignalSource_->isConnected())
 		return (detectorSignalSource_->value() == 1);//ENUM 1 is Scaler
 	return false;
+}
+
+int SGMBeamline::currentSampleId(){
+	if(currentSamplePlate_)
+		return currentSamplePlate_->sampleIdAtPosition(currentSamplePositioner()->toInfoList(), ssaManipulatorSampleTolerances_);
+	return -1;
+}
+
+QString SGMBeamline::currentSampleDescription(){
+	int currentId = currentSampleId();
+	if(currentId == -1)
+		return "<Unknown Sample>";
+	else
+		return AMSample(currentId, AMUser::user()->database()).name();
 }
 
 AMBeamlineListAction* SGMBeamline::createBeamOnActions(){
@@ -1371,66 +1441,70 @@ void SGMBeamline::onControlSetConnected(bool csConnected){
 		unconnectedSets_.removeAll(ctrlSet);
 		if(!teyPicoDetector_ && ctrlSet->name() == "TEY Pico Controls"){
 			teyPicoDetector_ = new AMSingleControlDetector(teyPico_->name(), teyPico_, AMDetector::WaitRead, this);
-			teyPicoDetector_->setDescription("TEY");
+			teyPicoDetector_->setDescription(teyPico_->description());
 			allDetectors_->addDetector(teyPicoDetector_);
 			XASDetectors_->addDetector(teyPicoDetector_, true);
 		}
 		else if(!teyScalerDetector_ && ctrlSet->name() == "TEY Scaler Controls"){
 			teyScalerDetector_ = new AMSingleControlDetector(teyScaler_->name(), teyScaler_, AMDetector::WaitRead, this);
-			teyScalerDetector_->setDescription("TEY");
+			teyScalerDetector_->setDescription(teyScaler_->description());
 			allDetectors_->addDetector(teyScalerDetector_);
 			XASDetectors_->addDetector(teyScalerDetector_, true);
 		}
 		else if(!tfyPicoDetector_ && ctrlSet->name() == "TFY Pico Controls"){
 			tfyPicoDetector_ = new MCPDetector(tfyPico_->name(), tfyPico_, tfyHV_, AMDetector::WaitRead, this);
-			tfyPicoDetector_->setDescription("TFY");
+			tfyPicoDetector_->setDescription(tfyPico_->description());
 			allDetectors_->addDetector(tfyPicoDetector_);
 			XASDetectors_->addDetector(tfyPicoDetector_, true);
 		}
 		else if(!tfyScalerDetector_ && ctrlSet->name() == "TFY Scaler Controls"){
 			tfyScalerDetector_ = new MCPDetector(tfyScaler_->name(), tfyScaler_, tfyHV_, AMDetector::WaitRead, this);
-			tfyScalerDetector_->setDescription("TFY");
+			tfyScalerDetector_->setDescription(tfyScaler_->description());
 			allDetectors_->addDetector(tfyScalerDetector_);
 			XASDetectors_->addDetector(tfyScalerDetector_, true);
 		}
 		else if(!pgtDetector_ && ctrlSet->name() == "SDD Controls"){
 			pgtDetector_ = new PGTDetector(pgt_->name(), pgt_, pgtHV_, pgtIntegrationTime_, pgtIntegrationMode_, AMDetector::WaitRead, this);
+			pgtDetector_->setDescription(pgt_->description());
 			allDetectors_->addDetector(pgtDetector_);
 			XASDetectors_->addDetector(pgtDetector_);
 		}
 		else if(!i0PicoDetector_ && ctrlSet->name() == "I0 Pico Controls"){
 			i0PicoDetector_ = new AMSingleControlDetector(i0Pico_->name(), i0Pico_, AMDetector::WaitRead, this);
-			i0PicoDetector_->setDescription("I0");
+			i0PicoDetector_->setDescription(i0Pico_->description());
 			allDetectors_->addDetector(i0PicoDetector_);
 			feedbackDetectors_->addDetector(i0PicoDetector_);
 		}
 		else if(!i0ScalerDetector_ && ctrlSet->name() == "I0 Scaler Controls"){
 			i0ScalerDetector_ = new AMSingleControlDetector(i0Scaler_->name(), i0Scaler_, AMDetector::WaitRead, this);
-			i0ScalerDetector_->setDescription("I0");
+			i0ScalerDetector_->setDescription(i0Scaler_->description());
 			allDetectors_->addDetector(i0ScalerDetector_);
 			feedbackDetectors_->addDetector(i0ScalerDetector_);
 		}
 		else if(!eVFbkDetector_ && ctrlSet->name() == "Energy Feedback Controls"){
 			eVFbkDetector_ = new AMSingleControlDetector(eVFbk_->name(), eVFbk_, AMDetector::ImmediateRead, this);
+			eVFbkDetector_->setDescription(eVFbk_->description());
 			allDetectors_->addDetector(eVFbkDetector_);
 			feedbackDetectors_->addDetector(eVFbkDetector_);
 		}
 		else if(!photodiodePicoDetector_ && ctrlSet->name() == "Photodiode Pico Controls"){
 			photodiodePicoDetector_ = new AMSingleControlDetector(photodiodePico_->name(), photodiodePico_, AMDetector::WaitRead, this);
-			photodiodePicoDetector_->setDescription("Photodiode");
+			photodiodePicoDetector_->setDescription(photodiodePico_->description());
 			allDetectors_->addDetector(photodiodePicoDetector_);
 		}
 		else if(!photodiodeScalerDetector_ && ctrlSet->name() == "Photodiode Scaler Controls"){
 			photodiodeScalerDetector_ = new AMSingleControlDetector(photodiodeScaler_->name(), photodiodeScaler_, AMDetector::WaitRead, this);
-			photodiodeScalerDetector_->setDescription("Photodiode");
+			photodiodeScalerDetector_->setDescription(photodiodeScaler_->description());
 			allDetectors_->addDetector(photodiodeScalerDetector_);
 		}
 		else if(!encoderUpDetector_ && ctrlSet->name() == "Encoder Up Controls"){
 			encoderUpDetector_ = new AMSingleControlDetector(encoderUp_->name(), encoderUp_, AMDetector::WaitRead, this);
+			encoderUpDetector_->setDescription(encoderUp_->description());
 			allDetectors_->addDetector(encoderUpDetector_);
 		}
 		else if(!encoderDownDetector_ && ctrlSet->name() == "Encoder Down Controls"){
 			encoderDownDetector_ = new AMSingleControlDetector(encoderDown_->name(), encoderDown_, AMDetector::WaitRead, this);
+			encoderDownDetector_->setDescription(encoderDown_->description());
 			allDetectors_->addDetector(encoderDownDetector_);
 		}
 		else if(ctrlSet->name() == "SSA Manipulator"){

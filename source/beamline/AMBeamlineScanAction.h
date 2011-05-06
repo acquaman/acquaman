@@ -36,6 +36,7 @@ class QToolButton;
 #define AMBEAMLINEACTIONITEM_CANT_SET_CURRENT_CONTROLLER 27103
 #define AMBEAMLINEACTIONITEM_CANT_INITIALIZE_CONTROLLER 27104
 #define AMBEAMLINEACTIONITEM_CANT_START_CONTROLLER 27105
+#define AMBEAMLINEACTIONITEM_CANT_SAVE_TO_DB 27106
 
 class AMBeamlineScanAction : public AMBeamlineActionItem
 {
@@ -50,6 +51,8 @@ public:
 	AMScanConfiguration* cfg() const { return cfg_;}
 	virtual bool isRunning() const;
 	virtual bool isPaused() const;
+
+	QString lastSampleDescription() const;
 
 signals:
 	void progress(double, double);
@@ -66,6 +69,8 @@ public slots:
 
 	virtual void cleanup();
 
+	void setLastSampleDescription(const QString &lastSampleDescription);
+
 protected slots:
 	virtual void initialize();
 	void delayedStart(bool ready);
@@ -81,6 +86,7 @@ protected:
 	AMScanConfiguration *cfg_;
 	AMScanController *ctrl_;
 	bool keepOnCancel_;
+	QString lastSampleDescription_;
 };
 
 class AMBeamlineScanActionView : public AMBeamlineActionItemView

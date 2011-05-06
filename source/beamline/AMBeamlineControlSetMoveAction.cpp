@@ -23,6 +23,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLabel>
 #include <QVBoxLayout>
 #include <QPushButton>
+#include <QToolButton>
+#include <QPalette>
+#include <QApplication>
+#include <QStyle>
+
 
 AMBeamlineControlSetMoveAction::AMBeamlineControlSetMoveAction(AMControlSet *controlSet, QObject *parent) :
 		AMBeamlineActionItem(parent)
@@ -176,8 +181,10 @@ void AMBeamlineControlSetMoveAction::calculateProgress(){
 AMBeamlineControlSetMoveActionView::AMBeamlineControlSetMoveActionView(AMBeamlineControlSetMoveAction *controlSetAction, int index, QWidget *parent) :
 		AMBeamlineActionItemView(controlSetAction, index, parent)
 {
-	controlSetAction_ = NULL;
-	setAction(controlSetAction);
+	controlSetAction_ = 0; //NULL
+//	setAction(controlSetAction);
+
+	controlSetAction_ = controlSetAction;
 
 	setMinimumHeight(NATURAL_ACTION_VIEW_HEIGHT);
 	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
@@ -193,6 +200,12 @@ AMBeamlineControlSetMoveActionView::AMBeamlineControlSetMoveActionView(AMBeamlin
 	QVBoxLayout *progressVL = new QVBoxLayout();
 	progressVL->addWidget(progressBar_);
 	progressVL->addWidget(timeRemainingLabel_);
+	connect(controlSetAction_, SIGNAL(progress(double,double)), this, SLOT(updateProgressBar(double,double)));
+	connect(controlSetAction_, SIGNAL(started()), this, SLOT(onStarted()));
+	connect(controlSetAction_, SIGNAL(succeeded()), this, SLOT(onSucceeded()));
+	connect(controlSetAction_, SIGNAL(failed(int)), this, SLOT(onFailed(int)));
+	connect(controlSetAction_, SIGNAL(previousChanged()), this, SLOT(onPreviousNextChanged()));
+	connect(controlSetAction_, SIGNAL(nextChanged()), this, SLOT(onPreviousNextChanged()));
 	closeIcon_ = QIcon(":/window-close.png");
 	stopIcon_ = QIcon(":/media-playback-stop-dark.png");
 	startIcon_ = QIcon(":/media-playback-start-dark.png");
@@ -206,14 +219,29 @@ AMBeamlineControlSetMoveActionView::AMBeamlineControlSetMoveActionView(AMBeamlin
 	playPauseButton_->setFixedWidth(25);
 	playPauseButton_->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
 	playPauseButton_->setEnabled(false);
+	moveActionUpButton_ = new QToolButton();
+	moveActionUpButton_->setIcon(QApplication::style()->standardIcon(QStyle::SP_ArrowUp));
+	moveActionUpButton_->setEnabled(false);
+	moveActionDownButton_ = new QToolButton();
+	moveActionDownButton_->setIcon(QApplication::style()->standardIcon(QStyle::SP_ArrowDown));
+	moveActionDownButton_->setEnabled(false);
 	connect(stopCancelButton_, SIGNAL(clicked()), this, SLOT(onStopCancelButtonClicked()));
 	connect(playPauseButton_, SIGNAL(clicked()), this, SLOT(onPlayPauseButtonClicked()));
+	connect(moveActionUpButton_, SIGNAL(clicked()), this, SLOT(onMoveUpButtonClicked()));
+	connect(moveActionDownButton_, SIGNAL(clicked()), this, SLOT(onMoveDownButtonClicked()));
 	hl_ = new QHBoxLayout();
 	hl_->addWidget(infoLabel_);
 	hl_->addLayout(progressVL);
 	hl_->addWidget(playPauseButton_, 0, Qt::AlignTop | Qt::AlignRight);
 	hl_->addWidget(stopCancelButton_, 0, Qt::AlignTop | Qt::AlignRight);
+	QVBoxLayout *swapVL = new QVBoxLayout();
+	swapVL->addWidget(moveActionUpButton_);
+	swapVL->addWidget(moveActionDownButton_);
+	swapVL->setContentsMargins(0,0,0,0);
+	swapVL->setSpacing(0);
+	hl_->addLayout(swapVL);
 	setLayout(hl_);
+	onPreviousNextChanged();
 }
 
 void AMBeamlineControlSetMoveActionView::setIndex(int index){
@@ -228,6 +256,8 @@ void AMBeamlineControlSetMoveActionView::setAction(AMBeamlineActionItem *action)
 		disconnect(controlSetAction_, SIGNAL(started()), this, SLOT(onStarted()));
 		disconnect(controlSetAction_, SIGNAL(succeeded()), this, SLOT(onSucceeded()));
 		disconnect(controlSetAction_, SIGNAL(failed(int)), this, SLOT(onFailed(int)));
+		disconnect(controlSetAction_, SIGNAL(previousChanged()), this, SLOT(onPreviousNextChanged()));
+		disconnect(controlSetAction_, SIGNAL(nextChanged()), this, SLOT(onPreviousNextChanged()));
 	}
 	controlSetAction_ = controlSetAction;
 	if(controlSetAction_){
@@ -235,7 +265,10 @@ void AMBeamlineControlSetMoveActionView::setAction(AMBeamlineActionItem *action)
 		connect(controlSetAction_, SIGNAL(started()), this, SLOT(onStarted()));
 		connect(controlSetAction_, SIGNAL(succeeded()), this, SLOT(onSucceeded()));
 		connect(controlSetAction_, SIGNAL(failed(int)), this, SLOT(onFailed(int)));
+		connect(controlSetAction_, SIGNAL(previousChanged()), this, SLOT(onPreviousNextChanged()));
+		connect(controlSetAction_, SIGNAL(nextChanged()), this, SLOT(onPreviousNextChanged()));
 	}
+	onPreviousNextChanged();
 }
 
 void AMBeamlineControlSetMoveActionView::onInfoChanged(){
@@ -279,7 +312,30 @@ void AMBeamlineControlSetMoveActionView::onPlayPauseButtonClicked(){
 
 }
 
+void AMBeamlineControlSetMoveActionView::onPreviousNextChanged(){
+	if(controlSetAction_ && !controlSetAction_->hasFinished() && controlSetAction_->previous() && !controlSetAction_->previous()->isRunning() && !controlSetAction_->previous()->hasFinished())
+		moveActionUpButton_->setEnabled(true);
+	else
+		moveActionUpButton_->setEnabled(false);
+	if(controlSetAction_ && !controlSetAction_->hasFinished() && controlSetAction_->next())
+		moveActionDownButton_->setEnabled(true);
+	else
+		moveActionDownButton_->setEnabled(false);
+}
+
+void AMBeamlineControlSetMoveActionView::onMoveUpButtonClicked(){
+	emit moveUpRequested(controlSetAction_);
+}
+
+void AMBeamlineControlSetMoveActionView::onMoveDownButtonClicked(){
+	emit moveDownRequested(controlSetAction_);
+}
+
 void AMBeamlineControlSetMoveActionView::onStarted(){
+	disconnect(moveActionUpButton_, SIGNAL(clicked()), this, SLOT(onMoveUpButtonClicked()));
+	disconnect(moveActionDownButton_, SIGNAL(clicked()), this, SLOT(onMoveDownButtonClicked()));
+	moveActionUpButton_->setEnabled(false);
+	moveActionDownButton_->setEnabled(false);
 	stopCancelButton_->setIcon(stopIcon_);
 	playPauseButton_->setIcon(pauseIcon_);
 	playPauseButton_->setEnabled(true);

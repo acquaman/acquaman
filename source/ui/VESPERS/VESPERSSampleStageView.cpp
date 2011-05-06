@@ -1,8 +1,8 @@
 #include "VESPERSSampleStageView.h"
+#include "ui/AMStopButton.h"
 
 #include <QToolButton>
 #include <QGroupBox>
-#include <QLabel>
 #include <QGridLayout>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -29,6 +29,9 @@ VESPERSSampleStageView::VESPERSSampleStageView(QWidget *parent) :
 		connect(VESPERSBeamline::vespers()->sampleStageMotorSet(), SIGNAL(connected(bool)), this, SLOT(onConnectedChanged(bool)));
 	}
 
+	status_ = new QLabel;
+	status_->setPixmap(QIcon(":/OFF.png").pixmap(25));
+
 	QToolButton *goUp = new QToolButton;
 	goUp->setIcon(QIcon(":/go-up.png"));
 	connect(goUp, SIGNAL(clicked()), this, SLOT(onUpClicked()));
@@ -51,15 +54,22 @@ VESPERSSampleStageView::VESPERSSampleStageView(QWidget *parent) :
 	buttons_->addButton(goLeft, 2);
 	buttons_->addButton(goRight, 3);
 
+	AMGroupStopButton *stop = new AMGroupStopButton(VESPERSBeamline::vespers()->sampleStageMotorSet()->toList());
+
 	QGridLayout *arrowLayout = new QGridLayout;
 	arrowLayout->addWidget(goUp, 0, 1);
 	arrowLayout->addWidget(goDown, 2, 1);
 	arrowLayout->addWidget(goLeft, 1, 0);
 	arrowLayout->addWidget(goRight, 1, 2);
+	arrowLayout->addWidget(stop, 1, 1);
+
+	QHBoxLayout *jogAndStatusLayout = new QHBoxLayout;
+	jogAndStatusLayout->addWidget(status_, 0, Qt::AlignLeft);
+	jogAndStatusLayout->addWidget(jog_);
 
 	QVBoxLayout *holderLayout = new QVBoxLayout;
 	holderLayout->addLayout(arrowLayout);
-	holderLayout->addWidget(jog_);
+	holderLayout->addLayout(jogAndStatusLayout);
 
 	QGroupBox *holder = new QGroupBox("Sample Stage Control");
 	holder->setLayout(holderLayout);
@@ -73,26 +83,31 @@ VESPERSSampleStageView::VESPERSSampleStageView(QWidget *parent) :
 
 void VESPERSSampleStageView::onUpClicked()
 {
-	vertical_->move(jog_->value());
+	vertical_->move(vertical_->value()+jog_->value());
 }
 
 void VESPERSSampleStageView::onDownClicked()
 {
-	vertical_->move(-jog_->value());
+	vertical_->move(vertical_->value()-jog_->value());
 }
 
 void VESPERSSampleStageView::onLeftClicked()
 {
-	horizontal_->move(-jog_->value());
+	horizontal_->move(horizontal_->value()-jog_->value());
 }
 
 void VESPERSSampleStageView::onRightClicked()
 {
-	horizontal_->move(jog_->value());
+	horizontal_->move(horizontal_->value()+jog_->value());
 }
 
 void VESPERSSampleStageView::onMovingChanged(bool isMoving)
 {
+	if (horizontal_->isMoving() || vertical_->isMoving())
+		status_->setPixmap(QIcon(":/ON.png").pixmap(25));
+	else
+		status_->setPixmap(QIcon(":/OFF.png").pixmap(25));
+
 	for (int i = 0; i < 4; i++)
 		buttons_->button(i)->setDisabled(isMoving);
 }

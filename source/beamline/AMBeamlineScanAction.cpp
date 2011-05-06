@@ -34,9 +34,10 @@ AMBeamlineScanAction::AMBeamlineScanAction(AMScanConfiguration *cfg, QObject *pa
 		AMBeamlineActionItem(true, parent)
 {
 	cfg_ = cfg;
+	lastSampleDescription_ = "<Unknown Sample>";
 	if(cfg_){
 		connect(cfg_, SIGNAL(configurationChanged()), this, SLOT(onConfigurationChanged()));
-		setDescription(cfg_->description());
+		setDescription(cfg_->description()+" on "+lastSampleDescription_);
 	}
 	ctrl_ = NULL;
 	keepOnCancel_ = false;
@@ -65,6 +66,10 @@ bool AMBeamlineScanAction::isPaused() const{
 		return false;
 
 	return ctrl_->isPaused();
+}
+
+QString AMBeamlineScanAction::lastSampleDescription() const{
+	return lastSampleDescription_;
 }
 
 void AMBeamlineScanAction::start(){
@@ -131,10 +136,16 @@ void AMBeamlineScanAction::cleanup(){
 		AMScanControllerSupervisor::scanControllerSupervisor()->deleteCurrentScanController();
 }
 
+void AMBeamlineScanAction::setLastSampleDescription(const QString &lastSampleDescription){
+	lastSampleDescription_ = lastSampleDescription;
+	setDescription(cfg_->description()+" on "+lastSampleDescription_);
+	emit descriptionChanged();
+}
+
 void AMBeamlineScanAction::pause(bool pause){
 
 	if(pause){
-		setDescription(cfg_->description()+" [Paused]");
+		setDescription(cfg_->description()+" on "+lastSampleDescription_+" [Paused]");
 		emit descriptionChanged();
 		ctrl_->pause();
 	}
@@ -166,21 +177,30 @@ void AMBeamlineScanAction::onScanInitialized(){
 }
 
 void AMBeamlineScanAction::onScanStarted(){
-	setDescription(cfg_->description()+" [Running]");
+	setDescription(cfg_->description()+" on "+lastSampleDescription_+" [Running]");
 	emit descriptionChanged();
 	setStarted(true);
+	ctrl_->scan()->storeToDb(AMDatabase::userdb());
+	if(!ctrl_->scan()->database()){
+		AMErrorMon::report(AMErrorReport(this,
+				AMErrorReport::Alert,
+				AMBEAMLINEACTIONITEM_CANT_SAVE_TO_DB,
+				"Error, could not save scan to database. Please report this bug to the Acquaman developers."));
+	}
 }
 
 void AMBeamlineScanAction::onScanCancelled(){
-	setDescription(cfg_->description()+" [Cancelled]");
+	setDescription(cfg_->description()+" on "+lastSampleDescription_+" [Cancelled]");
 	emit descriptionChanged();
 	setFailed(true, AMBEAMLINEACTIONITEM_SCAN_CANCELLED);
 }
 
 void AMBeamlineScanAction::onScanSucceeded(){
-	setDescription(cfg_->description()+" [Completed "+AMDateTimeUtils::prettyDateTime(QDateTime::currentDateTime())+"]");
+	setDescription(cfg_->description()+" on "+lastSampleDescription_+" [Completed "+AMDateTimeUtils::prettyDateTime(QDateTime::currentDateTime())+"]");
 	emit descriptionChanged();
 	setSucceeded(true);
+	if(ctrl_->scan()->database())
+		ctrl_->scan()->storeToDb(ctrl_->scan()->database());
 }
 
 void AMBeamlineScanAction::onScanFailed(){
@@ -192,7 +212,7 @@ void AMBeamlineScanAction::onBeamlineScanningChanged(bool isScanning){
 }
 
 void AMBeamlineScanAction::onConfigurationChanged(){
-	setDescription(cfg_->description());
+	setDescription(cfg_->description()+" on "+lastSampleDescription_);
 	emit descriptionChanged();
 }
 
@@ -430,6 +450,8 @@ void AMBeamlineScanActionView::onMoveDownButtonClicked(){
 void AMBeamlineScanActionView::mouseDoubleClickEvent(QMouseEvent *){
 	if(configurationView_ == 0)
 		configurationView_ = scanAction_->cfg()->createView();
+	if(scanAction_->hasFinished())
+		configurationView_->setDisabled(true);
 	configurationView_->setWindowModality(Qt::WindowModal);
 	configurationView_->show();
 }

@@ -29,7 +29,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "acquaman/AMScanConfiguration.h"
 #include "beamline/AMBeamlineScanAction.h"
-#include "beamline/AMBeamlineControlSetMoveAction.h"
+//#include "beamline/AMBeamlineControlSetMoveAction.h"
+#include "beamline/AMBeamlineSamplePlateMoveAction.h"
+#include "beamline/AMBeamlineFiducializationMoveAction.h"
 
 #include "beamline/AMBeamline.h"
 #include "ui/AMVerticalStackWidget.h"
@@ -238,19 +240,6 @@ void AMWorkflowManagerView::onAddActionButtonClicked(){
 		}
 		addActionMenu_->addMenu(fiducializationMarkAddActionMenu_);
 	}
-
-	swapMenu_ = new QMenu();
-	swapMenu_->setTitle("Swap Samples");
-	int headIndex = workflowQueue_->indexOfHead();
-	if(headIndex >= 0){
-		for(int x = headIndex; x < workflowActions_->count()-1; x++){
-			tmpAction = swapMenu_->addAction(QString("Swap %1 for %2").arg(x+1-headIndex).arg(x+2-headIndex));
-			tmpAction->setData(x);
-			connect(tmpAction, SIGNAL(hovered()), this, SLOT(setSwapHoverIndex()));
-			connect(tmpAction, SIGNAL(triggered()), this, SLOT(onSwapClicked()));
-		}
-	}
-	addActionMenu_->addMenu(swapMenu_);
 	addActionMenu_->popup(QCursor::pos());
 	addActionMenu_->show();
 }
@@ -264,29 +253,14 @@ void AMWorkflowManagerView::setFiducializationHoverIndex(){
 }
 
 void AMWorkflowManagerView::onSamplePlateAddActionClicked(){
-	qDebug() << "Sample triggered is " << samplePlateHoverIndex_;
-	qDebug() << "Position is " << currentSamplePlate_->at(samplePlateHoverIndex_).position();
-	AMBeamlineControlSetMoveAction *sampleMoveAction = new AMBeamlineControlSetMoveAction(AMBeamline::bl()->currentSamplePositioner());
+	AMBeamlineSamplePlateMoveAction *sampleMoveAction = new AMBeamlineSamplePlateMoveAction(currentSamplePlate_->at(samplePlateHoverIndex_).sampleId(), samplePlateModel_);
 	sampleMoveAction->setSetpoint(currentSamplePlate_->at(samplePlateHoverIndex_).position());
 	insertBeamlineAction(-1, sampleMoveAction);
 }
 
-void AMWorkflowManagerView::onFiducializationMarkAddActionClicked(){
-	qDebug() << "Fiducialization triggered is " << fiducializationMarkHoverIndex_;
-	qDebug() << "Fiducialization position is " << AMBeamline::bl()->currentFiducializations().at(fiducializationMarkHoverIndex_);
-	AMBeamlineControlSetMoveAction *sampleMoveAction = new AMBeamlineControlSetMoveAction(AMBeamline::bl()->currentSamplePositioner());
-	sampleMoveAction->setSetpoint(AMBeamline::bl()->currentFiducializations().at(fiducializationMarkHoverIndex_));
-	insertBeamlineAction(-1, sampleMoveAction);
-}
-
-void AMWorkflowManagerView::setSwapHoverIndex(){
-	swapHoverIndex_ = swapMenu_->activeAction()->data().toInt();
-}
-
-void AMWorkflowManagerView::onSwapClicked(){
-	workflowActions_->swapActions(swapHoverIndex_);
-	if(!workflowView_->swap(swapHoverIndex_))
-		qDebug() << "Oh Crap!";
+void AMWorkflowManagerView::onFiducializationMarkAddActionClicked(){ qDebug() << "Fiducialization triggered is " << fiducializationMarkHoverIndex_;
+	AMBeamlineFiducializationMoveAction *fiducializationMoveAction = new AMBeamlineFiducializationMoveAction(fiducializationMarkHoverIndex_);
+	insertBeamlineAction(-1, fiducializationMoveAction);
 }
 
 bool AMWorkflowManagerView::beamlineBusy() const {
@@ -357,12 +331,23 @@ void AMBeamlineActionsListView::onActionRemoveRequested(AMBeamlineActionItem *it
 
 void AMBeamlineActionsListView::reindexViews(){
 	if(actionsQueue_->indexOfHead() != -1){
+		QString lastSampleDescription = AMBeamline::bl()->currentSampleDescription();
 		for(int x = 0; x < actionsQueue_->indexOfHead(); x++)
 			if(actionsViewList_->widget(x) && ((AMBeamlineActionItemView*)(actionsViewList_->widget(x)))->index() != -1 )
 				((AMBeamlineActionItemView*)(actionsViewList_->widget(x)))->setIndex(-1);
-		for(int x = actionsQueue_->indexOfHead(); x < actionsList_->count(); x++)
+		for(int x = actionsQueue_->indexOfHead(); x < actionsList_->count(); x++){
 			if(actionsViewList_->widget(x) && ((AMBeamlineActionItemView*)(actionsViewList_->widget(x)))->index() != x-actionsQueue_->indexOfHead()+1 )
 				((AMBeamlineActionItemView*)(actionsViewList_->widget(x)))->setIndex(x-actionsQueue_->indexOfHead()+1);
+			AMBeamlineScanAction *scanAction = qobject_cast<AMBeamlineScanAction*>(actionsList_->action(x));
+			if(scanAction)
+				scanAction->setLastSampleDescription(lastSampleDescription);
+			AMBeamlineSamplePlateMoveAction *sampleAction = qobject_cast<AMBeamlineSamplePlateMoveAction*>(actionsList_->action(x));
+			if(sampleAction)
+				lastSampleDescription = sampleAction->sampleDescription();
+			AMBeamlineFiducializationMoveAction *fiducializationAction = qobject_cast<AMBeamlineFiducializationMoveAction*>(actionsList_->action(x));
+			if(fiducializationAction)
+				lastSampleDescription = fiducializationAction->sampleDescription();
+		}
 	}
 	else
 		for(int x = 0; x < actionsList_->count(); x++)

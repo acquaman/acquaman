@@ -45,10 +45,13 @@ class SGMFluxResolutionPickerView;
 class SGMXASScanConfigurationView : public AMScanConfigurationView{
 Q_OBJECT
 public:
-		SGMXASScanConfigurationView(SGMXASScanConfiguration *sxsc, QWidget *parent = 0);
-		~SGMXASScanConfigurationView();
+	SGMXASScanConfigurationView(SGMXASScanConfiguration *sxsc, QWidget *parent = 0);
+	~SGMXASScanConfigurationView();
 
-		const AMScanConfiguration* configuration() const;
+	const AMScanConfiguration* configuration() const;
+
+public slots:
+	void setDisabled(bool disabled);
 
 protected slots:
 	void onRegionsChanged(){
@@ -87,6 +90,8 @@ public:
 
 public slots:
 	void setFromInfoList(const AMControlInfoList &infoList);
+
+	void setDisabled(bool disabled);
 
 protected slots:
 	void onRegionsChanged();

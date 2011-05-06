@@ -95,7 +95,7 @@ AMControlInfoList AMControlSet::toInfoList() const {
 	int numControls = count();
 	for(int i=0; i<numControls; i++) {
 		AMControl* c = at(i);
-		rv.append( AMControlInfo(c->name(), c->value(), c->minimumValue(), c->maximumValue(), c->units()) );
+		rv.append( AMControlInfo(c->name(), c->value(), c->minimumValue(), c->maximumValue(), c->units(), c->tolerance(), c->description(), c->contextKnownDescription()) );
 	}
 
 	return rv;

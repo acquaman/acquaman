@@ -67,6 +67,16 @@ public:
 public slots:
 	/// Places coloured markers on the plot to show where the acceptable emission lines are in the range of the detector.
 	void showEmissionLines(AMElement *el);
+	/// Changes the colors of the ROIMarkers for the latest element selected, if any.
+	void highlightMarkers(AMElement *el);
+	/// Slot handling what happens when a region of interest is added.
+	void onAdditionOfRegionOfInterest(AMElement *el, QPair<QString, QString> line);
+	/// Slot handling what happens when a region of interest is removed.
+	void onRemovalOfRegionOfInterest(AMElement *el, QPair<QString, QString> line);
+	/// Slot removing all the element markers.
+	void removeAllRegionsOfInterest();
+	/// Handles resizing the ROIPlotMarkers based on the maximum height of the data.
+	void resizeRoiMarkers();
 
 protected slots:
 	/// Handles the update from the dead time control.
@@ -79,6 +89,10 @@ protected slots:
 	void onComboBoxUpdate(int index);
 	/// Handles the changes from the update rate control.
 	void onUpdateRateUpdate(double val);
+	/// Enables/Disables whether the raw spectra are displayed or the corrected sum.
+	void onWaterfallToggled(bool isWaterfall);
+	/// Changes the amount of waterfall separation between the plots.
+	void onWaterfallSeparationChanged(double val);
 
 protected:
 
@@ -88,6 +102,9 @@ protected:
 
 	/// Sets up the plot.  Can add the plot widget to the layout after calling this function.
 	void setupPlot();
+
+	/// Gets the maximum height from the first data source.  Used for scaling the height of the ROI markers.
+	double getMaximumHeight(MPlotItem *data);
 
 	/// Get a color for the color of a line on the plot.
 	QColor getColor(int index);
@@ -103,6 +120,8 @@ protected:
 	QLabel *deadTime_;
 	/// The spectrum update rate combo box.
 	QComboBox *updateRate_;
+	/// The waterfall spin box.
+	QDoubleSpinBox *waterfallSeparation_;
 
 	/// The button group used for the dead time tool buttons.
 	QButtonGroup *deadTimeGroup_;
@@ -111,6 +130,8 @@ protected:
 	MPlotWidget *view_;
 	/// This is the plot itself.
 	MPlot *plot_;
+	/// Holds the list of current markers.
+	QList<MPlotItem *> markers_;
 	/// This holds the plot markers for showing emission lines.
 	QList<MPlotPoint *> *lines_;
 };

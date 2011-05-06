@@ -47,7 +47,19 @@ AMSamplePlate::AMSamplePlate(const AMSamplePlate& other) : AMDbObject(), AMOrder
 // Using auto-generated assignment operator is fine
 
 
-
+int AMSamplePlate::sampleIdAtPosition(const AMControlInfoList &position, const QList<double> tolerances) const{
+	if(tolerances.count() == 0){
+		for(int x = count()-1; x >= 0; x--)
+			if( at(x).position() == position )
+				return at(x).sampleId();
+	}
+	else{
+		for(int x = count()-1; x >= 0; x--)
+			if( at(x).position().compareWithinTolerance(position, tolerances))
+				return at(x).sampleId();
+	}
+	return -1;
+}
 
 
 // Export the current positions to the database

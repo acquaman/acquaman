@@ -249,6 +249,7 @@ AMBeamlineActionItemView::AMBeamlineActionItemView(AMBeamlineActionItem *action,
 	setAction(action);
 	index_ = index;
 	inFocus_ = false;
+	movable_ = false;
 	optionsMenu_ = 0; //NULL
 	setLineWidth(2);
 	setMidLineWidth(0);
@@ -263,6 +264,10 @@ AMBeamlineActionItemView::AMBeamlineActionItemView(AMBeamlineActionItem *action,
 
 AMBeamlineActionItem* AMBeamlineActionItemView::action(){
 	return action_;
+}
+
+bool AMBeamlineActionItemView::movable() const{
+	return movable_;
 }
 
 void AMBeamlineActionItemView::setIndex(int index){
@@ -293,6 +298,10 @@ void AMBeamlineActionItemView::setAction(AMBeamlineActionItem *action){
 void AMBeamlineActionItemView::defocusItem(){
 	inFocus_ = false;
 	updateLook();
+}
+
+void AMBeamlineActionItemView::setMovable(bool movable){
+	movable_ = movable;
 }
 
 void AMBeamlineActionItemView::onCreateCopyClicked(){

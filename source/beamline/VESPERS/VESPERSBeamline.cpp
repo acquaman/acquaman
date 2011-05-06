@@ -53,7 +53,6 @@ void VESPERSBeamline::setupDiagnostics()
 	ccgPostWindow_ =  new AMReadOnlyPVwStatusControl("Pressure Post-Window", "CCG1607-2-B21-03:vac:p", "CCG1607-2-B21-03:vac", this, new AMControlStatusCheckerDefault(0));
 
 	// Valve controls.
-	/// \todo This only reads the status right now.  Will need to change to a dual state control when I get around to making it.
 	vvrFE1_ = new AMReadOnlyPVControl("Valve FE1", "VVR1408-B20-01:state", this);
 	vvrFE2_ = new AMReadOnlyPVControl("Valve FE2", "VVR1607-1-B20-01:state", this);
 	vvrM1_ = new AMReadOnlyPVControl("Valve M1", "VVR1607-1-B20-02:state", this);
@@ -65,6 +64,19 @@ void VESPERSBeamline::setupDiagnostics()
 	vvrBPM3_ = new AMReadOnlyPVControl("Valve BPM3", "VVR1607-1-B20-08:state", this);
 	vvrSSH_ = new AMReadOnlyPVControl("Valve SSH", "VVR1607-1-B21-01:state", this);
 	vvrBeamTransfer_ = new AMReadOnlyPVControl("Valve Beam Transfer", "VVR1607-2-B21-01:state", this);
+
+	// The actual valve control.  The reason for separating them is due to the fact that there currently does not exist an AMControl that handles setups like valves.
+	valveFE1_ = new AMValveControl("Valve Control FE1", "VVR1408-B20-01:state", "VVR1408-B20-01:opr:open", "VVR1408-B20-01:opr:close", this);
+	valveFE2_ = new AMValveControl("Valve Control FE2", "VVR1607-1-B20-01:state", "VVR1607-1-B20-01:opr:open", "VVR1607-1-B20-01:opr:close", this);
+	valveM1_ = new AMValveControl("Valve Control M1", "VVR1607-1-B20-02:state", "VVR1607-1-B20-02:opr:open", "VVR1607-1-B20-02:opr:close", this);
+	valveM2_ = new AMValveControl("Valve Control M2", "VVR1607-1-B20-03:state", "VVR1607-1-B20-03:opr:open", "VVR1607-1-B20-03:opr:close", this);
+	valveBPM1_ = new AMValveControl("Valve Control BPM1", "VVR1607-1-B20-04:state", "VVR1607-1-B20-04:opr:open", "VVR1607-1-B20-04:opr:close", this);
+	valveMono_ = new AMValveControl("Valve Control Mono", "VVR1607-1-B20-05:state", "VVR1607-1-B20-05:opr:open", "VVR1607-1-B20-05:opr:close", this);
+	valveExitSlits_ = new AMValveControl("Valve Control Exit Slits", "VVR1607-1-B20-06:state", "VVR1607-1-B20-06:opr:open", "VVR1607-1-B20-06:opr:close", this);
+	valveStraightSection_ = new AMValveControl("Valve Control Straight Section", "VVR1607-1-B20-07:state", "VVR1607-1-B20-07:opr:open", "VVR1607-1-B20-07:opr:close", this);
+	valveBPM3_ = new AMValveControl("Valve Control BPM3", "VVR1607-1-B20-08:state", "VVR1607-1-B20-08:opr:open", "VVR1607-1-B20-08:opr:close", this);
+	valveSSH_ = new AMValveControl("Valve Control SSH", "VVR1607-1-B21-01:state", "VVR1607-1-B21-01:opr:open", "VVR1607-1-B21-01:opr:close", this);
+	valveBeamTransfer_ = new AMValveControl("Valve Control Beam Transfer", "VVR1607-2-B21-01:state", "VVR1607-2-B21-01:opr:open", "VVR1607-2-B21-01:opr:close", this);
 
 	// Ion pump controls.
 	iopFE1a_ = new AMReadOnlyPVControl("Ion Pump FE1 a", "IOP1408-B20-01", this);
@@ -134,6 +146,16 @@ void VESPERSBeamline::setupDiagnostics()
 	fltInterimSlits2_ = new AMReadOnlyPVControl("Flow Transducer Interim Slits 2", "FLT1607-1-B21-03:lowflow", this);
 	fltPoeSsh1_ = new AMReadOnlyPVControl("Flow Transducer POE SSH1", "FLT1607-1-B21-04:lowflow", this);
 	fltPoeSsh2_ = new AMReadOnlyPVControl("Flow Transducer POE SSH2", "FLT1607-1-B22-02:lowflow", this);
+
+	// The beam attenuation filters.
+	filter250umA_ = new AMPVControl("Filter 250um A", "07B2_PLC_PFIL_01_F1_Ctrl", "07B2_PLC_PFIL_01_F1_Toggle");
+	filter250umB_ = new AMPVControl("Filter 250um B", "07B2_PLC_PFIL_01_F2_Ctrl", "07B2_PLC_PFIL_01_F2_Toggle");
+	filter100umA_ = new AMPVControl("Filter 100um A", "07B2_PLC_PFIL_02_F3_Ctrl", "07B2_PLC_PFIL_02_F3_Toggle");
+	filter100umB_ = new AMPVControl("Filter 100um B", "07B2_PLC_PFIL_02_F4_Ctrl", "07B2_PLC_PFIL_02_F4_Toggle");
+	filter50umA_ = new AMPVControl("Filter 50um A", "07B2_PLC_PFIL_02_F1_Ctrl", "07B2_PLC_PFIL_02_F1_Toggle");
+	filter50umB_ = new AMPVControl("Filter 50um B", "07B2_PLC_PFIL_02_F2_Ctrl", "07B2_PLC_PFIL_02_F2_Toggle");
+	filterShutterUpper_ = new AMPVControl("Filter Shutter Upper", "07B2_PLC_PFIL_01_F3_Ctrl", "07B2_PLC_PFIL_01_F3_Toggle");
+	filterShutterLower_ = new AMPVControl("Filter Shutter Lower", "07B2_PLC_PFIL_01_F4_Ctrl", "07B2_PLC_PFIL_01_F4_Toggle");
 }
 
 void VESPERSBeamline::setupSampleStage()
@@ -224,13 +246,25 @@ void VESPERSBeamline::setupSingleElementDetector()
 								spectrum1E_,
 								this);
 
-	connect(vortexXRF1E(), SIGNAL(detectorConnected(bool)), this, SLOT(singleElVortexError()));
+	connect(vortexXRF1E(), SIGNAL(detectorConnected(bool)), this, SLOT(singleElVortexError(bool)));
+
+	QList<AMROI *> rois;
+	AMROI *roi;
+
+	// Currently all detectors I'm aware of have 32 ROIs.
+	for (int i = 0; i < 32; i++){
+
+		roi = createROI(1, i, "IOC1607-004:mca");
+		rois << roi;
+	}
+
+	vortexXRF1E()->setRoiList(rois);
 }
 
 void VESPERSBeamline::setupFourElementDetector()
 {
-	status4E_ = new AMReadOnlyPVControl("4-el Status", "dxp1607-B21-04:Status", this);
-	elapsedTime4E_ = new AMReadOnlyPVControl("4-el Elapsed Time", "dxp1607-B21-04:ElaspedReal", this);
+	status4E_ = new AMReadOnlyPVControl("4-el Status", "dxp1607-B21-04:mca1.ACQG", this);
+	elapsedTime4E_ = new AMReadOnlyPVControl("4-el Elapsed Time", "dxp1607-B21-04:ElapsedReal", this);
 	integrationTime4E_ = new AMPVControl("4-el Integration Time", "dxp1607-B21-04:PresetReal", "dxp1607-B21-04:PresetReal", QString(), this);
 	liveTime4E_ = new AMPVControl("4-el Live Time", "dxp1607-B21-04:PresetLive", "dxp1607-B21-04:PresetLive", QString(), this);
 	start4E_ = new AMPVControl("4-el Start", "dxp1607-B21-04:EraseStart", "dxp1607-B21-04:EraseStart", QString(), this);
@@ -238,10 +272,10 @@ void VESPERSBeamline::setupFourElementDetector()
 	maxEnergy4E_ = new AMPVControl("4-el Maximum Energy", "dxp1607-B21-04:mcaEMax", "dxp1607-B21-04:mcaEMax", QString(), this);
 	mcaUpdateRate4E_ = new AMPVControl("4-el MCA Update Rate", "dxp1607-B21-04:ReadAll.SCAN", "dxp1607-B21-04:ReadAll.SCAN", QString(), this);
 	peakingTime4E_ = new AMPVControl("4-el Peaking Time", "dxp1607-B21-04:EnergyPkTime", "dxp1607-B21-04:EnergyPkTime", QString(), this);
-	deadTime14E_ = new AMReadOnlyPVControl("4-el Dead Time 1", "dxp1607-B21-04:dxp1.NetDTP", this);
-	deadTime24E_ = new AMReadOnlyPVControl("4-el Dead Time 2", "dxp1607-B21-04:dxp2.NetDTP", this);
-	deadTime34E_ = new AMReadOnlyPVControl("4-el Dead Time 3", "dxp1607-B21-04:dxp3.NetDTP", this);
-	deadTime44E_ = new AMReadOnlyPVControl("4-el Dead Time 4", "dxp1607-B21-04:dxp4.NetDTP", this);
+	deadTime14E_ = new AMReadOnlyPVControl("4-el Dead Time 1", "dxp1607-B21-04:dxp1:NetDTP", this);
+	deadTime24E_ = new AMReadOnlyPVControl("4-el Dead Time 2", "dxp1607-B21-04:dxp2:NetDTP", this);
+	deadTime34E_ = new AMReadOnlyPVControl("4-el Dead Time 3", "dxp1607-B21-04:dxp3:NetDTP", this);
+	deadTime44E_ = new AMReadOnlyPVControl("4-el Dead Time 4", "dxp1607-B21-04:dxp4:NetDTP", this);
 	rawSpectrum14E_ = new AMReadOnlyPVControl("4-el Raw Spectrum 1", "dxp1607-B21-04:mca1", this);
 	rawSpectrum24E_ = new AMReadOnlyPVControl("4-el Raw Spectrum 2", "dxp1607-B21-04:mca2", this);
 	rawSpectrum34E_ = new AMReadOnlyPVControl("4-el Raw Spectrum 3", "dxp1607-B21-04:mca3", this);
@@ -303,7 +337,72 @@ void VESPERSBeamline::setupFourElementDetector()
 								spectra4E_,
 								this);
 
-	connect(vortexXRF4E(), SIGNAL(detectorConnected(bool)), this, SLOT(fourElVortexError()));
+	connect(vortexXRF4E(), SIGNAL(detectorConnected(bool)), this, SLOT(fourElVortexError(bool)));
+
+	QList<AMROI *> rois;
+	AMROI *roi;
+
+	// Currently all detectors I'm aware of have 32 ROIs.
+	for (int i = 0; i < 32; i++){
+
+		roi = createROI(4, i, "dxp1607-B21-04:mca");
+		rois << roi;
+	}
+
+	vortexXRF4E()->setRoiList(rois);
+}
+
+AMROI *VESPERSBeamline::createROI(int numElements, int roiNum, QString baseName)
+{
+	AMProcessVariable *namePV;
+	AMProcessVariable *lowPV;
+	AMProcessVariable *highPV;
+	AMProcessVariable *valPV;
+
+	// Things are simpler with one element.
+	if (numElements == 1){
+
+		namePV = new AMProcessVariable(baseName+"1.R"+QString::number(roiNum)+"NM", true);
+		lowPV = new AMProcessVariable(baseName+"1.R"+QString::number(roiNum)+"LO", true);
+		highPV = new AMProcessVariable(baseName+"1.R"+QString::number(roiNum)+"HI", true);
+		valPV = new AMProcessVariable(baseName+"1.R"+QString::number(roiNum), true);
+
+		namePV->disablePutCallbackMode(true);
+		lowPV->disablePutCallbackMode(true);
+		highPV->disablePutCallbackMode(true);
+		valPV->disablePutCallbackMode(true);
+
+		// Giving null parameters because the detector might not be connected yet.  The detector can modify them as it wishes.
+		return new AMROI(QString(), -1, -1, 10, namePV, lowPV, highPV, valPV);
+	}
+
+	else{
+
+		QList<AMProcessVariable *> names;
+		QList<AMProcessVariable *> lows;
+		QList<AMProcessVariable *> highs;
+		QList<AMProcessVariable *> vals;
+
+		for (int i = 0; i < numElements; i++){
+
+			namePV = new AMProcessVariable(baseName+QString::number(i+1)+".R"+QString::number(roiNum)+"NM", true);
+			lowPV = new AMProcessVariable(baseName+QString::number(i+1)+".R"+QString::number(roiNum)+"LO", true);
+			highPV = new AMProcessVariable(baseName+QString::number(i+1)+".R"+QString::number(roiNum)+"HI", true);
+			valPV = new AMProcessVariable(baseName+QString::number(i+1)+".R"+QString::number(roiNum), true);
+
+			namePV->disablePutCallbackMode(true);
+			lowPV->disablePutCallbackMode(true);
+			highPV->disablePutCallbackMode(true);
+			valPV->disablePutCallbackMode(true);
+
+			names << namePV;
+			lows << lowPV;
+			highs << highPV;
+			vals << valPV;
+		}
+
+		return new AMROI(QString(), -1, -1, 10, names, lows, highs, vals);
+	}
 }
 
 void VESPERSBeamline::setupControlSets()
@@ -346,6 +445,20 @@ void VESPERSBeamline::setupControlSets()
 	valveSet_->addControl(vvrBeamTransfer_);
 
 	connect(valveSet_, SIGNAL(connected(bool)), this, SLOT(valveConnected(bool)));
+
+	// Grouping the valve state modifying controls together.
+	valveList_ = new QList<AMValveControl *>;
+	valveList_->append(valveFE1_);
+	valveList_->append(valveFE2_);
+	valveList_->append(valveM1_);
+	valveList_->append(valveM2_);
+	valveList_->append(valveBPM1_);
+	valveList_->append(valveMono_);
+	valveList_->append(valveExitSlits_);
+	valveList_->append(valveStraightSection_);
+	valveList_->append(valveBPM3_);
+	valveList_->append(valveSSH_);
+	valveList_->append(valveBeamTransfer_);
 
 	// Grouping the ion pump controls together.
 	ionPumpSet_ = new AMControlSet(this);
@@ -439,6 +552,17 @@ void VESPERSBeamline::setupControlSets()
 	endstationMotorSet_->addControl(singleElMotorfbk_);
 	endstationMotorSet_->addControl(focusMotor_);
 	endstationMotorSet_->addControl(focusMotorfbk_);
+
+	// Beam attenuation filters.  Only contains the filters of a certain size.  The upper and lower are used independently of these six.
+	filterSet_ = new AMControlSet(this);
+	filterSet_->addControl(filter250umA_);
+	filterSet_->addControl(filter250umB_);
+	filterSet_->addControl(filter100umA_);
+	filterSet_->addControl(filter100umB_);
+	filterSet_->addControl(filter50umA_);
+	filterSet_->addControl(filter50umB_);
+	filterSet_->addControl(filterShutterUpper_);
+	filterSet_->addControl(filterShutterLower_);
 }
 
 void VESPERSBeamline::pressureConnected(bool connected)
@@ -616,21 +740,22 @@ void VESPERSBeamline::flowTransducerError()
 	}
 }
 
-void VESPERSBeamline::singleElVortexError()
+void VESPERSBeamline::singleElVortexError(bool isConnected)
 {
-	if (vortexXRF1E()->wasConnected())
+	if (vortexXRF1E()->wasConnected() && !isConnected)
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, 0, "The single element vortex detector is no longer connected."));
 }
 
-void VESPERSBeamline::fourElVortexError()
+void VESPERSBeamline::fourElVortexError(bool isConnected)
 {
-	if (vortexXRF4E()->wasConnected())
+	if (vortexXRF4E()->wasConnected() && !isConnected)
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, 0, "The four element vortex detector is no longer connected."));
 }
 
 void VESPERSBeamline::sampleStageError()
 {
-	AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "The sample stage is no longer connected."));
+	if (!sampleStageMotorSet()->isConnected())
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "The sample stage is no longer connected."));
 }
 
 VESPERSBeamline::~VESPERSBeamline()
@@ -663,6 +788,17 @@ VESPERSBeamline::~VESPERSBeamline()
 	delete vvrStraightSection_;
 	delete vvrBPM3_;
 	delete vvrSSH_;
+	delete valveFE1_;
+	delete valveFE2_;
+	delete valveM1_;
+	delete valveM2_;
+	delete valveBPM1_;
+	delete valveMono_;
+	delete valveExitSlits_;
+	delete valveStraightSection_;
+	delete valveBPM3_;
+	delete valveSSH_;
+	delete valveBeamTransfer_;
 	delete vvrBeamTransfer_;
 	delete iopFE1a_;
 	delete iopFE1b_;
@@ -727,6 +863,7 @@ VESPERSBeamline::~VESPERSBeamline()
 	delete fltPoeSsh2_;
 	delete pressureSet_;
 	delete valveSet_;
+	delete valveList_;
 	delete ionPumpSet_;
 	delete temperatureSet_;
 	delete flowSwitchSet_;
@@ -745,6 +882,14 @@ VESPERSBeamline::~VESPERSBeamline()
 	delete ccdPath_;
 	delete ccdFile_;
 	delete ccdNumber_;
+	delete filter250umA_;
+	delete filter250umB_;
+	delete filter100umA_;
+	delete filter100umB_;
+	delete filter50umA_;
+	delete filter50umB_;
+	delete filterShutterUpper_;
+	delete filterShutterLower_;
 	delete elapsedTime1E_;
 	delete integrationTime1E_;
 	delete liveTime1E_;
@@ -778,4 +923,5 @@ VESPERSBeamline::~VESPERSBeamline()
 	delete sampleStageHorizontal_;
 	delete sampleStageVertical_;
 	delete sampleStageMotorSet_;
+	delete filterSet_;
 }

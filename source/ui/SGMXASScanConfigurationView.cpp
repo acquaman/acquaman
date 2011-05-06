@@ -98,6 +98,13 @@ const AMScanConfiguration* SGMXASScanConfigurationView::configuration() const{
 	return cfg_;
 }
 
+void SGMXASScanConfigurationView::setDisabled(bool disabled){
+	regionsView_->setDisabled(disabled);
+	fluxResolutionView_->setDisabled(disabled);
+	trackingView_->setDisabled(disabled);
+	xasDetectorsView_->setDisabled(disabled);
+}
+
 void SGMXASScanConfigurationView::onDetectorConfigurationsChanged(){
 	cfg_->setDetectorConfigurations(xasDetectorsView_->configValues());
 }
@@ -183,6 +190,14 @@ void SGMFluxResolutionPickerView::setFromInfoList(const AMControlInfoList &infoL
 	}
 }
 
+void SGMFluxResolutionPickerView::setDisabled(bool disabled){
+	bestFluxButton_->setDisabled(disabled);
+	bestResolutionButton_->setDisabled(disabled);
+	exitSlitGapCE_->setReadOnly(disabled);
+	gratingCE_->setReadOnly(disabled);
+	harmonicCE_->setReadOnly(disabled);
+}
+
 void SGMFluxResolutionPickerView::onRegionsChanged(){
 	if( (minEnergy_ != regions_->start(0)) || (maxEnergy_ != regions_->end(regions_->count()-1)) ){
 		minEnergy_ = regions_->start(0);
@@ -205,7 +220,7 @@ void SGMFluxResolutionPickerView::onSetpointsChanged(){
 	newSettings << gratingCE_->setpoint() << harmonicCE_->setpoint() << exitSlitGapCE_->setpoint();
 	for(int x = 0; x < originals.count(); x++){
 		AMControlInfo tmpCI = originals.at(x);
-		setpoints.append( AMControlInfo(tmpCI.name(), newSettings.at(x), tmpCI.minimum(), tmpCI.maximum(), tmpCI.units()));
+		setpoints.append( AMControlInfo(tmpCI.name(), newSettings.at(x), tmpCI.minimum(), tmpCI.maximum(), tmpCI.units(), tmpCI.tolerance(), tmpCI.description(), tmpCI.contextKnownDescription()));
 	}
 	emit configValuesChanged(setpoints);
 }

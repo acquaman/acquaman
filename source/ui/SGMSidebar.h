@@ -40,9 +40,12 @@ class SGMSidebar : public QWidget
 public:
 	explicit SGMSidebar(QWidget *parent = 0);
 
+	~SGMSidebar();
+
 signals:
 
 public slots:
+	// debugging: void testingBoundsChanged();
 
 protected:
 	void showEvent(QShowEvent *);
@@ -87,9 +90,12 @@ protected:
 
 	QTimer *stripToolTimer_;
 	int stripToolCounter_;
+	MPlotAxisScale* stripToolSpecialAxisScale_;
 
 	AMBeamlineListAction *beamOnAction_;
 	AMBeamlineListAction *stopMotorsAction_;
+
+
 };
 
 #endif // SGMSIDEBAR_H

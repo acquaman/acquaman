@@ -139,6 +139,7 @@ linux-g++-64 {
 HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	../MPlot/src/MPlot/MPlotAbstractTool.h \
 	../MPlot/src/MPlot/MPlotAxis.h \
+	../MPlot/src/MPlot/MPlotAxisScale.h \
 	../MPlot/src/MPlot/MPlotColorMap.h \
 	../MPlot/src/MPlot/MPlotImage.h \
 	../MPlot/src/MPlot/MPlotImageData.h \
@@ -146,6 +147,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	../MPlot/src/MPlot/MPlotLegend.h \
 	../MPlot/src/MPlot/MPlotMarker.h \
 	../MPlot/src/MPlot/MPlotPoint.h \
+	../MPlot/src/MPlot/MPlotRectangle.h \
 	../MPlot/src/MPlot/MPlotSeries.h \
 	../MPlot/src/MPlot/MPlotSeriesData.h \
 	../MPlot/src/MPlot/MPlotTools.h \
@@ -336,7 +338,9 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMFolderPathLineEdit.h \
 	source/util/AMTagReplacementParser.h \
 	source/ui/AMExporterOptionGeneralAsciiView.h \
-	source/ui/AMTopFrame.h
+	source/ui/AMTopFrame.h \
+    source/beamline/AMBeamlineSamplePlateMoveAction.h \
+    source/beamline/AMBeamlineFiducializationMoveAction.h
 FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
 	source/ui/AMDataViewSectionHeader.ui \
@@ -351,6 +355,7 @@ FORMS +=	source/ui/AMDataView.ui \
 SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	../MPlot/src/MPlot/MPlotAbstractTool.cpp \
 	../MPlot/src/MPlot/MPlotAxis.cpp \
+	../MPlot/src/MPlot/MPlotAxisScale.cpp \
 	../MPlot/src/MPlot/MPlotColorMap.cpp \
 	../MPlot/src/MPlot/MPlotImage.cpp \
 	../MPlot/src/MPlot/MPlotImageData.cpp \
@@ -358,6 +363,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	../MPlot/src/MPlot/MPlotLegend.cpp \
 	../MPlot/src/MPlot/MPlotMarker.cpp \
 	../MPlot/src/MPlot/MPlotPoint.cpp \
+	../MPlot/src/MPlot/MPlotRectangle.cpp \
 	../MPlot/src/MPlot/MPlotSeries.cpp \
 	../MPlot/src/MPlot/MPlotSeriesData.cpp \
 	../MPlot/src/MPlot/MPlotTools.cpp \
@@ -543,7 +549,9 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/util/AMTagReplacementParser.cpp \
 	source/ui/AMExporterOptionGeneralAsciiView.cpp \
 	source/ui/AMTopFrame.cpp \
-	source/dataman/AMExporter.cpp
+	source/dataman/AMExporter.cpp \
+    source/beamline/AMBeamlineSamplePlateMoveAction.cpp \
+    source/beamline/AMBeamlineFiducializationMoveAction.cpp
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc \
 	source/util/ElementData.qrc \

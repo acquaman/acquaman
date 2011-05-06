@@ -92,15 +92,12 @@ protected slots:
 	/// Handles when a fiducialization makr is selected for an add action
 	void onFiducializationMarkAddActionClicked();
 
-	void setSwapHoverIndex();
-	void onSwapClicked();
-
 protected:
 	QPushButton *startWorkflowButton_;
 	QPushButton *addActionButton_;
 	QMenu *addActionMenu_;
-	QMenu *samplePlateAddActionMenu_, *fiducializationMarkAddActionMenu_, *swapMenu_;
-	int samplePlateHoverIndex_, fiducializationMarkHoverIndex_, swapHoverIndex_;
+	QMenu *samplePlateAddActionMenu_, *fiducializationMarkAddActionMenu_;
+	int samplePlateHoverIndex_, fiducializationMarkHoverIndex_;
 	AMTopFrame *topFrame_;
 	QVBoxLayout *vl_;
 
