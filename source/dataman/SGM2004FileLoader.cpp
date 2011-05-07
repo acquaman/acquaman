@@ -170,12 +170,39 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 	/// \todo What if there isn't? Should we check, and create the axis if none exist? What if there's more than one scan axis? Can't remove from AMDataStore... [The rest of this code assumes a single scan axis]
 
 
+	bool postSddFileOffset = false;
+	QString spectraFile = "";
 	// add scalar (0D) measurements to the raw data store, for each data column.  If setRawDataSources is true, also add raw data sources to the scan, which expose this data.
 	foreach(QString colName, colNames1) {
 		if(colName != "eV" && colName != "Event-ID") {
-			scan->rawData()->addMeasurement(AMMeasurementInfo(colName, colName));	/// \todo nice descriptions for the common column names; not just 'tey' or 'tfy'.
+			//scan->rawData()->addMeasurement(AMMeasurementInfo(colName, colName));	/// \todo nice descriptions for the common column names; not just 'tey' or 'tfy'.
+			if(colName == "sdd_fileOffset"){
+				//if(scan->rawData()->idOfMeasurement("sdd_fileOffset") >= 0){
+				foreach(QString afp, scan->additionalFilePaths())
+					if(afp.contains("_spectra.dat"))
+						spectraFile = afp;
+				if(spectraFile != ""){
+					postSddFileOffset = true;
+					AMAxisInfo sddEVAxisInfo("energy", 1024, "SDD Energy", "eV");
+					QList<AMAxisInfo> sddAxes;
+					sddAxes << sddEVAxisInfo;
+					AMMeasurementInfo sddInfo("sdd", "Silicon Drift Detector", "counts", sddAxes);
+					//scan->rawData()->addMeasurement(sddInfo);
+					if(scan->rawData()->addMeasurement(sddInfo))
+						qDebug() << "Added measurement " << scan->rawData()->measurementAt(scan->rawData()->measurementCount()-1).name;
+				}
+				//}
+			}
+			else if(scan->rawData()->addMeasurement(AMMeasurementInfo(colName, colName)))
+				qDebug() << "Added measurement " << scan->rawData()->measurementAt(scan->rawData()->measurementCount()-1).name;
 		}
 	}
+	if(postSddFileOffset){
+		if(scan->rawData()->addMeasurement(AMMeasurementInfo("sdd_fileOffset", "sdd_fileOffset")))
+			qDebug() << "Added measurement " << scan->rawData()->measurementAt(scan->rawData()->measurementCount()-1).name;
+	}
+	int sddOffsetIndex = colNames1.indexOf("sdd_fileOffset");
+	/*
 	QString spectraFile = "";
 	if(scan->rawData()->idOfMeasurement("sdd_fileOffset") >= 0){
 		foreach(QString afp, scan->additionalFilePaths())
@@ -186,9 +213,12 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 			QList<AMAxisInfo> sddAxes;
 			sddAxes << sddEVAxisInfo;
 			AMMeasurementInfo sddInfo("sdd", "Silicon Drift Detector", "counts", sddAxes);
-			scan->rawData()->addMeasurement(sddInfo);
+			//scan->rawData()->addMeasurement(sddInfo);
+			if(scan->rawData()->addMeasurement(sddInfo))
+				qDebug() << "Added measurement " << scan->rawData()->measurementAt(scan->rawData()->measurementCount()-1).name;
 		}
 	}
+	*/
 
 	// read all the data. Add to data columns or scan properties depending on the event-ID.
 
@@ -206,7 +236,9 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 			// add data from all columns (but ignore the first (Event-ID) and the eV column)
 			int measurementId = 0;
 			for(int i=1; i<colNames1.count(); i++) {
-				if(i!=eVIndex) {
+				if(i == sddOffsetIndex)
+					scan->rawData()->setValue(eVAxisIndex, scan->rawData()->idOfMeasurement("sdd_fileOffset"), AMnDIndex(), lp.at(i).toDouble());
+				else if(i!=eVIndex) {
 					scan->rawData()->setValue(eVAxisIndex, measurementId++, AMnDIndex(), lp.at(i).toDouble());
 				}
 			}
@@ -268,21 +300,25 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 				sfl.remove(',');
 			else
 				sfl.replace(',', ' ');
-			qDebug() << sfl;
+			//qDebug() << sfl;
 			sfls.setString(&sfl, QIODevice::ReadOnly);
 
+			QString debugStr;
 			while(!sfls.atEnd()){
 				if(sfls.status() == QTextStream::ReadCorruptData) {
 					AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -1, "SGM2004FileLoader found corrupted data in the SDD spectra file."));
 					return false;
 				}
 				sfls >> specVal;
+				//debugStr.append(QString("%1 ").arg(specVal));
 
 				//scan->rawData()->setValue(AMnDIndex(x), scan->rawData()->idOfMeasurement("sdd"), AMnDIndex(specCounter), specVal);
 				scan->rawData()->setValue(AMnDIndex(x), indexOfSDD, AMnDIndex(specCounter), specVal);
+				//debugStr.append(QString("%1 ").arg(scan->rawData()->value(AMnDIndex(x), indexOfSDD, AMnDIndex(specCounter)).toString()));
 				specCounter++;
 			}
-			qDebug() << "SpecCounter was " << specCounter;
+			//qDebug() << debugStr;
+			//debugStr.clear();
 			specCounter = 0;
 		}
 	}
