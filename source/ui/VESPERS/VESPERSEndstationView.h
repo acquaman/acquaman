@@ -6,6 +6,7 @@
 #include "beamline/AMControl.h"
 #include "beamline/AMProcessVariable.h"
 #include "ui/VESPERS/VESPERSMotorView.h"
+#include "beamline/VESPERS/VESPERSBeamline.h"
 
 #include <QLineEdit>
 #include <QStringList>
@@ -184,7 +185,6 @@ private slots:
 	void onFiltersConnected(bool isConnected);
 	/// Sets the filter combo box based on original values at start up and if they are changed outside of the program.
 	void onFiltersChanged();
-
 
 private:
 	/// Helper function to properly toggle the filter PVs.  Takes an AMControl *, casts it to an AMPVControl * then toggles them.

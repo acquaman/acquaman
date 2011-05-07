@@ -36,4 +36,6 @@ QString VESPERSXRFScanConfiguration::detailedDescription() const
 		return QString("XRF Free Run Scan\nDetector: 1-el Vortex\nReal time: %1 s").arg(xrfDetectorInfo_.integrationTime());
 	else if (choice_ == VESPERSBeamline::FourElement)
 		return QString("XRF Free Run Scan\nDetector: 4-el Vortex\nReal time: %1 s").arg(xrfDetectorInfo_.integrationTime());
+
+	return QString();
 }

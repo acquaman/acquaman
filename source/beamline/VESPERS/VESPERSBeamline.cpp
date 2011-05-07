@@ -486,6 +486,8 @@ void VESPERSBeamline::setupControlSets()
 	valveList_->append(valveSSH_);
 	valveList_->append(valveBeamTransfer_);
 
+	valves_ = new VESPERSValveGroupControl(valveList_);
+
 	// Grouping the ion pump controls together.
 	ionPumpSet_ = new AMControlSet(this);
 	ionPumpSet_->addControl(iopFE1a_);
@@ -814,6 +816,7 @@ VESPERSBeamline::~VESPERSBeamline()
 	delete vvrStraightSection_;
 	delete vvrBPM3_;
 	delete vvrSSH_;
+	delete vvrBeamTransfer_;
 	delete valveFE1_;
 	delete valveFE2_;
 	delete valveM1_;
@@ -825,7 +828,6 @@ VESPERSBeamline::~VESPERSBeamline()
 	delete valveBPM3_;
 	delete valveSSH_;
 	delete valveBeamTransfer_;
-	delete vvrBeamTransfer_;
 	delete iopFE1a_;
 	delete iopFE1b_;
 	delete iopFE2a_;
@@ -890,6 +892,7 @@ VESPERSBeamline::~VESPERSBeamline()
 	delete pressureSet_;
 	delete valveSet_;
 	delete valveList_;
+	delete valves_;
 	delete ionPumpSet_;
 	delete temperatureSet_;
 	delete flowSwitchSet_;

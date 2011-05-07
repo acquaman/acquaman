@@ -10,5 +10,6 @@
         <file>black-laser.png</file>
         <file>red-laser.png</file>
         <file>hammer.png</file>
+        <file>RED.png</file>
     </qresource>
 </RCC>

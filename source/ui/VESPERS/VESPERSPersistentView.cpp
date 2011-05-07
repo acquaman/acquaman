@@ -4,7 +4,6 @@
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
-#include <QLabel>
 #include <QGroupBox>
 
 VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
@@ -19,6 +18,9 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	// Sample stage widget.
 	VESPERSSampleStageView *motors = new VESPERSSampleStageView;
 
+	// Valve group.
+	valves_ = VESPERSBeamline::vespers()->valves();
+
 	QFont font(this->font());
 	font.setBold(true);
 
@@ -27,6 +29,9 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 
 	QLabel *sshShutterLabel = new QLabel("Safter Shutters");
 	sshShutterLabel->setFont(font);
+
+	QLabel *statusLabel = new QLabel("Beamline Status");
+	statusLabel->setFont(font);
 
 	// Shutter layout.
 	QHBoxLayout *pshShutters = new QHBoxLayout;
@@ -46,10 +51,24 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	sshShutterLayout->addWidget(sshShutterLabel);
 	sshShutterLayout->addLayout(sshShutters);
 
+	// The valve control.
+	valvesButton_ = new QPushButton("Open All Valves");
+	connect(valvesButton_, SIGNAL(clicked()), this, SLOT(onValvesButtonPushed()));
+
+	valvesStatus_ = new QLabel;
+	valvesStatus_->setPixmap(QIcon(":/RED.png").pixmap(30));
+	connect(valves_, SIGNAL(statusChanged(bool)), this, SLOT(onValvesStateChanged()));
+
+	QHBoxLayout *valvesLayout = new QHBoxLayout;
+	valvesLayout->addWidget(valvesStatus_, 0, Qt::AlignRight);
+	valvesLayout->addWidget(valvesButton_, 0, Qt::AlignLeft);
+
 	QVBoxLayout *persistentLayout = new QVBoxLayout;
 	persistentLayout->addLayout(pshShutterLayout);
 	persistentLayout->addLayout(sshShutterLayout);
 	persistentLayout->addWidget(motors);
+	persistentLayout->addWidget(statusLabel);
+	persistentLayout->addLayout(valvesLayout);
 	persistentLayout->addStretch();
 
 	QGroupBox *vespers = new QGroupBox("VESPERS Beamline");
@@ -60,4 +79,26 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	vespersLayout->addWidget(vespers);
 
 	setLayout(vespersLayout);
+}
+
+void VESPERSPersistentView::onValvesButtonPushed()
+{
+	if (valves_->allValvesOpen())
+		valves_->closeAllValves();
+	else
+		valves_->openAllValves();
+}
+
+void VESPERSPersistentView::onValvesStateChanged()
+{
+	if (valves_->allValvesOpen()){
+
+		valvesButton_->setText("Close All Valves");
+		valvesStatus_->setPixmap(QIcon(":/ON.png").pixmap(30));
+	}
+	else{
+
+		valvesButton_->setText("Open All Valves");
+		valvesStatus_->setPixmap(QIcon(":/RED.png").pixmap(30));
+	}
 }

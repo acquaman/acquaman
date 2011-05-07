@@ -1,6 +1,5 @@
 #include "ui/VESPERS/VESPERSEndstationView.h"
 #include "ui/AMStopButton.h"
-#include "beamline/VESPERS/VESPERSBeamline.h"
 #include "ui/AMTopFrame.h"
 
 #include <QGridLayout>
@@ -191,6 +190,7 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	QGroupBox *filterGroupBox = new QGroupBox("Filters");
 	filterGroupBox->setLayout(filterLayout);
 
+	// Setup the top frame.
 	AMTopFrame *topFrame = new AMTopFrame("Endstation Control Screen");
 
 	QVBoxLayout *extrasLayout = new QVBoxLayout;

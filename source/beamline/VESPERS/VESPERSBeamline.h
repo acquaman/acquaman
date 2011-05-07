@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/VESPERS/XRFDetector.h"
 #include "beamline/AMROI.h"
 #include "beamline/VESPERS/SampleStageControl.h"
+#include "beamline/VESPERS/VESPERSValveGroupControl.h"
 
 /// This class is the master class that holds EVERY control inside the VESPERS beamline.
 class VESPERSBeamline : public AMBeamline
@@ -145,6 +146,8 @@ public:
 	AMValveControl *valveBeamTransfer() const { return valveBeamTransfer_; }
 	/// Returns the list of all the valves.
 	QList<AMValveControl *> *valveList() const { return valveList_; }
+	/// Returns the valve group control.
+	VESPERSValveGroupControl *valves() const { return valves_; }
 
 	// Ion pumps
 	/// Returns the ion pump control for Front End section 1.a
@@ -546,6 +549,7 @@ protected:
 	AMValveControl *valveSSH_;
 	AMValveControl *valveBeamTransfer_;
 	QList<AMValveControl *> *valveList_;
+	VESPERSValveGroupControl *valves_;
 
 	// Ion pump controls.
 	AMControl *iopFE1a_;
