@@ -243,6 +243,14 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 		int startByte, endByte;
 		int specVal;
 		int specCounter = 0;
+		int indexOfSDD = scan->rawData()->idOfMeasurement("sdd");
+		/*
+		qDebug() << "Index of sdd is " << indexOfSDD;
+		if(indexOfSDD == -1){
+			indexOfSDD = scan->rawData()->idOfMeasurement("SDD");
+			qDebug() << "Index of SDD is " << indexOfSDD;
+		}
+		*/
 		for(int x = 0; x < scan->rawData()->scanSize(0); x++){
 			if(x == scan->rawData()->scanSize(0)-1){
 				endByte += endByte-startByte; //Assumes the last two are the same size
@@ -254,7 +262,13 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 			}
 			//sfs.seek( (qint64)((int)(scan->rawData()->value(AMnDIndex(x), scan->rawData()->idOfMeasurement("sdd_fileOffset"), AMnDIndex()))) );
 			sfs.seek(startByte);
-			QString sfl = sfs.read( (qint64)(endByte-startByte) ).remove(',');
+			//QString sfl = sfs.read( (qint64)(endByte-startByte) ).remove(',');
+			QString sfl = sfs.read( (qint64)(endByte-startByte) );
+			if(sfl.contains(", "))
+				sfl.remove(',');
+			else
+				sfl.replace(',', ' ');
+			qDebug() << sfl;
 			sfls.setString(&sfl, QIODevice::ReadOnly);
 
 			while(!sfls.atEnd()){
@@ -264,10 +278,11 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 				}
 				sfls >> specVal;
 
-				scan->rawData()->setValue(AMnDIndex(x), scan->rawData()->idOfMeasurement("sdd"), AMnDIndex(specCounter), specVal);
+				//scan->rawData()->setValue(AMnDIndex(x), scan->rawData()->idOfMeasurement("sdd"), AMnDIndex(specCounter), specVal);
+				scan->rawData()->setValue(AMnDIndex(x), indexOfSDD, AMnDIndex(specCounter), specVal);
 				specCounter++;
 			}
-
+			qDebug() << "SpecCounter was " << specCounter;
 			specCounter = 0;
 		}
 	}
@@ -308,6 +323,10 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 				raw1DDataSources << scan->rawDataSources()->at(i);
 
 		int rawTeyIndex = scan->rawDataSources()->indexOfKey("tey");
+		if(rawTeyIndex == -1){
+			qDebug() << "Could find tey trying TEY";
+			rawTeyIndex = scan->rawDataSources()->indexOfKey("TEY");
+		}
 		int rawTfyIndex = scan->rawDataSources()->indexOfKey("tfy");
 		int rawI0Index = scan->rawDataSources()->indexOfKey("I0");
 

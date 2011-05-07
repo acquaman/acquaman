@@ -235,7 +235,8 @@ void SGMBeamline::usingSGMBeamline(){
 	sgmPVName = amNames2pvNames_.valueF("pgt");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
-	pgt_ = new AMReadOnlyPVControl("pgt", sgmPVName, this);
+	//pgt_ = new AMReadOnlyPVControl("pgt", sgmPVName, this);
+	pgt_ = new AMReadOnlyWaveformBinningPVControl("pgt", sgmPVName, 0, 1024, this);
 	pgt_->setDescription("SDD");
 
 	sgmPVName = amNames2pvNames_.valueF("pgtHV");

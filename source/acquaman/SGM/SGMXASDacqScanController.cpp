@@ -74,8 +74,14 @@ bool SGMXASDacqScanController::startImplementation(){
 		}
 	}
 
-	if(pCfg_()->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->pgtDetector()->detectorName()))
-		loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/pgt.cfg"));
+	if(pCfg_()->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->pgtDetector()->detectorName())){
+		if(SGMBeamline::sgm()->usingPicoammeterSource())
+			loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/pgtAmmeter.cfg"));
+		else if(SGMBeamline::sgm()->usingScalerSource())
+			loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/pgtScaler.cfg"));
+		usingSpectraDotDatFile_ = true;
+		//loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/pgt.cfg"));
+	}
 	else if(SGMBeamline::sgm()->usingPicoammeterSource())
 		loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/defaultEnergyAmmeter.cfg"));
 	else if(SGMBeamline::sgm()->usingScalerSource())

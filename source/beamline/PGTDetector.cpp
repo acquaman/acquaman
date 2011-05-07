@@ -14,6 +14,7 @@ PGTDetector::PGTDetector(const QString &name, AMControl *dataWaveform, AMControl
 	AMControlSet *readingsControls = new AMControlSet(this);
 	AMControlSet *settingsControls = new AMControlSet(this);
 	readingsControls->addControl(dataWaveform);
+	qDebug() << "Making sdd, has value " << dataWaveform->value();
 	settingsControls->addControl(hv);
 	settingsControls->addControl(integrationTime);
 	settingsControls->addControl(integrationMode);

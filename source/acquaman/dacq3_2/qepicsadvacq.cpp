@@ -512,7 +512,8 @@ bool QEpicsAdvAcq::appendRecord(QString pv, bool enable, bool spectrum, int mode
 	char* PVNAME = const_cast<char*>(pv.toAscii().data());
 	char* FORMAT = "%g";
 	if(spectrum)
-		FORMAT = "%ld";
+		FORMAT = "";
+		//FORMAT = "%ld";
 
 	switch(mode)
 	{

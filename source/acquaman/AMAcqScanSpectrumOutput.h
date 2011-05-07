@@ -81,13 +81,6 @@ private:
 	int colNo_, specColNo_;
 	bool lockHash_;
 	bool dataDelay_;
-
-	/*MPlotWidget *plotWindow;
-	MPlot *plot;
-	MPlotSeriesBasic *series1, *series2, *series3;
-	MPlotRealtimeModel *data1;
-
-	AMScanView *sv;*/
 };
 
 #endif /* __cplusplus */

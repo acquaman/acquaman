@@ -102,6 +102,7 @@ int AMAcqScanSpectrumOutput::endRecord( acqKey_t key, int eventno)
 	}
 	QMap<int, QList<double> >::const_iterator j = to->spectraPackage_.constBegin();
 	while(j != to->spectraPackage_.constEnd()){
+		//qDebug() << "In dacq " << j.value();
 		ae->spectraPackage_.insert(j.key(), j.value());
 		j++;
 	}
@@ -156,6 +157,7 @@ int AMAcqScanSpectrumOutput::putValue( acqKey_t key, int eventno, int pvno, cons
 		}
 	}
 	else{
+		qDebug() << "Spectrum of count " << count;
 		for(int x = 0; x < count; x++){
 			switch( pvpr->colp->columnType)
 			{
@@ -175,9 +177,11 @@ int AMAcqScanSpectrumOutput::putValue( acqKey_t key, int eventno, int pvno, cons
 			case DBF_CHAR:
 				dataVal = (double)*(char *)value;
 				break;
-			case DBF_LONG:
+			case DBF_LONG:{
 				dataVal = (double)*(long *)value;
+				//qDebug() << "Thinks its LONG " << dataVal;
 				break;
+			}
 			case DBF_DOUBLE:
 				dataVal = *(double *)value;
 				break;
