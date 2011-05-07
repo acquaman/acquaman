@@ -11,6 +11,8 @@
 #include <stdarg.h>
 #include <string.h>
 
+#include <QDebug>
+
 #define DEBUG(PTR) if((PTR)->getDebug())
 
 using namespace std;
@@ -332,6 +334,14 @@ int acqTextSpectrumOutput::pvTSPrivate::output( acqKey_t key, int dataType, cons
 		}
 		recordOffset = to->spectrumStream->offset();
 
+		int *realValues = (int*)(value);
+		QString valuesString;
+		for( int x=0; x < count; x++){
+			valuesString.append(QString("%1 ").arg(realValues[x]));
+		}
+		qDebug() << "As ints? " << valuesString;
+		qDebug() << "Out of curiosity " << colp->dataSize << " " << sizeof(int*);
+
 		for( int i=0; i < count; i++)
 		{
 			if( to->needSpectrumDelimiter)
@@ -344,7 +354,8 @@ int acqTextSpectrumOutput::pvTSPrivate::output( acqKey_t key, int dataType, cons
 				continue;
 			}
 			to->sendSpectrumLine( "%s", result);
-			value = (char  *)value + colp->dataSize;
+			//value = (char  *)value + colp->dataSize;
+			value = (char  *)value + 4;
 		}
 
 		break;

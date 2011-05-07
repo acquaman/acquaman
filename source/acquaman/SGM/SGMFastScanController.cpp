@@ -26,9 +26,12 @@ SGMFastScanController::SGMFastScanController(SGMFastScanConfiguration *cfg){
 		if(pScan()->rawDataSources()->at(i)->rank() == 1)
 			raw1DDataSources << pScan()->rawDataSources()->at(i);
 
-	int rawTeyIndex = pScan()->rawDataSources()->indexOfKey("tey");
-	int rawTfyIndex = pScan()->rawDataSources()->indexOfKey("tfy");
-	int rawI0Index = pScan()->rawDataSources()->indexOfKey("I0");
+	//int rawTeyIndex = pScan()->rawDataSources()->indexOfKey("tey");
+	//int rawTfyIndex = pScan()->rawDataSources()->indexOfKey("tfy");
+	//int rawI0Index = pScan()->rawDataSources()->indexOfKey("I0");
+	int rawTeyIndex = pScan()->rawDataSources()->indexOfKey(SGMBeamline::sgm()->teyDetector()->description());
+	int rawTfyIndex = pScan()->rawDataSources()->indexOfKey(SGMBeamline::sgm()->tfyDetector()->description());
+	int rawI0Index = pScan()->rawDataSources()->indexOfKey(SGMBeamline::sgm()->i0Detector()->description());
 
 	if(rawTeyIndex != -1 && rawI0Index != -1) {
 		AM1DExpressionAB* teyChannel = new AM1DExpressionAB("tey_n");

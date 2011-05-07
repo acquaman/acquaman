@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dataman/SGM2004FileLoader.h"
 #include "analysis/AM1DExpressionAB.h"
+#include "analysis/AM2DSummingAB.h"
 #include "dataman/AMRawDataSource.h"
 #include "dataman/AMUser.h"
 
@@ -56,8 +57,11 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 	for(int i = 0; i < pCfg_()->allDetectorConfigurations().count(); i++){
 		AMDetectorInfo* detectorInfo = pCfg_()->allDetectorConfigurations().detectorInfoAt(i);
 		if(pCfg_()->allDetectorConfigurations().isActiveAt(i)){
-			if(pScan_()->rawData()->addMeasurement(AMMeasurementInfo(*detectorInfo)))
+
+			if(pScan_()->rawData()->addMeasurement(AMMeasurementInfo(*detectorInfo))){
+				qDebug() << "Name is " << AMMeasurementInfo(*detectorInfo).name << " description is " << AMMeasurementInfo(*detectorInfo).description;
 				pScan_()->addRawDataSource(new AMRawDataSource(pScan_()->rawData(), pScan_()->rawData()->measurementCount()-1));
+			}
 			else
 				qDebug() << "BIG PROBLEM!!!!!! WHAT JUST HAPPENED?!?!?" << detectorInfo->name();
 		}
@@ -68,26 +72,45 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 		if(pScan_()->rawDataSources()->at(i)->rank() == 1)
 			raw1DDataSources << pScan_()->rawDataSources()->at(i);
 
-	int rawTeyIndex = pScan_()->rawDataSources()->indexOfKey("tey");
-	int rawTfyIndex = pScan_()->rawDataSources()->indexOfKey("tfy");
-	int rawI0Index = pScan_()->rawDataSources()->indexOfKey("I0");
+	for(int x = 0; x < pScan_()->rawDataSources()->count(); x++)
+		qDebug() << "Source at " << x << " is " << pScan_()->rawDataSources()->at(x)->name();
+
+	//int rawTeyIndex = pScan_()->rawDataSources()->indexOfKey("tey");
+	//int rawTfyIndex = pScan_()->rawDataSources()->indexOfKey("tfy");
+	//int rawI0Index = pScan_()->rawDataSources()->indexOfKey("I0");
+	int rawTeyIndex = pScan_()->rawDataSources()->indexOfKey(SGMBeamline::sgm()->teyDetector()->description());
+	int rawTfyIndex = pScan_()->rawDataSources()->indexOfKey(SGMBeamline::sgm()->tfyDetector()->description());
+	int rawI0Index = pScan_()->rawDataSources()->indexOfKey(SGMBeamline::sgm()->i0Detector()->description());
 
 	if(rawTeyIndex != -1 && rawI0Index != -1) {
-		AM1DExpressionAB* teyChannel = new AM1DExpressionAB("tey_n");
+		AM1DExpressionAB* teyChannel = new AM1DExpressionAB(QString("%1Norm").arg(SGMBeamline::sgm()->teyDetector()->description()));
 		teyChannel->setDescription("Normalized TEY");
 		teyChannel->setInputDataSources(raw1DDataSources);
-		teyChannel->setExpression("tey/I0");
+		teyChannel->setExpression(QString("%1/%2").arg(SGMBeamline::sgm()->teyDetector()->description()).arg(SGMBeamline::sgm()->i0Detector()->description()));
 
 		pScan_()->addAnalyzedDataSource(teyChannel);
 	}
 
 	if(rawTfyIndex != -1 && rawI0Index != -1) {
-		AM1DExpressionAB* tfyChannel = new AM1DExpressionAB("tfy_n");
+		AM1DExpressionAB* tfyChannel = new AM1DExpressionAB(QString("%1Norm").arg(SGMBeamline::sgm()->tfyDetector()->description()));
 		tfyChannel->setDescription("Normalized TFY");
 		tfyChannel->setInputDataSources(raw1DDataSources);
-		tfyChannel->setExpression("-tfy/I0");
+		tfyChannel->setExpression(QString("-%1/%2").arg(SGMBeamline::sgm()->tfyDetector()->description()).arg(SGMBeamline::sgm()->i0Detector()->description()));
 
 		pScan_()->addAnalyzedDataSource(tfyChannel);
+	}
+
+	int rawSddIndex = pScan_()->rawDataSources()->indexOfKey(SGMBeamline::sgm()->pgtDetector()->description());
+	if(rawSddIndex != -1) {
+		AMRawDataSource* sddRaw = pScan_()->rawDataSources()->at(rawSddIndex);
+		AM2DSummingAB* pfy = new AM2DSummingAB("PFY");
+		QList<AMDataSource*> pfySource;
+		pfySource << sddRaw;
+		pfy->setInputDataSources(pfySource);
+		pfy->setSumAxis(1);
+		pfy->setSumRangeMax(sddRaw->size(1)-1);
+
+		pScan_()->addAnalyzedDataSource(pfy);
 	}
 }
 
