@@ -11,6 +11,8 @@ class AMROIInfo : public AMDbObject
 
 	Q_PROPERTY(double energy READ energy WRITE setEnergy)
 	Q_PROPERTY(double width READ width WRITE setWidth)
+	Q_PROPERTY(double low READ low WRITE setLow)
+	Q_PROPERTY(double high READ high WRITE setHigh)
 	Q_PROPERTY(double scale READ scale WRITE setScale)
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Saved ROI State")
@@ -23,6 +25,10 @@ public:
 	double energy() const { return energy_; }
 	/// Returns the width of the region of interest.  This is expressed as a percentage.
 	double width() const { return width_; }
+	/// Returns the low bound of the region of interest.  This will generally be calculated, but if it is different then the calculation based on width, it will overide the width because it is a customized value.
+	double low() const { return low_; }
+	/// Returns the high bound of the region of interest.  This will generally be calculated, but if it is different then the calculation based on width, it will overide the width because it is a customized value.
+	double high() const { return high_; }
 	/// Returns the scale that would transform an energy and width into upper and lower bounds for a detector.
 	double scale() const { return scale_; }
 	/// The default copy constructor and assignment operator will copy the values from \c other, but they will also copy over the database identity (ie: id(), database(), modified() state, etc.).  This means that calling storeToDb() will now save to \c other's database location.  If you want to copy the values but retain your old database identity, call this function instead.
@@ -30,6 +36,8 @@ public:
 	{
 		energy_ = other.energy_;
 		width_ = other.width_;
+		low_ = other.low_;
+		high_ = other.high_;
 		scale_ = other.scale_;
 		setName(other.name());	// will take care of calling setModified().
 	}
@@ -39,6 +47,10 @@ public slots:
 	void setEnergy(double energy) { energy_ = energy; setModified(true); }
 	/// Sets the width of the region of interst.
 	void setWidth(double width) { width_ = width; setModified(true); }
+	/// Sets the low bound for the region of interest.
+	void setLow(double low) { low_ = low; setModified(true); }
+	/// Sets the high bound for the region of interest.
+	void setHigh(double high) { high_ = high; setModified(true); }
 	/// Sets the scal of the region of interest.
 	void setScale(double scale) { scale_ = scale; setModified(true); }
 
@@ -47,6 +59,10 @@ protected:
 	double energy_;
 	/// The width of the region of interest expressed as a percentage.
 	double width_;
+	/// The low bound of the region of interest.
+	double low_;
+	/// The high bound of the region of interest.
+	double high_;
 	/// The scale that would convert an energy and width into upper and lower bounds for a detector.
 	double scale_;
 };

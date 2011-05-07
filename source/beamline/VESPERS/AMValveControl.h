@@ -28,12 +28,7 @@ public:
 			return 2;
 		case 4:
 			return 0;
-		case 0:
-		case 2:
-		case 3:
-		case 5:
-		case 6:
-		case 7:
+		default:
 			return 1;
 		}
 	}
@@ -46,17 +41,14 @@ public:
 			return QString("Open");
 		case 4:
 			return QString("Closed");
-		case 0:
-		case 2:
-		case 3:
-		case 5:
-		case 6:
-		case 7:
+		default:
 			return QString("Between");
 		}
 	}
 
 signals:
+	/// Notifies that the status has changed and passes on the state.
+	void stateChanged(int);
 
 public slots:
 	/// Open the valve.

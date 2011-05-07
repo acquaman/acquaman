@@ -18,6 +18,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "VESPERSBeamline.h"
+#include "beamline/VESPERS/SampleStageControl.h"
 
 VESPERSBeamline::VESPERSBeamline()
 	: AMBeamline("VESPERS Beamline")
@@ -148,26 +149,49 @@ void VESPERSBeamline::setupDiagnostics()
 	fltPoeSsh2_ = new AMReadOnlyPVControl("Flow Transducer POE SSH2", "FLT1607-1-B22-02:lowflow", this);
 
 	// The beam attenuation filters.
-	filter250umA_ = new AMPVControl("Filter 250um A", "07B2_PLC_PFIL_01_F1_Ctrl", "07B2_PLC_PFIL_01_F1_Toggle");
-	filter250umB_ = new AMPVControl("Filter 250um B", "07B2_PLC_PFIL_01_F2_Ctrl", "07B2_PLC_PFIL_01_F2_Toggle");
-	filter100umA_ = new AMPVControl("Filter 100um A", "07B2_PLC_PFIL_02_F3_Ctrl", "07B2_PLC_PFIL_02_F3_Toggle");
-	filter100umB_ = new AMPVControl("Filter 100um B", "07B2_PLC_PFIL_02_F4_Ctrl", "07B2_PLC_PFIL_02_F4_Toggle");
-	filter50umA_ = new AMPVControl("Filter 50um A", "07B2_PLC_PFIL_02_F1_Ctrl", "07B2_PLC_PFIL_02_F1_Toggle");
-	filter50umB_ = new AMPVControl("Filter 50um B", "07B2_PLC_PFIL_02_F2_Ctrl", "07B2_PLC_PFIL_02_F2_Toggle");
-	filterShutterUpper_ = new AMPVControl("Filter Shutter Upper", "07B2_PLC_PFIL_01_F3_Ctrl", "07B2_PLC_PFIL_01_F3_Toggle");
-	filterShutterLower_ = new AMPVControl("Filter Shutter Lower", "07B2_PLC_PFIL_01_F4_Ctrl", "07B2_PLC_PFIL_01_F4_Toggle");
+	filter250umA_ = new AMPVControl("Filter 250um A", "07B2_PLC_PFIL_01_F1_Ctrl", "07B2_PLC_PFIL_01_F1_Toggle", QString(), this);
+	filter250umB_ = new AMPVControl("Filter 250um B", "07B2_PLC_PFIL_01_F2_Ctrl", "07B2_PLC_PFIL_01_F2_Toggle", QString(), this);
+	filter100umA_ = new AMPVControl("Filter 100um A", "07B2_PLC_PFIL_02_F3_Ctrl", "07B2_PLC_PFIL_02_F3_Toggle", QString(), this);
+	filter100umB_ = new AMPVControl("Filter 100um B", "07B2_PLC_PFIL_02_F4_Ctrl", "07B2_PLC_PFIL_02_F4_Toggle", QString(), this);
+	filter50umA_ = new AMPVControl("Filter 50um A", "07B2_PLC_PFIL_02_F1_Ctrl", "07B2_PLC_PFIL_02_F1_Toggle", QString(), this);
+	filter50umB_ = new AMPVControl("Filter 50um B", "07B2_PLC_PFIL_02_F2_Ctrl", "07B2_PLC_PFIL_02_F2_Toggle", QString(), this);
+	filterShutterUpper_ = new AMPVControl("Filter Shutter Upper", "07B2_PLC_PFIL_01_F3_Ctrl", "07B2_PLC_PFIL_01_F3_Toggle", QString(), this);
+	filterShutterLower_ = new AMPVControl("Filter Shutter Lower", "07B2_PLC_PFIL_01_F4_Ctrl", "07B2_PLC_PFIL_01_F4_Toggle", QString(), this);
 }
 
 void VESPERSBeamline::setupSampleStage()
 {
 	sampleStageHorizontal_ = new AMPVwStatusControl("Horizontal Sample Stage", "TS1607-2-B21-01:H:user:mm:sp", "TS1607-2-B21-01:H:user:mm", "TS1607-2-B21-01:H:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
 	sampleStageVertical_ = new AMPVwStatusControl("Vertical Sample Stage", "TS1607-2-B21-01:V:user:mm:sp", "TS1607-2-B21-01:V:user:mm", "TS1607-2-B21-01:V:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
+	sampleStageNormal_ = new AMPVwStatusControl("Normal Sample Stage", "TS1607-2-B21-01:N:user:mm:sp", "TS1607-2-B21-01:N:user:mm", "TS1607-2-B21-01:N:status", "TS1607-2-B21-01:HNV:stop.PROC", this);
+	// These are meant for reading purposes.  They are the steps of the motor, not engineering units (ie: mm).
+	sampleStageX_ = new AMReadOnlyPVControl("X component Sample Stage", "SVM1607-2-B21-02:step:sp", this);
+	sampleStageY_ = new AMReadOnlyPVControl("Y component Sample Stage", "SVM1607-2-B21-03:step:sp", this);
+	sampleStageZ_ = new AMReadOnlyPVControl("Z component Sample Stage", "SVM1607-2-B21-01:step:sp", this);
 
 	sampleStageMotorSet_ = new AMControlSet(this);
 	sampleStageMotorSet_->addControl(sampleStageHorizontal_);
 	sampleStageMotorSet_->addControl(sampleStageVertical_);
+	sampleStageMotorSet_->addControl(sampleStageNormal_);
+	sampleStageMotorSet_->addControl(sampleStageX_);
+	sampleStageMotorSet_->addControl(sampleStageY_);
+	sampleStageMotorSet_->addControl(sampleStageZ_);
 
 	connect(sampleStageMotorSet_, SIGNAL(controlSetTimedOut()), this, SLOT(sampleStageError()));
+
+	AMPVwStatusControl *h = qobject_cast<AMPVwStatusControl *>(sampleStageHorizontal_);
+	AMPVwStatusControl *v = qobject_cast<AMPVwStatusControl *>(sampleStageVertical_);
+	AMPVwStatusControl *n = qobject_cast<AMPVwStatusControl *>(sampleStageNormal_);
+	AMReadOnlyPVControl *x = qobject_cast<AMReadOnlyPVControl *>(sampleStageX_);
+	AMReadOnlyPVControl *y = qobject_cast<AMReadOnlyPVControl *>(sampleStageY_);
+	AMReadOnlyPVControl *z = qobject_cast<AMReadOnlyPVControl *>(sampleStageZ_);
+
+	sampleStage_ = new SampleStageControl(h, v, n, x, y, z);
+
+	sampleStage_->setScalers(1, 0.707, 0.707);
+	sampleStage_->setXRange(-200000, 200000);
+	sampleStage_->setYRange(-200000, 200000);
+	sampleStage_->setZRange(-750000, 750000);
 }
 
 void VESPERSBeamline::setupEndstation()
@@ -177,7 +201,6 @@ void VESPERSBeamline::setupEndstation()
 	microscopeMotor_ = new AMPVwStatusControl("Microscope motor", "SMTR1607-2-B21-17:mm:sp", "SMTR1607-2-B21-17:mm", "SMTR1607-2-B21-17:status", "SMTR1607-2-B21-17:stop", this);
 	fourElMotor_ = new AMPVwStatusControl("4-Element Vortex motor", "SMTR1607-2-B21-27:mm:sp", "SMTR1607-2-B21-27:mm", "SMTR1607-2-B21-27:status", "SMTR1607-2-B21-27:stop", this);
 	singleElMotor_ = new AMPVwStatusControl("1-Element Vortex motor", "SMTR1607-2-B21-15:mm:sp", "SMTR1607-2-B21-15:mm", "SMTR1607-2-B21-15:status", "SMTR1607-2-B21-15:stop", this);
-	focusMotor_ = new AMPVwStatusControl("Focus motor", "TS1607-2-B21-01:N:user:mm:sp", "TS1607-2-B21-01:N:user:mm", "TS1607-2-B21-01:N:status", "TS1607-2-B21-01:HNV:stop.PROC", this);
 
 	// The process variables that have the feedback value used for the button.  The microscope doesn't need one because it's encoder doesn't work.
 	ccdMotorfbk_ = new AMReadOnlyPVControl("CCD motor feedback", "SMTR1607-2-B21-18:mm:fbk", this);
@@ -188,6 +211,9 @@ void VESPERSBeamline::setupEndstation()
 	// Microscope light PV.
 	micLight_ = new AMProcessVariable("07B2_PLC_Mic_Light_Inten", true, this);
 	micLight_->disablePutCallbackMode(true);
+
+	// Laser on/off control.
+	laserPower_ = new AMPVControl("Laser Power Control", "07B2_PLC_LaserDistON", "07B2_PLC_LaserDistON_Tog", QString(), this);
 
 	// Various CCD file path PVs.
 	ccdPath_ = new AMProcessVariable("IOC1607-003:det1:FilePath", true, this);
@@ -460,6 +486,8 @@ void VESPERSBeamline::setupControlSets()
 	valveList_->append(valveSSH_);
 	valveList_->append(valveBeamTransfer_);
 
+	valves_ = new VESPERSValveGroupControl(valveList_);
+
 	// Grouping the ion pump controls together.
 	ionPumpSet_ = new AMControlSet(this);
 	ionPumpSet_->addControl(iopFE1a_);
@@ -550,7 +578,7 @@ void VESPERSBeamline::setupControlSets()
 	endstationMotorSet_->addControl(fourElMotorfbk_);
 	endstationMotorSet_->addControl(singleElMotor_);
 	endstationMotorSet_->addControl(singleElMotorfbk_);
-	endstationMotorSet_->addControl(focusMotor_);
+	endstationMotorSet_->addControl(sampleStageNormal_);
 	endstationMotorSet_->addControl(focusMotorfbk_);
 
 	// Beam attenuation filters.  Only contains the filters of a certain size.  The upper and lower are used independently of these six.
@@ -788,6 +816,7 @@ VESPERSBeamline::~VESPERSBeamline()
 	delete vvrStraightSection_;
 	delete vvrBPM3_;
 	delete vvrSSH_;
+	delete vvrBeamTransfer_;
 	delete valveFE1_;
 	delete valveFE2_;
 	delete valveM1_;
@@ -799,7 +828,6 @@ VESPERSBeamline::~VESPERSBeamline()
 	delete valveBPM3_;
 	delete valveSSH_;
 	delete valveBeamTransfer_;
-	delete vvrBeamTransfer_;
 	delete iopFE1a_;
 	delete iopFE1b_;
 	delete iopFE2a_;
@@ -864,6 +892,7 @@ VESPERSBeamline::~VESPERSBeamline()
 	delete pressureSet_;
 	delete valveSet_;
 	delete valveList_;
+	delete valves_;
 	delete ionPumpSet_;
 	delete temperatureSet_;
 	delete flowSwitchSet_;
@@ -873,12 +902,17 @@ VESPERSBeamline::~VESPERSBeamline()
 	delete microscopeMotor_;
 	delete fourElMotor_;
 	delete singleElMotor_;
-	delete focusMotor_;
+	delete sampleStageNormal_;
+	delete sampleStageX_;
+	delete sampleStageY_;
+	delete sampleStageZ_;
+	delete sampleStage_;
 	delete ccdMotorfbk_;
 	delete fourElMotorfbk_;
 	delete singleElMotorfbk_;
 	delete focusMotorfbk_;
 	delete micLight_;
+	delete laserPower_;
 	delete ccdPath_;
 	delete ccdFile_;
 	delete ccdNumber_;

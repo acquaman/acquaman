@@ -37,6 +37,9 @@ public:
 		return QString("XRF Free Run Scan");
 	}
 
+	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by AMBeamlineScanAction to set the main text in the action view.
+	virtual QString detailedDescription() const;
+
 public slots:
 	/// Sets the detector based on the beamline enum XRFDetectorChoice.
 	void setDetectorChoice(VESPERSBeamline::XRFDetectorChoice choice);

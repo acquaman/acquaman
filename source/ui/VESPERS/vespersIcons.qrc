@@ -5,5 +5,11 @@
         <file>OFF.png</file>
         <file>ON.png</file>
         <file>trashcan.png</file>
+        <file>dark-lightning.png</file>
+        <file>lightning.png</file>
+        <file>black-laser.png</file>
+        <file>red-laser.png</file>
+        <file>hammer.png</file>
+        <file>RED.png</file>
     </qresource>
 </RCC>

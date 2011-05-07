@@ -1,6 +1,7 @@
 #include "XRFSelectionView.h"
 
 #include <QGroupBox>
+#include <QPalette>
 
 XRFSelectionView::XRFSelectionView(double minimumEnergy, double maximumEnergy, QWidget *parent)
 	: QWidget(parent)
@@ -9,7 +10,15 @@ XRFSelectionView::XRFSelectionView(double minimumEnergy, double maximumEnergy, Q
 	maximumEnergy_ = maximumEnergy;
 
 	tableView_ = new XRFPeriodicTableView(minimumEnergy, maximumEnergy);
+	QPalette palette = tableView_->palette();
+	palette.setColor(tableView_->backgroundRole(), QColor(79, 148, 205));
+	tableView_->setPalette(palette);
+	tableView_->setAutoFillBackground(true);
 	elView_ = new VESPERSXRFElementView(AMPeriodicTable::table()->elementBySymbol("Fe"), minimumEnergy_, maximumEnergy_);
+	palette = elView_->palette();
+	palette.setColor(elView_->backgroundRole(), QColor(110, 139, 61));
+	elView_->setPalette(palette);
+	elView_->setAutoFillBackground(true);
 
 	// This signal takes an element that was clicked inside the view and transfers it to the element view.  It puts checks where appropriate.
 	connect(tableView_, SIGNAL(elementClicked(AMElement*,QList<QPair<int,QString> >)), elView_, SLOT(setElement(AMElement*,QList<QPair<int,QString> >)));

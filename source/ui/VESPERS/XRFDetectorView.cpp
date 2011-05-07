@@ -4,6 +4,7 @@
 #include "MPlot/MPlotSeries.h"
 #include "dataman/AMDataSourceSeriesData.h"
 #include "ui/VESPERS/ROIPlotMarker.h"
+#include "util/AMPeriodicTable.h"
 
 #include <QString>
 #include <QHBoxLayout>
@@ -122,7 +123,7 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 
 	setupPlot();
 
-	connect(detector_->spectraControl(), SIGNAL(controlSetValuesChanged()), this, SLOT(resizeRoiMarkers()));
+	connect(detector_, SIGNAL(roiUpdate(AMROI*)), this, SLOT(roiWidthUpdate(AMROI*)));
 
 	QFont font(this->font());
 	font.setBold(true);
@@ -181,6 +182,46 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	return true;
 }
 
+void XRFDetailedDetectorView::roiWidthUpdate(AMROI *roi)
+{
+	// Find the marker associated with the ROI and then change it.
+	ROIPlotMarker *temp;
+
+	for (int i = 0; i < markers_.size(); i++){
+
+		temp = (ROIPlotMarker *)markers_.at(i);
+
+		if (temp->description().compare(getName(roi)) == 0){
+
+			temp->setLowEnd(roi->low()*roi->scale());
+			temp->setHighEnd(roi->high()*roi->scale());
+		}
+	}
+}
+
+QString XRFDetailedDetectorView::getName(AMROI *roi)
+{
+	QString name(roi->name());
+
+	name = name.left(name.indexOf(" "));
+	AMElement *el = AMPeriodicTable::table()->elementBySymbol(name);
+
+	if (el){
+
+		int low = roi->low();
+		int high = roi->high();
+
+		for (int j = 0; j < el->emissionLines().count(); j++){
+
+			if (el->emissionLines().at(j).first.contains("1")
+					&& fabs((low+high)/2 - el->emissionLines().at(j).second.toDouble()/roi->scale()) < 3)
+				name = el->symbol()+" "+el->emissionLines().at(j).first;
+		}
+	}
+
+	return name;
+}
+
 void XRFDetailedDetectorView::onWaterfallToggled(bool isWaterfall)
 {
 	if (isWaterfall)
@@ -235,11 +276,11 @@ void XRFDetailedDetectorView::setupPlot()
 
 	// Create the plot and setup all the axes.
 	plot_ = new MPlot;
-	plot_->axisBottom()->setAxisNameFont(QFont("Helvetica", 11));
-	plot_->axisBottom()->setTickLabelFont(QFont("Helvetica", 11));
+	plot_->axisBottom()->setAxisNameFont(QFont("Helvetica", 6));
+	plot_->axisBottom()->setTickLabelFont(QFont("Helvetica", 6));
 	plot_->axisBottom()->setAxisName("Energy, eV");
-	plot_->axisLeft()->setAxisNameFont(QFont("Helvetica", 11));
-	plot_->axisLeft()->setTickLabelFont(QFont("Helvetica", 11));
+	plot_->axisLeft()->setAxisNameFont(QFont("Helvetica", 6));
+	plot_->axisLeft()->setTickLabelFont(QFont("Helvetica", 6));
 	plot_->axisLeft()->setAxisName("Counts");
 
 	// Set the margins for the plot.
@@ -268,27 +309,13 @@ void XRFDetailedDetectorView::setupPlot()
 	plot_->addTool(new MPlotDragZoomerTool());
 	plot_->addTool(new MPlotWheelZoomerTool());
 	view_->setPlot(plot_);
+	view_->setMinimumHeight(450);
 
 	// Set the number of ticks.  A balance between readability and being practical.
 	plot_->axisBottom()->setTicks(3);
 	plot_->axisTop()->setTicks(0);
 	plot_->axisLeft()->setTicks(4);
 	plot_->axisRight()->setTicks(0);
-}
-
-void XRFDetailedDetectorView::resizeRoiMarkers()
-{
-	if (markers_.isEmpty())
-		return;
-
-	ROIPlotMarker *temp;
-	double height = getMaximumHeight(plot_->item(0));
-
-	for (int i = 0; i < markers_.size(); i++){
-
-		temp = (ROIPlotMarker *)(markers_.at(i));
-		temp->setHeight(height);
-	}
 }
 
 double XRFDetailedDetectorView::getMaximumHeight(MPlotItem *data)
@@ -310,25 +337,19 @@ double XRFDetailedDetectorView::getMaximumHeight(MPlotItem *data)
 	return max;
 }
 
+void XRFDetailedDetectorView::sortRegionsOfInterest()
+{
+
+}
+
 void XRFDetailedDetectorView::onAdditionOfRegionOfInterest(AMElement *el, QPair<QString, QString> line)
 {
 	AMROIInfo info(el->symbol()+" "+line.first, line.second.toDouble(), 0.04, detector_->scale());
 	detector_->addRegionOfInterest(info);
-	detector_->sort();
-	ROIPlotMarker *newMarker = new ROIPlotMarker(info.name(), info.energy(), info.energy()*(1-info.width()/2), info.energy()*(1+info.width()/2), plot_->axisScaleLeft()->max());
-
-	int index = 0;
-	while(index != markers_.size()){
-
-		if (info.energy() > ((ROIPlotMarker *)markers_.at(index))->center())
-			index++;
-		else
-			break;
-	}
-
-	// Insert after all existing items like the spectra and the "emission lines bars".  This places them in order of increasing energy, but still in a logical place.
-	plot_->insertItem(newMarker, index + plot_->numItems()-markers_.size());
-	markers_.insert(index + plot_->numItems()-markers_.size(), newMarker);
+	ROIPlotMarker *newMarker = new ROIPlotMarker(info.name(), info.energy(), info.energy()*(1-info.width()/2), info.energy()*(1+info.width()/2));
+	plot_->insertItem(newMarker);
+	newMarker->setYAxisTarget(plot_->axisScale(MPlot::VerticalRelative));
+	markers_ << newMarker;
 	highlightMarkers(el);
 }
 
@@ -407,7 +428,7 @@ void XRFDetailedDetectorView::showEmissionLines(AMElement *el)
 
 		current = toBeAdded.at(i);
 		point = new MPlotPoint(QPoint(current.second.toDouble(), 0));
-		point->setMarker(MPlotMarkerShape::VerticalBeam, 1e5, getColor(current.first));
+		point->setMarker(MPlotMarkerShape::VerticalBeam, 1e5, QPen(getColor(current.first)), QBrush(getColor(current.first)));
 		point->setDescription(current.first + ": " + current.second + " eV");
 		plot_->insertItem(point, i+detector_->elements());
 		lines_->append(point);
