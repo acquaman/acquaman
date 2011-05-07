@@ -20,6 +20,21 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 
 	// Valve group.
 	valves_ = VESPERSBeamline::vespers()->valves();
+	// The temperature control.
+	temperature_ = VESPERSBeamline::vespers()->temperatureSet();
+	connect(temperature_, SIGNAL(controlSetValuesChanged()), this, SLOT(onTemperatureStateChanged()));
+
+	// The pressure control.
+	pressure_ = VESPERSBeamline::vespers()->pressureSet();
+	connect(pressure_, SIGNAL(controlSetValuesChanged()), this, SLOT(onPressureStateChanged()));
+
+	// The flow switches.
+	flowSwitches_ = VESPERSBeamline::vespers()->flowSwitchSet();
+	connect(flowSwitches_, SIGNAL(controlSetValuesChanged()), this, SLOT(onWaterStateChanged()));
+
+	// The flow transducers.
+	flowTransducers_ = VESPERSBeamline::vespers()->flowTransducerSet();
+	connect(flowTransducers_, SIGNAL(controlSetValuesChanged()), this, SLOT(onWaterStateChanged()));
 
 	QFont font(this->font());
 	font.setBold(true);
@@ -27,7 +42,7 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	QLabel *pshShutterLabel = new QLabel("Photon Shutters");
 	pshShutterLabel->setFont(font);
 
-	QLabel *sshShutterLabel = new QLabel("Safter Shutters");
+	QLabel *sshShutterLabel = new QLabel("Safety Shutters");
 	sshShutterLabel->setFont(font);
 
 	QLabel *statusLabel = new QLabel("Beamline Status");
@@ -52,7 +67,7 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	sshShutterLayout->addLayout(sshShutters);
 
 	// The valve control.
-	valvesButton_ = new QPushButton("Open All Valves");
+	valvesButton_ = new QPushButton("Open Valves");
 	connect(valvesButton_, SIGNAL(clicked()), this, SLOT(onValvesButtonPushed()));
 
 	valvesStatus_ = new QLabel;
@@ -60,8 +75,27 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	connect(valves_, SIGNAL(statusChanged(bool)), this, SLOT(onValvesStateChanged()));
 
 	QHBoxLayout *valvesLayout = new QHBoxLayout;
-	valvesLayout->addWidget(valvesStatus_, 0, Qt::AlignRight);
+	valvesLayout->addWidget(valvesStatus_, 0, Qt::AlignCenter);
 	valvesLayout->addWidget(valvesButton_, 0, Qt::AlignLeft);
+
+	// Temp, water, and pressure labels.
+	tempLabel_ = new QLabel;
+	tempLabel_->setPixmap(QIcon(":/RED.png").pixmap(30));
+	QHBoxLayout *tempLayout = new QHBoxLayout;
+	tempLayout->addWidget(tempLabel_, 0, Qt::AlignCenter);
+	tempLayout->addWidget(new QLabel("Temperature"), 0, Qt::AlignLeft);
+
+	pressureLabel_ = new QLabel;
+	pressureLabel_->setPixmap(QIcon(":/RED.png").pixmap(30));
+	QHBoxLayout *pressureLayout = new QHBoxLayout;
+	pressureLayout->addWidget(pressureLabel_, 0, Qt::AlignCenter);
+	pressureLayout->addWidget(new QLabel("Vacuum"), 0, Qt::AlignLeft);
+
+	waterLabel_ = new QLabel;
+	waterLabel_->setPixmap(QIcon(":/RED.png").pixmap(30));
+	QHBoxLayout *waterLayout = new QHBoxLayout;
+	waterLayout->addWidget(waterLabel_, 0, Qt::AlignCenter);
+	waterLayout->addWidget(new QLabel("Water"), 0, Qt::AlignLeft);
 
 	QVBoxLayout *persistentLayout = new QVBoxLayout;
 	persistentLayout->addLayout(pshShutterLayout);
@@ -69,6 +103,9 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	persistentLayout->addWidget(motors);
 	persistentLayout->addWidget(statusLabel);
 	persistentLayout->addLayout(valvesLayout);
+	persistentLayout->addLayout(tempLayout);
+	persistentLayout->addLayout(pressureLayout);
+	persistentLayout->addLayout(waterLayout);
 	persistentLayout->addStretch();
 
 	QGroupBox *vespers = new QGroupBox("VESPERS Beamline");
@@ -93,12 +130,73 @@ void VESPERSPersistentView::onValvesStateChanged()
 {
 	if (valves_->allValvesOpen()){
 
-		valvesButton_->setText("Close All Valves");
+		valvesButton_->setText("Close Valves");
 		valvesStatus_->setPixmap(QIcon(":/ON.png").pixmap(30));
 	}
 	else{
 
-		valvesButton_->setText("Open All Valves");
+		valvesButton_->setText("Open Valves");
 		valvesStatus_->setPixmap(QIcon(":/RED.png").pixmap(30));
 	}
+}
+
+void VESPERSPersistentView::onPressureStateChanged()
+{
+	bool allGood = true;
+	AMReadOnlyPVwStatusControl *temp;
+
+	for (int i = 0; i < pressure_->count(); i++){
+
+		temp = qobject_cast<AMReadOnlyPVwStatusControl *>(pressure_->at(i));
+		if (temp && temp->isMoving())
+			allGood = false;
+	}
+
+	if (allGood)
+		pressureLabel_->setPixmap(QIcon(":/ON.png").pixmap(30));
+	else
+		pressureLabel_->setPixmap(QIcon(":/RED.png").pixmap(30));
+}
+
+void VESPERSPersistentView::onTemperatureStateChanged()
+{
+	bool allGood = true;
+	AMReadOnlyPVControl *temp;
+
+	for (int i = 0; i < temperature_->count(); i++){
+
+		temp = qobject_cast<AMReadOnlyPVControl *>(temperature_->at(i));
+		if (temp && temp->value() == 0)
+			allGood = false;
+	}
+
+	if (allGood)
+		tempLabel_->setPixmap(QIcon(":/ON.png").pixmap(30));
+	else
+		tempLabel_->setPixmap(QIcon(":/RED.png").pixmap(30));
+}
+
+void VESPERSPersistentView::onWaterStateChanged()
+{
+	bool allGood = true;
+	AMReadOnlyPVControl *temp;
+
+	for (int i = 0; i < flowSwitches_->count(); i++){
+
+		temp = qobject_cast<AMReadOnlyPVControl *>(flowSwitches_->at(i));
+		if (temp && temp->value() == 0)
+			allGood = false;
+	}
+
+	for (int i = 0; i < flowTransducers_->count(); i++){
+
+		temp = qobject_cast<AMReadOnlyPVControl *>(flowTransducers_->at(i));
+		if (temp && temp->value() == 0)
+			allGood = false;
+	}
+
+	if (allGood)
+		waterLabel_->setPixmap(QIcon(":/ON.png").pixmap(30));
+	else
+		waterLabel_->setPixmap(QIcon(":/RED.png").pixmap(30));
 }

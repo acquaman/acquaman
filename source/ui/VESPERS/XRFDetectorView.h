@@ -4,6 +4,7 @@
 #include "ui/AMDetectorView.h"
 #include "beamline/VESPERS/XRFDetector.h"
 #include "util/AMElement.h"
+#include "ui/VESPERS/ROIPlotMarker.h"
 
 #include "MPlot/MPlot.h"
 #include "MPlot/MPlotWidget.h"
@@ -91,6 +92,8 @@ protected slots:
 	void onComboBoxUpdate(int index);
 	/// Handles the changes from the update rate control.
 	void onUpdateRateUpdate(double val);
+	/// Handles when the log scale button is clicked.  It takes a log of the data if true.
+	void onLogEnabled(bool logged);
 	/// Enables/Disables whether the raw spectra are displayed or the corrected sum.
 	void onWaterfallToggled(bool isWaterfall);
 	/// Changes the amount of waterfall separation between the plots.
@@ -136,7 +139,7 @@ protected:
 	/// This is the plot itself.
 	MPlot *plot_;
 	/// Holds the list of current markers.
-	QList<MPlotItem *> markers_;
+	QList<ROIPlotMarker *> markers_;
 	/// This holds the plot markers for showing emission lines.
 	QList<MPlotPoint *> *lines_;
 };

@@ -43,7 +43,7 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 	connect(selectionView_, SIGNAL(clearAllRegionsOfInterest()), view_, SLOT(removeAllRegionsOfInterest()));
 
 	QPushButton *sortButton = new QPushButton(QIcon(":/ArrowCCW.png"), "Sort");
-	connect(sortButton, SIGNAL(clicked()), detector_, SLOT(sort()));
+	connect(sortButton, SIGNAL(clicked()), view_, SLOT(sortRegionsOfInterest()));
 
 	customize_ = new CustomizeRegionsOfInterest(detector_->roiList());
 	QPushButton *configureButton = new QPushButton(QIcon(":/configure.png"), "Edit ROIs");
