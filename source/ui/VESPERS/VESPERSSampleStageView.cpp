@@ -31,9 +31,9 @@ VESPERSSampleStageView::VESPERSSampleStageView(QWidget *parent) :
 	QFont font(this->font());
 	font.setBold(true);
 
-	QLabel *h = new QLabel("H:");
+	QLabel *h = new QLabel("H :");
 	h->setFont(font);
-	QLabel *v = new QLabel("V:");
+	QLabel *v = new QLabel("V :");
 	v->setFont(font);
 
 	QGridLayout *hLayout = new QGridLayout;
