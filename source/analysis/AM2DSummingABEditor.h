@@ -71,7 +71,8 @@ protected:
 	MPlotWidget* plotWidget_;
 	MPlot* plot_;
 	MPlotImageBasic* image_;
-	MPlotRectangle* rangeRectangle_;
+	MPlotRectangle* rangeRectangle1_, *rangeRectangle2_;
+
 	/// called to position and show/hide the range rectangle, as appropriate.
 	void placeRangeRectangle();
 
