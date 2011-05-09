@@ -1,10 +1,8 @@
 #include "PIDLoopControlView.h"
 
 #include <QLabel>
-#include <QPushButton>
 #include <QVBoxLayout>
 #include <QFont>
-#include <QVariant>
 
 PIDLoopControlView::PIDLoopControlView(PIDLoopControl *pid, QWidget *parent)
 	: QWidget(parent)
@@ -19,58 +17,40 @@ PIDLoopControlView::PIDLoopControlView(PIDLoopControl *pid, QWidget *parent)
 	QLabel *description = new QLabel(pid_->name());
 	description->setFont(font);
 
-	QPushButton *fix = new QPushButton("Repair");
-	connect(fix, SIGNAL(clicked()), pid_, SLOT(turnOn()));
+	fix_ = new QPushButton("Repair");
+	connect(fix_, SIGNAL(clicked()), pid_, SLOT(turnOn()));
 
 	QVBoxLayout *layout = new QVBoxLayout;
 	layout->addWidget(description, 0, Qt::AlignLeft);
-	layout->addWidget(fix, 0, Qt::AlignCenter);
+	layout->addWidget(fix_, 0, Qt::AlignCenter);
 
 	setLayout(layout);
 
-	//fix->setAutoFillBackground(true);
-	QVariant start(QVariant::Palette);
-	start.setValue(QPalette(Qt::blue));
-	QVariant end(QVariant::Palette);
-	end.setValue(QPalette(Qt::green));
-
-	animation_ = new QPropertyAnimation(fix, "palette");
-	animation_->setDuration(1500);
-	animation_->setStartValue(start);
-	animation_->setEndValue(end);
-	animation_->start();
+	highlight_ = false;
 
 	timer_ = new QTimer;
-	timer_->setInterval(2000);
+	timer_->setInterval(1000);
 	timer_->setSingleShot(false);
-	connect(timer_, SIGNAL(timeout()), animation_, SLOT(start()));
+	connect(timer_, SIGNAL(timeout()), this, SLOT(toggleButtonColor()));
 }
 
 PIDLoopControlView::~PIDLoopControlView()
 {
 	delete timer_;
-	delete animation_;
 }
 
-QVariant PIDLoopControlView::paletteInterpolator(const QPalette &start, const QPalette &end, qreal progress)
+void PIDLoopControlView::toggleButtonColor()
 {
-	if (progress <0.5)
-		return start;
-	return end;
-	/*QPalette palette(start);
+	highlight_ = !highlight_;
 
-	QColor converted;
-	converted.setRedF(start.button().color().redF() + (end.button().color().redF()-start.button().color().redF())*progress);
-	converted.setGreenF(start.button().color().greenF() + (end.button().color().greenF()-start.button().color().greenF())*progress);
-	converted.setBlueF(start.button().color().blueF() + (end.button().color().blueF()-start.button().color().blueF())*progress);
-	converted.setAlphaF(start.button().color().alphaF() + (end.button().color().alphaF()-start.button().color().alphaF())*progress);
+	if (highlight_){
 
-	palette.setColor(QPalette::Button, converted);
-
-	QVariant current(QVariant::Palette);
-	current.setValue(palette);
-
-	return current;*/
+		QPalette palette(fix_->palette());
+		palette.setColor(QPalette::Button, QColor(255, 64, 64));
+		fix_->setPalette(palette);
+	}
+	else
+		fix_->setPalette(this->palette());
 }
 
 void PIDLoopControlView::onHiddenChanged(bool hidden)

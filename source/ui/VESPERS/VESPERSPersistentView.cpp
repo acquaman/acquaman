@@ -21,6 +21,7 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 
 	// PID control view widget.
 	PIDLoopControlView *pidView = new PIDLoopControlView(VESPERSBeamline::vespers()->sampleStagePID());
+	connect(pidView->pid(), SIGNAL(stateChanged(bool)), motors, SLOT(setEnabled(bool)));
 
 	// Valve group.
 	valves_ = VESPERSBeamline::vespers()->valves();
