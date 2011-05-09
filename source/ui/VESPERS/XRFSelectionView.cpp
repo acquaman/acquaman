@@ -14,6 +14,7 @@ XRFSelectionView::XRFSelectionView(double minimumEnergy, double maximumEnergy, Q
 	palette.setColor(tableView_->backgroundRole(), QColor(79, 148, 205));
 	tableView_->setPalette(palette);
 	tableView_->setAutoFillBackground(true);
+
 	elView_ = new VESPERSXRFElementView(AMPeriodicTable::table()->elementBySymbol("Fe"), minimumEnergy_, maximumEnergy_);
 	palette = elView_->palette();
 	palette.setColor(elView_->backgroundRole(), QColor(110, 139, 61));

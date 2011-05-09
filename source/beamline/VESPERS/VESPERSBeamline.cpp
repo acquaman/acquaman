@@ -192,6 +192,12 @@ void VESPERSBeamline::setupSampleStage()
 	sampleStage_->setXRange(-200000, 200000);
 	sampleStage_->setYRange(-200000, 200000);
 	sampleStage_->setZRange(-750000, 750000);
+
+	sampleStagePidX_ = new AMPVControl("Sample Stage PID X", "SVM1607-2-B21-02:hold:sp", "SVM1607-2-B21-02:hold", QString(), this);
+	sampleStagePidY_ = new AMPVControl("Sample Stage PID Y", "SVM1607-2-B21-03:hold:sp", "SVM1607-2-B21-03:hold", QString(), this);
+	sampleStagePidZ_ = new AMPVControl("Sample Stage PID Z", "SVM1607-2-B21-01:hold:sp", "SVM1607-2-B21-01:hold", QString(), this);
+
+	sampleStagePID_ = new PIDLoopControl("PID Control - Sample Stage", sampleStagePidX_, sampleStagePidY_, sampleStagePidZ_, this);
 }
 
 void VESPERSBeamline::setupEndstation()
@@ -907,6 +913,10 @@ VESPERSBeamline::~VESPERSBeamline()
 	delete sampleStageY_;
 	delete sampleStageZ_;
 	delete sampleStage_;
+	delete sampleStagePidX_;
+	delete sampleStagePidY_;
+	delete sampleStagePidZ_;
+	delete sampleStagePID_;
 	delete ccdMotorfbk_;
 	delete fourElMotorfbk_;
 	delete singleElMotorfbk_;

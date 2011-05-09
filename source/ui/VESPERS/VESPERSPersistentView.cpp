@@ -1,6 +1,7 @@
 #include "VESPERSPersistentView.h"
 #include "ui/AMShutterButton.h"
 #include "ui/VESPERS/VESPERSSampleStageView.h"
+#include "ui/VESPERS/PIDLoopControlView.h"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -17,6 +18,9 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 
 	// Sample stage widget.
 	VESPERSSampleStageView *motors = new VESPERSSampleStageView;
+
+	// PID control view widget.
+	PIDLoopControlView *pidView = new PIDLoopControlView(VESPERSBeamline::vespers()->sampleStagePID());
 
 	// Valve group.
 	valves_ = VESPERSBeamline::vespers()->valves();
@@ -101,6 +105,7 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	persistentLayout->addLayout(pshShutterLayout);
 	persistentLayout->addLayout(sshShutterLayout);
 	persistentLayout->addWidget(motors);
+	persistentLayout->addWidget(pidView);
 	persistentLayout->addWidget(statusLabel);
 	persistentLayout->addLayout(valvesLayout);
 	persistentLayout->addLayout(tempLayout);

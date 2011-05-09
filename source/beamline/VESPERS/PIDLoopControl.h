@@ -12,9 +12,11 @@ class PIDLoopControl : public QObject
 {
 	Q_OBJECT
 public:
-	/// Constructor.  Takes in the three PID loops for each motor.
-	explicit PIDLoopControl(AMPVControl *pidX, AMPVControl *pidY, AMPVControl *pidZ, QObject *parent = 0);
+	/// Constructor.  Takes in the three PID loops for each motor as well as a description.
+	explicit PIDLoopControl(QString name, AMControl *pidX, AMControl *pidY, AMControl *pidZ, QObject *parent = 0);
 
+	/// Returns the name of the PID control.
+	QString name() const { return name_; }
 	/// Returns the state of PID for the x-direction motor.
 	bool isOnX() { return (int)x_->value() == 1 ? true : false; }
 	/// Returns the state of PID for the y-direction motor.
@@ -41,14 +43,15 @@ public slots:
 
 protected slots:
 	/// Handles when the x value changes.
-	void onXStateChanged() { emit stateChanged(isOnX()); }
+	void onXStateChanged() { emit stateChanged(state()); }
 	/// Handles when the y value changes.
-	void onYStateChanged() { emit stateChanged(isOnY()); }
+	void onYStateChanged() { emit stateChanged(state()); }
 	/// Handles when the z value changes.
-	void onZStateChanged() { emit stateChanged(isOnZ()); }
+	void onZStateChanged() { emit stateChanged(state()); }
 
 protected:
 
+	QString name_;
 	/// Pointer to the PID control for the x motor.
 	AMPVControl *x_;
 	/// Pointer to the PID control for the y motor.
