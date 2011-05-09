@@ -178,8 +178,12 @@ int AMAcqScanSpectrumOutput::putValue( acqKey_t key, int eventno, int pvno, cons
 				dataVal = (double)*(char *)value;
 				break;
 			case DBF_LONG:{
-				dataVal = (double)*(long *)value;
-				//qDebug() << "Thinks its LONG " << dataVal;
+				/* NTBA May 8th, 2011 David Chevrier
+				   There seems to be an issue with the DBF_LONG being saved as int (size 4)
+				   rather than as long (size 8). Probably a 64bit problem.
+				*/
+				//dataVal = (double)*(long *)value;
+				dataVal = (double)*(int *)value;
 				break;
 			}
 			case DBF_DOUBLE:
@@ -191,7 +195,14 @@ int AMAcqScanSpectrumOutput::putValue( acqKey_t key, int eventno, int pvno, cons
 			spectraVal.append(dataVal);
 			if(dataVal > specMax)
 				specMax = dataVal;
-			value = (char  *)value + pvpr->colp->dataSize;
+			/* NTBA May 8th, 2011 David Chevrier
+			   There seems to be an issue with the DBF_LONG being saved as int (size 4)
+			   rather than as long (size 8). Probably a 64bit problem.
+			 */
+			if(pvpr->colp->columnType == DBF_LONG)
+				value = (char  *)value + 4;
+			else
+				value = (char  *)value + pvpr->colp->dataSize;
 		}
 	}
 	if((eventno == 1) && !pvpr->isSpectrum){

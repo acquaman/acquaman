@@ -6,9 +6,6 @@
 SGMFastScanConfiguration::SGMFastScanConfiguration(QObject *parent) : AMFastScanConfiguration(parent), SGMScanConfiguration()
 {
 	currentSettings_ = 0; //NULL
-	sensibleFileSavePath_ = "";
-	finalizedSavePath_ = "";
-	sensibleFileSaveWarning_ = "";
 
 	settings_.append( new SGMFastScanParameters("Nitrogen", 5.0, 400.0, 415.0, 430.0, 10000, 10000, 10000, 5.0, 200, this));
 	settings_.append( new SGMFastScanParameters("Nitrogen", 20.0, 400.0, 415.0, 430.0, 1000, 1000, 1000, 20.0, 800, this));
@@ -17,18 +14,65 @@ SGMFastScanConfiguration::SGMFastScanConfiguration(QObject *parent) : AMFastScan
 	settings_.append( new SGMFastScanParameters("Copper", 5.0, 925.0, 935.0, 945.0, 3000, 3000, 3000, 5.0, 200, this));
 	settings_.append( new SGMFastScanParameters("Copper", 20.0, 925.0, 935.0, 945.0, 450, 450, 450, 20.0, 800, this));
 	settings_.append( new SGMFastScanParameters("Carbon", 5.0, 280.0, 295.0, 320.0, 19000, 19000, 19000, 5.0, 200, this));
+	settings_.append( new SGMFastScanParameters("David", 5.0, 700.0, 715.0, 730.0, 10000, 10000, 10000, 5.0, 200, this));
 
 	setParametersFromPreset(0);
 
-	/* NTBA March 14, 2011 David Chevrier
-	   Save directory and such goes to exporter
-	connect(&savePathWatcher_, SIGNAL(directoryChanged(QString)), this, SLOT(onSaveDirectoryChanged(QString)));
-	*/
+	fastDetectors_ = SGMBeamline::sgm()->FastDetectors();
+
+	allDetectors_ = new AMDetectorSet(this);
+	allDetectors_->addDetector(SGMBeamline::sgm()->i0Detector(), true);
+	allDetectors_->addDetector(SGMBeamline::sgm()->photodiodeDetector(), true);
+	for(int x = 0; x < fastDetectors_->count(); x++)
+		allDetectors_->addDetector(fastDetectors_->detectorAt(x), fastDetectors_->detectorAt(x));
+	fastDetectorsConfigurations_ = fastDetectors_->toInfoSet();
+}
+
+SGMFastScanConfiguration::SGMFastScanConfiguration(const SGMFastScanConfiguration &original){
+	currentSettings_ = 0; //NULL
+
+	settings_.append( new SGMFastScanParameters("Nitrogen", 5.0, 400.0, 415.0, 430.0, 10000, 10000, 10000, 5.0, 200, this));
+	settings_.append( new SGMFastScanParameters("Nitrogen", 20.0, 400.0, 415.0, 430.0, 1000, 1000, 1000, 20.0, 800, this));
+	settings_.append( new SGMFastScanParameters("Oxygen", 5.0, 530.0, 545.0, 560.0, 10000, 10000, 10000, 5.0, 200, this));
+	settings_.append( new SGMFastScanParameters("Oxygen", 20.0, 530.0, 545.0, 560.0, 1000, 1000, 1000, 20.0, 800, this));
+	settings_.append( new SGMFastScanParameters("Copper", 5.0, 925.0, 935.0, 945.0, 3000, 3000, 3000, 5.0, 200, this));
+	settings_.append( new SGMFastScanParameters("Copper", 20.0, 925.0, 935.0, 945.0, 450, 450, 450, 20.0, 800, this));
+	settings_.append( new SGMFastScanParameters("Carbon", 5.0, 280.0, 295.0, 320.0, 19000, 19000, 19000, 5.0, 200, this));
+	settings_.append( new SGMFastScanParameters("David", 5.0, 700.0, 715.0, 730.0, 10000, 10000, 10000, 5.0, 200, this));
+
+	bool foundPreset = false;
+	for(int x = 0; x < settings_.count(); x++){
+		if(!foundPreset && settings_.at(x) == original.currentParameters() ){
+			setParametersFromPreset(x);
+			foundPreset = true;
+		}
+	}
+	if(!foundPreset)
+		setParameters(original.currentParameters());
+
+	fastDetectors_ = SGMBeamline::sgm()->FastDetectors();
+	allDetectors_ = new AMDetectorSet(this);
+	allDetectors_->addDetector(SGMBeamline::sgm()->i0Detector(), true);
+	allDetectors_->addDetector(SGMBeamline::sgm()->photodiodeDetector(), true);
+	for(int x = 0; x < fastDetectors_->count(); x++)
+		allDetectors_->addDetector(fastDetectors_->detectorAt(x), fastDetectors_->detectorAt(x));
+
+	setDetectorConfigurations(original.detectorChoiceConfigurations());
+
 }
 
 SGMFastScanConfiguration::~SGMFastScanConfiguration(){
 	while(settings_.count() > 0)
 		delete settings_.takeLast();
+}
+
+AMDetectorInfoSet SGMFastScanConfiguration::allDetectorConfigurations() const{
+	AMDetectorInfoSet allConfigurations;
+	for(int x = 0; x < SGMBeamline::sgm()->feedbackDetectors()->count(); x++)
+		allConfigurations.addDetectorInfo(SGMBeamline::sgm()->feedbackDetectors()->detectorAt(x)->toInfo(), true);
+	for(int x = 0; x < fastDetectorsConfigurations_.count(); x++)
+		allConfigurations.addDetectorInfo(fastDetectorsConfigurations_.detectorInfoAt(x), fastDetectorsConfigurations_.isActiveAt(x));
+	return allConfigurations;
 }
 
 AMScanConfiguration* SGMFastScanConfiguration::createCopy() const{
@@ -39,6 +83,12 @@ AMScanConfiguration* SGMFastScanConfiguration::createCopy() const{
 
 AMScanController* SGMFastScanConfiguration::createController(){
 	return new SGMFastDacqScanController(this);
+}
+
+QString SGMFastScanConfiguration::detailedDescription() const{
+	return QString("Fast Scan from %1 to %2\nIntegration Time: %3").arg(startEnergy())
+			.arg(endEnergy())
+			.arg(runTime());
 }
 
 QString SGMFastScanConfiguration::element() const{
@@ -81,18 +131,6 @@ int SGMFastScanConfiguration::baseLine() const{
 	return currentSettings_->baseLine();
 }
 
-QString SGMFastScanConfiguration::sensibleFileSavePath() const{
-	return sensibleFileSavePath_;
-}
-
-QString SGMFastScanConfiguration::finalizedSavePath() const{
-	return finalizedSavePath_;
-}
-
-QString SGMFastScanConfiguration::sensibleFileSaveWarning() const {
-	return sensibleFileSaveWarning_;
-}
-
 QStringList SGMFastScanConfiguration::presets() const{
 	QStringList retVal;
 	QString tmpStr;
@@ -105,15 +143,6 @@ SGMFastScanParameters* SGMFastScanConfiguration::currentParameters() const{
 	return currentSettings_;
 }
 
-QList<AMDetector*> SGMFastScanConfiguration::usingDetectors() const{
-	QList<AMDetector*> usingDetectors;
-	usingDetectors << SGMBeamline::sgm()->XASDetectors()->detectorNamed("tey");
-	usingDetectors << SGMBeamline::sgm()->feedbackDetectors()->detectorNamed("I0");
-	usingDetectors << SGMBeamline::sgm()->XASDetectors()->detectorNamed("tfy");
-	usingDetectors << SGMBeamline::sgm()->allDetectors()->detectorNamed("photodiode");
-	return usingDetectors;
-}
-
 bool SGMFastScanConfiguration::setParametersFromPreset(int index){
 	if(index < 0 && index >= settings_.count())
 		return false;
@@ -124,8 +153,8 @@ bool SGMFastScanConfiguration::setParameters(SGMFastScanParameters *settings){
 	if(!settings)
 		return false;
 	currentSettings_ = settings;
-	setStart(currentSettings_->energyStart());
-	setEnd(currentSettings_->energyEnd());
+	setStartEnergy(currentSettings_->energyStart());
+	setEndEnergy(currentSettings_->energyEnd());
 	emit onElementChanged(currentSettings_->element());
 	emit onRunSecondsChanged(currentSettings_->runSeconds());
 	emit onEnergyStartChanged(currentSettings_->energyStart());
@@ -156,7 +185,7 @@ bool SGMFastScanConfiguration::setRunSeconds(double runSeconds){
 
 bool SGMFastScanConfiguration::setEnergyStart(double energyStart){
 	currentSettings_->setEnergyStart(energyStart);
-	setStart(energyStart);
+	setStartEnergy(energyStart);
 	emit onEnergyStartChanged(currentSettings_->energyStart());
 	setModified(true);
 	return true;
@@ -171,7 +200,7 @@ bool SGMFastScanConfiguration::setEnergyMidpoint(double energyMidpoint){
 
 bool SGMFastScanConfiguration::setEnergyEnd(double energyEnd){
 	currentSettings_->setEnergyEnd(energyEnd);
-	setEnd(energyEnd);
+	setEndEnergy(energyEnd);
 	emit onEnergyEndChanged(currentSettings_->energyEnd());
 	setModified(true);
 	return true;
@@ -212,43 +241,10 @@ bool SGMFastScanConfiguration::setBaseLine(int baseLine){
 	return true;
 }
 
-bool SGMFastScanConfiguration::setSensibleFileSavePath(const QString &sensibleFileSavePath){
-	/* NTBA March 14, 2011 David Chevrier
-	QString path = sensibleFileSavePath.section('/', 0, -2);
-	QString file = sensibleFileSavePath.section('/', -1);
-	//file.append(".dat");
-	QDir dir(path);
-	if(file.contains(".") || file.contains("_") || file.contains(" ")){
-		sensibleFileSaveWarning_ = "Files cannot '.', '_' or ' '";
-		return false;
-	}
-	if(!dir.exists()){
-		sensibleFileSaveWarning_ = "Directory does not exist";
-		return false;
-	}
-	if(!sensibleFileSavePath_.isEmpty())
-		savePathWatcher_.removePath(sensibleFileSavePath_.section('/', 0, -2));
-	sensibleFileSavePath_ = sensibleFileSavePath;
-	savePathWatcher_.addPath(path);
-	QStringList filefilters, likeFiles;
-	filefilters << QString("%1_*.dat").arg(file);
-	likeFiles = dir.entryList(filefilters, QDir::Files);
-	int pIndex, aIndex, maxIndex;
-	maxIndex = 0;
-	foreach(QString f, likeFiles){
-		pIndex = f.indexOf('_');
-		aIndex = f.indexOf(".dat");
-		maxIndex = std::max(f.mid(pIndex+1, aIndex-(pIndex+1)).toInt(), maxIndex);
-	}
-	finalizedSavePath_ = QString("%1/%2_%3.dat").arg(path).arg(file).arg(maxIndex+1);
-	emit onNewFinalizedSavePath(finalizedSavePath_);
-	emit onSensibleFileSavePathChanged(sensibleFileSavePath_);
+bool SGMFastScanConfiguration::setDetectorConfigurations(AMDetectorInfoSet detectorConfigurations) {
+	fastDetectorsConfigurations_ = detectorConfigurations;
+	setModified(true);
 	return true;
-	*/
-}
-
-void SGMFastScanConfiguration::onSaveDirectoryChanged(const QString &directory){
-	setSensibleFileSavePath(sensibleFileSavePath_);
 }
 
 SGMFastScanParameters::SGMFastScanParameters(QObject *parent) : QObject(parent)
@@ -268,4 +264,20 @@ SGMFastScanParameters::SGMFastScanParameters(const QString &element, double runS
 	setAcceleration(acceleration);
 	setScalerTime(scalerTime);
 	setBaseLine(baseLine);
+}
+
+bool SGMFastScanParameters::operator ==(const SGMFastScanParameters &other){
+	if( element() == other.element() &&
+	    runSeconds() == other.runSeconds() &&
+	    energyStart() == other.energyStart() &&
+	    energyMidpoint() == other.energyMidpoint() &&
+	    energyEnd() == other.energyEnd() &&
+	    velocity() == other.velocity() &&
+	    velocityBase() == other.velocityBase() &&
+	    acceleration() == other.acceleration() &&
+	    scalerTime() == other.scalerTime() &&
+	    baseLine() == other.baseLine() ){
+		return true;
+	}
+	return false;
 }

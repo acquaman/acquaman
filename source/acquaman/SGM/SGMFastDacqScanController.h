@@ -4,6 +4,11 @@
 #include "acquaman/AMDacqScanController.h"
 #include "SGMFastScanController.h"
 
+#define SGMFASTDACQSCANCONTROLLER_CANT_INTIALIZE 27401
+#define SGMFASTDACQSCANCONTROLLER_CANT_INTIALIZE 27402
+#define SGMFASTDACQSCANCONTROLLER_CANT_START_DETECTOR_SOURCE_MISMATCH 27403
+#define SGMFASTDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE 27404
+
 class SGMFastDacqScanController : public AMDacqScanController, public SGMFastScanController
 {
 	Q_OBJECT
@@ -39,6 +44,7 @@ protected slots:
 
 	void onInitializationActionsSucceeded();
 	void onInitializationActionsStageSucceeded(int stageIndex);
+	void onInitializationActionsFailed(int explanation);
 	void onFastScanTimerTimeout();
 
 	void calculateProgress(double elapsed, double total);

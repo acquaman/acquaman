@@ -175,9 +175,7 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 	// add scalar (0D) measurements to the raw data store, for each data column.  If setRawDataSources is true, also add raw data sources to the scan, which expose this data.
 	foreach(QString colName, colNames1) {
 		if(colName != "eV" && colName != "Event-ID") {
-			//scan->rawData()->addMeasurement(AMMeasurementInfo(colName, colName));	/// \todo nice descriptions for the common column names; not just 'tey' or 'tfy'.
 			if(colName == "sdd_fileOffset"){
-				//if(scan->rawData()->idOfMeasurement("sdd_fileOffset") >= 0){
 				foreach(QString afp, scan->additionalFilePaths())
 					if(afp.contains("_spectra.dat"))
 						spectraFile = afp;
@@ -187,14 +185,16 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 					QList<AMAxisInfo> sddAxes;
 					sddAxes << sddEVAxisInfo;
 					AMMeasurementInfo sddInfo("sdd", "Silicon Drift Detector", "counts", sddAxes);
-					//scan->rawData()->addMeasurement(sddInfo);
-					if(scan->rawData()->addMeasurement(sddInfo))
-						qDebug() << "Added measurement " << scan->rawData()->measurementAt(scan->rawData()->measurementCount()-1).name;
+					if(scan->rawData()->addMeasurement(sddInfo)){
+						/// \todo Throw an errorMon out?
+						//qDebug() << "Added measurement " << scan->rawData()->measurementAt(scan->rawData()->measurementCount()-1).name;
+					}
 				}
-				//}
 			}
-			else if(scan->rawData()->addMeasurement(AMMeasurementInfo(colName, colName)))
-				qDebug() << "Added measurement " << scan->rawData()->measurementAt(scan->rawData()->measurementCount()-1).name;
+			else if(scan->rawData()->addMeasurement(AMMeasurementInfo(colName, colName))){
+				/// \todo Throw an errorMon out?
+				//qDebug() << "Added measurement " << scan->rawData()->measurementAt(scan->rawData()->measurementCount()-1).name;
+			}
 		}
 	}
 	if(postSddFileOffset){
@@ -202,23 +202,6 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 			qDebug() << "Added measurement " << scan->rawData()->measurementAt(scan->rawData()->measurementCount()-1).name;
 	}
 	int sddOffsetIndex = colNames1.indexOf("sdd_fileOffset");
-	/*
-	QString spectraFile = "";
-	if(scan->rawData()->idOfMeasurement("sdd_fileOffset") >= 0){
-		foreach(QString afp, scan->additionalFilePaths())
-			if(afp.contains("_spectra.dat"))
-				spectraFile = afp;
-		if(spectraFile != ""){
-			AMAxisInfo sddEVAxisInfo("energy", 1024, "SDD Energy", "eV");
-			QList<AMAxisInfo> sddAxes;
-			sddAxes << sddEVAxisInfo;
-			AMMeasurementInfo sddInfo("sdd", "Silicon Drift Detector", "counts", sddAxes);
-			//scan->rawData()->addMeasurement(sddInfo);
-			if(scan->rawData()->addMeasurement(sddInfo))
-				qDebug() << "Added measurement " << scan->rawData()->measurementAt(scan->rawData()->measurementCount()-1).name;
-		}
-	}
-	*/
 
 	// read all the data. Add to data columns or scan properties depending on the event-ID.
 
@@ -276,13 +259,7 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 		int specVal;
 		int specCounter = 0;
 		int indexOfSDD = scan->rawData()->idOfMeasurement("sdd");
-		/*
-		qDebug() << "Index of sdd is " << indexOfSDD;
-		if(indexOfSDD == -1){
-			indexOfSDD = scan->rawData()->idOfMeasurement("SDD");
-			qDebug() << "Index of SDD is " << indexOfSDD;
-		}
-		*/
+
 		for(int x = 0; x < scan->rawData()->scanSize(0); x++){
 			if(x == scan->rawData()->scanSize(0)-1){
 				endByte += endByte-startByte; //Assumes the last two are the same size
@@ -292,33 +269,24 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 				startByte = scan->rawData()->value(AMnDIndex(x), scan->rawData()->idOfMeasurement("sdd_fileOffset"), AMnDIndex());
 				endByte = scan->rawData()->value(AMnDIndex(x+1), scan->rawData()->idOfMeasurement("sdd_fileOffset"), AMnDIndex());
 			}
-			//sfs.seek( (qint64)((int)(scan->rawData()->value(AMnDIndex(x), scan->rawData()->idOfMeasurement("sdd_fileOffset"), AMnDIndex()))) );
 			sfs.seek(startByte);
-			//QString sfl = sfs.read( (qint64)(endByte-startByte) ).remove(',');
 			QString sfl = sfs.read( (qint64)(endByte-startByte) );
 			if(sfl.contains(", "))
 				sfl.remove(',');
 			else
 				sfl.replace(',', ' ');
-			//qDebug() << sfl;
 			sfls.setString(&sfl, QIODevice::ReadOnly);
 
-			QString debugStr;
 			while(!sfls.atEnd()){
 				if(sfls.status() == QTextStream::ReadCorruptData) {
 					AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -1, "SGM2004FileLoader found corrupted data in the SDD spectra file."));
 					return false;
 				}
 				sfls >> specVal;
-				//debugStr.append(QString("%1 ").arg(specVal));
 
-				//scan->rawData()->setValue(AMnDIndex(x), scan->rawData()->idOfMeasurement("sdd"), AMnDIndex(specCounter), specVal);
 				scan->rawData()->setValue(AMnDIndex(x), indexOfSDD, AMnDIndex(specCounter), specVal);
-				//debugStr.append(QString("%1 ").arg(scan->rawData()->value(AMnDIndex(x), indexOfSDD, AMnDIndex(specCounter)).toString()));
 				specCounter++;
 			}
-			//qDebug() << debugStr;
-			//debugStr.clear();
 			specCounter = 0;
 		}
 	}
@@ -400,58 +368,6 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 	}
 
 	/// scan->onDataChanged(); \todo Is this still used? What does it mean?
-
-
-	// Debugging only... What's here?
-
-	/*
-	qDebug() << "========= Breakdown for scan named: " << scan->name() << "==============";
-	qDebug() << "Scan axes\n===========================";
-	for(int i=0; i<scan->rawData()->scanAxesCount(); i++)
-		qDebug() << scan->rawData()->scanAxisAt(i).name << ": " << scan->rawData()->scanAxisAt(i).size << "points.";
-
-	qDebug() << "Measurements\n===========================";
-	for(int i=0; i<scan->rawData()->measurementCount(); i++)
-		qDebug() << scan->rawData()->measurementAt(i).name;
-
-	qDebug() << "Raw Data\n===========================";
-	for(int i=0; i<scan->rawDataSources()->count(); i++) {
-		AMRawDataSource* rds = scan->rawDataSources()->at(i);
-		qDebug() << rds->name() << ":" << rds->description() << ": isValid is " << rds->isValid() << ": numPoints is " << rds->size(0);
-	}
-	qDebug() << "Analyzed Data\n===========================";
-	for(int i=0; i<scan->analyzedDataSources()->count(); i++) {
-		AMAnalysisBlock* rds = scan->analyzedDataSources()->at(i);
-		qDebug() << rds->name() << ":" << rds->description() << ": isValid is " << rds->isValid() << ": numPoints is " << rds->size(0);
-	}
-
-//	qDebug() << "Raw data source - SDD - Axis 0\n======================";
-//	QString axisValues;
-//	AMRawDataSource* sddRds = scan->rawDataSources()->at(scan->rawDataSources()->count()-1);
-//	for(int i=0; i<sddRds->size(0); i++)
-//		axisValues.append(QString("%1, ").arg((double)sddRds->axisValue(0, i)));
-//	qDebug() << axisValues;
-
-//	qDebug() << "Raw data source - SDD - Axis 1\n======================";
-//	axisValues.clear();
-//	for(int i=0; i<sddRds->size(1); i++)
-//		axisValues.append(QString("%1, ").arg((double)sddRds->axisValue(1, i)));
-//	qDebug() << axisValues;
-
-
-	QString row;
-	qDebug() << "First measurement, raw data axis value:";
-	for(int i=0; i<scan->rawData()->scanSize(0); i++)
-		row.append(QString("%1, ").arg((double)scan->rawData()->axisValue(0,i)));
-	qDebug() << "   " << row;
-
-	qDebug() << "From raw data source:";
-	row.clear();
-	AMRawDataSource* rds = scan->rawDataSources()->at(0);
-	for(int i=0; i<rds->size(0); i++)
-		row.append(QString("%1, ").arg((double)rds->axisValue(0,i)));
-	qDebug() << "    " << row;
-*/
 
 	return true;
 }

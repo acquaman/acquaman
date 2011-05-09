@@ -334,13 +334,19 @@ int acqTextSpectrumOutput::pvTSPrivate::output( acqKey_t key, int dataType, cons
 		}
 		recordOffset = to->spectrumStream->offset();
 
+		/*
 		int *realValues = (int*)(value);
 		QString valuesString;
-		for( int x=0; x < count; x++){
+		//for( int x=0; x < count; x++){
+		for( int x=0; x < 100; x++){
 			valuesString.append(QString("%1 ").arg(realValues[x]));
 		}
-		qDebug() << "As ints? " << valuesString;
+		//qDebug() << "As ints size " << count;
+		qDebug() << "First one hundred";
+		qDebug() << valuesString;
+		qDebug() << "===========================================";
 		qDebug() << "Out of curiosity " << colp->dataSize << " " << sizeof(int*);
+		*/
 
 		for( int i=0; i < count; i++)
 		{
@@ -354,8 +360,14 @@ int acqTextSpectrumOutput::pvTSPrivate::output( acqKey_t key, int dataType, cons
 				continue;
 			}
 			to->sendSpectrumLine( "%s", result);
-			//value = (char  *)value + colp->dataSize;
-			value = (char  *)value + 4;
+			/* NTBA May 8th, 2011 David Chevrier
+			   There seems to be an issue with the DBF_LONG being saved as int (size 4)
+			   rather than as long (size 8). Probably a 64bit problem.
+			 */
+			if(colp->columnType == DBF_LONG)
+				value = (char  *)value + 4;
+			else
+				value = (char  *)value + colp->dataSize;
 		}
 
 		break;

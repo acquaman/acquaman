@@ -1,4 +1,5 @@
 #include "SGMFastScanController.h"
+#include "dataman/AMSample.h"
 
 SGMFastScanController::SGMFastScanController(SGMFastScanConfiguration *cfg){
 	specificCfg_ = cfg;
@@ -6,19 +7,46 @@ SGMFastScanController::SGMFastScanController(SGMFastScanConfiguration *cfg){
 	cleanUpActions_ = 0; //NULL
 	beamlineInitialized_ = false;
 
-	QList<AMDetector*> scanDetectors = pCfg()->usingDetectors();
-
 	specificScan_ = new AMFastScan();
 	pScan()->setName("SGM Fast Scan");
 	pScan()->setFileFormat("sgm2010Fast");
 	pScan()->setRunId(AMUser::user()->currentRunId());
+	pScan()->setScanConfiguration(pCfg());
+	pScan()->setSampleId(SGMBeamline::sgm()->currentSampleId());
+	QString scanName;
+	QString sampleName;
+	if(pCfg()->userScanName() == "")
+		scanName = pCfg()->autoScanName();
+	else
+		scanName = pCfg()->userScanName();
+	if(pScan()->sampleId() == -1)
+		sampleName = "Unknown Sample";
+	else
+		sampleName = AMSample(pScan()->sampleId(), AMUser::user()->database()).name();
+	pScan()->setName(QString("%1 on %2").arg(scanName).arg(sampleName));
 
 	// Create space in raw data store, and create raw data channels, for each detector.
 
-	for(int i=0; i<scanDetectors.count(); i++) {
+	//for(int i=0; i<scanDetectors.count(); i++) {
+	for(int i = 0; i < pCfg()->allDetectors()->count(); i++) {
+		AMDetectorInfo* detectorInfo = pCfg()->allDetectors()->detectorAt(i)->toInfo();
+		if(pCfg()->allDetectors()->isDefaultAt(i)){
+			if(pScan()->rawData()->addMeasurement(AMMeasurementInfo(*detectorInfo)))
+				pScan()->addRawDataSource(new AMRawDataSource(pScan()->rawData(), i));
+			else{
+				/// \todo send out and errorMon?
+				qDebug() << "BIG PROBLEM!!!!!! WHAT JUST HAPPENED?!?!?" << detectorInfo->name();
+			}
+		}
+		/*
 		AMDetector* detector = scanDetectors.at(i);
-		pScan()->rawData()->addMeasurement(AMMeasurementInfo(*(detector->toInfo())));
-		pScan()->addRawDataSource(new AMRawDataSource(pScan()->rawData(), i));
+		if(pScan()->rawData()->addMeasurement(AMMeasurementInfo(*(detector->toInfo()))))
+			pScan()->addRawDataSource(new AMRawDataSource(pScan()->rawData(), i));
+		else{
+			/// \todo send out and errorMon?
+			qDebug() << "BIG PROBLEM!!!!!! WHAT JUST HAPPENED?!?!?" << detector->toInfo()->name();
+		}
+		*/
 	}
 
 	QList<AMDataSource*> raw1DDataSources;
@@ -26,27 +54,28 @@ SGMFastScanController::SGMFastScanController(SGMFastScanConfiguration *cfg){
 		if(pScan()->rawDataSources()->at(i)->rank() == 1)
 			raw1DDataSources << pScan()->rawDataSources()->at(i);
 
-	//int rawTeyIndex = pScan()->rawDataSources()->indexOfKey("tey");
-	//int rawTfyIndex = pScan()->rawDataSources()->indexOfKey("tfy");
-	//int rawI0Index = pScan()->rawDataSources()->indexOfKey("I0");
 	int rawTeyIndex = pScan()->rawDataSources()->indexOfKey(SGMBeamline::sgm()->teyDetector()->description());
 	int rawTfyIndex = pScan()->rawDataSources()->indexOfKey(SGMBeamline::sgm()->tfyDetector()->description());
 	int rawI0Index = pScan()->rawDataSources()->indexOfKey(SGMBeamline::sgm()->i0Detector()->description());
 
 	if(rawTeyIndex != -1 && rawI0Index != -1) {
-		AM1DExpressionAB* teyChannel = new AM1DExpressionAB("tey_n");
+		//AM1DExpressionAB* teyChannel = new AM1DExpressionAB("tey_n");
+		AM1DExpressionAB* teyChannel = new AM1DExpressionAB(QString("%1Norm").arg(SGMBeamline::sgm()->teyDetector()->description()));
 		teyChannel->setDescription("Normalized TEY");
 		teyChannel->setInputDataSources(raw1DDataSources);
-		teyChannel->setExpression("tey/I0");
+		//teyChannel->setExpression("tey/I0");
+		teyChannel->setExpression(QString("%1/%2").arg(SGMBeamline::sgm()->teyDetector()->description()).arg(SGMBeamline::sgm()->i0Detector()->description()));
 
 		pScan()->addAnalyzedDataSource(teyChannel);
 	}
 
 	if(rawTfyIndex != -1 && rawI0Index != -1) {
-		AM1DExpressionAB* tfyChannel = new AM1DExpressionAB("tfy_n");
+		//AM1DExpressionAB* tfyChannel = new AM1DExpressionAB("tfy_n");
+		AM1DExpressionAB* tfyChannel = new AM1DExpressionAB(QString("%1Norm").arg(SGMBeamline::sgm()->tfyDetector()->description()));
 		tfyChannel->setDescription("Normalized TFY");
 		tfyChannel->setInputDataSources(raw1DDataSources);
-		tfyChannel->setExpression("tfy/I0");
+		//tfyChannel->setExpression("tfy/I0");
+		tfyChannel->setExpression(QString("%1/%2").arg(SGMBeamline::sgm()->tfyDetector()->description()).arg(SGMBeamline::sgm()->i0Detector()->description()));
 
 		pScan()->addAnalyzedDataSource(tfyChannel);
 	}

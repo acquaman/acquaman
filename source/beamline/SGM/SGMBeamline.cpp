@@ -858,6 +858,9 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	XASDetectors_ = new AMDetectorSet(this);
 	XASDetectors_->setName("XAS Detectors");
 
+	FastDetectors_ = new AMDetectorSet(this);
+	FastDetectors_->setName("Fast Scan Detectors");
+
 	//currentSamplePlate_ = new AMSamplePlate(this);
 	currentSamplePlate_ = 0;//NULL
 
@@ -1451,6 +1454,7 @@ void SGMBeamline::onControlSetConnected(bool csConnected){
 			teyScalerDetector_->setDescription(teyScaler_->description());
 			allDetectors_->addDetector(teyScalerDetector_);
 			XASDetectors_->addDetector(teyScalerDetector_, true);
+			FastDetectors_->addDetector(teyScalerDetector_, true);
 		}
 		else if(!tfyPicoDetector_ && ctrlSet->name() == "TFY Pico Controls"){
 			tfyPicoDetector_ = new MCPDetector(tfyPico_->name(), tfyPico_, tfyHV_, AMDetector::WaitRead, this);
@@ -1463,6 +1467,7 @@ void SGMBeamline::onControlSetConnected(bool csConnected){
 			tfyScalerDetector_->setDescription(tfyScaler_->description());
 			allDetectors_->addDetector(tfyScalerDetector_);
 			XASDetectors_->addDetector(tfyScalerDetector_, true);
+			FastDetectors_->addDetector(tfyScalerDetector_, true);
 		}
 		else if(!pgtDetector_ && ctrlSet->name() == "SDD Controls"){
 			pgtDetector_ = new PGTDetector(pgt_->name(), pgt_, pgtHV_, pgtIntegrationTime_, pgtIntegrationMode_, AMDetector::WaitRead, this);
@@ -1565,6 +1570,9 @@ void SGMBeamline::onDetectorSignalSourceChanged(double value){
 			XASDetectors_->removeDetector(teyScalerDetector_);
 		if(XASDetectors_->indexOf(teyPicoDetector_) < 0)
 			XASDetectors_->addDetector(teyPicoDetector_);
+		if(FastDetectors_->indexOf(teyScalerDetector_) >= 0)
+			FastDetectors_->removeDetector(teyScalerDetector_);
+
 		if(allDetectors_->indexOf(tfyScalerDetector_) >= 0)
 			allDetectors_->removeDetector(tfyScalerDetector_);
 		if(allDetectors_->indexOf(tfyPicoDetector_) < 0)
@@ -1573,6 +1581,9 @@ void SGMBeamline::onDetectorSignalSourceChanged(double value){
 			XASDetectors_->removeDetector(tfyScalerDetector_);
 		if(XASDetectors_->indexOf(tfyPicoDetector_) < 0)
 			XASDetectors_->addDetector(tfyPicoDetector_);
+		if(FastDetectors_->indexOf(tfyScalerDetector_) >= 0)
+			FastDetectors_->removeDetector(tfyScalerDetector_);
+
 		if(allDetectors_->indexOf(i0ScalerDetector_) >= 0)
 			allDetectors_->removeDetector(i0ScalerDetector_);
 		if(allDetectors_->indexOf(i0PicoDetector_) < 0)
@@ -1581,6 +1592,7 @@ void SGMBeamline::onDetectorSignalSourceChanged(double value){
 			feedbackDetectors_->removeDetector(i0ScalerDetector_);
 		if(feedbackDetectors_->indexOf(i0PicoDetector_) < 0)
 			feedbackDetectors_->addDetector(i0PicoDetector_);
+
 		if(allDetectors_->indexOf(photodiodeScalerDetector_) >= 0)
 			allDetectors_->removeDetector(photodiodeScalerDetector_);
 		if(allDetectors_->indexOf(photodiodePicoDetector_) < 0)
@@ -1599,6 +1611,9 @@ void SGMBeamline::onDetectorSignalSourceChanged(double value){
 			XASDetectors_->addDetector(teyScalerDetector_);
 		if(XASDetectors_->indexOf(teyPicoDetector_) >= 0)
 			XASDetectors_->removeDetector(teyPicoDetector_);
+		if(FastDetectors_->indexOf(teyScalerDetector_) < 0)
+			FastDetectors_->addDetector(teyScalerDetector_);
+
 		if(allDetectors_->indexOf(tfyScalerDetector_) < 0)
 			allDetectors_->addDetector(tfyScalerDetector_);
 		if(allDetectors_->indexOf(tfyPicoDetector_) >= 0)
@@ -1607,6 +1622,9 @@ void SGMBeamline::onDetectorSignalSourceChanged(double value){
 			XASDetectors_->addDetector(tfyScalerDetector_);
 		if(XASDetectors_->indexOf(tfyPicoDetector_) >= 0)
 			XASDetectors_->removeDetector(tfyPicoDetector_);
+		if(FastDetectors_->indexOf(tfyScalerDetector_) < 0)
+			FastDetectors_->addDetector(tfyScalerDetector_);
+
 		if(allDetectors_->indexOf(i0ScalerDetector_) < 0)
 			allDetectors_->addDetector(i0ScalerDetector_);
 		if(allDetectors_->indexOf(i0PicoDetector_) >= 0)
@@ -1615,6 +1633,7 @@ void SGMBeamline::onDetectorSignalSourceChanged(double value){
 			feedbackDetectors_->addDetector(i0ScalerDetector_);
 		if(feedbackDetectors_->indexOf(i0PicoDetector_) >= 0)
 			feedbackDetectors_->removeDetector(i0PicoDetector_);
+
 		if(allDetectors_->indexOf(photodiodeScalerDetector_) < 0)
 			allDetectors_->addDetector(photodiodeScalerDetector_);
 		if(allDetectors_->indexOf(photodiodePicoDetector_) >= 0)

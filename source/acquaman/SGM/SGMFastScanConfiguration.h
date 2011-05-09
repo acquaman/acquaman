@@ -3,7 +3,6 @@
 
 #include "acquaman/AMFastScanConfiguration.h"
 #include "SGMScanConfiguration.h"
-#include <QFileSystemWatcher>
 
 class SGMFastScanParameters;
 
@@ -20,17 +19,36 @@ class SGMFastScanConfiguration : public AMFastScanConfiguration, public SGMScanC
 	Q_PROPERTY(int velocityBase READ velocityBase WRITE setVelocityBase)
 	Q_PROPERTY(int acceleration READ acceleration WRITE setAcceleration)
 	Q_PROPERTY(double scalerTime READ scalerTime WRITE setScalerTime)
-	//NEED Q_PROPERTY for cfgFastDetectors_
+	Q_PROPERTY(AMDbObject* detectorConfigs READ dbReadDetectorConfigs WRITE dbLoadDetectorConfigs)
+
+	Q_CLASSINFO("AMDbObject_Attributes", "description=SGM XAS Scan Configuration")
 
 public:
 	Q_INVOKABLE explicit SGMFastScanConfiguration(QObject *parent = 0);
+	SGMFastScanConfiguration(const SGMFastScanConfiguration &original);
 	~SGMFastScanConfiguration();
+
+	/* NTBA March 14, 2011 David Chevrier
+	   Needs to be updated to match style of SGMXASScanConfiguration
+	   */
+	/// Returns an AMDetectorSet that consists of the detectors a user can choose (or choose not) to use. In this case TEY and TFY
+	AMDetectorSet* detectorChoices() const { return fastDetectors_; }
+	/// Returns an AMDetectorSet that consists of all the detectors this scan can/will use (adds detectors that are always collected to the detectorChoices(), such as I0, photodiode, and energy feedback)
+	AMDetectorSet* allDetectors() const { return allDetectors_; }
+	/// Returns the current configuration requested for the user selectable detectors
+	AMDetectorInfoSet detectorChoiceConfigurations() const { return fastDetectorsConfigurations_; }
+	/// Returns the current configuration requested for all of the detectors
+	AMDetectorInfoSet allDetectorConfigurations() const;
+
 
 	/// Returns a pointer to a newly-created copy of this scan configuration.  (It takes the role of a copy constructor, but is virtual so that our high-level classes can copy a scan configuration without knowing exactly what kind it is.)
 	virtual AMScanConfiguration* createCopy() const;
 
 	/// Returns a pointer to a newly-created AMScanController that is appropriate for executing this kind of scan configuration.  The controller should be initialized to use this scan configuration object as its scan configuration.  Ownership of the new controller becomes the responsibility of the caller.
 	virtual AMScanController* createController();
+
+	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by AMBeamlineScanAction to set the main text in the action view.
+	virtual QString detailedDescription() const;
 
 	QString element() const;
 	double runTime() const;
@@ -44,18 +62,8 @@ public:
 
 	int baseLine() const;
 
-	QString sensibleFileSavePath() const;
-	QString finalizedSavePath() const;
-	QString sensibleFileSaveWarning() const;
-
 	QStringList presets() const;
 	SGMFastScanParameters* currentParameters() const;
-
-	/* NTBA March 14, 2011 David Chevrier
-	   Needs to be updated to match style of SGMXASScanConfiguration
-	   */
-	AMDetectorInfoSet detectorConfigurations() const { return detectorConfigurations_;}
-	QList<AMDetector*> usingDetectors() const;
 
 public slots:
 	bool setParametersFromPreset(int index);
@@ -70,8 +78,7 @@ public slots:
 	bool setAcceleration(int acceleration);
 	bool setScalerTime(double scalerTime);
 	bool setBaseLine(int baseLine);
-	bool setSensibleFileSavePath(const QString& sensibleFileSavePath);
-	bool setDetectorConfigurations(AMDetectorInfoSet detectorConfigurations) { detectorConfigurations_ = detectorConfigurations; return true;}
+	bool setDetectorConfigurations(AMDetectorInfoSet detectorConfigurations);
 
 signals:
 	void onElementChanged(const QString& element);
@@ -85,24 +92,17 @@ signals:
 	void onScalerTimeChanged(double scalerTime);
 	void onBaseLineChanged(int baseLine);
 
-	void onSensibleFileSavePathChanged(const QString& sensibleFileSavePath);
-	void onNewFinalizedSavePath(const QString& finalizedSavePath);
-
-protected slots:
-	void onSaveDirectoryChanged(const QString& directory);
+protected:
+	AMDbObject* dbReadDetectorConfigs() { return &fastDetectorsConfigurations_; }
+	void dbLoadDetectorConfigs(AMDbObject*) {} //Never called, fastDetectorsConfigurations_ is always valid
 
 protected:
-	AMDetectorInfoSet detectorConfigurations_;
+	AMDetectorSet *fastDetectors_;
+	AMDetectorSet *allDetectors_;
+	AMDetectorInfoSet fastDetectorsConfigurations_;
+
 	QList<SGMFastScanParameters*> settings_;
 	SGMFastScanParameters *currentSettings_;
-
-	QString sensibleFileSavePath_;
-	QString finalizedSavePath_;
-	QString sensibleFileSaveWarning_;
-	/* NTBA March 14, 2011 David Chevrier
-	   Needs to be addressed with general exporter
-	QFileSystemWatcher savePathWatcher_;
-	*/
 };
 
 class SGMFastScanParameters : public QObject
@@ -111,6 +111,8 @@ class SGMFastScanParameters : public QObject
 public:
 	SGMFastScanParameters(QObject *parent = 0);
 	SGMFastScanParameters(const QString &element, double runSeconds, double energyStart, double energyMidpoint, double energyEnd, int velocity, int velocityBase, int acceleration, double scalerTime, int baseLine, QObject *parent = 0);
+
+	bool operator==(const SGMFastScanParameters &other);
 
 	QString element() const { return element_;}
 	double runSeconds() const { return runSeconds_;}

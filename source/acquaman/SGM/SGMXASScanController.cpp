@@ -72,12 +72,6 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 		if(pScan_()->rawDataSources()->at(i)->rank() == 1)
 			raw1DDataSources << pScan_()->rawDataSources()->at(i);
 
-	for(int x = 0; x < pScan_()->rawDataSources()->count(); x++)
-		qDebug() << "Source at " << x << " is " << pScan_()->rawDataSources()->at(x)->name();
-
-	//int rawTeyIndex = pScan_()->rawDataSources()->indexOfKey("tey");
-	//int rawTfyIndex = pScan_()->rawDataSources()->indexOfKey("tfy");
-	//int rawI0Index = pScan_()->rawDataSources()->indexOfKey("I0");
 	int rawTeyIndex = pScan_()->rawDataSources()->indexOfKey(SGMBeamline::sgm()->teyDetector()->description());
 	int rawTfyIndex = pScan_()->rawDataSources()->indexOfKey(SGMBeamline::sgm()->tfyDetector()->description());
 	int rawI0Index = pScan_()->rawDataSources()->indexOfKey(SGMBeamline::sgm()->i0Detector()->description());
