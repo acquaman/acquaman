@@ -95,14 +95,7 @@ VESPERSSampleStageView::VESPERSSampleStageView(QWidget *parent) :
 	holderLayout->addLayout(hLayout);
 	holderLayout->addLayout(vLayout);
 
-	QGroupBox *holder = new QGroupBox("Sample Stage Control");
-	holder->setLayout(holderLayout);
-	holder->setFlat(true);
-
-	QVBoxLayout *sampleStageViewLayout = new QVBoxLayout;
-	sampleStageViewLayout->addWidget(holder);
-
-	setLayout(sampleStageViewLayout);
+	setLayout(holderLayout);
 }
 
 void VESPERSSampleStageView::onUpClicked()

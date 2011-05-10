@@ -44,6 +44,9 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	QFont font(this->font());
 	font.setBold(true);
 
+	QLabel *sampleStageLabel = new QLabel("Sample Stage Control");
+	sampleStageLabel->setFont(font);
+
 	QLabel *pshShutterLabel = new QLabel("Photon Shutters");
 	pshShutterLabel->setFont(font);
 
@@ -105,6 +108,7 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	QVBoxLayout *persistentLayout = new QVBoxLayout;
 	persistentLayout->addLayout(pshShutterLayout);
 	persistentLayout->addLayout(sshShutterLayout);
+	persistentLayout->addWidget(sampleStageLabel);
 	persistentLayout->addWidget(motors);
 	persistentLayout->addWidget(pidView);
 	persistentLayout->addWidget(statusLabel);
@@ -116,7 +120,7 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 
 	QGroupBox *vespers = new QGroupBox("VESPERS Beamline");
 	vespers->setLayout(persistentLayout);
-	vespers->setFlat(true);
+	vespers->setStyleSheet("QGroupBox::title { font: bold 14px; } ");
 
 	QVBoxLayout *vespersLayout = new QVBoxLayout;
 	vespersLayout->addWidget(vespers);
