@@ -178,7 +178,8 @@ bool SGMFastDacqScanController::event(QEvent *e){
 				for(int x = 0; x < maxVal; x++){
 					if(x%6 == 0)
 						readings.clear();
-					if( x%6 == 0 || x%6 == 1 || x%6 == 2 || x%6 == 3 )
+					//if( x%6 == 0 || x%6 == 1 || x%6 == 2 || x%6 == 3 )
+					if( x%6 == 0 || x%6 == 1 || x%6 == 4 || x%6 == 5 )
 						readings.append(j.value().at(x+1));
 					//if( (x%6 == 4) && (j.value().at(x+1) < 3*ceil(avgUp)) )
 					if( x%6 == 4 )
@@ -187,13 +188,12 @@ bool SGMFastDacqScanController::event(QEvent *e){
 					if( x%6 == 5 )
 						encoderReading += j.value().at(x+1);
 					if( x%6 == 5 ){
-						//energyFbk = (1.0e-9*1239.842*511.292)/(2*9.16358e-7*2.46204e-5*-1.59047*(double)encoderReading*cos(3.05478/2));
 						energyFbk = (1.0e-9*1239.842*sParam)/(2*spacingParam*c1Param*c2Param*(double)encoderReading*cos(thetaParam/2));
-						//qDebug() << "Energy is " << energyFbk;
 						//if( ( (readings.at(0) > pCfg()->baseLine()) && (pScan()->rawData()->scanSize(0) == 0) ) || ( (pScan()->rawData()->scanSize(0) > 0) && (fabs(energyFbk - (double)pScan()->rawData()->axisValue(0, pScan()->rawData()->scanSize(0)-1)) > 0.001) ) ){
 							pScan()->rawData()->beginInsertRows(0);
 							pScan()->rawData()->setAxisValue(0, pScan()->rawData()->scanSize(0)-1, energyFbk);
-							pScan()->rawData()->setValue(AMnDIndex(pScan()->rawData()->scanSize(0)-1), 0, AMnDIndex(), readings.at(0));
+							//pScan()->rawData()->setValue(AMnDIndex(pScan()->rawData()->scanSize(0)-1), 0, AMnDIndex(), readings.at(0));
+							pScan()->rawData()->setValue(AMnDIndex(pScan()->rawData()->scanSize(0)-1), 0, AMnDIndex(), max(readings.at(0), 1.0));
 							pScan()->rawData()->setValue(AMnDIndex(pScan()->rawData()->scanSize(0)-1), 1, AMnDIndex(), readings.at(1));
 							pScan()->rawData()->setValue(AMnDIndex(pScan()->rawData()->scanSize(0)-1), 2, AMnDIndex(), readings.at(2));
 							pScan()->rawData()->setValue(AMnDIndex(pScan()->rawData()->scanSize(0)-1), 3, AMnDIndex(), readings.at(3));

@@ -37,6 +37,8 @@ public:
 
 	virtual AMBeamlineActionItemView* createView(int index = 0);
 
+	virtual AMBeamlineActionItem* createCopy() const;
+
 	virtual AMControlSet* controlSet();
 	virtual AMControlInfoList setpoint();
 

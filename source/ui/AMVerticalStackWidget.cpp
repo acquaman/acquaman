@@ -23,14 +23,30 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMHeaderButton.h"
 
 
-AMVerticalStackWidget::AMVerticalStackWidget(QWidget *parent) :
+AMVerticalStackWidget::AMVerticalStackWidget(QWidget *parent, bool usingGrouping) :
 		QFrame(parent)
 {
+	usingGrouping_ = usingGrouping;
+	currentGroup_ = 0;
 	vl_ = new QVBoxLayout();
 	vl_->setSpacing(0);
 	vl_->setContentsMargins(0,0,0,0);
 	vl_->setAlignment(Qt::AlignTop);
-	setLayout(vl_);
+
+	vlSide_ = new QVBoxLayout();
+	vlSide_->setSpacing(0);
+	vlSide_->setContentsMargins(0,0,0,0);
+	vlSide_->setAlignment(Qt::AlignTop);
+
+	hl_ = new QHBoxLayout();
+	hl_->setSpacing(0);
+	hl_->setContentsMargins(0,0,0,0);
+
+	hl_->addLayout(vl_);
+	hl_->addLayout(vlSide_);
+
+	//setLayout(vl_);
+	setLayout(hl_);
 
 	setFrameShape(QFrame::StyledPanel);
 	setFrameShadow(QFrame::Sunken);
@@ -52,6 +68,7 @@ QWidget* AMVerticalStackWidget::widget(int index) const {
 	return model_.data(model_.index(index,0), AM::PointerRole).value<QWidget*>();
 }
 
+#include "beamline/AMBeamlineActionItem.h"
 // Insert a widget at a specific index in the stack. Inserting at \c index = -1 is equivalent to appending to the end. The AMVerticalStackWidget takes ownership of the widget.
 void AMVerticalStackWidget::insertItem(int index, const QString& titleText, QWidget* widget, bool collapsable) {
 	if(index < 0 || index > count())
@@ -79,6 +96,22 @@ void AMVerticalStackWidget::insertItem(int index, const QString& titleText, QWid
 
 	vl_->insertWidget(2*index, header);
 	vl_->insertWidget(2*index+1, widget);
+
+	if(usingGrouping_){
+		connect(header, SIGNAL(heightChanged(int)), this, SLOT(onWidgetHeightChanged(int)));
+		AMBeamlineActionItemView *aiv = qobject_cast<AMBeamlineActionItemView*>(widget);
+		if(aiv)
+			connect(aiv, SIGNAL(heightChanged(int)), this, SLOT(onWidgetHeightChanged(int)));
+
+		if(!currentGroup_){
+			qDebug() << "Trying to draw group widget";
+			AMRunGroupWidget *rgWidget = new AMRunGroupWidget("", this);
+			currentGroup_ = rgWidget;
+			rgWidget->setFixedWidth(24);
+			//rgWidget->setFrameStyle(QFrame::StyledPanel);
+			vlSide_->insertWidget(index, rgWidget);
+		}
+	}
 
 	model_.insertRow(index, item);
 }
@@ -157,8 +190,10 @@ void AMVerticalStackWidget::expandItem(int index) {
 	if(w)
 		w->show();
 	AMHeaderButton* h = model_.data(model_.index(index,0), AM::WidgetRole).value<AMHeaderButton*>();
-	if(h)
-				h->setArrowType(Qt::DownArrow);
+	if(h){
+		h->setArrowType(Qt::DownArrow);
+		h->forceHeightChanged();
+	}
 	model_.setData(model_.index(index,0), false, Qt::CheckStateRole);
 }
 
@@ -168,11 +203,15 @@ void AMVerticalStackWidget::collapseItem(int index) {
 		return;
 
 	QWidget* w = model_.data(model_.index(index, 0), AM::PointerRole).value<QWidget*>();
-	if(w)
+	if(w){
 		w->hide();
+		qDebug() << "Is visible " << w->isVisible();
+	}
 	AMHeaderButton* h = model_.data(model_.index(index,0), AM::WidgetRole).value<AMHeaderButton*>();
-	if(h)
-				h->setArrowType(Qt::RightArrow);
+	if(h){
+		h->setArrowType(Qt::RightArrow);
+		h->forceHeightChanged();
+	}
 	model_.setData(model_.index(index,0), true, Qt::CheckStateRole);
 }
 
@@ -189,6 +228,40 @@ void AMVerticalStackWidget::onHeaderButtonClicked() {
 	}
 }
 
+void AMVerticalStackWidget::onWidgetHeightChanged(int newHeight){
+	if(usingGrouping_ && (groupings_.count() > 0) ){
+		int groupingsCount = 0;
+		for(int x = 0; x < groupings_.count(); x++)
+			groupingsCount += groupings_.at(x).first;
+		if(groupingsCount != vl_->count()/2){
+			qDebug() << "Mismatch " << groupingsCount << " versus " << vl_->count()/2;
+			return;
+		}
+		int groupHeight = 0;
+		int groupingsCounter = 0;
+		int toThisPoint = 0;
+		qDebug() << "Looking at a height change " << groupingsCount << vl_->count();
+		for(int x = 0; x < vl_->count(); x++){
+			if(vl_->itemAt(x)->widget()->isVisible())
+				groupHeight += vl_->itemAt(x)->widget()->height();
+			else
+				qDebug() << "That sucker is closed, don't count it";
+			if( x == (toThisPoint + groupings_.at(groupingsCounter).first)*2-1 ){
+				qDebug() << "Set to group height " << groupHeight;
+				vlSide_->itemAt(groupingsCounter)->widget()->setFixedHeight(groupHeight);
+				AMRunGroupWidget *runGroup = qobject_cast<AMRunGroupWidget*>(vlSide_->itemAt(groupingsCounter)->widget());
+				if(runGroup)
+					runGroup->setDisplayText(groupings_.at(groupingsCounter).second);
+				toThisPoint += groupings_.at(groupingsCounter).first;
+				groupingsCounter++;
+				groupHeight = 0;
+			}
+		}
+		return;
+	}
+	qDebug() << "Not using grouping or no groupings";
+}
+
 QSize AMVerticalStackWidget::sizeHint() const {
 	QSize rv = QFrame::sizeHint();
 
@@ -201,7 +274,10 @@ QSize AMVerticalStackWidget::sizeHint() const {
 	return rv;
 }
 
-
+void AMVerticalStackWidget::setGroupings(QList<QPair<int, QString> > groupings){
+	groupings_ = groupings;
+	qDebug() << "Just set groupings";
+}
 
 
 // Capture window title change events from our widgets and change our header titles accordingly
@@ -217,4 +293,40 @@ bool AMVerticalStackWidget::eventFilter(QObject * source, QEvent *event) {
 	setItemText(widgetIndex, widget(widgetIndex)->windowTitle());
 
 	return QFrame::eventFilter(source, event);
+}
+
+
+AMRunGroupWidget::AMRunGroupWidget(const QString &displayText, QWidget *parent) :
+		QLabel(displayText, parent)
+{
+	displayText_ = displayText;
+}
+
+void AMRunGroupWidget::setDisplayText(const QString &displayText){
+	displayText_ = displayText;
+}
+
+#include <QPainter>
+void AMRunGroupWidget::paintEvent(QPaintEvent *event){
+	QPainter painter(this);
+	painter.setRenderHint(QPainter::Antialiasing);
+
+	qreal w = width();
+	qreal h = height();
+
+	painter.setBrush(QBrush(Qt::black));
+	painter.translate(0, 0);
+	painter.drawLine(QPointF(0, 0), QPointF(w, 0));
+	painter.drawLine(QPointF(w, 0), QPointF(w, h));
+	painter.drawLine(QPointF(w, h), QPointF(0, h));
+	painter.drawLine(QPointF(0, h), QPointF(0, 0));
+
+	QFontMetrics metric(this->font());
+	painter.setPen(Qt::black);
+	QString displayElided = metric.elidedText(displayText_, Qt::ElideRight, h-0.1*h);
+	painter.save();
+	painter.translate(w, 0);
+	painter.rotate(90.0);
+	painter.drawText(QRectF(0.05*h, 0, metric.width(displayElided), w), Qt::AlignCenter, displayElided);
+	painter.restore();
 }
