@@ -343,6 +343,9 @@ void XRFDetailedDetectorView::setupPlot()
 	plot_->axisTop()->setTicks(0);
 	plot_->axisLeft()->setTicks(4);
 	plot_->axisRight()->setTicks(0);
+
+	// Set the autoscale constraints.
+	plot_->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(1, 1e20));
 }
 
 double XRFDetailedDetectorView::getMaximumHeight(MPlotItem *data)
