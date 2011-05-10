@@ -42,6 +42,15 @@ AMBeamlineActionItemView* AMBeamlineControlSetMoveAction::createView(int index){
 	return new AMBeamlineControlSetMoveActionView(this, index);
 }
 
+AMBeamlineActionItem* AMBeamlineControlSetMoveAction::createCopy() const{
+	if(controlSet_){
+		AMBeamlineControlSetMoveAction *retVal = new AMBeamlineControlSetMoveAction(controlSet_);
+		retVal->setSetpoint(setpoint_);
+		return retVal;
+	}
+	return 0; //NULL
+}
+
 AMControlSet* AMBeamlineControlSetMoveAction::controlSet(){
 	return controlSet_;
 }

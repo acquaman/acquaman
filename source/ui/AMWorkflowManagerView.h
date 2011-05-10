@@ -132,6 +132,10 @@ protected slots:
 
 	void onActionRemoveRequested(AMBeamlineActionItem *item);
 
+	void onRunningChanged();
+	void onActionStarted();
+	void onActionSucceeded();
+	void onActionFailed();
 	void reindexViews();
 
 protected:
@@ -140,6 +144,9 @@ protected:
 
 	AMVerticalStackWidget *actionsViewList_;
 	int focusAction_;
+
+	QList< QPair<int, QString> > groupings_;
+	QPair<int, QString> *runningGroup_;
 };
 
 

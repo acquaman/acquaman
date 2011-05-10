@@ -426,8 +426,10 @@ void AMBeamlineActionsQueue::onActionRemoved(int index){
 }
 
 void AMBeamlineActionsQueue::onActionStarted(int index){
-	queueRunning_ = true;
-	emit isRunningChanged(true);
+	if(!queueRunning_){
+		queueRunning_ = true;
+		emit isRunningChanged(true);
+	}
 }
 
 void AMBeamlineActionsQueue::onActionSucceeded(int index){

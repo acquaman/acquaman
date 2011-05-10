@@ -15,6 +15,8 @@ public:
 
 	virtual AMBeamlineActionItemView* createView(int index = 0);
 
+	virtual AMBeamlineActionItem* createCopy() const;
+
 	QString sampleDescription() const;
 
 protected slots:

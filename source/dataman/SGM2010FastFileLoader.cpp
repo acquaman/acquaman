@@ -10,6 +10,8 @@ AMBiHash<QString, QString> SGM2010FastFileLoader::columns2pvNames_;
 #include "util/AMErrorMonitor.h"
 #include "analysis/AM1DExpressionAB.h"
 
+#include <algorithm>
+
 SGM2010FastFileLoader::SGM2010FastFileLoader(AMFastScan *scan) : AMAbstractFileLoader(scan)
 {
 	if(columns2pvNames_.count() == 0) {
@@ -20,10 +22,10 @@ SGM2010FastFileLoader::SGM2010FastFileLoader(AMFastScan *scan) : AMAbstractFileL
 		columns2pvNames_.set("encoder", "SMTR16114I1002:enc:fbk");
 	}
 
-	defaultUserVisibleColumns_ << "tey";
-	defaultUserVisibleColumns_ << "tfy";
-	defaultUserVisibleColumns_ << "i0";
-	defaultUserVisibleColumns_ << "photodiode";
+	defaultUserVisibleColumns_ << "TEY";
+	defaultUserVisibleColumns_ << "TFY";
+	defaultUserVisibleColumns_ << "I0";
+	defaultUserVisibleColumns_ << "Photodiode";
 }
 
 /// load raw data from the SGM fast scan _spectra.dat file format into a scan's data tree.  If \c extractMetaData is set to true, this will also set the 'notes' and 'dateTime' meta-data fields.  If \c createChannels is set to true, it will create some default channels based on the data columns.
@@ -117,10 +119,10 @@ bool SGM2010FastFileLoader::loadFromFile(const QString& filepath, bool setMetaDa
 	else
 		scan->clearRawDataPointsAndMeasurements();
 
-	scan->rawData()->addMeasurement(AMMeasurementInfo("tey", "TEY"));
-	scan->rawData()->addMeasurement(AMMeasurementInfo("tfy", "TFY"));
-	scan->rawData()->addMeasurement(AMMeasurementInfo("i0", "I0"));
-	scan->rawData()->addMeasurement(AMMeasurementInfo("photodiode", "Photodiode"));
+	scan->rawData()->addMeasurement(AMMeasurementInfo("TEY", "TEY"));
+	scan->rawData()->addMeasurement(AMMeasurementInfo("TFY", "TFY"));
+	scan->rawData()->addMeasurement(AMMeasurementInfo("I0", "I0"));
+	scan->rawData()->addMeasurement(AMMeasurementInfo("Photodiode", "Photodiode"));
 
 	while(!fs.atEnd()) {
 		line = fs.readLine();
@@ -190,9 +192,11 @@ bool SGM2010FastFileLoader::loadFromFile(const QString& filepath, bool setMetaDa
 				encoderStartPoint = encoderEndpoint;
 				for(int x = 0; x < numScalerReadings; x++){
 					sfls >> scalerVal;
-					if( (x%6 == 4) && (scalerVal < 40) )
+					//if( (x%6 == 4) && (scalerVal < 40) )
+					if( x%6 == 4 )
 						encoderStartPoint += scalerVal;
-					if( (x%6 == 5) && (scalerVal < 40) )
+					//if( (x%6 == 5) && (scalerVal < 40) )
+					if( x%6 == 5 )
 						encoderStartPoint -= scalerVal;
 				}
 				encoderReading = encoderStartPoint;
@@ -202,24 +206,28 @@ bool SGM2010FastFileLoader::loadFromFile(const QString& filepath, bool setMetaDa
 					if(x%6 == 0)
 						readings.clear();
 					sfls >> scalerVal;
-					if( x%6 == 0 || x%6 == 1 || x%6 == 2 || x%6 == 3 )
+					//if( x%6 == 0 || x%6 == 1 || x%6 == 2 || x%6 == 3 )
+					if( x%6 == 0 || x%6 == 1 || x%6 == 4 || x%6 == 5 )
 						readings.append(scalerVal);
-					if( (x%6 == 4) && (scalerVal < 40) )
+					//if( (x%6 == 4) && (scalerVal < 40) )
+					if( x%6 == 4 )
 						encoderReading -= scalerVal;
-					if( (x%6 == 5) && (scalerVal < 40) )
+					//if( (x%6 == 5) && (scalerVal < 40) )
+					if ( x%6 == 5 )
 						encoderReading += scalerVal;
 					if( x%6 == 5 ){
 						//energyFbk = (1.0e-9*1239.842*511.292)/(2*9.16358e-7*2.46204e-5*-1.59047*(double)encoderReading*cos(3.05478/2));
 						energyFbk = (1.0e-9*1239.842*sParam)/(2*spacingParam*c1Param*c2Param*(double)encoderReading*cos(thetaParam/2));
-						if( ( (readings.at(0) > 200) && (scan->rawData()->scanSize(0) == 0) ) || ( (scan->rawData()->scanSize(0) > 0) && (fabs(energyFbk - (double)scan->rawData()->axisValue(0, scan->rawData()->scanSize(0)-1)) > 0.001) ) ){
+						//if( ( (readings.at(0) > 200) && (scan->rawData()->scanSize(0) == 0) ) || ( (scan->rawData()->scanSize(0) > 0) && (fabs(energyFbk - (double)scan->rawData()->axisValue(0, scan->rawData()->scanSize(0)-1)) > 0.001) ) ){
 							scan->rawData()->beginInsertRows(0);
 							scan->rawData()->setAxisValue(0, scan->rawData()->scanSize(0)-1, energyFbk);
-							scan->rawData()->setValue(AMnDIndex(scan->rawData()->scanSize(0)-1), 0, AMnDIndex(), readings.at(0));
+							//scan->rawData()->setValue(AMnDIndex(scan->rawData()->scanSize(0)-1), 0, AMnDIndex(), readings.at(0));
+							scan->rawData()->setValue(AMnDIndex(scan->rawData()->scanSize(0)-1), 0, AMnDIndex(), std::max(readings.at(0), 1.0));
 							scan->rawData()->setValue(AMnDIndex(scan->rawData()->scanSize(0)-1), 1, AMnDIndex(), readings.at(1));
 							scan->rawData()->setValue(AMnDIndex(scan->rawData()->scanSize(0)-1), 2, AMnDIndex(), readings.at(2));
 							scan->rawData()->setValue(AMnDIndex(scan->rawData()->scanSize(0)-1), 3, AMnDIndex(), readings.at(3));
 							scan->rawData()->endInsertRows();
-						}
+						//}
 					}
 				}
 

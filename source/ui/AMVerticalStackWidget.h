@@ -30,13 +30,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QDebug>
 
+class AMRunGroupWidget;
+
 /// The AMVerticalStackWidget class provides a column of widget items, that can be expanded or hidden.
 class AMVerticalStackWidget : public QFrame
 {
 Q_OBJECT
 public:
 	/// Create a new vertical stack widget to hold a column of subwidgets.
-	explicit AMVerticalStackWidget(QWidget *parent = 0);
+	explicit AMVerticalStackWidget(QWidget *parent = 0, bool usingGrouping = false);
 
 	/// Number of widgets in the stack
 	int count() const {
@@ -114,8 +116,7 @@ public:
 	QSize sizeHint() const;
 
 public slots:
-
-
+	void setGroupings(QList< QPair<int, QString> > groupings);
 
 signals:
 	/// Emitted when a widget is expanded:
@@ -138,6 +139,8 @@ protected slots:
 	/// Called when any of the header buttons is clicked. We might need to expand or collapse a widget section.
 	void onHeaderButtonClicked();
 
+	void onWidgetHeightChanged(int newHeight);
+
 protected:
 	/// Internally, we use a QStandardItemModel to store the widgets':
 	/*! AMPointerRole: the actual QWidget* pointer
@@ -153,8 +156,13 @@ protected:
 	QStandardItemModel model_;
 	// QSignalMapper* headerButtonMapper_;
 
+	QHBoxLayout* hl_;
 	QVBoxLayout* vl_;
+	QVBoxLayout* vlSide_;
 	// QSpacerItem* spacer_;
+	bool usingGrouping_;
+	QList< QPair<int, QString> > groupings_;
+	AMRunGroupWidget *currentGroup_;
 
 
 	/// Capture window title change events from our widgets and change our header titles accordingly
@@ -162,6 +170,24 @@ protected:
 
 	/// Set the heading text for a widget
 	void setItemText(int index, const QString& text);
+};
+
+#include <QLabel>
+
+class AMRunGroupWidget : public QLabel
+{
+Q_OBJECT
+public:
+	AMRunGroupWidget(const QString &displayText, QWidget *parent = 0);
+
+public slots:
+	void setDisplayText(const QString &displayText);
+
+protected:
+	virtual void paintEvent(QPaintEvent *);
+
+protected:
+	QString displayText_;
 };
 
 

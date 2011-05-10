@@ -246,6 +246,7 @@ AMBeamlineActionItemView::AMBeamlineActionItemView(AMBeamlineActionItem *action,
 {
 	//action_ = action;
 	action_ = 0;//NULL
+	oldHeight_ = 0;
 	setAction(action);
 	index_ = index;
 	inFocus_ = false;
@@ -340,6 +341,15 @@ void AMBeamlineActionItemView::mousePressEvent(QMouseEvent *event){
 	else{
 		event->ignore();
 		return;
+	}
+}
+
+void AMBeamlineActionItemView::paintEvent(QPaintEvent *event){
+	QFrame::paintEvent(event);
+	if(oldHeight_ != height()){
+		oldHeight_ = height();
+		qDebug() << "New height is " << height();
+		emit heightChanged(height());
 	}
 }
 

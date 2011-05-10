@@ -40,7 +40,7 @@ class QStyle;
 #define VERBOSE_ACTION_ITEMS 0
 
 /// Defines a default height for the workflow, all ActionItemViews can use it
-#define NATURAL_ACTION_VIEW_HEIGHT 62
+#define NATURAL_ACTION_VIEW_HEIGHT 92
 
 
 /// Class for managing boolean flags with associated signals. Using the state flag means you can pass in a state and be assured that the correct signals are emitted.
@@ -247,6 +247,8 @@ signals:
 	void moveDownRequested(AMBeamlineActionItem *action);
 	void descriptionChanged(const QString &description);
 
+	void heightChanged(int newHeight);
+
 protected slots:
 	virtual void onInfoChanged() = 0;
 	virtual void onStopCancelButtonClicked() = 0;
@@ -261,6 +263,8 @@ protected slots:
 protected:
 	void mousePressEvent(QMouseEvent *event);
 
+	virtual void paintEvent(QPaintEvent *);
+
 	//virtual void updateLook();
 
 protected:
@@ -269,6 +273,7 @@ protected:
 	bool inFocus_;
 	bool movable_;
 	QMenu *optionsMenu_;
+	int oldHeight_;
 };
 
 class AMImageListView : public QWidget

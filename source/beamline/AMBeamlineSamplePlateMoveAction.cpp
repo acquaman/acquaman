@@ -36,6 +36,15 @@ AMBeamlineActionItemView* AMBeamlineSamplePlateMoveAction::createView(int index)
 	return new AMBeamlineSamplePlateMoveActionView(this, index);
 }
 
+AMBeamlineActionItem* AMBeamlineSamplePlateMoveAction::createCopy() const{
+	if(sampleID_ && samplePlateModel_){
+		AMBeamlineSamplePlateMoveAction *retVal = new AMBeamlineSamplePlateMoveAction(sampleID_, samplePlateModel_);
+		retVal->setSetpoint(setpoint_);
+		return retVal;
+	}
+	return 0; //NULL
+}
+
 QString AMBeamlineSamplePlateMoveAction::sampleDescription() const{
 	return sampleDescription_;
 }

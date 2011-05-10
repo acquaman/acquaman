@@ -274,7 +274,8 @@ AMBeamlineActionsListView::AMBeamlineActionsListView(AMBeamlineActionsList *acti
 	actionsQueue_ = actionsQueue;
 	focusAction_ = -1;
 
-	actionsViewList_ = new AMVerticalStackWidget();
+	actionsViewList_ = new AMVerticalStackWidget(this, true);
+	actionsViewList_->setGroupings(groupings_);
 	QVBoxLayout *vl = new QVBoxLayout();
 	vl->addWidget(actionsViewList_);
 	setLayout(vl);
@@ -283,6 +284,10 @@ AMBeamlineActionsListView::AMBeamlineActionsListView(AMBeamlineActionsList *acti
 	connect(actionsList_, SIGNAL(actionAdded(int)), this, SLOT(onActionAdded(int)));
 	connect(actionsList_, SIGNAL(actionRemoved(int)), this, SLOT(onActionRemoved(int)));
 	connect(actionsQueue_, SIGNAL(headChanged()), this, SLOT(reindexViews()));
+	connect(actionsQueue_, SIGNAL(isRunningChanged(bool)), this, SLOT(onRunningChanged()));
+	connect(actionsList_, SIGNAL(actionStarted(int)), this, SLOT(onActionStarted()));
+	connect(actionsList_, SIGNAL(actionSucceeded(int)), this, SLOT(onActionSucceeded()));
+	connect(actionsList_, SIGNAL(actionFailed(int,int)), this, SLOT(onActionFailed()));
 }
 
 bool AMBeamlineActionsListView::swap(int indexOfFirst){
@@ -304,6 +309,7 @@ void AMBeamlineActionsListView::onActionChanged(int index){
 	((AMBeamlineActionItemView*)actionsViewList_->widget(index))->setAction(tmpItem);
 }
 
+#include "ui/AMDateTimeUtils.h"
 void AMBeamlineActionsListView::onActionAdded(int index){
 	AMBeamlineActionItem *tmpItem = actionsList_->action(index);
 	AMBeamlineActionItemView *tmpView = tmpItem->createView(index);
@@ -314,12 +320,30 @@ void AMBeamlineActionsListView::onActionAdded(int index){
 	connect(tmpView, SIGNAL(copyRequested(AMBeamlineActionItem*)), this, SIGNAL(copyRequested(AMBeamlineActionItem*)));
 	connect(tmpView, SIGNAL(moveUpRequested(AMBeamlineActionItem*)), this, SIGNAL(moveUpRequested(AMBeamlineActionItem*)));
 	connect(tmpView, SIGNAL(moveDownRequested(AMBeamlineActionItem*)), this, SIGNAL(moveDownRequested(AMBeamlineActionItem*)));
+	if(groupings_.count() > 0){
+		qDebug() << "Add to existing group";
+		groupings_.last().first++;
+		actionsViewList_->setGroupings(groupings_);
+	}
+	else{
+		qDebug() << "Create a new group";
+		QPair<int, QString> newGroup = QPair<int, QString>(1, QString("Created %1").arg(AMDateTimeUtils::prettyDateTime(QDateTime::currentDateTime())) );
+		groupings_.append(newGroup);
+		actionsViewList_->setGroupings(groupings_);
+	}
+
 	reindexViews();
 	emit queueUpdated(actionsQueue_->count());
 }
 
 void AMBeamlineActionsListView::onActionRemoved(int index){
 	actionsViewList_->deleteItem(index);
+	if(groupings_.last().first > 1)
+		groupings_.last().first--;
+	else
+		groupings_.removeLast();
+	actionsViewList_->setGroupings(groupings_);
+
 	reindexViews();
 	emit queueUpdated(actionsQueue_->count());
 }
@@ -327,6 +351,22 @@ void AMBeamlineActionsListView::onActionRemoved(int index){
 void AMBeamlineActionsListView::onActionRemoveRequested(AMBeamlineActionItem *item){
 	int index = actionsList_->indexOf(item);
 	actionsList_->deleteAction(index);
+}
+
+void AMBeamlineActionsListView::onRunningChanged(){
+	qDebug() << "---- Heard that running state changed to " << actionsQueue_->isRunning() << " ----";
+}
+
+void AMBeamlineActionsListView::onActionStarted(){
+	qDebug() << "---- Heared action STARTED ----";
+}
+
+void AMBeamlineActionsListView::onActionSucceeded(){
+	qDebug() << "---- Heard action SUCCEEDED ----";
+}
+
+void AMBeamlineActionsListView::onActionFailed(){
+	qDebug() << "---- Heard actino FAILED";
 }
 
 void AMBeamlineActionsListView::reindexViews(){

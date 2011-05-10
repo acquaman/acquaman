@@ -29,6 +29,15 @@ AMBeamlineActionItemView* AMBeamlineFiducializationMoveAction::createView(int in
 	return new AMBeamlineFiducializationMoveActionView(this, index);
 }
 
+AMBeamlineActionItem* AMBeamlineFiducializationMoveAction::createCopy() const{
+	if(controlSet_){
+		AMBeamlineFiducializationMoveAction *retVal = new AMBeamlineFiducializationMoveAction(fiducializationIndex_);
+		retVal->setSetpoint(setpoint_);
+		return retVal;
+	}
+	return 0; //NULL
+}
+
 QString AMBeamlineFiducializationMoveAction::sampleDescription() const{
 	return sampleDescription_;
 }

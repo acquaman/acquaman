@@ -177,6 +177,7 @@ public:
 	AMDetectorSet* allDetectors() const { return allDetectors_;}
 	AMDetectorSet* feedbackDetectors() const { return feedbackDetectors_;}
 	AMDetectorSet* XASDetectors() const { return XASDetectors_;}
+	AMDetectorSet* FastDetectors() const { return FastDetectors_;}
 
 	AMSamplePlate* currentSamplePlate() const { return currentSamplePlate_; }
 	int currentSampleId();
@@ -346,6 +347,7 @@ protected:
 	AMDetectorSet *allDetectors_;
 	AMDetectorSet *feedbackDetectors_;
 	AMDetectorSet *XASDetectors_;
+	AMDetectorSet *FastDetectors_;
 
 	QList<AMControlSet*> unconnectedSets_;
 

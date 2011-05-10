@@ -19,16 +19,24 @@ bool SGMFastDacqScanController::initializeImplementation(){
 		pScan()->clearRawDataPoints();
 		connect(initializationActions_, SIGNAL(listSucceeded()), this, SLOT(onInitializationActionsSucceeded()));
 		connect(initializationActions_, SIGNAL(stageSucceeded(int)), this, SLOT(onInitializationActionsStageSucceeded(int)));
+		connect(initializationActions_, SIGNAL(listFailed(int)), this, SLOT(onInitializationActionsFailed(int)));
 		connect(initializationActions_, SIGNAL(stageProgress(double,double)), this, SLOT(calculateProgress(double,double)));
 		initializationActions_->start();
 		return true;
 	}
+	AMErrorMon::report(AMErrorReport(this,
+			AMErrorReport::Alert,
+			SGMFASTDACQSCANCONTROLLER_CANT_INTIALIZE,
+			"Error, SGM Fast DACQ Scan Controller failed to initialize. Please report this bug to the Acquaman developers."));
 	return false;
 }
 
 bool SGMFastDacqScanController::startImplementation(){
 	if(SGMBeamline::sgm()->isBeamlineScanning()){
-		qDebug() << "Beamline already scanning";
+		AMErrorMon::report(AMErrorReport(this,
+				AMErrorReport::Alert,
+				SGMFASTDACQSCANCONTROLLER_CANT_INTIALIZE,
+				"Error, SGM Fast DACQ Scan Controller failed to start (SGM is already scanning). Please report this bug to the Acquaman developers."));
 		return false;
 	}
 	bool loadSuccess;
@@ -38,21 +46,33 @@ bool SGMFastDacqScanController::startImplementation(){
 	else if( QDir(homeDir+"/beamline/programming").exists())
 		homeDir.append("/beamline/programming");
 
+	for(int x = 0; x < pCfg()->allDetectors()->count(); x++){
+		if(pCfg()->allDetectors()->isDefaultAt(x) && !SGMBeamline::sgm()->detectorValidForCurrentSignalSource(pCfg()->allDetectors()->detectorAt(x)->toInfo())){
+			AMErrorMon::report(AMErrorReport(this,
+					AMErrorReport::Alert,
+					SGMFASTDACQSCANCONTROLLER_CANT_START_DETECTOR_SOURCE_MISMATCH,
+					"Error, SGM Fast DACQ Scan Controller failed to start. The SGM Beamline thinks you're configured to use the wrong detectors (picoammeters versus scalers). Please report this bug to the Acquaman developers."));
+			return false;
+		}
+	}
+
 	loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/Scalar_Fast.config"));
 	if(!loadSuccess){
-		qDebug() << "LIBRARY FAILED TO LOAD CONFIG FILE";
+		AMErrorMon::report(AMErrorReport(this,
+				AMErrorReport::Alert,
+				SGMFASTDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE,
+				"Error, SGM Fast DACQ Scan Controller failed to start (the config file failed to load). Please report this bug to the Acquaman developers."));
 		return false;
 	}
-	advAcq_->setStart(0, pCfg()->start());
-	advAcq_->setDelta(0, pCfg()->end()-pCfg()->start());
-	advAcq_->setEnd(0, pCfg()->end());
+	advAcq_->setStart(0, pCfg()->startEnergy());
+	advAcq_->setDelta(0, pCfg()->endEnergy()-pCfg()->startEnergy());
+	advAcq_->setEnd(0, pCfg()->endEnergy());
 
 	generalScan_ = specificScan_;
 	usingSpectraDotDatFile_ = true;
 	fastScanTimer_ = new QTimer(this);
 	connect(fastScanTimer_, SIGNAL(timeout()), this, SLOT(onFastScanTimerTimeout()));
-	if(!pCfg()->sensibleFileSavePath().isEmpty())
-		pScan()->setAutoExportFilePath(pCfg()->finalizedSavePath());
+	advAcq_->saveConfigFile("/Users/fawkes/dev/acquaman/devConfigurationFiles/davidTest.cfg");
 	return AMDacqScanController::startImplementation();
 }
 
@@ -80,15 +100,18 @@ bool SGMFastDacqScanController::event(QEvent *e){
 		double c2Param = SGMBeamline::sgm()->energyC2Param()->value();
 		double sParam = SGMBeamline::sgm()->energySParam()->value();
 		double thetaParam = SGMBeamline::sgm()->energyThetaParam()->value();
+		/*
 		double avgUp = 0.0;
 				int upCounts = 0;
 		double avgDown = 0.0;
 				int downCounts = 0;
+		*/
 		QList<double> readings;
 		if(i.key() == 0 && aeData.count() == 2 && aeSpectra.count() == 1){
 			qDebug() << "And doing something with it";
 			++i;
 
+			/*
 			while(j != aeSpectra.constEnd()){
 				encoderStartPoint = encoderEndpoint;
 				qDebug() << "First couple " << j.value().at(0) << j.value().at(1) << j.value().at(2) << j.value().at(3) << j.value().at(4);
@@ -116,27 +139,37 @@ bool SGMFastDacqScanController::event(QEvent *e){
 			if(avgDown > avgUp)
 				downMax = 2*ceil(avgDown);
 			j = aeSpectra.constBegin();
+			*/
 
 			encoderEndpoint = i.value();
+			qDebug() << "Encoder endpoint was " << encoderEndpoint;
+			QString readingStr;
 			while(j != aeSpectra.constEnd()){
 				encoderStartPoint = encoderEndpoint;
 				int maxVal = j.value().count()-1;
 				if(maxVal > 6000)
 					maxVal = 6000;
 				for(int x = 0; x < maxVal; x++){
-					if( (x%6 == 4) && (j.value().at(x+1) < upMax) )
+					//if( (x%6 == 4) && (j.value().at(x+1) < upMax) )
+					if( x%6 == 4 )
 						encoderStartPoint += j.value().at(x+1);
-					if( (x%6 == 4) && (j.value().at(x+1) > upMax) )
-						qDebug() << "NOISE UP! of " << j.value().at(x+1) << " at " << x;
-					if( (x%6 == 5) && (j.value().at(x+1) < downMax) )
+					//if( (x%6 == 4) && (j.value().at(x+1) > upMax) )
+					//	qDebug() << "NOISE UP! of " << j.value().at(x+1) << " at " << x;
+					//if( (x%6 == 5) && (j.value().at(x+1) < downMax) )
+					if( x%6 == 5 )
 						encoderStartPoint -= j.value().at(x+1);
-					if( (x%6 == 5) && (j.value().at(x+1) > downMax) )
-						qDebug() << "NOISE DOWN! of " << j.value().at(x+1) << " at " << x;
+					//if( (x%6 == 5) && (j.value().at(x+1) > downMax) )
+					//	qDebug() << "NOISE DOWN! of " << j.value().at(x+1) << " at " << x;
+					readingStr.append(QString("%1 ").arg(j.value().at(x+1)));
+					if( x%6 == 5 ){
+						//qDebug() << readingStr;
+						readingStr.clear();
+					}
 				}
 				++j;
 			}
 			encoderReading = encoderStartPoint;
-			qDebug() << "\n\nEnoder start was " << encoderStartPoint << " avg up is " << avgUp << " down is " << avgDown << " thresholds " << upMax << downMax;
+			qDebug() << "\n\nEnoder start was " << encoderStartPoint;// << " avg up is " << avgUp << " down is " << avgDown << " thresholds " << upMax << downMax;
 			j = aeSpectra.constBegin();
 			while(j != aeSpectra.constEnd()){
 				int maxVal = j.value().count()-1;
@@ -145,24 +178,27 @@ bool SGMFastDacqScanController::event(QEvent *e){
 				for(int x = 0; x < maxVal; x++){
 					if(x%6 == 0)
 						readings.clear();
-					if( x%6 == 0 || x%6 == 1 || x%6 == 2 || x%6 == 3 )
+					//if( x%6 == 0 || x%6 == 1 || x%6 == 2 || x%6 == 3 )
+					if( x%6 == 0 || x%6 == 1 || x%6 == 4 || x%6 == 5 )
 						readings.append(j.value().at(x+1));
-										if( (x%6 == 4) && (j.value().at(x+1) < 3*ceil(avgUp)) )
+					//if( (x%6 == 4) && (j.value().at(x+1) < 3*ceil(avgUp)) )
+					if( x%6 == 4 )
 						encoderReading -= j.value().at(x+1);
-										if( (x%6 == 5) && (j.value().at(x+1) < 3*ceil(avgDown)) )
+					//if( (x%6 == 5) && (j.value().at(x+1) < 3*ceil(avgDown)) )
+					if( x%6 == 5 )
 						encoderReading += j.value().at(x+1);
 					if( x%6 == 5 ){
-						//energyFbk = (1.0e-9*1239.842*511.292)/(2*9.16358e-7*2.46204e-5*-1.59047*(double)encoderReading*cos(3.05478/2));
 						energyFbk = (1.0e-9*1239.842*sParam)/(2*spacingParam*c1Param*c2Param*(double)encoderReading*cos(thetaParam/2));
-						if( ( (readings.at(0) > pCfg()->baseLine()) && (pScan()->rawData()->scanSize(0) == 0) ) || ( (pScan()->rawData()->scanSize(0) > 0) && (fabs(energyFbk - (double)pScan()->rawData()->axisValue(0, pScan()->rawData()->scanSize(0)-1)) > 0.001) ) ){
+						//if( ( (readings.at(0) > pCfg()->baseLine()) && (pScan()->rawData()->scanSize(0) == 0) ) || ( (pScan()->rawData()->scanSize(0) > 0) && (fabs(energyFbk - (double)pScan()->rawData()->axisValue(0, pScan()->rawData()->scanSize(0)-1)) > 0.001) ) ){
 							pScan()->rawData()->beginInsertRows(0);
 							pScan()->rawData()->setAxisValue(0, pScan()->rawData()->scanSize(0)-1, energyFbk);
-							pScan()->rawData()->setValue(AMnDIndex(pScan()->rawData()->scanSize(0)-1), 0, AMnDIndex(), readings.at(0));
+							//pScan()->rawData()->setValue(AMnDIndex(pScan()->rawData()->scanSize(0)-1), 0, AMnDIndex(), readings.at(0));
+							pScan()->rawData()->setValue(AMnDIndex(pScan()->rawData()->scanSize(0)-1), 0, AMnDIndex(), max(readings.at(0), 1.0));
 							pScan()->rawData()->setValue(AMnDIndex(pScan()->rawData()->scanSize(0)-1), 1, AMnDIndex(), readings.at(1));
 							pScan()->rawData()->setValue(AMnDIndex(pScan()->rawData()->scanSize(0)-1), 2, AMnDIndex(), readings.at(2));
 							pScan()->rawData()->setValue(AMnDIndex(pScan()->rawData()->scanSize(0)-1), 3, AMnDIndex(), readings.at(3));
 							pScan()->rawData()->endInsertRows();
-						}
+						//}
 					}
 				}
 				++j;
@@ -215,9 +251,13 @@ void SGMFastDacqScanController::onInitializationActionsStageSucceeded(int stageI
 	calculateProgress(-1, -1);
 }
 
+void SGMFastDacqScanController::onInitializationActionsFailed(int explanation){
+	setFailed();
+}
+
 void SGMFastDacqScanController::onFastScanTimerTimeout(){
-	calculateProgress(SGMBeamline::sgm()->energy()->value()-pCfg()->start(), pCfg()->end()-pCfg()->start());
-	if( fabs(SGMBeamline::sgm()->energy()->value()-pCfg()->end()) <  SGMBeamline::sgm()->energy()->tolerance())
+	calculateProgress(SGMBeamline::sgm()->energy()->value()-pCfg()->startEnergy(), pCfg()->endEnergy()-pCfg()->startEnergy());
+	if( fabs(SGMBeamline::sgm()->energy()->value()-pCfg()->endEnergy()) <  SGMBeamline::sgm()->energy()->tolerance())
 		fastScanTimer_->stop();
 }
 
