@@ -14,12 +14,14 @@ XRFSelectionView::XRFSelectionView(double minimumEnergy, double maximumEnergy, Q
 	palette.setColor(QPalette::Window, QColor(79, 148, 205));
 	tableView_->setPalette(palette);
 	tableView_->setAutoFillBackground(true);
+	tableView_->setFixedSize(650, 250);
 
 	elView_ = new VESPERSXRFElementView(AMPeriodicTable::table()->elementBySymbol("Fe"), minimumEnergy_, maximumEnergy_);
 	palette = elView_->palette();
 	palette.setColor(QPalette::Window, QColor(110, 139, 61));
 	elView_->setPalette(palette);
 	elView_->setAutoFillBackground(true);
+	elView_->setFixedSize(175, 250);
 
 	// This signal takes an element that was clicked inside the view and transfers it to the element view.  It puts checks where appropriate.
 	connect(tableView_, SIGNAL(elementClicked(AMElement*,QList<QPair<int,QString> >)), elView_, SLOT(setElement(AMElement*,QList<QPair<int,QString> >)));
@@ -39,18 +41,12 @@ XRFSelectionView::XRFSelectionView(double minimumEnergy, double maximumEnergy, Q
 	connect(tableView_, SIGNAL(clearAllRegionsOfInterest()), this, SLOT(onClearList()));
 
 	QHBoxLayout *tableLayout = new QHBoxLayout;
-	tableLayout->addWidget(tableView_, Qt::AlignLeft);
-	tableLayout->addWidget(elView_, Qt::AlignCenter);
+	tableLayout->addStretch();
+	tableLayout->addWidget(tableView_);
+	tableLayout->addWidget(elView_);
+	tableLayout->addStretch();
 
-	QGroupBox *table = new QGroupBox;
-	table->setLayout(tableLayout);
-	table->setFlat(true);
-	table->setFixedSize(900, 325);
-
-	QVBoxLayout *xrfLayout = new QVBoxLayout;
-	xrfLayout->addWidget(table, 0, Qt::AlignCenter);
-
-	setLayout(xrfLayout);
+	setLayout(tableLayout);
 }
 
 void XRFSelectionView::onClearList()
