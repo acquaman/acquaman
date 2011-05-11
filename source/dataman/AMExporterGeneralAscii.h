@@ -46,7 +46,7 @@ protected:
 	void writeHeader();
 	void writeMainTable();
 	void writeSeparateSections();
-	void writeSeparateFiles();
+	bool writeSeparateFiles(const QString& destinationFolderPath);
 
 	/// converts all "\r\n" windows style line endings in \c inputString to "\n"
 	void normalizeLineEndings(QString& inputString);

@@ -62,9 +62,7 @@ QString AMExporterGeneralAscii::exportScan(const AMScan *scan, const QString &de
 
 
 	// prepare export file
-	qDebug() << "Input file name:" << destinationFolderPath % "/" % option->fileName();
 	mainFileName_ = parseKeywordString( destinationFolderPath % "/" % option->fileName() );
-	qDebug() << "Export file name:" << mainFileName_;
 
 	if(!openFile(mainFileName_)) {
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -3, "Export failed: Could not open the file '" % mainFileName_ % "' for writing.  Check that you have permission to save files there, and that a file with that name doesn't already exists."));
@@ -75,7 +73,10 @@ QString AMExporterGeneralAscii::exportScan(const AMScan *scan, const QString &de
 	writeHeader();
 	writeMainTable();
 	writeSeparateSections();
-	writeSeparateFiles();
+	if(!writeSeparateFiles(destinationFolderPath)) {
+		file_->close();
+		return QString();
+	}
 
 	file_->close();
 	return mainFileName_;
@@ -298,7 +299,7 @@ void AMExporterGeneralAscii::writeSeparateSections()
 				ts << ds->value(r).toString() << option_->columnDelimiter() << option_->newlineDelimiter();
 			}
 		}
-			break;
+		break;
 		case 2: {
 			int maxTableRows = ds->size(0);
 			for(int r=0; r<maxTableRows; r++) {
@@ -311,7 +312,7 @@ void AMExporterGeneralAscii::writeSeparateSections()
 				ts << option_->newlineDelimiter();
 			}
 		}
-			break;
+		break;
 		default:
 			/// \todo Implement 3D
 			break;
@@ -319,8 +320,87 @@ void AMExporterGeneralAscii::writeSeparateSections()
 	}
 }
 
-void AMExporterGeneralAscii::writeSeparateFiles()
+bool AMExporterGeneralAscii::writeSeparateFiles(const QString& destinationFolderPath)
 {
+	for(int s=0; s<separateFileDataSources_.count(); s++) {
+
+		setCurrentDataSource(separateFileDataSources_.at(s));	// sets currentDataSourceIndex_
+		AMDataSource* ds = currentScan_->dataSourceAt(currentDataSourceIndex_);
+
+		QFile file;
+		QString separateFileName = parseKeywordString( destinationFolderPath % "/" % option_->separateSectionFileName() );
+
+		if(!openFile(&file, separateFileName)) {
+			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -4, "Export failed (partially): You selected to create separate files for certain data sets. Could not open the file '" % separateFileName % "' for writing.  Check that you have permission to save files there, and that a file with that name doesn't already exists."));
+			return false;
+		}
+
+		QTextStream ts(&file);
+
+		// section header?
+		if(option_->sectionHeaderIncluded()) {
+			ts << parseKeywordString(option_->sectionHeader());
+			ts << option_->newlineDelimiter();
+		}
+
+		// column header?
+		if(option_->columnHeaderIncluded()) {
+			// 1D data sources:
+			if(ds->rank() == 0) {
+				ts << parseKeywordString(option_->columnHeader()) << option_->columnDelimiter();
+			}
+			else if(ds->rank() == 1) {
+				if(separateFileIncludeX_.at(s))
+					ts << parseKeywordString(option_->columnHeader()) << ".X" << option_->columnDelimiter();
+				ts << parseKeywordString(option_->columnHeader()) << option_->columnDelimiter();
+			}
+			else if(ds->rank() == 2) {	// 2D
+				if(separateFileIncludeX_.at(s))
+					ts << parseKeywordString(option_->columnHeader()) << ".X" << option_->columnDelimiter();
+				// need a loop over the second axis columns
+				for(int cc=0; cc<ds->size(1); cc++) {
+					setCurrentColumnIndex(cc);
+					ts << parseKeywordString(option_->columnHeader()) << "[" << ds->axisValue(1, cc).toString() << ds->axisInfoAt(1).units << "]" << option_->columnDelimiter();
+				}
+			}
+			ts << option_->newlineDelimiter() << option_->columnHeaderDelimiter() << option_->newlineDelimiter();
+		}
+
+		// table
+		switch(ds->rank()) {
+		case 0:
+			ts << ds->value(AMnDIndex()).toString() << option_->columnDelimiter() << option_->newlineDelimiter();
+			break;
+		case 1: {
+			int maxTableRows = ds->size(0);
+			for(int r=0; r<maxTableRows; r++) {
+				if(separateFileIncludeX_.at(s)) {
+					ts << ds->axisValue(0,r).toString() << option_->columnDelimiter();
+				}
+				ts << ds->value(r).toString() << option_->columnDelimiter() << option_->newlineDelimiter();
+			}
+		}
+		break;
+		case 2: {
+			int maxTableRows = ds->size(0);
+			for(int r=0; r<maxTableRows; r++) {
+				if(separateFileIncludeX_.at(s))
+					ts << ds->axisValue(0,r).toString() << option_->columnDelimiter();
+				// need a loop over the second axis columns
+				for(int cc=0; cc<ds->size(1); cc++) {
+					ts << ds->value(AMnDIndex(r,cc)).toString() << option_->columnDelimiter();
+				}
+				ts << option_->newlineDelimiter();
+			}
+		}
+		break;
+		default:
+			/// \todo Implement 3D
+			break;
+		}
+	}
+
+	return true;
 }
 
 void AMExporterGeneralAscii::normalizeLineEndings(QString &inputString)
