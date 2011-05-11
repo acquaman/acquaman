@@ -112,6 +112,10 @@ void AMBeamlineScanAction::start(){
 		qDebug() << "Reinitialized, no controller creation";
 	}
 
+	//Moved from onScanStarted. This action is started once we start initializing
+	setDescription(cfg_->description()+" on "+lastSampleDescription_+" [Initializing]");
+	emit descriptionChanged();
+	setStarted(true);
 
 	// should this connection happen all the time, even if controller re-initialized?
 	//connect(ctrl_, SIGNAL(initialized()), ctrl_, SLOT(start()));
@@ -179,7 +183,10 @@ void AMBeamlineScanAction::onScanInitialized(){
 void AMBeamlineScanAction::onScanStarted(){
 	setDescription(cfg_->description()+" on "+lastSampleDescription_+" [Running]");
 	emit descriptionChanged();
+	//Moving to the start call. This action is started once the scan starts initializing
+	/*
 	setStarted(true);
+	*/
 	ctrl_->scan()->storeToDb(AMDatabase::userdb());
 	if(!ctrl_->scan()->database()){
 		AMErrorMon::report(AMErrorReport(this,

@@ -159,6 +159,11 @@ void AMWorkflowManagerView::setCurrentSamplePlate(AMSamplePlate *newSamplePlate)
 	}
 }
 
+void AMWorkflowManagerView::forceUpdate(){
+	qDebug() << "Trying to force update in workflowmanager";
+	//workflowView_->forceUpdate();
+}
+
 
 void AMWorkflowManagerView::insertBeamlineAction(int index, AMBeamlineActionItem *action, bool startNow) {
 	if(index < 0 || index > workflowQueue_->count()) {
@@ -273,6 +278,7 @@ AMBeamlineActionsListView::AMBeamlineActionsListView(AMBeamlineActionsList *acti
 	actionsList_ = actionsList;
 	actionsQueue_ = actionsQueue;
 	focusAction_ = -1;
+	needsNewGroup_ = true;
 
 	actionsViewList_ = new AMVerticalStackWidget(this, true);
 	actionsViewList_->setGroupings(groupings_);
@@ -288,6 +294,7 @@ AMBeamlineActionsListView::AMBeamlineActionsListView(AMBeamlineActionsList *acti
 	connect(actionsList_, SIGNAL(actionStarted(int)), this, SLOT(onActionStarted()));
 	connect(actionsList_, SIGNAL(actionSucceeded(int)), this, SLOT(onActionSucceeded()));
 	connect(actionsList_, SIGNAL(actionFailed(int,int)), this, SLOT(onActionFailed()));
+	connect(actionsViewList_, SIGNAL(doneRunGroups()), this, SLOT(onDoneRunGroups()));
 }
 
 bool AMBeamlineActionsListView::swap(int indexOfFirst){
@@ -295,6 +302,10 @@ bool AMBeamlineActionsListView::swap(int indexOfFirst){
 	if(retVal)
 		reindexViews();
 	return retVal;
+}
+
+void AMBeamlineActionsListView::forceUpdate(){
+	actionsViewList_->forceUpdate();
 }
 
 #include "beamline/AMBeamlineControlMoveAction.h"
@@ -320,17 +331,20 @@ void AMBeamlineActionsListView::onActionAdded(int index){
 	connect(tmpView, SIGNAL(copyRequested(AMBeamlineActionItem*)), this, SIGNAL(copyRequested(AMBeamlineActionItem*)));
 	connect(tmpView, SIGNAL(moveUpRequested(AMBeamlineActionItem*)), this, SIGNAL(moveUpRequested(AMBeamlineActionItem*)));
 	connect(tmpView, SIGNAL(moveDownRequested(AMBeamlineActionItem*)), this, SIGNAL(moveDownRequested(AMBeamlineActionItem*)));
-	if(groupings_.count() > 0){
+	//if(groupings_.count() > 0){
+	if(!needsNewGroup_){
 		qDebug() << "Add to existing group";
 		groupings_.last().first++;
 		actionsViewList_->setGroupings(groupings_);
 	}
 	else{
+		needsNewGroup_ = false;
 		qDebug() << "Create a new group";
 		QPair<int, QString> newGroup = QPair<int, QString>(1, QString("Created %1").arg(AMDateTimeUtils::prettyDateTime(QDateTime::currentDateTime())) );
 		groupings_.append(newGroup);
 		actionsViewList_->setGroupings(groupings_);
 	}
+	//actionsViewList_->forceGroupingsCheck();
 
 	reindexViews();
 	emit queueUpdated(actionsQueue_->count());
@@ -354,19 +368,41 @@ void AMBeamlineActionsListView::onActionRemoveRequested(AMBeamlineActionItem *it
 }
 
 void AMBeamlineActionsListView::onRunningChanged(){
+	if(actionsQueue_->isRunning()){
+		groupings_.insert(groupings_.count()-1, QPair<int, QString>(0, "Running"));
+		actionsViewList_->startRunning();
+	}
 	qDebug() << "---- Heard that running state changed to " << actionsQueue_->isRunning() << " ----";
 }
 
 void AMBeamlineActionsListView::onActionStarted(){
+	groupings_[groupings_.count()-2].first++;
+	groupings_.last().first--;
+	actionsViewList_->setGroupings(groupings_);
+	//if(actionsQueue_->isEmpty()){
+	if(actionsQueue_->peekIsEmpty()){
+		qDebug() << "Found queue is empty";
+		actionsViewList_->endRunning();
+		needsNewGroup_ = true;
+		groupings_.removeLast();
+		actionsViewList_->setGroupings(groupings_);
+		actionsViewList_->forceGroupingsCheck();
+	}
+	actionsViewList_->forceGroupingsCheck();
 	qDebug() << "---- Heared action STARTED ----";
 }
 
 void AMBeamlineActionsListView::onActionSucceeded(){
 	qDebug() << "---- Heard action SUCCEEDED ----";
+	if(actionsQueue_->isEmpty()){
+		groupings_.last().second = QString("Completed %1").arg(AMDateTimeUtils::prettyDateTime(QDateTime::currentDateTime()));
+		actionsViewList_->setGroupings(groupings_);
+		actionsViewList_->forceGroupingsCheck();
+	}
 }
 
 void AMBeamlineActionsListView::onActionFailed(){
-	qDebug() << "---- Heard actino FAILED";
+	qDebug() << "---- Heard action FAILED";
 }
 
 void AMBeamlineActionsListView::reindexViews(){
@@ -395,4 +431,7 @@ void AMBeamlineActionsListView::reindexViews(){
 				((AMBeamlineActionItemView*)(actionsViewList_->widget(x)))->setIndex(-1);
 }
 
-
+void AMBeamlineActionsListView::onDoneRunGroups(){
+	qDebug() << "Asked to update after runGroups done";
+	actionsViewList_->forceUpdate();
+}
