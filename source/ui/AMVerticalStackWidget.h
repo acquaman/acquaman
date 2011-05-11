@@ -133,6 +133,8 @@ signals:
 	/// Emitted when a widget at this index is collapsed
 	void collapsed(int);
 
+	void copyGroupRequested(const AMRunGroup &runGroup);
+
 public slots:
 	/// Expand a given widget
 	void expandItem(int index);
@@ -204,6 +206,15 @@ public:
 		}
 	}
 
+	bool operator==(const AMRunGroup &other) const{
+		if(actionCount_ == other.actionCount() &&
+		   displayText_ == other.displayText() &&
+		   eventTime_ == other.eventTime()){
+			return true;
+		}
+		return false;
+	}
+
 	int actionCount() const { return actionCount_;}
 	QString displayText() const { return displayText_;}
 	QDateTime eventTime() const { return eventTime_;}
@@ -219,25 +230,33 @@ protected:
 	QDateTime eventTime_;
 };
 
-#include <QLabel>
 
+#include <QLabel>
+#include <QMouseEvent>
+#include <QMenu>
 class AMRunGroupWidget : public QLabel
 {
 Q_OBJECT
 public:
-	//AMRunGroupWidget(const QString &displayText, QWidget *parent = 0);
 	AMRunGroupWidget(const AMRunGroup &runGroup, QWidget *parent = 0);
 
 public slots:
-	//void setDisplayText(const QString &displayText);
 	void setRunGroup(const AMRunGroup &runGroup);
+
+signals:
+	void copyGroupRequested(const AMRunGroup &runGroup);
+
+protected slots:
+	virtual void onCopyGroupTriggered();
 
 protected:
 	virtual void paintEvent(QPaintEvent *);
 
+	void mousePressEvent(QMouseEvent *event);
+
 protected:
-	//QString displayText_;
 	AMRunGroup runGroup_;
+	QMenu *optionsMenu_;
 };
 
 

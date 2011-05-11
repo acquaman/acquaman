@@ -277,6 +277,7 @@ AMBeamlineActionsListView::AMBeamlineActionsListView(AMBeamlineActionsList *acti
 
 	actionsViewList_ = new AMVerticalStackWidget(this, true);
 	actionsViewList_->setGroupings(groupings_);
+	connect(actionsViewList_, SIGNAL(copyGroupRequested(AMRunGroup)), this, SLOT(onCopyGroupRequested(AMRunGroup)));
 	QVBoxLayout *vl = new QVBoxLayout();
 	vl->addWidget(actionsViewList_);
 	setLayout(vl);
@@ -432,4 +433,21 @@ void AMBeamlineActionsListView::reindexViews(){
 		for(int x = 0; x < actionsList_->count(); x++)
 			if(actionsViewList_->widget(x) && ((AMBeamlineActionItemView*)(actionsViewList_->widget(x)))->index() != -1 )
 				((AMBeamlineActionItemView*)(actionsViewList_->widget(x)))->setIndex(-1);
+}
+
+void AMBeamlineActionsListView::onCopyGroupRequested(const AMRunGroup &runGroup){
+	int upToThisPoint = 0;
+	QList<int> copyIndices;
+	for(int x = 0; x < groupings_.count(); x++){
+		if(groupings_.at(x) == runGroup){
+			for(int y = upToThisPoint; y < upToThisPoint+groupings_.at(x).actionCount(); y++){
+				qDebug() << "Emit copy request for action " << y;
+				copyIndices.append(y);
+			}
+			for(int y = 0; y < copyIndices.count(); y++)
+				emit copyRequested(actionsList_->action(copyIndices.at(y))->createCopy());
+			return;
+		}
+		upToThisPoint += groupings_.at(x).actionCount();
+	}
 }

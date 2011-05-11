@@ -106,6 +106,7 @@ void AMVerticalStackWidget::insertItem(int index, const QString& titleText, QWid
 		if(!currentGroup_){
 			qDebug() << "Trying to draw group widget";
 			AMRunGroupWidget *rgWidget = new AMRunGroupWidget(AMRunGroup(1), this);
+			connect(rgWidget, SIGNAL(copyGroupRequested(AMRunGroup)), this, SIGNAL(copyGroupRequested(AMRunGroup)));
 			currentGroup_ = rgWidget;
 			rgWidget->setFixedWidth(24);
 			//rgWidget->setFrameStyle(QFrame::StyledPanel);
@@ -281,6 +282,7 @@ QSize AMVerticalStackWidget::sizeHint() const {
 void AMVerticalStackWidget::startRunning(){
 	qDebug() << "Trying to draw group widget because RUNNING STARTED";
 	AMRunGroupWidget *rgWidget = new AMRunGroupWidget(AMRunGroup(1), this);
+	connect(rgWidget, SIGNAL(copyGroupRequested(AMRunGroup)), this, SIGNAL(copyGroupRequested(AMRunGroup)));
 	rgWidget->setFixedWidth(24);
 	vlSide_->insertWidget(vlSide_->count()-1, rgWidget);
 }
@@ -289,6 +291,7 @@ void AMVerticalStackWidget::endRunning(){
 	currentGroup_ = 0;
 	QWidget * removed = vlSide_->itemAt(vlSide_->count()-1)->widget();
 	vlSide_->removeWidget(removed);
+	removed->disconnect();
 	delete removed;
 }
 
@@ -322,10 +325,15 @@ AMRunGroupWidget::AMRunGroupWidget(const AMRunGroup &runGroup, QWidget *parent) 
 		QLabel("", parent)
 {
 	runGroup_ = runGroup;
+	optionsMenu_ = 0; //NULL
 }
 
 void AMRunGroupWidget::setRunGroup(const AMRunGroup &runGroup){
 	runGroup_ = runGroup;
+}
+
+void AMRunGroupWidget::onCopyGroupTriggered(){
+	emit copyGroupRequested(runGroup_);
 }
 
 #include <QPainter>
@@ -354,4 +362,22 @@ void AMRunGroupWidget::paintEvent(QPaintEvent *event){
 	painter.rotate(90.0);
 	painter.drawText(QRectF(0.05*h, 0, metric.width(displayElided), w), Qt::AlignCenter, displayElided);
 	painter.restore();
+}
+
+void AMRunGroupWidget::mousePressEvent(QMouseEvent *event){
+	if(event->button() == Qt::RightButton){
+		if(optionsMenu_)
+			delete optionsMenu_;
+		optionsMenu_ = new QMenu(this);
+		QAction *tmpAction;
+		tmpAction = optionsMenu_->addAction("Copy This Group");
+		tmpAction->setData(0);
+		connect(tmpAction, SIGNAL(triggered()), this, SLOT(onCopyGroupTriggered()));
+		optionsMenu_->popup(QCursor::pos());
+		optionsMenu_->show();
+	}
+	else{
+		event->ignore();
+		return;
+	}
 }

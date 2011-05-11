@@ -141,6 +141,8 @@ protected slots:
 	void onActionFailed();
 	void reindexViews();
 
+	void onCopyGroupRequested(const AMRunGroup &runGroup);
+
 protected:
 	AMBeamlineActionsList *actionsList_;
 	AMBeamlineActionsQueue *actionsQueue_;
