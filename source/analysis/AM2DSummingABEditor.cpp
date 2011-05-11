@@ -30,6 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "MPlot/MPlot.h"
 #include "MPlot/MPlotImage.h"
 #include "MPlot/MPlotRectangle.h"
+#include "MPlot/MPlotTools.h"
 #include "dataman/AMDataSourceImageData.h"
 
 AM2DSummingABEditor::AM2DSummingABEditor(AM2DSummingAB* analysisBlock, QWidget *parent) :
@@ -66,15 +67,24 @@ AM2DSummingABEditor::AM2DSummingABEditor(AM2DSummingAB* analysisBlock, QWidget *
 	image_ = 0;
 
 	QColor white(Qt::white);
-	QPen pen(white, 2, Qt::SolidLine, Qt::SquareCap, Qt::MiterJoin);
-	white.setAlphaF(0.25);
-	rangeRectangle_ = new MPlotRectangle(QRectF(0,0,10,10), pen, QBrush(white));
-	rangeRectangle_->setSelectable(false);
-	rangeRectangle_->setIgnoreWhenAutoScaling(true);
-	rangeRectangle_->setZValue(3000);
-	plot_->addItem(rangeRectangle_);
-	rangeRectangle_->setVisible(false);
+	QPen pen(white, 1, Qt::SolidLine, Qt::SquareCap, Qt::MiterJoin);
+	white.setAlphaF(0.6);
+	rangeRectangle1_ = new MPlotRectangle(QRectF(0,0,10,10), Qt::NoPen, QBrush(white));
+	rangeRectangle1_->setSelectable(false);
+	rangeRectangle1_->setIgnoreWhenAutoScaling(true);
+	rangeRectangle1_->setZValue(3000);
+	plot_->addItem(rangeRectangle1_);
+	rangeRectangle1_->setVisible(false);
+	rangeRectangle2_ = new MPlotRectangle(QRectF(0,0,10,10), Qt::NoPen, QBrush(white));
+	rangeRectangle2_->setSelectable(false);
+	rangeRectangle2_->setIgnoreWhenAutoScaling(true);
+	rangeRectangle2_->setZValue(3000);
+	plot_->addItem(rangeRectangle2_);
+	rangeRectangle2_->setVisible(false);
 	plot_->legend()->enableDefaultLegend(false);
+
+	plot_->addTool(new MPlotDragZoomerTool());
+	plot_->addTool(new MPlotWheelZoomerTool());
 
 
 
@@ -206,18 +216,38 @@ void AM2DSummingABEditor::placeRangeRectangle()
 	AMDataSource* inputSource;
 	if(analysisBlock_->inputDataSourceCount() > 0 && (inputSource=analysisBlock_->inputDataSourceAt(0))) {
 
-		QPointF p1, p2;
+
+		QRectF dataRect(QPointF(inputSource->axisValue(0,0),
+								inputSource->axisValue(1,0)),
+						QPointF(inputSource->axisValue(0, inputSource->size(0)-1),
+								inputSource->axisValue(1, inputSource->size(1)-1)));
+
 		if(analysisBlock_->sumAxis() == 0) {
-			p1 = QPointF(inputSource->axisValue(0, analysisBlock_->sumRangeMin()), inputSource->axisValue(1,0));
-			p2 = QPointF(inputSource->axisValue(0, analysisBlock_->sumRangeMax()), inputSource->axisValue(1, inputSource->size(1)-1));
+			rangeRectangle1_->setRect(QRectF(dataRect.topLeft(),
+											 QPointF(inputSource->axisValue(0, analysisBlock_->sumRangeMin()),
+													 dataRect.bottom())
+											 ).normalized());
+			rangeRectangle2_->setRect(QRectF(QPointF(inputSource->axisValue(0, analysisBlock_->sumRangeMax()),
+													 dataRect.top()),
+											 dataRect.bottomRight()
+											 ).normalized());
 		}
+
 		else {
-			p1 = QPointF(inputSource->axisValue(0, 0), inputSource->axisValue(1,analysisBlock_->sumRangeMin()));
-			p2 = QPointF(inputSource->axisValue(0, inputSource->size(0)-1), inputSource->axisValue(1, analysisBlock_->sumRangeMax()));
+			rangeRectangle1_->setRect(QRectF(dataRect.topLeft(),
+											 QPointF(dataRect.right(),
+													 inputSource->axisValue(1, analysisBlock_->sumRangeMin()))
+											 ).normalized());
+			rangeRectangle2_->setRect(QRectF(QPointF(dataRect.left(),
+													 inputSource->axisValue(1, analysisBlock_->sumRangeMax())),
+											 dataRect.bottomRight()
+											 ).normalized());
 		}
-		rangeRectangle_->setRect(QRectF(p1, p2).normalized());
-		rangeRectangle_->setVisible(true);
+		rangeRectangle1_->setVisible(true);
+		rangeRectangle2_->setVisible(true);
 	}
-	else
-		rangeRectangle_->setVisible(false);
+	else {
+		rangeRectangle1_->setVisible(false);
+		rangeRectangle2_->setVisible(false);
+	}
 }

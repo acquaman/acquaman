@@ -6,8 +6,10 @@
 #include "ui/VESPERS/XRFDetectorView.h"
 #include "acquaman/AMScanController.h"
 #include "ui/VESPERS/XRFSelectionView.h"
+#include "ui/VESPERS/CustomizeRegionsOfInterest.h"
 
 #include <QDoubleSpinBox>
+#include <QLabel>
 
 class VESPERSXRFScanConfigurationView : public AMScanConfigurationView
 {
@@ -15,6 +17,8 @@ class VESPERSXRFScanConfigurationView : public AMScanConfigurationView
 public:
 	/// Default constructor.
 	VESPERSXRFScanConfigurationView(VESPERSXRFScanConfiguration *scanConfig, QWidget *parent = 0);
+	/// Destructor.
+	~VESPERSXRFScanConfigurationView();
 
 	/// Returns a pointer to the current configuration.
 	const AMScanConfiguration *configuration() const { return configuration_; }
@@ -26,8 +30,12 @@ signals:
 	void roiExistsAlready(AMElement *, QPair<QString, QString>);
 
 protected slots:
+	/// Shows/Hides the more advanced settings in the detector.
+	void onAdvancedSettingsChanged(bool advanced);
 	/// Handles new values set from the integration time spin box and passes it along to the control.
 	void onIntegrationTimeUpdate();
+	/// Handles new values set from the minimum energy spin box and passes it along to the contorl.
+	void onMinimumEnergyUpdate();
 	/// Handles new values set from the maximum energy spin box and passes it along to the control.
 	void onMaximumEnergyUpdate();
 	/// Handles the new values from the maximum energy control.
@@ -50,11 +58,21 @@ protected:
 	XRFSelectionView *selectionView_;
 	/// The pointer to the detector.
 	XRFDetector *detector_;
+	/// The pointer to the customize view.
+	CustomizeRegionsOfInterest *customize_;
 
 	/// The integration time spin box.
 	QDoubleSpinBox *integrationTime_;
+	/// The label for the minimum energy spin box.
+	QLabel *minEnergyLabel_;
+	/// The minimum energy of the detector.  Value is in keV.
+	QDoubleSpinBox *minEnergy_;
+	/// The label for the maximum energy spin box.
+	QLabel *maxEnergyLabel_;
 	/// The maximum energy of the detector.  Value is in keV.
 	QDoubleSpinBox *maxEnergy_;
+	/// The label for the peaking time spin box.
+	QLabel *peakingTimeLabel_;
 	/// The peaking time for the detector.  Value is in us.
 	QDoubleSpinBox *peakingTime_;
 };

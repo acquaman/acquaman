@@ -2,12 +2,12 @@
 #define VESPERSSAMPLESTAGEVIEW_H
 
 #include "beamline/VESPERS/VESPERSBeamline.h"
-#include "beamline/AMControl.h"
 
 #include <QWidget>
 #include <QDoubleSpinBox>
 #include <QButtonGroup>
 #include <QLabel>
+#include <QLineEdit>
 
 /*! This class builds a view on the sample stage control that does relative movement for the sample stage.  It does not change the focus distance,
   only the horizontal and vertical motors.
@@ -32,12 +32,21 @@ protected slots:
 	void onLeftClicked();
 	/// Slot that handles going right.
 	void onRightClicked();
+	/// Slot that handles if the horizontal setpoint line edit is triggered.
+	void onHorizontalSetpoint();
+	/// Slot that handles if the vertical setpoint line edit is triggered.
+	void onVerticalSetpoint();
+
 	/// Handles changes in the moving flags of the sample stages.
 	void onMovingChanged(bool isMoving);
 	/// Handles changes in the connection of the sample stages.
 	void onConnectedChanged(bool isConnected);
 	/// Handles if the motors time out.
 	void onTimedOut() { onConnectedChanged(false); }
+	/// Handles changes from the horizontal motor from the sample stage.
+	void onHorizontalChanged(double val);
+	/// Handles changes from the vertical motor from the sample stage.
+	void onVerticalChanged(double val);
 
 protected:
 	/// Holds the jog value.  All movements are relative to this number.
@@ -46,11 +55,13 @@ protected:
 	QButtonGroup *buttons_;
 	/// The status label that shows whether the sample stage is moving or not.
 	QLabel *status_;
+	/// Holds the horizontal setpoint.
+	QLineEdit *horizontal_;
+	/// Holds the vertical setpoint.
+	QLineEdit *vertical_;
 
-	/// The control for the horizontal sample stage control.
-	AMPVwStatusControl *horizontal_;
-	/// The control for the vertical sample stage control.
-	AMPVwStatusControl *vertical_;
+	/// The control for the sample stage.
+	SampleStageControl *sampleStage_;
 };
 
 #endif // VESPERSSAMPLESTAGEVIEW_H

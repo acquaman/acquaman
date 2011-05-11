@@ -193,8 +193,6 @@ public:
 	bool addRegionOfInterest(AMROIInfo roi);
 	/// Removes a region of interest.  Uses the name of the ROI to find and remove it.  Returns whether the remove was successful or not.
 	bool removeRegionOfInterest(QString name);
-	/// Sorts the list of ROIs.
-	void sort();
 
 	// Data sources
 	///////////////////////////////////////
@@ -225,6 +223,8 @@ public slots:
 	void setDescription(const QString &description) { XRFDetectorInfo::setDescription(description); }
 	/// Clears the list of ROIs and clears the info list.
 	void clearRegionsOfInterest();
+	/// Sorts the list of ROIs.
+	void sort();
 
 
 signals:
@@ -234,6 +234,8 @@ signals:
 	void statusChanged();
 	/// Signal used to say that the regions of interest now have their original values in them after being connected to.
 	void roisHaveValues(bool);
+	/// Notifier that the contents of an ROI has changed.  It passes a pointer to the particular ROI that has been changed.
+	void roiUpdate(AMROI *);
 
 protected slots:
 	/// Determines if the detector is connected to ALL controls and process variables.

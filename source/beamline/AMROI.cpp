@@ -259,6 +259,9 @@ void AMROI::updateValue()
 		for (int i = 0; i < pvValues_.size(); i++)
 			value_ += pvValues_.at(i)->getDouble();
 	}
+
+	emit valueUpdate(value_);
+	emit roiUpdate(this);
 }
 
 void AMROI::connected()

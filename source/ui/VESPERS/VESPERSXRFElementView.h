@@ -85,8 +85,6 @@ public:
 	AMElement *element() const { return element_; }
 
 signals:
-	/// Signal emitted when a custom ROI should be created.
-	void addCustomROI();
 	/// Signal emitted with current element and the selected emission line to be added.
 	void addROI(AMElement *, QPair<QString, QString>);
 	/// Signal emitted with the current element and selected emission line to be removed.
@@ -124,6 +122,7 @@ private:
 	double minimumEnergy_;
 	// Holds the maximum energy.  This is the upper limit and elements that don't have emission lines with energies lower then this are disabled.
 	double maximumEnergy_;
+
 };
 
 #endif // VESPERSXRFELEMENTVIEW_H
