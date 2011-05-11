@@ -6,6 +6,9 @@
 
 #include "beamline/AMProcessVariable.h"
 
+/*!
+	This class sets up connection to the necessary PVs to get a shutter to change state.  It contains the ability to change the state of the shutter, but must be manually invoked.
+  */
 class AMShutterButton : public QPushButton
 {
 	Q_OBJECT
@@ -19,9 +22,16 @@ public:
 	/// Constructor for opening the shutter and closing it.
 	AMShutterButton(QString title, QString statusPV, QString openPV, QString closePV, QWidget *parent = 0);
 
+	/// Returns the state of the Shutter.
+	State state() const { return state_; }
+	/// Returns the title.
+	QString title() const { return title_; }
+
 signals:
 
 public slots:
+	/// Toggles the state of the Shutter.  If Open -> Closed, if Closed -> Open.  Note that Between is reserved for beamline errors only.  Checks and only attempts to change state if it has the ability and has valid open and close PVs.
+	void changeState();
 
 protected:
 	/// Re-implemented paint function.
@@ -30,16 +40,10 @@ protected:
 private slots:
 	/// Initialize the pv.
 	void statusUpdate();
-	/// Toggles the state of the Shutter.  If Open -> Closed, if Closed -> Open.  Note that Between is reserved for beamline errors only.
-	void changeState();
 
 private:
-	/// Returns the state of the Shutter.
-	State state() const { return state_; }
 	/// Sets the state.
 	void setState(State state) { state_ = state; update(); }
-	/// Returns the title.
-	QString title() const { return title_; }
 
 	// The state, pv, and title of the button.
 	State state_;

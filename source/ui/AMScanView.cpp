@@ -65,7 +65,7 @@ AMScanViewScanBar::AMScanViewScanBar(AMScanSetModel* model, int scanIndex, QWidg
 		for(int i=0; i<source->dataSourceCount(); i++) {
 			QToolButton* sourceButton = new QToolButton();
 			sourceButton->setMaximumHeight(18);
-			sourceButton->setText(source->dataSourceAt(i)->description());	/// \todo description or name? both? name if description is empty?
+			sourceButton->setText(source->dataSourceAt(i)->name());	/// \todo description or name? both? name if description is empty?
 			QColor color = model->plotColor(scanIndex, i);
 			sourceButton->setStyleSheet(QString("color: rgba(%1, %2, %3, %4);").arg(color.red()).arg(color.green()).arg(color.blue()).arg(color.alpha()));	/// \todo special buttons, with lines underneath that show the line color / style, and differentiate 1D, 2D datasets.
 			sourceButton->setCheckable(true);
@@ -179,7 +179,7 @@ void AMScanViewScanBar::onModelDataChanged(const QModelIndex& topLeft, const QMo
 
 		int dataSourceIndex = topLeft.row();
 		AMDataSource* dataSource = model_->dataSourceAt(scanIndex_, dataSourceIndex);
-		sourceButtons_.button(dataSourceIndex)->setText(dataSource->description());
+		sourceButtons_.button(dataSourceIndex)->setText(dataSource->name());
 		// setting visibility: depends on whether exclusiveMode is on or not
 		if(exclusiveModeOn_)
 			sourceButtons_.button(dataSourceIndex)->setChecked( (model_->exclusiveDataSourceName() == dataSource->name()) );

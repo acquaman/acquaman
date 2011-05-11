@@ -35,7 +35,9 @@ protected:
 	QList<int> mainTableDataSources_;
 	QList<bool> mainTableIncludeX_;
 	QList<int> separateSectionDataSources_;
+	QList<bool> separateSectionIncludeX_;
 	QList<int> separateFileDataSources_;
+	QList<int> separateFileIncludeX_;
 	const AMExporterOptionGeneralAscii* option_;
 
 	/// Parse the data sources in option_, find their index within the scan, and fill mainTableDataSources_, separateSectionDataSources_, and separateFileDataSources_.  Returns true if all required data sources are found.
@@ -44,7 +46,7 @@ protected:
 	void writeHeader();
 	void writeMainTable();
 	void writeSeparateSections();
-	void writeSeparateFiles();
+	bool writeSeparateFiles(const QString& destinationFolderPath);
 
 	/// converts all "\r\n" windows style line endings in \c inputString to "\n"
 	void normalizeLineEndings(QString& inputString);

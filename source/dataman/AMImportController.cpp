@@ -31,6 +31,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFileDialog>
 #include <QSignalMapper>
 
+#include <QStringBuilder>
+
 #include <QTimer>
 
 /// Attempt to import, and return a pointer to a new scan object, or 0 if the import fails.  It's the caller's responsibility to delete the scan when done with it.
@@ -218,6 +220,11 @@ void AMImportController::setupNextFile() {
 		// all done:
 		onFinished();
 		return;
+	}
+
+	// short-term hack: identify what looks like a "spectra" file (an auxiliary file for CLS dacq scans), and move on/skip it
+	while(isAuxiliaryFile(filesToImport_.at(currentFile_))) {
+		currentFile_++;
 	}
 
 	w_->progressBar->setValue(currentFile_);
@@ -431,4 +438,22 @@ void AMImportController::onFinished() {
 	w_->hide();
 	AMErrorMon::report(AMErrorReport(0, AMErrorReport::Information, 0, QString("Imported %1 files").arg(numSuccess_)));
 	deleteLater();
+}
+
+bool AMImportController::isAuxiliaryFile(const QString &fullFileName)
+{
+	QFileInfo fi(fullFileName);
+	QString name = fi.fileName();
+	QString path = fi.path();
+
+	if(name.endsWith("_spectra.dat")) {
+		// looks right. check for non-spectra file.
+		name.chop(12); // removes _spectra.dat
+		name.append(".dat");
+		QFileInfo parentFile(path % "/" % name);
+		if(parentFile.exists() && parentFile.isFile())
+			return true;	// we found the parent file. This is definitely a spectra file.
+	}
+
+	return false;
 }

@@ -67,9 +67,9 @@ linux-g++-64 {
 	DEV_PATH = dev
 
 	# EPICS Dependencies:
-	EPICS_INCLUDE_DIRS = /home/epics/src/R3.14.12-SL-5/base/include \
-		/home/epics/src/R3.14.12-SL-5/base/include/os/Linux
-	EPICS_LIB_DIR = /home/epics/src/R3.14.12-SL-5/base/lib/linux-x86_64
+	EPICS_INCLUDE_DIRS = /home/epics/src/R3.14.12/base/include \
+		/home/epics/src/R3.14.12/base/include/os/Linux
+	EPICS_LIB_DIR = /home/epics/src/R3.14.12/base/lib/linux-x86_64
 
 	# MPlot Source
 	MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/src
