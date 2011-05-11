@@ -58,8 +58,8 @@ bool PGTDetector::setFromInfo(const AMDetectorInfo *info){
 }
 
 bool PGTDetector::setFromInfo(const PGTDetectorInfo& info){
-	integrationTimeCtrl()->move(info.integrationTime());
-	integrationModeCtrl()->move(integrationModeCtrl()->enumNames().indexOf(info.integrationMode()));
+	//integrationTimeCtrl()->move(info.integrationTime());
+	//integrationModeCtrl()->move(integrationModeCtrl()->enumNames().indexOf(info.integrationMode()));
 	hvCtrl()->move(info.hvSetpoint());
 	return true;
 }
