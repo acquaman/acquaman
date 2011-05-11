@@ -93,6 +93,20 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	exitSlitNC_->overrideTitle("Exit Slit");
 	exitSlitNC_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 
+	scanningLabel_ = new AMControlEditor(SGMBeamline::sgm()->beamlineScanning(), NULL, true);
+	scanningLabel_->setNoUnitsBox(true);
+	scanningLabel_->overrideTitle("");
+	scanningLabel_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+	scanningResetButton_ = new QToolButton();
+	scanningResetButton_->setText("Reset");
+	scanningResetButton_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+	connect(scanningResetButton_, SIGNAL(clicked()), this, SLOT(onScanningResetButtonClicked()));
+	QHBoxLayout *shl = new QHBoxLayout();
+	shl->addWidget(scanningLabel_);
+	shl->addWidget(scanningResetButton_);
+	shl->setSpacing(0);
+	shl->setContentsMargins(2, 2, 2, 2);
+
 	detectorSignalSources_ = new QButtonGroup();
 	picoammeterButton_ = new QRadioButton(SGMBeamline::sgm()->sgmDetectorSignalSourceName(SGMBeamline::picoammeters));
 	scalerButton_ = new QRadioButton(SGMBeamline::sgm()->sgmDetectorSignalSourceName(SGMBeamline::scaler));
@@ -201,15 +215,20 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	gl_->addWidget(gratingNC_,		5, 0, 1, 6, 0);
 	gl_->addWidget(entranceSlitNC_,		6, 0, 1, 3, 0);
 	gl_->addWidget(exitSlitNC_,		6, 3, 1, 3, 0);
-	gl_->addWidget(detectorSourceBox,	7, 0, 1, 3, 0);
-	gl_->addWidget(endstationsBox,		7, 3, 1, 3, 0);
+	//gl_->addWidget(scanningLabel_,		7, 0, 1, 3, 0);
+	//gl_->addWidget(scanningResetButton_,	7, 3, 1, 1, 0);
+	gl_->addLayout(shl,			7, 0, 1, 3, 0);
+	gl_->addWidget(detectorSourceBox,	8, 0, 1, 3, 0);
+	gl_->addWidget(endstationsBox,		8, 3, 1, 3, 0);
 	//gl_->addWidget(beamlineWarningsLabel_,	8, 0, 1, 6, 0);
-	gl_->addWidget(imageView_,		9, 0, 1, 6, 0);
+	gl_->addWidget(imageView_,		10, 0, 1, 6, 0);
 
-	gl_->setRowStretch(8, 10);
+	gl_->setRowStretch(9, 10);
 
 	setLayout(mainLayout_);
 	setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
+
+	scanningResetButton_->setContentsMargins(2,2,2,2);
 }
 
 SGMSidebar::~SGMSidebar() {
@@ -260,6 +279,7 @@ void SGMSidebar::onBeamOnButtonClicked(){
 }
 
 void SGMSidebar::onBeamOnActionFinished(){
+	qDebug() << "Beam on action finished";
 #warning "David, probably need to delete the internals too, list, actions, etc"
 	delete beamOnAction_;
 	beamOnAction_ = 0;//NULL
@@ -300,6 +320,10 @@ void SGMSidebar::onCurrentEndstationChanged(SGMBeamline::sgmEndstation newEndsta
 
 void SGMSidebar::onEndstationButtonsClicked(int buttonIndex){
 	SGMBeamline::sgm()->setCurrentEndstation((SGMBeamline::sgmEndstation)buttonIndex);
+}
+
+void SGMSidebar::onScanningResetButtonClicked(){
+	SGMBeamline::sgm()->beamlineScanning()->move(0);
 }
 
 void SGMSidebar::onStripToolTimerTimeout(){

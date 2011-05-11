@@ -66,6 +66,8 @@ protected slots:
 	void onCurrentEndstationChanged(SGMBeamline::sgmEndstation newEndstation);
 	void onEndstationButtonsClicked(int buttonIndex);
 
+	void onScanningResetButtonClicked();
+
 	void onStripToolTimerTimeout();
 
 protected:
@@ -87,6 +89,8 @@ protected:
 	AMControlEditor *gratingNC_;
 	AMControlEditor *entranceSlitNC_;
 	AMControlEditor *exitSlitNC_;
+	AMControlEditor *scanningLabel_;
+	QToolButton *scanningResetButton_;
 	QButtonGroup *detectorSignalSources_;
 	QRadioButton *picoammeterButton_;
 	QRadioButton *scalerButton_;

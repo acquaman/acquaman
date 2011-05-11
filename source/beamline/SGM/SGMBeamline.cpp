@@ -1056,8 +1056,8 @@ AMBeamlineListAction* SGMBeamline::createBeamOnActions(){
 	beamOnAction2->setSetpoint(0);
 
 	beamOnActionsList->appendStage(new QList<AMBeamlineActionItem*>());
-	beamOnActionsList->appendAction(beamOnActionsList->stageCount(), beamOnAction1);
-	beamOnActionsList->appendAction(beamOnActionsList->stageCount(), beamOnAction2);
+	beamOnActionsList->appendAction(0, beamOnAction1);
+	beamOnActionsList->appendAction(0, beamOnAction2);
 	return beamOnAction;
 }
 

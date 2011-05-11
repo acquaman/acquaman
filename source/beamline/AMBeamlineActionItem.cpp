@@ -314,11 +314,11 @@ void AMBeamlineActionItemView::onCreateCopyClicked(){
 }
 
 void AMBeamlineActionItemView::mousePressEvent(QMouseEvent *event){
-	/*if (event->button() != Qt::LeftButton) {
+	if (event->button() == Qt::LeftButton) {
 		event->ignore();
 		return;
-	}*/
-	if(event->button() == Qt::LeftButton){
+	}
+	/*if(event->button() == Qt::LeftButton){
 		if(inFocus_)
 			defocusItem();
 		else{
@@ -326,7 +326,7 @@ void AMBeamlineActionItemView::mousePressEvent(QMouseEvent *event){
 			updateLook();
 			emit focusRequested(action_);
 		}
-	}
+	}*/
 	else if(event->button() == Qt::RightButton){
 		if(optionsMenu_)
 			delete optionsMenu_;
