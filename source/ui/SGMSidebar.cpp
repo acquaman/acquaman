@@ -204,9 +204,9 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	gl_->addWidget(detectorSourceBox,	7, 0, 1, 3, 0);
 	gl_->addWidget(endstationsBox,		7, 3, 1, 3, 0);
 	//gl_->addWidget(beamlineWarningsLabel_,	8, 0, 1, 6, 0);
-	gl_->addWidget(imageView_,		8, 0, 1, 6, 0);
+	gl_->addWidget(imageView_,		9, 0, 1, 6, 0);
 
-	gl_->setRowStretch(7, 10);
+	gl_->setRowStretch(8, 10);
 
 	setLayout(mainLayout_);
 	setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);

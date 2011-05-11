@@ -103,8 +103,18 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 		pfy->setInputDataSources(pfySource);
 		pfy->setSumAxis(1);
 		pfy->setSumRangeMax(sddRaw->size(1)-1);
-
 		pScan_()->addAnalyzedDataSource(pfy);
+		if(rawSddIndex != -1 && rawI0Index != -1) {
+			AM1DExpressionAB* ipfyChannel = new AM1DExpressionAB(QString("IPFY"));
+			ipfyChannel->setDescription("IPFY");
+			QList<AMDataSource*> ipfySources;
+			ipfySources.append(raw1DDataSources);
+			ipfySources.append(pfy);
+			ipfyChannel->setInputDataSources(ipfySources);
+			ipfyChannel->setExpression(QString("%1/%2").arg(SGMBeamline::sgm()->i0Detector()->description()).arg("PFY"));
+
+			pScan_()->addAnalyzedDataSource(ipfyChannel);
+		}
 	}
 }
 
