@@ -30,6 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QDebug>
 
+class AMRunGroup;
 class AMRunGroupWidget;
 
 /// The AMVerticalStackWidget class provides a column of widget items, that can be expanded or hidden.
@@ -118,7 +119,8 @@ public:
 public slots:
 	void startRunning();
 	void endRunning();
-	void setGroupings(QList< QPair<int, QString> > groupings);
+	//void setGroupings(QList< QPair<int, QString> > groupings);
+	void setGroupings(QList<AMRunGroup> groupings);
 	void forceGroupingsCheck();
 
 signals:
@@ -163,7 +165,8 @@ protected:
 	QVBoxLayout* vlSide_;
 	// QSpacerItem* spacer_;
 	bool usingGrouping_;
-	QList< QPair<int, QString> > groupings_;
+	//QList< QPair<int, QString> > groupings_;
+	QList<AMRunGroup> groupings_;
 	AMRunGroupWidget *currentGroup_;
 
 
@@ -174,22 +177,67 @@ protected:
 	void setItemText(int index, const QString& text);
 };
 
+#include <QDateTime>
+class AMRunGroup : public QObject
+{
+Q_OBJECT
+public:
+	AMRunGroup(int actionCount = 0, const QString &displayText = 0, const QDateTime &eventTime = QDateTime::currentDateTime(), QObject *parent = 0) :
+			QObject(parent)
+	{
+		actionCount_ = actionCount;
+		displayText_ = displayText;
+		eventTime_ = eventTime;
+	}
+
+	AMRunGroup(const AMRunGroup &other){
+		actionCount_ = other.actionCount();
+		displayText_ = other.displayText();
+		eventTime_ = other.eventTime();
+	}
+
+	AMRunGroup& operator=(const AMRunGroup &other){
+		if(this != &other){
+			actionCount_ = other.actionCount();
+			displayText_ = other.displayText();
+			eventTime_ = other.eventTime();
+		}
+	}
+
+	int actionCount() const { return actionCount_;}
+	QString displayText() const { return displayText_;}
+	QDateTime eventTime() const { return eventTime_;}
+
+public slots:
+	void setActionCount(int actionCount) { actionCount_ = actionCount; }
+	void setDisplayText(const QString &displayText) { displayText_ = displayText; }
+	void setEventTime(const QDateTime &eventTime) { eventTime_ = eventTime; }
+
+protected:
+	int actionCount_;
+	QString displayText_;
+	QDateTime eventTime_;
+};
+
 #include <QLabel>
 
 class AMRunGroupWidget : public QLabel
 {
 Q_OBJECT
 public:
-	AMRunGroupWidget(const QString &displayText, QWidget *parent = 0);
+	//AMRunGroupWidget(const QString &displayText, QWidget *parent = 0);
+	AMRunGroupWidget(const AMRunGroup &runGroup, QWidget *parent = 0);
 
 public slots:
-	void setDisplayText(const QString &displayText);
+	//void setDisplayText(const QString &displayText);
+	void setRunGroup(const AMRunGroup &runGroup);
 
 protected:
 	virtual void paintEvent(QPaintEvent *);
 
 protected:
-	QString displayText_;
+	//QString displayText_;
+	AMRunGroup runGroup_;
 };
 
 

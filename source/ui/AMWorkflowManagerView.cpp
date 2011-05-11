@@ -323,13 +323,15 @@ void AMBeamlineActionsListView::onActionAdded(int index){
 	connect(tmpView, SIGNAL(moveDownRequested(AMBeamlineActionItem*)), this, SIGNAL(moveDownRequested(AMBeamlineActionItem*)));
 	if(!needsNewGroup_){
 		qDebug() << "Add to existing group";
-		groupings_.last().first++;
+		//groupings_.last().first++;
+		groupings_.last().setActionCount(groupings_.last().actionCount()+1);
 		actionsViewList_->setGroupings(groupings_);
 	}
 	else{
 		needsNewGroup_ = false;
 		qDebug() << "Create a new group";
-		QPair<int, QString> newGroup = QPair<int, QString>(1, QString("Created %1").arg(AMDateTimeUtils::prettyDateTime(QDateTime::currentDateTime())) );
+		//QPair<int, QString> newGroup = QPair<int, QString>(1, QString("Created %1").arg(AMDateTimeUtils::prettyDateTime(QDateTime::currentDateTime())) );
+		AMRunGroup newGroup = AMRunGroup(1, "Created");
 		groupings_.append(newGroup);
 		actionsViewList_->setGroupings(groupings_);
 	}
@@ -339,12 +341,19 @@ void AMBeamlineActionsListView::onActionAdded(int index){
 }
 
 void AMBeamlineActionsListView::onActionRemoved(int index){
-	actionsViewList_->deleteItem(index);
+	/*
 	if(groupings_.last().first > 1)
 		groupings_.last().first--;
 	else
 		groupings_.removeLast();
+	*/
+	if(groupings_.last().actionCount() > 1)
+		groupings_.last().setActionCount(groupings_.last().actionCount()-1);
+	else
+		groupings_.removeLast();
 	actionsViewList_->setGroupings(groupings_);
+	actionsViewList_->deleteItem(index);
+	actionsViewList_->forceGroupingsCheck();
 
 	reindexViews();
 	emit queueUpdated(actionsQueue_->count());
@@ -357,15 +366,20 @@ void AMBeamlineActionsListView::onActionRemoveRequested(AMBeamlineActionItem *it
 
 void AMBeamlineActionsListView::onRunningChanged(){
 	if(actionsQueue_->isRunning()){
-		groupings_.insert(groupings_.count()-1, QPair<int, QString>(0, "Running"));
+		//groupings_.insert(groupings_.count()-1, QPair<int, QString>(0, "Running"));
+		groupings_.insert(groupings_.count()-1, AMRunGroup(0, "Running"));
 		actionsViewList_->startRunning();
 	}
 	qDebug() << "---- Heard that running state changed to " << actionsQueue_->isRunning() << " ----";
 }
 
 void AMBeamlineActionsListView::onActionStarted(){
+	/*
 	groupings_[groupings_.count()-2].first++;
 	groupings_.last().first--;
+	*/
+	groupings_[groupings_.count()-2].setActionCount(groupings_.at(groupings_.count()-2).actionCount()+1);
+	groupings_.last().setActionCount(groupings_.last().actionCount()-1);
 	actionsViewList_->setGroupings(groupings_);
 	if(actionsQueue_->peekIsEmpty()){
 		qDebug() << "Found queue is empty";
@@ -382,7 +396,9 @@ void AMBeamlineActionsListView::onActionStarted(){
 void AMBeamlineActionsListView::onActionSucceeded(){
 	qDebug() << "---- Heard action SUCCEEDED ----";
 	if(actionsQueue_->isEmpty()){
-		groupings_.last().second = QString("Completed %1").arg(AMDateTimeUtils::prettyDateTime(QDateTime::currentDateTime()));
+		//groupings_.last().second = QString("Completed %1").arg(AMDateTimeUtils::prettyDateTime(QDateTime::currentDateTime()));
+		groupings_.last().setDisplayText("Completed");
+		groupings_.last().setEventTime(QDateTime::currentDateTime());
 		actionsViewList_->setGroupings(groupings_);
 		actionsViewList_->forceGroupingsCheck();
 	}

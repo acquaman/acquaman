@@ -105,7 +105,7 @@ void AMVerticalStackWidget::insertItem(int index, const QString& titleText, QWid
 
 		if(!currentGroup_){
 			qDebug() << "Trying to draw group widget";
-			AMRunGroupWidget *rgWidget = new AMRunGroupWidget("", this);
+			AMRunGroupWidget *rgWidget = new AMRunGroupWidget(AMRunGroup(1), this);
 			currentGroup_ = rgWidget;
 			rgWidget->setFixedWidth(24);
 			//rgWidget->setFrameStyle(QFrame::StyledPanel);
@@ -229,10 +229,11 @@ void AMVerticalStackWidget::onHeaderButtonClicked() {
 }
 
 void AMVerticalStackWidget::onWidgetHeightChanged(int newHeight){
+	qDebug() << "Want to recalc heights";
 	if(usingGrouping_ && (groupings_.count() > 0) ){
 		int groupingsCount = 0;
 		for(int x = 0; x < groupings_.count(); x++)
-			groupingsCount += groupings_.at(x).first;
+			groupingsCount += groupings_.at(x).actionCount();
 		if(groupingsCount != vl_->count()/2){
 			qDebug() << "Mismatch " << groupingsCount << " versus " << vl_->count()/2;
 			return;
@@ -246,13 +247,15 @@ void AMVerticalStackWidget::onWidgetHeightChanged(int newHeight){
 				groupHeight += vl_->itemAt(x)->widget()->height();
 			else
 				qDebug() << "That sucker is closed, don't count it";
-			if( x == (toThisPoint + groupings_.at(groupingsCounter).first)*2-1 ){
+			if( x == (toThisPoint + groupings_.at(groupingsCounter).actionCount())*2-1 ){
 				qDebug() << "Set to group height " << groupHeight << " on x " << x;
 				vlSide_->itemAt(groupingsCounter)->widget()->setFixedHeight(groupHeight);
 				AMRunGroupWidget *runGroup = qobject_cast<AMRunGroupWidget*>(vlSide_->itemAt(groupingsCounter)->widget());
-				if(runGroup)
-					runGroup->setDisplayText(groupings_.at(groupingsCounter).second);
-				toThisPoint += groupings_.at(groupingsCounter).first;
+				if(runGroup){
+					//runGroup->setDisplayText(groupings_.at(groupingsCounter).second);
+					runGroup->setRunGroup(groupings_.at(groupingsCounter));
+				}
+				toThisPoint += groupings_.at(groupingsCounter).actionCount();
 				groupingsCounter++;
 				groupHeight = 0;
 			}
@@ -276,7 +279,7 @@ QSize AMVerticalStackWidget::sizeHint() const {
 
 void AMVerticalStackWidget::startRunning(){
 	qDebug() << "Trying to draw group widget because RUNNING STARTED";
-	AMRunGroupWidget *rgWidget = new AMRunGroupWidget("", this);
+	AMRunGroupWidget *rgWidget = new AMRunGroupWidget(AMRunGroup(1), this);
 	rgWidget->setFixedWidth(24);
 	vlSide_->insertWidget(vlSide_->count()-1, rgWidget);
 }
@@ -288,7 +291,7 @@ void AMVerticalStackWidget::endRunning(){
 	delete removed;
 }
 
-void AMVerticalStackWidget::setGroupings(QList<QPair<int, QString> > groupings){
+void AMVerticalStackWidget::setGroupings(QList<AMRunGroup> groupings){
 	groupings_ = groupings;
 	qDebug() << "Just set groupings";
 }
@@ -314,17 +317,18 @@ bool AMVerticalStackWidget::eventFilter(QObject * source, QEvent *event) {
 }
 
 
-AMRunGroupWidget::AMRunGroupWidget(const QString &displayText, QWidget *parent) :
-		QLabel(displayText, parent)
+AMRunGroupWidget::AMRunGroupWidget(const AMRunGroup &runGroup, QWidget *parent) :
+		QLabel("", parent)
 {
-	displayText_ = displayText;
+	runGroup_ = runGroup;
 }
 
-void AMRunGroupWidget::setDisplayText(const QString &displayText){
-	displayText_ = displayText;
+void AMRunGroupWidget::setRunGroup(const AMRunGroup &runGroup){
+	runGroup_ = runGroup;
 }
 
 #include <QPainter>
+#include "ui/AMDateTimeUtils.h"
 void AMRunGroupWidget::paintEvent(QPaintEvent *event){
 	QPainter painter(this);
 	painter.setRenderHint(QPainter::Antialiasing);
@@ -339,9 +343,11 @@ void AMRunGroupWidget::paintEvent(QPaintEvent *event){
 	painter.drawLine(QPointF(w, h), QPointF(0, h));
 	painter.drawLine(QPointF(0, h), QPointF(0, 0));
 
+	QString displayText = QString("%1 %2").arg(runGroup_.displayText()).arg(AMDateTimeUtils::prettyDateTime(runGroup_.eventTime()));
+
 	QFontMetrics metric(this->font());
 	painter.setPen(Qt::black);
-	QString displayElided = metric.elidedText(displayText_, Qt::ElideRight, h-0.1*h);
+	QString displayElided = metric.elidedText(displayText, Qt::ElideRight, h-0.1*h);
 	painter.save();
 	painter.translate(w, 0);
 	painter.rotate(90.0);

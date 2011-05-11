@@ -111,6 +111,7 @@ protected:
 	// disabled for now: AMBeamlineActionAdder *adder_;
 };
 
+#include "AMVerticalStackWidget.h"
 class AMBeamlineActionsListView : public QWidget
 {
 	Q_OBJECT
@@ -147,9 +148,10 @@ protected:
 	AMVerticalStackWidget *actionsViewList_;
 	int focusAction_;
 
-	QList< QPair<int, QString> > groupings_;
+	//QList< QPair<int, QString> > groupings_;
+	QList<AMRunGroup> groupings_;
 	bool needsNewGroup_;
-	QPair<int, QString> *runningGroup_;
+	//QPair<int, QString> *runningGroup_;
 };
 
 
