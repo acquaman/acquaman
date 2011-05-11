@@ -94,8 +94,8 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	exitSlitNC_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 
 	detectorSignalSources_ = new QButtonGroup();
-	picoammeterButton_ = new QRadioButton("PicoAmmeters");
-	scalerButton_ = new QRadioButton("Scaler");
+	picoammeterButton_ = new QRadioButton(SGMBeamline::sgm()->sgmDetectorSignalSourceName(SGMBeamline::picoammeters));
+	scalerButton_ = new QRadioButton(SGMBeamline::sgm()->sgmDetectorSignalSourceName(SGMBeamline::scaler));
 	detectorSignalSources_->addButton(picoammeterButton_, 0);
 	detectorSignalSources_->addButton(scalerButton_, 1);
 	QGroupBox *detectorSourceBox = new QGroupBox("Detectors");
@@ -107,6 +107,21 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	detectorSourceBox->setLayout(dl);
 	connect(SGMBeamline::sgm(), SIGNAL(detectorSignalSourceChanged(SGMBeamline::sgmDetectorSignalSource)), this, SLOT(onDetectorSignalSourceChanged(SGMBeamline::sgmDetectorSignalSource)));
 	connect(detectorSignalSources_, SIGNAL(buttonClicked(int)), this, SLOT(onDetectorButtonsClicked(int)));
+
+	endstationsAvailable_ = new QButtonGroup();
+	scientaButton_ = new QRadioButton(SGMBeamline::sgm()->sgmEndstationName(SGMBeamline::scienta));
+	ssaButton_ = new QRadioButton(SGMBeamline::sgm()->sgmEndstationName(SGMBeamline::ssa));
+	endstationsAvailable_->addButton(scientaButton_, 0);
+	endstationsAvailable_->addButton(ssaButton_, 1);
+	QGroupBox *endstationsBox = new QGroupBox("Endstations");
+	QVBoxLayout *sl = new QVBoxLayout();
+	sl->addWidget(scientaButton_);
+	sl->addWidget(ssaButton_);
+	sl->setSpacing(0);
+	sl->setContentsMargins(2, 2, 2, 2);
+	endstationsBox->setLayout(sl);
+	connect(SGMBeamline::sgm(), SIGNAL(currentEndstationChanged(SGMBeamline::sgmEndstation)), this, SLOT(onCurrentEndstationChanged(SGMBeamline::sgmEndstation)));
+	connect(endstationsAvailable_, SIGNAL(buttonClicked(int)), this, SLOT(onEndstationButtonsClicked(int)));
 
 	beamlineWarningsLabel_ = new QLabel(SGMBeamline::sgm()->beamlineWarnings());
 	connect(SGMBeamline::sgm(), SIGNAL(beamlineWarningsChanged(QString)), beamlineWarningsLabel_, SLOT(setText(QString)));
@@ -187,6 +202,7 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	gl_->addWidget(entranceSlitNC_,		6, 0, 1, 3, 0);
 	gl_->addWidget(exitSlitNC_,		6, 3, 1, 3, 0);
 	gl_->addWidget(detectorSourceBox,	7, 0, 1, 3, 0);
+	gl_->addWidget(endstationsBox,		7, 3, 1, 3, 0);
 	//gl_->addWidget(beamlineWarningsLabel_,	8, 0, 1, 6, 0);
 	gl_->addWidget(imageView_,		8, 0, 1, 6, 0);
 
@@ -273,6 +289,17 @@ void SGMSidebar::onDetectorSignalSourceChanged(SGMBeamline::sgmDetectorSignalSou
 
 void SGMSidebar::onDetectorButtonsClicked(int buttonIndex){
 	SGMBeamline::sgm()->setDetectorSignalSource((SGMBeamline::sgmDetectorSignalSource)buttonIndex);
+}
+
+void SGMSidebar::onCurrentEndstationChanged(SGMBeamline::sgmEndstation newEndstation){
+	if(newEndstation == SGMBeamline::scienta)
+		scientaButton_->setChecked(true);
+	else if(newEndstation == SGMBeamline::ssa)
+		ssaButton_->setChecked(true);
+}
+
+void SGMSidebar::onEndstationButtonsClicked(int buttonIndex){
+	SGMBeamline::sgm()->setCurrentEndstation((SGMBeamline::sgmEndstation)buttonIndex);
 }
 
 void SGMSidebar::onStripToolTimerTimeout(){

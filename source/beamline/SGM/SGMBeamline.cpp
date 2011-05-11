@@ -694,6 +694,7 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	addChildControl(scalerMode_);
 	addChildControl(detectorSignalSource_);
 	connect(detectorSignalSource_, SIGNAL(valueChanged(double)), this, SLOT(onDetectorSignalSourceChanged(double)));
+	connect(activeEndstation_, SIGNAL(valueChanged(double)), this, SLOT(onActiveEndstationChanged(double)));
 
 	criticalControlsSet_ = new AMControlSet(this);
 	criticalControlsSet_->setName("Critical Beamline Controls");
@@ -958,6 +959,15 @@ QString SGMBeamline::sgmDetectorSignalSourceName(SGMBeamline::sgmDetectorSignalS
 		return "Picoammeters";
 	else if(dss == SGMBeamline::scaler)
 		return "Scaler";
+	else
+		return "ERROR";
+}
+
+QString SGMBeamline::sgmEndstationName(SGMBeamline::sgmEndstation endstation) const{
+	if(endstation == SGMBeamline::scienta)
+		return "Scienta";
+	else if(endstation == SGMBeamline::ssa)
+		return "SSA";
 	else
 		return "ERROR";
 }
@@ -1653,6 +1663,10 @@ void SGMBeamline::onDetectorSignalSourceChanged(double value){
 			feedbackDetectors_->removeDetector(photodiodePicoDetector_);
 	}
 	emit detectorSignalSourceChanged((SGMBeamline::sgmDetectorSignalSource)value);
+}
+
+void SGMBeamline::onActiveEndstationChanged(double value){
+	emit currentEndstationChanged((SGMBeamline::sgmEndstation)value);
 }
 
 void SGMBeamline::recomputeWarnings(){

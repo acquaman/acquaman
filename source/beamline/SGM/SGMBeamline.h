@@ -72,6 +72,12 @@ public:
 	};
 	QString sgmDetectorSignalSourceName(SGMBeamline::sgmDetectorSignalSource dss) const;
 
+	enum sgmEndstation{
+		scienta = 0,
+		ssa = 1
+	};
+	QString sgmEndstationName(SGMBeamline::sgmEndstation endstation) const;
+
 	enum sgmTransferType{
 		loadlockOut = 1,
 		loadlockIn,
@@ -118,8 +124,19 @@ public:
 	QString detectorSignalSource() const {
 		if(detectorSignalSource_->value() == 0)
 			return sgmDetectorSignalSourceName(SGMBeamline::picoammeters);
-		else
+		else if(detectorSignalSource_->value() == 1)
 			return sgmDetectorSignalSourceName(SGMBeamline::scaler);
+		else
+			return sgmDetectorSignalSourceName((SGMBeamline::sgmDetectorSignalSource)272727);
+	}
+
+	QString currentEndstation() const{
+		if(activeEndstation_->value() == 0)
+			return sgmEndstationName(SGMBeamline::scienta);
+		else if(activeEndstation_->value() == 1)
+			return sgmEndstationName(SGMBeamline::ssa);
+		else
+			return sgmEndstationName((SGMBeamline::sgmEndstation)272727);
 	}
 
 	AMDetector* teyDetector() const {
@@ -240,6 +257,14 @@ public slots:
 		return;
 	}
 
+	void setCurrentEndstation(SGMBeamline::sgmEndstation endstation){
+		if(endstation == SGMBeamline::scienta)
+			activeEndstation_->move(0);
+		else if(endstation == SGMBeamline::ssa)
+			activeEndstation_->move(1);
+		return;
+	}
+
 signals:
 	void beamlineScanningChanged(bool scanning);
 	void controlSetConnectionsChanged();
@@ -252,6 +277,7 @@ signals:
 	void currentSamplePlateChanged(AMSamplePlate *newSamplePlate);
 
 	void detectorSignalSourceChanged(SGMBeamline::sgmDetectorSignalSource);
+	void currentEndstationChanged(SGMBeamline::sgmEndstation);
 
 protected slots:
 	void onBeamlineScanningValueChanged(double value);
@@ -259,6 +285,7 @@ protected slots:
 	void onCriticalControlsConnectedChanged(bool isConnected, AMControl *controll);
 
 	void onDetectorSignalSourceChanged(double value);
+	void onActiveEndstationChanged(double value);
 
 	void recomputeWarnings();
 

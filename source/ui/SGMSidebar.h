@@ -63,6 +63,9 @@ protected slots:
 	void onDetectorSignalSourceChanged(SGMBeamline::sgmDetectorSignalSource newSource);
 	void onDetectorButtonsClicked(int buttonIndex);
 
+	void onCurrentEndstationChanged(SGMBeamline::sgmEndstation newEndstation);
+	void onEndstationButtonsClicked(int buttonIndex);
+
 	void onStripToolTimerTimeout();
 
 protected:
@@ -87,6 +90,9 @@ protected:
 	QButtonGroup *detectorSignalSources_;
 	QRadioButton *picoammeterButton_;
 	QRadioButton *scalerButton_;
+	QButtonGroup *endstationsAvailable_;
+	QRadioButton *scientaButton_;
+	QRadioButton *ssaButton_;
 	QLabel *beamlineWarningsLabel_;
 
 	/// UI components:
