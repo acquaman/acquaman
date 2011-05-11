@@ -77,8 +77,6 @@ public slots:
 	/// Sets the current sample plate for populating the actions list
 	void setCurrentSamplePlate(AMSamplePlate *newSamplePlate);
 
-//	void forceUpdate();
-
 protected slots:
 	/// Triggered by changes in the beamline scanning status, queue size, and queue running state. Emits actionItemCountChanged(), runningChanged(), and workflowStatusChanged().
 	void reviewWorkflowStatus();
@@ -141,8 +139,6 @@ protected slots:
 	void onActionSucceeded();
 	void onActionFailed();
 	void reindexViews();
-
-//	void onDoneRunGroups();
 
 protected:
 	AMBeamlineActionsList *actionsList_;

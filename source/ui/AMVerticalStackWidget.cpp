@@ -259,9 +259,6 @@ void AMVerticalStackWidget::onWidgetHeightChanged(int newHeight){
 				groupHeight = 0;
 			}
 		}
-		//qDebug() << "DONE PAINTING SIDE BARS";
-		//update();
-		//emit doneRunGroups();
 		return;
 	}
 	qDebug() << "Not using grouping or no groupings";
@@ -282,9 +279,7 @@ QSize AMVerticalStackWidget::sizeHint() const {
 void AMVerticalStackWidget::startRunning(){
 	qDebug() << "Trying to draw group widget because RUNNING STARTED";
 	AMRunGroupWidget *rgWidget = new AMRunGroupWidget("", this);
-	//currentGroup_ = rgWidget;
 	rgWidget->setFixedWidth(24);
-	//rgWidget->setFrameStyle(QFrame::StyledPanel);
 	vlSide_->insertWidget(vlSide_->count()-1, rgWidget);
 }
 
@@ -303,20 +298,6 @@ void AMVerticalStackWidget::setGroupings(QList<QPair<int, QString> > groupings){
 void AMVerticalStackWidget::forceGroupingsCheck(){
 	onWidgetHeightChanged(-1);
 }
-
-/*
-void AMVerticalStackWidget::forceUpdate(){
-	qDebug() << "LOWEST LEVEL FORCED UPDATE";
-	for(int x = 0; x < vl_->count(); x++)
-		vl_->itemAt(x)->widget()->update();
-	for(int x = 0; x < vlSide_->count(); x++){
-		vlSide_->itemAt(x)->widget()->repaint();
-		vlSide_->itemAt(x)->widget()->updateGeometry();
-	}
-	this->repaint();
-	this->updateGeometry();
-}
-*/
 
 
 // Capture window title change events from our widgets and change our header titles accordingly
