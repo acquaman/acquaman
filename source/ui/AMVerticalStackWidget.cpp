@@ -247,16 +247,21 @@ void AMVerticalStackWidget::onWidgetHeightChanged(int newHeight){
 			else
 				qDebug() << "That sucker is closed, don't count it";
 			if( x == (toThisPoint + groupings_.at(groupingsCounter).first)*2-1 ){
-				qDebug() << "Set to group height " << groupHeight;
+				qDebug() << "Set to group height " << groupHeight << " on x " << x;
 				vlSide_->itemAt(groupingsCounter)->widget()->setFixedHeight(groupHeight);
 				AMRunGroupWidget *runGroup = qobject_cast<AMRunGroupWidget*>(vlSide_->itemAt(groupingsCounter)->widget());
-				if(runGroup)
+				if(runGroup){
 					runGroup->setDisplayText(groupings_.at(groupingsCounter).second);
+					runGroup->update();
+				}
 				toThisPoint += groupings_.at(groupingsCounter).first;
 				groupingsCounter++;
 				groupHeight = 0;
 			}
 		}
+		qDebug() << "DONE PAINTING SIDE BARS";
+		update();
+		emit doneRunGroups();
 		return;
 	}
 	qDebug() << "Not using grouping or no groupings";
@@ -274,9 +279,41 @@ QSize AMVerticalStackWidget::sizeHint() const {
 	return rv;
 }
 
+void AMVerticalStackWidget::startRunning(){
+	qDebug() << "Trying to draw group widget because RUNNING STARTED";
+	AMRunGroupWidget *rgWidget = new AMRunGroupWidget("", this);
+	//currentGroup_ = rgWidget;
+	rgWidget->setFixedWidth(24);
+	//rgWidget->setFrameStyle(QFrame::StyledPanel);
+	vlSide_->insertWidget(vlSide_->count()-1, rgWidget);
+}
+
+void AMVerticalStackWidget::endRunning(){
+	currentGroup_ = 0;
+	QWidget * removed = vlSide_->itemAt(vlSide_->count()-1)->widget();
+	vlSide_->removeWidget(removed);
+	delete removed;
+}
+
 void AMVerticalStackWidget::setGroupings(QList<QPair<int, QString> > groupings){
 	groupings_ = groupings;
 	qDebug() << "Just set groupings";
+}
+
+void AMVerticalStackWidget::forceGroupingsCheck(){
+	onWidgetHeightChanged(-1);
+}
+
+void AMVerticalStackWidget::forceUpdate(){
+	qDebug() << "LOWEST LEVEL FORCED UPDATE";
+	for(int x = 0; x < vl_->count(); x++)
+		vl_->itemAt(x)->widget()->update();
+	for(int x = 0; x < vlSide_->count(); x++){
+		vlSide_->itemAt(x)->widget()->repaint();
+		vlSide_->itemAt(x)->widget()->updateGeometry();
+	}
+	this->repaint();
+	this->updateGeometry();
 }
 
 
@@ -329,4 +366,10 @@ void AMRunGroupWidget::paintEvent(QPaintEvent *event){
 	painter.rotate(90.0);
 	painter.drawText(QRectF(0.05*h, 0, metric.width(displayElided), w), Qt::AlignCenter, displayElided);
 	painter.restore();
+}
+
+void AMRunGroupWidget::resizeEvent(QResizeEvent *event){
+	QLabel::resizeEvent(event);
+	qDebug() << "Resize event";
+	update();
 }

@@ -116,7 +116,11 @@ public:
 	QSize sizeHint() const;
 
 public slots:
+	void startRunning();
+	void endRunning();
 	void setGroupings(QList< QPair<int, QString> > groupings);
+	void forceGroupingsCheck();
+	void forceUpdate();
 
 signals:
 	/// Emitted when a widget is expanded:
@@ -128,6 +132,7 @@ signals:
 	/// Emitted when a widget at this index is collapsed
 	void collapsed(int);
 
+	void doneRunGroups();
 
 public slots:
 	/// Expand a given widget
@@ -185,6 +190,7 @@ public slots:
 
 protected:
 	virtual void paintEvent(QPaintEvent *);
+	virtual void resizeEvent(QResizeEvent *);
 
 protected:
 	QString displayText_;
