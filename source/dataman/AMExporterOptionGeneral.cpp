@@ -12,7 +12,7 @@ AMExporterOptionGeneral::AMExporterOptionGeneral(QObject *parent) :
 					"Facility: $facilityDescription\n\n";
 	headerIncluded_ = true;
 
-	columnHeader_ =	"$dataSet";	/// \todo Removed $dataSetUnits because we don't have that implemented yet.
+	columnHeader_ =	"$dataSetName";	/// \todo Removed $dataSetUnits because we don't have that implemented yet.
 	columnHeaderIncluded_ = true;
 
 	columnHeaderDelimiter_ = "==========";

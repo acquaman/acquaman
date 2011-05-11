@@ -4,6 +4,7 @@
 #include "ui/AMDetectorView.h"
 #include "beamline/VESPERS/XRFDetector.h"
 #include "util/AMElement.h"
+#include "ui/VESPERS/ROIPlotMarker.h"
 
 #include "MPlot/MPlot.h"
 #include "MPlot/MPlotWidget.h"
@@ -75,8 +76,10 @@ public slots:
 	void onRemovalOfRegionOfInterest(AMElement *el, QPair<QString, QString> line);
 	/// Slot removing all the element markers.
 	void removeAllRegionsOfInterest();
-	/// Handles resizing the ROIPlotMarkers based on the maximum height of the data.
-	void resizeRoiMarkers();
+	/// Slot that sorts all the regions of interst.
+	void sortRegionsOfInterest();
+	/// Handles resizing the ROIPlotMarkers to a new width.
+	void roiWidthUpdate(AMROI *roi);
 
 protected slots:
 	/// Handles the update from the dead time control.
@@ -89,6 +92,8 @@ protected slots:
 	void onComboBoxUpdate(int index);
 	/// Handles the changes from the update rate control.
 	void onUpdateRateUpdate(double val);
+	/// Handles when the log scale button is clicked.  It takes a log of the data if true.
+	void onLogEnabled(bool logged);
 	/// Enables/Disables whether the raw spectra are displayed or the corrected sum.
 	void onWaterfallToggled(bool isWaterfall);
 	/// Changes the amount of waterfall separation between the plots.
@@ -105,6 +110,9 @@ protected:
 
 	/// Gets the maximum height from the first data source.  Used for scaling the height of the ROI markers.
 	double getMaximumHeight(MPlotItem *data);
+
+	/// Returns the real name of the roi based on the jumbled name from the PV and the low/high values.
+	QString getName(AMROI *roi);
 
 	/// Get a color for the color of a line on the plot.
 	QColor getColor(int index);
@@ -131,7 +139,7 @@ protected:
 	/// This is the plot itself.
 	MPlot *plot_;
 	/// Holds the list of current markers.
-	QList<MPlotItem *> markers_;
+	QList<ROIPlotMarker *> markers_;
 	/// This holds the plot markers for showing emission lines.
 	QList<MPlotPoint *> *lines_;
 };

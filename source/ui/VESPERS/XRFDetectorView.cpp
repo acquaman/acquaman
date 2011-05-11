@@ -2,8 +2,9 @@
 #include "DeadTimeButton.h"
 #include "acquaman/VESPERS/VESPERSXRFScanController.h"
 #include "MPlot/MPlotSeries.h"
+#include "MPlot/MPlotAxisScale.h"
 #include "dataman/AMDataSourceSeriesData.h"
-#include "ui/VESPERS/ROIPlotMarker.h"
+#include "util/AMPeriodicTable.h"
 
 #include <QString>
 #include <QHBoxLayout>
@@ -12,6 +13,7 @@
 #include <QGroupBox>
 #include <QComboBox>
 #include <QToolButton>
+#include <QTimer>
 
 // Brief detector view
 /////////////////////////////////////////////
@@ -122,7 +124,7 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 
 	setupPlot();
 
-	connect(detector_->spectraControl(), SIGNAL(controlSetValuesChanged()), this, SLOT(resizeRoiMarkers()));
+	connect(detector_, SIGNAL(roiUpdate(AMROI*)), this, SLOT(roiWidthUpdate(AMROI*)));
 
 	QFont font(this->font());
 	font.setBold(true);
@@ -133,13 +135,22 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	deadTimeLabel->setFont(font);
 	QLabel *updateRateLabel = new QLabel(QString("Update Rate"));
 	updateRateLabel->setFont(font);
+	QLabel *logLabel = new QLabel(QString("Scale Axis"));
+	logLabel->setFont(font);
+	QLabel *rawElementLabel = new QLabel(QString("Raw Elements"));
+	rawElementLabel->setFont(font);
 
+	QPushButton *logButton = new QPushButton("Log Scale");
+	logButton->setCheckable(true);
+	logButton->setChecked(false);
+	connect(logButton, SIGNAL(toggled(bool)), this, SLOT(onLogEnabled(bool)));
 
 	QPushButton *waterfallButton = new QPushButton("Raw Spectra");
 	waterfallButton->setCheckable(true);
 	connect(waterfallButton, SIGNAL(toggled(bool)), this, SLOT(onWaterfallToggled(bool)));
 
 	waterfallSeparation_ = new QDoubleSpinBox;
+	waterfallSeparation_->setPrefix(QString::fromUtf8("Δh = "));
 	waterfallSeparation_->setMinimum(0.0);
 	waterfallSeparation_->setMaximum(1.0);
 	waterfallSeparation_->setSingleStep(0.01);
@@ -157,10 +168,13 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	viewControlLayout->addLayout(deadTimeLayout, Qt::AlignLeft);
 	viewControlLayout->addWidget(updateRateLabel, 0, Qt::AlignLeft);
 	viewControlLayout->addWidget(updateRate_, 0, Qt::AlignCenter);
+	viewControlLayout->addWidget(logLabel, 0, Qt::AlignLeft);
+	viewControlLayout->addWidget(logButton, 0, Qt::AlignCenter);
 	if (detector_->elements() != 1){
 
-		viewControlLayout->addWidget(waterfallButton);
-		viewControlLayout->addWidget(waterfallSeparation_);
+		viewControlLayout->addWidget(rawElementLabel, 0, Qt::AlignLeft);
+		viewControlLayout->addWidget(waterfallButton, 0, Qt::AlignCenter);
+		viewControlLayout->addWidget(waterfallSeparation_, 0, Qt::AlignCenter);
 	}
 	viewControlLayout->addStretch();
 
@@ -179,6 +193,51 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	setLayout(detectorLayout);
 
 	return true;
+}
+
+void XRFDetailedDetectorView::roiWidthUpdate(AMROI *roi)
+{
+	// Find the marker associated with the ROI and then change it.
+	ROIPlotMarker *temp;
+
+	for (int i = 0; i < markers_.size(); i++){
+
+		temp = markers_.at(i);
+
+		if (temp->description().compare(getName(roi)) == 0){
+
+			temp->setLowEnd(roi->low()*roi->scale());
+			temp->setHighEnd(roi->high()*roi->scale());
+		}
+	}
+}
+
+QString XRFDetailedDetectorView::getName(AMROI *roi)
+{
+	QString name(roi->name());
+
+	name = name.left(name.indexOf(" "));
+	AMElement *el = AMPeriodicTable::table()->elementBySymbol(name);
+
+	if (el){
+
+		int low = roi->low();
+		int high = roi->high();
+
+		for (int j = 0; j < el->emissionLines().count(); j++){
+
+			if (el->emissionLines().at(j).first.contains("1")
+					&& fabs((low+high)/2 - el->emissionLines().at(j).second.toDouble()/roi->scale()) < 3)
+				name = el->symbol()+" "+el->emissionLines().at(j).first;
+		}
+	}
+
+	return name;
+}
+
+void XRFDetailedDetectorView::onLogEnabled(bool logged)
+{
+	plot_->axisScaleLeft()->setLogScaleEnabled(logged);
 }
 
 void XRFDetailedDetectorView::onWaterfallToggled(bool isWaterfall)
@@ -212,6 +271,10 @@ void XRFDetailedDetectorView::onComboBoxUpdate(int index)
 
 void XRFDetailedDetectorView::onUpdateRateUpdate(double val)
 {
+	// This is here to stop the VESPERS single element detector from hurting getting into an infinite signal/slot loop.  It only seems to be it.  If this problem goes away then this line can be removed.
+	if (detector_->elements() == 1)
+		disconnect(updateRate_, SIGNAL(currentIndexChanged(int)), this, SLOT(onComboBoxUpdate(int)));
+
 	switch((int)val){
 
 	case 0:
@@ -222,7 +285,12 @@ void XRFDetailedDetectorView::onUpdateRateUpdate(double val)
 		break;
 	case 8:
 		updateRate_->setCurrentIndex(2);
+		break;
 	}
+
+	// This is here to stop the VESPERS single element detector from hurting getting into an infinite signal/slot loop.  It only seems to be it.  If this problem goes away then this line can be removed.
+	if (detector_->elements() == 1)
+		connect(updateRate_, SIGNAL(currentIndexChanged(int)), this, SLOT(onComboBoxUpdate(int)));
 }
 
 void XRFDetailedDetectorView::setupPlot()
@@ -235,11 +303,11 @@ void XRFDetailedDetectorView::setupPlot()
 
 	// Create the plot and setup all the axes.
 	plot_ = new MPlot;
-	plot_->axisBottom()->setAxisNameFont(QFont("Helvetica", 11));
-	plot_->axisBottom()->setTickLabelFont(QFont("Helvetica", 11));
+	plot_->axisBottom()->setAxisNameFont(QFont("Helvetica", 6));
+	plot_->axisBottom()->setTickLabelFont(QFont("Helvetica", 6));
 	plot_->axisBottom()->setAxisName("Energy, eV");
-	plot_->axisLeft()->setAxisNameFont(QFont("Helvetica", 11));
-	plot_->axisLeft()->setTickLabelFont(QFont("Helvetica", 11));
+	plot_->axisLeft()->setAxisNameFont(QFont("Helvetica", 6));
+	plot_->axisLeft()->setTickLabelFont(QFont("Helvetica", 6));
 	plot_->axisLeft()->setAxisName("Counts");
 
 	// Set the margins for the plot.
@@ -268,27 +336,16 @@ void XRFDetailedDetectorView::setupPlot()
 	plot_->addTool(new MPlotDragZoomerTool());
 	plot_->addTool(new MPlotWheelZoomerTool());
 	view_->setPlot(plot_);
+	view_->setMinimumHeight(450);
 
 	// Set the number of ticks.  A balance between readability and being practical.
 	plot_->axisBottom()->setTicks(3);
 	plot_->axisTop()->setTicks(0);
 	plot_->axisLeft()->setTicks(4);
 	plot_->axisRight()->setTicks(0);
-}
 
-void XRFDetailedDetectorView::resizeRoiMarkers()
-{
-	if (markers_.isEmpty())
-		return;
-
-	ROIPlotMarker *temp;
-	double height = getMaximumHeight(plot_->item(0));
-
-	for (int i = 0; i < markers_.size(); i++){
-
-		temp = (ROIPlotMarker *)(markers_.at(i));
-		temp->setHeight(height);
-	}
+	// Set the autoscale constraints.
+	plot_->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(1, 1e20));
 }
 
 double XRFDetailedDetectorView::getMaximumHeight(MPlotItem *data)
@@ -310,25 +367,46 @@ double XRFDetailedDetectorView::getMaximumHeight(MPlotItem *data)
 	return max;
 }
 
+void XRFDetailedDetectorView::sortRegionsOfInterest()
+{
+	// Sort the real ROIs.
+	detector_->sort();
+
+	// Remove all the markers from the plot for now.
+	for (int i = 0; i < markers_.size(); i++)
+		plot_->removeItem(markers_.at(i));
+
+	// Sort the list.
+	double smallest = 0;
+
+	for (int i = 0; i < markers_.size(); i++){
+
+		smallest = i;
+
+		for (int j = i; j < markers_.size(); j++)
+			if (markers_.at(smallest)->center() > markers_.at(j)->center())
+				smallest = j;
+
+		if (i != smallest)
+			markers_.swap(i, smallest);
+	}
+
+	// Put all the markers back in their new order.
+	for (int i = 0; i < markers_.size(); i++){
+
+		plot_->addItem(markers_.at(i));
+		markers_.at(i)->setYAxisTarget(plot_->axisScale(MPlot::VerticalRelative));
+	}
+}
+
 void XRFDetailedDetectorView::onAdditionOfRegionOfInterest(AMElement *el, QPair<QString, QString> line)
 {
 	AMROIInfo info(el->symbol()+" "+line.first, line.second.toDouble(), 0.04, detector_->scale());
 	detector_->addRegionOfInterest(info);
-	detector_->sort();
-	ROIPlotMarker *newMarker = new ROIPlotMarker(info.name(), info.energy(), info.energy()*(1-info.width()/2), info.energy()*(1+info.width()/2), plot_->axisScaleLeft()->max());
-
-	int index = 0;
-	while(index != markers_.size()){
-
-		if (info.energy() > ((ROIPlotMarker *)markers_.at(index))->center())
-			index++;
-		else
-			break;
-	}
-
-	// Insert after all existing items like the spectra and the "emission lines bars".  This places them in order of increasing energy, but still in a logical place.
-	plot_->insertItem(newMarker, index + plot_->numItems()-markers_.size());
-	markers_.insert(index + plot_->numItems()-markers_.size(), newMarker);
+	ROIPlotMarker *newMarker = new ROIPlotMarker(info.name(), info.energy(), info.energy()*(1-info.width()/2), info.energy()*(1+info.width()/2));
+	plot_->insertItem(newMarker);
+	newMarker->setYAxisTarget(plot_->axisScale(MPlot::VerticalRelative));
+	markers_ << newMarker;
 	highlightMarkers(el);
 }
 
@@ -341,7 +419,7 @@ void XRFDetailedDetectorView::onRemovalOfRegionOfInterest(AMElement *el, QPair<Q
 
 	for (int i = 0; i < markers_.size(); i++){
 
-		temp = (ROIPlotMarker *)(markers_.at(i));
+		temp = markers_.at(i);
 
 		if (temp->description().compare(el->symbol()+" "+line.first) == 0)
 			removeMe = markers_.at(i);
@@ -366,7 +444,7 @@ void XRFDetailedDetectorView::highlightMarkers(AMElement *el)
 
 	for (int i = 0; i < markers_.size(); i++){
 
-		temp = (ROIPlotMarker *)markers_.at(i);
+		temp = markers_.at(i);
 
 		if (temp->description().contains(el->symbol()))
 			temp->setHighlighted(true);
@@ -407,7 +485,7 @@ void XRFDetailedDetectorView::showEmissionLines(AMElement *el)
 
 		current = toBeAdded.at(i);
 		point = new MPlotPoint(QPoint(current.second.toDouble(), 0));
-		point->setMarker(MPlotMarkerShape::VerticalBeam, 1e5, getColor(current.first));
+		point->setMarker(MPlotMarkerShape::VerticalBeam, 1e5, QPen(getColor(current.first)), QBrush(getColor(current.first)));
 		point->setDescription(current.first + ": " + current.second + " eV");
 		plot_->insertItem(point, i+detector_->elements());
 		lines_->append(point);

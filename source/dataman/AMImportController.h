@@ -130,6 +130,10 @@ protected slots:
 	void onGetInfoFromFileBoxChecked(const QString& key);
 
 
+	/// Temporary solution only: Identifies what looks like a "spectra" file: an auxiliary file used by the CLS dacq library, which shouldn't be imported on its own.
+	bool isAuxiliaryFile(const QString& fullFileName);
+
+
 protected:
 	/// The importers we have at our disposal:
 	QList<AMImporter*> importers_;

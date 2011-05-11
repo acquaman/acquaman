@@ -22,8 +22,6 @@ void DeadTimeButton::paintEvent(QPaintEvent *e)
 	option.initFrom(this);
 	option.state = QStyle::State_Off;
 
-
-
 	if (!isEnabled())
 		option.palette = QPalette(Qt::black, QColor(170, 170, 170, 100), Qt::gray, Qt::gray, QColor(170, 170, 170), Qt::gray, Qt::gray, Qt::gray, QColor(170, 170, 170));
 	else if (!isChecked()){
