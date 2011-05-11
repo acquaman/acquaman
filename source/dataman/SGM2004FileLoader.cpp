@@ -43,8 +43,8 @@ SGM2004FileLoader::SGM2004FileLoader(AMXASScan* scan) : AMAbstractFileLoader(sca
 		columns2pvNames_.set("ringCurrent", "PCT1402-01:mA:fbk");
 		columns2pvNames_.set("I0_2", "A1611-4-13:A:fbk");
 		columns2pvNames_.set("I0", "A1611-4-14:A:fbk");
-		columns2pvNames_.set("tey", "A1611-4-15:A:fbk");
-		columns2pvNames_.set("tfy", "A1611-4-16:A:fbk");
+		columns2pvNames_.set("TEY", "A1611-4-15:A:fbk");
+		columns2pvNames_.set("TFY", "A1611-4-16:A:fbk");
 		columns2pvNames_.set("eV_fbk", "BL1611-ID-1:Energy:fbk");
 		columns2pvNames_.set("pressure", "TCGC1611-423:pressure:fbk");
 
@@ -61,13 +61,13 @@ SGM2004FileLoader::SGM2004FileLoader(AMXASScan* scan) : AMAbstractFileLoader(sca
 	}
 
 
-	defaultUserVisibleColumns_ << "tey";
-	defaultUserVisibleColumns_ << "tfy";
+	defaultUserVisibleColumns_ << "TEY";
+	defaultUserVisibleColumns_ << "TFY";
 	defaultUserVisibleColumns_ << "I0";
 	defaultUserVisibleColumns_ << "I0_2";
 	defaultUserVisibleColumns_ << "eV_fbk";
 	defaultUserVisibleColumns_ << "ringCurrent";
-	defaultUserVisibleColumns_ << "sdd";
+	defaultUserVisibleColumns_ << "SDD";
 }
 
 /// load raw data from the SGM legacy file format into a scan's data tree.  If \c extractMetaData is set to true, this will also set the 'notes' and 'dateTime' meta-data fields.  If \c createChannels is set to true, it will create some default channels based on the data columns.
@@ -185,7 +185,7 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 			AMAxisInfo sddEVAxisInfo("energy", 1024, "SDD Energy", "eV");
 			QList<AMAxisInfo> sddAxes;
 			sddAxes << sddEVAxisInfo;
-			AMMeasurementInfo sddInfo("sdd", "Silicon Drift Detector", "counts", sddAxes);
+			AMMeasurementInfo sddInfo("SDD", "Silicon Drift Detector", "counts", sddAxes);
 			scan->rawData()->addMeasurement(sddInfo);
 		}
 	}
@@ -264,7 +264,7 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 				}
 				sfls >> specVal;
 
-				scan->rawData()->setValue(AMnDIndex(x), scan->rawData()->idOfMeasurement("sdd"), AMnDIndex(specCounter), specVal);
+				scan->rawData()->setValue(AMnDIndex(x), scan->rawData()->idOfMeasurement("SDD"), AMnDIndex(specCounter), specVal);
 				specCounter++;
 			}
 
@@ -307,33 +307,33 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 			if(scan->rawDataSources()->at(i)->rank() == 1)
 				raw1DDataSources << scan->rawDataSources()->at(i);
 
-		int rawTeyIndex = scan->rawDataSources()->indexOfKey("tey");
-		int rawTfyIndex = scan->rawDataSources()->indexOfKey("tfy");
+		int rawTeyIndex = scan->rawDataSources()->indexOfKey("TEY");
+		int rawTfyIndex = scan->rawDataSources()->indexOfKey("TFY");
 		int rawI0Index = scan->rawDataSources()->indexOfKey("I0");
 
 		if(rawTeyIndex != -1 && rawI0Index != -1) {
-			AM1DExpressionAB* teyChannel = new AM1DExpressionAB("tey_n");
+			AM1DExpressionAB* teyChannel = new AM1DExpressionAB("TEYNorm");
 			teyChannel->setDescription("Normalized TEY");
 			teyChannel->setInputDataSources(raw1DDataSources);
-			teyChannel->setExpression("tey/I0");
+			teyChannel->setExpression("TEY/I0");
 
 			scan->addAnalyzedDataSource(teyChannel);
 		}
 
 		if(rawTfyIndex != -1 && rawI0Index != -1) {
-			AM1DExpressionAB* tfyChannel = new AM1DExpressionAB("tfy_n");
+			AM1DExpressionAB* tfyChannel = new AM1DExpressionAB("TFYNorm");
 			tfyChannel->setDescription("Normalized TFY");
 			tfyChannel->setInputDataSources(raw1DDataSources);
-			tfyChannel->setExpression("-tfy/I0");
+			tfyChannel->setExpression("-TFY/I0");
 
 			scan->addAnalyzedDataSource(tfyChannel);
 		}
 
 
-		int rawSddIndex = scan->rawDataSources()->indexOfKey("sdd");
+		int rawSddIndex = scan->rawDataSources()->indexOfKey("SDD");
 		if(rawSddIndex != -1) {
 			AMRawDataSource* sddRaw = scan->rawDataSources()->at(rawSddIndex);
-			AM2DSummingAB* sddSum = new AM2DSummingAB("sddSummed");
+			AM2DSummingAB* sddSum = new AM2DSummingAB("PFY");
 			QList<AMDataSource*> sddSumSource;
 			sddSumSource << sddRaw;
 			sddSum->setInputDataSources(sddSumSource);
@@ -343,8 +343,6 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 			scan->addAnalyzedDataSource(sddSum);
 		}
 	}
-
-	/// scan->onDataChanged(); \todo Is this still used? What does it mean?
 
 
 	// Debugging only... What's here?
