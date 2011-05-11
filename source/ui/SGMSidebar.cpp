@@ -34,6 +34,8 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	gl_ = new QGridLayout();
 	mainBox_->setLayout(gl_);
 
+	setMaximumWidth(350);
+
 	readyLabel_ = new AMControlEditor(SGMBeamline::sgm()->beamlineReady(), NULL, true);
 	readyLabel_->setNoUnitsBox(true);
 	readyLabel_->overrideTitle("");
