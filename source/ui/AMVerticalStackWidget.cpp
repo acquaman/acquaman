@@ -254,6 +254,7 @@ void AMVerticalStackWidget::onWidgetHeightChanged(int newHeight){
 				if(runGroup){
 					//runGroup->setDisplayText(groupings_.at(groupingsCounter).second);
 					runGroup->setRunGroup(groupings_.at(groupingsCounter));
+					runGroup->update();
 				}
 				toThisPoint += groupings_.at(groupingsCounter).actionCount();
 				groupingsCounter++;
