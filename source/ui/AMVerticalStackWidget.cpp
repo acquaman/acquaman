@@ -250,10 +250,8 @@ void AMVerticalStackWidget::onWidgetHeightChanged(int newHeight){
 				qDebug() << "Set to group height " << groupHeight << " on x " << x;
 				vlSide_->itemAt(groupingsCounter)->widget()->setFixedHeight(groupHeight);
 				AMRunGroupWidget *runGroup = qobject_cast<AMRunGroupWidget*>(vlSide_->itemAt(groupingsCounter)->widget());
-				if(runGroup){
+				if(runGroup)
 					runGroup->setDisplayText(groupings_.at(groupingsCounter).second);
-					runGroup->update();
-				}
 				toThisPoint += groupings_.at(groupingsCounter).first;
 				groupingsCounter++;
 				groupHeight = 0;
@@ -349,10 +347,4 @@ void AMRunGroupWidget::paintEvent(QPaintEvent *event){
 	painter.rotate(90.0);
 	painter.drawText(QRectF(0.05*h, 0, metric.width(displayElided), w), Qt::AlignCenter, displayElided);
 	painter.restore();
-}
-
-void AMRunGroupWidget::resizeEvent(QResizeEvent *event){
-	QLabel::resizeEvent(event);
-	qDebug() << "Resize event";
-	update();
 }

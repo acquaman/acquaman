@@ -194,8 +194,8 @@ void AMAppController::onActionImport() {
 
 void AMAppController::goToWorkflow() {
 	mw_->setCurrentPane(workflowManagerView_);
-	qDebug() << "ASKED GO TO WORKFLOW";
-	workflowManagerView_->repaint();
+//	qDebug() << "ASKED GO TO WORKFLOW";
+//	workflowManagerView_->repaint();
 }
 
 void AMAppController::onCurrentPaneChanged(QWidget *pane) {

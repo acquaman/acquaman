@@ -187,7 +187,6 @@ public slots:
 
 protected:
 	virtual void paintEvent(QPaintEvent *);
-	virtual void resizeEvent(QResizeEvent *);
 
 protected:
 	QString displayText_;
