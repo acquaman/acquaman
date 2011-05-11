@@ -1,7 +1,6 @@
 #include "XRFDetectorView.h"
 #include "DeadTimeButton.h"
 #include "acquaman/VESPERS/VESPERSXRFScanController.h"
-#include "MPlot/MPlotSeries.h"
 #include "MPlot/MPlotAxisScale.h"
 #include "dataman/AMDataSourceSeriesData.h"
 #include "util/AMPeriodicTable.h"
@@ -121,6 +120,8 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	updateRate_->addItem("0.2 sec");
 	connect(updateRate_, SIGNAL(currentIndexChanged(int)), this, SLOT(onComboBoxUpdate(int)));
 	connect(detector_->refreshRateControl(), SIGNAL(valueChanged(double)), this, SLOT(onUpdateRateUpdate(double)));
+
+	isWaterfall_ = false;
 
 	setupPlot();
 
@@ -242,10 +243,25 @@ void XRFDetailedDetectorView::onLogEnabled(bool logged)
 
 void XRFDetailedDetectorView::onWaterfallToggled(bool isWaterfall)
 {
-	if (isWaterfall)
+	isWaterfall_ = isWaterfall;
+
+	if (isWaterfall){
+
+		plot_->removeItem(corrSum_);
+
+		for (int i = 0; i < detector_->elements(); i++)
+			plot_->insertItem(rawDataSeries_.at(i), i);
+
 		plot_->setAxisScaleWaterfall(MPlot::Left, waterfallSeparation_->value()*getMaximumHeight(plot_->item(0)));
-	else
+	}
+	else{
+
+		for (int i = 0; i < detector_->elements(); i++)
+			plot_->removeItem(rawDataSeries_.at(i));
+
+		plot_->insertItem(corrSum_, 0);
 		plot_->setAxisScaleWaterfall(MPlot::Left, 0);
+	}
 }
 
 void XRFDetailedDetectorView::onWaterfallSeparationChanged(double val)
@@ -324,8 +340,24 @@ void XRFDetailedDetectorView::setupPlot()
 		series->setModel(new AMDataSourceSeriesData(detector_->dataSource(i)));
 		series->setMarker(MPlotMarkerShape::None);
 		series->setDescription(detector_->dataSource(i)->name());
-		series->setLinePen(QPen(getColor(i)));
-		plot_->addItem(series);
+		series->setLinePen(QPen(getColor(i+1)));
+		rawDataSeries_ << series;
+	}
+
+	if (detector_->elements() == 1){
+
+		series->setLinePen(QPen(getColor(0)));
+		plot_->addItem(rawDataSeries_.first());
+	}
+	else{
+
+		/// BIT OF A HACK UNTIL I MAKE THE PROPER CORRECTED SUM. \todo fix hack
+		corrSum_ = new MPlotSeriesBasic;
+		corrSum_->setModel(new AMDataSourceSeriesData(detector_->dataSource(4)));
+		corrSum_->setMarker(MPlotMarkerShape::None);
+		corrSum_->setDescription(detector_->dataSource(4)->name());
+		corrSum_->setLinePen(QPen(getColor(0)));
+		plot_->addItem(corrSum_);
 	}
 
 	// Enable autoscaling of both axes.
@@ -446,7 +478,8 @@ void XRFDetailedDetectorView::highlightMarkers(AMElement *el)
 
 		temp = markers_.at(i);
 
-		if (temp->description().contains(el->symbol()))
+		// Need to add the space because Potassium shows up in Ka1 (Symbol for Potassium is K).
+		if (temp->description().contains(el->symbol()+" "))
 			temp->setHighlighted(true);
 		else
 			temp->setHighlighted(false);
@@ -487,7 +520,10 @@ void XRFDetailedDetectorView::showEmissionLines(AMElement *el)
 		point = new MPlotPoint(QPoint(current.second.toDouble(), 0));
 		point->setMarker(MPlotMarkerShape::VerticalBeam, 1e5, QPen(getColor(current.first)), QBrush(getColor(current.first)));
 		point->setDescription(current.first + ": " + current.second + " eV");
-		plot_->insertItem(point, i+detector_->elements());
+		if (isWaterfall_)
+			plot_->insertItem(point, i+detector_->elements());
+		else
+			plot_->insertItem(point, i+1);
 		lines_->append(point);
 	}
 }
