@@ -31,9 +31,9 @@ VESPERSSampleStageView::VESPERSSampleStageView(QWidget *parent) :
 	QFont font(this->font());
 	font.setBold(true);
 
-	QLabel *h = new QLabel("H:");
+	QLabel *h = new QLabel("H :");
 	h->setFont(font);
-	QLabel *v = new QLabel("V:");
+	QLabel *v = new QLabel("V :");
 	v->setFont(font);
 
 	QGridLayout *hLayout = new QGridLayout;
@@ -95,14 +95,7 @@ VESPERSSampleStageView::VESPERSSampleStageView(QWidget *parent) :
 	holderLayout->addLayout(hLayout);
 	holderLayout->addLayout(vLayout);
 
-	QGroupBox *holder = new QGroupBox("Sample Stage Control");
-	holder->setLayout(holderLayout);
-	holder->setFlat(true);
-
-	QVBoxLayout *sampleStageViewLayout = new QVBoxLayout;
-	sampleStageViewLayout->addWidget(holder);
-
-	setLayout(sampleStageViewLayout);
+	setLayout(holderLayout);
 }
 
 void VESPERSSampleStageView::onUpClicked()

@@ -82,11 +82,11 @@ void XRFPeriodicTableView::regionOfInterestAdded(AMElement *el, QPair<QString, Q
 		QPalette palette(clicked->palette());
 
 		if (line.first.contains("K"))
-			palette.setColor(QPalette::Button, Qt::green);
+			palette.setColor(QPalette::Window, Qt::green);
 		else if (line.first.contains("L"))
-			palette.setColor(QPalette::Button, Qt::yellow);
+			palette.setColor(QPalette::Window, Qt::yellow);
 		else if (line.first.contains("M"))
-			palette.setColor(QPalette::Button, Qt::cyan);
+			palette.setColor(QPalette::Window, Qt::cyan);
 
 		clicked->setPalette(palette);
 		emit addRegionOfInterest(el, line);

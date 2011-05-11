@@ -114,7 +114,7 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	controlGBLayout->addWidget(lightBulb_, 7, 5, 2, 2);
 	controlGBLayout->addWidget(micLight_, 2, 0, 8, 1);
 	controlGBLayout->addWidget(configButton, 0, 0, 2, 1);
-	controlGBLayout->addWidget(laserPowerButton_, 6, 13, 2, 1);
+	controlGBLayout->addWidget(laserPowerButton_, 9, 15, 2, 1);
 	controlGB->setLayout(controlGBLayout);
 
 	window_ = new VESPERSMotorView(this);

@@ -192,15 +192,21 @@ void VESPERSBeamline::setupSampleStage()
 	sampleStage_->setXRange(-200000, 200000);
 	sampleStage_->setYRange(-200000, 200000);
 	sampleStage_->setZRange(-750000, 750000);
+
+	sampleStagePidX_ = new AMPVControl("Sample Stage PID X", "SVM1607-2-B21-02:hold:sp", "SVM1607-2-B21-02:hold", QString(), this);
+	sampleStagePidY_ = new AMPVControl("Sample Stage PID Y", "SVM1607-2-B21-03:hold:sp", "SVM1607-2-B21-03:hold", QString(), this);
+	sampleStagePidZ_ = new AMPVControl("Sample Stage PID Z", "SVM1607-2-B21-01:hold:sp", "SVM1607-2-B21-01:hold", QString(), this);
+
+	sampleStagePID_ = new PIDLoopControl("PID - Sample Stage", sampleStagePidX_, sampleStagePidY_, sampleStagePidZ_, this);
 }
 
 void VESPERSBeamline::setupEndstation()
 {
 	// The controls used for the control window.
-	ccdMotor_ = new AMPVwStatusControl("CCD motor", "SMTR1607-2-B21-18:mm:sp", "SMTR1607-2-B21-18:mm", "SMTR1607-2-B21-18:status", "SMTR1607-2-B21-18:stop", this);
-	microscopeMotor_ = new AMPVwStatusControl("Microscope motor", "SMTR1607-2-B21-17:mm:sp", "SMTR1607-2-B21-17:mm", "SMTR1607-2-B21-17:status", "SMTR1607-2-B21-17:stop", this);
-	fourElMotor_ = new AMPVwStatusControl("4-Element Vortex motor", "SMTR1607-2-B21-27:mm:sp", "SMTR1607-2-B21-27:mm", "SMTR1607-2-B21-27:status", "SMTR1607-2-B21-27:stop", this);
-	singleElMotor_ = new AMPVwStatusControl("1-Element Vortex motor", "SMTR1607-2-B21-15:mm:sp", "SMTR1607-2-B21-15:mm", "SMTR1607-2-B21-15:status", "SMTR1607-2-B21-15:stop", this);
+	ccdMotor_ = new AMPVwStatusControl("CCD motor", "SMTR1607-2-B21-18:mm:sp", "SMTR1607-2-B21-18:mm", "SMTR1607-2-B21-18:status", "SMTR1607-2-B21-18:stop", this, 1.0, 10.0);
+	microscopeMotor_ = new AMPVwStatusControl("Microscope motor", "SMTR1607-2-B21-17:mm:sp", "SMTR1607-2-B21-17:mm", "SMTR1607-2-B21-17:status", "SMTR1607-2-B21-17:stop", this, 1.0, 10.0);
+	fourElMotor_ = new AMPVwStatusControl("4-Element Vortex motor", "SMTR1607-2-B21-27:mm:sp", "SMTR1607-2-B21-27:mm", "SMTR1607-2-B21-27:status", "SMTR1607-2-B21-27:stop", this, 1.0, 10.0);
+	singleElMotor_ = new AMPVwStatusControl("1-Element Vortex motor", "SMTR1607-2-B21-15:mm:sp", "SMTR1607-2-B21-15:mm", "SMTR1607-2-B21-15:status", "SMTR1607-2-B21-15:stop", this, 1.0, 10.0);
 
 	// The process variables that have the feedback value used for the button.  The microscope doesn't need one because it's encoder doesn't work.
 	ccdMotorfbk_ = new AMReadOnlyPVControl("CCD motor feedback", "SMTR1607-2-B21-18:mm:fbk", this);
@@ -907,6 +913,10 @@ VESPERSBeamline::~VESPERSBeamline()
 	delete sampleStageY_;
 	delete sampleStageZ_;
 	delete sampleStage_;
+	delete sampleStagePidX_;
+	delete sampleStagePidY_;
+	delete sampleStagePidZ_;
+	delete sampleStagePID_;
 	delete ccdMotorfbk_;
 	delete fourElMotorfbk_;
 	delete singleElMotorfbk_;

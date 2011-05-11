@@ -28,6 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMROI.h"
 #include "beamline/VESPERS/SampleStageControl.h"
 #include "beamline/VESPERS/VESPERSValveGroupControl.h"
+#include "beamline/VESPERS/PIDLoopControl.h"
 
 /// This class is the master class that holds EVERY control inside the VESPERS beamline.
 class VESPERSBeamline : public AMBeamline
@@ -338,6 +339,17 @@ public:
 	// The sample stage.
 	/// Returns the sample stage control.
 	SampleStageControl *sampleStage() const { return sampleStage_; }
+
+	// Sample stage PID controls.
+	/// Returns the PID control for the x-direction of the sample stage.
+	AMControl *sampleStagePidX() const { return sampleStagePidX_; }
+	/// Returns the PID control for the y-direction of the sample stage.
+	AMControl *sampleStagePidY() const { return sampleStagePidY_; }
+	/// Returns the PID control for the z-direction of the sample stage.
+	AMControl *sampleStagPidZ() const { return sampleStagePidZ_; }
+
+	/// Returns the sample stage PID control.
+	PIDLoopControl *sampleStagePID() const { return sampleStagePID_; }
 
 	// These are the single element vortex controls.
 
@@ -678,6 +690,12 @@ protected:
 	AMControl *sampleStageZ_;
 
 	SampleStageControl *sampleStage_;
+
+	AMControl *sampleStagePidX_;
+	AMControl *sampleStagePidY_;
+	AMControl *sampleStagePidZ_;
+
+	PIDLoopControl *sampleStagePID_;
 
 	// End sample stage controls.
 
