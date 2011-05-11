@@ -159,10 +159,12 @@ void AMWorkflowManagerView::setCurrentSamplePlate(AMSamplePlate *newSamplePlate)
 	}
 }
 
+/*
 void AMWorkflowManagerView::forceUpdate(){
 	qDebug() << "Trying to force update in workflowmanager";
-	//workflowView_->forceUpdate();
+	workflowView_->forceUpdate();
 }
+*/
 
 
 void AMWorkflowManagerView::insertBeamlineAction(int index, AMBeamlineActionItem *action, bool startNow) {
@@ -294,7 +296,7 @@ AMBeamlineActionsListView::AMBeamlineActionsListView(AMBeamlineActionsList *acti
 	connect(actionsList_, SIGNAL(actionStarted(int)), this, SLOT(onActionStarted()));
 	connect(actionsList_, SIGNAL(actionSucceeded(int)), this, SLOT(onActionSucceeded()));
 	connect(actionsList_, SIGNAL(actionFailed(int,int)), this, SLOT(onActionFailed()));
-	connect(actionsViewList_, SIGNAL(doneRunGroups()), this, SLOT(onDoneRunGroups()));
+//	connect(actionsViewList_, SIGNAL(doneRunGroups()), this, SLOT(onDoneRunGroups()));
 }
 
 bool AMBeamlineActionsListView::swap(int indexOfFirst){
@@ -304,9 +306,11 @@ bool AMBeamlineActionsListView::swap(int indexOfFirst){
 	return retVal;
 }
 
+/*
 void AMBeamlineActionsListView::forceUpdate(){
 	actionsViewList_->forceUpdate();
 }
+*/
 
 #include "beamline/AMBeamlineControlMoveAction.h"
 #include "beamline/AMBeamlineControlSetMoveAction.h"
@@ -431,7 +435,9 @@ void AMBeamlineActionsListView::reindexViews(){
 				((AMBeamlineActionItemView*)(actionsViewList_->widget(x)))->setIndex(-1);
 }
 
+/*
 void AMBeamlineActionsListView::onDoneRunGroups(){
 	qDebug() << "Asked to update after runGroups done";
 	actionsViewList_->forceUpdate();
 }
+*/

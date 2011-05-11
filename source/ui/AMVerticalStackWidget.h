@@ -120,7 +120,7 @@ public slots:
 	void endRunning();
 	void setGroupings(QList< QPair<int, QString> > groupings);
 	void forceGroupingsCheck();
-	void forceUpdate();
+//	void forceUpdate();
 
 signals:
 	/// Emitted when a widget is expanded:
@@ -132,7 +132,7 @@ signals:
 	/// Emitted when a widget at this index is collapsed
 	void collapsed(int);
 
-	void doneRunGroups();
+//	void doneRunGroups();
 
 public slots:
 	/// Expand a given widget

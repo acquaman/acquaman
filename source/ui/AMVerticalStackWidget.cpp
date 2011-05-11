@@ -259,9 +259,9 @@ void AMVerticalStackWidget::onWidgetHeightChanged(int newHeight){
 				groupHeight = 0;
 			}
 		}
-		qDebug() << "DONE PAINTING SIDE BARS";
-		update();
-		emit doneRunGroups();
+		//qDebug() << "DONE PAINTING SIDE BARS";
+		//update();
+		//emit doneRunGroups();
 		return;
 	}
 	qDebug() << "Not using grouping or no groupings";
@@ -304,6 +304,7 @@ void AMVerticalStackWidget::forceGroupingsCheck(){
 	onWidgetHeightChanged(-1);
 }
 
+/*
 void AMVerticalStackWidget::forceUpdate(){
 	qDebug() << "LOWEST LEVEL FORCED UPDATE";
 	for(int x = 0; x < vl_->count(); x++)
@@ -315,6 +316,7 @@ void AMVerticalStackWidget::forceUpdate(){
 	this->repaint();
 	this->updateGeometry();
 }
+*/
 
 
 // Capture window title change events from our widgets and change our header titles accordingly
