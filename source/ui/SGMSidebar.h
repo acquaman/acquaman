@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class QGroupBox;
 class QVBoxLayout;
 class QGridLayout;
+class QRadioButton;
 
 #include "AMControlEditor.h"
 #include "beamline/SGM/SGMBeamline.h"
@@ -59,6 +60,9 @@ protected slots:
 	void onStopMotorsButtonClicked();
 	void onStopMotorsActionFinished();
 
+	void onDetectorSignalSourceChanged(SGMBeamline::sgmDetectorSignalSource newSource);
+	void onDetectorButtonsClicked(int buttonIndex);
+
 	void onStripToolTimerTimeout();
 
 protected:
@@ -80,6 +84,9 @@ protected:
 	AMControlEditor *gratingNC_;
 	AMControlEditor *entranceSlitNC_;
 	AMControlEditor *exitSlitNC_;
+	QButtonGroup *detectorSignalSources_;
+	QRadioButton *picoammeterButton_;
+	QRadioButton *scalerButton_;
 	QLabel *beamlineWarningsLabel_;
 
 	/// UI components:

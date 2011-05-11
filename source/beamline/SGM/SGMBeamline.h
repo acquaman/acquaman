@@ -66,6 +66,12 @@ public:
 	QString sgmHarmonicName(SGMBeamline::sgmHarmonic harmonic) const;
 	QString sgmHarmonicDescription(SGMBeamline::sgmHarmonic harmonic) const;
 
+	enum sgmDetectorSignalSource{
+		picoammeters = 0,
+		scaler = 1
+	};
+	QString sgmDetectorSignalSourceName(SGMBeamline::sgmDetectorSignalSource dss) const;
+
 	enum sgmTransferType{
 		loadlockOut = 1,
 		loadlockIn,
@@ -108,6 +114,13 @@ public:
 	AMControl* undulatorTracking() const { return undulatorTracking_;}
 	AMControl* monoTracking() const { return monoTracking_;}
 	AMControl* exitSlitTracking() const { return exitSlitTracking_;}
+
+	QString detectorSignalSource() const {
+		if(detectorSignalSource_->value() == 0)
+			return sgmDetectorSignalSourceName(SGMBeamline::picoammeters);
+		else
+			return sgmDetectorSignalSourceName(SGMBeamline::scaler);
+	}
 
 	AMDetector* teyDetector() const {
 		if(detectorSignalSource_->value() == 0)
@@ -219,6 +232,14 @@ public slots:
 
 	void closeVacuum();
 
+	void setDetectorSignalSource(SGMBeamline::sgmDetectorSignalSource detectorSignalSource){
+		if(detectorSignalSource == SGMBeamline::picoammeters)
+			detectorSignalSource_->move(0);
+		else if(detectorSignalSource == SGMBeamline::scaler)
+			detectorSignalSource_->move(1);
+		return;
+	}
+
 signals:
 	void beamlineScanningChanged(bool scanning);
 	void controlSetConnectionsChanged();
@@ -229,6 +250,8 @@ signals:
 	void beamlineWarningsChanged(const QString& warnings);
 
 	void currentSamplePlateChanged(AMSamplePlate *newSamplePlate);
+
+	void detectorSignalSourceChanged(SGMBeamline::sgmDetectorSignalSource);
 
 protected slots:
 	void onBeamlineScanningValueChanged(double value);

@@ -953,6 +953,15 @@ QString SGMBeamline::sgmHarmonicDescription(SGMBeamline::sgmHarmonic harmonic) c
 		return "ERROR";
 }
 
+QString SGMBeamline::sgmDetectorSignalSourceName(SGMBeamline::sgmDetectorSignalSource dss) const{
+	if(dss == SGMBeamline::picoammeters)
+		return "Picoammeters";
+	else if(dss == SGMBeamline::scaler)
+		return "Scaler";
+	else
+		return "ERROR";
+}
+
 QStringList SGMBeamline::unconnectedCriticals() const{
 	return criticalControlsSet_->unconnected();
 }
@@ -1643,6 +1652,7 @@ void SGMBeamline::onDetectorSignalSourceChanged(double value){
 		if(feedbackDetectors_->indexOf(photodiodePicoDetector_) >= 0)
 			feedbackDetectors_->removeDetector(photodiodePicoDetector_);
 	}
+	emit detectorSignalSourceChanged((SGMBeamline::sgmDetectorSignalSource)value);
 }
 
 void SGMBeamline::recomputeWarnings(){
