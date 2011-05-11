@@ -48,7 +48,7 @@ bool PGTBriefDetectorView::setDetector(AMDetector *detector, bool configureOnly)
 	readingCE_->setControlFormat('f', 0);
 	powerState_ = new QToolButton();
 	powerState_->setIcon(powerOffState_);
-	powerState_->setEnabled(false);
+//	powerState_->setEnabled(false);
 	hl_->addWidget(readingCE_);
 	hl_->addWidget(powerState_);
 	connect(detector_, SIGNAL(poweredOnChanged(bool)), this, SLOT(onPoweredOnChanged(bool)));

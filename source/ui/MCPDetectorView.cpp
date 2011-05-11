@@ -47,7 +47,7 @@ bool MCPBriefDetectorView::setDetector(AMDetector *detector, bool configureOnly)
 	readingCE_ = new AMControlEditor(detector_->readingCtrl(), 0, true);
 	powerState_ = new QToolButton();
 	powerState_->setIcon(powerOffState_);
-	powerState_->setEnabled(false);
+//	powerState_->setEnabled(false);
 	hl_->addWidget(readingCE_);
 	hl_->addWidget(powerState_);
 	connect(detector_, SIGNAL(poweredOnChanged(bool)), this, SLOT(onPoweredOnChanged(bool)));
