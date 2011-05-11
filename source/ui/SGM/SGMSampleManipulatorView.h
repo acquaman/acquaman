@@ -33,6 +33,11 @@ protected slots:
 	void onTransferPositionButtonClicked();
 	void onMeasurePositionButtonClicked();
 
+	void onIlluminatorSliderValueMoved(int newValue);
+	void onIlluminatorFeedbackChanged(double newValue);
+	void onIlluminatorPreset(int presetIndex);
+
+
 protected:
 	QPushButton *mUpButton_;
 	QPushButton *mDownButton_;
@@ -58,6 +63,13 @@ protected:
 	AMControlEditor *mHorizontalNC_;
 	AMControlEditor *mInPlaneNC_;
 	AMControlEditor *mRotationNC_;
+
+	QSlider *illuminatorSlider_;
+	QButtonGroup *illuminatorPresets_;
+	QToolButton *illuminatorOff_;
+	QToolButton *illuminatorDim_;
+	QToolButton *illuminatorMid_;
+	QToolButton *illuminatorOn_;
 
 	QIcon upIcon_, downIcon_, inboardIcon_, outboardIcon_, upstreamIcon_, downstreamIcon_, cwIcon_, ccwIcon_;
 

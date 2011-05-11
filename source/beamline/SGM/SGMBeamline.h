@@ -197,6 +197,7 @@ public:
 	AMControl* scalerScansPerBuffer() const { return scalerScansPerBuffer_;}
 	AMControl* scalerTotalNumberOfScans() const { return scalerTotalNumberOfScans_;}
 	AMControl* scalerMode() const { return scalerMode_;}
+	AMControl* ssaIllumination() const { return ssaIllumination_;}
 
 
 	AMControlSet* fluxResolutionSet() const { return fluxResolutionSet_;}
@@ -354,6 +355,7 @@ protected:
 	AMControl *scalerTotalNumberOfScans_;
 	AMControl *scalerMode_;
 	AMControl *detectorSignalSource_;
+	AMControl *ssaIllumination_;
 
 	AMControlSet *teyPicoControlSet_;
 	AMDetector *teyPicoDetector_;

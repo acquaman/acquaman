@@ -92,6 +92,7 @@ void SGMBeamline::usingSGMBeamline(){
 	amNames2pvNames_.set("visibleLightStatus", "BL1611-ID-1:visible:cal");
 	amNames2pvNames_.set("activeEndstation", "BL1611-ID-1:AddOns:endstation:active");
 	amNames2pvNames_.set("detectorSignalSource", "BL1611-ID-1:AddOns:signalSource");
+	amNames2pvNames_.set("ssaIllumination", "ILC1611-4-I10-02");
 
 	ringCurrent_ = new AMReadOnlyPVControl("ringCurrent", "PCT1402-01:mA:fbk", this);
 	addChildControl(ringCurrent_);
@@ -437,6 +438,12 @@ void SGMBeamline::usingSGMBeamline(){
 	detectorSignalSource_ = new AMPVControl("detectorSignalSource", sgmPVName, sgmPVName, "", this, 0.5);
 	detectorSignalSource_->setDescription("Detector Sources Selection");
 
+	sgmPVName = amNames2pvNames_.valueF("ssaIllumination");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
+	ssaIllumination_ = new AMPVControl("ssaIllumination", sgmPVName, sgmPVName, "", this, 0.5);
+	ssaIllumination_->setDescription("SSA Illumination");
+
 	qDebug() << "\nPV Name Look Ups Failed: " << pvNameLookUpFail << "\n";
 }
 
@@ -695,6 +702,7 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	addChildControl(detectorSignalSource_);
 	connect(detectorSignalSource_, SIGNAL(valueChanged(double)), this, SLOT(onDetectorSignalSourceChanged(double)));
 	connect(activeEndstation_, SIGNAL(valueChanged(double)), this, SLOT(onActiveEndstationChanged(double)));
+	addChildControl(ssaIllumination_);
 
 	criticalControlsSet_ = new AMControlSet(this);
 	criticalControlsSet_->setName("Critical Beamline Controls");

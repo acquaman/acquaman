@@ -3,6 +3,7 @@
 
 #include <QLabel>
 #include <QPalette>
+#include <QButtonGroup>
 
 #include "beamline/AMBeamlineListAction.h"
 
@@ -54,6 +55,31 @@ SGMSampleManipulatorView::SGMSampleManipulatorView(QWidget *parent) :
 	mInPlaneNC_ = new AMControlEditor(mInPlaneCtrl_);
 	mRotationNC_ = new AMControlEditor(mRotationCtrl_);
 
+	illuminatorSlider_ = new QSlider(Qt::Horizontal);
+	illuminatorSlider_->setRange(0, 100);
+	illuminatorPresets_ = new QButtonGroup();
+	illuminatorOff_ = new QToolButton();
+	illuminatorOff_->setText("Off");
+	illuminatorOff_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Maximum);
+	illuminatorDim_ = new QToolButton();
+	illuminatorDim_->setText("Dim");
+	illuminatorDim_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Maximum);
+	illuminatorMid_ = new QToolButton();
+	illuminatorMid_->setText("Mid");
+	illuminatorMid_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Maximum);
+	illuminatorOn_ = new QToolButton();
+	illuminatorOn_->setText("On");
+	illuminatorOn_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Maximum);
+	illuminatorPresets_->addButton(illuminatorOff_, 0);
+	illuminatorPresets_->addButton(illuminatorDim_, 1);
+	illuminatorPresets_->addButton(illuminatorMid_, 2);
+	illuminatorPresets_->addButton(illuminatorOn_, 3);
+	QHBoxLayout *ipl = new QHBoxLayout();
+	ipl->addWidget(illuminatorOff_);
+	ipl->addWidget(illuminatorDim_);
+	ipl->addWidget(illuminatorMid_);
+	ipl->addWidget(illuminatorOn_);
+
 	connect(mUpButton_, SIGNAL(pressed()), this, SLOT(onMUpButtonPressed()));
 	connect(mUpButton_, SIGNAL(released()), this, SLOT(onMUpButtonReleased()));
 	connect(mDownButton_, SIGNAL(pressed()), this, SLOT(onMDownButtonPressed()));
@@ -74,22 +100,11 @@ SGMSampleManipulatorView::SGMSampleManipulatorView(QWidget *parent) :
 	connect(stopAllButton_, SIGNAL(clicked()), this, SLOT(onStopAllButtonClicked()));
 	connect(transferPositionButton_, SIGNAL(clicked()), this, SLOT(onTransferPositionButtonClicked()));
 	connect(measurePositionButton_, SIGNAL(clicked()), this, SLOT(onMeasurePositionButtonClicked()));
+	connect(illuminatorSlider_, SIGNAL(sliderMoved(int)), this, SLOT(onIlluminatorSliderValueMoved(int)));
+	connect(SGMBeamline::sgm()->ssaIllumination(), SIGNAL(valueChanged(double)), this, SLOT(onIlluminatorFeedbackChanged(double)));
+	connect(illuminatorPresets_, SIGNAL(buttonClicked(int)), this, SLOT(onIlluminatorPreset(int)));
 
 	gl_ = new QGridLayout();
-	/*
-	gl_->addWidget(mUpButton_,		0, 1, 4, 1, Qt::AlignCenter);
-	gl_->addWidget(mDownButton_,		8, 1, 4, 1, Qt::AlignCenter);
-	gl_->addWidget(mInboardButton_,		4, 0, 4, 1, Qt::AlignCenter);
-	gl_->addWidget(mOutboardButton_,	4, 2, 4, 1, Qt::AlignCenter);
-	gl_->addWidget(mUpstreamButton_,	8, 0, 4, 1, Qt::AlignCenter);
-	gl_->addWidget(mDownstreamButton_,	0, 2, 4, 1, Qt::AlignCenter);
-	gl_->addWidget(mCWButton_,		0, 0, 4, 1, Qt::AlignCenter);
-	gl_->addWidget(mCCWButton_,		8, 2, 4, 1, Qt::AlignCenter);
-	gl_->addWidget(mVerticalNC_,		0, 4, 3, 1, Qt::AlignLeft|Qt::AlignVCenter);
-	gl_->addWidget(mHorizontalNC_,		3, 4, 3, 1, Qt::AlignLeft|Qt::AlignVCenter);
-	gl_->addWidget(mInPlaneNC_,		6, 4, 3, 1, Qt::AlignLeft|Qt::AlignVCenter);
-	gl_->addWidget(mRotationNC_,		9, 4, 3, 1, Qt::AlignLeft|Qt::AlignVCenter);
-	*/
 	gl_->addWidget(mUpButton_,		0, 2, 1, 1, Qt::AlignCenter);
 	gl_->addWidget(mDownButton_,		4, 2, 1, 1, Qt::AlignCenter);
 	gl_->addWidget(mInboardButton_,		2, 0, 1, 1, Qt::AlignCenter);
@@ -113,6 +128,11 @@ SGMSampleManipulatorView::SGMSampleManipulatorView(QWidget *parent) :
 	QVBoxLayout *vl2 = new QVBoxLayout();
 	vl2->addLayout(gl_);
 	vl2->addStretch(10);
+	vl2->addWidget(illuminatorSlider_);
+	QLabel *illuminatorLabel = new QLabel("Chamber Light");
+	illuminatorLabel->setAlignment(Qt::AlignCenter);
+	vl2->addWidget(illuminatorLabel);
+	vl2->addLayout(ipl);
 	vl2->addWidget(transferPositionButton_);
 	vl2->addWidget(measurePositionButton_);
 
@@ -137,7 +157,6 @@ void SGMSampleManipulatorView::onMUpButtonPressed(){
 void SGMSampleManipulatorView::onMUpButtonReleased(){
 	mVerticalCtrl_->stop();
 	mVerticalCtrl_->move(mVerticalCtrl_->value());
-	//SGMBeamline::sgm()->ssaManipulatorZStop()->move(0);
 }
 
 void SGMSampleManipulatorView::onMDownButtonPressed(){
@@ -147,7 +166,6 @@ void SGMSampleManipulatorView::onMDownButtonPressed(){
 void SGMSampleManipulatorView::onMDownButtonReleased(){
 	mVerticalCtrl_->stop();
 	mVerticalCtrl_->move(mVerticalCtrl_->value());
-	//SGMBeamline::sgm()->ssaManipulatorZStop()->move(0);
 }
 
 void SGMSampleManipulatorView::onMInboardButtonPressed(){
@@ -157,7 +175,6 @@ void SGMSampleManipulatorView::onMInboardButtonPressed(){
 void SGMSampleManipulatorView::onMInboardButtonReleased(){
 	mHorizontalCtrl_->stop();
 	mHorizontalCtrl_->move(mHorizontalCtrl_->value());
-	//SGMBeamline::sgm()->ssaManipulatorXStop()->move(0);
 }
 
 void SGMSampleManipulatorView::onMOutboardButtonPressed(){
@@ -167,7 +184,6 @@ void SGMSampleManipulatorView::onMOutboardButtonPressed(){
 void SGMSampleManipulatorView::onMOutboardButtonReleased(){
 	mHorizontalCtrl_->stop();
 	mHorizontalCtrl_->move(mHorizontalCtrl_->value());
-	//SGMBeamline::sgm()->ssaManipulatorXStop()->move(0);
 }
 
 void SGMSampleManipulatorView::onMUpstreamButtonPressed(){
@@ -177,7 +193,6 @@ void SGMSampleManipulatorView::onMUpstreamButtonPressed(){
 void SGMSampleManipulatorView::onMUpstreamButtonReleased(){
 	mInPlaneCtrl_->stop();
 	mInPlaneCtrl_->move(mInPlaneCtrl_->value());
-	//SGMBeamline::sgm()->ssaManipulatorYStop()->move(0);
 }
 
 void SGMSampleManipulatorView::onMDownstreamButtonPressed(){
@@ -187,7 +202,6 @@ void SGMSampleManipulatorView::onMDownstreamButtonPressed(){
 void SGMSampleManipulatorView::onMDownstreamButtonReleased(){
 	mInPlaneCtrl_->stop();
 	mInPlaneCtrl_->move(mInPlaneCtrl_->value());
-	//SGMBeamline::sgm()->ssaManipulatorYStop()->move(0);
 }
 
 void SGMSampleManipulatorView::onMCWButtonPressed(){
@@ -197,7 +211,6 @@ void SGMSampleManipulatorView::onMCWButtonPressed(){
 void SGMSampleManipulatorView::onMCWButtonReleased(){
 	mRotationCtrl_->stop();
 	mRotationCtrl_->move(mRotationCtrl_->value());
-	//SGMBeamline::sgm()->ssaManipulatorRotStop()->move(0);
 }
 
 void SGMSampleManipulatorView::onMCCWButtonPressed(){
@@ -207,7 +220,6 @@ void SGMSampleManipulatorView::onMCCWButtonPressed(){
 void SGMSampleManipulatorView::onMCCWButtonReleased(){
 	mRotationCtrl_->stop();
 	mRotationCtrl_->move(mRotationCtrl_->value());
-	//SGMBeamline::sgm()->ssaManipulatorRotStop()->move(0);
 }
 
 void SGMSampleManipulatorView::onStopAllButtonClicked(){
@@ -233,4 +245,30 @@ void SGMSampleManipulatorView::onMeasurePositionButtonClicked(){
 		delete measurementPositionActions_;
 	measurementPositionActions_ = SGMBeamline::sgm()->createGoToMeasurementPositionActions();
 	measurementPositionActions_->start();
+}
+
+void SGMSampleManipulatorView::onIlluminatorSliderValueMoved(int newValue){
+	SGMBeamline::sgm()->ssaIllumination()->move(newValue);
+}
+
+void SGMSampleManipulatorView::onIlluminatorFeedbackChanged(double newValue){
+	if(!illuminatorSlider_->isSliderDown())
+		illuminatorSlider_->setValue(newValue);
+}
+
+void SGMSampleManipulatorView::onIlluminatorPreset(int presetIndex){
+	switch(presetIndex){
+	case 0:
+		SGMBeamline::sgm()->ssaIllumination()->move(0);
+		break;
+	case 1:
+		SGMBeamline::sgm()->ssaIllumination()->move(10);
+		break;
+	case 2:
+		SGMBeamline::sgm()->ssaIllumination()->move(25);
+		break;
+	case 3:
+		SGMBeamline::sgm()->ssaIllumination()->move(100);
+		break;
+	}
 }
