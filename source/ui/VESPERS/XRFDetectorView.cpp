@@ -558,7 +558,7 @@ QColor XRFDetailedDetectorView::getColor(int index)
 	case 2:
 		return Qt::green;
 	case 3:
-		return Qt::yellow;
+		return Qt::darkCyan;
 	case 4:
 		return Qt::black;
 	case 5:

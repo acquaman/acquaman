@@ -4,6 +4,7 @@
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
+#include <QFormLayout>
 #include <QGroupBox>
 #include <QMessageBox>
 
@@ -86,28 +87,26 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	valvesStatus_->setPixmap(QIcon(":/RED.png").pixmap(30));
 	connect(valves_, SIGNAL(statusChanged(bool)), this, SLOT(onValvesStateChanged()));
 
-	QHBoxLayout *valvesLayout = new QHBoxLayout;
-	valvesLayout->addWidget(valvesStatus_, 0, Qt::AlignCenter);
-	valvesLayout->addWidget(valvesButton_, 0, Qt::AlignLeft);
-
 	// Temp, water, and pressure labels.
 	tempLabel_ = new QLabel;
 	tempLabel_->setPixmap(QIcon(":/RED.png").pixmap(30));
-	QHBoxLayout *tempLayout = new QHBoxLayout;
-	tempLayout->addWidget(tempLabel_, 0, Qt::AlignCenter);
-	tempLayout->addWidget(new QLabel("Temperature"), 0, Qt::AlignLeft);
 
 	pressureLabel_ = new QLabel;
 	pressureLabel_->setPixmap(QIcon(":/RED.png").pixmap(30));
-	QHBoxLayout *pressureLayout = new QHBoxLayout;
-	pressureLayout->addWidget(pressureLabel_, 0, Qt::AlignCenter);
-	pressureLayout->addWidget(new QLabel("Vacuum"), 0, Qt::AlignLeft);
 
 	waterLabel_ = new QLabel;
 	waterLabel_->setPixmap(QIcon(":/RED.png").pixmap(30));
-	QHBoxLayout *waterLayout = new QHBoxLayout;
-	waterLayout->addWidget(waterLabel_, 0, Qt::AlignCenter);
-	waterLayout->addWidget(new QLabel("Water"), 0, Qt::AlignLeft);
+
+	QFormLayout *statusLayout = new QFormLayout;
+	statusLayout->addRow(valvesStatus_, valvesButton_);
+	statusLayout->addRow(tempLabel_, new QLabel("Temperature"));
+	statusLayout->addRow(pressureLabel_, new QLabel("Vacuum"));
+	statusLayout->addRow(waterLabel_, new QLabel("Water"));
+	statusLayout->setHorizontalSpacing(20);
+
+	QHBoxLayout *adjustedStatusLayout = new QHBoxLayout;
+	adjustedStatusLayout->addStretch();
+	adjustedStatusLayout->addLayout(statusLayout);
 
 	QVBoxLayout *persistentLayout = new QVBoxLayout;
 	persistentLayout->addLayout(frontEndShutterLayout);
@@ -116,15 +115,12 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	persistentLayout->addWidget(motors);
 	persistentLayout->addWidget(pidView);
 	persistentLayout->addWidget(statusLabel);
-	persistentLayout->addLayout(valvesLayout);
-	persistentLayout->addLayout(tempLayout);
-	persistentLayout->addLayout(pressureLayout);
-	persistentLayout->addLayout(waterLayout);
+	persistentLayout->addLayout(adjustedStatusLayout);
 	persistentLayout->addStretch();
 
 	QGroupBox *vespers = new QGroupBox("VESPERS Beamline");
 	vespers->setLayout(persistentLayout);
-	vespers->setStyleSheet("QGroupBox::title { font: bold 14px; } ");
+	vespers->setStyleSheet("QGroupBox { font: bold 12px; } ");
 
 	QVBoxLayout *vespersLayout = new QVBoxLayout;
 	vespersLayout->addWidget(vespers);
