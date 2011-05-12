@@ -30,6 +30,10 @@ public:
 signals:
 
 public slots:
+	/// Opens the shutter.  Does nothing if the shutter is already open.
+	void open() { if (state_ != Open) changeState(); }
+	/// Closes the shutter.  Does nothing if the shutter is already closed.
+	void close() { if (state_ != Closed) changeState(); }
 	/// Toggles the state of the Shutter.  If Open -> Closed, if Closed -> Open.  Note that Between is reserved for beamline errors only.  Checks and only attempts to change state if it has the ability and has valid open and close PVs.
 	void changeState();
 
