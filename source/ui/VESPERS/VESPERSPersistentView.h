@@ -6,6 +6,7 @@
 #include <QPushButton>
 
 #include "beamline/VESPERS/VESPERSBeamline.h"
+#include "ui/AMShutterButton.h"
 
 class VESPERSPersistentView : public QWidget
 {
@@ -29,6 +30,12 @@ protected slots:
 	void onPressureStateChanged();
 	/// Handles when the water state changes.  This holds the flow switches and the flow transducers.  If any of them are bad the state is RED, otherwise it's green.
 	void onWaterStateChanged();
+	/// Handles the logic for opening PSH1.
+	void onPSH1Clicked();
+	/// Handles the logic for opening PSH2.
+	void onPSH2Clicked();
+	/// Handles the logic for opening SSH1.
+	void onSSH1Clicked();
 
 protected:
 	/// Button and label for the valves.
@@ -50,6 +57,11 @@ protected:
 	AMControlSet *flowSwitches_;
 	/// The flow transducers.
 	AMControlSet *flowTransducers_;
+	/// The photon and safety shutters.
+	AMShutterButton *psh1_;
+	AMShutterButton *psh2_;
+	AMShutterButton *ssh1_;
+	AMShutterButton *ssh2_;
 };
 
 #endif // VESPERSPERSISTENTVIEW_H

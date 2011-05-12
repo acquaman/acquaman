@@ -80,6 +80,11 @@ XRFDetector::XRFDetector(QString name, int elements, AMControl *status, AMContro
 			dataSources_ << temp;
 		}
 	}
+
+	/// This is a dirty hack until I get the custom analysis blocks working.
+	AMProcessVariable *corrSum = new AMProcessVariable("dxp1607-B21-04:mcaCorrected", true, this);
+	temp = new XRFDetectorDataSource(corrSum, "Corrected Sum", this);
+	dataSources_ << temp;
 }
 
 XRFDetector::XRFDetector(QString name, AMControl *status, AMControl *refreshRate, AMControl *peakingTime, AMControl *maximumEnergy, AMControl *integrationTime, AMControl *liveTime, AMControl *elapsedTime, AMControl *start, AMControl *stop, AMControl *deadTime, AMControl *spectra, QObject *parent)

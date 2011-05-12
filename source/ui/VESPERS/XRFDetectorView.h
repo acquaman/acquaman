@@ -8,6 +8,7 @@
 
 #include "MPlot/MPlot.h"
 #include "MPlot/MPlotWidget.h"
+#include "MPlot/MPlotSeries.h"
 
 #include <QLabel>
 #include <QDoubleSpinBox>
@@ -138,6 +139,13 @@ protected:
 	MPlotWidget *view_;
 	/// This is the plot itself.
 	MPlot *plot_;
+	/// This holds the raw data sources.
+	QList<MPlotSeriesBasic *> rawDataSeries_;
+	/// This holds the corrected sum.
+	MPlotSeriesBasic *corrSum_;
+	/// Holds whether the plot is in a waterfall plot mode or not.
+	bool isWaterfall_;
+
 	/// Holds the list of current markers.
 	QList<ROIPlotMarker *> markers_;
 	/// This holds the plot markers for showing emission lines.

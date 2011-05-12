@@ -31,7 +31,6 @@ AMShutterButton::AMShutterButton(QString title, QString statusPV, QString openPV
 {
 	statePV_ = new AMProcessVariable(statusPV, true, this);
 	connect(statePV_, SIGNAL(valueChanged()), this, SLOT(statusUpdate()));
-	connect(this, SIGNAL(clicked()), this, SLOT(changeState()));
 
 	openPV_ = new AMProcessVariable(openPV, false, this);
 	closePV_ = new AMProcessVariable(closePV, false, this);
@@ -50,6 +49,9 @@ AMShutterButton::AMShutterButton(QString title, QString statusPV, QString openPV
 
 void AMShutterButton::changeState()
 {
+	if (isFlat() || openPV_ == 0 || closePV_ == 0)
+		return;
+
 	switch(state()){
 	case Open:
 	case Between:
@@ -137,5 +139,6 @@ void AMShutterButton::paintEvent(QPaintEvent *e)
 		painter.setPen(Qt::darkBlue);
 	else
 		painter.setPen(Qt::white);
-	painter.drawText(QRectF(0.125*h, 0.25*h, metric.width(title()), metric.height()), title());
+
+	painter.drawText(QRectF((0.8*h-metric.width(title()))/2, 0.25*h, metric.width(title()), metric.height()), title());
 }
