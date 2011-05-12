@@ -43,9 +43,9 @@ SGM2004FileLoader::SGM2004FileLoader(AMXASScan* scan) : AMAbstractFileLoader(sca
 		columns2pvNames_.set("ringCurrent", "PCT1402-01:mA:fbk");
 		columns2pvNames_.set("Photodiode", "A1611-4-13:A:fbk");
 		columns2pvNames_.set("I0", "A1611-4-14:A:fbk");
-		columns2pvNames_.set("TEY", "A1611-4-15:A:fbk");
-		columns2pvNames_.set("TFY", "A1611-4-16:A:fbk");
-		columns2pvNames_.set("EnergyFeedback", "BL1611-ID-1:Energy:fbk");
+		columns2pvNames_.set("tey", "A1611-4-15:A:fbk");
+		columns2pvNames_.set("tfy", "A1611-4-16:A:fbk");
+		columns2pvNames_.set("EnergyFbk", "BL1611-ID-1:Energy:fbk");
 		columns2pvNames_.set("pressure", "TCGC1611-423:pressure:fbk");
 
 		columns2pvNames_.set("integrationTime", "A1611I1:cont_interval");
@@ -61,13 +61,13 @@ SGM2004FileLoader::SGM2004FileLoader(AMXASScan* scan) : AMAbstractFileLoader(sca
 	}
 
 
-	defaultUserVisibleColumns_ << "TEY";
-	defaultUserVisibleColumns_ << "TFY";
+	defaultUserVisibleColumns_ << "tey";
+	defaultUserVisibleColumns_ << "tfy";
 	defaultUserVisibleColumns_ << "I0";
 	defaultUserVisibleColumns_ << "Photodiode";
-	defaultUserVisibleColumns_ << "EnergyFeedback";
+	defaultUserVisibleColumns_ << "EnergyFbk";
 	defaultUserVisibleColumns_ << "ringCurrent";
-	defaultUserVisibleColumns_ << "SDD";
+	defaultUserVisibleColumns_ << "sdd";
 }
 
 /// load raw data from the SGM legacy file format into a scan's data tree.  If \c extractMetaData is set to true, this will also set the 'notes' and 'dateTime' meta-data fields.  If \c createChannels is set to true, it will create some default channels based on the data columns.
@@ -187,194 +187,199 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 					AMMeasurementInfo sddInfo("sdd", "Silicon Drift Detector", "counts", sddAxes);
 					if(scan->rawData()->addMeasurement(sddInfo)){
 						/// \todo Throw an errorMon out?
-						//qDebug() << "Added measurement " << scan->rawData()->measurementAt(scan->rawData()->measurementCount()-1).name;
+						qDebug() << "Added measurement " << scan->rawData()->measurementAt(scan->rawData()->measurementCount()-1).name;
 					}
 				}
 			}
 			else if(scan->rawData()->addMeasurement(AMMeasurementInfo(colName, colName))){
 				/// \todo Throw an errorMon out?
-				//qDebug() << "Added measurement " << scan->rawData()->measurementAt(scan->rawData()->measurementCount()-1).name;
+				qDebug() << "Added measurement " << scan->rawData()->measurementAt(scan->rawData()->measurementCount()-1).name;
 			}
 		}
 	}
 	if(postSddFileOffset){
 		if(scan->rawData()->addMeasurement(AMMeasurementInfo("sdd_fileOffset", "sdd_fileOffset")))
 			qDebug() << "Added measurement " << scan->rawData()->measurementAt(scan->rawData()->measurementCount()-1).name;
-		QString spectraFile = "";
-		if(scan->rawData()->idOfMeasurement("sdd_fileOffset") >= 0){
-			foreach(QString afp, scan->additionalFilePaths())
-				if(afp.contains("_spectra.dat"))
-					spectraFile = afp;
-			if(spectraFile != ""){
-				AMAxisInfo sddEVAxisInfo("energy", 1024, "SDD Energy", "eV");
-				QList<AMAxisInfo> sddAxes;
-				sddAxes << sddEVAxisInfo;
-				AMMeasurementInfo sddInfo("SDD", "Silicon Drift Detector", "counts", sddAxes);
-				scan->rawData()->addMeasurement(sddInfo);
-			}
-		}
-		int sddOffsetIndex = colNames1.indexOf("sdd_fileOffset");
-
-		// read all the data. Add to data columns or scan properties depending on the event-ID.
-
-		int eVAxisIndex = 0;	// counter, incremented for every data point along the scan (eV) axis.
-		while(!fs.atEnd()) {
-
-			line = fs.readLine();
-
-			// event id 1.  If the line starts with "1," and there are the correct number of columns:
-			if(line.startsWith("1,") && (lp = line.split(',')).count() == colNames1.count() ) {
-
-				scan->rawData()->beginInsertRows(0);
-				scan->rawData()->setAxisValue(0, eVAxisIndex, lp.at(eVIndex).toDouble()); // insert eV
-
-				// add data from all columns (but ignore the first (Event-ID) and the eV column)
-				int measurementId = 0;
-				for(int i=1; i<colNames1.count(); i++) {
-					if(i == sddOffsetIndex)
-						scan->rawData()->setValue(eVAxisIndex, scan->rawData()->idOfMeasurement("sdd_fileOffset"), AMnDIndex(), lp.at(i).toDouble());
-					else if(i!=eVIndex) {
-						scan->rawData()->setValue(eVAxisIndex, measurementId++, AMnDIndex(), lp.at(i).toDouble());
-					}
-				}
-
-				eVAxisIndex++;
-				scan->rawData()->endInsertRows();
-			}
-
-			// event id 2.  If the line starts with "# 2," and there are the correct number of columns:
-			else if(line.startsWith("# 2,") && (lp = line.split(',')).count() == colNames2.count() ) {
-
-				// see if we recognize any of the translated column names as useful:
-				for(int i=1; i<colNames2.count(); i++) {
-
-					if(colNames2.at(i) == "time")
-						datetime = QDateTime::fromTime_t(lp.at(i).toDouble());
-					if(colNames2.at(i) == "grating")
-						grating = lp.at(i);
-					if(colNames2.at(i) == "integrationTime")
-						integrationTime = lp.at(i).toDouble();
-				}
-			}
-		}
-
-
-		if(spectraFile != ""){
-			QFile sf(spectraFile);
-			if(!sf.open(QIODevice::ReadOnly)) {
-				AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -1, "SGM2004FileLoader parse error while loading scan data from file. Missing SDD spectra file."));
-				return false;
-			}
-			QTextStream sfs(&sf);
-			QTextStream sfls;
-			int startByte, endByte;
-			int specVal;
-			int specCounter = 0;
-			int indexOfSDD = scan->rawData()->idOfMeasurement("sdd");
-
-			for(int x = 0; x < scan->rawData()->scanSize(0); x++){
-				if(x == scan->rawData()->scanSize(0)-1){
-					endByte += endByte-startByte; //Assumes the last two are the same size
-					startByte = scan->rawData()->value(AMnDIndex(x), scan->rawData()->idOfMeasurement("sdd_fileOffset"), AMnDIndex());
-				}
-				else{
-					startByte = scan->rawData()->value(AMnDIndex(x), scan->rawData()->idOfMeasurement("sdd_fileOffset"), AMnDIndex());
-					endByte = scan->rawData()->value(AMnDIndex(x+1), scan->rawData()->idOfMeasurement("sdd_fileOffset"), AMnDIndex());
-				}
-				sfs.seek(startByte);
-				QString sfl = sfs.read( (qint64)(endByte-startByte) );
-				if(sfl.contains(", "))
-					sfl.remove(',');
-				else
-					sfl.replace(',', ' ');
-				sfls.setString(&sfl, QIODevice::ReadOnly);
-
-				while(!sfls.atEnd()){
-					if(sfls.status() == QTextStream::ReadCorruptData) {
-						AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -1, "SGM2004FileLoader found corrupted data in the SDD spectra file."));
-						return false;
-					}
-					sfls >> specVal;
-
-					scan->rawData()->setValue(AMnDIndex(x), indexOfSDD, AMnDIndex(specCounter), specVal);
-					specCounter++;
-				}
-				specCounter = 0;
-			}
-		}
-
-
-		if(setMetaData) {
-			scan->setNotes(QString("Grating: %1\nIntegration Time: %2\nComments:\n%3").arg(grating).arg(integrationTime).arg(comments));	/// \todo Move this from notes to the scan's scanInitialConditions().
-			scan->setDateTime(datetime);
-		}
-
-
-		// If we need to create the raw data sources...
-		if(setRawDataSources) {
-			// expose the raw data that might be useful to the users
-			foreach(QString visibleColumn, defaultUserVisibleColumns_) {
-				int measurementId = scan->rawData()->idOfMeasurement(visibleColumn);
-				if(measurementId >= 0)
-					scan->addRawDataSource(new AMRawDataSource(scan->rawData(), measurementId));
-			}
-		}
-
-		/// Not supposed to create the raw data sources.  Do an integrity check on the pre-existing data sources instead... If there's a raw data source, but it's pointing to a non-existent measurement in the data store, that's a problem. Remove it.  \todo Is there any way to incorporate this at a higher level, so that import-writers don't need to bother?
-		else {
-			for(int i=0; i<scan->rawDataSources()->count(); i++) {
-				if(scan->rawDataSources()->at(i)->measurementId() >= scan->rawData()->measurementCount()) {
-					AMErrorMon::report(AMErrorReport(scan, AMErrorReport::Debug, -97, QString("The data in the file (%1 columns) didn't match the raw data columns we were expecting (column %2). Removing the raw data column '%3')").arg(scan->rawData()->measurementCount()).arg(scan->rawDataSources()->at(i)->measurementId()).arg(scan->rawDataSources()->at(i)->name())));
-					scan->deleteRawDataSource(i);
-				}
-			}
-		}
-
-		// If the scan doesn't have any channels yet, it would be helpful to create some.
-		if(createDefaultAnalysisBlocks) {
-
-			QList<AMDataSource*> raw1DDataSources;
-			for(int i=0; i<scan->rawDataSources()->count(); i++)
-				if(scan->rawDataSources()->at(i)->rank() == 1)
-					raw1DDataSources << scan->rawDataSources()->at(i);
-
-			int rawTeyIndex = scan->rawDataSources()->indexOfKey("TEY");
-			int rawTfyIndex = scan->rawDataSources()->indexOfKey("TFY");
-			int rawI0Index = scan->rawDataSources()->indexOfKey("I0");
-
-			if(rawTeyIndex != -1 && rawI0Index != -1) {
-				AM1DExpressionAB* teyChannel = new AM1DExpressionAB("TEYNorm");
-				teyChannel->setDescription("Normalized TEY");
-				teyChannel->setInputDataSources(raw1DDataSources);
-				teyChannel->setExpression("TEY/I0");
-
-				scan->addAnalyzedDataSource(teyChannel);
-			}
-
-			if(rawTfyIndex != -1 && rawI0Index != -1) {
-				AM1DExpressionAB* tfyChannel = new AM1DExpressionAB("TFYNorm");
-				tfyChannel->setDescription("Normalized TFY");
-				tfyChannel->setInputDataSources(raw1DDataSources);
-				tfyChannel->setExpression("-TFY/I0");
-
-				scan->addAnalyzedDataSource(tfyChannel);
-			}
-
-
-			int rawSddIndex = scan->rawDataSources()->indexOfKey("SDD");
-			if(rawSddIndex != -1) {
-				AMRawDataSource* sddRaw = scan->rawDataSources()->at(rawSddIndex);
-				AM2DSummingAB* sddSum = new AM2DSummingAB("PFY");
-				QList<AMDataSource*> sddSumSource;
-				sddSumSource << sddRaw;
-				sddSum->setInputDataSources(sddSumSource);
-				sddSum->setSumAxis(1);
-				sddSum->setSumRangeMax(sddRaw->size(1)-1);
-
-				scan->addAnalyzedDataSource(sddSum);
-			}
-		}
-
-		return true;
 	}
+	int sddOffsetIndex = colNames1.indexOf("sdd_fileOffset");
+
+	// read all the data. Add to data columns or scan properties depending on the event-ID.
+
+	int eVAxisIndex = 0;	// counter, incremented for every data point along the scan (eV) axis.
+	qDebug() << "Col names " << colNames1 << " sddOffset is " << sddOffsetIndex;
+	while(!fs.atEnd()) {
+
+		line = fs.readLine();
+
+		// event id 1.  If the line starts with "1," and there are the correct number of columns:
+		if(line.startsWith("1,") && (lp = line.split(',')).count() == colNames1.count() ) {
+
+			scan->rawData()->beginInsertRows(0);
+			scan->rawData()->setAxisValue(0, eVAxisIndex, lp.at(eVIndex).toDouble()); // insert eV
+
+			// add data from all columns (but ignore the first (Event-ID) and the eV column)
+			int measurementId = 0;
+			for(int i=1; i<colNames1.count(); i++) {
+				if(i == sddOffsetIndex){
+					scan->rawData()->setValue(eVAxisIndex, scan->rawData()->idOfMeasurement("sdd_fileOffset"), AMnDIndex(), lp.at(i).toDouble());
+					measurementId++;
+				}
+				else if(i!=eVIndex) {
+					scan->rawData()->setValue(eVAxisIndex, measurementId++, AMnDIndex(), lp.at(i).toDouble());
+				}
+			}
+
+			eVAxisIndex++;
+			scan->rawData()->endInsertRows();
+		}
+
+		// event id 2.  If the line starts with "# 2," and there are the correct number of columns:
+		else if(line.startsWith("# 2,") && (lp = line.split(',')).count() == colNames2.count() ) {
+
+			// see if we recognize any of the translated column names as useful:
+			for(int i=1; i<colNames2.count(); i++) {
+
+				if(colNames2.at(i) == "time")
+					datetime = QDateTime::fromTime_t(lp.at(i).toDouble());
+				if(colNames2.at(i) == "grating")
+					grating = lp.at(i);
+				if(colNames2.at(i) == "integrationTime")
+					integrationTime = lp.at(i).toDouble();
+			}
+		}
+	}
+
+
+	if(spectraFile != ""){
+		QFile sf(spectraFile);
+		if(!sf.open(QIODevice::ReadOnly)) {
+			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -1, "SGM2004FileLoader parse error while loading scan data from file. Missing SDD spectra file."));
+			return false;
+		}
+		QTextStream sfs(&sf);
+		QTextStream sfls;
+		int startByte, endByte;
+		int specVal;
+		int specCounter = 0;
+		int indexOfSDD = scan->rawData()->idOfMeasurement("sdd");
+
+		for(int x = 0; x < scan->rawData()->scanSize(0); x++){
+			if(x == scan->rawData()->scanSize(0)-1){
+				endByte += endByte-startByte; //Assumes the last two are the same size
+				startByte = scan->rawData()->value(AMnDIndex(x), scan->rawData()->idOfMeasurement("sdd_fileOffset"), AMnDIndex());
+			}
+			else{
+				startByte = scan->rawData()->value(AMnDIndex(x), scan->rawData()->idOfMeasurement("sdd_fileOffset"), AMnDIndex());
+				endByte = scan->rawData()->value(AMnDIndex(x+1), scan->rawData()->idOfMeasurement("sdd_fileOffset"), AMnDIndex());
+			}
+			sfs.seek(startByte);
+			QString sfl = sfs.read( (qint64)(endByte-startByte) );
+			if(sfl.contains(", "))
+				sfl.remove(',');
+			else
+				sfl.replace(',', ' ');
+			sfls.setString(&sfl, QIODevice::ReadOnly);
+
+			while(!sfls.atEnd()){
+				if(sfls.status() == QTextStream::ReadCorruptData) {
+					AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -1, "SGM2004FileLoader found corrupted data in the SDD spectra file."));
+					return false;
+				}
+				sfls >> specVal;
+
+				scan->rawData()->setValue(AMnDIndex(x), indexOfSDD, AMnDIndex(specCounter), specVal);
+				specCounter++;
+			}
+			specCounter = 0;
+		}
+	}
+
+
+	if(setMetaData) {
+		scan->setNotes(QString("Grating: %1\nIntegration Time: %2\nComments:\n%3").arg(grating).arg(integrationTime).arg(comments));	/// \todo Move this from notes to the scan's scanInitialConditions().
+		scan->setDateTime(datetime);
+	}
+
+
+	// If we need to create the raw data sources...
+	/*
+	if(setRawDataSources) {
+		// expose the raw data that might be useful to the users
+		foreach(QString visibleColumn, defaultUserVisibleColumns_) {
+			int measurementId = scan->rawData()->idOfMeasurement(visibleColumn);
+			qDebug() << "Want to create rawDataSource for " << visibleColumn << " at " << measurementId;
+			if(measurementId >= 0)
+				scan->addRawDataSource(new AMRawDataSource(scan->rawData(), measurementId));
+		}
+	}
+	*/
+	if(setRawDataSources){
+		for(int x = 0; x < scan->rawData()->measurementCount(); x++){
+			if(defaultUserVisibleColumns_.contains(scan->rawData()->measurementAt(x).name))
+				scan->addRawDataSource(new AMRawDataSource(scan->rawData(), x));
+		}
+	}
+
+	/// Not supposed to create the raw data sources.  Do an integrity check on the pre-existing data sources instead... If there's a raw data source, but it's pointing to a non-existent measurement in the data store, that's a problem. Remove it.  \todo Is there any way to incorporate this at a higher level, so that import-writers don't need to bother?
+	else {
+		for(int i=0; i<scan->rawDataSources()->count(); i++) {
+			if(scan->rawDataSources()->at(i)->measurementId() >= scan->rawData()->measurementCount()) {
+				AMErrorMon::report(AMErrorReport(scan, AMErrorReport::Debug, -97, QString("The data in the file (%1 columns) didn't match the raw data columns we were expecting (column %2). Removing the raw data column '%3')").arg(scan->rawData()->measurementCount()).arg(scan->rawDataSources()->at(i)->measurementId()).arg(scan->rawDataSources()->at(i)->name())));
+				scan->deleteRawDataSource(i);
+			}
+		}
+	}
+
+	// If the scan doesn't have any channels yet, it would be helpful to create some.
+	if(createDefaultAnalysisBlocks) {
+
+		QList<AMDataSource*> raw1DDataSources;
+		for(int i=0; i<scan->rawDataSources()->count(); i++)
+			if(scan->rawDataSources()->at(i)->rank() == 1)
+				raw1DDataSources << scan->rawDataSources()->at(i);
+
+		int rawTeyIndex = scan->rawDataSources()->indexOfKey("tey");
+		if(rawTeyIndex == -1){
+			qDebug() << "Could find tey trying TEY";
+			rawTeyIndex = scan->rawDataSources()->indexOfKey("TEY");
+		}
+		int rawTfyIndex = scan->rawDataSources()->indexOfKey("tfy");
+		int rawI0Index = scan->rawDataSources()->indexOfKey("I0");
+
+		if(rawTeyIndex != -1 && rawI0Index != -1) {
+			AM1DExpressionAB* teyChannel = new AM1DExpressionAB("tey_n");
+			teyChannel->setDescription("Normalized TEY");
+			teyChannel->setInputDataSources(raw1DDataSources);
+			teyChannel->setExpression("tey/I0");
+
+			scan->addAnalyzedDataSource(teyChannel);
+		}
+
+		if(rawTfyIndex != -1 && rawI0Index != -1) {
+			AM1DExpressionAB* tfyChannel = new AM1DExpressionAB("tfy_n");
+			tfyChannel->setDescription("Normalized TFY");
+			tfyChannel->setInputDataSources(raw1DDataSources);
+			tfyChannel->setExpression("-tfy/I0");
+
+			scan->addAnalyzedDataSource(tfyChannel);
+		}
+
+
+		int rawSddIndex = scan->rawDataSources()->indexOfKey("sdd");
+		if(rawSddIndex != -1) {
+			AMRawDataSource* sddRaw = scan->rawDataSources()->at(rawSddIndex);
+			AM2DSummingAB* sddSum = new AM2DSummingAB("sddSummed");
+			QList<AMDataSource*> sddSumSource;
+			sddSumSource << sddRaw;
+			sddSum->setInputDataSources(sddSumSource);
+			sddSum->setSumAxis(1);
+			sddSum->setSumRangeMax(sddRaw->size(1)-1);
+
+			scan->addAnalyzedDataSource(sddSum);
+		}
+	}
+
+	/// scan->onDataChanged(); \todo Is this still used? What does it mean?
+
+	return true;
 }
