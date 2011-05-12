@@ -56,7 +56,7 @@ public:
 	static QColor nextColor() {
 		static int i = 0;
 
-		switch(i++ % 12) {
+		switch(i++ % 11) {
 		case 0: return QColor(255, 0, 128);
 		case 1: return QColor(0, 128, 255);
 		case 2: return QColor(128, 255, 0);
@@ -64,11 +64,11 @@ public:
 		case 4: return QColor(128, 0, 255);
 		case 5: return QColor(0, 0, 255);
 		case 6: return QColor(0, 128, 0);
-		case 7: return QColor(255, 255, 0);
-		case 8: return QColor(255, 0, 0);
-		case 9: return QColor(0, 64, 128);
-		case 10: return QColor(128, 64, 0);
-		case 11: default: return QColor(128, 0, 64);
+		// Yellow is hard to see: case 7: return QColor(255, 255, 0);
+		case 7: return QColor(255, 0, 0);
+		case 8: return QColor(0, 64, 128);
+		case 9: return QColor(128, 64, 0);
+		case 10: default: return QColor(128, 0, 64);
 		}
 	}
 
