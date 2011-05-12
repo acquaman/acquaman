@@ -41,11 +41,11 @@ SGM2004FileLoader::SGM2004FileLoader(AMXASScan* scan) : AMAbstractFileLoader(sca
 	if(columns2pvNames_.count() == 0) {
 		columns2pvNames_.set("eV", "BL1611-ID-1:Energy");
 		columns2pvNames_.set("ringCurrent", "PCT1402-01:mA:fbk");
-		columns2pvNames_.set("I0_2", "A1611-4-13:A:fbk");
+		columns2pvNames_.set("Photodiode", "A1611-4-13:A:fbk");
 		columns2pvNames_.set("I0", "A1611-4-14:A:fbk");
 		columns2pvNames_.set("TEY", "A1611-4-15:A:fbk");
 		columns2pvNames_.set("TFY", "A1611-4-16:A:fbk");
-		columns2pvNames_.set("eV_fbk", "BL1611-ID-1:Energy:fbk");
+		columns2pvNames_.set("EnergyFeedback", "BL1611-ID-1:Energy:fbk");
 		columns2pvNames_.set("pressure", "TCGC1611-423:pressure:fbk");
 
 		columns2pvNames_.set("integrationTime", "A1611I1:cont_interval");
@@ -64,8 +64,8 @@ SGM2004FileLoader::SGM2004FileLoader(AMXASScan* scan) : AMAbstractFileLoader(sca
 	defaultUserVisibleColumns_ << "TEY";
 	defaultUserVisibleColumns_ << "TFY";
 	defaultUserVisibleColumns_ << "I0";
-	defaultUserVisibleColumns_ << "I0_2";
-	defaultUserVisibleColumns_ << "eV_fbk";
+	defaultUserVisibleColumns_ << "Photodiode";
+	defaultUserVisibleColumns_ << "EnergyFeedback";
 	defaultUserVisibleColumns_ << "ringCurrent";
 	defaultUserVisibleColumns_ << "SDD";
 }
