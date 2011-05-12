@@ -215,12 +215,12 @@ void VESPERSPersistentView::onPSH1Clicked()
 {
 	// If currently open, simply close.
 	if (psh1_->state() == AMShutterButton::Open)
-		psh1_->changeState();
+		psh1_->close();
 
 	// Need to check if opening is okay before opening.  Emits a message if not successful.
 	else {
 		if (ssh1_->state() == AMShutterButton::Open || (ssh1_->state() == AMShutterButton::Closed && psh2_->state() == AMShutterButton::Closed))
-			psh1_->changeState();
+			psh1_->open();
 
 		else
 			QMessageBox::information(this, "Beamline Instructions", QString("You must open the %1 shutter before opening %2 shutter.").arg(ssh1_->title()).arg(psh1_->title()));
@@ -231,12 +231,12 @@ void VESPERSPersistentView::onPSH2Clicked()
 {
 	// If currently open, simply close.
 	if (psh2_->state() == AMShutterButton::Open)
-		psh2_->changeState();
+		psh2_->close();
 
 	// Need to check if opening is okay before opening.  Emits a message if not successful.
 	else {
 		if (ssh1_->state() == AMShutterButton::Open || (ssh1_->state() == AMShutterButton::Closed && psh1_->state() == AMShutterButton::Closed))
-			psh2_->changeState();
+			psh2_->open();
 
 		else
 			QMessageBox::information(this, "Beamline Instructions", QString("You must open the %1 shutter before opening %2 shutter.").arg(ssh1_->title()).arg(psh2_->title()));
@@ -247,13 +247,13 @@ void VESPERSPersistentView::onSSH1Clicked()
 {
 	// If currently closed, simply open.
 	if (ssh1_->state() == AMShutterButton::Closed)
-		ssh1_->changeState();
+		ssh1_->open();
 
 	// Need to check if closing is okay before closing.  Emits a message if not successful.
 	else{
 
 		if ((psh1_->state() == AMShutterButton::Open && psh2_->state() == AMShutterButton::Closed) || (psh1_->state() == AMShutterButton::Closed && psh2_->state() == AMShutterButton::Open))
-			ssh1_->changeState();
+			ssh1_->close();
 
 		else
 			QMessageBox::information(this, "Beamline Instructions", QString("You must close either the %1 shutter or the %2 shutter before closing the %3 shutter.").arg(psh1_->title()).arg(psh2_->title()).arg(ssh1_->title()));
