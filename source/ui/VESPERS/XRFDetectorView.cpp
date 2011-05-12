@@ -141,14 +141,14 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	QLabel *rawElementLabel = new QLabel(QString("Raw Elements"));
 	rawElementLabel->setFont(font);
 
-	QPushButton *logButton = new QPushButton("Log Scale");
-	logButton->setCheckable(true);
-	logButton->setChecked(false);
-	connect(logButton, SIGNAL(toggled(bool)), this, SLOT(onLogEnabled(bool)));
+	logButton_ = new QPushButton("Log");
+	logButton_->setCheckable(true);
+	logButton_->setChecked(false);
+	connect(logButton_, SIGNAL(toggled(bool)), this, SLOT(onLogEnabled(bool)));
 
-	QPushButton *waterfallButton = new QPushButton("Raw Spectra");
-	waterfallButton->setCheckable(true);
-	connect(waterfallButton, SIGNAL(toggled(bool)), this, SLOT(onWaterfallToggled(bool)));
+	waterfallButton_ = new QPushButton("Raw Spectra");
+	waterfallButton_->setCheckable(true);
+	connect(waterfallButton_, SIGNAL(toggled(bool)), this, SLOT(onWaterfallToggled(bool)));
 
 	waterfallSeparation_ = new QDoubleSpinBox;
 	waterfallSeparation_->setPrefix(QString::fromUtf8("Δh = "));
@@ -159,7 +159,7 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	waterfallSeparation_->setAlignment(Qt::AlignCenter);
 	waterfallSeparation_->setEnabled(false);
 	connect(waterfallSeparation_, SIGNAL(valueChanged(double)), this, SLOT(onWaterfallSeparationChanged(double)));
-	connect(waterfallButton, SIGNAL(toggled(bool)), waterfallSeparation_, SLOT(setEnabled(bool)));
+	connect(waterfallButton_, SIGNAL(toggled(bool)), waterfallSeparation_, SLOT(setEnabled(bool)));
 
 	QVBoxLayout *viewControlLayout = new QVBoxLayout;
 	viewControlLayout->addWidget(elapsedTimeLabel, 0, Qt::AlignLeft);
@@ -170,11 +170,11 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	viewControlLayout->addWidget(updateRateLabel, 0, Qt::AlignLeft);
 	viewControlLayout->addWidget(updateRate_, 0, Qt::AlignCenter);
 	viewControlLayout->addWidget(logLabel, 0, Qt::AlignLeft);
-	viewControlLayout->addWidget(logButton, 0, Qt::AlignCenter);
+	viewControlLayout->addWidget(logButton_, 0, Qt::AlignCenter);
 	if (detector_->elements() != 1){
 
 		viewControlLayout->addWidget(rawElementLabel, 0, Qt::AlignLeft);
-		viewControlLayout->addWidget(waterfallButton, 0, Qt::AlignCenter);
+		viewControlLayout->addWidget(waterfallButton_, 0, Qt::AlignCenter);
 		viewControlLayout->addWidget(waterfallSeparation_, 0, Qt::AlignCenter);
 	}
 	viewControlLayout->addStretch();
@@ -238,11 +238,13 @@ QString XRFDetailedDetectorView::getName(AMROI *roi)
 
 void XRFDetailedDetectorView::onLogEnabled(bool logged)
 {
+	logged ? logButton_->setText("Linear") : logButton_->setText("Log");
 	plot_->axisScaleLeft()->setLogScaleEnabled(logged);
 }
 
 void XRFDetailedDetectorView::onWaterfallToggled(bool isWaterfall)
 {
+	isWaterfall ? waterfallButton_->setText("Sum Spectra") : waterfallButton_->setText("Raw Spectra");
 	isWaterfall_ = isWaterfall;
 
 	if (isWaterfall){

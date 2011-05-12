@@ -121,6 +121,7 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	QGroupBox *vespers = new QGroupBox("VESPERS Beamline");
 	vespers->setLayout(persistentLayout);
 	vespers->setStyleSheet("QGroupBox { font: bold 12px; } ");
+	//vespers->setFixedWidth(175);
 
 	QVBoxLayout *vespersLayout = new QVBoxLayout;
 	vespersLayout->addWidget(vespers);
