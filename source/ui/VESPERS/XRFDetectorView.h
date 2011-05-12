@@ -12,6 +12,7 @@
 
 #include <QLabel>
 #include <QDoubleSpinBox>
+#include <QPushButton>
 
 class XRFBriefDetectorView : public AMBriefDetectorView
 {
@@ -131,6 +132,10 @@ protected:
 	QComboBox *updateRate_;
 	/// The waterfall spin box.
 	QDoubleSpinBox *waterfallSeparation_;
+	/// The log button.
+	QPushButton *logButton_;
+	/// The raw spectra button.
+	QPushButton *waterfallButton_;
 
 	/// The button group used for the dead time tool buttons.
 	QButtonGroup *deadTimeGroup_;
