@@ -432,6 +432,7 @@ AMControlEditorStyledInputDialog::AMControlEditorStyledInputDialog( QStringList 
 	label_ = new QLabel("New value:");
 	label_->setAlignment(Qt::AlignCenter);
 	enumNames_ = enumNames;
+	isEnum_ = false; //IS THIS THE MISSING PIECE?
 	if(enumNames_.count() > 0)
 		isEnum_ = true;
 	spinBox_ = new QDoubleSpinBox();
