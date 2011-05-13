@@ -192,7 +192,7 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	detectorLayout->addLayout(viewLayout);
 
 	setLayout(detectorLayout);
-
+qDebug() << plot_->axisScaleLeft()->padding() << plot_->axisScaleVerticalRelative()->padding();
 	return true;
 }
 

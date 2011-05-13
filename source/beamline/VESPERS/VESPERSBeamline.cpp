@@ -189,9 +189,9 @@ void VESPERSBeamline::setupSampleStage()
 	sampleStage_ = new SampleStageControl(h, v, n, x, y, z);
 
 	sampleStage_->setScalers(1, 0.707, 0.707);
-	sampleStage_->setXRange(-200000, 200000);
+	sampleStage_->setXRange(-700000, 700000);
 	sampleStage_->setYRange(-200000, 200000);
-	sampleStage_->setZRange(-750000, 750000);
+	sampleStage_->setZRange(-200000, 200000);
 
 	sampleStagePidX_ = new AMPVControl("Sample Stage PID X", "SVM1607-2-B21-02:hold:sp", "SVM1607-2-B21-02:hold", QString(), this);
 	sampleStagePidY_ = new AMPVControl("Sample Stage PID Y", "SVM1607-2-B21-03:hold:sp", "SVM1607-2-B21-03:hold", QString(), this);
