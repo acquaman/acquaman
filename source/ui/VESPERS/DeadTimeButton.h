@@ -23,7 +23,7 @@ public slots:
 	/// Sets the good setpoint.
 	void setGood(double val) { good_ = val; }
 	/// Sets the bad setpoint.
-	void seBad(double val) { bad_ = val; }
+	void setBad(double val) { bad_ = val; }
 	/// Sets the current value.
 	void setCurrent(double val) { current_ = val; }
 
