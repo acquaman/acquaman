@@ -88,7 +88,7 @@ QString MCPDetector::description() const{
 }
 
 bool MCPDetector::setControls(MCPDetectorInfo *mcpSettings){
-	hvCtrl()->move( mcpSettings->hvSetpoint() );
+//	hvCtrl()->move( mcpSettings->hvSetpoint() );
 	return true;
 }
 

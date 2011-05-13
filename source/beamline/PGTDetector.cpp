@@ -121,9 +121,9 @@ void PGTDetector::setDescription(const QString &description){
 }
 
 bool PGTDetector::setControls(PGTDetectorInfo *pgtSettings){
-	hvCtrl()->move( pgtSettings->hvSetpoint() );
-	integrationTimeCtrl()->move( pgtSettings->integrationTime() );
-	integrationModeCtrl()->move( integrationModeCtrl()->enumNames().indexOf(pgtSettings->integrationMode()) );
+//	hvCtrl()->move( pgtSettings->hvSetpoint() );
+//	integrationTimeCtrl()->move( pgtSettings->integrationTime() );
+//	integrationModeCtrl()->move( integrationModeCtrl()->enumNames().indexOf(pgtSettings->integrationMode()) );
 	return true;
 }
 
