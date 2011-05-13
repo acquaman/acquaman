@@ -87,7 +87,7 @@ void AMBeamlineScanAction::start(){
 		if(!ctrl_) {
 			AMErrorMon::report(AMErrorReport(this,
 					AMErrorReport::Alert,
-					AMBEAMLINEACTIONITEM_CANT_INITIALIZE_CONTROLLER,
+					AMBEAMLINEACTIONITEM_CANT_CREATE_CONTROLLER,
 					"Error, could not create scan controller. Please report this bug to the Acquaman developers."));
 			setFailed(true, AMBEAMLINEACTIONITEM_CANT_CREATE_CONTROLLER);
 			return;
@@ -97,7 +97,7 @@ void AMBeamlineScanAction::start(){
 			delete ctrl_;
 			AMErrorMon::report(AMErrorReport(this,
 					AMErrorReport::Alert,
-					AMBEAMLINEACTIONITEM_CANT_INITIALIZE_CONTROLLER,
+					AMBEAMLINEACTIONITEM_CANT_SET_CURRENT_CONTROLLER,
 					"Error, could not set current scan controller. Please report this bug to the Acquaman developers."));
 			setFailed(true, AMBEAMLINEACTIONITEM_CANT_SET_CURRENT_CONTROLLER);
 			return;
