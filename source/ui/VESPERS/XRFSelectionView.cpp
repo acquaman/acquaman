@@ -21,7 +21,7 @@ XRFSelectionView::XRFSelectionView(double minimumEnergy, double maximumEnergy, Q
 	palette.setColor(QPalette::Window, QColor(110, 139, 61));
 	elView_->setPalette(palette);
 	elView_->setAutoFillBackground(true);
-	elView_->setFixedSize(175, 250);
+	elView_->setFixedSize(225, 250);
 
 	// This signal takes an element that was clicked inside the view and transfers it to the element view.  It puts checks where appropriate.
 	connect(tableView_, SIGNAL(elementClicked(AMElement*,QList<QPair<int,QString> >)), elView_, SLOT(setElement(AMElement*,QList<QPair<int,QString> >)));
