@@ -450,12 +450,12 @@ AMControlEditorStyledInputDialog::AMControlEditorStyledInputDialog( QStringList 
 	if(!isEnum_){
 		vl_->addWidget(spinBox_);
 		comboBox_->hide();
-		qDebug() << "I THINK I'M AN ANALOG";
+		qDebug() << "I THINK I'M AN ANALOG " << label_->text();
 	}
 	else{
 		vl_->addWidget(comboBox_);
 		spinBox_->hide();
-		qDebug() << "I THINK I'M AN ENUM";
+		qDebug() << "I THINK I'M AN ENUM " << label_->text();
 	}
 
 	hl_ = new QHBoxLayout();
@@ -520,14 +520,14 @@ void AMControlEditorStyledInputDialog::setEnumNames(const QStringList &sl){
 			vl_->insertWidget(1, spinBox_);
 			comboBox_->hide();
 			spinBox_->show();
-			qDebug() << "TRYING TO SWITCH FROM ENUM TO ANALOG";
+			qDebug() << "TRYING TO SWITCH FROM ENUM TO ANALOG " << label_->text();
 		}
 		else{
 			vl_->removeWidget(spinBox_);
 			vl_->insertWidget(1, comboBox_);
 			spinBox_->hide();
 			comboBox_->show();
-			qDebug() << "TRYING TO SWITCH FROM ANALOG TO ENUM";
+			qDebug() << "TRYING TO SWITCH FROM ANALOG TO ENUM " << label_->text();
 		}
 	}
 }
