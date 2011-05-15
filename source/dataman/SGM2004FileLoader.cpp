@@ -238,34 +238,52 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -1, "SGM2004FileLoader parse error while loading scan data from file. Missing SDD spectra file."));
 			return false;
 		}
-		QTextStream sfs(&sf);
-		QTextStream sfls;
+
 		int startByte, endByte;
-		int specVal;
 		int specCounter = 0;
-		for(int x = 0; x < scan->rawData()->scanSize(0); x++){
-			if(x == scan->rawData()->scanSize(0)-1){
+		int scanSize = scan->rawData()->scanSize(0);
+		int fileOffsetMeasurementId = scan->rawData()->idOfMeasurement("sdd_fileOffset");
+		int sddMeasurementId = scan->rawData()->idOfMeasurement("SDD");
+		int sddSize = scan->rawData()->measurementAt(sddMeasurementId).size(0);
+		for(int x = 0; x < scanSize; x++){
+			if(x == scanSize-1){
 				endByte += endByte-startByte; //Assumes the last two are the same size
-				startByte = scan->rawData()->value(AMnDIndex(x), scan->rawData()->idOfMeasurement("sdd_fileOffset"), AMnDIndex());
+				startByte = scan->rawData()->value(AMnDIndex(x), fileOffsetMeasurementId, AMnDIndex());
 			}
 			else{
-				startByte = scan->rawData()->value(AMnDIndex(x), scan->rawData()->idOfMeasurement("sdd_fileOffset"), AMnDIndex());
-				endByte = scan->rawData()->value(AMnDIndex(x+1), scan->rawData()->idOfMeasurement("sdd_fileOffset"), AMnDIndex());
+				startByte = scan->rawData()->value(AMnDIndex(x), fileOffsetMeasurementId, AMnDIndex());
+				endByte = scan->rawData()->value(AMnDIndex(x+1), fileOffsetMeasurementId, AMnDIndex());
 			}
-			//sfs.seek( (qint64)((int)(scan->rawData()->value(AMnDIndex(x), scan->rawData()->idOfMeasurement("sdd_fileOffset"), AMnDIndex()))) );
-			sfs.seek(startByte);
-			QString sfl = sfs.read( (qint64)(endByte-startByte) ).remove(',');
-			sfls.setString(&sfl, QIODevice::ReadOnly);
 
-			while(!sfls.atEnd()){
-				if(sfls.status() == QTextStream::ReadCorruptData) {
-					AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -1, "SGM2004FileLoader found corrupted data in the SDD spectra file."));
-					return false;
+			sf.seek(startByte);
+			QByteArray row = sf.read( (qint64)(endByte-startByte) );
+
+			// optimized parsing of the spectrum file. Avoid QTextStream because of unicode conversion. Avoid memory allocation as much as possible. The row is a list of integers, separated by commas and/or spaces.
+			int rowLength = row.length();
+			bool insideWord = false;
+			QString word;
+			word.reserve(12);
+			for(int rowb = 0; rowb<rowLength; rowb++) {
+				char c = row.at(rowb);
+				if(c == ' ' || c == ',') {
+					// the end of a word
+					if(insideWord) {
+						scan->rawData()->setValue(AMnDIndex(x), sddMeasurementId, specCounter++, word.toInt());
+						word.clear();
+						insideWord = false;
+					}
 				}
-				sfls >> specVal;
+				else {
+					word.append(c);
+					insideWord = true;
+				}
+			}
+			if(insideWord) // possibly the last word (with no terminators after it)
+				scan->rawData()->setValue(AMnDIndex(x), sddMeasurementId, specCounter++, word.toInt());
 
-				scan->rawData()->setValue(AMnDIndex(x), scan->rawData()->idOfMeasurement("SDD"), AMnDIndex(specCounter), specVal);
-				specCounter++;
+			/// \todo Check specCounter is the right size... Not too big, not too small.
+			if(specCounter != sddSize) {
+				AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -1, QString("SGM2004FileLoader found corrupted data in the SDD spectra file '%1' on row %2. There should be %3 elements in the spectra, but we only found %4").arg(spectraFile).arg(x).arg(sddSize).arg(specCounter)));
 			}
 
 			specCounter = 0;

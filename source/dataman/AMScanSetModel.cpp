@@ -239,8 +239,22 @@ void AMScanSetModel::addScan(AMScan* newScan) {
 	connect(newScan, SIGNAL(sampleIdChanged(int)), this, SLOT(onMetaDataChanged()));
 
 	QList<AMDataSourcePlotSettings> plotSettings;
-	for(int i=0; i<newScan->dataSourceCount(); i++)
-		plotSettings.append(AMDataSourcePlotSettings());	/// \todo set up nicer default colors (related within scans)
+	for(int i=0; i<newScan->dataSourceCount(); i++) {
+		AMDataSourcePlotSettings ps; /// \todo set up nicer default colors (related within scans)
+
+		/// \todo More refined behaviour for which blocks are visible by default. For now: show analyzed data sources, if some exist; otherwise show first two raw data sources.
+		if(newScan->analyzedDataSourceCount()) {
+			// don't show raw data sources
+			if(i<newScan->rawDataSourceCount())
+				ps.visible = false;
+		}
+		else {
+			if(i >= 2)	// don't show more than two raw data sources. Just want to provide the users a hint that they can use this display to see more than one.
+				ps.visible = false;
+		}
+
+		plotSettings.append(ps);
+	}
 	sourcePlotSettings_.append(plotSettings);
 
 	// hook up signals from newScan to catch data source addition and removal
