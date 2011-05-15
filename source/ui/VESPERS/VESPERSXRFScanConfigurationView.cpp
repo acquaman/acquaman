@@ -45,6 +45,7 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 	QPushButton *sortButton = new QPushButton(QIcon(":/ArrowCCW.png"), "Sort");
 	connect(sortButton, SIGNAL(clicked()), view_, SLOT(sortRegionsOfInterest()));
 
+	// Customize the regions of interest.
 	customize_ = new CustomizeRegionsOfInterest(detector_->roiList());
 	QPushButton *configureButton = new QPushButton(QIcon(":/configure.png"), "Edit ROIs");
 
@@ -54,6 +55,7 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 
 	connect(configureButton, SIGNAL(clicked()), scroll, SLOT(show()));
 
+	// Control options for the detector.
 	QToolButton *start = new QToolButton;
 	start->setIcon(QIcon(":/play_button_green.png"));
 	connect(start, SIGNAL(clicked()), this, SLOT(onStartClicked()));

@@ -32,8 +32,8 @@ AMShutterButton::AMShutterButton(QString title, QString statusPV, QString openPV
 	statePV_ = new AMProcessVariable(statusPV, true, this);
 	connect(statePV_, SIGNAL(valueChanged()), this, SLOT(statusUpdate()));
 
-	openPV_ = new AMProcessVariable(openPV, false, this);
-	closePV_ = new AMProcessVariable(closePV, false, this);
+	openPV_ = new AMProcessVariable(openPV, true, this);
+	closePV_ = new AMProcessVariable(closePV, true, this);
 
 	setFlat(true);
 

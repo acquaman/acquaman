@@ -183,9 +183,15 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	filterLowerButton_->setCheckable(true);
 	connect(filterLowerButton_, SIGNAL(toggled(bool)), this, SLOT(onLowerFilterUpdate()));
 
+	filterLabel_ = new QLabel;
+	filterLabel_->setPixmap(QIcon(":/OFF.png").pixmap(25));
+	connect(VESPERSBeamline::vespers()->filterShutterLower(), SIGNAL(valueChanged(double)), this, SLOT(onFilterStatusChanged()));
+
 	QHBoxLayout *filterLayout = new QHBoxLayout;
 	filterLayout->addWidget(filterComboBox_);
+	filterLayout->addSpacing(15);
 	filterLayout->addWidget(filterLowerButton_);
+	filterLayout->addWidget(filterLabel_);
 
 	QGroupBox *filterGroupBox = new QGroupBox("Filters");
 	filterGroupBox->setLayout(filterLayout);
@@ -252,6 +258,14 @@ void VESPERSEndstationView::onFiltersConnected(bool isConnected)
 		return;
 
 	connect(VESPERSBeamline::vespers()->filterSet(), SIGNAL(controlSetValuesChanged()), this, SLOT(onFiltersChanged()));
+}
+
+void VESPERSEndstationView::onFilterStatusChanged()
+{
+	if (((int)VESPERSBeamline::vespers()->filterShutterLower()->value()) == 1)
+		filterLabel_->setPixmap(QIcon(":/ON.png").pixmap(25));
+	else
+		filterLabel_->setPixmap(QIcon(":/RED.png").pixmap(25));
 }
 
 void VESPERSEndstationView::onFiltersChanged()

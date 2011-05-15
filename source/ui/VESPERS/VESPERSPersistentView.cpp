@@ -4,6 +4,7 @@
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
+#include <QFormLayout>
 #include <QGroupBox>
 #include <QMessageBox>
 
@@ -86,28 +87,26 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	valvesStatus_->setPixmap(QIcon(":/RED.png").pixmap(30));
 	connect(valves_, SIGNAL(statusChanged(bool)), this, SLOT(onValvesStateChanged()));
 
-	QHBoxLayout *valvesLayout = new QHBoxLayout;
-	valvesLayout->addWidget(valvesStatus_, 0, Qt::AlignCenter);
-	valvesLayout->addWidget(valvesButton_, 0, Qt::AlignLeft);
-
 	// Temp, water, and pressure labels.
 	tempLabel_ = new QLabel;
 	tempLabel_->setPixmap(QIcon(":/RED.png").pixmap(30));
-	QHBoxLayout *tempLayout = new QHBoxLayout;
-	tempLayout->addWidget(tempLabel_, 0, Qt::AlignCenter);
-	tempLayout->addWidget(new QLabel("Temperature"), 0, Qt::AlignLeft);
 
 	pressureLabel_ = new QLabel;
 	pressureLabel_->setPixmap(QIcon(":/RED.png").pixmap(30));
-	QHBoxLayout *pressureLayout = new QHBoxLayout;
-	pressureLayout->addWidget(pressureLabel_, 0, Qt::AlignCenter);
-	pressureLayout->addWidget(new QLabel("Vacuum"), 0, Qt::AlignLeft);
 
 	waterLabel_ = new QLabel;
 	waterLabel_->setPixmap(QIcon(":/RED.png").pixmap(30));
-	QHBoxLayout *waterLayout = new QHBoxLayout;
-	waterLayout->addWidget(waterLabel_, 0, Qt::AlignCenter);
-	waterLayout->addWidget(new QLabel("Water"), 0, Qt::AlignLeft);
+
+	QFormLayout *statusLayout = new QFormLayout;
+	statusLayout->addRow(valvesStatus_, valvesButton_);
+	statusLayout->addRow(tempLabel_, new QLabel("Temperature"));
+	statusLayout->addRow(pressureLabel_, new QLabel("Vacuum"));
+	statusLayout->addRow(waterLabel_, new QLabel("Water"));
+	statusLayout->setHorizontalSpacing(20);
+
+	QHBoxLayout *adjustedStatusLayout = new QHBoxLayout;
+	adjustedStatusLayout->addStretch();
+	adjustedStatusLayout->addLayout(statusLayout);
 
 	QVBoxLayout *persistentLayout = new QVBoxLayout;
 	persistentLayout->addLayout(frontEndShutterLayout);
@@ -116,15 +115,13 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	persistentLayout->addWidget(motors);
 	persistentLayout->addWidget(pidView);
 	persistentLayout->addWidget(statusLabel);
-	persistentLayout->addLayout(valvesLayout);
-	persistentLayout->addLayout(tempLayout);
-	persistentLayout->addLayout(pressureLayout);
-	persistentLayout->addLayout(waterLayout);
+	persistentLayout->addLayout(adjustedStatusLayout);
 	persistentLayout->addStretch();
 
 	QGroupBox *vespers = new QGroupBox("VESPERS Beamline");
 	vespers->setLayout(persistentLayout);
-	vespers->setStyleSheet("QGroupBox::title { font: bold 14px; } ");
+	vespers->setStyleSheet("QGroupBox { font: bold 12px; } ");
+	//vespers->setFixedWidth(175);
 
 	QVBoxLayout *vespersLayout = new QVBoxLayout;
 	vespersLayout->addWidget(vespers);
@@ -219,12 +216,12 @@ void VESPERSPersistentView::onPSH1Clicked()
 {
 	// If currently open, simply close.
 	if (psh1_->state() == AMShutterButton::Open)
-		psh1_->changeState();
+		psh1_->close();
 
 	// Need to check if opening is okay before opening.  Emits a message if not successful.
 	else {
 		if (ssh1_->state() == AMShutterButton::Open || (ssh1_->state() == AMShutterButton::Closed && psh2_->state() == AMShutterButton::Closed))
-			psh1_->changeState();
+			psh1_->open();
 
 		else
 			QMessageBox::information(this, "Beamline Instructions", QString("You must open the %1 shutter before opening %2 shutter.").arg(ssh1_->title()).arg(psh1_->title()));
@@ -235,12 +232,12 @@ void VESPERSPersistentView::onPSH2Clicked()
 {
 	// If currently open, simply close.
 	if (psh2_->state() == AMShutterButton::Open)
-		psh2_->changeState();
+		psh2_->close();
 
 	// Need to check if opening is okay before opening.  Emits a message if not successful.
 	else {
 		if (ssh1_->state() == AMShutterButton::Open || (ssh1_->state() == AMShutterButton::Closed && psh1_->state() == AMShutterButton::Closed))
-			psh2_->changeState();
+			psh2_->open();
 
 		else
 			QMessageBox::information(this, "Beamline Instructions", QString("You must open the %1 shutter before opening %2 shutter.").arg(ssh1_->title()).arg(psh2_->title()));
@@ -251,13 +248,13 @@ void VESPERSPersistentView::onSSH1Clicked()
 {
 	// If currently closed, simply open.
 	if (ssh1_->state() == AMShutterButton::Closed)
-		ssh1_->changeState();
+		ssh1_->open();
 
 	// Need to check if closing is okay before closing.  Emits a message if not successful.
 	else{
 
 		if ((psh1_->state() == AMShutterButton::Open && psh2_->state() == AMShutterButton::Closed) || (psh1_->state() == AMShutterButton::Closed && psh2_->state() == AMShutterButton::Open))
-			ssh1_->changeState();
+			ssh1_->close();
 
 		else
 			QMessageBox::information(this, "Beamline Instructions", QString("You must close either the %1 shutter or the %2 shutter before closing the %3 shutter.").arg(psh1_->title()).arg(psh2_->title()).arg(ssh1_->title()));
