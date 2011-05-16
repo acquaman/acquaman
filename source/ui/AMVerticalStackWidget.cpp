@@ -104,7 +104,7 @@ void AMVerticalStackWidget::insertItem(int index, const QString& titleText, QWid
 			connect(aiv, SIGNAL(heightChanged(int)), this, SLOT(onWidgetHeightChanged(int)));
 
 		if(!currentGroup_){
-			qDebug() << "Trying to draw group widget";
+			//qDebug() << "Trying to draw group widget";
 			AMRunGroupWidget *rgWidget = new AMRunGroupWidget(AMRunGroup(1), this);
 			connect(rgWidget, SIGNAL(copyGroupRequested(AMRunGroup)), this, SIGNAL(copyGroupRequested(AMRunGroup)));
 			currentGroup_ = rgWidget;
@@ -230,26 +230,26 @@ void AMVerticalStackWidget::onHeaderButtonClicked() {
 }
 
 void AMVerticalStackWidget::onWidgetHeightChanged(int newHeight){
-	qDebug() << "Want to recalc heights";
+	//qDebug() << "Want to recalc heights";
 	if(usingGrouping_ && (groupings_.count() > 0) ){
 		int groupingsCount = 0;
 		for(int x = 0; x < groupings_.count(); x++)
 			groupingsCount += groupings_.at(x).actionCount();
 		if(groupingsCount != vl_->count()/2){
-			qDebug() << "Mismatch " << groupingsCount << " versus " << vl_->count()/2;
+			//qDebug() << "Mismatch " << groupingsCount << " versus " << vl_->count()/2;
 			return;
 		}
 		int groupHeight = 0;
 		int groupingsCounter = 0;
 		int toThisPoint = 0;
-		qDebug() << "Looking at a height change " << groupingsCount << vl_->count();
+		//qDebug() << "Looking at a height change " << groupingsCount << vl_->count();
 		for(int x = 0; x < vl_->count(); x++){
 			if(vl_->itemAt(x)->widget()->isVisible())
 				groupHeight += vl_->itemAt(x)->widget()->height();
-			else
-				qDebug() << "That sucker is closed, don't count it";
+			//else
+			//	qDebug() << "That sucker is closed, don't count it";
 			if( x == (toThisPoint + groupings_.at(groupingsCounter).actionCount())*2-1 ){
-				qDebug() << "Set to group height " << groupHeight << " on x " << x;
+				//qDebug() << "Set to group height " << groupHeight << " on x " << x;
 				vlSide_->itemAt(groupingsCounter)->widget()->setFixedHeight(groupHeight);
 				AMRunGroupWidget *runGroup = qobject_cast<AMRunGroupWidget*>(vlSide_->itemAt(groupingsCounter)->widget());
 				if(runGroup){
@@ -264,7 +264,7 @@ void AMVerticalStackWidget::onWidgetHeightChanged(int newHeight){
 		}
 		return;
 	}
-	qDebug() << "Not using grouping or no groupings";
+	//qDebug() << "Not using grouping or no groupings";
 }
 
 QSize AMVerticalStackWidget::sizeHint() const {
@@ -280,7 +280,7 @@ QSize AMVerticalStackWidget::sizeHint() const {
 }
 
 void AMVerticalStackWidget::startRunning(){
-	qDebug() << "Trying to draw group widget because RUNNING STARTED";
+	//qDebug() << "Trying to draw group widget because RUNNING STARTED";
 	AMRunGroupWidget *rgWidget = new AMRunGroupWidget(AMRunGroup(1), this);
 	connect(rgWidget, SIGNAL(copyGroupRequested(AMRunGroup)), this, SIGNAL(copyGroupRequested(AMRunGroup)));
 	rgWidget->setFixedWidth(24);
@@ -297,7 +297,6 @@ void AMVerticalStackWidget::endRunning(){
 
 void AMVerticalStackWidget::setGroupings(QList<AMRunGroup> groupings){
 	groupings_ = groupings;
-	qDebug() << "Just set groupings";
 }
 
 void AMVerticalStackWidget::forceGroupingsCheck(){

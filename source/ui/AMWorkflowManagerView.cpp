@@ -323,14 +323,14 @@ void AMBeamlineActionsListView::onActionAdded(int index){
 	connect(tmpView, SIGNAL(moveUpRequested(AMBeamlineActionItem*)), this, SIGNAL(moveUpRequested(AMBeamlineActionItem*)));
 	connect(tmpView, SIGNAL(moveDownRequested(AMBeamlineActionItem*)), this, SIGNAL(moveDownRequested(AMBeamlineActionItem*)));
 	if(!needsNewGroup_){
-		qDebug() << "Add to existing group";
+		//qDebug() << "Add to existing group";
 		//groupings_.last().first++;
 		groupings_.last().setActionCount(groupings_.last().actionCount()+1);
 		actionsViewList_->setGroupings(groupings_);
 	}
 	else{
 		needsNewGroup_ = false;
-		qDebug() << "Create a new group";
+		//qDebug() << "Create a new group";
 		//QPair<int, QString> newGroup = QPair<int, QString>(1, QString("Created %1").arg(AMDateTimeUtils::prettyDateTime(QDateTime::currentDateTime())) );
 		AMRunGroup newGroup = AMRunGroup(1, "Created");
 		groupings_.append(newGroup);

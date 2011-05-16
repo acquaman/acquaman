@@ -451,4 +451,13 @@ void AMBeamlineActionsQueue::onActionReady(int index){
 void AMBeamlineActionsQueue::onActionFailed(int index, int explanation){
 	queueRunning_ = false;
 	emit isRunningChanged(false);
+
+	//try this?
+	if(fullList_->count() == index+1){
+		headIndex_ = -1;
+		emit isEmptyChanged(true);
+	}
+	else
+		headIndex_ = index+1;
+	emit headChanged();
 }

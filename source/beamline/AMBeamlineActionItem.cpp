@@ -124,7 +124,6 @@ AMBeamlineActionItem* AMBeamlineActionItem::createCopy() const{
 }
 
 QString AMBeamlineActionItem::description() const{
-	qDebug() << "Description is " << description_;
 	return description_;
 }
 
@@ -348,7 +347,7 @@ void AMBeamlineActionItemView::paintEvent(QPaintEvent *event){
 	QFrame::paintEvent(event);
 	if(oldHeight_ != height()){
 		oldHeight_ = height();
-		qDebug() << "New height is " << height();
+		//qDebug() << "New height is " << height();
 		emit heightChanged(height());
 	}
 }

@@ -58,10 +58,8 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 		AMDetectorInfo* detectorInfo = pCfg_()->allDetectorConfigurations().detectorInfoAt(i);
 		if(pCfg_()->allDetectorConfigurations().isActiveAt(i)){
 
-			if(pScan_()->rawData()->addMeasurement(AMMeasurementInfo(*detectorInfo))){
-				qDebug() << "Name is " << AMMeasurementInfo(*detectorInfo).name << " description is " << AMMeasurementInfo(*detectorInfo).description;
+			if(pScan_()->rawData()->addMeasurement(AMMeasurementInfo(*detectorInfo)))
 				pScan_()->addRawDataSource(new AMRawDataSource(pScan_()->rawData(), pScan_()->rawData()->measurementCount()-1));
-			}
 			else
 				qDebug() << "BIG PROBLEM!!!!!! WHAT JUST HAPPENED?!?!?" << detectorInfo->name();
 		}

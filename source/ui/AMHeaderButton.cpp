@@ -51,7 +51,7 @@ void AMHeaderButton::paintEvent(QPaintEvent * event) {
 	p.end();
 	if(oldHeight_ != height()){
 		oldHeight_ = height();
-		qDebug() << "New height is " << height();
+		//qDebug() << "New height is " << height();
 		emit heightChanged(height());
 	}
 
