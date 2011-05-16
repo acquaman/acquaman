@@ -378,6 +378,22 @@ void AMBeamlineScanActionView::onScanFinished(){
 
 void AMBeamlineScanActionView::onScanFailed(int explanation){
 	cancelLatch_ = true;
+	progressBar_->setMaximum(100);
+	progressBar_->setValue(100);
+	if(explanation == 102)//102 is scan cancelled
+		timeRemainingLabel_->setText("Scan Cancelled");
+	else
+		timeRemainingLabel_->setText("Scan Failed");
+	disconnect(stopCancelButton_, SIGNAL(clicked()), this, SLOT(onStopCancelButtonClicked()));
+	disconnect(playPauseButton_, SIGNAL(clicked()), this, SLOT(onPlayPauseButtonClicked()));
+	hl_->removeWidget(stopCancelButton_);
+	hl_->removeWidget(playPauseButton_);
+	stopCancelButton_->hide();
+	playPauseButton_->hide();
+
+	updateLook();
+	/* NTBD David Chevrier May 16, 2011
+	cancelLatch_ = true;
 	stopCancelButton_->setIcon(closeIcon_);
 	playPauseButton_->setIcon(startIcon_);
 	playPauseButton_->setEnabled(false);
@@ -386,12 +402,14 @@ void AMBeamlineScanActionView::onScanFailed(int explanation){
 	else
 		timeRemainingLabel_->setText("Scan Failed");
 	updateLook();
+	*/
 }
 
 void AMBeamlineScanActionView::onStopCancelButtonClicked(){
 	/// \todo isRunning is not true if paused (or stopped). In this case, we should do this check for any scans that have been started but not finished. How to determine that from states?
 	if(scanAction_->isRunning()){
 		scanAction_->pause(true);
+		/*
 		QMessageBox msgBox;
 		msgBox.setText("You're cancelling a scan in progress.");
 		msgBox.setInformativeText("Do you want to keep the data from this partially collected scan?");
@@ -414,6 +432,8 @@ void AMBeamlineScanActionView::onStopCancelButtonClicked(){
 			// should never be reached
 			break;
 		}
+		*/
+		scanAction_->cancel();
 	}
 	else{
 		emit removeRequested(scanAction_);
