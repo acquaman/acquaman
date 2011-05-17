@@ -245,6 +245,8 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 		int fileOffsetMeasurementId = scan->rawData()->idOfMeasurement("sdd_fileOffset");
 		int sddMeasurementId = scan->rawData()->idOfMeasurement("SDD");
 		int sddSize = scan->rawData()->measurementAt(sddMeasurementId).size(0);
+		int* specValues = new int[sddSize];
+
 		for(int x = 0; x < scanSize; x++){
 			if(x == scanSize-1){
 				endByte += endByte-startByte; //Assumes the last two are the same size
@@ -268,7 +270,9 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 				if(c == ' ' || c == ',') {
 					// the end of a word
 					if(insideWord) {
-						scan->rawData()->setValue(AMnDIndex(x), sddMeasurementId, specCounter++, word.toInt());
+						//scan->rawData()->setValue(AMnDIndex(x), sddMeasurementId, specCounter++, word.toInt());
+						if(specCounter < sddSize)
+							specValues[specCounter++] = word.toInt();
 						word.clear();
 						insideWord = false;
 					}
@@ -279,15 +283,24 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 				}
 			}
 			if(insideWord) // possibly the last word (with no terminators after it)
-				scan->rawData()->setValue(AMnDIndex(x), sddMeasurementId, specCounter++, word.toInt());
+				if(specCounter < sddSize)
+					specValues[specCounter++] = word.toInt();
 
-			/// \todo Check specCounter is the right size... Not too big, not too small.
+			// By now we should have specCounter = sddSize. If there wasn't sufficient values in the spectra file to fill the whole measurement array...
+			if(specCounter < sddSize)
+				memset(specValues+specCounter, 0,  (sddSize-specCounter)*sizeof(int));
+
+			// insert the detector values (all at once, for performance)
+			scan->rawData()->setValue(x, sddMeasurementId, specValues, sddSize);
+
+			// Check specCounter is the right size... Not too big, not too small.
 			if(specCounter != sddSize) {
 				AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -1, QString("SGM2004FileLoader found corrupted data in the SDD spectra file '%1' on row %2. There should be %3 elements in the spectra, but we only found %4").arg(spectraFile).arg(x).arg(sddSize).arg(specCounter)));
 			}
 
 			specCounter = 0;
 		}
+		delete specValues;
 	}
 
 
