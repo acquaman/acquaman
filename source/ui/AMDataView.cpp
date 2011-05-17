@@ -1219,6 +1219,7 @@ AMDataViewSectionListView::AMDataViewSectionListView(AMDatabase *db, const QStri
 	tableView_->setAlternatingRowColors(true);
 	tableView_->setSelectionBehavior(QAbstractItemView::SelectRows);
 	tableView_->setSelectionMode(QAbstractItemView::ExtendedSelection);
+	tableView_->setDragEnabled(true);
 	QFont font = tableView_->font();
 	font.setPointSize(font.pointSize()-1);
 	tableView_->setFont(font);

@@ -3,7 +3,7 @@
 
 #include <QSqlQueryModel>
 #include "dataman/AMDatabase.h"
-
+#include <QStringList>
 
 /// A helper class for AMScanQueryModel, this class encapsulates the lookup information for a column in that model.
 class AMScanQueryModelColumnInfo {
@@ -99,6 +99,21 @@ public:
 	/// Re-implemented fomr QSqlQueryModel with our human-readable column headings
 	virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
+	Qt::ItemFlags flags(const QModelIndex &index) const {
+		Qt::ItemFlags defaultFlags = QSqlQueryModel::flags(index);
+
+			 if (index.isValid())
+				 return Qt::ItemIsDragEnabled | defaultFlags;
+			 else
+				 return defaultFlags;
+	}
+
+	QStringList mimeTypes() const {
+		return QStringList() << "text/uri-list";
+	}
+
+	QMimeData* mimeData(const QModelIndexList &indexes) const;
+
 	/// Re-implemented from QSqlQueryModel to sort the data. Note that for now, foreign-key columns will be sorted by foreign key, not by their replacement (visible) data
 	virtual void sort(int column, Qt::SortOrder order);
 
@@ -114,6 +129,9 @@ protected:
 	QString tableName_, whereClause_, orderClause_;
 	QList<AMScanQueryModelColumnInfo> columns_;
 	AMDatabase* db_;
+
+	/// Records the column number of the "id" column... Needed to support drag and drop.  If there is no column containing "id", then we can't respond to drag requests.
+	int idColumnNumber_;
 
 
 	/// Looks up a replacement value for a foreign key. Only called if role is either Qt::EditRole or Qt::DisplayRole, and item is a top-level index that is valid within our row and column range.
