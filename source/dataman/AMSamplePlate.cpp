@@ -55,7 +55,7 @@ AMDbObjectList AMSamplePlate::dbGetPositions() {
 	AMDbObjectList rv;
 
 	for(int i=0; i<count(); i++)
-		rv << &((*this)[i]);	/// \todo This uses the non-const operator[], which means that an itemChanged() signal will be emitted for all i when we're done. This signal is not necessary; does it create a loop or a performance problem? Need to watch what gets hooked up to samplePositionChanged().
+		rv << &(values_[i]);
 
 	return rv;
 }
@@ -63,6 +63,8 @@ AMDbObjectList AMSamplePlate::dbGetPositions() {
 
 // Load the positions for an existing sample plate from the database
 void AMSamplePlate::dbLoadPositions(const AMDbObjectList& newPositions) {
+
+	qDebug() << "AMSamplePlate: loading positions in loadFromDb()";
 
 	clear();	// get rid of our existing
 
@@ -77,6 +79,18 @@ void AMSamplePlate::dbLoadPositions(const AMDbObjectList& newPositions) {
 
 		if(newPositions.at(i))
 			delete newPositions.at(i);	// we're copying these; don't need to keep these ones around. Our responsibility to delete.
+	}
+}
+
+bool AMSamplePlate::loadFromDb(AMDatabase *db, int id)
+{
+	int oldPositionsCount = count();
+
+	if(AMDbObject::loadFromDb(db,id)) {	// use normal loadFromDb(), but...
+		if(count() == oldPositionsCount) {	// if the number of sample positions stayed the same, the dataChanged() notifications will be missing, because the new positions were loaded in-place to the old objects.
+			for(int i=0; i<oldPositionsCount; i++)
+				emit samplePositionChanged(i); // emit our own notification.
+		}
 	}
 }
 
