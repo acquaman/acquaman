@@ -114,7 +114,7 @@ void XRFPeriodicTableView::clearList()
 
 		clicked = tableView_->button(table_->elementByAtomicNumber(list.at(i).first));
 		QPalette palette(clicked->palette());
-		palette.setColor(QPalette::Button, this->palette().color(QPalette::Button));
+		palette.setColor(QPalette::Window, this->palette().color(QPalette::Window));
 		clicked->setPalette(palette);
 	}
 
