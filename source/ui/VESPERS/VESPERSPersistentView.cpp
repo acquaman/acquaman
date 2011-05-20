@@ -85,7 +85,7 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	// Endstation shutter control.
 	filterLowerButton_ = new QPushButton("Open");
 	filterLowerButton_->setCheckable(true);
-	connect(filterLowerButton_, SIGNAL(toggled(bool)), this, SLOT(onLowerFilterUpdate()));
+	connect(filterLowerButton_, SIGNAL(clicked()), this, SLOT(onLowerFilterUpdate()));
 
 	filterLabel_ = new QLabel;
 	filterLabel_->setPixmap(QIcon(":/ON.png").pixmap(30));
