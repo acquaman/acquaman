@@ -179,19 +179,9 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	connect(VESPERSBeamline::vespers()->filterSet(), SIGNAL(connected(bool)), this, SLOT(onFiltersChanged()));
 	connect(VESPERSBeamline::vespers()->filterSet(), SIGNAL(controlSetValuesChanged()), this, SLOT(onFiltersChanged()));
 
-	filterLowerButton_ = new QPushButton("Endstation Shutter");
-	filterLowerButton_->setCheckable(true);
-	connect(filterLowerButton_, SIGNAL(toggled(bool)), this, SLOT(onLowerFilterUpdate()));
-
-	filterLabel_ = new QLabel;
-	filterLabel_->setPixmap(QIcon(":/ON.png").pixmap(25));
-	connect(VESPERSBeamline::vespers()->filterShutterLower(), SIGNAL(valueChanged(double)), this, SLOT(onFilterStatusChanged()));
-
 	QHBoxLayout *filterLayout = new QHBoxLayout;
 	filterLayout->addWidget(filterComboBox_);
-	filterLayout->addSpacing(15);
-	filterLayout->addWidget(filterLowerButton_);
-	filterLayout->addWidget(filterLabel_);
+	filterLayout->addStretch();
 
 	QGroupBox *filterGroupBox = new QGroupBox("Filters");
 	filterGroupBox->setLayout(filterLayout);
@@ -260,19 +250,12 @@ void VESPERSEndstationView::onFiltersConnected(bool isConnected)
 	connect(VESPERSBeamline::vespers()->filterSet(), SIGNAL(controlSetValuesChanged()), this, SLOT(onFiltersChanged()));
 }
 
-void VESPERSEndstationView::onFilterStatusChanged()
-{
-	if (((int)VESPERSBeamline::vespers()->filterShutterLower()->value()) == 1)
-		filterLabel_->setPixmap(QIcon(":/ON.png").pixmap(25));
-	else
-		filterLabel_->setPixmap(QIcon(":/RED.png").pixmap(25));
-}
-
 void VESPERSEndstationView::onFiltersChanged()
 {
 	int sum = 0;
 	AMPVControl *temp;
 
+	// Find what the current index should be based on the current filters in the beamline.
 	for (int i = 0; i < VESPERSBeamline::vespers()->filterSet()->count()-2; i++){
 
 		temp = qobject_cast<AMPVControl *>(VESPERSBeamline::vespers()->filterSet()->at(i));
@@ -302,21 +285,6 @@ void VESPERSEndstationView::onFiltersChanged()
 	filterComboBox_->blockSignals(true);
 	filterComboBox_->setCurrentIndex(sum);
 	filterComboBox_->blockSignals(false);
-
-	// Handles the lower shutter button individually.
-	temp = qobject_cast<AMPVControl *>(VESPERSBeamline::vespers()->filterShutterLower());
-
-	if (temp){
-
-		filterLowerButton_->blockSignals(true);
-
-		if (temp->readPV()->getInt() == 1)
-			filterLowerButton_->setChecked(true);
-		else
-			filterLowerButton_->setChecked(false);
-
-		filterLowerButton_->blockSignals(false);
-	}
 }
 
 void VESPERSEndstationView::onFilterComboBoxUpdate(int index)
@@ -412,15 +380,6 @@ void VESPERSEndstationView::onFilterComboBoxUpdate(int index)
 		toggleFilter(VESPERSBeamline::vespers()->filter50umB());
 		break;
 	}
-}
-
-void VESPERSEndstationView::onLowerFilterUpdate()
-{
-	// 0 = OUT.  For this to work properly, the upper shutter is to remain fixed at the out position and the lower shutter changes.  Therefore if upper is IN, put it out.
-	if (((int)VESPERSBeamline::vespers()->filterShutterUpper()->value()) == 1)
-		toggleFilter(VESPERSBeamline::vespers()->filterShutterUpper());
-
-	toggleFilter(VESPERSBeamline::vespers()->filterShutterLower());
 }
 
 void VESPERSEndstationView::toggleFilter(AMControl *filter)
