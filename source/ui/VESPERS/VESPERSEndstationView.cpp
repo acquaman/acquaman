@@ -184,7 +184,7 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	connect(filterLowerButton_, SIGNAL(toggled(bool)), this, SLOT(onLowerFilterUpdate()));
 
 	filterLabel_ = new QLabel;
-	filterLabel_->setPixmap(QIcon(":/OFF.png").pixmap(25));
+	filterLabel_->setPixmap(QIcon(":/ON.png").pixmap(25));
 	connect(VESPERSBeamline::vespers()->filterShutterLower(), SIGNAL(valueChanged(double)), this, SLOT(onFilterStatusChanged()));
 
 	QHBoxLayout *filterLayout = new QHBoxLayout;

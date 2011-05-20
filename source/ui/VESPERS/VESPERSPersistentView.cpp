@@ -126,7 +126,7 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	vespersLayout->addWidget(vespers);
 
 	setLayout(vespersLayout);
-	setFixedWidth(175);
+	setFixedWidth(200);
 }
 
 void VESPERSPersistentView::onValvesButtonPushed()
