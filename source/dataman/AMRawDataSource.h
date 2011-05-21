@@ -58,12 +58,12 @@ public:
 	// Axis Information
 	//////////////////////
 	/// Returns axis information for all axes
-	virtual inline QList<AMAxisInfo> axes() const { return axes_; }
+	virtual QList<AMAxisInfo> axes() const { return axes_; }
 
 	/// Returns the rank (number of dimensions) of this data set
-	virtual inline int rank() const { return axes_.count(); }
+	virtual int rank() const { return axes_.count(); }
 	/// Returns the size of (ie: count along) each dimension
-	virtual inline AMnDIndex size() const {
+	virtual AMnDIndex size() const {
 		int rank = axes_.count();
 		AMnDIndex s(rank, false);
 		for(int i=0; i<rank; i++)
@@ -71,11 +71,11 @@ public:
 		return s;
 	}
 	/// Returns the size along a single axis \c axisId. This should be fast. \c axisId is assumed to be between 0 and rank()-1.
-	virtual inline int size(int axisId) const { return axes_.at(axisId).size; }
+	virtual int size(int axisId) const { return axes_.at(axisId).size; }
 	/// Returns a bunch of information about a particular axis. \c axisId is assumed to be between 0 and rank()-1.
-	virtual inline AMAxisInfo axisInfoAt(int axisId) const { return axes_.at(axisId); }
+	virtual AMAxisInfo axisInfoAt(int axisId) const { return axes_.at(axisId); }
 	/// Returns the id of an axis, by name. (By id, we mean the index of the axis. We called it number to avoid ambiguity with indexes <i>into</i> axes.) This could be slow, so users shouldn't call it repeatedly.  Returns -1 if not found.
-	virtual inline int idOfAxis(const QString& axisName) {
+	virtual int idOfAxis(const QString& axisName) {
 		for(int i=0; i<axes_.count(); i++)
 			if(axes_.at(i).name == axisName)
 				return i;
@@ -87,7 +87,7 @@ public:
 	////////////////////////////
 
 	/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient/wrong dimensionality, or if the data is not ready.
-	virtual inline AMNumber value(const AMnDIndex& indexes) const {
+	virtual AMNumber value(const AMnDIndex& indexes) const {
 
 		if(!isValid())
 			return AMNumber(AMNumber::InvalidError);
@@ -134,7 +134,7 @@ public:
 	}
 
 	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index)
-	virtual inline AMNumber axisValue(int axisNumber, int index) const {
+	virtual AMNumber axisValue(int axisNumber, int index) const {
 		if(!isValid())
 			return AMNumber(AMNumber::InvalidError);
 		if(axisNumber < scanAxesCount_)
@@ -150,11 +150,11 @@ public:
 	// Access for database stored values
 	///////////////////
 	/// The id of the detector we're exposing out of the raw data
-	int inline measurementId() const { return measurementId_; }
+	int measurementId() const { return measurementId_; }
 	/// The number of dimensions or axes that were scanned over
-	int inline scanRank() const { return scanAxesCount_; }
+	int scanRank() const { return scanAxesCount_; }
 	/// The number of dimensions or axes that the detector has, at each scan point
-	int inline measurementRank() const { return measurementAxesCount_; }
+	int measurementRank() const { return measurementAxesCount_; }
 
 
 	/// Called when reloading from the database

@@ -194,6 +194,8 @@ protected:
 	QString name_;
 	/// Human-readable description for it
 	QString description_;
+	/// Units describing the dependent values return by value()
+	QString units_;
 	/// Set of observers
 	QSet<void*> observers_;
 
