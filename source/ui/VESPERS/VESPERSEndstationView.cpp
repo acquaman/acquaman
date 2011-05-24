@@ -24,8 +24,9 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	microscopeControl_ = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->microscopeMotor());
 	fourElControl_ = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->fourElMotor());
 	singleElControl_ = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->singleElMotor());
-	focusControl_ = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->sampleStageNormal());
+	focusControl_ = VESPERSBeamline::vespers()->sampleStage()->norm();
 
+	// Laser power control.
 	laserPowerControl_ = qobject_cast<AMPVControl *>(VESPERSBeamline::vespers()->laserPower());
 
 	// The feedback PVs associated with the controls.
@@ -65,9 +66,12 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	singleElButton_ = new QToolButton;
 	connect(singleElButton_, SIGNAL(clicked()), this, SLOT(singleElClicked()));
 	connect(singleElfbk_, SIGNAL(valueChanged(double)), this, SLOT(singleElUpdate(double)));
+	// Because the focus is a critical part of the sample stage (pseudo-motor or regular motor) it should be disabled if the entire sample stage is not connected.
 	focusButton_ = new QToolButton;
 	connect(focusButton_, SIGNAL(clicked()), this, SLOT(focusClicked()));
 	connect(focusfbk_, SIGNAL(valueChanged(double)), this, SLOT(focusUpdate(double)));
+	connect(VESPERSBeamline::vespers()->sampleStage(), SIGNAL(connected(bool)), focusButton_, SLOT(setEnabled(bool)));
+	connect(VESPERSBeamline::vespers()->sampleStage(), SIGNAL(movingChanged(bool)), focusButton_, SLOT(setDisabled(bool)));
 
 	// Setup the microscope light.
 	micLight_ = new QSlider(Qt::Vertical, this);
