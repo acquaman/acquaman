@@ -151,75 +151,83 @@ SGMSampleManipulatorView::SGMSampleManipulatorView(QWidget *parent) :
 }
 
 void SGMSampleManipulatorView::onMUpButtonPressed(){
-	mVerticalCtrl_->move(mVerticalCtrl_->maximumValue());
+	//mVerticalCtrl_->move(mVerticalCtrl_->maximumValue());
+	mVerticalCtrl_->move(40);
 }
 
 void SGMSampleManipulatorView::onMUpButtonReleased(){
 	mVerticalCtrl_->stop();
-	mVerticalCtrl_->move(mVerticalCtrl_->value());
+	//mVerticalCtrl_->move(mVerticalCtrl_->value());
 }
 
 void SGMSampleManipulatorView::onMDownButtonPressed(){
-	mVerticalCtrl_->move(mVerticalCtrl_->minimumValue());
+	//mVerticalCtrl_->move(mVerticalCtrl_->minimumValue());
+	mVerticalCtrl_->move(-80);
 }
 
 void SGMSampleManipulatorView::onMDownButtonReleased(){
 	mVerticalCtrl_->stop();
-	mVerticalCtrl_->move(mVerticalCtrl_->value());
+	//mVerticalCtrl_->move(mVerticalCtrl_->value());
 }
 
 void SGMSampleManipulatorView::onMInboardButtonPressed(){
-	mHorizontalCtrl_->move(mHorizontalCtrl_->maximumValue());
+	//mHorizontalCtrl_->move(mHorizontalCtrl_->maximumValue());
+	mHorizontalCtrl_->move(10.0);
 }
 
 void SGMSampleManipulatorView::onMInboardButtonReleased(){
 	mHorizontalCtrl_->stop();
-	mHorizontalCtrl_->move(mHorizontalCtrl_->value());
+	//mHorizontalCtrl_->move(mHorizontalCtrl_->value());
 }
 
 void SGMSampleManipulatorView::onMOutboardButtonPressed(){
-	mHorizontalCtrl_->move(mHorizontalCtrl_->minimumValue());
+	//mHorizontalCtrl_->move(mHorizontalCtrl_->minimumValue());
+	mHorizontalCtrl_->move(-10.0);
 }
 
 void SGMSampleManipulatorView::onMOutboardButtonReleased(){
 	mHorizontalCtrl_->stop();
-	mHorizontalCtrl_->move(mHorizontalCtrl_->value());
+	//mHorizontalCtrl_->move(mHorizontalCtrl_->value());
 }
 
 void SGMSampleManipulatorView::onMUpstreamButtonPressed(){
-	mInPlaneCtrl_->move(mInPlaneCtrl_->maximumValue());
+	//mInPlaneCtrl_->move(mInPlaneCtrl_->maximumValue());
+	mInPlaneCtrl_->move(10.0);
 }
 
 void SGMSampleManipulatorView::onMUpstreamButtonReleased(){
 	mInPlaneCtrl_->stop();
-	mInPlaneCtrl_->move(mInPlaneCtrl_->value());
+	//mInPlaneCtrl_->move(mInPlaneCtrl_->value());
 }
 
 void SGMSampleManipulatorView::onMDownstreamButtonPressed(){
-	mInPlaneCtrl_->move(mInPlaneCtrl_->minimumValue());
+	//mInPlaneCtrl_->move(mInPlaneCtrl_->minimumValue());
+	mInPlaneCtrl_->move(-10.0);
 }
 
 void SGMSampleManipulatorView::onMDownstreamButtonReleased(){
 	mInPlaneCtrl_->stop();
-	mInPlaneCtrl_->move(mInPlaneCtrl_->value());
+	//mInPlaneCtrl_->move(mInPlaneCtrl_->value());
 }
 
 void SGMSampleManipulatorView::onMCWButtonPressed(){
-	mRotationCtrl_->move(mRotationCtrl_->minimumValue());
+	//mRotationCtrl_->move(mRotationCtrl_->minimumValue());
+	mRotationCtrl_->move(-360.0);
 }
 
 void SGMSampleManipulatorView::onMCWButtonReleased(){
 	mRotationCtrl_->stop();
-	mRotationCtrl_->move(mRotationCtrl_->value());
+	//mRotationCtrl_->move(mRotationCtrl_->value());
 }
 
 void SGMSampleManipulatorView::onMCCWButtonPressed(){
-	mRotationCtrl_->move(mRotationCtrl_->maximumValue());
+	//mRotationCtrl_->move(mRotationCtrl_->maximumValue());
+	mRotationCtrl_->move(360.0);
 }
 
 void SGMSampleManipulatorView::onMCCWButtonReleased(){
 	mRotationCtrl_->stop();
-	mRotationCtrl_->move(mRotationCtrl_->value());
+	//mRotationCtrl_->move(mRotationCtrl_->value());
 }
 
 void SGMSampleManipulatorView::onStopAllButtonClicked(){
