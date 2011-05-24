@@ -47,7 +47,6 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	config_ = new VESPERSEndstationConfiguration;
 	config_->hide();
 	connect(config_, SIGNAL(configurationChanged()), this, SLOT(loadConfiguration()));
-	connect(config_, SIGNAL(configurationChanged()), this, SLOT(loadConfiguration()));
 
 	// Setting the flags to false as a precaution.
 	microscopeSafe_ = false;
@@ -625,8 +624,8 @@ VESPERSEndstationConfiguration::VESPERSEndstationConfiguration(QWidget *parent)
 
 bool VESPERSEndstationConfiguration::saveFile()
 {
-
-	QFile file(QDir::currentPath() + "endstation.config");
+	qDebug() << QDir::currentPath()+"endstation.config";
+	QFile file(QDir::currentPath() + "/endstation.config");
 
 	if (!file.open(QFile::WriteOnly | QFile::Text)){
 		QMessageBox::warning(this, tr("Endstation Configuration"),
