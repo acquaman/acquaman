@@ -16,6 +16,7 @@
 #include <QMap>
 #include <QComboBox>
 #include <QPushButton>
+#include <QProcess>
 
 /// This class is used to configure the endstation control.  As the endstation expands, the things that will need to be modified will also change.  Therefore, this class should expand with any expansion of the endstation class.
 /// This will configure the buttons, as other things are added to the endstation it will do more.
@@ -183,6 +184,8 @@ private slots:
 	void onFiltersConnected(bool isConnected);
 	/// Sets the filter combo box based on original values at start up and if they are changed outside of the program.
 	void onFiltersChanged();
+	/// Starts up a detached process for the microscope screen.
+	void startMicroscope() { QProcess::startDetached("/home/vespers/bin/runCameraDisplay"); }
 
 private:
 	/// Helper function to properly toggle the filter PVs.  Takes an AMControl *, casts it to an AMPVControl * then toggles them.
