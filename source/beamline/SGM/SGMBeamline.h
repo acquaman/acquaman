@@ -178,9 +178,21 @@ public:
 	AMControl* loadlockCCG() const { return loadlockCCG_;}
 	AMControl* loadlockTCG() const { return loadlockTCG_;}
 	AMControl* ssaManipulatorX() const { return ssaManipulatorX_;}
+	AMControl* ssaManipulatorXVelocity() const { return ssaManipulatorXVelocity_;}
+	AMControl* ssaManipulatorXVelocityBase() const { return ssaManipulatorXVelocityBase_;}
+	AMControl* ssaManipulatorXAcceleration() const { return ssaManipulatorXAcceleration_;}
 	AMControl* ssaManipulatorY() const { return ssaManipulatorY_;}
+	AMControl* ssaManipulatorYVelocity() const { return ssaManipulatorYVelocity_;}
+	AMControl* ssaManipulatorYVelocityBase() const { return ssaManipulatorYVelocityBase_;}
+	AMControl* ssaManipulatorYAcceleration() const { return ssaManipulatorYAcceleration_;}
 	AMControl* ssaManipulatorZ() const { return ssaManipulatorZ_;}
+	AMControl* ssaManipulatorZVelocity() const { return ssaManipulatorZVelocity_;}
+	AMControl* ssaManipulatorZVelocityBase() const { return ssaManipulatorZVelocityBase_;}
+	AMControl* ssaManipulatorZAcceleration() const { return ssaManipulatorZAcceleration_;}
 	AMControl* ssaManipulatorRot() const { return ssaManipulatorRot_;}
+	AMControl* ssaManipulatorRotVelocity() const { return ssaManipulatorRotVelocity_;}
+	AMControl* ssaManipulatorRotVelocityBase() const { return ssaManipulatorRotVelocityBase_;}
+	AMControl* ssaManipulatorRotAcceleration() const { return ssaManipulatorRotAcceleration_;}
 	AMControl* beamlineScanning() const { return beamlineScanning_;}
 	AMControl* beamlineReady() const { return beamlineReady_;}
 	AMControl* energyMovingStatus() const { return energyMovingStatus_;}
@@ -337,9 +349,21 @@ protected:
 	AMControl *loadlockCCG_;
 	AMControl *loadlockTCG_;
 	AMControl *ssaManipulatorX_;
+	AMControl *ssaManipulatorXVelocity_;
+	AMControl *ssaManipulatorXVelocityBase_;
+	AMControl *ssaManipulatorXAcceleration_;
 	AMControl *ssaManipulatorY_;
+	AMControl *ssaManipulatorYVelocity_;
+	AMControl *ssaManipulatorYVelocityBase_;
+	AMControl *ssaManipulatorYAcceleration_;
 	AMControl *ssaManipulatorZ_;
+	AMControl *ssaManipulatorZVelocity_;
+	AMControl *ssaManipulatorZVelocityBase_;
+	AMControl *ssaManipulatorZAcceleration_;
 	AMControl *ssaManipulatorRot_;
+	AMControl *ssaManipulatorRotVelocity_;
+	AMControl *ssaManipulatorRotVelocityBase_;
+	AMControl *ssaManipulatorRotAcceleration_;
 	AMControl *beamlineScanning_;
 	AMControl *beamlineReady_;
 	AMControl *energyMovingStatus_;

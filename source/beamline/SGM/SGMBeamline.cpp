@@ -341,6 +341,12 @@ void SGMBeamline::usingSGMBeamline(){
 	ssaManipulatorX_ = new AMPVwStatusControl("ssaManipulatorX", sgmPVName+":mm:fbk", sgmPVName+":mm", sgmPVName+":status", sgmPVName+":stop", this, 0.1, 2.0, new AMControlStatusCheckerStopped(0));
 	ssaManipulatorX_->setDescription("SSA Inboard/Outboard");
 	ssaManipulatorX_->setContextKnownDescription("X");
+
+	ssaManipulatorXVelocity_ = new AMPVControl("ssaManipulatorXVelocity", sgmPVName+":velo:fbk", sgmPVName+":velo", QString(), this);
+	ssaManipulatorXVelocityBase_ = new AMPVControl("ssaManipulatorXVelocityBase", sgmPVName+":vBase:sp", sgmPVName+":veloBase", QString(), this);
+	ssaManipulatorXAcceleration_ = new AMPVControl("ssaManipulatorXAcceleration", sgmPVName+":accel:sp", sgmPVName+":accel", QString(), this);
+
+
 	sgmPVName = amNames2pvNames_.valueF("ssaManipulatorY");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
@@ -348,6 +354,12 @@ void SGMBeamline::usingSGMBeamline(){
 	ssaManipulatorY_ = new AMPVwStatusControl("ssaManipulatorY", sgmPVName+":mm:fbk", sgmPVName+":mm", sgmPVName+":status", sgmPVName+":stop", this, 0.1, 2.0, new AMControlStatusCheckerStopped(0));
 	ssaManipulatorY_->setDescription("SSA Upstream/Downstream");
 	ssaManipulatorY_->setContextKnownDescription("Y");
+
+	ssaManipulatorYVelocity_ = new AMPVControl("ssaManipulatorYVelocity", sgmPVName+":velo:fbk", sgmPVName+":velo", QString(), this);
+	ssaManipulatorYVelocityBase_ = new AMPVControl("ssaManipulatorYVelocityBase", sgmPVName+":vBase:sp", sgmPVName+":veloBase", QString(), this);
+	ssaManipulatorYAcceleration_ = new AMPVControl("ssaManipulatorYAcceleration", sgmPVName+":accel:sp", sgmPVName+":accel", QString(), this);
+
+
 	sgmPVName = amNames2pvNames_.valueF("ssaManipulatorZ");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
@@ -355,6 +367,11 @@ void SGMBeamline::usingSGMBeamline(){
 	ssaManipulatorZ_ = new AMPVwStatusControl("ssaManipulatorZ", sgmPVName+":mm:fbk", sgmPVName+":mm", sgmPVName+":status", sgmPVName+":stop", this, 0.1, 2.0, new AMControlStatusCheckerStopped(0));
 	ssaManipulatorZ_->setDescription("SSA Up/Down");
 	ssaManipulatorZ_->setContextKnownDescription("Z");
+
+	ssaManipulatorZVelocity_ = new AMPVControl("ssaManipulatorZVelocity", sgmPVName+":velo:fbk", sgmPVName+":velo", QString(), this);
+	ssaManipulatorZVelocityBase_ = new AMPVControl("ssaManipulatorZVelocityBase", sgmPVName+":vBase:sp", sgmPVName+":veloBase", QString(), this);
+	ssaManipulatorZAcceleration_ = new AMPVControl("ssaManipulatorZAcceleration", sgmPVName+":accel:sp", sgmPVName+":accel", QString(), this);
+
 	sgmPVName = amNames2pvNames_.valueF("ssaManipulatorRot");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
@@ -362,6 +379,11 @@ void SGMBeamline::usingSGMBeamline(){
 	ssaManipulatorRot_ = new AMPVwStatusControl("ssaManipulatorRot", sgmPVName+":mm:sp", sgmPVName+":mm", sgmPVName+":status", sgmPVName+":stop", this, 0.1, 2.0, new AMControlStatusCheckerStopped(0));
 	ssaManipulatorRot_->setDescription("SSA Rotation");
 	ssaManipulatorRot_->setContextKnownDescription("R");
+
+	ssaManipulatorRotVelocity_ = new AMPVControl("ssaManipulatorRotVelocity", sgmPVName+":velo:fbk", sgmPVName+":velo", QString(), this);
+	ssaManipulatorRotVelocityBase_ = new AMPVControl("ssaManipulatorRotVelocityBase", sgmPVName+":vBase:sp", sgmPVName+":veloBase", QString(), this);
+	ssaManipulatorRotAcceleration_ = new AMPVControl("ssaManipulatorRotAcceleration", sgmPVName+":accel:sp", sgmPVName+":accel", QString(), this);
+
 
 	sgmPVName = amNames2pvNames_.valueF("beamlineScanning");
 	if(sgmPVName.isEmpty())
@@ -700,13 +722,21 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	addChildControl(encoderUp_);
 	addChildControl(encoderDown_);
 	addChildControl(ssaManipulatorX_);
-//	addChildControl(ssaManipulatorXStop_);
+	addChildControl(ssaManipulatorXVelocity_);
+	addChildControl(ssaManipulatorXVelocityBase_);
+	addChildControl(ssaManipulatorXAcceleration_);
 	addChildControl(ssaManipulatorY_);
-//	addChildControl(ssaManipulatorYStop_);
+	addChildControl(ssaManipulatorYVelocity_);
+	addChildControl(ssaManipulatorYVelocityBase_);
+	addChildControl(ssaManipulatorYAcceleration_);
 	addChildControl(ssaManipulatorZ_);
-//	addChildControl(ssaManipulatorZStop_);
+	addChildControl(ssaManipulatorZVelocity_);
+	addChildControl(ssaManipulatorZVelocityBase_);
+	addChildControl(ssaManipulatorZAcceleration_);
 	addChildControl(ssaManipulatorRot_);
-//	addChildControl(ssaManipulatorRotStop_);
+	addChildControl(ssaManipulatorRotVelocity_);
+	addChildControl(ssaManipulatorRotVelocityBase_);
+	addChildControl(ssaManipulatorRotAcceleration_);
 	addChildControl(beamlineScanning_);
 	connect(beamlineScanning_, SIGNAL(valueChanged(double)), this, SLOT(onBeamlineScanningValueChanged(double)));
 
