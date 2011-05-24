@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMSingleControlDetector.h"
 #include "beamline/MCPDetector.h"
 #include "beamline/PGTDetector.h"
+#include "beamline/OceanOptics65000Detector.h"
 #include "beamline/AMControlSet.h"
 #include "util/AMBiHash.h"
 #include "beamline/AMBeamlineControlAction.h"
@@ -152,6 +153,7 @@ public:
 			return tfyScalerDetector_;
 	}
 	AMDetector* pgtDetector() const { return pgtDetector_;}
+	AMDetector* oos65000Detector() const { return oos65000Detector_;}
 	AMDetector* i0Detector() const {
 		if(detectorSignalSource_->value() == 0)
 			return i0PicoDetector_;
@@ -323,6 +325,8 @@ protected:
 	AMControl *pgtHV_;
 	AMControl *pgtIntegrationTime_;
 	AMControl *pgtIntegrationMode_;
+	AMControl *oos65000_;
+	AMControl *oos65000IntegrationTime_;
 	AMControl *i0Pico_;
 	AMControl *i0Scaler_;
 	AMControl *eVFbk_;
@@ -367,6 +371,8 @@ protected:
 	AMDetector *tfyScalerDetector_;
 	AMControlSet *pgtControlSet_;
 	AMDetector *pgtDetector_;
+	AMControlSet *oos65000ControlSet_;
+	AMDetector *oos65000Detector_;
 	AMDetector *i0PicoDetector_;
 	AMControlSet *i0PicoControlSet_;
 	AMDetector *i0ScalerDetector_;

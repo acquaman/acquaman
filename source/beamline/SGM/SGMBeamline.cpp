@@ -59,6 +59,8 @@ void SGMBeamline::usingSGMBeamline(){
 	amNames2pvNames_.set("pgtHV", "MCA1611-01:Bias:Volt");
 	amNames2pvNames_.set("pgtIntegrationTime", "MCA1611-01:Preset:Live");
 	amNames2pvNames_.set("pgtIntegrationMode", "MCA1611-01:Preset:Live");
+	amNames2pvNames_.set("oos65000", "SA0000-03:Spectra");
+	amNames2pvNames_.set("oos65000IntegrationTime", "SA0000-03:IntegrationTime:Value");
 	amNames2pvNames_.set("I0Pico", "A1611-4-14:A:fbk");
 	amNames2pvNames_.set("I0Scaler", "BL1611-ID-1:mcs01:fbk");
 	amNames2pvNames_.set("photodiodePico", "A1611-4-13:A:fbk");
@@ -257,6 +259,20 @@ void SGMBeamline::usingSGMBeamline(){
 	pgtIntegrationMode_ = new AMPVControl("pgtIntegrationMode", sgmPVName, sgmPVName, "", this, 0.1);
 	pgtIntegrationMode_->setDescription("SDD Integration Mode");
 	pgtIntegrationMode_->setContextKnownDescription("Integration Mode");
+
+	sgmPVName = amNames2pvNames_.valueF("oos65000");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
+	//pgt_ = new AMReadOnlyPVControl("pgt", sgmPVName, this);
+	oos65000_ = new AMReadOnlyWaveformBinningPVControl("oos65000", sgmPVName, 0, 1024, this);
+	oos65000_->setDescription("OceanOptics 65000");
+
+	sgmPVName = amNames2pvNames_.valueF("oos65000IntegrationTime");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
+	oos65000IntegrationTime_ = new AMPVControl("oos65000IntegrationTime", sgmPVName, sgmPVName, "", this, 0.1);
+	oos65000IntegrationTime_->setDescription("OceanOptics 65000 Integration Time");
+	oos65000IntegrationTime_->setContextKnownDescription("Integration Time");
 
 	sgmPVName = amNames2pvNames_.valueF("I0Pico");
 	if(sgmPVName.isEmpty())
@@ -665,6 +681,8 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	addChildControl(pgtHV_);
 	addChildControl(pgtIntegrationTime_);
 	addChildControl(pgtIntegrationMode_);
+	addChildControl(oos65000_);
+	addChildControl(oos65000IntegrationTime_);
 	addChildControl(i0Pico_);
 	addChildControl(i0Scaler_);
 	addChildControl(eVFbk_);
@@ -743,13 +761,13 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	teyPicoControlSet_ = new AMControlSet(this);
 	teyPicoControlSet_->setName("TEY Pico Controls");
 	teyPicoControlSet_->addControl(teyPico_);
-	teyPicoDetector_ = NULL;
+	teyPicoDetector_ = 0; //NULL
 	unconnectedSets_.append(teyPicoControlSet_);
 	connect(teyPicoControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 	teyScalerControlSet_ = new AMControlSet(this);
 	teyScalerControlSet_->setName("TEY Scaler Controls");
 	teyScalerControlSet_->addControl(teyScaler_);
-	teyScalerDetector_ = NULL;
+	teyScalerDetector_ = 0; //NULL
 	unconnectedSets_.append(teyScalerControlSet_);
 	connect(teyScalerControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
@@ -757,14 +775,14 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	tfyPicoControlSet_->setName("TFY Pico Controls");
 	tfyPicoControlSet_->addControl(tfyPico_);
 	tfyPicoControlSet_->addControl(tfyHV_);
-	tfyPicoDetector_ = NULL;
+	tfyPicoDetector_ = 0; //NULL
 	unconnectedSets_.append(tfyPicoControlSet_);
 	connect(tfyPicoControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 	tfyScalerControlSet_ = new AMControlSet(this);
 	tfyScalerControlSet_->setName("TFY Scaler Controls");
 	tfyScalerControlSet_->addControl(tfyScaler_);
 	tfyScalerControlSet_->addControl(tfyHV_);
-	tfyScalerDetector_ = NULL;
+	tfyScalerDetector_ = 0; //NULL
 	unconnectedSets_.append(tfyScalerControlSet_);
 	connect(tfyScalerControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
@@ -774,40 +792,48 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	pgtControlSet_->addControl(pgtHV_);
 	pgtControlSet_->addControl(pgtIntegrationTime_);
 	pgtControlSet_->addControl(pgtIntegrationMode_);
-	pgtDetector_ = NULL;
+	pgtDetector_ = 0; //NULL
 	unconnectedSets_.append(pgtControlSet_);
 	connect(pgtControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
+
+	oos65000ControlSet_ = new AMControlSet(this);
+	oos65000ControlSet_->setName("OOS65000 Controls");
+	oos65000ControlSet_->addControl(oos65000_);
+	oos65000ControlSet_->addControl(oos65000IntegrationTime_);
+	oos65000Detector_ = 0; //NULL
+	unconnectedSets_.append(oos65000ControlSet_);
+	connect(oos65000ControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
 	i0PicoControlSet_ = new AMControlSet(this);
 	i0PicoControlSet_->setName("I0 Pico Controls");
 	i0PicoControlSet_->addControl(i0Pico_);
-	i0PicoDetector_ = NULL;
+	i0PicoDetector_ = 0; //NULL
 	unconnectedSets_.append(i0PicoControlSet_);
 	connect(i0PicoControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 	i0ScalerControlSet_ = new AMControlSet(this);
 	i0ScalerControlSet_->setName("I0 Scaler Controls");
 	i0ScalerControlSet_->addControl(i0Scaler_);
-	i0ScalerDetector_ = NULL;
+	i0ScalerDetector_ = 0; //NULL
 	unconnectedSets_.append(i0ScalerControlSet_);
 	connect(i0ScalerControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
 	eVFbkControlSet_ = new AMControlSet(this);
 	eVFbkControlSet_->setName("Energy Feedback Controls");
 	eVFbkControlSet_->addControl(eVFbk_);
-	eVFbkDetector_ = NULL;
+	eVFbkDetector_ = 0; //NULL
 	unconnectedSets_.append(eVFbkControlSet_);
 	connect(eVFbkControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
 	photodiodePicoControlSet_ = new AMControlSet(this);
 	photodiodePicoControlSet_->setName("Photodiode Pico Controls");
 	photodiodePicoControlSet_->addControl(photodiodePico_);
-	photodiodePicoDetector_ = NULL;
+	photodiodePicoDetector_ = 0; //NULL
 	unconnectedSets_.append(photodiodePicoControlSet_);
 	connect(photodiodePicoControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 	photodiodeScalerControlSet_ = new AMControlSet(this);
 	photodiodeScalerControlSet_->setName("Photodiode Scaler Controls");
 	photodiodeScalerControlSet_->addControl(photodiodeScaler_);
-	photodiodeScalerDetector_ = NULL;
+	photodiodeScalerDetector_ = 0; //NULL
 	unconnectedSets_.append(photodiodeScalerControlSet_);
 	connect(photodiodeScalerControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
@@ -815,14 +841,14 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	encoderUpControlSet_ = new AMControlSet(this);
 	encoderUpControlSet_->setName("Encoder Up Controls");
 	encoderUpControlSet_->addControl(encoderUp_);
-	encoderUpDetector_ = NULL;
+	encoderUpDetector_ = 0; //NULL
 	unconnectedSets_.append(encoderUpControlSet_);
 	connect(encoderUpControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
 	encoderDownControlSet_ = new AMControlSet(this);
 	encoderDownControlSet_->setName("Encoder Down Controls");
 	encoderDownControlSet_->addControl(encoderDown_);
-	encoderDownDetector_ = NULL;
+	encoderDownDetector_ = 0; //NULL
 	unconnectedSets_.append(encoderDownControlSet_);
 	connect(encoderDownControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
@@ -1501,6 +1527,13 @@ void SGMBeamline::onControlSetConnected(bool csConnected){
 			pgtDetector_->setDescription(pgt_->description());
 			allDetectors_->addDetector(pgtDetector_);
 			XASDetectors_->addDetector(pgtDetector_);
+		}
+		else if(!oos65000Detector_ && ctrlSet->name() == "OOS65000 Controls"){
+			oos65000Detector_ = new OceanOptics65000Detector(oos65000_->name(), oos65000_, oos65000IntegrationTime_, AMDetector::WaitRead, this);
+			oos65000Detector_->setDescription(oos65000_->description());
+			allDetectors_->addDetector(oos65000Detector_);
+			XASDetectors_->addDetector(oos65000Detector_);
+			qDebug() << "Found and created oos65000";
 		}
 		else if(!i0PicoDetector_ && ctrlSet->name() == "I0 Pico Controls"){
 			i0PicoDetector_ = new AMSingleControlDetector(i0Pico_->name(), i0Pico_, AMDetector::WaitRead, this);

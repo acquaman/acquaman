@@ -854,6 +854,22 @@ int AMProcessVariable::binIntegerValues(int lowIndex, int highIndex) const{
 	return rVal;
 }
 
+double AMProcessVariable::binFloatingPointValues(int lowIndex, int highIndex) const{
+	QVector<double> lastDoubles = lastFloatingPointValues();
+	int lIndex = lowIndex;
+	int hIndex = highIndex;
+	double rVal = 0.0;
+	if(hIndex < lIndex)
+		return rVal;
+	if(lIndex < 0)
+		lIndex = 0;
+	if(hIndex > lastDoubles.count())
+		hIndex = lastDoubles.count();
+	for(int x = lIndex; x < hIndex; x++)
+		rVal += lastDoubles.at(x);
+	return rVal;
+}
+
 // double AMProcessVariable::getDouble() is just a synonym for lastValue().
 
 int AMProcessVariable::getInt(unsigned index) const {

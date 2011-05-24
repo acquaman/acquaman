@@ -1,0 +1,94 @@
+#include "OceanOptics65000DetectorView.h"
+
+OceanOptics65000BriefDetectorView::OceanOptics65000BriefDetectorView(OceanOptics65000Detector *detector, bool configureOnly, QWidget *parent) :
+		AMBriefDetectorView(configureOnly, parent)
+{
+	hl_ = 0;
+	readingCE_ = 0;
+	detector_ = 0;
+	setDetector(detector, configureOnly_);
+}
+
+AMDetector* OceanOptics65000BriefDetectorView::detector(){
+	return detector_;
+}
+
+bool OceanOptics65000BriefDetectorView::setDetector(AMDetector *detector, bool configureOnly){
+	if(!detector)
+		return false;
+	detector_ = static_cast<OceanOptics65000Detector*>(detector);
+	configureOnly_ = configureOnly;
+	if(!hl_){
+		hl_ = new QHBoxLayout();
+		setLayout(hl_);
+	}
+	if(readingCE_){
+		hl_->removeWidget(readingCE_);
+		delete readingCE_;
+		readingCE_ = 0;
+	}
+	readingCE_ = new AMControlEditor(detector_->dataWaveformControl(), 0, true);
+	readingCE_->setControlFormat('f', 0);
+	hl_->addWidget(readingCE_);
+	return true;
+}
+
+OceanOptics65000DetailedDetectorView::OceanOptics65000DetailedDetectorView(OceanOptics65000Detector *detector, bool configureOnly, QWidget *parent) :
+	AMDetailedDetectorView(configureOnly, parent)
+{
+	gl_ = 0;
+	readingCE_ = 0;
+	integrationTimeCE_ = 0;
+	detector_ = 0;
+	configurationSettings_ = 0;
+	setDetector(detector, configureOnly_);
+}
+
+AMDetector* OceanOptics65000DetailedDetectorView::detector(){
+	return detector_;
+}
+
+AMDetectorInfo* OceanOptics65000DetailedDetectorView::configurationSettings() const{
+	return configurationSettings_;
+}
+
+void OceanOptics65000DetailedDetectorView::onControlSetpointRequested(){
+	if(detector_ && detector_->isConnected()){
+		configurationSettings_->setIntegrationTime(integrationTimeCE_->setpoint());
+		emit settingsConfigureRequested();
+	}
+}
+
+bool OceanOptics65000DetailedDetectorView::setDetector(AMDetector *detector, bool configureOnly){
+	if(!detector)
+		return false;
+	detector_ = static_cast<OceanOptics65000Detector*>(detector);
+	if(configurationSettings_)
+		configurationSettings_->deleteLater();
+	// This NEWs a OceanOptics65000DetectorInfo, I'm responsible for it now
+	configurationSettings_ = qobject_cast<OceanOptics65000DetectorInfo*>(detector_->toNewInfo());
+	configureOnly_ = configureOnly;
+	if(!gl_){
+		gl_ = new QGridLayout();
+		setLayout(gl_);
+	}
+	if(readingCE_){
+		gl_->removeWidget(readingCE_);
+		delete readingCE_;
+		readingCE_ = 0;
+	}
+	if(integrationTimeCE_){
+		gl_->removeWidget(integrationTimeCE_);
+		delete integrationTimeCE_;
+		integrationTimeCE_ = 0;
+	}
+	readingCE_ = new AMControlEditor(detector_->dataWaveformControl());
+	readingCE_->setControlFormat('f', 0);
+	integrationTimeCE_ = new AMControlEditor(detector_->integrationTimeControl(), 0, false, configureOnly_);
+	gl_->addWidget(new QLabel("QE65000"),	0, 0, 1, 1, 0);
+	gl_->addWidget(readingCE_,		0, 1, 1, 2, 0);
+	gl_->addWidget(new QLabel("Time"),	1, 0, 1, 1, 0);
+	gl_->addWidget(integrationTimeCE_,	1, 1, 1, 2, 0);
+	connect(integrationTimeCE_, SIGNAL(setpointRequested(double)), this, SLOT(onControlSetpointRequested()));
+	return true;
+}

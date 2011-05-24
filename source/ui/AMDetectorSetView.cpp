@@ -261,5 +261,6 @@ void AMDetectorSetView::onDetectorSetSettingsChanged(){
 }
 
 void AMDetectorSetView::onDetectorSetConfigurationRequested(){
+	qDebug() << "Heard a check?";
 	emit configValuesChanged();
 }

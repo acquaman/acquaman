@@ -78,13 +78,30 @@ bool SGMXASDacqScanController::startImplementation(){
 		}
 	}
 
-	if(pCfg_()->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->pgtDetector()->detectorName())){
+	if( pCfg_()->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->pgtDetector()->detectorName())
+		&& pCfg_()->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->oos65000Detector()->detectorName())){
+		qDebug() << "Using SDD and OOS";
+		if(SGMBeamline::sgm()->usingPicoammeterSource())
+			loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/pgtxeolAmmeter.cfg"));
+		else if(SGMBeamline::sgm()->usingScalerSource())
+			loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/pgtxeolScaler.cfg"));
+		usingSpectraDotDatFile_ = true;
+	}
+	else if(pCfg_()->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->pgtDetector()->detectorName())){
+		qDebug() << "Using SDD";
 		if(SGMBeamline::sgm()->usingPicoammeterSource())
 			loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/pgtAmmeter.cfg"));
 		else if(SGMBeamline::sgm()->usingScalerSource())
 			loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/pgtScaler.cfg"));
 		usingSpectraDotDatFile_ = true;
-		//loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/pgt.cfg"));
+	}
+	else if(pCfg_()->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->oos65000Detector()->detectorName())){
+		qDebug() << "Using OOS";
+		if(SGMBeamline::sgm()->usingPicoammeterSource())
+			loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/xeolAmmeter.cfg"));
+		else if(SGMBeamline::sgm()->usingScalerSource())
+			loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/xeolScaler.cfg"));
+		usingSpectraDotDatFile_ = true;
 	}
 	else if(SGMBeamline::sgm()->usingPicoammeterSource())
 		loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/defaultEnergyAmmeter.cfg"));
@@ -101,7 +118,8 @@ bool SGMXASDacqScanController::startImplementation(){
 	for(int i = 0; i < pCfg_()->allDetectorConfigurations().count(); i++){
 		if(pCfg_()->allDetectorConfigurations().isActiveAt(i)){
 			AMDetector *dtctr = pCfg_()->allDetectors()->detectorNamed(pCfg_()->allDetectorConfigurations().detectorInfoAt(i)->name());
-			if(dtctr->detectorName() == SGMBeamline::sgm()->pgtDetector()->detectorName())
+			//if(dtctr->detectorName() == SGMBeamline::sgm()->pgtDetector()->detectorName())
+			if(dtctr->toInfo()->rank() > 0)
 				advAcq_->appendRecord(SGMBeamline::sgm()->pvName(dtctr->detectorName()), true, true, detectorReadMethodToDacqReadMethod(dtctr->readMethod()));
 			else
 				advAcq_->appendRecord(SGMBeamline::sgm()->pvName(dtctr->detectorName()), true, false, detectorReadMethodToDacqReadMethod(dtctr->readMethod()));

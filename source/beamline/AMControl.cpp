@@ -510,7 +510,13 @@ AMReadOnlyWaveformBinningPVControl::AMReadOnlyWaveformBinningPVControl(const QSt
 }
 
 double AMReadOnlyWaveformBinningPVControl::value() const{
-	return readPV_->binIntegerValues(lowIndex_, highIndex_);
+	int asInts = readPV_->binIntegerValues(lowIndex_, highIndex_);
+	double asDoubles = readPV_->binFloatingPointValues(lowIndex_, highIndex_);
+	if(asDoubles != 0.0)
+		return asDoubles;
+	else
+		return asInts;
+	//return readPV_->binIntegerValues(lowIndex_, highIndex_);
 }
 
 void AMReadOnlyWaveformBinningPVControl::setBinParameters(int lowIndex, int highIndex){

@@ -14,6 +14,7 @@
 #include "ui/AMSingleControlDetectorView.h"
 #include "ui/MCPDetectorView.h"
 #include "ui/PGTDetectorView.h"
+#include "ui/OceanOptics65000DetectorView.h"
 
 #include "ui/AMMainWindow.h"
 #include "ui/AMWorkflowManagerView.h"
@@ -37,6 +38,7 @@ bool SGMAppController::startup() {
 
 		AMDbObjectSupport::registerClass<MCPDetectorInfo>();
 		AMDbObjectSupport::registerClass<PGTDetectorInfo>();
+		AMDbObjectSupport::registerClass<OceanOptics65000DetectorInfo>();
 		AMDbObjectSupport::registerClass<SGMXASScanConfiguration>();
 
 		AMDetectorViewSupport::registerClass<AMSingleControlBriefDetectorView, AMSingleControlDetector>();
@@ -44,6 +46,8 @@ bool SGMAppController::startup() {
 		AMDetectorViewSupport::registerClass<MCPDetailedDetectorView, MCPDetector>();
 		AMDetectorViewSupport::registerClass<PGTBriefDetectorView, PGTDetector>();
 		AMDetectorViewSupport::registerClass<PGTDetailedDetectorView, PGTDetector>();
+		AMDetectorViewSupport::registerClass<OceanOptics65000BriefDetectorView, OceanOptics65000Detector>();
+		AMDetectorViewSupport::registerClass<OceanOptics65000DetailedDetectorView, OceanOptics65000Detector>();
 
 		// Testing and making the first run in the database, if there isn't one already.  Make this it's own function if you think startup() is getting too big ; )
 		////////////////////////////////////////
@@ -129,10 +133,11 @@ void SGMAppController::onCurrentPaneChanged(QWidget *pane) {
 void SGMAppController::onSGMBeamlineConnected(){
 	if(SGMBeamline::sgm()->isConnected() && !xasScanConfigurationView_ && !fastScanConfigurationView_){
 		SGMXASScanConfiguration *sxsc = new SGMXASScanConfiguration(this);
-		sxsc->addRegion(0, 950, 1, 960);
+		//sxsc->addRegion(0, 950, 1, 960);
+		double goodEnergy = 10 * floor(SGMBeamline::sgm()->energy()->value() / 10);
+		sxsc->addRegion(0, goodEnergy, 1, goodEnergy+10);
 		xasScanConfigurationView_ = new SGMXASScanConfigurationView(sxsc);
 		xasScanConfigurationHolder_->setView(xasScanConfigurationView_);
-
 
 		SGMFastScanConfiguration *sfsc = new SGMFastScanConfiguration(this);
 		fastScanConfigurationView_ = new SGMFastScanConfigurationView(sfsc);
