@@ -101,6 +101,9 @@ public:
 	AMSamplePlate(const AMSamplePlate& other);
 
 
+	/// Re-implemented from AMDbObject::loadFromDb().  If the number of sample positions stays the same, the new positions will be re-loaded into the existing sample position objects, and no sample positions will be added or removed. We'll need to signal that the sample plate data changed.
+	bool loadFromDb(AMDatabase *db, int id);
+
 	// Meta-data access
 	////////////////////////
 
@@ -111,18 +114,6 @@ public:
 	int sampleIdAtPosition(const AMControlInfoList &position, const QList<double> tolerances = QList<double>()) const;
 
 
-
-// Required?
-//	/// Sample plates are valid after being loaded or saved. You can also manually mark a sample plate as invalid by calling setInvalid(). (For example, at the beginning of a sample transfer.)
-//	bool valid() const { return valid_; }
-//	/// Mark a sample plate as 'invalid' (ie: non-existent, or not trustworthy. It won't become valid until successfully saved to the db, or loaded from the db.)
-//	void setInvalid() { valid_ = false; }
-//	/// This is a convenience function that tells a sample plate object to "become another sample plate" that already exists in the user's database.  It's equivalent to "loadFromDb(AMDatabase::userdb(), newSamplePlateId);"
-//	void changeSamplePlate(int newSamplePlateId) { loadFromDb(AMDatabase::userdb(), newSamplePlateId); }
-
-
-
-
 signals:
 	// The following signals are forwarded from our signalSource().
 	void samplePositionChanged(int index);
@@ -131,18 +122,12 @@ signals:
 	void samplePositionAboutToBeAdded(int index);
 	void samplePositionAboutToBeRemoved(int index);
 
-//	/// This signal is emitted when the sample plate is "changed out", or re-loaded. It may now contain completely different samples, at completely different positions. \todo Re-implement if required?
-//	void samplePlateChanged(bool isValid);
-
 public slots:
 
 protected slots:
 
 
 protected:
-
-//	/// Sample plates are valid when they've been successfully stored to or loaded from the Db.
-// necessary? bool valid_;
 
 	/// Time when this sample plate was first created
 	QDateTime dateTime_;

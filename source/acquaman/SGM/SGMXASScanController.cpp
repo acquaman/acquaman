@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "SGMXASScanController.h"
 
 #include "dataman/SGM2004FileLoader.h"
+#include "dataman/SGM2011XASFileLoader.h"
 #include "analysis/AM1DExpressionAB.h"
 #include "analysis/AM2DSummingAB.h"
 #include "dataman/AMRawDataSource.h"
@@ -36,7 +37,8 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 
 	specificScan_ = new AMXASScan();
 	_pScan_ = &specificScan_;
-	pScan_()->setFileFormat("sgm2004");
+	//pScan_()->setFileFormat("sgm2004");
+	pScan_()->setFileFormat("sgm2011XAS");
 	pScan_()->setRunId(AMUser::user()->currentRunId());
 	pScan_()->setScanConfiguration(pCfg_());
 	pScan_()->setSampleId(SGMBeamline::sgm()->currentSampleId());

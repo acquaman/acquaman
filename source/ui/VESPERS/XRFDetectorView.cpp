@@ -1,7 +1,6 @@
 #include "XRFDetectorView.h"
 #include "DeadTimeButton.h"
 #include "acquaman/VESPERS/VESPERSXRFScanController.h"
-#include "MPlot/MPlotSeries.h"
 #include "MPlot/MPlotAxisScale.h"
 #include "dataman/AMDataSourceSeriesData.h"
 #include "util/AMPeriodicTable.h"
@@ -122,6 +121,8 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	connect(updateRate_, SIGNAL(currentIndexChanged(int)), this, SLOT(onComboBoxUpdate(int)));
 	connect(detector_->refreshRateControl(), SIGNAL(valueChanged(double)), this, SLOT(onUpdateRateUpdate(double)));
 
+	isWaterfall_ = false;
+
 	setupPlot();
 
 	connect(detector_, SIGNAL(roiUpdate(AMROI*)), this, SLOT(roiWidthUpdate(AMROI*)));
@@ -140,14 +141,14 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	QLabel *rawElementLabel = new QLabel(QString("Raw Elements"));
 	rawElementLabel->setFont(font);
 
-	QPushButton *logButton = new QPushButton("Log Scale");
-	logButton->setCheckable(true);
-	logButton->setChecked(false);
-	connect(logButton, SIGNAL(toggled(bool)), this, SLOT(onLogEnabled(bool)));
+	logButton_ = new QPushButton("Log");
+	logButton_->setCheckable(true);
+	logButton_->setChecked(false);
+	connect(logButton_, SIGNAL(toggled(bool)), this, SLOT(onLogEnabled(bool)));
 
-	QPushButton *waterfallButton = new QPushButton("Raw Spectra");
-	waterfallButton->setCheckable(true);
-	connect(waterfallButton, SIGNAL(toggled(bool)), this, SLOT(onWaterfallToggled(bool)));
+	waterfallButton_ = new QPushButton("Raw Spectra");
+	waterfallButton_->setCheckable(true);
+	connect(waterfallButton_, SIGNAL(toggled(bool)), this, SLOT(onWaterfallToggled(bool)));
 
 	waterfallSeparation_ = new QDoubleSpinBox;
 	waterfallSeparation_->setPrefix(QString::fromUtf8("Δh = "));
@@ -158,7 +159,7 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	waterfallSeparation_->setAlignment(Qt::AlignCenter);
 	waterfallSeparation_->setEnabled(false);
 	connect(waterfallSeparation_, SIGNAL(valueChanged(double)), this, SLOT(onWaterfallSeparationChanged(double)));
-	connect(waterfallButton, SIGNAL(toggled(bool)), waterfallSeparation_, SLOT(setEnabled(bool)));
+	connect(waterfallButton_, SIGNAL(toggled(bool)), waterfallSeparation_, SLOT(setEnabled(bool)));
 
 	QVBoxLayout *viewControlLayout = new QVBoxLayout;
 	viewControlLayout->addWidget(elapsedTimeLabel, 0, Qt::AlignLeft);
@@ -169,11 +170,11 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	viewControlLayout->addWidget(updateRateLabel, 0, Qt::AlignLeft);
 	viewControlLayout->addWidget(updateRate_, 0, Qt::AlignCenter);
 	viewControlLayout->addWidget(logLabel, 0, Qt::AlignLeft);
-	viewControlLayout->addWidget(logButton, 0, Qt::AlignCenter);
+	viewControlLayout->addWidget(logButton_, 0, Qt::AlignCenter);
 	if (detector_->elements() != 1){
 
 		viewControlLayout->addWidget(rawElementLabel, 0, Qt::AlignLeft);
-		viewControlLayout->addWidget(waterfallButton, 0, Qt::AlignCenter);
+		viewControlLayout->addWidget(waterfallButton_, 0, Qt::AlignCenter);
 		viewControlLayout->addWidget(waterfallSeparation_, 0, Qt::AlignCenter);
 	}
 	viewControlLayout->addStretch();
@@ -237,15 +238,32 @@ QString XRFDetailedDetectorView::getName(AMROI *roi)
 
 void XRFDetailedDetectorView::onLogEnabled(bool logged)
 {
+	logged ? logButton_->setText("Linear") : logButton_->setText("Log");
 	plot_->axisScaleLeft()->setLogScaleEnabled(logged);
 }
 
 void XRFDetailedDetectorView::onWaterfallToggled(bool isWaterfall)
 {
-	if (isWaterfall)
+	isWaterfall ? waterfallButton_->setText("Sum Spectra") : waterfallButton_->setText("Raw Spectra");
+	isWaterfall_ = isWaterfall;
+
+	if (isWaterfall){
+
+		plot_->removeItem(corrSum_);
+
+		for (int i = 0; i < detector_->elements(); i++)
+			plot_->insertItem(rawDataSeries_.at(i), i);
+
 		plot_->setAxisScaleWaterfall(MPlot::Left, waterfallSeparation_->value()*getMaximumHeight(plot_->item(0)));
-	else
+	}
+	else{
+
+		for (int i = 0; i < detector_->elements(); i++)
+			plot_->removeItem(rawDataSeries_.at(i));
+
+		plot_->insertItem(corrSum_, 0);
 		plot_->setAxisScaleWaterfall(MPlot::Left, 0);
+	}
 }
 
 void XRFDetailedDetectorView::onWaterfallSeparationChanged(double val)
@@ -324,8 +342,24 @@ void XRFDetailedDetectorView::setupPlot()
 		series->setModel(new AMDataSourceSeriesData(detector_->dataSource(i)));
 		series->setMarker(MPlotMarkerShape::None);
 		series->setDescription(detector_->dataSource(i)->name());
-		series->setLinePen(QPen(getColor(i)));
-		plot_->addItem(series);
+		series->setLinePen(QPen(getColor(i+1)));
+		rawDataSeries_ << series;
+	}
+
+	if (detector_->elements() == 1){
+
+		series->setLinePen(QPen(getColor(0)));
+		plot_->addItem(rawDataSeries_.first());
+	}
+	else{
+
+		/// BIT OF A HACK UNTIL I MAKE THE PROPER CORRECTED SUM. \todo fix hack
+		corrSum_ = new MPlotSeriesBasic;
+		corrSum_->setModel(new AMDataSourceSeriesData(detector_->dataSource(4)));
+		corrSum_->setMarker(MPlotMarkerShape::None);
+		corrSum_->setDescription(detector_->dataSource(4)->name());
+		corrSum_->setLinePen(QPen(getColor(0)));
+		plot_->addItem(corrSum_);
 	}
 
 	// Enable autoscaling of both axes.
@@ -446,7 +480,8 @@ void XRFDetailedDetectorView::highlightMarkers(AMElement *el)
 
 		temp = markers_.at(i);
 
-		if (temp->description().contains(el->symbol()))
+		// Need to add the space because Potassium shows up in Ka1 (Symbol for Potassium is K).
+		if (temp->description().contains(el->symbol()+" "))
 			temp->setHighlighted(true);
 		else
 			temp->setHighlighted(false);
@@ -487,7 +522,10 @@ void XRFDetailedDetectorView::showEmissionLines(AMElement *el)
 		point = new MPlotPoint(QPoint(current.second.toDouble(), 0));
 		point->setMarker(MPlotMarkerShape::VerticalBeam, 1e5, QPen(getColor(current.first)), QBrush(getColor(current.first)));
 		point->setDescription(current.first + ": " + current.second + " eV");
-		plot_->insertItem(point, i+detector_->elements());
+		if (isWaterfall_)
+			plot_->insertItem(point, i+detector_->elements());
+		else
+			plot_->insertItem(point, i+1);
 		lines_->append(point);
 	}
 }
@@ -522,7 +560,7 @@ QColor XRFDetailedDetectorView::getColor(int index)
 	case 2:
 		return Qt::green;
 	case 3:
-		return Qt::yellow;
+		return Qt::darkCyan;
 	case 4:
 		return Qt::black;
 	case 5:

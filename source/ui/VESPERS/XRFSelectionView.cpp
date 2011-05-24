@@ -39,18 +39,12 @@ XRFSelectionView::XRFSelectionView(double minimumEnergy, double maximumEnergy, Q
 	connect(tableView_, SIGNAL(clearAllRegionsOfInterest()), this, SLOT(onClearList()));
 
 	QHBoxLayout *tableLayout = new QHBoxLayout;
-	tableLayout->addWidget(tableView_, Qt::AlignLeft);
-	tableLayout->addWidget(elView_, Qt::AlignCenter);
+	tableLayout->addStretch();
+	tableLayout->addWidget(tableView_);
+	tableLayout->addWidget(elView_);
+	tableLayout->addStretch();
 
-	QGroupBox *table = new QGroupBox;
-	table->setLayout(tableLayout);
-	table->setFlat(true);
-	table->setFixedSize(900, 325);
-
-	QVBoxLayout *xrfLayout = new QVBoxLayout;
-	xrfLayout->addWidget(table, 0, Qt::AlignCenter);
-
-	setLayout(xrfLayout);
+	setLayout(tableLayout);
 }
 
 void XRFSelectionView::onClearList()

@@ -294,6 +294,8 @@ public:
 	virtual int numberOfSelectedItems() const {
 		if(subview_)
 			return subview_->numberOfSelectedItems();
+		else
+			return 0;
 	}
 
 	/// Re-implemented function, to manage the size and position of our child items: the header, and the subview.

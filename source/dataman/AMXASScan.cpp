@@ -31,6 +31,7 @@ AMXASScan::AMXASScan(QObject *parent)
 
 #include "dataman/SGM2004FileLoader.h"
 #include "dataman/ALSBL8XASFileLoader.h"
+#include "dataman/SGM2011XASFileLoader.h"
 
 bool AMXASScan::loadDataImplementation() {
 
@@ -46,6 +47,17 @@ bool AMXASScan::loadDataImplementation() {
 		}
 	}
 
+	SGM2011XASFileLoader sgm2011Loader(this);
+
+	if(fileFormat() == sgm2011Loader.formatTag()) {
+		if(sgm2011Loader.loadFromFile(filePath(), false, false, false)) {
+			return true;
+		}
+		else {
+			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, -1, QString("Could not load raw XAS scan data from '%1'").arg(filePath())));
+			return false;
+		}
+	}
 
 	ALSBL8XASFileLoader alsLoader(this);
 

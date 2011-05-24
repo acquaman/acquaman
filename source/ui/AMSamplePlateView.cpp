@@ -35,6 +35,7 @@ AMSamplePlateItemModel::AMSamplePlateItemModel(AMSamplePlate* plate, QObject* pa
 	connect(plate_, SIGNAL(samplePositionAdded(int)), this, SLOT(onSamplePositionAdded(int)));
 	connect(plate_, SIGNAL(samplePositionAboutToBeRemoved(int)), this, SLOT(onSamplePositionAboutToBeRemoved(int)));
 	connect(plate_, SIGNAL(samplePositionRemoved(int)), this, SLOT(onSamplePositionRemoved(int)));
+	connect(plate_, SIGNAL(samplePositionChanged(int)), this, SLOT(onSamplePositionChanged(int)));
 
 	connect(AMDatabase::userdb(), SIGNAL(updated(QString,int)), this, SLOT(onDatabaseItemUpdated(QString,int)), Qt::QueuedConnection);
 	connect(AMDatabase::userdb(), SIGNAL(removed(QString,int)), this, SLOT(onDatabaseItemRemoved(QString,int)), Qt::QueuedConnection);
@@ -85,11 +86,13 @@ void AMSamplePlateItemModel::onSamplePositionAdded(int index) {
 
 // Received from AMSamplePlate. Used to implement beginRemoveRows.
 void AMSamplePlateItemModel::onSamplePositionAboutToBeRemoved(int index) {
+
 	beginRemoveRows(QModelIndex(), index, index);
 }
 
 // Received from AMSamplePlate. Used to implement endRemoveRows.
 void AMSamplePlateItemModel::onSamplePositionRemoved(int index) {
+
 	cachedSamples_.removeAt(index);
 	endRemoveRows();
 }
@@ -583,4 +586,12 @@ void AMSamplePlateView::onRowRemovePressed(int row) {
 
 	// save the sample plate, because it's been modified.
 	samplePlate_->storeToDb(AMDatabase::userdb());
+}
+
+void AMSamplePlateItemModel::onSamplePositionChanged(int r)
+{
+	if(r<plate_->count()) {
+		QModelIndex i = index(r,0);
+		emit dataChanged(i,i);
+	}
 }

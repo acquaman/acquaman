@@ -64,7 +64,7 @@ linux-g++ {
 linux-g++-64 {
 
 	# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
-	DEV_PATH = Sandbox/Acquaman2011/dev
+	DEV_PATH = dev
 
 	# EPICS Dependencies:
 	EPICS_INCLUDE_DIRS = /home/epics/src/R3.14.12/base/include \
@@ -343,7 +343,8 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
     source/beamline/AMBeamlineFiducializationMoveAction.h \
     source/dataman/OceanOptics65000DetectorInfo.h \
     source/beamline/OceanOptics65000Detector.h \
-    source/ui/OceanOptics65000DetectorView.h
+    source/ui/OceanOptics65000DetectorView.h \
+    source/dataman/SGM2011XASFileLoader.h
 FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
 	source/ui/AMDataViewSectionHeader.ui \
@@ -557,7 +558,8 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
     source/beamline/AMBeamlineFiducializationMoveAction.cpp \
     source/dataman/OceanOptics65000DetectorInfo.cpp \
     source/beamline/OceanOptics65000Detector.cpp \
-    source/ui/OceanOptics65000DetectorView.cpp
+    source/ui/OceanOptics65000DetectorView.cpp \
+    source/dataman/SGM2011XASFileLoader.cpp
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc \
 	source/util/ElementData.qrc \

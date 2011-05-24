@@ -216,32 +216,32 @@ void AM2DSummingABEditor::placeRangeRectangle()
 	AMDataSource* inputSource;
 	if(analysisBlock_->inputDataSourceCount() > 0 && (inputSource=analysisBlock_->inputDataSourceAt(0))) {
 
+		int sumAxis = analysisBlock_->sumAxis();
 
-		QRectF dataRect(QPointF(inputSource->axisValue(0,0),
-								inputSource->axisValue(1,0)),
-						QPointF(inputSource->axisValue(0, inputSource->size(0)-1),
-								inputSource->axisValue(1, inputSource->size(1)-1)));
+		double dataMin = inputSource->axisValue(sumAxis,0);
+		double sumMin = inputSource->axisValue(sumAxis, analysisBlock_->sumRangeMin());
+		double sumMax = inputSource->axisValue(sumAxis, analysisBlock_->sumRangeMax());
+		double dataMax = inputSource->axisValue(sumAxis, inputSource->size(sumAxis)-1);
 
-		if(analysisBlock_->sumAxis() == 0) {
-			rangeRectangle1_->setRect(QRectF(dataRect.topLeft(),
-											 QPointF(inputSource->axisValue(0, analysisBlock_->sumRangeMin()),
-													 dataRect.bottom())
-											 ).normalized());
-			rangeRectangle2_->setRect(QRectF(QPointF(inputSource->axisValue(0, analysisBlock_->sumRangeMax()),
-													 dataRect.top()),
-											 dataRect.bottomRight()
-											 ).normalized());
+		if(sumAxis == 0) {
+
+			rangeRectangle1_->setYAxisTarget(plot_->axisScaleVerticalRelative());	// note: does nothing if already correct
+			rangeRectangle2_->setYAxisTarget(plot_->axisScaleVerticalRelative());	// note: does nothing if already correct
+			rangeRectangle1_->setXAxisTarget(plot_->axisScaleBottom());	// note: does nothing if already correct
+			rangeRectangle2_->setXAxisTarget(plot_->axisScaleBottom());	// note: does nothing if already correct
+
+			rangeRectangle1_->setRect(QRectF(QPointF(dataMin,0), QPointF(sumMin,1)).normalized());
+			rangeRectangle2_->setRect(QRectF(QPointF(sumMax,0), QPointF(dataMax,1)).normalized());
 		}
 
 		else {
-			rangeRectangle1_->setRect(QRectF(dataRect.topLeft(),
-											 QPointF(dataRect.right(),
-													 inputSource->axisValue(1, analysisBlock_->sumRangeMin()))
-											 ).normalized());
-			rangeRectangle2_->setRect(QRectF(QPointF(dataRect.left(),
-													 inputSource->axisValue(1, analysisBlock_->sumRangeMax())),
-											 dataRect.bottomRight()
-											 ).normalized());
+			rangeRectangle1_->setYAxisTarget(plot_->axisScaleLeft());	// note: does nothing if already correct
+			rangeRectangle2_->setYAxisTarget(plot_->axisScaleLeft());	// note: does nothing if already correct
+			rangeRectangle1_->setXAxisTarget(plot_->axisScaleHorizontalRelative());	// note: does nothing if already correct
+			rangeRectangle2_->setXAxisTarget(plot_->axisScaleHorizontalRelative());	// note: does nothing if already correct
+
+			rangeRectangle1_->setRect(QRectF(QPointF(0,dataMin), QPointF(1,sumMin)).normalized());
+			rangeRectangle2_->setRect(QRectF(QPointF(0,sumMax), QPointF(1,dataMax)).normalized());
 		}
 		rangeRectangle1_->setVisible(true);
 		rangeRectangle2_->setVisible(true);

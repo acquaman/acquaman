@@ -63,7 +63,6 @@ bool AMExperimentModelItem::dropMimeData(const QMimeData *data, Qt::DropAction a
 	/// For drops with a Qt::CopyAction and URLs containing "amd://databaseConnectionName/tableName/id", add these objects to this experiment.
 	if( (action & Qt::CopyAction) && data->hasUrls() ) {
 
-
 		QList<QUrl> urls = data->urls();
 
 		foreach(QUrl url, urls) {
@@ -84,7 +83,6 @@ bool AMExperimentModelItem::dropMimeData(const QMimeData *data, Qt::DropAction a
 			int id = path.at(2).toInt(&idOkay);
 			if(!idOkay || id < 1)
 				break;
-
 
 			/// \todo Determine if this is still necessary: Only store things that belong in the main scans table for now.
 			if(tableName != AMDbObjectSupport::tableNameForClass<AMScan>())

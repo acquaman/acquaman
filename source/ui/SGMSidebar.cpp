@@ -336,13 +336,26 @@ void SGMSidebar::onStripToolTimerTimeout(){
 		tfyModel_->removePointFront();
 		pdModel_->removePointFront();
 	}
-	i0Series_->setDescription(QString("I0 %1").arg(SGMBeamline::sgm()->i0Detector()->reading(), 0, 'e', 2));
-	i0Model_->insertPointBack(stripToolCounter_, SGMBeamline::sgm()->i0Detector()->reading());
-	teySeries_->setDescription(QString("TEY %1").arg(SGMBeamline::sgm()->teyDetector()->reading(), 0, 'e', 2));
-	teyModel_->insertPointBack(stripToolCounter_, SGMBeamline::sgm()->teyDetector()->reading());
-	tfySeries_->setDescription(QString("TFY %1").arg(SGMBeamline::sgm()->tfyDetector()->reading(), 0, 'e', 2));
-	tfyModel_->insertPointBack(stripToolCounter_, SGMBeamline::sgm()->tfyDetector()->reading());
-	pdSeries_->setDescription(QString("PD %1").arg(SGMBeamline::sgm()->photodiodeDetector()->reading(), 0, 'e', 2));
-	pdModel_->insertPointBack(stripToolCounter_, SGMBeamline::sgm()->photodiodeDetector()->reading());
+
+	// inserted to prevent crashes before SGM detectors connected
+	double i0Reading = 0, teyReading = 0, tfyReading = 0, pdReading = 0;
+	if(SGMBeamline::sgm()->i0Detector())
+		i0Reading = SGMBeamline::sgm()->i0Detector()->reading();
+	if(SGMBeamline::sgm()->teyDetector())
+		teyReading = SGMBeamline::sgm()->teyDetector()->reading();
+	if(SGMBeamline::sgm()->tfyDetector())
+		tfyReading = SGMBeamline::sgm()->tfyDetector()->reading();
+	if(SGMBeamline::sgm()->photodiodeDetector())
+		pdReading = SGMBeamline::sgm()->photodiodeDetector()->reading();
+	///////////////
+
+	i0Series_->setDescription(QString("I0 %1").arg(i0Reading, 0, 'e', 2));
+	i0Model_->insertPointBack(stripToolCounter_, i0Reading);
+	teySeries_->setDescription(QString("TEY %1").arg(teyReading, 0, 'e', 2));
+	teyModel_->insertPointBack(stripToolCounter_, teyReading);
+	tfySeries_->setDescription(QString("TFY %1").arg(tfyReading, 0, 'e', 2));
+	tfyModel_->insertPointBack(stripToolCounter_, tfyReading);
+	pdSeries_->setDescription(QString("PD %1").arg(pdReading, 0, 'e', 2));
+	pdModel_->insertPointBack(stripToolCounter_, pdReading);
 	stripToolCounter_++;
 }

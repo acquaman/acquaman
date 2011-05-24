@@ -8,9 +8,11 @@
 
 #include "MPlot/MPlot.h"
 #include "MPlot/MPlotWidget.h"
+#include "MPlot/MPlotSeries.h"
 
 #include <QLabel>
 #include <QDoubleSpinBox>
+#include <QPushButton>
 
 class XRFBriefDetectorView : public AMBriefDetectorView
 {
@@ -130,6 +132,10 @@ protected:
 	QComboBox *updateRate_;
 	/// The waterfall spin box.
 	QDoubleSpinBox *waterfallSeparation_;
+	/// The log button.
+	QPushButton *logButton_;
+	/// The raw spectra button.
+	QPushButton *waterfallButton_;
 
 	/// The button group used for the dead time tool buttons.
 	QButtonGroup *deadTimeGroup_;
@@ -138,6 +144,13 @@ protected:
 	MPlotWidget *view_;
 	/// This is the plot itself.
 	MPlot *plot_;
+	/// This holds the raw data sources.
+	QList<MPlotSeriesBasic *> rawDataSeries_;
+	/// This holds the corrected sum.
+	MPlotSeriesBasic *corrSum_;
+	/// Holds whether the plot is in a waterfall plot mode or not.
+	bool isWaterfall_;
+
 	/// Holds the list of current markers.
 	QList<ROIPlotMarker *> markers_;
 	/// This holds the plot markers for showing emission lines.
