@@ -179,14 +179,10 @@ private slots:
 	void focusUpdate(double val) { focusButton_->setText(QString::number(val, 'f', 3) + " mm"); }
 	/// Handles changes in the filter combo box.
 	void onFilterComboBoxUpdate(int index);
-	/// Handles updates from the lower shutter filter push button.
-	void onLowerFilterUpdate();
 	/// Handles the connection of the filter set.
 	void onFiltersConnected(bool isConnected);
 	/// Sets the filter combo box based on original values at start up and if they are changed outside of the program.
 	void onFiltersChanged();
-	/// Handles the state change from the shutter.  Changes the label to the either a red or green light.  Green means open.
-	void onFilterStatusChanged();
 
 private:
 	/// Helper function to properly toggle the filter PVs.  Takes an AMControl *, casts it to an AMPVControl * then toggles them.
@@ -232,10 +228,8 @@ private:
 	bool microscopeSafe_;
 	bool ccdSafe_;
 
-	// Filter combo box, label, and push button.
+	// Filter combo box.
 	QComboBox *filterComboBox_;
-	QPushButton *filterLowerButton_;
-	QLabel *filterLabel_;
 
 	// Control pointers.
 	// The controls used for the control window.
