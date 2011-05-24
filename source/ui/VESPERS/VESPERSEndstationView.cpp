@@ -178,19 +178,24 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	connect(VESPERSBeamline::vespers()->filterSet(), SIGNAL(connected(bool)), this, SLOT(onFiltersChanged()));
 	connect(VESPERSBeamline::vespers()->filterSet(), SIGNAL(controlSetValuesChanged()), this, SLOT(onFiltersChanged()));
 
-	QHBoxLayout *filterLayout = new QHBoxLayout;
-	filterLayout->addWidget(filterComboBox_);
-	filterLayout->addStretch();
+	QPushButton *startMicroscopeButton = new QPushButton("Microscope Display");
+	connect(startMicroscopeButton, SIGNAL(clicked()), this, SLOT(startMicroscope()));
 
-	QGroupBox *filterGroupBox = new QGroupBox("Filters");
-	filterGroupBox->setLayout(filterLayout);
+	QHBoxLayout *extrasGroupBoxLayout = new QHBoxLayout;
+	extrasGroupBoxLayout->addWidget(new QLabel("Filters:"));
+	extrasGroupBoxLayout->addWidget(filterComboBox_);
+	extrasGroupBoxLayout->addStretch();
+	extrasGroupBoxLayout->addWidget(startMicroscopeButton);
+
+	QGroupBox *ExtrasGroupBox = new QGroupBox("Extras");
+	ExtrasGroupBox->setLayout(extrasGroupBoxLayout);
 
 	// Setup the top frame.
 	AMTopFrame *topFrame = new AMTopFrame("Endstation Control Screen");
 
 	QVBoxLayout *extrasLayout = new QVBoxLayout;
 	extrasLayout->addStretch();
-	extrasLayout->addWidget(filterGroupBox);
+	extrasLayout->addWidget(ExtrasGroupBox);
 	extrasLayout->addWidget(windowGB);
 	extrasLayout->addWidget(ccdGB);
 	extrasLayout->addStretch();
