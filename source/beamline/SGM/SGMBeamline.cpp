@@ -1563,6 +1563,7 @@ void SGMBeamline::onControlSetConnected(bool csConnected){
 			XASDetectors_->addDetector(tfyPicoDetector_, true);
 			connect(tfyHVToggle_, SIGNAL(valueChanged(double)), this, SIGNAL(detectorHVChanged()));
 			connect( ((MCPDetector*)tfyPicoDetector_)->hvCtrl(), SIGNAL(valueChanged(double)), this, SIGNAL(detectorHVChanged()));
+			emit detectorHVChanged();
 		}
 		else if(!tfyScalerDetector_ && ctrlSet->name() == "TFY Scaler Controls"){
 			tfyScalerDetector_ = new MCPDetector(tfyScaler_->name(), tfyScaler_, tfyHV_, AMDetector::WaitRead, this);
@@ -1572,6 +1573,7 @@ void SGMBeamline::onControlSetConnected(bool csConnected){
 			FastDetectors_->addDetector(tfyScalerDetector_, true);
 			connect(tfyHVToggle_, SIGNAL(valueChanged(double)), this, SIGNAL(detectorHVChanged()));
 			connect( ((MCPDetector*)tfyScalerDetector_)->hvCtrl(), SIGNAL(valueChanged(double)), this, SIGNAL(detectorHVChanged()) );
+			emit detectorHVChanged();
 		}
 		else if(!pgtDetector_ && ctrlSet->name() == "SDD Controls"){
 			pgtDetector_ = new PGTDetector(pgt_->name(), pgt_, pgtHV_, pgtIntegrationTime_, pgtIntegrationMode_, AMDetector::WaitRead, this);

@@ -52,7 +52,6 @@ SGMSampleManipulatorView::SGMSampleManipulatorView(bool bigButtons, QWidget *par
 	jogSettingComboBox_->addItem("0.25 mm");
 	jogSettingComboBox_->addItem("0.5 mm");
 	jogSettingComboBox_->addItem("1.0 mm");
-	qDebug() << "HERE HERE HERE";
 
 	transferPositionButton_ = new QPushButton("Transfer Position");
 	transferPositionActions_ = 0;//NULL
@@ -433,17 +432,14 @@ void SGMSampleManipulatorView::onMeasurePositionButtonClicked(){
 void SGMSampleManipulatorView::onHVButtonClicked(){
 	if( SGMBeamline::sgm()->tfyHVToggle()->tolerance() > fabs(SGMBeamline::sgm()->tfyHVToggle()->value()-1) ){
 		SGMBeamline::sgm()->tfyHVToggle()->move(0);
-		//hvButton_->setText("HV is Ramping Down");
 	}
 	else{
 		SGMBeamline::sgm()->tfyHVToggle()->move(1);
-		//hvButton_->setText("HV is Ramping Up");
 	}
 }
 
 void SGMSampleManipulatorView::onHVStateChanged(){
 	double curHVValue = ((MCPDetector*)SGMBeamline::sgm()->tfyDetector())->hvCtrl()->value();
-	qDebug() << "Some HV changed " << SGMBeamline::sgm()->tfyHVToggle()->value() << curHVValue << lastHVValue_;
 	switch( (int)(SGMBeamline::sgm()->tfyHVToggle()->value()) ){
 	case 0:
 		hvButton_->setText("HV is OFF");
@@ -458,25 +454,6 @@ void SGMSampleManipulatorView::onHVStateChanged(){
 		hvButton_->setText(QString("HV is Ramping\nDown (%1)").arg(curHVValue, 0, 'f', 0));
 		break;
 	}
-
-	/*
-	if( SGMBeamline::sgm()->tfyHVToggle()->value() != 0 ){
-		if(curHVValue > 1550)
-			hvButton_->setText("HV is ON");
-		else if(curHVValue < 50)
-			hvButton_->setText("HV is OFF");
-		else if(curHVValue > lastHVValue_)
-			hvButton_->setText(QString("HV is Ramping\nUp (%1)").arg(curHVValue, 0, 'f', 0));
-	}
-	else{
-		if(curHVValue > 1550)
-			hvButton_->setText("HV is ON");
-		else if(curHVValue < 50)
-			hvButton_->setText("HV is OFF");
-		else if(curHVValue < lastHVValue_)
-			hvButton_->setText(QString("HV is Ramping\nDown (%1)").arg(curHVValue, 0, 'f', 0));
-	}
-	*/
 	lastHVValue_ = curHVValue;
 }
 
