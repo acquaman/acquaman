@@ -15,6 +15,7 @@
 #include <QDir>
 #include <QLabel>
 #include <QMessageBox>
+#include <QProcess>
 
 VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	: QWidget(parent)
@@ -24,8 +25,9 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	microscopeControl_ = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->microscopeMotor());
 	fourElControl_ = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->fourElMotor());
 	singleElControl_ = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->singleElMotor());
-	focusControl_ = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->sampleStageNormal());
+	focusControl_ = VESPERSBeamline::vespers()->sampleStage()->norm();
 
+	// Laser power control.
 	laserPowerControl_ = qobject_cast<AMPVControl *>(VESPERSBeamline::vespers()->laserPower());
 
 	// The feedback PVs associated with the controls.
@@ -65,9 +67,12 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	singleElButton_ = new QToolButton;
 	connect(singleElButton_, SIGNAL(clicked()), this, SLOT(singleElClicked()));
 	connect(singleElfbk_, SIGNAL(valueChanged(double)), this, SLOT(singleElUpdate(double)));
+	// Because the focus is a critical part of the sample stage (pseudo-motor or regular motor) it should be disabled if the entire sample stage is not connected.
 	focusButton_ = new QToolButton;
 	connect(focusButton_, SIGNAL(clicked()), this, SLOT(focusClicked()));
 	connect(focusfbk_, SIGNAL(valueChanged(double)), this, SLOT(focusUpdate(double)));
+	connect(VESPERSBeamline::vespers()->sampleStage(), SIGNAL(connected(bool)), focusButton_, SLOT(setEnabled(bool)));
+	connect(VESPERSBeamline::vespers()->sampleStage(), SIGNAL(movingChanged(bool)), focusButton_, SLOT(setDisabled(bool)));
 
 	// Setup the microscope light.
 	micLight_ = new QSlider(Qt::Vertical, this);
@@ -187,8 +192,15 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	extrasGroupBoxLayout->addStretch();
 	extrasGroupBoxLayout->addWidget(startMicroscopeButton);
 
+	/// \todo this will be removed once I build my own XAS software.
+	QPushButton *idaButton = new QPushButton("Launch XAS Software");
+	connect(idaButton, SIGNAL(clicked()), this, SLOT(startXAS()));
+	QVBoxLayout *tempLayout = new QVBoxLayout;
+	tempLayout->addLayout(extrasGroupBoxLayout);
+	tempLayout->addWidget(idaButton, 0, Qt::AlignCenter);
+
 	QGroupBox *ExtrasGroupBox = new QGroupBox("Extras");
-	ExtrasGroupBox->setLayout(extrasGroupBoxLayout);
+	ExtrasGroupBox->setLayout(tempLayout);
 
 	// Setup the top frame.
 	AMTopFrame *topFrame = new AMTopFrame("Endstation Control Screen");

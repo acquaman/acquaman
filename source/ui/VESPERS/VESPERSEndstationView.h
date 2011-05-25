@@ -184,8 +184,10 @@ private slots:
 	void onFiltersConnected(bool isConnected);
 	/// Sets the filter combo box based on original values at start up and if they are changed outside of the program.
 	void onFiltersChanged();
-	/// Starts up a detached process for the microscope screen.
+	/// Starts up a detached process for the microscope screen.  Starts a detached process because the view for the microscope does not depend on the user interface to be active.
 	void startMicroscope() { QProcess::startDetached("/home/vespers/bin/runCameraDisplay"); }
+	/// Starts the IDA software.  This is temporary until the XAS software is replaced.
+	void startXAS() { QProcess::startDetached("/home/vespers/bin/runIDA"); }
 
 private:
 	/// Helper function to properly toggle the filter PVs.  Takes an AMControl *, casts it to an AMPVControl * then toggles them.
