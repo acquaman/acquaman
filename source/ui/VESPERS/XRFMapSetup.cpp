@@ -99,39 +99,39 @@ void XRFMapSetup::launchNDMapper()
 	if (dim2D_->isChecked() && !ccd_->isChecked()){
 
 		if (vortex1El_->isChecked())
-			QProcess::startDetached("/home/vespers/bin/runNDMapper 2 1 --useCCD=n --multiImage=n");
+			QProcess::startDetached("konsole -vt_sz 5x5 -e /home/vespers/bin/runNDMapper 2 1 --useCCD=n --multiImage=n");
 		else
-			QProcess::startDetached("/home/vespers/bin/runNDMapper 2 2 --useCCD=n --multiImage=n");
+			QProcess::startDetached("konsole -vt_sz 5x5 -e /home/vespers/bin/runNDMapper 2 2 --useCCD=n --multiImage=n");
 	}
 	else if (dim2D_->isChecked() && ccd_->isChecked()){
 
 		if (vortex1El_->isChecked()){
 
 			if (multipleImages_->isChecked())
-				QProcess::startDetached("/home/vespers/bin/runNDMapper 2 1 --useCCD=y --multiImage=y");
+				QProcess::startDetached("konsole -vt_sz 5x5 -e /home/vespers/bin/runNDMapper 2 1 --useCCD=y --multiImage=y");
 			else
-				QProcess::startDetached("/home/vespers/bin/runNDMapper 2 1 --useCCD=y --multiImage=n");
+				QProcess::startDetached("konsole -vt_sz 5x5 -e /home/vespers/bin/runNDMapper 2 1 --useCCD=y --multiImage=n");
 		}
 		else{
 
 			if (multipleImages_->isChecked())
-				QProcess::startDetached("/home/vespers/bin/runNDMapper 2 2 --useCCD=y --multiImage=y");
+				QProcess::startDetached("konsole -vt_sz 5x5 -e /home/vespers/bin/runNDMapper 2 2 --useCCD=y --multiImage=y");
 			else
-				QProcess::startDetached("/home/vespers/bin/runNDMapper 2 2 --useCCD=y --multiImage=n");
+				QProcess::startDetached("konsole -vt_sz 5x5 -e /home/vespers/bin/runNDMapper 2 2 --useCCD=y --multiImage=n");
 		}
 	}
 	else if (dim3D_->isChecked() && vortex1El_->isChecked()){
 
 		if (multipleImages_->isChecked())
-			QProcess::startDetached("/home/vespers/bin/runNDMapper 3 1 --useCCD=y --multiImage=y");
+			QProcess::startDetached("konsole -vt_sz 5x5 -e /home/vespers/bin/runNDMapper 3 1 --useCCD=y --multiImage=y");
 		else
-			QProcess::startDetached("/home/vespers/bin/runNDMapper 3 1 --useCCD=y --multiImage=n");
+			QProcess::startDetached("konsole -vt_sz 5x5 -e /home/vespers/bin/runNDMapper 3 1 --useCCD=y --multiImage=n");
 	}
 	else if (dim3D_->isChecked() && vortex4El_->isChecked()){
 
 		if (multipleImages_->isChecked())
-			QProcess::startDetached("/home/vespers/bin/runNDMapper 3 2 --useCCD=y --multiImage=y");
+			QProcess::startDetached("konsole -vt_sz 5x5 -e /home/vespers/bin/runNDMapper 3 2 --useCCD=y --multiImage=y");
 		else
-			QProcess::startDetached("/home/vespers/bin/runNDMapper 3 2 --useCCD=y --multiImage=n");
+			QProcess::startDetached("konsole -vt_sz 5x5 -e /home/vespers/bin/runNDMapper 3 2 --useCCD=y --multiImage=n");
 	}
 }
