@@ -3,13 +3,15 @@
 
 #include "ui/AMSampleManipulatorView.h"
 
+class QCheckBox;
+
 class AMBeamlineListAction;
 
 class SGMSampleManipulatorView : public AMSampleManipulatorView
 {
 Q_OBJECT
 public:
-	SGMSampleManipulatorView(QWidget *parent = 0);
+	SGMSampleManipulatorView(bool bigButtons = false, QWidget *parent = 0);
 
 protected slots:
 	void onMUpButtonPressed();
@@ -30,8 +32,14 @@ protected slots:
 	void onMCCWButtonReleased();
 
 	void onStopAllButtonClicked();
+	void onJogButtonChecked(bool checked);
+	void onJogSettingComboBoxChanged(int index);
+
 	void onTransferPositionButtonClicked();
 	void onMeasurePositionButtonClicked();
+
+	void onHVButtonClicked();
+	void onHVStateChanged();
 
 	void onIlluminatorSliderValueMoved(int newValue);
 	void onIlluminatorFeedbackChanged(double newValue);
@@ -47,12 +55,15 @@ protected:
 	QPushButton *mDownstreamButton_;
 	QPushButton *mCWButton_;
 	QPushButton *mCCWButton_;
+	QCheckBox *jogBox_;
+	QComboBox *jogSettingComboBox_;
 
 	QPushButton *stopAllButton_;
 	QPushButton *transferPositionButton_;
 	AMBeamlineListAction *transferPositionActions_;
 	QPushButton *measurePositionButton_;
 	AMBeamlineListAction *measurementPositionActions_;
+	QPushButton *hvButton_;
 
 	AMControl *mVerticalCtrl_;
 	AMControl *mHorizontalCtrl_;
@@ -74,6 +85,11 @@ protected:
 	QIcon upIcon_, downIcon_, inboardIcon_, outboardIcon_, upstreamIcon_, downstreamIcon_, cwIcon_, ccwIcon_;
 
 	QGridLayout *gl_;
+
+	double lastHVValue_;
+
+	bool isJogging_;
+	double jogStep_;
 };
 
 #endif // SGMSAMPLEMANIPULATORVIEW_H
