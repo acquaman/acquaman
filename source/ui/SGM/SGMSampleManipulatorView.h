@@ -3,13 +3,15 @@
 
 #include "ui/AMSampleManipulatorView.h"
 
+class QCheckBox;
+
 class AMBeamlineListAction;
 
 class SGMSampleManipulatorView : public AMSampleManipulatorView
 {
 Q_OBJECT
 public:
-	SGMSampleManipulatorView(QWidget *parent = 0);
+	SGMSampleManipulatorView(bool bigButtons = false, QWidget *parent = 0);
 
 protected slots:
 	void onMUpButtonPressed();
@@ -30,6 +32,9 @@ protected slots:
 	void onMCCWButtonReleased();
 
 	void onStopAllButtonClicked();
+	void onJogButtonChecked(bool checked);
+	void onJogSettingComboBoxChanged(int index);
+
 	void onTransferPositionButtonClicked();
 	void onMeasurePositionButtonClicked();
 
@@ -50,6 +55,8 @@ protected:
 	QPushButton *mDownstreamButton_;
 	QPushButton *mCWButton_;
 	QPushButton *mCCWButton_;
+	QCheckBox *jogBox_;
+	QComboBox *jogSettingComboBox_;
 
 	QPushButton *stopAllButton_;
 	QPushButton *transferPositionButton_;
@@ -80,6 +87,9 @@ protected:
 	QGridLayout *gl_;
 
 	double lastHVValue_;
+
+	bool isJogging_;
+	double jogStep_;
 };
 
 #endif // SGMSAMPLEMANIPULATORVIEW_H
