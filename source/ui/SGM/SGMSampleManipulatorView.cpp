@@ -10,6 +10,8 @@
 SGMSampleManipulatorView::SGMSampleManipulatorView(QWidget *parent) :
 		AMSampleManipulatorView("SGM SSA Endstation", SGMBeamline::sgm()->ssaManipulatorSet(), parent )
 {
+	lastHVValue_ = 0;
+
 	upIcon_ = QIcon(":/go-up.png");
 	mUpButton_ = new QPushButton(upIcon_, "");
 	mUpButton_->setToolTip("Move Up");
@@ -44,6 +46,8 @@ SGMSampleManipulatorView::SGMSampleManipulatorView(QWidget *parent) :
 	transferPositionActions_ = 0;//NULL
 	measurePositionButton_ = new QPushButton("Measure Position");
 	measurementPositionActions_ = 0;//NULL
+
+	hvButton_ = new QPushButton("HV Toggle");
 
 	mVerticalCtrl_ = manipulator_->controlNamed("ssaManipulatorZ");
 	mHorizontalCtrl_ = manipulator_->controlNamed("ssaManipulatorX");
@@ -100,6 +104,9 @@ SGMSampleManipulatorView::SGMSampleManipulatorView(QWidget *parent) :
 	connect(stopAllButton_, SIGNAL(clicked()), this, SLOT(onStopAllButtonClicked()));
 	connect(transferPositionButton_, SIGNAL(clicked()), this, SLOT(onTransferPositionButtonClicked()));
 	connect(measurePositionButton_, SIGNAL(clicked()), this, SLOT(onMeasurePositionButtonClicked()));
+	connect(hvButton_, SIGNAL(clicked()), this, SLOT(onHVButtonClicked()));
+	connect(SGMBeamline::sgm(), SIGNAL(detectorHVChanged()), this, SLOT(onHVStateChanged()));
+
 	connect(illuminatorSlider_, SIGNAL(sliderMoved(int)), this, SLOT(onIlluminatorSliderValueMoved(int)));
 	connect(SGMBeamline::sgm()->ssaIllumination(), SIGNAL(valueChanged(double)), this, SLOT(onIlluminatorFeedbackChanged(double)));
 	connect(illuminatorPresets_, SIGNAL(buttonClicked(int)), this, SLOT(onIlluminatorPreset(int)));
@@ -135,6 +142,7 @@ SGMSampleManipulatorView::SGMSampleManipulatorView(QWidget *parent) :
 	vl2->addLayout(ipl);
 	vl2->addWidget(transferPositionButton_);
 	vl2->addWidget(measurePositionButton_);
+	vl2->addWidget(hvButton_);
 
 	QHBoxLayout *hl = new QHBoxLayout();
 	hl->addLayout(vl2);
@@ -187,7 +195,7 @@ void SGMSampleManipulatorView::onMInboardButtonPressed(){
 	SGMBeamline::sgm()->ssaManipulatorXVelocity()->move(3000);
 	SGMBeamline::sgm()->ssaManipulatorXVelocityBase()->move(2000);
 	SGMBeamline::sgm()->ssaManipulatorXAcceleration()->move(2000);
-	mHorizontalCtrl_->move(10.0);
+	mHorizontalCtrl_->move(-10.0);
 }
 
 void SGMSampleManipulatorView::onMInboardButtonReleased(){
@@ -203,7 +211,7 @@ void SGMSampleManipulatorView::onMOutboardButtonPressed(){
 	SGMBeamline::sgm()->ssaManipulatorXVelocity()->move(3000);
 	SGMBeamline::sgm()->ssaManipulatorXVelocityBase()->move(2000);
 	SGMBeamline::sgm()->ssaManipulatorXAcceleration()->move(2000);
-	mHorizontalCtrl_->move(-10.0);
+	mHorizontalCtrl_->move(10.0);
 }
 
 void SGMSampleManipulatorView::onMOutboardButtonReleased(){
@@ -219,7 +227,7 @@ void SGMSampleManipulatorView::onMUpstreamButtonPressed(){
 	SGMBeamline::sgm()->ssaManipulatorYVelocity()->move(3000);
 	SGMBeamline::sgm()->ssaManipulatorYVelocityBase()->move(2000);
 	SGMBeamline::sgm()->ssaManipulatorYAcceleration()->move(2000);
-	mInPlaneCtrl_->move(10.0);
+	mInPlaneCtrl_->move(-15.0);
 }
 
 void SGMSampleManipulatorView::onMUpstreamButtonReleased(){
@@ -235,7 +243,7 @@ void SGMSampleManipulatorView::onMDownstreamButtonPressed(){
 	SGMBeamline::sgm()->ssaManipulatorYVelocity()->move(3000);
 	SGMBeamline::sgm()->ssaManipulatorYVelocityBase()->move(2000);
 	SGMBeamline::sgm()->ssaManipulatorYAcceleration()->move(2000);
-	mInPlaneCtrl_->move(-10.0);
+	mInPlaneCtrl_->move(10.0);
 }
 
 void SGMSampleManipulatorView::onMDownstreamButtonReleased(){
@@ -301,6 +309,56 @@ void SGMSampleManipulatorView::onMeasurePositionButtonClicked(){
 		delete measurementPositionActions_;
 	measurementPositionActions_ = SGMBeamline::sgm()->createGoToMeasurementPositionActions();
 	measurementPositionActions_->start();
+}
+
+void SGMSampleManipulatorView::onHVButtonClicked(){
+	if( SGMBeamline::sgm()->tfyHVToggle()->tolerance() > fabs(SGMBeamline::sgm()->tfyHVToggle()->value()-1) ){
+		SGMBeamline::sgm()->tfyHVToggle()->move(0);
+		//hvButton_->setText("HV is Ramping Down");
+	}
+	else{
+		SGMBeamline::sgm()->tfyHVToggle()->move(1);
+		//hvButton_->setText("HV is Ramping Up");
+	}
+}
+
+void SGMSampleManipulatorView::onHVStateChanged(){
+	double curHVValue = ((MCPDetector*)SGMBeamline::sgm()->tfyDetector())->hvCtrl()->value();
+	qDebug() << "Some HV changed " << SGMBeamline::sgm()->tfyHVToggle()->value() << curHVValue << lastHVValue_;
+	switch( (int)(SGMBeamline::sgm()->tfyHVToggle()->value()) ){
+	case 0:
+		hvButton_->setText("HV is OFF");
+		break;
+	case 1:
+		hvButton_->setText("HV is ON");
+		break;
+	case 2:
+		hvButton_->setText(QString("HV is Ramping\nUp (%1)").arg(curHVValue, 0, 'f', 0));
+		break;
+	case 3:
+		hvButton_->setText(QString("HV is Ramping\nDown (%1)").arg(curHVValue, 0, 'f', 0));
+		break;
+	}
+
+	/*
+	if( SGMBeamline::sgm()->tfyHVToggle()->value() != 0 ){
+		if(curHVValue > 1550)
+			hvButton_->setText("HV is ON");
+		else if(curHVValue < 50)
+			hvButton_->setText("HV is OFF");
+		else if(curHVValue > lastHVValue_)
+			hvButton_->setText(QString("HV is Ramping\nUp (%1)").arg(curHVValue, 0, 'f', 0));
+	}
+	else{
+		if(curHVValue > 1550)
+			hvButton_->setText("HV is ON");
+		else if(curHVValue < 50)
+			hvButton_->setText("HV is OFF");
+		else if(curHVValue < lastHVValue_)
+			hvButton_->setText(QString("HV is Ramping\nDown (%1)").arg(curHVValue, 0, 'f', 0));
+	}
+	*/
+	lastHVValue_ = curHVValue;
 }
 
 void SGMSampleManipulatorView::onIlluminatorSliderValueMoved(int newValue){

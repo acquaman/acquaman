@@ -239,9 +239,13 @@ void SGMBeamline::usingSGMBeamline(){
 	tfyScaler_->setDescription("TFY");
 
 	sgmPVName = amNames2pvNames_.valueF("tfyHV");
-	tfyHV_ = new AMPVControl("tfyHV", sgmPVName+":vmon", sgmPVName+":v0set", QString(), this, 0.5);
+	tfyHV_ = new AMPVControl("tfyHV", sgmPVName+":vmon", sgmPVName+":v0set", QString(), this, 5.0);
 	tfyHV_->setDescription("TFY High Voltage");
 	tfyHV_->setContextKnownDescription("Voltage");
+
+	tfyHVToggle_ = new AMPVControl("tfyHVToggle", sgmPVName+":status", sgmPVName+":pwonoff", QString(), this, 0.1);
+	tfyHVToggle_->setDescription("TFY High Voltage Toggle");
+	tfyHVToggle_->setContextKnownDescription("Toggle");
 
 	sgmPVName = amNames2pvNames_.valueF("pgt");
 	if(sgmPVName.isEmpty())
@@ -816,6 +820,7 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	tfyPicoControlSet_->setName("TFY Pico Controls");
 	tfyPicoControlSet_->addControl(tfyPico_);
 	tfyPicoControlSet_->addControl(tfyHV_);
+	tfyPicoControlSet_->addControl(tfyHVToggle_);
 	tfyPicoDetector_ = 0; //NULL
 	unconnectedSets_.append(tfyPicoControlSet_);
 	connect(tfyPicoControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
@@ -823,6 +828,7 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	tfyScalerControlSet_->setName("TFY Scaler Controls");
 	tfyScalerControlSet_->addControl(tfyScaler_);
 	tfyScalerControlSet_->addControl(tfyHV_);
+	tfyScalerControlSet_->addControl(tfyHVToggle_);
 	tfyScalerDetector_ = 0; //NULL
 	unconnectedSets_.append(tfyScalerControlSet_);
 	connect(tfyScalerControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
@@ -1152,9 +1158,9 @@ AMBeamlineListAction* SGMBeamline::createGoToTransferPositionActions(){
 	AMBeamlineControlMoveAction *gotoTransferPositionAction1 = new AMBeamlineControlMoveAction(ssaManipulatorX());
 	gotoTransferPositionAction1->setSetpoint(0.0);
 	AMBeamlineControlMoveAction *gotoTransferPositionAction2 = new AMBeamlineControlMoveAction(ssaManipulatorY());
-	gotoTransferPositionAction2->setSetpoint(-5.0);
+	gotoTransferPositionAction2->setSetpoint(-6.58);
 	AMBeamlineControlMoveAction *gotoTransferPositionAction3 = new AMBeamlineControlMoveAction(ssaManipulatorZ());
-	gotoTransferPositionAction3->setSetpoint(-77.44);
+	gotoTransferPositionAction3->setSetpoint(-77.0);
 	AMBeamlineControlMoveAction *gotoTransferPositionAction4 = new AMBeamlineControlMoveAction(ssaManipulatorRot());
 	gotoTransferPositionAction4->setSetpoint(0.0);
 
@@ -1555,6 +1561,8 @@ void SGMBeamline::onControlSetConnected(bool csConnected){
 			tfyPicoDetector_->setDescription(tfyPico_->description());
 			allDetectors_->addDetector(tfyPicoDetector_);
 			XASDetectors_->addDetector(tfyPicoDetector_, true);
+			connect(tfyHVToggle_, SIGNAL(valueChanged(double)), this, SIGNAL(detectorHVChanged()));
+			connect( ((MCPDetector*)tfyPicoDetector_)->hvCtrl(), SIGNAL(valueChanged(double)), this, SIGNAL(detectorHVChanged()));
 		}
 		else if(!tfyScalerDetector_ && ctrlSet->name() == "TFY Scaler Controls"){
 			tfyScalerDetector_ = new MCPDetector(tfyScaler_->name(), tfyScaler_, tfyHV_, AMDetector::WaitRead, this);
@@ -1562,12 +1570,15 @@ void SGMBeamline::onControlSetConnected(bool csConnected){
 			allDetectors_->addDetector(tfyScalerDetector_);
 			XASDetectors_->addDetector(tfyScalerDetector_, true);
 			FastDetectors_->addDetector(tfyScalerDetector_, true);
+			connect(tfyHVToggle_, SIGNAL(valueChanged(double)), this, SIGNAL(detectorHVChanged()));
+			connect( ((MCPDetector*)tfyScalerDetector_)->hvCtrl(), SIGNAL(valueChanged(double)), this, SIGNAL(detectorHVChanged()) );
 		}
 		else if(!pgtDetector_ && ctrlSet->name() == "SDD Controls"){
 			pgtDetector_ = new PGTDetector(pgt_->name(), pgt_, pgtHV_, pgtIntegrationTime_, pgtIntegrationMode_, AMDetector::WaitRead, this);
 			pgtDetector_->setDescription(pgt_->description());
 			allDetectors_->addDetector(pgtDetector_);
 			XASDetectors_->addDetector(pgtDetector_);
+			//connect( ((PGTDetector*)pgtDetector_)->hvCtrl(), SIGNAL(valueChanged(double)), this, SIGNAL(detectorHVChanged()));
 		}
 		else if(!oos65000Detector_ && ctrlSet->name() == "OOS65000 Controls"){
 			oos65000Detector_ = new OceanOptics65000Detector(oos65000_->name(), oos65000_, oos65000IntegrationTime_, AMDetector::WaitRead, this);

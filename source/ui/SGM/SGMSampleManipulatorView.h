@@ -33,6 +33,9 @@ protected slots:
 	void onTransferPositionButtonClicked();
 	void onMeasurePositionButtonClicked();
 
+	void onHVButtonClicked();
+	void onHVStateChanged();
+
 	void onIlluminatorSliderValueMoved(int newValue);
 	void onIlluminatorFeedbackChanged(double newValue);
 	void onIlluminatorPreset(int presetIndex);
@@ -53,6 +56,7 @@ protected:
 	AMBeamlineListAction *transferPositionActions_;
 	QPushButton *measurePositionButton_;
 	AMBeamlineListAction *measurementPositionActions_;
+	QPushButton *hvButton_;
 
 	AMControl *mVerticalCtrl_;
 	AMControl *mHorizontalCtrl_;
@@ -74,6 +78,8 @@ protected:
 	QIcon upIcon_, downIcon_, inboardIcon_, outboardIcon_, upstreamIcon_, downstreamIcon_, cwIcon_, ccwIcon_;
 
 	QGridLayout *gl_;
+
+	double lastHVValue_;
 };
 
 #endif // SGMSAMPLEMANIPULATORVIEW_H

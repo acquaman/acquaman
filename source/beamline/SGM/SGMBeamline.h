@@ -212,6 +212,7 @@ public:
 	AMControl* scalerTotalNumberOfScans() const { return scalerTotalNumberOfScans_;}
 	AMControl* scalerMode() const { return scalerMode_;}
 	AMControl* ssaIllumination() const { return ssaIllumination_;}
+	AMControl* tfyHVToggle() const { return tfyHVToggle_;}
 
 
 	AMControlSet* fluxResolutionSet() const { return fluxResolutionSet_;}
@@ -294,6 +295,8 @@ signals:
 	void detectorSignalSourceChanged(SGMBeamline::sgmDetectorSignalSource);
 	void currentEndstationChanged(SGMBeamline::sgmEndstation);
 
+	void detectorHVChanged();
+
 protected slots:
 	void onBeamlineScanningValueChanged(double value);
 	void onControlSetConnected(bool csConnected);
@@ -333,6 +336,7 @@ protected:
 	AMControl *tfyPico_;
 	AMControl *tfyScaler_;
 	AMControl *tfyHV_;
+	AMControl *tfyHVToggle_;
 	AMControl *pgt_;
 	AMControl *pgtHV_;
 	AMControl *pgtIntegrationTime_;
