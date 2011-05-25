@@ -15,6 +15,7 @@
 #include <QDir>
 #include <QLabel>
 #include <QMessageBox>
+#include <QProcess>
 
 VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	: QWidget(parent)
@@ -191,8 +192,15 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	extrasGroupBoxLayout->addStretch();
 	extrasGroupBoxLayout->addWidget(startMicroscopeButton);
 
+	/// \todo this will be removed once I build my own XAS software.
+	QPushButton *idaButton = new QPushButton("Launch XAS Software");
+	connect(idaButton, SIGNAL(clicked()), this, SLOT(startXAS()));
+	QVBoxLayout *tempLayout = new QVBoxLayout;
+	tempLayout->addLayout(extrasGroupBoxLayout);
+	tempLayout->addWidget(idaButton, 0, Qt::AlignCenter);
+
 	QGroupBox *ExtrasGroupBox = new QGroupBox("Extras");
-	ExtrasGroupBox->setLayout(extrasGroupBoxLayout);
+	ExtrasGroupBox->setLayout(tempLayout);
 
 	// Setup the top frame.
 	AMTopFrame *topFrame = new AMTopFrame("Endstation Control Screen");

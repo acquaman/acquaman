@@ -33,7 +33,8 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
     source/beamline/VESPERS/SampleStageControl.h \
     source/beamline/VESPERS/VESPERSValveGroupControl.h \
     source/beamline/VESPERS/PIDLoopControl.h \
-    source/ui/VESPERS/PIDLoopControlView.h
+    source/ui/VESPERS/PIDLoopControlView.h \
+    source/ui/VESPERS/XRFMapSetup.h
 
 SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/application/VESPERS/VESPERSMain.cpp \
@@ -64,7 +65,8 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
     source/beamline/VESPERS/SampleStageControl.cpp \
     source/beamline/VESPERS/VESPERSValveGroupControl.cpp \
     source/beamline/VESPERS/PIDLoopControl.cpp \
-    source/ui/VESPERS/PIDLoopControlView.cpp
+    source/ui/VESPERS/PIDLoopControlView.cpp \
+    source/ui/VESPERS/XRFMapSetup.cpp
 
 RESOURCES += \
 	source/ui/VESPERS/EndstationPictures.qrc \
