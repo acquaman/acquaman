@@ -103,8 +103,10 @@ bool AMBeamlineControlSetMoveAction::setSetpoint(const AMControlInfoList &setpoi
 	fullSetpoint_ = controlSet_->toInfoList();
 	for(int x = 0; x < fullSetpoint_.count(); x++){
 		for(int y = 0; y < setpoint_.count(); y++)
-			if(fullSetpoint_.at(x).name() == setpoint_.at(y).name())
+			if(fullSetpoint_.at(x).name() == setpoint_.at(y).name()){
 				fullSetpoint_[x].setValue(setpoint_.at(y).value());
+				qDebug() << "Setting " << fullSetpoint_.at(x).name() << " to " << fullSetpoint_.at(x).value() << " with tolerance " << fullSetpoint_.at(x).tolerance();
+			}
 	}
 	return true;
 }
@@ -157,13 +159,16 @@ void AMBeamlineControlSetMoveAction::onSucceeded(){
 	numSucceeded_++;
 	if(numSucceeded_ != controlSet_->count())
 		return;
-	for(int x = 0; x < controlSet_->count(); x++)
+	for(int x = 0; x < controlSet_->count(); x++){
+		qDebug() << "Succeeded at " << x << " " << controlSet_->at(x)->name();
 		disconnect(controlSet_->at(x), 0, this, 0);
+	}
 	setSucceeded(true);
 }
 
 void AMBeamlineControlSetMoveAction::onFailed(int explanation){
-	qDebug() << "ControlSetMoveAction thinks someone failed";
+	AMControl *tmpCtrl = (AMControl*)QObject::sender();
+	qDebug() << "ControlSetMoveAction thinks someone failed " << tmpCtrl->name() << tmpCtrl->value() << tmpCtrl->setpoint() << tmpCtrl->tolerance() << " as " << explanation;
 	setFailed(true, explanation);
 }
 
