@@ -461,8 +461,15 @@ void AMPVwStatusControl::onMoveStartTimeout() {
 
 	// This is only meaningful if one of our moves is in progress.
 	if(moveInProgress_) {
-		// The move didn't start within our allowed start period. That counts as a move failed.
-		emit moveFailed(AMControl::TimeoutFailure);
+		// Did we make it?
+		if( inPosition() ) {
+			qDebug() << "Right here, damn too fast motors";
+			emit moveSucceeded();
+		}
+		else{
+			// The move didn't start within our allowed start period. That counts as a move failed.
+			emit moveFailed(AMControl::TimeoutFailure);
+		}
 		// give up on this move:
 		moveInProgress_ = false;
 	}
