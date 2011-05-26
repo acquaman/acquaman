@@ -348,6 +348,7 @@ bool SGM2011XASFileLoader::loadFromFile(const QString& filepath, bool setMetaDat
 		}
 	}
 
+
 	// If the scan doesn't have any channels yet, it would be helpful to create some.
 	if(createDefaultAnalysisBlocks) {
 
@@ -390,6 +391,29 @@ bool SGM2011XASFileLoader::loadFromFile(const QString& filepath, bool setMetaDat
 			sddSum->setSumRangeMax(sddRaw->size(1)-1);
 
 			scan->addAnalyzedDataSource(sddSum);
+		}
+
+		int rawOOSIndex = scan->rawDataSources()->indexOfKey("OceanOptics65000");
+		if(rawOOSIndex != -1) {
+			AMRawDataSource* oosRaw = scan->rawDataSources()->at(rawOOSIndex);
+			AM2DSummingAB* ply = new AM2DSummingAB("PLY");
+			QList<AMDataSource*> plySource;
+			plySource << oosRaw;
+			ply->setInputDataSources(plySource);
+			ply->setSumAxis(1);
+			ply->setSumRangeMax(oosRaw->size(1)-1);
+			scan->addAnalyzedDataSource(ply);
+			if(rawOOSIndex != -1 && rawI0Index != -1) {
+				AM1DExpressionAB* plyNormChannel = new AM1DExpressionAB(QString("PLYNorm"));
+				plyNormChannel->setDescription("PLYNorm");
+				QList<AMDataSource*> plyNormSources;
+				plyNormSources.append(raw1DDataSources);
+				plyNormSources.append(ply);
+				plyNormChannel->setInputDataSources(plyNormSources);
+				plyNormChannel->setExpression(QString("%1/%2").arg("PLY").arg("I0"));
+
+				scan->addAnalyzedDataSource(plyNormChannel);
+			}
 		}
 	}
 
