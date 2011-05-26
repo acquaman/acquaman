@@ -163,11 +163,16 @@ void VESPERSBeamline::setupSampleStage()
 {
 	sampleStageHorizontal_ = new AMPVwStatusControl("Horizontal Sample Stage", "TS1607-2-B21-01:H:user:mm:sp", "TS1607-2-B21-01:H:user:mm", "TS1607-2-B21-01:H:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
 	sampleStageVertical_ = new AMPVwStatusControl("Vertical Sample Stage", "TS1607-2-B21-01:V:user:mm:sp", "TS1607-2-B21-01:V:user:mm", "TS1607-2-B21-01:V:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
-	sampleStageNormal_ = new AMPVwStatusControl("Normal Sample Stage", "TS1607-2-B21-01:N:user:mm:sp", "TS1607-2-B21-01:N:user:mm", "TS1607-2-B21-01:N:status", "TS1607-2-B21-01:HNV:stop.PROC", this);
+	sampleStageNormal_ = new AMPVwStatusControl("Normal Sample Stage", "TS1607-2-B21-01:N:user:mm:sp", "TS1607-2-B21-01:N:user:mm", "TS1607-2-B21-01:N:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
+
+	sampleStageX_ = new AMPVwStatusControl("X motor Sample Stage", "SVM1607-2-B21-02:mm:sp", "SVM1607-2-B21-02:mm", "SVM1607-2-B21-02:status", "SVM1607-2-B21-02:stop", this, 0.01, 10.0);
+	sampleStageY_ = new AMPVwStatusControl("Y motor Sample Stage", "SVM1607-2-B21-03:mm:sp", "SVM1607-2-B21-03:mm", "SVM1607-2-B21-03:status", "SVM1607-2-B21-03:stop", this, 0.01, 10.0);
+	sampleStageZ_ = new AMPVwStatusControl("Z motor Sample Stage", "SVM1607-2-B21-01:mm:sp", "SVM1607-2-B21-01:mm", "SVM1607-2-B21-01:status", "SVM1607-2-B21-01:stop", this, 0.01, 10.0);
+
 	// These are meant for reading purposes.  They are the steps of the motor, not engineering units (ie: mm).
-	sampleStageX_ = new AMReadOnlyPVControl("X component Sample Stage", "SVM1607-2-B21-02:step:sp", this);
-	sampleStageY_ = new AMReadOnlyPVControl("Y component Sample Stage", "SVM1607-2-B21-03:step:sp", this);
-	sampleStageZ_ = new AMReadOnlyPVControl("Z component Sample Stage", "SVM1607-2-B21-01:step:sp", this);
+	sampleStageStepX_ = new AMReadOnlyPVControl("X component Sample Stage", "SVM1607-2-B21-02:step:sp", this);
+	sampleStageStepY_ = new AMReadOnlyPVControl("Y component Sample Stage", "SVM1607-2-B21-03:step:sp", this);
+	sampleStageStepZ_ = new AMReadOnlyPVControl("Z component Sample Stage", "SVM1607-2-B21-01:step:sp", this);
 
 	sampleStageMotorSet_ = new AMControlSet(this);
 	sampleStageMotorSet_->addControl(sampleStageHorizontal_);
@@ -176,15 +181,18 @@ void VESPERSBeamline::setupSampleStage()
 	sampleStageMotorSet_->addControl(sampleStageX_);
 	sampleStageMotorSet_->addControl(sampleStageY_);
 	sampleStageMotorSet_->addControl(sampleStageZ_);
+	sampleStageMotorSet_->addControl(sampleStageStepX_);
+	sampleStageMotorSet_->addControl(sampleStageStepY_);
+	sampleStageMotorSet_->addControl(sampleStageStepZ_);
 
 	connect(sampleStageMotorSet_, SIGNAL(controlSetTimedOut()), this, SLOT(sampleStageError()));
 
 	AMPVwStatusControl *h = qobject_cast<AMPVwStatusControl *>(sampleStageHorizontal_);
 	AMPVwStatusControl *v = qobject_cast<AMPVwStatusControl *>(sampleStageVertical_);
 	AMPVwStatusControl *n = qobject_cast<AMPVwStatusControl *>(sampleStageNormal_);
-	AMReadOnlyPVControl *x = qobject_cast<AMReadOnlyPVControl *>(sampleStageX_);
-	AMReadOnlyPVControl *y = qobject_cast<AMReadOnlyPVControl *>(sampleStageY_);
-	AMReadOnlyPVControl *z = qobject_cast<AMReadOnlyPVControl *>(sampleStageZ_);
+	AMReadOnlyPVControl *x = qobject_cast<AMReadOnlyPVControl *>(sampleStageStepX_);
+	AMReadOnlyPVControl *y = qobject_cast<AMReadOnlyPVControl *>(sampleStageStepY_);
+	AMReadOnlyPVControl *z = qobject_cast<AMReadOnlyPVControl *>(sampleStageStepZ_);
 
 	sampleStage_ = new SampleStageControl(h, v, n, x, y, z);
 
@@ -912,6 +920,9 @@ VESPERSBeamline::~VESPERSBeamline()
 	delete sampleStageX_;
 	delete sampleStageY_;
 	delete sampleStageZ_;
+	delete sampleStageStepX_;
+	delete sampleStageStepY_;
+	delete sampleStageStepZ_;
 	delete sampleStage_;
 	delete sampleStagePidX_;
 	delete sampleStagePidY_;

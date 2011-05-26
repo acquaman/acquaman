@@ -93,6 +93,10 @@ private slots:
 
 	/// Used to initialize the Microscope Light slider.
 	void micLightUpdate() { micLight_->setValue(micLightPV_->getInt()); }
+	/// Used to disconnect the microscope light PV from the slider to prevent race conditions.
+	void micLightSliderPressed() { disconnect(micLightPV_, SIGNAL(valueChanged()), this, SLOT(micLightUpdate())); }
+	/// Used to reconnect the microscope light PV from the slider to get updates.
+	void micLightSliderReleased() { connect(micLightPV_, SIGNAL(valueChanged()), this, SLOT(micLightUpdate())); }
 	/// Used when the light bulb button is toggled.
 	void lightBulbToggled(bool pressed);
 	/// Used when the power for the laser is toggled.
