@@ -102,27 +102,27 @@ void VESPERSBeamline::setupDiagnostics()
 	iopPreWindow_ = new AMReadOnlyPVControl("Ion Pump Pre-Window", "IOP1607-2-B21-02", this);
 
 	// Temperature controls.
-	tmWaterSupply1_ = new AMReadOnlyPVControl("Temperature Water Supply 1", "TM1607-1-B20-02:trip", this);
-	tmWaterSupply2_ = new AMReadOnlyPVControl("Temperature Water Supply 2", "TM1607-1-B20-03:trip", this);
-	tmM1A1_ = new AMReadOnlyPVControl("Temperature M1A 1", "TM1607-1-B20-07:trip", this);
-	tmM1A2_ = new AMReadOnlyPVControl("Temperature M1A 2", "TM1607-1-B20-08:trip", this);
-	tmM1A3_ = new AMReadOnlyPVControl("Temperature M1A 3", "TM1607-1-B20-09:trip", this);
-	tmM1B1_ = new AMReadOnlyPVControl("Temperature M1B 1", "TM1607-1-B20-10:trip", this);
-	tmM1B2_ = new AMReadOnlyPVControl("Temperature M1B 2", "TM1607-1-B20-11:trip", this);
-	tmM1B3_ = new AMReadOnlyPVControl("Temperature M1B 3", "TM1607-1-B20-12:trip", this);
-	tmM2A1_ = new AMReadOnlyPVControl("Temperature M2A 1", "TM1607-1-B21-01:trip", this);
-	tmM2A2_ = new AMReadOnlyPVControl("Temperature M2A 2", "TM1607-1-B21-02:trip", this);
-	tmM2A3_ = new AMReadOnlyPVControl("Temperature M2A 3", "TM1607-1-B21-03:trip", this);
-	tmM2B1_ = new AMReadOnlyPVControl("Temperature M2B 1", "TM1607-1-B22-01:trip", this);
-	tmM2B2_ = new AMReadOnlyPVControl("Temperature M2B 2", "TM1607-1-B22-02:trip", this);
-	tmM2B3_ = new AMReadOnlyPVControl("Temperature M2B 3", "TM1607-1-B22-03:trip", this);
-	tmMono1_ = new AMReadOnlyPVControl("Temperature Mono 1", "TM1607-1-B20-13:trip", this);
-	tmMono2_ = new AMReadOnlyPVControl("Temperature Mono 2", "TM1607-1-B20-14:trip", this);
-	tmMono3_ = new AMReadOnlyPVControl("Temperature Mono 3", "TM1607-1-B20-15:trip", this);
-	tmMono4_ = new AMReadOnlyPVControl("Temperature Mono 4", "TM1607-1-B20-16:trip", this);
-	tmMono5_ = new AMReadOnlyPVControl("Temperature Mono 5", "TM1607-1-B20-17:trip", this);
-	tmMono6_ = new AMReadOnlyPVControl("Temperature Mono 6", "TM1607-1-B20-18:trip", this);
-	tmMono7_ = new AMReadOnlyPVControl("Temperature Mono 7", "TM1607-1-B20-19:trip", this);
+	tmWaterSupply1_ = new AMReadOnlyPVwStatusControl("Temperature Water Supply 1", "TM1607-1-B20-02", "TM1607-1-B20-02:trip", this, new AMControlStatusCheckerDefault(0));
+	tmWaterSupply2_ = new AMReadOnlyPVwStatusControl("Temperature Water Supply 2", "TM1607-1-B20-03", "TM1607-1-B20-03:trip", this, new AMControlStatusCheckerDefault(0));
+	tmM1A1_ = new AMReadOnlyPVwStatusControl("Temperature M1A 1", "TM1607-1-B20-07", "TM1607-1-B20-07:trip", this, new AMControlStatusCheckerDefault(0));
+	tmM1A2_ = new AMReadOnlyPVwStatusControl("Temperature M1A 2", "TM1607-1-B20-08", "TM1607-1-B20-08:trip", this, new AMControlStatusCheckerDefault(0));
+	tmM1A3_ = new AMReadOnlyPVwStatusControl("Temperature M1A 3", "TM1607-1-B20-09", "TM1607-1-B20-09:trip", this, new AMControlStatusCheckerDefault(0));
+	tmM1B1_ = new AMReadOnlyPVwStatusControl("Temperature M1B 1", "TM1607-1-B20-10", "TM1607-1-B20-10:trip", this, new AMControlStatusCheckerDefault(0));
+	tmM1B2_ = new AMReadOnlyPVwStatusControl("Temperature M1B 2", "TM1607-1-B20-11", "TM1607-1-B20-11:trip", this, new AMControlStatusCheckerDefault(0));
+	tmM1B3_ = new AMReadOnlyPVwStatusControl("Temperature M1B 3", "TM1607-1-B20-12", "TM1607-1-B20-12:trip", this, new AMControlStatusCheckerDefault(0));
+	tmM2A1_ = new AMReadOnlyPVwStatusControl("Temperature M2A 1", "TM1607-1-B21-01", "TM1607-1-B21-01:trip", this, new AMControlStatusCheckerDefault(0));
+	tmM2A2_ = new AMReadOnlyPVwStatusControl("Temperature M2A 2", "TM1607-1-B21-02", "TM1607-1-B21-02:trip", this, new AMControlStatusCheckerDefault(0));
+	tmM2A3_ = new AMReadOnlyPVwStatusControl("Temperature M2A 3", "TM1607-1-B21-03", "TM1607-1-B21-03:trip", this, new AMControlStatusCheckerDefault(0));
+	tmM2B1_ = new AMReadOnlyPVwStatusControl("Temperature M2B 1", "TM1607-1-B22-01", "TM1607-1-B22-01:trip", this, new AMControlStatusCheckerDefault(0));
+	tmM2B2_ = new AMReadOnlyPVwStatusControl("Temperature M2B 2", "TM1607-1-B22-02", "TM1607-1-B22-02:trip", this, new AMControlStatusCheckerDefault(0));
+	tmM2B3_ = new AMReadOnlyPVwStatusControl("Temperature M2B 3", "TM1607-1-B22-03", "TM1607-1-B22-03:trip", this, new AMControlStatusCheckerDefault(0));
+	tmMono1_ = new AMReadOnlyPVwStatusControl("Temperature Mono 1", "TM1607-1-B20-13", "TM1607-1-B20-13:trip", this, new AMControlStatusCheckerDefault(0));
+	tmMono2_ = new AMReadOnlyPVwStatusControl("Temperature Mono 2", "TM1607-1-B20-14", "TM1607-1-B20-14:trip", this, new AMControlStatusCheckerDefault(0));
+	tmMono3_ = new AMReadOnlyPVwStatusControl("Temperature Mono 3", "TM1607-1-B20-15", "TM1607-1-B20-15:trip", this, new AMControlStatusCheckerDefault(0));
+	tmMono4_ = new AMReadOnlyPVwStatusControl("Temperature Mono 4", "TM1607-1-B20-16", "TM1607-1-B20-16:trip", this, new AMControlStatusCheckerDefault(0));
+	tmMono5_ = new AMReadOnlyPVwStatusControl("Temperature Mono 5", "TM1607-1-B20-17", "TM1607-1-B20-17:trip", this, new AMControlStatusCheckerDefault(0));
+	tmMono6_ = new AMReadOnlyPVwStatusControl("Temperature Mono 6", "TM1607-1-B20-18", "TM1607-1-B20-18:trip", this, new AMControlStatusCheckerDefault(0));
+	tmMono7_ = new AMReadOnlyPVwStatusControl("Temperature Mono 7", "TM1607-1-B20-19", "TM1607-1-B20-19:trip", this, new AMControlStatusCheckerDefault(0));
 
 	// Flow switch controls.
 	swfM1A_ = new AMReadOnlyPVControl("Flow Switch M1A", "SWF1607-1-B20-02", this);
@@ -137,16 +137,16 @@ void VESPERSBeamline::setupDiagnostics()
 	swfPoeSsh2_ = new AMReadOnlyPVControl("Flow Switch POE SSH2", "SWF1607-1-B22-02", this);
 
 	// Flow transducer controls.
-	fltM1A_ = new AMReadOnlyPVControl("Flow Transducer M1A", "FLT1607-1-B20-02:lowflow", this);
-	fltM1B_ = new AMReadOnlyPVControl("Flow Transducer M1B", "FLT1607-1-B20-03:lowflow", this);
-	fltM2A_ = new AMReadOnlyPVControl("Flow Transducer M2A", "FLT1607-1-B21-01:lowflow", this);
-	fltM2B_ = new AMReadOnlyPVControl("Flow Transducer M2B", "FLT1607-1-B22-01:lowflow", this);
-	fltMono_ = new AMReadOnlyPVControl("Flow Transducer Mono", "FLT1607-1-B20-04:lowflow", this);
-	fltExitSlits_ = new AMReadOnlyPVControl("Flow Transducer Exit Slits", "FLT1607-1-B20-05:lowflow", this);
-	fltInterimSlits1_ = new AMReadOnlyPVControl("Flow Transducer Interim Slits 1", "FLT1607-1-B21-02:lowflow", this);
-	fltInterimSlits2_ = new AMReadOnlyPVControl("Flow Transducer Interim Slits 2", "FLT1607-1-B21-03:lowflow", this);
-	fltPoeSsh1_ = new AMReadOnlyPVControl("Flow Transducer POE SSH1", "FLT1607-1-B21-04:lowflow", this);
-	fltPoeSsh2_ = new AMReadOnlyPVControl("Flow Transducer POE SSH2", "FLT1607-1-B22-02:lowflow", this);
+	fltM1A_ = new AMReadOnlyPVwStatusControl("Flow Transducer M1A", "FLT1607-1-B20-02", "FLT1607-1-B20-02:lowflow", this, new AMControlStatusCheckerDefault(0));
+	fltM1B_ = new AMReadOnlyPVwStatusControl("Flow Transducer M1B", "FLT1607-1-B20-03", "FLT1607-1-B20-03:lowflow", this, new AMControlStatusCheckerDefault(0));
+	fltM2A_ = new AMReadOnlyPVwStatusControl("Flow Transducer M2A", "FLT1607-1-B21-01", "FLT1607-1-B21-01:lowflow", this, new AMControlStatusCheckerDefault(0));
+	fltM2B_ = new AMReadOnlyPVwStatusControl("Flow Transducer M2B", "FLT1607-1-B22-01", "FLT1607-1-B22-01:lowflow", this, new AMControlStatusCheckerDefault(0));
+	fltMono_ = new AMReadOnlyPVwStatusControl("Flow Transducer Mono", "FLT1607-1-B20-04", "FLT1607-1-B20-04:lowflow", this, new AMControlStatusCheckerDefault(0));
+	fltExitSlits_ = new AMReadOnlyPVwStatusControl("Flow Transducer Exit Slits", "FLT1607-1-B20-05", "FLT1607-1-B20-05:lowflow", this, new AMControlStatusCheckerDefault(0));
+	fltInterimSlits1_ = new AMReadOnlyPVwStatusControl("Flow Transducer Interim Slits 1", "FLT1607-1-B21-02", "FLT1607-1-B21-02:lowflow", this, new AMControlStatusCheckerDefault(0));
+	fltInterimSlits2_ = new AMReadOnlyPVwStatusControl("Flow Transducer Interim Slits 2", "FLT1607-1-B21-03", "FLT1607-1-B21-03:lowflow", this, new AMControlStatusCheckerDefault(0));
+	fltPoeSsh1_ = new AMReadOnlyPVwStatusControl("Flow Transducer POE SSH1", "FLT1607-1-B21-04", "FLT1607-1-B21-04:lowflow", this, new AMControlStatusCheckerDefault(0));
+	fltPoeSsh2_ = new AMReadOnlyPVwStatusControl("Flow Transducer POE SSH2", "FLT1607-1-B22-02", "FLT1607-1-B22-02:lowflow", this, new AMControlStatusCheckerDefault(0));
 
 	// The beam attenuation filters.
 	filter250umA_ = new AMPVControl("Filter 250um A", "07B2_PLC_PFIL_01_F1_Ctrl", "07B2_PLC_PFIL_01_F1_Toggle", QString(), this);
@@ -629,7 +629,8 @@ void VESPERSBeamline::ionPumpConnected(bool connected)
 void VESPERSBeamline::temperatureConnected(bool connected)
 {
 	if (connected)
-		connect(temperatureSet_, SIGNAL(controlSetValuesChanged(AMControlInfoList)), this, SLOT(temperatureError()));
+		for (int i = 0; i < temperatureSet_->count(); i++)
+			connect(qobject_cast<AMReadOnlyPVwStatusControl *>(temperatureSet_->at(i)), SIGNAL(movingChanged(bool)), this, SLOT(temperatureError()));
 }
 
 void VESPERSBeamline::flowSwitchConnected(bool connected)
@@ -641,7 +642,8 @@ void VESPERSBeamline::flowSwitchConnected(bool connected)
 void VESPERSBeamline::flowTransducerConnected(bool connected)
 {
 	if (connected)
-		connect(flowTransducerSet_, SIGNAL(controlSetValuesChanged(AMControlInfoList)), this, SLOT(flowTransducerError()));
+		for (int i = 0; i < flowTransducerSet_->count(); i++)
+			connect(qobject_cast<AMReadOnlyPVwStatusControl *>(flowTransducerSet_->at(i)), SIGNAL(movingChanged(bool)), this, SLOT(flowTransducerError()));
 }
 
 void VESPERSBeamline::pressureError()
@@ -719,13 +721,13 @@ void VESPERSBeamline::temperatureError()
 		return;
 
 	QString error("");
-	AMReadOnlyPVControl *current = 0;
+	AMReadOnlyPVwStatusControl *current = 0;
 
 	for (int i = 0; i < temperatureSet_->count(); i++){
 
-		current = qobject_cast<AMReadOnlyPVControl *>(temperatureSet_->at(i));
+		current = qobject_cast<AMReadOnlyPVwStatusControl *>(temperatureSet_->at(i));
 
-		if (!current->readPV()->getInt())
+		if (current->isMoving())
 			error += tr("%1 (%2)\n").arg(current->name(), current->readPVName());
 	}
 
@@ -765,13 +767,13 @@ void VESPERSBeamline::flowTransducerError()
 		return;
 
 	QString error("");
-	AMReadOnlyPVControl *current = 0;
+	AMReadOnlyPVwStatusControl *current = 0;
 
 	for (int i = 0; i < flowTransducerSet_->count(); i++){
 
-		current = qobject_cast<AMReadOnlyPVControl *>(flowTransducerSet_->at(i));
+		current = qobject_cast<AMReadOnlyPVwStatusControl *>(flowTransducerSet_->at(i));
 
-		if (!current->readPV()->getInt())
+		if (current->isMoving())
 			error += tr("%1 (%2)\n").arg(current->name(), current->readPVName());
 	}
 

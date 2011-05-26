@@ -14,6 +14,7 @@
 #include "dataman/VESPERS/AMXRFScan.h"
 #include "util/AMPeriodicTable.h"
 #include "ui/VESPERS/XRFMapSetup.h"
+#include "ui/VESPERS/VESPERSDeviceStatusView.h"
 
 #include "util/VESPERS/ROIHelper.h"
 
@@ -62,8 +63,11 @@ bool VESPERSAppController::startup() {
 		////////////////////////////////////
 
 		vespersView_ = new VESPERSBeamlineView;
+		VESPERSDeviceStatusView *statusPage = new VESPERSDeviceStatusView;
+
 		mw_->insertHeading("Beamline Control", 0);
 		mw_->addPane(vespersView_, "Beamline Control", "Endstation", ":/system-software-update.png");
+		mw_->addPane(statusPage, "Beamline Control", "Device Status", ":/system-software-update.png");
 
 		xrf1EConfigView_ = new VESPERSXRFScanConfigurationView(new VESPERSXRFScanConfiguration(VESPERSBeamline::SingleElement, VESPERSBeamline::vespers()->vortexXRF1E()->toXRFInfo()));
 		xrf4EConfigView_ = new VESPERSXRFScanConfigurationView(new VESPERSXRFScanConfiguration(VESPERSBeamline::FourElement, VESPERSBeamline::vespers()->vortexXRF4E()->toXRFInfo()));
