@@ -228,7 +228,7 @@ QString XRFDetailedDetectorView::getName(AMROI *roi)
 		for (int j = 0; j < el->emissionLines().count(); j++){
 
 			if (el->emissionLines().at(j).first.contains("1")
-					&& fabs((low+high)/2 - el->emissionLines().at(j).second.toDouble()/roi->scale()) < 3)
+					&& fabs((low+high)/2 - el->emissionLines().at(j).second.toDouble()/roi->scale()) < roi->scale())
 				name = el->symbol()+" "+el->emissionLines().at(j).first;
 		}
 	}
