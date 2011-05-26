@@ -116,6 +116,29 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 			pScan_()->addAnalyzedDataSource(ipfyChannel);
 		}
 	}
+
+	int rawOOSIndex = pScan_()->rawDataSources()->indexOfKey(SGMBeamline::sgm()->oos65000Detector()->description().remove('\n'));
+	if(rawOOSIndex != -1) {
+		AMRawDataSource* oosRaw = pScan_()->rawDataSources()->at(rawOOSIndex);
+		AM2DSummingAB* ply = new AM2DSummingAB("PLY");
+		QList<AMDataSource*> plySource;
+		plySource << oosRaw;
+		ply->setInputDataSources(plySource);
+		ply->setSumAxis(1);
+		ply->setSumRangeMax(oosRaw->size(1)-1);
+		pScan_()->addAnalyzedDataSource(ply);
+		if(rawOOSIndex != -1 && rawI0Index != -1) {
+			AM1DExpressionAB* plyNormChannel = new AM1DExpressionAB(QString("PLYNorm"));
+			plyNormChannel->setDescription("PLYNorm");
+			QList<AMDataSource*> plyNormSources;
+			plyNormSources.append(raw1DDataSources);
+			plyNormSources.append(ply);
+			plyNormChannel->setInputDataSources(plyNormSources);
+			plyNormChannel->setExpression(QString("%1/%2").arg("PLY").arg(SGMBeamline::sgm()->i0Detector()->description()));
+
+			pScan_()->addAnalyzedDataSource(plyNormChannel);
+		}
+	}
 }
 
 bool SGMXASScanController::isBeamlineInitialized() {
