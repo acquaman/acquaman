@@ -793,6 +793,8 @@ MPlotItem* AMScanViewInternal::createPlotItemForDataSource(const AMDataSource* d
 	return rv;
 }
 
+#include "ui/AM3dDataSourceView.h"
+
 // Helper function to review a scan when a data source is added or the exclusive data source changes.
 void AMScanViewExclusiveView::reviewScan(int scanIndex) {
 
@@ -819,6 +821,14 @@ void AMScanViewExclusiveView::reviewScan(int scanIndex) {
 			plotItems_.at(scanIndex)->setDescription(model()->scanAt(scanIndex)->fullName());
 			plot_->plot()->addItem(plotItems_.at(scanIndex), (dataSource->rank() == 2? MPlot::Right : MPlot::Left));
 			/// \todo: if there are 2d images on any plots, set their right axis to show the right axisScale, and show ticks.
+			// testing 3D
+//			if(dataSource->rank() == 2) {
+//				AM3dDataSourceView* tempView = new AM3dDataSourceView(model()->scanAt(scanIndex), model()->scanAt(scanIndex)->indexOfDataSource(dataSource));
+//				tempView->setLogScaleEnabled();
+//				tempView->resize(640,480);
+//				tempView->show();
+//			}
+
 			plotItemDataSources_[scanIndex] = dataSource;
 		}
 

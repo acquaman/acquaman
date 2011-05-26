@@ -29,11 +29,15 @@ public slots:
 	void updatePlotFromDataSource();
 	void setPlotStyle(int plotStyle);
 	void setFloorStyle(int floorStyle);
+	void setLogScaleEnabled(bool logScaleOn = true, double logMinValue = 1.0);
 
 protected:
 	Qwt3D::SurfacePlot* surfacePlot_;
 	const AMScan* scan_;
 	int dataSourceIndex_;
+
+	bool logScaleEnabled_;
+	double logMin_;
 
 	template <class T>
 	T** new2dArray(int sizeX, int sizeY) const {

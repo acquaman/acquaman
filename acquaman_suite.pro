@@ -4,7 +4,7 @@
 
 TEMPLATE = subdirs
 SUBDIRS +=	REIXSAcquaman.pro \
-	#SGMAcquaman.pro \
+	SGMAcquaman.pro \
 	#BareBonesAcquaman.pro \
-	#acquamanTest.pro \
-	#VESPERSAcquaman.pro
+	acquamanTest.pro \
+	VESPERSAcquaman.pro

@@ -13,6 +13,20 @@ AM3dDataSourceView::AM3dDataSourceView(const AMScan* scan, int dataSourceIndex, 
 	QVBoxLayout* vl = new QVBoxLayout();
 
 	surfacePlot_ = new Qwt3D::SurfacePlot();
+	surfacePlot_->setPlotStyle(Qwt3D::FILLED);
+	surfacePlot_->setShading(Qwt3D::GOURAUD);
+
+	surfacePlot_->enableLighting();
+	surfacePlot_->illuminate(0);
+	surfacePlot_->setLightShift(23,23,23);
+	surfacePlot_->setLightRotation(90,0,0);
+
+	surfacePlot_->setRotation(30,0,15);
+	surfacePlot_->setZoom(0.90);
+
+
+
+	//surfacePlot_->setResolution(4);
 	vl->addWidget(surfacePlot_);
 
 	setLayout(vl);
@@ -55,17 +69,40 @@ void AM3dDataSourceView::updatePlotFromDataSource()
 
 	AMDataSource* ds = scan_->dataSourceAt(dataSourceIndex_);
 
+	double minZ = 0, maxZ = 1;
+	int sizeX = ds->size(0);
+	int sizeY = ds->size(1);
+
 	bool uniformAxisScales = ds->axisInfoAt(0).isUniform && ds->axisInfoAt(1).isUniform;
 
 	if(uniformAxisScales) {
 		qDebug() << "Uniform axis scales. Using simplest (uniform) grid filling";
-		int sizeX = ds->size(0);
-		int sizeY = ds->size(1);
 		double** zValues = new2dArray<double>(sizeX, sizeY);
 
-		for(int i=0; i<sizeX; i++)
-			for(int j=0; j<sizeY; j++)
-				zValues[i][j] = ds->value(AMnDIndex(i,j));
+		if(logScaleEnabled_) {
+			if(sizeX > 0 && sizeY > 0)
+				minZ = maxZ = log(qMax(logMin_,(double)ds->value(AMnDIndex(0,0))));
+
+			for(int i=0; i<sizeX; i++)
+				for(int j=0; j<sizeY; j++) {
+					double zValue = log(qMax(logMin_,(double)ds->value(AMnDIndex(i,j))));
+					minZ = qMin(minZ, zValue);
+					maxZ = qMax(maxZ, zValue);
+					zValues[i][j] = zValue;
+				}
+		}
+		else {
+			if(sizeX > 0 && sizeY > 0)
+				minZ = maxZ = ds->value(AMnDIndex(0,0));
+
+			for(int i=0; i<sizeX; i++)
+				for(int j=0; j<sizeY; j++) {
+					double zValue = ds->value(AMnDIndex(i,j));
+					minZ = qMin(minZ, zValue);
+					maxZ = qMax(maxZ, zValue);
+					zValues[i][j] = zValue;
+				}
+		}
 
 		surfacePlot_->loadFromData(zValues,
 								   sizeX,
@@ -82,20 +119,54 @@ void AM3dDataSourceView::updatePlotFromDataSource()
 	}
 	else {	// non-uniform axis scale grid
 		qDebug() << "Non-uniform axis scale. Using irregular grid";
-		int sizeX = ds->size(0);
-		int sizeY = ds->size(1);
 
 		Qwt3D::Triple** gridValues = new2dArray<Qwt3D::Triple>(sizeX, sizeY);
-		for(int i=0; i<sizeX; i++) {
-			double xAxisValue = ds->axisValue(0,i);
-			for(int j=0; j<sizeY; j++) {
-				gridValues[i][j] = Qwt3D::Triple(xAxisValue, ds->axisValue(1,j), ds->value(AMnDIndex(i,j)));
+
+		if(logScaleEnabled_) {
+			if(sizeX >0 && sizeY > 0)
+				minZ = maxZ = log(qMax(logMin_,(double)ds->value(AMnDIndex(0,0))));
+
+			for(int i=0; i<sizeX; i++) {
+				double xAxisValue = ds->axisValue(0,i);
+				for(int j=0; j<sizeY; j++) {
+					double zValue = log(qMax(logMin_,(double)ds->value(AMnDIndex(i,j))));
+					minZ = qMin(minZ, zValue);
+					maxZ = qMax(maxZ, zValue);
+					gridValues[i][j] = Qwt3D::Triple(xAxisValue, ds->axisValue(1,j), zValue);
+				}
+			}
+		}
+		else {
+			if(sizeX >0 && sizeY > 0)
+				minZ = maxZ = ds->value(AMnDIndex(0,0));
+
+			for(int i=0; i<sizeX; i++) {
+				double xAxisValue = ds->axisValue(0,i);
+				for(int j=0; j<sizeY; j++) {
+					double zValue = ds->value(AMnDIndex(i,j));
+					minZ = qMin(minZ, zValue);
+					maxZ = qMax(maxZ, zValue);
+					gridValues[i][j] = Qwt3D::Triple(xAxisValue, ds->axisValue(1,j), zValue);
+				}
 			}
 		}
 
 		surfacePlot_->loadFromData(gridValues, sizeX, sizeY);
 		delete2dArray(gridValues);
 	}
+
+	// doesnt realy do anyting: surfacePlot_->coordinates()->setAutoScale(true);
+
+	double zRange = maxZ - minZ;
+	double xRange = (double)ds->axisValue(0, sizeX-1) - (double)ds->axisValue(0,0);
+	double yRange = (double)ds->axisValue(1, sizeY-1) - (double)ds->axisValue(1,0);
+
+	surfacePlot_->setScale(100*zRange/xRange, 100*zRange/yRange, 100);
+
+	double drad = (surfacePlot_->hull().maxVertex-surfacePlot_->hull().minVertex).length();
+	drad *= 30/20.;
+	surfacePlot_->setLightShift(drad,drad,drad);
+	surfacePlot_->setLightRotation(90,0,0);
 
 	AMAxisInfo xInfo = ds->axisInfoAt(0);
 	AMAxisInfo yInfo = ds->axisInfoAt(1);
@@ -144,6 +215,16 @@ void AM3dDataSourceView::setFloorStyle(int floorStyle)
 	surfacePlot_->setFloorStyle((Qwt3D::FLOORSTYLE) floorStyle);
 	surfacePlot_->updateData();
 	surfacePlot_->updateGL();
+}
+
+void AM3dDataSourceView::setLogScaleEnabled(bool logScaleOn, double logMinValue)
+{
+	if(logScaleEnabled_ == logScaleOn && logMin_ == logMinValue)
+		return;
+
+	logScaleEnabled_ = logScaleOn;
+	logMin_ = logMinValue;
+	updatePlotScheduler_.schedule();
 }
 
 

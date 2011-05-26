@@ -192,12 +192,13 @@ public:
 	/// Retrieve a value from a measurement, at a specific scan point.
 	virtual AMNumber value(const AMnDIndex& scanIndex, int measurementId, const AMnDIndex& measurementIndex, bool doBoundsChecking = true) const {
 
-		// scan axis index doesn't provide enough / too many dimensions
-		if(scanIndex.rank() != axes_.count())
-			return AMNumber(AMNumber::DimensionError);
-
-
 		if(doBoundsChecking) {
+			// scan axis index doesn't provide enough / too many dimensions
+			if(scanIndex.rank() != axes_.count())
+				return AMNumber(AMNumber::DimensionError);
+
+
+
 			for(int mu=axes_.count()-1; mu>=0; mu--)
 				if((unsigned)scanIndex.at(mu) >= (unsigned)axes_.at(mu).size)
 					return AMNumber(AMNumber::OutOfBoundsError);
