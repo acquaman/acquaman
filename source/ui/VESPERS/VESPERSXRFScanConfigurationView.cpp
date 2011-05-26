@@ -208,14 +208,26 @@ void VESPERSXRFScanConfigurationView::onStopClicked()
 		current->finish();
 }
 
+QString VESPERSXRFScanConfigurationView::removeGreek(QString name)
+{
+	if (name.contains(QString::fromUtf8("α")))
+		return name.replace(QString::fromUtf8("α"), "a");
+
+	else if (name.contains(QString::fromUtf8("β")))
+		return name.replace(QString::fromUtf8("β"), "b");
+
+	else if (name.contains(QString::fromUtf8("γ")))
+		return name.replace(QString::fromUtf8("γ"), "g");
+
+	return name;
+}
+
 void VESPERSXRFScanConfigurationView::onRoisHaveValues(bool hasValues)
 {
 	if (hasValues){
 
 		// Go through all the regions of interest PVs and if there are any regions set already, pass them on to the rest of the program.
 		QString name;
-		double low;
-		double high;
 		AMElement *el;
 
 		for (int i = 0; i < detector_->roiList().count(); i++){
@@ -237,13 +249,11 @@ void VESPERSXRFScanConfigurationView::onRoisHaveValues(bool hasValues)
 
 			if (el){
 
-				low = detector_->roiList().at(i)->low();
-				high = detector_->roiList().at(i)->high();
+				name = detector_->roiList().at(i)->name();
 
 				for (int j = 0; j < el->emissionLines().count(); j++){
 
-					if (el->emissionLines().at(j).first.contains("1")
-							&& fabs((low+high)/2 - el->emissionLines().at(j).second.toDouble()/detector_->scale()) < 3)
+					if (name.compare(removeGreek(el->emissionLines().at(j).first)) == 0)
 						emit roiExistsAlready(el, el->emissionLines().at(j));
 				}
 			}

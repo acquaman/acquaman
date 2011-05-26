@@ -50,6 +50,9 @@ protected slots:
 	void onRoisHaveValues(bool hasValues);
 
 protected:
+	/// Takes a emission line name and turns the greek letter into a roman equivalent and returns the result (ie: alpha -> a).
+	QString removeGreek(QString name);
+
 	/// The current configuration.
 	VESPERSXRFScanConfiguration *configuration_;
 	/// The detector view.
