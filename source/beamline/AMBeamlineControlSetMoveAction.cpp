@@ -70,6 +70,7 @@ void AMBeamlineControlSetMoveAction::start(){
 		startpoint_ = controlSet_->toInfoList();
 		connect(&progressTimer_, SIGNAL(timeout()), this, SLOT(calculateProgress()));
 		progressTimer_.start(500);
+		qDebug() << "Setpoint is " << setpoint_;
 		controlSet_->setFromInfoList(setpoint_);
 	}
 	else
