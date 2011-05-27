@@ -80,6 +80,8 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	micLight_->setMaximum(100);
 	micLight_->setTickInterval(10);
 	micLight_->setTickPosition(QSlider::TicksRight);
+	connect(micLight_, SIGNAL(sliderPressed()), this, SLOT(micLightSliderPressed()));
+	connect(micLight_, SIGNAL(sliderReleased()), this, SLOT(micLightSliderReleased()));
 	connect(micLightPV_, SIGNAL(valueChanged()), this, SLOT(micLightUpdate()));
 	connect(micLight_, SIGNAL(valueChanged(int)), micLightPV_, SLOT(setValue(int)));
 

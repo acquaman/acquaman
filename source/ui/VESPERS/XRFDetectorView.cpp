@@ -205,35 +205,12 @@ void XRFDetailedDetectorView::roiWidthUpdate(AMROI *roi)
 
 		temp = markers_.at(i);
 
-		if (temp->description().compare(getName(roi)) == 0){
+		if (roi->name().compare(removeGreek(temp->description())) == 0){
 
 			temp->setLowEnd(roi->low()*roi->scale());
 			temp->setHighEnd(roi->high()*roi->scale());
 		}
 	}
-}
-
-QString XRFDetailedDetectorView::getName(AMROI *roi)
-{
-	QString name(roi->name());
-
-	name = name.left(name.indexOf(" "));
-	AMElement *el = AMPeriodicTable::table()->elementBySymbol(name);
-
-	if (el){
-
-		int low = roi->low();
-		int high = roi->high();
-
-		for (int j = 0; j < el->emissionLines().count(); j++){
-
-			if (el->emissionLines().at(j).first.contains("1")
-					&& fabs((low+high)/2 - el->emissionLines().at(j).second.toDouble()/roi->scale()) < roi->scale())
-				name = el->symbol()+" "+el->emissionLines().at(j).first;
-		}
-	}
-
-	return name;
 }
 
 void XRFDetailedDetectorView::onLogEnabled(bool logged)
@@ -435,9 +412,10 @@ void XRFDetailedDetectorView::sortRegionsOfInterest()
 
 void XRFDetailedDetectorView::onAdditionOfRegionOfInterest(AMElement *el, QPair<QString, QString> line)
 {
-	AMROIInfo info(el->symbol()+" "+line.first, line.second.toDouble(), 0.04, detector_->scale());
+	// Because I want to display greek letters on the screen I have to play around with removing and adding the greek letters.
+	AMROIInfo info(el->symbol()+" "+removeGreek(line.first), line.second.toDouble(), 0.04, detector_->scale());
 	detector_->addRegionOfInterest(info);
-	ROIPlotMarker *newMarker = new ROIPlotMarker(info.name(), info.energy(), info.energy()*(1-info.width()/2), info.energy()*(1+info.width()/2));
+	ROIPlotMarker *newMarker = new ROIPlotMarker(line.first, info.energy(), info.energy()*(1-info.width()/2), info.energy()*(1+info.width()/2));
 	plot_->insertItem(newMarker);
 	newMarker->setYAxisTarget(plot_->axisScale(MPlot::VerticalRelative));
 	markers_ << newMarker;
@@ -528,6 +506,20 @@ void XRFDetailedDetectorView::showEmissionLines(AMElement *el)
 			plot_->insertItem(point, i+1);
 		lines_->append(point);
 	}
+}
+
+QString XRFDetailedDetectorView::removeGreek(QString name)
+{
+	if (name.contains(QString::fromUtf8("α")))
+		return name.replace(QString::fromUtf8("α"), "a");
+
+	else if (name.contains(QString::fromUtf8("β")))
+		return name.replace(QString::fromUtf8("β"), "b");
+
+	else if (name.contains(QString::fromUtf8("γ")))
+		return name.replace(QString::fromUtf8("γ"), "g");
+
+	return name;
 }
 
 QColor XRFDetailedDetectorView::getColor(QString name)
