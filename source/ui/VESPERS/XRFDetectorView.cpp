@@ -415,7 +415,7 @@ void XRFDetailedDetectorView::onAdditionOfRegionOfInterest(AMElement *el, QPair<
 	// Because I want to display greek letters on the screen I have to play around with removing and adding the greek letters.
 	AMROIInfo info(el->symbol()+" "+removeGreek(line.first), line.second.toDouble(), 0.04, detector_->scale());
 	detector_->addRegionOfInterest(info);
-	ROIPlotMarker *newMarker = new ROIPlotMarker(line.first, info.energy(), info.energy()*(1-info.width()/2), info.energy()*(1+info.width()/2));
+	ROIPlotMarker *newMarker = new ROIPlotMarker(el->symbol()+" "+line.first, info.energy(), info.energy()*(1-info.width()/2), info.energy()*(1+info.width()/2));
 	plot_->insertItem(newMarker);
 	newMarker->setYAxisTarget(plot_->axisScale(MPlot::VerticalRelative));
 	markers_ << newMarker;
@@ -424,7 +424,7 @@ void XRFDetailedDetectorView::onAdditionOfRegionOfInterest(AMElement *el, QPair<
 
 void XRFDetailedDetectorView::onRemovalOfRegionOfInterest(AMElement *el, QPair<QString, QString> line)
 {
-	detector_->removeRegionOfInterest(el->symbol()+" "+line.first);
+	detector_->removeRegionOfInterest(el->symbol()+" "+removeGreek(line.first));
 
 	MPlotItem *removeMe = 0;
 	ROIPlotMarker *temp;
