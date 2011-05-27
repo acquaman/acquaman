@@ -119,7 +119,9 @@ int AMControlSet::setFromInfoList(const AMControlInfoList& info){
 		tmpCtrl = controlNamed(info.at(x).name());
 		if(tmpCtrl){
 			controlsSet++;
+			qDebug() << "Want to move " << tmpCtrl->name() << " to " << info.at(x).value();
 			tmpCtrl->move(info.at(x).value());
+			qDebug() << "Moving to " << tmpCtrl->setpoint() << "?";
 		}
 	}
 	return controlsSet;
