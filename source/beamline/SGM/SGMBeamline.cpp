@@ -342,8 +342,8 @@ void SGMBeamline::usingSGMBeamline(){
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	//ssaManipulatorX_ = new AMPVwStatusControl("ssaManipulatorX", sgmPVName+":fbk", sgmPVName+":sp", "SMTR16114I1018:state", "SMTR16114I1018:emergStop", this, 0.1, 2.0, new AMControlStatusCheckerStopped(0));
-	//ssaManipulatorX_ = new AMPVwStatusControl("ssaManipulatorX", sgmPVName+":mm:fbk", sgmPVName+":mm", sgmPVName+":status", sgmPVName+":stop", this, 0.2, 2.0, new AMControlStatusCheckerStopped(0));
-	ssaManipulatorX_ = new AMPVControl("ssaManipulatorX", sgmPVName+":mm:fbk", sgmPVName+":mm", sgmPVName+":stop", this, 0.2, 5.0);
+	ssaManipulatorX_ = new AMPVwStatusControl("ssaManipulatorX", sgmPVName+":mm:fbk", sgmPVName+":mm", sgmPVName+":status", sgmPVName+":stop", this, 0.2, 2.0, new AMControlStatusCheckerStopped(0));
+	//ssaManipulatorX_ = new AMPVControl("ssaManipulatorX", sgmPVName+":mm:fbk", sgmPVName+":mm", sgmPVName+":stop", this, 0.2, 5.0);
 	ssaManipulatorX_->setDescription("SSA Inboard/Outboard");
 	ssaManipulatorX_->setContextKnownDescription("X");
 
@@ -356,8 +356,8 @@ void SGMBeamline::usingSGMBeamline(){
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	//ssaManipulatorY_ = new AMPVwStatusControl("ssaManipulatorY", sgmPVName+":fbk", sgmPVName+":sp", "SMTR16114I1019:state", "SMTR16114I1019:emergStop", this, 0.1, 2.0, new AMControlStatusCheckerStopped(0));
-	//ssaManipulatorY_ = new AMPVwStatusControl("ssaManipulatorY", sgmPVName+":mm:fbk", sgmPVName+":mm", sgmPVName+":status", sgmPVName+":stop", this, 0.2, 2.0, new AMControlStatusCheckerStopped(0));
-	ssaManipulatorY_ = new AMPVControl("ssaManipulatorY", sgmPVName+":mm:fbk", sgmPVName+":mm", sgmPVName+":stop", this, 0.2, 5.0);
+	ssaManipulatorY_ = new AMPVwStatusControl("ssaManipulatorY", sgmPVName+":mm:fbk", sgmPVName+":mm", sgmPVName+":status", sgmPVName+":stop", this, 0.2, 2.0, new AMControlStatusCheckerStopped(0));
+	//ssaManipulatorY_ = new AMPVControl("ssaManipulatorY", sgmPVName+":mm:fbk", sgmPVName+":mm", sgmPVName+":stop", this, 0.2, 5.0);
 	ssaManipulatorY_->setDescription("SSA Upstream/Downstream");
 	ssaManipulatorY_->setContextKnownDescription("Y");
 
@@ -370,8 +370,8 @@ void SGMBeamline::usingSGMBeamline(){
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	//ssaManipulatorZ_ = new AMPVwStatusControl("ssaManipulatorZ", sgmPVName+":fbk", sgmPVName+":sp", "SMTR16114I1020:state", "SMTR16114I1020:emergStop", this, 0.1, 2.0, new AMControlStatusCheckerStopped(0));
-	//ssaManipulatorZ_ = new AMPVwStatusControl("ssaManipulatorZ", sgmPVName+":mm:fbk", sgmPVName+":mm", sgmPVName+":status", sgmPVName+":stop", this, 0.2, 2.0, new AMControlStatusCheckerStopped(0));
-	ssaManipulatorZ_ = new AMPVControl("ssaManipulatorZ", sgmPVName+":mm:fbk", sgmPVName+":mm", sgmPVName+":stop", this, 0.2, 5.0);
+	ssaManipulatorZ_ = new AMPVwStatusControl("ssaManipulatorZ", sgmPVName+":mm:fbk", sgmPVName+":mm", sgmPVName+":status", sgmPVName+":stop", this, 0.2, 2.0, new AMControlStatusCheckerStopped(0));
+	//ssaManipulatorZ_ = new AMPVControl("ssaManipulatorZ", sgmPVName+":mm:fbk", sgmPVName+":mm", sgmPVName+":stop", this, 0.2, 5.0);
 	ssaManipulatorZ_->setDescription("SSA Up/Down");
 	ssaManipulatorZ_->setContextKnownDescription("Z");
 
@@ -383,8 +383,8 @@ void SGMBeamline::usingSGMBeamline(){
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
 	//ssaManipulatorRot_ = new AMPVwStatusControl("ssaManipulatorRot", sgmPVName+":fbk", sgmPVName+":sp", "SMTR16114I1021:state", "SMTR16114I1021:emergStop", this, 0.1, 2.0, new AMControlStatusCheckerStopped(0));
-	//ssaManipulatorRot_ = new AMPVwStatusControl("ssaManipulatorRot", sgmPVName+":mm:sp", sgmPVName+":mm", sgmPVName+":status", sgmPVName+":stop", this, 0.2, 2.0, new AMControlStatusCheckerStopped(0));
-	ssaManipulatorRot_ = new AMPVControl("ssaManipulatorRot", sgmPVName+":mm:sp", sgmPVName+":mm", sgmPVName+":stop", this, 0.2, 5.0);
+	ssaManipulatorRot_ = new AMPVwStatusControl("ssaManipulatorRot", sgmPVName+":mm:sp", sgmPVName+":mm", sgmPVName+":status", sgmPVName+":stop", this, 0.2, 2.0, new AMControlStatusCheckerStopped(0));
+	//ssaManipulatorRot_ = new AMPVControl("ssaManipulatorRot", sgmPVName+":mm:sp", sgmPVName+":mm", sgmPVName+":stop", this, 0.2, 5.0);
 	ssaManipulatorRot_->setDescription("SSA Rotation");
 	ssaManipulatorRot_->setContextKnownDescription("R");
 
