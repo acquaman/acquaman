@@ -113,9 +113,6 @@ protected:
 	/// Gets the maximum height from the first data source.  Used for scaling the height of the ROI markers.
 	double getMaximumHeight(MPlotItem *data);
 
-	/// Takes a emission line name and turns the greek letter into a roman equivalent and returns the result (ie: alpha -> a).
-	QString removeGreek(QString name);
-
 	/// Get a color for the color of a line on the plot.
 	QColor getColor(int index);
 	/// Gets a color based on an emission line.

@@ -206,6 +206,8 @@ void VESPERSBeamline::setupSampleStage()
 	sampleStagePidZ_ = new AMPVControl("Sample Stage PID Z", "SVM1607-2-B21-01:hold:sp", "SVM1607-2-B21-01:hold", QString(), this);
 
 	sampleStagePID_ = new PIDLoopControl("PID - Sample Stage", sampleStagePidX_, sampleStagePidY_, sampleStagePidZ_, this);
+
+	resetPseudoMotors_ = new AMProcessVariable("TS1607-2-B21-01:HNV:loadOffsets.PROC", false, this);
 }
 
 void VESPERSBeamline::setupEndstation()
@@ -930,6 +932,7 @@ VESPERSBeamline::~VESPERSBeamline()
 	delete sampleStagePidY_;
 	delete sampleStagePidZ_;
 	delete sampleStagePID_;
+	delete resetPseudoMotors_;
 	delete ccdMotorfbk_;
 	delete fourElMotorfbk_;
 	delete singleElMotorfbk_;
