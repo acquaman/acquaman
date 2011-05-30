@@ -462,6 +462,8 @@ public:
 	AMProcessVariable *ccdFile() const { return ccdFile_; }
 	/// Returns the process variable for the CCD file number.
 	AMProcessVariable *ccdNumber() const { return ccdNumber_; }
+	/// Returns the process variable for the Pseudo-motor reset.
+	AMProcessVariable *resetPseudoMotors() const { return resetPseudoMotors_; }
 
 signals:
 
@@ -686,6 +688,9 @@ protected:
 	AMProcessVariable *ccdPath_;
 	AMProcessVariable *ccdFile_;
 	AMProcessVariable *ccdNumber_;
+
+	// Pseudo-motor reset PV.
+	AMProcessVariable *resetPseudoMotors_;
 
 	// End Endstation controls.
 

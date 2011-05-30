@@ -42,6 +42,9 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	ccdFile_ = VESPERSBeamline::vespers()->ccdFile();
 	ccdNumber_ = VESPERSBeamline::vespers()->ccdNumber();
 
+	// Pseudo-motor reset button.
+	resetPseudoMotors_ = VESPERSBeamline::vespers()->resetPseudoMotors();
+
 	// Get the current soft limits.
 	loadConfiguration();
 
@@ -53,6 +56,10 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	// Setting the flags to false as a precaution.
 	microscopeSafe_ = false;
 	ccdSafe_ = false;
+
+	// The button for the pseudo-motor reset.
+	QPushButton *resetPseudoMotorsButton = new QPushButton(QIcon(":/reset.png"), "Reset Pseudo-Motors");
+	connect(resetPseudoMotorsButton, SIGNAL(clicked()), this, SLOT(resetPseudoMotors()));
 
 	// Setup the buttons used in the picture.
 	ccdButton_ = new QToolButton;
@@ -193,14 +200,19 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	extrasGroupBoxLayout->addWidget(new QLabel("Filters:"));
 	extrasGroupBoxLayout->addWidget(filterComboBox_);
 	extrasGroupBoxLayout->addStretch();
-	extrasGroupBoxLayout->addWidget(startMicroscopeButton);
+	extrasGroupBoxLayout->addWidget(resetPseudoMotorsButton);
 
 	/// \todo this will be removed once I build my own XAS software.
 	QPushButton *idaButton = new QPushButton("Launch XAS Software");
 	connect(idaButton, SIGNAL(clicked()), this, SLOT(startXAS()));
+
+	QHBoxLayout *launchingLayout = new QHBoxLayout;
+	launchingLayout->addWidget(startMicroscopeButton);
+	launchingLayout->addWidget(idaButton);
+
 	QVBoxLayout *tempLayout = new QVBoxLayout;
 	tempLayout->addLayout(extrasGroupBoxLayout);
-	tempLayout->addWidget(idaButton, 0, Qt::AlignCenter);
+	tempLayout->addLayout(launchingLayout);
 
 	QGroupBox *ExtrasGroupBox = new QGroupBox("Extras");
 	ExtrasGroupBox->setLayout(tempLayout);
