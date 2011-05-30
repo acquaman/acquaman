@@ -2,6 +2,7 @@
 #include "beamline/VESPERS/VESPERSBeamline.h"
 #include "acquaman/VESPERS/VESPERSXRFScanController.h"
 #include "ui/AMTopFrame.h"
+#include "util/VESPERS/GeneralUtilities.h"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -208,20 +209,6 @@ void VESPERSXRFScanConfigurationView::onStopClicked()
 		current->finish();
 }
 
-QString VESPERSXRFScanConfigurationView::removeGreek(QString name)
-{
-	if (name.contains(QString::fromUtf8("α")))
-		return name.replace(QString::fromUtf8("α"), "a");
-
-	else if (name.contains(QString::fromUtf8("β")))
-		return name.replace(QString::fromUtf8("β"), "b");
-
-	else if (name.contains(QString::fromUtf8("γ")))
-		return name.replace(QString::fromUtf8("γ"), "g");
-
-	return name;
-}
-
 void VESPERSXRFScanConfigurationView::onRoisHaveValues(bool hasValues)
 {
 	if (hasValues){
@@ -253,7 +240,7 @@ void VESPERSXRFScanConfigurationView::onRoisHaveValues(bool hasValues)
 
 				for (int j = 0; j < el->emissionLines().count(); j++){
 
-					if (name.compare(removeGreek(el->emissionLines().at(j).first)) == 0)
+					if (name.compare(GeneralUtilities::removeGreek(el->emissionLines().at(j).first)) == 0)
 						emit roiExistsAlready(el, el->emissionLines().at(j));
 				}
 			}
