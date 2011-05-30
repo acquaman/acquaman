@@ -192,6 +192,8 @@ private slots:
 	void startMicroscope() { QProcess::startDetached("/home/vespers/bin/runCameraDisplay"); }
 	/// Starts the IDA software.  This is temporary until the XAS software is replaced.
 	void startXAS() { QProcess::startDetached("/home/vespers/bin/runIDA"); }
+	/// Resets the pseudo-motor positions.
+	void resetPseudoMotors() { resetPseudoMotors_->setValue(1); }
 
 private:
 	/// Helper function to properly toggle the filter PVs.  Takes an AMControl *, casts it to an AMPVControl * then toggles them.
@@ -264,6 +266,9 @@ private:
 	AMProcessVariable *ccdPath_;
 	AMProcessVariable *ccdFile_;
 	AMProcessVariable *ccdNumber_;
+
+	// The pseudo-motor reset PV.
+	AMProcessVariable *resetPseudoMotors_;
 
 	// Filter controls.
 	AMPVControl *filter250umA_;

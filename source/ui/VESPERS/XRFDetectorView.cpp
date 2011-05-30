@@ -4,6 +4,7 @@
 #include "MPlot/MPlotAxisScale.h"
 #include "dataman/AMDataSourceSeriesData.h"
 #include "util/AMPeriodicTable.h"
+#include "util/VESPERS/GeneralUtilities.h"
 
 #include <QString>
 #include <QHBoxLayout>
@@ -205,7 +206,7 @@ void XRFDetailedDetectorView::roiWidthUpdate(AMROI *roi)
 
 		temp = markers_.at(i);
 
-		if (roi->name().compare(removeGreek(temp->description())) == 0){
+		if (roi->name().compare(GeneralUtilities::removeGreek(temp->description())) == 0){
 
 			temp->setLowEnd(roi->low()*roi->scale());
 			temp->setHighEnd(roi->high()*roi->scale());
@@ -413,7 +414,7 @@ void XRFDetailedDetectorView::sortRegionsOfInterest()
 void XRFDetailedDetectorView::onAdditionOfRegionOfInterest(AMElement *el, QPair<QString, QString> line)
 {
 	// Because I want to display greek letters on the screen I have to play around with removing and adding the greek letters.
-	AMROIInfo info(el->symbol()+" "+removeGreek(line.first), line.second.toDouble(), 0.04, detector_->scale());
+	AMROIInfo info(el->symbol()+" "+GeneralUtilities::removeGreek(line.first), line.second.toDouble(), 0.04, detector_->scale());
 	detector_->addRegionOfInterest(info);
 	ROIPlotMarker *newMarker = new ROIPlotMarker(el->symbol()+" "+line.first, info.energy(), info.energy()*(1-info.width()/2), info.energy()*(1+info.width()/2));
 	plot_->insertItem(newMarker);
@@ -424,7 +425,7 @@ void XRFDetailedDetectorView::onAdditionOfRegionOfInterest(AMElement *el, QPair<
 
 void XRFDetailedDetectorView::onRemovalOfRegionOfInterest(AMElement *el, QPair<QString, QString> line)
 {
-	detector_->removeRegionOfInterest(el->symbol()+" "+removeGreek(line.first));
+	detector_->removeRegionOfInterest(el->symbol()+" "+GeneralUtilities::removeGreek(line.first));
 
 	MPlotItem *removeMe = 0;
 	ROIPlotMarker *temp;
@@ -506,20 +507,6 @@ void XRFDetailedDetectorView::showEmissionLines(AMElement *el)
 			plot_->insertItem(point, i+1);
 		lines_->append(point);
 	}
-}
-
-QString XRFDetailedDetectorView::removeGreek(QString name)
-{
-	if (name.contains(QString::fromUtf8("α")))
-		return name.replace(QString::fromUtf8("α"), "a");
-
-	else if (name.contains(QString::fromUtf8("β")))
-		return name.replace(QString::fromUtf8("β"), "b");
-
-	else if (name.contains(QString::fromUtf8("γ")))
-		return name.replace(QString::fromUtf8("γ"), "g");
-
-	return name;
 }
 
 QColor XRFDetailedDetectorView::getColor(QString name)
