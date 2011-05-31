@@ -609,11 +609,13 @@ void XRFDetailedDetectorView::saveSpectra()
 
 	if (detector_->elements() == 1){
 
+		out << "eV\tData\n";
 		for (int i = 0; i < detector_->dataSource()->size(0); i++)
 			out << double(detector_->dataSource()->axisValue(0, i)) << "\t" << int(detector_->dataSource()->value(AMnDIndex(i))) << "\n";
 	}
 	else{
 
+		out << "eV\traw1\traw2\traw3\traw4\tcorrected sum\n";
 		for (int i = 0; i < detector_->dataSource()->size(0); i++)
 			out << double(detector_->dataSource()->axisValue(0, i)) << "\t" << int(detector_->dataSource(0)->value(AMnDIndex(i))) << "\t" << int(detector_->dataSource(1)->value(AMnDIndex(i))) << "\t" << int(detector_->dataSource(2)->value(AMnDIndex(i))) << "\t" << int(detector_->dataSource(3)->value(AMnDIndex(i))) << "\t" << int(detector_->dataSource(4)->value(AMnDIndex(i))) << "\n";
 	}
