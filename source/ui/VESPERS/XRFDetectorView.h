@@ -101,6 +101,9 @@ protected slots:
 	/// Changes the amount of waterfall separation between the plots.
 	void onWaterfallSeparationChanged(double val);
 
+	/// Hack to save the spectra.  For four element it will print out the four raw data and the corrected sum.
+	void saveSpectra();
+
 protected:
 
 	/*! Sets up the view based with the given detector.

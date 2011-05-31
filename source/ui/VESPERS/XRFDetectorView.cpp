@@ -161,6 +161,10 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	connect(waterfallSeparation_, SIGNAL(valueChanged(double)), this, SLOT(onWaterfallSeparationChanged(double)));
 	connect(waterfallButton_, SIGNAL(toggled(bool)), waterfallSeparation_, SLOT(setEnabled(bool)));
 
+	/// \todo Save button hack.  Once auto-export works, redo this if need be.
+	QPushButton *saveSpectraButton = new QPushButton(QIcon(":/Save.png"), "Save Spectra");
+	connect(saveSpectraButton, SIGNAL(clicked()), this, SLOT(saveSpectra()));
+
 	QVBoxLayout *viewControlLayout = new QVBoxLayout;
 	viewControlLayout->addWidget(elapsedTimeLabel, 0, Qt::AlignLeft);
 	viewControlLayout->addWidget(elapsedTime_, 0, Qt::AlignCenter);
@@ -178,6 +182,7 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 		viewControlLayout->addWidget(waterfallSeparation_, 0, Qt::AlignCenter);
 	}
 	viewControlLayout->addStretch();
+	viewControlLayout->addWidget(saveSpectraButton, 0, Qt::AlignCenter);
 
 	QGroupBox *controlBox = new QGroupBox;
 	controlBox->setLayout(viewControlLayout);
@@ -595,6 +600,46 @@ void XRFDetailedDetectorView::onDeadTimeUpdate()
 void XRFDetailedDetectorView::onElapsedTimeUpdate(double time)
 {
 	elapsedTime_->setText(QString::number(time, 'f', 2) + " s");
+}
+
+#include <QFileDialog>
+#include <QTextStream>
+
+/// \todo get rid of this because it is a dirty hack.  Will become auto-export once it's available.
+void XRFDetailedDetectorView::saveSpectra()
+{
+	QFileDialog saveDialog(this);
+	saveDialog.setFileMode(QFileDialog::AnyFile);
+
+	QString fileName = saveDialog.getSaveFileName(this,
+													   tr("Save Spectra"),
+													   "",
+													   tr("Spectra Data (*.dat);;All Files (*)"));
+
+	QFile file(fileName+".dat");
+
+	if (!file.open(QFile::WriteOnly | QFile::Text)){
+		QMessageBox::warning(this, tr("XRF Detector"),
+							 tr("Cannot open file %1:\n%2")
+							 .arg(file.fileName())
+							 .arg(file.errorString()));
+		return;
+	}
+
+	QTextStream out(&file);
+
+	if (detector_->elements() == 1){
+
+		for (int i = 0; i < detector_->dataSource()->size(0); i++)
+			out << double(detector_->dataSource()->axisValue(0, i)) << "\t" << int(detector_->dataSource()->value(AMnDIndex(i))) << "\n";
+	}
+	else{
+
+		for (int i = 0; i < detector_->dataSource()->size(0); i++)
+			out << double(detector_->dataSource()->axisValue(0, i)) << "\t" << int(detector_->dataSource(0)->value(AMnDIndex(i))) << "\t" << int(detector_->dataSource(1)->value(AMnDIndex(i))) << "\t" << int(detector_->dataSource(2)->value(AMnDIndex(i))) << "\t" << int(detector_->dataSource(3)->value(AMnDIndex(i))) << "\t" << int(detector_->dataSource(4)->value(AMnDIndex(i))) << "\n";
+	}
+
+	file.close();
 }
 
 // End detailed detector view
