@@ -3,16 +3,18 @@
 XRFPeriodicTable::XRFPeriodicTable(QObject *parent)
 	: QObject(parent)
 {
+	minimumEnergy_ = minEnergy;
+	maximumEnergy_ = maxEnergy;
 }
 
-bool XRFPeriodicTable::addToList(AMElement *el, QPair<QString, QString> line)
+void XRFPeriodicTable::addToList(AMElement *el, QString line)
 {
 	QPair<int, QString> temp;
 
 	if (checkedList_.isEmpty()){
 
 		checkedList_ << qMakePair(el->atomicNumber(), line.first);
-		return true;
+		emit roiAdded(el, line);
 	}
 
 	for (int i = 0; i < checkedList_.size(); i++){
@@ -20,21 +22,19 @@ bool XRFPeriodicTable::addToList(AMElement *el, QPair<QString, QString> line)
 		temp = checkedList_.at(i);
 
 		// If the region exists already in the list, then don't add it again.
-		if (temp.first == el->atomicNumber() && temp.second.compare(line.first) == 0)
-			return false;
+		if (temp.first == el->atomicNumber() && temp.second.compare(line) == 0)
+			return;
 
 		// If the region doesn't exist yet, then add it to the list.
-		if (temp.first != el->atomicNumber() || temp.second.compare(line.first) != 0){
+		if (temp.first != el->atomicNumber() || temp.second.compare(line) != 0){
 
-			checkedList_ << qMakePair(el->atomicNumber(), line.first);
-			return true;
+			checkedList_ << qMakePair(el->atomicNumber(), line);
+			emit roiAdded(el, line);
 		}
 	}
-
-	return false;
 }
 
-bool XRFPeriodicTable::removeFromList(AMElement *el, QPair<QString, QString> line)
+void XRFPeriodicTable::removeFromList(AMElement *el, QString line)
 {
 	QPair<int, QString> temp;
 
@@ -42,12 +42,16 @@ bool XRFPeriodicTable::removeFromList(AMElement *el, QPair<QString, QString> lin
 
 		temp = checkedList_.at(i);
 
-		if (temp.first == el->atomicNumber() && temp.second.compare(line.first) == 0){
+		if (temp.first == el->atomicNumber() && temp.second.compare(line) == 0){
 
 			checkedList_.removeAt(i);
-			return true;
+			emit roiRemoved(el, line);
 		}
 	}
+}
 
-	return false;
+void XRFPeriodicTable::clearAll()
+{
+	while (!checkedList_.isEmpty())
+		removeFromList(elementByAtomicNumber(checkedList_.last().first), line);
 }

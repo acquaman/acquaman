@@ -4,11 +4,12 @@
 #include <QVBoxLayout>
 #include <QMessageBox>
 
-XRFPeriodicTableView::XRFPeriodicTableView(double minEnergy, double maxEnergy, QWidget *parent)
+XRFPeriodicTableView::XRFPeriodicTableView(XRFPeriodicTable *xrfTable, QWidget *parent)
 	: QWidget(parent)
 {
-	minimumEnergy_ = minEnergy;
-	maximumEnergy_ = maxEnergy;
+	xrfTable_ = xrfTable;
+	connect(xrfTable_, SIGNAL(maximumEnergyChanged(double)), this, SLOT(disableElements()));
+	connect(xrfTable_, SIGNAL(maximumEnergyChanged(double)), this, SLOT(disableElements()));
 
 	QFont font(this->font());
 	font.setBold(true);
@@ -27,7 +28,7 @@ XRFPeriodicTableView::XRFPeriodicTableView(double minEnergy, double maxEnergy, Q
 
 	QToolButton *trashButton = new QToolButton;
 	trashButton->setIcon(QIcon(":/trashcan.png"));
-	connect(trashButton, SIGNAL(clicked()), this, SLOT(clearList()));
+	connect(trashButton, SIGNAL(clicked()), xrfTable_, SLOT(clearAll()));
 
 	tableView_ = new AMPeriodicTableView;
 	tableView_->setMaximumWidth(600);
@@ -36,8 +37,6 @@ XRFPeriodicTableView::XRFPeriodicTableView(double minEnergy, double maxEnergy, Q
 
 	connect(tableView_, SIGNAL(elementSelected(AMElement*)), this, SIGNAL(elementSelected(AMElement*)));
 	connect(tableView_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementSelected(AMElement*)));
-
-	table_ = new XRFPeriodicTable;
 
 	QVBoxLayout *legendLayout = new QVBoxLayout;
 	legendLayout->addWidget(legend);
@@ -56,8 +55,10 @@ XRFPeriodicTableView::XRFPeriodicTableView(double minEnergy, double maxEnergy, Q
 
 void XRFPeriodicTableView::disableElements()
 {
-	QList<AMElement *> table(AMPeriodicTable::table()->elements());
+	QList<AMElement *> table(xrfTable_->elements());
 	AMElement *temp;
+	double min = xrfTable_->minimumEnergy();
+	double max = xrfTable_->maximumEnergy();
 
 	for (int i = 0; i < table.size(); i++){
 
@@ -65,59 +66,36 @@ void XRFPeriodicTableView::disableElements()
 		// Resets the button state.
 		tableView_->button(temp)->setEnabled(true);
 
-		if (temp->Kalpha().second.toDouble() < minimumEnergy_
-			|| (temp->Kalpha().second.toDouble() > maximumEnergy_ && temp->Lalpha().second.toDouble() < minimumEnergy_)
+		if (temp->Kalpha().second.toDouble() < min
+			|| (temp->Kalpha().second.toDouble() > max && temp->Lalpha().second.toDouble() < min)
 			|| temp->emissionLines().isEmpty())
 
 			tableView_->button(temp)->setEnabled(false);
 	}
 }
 
-void XRFPeriodicTableView::regionOfInterestAdded(AMElement *el, QPair<QString, QString> line)
+void XRFPeriodicTableView::regionOfInterestAdded(AMElement *el, QString line)
 {
-	// If the region of interest is acceptable, then it will change the periodic table appropriately.
-	if (table_->addToList(el, line)){
 
-		QToolButton *clicked = tableView_->button(el);
-		QPalette palette(clicked->palette());
+	QToolButton *clicked = tableView_->button(el);
+	QPalette palette(clicked->palette());
 
-		if (line.first.contains("K"))
-			palette.setColor(QPalette::Window, Qt::green);
-		else if (line.first.contains("L"))
-			palette.setColor(QPalette::Window, Qt::yellow);
-		else if (line.first.contains("M"))
-			palette.setColor(QPalette::Window, Qt::cyan);
+	if (line.contains("K"))
+		palette.setColor(QPalette::Window, Qt::green);
+	else if (line.contains("L"))
+		palette.setColor(QPalette::Window, Qt::yellow);
+	else if (line.contains("M"))
+		palette.setColor(QPalette::Window, Qt::cyan);
 
-		clicked->setPalette(palette);
-		emit addRegionOfInterest(el, line);
-	}
+	clicked->setPalette(palette);
 }
 
-void XRFPeriodicTableView::regionOfInterestRemoved(AMElement *el, QPair<QString, QString> line)
+void XRFPeriodicTableView::regionOfInterestRemoved(AMElement *el, QString line)
 {
-	if (table_->removeFromList(el, line)){
+	Q_UNUSED(line);
 
-		QToolButton *clicked = tableView_->button(el);
-		QPalette palette(clicked->palette());
-		palette.setColor(QPalette::Window, this->palette().color(QPalette::Window));
-		clicked->setPalette(palette);
-		emit removeRegionOfInterest(el, line);
-	}
-}
-
-void XRFPeriodicTableView::clearList()
-{
-	QList<QPair<int, QString> > list = table_->checkedList();
-	QToolButton *clicked;
-
-	for (int i = 0; i < list.size(); i++){
-
-		clicked = tableView_->button(table_->elementByAtomicNumber(list.at(i).first));
-		QPalette palette(clicked->palette());
-		palette.setColor(QPalette::Window, this->palette().color(QPalette::Window));
-		clicked->setPalette(palette);
-	}
-
-	table_->clearList();
-	emit clearAllRegionsOfInterest();
+	QToolButton *clicked = tableView_->button(el);
+	QPalette palette(clicked->palette());
+	palette.setColor(QPalette::Window, this->palette().color(QPalette::Window));
+	clicked->setPalette(palette);
 }
