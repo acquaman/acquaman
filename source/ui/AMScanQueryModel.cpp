@@ -36,20 +36,26 @@ AMScanQueryModel::AMScanQueryModel(AMDatabase* db,
 				   // << AMScanQueryModelColumnInfo("About", "scanInfo")
 				<< AMScanQueryModelColumnInfo("Sample", "sampleId", true, AMDbObjectSupport::tableNameForClass<AMSample>(), "name")
 				<< AMScanQueryModelColumnInfo("Technique", "AMDbObjectType", true, "AMDbObjectTypes_table", "description", "AMDbObjectType")
-				// << AMScanQueryModelColumnInfo("Where", "facilityId", true, AMDbObjectSupport::tableNameForClass<AMFacility>(), "description")
+				   // << AMScanQueryModelColumnInfo("Where", "facilityId", true, AMDbObjectSupport::tableNameForClass<AMFacility>(), "description")
 				<< AMScanQueryModelColumnInfo("Where", "runId", true, AMDbObjectSupport::tableNameForClass<AMRun>(), "name")
 				<< AMScanQueryModelColumnInfo("Notes", "notes");
 
 		orderClause_ = "dateTime ASC";
+		idColumnNumber_ = 0;
 	}
 
 	else {
+		idColumnNumber_ = -1;
 		columns_ = columnsToShow;
-		for(int i=columns_.count()-1; i>=0; i--)
+		for(int i=columns_.count()-1; i>=0; i--) {
 			columns_[i].foreignKeyCache->clear();
+			if(columns_.at(i).name == "id")
+				idColumnNumber_ = i;
+		}
 	}
 
 
+	setSupportedDragActions(Qt::CopyAction);
 
 }
 
@@ -171,6 +177,34 @@ void AMScanQueryModel::sort(int column, Qt::SortOrder order)
 		orderClause_ = orderClause;
 		refreshQuery();
 	}
+}
+
+#include <QMimeData>
+#include <QUrl>
+
+QMimeData * AMScanQueryModel::mimeData(const QModelIndexList &indexes) const
+{
+	QMimeData* mimeData = new QMimeData();
+	QList<QUrl> urls;
+
+	if(idColumnNumber_ == -1)
+		return mimeData;	// if we don't have a column which records the id... We can't support drag and drop.
+
+	QSet<int> rowsCompleted;	// indexes will be all the selected indexes...
+	foreach (const QModelIndex &i, indexes) {
+		if (i.isValid() && !rowsCompleted.contains(i.row())) {
+			rowsCompleted << i.row();
+
+			bool ok;
+			int id = data(index(i.row(),0,i.parent()), Qt::DisplayRole).toInt(&ok);
+
+			if(ok)
+				urls << QUrl("amd://" % db_->connectionName() % "/" % tableName_ % "/" % QString::number(id));
+		}
+	}
+
+	mimeData->setUrls(urls);
+	return mimeData;
 }
 
 

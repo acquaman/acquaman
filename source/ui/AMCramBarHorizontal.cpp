@@ -19,10 +19,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AMCramBarHorizontal.h"
-#include <QTimer>
+#include "util/AMDeferredFunctionCall.h"
+#include <QScrollBar>
+
 
 AMCramBarHorizontal::AMCramBarHorizontal(QWidget *parent) :
-		QWidget(parent)
+	QWidget(parent)
 {
 	outerLayout_ = new QHBoxLayout();
 	outerLayout_->setSpacing(0);
@@ -40,7 +42,7 @@ AMCramBarHorizontal::AMCramBarHorizontal(QWidget *parent) :
 	outerLayout_->addWidget(scrollLeftButton_);
 
 	scrollArea_ = new AMScrollArea();
-	scrollWidget_ = new AMSizeSignallingWidget();
+	scrollWidget_ = new QWidget();
 	scrollArea_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	scrollArea_->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	innerLayout_ = new QHBoxLayout();
@@ -49,6 +51,7 @@ AMCramBarHorizontal::AMCramBarHorizontal(QWidget *parent) :
 	innerLayout_->setSizeConstraint(QLayout::SetMinAndMaxSize);
 	//unnecessary: innerLayout_->setSizeConstraint(QLayout::SetFixedSize);
 	scrollWidget_->setLayout(innerLayout_);
+	scrollWidget_->installEventFilter(this);	// catches layout request events to detect changes to desired size.
 	//unnecessary: scrollWidget_->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
 	scrollArea_->setFrameStyle(QFrame::NoFrame);
@@ -60,19 +63,17 @@ AMCramBarHorizontal::AMCramBarHorizontal(QWidget *parent) :
 
 	setLayout(outerLayout_);
 
-	connect(scrollWidget_, SIGNAL(resized(QSize)), this, SLOT(onScrollWidgetResized(QSize)));
-	connect(scrollArea_, SIGNAL(resized(QSize)), this, SLOT(onScrollAreaResized(QSize)));
-
 	scrollLeftButton_->hide();
 	scrollRightButton_->hide();
 	scrollButtonsOn_ = false;
-	QTimer::singleShot(0, this, SLOT(onScrollAreaResized()));
 
 	connect(scrollLeftButton_, SIGNAL(clicked()), this, SLOT(onScrollButtonClicked()));
 	connect(scrollRightButton_, SIGNAL(clicked()), this, SLOT(onScrollButtonClicked()));
-}
 
-#include <QScrollBar>
+	parentWidget_ = 0;
+	checkIfScrollButtonsRequired_ = new AMDeferredFunctionCall(this);
+	connect(checkIfScrollButtonsRequired_, SIGNAL(executed()), this, SLOT(reviewScrollButtonsRequired()));
+}
 
 void AMCramBarHorizontal::onScrollButtonClicked() {
 	if(sender() == scrollLeftButton_)
@@ -82,19 +83,43 @@ void AMCramBarHorizontal::onScrollButtonClicked() {
 		scrollArea_->horizontalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepAdd);
 }
 
-#include <QDebug>
 
+bool AMCramBarHorizontal::eventFilter(QObject *source, QEvent *event) {
+	if(source == scrollWidget_ && event->type() == QEvent::LayoutRequest) {
+		scrollArea_->updateGeometry();	// notifies ourself and our outer layout that the scrollArea's sizeHint() has changed.
+	}
 
+	if(source == parentWidget_ && parentWidget_ && event->type() == QEvent::LayoutRequest) {
+		checkIfScrollButtonsRequired_->schedule();
+	}
 
-/// called when the scroll area itself is resized:
-void AMCramBarHorizontal::onScrollAreaResized() {
+	return QWidget::eventFilter(source, event);
+}
+
+bool AMCramBarHorizontal::event(QEvent* event)
+{
+	if(event->type() == QEvent::ParentAboutToChange) {
+		if(parentWidget_) {
+			parentWidget_->removeEventFilter(this);
+			parentWidget_ = 0;
+		}
+	}
+
+	if(event->type() == QEvent::ParentChange) {
+		parentWidget_ = parentWidget();
+		parentWidget_->installEventFilter(this);
+	}
+
+	return QWidget::event(event);
+}
+
+void AMCramBarHorizontal::reviewScrollButtonsRequired()
+{
 	if(scrollArea_->width() >= scrollWidget_->width()) {
 		if(scrollButtonsOn_) {
 			scrollLeftButton_->hide();
 			scrollRightButton_->hide();
 			scrollButtonsOn_ = false;
-			QTimer::singleShot(0, this, SLOT(onScrollAreaResized()));
-			qDebug() << "AMCRAMBAR: turning buttons off.";
 		}
 	}
 	else {
@@ -102,14 +127,6 @@ void AMCramBarHorizontal::onScrollAreaResized() {
 			scrollButtonsOn_ = true;
 			scrollLeftButton_->show();
 			scrollRightButton_->show();
-			QTimer::singleShot(0, this, SLOT(onScrollAreaResized()));
-			qDebug() << "AMCRAMBAR: turning buttons on.";
 		}
 	}
-}
-
-
-void AMCramBarHorizontal::onScrollWidgetResized(const QSize&) {
-	scrollArea_->updateGeometry();		//or, could use: outerLayout_->activate();
-	QTimer::singleShot(0, this, SLOT(onScrollAreaResized()));
 }

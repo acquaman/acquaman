@@ -36,6 +36,10 @@ protected slots:
 	void onPSH2Clicked();
 	/// Handles the logic for opening SSH1.
 	void onSSH1Clicked();
+	/// Handles updates from the lower shutter filter push button.
+	void onLowerFilterUpdate();
+	/// Handles the state change from the shutter.  Changes the label to the either a red or green light.  Green means open.
+	void onFilterStatusChanged();
 
 protected:
 	/// Button and label for the valves.
@@ -46,6 +50,10 @@ protected:
 	QLabel *tempLabel_;
 	QLabel *pressureLabel_;
 	QLabel *waterLabel_;
+
+	/// Button and label for the endstation shutter.
+	QPushButton *filterLowerButton_;
+	QLabel *filterLabel_;
 
 	/// The valve control.
 	VESPERSValveGroupControl *valves_;
@@ -62,6 +70,10 @@ protected:
 	AMShutterButton *psh2_;
 	AMShutterButton *ssh1_;
 	AMShutterButton *ssh2_;
+
+private:
+	/// Helper function to properly toggle the filter PVs.  Takes an AMControl *, casts it to an AMPVControl * then toggles them.
+	void toggleFilter(AMControl *filter);
 };
 
 #endif // VESPERSPERSISTENTVIEW_H

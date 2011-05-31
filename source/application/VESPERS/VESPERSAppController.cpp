@@ -13,6 +13,8 @@
 #include "ui/AMWorkflowManagerView.h"
 #include "dataman/VESPERS/AMXRFScan.h"
 #include "util/AMPeriodicTable.h"
+#include "ui/VESPERS/XRFMapSetup.h"
+#include "ui/VESPERS/VESPERSDeviceStatusView.h"
 
 #include "util/VESPERS/ROIHelper.h"
 
@@ -61,8 +63,11 @@ bool VESPERSAppController::startup() {
 		////////////////////////////////////
 
 		vespersView_ = new VESPERSBeamlineView;
+		//VESPERSDeviceStatusView *statusPage = new VESPERSDeviceStatusView;
+
 		mw_->insertHeading("Beamline Control", 0);
 		mw_->addPane(vespersView_, "Beamline Control", "Endstation", ":/system-software-update.png");
+		//mw_->addPane(statusPage, "Beamline Control", "Device Status", ":/system-software-update.png");
 
 		xrf1EConfigView_ = new VESPERSXRFScanConfigurationView(new VESPERSXRFScanConfiguration(VESPERSBeamline::SingleElement, VESPERSBeamline::vespers()->vortexXRF1E()->toXRFInfo()));
 		xrf4EConfigView_ = new VESPERSXRFScanConfigurationView(new VESPERSXRFScanConfiguration(VESPERSBeamline::FourElement, VESPERSBeamline::vespers()->vortexXRF4E()->toXRFInfo()));
@@ -75,6 +80,11 @@ bool VESPERSAppController::startup() {
 		mw_->insertHeading("Free run", 1);
 		mw_->addPane(xrf1EConfigHolder_, "Free run", "XRF 1-el", ":/utilities-system-monitor.png");
 		mw_->addPane(xrf4EConfigHolder_, "Free run", "XRF 4-el", ":/utilities-system-monitor.png");
+
+		XRFMapSetup *ndMapSetup = new XRFMapSetup;
+
+		mw_->insertHeading("Scans", 2);
+		mw_->addPane(ndMapSetup, "Scans", "Map Setup", ":/utilities-system-monitor.png");
 
 		persistentView_ = new VESPERSPersistentView;
 		mw_->addRightWidget(persistentView_);

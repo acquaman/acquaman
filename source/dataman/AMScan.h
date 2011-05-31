@@ -126,6 +126,7 @@ public:
 
 	/// Returns read-only access to the set of raw data sources. (A data source represents a single "stream" or "channel" of data. For example, in a simple absorption scan, the electron yield measurements are one raw data source, and the fluorescence yield measurements are another data source.)
 	const AMRawDataSourceSet* rawDataSources() const { return &rawDataSources_; }
+	int rawDataSourceCount() const { return rawDataSources_.count(); }
 	// AMRawDataSourceSet* rawDataSources() { return &rawDataSources_; }
 	/// Publicly expose part of the rawData(), by adding a new AMRawDataSource to the scan. The new data source \c newRawDataSource should be valid, initialized and connected to the data store already.  The scan takes ownership of \c newRawDataSource.  This function returns false if raw data source already exists with the same name as the \c newRawDataSource.
 	bool addRawDataSource(AMRawDataSource* newRawDataSource) { if(newRawDataSource) return rawDataSources_.append(newRawDataSource, newRawDataSource->name()); return false; }
@@ -134,6 +135,7 @@ public:
 
 	/// Returns read-only access to the set of analyzed data sources. (Analyzed data sources are built on either raw data sources, or other analyzed sources, by applying an AMAnalysisBlock.)
 	const AMAnalyzedDataSourceSet* analyzedDataSources() const { return &analyzedDataSources_; }
+	int analyzedDataSourceCount() const { return analyzedDataSources_.count(); }
 	// AMAnalyzedDataSourceSet* analyzedDataSources() { return &analyzedDataSources_; }
 	/// Add an new analysis block to the scan.  The scan takes ownership of the \c newAnalysisBlock and exposes it as one of the analyzed data sources.
 	bool addAnalyzedDataSource(AMAnalysisBlock* newAnalyzedDataSource) { if(newAnalyzedDataSource) return analyzedDataSources_.append(newAnalyzedDataSource, newAnalyzedDataSource->name()); return false; }

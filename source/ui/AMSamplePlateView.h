@@ -151,6 +151,9 @@ protected slots:
 	/// Received from AMSamplePlate. Used to implement endRemoveRows.
 	void onSamplePositionRemoved(int index);
 
+	/// Received fomr AMSamplePlate. Used to implement dataChanged().
+	void onSamplePositionChanged(int index);
+
 
 	/// Watches the database for update signals... To see if sample information changes for one of our existing sample ids...
 	void onDatabaseItemUpdated(const QString& tableName, int id);

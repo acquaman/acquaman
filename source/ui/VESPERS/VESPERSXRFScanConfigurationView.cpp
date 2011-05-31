@@ -2,6 +2,7 @@
 #include "beamline/VESPERS/VESPERSBeamline.h"
 #include "acquaman/VESPERS/VESPERSXRFScanController.h"
 #include "ui/AMTopFrame.h"
+#include "util/VESPERS/GeneralUtilities.h"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -45,6 +46,7 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 	QPushButton *sortButton = new QPushButton(QIcon(":/ArrowCCW.png"), "Sort");
 	connect(sortButton, SIGNAL(clicked()), view_, SLOT(sortRegionsOfInterest()));
 
+	// Customize the regions of interest.
 	customize_ = new CustomizeRegionsOfInterest(detector_->roiList());
 	QPushButton *configureButton = new QPushButton(QIcon(":/configure.png"), "Edit ROIs");
 
@@ -54,6 +56,7 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 
 	connect(configureButton, SIGNAL(clicked()), scroll, SLOT(show()));
 
+	// Control options for the detector.
 	QToolButton *start = new QToolButton;
 	start->setIcon(QIcon(":/play_button_green.png"));
 	connect(start, SIGNAL(clicked()), this, SLOT(onStartClicked()));
@@ -212,8 +215,6 @@ void VESPERSXRFScanConfigurationView::onRoisHaveValues(bool hasValues)
 
 		// Go through all the regions of interest PVs and if there are any regions set already, pass them on to the rest of the program.
 		QString name;
-		double low;
-		double high;
 		AMElement *el;
 
 		for (int i = 0; i < detector_->roiList().count(); i++){
@@ -235,13 +236,11 @@ void VESPERSXRFScanConfigurationView::onRoisHaveValues(bool hasValues)
 
 			if (el){
 
-				low = detector_->roiList().at(i)->low();
-				high = detector_->roiList().at(i)->high();
+				name = detector_->roiList().at(i)->name();
 
 				for (int j = 0; j < el->emissionLines().count(); j++){
 
-					if (el->emissionLines().at(j).first.contains("1")
-							&& fabs((low+high)/2 - el->emissionLines().at(j).second.toDouble()/detector_->scale()) < 3)
+					if (name.compare(GeneralUtilities::removeGreek(el->emissionLines().at(j).first)) == 0)
 						emit roiExistsAlready(el, el->emissionLines().at(j));
 				}
 			}
