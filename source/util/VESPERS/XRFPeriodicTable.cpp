@@ -21,6 +21,12 @@ XRFPeriodicTable::XRFPeriodicTable(double minEnergy, double maxEnergy, QObject *
 	}
 }
 
+XRFPeriodicTable::~XRFPeriodicTable()
+{
+	for (int i = 0; i < xrfTable_.size(); i++)
+		delete xrfTable_.at(i);
+}
+
 void XRFPeriodicTable::addToList(QString symbol, QString line)
 {
 	XRFElement *el = elementBySymbol(symbol);

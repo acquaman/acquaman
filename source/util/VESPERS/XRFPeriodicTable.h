@@ -11,6 +11,8 @@ class XRFPeriodicTable : public QObject
 public:
 	/// Default constructor.  Can optionally provide upper and lower limits.  These will disable elements based on those numbers.
 	explicit XRFPeriodicTable(double minEnergy = 0, double maxEnergy = 1e6, QObject *parent = 0);
+	/// Destructor.
+	~XRFPeriodicTable();
 
 	// Table convenience functions.
 	/// Returns the list of XRF elements.
