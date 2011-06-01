@@ -21,6 +21,7 @@
 
 #include "dataman/AMDbObjectSupport.h"
 #include "dataman/AMRun.h"
+#include "dataman/AMExporterOptionGeneralAscii.h"
 #include "ui/AMStartScreen.h"
 
 SGMAppController::SGMAppController(QObject *parent) :
@@ -57,6 +58,29 @@ bool SGMAppController::startup() {
 			// no run yet... let's create one.
 			AMRun firstRun("SGM", 3);	/// \todo For now, we know that 5 is the ID of the REIXS facility, but this is a hardcoded hack. See AMFirstTimeController::onFirstTime() for where the facilities are created.
 			firstRun.storeToDb(AMDatabase::userdb());
+			AMExporterOptionGeneralAscii *sgmDefault = new AMExporterOptionGeneralAscii();
+			sgmDefault->setName("SGMDefault");
+			sgmDefault->setFileName("$name_$exportIndex.txt");
+			sgmDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription");
+			sgmDefault->setHeaderIncluded(true);
+			sgmDefault->setColumnHeader("$dataSetName $dataSetInfoDescription");
+			sgmDefault->setColumnHeaderIncluded(true);
+			sgmDefault->setColumnHeaderDelimiter("==========");
+			sgmDefault->setSectionHeader("");
+			sgmDefault->setSectionHeaderIncluded(true);
+			sgmDefault->setIncludeAllDataSources(false);
+			sgmDefault->addDataSource("EnergyFeedback", false, AMExporterOptionGeneral::CombineInColumnsMode, true);
+			sgmDefault->addDataSource("I0", true, AMExporterOptionGeneral::CombineInColumnsMode, true);
+			sgmDefault->addDataSource("Photodiode", true, AMExporterOptionGeneral::CombineInColumnsMode, true);
+			sgmDefault->addDataSource("TEY", true, AMExporterOptionGeneral::CombineInColumnsMode, true);
+			sgmDefault->addDataSource("TFY", true, AMExporterOptionGeneral::CombineInColumnsMode, true);
+			sgmDefault->addDataSource("TEYNorm", true, AMExporterOptionGeneral::CombineInColumnsMode, true);
+			sgmDefault->addDataSource("TFYNorm", true, AMExporterOptionGeneral::CombineInColumnsMode, true);
+			sgmDefault->addDataSource("PFY", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
+			sgmDefault->addDataSource("IPFY", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
+			sgmDefault->addDataSource("SDD", false, AMExporterOptionGeneral::SeparateFilesMode, false);
+			sgmDefault->setSeparateSectionFileName("$name_$dataSetName_$exportIndex.txt");
+			sgmDefault->storeToDb(AMDatabase::userdb());
 		}
 
 		// Show the splash screen, to let the user pick their current run. (It will delete itself when closed)
