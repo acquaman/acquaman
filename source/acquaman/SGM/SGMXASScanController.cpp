@@ -94,49 +94,53 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 		pScan_()->addAnalyzedDataSource(tfyChannel);
 	}
 
-	int rawSddIndex = pScan_()->rawDataSources()->indexOfKey(SGMBeamline::sgm()->pgtDetector()->description());
-	if(rawSddIndex != -1) {
-		AMRawDataSource* sddRaw = pScan_()->rawDataSources()->at(rawSddIndex);
-		AM2DSummingAB* pfy = new AM2DSummingAB("PFY");
-		QList<AMDataSource*> pfySource;
-		pfySource << sddRaw;
-		pfy->setInputDataSources(pfySource);
-		pfy->setSumAxis(1);
-		pfy->setSumRangeMax(sddRaw->size(1)-1);
-		pScan_()->addAnalyzedDataSource(pfy);
-		if(rawSddIndex != -1 && rawI0Index != -1) {
-			AM1DExpressionAB* ipfyChannel = new AM1DExpressionAB(QString("IPFY"));
-			ipfyChannel->setDescription("IPFY");
-			QList<AMDataSource*> ipfySources;
-			ipfySources.append(raw1DDataSources);
-			ipfySources.append(pfy);
-			ipfyChannel->setInputDataSources(ipfySources);
-			ipfyChannel->setExpression(QString("%1/%2").arg(SGMBeamline::sgm()->i0Detector()->description()).arg("PFY"));
+	if(SGMBeamline::sgm()->pgtDetector()){
+		int rawSddIndex = pScan_()->rawDataSources()->indexOfKey(SGMBeamline::sgm()->pgtDetector()->description());
+		if(rawSddIndex != -1) {
+			AMRawDataSource* sddRaw = pScan_()->rawDataSources()->at(rawSddIndex);
+			AM2DSummingAB* pfy = new AM2DSummingAB("PFY");
+			QList<AMDataSource*> pfySource;
+			pfySource << sddRaw;
+			pfy->setInputDataSources(pfySource);
+			pfy->setSumAxis(1);
+			pfy->setSumRangeMax(sddRaw->size(1)-1);
+			pScan_()->addAnalyzedDataSource(pfy);
+			if(rawSddIndex != -1 && rawI0Index != -1) {
+				AM1DExpressionAB* ipfyChannel = new AM1DExpressionAB(QString("IPFY"));
+				ipfyChannel->setDescription("IPFY");
+				QList<AMDataSource*> ipfySources;
+				ipfySources.append(raw1DDataSources);
+				ipfySources.append(pfy);
+				ipfyChannel->setInputDataSources(ipfySources);
+				ipfyChannel->setExpression(QString("%1/%2").arg(SGMBeamline::sgm()->i0Detector()->description()).arg("PFY"));
 
-			pScan_()->addAnalyzedDataSource(ipfyChannel);
+				pScan_()->addAnalyzedDataSource(ipfyChannel);
+			}
 		}
 	}
 
-	int rawOOSIndex = pScan_()->rawDataSources()->indexOfKey(SGMBeamline::sgm()->oos65000Detector()->description().remove('\n'));
-	if(rawOOSIndex != -1) {
-		AMRawDataSource* oosRaw = pScan_()->rawDataSources()->at(rawOOSIndex);
-		AM2DSummingAB* ply = new AM2DSummingAB("PLY");
-		QList<AMDataSource*> plySource;
-		plySource << oosRaw;
-		ply->setInputDataSources(plySource);
-		ply->setSumAxis(1);
-		ply->setSumRangeMax(oosRaw->size(1)-1);
-		pScan_()->addAnalyzedDataSource(ply);
-		if(rawOOSIndex != -1 && rawI0Index != -1) {
-			AM1DExpressionAB* plyNormChannel = new AM1DExpressionAB(QString("PLYNorm"));
-			plyNormChannel->setDescription("PLYNorm");
-			QList<AMDataSource*> plyNormSources;
-			plyNormSources.append(raw1DDataSources);
-			plyNormSources.append(ply);
-			plyNormChannel->setInputDataSources(plyNormSources);
-			plyNormChannel->setExpression(QString("%1/%2").arg("PLY").arg(SGMBeamline::sgm()->i0Detector()->description()));
+	if(SGMBeamline::sgm()->oos65000Detector()){
+		int rawOOSIndex = pScan_()->rawDataSources()->indexOfKey(SGMBeamline::sgm()->oos65000Detector()->description().remove('\n'));
+		if(rawOOSIndex != -1) {
+			AMRawDataSource* oosRaw = pScan_()->rawDataSources()->at(rawOOSIndex);
+			AM2DSummingAB* ply = new AM2DSummingAB("PLY");
+			QList<AMDataSource*> plySource;
+			plySource << oosRaw;
+			ply->setInputDataSources(plySource);
+			ply->setSumAxis(1);
+			ply->setSumRangeMax(oosRaw->size(1)-1);
+			pScan_()->addAnalyzedDataSource(ply);
+			if(rawOOSIndex != -1 && rawI0Index != -1) {
+				AM1DExpressionAB* plyNormChannel = new AM1DExpressionAB(QString("PLYNorm"));
+				plyNormChannel->setDescription("PLYNorm");
+				QList<AMDataSource*> plyNormSources;
+				plyNormSources.append(raw1DDataSources);
+				plyNormSources.append(ply);
+				plyNormChannel->setInputDataSources(plyNormSources);
+				plyNormChannel->setExpression(QString("%1/%2").arg("PLY").arg(SGMBeamline::sgm()->i0Detector()->description()));
 
-			pScan_()->addAnalyzedDataSource(plyNormChannel);
+				pScan_()->addAnalyzedDataSource(plyNormChannel);
+			}
 		}
 	}
 }
