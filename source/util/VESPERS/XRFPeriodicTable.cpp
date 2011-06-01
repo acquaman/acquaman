@@ -1,57 +1,66 @@
 #include "XRFPeriodicTable.h"
 
-XRFPeriodicTable::XRFPeriodicTable(QObject *parent)
+#include "util/AMPeriodicTable.h"
+
+XRFPeriodicTable::XRFPeriodicTable(double minEnergy, double maxEnergy, QObject *parent)
 	: QObject(parent)
 {
 	minimumEnergy_ = minEnergy;
 	maximumEnergy_ = maxEnergy;
+
+	XRFElement *temp;
+
+	for (int i = 0; i < AMPeriodicTable::table()->elements().size(); i++){
+
+		temp = new XRFElement(AMPeriodicTable::table()->elementByAtomicNumber(i+1), minimumEnergy_, maximumEnergy_, this);
+		xrfTable_ << temp;
+		connect(temp, SIGNAL(lineAdded(XRFElement*,QString)), this, SLOT(onLineAdded(XRFElement*,QString)));
+		connect(temp, SIGNAL(lineRemoved(XRFElement*,QString)), this, SLOT(onLineRemoved(XRFElement*,QString)));
+		connect(this, SIGNAL(minimumEnergyChanged(double)), temp, SLOT(setMinimumEnergy(double)));
+		connect(this, SIGNAL(maximumEnergyChanged(double)), temp, SLOT(setMaximumEnergy(double)));
+	}
 }
 
-void XRFPeriodicTable::addToList(AMElement *el, QString line)
+void XRFPeriodicTable::addToList(QString symbol, QString line)
 {
-	QPair<int, QString> temp;
+	XRFElement *el = elementBySymbol(symbol);
 
-	if (checkedList_.isEmpty()){
+	if (el)
+		el->addLine(line);
+}
 
-		checkedList_ << qMakePair(el->atomicNumber(), line.first);
-		emit roiAdded(el, line);
-	}
+void XRFPeriodicTable::removeFromList(QString symbol, QString line)
+{
+	XRFElement *el = elementBySymbol(symbol);
 
-	for (int i = 0; i < checkedList_.size(); i++){
+	if (el)
+		el->removeLine(line);
+}
 
-		temp = checkedList_.at(i);
+void XRFPeriodicTable::onLineAdded(XRFElement *el, QString line)
+{
+	Q_UNUSED(line);
 
-		// If the region exists already in the list, then don't add it again.
-		if (temp.first == el->atomicNumber() && temp.second.compare(line) == 0)
-			return;
+	XRFElement *temp;
 
-		// If the region doesn't exist yet, then add it to the list.
-		if (temp.first != el->atomicNumber() || temp.second.compare(line) != 0){
+	for (int i = 0; i < selectedElements_.size(); i++){
 
-			checkedList_ << qMakePair(el->atomicNumber(), line);
-			emit roiAdded(el, line);
+		temp = selectedElements_.at(i);
+		if (temp->symbol().compare(el->symbol()) != 0){
+
+			selectedElements_ << el;
+			emit selectedElementsChanged();
 		}
 	}
 }
 
-void XRFPeriodicTable::removeFromList(AMElement *el, QString line)
+void XRFPeriodicTable::onLineRemoved(XRFElement *el, QString line)
 {
-	QPair<int, QString> temp;
+	Q_UNUSED(line);
 
-	for (int i = 0; i < checkedList_.size(); i++){
+	if (!el->hasLinesSelected()){
 
-		temp = checkedList_.at(i);
-
-		if (temp.first == el->atomicNumber() && temp.second.compare(line) == 0){
-
-			checkedList_.removeAt(i);
-			emit roiRemoved(el, line);
-		}
+		selectedElements_.removeOne(el);
+		emit selectedElementsChanged();
 	}
-}
-
-void XRFPeriodicTable::clearAll()
-{
-	while (!checkedList_.isEmpty())
-		removeFromList(elementByAtomicNumber(checkedList_.last().first), line);
 }

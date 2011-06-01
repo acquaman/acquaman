@@ -240,7 +240,7 @@ void VESPERSXRFScanConfigurationView::onRoisHaveValues(bool hasValues)
 
 				for (int j = 0; j < el->emissionLines().count(); j++){
 
-					if (name.compare(GeneralUtilities::removeGreek(el->emissionLines().at(j).first)) == 0)
+					if (name.compare(el->symbol()+" "+GeneralUtilities::removeGreek(el->emissionLines().at(j).first)) == 0)
 						emit roiExistsAlready(el, el->emissionLines().at(j));
 				}
 			}

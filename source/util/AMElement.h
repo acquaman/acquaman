@@ -126,7 +126,7 @@ private:
 	QString name_;
 	// Symbol.
 	QString symbol_;
-	// Atomic number saved as a string.
+	// Atomic number saved as an int.
 	int atomicNumber_;
 	// Name, Energy.
 	QList<QPair<QString, QString> > edges_;
