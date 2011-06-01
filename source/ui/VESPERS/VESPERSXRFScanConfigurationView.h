@@ -50,6 +50,7 @@ protected slots:
 	void onRoisHaveValues(bool hasValues);
 
 protected:
+
 	/// The current configuration.
 	VESPERSXRFScanConfiguration *configuration_;
 	/// The detector view.

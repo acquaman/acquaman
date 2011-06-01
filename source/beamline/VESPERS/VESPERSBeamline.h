@@ -329,12 +329,20 @@ public:
 	AMControl *sampleStageNormal() const { return sampleStageNormal_; }
 
 	// Real motors.
-	/// Returns the sample stage motor for the x-direction.
+	/// Returns the sample stage motor in the x-direction.
 	AMControl *sampleStageX() const { return sampleStageX_; }
-	/// Returns the sample stage motor for the y-direction.
+	/// Returns the sample stage motor in the y-direction.
 	AMControl *sampleStageY() const { return sampleStageY_; }
-	/// Returns the sample stage motor for the z-direction.
+	/// Returns the sample stage motor in the z-direction.
 	AMControl *sampleStageZ() const { return sampleStageZ_; }
+
+	// Real motors steps.
+	/// Returns the sample stage motor step feedback for the x-direction.
+	AMControl *sampleStageStepX() const { return sampleStageStepX_; }
+	/// Returns the sample stage motor step feedback for the y-direction.
+	AMControl *sampleStageStepY() const { return sampleStageStepY_; }
+	/// Returns the sample stage motor step feedback for the z-direction.
+	AMControl *sampleStageStepZ() const { return sampleStageStepZ_; }
 
 	// The sample stage.
 	/// Returns the sample stage control.
@@ -454,6 +462,8 @@ public:
 	AMProcessVariable *ccdFile() const { return ccdFile_; }
 	/// Returns the process variable for the CCD file number.
 	AMProcessVariable *ccdNumber() const { return ccdNumber_; }
+	/// Returns the process variable for the Pseudo-motor reset.
+	AMProcessVariable *resetPseudoMotors() const { return resetPseudoMotors_; }
 
 signals:
 
@@ -679,15 +689,26 @@ protected:
 	AMProcessVariable *ccdFile_;
 	AMProcessVariable *ccdNumber_;
 
+	// Pseudo-motor reset PV.
+	AMProcessVariable *resetPseudoMotors_;
+
 	// End Endstation controls.
 
 	// Sample stage controls.
+	// Pseudo-motors
 	AMControl *sampleStageHorizontal_;
 	AMControl *sampleStageVertical_;
 	AMControl *sampleStageNormal_;
+
+	// Physical motors.
 	AMControl *sampleStageX_;
 	AMControl *sampleStageY_;
 	AMControl *sampleStageZ_;
+
+	// Step feedback.
+	AMControl *sampleStageStepX_;
+	AMControl *sampleStageStepY_;
+	AMControl *sampleStageStepZ_;
 
 	SampleStageControl *sampleStage_;
 

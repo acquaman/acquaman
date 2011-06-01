@@ -13,6 +13,9 @@
 	aspect of this class is always functional, even if the other motors are no longer calibrated correctly.
 
 	Note:  All the controls must exist already.
+
+	The ability to change what motors are the horizontal, vertical, and normal directions is also offered.  However, you must ensure that the scalers are set to the appropriate
+	values because they are reset to 1 for all directions.  The ranges are left as they were because they might not have been set or the step motors wouldn't have been changed.
   */
 class SampleStageControl : public QObject
 {
@@ -23,6 +26,9 @@ public:
 
 	/// Default constructor.  Takes in the 3 motor controls and their count readout controls.
 	explicit SampleStageControl(AMPVwStatusControl *horiz, AMPVwStatusControl *vert, AMPVwStatusControl *norm, AMReadOnlyPVControl *xMotor, AMReadOnlyPVControl *yMotor, AMReadOnlyPVControl *zMotor, QObject *parent = 0);
+
+	/// Changes which motors are the used for the horizontal, vertical, and normal directions.  Sets all scalers to 1.  Returns false if unsuccessfully changed.
+	bool setMotors(AMControl *horiz, AMControl *vert, AMControl *norm);
 
 	/// Sets the range for the motor in the x direction.
 	void setXRange(int low, int high) { xLow_ = low; xHigh_ = high; }

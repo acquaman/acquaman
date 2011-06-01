@@ -291,6 +291,7 @@ bool XRFDetector::addRegionOfInterest(AMROIInfo roi)
 	// Appending to the list means that the old size of the Info list is where the new values should be set in the ROI list.
 	roiList().at(roiInfoList()->count())->fromInfo(roi);
 	roiInfoList()->append(roi);
+	setROIList(*roiInfoList());
 
 	return true;
 }
@@ -312,6 +313,7 @@ bool XRFDetector::removeRegionOfInterest(QString name)
 	}
 
 	roiInfoList()->remove(indexOfRemoved);
+	setROIList(*roiInfoList());
 
 	return true;
 }
@@ -319,6 +321,7 @@ bool XRFDetector::removeRegionOfInterest(QString name)
 void XRFDetector::sort()
 {
 	roiInfoList()->sort();
+	setROIList(*roiInfoList());
 
 	for (int i = 0; i < roiInfoList()->count(); i++)
 		roiList().at(i)->fromInfo(roiInfoList()->at(i));
@@ -330,6 +333,7 @@ void XRFDetector::clearRegionsOfInterest()
 		roiList().at(i)->setRegion("", -1, -1);
 
 	roiInfoList()->clear();
+	setROIList(*roiInfoList());
 }
 
 void XRFDetector::enableElement(int id)

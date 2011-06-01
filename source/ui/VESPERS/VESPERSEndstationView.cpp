@@ -15,6 +15,7 @@
 #include <QDir>
 #include <QLabel>
 #include <QMessageBox>
+#include <QProcess>
 
 VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	: QWidget(parent)
@@ -24,8 +25,9 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	microscopeControl_ = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->microscopeMotor());
 	fourElControl_ = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->fourElMotor());
 	singleElControl_ = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->singleElMotor());
-	focusControl_ = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->sampleStageNormal());
+	focusControl_ = VESPERSBeamline::vespers()->sampleStage()->norm();
 
+	// Laser power control.
 	laserPowerControl_ = qobject_cast<AMPVControl *>(VESPERSBeamline::vespers()->laserPower());
 
 	// The feedback PVs associated with the controls.
@@ -40,6 +42,9 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	ccdFile_ = VESPERSBeamline::vespers()->ccdFile();
 	ccdNumber_ = VESPERSBeamline::vespers()->ccdNumber();
 
+	// Pseudo-motor reset button.
+	resetPseudoMotors_ = VESPERSBeamline::vespers()->resetPseudoMotors();
+
 	// Get the current soft limits.
 	loadConfiguration();
 
@@ -47,11 +52,14 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	config_ = new VESPERSEndstationConfiguration;
 	config_->hide();
 	connect(config_, SIGNAL(configurationChanged()), this, SLOT(loadConfiguration()));
-	connect(config_, SIGNAL(configurationChanged()), this, SLOT(loadConfiguration()));
 
 	// Setting the flags to false as a precaution.
 	microscopeSafe_ = false;
 	ccdSafe_ = false;
+
+	// The button for the pseudo-motor reset.
+	QPushButton *resetPseudoMotorsButton = new QPushButton(QIcon(":/reset.png"), "Reset Pseudo-Motors");
+	connect(resetPseudoMotorsButton, SIGNAL(clicked()), this, SLOT(resetPseudoMotors()));
 
 	// Setup the buttons used in the picture.
 	ccdButton_ = new QToolButton;
@@ -66,9 +74,12 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	singleElButton_ = new QToolButton;
 	connect(singleElButton_, SIGNAL(clicked()), this, SLOT(singleElClicked()));
 	connect(singleElfbk_, SIGNAL(valueChanged(double)), this, SLOT(singleElUpdate(double)));
+	// Because the focus is a critical part of the sample stage (pseudo-motor or regular motor) it should be disabled if the entire sample stage is not connected.
 	focusButton_ = new QToolButton;
 	connect(focusButton_, SIGNAL(clicked()), this, SLOT(focusClicked()));
 	connect(focusfbk_, SIGNAL(valueChanged(double)), this, SLOT(focusUpdate(double)));
+	connect(VESPERSBeamline::vespers()->sampleStage(), SIGNAL(connected(bool)), focusButton_, SLOT(setEnabled(bool)));
+	connect(VESPERSBeamline::vespers()->sampleStage(), SIGNAL(movingChanged(bool)), focusButton_, SLOT(setDisabled(bool)));
 
 	// Setup the microscope light.
 	micLight_ = new QSlider(Qt::Vertical, this);
@@ -76,6 +87,9 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	micLight_->setMaximum(100);
 	micLight_->setTickInterval(10);
 	micLight_->setTickPosition(QSlider::TicksRight);
+	micLight_->setTracking(false);
+	connect(micLight_, SIGNAL(sliderPressed()), this, SLOT(micLightSliderPressed()));
+	connect(micLight_, SIGNAL(sliderReleased()), this, SLOT(micLightSliderReleased()));
 	connect(micLightPV_, SIGNAL(valueChanged()), this, SLOT(micLightUpdate()));
 	connect(micLight_, SIGNAL(valueChanged(int)), micLightPV_, SLOT(setValue(int)));
 
@@ -179,19 +193,36 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	connect(VESPERSBeamline::vespers()->filterSet(), SIGNAL(connected(bool)), this, SLOT(onFiltersChanged()));
 	connect(VESPERSBeamline::vespers()->filterSet(), SIGNAL(controlSetValuesChanged()), this, SLOT(onFiltersChanged()));
 
-	QHBoxLayout *filterLayout = new QHBoxLayout;
-	filterLayout->addWidget(filterComboBox_);
-	filterLayout->addStretch();
+	QPushButton *startMicroscopeButton = new QPushButton("Microscope Display");
+	connect(startMicroscopeButton, SIGNAL(clicked()), this, SLOT(startMicroscope()));
 
-	QGroupBox *filterGroupBox = new QGroupBox("Filters");
-	filterGroupBox->setLayout(filterLayout);
+	QHBoxLayout *extrasGroupBoxLayout = new QHBoxLayout;
+	extrasGroupBoxLayout->addWidget(new QLabel("Filters:"));
+	extrasGroupBoxLayout->addWidget(filterComboBox_);
+	extrasGroupBoxLayout->addStretch();
+	extrasGroupBoxLayout->addWidget(resetPseudoMotorsButton);
+
+	/// \todo this will be removed once I build my own XAS software.
+	QPushButton *idaButton = new QPushButton("Launch XAS Software");
+	connect(idaButton, SIGNAL(clicked()), this, SLOT(startXAS()));
+
+	QHBoxLayout *launchingLayout = new QHBoxLayout;
+	launchingLayout->addWidget(startMicroscopeButton);
+	launchingLayout->addWidget(idaButton);
+
+	QVBoxLayout *tempLayout = new QVBoxLayout;
+	tempLayout->addLayout(extrasGroupBoxLayout);
+	tempLayout->addLayout(launchingLayout);
+
+	QGroupBox *ExtrasGroupBox = new QGroupBox("Extras");
+	ExtrasGroupBox->setLayout(tempLayout);
 
 	// Setup the top frame.
 	AMTopFrame *topFrame = new AMTopFrame("Endstation Control Screen");
 
 	QVBoxLayout *extrasLayout = new QVBoxLayout;
 	extrasLayout->addStretch();
-	extrasLayout->addWidget(filterGroupBox);
+	extrasLayout->addWidget(ExtrasGroupBox);
 	extrasLayout->addWidget(windowGB);
 	extrasLayout->addWidget(ccdGB);
 	extrasLayout->addStretch();
@@ -625,8 +656,8 @@ VESPERSEndstationConfiguration::VESPERSEndstationConfiguration(QWidget *parent)
 
 bool VESPERSEndstationConfiguration::saveFile()
 {
-
-	QFile file(QDir::currentPath() + "endstation.config");
+	qDebug() << QDir::currentPath()+"endstation.config";
+	QFile file(QDir::currentPath() + "/endstation.config");
 
 	if (!file.open(QFile::WriteOnly | QFile::Text)){
 		QMessageBox::warning(this, tr("Endstation Configuration"),
