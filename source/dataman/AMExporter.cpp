@@ -10,6 +10,8 @@ AMExporter::AMExporter(QObject *parent) : QObject(parent) {
 	currentScan_ = 0;
 	currentDataSourceIndex_ = 0;
 
+	autoIndex_ = 0;
+
 	keywordParser_ = new AMTagReplacementParser();
 
 	file_ = new QFile(this);
@@ -92,6 +94,7 @@ void AMExporter::loadKeywordReplacementDictionary()
 	keywordDictionary_.insert("dataSetAxisValue", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krDataSourceAxisValue));
 	keywordDictionary_.insert("dataSetAxisUnits", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krDataSourceAxisUnits));
 
+	keywordDictionary_.insert("exportIndex", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krExporterAutoIncrement));
 }
 
 
@@ -460,6 +463,10 @@ QString AMExporter::krDataSourceAxisUnits(const QString& dataSourceName) {
 		return "[??]";
 
 	return ds->axisInfoAt(1).units;
+}
+
+QString AMExporter::krExporterAutoIncrement(const QString &arg){
+	return QString("%1").arg(autoIndex_);
 }
 
 

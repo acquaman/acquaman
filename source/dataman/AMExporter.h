@@ -40,7 +40,7 @@ For example: AMExporterGeneralAscii::exporterOptionClassName() would probably re
 	virtual bool isValidFor(const AMScan* scan, const AMExporterOption* option) const = 0;
 
 	/// Exports the given \c scan object, using the option set \c option.  The file name is given inside \c option, but should be placed within the folder \c destinationFolderPath.  Returns the name of the file that was written, or a null QString on error.
-	virtual QString exportScan(const AMScan* scan, const QString& destinationFolderPath, const AMExporterOption* option) = 0;
+	virtual QString exportScan(const AMScan* scan, const QString& destinationFolderPath, const AMExporterOption* option, int autoIndex = 0) = 0;
 
 	/// create an "exporter option" (an instance of an AMExporterOption subclass) that is a valid default for this type of exporter
 	virtual AMExporterOption* createDefaultOption() const = 0;
@@ -92,6 +92,9 @@ protected:
 
 	AMTagReplacementParser* keywordParser_;
 
+	/// Helper function: set the current export controller index (if the user wishes to auto-increment the files just by the order the export writes them)
+	void setCurrentAutoIndex(int autoIndex) { autoIndex_ = autoIndex; }
+	int autoIndex_;
 
 
 	///////////////////////////////
@@ -139,6 +142,8 @@ protected:
 	QString krDataSourceAxisValue(const QString& unused = QString());
 	/// can only be used on the current data source, and only on 2D sources. Referring to the second dimension here (Columns in our output table)
 	QString krDataSourceAxisUnits(const QString& unused = QString());
+
+	QString krExporterAutoIncrement(const QString& arg = QString());
 
 };
 

@@ -21,7 +21,7 @@ public:
 	// This version checks that all of the data sources in \c option marked as "required" are actually present in \c scan, and that \c option is an AMExporterOptionGeneralAscii
 	virtual bool isValidFor(const AMScan *scan, const AMExporterOption *option) const;
 
-	virtual QString exportScan(const AMScan *scan, const QString &destinationFolderPath, const AMExporterOption *option);
+	virtual QString exportScan(const AMScan *scan, const QString &destinationFolderPath, const AMExporterOption *option, int autoIndex = 0);
 
 	virtual AMExporterOption* createDefaultOption() const;
 
