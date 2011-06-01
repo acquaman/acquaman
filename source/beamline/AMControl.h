@@ -70,6 +70,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
   - double setpoint(): For Controls that can be moved, this is the most recently requested target (desired value)
   - double tolerance(): This "deadband" or "epsilon" represents how close a AMControl must get to it's target value for it to count as inPosition() (or for the move to have succeeded).  It represents the level of accuracy the scientist requires for this quantity; ie: the maximum acceptable error between measure() and setpoint().  The default value is CONTROL_TOLERANCE_DONT_CARE -- a very large number.  Use setTolerance() to change it.
   - bool inPosition(): indicates the AMControl is within tolerance() of it's requested target.
+  - bool withinTolerance(double target): indicates the AMControl is within tolerance() of a specified target
 
   <b>Monitoring Motion</b>
 
@@ -279,6 +280,9 @@ public:
 
 	/// this indicates whether a control is "in position" (ie: its value is within tolerance of the setpoint)
 	virtual bool inPosition() const { return fabs(value()-setpoint()) < tolerance(); }
+
+	/// this indicates whether a contorl is "within tolerance" of a given target (ie: the target specified is the same as the current value within the set tolerance)
+	virtual bool withinTolerance(double target) const { return fabs(value()-target) < tolerance(); }
 
 	/// \name Capabilities
 	/// These indicate the current cabilities and status of this control. Unconnected controls can't do anything.
