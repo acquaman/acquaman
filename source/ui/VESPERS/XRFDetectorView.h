@@ -101,6 +101,9 @@ protected slots:
 	/// Changes the amount of waterfall separation between the plots.
 	void onWaterfallSeparationChanged(double val);
 
+	/// Hack to save the spectra.  For four element it will print out the four raw data and the corrected sum.
+	void saveSpectra();
+
 protected:
 
 	/*! Sets up the view based with the given detector.
@@ -112,9 +115,6 @@ protected:
 
 	/// Gets the maximum height from the first data source.  Used for scaling the height of the ROI markers.
 	double getMaximumHeight(MPlotItem *data);
-
-	/// Returns the real name of the roi based on the jumbled name from the PV and the low/high values.
-	QString getName(AMROI *roi);
 
 	/// Get a color for the color of a line on the plot.
 	QColor getColor(int index);

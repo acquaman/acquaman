@@ -16,6 +16,7 @@
 #include <QMap>
 #include <QComboBox>
 #include <QPushButton>
+#include <QProcess>
 
 /// This class is used to configure the endstation control.  As the endstation expands, the things that will need to be modified will also change.  Therefore, this class should expand with any expansion of the endstation class.
 /// This will configure the buttons, as other things are added to the endstation it will do more.
@@ -92,6 +93,10 @@ private slots:
 
 	/// Used to initialize the Microscope Light slider.
 	void micLightUpdate() { micLight_->setValue(micLightPV_->getInt()); }
+	/// Used to disconnect the microscope light PV from the slider to prevent race conditions.
+	void micLightSliderPressed() { disconnect(micLightPV_, SIGNAL(valueChanged()), this, SLOT(micLightUpdate())); }
+	/// Used to reconnect the microscope light PV from the slider to get updates.
+	void micLightSliderReleased() { connect(micLightPV_, SIGNAL(valueChanged()), this, SLOT(micLightUpdate())); }
 	/// Used when the light bulb button is toggled.
 	void lightBulbToggled(bool pressed);
 	/// Used when the power for the laser is toggled.
@@ -183,6 +188,12 @@ private slots:
 	void onFiltersConnected(bool isConnected);
 	/// Sets the filter combo box based on original values at start up and if they are changed outside of the program.
 	void onFiltersChanged();
+	/// Starts up a detached process for the microscope screen.  Starts a detached process because the view for the microscope does not depend on the user interface to be active.
+	void startMicroscope() { QProcess::startDetached("/home/vespers/bin/runCameraDisplay"); }
+	/// Starts the IDA software.  This is temporary until the XAS software is replaced.
+	void startXAS() { QProcess::startDetached("/home/vespers/bin/runIDA"); }
+	/// Resets the pseudo-motor positions.
+	void resetPseudoMotors() { resetPseudoMotors_->setValue(1); }
 
 private:
 	/// Helper function to properly toggle the filter PVs.  Takes an AMControl *, casts it to an AMPVControl * then toggles them.
@@ -255,6 +266,9 @@ private:
 	AMProcessVariable *ccdPath_;
 	AMProcessVariable *ccdFile_;
 	AMProcessVariable *ccdNumber_;
+
+	// The pseudo-motor reset PV.
+	AMProcessVariable *resetPseudoMotors_;
 
 	// Filter controls.
 	AMPVControl *filter250umA_;

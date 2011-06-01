@@ -19,6 +19,11 @@ bool XRFPeriodicTable::addToList(AMElement *el, QPair<QString, QString> line)
 
 		temp = checkedList_.at(i);
 
+		// If the region exists already in the list, then don't add it again.
+		if (temp.first == el->atomicNumber() && temp.second.compare(line.first) == 0)
+			return false;
+
+		// If the region doesn't exist yet, then add it to the list.
 		if (temp.first != el->atomicNumber() || temp.second.compare(line.first) != 0){
 
 			checkedList_ << qMakePair(el->atomicNumber(), line.first);

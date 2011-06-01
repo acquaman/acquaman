@@ -69,8 +69,8 @@ void AMShutterButton::changeState()
 void AMShutterButton::statusUpdate()
 {
 	setEnabled(statePV_->canRead());
-	if (openPV_ && closePV_)
-		setFlat(!openPV_->canWrite() && !closePV_->canWrite());
+	if (isFlat() && openPV_ && closePV_)
+		setFlat(!openPV_->writeReady() && !closePV_->writeReady());
 
 	switch(statePV_->getInt()){
 	case 1:
