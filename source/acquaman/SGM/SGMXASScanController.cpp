@@ -52,7 +52,7 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 		sampleName = "Unknown Sample";
 	else
 		sampleName = AMSample(pScan_()->sampleId(), AMUser::user()->database()).name();
-	pScan_()->setName(QString("%1 on %2").arg(scanName).arg(sampleName));
+	pScan_()->setName(QString("%1 - %2").arg(sampleName).arg(scanName));
 
 	// Create space in raw data store, and create raw data channels, for each detector.
 

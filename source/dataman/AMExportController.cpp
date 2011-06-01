@@ -220,7 +220,7 @@ void AMExportController::continueScanExport()
 		}
 
 		// 4. Export
-		QString writtenFile = exporter_->exportScan(scan, destinationFolderPath_, option_);
+		QString writtenFile = exporter_->exportScan(scan, destinationFolderPath_, option_, exportScanIndex_);
 		if(writtenFile.isNull()) {
 			QString err("Export failed for scan '" % scan->fullName() % "'.");
 			emit statusChanged(status_ = err);
@@ -239,6 +239,7 @@ void AMExportController::continueScanExport()
 	}
 
 	// 5. increment exportScanIndex_ and re-schedule next one
+	qDebug() << "Just finished " << exportScanIndex_;
 	exportScanIndex_++;
 	QTimer::singleShot(5, this, SLOT(continueScanExport()));
 

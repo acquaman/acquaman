@@ -71,7 +71,7 @@ public:
 
 	/// The auto-generated scan name. Can be re-implemented to customize for each scan type.
 	virtual QString autoScanName() const{
-		return QString("XAS Scan from %1 to %2").arg(regionStart(0)).arg(regionEnd(regionCount()-1));
+		return QString("XAS").arg(regionStart(0)).arg(regionEnd(regionCount()-1));
 	}
 
 public slots:
