@@ -91,6 +91,7 @@ void AMExporter::loadKeywordReplacementDictionary()
 	keywordDictionary_.insert("dataSetDescription", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krDataSourceDescription));
 	keywordDictionary_.insert("dataSetUnits", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krDataSourceUnits));
 	keywordDictionary_.insert("dataSetSize", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krDataSourceSize));
+	keywordDictionary_.insert("dataSetInfoDescription", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krDataSourceInfoDescription));
 	keywordDictionary_.insert("dataSetAxisValue", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krDataSourceAxisValue));
 	keywordDictionary_.insert("dataSetAxisUnits", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krDataSourceAxisUnits));
 
@@ -425,6 +426,34 @@ QString AMExporter::krDataSourceSize(const QString& dataSourceName) {
 
 	return currentScan_->dataSourceAt(dataSourceIndex)->size().toString();
 
+}
+
+QString AMExporter::krDataSourceInfoDescription(const QString &dataSourceName) {
+	if(!currentScan_)
+		return "[??]";
+
+	int dataSourceIndex;
+	if(dataSourceName.isEmpty()) {	// use current index
+		dataSourceIndex = currentDataSourceIndex_;
+	}
+	else
+		dataSourceIndex = currentScan_->indexOfDataSource(dataSourceName);
+
+	if(dataSourceIndex < 0 || dataSourceIndex >= currentScan_->dataSourceCount())
+		return "[??]";
+
+	AMDataSource* ds = currentScan_->dataSourceAt(dataSourceIndex);
+	return ds->infoDescription();
+	/*
+	if(ds->infoDescription().isEmpty()){
+		qDebug() << "No info description, using name";
+		return ds->name();
+	}
+	else{
+		qDebug() << "Found info description";
+		return ds->infoDescription();
+	}
+	*/
 }
 
 QString AMExporter::krDataSourceAxisValue(const QString& dataSourceName) {
