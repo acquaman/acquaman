@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dataman/AMSamplePlate.h"
 #include "dataman/AMUser.h"
+#include "beamline/CLS/CLSVMEMotor.h"
 
 void SGMBeamline::usingSGMBeamline(){
 	amNames2pvNames_.set("energy", "BL1611-ID-1:Energy");
