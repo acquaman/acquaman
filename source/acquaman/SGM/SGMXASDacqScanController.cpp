@@ -78,7 +78,7 @@ bool SGMXASDacqScanController::startImplementation(){
 		}
 	}
 
-	if( pCfg_()->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->pgtDetector()->detectorName())
+	if( SGMBeamline::sgm()->pgtDetector() && SGMBeamline::sgm()->oos65000Detector() && pCfg_()->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->pgtDetector()->detectorName())
 		&& pCfg_()->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->oos65000Detector()->detectorName())){
 		qDebug() << "Using SDD and OOS";
 		if(SGMBeamline::sgm()->usingPicoammeterSource())
@@ -87,7 +87,7 @@ bool SGMXASDacqScanController::startImplementation(){
 			loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/pgtxeolScaler.cfg"));
 		usingSpectraDotDatFile_ = true;
 	}
-	else if(pCfg_()->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->pgtDetector()->detectorName())){
+	else if(SGMBeamline::sgm()->pgtDetector() && pCfg_()->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->pgtDetector()->detectorName())){
 		qDebug() << "Using SDD";
 		if(SGMBeamline::sgm()->usingPicoammeterSource())
 			loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/pgtAmmeter.cfg"));
@@ -95,7 +95,7 @@ bool SGMXASDacqScanController::startImplementation(){
 			loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/pgtScaler.cfg"));
 		usingSpectraDotDatFile_ = true;
 	}
-	else if(pCfg_()->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->oos65000Detector()->detectorName())){
+	else if(SGMBeamline::sgm()->oos65000Detector() && pCfg_()->allDetectorConfigurations().isActiveNamed(SGMBeamline::sgm()->oos65000Detector()->detectorName())){
 		qDebug() << "Using OOS";
 		if(SGMBeamline::sgm()->usingPicoammeterSource())
 			loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/xeolAmmeter.cfg"));

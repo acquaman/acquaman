@@ -59,7 +59,7 @@ void SGMBeamline::usingSGMBeamline(){
 	amNames2pvNames_.set("pgtHV", "MCA1611-01:Bias:Volt");
 	amNames2pvNames_.set("pgtIntegrationTime", "MCA1611-01:Preset:Live");
 	amNames2pvNames_.set("pgtIntegrationMode", "MCA1611-01:Preset:Live");
-	amNames2pvNames_.set("oos65000", "SA0000-03:Spectra");
+	amNames2pvNames_.set("oos65000", "SA0000-03:DarkCorrectedSpectra");
 	amNames2pvNames_.set("oos65000IntegrationTime", "SA0000-03:IntegrationTime:Value");
 	amNames2pvNames_.set("I0Pico", "A1611-4-14:A:fbk");
 	amNames2pvNames_.set("I0Scaler", "BL1611-ID-1:mcs01:fbk");
