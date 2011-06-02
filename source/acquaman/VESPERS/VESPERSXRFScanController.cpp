@@ -20,13 +20,8 @@ VESPERSXRFScanController::VESPERSXRFScanController(VESPERSXRFScanConfiguration *
 	generalScan_ = scan_;
 	scan_->setScanConfiguration(scanConfig);
 	scan_->setName(QString("XRF Scan - %1 el").arg(detector_->elements()));
-	QString fullPath = AMUserSettings::defaultFilePath(QDateTime::currentDateTime());
-	QString path = fullPath.section('/', 0, -2);
-	QString file = fullPath.section('/', -1);
-	file.append(".dat");
-	QDir dir;
-	dir.mkpath(path);
-	scan_->setFilePath(fullPath + ".dat");
+
+	scan_->setFilePath(AMUserSettings::defaultRelativePathForScan(QDateTime::currentDateTime()) + ".dat");
 	scan_->setFileFormat("vespersXRF");
 	scan_->setRunId(AMUser::user()->currentRunId());
 
@@ -87,6 +82,6 @@ void VESPERSXRFScanController::onDetectorAcquisitionFinished()
 void VESPERSXRFScanController::saveData()
 {
 	VESPERSXRFDataLoader exporter(scan_);
-	if (!exporter.saveToFile(scan_->filePath()))
+	if (!exporter.saveToFile(AMUserSettings::userDataFolder + "/" + scan_->filePath()))
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, 0, QString("Could not save XRF data.")));
 }

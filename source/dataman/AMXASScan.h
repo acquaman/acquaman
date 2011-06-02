@@ -40,7 +40,6 @@ public:
 	virtual bool loadDataImplementation();
 
 signals:
-	// inherits dataChanged(AMScan*)
 
 public slots:
 

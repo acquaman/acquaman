@@ -1,6 +1,8 @@
 #include "AMXRFScan.h"
 #include "dataman/VESPERS/VESPERSXRFDataLoader.h"
 #include "util/AMErrorMonitor.h"
+#include <QFileInfo>
+#include "util/AMSettings.h"
 
 AMXRFScan::AMXRFScan(QObject *parent)
 	: AMScan(parent)
@@ -12,9 +14,14 @@ bool AMXRFScan::loadDataImplementation()
 {
 	VESPERSXRFDataLoader loader(this);
 
+	QFileInfo sourceFile(filePath());
+	if(sourceFile.isRelative())
+		sourceFile.setFile(AMUserSettings::userDataFolder + "/" + filePath());
+
+
 	if (fileFormat() == loader.formatTag()){
 
-		if (loader.loadFromFile(filePath(), false, false, false))
+		if (loader.loadFromFile(sourceFile.filePath(), false, false, false))
 			return true;
 
 		else {
