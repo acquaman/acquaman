@@ -70,6 +70,8 @@ protected slots:
 
 	void onStripToolTimerTimeout();
 
+	void onBeamlineWarnings(const QString &newWarnings);
+
 protected:
 	QGroupBox *mainBox_;
 
@@ -97,6 +99,7 @@ protected:
 	QButtonGroup *endstationsAvailable_;
 	QRadioButton *scientaButton_;
 	QRadioButton *ssaButton_;
+	QHBoxLayout *warningAndPlotHL_;
 	QLabel *beamlineWarningsLabel_;
 
 	/// UI components:
