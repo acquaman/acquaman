@@ -29,9 +29,9 @@ macx {
 	VLC_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/vlc-install/include
 	VLC_PLUGIN_PATH = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/vlc-install/lib/vlc/plugins
 
-	# QwtPlot3d dependencies
-	QWTPLOT3D_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/qwtplot3d/lib
-	QWTPLOT3D_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/qwtplot3d/include
+	# QwtPlot3d dependencies (Disabled for now...)
+	# QWTPLOT3D_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/qwtplot3d/lib
+	# QWTPLOT3D_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/qwtplot3d/include
 
 	# LibXML Dependencies (required by dacq library)
 	XML_LIB = -lxml2
@@ -110,7 +110,7 @@ LIBS += $$GSL_LIB \
 	$$GSL_CBLAS_LIB \
 	$$VLC_LIB \
 	$$XML_LIB \
-	-L$$QWTPLOT3D_LIB_DIR -lqwtplot3d \
+#	-L$$QWTPLOT3D_LIB_DIR -lqwtplot3d \
 	-L$$EPICS_LIB_DIR -lca -lCom
 
 # VLC plugin path: define as pre-processor symbol
@@ -121,22 +121,28 @@ macx {
 
 	contains(QT_MINOR_VERSION, 7):contains(QT_PATCH_VERSION, 2) {
 	# 4.7.2: Use same as linux-g++
-		QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR,-rpath,$$QWTPLOT3D_LIB_DIR"
-		QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR,-rpath,$$QWTPLOT3D_LIB_DIR"
+#		QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR,-rpath,$$QWTPLOT3D_LIB_DIR"
+#		QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR,-rpath,$$QWTPLOT3D_LIB_DIR"
+		QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
+		QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
 	} else {
 		QMAKE_LFLAGS_RPATH += "$$EPICS_LIB_DIR"
-		QMAKE_LFLAGS_RPATH += "$$QWTPLOT3D_LIB_DIR"
+		#QMAKE_LFLAGS_RPATH += "$$QWTPLOT3D_LIB_DIR"
 	}
 }
 
 
 linux-g++ {
-		QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR,-rpath,$$QwtPlot3d_LIB_DIR"
-		QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR,-rpath,$$QwtPlot3d_LIB_DIR"
+		#QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR,-rpath,$$QwtPlot3d_LIB_DIR"
+		#QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR,-rpath,$$QwtPlot3d_LIB_DIR"
+		QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
+		QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
 }
 linux-g++-64 {
-		QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR,-rpath,$$QwtPlot3d_LIB_DIR"
-		QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR,-rpath,$$QwtPlot3d_LIB_DIR"
+		#QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR,-rpath,$$QwtPlot3d_LIB_DIR"
+		#QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR,-rpath,$$QwtPlot3d_LIB_DIR"
+		QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
+		QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
 }
 
 
@@ -345,8 +351,8 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMFolderPathLineEdit.h \
 	source/util/AMTagReplacementParser.h \
 	source/ui/AMExporterOptionGeneralAsciiView.h \
-	source/ui/AMTopFrame.h \
-	source/ui/AM3dDataSourceView.h
+	source/ui/AMTopFrame.h
+#	source/ui/AM3dDataSourceView.h
 FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
 	source/ui/AMDataViewSectionHeader.ui \
@@ -555,8 +561,8 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/util/AMTagReplacementParser.cpp \
 	source/ui/AMExporterOptionGeneralAsciiView.cpp \
 	source/ui/AMTopFrame.cpp \
-	source/dataman/AMExporter.cpp \
-	source/ui/AM3dDataSourceView.cpp
+	source/dataman/AMExporter.cpp
+#	source/ui/AM3dDataSourceView.cpp
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc \
 	source/util/ElementData.qrc \

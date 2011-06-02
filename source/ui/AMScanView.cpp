@@ -793,7 +793,7 @@ MPlotItem* AMScanViewInternal::createPlotItemForDataSource(const AMDataSource* d
 	return rv;
 }
 
-#include "ui/AM3dDataSourceView.h"
+// testing: #include "ui/AM3dDataSourceView.h"
 
 // Helper function to review a scan when a data source is added or the exclusive data source changes.
 void AMScanViewExclusiveView::reviewScan(int scanIndex) {
