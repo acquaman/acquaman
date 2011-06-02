@@ -7,6 +7,7 @@ XRFPeriodicTable::XRFPeriodicTable(double minEnergy, double maxEnergy, QObject *
 {
 	minimumEnergy_ = minEnergy;
 	maximumEnergy_ = maxEnergy;
+	current_ = 0;
 
 	XRFElement *temp;
 
@@ -14,8 +15,6 @@ XRFPeriodicTable::XRFPeriodicTable(double minEnergy, double maxEnergy, QObject *
 
 		temp = new XRFElement(AMPeriodicTable::table()->elementByAtomicNumber(i+1), minimumEnergy_, maximumEnergy_, this);
 		xrfTable_ << temp;
-		connect(temp, SIGNAL(lineAdded(XRFElement*,QString)), this, SLOT(onLineAdded(XRFElement*,QString)));
-		connect(temp, SIGNAL(lineRemoved(XRFElement*,QString)), this, SLOT(onLineRemoved(XRFElement*,QString)));
 		connect(this, SIGNAL(minimumEnergyChanged(double)), temp, SLOT(setMinimumEnergy(double)));
 		connect(this, SIGNAL(maximumEnergyChanged(double)), temp, SLOT(setMaximumEnergy(double)));
 	}
@@ -27,46 +26,46 @@ XRFPeriodicTable::~XRFPeriodicTable()
 		delete xrfTable_.at(i);
 }
 
-void XRFPeriodicTable::addToList(QString symbol, QString line)
+void XRFPeriodicTable::addLineToList(QString line)
 {
-	XRFElement *el = elementBySymbol(symbol);
+	// Make sure that current is valid first.  Then, if the line was successfully added, emit the proper signal.  If the current element is not already in the selectedElements_ list, then add it.
+	if (current_){
 
-	if (el)
-		el->addLine(line);
-}
+		bool alreadySelected = current_->hasLinesSelected();
 
-void XRFPeriodicTable::removeFromList(QString symbol, QString line)
-{
-	XRFElement *el = elementBySymbol(symbol);
+		if (current_->addLine(line)){
 
-	if (el)
-		el->removeLine(line);
-}
+			if (!alreadySelected)
+				selectedElements_ << current_;
 
-void XRFPeriodicTable::onLineAdded(XRFElement *el, QString line)
-{
-	Q_UNUSED(line);
-
-	XRFElement *temp;
-
-	for (int i = 0; i < selectedElements_.size(); i++){
-
-		temp = selectedElements_.at(i);
-		if (temp->symbol().compare(el->symbol()) != 0){
-
-			selectedElements_ << el;
-			emit selectedElementsChanged();
+			emit addedRegionOfInterest(current_, line);
 		}
 	}
 }
 
-void XRFPeriodicTable::onLineRemoved(XRFElement *el, QString line)
+void XRFPeriodicTable::removeLineFromList(QString line)
 {
-	Q_UNUSED(line);
+	if (current_){
 
-	if (!el->hasLinesSelected()){
+		if (current_->removeLine(line)){
 
-		selectedElements_.removeOne(el);
-		emit selectedElementsChanged();
+			if (!current_->hasLinesSelected())
+				selectedElements_.removeOne(current);
+
+			emit removedRegionOfInterest(current_, line);
+		}
+	}
+}
+
+void XRFPeriodicTable::removeAll()
+{
+	XRFElement *temp;
+
+	while (!selectedElements_.isEmpty()){
+
+		temp = selectedElements_.first();
+
+		while (temp->hasLinesSelected())
+			temp->removeLine(temp->linesSelected().first());
 	}
 }

@@ -28,14 +28,13 @@ XRFPeriodicTableView::XRFPeriodicTableView(XRFPeriodicTable *xrfTable, QWidget *
 
 	QToolButton *trashButton = new QToolButton;
 	trashButton->setIcon(QIcon(":/trashcan.png"));
-	connect(trashButton, SIGNAL(clicked()), xrfTable_, SLOT(clearAll()));
+	connect(trashButton, SIGNAL(clicked()), xrfTable_, SLOT(removeAll()));
 
 	tableView_ = new AMPeriodicTableView;
 	tableView_->setMaximumWidth(600);
 
 	disableElements();
 
-	connect(tableView_, SIGNAL(elementSelected(AMElement*)), this, SIGNAL(elementSelected(AMElement*)));
 	connect(tableView_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementSelected(AMElement*)));
 
 	QVBoxLayout *legendLayout = new QVBoxLayout;
@@ -55,8 +54,8 @@ XRFPeriodicTableView::XRFPeriodicTableView(XRFPeriodicTable *xrfTable, QWidget *
 
 void XRFPeriodicTableView::disableElements()
 {
-	QList<AMElement *> table(xrfTable_->elements());
-	AMElement *temp;
+	QList<XRFElement *> table(xrfTable_->elements());
+	XRFElement *temp;
 	double min = xrfTable_->minimumEnergy();
 	double max = xrfTable_->maximumEnergy();
 
@@ -74,28 +73,24 @@ void XRFPeriodicTableView::disableElements()
 	}
 }
 
-void XRFPeriodicTableView::regionOfInterestAdded(AMElement *el, QString line)
+void XRFPeriodicTableView::changeColor(XRFElement *el)
 {
-
 	QToolButton *clicked = tableView_->button(el);
 	QPalette palette(clicked->palette());
 
-	if (line.contains("K"))
-		palette.setColor(QPalette::Window, Qt::green);
-	else if (line.contains("L"))
-		palette.setColor(QPalette::Window, Qt::yellow);
-	else if (line.contains("M"))
-		palette.setColor(QPalette::Window, Qt::cyan);
+	if (el->hasLinesSelected()){
 
-	clicked->setPalette(palette);
-}
+		QStringList lines(el->linesSelected());
 
-void XRFPeriodicTableView::regionOfInterestRemoved(AMElement *el, QString line)
-{
-	Q_UNUSED(line);
+		if (lines.contains(QString::fromUtf8("Kα1")) || lines.contains(QString::fromUtf8("Kβ1")))
+			palette.setColor(QPalette::Window, Qt::green);
+		else if (line.contains(QString::fromUtf8("Lα1")) || lines.contains(QString::fromUtf8("Lβ1")) || lines.contains(QString::fromUtf8("Lγ1")))
+			palette.setColor(QPalette::Window, Qt::yellow);
+		else if (line.contains(QString::fromUtf8("Mα1")))
+			palette.setColor(QPalette::Window, Qt::cyan);
+	}
+	else
+		palette.setColor(QPalette::Window, this->palette().color(QPalette::Window));
 
-	QToolButton *clicked = tableView_->button(el);
-	QPalette palette(clicked->palette());
-	palette.setColor(QPalette::Window, this->palette().color(QPalette::Window));
 	clicked->setPalette(palette);
 }

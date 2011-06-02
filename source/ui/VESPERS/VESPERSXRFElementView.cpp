@@ -4,70 +4,30 @@
 #include <QStringList>
 #include <QToolButton>
 
-VESPERSXRFElementView::VESPERSXRFElementView(double minEnergy, double maxEnergy, QWidget *parent)
+VESPERSXRFElementView::VESPERSXRFElementView(XRFElement *el, QWidget *parent)
 	: QWidget(parent)
 {
-	minimumEnergy_ = minEnergy;
-	maximumEnergy_ = maxEnergy;
-
 	element_ = 0;
-	name_ = new QLabel();
+	minimumEnergy_ = 0;
+	maximumEnergy_ = 1e6;
+
+	name_ = new QLabel;
 	name_->setFont(QFont("Times New Roman", 16));
-	number_ = new QLabel();
-	symbol_ = new QLabel();
+	number_ = new QLabel;
+	symbol_ = new QLabel;
 	symbol_->setFont(QFont("Times New Roman", 45, 10));
 
 	LineView *temp;
 
 	for (int i = 0; i < 6; i++){
 
-		temp = new LineView(qMakePair(QString(), QString()));
-		connect(temp, SIGNAL(lineChecked(LineView *)), this, SLOT(emitLines(LineView *)));
+		temp = new LineView;
+		connect(temp, SIGNAL(lineCheckedChanged(bool,QString)), this, SLOT(onLineCheckedChanged(bool,QString)));
 		lines_ << temp;
 	}
 
-	QHBoxLayout *titleLayout = new QHBoxLayout;
-	titleLayout->addWidget(name_);
-	titleLayout->addWidget(symbol_);
-
-	QVBoxLayout *linesLayout = new QVBoxLayout;
-	linesLayout->setSpacing(0);
-	for (int i = 0; i < lines_.size(); i++)
-		linesLayout->addWidget(lines_.at(i));
-
-	QVBoxLayout *viewLayout = new QVBoxLayout;
-	viewLayout->addLayout(titleLayout);
-	viewLayout->addLayout(linesLayout);
-	viewLayout->addStretch();
-
-	setMaximumSize(300, 300);
-
-	setLayout(viewLayout);
-}
-
-VESPERSXRFElementView::VESPERSXRFElementView(AMElement *el, double minEnergy, double maxEnergy, QWidget *parent)
-	: QWidget(parent)
-{
-	minimumEnergy_ = minEnergy;
-	maximumEnergy_ = maxEnergy;
-
-	element_ = el;
-	name_ = new QLabel(el->name());
-	name_->setFont(QFont("Times New Roman", 16));
-	number_ = new QLabel(QString::number(el->atomicNumber()));
-	symbol_ = new QLabel(el->symbol());
-	symbol_->setFont(QFont("Times New Roman", 45, 10));
-
-	LineView *temp;
-
-	for (int i = 0; i < 6; i++){
-
-		temp = new LineView(qMakePair(QString(), QString()));
-		connect(temp, SIGNAL(lineChecked(LineView *)), this, SLOT(emitLines(LineView *)));
-		lines_ << temp;
-	}
-
-	fillEmissionLines(el);
+	if (el)
+		setElement(el);
 
 	QHBoxLayout *titleLayout = new QHBoxLayout;
 	titleLayout->addWidget(name_);
@@ -88,31 +48,41 @@ VESPERSXRFElementView::VESPERSXRFElementView(AMElement *el, double minEnergy, do
 	setLayout(viewLayout);
 }
 
-void VESPERSXRFElementView::setElement(AMElement *el, QList<QPair<int, QString> > checked)
+void VESPERSXRFElementView::setElement(XRFElement *el)
 {
 	element_ = el;
 	name_->setText(el->name());
 	number_->setText(QString::number(el->atomicNumber()));
 	symbol_->setText(el->symbol());
-	checked_ = checked;
-	fillEmissionLines(el);
+	fillEmissionLines();
 }
 
 
-void VESPERSXRFElementView::fillEmissionLines(AMElement *el)
+void VESPERSXRFElementView::fillEmissionLines()
 {
-	QList<QPair<QString, QString> > list(el->emissionLines());
+	QList<QPair<QString, QString> > list(element_->emissionLines());
 
 	int lineIndex = 0;
 
-	for (int i = 0; i < list.size(); i++){
+	if (element_->hasLinesSelected()){
 
-		if (list.at(i).first.contains("1") && list.at(i).second.toDouble() >= minimumEnergy_ && list.at(i).second.toDouble() < maximumEnergy_){
+		for (int i = 0; i < list.size(); i++){
 
-			if (checked_.contains(qMakePair(el->atomicNumber(), list.at(i).first)))
-				lines_.at(lineIndex++)->setLine(list.at(i), true);
-			else
-				lines_.at(lineIndex++)->setLine(list.at(i), false);
+			if (list.at(i).first.contains("1") && energyWithinTolerance(list.at(i).second.toDouble())){
+
+				if (element_->linesSelected().contains(list.at(i).first))
+					lines_.at(lineIndex++)->setLine(qMakePair(list.at(i)), true);
+				else
+					lines_.at(lineIndex++)->setLine(qMakePair(list.at(i)), true);
+			}
+		}
+	}
+	else{
+
+		for (int i = 0; i < list.size(); i++){
+
+			if (list.at(i).first.contains("1") && energyWithinTolerance(list.at(i).second.toDouble()))
+				lines_.at(lineIndex++)->setLine(qMakePair(list.at(i)), false);
 		}
 	}
 
@@ -120,10 +90,10 @@ void VESPERSXRFElementView::fillEmissionLines(AMElement *el)
 		lines_.at(lineIndex)->setLine(qMakePair(QString(), QString()));
 }
 
-void VESPERSXRFElementView::emitLines(LineView *line)
+void VESPERSXRFElementView::onLineCheckedChanged(bool checked, QString lineName)
 {
-	if (line->checked())
-		emit addROI(element_, line->line());
+	if (checked)
+		emit addLine(lineName);
 	else
-		emit removeROI(element_, line->line());
+		emit removeLine(lineName);
 }

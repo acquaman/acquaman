@@ -1,17 +1,23 @@
 #include "VESPERSXRFScanConfiguration.h"
 #include "acquaman/VESPERS/VESPERSXRFScanController.h"
+#include "util/VESPERS/XRFPeriodicTable.h"
+#include "util/AMPeriodicTable.h"
 
-VESPERSXRFScanConfiguration::VESPERSXRFScanConfiguration(VESPERSBeamline::XRFDetectorChoice choice, XRFDetectorInfo info, QObject *parent)
+VESPERSXRFScanConfiguration::VESPERSXRFScanConfiguration(XRFDetector detector, QObject *parent)
 	: AMScanConfiguration(parent)
 {
-	xrfDetectorInfo_ = info;
-	setDetectorChoice(choice);
+	detector_ = detector;
+	xrfDetectorInfo_ = detector_->toXRFInfo();
+
+	XRFPeriodicTable *xrfTable = new XRFPeriodicTable(AMPeriodicTable::table()->elementBySymbol("K")->Kalpha().second.toDouble(), detector_->maximumEnergy(), this);
+
+	connect(xrfTable, SIGNAL(addedRegionOfInterest(XRFElement*,QString)), detector_, SLOT(addRegionOfInterest(XRFElement*,QString)));
+	connect(xrfTable, SIGNAL(removedRegionOfInterest(XRFElement*,QString)), detector_, SLOT(removeRegionOfInterest(XRFElement*,QString)));
 }
 
 VESPERSXRFScanConfiguration::VESPERSXRFScanConfiguration(QObject *parent)
 	: AMScanConfiguration(parent)
 {
-	setDetectorChoice(VESPERSBeamline::SingleElement);
 }
 
 AMScanConfiguration *VESPERSXRFScanConfiguration::createCopy() const
@@ -24,18 +30,10 @@ AMScanController *VESPERSXRFScanConfiguration::createController()
 	return new VESPERSXRFScanController(this);
 }
 
-void VESPERSXRFScanConfiguration::setDetectorChoice(VESPERSBeamline::XRFDetectorChoice choice)
-{
-	choice_ = choice;
-	setModified(true);
-}
-
 QString VESPERSXRFScanConfiguration::detailedDescription() const
 {
-	if (choice_ == VESPERSBeamline::SingleElement)
-		return QString("XRF Free Run Scan\nDetector: 1-el Vortex\nReal time: %1 s").arg(xrfDetectorInfo_.integrationTime());
-	else if (choice_ == VESPERSBeamline::FourElement)
-		return QString("XRF Free Run Scan\nDetector: 4-el Vortex\nReal time: %1 s").arg(xrfDetectorInfo_.integrationTime());
+	if (!xrfDetectorInfo_.name().isEmpty())
+		return QString("XRF Free Run Scan\nDetector: %1\nReal time: %2 s").arg(xrfDetectorInfo_.name()).arg(xrfDetectorInfo_.integrationTime());
 
 	return QString();
 }

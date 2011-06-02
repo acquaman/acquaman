@@ -282,27 +282,31 @@ void XRFDetector::allRoisHaveValues()
 			connect(roiList_.at(i), SIGNAL(roiUpdate(AMROI*)), this, SIGNAL(roiUpdate(AMROI*)));
 }
 
-bool XRFDetector::addRegionOfInterest(AMROIInfo roi)
+bool XRFDetector::addRegionOfInterest(XRFElement *el, QString line)
 {
 	// No more ROIs.
 	if (roiInfoList()->count() == roiList().size())
 		return false;
 
+	AMROIInfo roi(el->symbol()+" "+GeneralUtilities::removeGreek(line), el->lineEnergy(line), 0.04, scale());
+
 	// Appending to the list means that the old size of the Info list is where the new values should be set in the ROI list.
 	roiList().at(roiInfoList()->count())->fromInfo(roi);
 	roiInfoList()->append(roi);
 	setROIList(*roiInfoList());
+	emit addedRegionOfInterest(roi);
 
 	return true;
 }
 
-bool XRFDetector::removeRegionOfInterest(QString name)
+bool XRFDetector::removeRegionOfInterest(XRFElement *el, QString line)
 {
-	int indexOfRemoved = roiInfoList()->indexOf(name);
+	int indexOfRemoved = roiInfoList()->indexOf(el->symbol()+" "+GeneralUtilities::removeGreek(line));
 
 	if (indexOfRemoved == -1)
 		return false;
 
+	// Slides all ROIs, after the removed ROI, down one place.
 	for (int i = indexOfRemoved; i < roiInfoList()->count(); i++){
 
 		if (i+1 == roiInfoList()->count()){
@@ -312,6 +316,7 @@ bool XRFDetector::removeRegionOfInterest(QString name)
 			roiList().at(i)->fromInfo(roiInfoList()->at(i+1));
 	}
 
+	emit removedRegionOfInterest(roiInfoList()->at(indexOfRemoved));
 	roiInfoList()->remove(indexOfRemoved);
 	setROIList(*roiInfoList());
 

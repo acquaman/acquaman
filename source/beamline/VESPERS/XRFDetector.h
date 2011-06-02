@@ -5,6 +5,8 @@
 #include "beamline/AMDetector.h"
 #include "beamline/AMControlSet.h"
 #include "beamline/AMROI.h"
+#include "util/VESPERS/XRFElement.h"
+#include "util/VESPERS/GeneralUtilities.h"
 
 #include "dataman/AMDataSource.h"
 #include "dataman/AMAxisInfo.h"
@@ -189,11 +191,6 @@ public:
 	/// Sets the AMROI list.  This should be called only ONCE.
 	void setRoiList(QList<AMROI *> list);
 
-	/// Adds a region of interest.  The new ROI is appended to the end of the list.  Returns whether the addition was successful or not; it will only fail if there are no longer any ROIs to place values in.
-	bool addRegionOfInterest(AMROIInfo roi);
-	/// Removes a region of interest.  Uses the name of the ROI to find and remove it.  Returns whether the remove was successful or not.
-	bool removeRegionOfInterest(QString name);
-
 	// Data sources
 	///////////////////////////////////////
 	/// Returns the data source for element \c index.  It is assumed that the data sources will be in order of element.  Must be between 0 and size()-1 where size is the number of elements in the detector.
@@ -221,6 +218,10 @@ public slots:
 	void setChannelSize();
 	/// Sets the description of the detector.
 	void setDescription(const QString &description) { XRFDetectorInfo::setDescription(description); }
+	/// Adds a region of interest.  The new ROI is appended to the end of the list.  Returns whether the addition was successful or not; it will only fail if there are no longer any ROIs to place values in.
+	bool addRegionOfInterest(XRFElement *el, QString line);
+	/// Removes a region of interest.  Uses the name of the ROI to find and remove it.  Returns whether the remove was successful or not.
+	bool removeRegionOfInterest(XRFElement *el, QString line);
 	/// Clears the list of ROIs and clears the info list.
 	void clearRegionsOfInterest();
 	/// Sorts the list of ROIs.
@@ -236,6 +237,10 @@ signals:
 	void roisHaveValues(bool);
 	/// Notifier that the contents of an ROI has changed.  It passes a pointer to the particular ROI that has been changed.
 	void roiUpdate(AMROI *);
+	/// Notifier that a region of interest has been added.  Passes the region of interest information.
+	void addedRegionOfInterest(AMROIInfo);
+	/// Notifier that a region of interest has been removed.  Passes the region of interest information.
+	void removedRegionOfInterest(AMROIInfo);
 
 protected slots:
 	/// Determines if the detector is connected to ALL controls and process variables.

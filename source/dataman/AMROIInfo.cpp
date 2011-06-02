@@ -7,6 +7,8 @@ AMROIInfo::AMROIInfo(const QString &name, double energy, double width, double sc
 	energy_ = energy;
 	width_ = width;
 	scale_ = scale;
+	low_ = energy*(1-width/2);
+	high_ = energy*(1+width/2);
 }
 
 AMROIInfoList::AMROIInfoList(QObject *parent)

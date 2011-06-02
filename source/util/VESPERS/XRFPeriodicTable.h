@@ -40,6 +40,8 @@ public:
 	XRFElement *elementByAtomicNumber(int number) const { return xrfTable_.at(number-1); }
 
 	// XRF table attributes
+	/// Returns the current element being examined.
+	XRFElement *currentElement() const { return current_; }
 	/// Returns the minimum energy.
 	double minimumEnergy() const { return minimumEnergy_; }
 	/// Returns the maximum energy.
@@ -53,25 +55,27 @@ signals:
 	/// Notifier that the maximum energy has changed.  The new energy is passed on.
 	void maximumEnergyChanged(double);
 
-	/// Notifier that selected elements list has been changed.
-	void selectedElementsChanged();
+	/// Notifies when the current element has changed.  Passes a reference to the new element.
+	void currentElementChanged(XRFElement *);
+	/// Notifier that a region of interest has been added.  Passes a reference to the element and the line that was added.
+	void addedRegionOfInterest(XRFElement *, QString);
+	/// Notifier that a region of interest has been removed.  Passes a reference to the element and the line that was added.
+	void removedRegionOfInterest(XRFElement *, QString);
 
 public slots:
-	/// Adds an element symbol/line combo to the checked list, if it already doesn't reside there.
-	void addToList(QString symbol, QString line);
-	/// Removes an element symbol/line combo from the checked list, if it exists in the list.
-	void removeFromList(QString symbol, QString line);
+	/// Sets the current element that is being examined.
+	void setCurrentElement(XRFElement *el) { current_ = el; emit currentElementChanged(current_); }
+	/// Adds an element line to the current element to the checked list, if it already doesn't reside there.
+	void addLineToList(QString line);
+	/// Removes an element line from the current element from the checked list, if it exists in the list.
+	void removeLineFromList(QString line);
+	/// Removes all selected lines.
+	void removeAll();
 
 	/// Sets the minimum energy.
 	void setMinimumEnergy(double energy) { minimumEnergy_ = energy; emit minimumEnergyChanged(minimumEnergy_); }
 	/// Sets the maximum energy.
 	void setMaximumEnergy(double energy) { maximumEnergy_ = energy; emit maximumEnergyChanged(maximumEnergy_); }
-
-protected slots:
-	/// Adds an XRFElement to the selectedElements list if it is not there already.
-	void onLineAdded(XRFElement *el, QString line);
-	/// Removes an XRFElement from the selectedElements list if it doesn't have anymore lines selected.
-	void onLineRemoved(XRFElement *el, QString line);
 
 protected:
 
@@ -84,6 +88,8 @@ protected:
 	QList<XRFElement *> xrfTable_;
 	/// List of elements that have been selected.
 	QList<XRFElement *> selectedElements_;
+	/// The current element that is being viewed.
+	XRFElement *current_;
 
 };
 
