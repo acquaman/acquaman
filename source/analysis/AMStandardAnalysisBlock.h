@@ -24,6 +24,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMAnalysisBlock.h"
 
 /// This class provides many of the "boiler-plate" functions required for an AMAnalysisBlock, including managing the input data sources and representing the output AMDataSource axes.  Subclasses can make use of it by using the protected variables sources_ and axes_ to store their input data sources and output axes, respectively.
+/*! To implement an analysis block using AMStandardAnalysisBlock, you are responsible for 4 things:
+
+  - Handling input source changes: implement areInputDataSourcesAcceptable() and setInputDataSourcesImplementation().  Remember to store your input sources in sources_.
+  - AMDataSource outputs: value() and axisValue().  Remember to store your axis information in axes_, and AMStandardAnalysisBlock will expose it for you.
+  - Managing data source state: calling setState() when the state of your output changes.  This ensures that isValid() is correct whenever it should be.
+  - Signalling changes to the nature of the output data source ( emitValuesChanged(), emitSizeChanged(), emitAxisInfoChanged(), emitInfoChanged() ).  You may need to listen to changes in the input data sources to do that.
+  */
 class AMStandardAnalysisBlock : public AMAnalysisBlock
 {
 	Q_OBJECT

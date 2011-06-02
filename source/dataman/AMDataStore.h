@@ -134,19 +134,19 @@ public:
 	// Setting and getting values
 	////////////////////////////////
 	/// Retrieve a value from a measurement, at a specific scan point.
-	virtual AMNumber value(const AMnDIndex& scanIndex, int measurementId, const AMnDIndex& measurementIndex) const = 0;
+	virtual AMNumber value(const AMnDIndex& scanIndex, int measurementId, const AMnDIndex& measurementIndex, bool doBoundsChecking = true) const = 0;
 	/// Retrieve the independent variable along an axis \c axisId, at a specific scan point \c axisIndex.  If the axis scale is uniform (see AMAxisInfo::isUniform) this can be calculated from the axis' \c start and \c increment.
-	virtual AMNumber axisValue(int axisId, int axisIndex) const = 0;
+	virtual AMNumber axisValue(int axisId, int axisIndex, bool doBoundsChecking = true) const = 0;
 	/// Set the value of a measurement, at a specific scan point
-	virtual bool setValue(const AMnDIndex& scanIndex, int measurementId, const AMnDIndex& measurementIndex, const AMNumber& newValue) = 0;
+	virtual bool setValue(const AMnDIndex& scanIndex, int measurementId, const AMnDIndex& measurementIndex, const AMNumber& newValue, bool doBoundsChecking = true) = 0;
 	/// Set the independent variable along an axis \c axisId, at a specific scan point \c axisIndex. This is necessary after adding a "row" with beginInsertRows(), unless the axis scale is uniform. (See AMAxisInfo::isUniform).
-	virtual bool setAxisValue(int axisId, int axisIndex, AMNumber newValue) = 0;
+	virtual bool setAxisValue(int axisId, int axisIndex, AMNumber newValue, bool doBoundsChecking = true) = 0;
 
 
 
 	/// Performance optimization for setValue(): this allows multi-dimensional measurements to be set in a single setValue call.  \c inputData is interpreted as being in a flat array, ordered where the measurement's first axis varies the slowest, and the measurement's last axis varies the fastest (as you step through the array).  The size of the \c inputData must match the product of the sizes of all dimensions in the measurement.
-	virtual bool setValue(const AMnDIndex &scanIndex, int measurementId, const int* inputData, int numArrayElements) = 0;
-	virtual bool setValue(const AMnDIndex &scanIndex, int measurementId, const double* inputData, int numArrayElements) = 0;
+	virtual bool setValue(const AMnDIndex &scanIndex, int measurementId, const int* inputData, int numArrayElements, bool doBoundsChecking = true) = 0;
+	virtual bool setValue(const AMnDIndex &scanIndex, int measurementId, const double* inputData, int numArrayElements, bool doBoundsChecking = true) = 0;
 
 
 	// Adding new data points: increasing the size of the scan space
@@ -178,7 +178,6 @@ public:
 	// Ok, I guess you can clear the whole thing
 	////////////////////////////////////////////////////
 	/// Clear the entire data set. This maintains the set of measurements, but deletes every point in the scan space. The size of every scan axis will become 0. Implementing subclasses must provide a clearImplementation().
-	/*! \todo Rename to clearScanDataPoints() */
 	void clearScanDataPoints() {
 		clearScanDataPointsImplementation();
 		emitSizeChanged(-1);

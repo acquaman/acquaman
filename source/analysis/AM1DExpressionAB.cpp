@@ -24,7 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 AM1DExpressionAB::AM1DExpressionAB(const QString& outputName, QObject* parent)
 	: AMAnalysisBlock(outputName, parent),
-	axisInfo_(outputName + "_x", 0)
+	  axisInfo_(outputName + "_x", 0)
 {
 	// We're not using direct evaluation at the start
 	direct_ = xDirect_ = false;
@@ -48,7 +48,7 @@ AM1DExpressionAB::AM1DExpressionAB(const QString& outputName, QObject* parent)
 // This constructor is used to reload analysis blocks directly out of the database
 AM1DExpressionAB::AM1DExpressionAB(AMDatabase* db, int id)
 	: AMAnalysisBlock("tempName"),
-	axisInfo_("tempName_x", 0)
+	  axisInfo_("tempName_x", 0)
 {
 	// We're not using direct evaluation at the start
 	direct_ = xDirect_ = false;
@@ -76,9 +76,9 @@ AM1DExpressionAB::AM1DExpressionAB(AMDatabase* db, int id)
 
 // Check if a set of inputs is valid. The empty list (no inputs) must always be valid. For non-empty lists, the requirements are...
 /* - the rank() of all the inputs is 1
-	- the size() of the inputs can be anything, although our output state() will go to InvalidState whenever the sizes are not all matching.
-	- anything else?
-	*/
+ - the size() of the inputs can be anything, although our output state() will go to InvalidState whenever the sizes are not all matching.
+ - anything else?
+ */
 bool AM1DExpressionAB::areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const {
 	for(int i=0; i<dataSources.count(); i++) {
 		if(dataSources.at(i)->rank() != 1)
@@ -222,24 +222,25 @@ AMAxisInfo AM1DExpressionAB::axisInfoAt(int axisNumber) const {
 ////////////////////////////
 
 // Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient or any are out of range, or if the data is not ready.
-AMNumber AM1DExpressionAB::value(const AMnDIndex& indexes) const {
+AMNumber AM1DExpressionAB::value(const AMnDIndex& indexes, bool doBoundsChecking) const {
 	if(!isValid())	// will catch most invalid situations: non matching sizes, invalid inputs, invalid expressions.
 		return AMNumber(AMNumber::InvalidError);
 
 	if(indexes.rank() != 1)
 		return AMNumber(AMNumber::DimensionError);
 
-	if(indexes.i() < 0 || indexes.i() >= size_)
-		return AMNumber(AMNumber::OutOfBoundsError);
+	if(doBoundsChecking)
+		if(indexes.i() < 0 || indexes.i() >= size_)
+			return AMNumber(AMNumber::OutOfBoundsError);
 
 
 	// can we get it directly? Single-value expressions don't require the parser.
 	if(direct_) {
 		// info on which variable to use is contained in directVar_.
 		if(directVar_.useAxisValue)
-			return sources_.at(directVar_.sourceIndex)->axisValue(0, indexes.i());
+			return sources_.at(directVar_.sourceIndex)->axisValue(0, indexes.i(), doBoundsChecking);
 		else
-			return sources_.at(directVar_.sourceIndex)->value(indexes);
+			return sources_.at(directVar_.sourceIndex)->value(indexes, doBoundsChecking);
 	}
 
 	// otherwise we need the parser
@@ -248,9 +249,9 @@ AMNumber AM1DExpressionAB::value(const AMnDIndex& indexes) const {
 		for(int i=0; i<usedVariables_.count(); i++) {
 			AMParserVariable* usedVar = usedVariables_.at(i);
 			if(usedVar->useAxisValue)
-				usedVar->value = sources_.at(usedVar->sourceIndex)->axisValue(0, indexes.i());
+				usedVar->value = sources_.at(usedVar->sourceIndex)->axisValue(0, indexes.i(), doBoundsChecking);
 			else
-				usedVar->value = sources_.at(usedVar->sourceIndex)->value(indexes);
+				usedVar->value = sources_.at(usedVar->sourceIndex)->value(indexes, doBoundsChecking);
 		}
 
 		// evaluate using the parser:
@@ -268,24 +269,25 @@ AMNumber AM1DExpressionAB::value(const AMnDIndex& indexes) const {
 }
 
 // When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index)
-AMNumber AM1DExpressionAB::axisValue(int axisNumber, int index) const  {
+AMNumber AM1DExpressionAB::axisValue(int axisNumber, int index, bool doBoundsChecking) const  {
 	if(!isValid())	// will catch most invalid situations: non matching sizes, invalid inputs, invalid expressions.
 		return AMNumber(AMNumber::InvalidError);
 
 	if(axisNumber != 0)	// someone gave us a multi-dim index for a 1D dataset
 		return AMNumber(AMNumber::DimensionError);
 
-	if(index < 0 || index >= size_)
-		return AMNumber(AMNumber::OutOfBoundsError);
+	if(doBoundsChecking)
+		if(index < 0 || index >= size_)
+			return AMNumber(AMNumber::OutOfBoundsError);
 
 
 	// can we get it directly? Single-value expressions don't require the parser.
 	if(xDirect_) {
 		// info on which variable to use is contained in xDirectVar_.
 		if(xDirectVar_.useAxisValue)
-			return sources_.at(xDirectVar_.sourceIndex)->axisValue(0, index);
+			return sources_.at(xDirectVar_.sourceIndex)->axisValue(0, index, doBoundsChecking);
 		else
-			return sources_.at(xDirectVar_.sourceIndex)->value(index);
+			return sources_.at(xDirectVar_.sourceIndex)->value(index, doBoundsChecking);
 	}
 
 	// otherwise we need the parser
@@ -294,9 +296,9 @@ AMNumber AM1DExpressionAB::axisValue(int axisNumber, int index) const  {
 		for(int i=0; i<xUsedVariables_.count(); i++) {
 			AMParserVariable* usedVar = xUsedVariables_.at(i);
 			if(usedVar->useAxisValue)
-				usedVar->value = sources_.at(usedVar->sourceIndex)->axisValue(0, index);
+				usedVar->value = sources_.at(usedVar->sourceIndex)->axisValue(0, index, doBoundsChecking);
 			else
-				usedVar->value = sources_.at(usedVar->sourceIndex)->value(index);
+				usedVar->value = sources_.at(usedVar->sourceIndex)->value(index, doBoundsChecking);
 		}
 
 		// evaluate using the parser:

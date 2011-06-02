@@ -36,8 +36,8 @@ public:
 	/// Returns a file name filter appropriate for designating "importable files". (ex: "*.dat" or, for multiple allowed: "*.dat *.info *.xas"). This is used as a hint to try using this importer, but it doesn't restrict using it when the file name does not match.
 	virtual QString fileNameFilter() const = 0;
 
-	/// Attempt to import, and return a pointer to a new scan object, or 0 if the import fails.  It's the caller's responsibility to delete the scan when done with it.
-	virtual AMScan* import(const QString& fullPath) = 0;
+	/// Attempt to import, and return a pointer to a new scan object, or 0 if the import fails.  It's the caller's responsibility to delete the scan when done with it.   \c fullPath should be an absolute path to the data file to import (or a path relative from the application's current working directory, but I wouldn't recommend that approach.)
+	virtual AMScan* createScanAndImport(const QString& fullPath) = 0;
 };
 
 /// \todo Add plugin system to make it easier to add new AMImporter's.
@@ -61,8 +61,8 @@ public:
 		return "*.dat";
 	}
 
-	/// Attempt to import, and return a pointer to a new scan object, or 0 if the import fails.  It's the caller's responsibility to delete the scan when done with it.
-	virtual AMScan* import(const QString& fullPath);
+	/// Attempt to import, and return a pointer to a new scan object, or 0 if the import fails.  It's the caller's responsibility to delete the scan when done with it. \c fullPath should be an absolute path to the data file to import (or a path relative from the application's current working directory, but I wouldn't recommend that approach.)
+	virtual AMScan* createScanAndImport(const QString& fullPath);
 };
 
 
@@ -85,7 +85,7 @@ public:
 	}
 
 	/// Attempt to import, and return a pointer to a new scan object, or 0 if the import fails.  It's the caller's responsibility to delete the scan when done with it.
-	virtual AMScan* import(const QString& fullPath);
+	virtual AMScan* createScanAndImport(const QString& fullPath);
 };
 
 

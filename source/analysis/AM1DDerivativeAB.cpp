@@ -1,7 +1,7 @@
 #include "AM1DDerivativeAB.h"
 
 AM1DDerivativeAB::AM1DDerivativeAB(const QString &outputName, QObject *parent) :
-		AMStandardAnalysisBlock(outputName, parent)
+	AMStandardAnalysisBlock(outputName, parent)
 {
 	inputSource_ = 0;
 
@@ -11,8 +11,9 @@ AM1DDerivativeAB::AM1DDerivativeAB(const QString &outputName, QObject *parent) :
 
 // Check if a set of inputs is valid. The empty list (no inputs) must always be valid. For non-empty lists, our specific requirements are...
 /* - there must be a single input source
-	- the rank() of that input source must be 1 (one-dimensional)
-	*/
+ - the rank() of that input source must be 1 (one-dimensional)
+ */
+
 bool AM1DDerivativeAB::areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const {
 	if(dataSources.isEmpty())
 		return true;	// always acceptable; the null input.
@@ -66,34 +67,40 @@ void AM1DDerivativeAB::setInputDataSourcesImplementation(const QList<AMDataSourc
 	emitInfoChanged();
 }
 
-AMNumber AM1DDerivativeAB::value(const AMnDIndex& indexes) const{
+AMNumber AM1DDerivativeAB::value(const AMnDIndex& indexes, bool doBoundsChecking) const{
 	if(indexes.rank() != 1)
 		return AMNumber(AMNumber::DimensionError);
 
 	if(!isValid())
 		return AMNumber(AMNumber::InvalidError);
 
-	if((unsigned)indexes.i() >= (unsigned)axes_.at(0).size)
-		return AMNumber(AMNumber::OutOfBoundsError);
+	if(doBoundsChecking)
+		if((unsigned)indexes.i() >= (unsigned)axes_.at(0).size)
+			return AMNumber(AMNumber::OutOfBoundsError);
 
 	int index = indexes.i();
 
 	if(index == 0){
-		return ((double)inputSource_->value(1)-(double)inputSource_->value(0))/((double)inputSource_->axisValue(0, 1)-(double)inputSource_->axisValue(0, 0));
+		return ((double)inputSource_->value(1, doBoundsChecking)-
+				(double)inputSource_->value(0, doBoundsChecking))/
+				((double)inputSource_->axisValue(0, 1, doBoundsChecking)-
+				 (double)inputSource_->axisValue(0, 0, doBoundsChecking));
 	}
 	else{
-		return ((double)inputSource_->value(index)-(double)inputSource_->value(index-1))/((double)inputSource_->axisValue(0, index)-(double)inputSource_->axisValue(0, index-1));
+		return ((double)inputSource_->value(index, doBoundsChecking)-(double)inputSource_->value(index-1, doBoundsChecking))/((double)inputSource_->axisValue(0, index, doBoundsChecking)-(double)inputSource_->axisValue(0, index-1,doBoundsChecking));
 	}
 }
 
-AMNumber AM1DDerivativeAB::axisValue(int axisNumber, int index) const{
+AMNumber AM1DDerivativeAB::axisValue(int axisNumber, int index, bool doBoundsChecking) const{
+
 	if(!isValid())
 		return AMNumber(AMNumber::InvalidError);
 
 	if(axisNumber != 0)
 		return AMNumber(AMNumber::DimensionError);
 
-	return inputSource_->axisValue(0, index);
+	return inputSource_->axisValue(0, index, doBoundsChecking);
+
 }
 
 /// Connected to be called when the values of the input data source change

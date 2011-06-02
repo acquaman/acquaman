@@ -6,6 +6,7 @@
 class QCheckBox;
 
 class AMBeamlineListAction;
+class CLSVMEMotor;
 
 class SGMSampleManipulatorView : public AMSampleManipulatorView
 {
@@ -65,10 +66,16 @@ protected:
 	AMBeamlineListAction *measurementPositionActions_;
 	QPushButton *hvButton_;
 
+	/*
 	AMControl *mVerticalCtrl_;
 	AMControl *mHorizontalCtrl_;
 	AMControl *mInPlaneCtrl_;
 	AMControl *mRotationCtrl_;
+	*/
+	CLSVMEMotor *mVerticalCtrl_;
+	CLSVMEMotor *mHorizontalCtrl_;
+	CLSVMEMotor *mInPlaneCtrl_;
+	CLSVMEMotor *mRotationCtrl_;
 
 	AMControlEditor *mVerticalNC_;
 	AMControlEditor *mHorizontalNC_;

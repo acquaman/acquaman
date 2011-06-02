@@ -26,34 +26,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMDataStore.h"
 #include "util/AMOrderedSet.h"
 
-/// With this defined, value() requests will check the bounds of the data store to make sure that they are within the range of the data that exists, and return AMNumber::OutOfRangeError if not.  You can remove this line for performance, in which case there is no protection against accessing out-of-range values.
-#define AMINMEMORYDATASTORE_BOUNDS_CHECKING_ENABLED
 
 /// (Internal class for AMInMemoryDataStore) One instance stores a single measurement. (Flat array; nD measurement data is stored by striding.)
 typedef QVector<AMNumber> AMIMDSMeasurement;
 
 /// (Internal class for AMInMemoryDataStore) One instance stores a scan point: (ie: a set of measurements at that scan point)
 typedef QVector<AMIMDSMeasurement> AMIMDSScanPoint;
-/*
-class AMIMDSScanPoint {
-public:
-	/// Constructor creates room for \c numMeasurements measurements.  (Null measurements for now)
-	AMIMDSScanPoint(int numMeasurements) : measurements_(numMeasurements) {}
-	/// Destructor deletes all measurements at this scan point.
-	~AMIMDSScanPoint() {
-		for(int i=measurements_.count()-1; i>=0; i--)
-			delete measurements_.at(i);
-	}
-	/// Add a measurement: appends a null measurement.
-	void addMeasurement() {
-		measurements_ << AMIMDSMeasurement();
-	}
-	///
-
-protected:
-	QVector<AMIMDSMeasurement*> measurements_;
-
-};*/
 
 class AMIMDSColumn;
 
@@ -65,30 +43,6 @@ typedef union {
 	AMIMDSScanPoint* scanPoint;
 } AMIMDSColumnNode;
 
-/*
-class AMIMDSColumnNode {
-public:
-	/// create a null node. Don't ever put these into the data structure like this.
-	AMIMDSColumnNode() { nextColumn_ = 0; scanPoint_ = 0; }
-	/// create a non-final node that points to the next dimension:
-	AMIMDSColumnNode(AMIMDSColumn* nextColumn) { nextColumn_ = nextColumn; scanPoint_ = 0; }
-	/// create a final node that points to a scan point:
-	AMIMDSColumnNode(AMIMDSScanPoint* scanPoint) { scanPoint_ = scanPoint; nextColumn_ = 0; }
-
-	bool isFinal() const { return (nextColumn_ == 0); }
-
-	AMIMDSColumn* nextColumn() const { return nextColumn_; }
-	AMIMDSScanPoint* scanPoint() const { return scanPoint_; }
-
-	/// Sets this node to point to a scan point (isFinal() becomes true). Be careful not to leak memory if scanPoint() or nextColumn() was previously set.
-	void setScanPoint(AMIMDSScanPoint* sp) { scanPoint_ = sp; nextColumn_ = 0;}
-	/// Sets this node to point to another column. (isFinal becomes false). Be careful not to leak memory if scanPoint() or nextColumn() was previously set.
-	void setNextColumn(AMIMDSColumn* nc) { nextColumn_ = nc; scanPoint_ = 0; }
-
-protected:
-	AMIMDSColumn* nextColumn_;
-	AMIMDSScanPoint* scanPoint_;
-};*/
 
 /// (Internal class for AMInMemoryDataStore) One instance stores a scan axis. Each node in the column can either point to an AMIMDSScanPoint (if this column is the final dimension), or point to another column (if this column is not the final dimension).
 class AMIMDSColumn : public QVector<AMIMDSColumnNode> {
@@ -104,10 +58,10 @@ The data is not stored in one contiguous chunk, so datasets approaching the size
 
 todo: explain recursive tree structure for scan axes
 
-	The size of scan axes may change as scan points are added, therefore we use a recursive tree structure to implement the scan axes. This gives us the flexibility to insert "rows" anywhere in any dimension, without having to re-allocate and move large amounts of data in memory. The trade-off is that additionl memory is used to maintain pointers at each dimension.
+ The size of scan axes may change as scan points are added, therefore we use a recursive tree structure to implement the scan axes. This gives us the flexibility to insert "rows" anywhere in any dimension, without having to re-allocate and move large amounts of data in memory. The trade-off is that additionl memory is used to maintain pointers at each dimension.
 
-	The measurement axes (in contrast to the scan axes) are not expected to change size as the data store is used... The size and dimensionality of the measurement is a property of the detector. Therefore we can get away with using a flat array to store the measurement values (regardless of dimensionality). The values within a measurement are laid out in memory so that the last dimension specified in the measurement axes (for ex: AMnDIndex(first, second, LAST) ) is stored consecutively. (ie: varies the fastest when iterating through consecutive memory locations).
-	*/
+ The measurement axes (in contrast to the scan axes) are not expected to change size as the data store is used... The size and dimensionality of the measurement is a property of the detector. Therefore we can get away with using a flat array to store the measurement values (regardless of dimensionality). The values within a measurement are laid out in memory so that the last dimension specified in the measurement axes (for ex: AMnDIndex(first, second, LAST) ) is stored consecutively. (ie: varies the fastest when iterating through consecutive memory locations).
+ */
 
 class AMInMemoryDataStore : public AMDataStore
 {
@@ -123,12 +77,14 @@ public:
 	virtual bool addMeasurement(const AMMeasurementInfo& measurementDetails) {
 
 		// already a measurement with this name?
-		if(measurements_.contains(measurementDetails.name))
-			return false;
+		for(int i=measurements_.count()-1; i>=0; i--)
+			if(measurements_.at(i).name == measurementDetails.name)
+				return false;
+
 
 		// add this measurement to our registry
 		/// \todo Anything to verify that we need to make sure is true in the details?
-		measurements_.append(measurementDetails, measurementDetails.name);
+		measurements_.append(measurementDetails);
 
 
 		if(axes_.count() == 0){	// scalar scan space. append null measurement to scalar scan point.
@@ -142,17 +98,20 @@ public:
 	}
 
 	/// Retrieve the id of an existing set of measurements, by name.  (Depending on the implementation, this may not be fast. Avoid calling it repeatedly.) Returns -1 if not found.
-	virtual inline int idOfMeasurement(const QString& measurementName) const {
-		return measurements_.indexOfKey(measurementName);
+	virtual int idOfMeasurement(const QString& measurementName) const {
+		for(int i=measurements_.count()-1; i>=0; i--)
+			if(measurements_.at(i).name == measurementName)
+				return i;
+		return -1;
 	}
 
 	/// Retrieve information about a set of measurements, by id. \c id assumed to be >= 0 and < measurementCount().
-	virtual inline AMMeasurementInfo measurementAt(int id) const {
+	virtual AMMeasurementInfo measurementAt(int id) const {
 		return measurements_.at(id);
 	}
 
 	/// Return the number of measurements stored for each scan point
-	virtual inline int measurementCount() const {
+	virtual int measurementCount() const {
 		return measurements_.count();
 	}
 
@@ -162,12 +121,14 @@ public:
 	/// Create space to support an additional scan axis.  \c axisDetails describes the characteristics of the axis, but the \c size of axisDetails will be ignored.  If this is the first axis to be added, the size will be set to 0; otherwise it will be set to 1.
 	/*! If you want to retrieve axes by name, \c axisDetails must contain a unique \c name.  This function should return false if an axis with that name already exists.
 
-	  \note No signalling is provided for alerting observers of new scan axes. It's also prohibited for AMDataSources that expose this data (for ex: AMRawDataSource) to change dimensionality (ie: add another axis). Therefore, it's recommended to only call this function when first setting up a dataStore, before any observers get involved.
+   \note No signalling is provided for alerting observers of new scan axes. It's also prohibited for AMDataSources that expose this data (for ex: AMRawDataSource) to change dimensionality (ie: add another axis). Therefore, it's recommended to only call this function when first setting up a dataStore, before any observers get involved.
 */
 	virtual bool addScanAxis(const AMAxisInfo& axisDetails) {
 		// axis already exists with this name... Not allowed.
-		if(axes_.contains(axisDetails.name))
-			return false;
+		for(int i=axes_.count()-1; i>=0; i--)
+			if(axes_.at(i).name == axisDetails.name)
+				return false;
+
 
 		AMAxisInfo axisInfo = axisDetails;
 		if(axes_.count() == 0) {	// if this is the first axis to be added...
@@ -185,7 +146,7 @@ public:
 			dataRoot_ = newRoot;	// point to the new top
 		}
 
-		axes_.append(axisInfo, axisInfo.name);
+		axes_.append(axisInfo);
 
 		// Add entry in axisValues_ for this new axis.  If this axis is uniform, we don't need actual storage for axis values. However, we need to insert one into axisValues_ anyway to maintain indexing.
 		if(axisInfo.isUniform)
@@ -197,46 +158,51 @@ public:
 	}
 
 	/// Retrieve the id of an existing axis, by name.
-	virtual inline int idOfScanAxis(const QString& axisName) const {
-		return axes_.indexOfKey(axisName);
+	virtual int idOfScanAxis(const QString& axisName) const {
+		for(int i=axes_.count()-1; i>=0; i--)
+			if(axes_.at(i).name == axisName)
+				return i;
+		return -1;
 	}
 	/// Retrieve information about an axis, by id.  \c id assumed to be >= 0 and < scanAxesCount().
-	virtual inline const AMAxisInfo scanAxisAt(int id) const {
+	virtual const AMAxisInfo scanAxisAt(int id) const {
 		return axes_.at(id);
 	}
 	/// Return the number of scan axes
-	virtual inline int scanAxesCount() const {
+	virtual int scanAxesCount() const {
 		return axes_.count();
 	}
 	/// Synonym for scanAxisCount()
-	int inline scanRank() const { return axes_.count(); }
+	int scanRank() const { return axes_.count(); }
 	/// Return the sizes of all the scan axes, in order.
-	virtual inline AMnDIndex scanSize() const {
-		AMnDIndex s;
-		for(int mu=0; mu<axes_.count(); mu++)
-			s.append(axes_.at(mu).size);
+	virtual AMnDIndex scanSize() const {
+		int axesCount = axes_.count();
+		AMnDIndex s(axesCount, false);
+		for(int mu=0; mu<axesCount; mu++)
+			s[mu] = axes_.at(mu).size;
 		return s;
 	}
 	/// Return the size along a specific axis, by \c id.  \c id assumed to be >= 0 and < scanAxesCount().
-	virtual inline int scanSize(int axisId) const {
+	virtual int scanSize(int axisId) const {
 		return axes_.at(axisId).size;
 	}
 
 
 
 	/// Retrieve a value from a measurement, at a specific scan point.
-	virtual inline AMNumber value(const AMnDIndex& scanIndex, int measurementId, const AMnDIndex& measurementIndex) const {
+	virtual AMNumber value(const AMnDIndex& scanIndex, int measurementId, const AMnDIndex& measurementIndex, bool doBoundsChecking = true) const {
 
-		// scan axis index doesn't provide enough / too many dimensions
-		if(scanIndex.rank() != axes_.count())
-			return AMNumber(AMNumber::DimensionError);
+		if(doBoundsChecking) {
+			// scan axis index doesn't provide enough / too many dimensions
+			if(scanIndex.rank() != axes_.count())
+				return AMNumber(AMNumber::DimensionError);
 
 
-#ifdef AMINMEMORYDATASTORE_BOUNDS_CHECKING_ENABLED
-		for(int mu=0; mu<axes_.count(); mu++)
-			if((unsigned)scanIndex.at(mu) >= (unsigned)scanSize(mu))
-				return AMNumber(AMNumber::OutOfBoundsError);
-#endif
+
+			for(int mu=axes_.count()-1; mu>=0; mu--)
+				if((unsigned)scanIndex.at(mu) >= (unsigned)axes_.at(mu).size)
+					return AMNumber(AMNumber::OutOfBoundsError);
+		}
 
 		// performance optimization: avoid recursive function calls for known dimensions
 		AMIMDSScanPoint* scanPoint;
@@ -255,15 +221,15 @@ public:
 
 		case 3:
 			scanPoint = dataRoot_->at(scanIndex.k()).nextColumn
-								->at(scanIndex.j()).nextColumn
-								->at(scanIndex.i()).scanPoint;
+					->at(scanIndex.j()).nextColumn
+					->at(scanIndex.i()).scanPoint;
 			break;
 
 		case 4:
 			scanPoint = dataRoot_->at(scanIndex.l()).nextColumn
-								->at(scanIndex.k()).nextColumn
-								->at(scanIndex.j()).nextColumn
-								->at(scanIndex.i()).scanPoint;
+					->at(scanIndex.k()).nextColumn
+					->at(scanIndex.j()).nextColumn
+					->at(scanIndex.i()).scanPoint;
 			break;
 
 		default:
@@ -272,24 +238,24 @@ public:
 		}
 
 
-		if((unsigned)measurementId >= (unsigned)measurementCount())
+		if((unsigned)measurementId >= (unsigned)measurements_.count())
 			return AMNumber(AMNumber::InvalidError);	// invalid measurement specified;
 
 		if(measurementIndex.rank() != measurements_.at(measurementId).rank())
 			return AMNumber(AMNumber::DimensionError);
 
 		int flatIndex = flatIndexForMeasurement(measurementId, measurementIndex);
-#ifdef AMINMEMORYDATASTORE_BOUNDS_CHECKING_ENABLED
-		if((unsigned)flatIndex >= (unsigned)scanPoint->at(measurementId).size())
-			return AMNumber(AMNumber::OutOfBoundsError);
-#endif
+		if(doBoundsChecking) {
+			if((unsigned)flatIndex >= (unsigned)scanPoint->at(measurementId).size())
+				return AMNumber(AMNumber::OutOfBoundsError);
+		}
 
 		return scanPoint->at(measurementId).at(flatIndex);
 	}
 
 
 	/// Set the value of a measurement, at a specific scan point
-	virtual bool setValue(const AMnDIndex& scanIndex, int measurementId, const AMnDIndex& measurementIndex, const AMNumber& newValue) {
+	virtual bool setValue(const AMnDIndex& scanIndex, int measurementId, const AMnDIndex& measurementIndex, const AMNumber& newValue, bool doBoundsChecking = true) {
 		// scan axis index doesn't provide enough / too many dimensions
 		if(scanIndex.rank() != axes_.count()) {
 			//qDebug() << "err 1";
@@ -297,13 +263,13 @@ public:
 		}
 
 
-	#ifdef AMINMEMORYDATASTORE_BOUNDS_CHECKING_ENABLED
-		for(int mu=0; mu<axes_.count(); mu++)
-			if((unsigned)scanIndex.at(mu) >= (unsigned)scanSize(mu)) {
-				//qDebug() << "err 2";
-				return false;
-			}
-	#endif
+		if(doBoundsChecking) {
+			for(int mu=axes_.count()-1; mu>=0; mu--)
+				if((unsigned)scanIndex.at(mu) >= (unsigned)axes_.at(mu).size) {
+					//qDebug() << "err 2";
+					return false;
+				}
+		}
 
 		// performance optimization: avoid recursive function calls for known dimensions
 		AMIMDSScanPoint* scanPoint;
@@ -322,15 +288,15 @@ public:
 
 		case 3:
 			scanPoint = dataRoot_->at(scanIndex.k()).nextColumn
-								->at(scanIndex.j()).nextColumn
-								->at(scanIndex.i()).scanPoint;
+					->at(scanIndex.j()).nextColumn
+					->at(scanIndex.i()).scanPoint;
 			break;
 
 		case 4:
 			scanPoint = dataRoot_->at(scanIndex.l()).nextColumn
-								->at(scanIndex.k()).nextColumn
-								->at(scanIndex.j()).nextColumn
-								->at(scanIndex.i()).scanPoint;
+					->at(scanIndex.k()).nextColumn
+					->at(scanIndex.j()).nextColumn
+					->at(scanIndex.i()).scanPoint;
 			break;
 
 		default:
@@ -339,7 +305,7 @@ public:
 		}
 
 
-		if((unsigned)measurementId >= (unsigned)measurementCount()) {
+		if((unsigned)measurementId >= (unsigned)measurements_.count()) {
 			//qDebug() << "err 4";
 			return false;	// invalid measurement specified;
 		}
@@ -350,12 +316,12 @@ public:
 		}
 
 		int flatIndex = flatIndexForMeasurement(measurementId, measurementIndex);
-	#ifdef AMINMEMORYDATASTORE_BOUNDS_CHECKING_ENABLED
-		if((unsigned)flatIndex >= (unsigned)scanPoint->at(measurementId).size()) {
-			//qDebug() << "err 6";
-			return false;
+		if(doBoundsChecking) {
+			if((unsigned)flatIndex >= (unsigned)scanPoint->at(measurementId).size()) {
+				//qDebug() << "err 6";
+				return false;
+			}
 		}
-	#endif
 
 		(*scanPoint)[measurementId][flatIndex] = newValue;
 		return true;
@@ -363,17 +329,17 @@ public:
 
 
 	/// Performance optimization for setValue(): this allows multi-dimensional measurements to be set in a single setValue call.  \c inputData is interpreted as being in a flat array, ordered where the measurement's first axis varies the slowest, and the measurement's last axis varies the fastest (as you step through the array).  The size of the \c inputData must match the product of the sizes of all dimensions in the measurement.
-	virtual bool setValue(const AMnDIndex &scanIndex, int measurementId, const int* inputData, int numArrayElements) {
+	virtual bool setValue(const AMnDIndex &scanIndex, int measurementId, const int* inputData, int numArrayElements, bool doBoundsChecking = true) {
 		// scan axis index doesn't provide enough / too many dimensions
 		if(scanIndex.rank() != axes_.count())
 			return false;
 
 
-#ifdef AMINMEMORYDATASTORE_BOUNDS_CHECKING_ENABLED
-		for(int mu=0; mu<axes_.count(); mu++)
-			if((unsigned)scanIndex.at(mu) >= (unsigned)scanSize(mu))
-				return false;
-#endif
+		if(doBoundsChecking) {
+			for(int mu=axes_.count()-1; mu>=0; mu--)
+				if((unsigned)scanIndex.at(mu) >= (unsigned)axes_.at(mu).size)
+					return false;
+		}
 
 		// performance optimization: avoid recursive function calls for known dimensions
 		AMIMDSScanPoint* scanPoint;
@@ -392,15 +358,15 @@ public:
 
 		case 3:
 			scanPoint = dataRoot_->at(scanIndex.k()).nextColumn
-								->at(scanIndex.j()).nextColumn
-								->at(scanIndex.i()).scanPoint;
+					->at(scanIndex.j()).nextColumn
+					->at(scanIndex.i()).scanPoint;
 			break;
 
 		case 4:
 			scanPoint = dataRoot_->at(scanIndex.l()).nextColumn
-								->at(scanIndex.k()).nextColumn
-								->at(scanIndex.j()).nextColumn
-								->at(scanIndex.i()).scanPoint;
+					->at(scanIndex.k()).nextColumn
+					->at(scanIndex.j()).nextColumn
+					->at(scanIndex.i()).scanPoint;
 			break;
 
 		default:
@@ -409,7 +375,7 @@ public:
 		}
 
 
-		if((unsigned)measurementId >= (unsigned)measurementCount())
+		if((unsigned)measurementId >= (unsigned)measurements_.count())
 			return false;	// invalid measurement specified;
 
 		AMIMDSMeasurement& measurement = (*scanPoint)[measurementId];
@@ -422,17 +388,17 @@ public:
 		return true;
 	}
 
-	virtual bool setValue(const AMnDIndex &scanIndex, int measurementId, const double* inputData, int numArrayElements) {
+	virtual bool setValue(const AMnDIndex &scanIndex, int measurementId, const double* inputData, int numArrayElements, bool doBoundsChecking = true) {
 		// scan axis index doesn't provide enough / too many dimensions
 		if(scanIndex.rank() != axes_.count())
 			return false;
 
 
-#ifdef AMINMEMORYDATASTORE_BOUNDS_CHECKING_ENABLED
-		for(int mu=0; mu<axes_.count(); mu++)
-			if((unsigned)scanIndex.at(mu) >= (unsigned)scanSize(mu))
-				return false;
-#endif
+		if(doBoundsChecking) {
+			for(int mu=axes_.count()-1; mu>=0; mu--)
+				if((unsigned)scanIndex.at(mu) >= (unsigned)axes_.at(mu).size)
+					return false;
+		}
 
 		// performance optimization: avoid recursive function calls for known dimensions
 		AMIMDSScanPoint* scanPoint;
@@ -451,15 +417,15 @@ public:
 
 		case 3:
 			scanPoint = dataRoot_->at(scanIndex.k()).nextColumn
-								->at(scanIndex.j()).nextColumn
-								->at(scanIndex.i()).scanPoint;
+					->at(scanIndex.j()).nextColumn
+					->at(scanIndex.i()).scanPoint;
 			break;
 
 		case 4:
 			scanPoint = dataRoot_->at(scanIndex.l()).nextColumn
-								->at(scanIndex.k()).nextColumn
-								->at(scanIndex.j()).nextColumn
-								->at(scanIndex.i()).scanPoint;
+					->at(scanIndex.k()).nextColumn
+					->at(scanIndex.j()).nextColumn
+					->at(scanIndex.i()).scanPoint;
 			break;
 
 		default:
@@ -468,7 +434,7 @@ public:
 		}
 
 
-		if((unsigned)measurementId >= (unsigned)measurementCount())
+		if((unsigned)measurementId >= (unsigned)measurements_.count())
 			return false;	// invalid measurement specified;
 
 		AMIMDSMeasurement& measurement = (*scanPoint)[measurementId];
@@ -485,15 +451,15 @@ public:
 
 
 	/// Retrieve the independent variable along an axis \c axisId, at a specific scan point \c axisIndex.  If the axis scale is uniform (see AMAxisInfo::isUniform) this can be calculated from the axis' \c start and \c increment.
-	virtual inline AMNumber axisValue(int axisId, int axisIndex) const {
+	virtual AMNumber axisValue(int axisId, int axisIndex, bool doBoundsChecking = true) const {
 
 		if((unsigned)axisId >= (unsigned)axes_.count())
 			return AMNumber(AMNumber::InvalidError);	// invalid axis specified.
 
-#ifdef AMINMEMORYDATASTORE_BOUNDS_CHECKING_ENABLED
-		if((unsigned)axisIndex >= (unsigned)scanSize(axisId))
-			return AMNumber(AMNumber::OutOfBoundsError);
-#endif
+		if(doBoundsChecking) {
+			if((unsigned)axisIndex >= (unsigned)axes_.at(axisId).size)
+				return AMNumber(AMNumber::OutOfBoundsError);
+		}
 
 		const AMAxisInfo& ai = axes_.at(axisId);
 		if(ai.isUniform)
@@ -504,15 +470,15 @@ public:
 	}
 
 	/// Set the independent variable along an axis \c axisId, at a specific scan point \c axisIndex. This is necessary after adding a "row" with beginInsertRows(), unless the axis scale is uniform. (See AMAxisInfo::isUniform).
-	virtual inline bool setAxisValue(int axisId, int axisIndex, AMNumber newValue) {
+	virtual bool setAxisValue(int axisId, int axisIndex, AMNumber newValue, bool doBoundsChecking = true) {
 
 		if((unsigned)axisId >= (unsigned)axes_.count())
 			return false;	// invalid axis specified.
 
-#ifdef AMINMEMORYDATASTORE_BOUNDS_CHECKING_ENABLED
-		if((unsigned)axisIndex >= (unsigned)scanSize(axisId))
-			return false;
-#endif
+		if(doBoundsChecking) {
+			if((unsigned)axisIndex >= (unsigned)axes_.at(axisId).size)
+				return false;
+		}
 
 		if(axes_.at(axisId).isUniform)
 			return false;
@@ -527,9 +493,9 @@ public:
 
 protected:
 	/// Maintains set of measurements which we have at each scan point
-	AMOrderedSet<QString, AMMeasurementInfo> measurements_;
+	QList<AMMeasurementInfo> measurements_;
 	/// Maintains information about each scan axis
-	AMOrderedSet<QString, AMAxisInfo> axes_;
+	QList<AMAxisInfo> axes_;
 
 	/// Points to the column of the first dimension of our data
 	AMIMDSColumn* dataRoot_;
@@ -551,7 +517,7 @@ protected:
 
 	/// Returns the flat array index for a multi-dimensional measurement.  For example, for a 4-dimensional \c measurementIndex AMnDIndex(3,4,5,600) and a measurement that has dimensions (5,10,100,1000), the flat index is 3*10*100*1000 + 4*100*1000 + 5*1000 + 600.
 	/*! Note: assumes measurementId is a valid one of our measurements, and that measurementIndex is the right size for it.*/
-	int inline flatIndexForMeasurement(int measurementId, const AMnDIndex& measurementIndex) const {
+	int flatIndexForMeasurement(int measurementId, const AMnDIndex& measurementIndex) const {
 		int rv;
 		int rank = measurementIndex.rank();
 
@@ -563,7 +529,7 @@ protected:
 			break;
 		case 2:
 			rv = measurementIndex.i()*measurements_.at(measurementId).size(1)
-				 + measurementIndex.j();
+					+ measurementIndex.j();
 			break;
 		case 3: {
 			const AMMeasurementInfo& mi = measurements_.at(measurementId);
@@ -577,7 +543,7 @@ protected:
 			rv = measurementIndex.i()*mi.size(1)*mi.size(2)*mi.size(3)
 					+ measurementIndex.j()*mi.size(2)*mi.size(3)
 					+ measurementIndex.k()*mi.size(3);
-					+ measurementIndex.l();
+			+ measurementIndex.l();
 			break; }
 
 		default: {
@@ -640,12 +606,12 @@ protected:
 
 		// Case 1: We're above the dimension of the target axis in the data structure. Loop through and execute the insertRows operation for all points along this axis.
 		if(targetAxisId < atDimension) {
-			for(int i=0; i<scanSize(atDimension); i++)
+			for(int i=0; i<axes_.at(atDimension).size; i++)
 				beginInsertRowsImplementationRecursive(targetAxisId,
-												  numRowsToAdd,
-												  addAtRowIndex,
-												  columnRoot->at(i).nextColumn,
-												  atDimension-1);
+													   numRowsToAdd,
+													   addAtRowIndex,
+													   columnRoot->at(i).nextColumn,
+													   atDimension-1);
 		}
 
 		///////////////////////
@@ -653,8 +619,8 @@ protected:
 		// Case 2: We're at the dimension of the target axis in the data structure
 		else if(targetAxisId == atDimension) {
 
-			if(addAtRowIndex < 0 || addAtRowIndex > scanSize(targetAxisId))
-				addAtRowIndex = scanSize(targetAxisId);	// constrain the insert row index to be within the existing points. If outside, append to end.
+			if(addAtRowIndex < 0 || addAtRowIndex > axes_.at(targetAxisId).size)
+				addAtRowIndex = axes_.at(targetAxisId).size;	// constrain the insert row index to be within the existing points. If outside, append to end.
 
 			for(int i=0; i<numRowsToAdd; i++) {
 				columnRoot->insert(addAtRowIndex+i, createNewColumnOrScanPointRecursive(atDimension-1) );
@@ -673,7 +639,7 @@ protected:
 		// Case 1: if at the final dimension, just create the scan point. Make sure the scan point contains null values for all the points, in each measurement that we have.
 		if(atDimension < 0) {
 			AMIMDSScanPoint* newScanPoint = new AMIMDSScanPoint();
-			for(int i=0; i<measurementCount(); i++)	// append AMIMDSMeasurement for each measurement class in measurements_
+			for(int i=0; i<measurements_.count(); i++)	// append AMIMDSMeasurement for each measurement class in measurements_
 				newScanPoint->append( AMIMDSMeasurement(measurements_.at(i).spanSize()) );
 
 			rv.scanPoint = newScanPoint;
@@ -682,7 +648,7 @@ protected:
 		// Case 2: Not at the final dimension. Create a new column, and fill it with enough nodes to match the size of this axis.
 		else {
 			AMIMDSColumn* newColumn = new AMIMDSColumn();
-			for(int i=0; i<scanSize(atDimension); i++)
+			for(int i=0; i<axes_.at(atDimension).size; i++)
 				newColumn->append( createNewColumnOrScanPointRecursive(atDimension-1) );
 
 			rv.nextColumn = newColumn;
@@ -706,9 +672,9 @@ protected:
 
 	/// Recursive helper function to delete all scan points in the data structure. For higher dimensions, it leaves a column with 1 node pointing to the next dimension. For the final dimension, it deletes all scan points and leaves a column with no nodes.
 	/*! \c columnRoot: pointer to the AMIMDSColumn we're about to operate on
-		\c atDimension: the axis index we're about to operate on. For example, in a 4D data structure, we would start with \c atDimension = 3. The final level in the data structure is \c atDimension = 0.
-		\c leaveOne: true if this recursive call was made below the first node in every dimension all the way down. Indicates that we should also keep the first node in our column (as long as atDimension != 0)
-	  */
+  \c atDimension: the axis index we're about to operate on. For example, in a 4D data structure, we would start with \c atDimension = 3. The final level in the data structure is \c atDimension = 0.
+  \c leaveOne: true if this recursive call was made below the first node in every dimension all the way down. Indicates that we should also keep the first node in our column (as long as atDimension != 0)
+   */
 	void clearScanDataPointsImplementationRecursive(AMIMDSColumn* columnRoot, int atDimension, bool leaveOne) {
 
 		// Base case: at the final dimension

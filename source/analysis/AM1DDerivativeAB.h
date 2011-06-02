@@ -25,10 +25,10 @@ public:
 	virtual void setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources);
 
 	/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient or any are out of range, or if the data is not ready.
-	virtual AMNumber value(const AMnDIndex& indexes) const;
+	virtual AMNumber value(const AMnDIndex& indexes, bool doBoundsChecking = true) const;
 
 	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index)
-	virtual AMNumber axisValue(int axisNumber, int index) const;
+	virtual AMNumber axisValue(int axisNumber, int index, bool doBoundsChecking = true) const;
 
 	/// Re-implemented from AMDbObject to set the AMDataSource name once we have an AMDbObject::name()
 	bool loadFromDb(AMDatabase *db, int id);

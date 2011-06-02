@@ -36,7 +36,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTimer>
 
 /// Attempt to import, and return a pointer to a new scan object, or 0 if the import fails.  It's the caller's responsibility to delete the scan when done with it.
-AMScan* SGMLegacyImporter::import(const QString& fullPath) {
+AMScan* SGMLegacyImporter::createScanAndImport(const QString& fullPath) {
 
 	AMXASScan* rv = new AMXASScan();
 	SGM2004FileLoader loader(rv);
@@ -81,7 +81,7 @@ AMScan* SGMLegacyImporter::import(const QString& fullPath) {
 }
 
 #include <QFileInfo>
-AMScan* ALSBL8XASImporter::import(const QString& fullPath) {
+AMScan* ALSBL8XASImporter::createScanAndImport(const QString& fullPath) {
 
 	AMXASScan* rv = new AMXASScan();
 	ALSBL8XASFileLoader loader(rv);
@@ -130,7 +130,7 @@ AMImportController::~AMImportController() {
 }
 
 AMImportController::AMImportController(QObject *parent) :
-		QObject(parent)
+	QObject(parent)
 {
 	installImporters();
 
@@ -232,11 +232,10 @@ void AMImportController::setupNextFile() {
 	w_->progressBar->setMinimum(0);
 	w_->progressLabel->setText(QString("File %1 of %2").arg(currentFile_+1).arg(filesToImport_.count()));
 
-	// extract names
-	QString path = QDir::fromNativeSeparators(filesToImport_.at(currentFile_));
-	// remove folders
-	QString name = path.split(QChar('/')).last();
-	path.chop(name.length()+1);
+	// separate file name and path
+	QFileInfo fi(filesToImport_.at(currentFile_));
+	QString name = fi.fileName();
+	QString path = fi.path();
 
 	w_->thumbnailViewer->setCaption1(name);
 	w_->thumbnailViewer->setCaption2(path);
@@ -244,7 +243,7 @@ void AMImportController::setupNextFile() {
 	/// \todo: switch importer automatically if current one doesn't match filter, and another does.
 
 	AMImporter* importer = importers_.at(w_->formatComboBox->currentIndex());
-	currentScan_ = importer->import(filesToImport_.at(currentFile_));
+	currentScan_ = importer->createScanAndImport(filesToImport_.at(currentFile_));
 
 	w_->thumbnailViewer->setSource(currentScan_);
 
@@ -291,7 +290,7 @@ void AMImportController::setupNextFile() {
 
 	// This is our magic way of handling "Apply to All", while keeping the progress bar for free and stopping if we ever get an import error:  After setting up the next file, we just schedule a signal to automatically push the next button, as if the user was doing it really fast.
 	if(applyToAll_) {
-		QTimer::singleShot(0, this, SLOT(onNextButtonClicked()));
+		QTimer::singleShot(10, this, SLOT(onNextButtonClicked()));
 	}
 }
 
@@ -302,10 +301,10 @@ void AMImportController::finalizeImport() {
 	// error loading:
 	if(currentScan_ == 0) {
 		int doSkip = QMessageBox::question(
-				w_,
-				"Skip this file?",
-				QString("Couldn't load this file (%1) with the '%2' format.\n\nDo you want to skip this file?").arg(filesToImport_.at(currentFile_)).arg(w_->formatComboBox->currentText()),
-				QMessageBox::Ok | QMessageBox::Cancel);
+					w_,
+					"Skip this file?",
+					QString("Couldn't load this file (%1) with the '%2' format.\n\nDo you want to skip this file?").arg(filesToImport_.at(currentFile_)).arg(w_->formatComboBox->currentText()),
+					QMessageBox::Ok | QMessageBox::Cancel);
 
 		if(doSkip == QMessageBox::Ok) {
 			// do nothing... We'll move on automatically
@@ -334,19 +333,24 @@ void AMImportController::finalizeImport() {
 		// copy the raw data file to the library:
 		QFileInfo file(filesToImport_.at(currentFile_));
 		QDir dir;
-		QString path = AMUserSettings::userDataFolder + currentScan_->dateTime().toString("/yyyy/MM");
-		dir.mkpath(path);
-		path.append("/").append(file.fileName());
+		QString relativePath;
+		QDateTime dt = currentScan_->dateTime();
+		if(dt.isValid())
+			relativePath = currentScan_->dateTime().toString("yyyy/MM");
+		else
+			relativePath = "UnknownDate";
 
-		currentScan_->setFilePath(path);
+		dir.mkpath(AMUserSettings::userDataFolder + "/" + relativePath);
+		currentScan_->setFilePath(relativePath + "/" + file.fileName());
 
-		if(!QFile::copy(filesToImport_.at(currentFile_), currentScan_->filePath())) {
-			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -2, "SGM2004FileImporter: Could not copy the imported file into the library. Maybe this file exists already?"));
+		QString destination = AMUserSettings::userDataFolder + "/" + currentScan_->filePath();
+		if(!QFile::copy(filesToImport_.at(currentFile_), destination)) {
+			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -2, "AMImportController: Could not copy the imported file into the library. Maybe this file exists already?"));
 			int doSkip = QMessageBox::question(
-					w_,
-					"Skip this file?",
-					QString("The file '%1' was opened correctly, but it couldn't be copied to the data library. Maybe the destination file (%2) exists already? \n\nDo you want to skip this file?").arg(filesToImport_.at(currentFile_)).arg(currentScan_->filePath()),
-					QMessageBox::Ok | QMessageBox::Cancel);
+						w_,
+						"Skip this file?",
+						QString("The file '%1' was opened correctly, but it couldn't be copied to the data library. Maybe the destination file (%2) exists already? \n\nDo you want to skip this file?").arg(filesToImport_.at(currentFile_)).arg(destination),
+						QMessageBox::Ok | QMessageBox::Cancel);
 
 			if(doSkip == QMessageBox::Ok) {
 				// do nothing... We'll move on automatically
@@ -379,10 +383,10 @@ void AMImportController::onApplyAllButtonClicked() {
 /// called when the cancel button is clicked while reviewing
 void AMImportController::onCancelButtonClicked() {
 	int doCancel = QMessageBox::question(
-			w_,
-			"Cancel import?",
-			QString("You've imported %1 of %2 files. If you stop now, the remaining %3 will not be imported.\n\nAre you sure you want to stop?").arg(qMax(0, currentFile_ -1)).arg(filesToImport_.count()).arg(filesToImport_.count()-currentFile_),
-			QMessageBox::Cancel | QMessageBox::Ok);
+				w_,
+				"Cancel import?",
+				QString("You've imported %1 of %2 files. If you stop now, the remaining %3 will not be imported.\n\nAre you sure you want to stop?").arg(qMax(0, currentFile_ -1)).arg(filesToImport_.count()).arg(filesToImport_.count()-currentFile_),
+				QMessageBox::Cancel | QMessageBox::Ok);
 	if(doCancel == QMessageBox::Ok) {
 		applyToAll_ = false;
 		onFinished();

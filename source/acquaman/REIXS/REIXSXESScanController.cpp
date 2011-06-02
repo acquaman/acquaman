@@ -22,9 +22,8 @@ REIXSXESScanController::REIXSXESScanController(REIXSXESScanConfiguration* config
 	// create our new scan object
 	generalScan_ = new AMXESScan();
 	generalScan_->setName("REIXS XES Scan");
-	/// \todo These never get set: generalScan_->setFilePath(generalCfg_->filePath() + generalCfg_->fileName());
-	// instead:
-	generalScan_->setFilePath(AMUserSettings::defaultFilePath(QDateTime::currentDateTime()));
+
+	generalScan_->setFilePath(AMUserSettings::defaultRelativePathForScan(QDateTime::currentDateTime())+".img");
 	generalScan_->setFileFormat("reixsXESRaw");
 	generalScan_->setRunId(AMUser::user()->currentRunId());
 
@@ -194,7 +193,7 @@ void REIXSXESScanController::onScanProgressCheck() {
 
 void REIXSXESScanController::saveRawData() {
 	REIXSXESRawFileLoader exporter(pScan());
-	if(!exporter.saveToFile(pScan()->filePath()))
+	if(!exporter.saveToFile(AMUserSettings::userDataFolder + "/" + pScan()->filePath()))
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 38, "Error saving the currently-running XES scan's raw data file to disk. Watch out... your data may not be saved! Please report this bug to the Acquaman developers."));
 }
 

@@ -25,24 +25,17 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSettings>
 #include <QString>
 
-/*! This file encapsulates user settings/options and beamline settings that are persistent over many runs of the program.
+/// This class encapsulates user settings/options that are persistent over many runs of the program.  Now that we have a database system for persistent data, only the essential information required to get to the database is stored in here. (See AMUser for the rest of the user's settings.)
+/*!
    User-specific settings are stored under the AMUserSettings class.  They can be different for each user account.
 
-   Program-wide settings are stored under the AMSettings class.
-	(We store process variable name definitions separately in their own namespace, inside beamline/AMProcessVariables.h)
 
 	AMSettings are loaded from config. files by calling
-   load(), and pushed out to the file with save().  Load() is normally called on program startup, and save() when the AMSettings view gets hit with OK or Apply (todo... that AMSettings view).
+   load(), and pushed out to the file with save().  Load() is normally called on program startup, and save() when the AMSettings view gets hit with OK or Apply (\todo... Make an AMSettings view).
 
    Accessing an option variable is simple and easy:
-		AMUserAMSettings::userDataFolder or AMSettings::publicDatabaseFilename or PVNames::ringCurrent
+		AMUserAMSettings::userDataFolder or AMSettings::publicDatabaseFilename, etc.
 
-   However, that convenience is balanced out by the awkwardness of setting up these settings...
-   They need to be written down in four places:
-	- Header (class) definition
-	- actual variable declaration (cpp)
-	- inside save()
-	- inside load()
 
    For user settings, only two basic pieces of information are stored in the config file: the folder to store the user's data and database, and the name of their database file.  Once we have this information, we can access the user's personal meta-data object, which is stored in the database itself. (see AMUser::user() for more information.)
 
@@ -53,11 +46,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 	On linux, storage is at:
 		- /etc/xdg/Acquaman/Acquaman.ini (system-wide)
 		- /home/user/.config/Acquaman/Acquaman.ini (user-specific)
-
-	\todo Problem: on linux (Ubuntu 9), don't have permission to access this folder. Results not getting saved.
-
-
-
    */
 
 class AMUserSettings {
@@ -70,11 +58,15 @@ public:
 	/// name of user database
 	static QString userDatabaseFilename;
 
-	/// Generates a default file path and file name (without an extension) within the user data storage folder. You can probably trust this to be unique. It will also ensure that the complete path (folders and subfolders) exists all the way down to the destination.
-	static QString defaultFilePath(const QDateTime&);
+	/// Generates a default file path and file name (without an extension) within the user data storage folder. You can  trust this to be unique. It will also ensure that the complete path (folders and subfolders) exists all the way down to the destination.  \note This version provides an absolute path name, starting at the root of the filesystem.
+	static QString defaultAbsolutePathForScan(const QDateTime&);
 
-	/// 2. User Information: (MOVED to AMUser)
-	// ========================================
+	/// Generates a default file path and file name (without an extension) within the user data storage folder. You can  trust this to be unique. It will also ensure that the complete path (folders and subfolders) exists all the way down to the destination.  \note This version provides a relative path name, relative to the user's \c userDataFolder.
+	static QString defaultRelativePathForScan(const QDateTime&);
+
+	/// Takes an absolute file path, and if it can be expressed relative to the userDataFolder, returns it as that relative path. (Example: /Users/mboots/acquamanUserData/2010/03/foo.txt becomes 2010/03/foo.txt, if my userDataFolder is /User/mboots/acquamanUserData).  If provided, \c wasInUserDataFolder is set to true if \c absolutePath could be expressed within the userDataFolder, and false if it was outside of that.
+	static QString relativePathFromUserDataFolder(const QString& absolutePath, bool* wasInUserDataFolder = 0);
+
 
 
 	/// Load settings from disk:
@@ -85,20 +77,19 @@ public:
 
 };
 
+
+/// This class encapsulates application-wide settings and options that are persistent over many runs of the program.
 class AMSettings {
 public:
-	/// 1. Process Variable name definitions should go into beamline/PVNames.h instead...
-	// ========================================
 
 
-	/// 2. public database and storage:
+	/// 1. public database and storage:
 	// ========================================
 
 	/// This is where public (archived/reviewed) data is stored, system-wide
 	static QString publicDataFolder;
 	/// This is the public database filename:
 	static QString publicDatabaseFilename;
-
 
 
 

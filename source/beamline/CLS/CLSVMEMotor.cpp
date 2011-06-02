@@ -74,12 +74,12 @@ void CLSVMEMotor::setVelocity(double velocity){
 
 void CLSVMEMotor::setBaseVelocity(double baseVelocity){
 	if(isConnected())
-		velocity_->move(baseVelocity);
+		baseVelocity_->move(baseVelocity);
 }
 
 void CLSVMEMotor::setAcceleration(double acceleration){
 	if(isConnected())
-		velocity_->move(acceleration);
+		acceleration_->move(acceleration);
 }
 
 void CLSVMEMotor::setUsingKill(bool usingKill){

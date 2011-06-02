@@ -284,7 +284,6 @@ protected:
 	// ui components:
 	AMGraphicsViewAndWidget* gview_;
 	QGraphicsLinearLayout* glayout_;
-	int width_, rc_, cc_;// layout locations: width (num cols), rowcounter, columncounter.
 
 	AMScanViewModeBar* modeBar_;
 	AMScanViewSourceSelector* scanBars_;
