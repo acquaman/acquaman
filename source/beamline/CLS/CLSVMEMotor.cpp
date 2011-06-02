@@ -30,9 +30,13 @@ CLSVMEMotor::CLSVMEMotor(const QString &name, const QString &baseName, const QSt
 	currentVelocity_ = new AMReadOnlyPVControl(name+"CurrentVelocity", baseName+":velo:fbk", this);
 
 	connect(velocity_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
+	connect(velocity_, SIGNAL(valueChanged(double)), this, SIGNAL(velocityChanged(double)));
 	connect(baseVelocity_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
+	connect(baseVelocity_, SIGNAL(valueChanged(double)), this, SIGNAL(baseVelocityChanged(double)));
 	connect(acceleration_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
+	connect(acceleration_, SIGNAL(valueChanged(double)), this, SIGNAL(accelerationChanged(double)));
 	connect(currentVelocity_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
+	connect(currentVelocity_, SIGNAL(valueChanged(double)), this, SIGNAL(currentVelocityChanged(double)));
 }
 
 bool CLSVMEMotor::isConnected() const{
