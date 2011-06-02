@@ -33,7 +33,9 @@ AMShutterButton::AMShutterButton(QString title, QString statusPV, QString openPV
 	connect(statePV_, SIGNAL(valueChanged()), this, SLOT(statusUpdate()));
 
 	openPV_ = new AMProcessVariable(openPV, true, this);
+	connect(openPV_, SIGNAL(writeReadyChanged(bool)), this, SLOT(statusUpdate()));
 	closePV_ = new AMProcessVariable(closePV, true, this);
+	connect(closePV_, SIGNAL(writeReadyChanged(bool)), this, SLOT(statusUpdate()));
 
 	setFlat(true);
 
@@ -67,8 +69,8 @@ void AMShutterButton::changeState()
 void AMShutterButton::statusUpdate()
 {
 	setEnabled(statePV_->canRead());
-	if (openPV_ && closePV_)
-		setFlat(!openPV_->canWrite() && !openPV_->canWrite());
+	if (isFlat() && openPV_ && closePV_)
+		setFlat(!openPV_->writeReady() && !closePV_->writeReady());
 
 	switch(statePV_->getInt()){
 	case 1:

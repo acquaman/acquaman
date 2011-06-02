@@ -58,6 +58,9 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	QLabel *sshShutterLabel = new QLabel("Beamline Shutters");
 	sshShutterLabel->setFont(font);
 
+	QLabel *endstationShutterLabel = new QLabel("Endstation Shutter");
+	endstationShutterLabel->setFont(font);
+
 	QLabel *statusLabel = new QLabel("Beamline Status");
 	statusLabel->setFont(font);
 
@@ -78,6 +81,23 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	QVBoxLayout *beamlineShutterLayout = new QVBoxLayout;
 	beamlineShutterLayout->addWidget(sshShutterLabel);
 	beamlineShutterLayout->addLayout(beamlineShutters);
+
+	// Endstation shutter control.
+	filterLowerButton_ = new QPushButton("Open");
+	filterLowerButton_->setCheckable(true);
+	connect(filterLowerButton_, SIGNAL(clicked()), this, SLOT(onLowerFilterUpdate()));
+
+	filterLabel_ = new QLabel;
+	filterLabel_->setPixmap(QIcon(":/ON.png").pixmap(30));
+	connect(VESPERSBeamline::vespers()->filterShutterLower(), SIGNAL(valueChanged(double)), this, SLOT(onFilterStatusChanged()));
+
+	QFormLayout *filterLayout = new QFormLayout;
+	filterLayout->addRow(filterLabel_, filterLowerButton_);
+	filterLayout->setHorizontalSpacing(20);
+
+	QHBoxLayout *adjustedFilterLayout = new QHBoxLayout;
+	adjustedFilterLayout->addSpacing(30);
+	adjustedFilterLayout->addLayout(filterLayout);
 
 	// The valve control.
 	valvesButton_ = new QPushButton("Open Valves");
@@ -105,7 +125,7 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	statusLayout->setHorizontalSpacing(20);
 
 	QHBoxLayout *adjustedStatusLayout = new QHBoxLayout;
-	adjustedStatusLayout->addStretch();
+	adjustedStatusLayout->addSpacing(30);
 	adjustedStatusLayout->addLayout(statusLayout);
 
 	QVBoxLayout *persistentLayout = new QVBoxLayout;
@@ -114,6 +134,8 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	persistentLayout->addWidget(sampleStageLabel);
 	persistentLayout->addWidget(motors);
 	persistentLayout->addWidget(pidView);
+	persistentLayout->addWidget(endstationShutterLabel);
+	persistentLayout->addLayout(adjustedFilterLayout);
 	persistentLayout->addWidget(statusLabel);
 	persistentLayout->addLayout(adjustedStatusLayout);
 	persistentLayout->addStretch();
@@ -121,12 +143,46 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	QGroupBox *vespers = new QGroupBox("VESPERS Beamline");
 	vespers->setLayout(persistentLayout);
 	vespers->setStyleSheet("QGroupBox { font: bold 12px; } ");
-	//vespers->setFixedWidth(175);
 
 	QVBoxLayout *vespersLayout = new QVBoxLayout;
 	vespersLayout->addWidget(vespers);
 
 	setLayout(vespersLayout);
+	setFixedWidth(200);
+}
+
+void VESPERSPersistentView::onFilterStatusChanged()
+{
+	if (((int)VESPERSBeamline::vespers()->filterShutterLower()->value()) == 1){
+
+		filterLabel_->setPixmap(QIcon(":/ON.png").pixmap(30));
+		filterLowerButton_->setText("Close");
+	}
+	else{
+
+		filterLabel_->setPixmap(QIcon(":/RED.png").pixmap(30));
+		filterLowerButton_->setText("Open");
+	}
+}
+
+void VESPERSPersistentView::onLowerFilterUpdate()
+{
+	// 0 = OUT.  For this to work properly, the upper shutter is to remain fixed at the out position and the lower shutter changes.  Therefore if upper is IN, put it out.
+	if (((int)VESPERSBeamline::vespers()->filterShutterUpper()->value()) == 1)
+		toggleFilter(VESPERSBeamline::vespers()->filterShutterUpper());
+
+	toggleFilter(VESPERSBeamline::vespers()->filterShutterLower());
+}
+
+void VESPERSPersistentView::toggleFilter(AMControl *filter)
+{
+	AMPVControl *temp = qobject_cast<AMPVControl *>(filter);
+
+	if (!temp)
+		return;
+
+	temp->move(1);
+	temp->move(0);
 }
 
 void VESPERSPersistentView::onValvesButtonPushed()

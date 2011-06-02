@@ -12,9 +12,9 @@ SampleStageControl::SampleStageControl(AMPVwStatusControl *horiz, AMPVwStatusCon
 	zHigh_ = 0;
 
 	// Scalers.
-	sx_ = 0;
-	sy_ = 0;
-	sz_ = 0;
+	sx_ = 1;
+	sy_ = 1;
+	sz_ = 1;
 
 	// The motor controls
 	horiz_ = horiz;
@@ -35,6 +35,51 @@ SampleStageControl::SampleStageControl(AMPVwStatusControl *horiz, AMPVwStatusCon
 	connect(horiz_, SIGNAL(writePVValueChanged(double)), this, SIGNAL(horizontalSetpointChanged(double)));
 	connect(vert_, SIGNAL(writePVValueChanged(double)), this, SIGNAL(verticalSetpointChanged(double)));
 	connect(norm_, SIGNAL(writePVValueChanged(double)), this, SIGNAL(normalSetpointChanged(double)));
+}
+
+bool SampleStageControl::setMotors(AMControl *horiz, AMControl *vert, AMControl *norm)
+{
+	AMPVwStatusControl *h = qobject_cast<AMPVwStatusControl *>(horiz);
+	AMPVwStatusControl *v = qobject_cast<AMPVwStatusControl *>(vert);
+	AMPVwStatusControl *n = qobject_cast<AMPVwStatusControl *>(norm);
+
+	// Check to see if the motors that were passed in are valid.
+	if (h == 0 || v == 0 || n == 0)
+		return false;
+
+	disconnect(horiz_, SIGNAL(connected(bool)), this, SIGNAL(connected(bool)));
+	disconnect(vert_, SIGNAL(connected(bool)), this, SIGNAL(connected(bool)));
+	disconnect(norm_, SIGNAL(connected(bool)), this, SIGNAL(connected(bool)));
+
+	disconnect(horiz_, SIGNAL(movingChanged(bool)), this, SIGNAL(movingChanged(bool)));
+	disconnect(vert_, SIGNAL(movingChanged(bool)), this, SIGNAL(movingChanged(bool)));
+	disconnect(norm_, SIGNAL(movingChanged(bool)), this, SIGNAL(movingChanged(bool)));
+
+	disconnect(horiz_, SIGNAL(writePVValueChanged(double)), this, SIGNAL(horizontalSetpointChanged(double)));
+	disconnect(vert_, SIGNAL(writePVValueChanged(double)), this, SIGNAL(verticalSetpointChanged(double)));
+	disconnect(norm_, SIGNAL(writePVValueChanged(double)), this, SIGNAL(normalSetpointChanged(double)));
+
+	horiz_ = h;
+	vert_ = v;
+	norm_ = n;
+
+	sx_ = 1;
+	sy_ = 1;
+	sz_ = 1;
+
+	connect(horiz_, SIGNAL(connected(bool)), this, SIGNAL(connected(bool)));
+	connect(vert_, SIGNAL(connected(bool)), this, SIGNAL(connected(bool)));
+	connect(norm_, SIGNAL(connected(bool)), this, SIGNAL(connected(bool)));
+
+	connect(horiz_, SIGNAL(movingChanged(bool)), this, SIGNAL(movingChanged(bool)));
+	connect(vert_, SIGNAL(movingChanged(bool)), this, SIGNAL(movingChanged(bool)));
+	connect(norm_, SIGNAL(movingChanged(bool)), this, SIGNAL(movingChanged(bool)));
+
+	connect(horiz_, SIGNAL(writePVValueChanged(double)), this, SIGNAL(horizontalSetpointChanged(double)));
+	connect(vert_, SIGNAL(writePVValueChanged(double)), this, SIGNAL(verticalSetpointChanged(double)));
+	connect(norm_, SIGNAL(writePVValueChanged(double)), this, SIGNAL(normalSetpointChanged(double)));
+
+	return true;
 }
 
 void SampleStageControl::moveHorizontal(double setpoint)

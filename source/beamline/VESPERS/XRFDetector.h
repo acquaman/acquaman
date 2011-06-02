@@ -79,7 +79,7 @@ public:
 		return data_->getInt(indexes.i());
 	}
 	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index)
-	virtual AMNumber axisValue(int axisNumber, int index, bool doBoundsChecking) const
+	virtual AMNumber axisValue(int axisNumber, int index, bool doBoundsChecking = true) const
 	{
 		Q_UNUSED(axisNumber)
 		Q_UNUSED(doBoundsChecking)

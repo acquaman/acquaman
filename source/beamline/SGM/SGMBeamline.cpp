@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "SGMBeamline.h"
 
 #include "dataman/AMSamplePlate.h"
+#include "beamline/CLS/CLSVMEMotor.h"
 
 
 void SGMBeamline::usingSGMBeamline(){
@@ -293,6 +294,7 @@ void SGMBeamline::usingSGMBeamline(){
 	ssaManipulatorZ_ = new AMPVwStatusControl("ssaManipulatorZ", sgmPVName+":fbk", sgmPVName+":sp", sgmPVName+":sp", "", this, 0.1);
 	ssaManipulatorZStop_ = new AMPVControl("ssaManipulatorZStop", "SMTR16114I1014:emergStop", "SMTR16114I1014:emergStop", "", this, 0.1);
 	*/
+
 	sgmPVName = amNames2pvNames_.valueF("ssaManipulatorRot");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;

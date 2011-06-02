@@ -15,6 +15,7 @@
 #include <QDir>
 #include <QLabel>
 #include <QMessageBox>
+#include <QProcess>
 
 VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	: QWidget(parent)
@@ -24,8 +25,9 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	microscopeControl_ = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->microscopeMotor());
 	fourElControl_ = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->fourElMotor());
 	singleElControl_ = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->singleElMotor());
-	focusControl_ = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->sampleStageNormal());
+	focusControl_ = VESPERSBeamline::vespers()->sampleStage()->norm();
 
+	// Laser power control.
 	laserPowerControl_ = qobject_cast<AMPVControl *>(VESPERSBeamline::vespers()->laserPower());
 
 	// The feedback PVs associated with the controls.
@@ -40,6 +42,9 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	ccdFile_ = VESPERSBeamline::vespers()->ccdFile();
 	ccdNumber_ = VESPERSBeamline::vespers()->ccdNumber();
 
+	// Pseudo-motor reset button.
+	resetPseudoMotors_ = VESPERSBeamline::vespers()->resetPseudoMotors();
+
 	// Get the current soft limits.
 	loadConfiguration();
 
@@ -47,11 +52,14 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	config_ = new VESPERSEndstationConfiguration;
 	config_->hide();
 	connect(config_, SIGNAL(configurationChanged()), this, SLOT(loadConfiguration()));
-	connect(config_, SIGNAL(configurationChanged()), this, SLOT(loadConfiguration()));
 
 	// Setting the flags to false as a precaution.
 	microscopeSafe_ = false;
 	ccdSafe_ = false;
+
+	// The button for the pseudo-motor reset.
+	QPushButton *resetPseudoMotorsButton = new QPushButton(QIcon(":/reset.png"), "Reset Pseudo-Motors");
+	connect(resetPseudoMotorsButton, SIGNAL(clicked()), this, SLOT(resetPseudoMotors()));
 
 	// Setup the buttons used in the picture.
 	ccdButton_ = new QToolButton;
@@ -66,9 +74,12 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	singleElButton_ = new QToolButton;
 	connect(singleElButton_, SIGNAL(clicked()), this, SLOT(singleElClicked()));
 	connect(singleElfbk_, SIGNAL(valueChanged(double)), this, SLOT(singleElUpdate(double)));
+	// Because the focus is a critical part of the sample stage (pseudo-motor or regular motor) it should be disabled if the entire sample stage is not connected.
 	focusButton_ = new QToolButton;
 	connect(focusButton_, SIGNAL(clicked()), this, SLOT(focusClicked()));
 	connect(focusfbk_, SIGNAL(valueChanged(double)), this, SLOT(focusUpdate(double)));
+	connect(VESPERSBeamline::vespers()->sampleStage(), SIGNAL(connected(bool)), focusButton_, SLOT(setEnabled(bool)));
+	connect(VESPERSBeamline::vespers()->sampleStage(), SIGNAL(movingChanged(bool)), focusButton_, SLOT(setDisabled(bool)));
 
 	// Setup the microscope light.
 	micLight_ = new QSlider(Qt::Vertical, this);
@@ -76,6 +87,9 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	micLight_->setMaximum(100);
 	micLight_->setTickInterval(10);
 	micLight_->setTickPosition(QSlider::TicksRight);
+	micLight_->setTracking(false);
+	connect(micLight_, SIGNAL(sliderPressed()), this, SLOT(micLightSliderPressed()));
+	connect(micLight_, SIGNAL(sliderReleased()), this, SLOT(micLightSliderReleased()));
 	connect(micLightPV_, SIGNAL(valueChanged()), this, SLOT(micLightUpdate()));
 	connect(micLight_, SIGNAL(valueChanged(int)), micLightPV_, SLOT(setValue(int)));
 
@@ -179,29 +193,36 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	connect(VESPERSBeamline::vespers()->filterSet(), SIGNAL(connected(bool)), this, SLOT(onFiltersChanged()));
 	connect(VESPERSBeamline::vespers()->filterSet(), SIGNAL(controlSetValuesChanged()), this, SLOT(onFiltersChanged()));
 
-	filterLowerButton_ = new QPushButton("Endstation Shutter");
-	filterLowerButton_->setCheckable(true);
-	connect(filterLowerButton_, SIGNAL(toggled(bool)), this, SLOT(onLowerFilterUpdate()));
+	QPushButton *startMicroscopeButton = new QPushButton("Microscope Display");
+	connect(startMicroscopeButton, SIGNAL(clicked()), this, SLOT(startMicroscope()));
 
-	filterLabel_ = new QLabel;
-	filterLabel_->setPixmap(QIcon(":/OFF.png").pixmap(25));
-	connect(VESPERSBeamline::vespers()->filterShutterLower(), SIGNAL(valueChanged(double)), this, SLOT(onFilterStatusChanged()));
+	QHBoxLayout *extrasGroupBoxLayout = new QHBoxLayout;
+	extrasGroupBoxLayout->addWidget(new QLabel("Filters:"));
+	extrasGroupBoxLayout->addWidget(filterComboBox_);
+	extrasGroupBoxLayout->addStretch();
+	extrasGroupBoxLayout->addWidget(resetPseudoMotorsButton);
 
-	QHBoxLayout *filterLayout = new QHBoxLayout;
-	filterLayout->addWidget(filterComboBox_);
-	filterLayout->addSpacing(15);
-	filterLayout->addWidget(filterLowerButton_);
-	filterLayout->addWidget(filterLabel_);
+	/// \todo this will be removed once I build my own XAS software.
+	QPushButton *idaButton = new QPushButton("Launch XAS Software");
+	connect(idaButton, SIGNAL(clicked()), this, SLOT(startXAS()));
 
-	QGroupBox *filterGroupBox = new QGroupBox("Filters");
-	filterGroupBox->setLayout(filterLayout);
+	QHBoxLayout *launchingLayout = new QHBoxLayout;
+	launchingLayout->addWidget(startMicroscopeButton);
+	launchingLayout->addWidget(idaButton);
+
+	QVBoxLayout *tempLayout = new QVBoxLayout;
+	tempLayout->addLayout(extrasGroupBoxLayout);
+	tempLayout->addLayout(launchingLayout);
+
+	QGroupBox *ExtrasGroupBox = new QGroupBox("Extras");
+	ExtrasGroupBox->setLayout(tempLayout);
 
 	// Setup the top frame.
 	AMTopFrame *topFrame = new AMTopFrame("Endstation Control Screen");
 
 	QVBoxLayout *extrasLayout = new QVBoxLayout;
 	extrasLayout->addStretch();
-	extrasLayout->addWidget(filterGroupBox);
+	extrasLayout->addWidget(ExtrasGroupBox);
 	extrasLayout->addWidget(windowGB);
 	extrasLayout->addWidget(ccdGB);
 	extrasLayout->addStretch();
@@ -260,19 +281,12 @@ void VESPERSEndstationView::onFiltersConnected(bool isConnected)
 	connect(VESPERSBeamline::vespers()->filterSet(), SIGNAL(controlSetValuesChanged()), this, SLOT(onFiltersChanged()));
 }
 
-void VESPERSEndstationView::onFilterStatusChanged()
-{
-	if (((int)VESPERSBeamline::vespers()->filterShutterLower()->value()) == 1)
-		filterLabel_->setPixmap(QIcon(":/ON.png").pixmap(25));
-	else
-		filterLabel_->setPixmap(QIcon(":/RED.png").pixmap(25));
-}
-
 void VESPERSEndstationView::onFiltersChanged()
 {
 	int sum = 0;
 	AMPVControl *temp;
 
+	// Find what the current index should be based on the current filters in the beamline.
 	for (int i = 0; i < VESPERSBeamline::vespers()->filterSet()->count()-2; i++){
 
 		temp = qobject_cast<AMPVControl *>(VESPERSBeamline::vespers()->filterSet()->at(i));
@@ -302,21 +316,6 @@ void VESPERSEndstationView::onFiltersChanged()
 	filterComboBox_->blockSignals(true);
 	filterComboBox_->setCurrentIndex(sum);
 	filterComboBox_->blockSignals(false);
-
-	// Handles the lower shutter button individually.
-	temp = qobject_cast<AMPVControl *>(VESPERSBeamline::vespers()->filterShutterLower());
-
-	if (temp){
-
-		filterLowerButton_->blockSignals(true);
-
-		if (temp->readPV()->getInt() == 1)
-			filterLowerButton_->setChecked(true);
-		else
-			filterLowerButton_->setChecked(false);
-
-		filterLowerButton_->blockSignals(false);
-	}
 }
 
 void VESPERSEndstationView::onFilterComboBoxUpdate(int index)
@@ -412,15 +411,6 @@ void VESPERSEndstationView::onFilterComboBoxUpdate(int index)
 		toggleFilter(VESPERSBeamline::vespers()->filter50umB());
 		break;
 	}
-}
-
-void VESPERSEndstationView::onLowerFilterUpdate()
-{
-	// 0 = OUT.  For this to work properly, the upper shutter is to remain fixed at the out position and the lower shutter changes.  Therefore if upper is IN, put it out.
-	if (((int)VESPERSBeamline::vespers()->filterShutterUpper()->value()) == 1)
-		toggleFilter(VESPERSBeamline::vespers()->filterShutterUpper());
-
-	toggleFilter(VESPERSBeamline::vespers()->filterShutterLower());
 }
 
 void VESPERSEndstationView::toggleFilter(AMControl *filter)
@@ -666,8 +656,8 @@ VESPERSEndstationConfiguration::VESPERSEndstationConfiguration(QWidget *parent)
 
 bool VESPERSEndstationConfiguration::saveFile()
 {
-
-	QFile file(QDir::currentPath() + "endstation.config");
+	qDebug() << QDir::currentPath()+"endstation.config";
+	QFile file(QDir::currentPath() + "/endstation.config");
 
 	if (!file.open(QFile::WriteOnly | QFile::Text)){
 		QMessageBox::warning(this, tr("Endstation Configuration"),

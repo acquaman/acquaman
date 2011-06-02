@@ -127,14 +127,19 @@ void AM2DSummingAB::setInputDataSourcesImplementation(const QList<AMDataSource*>
 void AM2DSummingAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end) {
 
 	if(start.isValid() && end.isValid()) {
-		for(int i=start.i(); i<=end.i(); i++)
-			cachedValues_[i] = AMNumber();	// invalidate with changed region
+		int otherAxis = (sumAxis_ == 0) ? 1 : 0;
+		int startIndex = start.at(otherAxis);
+		int endIndex = end.at(otherAxis);
+		for(int i=startIndex; i<=endIndex; i++)
+			cachedValues_[i] = AMNumber();	// invalidate the changed region
+		emitValuesChanged(startIndex, endIndex);
 	}
 	else {
 		invalidateCache();
+		emitValuesChanged();
 	}
 
-	/// \todo start an idle-time computation of the cached values
+	/// \todo start an idle-time computation of the cached values?
 }
 
 /// Connected to be called when the size of the input source changes

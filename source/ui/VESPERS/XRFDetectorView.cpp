@@ -4,6 +4,7 @@
 #include "MPlot/MPlotAxisScale.h"
 #include "dataman/AMDataSourceSeriesData.h"
 #include "util/AMPeriodicTable.h"
+#include "util/VESPERS/GeneralUtilities.h"
 
 #include <QString>
 #include <QHBoxLayout>
@@ -161,6 +162,10 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	connect(waterfallSeparation_, SIGNAL(valueChanged(double)), this, SLOT(onWaterfallSeparationChanged(double)));
 	connect(waterfallButton_, SIGNAL(toggled(bool)), waterfallSeparation_, SLOT(setEnabled(bool)));
 
+	/// \todo Save button hack.  Once auto-export works, redo this if need be.
+	QPushButton *saveSpectraButton = new QPushButton(QIcon(":/Save.png"), "Save Spectra");
+	connect(saveSpectraButton, SIGNAL(clicked()), this, SLOT(saveSpectra()));
+
 	QVBoxLayout *viewControlLayout = new QVBoxLayout;
 	viewControlLayout->addWidget(elapsedTimeLabel, 0, Qt::AlignLeft);
 	viewControlLayout->addWidget(elapsedTime_, 0, Qt::AlignCenter);
@@ -178,6 +183,7 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 		viewControlLayout->addWidget(waterfallSeparation_, 0, Qt::AlignCenter);
 	}
 	viewControlLayout->addStretch();
+	viewControlLayout->addWidget(saveSpectraButton, 0, Qt::AlignCenter);
 
 	QGroupBox *controlBox = new QGroupBox;
 	controlBox->setLayout(viewControlLayout);
@@ -192,7 +198,7 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	detectorLayout->addLayout(viewLayout);
 
 	setLayout(detectorLayout);
-qDebug() << plot_->axisScaleLeft()->padding() << plot_->axisScaleVerticalRelative()->padding();
+
 	return true;
 }
 
@@ -205,35 +211,12 @@ void XRFDetailedDetectorView::roiWidthUpdate(AMROI *roi)
 
 		temp = markers_.at(i);
 
-		if (temp->description().compare(getName(roi)) == 0){
+		if (roi->name().compare(GeneralUtilities::removeGreek(temp->description())) == 0){
 
 			temp->setLowEnd(roi->low()*roi->scale());
 			temp->setHighEnd(roi->high()*roi->scale());
 		}
 	}
-}
-
-QString XRFDetailedDetectorView::getName(AMROI *roi)
-{
-	QString name(roi->name());
-
-	name = name.left(name.indexOf(" "));
-	AMElement *el = AMPeriodicTable::table()->elementBySymbol(name);
-
-	if (el){
-
-		int low = roi->low();
-		int high = roi->high();
-
-		for (int j = 0; j < el->emissionLines().count(); j++){
-
-			if (el->emissionLines().at(j).first.contains("1")
-					&& fabs((low+high)/2 - el->emissionLines().at(j).second.toDouble()/roi->scale()) < 3)
-				name = el->symbol()+" "+el->emissionLines().at(j).first;
-		}
-	}
-
-	return name;
 }
 
 void XRFDetailedDetectorView::onLogEnabled(bool logged)
@@ -435,9 +418,10 @@ void XRFDetailedDetectorView::sortRegionsOfInterest()
 
 void XRFDetailedDetectorView::onAdditionOfRegionOfInterest(AMElement *el, QPair<QString, QString> line)
 {
-	AMROIInfo info(el->symbol()+" "+line.first, line.second.toDouble(), 0.04, detector_->scale());
+	// Because I want to display greek letters on the screen I have to play around with removing and adding the greek letters.
+	AMROIInfo info(el->symbol()+" "+GeneralUtilities::removeGreek(line.first), line.second.toDouble(), 0.04, detector_->scale());
 	detector_->addRegionOfInterest(info);
-	ROIPlotMarker *newMarker = new ROIPlotMarker(info.name(), info.energy(), info.energy()*(1-info.width()/2), info.energy()*(1+info.width()/2));
+	ROIPlotMarker *newMarker = new ROIPlotMarker(el->symbol()+" "+line.first, info.energy(), info.energy()*(1-info.width()/2), info.energy()*(1+info.width()/2));
 	plot_->insertItem(newMarker);
 	newMarker->setYAxisTarget(plot_->axisScale(MPlot::VerticalRelative));
 	markers_ << newMarker;
@@ -446,7 +430,7 @@ void XRFDetailedDetectorView::onAdditionOfRegionOfInterest(AMElement *el, QPair<
 
 void XRFDetailedDetectorView::onRemovalOfRegionOfInterest(AMElement *el, QPair<QString, QString> line)
 {
-	detector_->removeRegionOfInterest(el->symbol()+" "+line.first);
+	detector_->removeRegionOfInterest(el->symbol()+" "+GeneralUtilities::removeGreek(line.first));
 
 	MPlotItem *removeMe = 0;
 	ROIPlotMarker *temp;
@@ -595,6 +579,48 @@ void XRFDetailedDetectorView::onDeadTimeUpdate()
 void XRFDetailedDetectorView::onElapsedTimeUpdate(double time)
 {
 	elapsedTime_->setText(QString::number(time, 'f', 2) + " s");
+}
+
+#include <QFileDialog>
+#include <QTextStream>
+
+/// \todo get rid of this because it is a dirty hack.  Will become auto-export once it's available.
+void XRFDetailedDetectorView::saveSpectra()
+{
+	QFileDialog saveDialog(this);
+	saveDialog.setFileMode(QFileDialog::AnyFile);
+
+	QString fileName = saveDialog.getSaveFileName(this,
+													   tr("Save Spectra"),
+													   "",
+													   tr("Spectra Data (*.dat);;All Files (*)"));
+
+	QFile file(fileName+".dat");
+
+	if (!file.open(QFile::WriteOnly | QFile::Text)){
+		QMessageBox::warning(this, tr("XRF Detector"),
+							 tr("Cannot open file %1:\n%2")
+							 .arg(file.fileName())
+							 .arg(file.errorString()));
+		return;
+	}
+
+	QTextStream out(&file);
+
+	if (detector_->elements() == 1){
+
+		out << "eV\tData\n";
+		for (int i = 0; i < detector_->dataSource()->size(0); i++)
+			out << double(detector_->dataSource()->axisValue(0, i)) << "\t" << int(detector_->dataSource()->value(AMnDIndex(i))) << "\n";
+	}
+	else{
+
+		out << "eV\traw1\traw2\traw3\traw4\tcorrected sum\n";
+		for (int i = 0; i < detector_->dataSource()->size(0); i++)
+			out << double(detector_->dataSource()->axisValue(0, i)) << "\t" << int(detector_->dataSource(0)->value(AMnDIndex(i))) << "\t" << int(detector_->dataSource(1)->value(AMnDIndex(i))) << "\t" << int(detector_->dataSource(2)->value(AMnDIndex(i))) << "\t" << int(detector_->dataSource(3)->value(AMnDIndex(i))) << "\t" << int(detector_->dataSource(4)->value(AMnDIndex(i))) << "\n";
+	}
+
+	file.close();
 }
 
 // End detailed detector view
