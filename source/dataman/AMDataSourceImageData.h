@@ -41,11 +41,11 @@ public:
 
 
 	/// Return the x (data value) corresponding an (x,y) \c index:
-	virtual inline double x(int indexX) const { return source_->axisValue(0, indexX); }
+	virtual inline double x(int indexX) const { return source_->axisValue(0, indexX, false); }
 	/// Return the y (data value) corresponding an (x,y) \c index:
-	virtual inline double y(int indexY) const { return source_->axisValue(1, indexY); }
+	virtual inline double y(int indexY) const { return source_->axisValue(1, indexY, false); }
 	/// Return the z = f(x,y) value corresponding an (x,y) \c index:
-	virtual inline double z(int xIndex, int yIndex) const { return source_->value(AMnDIndex(xIndex, yIndex)); }
+	virtual inline double z(int xIndex, int yIndex) const { return source_->value(AMnDIndex(xIndex, yIndex), false); }
 
 
 	/// Return the number of elements in x and y

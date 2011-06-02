@@ -132,6 +132,7 @@ void AMSamplePlateItemModel::onDatabaseItemUpdated(const QString &tableName, int
 void AMSamplePlateItemModel::onDatabaseItemRemoved(const QString &tableName, int id) {
 	if(tableName != sampleTableName_)
 		return;
+
 	// ok, this update was on the sample table. Check all of our cached samples to see if it was their id that was deleted.
 	for(int i=0; i<cachedSamples_.count(); i++) {
 		if(cachedSamples_.at(i).id() == id) {

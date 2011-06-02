@@ -198,7 +198,6 @@ bool AMDbObject::storeToDb(AMDatabase* db) {
 		}
 		else if(columnType == qMetaTypeId<AMIntList>()) {
 			AMIntList intList = property(columnName).value<AMIntList>();
-			qDebug() << "Storing AMIntList to Database:" << columnName << intList.count();
 			QStringList resultString;
 			foreach(int i, intList)
 				resultString << QString("%1").arg(i);

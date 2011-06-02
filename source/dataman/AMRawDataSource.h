@@ -58,12 +58,12 @@ public:
 	// Axis Information
 	//////////////////////
 	/// Returns axis information for all axes
-	virtual inline QList<AMAxisInfo> axes() const { return axes_; }
+	virtual QList<AMAxisInfo> axes() const { return axes_; }
 
 	/// Returns the rank (number of dimensions) of this data set
-	virtual inline int rank() const { return axes_.count(); }
+	virtual int rank() const { return axes_.count(); }
 	/// Returns the size of (ie: count along) each dimension
-	virtual inline AMnDIndex size() const {
+	virtual AMnDIndex size() const {
 		int rank = axes_.count();
 		AMnDIndex s(rank, false);
 		for(int i=0; i<rank; i++)
@@ -71,11 +71,11 @@ public:
 		return s;
 	}
 	/// Returns the size along a single axis \c axisId. This should be fast. \c axisId is assumed to be between 0 and rank()-1.
-	virtual inline int size(int axisId) const { return axes_.at(axisId).size; }
+	virtual int size(int axisId) const { return axes_.at(axisId).size; }
 	/// Returns a bunch of information about a particular axis. \c axisId is assumed to be between 0 and rank()-1.
-	virtual inline AMAxisInfo axisInfoAt(int axisId) const { return axes_.at(axisId); }
+	virtual AMAxisInfo axisInfoAt(int axisId) const { return axes_.at(axisId); }
 	/// Returns the id of an axis, by name. (By id, we mean the index of the axis. We called it number to avoid ambiguity with indexes <i>into</i> axes.) This could be slow, so users shouldn't call it repeatedly.  Returns -1 if not found.
-	virtual inline int idOfAxis(const QString& axisName) {
+	virtual int idOfAxis(const QString& axisName) {
 		for(int i=0; i<axes_.count(); i++)
 			if(axes_.at(i).name == axisName)
 				return i;
@@ -87,12 +87,13 @@ public:
 	////////////////////////////
 
 	/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient/wrong dimensionality, or if the data is not ready.
-	virtual inline AMNumber value(const AMnDIndex& indexes) const {
+	virtual AMNumber value(const AMnDIndex& indexes, bool doBoundsChecking = true) const {
 
 		if(!isValid())
 			return AMNumber(AMNumber::InvalidError);
-		if(indexes.rank() != rank())
+		if(doBoundsChecking && indexes.rank() != rank())
 			return AMNumber(AMNumber::DimensionError);
+
 
 		/// optimize for common dimensional cases, to avoid the for-loop overhead
 		switch(scanAxesCount_) {
@@ -101,20 +102,20 @@ public:
 		case 1:
 			switch(measurementAxesCount_) {
 			case 0:
-				return dataStore_->value(indexes.i(), measurementId_, AMnDIndex());	// 1d data: one scan axis, scalar measurements
+				return dataStore_->value(indexes.i(), measurementId_, AMnDIndex(), doBoundsChecking);	// 1d data: one scan axis, scalar measurements
 			case 1:
-				return dataStore_->value(indexes.i(), measurementId_, indexes.j()); // 2d data: one scan axis, one measurement axis (ie: XAS scan with 1D detector, like SDD)
+				return dataStore_->value(indexes.i(), measurementId_, indexes.j(), doBoundsChecking); // 2d data: one scan axis, one measurement axis (ie: XAS scan with 1D detector, like SDD)
 			case 2:
-				return dataStore_->value(indexes.i(), measurementId_, AMnDIndex(indexes.j(), indexes.k()));	// 3d data: one scan axis, two measurement axes (ie: XAS scan with 2D detector, like XES)
+				return dataStore_->value(indexes.i(), measurementId_, AMnDIndex(indexes.j(), indexes.k()), doBoundsChecking);	// 3d data: one scan axis, two measurement axes (ie: XAS scan with 2D detector, like XES)
 			}
 		case 2:
 			switch(measurementAxesCount_) {
 			case 0:
-				return dataStore_->value(AMnDIndex(indexes.i(), indexes.j()), measurementId_, AMnDIndex());
+				return dataStore_->value(AMnDIndex(indexes.i(), indexes.j()), measurementId_, AMnDIndex(), doBoundsChecking);
 			case 1:
-				return dataStore_->value(AMnDIndex(indexes.i(), indexes.j()), measurementId_, indexes.k());
+				return dataStore_->value(AMnDIndex(indexes.i(), indexes.j()), measurementId_, indexes.k(), doBoundsChecking);
 			case 2:
-				return dataStore_->value(AMnDIndex(indexes.i(), indexes.j()), measurementId_, AMnDIndex(indexes.k(), indexes.l()));	// 4D data: really?
+				return dataStore_->value(AMnDIndex(indexes.i(), indexes.j()), measurementId_, AMnDIndex(indexes.k(), indexes.l()), doBoundsChecking);	// 4D data: really?
 			}
 
 		default:
@@ -130,15 +131,15 @@ public:
 		for(int i=0; i<measurementAxesCount_; i++)
 			measurementIndex[i] = indexes.at(i+scanAxesCount_);
 
-		return dataStore_->value(scanIndex, measurementId_, measurementIndex);
+		return dataStore_->value(scanIndex, measurementId_, measurementIndex, doBoundsChecking);
 	}
 
 	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index)
-	virtual inline AMNumber axisValue(int axisNumber, int index) const {
+	virtual AMNumber axisValue(int axisNumber, int index, bool doBoundsChecking = true) const {
 		if(!isValid())
 			return AMNumber(AMNumber::InvalidError);
 		if(axisNumber < scanAxesCount_)
-			return dataStore_->axisValue(axisNumber, index);	// value along a scan axis
+			return dataStore_->axisValue(axisNumber, index, doBoundsChecking);	// value along a scan axis
 		else if (axisNumber < rank() )	// value along a measurement axis. Unsupported so far... All we have is the direct value
 			return index;	/// \todo Implement scaled and non-uniform measurement axes
 		else
@@ -150,11 +151,11 @@ public:
 	// Access for database stored values
 	///////////////////
 	/// The id of the detector we're exposing out of the raw data
-	int inline measurementId() const { return measurementId_; }
+	int measurementId() const { return measurementId_; }
 	/// The number of dimensions or axes that were scanned over
-	int inline scanRank() const { return scanAxesCount_; }
+	int scanRank() const { return scanAxesCount_; }
 	/// The number of dimensions or axes that the detector has, at each scan point
-	int inline measurementRank() const { return measurementAxesCount_; }
+	int measurementRank() const { return measurementAxesCount_; }
 
 
 	/// Called when reloading from the database

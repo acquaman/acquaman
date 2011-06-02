@@ -38,8 +38,16 @@ QString AMUserSettings::userDataFolder;
 /// name of user database
 QString AMUserSettings::userDatabaseFilename;
 
+QString AMUserSettings::defaultRelativePathForScan(const QDateTime& dt) {
+	QDir dir;
+	QString path = dt.toString("yyyy/MM");
+	dir.mkpath(userDataFolder + "/" + path);
+	path.append(dt.toString("/ddd_MM_dd_hh_mm_ss"));
+	path.append(QString("_%1").arg(int(qrand()%10000), 4, 10, QChar('0')));
+	return path;
+}
 
-QString AMUserSettings::defaultFilePath(const QDateTime& dt) {
+QString AMUserSettings::defaultAbsolutePathForScan(const QDateTime& dt) {
 	QDir dir;
 	QString path = userDataFolder + dt.toString("/yyyy/MM");
 	dir.mkpath(path);
@@ -47,6 +55,30 @@ QString AMUserSettings::defaultFilePath(const QDateTime& dt) {
 	path.append(QString("_%1").arg(int(qrand()%10000), 4, 10, QChar('0')));
 	return path;
 }
+
+QString AMUserSettings::relativePathFromUserDataFolder(const QString &absolutePath, bool *wasInUserDataFolder)
+{
+	bool wasOK;
+	QString rv;
+
+	QString normalizedPath = QDir::fromNativeSeparators(absolutePath);
+	QString normalizedUserDataFolder = QDir::fromNativeSeparators(userDataFolder);
+	if(normalizedPath.startsWith(normalizedUserDataFolder)) {
+		wasOK = true;
+		rv = normalizedPath.mid(normalizedUserDataFolder.length());
+	}
+	else {
+		wasOK = false;
+		rv = absolutePath;
+	}
+
+	if(wasInUserDataFolder) {
+		*wasInUserDataFolder = wasOK;
+	}
+
+	return rv;
+}
+
 
 /// 2. User Information: (MOVED to AMUser)
 // ========================================
@@ -118,3 +150,4 @@ void AMSettings::save() {
 	settings.setValue("publicDataFolder", publicDataFolder);
 	settings.setValue("publicDatabaseFilename", publicDatabaseFilename);
 }
+

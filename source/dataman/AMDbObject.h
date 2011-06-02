@@ -318,10 +318,8 @@ public:
 
 
 signals:
-	/// Removed: Emitted whenever a meta-data item is changed. \c key is the name of the meta-data.
-	// removeod: void metaDataChanged(const QString& key);
 
-	/// Emitted when this scan is fully re-loaded from the database
+	/// Emitted when this object is fully re-loaded from the database
 	void loadedFromDb();
 	/// Emitted when the modified() state changes. Indicates that this object is in-sync or out-of-sync with the database version.
 	void modifiedChanged(bool isModified);

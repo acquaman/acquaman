@@ -42,7 +42,8 @@ SGMXASScanConfigurationWizard::SGMXASScanConfigurationWizard(SGMXASScanConfigura
 												  "Enable or Disable Energy Tracking for Your Scan",
 												  "By unchecking the boxes below, you will disable the energy tracking of each element. "
 												  "Normally, all of these devices track energy; however, certain scan types and certain energy regions can operate without tracking for increased stability.");
-		detectorsPage = new AMDetectorSetWizardPage(cfg_->detectorChoices(), &cfg_->detectorChoiceConfigurations(),
+		AMDetectorInfoSet detectorChoiceConfigurations = cfg_->detectorChoiceConfigurations();
+		detectorsPage = new AMDetectorSetWizardPage(cfg_->detectorChoices(), &detectorChoiceConfigurations,
 													"Choose which Detectors Your Scan will Collect Data From",
 													"Checking the boxes below will enable each detector for this scan. "
 													"Additional setup information can be found by clicking the appropriate Details button.");

@@ -181,8 +181,6 @@ void AMSampleEditor::refreshSamples() {
 	///////////////////////////////////////////
 	if(refreshId_ > 0 && sampleId2Index_.contains(refreshId_)) {
 
-		qDebug() << "Calling precise AMSampleEditor::refreshSamples";
-
 		int index = sampleId2Index_.value(refreshId_);
 		QSqlQuery q = db_->query();
 		q.prepare(QString("SELECT id,name,dateTime FROM %1 WHERE id = ?").arg(sampleTableName_));
@@ -294,8 +292,6 @@ void AMSampleEditor::createNewSample() {
 }
 
 void AMSampleEditor::saveCurrentSample() {
-
-	qDebug() << "saving sample";
 
 	/// clear focus on the editors. \todo Move this to subclass of qlineedit?
 	sampleName_->blockSignals(true);

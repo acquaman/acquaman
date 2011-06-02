@@ -136,17 +136,11 @@ public:
 	// Data value access
 	////////////////////////////
 
-	/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient or any are out of range, or if the data is not ready.
-	virtual AMNumber value(const AMnDIndex& indexes) const = 0;
-	/// [removed] Returns the dependent value for a set of axis indexes, where the indices are specified by axis name. This generally will not be as fast as the other version of value().
-	// removed from API: virtual AMNumber value(const QMap<QString, int>& axisNamesAndIndexes) const = 0;
+	/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient or any are out of range, or if the data is not ready.  If you know for sure that the index is within the valid data range, you can set \c doBoundsChecking to false for increased performance.
+	virtual AMNumber value(const AMnDIndex& indexes, bool doBoundsChecking = true) const = 0;
 
-
-
-	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index)
-	virtual AMNumber axisValue(int axisNumber, int index) const = 0;
-	/// [removed] When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis name and index)
-	// removed: virtual AMNumber axisValue(const QString& axisName, int index) = 0;
+	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index).  If you know for sure that the index is within the valid data range, you can set \c doBoundsChecking to false for increased performance.
+	virtual AMNumber axisValue(int axisNumber, int index, bool doBoundsChecking = true) const = 0;
 
 	// Observers
 	//////////////////////////
@@ -197,6 +191,8 @@ protected:
 	QString name_;
 	/// Human-readable description for it
 	QString description_;
+	/// Units describing the dependent values return by value()
+	QString units_;
 	/// Set of observers
 	QSet<void*> observers_;
 

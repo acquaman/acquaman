@@ -58,8 +58,6 @@ SGMXASScanConfigurationView::SGMXASScanConfigurationView(SGMXASScanConfiguration
 		connect(trackingView_, SIGNAL(configValuesChanged(AMControlInfoList)), sxsc, SLOT(setTrackingGroup(AMControlInfoList)));
 		connect(sxsc, SIGNAL(trackingGroupChanged(AMControlInfoList)), trackingView_, SLOT(setFromInfoList(AMControlInfoList)));
 
-		for(int x = 0; x < sxsc->detectorChoices()->count(); x++)
-			qDebug() << "Starts with " << sxsc->detectorChoices()->detectorAt(x)->detectorName();
 		xasDetectorsView_ = new AMDetectorSetView(sxsc->detectorChoices(), true);
 		connect(xasDetectorsView_, SIGNAL(configValuesChanged()), this, SLOT(onDetectorConfigurationsChanged()));
 

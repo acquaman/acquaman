@@ -71,12 +71,6 @@ void SGMBeamline::usingSGMBeamline(){
 	amNames2pvNames_.set("loadlockCCG", "CCG1611-4-I10-09:vac:p");
 	amNames2pvNames_.set("loadlockTCG", "TCGC1611-426:pressure:fbk");
 
-	/*
-	amNames2pvNames_.set("ssaManipulatorX", "BL1611-ID-1:EA2:x");
-	amNames2pvNames_.set("ssaManipulatorY", "BL1611-ID-1:EA2:z");
-	amNames2pvNames_.set("ssaManipulatorZ", "BL1611-ID-1:EA2:y");
-	amNames2pvNames_.set("ssaManipulatorRot", "BL1611-ID-1:EA2:r");
-	*/
 	amNames2pvNames_.set("ssaManipulatorX", "SMTR16114I1022");
 	amNames2pvNames_.set("ssaManipulatorY", "SMTR16114I1023");
 	amNames2pvNames_.set("ssaManipulatorZ", "SMTR16114I1024");
@@ -338,60 +332,17 @@ void SGMBeamline::usingSGMBeamline(){
 	loadlockTCG_->setDescription("SSA Loadlock TCG Pressure");
 	loadlockTCG_->setContextKnownDescription("Loadlock TCG");
 
-
-	sgmPVName = amNames2pvNames_.valueF("ssaManipulatorX");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	//ssaManipulatorX_ = new AMPVwStatusControl("ssaManipulatorX", sgmPVName+":fbk", sgmPVName+":sp", "SMTR16114I1018:state", "SMTR16114I1018:emergStop", this, 0.1, 2.0, new AMControlStatusCheckerStopped(0));
-	ssaManipulatorX_ = new AMPVwStatusControl("ssaManipulatorX", sgmPVName+":mm:fbk", sgmPVName+":mm", sgmPVName+":status", sgmPVName+":stop", this, 0.2, 2.0, new AMControlStatusCheckerStopped(0));
-	//ssaManipulatorX_ = new AMPVControl("ssaManipulatorX", sgmPVName+":mm:fbk", sgmPVName+":mm", sgmPVName+":stop", this, 0.2, 5.0);
-	ssaManipulatorX_->setDescription("SSA Inboard/Outboard");
+	ssaManipulatorX_ = new CLSVMEMotor("ssaManipulatorX", amNames2pvNames_.valueF("ssaManipulatorX"), "SSA Inboard/Outboard", true, 0.2, 2.0, this);
 	ssaManipulatorX_->setContextKnownDescription("X");
 
-	ssaManipulatorXVelocity_ = new AMPVControl("ssaManipulatorXVelocity", sgmPVName+":velo:fbk", sgmPVName+":velo", QString(), this);
-	ssaManipulatorXVelocityBase_ = new AMPVControl("ssaManipulatorXVelocityBase", sgmPVName+":vBase:sp", sgmPVName+":veloBase", QString(), this);
-	ssaManipulatorXAcceleration_ = new AMPVControl("ssaManipulatorXAcceleration", sgmPVName+":accel:sp", sgmPVName+":accel", QString(), this);
-
-
-	sgmPVName = amNames2pvNames_.valueF("ssaManipulatorY");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	//ssaManipulatorY_ = new AMPVwStatusControl("ssaManipulatorY", sgmPVName+":fbk", sgmPVName+":sp", "SMTR16114I1019:state", "SMTR16114I1019:emergStop", this, 0.1, 2.0, new AMControlStatusCheckerStopped(0));
-	ssaManipulatorY_ = new AMPVwStatusControl("ssaManipulatorY", sgmPVName+":mm:fbk", sgmPVName+":mm", sgmPVName+":status", sgmPVName+":stop", this, 0.2, 2.0, new AMControlStatusCheckerStopped(0));
-	//ssaManipulatorY_ = new AMPVControl("ssaManipulatorY", sgmPVName+":mm:fbk", sgmPVName+":mm", sgmPVName+":stop", this, 0.2, 5.0);
-	ssaManipulatorY_->setDescription("SSA Upstream/Downstream");
+	ssaManipulatorY_ = new CLSVMEMotor("ssaManipulatorY", amNames2pvNames_.valueF("ssaManipulatorY"), "SSA Upstream/Downstream", true, 0.2, 2.0, this);
 	ssaManipulatorY_->setContextKnownDescription("Y");
 
-	ssaManipulatorYVelocity_ = new AMPVControl("ssaManipulatorYVelocity", sgmPVName+":velo:fbk", sgmPVName+":velo", QString(), this);
-	ssaManipulatorYVelocityBase_ = new AMPVControl("ssaManipulatorYVelocityBase", sgmPVName+":vBase:sp", sgmPVName+":veloBase", QString(), this);
-	ssaManipulatorYAcceleration_ = new AMPVControl("ssaManipulatorYAcceleration", sgmPVName+":accel:sp", sgmPVName+":accel", QString(), this);
-
-
-	sgmPVName = amNames2pvNames_.valueF("ssaManipulatorZ");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	//ssaManipulatorZ_ = new AMPVwStatusControl("ssaManipulatorZ", sgmPVName+":fbk", sgmPVName+":sp", "SMTR16114I1020:state", "SMTR16114I1020:emergStop", this, 0.1, 2.0, new AMControlStatusCheckerStopped(0));
-	ssaManipulatorZ_ = new AMPVwStatusControl("ssaManipulatorZ", sgmPVName+":mm:fbk", sgmPVName+":mm", sgmPVName+":status", sgmPVName+":stop", this, 0.2, 2.0, new AMControlStatusCheckerStopped(0));
-	//ssaManipulatorZ_ = new AMPVControl("ssaManipulatorZ", sgmPVName+":mm:fbk", sgmPVName+":mm", sgmPVName+":stop", this, 0.2, 5.0);
-	ssaManipulatorZ_->setDescription("SSA Up/Down");
+	ssaManipulatorZ_ = new CLSVMEMotor("ssaManipulatorZ", amNames2pvNames_.valueF("ssaManipulatorZ"), "SSA Up/Down", true, 0.2, 2.0, this);
 	ssaManipulatorZ_->setContextKnownDescription("Z");
 
-	ssaManipulatorZVelocity_ = new AMPVControl("ssaManipulatorZVelocity", sgmPVName+":velo:fbk", sgmPVName+":velo", QString(), this);
-	ssaManipulatorZVelocityBase_ = new AMPVControl("ssaManipulatorZVelocityBase", sgmPVName+":vBase:sp", sgmPVName+":veloBase", QString(), this);
-	ssaManipulatorZAcceleration_ = new AMPVControl("ssaManipulatorZAcceleration", sgmPVName+":accel:sp", sgmPVName+":accel", QString(), this);
-
-	sgmPVName = amNames2pvNames_.valueF("ssaManipulatorRot");
-	if(sgmPVName.isEmpty())
-		pvNameLookUpFail = true;
-	//ssaManipulatorRot_ = new AMPVwStatusControl("ssaManipulatorRot", sgmPVName+":fbk", sgmPVName+":sp", "SMTR16114I1021:state", "SMTR16114I1021:emergStop", this, 0.1, 2.0, new AMControlStatusCheckerStopped(0));
-	ssaManipulatorRot_ = new AMPVwStatusControl("ssaManipulatorRot", sgmPVName+":mm:sp", sgmPVName+":mm", sgmPVName+":status", sgmPVName+":stop", this, 0.2, 2.0, new AMControlStatusCheckerStopped(0));
-	//ssaManipulatorRot_ = new AMPVControl("ssaManipulatorRot", sgmPVName+":mm:sp", sgmPVName+":mm", sgmPVName+":stop", this, 0.2, 5.0);
-	ssaManipulatorRot_->setDescription("SSA Rotation");
+	ssaManipulatorRot_ = new CLSVMEMotor("ssaManipulatorRot", amNames2pvNames_.valueF("ssaManipulatorRot"), "SSA Rotation", false, 0.2, 2.0, this);
 	ssaManipulatorRot_->setContextKnownDescription("R");
-
-	ssaManipulatorRotVelocity_ = new AMPVControl("ssaManipulatorRotVelocity", sgmPVName+":velo:fbk", sgmPVName+":velo", QString(), this);
-	ssaManipulatorRotVelocityBase_ = new AMPVControl("ssaManipulatorRotVelocityBase", sgmPVName+":vBase:sp", sgmPVName+":veloBase", QString(), this);
-	ssaManipulatorRotAcceleration_ = new AMPVControl("ssaManipulatorRotAcceleration", sgmPVName+":accel:sp", sgmPVName+":accel", QString(), this);
 
 
 	sgmPVName = amNames2pvNames_.valueF("beamlineScanning");
@@ -731,21 +682,9 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	addChildControl(encoderUp_);
 	addChildControl(encoderDown_);
 	addChildControl(ssaManipulatorX_);
-	addChildControl(ssaManipulatorXVelocity_);
-	addChildControl(ssaManipulatorXVelocityBase_);
-	addChildControl(ssaManipulatorXAcceleration_);
 	addChildControl(ssaManipulatorY_);
-	addChildControl(ssaManipulatorYVelocity_);
-	addChildControl(ssaManipulatorYVelocityBase_);
-	addChildControl(ssaManipulatorYAcceleration_);
 	addChildControl(ssaManipulatorZ_);
-	addChildControl(ssaManipulatorZVelocity_);
-	addChildControl(ssaManipulatorZVelocityBase_);
-	addChildControl(ssaManipulatorZAcceleration_);
 	addChildControl(ssaManipulatorRot_);
-	addChildControl(ssaManipulatorRotVelocity_);
-	addChildControl(ssaManipulatorRotVelocityBase_);
-	addChildControl(ssaManipulatorRotAcceleration_);
 	addChildControl(beamlineScanning_);
 	connect(beamlineScanning_, SIGNAL(valueChanged(double)), this, SLOT(onBeamlineScanningValueChanged(double)));
 
