@@ -345,7 +345,8 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/beamline/OceanOptics65000Detector.h \
 	source/ui/OceanOptics65000DetectorView.h \
 	source/dataman/SGM2011XASFileLoader.h \
-	source/beamline/CLS/CLSVMEMotor.h
+	source/beamline/CLS/CLSVMEMotor.h \
+    source/analysis/AM1DDerivativeAB.h
 FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
 	source/ui/AMDataViewSectionHeader.ui \
@@ -561,7 +562,8 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/beamline/OceanOptics65000Detector.cpp \
 	source/ui/OceanOptics65000DetectorView.cpp \
 	source/dataman/SGM2011XASFileLoader.cpp \
-	source/beamline/CLS/CLSVMEMotor.cpp
+	source/beamline/CLS/CLSVMEMotor.cpp \
+    source/analysis/AM1DDerivativeAB.cpp
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc \
 	source/util/ElementData.qrc \

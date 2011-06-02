@@ -49,6 +49,16 @@ public slots:
 	/// Tell the motor to stop. If usingKill is true, then the kill PV will be used otherwise the stop PV will be used (Note: For safety, this will send the stop instruction whether we think we're moving or not.)
 	virtual bool stop();
 
+signals:
+	/// Emitted when the velocity setting changes
+	void velocityChanged(double velocity);
+	/// Emitted when the base velocity setting changes
+	void baseVelocityChanged(double baseVelocity);
+	/// Emitted when the acceleration setting changes
+	void accelerationChanged(double acceleration);
+	/// Emitted when the current velocity reading changes
+	void currentVelocityChanged(double currentVelocity);
+
 protected:
 	/// Read-write control for the velocity setting
 	AMPVControl *velocity_;
