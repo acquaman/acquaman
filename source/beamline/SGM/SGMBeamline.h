@@ -47,6 +47,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class SGMGratingAction;
 class AMSamplePlate;
 class CLSVMEMotor;
+class CLSCAEN2527HVChannel;
 
 class SGMBeamline : public AMBeamline
 {
@@ -202,6 +203,7 @@ public:
 	AMControl* scalerMode() const { return scalerMode_;}
 	AMControl* ssaIllumination() const { return ssaIllumination_;}
 	AMControl* tfyHVToggle() const { return tfyHVToggle_;}
+	CLSCAEN2527HVChannel* hvChannel106() const { return hvChannel106_;}
 
 
 	AMControlSet* fluxResolutionSet() const { return fluxResolutionSet_;}
@@ -326,6 +328,7 @@ protected:
 	AMControl *tfyScaler_;
 	AMControl *tfyHV_;
 	AMControl *tfyHVToggle_;
+	CLSCAEN2527HVChannel *hvChannel106_;
 	AMControl *pgt_;
 	AMControl *pgtHV_;
 	AMControl *pgtIntegrationTime_;
