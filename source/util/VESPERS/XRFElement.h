@@ -35,6 +35,10 @@ protected:
 	QStringList selected_;
 	/// Maps the line energy to the name.  This is meant as a convenience rather than searching through emission lines manuall.
 	QMap<QString, double> lineMap_;
+
+private:
+	// This turns the list that AMElements make into a string list so I can use the constructor.
+	QStringList toStringList(QList<QPair<QString, QString> > list);
 };
 
 #endif // XRFELEMENT_H

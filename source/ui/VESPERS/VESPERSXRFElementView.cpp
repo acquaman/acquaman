@@ -71,9 +71,9 @@ void VESPERSXRFElementView::fillEmissionLines()
 			if (list.at(i).first.contains("1") && energyWithinTolerance(list.at(i).second.toDouble())){
 
 				if (element_->linesSelected().contains(list.at(i).first))
-					lines_.at(lineIndex++)->setLine(qMakePair(list.at(i)), true);
+					lines_.at(lineIndex++)->setLine(list.at(i), true);
 				else
-					lines_.at(lineIndex++)->setLine(qMakePair(list.at(i)), true);
+					lines_.at(lineIndex++)->setLine(list.at(i), true);
 			}
 		}
 	}
@@ -82,7 +82,7 @@ void VESPERSXRFElementView::fillEmissionLines()
 		for (int i = 0; i < list.size(); i++){
 
 			if (list.at(i).first.contains("1") && energyWithinTolerance(list.at(i).second.toDouble()))
-				lines_.at(lineIndex++)->setLine(qMakePair(list.at(i)), false);
+				lines_.at(lineIndex++)->setLine(list.at(i), false);
 		}
 	}
 

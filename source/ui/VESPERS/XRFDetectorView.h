@@ -78,9 +78,9 @@ public slots:
 	/// Changes the colors of the ROIMarkers for the latest element selected, if any.
 	void highlightMarkers(XRFElement *el);
 	/// Slot handling what happens when a region of interest is added.
-	void addRegionOfInterestMarker(XRFElement *el, QString line);
+	void addRegionOfInterestMarker(AMROIInfo info);
 	/// Slot handling what happens when a region of interest is removed.
-	void removeRegionOfInterestMarker(XRFElement *el, QString line);
+	void removeRegionOfInterestMarker(AMROIInfo info);
 	/// Slot removing all the element markers.
 	void removeAllRegionsOfInterestMarkers();
 	/// Slot that sorts all the regions of interst.

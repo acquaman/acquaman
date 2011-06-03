@@ -233,6 +233,20 @@ signals:
 	void detectorConnected(bool);
 	/// This signal is emitted when the status changes.
 	void statusChanged();
+	/// Notifies that the maximum energy has changed.
+	void maximumEnergyChanged(double);
+	/// Notifies that the peaking time has changed.
+	void peakingTimeChanged(double);
+	/// Notifies that the integration time has changed.
+	void integrationTimeChanged(double);
+	/// Notifies that the elapsed time has changed.
+	void elapsedTimeChanged(double);
+	/// Notifies when the spectra refresh rate has changed.
+	void refreshRateChanged(double);
+	/// Notifies that the dead time has changed.  If the number of elements is greater than one, then this is emitted when any of the dead times change.
+	void deadTimeChanged();
+	/// Notifies that the spectra have changed.  If there is more than one spectrum then this is emitted everytime one of them changes.
+	void spectraChanged();
 	/// Signal used to say that the regions of interest now have their original values in them after being connected to.
 	void roisHaveValues(bool);
 	/// Notifier that the contents of an ROI has changed.  It passes a pointer to the particular ROI that has been changed.

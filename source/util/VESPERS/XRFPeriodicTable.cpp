@@ -13,7 +13,7 @@ XRFPeriodicTable::XRFPeriodicTable(double minEnergy, double maxEnergy, QObject *
 
 	for (int i = 0; i < AMPeriodicTable::table()->elements().size(); i++){
 
-		temp = new XRFElement(AMPeriodicTable::table()->elementByAtomicNumber(i+1), minimumEnergy_, maximumEnergy_, this);
+		temp = new XRFElement(AMPeriodicTable::table()->elementByAtomicNumber(i+1), this);
 		xrfTable_ << temp;
 		connect(this, SIGNAL(minimumEnergyChanged(double)), temp, SLOT(setMinimumEnergy(double)));
 		connect(this, SIGNAL(maximumEnergyChanged(double)), temp, SLOT(setMaximumEnergy(double)));
@@ -45,12 +45,13 @@ void XRFPeriodicTable::addLineToList(QString line)
 
 void XRFPeriodicTable::removeLineFromList(QString line)
 {
+	// Make sure the current pointer is valid.  Then, if the lien was successfully removed, emit the proper signal.  If the element doesn't have any more selected lines then it is removed from the list.
 	if (current_){
 
 		if (current_->removeLine(line)){
 
 			if (!current_->hasLinesSelected())
-				selectedElements_.removeOne(current);
+				selectedElements_.removeOne(current_);
 
 			emit removedRegionOfInterest(current_, line);
 		}
@@ -59,13 +60,17 @@ void XRFPeriodicTable::removeLineFromList(QString line)
 
 void XRFPeriodicTable::removeAll()
 {
-	XRFElement *temp;
+	// Don't do anything if current isn't valid.
+	if (current_ == 0)
+		return;
 
 	while (!selectedElements_.isEmpty()){
 
-		temp = selectedElements_.first();
+		current_ = selectedElements_.first();
 
-		while (temp->hasLinesSelected())
-			temp->removeLine(temp->linesSelected().first());
+		while (current_->hasLinesSelected())
+			current_->removeLine(current_->linesSelected().first());
 	}
+
+	emit removedAllRegionsOfInterest();
 }

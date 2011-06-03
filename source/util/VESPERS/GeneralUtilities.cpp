@@ -1,9 +1,5 @@
 #include "GeneralUtilities.h"
 
-GeneralUtilities::GeneralUtilities()
-{
-}
-
 QString GeneralUtilities::removeGreek(QString name)
 {
 	if (name.contains(QString::fromUtf8("α")))

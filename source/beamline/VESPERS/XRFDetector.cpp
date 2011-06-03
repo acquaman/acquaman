@@ -61,6 +61,14 @@ XRFDetector::XRFDetector(QString name, int elements, AMControl *status, AMContro
 	connect(readingControls_, SIGNAL(connected(bool)), this, SLOT(detectorConnected()));
 	connect(settingsControls_, SIGNAL(connected(bool)), this, SLOT(detectorConnected()));
 
+	connect(maximumEnergyControl_, SIGNAL(valueChanged(double)), this, SIGNAL(maximumEnergyChanged(double)));
+	connect(peakingTimeControl_, SIGNAL(valueChanged(double)), this, SIGNAL(peakingTimeChanged(double)));
+	connect(integrationTimeControl_, SIGNAL(valueChanged(double)), this, SIGNAL(integrationTimeChanged(double)));
+	connect(elapsedTimeControl_, SIGNAL(valueChanged(double)), this, SIGNAL(elapsedTimeChanged(double)));
+	connect(refreshRateControl_, SIGNAL(valueChanged(double)), this, SIGNAL(refreshRateChanged(double)));
+	connect(deadTimeControl_, SIGNAL(controlSetValuesChanged()), this, SIGNAL(deadTimeChanged(double)));
+	connect(spectraControl_, SIGNAL(controlSetValuesChanged()), this, SIGNAL(spectraChanged()));
+
 	connect(statusControl_, SIGNAL(valueChanged(double)), this, SIGNAL(statusChanged()));
 	connect(integrationTimeControl_, SIGNAL(valueChanged(double)), this, SLOT(setTime(double)));
 	connect(peakingTimeControl_, SIGNAL(valueChanged(double)), this, SLOT(setPeakingTime(double)));
@@ -132,6 +140,14 @@ XRFDetector::XRFDetector(QString name, AMControl *status, AMControl *refreshRate
 
 	connect(readingControls_, SIGNAL(connected(bool)), this, SLOT(detectorConnected()));
 	connect(settingsControls_, SIGNAL(connected(bool)), this, SLOT(detectorConnected()));
+
+	connect(maximumEnergyControl_, SIGNAL(valueChanged(double)), this, SIGNAL(maximumEnergyChanged(double)));
+	connect(peakingTimeControl_, SIGNAL(valueChanged(double)), this, SIGNAL(peakingTimeChanged(double)));
+	connect(integrationTimeControl_, SIGNAL(valueChanged(double)), this, SIGNAL(integrationTimeChanged(double)));
+	connect(elapsedTimeControl_, SIGNAL(valueChanged(double)), this, SIGNAL(elapsedTimeChanged(double)));
+	connect(refreshRateControl_, SIGNAL(valueChanged(double)), this, SIGNAL(refreshRateChanged(double)));
+	connect(deadTimeControl_, SIGNAL(controlSetValuesChanged()), this, SIGNAL(deadTimeChanged(double)));
+	connect(spectraControl_, SIGNAL(controlSetValuesChanged()), this, SIGNAL(spectraChanged()));
 
 	connect(statusControl_, SIGNAL(valueChanged(double)), this, SIGNAL(statusChanged()));
 	connect(integrationTimeControl_, SIGNAL(valueChanged(double)), this, SLOT(setIntegrationTime(double)));

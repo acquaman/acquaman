@@ -11,14 +11,6 @@ public:
 	static QString removeGreek(QString name);
 	/// Takes a ASCII plain text emission line name and adds the corresponding greek letter to it (ie: Ka1 -> Kalpha1).
 	static QString addGreek(QString name);
-
-signals:
-
-public slots:
-
-private:
-	// This class is not meant to be instantiated.
-	explicit GeneralUtilities();
 };
 
 #endif // GENERALUTILITIES_H

@@ -111,12 +111,16 @@ protected:
 	bool energyWithinTolerance(double energy) { return (energy >= minimumEnergy_ && energy <= maximumEnergy_) ? true : false; }
 
 	// Member variables.
+
+	/// Labels.
 	QLabel *name_;
 	QLabel *number_;
 	QLabel *symbol_;
+
+	/// Pointer to the current element being viewed.
 	XRFElement *element_;
 
-	// Lines.
+	/// Line views.
 	QList<LineView *> lines_;
 
 	/// Holds the minimum energy used for displaying emission lines.

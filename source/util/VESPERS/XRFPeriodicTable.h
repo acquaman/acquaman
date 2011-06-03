@@ -61,6 +61,8 @@ signals:
 	void addedRegionOfInterest(XRFElement *, QString);
 	/// Notifier that a region of interest has been removed.  Passes a reference to the element and the line that was added.
 	void removedRegionOfInterest(XRFElement *, QString);
+	/// Notifier that all regions of interest have been removed.  This is meant as a notifier to do any extra cleaning up after removing all regions of interest.
+	void removedAllRegionsOfInterest();
 
 public slots:
 	/// Sets the current element that is being examined.

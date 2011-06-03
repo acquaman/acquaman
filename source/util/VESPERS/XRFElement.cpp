@@ -1,7 +1,7 @@
 #include "XRFElement.h"
 
 XRFElement::XRFElement(AMElement *el, QObject *parent)
-	: AMElement(el->name(), el->symbol(), el->atomicNumber(), el->edges(), el->emissionLines(), parent)
+	: AMElement(el->name(), el->symbol(), QString::number(el->atomicNumber()), toStringList(el->edges()), toStringList(el->emissionLines()), parent)
 {
 	for (int i = 0; i < el->emissionLines().size(); i++)
 		lineMap_.insert(el->emissionLines().at(i).first, el->emissionLines().at(i).second.toDouble());
@@ -29,4 +29,14 @@ bool XRFElement::removeLine(QString line)
 	}
 
 	return false;
+}
+
+QStringList XRFElement::toStringList(QList<QPair<QString, QString> > list)
+{
+	QStringList sList;
+
+	for (int i = 0; i < list.size(); i++)
+		sList << list.at(i).first;
+
+	return sList;
 }

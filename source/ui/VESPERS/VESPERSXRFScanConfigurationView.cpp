@@ -3,6 +3,9 @@
 #include "acquaman/VESPERS/VESPERSXRFScanController.h"
 #include "ui/AMTopFrame.h"
 #include "util/VESPERS/GeneralUtilities.h"
+#include "util/VESPERS/XRFElement.h"
+#include "ui/VESPERS/XRFPeriodicTableView.h"
+#include "ui/VESPERS/VESPERSXRFElementView.h"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -13,35 +16,28 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 	: AMScanConfigurationView(parent)
 {
 	configuration_ = scanConfig;
+	detector_ = configuration_->detector();
 
-	AMTopFrame *topFrame;
-
-	if (configuration_->detectorChoice() == VESPERSBeamline::SingleElement){
-
-		detector_ = VESPERSBeamline::vespers()->vortexXRF1E();
-		topFrame = new AMTopFrame("XRF Configuration - Single Element Vortex");
-	}
-	else{
-
-		detector_ = VESPERSBeamline::vespers()->vortexXRF4E();
-		topFrame = new AMTopFrame("XRF Configuration - Four Element Vortex");
-	}
-
+	AMTopFrame *topFrame = new AMTopFrame(QString("XRF Configuration - %1").arg(detector_->name()));
 	topFrame->setIcon(QIcon(":/utilities-system-monitor.png"));
 
 	view_ = new XRFDetailedDetectorView(detector_);
 	connect(detector_, SIGNAL(detectorConnected(bool)), this, SLOT(setEnabled(bool)));
 	connect(detector_, SIGNAL(roisHaveValues(bool)), this, SLOT(onRoisHaveValues(bool)));
 
-	// Using Potassium Ka as the lower energy limit and the maximum energy of the detector for the upper energy limit.
-	selectionView_ = new XRFSelectionView(AMPeriodicTable::table()->elementBySymbol("K")->Kalpha().second.toDouble(), detector_->maximumEnergy()*1000);
-	connect(selectionView_, SIGNAL(elementSelected(AMElement*)), view_, SLOT(showEmissionLines(AMElement*)));
-	connect(selectionView_, SIGNAL(elementSelected(AMElement*)), view_, SLOT(highlightMarkers(AMElement*)));
-	connect(selectionView_, SIGNAL(addRegionOfInterest(AMElement*,QPair<QString,QString>)), view_, SLOT(onAdditionOfRegionOfInterest(AMElement*,QPair<QString,QString>)));
-	connect(selectionView_, SIGNAL(removeRegionOfInterest(AMElement*,QPair<QString,QString>)), view_, SLOT(onRemovalOfRegionOfInterest(AMElement*,QPair<QString,QString>)));
-	connect(this, SIGNAL(roiExistsAlready(AMElement*,QPair<QString,QString>)), selectionView_, SLOT(preExistingRegionOfInterest(AMElement*,QPair<QString,QString>)));
+	XRFPeriodicTableView *tableView = new XRFPeriodicTableView(configuration_->table());
+	QPalette palette = tableView->palette();
+	palette.setColor(QPalette::Window, QColor(79, 148, 205));
+	tableView->setPalette(palette);
+	tableView->setAutoFillBackground(true);
 
-	connect(selectionView_, SIGNAL(clearAllRegionsOfInterest()), view_, SLOT(removeAllRegionsOfInterest()));
+	VESPERSXRFElementView *elView = new VESPERSXRFElementView(configuration_->table()->currentElement());
+	palette = elView->palette();
+	palette.setColor(QPalette::Window, QColor(110, 139, 61));
+	elView->setPalette(palette);
+	elView->setAutoFillBackground(true);
+
+	connect(configuration_->table(), SIGNAL(currentElementChanged(XRFElement*)), elView, SLOT(setElement(XRFElement*)));
 
 	QPushButton *sortButton = new QPushButton(QIcon(":/ArrowCCW.png"), "Sort");
 	connect(sortButton, SIGNAL(clicked()), view_, SLOT(sortRegionsOfInterest()));
@@ -83,7 +79,7 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 	minEnergy_->setSingleStep(0.01);
 	minEnergy_->setMinimum(0.0);
 	minEnergy_->setMaximum(30.00);
-	minEnergy_->setValue(AMPeriodicTable::table()->elementBySymbol("K")->Kalpha().second.toDouble()/1000);
+	minEnergy_->setValue(configuration_->table()->minimumEnergy());
 	minEnergy_->setAlignment(Qt::AlignCenter);
 	connect(minEnergy_, SIGNAL(editingFinished()), this, SLOT(onMinimumEnergyUpdate()));
 
@@ -94,8 +90,8 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 	maxEnergy_->setMaximum(30.00);
 	maxEnergy_->setAlignment(Qt::AlignCenter);
 	connect(maxEnergy_, SIGNAL(editingFinished()), this, SLOT(onMaximumEnergyUpdate()));
-	connect(detector_->maximumEnergyControl(), SIGNAL(valueChanged(double)), maxEnergy_, SLOT(setValue(double)));
-	connect(detector_->maximumEnergyControl(), SIGNAL(valueChanged(double)), this, SLOT(onMaximumEnergyControlUpdate(double)));
+	connect(detector_, SIGNAL(maximumEnergyChanged(double)), maxEnergy_, SLOT(setValue(double)));
+	connect(detector_, SIGNAL(maximumEnergyChanged(double)), this, SLOT(onMaximumEnergyControlUpdate(double)));
 
 	peakingTime_ = new QDoubleSpinBox;
 	peakingTime_->hide();
@@ -104,7 +100,7 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 	peakingTime_->setMaximum(100);
 	peakingTime_->setAlignment(Qt::AlignCenter);
 	connect(peakingTime_, SIGNAL(editingFinished()), this, SLOT(onPeakingTimeUpdate()));
-	connect(detector_->peakingTimeControl(), SIGNAL(valueChanged(double)), peakingTime_, SLOT(setValue(double)));
+	connect(detector_, SIGNAL(peakingTimeChanged(double)), peakingTime_, SLOT(setValue(double)));
 
 	QFont font(this->font());
 	font.setBold(true);
@@ -145,9 +141,15 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 	controlLayout->addWidget(sortButton);
 	controlLayout->addWidget(configureButton);
 
+	QHBoxLayout *selectionLayout = new QHBoxLayout;
+	selectionLayout->addStretch();
+	selectionLayout->addWidget(tableView);
+	selectionLayout->addWidget(elView);
+	selectionLayout->addStretch();
+
 	QVBoxLayout *viewAndSelectionLayout = new QVBoxLayout;
 	viewAndSelectionLayout->addWidget(view_);
-	viewAndSelectionLayout->addWidget(selectionView_);
+	viewAndSelectionLayout->addLayout(selectionLayout);
 
 	QHBoxLayout *plotControlLayout = new QHBoxLayout;
 	plotControlLayout->addLayout(viewAndSelectionLayout);
@@ -182,18 +184,18 @@ void VESPERSXRFScanConfigurationView::onIntegrationTimeUpdate()
 
 void VESPERSXRFScanConfigurationView::onMinimumEnergyUpdate()
 {
-	selectionView_->setMinimumEnergy(minEnergy_->value()*1000);
+	configuration_->table()->setMinimumEnergy(minEnergy_->value()*1000);
 }
 
 void VESPERSXRFScanConfigurationView::onMaximumEnergyUpdate()
 {
 	detector_->setMaximumEnergyControl(maxEnergy_->value());
-	selectionView_->setMaximumEnergy(maxEnergy_->value()*1000);
+	configuration_->table()->setMaximumEnergy(maxEnergy_->value()*1000);
 }
 
 void VESPERSXRFScanConfigurationView::onMaximumEnergyControlUpdate(double val)
 {
-	selectionView_->setMaximumEnergy(val*1000);
+	configuration_->table()->setMaximumEnergy(val*1000);
 }
 
 void VESPERSXRFScanConfigurationView::onPeakingTimeUpdate()
@@ -215,7 +217,7 @@ void VESPERSXRFScanConfigurationView::onRoisHaveValues(bool hasValues)
 
 		// Go through all the regions of interest PVs and if there are any regions set already, pass them on to the rest of the program.
 		QString name;
-		AMElement *el;
+		XRFElement *el;
 
 		for (int i = 0; i < detector_->roiList().count(); i++){
 
@@ -224,15 +226,15 @@ void VESPERSXRFScanConfigurationView::onRoisHaveValues(bool hasValues)
 			// If the name is empty then we've reached the end of the road for preset regions of interest.
 			if (name.isEmpty()){
 
-				el = AMPeriodicTable::table()->elementBySymbol("Fe");
+				el = configuration_->table()->elementBySymbol("Fe");
 				view_->showEmissionLines(el);
 				view_->highlightMarkers(el);
-				selectionView_->setElementView(el);
+				configuration_->table()->setCurrentElement(el);
 				return;
 			}
 
 			name = name.left(name.indexOf(" "));
-			el = AMPeriodicTable::table()->elementBySymbol(name);
+			el = configuration_->table()->elementBySymbol(name);
 
 			if (el){
 
@@ -240,8 +242,13 @@ void VESPERSXRFScanConfigurationView::onRoisHaveValues(bool hasValues)
 
 				for (int j = 0; j < el->emissionLines().count(); j++){
 
-					if (name.compare(el->symbol()+" "+GeneralUtilities::removeGreek(el->emissionLines().at(j).first)) == 0)
-						emit roiExistsAlready(el, el->emissionLines().at(j));
+					if (name.compare(el->symbol()+" "+GeneralUtilities::removeGreek(el->emissionLines().at(j).first)) == 0){
+
+						configuration_->table()->blockSignals(true);
+						configuration_->table()->setCurrentElement(el);
+						configuration_->table()->addLineToList(el->emissionLines().at(j).first);
+						configuration_->table()->blockSignals(false);
+					}
 				}
 			}
 		}

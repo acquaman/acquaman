@@ -16,6 +16,8 @@ public:
 protected slots:
 	/// Changes the color of the button associated with the element based on the emission lines it has.  Returns to a normal look if there are no selected emission lines.
 	void changeColor(XRFElement *el);
+	/// Resets all the colors of the buttons to their original state.  Called when the trash button is clicked.
+	void resetAllColors();
 	/// Handles the element clicked signal.
 	void onElementSelected(AMElement *el) { xrfTable_->setCurrentElement(xrfTable_->elementByAtomicNumber(el->atomicNumber())); }
 	/// Helper function that disables the buttons based on the current values of maximumEnergy_ and minimumEnergy_.

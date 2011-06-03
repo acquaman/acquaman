@@ -4,6 +4,7 @@
 #include "acquaman/AMScanConfiguration.h"
 #include "beamline/VESPERS/XRFDetector.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
+#include "util/VESPERS/XRFPeriodicTable.h"
 
 class VESPERSXRFScanConfiguration : public AMScanConfiguration
 {
@@ -17,7 +18,7 @@ public:
 	/// Default constructor.
 	Q_INVOKABLE explicit VESPERSXRFScanConfiguration(QObject *parent = 0);
 	/// Convenience constructor.
-	VESPERSXRFScanConfiguration(XRFDetectorInfo info, QObject *parent = 0);
+	VESPERSXRFScanConfiguration(XRFDetector *detector, QObject *parent = 0);
 
 	/// Returns the detector info for the current detector.
 	XRFDetectorInfo detectorInfo() const { return xrfDetectorInfo_; }
@@ -40,6 +41,8 @@ public:
 
 	/// Returns the detector used in this configuration.
 	XRFDetector *detector() const { return detector_; }
+	/// Returns the XRF periodic table used by this configuration.
+	XRFPeriodicTable *table() const { return xrfTable_; }
 
 public slots:
 	/// Sets the detector info to the given detector info.
@@ -59,6 +62,9 @@ protected:
 
 	/// The detector itself.  This has live beamline communications.
 	XRFDetector *detector_;
+
+	/// The periodic table that holds information about the regions of interest.
+	XRFPeriodicTable *xrfTable_;
 };
 
 #endif // VESPERSXRFSCANCONFIGURATION_H

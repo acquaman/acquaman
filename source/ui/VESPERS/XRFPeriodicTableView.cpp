@@ -8,7 +8,7 @@ XRFPeriodicTableView::XRFPeriodicTableView(XRFPeriodicTable *xrfTable, QWidget *
 	: QWidget(parent)
 {
 	xrfTable_ = xrfTable;
-	connect(xrfTable_, SIGNAL(maximumEnergyChanged(double)), this, SLOT(disableElements()));
+	connect(xrfTable_, SIGNAL(minimumEnergyChanged(double)), this, SLOT(disableElements()));
 	connect(xrfTable_, SIGNAL(maximumEnergyChanged(double)), this, SLOT(disableElements()));
 
 	QFont font(this->font());
@@ -29,6 +29,7 @@ XRFPeriodicTableView::XRFPeriodicTableView(XRFPeriodicTable *xrfTable, QWidget *
 	QToolButton *trashButton = new QToolButton;
 	trashButton->setIcon(QIcon(":/trashcan.png"));
 	connect(trashButton, SIGNAL(clicked()), xrfTable_, SLOT(removeAll()));
+	connect(trashButton, SIGNAL(clicked()), this, SLOT(resetAllColors()));
 
 	tableView_ = new AMPeriodicTableView;
 	tableView_->setMaximumWidth(600);
@@ -73,6 +74,15 @@ void XRFPeriodicTableView::disableElements()
 	}
 }
 
+void XRFPeriodicTableView::resetAllColors()
+{
+	QList<XRFElement *> table(xrfTable_->elements());
+	QPalette palette(this->palette());
+
+	for (int i = 0; i < table.size(); i++)
+		tableView_->button(table.at(i))->setPalette(palette);
+}
+
 void XRFPeriodicTableView::changeColor(XRFElement *el)
 {
 	QToolButton *clicked = tableView_->button(el);
@@ -84,9 +94,9 @@ void XRFPeriodicTableView::changeColor(XRFElement *el)
 
 		if (lines.contains(QString::fromUtf8("Kα1")) || lines.contains(QString::fromUtf8("Kβ1")))
 			palette.setColor(QPalette::Window, Qt::green);
-		else if (line.contains(QString::fromUtf8("Lα1")) || lines.contains(QString::fromUtf8("Lβ1")) || lines.contains(QString::fromUtf8("Lγ1")))
+		else if (lines.contains(QString::fromUtf8("Lα1")) || lines.contains(QString::fromUtf8("Lβ1")) || lines.contains(QString::fromUtf8("Lγ1")))
 			palette.setColor(QPalette::Window, Qt::yellow);
-		else if (line.contains(QString::fromUtf8("Mα1")))
+		else if (lines.contains(QString::fromUtf8("Mα1")))
 			palette.setColor(QPalette::Window, Qt::cyan);
 	}
 	else

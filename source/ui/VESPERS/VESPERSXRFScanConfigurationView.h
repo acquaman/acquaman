@@ -5,7 +5,6 @@
 #include "acquaman/VESPERS/VESPERSXRFScanConfiguration.h"
 #include "ui/VESPERS/XRFDetectorView.h"
 #include "acquaman/AMScanController.h"
-#include "ui/VESPERS/XRFSelectionView.h"
 #include "ui/VESPERS/CustomizeRegionsOfInterest.h"
 
 #include <QDoubleSpinBox>
@@ -26,8 +25,6 @@ public:
 signals:
 	/// Passes along the configuration view's start scan signal.
 	void startScan();
-	/// Signal used on startup to pass on information of already existing regions of interest.
-	void roiExistsAlready(AMElement *, QPair<QString, QString>);
 
 protected slots:
 	/// Shows/Hides the more advanced settings in the detector.
@@ -55,8 +52,6 @@ protected:
 	VESPERSXRFScanConfiguration *configuration_;
 	/// The detector view.
 	XRFDetailedDetectorView *view_;
-	/// The selection view.
-	XRFSelectionView *selectionView_;
 	/// The pointer to the detector.
 	XRFDetector *detector_;
 	/// The pointer to the customize view.
