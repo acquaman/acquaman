@@ -1,6 +1,7 @@
 #include "CLSCAEN2527ChannelBasicView.h"
 
 #include "QLineEdit"
+#include "QPushButton"
 #include "QVBoxLayout"
 #include "ui/AMControlEditor.h"
 #include "beamline/CLS/CLSCAEN2527HVChannel.h"
@@ -15,15 +16,16 @@ CLSCAEN2527ChannelBasicView::CLSCAEN2527ChannelBasicView(CLSCAEN2527HVChannel *h
 		descriptionEdit_ = new QLineEdit();
 		demandCE_ = new AMControlEditor(hvChannel_->demandControl());
 		voltageCE_ = new AMControlEditor(hvChannel_->voltageControl(), 0, true);
-		toggleCB_ = new AMControlButton(hvChannel_->toggleControl());
-		toggleCB_->setDownValue(1);
-		toggleCB_->setUpValue(0);
+		toggleButton_ = new QPushButton();
+		toggleButton_->setCheckable(true);
 		if(hvChannel_->isConnected() && hvChannel_->isOn())
-			toggleCB_->setText("On");
+			toggleButton_->setText("On");
 		else if(hvChannel_->isConnected() && hvChannel_->isOff())
-			toggleCB_->setText("Off");
+			toggleButton_->setText("Off");
+
 		connect(hvChannel_, SIGNAL(connected(bool)), this, SLOT(onHVChannelConnected(bool)));
-		connect(hvChannel_, SIGNAL(powerStateChanged(highVoltageChannelPowerState)), this, SLOT(onPowerStateChanged(AMHighVoltageChannel::highVoltageChannelPowerState)));
+		connect(hvChannel_, SIGNAL(powerStateChanged(AMHighVoltageChannel::highVoltageChannelPowerState)), this, SLOT(onPowerStateChanged(AMHighVoltageChannel::highVoltageChannelPowerState)));
+		connect(toggleButton_, SIGNAL(toggled(bool)), this, SLOT(onToggleButtonToggled(bool)));
 		statusCE_ = new AMControlEditor(hvChannel_->statusControl(), 0, true);
 		currentCE_ = new AMControlEditor(hvChannel_->currentControl(), 0, true);
 
@@ -31,7 +33,7 @@ CLSCAEN2527ChannelBasicView::CLSCAEN2527ChannelBasicView(CLSCAEN2527HVChannel *h
 		vl_->addWidget(descriptionEdit_);
 		vl_->addWidget(demandCE_);
 		vl_->addWidget(voltageCE_);
-		vl_->addWidget(toggleCB_);
+		vl_->addWidget(toggleButton_);
 		vl_->addWidget(statusCE_);
 		vl_->addWidget(currentCE_);
 		setLayout(vl_);
@@ -43,15 +45,30 @@ CLSCAEN2527ChannelBasicView::CLSCAEN2527ChannelBasicView(CLSCAEN2527HVChannel *h
 
 void CLSCAEN2527ChannelBasicView::onHVChannelConnected(bool connect){
 	Q_UNUSED(connect);
-	if(hvChannel_->isConnected() && hvChannel_->isOn())
-		toggleCB_->setText("On");
-	else if(hvChannel_->isConnected() && hvChannel_->isOff())
-		toggleCB_->setText("Off");
+	if(hvChannel_->isConnected() && hvChannel_->isOn()){
+		toggleButton_->setText("On");
+		toggleButton_->setDown(true);
+	}
+	else if(hvChannel_->isConnected() && hvChannel_->isOff()){
+		toggleButton_->setText("Off");
+		toggleButton_->setDown(false);
+	}
 }
 
 void CLSCAEN2527ChannelBasicView::onPowerStateChanged(AMHighVoltageChannel::highVoltageChannelPowerState powerState){
-	if(powerState = AMHighVoltageChannel::isPowerOn)
-		toggleCB_->setText("On");
-	else if(powerState = AMHighVoltageChannel::isPowerOff)
-		toggleCB_->setText("Off");
+	if(powerState == AMHighVoltageChannel::isPowerOn){
+		toggleButton_->setText("On");
+		toggleButton_->setDown(true);
+	}
+	else if(powerState == AMHighVoltageChannel::isPowerOff){
+		toggleButton_->setText("Off");
+		toggleButton_->setDown(false);
+	}
+}
+
+void CLSCAEN2527ChannelBasicView::onToggleButtonToggled(bool toggled){
+	if(toggled)
+		hvChannel_->setOn(true);
+	else
+		hvChannel_->setOff();
 }

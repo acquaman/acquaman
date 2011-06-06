@@ -29,7 +29,6 @@ class QGridLayout;
 class QRadioButton;
 
 #include "AMControlEditor.h"
-#include "CLS/CLSCAEN2527ChannelBasicView.h"
 #include "beamline/SGM/SGMBeamline.h"
 #include "beamline/AMBeamlineParallelActionsList.h"
 #include "MPlot/MPlotWidget.h"
@@ -102,8 +101,6 @@ protected:
 	QRadioButton *ssaButton_;
 	QHBoxLayout *warningAndPlotHL_;
 	QLabel *beamlineWarningsLabel_;
-
-	CLSCAEN2527ChannelBasicView *channelView_;
 
 	/// UI components:
 	MPlotWidget* imageView_;

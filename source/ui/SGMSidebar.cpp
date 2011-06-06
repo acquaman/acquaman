@@ -141,8 +141,6 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	connect(SGMBeamline::sgm(), SIGNAL(beamlineWarningsChanged(QString)), beamlineWarningsLabel_, SLOT(setText(QString)));
 	connect(SGMBeamline::sgm(), SIGNAL(beamlineWarningsChanged(QString)), this, SLOT(onBeamlineWarnings(QString)));
 
-	channelView_ = new CLSCAEN2527ChannelBasicView(SGMBeamline::sgm()->hvChannel106());
-
 	// create UI elements
 	imageView_ = new MPlotWidget();
 	imageView_->setMinimumHeight(200);
@@ -228,10 +226,9 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	gl_->addWidget(endstationsBox,		8, 3, 1, 3, 0);
 	//gl_->addWidget(beamlineWarningsLabel_,	10, 0, 1, 6, 0);
 	//gl_->addWidget(imageView_,		10, 0, 1, 6, 0);
-	gl_->addWidget(channelView_,		9, 0, 1, 3, 0);
-	gl_->addLayout(warningAndPlotHL_,	11, 0, 1, 6, 0);
+	gl_->addLayout(warningAndPlotHL_,	10, 0, 1, 6, 0);
 
-	gl_->setRowStretch(10, 10);
+	gl_->setRowStretch(9, 10);
 
 	setLayout(mainLayout_);
 	setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);

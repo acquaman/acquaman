@@ -5,9 +5,9 @@
 
 #include "beamline/AMHighVoltageChannel.h"
 class QLineEdit;
+class QPushButton;
 class QVBoxLayout;
 class AMControlEditor;
-class AMControlButton;
 class CLSCAEN2527HVChannel;
 
 class CLSCAEN2527ChannelBasicView : public QGroupBox
@@ -19,13 +19,14 @@ public:
 protected slots:
 	void onHVChannelConnected(bool connect);
 	void onPowerStateChanged(AMHighVoltageChannel::highVoltageChannelPowerState powerState);
+	void onToggleButtonToggled(bool toggled);
 
 protected:
 	CLSCAEN2527HVChannel *hvChannel_;
 	QLineEdit *descriptionEdit_;
 	AMControlEditor *demandCE_;
 	AMControlEditor *voltageCE_;
-	AMControlButton *toggleCB_;
+	QPushButton *toggleButton_;
 	AMControlEditor *statusCE_;
 	AMControlEditor *currentCE_;
 	QVBoxLayout *vl_;

@@ -84,7 +84,7 @@ signals:
 	/// Emitted when the actual voltage feedback changes
 	void voltageChanged(double voltage);
 	/// Emitted when the channel changes power states
-	void powerStateChanged(highVoltageChannelPowerState powerState);
+	void powerStateChanged(AMHighVoltageChannel::highVoltageChannelPowerState powerState);
 	/// Convenience signal for powerStateChanged(isOn)
 	void turnedOn();
 	/// Convenience signal for powerStateChanged(isOff)
@@ -94,7 +94,7 @@ signals:
 	/// Emitted when the supply current changes (if this channel reports its current)
 	void currentChanged(double current);
 	/// Emitted when the polarity of the channel changes (if this channel has a polarity AND can change polarities)
-	void polarityChanged(highVoltageChannelPolarity polarity);
+	void polarityChanged(AMHighVoltageChannel::highVoltageChannelPolarity polarity);
 
 protected slots:
 	/// Setter for subclasses to change whether or not the channel reports its current
