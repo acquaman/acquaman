@@ -6,6 +6,7 @@ AMBiHash<QString, AMMeasurementInfo> SGM2011XASFileLoader::offsets2MeasurementIn
 */
 
 #include <QFile>
+#include <QFileInfo>
 #include <QTextStream>
 
 #include "dataman/AMXASScan.h"
@@ -31,7 +32,8 @@ SGM2011XASFileLoader::SGM2011XASFileLoader(AMXASScan *scan) :
 		columns2pvNames_.set("EnergyFeedback", "BL1611-ID-1:Energy:fbk");
 
 		columns2pvNames_.set("SDD", "MCA1611-01:GetChannels");
-		columns2pvNames_.set("OceanOptics65000", "SA0000-03:Spectra");
+		columns2pvNames_.set("OceanOptics65000Old", "SA0000-03:Spectra");
+		columns2pvNames_.set("OceanOptics65000", "SA0000-03:DarkCorrectedSpectra");
 	}
 
 	/*
@@ -135,6 +137,7 @@ bool SGM2011XASFileLoader::loadFromFile(const QString& filepath, bool setMetaDat
 	// A list of lists of final file offset pairs (start byte and end byte)
 	QList<QList<QPair<int, int> > > fileOffsets;
 	QString spectraFile = "";
+	QFileInfo spectraFileInfo;
 	for(int x = 0; x < colNames1.count(); x++){
 		/*
 		if(offsets2MeasurementInfos_.containsF(colNames1.at(x))){
@@ -156,6 +159,9 @@ bool SGM2011XASFileLoader::loadFromFile(const QString& filepath, bool setMetaDat
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -3, "SGM2011XASFileLoader parse error while loading scan data from file. I couldn't find the the spectra.dat file when I need one."));
 			return false;	// bad format; no spectra.dat file in the additional files paths
 		}
+		spectraFileInfo.setFile(spectraFile);
+		if(spectraFileInfo.isRelative())
+			spectraFileInfo.setFile(AMUserSettings::userDataFolder + "/" + spectraFile);
 	}
 
 	for(int x = 0; x < colNames1.count(); x++){
@@ -224,7 +230,8 @@ bool SGM2011XASFileLoader::loadFromFile(const QString& filepath, bool setMetaDat
 	}
 
 	if(spectraFile != ""){
-		QFile sf(spectraFile);
+		//QFile sf(spectraFile);
+		QFile sf(spectraFileInfo.filePath());
 		if(!sf.open(QIODevice::ReadOnly)) {
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -1, "SGM2011XASFileLoader parse error while loading scan data from file. Missing spectra.dat file."));
 			return false;

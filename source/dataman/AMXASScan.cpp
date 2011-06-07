@@ -40,8 +40,12 @@ bool AMXASScan::loadDataImplementation() {
 	SGM2004FileLoader sgmLoader(this);
 
 	QFileInfo sourceFileInfo(filePath());
-	if(sourceFileInfo.isRelative())
+	if(sourceFileInfo.isRelative()){
+		qDebug() << "Path IS relative, user data folder is " << AMUserSettings::userDataFolder;
 		sourceFileInfo.setFile(AMUserSettings::userDataFolder + "/" + filePath());
+	}
+	else
+		qDebug() << "Path IS NOT relative.";
 
 	if(fileFormat() == sgmLoader.formatTag()) {
 		if(sgmLoader.loadFromFile(sourceFileInfo.filePath(), false, false, false)) {
@@ -56,7 +60,7 @@ bool AMXASScan::loadDataImplementation() {
 	SGM2011XASFileLoader sgm2011Loader(this);
 
 	if(fileFormat() == sgm2011Loader.formatTag()) {
-		if(sgm2011Loader.loadFromFile(filePath(), false, false, false)) {
+		if(sgm2011Loader.loadFromFile(sourceFileInfo.filePath(), false, false, false)) {
 			return true;
 		}
 		else {
