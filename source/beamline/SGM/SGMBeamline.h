@@ -35,6 +35,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMBeamlineControlWaitAction.h"
 #include "beamline/AMBeamlineControlStopAction.h"
 #include "beamline/AMBeamlineUserConfirmAction.h"
+#include "beamline/AMBeamlineHighVoltageChannelToggleAction.h"
 #include "beamline/AMBeamlineActionsList.h"
 #include "beamline/AMBeamlineParallelActionsList.h"
 #include "beamline/AMBeamlineListAction.h"
@@ -47,6 +48,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class SGMGratingAction;
 class AMSamplePlate;
 class CLSVMEMotor;
+class CLSCAEN2527HVChannel;
 
 class SGMBeamline : public AMBeamline
 {
@@ -202,6 +204,7 @@ public:
 	AMControl* scalerMode() const { return scalerMode_;}
 	AMControl* ssaIllumination() const { return ssaIllumination_;}
 	AMControl* tfyHVToggle() const { return tfyHVToggle_;}
+	CLSCAEN2527HVChannel* hvChannel106() const { return hvChannel106_;}
 
 
 	AMControlSet* fluxResolutionSet() const { return fluxResolutionSet_;}
@@ -229,6 +232,9 @@ public:
 	AMBeamlineListAction* createTransferLoadLockInActions();
 	AMBeamlineListAction* createTransferChamberOutActions();
 	AMBeamlineListAction* createTransferChamberInActions();
+
+	AMBeamlineHighVoltageChannelToggleAction* createHVOnActions();
+	AMBeamlineHighVoltageChannelToggleAction* createHVOffActions();
 
 	bool isBeamlineScanning();
 
@@ -326,6 +332,7 @@ protected:
 	AMControl *tfyScaler_;
 	AMControl *tfyHV_;
 	AMControl *tfyHVToggle_;
+	CLSCAEN2527HVChannel *hvChannel106_;
 	AMControl *pgt_;
 	AMControl *pgtHV_;
 	AMControl *pgtIntegrationTime_;

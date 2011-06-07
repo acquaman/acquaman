@@ -3,6 +3,16 @@
 
 #include "beamline/AMControl.h"
 
+/// This function object provides the moving check for the CLSVMEMotors
+class AMControlStatusCheckerCLSVME : public AMAbstractControlStatusChecker {
+public:
+	/// Status values will be compare to \c isStoppedValue, and return true if the status value is not equal to isStoppedValue (something that isn't stopped is moving)
+	AMControlStatusCheckerCLSVME() {}
+
+	/// Return true (moving) if the \c statusValue is not 0 (STOPPED) and is not 3 (FORCED STOP)
+	virtual bool operator()(quint32 statusValue) { return (statusValue != 0) && (statusValue != 3); }
+};
+
 class CLSVMEMotor : public AMPVwStatusControl
 {
 	Q_OBJECT

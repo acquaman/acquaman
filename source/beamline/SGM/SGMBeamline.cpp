@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMSamplePlate.h"
 #include "dataman/AMUser.h"
 #include "beamline/CLS/CLSVMEMotor.h"
+#include "beamline/CLS/CLSCAEN2527HVChannel.h"
 
 void SGMBeamline::usingSGMBeamline(){
 	amNames2pvNames_.set("energy", "BL1611-ID-1:Energy");
@@ -241,6 +242,8 @@ void SGMBeamline::usingSGMBeamline(){
 	tfyHVToggle_ = new AMPVControl("tfyHVToggle", sgmPVName+":status", sgmPVName+":pwonoff", QString(), this, 0.1);
 	tfyHVToggle_->setDescription("TFY High Voltage Toggle");
 	tfyHVToggle_->setContextKnownDescription("Toggle");
+
+	hvChannel106_ = new CLSCAEN2527HVChannel("Ch 6+", "PS1611401:106", AMHighVoltageChannel::positive, this);
 
 	sgmPVName = amNames2pvNames_.valueF("pgt");
 	if(sgmPVName.isEmpty())
@@ -1328,6 +1331,18 @@ AMBeamlineListAction* SGMBeamline::createTransferChamberInActions(){
 	transferChamberInList->appendAction(4, transferChamberInAction5);
 
 	return transferChamberInAction;
+}
+
+AMBeamlineHighVoltageChannelToggleAction* SGMBeamline::createHVOnActions(){
+	AMBeamlineHighVoltageChannelToggleAction * onAction = new AMBeamlineHighVoltageChannelToggleAction(hvChannel106());
+	onAction->setSetpoint(AMHighVoltageChannel::isPowerOn);
+	return onAction;
+}
+
+AMBeamlineHighVoltageChannelToggleAction* SGMBeamline::createHVOffActions(){
+	AMBeamlineHighVoltageChannelToggleAction * offAction = new AMBeamlineHighVoltageChannelToggleAction(hvChannel106());
+	offAction->setSetpoint(AMHighVoltageChannel::isPowerOff);
+	return offAction;
 }
 
 bool SGMBeamline::isBeamlineScanning(){

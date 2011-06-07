@@ -360,7 +360,11 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/OceanOptics65000DetectorView.h \
 	source/dataman/SGM2011XASFileLoader.h \
 	source/beamline/CLS/CLSVMEMotor.h \
-	source/analysis/AM1DDerivativeAB.h
+	source/analysis/AM1DDerivativeAB.h \
+    source/beamline/AMHighVoltageChannel.h \
+    source/beamline/CLS/CLSCAEN2527HVChannel.h \
+    source/ui/CLS/CLSCAEN2527ChannelBasicView.h \
+    source/beamline/AMBeamlineHighVoltageChannelToggleAction.h
 FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
 	source/ui/AMDataViewSectionHeader.ui \
@@ -578,7 +582,11 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/dataman/SGM2011XASFileLoader.cpp \
 	source/beamline/CLS/CLSVMEMotor.cpp \
 #	source/ui/AM3dDataSourceView.cpp \
-	source/analysis/AM1DDerivativeAB.cpp
+	source/analysis/AM1DDerivativeAB.cpp \
+    source/beamline/AMHighVoltageChannel.cpp \
+    source/beamline/CLS/CLSCAEN2527HVChannel.cpp \
+    source/ui/CLS/CLSCAEN2527ChannelBasicView.cpp \
+    source/beamline/AMBeamlineHighVoltageChannelToggleAction.cpp
 
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc \
