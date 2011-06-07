@@ -6,6 +6,7 @@ CLSCAEN2527HVChannel::CLSCAEN2527HVChannel(const QString &name, const QString &p
 		AMHighVoltageChannel(name, parent)
 {
 	wasConnected_ = false;
+	poweringDown_ = false;
 	setNoPolarity(false);
 	setPolarity(polarity);
 	description_ = new AMProcessVariable(pvBaseName+":name", true, this);
@@ -151,16 +152,26 @@ void CLSCAEN2527HVChannel::onDemandChanged(double demand){
 
 void CLSCAEN2527HVChannel::onVoltageChanged(double voltage){
 	emit voltageChanged(voltage);
+	if(isOn() && demand_->withinTolerance(voltage))
+		emit fullyPowered();
+	if(isConnected() && poweringDown_ && ( voltage_->value() < 0.5 ) ){
+		poweringDown_ = false;
+		powerState_ = AMHighVoltageChannel::isPowerOff;
+		emit powerStateChanged(powerState_);
+	}
 }
 
 void CLSCAEN2527HVChannel::onToggleChanged(double toggle){
 	if(!isConnected())
 		return;
-	if(toggle_->withinTolerance(1))
+	if(toggle_->withinTolerance(1)){
 		powerState_ = AMHighVoltageChannel::isPowerOn;
-	else if(toggle_->withinTolerance(0))
-		powerState_ = AMHighVoltageChannel::isPowerOff;
-	emit powerStateChanged(powerState_);
+		emit powerStateChanged(powerState_);
+	}
+	else if(toggle_->withinTolerance(0)){
+		poweringDown_ = true;
+		onVoltageChanged(voltage_->value());
+	}
 }
 
 void CLSCAEN2527HVChannel::onStatusChanged(double status){

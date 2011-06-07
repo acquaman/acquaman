@@ -1,5 +1,7 @@
 #include "AMHighVoltageChannel.h"
 
+#include <QDebug>
+
 AMHighVoltageChannel::AMHighVoltageChannel(const QString &name, QObject *parent) :
 		QObject(parent)
 {
@@ -8,7 +10,7 @@ AMHighVoltageChannel::AMHighVoltageChannel(const QString &name, QObject *parent)
 	polarity_ = AMHighVoltageChannel::none;
 	noCurrent_ = true;
 	noPolarity_ = true;
-	connect(this, SIGNAL(powerStateChanged(highVoltageChannelPowerState)), this, SLOT(onPowerStateChanged(highVoltageChannelPowerState)));
+	connect(this, SIGNAL(powerStateChanged(AMHighVoltageChannel::highVoltageChannelPowerState)), this, SLOT(onPowerStateChanged(AMHighVoltageChannel::highVoltageChannelPowerState)));
 }
 
 QString AMHighVoltageChannel::name() const{
@@ -73,6 +75,8 @@ void AMHighVoltageChannel::setNoPolarity(bool noPolarity){
 void AMHighVoltageChannel::onPowerStateChanged(highVoltageChannelPowerState powerState){
 	if(powerState == AMHighVoltageChannel::isPowerOn)
 		emit turnedOn();
-	else if(powerState == AMHighVoltageChannel::isPowerOff)
+	else if(powerState == AMHighVoltageChannel::isPowerOff){
+		qDebug() << "Shouted turned OFF";
 		emit turnedOff();
+	}
 }

@@ -48,6 +48,7 @@ protected slots:
 
 protected:
 	bool wasConnected_;
+	bool poweringDown_;
 	AMProcessVariable *description_;
 	AMProcessVariable *descriptionFbk_;
 	AMControl *demand_;

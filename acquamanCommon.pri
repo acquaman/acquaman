@@ -363,7 +363,8 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/analysis/AM1DDerivativeAB.h \
     source/beamline/AMHighVoltageChannel.h \
     source/beamline/CLS/CLSCAEN2527HVChannel.h \
-    source/ui/CLS/CLSCAEN2527ChannelBasicView.h
+    source/ui/CLS/CLSCAEN2527ChannelBasicView.h \
+    source/beamline/AMBeamlineHighVoltageChannelToggleAction.h
 FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
 	source/ui/AMDataViewSectionHeader.ui \
@@ -584,7 +585,8 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/analysis/AM1DDerivativeAB.cpp \
     source/beamline/AMHighVoltageChannel.cpp \
     source/beamline/CLS/CLSCAEN2527HVChannel.cpp \
-    source/ui/CLS/CLSCAEN2527ChannelBasicView.cpp
+    source/ui/CLS/CLSCAEN2527ChannelBasicView.cpp \
+    source/beamline/AMBeamlineHighVoltageChannelToggleAction.cpp
 
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc \

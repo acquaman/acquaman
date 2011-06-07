@@ -35,6 +35,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMBeamlineControlWaitAction.h"
 #include "beamline/AMBeamlineControlStopAction.h"
 #include "beamline/AMBeamlineUserConfirmAction.h"
+#include "beamline/AMBeamlineHighVoltageChannelToggleAction.h"
 #include "beamline/AMBeamlineActionsList.h"
 #include "beamline/AMBeamlineParallelActionsList.h"
 #include "beamline/AMBeamlineListAction.h"
@@ -231,6 +232,9 @@ public:
 	AMBeamlineListAction* createTransferLoadLockInActions();
 	AMBeamlineListAction* createTransferChamberOutActions();
 	AMBeamlineListAction* createTransferChamberInActions();
+
+	AMBeamlineHighVoltageChannelToggleAction* createHVOnActions();
+	AMBeamlineHighVoltageChannelToggleAction* createHVOffActions();
 
 	bool isBeamlineScanning();
 

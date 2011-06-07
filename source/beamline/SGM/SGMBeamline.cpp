@@ -1333,6 +1333,18 @@ AMBeamlineListAction* SGMBeamline::createTransferChamberInActions(){
 	return transferChamberInAction;
 }
 
+AMBeamlineHighVoltageChannelToggleAction* SGMBeamline::createHVOnActions(){
+	AMBeamlineHighVoltageChannelToggleAction * onAction = new AMBeamlineHighVoltageChannelToggleAction(hvChannel106());
+	onAction->setSetpoint(AMHighVoltageChannel::isPowerOn);
+	return onAction;
+}
+
+AMBeamlineHighVoltageChannelToggleAction* SGMBeamline::createHVOffActions(){
+	AMBeamlineHighVoltageChannelToggleAction * offAction = new AMBeamlineHighVoltageChannelToggleAction(hvChannel106());
+	offAction->setSetpoint(AMHighVoltageChannel::isPowerOff);
+	return offAction;
+}
+
 bool SGMBeamline::isBeamlineScanning(){
 	if( fabs(beamlineScanning_->value() -1.0) < beamlineScanning_->tolerance() )
 		return true;

@@ -1,7 +1,10 @@
 #include "CLSVMEMotor.h"
 
+
+
 CLSVMEMotor::CLSVMEMotor(const QString &name, const QString &baseName, const QString &description, bool hasEncoder, double tolerance, double moveStartTimeoutSeconds, QObject *parent) :
-		AMPVwStatusControl(name, baseName+":mm:fbk", baseName+":mm", baseName+":status", baseName+":stop", parent, tolerance, moveStartTimeoutSeconds, new AMControlStatusCheckerStopped(0), 1, description)
+		AMPVwStatusControl(name, baseName+":mm:fbk", baseName+":mm", baseName+":status", baseName+":stop", parent, tolerance, moveStartTimeoutSeconds, new AMControlStatusCheckerCLSVME(), 1, description)
+		//AMPVwStatusControl(name, baseName+":mm:fbk", baseName+":mm", baseName+":status", baseName+":stop", parent, tolerance, moveStartTimeoutSeconds, new AMControlStatusCheckerStopped(0), 1, description)
 {
 	usingKill_ = false;
 	killPV_ = new AMProcessVariable(baseName+":kill", true, this);
@@ -37,6 +40,7 @@ CLSVMEMotor::CLSVMEMotor(const QString &name, const QString &baseName, const QSt
 	connect(acceleration_, SIGNAL(valueChanged(double)), this, SIGNAL(accelerationChanged(double)));
 	connect(currentVelocity_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
 	connect(currentVelocity_, SIGNAL(valueChanged(double)), this, SIGNAL(currentVelocityChanged(double)));
+	connect(this, SIGNAL(moveFailed(int)), this, SLOT(onStopped(int)));
 }
 
 bool CLSVMEMotor::isConnected() const{

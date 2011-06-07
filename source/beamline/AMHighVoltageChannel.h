@@ -85,6 +85,8 @@ signals:
 	void voltageChanged(double voltage);
 	/// Emitted when the channel changes power states
 	void powerStateChanged(AMHighVoltageChannel::highVoltageChannelPowerState powerState);
+	/// Emitted when the channel's actual voltage reaches the demand voltage (conveniece signal)
+	void fullyPowered();
 	/// Convenience signal for powerStateChanged(isOn)
 	void turnedOn();
 	/// Convenience signal for powerStateChanged(isOff)
