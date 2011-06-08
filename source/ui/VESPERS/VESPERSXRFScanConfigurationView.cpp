@@ -23,9 +23,13 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 	topFrame->setIcon(QIcon(":/utilities-system-monitor.png"));
 
 	view_ = new XRFDetailedDetectorView(detector_);
+	view_->setMinimumEnergy(xrfTable_->minimumEnergy());
+	view_->setMaximumEnergy(xrfTable_->maximumEnergy());
 	connect(detector_, SIGNAL(detectorConnected(bool)), this, SLOT(setEnabled(bool)));
 	connect(xrfTable_, SIGNAL(currentElementChanged(XRFElement*)), view_, SLOT(showEmissionLines(XRFElement*)));
 	connect(xrfTable_, SIGNAL(currentElementChanged(XRFElement*)), view_, SLOT(highlightMarkers(XRFElement*)));
+	connect(xrfTable_, SIGNAL(minimumEnergyChanged(double)), view_, SLOT(setMinimumEnergy(double)));
+	connect(xrfTable_, SIGNAL(maximumEnergyChanged(double)), view_, SLOT(setMaximumEnergy(double)));
 
 	XRFPeriodicTableView *tableView = new XRFPeriodicTableView(xrfTable_);
 	QPalette palette = tableView->palette();
