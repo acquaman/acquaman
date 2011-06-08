@@ -11,7 +11,7 @@ XRFPeriodicTableView::XRFPeriodicTableView(XRFPeriodicTable *xrfTable, QWidget *
 	connect(xrfTable_, SIGNAL(minimumEnergyChanged(double)), this, SLOT(disableElements()));
 	connect(xrfTable_, SIGNAL(maximumEnergyChanged(double)), this, SLOT(disableElements()));
 	connect(xrfTable_, SIGNAL(addedRegionOfInterest(XRFElement*,QString)), this, SLOT(onRegionOfInterestChanged(XRFElement*,QString)));
-	connect(xrfTable_, SIGNAL(removedAllRegionsOfInterest()), this, SLOT(onRegionOfInterestChanged(XRFElement*,QString)));
+	connect(xrfTable_, SIGNAL(removedRegionOfInterest(XRFElement*,QString)), this, SLOT(onRegionOfInterestChanged(XRFElement*,QString)));
 
 	QFont font(this->font());
 	font.setBold(true);
