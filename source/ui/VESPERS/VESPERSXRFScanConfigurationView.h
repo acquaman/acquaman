@@ -48,6 +48,8 @@ protected:
 
 	/// The current configuration.
 	VESPERSXRFScanConfiguration *configuration_;
+	/// Pointer to the XRFPeriodicTable inside configuration.
+	XRFPeriodicTable *xrfTable_;
 	/// The detector view.
 	XRFDetailedDetectorView *view_;
 	/// The pointer to the detector.

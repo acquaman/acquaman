@@ -17,31 +17,32 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 {
 	configuration_ = scanConfig;
 	detector_ = configuration_->detector();
+	xrfTable_ = configuration_->table();
 
 	AMTopFrame *topFrame = new AMTopFrame(QString("XRF Configuration - %1").arg(detector_->name()));
 	topFrame->setIcon(QIcon(":/utilities-system-monitor.png"));
 
 	view_ = new XRFDetailedDetectorView(detector_);
 	connect(detector_, SIGNAL(detectorConnected(bool)), this, SLOT(setEnabled(bool)));
-	connect(configuration_->table(), SIGNAL(currentElementChanged(XRFElement*)), view_, SLOT(showEmissionLines(XRFElement*)));
-	connect(configuration_->table(), SIGNAL(currentElementChanged(XRFElement*)), view_, SLOT(highlightMarkers(XRFElement*)));
+	connect(xrfTable_, SIGNAL(currentElementChanged(XRFElement*)), view_, SLOT(showEmissionLines(XRFElement*)));
+	connect(xrfTable_, SIGNAL(currentElementChanged(XRFElement*)), view_, SLOT(highlightMarkers(XRFElement*)));
 
-	XRFPeriodicTableView *tableView = new XRFPeriodicTableView(configuration_->table());
+	XRFPeriodicTableView *tableView = new XRFPeriodicTableView(xrfTable_);
 	QPalette palette = tableView->palette();
 	palette.setColor(QPalette::Window, QColor(79, 148, 205));
 	tableView->setPalette(palette);
 	tableView->setAutoFillBackground(true);
 
-	VESPERSXRFElementView *elView = new VESPERSXRFElementView(configuration_->table()->currentElement());
+	VESPERSXRFElementView *elView = new VESPERSXRFElementView(xrfTable_->currentElement());
 	palette = elView->palette();
 	palette.setColor(QPalette::Window, QColor(110, 139, 61));
 	elView->setPalette(palette);
 	elView->setAutoFillBackground(true);
-	elView->setMinimumEnergy(configuration_->table()->minimumEnergy());
-	elView->setMaximumEnergy(configuration_->table()->maximumEnergy());
-	connect(configuration_->table(), SIGNAL(currentElementChanged(XRFElement*)), elView, SLOT(setElement(XRFElement*)));
-	connect(configuration_->table(), SIGNAL(minimumEnergyChanged(double)), elView, SLOT(setMinimumEnergy(double)));
-	connect(configuration_->table(), SIGNAL(maximumEnergyChanged(double)), elView, SLOT(setMaximumEnergy(double)));
+	elView->setMinimumEnergy(xrfTable_->minimumEnergy());
+	elView->setMaximumEnergy(xrfTable_->maximumEnergy());
+	connect(xrfTable_, SIGNAL(currentElementChanged(XRFElement*)), elView, SLOT(setElement(XRFElement*)));
+	connect(xrfTable_, SIGNAL(minimumEnergyChanged(double)), elView, SLOT(setMinimumEnergy(double)));
+	connect(xrfTable_, SIGNAL(maximumEnergyChanged(double)), elView, SLOT(setMaximumEnergy(double)));
 
 	QPushButton *sortButton = new QPushButton(QIcon(":/ArrowCCW.png"), "Sort");
 	connect(sortButton, SIGNAL(clicked()), view_, SLOT(sortRegionsOfInterest()));
@@ -83,7 +84,7 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 	minEnergy_->setSingleStep(0.01);
 	minEnergy_->setMinimum(0.0);
 	minEnergy_->setMaximum(30.00);
-	minEnergy_->setValue(configuration_->table()->minimumEnergy()/1000);
+	minEnergy_->setValue(xrfTable_->minimumEnergy()/1000);
 	minEnergy_->setAlignment(Qt::AlignCenter);
 	connect(minEnergy_, SIGNAL(editingFinished()), this, SLOT(onMinimumEnergyUpdate()));
 
@@ -188,18 +189,18 @@ void VESPERSXRFScanConfigurationView::onIntegrationTimeUpdate()
 
 void VESPERSXRFScanConfigurationView::onMinimumEnergyUpdate()
 {
-	configuration_->table()->setMinimumEnergy(minEnergy_->value()*1000);
+	xrfTable_->setMinimumEnergy(minEnergy_->value()*1000);
 }
 
 void VESPERSXRFScanConfigurationView::onMaximumEnergyUpdate()
 {
 	detector_->setMaximumEnergyControl(maxEnergy_->value());
-	configuration_->table()->setMaximumEnergy(maxEnergy_->value()*1000);
+	xrfTable_->setMaximumEnergy(maxEnergy_->value()*1000);
 }
 
 void VESPERSXRFScanConfigurationView::onMaximumEnergyControlUpdate(double val)
 {
-	configuration_->table()->setMaximumEnergy(val*1000);
+	xrfTable_->setMaximumEnergy(val*1000);
 }
 
 void VESPERSXRFScanConfigurationView::onPeakingTimeUpdate()
