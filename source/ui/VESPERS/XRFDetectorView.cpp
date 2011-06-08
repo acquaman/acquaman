@@ -448,8 +448,11 @@ void XRFDetailedDetectorView::removeRegionOfInterestMarker(AMROIInfo info)
 
 void XRFDetailedDetectorView::removeAllRegionsOfInterestMarkers()
 {
-	for (int i = 0; i < markers_.size(); i++)
+	for (int i = 0; i < markers_.size(); i++){
+
 		plot_->removeItem(markers_.at(i));
+		delete markers_.at(i);
+	}
 
 	markers_.clear();
 }
