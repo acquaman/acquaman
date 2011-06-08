@@ -354,7 +354,8 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 #	source/ui/AM3dDataSourceView.h \
 	source/ui/AMTopFrame.h \
 	source/beamline/CLS/CLSVMEMotor.h \
-	source/analysis/AM1DDerivativeAB.h
+	source/analysis/AM1DDerivativeAB.h \
+    source/analysis/AMExternalScanDataSourceAB.h
 FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
 	source/ui/AMDataViewSectionHeader.ui \
@@ -566,7 +567,8 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/dataman/AMExporter.cpp \
 #	source/ui/AM3dDataSourceView.cpp \
 	source/beamline/CLS/CLSVMEMotor.cpp \
-	source/analysis/AM1DDerivativeAB.cpp
+	source/analysis/AM1DDerivativeAB.cpp \
+    source/analysis/AMExternalScanDataSourceAB.cpp
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc \
 	source/util/ElementData.qrc \

@@ -20,27 +20,27 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMnDIndex.h"
 
-/// Create an invalid index (rank of 0)
+// Create an invalid index (rank of 0)
 AMnDIndex::AMnDIndex() {
 	rank_ = 0;
 	extras_ = 0;
 }
 
-/// Create an index for 1D data
+// Create an index for 1D data
 AMnDIndex::AMnDIndex(int row) {
 	rank_ = 1;
 	extras_ = 0;
 	i_ = row;
 }
 
-/// Create an index for 2D data
+// Create an index for 2D data
 AMnDIndex::AMnDIndex(int row, int col) {
 	rank_ = 2;
 	extras_ = 0;
 	i_ = row;
 	j_ = col;
 }
-/// Create an index for 3D data
+// Create an index for 3D data
 AMnDIndex::AMnDIndex(int row, int col, int slice) {
 	rank_ = 3;
 	extras_ = 0;
@@ -49,7 +49,7 @@ AMnDIndex::AMnDIndex(int row, int col, int slice) {
 	k_ = slice;
 }
 
-/// Create an index for 4D data
+// Create an index for 4D data
 AMnDIndex::AMnDIndex(int i, int j, int k, int l) {
 	rank_ = 4;
 	extras_ = 0;
@@ -57,6 +57,17 @@ AMnDIndex::AMnDIndex(int i, int j, int k, int l) {
 	j_ = j;
 	k_ = k;
 	l_ = l;
+}
+
+// Create an index for 5D data
+AMnDIndex::AMnDIndex(int i, int j, int k, int l, int m) {
+	rank_ = 5;
+	extras_ = 0;
+	i_ = i;
+	j_ = j;
+	k_ = k;
+	l_ = l;
+	m_ = m;
 }
 
 AMnDIndex::AMnDIndex(int dimension, bool initToZero)  {
