@@ -22,6 +22,8 @@ protected slots:
 	void onElementSelected(AMElement *el) { xrfTable_->setCurrentElement(xrfTable_->elementByAtomicNumber(el->atomicNumber())); }
 	/// Helper function that disables the buttons based on the current values of maximumEnergy_ and minimumEnergy_.
 	void disableElements();
+	/// Helper slot that takes in an element that has recently had a region of interest added to or removed from it and changes the colour accordingly.
+	void onRegionOfInterestChanged(XRFElement *el, QString line);
 
 protected:
 	/// A pointer to the XRF periodic table.

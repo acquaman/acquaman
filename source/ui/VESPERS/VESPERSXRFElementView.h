@@ -90,15 +90,15 @@ public slots:
 	/// Sets the element to view.  Handles all the layout properties of the dialog.
 	void setElement(XRFElement *el);
 	/// Sets the minimum energy.  Determines what should be shown based on the new value.
-	void setMinimumEnergy(double energy) { minimumEnergy_ = energy; fillEmissionLines(); }
+	void setMinimumEnergy(double energy) { minimumEnergy_ = energy; if (element_) fillEmissionLines(); }
 	/// Sets the maximum energy.  Determines what should be shown based on the new value.
-	void setMaximumEnergy(double energy) { maximumEnergy_ = energy; fillEmissionLines(); }
+	void setMaximumEnergy(double energy) { maximumEnergy_ = energy; if (element_) fillEmissionLines(); }
 
 signals:
-	/// Notifies that a line has been chosen to be added.
-	void addLine(QString);
-	/// Notifies that a line has been chosen to be removed.
-	void removeLine(QString);
+	/// Notifies that a line has been chosen to be added.  It also passes a pointer to the element it is currently viewing.
+	void addLine(XRFElement *, QString);
+	/// Notifies that a line has been chosen to be removed.  It also passes a pointer to the element it is currently viewing.
+	void removeLine(XRFElement *, QString);
 
 protected slots:
 	/// Handles when checked state changes from LineView.  Takes in whether the line view was checked or unchecked and passes on the name of the line.

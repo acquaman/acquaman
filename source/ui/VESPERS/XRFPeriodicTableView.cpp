@@ -10,6 +10,8 @@ XRFPeriodicTableView::XRFPeriodicTableView(XRFPeriodicTable *xrfTable, QWidget *
 	xrfTable_ = xrfTable;
 	connect(xrfTable_, SIGNAL(minimumEnergyChanged(double)), this, SLOT(disableElements()));
 	connect(xrfTable_, SIGNAL(maximumEnergyChanged(double)), this, SLOT(disableElements()));
+	connect(xrfTable_, SIGNAL(addedRegionOfInterest(XRFElement*,QString)), this, SLOT(onRegionOfInterestChanged(XRFElement*,QString)));
+	connect(xrfTable_, SIGNAL(removedAllRegionsOfInterest()), this, SLOT(onRegionOfInterestChanged(XRFElement*,QString)));
 
 	QFont font(this->font());
 	font.setBold(true);
@@ -81,6 +83,12 @@ void XRFPeriodicTableView::resetAllColors()
 
 	for (int i = 0; i < table.size(); i++)
 		tableView_->button(table.at(i))->setPalette(palette);
+}
+
+void XRFPeriodicTableView::onRegionOfInterestChanged(XRFElement *el, QString line)
+{
+	Q_UNUSED(line);
+	changeColor(el);
 }
 
 void XRFPeriodicTableView::changeColor(XRFElement *el)

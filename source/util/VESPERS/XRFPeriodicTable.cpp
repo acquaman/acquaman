@@ -9,15 +9,8 @@ XRFPeriodicTable::XRFPeriodicTable(double minEnergy, double maxEnergy, QObject *
 	maximumEnergy_ = maxEnergy;
 	current_ = 0;
 
-	XRFElement *temp;
-
-	for (int i = 0; i < AMPeriodicTable::table()->elements().size(); i++){
-
-		temp = new XRFElement(AMPeriodicTable::table()->elementByAtomicNumber(i+1), this);
-		xrfTable_ << temp;
-		connect(this, SIGNAL(minimumEnergyChanged(double)), temp, SLOT(setMinimumEnergy(double)));
-		connect(this, SIGNAL(maximumEnergyChanged(double)), temp, SLOT(setMaximumEnergy(double)));
-	}
+	for (int i = 0; i < AMPeriodicTable::table()->elements().size(); i++)
+		xrfTable_ << new XRFElement(AMPeriodicTable::table()->elementByAtomicNumber(i+1), this);
 }
 
 XRFPeriodicTable::~XRFPeriodicTable()

@@ -23,7 +23,8 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 
 	view_ = new XRFDetailedDetectorView(detector_);
 	connect(detector_, SIGNAL(detectorConnected(bool)), this, SLOT(setEnabled(bool)));
-	connect(detector_, SIGNAL(roisHaveValues(bool)), this, SLOT(onRoisHaveValues(bool)));
+	connect(configuration_->table(), SIGNAL(currentElementChanged(XRFElement*)), view_, SLOT(showEmissionLines(XRFElement*)));
+	connect(configuration_->table(), SIGNAL(currentElementChanged(XRFElement*)), view_, SLOT(highlightMarkers(XRFElement*)));
 
 	XRFPeriodicTableView *tableView = new XRFPeriodicTableView(configuration_->table());
 	QPalette palette = tableView->palette();
@@ -36,8 +37,11 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 	palette.setColor(QPalette::Window, QColor(110, 139, 61));
 	elView->setPalette(palette);
 	elView->setAutoFillBackground(true);
-
+	elView->setMinimumEnergy(configuration_->table()->minimumEnergy());
+	elView->setMaximumEnergy(configuration_->table()->maximumEnergy());
 	connect(configuration_->table(), SIGNAL(currentElementChanged(XRFElement*)), elView, SLOT(setElement(XRFElement*)));
+	connect(configuration_->table(), SIGNAL(minimumEnergyChanged(double)), elView, SLOT(setMinimumEnergy(double)));
+	connect(configuration_->table(), SIGNAL(maximumEnergyChanged(double)), elView, SLOT(setMaximumEnergy(double)));
 
 	QPushButton *sortButton = new QPushButton(QIcon(":/ArrowCCW.png"), "Sort");
 	connect(sortButton, SIGNAL(clicked()), view_, SLOT(sortRegionsOfInterest()));
@@ -79,7 +83,7 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 	minEnergy_->setSingleStep(0.01);
 	minEnergy_->setMinimum(0.0);
 	minEnergy_->setMaximum(30.00);
-	minEnergy_->setValue(configuration_->table()->minimumEnergy());
+	minEnergy_->setValue(configuration_->table()->minimumEnergy()/1000);
 	minEnergy_->setAlignment(Qt::AlignCenter);
 	connect(minEnergy_, SIGNAL(editingFinished()), this, SLOT(onMinimumEnergyUpdate()));
 
@@ -209,48 +213,4 @@ void VESPERSXRFScanConfigurationView::onStopClicked()
 
 	if (current)
 		current->finish();
-}
-
-void VESPERSXRFScanConfigurationView::onRoisHaveValues(bool hasValues)
-{
-	if (hasValues){
-
-		// Go through all the regions of interest PVs and if there are any regions set already, pass them on to the rest of the program.
-		QString name;
-		XRFElement *el;
-
-		for (int i = 0; i < detector_->roiList().count(); i++){
-
-			name = detector_->roiList().at(i)->name();
-
-			// If the name is empty then we've reached the end of the road for preset regions of interest.
-			if (name.isEmpty()){
-
-				el = configuration_->table()->elementBySymbol("Fe");
-				view_->showEmissionLines(el);
-				view_->highlightMarkers(el);
-				configuration_->table()->setCurrentElement(el);
-				return;
-			}
-
-			name = name.left(name.indexOf(" "));
-			el = configuration_->table()->elementBySymbol(name);
-
-			if (el){
-
-				name = detector_->roiList().at(i)->name();
-
-				for (int j = 0; j < el->emissionLines().count(); j++){
-
-					if (name.compare(el->symbol()+" "+GeneralUtilities::removeGreek(el->emissionLines().at(j).first)) == 0){
-
-						configuration_->table()->blockSignals(true);
-						configuration_->table()->setCurrentElement(el);
-						configuration_->table()->addLineToList(el->emissionLines().at(j).first);
-						configuration_->table()->blockSignals(false);
-					}
-				}
-			}
-		}
-	}
 }

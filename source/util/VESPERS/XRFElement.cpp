@@ -36,7 +36,7 @@ QStringList XRFElement::toStringList(QList<QPair<QString, QString> > list)
 	QStringList sList;
 
 	for (int i = 0; i < list.size(); i++)
-		sList << list.at(i).first;
+		sList << list.at(i).second;
 
 	return sList;
 }

@@ -1,6 +1,7 @@
 #include "CustomizeRegionsOfInterest.h"
 #include "util/AMElement.h"
 #include "util/AMPeriodicTable.h"
+#include "util/VESPERS/GeneralUtilities.h"
 
 #include <QHBoxLayout>
 #include <cmath>
@@ -56,21 +57,7 @@ void RegionOfInterestView::nameUpdate(QString name)
 		return;
 	}
 
-	name = name.left(name.indexOf(" "));
-	AMElement *el = AMPeriodicTable::table()->elementBySymbol(name);
-
-	if (el){
-
-		int low = roi_->low();
-		int high = roi_->high();
-
-		for (int j = 0; j < el->emissionLines().count(); j++){
-
-			if (el->emissionLines().at(j).first.contains("1")
-					&& fabs((low+high)/2 - el->emissionLines().at(j).second.toDouble()/roi_->scale()) < 3)
-				name_->setText(el->symbol()+" "+el->emissionLines().at(j).first);
-		}
-	}
+	name_->setText(name.left(name.indexOf(" ")) + " " + GeneralUtilities::addGreek(name.mid(name.indexOf(" "))));
 
 	show();
 }

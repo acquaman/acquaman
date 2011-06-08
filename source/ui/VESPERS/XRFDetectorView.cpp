@@ -89,12 +89,14 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 
 	detector_ = static_cast<XRFDetector *>(detector);
 	connect(detector_, SIGNAL(detectorConnected(bool)), this, SLOT(setEnabled(bool)));
+	connect(detector_, SIGNAL(addedRegionOfInterest(AMROIInfo)), this, SLOT(addRegionOfInterestMarker(AMROIInfo)));
+	connect(detector_, SIGNAL(removedRegionOfInterest(AMROIInfo)), this, SLOT(removeRegionOfInterestMarker(AMROIInfo)));
 
 	elapsedTime_ = new QLabel(tr(" s"));
-	connect(detector_->elapsedTimeControl(), SIGNAL(valueChanged(double)), this, SLOT(onElapsedTimeUpdate(double)));
+	connect(detector_, SIGNAL(elapsedTimeChanged(double)), this, SLOT(onElapsedTimeUpdate(double)));
 
 	deadTime_ = new QLabel(tr(" %"));
-	connect(detector_->deadTimeControl(), SIGNAL(controlSetValuesChanged(AMControlInfoList)), this, SLOT(onDeadTimeUpdate()));
+	connect(detector_, SIGNAL(deadTimeChanged()), this, SLOT(onDeadTimeUpdate()));
 
 	// Using a button group so I know which element I need to disable.
 	DeadTimeButton *temp;
@@ -123,7 +125,7 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	updateRate_->addItem("1 sec");
 	updateRate_->addItem("0.2 sec");
 	connect(updateRate_, SIGNAL(currentIndexChanged(int)), this, SLOT(onComboBoxUpdate(int)));
-	connect(detector_->refreshRateControl(), SIGNAL(valueChanged(double)), this, SLOT(onUpdateRateUpdate(double)));
+	connect(detector_, SIGNAL(refreshRateChanged(double)), this, SLOT(onUpdateRateUpdate(double)));
 
 	isWaterfall_ = false;
 
@@ -492,7 +494,7 @@ void XRFDetailedDetectorView::showEmissionLines(XRFElement *el)
 		lineEnergy = el->lineEnergy(line);
 
 		if ((lineEnergy <= maximumEnergy_ && lineEnergy >= minimumEnergy_)
-			&& line.contains("2") && line.compare("-")){
+			&& line.contains("1") != 0 && line.compare("-")){
 
 			newLine = new MPlotPoint(QPointF(el->lineEnergy(line), 0));
 			newLine->setMarker(MPlotMarkerShape::VerticalBeam, 1e6, QPen(getColor(line)), QBrush(getColor(line)));

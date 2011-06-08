@@ -7,7 +7,7 @@
 VESPERSXRFElementView::VESPERSXRFElementView(XRFElement *el, QWidget *parent)
 	: QWidget(parent)
 {
-	element_ = 0;
+	element_ = el;
 	minimumEnergy_ = 0;
 	maximumEnergy_ = 1e6;
 
@@ -73,7 +73,7 @@ void VESPERSXRFElementView::fillEmissionLines()
 				if (element_->linesSelected().contains(list.at(i).first))
 					lines_.at(lineIndex++)->setLine(list.at(i), true);
 				else
-					lines_.at(lineIndex++)->setLine(list.at(i), true);
+					lines_.at(lineIndex++)->setLine(list.at(i), false);
 			}
 		}
 	}
@@ -93,7 +93,7 @@ void VESPERSXRFElementView::fillEmissionLines()
 void VESPERSXRFElementView::onLineCheckedChanged(bool checked, QString lineName)
 {
 	if (checked)
-		emit addLine(lineName);
+		emit addLine(element_, lineName);
 	else
-		emit removeLine(lineName);
+		emit removeLine(element_, lineName);
 }

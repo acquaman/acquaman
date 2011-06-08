@@ -43,8 +43,6 @@ protected slots:
 	void onStartClicked() { detector_->setTime(integrationTime_->value()); emit startScan(); }
 	/// Handles what happens when the stop button is clicked.
 	void onStopClicked();
-	/// Handles what happens when the detector becomes connected.
-	void onRoisHaveValues(bool hasValues);
 
 protected:
 

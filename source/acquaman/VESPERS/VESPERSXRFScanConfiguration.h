@@ -50,6 +50,10 @@ public slots:
 	/// Sets the detector.
 	void setDetector(XRFDetector *detector) { detector_ = detector; }
 
+protected slots:
+	/// Handles what happens when the detector becomes connected.
+	void onRoisHaveValues(bool hasValues);
+
 protected:
 	/// Returns an AMDbObject pointer to the detector info.
 	AMDbObject *dbReadXRFDetectorInfo() { return &xrfDetectorInfo_; }
