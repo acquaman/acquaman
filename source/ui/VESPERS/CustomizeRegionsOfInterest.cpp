@@ -22,7 +22,7 @@ RegionOfInterestView::RegionOfInterestView(AMROI *roi, QWidget *parent)
 	low_->setDecimals(0);
 	low_->setSingleStep(roi->scale());
 	low_->setSuffix(" eV");
-	connect(low_, SIGNAL(editingFinished()), this, SLOT(setRoiLow()));
+	connect(low_, SIGNAL(valueChanged(double)), this, SLOT(setRoiLow(double)));
 	connect(roi, SIGNAL(lowUpdate(int)), this, SLOT(onLowUpdate(int)));
 
 	high_ = new QDoubleSpinBox;
@@ -31,7 +31,7 @@ RegionOfInterestView::RegionOfInterestView(AMROI *roi, QWidget *parent)
 	high_->setDecimals(0);
 	high_->setSingleStep(roi->scale());
 	high_->setSuffix(" eV");
-	connect(high_, SIGNAL(editingFinished()), this, SLOT(setRoiHigh()));
+	connect(high_, SIGNAL(valueChanged(double)), this, SLOT(setRoiHigh(double)));
 	connect(roi, SIGNAL(highUpdate(int)), this, SLOT(onHighUpdate(int)));
 
 	QLabel *value = new QLabel;

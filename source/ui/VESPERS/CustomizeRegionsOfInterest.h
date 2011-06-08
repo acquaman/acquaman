@@ -17,9 +17,9 @@ public:
 
 public slots:
 	/// Sets the low value to the AMROI.
-	void setRoiLow() { roi_->setLow(low_->value()); }
+	void setRoiLow(double val) { roi_->setLow(val); }
 	/// Sets the high value to the AMROI.
-	void setRoiHigh() { roi_->setHigh(high_->value()); }
+	void setRoiHigh(double val) { roi_->setHigh(val); }
 
 private slots:
 	/// Checks whether the name has a name in it or not.  If the name is an empty string, the view hides itself.
