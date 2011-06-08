@@ -62,6 +62,9 @@ protected:
 	/// Empty function since it will never be called.
 	void dbLoadXRFDetectorInfo(AMDbObject *) {}
 
+	/// Helper function that takes in a region of interest name and adds it to the XRFPeriodicTable.  Takes in the ROI name, finds the element and line it is associated with and adds it to the XRFPeriodicTable.
+	void addRegionOfInterestToTable(QString name);
+
 	// Member variables.
 	/// Detector info member variable.
 	XRFDetectorInfo xrfDetectorInfo_;

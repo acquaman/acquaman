@@ -39,8 +39,8 @@ void AMROI::fromInfo(const AMROIInfo &info)
 {
 	setName(info.name());
 	energy_ = info.energy();
-	low_ = setLow(info.low());
-	high_ = setHigh(info.high());
+	setLow(info.low());
+	setHigh(info.high());
 	scale_ = info.scale();
 }
 

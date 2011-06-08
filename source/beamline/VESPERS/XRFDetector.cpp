@@ -189,7 +189,6 @@ void XRFDetector::setRoiList(QList<AMROI *> list)
 
 		connect(roiList_.at(i), SIGNAL(roiConnected(bool)), this, SLOT(detectorConnected()));
 		connect(roiList_.at(i), SIGNAL(roiHasValues(bool)), this, SLOT(allRoisHaveValues()));
-		connect(roiList_.at(i), SIGNAL(nameUpdate(QString)), this, SLOT(onRoiNameUpdate()));
 	}
 }
 
@@ -295,8 +294,11 @@ void XRFDetector::allRoisHaveValues()
 	emit roisHaveValues(hasValues);
 
 	if (hasValues)
-		for (int i = 0; i < roiList_.size(); i++)
+		for (int i = 0; i < roiList_.size(); i++){
+
 			connect(roiList_.at(i), SIGNAL(roiUpdate(AMROI*)), this, SIGNAL(roiUpdate(AMROI*)));
+			connect(roiList_.at(i), SIGNAL(nameUpdate(QString)), this, SLOT(onRoiNameUpdate()));
+		}
 }
 
 void XRFDetector::onRoiNameUpdate()
@@ -305,8 +307,8 @@ void XRFDetector::onRoiNameUpdate()
 
 	// Check to see if an ROI has been added or removed.
 	int numRoi = 0;
-	for (int i = 0; i < roiList()->count(); i++)
-		if (!roiInfoList()->at(i).name().isEmpty())
+	for (int i = 0; i < roiList().count(); i++)
+		if (!roiList().at(i)->name().isEmpty())
 			numRoi++;
 
 	// One has been added or removed.
@@ -328,11 +330,11 @@ void XRFDetector::onRoiNameUpdate()
 		for (int i = 0; i < roiList().size(); i++){
 
 			if (!roiList().at(i)->name().isEmpty())
-				infoList << roiList().at(i)->toInfo();
+				infoList.append(roiList().at(i)->toInfo());
 		}
 
 		roiInfoList()->clear();
-		roiInfoList()->setValuesFrom(infoList());
+		roiInfoList()->setValuesFrom(infoList);
 		setROIList(*roiInfoList());
 		emit externalRegionOfInterestChanged();
 	}
@@ -344,7 +346,7 @@ bool XRFDetector::addRegionOfInterest(XRFElement *el, QString line)
 	if (roiInfoList()->count() == roiList().size())
 		return false;
 
-	AMROIInfo roi(el->symbol()+" "+GeneralUtilities::removeGreek(line), el->lineEnergy(line), 0.04, scale());
+	AMROIInfo roi(el->lineEnergy(line), 0.04, scale(), el->symbol()+" "+GeneralUtilities::removeGreek(line));
 
 	// Appending to the list means that the old size of the Info list is where the new values should be set in the ROI list.
 	roiList().at(roiInfoList()->count())->fromInfo(roi);

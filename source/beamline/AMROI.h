@@ -32,8 +32,6 @@ public:
 	QString name() const { return name_; }
 	/// Returns the current central energy of the region of interest.
 	double energy() const { return energy_; }
-	/// Returns the current width of the region of interest.
-	double width() const { return width_; }
 	/// Returns the current scaling for the region of interst.
 	double scale() const { return scale_; }
 	/// Returns the lower bound of the region of interest as a channel number.

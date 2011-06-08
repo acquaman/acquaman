@@ -10,7 +10,7 @@ AMROIInfo::AMROIInfo(const QString &name, double energy, double low, double high
 	high_ = high;
 }
 
-AMROIInfo::AMROIInfo(const QString &name, double energy, double width, double scale, QObject *parent)
+AMROIInfo::AMROIInfo(double energy, double width, double scale, const QString &name, QObject *parent)
 	: AMDbObject(parent)
 {
 	setName(name);
