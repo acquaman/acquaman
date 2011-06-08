@@ -189,6 +189,7 @@ void XRFDetector::setRoiList(QList<AMROI *> list)
 
 		connect(roiList_.at(i), SIGNAL(roiConnected(bool)), this, SLOT(detectorConnected()));
 		connect(roiList_.at(i), SIGNAL(roiHasValues(bool)), this, SLOT(allRoisHaveValues()));
+		connect(roiList_.at(i), SIGNAL(nameUpdate(QString)), this, SLOT(onRoiNameUpdate()));
 	}
 }
 
@@ -296,6 +297,45 @@ void XRFDetector::allRoisHaveValues()
 	if (hasValues)
 		for (int i = 0; i < roiList_.size(); i++)
 			connect(roiList_.at(i), SIGNAL(roiUpdate(AMROI*)), this, SIGNAL(roiUpdate(AMROI*)));
+}
+
+void XRFDetector::onRoiNameUpdate()
+{
+	bool resetAll = false;
+
+	// Check to see if an ROI has been added or removed.
+	int numRoi = 0;
+	for (int i = 0; i < roiList()->count(); i++)
+		if (!roiInfoList()->at(i).name().isEmpty())
+			numRoi++;
+
+	// One has been added or removed.
+	if (numRoi == roiInfoList()->count())
+		resetAll = true;
+
+	// Check to see if the names match.  Only do this if we already don't have to reset anything.
+	if (!resetAll){
+
+		for (int i = 0; i < roiInfoList()->count(); i++)
+			if (roiList().at(i)->name().compare(roiInfoList()->at(i).name()) != 0)
+				resetAll = true;
+	}
+
+	// If a change has happened, do something about it.
+	if (resetAll){
+
+		AMROIInfoList infoList;
+		for (int i = 0; i < roiList().size(); i++){
+
+			if (!roiList().at(i)->name().isEmpty())
+				infoList << roiList().at(i)->toInfo();
+		}
+
+		roiInfoList()->clear();
+		roiInfoList()->setValuesFrom(infoList());
+		setROIList(*roiInfoList());
+		emit externalRegionOfInterestChanged();
+	}
 }
 
 bool XRFDetector::addRegionOfInterest(XRFElement *el, QString line)

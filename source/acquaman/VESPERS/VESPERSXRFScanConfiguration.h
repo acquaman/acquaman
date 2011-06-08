@@ -53,6 +53,8 @@ public slots:
 protected slots:
 	/// Handles what happens when the detector becomes connected.
 	void onRoisHaveValues(bool hasValues);
+	/// Handles when the regions of interest change from an external source.
+	void onExternalRegionOfInterestChanged();
 
 protected:
 	/// Returns an AMDbObject pointer to the detector info.

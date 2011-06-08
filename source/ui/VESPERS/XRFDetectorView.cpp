@@ -91,6 +91,7 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	connect(detector_, SIGNAL(detectorConnected(bool)), this, SLOT(setEnabled(bool)));
 	connect(detector_, SIGNAL(addedRegionOfInterest(AMROIInfo)), this, SLOT(addRegionOfInterestMarker(AMROIInfo)));
 	connect(detector_, SIGNAL(removedRegionOfInterest(AMROIInfo)), this, SLOT(removeRegionOfInterestMarker(AMROIInfo)));
+	connect(detector_, SIGNAL(externalRegionOfInterestChanged()), this, SLOT(onExternalRegionOfInterestChanged()));
 
 	elapsedTime_ = new QLabel(tr(" s"));
 	connect(detector_, SIGNAL(elapsedTimeChanged(double)), this, SLOT(onElapsedTimeUpdate(double)));
@@ -576,6 +577,13 @@ void XRFDetailedDetectorView::onDeadTimeUpdate()
 void XRFDetailedDetectorView::onElapsedTimeUpdate(double time)
 {
 	elapsedTime_->setText(QString::number(time, 'f', 2) + " s");
+}
+
+void XRFDetailedDetectorView::onExternalRegionOfInterestChanged()
+{
+	removeAllRegionsOfInterestMarkers();
+	for (int i = 0; i < detector_->roiInfoList()->count(); i++)
+		addRegionOfInterestMarker(detector_->roiInfoList()->at(i));
 }
 
 // End detailed detector view
