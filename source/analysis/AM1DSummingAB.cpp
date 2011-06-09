@@ -16,11 +16,12 @@ bool AM1DSummingAB::areInputDataSourcesAcceptable(const QList<AMDataSource*>& da
 	if(dataSources.isEmpty())
 		return true; // always acceptable; the null input.
 
-	// otherwise we need a single input source, with a rank of 1.
-	if(dataSources.count() == 1 && dataSources.at(0)->rank() == 1)
-		return true;
+	// otherwise input sources have rank of 1.
+	for (int i = 0; i < dataSources.count(); i++)
+		if (dataSources.at(i)->rank() != 1)
+			return false;
 
-	return false;
+	return true;
 }
 
 // Set the data source inputs.
@@ -92,7 +93,7 @@ AMNumber AM1DSummingAB::axisValue(int axisNumber, int index) const
 	if(!isValid())
 		return AMNumber(AMNumber::InvalidError);
 
-	if(axisNumber != 0)
+	if(axisNumber < axes_.count())
 		return AMNumber(AMNumber::DimensionError);
 
 	return sources_.first()->axisValue(axisNumber, index);
@@ -108,8 +109,9 @@ void AM1DSummingAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMn
 void AM1DSummingAB::onInputSourceSizeChanged()
 {
 	for (int i = 0; i < sources_.size(); i++)
-		axes_[i] = sources_.at(i)->axisInfoAt(0);
-	emitSizeChanged(0);
+		axes_[i].size = sources_.at(i)->size(0);
+
+	emitSizeChanged();
 }
 
 // Connected to be called when the state() flags of any input source change
@@ -131,21 +133,19 @@ void AM1DSummingAB::reviewState()
 	}
 
 	// Are all the data sources the same size?
-	bool valid = true;
 
-	int size = sources_.first()->size(0);
-	for (int i = 1; i < sources_.size(); i++)
-		if (size != sources_.at(i)->size(0))
-			valid = false;
 
-	if (!valid){
+	for (int i = 1; i < axes_.count(); i++){
 
-		setState(AMDataSource::InvalidFlag);
-		return;
+		if (axes_[0].size != axes_.at(i).size){
+
+			setState(AMDataSource::InvalidFlag);
+			return;
+		}
 	}
 
 	// Validity check on all data sources.
-	valid = true;
+	bool valid = true;
 
 	for (int i = 0; i < sources_.size(); i++)
 		valid = valid && sources_.at(i)->isValid();
