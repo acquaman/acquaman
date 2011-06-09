@@ -6,7 +6,6 @@ XRFDetector::XRFDetector(QString name, int elements, AMControl *status, AMContro
 	: XRFDetectorInfo(name, name, parent), AMDetector(name)
 {
 	setElements(elements);
-	setActiveElements(elements);
 
 	wasConnected_ = false;
 	detectorConnected_ = false;
@@ -92,7 +91,6 @@ XRFDetector::XRFDetector(QString name, AMControl *status, AMControl *refreshRate
 	: XRFDetectorInfo(name, name, parent), AMDetector(name)
 {
 	setElements(1);
-	setActiveElements(1);
 
 	wasConnected_ = false;
 	detectorConnected_ = false;
@@ -400,12 +398,26 @@ void XRFDetector::clearRegionsOfInterest()
 
 void XRFDetector::enableElement(int id)
 {
-	/// \todo Need to implement enabling waveforms.
+	activeElements_[id] = true;
+
+	QList<AMDataSource *> newSum;
+	for (int i = 0; i < elements(); i++)
+		if (activeElements_.at(i))
+			newSum << correctedSpectrumDataSources_.at(i);
+
+	((AM1DSummingAB *)correctedSumDataSource())->setInputDataSourcesImplementation(newSum);
 }
 
 void XRFDetector::disableElement(int id)
 {
-	/// \todo Need to implement disabling waveforms.
+	activeElements_[id] = false;
+
+	QList<AMDataSource *> newSum;
+	for (int i = 0; i < elements(); i++)
+		if (activeElements_.at(i))
+			newSum << correctedSpectrumDataSources_.at(i);
+
+	((AM1DSummingAB *)correctedSumDataSource())->setInputDataSourcesImplementation(newSum);
 }
 
 const int *XRFDetector::spectraAt(int index)
