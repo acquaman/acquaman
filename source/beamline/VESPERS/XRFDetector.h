@@ -20,7 +20,7 @@ class XRFDetectorDataSource : public QObject, public AMDataSource
 	Q_OBJECT
 
 public:
-	/// Constructor.  Takes in an AMReadOnlyPVControl.
+	/// Constructor.  Takes in an AMProcessVariable.
 	XRFDetectorDataSource(const AMProcessVariable *data, const QString& name, QObject *parent = 0);
 
 	// Data source type
@@ -193,11 +193,13 @@ public:
 
 	// Data sources
 	///////////////////////////////////////
-	/// Returns the data source for element \c index.  It is assumed that the data sources will be in order of element.  Must be between 0 and size()-1 where size is the number of elements in the detector.
+	/// Returns the data source at \c index.  It is assumed that the data sources will be in order of element with the analyzed data source at the end.  Must be between 0 and size()-1.
 	XRFDetectorDataSource *dataSource(int index) const { return dataSources_.at(index); }
-	/// Overloaded function.  Convenience function for grabbing the first data source.
-	XRFDetectorDataSource *dataSource() const { return dataSources_.first(); }
-	/// Returns the list of all the raw data sources in the detector as a QList.
+	/// Returns the raw data sources.  Will be the size of the number of elements.
+	QList<XRFDetectorDataSource *> rawDataSources() const { return dataSources_.mid(0, elements()); }
+	/// Returns the analyzed data source.
+	XRFDetectorDataSource *correctedDataSource() const { return dataSources_.last(); }
+	/// Returns the list of all the data sources in the detector as a QList.
 	QList<XRFDetectorDataSource *> dataSources() const { return dataSources_; }
 
 public slots:
@@ -306,7 +308,7 @@ protected:
 	/// Control set holding the controls used for setting the configuration of the detector.
 	AMControlSet *settingsControls_;
 
-	/// The list of data sources.
+	/// The list of all the data sources.  Raw and analyzed.
 	QList<XRFDetectorDataSource *> dataSources_;
 
 private:

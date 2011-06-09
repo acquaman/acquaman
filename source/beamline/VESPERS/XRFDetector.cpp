@@ -1,4 +1,5 @@
 #include "XRFDetector.h"
+#include "analysis/AMDeadTimeAB.h"
 
 XRFDetectorDataSource::XRFDetectorDataSource(const AMProcessVariable *data, const QString &name, QObject *parent)
 	: QObject(parent), AMDataSource(name)
@@ -159,7 +160,7 @@ XRFDetector::XRFDetector(QString name, AMControl *status, AMControl *refreshRate
 
 	if (spectrum){
 
-		XRFDetectorDataSource *temp = new XRFDetectorDataSource(spectrum->readPV(), "Corrected Spectrum", this);
+		XRFDetectorDataSource *temp = new XRFDetectorDataSource(spectrum->readPV(), "Raw Spectrum", this);
 		dataSources_ << temp;
 	}
 }

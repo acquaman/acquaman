@@ -93,10 +93,10 @@ AMNumber AM1DSummingAB::axisValue(int axisNumber, int index) const
 	if(!isValid())
 		return AMNumber(AMNumber::InvalidError);
 
-	if(axisNumber < axes_.count())
+	if(axisNumber != 0)
 		return AMNumber(AMNumber::DimensionError);
 
-	return sources_.first()->axisValue(axisNumber, index);
+	return sources_.first()->axisValue(0, index);
 }
 
 // Connected to be called when the values of the input data source change

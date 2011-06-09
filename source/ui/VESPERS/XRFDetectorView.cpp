@@ -178,12 +178,12 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	viewControlLayout->addWidget(updateRate_, 0, Qt::AlignCenter);
 	viewControlLayout->addWidget(logLabel, 0, Qt::AlignLeft);
 	viewControlLayout->addWidget(logButton_, 0, Qt::AlignCenter);
-	if (detector_->elements() != 1){
+	viewControlLayout->addWidget(rawElementLabel, 0, Qt::AlignLeft);
+	viewControlLayout->addWidget(waterfallButton_, 0, Qt::AlignCenter);
 
-		viewControlLayout->addWidget(rawElementLabel, 0, Qt::AlignLeft);
-		viewControlLayout->addWidget(waterfallButton_, 0, Qt::AlignCenter);
+	if (detector_->elements() != 1)
 		viewControlLayout->addWidget(waterfallSeparation_, 0, Qt::AlignCenter);
-	}
+
 	viewControlLayout->addStretch();
 
 	QGroupBox *controlBox = new QGroupBox;
