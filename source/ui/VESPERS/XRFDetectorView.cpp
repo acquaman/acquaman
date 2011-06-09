@@ -88,7 +88,7 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	maximumEnergy_ = 1e6;
 
 	detector_ = static_cast<XRFDetector *>(detector);
-	connect(detector_, SIGNAL(detectorConnected(bool)), this, SLOT(setEnabled(bool)));
+	//connect(detector_, SIGNAL(detectorConnected(bool)), this, SLOT(setEnabled(bool)));
 	connect(detector_, SIGNAL(addedRegionOfInterest(AMROIInfo)), this, SLOT(addRegionOfInterestMarker(AMROIInfo)));
 	connect(detector_, SIGNAL(removedRegionOfInterest(AMROIInfo)), this, SLOT(removeRegionOfInterestMarker(AMROIInfo)));
 	connect(detector_, SIGNAL(externalRegionOfInterestChanged()), this, SLOT(onExternalRegionOfInterestChanged()));
@@ -321,28 +321,19 @@ void XRFDetailedDetectorView::setupPlot()
 	for (int i = 0; i < detector_->elements(); i++){
 
 		series = new MPlotSeriesBasic;
-		series->setModel(new AMDataSourceSeriesData(detector_->dataSource(i)));
+		series->setModel(new AMDataSourceSeriesData(detector_->spectrumDataSource(i)));
 		series->setMarker(MPlotMarkerShape::None);
-		series->setDescription(detector_->dataSource(i)->name());
+		series->setDescription(detector_->spectrumDataSource(i)->name());
 		series->setLinePen(QPen(getColor(i+1)));
 		rawDataSeries_ << series;
 	}
 
-	if (detector_->elements() == 1){
-
-		series->setLinePen(QPen(getColor(0)));
-		plot_->addItem(rawDataSeries_.first());
-	}
-	else{
-
-		/// BIT OF A HACK UNTIL I MAKE THE PROPER CORRECTED SUM. \todo fix hack
-		corrSum_ = new MPlotSeriesBasic;
-		corrSum_->setModel(new AMDataSourceSeriesData(detector_->dataSource(4)));
-		corrSum_->setMarker(MPlotMarkerShape::None);
-		corrSum_->setDescription(detector_->dataSource(4)->name());
-		corrSum_->setLinePen(QPen(getColor(0)));
-		plot_->addItem(corrSum_);
-	}
+	corrSum_ = new MPlotSeriesBasic;
+	corrSum_->setModel(new AMDataSourceSeriesData(detector_->correctedSumDataSource()));
+	corrSum_->setMarker(MPlotMarkerShape::None);
+	corrSum_->setDescription(detector_->correctedSumDataSource()->name());
+	corrSum_->setLinePen(QPen(getColor(0)));
+	plot_->addItem(corrSum_);
 
 	// Enable autoscaling of both axes.
 	plot_->axisScaleLeft()->setAutoScaleEnabled();

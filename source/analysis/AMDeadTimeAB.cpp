@@ -68,10 +68,9 @@ void AMDeadTimeAB::setInputDataSourcesImplementation(const QList<AMDataSource*>&
 
 		sources_ = dataSources;
 
-		axes_[0] = sources_.at(0)->axisInfoAt(0);
-		axes_[1] = sources_.at(1)->axisInfoAt(0);
+		axes_[0] = spectra_->axisInfoAt(0);
 
-		setDescription(QString("Dead time correction of %1 spectrum")
+		setDescription(QString("Dead time correction of %1")
 		.arg(spectra_->name()));
 
 		connect(spectra_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
@@ -99,7 +98,7 @@ AMNumber AMDeadTimeAB::value(const AMnDIndex &indexes) const
 	if(!isValid())
 		return AMNumber(AMNumber::InvalidError);
 
-	return (1/(1-(double)deadTime_->value(AMnDIndex())))*(int)spectra_->value(indexes.i());
+	return (1/(1-(double)deadTime_->value(AMnDIndex())/100))*(int)spectra_->value(indexes.i());
 }
 
 AMNumber AMDeadTimeAB::axisValue(int axisNumber, int index) const
@@ -110,7 +109,7 @@ AMNumber AMDeadTimeAB::axisValue(int axisNumber, int index) const
 	if(axisNumber != 0)
 		return AMNumber(AMNumber::DimensionError);
 
-	return spectra_->axisValue(0, index);
+	return spectra_->axisValue(axisNumber, index);
 }
 
 // Connected to be called when the values of the input data source change
@@ -122,8 +121,7 @@ void AMDeadTimeAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnD
 // Connected to be called when the size of the input source changes
 void AMDeadTimeAB::onInputSourceSizeChanged()
 {
-	axes_[0].size = sources_.at(0)->axisInfoAt(0).size;
-	axes_[1].size = sources_.at(1)->axisInfoAt(0).size;
+	axes_[0] = spectra_->axisInfoAt(0);
 	emitSizeChanged();
 }
 

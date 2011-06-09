@@ -50,11 +50,9 @@ void AM1DSummingAB::setInputDataSourcesImplementation(const QList<AMDataSource*>
 
 		sources_ = dataSources;
 
-		for (int i = 0; i < sources_.size(); i++)
-			axes_[i] = sources_.at(i)->axisInfoAt(0);
+		axes_[0] = sources_.at(0)->axisInfoAt(0);
 
-		setDescription(QString("Sum of %1 spectra")
-		.arg(sources_.size()));
+		setDescription(QString("Sum of %1 spectra").arg(sources_.size()));
 
 		for (int i = 0; i < sources_.size(); i++){
 
@@ -108,8 +106,7 @@ void AM1DSummingAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMn
 // Connected to be called when the size of the input source changes
 void AM1DSummingAB::onInputSourceSizeChanged()
 {
-	for (int i = 0; i < sources_.size(); i++)
-		axes_[i].size = sources_.at(i)->size(0);
+	axes_[0] = sources_.at(0)->axisInfoAt(0);
 
 	emitSizeChanged();
 }

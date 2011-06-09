@@ -1,25 +1,12 @@
 #include "XRFDetector.h"
 #include "analysis/AMDeadTimeAB.h"
-
-XRFDetectorDataSource::XRFDetectorDataSource(const AMProcessVariable *data, const QString &name, QObject *parent)
-	: QObject(parent), AMDataSource(name)
-{
-	data_ = data;
-	scale_ = 0;
-	connect(data_, SIGNAL(valueChanged()), this, SLOT(onDataChanged()));
-}
-
-void XRFDetectorDataSource::onDataChanged()
-{
-	emitValuesChanged();
-}
+#include "analysis/AM1DSummingAB.h"
 
 XRFDetector::XRFDetector(QString name, int elements, AMControl *status, AMControl *refreshRate, AMControl *peakingTime, AMControl *maximumEnergy, AMControl *integrationTime, AMControl *liveTime, AMControl *elapsedTime, AMControl *start, AMControl *stop, AMControlSet *deadTime, AMControlSet *spectra, QObject *parent)
 	: XRFDetectorInfo(name, name, parent), AMDetector(name)
 {
 	setElements(elements);
 	setActiveElements(elements);
-	usingSingleElement_ = false;
 
 	wasConnected_ = false;
 	detectorConnected_ = false;
@@ -76,24 +63,29 @@ XRFDetector::XRFDetector(QString name, int elements, AMControl *status, AMContro
 	connect(maximumEnergyControl_, SIGNAL(valueChanged(double)), this, SLOT(setMaximumEnergy(double)));
 	connect(spectraControl_, SIGNAL(controlSetValuesChanged()), this, SLOT(setChannelSize()));
 
-	XRFDetectorDataSource *temp;
 	AMReadOnlyPVControl *spectrum;
+	AMReadOnlyPVControl *deadTimePV;
 
 	for (int i = 0; i < elements; i++){
 
 		spectrum = qobject_cast<AMReadOnlyPVControl *>(spectraControl_->at(i));
+		deadTimePV = qobject_cast<AMReadOnlyPVControl *>(deadTime->at(i));
 
-		if (spectrum){
+		if (spectrum != 0 && deadTimePV != 0){
 
-			temp = new XRFDetectorDataSource(spectrum->readPV(), QString("Element %1").arg(i+1), this);
-			dataSources_ << temp;
+			spectrumDataSources_ << new AMProcessVariableDataSource(spectrum->readPV(), QString("Element %1").arg(i+1), this);
+			deadTimeDataSources_ << new AMProcessVariableDataSource(deadTimePV->readPV(), QString("Dead time %1").arg(i+1), this);
+			AMDeadTimeAB *corrected = new AMDeadTimeAB(QString("Corrected Element %1").arg(i+1), this);
+			QList<AMDataSource *> corrList;
+			corrList << (AMDataSource *)spectrumDataSources_.first() << (AMDataSource *)deadTimeDataSources_.first();
+			corrected->setInputDataSourcesImplementation(corrList);
+			correctedSpectrumDataSources_ << corrected;
 		}
 	}
 
-	/// This is a dirty hack until I get the custom analysis blocks working.
-	AMProcessVariable *corrSum = new AMProcessVariable("dxp1607-B21-04:mcaCorrected", true, this);
-	temp = new XRFDetectorDataSource(corrSum, "Corrected Sum", this);
-	dataSources_ << temp;
+	AM1DSummingAB *correctedSumAB = new AM1DSummingAB("Corrected Sum", this);
+	correctedSumAB->setInputDataSourcesImplementation(correctedSpectrumDataSources_);
+	correctedSpectrumDataSources_ << correctedSumAB;
 }
 
 XRFDetector::XRFDetector(QString name, AMControl *status, AMControl *refreshRate, AMControl *peakingTime, AMControl *maximumEnergy, AMControl *integrationTime, AMControl *liveTime, AMControl *elapsedTime, AMControl *start, AMControl *stop, AMControl *deadTime, AMControl *spectra, QObject *parent)
@@ -101,7 +93,6 @@ XRFDetector::XRFDetector(QString name, AMControl *status, AMControl *refreshRate
 {
 	setElements(1);
 	setActiveElements(1);
-	usingSingleElement_ = true;
 
 	wasConnected_ = false;
 	detectorConnected_ = false;
@@ -157,17 +148,23 @@ XRFDetector::XRFDetector(QString name, AMControl *status, AMControl *refreshRate
 	connect(spectraControl_, SIGNAL(controlSetValuesChanged()), this, SLOT(setChannelSize()));
 
 	AMReadOnlyPVControl *spectrum = qobject_cast<AMReadOnlyPVControl *>(spectraControl_->at(0));
+	AMReadOnlyPVControl *deadTimePV = qobject_cast<AMReadOnlyPVControl *>(deadTime);
 
-	if (spectrum){
+	if (spectrum != 0 && deadTimePV != 0){
 
-		XRFDetectorDataSource *temp = new XRFDetectorDataSource(spectrum->readPV(), "Raw Spectrum", this);
-		dataSources_ << temp;
+		spectrumDataSources_ << new AMProcessVariableDataSource(spectrum->readPV(), "Raw Spectrum", this);
+		deadTimeDataSources_ << new AMProcessVariableDataSource(deadTimePV->readPV(), "Dead time", this);
+		AMDeadTimeAB *corrected = new AMDeadTimeAB("Corrected Sum", this);
+		QList<AMDataSource *> corrList;
+		corrList << (AMDataSource *)spectrumDataSources_.first() << (AMDataSource *)deadTimeDataSources_.first();
+		corrected->setInputDataSourcesImplementation(corrList);
+		correctedSpectrumDataSources_ << corrected;
 	}
 }
 
 XRFDetector::~XRFDetector()
 {
-	if (usingSingleElement_){
+	if (elements() == 1){
 
 		delete deadTimeControl_;
 		delete spectraControl_;
@@ -219,8 +216,9 @@ void XRFDetector::setChannelSize()
 	if (spectra){
 
 		setSize(AMnDIndex(spectra->readPV()->count()));
-		for (int i = 0; i < dataSources_.size(); i++)
-			dataSources_.at(i)->setScale(scale());
+		for (int i = 0; i < spectrumDataSources_.size(); i++)
+			spectrumDataSources_.at(i)->setScale(scale());
+
 		// Don't need to come here again because the size of the detector is static.
 		disconnect(spectraControl_, SIGNAL(controlSetValuesChanged()), this, SLOT(setChannelSize()));
 	}

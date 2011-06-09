@@ -8,102 +8,7 @@
 #include "util/VESPERS/XRFElement.h"
 #include "util/VESPERS/GeneralUtilities.h"
 
-#include "dataman/AMDataSource.h"
-#include "dataman/AMAxisInfo.h"
-
-/*!
-  This class encapsulates AMProcessVariable and puts them into an AMDataSource.  This will allow easy insertion into MPlots for viewing purposes.
-  */
-
-class XRFDetectorDataSource : public QObject, public AMDataSource
-{
-	Q_OBJECT
-
-public:
-	/// Constructor.  Takes in an AMProcessVariable.
-	XRFDetectorDataSource(const AMProcessVariable *data, const QString& name, QObject *parent = 0);
-
-	// Data source type
-	//////////////////////////
-
-	/// Human-readable description of the type of data source this is (ex: "One-dimensional math expression").  Subclasses should re-implement this.
-	virtual QString typeDescription() const { return "XRF Detector Data Source"; }
-
-	// State of the data
-	//////////////////////////
-	/// Returns an OR-combination of StateFlags describing the current state of the data. The base class interface indicates that it does not have valid data. Implementing classes should return InvalidFlag when they don't have valid data, and/or ProcessingFlag if their data might be changing. No flags indicate the data is valid and generally static.
-	virtual int state() const { return data_->hasValues() ? ProcessingFlag : InvalidFlag; }
-
-	// Axis Information
-	//////////////////////
-	/// Returns axis information for all axes
-	virtual QList<AMAxisInfo> axes() const
-	{
-		QList<AMAxisInfo> axisInfo;
-		axisInfo << AMAxisInfo("n", data_->count(), "n - Channel Number");
-		return axisInfo;
-	}
-
-	// Following can all be determined from above. Included anyway for convenience of classes that use the interface, and for performance. Calling size(axisNumber) should be fast; using axes() to return a full list of AMAxisInfo and extracting the desired axis would be much slower.
-	//////////////////////////////////////////////
-	/// Returns the rank (number of dimensions) of this data set
-	virtual int rank() const { return axes().count(); }
-	/// Returns the size of (ie: count along) each dimension
-	virtual AMnDIndex size() const { return AMnDIndex(axes().count()); }
-	/// Returns the size along a single axis \c axisNumber. This should be fast. \c axisNumber is assumed to be between 0 and rank()-1.
-	virtual int size(int axisNumber) const { return axes().at(axisNumber).size; }
-	/// Returns a bunch of information about a particular axis. \c axisNumber is assumed to be between 0 and rank()-1.
-	virtual AMAxisInfo axisInfoAt(int axisNumber) const { return axes().at(axisNumber); }
-	/// Returns the id of an axis, by name. (By id, we mean the index of the axis. We called it id to avoid ambiguity with indexes <i>into</i> axes.) This could be slow, so users shouldn't call it repeatedly. Returns -1 if not found.
-	virtual int idOfAxis(const QString& axisName)
-	{
-		for (int i = 0; i < axes().count(); i++)
-			if (axes().at(i).name.compare(axisName) == 0)
-				return i;
-
-		return -1;
-	}
-
-	// Data value access
-	////////////////////////////
-
-	/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient or any are out of range, or if the data is not ready.
-	virtual AMNumber value(const AMnDIndex& indexes) const
-	{
-		if(!data_->isConnected())
-			return AMNumber();
-		if(indexes.rank() != 1)
-			return AMNumber(AMNumber::DimensionError);
-		if(indexes.i() >= axes().first().size)
-			return AMNumber(AMNumber::OutOfBoundsError);
-
-		return data_->getInt(indexes.i());
-	}
-	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index)
-	virtual AMNumber axisValue(int axisNumber, int index) const
-	{
-		Q_UNUSED(axisNumber)
-
-		return index*scale();
-	}
-
-	/// Returns the current scale used for the independent axis.
-	double scale() const { return scale_; }
-
-public slots:
-	/// Changes the scale used in the plot if that scale changes.
-	void setScale(double scale) { scale_ = scale; onDataChanged(); }
-
-protected slots:
-	/// Emits the data changed signal when the control gets new data.
-	void onDataChanged();
-
-protected:
-	/// The control being used as a data source.
-	const AMProcessVariable *data_;
-	/// Holds the current scale.
-	double scale_;
-};
+#include "dataman/AMProcessVariableDataSource.h"
 
 class XRFDetector : public XRFDetectorInfo, public AMDetector
 {
@@ -193,14 +98,20 @@ public:
 
 	// Data sources
 	///////////////////////////////////////
-	/// Returns the data source at \c index.  It is assumed that the data sources will be in order of element with the analyzed data source at the end.  Must be between 0 and size()-1.
-	XRFDetectorDataSource *dataSource(int index) const { return dataSources_.at(index); }
-	/// Returns the raw data sources.  Will be the size of the number of elements.
-	QList<XRFDetectorDataSource *> rawDataSources() const { return dataSources_.mid(0, elements()); }
-	/// Returns the analyzed data source.
-	XRFDetectorDataSource *correctedDataSource() const { return dataSources_.last(); }
-	/// Returns the list of all the data sources in the detector as a QList.
-	QList<XRFDetectorDataSource *> dataSources() const { return dataSources_; }
+	/// Returns the raw spectrum data source at \c index.  It is assumed that the data sources will be in order of element.  Must be between 0 and size()-1.
+	AMProcessVariableDataSource *spectrumDataSource(int index) const { return spectrumDataSources_.at(index); }
+	/// Returns the raw spectrum data sources.  Will be the size of the number of elements.
+	QList<AMProcessVariableDataSource *> spectrumDataSources() const { return spectrumDataSources_; }
+	/// Returns the dead time data source at \c index.  It is assumed that the data sources will be in order of the element.  Must be between 0 and size() -1.
+	AMProcessVariableDataSource *deadTimeDataSource(int index) const { return deadTimeDataSources_.at(index); }
+	/// Returns the dead time data sources.  Will have the size of the number of elements.
+	QList<AMProcessVariableDataSource *> deadTimeDataSources() const { return deadTimeDataSources_; }
+	/// Returns the analyzed data source at \c index.  It is assumed that the data sources will be in order of the element.  The last element is the corrected sum if the number of elements is greater than one.
+	AMDataSource *correctedDataSource(int index) const { return correctedSpectrumDataSources_.at(index); }
+	/// Returns the analyzed data sources.  Will be the size of the number of elements plus one, except for the single element detectors.
+	QList<AMDataSource *> correctedDataSources() const { return correctedSpectrumDataSources_; }
+	/// Returns the corrected sum spectrum data source.  Convenience function.
+	AMDataSource *correctedSumDataSource() const { return correctedSpectrumDataSources_.last(); }
 
 public slots:
 
@@ -308,12 +219,12 @@ protected:
 	/// Control set holding the controls used for setting the configuration of the detector.
 	AMControlSet *settingsControls_;
 
-	/// The list of all the data sources.  Raw and analyzed.
-	QList<XRFDetectorDataSource *> dataSources_;
-
-private:
-	// Keeps track of whether the single element version was used or not.
-	bool usingSingleElement_;
+	/// The list of all the raw spectrum data sources.
+	QList<AMProcessVariableDataSource *> spectrumDataSources_;
+	/// The list of all the dead times.  The order of the dead times is the same as the spectrum data sources.
+	QList<AMProcessVariableDataSource *> deadTimeDataSources_;
+	/// The corrected spectra.  If the number of elements is greater than one then the last spectra is always the corrected sum.
+	QList<AMDataSource *> correctedSpectrumDataSources_;
 };
 
 #endif // XRFDETECTOR_H
