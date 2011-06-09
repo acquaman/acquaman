@@ -95,7 +95,7 @@ AMNumber AM1DSummingAB::axisValue(int axisNumber, int index) const
 	if(axisNumber != 0)
 		return AMNumber(AMNumber::DimensionError);
 
-	return sources_.first()->axisValue(0, index);
+	return sources_.first()->axisValue(axisNumber, index);
 }
 
 // Connected to be called when the values of the input data source change
@@ -123,27 +123,43 @@ void AM1DSummingAB::onInputSourceStateChanged()
 
 void AM1DSummingAB::reviewState()
 {
+	// Are there data sources?
 	if(sources_.isEmpty()){
 
 		setState(AMDataSource::InvalidFlag);
 		return;
 	}
 
+	// Are all the data sources the same size?
 	bool valid = true;
+
+	int size = sources_.first()->size(0);
+	for (int i = 1; i < sources_.size(); i++)
+		if (size != sources_.at(i)->size(0))
+			valid = false;
+
+	if (!valid){
+
+		setState(AMDataSource::InvalidFlag);
+		return;
+	}
+
+	// Validity check on all data sources.
+	valid = true;
 
 	for (int i = 0; i < sources_.size(); i++)
 		valid = valid && sources_.at(i)->isValid();
 
 	if (valid)
-		setState(AMDataSource::InvalidFlag);
-	else
 		setState(0);
+	else
+		setState(AMDataSource::InvalidFlag);
 }
 
 bool AM1DSummingAB::loadFromDb(AMDatabase *db, int id)
 {
 	bool success = AMDbObject::loadFromDb(db, id);
 	if(success)
-	AMDataSource::name_ = AMDbObject::name(); /// \todo This might change the name of a data-source in mid-life, which is technically not allowed.
+		AMDataSource::name_ = AMDbObject::name(); /// \todo This might change the name of a data-source in mid-life, which is technically not allowed.
 	return success;
 }
