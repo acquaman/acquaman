@@ -186,8 +186,9 @@ bool SGMFastDacqScanController::event(QEvent *e){
 					//if( x%6 == 0 || x%6 == 1 || x%6 == 4 || x%6 == 5 )
 						readings.append(j.value().at(x+1));
 					//if( (x%6 == 4) && (j.value().at(x+1) < 3*ceil(avgUp)) )
-					if( x%6 == 4 )
-						encoderReading -= j.value().at(x+1);
+					if( x%6 == 4 ){
+						//encoderReading -= j.value().at(x+1);
+					}
 					//if( (x%6 == 5) && (j.value().at(x+1) < 3*ceil(avgDown)) )
 					if( x%6 == 5 )
 						encoderReading += j.value().at(x+1);

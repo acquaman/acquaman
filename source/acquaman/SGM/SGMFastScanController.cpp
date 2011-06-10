@@ -27,9 +27,11 @@ SGMFastScanController::SGMFastScanController(SGMFastScanConfiguration *cfg){
 
 	// Create space in raw data store, and create raw data channels, for each detector.
 
+	/*
 	//for(int i=0; i<scanDetectors.count(); i++) {
 	for(int i = 0; i < pCfg()->allDetectors()->count(); i++) {
 		AMDetectorInfo* detectorInfo = pCfg()->allDetectors()->detectorAt(i)->toInfo();
+		qDebug() << "Detector named " << pCfg()->allDetectors()->detectorAt(i)->detectorName();
 		if(pCfg()->allDetectors()->isDefaultAt(i)){
 			if(pScan()->rawData()->addMeasurement(AMMeasurementInfo(*detectorInfo)))
 				pScan()->addRawDataSource(new AMRawDataSource(pScan()->rawData(), i));
@@ -38,16 +40,16 @@ SGMFastScanController::SGMFastScanController(SGMFastScanConfiguration *cfg){
 				qDebug() << "BIG PROBLEM!!!!!! WHAT JUST HAPPENED?!?!?" << detectorInfo->name();
 			}
 		}
-		/*
-		AMDetector* detector = scanDetectors.at(i);
-		if(pScan()->rawData()->addMeasurement(AMMeasurementInfo(*(detector->toInfo()))))
-			pScan()->addRawDataSource(new AMRawDataSource(pScan()->rawData(), i));
-		else{
-			/// \todo send out and errorMon?
-			qDebug() << "BIG PROBLEM!!!!!! WHAT JUST HAPPENED?!?!?" << detector->toInfo()->name();
-		}
-		*/
 	}
+	*/
+	pScan()->rawData()->addMeasurement(AMMeasurementInfo(* (pCfg()->allDetectors()->detectorNamed("teyScaler")->toInfo()) ));
+	pScan()->addRawDataSource(new AMRawDataSource(pScan()->rawData(), 0));
+	pScan()->rawData()->addMeasurement(AMMeasurementInfo(* (pCfg()->allDetectors()->detectorNamed("I0Scaler")->toInfo()) ));
+	pScan()->addRawDataSource(new AMRawDataSource(pScan()->rawData(), 1));
+	pScan()->rawData()->addMeasurement(AMMeasurementInfo(* (pCfg()->allDetectors()->detectorNamed("tfyScaler")->toInfo()) ));
+	pScan()->addRawDataSource(new AMRawDataSource(pScan()->rawData(), 2));
+	pScan()->rawData()->addMeasurement(AMMeasurementInfo(* (pCfg()->allDetectors()->detectorNamed("photodiodeScaler")->toInfo()) ));
+	pScan()->addRawDataSource(new AMRawDataSource(pScan()->rawData(), 3));
 
 	QList<AMDataSource*> raw1DDataSources;
 	for(int i=0; i<pScan()->rawDataSources()->count(); i++)
@@ -176,6 +178,7 @@ bool SGMFastScanController::beamlineInitialize(){
 	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->gratingAcceleration());
 	tmpAction->setSetpoint(settings->acceleration());
+//	tmpAction->setSetpoint(5000);
 	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerIntegrationTime());
 	tmpAction->setSetpoint(settings->scalerTime());

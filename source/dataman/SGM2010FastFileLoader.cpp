@@ -4,6 +4,7 @@
 AMBiHash<QString, QString> SGM2010FastFileLoader::columns2pvNames_;
 
 #include <QFile>
+#include <QFileInfo>
 #include <QTextStream>
 #include <QDateTime>
 #include "dataman/AMFastScan.h"
@@ -145,13 +146,19 @@ bool SGM2010FastFileLoader::loadFromFile(const QString& filepath, bool setMetaDa
 	}
 
 	QString scalerFile = "";
+	QFileInfo scalerFileInfo;
 	//if(scan->rawData()->idOfMeasurement("scaler_fileOffset") >= 0){
 	if(colNames1.contains("scaler_fileOffset")){
 		foreach(QString afp, scan->additionalFilePaths())
-			if(afp.contains("_spectra.dat"))
+			if(afp.contains("_spectra.dat")){
 				scalerFile = afp;
+				scalerFileInfo.setFile(scalerFile);
+				if(scalerFileInfo.isRelative())
+					scalerFileInfo.setFile(AMUserSettings::userDataFolder + "/" + scalerFile);
+			}
 		if(scalerFile != ""){
-			QFile sf(scalerFile);
+			//QFile sf(scalerFile);
+			QFile sf(scalerFileInfo.filePath());
 			if(!sf.open(QIODevice::ReadOnly)) {
 				AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -1, "SGM2010FastFileLoader parse error while loading scan data from file. Could not open spectra.dat file."));
 				return false; //spectra.dat file couldn't be opened
