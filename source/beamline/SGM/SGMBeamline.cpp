@@ -49,6 +49,7 @@ void SGMBeamline::usingSGMBeamline(){
 	// Old harmonic PV is DBR_DOUBLE for some reason, AddOn is enum
 	//amNames2pvNames_.set("harmonic", "BL1611-ID-1:harmonic");
 	amNames2pvNames_.set("harmonic", "BL1611-ID-1:AddOns:harmonic");
+	amNames2pvNames_.set("undulatorMotor", "SMTR1411-01");
 	amNames2pvNames_.set("undulatorTracking", "UND1411-01:Energy:track");
 	amNames2pvNames_.set("monoTracking", "SG16114I1001:Energy:track");
 	amNames2pvNames_.set("exitSlitTracking", "PSL16114I1003:Energy:track");
@@ -194,6 +195,13 @@ void SGMBeamline::usingSGMBeamline(){
 		pvNameLookUpFail = true;
 	harmonic_ = new AMPVwStatusControl("harmonic", sgmPVName, sgmPVName, "UND1411-01:moveStatus", "", this, 0.1);
 	harmonic_->setDescription("Harmonic");
+
+	sgmPVName = amNames2pvNames_.valueF("undulatorMotor");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
+	undulatorRelativeStepStorage_ = new AMPVControl("undulatorRelativeStepStorage", "BL1611-ID-1:AddOns:UndulatorRelativeStorage", "BL1611-ID-1:AddOns:UndulatorRelativeStorage", QString(), this, 1);
+	undulatorVelocity_ = new AMPVControl("undulatorVelocity", sgmPVName+":velo:sp", sgmPVName+":velo", QString(), this, 1);
+
 	sgmPVName = amNames2pvNames_.valueF("undulatorTracking");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;

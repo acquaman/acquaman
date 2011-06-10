@@ -27,6 +27,7 @@ SGMFastScanController::SGMFastScanController(SGMFastScanConfiguration *cfg){
 
 	// Create space in raw data store, and create raw data channels, for each detector.
 
+	/*
 	//for(int i=0; i<scanDetectors.count(); i++) {
 	for(int i = 0; i < pCfg()->allDetectors()->count(); i++) {
 		AMDetectorInfo* detectorInfo = pCfg()->allDetectors()->detectorAt(i)->toInfo();
@@ -38,16 +39,9 @@ SGMFastScanController::SGMFastScanController(SGMFastScanConfiguration *cfg){
 				qDebug() << "BIG PROBLEM!!!!!! WHAT JUST HAPPENED?!?!?" << detectorInfo->name();
 			}
 		}
-		/*
-		AMDetector* detector = scanDetectors.at(i);
-		if(pScan()->rawData()->addMeasurement(AMMeasurementInfo(*(detector->toInfo()))))
-			pScan()->addRawDataSource(new AMRawDataSource(pScan()->rawData(), i));
-		else{
-			/// \todo send out and errorMon?
-			qDebug() << "BIG PROBLEM!!!!!! WHAT JUST HAPPENED?!?!?" << detector->toInfo()->name();
-		}
-		*/
 	}
+	*/
+	pScan()->rawData()->addMeasurement(AMMeasurementInfo( *(pCfg()->allDetectors()->detectorNamed("TEY")->toInfo())) );
 
 	QList<AMDataSource*> raw1DDataSources;
 	for(int i=0; i<pScan()->rawDataSources()->count(); i++)
@@ -185,6 +179,12 @@ bool SGMFastScanController::beamlineInitialize(){
 	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerTotalNumberOfScans());
 	tmpAction->setSetpoint(1000);
+	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->undulatorRelativeStepStorage());
+	tmpAction->setSetpoint(settings->undulatorRelativeStep());
+	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->undulatorVelocity());
+	tmpAction->setSetpoint(settings->undulatorVelocity());
 	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
 
 	/* NTBA March 14, 2011 David Chevrier

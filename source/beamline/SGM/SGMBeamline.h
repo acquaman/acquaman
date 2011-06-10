@@ -121,6 +121,8 @@ public:
 	AMControl* m4() const { return m4_;}
 	AMControl* grating() const { return grating_;}
 	AMControl* harmonic() const { return harmonic_;}
+	AMControl* undulatorRelativeStepStorage() const { return undulatorRelativeStepStorage_;}
+	AMControl* undulatorVelocity() const { return undulatorVelocity_;}
 	AMControl* undulatorTracking() const { return undulatorTracking_;}
 	AMControl* monoTracking() const { return monoTracking_;}
 	AMControl* exitSlitTracking() const { return exitSlitTracking_;}
@@ -323,6 +325,8 @@ protected:
 	AMControl *m4_;
 	AMControl *grating_;
 	AMControl *harmonic_;
+	AMControl *undulatorRelativeStepStorage_;
+	AMControl *undulatorVelocity_;
 	AMControl *undulatorTracking_;
 	AMControl *monoTracking_;
 	AMControl *exitSlitTracking_;

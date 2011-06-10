@@ -7,14 +7,14 @@ SGMFastScanConfiguration::SGMFastScanConfiguration(QObject *parent) : AMFastScan
 {
 	currentSettings_ = 0; //NULL
 
-	settings_.append( new SGMFastScanParameters("Nitrogen", 5.0, 400.0, 415.0, 430.0, 10000, 10000, 10000, 5.0, 200, this));
-	settings_.append( new SGMFastScanParameters("Nitrogen", 20.0, 400.0, 415.0, 430.0, 1000, 1000, 1000, 20.0, 800, this));
-	settings_.append( new SGMFastScanParameters("Oxygen", 5.0, 530.0, 545.0, 560.0, 10000, 10000, 10000, 5.0, 200, this));
-	settings_.append( new SGMFastScanParameters("Oxygen", 20.0, 530.0, 545.0, 560.0, 1000, 1000, 1000, 20.0, 800, this));
-	settings_.append( new SGMFastScanParameters("Copper", 5.0, 925.0, 935.0, 945.0, 3000, 3000, 3000, 5.0, 200, this));
-	settings_.append( new SGMFastScanParameters("Copper", 20.0, 925.0, 935.0, 945.0, 450, 450, 450, 20.0, 800, this));
-	settings_.append( new SGMFastScanParameters("Carbon", 5.0, 280.0, 295.0, 320.0, 19000, 19000, 19000, 5.0, 200, this));
-	settings_.append( new SGMFastScanParameters("David", 5.0, 700.0, 715.0, 730.0, 10000, 10000, 10000, 5.0, 200, this));
+	settings_.append( new SGMFastScanParameters("Nitrogen", 5.0, 400.0, 415.0, 430.0, 10000, 10000, 10000, 5.0, 200, 1000, 0, this));
+	settings_.append( new SGMFastScanParameters("Nitrogen", 20.0, 400.0, 415.0, 430.0, 1000, 1000, 1000, 20.0, 800, 1000, 0, this));
+	settings_.append( new SGMFastScanParameters("Oxygen", 5.0, 530.0, 545.0, 560.0, 10000, 10000, 10000, 5.0, 200, 1000, 0, this));
+	settings_.append( new SGMFastScanParameters("Oxygen", 20.0, 530.0, 545.0, 560.0, 1000, 1000, 1000, 20.0, 800, 1000, 0, this));
+	settings_.append( new SGMFastScanParameters("Copper", 5.0, 925.0, 935.0, 945.0, 3000, 3000, 3000, 5.0, 200, 1000, 0, this));
+	settings_.append( new SGMFastScanParameters("Copper", 20.0, 925.0, 935.0, 945.0, 450, 450, 450, 20.0, 800, 1000, 0, this));
+	settings_.append( new SGMFastScanParameters("Carbon", 5.0, 280.0, 295.0, 320.0, 19000, 19000, 19000, 5.0, 200, 1000, 0, this));
+	settings_.append( new SGMFastScanParameters("David", 5.0, 700.0, 715.0, 730.0, 10000, 10000, 10000, 5.0, 200, 1000, 0, this));
 
 	setParametersFromPreset(0);
 
@@ -31,14 +31,14 @@ SGMFastScanConfiguration::SGMFastScanConfiguration(QObject *parent) : AMFastScan
 SGMFastScanConfiguration::SGMFastScanConfiguration(const SGMFastScanConfiguration &original){
 	currentSettings_ = 0; //NULL
 
-	settings_.append( new SGMFastScanParameters("Nitrogen", 5.0, 400.0, 415.0, 430.0, 10000, 10000, 10000, 5.0, 200, this));
-	settings_.append( new SGMFastScanParameters("Nitrogen", 20.0, 400.0, 415.0, 430.0, 1000, 1000, 1000, 20.0, 800, this));
-	settings_.append( new SGMFastScanParameters("Oxygen", 5.0, 530.0, 545.0, 560.0, 10000, 10000, 10000, 5.0, 200, this));
-	settings_.append( new SGMFastScanParameters("Oxygen", 20.0, 530.0, 545.0, 560.0, 1000, 1000, 1000, 20.0, 800, this));
-	settings_.append( new SGMFastScanParameters("Copper", 5.0, 925.0, 935.0, 945.0, 3000, 3000, 3000, 5.0, 200, this));
-	settings_.append( new SGMFastScanParameters("Copper", 20.0, 925.0, 935.0, 945.0, 450, 450, 450, 20.0, 800, this));
-	settings_.append( new SGMFastScanParameters("Carbon", 5.0, 280.0, 295.0, 320.0, 19000, 19000, 19000, 5.0, 200, this));
-	settings_.append( new SGMFastScanParameters("David", 5.0, 700.0, 715.0, 730.0, 10000, 10000, 10000, 5.0, 200, this));
+	settings_.append( new SGMFastScanParameters("Nitrogen", 5.0, 400.0, 415.0, 430.0, 10000, 10000, 10000, 5.0, 200, 1000, 0, this));
+	settings_.append( new SGMFastScanParameters("Nitrogen", 20.0, 400.0, 415.0, 430.0, 1000, 1000, 1000, 20.0, 800, 1000, 0, this));
+	settings_.append( new SGMFastScanParameters("Oxygen", 5.0, 530.0, 545.0, 560.0, 10000, 10000, 10000, 5.0, 200, 1000, 0, this));
+	settings_.append( new SGMFastScanParameters("Oxygen", 20.0, 530.0, 545.0, 560.0, 1000, 1000, 1000, 20.0, 800, 1000, 0, this));
+	settings_.append( new SGMFastScanParameters("Copper", 5.0, 925.0, 935.0, 945.0, 3000, 3000, 3000, 5.0, 200, 1000, 0, this));
+	settings_.append( new SGMFastScanParameters("Copper", 20.0, 925.0, 935.0, 945.0, 450, 450, 450, 20.0, 800, 1000, 0, this));
+	settings_.append( new SGMFastScanParameters("Carbon", 5.0, 280.0, 295.0, 320.0, 19000, 19000, 19000, 5.0, 200, 1000, 0, this));
+	settings_.append( new SGMFastScanParameters("David", 5.0, 700.0, 715.0, 730.0, 10000, 10000, 10000, 5.0, 200, 1000, 0, this));
 
 	bool foundPreset = false;
 	for(int x = 0; x < settings_.count(); x++){
@@ -131,6 +131,14 @@ int SGMFastScanConfiguration::baseLine() const{
 	return currentSettings_->baseLine();
 }
 
+int SGMFastScanConfiguration::undulatorVelocity() const{
+	return currentSettings_->undulatorVelocity();
+}
+
+int SGMFastScanConfiguration::undulatorRelativeStep() const{
+	return currentSettings_->undulatorRelativeStep();
+}
+
 QStringList SGMFastScanConfiguration::presets() const{
 	QStringList retVal;
 	QString tmpStr;
@@ -165,6 +173,10 @@ bool SGMFastScanConfiguration::setParameters(SGMFastScanParameters *settings){
 	emit onAccelerationChanged(currentSettings_->acceleration());
 	emit onScalerTimeChanged(currentSettings_->scalerTime());
 	emit onBaseLineChanged(currentSettings_->baseLine());
+
+	emit undulatorVelocityChanged(currentSettings_->undulatorVelocity());
+	emit undulatorRelativeStepChanged(currentSettings_->undulatorRelativeStep());
+
 	setModified(true);
 	return true;
 }
@@ -241,6 +253,20 @@ bool SGMFastScanConfiguration::setBaseLine(int baseLine){
 	return true;
 }
 
+bool SGMFastScanConfiguration::setUndulatorVelocity(int undulatorVelocity){
+	currentSettings_->setUndulatorVelocity(undulatorVelocity);
+	emit undulatorVelocityChanged(currentSettings_->undulatorVelocity());
+	setModified(true);
+	return true;
+}
+
+bool SGMFastScanConfiguration::setUndulatorRelativeStep(int undulatorRelativeStep){
+	currentSettings_->setUndulatorRelativeStep(undulatorRelativeStep);
+	emit undulatorRelativeStepChanged(currentSettings_->undulatorRelativeStep());
+	setModified(true);
+	return true;
+}
+
 bool SGMFastScanConfiguration::setDetectorConfigurations(AMDetectorInfoSet detectorConfigurations) {
 	fastDetectorsConfigurations_ = detectorConfigurations;
 	setModified(true);
@@ -251,7 +277,7 @@ SGMFastScanParameters::SGMFastScanParameters(QObject *parent) : QObject(parent)
 {
 }
 
-SGMFastScanParameters::SGMFastScanParameters(const QString &element, double runSeconds, double energyStart, double energyMidpoint, double energyEnd, int velocity, int velocityBase, int acceleration, double scalerTime, int baseLine, QObject *parent) :
+SGMFastScanParameters::SGMFastScanParameters(const QString &element, double runSeconds, double energyStart, double energyMidpoint, double energyEnd, int velocity, int velocityBase, int acceleration, double scalerTime, int baseLine, int undulatorVelocity, int undulatorRelativeStep, QObject *parent) :
 		QObject(parent)
 {
 	setElement(element);
@@ -264,6 +290,8 @@ SGMFastScanParameters::SGMFastScanParameters(const QString &element, double runS
 	setAcceleration(acceleration);
 	setScalerTime(scalerTime);
 	setBaseLine(baseLine);
+	setUndulatorVelocity(undulatorVelocity);
+	setUndulatorRelativeStep(undulatorRelativeStep);
 }
 
 bool SGMFastScanParameters::operator ==(const SGMFastScanParameters &other){
@@ -276,7 +304,9 @@ bool SGMFastScanParameters::operator ==(const SGMFastScanParameters &other){
 	    velocityBase() == other.velocityBase() &&
 	    acceleration() == other.acceleration() &&
 	    scalerTime() == other.scalerTime() &&
-	    baseLine() == other.baseLine() ){
+	    baseLine() == other.baseLine() &&
+	    undulatorVelocity() == other.undulatorVelocity() &&
+	    undulatorRelativeStep() == other.undulatorRelativeStep() ){
 		return true;
 	}
 	return false;
