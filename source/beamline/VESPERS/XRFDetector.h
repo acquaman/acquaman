@@ -103,9 +103,9 @@ public:
 	/// Returns the raw spectrum data sources.  Will be the size of the number of elements.
 	QList<AMProcessVariableDataSource *> spectrumDataSources() const { return spectrumDataSources_; }
 	/// Returns the dead time data source at \c index.  It is assumed that the data sources will be in order of the element.  Must be between 0 and size() -1.
-	AMProcessVariableDataSource *deadTimeDataSource(int index) const { return deadTimeDataSources_.at(index); }
+	AM0DProcessVariableDataSource *deadTimeDataSource(int index) const { return deadTimeDataSources_.at(index); }
 	/// Returns the dead time data sources.  Will have the size of the number of elements.
-	QList<AMProcessVariableDataSource *> deadTimeDataSources() const { return deadTimeDataSources_; }
+	QList<AM0DProcessVariableDataSource *> deadTimeDataSources() const { return deadTimeDataSources_; }
 	/// Returns the analyzed data source at \c index.  It is assumed that the data sources will be in order of the element.  The last element is the corrected sum if the number of elements is greater than one.
 	AMDataSource *correctedDataSource(int index) const { return correctedSpectrumDataSources_.at(index); }
 	/// Returns the analyzed data sources.  Will be the size of the number of elements plus one, except for the single element detectors.
@@ -222,7 +222,7 @@ protected:
 	/// The list of all the raw spectrum data sources.
 	QList<AMProcessVariableDataSource *> spectrumDataSources_;
 	/// The list of all the dead times.  The order of the dead times is the same as the spectrum data sources.
-	QList<AMProcessVariableDataSource *> deadTimeDataSources_;
+	QList<AM0DProcessVariableDataSource *> deadTimeDataSources_;
 	/// The corrected spectra.  If the number of elements is greater than one then the last spectra is always the corrected sum.
 	QList<AMDataSource *> correctedSpectrumDataSources_;
 };

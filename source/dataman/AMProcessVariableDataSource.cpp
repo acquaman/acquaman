@@ -1,6 +1,14 @@
 #include "AMProcessVariableDataSource.h"
 
-AMProcessVariableDataSource::AMProcessVariableDataSource(const AMProcessVariable *data, const QString &name, QObject *parent)
+AM0DProcessVariableDataSource::AM0DProcessVariableDataSource(const AMProcessVariable *data, const QString &name, QObject *parent)
+	: QObject(parent), AMDataSource(name)
+{
+	data_ = data;
+	connect(data_, SIGNAL(valueChanged()), this, SLOT(onDataChanged()));
+	connect(data_, SIGNAL(hasValuesChanged(bool)), this, SLOT(onStateChanged()));
+}
+
+AM1DProcessVariableDataSource::AM1DProcessVariableDataSource(const AMProcessVariable *data, const QString &name, QObject *parent)
 	: QObject(parent), AMDataSource(name)
 {
 	data_ = data;
@@ -9,12 +17,13 @@ AMProcessVariableDataSource::AMProcessVariableDataSource(const AMProcessVariable
 	connect(data_, SIGNAL(hasValuesChanged(bool)), this, SLOT(onStateChanged()));
 }
 
-void AMProcessVariableDataSource::onDataChanged()
+AM2DProcessVariableDataSource::AM2DProcessVariableDataSource(const AMProcessVariable *data, const QString &name, int rowLength, QObject *parent)
+	: QObject(parent), AMDataSource(name)
 {
-	emitValuesChanged();
-}
-
-void AMProcessVariableDataSource::onStateChanged()
-{
-	emitStateChanged(state());
+	data_ = data;
+	sx_ = 1;
+	sy_ = 1;
+	length_ = rowLength;
+	connect(data_, SIGNAL(valueChanged()), this, SLOT(onDataChanged()));
+	connect(data_, SIGNAL(hasValuesChanged(bool)), this, SLOT(onStateChanged()));
 }
