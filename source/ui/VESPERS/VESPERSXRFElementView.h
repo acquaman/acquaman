@@ -95,10 +95,10 @@ public slots:
 	void setMaximumEnergy(double energy) { maximumEnergy_ = energy; if (element_) fillEmissionLines(); }
 
 signals:
-	/// Notifies that a line has been chosen to be added.  It also passes a pointer to the element it is currently viewing.
-	void addLine(XRFElement *, QString);
-	/// Notifies that a line has been chosen to be removed.  It also passes a pointer to the element it is currently viewing.
-	void removeLine(XRFElement *, QString);
+	/// Notifies that a line has been chosen to be added.
+	void addLine(QString);
+	/// Notifies that a line has been chosen to be removed.
+	void removeLine(QString);
 
 protected slots:
 	/// Handles when checked state changes from LineView.  Takes in whether the line view was checked or unchecked and passes on the name of the line.

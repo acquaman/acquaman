@@ -10,6 +10,8 @@
 
 #include "dataman/AMProcessVariableDataSource.h"
 
+#include <QTimer>
+
 class XRFDetector : public XRFDetectorInfo, public AMDetector
 {
 	Q_OBJECT
@@ -169,7 +171,7 @@ signals:
 	/// Notifier that a region of interest has been removed.  Passes the region of interest information.
 	void removedRegionOfInterest(AMROIInfo);
 	/// This signal is meant to notify all classes that use this class that the ROI list has been dirtied.  This means that all classes should check the new ROI list to see if there are any changes that need to be addressed.
-	void externalRegionOfInterestChanged();
+	void externalRegionsOfInterestChanged();
 
 protected slots:
 	/// Determines if the detector is connected to ALL controls and process variables.
@@ -177,7 +179,7 @@ protected slots:
 	/// Determines if the regions of interest in the detector all have values.
 	void allRoisHaveValues();
 	/// Determines if there is a discrepancy between the ROI list and the ROIInfo list and if there is, begins the sequence of updating the entire program.
-	void onRoiNameUpdate();
+	void onUpdateTimer();
 
 protected:
 
@@ -185,6 +187,9 @@ protected:
 	bool detectorConnected_;
 	/// Bool handling whether the detector was connected.
 	bool wasConnected_;
+
+	/// Timer used to periodically update the ROI lists.
+	QTimer timer_;
 
 	/// The list of regions of interest.
 	QList<AMROI *> roiList_;

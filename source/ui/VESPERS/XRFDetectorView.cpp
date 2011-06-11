@@ -88,10 +88,10 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	maximumEnergy_ = 1e6;
 
 	detector_ = static_cast<XRFDetector *>(detector);
-	//connect(detector_, SIGNAL(detectorConnected(bool)), this, SLOT(setEnabled(bool)));
+	connect(detector_, SIGNAL(detectorConnected(bool)), this, SLOT(setEnabled(bool)));
 	connect(detector_, SIGNAL(addedRegionOfInterest(AMROIInfo)), this, SLOT(addRegionOfInterestMarker(AMROIInfo)));
 	connect(detector_, SIGNAL(removedRegionOfInterest(AMROIInfo)), this, SLOT(removeRegionOfInterestMarker(AMROIInfo)));
-	connect(detector_, SIGNAL(externalRegionOfInterestChanged()), this, SLOT(onExternalRegionOfInterestChanged()));
+	connect(detector_, SIGNAL(externalRegionsOfInterestChanged()), this, SLOT(onExternalRegionsOfInterestChanged()));
 
 	elapsedTime_ = new QLabel(tr(" s"));
 	connect(detector_, SIGNAL(elapsedTimeChanged(double)), this, SLOT(onElapsedTimeUpdate(double)));
@@ -212,7 +212,7 @@ void XRFDetailedDetectorView::roiWidthUpdate(AMROI *roi)
 
 		temp = markers_.at(i);
 
-		if (roi->name().compare(GeneralUtilities::removeGreek(temp->description())) == 0){
+		if (GeneralUtilities::removeGreek(temp->description()).compare(roi->name()) == 0){
 
 			temp->setLowEnd(roi->low()*roi->scale());
 			temp->setHighEnd(roi->high()*roi->scale());
@@ -412,7 +412,6 @@ void XRFDetailedDetectorView::addRegionOfInterestMarker(AMROIInfo info)
 	QString line = GeneralUtilities::addGreek(info.name().split(" ").last());
 
 	ROIPlotMarker *newMarker = new ROIPlotMarker(symbol+" "+line, info.energy(), info.low(), info.high());
-	newMarker->setHighlighted(true);
 	plot_->insertItem(newMarker);
 	newMarker->setYAxisTarget(plot_->axisScale(MPlot::VerticalRelative));
 	markers_ << newMarker;
@@ -427,8 +426,8 @@ void XRFDetailedDetectorView::removeRegionOfInterestMarker(AMROIInfo info)
 
 		temp = markers_.at(i);
 
-		if (temp->description().compare(GeneralUtilities::removeGreek(info.name())) == 0)
-			removeMe = markers_.at(i);
+		if (info.name().compare(GeneralUtilities::removeGreek(temp->description())) == 0)
+			removeMe = markers_.takeAt(i);
 	}
 
 	if (removeMe){
@@ -570,7 +569,7 @@ void XRFDetailedDetectorView::onElapsedTimeUpdate(double time)
 	elapsedTime_->setText(QString::number(time, 'f', 2) + " s");
 }
 
-void XRFDetailedDetectorView::onExternalRegionOfInterestChanged()
+void XRFDetailedDetectorView::onExternalRegionsOfInterestChanged()
 {
 	removeAllRegionsOfInterestMarkers();
 	for (int i = 0; i < detector_->roiInfoList()->count(); i++)

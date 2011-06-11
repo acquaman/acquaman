@@ -109,8 +109,8 @@ protected slots:
 	void onWaterfallToggled(bool isWaterfall);
 	/// Changes the amount of waterfall separation between the plots.
 	void onWaterfallSeparationChanged(double val);
-	/// Handles if the detector ROIs have changed from an external source.  This listens to the externalRegionOfInterestChanged signal and changes all the markers to reflect the new list.
-	void onExternalRegionOfInterestChanged();
+	/// Handles if the detector ROIs have changed from an external source.  This listens to the externalRegionsOfInterestChanged signal and changes all the markers to reflect the new list.
+	void onExternalRegionsOfInterestChanged();
 
 protected:
 

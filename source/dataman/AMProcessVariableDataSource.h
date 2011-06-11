@@ -43,9 +43,9 @@ public:
 	/// Returns the size of (ie: count along) each dimension.  Returns a null AMnDIndex if it is a scalar quantity.
 	virtual AMnDIndex size() const { return AMnDIndex(); }
 	/// Returns the size along a single axis \c axisNumber. This should be fast. \c axisNumber is assumed to be between 0 and rank()-1.  Returns 0 if representing a scalar process variable.
-	virtual int size(int axisNumber) const { return 0; }
+	virtual int size(int axisNumber) const { Q_UNUSED(axisNumber) return 0; }
 	/// Returns a bunch of information about a particular axis. \c axisNumber is assumed to be between 0 and rank()-1.
-	virtual AMAxisInfo axisInfoAt(int axisNumber) const { return AMAxisInfo("scalar", 1); }
+	virtual AMAxisInfo axisInfoAt(int axisNumber) const { Q_UNUSED(axisNumber) return AMAxisInfo("scalar", 1); }
 	/// Returns the id of an axis, by name. (By id, we mean the index of the axis. We called it id to avoid ambiguity with indexes <i>into</i> axes.) This could be slow, so users shouldn't call it repeatedly. Returns -1 if not found.  Scalars have no axes and therefore will always return -1.
 	virtual int idOfAxis(const QString& axisName)
 	{
@@ -252,7 +252,7 @@ public:
 		if(indexes.i() >= axes().first().size || indexes.j() >= axes().at(1).size)
 			return AMNumber(AMNumber::OutOfBoundsError);
 
-		return data_->lastValue(indexes.i(), indexes.j());
+		return data_->lastValue(indexes.i() + indexes.j()*length_);
 	}
 	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index).  Returns an invalid AMNumber if not a valid selection.
 	virtual AMNumber axisValue(int axisNumber, int index) const

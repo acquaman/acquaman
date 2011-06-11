@@ -1,4 +1,5 @@
 #include "AMROI.h"
+#include "util/VESPERS/GeneralUtilities.h"
 
 AMROI::AMROI(QString name, double energy, double width, double scale, AMProcessVariable *namePV, AMProcessVariable *lowPV, AMProcessVariable *highPV, AMProcessVariable *valuePV, QObject *parent)
 	: QObject(parent)
@@ -106,7 +107,7 @@ void AMROI::setRegion(QString name, int low, int high)
 
 void AMROI::setRegion(const AMROIInfo &info)
 {
-	setRegion(info.name(), info.energy(), info.energy());
+	setRegion(info.name(), info.low(), info.high());
 }
 
 void AMROI::setNamePVs(QList<AMProcessVariable *> namePVs)

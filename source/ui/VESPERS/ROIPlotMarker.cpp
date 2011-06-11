@@ -8,6 +8,7 @@ ROIPlotMarker::ROIPlotMarker(QString name, double center, double low, double hig
 	center_ = center;
 	low_ = low;
 	high_ = high;
+	setHighlighted(true);
 }
 
 void ROIPlotMarker::setHighlighted(bool highlight)
@@ -39,7 +40,7 @@ QRectF ROIPlotMarker::boundingRect() const
 
 QRectF ROIPlotMarker::dataRect() const
 {
-	return QRectF(low_, 0, high_-low_, 1);
+	return QRectF(low_, 0, high_-low_, 0.95);
 }
 
 void ROIPlotMarker::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)

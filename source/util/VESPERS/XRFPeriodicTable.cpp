@@ -57,13 +57,20 @@ void XRFPeriodicTable::removeAll()
 	if (current_ == 0)
 		return;
 
+	// Save current element.
+	XRFElement *current = current_;
+
 	while (!selectedElements_.isEmpty()){
 
 		current_ = selectedElements_.first();
 
 		while (current_->hasLinesSelected())
 			current_->removeLine(current_->linesSelected().first());
+
+		selectedElements_.removeFirst();
 	}
 
+	// Used to notify that the old current element information may have changed.
+	emit currentElementChanged(current);
 	emit removedAllRegionsOfInterest();
 }

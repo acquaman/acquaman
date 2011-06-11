@@ -9,6 +9,7 @@ VESPERSXRFScanConfiguration::VESPERSXRFScanConfiguration(XRFDetector *detector, 
 	xrfDetectorInfo_ = detector_->toXRFInfo();
 
 	xrfTable_ = new XRFPeriodicTable(AMPeriodicTable::table()->elementBySymbol("K")->Kalpha().second.toDouble(), detector_->maximumEnergy(), this);
+	xrfTable_->setCurrentElement(xrfTable_->elementBySymbol("Fe"));
 
 	connect(xrfTable_, SIGNAL(addedRegionOfInterest(XRFElement*,QString)), detector_, SLOT(addRegionOfInterest(XRFElement*,QString)));
 	connect(xrfTable_, SIGNAL(removedRegionOfInterest(XRFElement*,QString)), detector_, SLOT(removeRegionOfInterest(XRFElement*,QString)));
@@ -16,12 +17,16 @@ VESPERSXRFScanConfiguration::VESPERSXRFScanConfiguration(XRFDetector *detector, 
 	connect(xrfTable_, SIGNAL(removedAllRegionsOfInterest()), detector_, SLOT(clearRegionsOfInterest()));
 
 	connect(detector_, SIGNAL(roisHaveValues(bool)), this, SLOT(onRoisHaveValues(bool)));
-	connect(detector_, SIGNAL(externalRegionOfInterestChanged()), this, SLOT(onExternalRegionOfInterestChanged()));
 }
 
 VESPERSXRFScanConfiguration::VESPERSXRFScanConfiguration(QObject *parent)
 	: AMScanConfiguration(parent)
 {
+}
+
+VESPERSXRFScanConfiguration::~VESPERSXRFScanConfiguration()
+{
+	delete xrfTable_;
 }
 
 AMScanConfiguration *VESPERSXRFScanConfiguration::createCopy() const
@@ -46,6 +51,12 @@ void VESPERSXRFScanConfiguration::onRoisHaveValues(bool hasValues)
 {
 	if (hasValues){
 
+		disconnect(detector_, SIGNAL(externalRegionsOfInterestChanged()), this, SLOT(onExternalRegionsOfInterestChanged()));
+		disconnect(xrfTable_, SIGNAL(removedAllRegionsOfInterest()), detector_, SLOT(clearRegionsOfInterest()));
+
+		XRFElement *current = xrfTable_->currentElement();
+		xrfTable_->removeAll();
+
 		// Go through all the regions of interest PVs and if there are any regions set already, pass them on to the rest of the program.
 		QString name;
 
@@ -56,7 +67,14 @@ void VESPERSXRFScanConfiguration::onRoisHaveValues(bool hasValues)
 			// If the name is empty then we've reached the end of the road for preset regions of interest.
 			if (name.isEmpty()){
 
-				xrfTable_->setCurrentElement(xrfTable_->elementBySymbol("Fe"));
+				if (current)
+					xrfTable_->setCurrentElement(current);
+				else
+					xrfTable_->setCurrentElement(xrfTable_->elementBySymbol("Fe"));
+
+				connect(detector_, SIGNAL(externalRegionsOfInterestChanged()), this, SLOT(onExternalRegionsOfInterestChanged()));
+				connect(xrfTable_, SIGNAL(removedAllRegionsOfInterest()), detector_, SLOT(clearRegionsOfInterest()));
+
 				return;
 			}
 
@@ -65,25 +83,9 @@ void VESPERSXRFScanConfiguration::onRoisHaveValues(bool hasValues)
 	}
 }
 
-void VESPERSXRFScanConfiguration::onExternalRegionOfInterestChanged()
+void VESPERSXRFScanConfiguration::onExternalRegionsOfInterestChanged()
 {
-	// Disconnect the detector from the table for a moment.
-	disconnect(xrfTable_, SIGNAL(addedRegionOfInterest(XRFElement*,QString)), detector_, SLOT(addRegionOfInterest(XRFElement*,QString)));
-	disconnect(xrfTable_, SIGNAL(removedRegionOfInterest(XRFElement*,QString)), detector_, SLOT(removeRegionOfInterest(XRFElement*,QString)));
-	disconnect(xrfTable_, SIGNAL(removedAllRegionsOfInterest()), detector_, SLOT(clearRegionsOfInterest()));
-
-	XRFElement *current = xrfTable_->currentElement();
-	xrfTable_->removeAll();
-
-	for (int i = 0; i < detector_->roiInfoList()->count(); i++)
-		addRegionOfInterestToTable(detector_->roiInfoList()->at(i).name());
-
-	xrfTable_->setCurrentElement(current);
-
-	// Reconnect the detector to the table for a moment.
-	connect(xrfTable_, SIGNAL(addedRegionOfInterest(XRFElement*,QString)), detector_, SLOT(addRegionOfInterest(XRFElement*,QString)));
-	connect(xrfTable_, SIGNAL(removedRegionOfInterest(XRFElement*,QString)), detector_, SLOT(removeRegionOfInterest(XRFElement*,QString)));
-	connect(xrfTable_, SIGNAL(removedAllRegionsOfInterest()), detector_, SLOT(clearRegionsOfInterest()));
+	onRoisHaveValues(true);
 }
 
 void VESPERSXRFScanConfiguration::addRegionOfInterestToTable(QString name)

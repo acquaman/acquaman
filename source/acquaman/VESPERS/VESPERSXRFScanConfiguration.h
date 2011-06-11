@@ -19,6 +19,8 @@ public:
 	Q_INVOKABLE explicit VESPERSXRFScanConfiguration(QObject *parent = 0);
 	/// Convenience constructor.
 	VESPERSXRFScanConfiguration(XRFDetector *detector, QObject *parent = 0);
+	/// Destructor.
+	~VESPERSXRFScanConfiguration();
 
 	/// Returns the detector info for the current detector.
 	XRFDetectorInfo detectorInfo() const { return xrfDetectorInfo_; }
@@ -54,7 +56,7 @@ protected slots:
 	/// Handles what happens when the detector becomes connected.
 	void onRoisHaveValues(bool hasValues);
 	/// Handles when the regions of interest change from an external source.
-	void onExternalRegionOfInterestChanged();
+	void onExternalRegionsOfInterestChanged();
 
 protected:
 	/// Returns an AMDbObject pointer to the detector info.

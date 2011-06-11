@@ -93,7 +93,7 @@ void VESPERSXRFElementView::fillEmissionLines()
 void VESPERSXRFElementView::onLineCheckedChanged(bool checked, QString lineName)
 {
 	if (checked)
-		emit addLine(element_, lineName);
+		emit addLine(lineName);
 	else
-		emit removeLine(element_, lineName);
+		emit removeLine(lineName);
 }

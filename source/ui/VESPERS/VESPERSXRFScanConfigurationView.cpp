@@ -25,11 +25,12 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 	view_ = new XRFDetailedDetectorView(detector_);
 	view_->setMinimumEnergy(xrfTable_->minimumEnergy());
 	view_->setMaximumEnergy(xrfTable_->maximumEnergy());
-	//connect(detector_, SIGNAL(detectorConnected(bool)), this, SLOT(setEnabled(bool)));
+	connect(detector_, SIGNAL(detectorConnected(bool)), this, SLOT(setEnabled(bool)));
 	connect(xrfTable_, SIGNAL(currentElementChanged(XRFElement*)), view_, SLOT(showEmissionLines(XRFElement*)));
 	connect(xrfTable_, SIGNAL(currentElementChanged(XRFElement*)), view_, SLOT(highlightMarkers(XRFElement*)));
 	connect(xrfTable_, SIGNAL(minimumEnergyChanged(double)), view_, SLOT(setMinimumEnergy(double)));
 	connect(xrfTable_, SIGNAL(maximumEnergyChanged(double)), view_, SLOT(setMaximumEnergy(double)));
+	connect(xrfTable_, SIGNAL(removedAllRegionsOfInterest()), view_, SLOT(removeAllRegionsOfInterestMarkers()));
 
 	XRFPeriodicTableView *tableView = new XRFPeriodicTableView(xrfTable_);
 	QPalette palette = tableView->palette();
@@ -47,6 +48,8 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 	connect(xrfTable_, SIGNAL(currentElementChanged(XRFElement*)), elView, SLOT(setElement(XRFElement*)));
 	connect(xrfTable_, SIGNAL(minimumEnergyChanged(double)), elView, SLOT(setMinimumEnergy(double)));
 	connect(xrfTable_, SIGNAL(maximumEnergyChanged(double)), elView, SLOT(setMaximumEnergy(double)));
+	connect(elView, SIGNAL(addLine(QString)), xrfTable_, SLOT(addLineToList(QString)));
+	connect(elView, SIGNAL(removeLine(QString)), xrfTable_, SLOT(removeLineFromList(QString)));
 
 	QPushButton *sortButton = new QPushButton(QIcon(":/ArrowCCW.png"), "Sort");
 	connect(sortButton, SIGNAL(clicked()), view_, SLOT(sortRegionsOfInterest()));

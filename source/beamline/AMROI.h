@@ -86,6 +86,8 @@ signals:
 public slots:
 	/// Sets the name of the ROI and passes it to all PV's.
 	void setName(QString name);
+	/// Sets the energy of the ROI.
+	void setEnergy(double energy) { energy_ = energy; }
 	/// Sets the scaling factor for the region of interest.
 	void setScale(double scale) { scale_ = scale; }
 	/// Explicitly changes the low bound for the ROI and all the PV's.  Does not affect the energy or the width in any way.

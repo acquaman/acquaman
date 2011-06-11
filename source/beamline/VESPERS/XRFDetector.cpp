@@ -9,6 +9,8 @@ XRFDetector::XRFDetector(QString name, int elements, AMControl *status, AMContro
 
 	wasConnected_ = false;
 	detectorConnected_ = false;
+	timer_.setInterval(6000);
+	connect(&timer_, SIGNAL(timeout()), this, SLOT(onUpdateTimer()));
 
 	statusControl_ = status;
 	refreshRateControl_ = refreshRate;
@@ -94,6 +96,8 @@ XRFDetector::XRFDetector(QString name, AMControl *status, AMControl *refreshRate
 
 	wasConnected_ = false;
 	detectorConnected_ = false;
+	timer_.setInterval(6000);
+	connect(&timer_, SIGNAL(timeout()), this, SLOT(onUpdateTimer()));
 
 	statusControl_ = status;
 	refreshRateControl_ = refreshRate;
@@ -290,15 +294,22 @@ void XRFDetector::allRoisHaveValues()
 
 	emit roisHaveValues(hasValues);
 
-	if (hasValues)
-		for (int i = 0; i < roiList_.size(); i++){
+	if (hasValues){
 
+		for (int i = 0; i < roiList_.size(); i++)
 			connect(roiList_.at(i), SIGNAL(roiUpdate(AMROI*)), this, SIGNAL(roiUpdate(AMROI*)));
-			connect(roiList_.at(i), SIGNAL(nameUpdate(QString)), this, SLOT(onRoiNameUpdate()));
-		}
+
+		timer_.start();
+	}
+	else{
+		for (int i = 0; i < roiList_.size(); i++)
+			disconnect(roiList_.at(i), SIGNAL(roiUpdate(AMROI*)), this, SIGNAL(roiUpdate(AMROI*)));
+
+		timer_.stop();
+	}
 }
 
-void XRFDetector::onRoiNameUpdate()
+void XRFDetector::onUpdateTimer()
 {
 	bool resetAll = false;
 
@@ -309,7 +320,7 @@ void XRFDetector::onRoiNameUpdate()
 			numRoi++;
 
 	// One has been added or removed.
-	if (numRoi == roiInfoList()->count())
+	if (numRoi != roiInfoList()->count())
 		resetAll = true;
 
 	// Check to see if the names match.  Only do this if we already don't have to reset anything.
@@ -323,17 +334,9 @@ void XRFDetector::onRoiNameUpdate()
 	// If a change has happened, do something about it.
 	if (resetAll){
 
-		AMROIInfoList infoList;
-		for (int i = 0; i < roiList().size(); i++){
-
-			if (!roiList().at(i)->name().isEmpty())
-				infoList.append(roiList().at(i)->toInfo());
-		}
-
 		roiInfoList()->clear();
-		roiInfoList()->setValuesFrom(infoList);
 		setROIList(*roiInfoList());
-		emit externalRegionOfInterestChanged();
+		emit externalRegionsOfInterestChanged();
 	}
 }
 
