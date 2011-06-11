@@ -72,7 +72,7 @@ XRFDetector::XRFDetector(QString name, int elements, AMControl *status, AMContro
 
 		if (spectrum != 0 && deadTimePV != 0){
 
-			spectrumDataSources_ << new AMProcessVariableDataSource(spectrum->readPV(), QString("Element %1").arg(i+1), this);
+			spectrumDataSources_ << new AM1DProcessVariableDataSource(spectrum->readPV(), QString("Element %1").arg(i+1), this);
 			deadTimeDataSources_ << new AM0DProcessVariableDataSource(deadTimePV->readPV(), QString("Dead time %1").arg(i+1), this);
 			AMDeadTimeAB *corrected = new AMDeadTimeAB(QString("Corrected Element %1").arg(i+1), this);
 			QList<AMDataSource *> corrList;
@@ -150,7 +150,7 @@ XRFDetector::XRFDetector(QString name, AMControl *status, AMControl *refreshRate
 
 	if (spectrum != 0 && deadTimePV != 0){
 
-		spectrumDataSources_ << new AMProcessVariableDataSource(spectrum->readPV(), "Raw Spectrum", this);
+		spectrumDataSources_ << new AM1DProcessVariableDataSource(spectrum->readPV(), "Raw Spectrum", this);
 		deadTimeDataSources_ << new AM0DProcessVariableDataSource(deadTimePV->readPV(), "Dead time", this);
 		AMDeadTimeAB *corrected = new AMDeadTimeAB("Corrected Sum", this);
 		QList<AMDataSource *> corrList;
