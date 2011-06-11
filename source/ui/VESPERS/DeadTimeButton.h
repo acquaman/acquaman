@@ -21,11 +21,11 @@ public:
 
 public slots:
 	/// Sets the good setpoint.
-	void setGood(double val) { good_ = val; }
+	void setGood(double val) { good_ = val; update(); }
 	/// Sets the bad setpoint.
-	void setBad(double val) { bad_ = val; }
+	void setBad(double val) { bad_ = val; update(); }
 	/// Sets the current value.
-	void setCurrent(double val) { current_ = val; }
+	void setCurrent(double val) { current_ = val; update(); }
 
 protected:
 	/// Re-implemented paint event.

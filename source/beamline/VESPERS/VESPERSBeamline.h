@@ -36,9 +36,6 @@ class VESPERSBeamline : public AMBeamline
 	Q_OBJECT
 public:
 
-	/// XRF detector choice enum.
-	enum XRFDetectorChoice { SingleElement = 1, FourElement };
-
 	static VESPERSBeamline* vespers() {
 		if(!instance_)
 			instance_ = new VESPERSBeamline();

@@ -24,7 +24,6 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
     source/ui/VESPERS/VESPERSSampleStageView.h \
     source/ui/VESPERS/VESPERSXRFElementView.h \
     source/util/VESPERS/XRFPeriodicTable.h \
-    source/ui/VESPERS/XRFSelectionView.h \
     source/ui/VESPERS/XRFPeriodicTableView.h \
     source/beamline/VESPERS/AMValveControl.h \
     source/ui/VESPERS/ROIPlotMarker.h \
@@ -37,7 +36,8 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
     source/ui/VESPERS/XRFMapSetup.h \
     source/ui/VESPERS/VESPERSDeviceStatusView.h \
     source/ui/VESPERS/VESPERSTemperatureView.h \
-    source/util/VESPERS/GeneralUtilities.h
+    source/util/VESPERS/GeneralUtilities.h \
+    source/util/VESPERS/XRFElement.h
 
 SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/application/VESPERS/VESPERSMain.cpp \
@@ -59,7 +59,6 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
     source/ui/VESPERS/VESPERSSampleStageView.cpp \
     source/ui/VESPERS/VESPERSXRFElementView.cpp \
     source/util/VESPERS/XRFPeriodicTable.cpp \
-    source/ui/VESPERS/XRFSelectionView.cpp \
     source/ui/VESPERS/XRFPeriodicTableView.cpp \
     source/beamline/VESPERS/AMValveControl.cpp \
     source/ui/VESPERS/ROIPlotMarker.cpp \
@@ -72,7 +71,8 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
     source/ui/VESPERS/XRFMapSetup.cpp \
     source/ui/VESPERS/VESPERSDeviceStatusView.cpp \
     source/ui/VESPERS/VESPERSTemperatureView.cpp \
-    source/util/VESPERS/GeneralUtilities.cpp
+    source/util/VESPERS/GeneralUtilities.cpp \
+    source/util/VESPERS/XRFElement.cpp
 
 RESOURCES += \
 	source/ui/VESPERS/EndstationPictures.qrc \

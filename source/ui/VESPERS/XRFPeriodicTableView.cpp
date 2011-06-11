@@ -4,11 +4,14 @@
 #include <QVBoxLayout>
 #include <QMessageBox>
 
-XRFPeriodicTableView::XRFPeriodicTableView(double minEnergy, double maxEnergy, QWidget *parent)
+XRFPeriodicTableView::XRFPeriodicTableView(XRFPeriodicTable *xrfTable, QWidget *parent)
 	: QWidget(parent)
 {
-	minimumEnergy_ = minEnergy;
-	maximumEnergy_ = maxEnergy;
+	xrfTable_ = xrfTable;
+	connect(xrfTable_, SIGNAL(minimumEnergyChanged(double)), this, SLOT(disableElements()));
+	connect(xrfTable_, SIGNAL(maximumEnergyChanged(double)), this, SLOT(disableElements()));
+	connect(xrfTable_, SIGNAL(addedRegionOfInterest(XRFElement*,QString)), this, SLOT(onRegionOfInterestChanged(XRFElement*,QString)));
+	connect(xrfTable_, SIGNAL(removedRegionOfInterest(XRFElement*,QString)), this, SLOT(onRegionOfInterestChanged(XRFElement*,QString)));
 
 	QFont font(this->font());
 	font.setBold(true);
@@ -27,17 +30,16 @@ XRFPeriodicTableView::XRFPeriodicTableView(double minEnergy, double maxEnergy, Q
 
 	QToolButton *trashButton = new QToolButton;
 	trashButton->setIcon(QIcon(":/trashcan.png"));
-	connect(trashButton, SIGNAL(clicked()), this, SLOT(clearList()));
+	connect(trashButton, SIGNAL(clicked()), xrfTable_, SLOT(removeAll()));
+	connect(trashButton, SIGNAL(clicked()), this, SLOT(resetAllColors()));
+	connect(xrfTable_, SIGNAL(removedAllRegionsOfInterest()), this, SLOT(resetAllColors()));
 
 	tableView_ = new AMPeriodicTableView;
 	tableView_->setMaximumWidth(600);
 
 	disableElements();
 
-	connect(tableView_, SIGNAL(elementSelected(AMElement*)), this, SIGNAL(elementSelected(AMElement*)));
 	connect(tableView_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementSelected(AMElement*)));
-
-	table_ = new XRFPeriodicTable;
 
 	QVBoxLayout *legendLayout = new QVBoxLayout;
 	legendLayout->addWidget(legend);
@@ -56,8 +58,10 @@ XRFPeriodicTableView::XRFPeriodicTableView(double minEnergy, double maxEnergy, Q
 
 void XRFPeriodicTableView::disableElements()
 {
-	QList<AMElement *> table(AMPeriodicTable::table()->elements());
-	AMElement *temp;
+	QList<XRFElement *> table(xrfTable_->elements());
+	XRFElement *temp;
+	double min = xrfTable_->minimumEnergy();
+	double max = xrfTable_->maximumEnergy();
 
 	for (int i = 0; i < table.size(); i++){
 
@@ -65,59 +69,47 @@ void XRFPeriodicTableView::disableElements()
 		// Resets the button state.
 		tableView_->button(temp)->setEnabled(true);
 
-		if (temp->Kalpha().second.toDouble() < minimumEnergy_
-			|| (temp->Kalpha().second.toDouble() > maximumEnergy_ && temp->Lalpha().second.toDouble() < minimumEnergy_)
+		if (temp->Kalpha().second.toDouble() < min
+			|| (temp->Kalpha().second.toDouble() > max && temp->Lalpha().second.toDouble() < min)
 			|| temp->emissionLines().isEmpty())
 
 			tableView_->button(temp)->setEnabled(false);
 	}
 }
 
-void XRFPeriodicTableView::regionOfInterestAdded(AMElement *el, QPair<QString, QString> line)
+void XRFPeriodicTableView::resetAllColors()
 {
-	// If the region of interest is acceptable, then it will change the periodic table appropriately.
-	if (table_->addToList(el, line)){
+	QList<XRFElement *> table(xrfTable_->elements());
+	QPalette palette(this->palette());
 
-		QToolButton *clicked = tableView_->button(el);
-		QPalette palette(clicked->palette());
-
-		if (line.first.contains("K"))
-			palette.setColor(QPalette::Window, Qt::green);
-		else if (line.first.contains("L"))
-			palette.setColor(QPalette::Window, Qt::yellow);
-		else if (line.first.contains("M"))
-			palette.setColor(QPalette::Window, Qt::cyan);
-
-		clicked->setPalette(palette);
-		emit addRegionOfInterest(el, line);
-	}
+	for (int i = 0; i < table.size(); i++)
+		tableView_->button(table.at(i))->setPalette(palette);
 }
 
-void XRFPeriodicTableView::regionOfInterestRemoved(AMElement *el, QPair<QString, QString> line)
+void XRFPeriodicTableView::onRegionOfInterestChanged(XRFElement *el, QString line)
 {
-	if (table_->removeFromList(el, line)){
-
-		QToolButton *clicked = tableView_->button(el);
-		QPalette palette(clicked->palette());
-		palette.setColor(QPalette::Window, this->palette().color(QPalette::Window));
-		clicked->setPalette(palette);
-		emit removeRegionOfInterest(el, line);
-	}
+	Q_UNUSED(line);
+	changeColor(el);
 }
 
-void XRFPeriodicTableView::clearList()
+void XRFPeriodicTableView::changeColor(XRFElement *el)
 {
-	QList<QPair<int, QString> > list = table_->checkedList();
-	QToolButton *clicked;
+	QToolButton *clicked = tableView_->button(el);
+	QPalette palette(clicked->palette());
 
-	for (int i = 0; i < list.size(); i++){
+	if (el->hasLinesSelected()){
 
-		clicked = tableView_->button(table_->elementByAtomicNumber(list.at(i).first));
-		QPalette palette(clicked->palette());
-		palette.setColor(QPalette::Window, this->palette().color(QPalette::Window));
-		clicked->setPalette(palette);
+		QStringList lines(el->linesSelected());
+
+		if (lines.contains(QString::fromUtf8("Kα1")) || lines.contains(QString::fromUtf8("Kβ1")))
+			palette.setColor(QPalette::Button, Qt::green);
+		else if (lines.contains(QString::fromUtf8("Lα1")) || lines.contains(QString::fromUtf8("Lβ1")) || lines.contains(QString::fromUtf8("Lγ1")))
+			palette.setColor(QPalette::Button, Qt::yellow);
+		else if (lines.contains(QString::fromUtf8("Mα1")))
+			palette.setColor(QPalette::Button, Qt::cyan);
 	}
+	else
+		palette.setColor(QPalette::Button, this->palette().color(QPalette::Button));
 
-	table_->clearList();
-	emit clearAllRegionsOfInterest();
+	clicked->setPalette(palette);
 }

@@ -1,12 +1,23 @@
 #include "AMROIInfo.h"
 
-AMROIInfo::AMROIInfo(const QString &name, double energy, double width, double scale, QObject *parent)
+AMROIInfo::AMROIInfo(const QString &name, double energy, double low, double high, double scale, QObject *parent)
 	: AMDbObject(parent)
 {
 	setName(name);
 	energy_ = energy;
-	width_ = width;
 	scale_ = scale;
+	low_ = low;
+	high_ = high;
+}
+
+AMROIInfo::AMROIInfo(double energy, double width, double scale, const QString &name, QObject *parent)
+	: AMDbObject(parent)
+{
+	setName(name);
+	energy_ = energy;
+	scale_ = scale;
+	low_ = energy*(1-width/2);
+	high_ = energy*(1+width/2);
 }
 
 AMROIInfoList::AMROIInfoList(QObject *parent)

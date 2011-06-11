@@ -1,4 +1,5 @@
 #include "AMROI.h"
+#include "util/VESPERS/GeneralUtilities.h"
 
 AMROI::AMROI(QString name, double energy, double width, double scale, AMProcessVariable *namePV, AMProcessVariable *lowPV, AMProcessVariable *highPV, AMProcessVariable *valuePV, QObject *parent)
 	: QObject(parent)
@@ -12,7 +13,7 @@ AMROI::AMROI(AMROIInfo info, AMProcessVariable *namePV, AMProcessVariable *lowPV
 	: QObject(parent)
 {
 	setAllPVs(namePV, lowPV, highPV, valuePV);
-	setRegion(info.name(), info.energy(), info.width());
+	setRegion(info.name(), info.low(), info.high());
 }
 
 AMROI::AMROI(QString name, double energy, double width, double scale, QList<AMProcessVariable *> namePVs, QList<AMProcessVariable *> lowPVs, QList<AMProcessVariable *> highPVs, QList<AMProcessVariable *> valuePVs, QObject *parent)
@@ -27,27 +28,27 @@ AMROI::AMROI(AMROIInfo info, QList<AMProcessVariable *> namePVs, QList<AMProcess
 	: QObject(parent)
 {
 	setAllPVs(namePVs, lowPVs, highPVs, valuePVs);
-	setRegion(info.name(), info.energy(), info.width());
+	setRegion(info.name(), info.low(), info.high());
 }
 
 AMROIInfo AMROI::toInfo()
 {
-	return AMROIInfo(name_, energy_, width_, scale_);
+	return AMROIInfo(name_, energy_, low_, high_, scale_);
 }
 
 void AMROI::fromInfo(const AMROIInfo &info)
 {
 	setName(info.name());
 	energy_ = info.energy();
-	width_ = info.width();
+	setLow(info.low());
+	setHigh(info.high());
 	scale_ = info.scale();
-	computeLimits();
 }
 
-void AMROI::computeLimits()
+void AMROI::computeLimits(double width)
 {
-	setLow(energy_*(1-width_/2));
-	setHigh(energy_*(1+width_/2));
+	setLow(energy_*(1-width/2));
+	setHigh(energy_*(1+width/2));
 }
 
 void AMROI::setName(QString name)
@@ -57,18 +58,6 @@ void AMROI::setName(QString name)
 	for (int i = 0; i < pvNames_.size(); i++)
 		if (pvNames_.at(i)->isConnected())
 			pvNames_.at(i)->setValue(name);
-}
-
-void AMROI::setEnergy(double energy)
-{
-	energy_ = energy;
-	computeLimits();
-}
-
-void AMROI::setWidth(double width)
-{
-	width_ = width;
-	computeLimits();
 }
 
 void AMROI::setLow(int low)
@@ -103,24 +92,22 @@ void AMROI::setHigh(double high)
 
 void AMROI::setRegion(QString name, double energy, double width)
 {
-	name_ = name;
+	setName(name);
 	energy_ = energy;
-	width_ = width;
-	computeLimits();
+	computeLimits(width);
 }
 
 void AMROI::setRegion(QString name, int low, int high)
 {
 	setName(name);
 	energy_ = (high+low)*scale_/2;
-	width_ = (high-low)*scale_;
 	setLow(low);
 	setHigh(high);
 }
 
 void AMROI::setRegion(const AMROIInfo &info)
 {
-	setRegion(info.name(), info.energy(), info.energy());
+	setRegion(info.name(), info.low(), info.high());
 }
 
 void AMROI::setNamePVs(QList<AMProcessVariable *> namePVs)

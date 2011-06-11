@@ -40,6 +40,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AM2DSummingAB.h"
 #include "analysis/AM1DDerivativeAB.h"
 #include "analysis/AMExternalScanDataSourceAB.h"
+#include "analysis/AM1DSummingAB.h"
+#include "analysis/AMDeadTimeAB.h"
 
 #include "dataman/AMExporterOptionGeneralAscii.h"
 
@@ -170,6 +172,8 @@ bool AMFirstTimeController::databaseInitialization(bool newUser) {
 	AMDbObjectSupport::registerClass<AM2DSummingAB>();
 	AMDbObjectSupport::registerClass<AM1DDerivativeAB>();
 	AMDbObjectSupport::registerClass<AMExternalScanDataSourceAB>();
+	AMDbObjectSupport::registerClass<AM1DSummingAB>();
+	AMDbObjectSupport::registerClass<AMDeadTimeAB>();
 
 
 	AMDbObjectSupport::registerClass<AMDetectorInfo>();

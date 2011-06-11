@@ -69,8 +69,8 @@ bool VESPERSAppController::startup() {
 		mw_->addPane(vespersView_, "Beamline Control", "Endstation", ":/system-software-update.png");
 		//mw_->addPane(statusPage, "Beamline Control", "Device Status", ":/system-software-update.png");
 
-		xrf1EConfigView_ = new VESPERSXRFScanConfigurationView(new VESPERSXRFScanConfiguration(VESPERSBeamline::SingleElement, VESPERSBeamline::vespers()->vortexXRF1E()->toXRFInfo()));
-		xrf4EConfigView_ = new VESPERSXRFScanConfigurationView(new VESPERSXRFScanConfiguration(VESPERSBeamline::FourElement, VESPERSBeamline::vespers()->vortexXRF4E()->toXRFInfo()));
+		xrf1EConfigView_ = new VESPERSXRFScanConfigurationView(new VESPERSXRFScanConfiguration(VESPERSBeamline::vespers()->vortexXRF1E()));
+		xrf4EConfigView_ = new VESPERSXRFScanConfigurationView(new VESPERSXRFScanConfiguration(VESPERSBeamline::vespers()->vortexXRF4E()));
 		xrf1EConfigHolder_ = new AMFreeRunScanConfigurationViewHolder(workflowManagerView_, xrf1EConfigView_);
 		xrf4EConfigHolder_ = new AMFreeRunScanConfigurationViewHolder(workflowManagerView_, xrf4EConfigView_);
 

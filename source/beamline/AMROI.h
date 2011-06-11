@@ -32,8 +32,6 @@ public:
 	QString name() const { return name_; }
 	/// Returns the current central energy of the region of interest.
 	double energy() const { return energy_; }
-	/// Returns the current width of the region of interest.
-	double width() const { return width_; }
 	/// Returns the current scaling for the region of interst.
 	double scale() const { return scale_; }
 	/// Returns the lower bound of the region of interest as a channel number.
@@ -89,9 +87,7 @@ public slots:
 	/// Sets the name of the ROI and passes it to all PV's.
 	void setName(QString name);
 	/// Sets the energy of the ROI.
-	void setEnergy(double energy);
-	/// Sets the width of the ROI.
-	void setWidth(double width);
+	void setEnergy(double energy) { energy_ = energy; }
 	/// Sets the scaling factor for the region of interest.
 	void setScale(double scale) { scale_ = scale; }
 	/// Explicitly changes the low bound for the ROI and all the PV's.  Does not affect the energy or the width in any way.
@@ -102,8 +98,8 @@ public slots:
 	void setHigh(int high);
 	/// Overloaded function.  Sets the upper bound of the ROI based on a energy and uses the scaling factor to compute the channel number.  Sets the new value to all PV's and does not affect the energy or width in any way.
 	void setHigh(double high);
-	/// Computes the low and high values for the region of interest based on the current energy and width.
-	void computeLimits();
+	/// Computes the low and high values for the region of interest based on the current energy and given width (expressed as a percentage).
+	void computeLimits(double width);
 	/// Sets the all the parameters for the region using the energy and width.
 	void setRegion(QString name, double energy, double width);
 	/// Overloaded function.  Sets all the parameters for the region with low and high bounds.
@@ -131,8 +127,6 @@ protected:
 	QString name_;
 	/// The central energy of the region of interest.  Usually a known value of an emission line of an element.
 	double energy_;
-	/// The width of the region of interest.  This value is expressed as a percentage.
-	double width_;
 	/// THe scale that converts the energy and width of a region of interest into an upper and lower bounds.
 	double scale_;
 	/// The actual channel number for the lower bound of the region of interest.

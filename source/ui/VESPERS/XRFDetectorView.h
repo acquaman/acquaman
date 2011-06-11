@@ -3,7 +3,7 @@
 
 #include "ui/AMDetectorView.h"
 #include "beamline/VESPERS/XRFDetector.h"
-#include "util/AMElement.h"
+#include "util/VESPERS/XRFElement.h"
 #include "ui/VESPERS/ROIPlotMarker.h"
 
 #include "MPlot/MPlot.h"
@@ -67,21 +67,30 @@ public:
 	/// Returns a pointer to the plot.
 	MPlot *plot() const { return plot_; }
 
+	/// Returns the minimum energy used for limiting what is drawn on the view.
+	double minimumEnergy() const { return minimumEnergy_; }
+	/// Returns the maximum energy used for limiting what is drawn on the view.
+	double maximumEnergy() const { return maximumEnergy_; }
+
 public slots:
 	/// Places coloured markers on the plot to show where the acceptable emission lines are in the range of the detector.
-	void showEmissionLines(AMElement *el);
+	void showEmissionLines(XRFElement *el);
 	/// Changes the colors of the ROIMarkers for the latest element selected, if any.
-	void highlightMarkers(AMElement *el);
+	void highlightMarkers(XRFElement *el);
 	/// Slot handling what happens when a region of interest is added.
-	void onAdditionOfRegionOfInterest(AMElement *el, QPair<QString, QString> line);
+	void addRegionOfInterestMarker(AMROIInfo info);
 	/// Slot handling what happens when a region of interest is removed.
-	void onRemovalOfRegionOfInterest(AMElement *el, QPair<QString, QString> line);
+	void removeRegionOfInterestMarker(AMROIInfo info);
 	/// Slot removing all the element markers.
-	void removeAllRegionsOfInterest();
+	void removeAllRegionsOfInterestMarkers();
 	/// Slot that sorts all the regions of interst.
 	void sortRegionsOfInterest();
 	/// Handles resizing the ROIPlotMarkers to a new width.
 	void roiWidthUpdate(AMROI *roi);
+	/// Sets the minimum energy used by this view.
+	void setMinimumEnergy(double energy) { minimumEnergy_ = energy; }
+	/// Sets the maximum energy used by this view.
+	void setMaximumEnergy(double energy) { maximumEnergy_ = energy; }
 
 protected slots:
 	/// Handles the update from the dead time control.
@@ -100,6 +109,8 @@ protected slots:
 	void onWaterfallToggled(bool isWaterfall);
 	/// Changes the amount of waterfall separation between the plots.
 	void onWaterfallSeparationChanged(double val);
+	/// Handles if the detector ROIs have changed from an external source.  This listens to the externalRegionsOfInterestChanged signal and changes all the markers to reflect the new list.
+	void onExternalRegionsOfInterestChanged();
 
 	/// Hack to save the spectra.  For four element it will print out the four raw data and the corrected sum.
 	void saveSpectra();
@@ -151,10 +162,15 @@ protected:
 	/// Holds whether the plot is in a waterfall plot mode or not.
 	bool isWaterfall_;
 
+	/// This holds the minimum energy that should be displayed by this view.  This is important for deciding what lines should be painted or not.
+	double minimumEnergy_;
+	/// This holds the maximum energy that should be displayed by this view.  This is important for deciding what lines should be painted or not.
+	double maximumEnergy_;
+
 	/// Holds the list of current markers.
 	QList<ROIPlotMarker *> markers_;
 	/// This holds the plot markers for showing emission lines.
-	QList<MPlotPoint *> *lines_;
+	QList<MPlotPoint *> lines_;
 };
 
 #endif // XRFDETECTORVIEW_H

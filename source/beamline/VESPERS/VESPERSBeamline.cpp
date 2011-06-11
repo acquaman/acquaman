@@ -274,7 +274,7 @@ void VESPERSBeamline::setupSingleElementDetector()
 			temp->disableWritePVPutCallback(true);
 	}
 
-	vortex1E_ = new XRFDetector("Single Element XRF",
+	vortex1E_ = new XRFDetector("1-el Vortex",
 								status1E_,
 								mcaUpdateRate1E_,
 								peakingTime1E_,
@@ -364,7 +364,7 @@ void VESPERSBeamline::setupFourElementDetector()
 			temp->disableWritePVPutCallback(true);
 	}
 
-	vortex4E_ = new XRFDetector("Four Element XRF",
+	vortex4E_ = new XRFDetector("4-el Vortex",
 								4,
 								status4E_,
 								mcaUpdateRate4E_,

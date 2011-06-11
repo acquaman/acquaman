@@ -9,11 +9,7 @@
 VESPERSXRFScanController::VESPERSXRFScanController(VESPERSXRFScanConfiguration *scanConfig, QObject *parent)
 	: AMScanController(scanConfig, parent)
 {
-	if (scanConfig->detectorChoice() == VESPERSBeamline::SingleElement)
-		detector_ = VESPERSBeamline::vespers()->vortexXRF1E();
-	else
-		detector_ = VESPERSBeamline::vespers()->vortexXRF4E();
-
+	detector_ = scanConfig->detector();
 	scanConfig->setDetectorInfo(detector_->toXRFInfo());
 
 	scan_ = new AMXRFScan;

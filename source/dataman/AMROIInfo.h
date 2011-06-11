@@ -10,7 +10,6 @@ class AMROIInfo : public AMDbObject
 	Q_OBJECT
 
 	Q_PROPERTY(double energy READ energy WRITE setEnergy)
-	Q_PROPERTY(double width READ width WRITE setWidth)
 	Q_PROPERTY(double low READ low WRITE setLow)
 	Q_PROPERTY(double high READ high WRITE setHigh)
 	Q_PROPERTY(double scale READ scale WRITE setScale)
@@ -19,12 +18,12 @@ class AMROIInfo : public AMDbObject
 
 public:
 	/// Constructor.  Takes in the name, centre energy, and width of the region.
-	Q_INVOKABLE AMROIInfo(const QString& name = "Invalid ROI Info", double energy = 0.0, double width = 0.0, double scale = 0.0, QObject *parent = 0);
+	Q_INVOKABLE AMROIInfo(const QString& name = "Invalid ROI Info", double energy = 0.0, double low = 0.0, double high = 0.0, double scale = 0.0, QObject *parent = 0);
+	/// Convenience constructor.  Uses a width to to auto-create a low and high value.  This does not have default values. \note The order of the constructor had to be different so that the compiler doesn't complain.  This is because the default constructor has assigned values for all parameters.
+	AMROIInfo(double energy, double width, double scale, const QString& name, QObject *parent = 0);
 
 	/// Returns the centre energy of the region of interest.  Generally will be the known energy of a particular emission line.
 	double energy() const { return energy_; }
-	/// Returns the width of the region of interest.  This is expressed as a percentage.
-	double width() const { return width_; }
 	/// Returns the low bound of the region of interest.  This will generally be calculated, but if it is different then the calculation based on width, it will overide the width because it is a customized value.
 	double low() const { return low_; }
 	/// Returns the high bound of the region of interest.  This will generally be calculated, but if it is different then the calculation based on width, it will overide the width because it is a customized value.
@@ -35,7 +34,6 @@ public:
 	void setValuesFrom(const AMROIInfo& other)
 	{
 		energy_ = other.energy_;
-		width_ = other.width_;
 		low_ = other.low_;
 		high_ = other.high_;
 		scale_ = other.scale_;
@@ -45,8 +43,6 @@ public:
 public slots:
 	/// Sets the centre energy of the region of interest.
 	void setEnergy(double energy) { energy_ = energy; setModified(true); }
-	/// Sets the width of the region of interst.
-	void setWidth(double width) { width_ = width; setModified(true); }
 	/// Sets the low bound for the region of interest.
 	void setLow(double low) { low_ = low; setModified(true); }
 	/// Sets the high bound for the region of interest.
@@ -57,8 +53,6 @@ public slots:
 protected:
 	/// The central energy of the region of interest.  Generally will be the known energy of a particular emission line.
 	double energy_;
-	/// The width of the region of interest expressed as a percentage.
-	double width_;
 	/// The low bound of the region of interest.
 	double low_;
 	/// The high bound of the region of interest.

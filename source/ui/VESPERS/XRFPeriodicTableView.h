@@ -10,59 +10,26 @@ class XRFPeriodicTableView : public QWidget
 {
 	Q_OBJECT
 public:
-	/// Constructor.  Does not need any information.  Can optionally provide upper and lower limits.  These will disable elements based on those numbers.
-	explicit XRFPeriodicTableView(double minEnergy = 0, double maxEnergy = 1e6, QWidget *parent = 0);
-
-	/// Returns the minimum energy.
-	double minimumEnergy() const { return minimumEnergy_; }
-	/// Returns the maximum energy.
-	double maximumEnergy() const { return maximumEnergy_; }
-	/// Returns the current list of emission lines used by this view.
-	const QList<QPair<int, QString> > roiList() const { return table_->checkedList(); }
-
-signals:
-	/// Passes on the signal that an element was selected.  Contains the element.
-	void elementSelected(AMElement *);
-	/// Passes on the signal that an element was selected.  Contains the element and a list of active elements in a QPair of <atomic number, line name>.
-	void elementClicked(AMElement *, QList<QPair<int, QString> >);
-	/// Signal to notify others that the new region of interest is acceptable.
-	void addRegionOfInterest(AMElement *, QPair<QString, QString>);
-	/// Signal to notify others that the selected region of interest was successfully removed.
-	void removeRegionOfInterest(AMElement *, QPair<QString, QString>);
-	/// Signal to notify that all regions of interest should be removed.
-	void clearAllRegionsOfInterest();
-
-public slots:
-	/// Sets the minimum energy.
-	void setMinimumEnergy(double energy) { minimumEnergy_ = energy; disableElements(); }
-	/// Sets the maximum energy.
-	void setMaximumEnergy(double energy) { maximumEnergy_ = energy; disableElements(); }
-
-	/// Changes the color of the element button due to an ROI being added.
-	void regionOfInterestAdded(AMElement *el, QPair<QString, QString> line);
-	/// Reverts the color of the button back to its original color scheme due to an ROI being deleted.
-	void regionOfInterestRemoved(AMElement *el, QPair<QString, QString> line);
+	/// Constructor.  Needs the table for viewing.  Does not create a new instance of the table.
+	explicit XRFPeriodicTableView(XRFPeriodicTable *xrfTable, QWidget *parent = 0);
 
 protected slots:
+	/// Changes the color of the button associated with the element based on the emission lines it has.  Returns to a normal look if there are no selected emission lines.
+	void changeColor(XRFElement *el);
+	/// Resets all the colors of the buttons to their original state.  Called when the trash button is clicked.
+	void resetAllColors();
 	/// Handles the element clicked signal.
-	void onElementSelected(AMElement *el) { emit elementClicked(el, table_->checkedList()); }
-	/// Clears the entire list of regions of interest.
-	void clearList();
-
-protected:
+	void onElementSelected(AMElement *el) { xrfTable_->setCurrentElement(xrfTable_->elementByAtomicNumber(el->atomicNumber())); }
 	/// Helper function that disables the buttons based on the current values of maximumEnergy_ and minimumEnergy_.
 	void disableElements();
+	/// Helper slot that takes in an element that has recently had a region of interest added to or removed from it and changes the colour accordingly.
+	void onRegionOfInterestChanged(XRFElement *el, QString line);
 
+protected:
 	/// A pointer to the XRF periodic table.
-	XRFPeriodicTable *table_;
+	XRFPeriodicTable *xrfTable_;
 	/// A generic periodic table view.
 	AMPeriodicTableView *tableView_;
-
-	/// Holds the minimum energy.  This is the lower limit and elements that don't have emission lines with energies higher then this are disabled.
-	double minimumEnergy_;
-	/// Holds the maximum energy.  This is the upper limit and elements that don't have emission lines with energies lower then this are disabled.
-	double maximumEnergy_;
-
 };
 
 #endif // XRFPERIODICTABLEVIEW_H

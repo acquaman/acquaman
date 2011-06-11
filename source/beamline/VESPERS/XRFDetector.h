@@ -5,105 +5,12 @@
 #include "beamline/AMDetector.h"
 #include "beamline/AMControlSet.h"
 #include "beamline/AMROI.h"
+#include "util/VESPERS/XRFElement.h"
+#include "util/VESPERS/GeneralUtilities.h"
 
-#include "dataman/AMDataSource.h"
-#include "dataman/AMAxisInfo.h"
+#include "dataman/AMProcessVariableDataSource.h"
 
-/*!
-  This class encapsulates AMProcessVariable and puts them into an AMDataSource.  This will allow easy insertion into MPlots for viewing purposes.
-  */
-
-class XRFDetectorDataSource : public QObject, public AMDataSource
-{
-	Q_OBJECT
-
-public:
-	/// Constructor.  Takes in an AMReadOnlyPVControl.
-	XRFDetectorDataSource(const AMProcessVariable *data, const QString& name, QObject *parent = 0);
-
-	// Data source type
-	//////////////////////////
-
-	/// Human-readable description of the type of data source this is (ex: "One-dimensional math expression").  Subclasses should re-implement this.
-	virtual QString typeDescription() const { return "XRF Detector Data Source"; }
-
-	// State of the data
-	//////////////////////////
-	/// Returns an OR-combination of StateFlags describing the current state of the data. The base class interface indicates that it does not have valid data. Implementing classes should return InvalidFlag when they don't have valid data, and/or ProcessingFlag if their data might be changing. No flags indicate the data is valid and generally static.
-	virtual int state() const { return data_->hasValues() ? ProcessingFlag : InvalidFlag; }
-
-	// Axis Information
-	//////////////////////
-	/// Returns axis information for all axes
-	virtual QList<AMAxisInfo> axes() const
-	{
-		QList<AMAxisInfo> axisInfo;
-		axisInfo << AMAxisInfo("n", data_->count(), "n - Channel Number");
-		return axisInfo;
-	}
-
-	// Following can all be determined from above. Included anyway for convenience of classes that use the interface, and for performance. Calling size(axisNumber) should be fast; using axes() to return a full list of AMAxisInfo and extracting the desired axis would be much slower.
-	//////////////////////////////////////////////
-	/// Returns the rank (number of dimensions) of this data set
-	virtual int rank() const { return axes().count(); }
-	/// Returns the size of (ie: count along) each dimension
-	virtual AMnDIndex size() const { return AMnDIndex(axes().count()); }
-	/// Returns the size along a single axis \c axisNumber. This should be fast. \c axisNumber is assumed to be between 0 and rank()-1.
-	virtual int size(int axisNumber) const { return axes().at(axisNumber).size; }
-	/// Returns a bunch of information about a particular axis. \c axisNumber is assumed to be between 0 and rank()-1.
-	virtual AMAxisInfo axisInfoAt(int axisNumber) const { return axes().at(axisNumber); }
-	/// Returns the id of an axis, by name. (By id, we mean the index of the axis. We called it id to avoid ambiguity with indexes <i>into</i> axes.) This could be slow, so users shouldn't call it repeatedly. Returns -1 if not found.
-	virtual int idOfAxis(const QString& axisName)
-	{
-		for (int i = 0; i < axes().count(); i++)
-			if (axes().at(i).name.compare(axisName) == 0)
-				return i;
-
-		return -1;
-	}
-
-	// Data value access
-	////////////////////////////
-
-	/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient or any are out of range, or if the data is not ready.
-	virtual AMNumber value(const AMnDIndex& indexes, bool doBoundsChecking = true) const
-	{
-		if(!data_->isConnected())
-			return AMNumber();
-		if(indexes.rank() != 1)
-			return AMNumber(AMNumber::DimensionError);
-		if(doBoundsChecking)
-			if(indexes.i() >= axes().first().size)
-				return AMNumber(AMNumber::OutOfBoundsError);
-
-		return data_->getInt(indexes.i());
-	}
-	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index)
-	virtual AMNumber axisValue(int axisNumber, int index, bool doBoundsChecking = true) const
-	{
-		Q_UNUSED(axisNumber)
-		Q_UNUSED(doBoundsChecking)
-
-		return index*scale();
-	}
-
-	/// Returns the current scale used for the independent axis.
-	double scale() const { return scale_; }
-
-public slots:
-	/// Changes the scale used in the plot if that scale changes.
-	void setScale(double scale) { scale_ = scale; onDataChanged(); }
-
-protected slots:
-	/// Emits the data changed signal when the control gets new data.
-	void onDataChanged();
-
-protected:
-	/// The control being used as a data source.
-	const AMProcessVariable *data_;
-	/// Holds the current scale.
-	double scale_;
-};
+#include <QTimer>
 
 class XRFDetector : public XRFDetectorInfo, public AMDetector
 {
@@ -191,19 +98,22 @@ public:
 	/// Sets the AMROI list.  This should be called only ONCE.
 	void setRoiList(QList<AMROI *> list);
 
-	/// Adds a region of interest.  The new ROI is appended to the end of the list.  Returns whether the addition was successful or not; it will only fail if there are no longer any ROIs to place values in.
-	bool addRegionOfInterest(AMROIInfo roi);
-	/// Removes a region of interest.  Uses the name of the ROI to find and remove it.  Returns whether the remove was successful or not.
-	bool removeRegionOfInterest(QString name);
-
 	// Data sources
 	///////////////////////////////////////
-	/// Returns the data source for element \c index.  It is assumed that the data sources will be in order of element.  Must be between 0 and size()-1 where size is the number of elements in the detector.
-	XRFDetectorDataSource *dataSource(int index) const { return dataSources_.at(index); }
-	/// Overloaded function.  Convenience function for grabbing the first data source.
-	XRFDetectorDataSource *dataSource() const { return dataSources_.first(); }
-	/// Returns the list of all the raw data sources in the detector as a QList.
-	QList<XRFDetectorDataSource *> dataSources() const { return dataSources_; }
+	/// Returns the raw spectrum data source at \c index.  It is assumed that the data sources will be in order of element.  Must be between 0 and size()-1.
+	AM1DProcessVariableDataSource *spectrumDataSource(int index) const { return spectrumDataSources_.at(index); }
+	/// Returns the raw spectrum data sources.  Will be the size of the number of elements.
+	QList<AM1DProcessVariableDataSource *> spectrumDataSources() const { return spectrumDataSources_; }
+	/// Returns the dead time data source at \c index.  It is assumed that the data sources will be in order of the element.  Must be between 0 and size() -1.
+	AM0DProcessVariableDataSource *deadTimeDataSource(int index) const { return deadTimeDataSources_.at(index); }
+	/// Returns the dead time data sources.  Will have the size of the number of elements.
+	QList<AM0DProcessVariableDataSource *> deadTimeDataSources() const { return deadTimeDataSources_; }
+	/// Returns the analyzed data source at \c index.  It is assumed that the data sources will be in order of the element.  The last element is the corrected sum if the number of elements is greater than one.
+	AMDataSource *correctedDataSource(int index) const { return correctedSpectrumDataSources_.at(index); }
+	/// Returns the analyzed data sources.  Will be the size of the number of elements plus one, except for the single element detectors.
+	QList<AMDataSource *> correctedDataSources() const { return correctedSpectrumDataSources_; }
+	/// Returns the corrected sum spectrum data source.  Convenience function.
+	AMDataSource *correctedSumDataSource() const { return correctedSpectrumDataSources_.last(); }
 
 public slots:
 
@@ -223,6 +133,10 @@ public slots:
 	void setChannelSize();
 	/// Sets the description of the detector.
 	void setDescription(const QString &description) { XRFDetectorInfo::setDescription(description); }
+	/// Adds a region of interest.  The new ROI is appended to the end of the list.  Returns whether the addition was successful or not; it will only fail if there are no longer any ROIs to place values in.
+	bool addRegionOfInterest(XRFElement *el, QString line);
+	/// Removes a region of interest.  Uses the name of the ROI to find and remove it.  Returns whether the remove was successful or not.
+	bool removeRegionOfInterest(XRFElement *el, QString line);
 	/// Clears the list of ROIs and clears the info list.
 	void clearRegionsOfInterest();
 	/// Sorts the list of ROIs.
@@ -234,16 +148,38 @@ signals:
 	void detectorConnected(bool);
 	/// This signal is emitted when the status changes.
 	void statusChanged();
+	/// Notifies that the maximum energy has changed.
+	void maximumEnergyChanged(double);
+	/// Notifies that the peaking time has changed.
+	void peakingTimeChanged(double);
+	/// Notifies that the integration time has changed.
+	void integrationTimeChanged(double);
+	/// Notifies that the elapsed time has changed.
+	void elapsedTimeChanged(double);
+	/// Notifies when the spectra refresh rate has changed.
+	void refreshRateChanged(double);
+	/// Notifies that the dead time has changed.  If the number of elements is greater than one, then this is emitted when any of the dead times change.
+	void deadTimeChanged();
+	/// Notifies that the spectra have changed.  If there is more than one spectrum then this is emitted everytime one of them changes.
+	void spectraChanged();
 	/// Signal used to say that the regions of interest now have their original values in them after being connected to.
 	void roisHaveValues(bool);
 	/// Notifier that the contents of an ROI has changed.  It passes a pointer to the particular ROI that has been changed.
 	void roiUpdate(AMROI *);
+	/// Notifier that a region of interest has been added.  Passes the region of interest information.
+	void addedRegionOfInterest(AMROIInfo);
+	/// Notifier that a region of interest has been removed.  Passes the region of interest information.
+	void removedRegionOfInterest(AMROIInfo);
+	/// This signal is meant to notify all classes that use this class that the ROI list has been dirtied.  This means that all classes should check the new ROI list to see if there are any changes that need to be addressed.
+	void externalRegionsOfInterestChanged();
 
 protected slots:
 	/// Determines if the detector is connected to ALL controls and process variables.
 	void detectorConnected();
 	/// Determines if the regions of interest in the detector all have values.
 	void allRoisHaveValues();
+	/// Determines if there is a discrepancy between the ROI list and the ROIInfo list and if there is, begins the sequence of updating the entire program.
+	void onUpdateTimer();
 
 protected:
 
@@ -251,6 +187,9 @@ protected:
 	bool detectorConnected_;
 	/// Bool handling whether the detector was connected.
 	bool wasConnected_;
+
+	/// Timer used to periodically update the ROI lists.
+	QTimer timer_;
 
 	/// The list of regions of interest.
 	QList<AMROI *> roiList_;
@@ -285,12 +224,12 @@ protected:
 	/// Control set holding the controls used for setting the configuration of the detector.
 	AMControlSet *settingsControls_;
 
-	/// The list of data sources.
-	QList<XRFDetectorDataSource *> dataSources_;
-
-private:
-	// Keeps track of whether the single element version was used or not.
-	bool usingSingleElement_;
+	/// The list of all the raw spectrum data sources.
+	QList<AM1DProcessVariableDataSource *> spectrumDataSources_;
+	/// The list of all the dead times.  The order of the dead times is the same as the spectrum data sources.
+	QList<AM0DProcessVariableDataSource *> deadTimeDataSources_;
+	/// The corrected spectra.  If the number of elements is greater than one then the last spectra is always the corrected sum.
+	QList<AMDataSource *> correctedSpectrumDataSources_;
 };
 
 #endif // XRFDETECTOR_H
