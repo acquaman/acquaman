@@ -118,7 +118,7 @@ public:
 public slots:
 
 	/// Erases the current spectrum and starts collecting data.
-	void start() { startControl()->move(1); }
+	void start() { timer_.stop(); startControl()->move(1); }
 	/// Stops collection of data.
 	void stop() { stopControl()->move(1); }
 	/// Set the accumulation time.
@@ -180,6 +180,8 @@ protected slots:
 	void allRoisHaveValues();
 	/// Determines if there is a discrepancy between the ROI list and the ROIInfo list and if there is, begins the sequence of updating the entire program.
 	void onUpdateTimer();
+	/// Handles restarting the timer after the detector is finished acquiring.
+	void onStatusChanged() { if ((int)statusControl_->value() == 0) timer_.start(); }
 
 protected:
 

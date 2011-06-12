@@ -40,7 +40,7 @@ protected slots:
 	/// Handles new values set from the peaking time spin box and passes it along to the control.
 	void onPeakingTimeUpdate();
 	/// Handles what happens when the start button is clicked.
-	void onStartClicked() { detector_->setTime(integrationTime_->value()); emit startScan(); }
+	void onStartClicked() { detector_->setTime(integrationTime_->value()); emit startScan();; }
 	/// Handles what happens when the stop button is clicked.
 	void onStopClicked();
 

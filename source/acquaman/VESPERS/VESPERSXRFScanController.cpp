@@ -52,18 +52,13 @@ bool VESPERSXRFScanController::startImplementation()
 	return true;
 }
 
-void VESPERSXRFScanController::onDetectorAcquisitionUpdate()
-{
-	for (int i = 0; i < detector_->elements(); i++)
-		scan_->rawData()->setValue(AMnDIndex(), i, detector_->spectraAt(i), detector_->channels());
-}
-
 void VESPERSXRFScanController::onDetectorAcquisitionFinished()
 {
 	disconnect(detector_, SIGNAL(statusChanged()), this, SLOT(onStatusChanged()));
 	disconnect(detector_->elapsedTimeControl(), SIGNAL(valueChanged(double)), this, SLOT(onProgressUpdate()));
 
-	onDetectorAcquisitionUpdate();
+	for (int i = 0; i < detector_->elements(); i++)
+		scan_->rawData()->setValue(AMnDIndex(), i, detector_->spectraAt(i), detector_->channels());
 
 	AMScan *scan = this->scan();
 	if(scan->database())
