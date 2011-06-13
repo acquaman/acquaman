@@ -3,6 +3,8 @@
 #include "dataman/AMRawDataSource.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
 #include "dataman/VESPERS/VESPERSXRFDataLoader.h"
+#include "analysis/AMDeadTimeAB.h"
+#include "analysis/AM1DSummingAB.h"
 
 #include <QDir>
 
@@ -27,7 +29,28 @@ VESPERSXRFScanController::VESPERSXRFScanController(VESPERSXRFScanConfiguration *
 		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), i));
 	}
 
-	/// \todo Add analyzed data sources.
+	for (int i = 0; i < detector_->elements(); i++){
+
+		scan_->rawData()->addMeasurement(AMMeasurementInfo(QString("dt%1").arg(i+1), QString("Dead time %1").arg(i+1), "%", QList<AMAxisInfo>()));
+		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), i+detector_->elements()));
+	}
+
+	for (int i = 0; i < detector_->elements(); i++){
+
+		AMDeadTimeAB *temp = new AMDeadTimeAB(QString("Corrected %1").arg(i+1));
+		temp->setInputDataSourcesImplementation(QList<AMDataSource *>() << scan_->rawDataSources()->at(i) << scan_->rawDataSources()->at(i+detector_->elements()));
+		scan_->addAnalyzedDataSource(temp);
+	}
+
+	if (detector_->elements() > 1){
+
+		AM1DSummingAB *corr = new AM1DSummingAB("Corrected Sum");
+		QList<AMDataSource *> list;
+		for (int i = 0; i < scan_->analyzedDataSourceCount(); i++)
+			list << (AMDataSource *)scan_->analyzedDataSources()->at(i);
+		corr->setInputDataSourcesImplementation(list);
+		scan_->addAnalyzedDataSource(corr);
+	}
 }
 
 void VESPERSXRFScanController::onProgressUpdate()
@@ -57,8 +80,11 @@ void VESPERSXRFScanController::onDetectorAcquisitionFinished()
 	disconnect(detector_, SIGNAL(statusChanged()), this, SLOT(onStatusChanged()));
 	disconnect(detector_->elapsedTimeControl(), SIGNAL(valueChanged(double)), this, SLOT(onProgressUpdate()));
 
-	for (int i = 0; i < detector_->elements(); i++)
+	for (int i = 0; i < detector_->elements(); i++){
+
 		scan_->rawData()->setValue(AMnDIndex(), i, detector_->spectraAt(i), detector_->channels());
+		scan_->rawData()->setValue(AMnDIndex(), i+detector_->elements(), AMnDIndex(), detector_->deadTimeAt(i));
+	}
 
 	AMScan *scan = this->scan();
 	if(scan->database())

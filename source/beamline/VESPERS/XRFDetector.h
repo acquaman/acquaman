@@ -87,6 +87,8 @@ public:
 
 	/// Turns the spectra controls into an array of doubles and returns the spectra at \c index.
 	const int *spectraAt(int index);
+	/// Takes the current value of the dead time from \c index.
+	double deadTimeAt(int index);
 
 	/// Enables a previously disabled element.  Takes the \param id as an index of the list of elements.
 	void enableElement(int id);
@@ -181,7 +183,7 @@ protected slots:
 	/// Determines if there is a discrepancy between the ROI list and the ROIInfo list and if there is, begins the sequence of updating the entire program.
 	void onUpdateTimer();
 	/// Handles restarting the timer after the detector is finished acquiring.
-	void onStatusChanged() { if ((int)statusControl_->value() == 0) timer_.start(); }
+	void onStatusChanged() { if (status() == 0) timer_.start(); }
 
 protected:
 

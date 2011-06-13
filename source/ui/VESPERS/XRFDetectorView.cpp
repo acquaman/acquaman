@@ -93,6 +93,10 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	connect(detector_, SIGNAL(removedRegionOfInterest(AMROIInfo)), this, SLOT(removeRegionOfInterestMarker(AMROIInfo)));
 	connect(detector_, SIGNAL(externalRegionsOfInterestChanged()), this, SLOT(onExternalRegionsOfInterestChanged()));
 
+	status_ = new QLabel;
+	status_->setPixmap(QIcon(":/OFF.png").pixmap(20));
+	connect(detector_, SIGNAL(statusChanged()), this, SLOT(onStatusChanged()));
+
 	elapsedTime_ = new QLabel(tr(" s"));
 	connect(detector_, SIGNAL(elapsedTimeChanged(double)), this, SLOT(onElapsedTimeUpdate(double)));
 
@@ -137,6 +141,8 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	QFont font(this->font());
 	font.setBold(true);
 
+	QLabel *statusLabel = new QLabel(QString("Acquiring"));
+	statusLabel->setFont(font);
 	QLabel *elapsedTimeLabel = new QLabel(QString("Elapsed Time"));
 	elapsedTimeLabel->setFont(font);
 	QLabel *deadTimeLabel = new QLabel(QString("Dead Time"));
@@ -172,7 +178,12 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	QPushButton *saveSpectraButton = new QPushButton(QIcon(":/Save.png"), "Save Spectra");
 	connect(saveSpectraButton, SIGNAL(clicked()), this, SLOT(saveSpectra()));
 
+	QHBoxLayout *statusLayout = new QHBoxLayout;
+	statusLayout->addWidget(statusLabel, 0, Qt::AlignLeft);
+	statusLayout->addWidget(status_, 0, Qt::AlignCenter);
+
 	QVBoxLayout *viewControlLayout = new QVBoxLayout;
+	viewControlLayout->addLayout(statusLayout);
 	viewControlLayout->addWidget(elapsedTimeLabel, 0, Qt::AlignLeft);
 	viewControlLayout->addWidget(elapsedTime_, 0, Qt::AlignCenter);
 	viewControlLayout->addWidget(deadTimeLabel, 0, Qt::AlignLeft);

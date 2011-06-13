@@ -40,9 +40,11 @@ protected slots:
 	/// Handles new values set from the peaking time spin box and passes it along to the control.
 	void onPeakingTimeUpdate();
 	/// Handles what happens when the start button is clicked.
-	void onStartClicked() { detector_->setTime(integrationTime_->value()); emit startScan();; }
+	void onStartClicked() { detector_->setTime(integrationTime_->value()); start_->setDisabled(true); emit startScan(); }
 	/// Handles what happens when the stop button is clicked.
 	void onStopClicked();
+	/// Changes the disabled state of the start button based on the status of the detector.
+	void onStatusChanged() { detector_->status() == 1 ? start_->setDisabled(true) : start_->setDisabled(false); }
 
 protected:
 
@@ -57,6 +59,8 @@ protected:
 	/// The pointer to the customize view.
 	CustomizeRegionsOfInterest *customize_;
 
+	/// The start button.
+	QToolButton *start_;
 	/// The integration time spin box.
 	QDoubleSpinBox *integrationTime_;
 	/// The label for the minimum energy spin box.

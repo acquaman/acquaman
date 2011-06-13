@@ -20,6 +20,8 @@
 
 #include "dataman/AMDbObjectSupport.h"
 
+#include <QFileDialog>
+
 // For database registration:
 #include "dataman/VESPERS/XRFDetectorInfo.h"
 
@@ -31,11 +33,26 @@ VESPERSAppController::VESPERSAppController(QObject *parent) :
 
 bool VESPERSAppController::startup() {
 
+	// Get a destination folder.
+	AMUserSettings::load();
+	QString dir = QFileDialog::getExistingDirectory(0, "Choose a destination folder for your data.", AMUserSettings::userDataFolder, QFileDialog::ShowDirsOnly);
+	if (dir.isEmpty())
+		dir = AMUserSettings::userDataFolder;
+	else{
+			dir += "/";
+		if (dir.compare(AMUserSettings::userDataFolder) != 0){
+
+			AMUserSettings::userDataFolder = dir;
+			AMUserSettings::save();
+		}
+	}
+
 	// Initialize central beamline object
 	VESPERSBeamline::vespers();
 	// Initialize the periodic table object.
 	AMPeriodicTable::table();
 
+	// Start up the main program.
 	if(AMAppController::startup()) {
 
 		AMDbObjectSupport::registerClass<XRFDetectorInfo>();

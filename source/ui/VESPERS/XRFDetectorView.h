@@ -111,6 +111,8 @@ protected slots:
 	void onWaterfallSeparationChanged(double val);
 	/// Handles if the detector ROIs have changed from an external source.  This listens to the externalRegionsOfInterestChanged signal and changes all the markers to reflect the new list.
 	void onExternalRegionsOfInterestChanged();
+	/// Handles changing the indicator light when status changes.
+	void onStatusChanged() { detector_->status() == 1 ? status_->setPixmap(QIcon(":/ON.png").pixmap(20)) : status_->setPixmap(QIcon(":/OFF.png").pixmap(20)); }
 
 	/// Hack to save the spectra.  For four element it will print out the four raw data and the corrected sum.
 	void saveSpectra();
@@ -135,6 +137,8 @@ protected:
 	/// The pointer to the detector.
 	XRFDetector *detector_;
 
+	/// The indicator light.
+	QLabel *status_;
 	/// The elapsed time label.
 	QLabel *elapsedTime_;
 	/// The dead time label.

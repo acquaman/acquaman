@@ -71,7 +71,7 @@ void AMDeadTimeAB::setInputDataSourcesImplementation(const QList<AMDataSource*>&
 		axes_[0] = spectra_->axisInfoAt(0);
 
 		setDescription(QString("Dead time correction of %1")
-		.arg(spectra_->name()));
+		.arg(spectra_->description()));
 
 		connect(spectra_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
 		connect(spectra_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));

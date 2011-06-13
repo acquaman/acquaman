@@ -26,7 +26,7 @@ VESPERSXRFScanConfiguration::VESPERSXRFScanConfiguration(QObject *parent)
 
 VESPERSXRFScanConfiguration::~VESPERSXRFScanConfiguration()
 {
-	delete xrfTable_;
+
 }
 
 AMScanConfiguration *VESPERSXRFScanConfiguration::createCopy() const

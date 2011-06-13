@@ -435,6 +435,17 @@ const int *XRFDetector::spectraAt(int index)
 	return 0;
 }
 
+double XRFDetector::deadTimeAt(int index)
+{
+	if (index < elements() && index >= 0){
+
+		AMReadOnlyPVControl *temp = qobject_cast<AMReadOnlyPVControl *>(deadTimeControl_->at(index));
+		return temp->readPV()->lastValue();
+	}
+
+	return -1;
+}
+
 void XRFDetector::setTime(double time)
 {
 	setIntegrationTime(time);

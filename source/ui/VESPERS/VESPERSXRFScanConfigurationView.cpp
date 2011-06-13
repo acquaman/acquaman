@@ -22,6 +22,8 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 	AMTopFrame *topFrame = new AMTopFrame(QString("XRF Configuration - %1").arg(detector_->name()));
 	topFrame->setIcon(QIcon(":/utilities-system-monitor.png"));
 
+	connect(detector_, SIGNAL(statusChanged()), this, SLOT(onStatusChanged()));
+
 	view_ = new XRFDetailedDetectorView(detector_);
 	view_->setMinimumEnergy(xrfTable_->minimumEnergy());
 	view_->setMaximumEnergy(xrfTable_->maximumEnergy());
@@ -65,9 +67,9 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 	connect(configureButton, SIGNAL(clicked()), scroll, SLOT(show()));
 
 	// Control options for the detector.
-	QToolButton *start = new QToolButton;
-	start->setIcon(QIcon(":/play_button_green.png"));
-	connect(start, SIGNAL(clicked()), this, SLOT(onStartClicked()));
+	start_ = new QToolButton;
+	start_->setIcon(QIcon(":/play_button_green.png"));
+	connect(start_, SIGNAL(clicked()), this, SLOT(onStartClicked()));
 
 	QToolButton *stop = new QToolButton;
 	stop->setIcon(QIcon(":/red-stop-button.png"));
@@ -133,7 +135,7 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 	peakingTimeLabel_->setFont(font);
 
 	QHBoxLayout *startAndStopLayout = new QHBoxLayout;
-	startAndStopLayout->addWidget(start);
+	startAndStopLayout->addWidget(start_);
 	startAndStopLayout->addWidget(stop);
 
 	QVBoxLayout *controlLayout = new QVBoxLayout;
