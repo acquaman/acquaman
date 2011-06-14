@@ -4,7 +4,8 @@ AMDeadTimeAB::AMDeadTimeAB(const QString &outputName, QObject *parent)
 	: AMStandardAnalysisBlock(outputName, parent)
 {
 	spectra_ = 0;
-	deadTime_ = 0;
+	icr_ = 0;
+	ocr_ = 0;
 
 	axes_ << AMAxisInfo("invalid", 0, "No input data");
 	setState(AMDataSource::InvalidFlag);
@@ -19,10 +20,8 @@ bool AMDeadTimeAB::areInputDataSourcesAcceptable(const QList<AMDataSource*>& dat
 	if(dataSources.isEmpty())
 		return true; // always acceptable; the null input.
 
-	// otherwise there is two data sources, one with rank 1 and one with rank 0.
-	if (dataSources.count() == 2
-		|| (dataSources.at(0)->rank() == 0 && dataSources.at(1)->rank() == 1)
-		|| (dataSources.at(0)->rank() == 1 && dataSources.at(1)->rank() == 0))
+	// otherwise there are three data sources, one with rank 1 and two with rank 0.
+	if (dataSources.count() == 3 && (dataSources.at(0)->rank()+dataSources.at(1)->rank()+dataSources.at(2)->rank() == 1))
 		return true;
 
 	return false;
@@ -32,15 +31,19 @@ bool AMDeadTimeAB::areInputDataSourcesAcceptable(const QList<AMDataSource*>& dat
 void AMDeadTimeAB::setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources)
 {
 	// disconnect connections from old sources, if they exist.
-	if(spectra_ != 0 && deadTime_ != 0) {
+	if(spectra_ != 0 && icr_ != 0 && ocr_ != 0) {
 
 		disconnect(spectra_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
 		disconnect(spectra_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
 		disconnect(spectra_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
 
-		disconnect(deadTime_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
-		disconnect(deadTime_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
-		disconnect(deadTime_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+		disconnect(icr_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
+		disconnect(icr_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
+		disconnect(icr_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+
+		disconnect(ocr_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
+		disconnect(ocr_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
+		disconnect(ocr_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
 	}
 
 	if(dataSources.isEmpty()) {
@@ -57,13 +60,49 @@ void AMDeadTimeAB::setInputDataSourcesImplementation(const QList<AMDataSource*>&
 		if (dataSources.first()->rank() == 1){
 
 			spectra_ = dataSources.first();
-			deadTime_ = dataSources.at(1);
+
+			if (int(dataSources.at(1)->value(AMnDIndex())) > int(dataSources.at(2)->value(AMnDIndex()))){
+
+				icr_ = dataSources.at(1);
+				ocr_ = dataSources.at(2);
+			}
+			else{
+
+				icr_ = dataSources.at(2);
+				ocr_ = dataSources.at(1);
+			}
+		}
+		// If the spectra data source comes second...
+		else if (dataSources.at(1)->rank() == 1){
+
+			spectra_ = dataSources.at(1);
+
+			if (int(dataSources.at(0)->value(AMnDIndex())) > int(dataSources.at(2)->value(AMnDIndex()))){
+
+				icr_ = dataSources.at(0);
+				ocr_ = dataSources.at(2);
+			}
+			else{
+
+				icr_ = dataSources.at(2);
+				ocr_ = dataSources.at(0);
+			}
 		}
 		// Otherwise...
 		else {
 
-			spectra_ = dataSources.at(1);
-			deadTime_ = dataSources.first();
+			spectra_ = dataSources.at(2);
+
+			if (int(dataSources.at(0)->value(AMnDIndex())) > int(dataSources.at(1)->value(AMnDIndex()))){
+
+				icr_ = dataSources.at(0);
+				ocr_ = dataSources.at(1);
+			}
+			else{
+
+				icr_ = dataSources.at(1);
+				ocr_ = dataSources.at(0);
+			}
 		}
 
 		sources_ = dataSources;
@@ -77,9 +116,13 @@ void AMDeadTimeAB::setInputDataSourcesImplementation(const QList<AMDataSource*>&
 		connect(spectra_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
 		connect(spectra_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
 
-		connect(deadTime_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
-		connect(deadTime_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
-		connect(deadTime_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+		connect(icr_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
+		connect(icr_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
+		connect(icr_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+
+		connect(ocr_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
+		connect(ocr_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
+		connect(ocr_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
 	}
 
 	reviewState();
@@ -101,7 +144,7 @@ AMNumber AMDeadTimeAB::value(const AMnDIndex &indexes, bool doBoundsChecking) co
 	if (doBoundsChecking && indexes.i() >= spectra_->size(0))
 		return AMNumber(AMNumber::OutOfBoundsError);
 
-	return (1/(1-(double)deadTime_->value(AMnDIndex())/100))*(int)spectra_->value(indexes.i());
+	return double(icr_->value(AMnDIndex()))/double(ocr_->value(AMnDIndex()))*(int)spectra_->value(indexes.i());
 }
 
 AMNumber AMDeadTimeAB::axisValue(int axisNumber, int index, bool doBoundsChecking) const
@@ -142,7 +185,7 @@ void AMDeadTimeAB::onInputSourceStateChanged()
 
 void AMDeadTimeAB::reviewState()
 {
-	if (spectra_ == 0 || deadTime_ == 0 || !spectra_->isValid() || !deadTime_->isValid()){
+	if (spectra_ == 0 || icr_ == 0 || ocr_ == 0 || !spectra_->isValid() || !icr_->isValid() || !ocr_->isValid()){
 
 		setState(AMDataSource::InvalidFlag);
 		return;

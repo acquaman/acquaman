@@ -50,8 +50,10 @@ protected:
 
 	// Holds the 1D spectrum data source.
 	AMDataSource *spectra_;
-	// Holds the 0D dead time percentage data source.
-	AMDataSource *deadTime_;
+	// Holds the 0D input count rate data source.
+	AMDataSource *icr_;
+	// Holds the 0D output count rate data source.
+	AMDataSource *ocr_;
 };
 
 #endif // AMDEADTIMEAB_H

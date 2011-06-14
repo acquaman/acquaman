@@ -2,7 +2,71 @@
 #include "analysis/AMDeadTimeAB.h"
 #include "analysis/AM1DSummingAB.h"
 
-XRFDetector::XRFDetector(QString name, int elements, AMControl *status, AMControl *refreshRate, AMControl *peakingTime, AMControl *maximumEnergy, AMControl *integrationTime, AMControl *liveTime, AMControl *elapsedTime, AMControl *start, AMControl *stop, AMControlSet *deadTime, AMControlSet *spectra, QObject *parent)
+XRFDetector::XRFDetector(QString name, int elements, QString baseName, QObject *parent)
+	: XRFDetectorInfo(name, name, parent), AMDetector(name)
+{
+	setElements(elements);
+
+	wasConnected_ = false;
+	detectorConnected_ = false;
+	timer_.setInterval(6000);
+	connect(&timer_, SIGNAL(timeout()), this, SLOT(onUpdateTimer()));
+
+	for (int i = 0; i < elements; i++){
+
+		statusPV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".ACQG", true, this);
+		refreshRatePV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".SCAN", true, this);
+		peakingTimePV_ << new AMProcessVariable(baseName+QString(":dxp%1").arg(i+1)+".PKTIM", true, this);
+		maximumEnergyPV_ << new AMProcessVariable(baseName+QString(":dxp%1").arg(i+1)+".EMAX", true, this);
+		integrationTimePV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".PRTM", true, this);
+		liveTimePV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".PLTM", true, this);
+		elapsedTimePV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".ERTM", true, this);
+		icrPV_ << new AMProcessVariable(baseName+QString(":dxp%1").arg(i+1)+".ICR", true, this);
+		ocrPV_ << new AMProcessVariable(baseName+QString(":dxp%1").arg(i+1)+".OCR", true, this);
+		startPV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".ERST", true, this);
+		stopPV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".STOP", true, this);
+		spectraPV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1), true, this);
+
+		statusPV_.at(i)->disablePutCallbackMode(true);
+		refreshRatePV_.at(i)->disablePutCallbackMode(true);
+		peakingTimePV_.at(i)->disablePutCallbackMode(true);
+		maximumEnergyPV_.at(i)->disablePutCallbackMode(true);
+		integrationTimePV_.at(i)->disablePutCallbackMode(true);
+		liveTimePV_.at(i)->disablePutCallbackMode(true);
+		elapsedTimePV_.at(i)->disablePutCallbackMode(true);
+		icrPV_.at(i)->disablePutCallbackMode(true);
+		ocrPV_.at(i)->disablePutCallbackMode(true);
+		startPV_.at(i)->disablePutCallbackMode(true);
+		stopPV_.at(i)->disablePutCallbackMode(true);
+		spectraPV_.at(i)->disablePutCallbackMode(true);
+
+		connect(statusPV_.at(i), SIGNAL(connected()), this, SLOT(detectorConnected()));
+		connect(refreshRatePV_.at(i), SIGNAL(connected()), this, SLOT(detectorConnected()));
+		connect(peakingTimePV_.at(i), SIGNAL(connected()), this, SLOT(detectorConnected()));
+		connect(maximumEnergyPV_.at(i), SIGNAL(connected()), this, SLOT(detectorConnected()));
+		connect(integrationTimePV_.at(i), SIGNAL(connected()), this, SLOT(detectorConnected()));
+		connect(liveTimePV_.at(i), SIGNAL(connected()), this, SLOT(detectorConnected()));
+		connect(elapsedTimePV_.at(i), SIGNAL(connected()), this, SLOT(detectorConnected()));
+		connect(icrPV_.at(i), SIGNAL(connected()), this, SLOT(detectorConnected()));
+		connect(ocrPV_.at(i), SIGNAL(connected()), this, SLOT(detectorConnected()));
+		connect(startPV_.at(i), SIGNAL(connected()), this, SLOT(detectorConnected()));
+		connect(stopPV_.at(i), SIGNAL(connected()), this, SLOT(detectorConnected()));
+		connect(spectraPV_.at(i), SIGNAL(connected()), this, SLOT(detectorConnected()));
+
+		spectrumDataSources_ << new AM1DProcessVariableDataSource(spectraPV_.at(i), QString("Element %1").arg(i+1), this);
+		icrDataSources_ << new AM0DProcessVariableDataSource(icrPV_.at(i), QString("Input count rate %1").arg(i+1), this);
+		ocrDataSources_ << new AM0DProcessVariableDataSource(ocrPV_.at(i), QString("Output count rate %1").arg(i+1), this);
+		AMDeadTimeAB *corrected = new AMDeadTimeAB(QString("Corrected Element %1").arg(i+1), this);
+		corrected->setInputDataSourcesImplementation(QList<AMDataSource *>() << (AMDataSource *)spectrumDataSources_.at(i) < (AMDataSource *)icrDataSources_.at(i) << (AMDataSource *)ocrDataSources_.at(i));
+		correctedSpectrumDataSources_ << corrected;
+	}
+
+	AM1DSummingAB *correctedSumAB = new AM1DSummingAB("Corrected Sum", this);
+	correctedSumAB->setInputDataSourcesImplementation(correctedSpectrumDataSources_);
+	correctedSpectrumDataSources_ << correctedSumAB;
+}
+
+/*XRFDetector::XRFDetector(QString name, int elements, AMControl *status, AMControl *refreshRate, AMControl *peakingTime, AMControl *maximumEnergy, AMControl *integrationTime, AMControl *liveTime, AMControl *elapsedTime, AMControl *start, AMControl *stop, AMControlSet *deadTime, AMControlSet *spectra, QObject *parent)
 	: XRFDetectorInfo(name, name, parent), AMDetector(name)
 {
 	setElements(elements);
@@ -162,19 +226,10 @@ XRFDetector::XRFDetector(QString name, AMControl *status, AMControl *refreshRate
 		corrected->setInputDataSourcesImplementation(corrList);
 		correctedSpectrumDataSources_ << corrected;
 	}
-}
+}*/
 
 XRFDetector::~XRFDetector()
 {
-	if (elements() == 1){
-
-		delete deadTimeControl_;
-		delete spectraControl_;
-	}
-
-	delete readingControls_;
-	delete settingsControls_;
-
 	while(!roiList_.isEmpty()){
 
 		delete roiList_.takeLast();
@@ -183,6 +238,9 @@ XRFDetector::~XRFDetector()
 
 void XRFDetector::setRoiList(QList<AMROI *> list)
 {
+	if (!roiList_.isEmpty())
+		return;
+
 	roiList_ << list;
 
 	for (int i = 0; i < roiList_.size(); i++){
@@ -280,7 +338,21 @@ void XRFDetector::detectorConnected()
 	for (int i = 0; i < roiList().size(); i++)
 		connected = connected && roiList().at(i)->isConnected();
 
-	connected = connected && readingControls_->isConnected() && settingsControls_->isConnected();
+	for (int i = 0; i < elements(); i++){
+
+		connected = connected && statusPV_.at(i)->isConnected();
+		connected = connected && refreshRatePV_.at(i)->isConnected();
+		connected = connected && peakingTimePV_.at(i)->isConnected();
+		connected = connected && maximumEnergyPV_.at(i)->isConnected();
+		connected = connected && integrationTimePV_.at(i)->isConnected();
+		connected = connected && liveTimePV_.at(i)->isConnected();
+		connected = connected && elapsedTimePV_.at(i)->isConnected();
+		connected = connected && icrPV_.at(i)->isConnected();
+		connected = connected && ocrPV_.at(i)->isConnected();
+		connected = connected && startPV_.at(i)->isConnected();
+		connected = connected && stopPV_.at(i)->isConnected();
+		connected = connected && spectraPV_.at(i)->isConnected();
+	}
 
 	if (detectorConnected_ != connected){
 

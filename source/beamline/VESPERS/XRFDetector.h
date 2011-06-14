@@ -3,12 +3,11 @@
 
 #include "dataman/VESPERS/XRFDetectorInfo.h"
 #include "beamline/AMDetector.h"
-#include "beamline/AMControlSet.h"
 #include "beamline/AMROI.h"
 #include "util/VESPERS/XRFElement.h"
 #include "util/VESPERS/GeneralUtilities.h"
-
 #include "dataman/AMProcessVariableDataSource.h"
+#include "beamline/AMProcessVariable.h"
 
 #include <QTimer>
 
@@ -16,10 +15,8 @@ class XRFDetector : public XRFDetectorInfo, public AMDetector
 {
 	Q_OBJECT
 public:
-	/// Constructor.  Requires all the AMProcessVariables and AMControls required to function.  These should remain static for the entirety of the life of this class and therefore setters are no provided.  The ROIs are set using the setRoiList method.  All the ROIs must be created previously.
-	XRFDetector(QString name, int elements, AMControl *status, AMControl *refreshRate, AMControl *peakingTime, AMControl *maximumEnergy, AMControl *integrationTime, AMControl *liveTime, AMControl *elapsedTime, AMControl *start, AMControl *stop, AMControlSet *deadTime, AMControlSet *spectra, QObject *parent = 0);
-	/// Constructor.  Convenience version for single element detectors.
-	XRFDetector(QString name, AMControl *status, AMControl *refreshRate, AMControl *peakingTime, AMControl *maximumEnergy, AMControl *integrationTime, AMControl *liveTime, AMControl *elapsedTime, AMControl *start, AMControl *stop, AMControl *deadTime, AMControl *spectra, QObject *parent = 0);
+	/// Constructor.  Requires the name, number of elements, and the base PV name of the detector.  It builds all the PV's and connects the accordingly based on standard naming conventions.
+	XRFDetector(QString name, int elements, QString baseName, QObject *parent = 0);
 
 	~XRFDetector();
 
@@ -59,7 +56,7 @@ public:
 	// Controls and PVs.
 	////////////////////////////////
 
-	/// Returns the status control.
+	/*/// Returns the status control.
 	AMControl *statusControl() const { return statusControl_; }
 	/// Returns the refresh rate control.
 	AMControl *refreshRateControl() const { return refreshRateControl_; }
@@ -80,7 +77,7 @@ public:
 	/// Returns the start control.
 	AMControl *startControl() const { return startControl_; }
 	/// Returns the stop control.
-	AMControl *stopControl() const { return stopControl_; }
+	AMControl *stopControl() const { return stopControl_; }*/
 
 	// End of Controls and PVs.
 	////////////////////////////////
@@ -97,7 +94,7 @@ public:
 
 	/// Returns the AMROI list.
 	QList<AMROI *> roiList() const { return roiList_; }
-	/// Sets the AMROI list.  This should be called only ONCE.
+	/// Sets the AMROI list.  Does nothing if the lsit of ROIs has already been set.
 	void setRoiList(QList<AMROI *> list);
 
 	// Data sources
@@ -106,10 +103,14 @@ public:
 	AM1DProcessVariableDataSource *spectrumDataSource(int index) const { return spectrumDataSources_.at(index); }
 	/// Returns the raw spectrum data sources.  Will be the size of the number of elements.
 	QList<AM1DProcessVariableDataSource *> spectrumDataSources() const { return spectrumDataSources_; }
-	/// Returns the dead time data source at \c index.  It is assumed that the data sources will be in order of the element.  Must be between 0 and size() -1.
-	AM0DProcessVariableDataSource *deadTimeDataSource(int index) const { return deadTimeDataSources_.at(index); }
-	/// Returns the dead time data sources.  Will have the size of the number of elements.
-	QList<AM0DProcessVariableDataSource *> deadTimeDataSources() const { return deadTimeDataSources_; }
+	/// Returns the input count rate data source at \c index.  It is assumed that the data sources will be in order of the element.  Must be between 0 and size() -1.
+	AM0DProcessVariableDataSource *icrDataSource(int index) const { return icrDataSources_.at(index); }
+	/// Returns the input count rate data sources.  Will have the size of the number of elements.
+	QList<AM0DProcessVariableDataSource *> icrDataSources() const { return icrDataSources_; }
+	/// Returns the input count rate data source at \c index.  It is assumed that the data sources will be in order of the element.  Must be between 0 and size() -1.
+	AM0DProcessVariableDataSource *ocrDataSource(int index) const { return ocrDataSources_.at(index); }
+	/// Returns the input count rate data sources.  Will have the size of the number of elements.
+	QList<AM0DProcessVariableDataSource *> ocrDataSources() const { return ocrDataSources_; }
 	/// Returns the analyzed data source at \c index.  It is assumed that the data sources will be in order of the element.  The last element is the corrected sum if the number of elements is greater than one.
 	AMDataSource *correctedDataSource(int index) const { return correctedSpectrumDataSources_.at(index); }
 	/// Returns the analyzed data sources.  Will be the size of the number of elements plus one, except for the single element detectors.
@@ -182,6 +183,8 @@ signals:
 protected slots:
 	/// Determines if the detector is connected to ALL controls and process variables.
 	void detectorConnected();
+	/// Connects and disconnects signals based on the connection of the detector.
+	void onConnectedChanged(bool isConnected);
 	/// Determines if the regions of interest in the detector all have values.
 	void allRoisHaveValues();
 	/// Determines if there is a discrepancy between the ROI list and the ROIInfo list and if there is, begins the sequence of updating the entire program.
@@ -196,6 +199,30 @@ protected slots:
 			timer_.start();
 		}
 	}
+	/// Handles changes to the status of the scan.
+	void onStatusChanged(){ }
+	/// Handles changes to the spectra refresh rate.
+	void onRefreshRateChanged(){ }
+	/// Handles changes to the peaking time.
+	void onPeakingTimeChanged(){ }
+	/// Handles changes to the maximum energy.
+	void onMaximumEnergyChanged(){ }
+	/// Handles changes to the integration time.
+	void onIntegrationTimeChanged(){ }
+	/// Handles changes to the live time.
+	void onLiveTimeChanged(){ }
+	/// Handles changes to the elapsed time.
+	void onElapsedTimeChanged(){ }
+	/// Handles changes to the input count rate.
+	void onIcrChanged(){ }
+	/// Handles changes to the output count rate.
+	void onOcrChanged(){ }
+	/// Handles changes to the start control.
+	void onStartChanged(){ }
+	/// Handles changes to the stop control.
+	void onStopChanged(){ }
+	/// Handles changes to the spectra.
+	void onSpectraChanged(){ }
 
 protected:
 
@@ -207,43 +234,41 @@ protected:
 	/// Timer used to periodically update the ROI lists.
 	QTimer timer_;
 
+	// The PVs.  They are all lists because the detector could have more than one element.
+	/// The status of the scan.
+	QList<AMProcessVariable *> statusPV_;
+	/// The spectra refresh rate.
+	QList<AMProcessVariable *> refreshRatePV_;
+	/// The peaking time.
+	QList<AMProcessVariable *> peakingTimePV_;
+	/// The maximum energy.
+	QList<AMProcessVariable *> maximumEnergyPV_;
+	/// The integration time.
+	QList<AMProcessVariable *> integrationTimePV_;
+	/// The live time.
+	QList<AMProcessVariable *> liveTimePV_;
+	/// The elapsed time.
+	QList<AMProcessVariable *> elapsedTimePV_;
+	/// The input count rate.
+	QList<AMProcessVariable *> icrPV_;
+	/// The output count rate.
+	QList<AMProcessVariable *> ocrPV_;
+	/// The start control.
+	QList<AMProcessVariable *> startPV_;
+	/// The stop control.
+	QList<AMProcessVariable *> stopPV_;
+	/// The spectra.
+	QList<AMProcessVariable *> spectraPV_;
+
 	/// The list of regions of interest.
 	QList<AMROI *> roiList_;
 
-	// The controls and PVs.
-	/// The status of the scan.
-	AMControl *statusControl_;
-	/// The spectra refresh rate.
-	AMControl *refreshRateControl_;
-	/// The peaking time.
-	AMControl *peakingTimeControl_;
-	/// The maximum energy.
-	AMControl *maximumEnergyControl_;
-	/// The integration time.
-	AMControl *integrationTimeControl_;
-	/// The live time.
-	AMControl *liveTimeControl_;
-	/// The elapsed time.
-	AMControl *elapsedTimeControl_;
-	/// The dead time.  This is a control set because the number of elements can be greater than one.
-	AMControlSet *deadTimeControl_;
-	/// The spectra.  This is a control set because the number of elements can be greater than one.
-	AMControlSet *spectraControl_;
-	/// The start control.
-	AMControl *startControl_;
-	/// The stop control.
-	AMControl *stopControl_;
-
-	// Helper control sets.
-	/// Control set holding the controls used for reading.
-	AMControlSet *readingControls_;
-	/// Control set holding the controls used for setting the configuration of the detector.
-	AMControlSet *settingsControls_;
-
 	/// The list of all the raw spectrum data sources.
 	QList<AM1DProcessVariableDataSource *> spectrumDataSources_;
-	/// The list of all the dead times.  The order of the dead times is the same as the spectrum data sources.
-	QList<AM0DProcessVariableDataSource *> deadTimeDataSources_;
+	/// The list of all the input count rates.  The order of the dead times is the same as the spectrum data sources.
+	QList<AM0DProcessVariableDataSource *> icrDataSources_;
+	/// The list of all the output count rates.  The order of the dead times is the same as the spectrum data sources.
+	QList<AM0DProcessVariableDataSource *> ocrDataSources_;
 	/// The corrected spectra.  If the number of elements is greater than one then the last spectra is always the corrected sum.
 	QList<AMDataSource *> correctedSpectrumDataSources_;
 };
