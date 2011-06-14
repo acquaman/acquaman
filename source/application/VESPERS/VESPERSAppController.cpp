@@ -86,16 +86,16 @@ bool VESPERSAppController::startup() {
 		mw_->addPane(vespersView_, "Beamline Control", "Endstation", ":/system-software-update.png");
 		//mw_->addPane(statusPage, "Beamline Control", "Device Status", ":/system-software-update.png");
 
-		//xrf1EConfigView_ = new VESPERSXRFScanConfigurationView(new VESPERSXRFScanConfiguration(VESPERSBeamline::vespers()->vortexXRF1E()));
+		xrf1EConfigView_ = new VESPERSXRFScanConfigurationView(new VESPERSXRFScanConfiguration(VESPERSBeamline::vespers()->vortexXRF1E()));
 		xrf4EConfigView_ = new VESPERSXRFScanConfigurationView(new VESPERSXRFScanConfiguration(VESPERSBeamline::vespers()->vortexXRF4E()));
-		//xrf1EConfigHolder_ = new AMFreeRunScanConfigurationViewHolder(workflowManagerView_, xrf1EConfigView_);
+		xrf1EConfigHolder_ = new AMFreeRunScanConfigurationViewHolder(workflowManagerView_, xrf1EConfigView_);
 		xrf4EConfigHolder_ = new AMFreeRunScanConfigurationViewHolder(workflowManagerView_, xrf4EConfigView_);
 
-		//connect(xrf1EConfigView_, SIGNAL(startScan()), xrf1EConfigHolder_, SLOT(onFreeRunStartRequested()));
+		connect(xrf1EConfigView_, SIGNAL(startScan()), xrf1EConfigHolder_, SLOT(onFreeRunStartRequested()));
 		connect(xrf4EConfigView_, SIGNAL(startScan()), xrf4EConfigHolder_, SLOT(onFreeRunStartRequested()));
 
 		mw_->insertHeading("Free run", 1);
-//		mw_->addPane(xrf1EConfigHolder_, "Free run", "XRF 1-el", ":/utilities-system-monitor.png");
+		mw_->addPane(xrf1EConfigHolder_, "Free run", "XRF 1-el", ":/utilities-system-monitor.png");
 		mw_->addPane(xrf4EConfigHolder_, "Free run", "XRF 4-el", ":/utilities-system-monitor.png");
 
 		XRFMapSetup *ndMapSetup = new XRFMapSetup;

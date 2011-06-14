@@ -28,6 +28,7 @@ private slots:
 	void onLowUpdate(int val)
 	{
 		if (val != 0) {
+
 			low_->blockSignals(true);
 			low_->setValue((double)val*roi_->scale());
 			low_->blockSignals(false);
@@ -37,6 +38,7 @@ private slots:
 	void onHighUpdate(int val)
 	{
 		if (val != 0) {
+
 			high_->blockSignals(true);
 			high_->setValue((double)val*roi_->scale());
 			high_->blockSignals(false);
