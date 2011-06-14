@@ -178,11 +178,12 @@ void AMMainWindow::onModelRowsAboutToBeRemoved(const QModelIndex &parent, int st
 				QWidget* pane = model_->pane(i);
 				if(pane) {
 
-					// ABAB if this was the currently-selected item, select something different in the main window. We don't want to have that sidebar item selected if its corresponding widget is removed.
+					// If this was the currently-selected item, select something different in the main window. We don't want to have that sidebar item selected if its corresponding widget is removed.
 					if(stackWidget_->currentWidget() == pane)
 						sidebar_->setCurrentIndex(getPreviousSelection(i));
-					else
-						qDebug() << "Not current widget";
+					else {
+						// qDebug() << "Not current widget";
+					}
 
 					QSize oldSize = pane->size();
 					QPoint oldPos = pane->mapToGlobal(pane->geometry().topLeft());
@@ -211,7 +212,7 @@ void AMMainWindow::onDockStateChanged(QWidget* pane, bool isDocked) {
 		QSize oldSize = pane->size();
 		QPoint oldPos = pane->mapToGlobal(pane->geometry().topLeft());
 
-		// ABAB if this was the currently-selected item, select something different in the main window. (Can't have a non-existent pane selected in the sidebar)
+		// If this was the currently-selected item, select something different in the main window. (Can't have a non-existent pane selected in the sidebar)
 		if(stackWidget_->currentWidget() == pane)
 			sidebar_->setCurrentIndex(getPreviousSelection(model_->indexForPane(pane)));
 

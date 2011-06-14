@@ -5,11 +5,15 @@
 #include "ui_AMDataViewActionsBar.h"
 
 /// This class adds buttons for editing, comparing, and exporting the selected scans in an AMDataView.
-class AMDataViewWithActionButtons : public AMDataView
+class AMDataViewWithActionButtons : public QWidget
 {
 	Q_OBJECT
 public:
+	/// Constructs an AMDataView inside a widget that also provides buttons for the user to edit, compare, and export scans.
 	explicit AMDataViewWithActionButtons(AMDatabase* database = AMDatabase::userdb(), QWidget *parent = 0);
+
+	/// Access the AMDataView contained inside this widget
+	AMDataView* dataView() const { return dataView_; }
 
 signals:
 	/// Emitted when the user attempts to open the selected scans
@@ -25,17 +29,17 @@ public slots:
 protected slots:
 	/// When the "open in same window" action happens
 	void onCompareScansAction() {
-		emit selectionActivated(selectedItems());
+		emit selectionActivated(dataView_->selectedItems());
 	}
 
 	/// When the "open in separate window" action
 	void onEditScansAction() {
-		emit selectionActivatedSeparateWindows(selectedItems());
+		emit selectionActivatedSeparateWindows(dataView_->selectedItems());
 	}
 
 	/// When the "export scans" action happens
 	void onExportScansAction() {
-		emit selectionExported(selectedItems());
+		emit selectionExported(dataView_->selectedItems());
 	}
 
 	/// When anything is double-clicked.  If more than 0 items are selected, we emit selectionActivated().
@@ -46,6 +50,7 @@ protected slots:
 
 protected:
 	Ui::AMDataViewActionsBar* ui_;
+	AMDataView* dataView_;
 
 };
 

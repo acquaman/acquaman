@@ -204,9 +204,9 @@ void AMAppController::onMainWindowAliasItemActivated(QWidget *target, const QStr
 
 	if(target == dataView_) {
 		if(key == "Runs")
-			dataView_->showRun(value.toInt());
+			dataView_->dataView()->showRun(value.toInt());
 		if(key == "Experiments")
-			dataView_->showExperiment(value.toInt());
+			dataView_->dataView()->showExperiment(value.toInt());
 	}
 }
 
