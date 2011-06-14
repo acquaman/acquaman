@@ -232,6 +232,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMControlSetView.h \
 	source/ui/AMCramBarHorizontal.h \
 	source/ui/AMDataView.h \
+	source/ui/AMDataViewWithActionButtons.h \
 	source/ui/AMFirstTimeWidget.h \
 	source/ui/AMFlowGraphicsLayout.h \
 	source/ui/AMImportControllerWidget.h \
@@ -369,7 +370,8 @@ FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMDataSourcesEditor.ui \
 	source/ui/AMSamplePlateSelector.ui \
 	source/ui/AMSamplePositionViewActionsWidget.ui \
-	source/ui/AMExporterOptionGeneralAsciiView.ui
+	source/ui/AMExporterOptionGeneralAsciiView.ui \
+	source/ui/AMDataViewActionsBar.ui
 SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	../MPlot/src/MPlot/MPlotAbstractTool.cpp \
 	../MPlot/src/MPlot/MPlotAxis.cpp \
@@ -454,6 +456,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMControlSetView.cpp \
 	source/ui/AMCramBarHorizontal.cpp \
 	source/ui/AMDataView.cpp \
+	source/ui/AMDataViewWithActionButtons.cpp \
 	source/ui/AMFlowGraphicsLayout.cpp \
 	source/ui/AMMainWindow.cpp \
 	source/ui/AMRegionsLineView.cpp \

@@ -29,7 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class AMMainWindow;
 class AMWorkflowManagerView;
 class BottomBar;
-class AMDataView;
+class AMDataViewWithActionButtons;
 class AMRunExperimentInsert;
 class AMGenericScanEditor;
 
@@ -133,7 +133,7 @@ protected:
 	/// Top-level panes in the main window
 	AMWorkflowManagerView* workflowManagerView_;
 	BottomBar* bottomBar_;
-	AMDataView* dataView_;
+	AMDataViewWithActionButtons* dataView_;
 	AMRunExperimentInsert* runExperimentInsert_;
 
 
