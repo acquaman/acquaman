@@ -11,7 +11,7 @@ RegionOfInterestView::RegionOfInterestView(AMROI *roi, QWidget *parent)
 {
 	roi_ = roi;
 
-	connect(roi_, SIGNAL(roiHasValues(bool)), this, SLOT(onRoiInialized(bool)));
+	connect(roi_, SIGNAL(roiHasValues()), this, SLOT(onRoiInialized()));
 
 	name_ = new QLabel;
 	connect(roi, SIGNAL(nameUpdate(QString)), this, SLOT(nameUpdate(QString)));

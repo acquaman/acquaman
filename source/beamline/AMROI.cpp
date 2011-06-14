@@ -4,6 +4,7 @@
 AMROI::AMROI(QString name, double energy, double width, double scale, AMProcessVariable *namePV, AMProcessVariable *lowPV, AMProcessVariable *highPV, AMProcessVariable *valuePV, QObject *parent)
 	: QObject(parent)
 {
+	connected_ = false;
 	setScale(scale);
 	setAllPVs(namePV, lowPV, highPV, valuePV);
 	setRegion(name, energy, width);
@@ -12,6 +13,7 @@ AMROI::AMROI(QString name, double energy, double width, double scale, AMProcessV
 AMROI::AMROI(AMROIInfo info, AMProcessVariable *namePV, AMProcessVariable *lowPV, AMProcessVariable *highPV, AMProcessVariable *valuePV, QObject *parent)
 	: QObject(parent)
 {
+	connected_ = false;
 	setAllPVs(namePV, lowPV, highPV, valuePV);
 	setRegion(info.name(), info.low(), info.high());
 }
@@ -19,6 +21,7 @@ AMROI::AMROI(AMROIInfo info, AMProcessVariable *namePV, AMProcessVariable *lowPV
 AMROI::AMROI(QString name, double energy, double width, double scale, QList<AMProcessVariable *> namePVs, QList<AMProcessVariable *> lowPVs, QList<AMProcessVariable *> highPVs, QList<AMProcessVariable *> valuePVs, QObject *parent)
 	: QObject(parent)
 {
+	connected_ = false;
 	setScale(scale);
 	setAllPVs(namePVs, lowPVs, highPVs, valuePVs);
 	setRegion(name, energy, width);
@@ -27,6 +30,7 @@ AMROI::AMROI(QString name, double energy, double width, double scale, QList<AMPr
 AMROI::AMROI(AMROIInfo info, QList<AMProcessVariable *> namePVs, QList<AMProcessVariable *> lowPVs, QList<AMProcessVariable *> highPVs, QList<AMProcessVariable *> valuePVs, QObject *parent)
 	: QObject(parent)
 {
+	connected_ = false;
 	setAllPVs(namePVs, lowPVs, highPVs, valuePVs);
 	setRegion(info.name(), info.low(), info.high());
 }
@@ -236,35 +240,45 @@ void AMROI::setAllPVs(AMProcessVariable *namePV, AMProcessVariable *lowPV, AMPro
 
 void AMROI::updateValue()
 {
-	if (pvValues_.size() == 1)
+	if (pvValues_.size() == 1){
+
 		value_ = pvValues_.first()->getDouble();
+		emit valueUpdate(value_);
+	}
 
 	else{
 
-		value_ = 0;
+		double value = 0;
 
 		for (int i = 0; i < pvValues_.size(); i++)
-			value_ += pvValues_.at(i)->getDouble();
-	}
+			value += pvValues_.at(i)->getDouble();
 
-	emit valueUpdate(value_);
-	emit roiUpdate(this);
+		if (value != value_){
+
+			value_ = value;
+			emit valueUpdate(value_);
+		}
+	}
 }
 
 void AMROI::connected()
 {
-	connected_ = true;
+	bool connected = true;
 
 	for (int i = 0; i < pvNames_.size(); i++)
-		connected_ = connected_ && pvNames_.at(i)->isConnected();
+		connected = connected && pvNames_.at(i)->isConnected();
 	for (int i = 0; i < pvLowerBounds_.size(); i++)
-		connected_ = connected_ && pvLowerBounds_.at(i)->isConnected();
+		connected = connected && pvLowerBounds_.at(i)->isConnected();
 	for (int i = 0; i < pvHigherBounds_.size(); i++)
-		connected_ = connected_ && pvHigherBounds_.at(i)->isConnected();
+		connected = connected && pvHigherBounds_.at(i)->isConnected();
 	for (int i = 0; i < pvValues_.size(); i++)
-		connected_ = connected_ && pvValues_.at(i)->isConnected();
+		connected = connected && pvValues_.at(i)->isConnected();
 
-	emit roiConnected(connected_);
+	if (connected != connected_){
+
+		connected_ = connected;
+		emit roiConnected(connected_);
+	}
 }
 
 void AMROI::onHasValuesChanged()
@@ -280,5 +294,6 @@ void AMROI::onHasValuesChanged()
 	for (int i = 0; i < pvValues_.size(); i++)
 		hasValues_ = hasValues_ && pvValues_.at(i)->hasValues();
 
-	emit roiHasValues(hasValues_);
+	if (hasValues_)
+		emit roiHasValues();
 }

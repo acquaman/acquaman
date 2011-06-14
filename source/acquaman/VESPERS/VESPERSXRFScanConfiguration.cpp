@@ -16,7 +16,7 @@ VESPERSXRFScanConfiguration::VESPERSXRFScanConfiguration(XRFDetector *detector, 
 	// Cleans up anything that might have been missed.
 	connect(xrfTable_, SIGNAL(removedAllRegionsOfInterest()), detector_, SLOT(clearRegionsOfInterest()));
 
-	connect(detector_, SIGNAL(roisHaveValues(bool)), this, SLOT(onRoisHaveValues(bool)));
+	connect(detector_, SIGNAL(roisHaveValues()), this, SLOT(onRoisHaveValues()));
 }
 
 VESPERSXRFScanConfiguration::VESPERSXRFScanConfiguration(QObject *parent)
@@ -47,45 +47,42 @@ QString VESPERSXRFScanConfiguration::detailedDescription() const
 	return QString();
 }
 
-void VESPERSXRFScanConfiguration::onRoisHaveValues(bool hasValues)
+void VESPERSXRFScanConfiguration::onRoisHaveValues()
 {
-	if (hasValues){
+	disconnect(detector_, SIGNAL(externalRegionsOfInterestChanged()), this, SLOT(onExternalRegionsOfInterestChanged()));
+	disconnect(xrfTable_, SIGNAL(removedAllRegionsOfInterest()), detector_, SLOT(clearRegionsOfInterest()));
 
-		disconnect(detector_, SIGNAL(externalRegionsOfInterestChanged()), this, SLOT(onExternalRegionsOfInterestChanged()));
-		disconnect(xrfTable_, SIGNAL(removedAllRegionsOfInterest()), detector_, SLOT(clearRegionsOfInterest()));
+	XRFElement *current = xrfTable_->currentElement();
+	xrfTable_->removeAll();
 
-		XRFElement *current = xrfTable_->currentElement();
-		xrfTable_->removeAll();
+	// Go through all the regions of interest PVs and if there are any regions set already, pass them on to the rest of the program.
+	QString name;
 
-		// Go through all the regions of interest PVs and if there are any regions set already, pass them on to the rest of the program.
-		QString name;
+	for (int i = 0; i < detector_->roiList().count(); i++){
 
-		for (int i = 0; i < detector_->roiList().count(); i++){
+		name = detector_->roiList().at(i)->name();
 
-			name = detector_->roiList().at(i)->name();
+		// If the name is empty then we've reached the end of the road for preset regions of interest.
+		if (name.isEmpty()){
 
-			// If the name is empty then we've reached the end of the road for preset regions of interest.
-			if (name.isEmpty()){
+			if (current)
+				xrfTable_->setCurrentElement(current);
+			else
+				xrfTable_->setCurrentElement(xrfTable_->elementBySymbol("Fe"));
 
-				if (current)
-					xrfTable_->setCurrentElement(current);
-				else
-					xrfTable_->setCurrentElement(xrfTable_->elementBySymbol("Fe"));
+			connect(detector_, SIGNAL(externalRegionsOfInterestChanged()), this, SLOT(onExternalRegionsOfInterestChanged()));
+			connect(xrfTable_, SIGNAL(removedAllRegionsOfInterest()), detector_, SLOT(clearRegionsOfInterest()));
 
-				connect(detector_, SIGNAL(externalRegionsOfInterestChanged()), this, SLOT(onExternalRegionsOfInterestChanged()));
-				connect(xrfTable_, SIGNAL(removedAllRegionsOfInterest()), detector_, SLOT(clearRegionsOfInterest()));
-
-				return;
-			}
-
-			addRegionOfInterestToTable(name);
+			return;
 		}
+
+		addRegionOfInterestToTable(name);
 	}
 }
 
 void VESPERSXRFScanConfiguration::onExternalRegionsOfInterestChanged()
 {
-	onRoisHaveValues(true);
+	onRoisHaveValues();
 }
 
 void VESPERSXRFScanConfiguration::addRegionOfInterestToTable(QString name)

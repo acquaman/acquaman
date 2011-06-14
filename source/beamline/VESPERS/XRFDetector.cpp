@@ -63,6 +63,7 @@ XRFDetector::XRFDetector(QString name, int elements, AMControl *status, AMContro
 	connect(peakingTimeControl_, SIGNAL(valueChanged(double)), this, SLOT(setPeakingTime(double)));
 	connect(maximumEnergyControl_, SIGNAL(valueChanged(double)), this, SLOT(setMaximumEnergy(double)));
 	connect(spectraControl_, SIGNAL(controlSetValuesChanged()), this, SLOT(setChannelSize()));
+	//connect(spectraControl_.at(0), SIGNAL(valueChanged()), this, SLOT(setChannelSize()));
 
 	AMReadOnlyPVControl *spectrum;
 	AMReadOnlyPVControl *deadTimePV;
@@ -73,7 +74,6 @@ XRFDetector::XRFDetector(QString name, int elements, AMControl *status, AMContro
 		deadTimePV = qobject_cast<AMReadOnlyPVControl *>(deadTime->at(i));
 
 		if (spectrum != 0 && deadTimePV != 0){
-
 			spectrumDataSources_ << new AM1DProcessVariableDataSource(spectrum->readPV(), QString("Element %1").arg(i+1), this);
 			deadTimeDataSources_ << new AM0DProcessVariableDataSource(deadTimePV->readPV(), QString("Dead time %1").arg(i+1), this);
 			AMDeadTimeAB *corrected = new AMDeadTimeAB(QString("Corrected Element %1").arg(i+1), this);
@@ -188,7 +188,7 @@ void XRFDetector::setRoiList(QList<AMROI *> list)
 	for (int i = 0; i < roiList_.size(); i++){
 
 		connect(roiList_.at(i), SIGNAL(roiConnected(bool)), this, SLOT(detectorConnected()));
-		connect(roiList_.at(i), SIGNAL(roiHasValues(bool)), this, SLOT(allRoisHaveValues()));
+		connect(roiList_.at(i), SIGNAL(roiHasValues()), this, SLOT(allRoisHaveValues()));
 	}
 }
 
@@ -275,14 +275,18 @@ void XRFDetector::detectorConnected()
 {
 	wasConnected_ = detectorConnected_;
 
-	detectorConnected_ = true;
+	bool connected = true;
 
 	for (int i = 0; i < roiList().size(); i++)
-		detectorConnected_ = detectorConnected_ && roiList().at(i)->isConnected();
+		connected = connected && roiList().at(i)->isConnected();
 
-	detectorConnected_ = detectorConnected_ && readingControls_->isConnected() && settingsControls_->isConnected();
+	connected = connected && readingControls_->isConnected() && settingsControls_->isConnected();
 
-	emit detectorConnected(detectorConnected_);
+	if (detectorConnected_ != connected){
+
+		detectorConnected_ = connected;
+		emit detectorConnected(detectorConnected_);
+	}
 }
 
 void XRFDetector::allRoisHaveValues()
@@ -292,7 +296,8 @@ void XRFDetector::allRoisHaveValues()
 	for (int i = 0; i < roiList().size(); i++)
 		hasValues = hasValues && roiList().at(i)->hasValues();
 
-	emit roisHaveValues(hasValues);
+	if (hasValues)
+		emit roisHaveValues();
 
 	if (hasValues){
 
@@ -423,16 +428,15 @@ void XRFDetector::disableElement(int id)
 	((AM1DSummingAB *)correctedSumDataSource())->setInputDataSourcesImplementation(newSum);
 }
 
-const int *XRFDetector::spectraAt(int index)
+QVector<int> XRFDetector::spectraValues(int index)
 {
 	if (index < elements() && index >= 0){
 
 		AMReadOnlyPVControl *temp = qobject_cast<AMReadOnlyPVControl *>(spectraControl_->at(index));
-		QVector<int> array(temp->readPV()->lastIntegerValues());
-		return array.constData();
+		return temp->readPV()->lastIntegerValues();
 	}
 
-	return 0;
+	return QVector<int>();
 }
 
 double XRFDetector::deadTimeAt(int index)

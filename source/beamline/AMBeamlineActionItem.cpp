@@ -124,7 +124,6 @@ AMBeamlineActionItem* AMBeamlineActionItem::createCopy() const{
 }
 
 QString AMBeamlineActionItem::description() const{
-	qDebug() << "Description is " << description_;
 	return description_;
 }
 

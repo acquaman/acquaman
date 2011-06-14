@@ -93,6 +93,9 @@ public slots:
 	void setMaximumEnergy(double energy) { maximumEnergy_ = energy; }
 
 protected slots:
+	/// Once the detector emits the connected signal, this will connect all the appropriate slots.  It also disconnects them if the detector goes offline.
+	void onDetecterConnected(bool connected);
+
 	/// Handles the update from the dead time control.
 	void onDeadTimeUpdate();
 	/// Handles the update from the elapsed time control.

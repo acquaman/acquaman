@@ -234,18 +234,20 @@ public:
 	/// Returns the rank (number of dimensions) of this data set
 	virtual int rank() const { return 2; }
 	/// Returns the size of (ie: count along) each dimension.  Returns a null AMnDIndex if it is a scalar quantity.
-	virtual AMnDIndex size() const { return AMnDIndex(axes().count()); }
+	virtual AMnDIndex size() const { return 1; }
 	/// Returns the size along a single axis \c axisNumber. This should be fast. \c axisNumber is assumed to be between 0 and rank()-1.
-	virtual int size(int axisNumber) const { return axes().at(axisNumber).size; }
+	virtual int size(int axisNumber) const { return (axisNumber == 1) ? data_->count()/length_ : length_; }
 	/// Returns a bunch of information about a particular axis. \c axisNumber is assumed to be between 0 and rank()-1.
-	virtual AMAxisInfo axisInfoAt(int axisNumber) const { return axes().at(axisNumber); }
+	virtual AMAxisInfo axisInfoAt(int axisNumber) const {
+//		axes_[0].size = length_;
+	//	axes_[1].size = data_->count()/length_;
+		return axes_.at(axisNumber);
+	}
 	/// Returns the id of an axis, by name. (By id, we mean the index of the axis. We called it id to avoid ambiguity with indexes <i>into</i> axes.) This could be slow, so users shouldn't call it repeatedly. Returns -1 if not found.
 	virtual int idOfAxis(const QString& axisName)
 	{
-		for (int i = 0; i < axes().count(); i++)
-			if (axes().at(i).name.compare(axisName) == 0)
-				return i;
-
+		if(axisName == axes_.at(0).name) return 0;
+		if(axisName == axes_.at(1).name) return 1;
 		return -1;
 	}
 
@@ -312,6 +314,8 @@ protected:
 	double sy_;
 	/// Holds the current row length.
 	int length_;
+
+	QList<AMAxisInfo> axes_;
 };
 
 #endif // AMPROCESSVARIABLEDATASOURCE_H

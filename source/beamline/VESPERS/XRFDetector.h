@@ -86,7 +86,7 @@ public:
 	////////////////////////////////
 
 	/// Turns the spectra controls into an array of doubles and returns the spectra at \c index.
-	const int *spectraAt(int index);
+	QVector<int> spectraValues(int index);
 	/// Takes the current value of the dead time from \c index.
 	double deadTimeAt(int index);
 
@@ -120,7 +120,13 @@ public:
 public slots:
 
 	/// Erases the current spectrum and starts collecting data.
-	void start() { timer_.stop(); startControl()->move(1); }
+	void start()
+	{
+		timer_.stop();
+		for (int i = 0; i < roiList_.size(); i++)
+			roiList_.at(i)->blockSignals(true);
+		startControl()->move(1);
+	}
 	/// Stops collection of data.
 	void stop() { stopControl()->move(1); }
 	/// Set the accumulation time.
@@ -162,10 +168,8 @@ signals:
 	void refreshRateChanged(double);
 	/// Notifies that the dead time has changed.  If the number of elements is greater than one, then this is emitted when any of the dead times change.
 	void deadTimeChanged();
-	/// Notifies that the spectra have changed.  If there is more than one spectrum then this is emitted everytime one of them changes.
-	void spectraChanged();
 	/// Signal used to say that the regions of interest now have their original values in them after being connected to.
-	void roisHaveValues(bool);
+	void roisHaveValues();
 	/// Notifier that the contents of an ROI has changed.  It passes a pointer to the particular ROI that has been changed.
 	void roiUpdate(AMROI *);
 	/// Notifier that a region of interest has been added.  Passes the region of interest information.
@@ -183,7 +187,15 @@ protected slots:
 	/// Determines if there is a discrepancy between the ROI list and the ROIInfo list and if there is, begins the sequence of updating the entire program.
 	void onUpdateTimer();
 	/// Handles restarting the timer after the detector is finished acquiring.
-	void onStatusChanged() { if (status() == 0) timer_.start(); }
+	void onStatusChanged()
+	{
+		if (status() == 0){
+
+			for (int i = 0; i < roiList_.size(); i++)
+				roiList_.at(i)->blockSignals(false);
+			timer_.start();
+		}
+	}
 
 protected:
 

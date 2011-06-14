@@ -54,7 +54,7 @@ public slots:
 
 protected slots:
 	/// Handles what happens when the detector becomes connected.
-	void onRoisHaveValues(bool hasValues);
+	void onRoisHaveValues();
 	/// Handles when the regions of interest change from an external source.
 	void onExternalRegionsOfInterestChanged();
 

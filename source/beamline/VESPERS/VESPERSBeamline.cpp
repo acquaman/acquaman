@@ -26,7 +26,7 @@ VESPERSBeamline::VESPERSBeamline()
 	setupDiagnostics();
 	setupSampleStage();
 	setupEndstation();
-	setupSingleElementDetector();
+	//setupSingleElementDetector();
 	setupFourElementDetector();
 	setupControlSets();
 }
@@ -322,6 +322,7 @@ void VESPERSBeamline::setupFourElementDetector()
 	rawSpectrum24E_ = new AMReadOnlyPVControl("4-el Raw Spectrum 2", "dxp1607-B21-04:mca2", this);
 	rawSpectrum34E_ = new AMReadOnlyPVControl("4-el Raw Spectrum 3", "dxp1607-B21-04:mca3", this);
 	rawSpectrum44E_ = new AMReadOnlyPVControl("4-el Raw Spectrum 4", "dxp1607-B21-04:mca4", this);
+
 
 	deadTime4E_ = new AMControlSet(this);
 	deadTime4E_->addControl(deadTime14E_);

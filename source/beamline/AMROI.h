@@ -2,7 +2,7 @@
 #define AMROI_H
 
 #include <QObject>
-
+#include <QDebug>
 #include "dataman/AMROIInfo.h"
 #include "beamline/AMProcessVariable.h"
 
@@ -71,7 +71,7 @@ signals:
 	/// Signal emitted when the ROIs connected status changes.  This is only true if ALL PVs are connected.
 	void roiConnected(bool);
 	/// Signal emitted with a status indicator of whether or not all the process variables have values in them.
-	void roiHasValues(bool);
+	void roiHasValues();
 	/// Signal emitting that the name PV has changed.
 	void nameUpdate(QString);
 	/// Signal emitting that the low PV has changed.
@@ -80,7 +80,7 @@ signals:
 	void highUpdate(int);
 	/// Signal emitting the new value of the ROI.
 	void valueUpdate(double);
-	/// General update signal.  Emitted when either nameUpdate, lowUpdate, highUpdate, or valueUpdate is emitted.  Passes a pointer to itself.
+	/// General update signal.  Emitted when either nameUpdate, lowUpdate, highUpdate is emitted.  Passes a pointer to itself.
 	void roiUpdate(AMROI *);
 
 public slots:
@@ -111,11 +111,35 @@ protected slots:
 	/// Used to compute the current value based on the current state of the PVs.
 	void updateValue();
 	/// Updates the ROI if changes were made to the name outside of the program.
-	void onNamePVChanged(QString name) { name_ = name; emit nameUpdate(name); emit roiUpdate(this); }
+	void onNamePVChanged(QString name)
+	{
+		if (name_.compare(name) != 0){
+
+			name_ = name;
+			emit nameUpdate(name);
+			emit roiUpdate(this);
+		}
+	}
 	/// Updates the ROI if changes were made to the lower bound outside of the program.
-	void onLowPVChanged(int low) { low_ = low; emit lowUpdate(low); emit roiUpdate(this); }
+	void onLowPVChanged(int low)
+	{
+		if (low_ != low){
+
+			low_ = low;
+			emit lowUpdate(low);
+			emit roiUpdate(this);
+		}
+	}
 	/// Updates the ROI if changes were made to the higher bound outside of the program.
-	void onHighPVChanged(int high) { high_ = high; emit highUpdate(high); emit roiUpdate(this); }
+	void onHighPVChanged(int high)
+	{
+		if (high_ != high){
+
+			high_ = high;
+			emit highUpdate(high);
+			emit roiUpdate(this);
+		}
+	}
 	/// Used to determine if the entire region of interest is connected or not.
 	void connected();
 	/// Used to determine if all of the process variables have values in them or not.

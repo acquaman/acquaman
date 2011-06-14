@@ -80,17 +80,18 @@ void VESPERSXRFScanController::onDetectorAcquisitionFinished()
 	disconnect(detector_, SIGNAL(statusChanged()), this, SLOT(onStatusChanged()));
 	disconnect(detector_->elapsedTimeControl(), SIGNAL(valueChanged(double)), this, SLOT(onProgressUpdate()));
 
+
 	for (int i = 0; i < detector_->elements(); i++){
 
-		scan_->rawData()->setValue(AMnDIndex(), i, detector_->spectraAt(i), detector_->channels());
+		QVector<int> currSpectra(detector_->spectraValues(i));
+		scan_->rawData()->setValue(AMnDIndex(), i, currSpectra.constData(), detector_->channels());
 		scan_->rawData()->setValue(AMnDIndex(), i+detector_->elements(), AMnDIndex(), detector_->deadTimeAt(i));
 	}
 
-	AMScan *scan = this->scan();
-	if(scan->database())
-		scan->storeToDb(scan->database());
+	if(scan()->database())
+		scan()->storeToDb(scan()->database());
 	else
-		scan->storeToDb(AMDatabase::userdb());
+		scan()->storeToDb(AMDatabase::userdb());
 	saveData();
 
 	setFinished();
