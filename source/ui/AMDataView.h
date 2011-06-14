@@ -27,14 +27,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_AMDataViewEmptyHeader.h"
 #include "dataman/AMDatabase.h"
 
+#include "util/AMDeferredFunctionCall.h"
+
 #include <QGraphicsView>
 #include "ui/AMSignallingGraphicsScene.h"
 #include <QGraphicsWidget>
 #include <QGraphicsLinearLayout>
-
 #include <QUrl>
-
 #include "ui/AMFlowGraphicsLayout.h"
+
 
 
 /// This subclass of QGraphicsWidget is designed to resize itself to the preferred sizeHint() of its layout.  (This is the opposite of what usually happens: layouts resize themselves to match the size of their widget.)
@@ -203,6 +204,13 @@ protected slots:
 	}
 
 
+	/// Connected to the database's created() and removed() signals, to catch when scans are added or removed.
+	void onDatabaseItemCreatedOrRemoved(const QString& tableName, int id);
+	/// Called when control returns to the event loop, after the scans table in the database has an item added or removed. Our response depends on whether the widget is visible or not.
+	void afterDatabaseItemChanged();
+
+
+
 
 
 protected:
@@ -217,29 +225,41 @@ protected:
 
 	/// The database explored with this view
 	AMDatabase* db_;
-	/// the user's name, with appropriate possesive ending to be tacked onto "Data".  (ie: Mark Boots's )
+	/// the user's name, with appropriate possesive ending to be tacked onto "Data".  (ie: John Doe's )
 	QString userName_;
+	/// Caches the name of the scans table in the database
+	QString scansTableName_;
 
 
-	/// A prepared list the selected items, as amd://databaseConnectionName/tableName/objectId URLs.
+	/// A prepared list of the selected items, as amd://databaseConnectionName/tableName/objectId URLs.
 	mutable QList<QUrl> selectedUrls_;
 	/// True if the selection has changed and selectedUrls_ is dirty.
 	mutable bool selectedUrlsUpdateRequired_;
-
 	/// This helper function analyzes the current selection and updates selectedUrls_;
 	void updateSelectedUrls() const;
 
 
 
 	// UI components:
+	///////////////////
 	QButtonGroup* viewModeButtonGroup_;
 
 	// QGraphicsView UI components:
-
+	///////////////////
 	QGraphicsView* gview_;
 	AMSignallingGraphicsScene* gscene_;
 	AMLayoutControlledGraphicsWidget* gwidget_;
 	QGraphicsLinearLayout* sectionLayout_;
+
+
+	// Catching and responding to database updates (scans added or removed)
+	/////////////////////////
+	AMDeferredFunctionCall afterDbChangedFnCall_;
+	bool viewRequiresRefresh_;
+
+
+	// Helper Functions
+	/////////////////////////
 
 	/// This function runs everytime showRun() or showExperiment() is called, or a change is made to the OrganizeMode or ViewMode.  It re-populates the view from scratch.
 	void refreshView();
@@ -254,6 +274,9 @@ protected:
 
 	/// Overidden so that we can notify the contents _inside_ the scroll area to change width with us.
 	virtual void resizeEvent(QResizeEvent *event);
+
+
+
 
 
 

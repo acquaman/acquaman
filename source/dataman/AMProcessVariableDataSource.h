@@ -43,7 +43,7 @@ public:
 	/// Returns the size of (ie: count along) each dimension.  Returns a null AMnDIndex if it is a scalar quantity.
 	virtual AMnDIndex size() const { return AMnDIndex(); }
 	/// Returns the size along a single axis \c axisNumber. This should be fast. \c axisNumber is assumed to be between 0 and rank()-1.  Returns 0 if representing a scalar process variable.
-	virtual int size(int axisNumber) const { Q_UNUSED(axisNumber) return 0; }
+	virtual int size(int axisNumber) const { Q_UNUSED(axisNumber) return 1; }
 	/// Returns a bunch of information about a particular axis. \c axisNumber is assumed to be between 0 and rank()-1.
 	virtual AMAxisInfo axisInfoAt(int axisNumber) const { Q_UNUSED(axisNumber) return AMAxisInfo("scalar", 1); }
 	/// Returns the id of an axis, by name. (By id, we mean the index of the axis. We called it id to avoid ambiguity with indexes <i>into</i> axes.) This could be slow, so users shouldn't call it repeatedly. Returns -1 if not found.  Scalars have no axes and therefore will always return -1.
@@ -116,11 +116,8 @@ public:
 	/// Returns axis information for all axes
 	virtual QList<AMAxisInfo> axes() const
 	{
-		QList<AMAxisInfo> axisInfo;
-		AMAxisInfo ai("array", data_->count(), "Array Index");
-		ai.increment = scale_;
-		axisInfo << ai;
-		return axisInfo;
+		axes_[0].size = data_->count();
+		return axes_;
 	}
 
 	// Following can all be determined from above. Included anyway for convenience of classes that use the interface, and for performance. Calling size(axisNumber) should be fast; using axes() to return a full list of AMAxisInfo and extracting the desired axis would be much slower.
@@ -128,17 +125,16 @@ public:
 	/// Returns the rank (number of dimensions) of this data set
 	virtual int rank() const { return 1; }
 	/// Returns the size of (ie: count along) each dimension.  Returns a null AMnDIndex if it is a scalar quantity.
-	virtual AMnDIndex size() const { return AMnDIndex(axes().count()); }
-	/// Returns the size along a single axis \c axisNumber. This should be fast. \c axisNumber is assumed to be between 0 and rank()-1.
-	virtual int size(int axisNumber) const { return axes().at(axisNumber).size; }
-	/// Returns a bunch of information about a particular axis. \c axisNumber is assumed to be between 0 and rank()-1.
-	virtual AMAxisInfo axisInfoAt(int axisNumber) const { return axes().at(axisNumber); }
-	/// Returns the id of an axis, by name. (By id, we mean the index of the axis. We called it id to avoid ambiguity with indexes <i>into</i> axes.) This could be slow, so users shouldn't call it repeatedly. Returns -1 if not found.
+	virtual AMnDIndex size() const { return AMnDIndex(data_->count()); }
+	/// Returns the size along a single axis \c axisNumber. This should be fast. \c axisNumber is assumed to be 0.
+	virtual int size(int axisNumber) const { Q_UNUSED(axisNumber) return data_->count(); }
+	/// Returns a bunch of information about a particular axis. \c axisNumber is assumed to be be 0.
+	virtual AMAxisInfo axisInfoAt(int axisNumber) const { Q_UNUSED(axisNumber) axes_[0].size = data_->count(); return axes_.at(0); }
+	/// Returns the id of an axis, by name. (By id, we mean the index of the axis. We called it id to avoid ambiguity with indexes <i>into</i> axes.)
 	virtual int idOfAxis(const QString& axisName)
 	{
-		for (int i = 0; i < axes().count(); i++)
-			if (axes().at(i).name.compare(axisName) == 0)
-				return i;
+		if(axisName == axes_.at(0).name)
+			return 0;
 
 		return -1;
 	}
@@ -153,7 +149,7 @@ public:
 			return AMNumber();
 		if(indexes.rank() != 1)
 			return AMNumber(AMNumber::DimensionError);
-		if(doBoundsChecking && indexes.i() >= axes().first().size)
+		if(doBoundsChecking && (unsigned)indexes.i() >= data_->count())
 			return AMNumber(AMNumber::OutOfBoundsError);
 
 		return data_->lastValue(indexes.i());
@@ -167,7 +163,7 @@ public:
 			return AMNumber();
 		if(axisNumber != 0)
 			return AMNumber(AMNumber::DimensionError);
-		if (doBoundsChecking && index > axes().first().size)
+		if (doBoundsChecking && (unsigned)index >= data_->count())
 			return AMNumber(AMNumber::OutOfBoundsError);
 
 		return index*scale_;
@@ -178,7 +174,7 @@ public:
 
 public slots:
 	/// Changes the scale used in the plot if that scale changes.
-	void setScale(double scale) { scale_ = scale; onDataChanged(); }
+	void setScale(double scale) { scale_ = scale; axes_[0].increment = scale; emitValuesChanged(); }
 
 protected slots:
 	/// Emits the data changed signal when the control gets new data.
@@ -187,10 +183,12 @@ protected slots:
 	void onStateChanged() { emitStateChanged(state()); }
 
 protected:
-	/// The control being used as a data source.
+	/// The epics PV being used as a data source.
 	const AMProcessVariable *data_;
 	/// Holds the current scale.
 	double scale_;
+	/// A QList of AMAxisInfo: caches a single AMAxisInfo for our one axis, so that axes() can be fast.
+	mutable QList<AMAxisInfo> axes_;
 };
 
 /*!
@@ -220,13 +218,9 @@ public:
 	/// Returns axis information for all axes
 	virtual QList<AMAxisInfo> axes() const
 	{
-		QList<AMAxisInfo> axisInfo;
-		AMAxisInfo xaxis("x-axis", length_, "X-axis of the image");
-		xaxis.increment = sx_;
-		AMAxisInfo yaxis("y-axis", data_->count()/length_, "Y-axis of the image");
-		yaxis.increment = sy_;
-		axisInfo << xaxis << yaxis;
-		return axisInfo;
+		axes_[0].size = length_;
+		axes_[1].size = data_->count()/length_;
+		return axes_;
 	}
 
 	// Following can all be determined from above. Included anyway for convenience of classes that use the interface, and for performance. Calling size(axisNumber) should be fast; using axes() to return a full list of AMAxisInfo and extracting the desired axis would be much slower.
@@ -234,20 +228,19 @@ public:
 	/// Returns the rank (number of dimensions) of this data set
 	virtual int rank() const { return 2; }
 	/// Returns the size of (ie: count along) each dimension.  Returns a null AMnDIndex if it is a scalar quantity.
-	virtual AMnDIndex size() const { return 1; }
-	/// Returns the size along a single axis \c axisNumber. This should be fast. \c axisNumber is assumed to be between 0 and rank()-1.
-	virtual int size(int axisNumber) const { return (axisNumber == 1) ? data_->count()/length_ : length_; }
-	/// Returns a bunch of information about a particular axis. \c axisNumber is assumed to be between 0 and rank()-1.
-	virtual AMAxisInfo axisInfoAt(int axisNumber) const {
-//		axes_[0].size = length_;
-	//	axes_[1].size = data_->count()/length_;
-		return axes_.at(axisNumber);
-	}
+	virtual AMnDIndex size() const { return AMnDIndex(length_, int(data_->count()/length_)); }
+	/// Returns the size along a single axis \c axisNumber. This should be fast. \c axisNumber is assumed to be be 0 or 1.
+	virtual int size(int axisNumber) const { return (axisNumber == 0) ? length_ : data_->count()/length_; }
+	/// Returns a bunch of information about a particular axis. \c axisNumber is assumed to be between 0 and 1.
+	virtual AMAxisInfo axisInfoAt(int axisNumber) const { axes_[0].size = length_; axes_[1].size = data_->count()/length_; return axes_.at(axisNumber); }
 	/// Returns the id of an axis, by name. (By id, we mean the index of the axis. We called it id to avoid ambiguity with indexes <i>into</i> axes.) This could be slow, so users shouldn't call it repeatedly. Returns -1 if not found.
 	virtual int idOfAxis(const QString& axisName)
 	{
-		if(axisName == axes_.at(0).name) return 0;
-		if(axisName == axes_.at(1).name) return 1;
+		if(axisName == axes_.at(0).name)
+			return 0;
+		if(axisName == axes_.at(1).name)
+			return 1;
+
 		return -1;
 	}
 
@@ -261,10 +254,10 @@ public:
 			return AMNumber();
 		if(indexes.rank() != 2)
 			return AMNumber(AMNumber::DimensionError);
-		if(doBoundsChecking && (indexes.i() >= axes().first().size || indexes.j() >= axes().at(1).size))
+		if(doBoundsChecking && ((unsigned)indexes.i() >= (unsigned)length_ || (unsigned)indexes.j() >= data_->count()/length_))
 			return AMNumber(AMNumber::OutOfBoundsError);
 
-		return data_->lastValue(indexes.i() + indexes.j()*length_);
+		return data_->lastValue(indexes.i() + indexes.j()*length_);	/// \todo Acquaman normally uses the opposite convention: the first index varies the slowest while iterating through a flat array.
 	}
 	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index).  Returns an invalid AMNumber if not a valid selection.
 	virtual AMNumber axisValue(int axisNumber, int index, bool doBoundsChecking = true) const
@@ -273,15 +266,18 @@ public:
 			return AMNumber();
 		if (axisNumber > 1)
 			return AMNumber(AMNumber::DimensionError);
-		if (doBoundsChecking && index >= axes().at(axisNumber).size)
-			return AMNumber(AMNumber::OutOfBoundsError);
 
-		if (axisNumber == 0)
+
+		if (axisNumber == 0) {
+			if (doBoundsChecking && (unsigned)index >= (unsigned)length_)
+				return AMNumber(AMNumber::OutOfBoundsError);
 			return index*sx_;
-		else if (axisNumber == 1)
+		}
+		else {
+			if (doBoundsChecking && (unsigned)index >= data_->count()/length_)
+				return AMNumber(AMNumber::OutOfBoundsError);
 			return index*sy_;
-
-		return AMNumber();
+		}
 	}
 
 	/// Returns the current scale used for the independent axis.
@@ -293,11 +289,11 @@ public:
 
 public slots:
 	/// Changes the scale used in the plot if that scale changes.
-	void setScale(double sx, double sy) { sx_ = sx; sy_ = sy; onDataChanged(); }
+	void setScale(double sx, double sy) { sx_ = sx; sy_ = sy; axes_[0].increment = sx_; axes_[1].increment = sy_; emitAxisInfoChanged(); emitValuesChanged(); }
 	/// Changes the x scale for the data source.
-	void setScaleX(double sx) { sx_ = sx; onDataChanged(); }
+	void setScaleX(double sx) { sx_ = sx; axes_[0].increment = sx; emitAxisInfoChanged(0); emitValuesChanged(); }
 	/// Changes the y scale for the data source.
-	void setScaleY(double sy) { sy_ = sy; onDataChanged(); }
+	void setScaleY(double sy) { sy_ = sy; axes_[1].increment = sy; emitAxisInfoChanged(1); emitValuesChanged(); }
 
 protected slots:
 	/// Emits the data changed signal when the control gets new data.
@@ -315,7 +311,8 @@ protected:
 	/// Holds the current row length.
 	int length_;
 
-	QList<AMAxisInfo> axes_;
+	/// A QList of AMAxisInfo: caches a couple AMAxisInfo for our two axes, so that axes() can be fast.
+	mutable QList<AMAxisInfo> axes_;
 };
 
 #endif // AMPROCESSVARIABLEDATASOURCE_H
