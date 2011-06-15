@@ -114,20 +114,6 @@ AMROI *XRFDetector::createROIList(QString baseName)
 	}
 }
 
-void XRFDetector::setRoiList(QList<AMROI *> list)
-{
-	if (!roiList_.isEmpty())
-		return;
-
-	roiList_ << list;
-
-	for (int i = 0; i < roiList_.size(); i++){
-
-		connect(roiList_.at(i), SIGNAL(roiConnected(bool)), this, SLOT(detectorConnected()));
-		connect(roiList_.at(i), SIGNAL(roiHasValues()), this, SLOT(allRoisHaveValues()));
-	}
-}
-
 double XRFDetector::deadTime() const
 {
 	// For the single element, return the value.  For multi-element detectors, return the worst.
@@ -246,6 +232,8 @@ void XRFDetector::onConnectedChanged(bool isConnected)
 		disconnect(elapsedTimePV_.first(), SIGNAL(valueChanged(double)), this, SIGNAL(elapsedTimeChanged(double)));
 		disconnect(icrPV_.first(), SIGNAL(valueChanged()), this, SIGNAL(deadTimeChanged()));
 	}
+
+	allRoisHaveValues();
 }
 
 void XRFDetector::allRoisHaveValues()

@@ -16,23 +16,6 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 	: AMScanConfigurationView(parent)
 {
 	configuration_ = scanConfig;
-	detector_ = configuration_->detector();
-	xrfTable_ = configuration_->table();
-
-	AMTopFrame *topFrame = new AMTopFrame(QString("XRF Configuration - %1").arg(detector_->name()));
-	topFrame->setIcon(QIcon(":/utilities-system-monitor.png"));
-
-	connect(detector_, SIGNAL(statusChanged()), this, SLOT(onStatusChanged()));
-
-	view_ = new XRFDetailedDetectorView(detector_);
-	view_->setMinimumEnergy(xrfTable_->minimumEnergy());
-	view_->setMaximumEnergy(xrfTable_->maximumEnergy());
-	connect(detector_, SIGNAL(detectorConnected(bool)), this, SLOT(setEnabled(bool)));
-	connect(xrfTable_, SIGNAL(currentElementChanged(XRFElement*)), view_, SLOT(showEmissionLines(XRFElement*)));
-	connect(xrfTable_, SIGNAL(currentElementChanged(XRFElement*)), view_, SLOT(highlightMarkers(XRFElement*)));
-	connect(xrfTable_, SIGNAL(minimumEnergyChanged(double)), view_, SLOT(setMinimumEnergy(double)));
-	connect(xrfTable_, SIGNAL(maximumEnergyChanged(double)), view_, SLOT(setMaximumEnergy(double)));
-	connect(xrfTable_, SIGNAL(removedAllRegionsOfInterest()), view_, SLOT(removeAllRegionsOfInterestMarkers()));
 
 	XRFPeriodicTableView *tableView = new XRFPeriodicTableView(xrfTable_);
 	QPalette palette = tableView->palette();
@@ -119,9 +102,6 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 	QFont font(this->font());
 	font.setBold(true);
 
-	QLabel *startLabel = new QLabel("Start & Stop");
-	startLabel->setFont(font);
-	startLabel->setMinimumWidth(100);
 	QLabel *timeLabel = new QLabel("Real Time");
 	timeLabel->setFont(font);
 	minEnergyLabel_ = new QLabel("Min. Energy");
@@ -134,14 +114,7 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 	peakingTimeLabel_->hide();
 	peakingTimeLabel_->setFont(font);
 
-	QHBoxLayout *startAndStopLayout = new QHBoxLayout;
-	startAndStopLayout->addWidget(start_);
-	startAndStopLayout->addWidget(stop);
-
 	QVBoxLayout *controlLayout = new QVBoxLayout;
-	controlLayout->addSpacing(20);
-	controlLayout->addWidget(startLabel);
-	controlLayout->addLayout(startAndStopLayout);
 	controlLayout->addWidget(timeLabel);
 	controlLayout->addWidget(integrationTime_);
 	controlLayout->addWidget(customizeSettings);
@@ -151,34 +124,13 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 	controlLayout->addWidget(maxEnergy_);
 	controlLayout->addWidget(peakingTimeLabel_);
 	controlLayout->addWidget(peakingTime_);
-	controlLayout->addStretch();
-	controlLayout->addWidget(sortButton);
-	controlLayout->addWidget(configureButton);
 
-	QHBoxLayout *selectionLayout = new QHBoxLayout;
-	selectionLayout->addStretch();
-	selectionLayout->addWidget(tableView);
-	selectionLayout->addWidget(elView);
-	selectionLayout->addStretch();
-
-	QVBoxLayout *viewAndSelectionLayout = new QVBoxLayout;
-	viewAndSelectionLayout->addWidget(view_);
-	viewAndSelectionLayout->addLayout(selectionLayout);
-
-	QHBoxLayout *plotControlLayout = new QHBoxLayout;
-	plotControlLayout->addLayout(viewAndSelectionLayout);
-	plotControlLayout->addLayout(controlLayout);
-
-	QVBoxLayout *masterLayout = new QVBoxLayout;
-	masterLayout->addWidget(topFrame);
-	masterLayout->addLayout(plotControlLayout);
-
-	setLayout(masterLayout);
+	setLayout(controlLayout);
 }
 
 VESPERSXRFScanConfigurationView::~VESPERSXRFScanConfigurationView()
 {
-	delete customize_;
+
 }
 
 void VESPERSXRFScanConfigurationView::onAdvancedSettingsChanged(bool advanced)

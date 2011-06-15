@@ -2,9 +2,7 @@
 #define VESPERSXRFSCANCONFIGURATION_H
 
 #include "acquaman/AMScanConfiguration.h"
-#include "beamline/VESPERS/XRFDetector.h"
-#include "beamline/VESPERS/VESPERSBeamline.h"
-#include "util/VESPERS/XRFPeriodicTable.h"
+#include "dataman/VESPERS/XRFDetectorInfo.h"
 
 class VESPERSXRFScanConfiguration : public AMScanConfiguration
 {
@@ -18,7 +16,7 @@ public:
 	/// Default constructor.
 	Q_INVOKABLE explicit VESPERSXRFScanConfiguration(QObject *parent = 0);
 	/// Convenience constructor.
-	VESPERSXRFScanConfiguration(XRFDetector *detector, QObject *parent = 0);
+	VESPERSXRFScanConfiguration(XRFDetectorInfo detectorInfo, QObject *parent = 0);
 	/// Destructor.
 	~VESPERSXRFScanConfiguration();
 
@@ -64,18 +62,9 @@ protected:
 	/// Empty function since it will never be called.
 	void dbLoadXRFDetectorInfo(AMDbObject *) {}
 
-	/// Helper function that takes in a region of interest name and adds it to the XRFPeriodicTable.  Takes in the ROI name, finds the element and line it is associated with and adds it to the XRFPeriodicTable.
-	void addRegionOfInterestToTable(QString name);
-
 	// Member variables.
 	/// Detector info member variable.
 	XRFDetectorInfo xrfDetectorInfo_;
-
-	/// The detector itself.  This has live beamline communications.
-	XRFDetector *detector_;
-
-	/// The periodic table that holds information about the regions of interest.
-	XRFPeriodicTable *xrfTable_;
 };
 
 #endif // VESPERSXRFSCANCONFIGURATION_H

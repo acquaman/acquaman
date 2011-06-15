@@ -88,21 +88,20 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	maximumEnergy_ = 1e6;
 
 	detector_ = static_cast<XRFDetector *>(detector);
-	connect(detector_, SIGNAL(detectorConnected(bool)), this, SLOT(onDetecterConnected(bool)));
-	//connect(detector_, SIGNAL(detectorConnected(bool)), this, SLOT(setEnabled(bool)));
-	//connect(detector_, SIGNAL(addedRegionOfInterest(AMROIInfo)), this, SLOT(addRegionOfInterestMarker(AMROIInfo)));
-	//connect(detector_, SIGNAL(removedRegionOfInterest(AMROIInfo)), this, SLOT(removeRegionOfInterestMarker(AMROIInfo)));
-	//connect(detector_, SIGNAL(externalRegionsOfInterestChanged()), this, SLOT(onExternalRegionsOfInterestChanged()));
+	connect(detector_, SIGNAL(detectorConnected(bool)), this, SLOT(setEnabled(bool)));
+	connect(detector_, SIGNAL(addedRegionOfInterest(AMROIInfo)), this, SLOT(addRegionOfInterestMarker(AMROIInfo)));
+	connect(detector_, SIGNAL(removedRegionOfInterest(AMROIInfo)), this, SLOT(removeRegionOfInterestMarker(AMROIInfo)));
+	connect(detector_, SIGNAL(externalRegionsOfInterestChanged()), this, SLOT(onExternalRegionsOfInterestChanged()));
 
 	status_ = new QLabel;
 	status_->setPixmap(QIcon(":/OFF.png").pixmap(20));
-	//connect(detector_, SIGNAL(statusChanged()), this, SLOT(onStatusChanged()));
+	connect(detector_, SIGNAL(statusChanged()), this, SLOT(onStatusChanged()));
 
 	elapsedTime_ = new QLabel(tr(" s"));
-	//connect(detector_, SIGNAL(elapsedTimeChanged(double)), this, SLOT(onElapsedTimeUpdate(double)));
+	connect(detector_, SIGNAL(elapsedTimeChanged(double)), this, SLOT(onElapsedTimeUpdate(double)));
 
 	deadTime_ = new QLabel(tr(" %"));
-	//connect(detector_, SIGNAL(deadTimeChanged()), this, SLOT(onDeadTimeUpdate()));
+	connect(detector_, SIGNAL(deadTimeChanged()), this, SLOT(onDeadTimeUpdate()));
 
 	// Using a button group so I know which element I need to disable.
 	DeadTimeButton *temp;
@@ -116,15 +115,15 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 		temp = new DeadTimeButton(15.0, 30.0);
 		temp->setCheckable(true);
 		temp->setFixedSize(20, 20);
-		//connect(detector_->deadTimeControl()->at(i), SIGNAL(valueChanged(double)), temp, SLOT(setCurrent(double)));
+		connect(detector_->deadTimeControl()->at(i), SIGNAL(valueChanged(double)), temp, SLOT(setCurrent(double)));
 		deadTimeLayout->addWidget(temp);
 		deadTimeGroup_->addButton(temp, i);
 	}
 
 	if (detector_->elements() == 1)
 		deadTimeGroup_->button(0)->setCheckable(false);
-	//else
-	//	connect(deadTimeGroup_, SIGNAL(buttonClicked(int)), this, SLOT(elementClicked(int)));
+	else
+		connect(deadTimeGroup_, SIGNAL(buttonClicked(int)), this, SLOT(elementClicked(int)));
 
 	updateRate_ = new QComboBox;
 	updateRate_->addItem("Passive");
@@ -137,7 +136,7 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 
 	setupPlot();
 
-	//connect(detector_, SIGNAL(roiUpdate(AMROI*)), this, SLOT(roiWidthUpdate(AMROI*)));
+	connect(detector_, SIGNAL(roiUpdate(AMROI*)), this, SLOT(roiWidthUpdate(AMROI*)));
 
 	QFont font(this->font());
 	font.setBold(true);
@@ -218,63 +217,6 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	setLayout(detectorLayout);
 
 	return true;
-}
-
-void XRFDetailedDetectorView::onDetecterConnected(bool connected)
-{
-	setEnabled(connected);
-
-	if (connected){
-
-		connect(detector_, SIGNAL(addedRegionOfInterest(AMROIInfo)), this, SLOT(addRegionOfInterestMarker(AMROIInfo)));
-		connect(detector_, SIGNAL(removedRegionOfInterest(AMROIInfo)), this, SLOT(removeRegionOfInterestMarker(AMROIInfo)));
-		connect(detector_, SIGNAL(externalRegionsOfInterestChanged()), this, SLOT(onExternalRegionsOfInterestChanged()));
-		connect(detector_, SIGNAL(statusChanged()), this, SLOT(onStatusChanged()));
-		connect(detector_, SIGNAL(elapsedTimeChanged(double)), this, SLOT(onElapsedTimeUpdate(double)));
-		connect(detector_, SIGNAL(deadTimeChanged()), this, SLOT(onDeadTimeUpdate()));
-
-		DeadTimeButton *temp;
-		for (int i = 0; i < detector_->elements(); i++){
-
-			temp = qobject_cast<DeadTimeButton *>(deadTimeGroup_->button(i));
-			connect(detector_->deadTimeControl()->at(i), SIGNAL(valueChanged(double)), temp, SLOT(setCurrent(double)));
-			temp->setCurrent(detector_->deadTimeControl()->at(i)->value());
-		}
-
-		if (detector_->elements() > 1)
-			connect(deadTimeGroup_, SIGNAL(buttonClicked(int)), this, SLOT(elementClicked(int)));
-
-		connect(detector_, SIGNAL(refreshRateChanged(double)), this, SLOT(onUpdateRateUpdate(double)));
-		connect(detector_, SIGNAL(roiUpdate(AMROI*)), this, SLOT(roiWidthUpdate(AMROI*)));
-
-		onStatusChanged();
-		onElapsedTimeUpdate(detector_->elapsedTime());
-		onDeadTimeUpdate();
-		onUpdateRateUpdate(detector_->refreshRate());
-	}
-
-	else {
-
-		disconnect(detector_, SIGNAL(addedRegionOfInterest(AMROIInfo)), this, SLOT(addRegionOfInterestMarker(AMROIInfo)));
-		disconnect(detector_, SIGNAL(removedRegionOfInterest(AMROIInfo)), this, SLOT(removeRegionOfInterestMarker(AMROIInfo)));
-		disconnect(detector_, SIGNAL(externalRegionsOfInterestChanged()), this, SLOT(onExternalRegionsOfInterestChanged()));
-		disconnect(detector_, SIGNAL(statusChanged()), this, SLOT(onStatusChanged()));
-		disconnect(detector_, SIGNAL(elapsedTimeChanged(double)), this, SLOT(onElapsedTimeUpdate(double)));
-		disconnect(detector_, SIGNAL(deadTimeChanged()), this, SLOT(onDeadTimeUpdate()));
-
-		DeadTimeButton *temp;
-		for (int i = 0; i < detector_->elements(); i++){
-
-			temp = qobject_cast<DeadTimeButton *>(deadTimeGroup_->button(i));
-			disconnect(detector_->deadTimeControl()->at(i), SIGNAL(valueChanged(double)), temp, SLOT(setCurrent(double)));
-		}
-
-		if (detector_->elements() > 1)
-			connect(deadTimeGroup_, SIGNAL(buttonClicked(int)), this, SLOT(elementClicked(int)));
-
-		disconnect(detector_, SIGNAL(refreshRateChanged(double)), this, SLOT(onUpdateRateUpdate(double)));
-		disconnect(detector_, SIGNAL(roiUpdate(AMROI*)), this, SLOT(roiWidthUpdate(AMROI*)));
-	}
 }
 
 void XRFDetailedDetectorView::roiWidthUpdate(AMROI *roi)

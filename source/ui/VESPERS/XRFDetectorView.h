@@ -93,9 +93,6 @@ public slots:
 	void setMaximumEnergy(double energy) { maximumEnergy_ = energy; }
 
 protected slots:
-	/// Once the detector emits the connected signal, this will connect all the appropriate slots.  It also disconnects them if the detector goes offline.
-	void onDetecterConnected(bool connected);
-
 	/// Handles the update from the dead time control.
 	void onDeadTimeUpdate();
 	/// Handles the update from the elapsed time control.
@@ -115,7 +112,7 @@ protected slots:
 	/// Handles if the detector ROIs have changed from an external source.  This listens to the externalRegionsOfInterestChanged signal and changes all the markers to reflect the new list.
 	void onExternalRegionsOfInterestChanged();
 	/// Handles changing the indicator light when status changes.
-	void onStatusChanged() { detector_->status() == 1 ? status_->setPixmap(QIcon(":/ON.png").pixmap(20)) : status_->setPixmap(QIcon(":/OFF.png").pixmap(20)); }
+	void onStatusChanged() { detector_->status() == true ? status_->setPixmap(QIcon(":/ON.png").pixmap(20)) : status_->setPixmap(QIcon(":/OFF.png").pixmap(20)); }
 
 	/// Hack to save the spectra.  For four element it will print out the four raw data and the corrected sum.
 	void saveSpectra();

@@ -83,8 +83,6 @@ public:
 
 	/// Returns the AMROI list.
 	QList<AMROI *> roiList() const { return roiList_; }
-	/// Sets the AMROI list.  Does nothing if the lsit of ROIs has already been set.
-	void setRoiList(QList<AMROI *> list);
 
 	// Data sources
 	///////////////////////////////////////
