@@ -37,6 +37,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AM1DExpressionAB.h"
 #include <QTreeView>
 
+#include "ui/AMChooseScanDialog.h"
+
 class TestUi: public QObject
 {
 	Q_OBJECT
@@ -55,6 +57,13 @@ private slots:
 	{
 	}
 
+
+	void testAMChooseScanDialog() {
+		AMChooseScanDialog sd(AMDatabase::userdb(), "Choose a photodiode scan", "Please select the photodiode scan that will be used for normalization");
+		sd.show();
+
+		QTest::qWait(60000);
+	}
 
 	void testAMScanSetModel() {
 
