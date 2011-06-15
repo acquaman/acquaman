@@ -12,7 +12,6 @@ class XRFDetectorInfo : public AMDetectorInfo
 	Q_PROPERTY(double maximumEnergy READ maximumEnergy WRITE setMaximumEnergy)
 	Q_PROPERTY(int elements READ elements WRITE setElements)
 	Q_PROPERTY(int channels READ channels WRITE setChannels)
-	Q_PROPERTY(int refreshRate READ refreshRate WRITE setRefreshRate)
 	Q_PROPERTY(double integrationTime READ integrationTime WRITE setIntegrationTime)
 	Q_PROPERTY(double peakingTime READ peakingTime WRITE setPeakingTime)
 	Q_PROPERTY(AMDbObject* roiInfoList READ dbGetROIInfoList WRITE dbLoadROIInfoList)
@@ -20,14 +19,6 @@ class XRFDetectorInfo : public AMDetectorInfo
 	Q_CLASSINFO("AMDbObject_Attributes", "description=XRF Detector")
 
 public:
-
-	/*! This is the enum for the spectrum update rate.
-
-			- Passive waits until the accumlation time has expired before updating the spectrum.
-			- Slow waits for a moderate amount of time before asking the spectrum for its current state.  Typically around 1 second.
-			- Fast waits for a very short amount of time before asking the spectrum for its current state.  Typically 200 msec.
-	  */
-	enum MCAUpdateRate { Passive, Slow, Fast };
 
 	/// Default constructor.
 	Q_INVOKABLE XRFDetectorInfo(const QString& name = "xrfSpectrum", const QString& description = "XRF Detector", QObject *parent = 0);
@@ -66,8 +57,6 @@ public:
 	double scale() const { return maximumEnergy()*1000/channels(); }
 	/// The number of elements in the detector.
 	int elements() const { return elements_; }
-	/// The refresh rate for the spectra while data is being collected.  For instance, you might want to be seeing what the spectrum looks like in a 100 second integration time, but updated every second.  This is an enum parameter.
-	MCAUpdateRate refreshRate() const { return refreshRate_; }
 	/// The amount of time collecting data.
 	double integrationTime() const { return integrationTime_; }
 	/// The peaking time used for the detector.
@@ -113,10 +102,6 @@ public slots:
 
 		setModified(true);
 	}
-	/// Sets the refresh rate for the spectra while data is being collected.
-	void setRefreshRate(MCAUpdateRate rate) { refreshRate_ = rate; setModified(true); }
-	/// Overloaded function.
-	void setRefreshRate(int rate) { setRefreshRate((MCAUpdateRate)rate); }
 	/// Sets the integration time for the detector.
 	void setIntegrationTime(double time) { integrationTime_ = time; setModified(true); }
 	/// Sets the peaking time for the detector.
@@ -133,8 +118,6 @@ protected:
 	int elements_;
 	/// A list of the elements and whether or not they are active.
 	QList<bool> activeElements_;
-	/// The refresh rate for the spectra while data is being collected.  For instance, you might want to be seeing what the spectrum looks like in a 100 second integration time, but updated every second.  This is an enum parameter.
-	MCAUpdateRate refreshRate_;
 	/// The amount of time collecting data.
 	double integrationTime_;
 	/// The peaking time for the detector.  The rest time between photon events.

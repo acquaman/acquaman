@@ -15,6 +15,15 @@ class XRFDetector : public XRFDetectorInfo, public AMDetector
 {
 	Q_OBJECT
 public:
+
+	/*! This is the enum for the spectrum update rate.
+
+			- Passive waits until the accumlation time has expired before updating the spectrum.
+			- Slow waits for a moderate amount of time before asking the spectrum for its current state.  Typically around 1 second.
+			- Fast waits for a very short amount of time before asking the spectrum for its current state.  Typically 200 msec.
+	  */
+	enum MCAUpdateRate { Passive, Slow, Fast };
+
 	/// Constructor.  Requires the name, number of elements, and the base PV name of the detector.  It builds all the PV's and connects the accordingly based on standard naming conventions.
 	XRFDetector(QString name, int elements, QString baseName, QObject *parent = 0);
 
@@ -47,40 +56,20 @@ public:
 	double elapsedTime() const { return elapsedTimeControl()->value(); }
 	/// Returns the current dead time. For detectors with more than one element, it returns the highest value.
 	double deadTime() const;
-	/// Returns the status as an int.  1 is acquiring, 0 is done.
-	int status() const { return (int)statusControl_->value(); }
+	/// Returns the status as an bool.  true is acquiring, false is done.
+	bool status() const
+	{
+		for (int i = 0; i < elements_; i++)
+			if (statusPV_.at(i)->getInt(0) == 1)
+				return true;
+
+		return false;
+	}
+	/// The refresh rate for the spectra while data is being collected.  For instance, you might want to be seeing what the spectrum looks like in a 100 second integration time, but updated every second.  This is an enum parameter.
+	MCAUpdateRate refreshRate() const { return refreshRate_; }
 
 	// End of getters that aren't included in the info.
 	/////////////////////////////////////////////////////
-
-	// Controls and PVs.
-	////////////////////////////////
-
-	/*/// Returns the status control.
-	AMControl *statusControl() const { return statusControl_; }
-	/// Returns the refresh rate control.
-	AMControl *refreshRateControl() const { return refreshRateControl_; }
-	/// Returns the peaking time control.
-	AMControl *peakingTimeControl() const { return peakingTimeControl_; }
-	/// Returns the maximum energy control.
-	AMControl *maximumEnergyControl() const { return maximumEnergyControl_; }
-	/// Returns the integration time control.
-	AMControl *integrationTimeControl() const { return integrationTimeControl_; }
-	/// Returns the live time control.
-	AMControl *liveTimeControl() const { return liveTimeControl_; }
-	/// Returns the elapsed time control.
-	AMControl *elapsedTimeControl() const { return elapsedTimeControl_; }
-	/// Returns the dead time control set.
-	AMControlSet *deadTimeControl() const { return deadTimeControl_; }
-	/// Returns the spectra control set.
-	AMControlSet *spectraControl() const { return spectraControl_; }
-	/// Returns the start control.
-	AMControl *startControl() const { return startControl_; }
-	/// Returns the stop control.
-	AMControl *stopControl() const { return stopControl_; }*/
-
-	// End of Controls and PVs.
-	////////////////////////////////
 
 	/// Turns the spectra controls into an array of doubles and returns the spectra at \c index.
 	QVector<int> spectraValues(int index);
@@ -137,7 +126,24 @@ public slots:
 	/// Sets the peaking time of the detector.
 	void setPeakingTimeControl(double time);
 	/// Sets the spectrum refresh rate.
-	void setRefreshRateControl(XRFDetectorInfo::MCAUpdateRate rate);
+	void setRefreshRate(MCAUpdateRate rate)
+	{
+		switch(rate){
+		case XRFDetectorInfo::Passive:
+			for (int i = 0; i < elements_; i++)
+				refreshRatePV_.at(i)->setValue(0);
+			break;
+		case XRFDetectorInfo::Slow:
+			for (int i = 0; i < elements_; i++)
+				refreshRatePV_.at(i)->setValue(6);
+			break;
+		case XRFDetectorInfo::Fast:
+			for (int i = 0; i < elements_; i++)
+				refreshRatePV_.at(i)->setValue(8);
+			break;
+		}
+	}
+
 	/// Sets the size of the spectra channels.
 	void setChannelSize();
 	/// Sets the description of the detector.
@@ -155,8 +161,8 @@ public slots:
 signals:
 	/// Only emitted as true when all of the controls in the detector are connected. Is emitted false when any of the controls within the detector become unconnected.
 	void detectorConnected(bool);
-	/// This signal is emitted when the status changes.
-	void statusChanged();
+	/// This signal is emitted when the status changes.  Passes the state as a bool.  True is acquiring, false is done.
+	void statusChanged(bool);
 	/// Notifies that the maximum energy has changed.
 	void maximumEnergyChanged(double);
 	/// Notifies that the peaking time has changed.
@@ -166,7 +172,7 @@ signals:
 	/// Notifies that the elapsed time has changed.
 	void elapsedTimeChanged(double);
 	/// Notifies when the spectra refresh rate has changed.
-	void refreshRateChanged(double);
+	void refreshRateChanged(XRFDetectorInfo::MCAUpdateRate rate);
 	/// Notifies that the dead time has changed.  If the number of elements is greater than one, then this is emitted when any of the dead times change.
 	void deadTimeChanged();
 	/// Signal used to say that the regions of interest now have their original values in them after being connected to.
@@ -189,42 +195,45 @@ protected slots:
 	void allRoisHaveValues();
 	/// Determines if there is a discrepancy between the ROI list and the ROIInfo list and if there is, begins the sequence of updating the entire program.
 	void onUpdateTimer();
-	/// Handles restarting the timer after the detector is finished acquiring.
+	/// Handles restarting the timer after the detector is finished acquiring.  It also emits the statusChanged signal.
 	void onStatusChanged()
 	{
-		if (status() == 0){
+		bool currStatus = status();
+
+		if (currStatus){
 
 			for (int i = 0; i < roiList_.size(); i++)
 				roiList_.at(i)->blockSignals(false);
 			timer_.start();
 		}
+
+		emit statusChanged(currStatus);
 	}
-	/// Handles changes to the status of the scan.
-	void onStatusChanged(){ }
 	/// Handles changes to the spectra refresh rate.
-	void onRefreshRateChanged(){ }
+	void onRefreshRateChanged(int rate)
+	{
+		switch(rate){
+		case 0:
+			emit refreshRateChanged(XRFDetectorInfo::Passive);
+			break;
+		case 6:
+			emit refreshRateChanged(XRFDetectorInfo::Slow);
+			break;
+		case 8:
+			emit refreshRateChanged(XRFDetectorInfo::Fast);
+			break;
+		}
+	}
 	/// Handles changes to the peaking time.
-	void onPeakingTimeChanged(){ }
+	void onPeakingTimeChanged(double pktime){ setPeakingTime(pktime); emit peakingTimeChanged(pktime); }
 	/// Handles changes to the maximum energy.
-	void onMaximumEnergyChanged(){ }
+	void onMaximumEnergyChanged(double maxE){ setMaximumEnergy(maxE); emit maximumEnergyChanged(maxE); }
 	/// Handles changes to the integration time.
-	void onIntegrationTimeChanged(){ }
-	/// Handles changes to the live time.
-	void onLiveTimeChanged(){ }
-	/// Handles changes to the elapsed time.
-	void onElapsedTimeChanged(){ }
-	/// Handles changes to the input count rate.
-	void onIcrChanged(){ }
-	/// Handles changes to the output count rate.
-	void onOcrChanged(){ }
-	/// Handles changes to the start control.
-	void onStartChanged(){ }
-	/// Handles changes to the stop control.
-	void onStopChanged(){ }
-	/// Handles changes to the spectra.
-	void onSpectraChanged(){ }
+	void onIntegrationTimeChanged(double time){ setTime(time); emit integrationTimeChanged(time); }
 
 protected:
+	/// Helper function.  Takes in a base name and creates a list of ROIs based on the number of elements.  Creates PVs for the name, low limit, high limit, and current value.
+	void createROIList(QString baseName);
 
 	/// Bool handling whether the detector is connected.
 	bool detectorConnected_;
