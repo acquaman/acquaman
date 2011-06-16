@@ -11,7 +11,11 @@
 VESPERSXRFScanController::VESPERSXRFScanController(VESPERSXRFScanConfiguration *scanConfig, QObject *parent)
 	: AMScanController(scanConfig, parent)
 {
-	detector_ = scanConfig->detector();
+	if (scanConfig->detectorInfo().elements() == 1)
+		detector_ = VESPERSBeamline::vespers()->vortexXRF1E();
+	else
+		detector_ = VESPERSBeamline::vespers()->vortexXRF4E();
+
 	scanConfig->setDetectorInfo(detector_->toXRFInfo());
 
 	scan_ = new AMXRFScan;
@@ -67,7 +71,7 @@ void VESPERSXRFScanController::onStatusChanged()
 bool VESPERSXRFScanController::startImplementation()
 {
 	connect(detector_, SIGNAL(statusChanged()), this, SLOT(onStatusChanged()));
-	connect(detector_->elapsedTimeControl(), SIGNAL(valueChanged(double)), this, SLOT(onProgressUpdate()));
+	connect(detector_, SIGNAL(elapsedTimeChanged(double)), this, SLOT(onProgressUpdate()));
 	detector_->start();
 
 	setStarted();
@@ -78,7 +82,7 @@ bool VESPERSXRFScanController::startImplementation()
 void VESPERSXRFScanController::onDetectorAcquisitionFinished()
 {
 	disconnect(detector_, SIGNAL(statusChanged()), this, SLOT(onStatusChanged()));
-	disconnect(detector_->elapsedTimeControl(), SIGNAL(valueChanged(double)), this, SLOT(onProgressUpdate()));
+	disconnect(detector_, SIGNAL(elapsedTimeChanged(double)), this, SLOT(onProgressUpdate()));
 
 
 	for (int i = 0; i < detector_->elements(); i++){

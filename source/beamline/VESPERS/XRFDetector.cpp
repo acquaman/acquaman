@@ -60,7 +60,7 @@ XRFDetector::XRFDetector(QString name, int elements, QString baseName, QObject *
 		icrDataSources_ << new AM0DProcessVariableDataSource(icrPV_.at(i), QString("Input count rate %1").arg(i+1), this);
 		ocrDataSources_ << new AM0DProcessVariableDataSource(ocrPV_.at(i), QString("Output count rate %1").arg(i+1), this);
 		AMDeadTimeAB *corrected = new AMDeadTimeAB(QString("Corrected Element %1").arg(i+1), this);
-		corrected->setInputDataSourcesImplementation(QList<AMDataSource *>() << (AMDataSource *)spectrumDataSources_.at(i) < (AMDataSource *)icrDataSources_.at(i) << (AMDataSource *)ocrDataSources_.at(i));
+		corrected->setInputDataSourcesImplementation(QList<AMDataSource *>() << (AMDataSource *)spectrumDataSources_.at(i) << (AMDataSource *)icrDataSources_.at(i) << (AMDataSource *)ocrDataSources_.at(i));
 		correctedSpectrumDataSources_ << corrected;
 	}
 
@@ -76,7 +76,7 @@ XRFDetector::~XRFDetector()
 
 }
 
-AMROI *XRFDetector::createROIList(QString baseName)
+void XRFDetector::createROIList(QString baseName)
 {
 	AMProcessVariable *namePV;
 	AMProcessVariable *lowPV;
@@ -114,11 +114,11 @@ AMROI *XRFDetector::createROIList(QString baseName)
 	}
 }
 
-double XRFDetector::deadTime() const
+double XRFDetector::deadTime()
 {
 	// For the single element, return the value.  For multi-element detectors, return the worst.
 	if (elements_ == 1)
-		return 1 - ocrPV_.first()/icrPV_.first();
+		return 1 - ocrPV_.first()->getDouble()/icrPV_.first()->getDouble();
 
 	else {
 
@@ -154,9 +154,9 @@ bool XRFDetector::setFromInfo(const AMDetectorInfo *info)
 
 	for (int i = 0; i < elements_; i++){
 
-		peakingTimePV_.at(i)->setValue(info.peakingTime());
-		maximumEnergyPV_.at(i)->setValue(info.maximumEnergy());
-		integrationTimePV_.at(i)->setValue(info.integrationTime());
+		peakingTimePV_.at(i)->setValue(detectorInfo->peakingTime());
+		maximumEnergyPV_.at(i)->setValue(detectorInfo->maximumEnergy());
+		integrationTimePV_.at(i)->setValue(detectorInfo->integrationTime());
 	}
 	for (int i = 0; i < detectorInfo->roiInfoList()->count(); i++)
 		roiList().at(i)->setRegion(detectorInfo->roiInfoList()->at(i));
@@ -386,7 +386,7 @@ QVector<int> XRFDetector::spectraValues(int index)
 double XRFDetector::deadTimeAt(int index)
 {
 	if (index < elements_ && index >= 0)
-		return 1 - ocrPV_.at(index)/icrPV_.at(index);
+		return 1 - ocrPV_.at(index)->getDouble()/icrPV_.at(index)->getDouble();
 
 	return -1;
 }
@@ -405,7 +405,7 @@ void XRFDetector::setMaximumEnergyControl(double energy)
 {
 	setMaximumEnergy(energy);
 	for (int i = 0; i < elements_; i++)
-		maximumEnergyPV_.at(i)->setValue(energy);
+		maximumEnergyPV_.at(i)->setValue(energy/1000);
 }
 
 void XRFDetector::setPeakingTimeControl(double time)

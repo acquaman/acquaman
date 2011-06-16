@@ -53,9 +53,9 @@ public:
 	//////////////////////////////////////////////////
 
 	/// Returns the current elapsed time.
-	double elapsedTime() const { return elapsedTimeControl()->value(); }
+	double elapsedTime() const { return elapsedTimePV_.first()->getDouble(); }
 	/// Returns the current dead time. For detectors with more than one element, it returns the highest value.
-	double deadTime() const;
+	double deadTime();
 	/// Returns the status as an bool.  true is acquiring, false is done.
 	bool status() const
 	{
@@ -113,13 +113,15 @@ public slots:
 		timer_.stop();
 		for (int i = 0; i < roiList_.size(); i++)
 			roiList_.at(i)->blockSignals(true);
-		startControl()->move(1);
+
+		for (int i = 0; i < elements_; i++)
+			startPV_.at(i)->setValue(1);
 	}
 	/// Stops collection of data.
-	void stop() { stopControl()->move(1); }
+	void stop() { for (int i = 0; i < elements_; i++) stopPV_.at(i)->setValue(1); }
 	/// Set the accumulation time.
 	void setTime(double time);
-	/// Set the maximum energy of the detector.
+	/// Set the maximum energy of the detector.  \c energy is in eV.
 	void setMaximumEnergyControl(double energy);
 	/// Sets the peaking time of the detector.
 	void setPeakingTimeControl(double time);
@@ -127,15 +129,15 @@ public slots:
 	void setRefreshRate(MCAUpdateRate rate)
 	{
 		switch(rate){
-		case XRFDetectorInfo::Passive:
+		case Passive:
 			for (int i = 0; i < elements_; i++)
 				refreshRatePV_.at(i)->setValue(0);
 			break;
-		case XRFDetectorInfo::Slow:
+		case Slow:
 			for (int i = 0; i < elements_; i++)
 				refreshRatePV_.at(i)->setValue(6);
 			break;
-		case XRFDetectorInfo::Fast:
+		case Fast:
 			for (int i = 0; i < elements_; i++)
 				refreshRatePV_.at(i)->setValue(8);
 			break;
@@ -170,7 +172,7 @@ signals:
 	/// Notifies that the elapsed time has changed.
 	void elapsedTimeChanged(double);
 	/// Notifies when the spectra refresh rate has changed.
-	void refreshRateChanged(XRFDetectorInfo::MCAUpdateRate rate);
+	void refreshRateChanged(MCAUpdateRate rate);
 	/// Notifies that the dead time has changed.  If the number of elements is greater than one, then this is emitted when any of the dead times change.
 	void deadTimeChanged();
 	/// Signal used to say that the regions of interest now have their original values in them after being connected to.
@@ -212,13 +214,16 @@ protected slots:
 	{
 		switch(rate){
 		case 0:
-			emit refreshRateChanged(XRFDetectorInfo::Passive);
+			refreshRate_ = Passive;
+			emit refreshRateChanged(Passive);
 			break;
 		case 6:
-			emit refreshRateChanged(XRFDetectorInfo::Slow);
+			refreshRate_ = Slow;
+			emit refreshRateChanged(Slow);
 			break;
 		case 8:
-			emit refreshRateChanged(XRFDetectorInfo::Fast);
+			refreshRate_ = Fast;
+			emit refreshRateChanged(Fast);
 			break;
 		}
 	}
@@ -237,6 +242,8 @@ protected:
 	bool detectorConnected_;
 	/// Bool handling whether the detector was connected.
 	bool wasConnected_;
+	/// The refresh rate.
+	MCAUpdateRate refreshRate_;
 
 	/// Timer used to periodically update the ROI lists.
 	QTimer timer_;

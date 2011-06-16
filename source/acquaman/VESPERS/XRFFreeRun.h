@@ -6,18 +6,21 @@
 #include "beamline/VESPERS/XRFDetector.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
 #include "util/VESPERS/XRFPeriodicTable.h"
+#include "acquaman/VESPERS/VESPERSXRFScanConfiguration.h"
 
 class XRFFreeRun : public QObject
 {
 	Q_OBJECT
 public:
 	/// Constructor.  Links the XRF periodic table model to the XRF detector.
-	explicit XRFFreeRun(QObject *parent = 0);
+	explicit XRFFreeRun(XRFDetector *detector, QObject *parent = 0);
 
 	/// Returns the detector used in this configuration.
 	XRFDetector *detector() const { return detector_; }
 	/// Returns the XRF periodic table used by this configuration.
 	XRFPeriodicTable *table() const { return xrfTable_; }
+	/// Returns the XRF configuration that is part of this scan.
+	VESPERSXRFScanConfiguration *configuration() const { return config_; }
 
 signals:
 
@@ -37,9 +40,10 @@ protected:
 
 	/// The detector itself.  This has live beamline communications.
 	XRFDetector *detector_;
-
 	/// The periodic table that holds information about the regions of interest.
 	XRFPeriodicTable *xrfTable_;
+	/// The scan configuration.  Contains some configuration details about the scan such as integration time, minimum energy, maximum energy.
+	VESPERSXRFScanConfiguration *config_;
 };
 
 #endif // XRFFREERUN_H

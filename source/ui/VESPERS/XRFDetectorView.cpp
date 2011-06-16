@@ -115,10 +115,11 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 		temp = new DeadTimeButton(15.0, 30.0);
 		temp->setCheckable(true);
 		temp->setFixedSize(20, 20);
-		connect(detector_->deadTimeControl()->at(i), SIGNAL(valueChanged(double)), temp, SLOT(setCurrent(double)));
 		deadTimeLayout->addWidget(temp);
 		deadTimeGroup_->addButton(temp, i);
 	}
+
+	connect(detector_, SIGNAL(deadTimeChanged()), this, SLOT(onDeadTimeChanged()));
 
 	if (detector_->elements() == 1)
 		deadTimeGroup_->button(0)->setCheckable(false);
@@ -217,6 +218,17 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	setLayout(detectorLayout);
 
 	return true;
+}
+
+void XRFDetailedDetectorView::onDeadTimeChanged()
+{
+	DeadTimeButton *temp;
+
+	for (int i = 0; i < detector_->elements(); i++){
+
+		temp = qobject_cast<DeadTimeButton *>(deadTimeGroup_->button(i));
+		temp->setCurrent(detector_->deadTimeAt(i));
+	}
 }
 
 void XRFDetailedDetectorView::roiWidthUpdate(AMROI *roi)

@@ -1,5 +1,4 @@
 #include "XRFFreeRunView.h"
-#include "VESPERSXRFScanConfigurationView.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
 #include "acquaman/VESPERS/VESPERSXRFScanController.h"
 #include "ui/AMTopFrame.h"
@@ -7,6 +6,7 @@
 #include "util/VESPERS/XRFElement.h"
 #include "ui/VESPERS/XRFPeriodicTableView.h"
 #include "ui/VESPERS/VESPERSXRFElementView.h"
+#include "ui/VESPERS/VESPERSXRFScanConfigurationView.h"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -76,6 +76,9 @@ XRFFreeRunView::XRFFreeRunView(XRFFreeRun *xrfFreeRun, QWidget *parent)
 	stop->setIcon(QIcon(":/red-stop-button.png"));
 	connect(stop, SIGNAL(clicked()), this, SLOT(onStopClicked()));
 
+	// Scan config view.
+	VESPERSXRFScanConfigurationView *scanConfigView = new VESPERSXRFScanConfigurationView(xrfFreeRun_->configuration());
+
 	QFont font(this->font());
 	font.setBold(true);
 
@@ -91,6 +94,7 @@ XRFFreeRunView::XRFFreeRunView(XRFFreeRun *xrfFreeRun, QWidget *parent)
 	controlLayout->addSpacing(20);
 	controlLayout->addWidget(startLabel);
 	controlLayout->addLayout(startAndStopLayout);
+	controlLayout->addWidget(scanConfigView);
 	controlLayout->addStretch();
 	controlLayout->addWidget(sortButton);
 	controlLayout->addWidget(configureButton);

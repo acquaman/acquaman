@@ -5,7 +5,7 @@
 
 class VESPERSBeamlineView;
 class AMFreeRunScanConfigurationViewHolder;
-class VESPERSXRFScanConfigurationView;
+class XRFFreeRunView;
 class VESPERSPersistentView;
 
 class VESPERSAppController : public AMAppController {
@@ -37,9 +37,9 @@ protected:
 	/// This is a holder for the VESPERSXRFScanConfigurationView for the four element detector.
 	AMFreeRunScanConfigurationViewHolder *xrf4EConfigHolder_;
 	/// This is the XRF scan configuration.
-	VESPERSXRFScanConfigurationView *xrf1EConfigView_;
+	XRFFreeRunView *xrf1EFreeRunView_;
 	/// This is the XRF scan configuration.
-	VESPERSXRFScanConfigurationView *xrf4EConfigView_;
+	XRFFreeRunView *xrf4EFreeRunView_;
 };
 
 #endif // VESPERSAPPCONTROLLER_H

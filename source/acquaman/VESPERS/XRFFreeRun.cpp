@@ -2,11 +2,20 @@
 
 #include "util/AMPeriodicTable.h"
 
-XRFFreeRun::XRFFreeRun(QObject *parent) :
-	QObject(parent)
+XRFFreeRun::XRFFreeRun(XRFDetector *detector, QObject *parent)
+	: QObject(parent)
 {
+	detector_ = detector;
+	config_ = new VESPERSXRFScanConfiguration(detector_->toXRFInfo());
 	xrfTable_ = new XRFPeriodicTable(AMPeriodicTable::table()->elementBySymbol("K")->Kalpha().second.toDouble(), detector_->maximumEnergy(), this);
 	xrfTable_->setCurrentElement(xrfTable_->elementBySymbol("Fe"));
+
+	connect(config_, SIGNAL(integrationTimeChanged(double)), detector_, SLOT(setTime(double)));
+	connect(config_, SIGNAL(maximumEnergyChanged(double)), detector_, SLOT(setMaximumEnergyControl(double)));
+	connect(config_, SIGNAL(peakingTimeChanged(double)), detector_, SLOT(setPeakingTimeControl(double)));
+
+	connect(config_, SIGNAL(minimumEnergyChanged(double)), xrfTable_, SLOT(setMinimumEnergy(double)));
+	connect(config_, SIGNAL(maximumEnergyChanged(double)), xrfTable_, SLOT(setMaximumEnergy(double)));
 
 	connect(xrfTable_, SIGNAL(addedRegionOfInterest(XRFElement*,QString)), detector_, SLOT(addRegionOfInterest(XRFElement*,QString)));
 	connect(xrfTable_, SIGNAL(removedRegionOfInterest(XRFElement*,QString)), detector_, SLOT(removeRegionOfInterest(XRFElement*,QString)));

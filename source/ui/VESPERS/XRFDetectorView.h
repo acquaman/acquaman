@@ -97,6 +97,8 @@ protected slots:
 	void onDeadTimeUpdate();
 	/// Handles the update from the elapsed time control.
 	void onElapsedTimeUpdate(double time);
+	/// Handles changes in the dead time and passes on the dead time to the dead time buttons.
+	void onDeadTimeChanged();
 	/// Handles enabling/disabling of elements based on which button is clicked in the dead time button group.
 	void elementClicked(int elementId);
 	/// Handles changes from the spectrum update rate combo box.

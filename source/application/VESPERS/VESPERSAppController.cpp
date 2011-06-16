@@ -6,7 +6,7 @@
 #include "ui/AMStartScreen.h"
 
 #include "ui/VESPERS/XRFDetectorView.h"
-#include "ui/VESPERS/VESPERSXRFScanConfigurationView.h"
+#include "ui/VESPERS/XRFFreeRunView.h"
 #include "ui/AMScanConfigurationViewHolder.h"
 #include "ui/AMFreeRunScanConfigurationViewHolder.h"
 #include "ui/VESPERS/VESPERSPersistentView.h"
@@ -86,13 +86,13 @@ bool VESPERSAppController::startup() {
 		mw_->addPane(vespersView_, "Beamline Control", "Endstation", ":/system-software-update.png");
 		//mw_->addPane(statusPage, "Beamline Control", "Device Status", ":/system-software-update.png");
 
-		xrf1EConfigView_ = new VESPERSXRFScanConfigurationView(new VESPERSXRFScanConfiguration(VESPERSBeamline::vespers()->vortexXRF1E()));
-		xrf4EConfigView_ = new VESPERSXRFScanConfigurationView(new VESPERSXRFScanConfiguration(VESPERSBeamline::vespers()->vortexXRF4E()));
-		xrf1EConfigHolder_ = new AMFreeRunScanConfigurationViewHolder(workflowManagerView_, xrf1EConfigView_);
-		xrf4EConfigHolder_ = new AMFreeRunScanConfigurationViewHolder(workflowManagerView_, xrf4EConfigView_);
+		xrf1EFreeRunView_ = new XRFFreeRunView(new XRFFreeRun(VESPERSBeamline::vespers()->vortexXRF1E()));
+		xrf4EFreeRunView_ = new XRFFreeRunView(new XRFFreeRun(VESPERSBeamline::vespers()->vortexXRF4E()));
+		xrf1EConfigHolder_ = new AMFreeRunScanConfigurationViewHolder(workflowManagerView_, xrf1EFreeRunView_);
+		xrf4EConfigHolder_ = new AMFreeRunScanConfigurationViewHolder(workflowManagerView_, xrf4EFreeRunView_);
 
-		connect(xrf1EConfigView_, SIGNAL(startScan()), xrf1EConfigHolder_, SLOT(onFreeRunStartRequested()));
-		connect(xrf4EConfigView_, SIGNAL(startScan()), xrf4EConfigHolder_, SLOT(onFreeRunStartRequested()));
+		connect(xrf1EFreeRunView_, SIGNAL(startScan()), xrf1EConfigHolder_, SLOT(onFreeRunStartRequested()));
+		connect(xrf4EFreeRunView_, SIGNAL(startScan()), xrf4EConfigHolder_, SLOT(onFreeRunStartRequested()));
 
 		mw_->insertHeading("Free run", 1);
 		mw_->addPane(xrf1EConfigHolder_, "Free run", "XRF 1-el", ":/utilities-system-monitor.png");

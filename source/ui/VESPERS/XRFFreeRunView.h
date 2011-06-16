@@ -23,7 +23,7 @@ signals:
 
 protected slots:
 	/// Handles what happens when the start button is clicked.
-	void onStartClicked() { detector_->setTime(integrationTime_->value()); start_->setDisabled(true); emit startScan(); }
+	void onStartClicked() { start_->setDisabled(true); emit startScan(); }
 	/// Handles what happens when the stop button is clicked.
 	void onStopClicked();
 	/// Changes the disabled state of the start button based on the status of the detector.
