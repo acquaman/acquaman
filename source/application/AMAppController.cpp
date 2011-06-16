@@ -35,7 +35,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMMainWindow.h"
 #include "ui/AMWorkflowManagerView.h"
 #include "ui/BottomBar.h"
-#include "ui/AMDataView.h"
+#include "ui/AMDataViewWithActionButtons.h"
 #include "ui/AMRunExperimentInsert.h"
 #include "ui/AMGenericScanEditor.h"
 
@@ -87,7 +87,7 @@ bool AMAppController::startup() {
 
 	// Make a dataview widget and add it under two links/headings: "Runs" and "Experiments". See AMMainWindowModel for more information.
 	////////////////////////////////////
-	dataView_ = new AMDataView();
+	dataView_ = new AMDataViewWithActionButtons();
 	dataView_->setWindowTitle("Data");
 
 	QStandardItem* dataViewItem = new QStandardItem();
@@ -204,9 +204,9 @@ void AMAppController::onMainWindowAliasItemActivated(QWidget *target, const QStr
 
 	if(target == dataView_) {
 		if(key == "Runs")
-			dataView_->showRun(value.toInt());
+			dataView_->dataView()->showRun(value.toInt());
 		if(key == "Experiments")
-			dataView_->showExperiment(value.toInt());
+			dataView_->dataView()->showExperiment(value.toInt());
 	}
 }
 

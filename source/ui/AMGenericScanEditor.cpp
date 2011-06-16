@@ -36,6 +36,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMRunSelector.h"
 #include "ui/AMSampleEditor.h"
 #include "ui/AMDataSourcesEditor.h"
+#include "ui/AMChooseScanDialog.h"
 
 AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 		QWidget(parent)
@@ -117,6 +118,8 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 	// close button and save buttons are initially disabled; there's no scan to act on
 	ui_.closeScanButton->setEnabled(false);
 	ui_.saveScanButton->setEnabled(false);
+
+	chooseScanDialog_ = 0;
 
 }
 
@@ -408,11 +411,21 @@ void AMGenericScanEditor::onSaveScanButtonClicked() {
 }
 
 void AMGenericScanEditor::onOpenScanButtonClicked() {
-	/// \todo need open scan browser dialog
+	if(!chooseScanDialog_) {
+		chooseScanDialog_ = new AMChooseScanDialog(AMDatabase::userdb(), "Add an existing scan", "Choose one or more existing scans to open in this editor.", true, this);
+		connect(chooseScanDialog_, SIGNAL(accepted()), this, SLOT(onChooseScanDialogAccepted()));
+	}
+
+	chooseScanDialog_->show();
 }
 
 void AMGenericScanEditor::deleteScan(AMScan *scan) {
 	scanSetModel_->removeScan(scan);
 	delete scan;
 	refreshWindowTitle();
+}
+
+void AMGenericScanEditor::onChooseScanDialogAccepted()
+{
+	dropScanURLs(chooseScanDialog_->getSelectedScans());
 }

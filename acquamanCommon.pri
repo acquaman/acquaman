@@ -232,6 +232,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMControlSetView.h \
 	source/ui/AMCramBarHorizontal.h \
 	source/ui/AMDataView.h \
+	source/ui/AMDataViewWithActionButtons.h \
 	source/ui/AMFirstTimeWidget.h \
 	source/ui/AMFlowGraphicsLayout.h \
 	source/ui/AMImportControllerWidget.h \
@@ -358,7 +359,8 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/analysis/AMExternalScanDataSourceAB.h \
 	source/analysis/AM1DSummingAB.h \
 	source/analysis/AMDeadTimeAB.h \
-	source/dataman/AMProcessVariableDataSource.h
+	source/dataman/AMProcessVariableDataSource.h \
+    source/ui/AMChooseScanDialog.h
 FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
 	source/ui/AMDataViewSectionHeader.ui \
@@ -369,7 +371,9 @@ FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMDataSourcesEditor.ui \
 	source/ui/AMSamplePlateSelector.ui \
 	source/ui/AMSamplePositionViewActionsWidget.ui \
-	source/ui/AMExporterOptionGeneralAsciiView.ui
+	source/ui/AMExporterOptionGeneralAsciiView.ui \
+	source/ui/AMDataViewActionsBar.ui \
+    source/ui/AMChooseScanDialog.ui
 SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	../MPlot/src/MPlot/MPlotAbstractTool.cpp \
 	../MPlot/src/MPlot/MPlotAxis.cpp \
@@ -454,6 +458,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMControlSetView.cpp \
 	source/ui/AMCramBarHorizontal.cpp \
 	source/ui/AMDataView.cpp \
+	source/ui/AMDataViewWithActionButtons.cpp \
 	source/ui/AMFlowGraphicsLayout.cpp \
 	source/ui/AMMainWindow.cpp \
 	source/ui/AMRegionsLineView.cpp \
@@ -574,7 +579,8 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/analysis/AMExternalScanDataSourceAB.cpp \
 	source/analysis/AM1DSummingAB.cpp \
 	source/analysis/AMDeadTimeAB.cpp \
-	source/dataman/AMProcessVariableDataSource.cpp
+	source/dataman/AMProcessVariableDataSource.cpp \
+    source/ui/AMChooseScanDialog.cpp
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc \
 	source/util/ElementData.qrc \
