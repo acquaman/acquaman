@@ -15,6 +15,10 @@ SGMFastScanConfiguration::SGMFastScanConfiguration(QObject *parent) : AMFastScan
 	settings_.append( new SGMFastScanParameters("Copper", 20.0, 925.0, 935.0, 945.0, 450, 450, 450, 20.0, 800, 1000, 0, this));
 	settings_.append( new SGMFastScanParameters("Carbon", 5.0, 280.0, 295.0, 320.0, 19000, 19000, 19000, 5.0, 200, 1000, 0, this));
 	settings_.append( new SGMFastScanParameters("David", 5.0, 700.0, 715.0, 730.0, 10000, 10000, 10000, 5.0, 200, 1000, 0, this));
+	settings_.append( new SGMFastScanParameters("Zinc 3/2", 5.0, 1010.0, 1025.0, 1040.0, 3200, 3200, 3200, 5.0, 200, 1000, 0, this));
+	settings_.append( new SGMFastScanParameters("Zinc 1/2", 5.0, 1025.0, 1040.0, 1055.0, 3350, 3350, 3350, 5.0, 200, 1000, 0, this));
+	settings_.append( new SGMFastScanParameters("Zinc L", 5.0, 1010.0, 1035.0, 1060.0, 6000, 6000, 6000, 5.0, 200, 1000, 0, this));
+	settings_.append( new SGMFastScanParameters("Zinc L", 20.0, 1010.0, 1025.0, 1040.0, 860, 860, 860, 20.0, 200, 1000, 0, this));
 
 	setParametersFromPreset(0);
 
@@ -39,6 +43,10 @@ SGMFastScanConfiguration::SGMFastScanConfiguration(const SGMFastScanConfiguratio
 	settings_.append( new SGMFastScanParameters("Copper", 20.0, 925.0, 935.0, 945.0, 450, 450, 450, 20.0, 800, 1000, 0, this));
 	settings_.append( new SGMFastScanParameters("Carbon", 5.0, 280.0, 295.0, 320.0, 19000, 19000, 19000, 5.0, 200, 1000, 0, this));
 	settings_.append( new SGMFastScanParameters("David", 5.0, 700.0, 715.0, 730.0, 10000, 10000, 10000, 5.0, 200, 1000, 0, this));
+	settings_.append( new SGMFastScanParameters("Zinc 3/2", 5.0, 1010.0, 1025.0, 1040.0, 3200, 3200, 3200, 5.0, 200, 1000, 0, this));
+	settings_.append( new SGMFastScanParameters("Zinc 1/2", 5.0, 1025.0, 1040.0, 1055.0, 3350, 3350, 3350, 5.0, 200, 1000, 0, this));
+	settings_.append( new SGMFastScanParameters("Zinc L", 5.0, 1010.0, 1035.0, 1060.0, 6000, 6000, 6000, 5.0, 200, 1000, 0, this));
+	settings_.append( new SGMFastScanParameters("Zinc L", 20.0, 1010.0, 1025.0, 1040.0, 860, 860, 860, 20.0, 200, 1000, 0, this));
 
 	bool foundPreset = false;
 	for(int x = 0; x < settings_.count(); x++){

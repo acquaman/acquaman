@@ -18,8 +18,13 @@ AMFastScan::AMFastScan(QObject *parent) :
 bool AMFastScan::loadDataImplementation(){
 	SGM2010FastFileLoader sgmLoader(this);
 
+	QFileInfo sourceFileInfo(filePath());
+	if(sourceFileInfo.isRelative()){
+		qDebug() << "Path IS relative, user data folder is " << AMUserSettings::userDataFolder;
+		sourceFileInfo.setFile(AMUserSettings::userDataFolder + "/" + filePath());
+	}
 	if(fileFormat() == sgmLoader.formatTag()) {
-		if(sgmLoader.loadFromFile(filePath(), false, false, false)) {
+		if(sgmLoader.loadFromFile(sourceFileInfo.filePath(), false, false, false)) {
 			return true;
 		}
 		else {

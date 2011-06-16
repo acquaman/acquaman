@@ -40,7 +40,6 @@ CLSVMEMotor::CLSVMEMotor(const QString &name, const QString &baseName, const QSt
 	connect(acceleration_, SIGNAL(valueChanged(double)), this, SIGNAL(accelerationChanged(double)));
 	connect(currentVelocity_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
 	connect(currentVelocity_, SIGNAL(valueChanged(double)), this, SIGNAL(currentVelocityChanged(double)));
-	connect(this, SIGNAL(moveFailed(int)), this, SLOT(onStopped(int)));
 }
 
 bool CLSVMEMotor::isConnected() const{

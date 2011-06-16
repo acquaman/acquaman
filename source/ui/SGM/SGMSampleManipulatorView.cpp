@@ -116,6 +116,11 @@ SGMSampleManipulatorView::SGMSampleManipulatorView(bool bigButtons, QWidget *par
 		transferPositionButton_->setMinimumHeight(100);
 		measurePositionButton_->setMinimumHeight(100);
 		hvButton_->setMinimumHeight(100);
+
+		illuminatorOff_->setMinimumHeight(75);
+		illuminatorDim_->setMinimumHeight(75);
+		illuminatorMid_->setMinimumHeight(75);
+		illuminatorOn_->setMinimumHeight(75);
 	}
 
 	connect(mUpButton_, SIGNAL(pressed()), this, SLOT(onMUpButtonPressed()));

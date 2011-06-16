@@ -137,7 +137,7 @@ protected:
 	QString krDataSourceDescription(const QString& dataSourceName = QString());	// returns description if it has one, otherwise defaults to name
 	QString krDataSourceUnits(const QString& dataSourceName = QString());
 	QString krDataSourceSize(const QString& dataSourceName = QString());
-	QString krDataSourceInfoDescription(const QString& dataSourceName = QString()); // returns info description if it has one, otherwise nothing
+	QString krDataSourceInfoDescription(const QString& dataSourceName = QString()); // returns info description if it has one, otherwise nothing4
 
 	/// can only be used on the current data source, and only on 2D sources. Referring to the second dimension here (Columns in our output table)
 	QString krDataSourceAxisValue(const QString& unused = QString());
