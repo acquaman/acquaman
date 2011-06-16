@@ -26,7 +26,7 @@ VESPERSBeamline::VESPERSBeamline()
 	setupDiagnostics();
 	setupSampleStage();
 	setupEndstation();
-	//setupSingleElementDetector();
+	setupSingleElementDetector();
 	setupFourElementDetector();
 	setupControlSets();
 }
