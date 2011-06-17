@@ -20,6 +20,9 @@
 VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	: QWidget(parent)
 {
+	/// \todo this is a bit of a hack.  Do this more thoroughly.
+	window_ = 0;
+
 	// The controls.
 	ccdControl_ = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->ccdMotor());
 	microscopeControl_ = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->microscopeMotor());
@@ -490,6 +493,9 @@ bool VESPERSEndstationView::loadConfiguration()
 
 	microscopeNames_ = qMakePair((QString)contents.at(16), (QString)contents.at(17));
 
+	if (window_)
+		window_->setControl(window_->control(), softLimits_.value(window_->control()).first, softLimits_.value(window_->control()).second);
+
 	return true;
 }
 
@@ -656,7 +662,6 @@ VESPERSEndstationConfiguration::VESPERSEndstationConfiguration(QWidget *parent)
 
 bool VESPERSEndstationConfiguration::saveFile()
 {
-	qDebug() << QDir::currentPath()+"endstation.config";
 	QFile file(QDir::currentPath() + "/endstation.config");
 
 	if (!file.open(QFile::WriteOnly | QFile::Text)){
@@ -692,8 +697,7 @@ bool VESPERSEndstationConfiguration::saveFile()
 
 	hide();
 
-	if(loadFile())
-		emit configurationChanged();
+	emit configurationChanged();
 
 	return true;
 }
