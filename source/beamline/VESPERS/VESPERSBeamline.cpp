@@ -238,10 +238,10 @@ void VESPERSBeamline::setupEndstation()
 
 void VESPERSBeamline::setupDetectors()
 {
-	vortex1E_ = new XRFDetector("1-el Vortex", 1, "IOC1607-004:mca", this);
+	vortex1E_ = new XRFDetector("1-el Vortex", 1, "IOC1607-004", this);
 	connect(vortexXRF1E(), SIGNAL(detectorConnected(bool)), this, SLOT(singleElVortexError(bool)));
 
-	vortex4E_ = new XRFDetector("4-el Vortex", 4, "dxp1607-B21-04:mca", this);
+	vortex4E_ = new XRFDetector("4-el Vortex", 4, "dxp1607-B21-04", this);
 	connect(vortexXRF4E(), SIGNAL(detectorConnected(bool)), this, SLOT(fourElVortexError(bool)));
 }
 

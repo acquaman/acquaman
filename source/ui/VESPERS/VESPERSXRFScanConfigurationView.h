@@ -24,17 +24,10 @@ protected slots:
 	void onAdvancedSettingsChanged(bool advanced);
 	/// Handles new values set from the integration time spin box and passes it along to the configuration.
 	void onIntegrationTimeUpdate() { configuration_->setIntegrationTime(integrationTime_->value()); }
-	/// Handles new values set from the minimum energy spin box and passes it along to the configuration.
-	void onMinimumEnergyUpdate() { configuration_->setMinimumEnergy(minEnergy_->value()*1000); }
 	/// Handles new values set from the maximum energy spin box and passes it along to the configuration.
 	void onMaximumEnergyUpdate() { configuration_->setMaximumEnergy(maxEnergy_->value()*1000); }
 	/// Handles new values set from the peaking time spin box and passes it along to the configuration.
 	void onPeakingTimeUpdate() { configuration_->setPeakingTime(peakingTime_->value()); }
-
-	/// Handles new values for the minimum energy from the configuration.
-	void onMinimumEnergyChanged(double energy) { minEnergy_->setValue(energy/1000); }
-	/// Handles new values for the maximum energy from the configuration.
-	void onMaximumEnergyChanged(double energy) { maxEnergy_->setValue(energy/1000); }
 
 protected:
 
@@ -43,10 +36,6 @@ protected:
 
 	/// The integration time spin box.
 	QDoubleSpinBox *integrationTime_;
-	/// The label for the minimum energy spin box.
-	QLabel *minEnergyLabel_;
-	/// The minimum energy of the detector.  Value is in keV.
-	QDoubleSpinBox *minEnergy_;
 	/// The label for the maximum energy spin box.
 	QLabel *maxEnergyLabel_;
 	/// The maximum energy of the detector.  Value is in keV.

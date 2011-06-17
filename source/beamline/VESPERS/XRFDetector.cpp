@@ -14,17 +14,33 @@ XRFDetector::XRFDetector(QString name, int elements, QString baseName, QObject *
 
 	for (int i = 0; i < elements; i++){
 
-		statusPV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".ACQG", true, this);
-		refreshRatePV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".SCAN", true, this);
-		peakingTimePV_ << new AMProcessVariable(baseName+QString(":dxp%1").arg(i+1)+".PKTIM", true, this);
-		maximumEnergyPV_ << new AMProcessVariable(baseName+QString(":dxp%1").arg(i+1)+".EMAX", true, this);
-		integrationTimePV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".PRTM", true, this);
-		liveTimePV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".PLTM", true, this);
-		elapsedTimePV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".ERTM", true, this);
+		if (i == 0){
+
+			statusPV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".ACQG", true, this);
+			refreshRatePV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".SCAN", true, this);
+			peakingTimePV_ << new AMProcessVariable(baseName+QString(":dxp%1").arg(i+1)+".PKTIM", true, this);
+			maximumEnergyPV_ << new AMProcessVariable(baseName+QString(":dxp%1").arg(i+1)+".EMAX", true, this);
+			integrationTimePV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".PRTM", true, this);
+			liveTimePV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".PLTM", true, this);
+			elapsedTimePV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".ERTM", true, this);
+			startPV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".ERST", true, this);
+			stopPV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".STOP", true, this);
+		}
+		else{
+
+			statusPV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".ACQG", false, this);
+			refreshRatePV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".SCAN", false, this);
+			peakingTimePV_ << new AMProcessVariable(baseName+QString(":dxp%1").arg(i+1)+".PKTIM", false, this);
+			maximumEnergyPV_ << new AMProcessVariable(baseName+QString(":dxp%1").arg(i+1)+".EMAX", false, this);
+			integrationTimePV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".PRTM", false, this);
+			liveTimePV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".PLTM", false, this);
+			elapsedTimePV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".ERTM", false, this);
+			startPV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".ERST", false, this);
+			stopPV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".STOP", false, this);
+		}
+
 		icrPV_ << new AMProcessVariable(baseName+QString(":dxp%1").arg(i+1)+".ICR", true, this);
 		ocrPV_ << new AMProcessVariable(baseName+QString(":dxp%1").arg(i+1)+".OCR", true, this);
-		startPV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".ERST", true, this);
-		stopPV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".STOP", true, this);
 		spectraPV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1), true, this);
 
 		statusPV_.at(i)->disablePutCallbackMode(true);
@@ -92,10 +108,10 @@ void XRFDetector::createROIList(QString baseName)
 
 		for (int i = 0; i < elements_; i++){
 
-			namePV = new AMProcessVariable(baseName+QString::number(i+1)+".R"+QString::number(j)+"NM", true);
-			lowPV = new AMProcessVariable(baseName+QString::number(i+1)+".R"+QString::number(j)+"LO", true);
-			highPV = new AMProcessVariable(baseName+QString::number(i+1)+".R"+QString::number(j)+"HI", true);
-			valPV = new AMProcessVariable(baseName+QString::number(i+1)+".R"+QString::number(j), true);
+			namePV = new AMProcessVariable(baseName+":mca"+QString::number(i+1)+".R"+QString::number(j)+"NM", true, this);
+			lowPV = new AMProcessVariable(baseName+":mca"+QString::number(i+1)+".R"+QString::number(j)+"LO", true, this);
+			highPV = new AMProcessVariable(baseName+":mca"+QString::number(i+1)+".R"+QString::number(j)+"HI", true, this);
+			valPV = new AMProcessVariable(baseName+":mca"+QString::number(i+1)+".R"+QString::number(j), true, this);
 
 			namePV->disablePutCallbackMode(true);
 			lowPV->disablePutCallbackMode(true);
@@ -118,7 +134,7 @@ double XRFDetector::deadTime()
 {
 	// For the single element, return the value.  For multi-element detectors, return the worst.
 	if (elements_ == 1)
-		return 1 - ocrPV_.first()->getDouble()/icrPV_.first()->getDouble();
+		return deadTimeAt(0);
 
 	else {
 
@@ -221,6 +237,7 @@ void XRFDetector::onConnectedChanged(bool isConnected)
 		connect(integrationTimePV_.first(), SIGNAL(valueChanged(double)), this, SLOT(onIntegrationTimeChanged(double)));
 		connect(elapsedTimePV_.first(), SIGNAL(valueChanged(double)), this, SIGNAL(elapsedTimeChanged(double)));
 		connect(icrPV_.first(), SIGNAL(valueChanged()), this, SIGNAL(deadTimeChanged()));
+		connect(ocrPV_.first(), SIGNAL(valueChanged()), this, SIGNAL(deadTimeChanged()));
 	}
 	else{
 
@@ -231,6 +248,7 @@ void XRFDetector::onConnectedChanged(bool isConnected)
 		disconnect(integrationTimePV_.first(), SIGNAL(valueChanged(double)), this, SLOT(onIntegrationTimeChanged(double)));
 		disconnect(elapsedTimePV_.first(), SIGNAL(valueChanged(double)), this, SIGNAL(elapsedTimeChanged(double)));
 		disconnect(icrPV_.first(), SIGNAL(valueChanged()), this, SIGNAL(deadTimeChanged()));
+		disconnect(ocrPV_.first(), SIGNAL(valueChanged()), this, SIGNAL(deadTimeChanged()));
 	}
 
 	allRoisHaveValues();
@@ -386,7 +404,7 @@ QVector<int> XRFDetector::spectraValues(int index)
 double XRFDetector::deadTimeAt(int index)
 {
 	if (index < elements_ && index >= 0)
-		return 1 - ocrPV_.at(index)->getDouble()/icrPV_.at(index)->getDouble();
+		return 100*(1 - ocrPV_.at(index)->getDouble()/icrPV_.at(index)->getDouble());
 
 	return -1;
 }

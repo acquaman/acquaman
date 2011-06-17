@@ -59,9 +59,8 @@ public:
 	/// Returns the status as an bool.  true is acquiring, false is done.
 	bool status() const
 	{
-		for (int i = 0; i < elements_; i++)
-			if (statusPV_.at(i)->getInt(0) == 1)
-				return true;
+		if (statusPV_.first()->getInt() == 1)
+			return true;
 
 		return false;
 	}

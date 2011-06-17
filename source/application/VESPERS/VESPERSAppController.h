@@ -23,23 +23,6 @@ public:
 
 	/// destroy all of the windows, widgets, and data objects created by applicationStartup(). Only call this if startup() has ran successfully.  If reimplementing, must call the base-class shutdown() as the last thing it does.
 	virtual void shutdown();
-
-
-protected slots:
-
-protected:
-	/// This contains the general endstation view.
-	VESPERSBeamlineView *vespersView_;
-	/// This is the top bar, which is persistent in the application regardless of what is currently active.
-	VESPERSPersistentView *persistentView_;
-	/// This is a holder for the VESPERSXRFScanConfigurationView for the single element detector.
-	AMFreeRunScanConfigurationViewHolder *xrf1EConfigHolder_;
-	/// This is a holder for the VESPERSXRFScanConfigurationView for the four element detector.
-	AMFreeRunScanConfigurationViewHolder *xrf4EConfigHolder_;
-	/// This is the XRF scan configuration.
-	XRFFreeRunView *xrf1EFreeRunView_;
-	/// This is the XRF scan configuration.
-	XRFFreeRunView *xrf4EFreeRunView_;
 };
 
 #endif // VESPERSAPPCONTROLLER_H

@@ -103,8 +103,6 @@ protected slots:
 	void elementClicked(int elementId);
 	/// Handles changes from the spectrum update rate combo box.
 	void onComboBoxUpdate(int index);
-	/// Handles the changes from the update rate control.
-	void onUpdateRateUpdate(double val);
 	/// Handles when the log scale button is clicked.  It takes a log of the data if true.
 	void onLogEnabled(bool logged);
 	/// Enables/Disables whether the raw spectra are displayed or the corrected sum.
@@ -114,7 +112,7 @@ protected slots:
 	/// Handles if the detector ROIs have changed from an external source.  This listens to the externalRegionsOfInterestChanged signal and changes all the markers to reflect the new list.
 	void onExternalRegionsOfInterestChanged();
 	/// Handles changing the indicator light when status changes.
-	void onStatusChanged() { detector_->status() == true ? status_->setPixmap(QIcon(":/ON.png").pixmap(20)) : status_->setPixmap(QIcon(":/OFF.png").pixmap(20)); }
+	void onStatusChanged(bool status) { status == true ? status_->setPixmap(QIcon(":/ON.png").pixmap(20)) : status_->setPixmap(QIcon(":/OFF.png").pixmap(20)); }
 
 	/// Hack to save the spectra.  For four element it will print out the four raw data and the corrected sum.
 	void saveSpectra();

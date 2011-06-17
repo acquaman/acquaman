@@ -95,7 +95,7 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 
 	status_ = new QLabel;
 	status_->setPixmap(QIcon(":/OFF.png").pixmap(20));
-	connect(detector_, SIGNAL(statusChanged()), this, SLOT(onStatusChanged()));
+	connect(detector_, SIGNAL(statusChanged(bool)), this, SLOT(onStatusChanged(bool)));
 
 	elapsedTime_ = new QLabel(tr(" s"));
 	connect(detector_, SIGNAL(elapsedTimeChanged(double)), this, SLOT(onElapsedTimeUpdate(double)));
@@ -131,7 +131,6 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	updateRate_->addItem("1 sec");
 	updateRate_->addItem("0.2 sec");
 	connect(updateRate_, SIGNAL(currentIndexChanged(int)), this, SLOT(onComboBoxUpdate(int)));
-	connect(detector_, SIGNAL(refreshRateChanged(double)), this, SLOT(onUpdateRateUpdate(double)));
 
 	isWaterfall_ = false;
 
@@ -297,30 +296,6 @@ void XRFDetailedDetectorView::onComboBoxUpdate(int index)
 		detector_->setRefreshRate(XRFDetector::Fast);
 		break;
 	}
-}
-
-void XRFDetailedDetectorView::onUpdateRateUpdate(double val)
-{
-	// This is here to stop the VESPERS single element detector from hurting getting into an infinite signal/slot loop.  It only seems to be it.  If this problem goes away then this line can be removed.
-	if (detector_->elements() == 1)
-		disconnect(updateRate_, SIGNAL(currentIndexChanged(int)), this, SLOT(onComboBoxUpdate(int)));
-
-	switch((int)val){
-
-	case 0:
-		updateRate_->setCurrentIndex(0);
-		break;
-	case 6:
-		updateRate_->setCurrentIndex(1);
-		break;
-	case 8:
-		updateRate_->setCurrentIndex(2);
-		break;
-	}
-
-	// This is here to stop the VESPERS single element detector from hurting getting into an infinite signal/slot loop.  It only seems to be it.  If this problem goes away then this line can be removed.
-	if (detector_->elements() == 1)
-		connect(updateRate_, SIGNAL(currentIndexChanged(int)), this, SLOT(onComboBoxUpdate(int)));
 }
 
 void XRFDetailedDetectorView::setupPlot()
