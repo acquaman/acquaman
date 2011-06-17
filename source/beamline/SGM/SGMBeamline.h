@@ -22,6 +22,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define ACQMAN_SGMBEAMLINE_H
 
 #include "beamline/AMBeamline.h"
+#include "beamline/SGM/SGMBeamlineInfo.h"
+
 #include "beamline/AMDetector.h"
 #include "beamline/AMSingleControlDetector.h"
 #include "beamline/MCPDetector.h"
@@ -62,6 +64,8 @@ public:
 	};
 	QString sgmGratingName(SGMBeamline::sgmGrating grating) const;
 	QString sgmGratingDescription(SGMBeamline::sgmGrating grating) const;
+	SGMEnergyParameters* energyParametersForGrating(SGMBeamline::sgmGrating grating) const;
+	SGMBeamline::sgmGrating currentGrating() const;
 
 	enum sgmHarmonic{
 		firstHarmonic = 0,
@@ -309,6 +313,8 @@ protected slots:
 protected:
 	// Singleton implementation:
 	SGMBeamline();					// protected constructor... only access through Beamline::bl()
+
+	SGMBeamlineInfo *infoObject_;
 
 	// Parts of this beamline:
 	///////////////////////////////

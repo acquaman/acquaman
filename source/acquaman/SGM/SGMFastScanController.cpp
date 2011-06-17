@@ -12,12 +12,7 @@ SGMFastScanController::SGMFastScanController(SGMFastScanConfiguration *cfg){
 	pScan()->setFileFormat("sgm2010Fast");
 	pScan()->setRunId(AMUser::user()->currentRunId());
 	pScan()->setScanConfiguration(pCfg());
-	if(SGMBeamline::sgm()->grating()->value() == SGMBeamline::lowGrating)
-		pCfg()->setEnergyParametersFromPreset(0);
-	else if(SGMBeamline::sgm()->grating()->value() == SGMBeamline::mediumGrating)
-		pCfg()->setEnergyParametersFromPreset(1);
-	else if(SGMBeamline::sgm()->grating()->value() == SGMBeamline::highGrating)
-		pCfg()->setEnergyParametersFromPreset(2);
+	pCfg()->setEnergyParameters(SGMBeamline::sgm()->energyParametersForGrating(SGMBeamline::sgm()->currentGrating()));
 	pScan()->setSampleId(SGMBeamline::sgm()->currentSampleId());
 	QString scanName;
 	QString sampleName;

@@ -22,24 +22,9 @@ SGMFastScanConfiguration::SGMFastScanConfiguration(QObject *parent) : AMFastScan
 	settings_.append( new SGMFastScanParameters("Zinc L", 5.0, 1010.0, 1035.0, 1060.0, 6000, 6000, 6000, 5.0, 200, 1000, 0, this));
 	settings_.append( new SGMFastScanParameters("Zinc L", 20.0, 1010.0, 1025.0, 1040.0, 860, 860, 860, 20.0, 200, 1000, 0, this));
 
-	energyParameters_.append( new SGMEnergyParameters(1.68923e-06, 2.45477e-05, -1.59392, 509.468, 3.05575, this) );
-	energyParameters_.append( new SGMEnergyParameters(9.16358e-07, 2.46204e-05, -1.59047, 511.292, 3.05478, this) );
-	energyParameters_.append( new SGMEnergyParameters(5.9087e-07,  2.45691e-05, -1.59401, 510.465, 3.05458, this) );
-
 	setParametersFromPreset(0);
 
-	if(SGMBeamline::sgm()->grating()->value() == SGMBeamline::lowGrating){
-		qDebug() << "Go for low";
-		setEnergyParametersFromPreset(0);
-	}
-	else if(SGMBeamline::sgm()->grating()->value() == SGMBeamline::mediumGrating){
-		qDebug() << "Go for medium";
-		setEnergyParametersFromPreset(1);
-	}
-	else if(SGMBeamline::sgm()->grating()->value() == SGMBeamline::highGrating){
-		qDebug() << "Go for high";
-		setEnergyParametersFromPreset(2);
-	}
+	currentEnergyParameters_ = new SGMEnergyParameters(SGMBeamline::sgm()->energyParametersForGrating(SGMBeamline::sgm()->currentGrating()));
 
 	fastDetectors_ = SGMBeamline::sgm()->FastDetectors();
 
@@ -68,10 +53,6 @@ SGMFastScanConfiguration::SGMFastScanConfiguration(const SGMFastScanConfiguratio
 	settings_.append( new SGMFastScanParameters("Zinc 1/2", 5.0, 1025.0, 1040.0, 1055.0, 3350, 3350, 3350, 5.0, 200, 1000, 0, this));
 	settings_.append( new SGMFastScanParameters("Zinc L", 5.0, 1010.0, 1035.0, 1060.0, 6000, 6000, 6000, 5.0, 200, 1000, 0, this));
 	settings_.append( new SGMFastScanParameters("Zinc L", 20.0, 1010.0, 1025.0, 1040.0, 860, 860, 860, 20.0, 200, 1000, 0, this));
-
-	energyParameters_.append( new SGMEnergyParameters(1.68923e-06, 2.45477e-05, -1.59392, 509.468, 3.05575, this) );
-	energyParameters_.append( new SGMEnergyParameters(9.16358e-07, 2.46204e-05, -1.59047, 511.292, 3.05478, this) );
-	energyParameters_.append( new SGMEnergyParameters(5.9087e-07,  2.45691e-05, -1.59401, 510.465, 3.05458, this) );
 
 	bool foundPreset = false;
 	for(int x = 0; x < settings_.count(); x++){
@@ -305,11 +286,13 @@ bool SGMFastScanConfiguration::setScalerTime(double scalerTime){
 	return true;
 }
 
+/*
 bool SGMFastScanConfiguration::setEnergyParametersFromPreset(int index){
 	if(index < 0 && index >= energyParameters_.count())
 		return false;
 	return setEnergyParameters(energyParameters_.at(index));
 }
+*/
 
 bool SGMFastScanConfiguration::setEnergyParameters(SGMEnergyParameters *parameters){
 	if(!parameters)
@@ -435,33 +418,4 @@ bool SGMFastScanParameters::operator ==(const SGMFastScanParameters &other){
 		return true;
 	}
 	return false;
-}
-
-SGMEnergyParameters::SGMEnergyParameters(QObject *parent) : QObject(parent)
-{
-}
-
-SGMEnergyParameters::SGMEnergyParameters(double spacingParameter, double c1Parameter, double c2Parameter, double sParameter, double thetaParameter, QObject *parent) :
-		QObject(parent)
-{
-	setSpacingParameter(spacingParameter);
-	setC1Parameter(c1Parameter);
-	setC2Parameter(c2Parameter);
-	setSParameter(sParameter);
-	setThetaParameter(thetaParameter);
-}
-
-bool SGMEnergyParameters::operator ==(const SGMEnergyParameters &other){
-	if( (fabs(spacingParameter() - other.spacingParameter() ) <= 0.001e-07) &&
-	    (fabs(c1Parameter() - other.c1Parameter()) <= 0.0001e-05) &&
-	    (fabs(c2Parameter() - other.c2Parameter()) <= 0.0001) &&
-	    (fabs(sParameter() - other.sParameter()) <= 0.01) &&
-	    (fabs(thetaParameter() - other.thetaParameter()) <= 0.00001) ){
-		return true;
-	}
-	return false;
-}
-
-bool SGMEnergyParameters::operator !=(const SGMEnergyParameters &other){
-	return !(this->operator ==(other));
 }

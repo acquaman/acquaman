@@ -18,7 +18,8 @@ HEADERS += 	source/application/SGM/SGMSSAAppController.h \
 	source/ui/SGMXASScanConfigurationWizard.h \
 	source/ui/SGMSidebar.h \
 	source/ui/SGMFastScanConfigurationView.h \
-	source/ui/SGM/SGMSampleManipulatorView.h
+	source/ui/SGM/SGMSampleManipulatorView.h \
+	source/beamline/SGM/SGMBeamlineInfo.h
 
 SOURCES +=	source/application/SGM/SGMSSAMain.cpp \
 	source/application/SGM/SGMSSAAppController.cpp \
@@ -35,7 +36,8 @@ SOURCES +=	source/application/SGM/SGMSSAMain.cpp \
 	source/ui/SGMXASScanConfigurationWizard.cpp \
 	source/ui/SGMSidebar.cpp \
 	source/ui/SGMFastScanConfigurationView.cpp \
-	source/ui/SGM/SGMSampleManipulatorView.cpp
+	source/ui/SGM/SGMSampleManipulatorView.cpp \
+	source/beamline/SGM/SGMBeamlineInfo.cpp
 
 RESOURCES += \
     source/beamline/SGM/TransferHelpImages/LoadLockOutImages.qrc \

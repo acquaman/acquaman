@@ -656,6 +656,8 @@ void SGMBeamline::usingFakeBeamline(){
 }
 
 SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
+	infoObject_ = new SGMBeamlineInfo(this);
+
 	//usingFakeBeamline();
 	usingSGMBeamline();
 
@@ -970,6 +972,14 @@ QString SGMBeamline::sgmGratingDescription(SGMBeamline::sgmGrating grating) cons
 		return "High Energy";
 	else
 		return "ERROR";
+}
+
+SGMEnergyParameters* SGMBeamline::energyParametersForGrating(SGMBeamline::sgmGrating grating) const{
+	return infoObject_->standardEnergyParametersByName(sgmGratingName(grating));
+}
+
+SGMBeamline::sgmGrating SGMBeamline::currentGrating() const{
+	return (SGMBeamline::sgmGrating)grating()->value();
 }
 
 QString SGMBeamline::sgmHarmonicName(SGMBeamline::sgmHarmonic harmonic) const {
