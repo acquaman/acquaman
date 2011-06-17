@@ -656,7 +656,6 @@ VESPERSEndstationConfiguration::VESPERSEndstationConfiguration(QWidget *parent)
 
 bool VESPERSEndstationConfiguration::saveFile()
 {
-	qDebug() << QDir::currentPath()+"endstation.config";
 	QFile file(QDir::currentPath() + "/endstation.config");
 
 	if (!file.open(QFile::WriteOnly | QFile::Text)){
