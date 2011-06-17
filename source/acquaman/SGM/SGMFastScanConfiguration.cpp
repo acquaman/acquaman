@@ -5,7 +5,9 @@
 
 SGMFastScanConfiguration::SGMFastScanConfiguration(QObject *parent) : AMFastScanConfiguration(parent), SGMScanConfiguration()
 {
+	qDebug() << "General constructor";
 	currentSettings_ = 0; //NULL
+	currentEnergyParameters_ = 0; //NULL
 
 	settings_.append( new SGMFastScanParameters("Nitrogen", 5.0, 400.0, 415.0, 430.0, 10000, 10000, 10000, 5.0, 200, 1000, 0, this));
 	settings_.append( new SGMFastScanParameters("Nitrogen", 20.0, 400.0, 415.0, 430.0, 1000, 1000, 1000, 20.0, 800, 1000, 0, this));
@@ -20,7 +22,24 @@ SGMFastScanConfiguration::SGMFastScanConfiguration(QObject *parent) : AMFastScan
 	settings_.append( new SGMFastScanParameters("Zinc L", 5.0, 1010.0, 1035.0, 1060.0, 6000, 6000, 6000, 5.0, 200, 1000, 0, this));
 	settings_.append( new SGMFastScanParameters("Zinc L", 20.0, 1010.0, 1025.0, 1040.0, 860, 860, 860, 20.0, 200, 1000, 0, this));
 
+	energyParameters_.append( new SGMEnergyParameters(1.68923e-06, 2.45477e-05, -1.59392, 509.468, 3.05575, this) );
+	energyParameters_.append( new SGMEnergyParameters(9.16358e-07, 2.46204e-05, -1.59047, 511.292, 3.05478, this) );
+	energyParameters_.append( new SGMEnergyParameters(5.9087e-07,  2.45691e-05, -1.59401, 510.465, 3.05458, this) );
+
 	setParametersFromPreset(0);
+
+	if(SGMBeamline::sgm()->grating()->value() == SGMBeamline::lowGrating){
+		qDebug() << "Go for low";
+		setEnergyParametersFromPreset(0);
+	}
+	else if(SGMBeamline::sgm()->grating()->value() == SGMBeamline::mediumGrating){
+		qDebug() << "Go for medium";
+		setEnergyParametersFromPreset(1);
+	}
+	else if(SGMBeamline::sgm()->grating()->value() == SGMBeamline::highGrating){
+		qDebug() << "Go for high";
+		setEnergyParametersFromPreset(2);
+	}
 
 	fastDetectors_ = SGMBeamline::sgm()->FastDetectors();
 
@@ -33,7 +52,9 @@ SGMFastScanConfiguration::SGMFastScanConfiguration(QObject *parent) : AMFastScan
 }
 
 SGMFastScanConfiguration::SGMFastScanConfiguration(const SGMFastScanConfiguration &original){
+	qDebug() << "Copy constructor";
 	currentSettings_ = 0; //NULL
+	currentEnergyParameters_ = 0; //NULL
 
 	settings_.append( new SGMFastScanParameters("Nitrogen", 5.0, 400.0, 415.0, 430.0, 10000, 10000, 10000, 5.0, 200, 1000, 0, this));
 	settings_.append( new SGMFastScanParameters("Nitrogen", 20.0, 400.0, 415.0, 430.0, 1000, 1000, 1000, 20.0, 800, 1000, 0, this));
@@ -48,6 +69,10 @@ SGMFastScanConfiguration::SGMFastScanConfiguration(const SGMFastScanConfiguratio
 	settings_.append( new SGMFastScanParameters("Zinc L", 5.0, 1010.0, 1035.0, 1060.0, 6000, 6000, 6000, 5.0, 200, 1000, 0, this));
 	settings_.append( new SGMFastScanParameters("Zinc L", 20.0, 1010.0, 1025.0, 1040.0, 860, 860, 860, 20.0, 200, 1000, 0, this));
 
+	energyParameters_.append( new SGMEnergyParameters(1.68923e-06, 2.45477e-05, -1.59392, 509.468, 3.05575, this) );
+	energyParameters_.append( new SGMEnergyParameters(9.16358e-07, 2.46204e-05, -1.59047, 511.292, 3.05478, this) );
+	energyParameters_.append( new SGMEnergyParameters(5.9087e-07,  2.45691e-05, -1.59401, 510.465, 3.05458, this) );
+
 	bool foundPreset = false;
 	for(int x = 0; x < settings_.count(); x++){
 		if(!foundPreset && settings_.at(x) == original.currentParameters() ){
@@ -57,6 +82,8 @@ SGMFastScanConfiguration::SGMFastScanConfiguration(const SGMFastScanConfiguratio
 	}
 	if(!foundPreset)
 		setParameters(original.currentParameters());
+
+	setEnergyParameters(original.currentEnergyParameters());
 
 	fastDetectors_ = SGMBeamline::sgm()->FastDetectors();
 	allDetectors_ = new AMDetectorSet(this);
@@ -135,6 +162,26 @@ double SGMFastScanConfiguration::scalerTime() const{
 	return currentSettings_->scalerTime();
 }
 
+double SGMFastScanConfiguration::spacingParameter() const{
+	return currentEnergyParameters_->spacingParameter();
+}
+
+double SGMFastScanConfiguration::c1Parameter() const{
+	return currentEnergyParameters_->c1Parameter();
+}
+
+double SGMFastScanConfiguration::c2Parameter() const{
+	return currentEnergyParameters_->c2Parameter();
+}
+
+double SGMFastScanConfiguration::sParameter() const{
+	return currentEnergyParameters_->sParameter();
+}
+
+double SGMFastScanConfiguration::thetaParameter() const{
+	return currentEnergyParameters_->thetaParameter();
+}
+
 int SGMFastScanConfiguration::baseLine() const{
 	return currentSettings_->baseLine();
 }
@@ -157,6 +204,10 @@ QStringList SGMFastScanConfiguration::presets() const{
 
 SGMFastScanParameters* SGMFastScanConfiguration::currentParameters() const{
 	return currentSettings_;
+}
+
+SGMEnergyParameters* SGMFastScanConfiguration::currentEnergyParameters() const{
+	return currentEnergyParameters_;
 }
 
 bool SGMFastScanConfiguration::setParametersFromPreset(int index){
@@ -254,6 +305,72 @@ bool SGMFastScanConfiguration::setScalerTime(double scalerTime){
 	return true;
 }
 
+bool SGMFastScanConfiguration::setEnergyParametersFromPreset(int index){
+	if(index < 0 && index >= energyParameters_.count())
+		return false;
+	return setEnergyParameters(energyParameters_.at(index));
+}
+
+bool SGMFastScanConfiguration::setEnergyParameters(SGMEnergyParameters *parameters){
+	if(!parameters)
+		return false;
+	if( !currentEnergyParameters_ || (*currentEnergyParameters_ != *parameters)){
+		currentEnergyParameters_ = parameters;
+		emit onSpacingParameterChanged(currentEnergyParameters_->spacingParameter());
+		emit onC1ParameterChanged(currentEnergyParameters_->c1Parameter());
+		emit onC2ParameterChanged(currentEnergyParameters_->c2Parameter());
+		emit onSParameterChanged(currentEnergyParameters_->sParameter());
+		emit onThetaParameterChanged(currentEnergyParameters_->thetaParameter());
+		setModified(true);
+	}
+	return true;
+}
+
+bool SGMFastScanConfiguration::setSpacingParameter(double spacingParameter){
+	if(currentEnergyParameters_->spacingParameter() != spacingParameter){
+		currentEnergyParameters_->setSpacingParameter(spacingParameter);
+		emit onSpacingParameterChanged(spacingParameter);
+		setModified(true);
+	}
+	return true;
+}
+
+bool SGMFastScanConfiguration::setC1Parameter(double c1Parameter){
+	if(currentEnergyParameters_->c1Parameter() != c1Parameter){
+		currentEnergyParameters_->setC1Parameter(c1Parameter);
+		emit onC1ParameterChanged(c1Parameter);
+		setModified(true);
+	}
+	return true;
+}
+
+bool SGMFastScanConfiguration::setC2Parameter(double c2Parameter){
+	if(currentEnergyParameters_->c2Parameter() != c2Parameter){
+		currentEnergyParameters_->setC2Parameter(c2Parameter);
+		emit onC2ParameterChanged(c2Parameter);
+		setModified(true);
+	}
+	return true;
+}
+
+bool SGMFastScanConfiguration::setSParameter(double sParameter){
+	if(currentEnergyParameters_->sParameter() != sParameter){
+		currentEnergyParameters_->setSParameter(sParameter);
+		emit onSParameterChanged(sParameter);
+		setModified(true);
+	}
+	return true;
+}
+
+bool SGMFastScanConfiguration::setThetaParameter(double thetaParameter){
+	if(currentEnergyParameters_->thetaParameter() != thetaParameter){
+		currentEnergyParameters_->setThetaParameter(thetaParameter);
+		emit onThetaParameterChanged(thetaParameter);
+		setModified(true);
+	}
+	return true;
+}
+
 bool SGMFastScanConfiguration::setBaseLine(int baseLine){
 	currentSettings_->setBaseLine(baseLine);
 	emit onBaseLineChanged(currentSettings_->baseLine());
@@ -318,4 +435,33 @@ bool SGMFastScanParameters::operator ==(const SGMFastScanParameters &other){
 		return true;
 	}
 	return false;
+}
+
+SGMEnergyParameters::SGMEnergyParameters(QObject *parent) : QObject(parent)
+{
+}
+
+SGMEnergyParameters::SGMEnergyParameters(double spacingParameter, double c1Parameter, double c2Parameter, double sParameter, double thetaParameter, QObject *parent) :
+		QObject(parent)
+{
+	setSpacingParameter(spacingParameter);
+	setC1Parameter(c1Parameter);
+	setC2Parameter(c2Parameter);
+	setSParameter(sParameter);
+	setThetaParameter(thetaParameter);
+}
+
+bool SGMEnergyParameters::operator ==(const SGMEnergyParameters &other){
+	if( (fabs(spacingParameter() - other.spacingParameter() ) <= 0.001e-07) &&
+	    (fabs(c1Parameter() - other.c1Parameter()) <= 0.0001e-05) &&
+	    (fabs(c2Parameter() - other.c2Parameter()) <= 0.0001) &&
+	    (fabs(sParameter() - other.sParameter()) <= 0.01) &&
+	    (fabs(thetaParameter() - other.thetaParameter()) <= 0.00001) ){
+		return true;
+	}
+	return false;
+}
+
+bool SGMEnergyParameters::operator !=(const SGMEnergyParameters &other){
+	return !(this->operator ==(other));
 }

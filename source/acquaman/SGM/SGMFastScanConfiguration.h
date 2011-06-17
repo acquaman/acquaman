@@ -5,6 +5,7 @@
 #include "SGMScanConfiguration.h"
 
 class SGMFastScanParameters;
+class SGMEnergyParameters;
 
 class SGMFastScanConfiguration : public AMFastScanConfiguration, public SGMScanConfiguration
 {
@@ -19,6 +20,11 @@ class SGMFastScanConfiguration : public AMFastScanConfiguration, public SGMScanC
 	Q_PROPERTY(int velocityBase READ velocityBase WRITE setVelocityBase)
 	Q_PROPERTY(int acceleration READ acceleration WRITE setAcceleration)
 	Q_PROPERTY(double scalerTime READ scalerTime WRITE setScalerTime)
+	Q_PROPERTY(double spacingParameter READ spacingParameter WRITE setSpacingParameter)
+	Q_PROPERTY(double c1Parameter READ c1Parameter WRITE setC1Parameter)
+	Q_PROPERTY(double c2Parameter READ c2Parameter WRITE setC2Parameter)
+	Q_PROPERTY(double sParameter READ sParameter WRITE setSParameter)
+	Q_PROPERTY(double thetaParameter READ thetaParameter WRITE setThetaParameter)
 	Q_PROPERTY(AMDbObject* detectorConfigs READ dbReadDetectorConfigs WRITE dbLoadDetectorConfigs)
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=SGM XAS Scan Configuration")
@@ -60,6 +66,12 @@ public:
 	int acceleration() const;
 	double scalerTime() const;
 
+	double spacingParameter() const;
+	double c1Parameter() const;
+	double c2Parameter() const;
+	double sParameter() const;
+	double thetaParameter() const;
+
 	int baseLine() const;
 
 	int undulatorVelocity() const;
@@ -67,6 +79,7 @@ public:
 
 	QStringList presets() const;
 	SGMFastScanParameters* currentParameters() const;
+	SGMEnergyParameters* currentEnergyParameters() const;
 
 public slots:
 	bool setParametersFromPreset(int index);
@@ -80,6 +93,15 @@ public slots:
 	bool setVelocityBase(int velocityBase);
 	bool setAcceleration(int acceleration);
 	bool setScalerTime(double scalerTime);
+
+	bool setEnergyParametersFromPreset(int index);
+	bool setEnergyParameters(SGMEnergyParameters *parameters);
+	bool setSpacingParameter(double spacingParameter);
+	bool setC1Parameter(double c1Parameter);
+	bool setC2Parameter(double c2Parameter);
+	bool setSParameter(double sParameter);
+	bool setThetaParameter(double thetaParameter);
+
 	bool setBaseLine(int baseLine);
 	bool setUndulatorVelocity(int undulatorVelocity);
 	bool setUndulatorRelativeStep(int undulatorRelativeStep);
@@ -95,6 +117,13 @@ signals:
 	void onVelocityBaseChanged(int velocityBase);
 	void onAccelerationChanged(int acceleration);
 	void onScalerTimeChanged(double scalerTime);
+
+	void onSpacingParameterChanged(double spacingParameter);
+	void onC1ParameterChanged(double c1Parameter);
+	void onC2ParameterChanged(double c2Parameter);
+	void onSParameterChanged(double sParameter);
+	void onThetaParameterChanged(double thetaParameter);
+
 	void onBaseLineChanged(int baseLine);
 	void undulatorVelocityChanged(int undulatorVelocity);
 	void undulatorRelativeStepChanged(int undulatorRelativeStep);
@@ -110,6 +139,9 @@ protected:
 
 	QList<SGMFastScanParameters*> settings_;
 	SGMFastScanParameters *currentSettings_;
+
+	QList<SGMEnergyParameters*> energyParameters_;
+	SGMEnergyParameters *currentEnergyParameters_;
 };
 
 class SGMFastScanParameters : public QObject
@@ -164,6 +196,37 @@ protected:
 
 	int undulatorVelocity_;
 	int undulatorRelativeStep_;
+};
+
+class SGMEnergyParameters : public QObject
+{
+Q_OBJECT
+public:
+	SGMEnergyParameters(QObject *parent = 0);
+	SGMEnergyParameters(double spacingParameter, double c1Parameter, double c2Parameter, double sParameter, double thetaParameter, QObject *parent = 0);
+
+	bool operator==(const SGMEnergyParameters &other);
+	bool operator!=(const SGMEnergyParameters &other);
+
+	double spacingParameter() const { return spacingParameter_;}
+	double c1Parameter() const { return c1Parameter_;}
+	double c2Parameter() const { return c2Parameter_;}
+	double sParameter() const { return sParameter_;}
+	double thetaParameter() const { return thetaParameter_;}
+
+public slots:
+	void setSpacingParameter(double spacingParamter) { spacingParameter_ = spacingParamter;}
+	void setC1Parameter(double c1Parameter) { c1Parameter_ = c1Parameter;}
+	void setC2Parameter(double c2Parameter) { c2Parameter_ = c2Parameter;}
+	void setSParameter(double sParameter) { sParameter_ = sParameter;}
+	void setThetaParameter(double thetaParameter) { thetaParameter_ = thetaParameter;}
+
+protected:
+	double spacingParameter_;
+	double c1Parameter_;
+	double c2Parameter_;
+	double sParameter_;
+	double thetaParameter_;
 };
 
 #endif // SGMFASTSCANCONFIGURATION_H

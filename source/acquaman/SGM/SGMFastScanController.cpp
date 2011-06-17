@@ -12,6 +12,12 @@ SGMFastScanController::SGMFastScanController(SGMFastScanConfiguration *cfg){
 	pScan()->setFileFormat("sgm2010Fast");
 	pScan()->setRunId(AMUser::user()->currentRunId());
 	pScan()->setScanConfiguration(pCfg());
+	if(SGMBeamline::sgm()->grating()->value() == SGMBeamline::lowGrating)
+		pCfg()->setEnergyParametersFromPreset(0);
+	else if(SGMBeamline::sgm()->grating()->value() == SGMBeamline::mediumGrating)
+		pCfg()->setEnergyParametersFromPreset(1);
+	else if(SGMBeamline::sgm()->grating()->value() == SGMBeamline::highGrating)
+		pCfg()->setEnergyParametersFromPreset(2);
 	pScan()->setSampleId(SGMBeamline::sgm()->currentSampleId());
 	QString scanName;
 	QString sampleName;
@@ -42,14 +48,18 @@ SGMFastScanController::SGMFastScanController(SGMFastScanConfiguration *cfg){
 		}
 	}
 	*/
-	pScan()->rawData()->addMeasurement(AMMeasurementInfo(* (pCfg()->allDetectors()->detectorNamed("teyScaler")->toInfo()) ));
-	pScan()->addRawDataSource(new AMRawDataSource(pScan()->rawData(), 0));
-	pScan()->rawData()->addMeasurement(AMMeasurementInfo(* (pCfg()->allDetectors()->detectorNamed("I0Scaler")->toInfo()) ));
-	pScan()->addRawDataSource(new AMRawDataSource(pScan()->rawData(), 1));
-	pScan()->rawData()->addMeasurement(AMMeasurementInfo(* (pCfg()->allDetectors()->detectorNamed("tfyScaler")->toInfo()) ));
-	pScan()->addRawDataSource(new AMRawDataSource(pScan()->rawData(), 2));
-	pScan()->rawData()->addMeasurement(AMMeasurementInfo(* (pCfg()->allDetectors()->detectorNamed("photodiodeScaler")->toInfo()) ));
-	pScan()->addRawDataSource(new AMRawDataSource(pScan()->rawData(), 3));
+
+	if(SGMBeamline::sgm()->usingScalerSource()){
+		qDebug() << "In here, setting measurements";
+		pScan()->rawData()->addMeasurement(AMMeasurementInfo(* (pCfg()->allDetectors()->detectorNamed("teyScaler")->toInfo()) ));
+		pScan()->addRawDataSource(new AMRawDataSource(pScan()->rawData(), 0));
+		pScan()->rawData()->addMeasurement(AMMeasurementInfo(* (pCfg()->allDetectors()->detectorNamed("I0Scaler")->toInfo()) ));
+		pScan()->addRawDataSource(new AMRawDataSource(pScan()->rawData(), 1));
+		pScan()->rawData()->addMeasurement(AMMeasurementInfo(* (pCfg()->allDetectors()->detectorNamed("tfyScaler")->toInfo()) ));
+		pScan()->addRawDataSource(new AMRawDataSource(pScan()->rawData(), 2));
+		pScan()->rawData()->addMeasurement(AMMeasurementInfo(* (pCfg()->allDetectors()->detectorNamed("photodiodeScaler")->toInfo()) ));
+		pScan()->addRawDataSource(new AMRawDataSource(pScan()->rawData(), 3));
+	}
 
 	QList<AMDataSource*> raw1DDataSources;
 	for(int i=0; i<pScan()->rawDataSources()->count(); i++)
@@ -189,12 +199,14 @@ bool SGMFastScanController::beamlineInitialize(){
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerTotalNumberOfScans());
 	tmpAction->setSetpoint(1000);
 	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
+	/* Need to work with Tom on this
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->undulatorRelativeStepStorage());
 	tmpAction->setSetpoint(settings->undulatorRelativeStep());
 	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->undulatorVelocity());
 	tmpAction->setSetpoint(settings->undulatorVelocity());
 	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
+	*/
 
 	/* NTBA March 14, 2011 David Chevrier
 	AMDetector* tmpD;

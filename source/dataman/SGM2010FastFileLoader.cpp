@@ -8,6 +8,8 @@ AMBiHash<QString, QString> SGM2010FastFileLoader::columns2pvNames_;
 #include <QTextStream>
 #include <QDateTime>
 #include "dataman/AMFastScan.h"
+//#include "acquaman/SGM/SGMFastScanConfiguration.h"
+#include "acquaman/AMScanConfiguration.h"
 #include "util/AMErrorMonitor.h"
 #include "analysis/AM1DExpressionAB.h"
 
@@ -129,8 +131,10 @@ bool SGM2010FastFileLoader::loadFromFile(const QString& filepath, bool setMetaDa
 		line = fs.readLine();
 		if(line.startsWith("1,") && (lp = line.split(',')).count() == colNames1.count() ) {
 			for(int i=1; i<colNames1.count(); i++) {
-				if(colNames1.at(i) == "encoder")
+				if(colNames1.at(i) == "encoder"){
 					encoderEndpoint = lp.at(i).toDouble();
+					qDebug() << "Encoder endpoint set to " << encoderEndpoint;
+				}
 			}
 		}
 		// event id 2.  If the line starts with "# 2," and there are the correct number of columns:
@@ -189,11 +193,27 @@ bool SGM2010FastFileLoader::loadFromFile(const QString& filepath, bool setMetaDa
 				int encoderStartPoint = 0;
 				int encoderReading = 0;
 				double energyFbk = 0.0;
-				double spacingParam = 9.15358e-7;
-				double c1Param = 2.46204e-5;
-				double c2Param = -1.59047;
-				double sParam = 511.292;
-				double thetaParam = 3.05478;
+
+				double spacingParam;
+				double c1Param;
+				double c2Param;
+				double sParam;
+				double thetaParam;
+				if(scan->scanConfiguration()){
+					spacingParam = scan->scanConfiguration()->property("spacingParameter").toDouble();
+					c1Param = scan->scanConfiguration()->property("c1Parameter").toDouble();
+					c2Param = scan->scanConfiguration()->property("c2Parameter").toDouble();
+					sParam = scan->scanConfiguration()->property("sParameter").toDouble();
+					thetaParam = scan->scanConfiguration()->property("thetaParameter").toDouble();
+				}
+				else{
+					spacingParam = 1.68923e-06;
+					c1Param = 2.45477e-05;
+					c2Param = -1.59392;
+					sParam = 509.468;
+					thetaParam = 3.05575;
+				}
+
 				QList<double> readings;
 
 				encoderStartPoint = encoderEndpoint;
@@ -206,6 +226,7 @@ bool SGM2010FastFileLoader::loadFromFile(const QString& filepath, bool setMetaDa
 					if( x%6 == 5 )
 						encoderStartPoint -= scalerVal;
 				}
+				qDebug() << "Encoder startpoint was " << encoderStartPoint;
 				encoderReading = encoderStartPoint;
 				sfls.setString(&sfl, QIODevice::ReadOnly);
 				sfls >> scalerVal;
@@ -213,9 +234,10 @@ bool SGM2010FastFileLoader::loadFromFile(const QString& filepath, bool setMetaDa
 					if(x%6 == 0)
 						readings.clear();
 					sfls >> scalerVal;
-					//if( x%6 == 0 || x%6 == 1 || x%6 == 2 || x%6 == 3 )
-					if( x%6 == 0 || x%6 == 1 || x%6 == 4 || x%6 == 5 )
+					if( x%6 == 0 || x%6 == 1 || x%6 == 2 || x%6 == 3 ){
+					//if( x%6 == 0 || x%6 == 1 || x%6 == 4 || x%6 == 5 ){
 						readings.append(scalerVal);
+					}
 					//if( (x%6 == 4) && (scalerVal < 40) )
 					if( x%6 == 4 )
 						encoderReading -= scalerVal;

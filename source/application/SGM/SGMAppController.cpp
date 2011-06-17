@@ -41,6 +41,7 @@ bool SGMAppController::startup() {
 		AMDbObjectSupport::registerClass<PGTDetectorInfo>();
 		AMDbObjectSupport::registerClass<OceanOptics65000DetectorInfo>();
 		AMDbObjectSupport::registerClass<SGMXASScanConfiguration>();
+		AMDbObjectSupport::registerClass<SGMFastScanConfiguration>();
 
 		AMDetectorViewSupport::registerClass<AMSingleControlBriefDetectorView, AMSingleControlDetector>();
 		AMDetectorViewSupport::registerClass<MCPBriefDetectorView, MCPDetector>();

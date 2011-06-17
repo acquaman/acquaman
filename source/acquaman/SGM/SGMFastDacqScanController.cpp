@@ -68,9 +68,11 @@ bool SGMFastDacqScanController::startImplementation(){
 				"Error, SGM Fast DACQ Scan Controller failed to start (the config file failed to load). Please report this bug to the Acquaman developers."));
 		return false;
 	}
+	/**/
 	advAcq_->setStart(0, pCfg()->startEnergy());
 	advAcq_->setDelta(0, pCfg()->endEnergy()-pCfg()->startEnergy());
 	advAcq_->setEnd(0, pCfg()->endEnergy());
+	/**/
 
 	generalScan_ = specificScan_;
 	usingSpectraDotDatFile_ = true;
@@ -104,46 +106,10 @@ bool SGMFastDacqScanController::event(QEvent *e){
 		double c2Param = SGMBeamline::sgm()->energyC2Param()->value();
 		double sParam = SGMBeamline::sgm()->energySParam()->value();
 		double thetaParam = SGMBeamline::sgm()->energyThetaParam()->value();
-		/*
-		double avgUp = 0.0;
-				int upCounts = 0;
-		double avgDown = 0.0;
-				int downCounts = 0;
-		*/
 		QList<double> readings;
 		if(i.key() == 0 && aeData.count() == 2 && aeSpectra.count() == 1){
 			qDebug() << "And doing something with it";
 			++i;
-
-			/*
-			while(j != aeSpectra.constEnd()){
-				encoderStartPoint = encoderEndpoint;
-				qDebug() << "First couple " << j.value().at(0) << j.value().at(1) << j.value().at(2) << j.value().at(3) << j.value().at(4);
-				int maxVal = j.value().count()-1;
-				if(maxVal > 6000)
-					maxVal = 6000;
-				for(int x = 0; x < maxVal; x++){
-					if( (x%6 == 4) && j.value().at(x+1) != 0 ){
-						avgUp += ((double)j.value().at(x+1));
-						upCounts++;
-					}
-					if( (x%6 == 5) && j.value().at(x+1) != 0){
-						avgDown += ((double)j.value().at(x+1));
-						downCounts++;
-					}
-				}
-				++j;
-			}
-			avgUp = avgUp/((double)upCounts);
-			avgDown = avgDown/((double)downCounts);
-			int upMax = 40;
-			int downMax = 40;
-			if(avgUp > avgDown)
-				upMax = 2*ceil(avgUp);
-			if(avgDown > avgUp)
-				downMax = 2*ceil(avgDown);
-			j = aeSpectra.constBegin();
-			*/
 
 			encoderEndpoint = i.value();
 			qDebug() << "Encoder endpoint was " << encoderEndpoint;
@@ -182,16 +148,21 @@ bool SGMFastDacqScanController::event(QEvent *e){
 				for(int x = 0; x < maxVal; x++){
 					if(x%6 == 0)
 						readings.clear();
-					if( x%6 == 0 || x%6 == 1 || x%6 == 2 || x%6 == 3 )
-					//if( x%6 == 0 || x%6 == 1 || x%6 == 4 || x%6 == 5 )
-						readings.append(j.value().at(x+1));
-					//if( (x%6 == 4) && (j.value().at(x+1) < 3*ceil(avgUp)) )
+					if( x%6 == 0 || x%6 == 1 || x%6 == 2 || x%6 == 3 ){
+					//if( x%6 == 0 || x%6 == 1 || x%6 == 4 || x%6 == 5 ){
+						if(j.value().at(x+1) == 0)
+							readings.append(1);
+						else
+							readings.append(j.value().at(x+1));
+					}
 					if( x%6 == 4 ){
+						encoderReading -= j.value().at(x+1);
+						//encoderReading += j.value().at(x+1);
+					}
+					if( x%6 == 5 ){
+						encoderReading += j.value().at(x+1);
 						//encoderReading -= j.value().at(x+1);
 					}
-					//if( (x%6 == 5) && (j.value().at(x+1) < 3*ceil(avgDown)) )
-					if( x%6 == 5 )
-						encoderReading += j.value().at(x+1);
 					if( x%6 == 5 ){
 						energyFbk = (1.0e-9*1239.842*sParam)/(2*spacingParam*c1Param*c2Param*(double)encoderReading*cos(thetaParam/2));
 						//if( ( (readings.at(0) > pCfg()->baseLine()) && (pScan()->rawData()->scanSize(0) == 0) ) || ( (pScan()->rawData()->scanSize(0) > 0) && (fabs(energyFbk - (double)pScan()->rawData()->axisValue(0, pScan()->rawData()->scanSize(0)-1)) > 0.001) ) ){
