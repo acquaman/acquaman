@@ -35,11 +35,14 @@ bool VESPERSAppController::startup() {
 
 	// Get a destination folder.
 	AMUserSettings::load();
-	QString dir = QFileDialog::getExistingDirectory(0, "Choose a destination folder for your data.", AMUserSettings::userDataFolder, QFileDialog::ShowDirsOnly);
-	if (dir.isEmpty())
-		dir = AMUserSettings::userDataFolder;
-	else{
-			dir += "/";
+	QString start = AMUserSettings::userDataFolder;
+	start.chop(1);
+	start = start.left(start.lastIndexOf("/"));
+	QString dir = QFileDialog::getExistingDirectory(0, "Choose a destination folder for your data.", start, QFileDialog::ShowDirsOnly);
+	if (!dir.isEmpty()){
+
+		dir += "/";
+
 		if (dir.compare(AMUserSettings::userDataFolder) != 0){
 
 			AMUserSettings::userDataFolder = dir;

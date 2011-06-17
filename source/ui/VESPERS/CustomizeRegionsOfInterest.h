@@ -25,9 +25,23 @@ private slots:
 	/// Checks whether the name has a name in it or not.  If the name is an empty string, the view hides itself.
 	void nameUpdate(QString name);
 	/// Casts an int to a double for the spin box.  If the value is zero then the ROI is not connected yet.
-	void onLowUpdate(int val) { if (val != 0) low_->setValue((double)val*roi_->scale()); }
+	void onLowUpdate(int val) 
+	{ 
+		if (val != 0){
+			low_->blockSignals(true);
+			low_->setValue((double)val*roi_->scale()); 
+			low_->blockSignals(false);
+		}
+	}
 	/// Casts an into to a double for the high spin box.  If the value is zero then the ROI is not connected yet.
-	void onHighUpdate(int val) { if (val != 0) high_->setValue((double)val*roi_->scale()); }
+	void onHighUpdate(int val) 
+	{ 
+		if (val != 0){
+			high_->blockSignals(true);
+			high_->setValue((double)val*roi_->scale());
+			high_->blockSignals(false);
+		}
+	}
 	/// Handles when an ROI is initialized.
 	void onRoiInialized(bool init) { if (init) nameUpdate(roi_->name()); }
 
