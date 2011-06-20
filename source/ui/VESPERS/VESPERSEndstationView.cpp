@@ -52,7 +52,7 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	loadConfiguration();
 
 	// Setup the GUI with the soft limits.
-	config_ = new VESPERSEndstationConfiguration;
+	config_ = new VESPERSEndstationConfigurationView;
 	config_->hide();
 	connect(config_, SIGNAL(configurationChanged()), this, SLOT(loadConfiguration()));
 
@@ -251,29 +251,26 @@ VESPERSEndstationView::~VESPERSEndstationView()
 
 void VESPERSEndstationView::laserPowerToggled(bool pressed)
 {
-	if (pressed && ((int)laserPowerControl_->value()) == 1)
-		laserPowerControl_->move(1);
-	else if (!pressed && ((int)laserPowerControl_->value()) == 0)
-		laserPowerControl_->move(1);
-	laserPowerControl_->move(0);
+	if ((pressed && endstation_->laserPowered()) || (!pressed && !endstation_->laserPowered()))
+		endstation_->toggleLaserPower();
 }
 
 void VESPERSEndstationView::laserPowerUpdate()
 {
-	if (((int)laserPowerControl_->value()) == 1){
+	laserPowerButton_->blockSignals(true);
+
+	if (endstation_->laserPowered()){
 
 		laserPowerButton_->setIcon(QIcon(":/red-laser.png"));
-		laserPowerButton_->blockSignals(true);
 		laserPowerButton_->setChecked(false);
-		laserPowerButton_->blockSignals(false);
 	}
 	else{
 
 		laserPowerButton_->setIcon(QIcon(":/black-laser.png"));
-		laserPowerButton_->blockSignals(true);
 		laserPowerButton_->setChecked(true);
-		laserPowerButton_->blockSignals(false);
 	}
+
+	laserPowerButton_->blockSignals(false);
 }
 
 void VESPERSEndstationView::onFiltersConnected(bool isConnected)
@@ -284,147 +281,11 @@ void VESPERSEndstationView::onFiltersConnected(bool isConnected)
 	connect(VESPERSBeamline::vespers()->filterSet(), SIGNAL(controlSetValuesChanged()), this, SLOT(onFiltersChanged()));
 }
 
-void VESPERSEndstationView::onFiltersChanged()
+void VESPERSEndstationView::onFiltersChanged(int index)
 {
-	int sum = 0;
-	AMPVControl *temp;
-
-	// Find what the current index should be based on the current filters in the beamline.
-	for (int i = 0; i < VESPERSBeamline::vespers()->filterSet()->count()-2; i++){
-
-		temp = qobject_cast<AMPVControl *>(VESPERSBeamline::vespers()->filterSet()->at(i));
-
-		if (temp){
-			if (temp->readPV()->getInt() == 1){
-
-				switch(i){
-
-				case 0:
-				case 1:
-					sum += 5;
-					break;
-				case 2:
-				case 3:
-					sum += 2;
-					break;
-				case 4:
-				case 5:
-					sum += 1;
-					break;
-				}
-			}
-		}
-	}
-
 	filterComboBox_->blockSignals(true);
-	filterComboBox_->setCurrentIndex(sum);
+	filterComboBox_->setCurrentIndex(index);
 	filterComboBox_->blockSignals(false);
-}
-
-void VESPERSEndstationView::onFilterComboBoxUpdate(int index)
-{
-	AMPVControl *temp;
-
-	// Put all the filters back to an original state.  The -2 is to exclude the upper and lower shutters.
-	for (int i = 0; i < VESPERSBeamline::vespers()->filterSet()->count()-2; i++){
-
-		temp = qobject_cast<AMPVControl *>(VESPERSBeamline::vespers()->filterSet()->at(i));
-
-		if (temp->readPV()->getInt() == 1)
-			toggleFilter(VESPERSBeamline::vespers()->filterSet()->at(i));
-	}
-
-	switch(index){
-	case 0: // Filters are already taken out with previous loop.
-		break;
-	case 1: // 50 um
-		toggleFilter(VESPERSBeamline::vespers()->filter50umA());
-		break;
-	case 2: // 100 um
-		toggleFilter(VESPERSBeamline::vespers()->filter100umA());
-		break;
-	case 3: // 150 um
-		toggleFilter(VESPERSBeamline::vespers()->filter50umA());
-		toggleFilter(VESPERSBeamline::vespers()->filter100umA());
-		break;
-	case 4: // 200 um
-		toggleFilter(VESPERSBeamline::vespers()->filter100umA());
-		toggleFilter(VESPERSBeamline::vespers()->filter100umB());
-		break;
-	case 5: // 250 um
-		toggleFilter(VESPERSBeamline::vespers()->filter250umA());
-		break;
-	case 6: // 300 um
-		toggleFilter(VESPERSBeamline::vespers()->filter250umA());
-		toggleFilter(VESPERSBeamline::vespers()->filter50umA());
-		break;
-	case 7: // 350 um
-		toggleFilter(VESPERSBeamline::vespers()->filter250umA());
-		toggleFilter(VESPERSBeamline::vespers()->filter100umA());
-		break;
-	case 8: // 400 um
-		toggleFilter(VESPERSBeamline::vespers()->filter250umA());
-		toggleFilter(VESPERSBeamline::vespers()->filter100umA());
-		toggleFilter(VESPERSBeamline::vespers()->filter50umA());
-		break;
-	case 9: // 450 um
-		toggleFilter(VESPERSBeamline::vespers()->filter250umA());
-		toggleFilter(VESPERSBeamline::vespers()->filter100umA());
-		toggleFilter(VESPERSBeamline::vespers()->filter100umB());
-		break;
-	case 10: // 500 um
-		toggleFilter(VESPERSBeamline::vespers()->filter250umA());
-		toggleFilter(VESPERSBeamline::vespers()->filter250umB());
-		break;
-	case 11: // 550 um
-		toggleFilter(VESPERSBeamline::vespers()->filter250umA());
-		toggleFilter(VESPERSBeamline::vespers()->filter250umB());
-		toggleFilter(VESPERSBeamline::vespers()->filter50umA());
-		break;
-	case 12: // 600 um
-		toggleFilter(VESPERSBeamline::vespers()->filter250umA());
-		toggleFilter(VESPERSBeamline::vespers()->filter250umB());
-		toggleFilter(VESPERSBeamline::vespers()->filter100umA());
-		break;
-	case 13: // 650 um
-		toggleFilter(VESPERSBeamline::vespers()->filter250umA());
-		toggleFilter(VESPERSBeamline::vespers()->filter250umB());
-		toggleFilter(VESPERSBeamline::vespers()->filter100umA());
-		toggleFilter(VESPERSBeamline::vespers()->filter50umA());
-		break;
-	case 14: // 700 um
-		toggleFilter(VESPERSBeamline::vespers()->filter250umA());
-		toggleFilter(VESPERSBeamline::vespers()->filter250umB());
-		toggleFilter(VESPERSBeamline::vespers()->filter100umA());
-		toggleFilter(VESPERSBeamline::vespers()->filter100umB());
-		break;
-	case 15: // 750 um
-		toggleFilter(VESPERSBeamline::vespers()->filter250umA());
-		toggleFilter(VESPERSBeamline::vespers()->filter250umB());
-		toggleFilter(VESPERSBeamline::vespers()->filter100umA());
-		toggleFilter(VESPERSBeamline::vespers()->filter100umB());
-		toggleFilter(VESPERSBeamline::vespers()->filter50umA());
-		break;
-	case 16: // 800 um
-		toggleFilter(VESPERSBeamline::vespers()->filter250umA());
-		toggleFilter(VESPERSBeamline::vespers()->filter250umB());
-		toggleFilter(VESPERSBeamline::vespers()->filter100umA());
-		toggleFilter(VESPERSBeamline::vespers()->filter100umB());
-		toggleFilter(VESPERSBeamline::vespers()->filter50umA());
-		toggleFilter(VESPERSBeamline::vespers()->filter50umB());
-		break;
-	}
-}
-
-void VESPERSEndstationView::toggleFilter(AMControl *filter)
-{
-	AMPVControl *temp = qobject_cast<AMPVControl *>(filter);
-
-	if (!temp)
-		return;
-
-	temp->move(1);
-	temp->move(0);
 }
 
 void VESPERSEndstationView::updateControl()
@@ -464,76 +325,10 @@ void VESPERSEndstationView::lightBulbToggled(bool pressed)
 
 }
 
-bool VESPERSEndstationView::loadConfiguration()
-{
-	QFile file(QDir::currentPath() + "/endstation.config");
-
-	if (!file.open(QFile::ReadOnly | QFile::Text)){
-		QMessageBox::warning(this, tr("Endstation Configuration"),
-							 tr("Cannot read file %1: \n%2")
-							 .arg(file.fileName())
-							 .arg(file.errorString()));
-		return false;
-	}
-
-	QTextStream in(&file);
-	QStringList contents;
-
-	while(!in.atEnd())
-		contents << in.readLine();
-
-	file.close();
-
-	softLimits_.clear();
-
-	softLimits_.insert(ccdControl_, qMakePair(((QString)contents.at(2)).toDouble(), ((QString)contents.at(3)).toDouble()));
-	softLimits_.insert(singleElControl_, qMakePair(((QString)contents.at(6)).toDouble(), ((QString)contents.at(7)).toDouble()));
-	softLimits_.insert(fourElControl_, qMakePair(((QString)contents.at(10)).toDouble(), ((QString)contents.at(11)).toDouble()));
-	softLimits_.insert(microscopeControl_, qMakePair(((QString)contents.at(14)).toDouble(), ((QString)contents.at(15)).toDouble()));
-
-	microscopeNames_ = qMakePair((QString)contents.at(16), (QString)contents.at(17));
-
-	updateControl();
-
-	return true;
-}
-
-QString VESPERSEndstationView::AMPVtoString(AMProcessVariable *pv)
-{
-	int current;
-	QString name;
-
-	for (unsigned i = 0; i < pv->count(); i++){
-
-		current = pv->getInt(i);
-		if (current == 0)
-			break;
-
-		name += QString::fromAscii((const char *) &current);
-	}
-
-	return name;
-}
-
-void VESPERSEndstationView::StringtoAMPV(AMProcessVariable *pv, QString toConvert)
-{
-	int converted[256];
-
-	for (int i = 0; i < 256; i++){
-
-		if (i < toConvert.size())
-			converted[i] = toConvert.toAscii()[i];
-		else
-			converted[i] = 0;
-	}
-
-	pv->setValues(converted, 256);
-}
-
 ///////////////////////////////////////////////////////////////////////
 // Endstation Configuration
 
-VESPERSEndstationConfiguration::VESPERSEndstationConfiguration(QWidget *parent)
+VESPERSEndstationConfigurationView::VESPERSEndstationConfigurationView(QWidget *parent)
 	: QWidget(parent)
 {
 	setWindowTitle("Endstation Configuration");
@@ -659,7 +454,7 @@ VESPERSEndstationConfiguration::VESPERSEndstationConfiguration(QWidget *parent)
 	setLayout(configLayout);
 }
 
-bool VESPERSEndstationConfiguration::saveFile()
+bool VESPERSEndstationConfigurationView::saveFile()
 {
 	QFile file(QDir::currentPath() + "/endstation.config");
 
@@ -701,7 +496,7 @@ bool VESPERSEndstationConfiguration::saveFile()
 	return true;
 }
 
-bool VESPERSEndstationConfiguration::loadFile()
+bool VESPERSEndstationConfigurationView::loadFile()
 {
 	QFile file(QDir::currentPath() + "/endstation.config");
 

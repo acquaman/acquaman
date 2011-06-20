@@ -37,7 +37,8 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
     source/ui/VESPERS/VESPERSDeviceStatusView.h \
     source/ui/VESPERS/VESPERSTemperatureView.h \
     source/util/VESPERS/GeneralUtilities.h \
-    source/util/VESPERS/XRFElement.h
+    source/util/VESPERS/XRFElement.h \
+    source/beamline/VESPERS/VESPERSEndstation.h
 
 SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/application/VESPERS/VESPERSMain.cpp \
@@ -72,7 +73,8 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
     source/ui/VESPERS/VESPERSDeviceStatusView.cpp \
     source/ui/VESPERS/VESPERSTemperatureView.cpp \
     source/util/VESPERS/GeneralUtilities.cpp \
-    source/util/VESPERS/XRFElement.cpp
+    source/util/VESPERS/XRFElement.cpp \
+    source/beamline/VESPERS/VESPERSEndstation.cpp
 
 RESOURCES += \
 	source/ui/VESPERS/EndstationPictures.qrc \

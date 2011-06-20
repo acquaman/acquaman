@@ -3,8 +3,7 @@
 
 #include <QtGui/QWidget>
 
-#include "beamline/AMControl.h"
-#include "beamline/AMProcessVariable.h"
+#include "beamline/VESPERS/VESPERSEndstation.h"
 #include "ui/VESPERS/VESPERSMotorView.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
 
@@ -25,13 +24,13 @@
 		- Safe distance for the CCD.
 		- Limits on the different configurations.
 */
-class VESPERSEndstationConfiguration : public QWidget
+class VESPERSEndstationConfigurationView : public QWidget
 {
 	Q_OBJECT
 
 public:
 	/// Constructor for the configuration.
-	VESPERSEndstationConfiguration(QWidget *parent = 0);
+	VESPERSEndstationConfigurationView(QWidget *parent = 0);
 
 signals:
 	/// The limits and other possible configurations have changed.
@@ -103,8 +102,6 @@ private slots:
 	void laserPowerToggled(bool pressed);
 	/// Used to initialize the laser power button.
 	void laserPowerUpdate();
-	/// Loads the config file and then puts the respective values in their place.
-	bool loadConfiguration();
 
 	// Slots handling the button clicks that will change the control window.
 	/// Handles the CCD button being clicked.
@@ -140,19 +137,15 @@ private slots:
 	{
 		ccdButton_->setText(QString::number(val, 'f', 3) + " " + ccdfbk_->units());
 
-		if ((fabs(val - softLimits_.value(ccdControl_).second) >= ccdControl_->tolerance())){
+		if (endstation_->ccdInHomePosition(val)){
 
 			microscopeButton_->setStyleSheet(" background-color: rgb(255,140,0); ");
-
-			if (ccdSafe_)
-				ccdSafe_ = false;
+			ccdSafe_ = false;
 		}
-		else if ((fabs(val - softLimits_.value(ccdControl_).second) < ccdControl_->tolerance())){
+		else {
 
 			microscopeButton_->setStyleSheet(this->styleSheet());
-
-			if (!ccdSafe_)
-				ccdSafe_ = true;
+			ccdSafe_ = true;
 		}
 	}
 	/// Handles the microscope distance update.
@@ -160,19 +153,15 @@ private slots:
 	{
 		microscopeButton_->setText(QString::number(val, 'f', 3) + " " + microscopeControl_->units());
 
-		if ((fabs(val - softLimits_.value(microscopeControl_).second) >= microscopeControl_->tolerance())){
+		if (!endstation_->microscopeInHomePosition(value)){
 
 			ccdButton_->setStyleSheet(" background-color: rgb(255,140,0); ");
-
-			if (microscopeSafe_)
-				microscopeSafe_ = false;
+			microscopeSafe_ = false;
 		}
-		else if ((fabs(val - softLimits_.value(microscopeControl_).second) < microscopeControl_->tolerance())){
+		else {
 
 			ccdButton_->setStyleSheet(this->styleSheet());
-
-			if (!microscopeSafe_)
-				microscopeSafe_ = true;
+			microscopeSafe_ = true;
 		}
 
 	}
@@ -182,8 +171,6 @@ private slots:
 	void fourElUpdate(double val) { fourElButton_->setText(QString::number(val, 'f', 3) + " " + fourElfbk_->units()); }
 	/// Handles the focus distance update.
 	void focusUpdate(double val) { focusButton_->setText(QString::number(val, 'f', 3) + " mm"); }
-	/// Handles changes in the filter combo box.
-	void onFilterComboBoxUpdate(int index);
 	/// Handles the connection of the filter set.
 	void onFiltersConnected(bool isConnected);
 	/// Sets the filter combo box based on original values at start up and if they are changed outside of the program.
@@ -192,18 +179,8 @@ private slots:
 	void startMicroscope() { QProcess::startDetached("/home/vespers/bin/runCameraDisplay"); }
 	/// Starts the IDA software.  This is temporary until the XAS software is replaced.
 	void startXAS() { QProcess::startDetached("/home/vespers/bin/runIDA"); }
-	/// Resets the pseudo-motor positions.
-	void resetPseudoMotors() { resetPseudoMotors_->setValue(1); }
 
 private:
-	/// Helper function to properly toggle the filter PVs.  Takes an AMControl *, casts it to an AMPVControl * then toggles them.
-	void toggleFilter(AMControl *filter);
-	/// Converts the bizarre string output of the pv to a real QString.
-	QString AMPVtoString(AMProcessVariable *pv);
-	/// Converts the string to the array of integers it needs to be.
-	void StringtoAMPV(AMProcessVariable *pv, QString toConvert);
-
-	// GUI parts.
 	// CCD setup things.
 	QLineEdit *ccdPathEdit_;
 	QLineEdit *ccdFileEdit_;
@@ -217,10 +194,7 @@ private:
 	QToolButton *laserPowerButton_;
 
 	// Config window.
-	VESPERSEndstationConfiguration *config_;
-
-	// Control map to soft limits.
-	QMap<AMPVwStatusControl *, QPair<double, double> > softLimits_;
+	VESPERSEndstationConfigurationView *config_;
 
 	// Names of microscope positions.
 	QPair<QString, QString> microscopeNames_;
@@ -242,43 +216,8 @@ private:
 	// Filter combo box.
 	QComboBox *filterComboBox_;
 
-	// Control pointers.
-	// The controls used for the control window.
-	AMPVwStatusControl *ccdControl_;
-	AMPVwStatusControl *microscopeControl_;
-	AMPVwStatusControl *fourElControl_;
-	AMPVwStatusControl *singleElControl_;
-	AMPVwStatusControl *focusControl_;
-
-	// The controls that have the feedback value used for the button.  The microscope doesn't need one because it's encoder doesn't work.
-	AMReadOnlyPVControl *ccdfbk_;
-	AMReadOnlyPVControl *fourElfbk_;
-	AMReadOnlyPVControl *singleElfbk_;
-	AMReadOnlyPVControl *focusfbk_;
-
-	// Microscope light PV.
-	AMProcessVariable *micLightPV_;
-
-	// Laser power control.
-	AMPVControl *laserPowerControl_;
-
-	// Various CCD file path PVs.
-	AMProcessVariable *ccdPath_;
-	AMProcessVariable *ccdFile_;
-	AMProcessVariable *ccdNumber_;
-
-	// The pseudo-motor reset PV.
-	AMProcessVariable *resetPseudoMotors_;
-
-	// Filter controls.
-	AMPVControl *filter250umA_;
-	AMPVControl *filter250umB_;
-	AMPVControl *filter100umA_;
-	AMPVControl *filter100umB_;
-	AMPVControl *filter50umA_;
-	AMPVControl *filter50umB_;
-	AMPVControl *filterShutterUpper_;
-	AMPVControl *filterShutterLower_;
+	// The endstation model.
+	VESPERSEndstation *endstation_;
 };
 
 #endif // VESPERSENDSTATIONVIEW_H
