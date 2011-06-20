@@ -72,6 +72,9 @@ AMScanViewScanBar::AMScanViewScanBar(AMScanSetModel* model, int scanIndex, QWidg
 			sourceButton->setChecked(model->isVisible(scanIndex, i));
 			sourceButtons_.addButton(sourceButton, i);
 			cramBar_->addWidget(sourceButton);
+			/// \todo this is a bit of a hack for scalar data sources.
+			if (source->dataSourceAt(i)->rank() == 0)
+				sourceButton->hide();
 		}
 	}
 

@@ -37,14 +37,14 @@ VESPERSXRFScanController::VESPERSXRFScanController(VESPERSXRFScanConfiguration *
 
 	for (int i = 0; i < detector_->elements(); i++){
 
-		AMDeadTimeAB *temp = new AMDeadTimeAB(QString("Corrected %1").arg(i+1));
+		AMDeadTimeAB *temp = new AMDeadTimeAB(QString("corr%1").arg(i+1));
 		temp->setInputDataSourcesImplementation(QList<AMDataSource *>() << scan_->rawDataSources()->at(i) << scan_->rawDataSources()->at(i+detector_->elements()));
 		scan_->addAnalyzedDataSource(temp);
 	}
 
 	if (detector_->elements() > 1){
 
-		AM1DSummingAB *corr = new AM1DSummingAB("Corrected Sum");
+		AM1DSummingAB *corr = new AM1DSummingAB("corrSum");
 		QList<AMDataSource *> list;
 		for (int i = 0; i < scan_->analyzedDataSourceCount(); i++)
 			list << (AMDataSource *)scan_->analyzedDataSources()->at(i);
