@@ -56,7 +56,7 @@ XRFDetector::XRFDetector(QString name, int elements, AMControl *status, AMContro
 	connect(elapsedTimeControl_, SIGNAL(valueChanged(double)), this, SIGNAL(elapsedTimeChanged(double)));
 	connect(refreshRateControl_, SIGNAL(valueChanged(double)), this, SIGNAL(refreshRateChanged(double)));
 	connect(deadTimeControl_, SIGNAL(controlSetValuesChanged()), this, SIGNAL(deadTimeChanged()));
-	connect(spectraControl_, SIGNAL(controlSetValuesChanged()), this, SIGNAL(spectraChanged()));
+	//connect(spectraControl_, SIGNAL(controlSetValuesChanged()), this, SIGNAL(spectraChanged()));
 
 	connect(statusControl_, SIGNAL(valueChanged(double)), this, SIGNAL(statusChanged()));
 	connect(integrationTimeControl_, SIGNAL(valueChanged(double)), this, SLOT(setTime(double)));
@@ -141,7 +141,7 @@ XRFDetector::XRFDetector(QString name, AMControl *status, AMControl *refreshRate
 	connect(elapsedTimeControl_, SIGNAL(valueChanged(double)), this, SIGNAL(elapsedTimeChanged(double)));
 	connect(refreshRateControl_, SIGNAL(valueChanged(double)), this, SIGNAL(refreshRateChanged(double)));
 	connect(deadTimeControl_, SIGNAL(controlSetValuesChanged()), this, SIGNAL(deadTimeChanged()));
-	connect(spectraControl_, SIGNAL(controlSetValuesChanged()), this, SIGNAL(spectraChanged()));
+	//connect(spectraControl_, SIGNAL(controlSetValuesChanged()), this, SIGNAL(spectraChanged()));
 
 	connect(statusControl_, SIGNAL(valueChanged(double)), this, SIGNAL(statusChanged()));
 	connect(integrationTimeControl_, SIGNAL(valueChanged(double)), this, SLOT(setIntegrationTime(double)));

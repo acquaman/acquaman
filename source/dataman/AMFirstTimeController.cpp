@@ -189,7 +189,6 @@ bool AMFirstTimeController::databaseInitialization(bool newUser) {
 
 	AMDbObjectSupport::registerClass<AMExporterOptionGeneralAscii>();
 
-
 	AMDbObjectSupport::registerClass<AMUser>();
 
 	if(newUser)

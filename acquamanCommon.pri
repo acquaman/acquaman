@@ -360,7 +360,8 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/analysis/AM1DSummingAB.h \
 	source/analysis/AMDeadTimeAB.h \
 	source/dataman/AMProcessVariableDataSource.h \
-    source/ui/AMChooseScanDialog.h
+    source/ui/AMChooseScanDialog.h \
+    source/application/AMDatamanAppController.h
 FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
 	source/ui/AMDataViewSectionHeader.ui \
@@ -580,7 +581,8 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/analysis/AM1DSummingAB.cpp \
 	source/analysis/AMDeadTimeAB.cpp \
 	source/dataman/AMProcessVariableDataSource.cpp \
-    source/ui/AMChooseScanDialog.cpp
+    source/ui/AMChooseScanDialog.cpp \
+    source/application/AMDatamanAppController.cpp
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc \
 	source/util/ElementData.qrc \
