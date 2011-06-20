@@ -493,8 +493,7 @@ bool VESPERSEndstationView::loadConfiguration()
 
 	microscopeNames_ = qMakePair((QString)contents.at(16), (QString)contents.at(17));
 
-	if (window_)
-		window_->setControl(window_->control(), softLimits_.value(window_->control()).first, softLimits_.value(window_->control()).second);
+	updateControl();
 
 	return true;
 }
