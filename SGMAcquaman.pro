@@ -19,7 +19,9 @@ HEADERS += 	source/application/SGM/SGMAppController.h \
 	source/ui/SGMSidebar.h \
 	source/ui/SGMFastScanConfigurationView.h \
 	source/ui/SGM/SGMSampleManipulatorView.h \
-    source/beamline/SGM/SGMBeamlineInfo.h
+    source/beamline/SGM/SGMBeamlineInfo.h \
+    source/util/SGM/SGMElementInfo.h \
+    source/util/SGM/SGMPeriodicTable.h
 
 SOURCES +=	source/application/SGM/SGMMain.cpp \
 	source/application/SGM/SGMAppController.cpp \
@@ -37,7 +39,9 @@ SOURCES +=	source/application/SGM/SGMMain.cpp \
 	source/ui/SGMSidebar.cpp \
 	source/ui/SGMFastScanConfigurationView.cpp \
 	source/ui/SGM/SGMSampleManipulatorView.cpp \
-    source/beamline/SGM/SGMBeamlineInfo.cpp
+    source/beamline/SGM/SGMBeamlineInfo.cpp \
+    source/util/SGM/SGMElementInfo.cpp \
+    source/util/SGM/SGMPeriodicTable.cpp
 
 RESOURCES += \
     source/beamline/SGM/TransferHelpImages/LoadLockOutImages.qrc \

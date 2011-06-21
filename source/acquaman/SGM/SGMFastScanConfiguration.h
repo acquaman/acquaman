@@ -3,8 +3,9 @@
 
 #include "acquaman/AMFastScanConfiguration.h"
 #include "SGMScanConfiguration.h"
+#include "util/SGM/SGMElementInfo.h"
 
-class SGMFastScanParameters;
+//class SGMFastScanParameters;
 
 class SGMFastScanConfiguration : public AMFastScanConfiguration, public SGMScanConfiguration
 {
@@ -141,6 +142,7 @@ protected:
 	SGMEnergyParameters *currentEnergyParameters_;
 };
 
+/*
 class SGMFastScanParameters : public QObject
 {
 	Q_OBJECT
@@ -194,5 +196,6 @@ protected:
 	int undulatorVelocity_;
 	int undulatorRelativeStep_;
 };
+*/
 
 #endif // SGMFASTSCANCONFIGURATION_H

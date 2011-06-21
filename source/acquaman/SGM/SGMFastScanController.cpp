@@ -142,6 +142,9 @@ bool SGMFastScanController::beamlineInitialize(){
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->undulatorFastTracking());
 	tmpAction->setSetpoint(0);
 	cleanUpActions_->appendAction(cleanUpActions_->stageCount()-1, tmpAction);
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->undulatorVelocity());
+	tmpAction->setSetpoint(11811);
+	cleanUpActions_->appendAction(cleanUpActions_->stageCount()-1, tmpAction);
 	/**/
 
 
@@ -177,10 +180,12 @@ bool SGMFastScanController::beamlineInitialize(){
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerMode());
 	tmpAction->setSetpoint(0);
 	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
-	/*DAVID - Setting Initial undulator step ... needs to be generalized */
+	/*DAVID - Setting Initial undulator step ... needs to be generalized*/
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->undulatorStep());
 	//tmpAction->setSetpoint(-145629);
-	tmpAction->setSetpoint(-132268);
+	//tmpAction->setSetpoint(-132268);
+	qDebug() << "Setting start step to " << settings->undulatorStartStep();
+	tmpAction->setSetpoint(settings->undulatorStartStep());
 	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
 	/**/
 
@@ -194,7 +199,6 @@ bool SGMFastScanController::beamlineInitialize(){
 	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->gratingAcceleration());
 	tmpAction->setSetpoint(settings->acceleration());
-//	tmpAction->setSetpoint(5000);
 	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerIntegrationTime());
 	tmpAction->setSetpoint(settings->scalerTime());
@@ -208,8 +212,9 @@ bool SGMFastScanController::beamlineInitialize(){
 
 	/* Need to work with Tom on this*/
 	//settings->setUndulatorRelativeStep(13361);
-	settings->setUndulatorRelativeStep(-13361);
-	settings->setUndulatorVelocity(4000);
+	//settings->setUndulatorRelativeStep(-13361);
+	//settings->setUndulatorVelocity(4000);
+	qDebug() << "Relative step to " << settings->undulatorRelativeStep() << " velocity to " << settings->undulatorVelocity();
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->undulatorRelativeStepStorage());
 	tmpAction->setSetpoint(settings->undulatorRelativeStep());
 	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
