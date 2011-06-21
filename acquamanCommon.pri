@@ -364,7 +364,8 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
     source/beamline/AMHighVoltageChannel.h \
     source/beamline/CLS/CLSCAEN2527HVChannel.h \
     source/ui/CLS/CLSCAEN2527ChannelBasicView.h \
-    source/beamline/AMBeamlineHighVoltageChannelToggleAction.h
+    source/beamline/AMBeamlineHighVoltageChannelToggleAction.h \
+    source/beamline/CLS/CLSPGT8000HVChannel.h
 FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
 	source/ui/AMDataViewSectionHeader.ui \
@@ -586,7 +587,8 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
     source/beamline/AMHighVoltageChannel.cpp \
     source/beamline/CLS/CLSCAEN2527HVChannel.cpp \
     source/ui/CLS/CLSCAEN2527ChannelBasicView.cpp \
-    source/beamline/AMBeamlineHighVoltageChannelToggleAction.cpp
+    source/beamline/AMBeamlineHighVoltageChannelToggleAction.cpp \
+    source/beamline/CLS/CLSPGT8000HVChannel.cpp
 
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc \

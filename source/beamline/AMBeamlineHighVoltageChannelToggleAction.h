@@ -16,6 +16,8 @@ public:
 
 	virtual AMBeamlineActionItemView* createView(int index = 0);
 
+	virtual AMBeamlineActionItem* createCopy() const;
+
 	virtual AMHighVoltageChannel* highVoltageChannel();
 	virtual AMHighVoltageChannel::highVoltageChannelPowerState setpoint();
 

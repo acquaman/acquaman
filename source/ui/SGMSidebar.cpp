@@ -227,6 +227,8 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	gl_->addLayout(shl,			7, 0, 1, 3, 0);
 	gl_->addWidget(detectorSourceBox,	8, 0, 1, 3, 0);
 	gl_->addWidget(endstationsBox,		8, 3, 1, 3, 0);
+	//gl_->addWidget(hvOnButton_,		9, 0, 1, 2, 0);
+	//gl_->addWidget(hvOffButton_,		9, 2, 1, 2, 0);
 
 	gl_->addLayout(warningAndPlotHL_,	10, 0, 1, 6, 0);
 
@@ -383,13 +385,13 @@ void SGMSidebar::onBeamlineWarnings(const QString &newWarnings){
 }
 
 void SGMSidebar::onHVOnClicked(){
-	AMBeamlineActionItem* onAction = SGMBeamline::sgm()->createHVOnActions();
+	AMBeamlineActionItem* onAction = SGMBeamline::sgm()->createHV106OnActions();
 	connect(onAction, SIGNAL(succeeded()), this, SLOT(onHVOnSucceeded()));
 	onAction->start();
 }
 
 void SGMSidebar::onHVOffClicked(){
-	AMBeamlineActionItem* offAction = SGMBeamline::sgm()->createHVOffActions();
+	AMBeamlineActionItem* offAction = SGMBeamline::sgm()->createHV106OffActions();
 	connect(offAction, SIGNAL(succeeded()), this, SLOT(onHVOffSucceeded()));
 	offAction->start();
 }

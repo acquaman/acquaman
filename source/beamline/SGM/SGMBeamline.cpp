@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMUser.h"
 #include "beamline/CLS/CLSVMEMotor.h"
 #include "beamline/CLS/CLSCAEN2527HVChannel.h"
+#include "beamline/CLS/CLSPGT8000HVChannel.h"
 
 void SGMBeamline::usingSGMBeamline(){
 	amNames2pvNames_.set("energy", "BL1611-ID-1:Energy");
@@ -58,6 +59,7 @@ void SGMBeamline::usingSGMBeamline(){
 	amNames2pvNames_.set("tfyPico", "A1611-4-16:A:fbk");
 	amNames2pvNames_.set("tfyScaler", "BL1611-ID-1:mcs02:fbk");
 	amNames2pvNames_.set("tfyHV", "PS1611401:109");
+	amNames2pvNames_.set("pgtBase", "MCA1611-01");
 	amNames2pvNames_.set("pgt", "MCA1611-01:GetChannels");
 	amNames2pvNames_.set("pgtHV", "MCA1611-01:Bias:Volt");
 	amNames2pvNames_.set("pgtIntegrationTime", "MCA1611-01:Preset:Live");
@@ -199,8 +201,10 @@ void SGMBeamline::usingSGMBeamline(){
 	sgmPVName = amNames2pvNames_.valueF("undulatorMotor");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
+	undulatorStep_ = new AMPVControl("undulatorStep", sgmPVName+":step:sp", sgmPVName+":step", QString(), this, 20 );
 	undulatorRelativeStepStorage_ = new AMPVControl("undulatorRelativeStepStorage", "BL1611-ID-1:AddOns:UndulatorRelativeStorage", "BL1611-ID-1:AddOns:UndulatorRelativeStorage", QString(), this, 1);
 	undulatorVelocity_ = new AMPVControl("undulatorVelocity", sgmPVName+":velo:sp", sgmPVName+":velo", QString(), this, 1);
+	undulatorFastTracking_ = new AMPVControl("undulatorFastTracking", "BL1611-ID-1:AddOns:UndulatorTrigger", "BL1611-ID-1:AddOns:UndulatorTrigger", QString(), this, 0.5);
 
 	sgmPVName = amNames2pvNames_.valueF("undulatorTracking");
 	if(sgmPVName.isEmpty())
@@ -252,6 +256,8 @@ void SGMBeamline::usingSGMBeamline(){
 	tfyHVToggle_->setContextKnownDescription("Toggle");
 
 	hvChannel106_ = new CLSCAEN2527HVChannel("Ch 6+", "PS1611401:106", AMHighVoltageChannel::positive, this);
+	hvChannel109_ = new CLSCAEN2527HVChannel("Ch 9-", "PS1611401:109", AMHighVoltageChannel::negative, this);
+	hvChannelPGT_ = new CLSPGT8000HVChannel("SGM PGT", "MCA1611-01", this);
 
 	sgmPVName = amNames2pvNames_.valueF("pgt");
 	if(sgmPVName.isEmpty())
@@ -1351,14 +1357,38 @@ AMBeamlineListAction* SGMBeamline::createTransferChamberInActions(){
 	return transferChamberInAction;
 }
 
-AMBeamlineHighVoltageChannelToggleAction* SGMBeamline::createHVOnActions(){
-	AMBeamlineHighVoltageChannelToggleAction * onAction = new AMBeamlineHighVoltageChannelToggleAction(hvChannel106());
+AMBeamlineHighVoltageChannelToggleAction* SGMBeamline::createHV106OnActions(){
+	AMBeamlineHighVoltageChannelToggleAction *onAction = new AMBeamlineHighVoltageChannelToggleAction(hvChannel106());
 	onAction->setSetpoint(AMHighVoltageChannel::isPowerOn);
 	return onAction;
 }
 
-AMBeamlineHighVoltageChannelToggleAction* SGMBeamline::createHVOffActions(){
-	AMBeamlineHighVoltageChannelToggleAction * offAction = new AMBeamlineHighVoltageChannelToggleAction(hvChannel106());
+AMBeamlineHighVoltageChannelToggleAction* SGMBeamline::createHV106OffActions(){
+	AMBeamlineHighVoltageChannelToggleAction *offAction = new AMBeamlineHighVoltageChannelToggleAction(hvChannel106());
+	offAction->setSetpoint(AMHighVoltageChannel::isPowerOff);
+	return offAction;
+}
+
+AMBeamlineHighVoltageChannelToggleAction* SGMBeamline::createHV109OnActions(){
+	AMBeamlineHighVoltageChannelToggleAction *onAction = new AMBeamlineHighVoltageChannelToggleAction(hvChannel109());
+	onAction->setSetpoint(AMHighVoltageChannel::isPowerOn);
+	return onAction;
+}
+
+AMBeamlineHighVoltageChannelToggleAction* SGMBeamline::createHV109OffActions(){
+	AMBeamlineHighVoltageChannelToggleAction *offAction = new AMBeamlineHighVoltageChannelToggleAction(hvChannel109());
+	offAction->setSetpoint(AMHighVoltageChannel::isPowerOff);
+	return offAction;
+}
+
+AMBeamlineHighVoltageChannelToggleAction* SGMBeamline::createHVPGTOnActions(){
+	AMBeamlineHighVoltageChannelToggleAction *onAction = new AMBeamlineHighVoltageChannelToggleAction(hvChannelPGT());
+	onAction->setSetpoint(AMHighVoltageChannel::isPowerOn);
+	return onAction;
+}
+
+AMBeamlineHighVoltageChannelToggleAction* SGMBeamline::createHVPGTOffActions(){
+	AMBeamlineHighVoltageChannelToggleAction *offAction = new AMBeamlineHighVoltageChannelToggleAction(hvChannelPGT());
 	offAction->setSetpoint(AMHighVoltageChannel::isPowerOff);
 	return offAction;
 }
@@ -1534,7 +1564,7 @@ void SGMBeamline::onControlSetConnected(bool csConnected){
 			FastDetectors_->addDetector(teyScalerDetector_, true);
 		}
 		else if(!tfyPicoDetector_ && ctrlSet->name() == "TFY Pico Controls"){
-			tfyPicoDetector_ = new MCPDetector(tfyPico_->name(), tfyPico_, tfyHV_, AMDetector::WaitRead, this);
+			tfyPicoDetector_ = new MCPDetector(tfyPico_->name(), tfyPico_, tfyHV_, createHV109OnActions(), createHV109OffActions(), AMDetector::WaitRead, this);
 			tfyPicoDetector_->setDescription(tfyPico_->description());
 			allDetectors_->addDetector(tfyPicoDetector_);
 			XASDetectors_->addDetector(tfyPicoDetector_, true);
@@ -1543,7 +1573,7 @@ void SGMBeamline::onControlSetConnected(bool csConnected){
 			emit detectorHVChanged();
 		}
 		else if(!tfyScalerDetector_ && ctrlSet->name() == "TFY Scaler Controls"){
-			tfyScalerDetector_ = new MCPDetector(tfyScaler_->name(), tfyScaler_, tfyHV_, AMDetector::WaitRead, this);
+			tfyScalerDetector_ = new MCPDetector(tfyScaler_->name(), tfyScaler_, tfyHV_, createHV109OnActions(), createHV109OffActions(), AMDetector::WaitRead, this);
 			tfyScalerDetector_->setDescription(tfyScaler_->description());
 			allDetectors_->addDetector(tfyScalerDetector_);
 			XASDetectors_->addDetector(tfyScalerDetector_, true);
@@ -1553,7 +1583,7 @@ void SGMBeamline::onControlSetConnected(bool csConnected){
 			emit detectorHVChanged();
 		}
 		else if(!pgtDetector_ && ctrlSet->name() == "SDD Controls"){
-			pgtDetector_ = new PGTDetector(pgt_->name(), pgt_, pgtHV_, pgtIntegrationTime_, pgtIntegrationMode_, AMDetector::WaitRead, this);
+			pgtDetector_ = new PGTDetector(pgt_->name(), pgt_, pgtHV_, pgtIntegrationTime_, pgtIntegrationMode_, createHVPGTOnActions(), createHVPGTOffActions(), AMDetector::WaitRead, this);
 			pgtDetector_->setDescription(pgt_->description());
 			allDetectors_->addDetector(pgtDetector_);
 			XASDetectors_->addDetector(pgtDetector_);

@@ -117,6 +117,7 @@ bool SGMFastDacqScanController::event(QEvent *e){
 			while(j != aeSpectra.constEnd()){
 				encoderStartPoint = encoderEndpoint;
 				int maxVal = j.value().count()-1;
+				qDebug() << "This number is " << maxVal;
 				if(maxVal > 6000)
 					maxVal = 6000;
 				for(int x = 0; x < maxVal; x++){
@@ -156,7 +157,10 @@ bool SGMFastDacqScanController::event(QEvent *e){
 							readings.append(j.value().at(x+1));
 					}
 					if( x%6 == 4 ){
-						encoderReading -= j.value().at(x+1);
+						if( j.value().at(x+1) != 21292)
+							encoderReading -= j.value().at(x+1);
+						else
+							qDebug() << "REJECTION? WHY? " << j.value().at(x+1);
 						//encoderReading += j.value().at(x+1);
 					}
 					if( x%6 == 5 ){
@@ -273,6 +277,7 @@ void SGMFastDacqScanController::calculateProgress(double elapsed, double total){
 }
 
 void SGMFastDacqScanController::onScanFinished(){
+	qDebug() << "HEARD FAST SCAN FINISHED";
 	if(cleanUpActions_){
 		connect(cleanUpActions_, SIGNAL(listSucceeded()), this, SLOT(setFinished()));
 		cleanUpActions_->start();

@@ -1,14 +1,16 @@
 #include "MCPDetector.h"
 
-MCPDetector::MCPDetector(const QString &name, AMControlSet *readingsControls, AMControlSet *settingsControls, AMDetector::ReadMethod readMethod, QObject *parent) :
+MCPDetector::MCPDetector(const QString &name, AMControlSet *readingsControls, AMControlSet *settingsControls, AMBeamlineActionItem *toggleOnAction, AMBeamlineActionItem *toggleOffAction, AMDetector::ReadMethod readMethod, QObject *parent) :
 		MCPDetectorInfo(name, name, parent), AMDetector(name, readMethod)
 {
 	ownsControlSets_ = false;
+	toggleOnAction_ = toggleOnAction;
+	toggleOffAction_ = toggleOffAction;
 	initializeFromControlSet(readingsControls, settingsControls);
 }
 
 
-MCPDetector::MCPDetector(const QString &name, AMControl *reading, AMControl *hv, AMDetector::ReadMethod readMethod, QObject *parent) :
+MCPDetector::MCPDetector(const QString &name, AMControl *reading, AMControl *hv, AMBeamlineActionItem *toggleOnAction, AMBeamlineActionItem *toggleOffAction, AMDetector::ReadMethod readMethod, QObject *parent) :
 		MCPDetectorInfo(name, name, parent), AMDetector(name, readMethod)
 {
 	ownsControlSets_ = true;
@@ -16,6 +18,8 @@ MCPDetector::MCPDetector(const QString &name, AMControl *reading, AMControl *hv,
 	readingsControls->addControl(reading);
 	AMControlSet *settingsControls = new AMControlSet(this);
 	settingsControls->addControl(hv);
+	toggleOnAction_ = toggleOnAction;
+	toggleOffAction_ = toggleOffAction;
 	initializeFromControlSet(readingsControls, settingsControls);
 }
 
@@ -71,6 +75,15 @@ bool MCPDetector::setFromInfo(const AMDetectorInfo *info){
 bool MCPDetector::setFromInfo(const MCPDetectorInfo& info){
 	hvCtrl()->move(info.hvSetpoint());
 	return true;
+}
+
+bool MCPDetector::activate(){
+	hvCtrl()->move(1600);
+	return true;
+}
+
+AMBeamlineActionItem* MCPDetector::turnOnAction(){
+	return toggleOnAction_->createCopy();
 }
 
 bool MCPDetector::settingsMatchFbk(MCPDetectorInfo *settings){

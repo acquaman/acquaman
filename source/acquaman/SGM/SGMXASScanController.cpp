@@ -163,9 +163,16 @@ bool SGMXASScanController::beamlineInitialize(){
 	tmpSetAction->setSetpoint(pCfg_()->trackingGroup());
 	initializationActions_->appendAction(0, tmpSetAction);
 
-	for(int x = 0; x < pCfg_()->allDetectors()->count(); x++)
-		if(pCfg_()->allDetectorConfigurations().isActiveAt(x))
+	for(int x = 0; x < pCfg_()->allDetectors()->count(); x++){
+		if(pCfg_()->allDetectorConfigurations().isActiveAt(x)){
 			pCfg_()->allDetectors()->detectorAt(x)->setFromInfo(pCfg_()->allDetectorConfigurations().detectorInfoAt(x));
+			pCfg_()->allDetectors()->detectorAt(x)->activate();
+			if(pCfg_()->allDetectors()->detectorAt(x)->turnOnAction()){
+				qDebug() << "Adding HV turn on to initialization actions";
+				initializationActions_->appendAction(0, pCfg_()->allDetectors()->detectorAt(x)->turnOnAction());
+			}
+		}
+	}
 
 	beamlineInitialized_ = true;
 	return beamlineInitialized_;

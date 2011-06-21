@@ -16,6 +16,15 @@ AMBeamlineActionItemView* AMBeamlineHighVoltageChannelToggleAction::createView(i
 	return 0;//NULL
 }
 
+AMBeamlineActionItem* AMBeamlineHighVoltageChannelToggleAction::createCopy() const{
+	if(highVoltageChannel_){
+		AMBeamlineHighVoltageChannelToggleAction *retVal = new AMBeamlineHighVoltageChannelToggleAction(highVoltageChannel_);
+		retVal->setSetpoint(setpoint_);
+		return retVal;
+	}
+	return 0;
+}
+
 AMHighVoltageChannel* AMBeamlineHighVoltageChannelToggleAction::highVoltageChannel(){
 	return highVoltageChannel_;
 }

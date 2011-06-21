@@ -9,8 +9,8 @@ class PGTDetector : public PGTDetectorInfo, public AMDetector
 {
 	Q_OBJECT
 public:
-	PGTDetector(const QString &name, AMControlSet *readingsControls, AMControlSet *settingsControls, AMDetector::ReadMethod readMethod = AMDetector::ImmediateRead, QObject *parent = 0);
-	PGTDetector(const QString& name, AMControl *dataWaveform, AMControl *hv, AMControl *integrationTime, AMControl *integrationMode, AMDetector::ReadMethod readMethod = AMDetector::ImmediateRead, QObject *parent = 0);
+	PGTDetector(const QString &name, AMControlSet *readingsControls, AMControlSet *settingsControls, AMBeamlineActionItem *toggleOnAction, AMBeamlineActionItem *toggleOffAction, AMDetector::ReadMethod readMethod = AMDetector::ImmediateRead, QObject *parent = 0);
+	PGTDetector(const QString& name, AMControl *dataWaveform, AMControl *hv, AMControl *integrationTime, AMControl *integrationMode, AMBeamlineActionItem *toggleOnAction, AMBeamlineActionItem *toggleOffAction, AMDetector::ReadMethod readMethod = AMDetector::ImmediateRead, QObject *parent = 0);
 	~PGTDetector();
 
 	const QMetaObject* getMetaObject();
@@ -28,6 +28,9 @@ public:
 	bool setFromInfo(const PGTDetectorInfo &info);
 
 	bool isPoweredOn();
+
+	bool activate();
+	AMBeamlineActionItem* turnOnAction();
 
 	AMControl* dataWaveformCtrl() const;
 	AMControl* hvCtrl() const;
@@ -57,6 +60,9 @@ protected:
 	AMControlSet *readingsControls_;
 	AMControlSet *settingsControls_;
 	bool ownsControlSets_;
+
+	AMBeamlineActionItem *toggleOnAction_;
+	AMBeamlineActionItem *toggleOffAction_;
 
 private:
 	bool poweredOn_;

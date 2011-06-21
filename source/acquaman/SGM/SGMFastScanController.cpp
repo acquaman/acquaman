@@ -138,6 +138,11 @@ bool SGMFastScanController::beamlineInitialize(){
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerTotalNumberOfScans());
 	tmpAction->setSetpoint(SGMBeamline::sgm()->scalerTotalNumberOfScans()->value());
 	cleanUpActions_->appendAction(cleanUpActions_->stageCount()-1, tmpAction);
+	/**/
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->undulatorFastTracking());
+	tmpAction->setSetpoint(0);
+	cleanUpActions_->appendAction(cleanUpActions_->stageCount()-1, tmpAction);
+	/**/
 
 
 
@@ -172,6 +177,12 @@ bool SGMFastScanController::beamlineInitialize(){
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerMode());
 	tmpAction->setSetpoint(0);
 	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
+	/*DAVID - Setting Initial undulator step ... needs to be generalized */
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->undulatorStep());
+	//tmpAction->setSetpoint(-145629);
+	tmpAction->setSetpoint(-132268);
+	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
+	/**/
 
 	//Set the grating motor velocity, base velocity, and acceleration as well as scaler mode, scans per buffer, total # of scans, and intergration time
 	initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
@@ -194,14 +205,21 @@ bool SGMFastScanController::beamlineInitialize(){
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerTotalNumberOfScans());
 	tmpAction->setSetpoint(1000);
 	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
-	/* Need to work with Tom on this
+
+	/* Need to work with Tom on this*/
+	//settings->setUndulatorRelativeStep(13361);
+	settings->setUndulatorRelativeStep(-13361);
+	settings->setUndulatorVelocity(4000);
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->undulatorRelativeStepStorage());
 	tmpAction->setSetpoint(settings->undulatorRelativeStep());
 	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->undulatorVelocity());
 	tmpAction->setSetpoint(settings->undulatorVelocity());
 	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
-	*/
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->undulatorFastTracking());
+	tmpAction->setSetpoint(1);
+	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
+	/**/
 
 	/* NTBA March 14, 2011 David Chevrier
 	AMDetector* tmpD;

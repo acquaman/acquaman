@@ -9,8 +9,8 @@ public:
 	/// Status values will be compare to \c isStoppedValue, and return true if the status value is not equal to isStoppedValue (something that isn't stopped is moving)
 	AMControlStatusCheckerCLSVME() {}
 
-	/// Return true (moving) if the \c statusValue is not 0 (STOPPED) and is not 3 (FORCED STOP)
-	virtual bool operator()(quint32 statusValue) { return (statusValue != 0) && (statusValue != 3); }
+	/// Return true (moving) if the \c statusValue is not 0 (STOPPED) and is not 3 (FORCED STOP) and is not 4 (ERROR)
+	virtual bool operator()(quint32 statusValue) { return (statusValue != 0) && (statusValue != 3) && (statusValue != 4); }
 };
 
 class CLSVMEMotor : public AMPVwStatusControl

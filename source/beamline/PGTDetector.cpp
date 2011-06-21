@@ -1,13 +1,15 @@
 #include "PGTDetector.h"
 
-PGTDetector::PGTDetector(const QString &name, AMControlSet *readingsControls, AMControlSet *settingsControls, AMDetector::ReadMethod readMethod, QObject *parent) :
+PGTDetector::PGTDetector(const QString &name, AMControlSet *readingsControls, AMControlSet *settingsControls, AMBeamlineActionItem *toggleOnAction, AMBeamlineActionItem *toggleOffAction, AMDetector::ReadMethod readMethod, QObject *parent) :
 		PGTDetectorInfo(name, name, parent), AMDetector(name, readMethod)
 {
 	ownsControlSets_ = false;
+	toggleOnAction_ = toggleOnAction;
+	toggleOffAction_ = toggleOffAction;
 	initializeFromControlSet(readingsControls, settingsControls);
 }
 
-PGTDetector::PGTDetector(const QString &name, AMControl *dataWaveform, AMControl *hv, AMControl *integrationTime, AMControl *integrationMode, AMDetector::ReadMethod readMethod, QObject *parent) :
+PGTDetector::PGTDetector(const QString &name, AMControl *dataWaveform, AMControl *hv, AMControl *integrationTime, AMControl *integrationMode, AMBeamlineActionItem *toggleOnAction, AMBeamlineActionItem *toggleOffAction, AMDetector::ReadMethod readMethod, QObject *parent) :
 		PGTDetectorInfo(name, name, parent), AMDetector(name, readMethod)
 {
 	ownsControlSets_ = true;
@@ -17,6 +19,8 @@ PGTDetector::PGTDetector(const QString &name, AMControl *dataWaveform, AMControl
 	settingsControls->addControl(hv);
 	settingsControls->addControl(integrationTime);
 	settingsControls->addControl(integrationMode);
+	toggleOnAction_ = toggleOnAction;
+	toggleOffAction_ = toggleOffAction;
 	initializeFromControlSet(readingsControls, settingsControls);
 }
 
@@ -50,21 +54,30 @@ bool PGTDetector::setFromInfo(const AMDetectorInfo *info){
 	const PGTDetectorInfo *di = qobject_cast<const PGTDetectorInfo*>(info);
 	if(!di)
 		return false;
-	integrationTimeCtrl()->move(di->integrationTime());
-	integrationModeCtrl()->move(integrationModeCtrl()->enumNames().indexOf(di->integrationMode()));
-	hvCtrl()->move(di->hvSetpoint());
+	//integrationTimeCtrl()->move(di->integrationTime());
+	//integrationModeCtrl()->move(integrationModeCtrl()->enumNames().indexOf(di->integrationMode()));
+	//hvCtrl()->move(di->hvSetpoint());
 	return true;
 }
 
 bool PGTDetector::setFromInfo(const PGTDetectorInfo& info){
 	//integrationTimeCtrl()->move(info.integrationTime());
 	//integrationModeCtrl()->move(integrationModeCtrl()->enumNames().indexOf(info.integrationMode()));
-	hvCtrl()->move(info.hvSetpoint());
+	//hvCtrl()->move(info.hvSetpoint());
 	return true;
 }
 
 bool PGTDetector::isPoweredOn(){
 	return poweredOn_;
+}
+
+bool PGTDetector::activate(){
+	hvCtrl()->move(180);
+	return true;
+}
+
+AMBeamlineActionItem* PGTDetector::turnOnAction(){
+	return toggleOnAction_->createCopy();
 }
 
 AMControl* PGTDetector::dataWaveformCtrl() const {

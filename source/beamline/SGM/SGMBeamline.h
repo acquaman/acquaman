@@ -51,6 +51,7 @@ class SGMGratingAction;
 class AMSamplePlate;
 class CLSVMEMotor;
 class CLSCAEN2527HVChannel;
+class CLSPGT8000HVChannel;
 
 class SGMBeamline : public AMBeamline
 {
@@ -125,8 +126,10 @@ public:
 	AMControl* m4() const { return m4_;}
 	AMControl* grating() const { return grating_;}
 	AMControl* harmonic() const { return harmonic_;}
+	AMControl* undulatorStep() const { return undulatorStep_;}
 	AMControl* undulatorRelativeStepStorage() const { return undulatorRelativeStepStorage_;}
 	AMControl* undulatorVelocity() const { return undulatorVelocity_;}
+	AMControl* undulatorFastTracking() const { return undulatorFastTracking_;}
 	AMControl* undulatorTracking() const { return undulatorTracking_;}
 	AMControl* monoTracking() const { return monoTracking_;}
 	AMControl* exitSlitTracking() const { return exitSlitTracking_;}
@@ -211,6 +214,8 @@ public:
 	AMControl* ssaIllumination() const { return ssaIllumination_;}
 	AMControl* tfyHVToggle() const { return tfyHVToggle_;}
 	CLSCAEN2527HVChannel* hvChannel106() const { return hvChannel106_;}
+	CLSCAEN2527HVChannel* hvChannel109() const { return hvChannel109_;}
+	CLSPGT8000HVChannel* hvChannelPGT() const { return hvChannelPGT_;}
 
 
 	AMControlSet* fluxResolutionSet() const { return fluxResolutionSet_;}
@@ -239,8 +244,12 @@ public:
 	AMBeamlineListAction* createTransferChamberOutActions();
 	AMBeamlineListAction* createTransferChamberInActions();
 
-	AMBeamlineHighVoltageChannelToggleAction* createHVOnActions();
-	AMBeamlineHighVoltageChannelToggleAction* createHVOffActions();
+	AMBeamlineHighVoltageChannelToggleAction* createHV106OnActions();
+	AMBeamlineHighVoltageChannelToggleAction* createHV106OffActions();
+	AMBeamlineHighVoltageChannelToggleAction* createHV109OnActions();
+	AMBeamlineHighVoltageChannelToggleAction* createHV109OffActions();
+	AMBeamlineHighVoltageChannelToggleAction* createHVPGTOnActions();
+	AMBeamlineHighVoltageChannelToggleAction* createHVPGTOffActions();
 
 	bool isBeamlineScanning();
 
@@ -331,8 +340,10 @@ protected:
 	AMControl *m4_;
 	AMControl *grating_;
 	AMControl *harmonic_;
+	AMControl *undulatorStep_;
 	AMControl *undulatorRelativeStepStorage_;
 	AMControl *undulatorVelocity_;
+	AMControl *undulatorFastTracking_;
 	AMControl *undulatorTracking_;
 	AMControl *monoTracking_;
 	AMControl *exitSlitTracking_;
@@ -343,6 +354,8 @@ protected:
 	AMControl *tfyHV_;
 	AMControl *tfyHVToggle_;
 	CLSCAEN2527HVChannel *hvChannel106_;
+	CLSCAEN2527HVChannel *hvChannel109_;
+	CLSPGT8000HVChannel *hvChannelPGT_;
 	AMControl *pgt_;
 	AMControl *pgtHV_;
 	AMControl *pgtIntegrationTime_;

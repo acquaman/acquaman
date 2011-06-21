@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QObject>
 #include "dataman/AMDetectorInfo.h"
 #include "AMControl.h"
+#include "AMBeamlineActionItem.h"
 
 class AMDetector;
 
@@ -108,6 +109,9 @@ public:
 	virtual bool setFromInfo(const AMDetectorInfo& info) = 0;
 	*/
 	virtual bool setFromInfo(const AMDetectorInfo *info) = 0;
+
+	virtual bool activate() { return false;}
+	virtual AMBeamlineActionItem* turnOnAction() { return 0;}
 
 protected:
 	void setConnected(bool isConnected);

@@ -4,13 +4,14 @@
 #include "AMDetector.h"
 #include "dataman/MCPDetectorInfo.h"
 #include "AMControlSet.h"
+#include "AMBeamlineActionItem.h"
 
 class MCPDetector : public MCPDetectorInfo, public AMDetector
 {
 	Q_OBJECT
 public:
-	MCPDetector(const QString &name, AMControlSet *readingsControls, AMControlSet *settingsControls, AMDetector::ReadMethod readMethod = AMDetector::ImmediateRead, QObject *parent = 0);
-	MCPDetector(const QString& name, AMControl *reading, AMControl *hv, AMDetector::ReadMethod readMethod = AMDetector::ImmediateRead, QObject *parent = 0);
+	MCPDetector(const QString &name, AMControlSet *readingsControls, AMControlSet *settingsControls, AMBeamlineActionItem *toggleOnAction, AMBeamlineActionItem *toggleOffAction, AMDetector::ReadMethod readMethod = AMDetector::ImmediateRead, QObject *parent = 0);
+	MCPDetector(const QString& name, AMControl *reading, AMControl *hv, AMBeamlineActionItem *toggleOnAction, AMBeamlineActionItem *toggleOffAction, AMDetector::ReadMethod readMethod = AMDetector::ImmediateRead, QObject *parent = 0);
 	~MCPDetector();
 
 	const QMetaObject* getMetaObject();
@@ -31,6 +32,9 @@ public:
 	   */
 	bool setFromInfo(const AMDetectorInfo *info);
 	bool setFromInfo(const MCPDetectorInfo &info);
+
+	bool activate();
+	AMBeamlineActionItem* turnOnAction();
 
 	bool settingsMatchFbk(MCPDetectorInfo* settings);
 
@@ -55,6 +59,9 @@ protected:
 	AMControlSet *readingsControls_;
 	AMControlSet *settingsControls_;
 	bool ownsControlSets_;
+
+	AMBeamlineActionItem *toggleOnAction_;
+	AMBeamlineActionItem *toggleOffAction_;
 
 private:
 	bool poweredOn_;
