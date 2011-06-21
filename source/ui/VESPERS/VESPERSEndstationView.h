@@ -5,7 +5,6 @@
 
 #include "beamline/VESPERS/VESPERSEndstation.h"
 #include "ui/VESPERS/VESPERSMotorView.h"
-#include "beamline/VESPERS/VESPERSBeamline.h"
 
 #include <QLineEdit>
 #include <QStringList>
@@ -36,11 +35,11 @@ signals:
 	/// The limits and other possible configurations have changed.
 	void configurationChanged();
 
-private slots:
+protected slots:
 	/// Saves the configuration in all the new line edits to the configuration file.
 	bool saveFile();
 
-private:
+protected:
 	/// Loads the configuration file and puts the contents into the line edits.
 	bool loadFile();
 
@@ -68,119 +67,99 @@ class VESPERSEndstationView : public QWidget
 	Q_OBJECT
 
 public:
+	/// Constructor.  Creates an instance of VESPERSEndstation and builds a view around it.  Sets up all the connections between the model.
 	VESPERSEndstationView(QWidget *parent = 0);
+	/// Destructor.
 	~VESPERSEndstationView();
 
-protected:
-	void closeEvent(QCloseEvent *e) { delete config_; e->accept(); }
-
-private slots:
+protected slots:
 	/// Used to set the CCD Path when it changes from the program.
-	void ccdPathEdited() { StringtoAMPV(ccdPath_, ccdPathEdit_->text()); }
+	void ccdPathEdited() { endstation_->setCCDPath(ccdPathEdit_->text()); }
 	/// Used to set the CCD File name when it changes from the program.
-	void ccdFileEdited() { StringtoAMPV(ccdFile_, ccdFileEdit_->text()); }
+	void ccdFileEdited() { endstation_->setCCDName(ccdFileEdit_->text()); }
 	/// Used to set the CCD Number when it changes from the program.
-	void ccdNumberEdited() { ccdNumber_->setValue(ccdNumberEdit_->text()); }
-	/// Used to set the updated path string to the line edit.
-	void ccdPathUpdate(){ ccdPathEdit_->setText(AMPVtoString(ccdPath_)); }
-	/// Used to set the updated name string to the line edit.
-	void ccdFileUpdate() { ccdFileEdit_->setText(AMPVtoString(ccdFile_)); }
+	void ccdNumberEdited() { endstation_->setCCDNumber(ccdNumberEdit_->text().toInt()); }
 	/// Used to update the ccdNumber value.
-	void ccdNumberUpdate(int newVal) { ccdNumberEdit_->setText(QString::number(newVal)); }
-	/// Overloaded function.
-	void ccdNumberUpdate() { ccdNumberEdit_->setText(QString::number(ccdNumber_->getInt())); }
+	void ccdNumberUpdate(int val) { ccdNumberEdit_->setText(QString::number(val)); }
 
-	/// Used to initialize the Microscope Light slider.
-	void micLightUpdate() { micLight_->setValue(micLightPV_->getInt()); }
-	/// Used to disconnect the microscope light PV from the slider to prevent race conditions.
-	void micLightSliderPressed() { disconnect(micLightPV_, SIGNAL(valueChanged()), this, SLOT(micLightUpdate())); }
-	/// Used to reconnect the microscope light PV from the slider to get updates.
-	void micLightSliderReleased() { connect(micLightPV_, SIGNAL(valueChanged()), this, SLOT(micLightUpdate())); }
+	/// Handles setting the microscope slider without creating a signal/slot loop.
+	void setMicroscopeLight(int val) { micLight_->blockSignals(true); micLight_->setValue(val); micLight_->blockSignals(false); }
 	/// Used when the light bulb button is toggled.
 	void lightBulbToggled(bool pressed);
-	/// Used when the power for the laser is toggled.
-	void laserPowerToggled(bool pressed);
 	/// Used to initialize the laser power button.
 	void laserPowerUpdate();
 
 	// Slots handling the button clicks that will change the control window.
+	/// Sets the window control with the appropriate settings.
+	void setWindow(AMPVwStatusControl *control);
+
 	/// Handles the CCD button being clicked.
 	void ccdClicked()
 	{
-		if (!microscopeSafe_){
-			QMessageBox::warning(this, tr("Move Error"), tr("The microscope is in an unsafe position.  You must move the microscope to its %1 position (%2 %3) before you can move the microscope.").arg(microscopeNames_.second).arg(softLimits_.value(microscopeControl_).second).arg(microscopeControl_->units()));
+		if (!endstation_->ccdInHomePosition()){
+
+			AMPVwStatusControl *control = endstation_->control("CCD");
+			QMessageBox::warning(this, tr("Move Error"), tr("The microscope is in an unsafe position.  You must move the microscope to its %1 position (%2 %3) before you can move the microscope.").arg(endstation_->microscopeNames().second).arg(endstation_->getLimits(control).second).arg(control->units()));
 			return;
 		}
-		window_->setControl(ccdControl_, softLimits_.value(ccdControl_).first, softLimits_.value(ccdControl_).second);
+
+		endstation_->setCurrent("CCD");
 	}
 	/// Handles the Microscope being clicked.
 	void microscopeClicked()
 	{
-		if (!ccdSafe_){
-			QMessageBox::warning(this, tr("Move Error"), tr("The CCD is in an unsafe position.  You must move the CCD to %1 %2 before you can move the microscope.").arg(softLimits_.value(ccdControl_).second).arg(ccdControl_->units()));
+		if (!endstation_->microscopeInHomePosition()){
+
+			AMPVwStatusControl *control = endstation_->control("CCD");
+			QMessageBox::warning(this, tr("Move Error"), tr("The CCD is in an unsafe position.  You must move the CCD to %1 %2 before you can move the microscope.").arg(endstation_->getLimits(control).second).arg(control->units()));
 			return;
 		}
-		window_->setControl(microscopeControl_, softLimits_.value(microscopeControl_).first, softLimits_.value(microscopeControl_).second, microscopeNames_.first, microscopeNames_.second);
+
+		endstation_->setCurrent("Microscope");
 	}
 	/// Handles the 1-el vortex being clicked.
-	void singleElClicked() { window_->setControl(singleElControl_, softLimits_.value(singleElControl_).first, softLimits_.value(singleElControl_).second); }
+	void singleElClicked() { endstation_->setCurrent("1-Element Vortex"); }
 	/// Handles the 4-el vortex being clicked.
-	void fourElClicked() { window_->setControl(fourElControl_, softLimits_.value(fourElControl_).first, softLimits_.value(fourElControl_).second); }
+	void fourElClicked() { endstation_->setCurrent("4-Element Vortex"); }
 	/// Handles the focus being clicked.
-	void focusClicked() { window_->setControl(focusControl_); }
-	/// Handles updating the control window if the configuration changes.
-	void updateControl();
+	void focusClicked() { endstation_->setCurrent("Focus"); }
 
 	// Slots handling the feedback updates from the PV.
 	/// Handles the CCD distance update.
 	void ccdUpdate(double val)
 	{
-		ccdButton_->setText(QString::number(val, 'f', 3) + " " + ccdfbk_->units());
+		ccdButton_->setText(QString::number(val, 'f', 3) + " mm");
 
-		if (endstation_->ccdInHomePosition(val)){
-
+		if (!endstation_->ccdInHomePosition(val))
 			microscopeButton_->setStyleSheet(" background-color: rgb(255,140,0); ");
-			ccdSafe_ = false;
-		}
-		else {
-
+		else
 			microscopeButton_->setStyleSheet(this->styleSheet());
-			ccdSafe_ = true;
-		}
 	}
 	/// Handles the microscope distance update.
 	void microscopeUpdate(double val)
 	{
-		microscopeButton_->setText(QString::number(val, 'f', 3) + " " + microscopeControl_->units());
+		microscopeButton_->setText(QString::number(val, 'f', 3) + " mm");
 
-		if (!endstation_->microscopeInHomePosition(value)){
-
+		if (!endstation_->microscopeInHomePosition(val))
 			ccdButton_->setStyleSheet(" background-color: rgb(255,140,0); ");
-			microscopeSafe_ = false;
-		}
-		else {
-
+		else
 			ccdButton_->setStyleSheet(this->styleSheet());
-			microscopeSafe_ = true;
-		}
-
 	}
 	/// Handles the 1-el vortex distance update.
-	void singleElUpdate(double val) { singleElButton_->setText(QString::number(val, 'f', 3) + " " + singleElfbk_->units()); }
+	void singleElUpdate(double val) { singleElButton_->setText(QString::number(val, 'f', 3) + " mm"); }
 	/// Handles the 4-el vortex distance update.
-	void fourElUpdate(double val) { fourElButton_->setText(QString::number(val, 'f', 3) + " " + fourElfbk_->units()); }
+	void fourElUpdate(double val) { fourElButton_->setText(QString::number(val, 'f', 3) + " mm"); }
 	/// Handles the focus distance update.
 	void focusUpdate(double val) { focusButton_->setText(QString::number(val, 'f', 3) + " mm"); }
-	/// Handles the connection of the filter set.
-	void onFiltersConnected(bool isConnected);
+
 	/// Sets the filter combo box based on original values at start up and if they are changed outside of the program.
-	void onFiltersChanged();
+	void onFiltersChanged(int index) { filterComboBox_->blockSignals(true); filterComboBox_->setCurrentIndex(index); filterComboBox_->blockSignals(false); }
 	/// Starts up a detached process for the microscope screen.  Starts a detached process because the view for the microscope does not depend on the user interface to be active.
 	void startMicroscope() { QProcess::startDetached("/home/vespers/bin/runCameraDisplay"); }
 	/// Starts the IDA software.  This is temporary until the XAS software is replaced.
 	void startXAS() { QProcess::startDetached("/home/vespers/bin/runIDA"); }
 
-private:
+protected:
 	// CCD setup things.
 	QLineEdit *ccdPathEdit_;
 	QLineEdit *ccdFileEdit_;
@@ -196,9 +175,6 @@ private:
 	// Config window.
 	VESPERSEndstationConfigurationView *config_;
 
-	// Names of microscope positions.
-	QPair<QString, QString> microscopeNames_;
-
 	// Control Window.
 	VESPERSMotorView *window_;
 
@@ -208,10 +184,6 @@ private:
 	QToolButton *fourElButton_;
 	QToolButton *singleElButton_;
 	QToolButton *focusButton_;
-
-	// Flags for message boxes.
-	bool microscopeSafe_;
-	bool ccdSafe_;
 
 	// Filter combo box.
 	QComboBox *filterComboBox_;
