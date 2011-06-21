@@ -23,12 +23,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMBeamline.h"
 #include "beamline/AMControlSet.h"
 #include "beamline/VESPERS/AMValveControl.h"
-#include "util/AMErrorMonitor.h"
 #include "beamline/VESPERS/XRFDetector.h"
 #include "beamline/AMROI.h"
 #include "beamline/VESPERS/SampleStageControl.h"
+#include "beamline/VESPERS/VESPERSEndstation.h"
 #include "beamline/VESPERS/VESPERSValveGroupControl.h"
 #include "beamline/VESPERS/PIDLoopControl.h"
+
+#include "util/AMErrorMonitor.h"
 
 /// This class is the master class that holds EVERY control inside the VESPERS beamline.
 class VESPERSBeamline : public AMBeamline
@@ -314,6 +316,9 @@ public:
 	AMControl *singleElMotorfbk() const { return singleElMotorfbk_; }
 	/// Returns the beam focus motor control feedback.
 	AMControl *focusMotorfbk() const { return focusMotorfbk_; }
+
+	/// Returns the endstation encapsulation pointer.
+	VESPERSEndstation *endstation() const { return endstation_; }
 
 	// Sample stage motor controls.
 
@@ -688,6 +693,9 @@ protected:
 
 	// Pseudo-motor reset PV.
 	AMProcessVariable *resetPseudoMotors_;
+
+	// The endstation class.
+	VESPERSEndstation *endstation_;
 
 	// End Endstation controls.
 

@@ -67,8 +67,8 @@ class VESPERSEndstationView : public QWidget
 	Q_OBJECT
 
 public:
-	/// Constructor.  Creates an instance of VESPERSEndstation and builds a view around it.  Sets up all the connections between the model.
-	VESPERSEndstationView(QWidget *parent = 0);
+	/// Constructor.  Takes the instance of VESPERSEndstation from the beamline and builds a view around it.  Sets up all the connections between the model.
+	VESPERSEndstationView(VESPERSEndstation *endstation, QWidget *parent = 0);
 	/// Destructor.
 	~VESPERSEndstationView();
 

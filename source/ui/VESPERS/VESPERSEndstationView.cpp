@@ -16,14 +16,14 @@
 #include <QMessageBox>
 #include <QProcess>
 
-VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
+VESPERSEndstationView::VESPERSEndstationView(VESPERSEndstation *endstation, QWidget *parent)
 	: QWidget(parent)
 {
 	// Setup the top frame.
 	AMTopFrame *topFrame = new AMTopFrame("Endstation Control Screen");
 
 	// The endstation model.
-	endstation_ = new VESPERSEndstation;
+	endstation_ = endstation;
 
 	// The button for the pseudo-motor reset.
 	QPushButton *resetPseudoMotorsButton = new QPushButton(QIcon(":/reset.png"), "Reset Pseudo-Motors");
@@ -193,7 +193,7 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	masterLayout->addLayout(layout);
 
 	setLayout(masterLayout);
-	setMinimumSize(530, 465);
+	setMinimumSize(1000, 465);
 }
 
 VESPERSEndstationView::~VESPERSEndstationView()
