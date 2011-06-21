@@ -1,40 +1,41 @@
 #include "VESPERSEndstation.h"
+#include "beamline/VESPERS/VESPERSBeamline.h"
 
 #include <QMessageBox>
 #include <QDir>
 #include <QFile>
 #include <QTextStream>
 
-VESPERSEndstation::VESPERSEndstation(QList<AMControl *> controls, AMPVwStatusControl *norm, QList<AMControl *> fbks, AMControl *laserPower, QList<AMProcessVariable *> extras, QObject *parent)
+VESPERSEndstation::VESPERSEndstation(QObject *parent)
 	: QObject(parent)
 {
 	current_ = 0;
 	wasConnected_ = false;
 
 	// The controls.
-	ccdControl_ = qobject_cast<AMPVwStatusControl *>(controls.at(0));
-	microscopeControl_ = qobject_cast<AMPVwStatusControl *>(controls.at(1));
-	fourElControl_ = qobject_cast<AMPVwStatusControl *>(controls.at(2));
-	singleElControl_ = qobject_cast<AMPVwStatusControl *>(controls.at(3));
-	focusControl_ = norm;
+	ccdControl_ = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->ccdMotor());
+	microscopeControl_ = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->microscopeMotor());
+	fourElControl_ = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->fourElMotor());
+	singleElControl_ = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->singleElMotor());
+	focusControl_ = VESPERSBeamline::vespers()->sampleStage()->norm();
 
 	// Laser power control.
-	laserPower_ = qobject_cast<AMPVControl *>(laserPower);
+	laserPower_ = qobject_cast<AMPVControl *>(VESPERSBeamline::vespers()->laserPower());
 
 	// The feedback PVs associated with the controls.
-	ccdfbk_ = qobject_cast<AMReadOnlyPVControl *>(fbks.at(0));
-	fourElfbk_ = qobject_cast<AMReadOnlyPVControl *>(fbks.at(1));
-	singleElfbk_ = qobject_cast<AMReadOnlyPVControl *>(fbks.at(2));
-	focusfbk_ = qobject_cast<AMReadOnlyPVControl *>(fbks.at(3));
+	ccdfbk_ = qobject_cast<AMReadOnlyPVControl *>(VESPERSBeamline::vespers()->ccdMotorfbk());
+	fourElfbk_ = qobject_cast<AMReadOnlyPVControl *>(VESPERSBeamline::vespers()->fourElMotorfbk());
+	singleElfbk_ = qobject_cast<AMReadOnlyPVControl *>(VESPERSBeamline::vespers()->singleElMotorfbk());
+	focusfbk_ = qobject_cast<AMReadOnlyPVControl *>(VESPERSBeamline::vespers()->focusMotorfbk());
 
 	// The microscope light and CCD file path PVs.
-	micLightPV_ = extras.at(0);
-	ccdPath_ = extras.at(1);
-	ccdFile_ = extras.at(2);
-	ccdNumber_ = extras.at(3);
+	micLightPV_ = VESPERSBeamline::vespers()->micLight();
+	ccdPath_ = VESPERSBeamline::vespers()->ccdPath();
+	ccdFile_ = VESPERSBeamline::vespers()->ccdFile();
+	ccdNumber_ = VESPERSBeamline::vespers()->ccdNumber();
 
 	// Pseudo-motor reset button.
-	resetPseudoMotors_ = extras.at(4);
+	resetPseudoMotors_ = VESPERSBeamline::vespers()->resetPseudoMotors();
 
 	// Get the current soft limits.
 	loadConfiguration();

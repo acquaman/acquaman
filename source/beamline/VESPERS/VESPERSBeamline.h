@@ -26,7 +26,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/VESPERS/XRFDetector.h"
 #include "beamline/AMROI.h"
 #include "beamline/VESPERS/SampleStageControl.h"
-#include "beamline/VESPERS/VESPERSEndstation.h"
 #include "beamline/VESPERS/VESPERSValveGroupControl.h"
 #include "beamline/VESPERS/PIDLoopControl.h"
 
@@ -316,9 +315,6 @@ public:
 	AMControl *singleElMotorfbk() const { return singleElMotorfbk_; }
 	/// Returns the beam focus motor control feedback.
 	AMControl *focusMotorfbk() const { return focusMotorfbk_; }
-
-	/// Returns the endstation encapsulation pointer.
-	VESPERSEndstation *endstation() const { return endstation_; }
 
 	// Sample stage motor controls.
 
@@ -693,9 +689,6 @@ protected:
 
 	// Pseudo-motor reset PV.
 	AMProcessVariable *resetPseudoMotors_;
-
-	// The endstation class.
-	VESPERSEndstation *endstation_;
 
 	// End Endstation controls.
 

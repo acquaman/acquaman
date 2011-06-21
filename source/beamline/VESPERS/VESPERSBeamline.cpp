@@ -235,13 +235,6 @@ void VESPERSBeamline::setupEndstation()
 	ccdPath_ = new AMProcessVariable("IOC1607-003:det1:FilePath", true, this);
 	ccdFile_ = new AMProcessVariable("IOC1607-003:det1:FileName", true, this);
 	ccdNumber_ = new AMProcessVariable("IOC1607-003:det1:FileNumber", true, this);
-
-	endstation_ = new VESPERSEndstation(QList<AMControl *>() << ccdMotor_ << microscopeMotor_ << fourElMotor_ << singleElMotor_,
-										sampleStage_->norm(),
-										QList<AMControl *>() << ccdMotorfbk_ <<< fourElMotorfbk_ << singleElMotorfbk_ << focusMotorfbk_,
-										laserPower_,
-										QList<AMProcessVariable *>() << micLight_ << ccdPath_ << ccdFile_ << ccdNumber_ << resetPseudoMotors_,
-										this);
 }
 
 void VESPERSBeamline::setupSingleElementDetector()

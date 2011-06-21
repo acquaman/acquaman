@@ -11,7 +11,7 @@ class VESPERSEndstation : public QObject
 	Q_OBJECT
 public:
 	/// The constructor.  Builds and encapsulates many of the controls used for the endstation.
-	explicit VESPERSEndstation(QList<AMControl *> controls, AMPVwStatusControl *norm, QList<AMControl *> fbks, AMControl *laserPower, QList<AMProcessVariable *> extras, QObject *parent = 0);
+	explicit VESPERSEndstation(QObject *parent = 0);
 
 	/// Returns a bool on the state of the power of the microscope.  True for powered, false for un-powered.
 	bool laserPowered() { return (int)laserPower_->value() == 1 ? true : false; }

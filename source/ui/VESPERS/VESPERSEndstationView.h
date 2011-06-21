@@ -68,7 +68,7 @@ class VESPERSEndstationView : public QWidget
 
 public:
 	/// Constructor.  Takes the instance of VESPERSEndstation from the beamline and builds a view around it.  Sets up all the connections between the model.
-	VESPERSEndstationView(VESPERSEndstation *endstation, QWidget *parent = 0);
+	VESPERSEndstationView(QWidget *parent = 0);
 	/// Destructor.
 	~VESPERSEndstationView();
 
@@ -96,14 +96,14 @@ protected slots:
 	/// Handles the CCD button being clicked.
 	void ccdClicked()
 	{
-		if (!endstation_->ccdInHomePosition()){
+		/*if (!endstation_->ccdInHomePosition()){
 
 			AMPVwStatusControl *control = endstation_->control("CCD");
 			QMessageBox::warning(this, tr("Move Error"), tr("The microscope is in an unsafe position.  You must move the microscope to its %1 position (%2 %3) before you can move the microscope.").arg(endstation_->microscopeNames().second).arg(endstation_->getLimits(control).second).arg(control->units()));
 			return;
 		}
 
-		endstation_->setCurrent("CCD");
+		endstation_->setCurrent("CCD");*/
 	}
 	/// Handles the Microscope being clicked.
 	void microscopeClicked()
