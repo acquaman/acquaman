@@ -66,7 +66,7 @@ public slots:
 	/// Resets the pseudo-motor positions.
 	void resetPseudoMotors() { resetPseudoMotors_->setValue(1); }
 	/// Toggles the current state of the laser power.
-	void toggleLaserPower() { laserPower_->move(1); laserPower_->move(0); emit laserPoweredChanged(); }
+	void toggleLaserPower() { toggleControl(laserPower_); emit laserPoweredChanged(); }
 	/// Loads the config file and then sets up the soft limits.
 	bool loadConfiguration();
 	/// Changes the filters placed in the beamline based on \code index.  The valid numbers are 0 - 16; 0 um to 800 um in 50 um intervals.
@@ -96,7 +96,7 @@ protected:
 	/// Returns whether the \code control \code value is within tolerance of \code position.
 	bool controlWithinTolerance(AMPVwStatusControl *control, double value, double position) { return fabs(value-position) < control->tolerance() ? true : false; }
 	/// Helper function to properly toggle the filter PVs.  Takes an AMControl *, casts it to an AMPVControl * then toggles them.
-	void togglePV(AMProcessVariable *pv) { pv->setValue(1); pv->setValue(0); }
+	void toggleControl(AMPVControl *control) { control->move(1); control->move(0); }
 	/// Converts the bizarre string output of the pv to a real QString.
 	QString AMPVtoString(AMProcessVariable *pv);
 	/// Converts the string to the array of integers it needs to be.
@@ -152,7 +152,7 @@ protected:
 	AMProcessVariable *filterShutterLower_;
 
 	// A list of all the filters, but not the upper or lower shutters.
-	QMap<QString, AMProcessVariable *> filterMap_;
+	QMap<QString, AMPVControl *> filterMap_;
 };
 
 #endif // VESPERSENDSTATION_H

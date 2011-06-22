@@ -37,6 +37,14 @@ VESPERSEndstation::VESPERSEndstation(QObject *parent)
 	// Pseudo-motor reset button.
 	resetPseudoMotors_ = VESPERSBeamline::vespers()->resetPseudoMotors();
 
+	// Setup filters.
+	filterMap_.insert("50A", qobject_cast<AMPVControl *>(VESPERSBeamline::vespers()->filter250umA()));
+	filterMap_.insert("50B", qobject_cast<AMPVControl *>(VESPERSBeamline::vespers()->filter250umB()));
+	filterMap_.insert("100A", qobject_cast<AMPVControl *>(VESPERSBeamline::vespers()->filter100umA()));
+	filterMap_.insert("100B", qobject_cast<AMPVControl *>(VESPERSBeamline::vespers()->filter100umB()));
+	filterMap_.insert("250A", qobject_cast<AMPVControl *>(VESPERSBeamline::vespers()->filter50umA()));
+	filterMap_.insert("250B", qobject_cast<AMPVControl *>(VESPERSBeamline::vespers()->filter50umB()));
+
 	// Get the current soft limits.
 	loadConfiguration();
 
@@ -124,34 +132,34 @@ void VESPERSEndstation::updateControl(AMPVwStatusControl *control)
 void VESPERSEndstation::onFiltersConnected()
 {
 	bool connected = true;
-	QList<AMProcessVariable *> filters(filterMap_.values());
+	QList<AMPVControl *> filters(filterMap_.values());
 
 	for (int i = 0; i < filters.size(); i++)
 		connected = connected && filters.at(i)->isConnected();
 
 	if (!wasConnected_ && connected)
 		for (int i = 0; i < filters.size(); i++)
-			connect(filters.at(i), SIGNAL(valueChanged()), this, SLOT(onFiltersChanged()));
+			connect(filters.at(i), SIGNAL(valueChanged(double)), this, SLOT(onFiltersChanged()));
 	else if (wasConnected_ && !connected)
 		for (int i = 0; i < filters.size(); i++)
-			disconnect(filters.at(i), SIGNAL(valueChanged()), this, SLOT(onFiltersChanged()));
+			disconnect(filters.at(i), SIGNAL(valueChanged(double)), this, SLOT(onFiltersChanged()));
 }
 
 void VESPERSEndstation::onFiltersChanged()
 {
 	int sum = 0;
 
-	if (filterMap_.value("50A")->getInt() == 1)
+	if ((int)filterMap_.value("50A")->value() == 1)
 		sum += 1;
-	if (filterMap_.value("50B")->getInt() == 1)
+	if ((int)filterMap_.value("50B")->value() == 1)
 		sum += 1;
-	if (filterMap_.value("100A")->getInt() == 1)
+	if ((int)filterMap_.value("100A")->value() == 1)
 		sum += 2;
-	if (filterMap_.value("100B")->getInt() == 1)
+	if ((int)filterMap_.value("100B")->value() == 1)
 		sum += 2;
-	if (filterMap_.value("250A")->getInt() == 1)
+	if ((int)filterMap_.value("250A")->value() == 1)
 		sum += 5;
-	if (filterMap_.value("250B")->getInt() == 1)
+	if ((int)filterMap_.value("250B")->value() == 1)
 		sum += 5;
 
 	emit filterThicknessChanged(sum);
@@ -159,91 +167,91 @@ void VESPERSEndstation::onFiltersChanged()
 
 void VESPERSEndstation::setFilterThickness(int index)
 {
-	QList<AMProcessVariable *> filters(filterMap_.values());
+	QList<AMPVControl *> filters(filterMap_.values());
 
 	// Put all the filters back to an original state.  The -2 is to exclude the upper and lower shutters.
 	for (int i = 0; i < filters.size(); i++)
-		if (filters.at(i)->getInt() == 1)
-			togglePV(filters.at(i));
+		if ((int)filters.at(i)->value() == 1)
+			toggleControl(filters.at(i));
 
 	switch(index){
 	case 0: // Filters are already taken out with previous loop.
 		break;
 	case 1: // 50 um
-		togglePV(filterMap_.value("50A"));
+		toggleControl(filterMap_.value("50A"));
 		break;
 	case 2: // 100 um
-		togglePV(filterMap_.value("100A"));
+		toggleControl(filterMap_.value("100A"));
 		break;
 	case 3: // 150 um
-		togglePV(filterMap_.value("50A"));
-		togglePV(filterMap_.value("100A"));
+		toggleControl(filterMap_.value("50A"));
+		toggleControl(filterMap_.value("100A"));
 		break;
 	case 4: // 200 um
-		togglePV(filterMap_.value("100A"));
-		togglePV(filterMap_.value("100B"));
+		toggleControl(filterMap_.value("100A"));
+		toggleControl(filterMap_.value("100B"));
 		break;
 	case 5: // 250 um
-		togglePV(filterMap_.value("250A"));
+		toggleControl(filterMap_.value("250A"));
 		break;
 	case 6: // 300 um
-		togglePV(filterMap_.value("250A"));
-		togglePV(filterMap_.value("50A"));
+		toggleControl(filterMap_.value("250A"));
+		toggleControl(filterMap_.value("50A"));
 		break;
 	case 7: // 350 um
-		togglePV(filterMap_.value("250A"));
-		togglePV(filterMap_.value("100A"));
+		toggleControl(filterMap_.value("250A"));
+		toggleControl(filterMap_.value("100A"));
 		break;
 	case 8: // 400 um
-		togglePV(filterMap_.value("250A"));
-		togglePV(filterMap_.value("100A"));
-		togglePV(filterMap_.value("50A"));
+		toggleControl(filterMap_.value("250A"));
+		toggleControl(filterMap_.value("100A"));
+		toggleControl(filterMap_.value("50A"));
 		break;
 	case 9: // 450 um
-		togglePV(filterMap_.value("250A"));
-		togglePV(filterMap_.value("100A"));
-		togglePV(filterMap_.value("100B"));
+		toggleControl(filterMap_.value("250A"));
+		toggleControl(filterMap_.value("100A"));
+		toggleControl(filterMap_.value("100B"));
 		break;
 	case 10: // 500 um
-		togglePV(filterMap_.value("250A"));
-		togglePV(filterMap_.value("250B"));
+		toggleControl(filterMap_.value("250A"));
+		toggleControl(filterMap_.value("250B"));
 		break;
 	case 11: // 550 um
-		togglePV(filterMap_.value("250A"));
-		togglePV(filterMap_.value("250B"));
-		togglePV(filterMap_.value("50A"));
+		toggleControl(filterMap_.value("250A"));
+		toggleControl(filterMap_.value("250B"));
+		toggleControl(filterMap_.value("50A"));
 		break;
 	case 12: // 600 um
-		togglePV(filterMap_.value("250A"));
-		togglePV(filterMap_.value("250B"));
-		togglePV(filterMap_.value("100A"));
+		toggleControl(filterMap_.value("250A"));
+		toggleControl(filterMap_.value("250B"));
+		toggleControl(filterMap_.value("100A"));
 		break;
 	case 13: // 650 um
-		togglePV(filterMap_.value("250A"));
-		togglePV(filterMap_.value("250B"));
-		togglePV(filterMap_.value("100A"));
-		togglePV(filterMap_.value("50A"));
+		toggleControl(filterMap_.value("250A"));
+		toggleControl(filterMap_.value("250B"));
+		toggleControl(filterMap_.value("100A"));
+		toggleControl(filterMap_.value("50A"));
 		break;
 	case 14: // 700 um
-		togglePV(filterMap_.value("250A"));
-		togglePV(filterMap_.value("250B"));
-		togglePV(filterMap_.value("100A"));
-		togglePV(filterMap_.value("100B"));
+		toggleControl(filterMap_.value("250A"));
+		toggleControl(filterMap_.value("250B"));
+		toggleControl(filterMap_.value("100A"));
+		toggleControl(filterMap_.value("100B"));
 		break;
 	case 15: // 750 um
-		togglePV(filterMap_.value("250A"));
-		togglePV(filterMap_.value("250B"));
-		togglePV(filterMap_.value("100A"));
-		togglePV(filterMap_.value("100B"));
-		togglePV(filterMap_.value("50A"));
+		toggleControl(filterMap_.value("250A"));
+		toggleControl(filterMap_.value("250B"));
+		toggleControl(filterMap_.value("100A"));
+		toggleControl(filterMap_.value("100B"));
+		toggleControl(filterMap_.value("50A"));
 		break;
 	case 16: // 800 um
-		togglePV(filterMap_.value("250A"));
-		togglePV(filterMap_.value("250B"));
-		togglePV(filterMap_.value("100A"));
-		togglePV(filterMap_.value("100B"));
-		togglePV(filterMap_.value("50A"));
-		togglePV(filterMap_.value("50B"));
+		toggleControl(filterMap_.value("250A"));
+		toggleControl(filterMap_.value("250B"));
+		toggleControl(filterMap_.value("100A"));
+		toggleControl(filterMap_.value("100B"));
+		toggleControl(filterMap_.value("50A"));
+		toggleControl(filterMap_.value("50B"));
 		break;
 	}
 }

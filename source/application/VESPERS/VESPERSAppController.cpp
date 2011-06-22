@@ -82,7 +82,7 @@ bool VESPERSAppController::startup() {
 		// Create panes in the main window:
 		////////////////////////////////////
 
-		endstationView_ = new VESPERSEndstationView();
+		endstationView_ = new VESPERSEndstationView;
 		//VESPERSDeviceStatusView *statusPage = new VESPERSDeviceStatusView;
 
 		mw_->insertHeading("Beamline Control", 0);
