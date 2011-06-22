@@ -234,8 +234,6 @@ void VESPERSBeamline::setupEndstation()
 	ccdPath_ = new AMProcessVariable("IOC1607-003:det1:FilePath", true, this);
 	ccdFile_ = new AMProcessVariable("IOC1607-003:det1:FileName", true, this);
 	ccdNumber_ = new AMProcessVariable("IOC1607-003:det1:FileNumber", true, this);
-
-	endstation_ = new VESPERSEndstation;
 }
 
 void VESPERSBeamline::setupSingleElementDetector()

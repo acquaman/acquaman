@@ -3,7 +3,7 @@
 
 #include <QtGui/QWidget>
 
-#include "beamline/VESPERS/VESPERSBeamline.h"
+#include "beamline/VESPERS/VESPERSEndstation.h"
 #include "ui/VESPERS/VESPERSMotorView.h"
 
 #include <QLineEdit>
@@ -96,33 +96,33 @@ protected slots:
 	/// Handles the CCD button being clicked.
 	void ccdClicked()
 	{
-		if (!endstation_->ccdInHomePosition()){
+		if (!endstation_->microscopeInHomePosition()){
 
-			AMPVwStatusControl *control = endstation_->control("CCD");
+			AMPVwStatusControl *control = endstation_->control("Microscope motor");
 			QMessageBox::warning(this, tr("Move Error"), tr("The microscope is in an unsafe position.  You must move the microscope to its %1 position (%2 %3) before you can move the microscope.").arg(endstation_->microscopeNames().second).arg(endstation_->getLimits(control).second).arg(control->units()));
 			return;
 		}
 
-		endstation_->setCurrent("CCD");
+		endstation_->setCurrent("CCD motor");
 	}
 	/// Handles the Microscope being clicked.
 	void microscopeClicked()
 	{
-		if (!endstation_->microscopeInHomePosition()){
+		if (!endstation_->ccdInHomePosition()){
 
-			AMPVwStatusControl *control = endstation_->control("CCD");
+			AMPVwStatusControl *control = endstation_->control("CCD motor");
 			QMessageBox::warning(this, tr("Move Error"), tr("The CCD is in an unsafe position.  You must move the CCD to %1 %2 before you can move the microscope.").arg(endstation_->getLimits(control).second).arg(control->units()));
 			return;
 		}
 
-		endstation_->setCurrent("Microscope");
+		endstation_->setCurrent("Microscope motor");
 	}
 	/// Handles the 1-el vortex being clicked.
-	void singleElClicked() { endstation_->setCurrent("1-Element Vortex"); }
+	void singleElClicked() { endstation_->setCurrent("1-Element Vortex motor"); }
 	/// Handles the 4-el vortex being clicked.
-	void fourElClicked() { endstation_->setCurrent("4-Element Vortex"); }
+	void fourElClicked() { endstation_->setCurrent("4-Element Vortex motor"); }
 	/// Handles the focus being clicked.
-	void focusClicked() { endstation_->setCurrent("Focus"); }
+	void focusClicked() { endstation_->setCurrent("Normal Sample Stage"); }
 
 	// Slots handling the feedback updates from the PV.
 	/// Handles the CCD distance update.

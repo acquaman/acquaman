@@ -23,7 +23,7 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	AMTopFrame *topFrame = new AMTopFrame("Endstation Control Screen");
 
 	// The endstation model.
-	endstation_ = VESPERSBeamline::vespers()->endstation();
+	endstation_ = new VESPERSEndstation;
 
 	// The button for the pseudo-motor reset.
 	QPushButton *resetPseudoMotorsButton = new QPushButton(QIcon(":/reset.png"), "Reset Pseudo-Motors");
@@ -65,7 +65,7 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	// Setup the GUI with the soft limits.
 	config_ = new VESPERSEndstationConfigurationView(this);
 	config_->hide();
-	connect(config_, SIGNAL(configurationChanged()), this, SLOT(loadConfiguration()));
+	connect(config_, SIGNAL(configurationChanged()), endstation_, SLOT(loadConfiguration()));
 
 	QToolButton *configButton = new QToolButton;
 	configButton->setIcon(QIcon(":/configure.png"));
@@ -107,6 +107,7 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	windowGB->setMinimumSize(280, 145);
 	windowGB->setLayout(windowGBLayout);
 	connect(endstation_, SIGNAL(currentControlChanged(AMPVwStatusControl*)), this, SLOT(setWindow(AMPVwStatusControl*)));
+	endstation_->setCurrent("1-Element Vortex motor");
 
 	// Setup the CCD file path signals and layout.
 	ccdPathEdit_ = new QLineEdit;
@@ -209,11 +210,11 @@ void VESPERSEndstationView::setWindow(AMPVwStatusControl *control)
 	QString name(control->name());
 	QPair<double, double> pair(endstation_->getLimits(control));
 
-	if (name.compare("CCD") == 0 || name.compare("1-Element Vortex") == 0 || name.compare("4-Element Vortex") == 0)
+	if (name.compare("CCD motor") == 0 || name.compare("1-Element Vortex motor") == 0 || name.compare("4-Element Vortex motor") == 0)
 		window_->setControl(control, pair.first, pair.second);
-	else if (name.compare("Focus") == 0)
+	else if (name.compare("Normal Sample Stage") == 0)
 		window_->setControl(control);
-	else if (name.compare("Microscope") == 0)
+	else if (name.compare("Microscope motor") == 0)
 		window_->setControl(control, pair.first, pair.second, endstation_->microscopeNames().first, endstation_->microscopeNames().second);
 }
 

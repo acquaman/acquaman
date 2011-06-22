@@ -49,7 +49,7 @@ VESPERSEndstation::VESPERSEndstation(QObject *parent)
 	loadConfiguration();
 
 	// Connections.
-	connect(laserPower_, SIGNAL(valueChanged()), this, SIGNAL(laserPoweredChanged()));
+	connect(laserPower_, SIGNAL(valueChanged(double)), this, SIGNAL(laserPoweredChanged()));
 	connect(micLightPV_, SIGNAL(valueChanged(int)), this, SIGNAL(lightIntensityChanged(int)));
 	connect(ccdfbk_, SIGNAL(valueChanged(double)), this, SIGNAL(ccdFbkChanged(double)));
 	connect(microscopeControl_, SIGNAL(valueChanged(double)), this, SIGNAL(microscopeFbkChanged(double)));
@@ -92,15 +92,15 @@ bool VESPERSEndstation::loadConfiguration()
 
 AMPVwStatusControl *VESPERSEndstation::control(QString name) const
 {
-	if (name.compare("CCD") == 0)
+	if (name.compare("CCD motor") == 0)
 		return ccdControl_;
-	else if (name.compare("1-Element Vortex") == 0)
+	else if (name.compare("1-Element Vortex motor") == 0)
 		return singleElControl_;
-	else if (name.compare("4-Element Vortex") == 0)
+	else if (name.compare("4-Element Vortex motor") == 0)
 		return fourElControl_;
-	else if (name.compare("Microscope") == 0)
+	else if (name.compare("Microscope motor") == 0)
 		return microscopeControl_;
-	else if (name.compare("Focus") == 0)
+	else if (name.compare("Normal Sample Stage") == 0)
 		return focusControl_;
 
 	return 0;
@@ -108,15 +108,15 @@ AMPVwStatusControl *VESPERSEndstation::control(QString name) const
 
 void VESPERSEndstation::setCurrent(QString name)
 {
-	if (name.compare("CCD") == 0)
+	if (name.compare("CCD motor") == 0)
 		updateControl(ccdControl_);
-	else if (name.compare("1-Element Vortex") == 0)
+	else if (name.compare("1-Element Vortex motor") == 0)
 		updateControl(singleElControl_);
-	else if (name.compare("4-Element Vortex") == 0)
+	else if (name.compare("4-Element Vortex motor") == 0)
 		updateControl(fourElControl_);
-	else if (name.compare("Microscope") == 0)
+	else if (name.compare("Microscope motor") == 0)
 		updateControl(microscopeControl_);
-	else if (name.compare("Focus") == 0)
+	else if (name.compare("Normal Sample Stage") == 0)
 		updateControl(focusControl_);
 }
 
