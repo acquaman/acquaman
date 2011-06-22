@@ -23,7 +23,7 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	AMTopFrame *topFrame = new AMTopFrame("Endstation Control Screen");
 
 	// The endstation model.
-	endstation_ = new VESPERSEndstation;
+	endstation_ = VESPERSBeamline::vespers()->endstation();
 
 	// The button for the pseudo-motor reset.
 	QPushButton *resetPseudoMotorsButton = new QPushButton(QIcon(":/reset.png"), "Reset Pseudo-Motors");

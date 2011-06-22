@@ -3,7 +3,7 @@
 
 #include <QtGui/QWidget>
 
-#include "beamline/VESPERS/VESPERSEndstation.h"
+#include "beamline/VESPERS/VESPERSBeamline.h"
 #include "ui/VESPERS/VESPERSMotorView.h"
 
 #include <QLineEdit>
