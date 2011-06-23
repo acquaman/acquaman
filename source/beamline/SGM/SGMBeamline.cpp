@@ -434,6 +434,13 @@ void SGMBeamline::usingSGMBeamline(){
 	activeEndstation_ = new AMPVControl("activeEndstation", sgmPVName, sgmPVName, "", this);
 	activeEndstation_->setDescription("Endstation Selection");
 
+	sgmPVName = amNames2pvNames_.valueF("scalerStart");
+	if(sgmPVName.isEmpty())
+		pvNameLookUpFail = true;
+	scalerStart_ = new AMPVControl("scalerStart", sgmPVName, sgmPVName, "", this, 0.1);
+	scalerStart_->setDescription("Scaler Start");
+	scalerStart_->setContextKnownDescription("Start");
+
 	sgmPVName = amNames2pvNames_.valueF("scalerIntegrationTime");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;

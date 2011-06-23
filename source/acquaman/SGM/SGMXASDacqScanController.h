@@ -43,9 +43,14 @@ protected:
 	AMnDIndex toScanIndex(QMap<int, double> aeData);
 
 protected slots:
+	// Re-implementing to intercept finished() signal and do cleanup
+	void onDacqStop();
+
 	void onInitializationActionsSucceeded();
 	void onInitializationActionsFailed(int explanation);
 	void onInitializationActionsProgress(double elapsed, double total);
+
+	void onScanFinished();
 
 private:
 	/// \todo Why the double pointers?

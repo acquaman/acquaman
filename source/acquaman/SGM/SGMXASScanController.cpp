@@ -32,7 +32,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 	specificCfg_ = cfg;
 	_pCfg_ = & specificCfg_;
-	initializationActions_ = NULL;
+	initializationActions_ = 0; //NULL
+	cleanUpActions_ = 0; //NULL
 	beamlineInitialized_ = false;
 
 	specificScan_ = new AMXASScan();
@@ -151,6 +152,25 @@ bool SGMXASScanController::isBeamlineInitialized() {
 
 bool SGMXASScanController::beamlineInitialize(){
 	AMBeamlineControlMoveAction *tmpAction = NULL;
+
+	cleanUpActions_ = new AMBeamlineParallelActionsList();
+	cleanUpActions_->appendStage(new QList<AMBeamlineActionItem*>());
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerMode());
+	tmpAction->setSetpoint(SGMBeamline::sgm()->scalerMode()->value());
+	cleanUpActions_->appendAction(0, tmpAction);
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerStart());
+	tmpAction->setSetpoint(SGMBeamline::sgm()->scalerStart()->value());
+	cleanUpActions_->appendAction(0, tmpAction);
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerTotalNumberOfScans());
+	tmpAction->setSetpoint(SGMBeamline::sgm()->scalerTotalNumberOfScans()->value());
+	cleanUpActions_->appendAction(0, tmpAction);
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerScansPerBuffer());
+	tmpAction->setSetpoint(SGMBeamline::sgm()->scalerScansPerBuffer()->value());
+	cleanUpActions_->appendAction(0, tmpAction);
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->fastShutterVoltage());
+	tmpAction->setSetpoint(SGMBeamline::sgm()->fastShutterVoltage()->value());
+	cleanUpActions_->appendAction(0, tmpAction);
+
 	#warning "Hey David, who's going to delete the list and the actions?"
 	initializationActions_ = new AMBeamlineParallelActionsList();
 
@@ -162,6 +182,26 @@ bool SGMXASScanController::beamlineInitialize(){
 	tmpSetAction = new AMBeamlineControlSetMoveAction(SGMBeamline::sgm()->trackingSet());
 	tmpSetAction->setSetpoint(pCfg_()->trackingGroup());
 	initializationActions_->appendAction(0, tmpSetAction);
+
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->energy());
+	tmpAction->setSetpoint(pCfg_()->startEnergy());
+	initializationActions_->appendAction(0, tmpAction);
+
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerMode());
+	tmpAction->setSetpoint(0);
+	initializationActions_->appendAction(0, tmpAction);
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerStart());
+	tmpAction->setSetpoint(0);
+	initializationActions_->appendAction(0, tmpAction);
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerTotalNumberOfScans());
+	tmpAction->setSetpoint(1);
+	initializationActions_->appendAction(0, tmpAction);
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerScansPerBuffer());
+	tmpAction->setSetpoint(1);
+	initializationActions_->appendAction(0, tmpAction);
+
+	initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
+	initializationActions_->appendAction(1, SGMBeamline::sgm()->createBeamOnActions());
 
 	for(int x = 0; x < pCfg_()->allDetectors()->count(); x++){
 		if(pCfg_()->allDetectorConfigurations().isActiveAt(x)){

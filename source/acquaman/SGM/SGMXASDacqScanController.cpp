@@ -146,6 +146,13 @@ AMnDIndex SGMXASDacqScanController::toScanIndex(QMap<int, double> aeData){
 	return AMnDIndex(pScan_()->rawData()->scanSize(0));
 }
 
+void SGMXASDacqScanController::onDacqStop(){
+	if(dacqCancelled_)
+		AMDacqScanController::onDacqStop();
+	else
+		onScanFinished();
+}
+
 void SGMXASDacqScanController::onInitializationActionsSucceeded(){
 	qDebug() << "The actions list succeeded";
 	setInitialized();
@@ -158,4 +165,14 @@ void SGMXASDacqScanController::onInitializationActionsFailed(int explanation){
 
 void SGMXASDacqScanController::onInitializationActionsProgress(double elapsed, double total){
 	//qDebug() << "Initialization is " << elapsed/total << "% completed";
+}
+
+void SGMXASDacqScanController::onScanFinished(){
+	qDebug() << "HEARD XAS SCAN FINISHED";
+	if(cleanUpActions_){
+		connect(cleanUpActions_, SIGNAL(listSucceeded()), this, SLOT(setFinished()));
+		cleanUpActions_->start();
+	}
+	else
+		AMDacqScanController::onDacqStop();
 }

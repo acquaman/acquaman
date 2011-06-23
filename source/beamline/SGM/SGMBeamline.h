@@ -207,6 +207,7 @@ public:
 	AMControl* visibleLightToggle() const { return visibleLightToggle_;}
 	AMControl* visibleLightStatus() const { return visibleLightStatus_;}
 	AMControl* activeEndstation() const { return activeEndstation_;}
+	AMControl* scalerStart() const { return scalerStart_;}
 	AMControl* scalerIntegrationTime() const { return scalerIntegrationTime_;}
 	AMControl* scalerScansPerBuffer() const { return scalerScansPerBuffer_;}
 	AMControl* scalerTotalNumberOfScans() const { return scalerTotalNumberOfScans_;}
@@ -389,6 +390,7 @@ protected:
 	AMControl *visibleLightToggle_;
 	AMControl *visibleLightStatus_;
 	AMControl *activeEndstation_;
+	AMControl *scalerStart_;
 	AMControl *scalerIntegrationTime_;
 	AMControl *scalerScansPerBuffer_;
 	AMControl *scalerTotalNumberOfScans_;
