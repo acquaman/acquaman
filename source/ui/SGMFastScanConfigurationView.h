@@ -26,27 +26,13 @@ public:
 	const AMScanConfiguration* configuration() const;
 
 signals:
-	/* NTBA March 14, 2011 David Chevrier
-	   Part of exporter package
-	void lastSettings(SGMFastScanParameters *lastSettings);
-	*/
 
 protected slots:
 	void onSGMBeamlineCriticalControlsConnectedChanged();
-	/* NTBA March 14, 2011 David Chevrier
-	void onSavePathEditingFinished();
-	void onNewFinalizedSavePath(const QString& savePath);
-	void onSaveDialogDirectoryChosen(const QString& savePath);
-	//Cluge for now to save last settings
-	*/
 
 protected:
 	SGMFastScanConfiguration *cfg_;
 
-	/* NTBA March 14, 2011 David Chevrier
-	   Part of exporter package
-	QString autoSavePath_;
-	*/
 	AMTopFrame *topFrame_;
 
 	QComboBox *presetsComboBox_;
@@ -57,6 +43,10 @@ protected:
 	QLabel *endEnergyLabel_;
 	QLabel *motorSettingsLabel_;
 	QLabel *baseLineLabel_;
+	QLabel *undulatorStartStepLabel_;
+	QLabel *undulatorRelativeStepLabel_;
+	QLabel *undulatorVelocityLabel_;
+	QLabel *exitSlitDistanceLabel_;
 	QLabel *warningsLabel_;
 
 	QLineEdit *elementEdit_;
@@ -67,15 +57,11 @@ protected:
 	QSpinBox *motorSettingsSB_;
 	QSpinBox *baseLineSB_;
 
-	/* NTBA March 14, 2011 David Chevrier
-	   Part of exporter package
-	QLabel *saveLabel_;
-	QLineEdit *saveEdit_;
-	QLabel *saveFbkLabel_;
+	QSpinBox *undulatorStartStepSB_;
+	QSpinBox *undulatorRelativeStepSB_;
+	QSpinBox *undulatorVelocitySB_;
+	QDoubleSpinBox *exitSlitDistanceDSB_;
 
-	QFileDialog *autoSaveDialog_;
-	QPushButton *autoSaveDialogButton_;
-	*/
 	QGridLayout *gl_;
 	QFormLayout *fl_;
 	QFormLayout *fl2_;

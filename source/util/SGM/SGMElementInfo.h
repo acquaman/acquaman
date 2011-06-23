@@ -91,13 +91,9 @@ class SGMElementInfo : public QObject
 {
 Q_OBJECT
 public:
-	SGMElementInfo(AMElement *element, const SGMEnergyPosition &standardStart, const SGMEnergyPosition &standardMiddle, const SGMEnergyPosition &standardEnd, QObject *parent = 0);
+	SGMElementInfo(AMElement *element, QObject *parent = 0);
 
 	AMElement* element() const;
-
-	const SGMEnergyPosition& standardStart() const;
-	const SGMEnergyPosition& standardMiddle() const;
-	const SGMEnergyPosition& standardEnd() const;
 
 	AMOrderedSet<QString, SGMEdgeInfo> sgmEdgeInfos() const;
 	AMOrderedSet<QString, SGMStandardScanInfo> sgmStandardScanInfos() const;
@@ -112,10 +108,6 @@ protected:
 	AMElement *element_;
 	AMOrderedSet<QString, SGMEdgeInfo> sgmEdgeInfos_;
 	AMOrderedSet<QString, SGMStandardScanInfo> sgmStandardScanInfos_;
-
-	SGMEnergyPosition standardStart_;
-	SGMEnergyPosition standardMiddle_;
-	SGMEnergyPosition standardEnd_;
 
 	AMOrderedSet<int, SGMFastScanParameters*> availableFastScanParameters_;
 };
@@ -147,6 +139,7 @@ public:
 	int undulatorStartStep() const { return undulatorStartStep_;}
 	int undulatorVelocity() const { return undulatorVelocity_;}
 	int undulatorRelativeStep() const { return undulatorRelativeStep_;}
+	double exitSlitDistance() const { return exitSlitDistance_;}
 
 public slots:
 	void setElement(const QString &element) { element_ = element;}
@@ -164,6 +157,7 @@ public slots:
 	void setUndulatorStartStep(int undulatorStartStep) { undulatorStartStep_ = undulatorStartStep;}
 	void setUndulatorVelocity(int undulatorVelocity) { undulatorVelocity_ = undulatorVelocity;}
 	void setUndulatorRelativeStep(int undulatorRelativeStep) { undulatorRelativeStep_ = undulatorRelativeStep;}
+	void setExitSlitDistance(double exitSlitDistance) { exitSlitDistance_ = exitSlitDistance;}
 
 protected:
 	QString element_;
@@ -181,6 +175,7 @@ protected:
 	int undulatorStartStep_;
 	int undulatorVelocity_;
 	int undulatorRelativeStep_;
+	double exitSlitDistance_;
 };
 
 #endif // SGMELEMENTINFO_H

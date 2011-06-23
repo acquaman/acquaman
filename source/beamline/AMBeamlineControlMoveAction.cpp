@@ -128,14 +128,14 @@ void AMBeamlineControlMoveAction::onStarted(){
 
 void AMBeamlineControlMoveAction::onSucceeded(){
 	if(VERBOSE_ACTION_ITEMS)
-		qDebug() << this << "SUCEEDED";
+		qDebug() << this << control_->description() << " SUCEEDED";
 	disconnect(control_, 0, this, 0);
 	setSucceeded(true);
 }
 
 void AMBeamlineControlMoveAction::onFailed(int explanation){
 	if(VERBOSE_ACTION_ITEMS)
-		qDebug() << this << "FAILED as " << control_->description();
+		qDebug() << this << "FAILED as " << control_->description() << " with " << explanation;
 	setFailed(true, explanation);
 }
 

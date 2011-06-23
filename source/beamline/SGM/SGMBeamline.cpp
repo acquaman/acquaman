@@ -147,7 +147,8 @@ void SGMBeamline::usingSGMBeamline(){
 	sgmPVName = amNames2pvNames_.valueF("exitSlit");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
-	AMPVwStatusControl *exitSlit = new AMPVwStatusControl("exitSlit", sgmPVName+":Y:mm:encsp", "SMTR16114I1003:mm", "SMTR16114I1003:moving", "SMTR16114I1003:stop", energy_, 0.1);
+	//AMPVwStatusControl *exitSlit = new AMPVwStatusControl("exitSlit", sgmPVName+":Y:mm:fbk", sgmPVName+":Y:mm:encsp", "SMTR16114I1003:moving", "SMTR16114I1003:stop", energy_, 0.1);
+	AMPVwStatusControl *exitSlit = new AMPVwStatusControl("exitSlit", sgmPVName+":Y:mm:fbk", sgmPVName+":Y:mm:encsp", "SMTR16114I1003:status", "SMTR16114I1003:stop", energy_, 0.1, 2.0, new AMControlStatusCheckerDefault(1));
 	exitSlit->setDescription("Exit Slit Position");
 	energy_->addChildControl(mono);
 	energy_->addChildControl(undulator);

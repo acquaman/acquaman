@@ -150,12 +150,20 @@ int SGMFastScanConfiguration::baseLine() const{
 	return currentSettings_->baseLine();
 }
 
+int SGMFastScanConfiguration::undulatorStartStep() const{
+	return currentSettings_->undulatorStartStep();
+}
+
 int SGMFastScanConfiguration::undulatorVelocity() const{
 	return currentSettings_->undulatorVelocity();
 }
 
 int SGMFastScanConfiguration::undulatorRelativeStep() const{
 	return currentSettings_->undulatorRelativeStep();
+}
+
+double SGMFastScanConfiguration::exitSlitDistance() const{
+	return currentSettings_->exitSlitDistance();
 }
 
 QStringList SGMFastScanConfiguration::presets() const{
@@ -200,8 +208,10 @@ bool SGMFastScanConfiguration::setParameters(SGMFastScanParameters *settings){
 	emit onScalerTimeChanged(currentSettings_->scalerTime());
 	emit onBaseLineChanged(currentSettings_->baseLine());
 
+	emit undulatorStartStepChanged(currentSettings_->undulatorStartStep());
 	emit undulatorVelocityChanged(currentSettings_->undulatorVelocity());
 	emit undulatorRelativeStepChanged(currentSettings_->undulatorRelativeStep());
+	emit exitSlitDistanceChanged(currentSettings_->exitSlitDistance());
 
 	setModified(true);
 	return true;
@@ -347,6 +357,13 @@ bool SGMFastScanConfiguration::setBaseLine(int baseLine){
 	return true;
 }
 
+bool SGMFastScanConfiguration::setUndulatorStartStep(int undulatorStartStep){
+	currentSettings_->setUndulatorStartStep(undulatorStartStep);
+	emit undulatorStartStepChanged(currentSettings_->undulatorStartStep());
+	setModified(true);
+	return true;
+}
+
 bool SGMFastScanConfiguration::setUndulatorVelocity(int undulatorVelocity){
 	currentSettings_->setUndulatorVelocity(undulatorVelocity);
 	emit undulatorVelocityChanged(currentSettings_->undulatorVelocity());
@@ -361,50 +378,15 @@ bool SGMFastScanConfiguration::setUndulatorRelativeStep(int undulatorRelativeSte
 	return true;
 }
 
+bool SGMFastScanConfiguration::setExitSlitDistance(double exitSlitDistance){
+	currentSettings_->setExitSlitDistance(exitSlitDistance);
+	emit exitSlitDistanceChanged(currentSettings_->exitSlitDistance());
+	setModified(true);
+	return true;
+}
+
 bool SGMFastScanConfiguration::setDetectorConfigurations(AMDetectorInfoSet detectorConfigurations) {
 	fastDetectorsConfigurations_ = detectorConfigurations;
 	setModified(true);
 	return true;
 }
-
-/*
-
-SGMFastScanParameters::SGMFastScanParameters(QObject *parent) : QObject(parent)
-{
-}
-
-SGMFastScanParameters::SGMFastScanParameters(const QString &element, double runSeconds, double energyStart, double energyMidpoint, double energyEnd, int velocity, int velocityBase, int acceleration, double scalerTime, int baseLine, int undulatorVelocity, int undulatorRelativeStep, QObject *parent) :
-		QObject(parent)
-{
-	setElement(element);
-	setRunSeconds(runSeconds);
-	setEnergyStart(energyStart);
-	setEnergyMidpoint(energyMidpoint);
-	setEnergyEnd(energyEnd);
-	setVelocity(velocity);
-	setVelocityBase(velocityBase);
-	setAcceleration(acceleration);
-	setScalerTime(scalerTime);
-	setBaseLine(baseLine);
-	setUndulatorVelocity(undulatorVelocity);
-	setUndulatorRelativeStep(undulatorRelativeStep);
-}
-
-bool SGMFastScanParameters::operator ==(const SGMFastScanParameters &other){
-	if( element() == other.element() &&
-	    runSeconds() == other.runSeconds() &&
-	    energyStart() == other.energyStart() &&
-	    energyMidpoint() == other.energyMidpoint() &&
-	    energyEnd() == other.energyEnd() &&
-	    velocity() == other.velocity() &&
-	    velocityBase() == other.velocityBase() &&
-	    acceleration() == other.acceleration() &&
-	    scalerTime() == other.scalerTime() &&
-	    baseLine() == other.baseLine() &&
-	    undulatorVelocity() == other.undulatorVelocity() &&
-	    undulatorRelativeStep() == other.undulatorRelativeStep() ){
-		return true;
-	}
-	return false;
-}
-*/

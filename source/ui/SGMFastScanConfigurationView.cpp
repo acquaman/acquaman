@@ -17,11 +17,7 @@ SGMFastScanConfigurationView::SGMFastScanConfigurationView(SGMFastScanConfigurat
 		AMScanConfigurationView(parent)
 {
 	cfg_ = NULL;
-	/* NTBA March 14, 2011 David Chevrier
-	   Part of exporter package
-	autoSavePath_ = "";
-	autoSaveDialog_ = 0; //NULL
-	*/
+
 	if(SGMBeamline::sgm()->isConnected()){
 		cfg_ = sfsc;
 
@@ -39,6 +35,10 @@ SGMFastScanConfigurationView::SGMFastScanConfigurationView(SGMFastScanConfigurat
 		endEnergyLabel_ = new QLabel("End Energy");
 		motorSettingsLabel_ = new QLabel("Motor Settings");
 		baseLineLabel_ = new QLabel("Baseline Counts");
+		undulatorStartStepLabel_ = new QLabel("Undulator Start");
+		undulatorRelativeStepLabel_ = new QLabel("Undulator Move");
+		undulatorVelocityLabel_ = new QLabel("Undulator Velocity");
+		exitSlitDistanceLabel_ = new QLabel("Exit Slit Position");
 		warningsLabel_ = new QLabel("");
 		QFont warningsFont;
 		warningsFont.setPointSize(48);
@@ -71,6 +71,22 @@ SGMFastScanConfigurationView::SGMFastScanConfigurationView(SGMFastScanConfigurat
 		baseLineSB_->setMinimum(0);
 		baseLineSB_->setMaximum(50000);
 		baseLineSB_->setValue(sfsc->baseLine());
+		undulatorStartStepSB_ = new QSpinBox();
+		undulatorStartStepSB_->setMinimum(-150000);
+		undulatorStartStepSB_->setMaximum(150000);
+		undulatorStartStepSB_->setValue(sfsc->undulatorStartStep());
+		undulatorRelativeStepSB_ = new QSpinBox();
+		undulatorRelativeStepSB_->setMinimum(-50000);
+		undulatorRelativeStepSB_->setMaximum(50000);
+		undulatorRelativeStepSB_->setValue(sfsc->undulatorRelativeStep());
+		undulatorVelocitySB_ = new QSpinBox();
+		undulatorVelocitySB_->setMinimum(10);
+		undulatorVelocitySB_->setMaximum(11811);
+		undulatorVelocitySB_->setValue(sfsc->undulatorVelocity());
+		exitSlitDistanceDSB_ = new QDoubleSpinBox();
+		exitSlitDistanceDSB_->setMinimum(0.0);
+		exitSlitDistanceDSB_->setMaximum(700.0);
+		exitSlitDistanceDSB_->setValue(sfsc->exitSlitDistance());
 
 		connect(sfsc, SIGNAL(onElementChanged(QString)), elementEdit_, SLOT(setText(QString)));
 		connect(sfsc, SIGNAL(onRunSecondsChanged(double)), runTimeDSB_, SLOT(setValue(double)));
@@ -79,6 +95,10 @@ SGMFastScanConfigurationView::SGMFastScanConfigurationView(SGMFastScanConfigurat
 		connect(sfsc, SIGNAL(onEnergyEndChanged(double)), endEnergyDSB_, SLOT(setValue(double)));
 		connect(sfsc, SIGNAL(onVelocityChanged(int)), motorSettingsSB_, SLOT(setValue(int)));
 		connect(sfsc, SIGNAL(onBaseLineChanged(int)), baseLineSB_, SLOT(setValue(int)));
+		connect(sfsc, SIGNAL(undulatorStartStepChanged(int)), undulatorStartStepSB_, SLOT(setValue(int)));
+		connect(sfsc, SIGNAL(undulatorRelativeStepChanged(int)), undulatorRelativeStepSB_, SLOT(setValue(int)));
+		connect(sfsc, SIGNAL(undulatorVelocityChanged(int)), undulatorVelocitySB_, SLOT(setValue(int)));
+		connect(sfsc, SIGNAL(exitSlitDistanceChanged(double)), exitSlitDistanceDSB_, SLOT(setValue(double)));
 
 		connect(elementEdit_, SIGNAL(textEdited(QString)), sfsc, SLOT(setElement(QString)));
 		connect(runTimeDSB_, SIGNAL(valueChanged(double)), sfsc, SLOT(setRunSeconds(double)));
@@ -90,6 +110,10 @@ SGMFastScanConfigurationView::SGMFastScanConfigurationView(SGMFastScanConfigurat
 		connect(motorSettingsSB_, SIGNAL(valueChanged(int)), sfsc, SLOT(setVelocityBase(int)));
 		connect(motorSettingsSB_, SIGNAL(valueChanged(int)), sfsc, SLOT(setAcceleration(int)));
 		connect(baseLineSB_, SIGNAL(valueChanged(int)), sfsc, SLOT(setBaseLine(int)));
+		connect(undulatorStartStepSB_, SIGNAL(valueChanged(int)), sfsc, SLOT(setUndulatorStartStep(int)));
+		connect(undulatorRelativeStepSB_, SIGNAL(valueChanged(int)), sfsc, SLOT(setUndulatorRelativeStep(int)));
+		connect(undulatorVelocitySB_, SIGNAL(valueChanged(int)), sfsc, SLOT(setUndulatorVelocity(int)));
+		connect(exitSlitDistanceDSB_, SIGNAL(valueChanged(double)), sfsc, SLOT(setExitSlitDistance(double)));
 
 		fl_ = new QFormLayout();
 		fl_->addRow(elementLabel_, elementEdit_);
@@ -99,37 +123,13 @@ SGMFastScanConfigurationView::SGMFastScanConfigurationView(SGMFastScanConfigurat
 		fl_->addRow(endEnergyLabel_, endEnergyDSB_);
 		fl_->addRow(motorSettingsLabel_, motorSettingsSB_);
 		fl_->addRow(baseLineLabel_, baseLineSB_);
-
-		/* NTBA March 14, 2011 David Chevrier
-		   Part of exporter package
-		saveLabel_ = new QLabel("Save a copy to:");
-		saveEdit_ = new QLineEdit();
-		saveEdit_->setMinimumWidth(400);
-		saveEdit_->setText(sfsc->sensibleFileSavePath());
-		autoSaveDialog_ = new QFileDialog(0, "Choose a Directory for Auto Save");
-		autoSaveDialog_->setFileMode(QFileDialog::Directory);
-		autoSaveDialogButton_ = new QPushButton();
-		autoSaveDialogButton_->setText("Choose");
-		connect(saveEdit_, SIGNAL(editingFinished()), this, SLOT(onSavePathEditingFinished()));
-		connect(autoSaveDialogButton_, SIGNAL(clicked()), autoSaveDialog_, SLOT(show()));
-		connect(autoSaveDialog_, SIGNAL(fileSelected(QString)), this, SLOT(onSaveDialogDirectoryChosen(QString)));
-		if(!sfsc->finalizedSavePath().isEmpty())
-			saveFbkLabel_ = new QLabel("\tFile will be saved as "+sfsc->finalizedSavePath().section('/', -1));
-		else
-			saveFbkLabel_ = new QLabel("\tEnter a path and a file root");
-		fl2_ = new QFormLayout();
-		fl2_->addRow(saveLabel_, saveEdit_);
-		QHBoxLayout *hl = new QHBoxLayout();
-		hl->addWidget(saveFbkLabel_);
-		hl->addStretch(1);
-		hl->addWidget(autoSaveDialogButton_);
-		fl2_->addRow(hl);
-
-		connect(sfsc, SIGNAL(onNewFinalizedSavePath(QString)), this, SLOT(onNewFinalizedSavePath(QString)));
-		*/
+		fl_->addRow(undulatorStartStepLabel_, undulatorStartStepSB_);
+		fl_->addRow(undulatorRelativeStepLabel_, undulatorRelativeStepSB_);
+		fl_->addRow(undulatorVelocityLabel_, undulatorVelocitySB_);
+		fl_->addRow(exitSlitDistanceLabel_, exitSlitDistanceDSB_);
 
 		gl_ = new QGridLayout();
-		gl_->addWidget(presetsComboBox_,		0, 0, 1, 1, Qt::AlignCenter);
+		gl_->addWidget(presetsComboBox_,	0, 0, 1, 1, Qt::AlignCenter);
 		gl_->addLayout(fl_,			0, 1, 1, 1, Qt::AlignCenter);
 		gl_->addWidget(warningsLabel_,		0, 0, 1, 2, Qt::AlignCenter);
 		gl_->setRowStretch(1, 10);
@@ -189,44 +189,3 @@ void SGMFastScanConfigurationView::onSGMBeamlineCriticalControlsConnectedChanged
 		warningsLabel_->setText("SGM Beamline Unavailable");
 	}
 }
-
-/* NTBA March 14, 2011 David Chevrier
-   Part of exporter package
-void SGMFastScanConfigurationView::onSavePathEditingFinished(){
-	SGMFastScanConfiguration *sfsc = qobject_cast<SGMFastScanConfiguration*>(cfg_);
-	if(saveEdit_->text().isEmpty())
-		return;
-	if(sfsc && sfsc->setSensibleFileSavePath(saveEdit_->text())){
-		saveFbkLabel_->setText("\tFile will be saved as "+sfsc->finalizedSavePath().section('/', -1));
-	}
-	else{
-		saveEdit_->setText(sfsc->sensibleFileSavePath());
-		saveFbkLabel_->setText("\t"+sfsc->sensibleFileSaveWarning());
-	}
-}
-*/
-
-/* NTBA March 14, 2011 David Chevrier
-   Part of exporter package
-void SGMFastScanConfigurationView::onNewFinalizedSavePath(const QString &savePath){
-	saveFbkLabel_->setText("\tFile will be saved as "+savePath.section('/', -1));
-}
-*/
-
-/* NTBA March 14, 2011 David Chevrier
-   Part of exporter package
-void SGMFastScanConfigurationView::onSaveDialogDirectoryChosen(const QString &savePath){
-	SGMFastScanConfiguration *sfsc = qobject_cast<SGMFastScanConfiguration*>(cfg_);
-	QString saveFile = savePath+"/default";
-	if(saveFile.isEmpty())
-		return;
-	if(sfsc && sfsc->setSensibleFileSavePath(saveFile)){
-		saveEdit_->setText(saveFile);
-		saveFbkLabel_->setText("\tFile will be saved as "+sfsc->finalizedSavePath().section('/', -1));
-	}
-	else{
-		saveEdit_->setText(sfsc->sensibleFileSavePath());
-		saveFbkLabel_->setText("\t"+sfsc->sensibleFileSaveWarning());
-	}
-}
-*/

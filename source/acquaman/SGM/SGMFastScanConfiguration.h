@@ -56,6 +56,11 @@ public:
 	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by AMBeamlineScanAction to set the main text in the action view.
 	virtual QString detailedDescription() const;
 
+	/// The auto-generated scan name. Can be re-implemented to customize for each scan type.
+	virtual QString autoScanName() const{
+		return QString("%1s Fast Scan").arg(currentSettings_->runSeconds());
+	}
+
 	QString element() const;
 	double runTime() const;
 	double energyStart() const;
@@ -74,8 +79,10 @@ public:
 
 	int baseLine() const;
 
+	int undulatorStartStep() const;
 	int undulatorVelocity() const;
 	int undulatorRelativeStep() const;
+	double exitSlitDistance() const;
 
 	QStringList presets() const;
 	SGMFastScanParameters* currentParameters() const;
@@ -102,8 +109,11 @@ public slots:
 	bool setThetaParameter(double thetaParameter);
 
 	bool setBaseLine(int baseLine);
+	bool setUndulatorStartStep(int undulatorStartStep);
 	bool setUndulatorVelocity(int undulatorVelocity);
 	bool setUndulatorRelativeStep(int undulatorRelativeStep);
+	bool setExitSlitDistance(double exitSlitDistance);
+
 	bool setDetectorConfigurations(AMDetectorInfoSet detectorConfigurations);
 
 signals:
@@ -124,8 +134,10 @@ signals:
 	void onThetaParameterChanged(double thetaParameter);
 
 	void onBaseLineChanged(int baseLine);
+	void undulatorStartStepChanged(int undulatorStartStep);
 	void undulatorVelocityChanged(int undulatorVelocity);
 	void undulatorRelativeStepChanged(int undulatorRelativeStep);
+	void exitSlitDistanceChanged(double exitSlitDistance);
 
 protected:
 	AMDbObject* dbReadDetectorConfigs() { return &fastDetectorsConfigurations_; }
@@ -141,61 +153,5 @@ protected:
 
 	SGMEnergyParameters *currentEnergyParameters_;
 };
-
-/*
-class SGMFastScanParameters : public QObject
-{
-	Q_OBJECT
-public:
-	SGMFastScanParameters(QObject *parent = 0);
-	SGMFastScanParameters(const QString &element, double runSeconds, double energyStart, double energyMidpoint, double energyEnd, int velocity, int velocityBase, int acceleration, double scalerTime, int baseLine, int undulatorVelocity = 1000, int undulatorRelativeStep = 0, QObject *parent = 0);
-
-	bool operator==(const SGMFastScanParameters &other);
-
-	QString element() const { return element_;}
-	double runSeconds() const { return runSeconds_;}
-	double energyStart() const { return energyStart_;}
-	double energyMidpoint() const { return energyMidpoint_;}
-	double energyEnd() const { return energyEnd_;}
-	int velocity() const { return velocity_;}
-	int velocityBase() const { return velocityBase_;}
-	int acceleration() const { return acceleration_;}
-	double scalerTime() const { return scalerTime_;}
-	int baseLine() const { return baseLine_;}
-
-	int undulatorVelocity() const { return undulatorVelocity_;}
-	int undulatorRelativeStep() const { return undulatorRelativeStep_;}
-
-public slots:
-	void setElement(const QString &element) { element_ = element;}
-	void setRunSeconds(double runSeconds) { runSeconds_ = runSeconds;}
-	void setEnergyStart(double energyStart) { energyStart_ = energyStart;}
-	void setEnergyMidpoint(double energyMidpoint) { energyMidpoint_ = energyMidpoint;}
-	void setEnergyEnd(double energyEnd) { energyEnd_ = energyEnd;}
-	void setVelocity(int velocity) { velocity_ = velocity;}
-	void setVelocityBase(int velocityBase) { velocityBase_ = velocityBase;}
-	void setAcceleration(int acceleration) { acceleration_ = acceleration;}
-	void setScalerTime(double scalerTime) { scalerTime_ = scalerTime;}
-	void setBaseLine(int baseLine) { baseLine_ = baseLine;}
-
-	void setUndulatorVelocity(int undulatorVelocity) { undulatorVelocity_ = undulatorVelocity;}
-	void setUndulatorRelativeStep(int undulatorRelativeStep) { undulatorRelativeStep_ = undulatorRelativeStep;}
-
-protected:
-	QString element_;
-	double runSeconds_;
-	double energyStart_;
-	double energyMidpoint_;
-	double energyEnd_;
-	int velocity_;
-	int velocityBase_;
-	int acceleration_;
-	double scalerTime_;
-	int baseLine_;
-
-	int undulatorVelocity_;
-	int undulatorRelativeStep_;
-};
-*/
 
 #endif // SGMFASTSCANCONFIGURATION_H

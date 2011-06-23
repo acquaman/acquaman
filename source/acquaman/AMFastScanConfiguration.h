@@ -29,7 +29,7 @@ public:
 
 	/// The auto-generated scan name. Can be re-implemented to customize for each scan type.
 	virtual QString autoScanName() const{
-		return QString("Fast Scan from %1 to %2").arg(startEnergy()).arg(endEnergy());
+		return QString("Fast Scan");
 	}
 
 public slots:

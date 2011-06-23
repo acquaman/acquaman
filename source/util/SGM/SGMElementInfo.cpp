@@ -72,29 +72,14 @@ QDebug operator<<(QDebug d, const SGMStandardScanInfo &standardScanInfo){
 	return d;
 }
 
-SGMElementInfo::SGMElementInfo(AMElement *element, const SGMEnergyPosition &standardStart, const SGMEnergyPosition &standardMiddle, const SGMEnergyPosition &standardEnd, QObject *parent) :
+SGMElementInfo::SGMElementInfo(AMElement *element, QObject *parent) :
 		QObject(parent)
 {
 	element_ = element;
-	standardStart_ = standardStart;
-	standardMiddle_ = standardMiddle;
-	standardEnd_ = standardEnd;
 }
 
 AMElement* SGMElementInfo::element() const{
 	return element_;
-}
-
-const SGMEnergyPosition& SGMElementInfo::standardStart() const{
-	return standardStart_;
-}
-
-const SGMEnergyPosition& SGMElementInfo::standardMiddle() const{
-	return standardMiddle_;
-}
-
-const SGMEnergyPosition& SGMElementInfo::standardEnd() const{
-	return standardEnd_;
 }
 
 AMOrderedSet<QString, SGMEdgeInfo> SGMElementInfo::sgmEdgeInfos() const{
@@ -163,6 +148,8 @@ SGMFastScanParameters::SGMFastScanParameters(const QString &element, const SGMEd
 	setUndulatorStartStep(edgeInfo.standardStart().undulatorStepSetpoint());
 	setUndulatorVelocity(undulatorVelocity);
 	setUndulatorRelativeStep(edgeInfo.standardEnd().undulatorStepSetpoint()-edgeInfo.standardStart().undulatorStepSetpoint());
+	setExitSlitDistance(edgeInfo.standardMiddle().exitSlitDistance());
+	qDebug() << element << " middle " << exitSlitDistance();
 }
 
 SGMFastScanParameters::SGMFastScanParameters(const QString &element, const SGMStandardScanInfo &standardScanInfo, double runSeconds, int motorSettings, double scalerTime, int baseLine, int undulatorVelocity, QObject *parent) :
@@ -182,6 +169,7 @@ SGMFastScanParameters::SGMFastScanParameters(const QString &element, const SGMSt
 	setUndulatorStartStep(standardScanInfo.standardStart().undulatorStepSetpoint());
 	setUndulatorVelocity(undulatorVelocity);
 	setUndulatorRelativeStep(standardScanInfo.standardEnd().undulatorStepSetpoint()-standardScanInfo.standardStart().undulatorStepSetpoint());
+	setExitSlitDistance(standardScanInfo.standardMiddle().exitSlitDistance());
 }
 
 bool SGMFastScanParameters::operator ==(const SGMFastScanParameters &other){

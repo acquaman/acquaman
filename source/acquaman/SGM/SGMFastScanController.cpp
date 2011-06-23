@@ -24,7 +24,7 @@ SGMFastScanController::SGMFastScanController(SGMFastScanConfiguration *cfg){
 		sampleName = "Unknown Sample";
 	else
 		sampleName = AMSample(pScan()->sampleId(), AMUser::user()->database()).name();
-	pScan()->setName(QString("%1 on %2").arg(scanName).arg(sampleName));
+	pScan()->setName(QString("%1 - %2").arg(sampleName).arg(scanName));
 
 	// Create space in raw data store, and create raw data channels, for each detector.
 
@@ -154,12 +154,14 @@ bool SGMFastScanController::beamlineInitialize(){
 	initializationActions_ = new AMBeamlineParallelActionsList();
 	// Only need to do this if tracking is currently on
 	if( undulatorTrackingOn || exitSlitTrackingOn ){
+		/*
 		qDebug() << "Need to optimize for middle of energy range";
 		//Go to midpoint of energy range
 		initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
 		tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->energy());
 		tmpAction->setSetpoint(settings->energyMidpoint());
 		initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
+		*/
 
 		//Turn off undulator and exit slit tracking
 		initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
@@ -171,6 +173,7 @@ bool SGMFastScanController::beamlineInitialize(){
 		initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
 	}
 
+
 	//Go to start of energy range
 	//Mode needs to change before time, buffer, and total
 	initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
@@ -180,14 +183,13 @@ bool SGMFastScanController::beamlineInitialize(){
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerMode());
 	tmpAction->setSetpoint(0);
 	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
-	/*DAVID - Setting Initial undulator step ... needs to be generalized*/
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->undulatorStep());
-	//tmpAction->setSetpoint(-145629);
-	//tmpAction->setSetpoint(-132268);
-	qDebug() << "Setting start step to " << settings->undulatorStartStep();
 	tmpAction->setSetpoint(settings->undulatorStartStep());
 	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
-	/**/
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->exitSlit());
+	tmpAction->setSetpoint(settings->exitSlitDistance());
+	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
+
 
 	//Set the grating motor velocity, base velocity, and acceleration as well as scaler mode, scans per buffer, total # of scans, and intergration time
 	initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
