@@ -13,6 +13,7 @@ SGMFastScanConfiguration::SGMFastScanConfiguration(QObject *parent) : AMFastScan
 
 	settings_ = SGMPeriodicTable::sgmTable()->fastScanPresets();
 
+
 	setParametersFromPreset(0);
 
 	currentEnergyParameters_ = new SGMEnergyParameters(SGMBeamline::sgm()->energyParametersForGrating(SGMBeamline::sgm()->currentGrating()));
