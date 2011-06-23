@@ -92,11 +92,12 @@ bool SGMFastDacqScanController::event(QEvent *e){
 	if(e->type() == (QEvent::Type)AM::AcqEvent){
 		QMap<int, double> aeData = ((AMAcqEvent*)e)->dataPackage_;
 		QMap<int, QList<double> > aeSpectra = ((AMAcqEvent*)e)->spectraPackage_;
+		QMap<int, double> aeExtras = ((AMAcqEvent*)e)->extraPackage_;
 		QMap<int, double>::const_iterator i = aeData.constBegin();
 		QMap<int, QList<double> >::const_iterator j = aeSpectra.constBegin();
+		QMap<int, double>::const_iterator k = aeExtras.constBegin();
 		// Fast scan should be one scalar value (the initial energy value) and one spectral value (the scaler with all the data)
-		// There will be N*1000 elements of the scaler waveform, where N is the number of channels (detectors) being acquired
-		// We have already set the energy axis as uniform with the proper start and increment, so we can ignore the energy value in aeData
+		// There will be N*1000 elements of the scaler waveform, where N is the number of channels (detectors) being acquire
 		int encoderEndpoint = 0;
 		int encoderStartPoint = 0;
 		int encoderReading = 0;
@@ -114,30 +115,29 @@ bool SGMFastDacqScanController::event(QEvent *e){
 			encoderEndpoint = i.value();
 			qDebug() << "Encoder endpoint was " << encoderEndpoint;
 			QString readingStr;
-			while(j != aeSpectra.constEnd()){
-				encoderStartPoint = encoderEndpoint;
-				int maxVal = j.value().count()-1;
-				qDebug() << "This number is " << maxVal;
-				if(maxVal > 6000)
-					maxVal = 6000;
-				for(int x = 0; x < maxVal; x++){
-					//if( (x%6 == 4) && (j.value().at(x+1) < upMax) )
-					if( x%6 == 4 )
-						encoderStartPoint += j.value().at(x+1);
-					//if( (x%6 == 4) && (j.value().at(x+1) > upMax) )
-					//	qDebug() << "NOISE UP! of " << j.value().at(x+1) << " at " << x;
-					//if( (x%6 == 5) && (j.value().at(x+1) < downMax) )
-					if( x%6 == 5 )
-						encoderStartPoint -= j.value().at(x+1);
-					//if( (x%6 == 5) && (j.value().at(x+1) > downMax) )
-					//	qDebug() << "NOISE DOWN! of " << j.value().at(x+1) << " at " << x;
-					readingStr.append(QString("%1 ").arg(j.value().at(x+1)));
-					if( x%6 == 5 ){
-						//qDebug() << readingStr;
-						readingStr.clear();
+			if(k.key() == 2 && aeExtras.count() == 1){
+				qDebug() << "Using encoder start from event";
+				encoderStartPoint = k.value();
+			}
+			else{
+				qDebug() << "Have to back calculate encoder start";
+				while(j != aeSpectra.constEnd()){
+					encoderStartPoint = encoderEndpoint;
+					int maxVal = j.value().count()-1;
+					if(maxVal > 6000)
+						maxVal = 6000;
+					for(int x = 0; x < maxVal; x++){
+						if( x%6 == 4 )
+							encoderStartPoint += j.value().at(x+1);
+						if( x%6 == 5 )
+							encoderStartPoint -= j.value().at(x+1);
+						readingStr.append(QString("%1 ").arg(j.value().at(x+1)));
+						if( x%6 == 5 ){
+							readingStr.clear();
+						}
 					}
+					++j;
 				}
-				++j;
 			}
 			encoderReading = encoderStartPoint;
 			qDebug() << "\n\nEnoder start was " << encoderStartPoint;// << " avg up is " << avgUp << " down is " << avgDown << " thresholds " << upMax << downMax;
@@ -157,10 +157,7 @@ bool SGMFastDacqScanController::event(QEvent *e){
 							readings.append(j.value().at(x+1));
 					}
 					if( x%6 == 4 ){
-						if( j.value().at(x+1) != 21292)
-							encoderReading -= j.value().at(x+1);
-						else
-							qDebug() << "REJECTION? WHY? " << j.value().at(x+1);
+						encoderReading -= j.value().at(x+1);
 						//encoderReading += j.value().at(x+1);
 					}
 					if( x%6 == 5 ){

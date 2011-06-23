@@ -76,7 +76,6 @@ void AMHighVoltageChannel::onPowerStateChanged(highVoltageChannelPowerState powe
 	if(powerState == AMHighVoltageChannel::isPowerOn)
 		emit turnedOn();
 	else if(powerState == AMHighVoltageChannel::isPowerOff){
-		qDebug() << "Shouted turned OFF";
 		emit turnedOff();
 	}
 }

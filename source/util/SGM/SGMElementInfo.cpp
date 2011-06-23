@@ -149,7 +149,6 @@ SGMFastScanParameters::SGMFastScanParameters(const QString &element, const SGMEd
 	setUndulatorVelocity(undulatorVelocity);
 	setUndulatorRelativeStep(edgeInfo.standardEnd().undulatorStepSetpoint()-edgeInfo.standardStart().undulatorStepSetpoint());
 	setExitSlitDistance(edgeInfo.standardMiddle().exitSlitDistance());
-	qDebug() << element << " middle " << exitSlitDistance();
 }
 
 SGMFastScanParameters::SGMFastScanParameters(const QString &element, const SGMStandardScanInfo &standardScanInfo, double runSeconds, int motorSettings, double scalerTime, int baseLine, int undulatorVelocity, QObject *parent) :

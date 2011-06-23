@@ -22,6 +22,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMErrorMonitor.h"
 #include "ui/AMDateTimeUtils.h"
 
+#include "math.h"
+
 AMSamplePlate::AMSamplePlate(QObject *parent) : AMDbObject(parent), AMOrderedList<AMSamplePosition>() {
 
 	setName("New Sample Plate");
@@ -54,9 +56,22 @@ int AMSamplePlate::sampleIdAtPosition(const AMControlInfoList &position, const Q
 				return at(x).sampleId();
 	}
 	else{
-		for(int x = count()-1; x >= 0; x--)
-			if( at(x).position().compareWithinTolerance(position, tolerances))
-				return at(x).sampleId();
+		double rmsDistance = 10000;
+		double tmpRMS;
+		int closestIndex = -1;
+		for(int x = count()-1; x >= 0; x--){
+			tmpRMS = 0;
+			if( at(x).position().compareWithinTolerance(position, tolerances)){
+				for(int y = 0; y < position.count(); y++)
+					tmpRMS += fabs(at(x).position().at(y).value() - position.at(y).value()) * fabs(at(x).position().at(y).value() - position.at(y).value());
+				tmpRMS = sqrt(tmpRMS);
+				if(tmpRMS < rmsDistance){
+					rmsDistance = tmpRMS;
+					closestIndex = x;
+				}
+			}
+		}
+		return at(closestIndex).sampleId();
 	}
 	return -1;
 }

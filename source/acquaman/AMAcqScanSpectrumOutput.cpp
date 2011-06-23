@@ -106,6 +106,11 @@ int AMAcqScanSpectrumOutput::endRecord( acqKey_t key, int eventno)
 		ae->spectraPackage_.insert(j.key(), j.value());
 		j++;
 	}
+	QMap<int, double>::const_iterator k = to->extraPackage_.constBegin();
+	while(k != to->extraPackage_.constEnd()){
+		ae->extraPackage_.insert(k.key(), k.value());
+		k++;
+	}
 	QCoreApplication::postEvent(to->scanController_, ae);
 	return acqTextSpectrumOutput::endRecord(key, eventno);
 
@@ -210,6 +215,9 @@ int AMAcqScanSpectrumOutput::putValue( acqKey_t key, int eventno, int pvno, cons
 			to->dataPackage_.insert(0, dataVal);
 		else
 			to->dataPackage_.insert(to->pvnoToColumn_[pvno]+1, dataVal);
+	}
+	else if( (eventno == 2) && (pvno == 1) && !pvpr->isSpectrum){
+		to->extraPackage_.insert(2, dataVal);
 	}
 	else if( (eventno == 1) && pvpr->isSpectrum ){
 		to->spectraPackage_.insert(to->pvnoToColumn_[pvno]+1, spectraVal);

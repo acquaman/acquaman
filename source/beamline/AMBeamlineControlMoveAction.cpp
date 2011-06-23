@@ -134,7 +134,8 @@ void AMBeamlineControlMoveAction::onSucceeded(){
 }
 
 void AMBeamlineControlMoveAction::onFailed(int explanation){
-	if(VERBOSE_ACTION_ITEMS)
+	//if(VERBOSE_ACTION_ITEMS)
+	if(true)
 		qDebug() << this << "FAILED as " << control_->description() << " with " << explanation;
 	setFailed(true, explanation);
 }

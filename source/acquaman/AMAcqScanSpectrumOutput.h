@@ -77,6 +77,7 @@ private:
 	QMap<int, QList<double> > spectraDelayList_;
 	QMap<int, double> dataPackage_;
 	QMap<int, QList<double> > spectraPackage_;
+	QMap<int, double> extraPackage_;
 	QHash<int, int> pvnoToColumn_;
 	int colNo_, specColNo_;
 	bool lockHash_;

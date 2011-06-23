@@ -43,7 +43,9 @@ bool SGM2010FastFileLoader::loadFromFile(const QString& filepath, bool setMetaDa
 	QString comments;
 	QDateTime datetime;
 	QString grating;
+	bool hasEncoderInfo = false;
 	int encoderEndpoint = 0;
+	int encoderStartPoint = 0;
 
 	// used in parsing the data file
 	QString line;
@@ -145,6 +147,10 @@ bool SGM2010FastFileLoader::loadFromFile(const QString& filepath, bool setMetaDa
 					datetime = QDateTime::fromTime_t(lp.at(i).toDouble());
 				if(colNames2.at(i) == "grating")
 					grating = lp.at(i);
+				if(colNames2.at(i) == "encoder"){
+					hasEncoderInfo = true;
+					encoderStartPoint = lp.at(i).toDouble();
+				}
 			}
 		}
 	}
@@ -190,7 +196,7 @@ bool SGM2010FastFileLoader::loadFromFile(const QString& filepath, bool setMetaDa
 			else if(numScalerReadings == 6000){
 
 				qDebug() << "Going for fast scan with energy calib";
-				int encoderStartPoint = 0;
+				//int encoderStartPoint = 0;
 				int encoderReading = 0;
 				double energyFbk = 0.0;
 
@@ -216,15 +222,18 @@ bool SGM2010FastFileLoader::loadFromFile(const QString& filepath, bool setMetaDa
 
 				QList<double> readings;
 
-				encoderStartPoint = encoderEndpoint;
-				for(int x = 0; x < numScalerReadings; x++){
-					sfls >> scalerVal;
-					//if( (x%6 == 4) && (scalerVal < 40) )
-					if( x%6 == 4 )
-						encoderStartPoint += scalerVal;
-					//if( (x%6 == 5) && (scalerVal < 40) )
-					if( x%6 == 5 )
-						encoderStartPoint -= scalerVal;
+				if(!hasEncoderInfo){
+					qDebug() << "Need to back calculate encoder startpoint";
+					encoderStartPoint = encoderEndpoint;
+					for(int x = 0; x < numScalerReadings; x++){
+						sfls >> scalerVal;
+						//if( (x%6 == 4) && (scalerVal < 40) )
+						if( x%6 == 4 )
+							encoderStartPoint += scalerVal;
+						//if( (x%6 == 5) && (scalerVal < 40) )
+						if( x%6 == 5 )
+							encoderStartPoint -= scalerVal;
+					}
 				}
 				qDebug() << "Encoder startpoint was " << encoderStartPoint;
 				encoderReading = encoderStartPoint;

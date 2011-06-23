@@ -1588,14 +1588,12 @@ void SGMBeamline::onControlSetConnected(bool csConnected){
 			pgtDetector_->setDescription(pgt_->description());
 			allDetectors_->addDetector(pgtDetector_);
 			XASDetectors_->addDetector(pgtDetector_);
-			//connect( ((PGTDetector*)pgtDetector_)->hvCtrl(), SIGNAL(valueChanged(double)), this, SIGNAL(detectorHVChanged()));
 		}
 		else if(!oos65000Detector_ && ctrlSet->name() == "OOS65000 Controls"){
 			oos65000Detector_ = new OceanOptics65000Detector(oos65000_->name(), oos65000_, oos65000IntegrationTime_, AMDetector::WaitRead, this);
 			oos65000Detector_->setDescription(oos65000_->description());
 			allDetectors_->addDetector(oos65000Detector_);
 			XASDetectors_->addDetector(oos65000Detector_);
-			qDebug() << "Found and created oos65000";
 		}
 		else if(!i0PicoDetector_ && ctrlSet->name() == "I0 Pico Controls"){
 			i0PicoDetector_ = new AMSingleControlDetector(i0Pico_->name(), i0Pico_, AMDetector::WaitRead, this);

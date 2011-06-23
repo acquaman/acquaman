@@ -7,7 +7,6 @@
 
 SGMFastScanConfiguration::SGMFastScanConfiguration(QObject *parent) : AMFastScanConfiguration(parent), SGMScanConfiguration()
 {
-	qDebug() << "General constructor";
 	currentSettings_ = 0; //NULL
 	currentEnergyParameters_ = 0; //NULL
 
@@ -29,7 +28,6 @@ SGMFastScanConfiguration::SGMFastScanConfiguration(QObject *parent) : AMFastScan
 }
 
 SGMFastScanConfiguration::SGMFastScanConfiguration(const SGMFastScanConfiguration &original){
-	qDebug() << "Copy constructor";
 	currentSettings_ = 0; //NULL
 	currentEnergyParameters_ = 0; //NULL
 
@@ -59,10 +57,6 @@ SGMFastScanConfiguration::SGMFastScanConfiguration(const SGMFastScanConfiguratio
 }
 
 SGMFastScanConfiguration::~SGMFastScanConfiguration(){
-	/*
-	while(settings_.count() > 0)
-		delete settings_.takeLast();
-	*/
 }
 
 AMDetectorInfoSet SGMFastScanConfiguration::allDetectorConfigurations() const{
@@ -168,13 +162,6 @@ double SGMFastScanConfiguration::exitSlitDistance() const{
 
 QStringList SGMFastScanConfiguration::presets() const{
 	return SGMPeriodicTable::sgmTable()->fastScanPresetsStrings();
-	/*
-	QStringList retVal;
-	QString tmpStr;
-	for(int x = 0; x < settings_.count(); x++)
-		retVal << settings_.at(x)->element() + " " + tmpStr.setNum(settings_.at(x)->runSeconds());
-	return retVal;
-	*/
 }
 
 SGMFastScanParameters* SGMFastScanConfiguration::currentParameters() const{
@@ -281,14 +268,6 @@ bool SGMFastScanConfiguration::setScalerTime(double scalerTime){
 	setModified(true);
 	return true;
 }
-
-/*
-bool SGMFastScanConfiguration::setEnergyParametersFromPreset(int index){
-	if(index < 0 && index >= energyParameters_.count())
-		return false;
-	return setEnergyParameters(energyParameters_.at(index));
-}
-*/
 
 bool SGMFastScanConfiguration::setEnergyParameters(SGMEnergyParameters *parameters){
 	if(!parameters)

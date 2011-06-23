@@ -14,7 +14,6 @@ SGMPeriodicTable::SGMPeriodicTable(QObject *parent) :
 												      SGMEnergyPosition(295.0, -377497, -140470, 200.46),
 												      SGMEnergyPosition(320.0, -348005, -132290, 100.54)));
 	tmpElementInfo->addEdgeInfo(carbonK);
-	qDebug() << "Carbon Edge: " << tmpElementInfo->sgmEdgeInfos().at(tmpElementInfo->sgmEdgeInfos().indexOfKey("K"));
 	tmpElementInfo->addFastScanParameters(new SGMFastScanParameters(tmpElementInfo->element()->name(),
 									tmpElementInfo->sgmEdgeInfos().at(tmpElementInfo->sgmEdgeInfos().indexOfKey("K")),
 									5.0, 24000, 5.0, 200, 4000 ));
