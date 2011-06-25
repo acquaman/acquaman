@@ -16,7 +16,6 @@ class QGraphicsVideoItem;
   <b>Resizing</b>
 
   When this widget is resized, the scene inside the view it will be resized to keep the same size as the whole widget.  The internal video item will also be resized to fill the entire scene.
-
   */
 class AMOverlayVideoWidget : public QGraphicsView
 {
