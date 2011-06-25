@@ -24,11 +24,6 @@ macx {
 	GSL_LIB = -L$$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/gsl-install/lib -lgsl
 	GSL_CBLAS_LIB = -L$$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/gsl-install/lib -lgslcblas
 
-	# VLC Dependencies
-	VLC_LIB = -L$$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/vlc-install/lib -lvlc
-	VLC_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/vlc-install/include
-	VLC_PLUGIN_PATH = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/vlc-install/lib/vlc/plugins
-
 	# QwtPlot3d dependencies (Disabled for now...)
 	# QWTPLOT3D_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/qwtplot3d/lib
 	# QWTPLOT3D_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/qwtplot3d/include
@@ -54,11 +49,6 @@ linux-g++ {
 	GSL_LIB = -lgsl
 	GSL_CBLAS_LIB = -lgslcblas
 
-	# VLC Dependencies
-	#VLC_LIB = -lvlc
-	#VLC_INCLUDE_DIR = /usr/include
-	#VLC_PLUGIN_PATH = /usr/lib/vlc/plugins/
-
 	# LibXML Dependencies (required by dacq library)
 	XML_LIB = -lxml2
 	XML_INCLUDE_DIR = /usr/include/libxml2
@@ -83,11 +73,6 @@ linux-g++-64 {
 	GSL_LIB = -L$$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/gsl-install/lib -lgsl
 	GSL_CBLAS_LIB = -lgslcblas
 
-	# VLC Dependencies
-	#VLC_LIB = -lvlc
-	#VLC_INCLUDE_DIR = /usr/include
-	#VLC_PLUGIN_PATH = /usr/lib/vlc/plugins/
-
 	# LibXML Dependencies (required by dacq library)
 	XML_LIB = -lxml2
 	XML_INCLUDE_DIR = /usr/include/libxml2
@@ -106,19 +91,15 @@ INCLUDEPATH += . source
 INCLUDEPATH += $$EPICS_INCLUDE_DIRS \
 	$$MPLOT_INCLUDE_DIR \
 	$$GSL_INCLUDE_DIR \
-	$$VLC_INCLUDE_DIR \
 	$$XML_INCLUDE_DIR \
 	$$QWTPLOT3D_INCLUDE_DIR
 
 LIBS += $$GSL_LIB \
 	$$GSL_CBLAS_LIB \
-	$$VLC_LIB \
 	$$XML_LIB \
 #	-L$$QWTPLOT3D_LIB_DIR -lqwtplot3d \
 	-L$$EPICS_LIB_DIR -lca -lCom
 
-# VLC plugin path: define as pre-processor symbol
-#DEFINES += "VLC_PLUGIN_PATH=$$VLC_PLUGIN_PATH"
 
 # Specify runtime search locations for libraries (Must change for release bundle, if epics in a different location)
 macx {
@@ -319,7 +300,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/beamline/AMBeamlineControlStopAction.h \
 	source/dataman/REIXS/REIXSXESRawFileLoader.h \
 	source/util/AMDeferredFunctionCall.h \
-	#source/ui/AMVideoWidget.h \
+	#deprecated: source/ui/AMVideoWidget.h \
 	source/ui/AMScanConfigurationViewHolder.h \
 	source/ui/AMPeriodicTableView.h \
 	source/util/AMPeriodicTable.h \
@@ -559,7 +540,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/beamline/AMDetectorSet.cpp \
 	source/dataman/AMROIInfo.cpp \
 	source/beamline/AMROI.cpp \
-	#source/ui/AMVideoWidget.cpp \
+	#deprecated: source/ui/AMVideoWidget.cpp \
 	source/ui/AMOverlayVideoWidget.cpp \
 	#source/beamline/AMBeamlineListAction.cpp
 	source/ui/AMSamplePositionViewActionsWidget.cpp \
@@ -594,11 +575,6 @@ RESOURCES = source/icons/icons.qrc \
 	source/util/ElementData.qrc \
 	source/stylesheets/stylesheets.qrc
 
-macx {
-# Removed for now: OS-native video implementation
-#OBJECTIVE_SOURCES += 	source/ui/AMVideoWidget_mac.mm
-#LIBS += -framework AppKit
-}
 
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \

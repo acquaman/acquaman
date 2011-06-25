@@ -5,11 +5,16 @@
 
 class QGraphicsLineItem;
 
-/// This class adds the capability of drawing a crosshair on top of an AMOverlayVideoWidget. The crosshair position is configurable using setCrosshairPosition() as a fraction of the video size, and referenced over top of the video, taking into account the proper aspect ratio and scaling/letterboxing.
+/// This class adds the capability of drawing a crosshair on top of an AMOverlayVideoWidget.
+/*! The crosshair position is configurable using setCrosshairPosition() as a fraction of the video size, and referenced over top of the video, taking into account the proper aspect ratio and scaling/letterboxing.  Not only that, but you can observe the user's mouse interaction with the video display, via signals for mousePressed(), mouseReleased(), etc., which provide click positions in the same coordinate system.
+
+For fun, you can connect the mouseDoubleClicked() signal to the setCrosshairPosition() slot to allow the user to re-position the crosshair by double-clicking. */
+
 class AMCrosshairOverlayVideoWidget : public AMOverlayVideoWidget
 {
 	Q_OBJECT
 public:
+	/// Constructor.
 	explicit AMCrosshairOverlayVideoWidget(QWidget *parent = 0);
 
 	/// Returns the current pen used to draw the crosshair lines
@@ -58,6 +63,9 @@ protected:
 
 	/// We catch resize events and re-position the crosshair lines as required
 	void resizeEvent(QResizeEvent *event);
+
+	/// Helper function to convert scene coordinates to video-relative coordinates. (This is only tricky because depending on the videoItem()'s aspectRatioMode(), there might be letterbox bars at the top or sides of the display.
+	QPointF mapSceneToVideo(const QPointF& sceneCoordinate) const;
 
 protected slots:
 	/// Helper function to (re-)position the crosshair lines when the view is resized or the lines are moved

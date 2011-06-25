@@ -3,6 +3,7 @@
 #include <QResizeEvent>
 
 #include <QMediaObject>
+#include <QGraphicsVideoItem>
 
 AMCrosshairOverlayVideoWidget::AMCrosshairOverlayVideoWidget(QWidget *parent) :
 	AMOverlayVideoWidget(parent)
@@ -17,11 +18,14 @@ AMCrosshairOverlayVideoWidget::AMCrosshairOverlayVideoWidget(QWidget *parent) :
 
 	reviewCrosshairLinePositions();
 
+	doubleClickInProgress_ = false;
+
 	connect(videoItem_, SIGNAL(nativeSizeChanged(QSizeF)), this, SLOT(reviewCrosshairLinePositions()));
+
+	// Leave this up to user-programmers to decide if they want to move the crosshair with a double-click:
+	// connect(this, SIGNAL(mouseDoubleClicked(QPointF)), this, SLOT(setCrosshairPosition(QPointF)));
 }
 
-
-#include <QDebug>
 
 void AMCrosshairOverlayVideoWidget::reviewCrosshairLinePositions()
 {
@@ -29,16 +33,6 @@ void AMCrosshairOverlayVideoWidget::reviewCrosshairLinePositions()
 	QSizeF viewSize = videoItem_->size();
 	// first we need to find out the native size of the video. (Well, actually just the aspect ratio, but...)
 	QSizeF videoSize = videoItem_->nativeSize();
-
-//	QMediaObject* mediaObject = videoWidget_->mediaObject();
-//	if(mediaObject && mediaObject->isMetaDataAvailable()) {
-//		qDebug() << "meta data avail" << mediaObject->metaData(QtMultimediaKit::VideoCodec).toString() << mediaObject->metaData(QtMultimediaKit::Resolution).toSize();
-//		QVariant resolutionV = mediaObject->metaData(QtMultimediaKit::Resolution);
-//		if(resolutionV.isValid()) {
-//			videoSize = resolutionV.toSize();
-//			qDebug() << "Crosshair: got valid resolution" << videoSize;
-//		}
-//	}
 
 	// scale the video size to the view size, obeying the transformation mode
 	QSizeF scaledSize = videoSize;
@@ -94,14 +88,51 @@ void AMCrosshairOverlayVideoWidget::resizeEvent(QResizeEvent *event)
 void AMCrosshairOverlayVideoWidget::mousePressEvent(QMouseEvent *e)
 {
 	AMOverlayVideoWidget::mousePressEvent(e);
+
+	if(e->button() == Qt::LeftButton)
+		emit mousePressed(mapSceneToVideo(mapToScene(e->pos())));
 }
 
 void AMCrosshairOverlayVideoWidget::mouseReleaseEvent(QMouseEvent *e)
 {
 	AMOverlayVideoWidget::mouseReleaseEvent(e);
+
+	if(e->button() == Qt::LeftButton) {
+		if(doubleClickInProgress_) {
+			emit mouseDoubleClicked(mapSceneToVideo(mapToScene(e->pos())));
+			doubleClickInProgress_ = false;
+		}
+		else {
+			emit mouseReleased(mapSceneToVideo(mapToScene(e->pos())));
+		}
+	}
 }
 
 void AMCrosshairOverlayVideoWidget::mouseDoubleClickEvent(QMouseEvent *e)
 {
 	AMOverlayVideoWidget::mouseDoubleClickEvent(e);
+
+	if(e->button() == Qt::LeftButton) {
+		doubleClickInProgress_ = true;
+	}
+
+}
+
+QPointF AMCrosshairOverlayVideoWidget::mapSceneToVideo(const QPointF &sceneCoordinate) const
+{
+	// for more comments, see the more verbose implementation in reviewCrosshairLinePostions()
+	QSizeF viewSize = videoItem_->size();
+	QSizeF scaledSize = videoItem_->nativeSize();
+	scaledSize.scale(viewSize, videoItem_->aspectRatioMode());
+
+	QRectF activeRect = QRectF(QPointF((viewSize.width()-scaledSize.width())/2,
+									   (viewSize.height()-scaledSize.height())/2),
+							   scaledSize);
+
+	// activeRect is now a rectangle in scene coordinates that covers the actual area of the video [not the area of the videoWidget, which may be smaller or larger depending on the aspect ratio mode and aspect ratio of the actual video feed]
+
+	qreal yScene = (sceneCoordinate.y() - activeRect.top())/activeRect.height();
+	qreal xScene = (sceneCoordinate.x() - activeRect.left())/activeRect.width();
+
+	return QPointF(xScene, yScene);
 }

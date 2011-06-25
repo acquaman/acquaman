@@ -26,9 +26,6 @@
 
 #include <QMessageBox>
 
-#include "ui/AMCrosshairOverlayVideoWidget.h"
-#include <QMediaPlayer>
-#include <QMediaPlaylist>
 
 REIXSAppController::REIXSAppController(QObject *parent) :
 	AMAppController(parent)
@@ -103,18 +100,12 @@ bool REIXSAppController::startup() {
 		hl->addWidget(new AMSamplePlateView());
 
 
-		AMCrosshairOverlayVideoWidget* vw = new AMCrosshairOverlayVideoWidget();
-		// vw->videoWidget()->setAspectRatioMode(Qt::IgnoreAspectRatio);
-		vw->setCrosshairPosition(QPointF(0.99, 0.99));
-		vw->show();
-		QMediaPlayer* player = new QMediaPlayer(this);
-		player->setVideoOutput(vw->videoItem());
-
-		player->setMedia(QUrl("/Users/mboots/Pictures/iPhoto Library/Originals/2010/mine movies/101_0216.M4V"));
-
-		//hl->addWidget(vw);
-
-		player->play();
+//		AMCrosshairOverlayVideoWidget* vw = new AMCrosshairOverlayVideoWidget();
+//		// vw->videoItem()->setAspectRatioMode(Qt::IgnoreAspectRatio);
+//		vw->setCrosshairPosition(QPointF(0.99, 0.99));
+//		vw->show();
+//		vw->mediaPlayer()->setMedia(QUrl("/Users/mboots/Pictures/iPhoto Library/Originals/2010/mine movies/101_0216.M4V"));
+//		vw->mediaPlayer()->play();
 
 
 //		AMVideoWidget* vw = new AMVideoWidget();
