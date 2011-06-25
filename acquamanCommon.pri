@@ -95,6 +95,10 @@ linux-g++-64 {
 
 QT += core gui sql opengl
 
+# video using Multimedia module from QtMobility
+CONFIG += mobility
+MOBILITY += multimedia
+
 DESTDIR = build
 DEPENDPATH += . source
 INCLUDEPATH += . source
@@ -246,7 +250,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMThumbnailScrollViewer.h \
 	source/ui/AMXASRegionsView.h \
 	source/ui/BottomBar.h \
-	#source/ui/AMBeamlineCameraWidget.h \
+	#deprecated: source/ui/AMBeamlineCameraWidget.h \
 	source/ui/AMControlEditor.h \
 	source/acquaman.h \
 	source/ui/AMNewRunDialog.h \
@@ -278,7 +282,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMStartScreen.h \
 	source/ui/AMSignallingGraphicsScene.h \
 	source/dataman/AMUser.h \
-	#source/ui/AMVideoPlayerWidget.h \
+	#deprecated: source/ui/AMVideoPlayerWidget.h \
 	source/dataman/AMXESScan.h \
 	source/dataman/ALSBL8XESDetectorInfo.h \
 	source/dataman/ALSBL8XASFileLoader.h \
@@ -315,7 +319,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/beamline/AMBeamlineControlStopAction.h \
 	source/dataman/REIXS/REIXSXESRawFileLoader.h \
 	source/util/AMDeferredFunctionCall.h \
-#	source/ui/AMVideoWidget.h \
+	#source/ui/AMVideoWidget.h \
 	source/ui/AMScanConfigurationViewHolder.h \
 	source/ui/AMPeriodicTableView.h \
 	source/util/AMPeriodicTable.h \
@@ -335,7 +339,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/beamline/AMDetectorSet.h \
 	source/dataman/AMROIInfo.h \
 	source/beamline/AMROI.h \
-	#source/ui/AMOverlayVideoWidget.h \
+	source/ui/AMOverlayVideoWidget.h \
 	source/ui/AMSamplePositionViewActionsWidget.h \
 	source/beamline/AMBeamlineListAction.h \
 	source/beamline/AMBeamlineControlWaitAction.h \
@@ -360,8 +364,9 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/analysis/AM1DSummingAB.h \
 	source/analysis/AMDeadTimeAB.h \
 	source/dataman/AMProcessVariableDataSource.h \
-    source/ui/AMChooseScanDialog.h \
-    source/application/AMDatamanAppController.h
+	source/ui/AMChooseScanDialog.h \
+	source/application/AMDatamanAppController.h \
+	source/ui/AMCrosshairOverlayVideoWidget.h
 FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
 	source/ui/AMDataViewSectionHeader.ui \
@@ -374,7 +379,7 @@ FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMSamplePositionViewActionsWidget.ui \
 	source/ui/AMExporterOptionGeneralAsciiView.ui \
 	source/ui/AMDataViewActionsBar.ui \
-    source/ui/AMChooseScanDialog.ui
+	source/ui/AMChooseScanDialog.ui
 SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	../MPlot/src/MPlot/MPlotAbstractTool.cpp \
 	../MPlot/src/MPlot/MPlotAxis.cpp \
@@ -470,7 +475,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMThumbnailScrollViewer.cpp \
 	source/ui/AMXASRegionsView.cpp \
 	source/ui/BottomBar.cpp \
-	#source/ui/AMBeamlineCameraWidget.cpp \
+	#deprecated: source/ui/AMBeamlineCameraWidget.cpp \
 	source/ui/AMControlEditor.cpp \
 	source/ui/AMDetectorView.cpp \
 	source/ui/AMNewRunDialog.cpp \
@@ -500,7 +505,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMStartScreen.cpp \
 	source/ui/AMSignallingGraphicsScene.cpp \
 	source/dataman/AMUser.cpp \
-	#source/ui/AMVideoPlayerWidget.cpp \
+	#deprecated: source/ui/AMVideoPlayerWidget.cpp \
 	source/dataman/AMXESScan.cpp \
 	source/dataman/ALSBL8XESDetectorInfo.cpp \
 	source/dataman/ALSBL8XASFileLoader.cpp \
@@ -555,7 +560,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/dataman/AMROIInfo.cpp \
 	source/beamline/AMROI.cpp \
 	#source/ui/AMVideoWidget.cpp \
-	#source/ui/AMOverlayVideoWidget.cpp \
+	source/ui/AMOverlayVideoWidget.cpp \
 	#source/beamline/AMBeamlineListAction.cpp
 	source/ui/AMSamplePositionViewActionsWidget.cpp \
 	source/beamline/AMBeamlineListAction.cpp \
@@ -581,8 +586,9 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/analysis/AM1DSummingAB.cpp \
 	source/analysis/AMDeadTimeAB.cpp \
 	source/dataman/AMProcessVariableDataSource.cpp \
-    source/ui/AMChooseScanDialog.cpp \
-    source/application/AMDatamanAppController.cpp
+	source/ui/AMChooseScanDialog.cpp \
+	source/application/AMDatamanAppController.cpp \
+	source/ui/AMCrosshairOverlayVideoWidget.cpp
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc \
 	source/util/ElementData.qrc \
