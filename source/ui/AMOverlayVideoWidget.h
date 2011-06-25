@@ -23,7 +23,7 @@ class AMOverlayVideoWidget : public QGraphicsView
 public:
 	/// Constructor.  If you don't want to (or can't) use OpenGL acceleration on the view, you can set \c useOpenGLView to false. However, leaving it on provides a huge reduction in CPU usage, at least on Mac OS X.
 	explicit AMOverlayVideoWidget(QWidget *parent = 0, bool useOpenGlView = true);
-	/// Destructor
+	/// Destructor.
 	~AMOverlayVideoWidget();
 
 	/// Access the internal QMediaPlayer that controls playback of video.
