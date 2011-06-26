@@ -84,3 +84,19 @@ make install
 #./configure -arch x86_64
 
 #(cocoa by default)
+
+
+
+
+# Building QtMobility Multimedia module (http://doc.qt.nokia.com/qtmobility/installation.html)
+
+curl http://get.qt.nokia.com/qt/add-ons/qt-mobility-opensource-src-1.1.3.tar.gz > qt-mobility.tar.gz
+tar -zxf qt-mobility.tar.gz
+mv qt-mobility-....-1.1.3 qt-mobility-1.1.3
+cd qt-mobility-1.1.3
+./configure -modules multimedia -prefix $BASEDIR/qt-mobility-install
+make
+sudo make install
+
+# add to project file: QT += mobility
+# MOBILITY += multimedia

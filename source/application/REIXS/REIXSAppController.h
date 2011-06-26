@@ -38,7 +38,6 @@ protected slots:
 	  */
 	virtual void onCurrentPaneChanged(QWidget* pane);
 
-	/// \todo comment this, David...
 	void onCurrentScanControllerCreated();
 	void onCurrentScanControllerDestroyed();
 	void onCurrentScanControllerReinitialized(bool removeScan);
@@ -49,14 +48,6 @@ protected slots:
 	virtual void onWindowPaneCloseButtonClicked(const QModelIndex& index);
 
 protected:
-
-//	SGMSampleTransferView* sampleTransferView_;
-//	AMSamplePositionView* samplePositionView_;
-//	AMScanConfigurationView* scanConfigurationView_;
-//	SGMXASScanConfigurationViewer* xasScanConfigurationViewer_;
-//	SGMFastScanConfigurationViewer* fastScanConfigurationViewer_;
-//	AMXASScanConfigurationHolder* scanConfigurationHolder_;
-//	AMFastScanConfigurationHolder* fastScanConfigurationHolder_;
 
 	AMScanConfigurationViewHolder* scanConfigurationHolder_;
 	REIXSXESScanConfigurationDetailedView* xesScanConfigurationView_;
