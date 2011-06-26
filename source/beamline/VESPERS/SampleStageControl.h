@@ -101,6 +101,8 @@ signals:
 	void verticalSetpointChanged(double);
 	/// Notifies whether the normal motor setpoint has changed.
 	void normalSetpointChanged(double);
+	/// Notifier that a move was unsuccessful.  Passes the name of the control that failed.
+	void moveError(QString);
 
 public slots:
 	/// Moves the sample stage in the horizontal direction.

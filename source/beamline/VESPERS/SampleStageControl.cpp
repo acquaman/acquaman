@@ -86,18 +86,24 @@ void SampleStageControl::moveHorizontal(double setpoint)
 {
 	if (validNewXPosition(setpoint))
 		horiz_->move(setpoint);
+	else
+		emit moveError(horiz_->name());
 }
 
 void SampleStageControl::moveVertical(double setpoint)
 {
 	if (validNewYPosition(setpoint) && validNewZPosition(setpoint))
 		vert_->move(setpoint);
+	else
+		emit moveError(vert_->name());
 }
 
 void SampleStageControl::moveNormal(double setpoint)
 {
 	if (validNewYPosition(setpoint) && validNewZPosition(setpoint))
 		norm_->move(setpoint);
+	else
+		emit moveError(norm_->name());
 }
 
 bool SampleStageControl::validNewXPosition(double setpoint)

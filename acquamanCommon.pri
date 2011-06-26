@@ -320,7 +320,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/beamline/AMDetectorSet.h \
 	source/dataman/AMROIInfo.h \
 	source/beamline/AMROI.h \
-#	source/ui/AMOverlayVideoWidget.h \
+	#source/ui/AMOverlayVideoWidget.h \
 	source/ui/AMSamplePositionViewActionsWidget.h \
 	source/beamline/AMBeamlineListAction.h \
 	source/beamline/AMBeamlineControlWaitAction.h \
@@ -568,8 +568,8 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/analysis/AMDeadTimeAB.cpp \
 	source/dataman/AMProcessVariableDataSource.cpp \
 	source/ui/AMChooseScanDialog.cpp \
-	source/application/AMDatamanAppController.cpp 
-#	source/ui/AMCrosshairOverlayVideoWidget.cpp
+	source/application/AMDatamanAppController.cpp
+	#source/ui/AMCrosshairOverlayVideoWidget.cpp
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc \
 	source/util/ElementData.qrc \
