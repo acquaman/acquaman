@@ -63,7 +63,7 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	connect(lightBulb_, SIGNAL(toggled(bool)), this, SLOT(lightBulbToggled(bool)));
 
 	// Setup the GUI with the soft limits.
-	config_ = new VESPERSEndstationConfigurationView(this);
+	config_ = new VESPERSEndstationConfigurationView;
 	config_->hide();
 	connect(config_, SIGNAL(configurationChanged()), endstation_, SLOT(loadConfiguration()));
 
@@ -200,6 +200,7 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 VESPERSEndstationView::~VESPERSEndstationView()
 {
 	delete endstation_;
+	delete config_;
 }
 
 void VESPERSEndstationView::setWindow(AMPVwStatusControl *control)

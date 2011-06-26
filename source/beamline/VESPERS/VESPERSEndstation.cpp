@@ -38,12 +38,12 @@ VESPERSEndstation::VESPERSEndstation(QObject *parent)
 	resetPseudoMotors_ = VESPERSBeamline::vespers()->resetPseudoMotors();
 
 	// Setup filters.
-	filterMap_.insert("50A", qobject_cast<AMPVControl *>(VESPERSBeamline::vespers()->filter250umA()));
-	filterMap_.insert("50B", qobject_cast<AMPVControl *>(VESPERSBeamline::vespers()->filter250umB()));
+	filterMap_.insert("50A", qobject_cast<AMPVControl *>(VESPERSBeamline::vespers()->filter50umA()));
+	filterMap_.insert("50B", qobject_cast<AMPVControl *>(VESPERSBeamline::vespers()->filter50umB()));
 	filterMap_.insert("100A", qobject_cast<AMPVControl *>(VESPERSBeamline::vespers()->filter100umA()));
 	filterMap_.insert("100B", qobject_cast<AMPVControl *>(VESPERSBeamline::vespers()->filter100umB()));
-	filterMap_.insert("250A", qobject_cast<AMPVControl *>(VESPERSBeamline::vespers()->filter50umA()));
-	filterMap_.insert("250B", qobject_cast<AMPVControl *>(VESPERSBeamline::vespers()->filter50umB()));
+	filterMap_.insert("250A", qobject_cast<AMPVControl *>(VESPERSBeamline::vespers()->filter250umA()));
+	filterMap_.insert("250B", qobject_cast<AMPVControl *>(VESPERSBeamline::vespers()->filter250umB()));
 
 	// Get the current soft limits.
 	loadConfiguration();
@@ -59,6 +59,10 @@ VESPERSEndstation::VESPERSEndstation(QObject *parent)
 	connect(ccdPath_, SIGNAL(valueChanged()), this, SLOT(onCCDPathChanged()));
 	connect(ccdFile_, SIGNAL(valueChanged()), this, SLOT(onCCDNameChanged()));
 	connect(ccdNumber_, SIGNAL(valueChanged(int)), this, SIGNAL(ccdNumberChanged(int)));
+
+	QList<AMPVControl *> list(filterMap_.values());
+	for (int i = 0; i < list.size(); i++)
+		connect(list.at(i), SIGNAL(connected(bool)), this, SLOT(onFiltersConnected()));
 }
 
 bool VESPERSEndstation::loadConfiguration()
