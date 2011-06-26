@@ -8,7 +8,7 @@ VESPERSXASScanConfiguration::VESPERSXASScanConfiguration(QObject *parent)
 }
 
 VESPERSXASScanConfiguration::VESPERSXASScanConfiguration(const VESPERSXASScanConfiguration &original)
-	: AMXASScanConfiguration(parent)
+	: AMXASScanConfiguration(original.parent())
 {
 
 }
@@ -28,7 +28,7 @@ AMScanConfigurationView *VESPERSXASScanConfiguration::createView()
 	return new VESPERSXASScanConfigurationView(this);
 }
 
-QString VESPERSXASScanConfiguration::detailedDescription()
+QString VESPERSXASScanConfiguration::detailedDescription() const
 {
 	return QString("Puked");
 }

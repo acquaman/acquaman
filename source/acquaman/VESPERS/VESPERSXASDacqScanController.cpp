@@ -3,6 +3,7 @@
 #include "beamline/AMBeamlineActionsList.h"
 
 VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfiguration *cfg, QObject *parent)
+	: AMDacqScanController(cfg, parent)
 {
 }
 

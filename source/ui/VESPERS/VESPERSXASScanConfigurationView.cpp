@@ -3,7 +3,8 @@
 
 #include <QVBoxLayout>
 
-VESPERSXASScanConfigurationView::VESPERSXASScanConfigurationView()
+VESPERSXASScanConfigurationView::VESPERSXASScanConfigurationView(VESPERSXASScanConfiguration *config, QWidget *parent)
+	: AMScanConfigurationView(parent)
 {
 	AMTopFrame *frame = new AMTopFrame("VESPERS XAS for teh win!");
 	QVBoxLayout *layout = new QVBoxLayout;
@@ -11,7 +12,7 @@ VESPERSXASScanConfigurationView::VESPERSXASScanConfigurationView()
 	setLayout(layout);
 }
 
-const AMScanConfiguration *VESPERSXASScanConfigurationView::configuration()
+const AMScanConfiguration *VESPERSXASScanConfigurationView::configuration() const
 {
 	return config_;
 }

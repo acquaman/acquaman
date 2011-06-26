@@ -141,9 +141,13 @@ void VESPERSEndstation::onFiltersConnected()
 	for (int i = 0; i < filters.size(); i++)
 		connected = connected && filters.at(i)->isConnected();
 
-	if (!wasConnected_ && connected)
+	if (!wasConnected_ && connected){
+
 		for (int i = 0; i < filters.size(); i++)
 			connect(filters.at(i), SIGNAL(valueChanged(double)), this, SLOT(onFiltersChanged()));
+
+		onFiltersChanged();
+	}
 	else if (wasConnected_ && !connected)
 		for (int i = 0; i < filters.size(); i++)
 			disconnect(filters.at(i), SIGNAL(valueChanged(double)), this, SLOT(onFiltersChanged()));
