@@ -35,14 +35,20 @@ VESPERSXRFScanController::VESPERSXRFScanController(VESPERSXRFScanConfiguration *
 
 	for (int i = 0; i < detector_->elements(); i++){
 
-		scan_->rawData()->addMeasurement(AMMeasurementInfo(QString("dt%1").arg(i+1), QString("Dead time %1").arg(i+1), "%", QList<AMAxisInfo>()));
+		scan_->rawData()->addMeasurement(AMMeasurementInfo(QString("icr%1").arg(i+1), QString("Input count rate %1").arg(i+1), "%", QList<AMAxisInfo>()));
 		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), i+detector_->elements()));
 	}
 
 	for (int i = 0; i < detector_->elements(); i++){
 
+		scan_->rawData()->addMeasurement(AMMeasurementInfo(QString("ocr%1").arg(i+1), QString("Output count rate %1").arg(i+1), "%", QList<AMAxisInfo>()));
+		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), i+2*detector_->elements()));
+	}
+
+	for (int i = 0; i < detector_->elements(); i++){
+
 		AMDeadTimeAB *temp = new AMDeadTimeAB(QString("Corrected %1").arg(i+1));
-		temp->setInputDataSourcesImplementation(QList<AMDataSource *>() << scan_->rawDataSources()->at(i) << scan_->rawDataSources()->at(i+detector_->elements()));
+		temp->setInputDataSourcesImplementation(QList<AMDataSource *>() << scan_->rawDataSources()->at(i) << scan_->rawDataSources()->at(i+detector_->elements()) << scan_->rawDataSources()->at(i+2*detector_->elements()));
 		scan_->addAnalyzedDataSource(temp);
 	}
 
@@ -70,7 +76,7 @@ void VESPERSXRFScanController::onStatusChanged()
 
 bool VESPERSXRFScanController::startImplementation()
 {
-	connect(detector_, SIGNAL(statusChanged()), this, SLOT(onStatusChanged()));
+	connect(detector_, SIGNAL(statusChanged(bool)), this, SLOT(onStatusChanged()));
 	connect(detector_, SIGNAL(elapsedTimeChanged(double)), this, SLOT(onProgressUpdate()));
 	detector_->start();
 
@@ -81,7 +87,7 @@ bool VESPERSXRFScanController::startImplementation()
 
 void VESPERSXRFScanController::onDetectorAcquisitionFinished()
 {
-	disconnect(detector_, SIGNAL(statusChanged()), this, SLOT(onStatusChanged()));
+	disconnect(detector_, SIGNAL(statusChanged(bool)), this, SLOT(onStatusChanged()));
 	disconnect(detector_, SIGNAL(elapsedTimeChanged(double)), this, SLOT(onProgressUpdate()));
 
 

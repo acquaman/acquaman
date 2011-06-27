@@ -102,14 +102,14 @@ void XRFPeriodicTableView::changeColor(XRFElement *el)
 		QStringList lines(el->linesSelected());
 
 		if (lines.contains(QString::fromUtf8("Kα1")) || lines.contains(QString::fromUtf8("Kβ1")))
-			palette.setColor(QPalette::Window, Qt::green);
+			palette.setColor(QPalette::Button, Qt::green);
 		else if (lines.contains(QString::fromUtf8("Lα1")) || lines.contains(QString::fromUtf8("Lβ1")) || lines.contains(QString::fromUtf8("Lγ1")))
-			palette.setColor(QPalette::Window, Qt::yellow);
+			palette.setColor(QPalette::Button, Qt::yellow);
 		else if (lines.contains(QString::fromUtf8("Mα1")))
-			palette.setColor(QPalette::Window, Qt::cyan);
+			palette.setColor(QPalette::Button, Qt::cyan);
 	}
 	else
-		palette.setColor(QPalette::Window, this->palette().color(QPalette::Window));
+		palette.setColor(QPalette::Button, this->palette().color(QPalette::Button));
 
 	clicked->setPalette(palette);
 }

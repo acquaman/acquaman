@@ -56,54 +56,9 @@ void AMDeadTimeAB::setInputDataSourcesImplementation(const QList<AMDataSource*>&
 	// we know that this will only be called with valid input source
 	else {
 
-		// If the spectra data source comes first...
-		if (dataSources.first()->rank() == 1){
-
-			spectra_ = dataSources.first();
-
-			if (int(dataSources.at(1)->value(AMnDIndex())) > int(dataSources.at(2)->value(AMnDIndex()))){
-
-				icr_ = dataSources.at(1);
-				ocr_ = dataSources.at(2);
-			}
-			else{
-
-				icr_ = dataSources.at(2);
-				ocr_ = dataSources.at(1);
-			}
-		}
-		// If the spectra data source comes second...
-		else if (dataSources.at(1)->rank() == 1){
-
-			spectra_ = dataSources.at(1);
-
-			if (int(dataSources.at(0)->value(AMnDIndex())) > int(dataSources.at(2)->value(AMnDIndex()))){
-
-				icr_ = dataSources.at(0);
-				ocr_ = dataSources.at(2);
-			}
-			else{
-
-				icr_ = dataSources.at(2);
-				ocr_ = dataSources.at(0);
-			}
-		}
-		// Otherwise...
-		else {
-
-			spectra_ = dataSources.at(2);
-
-			if (int(dataSources.at(0)->value(AMnDIndex())) > int(dataSources.at(1)->value(AMnDIndex()))){
-
-				icr_ = dataSources.at(0);
-				ocr_ = dataSources.at(1);
-			}
-			else{
-
-				icr_ = dataSources.at(1);
-				ocr_ = dataSources.at(0);
-			}
-		}
+		spectra_ = dataSources.first();
+		icr_ = dataSources.at(1);
+		ocr_ = dataSources.at(2);
 
 		sources_ = dataSources;
 

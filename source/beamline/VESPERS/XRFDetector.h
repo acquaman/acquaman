@@ -110,8 +110,6 @@ public slots:
 	void start()
 	{
 		timer_.stop();
-		for (int i = 0; i < roiList_.size(); i++)
-			roiList_.at(i)->blockSignals(true);
 
 		for (int i = 0; i < elements_; i++)
 			startPV_.at(i)->setValue(1);
@@ -187,7 +185,7 @@ signals:
 
 protected slots:
 	/// Determines if the detector is connected to ALL controls and process variables.
-	void detectorConnected();
+	void isDetectorConnected();
 	/// Connects and disconnects signals based on the connection of the detector.
 	void onConnectedChanged(bool isConnected);
 	/// Determines if the regions of interest in the detector all have values.
@@ -199,12 +197,8 @@ protected slots:
 	{
 		bool currStatus = status();
 
-		if (currStatus){
-
-			for (int i = 0; i < roiList_.size(); i++)
-				roiList_.at(i)->blockSignals(false);
+		if (currStatus)
 			timer_.start();
-		}
 
 		emit statusChanged(currStatus);
 	}
@@ -231,7 +225,7 @@ protected slots:
 	/// Handles changes to the maximum energy.
 	void onMaximumEnergyChanged(double maxE){ setMaximumEnergy(maxE); emit maximumEnergyChanged(maxE); }
 	/// Handles changes to the integration time.
-	void onIntegrationTimeChanged(double time){ setTime(time); emit integrationTimeChanged(time); }
+	void onIntegrationTimeChanged(double time){ setIntegrationTime(time); emit integrationTimeChanged(time); }
 
 protected:
 	/// Helper function.  Takes in a base name and creates a list of ROIs based on the number of elements.  Creates PVs for the name, low limit, high limit, and current value.

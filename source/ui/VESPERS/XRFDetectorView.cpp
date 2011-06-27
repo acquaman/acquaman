@@ -333,7 +333,6 @@ void XRFDetailedDetectorView::setupPlot()
 
 	corrSum_ = new MPlotSeriesBasic;
 	corrSum_->setModel(new AMDataSourceSeriesData(detector_->correctedSumDataSource()));
-	corrSum_->setModel(new AMDataSourceSeriesData(detector_->spectrumDataSource(0)));
 	corrSum_->setMarker(MPlotMarkerShape::None);
 	corrSum_->setDescription(detector_->correctedSumDataSource()->name());
 	corrSum_->setLinePen(QPen(getColor(0)));

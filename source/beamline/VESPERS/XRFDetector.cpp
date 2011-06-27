@@ -56,18 +56,18 @@ XRFDetector::XRFDetector(QString name, int elements, QString baseName, QObject *
 		stopPV_.at(i)->disablePutCallbackMode(true);
 		spectraPV_.at(i)->disablePutCallbackMode(true);
 
-		connect(statusPV_.at(i), SIGNAL(connected()), this, SLOT(detectorConnected()));
-		connect(refreshRatePV_.at(i), SIGNAL(connected()), this, SLOT(detectorConnected()));
-		connect(peakingTimePV_.at(i), SIGNAL(connected()), this, SLOT(detectorConnected()));
-		connect(maximumEnergyPV_.at(i), SIGNAL(connected()), this, SLOT(detectorConnected()));
-		connect(integrationTimePV_.at(i), SIGNAL(connected()), this, SLOT(detectorConnected()));
-		connect(liveTimePV_.at(i), SIGNAL(connected()), this, SLOT(detectorConnected()));
-		connect(elapsedTimePV_.at(i), SIGNAL(connected()), this, SLOT(detectorConnected()));
-		connect(icrPV_.at(i), SIGNAL(connected()), this, SLOT(detectorConnected()));
-		connect(ocrPV_.at(i), SIGNAL(connected()), this, SLOT(detectorConnected()));
-		connect(startPV_.at(i), SIGNAL(connected()), this, SLOT(detectorConnected()));
-		connect(stopPV_.at(i), SIGNAL(connected()), this, SLOT(detectorConnected()));
-		connect(spectraPV_.at(i), SIGNAL(connected()), this, SLOT(detectorConnected()));
+		connect(statusPV_.at(i), SIGNAL(connected()), this, SLOT(isDetectorConnected()));
+		connect(refreshRatePV_.at(i), SIGNAL(connected()), this, SLOT(isDetectorConnected()));
+		connect(peakingTimePV_.at(i), SIGNAL(connected()), this, SLOT(isDetectorConnected()));
+		connect(maximumEnergyPV_.at(i), SIGNAL(connected()), this, SLOT(isDetectorConnected()));
+		connect(integrationTimePV_.at(i), SIGNAL(connected()), this, SLOT(isDetectorConnected()));
+		connect(liveTimePV_.at(i), SIGNAL(connected()), this, SLOT(isDetectorConnected()));
+		connect(elapsedTimePV_.at(i), SIGNAL(connected()), this, SLOT(isDetectorConnected()));
+		connect(icrPV_.at(i), SIGNAL(connected()), this, SLOT(isDetectorConnected()));
+		connect(ocrPV_.at(i), SIGNAL(connected()), this, SLOT(isDetectorConnected()));
+		connect(startPV_.at(i), SIGNAL(connected()), this, SLOT(isDetectorConnected()));
+		connect(stopPV_.at(i), SIGNAL(connected()), this, SLOT(isDetectorConnected()));
+		connect(spectraPV_.at(i), SIGNAL(connected()), this, SLOT(isDetectorConnected()));
 
 		// This one is separate beccause this signal should only be called once.
 		connect(spectraPV_.first(), SIGNAL(valueChanged()), this, SLOT(setChannelSize()));
@@ -80,9 +80,12 @@ XRFDetector::XRFDetector(QString name, int elements, QString baseName, QObject *
 		correctedSpectrumDataSources_ << corrected;
 	}
 
-	AM1DSummingAB *correctedSumAB = new AM1DSummingAB("Corrected Sum", this);
-	correctedSumAB->setInputDataSourcesImplementation(correctedSpectrumDataSources_);
-	correctedSpectrumDataSources_ << correctedSumAB;
+	if (elements > 1){
+
+		AM1DSummingAB *correctedSumAB = new AM1DSummingAB("Corrected Sum", this);
+		correctedSumAB->setInputDataSourcesImplementation(correctedSpectrumDataSources_);
+		correctedSpectrumDataSources_ << correctedSumAB;
+	}
 
 	createROIList(baseName);
 }
@@ -125,7 +128,7 @@ void XRFDetector::createROIList(QString baseName)
 		}
 
 		roiList_ << new AMROI(QString(), -1, -1, 10, names, lows, highs, vals);
-		connect(roiList_.at(j), SIGNAL(roiConnected(bool)), this, SLOT(detectorConnected()));
+		connect(roiList_.at(j), SIGNAL(roiConnected(bool)), this, SLOT(isDetectorConnected()));
 		connect(roiList_.at(j), SIGNAL(roiHasValues()), this, SLOT(allRoisHaveValues()));
 	}
 }
@@ -192,7 +195,7 @@ void XRFDetector::fromXRFInfo(const XRFDetectorInfo &info)
 		roiList().at(i)->setRegion(info.roiInfoList()->at(i));
 }
 
-void XRFDetector::detectorConnected()
+void XRFDetector::isDetectorConnected()
 {
 	wasConnected_ = detectorConnected_;
 
@@ -272,6 +275,7 @@ void XRFDetector::allRoisHaveValues()
 		timer_.start();
 	}
 	else{
+
 		for (int i = 0; i < roiList_.size(); i++)
 			disconnect(roiList_.at(i), SIGNAL(roiUpdate(AMROI*)), this, SIGNAL(roiUpdate(AMROI*)));
 
@@ -404,7 +408,7 @@ QVector<int> XRFDetector::spectraValues(int index)
 double XRFDetector::deadTimeAt(int index)
 {
 	if (index < elements_ && index >= 0)
-		return 100*(1 - ocrPV_.at(index)->getDouble()/icrPV_.at(index)->getDouble());
+		return 100*(icrPV_.at(index)->getDouble()/ocrPV_.at(index)->getDouble() - 1);
 
 	return -1;
 }

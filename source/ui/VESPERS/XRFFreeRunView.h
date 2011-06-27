@@ -21,7 +21,7 @@ public:
 
 protected slots:
 	/// Handles what happens when the start button is clicked.
-	void onStartClicked() { start_->setDisabled(true); workflow_->insertBeamlineAction(-1, new AMBeamlineScanAction(xrfFreeRun_->configuration()->createCopy()), true); }
+	void onStartClicked() { start_->setDisabled(true); detector_->setTime(integrationTime_->value()); workflow_->insertBeamlineAction(-1, new AMBeamlineScanAction(xrfFreeRun_->configuration()->createCopy()), true); }
 	/// Handles what happens when the stop button is clicked.
 	void onStopClicked();
 	/// Changes the disabled state of the start button based on the status of the detector.
@@ -51,7 +51,7 @@ protected:
 	CustomizeRegionsOfInterest *customize_;
 	/// The pointer to the xrf free run model.
 	XRFFreeRun *xrfFreeRun_;
-	/// The pointer to the workflow.
+	/// The pointer to the workflow.neh
 	AMWorkflowManagerView *workflow_;
 
 	/// The start button.

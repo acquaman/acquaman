@@ -58,11 +58,11 @@ XRFFreeRunView::XRFFreeRunView(XRFFreeRun *xrfFreeRun, AMWorkflowManagerView *wo
 	connect(sortButton, SIGNAL(clicked()), view_, SLOT(sortRegionsOfInterest()));
 
 	// Customize the regions of interest.
-	customize_ = new CustomizeRegionsOfInterest(detector_->roiList(), this);
+	//customize_ = new CustomizeRegionsOfInterest(detector_->roiList(), this);
 	QPushButton *configureButton = new QPushButton(QIcon(":/configure.png"), "Edit ROIs");
 
 	QScrollArea *scroll = new QScrollArea;
-	scroll->setWidget(customize_);
+	//scroll->setWidget(customize_);
 	scroll->setMinimumWidth(480);
 
 	connect(configureButton, SIGNAL(clicked()), scroll, SLOT(show()));
