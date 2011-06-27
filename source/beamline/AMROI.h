@@ -14,14 +14,8 @@ class AMROI : public QObject
 {
 	Q_OBJECT
 public:
-	/// Constructor.  Used for single element detectors. All PV's provided to this class MUST be valid.
-	explicit AMROI(QString name, double energy, double width, double scale, AMProcessVariable *namePV, AMProcessVariable *lowPV, AMProcessVariable *highPV, AMProcessVariable *valuePV, QObject *parent = 0);
-	/// Constructor.  Used for single element detectors using an AMROIInfo.  All PVs provided must be valid.
-	explicit AMROI(AMROIInfo info, AMProcessVariable *namePV, AMProcessVariable *lowPV, AMProcessVariable *highPV, AMProcessVariable *valuePV, QObject *parent = 0);
-	/// Constructor.  Used for n > 1 element detectors.  All PVs provided must be valid.
-	explicit AMROI(QString name, double energy, double width, double scale, QList<AMProcessVariable *> namePVs, QList<AMProcessVariable *> lowPVs, QList<AMProcessVariable *> highPVs, QList<AMProcessVariable *> valuePVs, QObject *parent = 0);
-	/// Constructor.  Used for n > 1 element detectors.  All PVs provided must be valid.
-	explicit AMROI(AMROIInfo info, QList<AMProcessVariable *> namePVs, QList<AMProcessVariable *> lowPVs, QList<AMProcessVariable *> highPVs, QList<AMProcessVariable *> valuePVs, QObject *parent = 0);
+	/// Constructor.  Takes a base name, number of elements, the region to be added and creates all the PVs.
+	explicit AMROI(QString baseName, int elements, int number, QObject *parent = 0);
 
 	/// Takes an AMROIInfo and sets the AMROI to match it.
 	void fromInfo(const AMROIInfo &info);
@@ -46,32 +40,13 @@ public:
 	/// Returns whether the entire region of interest has values.
 	bool hasValues() const { return hasValues_; }
 
-	/// Sets the name PVs using the given QList of AMProcessVariables.
-	void setNamePVs(QList<AMProcessVariable *> namePVs);
-	/// Convenience function for single element detectors.
-	void setNamePV(AMProcessVariable *namePV);
-	/// Sets the lower bound PVs using the given QList of AMProcessVariables.
-	void setLowerBoundPVs(QList<AMProcessVariable *> lowPVs);
-	/// Convenience function for single element detectors.
-	void setLowerBoundPV(AMProcessVariable *lowPV);
-	/// Sets the higher bound PVs using the given QList of AMProcessVariables.
-	void setHigherBoundPVs(QList<AMProcessVariable *> highPVs);
-	/// Convenience function for single element detectors.
-	void setHigherBoundPV(AMProcessVariable *highPV);
-	/// Sets the value PVs using the given QList of AMProcessVariables.
-	void setValuePVs(QList<AMProcessVariable *> valuePVs);
-	/// Convenience function for single element detectors.
-	void setValuePV(AMProcessVariable *valuePV);
-	/// Sets all the PVs for the region of interest.
-	void setAllPVs(QList<AMProcessVariable *> namePVs, QList<AMProcessVariable *> lowPVs, QList<AMProcessVariable *> highPVs, QList<AMProcessVariable *> valuePVs);
-	/// Overloaded convenience function for single element detectors.
-	void setAllPVs(AMProcessVariable *namePV, AMProcessVariable *lowPV, AMProcessVariable *highPV, AMProcessVariable *valuePV);
-
 signals:
 	/// Signal emitted when the ROIs connected status changes.  This is only true if ALL PVs are connected.
 	void roiConnected(bool);
 	/// Signal emitted with a status indicator of whether or not all the process variables have values in them.
 	void roiHasValues();
+	/// Notifier that the scale has changed.
+	void scalerChanged(double);
 	/// Signal emitting that the name PV has changed.
 	void nameUpdate(QString);
 	/// Signal emitting that the low PV has changed.
@@ -80,8 +55,6 @@ signals:
 	void highUpdate(int);
 	/// Signal emitting the new value of the ROI.
 	void valueUpdate(double);
-	/// General update signal.  Emitted when either nameUpdate, lowUpdate, highUpdate is emitted.  Passes a pointer to itself.
-	void roiUpdate(AMROI *);
 
 public slots:
 	/// Sets the name of the ROI and passes it to all PV's.
@@ -89,7 +62,7 @@ public slots:
 	/// Sets the energy of the ROI.
 	void setEnergy(double energy) { energy_ = energy; }
 	/// Sets the scaling factor for the region of interest.
-	void setScale(double scale) { scale_ = scale; }
+	void setScale(double scale) { scale_ = scale; emit scalerChanged(scale); }
 	/// Explicitly changes the low bound for the ROI and all the PV's.  Does not affect the energy or the width in any way.
 	void setLow(int low);
 	/// Overloaded function.  Sets the lower bound of the ROI based on a energy and uses the scaling factor to compute the channel number.  Sets the new value to all PV's and does not affect the energy or width in any way.
@@ -117,7 +90,6 @@ protected slots:
 
 			name_ = name;
 			emit nameUpdate(name);
-			emit roiUpdate(this);
 		}
 	}
 	/// Updates the ROI if changes were made to the lower bound outside of the program.
@@ -127,7 +99,6 @@ protected slots:
 
 			low_ = low;
 			emit lowUpdate(low);
-			emit roiUpdate(this);
 		}
 	}
 	/// Updates the ROI if changes were made to the higher bound outside of the program.
@@ -137,7 +108,6 @@ protected slots:
 
 			high_ = high;
 			emit highUpdate(high);
-			emit roiUpdate(this);
 		}
 	}
 	/// Used to determine if the entire region of interest is connected or not.
@@ -146,6 +116,8 @@ protected slots:
 	void onHasValuesChanged();
 
 protected:
+	/// Takes the names and creates all the PVs.
+	void buildAllPVs(QString baseName, int elements, int number);
 
 	/// The name of the particular region of interest.
 	QString name_;

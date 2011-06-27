@@ -46,6 +46,8 @@ private slots:
 	}
 	/// Handles when an ROI is initialized.
 	void onRoiInialized() { nameUpdate(roi_->name()); }
+	/// Handles changes in the scale.
+	void onScalerChanged(double val) { low_->setSingleStep(val); high_->setSingleStep(val); }
 
 private:
 	// The label.

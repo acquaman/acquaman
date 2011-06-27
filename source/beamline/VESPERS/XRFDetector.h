@@ -74,6 +74,10 @@ public:
 	QVector<int> spectraValues(int index);
 	/// Takes the current value of the dead time from \c index.
 	double deadTimeAt(int index);
+	/// Takes the current value of the input count rate from \c index.
+	double inputCountRate(int index) { return icrDataSource(index)->value(AMnDIndex()); }
+	/// Takes the current value of the output count rate from \c index.
+	double outputCountRate(int index) { return ocrDataSource(index)->value(AMnDIndex()); }
 
 	/// Enables a previously disabled element.  Takes the \param id as an index of the list of elements.
 	void enableElement(int id);
@@ -174,8 +178,6 @@ signals:
 	void deadTimeChanged();
 	/// Signal used to say that the regions of interest now have their original values in them after being connected to.
 	void roisHaveValues();
-	/// Notifier that the contents of an ROI has changed.  It passes a pointer to the particular ROI that has been changed.
-	void roiUpdate(AMROI *);
 	/// Notifier that a region of interest has been added.  Passes the region of interest information.
 	void addedRegionOfInterest(AMROIInfo);
 	/// Notifier that a region of interest has been removed.  Passes the region of interest information.

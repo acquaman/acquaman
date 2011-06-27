@@ -97,39 +97,14 @@ XRFDetector::~XRFDetector()
 
 void XRFDetector::createROIList(QString baseName)
 {
-	AMProcessVariable *namePV;
-	AMProcessVariable *lowPV;
-	AMProcessVariable *highPV;
-	AMProcessVariable *valPV;
+	AMROI *roi;
 
-	QList<AMProcessVariable *> names;
-	QList<AMProcessVariable *> lows;
-	QList<AMProcessVariable *> highs;
-	QList<AMProcessVariable *> vals;
+	for (int i = 0; i < 32; i++){
 
-	for (int j = 0; j < 32; j++){
-
-		for (int i = 0; i < elements_; i++){
-
-			namePV = new AMProcessVariable(baseName+":mca"+QString::number(i+1)+".R"+QString::number(j)+"NM", true, this);
-			lowPV = new AMProcessVariable(baseName+":mca"+QString::number(i+1)+".R"+QString::number(j)+"LO", true, this);
-			highPV = new AMProcessVariable(baseName+":mca"+QString::number(i+1)+".R"+QString::number(j)+"HI", true, this);
-			valPV = new AMProcessVariable(baseName+":mca"+QString::number(i+1)+".R"+QString::number(j), true, this);
-
-			namePV->disablePutCallbackMode(true);
-			lowPV->disablePutCallbackMode(true);
-			highPV->disablePutCallbackMode(true);
-			valPV->disablePutCallbackMode(true);
-
-			names << namePV;
-			lows << lowPV;
-			highs << highPV;
-			vals << valPV;
-		}
-
-		roiList_ << new AMROI(QString(), -1, -1, 10, names, lows, highs, vals);
-		connect(roiList_.at(j), SIGNAL(roiConnected(bool)), this, SLOT(isDetectorConnected()));
-		connect(roiList_.at(j), SIGNAL(roiHasValues()), this, SLOT(allRoisHaveValues()));
+		roi = new AMROI(baseName, elements_, i, this);
+		roi->setScale(scale());
+		roiList_ << roi;
+		connect(roi, SIGNAL(roiHasValues()), this, SLOT(allRoisHaveValues()));
 	}
 }
 
@@ -158,6 +133,9 @@ void XRFDetector::setChannelSize()
 	setSize(AMnDIndex(spectraPV_.first()->count()));
 	for (int i = 0; i < spectrumDataSources_.size(); i++)
 		spectrumDataSources_.at(i)->setScale(scale());
+
+	for (int i = 0; i < roiList_.size(); i++)
+		roiList_.at(i)->setScale(scale());
 
 	// Don't need to come here again because the size of the detector is static.
 	disconnect(spectraPV_.first(), SIGNAL(valueChanged()), this, SLOT(setChannelSize()));
@@ -200,9 +178,6 @@ void XRFDetector::isDetectorConnected()
 	wasConnected_ = detectorConnected_;
 
 	bool connected = true;
-
-	for (int i = 0; i < roiList().size(); i++)
-		connected = connected && roiList().at(i)->isConnected();
 
 	for (int i = 0; i < elements_; i++){
 
@@ -253,8 +228,6 @@ void XRFDetector::onConnectedChanged(bool isConnected)
 		disconnect(icrPV_.first(), SIGNAL(valueChanged()), this, SIGNAL(deadTimeChanged()));
 		disconnect(ocrPV_.first(), SIGNAL(valueChanged()), this, SIGNAL(deadTimeChanged()));
 	}
-
-	allRoisHaveValues();
 }
 
 void XRFDetector::allRoisHaveValues()
@@ -264,23 +237,13 @@ void XRFDetector::allRoisHaveValues()
 	for (int i = 0; i < roiList().size(); i++)
 		hasValues = hasValues && roiList().at(i)->hasValues();
 
-	if (hasValues)
-		emit roisHaveValues();
-
 	if (hasValues){
 
-		for (int i = 0; i < roiList_.size(); i++)
-			connect(roiList_.at(i), SIGNAL(roiUpdate(AMROI*)), this, SIGNAL(roiUpdate(AMROI*)));
-
+		emit roisHaveValues();
 		timer_.start();
 	}
-	else{
-
-		for (int i = 0; i < roiList_.size(); i++)
-			disconnect(roiList_.at(i), SIGNAL(roiUpdate(AMROI*)), this, SIGNAL(roiUpdate(AMROI*)));
-
+	else
 		timer_.stop();
-	}
 }
 
 void XRFDetector::onUpdateTimer()
@@ -323,7 +286,7 @@ bool XRFDetector::addRegionOfInterest(XRFElement *el, QString line)
 	AMROIInfo roi(el->lineEnergy(line), 0.04, scale(), el->symbol()+" "+GeneralUtilities::removeGreek(line));
 
 	// Appending to the list means that the old size of the Info list is where the new values should be set in the ROI list.
-	roiList().at(roiInfoList()->count())->fromInfo(roi);
+	roiList_.at(roiInfoList()->count())->fromInfo(roi);
 	roiInfoList()->append(roi);
 	setROIList(*roiInfoList());
 	emit addedRegionOfInterest(roi);
@@ -341,11 +304,10 @@ bool XRFDetector::removeRegionOfInterest(XRFElement *el, QString line)
 	// Slides all ROIs, after the removed ROI, down one place.
 	for (int i = indexOfRemoved; i < roiInfoList()->count(); i++){
 
-		if (i+1 == roiInfoList()->count()){
-			roiList().at(i)->setRegion("", -1, -1);
-		}
+		if (i+1 == roiInfoList()->count())
+			roiList_.at(i)->setRegion("", -1, -1);
 		else
-			roiList().at(i)->fromInfo(roiInfoList()->at(i+1));
+			roiList_.at(i)->fromInfo(roiInfoList()->at(i+1));
 	}
 
 	emit removedRegionOfInterest(roiInfoList()->at(indexOfRemoved));
@@ -361,13 +323,13 @@ void XRFDetector::sort()
 	setROIList(*roiInfoList());
 
 	for (int i = 0; i < roiInfoList()->count(); i++)
-		roiList().at(i)->fromInfo(roiInfoList()->at(i));
+		roiList_.at(i)->fromInfo(roiInfoList()->at(i));
 }
 
 void XRFDetector::clearRegionsOfInterest()
 {
 	for (int i = 0; i < roiList().count(); i++)
-		roiList().at(i)->setRegion("", -1, -1);
+		roiList_.at(i)->setRegion("", -1, -1);
 
 	roiInfoList()->clear();
 	setROIList(*roiInfoList());

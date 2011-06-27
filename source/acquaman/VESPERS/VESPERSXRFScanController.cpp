@@ -27,32 +27,34 @@ VESPERSXRFScanController::VESPERSXRFScanController(VESPERSXRFScanConfiguration *
 	scan_->setFileFormat("vespersXRF");
 	scan_->setRunId(AMUser::user()->currentRunId());
 
-	for (int i = 0; i < detector_->elements(); i++){
+	int elements = detector_->elements();
+
+	for (int i = 0; i < elements; i++){
 
 		scan_->rawData()->addMeasurement(AMMeasurementInfo(QString("raw%1").arg(i+1), QString("Element %1").arg(i+1), "eV", detector_->axes()));
 		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), i));
 	}
 
-	for (int i = 0; i < detector_->elements(); i++){
+	for (int i = 0; i < elements; i++){
 
 		scan_->rawData()->addMeasurement(AMMeasurementInfo(QString("icr%1").arg(i+1), QString("Input count rate %1").arg(i+1), "%", QList<AMAxisInfo>()));
-		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), i+detector_->elements()));
+		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), i+elements));
 	}
 
-	for (int i = 0; i < detector_->elements(); i++){
+	for (int i = 0; i < elements; i++){
 
 		scan_->rawData()->addMeasurement(AMMeasurementInfo(QString("ocr%1").arg(i+1), QString("Output count rate %1").arg(i+1), "%", QList<AMAxisInfo>()));
-		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), i+2*detector_->elements()));
+		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), i+2*elements));
 	}
 
-	for (int i = 0; i < detector_->elements(); i++){
+	for (int i = 0; i < elements; i++){
 
 		AMDeadTimeAB *temp = new AMDeadTimeAB(QString("Corrected %1").arg(i+1));
-		temp->setInputDataSourcesImplementation(QList<AMDataSource *>() << scan_->rawDataSources()->at(i) << scan_->rawDataSources()->at(i+detector_->elements()) << scan_->rawDataSources()->at(i+2*detector_->elements()));
+		temp->setInputDataSourcesImplementation(QList<AMDataSource *>() << scan_->rawDataSources()->at(i) << scan_->rawDataSources()->at(i+elements) << scan_->rawDataSources()->at(i+2*elements));
 		scan_->addAnalyzedDataSource(temp);
 	}
 
-	if (detector_->elements() > 1){
+	if (elements > 1){
 
 		AM1DSummingAB *corr = new AM1DSummingAB("Corrected Sum");
 		QList<AMDataSource *> list;
@@ -95,7 +97,8 @@ void VESPERSXRFScanController::onDetectorAcquisitionFinished()
 
 		QVector<int> currSpectra(detector_->spectraValues(i));
 		scan_->rawData()->setValue(AMnDIndex(), i, currSpectra.constData(), detector_->channels());
-		scan_->rawData()->setValue(AMnDIndex(), i+detector_->elements(), AMnDIndex(), detector_->deadTimeAt(i));
+		scan_->rawData()->setValue(AMnDIndex(), i+detector_->elements(), AMnDIndex(), detector_->inputCountRate(i));
+		scan_->rawData()->setValue(AMnDIndex(), i+2*detector_->elements(), AMnDIndex(), detector_->outputCountRate(i));
 	}
 
 	if(scan()->database())

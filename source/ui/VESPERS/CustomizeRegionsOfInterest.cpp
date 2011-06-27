@@ -34,6 +34,8 @@ RegionOfInterestView::RegionOfInterestView(AMROI *roi, QWidget *parent)
 	connect(high_, SIGNAL(valueChanged(double)), this, SLOT(setRoiHigh(double)));
 	connect(roi, SIGNAL(highUpdate(int)), this, SLOT(onHighUpdate(int)));
 
+	connect(roi, SIGNAL(scalerChanged(double)), this, SLOT(onScalerChanged(double)));
+
 	QLabel *value = new QLabel;
 	connect(roi, SIGNAL(valueUpdate(double)), value, SLOT(setNum(double)));
 
