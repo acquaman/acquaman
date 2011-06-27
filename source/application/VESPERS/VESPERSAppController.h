@@ -3,7 +3,7 @@
 
 #include "application/AMAppController.h"
 
-class VESPERSBeamlineView;
+class VESPERSEndstationView;
 class AMFreeRunScanConfigurationViewHolder;
 class VESPERSXRFScanConfigurationView;
 class VESPERSPersistentView;
@@ -29,7 +29,7 @@ protected slots:
 
 protected:
 	/// This contains the general endstation view.
-	VESPERSBeamlineView *vespersView_;
+	VESPERSEndstationView *endstationView_;
 	/// This is the top bar, which is persistent in the application regardless of what is currently active.
 	VESPERSPersistentView *persistentView_;
 	/// This is a holder for the VESPERSXRFScanConfigurationView for the single element detector.

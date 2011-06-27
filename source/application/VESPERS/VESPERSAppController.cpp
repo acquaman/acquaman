@@ -1,7 +1,7 @@
 #include "VESPERSAppController.h"
 
 #include "beamline/VESPERS/VESPERSBeamline.h"
-#include "ui/VESPERS/VESPERSBeamlineView.h"
+#include "ui/VESPERS/VESPERSEndstationView.h"
 #include "ui/AMMainWindow.h"
 #include "ui/AMStartScreen.h"
 
@@ -82,11 +82,11 @@ bool VESPERSAppController::startup() {
 		// Create panes in the main window:
 		////////////////////////////////////
 
-		vespersView_ = new VESPERSBeamlineView;
+		endstationView_ = new VESPERSEndstationView;
 		//VESPERSDeviceStatusView *statusPage = new VESPERSDeviceStatusView;
 
 		mw_->insertHeading("Beamline Control", 0);
-		mw_->addPane(vespersView_, "Beamline Control", "Endstation", ":/system-software-update.png");
+		mw_->addPane(endstationView_, "Beamline Control", "Endstation", ":/system-software-update.png");
 		//mw_->addPane(statusPage, "Beamline Control", "Device Status", ":/system-software-update.png");
 
 		xrf1EConfigView_ = new VESPERSXRFScanConfigurationView(new VESPERSXRFScanConfiguration(VESPERSBeamline::vespers()->vortexXRF1E()));
@@ -109,7 +109,7 @@ bool VESPERSAppController::startup() {
 		persistentView_ = new VESPERSPersistentView;
 		mw_->addRightWidget(persistentView_);
 
-		mw_->setCurrentPane(vespersView_);
+		mw_->setCurrentPane(endstationView_);
 
 		/// THIS IS HERE TO PASS ALONG THE INFORMATION TO THE SUM AND CORRECTEDSUM PVS IN THE FOUR ELEMENT DETECTOR.
 		ROIHelper *helper = new ROIHelper;
