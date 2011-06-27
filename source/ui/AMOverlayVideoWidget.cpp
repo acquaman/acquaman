@@ -9,6 +9,7 @@
 AMOverlayVideoWidget::AMOverlayVideoWidget(QWidget *parent, bool useOpenGlViewport) :
 	QGraphicsView(parent)
 {
+	setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
 	if(useOpenGlViewport) {
 		setViewport(new QGLWidget(QGLFormat(QGL::SampleBuffers)));
@@ -17,6 +18,7 @@ AMOverlayVideoWidget::AMOverlayVideoWidget(QWidget *parent, bool useOpenGlViewpo
 	}
 
 	setScene(new QGraphicsScene());
+	scene()->setBackgroundBrush(QBrush(QColor(50,50,50)));
 
 	videoItem_ = new QGraphicsVideoItem();
 	mediaPlayer_ = new QMediaPlayer();

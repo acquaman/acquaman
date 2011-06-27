@@ -8,4 +8,5 @@ SUBDIRS +=	REIXSAcquaman.pro \
 	BareBonesAcquaman.pro \
 	acquamanTest.pro \
 	VESPERSAcquaman.pro \
-	VESPERSDataman.pro
+	VESPERSDataman.pro \
+	AcquaCam.pro
