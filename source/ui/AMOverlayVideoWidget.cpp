@@ -27,7 +27,8 @@ AMOverlayVideoWidget::AMOverlayVideoWidget(QWidget *parent, bool useOpenGlViewpo
 	mediaPlayer_->setVideoOutput(videoWidget_);
 
 	//scene()->addItem(videoItem_);
-	scene()->addWidget(videoWidget_);
+	// scene()->addWidget(videoWidget_);
+	videoWidget_->show();
 	resize(size());
 
 	// Widgets on top!
