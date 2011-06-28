@@ -29,23 +29,30 @@ void AMROI::buildAllPVs(QString baseName, int elements, int number)
 		highPV->disablePutCallbackMode(true);
 		valPV->disablePutCallbackMode(true);
 
-		connect(namePV, SIGNAL(valueChanged(QString)), this, SLOT(onNamePVChanged(QString)));
-		connect(namePV, SIGNAL(connected(bool)), this, SLOT(connected()));
 		connect(namePV, SIGNAL(hasValuesChanged(bool)), this, SLOT(onHasValuesChanged()));
-		connect(lowPV, SIGNAL(valueChanged(int)), this, SLOT(onLowPVChanged(int)));
-		connect(lowPV, SIGNAL(connected(bool)), this, SLOT(connected()));
 		connect(lowPV, SIGNAL(hasValuesChanged(bool)), this, SLOT(onHasValuesChanged()));
-		connect(highPV, SIGNAL(valueChanged(int)), this, SLOT(onHighPVChanged(int)));
-		connect(highPV, SIGNAL(connected(bool)), this, SLOT(connected()));
 		connect(highPV, SIGNAL(hasValuesChanged(bool)), this, SLOT(onHasValuesChanged()));
-		connect(valPV, SIGNAL(valueChanged()), this, SLOT(updateValue()));
-		connect(valPV, SIGNAL(connected(bool)), this, SLOT(connected()));
 		connect(valPV, SIGNAL(hasValuesChanged(bool)), this, SLOT(onHasValuesChanged()));
 
 		pvNames_ << namePV;
 		pvLowerBounds_ << lowPV;
 		pvHigherBounds_ << highPV;
 		pvValues_ << valPV;
+	}
+
+	connect(pvNames_.first(), SIGNAL(valueChanged(QString)), this, SLOT(onNamePVChanged(QString)));
+	connect(pvLowerBounds_.first(), SIGNAL(valueChanged(int)), this, SLOT(onLowPVChanged(int)));
+	connect(pvHigherBounds_.first(), SIGNAL(valueChanged(int)), this, SLOT(onHighPVChanged(int)));
+	connect(pvValues_.first(), SIGNAL(valueChanged()), this, SLOT(updateValue()));
+
+	if (elements > 1){
+
+		for (int i = 1; i < elements; i++){
+
+			connect(pvNames_.first(), SIGNAL(valueChanged(QString)), pvNames_.at(i), SLOT(setValue(QString)));
+			connect(pvLowerBounds_.first(), SIGNAL(valueChanged(int)), pvLowerBounds_.at(i), SLOT(setValue(int)));
+			connect(pvHigherBounds_.first(), SIGNAL(valueChanged(int)), pvHigherBounds_.at(i), SLOT(setValue(int)));
+		}
 	}
 }
 
@@ -73,18 +80,16 @@ void AMROI::setName(QString name)
 {
 	name_ = name;
 
-	for (int i = 0; i < pvNames_.size(); i++)
-		if (pvNames_.at(i)->hasValues())
-			pvNames_.at(i)->setValue(name);
+	if (pvNames_.first()->hasValues())
+		pvNames_.first()->setValue(name);
 }
 
 void AMROI::setLow(int low)
 {
 	low_ = low;
 
-	for (int i = 0; i < pvLowerBounds_.size(); i++)
-		if (pvLowerBounds_.at(i)->hasValues())
-			pvLowerBounds_.at(i)->setValue(low);
+	if (pvLowerBounds_.first()->hasValues())
+		pvLowerBounds_.first()->setValue(low);
 }
 
 void AMROI::setLow(double low)
@@ -97,9 +102,8 @@ void AMROI::setHigh(int high)
 {
 	high_ = high;
 
-	for (int i = 0; i < pvHigherBounds_.size(); i++)
-		if (pvHigherBounds_.at(i)->hasValues())
-			pvHigherBounds_.at(i)->setValue(high);
+	if (pvHigherBounds_.first()->hasValues())
+		pvHigherBounds_.first()->setValue(high);
 }
 
 void AMROI::setHigh(double high)
@@ -148,26 +152,6 @@ void AMROI::updateValue()
 			value_ = value;
 			emit valueUpdate(value_);
 		}
-	}
-}
-
-void AMROI::connected()
-{
-	bool connected = true;
-
-	for (int i = 0; i < pvNames_.size(); i++)
-		connected = connected && pvNames_.at(i)->isConnected();
-	for (int i = 0; i < pvLowerBounds_.size(); i++)
-		connected = connected && pvLowerBounds_.at(i)->isConnected();
-	for (int i = 0; i < pvHigherBounds_.size(); i++)
-		connected = connected && pvHigherBounds_.at(i)->isConnected();
-	for (int i = 0; i < pvValues_.size(); i++)
-		connected = connected && pvValues_.at(i)->isConnected();
-
-	if (connected != connected_){
-
-		connected_ = connected;
-		emit roiConnected(connected_);
 	}
 }
 

@@ -10,7 +10,7 @@ XRFDetector::XRFDetector(QString name, int elements, QString baseName, QObject *
 	wasConnected_ = false;
 	detectorConnected_ = false;
 	timer_.setInterval(6000);
-	connect(&timer_, SIGNAL(timeout()), this, SLOT(onUpdateTimer()));
+	//connect(&timer_, SIGNAL(timeout()), this, SLOT(onUpdateTimer()));
 
 	for (int i = 0; i < elements; i++){
 

@@ -41,8 +41,6 @@ public:
 	bool hasValues() const { return hasValues_; }
 
 signals:
-	/// Signal emitted when the ROIs connected status changes.  This is only true if ALL PVs are connected.
-	void roiConnected(bool);
 	/// Signal emitted with a status indicator of whether or not all the process variables have values in them.
 	void roiHasValues();
 	/// Notifier that the scale has changed.
@@ -110,8 +108,6 @@ protected slots:
 			emit highUpdate(high);
 		}
 	}
-	/// Used to determine if the entire region of interest is connected or not.
-	void connected();
 	/// Used to determine if all of the process variables have values in them or not.
 	void onHasValuesChanged();
 
