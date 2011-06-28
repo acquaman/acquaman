@@ -4,6 +4,7 @@
 #include <QGLWidget>
 
 #include <QGraphicsVideoItem>
+#include <QVideoWidget>
 
 
 AMOverlayVideoWidget::AMOverlayVideoWidget(QWidget *parent, bool useOpenGlViewport) :
@@ -20,11 +21,13 @@ AMOverlayVideoWidget::AMOverlayVideoWidget(QWidget *parent, bool useOpenGlViewpo
 	setScene(new QGraphicsScene());
 	scene()->setBackgroundBrush(QBrush(QColor(50,50,50)));
 
-	videoItem_ = new QGraphicsVideoItem();
+	// videoItem_ = new QGraphicsVideoItem();
+	videoWidget_ = new QVideoWidget();
 	mediaPlayer_ = new QMediaPlayer();
-	mediaPlayer_->setVideoOutput(videoItem_);
+	mediaPlayer_->setVideoOutput(videoWidget_);
 
-	scene()->addItem(videoItem_);
+	//scene()->addItem(videoItem_);
+	scene()->addWidget(videoWidget_);
 	resize(size());
 
 	// Widgets on top!
@@ -42,7 +45,8 @@ AMOverlayVideoWidget::~AMOverlayVideoWidget() {
   */
 	mediaPlayer_->setMedia(QMediaContent());
 
-	delete videoItem_;
+	//delete videoItem_;
+	delete videoWidget_;
 	delete mediaPlayer_;
 }
 
@@ -50,7 +54,8 @@ void AMOverlayVideoWidget::resizeEvent(QResizeEvent *event)
 {
 	if (scene()) {
 		scene()->setSceneRect(QRect(QPoint(0, 0), event->size()));
-		videoItem_->setSize(event->size());
+		//videoWidget_->setSize(event->size());
+		videoWidget_->setGeometry(QRect(QPoint(0,0), event->size()));
 	}
 	QGraphicsView::resizeEvent(event);
 }

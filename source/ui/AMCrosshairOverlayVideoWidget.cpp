@@ -20,7 +20,7 @@ AMCrosshairOverlayVideoWidget::AMCrosshairOverlayVideoWidget(QWidget *parent, bo
 
 	doubleClickInProgress_ = false;
 
-	connect(videoItem_, SIGNAL(nativeSizeChanged(QSizeF)), this, SLOT(reviewCrosshairLinePositions()));
+//	connect(videoItem_, SIGNAL(nativeSizeChanged(QSizeF)), this, SLOT(reviewCrosshairLinePositions()));
 
 	// Leave this up to user-programmers to decide if they want to move the crosshair with a double-click:
 	// connect(this, SIGNAL(mouseDoubleClicked(QPointF)), this, SLOT(setCrosshairPosition(QPointF)));
@@ -30,13 +30,14 @@ AMCrosshairOverlayVideoWidget::AMCrosshairOverlayVideoWidget(QWidget *parent, bo
 void AMCrosshairOverlayVideoWidget::reviewCrosshairLinePositions()
 {
 
-	QSizeF viewSize = videoItem_->size();
+	QSizeF viewSize = videoWidget_->size();
 	// first we need to find out the native size of the video. (Well, actually just the aspect ratio, but...)
-	QSizeF videoSize = videoItem_->nativeSize();
+	QSizeF videoSize = videoWidget_->sizeHint();
+	//QSizeF videoSize = videoItem_->nativeSize();
 
 	// scale the video size to the view size, obeying the transformation mode
 	QSizeF scaledSize = videoSize;
-	scaledSize.scale(viewSize, videoItem_->aspectRatioMode());
+	scaledSize.scale(viewSize, videoWidget_->aspectRatioMode());
 
 	// now, scaledSize will either be:
 		// same as viewSize, if view and video have same aspect ratio, or the video is being stretched with Qt::IgnoreAspectRatio
@@ -121,9 +122,9 @@ void AMCrosshairOverlayVideoWidget::mouseDoubleClickEvent(QMouseEvent *e)
 QPointF AMCrosshairOverlayVideoWidget::mapSceneToVideo(const QPointF &sceneCoordinate) const
 {
 	// for more comments, see the more verbose implementation in reviewCrosshairLinePostions()
-	QSizeF viewSize = videoItem_->size();
-	QSizeF scaledSize = videoItem_->nativeSize();
-	scaledSize.scale(viewSize, videoItem_->aspectRatioMode());
+	QSizeF viewSize = videoWidget_->size();
+	QSizeF scaledSize = videoWidget_->sizeHint();
+	scaledSize.scale(viewSize, videoWidget_->aspectRatioMode());
 
 	QRectF activeRect = QRectF(QPointF((viewSize.width()-scaledSize.width())/2,
 									   (viewSize.height()-scaledSize.height())/2),
