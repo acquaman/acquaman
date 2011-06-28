@@ -9,7 +9,7 @@
 #include "ui/AMCrosshairOverlayVideoWidget.h"
 #include "ui/AMColorPickerButton.h"
 
-AMBeamlineCameraBrowser::AMBeamlineCameraBrowser(QWidget *parent) :
+AMBeamlineCameraBrowser::AMBeamlineCameraBrowser(QWidget *parent, bool useOpenGlViewport) :
 	QWidget(parent)
 {
 	crosshairLocked_ = false;
@@ -23,7 +23,6 @@ AMBeamlineCameraBrowser::AMBeamlineCameraBrowser(QWidget *parent) :
 	vl->setContentsMargins(0,0,0,0);
 
 	QFrame* crosshairFrame = new QFrame();
-	// crosshairFrame->setFrameStyle(QFrame::StyledPanel);
 	QHBoxLayout* chl = new QHBoxLayout();
 	chl->setContentsMargins(12,4,12,4);
 	chl->addWidget(showCrosshairCheckBox_ = new QCheckBox("Crosshair:"));
@@ -38,7 +37,6 @@ AMBeamlineCameraBrowser::AMBeamlineCameraBrowser(QWidget *parent) :
 
 
 	QFrame* sourceFrame = new QFrame();
-	// sourceFrame->setFrameStyle(QFrame::StyledPanel);
 	QHBoxLayout* shl = new QHBoxLayout();
 	shl->setContentsMargins(12,4,12,4);
 	shl->addWidget(new QLabel("Video URL:"), 0);
@@ -47,7 +45,7 @@ AMBeamlineCameraBrowser::AMBeamlineCameraBrowser(QWidget *parent) :
 	sourceFrame->setLayout(shl);
 
 	vl->addWidget(crosshairFrame);
-	vl->addWidget(videoWidget_ = new AMCrosshairOverlayVideoWidget());
+	vl->addWidget(videoWidget_ = new AMCrosshairOverlayVideoWidget(0, useOpenGlViewport));
 	vl->addWidget(sourceFrame, 0);
 	setLayout(vl);
 

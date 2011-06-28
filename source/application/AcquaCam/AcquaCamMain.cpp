@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
 	app.setApplicationName("AcquaCam");
 
 
-	AMBeamlineCameraBrowser* camBrowser = new AMBeamlineCameraBrowser();
+	AMBeamlineCameraBrowser* camBrowser = new AMBeamlineCameraBrowser(0, false);
 	camBrowser->show();
 
 	/// Program Run-loop:

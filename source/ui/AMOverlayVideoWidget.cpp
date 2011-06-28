@@ -12,8 +12,8 @@ AMOverlayVideoWidget::AMOverlayVideoWidget(QWidget *parent, bool useOpenGlViewpo
 	setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
 	if(useOpenGlViewport) {
+		// setViewport(new QGLWidget());
 		setViewport(new QGLWidget(QGLFormat(QGL::SampleBuffers)));
-		//or: setViewport(new QGLWidget());
 		setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
 	}
 

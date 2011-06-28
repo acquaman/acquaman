@@ -12,7 +12,7 @@ class AMBeamlineCameraBrowser : public QWidget
 {
 	Q_OBJECT
 public:
-	explicit AMBeamlineCameraBrowser(QWidget *parent = 0);
+	explicit AMBeamlineCameraBrowser(QWidget *parent = 0, bool useOpenGlViewport = true);
 
 signals:
 
