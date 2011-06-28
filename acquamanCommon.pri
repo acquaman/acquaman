@@ -3,6 +3,9 @@
 # Note: Set EPICS_INCLUDE_DIRS, EPICS_LIB_DIR, VLC_*, and GSL_* correctly for platform
 # ####################################################################
 
+# Video Support: Remove this line if you do not have the multimedia module from QtMobility
+CONFIG += mobility
+
 # Automatically determines a user's home folder
 HOME_FOLDER = $$system(echo $HOME)
 
@@ -80,9 +83,10 @@ linux-g++-64 {
 
 QT += core gui sql opengl
 
-# video using Multimedia module from QtMobility
-CONFIG += mobility
-MOBILITY += multimedia
+# video using Multimedia module from QtMobility, if we have it
+CONFIG(mobility) {
+	MOBILITY += multimedia
+}
 
 DESTDIR = build
 DEPENDPATH += . source
@@ -346,10 +350,13 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/dataman/AMProcessVariableDataSource.h \
 	source/ui/AMChooseScanDialog.h \
 	source/application/AMDatamanAppController.h \
-	source/ui/AMCrosshairOverlayVideoWidget.h \
-	source/ui/AMOverlayVideoWidget.h \
-	source/ui/AMBeamlineCameraBrowser.h \
 	source/ui/AMColorPickerButton.h
+
+CONFIG(mobility) {
+HEADERS +=	source/ui/AMCrosshairOverlayVideoWidget.h \
+	source/ui/AMOverlayVideoWidget.h \
+	source/ui/AMBeamlineCameraBrowser.h
+}
 
 FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
@@ -571,10 +578,13 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/dataman/AMProcessVariableDataSource.cpp \
 	source/ui/AMChooseScanDialog.cpp \
 	source/application/AMDatamanAppController.cpp \
-	source/ui/AMOverlayVideoWidget.cpp \
-	source/ui/AMCrosshairOverlayVideoWidget.cpp \
-	source/ui/AMBeamlineCameraBrowser.cpp \
 	source/ui/AMColorPickerButton.cpp
+
+CONFIG(mobility) {
+SOURCES +=	source/ui/AMOverlayVideoWidget.cpp \
+	source/ui/AMCrosshairOverlayVideoWidget.cpp \
+	source/ui/AMBeamlineCameraBrowser.cpp
+}
 
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc \
