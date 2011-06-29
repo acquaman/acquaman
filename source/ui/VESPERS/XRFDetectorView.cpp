@@ -1,6 +1,5 @@
 #include "XRFDetectorView.h"
 #include "DeadTimeButton.h"
-#include "acquaman/VESPERS/VESPERSXRFScanController.h"
 #include "MPlot/MPlotAxisScale.h"
 #include "dataman/AMDataSourceSeriesData.h"
 #include "util/AMPeriodicTable.h"

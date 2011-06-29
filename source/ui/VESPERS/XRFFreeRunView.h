@@ -21,7 +21,12 @@ public:
 
 protected slots:
 	/// Handles what happens when the start button is clicked.
-	void onStartClicked() { start_->setDisabled(true); detector_->setTime(integrationTime_->value()); /*workflow_->insertBeamlineAction(-1, new AMBeamlineScanAction(xrfFreeRun_->configuration()->createCopy()), true);*/ detector_->start(); }
+	void onStartClicked()
+	{
+		start_->setDisabled(true);
+		detector_->setTime(integrationTime_->value());
+		workflow_->insertBeamlineAction(-1, new AMBeamlineScanAction(xrfFreeRun_->configuration()->createCopy()), true);
+	}
 	/// Handles what happens when the stop button is clicked.
 	void onStopClicked();
 	/// Changes the disabled state of the start button based on the status of the detector.

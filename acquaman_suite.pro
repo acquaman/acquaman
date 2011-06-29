@@ -7,5 +7,5 @@ SUBDIRS +=	REIXSAcquaman.pro \
 	SGMAcquaman.pro \
 	BareBonesAcquaman.pro \
 	acquamanTest.pro \
-	VESPERSAcquaman.pro \
-	XRFSpectraViewer.pro
+	VESPERSAcquaman.pro #\
+	#XRFSpectraViewer.pro

@@ -101,11 +101,11 @@ void VESPERSXRFScanController::onDetectorAcquisitionFinished()
 		scan_->rawData()->setValue(AMnDIndex(), i+2*detector_->elements(), AMnDIndex(), detector_->outputCountRate(i));
 	}
 
-	if(scan()->database())
+	/*if(scan()->database())
 		scan()->storeToDb(scan()->database());
 	else
 		scan()->storeToDb(AMDatabase::userdb());
-	saveData();
+	saveData();*/
 
 	setFinished();
 }
