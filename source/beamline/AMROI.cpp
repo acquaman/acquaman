@@ -25,11 +25,6 @@ void AMROI::buildAllPVs(QString baseName, int elements, int number)
 			lowPV = new AMProcessVariable(baseName+":mca"+QString::number(i+1)+".R"+QString::number(number)+"LO", true, this);
 			highPV = new AMProcessVariable(baseName+":mca"+QString::number(i+1)+".R"+QString::number(number)+"HI", true, this);
 			valPV = new AMProcessVariable(baseName+":mca"+QString::number(i+1)+".R"+QString::number(number), true, this);
-
-			connect(namePV, SIGNAL(valueChanged(QString)), this, SIGNAL(nameUpdate(QString)));
-			connect(lowPV, SIGNAL(valueChanged(int)), this, SIGNAL(lowUpdate(int)));
-			connect(highPV, SIGNAL(valueChanged(int)), this, SIGNAL(highUpdate(int)));
-			connect(valPV, SIGNAL(valueChanged()), this, SLOT(updateValue()));
 		}
 		else{
 
@@ -37,16 +32,27 @@ void AMROI::buildAllPVs(QString baseName, int elements, int number)
 			lowPV = new AMProcessVariable(baseName+":mca"+QString::number(i+1)+".R"+QString::number(number)+"LO", false, this);
 			highPV = new AMProcessVariable(baseName+":mca"+QString::number(i+1)+".R"+QString::number(number)+"HI", false, this);
 			valPV = new AMProcessVariable(baseName+":mca"+QString::number(i+1)+".R"+QString::number(number), false, this);
-
-			connect(pvNames_.first(), SIGNAL(valueChanged(QString)), namePV, SLOT(setValue(QString)));
-			connect(pvLowerBounds_.first(), SIGNAL(valueChanged(int)), lowPV, SLOT(setValue(int)));
-			connect(pvHigherBounds_.first(), SIGNAL(valueChanged(int)), highPV, SLOT(setValue(int)));
 		}
 
 		namePV->disablePutCallbackMode(true);
 		lowPV->disablePutCallbackMode(true);
 		highPV->disablePutCallbackMode(true);
 		valPV->disablePutCallbackMode(true);
+
+		if (i == 0){
+
+			connect(namePV, SIGNAL(valueChanged(QString)), this, SIGNAL(nameUpdate(QString)));
+			connect(lowPV, SIGNAL(valueChanged(int)), this, SIGNAL(lowUpdate(int)));
+			connect(highPV, SIGNAL(valueChanged(int)), this, SIGNAL(highUpdate(int)));
+			connect(valPV, SIGNAL(valueChanged()), this, SLOT(updateValue()));
+		}
+
+		else{
+
+			connect(pvNames_.first(), SIGNAL(valueChanged(QString)), namePV, SLOT(setValue(QString)));
+			connect(pvLowerBounds_.first(), SIGNAL(valueChanged(int)), lowPV, SLOT(setValue(int)));
+			connect(pvHigherBounds_.first(), SIGNAL(valueChanged(int)), highPV, SLOT(setValue(int)));
+		}
 
 		connect(namePV, SIGNAL(hasValuesChanged(bool)), this, SLOT(onHasValuesChanged()));
 		connect(lowPV, SIGNAL(hasValuesChanged(bool)), this, SLOT(onHasValuesChanged()));

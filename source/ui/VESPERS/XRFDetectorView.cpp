@@ -570,6 +570,13 @@ void XRFDetailedDetectorView::onElapsedTimeUpdate(double time)
 	elapsedTime_->setText(QString::number(time, 'f', 2) + " s");
 }
 
+void XRFDetailedDetectorView::onExternalRegionsOfInterestChanged()
+{
+	removeAllRegionsOfInterestMarkers();
+	for (int i = 0; i < detector_->roiInfoList()->count(); i++)
+		addRegionOfInterestMarker(detector_->roiInfoList()->at(i));
+}
+
 #include <QFileDialog>
 #include <QTextStream>
 
@@ -596,27 +603,50 @@ void XRFDetailedDetectorView::saveSpectra()
 
 	QTextStream out(&file);
 
-	if (detector_->elements() == 1){
+	int elements = detector_->elements();
+	int detectorSize = detector_->size().i();
 
-		out << "eV\tData\n";
-		for (int i = 0; i < detector_->correctedSumDataSource()->size(0); i++)
-			out << double(detector_->correctedSumDataSource()->axisValue(0, i)) << "\t" << int(detector_->correctedSumDataSource()->value(AMnDIndex(i))) << "\n";
+	out << "Elapsed time:\t" << detector_->elapsedTime() << "s\n";
+
+	for (int i = 0; i < elements; i++){
+
+		out << QString("Input Count Rate %1\t").arg(i+1) << double(detector_->icrDataSource(i)->value(AMnDIndex())) << "\n";
+		out << QString("Output Count Rate %1\t").arg(i+1) << double(detector_->ocrDataSource(i)->value(AMnDIndex())) << "\n";
 	}
+
+	out << "Regions of Interest\n";
+	out << "Name\tLower Bound\tUpper Bound\tValue\n";
+	QList<AMROIInfo> rois(detector_->roiInfoList()->toList())
+			;
+	for (int i = 0; i < rois.size(); i++)
+		out << rois.at(i).name() << "\t" << rois.at(i).low() << "\t" << rois.at(i).high() << "\t" << detector_->roiList().at(i)->value() << "\n";
+
+	out << "Spectra\n";
+	out << "Order is raw element spectra then corrected element spectra then finally corrected sum spectrum.";
+
+	for (int i = 0; i < elements; i++)
+		out << QString("Raw %1\t").arg(i+1);
+	for (int i = 0; i < elements; i++)
+		out << QString("Corrected %1\t").arg(i+1);
+	if (elements > 1)
+		out << "Corrected Sum\n";
+
+	if (elements > 1)
+		for (int i = 0; i < detectorSize; i++)
+			out << int(detector_->spectrumDataSource(0)->value(i)) << "\t" << int(detector_->correctedDataSource(0)->value(i));
 	else{
 
-		out << "eV\traw1\traw2\traw3\traw4\tcorrected sum\n";
-		for (int i = 0; i < detector_->correctedSumDataSource()->size(0); i++)
-			out << double(detector_->spectrumDataSources().at(0)->axisValue(0, i)) << "\t" << int(detector_->spectrumDataSources().at(0)->value(AMnDIndex(i))) << "\t" << int(detector_->spectrumDataSources().at(1)->value(AMnDIndex(i))) << "\t" << int(detector_->spectrumDataSources().at(2)->value(AMnDIndex(i))) << "\t" << int(detector_->spectrumDataSources().at(3)->value(AMnDIndex(i))) << "\t" << int(detector_->correctedSumDataSource()->value(AMnDIndex(i))) << "\n";
+		for (int i = 0; i < detectorSize; i++){
+
+			for (int j = 0; j < elements; j++)
+				out << int(detector_->spectrumDataSource(j)->value(i)) << "\t";
+			for (int j = 0; j < elements; j++)
+				out << int(detector_->correctedDataSource(j)->value(i)) << "\t";
+			out << int(detector_->correctedSumDataSource()->value(i)) << "\n";
+		}
 	}
 
 	file.close();
-}
-
-void XRFDetailedDetectorView::onExternalRegionsOfInterestChanged()
-{
-	removeAllRegionsOfInterestMarkers();
-	for (int i = 0; i < detector_->roiInfoList()->count(); i++)
-		addRegionOfInterestMarker(detector_->roiInfoList()->at(i));
 }
 
 // End detailed detector view
