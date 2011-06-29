@@ -81,33 +81,6 @@ public slots:
 protected slots:
 	/// Used to compute the current value based on the current state of the PVs.
 	void updateValue();
-	/// Updates the ROI if changes were made to the name outside of the program.
-	void onNamePVChanged(QString name)
-	{
-		if (name_.compare(name) != 0){
-
-			name_ = name;
-			emit nameUpdate(name);
-		}
-	}
-	/// Updates the ROI if changes were made to the lower bound outside of the program.
-	void onLowPVChanged(int low)
-	{
-		if (low_ != low){
-
-			low_ = low;
-			emit lowUpdate(low);
-		}
-	}
-	/// Updates the ROI if changes were made to the higher bound outside of the program.
-	void onHighPVChanged(int high)
-	{
-		if (high_ != high){
-
-			high_ = high;
-			emit highUpdate(high);
-		}
-	}
 	/// Used to determine if all of the process variables have values in them or not.
 	void onHasValuesChanged();
 
