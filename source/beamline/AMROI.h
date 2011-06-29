@@ -23,20 +23,18 @@ public:
 	AMROIInfo toInfo();
 
 	/// Returns the name of the region of interest.
-	QString name() const { return name_; }
+	QString name() const { return pvNames_.first()->getString(); }
 	/// Returns the current central energy of the region of interest.
 	double energy() const { return energy_; }
 	/// Returns the current scaling for the region of interst.
 	double scale() const { return scale_; }
 	/// Returns the lower bound of the region of interest as a channel number.
-	int low() const { return low_; }
+	int low() const { return pvLowerBounds_.first()->getInt(); }
 	/// Returns the higher bound off the region of interest as a channel number.
-	int high() const { return high_; }
+	int high() const { return pvHigherBounds_.first()->getInt(); }
 	/// Returns the current value of the ROI.
 	double value() const { return value_; }
 
-	/// Returns whether the entire region of interest is connected.
-	bool isConnected() const { return connected_; }
 	/// Returns whether the entire region of interest has values.
 	bool hasValues() const { return hasValues_; }
 
@@ -79,6 +77,7 @@ public slots:
 	void setRegion(const AMROIInfo &info);
 
 protected slots:
+	/// Sets the name if it is changed from the base.
 	/// Used to compute the current value based on the current state of the PVs.
 	void updateValue();
 	/// Used to determine if all of the process variables have values in them or not.
@@ -88,20 +87,12 @@ protected:
 	/// Takes the names and creates all the PVs.
 	void buildAllPVs(QString baseName, int elements, int number);
 
-	/// The name of the particular region of interest.
-	QString name_;
 	/// The central energy of the region of interest.  Usually a known value of an emission line of an element.
 	double energy_;
 	/// THe scale that converts the energy and width of a region of interest into an upper and lower bounds.
 	double scale_;
-	/// The actual channel number for the lower bound of the region of interest.
-	int low_;
-	/// The actual channel number for the higher bound of the region of interest.
-	int high_;
 	/// The current integrated value of the region of interest based on the current energy and width.
 	double value_;
-	/// Holds the current state of whether the region of interest is connected.
-	bool connected_;
 	/// Holds the current state of whether the region of interest has values contained in it.
 	bool hasValues_;
 

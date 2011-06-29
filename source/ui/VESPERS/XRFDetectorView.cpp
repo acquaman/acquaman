@@ -614,23 +614,27 @@ void XRFDetailedDetectorView::saveSpectra()
 	}
 
 	out << "Regions of Interest\n";
-	out << "Name\tLower Bound\tUpper Bound\tValue\n";
-	QList<AMROIInfo> rois(detector_->roiInfoList()->toList())
+	out << "Name\t<Lower Bound, Upper Bound>\tValue\n";
+	QList<AMROI *> rois(detector_->roiList());
 			;
-	for (int i = 0; i < rois.size(); i++)
-		out << rois.at(i).name() << "\t" << rois.at(i).low() << "\t" << rois.at(i).high() << "\t" << detector_->roiList().at(i)->value() << "\n";
+	for (int i = 0; i < rois.size(); i++){
 
+		if (rois.at(i)->name().isEmpty())
+			break;
+
+		out << rois.at(i)->name() << "\t<" << rois.at(i)->low()*rois.at(i)->scale() << " eV, " << rois.at(i)->high()*rois.at(i)->scale() << " eV>\t" << rois.at(i)->value() << "\n";
+	}
 	out << "Spectra\n";
-	out << "Order is raw element spectra then corrected element spectra then finally corrected sum spectrum.";
+	out << "Order is raw element spectra then corrected element spectra then finally corrected sum spectrum.\n";
 
 	for (int i = 0; i < elements; i++)
 		out << QString("Raw %1\t").arg(i+1);
 	for (int i = 0; i < elements; i++)
-		out << QString("Corrected %1\t").arg(i+1);
+		out << QString("Corr %1\t").arg(i+1);
 	if (elements > 1)
 		out << "Corrected Sum\n";
 
-	if (elements > 1)
+	if (elements == 1)
 		for (int i = 0; i < detectorSize; i++)
 			out << int(detector_->spectrumDataSource(0)->value(i)) << "\t" << int(detector_->correctedDataSource(0)->value(i));
 	else{
