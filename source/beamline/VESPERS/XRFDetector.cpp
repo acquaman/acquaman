@@ -10,7 +10,7 @@ XRFDetector::XRFDetector(QString name, int elements, QString baseName, QObject *
 	wasConnected_ = false;
 	detectorConnected_ = false;
 	timer_.setInterval(6000);
-	//connect(&timer_, SIGNAL(timeout()), this, SLOT(onUpdateTimer()));
+	connect(&timer_, SIGNAL(timeout()), this, SLOT(onUpdateTimer()));
 
 	for (int i = 0; i < elements; i++){
 
@@ -286,7 +286,7 @@ bool XRFDetector::addRegionOfInterest(XRFElement *el, QString line)
 	AMROIInfo roi(el->lineEnergy(line), 0.04, scale(), el->symbol()+" "+GeneralUtilities::removeGreek(line));
 
 	// Appending to the list means that the old size of the Info list is where the new values should be set in the ROI list.
-	roiList_.at(roiInfoList()->count())->fromInfo(roi);
+	roiList_.at(roiInfoList()->count())->setRegion(roi);
 	roiInfoList()->append(roi);
 	setROIList(*roiInfoList());
 	emit addedRegionOfInterest(roi);
@@ -307,7 +307,7 @@ bool XRFDetector::removeRegionOfInterest(XRFElement *el, QString line)
 		if (i+1 == roiInfoList()->count())
 			roiList_.at(i)->setRegion("", -1, -1);
 		else
-			roiList_.at(i)->fromInfo(roiInfoList()->at(i+1));
+			roiList_.at(i)->setRegion(roiInfoList()->at(i+1));
 	}
 
 	emit removedRegionOfInterest(roiInfoList()->at(indexOfRemoved));

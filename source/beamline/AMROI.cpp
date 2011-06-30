@@ -37,13 +37,6 @@ void AMROI::buildAllPVs(QString baseName, int elements, int number)
 			connect(valPV, SIGNAL(valueChanged()), this, SLOT(updateValue()));
 		}
 
-		else{
-
-			connect(pvNames_.first(), SIGNAL(valueChanged(QString)), namePV, SLOT(setValue(QString)));
-			/*connect(pvLowerBounds_.first(), SIGNAL(valueChanged(int)), lowPV, SLOT(setValue(int)));
-			connect(pvHigherBounds_.first(), SIGNAL(valueChanged(int)), highPV, SLOT(setValue(int)));*/
-		}
-
 		connect(namePV, SIGNAL(hasValuesChanged(bool)), this, SLOT(onHasValuesChanged()));
 		connect(lowPV, SIGNAL(hasValuesChanged(bool)), this, SLOT(onHasValuesChanged()));
 		connect(highPV, SIGNAL(hasValuesChanged(bool)), this, SLOT(onHasValuesChanged()));
@@ -78,14 +71,16 @@ void AMROI::computeLimits(double width)
 
 void AMROI::setName(QString newName)
 {
-	if (pvNames_.first()->hasValues() && newName.compare(name()) != 0)
-		pvNames_.first()->setValue(newName);
+	if (hasValues_ && newName.compare(name()) != 0)
+		for (int i = 0; i < pvNames_.size(); i++)
+			pvNames_.at(i)->setValue(newName);
 }
 
 void AMROI::setLow(int val)
 {
-	if (pvLowerBounds_.first()->hasValues() && low() != val)
-		pvLowerBounds_.first()->setValue(val);
+	if (hasValues_ && low() != val)
+		for (int i = 0; i < pvLowerBounds_.size(); i++)
+			pvLowerBounds_.at(i)->setValue(val);
 }
 
 void AMROI::setLow(double low)
@@ -95,8 +90,9 @@ void AMROI::setLow(double low)
 
 void AMROI::setHigh(int val)
 {
-	if (pvHigherBounds_.first()->hasValues() && high() != val)
-		pvHigherBounds_.first()->setValue(val);
+	if (hasValues_ && high() != val)
+		for (int i = 0; i < pvHigherBounds_.size(); i++)
+			pvHigherBounds_.at(i)->setValue(val);
 }
 
 void AMROI::setHigh(double high)
@@ -121,7 +117,10 @@ void AMROI::setRegion(QString name, int low, int high)
 
 void AMROI::setRegion(const AMROIInfo &info)
 {
-	setRegion(info.name(), info.low(), info.high());
+	setName(info.name());
+	energy_ = info.energy();
+	setLow(info.low());
+	setHigh(info.high());
 }
 
 void AMROI::updateValue()
