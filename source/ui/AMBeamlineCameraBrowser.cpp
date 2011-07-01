@@ -32,6 +32,11 @@ AMBeamlineCameraBrowser::AMBeamlineCameraBrowser(QWidget *parent, bool useOpenGl
 	chl->addSpacing(20);
 	chl->addWidget(new QLabel("Color:"));
 	chl->addWidget(crosshairColorPicker_ = new AMColorPickerButton(Qt::red));
+	chl->addWidget(new QLabel("Line:"));
+	chl->addWidget(crosshairThicknessSlider_ = new QSlider(Qt::Horizontal));
+	crosshairThicknessSlider_->setMaximumWidth(80);
+	crosshairThicknessSlider_->setRange(1,6);
+	crosshairThicknessSlider_->setValue(1);
 	chl->addSpacing(20);
 	chl->addWidget(lockCrosshairCheckBox_ = new QCheckBox("Lock position"));
 	chl->addStretch();
@@ -71,6 +76,7 @@ AMBeamlineCameraBrowser::AMBeamlineCameraBrowser(QWidget *parent, bool useOpenGl
 	connect(sourceComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onSourceComboBoxChanged(int)));
 
 	connect(videoWidget_->mediaPlayer(), SIGNAL(error(QMediaPlayer::Error)), this, SLOT(onMediaPlayerError()));
+	connect(crosshairThicknessSlider_, SIGNAL(valueChanged(int)), this, SLOT(setCrosshairLineThickness(int)));
 
 }
 
@@ -214,6 +220,24 @@ void AMBeamlineCameraBrowser::onMediaPlayerError()
 {
 	QMessageBox::warning(this, "AcquaCam Error", "Sorry! There was an error trying to open that media URL.");
 	sourceComboBox_->removeItem(sourceComboBox_->currentIndex());
+}
+
+void AMBeamlineCameraBrowser::setCrosshairLineThickness(int thickness)
+{
+	QPen pen = videoWidget_->crosshairPen();
+	pen.setWidth(thickness);
+	videoWidget_->setCrosshairPen(pen);
+
+	if(crosshairThicknessSlider_->value() != thickness) {
+		crosshairThicknessSlider_->blockSignals(true);
+		crosshairThicknessSlider_->setValue(thickness);
+		crosshairThicknessSlider_->blockSignals(false);
+	}
+}
+
+int AMBeamlineCameraBrowser::crosshairLineThickness() const
+{
+	return videoWidget_->crosshairPen().width();
 }
 
 

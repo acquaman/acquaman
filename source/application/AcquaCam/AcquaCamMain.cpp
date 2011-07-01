@@ -71,6 +71,7 @@ void loadSettings(AMBeamlineCameraBrowser* camBrowser) {
 	QString currentSource = settings.value("Sources/Current", QString()).toString();
 
 	camBrowser->setCrosshairColor(crosshairColor);
+	camBrowser->setCrosshairLineThickness(crosshairThickness);
 	camBrowser->setCrosshairVisible(crosshairVisible);
 	camBrowser->setCrosshairLocked(crosshairLocked);
 	camBrowser->setCrosshairPosition(crosshairPosition);
@@ -83,7 +84,7 @@ void saveSettings(AMBeamlineCameraBrowser *camBrowser) {
 	QSettings settings(QSettings::UserScope, "Acquaman", "AcquaCam");
 
 	settings.setValue("Crosshair/Color", camBrowser->crosshairColor());
-	settings.setValue("Crosshair/Thickness", 1);
+	settings.setValue("Crosshair/Thickness", camBrowser->crosshairLineThickness());
 	settings.setValue("Crosshair/Visible", camBrowser->crosshairVisible());
 	settings.setValue("Crosshair/Locked", camBrowser->crosshairLocked());
 	settings.setValue("Crosshair/Position", camBrowser->crosshairPosition());

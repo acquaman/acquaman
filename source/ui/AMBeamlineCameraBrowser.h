@@ -7,6 +7,7 @@ class QComboBox;
 class QCheckBox;
 class AMCrosshairOverlayVideoWidget;
 class AMColorPickerButton;
+class QSlider;
 
 /// This class provides a general-purpose widget that people can use to monitor the video from different network camera sources.
 class AMBeamlineCameraBrowser : public QWidget
@@ -20,6 +21,8 @@ public:
 	bool crosshairLocked() const { return crosshairLocked_; }
 	/// Returns the crosshair color
 	QColor crosshairColor() const;
+	/// Returns the crosshair line thickness
+	int crosshairLineThickness() const;
 	/// Is the crosshair visible?
 	bool crosshairVisible() const;
 	/// Returns the crosshair position (relative X-Y position on the video display, from (0,0)[top left] to (1,1)[bottom right] )
@@ -37,6 +40,8 @@ public slots:
 
 	/// Set the crosshair color
 	void setCrosshairColor(const QColor& color);
+	/// Set the crosshair line thickness
+	void setCrosshairLineThickness(int thickness);
 	/// Set whether the crosshair is visible or not
 	void setCrosshairVisible(bool isVisible);
 	/// Disable the capability to move the cross-hair by double-clicking
@@ -58,6 +63,7 @@ protected:
 	QCheckBox* showCrosshairCheckBox_, *lockCrosshairCheckBox_;
 	AMColorPickerButton* crosshairColorPicker_;
 	QComboBox* sourceComboBox_;
+	QSlider* crosshairThicknessSlider_;
 
 	bool crosshairLocked_;
 
