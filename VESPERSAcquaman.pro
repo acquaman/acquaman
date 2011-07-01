@@ -41,7 +41,9 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
 	source/acquaman/VESPERS/VESPERSXASDacqScanController.h \
 	source/ui/VESPERS/VESPERSXASScanConfigurationView.h \
 	source/beamline/VESPERS/VESPERSEndstation.h \
-	source/ui/VESPERS/VESPERSEndstationView.h
+	source/ui/VESPERS/VESPERSEndstationView.h \
+	source/acquaman/VESPERS/XRFFreeRun.h \
+	source/ui/VESPERS/XRFFreeRunView.h
 
 SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/application/VESPERS/VESPERSMain.cpp \
@@ -80,7 +82,9 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/acquaman/VESPERS/VESPERSXASDacqScanController.cpp \
 	source/ui/VESPERS/VESPERSXASScanConfigurationView.cpp \
 	source/beamline/VESPERS/VESPERSEndstation.cpp \
-	source/ui/VESPERS/VESPERSEndstationView.cpp
+	source/ui/VESPERS/VESPERSEndstationView.cpp \
+	source/acquaman/VESPERS/XRFFreeRun.cpp \
+	source/ui/VESPERS/XRFFreeRunView.cpp
 
 RESOURCES += \
 	source/ui/VESPERS/EndstationPictures.qrc \

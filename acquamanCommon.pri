@@ -4,7 +4,7 @@
 # ####################################################################
 
 # Video Support: Remove this line if you do not have the multimedia module from QtMobility
-CONFIG += mobility
+#CONFIG += mobility
 
 # Automatically determines a user's home folder
 HOME_FOLDER = $$system(echo $HOME)
@@ -108,16 +108,22 @@ LIBS += $$GSL_LIB \
 # Specify runtime search locations for libraries (Must change for release bundle, if epics in a different location)
 macx {
 
-	contains(QT_MINOR_VERSION, 7):contains(QT_PATCH_VERSION, 2) {
-	# 4.7.2: Use same as linux-g++
+        contains(QT_MINOR_VERSION, 7) {
+            contains(QT_PATCH_VERSION, 2) | contains(QT_PATCH_VERSION, 3) {
+                # 4.7.2 or 4.7.3: Use same as linux-g++
 #		QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR,-rpath,$$QWTPLOT3D_LIB_DIR"
 #		QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR,-rpath,$$QWTPLOT3D_LIB_DIR"
-		QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
-		QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
-	} else {
-		QMAKE_LFLAGS_RPATH += "$$EPICS_LIB_DIR"
+                QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
+                QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
+            }
+            else {
+                QMAKE_LFLAGS_RPATH += "$$EPICS_LIB_DIR"
+                #QMAKE_LFLAGS_RPATH += "$$QWTPLOT3D_LIB_DIR"
+            }
+        } else {
+                QMAKE_LFLAGS_RPATH += "$$EPICS_LIB_DIR"
 		#QMAKE_LFLAGS_RPATH += "$$QWTPLOT3D_LIB_DIR"
-	}
+        }
 }
 
 
