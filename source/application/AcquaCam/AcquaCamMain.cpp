@@ -37,8 +37,10 @@ int main(int argc, char *argv[])
 	QApplication app(argc, argv);
 	app.setApplicationName("AcquaCam");
 
+	QStringList arguments = app.arguments();
+	bool disableOpenGl = arguments.contains("--disable-opengl") || arguments.contains("-g");
 
-	AMBeamlineCameraBrowser* camBrowser = new AMBeamlineCameraBrowser(0, false);
+	AMBeamlineCameraBrowser* camBrowser = new AMBeamlineCameraBrowser(0, !disableOpenGl);
 	camBrowser->setWindowTitle("AcquaCam");
 	camBrowser->show();
 
