@@ -37,11 +37,11 @@ signals:
 
 protected slots:
 	/// Saves the configuration in all the new line edits to the configuration file.
-	bool saveFile();
+        void saveFile();
 
 protected:
 	/// Loads the configuration file and puts the contents into the line edits.
-	bool loadFile();
+        void loadFile();
 
 	QLineEdit *ccdLowLimit_;
 	QLineEdit *ccdHighLimit_;
