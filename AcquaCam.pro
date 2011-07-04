@@ -15,7 +15,7 @@ FORMS +=
 HEADERS += source/ui/AMColorPickerButton.h \
 	source/ui/AMCrosshairOverlayVideoWidget.h \
 	source/ui/AMOverlayVideoWidget.h \
-	source/ui/AMBeamlineCameraBrowser.h
+        source/ui/AMBeamlineCameraBrowser.h
 
 SOURCES +=	source/application/AcquaCam/AcquaCamMain.cpp \
 	source/ui/AMColorPickerButton.cpp \
