@@ -349,26 +349,33 @@ void XRFViewer::loadFile()
 
 	MPlotSeriesBasic *rawSeries;
 	MPlotSeriesBasic *corrSeries;
+	SpectrumData *tempData;
 
 	for (int i = 0; i < elements; i++){
 
+		tempData = new SpectrumData(rawData.at(i));
+		tempData->setScale(scale);
 		rawSeries = new MPlotSeriesBasic;
-		rawSeries->setModel(new SpectrumData(rawData.at(i)), true);
+		rawSeries->setModel(tempData, true);
 		rawSeries->setMarker(MPlotMarkerShape::None);
 		rawSeries->setDescription(QString("Raw %1").arg(i+1));
 		rawSeries->setLinePen(QPen(getColor(i+1)));
 		rawDataSeries_ << rawSeries;
 
+		tempData = new SpectrumData(corrData.at(i));
+		tempData->setScale(scale);
 		corrSeries = new MPlotSeriesBasic;
-		corrSeries->setModel(new SpectrumData(corrData.at(i)), true);
+		corrSeries->setModel(tempData, true);
 		corrSeries->setMarker(MPlotMarkerShape::None);
 		corrSeries->setDescription(QString("Corrected %1").arg(i+1));
 		corrSeries->setLinePen(QPen(getColor(i+1)));
 		corrDataSeries_ << corrSeries;
 	}
 
+	tempData = new SpectrumData(corrSumData);
+	tempData->setScale(scale);
 	corrSum_ = new MPlotSeriesBasic;
-	corrSum_->setModel(new SpectrumData(corrSumData), true);
+	corrSum_->setModel(tempData, true);
 	corrSum_->setMarker(MPlotMarkerShape::None);
 	corrSum_->setDescription("Corrected Sum");
 	corrSum_->setLinePen(QPen(getColor(0)));

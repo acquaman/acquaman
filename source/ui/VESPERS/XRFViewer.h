@@ -107,12 +107,13 @@ public:
 	{
 		double minY = searchMinY();
 		double maxY = searchMaxY();
+		double xMax = data_.size()*scale_;
 
 		// Need to ensure that the bounding rect has a non-zero height.
 		if (maxY == 0)
 			maxY = 1;
 
-		return QRectF(0, minY, count()-1, maxY-minY);
+		return QRectF(0, minY, xMax, maxY-minY);
 	}
 
 	/// Return the maximum value from the y axis.
