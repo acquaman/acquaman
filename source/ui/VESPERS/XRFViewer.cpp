@@ -1,5 +1,5 @@
 #include "XRFViewer.h"
-#include "DeadTimeButton.h"
+#include "ui/VESPERS/DeadTimeButton.h"
 #include "MPlot/MPlotAxisScale.h"
 #include "util/VESPERS/GeneralUtilities.h"
 #include "dataman/AMDataSourceSeriesData.h"
@@ -9,57 +9,72 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QButtonGroup>
+#include <QFileDialog>
+#include <QTextStream>
+#include <QMessageBox>
+#include <QGroupBox>
 
 XRFViewer::XRFViewer(QWidget *parent) :
 	QWidget(parent)
 {
+	corrSum_ = 0;
+
 	elapsedTime_ = new QLabel(tr(" s"));
 	deadTime_ = new QLabel(tr(" %"));
 
 	// Using a button group so I know which element I need to disable.
-	DeadTimeButton *temp;
 	deadTimeGroup_ = new QButtonGroup(this);
 	deadTimeGroup_->setExclusive(false);
-	QHBoxLayout *deadTimeLayout = new QHBoxLayout;
-	deadTimeLayout->setSpacing(0);
 
-	for (int i = 0; i < detector_->elements(); i++){
+	DeadTimeButton *temp = new DeadTimeButton(15.0, 30.0);
+	temp->setCheckable(true);
+	temp->setFixedSize(20, 20);
+	deadTimeGroup_->addButton(temp, 0);
+	connect(deadTimeGroup_, SIGNAL(buttonClicked(int)), this, SLOT(elementClicked(int)));
 
-		temp = new DeadTimeButton(15.0, 30.0);
-		temp->setCheckable(true);
-		temp->setFixedSize(20, 20);
-		deadTimeLayout->addWidget(temp);
-		deadTimeGroup_->addButton(temp, i);
-	}
-
-	if (detector_->elements() == 1)
-		deadTimeGroup_->button(0)->setCheckable(false);
-	else
-		connect(deadTimeGroup_, SIGNAL(buttonClicked(int)), this, SLOT(elementClicked(int)));
-
-	isWaterfall_ = false;
+	deadTimeLayout_ = new QHBoxLayout;
+	deadTimeLayout_->setSpacing(0);
+	deadTimeLayout_->addWidget(temp);
 
 	setupPlot();
 
 	QFont font(this->font());
 	font.setBold(true);
 
+	QPushButton *loadSpectraButton = new QPushButton("Load File");
+	connect(loadSpectraButton, SIGNAL(clicked()), this, SLOT(loadFile()));
+
 	QLabel *elapsedTimeLabel = new QLabel(QString("Elapsed Time"));
 	elapsedTimeLabel->setFont(font);
 	QLabel *deadTimeLabel = new QLabel(QString("Dead Time"));
 	deadTimeLabel->setFont(font);
+	QLabel *roiLabel = new QLabel("Regions of Interest");
+	roiLabel->setFont(font);
 
-	QLabel *logLabel = new QLabel(QString("Scale Axis"));
-	logLabel->setFont(font);
+	roiList_ = new QTextEdit;
+	roiList_->setReadOnly(true);
+	roiList_->setFixedWidth(350);
 
 	logButton_ = new QPushButton("Log");
 	logButton_->setCheckable(true);
 	logButton_->setChecked(false);
 	connect(logButton_, SIGNAL(toggled(bool)), this, SLOT(onLogEnabled(bool)));
 
-	waterfallButton_ = new QPushButton("Raw Spectra");
-	waterfallButton_->setCheckable(true);
-	connect(waterfallButton_, SIGNAL(toggled(bool)), this, SLOT(onWaterfallToggled(bool)));
+	QPushButton *rawSpectraButton = new QPushButton("Raw Spectra");
+	rawSpectraButton->setCheckable(true);
+
+	QPushButton *correctedSpectraButton = new QPushButton("Corrected Spectra");
+	correctedSpectraButton->setCheckable(true);
+
+	QPushButton *correctedSumButton = new QPushButton("Corrected Sum");
+	correctedSumButton->setCheckable(true);
+
+	QButtonGroup *spectraGroup = new QButtonGroup(this);
+	spectraGroup->addButton(correctedSumButton, 0);
+	spectraGroup->addButton(correctedSpectraButton, 1);
+	spectraGroup->addButton(rawSpectraButton, 2);
+	connect(spectraGroup, SIGNAL(buttonClicked(int)), this, SLOT(onSpectraGroupClicked(int)));
+	correctedSumButton->setChecked(true);
 
 	waterfallSeparation_ = new QDoubleSpinBox;
 	waterfallSeparation_->setPrefix(QString::fromUtf8("Δh = "));
@@ -70,7 +85,37 @@ XRFViewer::XRFViewer(QWidget *parent) :
 	waterfallSeparation_->setAlignment(Qt::AlignCenter);
 	waterfallSeparation_->setEnabled(false);
 	connect(waterfallSeparation_, SIGNAL(valueChanged(double)), this, SLOT(onWaterfallSeparationChanged(double)));
-	connect(waterfallButton_, SIGNAL(toggled(bool)), waterfallSeparation_, SLOT(setEnabled(bool)));
+
+	QVBoxLayout *rightSide = new QVBoxLayout;
+	rightSide->addWidget(loadSpectraButton);
+	rightSide->addWidget(elapsedTimeLabel, 0, Qt::AlignLeft);
+	rightSide->addWidget(elapsedTime_, 0, Qt::AlignCenter);
+	rightSide->addWidget(deadTimeLabel, 0, Qt::AlignLeft);
+	rightSide->addWidget(deadTime_, 0, Qt::AlignCenter);
+	rightSide->addLayout(deadTimeLayout_, Qt::AlignLeft);
+	rightSide->addWidget(roiLabel, 0, Qt::AlignLeft);
+	rightSide->addWidget(roiList_);
+
+	QGroupBox *rightSideBox = new QGroupBox;
+	rightSideBox->setLayout(rightSide);
+	rightSideBox->setMaximumWidth(350);
+
+	QHBoxLayout *bottomRow = new QHBoxLayout;
+	bottomRow->addWidget(correctedSumButton);
+	bottomRow->addWidget(correctedSpectraButton);
+	bottomRow->addWidget(rawSpectraButton);
+	bottomRow->addWidget(waterfallSeparation_);
+	bottomRow->addWidget(logButton_);
+
+	QVBoxLayout *plotAndBottom = new QVBoxLayout;
+	plotAndBottom->addWidget(view_);
+	plotAndBottom->addLayout(bottomRow);
+
+	QHBoxLayout *fullLayout = new QHBoxLayout;
+	fullLayout->addLayout(plotAndBottom);
+	fullLayout->addWidget(rightSideBox);
+
+	setLayout(fullLayout);
 }
 
 void XRFViewer::setupPlot()
@@ -94,25 +139,6 @@ void XRFViewer::setupPlot()
 	plot_->setMarginRight(2);
 	plot_->setMarginTop(2);
 
-	MPlotSeriesBasic *series;
-
-	for (int i = 0; i < detector_->elements(); i++){
-
-		series = new MPlotSeriesBasic;
-		series->setModel(new AMDataSourceSeriesData(detector_->spectrumDataSource(i)));
-		series->setMarker(MPlotMarkerShape::None);
-		series->setDescription(detector_->spectrumDataSource(i)->name());
-		series->setLinePen(QPen(getColor(i+1)));
-		rawDataSeries_ << series;
-	}
-
-	corrSum_ = new MPlotSeriesBasic;
-	corrSum_->setModel(new AMDataSourceSeriesData(detector_->correctedSumDataSource()));
-	corrSum_->setMarker(MPlotMarkerShape::None);
-	corrSum_->setDescription(detector_->correctedSumDataSource()->name());
-	corrSum_->setLinePen(QPen(getColor(0)));
-	plot_->addItem(corrSum_);
-
 	// Enable autoscaling of both axes.
 	plot_->axisScaleLeft()->setAutoScaleEnabled();
 	plot_->axisScaleBottom()->setAutoScaleEnabled();
@@ -121,7 +147,7 @@ void XRFViewer::setupPlot()
 	plot_->addTool(new MPlotDragZoomerTool());
 	plot_->addTool(new MPlotWheelZoomerTool());
 	view_->setPlot(plot_);
-	view_->setMinimumHeight(450);
+	view_->setMinimumSize(700, 450);
 
 	// Set the number of ticks.  A balance between readability and being practical.
 	plot_->axisBottom()->setTicks(3);
@@ -135,11 +161,8 @@ void XRFViewer::setupPlot()
 
 void XRFViewer::elementClicked(int elementId)
 {
-	// If the button is checked then it means the element should be disabled.
-	/*if (deadTimeGroup_->button(elementId)->isChecked())
+	Q_UNUSED(elementId)
 
-	else
-		*/
 }
 
 void XRFViewer::onLogEnabled(bool logged)
@@ -148,27 +171,33 @@ void XRFViewer::onLogEnabled(bool logged)
 	plot_->axisScaleLeft()->setLogScaleEnabled(logged);
 }
 
-void XRFViewer::onWaterfallToggled(bool isWaterfall)
+void XRFViewer::onSpectraGroupClicked(int id)
 {
-	isWaterfall ? waterfallButton_->setText("Sum Spectra") : waterfallButton_->setText("Raw Spectra");
-	isWaterfall_ = isWaterfall;
+	if (corrSum_ == 0 || corrDataSeries_.isEmpty() || rawDataSeries_.isEmpty())
+		return;
 
-	if (isWaterfall){
+	while(plot_->numItems())
+		plot_->removeItem(plot_->item(0));
+	plot_->setAxisScaleWaterfall(MPlot::Left, 0);
 
-		plot_->removeItem(corrSum_);
+	switch(id){
 
-		for (int i = 0; i < detector_->elements(); i++)
-			plot_->insertItem(rawDataSeries_.at(i), i);
-
+	case 0:
+		plot_->addItem(corrSum_);
+		waterfallSeparation_->setEnabled(false);
+		break;
+	case 1:
+		for (int i = 0; i < corrDataSeries_.size(); i++)
+			plot_->addItem(corrDataSeries_.at(i));
 		plot_->setAxisScaleWaterfall(MPlot::Left, waterfallSeparation_->value()*getMaximumHeight(plot_->item(0)));
-	}
-	else{
-
-		for (int i = 0; i < detector_->elements(); i++)
-			plot_->removeItem(rawDataSeries_.at(i));
-
-		plot_->insertItem(corrSum_, 0);
-		plot_->setAxisScaleWaterfall(MPlot::Left, 0);
+		waterfallSeparation_->setEnabled(true);
+		break;
+	case 2:
+		for (int i = 0; i < rawDataSeries_.size(); i++)
+			plot_->addItem(rawDataSeries_.at(i));
+		plot_->setAxisScaleWaterfall(MPlot::Left, waterfallSeparation_->value()*getMaximumHeight(plot_->item(0)));
+		waterfallSeparation_->setEnabled(true);
+		break;
 	}
 }
 
@@ -180,7 +209,7 @@ double XRFViewer::getMaximumHeight(MPlotItem *data)
 	if (!temp)
 		return max;
 
-	AMDataSourceSeriesData *model = (AMDataSourceSeriesData *)temp->model();
+	SpectrumData *model = (SpectrumData *)temp->model();
 
 	for (int i = 0; i < model->count(); i++){
 
@@ -219,4 +248,137 @@ QColor XRFViewer::getColor(int index)
 	}
 
 	return QColor(100, 100, 100);
+}
+
+void XRFViewer::loadFile()
+{
+	QString fileName = QFileDialog::getOpenFileName(this,
+													tr("Load Spectra"),
+													"",
+													tr("Spectra Data (*.dat);;All Files (*)"));
+
+	QFile file(fileName);
+
+	if (!file.open(QFile::ReadOnly | QFile::Text)){
+		QMessageBox::warning(this, tr("XRF Spectra Viewer"),
+							 tr("Cannot open file %1:\n%2")
+							 .arg(file.fileName())
+							 .arg(file.errorString()));
+		return;
+	}
+
+	// Clean up first.
+	while(!deadTimeLayout_->isEmpty())
+		deadTimeLayout_->removeItem(deadTimeLayout_->itemAt(0));
+	while(!deadTimeGroup_->buttons().isEmpty())
+		delete deadTimeGroup_->buttons().takeLast();
+	for (int i = 0; i < rawDataSeries_.size(); i++){
+
+		delete rawDataSeries_.at(i);
+		delete corrDataSeries_.at(i);
+	}
+
+	rawDataSeries_.clear();
+	corrDataSeries_.clear();
+
+	QTextStream in(&file);
+
+	int elements = in.readLine().split("\t").last().toInt();
+	double scale = in.readLine().split("\t").last().toDouble();
+	elapsedTime_->setText(in.readLine().split("\t").last());
+
+	double icr = 0;
+	double ocr = 0;
+	double worstDeadTime = 0;
+	double dt = 0;
+	DeadTimeButton *temp;
+	deadTimeLayout_->addStretch();
+
+	for (int i = 0; i < elements; i++){
+
+		icr = in.readLine().split("\t").last().toDouble();
+		ocr = in.readLine().split("\t").last().toDouble();
+		dt = (icr/ocr - 1)*100;
+
+		if (dt > worstDeadTime)
+			worstDeadTime = dt;
+
+		temp = new DeadTimeButton(15.0, 30.0);
+		temp->setCurrent(dt);
+		temp->setFixedSize(20, 20);
+		deadTimeGroup_->addButton(temp, i);
+		deadTimeLayout_->addWidget(temp);
+	}
+
+	deadTimeLayout_->addStretch();
+	deadTime_->setText(QString::number(worstDeadTime, 'f', 2) + " %");
+
+	QString current;
+	in.readLine();
+	roiList_->append(in.readLine()+"\n");
+
+	while ((current = in.readLine()).compare("Spectra") != 0)
+		roiList_->append(current);
+
+	QList<QList<double> > rawData;
+	QList<QList<double> > corrData;
+	QList<double> corrSumData;
+
+	for (int i = 0; i < elements; i++){
+
+		rawData << QList<double>();
+		corrData << QList<double>();
+	}
+
+	in.readLine();
+	in.readLine();
+
+	while(!(current = in.readLine()).isEmpty()){
+
+		QStringList temp(current.split("\t"));
+
+		for (int i = 0; i < elements; i++){
+
+			rawData[i] << temp.at(i).toDouble();
+			corrData[i] << temp.at(i+elements).toDouble();
+		}
+		corrSumData << temp.last().toInt();
+	}
+
+	file.close();
+
+	MPlotSeriesBasic *rawSeries;
+	MPlotSeriesBasic *corrSeries;
+	SpectrumData *tempData;
+
+	for (int i = 0; i < elements; i++){
+
+		tempData = new SpectrumData(rawData.at(i));
+		tempData->setScale(scale);
+		rawSeries = new MPlotSeriesBasic;
+		rawSeries->setModel(tempData, true);
+		rawSeries->setMarker(MPlotMarkerShape::None);
+		rawSeries->setDescription(QString("Raw %1").arg(i+1));
+		rawSeries->setLinePen(QPen(getColor(i+1)));
+		rawDataSeries_ << rawSeries;
+
+		tempData = new SpectrumData(corrData.at(i));
+		tempData->setScale(scale);
+		corrSeries = new MPlotSeriesBasic;
+		corrSeries->setModel(tempData, true);
+		corrSeries->setMarker(MPlotMarkerShape::None);
+		corrSeries->setDescription(QString("Corrected %1").arg(i+1));
+		corrSeries->setLinePen(QPen(getColor(i+1)));
+		corrDataSeries_ << corrSeries;
+	}
+
+	tempData = new SpectrumData(corrSumData);
+	tempData->setScale(scale);
+	corrSum_ = new MPlotSeriesBasic;
+	corrSum_->setModel(tempData, true);
+	corrSum_->setMarker(MPlotMarkerShape::None);
+	corrSum_->setDescription("Corrected Sum");
+	corrSum_->setLinePen(QPen(getColor(0)));
+
+	onSpectraGroupClicked(0);
 }
