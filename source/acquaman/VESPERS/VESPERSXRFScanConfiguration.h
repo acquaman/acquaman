@@ -2,9 +2,7 @@
 #define VESPERSXRFSCANCONFIGURATION_H
 
 #include "acquaman/AMScanConfiguration.h"
-#include "beamline/VESPERS/XRFDetector.h"
-#include "beamline/VESPERS/VESPERSBeamline.h"
-#include "util/VESPERS/XRFPeriodicTable.h"
+#include "dataman/VESPERS/XRFDetectorInfo.h"
 
 class VESPERSXRFScanConfiguration : public AMScanConfiguration
 {
@@ -18,7 +16,7 @@ public:
 	/// Default constructor.
 	Q_INVOKABLE explicit VESPERSXRFScanConfiguration(QObject *parent = 0);
 	/// Convenience constructor.
-	VESPERSXRFScanConfiguration(XRFDetector *detector, QObject *parent = 0);
+	VESPERSXRFScanConfiguration(XRFDetectorInfo detectorInfo, QObject *parent = 0);
 	/// Destructor.
 	~VESPERSXRFScanConfiguration();
 
@@ -39,24 +37,22 @@ public:
 	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by AMBeamlineScanAction to set the main text in the action view.
 	virtual QString detailedDescription() const;
 
-	// Non-database functions associated with the configuration.
-
-	/// Returns the detector used in this configuration.
-	XRFDetector *detector() const { return detector_; }
-	/// Returns the XRF periodic table used by this configuration.
-	XRFPeriodicTable *table() const { return xrfTable_; }
+	/// Returns the integration time.
+	double integrationTime() const { return integrationTime_; }
+	/// Returns the maximum energy in eV.
+	double maximumEnergy() const { return maxEnergy_; }
+	/// Returns the peaking time.
+	double peakingTime() const { return peakingTime_; }
 
 public slots:
 	/// Sets the detector info to the given detector info.
-	void setDetectorInfo(XRFDetectorInfo info) { xrfDetectorInfo_ = info; }
-	/// Sets the detector.
-	void setDetector(XRFDetector *detector) { detector_ = detector; }
-
-protected slots:
-	/// Handles what happens when the detector becomes connected.
-	void onRoisHaveValues();
-	/// Handles when the regions of interest change from an external source.
-	void onExternalRegionsOfInterestChanged();
+	void setDetectorInfo(XRFDetectorInfo info) { xrfDetectorInfo_ = info; setIntegrationTime(info.integrationTime()); setMaximumEnergy(info.maximumEnergy()); setPeakingTime(info.peakingTime()); }
+	/// Sets the integration time.
+	void setIntegrationTime(double time) { integrationTime_ = time; }
+	/// Sets the maximum energy.
+	void setMaximumEnergy(double energy) { maxEnergy_ = energy; }
+	/// Sets the peaking time.
+	void setPeakingTime(double time) { peakingTime_ = time; }
 
 protected:
 	/// Returns an AMDbObject pointer to the detector info.
@@ -64,18 +60,16 @@ protected:
 	/// Empty function since it will never be called.
 	void dbLoadXRFDetectorInfo(AMDbObject *) {}
 
-	/// Helper function that takes in a region of interest name and adds it to the XRFPeriodicTable.  Takes in the ROI name, finds the element and line it is associated with and adds it to the XRFPeriodicTable.
-	void addRegionOfInterestToTable(QString name);
-
 	// Member variables.
 	/// Detector info member variable.
 	XRFDetectorInfo xrfDetectorInfo_;
 
-	/// The detector itself.  This has live beamline communications.
-	XRFDetector *detector_;
-
-	/// The periodic table that holds information about the regions of interest.
-	XRFPeriodicTable *xrfTable_;
+	/// The integration time.
+	double integrationTime_;
+	/// The maximum energy.  Stored in eV.
+	double maxEnergy_;
+	/// The peaking time.
+	double peakingTime_;
 };
 
 #endif // VESPERSXRFSCANCONFIGURATION_H

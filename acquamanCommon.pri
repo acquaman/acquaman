@@ -3,6 +3,9 @@
 # Note: Set EPICS_INCLUDE_DIRS, EPICS_LIB_DIR, VLC_*, and GSL_* correctly for platform
 # ####################################################################
 
+# Video Support: Remove this line if you do not have the multimedia module from QtMobility
+#CONFIG += mobility
+
 # Automatically determines a user's home folder
 HOME_FOLDER = $$system(echo $HOME)
 
@@ -80,9 +83,10 @@ linux-g++-64 {
 
 QT += core gui sql opengl
 
-# video using Multimedia module from QtMobility
-#CONFIG += mobility
-#MOBILITY += multimedia
+# video using Multimedia module from QtMobility, if we have it
+CONFIG(mobility) {
+	MOBILITY += multimedia
+}
 
 DESTDIR = build
 DEPENDPATH += . source
@@ -320,7 +324,6 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/beamline/AMDetectorSet.h \
 	source/dataman/AMROIInfo.h \
 	source/beamline/AMROI.h \
-	#source/ui/AMOverlayVideoWidget.h \
 	source/ui/AMSamplePositionViewActionsWidget.h \
 	source/beamline/AMBeamlineListAction.h \
 	source/beamline/AMBeamlineControlWaitAction.h \
@@ -346,8 +349,15 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/analysis/AMDeadTimeAB.h \
 	source/dataman/AMProcessVariableDataSource.h \
 	source/ui/AMChooseScanDialog.h \
-	source/application/AMDatamanAppController.h 
-#	source/ui/AMCrosshairOverlayVideoWidget.h
+	source/application/AMDatamanAppController.h \
+	source/ui/AMColorPickerButton.h
+
+CONFIG(mobility) {
+HEADERS +=	source/ui/AMCrosshairOverlayVideoWidget.h \
+	source/ui/AMOverlayVideoWidget.h \
+	source/ui/AMBeamlineCameraBrowser.h
+}
+
 FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
 	source/ui/AMDataViewSectionHeader.ui \
@@ -541,7 +551,6 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/dataman/AMROIInfo.cpp \
 	source/beamline/AMROI.cpp \
 	#deprecated: source/ui/AMVideoWidget.cpp \
-	#source/ui/AMOverlayVideoWidget.cpp \
 	#source/beamline/AMBeamlineListAction.cpp
 	source/ui/AMSamplePositionViewActionsWidget.cpp \
 	source/beamline/AMBeamlineListAction.cpp \
@@ -568,8 +577,15 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/analysis/AMDeadTimeAB.cpp \
 	source/dataman/AMProcessVariableDataSource.cpp \
 	source/ui/AMChooseScanDialog.cpp \
-	source/application/AMDatamanAppController.cpp
-	#source/ui/AMCrosshairOverlayVideoWidget.cpp
+	source/application/AMDatamanAppController.cpp \
+	source/ui/AMColorPickerButton.cpp
+
+CONFIG(mobility) {
+SOURCES +=	source/ui/AMOverlayVideoWidget.cpp \
+	source/ui/AMCrosshairOverlayVideoWidget.cpp \
+	source/ui/AMBeamlineCameraBrowser.cpp
+}
+
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc \
 	source/util/ElementData.qrc \

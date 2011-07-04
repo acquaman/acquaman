@@ -18,10 +18,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-
-
 #include <QApplication>
-#include "application/AMAppController.h"
+#include <QSettings>
+#include "ui/AMBeamlineCameraBrowser.h"
 
 int main(int argc, char *argv[])
 {
@@ -29,20 +28,19 @@ int main(int argc, char *argv[])
 	/// Program Startup:
 	// =================================
 	QApplication app(argc, argv);
-	app.setApplicationName("Acquaman");
+	app.setApplicationName("AcquaCam");
 
 
-	AMAppController* appController = new AMAppController();
+	AMBeamlineCameraBrowser* camBrowser = new AMBeamlineCameraBrowser(0, false);
+	camBrowser->show();
 
 	/// Program Run-loop:
 	// =================================
-	int retVal = -1;
-	if(appController->startup())
-		retVal = app.exec();
+	int retVal = app.exec();
 
 	/// Program Shutdown:
 	// =================================
-	delete appController;
+	delete camBrowser;
 
 	return retVal;
 }

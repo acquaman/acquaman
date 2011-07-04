@@ -1,6 +1,5 @@
 #include "XRFDetectorView.h"
 #include "DeadTimeButton.h"
-#include "acquaman/VESPERS/VESPERSXRFScanController.h"
 #include "MPlot/MPlotAxisScale.h"
 #include "dataman/AMDataSourceSeriesData.h"
 #include "util/AMPeriodicTable.h"
@@ -88,21 +87,20 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	maximumEnergy_ = 1e6;
 
 	detector_ = static_cast<XRFDetector *>(detector);
-	connect(detector_, SIGNAL(detectorConnected(bool)), this, SLOT(onDetecterConnected(bool)));
-	//connect(detector_, SIGNAL(detectorConnected(bool)), this, SLOT(setEnabled(bool)));
-	//connect(detector_, SIGNAL(addedRegionOfInterest(AMROIInfo)), this, SLOT(addRegionOfInterestMarker(AMROIInfo)));
-	//connect(detector_, SIGNAL(removedRegionOfInterest(AMROIInfo)), this, SLOT(removeRegionOfInterestMarker(AMROIInfo)));
-	//connect(detector_, SIGNAL(externalRegionsOfInterestChanged()), this, SLOT(onExternalRegionsOfInterestChanged()));
+	connect(detector_, SIGNAL(detectorConnected(bool)), this, SLOT(setEnabled(bool)));
+	connect(detector_, SIGNAL(addedRegionOfInterest(AMROIInfo)), this, SLOT(addRegionOfInterestMarker(AMROIInfo)));
+	connect(detector_, SIGNAL(removedRegionOfInterest(AMROIInfo)), this, SLOT(removeRegionOfInterestMarker(AMROIInfo)));
+	connect(detector_, SIGNAL(externalRegionsOfInterestChanged()), this, SLOT(onExternalRegionsOfInterestChanged()));
 
 	status_ = new QLabel;
 	status_->setPixmap(QIcon(":/OFF.png").pixmap(20));
-	//connect(detector_, SIGNAL(statusChanged()), this, SLOT(onStatusChanged()));
+	connect(detector_, SIGNAL(statusChanged(bool)), this, SLOT(onStatusChanged(bool)));
 
 	elapsedTime_ = new QLabel(tr(" s"));
-	//connect(detector_, SIGNAL(elapsedTimeChanged(double)), this, SLOT(onElapsedTimeUpdate(double)));
+	connect(detector_, SIGNAL(elapsedTimeChanged(double)), this, SLOT(onElapsedTimeUpdate(double)));
 
 	deadTime_ = new QLabel(tr(" %"));
-	//connect(detector_, SIGNAL(deadTimeChanged()), this, SLOT(onDeadTimeUpdate()));
+	connect(detector_, SIGNAL(deadTimeChanged()), this, SLOT(onDeadTimeUpdate()));
 
 	// Using a button group so I know which element I need to disable.
 	DeadTimeButton *temp;
@@ -116,28 +114,26 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 		temp = new DeadTimeButton(15.0, 30.0);
 		temp->setCheckable(true);
 		temp->setFixedSize(20, 20);
-		//connect(detector_->deadTimeControl()->at(i), SIGNAL(valueChanged(double)), temp, SLOT(setCurrent(double)));
 		deadTimeLayout->addWidget(temp);
 		deadTimeGroup_->addButton(temp, i);
 	}
 
+	connect(detector_, SIGNAL(deadTimeChanged()), this, SLOT(onDeadTimeChanged()));
+
 	if (detector_->elements() == 1)
 		deadTimeGroup_->button(0)->setCheckable(false);
-	//else
-	//	connect(deadTimeGroup_, SIGNAL(buttonClicked(int)), this, SLOT(elementClicked(int)));
+	else
+		connect(deadTimeGroup_, SIGNAL(buttonClicked(int)), this, SLOT(elementClicked(int)));
 
 	updateRate_ = new QComboBox;
 	updateRate_->addItem("Passive");
 	updateRate_->addItem("1 sec");
 	updateRate_->addItem("0.2 sec");
 	connect(updateRate_, SIGNAL(currentIndexChanged(int)), this, SLOT(onComboBoxUpdate(int)));
-	connect(detector_, SIGNAL(refreshRateChanged(double)), this, SLOT(onUpdateRateUpdate(double)));
 
 	isWaterfall_ = false;
 
 	setupPlot();
-
-	//connect(detector_, SIGNAL(roiUpdate(AMROI*)), this, SLOT(roiWidthUpdate(AMROI*)));
 
 	QFont font(this->font());
 	font.setBold(true);
@@ -220,60 +216,14 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	return true;
 }
 
-void XRFDetailedDetectorView::onDetecterConnected(bool connected)
+void XRFDetailedDetectorView::onDeadTimeChanged()
 {
-	setEnabled(connected);
+	DeadTimeButton *temp;
 
-	if (connected){
+	for (int i = 0; i < detector_->elements(); i++){
 
-		connect(detector_, SIGNAL(addedRegionOfInterest(AMROIInfo)), this, SLOT(addRegionOfInterestMarker(AMROIInfo)));
-		connect(detector_, SIGNAL(removedRegionOfInterest(AMROIInfo)), this, SLOT(removeRegionOfInterestMarker(AMROIInfo)));
-		connect(detector_, SIGNAL(externalRegionsOfInterestChanged()), this, SLOT(onExternalRegionsOfInterestChanged()));
-		connect(detector_, SIGNAL(statusChanged()), this, SLOT(onStatusChanged()));
-		connect(detector_, SIGNAL(elapsedTimeChanged(double)), this, SLOT(onElapsedTimeUpdate(double)));
-		connect(detector_, SIGNAL(deadTimeChanged()), this, SLOT(onDeadTimeUpdate()));
-
-		DeadTimeButton *temp;
-		for (int i = 0; i < detector_->elements(); i++){
-
-			temp = qobject_cast<DeadTimeButton *>(deadTimeGroup_->button(i));
-			connect(detector_->deadTimeControl()->at(i), SIGNAL(valueChanged(double)), temp, SLOT(setCurrent(double)));
-			temp->setCurrent(detector_->deadTimeControl()->at(i)->value());
-		}
-
-		if (detector_->elements() > 1)
-			connect(deadTimeGroup_, SIGNAL(buttonClicked(int)), this, SLOT(elementClicked(int)));
-
-		connect(detector_, SIGNAL(refreshRateChanged(double)), this, SLOT(onUpdateRateUpdate(double)));
-		connect(detector_, SIGNAL(roiUpdate(AMROI*)), this, SLOT(roiWidthUpdate(AMROI*)));
-
-		onStatusChanged();
-		onElapsedTimeUpdate(detector_->elapsedTime());
-		onDeadTimeUpdate();
-		onUpdateRateUpdate(detector_->refreshRate());
-	}
-
-	else {
-
-		disconnect(detector_, SIGNAL(addedRegionOfInterest(AMROIInfo)), this, SLOT(addRegionOfInterestMarker(AMROIInfo)));
-		disconnect(detector_, SIGNAL(removedRegionOfInterest(AMROIInfo)), this, SLOT(removeRegionOfInterestMarker(AMROIInfo)));
-		disconnect(detector_, SIGNAL(externalRegionsOfInterestChanged()), this, SLOT(onExternalRegionsOfInterestChanged()));
-		disconnect(detector_, SIGNAL(statusChanged()), this, SLOT(onStatusChanged()));
-		disconnect(detector_, SIGNAL(elapsedTimeChanged(double)), this, SLOT(onElapsedTimeUpdate(double)));
-		disconnect(detector_, SIGNAL(deadTimeChanged()), this, SLOT(onDeadTimeUpdate()));
-
-		DeadTimeButton *temp;
-		for (int i = 0; i < detector_->elements(); i++){
-
-			temp = qobject_cast<DeadTimeButton *>(deadTimeGroup_->button(i));
-			disconnect(detector_->deadTimeControl()->at(i), SIGNAL(valueChanged(double)), temp, SLOT(setCurrent(double)));
-		}
-
-		if (detector_->elements() > 1)
-			connect(deadTimeGroup_, SIGNAL(buttonClicked(int)), this, SLOT(elementClicked(int)));
-
-		disconnect(detector_, SIGNAL(refreshRateChanged(double)), this, SLOT(onUpdateRateUpdate(double)));
-		disconnect(detector_, SIGNAL(roiUpdate(AMROI*)), this, SLOT(roiWidthUpdate(AMROI*)));
+		temp = qobject_cast<DeadTimeButton *>(deadTimeGroup_->button(i));
+		temp->setCurrent(detector_->deadTimeAt(i));
 	}
 }
 
@@ -334,39 +284,15 @@ void XRFDetailedDetectorView::onComboBoxUpdate(int index)
 	switch(index){
 
 	case 0:
-		detector_->setRefreshRateControl(XRFDetectorInfo::Passive);
+		detector_->setRefreshRate(XRFDetector::Passive);
 		break;
 	case 1:
-		detector_->setRefreshRateControl(XRFDetectorInfo::Slow);
+		detector_->setRefreshRate(XRFDetector::Slow);
 		break;
 	case 2:
-		detector_->setRefreshRateControl(XRFDetectorInfo::Fast);
+		detector_->setRefreshRate(XRFDetector::Fast);
 		break;
 	}
-}
-
-void XRFDetailedDetectorView::onUpdateRateUpdate(double val)
-{
-	// This is here to stop the VESPERS single element detector from hurting getting into an infinite signal/slot loop.  It only seems to be it.  If this problem goes away then this line can be removed.
-	if (detector_->elements() == 1)
-		disconnect(updateRate_, SIGNAL(currentIndexChanged(int)), this, SLOT(onComboBoxUpdate(int)));
-
-	switch((int)val){
-
-	case 0:
-		updateRate_->setCurrentIndex(0);
-		break;
-	case 6:
-		updateRate_->setCurrentIndex(1);
-		break;
-	case 8:
-		updateRate_->setCurrentIndex(2);
-		break;
-	}
-
-	// This is here to stop the VESPERS single element detector from hurting getting into an infinite signal/slot loop.  It only seems to be it.  If this problem goes away then this line can be removed.
-	if (detector_->elements() == 1)
-		connect(updateRate_, SIGNAL(currentIndexChanged(int)), this, SLOT(onComboBoxUpdate(int)));
 }
 
 void XRFDetailedDetectorView::setupPlot()
@@ -404,7 +330,6 @@ void XRFDetailedDetectorView::setupPlot()
 
 	corrSum_ = new MPlotSeriesBasic;
 	corrSum_->setModel(new AMDataSourceSeriesData(detector_->correctedSumDataSource()));
-	corrSum_->setModel(new AMDataSourceSeriesData(detector_->spectrumDataSource(0)));
 	corrSum_->setMarker(MPlotMarkerShape::None);
 	corrSum_->setDescription(detector_->correctedSumDataSource()->name());
 	corrSum_->setLinePen(QPen(getColor(0)));
@@ -644,6 +569,13 @@ void XRFDetailedDetectorView::onElapsedTimeUpdate(double time)
 	elapsedTime_->setText(QString::number(time, 'f', 2) + " s");
 }
 
+void XRFDetailedDetectorView::onExternalRegionsOfInterestChanged()
+{
+	removeAllRegionsOfInterestMarkers();
+	for (int i = 0; i < detector_->roiInfoList()->count(); i++)
+		addRegionOfInterestMarker(detector_->roiInfoList()->at(i));
+}
+
 #include <QFileDialog>
 #include <QTextStream>
 
@@ -670,27 +602,54 @@ void XRFDetailedDetectorView::saveSpectra()
 
 	QTextStream out(&file);
 
-	if (detector_->elements() == 1){
+	int elements = detector_->elements();
+	int detectorSize = detector_->size().i();
 
-		out << "eV\tData\n";
-		for (int i = 0; i < detector_->correctedSumDataSource()->size(0); i++)
-			out << double(detector_->correctedSumDataSource()->axisValue(0, i)) << "\t" << int(detector_->correctedSumDataSource()->value(AMnDIndex(i))) << "\n";
+	out << "Elapsed time:\t" << detector_->elapsedTime() << "s\n";
+
+	for (int i = 0; i < elements; i++){
+
+		out << QString("Input Count Rate %1\t").arg(i+1) << double(detector_->icrDataSource(i)->value(AMnDIndex())) << "\n";
+		out << QString("Output Count Rate %1\t").arg(i+1) << double(detector_->ocrDataSource(i)->value(AMnDIndex())) << "\n";
 	}
+
+	out << "Regions of Interest\n";
+	out << "Name\t<Lower Bound, Upper Bound>\tValue\n";
+	QList<AMROI *> rois(detector_->roiList());
+			;
+	for (int i = 0; i < rois.size(); i++){
+
+		if (rois.at(i)->name().isEmpty())
+			break;
+
+		out << rois.at(i)->name() << "\t<" << rois.at(i)->low()*rois.at(i)->scale() << " eV, " << rois.at(i)->high()*rois.at(i)->scale() << " eV>\t" << rois.at(i)->value() << "\n";
+	}
+	out << "Spectra\n";
+	out << "Order is raw element spectra then corrected element spectra then finally corrected sum spectrum.\n";
+
+	for (int i = 0; i < elements; i++)
+		out << QString("Raw %1\t").arg(i+1);
+	for (int i = 0; i < elements; i++)
+		out << QString("Corr %1\t").arg(i+1);
+	if (elements > 1)
+		out << "Corrected Sum\n";
+
+	if (elements == 1)
+		for (int i = 0; i < detectorSize; i++)
+			out << int(detector_->spectrumDataSource(0)->value(i)) << "\t" << int(detector_->correctedDataSource(0)->value(i));
 	else{
 
-		out << "eV\traw1\traw2\traw3\traw4\tcorrected sum\n";
-		for (int i = 0; i < detector_->correctedSumDataSource()->size(0); i++)
-			out << double(detector_->spectrumDataSources().at(0)->axisValue(0, i)) << "\t" << int(detector_->spectrumDataSources().at(0)->value(AMnDIndex(i))) << "\t" << int(detector_->spectrumDataSources().at(1)->value(AMnDIndex(i))) << "\t" << int(detector_->spectrumDataSources().at(2)->value(AMnDIndex(i))) << "\t" << int(detector_->spectrumDataSources().at(3)->value(AMnDIndex(i))) << "\t" << int(detector_->correctedSumDataSource()->value(AMnDIndex(i))) << "\n";
+		for (int i = 0; i < detectorSize; i++){
+
+			for (int j = 0; j < elements; j++)
+				out << int(detector_->spectrumDataSource(j)->value(i)) << "\t";
+			for (int j = 0; j < elements; j++)
+				out << int(detector_->correctedDataSource(j)->value(i)) << "\t";
+			out << int(detector_->correctedSumDataSource()->value(i)) << "\n";
+		}
 	}
 
 	file.close();
-}
-
-void XRFDetailedDetectorView::onExternalRegionsOfInterestChanged()
-{
-	removeAllRegionsOfInterestMarkers();
-	for (int i = 0; i < detector_->roiInfoList()->count(); i++)
-		addRegionOfInterestMarker(detector_->roiInfoList()->at(i));
 }
 
 // End detailed detector view

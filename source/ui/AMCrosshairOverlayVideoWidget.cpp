@@ -5,8 +5,8 @@
 #include <QMediaObject>
 #include <QGraphicsVideoItem>
 
-AMCrosshairOverlayVideoWidget::AMCrosshairOverlayVideoWidget(QWidget *parent) :
-	AMOverlayVideoWidget(parent)
+AMCrosshairOverlayVideoWidget::AMCrosshairOverlayVideoWidget(QWidget *parent, bool useOpenGlViewport) :
+	AMOverlayVideoWidget(parent, useOpenGlViewport)
 {
 	crosshairX_ = 0.5;
 	crosshairY_ = 0.5;
