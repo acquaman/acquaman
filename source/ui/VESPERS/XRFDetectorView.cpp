@@ -321,7 +321,7 @@ void XRFDetailedDetectorView::setupPlot()
 	for (int i = 0; i < detector_->elements(); i++){
 
 		series = new MPlotSeriesBasic;
-		series->setModel(new AMDataSourceSeriesData(detector_->spectrumDataSource(i)));
+		series->setModel(new AMDataSourceSeriesData(detector_->spectrumDataSource(i)), true);
 		series->setMarker(MPlotMarkerShape::None);
 		series->setDescription(detector_->spectrumDataSource(i)->name());
 		series->setLinePen(QPen(getColor(i+1)));
@@ -329,7 +329,7 @@ void XRFDetailedDetectorView::setupPlot()
 	}
 
 	corrSum_ = new MPlotSeriesBasic;
-	corrSum_->setModel(new AMDataSourceSeriesData(detector_->correctedSumDataSource()));
+	corrSum_->setModel(new AMDataSourceSeriesData(detector_->correctedSumDataSource()), true);
 	corrSum_->setMarker(MPlotMarkerShape::None);
 	corrSum_->setDescription(detector_->correctedSumDataSource()->name());
 	corrSum_->setLinePen(QPen(getColor(0)));
@@ -605,7 +605,9 @@ void XRFDetailedDetectorView::saveSpectra()
 	int elements = detector_->elements();
 	int detectorSize = detector_->size().i();
 
-	out << "Elapsed time:\t" << detector_->elapsedTime() << "s\n";
+	out << "Number of Elements:\t" << detector_->elements() << "\n";
+	out << "Energy Axis Scaler:\t" << detector_->scale() << "\n";
+	out << "Elapsed time:\t" << detector_->elapsedTime() << " s\n";
 
 	for (int i = 0; i < elements; i++){
 
