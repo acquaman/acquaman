@@ -8,6 +8,7 @@
 #include <QString>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
+#include <QFormLayout>
 #include <QButtonGroup>
 #include <QFileDialog>
 #include <QTextStream>
@@ -41,7 +42,7 @@ XRFViewer::XRFViewer(QWidget *parent) :
 	QFont font(this->font());
 	font.setBold(true);
 
-	QPushButton *loadSpectraButton = new QPushButton("Load File");
+	QPushButton *loadSpectraButton = new QPushButton("Load XRF Spectra File");
 	connect(loadSpectraButton, SIGNAL(clicked()), this, SLOT(loadFile()));
 
 	QLabel *elapsedTimeLabel = new QLabel(QString("Elapsed Time"));
@@ -86,19 +87,18 @@ XRFViewer::XRFViewer(QWidget *parent) :
 	waterfallSeparation_->setEnabled(false);
 	connect(waterfallSeparation_, SIGNAL(valueChanged(double)), this, SLOT(onWaterfallSeparationChanged(double)));
 
-	QVBoxLayout *rightSide = new QVBoxLayout;
-	rightSide->addWidget(loadSpectraButton);
-	rightSide->addWidget(elapsedTimeLabel, 0, Qt::AlignLeft);
-	rightSide->addWidget(elapsedTime_, 0, Qt::AlignCenter);
-	rightSide->addWidget(deadTimeLabel, 0, Qt::AlignLeft);
-	rightSide->addWidget(deadTime_, 0, Qt::AlignCenter);
-	rightSide->addLayout(deadTimeLayout_, Qt::AlignLeft);
-	rightSide->addWidget(roiLabel, 0, Qt::AlignLeft);
-	rightSide->addWidget(roiList_);
+	QFormLayout *rightSide = new QFormLayout;
+	rightSide->setHorizontalSpacing(60);
+	rightSide->addRow(loadSpectraButton);
+	rightSide->addRow(elapsedTimeLabel, elapsedTime_);
+	rightSide->addRow(deadTimeLabel, deadTime_);
+	rightSide->addRow(deadTimeLayout_);
+	rightSide->addRow(roiLabel);
+	rightSide->addRow(roiList_);
 
 	QGroupBox *rightSideBox = new QGroupBox;
 	rightSideBox->setLayout(rightSide);
-	rightSideBox->setMaximumWidth(350);
+	rightSideBox->setMaximumWidth(400);
 
 	QHBoxLayout *bottomRow = new QHBoxLayout;
 	bottomRow->addWidget(correctedSumButton);
@@ -280,6 +280,7 @@ void XRFViewer::loadFile()
 
 	rawDataSeries_.clear();
 	corrDataSeries_.clear();
+	roiList_->clear();
 
 	QTextStream in(&file);
 
