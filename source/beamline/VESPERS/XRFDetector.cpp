@@ -239,11 +239,17 @@ void XRFDetector::allRoisHaveValues()
 
 	if (hasValues){
 
+		for (int i = 0; i < roiList_.size(); i++)
+			connect(roiList_.at(i), SIGNAL(roiUpdate(AMROI*)), this, SIGNAL(roiUpdate(AMROI*)));
 		emit roisHaveValues();
 		timer_.start();
 	}
-	else
+	else{
+
+		for (int i = 0; i < roiList_.size(); i++)
+			disconnect(roiList_.at(i), SIGNAL(roiUpdate(AMROI*)), this, SIGNAL(roiUpdate(AMROI*)));
 		timer_.stop();
+	}
 }
 
 void XRFDetector::onUpdateTimer()
