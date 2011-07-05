@@ -590,7 +590,11 @@ void XRFDetailedDetectorView::saveSpectra()
 													   "",
 													   tr("Spectra Data (*.dat);;All Files (*)"));
 
-	QFile file(fileName+".dat");
+	QFile file;
+	if (fileName.right(4).compare(".dat") == 0)
+		file.setFileName(fileName);
+	else
+		file.setFileName(fileName+".dat");
 
 	if (!file.open(QFile::WriteOnly | QFile::Text)){
 		QMessageBox::warning(this, tr("XRF Detector"),
