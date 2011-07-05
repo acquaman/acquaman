@@ -184,6 +184,8 @@ signals:
 	void removedRegionOfInterest(AMROIInfo);
 	/// This signal is meant to notify all classes that use this class that the ROI list has been dirtied.  This means that all classes should check the new ROI list to see if there are any changes that need to be addressed.
 	void externalRegionsOfInterestChanged();
+	/// Passes on the signal that an ROI has been updated.
+	void roiUpdate(AMROI *);
 
 protected slots:
 	/// Determines if the detector is connected to ALL controls and process variables.
