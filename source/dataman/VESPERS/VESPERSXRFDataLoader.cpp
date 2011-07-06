@@ -81,14 +81,14 @@ bool VESPERSXRFDataLoader::loadFromFile(const QString &filepath, bool setMetaDat
 	for (int i = 0; i < elements; i++){
 
 		AMDeadTimeAB *temp = (AMDeadTimeAB *)scan->analyzedDataSources()->at(i);
-		temp->setInputDataSourcesImplementation(QList<AMDataSource *>() << scan->rawDataSources()->at(i) << scan->rawDataSources()->at(i+elements) << scan->rawDataSources()->at(i+2*elements));
+		temp->setInputDataSourcesImplementation(QList<AMDataSource *>() << (AMDataSource *)scan->rawDataSources()->at(i) << (AMDataSource *)scan->rawDataSources()->at(i+elements) << (AMDataSource *)scan->rawDataSources()->at(i+2*elements));
 	}
 
 	if (elements > 1){
 
 		AM1DSummingAB *corr = (AM1DSummingAB *)scan->analyzedDataSources()->at(scan->analyzedDataSourceCount()-1);
 		QList<AMDataSource *> list;
-		for (int i = 0; i < scan->analyzedDataSourceCount(); i++)
+		for (int i = 0; i < scan->analyzedDataSourceCount()-1; i++)
 			list << (AMDataSource *)scan->analyzedDataSources()->at(i);
 		corr->setInputDataSourcesImplementation(list);
 	}
