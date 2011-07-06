@@ -27,6 +27,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "MPlot/MPlotSeries.h"
 #include <QScrollBar>
 
+#include <QAction>
+
+#include <QStringBuilder>
 
 AMScanViewScanBar::AMScanViewScanBar(AMScanSetModel* model, int scanIndex, QWidget* parent)
 	: QFrame(parent)
@@ -72,28 +75,20 @@ AMScanViewScanBar::AMScanViewScanBar(AMScanSetModel* model, int scanIndex, QWidg
 			sourceButton->setChecked(model->isVisible(scanIndex, i));
 			sourceButtons_.addButton(sourceButton, i);
 			cramBar_->addWidget(sourceButton);
-			/// \todo this is a bit of a hack for scalar data sources.
+			/// \todo this is a bit of a hack for scalar data sources: hidden because people don't want to see them. [Who added 0D data sources anyway?]
 			if (source->dataSourceAt(i)->rank() == 0)
 				sourceButton->hide();
+			sourceButton->setContextMenuPolicy(Qt::CustomContextMenu);
+			connect(sourceButton, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onDataSourceButtonRightClicked(QPoint)));
 		}
 	}
 
 	hl->addWidget(cramBar_);
 	hl->addStretch(1);
 
-	/* REMOVED
- closeButton_ = new QToolButton();
- closeButton_->setText("X");
- hl->addWidget(closeButton_);
- */
-
 	hl->setContentsMargins(6, 0, 6, 0);
 	hl->setSpacing(24);
 	setLayout(hl);
-
-	//unnecessary: this->setAutoFillBackground(true);
-	//unnecessary: ensurePolished();
-
 
 	connect(model, SIGNAL(rowsInserted(QModelIndex, int, int)), this, SLOT(onRowInserted(QModelIndex,int,int)));
 	connect(model, SIGNAL(rowsAboutToBeRemoved(QModelIndex, int, int)), this, SLOT(onRowAboutToBeRemoved(QModelIndex,int,int)));
@@ -108,6 +103,17 @@ AMScanViewScanBar::AMScanViewScanBar(AMScanSetModel* model, int scanIndex, QWidg
 }
 
 
+void AMScanViewScanBar::onDataSourceButtonRightClicked(const QPoint& location) {
+
+	QAbstractButton* button = qobject_cast<QAbstractButton*>(sender());
+	if(!button)
+		return;
+
+	int dataSourceIndex = sourceButtons_.id(button);
+
+	AMScanViewScanBarContextMenu* cm = new AMScanViewScanBarContextMenu(model_, scanIndex_, dataSourceIndex, button);
+	cm->popup(button->mapToGlobal(location));
+}
 
 
 void AMScanViewScanBar::onRowInserted(const QModelIndex& parent, int start, int end) {
@@ -133,6 +139,9 @@ void AMScanViewScanBar::onRowInserted(const QModelIndex& parent, int start, int 
 			newButton->setChecked( (model_->exclusiveDataSourceName() == source->dataSourceAt(i)->name()) );
 		else
 			newButton->setChecked(model_->isVisible(scanIndex_, i));
+		/// \todo this is a bit of a hack for scalar data sources: hidden because people don't want to see them. [Who added 0D data sources anyway?]
+		if (source->dataSourceAt(i)->rank() == 0)
+			newButton->hide();
 
 		// qDebug() << "added a data source. exclusiveModeOn is: " << exclusiveModeOn_ << ", source name is:" << source->dataSourceAt(i)->name() << ", exclusiveDataSourceName is:" << model_->exclusiveDataSourceName();
 	}
@@ -141,7 +150,6 @@ void AMScanViewScanBar::onRowInserted(const QModelIndex& parent, int start, int 
 
 // before a scan or data source is deleted in the model.
 void AMScanViewScanBar::onRowAboutToBeRemoved(const QModelIndex& parent, int start, int end) {
-	Q_UNUSED(end)
 
 	// check if this isn't one of our data sources being deleted.
 	if(parent.internalId() != -1 || parent.row() != scanIndex_) {
@@ -1840,4 +1848,49 @@ MPlotGW * AMScanViewInternal::createDefaultPlot()
 	//		crsrTool.cursor(0)->marker()->setPen(QPen(QColor(Qt::blue)));
 	return rv;
 }
+
+AMScanViewScanBarContextMenu::AMScanViewScanBarContextMenu(AMScanSetModel *model, int scanIndex, int dataSourceIndex, QWidget* parent)
+	: QMenu(parent)
+{
+	model_ = model;
+	QModelIndex di = model_->indexForDataSource(scanIndex, dataSourceIndex);
+	pi_ = QPersistentModelIndex(di);
+
+	setTitle( model_->data(di.parent(), AM::NameRole).toString() % ": " %
+			  model_->data(di, AM::NameRole).toString());
+
+	hideAllAction_ = addAction("Hide all except this");
+	showAllAction_ = addAction("Show all");
+	addSeparator();
+	colorAndStyleAction_ = addAction("Color and style...");
+
+	connect(hideAllAction_, SIGNAL(triggered()), this, SLOT(hideAll()));
+	connect(showAllAction_, SIGNAL(triggered()), this, SLOT(showAll()));
+	connect(colorAndStyleAction_, SIGNAL(triggered()), this, SLOT(editColorAndStyle()));
+
+	connect(this, SIGNAL(aboutToHide()), this, SLOT(deleteLater()));
+}
+
+AMScanViewScanBarContextMenu::~AMScanViewScanBarContextMenu() {
+	qDebug() << "Deleting AMScanViewScanBar context menu..." << pi_.parent().row() << pi_.row();
+}
+
+void AMScanViewScanBarContextMenu::hideAll()
+{
+}
+
+void AMScanViewScanBarContextMenu::showAll()
+{
+}
+
+#include "ui/AMScanSetItemPropertyDialog.h"
+void AMScanViewScanBarContextMenu::editColorAndStyle()
+{
+	if(pi_.isValid()) {
+		AMScanSetItemPropertyDialog* pd = new AMScanSetItemPropertyDialog(model_, pi_.parent().row(), pi_.row(), parentWidget());
+		pd->show();
+	}
+}
+
+
 

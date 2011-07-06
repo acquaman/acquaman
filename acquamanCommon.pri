@@ -349,7 +349,8 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMCrosshairOverlayVideoWidget.h \
 	source/ui/AMOverlayVideoWidget.h \
 	source/ui/AMBeamlineCameraBrowser.h \
-	source/ui/AMColorPickerButton.h
+	source/ui/AMColorPickerButton.h \
+    source/ui/AMScanSetItemPropertyDialog.h
 
 FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
@@ -574,7 +575,8 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMOverlayVideoWidget.cpp \
 	source/ui/AMCrosshairOverlayVideoWidget.cpp \
 	source/ui/AMBeamlineCameraBrowser.cpp \
-	source/ui/AMColorPickerButton.cpp
+	source/ui/AMColorPickerButton.cpp \
+    source/ui/AMScanSetItemPropertyDialog.cpp
 
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc \

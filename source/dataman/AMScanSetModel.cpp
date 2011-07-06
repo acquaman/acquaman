@@ -121,6 +121,10 @@ QVariant AMScanSetModel::data ( const QModelIndex & index, int role) const {
 			return scan->modified();
 		case AM::CanCloseRole:	// allows views to show the 'close' button beside each scan, to delete it. Do we want this on?
 			return true;
+		case AM::NameRole: {
+				return scan->name().append(QString(" #%1").arg(scan->number()));
+			}
+			break;
 		default:
 			return QVariant();
 			break;
@@ -159,6 +163,8 @@ QVariant AMScanSetModel::data ( const QModelIndex & index, int role) const {
 				return sourcePlotSettings_.at(index.internalId()).at(index.row()).linePen;
 			case AM::CanCloseRole:	// allows views to show the 'close' button beside each scan, to delete it.
 				return true;
+			case AM::NameRole:
+				return dataSource->name();
 			default:
 				return QVariant();
 				break;
