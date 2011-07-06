@@ -1,19 +1,41 @@
+/*
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "SGMElementInfo.h"
 
-SGMEnergyPosition::SGMEnergyPosition(double energy, int monoEncoderTarget, int undulatorStepSetpoint, double exitSlitDistance)
+SGMEnergyPosition::SGMEnergyPosition(double energy, int monoEncoderTarget, int undulatorStepSetpoint, double exitSlitDistance, int sgmGrating)
 {
-	energy_ = energy;
-	monoEncoderTarget_ = monoEncoderTarget;
-	undulatorStepSetpoint_ = undulatorStepSetpoint;
-	exitSlitDistance_ = exitSlitDistance;
+	setEnergy(energy);
+	setMonoEncoderTarget(monoEncoderTarget);
+	setUndulatorStepSetpoint(undulatorStepSetpoint);
+	setExitSlitDistance(exitSlitDistance);
+	setSGMGrating(sgmGrating);
 }
 
 SGMEnergyPosition& SGMEnergyPosition::operator=(const SGMEnergyPosition &other){
 	if(this != &other){
-		energy_ = other.energy();
-		monoEncoderTarget_ = other.monoEncoderTarget();
-		undulatorStepSetpoint_ = other.undulatorStepSetpoint();
-		exitSlitDistance_ = other.exitSlitDistance();
+		setEnergy(other.energy());
+		setMonoEncoderTarget(other.monoEncoderTarget());
+		setUndulatorStepSetpoint(other.undulatorStepSetpoint());
+		setExitSlitDistance(other.exitSlitDistance());
+		setSGMGrating(other.sgmGrating());
 	}
 	return *this;
 }
@@ -45,15 +67,15 @@ QDebug operator<<(QDebug d, const SGMScanRangeInfo &rangeInfo){
 SGMEdgeInfo::SGMEdgeInfo(const QString &edge, double energy, const SGMScanRangeInfo &standardRange) :
 		standardRange_(standardRange)
 {
-	edge_ = edge;
-	energy_ = energy;
+	setEdge(edge);
+	setEnergy(energy);
 }
 
 SGMEdgeInfo::SGMEdgeInfo(QPair<QString, QString> edgeAndEnergy, const SGMScanRangeInfo &standardRange) :
 		standardRange_(standardRange)
 {
-	edge_ = edgeAndEnergy.first;
-	energy_ = edgeAndEnergy.second.toDouble();
+	setEdge(edgeAndEnergy.first);
+	setEnergy(edgeAndEnergy.second.toDouble());
 }
 
 QDebug operator<<(QDebug d, const SGMEdgeInfo &edgeInfo){
@@ -61,19 +83,20 @@ QDebug operator<<(QDebug d, const SGMEdgeInfo &edgeInfo){
 	return d;
 }
 
-SGMStandardScanInfo::SGMStandardScanInfo(const QString &name, const SGMScanRangeInfo &standardRange) :
+SGMStandardScanInfo::SGMStandardScanInfo(const QString &scanName, const SGMScanRangeInfo &standardRange) :
 		standardRange_(standardRange)
 {
-	name_ = name;
+	setScanName(scanName);
 }
 
 QDebug operator<<(QDebug d, const SGMStandardScanInfo &standardScanInfo){
-	d << QString("{%1, ").arg(standardScanInfo.name()) << standardScanInfo.standardRange() << "}";
+	d << QString("{%1, ").arg(standardScanInfo.scanName()) << standardScanInfo.standardRange() << "}";
 	return d;
 }
 
 SGMElementInfo::SGMElementInfo(AMElement *element, QObject *parent) :
-		QObject(parent)
+		AMDbObject(parent)
+//		QObject(parent)
 {
 	element_ = element;
 }
@@ -99,7 +122,7 @@ bool SGMElementInfo::addEdgeInfo(const SGMEdgeInfo &edgeInfo){
 }
 
 bool SGMElementInfo::addStandardScanInfo(const SGMStandardScanInfo &standardScanInfo){
-	return sgmStandardScanInfos_.append(standardScanInfo, standardScanInfo.name());
+	return sgmStandardScanInfos_.append(standardScanInfo, standardScanInfo.scanName());
 }
 
 bool SGMElementInfo::addFastScanParameters(SGMFastScanParameters *parameters){
@@ -107,6 +130,44 @@ bool SGMElementInfo::addFastScanParameters(SGMFastScanParameters *parameters){
 		return availableFastScanParameters_.append(parameters, (int)parameters->runSeconds());
 	else
 		return false;
+}
+
+AMDbObjectList SGMElementInfo::dbReadSGMEdgeInfos(){
+	AMDbObjectList rv;
+	for(int x = 0; x < sgmEdgeInfos_.count(); x++)
+		rv << &(sgmEdgeInfos_[x]);
+	return rv;
+}
+
+AMDbObjectList SGMElementInfo::dbReadSGMStandardScanInfos(){
+	AMDbObjectList rv;
+	for(int x = 0; x < sgmStandardScanInfos_.count(); x++)
+		rv << &(sgmStandardScanInfos_[x]);
+	return rv;
+}
+
+void SGMElementInfo::dbLoadSGMEdgeInfos(const AMDbObjectList &sgmEdgeInfos){
+	sgmEdgeInfos_.clear();
+
+	for(int x = 0; x < sgmEdgeInfos.count(); x++){
+		SGMEdgeInfo* newEdgeInfo = qobject_cast<SGMEdgeInfo*>(sgmEdgeInfos.at(x));
+		if(newEdgeInfo)
+			sgmEdgeInfos_.append(*newEdgeInfo, newEdgeInfo->edge());// note: makes a copy of object pointed to by newStandardScanInfo, and stores in our internal list.
+
+		delete sgmEdgeInfos.at(x); // we're copying these; don't need to keep these ones around. They're our responsibility to delete.
+	}
+}
+
+void SGMElementInfo::dbLoadSGMStandardScanInfos(const AMDbObjectList &sgmStandardScanInfos){
+	sgmStandardScanInfos_.clear();
+
+	for(int x = 0; x < sgmStandardScanInfos.count(); x++){
+		SGMStandardScanInfo* newStandardScanInfo = qobject_cast<SGMStandardScanInfo*>(sgmStandardScanInfos.at(x));
+		if(newStandardScanInfo)
+			sgmStandardScanInfos_.append(*newStandardScanInfo, newStandardScanInfo->scanName());// note: makes a copy of object pointed to by newStandardScanInfo, and stores in our internal list.
+
+		delete sgmStandardScanInfos.at(x); // we're copying these; don't need to keep these ones around. They're our responsibility to delete.
+	}
 }
 
 SGMFastScanParameters::SGMFastScanParameters(QObject *parent) : QObject(parent)
@@ -149,13 +210,14 @@ SGMFastScanParameters::SGMFastScanParameters(const QString &element, const SGMEd
 	setUndulatorVelocity(undulatorVelocity);
 	setUndulatorRelativeStep(edgeInfo.standardEnd().undulatorStepSetpoint()-edgeInfo.standardStart().undulatorStepSetpoint());
 	setExitSlitDistance(edgeInfo.standardMiddle().exitSlitDistance());
+	setSGMGrating(edgeInfo.standardStart().sgmGrating());
 }
 
 SGMFastScanParameters::SGMFastScanParameters(const QString &element, const SGMStandardScanInfo &standardScanInfo, double runSeconds, int motorSettings, double scalerTime, int baseLine, int undulatorVelocity, QObject *parent) :
 		QObject(parent)
 {
 	setElement(element);
-	setEdge(standardScanInfo.name());
+	setEdge(standardScanInfo.scanName());
 	setRunSeconds(runSeconds);
 	setEnergyStart(standardScanInfo.standardStart().energy());
 	setEnergyMidpoint(standardScanInfo.standardMiddle().energy());
@@ -169,6 +231,7 @@ SGMFastScanParameters::SGMFastScanParameters(const QString &element, const SGMSt
 	setUndulatorVelocity(undulatorVelocity);
 	setUndulatorRelativeStep(standardScanInfo.standardEnd().undulatorStepSetpoint()-standardScanInfo.standardStart().undulatorStepSetpoint());
 	setExitSlitDistance(standardScanInfo.standardMiddle().exitSlitDistance());
+	setSGMGrating(standardScanInfo.standardStart().sgmGrating());
 }
 
 bool SGMFastScanParameters::operator ==(const SGMFastScanParameters &other){
@@ -182,8 +245,11 @@ bool SGMFastScanParameters::operator ==(const SGMFastScanParameters &other){
 	    acceleration() == other.acceleration() &&
 	    scalerTime() == other.scalerTime() &&
 	    baseLine() == other.baseLine() &&
+	    undulatorStartStep() == other.undulatorStartStep() &&
 	    undulatorVelocity() == other.undulatorVelocity() &&
-	    undulatorRelativeStep() == other.undulatorRelativeStep() ){
+	    undulatorRelativeStep() == other.undulatorRelativeStep() &&
+	    exitSlitDistance() == other.exitSlitDistance() &&
+	    sgmGrating() == other.sgmGrating()){
 		return true;
 	}
 	return false;

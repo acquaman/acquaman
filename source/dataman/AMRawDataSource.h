@@ -174,8 +174,8 @@ public:
 			axes_ << AMAxisInfo("invalid", 0);	// create the proper number of axes, even though they're just placeholders. This keeps the dimension information correct until setDataStore() fills this properly.
 
 		// minimum of one axis, always.
-		if(axes_.count() == 0)
-			axes_ << AMAxisInfo("invalid", 0);
+		//if(axes_.count() == 0)
+		//	axes_ << AMAxisInfo("invalid", 0);
 	}
 
 

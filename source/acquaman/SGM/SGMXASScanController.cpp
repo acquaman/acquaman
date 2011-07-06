@@ -38,7 +38,6 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 
 	specificScan_ = new AMXASScan();
 	_pScan_ = &specificScan_;
-	//pScan_()->setFileFormat("sgm2004");
 	pScan_()->setFileFormat("sgm2011XAS");
 	pScan_()->setRunId(AMUser::user()->currentRunId());
 	pScan_()->setScanConfiguration(pCfg_());

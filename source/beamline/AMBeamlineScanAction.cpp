@@ -29,6 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPalette>
 #include <QApplication>
 #include <QStyle>
+#include <QMessageBox>
 
 AMBeamlineScanAction::AMBeamlineScanAction(AMScanConfiguration *cfg, QObject *parent) :
 		AMBeamlineActionItem(true, parent)
@@ -94,13 +95,31 @@ void AMBeamlineScanAction::start(){
 		}
 
 		if( !AMScanControllerSupervisor::scanControllerSupervisor()->setCurrentScanController(ctrl_) ){
-			delete ctrl_;
-			AMErrorMon::report(AMErrorReport(this,
-					AMErrorReport::Alert,
-					AMBEAMLINEACTIONITEM_CANT_SET_CURRENT_CONTROLLER,
-					"Error, could not set current scan controller. Please report this bug to the Acquaman developers."));
-			setFailed(true, AMBEAMLINEACTIONITEM_CANT_SET_CURRENT_CONTROLLER);
-			return;
+
+			QMessageBox currentScanControllerChoice;
+			currentScanControllerChoice.setText(QString("Well this is embarressing"));
+			currentScanControllerChoice.setInformativeText(QString("Acquaman thinks you're already running a scan, if you're not press Ok to continue"));
+			currentScanControllerChoice.setIcon(QMessageBox::Question);
+			currentScanControllerChoice.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+			currentScanControllerChoice.setDefaultButton(QMessageBox::Ok);
+			currentScanControllerChoice.setEscapeButton(QMessageBox::Cancel);
+			bool requestFail = false;
+			if(currentScanControllerChoice.exec() == QMessageBox::Ok){
+				AMScanControllerSupervisor::scanControllerSupervisor()->deleteCurrentScanController();
+				if(!AMScanControllerSupervisor::scanControllerSupervisor()->setCurrentScanController(ctrl_))
+					requestFail = true;
+			}
+			else
+				requestFail = true;
+			if(requestFail){
+				delete ctrl_;
+				AMErrorMon::report(AMErrorReport(this,
+								 AMErrorReport::Alert,
+								 AMBEAMLINEACTIONITEM_CANT_SET_CURRENT_CONTROLLER,
+								 "Error, could not set current scan controller. Please report this bug to the Acquaman developers."));
+				setFailed(true, AMBEAMLINEACTIONITEM_CANT_SET_CURRENT_CONTROLLER);
+				return;
+			}
 		}
 		connect(ctrl_, SIGNAL(finished()), this, SLOT(onScanSucceeded()));
 		connect(ctrl_, SIGNAL(cancelled()), this, SLOT(onScanCancelled()));

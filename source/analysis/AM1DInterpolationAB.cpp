@@ -18,12 +18,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "AM1DDerivativeAB.h"
+#include "AM1DInterpolationAB.h"
 
-AM1DDerivativeAB::AM1DDerivativeAB(const QString &outputName, QObject *parent) :
+AM1DInterpolationAB::AM1DInterpolationAB(int interpolationPoints, const QString &outputName, QObject *parent) :
 	AMStandardAnalysisBlock(outputName, parent)
 {
 	inputSource_ = 0;
+	interpolationPoints_ = interpolationPoints;
 
 	axes_ << AMAxisInfo("invalid", 0, "No input data");
 	setState(AMDataSource::InvalidFlag);
@@ -34,7 +35,7 @@ AM1DDerivativeAB::AM1DDerivativeAB(const QString &outputName, QObject *parent) :
  - the rank() of that input source must be 1 (one-dimensional)
  */
 
-bool AM1DDerivativeAB::areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const {
+bool AM1DInterpolationAB::areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const {
 	if(dataSources.isEmpty())
 		return true;	// always acceptable; the null input.
 
@@ -46,7 +47,7 @@ bool AM1DDerivativeAB::areInputDataSourcesAcceptable(const QList<AMDataSource*>&
 }
 
 // Set the data source inputs.
-void AM1DDerivativeAB::setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources) {
+void AM1DInterpolationAB::setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources) {
 
 	// disconnect connections from old source, if it exists.
 	if(inputSource_) {
@@ -70,7 +71,7 @@ void AM1DDerivativeAB::setInputDataSourcesImplementation(const QList<AMDataSourc
 
 		axes_[0] = inputSource_->axisInfoAt(0);
 
-		setDescription(QString("Derivative of %1")
+		setDescription(QString("Interpolating %1")
 					   .arg(inputSource_->name()));
 
 		connect(inputSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
@@ -87,7 +88,7 @@ void AM1DDerivativeAB::setInputDataSourcesImplementation(const QList<AMDataSourc
 	emitInfoChanged();
 }
 
-AMNumber AM1DDerivativeAB::value(const AMnDIndex& indexes, bool doBoundsChecking) const{
+AMNumber AM1DInterpolationAB::value(const AMnDIndex& indexes, bool doBoundsChecking) const{
 	if(indexes.rank() != 1)
 		return AMNumber(AMNumber::DimensionError);
 
@@ -100,18 +101,10 @@ AMNumber AM1DDerivativeAB::value(const AMnDIndex& indexes, bool doBoundsChecking
 
 	int index = indexes.i();
 
-	if(index == 0){
-		return ((double)inputSource_->value(1, doBoundsChecking)-
-				(double)inputSource_->value(0, doBoundsChecking))/
-				((double)inputSource_->axisValue(0, 1, doBoundsChecking)-
-				 (double)inputSource_->axisValue(0, 0, doBoundsChecking));
-	}
-	else{
-		return ((double)inputSource_->value(index, doBoundsChecking)-(double)inputSource_->value(index-1, doBoundsChecking))/((double)inputSource_->axisValue(0, index, doBoundsChecking)-(double)inputSource_->axisValue(0, index-1,doBoundsChecking));
-	}
+	return inputSource_->value(index, doBoundsChecking);
 }
 
-AMNumber AM1DDerivativeAB::axisValue(int axisNumber, int index, bool doBoundsChecking) const{
+AMNumber AM1DInterpolationAB::axisValue(int axisNumber, int index, bool doBoundsChecking) const{
 
 	if(!isValid())
 		return AMNumber(AMNumber::InvalidError);
@@ -124,18 +117,18 @@ AMNumber AM1DDerivativeAB::axisValue(int axisNumber, int index, bool doBoundsChe
 }
 
 /// Connected to be called when the values of the input data source change
-void AM1DDerivativeAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end) {
+void AM1DInterpolationAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end) {
 	emitValuesChanged(start, end);
 }
 
 /// Connected to be called when the size of the input source changes
-void AM1DDerivativeAB::onInputSourceSizeChanged() {
+void AM1DInterpolationAB::onInputSourceSizeChanged() {
 	axes_[0].size = inputSource_->size(0);
 	emitSizeChanged(0);
 }
 
 /// Connected to be called when the state() flags of any input source change
-void AM1DDerivativeAB::onInputSourceStateChanged() {
+void AM1DInterpolationAB::onInputSourceStateChanged() {
 
 	reviewState();
 
@@ -143,7 +136,7 @@ void AM1DDerivativeAB::onInputSourceStateChanged() {
 	onInputSourceSizeChanged();
 }
 
-void AM1DDerivativeAB::reviewState(){
+void AM1DInterpolationAB::reviewState(){
 	if(inputSource_ == 0 || !inputSource_->isValid()) {
 		setState(AMDataSource::InvalidFlag);
 		return;
@@ -154,7 +147,7 @@ void AM1DDerivativeAB::reviewState(){
 
 
 
-bool AM1DDerivativeAB::loadFromDb(AMDatabase *db, int id) {
+bool AM1DInterpolationAB::loadFromDb(AMDatabase *db, int id) {
 	bool success = AMDbObject::loadFromDb(db, id);
 	if(success)
 		AMDataSource::name_ = AMDbObject::name();	/// \todo This might change the name of a data-source in mid-life, which is technically not allowed.

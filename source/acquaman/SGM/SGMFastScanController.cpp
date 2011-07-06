@@ -1,3 +1,23 @@
+/*
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "SGMFastScanController.h"
 #include "dataman/AMSample.h"
 
@@ -152,17 +172,16 @@ bool SGMFastScanController::beamlineInitialize(){
 	SGMFastScanParameters *settings = pCfg()->currentParameters();
 	#warning "Hey David, who's going to delete the list and the actions?"
 	initializationActions_ = new AMBeamlineParallelActionsList();
-	// Only need to do this if tracking is currently on
-	if( undulatorTrackingOn || exitSlitTrackingOn ){
-		/*
-		qDebug() << "Need to optimize for middle of energy range";
-		//Go to midpoint of energy range
+	if( SGMBeamline::sgm()->energy()->withinTolerance(settings->energyStart()) ){
+		qDebug() << "Too close to start energy";
 		initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
 		tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->energy());
-		tmpAction->setSetpoint(settings->energyMidpoint());
+		tmpAction->setSetpoint(settings->energyStart()+1.0);
 		initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
-		*/
+	}
 
+	// Only need to do this if tracking is currently on
+	if( undulatorTrackingOn || exitSlitTrackingOn ){
 		//Turn off undulator and exit slit tracking
 		initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
 		tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->undulatorTracking());
@@ -173,6 +192,13 @@ bool SGMFastScanController::beamlineInitialize(){
 		initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
 	}
 
+	/*
+	initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->grating());
+	tmpAction->setSetpoint(settings->sgmGrating());
+	*/
+	qDebug() << "I would want to go to " << settings->sgmGrating();
+	//initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
 
 	//Go to start of energy range
 	//Mode needs to change before time, buffer, and total
@@ -212,10 +238,6 @@ bool SGMFastScanController::beamlineInitialize(){
 	tmpAction->setSetpoint(1000);
 	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
 
-	/* Need to work with Tom on this*/
-	//settings->setUndulatorRelativeStep(13361);
-	//settings->setUndulatorRelativeStep(-13361);
-	//settings->setUndulatorVelocity(4000);
 	qDebug() << "Relative step to " << settings->undulatorRelativeStep() << " velocity to " << settings->undulatorVelocity();
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->undulatorRelativeStepStorage());
 	tmpAction->setSetpoint(settings->undulatorRelativeStep());
@@ -226,7 +248,6 @@ bool SGMFastScanController::beamlineInitialize(){
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->undulatorFastTracking());
 	tmpAction->setSetpoint(1);
 	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
-	/**/
 
 	/* NTBA March 14, 2011 David Chevrier
 	AMDetector* tmpD;

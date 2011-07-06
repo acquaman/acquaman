@@ -18,27 +18,27 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef AM1DDERIVATIVEAB_H
-#define AM1DDERIVATIVEAB_H
+#ifndef AM1DRUNNINGAVERAGEFILTERAB_H
+#define AM1DRUNNINGAVERAGEFILTERAB_H
 
 #include "analysis/AMStandardAnalysisBlock.h"
 
-/// This analysis block accepts a single 1D input data source and calculates the derivative.  The output data is the same size as the input data source.  It uses the backward difference method (except for the first data point in the series, which uses the forward difference method.)
-class AM1DDerivativeAB : public AMStandardAnalysisBlock
+class AM1DRunningAverageFilterAB : public AMStandardAnalysisBlock
 {
-	Q_OBJECT
+public:
+Q_OBJECT
 
-	Q_CLASSINFO("AMDbObject_Attributes", "description=1D Derivative Block")
+Q_CLASSINFO("AMDbObject_Attributes", "description=1D Running Average Filter Block")
 
 public:
-	Q_INVOKABLE AM1DDerivativeAB(const QString &outputName = "InvalidInput", QObject *parent = 0);
+	Q_INVOKABLE AM1DRunningAverageFilterAB(int filterSize, const QString &outputName = "InvalidInput", QObject *parent = 0);
 
 	QString infoDescription() const { return QString(); }
 
 	/// Check if a set of inputs is valid. The empty list (no inputs) must always be valid. For non-empty lists, our specific requirements are...
 	/*! - there must be a single input source
-		- the rank() of that input source must be 2 (two-dimensiona)
-		*/
+	    - the rank() of that input source must be 1 (one-dimensional)
+	    */
 	virtual bool areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const;
 
 	/// Set the data source inputs.
@@ -63,9 +63,10 @@ protected slots:
 
 protected:
 	AMDataSource* inputSource_;	// our single input source, or 0 if we don't have one.
+	int filterSize_;
 
 	/// Helper function to look at our overall situation and determine what the output state should be.
 	void reviewState();
 };
 
-#endif // AM1DDERIVATIVEAB_H
+#endif // AM1DRUNNINGAVERAGEFILTERAB_H

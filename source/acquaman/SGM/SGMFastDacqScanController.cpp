@@ -1,3 +1,23 @@
+/*
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "SGMFastDacqScanController.h"
 
 #include <QDir>
@@ -8,6 +28,8 @@ SGMFastDacqScanController::SGMFastDacqScanController(SGMFastScanConfiguration *c
 	lastProgress_ = 0.0;
 	initializationStagesComplete_ = 0;
 	timerSeconds_ = 0;
+	stopMotorsAction_ = 0; //NULL
+	fastScanTimer_ = 0; //NULL
 	dacqRunUpStarted_ = false;
 	dacqRunUpCompleted_ = false;
 	dacqRunCompleted_ = false;
@@ -83,9 +105,19 @@ bool SGMFastDacqScanController::startImplementation(){
 }
 
 void SGMFastDacqScanController::cancelImplementation(){
-	if(initializationActions_ && initializationActions_->isRunning())
+	dacqCancelled_ = true;
+	if(initializationActions_ && initializationActions_->isRunning()){
 		qDebug() << "Need to stop the intialization actions";
-	AMDacqScanController::cancelImplementation();
+		disconnect(initializationActions_, 0);
+		connect(initializationActions_, SIGNAL(listSucceeded()), this, SLOT(onScanCancelledBeforeInitialized()));
+		connect(initializationActions_, SIGNAL(listFailed(int)), this, SLOT(onScanCancelledBeforeInitialized()));
+	}
+	else{
+		AMDacqScanController::cancelImplementation();
+		stopMotorsAction_ = SGMBeamline::sgm()->createStopMotorsAction();
+		connect(stopMotorsAction_, SIGNAL(finished()), this, SLOT(onScanCancelledWhileRunning()));
+		stopMotorsAction_->start();
+	}
 }
 
 bool SGMFastDacqScanController::event(QEvent *e){
@@ -212,7 +244,7 @@ void SGMFastDacqScanController::onDacqState(const QString &state){
 	}
 	if(state == "Off"){
 		dacqRunCompleted_ = true;
-		if(fastScanTimer_->isActive())
+		if(fastScanTimer_ && fastScanTimer_->isActive())
 			fastScanTimer_->stop();
 	}
 	calculateProgress(-1, -1);
@@ -277,6 +309,27 @@ void SGMFastDacqScanController::onScanFinished(){
 	qDebug() << "HEARD FAST SCAN FINISHED";
 	if(cleanUpActions_){
 		connect(cleanUpActions_, SIGNAL(listSucceeded()), this, SLOT(setFinished()));
+		cleanUpActions_->start();
+	}
+	else
+		AMDacqScanController::onDacqStop();
+}
+
+void SGMFastDacqScanController::onScanCancelledBeforeInitialized(){
+	qDebug() << "HEARD FAST SCAN CANCELLED BEFORE INITIALIZED";
+	if(cleanUpActions_){
+		connect(cleanUpActions_, SIGNAL(listSucceeded()), this, SLOT(onDacqStop()));
+		cleanUpActions_->start();
+	}
+	else
+		AMDacqScanController::onDacqStop();
+}
+
+void SGMFastDacqScanController::onScanCancelledWhileRunning(){
+	qDebug() << "HEARD FAST SCAN CANCELLED WHILE RUNNING";
+	delete stopMotorsAction_;
+	if(cleanUpActions_){
+		connect(cleanUpActions_, SIGNAL(listSucceeded()), this, SLOT(onDacqStop()));
 		cleanUpActions_->start();
 	}
 	else

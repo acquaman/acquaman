@@ -1,3 +1,23 @@
+/*
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "SGMPeriodicTable.h"
 
 #include <QDebug>
@@ -10,9 +30,9 @@ SGMPeriodicTable::SGMPeriodicTable(QObject *parent) :
 {
 	//CARBON INFO
 	SGMElementInfo *tmpElementInfo = new SGMElementInfo(AMPeriodicTable::table()->elementBySymbol("C"), this);
-	SGMEdgeInfo carbonK(AMPeriodicTable::table()->elementBySymbol("C")->KEdge(), SGMScanRangeInfo(SGMEnergyPosition(280.0, -397720, -145629, 286.63),
-												      SGMEnergyPosition(295.0, -377497, -140470, 200.46),
-												      SGMEnergyPosition(320.0, -348005, -132290, 100.54)));
+	SGMEdgeInfo carbonK(AMPeriodicTable::table()->elementBySymbol("C")->KEdge(), SGMScanRangeInfo(SGMEnergyPosition(280.0, -397720, -145629, 286.63, 0),
+												      SGMEnergyPosition(295.0, -377497, -140470, 200.46, 0),
+												      SGMEnergyPosition(320.0, -348005, -132290, 100.54, 0)));
 	tmpElementInfo->addEdgeInfo(carbonK);
 	tmpElementInfo->addFastScanParameters(new SGMFastScanParameters(tmpElementInfo->element()->name(),
 									tmpElementInfo->sgmEdgeInfos().at(tmpElementInfo->sgmEdgeInfos().indexOfKey("K")),
@@ -21,9 +41,9 @@ SGMPeriodicTable::SGMPeriodicTable(QObject *parent) :
 
 	//NITROGEN INFO
 	tmpElementInfo = new SGMElementInfo(AMPeriodicTable::table()->elementBySymbol("N"), this);
-	SGMEdgeInfo nitrogenK(AMPeriodicTable::table()->elementBySymbol("N")->KEdge(), SGMScanRangeInfo(SGMEnergyPosition(400.0, -278404, -109034, 1.37942),
-												      SGMEnergyPosition(415.0, -268341, -105051, 5.99793),
-												      SGMEnergyPosition(430.0, -258981, -101191, 15.5151)));
+	SGMEdgeInfo nitrogenK(AMPeriodicTable::table()->elementBySymbol("N")->KEdge(), SGMScanRangeInfo(SGMEnergyPosition(400.0, -278404, -109034, 1.37942, 0),
+												      SGMEnergyPosition(415.0, -268341, -105051, 5.99793, 0),
+												      SGMEnergyPosition(430.0, -258981, -101191, 15.5151, 0)));
 	tmpElementInfo->addEdgeInfo(nitrogenK);
 	tmpElementInfo->addFastScanParameters(new SGMFastScanParameters(tmpElementInfo->element()->name(),
 									tmpElementInfo->sgmEdgeInfos().at(tmpElementInfo->sgmEdgeInfos().indexOfKey("K")),
@@ -35,9 +55,9 @@ SGMPeriodicTable::SGMPeriodicTable(QObject *parent) :
 
 	//OXYGEN INFO
 	tmpElementInfo = new SGMElementInfo(AMPeriodicTable::table()->elementBySymbol("O"), this);
-	SGMEdgeInfo oxygenK(AMPeriodicTable::table()->elementBySymbol("O")->KEdge(), SGMScanRangeInfo(SGMEnergyPosition(530.0, -210116, -77335, 166.586),
-												      SGMEnergyPosition(545.0, -204333, -73988, 198.591),
-												      SGMEnergyPosition(560.0, -198860, -70692, 232.356)));
+	SGMEdgeInfo oxygenK(AMPeriodicTable::table()->elementBySymbol("O")->KEdge(), SGMScanRangeInfo(SGMEnergyPosition(530.0, -210116, -77335, 166.586, 0),
+												      SGMEnergyPosition(545.0, -204333, -73988, 198.591, 0),
+												      SGMEnergyPosition(560.0, -198860, -70692, 232.356, 0)));
 	tmpElementInfo->addEdgeInfo(oxygenK);
 	tmpElementInfo->addFastScanParameters(new SGMFastScanParameters(tmpElementInfo->element()->name(),
 									tmpElementInfo->sgmEdgeInfos().at(tmpElementInfo->sgmEdgeInfos().indexOfKey("K")),
@@ -49,9 +69,9 @@ SGMPeriodicTable::SGMPeriodicTable(QObject *parent) :
 
 	//COPPER INFO
 	tmpElementInfo = new SGMElementInfo(AMPeriodicTable::table()->elementBySymbol("Cu"), this);
-	SGMEdgeInfo copperL3(AMPeriodicTable::table()->elementBySymbol("Cu")->L3Edge(), SGMScanRangeInfo(SGMEnergyPosition(925.0, -220063, 1414, 218.584),
-													 SGMEnergyPosition(935.0, -217710, 3318, 230.292),
-													 SGMEnergyPosition(945.0, -215406, 5232, 242.299)));
+	SGMEdgeInfo copperL3(AMPeriodicTable::table()->elementBySymbol("Cu")->L3Edge(), SGMScanRangeInfo(SGMEnergyPosition(925.0, -220063, 1414, 218.584, 1),
+													 SGMEnergyPosition(935.0, -217710, 3318, 230.292, 1),
+													 SGMEnergyPosition(945.0, -215406, 5232, 242.299, 1)));
 	tmpElementInfo->addEdgeInfo(copperL3);
 	tmpElementInfo->addFastScanParameters(new SGMFastScanParameters(tmpElementInfo->element()->name(),
 									tmpElementInfo->sgmEdgeInfos().at(tmpElementInfo->sgmEdgeInfos().indexOfKey("L3")),
@@ -63,9 +83,9 @@ SGMPeriodicTable::SGMPeriodicTable(QObject *parent) :
 
 	//ZINC INFO
 	tmpElementInfo = new SGMElementInfo(AMPeriodicTable::table()->elementBySymbol("Zn"), this);
-	SGMEdgeInfo zincL3(AMPeriodicTable::table()->elementBySymbol("Zn")->L3Edge(), SGMScanRangeInfo(SGMEnergyPosition(1010.0, -201543, 17819, 326.886),
-													 SGMEnergyPosition(1025.0, -198594, 20749, 347.853),
-													 SGMEnergyPosition(1040.0, -195729, 23697, 369.307)));
+	SGMEdgeInfo zincL3(AMPeriodicTable::table()->elementBySymbol("Zn")->L3Edge(), SGMScanRangeInfo(SGMEnergyPosition(1010.0, -201543, 17819, 326.886, 1),
+													 SGMEnergyPosition(1025.0, -198594, 20749, 347.853, 1),
+													 SGMEnergyPosition(1040.0, -195729, 23697, 369.307, 1)));
 	tmpElementInfo->addEdgeInfo(zincL3);
 	tmpElementInfo->addFastScanParameters(new SGMFastScanParameters(tmpElementInfo->element()->name(),
 									tmpElementInfo->sgmEdgeInfos().at(tmpElementInfo->sgmEdgeInfos().indexOfKey("L3")),
@@ -73,9 +93,9 @@ SGMPeriodicTable::SGMPeriodicTable(QObject *parent) :
 	tmpElementInfo->addFastScanParameters(new SGMFastScanParameters(tmpElementInfo->element()->name(),
 									tmpElementInfo->sgmEdgeInfos().at(tmpElementInfo->sgmEdgeInfos().indexOfKey("L3")),
 									20.0, 550, 20.0, 800, 300));
-	SGMEdgeInfo zincL2(AMPeriodicTable::table()->elementBySymbol("Zn")->L2Edge(), SGMScanRangeInfo(SGMEnergyPosition(1025.0, -198594, 20749, 347.853),
-													 SGMEnergyPosition(1040.0, -195729, 23697, 369.307),
-													 SGMEnergyPosition(1060.0, -192036, 27686, 398.628)));
+	SGMEdgeInfo zincL2(AMPeriodicTable::table()->elementBySymbol("Zn")->L2Edge(), SGMScanRangeInfo(SGMEnergyPosition(1025.0, -198594, 20749, 347.853, 1),
+													 SGMEnergyPosition(1040.0, -195729, 23697, 369.307, 1),
+													 SGMEnergyPosition(1060.0, -192036, 27686, 398.628, 1)));
 	tmpElementInfo->addEdgeInfo(zincL2);
 	tmpElementInfo->addFastScanParameters(new SGMFastScanParameters(tmpElementInfo->element()->name(),
 									tmpElementInfo->sgmEdgeInfos().at(tmpElementInfo->sgmEdgeInfos().indexOfKey("L2")),
@@ -85,8 +105,8 @@ SGMPeriodicTable::SGMPeriodicTable(QObject *parent) :
 									20.0, 600, 20.0, 800, 350));
 
 	SGMStandardScanInfo zincL("L Edge", SGMScanRangeInfo(SGMEnergyPosition(1010.0, -201543, 17796, 326.886),
-												    SGMEnergyPosition(1035.0, -196675, 22723, 362.103),
-												    SGMEnergyPosition(1060.0, -192036, 27678, 398.628)));
+											SGMEnergyPosition(1035.0, -196675, 22723, 362.103, 1),
+											SGMEnergyPosition(1060.0, -192036, 27678, 398.628, 1)));
 	tmpElementInfo->addStandardScanInfo(zincL);
 	tmpElementInfo->addFastScanParameters(new SGMFastScanParameters(tmpElementInfo->element()->name(),
 									tmpElementInfo->sgmStandardScanInfos().at(tmpElementInfo->sgmStandardScanInfos().indexOfKey("L Edge")),

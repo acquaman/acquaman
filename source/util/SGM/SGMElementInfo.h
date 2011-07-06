@@ -1,3 +1,23 @@
+/*
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef SGMELEMENTINFO_H
 #define SGMELEMENTINFO_H
 
@@ -5,33 +25,61 @@
 #include <QDebug>
 #include "util/AMElement.h"
 #include "util/AMOrderedSet.h"
+#include "dataman/AMDbObject.h"
 
 class SGMFastScanParameters;
-//class SGMEnergyPosition;
-class SGMEnergyPosition
+
+class SGMEnergyPosition : public AMDbObject
 {
+Q_OBJECT
+
+Q_PROPERTY(double energy READ energy WRITE setEnergy)
+Q_PROPERTY(int monoEncoderTarget READ monoEncoderTarget WRITE setMonoEncoderTarget)
+Q_PROPERTY(int undulatorStepSetpoint READ undulatorStepSetpoint WRITE setUndulatorStepSetpoint)
+Q_PROPERTY(double exitSlitDistance READ exitSlitDistance WRITE setExitSlitDistance)
+Q_PROPERTY(int sgmGrating READ sgmGrating WRITE setSGMGrating)
+
+Q_CLASSINFO("AMDbObject_Attributes", "description=SGM Energy Settings")
+
 public:
-	SGMEnergyPosition(double energy = -1, int monoEncoderTarget = -1, int undulatorStepSetpoint = -1, double exitSlitDistance = -1);
+	Q_INVOKABLE SGMEnergyPosition(double energy = -1, int monoEncoderTarget = -1, int undulatorStepSetpoint = -1, double exitSlitDistance = -1, int sgmGrating = -1);
 
 	double energy() const { return energy_;}
 	int monoEncoderTarget() const { return monoEncoderTarget_;}
 	int undulatorStepSetpoint() const { return undulatorStepSetpoint_;}
 	double exitSlitDistance() const { return exitSlitDistance_;}
+	int sgmGrating() const { return sgmGrating_;}
 
 	SGMEnergyPosition& operator=(const SGMEnergyPosition& other);
 	friend QDebug operator<<(QDebug d, const SGMEnergyPosition &energyPosition);
+
+protected:
+	void setEnergy(double energy) { energy_ = energy;}
+	void setMonoEncoderTarget(int monoEncoderTarget) { monoEncoderTarget_ = monoEncoderTarget;}
+	void setUndulatorStepSetpoint(int undulatorStepSetpoint) { undulatorStepSetpoint_ = undulatorStepSetpoint;}
+	void setExitSlitDistance(double exitSlitDistance) { exitSlitDistance_ = exitSlitDistance;}
+	void setSGMGrating(int sgmGrating) { sgmGrating_ = sgmGrating;}
 
 protected:
 	double energy_;
 	int monoEncoderTarget_;
 	int undulatorStepSetpoint_;
 	double exitSlitDistance_;
+	int sgmGrating_;
 };
 
-class SGMScanRangeInfo
+class SGMScanRangeInfo : public AMDbObject
 {
+Q_OBJECT
+
+Q_PROPERTY(AMDbObject* start READ dbGetStart WRITE dbLoadStart)
+Q_PROPERTY(AMDbObject* middle READ dbGetMiddle WRITE dbLoadMiddle)
+Q_PROPERTY(AMDbObject* end READ dbGetEnd WRITE dbLoadEnd)
+
+Q_CLASSINFO("AMDbObject_Attributes", "description=SGM Scan Range Info")
+
 public:
-	SGMScanRangeInfo(const SGMEnergyPosition &start, const SGMEnergyPosition &middle, const SGMEnergyPosition &end);
+	Q_INVOKABLE SGMScanRangeInfo(const SGMEnergyPosition &start, const SGMEnergyPosition &middle, const SGMEnergyPosition &end);
 	SGMScanRangeInfo(const SGMScanRangeInfo &other);
 
 	SGMEnergyPosition start() const { return start_;}
@@ -41,16 +89,33 @@ public:
 	friend QDebug operator<<(QDebug d, const SGMScanRangeInfo &scanRangeInfo);
 
 protected:
+	AMDbObject* dbGetStart() { return &start_;}
+	AMDbObject* dbGetMiddle() { return &middle_;}
+	AMDbObject* dbGetEnd() { return &end_;}
+
+	void dbLoadStart(AMDbObject*) {} //never called
+	void dbLoadMiddle(AMDbObject*) {} //never called
+	void dbLoadEnd(AMDbObject*) {} //never called
+
+protected:
 	SGMEnergyPosition start_;
 	SGMEnergyPosition middle_;
 	SGMEnergyPosition end_;
 };
 
 
-class SGMEdgeInfo
+class SGMEdgeInfo : public AMDbObject
 {
+Q_OBJECT
+
+Q_PROPERTY(QString edge READ edge WRITE setEdge)
+Q_PROPERTY(double energy READ energy WRITE setEnergy)
+Q_PROPERTY(AMDbObject* standardRange READ dbGetStandardRange WRITE dbLoadStandardRange)
+
+Q_CLASSINFO("AMDbObject_Attributes", "description=SGM Edge Info")
+
 public:
-	SGMEdgeInfo(const QString &edge, double energy, const SGMScanRangeInfo &standardRange);
+	Q_INVOKABLE SGMEdgeInfo(const QString &edge, double energy, const SGMScanRangeInfo &standardRange);
 	SGMEdgeInfo(QPair<QString, QString> edgeAndEnergy, const SGMScanRangeInfo &standardRange);
 
 	QString edge() const { return edge_;}
@@ -63,17 +128,31 @@ public:
 	friend QDebug operator<<(QDebug d, const SGMEdgeInfo &edgeInfo);
 
 protected:
+	void setEdge(const QString &edge) { edge_ = edge;}
+	void setEnergy(double energy) { energy_ = energy;}
+
+	AMDbObject* dbGetStandardRange() { return &standardRange_;}
+	void dbLoadStandardRange(AMDbObject*) {} //never called
+
+protected:
 	QString edge_;
 	double energy_;
 	SGMScanRangeInfo standardRange_;
 };
 
-class SGMStandardScanInfo
+class SGMStandardScanInfo : public AMDbObject
 {
-public:
-	SGMStandardScanInfo(const QString &name, const SGMScanRangeInfo &standardRange);
+Q_OBJECT
 
-	QString name() const { return name_;}
+Q_PROPERTY(QString scanName READ scanName WRITE setScanName)
+Q_PROPERTY(AMDbObject* standardRange READ dbGetStandardRange WRITE dbLoadStandardRange)
+
+Q_CLASSINFO("AMDbObject_Attributes", "description=SGM Standard Scan Info")
+
+public:
+	Q_INVOKABLE SGMStandardScanInfo(const QString &scanName, const SGMScanRangeInfo &standardRange);
+
+	QString scanName() const { return scanName_;}
 	SGMScanRangeInfo standardRange() const { return standardRange_;}
 	SGMEnergyPosition standardStart() const { return standardRange_.start();}
 	SGMEnergyPosition standardMiddle() const { return standardRange_.middle();}
@@ -82,16 +161,31 @@ public:
 	friend QDebug operator<<(QDebug d, const SGMStandardScanInfo &standardScanInfo);
 
 protected:
-	QString name_;
+	void setScanName(const QString &scanName) { scanName_ = scanName;}
+
+	AMDbObject* dbGetStandardRange() { return &standardRange_;}
+	void dbLoadStandardRange(AMDbObject*) {} //never called
+
+protected:
+	QString scanName_;
 	SGMScanRangeInfo standardRange_;
 };
 
 
-class SGMElementInfo : public QObject
+//class SGMElementInfo : public QObject
+class SGMElementInfo : public AMDbObject
 {
 Q_OBJECT
+
+Q_PROPERTY(AMDbObjectList sgmEdgeInfos READ dbReadSGMEdgeInfos WRITE dbLoadSGMEdgeInfos)
+Q_PROPERTY(AMDbObjectList sgmStandardScanInfos READ dbReadSGMStandardScanInfos WRITE dbLoadSGMStandardScanInfos)
+
+//Q_PROPERTY(AMDbObject* standardRange READ dbGetStandardRange WRITE dbLoadStandardRange)
+
+Q_CLASSINFO("AMDbObject_Attributes", "description=SGM Element Info")
+
 public:
-	SGMElementInfo(AMElement *element, QObject *parent = 0);
+	Q_INVOKABLE SGMElementInfo(AMElement *element, QObject *parent = 0);
 
 	AMElement* element() const;
 
@@ -103,6 +197,13 @@ public slots:
 	bool addEdgeInfo(const SGMEdgeInfo &edgeInfo);
 	bool addStandardScanInfo(const SGMStandardScanInfo &standardScanInfo);
 	bool addFastScanParameters(SGMFastScanParameters *parameters);
+
+protected:
+	AMDbObjectList dbReadSGMEdgeInfos();
+	AMDbObjectList dbReadSGMStandardScanInfos();
+
+	void dbLoadSGMEdgeInfos(const AMDbObjectList& sgmEdgeInfos);
+	void dbLoadSGMStandardScanInfos(const AMDbObjectList& sgmStandardScanInfos);
 
 protected:
 	AMElement *element_;
@@ -140,6 +241,7 @@ public:
 	int undulatorVelocity() const { return undulatorVelocity_;}
 	int undulatorRelativeStep() const { return undulatorRelativeStep_;}
 	double exitSlitDistance() const { return exitSlitDistance_;}
+	int sgmGrating() const { return sgmGrating_;}
 
 public slots:
 	void setElement(const QString &element) { element_ = element;}
@@ -158,6 +260,7 @@ public slots:
 	void setUndulatorVelocity(int undulatorVelocity) { undulatorVelocity_ = undulatorVelocity;}
 	void setUndulatorRelativeStep(int undulatorRelativeStep) { undulatorRelativeStep_ = undulatorRelativeStep;}
 	void setExitSlitDistance(double exitSlitDistance) { exitSlitDistance_ = exitSlitDistance;}
+	void setSGMGrating(int sgmGrating) { sgmGrating_ = sgmGrating;}
 
 protected:
 	QString element_;
@@ -176,6 +279,7 @@ protected:
 	int undulatorVelocity_;
 	int undulatorRelativeStep_;
 	double exitSlitDistance_;
+	int sgmGrating_;
 };
 
 #endif // SGMELEMENTINFO_H

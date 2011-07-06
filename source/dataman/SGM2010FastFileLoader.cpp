@@ -1,3 +1,23 @@
+/*
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "SGM2010FastFileLoader.h"
 #include <QDir>
 
@@ -12,6 +32,8 @@ AMBiHash<QString, QString> SGM2010FastFileLoader::columns2pvNames_;
 #include "acquaman/AMScanConfiguration.h"
 #include "util/AMErrorMonitor.h"
 #include "analysis/AM1DExpressionAB.h"
+#include "analysis/AM1DRunningAverageFilterAB.h"
+#include "analysis/SGM/SGM1DFastScanFilterAB.h"
 
 #include <algorithm>
 
@@ -343,6 +365,46 @@ bool SGM2010FastFileLoader::loadFromFile(const QString& filepath, bool setMetaDa
 			scan->addAnalyzedDataSource(tfyChannel);
 		}
 	}
+
+	/*
+	if(scan->rawDataSources()->indexOfKey("TEY") != -1){
+		QList<AMDataSource*> filterInput;
+		filterInput << scan->rawDataSources()->at(scan->rawDataSources()->indexOfKey("TEY"));
+		SGM1DFastScanFilterAB *teyFastFilter = new SGM1DFastScanFilterAB("TEYFastFilter");
+		teyFastFilter->setDescription("Fast TEY");
+		teyFastFilter->setInputDataSources(filterInput);
+		scan->addAnalyzedDataSource(teyFastFilter);
+
+		filterInput.clear();
+		filterInput << teyFastFilter;
+		AM1DRunningAverageFilterAB *teyFilter = new AM1DRunningAverageFilterAB(3, "TEYAvgFilter");
+		teyFilter->setDescription("Smoothed TEY");
+		teyFilter->setInputDataSources(filterInput);
+		scan->addAnalyzedDataSource(teyFilter);
+
+		filterInput.clear();
+		filterInput << scan->rawDataSources()->at(scan->rawDataSources()->indexOfKey("I0"));
+		SGM1DFastScanFilterAB *i0FastFilter = new SGM1DFastScanFilterAB("I0FastFilter");
+		i0FastFilter->setDescription("Fast I0");
+		i0FastFilter->setInputDataSources(filterInput);
+		scan->addAnalyzedDataSource(i0FastFilter);
+
+		filterInput.clear();
+		filterInput << i0FastFilter;
+		AM1DRunningAverageFilterAB *i0Filter = new AM1DRunningAverageFilterAB(3, "I0AvgFilter");
+		i0Filter->setDescription("Smoothed I0");
+		i0Filter->setInputDataSources(filterInput);
+		scan->addAnalyzedDataSource(i0Filter);
+
+		filterInput.clear();
+		filterInput << teyFilter << i0Filter;
+		AM1DExpressionAB* teyChannel = new AM1DExpressionAB("TEYGoodNorm");
+		teyChannel->setDescription("Good Normalized TEY");
+		teyChannel->setInputDataSources(filterInput);
+		teyChannel->setExpression("TEYAvgFilter/I0AvgFilter");
+		scan->addAnalyzedDataSource(teyChannel);
+	}
+	*/
 
 	/*
 	scan->onDataChanged();	/// \todo Is this still used? What does it mean?
