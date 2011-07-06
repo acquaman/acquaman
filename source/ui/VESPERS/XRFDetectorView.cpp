@@ -621,7 +621,7 @@ void XRFDetailedDetectorView::saveSpectra()
 	}
 
 	out << "Regions of Interest\n";
-	out << "Name\t<Lower Bound, Upper Bound>\tValue\n";
+	out << "Name\t<Low, High>\tValue\n";
 	QList<AMROI *> rois(detector_->roiList());
 			;
 	for (int i = 0; i < rois.size(); i++){
@@ -640,10 +640,12 @@ void XRFDetailedDetectorView::saveSpectra()
 		out << QString("Corr %1\t").arg(i+1);
 	if (elements > 1)
 		out << "Corrected Sum\n";
+	else
+		out << "\n";
 
 	if (elements == 1)
 		for (int i = 0; i < detectorSize; i++)
-			out << int(detector_->spectrumDataSource(0)->value(i)) << "\t" << int(detector_->correctedDataSource(0)->value(i));
+			out << int(detector_->spectrumDataSource(0)->value(i)) << "\t" << int(detector_->correctedDataSource(0)->value(i)) << "\n";
 	else{
 
 		for (int i = 0; i < detectorSize; i++){

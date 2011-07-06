@@ -343,7 +343,7 @@ void XRFViewer::loadFile()
 			rawData[i] << temp.at(i).toDouble();
 			corrData[i] << temp.at(i+elements).toDouble();
 		}
-		corrSumData << temp.last().toInt();
+		corrSumData << temp.last().toDouble();
 	}
 
 	file.close();
