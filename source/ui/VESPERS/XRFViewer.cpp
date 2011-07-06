@@ -27,7 +27,7 @@ XRFViewer::XRFViewer(QWidget *parent) :
 	deadTimeGroup_ = new QButtonGroup(this);
 	deadTimeGroup_->setExclusive(false);
 
-	DeadTimeButton *temp = new DeadTimeButton(15.0, 30.0);
+	DeadTimeButton *temp = new DeadTimeButton(30.0, 60.0);
 	temp->setCheckable(true);
 	temp->setFixedSize(20, 20);
 	deadTimeGroup_->addButton(temp, 0);
@@ -304,7 +304,7 @@ void XRFViewer::loadFile()
 		if (dt > worstDeadTime)
 			worstDeadTime = dt;
 
-		temp = new DeadTimeButton(15.0, 30.0);
+		temp = new DeadTimeButton(30.0, 60.0);
 		temp->setCurrent(dt);
 		temp->setFixedSize(20, 20);
 		deadTimeGroup_->addButton(temp, i);
