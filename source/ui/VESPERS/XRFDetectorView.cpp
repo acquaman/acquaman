@@ -91,6 +91,7 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	connect(detector_, SIGNAL(addedRegionOfInterest(AMROIInfo)), this, SLOT(addRegionOfInterestMarker(AMROIInfo)));
 	connect(detector_, SIGNAL(removedRegionOfInterest(AMROIInfo)), this, SLOT(removeRegionOfInterestMarker(AMROIInfo)));
 	connect(detector_, SIGNAL(externalRegionsOfInterestChanged()), this, SLOT(onExternalRegionsOfInterestChanged()));
+	connect(detector_, SIGNAL(roiUpdate(AMROI*)), this, SLOT(roiWidthUpdate(AMROI*)));
 
 	status_ = new QLabel;
 	status_->setPixmap(QIcon(":/OFF.png").pixmap(20));
@@ -590,7 +591,11 @@ void XRFDetailedDetectorView::saveSpectra()
 													   "",
 													   tr("Spectra Data (*.dat);;All Files (*)"));
 
-	QFile file(fileName+".dat");
+	QFile file;
+	if (fileName.right(4).compare(".dat") == 0)
+		file.setFileName(fileName);
+	else
+		file.setFileName(fileName+".dat");
 
 	if (!file.open(QFile::WriteOnly | QFile::Text)){
 		QMessageBox::warning(this, tr("XRF Detector"),

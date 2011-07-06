@@ -51,6 +51,8 @@ signals:
 	void highUpdate(int);
 	/// Signal emitting the new value of the ROI.
 	void valueUpdate(double);
+	/// Signal with a pointer to the ROI.  Emitted when either name, low, or high is changed.
+	void roiUpdate(AMROI *);
 
 public slots:
 	/// Sets the name of the ROI and passes it to all PV's.
@@ -82,6 +84,8 @@ protected slots:
 	void updateValue();
 	/// Used to determine if all of the process variables have values in them or not.
 	void onHasValuesChanged();
+	/// Used to pass on that the name, low or high have updated.
+	void onRoiChanged() { emit roiUpdate(this); }
 
 protected:
 	/// Takes the names and creates all the PVs.

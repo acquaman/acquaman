@@ -31,10 +31,14 @@ void AMROI::buildAllPVs(QString baseName, int elements, int number)
 
 		if (i == 0){
 
-			/*connect(namePV, SIGNAL(valueChanged(QString)), this, SIGNAL(nameUpdate(QString)));
+			connect(namePV, SIGNAL(valueChanged(QString)), this, SIGNAL(nameUpdate(QString)));
 			connect(lowPV, SIGNAL(valueChanged(int)), this, SIGNAL(lowUpdate(int)));
 			connect(highPV, SIGNAL(valueChanged(int)), this, SIGNAL(highUpdate(int)));
-			connect(valPV, SIGNAL(valueChanged()), this, SLOT(updateValue()));*/
+			connect(valPV, SIGNAL(valueChanged()), this, SLOT(updateValue()));
+
+			connect(namePV, SIGNAL(valueChanged(QString)), this, SLOT(onRoiChanged()));
+			connect(lowPV, SIGNAL(valueChanged(int)), this, SLOT(onRoiChanged()));
+			connect(highPV, SIGNAL(valueChanged(int)), this, SLOT(onRoiChanged()));
 		}
 
 		connect(namePV, SIGNAL(hasValuesChanged(bool)), this, SLOT(onHasValuesChanged()));
