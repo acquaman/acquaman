@@ -381,7 +381,7 @@ void SGMBeamline::usingSGMBeamline(){
 	sgmPVName = amNames2pvNames_.valueF("fastShutterVoltage");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
-	fastShutterVoltage_ = new AMPVControl("fastShutterVoltage", sgmPVName, sgmPVName, "", this);
+	fastShutterVoltage_ = new AMPVControl("fastShutterVoltage", sgmPVName, sgmPVName, "", this, 0.1);
 	fastShutterVoltage_->setDescription("Fast Shutter Voltage");
 	sgmPVName = amNames2pvNames_.valueF("gratingVelocity");
 	if(sgmPVName.isEmpty())
@@ -416,7 +416,7 @@ void SGMBeamline::usingSGMBeamline(){
 	sgmPVName = amNames2pvNames_.valueF("beamOn");
 	if(sgmPVName.isEmpty())
 		pvNameLookUpFail = true;
-	beamOn_ = new AMPVControl("beamOn", sgmPVName, sgmPVName, "", this);
+	beamOn_ = new AMPVControl("beamOn", sgmPVName, sgmPVName, "", this, 0.5);
 	beamOn_->setDescription("Beam On");
 	sgmPVName = amNames2pvNames_.valueF("visibleLightToggle");
 	if(sgmPVName.isEmpty())

@@ -199,8 +199,6 @@ bool SGMXASScanController::beamlineInitialize(){
 	tmpAction->setSetpoint(1);
 	initializationActions_->appendAction(0, tmpAction);
 
-	initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
-	initializationActions_->appendAction(1, SGMBeamline::sgm()->createBeamOnActions());
 
 	for(int x = 0; x < pCfg_()->allDetectors()->count(); x++){
 		if(pCfg_()->allDetectorConfigurations().isActiveAt(x)){
@@ -212,6 +210,9 @@ bool SGMXASScanController::beamlineInitialize(){
 			}
 		}
 	}
+
+	initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
+	initializationActions_->appendAction(1, SGMBeamline::sgm()->createBeamOnActions());
 
 	beamlineInitialized_ = true;
 	return beamlineInitialized_;
