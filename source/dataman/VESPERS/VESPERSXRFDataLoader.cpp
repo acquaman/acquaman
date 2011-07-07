@@ -50,9 +50,11 @@ bool VESPERSXRFDataLoader::loadFromFile(const QString &filepath, bool setMetaDat
 	// Clear any old data so we can start fresh.
 	scan->clearRawDataPointsAndMeasurements();
 
+	int elements = config->detectorInfo().elements();
+
 	for (int i = 0; i < scan->rawDataSources()->count(); i++){
 
-		if (i < config->detectorInfo().elements()){
+		if (i < elements){
 
 			line = in.readLine();
 			lineTokenized = line.split(",");
@@ -66,12 +68,30 @@ bool VESPERSXRFDataLoader::loadFromFile(const QString &filepath, bool setMetaDat
 		else{
 
 			line = in.readLine();
-			scan->rawData()->addMeasurement(AMMeasurementInfo(QString("dt%1").arg(i+1), QString("Dead time %1").arg(i+1), "%"));
+			if (i >= elements && i < 2*elements)
+				scan->rawData()->addMeasurement(AMMeasurementInfo(QString("icr%1").arg(i+1), QString("Input count rate %1").arg(i+1), "%", QList<AMAxisInfo>()));
+			else
+				scan_->rawData()->addMeasurement(AMMeasurementInfo(QString("ocr%1").arg(i+1), QString("Output count rate %1").arg(i+1), "%", QList<AMAxisInfo>()));
 			scan->rawData()->setValue(AMnDIndex(), i, AMnDIndex(), line.toDouble());
 		}
 	}
 
 	file.close();
+
+	for (int i = 0; i < elements; i++){
+
+		AMDeadTimeAB *temp = (AMDeadTimeAB *)scan->analyzedDataSources()->at(i);
+		temp->setInputDataSourcesImplementation(QList<AMDataSource *>() << (AMDataSource *)scan->rawDataSources()->at(i) << (AMDataSource *)scan->rawDataSources()->at(i+elements) << (AMDataSource *)scan->rawDataSources()->at(i+2*elements));
+	}
+
+	if (elements > 1){
+
+		AM1DSummingAB *corr = (AM1DSummingAB *)scan->analyzedDataSources()->at(scan->analyzedDataSourceCount()-1);
+		QList<AMDataSource *> list;
+		for (int i = 0; i < scan->analyzedDataSourceCount()-1; i++)
+			list << (AMDataSource *)scan->analyzedDataSources()->at(i);
+		corr->setInputDataSourcesImplementation(list);
+	}
 
 	return true;
 }

@@ -23,7 +23,7 @@ public:
 	*/
 	virtual bool areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const;
 
-	/// Set the data source inputs.
+	/// Set the data source inputs.  Order needs to be spectra then ICR then OCR.
 	virtual void setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources);
 
 	/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient or any are out of range, or if the data is not ready.
@@ -50,8 +50,10 @@ protected:
 
 	// Holds the 1D spectrum data source.
 	AMDataSource *spectra_;
-	// Holds the 0D dead time percentage data source.
-	AMDataSource *deadTime_;
+	// Holds the 0D input count rate data source.
+	AMDataSource *icr_;
+	// Holds the 0D output count rate data source.
+	AMDataSource *ocr_;
 };
 
 #endif // AMDEADTIMEAB_H

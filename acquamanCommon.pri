@@ -3,6 +3,10 @@
 # Note: Set EPICS_INCLUDE_DIRS, EPICS_LIB_DIR, VLC_*, and GSL_* correctly for platform
 # ####################################################################
 
+# Video Support: Remove this line if you do not have the multimedia module from QtMobility
+
+# CONFIG += mobility
+
 # Automatically determines a user's home folder
 HOME_FOLDER = $$system(echo $HOME)
 
@@ -80,9 +84,10 @@ linux-g++-64 {
 
 QT += core gui sql opengl
 
-# video using Multimedia module from QtMobility
-CONFIG += mobility
-MOBILITY += multimedia
+# video using Multimedia module from QtMobility, if we have it
+#CONFIG(mobility) {
+#	MOBILITY += multimedia
+#}
 
 DESTDIR = build
 DEPENDPATH += . source
@@ -104,16 +109,22 @@ LIBS += $$GSL_LIB \
 # Specify runtime search locations for libraries (Must change for release bundle, if epics in a different location)
 macx {
 
-	contains(QT_MINOR_VERSION, 7):contains(QT_PATCH_VERSION, 2) {
-	# 4.7.2: Use same as linux-g++
+		contains(QT_MINOR_VERSION, 7) {
+			contains(QT_PATCH_VERSION, 2) | contains(QT_PATCH_VERSION, 3) {
+				# 4.7.2 or 4.7.3: Use same as linux-g++
 #		QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR,-rpath,$$QWTPLOT3D_LIB_DIR"
 #		QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR,-rpath,$$QWTPLOT3D_LIB_DIR"
-		QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
-		QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
-	} else {
-		QMAKE_LFLAGS_RPATH += "$$EPICS_LIB_DIR"
+				QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
+				QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
+			}
+			else {
+				QMAKE_LFLAGS_RPATH += "$$EPICS_LIB_DIR"
+				#QMAKE_LFLAGS_RPATH += "$$QWTPLOT3D_LIB_DIR"
+			}
+		} else {
+				QMAKE_LFLAGS_RPATH += "$$EPICS_LIB_DIR"
 		#QMAKE_LFLAGS_RPATH += "$$QWTPLOT3D_LIB_DIR"
-	}
+		}
 }
 
 
@@ -346,14 +357,18 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/dataman/AMProcessVariableDataSource.h \
 	source/ui/AMChooseScanDialog.h \
 	source/application/AMDatamanAppController.h \
-	source/ui/AMCrosshairOverlayVideoWidget.h \
-	source/ui/AMOverlayVideoWidget.h \
-	source/ui/AMBeamlineCameraBrowser.h \
 	source/ui/AMColorPickerButton.h \
 	source/ui/AMScanSetItemPropertyDialog.h \
 	source/ui/AMColoredTextToolButton.h \
 	source/ui/AMLinePropertyEditor.h \
 	source/ui/AMImagePropertyEditor.h
+
+
+CONFIG(mobility) {
+HEADERS +=	source/ui/AMCrosshairOverlayVideoWidget.h \
+	source/ui/AMOverlayVideoWidget.h \
+	source/ui/AMBeamlineCameraBrowser.h
+}
 
 FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
@@ -577,14 +592,18 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/dataman/AMProcessVariableDataSource.cpp \
 	source/ui/AMChooseScanDialog.cpp \
 	source/application/AMDatamanAppController.cpp \
-	source/ui/AMOverlayVideoWidget.cpp \
-	source/ui/AMCrosshairOverlayVideoWidget.cpp \
-	source/ui/AMBeamlineCameraBrowser.cpp \
 	source/ui/AMColorPickerButton.cpp \
 	source/ui/AMScanSetItemPropertyDialog.cpp \
 	source/ui/AMColoredTextToolButton.cpp \
 	source/ui/AMLinePropertyEditor.cpp \
 	source/ui/AMImagePropertyEditor.cpp
+
+
+CONFIG(mobility) {
+SOURCES +=	source/ui/AMOverlayVideoWidget.cpp \
+	source/ui/AMCrosshairOverlayVideoWidget.cpp \
+	source/ui/AMBeamlineCameraBrowser.cpp
+}
 
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc \

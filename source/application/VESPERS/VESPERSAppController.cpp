@@ -6,11 +6,8 @@
 #include "ui/AMStartScreen.h"
 
 #include "ui/VESPERS/XRFDetectorView.h"
-#include "ui/VESPERS/VESPERSXRFScanConfigurationView.h"
-#include "ui/AMScanConfigurationViewHolder.h"
-#include "ui/AMFreeRunScanConfigurationViewHolder.h"
+#include "ui/VESPERS/XRFFreeRunView.h"
 #include "ui/VESPERS/VESPERSPersistentView.h"
-#include "ui/AMWorkflowManagerView.h"
 #include "dataman/VESPERS/AMXRFScan.h"
 #include "util/AMPeriodicTable.h"
 #include "ui/VESPERS/XRFMapSetup.h"
@@ -82,32 +79,27 @@ bool VESPERSAppController::startup() {
 		// Create panes in the main window:
 		////////////////////////////////////
 
-		endstationView_ = new VESPERSEndstationView;
+		VESPERSEndstationView *endstationView_ = new VESPERSEndstationView;
 		//VESPERSDeviceStatusView *statusPage = new VESPERSDeviceStatusView;
 
 		mw_->insertHeading("Beamline Control", 0);
 		mw_->addPane(endstationView_, "Beamline Control", "Endstation", ":/system-software-update.png");
 		//mw_->addPane(statusPage, "Beamline Control", "Device Status", ":/system-software-update.png");
 
-		xrf1EConfigView_ = new VESPERSXRFScanConfigurationView(new VESPERSXRFScanConfiguration(VESPERSBeamline::vespers()->vortexXRF1E()));
-		xrf4EConfigView_ = new VESPERSXRFScanConfigurationView(new VESPERSXRFScanConfiguration(VESPERSBeamline::vespers()->vortexXRF4E()));
-		xrf1EConfigHolder_ = new AMFreeRunScanConfigurationViewHolder(workflowManagerView_, xrf1EConfigView_);
-		xrf4EConfigHolder_ = new AMFreeRunScanConfigurationViewHolder(workflowManagerView_, xrf4EConfigView_);
-
-		connect(xrf1EConfigView_, SIGNAL(startScan()), xrf1EConfigHolder_, SLOT(onFreeRunStartRequested()));
-		connect(xrf4EConfigView_, SIGNAL(startScan()), xrf4EConfigHolder_, SLOT(onFreeRunStartRequested()));
+		XRFFreeRunView *xrf1EFreeRunView = new XRFFreeRunView(new XRFFreeRun(VESPERSBeamline::vespers()->vortexXRF1E()), workflowManagerView_);
+		XRFFreeRunView *xrf4EFreeRunView = new XRFFreeRunView(new XRFFreeRun(VESPERSBeamline::vespers()->vortexXRF4E()), workflowManagerView_);
 
 		mw_->insertHeading("Free run", 1);
-		mw_->addPane(xrf1EConfigHolder_, "Free run", "XRF 1-el", ":/utilities-system-monitor.png");
-		mw_->addPane(xrf4EConfigHolder_, "Free run", "XRF 4-el", ":/utilities-system-monitor.png");
+		mw_->addPane(xrf1EFreeRunView, "Free run", "XRF 1-el", ":/utilities-system-monitor.png");
+		mw_->addPane(xrf4EFreeRunView, "Free run", "XRF 4-el", ":/utilities-system-monitor.png");
 
 		XRFMapSetup *ndMapSetup = new XRFMapSetup;
 
 		mw_->insertHeading("Scans", 2);
 		mw_->addPane(ndMapSetup, "Scans", "Map Setup", ":/utilities-system-monitor.png");
 
-		persistentView_ = new VESPERSPersistentView;
-		mw_->addRightWidget(persistentView_);
+		VESPERSPersistentView *persistentView = new VESPERSPersistentView;
+		mw_->addRightWidget(persistentView);
 
 		mw_->setCurrentPane(endstationView_);
 
