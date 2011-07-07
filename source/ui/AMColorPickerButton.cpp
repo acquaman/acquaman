@@ -10,6 +10,14 @@ AMColorPickerButton::AMColorPickerButton(const QColor& initialColor, QWidget *pa
 	connect(this, SIGNAL(clicked()), this, SLOT(activateColorBrowser()));
 }
 
+AMColorPickerButton::AMColorPickerButton(QWidget *parent) :
+	QToolButton(parent)
+{
+	colorDialog_ = 0;
+	setColor(Qt::black);
+	connect(this, SIGNAL(clicked()), this, SLOT(activateColorBrowser()));
+}
+
 void AMColorPickerButton::activateColorBrowser()
 {
 	if(!colorDialog_) {

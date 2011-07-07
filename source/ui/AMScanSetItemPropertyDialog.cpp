@@ -27,24 +27,34 @@ AMScanSetItemPropertyDialog::AMScanSetItemPropertyDialog(AMScanSetModel* model, 
 	setWindowTitle(scanName % ": " % dataSourceName);
 
 	QVBoxLayout* vl = new QVBoxLayout();
+	vl->setSizeConstraint(QLayout::SetFixedSize);
+	setSizeGripEnabled( false ) ;
+	vl->setContentsMargins(0,0,0,0);
 
 	int rank = model_->data(di, AM::RankRole).toInt();
-//	if(rank == 1)
-//		vl->addWidget(new AMScanSetItem1DPropertyEditor(model_, pi_));
+	if(rank == 1)
+		vl->addWidget(new AMScanSetItem1DPropertyEditor(model_, pi_));
 //	else if(rank == 2)
 //		vl->addWidget(new AMScanSetItem2DPropertyEditor(model_, pi_));
 
-	vl->addWidget(new QLabel("Hi!"));
+
 
 	setLayout(vl);
 
 	// Make connections:
 	connect(model_, SIGNAL(rowsAboutToBeRemoved(QModelIndex, int, int)), this, SLOT(onRowsAboutToBeRemoved(QModelIndex,int,int)));
 	connect(model_, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(onModelDataChanged(QModelIndex,QModelIndex)));
+
+	 setStyleSheet("Foo { background:transparent; }");
+	 setAttribute(Qt::WA_TranslucentBackground);
+	 // setWindowFlags(Qt::FramelessWindowHint);
+
+	 resize(minimumSizeHint());
+
 }
 
 AMScanSetItemPropertyDialog::~AMScanSetItemPropertyDialog() {
-	qDebug() << "Deleting property dialog" << windowTitle();
+	// nothing required yet
 }
 
 void AMScanSetItemPropertyDialog::onRowsAboutToBeRemoved(const QModelIndex &parent, int start, int end)
@@ -79,4 +89,23 @@ void AMScanSetItemPropertyDialog::onModelDataChanged(const QModelIndex &topLeft,
 }
 
 
+AMScanSetItem1DPropertyEditor::AMScanSetItem1DPropertyEditor(AMScanSetModel* model, const QPersistentModelIndex &di, QWidget* parent)
+	: AMLinePropertyEditor(
+		  model->data(di, AM::LinePenRole).value<QPen>(),
+		  model->data(di, AMScanSetModel::FilledRole).toBool(),
+		  model->data(di, AMScanSetModel::FillColorRole).value<QColor>(),
+		  parent)
+{
+	model_ = model;
+	pi_ = di;
+	connect(this, SIGNAL(linePenChanged(QPen)), this, SLOT(onLinePenChanged(QPen)));
+}
 
+
+
+void AMScanSetItem1DPropertyEditor::onLinePenChanged(const QPen &pen)
+{
+	if(pi_.isValid()) {
+		model_->setData(pi_, pen, AM::LinePenRole);
+	}
+}

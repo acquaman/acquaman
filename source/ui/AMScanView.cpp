@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "MPlot/MPlotImage.h"
 #include "MPlot/MPlotSeries.h"
 #include <QScrollBar>
+#include "ui/AMColoredTextToolButton.h"
 
 #include <QAction>
 
@@ -66,11 +67,12 @@ AMScanViewScanBar::AMScanViewScanBar(AMScanSetModel* model, int scanIndex, QWidg
 
 	if(source) {
 		for(int i=0; i<source->dataSourceCount(); i++) {
-			QToolButton* sourceButton = new QToolButton();
+			QColor color = model->plotColor(scanIndex, i);
+
+			QToolButton* sourceButton = new AMColoredTextToolButton(color); /// \todo special buttons, with lines underneath that show the line color / style, and differentiate 1D, 2D datasets.
+
 			sourceButton->setMaximumHeight(18);
 			sourceButton->setText(source->dataSourceAt(i)->name());	/// \todo description or name? both? name if description is empty?
-			QColor color = model->plotColor(scanIndex, i);
-			sourceButton->setStyleSheet(QString("color: rgba(%1, %2, %3, %4);").arg(color.red()).arg(color.green()).arg(color.blue()).arg(color.alpha()));	/// \todo special buttons, with lines underneath that show the line color / style, and differentiate 1D, 2D datasets.
 			sourceButton->setCheckable(true);
 			sourceButton->setChecked(model->isVisible(scanIndex, i));
 			sourceButtons_.addButton(sourceButton, i);
@@ -197,8 +199,7 @@ void AMScanViewScanBar::onModelDataChanged(const QModelIndex& topLeft, const QMo
 		else
 			sourceButtons_.button(dataSourceIndex)->setChecked(model_->isVisible(scanIndex_, dataSourceIndex));
 
-		QColor color = model_->plotColor(scanIndex_, dataSourceIndex);
-		sourceButtons_.button(dataSourceIndex)->setStyleSheet(QString("color: rgba(%1, %2, %3, %4);").arg(color.red()).arg(color.green()).arg(color.blue()).arg(color.alpha()));
+		qobject_cast<AMColoredTextToolButton*>(sourceButtons_.button(dataSourceIndex))->setTextColor( model_->plotColor(scanIndex_, dataSourceIndex) );
 	}
 }
 
@@ -783,9 +784,7 @@ MPlotItem* AMScanViewInternal::createPlotItemForDataSource(const AMDataSource* d
 		MPlotSeriesBasic* series = new MPlotSeriesBasic();
 		series->setModel(new AMDataSourceSeriesData(dataSource), true);
 		series->setMarker(MPlotMarkerShape::None);
-		QPen pen = plotSettings.linePen;
-		pen.setColor(plotSettings.color);
-		series->setLinePen(pen);
+		series->setLinePen(plotSettings.linePen);
 		rv = series;
 		break; }
 
@@ -1856,26 +1855,35 @@ AMScanViewScanBarContextMenu::AMScanViewScanBarContextMenu(AMScanSetModel *model
 	QModelIndex di = model_->indexForDataSource(scanIndex, dataSourceIndex);
 	pi_ = QPersistentModelIndex(di);
 
-	setTitle( model_->data(di.parent(), AM::NameRole).toString() % ": " %
-			  model_->data(di, AM::NameRole).toString());
+	QString scanName = model_->data(di.parent(), AM::NameRole).toString();
+	QString dataSourceName = model_->data(di, AM::NameRole).toString();
+	QString dataSourceDescription = model_->data(di, AM::DescriptionRole).toString();
+	QString title = scanName % ": " % dataSourceName;
+	setTitle(title);
 
-	hideAllAction_ = addAction("Hide all except this");
-	showAllAction_ = addAction("Show all");
+	addAction(title)->setDisabled(true);
+	if(dataSourceDescription != dataSourceName)
+		addAction(dataSourceDescription)->setDisabled(true);
 	addSeparator();
-	colorAndStyleAction_ = addAction("Color and style...");
-
-	connect(hideAllAction_, SIGNAL(triggered()), this, SLOT(hideAll()));
-	connect(showAllAction_, SIGNAL(triggered()), this, SLOT(showAll()));
-	connect(colorAndStyleAction_, SIGNAL(triggered()), this, SLOT(editColorAndStyle()));
+	connect(addAction("Hide all except " % dataSourceName), SIGNAL(triggered()), this, SLOT(hideAllExceptDataSource()));
+	if(model_->scanCount() > 1)
+		connect(addAction("Show all " % dataSourceName), SIGNAL(triggered()), this, SLOT(showAllDataSource()));
+	connect(addAction("Show all"), SIGNAL(triggered()), this, SLOT(showAll()));
+	addSeparator();
+	connect(addAction("Color and style..."), SIGNAL(triggered()), this, SLOT(editColorAndStyle()));
 
 	connect(this, SIGNAL(aboutToHide()), this, SLOT(deleteLater()));
 }
 
 AMScanViewScanBarContextMenu::~AMScanViewScanBarContextMenu() {
-	qDebug() << "Deleting AMScanViewScanBar context menu..." << pi_.parent().row() << pi_.row();
+	// nothing required yet
 }
 
-void AMScanViewScanBarContextMenu::hideAll()
+void AMScanViewScanBarContextMenu::hideAllExceptDataSource()
+{
+}
+
+void AMScanViewScanBarContextMenu::showAllDataSource()
 {
 }
 
@@ -1891,6 +1899,8 @@ void AMScanViewScanBarContextMenu::editColorAndStyle()
 		pd->show();
 	}
 }
+
+
 
 
 

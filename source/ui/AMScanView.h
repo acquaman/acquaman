@@ -54,14 +54,15 @@ protected:
 	/// index of the data source this context menu was created for
 	QPersistentModelIndex pi_;
 
-	QAction* hideAllAction_, *showAllAction_, *colorAndStyleAction_;
 
 protected slots:
-	/// Called when the hideAllAction_ is triggered.
-	void hideAll();
-	/// Called when the showAllAction_ is triggered.
+	/// Called when the "hide all data sources except this one" action is triggered.
+	void hideAllExceptDataSource();
+	/// Called when the "show all data sources like this one" action is triggered.
+	void showAllDataSource();
+	/// Called when the "show all data sources" action is triggered.
 	void showAll();
-	/// Called when the editColorAndStyleAction_ is triggered.
+	/// Called when the "edit Color And Style" action is triggered.
 	void editColorAndStyle();
 };
 
@@ -345,7 +346,7 @@ protected slots:
 	virtual void onRowAboutToBeRemoved(const QModelIndex& parent, int start, int end);
 	/// after a scan or data source is deleted in the model:
 	virtual void onRowRemoved(const QModelIndex& parent, int start, int end);
-	/// when data changes:
+	/// when data changes: (ex: line color, plot settings, etc.)
 	virtual void onModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight);
 
 	/// when the model's "exclusive data source" changes. This is the one data source that we display for all of our scans (as long as they have it).

@@ -3,9 +3,25 @@
 
 #include <QDialog>
 #include <QPersistentModelIndex>
+#include "ui/AMLinePropertyEditor.h"
 
 class AMScanSetModel;
 
+
+/// This widget provides controls to edit the display properties of a line/series in a plot: color, width, line style, fill (on/off), fill color.  It's a helper class for AMScanSetItemPropertyDialog, which simply extends AMLineSeriesPropertyEditor to talk directly to an item (persistent index) within the AMScanSetModel.
+class AMScanSetItem1DPropertyEditor : public AMLinePropertyEditor {
+	Q_OBJECT
+
+public:
+	explicit AMScanSetItem1DPropertyEditor(AMScanSetModel* model, const QPersistentModelIndex& dataSourcePersistentIndex, QWidget* parent = 0);
+
+protected slots:
+	void onLinePenChanged(const QPen& pen);
+
+protected:
+	AMScanSetModel* model_;
+	QPersistentModelIndex pi_;
+};
 
 /// This class provides a general property editor for items (data sources) in an AMScanSetModel... such as line color/style, colormap, etc.  Depending on the rank of the data source, it will embed different widgets; this class provides the shell, and the open/close behaviour handling.
 /*! <b>Memory management:</b>

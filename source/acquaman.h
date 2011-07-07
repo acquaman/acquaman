@@ -32,7 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 namespace AM {
 
 	/// Application-wide role definitions used in the Qt StandardItem Model/View system
-	enum ItemRoles { IdRole = Qt::UserRole+20, DateTimeRole, EndDateTimeRole, WeightRole, LinkRole, PointerRole, PriorityRole, LinePenRole, ModifiedRole, DescriptionRole, NameRole, WidgetRole, CanCloseRole, RankRole, UserRole };
+	enum ItemRoles { IdRole = Qt::UserRole+20, DateTimeRole, EndDateTimeRole, WeightRole, LinkRole, PointerRole, PriorityRole, LinePenRole, ModifiedRole, NameRole, DescriptionRole, DetailedDescriptionRole, WidgetRole, CanCloseRole, RankRole, UserRole };
 
 	/// Application-wide type definitions used inthe Qt StandardItem Model/View system
 	enum ItemTypes { DragDropItem = QStandardItem::UserType + 1, SidebarItem, SidebarHeadingItem };
