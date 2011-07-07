@@ -709,17 +709,20 @@ void AMScanViewExclusiveView::onModelDataChanged(const QModelIndex& topLeft, con
 			if(dataSource == plotItemDataSources_.at(si)) {
 				switch(dataSource->rank()) {
 				case 1: {
-					QColor color = model()->plotColor(si, di);
+					MPlotAbstractSeries* series = static_cast<MPlotAbstractSeries*>(plotItems_.at(si));
 					QPen pen = model()->plotPen(si, di);
-					pen.setColor(color);
-					static_cast<MPlotAbstractSeries*>(plotItems_.at(si))->setLinePen(pen);
+					if(pen != series->linePen())
+						series->setLinePen(pen);
 					break; }
 				case 2: {
-					/// \todo This is inefficient... Institute separate signals for different dataChanged() parameters, or check if old color map matches new color map.
-					static_cast<MPlotAbstractImage*>(plotItems_.at(si))->setColorMap(model()->plotColorMap(si, di));
+					MPlotAbstractImage* image = static_cast<MPlotAbstractImage*>(plotItems_.at(si));
+					MPlotColorMap newMap = model()->plotColorMap(si, di);
+					if(newMap != image->colorMap())
+						image->setColorMap(newMap);
 					break;
+				}
 				default:
-						break; }
+					break;
 				}
 			}
 		}
@@ -832,12 +835,12 @@ void AMScanViewExclusiveView::reviewScan(int scanIndex) {
 			plot_->plot()->addItem(plotItems_.at(scanIndex), (dataSource->rank() == 2? MPlot::Right : MPlot::Left));
 			/// \todo: if there are 2d images on any plots, set their right axis to show the right axisScale, and show ticks.
 			// testing 3D
-//			if(dataSource->rank() == 2) {
-//				AM3dDataSourceView* tempView = new AM3dDataSourceView(model()->scanAt(scanIndex), model()->scanAt(scanIndex)->indexOfDataSource(dataSource));
-//				tempView->setLogScaleEnabled();
-//				tempView->resize(640,480);
-//				tempView->show();
-//			}
+			//			if(dataSource->rank() == 2) {
+			//				AM3dDataSourceView* tempView = new AM3dDataSourceView(model()->scanAt(scanIndex), model()->scanAt(scanIndex)->indexOfDataSource(dataSource));
+			//				tempView->setLogScaleEnabled();
+			//				tempView->resize(640,480);
+			//				tempView->show();
+			//			}
 
 			plotItemDataSources_[scanIndex] = dataSource;
 		}
@@ -853,8 +856,6 @@ void AMScanViewExclusiveView::reviewScan(int scanIndex) {
 					plotItemDataSources_[scanIndex] = dataSource;
 				}
 				QPen pen = model()->plotPen(scanIndex, dataSourceIndex);
-				QColor color = model()->plotColor(scanIndex, dataSourceIndex);
-				pen.setColor(color);
 				series->setLinePen(pen);
 				break; }
 			case 2: {
@@ -1076,13 +1077,16 @@ void AMScanViewMultiView::onModelDataChanged(const QModelIndex& topLeft, const Q
 					plotItem->setDescription(model()->scanAt(si)->fullName() + ": " + model()->dataSourceAt(si, di)->description());
 					switch(model()->dataSourceAt(si, di)->rank()) {
 					case 1: {
+						MPlotAbstractSeries* series = static_cast<MPlotAbstractSeries*>(plotItem);
 						QPen pen = model()->plotPen(si, di);
-						pen.setColor(model()->plotColor(si, di));
-						static_cast<MPlotAbstractSeries*>(plotItem)->setLinePen(pen);
+						if(pen != series->linePen())
+							series->setLinePen(pen);
 						break; }
 					case 2: {
-						/// \todo This is inefficient... Institute separate signals for different dataChanged() parameters, or check if old color map matches new color map.
-						static_cast<MPlotAbstractImage*>(plotItem)->setColorMap(model()->plotColorMap(si, di));
+						MPlotAbstractImage* image = static_cast<MPlotAbstractImage*>(plotItem);
+						MPlotColorMap newMap = model()->plotColorMap(si, di);
+						if(newMap != image->colorMap())
+							image->setColorMap(newMap);
 						break; }
 					default:
 						break;
@@ -1367,13 +1371,16 @@ void AMScanViewMultiScansView::onModelDataChanged(const QModelIndex& topLeft, co
 
 					switch(model()->dataSourceAt(si, di)->rank()) {
 					case 1: {
+						MPlotAbstractSeries* series = static_cast<MPlotAbstractSeries*>(plotItem);
 						QPen pen = model()->plotPen(si, di);
-						pen.setColor(model()->plotColor(si, di));
-						static_cast<MPlotAbstractSeries*>(plotItem)->setLinePen(pen);
+						if(pen != series->linePen())
+							series->setLinePen(pen);
 						break; }
 					case 2: {
-						/// \todo This is inefficient... Institute separate signals for different dataChanged() parameters, or check if old color map matches new color map.
-						static_cast<MPlotAbstractImage*>(plotItem)->setColorMap(model()->plotColorMap(si, di));
+						MPlotAbstractImage* image = static_cast<MPlotAbstractImage*>(plotItem);
+						MPlotColorMap newMap = model()->plotColorMap(si, di);
+						if(newMap != image->colorMap())
+							image->setColorMap(newMap);
 						break; }
 					default:
 						break;
@@ -1587,13 +1594,16 @@ void AMScanViewMultiSourcesView::onModelDataChanged(const QModelIndex& topLeft, 
 
 				switch(model()->dataSourceAt(si, di)->rank()) {
 				case 1: {
+					MPlotAbstractSeries* series = static_cast<MPlotAbstractSeries*>(plotItem);
 					QPen pen = model()->plotPen(si, di);
-					pen.setColor(model()->plotColor(si, di));
-					static_cast<MPlotAbstractSeries*>(plotItem)->setLinePen(pen);
+					if(pen != series->linePen())
+						series->setLinePen(pen);
 					break; }
 				case 2: {
-					/// \todo This is inefficient... Institute separate signals for different dataChanged() parameters, or check if old color map matches new color map.
-					static_cast<MPlotAbstractImage*>(plotItem)->setColorMap(model()->plotColorMap(si, di));
+					MPlotAbstractImage* image = static_cast<MPlotAbstractImage*>(plotItem);
+					MPlotColorMap newMap = model()->plotColorMap(si, di);
+					if(newMap != image->colorMap())
+						image->setColorMap(newMap);
 					break; }
 				default:
 					break;
