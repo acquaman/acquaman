@@ -252,21 +252,6 @@ QColor XRFViewer::getColor(int index)
 
 void XRFViewer::loadFile()
 {
-	QString fileName = QFileDialog::getOpenFileName(this,
-													tr("Load Spectra"),
-													"",
-													tr("Spectra Data (*.dat);;All Files (*)"));
-
-	QFile file(fileName);
-
-	if (!file.open(QFile::ReadOnly | QFile::Text)){
-		QMessageBox::warning(this, tr("XRF Spectra Viewer"),
-							 tr("Cannot open file %1:\n%2")
-							 .arg(file.fileName())
-							 .arg(file.errorString()));
-		return;
-	}
-
 	// Clean up first.
 	while(!deadTimeLayout_->isEmpty())
 		deadTimeLayout_->removeItem(deadTimeLayout_->itemAt(0));
@@ -281,6 +266,131 @@ void XRFViewer::loadFile()
 	rawDataSeries_.clear();
 	corrDataSeries_.clear();
 	roiList_->clear();
+
+	// End of clean up.
+
+	QString filename = QFileDialog::getOpenFileName(this,
+													tr("Load Spectra"),
+													"",
+													tr("Spectra Data (*.dat);;All Files (*)"));
+
+	switch(checkDataFile(filename)){
+
+	case None:
+		QMessageBox::warning(this, tr("XRF Spectra Viewer"), tr("This data file is not a VESPERS data file and is not supported."));
+		break;
+	case SpectrumSnapshot:
+		loadSpectrumSnapshotFile(filename);
+		break;
+	case VespersXRF:
+		loadVespersXRFFile(filename);
+		break;
+	case AcquamanXRF:
+		loadAcquamanXRFFile(filename);
+		break;
+	}
+}
+
+XRFViewer::FileType XRFViewer::checkDataFile(QString filename)
+{
+	QFile file(filename);
+
+	if (!file.open(QFile::ReadOnly | QFile::Text)){
+		QMessageBox::warning(this, tr("XRF Spectra Viewer"),
+							 tr("Cannot open file %1:\n%2")
+							 .arg(file.fileName())
+							 .arg(file.errorString()));
+		return None;
+	}
+
+	QTextStream in(&file);
+	QString current(in.readLine());
+	file.close();
+
+	FileType type;
+
+	if (current.contains("#"))
+		type = SpectrumSnapshot;
+
+	else if (current.contains("Number of Elements:"))
+		type = AcquamanXRF;
+
+	else if (current.split("\t").size() == 2 || current.split("\t").size() == 6)
+		type = VespersXRF;
+
+	else
+		type = None;
+
+	return type;
+}
+
+void XRFViewer::loadSpectrumSnapshotFile(QString filename)
+{
+	QFile file(filename);
+
+	if (!file.open(QFile::ReadOnly | QFile::Text)){
+		QMessageBox::warning(this, tr("XRF Spectra Viewer"),
+							 tr("Cannot open file %1:\n%2")
+							 .arg(file.fileName())
+							 .arg(file.errorString()));
+		return;
+	}
+
+	QTextStream in(&file);
+
+	in.readLine();
+	in.readLine();
+	in.readLine();
+
+	QString current(in.readLine());
+	elapsedTime_->setText(current.split(" ").at(4));
+	deadTime_->setText("--");
+	roiList_->setText("N/A");
+
+	double firstNum = 0;
+	double secondNum = 0;
+
+	QList<double> data;
+
+	current = in.readLine();
+	firstNum = current.split("\t").first().toDouble()*1000;
+	data << current.split("\t").last().toDouble();
+	current = in.readLine();
+	secondNum = current.split("\t").first().toDouble()*1000;
+	data << current.split("\t").last().toDouble();
+
+	while(!(current = in.readLine()).isEmpty())
+		data << current.split("\t").last().toDouble();
+
+	file.close();
+}
+
+void XRFViewer::loadVespersXRFFile(QString filename)
+{
+	QFile file(filename);
+
+	if (!file.open(QFile::ReadOnly | QFile::Text)){
+		QMessageBox::warning(this, tr("XRF Spectra Viewer"),
+							 tr("Cannot open file %1:\n%2")
+							 .arg(file.fileName())
+							 .arg(file.errorString()));
+		return;
+	}
+
+	QTextStream in(&file);
+}
+
+void XRFViewer::loadAcquamanXRFFile(QString filename)
+{
+	QFile file(filename);
+
+	if (!file.open(QFile::ReadOnly | QFile::Text)){
+		QMessageBox::warning(this, tr("XRF Spectra Viewer"),
+							 tr("Cannot open file %1:\n%2")
+							 .arg(file.fileName())
+							 .arg(file.errorString()));
+		return;
+	}
 
 	QTextStream in(&file);
 

@@ -37,6 +37,18 @@ protected slots:
 	void onWaterfallSeparationChanged(double val) { plot_->setAxisScaleWaterfall(MPlot::Left, val*getMaximumHeight(plot_->item(0))); }
 
 protected:
+	/// Enum for the different file types.  None is if it can't determine it.
+	enum FileType { None, SpectrumSnapshot, VespersXRF, AcquamanXRF };
+
+	/// Checks the data file and returns a FileType.
+	FileType checkDataFile(QString filename);
+	/// Loads the data file based on Ru's Spectrum snapshot program and fills in the view with the information it can.
+	void loadSpectrumSnapshotFile(QString filename);
+	/// Loads old VespersXRF data file and fills in the information it can.
+	void loadVespersXRFFile(QString filename);
+	/// Loads up the current data file format and places all the appropriate information in its associated spots.
+	void loadAcquamanXRFFile(QString filename);
+
 	/// Sets up the plot.  Can add the plot widget to the layout after calling this function.
 	void setupPlot();
 	/// Gets the maximum height from the first data source.  Used for scaling the height of the ROI markers.
