@@ -375,6 +375,8 @@ void XRFViewer::loadSpectrumSnapshotFile(QString filename)
 	corrSum_->setDescription("Corrected Sum");
 	corrSum_->setLinePen(QPen(getColor(0)));
 
+	plot_->axisBottom()->setAxisName("Energy, eV");
+
 	correctedSumButton_->setEnabled(true);
 
 	onSpectraGroupClicked(0);
@@ -458,6 +460,8 @@ void XRFViewer::loadVespersXRFFile(QString filename)
 		corrSum_->setMarker(MPlotMarkerShape::None);
 		corrSum_->setDescription("Corrected Sum");
 		corrSum_->setLinePen(QPen(getColor(0)));
+
+		plot_->axisBottom()->setAxisName("Channel #");
 
 		rawSpectraButton_->setEnabled(true);
 		correctedSumButton_->setEnabled(true);
@@ -578,6 +582,8 @@ void XRFViewer::loadAcquamanXRFFile(QString filename)
 	rawSpectraButton_->setEnabled(true);
 	correctedSpectraButton_->setEnabled(true);
 	correctedSumButton_->setEnabled(true);
+
+	plot_->axisBottom()->setAxisName("Energy, eV");
 
 	onSpectraGroupClicked(0);
 }
