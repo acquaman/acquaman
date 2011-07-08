@@ -27,8 +27,6 @@ public slots:
 protected slots:
 	/// Loads a spectra file in and puts everything in its place.
 	void loadFile();
-	/// Handles enabling/disabling of elements based on which button is clicked in the dead time button group.
-	void elementClicked(int elementId);
 	/// Handles when the log scale button is clicked.  It takes a log of the data if true.
 	void onLogEnabled(bool logged);
 	/// Handles what happens when a spectra group button specified by \code id is clicked.
@@ -62,6 +60,13 @@ protected:
 	QLabel *deadTime_;
 	/// The region of interest text edit.
 	QTextEdit *roiList_;
+
+	/// The button to show the raw spectra in a waterfall plot.
+	QPushButton *rawSpectraButton_;
+	/// The button to show the corrected spectra in a waterfall plot.
+	QPushButton *correctedSpectraButton_;
+	/// The button to show the corrected sum.
+	QPushButton *correctedSumButton_;
 
 	/// The waterfall spin box.
 	QDoubleSpinBox *waterfallSeparation_;
