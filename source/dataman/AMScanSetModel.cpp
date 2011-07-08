@@ -24,7 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMDataSource.h"
 #include "dataman/AMScan.h"
 
-#include "acquaman.h"
+
 
 QModelIndex AMScanSetModel::index ( int row, int column, const QModelIndex & parent ) const {
 	// top level:
@@ -86,6 +86,7 @@ QVariant AMScanSetModel::data ( const QModelIndex & index, int role) const {
 		return QVariant();
 
 	// scan-level index:
+	///////////////////////////
 	if(index.internalId() == -1 && index.row() < scans_.count() && index.column() == 0) {
 		AMScan* scan = scans_.at(index.row());
 
@@ -100,7 +101,7 @@ QVariant AMScanSetModel::data ( const QModelIndex & index, int role) const {
 		case Qt::DecorationRole:
 			/// \bug this is temporary and meaningless; it's just the color of the first data source in the scan.
 			if(scan->dataSourceCount() > 0)
-				return sourcePlotSettings_.at(index.row()).at(0).color;
+				return sourcePlotSettings_.at(index.row()).at(0).linePen.color();
 			else
 				return QVariant();
 			break;
@@ -121,6 +122,10 @@ QVariant AMScanSetModel::data ( const QModelIndex & index, int role) const {
 			return scan->modified();
 		case AM::CanCloseRole:	// allows views to show the 'close' button beside each scan, to delete it. Do we want this on?
 			return true;
+		case AM::NameRole: {
+				return scan->name().append(QString(" #%1").arg(scan->number()));
+			}
+			break;
 		default:
 			return QVariant();
 			break;
@@ -129,6 +134,7 @@ QVariant AMScanSetModel::data ( const QModelIndex & index, int role) const {
 
 
 	// data source-level index:
+	////////////////////////////
 	if(index.internalId() >= 0 && index.internalId() < scans_.count() ) {
 		AMScan* scan = scans_.at(index.internalId());
 
@@ -140,11 +146,18 @@ QVariant AMScanSetModel::data ( const QModelIndex & index, int role) const {
 				return QString("%1 (%2)").arg(dataSource->description(), dataSource->name());
 				break;
 			case Qt::DecorationRole:
-				return sourcePlotSettings_.at(index.internalId()).at(index.row()).color;
+				return sourcePlotSettings_.at(index.internalId()).at(index.row()).linePen.color();
 				break;
 			case Qt::ToolTipRole:
+			case AM::NameRole:
+				return dataSource->name();
 			case AM::DescriptionRole:
-				return QString("%1 (%2) From scan: %3\n%4").arg(dataSource->description(), dataSource->name()).arg(scan->name()).arg(dataSource->typeDescription());
+				return dataSource->description();
+			case AM::DetailedDescriptionRole:
+				return QString("%1 (%2) From scan: %3\n%4").arg(dataSource->description(),
+																dataSource->name(),
+																scan->name(),
+																dataSource->typeDescription());
 				break;
 			case Qt::CheckStateRole:
 				return sourcePlotSettings_.at(index.internalId()).at(index.row()).visible ? Qt::Checked : Qt::Unchecked;
@@ -155,10 +168,15 @@ QVariant AMScanSetModel::data ( const QModelIndex & index, int role) const {
 			case AM::PriorityRole:
 				return sourcePlotSettings_.at(index.internalId()).at(index.row()).priority;
 				break;
-			case AM::LinePenRole:
-				return sourcePlotSettings_.at(index.internalId()).at(index.row()).linePen;
 			case AM::CanCloseRole:	// allows views to show the 'close' button beside each scan, to delete it.
 				return true;
+			case AM::LinePenRole:
+				return sourcePlotSettings_.at(index.internalId()).at(index.row()).linePen;
+			case AM::RankRole:
+				return dataSource->rank();
+			case AMScanSetModel::ColorMapRole:
+				return qVariantFromValue(sourcePlotSettings_.at(index.internalId()).at(index.row()).colorMap);
+
 			default:
 				return QVariant();
 				break;
@@ -312,8 +330,9 @@ bool AMScanSetModel::setData ( const QModelIndex & index, const QVariant & value
 	else if(index.internalId() < scans_.count() && index.row() < scans_.at(index.internalId())->dataSourceCount()) {
 		// AMDataSource* dataSource = scans_.at(index.internalId())->dataSourceAt(index.row());
 		switch(role) {
+		/// \todo Update here: all properties we can adjust...
 		case Qt::DecorationRole:
-			sourcePlotSettings_[index.internalId()][index.row()].color = value.value<QColor>();
+			sourcePlotSettings_[index.internalId()][index.row()].linePen.setColor( value.value<QColor>() );
 			emit dataChanged(index, index);
 			return true;
 		case Qt::CheckStateRole:
@@ -326,6 +345,10 @@ bool AMScanSetModel::setData ( const QModelIndex & index, const QVariant & value
 			return true;
 		case AM::LinePenRole:
 			sourcePlotSettings_[index.internalId()][index.row()].linePen = value.value<QPen>();
+			emit dataChanged(index, index);
+			return true;
+		case AMScanSetModel::ColorMapRole:
+			sourcePlotSettings_[index.internalId()][index.row()].colorMap = value.value<MPlotColorMap>();
 			emit dataChanged(index, index);
 			return true;
 		default:

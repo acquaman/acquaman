@@ -357,7 +357,12 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/dataman/AMProcessVariableDataSource.h \
 	source/ui/AMChooseScanDialog.h \
 	source/application/AMDatamanAppController.h \
-	source/ui/AMColorPickerButton.h
+	source/ui/AMColorPickerButton.h \
+	source/ui/AMScanSetItemPropertyDialog.h \
+	source/ui/AMColoredTextToolButton.h \
+	source/ui/AMLinePropertyEditor.h \
+	source/ui/AMImagePropertyEditor.h
+
 
 CONFIG(mobility) {
 HEADERS +=	source/ui/AMCrosshairOverlayVideoWidget.h \
@@ -377,7 +382,9 @@ FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMSamplePositionViewActionsWidget.ui \
 	source/ui/AMExporterOptionGeneralAsciiView.ui \
 	source/ui/AMDataViewActionsBar.ui \
-	source/ui/AMChooseScanDialog.ui
+	source/ui/AMChooseScanDialog.ui \
+	source/ui/AMLinePropertyEditor.ui \
+    source/ui/AMImagePropertyEditor.ui
 SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	../MPlot/src/MPlot/MPlotAbstractTool.cpp \
 	../MPlot/src/MPlot/MPlotAxis.cpp \
@@ -585,7 +592,12 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/dataman/AMProcessVariableDataSource.cpp \
 	source/ui/AMChooseScanDialog.cpp \
 	source/application/AMDatamanAppController.cpp \
-	source/ui/AMColorPickerButton.cpp
+	source/ui/AMColorPickerButton.cpp \
+	source/ui/AMScanSetItemPropertyDialog.cpp \
+	source/ui/AMColoredTextToolButton.cpp \
+	source/ui/AMLinePropertyEditor.cpp \
+	source/ui/AMImagePropertyEditor.cpp
+
 
 CONFIG(mobility) {
 SOURCES +=	source/ui/AMOverlayVideoWidget.cpp \
