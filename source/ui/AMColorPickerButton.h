@@ -30,6 +30,8 @@ public slots:
 protected slots:
 	/// Called when the color dialog is finished (user has selected a color)
 	void onColorDialogAccepted();
+	/// Called when the color dialog is rejected (user has cancelled)
+	void onColorDialogRejected();
 
 protected:
 	QColorDialog* colorDialog_;

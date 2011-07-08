@@ -4,11 +4,12 @@
 #include <QDialog>
 #include <QPersistentModelIndex>
 #include "ui/AMLinePropertyEditor.h"
+#include "ui/AMImagePropertyEditor.h"
 
 class AMScanSetModel;
 
 
-/// This widget provides controls to edit the display properties of a line/series in a plot: color, width, line style, fill (on/off), fill color.  It's a helper class for AMScanSetItemPropertyDialog, which simply extends AMLineSeriesPropertyEditor to talk directly to an item (persistent index) within the AMScanSetModel.
+/// This widget provides controls to edit the display properties of a line/series in a plot: color, width, line style, fill (on/off), fill color.  It's a helper class for AMScanSetItemPropertyDialog, which simply extends AMLinePropertyEditor to talk directly to an item (persistent index) within the AMScanSetModel.
 class AMScanSetItem1DPropertyEditor : public AMLinePropertyEditor {
 	Q_OBJECT
 
@@ -17,6 +18,21 @@ public:
 
 protected slots:
 	void onLinePenChanged(const QPen& pen);
+
+protected:
+	AMScanSetModel* model_;
+	QPersistentModelIndex pi_;
+};
+
+/// This widget provides the controls to edit the display properties of a surface map (color map): whether to use a standard color map (and which colormap), or the two custom colors in a linear color map. Also provides brightness, contrast, and gamma adjustments.  It's a helper class for AMScanSetItemPropertyDialog, and simply extends AMImagePropertyEditor to talk directly to an item within the AMScanSetModel.
+class AMScanSetItem2DPropertyEditor : public AMImagePropertyEditor {
+	Q_OBJECT
+
+public:
+	explicit AMScanSetItem2DPropertyEditor(AMScanSetModel* model, const QPersistentModelIndex& dataSourcePersistentIndex, QWidget* parent = 0);
+
+protected slots:
+	void onColorMapChanged(const MPlotColorMap& map);
 
 protected:
 	AMScanSetModel* model_;

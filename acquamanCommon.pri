@@ -383,8 +383,8 @@ FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMExporterOptionGeneralAsciiView.ui \
 	source/ui/AMDataViewActionsBar.ui \
 	source/ui/AMChooseScanDialog.ui \
-	source/ui/AMImagePropertyEditor.ui \
-	source/ui/AMLinePropertyEditor.ui
+	source/ui/AMLinePropertyEditor.ui \
+    source/ui/AMImagePropertyEditor.ui
 SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	../MPlot/src/MPlot/MPlotAbstractTool.cpp \
 	../MPlot/src/MPlot/MPlotAxis.cpp \

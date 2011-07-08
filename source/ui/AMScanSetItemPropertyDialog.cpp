@@ -34,8 +34,8 @@ AMScanSetItemPropertyDialog::AMScanSetItemPropertyDialog(AMScanSetModel* model, 
 	int rank = model_->data(di, AM::RankRole).toInt();
 	if(rank == 1)
 		vl->addWidget(new AMScanSetItem1DPropertyEditor(model_, pi_));
-//	else if(rank == 2)
-//		vl->addWidget(new AMScanSetItem2DPropertyEditor(model_, pi_));
+	else if(rank == 2)
+		vl->addWidget(new AMScanSetItem2DPropertyEditor(model_, pi_));
 
 
 
@@ -45,7 +45,6 @@ AMScanSetItemPropertyDialog::AMScanSetItemPropertyDialog(AMScanSetModel* model, 
 	connect(model_, SIGNAL(rowsAboutToBeRemoved(QModelIndex, int, int)), this, SLOT(onRowsAboutToBeRemoved(QModelIndex,int,int)));
 	connect(model_, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(onModelDataChanged(QModelIndex,QModelIndex)));
 
-	 setStyleSheet("Foo { background:transparent; }");
 	 setAttribute(Qt::WA_TranslucentBackground);
 	 // setWindowFlags(Qt::FramelessWindowHint);
 
@@ -107,5 +106,22 @@ void AMScanSetItem1DPropertyEditor::onLinePenChanged(const QPen &pen)
 {
 	if(pi_.isValid()) {
 		model_->setData(pi_, pen, AM::LinePenRole);
+	}
+}
+
+AMScanSetItem2DPropertyEditor::AMScanSetItem2DPropertyEditor(AMScanSetModel *model, const QPersistentModelIndex &di, QWidget *parent)
+	: AMImagePropertyEditor(
+		  model->plotColorMap(di.parent().row(), di.row()),
+		  parent)
+{
+	model_ = model;
+	pi_ = di;
+	connect(this, SIGNAL(colorMapChanged(MPlotColorMap)), this, SLOT(onColorMapChanged(MPlotColorMap)));
+}
+
+void AMScanSetItem2DPropertyEditor::onColorMapChanged(const MPlotColorMap &map)
+{
+	if(pi_.isValid()) {
+		model_->setData(pi_, qVariantFromValue(map), AMScanSetModel::ColorMapRole);
 	}
 }

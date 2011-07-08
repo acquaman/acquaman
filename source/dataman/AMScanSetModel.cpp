@@ -174,6 +174,8 @@ QVariant AMScanSetModel::data ( const QModelIndex & index, int role) const {
 				return sourcePlotSettings_.at(index.internalId()).at(index.row()).linePen;
 			case AM::RankRole:
 				return dataSource->rank();
+			case AMScanSetModel::ColorMapRole:
+				return qVariantFromValue(sourcePlotSettings_.at(index.internalId()).at(index.row()).colorMap);
 
 			default:
 				return QVariant();
@@ -345,7 +347,10 @@ bool AMScanSetModel::setData ( const QModelIndex & index, const QVariant & value
 			sourcePlotSettings_[index.internalId()][index.row()].linePen = value.value<QPen>();
 			emit dataChanged(index, index);
 			return true;
-
+		case AMScanSetModel::ColorMapRole:
+			sourcePlotSettings_[index.internalId()][index.row()].colorMap = value.value<MPlotColorMap>();
+			emit dataChanged(index, index);
+			return true;
 		default:
 			return false;
 		}

@@ -40,14 +40,15 @@ public:
 	AMDataSourcePlotSettings(double Priority = 1, const QPen& LinePen = QPen(nextColor()), bool Visible = true)
 		: priority(Priority),
 		  visible(Visible),
-		  linePen(LinePen) {
+		  linePen(LinePen),
+		  colorMap(MPlotColorMap::Jet)
+	{
 
 		areaFilled = false;
-		useStandardColorMap = true;
-		standardColorMap = MPlotColorMap::Jet;
-		brightness = 1;
-		contrast = 1;
-		gamma = 1;
+
+//		colorMap.setContrast(2.1);
+//		colorMap.setBrightness(0.08);
+//		colorMap.setGamma(0.7);
 	}
 
 
@@ -66,10 +67,6 @@ public:
 	QBrush fillBrush;
 
 	// 2D plot settings:
-	bool useStandardColorMap;
-	MPlotColorMap::StandardColorMap standardColorMap;
-	QColor customMapColor1, customMapColor2;
-	double brightness, contrast, gamma;
 
 	/// Resultant colormap used for multi-dimensional data
 	MPlotColorMap colorMap;
@@ -122,14 +119,7 @@ Data Roles:
  AMScanSetModel::FilledRole
  AMScanSetModel::FillColorRole
 
- AMScanSetModel::ColorMapRole
- AMScanSetModel::UseStandardColorMapRole
- AMScanSetModel::StandardColorMapRole
- AMScanSetModel::FirstColorRole
- AMScanSetModel::SecondColorRole
- AMScanSetModel::BrightnessRole
- AMScanSetModel::ContrastRole
- AMScanSetModel::GammaRole
+ AMScanSetModel::ColorMapRole: MPlotColorMap: used for color-coding 2D surface plots
 
 
  \note While while the Qt standard model API supports inserting/removing multiple rowse, the AMScanSetModel guarantees that only <i>one</i> row (ie: Scan or Data Source) will be inserted/removed/modified at a time.  For all the rowsInserted(), rowsRemoved(), and dataChanged() signals, it's safe to assume that \c start and \c end are the same, as well as \c topLeft and \c bottomRight.
@@ -267,6 +257,7 @@ public:
   - AM::PriorityRole (plot options: sets data source ordering)
   - Qt::DecorationRole (sets color of line pen)
   - AM::LinePenRole (plot options: sets pen used for data source, including the color)
+  - AMScanSetModel::ColorMapRole (plot options: sets color map used for 2D data source, including brightness, contrast, and gamma)
 
 
 

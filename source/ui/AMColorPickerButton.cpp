@@ -24,6 +24,7 @@ void AMColorPickerButton::activateColorBrowser()
 		colorDialog_ = new QColorDialog(currentColor_, this);
 		colorDialog_->setAttribute(Qt::WA_DeleteOnClose, false);
 		connect(colorDialog_, SIGNAL(accepted()), this, SLOT(onColorDialogAccepted()));
+		connect(colorDialog_, SIGNAL(rejected()), this, SLOT(onColorDialogRejected()));
 	}
 
 	colorDialog_->show();
@@ -45,5 +46,18 @@ void AMColorPickerButton::setColor(const QColor &newColor)
 void AMColorPickerButton::onColorDialogAccepted()
 {
 	setColor(colorDialog_->currentColor());
+	// only necessary to delete the color dialog on Mac os x. (Bug in Qt prevents having two native color dialogs at the same time.) http://bugreports.qt.nokia.com/browse/QTBUG-11188
+//#ifdef Q_WS_MAC
+//	colorDialog_->deleteLater();
+//	colorDialog_ = 0;
+//#endif
+}
+
+void AMColorPickerButton::onColorDialogRejected() {
+	// only necessary to delete the color dialog on Mac os x. (Bug in Qt prevents having two native color dialogs at the same time.) http://bugreports.qt.nokia.com/browse/QTBUG-11188
+//#ifdef Q_WS_MAC
+//	colorDialog_->deleteLater();
+//	colorDialog_ = 0;
+//#endif
 }
 
