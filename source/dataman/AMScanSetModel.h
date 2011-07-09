@@ -46,9 +46,9 @@ public:
 
 		areaFilled = false;
 
-//		colorMap.setContrast(2.1);
-//		colorMap.setBrightness(0.08);
-//		colorMap.setGamma(0.7);
+		colorMap.setContrast(2.1);
+		colorMap.setBrightness(0.08);
+		colorMap.setGamma(0.7);
 	}
 
 

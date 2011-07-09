@@ -7,6 +7,15 @@ AMImagePropertyEditor::AMImagePropertyEditor(QWidget *parent) :
 	currentMap_(MPlotColorMap::Jet)
 {
 	ui_->setupUi(this);
+	QButtonGroup* typeBG = new QButtonGroup(this);
+	typeBG->addButton(ui_->useStandardColorMapButton);
+	typeBG->addButton(ui_->useCustomColorsButton);
+	typeBG->setExclusive(true);
+
+	QButtonGroup* blendModeBG = new QButtonGroup(this);
+	blendModeBG->addButton(ui_->rgbButton, 0);
+	blendModeBG->addButton(ui_->hsvButton, 1);
+	blendModeBG->setExclusive(true);
 
 	brightness_ = 0;
 	contrast_ = 1;
@@ -14,15 +23,23 @@ AMImagePropertyEditor::AMImagePropertyEditor(QWidget *parent) :
 
 	ui_->secondColorButton->setColor(Qt::white);
 
+	makeConnections();
+}
+
+void AMImagePropertyEditor::makeConnections()
+{
 	connect(ui_->useStandardColorMapButton, SIGNAL(toggled(bool)), this, SLOT(onUseStandardColorMapChanged(bool)));
 	connect(ui_->standardColorMapComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onStandardColorMapChanged(int)));
 
 	connect(ui_->useStandardColorMapButton, SIGNAL(toggled(bool)), ui_->standardColorMapComboBox, SLOT(setEnabled(bool)));
 	connect(ui_->useCustomColorsButton, SIGNAL(toggled(bool)), ui_->firstColorButton, SLOT(setEnabled(bool)));
 	connect(ui_->useCustomColorsButton, SIGNAL(toggled(bool)), ui_->secondColorButton, SLOT(setEnabled(bool)));
+	connect(ui_->useCustomColorsButton, SIGNAL(toggled(bool)), ui_->rgbButton, SLOT(setEnabled(bool)));
+	connect(ui_->useCustomColorsButton, SIGNAL(toggled(bool)), ui_->hsvButton, SLOT(setEnabled(bool)));
 
 	connect(ui_->firstColorButton, SIGNAL(colorChanged(QColor)), this, SLOT(onFirstColorChanged(QColor)));
 	connect(ui_->secondColorButton, SIGNAL(colorChanged(QColor)), this, SLOT(onSecondColorChanged(QColor)));
+	connect(ui_->hsvButton, SIGNAL(toggled(bool)), this, SLOT(onBlendModeChanged(bool)));
 
 	connect(ui_->brightnessSlider, SIGNAL(valueChanged(int)), this, SLOT(onBrightnessSliderChanged(int)));
 	connect(ui_->contrastSlider, SIGNAL(valueChanged(int)), this, SLOT(onContrastSliderChanged(int)));
@@ -34,6 +51,15 @@ AMImagePropertyEditor::AMImagePropertyEditor(bool useStandardColorMap, int mplot
 	ui_(new Ui::AMImagePropertyEditor)
 {
 	ui_->setupUi(this);
+	QButtonGroup* typeBG = new QButtonGroup(this);
+	typeBG->addButton(ui_->useStandardColorMapButton);
+	typeBG->addButton(ui_->useCustomColorsButton);
+	typeBG->setExclusive(true);
+
+	QButtonGroup* blendModeBG = new QButtonGroup(this);
+	blendModeBG->addButton(ui_->rgbButton, 0);
+	blendModeBG->addButton(ui_->hsvButton, 1);
+	blendModeBG->setExclusive(true);
 
 	brightness_ = brightness;
 	contrast_ = contrast;
@@ -41,7 +67,12 @@ AMImagePropertyEditor::AMImagePropertyEditor(bool useStandardColorMap, int mplot
 
 	ui_->useStandardColorMapButton->setChecked(useStandardColorMap);
 	ui_->useCustomColorsButton->setChecked(!useStandardColorMap);
-	ui_->standardColorMapComboBox->setCurrentIndex(qBound(0, mplotStandardColorMap, 12));
+
+	if(mplotStandardColorMap != -1)
+		ui_->standardColorMapComboBox->setCurrentIndex(qBound(0, mplotStandardColorMap, 12));
+	else
+		ui_->standardColorMapComboBox->setCurrentIndex(7);// default (unselected): Jet.  todo: make defaults configurable?
+
 	ui_->firstColorButton->setColor(firstColor);
 	ui_->secondColorButton->setColor(secondColor);
 
@@ -70,6 +101,8 @@ AMImagePropertyEditor::AMImagePropertyEditor(bool useStandardColorMap, int mplot
 		ui_->standardColorMapComboBox->setEnabled(false);
 		ui_->firstColorButton->setEnabled(true);
 		ui_->secondColorButton->setEnabled(true);
+		ui_->rgbButton->setEnabled(true);
+		ui_->hsvButton->setEnabled(true);
 	}
 
 	// setup current color map
@@ -78,23 +111,11 @@ AMImagePropertyEditor::AMImagePropertyEditor(bool useStandardColorMap, int mplot
 	else
 		currentMap_ = MPlotColorMap(firstColor, secondColor);
 
-	//	currentMap_.setBrightness(brightness_);
-	//	currentMap_.setContrast(contrast_);
-	//	currentMap_.setGamma(gamma_);
+	currentMap_.setBrightness(brightness_);
+	currentMap_.setContrast(contrast_);
+	currentMap_.setGamma(gamma_);
 
-	connect(ui_->useStandardColorMapButton, SIGNAL(toggled(bool)), this, SLOT(onUseStandardColorMapChanged(bool)));
-	connect(ui_->standardColorMapComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onStandardColorMapChanged(int)));
-
-	connect(ui_->useStandardColorMapButton, SIGNAL(toggled(bool)), ui_->standardColorMapComboBox, SLOT(setEnabled(bool)));
-	connect(ui_->useCustomColorsButton, SIGNAL(toggled(bool)), ui_->firstColorButton, SLOT(setEnabled(bool)));
-	connect(ui_->useCustomColorsButton, SIGNAL(toggled(bool)), ui_->secondColorButton, SLOT(setEnabled(bool)));
-
-	connect(ui_->firstColorButton, SIGNAL(colorChanged(QColor)), this, SLOT(onFirstColorChanged(QColor)));
-	connect(ui_->secondColorButton, SIGNAL(colorChanged(QColor)), this, SLOT(onSecondColorChanged(QColor)));
-
-	connect(ui_->brightnessSlider, SIGNAL(valueChanged(int)), this, SLOT(onBrightnessSliderChanged(int)));
-	connect(ui_->contrastSlider, SIGNAL(valueChanged(int)), this, SLOT(onContrastSliderChanged(int)));
-	connect(ui_->gammaSlider, SIGNAL(valueChanged(int)), this, SLOT(onGammaSliderChanged(int)));
+	makeConnections();
 
 }
 
@@ -102,16 +123,29 @@ AMImagePropertyEditor::AMImagePropertyEditor(const MPlotColorMap& colorMap, QWid
 	QFrame(parent),
 	ui_(new Ui::AMImagePropertyEditor)
 {
-	ui_->setupUi(this);
+	brightness_ = colorMap.brightness();
+	contrast_ = colorMap.contrast();
+	gamma_ = colorMap.gamma();
 
-	brightness_ = 0.08;
-	contrast_ = 2.1;
-	gamma_ = 0.7;
-	/// \todo Get from color map
+
+	ui_->setupUi(this);
+	QButtonGroup* typeBG = new QButtonGroup(this);
+	typeBG->addButton(ui_->useStandardColorMapButton);
+	typeBG->addButton(ui_->useCustomColorsButton);
+	typeBG->setExclusive(true);
+
+	QButtonGroup* blendModeBG = new QButtonGroup(this);
+	blendModeBG->addButton(ui_->rgbButton, 0);
+	blendModeBG->addButton(ui_->hsvButton, 1);
+	blendModeBG->setExclusive(true);
 
 	ui_->useStandardColorMapButton->setChecked(colorMap.standardColorMapValue() != -1);
 	ui_->useCustomColorsButton->setChecked(colorMap.standardColorMapValue() == -1);
-	ui_->standardColorMapComboBox->setCurrentIndex(qBound(0, colorMap.standardColorMapValue(), 12));
+
+	if(colorMap.standardColorMapValue() != -1)
+		ui_->standardColorMapComboBox->setCurrentIndex(qBound(0, colorMap.standardColorMapValue(), 12));
+	else
+		ui_->standardColorMapComboBox->setCurrentIndex(7);// default (unselected): Jet.  todo: make defaults configurable?
 
 	QGradientStops stops = colorMap.stops();
 	if(stops.count() >= 2) {
@@ -122,6 +156,10 @@ AMImagePropertyEditor::AMImagePropertyEditor(const MPlotColorMap& colorMap, QWid
 		ui_->firstColorButton->setColor(Qt::black);
 		ui_->secondColorButton->setColor(Qt::white);
 	}
+	if(colorMap.blendMode() == MPlotColorMap::RGB)
+		ui_->rgbButton->setChecked(true);
+	else
+		ui_->hsvButton->setChecked(true);
 
 	int brightnessSliderPos, contrastSliderPos, gammaSliderPos;
 	brightnessSliderPos = qBound(-100, int(brightness_*400), 100);
@@ -138,7 +176,6 @@ AMImagePropertyEditor::AMImagePropertyEditor(const MPlotColorMap& colorMap, QWid
 	ui_->contrastSlider->setValue(contrastSliderPos);
 	ui_->gammaSlider->setValue(gammaSliderPos);
 
-
 	ui_->brightnessText->setText(QString::number(brightness_, 'f', 2));
 	ui_->contrastText->setText(QString::number(contrast_, 'f', 2));
 	ui_->gammaText->setText(QString::number(gamma_, 'f', 2));
@@ -148,26 +185,14 @@ AMImagePropertyEditor::AMImagePropertyEditor(const MPlotColorMap& colorMap, QWid
 		ui_->standardColorMapComboBox->setEnabled(false);
 		ui_->firstColorButton->setEnabled(true);
 		ui_->secondColorButton->setEnabled(true);
+		ui_->rgbButton->setEnabled(true);
+		ui_->hsvButton->setEnabled(true);
 	}
 
 	// setup current color map
 	currentMap_ = colorMap;
 
-
-
-	connect(ui_->useStandardColorMapButton, SIGNAL(toggled(bool)), this, SLOT(onUseStandardColorMapChanged(bool)));
-	connect(ui_->standardColorMapComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onStandardColorMapChanged(int)));
-
-	connect(ui_->useStandardColorMapButton, SIGNAL(toggled(bool)), ui_->standardColorMapComboBox, SLOT(setEnabled(bool)));
-	connect(ui_->useCustomColorsButton, SIGNAL(toggled(bool)), ui_->firstColorButton, SLOT(setEnabled(bool)));
-	connect(ui_->useCustomColorsButton, SIGNAL(toggled(bool)), ui_->secondColorButton, SLOT(setEnabled(bool)));
-
-	connect(ui_->firstColorButton, SIGNAL(colorChanged(QColor)), this, SLOT(onFirstColorChanged(QColor)));
-	connect(ui_->secondColorButton, SIGNAL(colorChanged(QColor)), this, SLOT(onSecondColorChanged(QColor)));
-
-	connect(ui_->brightnessSlider, SIGNAL(valueChanged(int)), this, SLOT(onBrightnessSliderChanged(int)));
-	connect(ui_->contrastSlider, SIGNAL(valueChanged(int)), this, SLOT(onContrastSliderChanged(int)));
-	connect(ui_->gammaSlider, SIGNAL(valueChanged(int)), this, SLOT(onGammaSliderChanged(int)));
+	makeConnections();
 
 }
 
@@ -182,7 +207,7 @@ void AMImagePropertyEditor::onBrightnessSliderChanged(int sliderValue)
 	// slider value from -100 to 100. Map to -.25 to +.25
 	brightness_ = double(sliderValue)/400;
 	ui_->brightnessText->setText(QString::number(brightness_, 'f', 2));
-	// currentMap_.setBrightness(brightness_);
+	currentMap_.setBrightness(brightness_);
 
 	emit brightnessChanged(brightness_);
 	emit colorMapChanged(currentMap_);
@@ -199,7 +224,7 @@ void AMImagePropertyEditor::onContrastSliderChanged(int sliderValue)
 		contrast_ = 1.0/(1.0 - double(sliderValue)*4./100.);	// if negative: invert and make positive
 
 	ui_->contrastText->setText(QString::number(contrast_, 'f', 2));
-	// currentMap_.setContrast(contrast_);
+	currentMap_.setContrast(contrast_);
 
 	emit contrastChanged(contrast_);
 	emit colorMapChanged(currentMap_);
@@ -216,7 +241,7 @@ void AMImagePropertyEditor::onGammaSliderChanged(int sliderValue)
 		gamma_ = 1.0/(1.0 - double(sliderValue)*2.0/100.0);
 
 	ui_->gammaText->setText(QString::number(gamma_, 'f', 2));
-	// currentMap_.setGamma(gamma_);
+	currentMap_.setGamma(gamma_);
 
 	emit gammaChanged(gamma_);
 	emit colorMapChanged(currentMap_);
@@ -248,12 +273,14 @@ void AMImagePropertyEditor::onUseStandardColorMapChanged(bool useStandard)
 {
 	if(useStandard)
 		currentMap_ = MPlotColorMap((MPlotColorMap::StandardColorMap)standardColorMap());
-	else
+	else {
 		currentMap_ = MPlotColorMap(firstColor(), secondColor());
+		currentMap_.setBlendMode(blendMode());
+	}
 
-	//	currentMap_.setBrightness(brightness_);
-	//	currentMap_.setContrast(contrast_);
-	//	currentMap_.setGamma(gamma_);
+	currentMap_.setBrightness(brightness_);
+	currentMap_.setContrast(contrast_);
+	currentMap_.setGamma(gamma_);
 
 	emit useStandardColorMapChanged(useStandard);
 	emit colorMapChanged(currentMap_);
@@ -268,9 +295,9 @@ void AMImagePropertyEditor::onStandardColorMapChanged(int index)
 
 	MPlotColorMap::StandardColorMap sm = (MPlotColorMap::StandardColorMap)standardColorMap();
 	currentMap_ = MPlotColorMap(sm);
-	//	currentMap_.setBrightness(brightness_);
-	//	currentMap_.setContrast(contrast_);
-	//	currentMap_.setGamma(gamma_);
+	currentMap_.setBrightness(brightness_);
+	currentMap_.setContrast(contrast_);
+	currentMap_.setGamma(gamma_);
 
 	emit standardColorMapChanged(sm);
 	emit colorMapChanged(currentMap_);
@@ -297,3 +324,27 @@ void AMImagePropertyEditor::onSecondColorChanged(const QColor &color)
 	emit secondColorChanged(color);
 	emit colorMapChanged(currentMap_);
 }
+
+MPlotColorMap::BlendMode AMImagePropertyEditor::blendMode() const
+{
+	if(ui_->hsvButton->isChecked())
+		return MPlotColorMap::HSV;
+	else
+		return MPlotColorMap::RGB;
+}
+
+void AMImagePropertyEditor::onBlendModeChanged(bool blendModeIsHSV)
+{
+	if(useStandardColorMap())
+		return;
+
+	if(blendModeIsHSV)
+		currentMap_.setBlendMode(MPlotColorMap::HSV);
+	else
+		currentMap_.setBlendMode(MPlotColorMap::RGB);
+
+	emit blendModeChanged(blendModeIsHSV);
+	emit colorMapChanged(currentMap_);
+}
+
+

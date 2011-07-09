@@ -9,7 +9,9 @@ namespace Ui {
 }
 
 
-/// This widget provides an editor for color map settings (standard color map, custom colors, brightness, contrast, gamma).  At the moment, it only supports one-way communication: changes to its editor widgets result in the signals useStandardColorMapChanged(), standardColorMapChanged(), firstColorChanged(), secondColorChanged(), brightnessChanged(), contrastChanged(), and gammaChanged(). However, there is no way to update its widgets programmatically -- it can only be user-driven.
+/// This widget provides an editor for color map settings (standard color map, custom colors, brightness, contrast, gamma).  At the moment, it only supports one-way communication: changes to its editor widgets result in ___Changed() signals. However, there is no way to update its widgets programmatically -- it can only be user-driven.
+/*! This widget can be used either with the MPlot library, where it can edit an MPlotColorMap directly via the colorMapChanged() signal.  It can also be used on its own, where the individual broken-out signals useStandardColorMapChanged(), standardColorMapChanged(), firstColorChanged(), secondColorChanged(), brightnessChanged(), contrastChanged(), and gammaChanged() are made available.
+  */
 class AMImagePropertyEditor : public QFrame
 {
 	Q_OBJECT
@@ -29,11 +31,14 @@ public:
 	double contrast() const { return contrast_; }
 	double gamma() const { return gamma_; }
 
+	MPlotColorMap::BlendMode blendMode() const;
+
 signals:
 	void useStandardColorMapChanged(bool);
 	void standardColorMapChanged(int mplotStandardColorMap);
 	void firstColorChanged(const QColor& color);
 	void secondColorChanged(const QColor& color);
+	void blendModeChanged(int blendModeIsHSV);
 
 	void brightnessChanged(double brightness);
 	void contrastChanged(double contrast);
@@ -51,6 +56,7 @@ protected slots:
 	void onStandardColorMapChanged(int index);
 	void onFirstColorChanged(const QColor& color);
 	void onSecondColorChanged(const QColor& color);
+	void onBlendModeChanged(bool blendModeIsHSV);
 
 protected:
 	Ui::AMImagePropertyEditor* ui_;
@@ -58,6 +64,8 @@ protected:
 	MPlotColorMap currentMap_;
 
 	double brightness_, contrast_, gamma_;
+
+	void makeConnections();
 };
 
 #endif // AMIMAGEPROPERTYEDITOR_H
