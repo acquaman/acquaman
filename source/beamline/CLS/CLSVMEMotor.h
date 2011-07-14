@@ -3,6 +3,11 @@
 
 #include "beamline/AMControl.h"
 
+/*!
+  This class encapsulates many of the standard components found in a CLS VME motor.  Unlike standard AMControls, the CLS VME motors can set other things such as the velocity, acceleration, or directly access the steps
+  rather then giving a distance in millimeters.  Therefore, this class is meant to give more control over the motors in the event that you want more control over the actual
+  motor.
+  */
 class CLSVMEMotor : public AMPVwStatusControl
 {
 	Q_OBJECT
@@ -38,7 +43,7 @@ public:
 	bool usingKill() const;
 
 public slots:
-	/// Sets the step setting.  NOTE: This will move the motor based on the value you give it.
+	/// Sets the step setting.  NOTE: This will move the motor based on the value you give it.  Similar to \code move(double).
 	void setStep(double step);
 	/// Sets the velocity setting for the velocity profile
 	void setVelocity(double velocity);

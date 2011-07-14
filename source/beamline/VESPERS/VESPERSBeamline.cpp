@@ -175,9 +175,6 @@ void VESPERSBeamline::setupSampleStage()
 	sampleStageMotorSet_->addControl(sampleStageX_);
 	sampleStageMotorSet_->addControl(sampleStageY_);
 	sampleStageMotorSet_->addControl(sampleStageZ_);
-	sampleStageMotorSet_->addControl(sampleStageStepX_);
-	sampleStageMotorSet_->addControl(sampleStageStepY_);
-	sampleStageMotorSet_->addControl(sampleStageStepZ_);
 
 	connect(sampleStageMotorSet_, SIGNAL(controlSetTimedOut()), this, SLOT(sampleStageError()));
 
