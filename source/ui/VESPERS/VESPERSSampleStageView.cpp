@@ -13,6 +13,7 @@ VESPERSSampleStageView::VESPERSSampleStageView(QWidget *parent) :
 	sampleStage_ = VESPERSBeamline::vespers()->sampleStage();
 	connect(sampleStage_, SIGNAL(movingChanged(bool)), this, SLOT(onMovingChanged(bool)));
 	connect(sampleStage_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged(bool)));
+	connect(sampleStage_, SIGNAL(moveError(QString)), this, SLOT(onMoveError(QString)));
 
 	jog_ = new QDoubleSpinBox;
 	jog_->setSuffix(" mm");

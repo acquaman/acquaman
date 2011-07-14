@@ -23,19 +23,23 @@ public:
 	/// Indicates that all process variables for this motor are connected
 	virtual bool isConnected() const;
 
-	/// Returns the velocity setting for the velocity profile
+	/// Returns the step setting.  Returns 0.5 if the motor isn't connected yet.  This is because steps are actually given in integers.
+	double step() const;
+	/// Returns the velocity setting for the velocity profile.  Returns 0.5 if the motor isn't connected yet.  This is because velocity is actually given in integers.
 	double velocity() const;
-	/// Returns the base velocity setting for the velocity profile
+	/// Returns the base velocity setting for the velocity profile.  Returns 0.5 if the motor isn't connected yet.  This is because baseVelocity is actually given in integers.
 	double baseVelocity() const;
-	/// Returns the acceleration setting for the velocity profile
+	/// Returns the acceleration setting for the velocity profile.  Returns 0.5 if the motor isn't connected yet.  This is because acceleration is actually given in integers.
 	double acceleration() const;
-	/// Returns the current velocity of the motor (zero when not moving, presumably non-zero when in motion)
+	/// Returns the current velocity of the motor (zero when not moving, presumably non-zero when in motion).  Returns 0.5 if the motor isn't connected yet.  This is because currentVelocity is actually given in integers.
 	double currentVelocity() const;
 
 	/// Returns whether the kill PV is being used for stops
 	bool usingKill() const;
 
 public slots:
+	/// Sets the step setting.  NOTE: This will move the motor based on the value you give it.
+	void setStep(double step);
 	/// Sets the velocity setting for the velocity profile
 	void setVelocity(double velocity);
 	/// Sets the base velocity setting for the velocity profile
@@ -50,6 +54,8 @@ public slots:
 	virtual bool stop();
 
 signals:
+	/// Emitted when the step setting changes.
+	void stepChanged(double step);
 	/// Emitted when the velocity setting changes
 	void velocityChanged(double velocity);
 	/// Emitted when the base velocity setting changes
@@ -60,6 +66,8 @@ signals:
 	void currentVelocityChanged(double currentVelocity);
 
 protected:
+	/// Read-write control for the step setting.
+	AMPVControl *step_;
 	/// Read-write control for the velocity setting
 	AMPVControl *velocity_;
 	/// Read-write control for base velocity setting

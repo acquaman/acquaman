@@ -24,11 +24,14 @@ CLSVMEMotor::CLSVMEMotor(const QString &name, const QString &baseName, const QSt
 		connect(readPV_, SIGNAL(initialized()), this, SLOT(onReadPVInitialized()));
 	}
 
+	step_ = new AMPVControl(name+"Step", baseName+":step:sp", baseName+":step", QString(), this, 20);
 	velocity_ = new AMPVControl(name+"Velocity", baseName+":velo:sp", baseName+":velo", QString(), this, 2);
 	baseVelocity_ = new AMPVControl(name+"BaseVelocity", baseName+":vBase:sp", baseName+":veloBase", QString(), this, 2);
 	acceleration_ = new AMPVControl(name+"Acceleration", baseName+":accel:sp", baseName+":accel", QString(), this, 2);
 	currentVelocity_ = new AMReadOnlyPVControl(name+"CurrentVelocity", baseName+":velo:fbk", this);
 
+	connect(step_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
+	connect(step_, SIGNAL(valueChanged(double)), this, SIGNAL(stepChanged(double)));
 	connect(velocity_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
 	connect(velocity_, SIGNAL(valueChanged(double)), this, SIGNAL(velocityChanged(double)));
 	connect(baseVelocity_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
@@ -40,31 +43,53 @@ CLSVMEMotor::CLSVMEMotor(const QString &name, const QString &baseName, const QSt
 }
 
 bool CLSVMEMotor::isConnected() const{
-	return AMPVwStatusControl::isConnected() && velocity_->isConnected() && baseVelocity_->isConnected() && acceleration_->isConnected() && currentVelocity_->isConnected();
+	return AMPVwStatusControl::isConnected() && step_->isConnected() && velocity_->isConnected() && baseVelocity_->isConnected() && acceleration_->isConnected() && currentVelocity_->isConnected();
+}
+
+double CLSVMEMotor::step() const
+{
+	if (isConnected())
+		return step_->value();
+
+	return 0.5;
 }
 
 double CLSVMEMotor::velocity() const{
 	if(isConnected())
 		return velocity_->value();
+
+	return 0.5;
 }
 
 double CLSVMEMotor::baseVelocity() const{
 	if(isConnected())
 		return baseVelocity_->value();
+
+	return 0.5;
 }
 
 double CLSVMEMotor::acceleration() const{
 	if(isConnected())
 		return acceleration_->value();
+
+	return 0.5;
 }
 
 double CLSVMEMotor::currentVelocity() const{
 	if(isConnected())
 		return currentVelocity_->value();
+
+	return 0.5;
 }
 
 bool CLSVMEMotor::usingKill() const{
 	return usingKill_;
+}
+
+void CLSVMEMotor::setStep(double step)
+{
+	if (isConnected())
+		step_->move(step);
 }
 
 void CLSVMEMotor::setVelocity(double velocity){

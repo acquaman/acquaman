@@ -122,7 +122,7 @@ bool SampleStageControl::validNewXPosition(double setpoint)
 
 bool SampleStageControl::validNewYPosition(double setpoint)
 {
-	// Turn the setpoint into counts.  This currently is the coded.
+	// Turn the setpoint into counts.  This currently is hard coded.
 	if (yLow_ == yHigh_)
 		return true;
 
