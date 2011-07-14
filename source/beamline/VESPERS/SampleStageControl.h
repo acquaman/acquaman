@@ -27,22 +27,33 @@ public:
 	/// Default constructor.  Takes in the 3 motor controls and their count readout controls.
 	explicit SampleStageControl(AMControl *horiz, AMControl *vert, AMControl *norm, QObject *parent = 0);
 
-	/// Changes which motors are the used for the horizontal, vertical, and normal directions.  Sets all scalers to 1.  Returns false if unsuccessfully changed.
-	bool setMotors(AMControl *horiz, AMControl *vert, AMControl *norm);
-
 	/// Sets the range for the motor in the x direction.
-	void setXRange(int low, int high) { xLow_ = low; xHigh_ = high; }
+	void setXRange(int low, int high) { xRange_ = qMakePair(low, high); }
 	/// Sets the range for the motor in the y direction.
-	void setYRange(int low, int high) { yLow_ = low; yHigh_ = high; }
+	void setYRange(int low, int high) { yRange_ = qMakePair(low, high); }
 	/// Sets the range for the motor in the x direction.
-	void setZRange(int low, int high) { zLow_ = low; zHigh_ = high; }
+	void setZRange(int low, int high) { zRange_ = qMakePair(low, high); }
 
 	/// Returns the range for the motor in the x direction.  Returned as a QPair<low, high>.
-	QPair<int, int> xRange() const { return qMakePair(xLow_, xHigh_); }
+	QPair<int, int> xRange() const { return xRange_; }
 	/// Returns the range for the motor in the y direction.  Returned as a QPair<low, high>.
-	QPair<int, int> yRange() const { return qMakePair(yLow_, yHigh_); }
+	QPair<int, int> yRange() const { return yRange_; }
 	/// Returns the range for the motor in the z direction.  Returned as a QPair<low, high>.
-	QPair<int, int> zRange() const { return qMakePair(zLow_, zHigh_); }
+	QPair<int, int> zRange() const { return zRange_; }
+
+	/// Returns the current calibration for the x motor.
+	double xCalibration() const { return xCalibration_; }
+	/// Returns the current calibration for the y motor.
+	double yCalibration() const { return yCalibration_; }
+	/// Returns the current calibration for the z motor.
+	double zCalibration() const { return zCalibration_; }
+
+	/// Sets the calibration for the x motor.
+	void setXCalibration(double val) { xCalibration_ = val; }
+	/// Sets the calibration for the y motor.
+	void setYCalibration(double val) { yCalibration_ = val; }
+	/// Sets the calibration for the z motor.
+	void setZCalibration(double val) { zCalibration_ = val; }
 
 	/// Sets the scaling for the x motor.  This is to accomodate if the directions are not simple motor movements but more sophisticated moves.
 	void setXScaler(double sx) { sx_ = sx; }
@@ -133,12 +144,14 @@ protected:
 	}
 
 	// The limits.
-	int xLow_;
-	int yLow_;
-	int zLow_;
-	int xHigh_;
-	int yHigh_;
-	int zHigh_;
+	QPair<int, int> xRange_;
+	QPair<int, int> yRange_;
+	QPair<int, int> zRange_;
+
+	// The conversion between counts and mm.
+	double xCalibration_;
+	double yCalibration_;
+	double zCalibration_;
 
 	// Scalers.
 	double sx_;
