@@ -108,7 +108,7 @@ void CLSVMEMotor::setAcceleration(double acceleration){
 }
 
 void CLSVMEMotor::setUsingKill(bool usingKill){
-	usingKill_ = true;
+	usingKill_ = usingKill;
 }
 
 bool CLSVMEMotor::stop(){
