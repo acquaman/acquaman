@@ -1,6 +1,6 @@
 #include "SampleStageControl.h"
 
-SampleStageControl::SampleStageControl(AMPVwStatusControl *horiz, AMPVwStatusControl *vert, AMPVwStatusControl *norm, AMReadOnlyPVControl *xMotor, AMReadOnlyPVControl *yMotor, AMReadOnlyPVControl *zMotor, QObject *parent)
+SampleStageControl::SampleStageControl(AMControl *horiz, AMControl *vert, AMControl *norm, QObject *parent)
 	: QObject(parent)
 {
 	// The limits.
@@ -20,9 +20,6 @@ SampleStageControl::SampleStageControl(AMPVwStatusControl *horiz, AMPVwStatusCon
 	horiz_ = horiz;
 	vert_ = vert;
 	norm_ = norm;
-	xMotor_ = xMotor;
-	yMotor_ = yMotor;
-	zMotor_ = zMotor;
 
 	connect(horiz_, SIGNAL(connected(bool)), this, SIGNAL(connected(bool)));
 	connect(vert_, SIGNAL(connected(bool)), this, SIGNAL(connected(bool)));
@@ -32,19 +29,15 @@ SampleStageControl::SampleStageControl(AMPVwStatusControl *horiz, AMPVwStatusCon
 	connect(vert_, SIGNAL(movingChanged(bool)), this, SIGNAL(movingChanged(bool)));
 	connect(norm_, SIGNAL(movingChanged(bool)), this, SIGNAL(movingChanged(bool)));
 
-	connect(horiz_, SIGNAL(writePVValueChanged(double)), this, SIGNAL(horizontalSetpointChanged(double)));
-	connect(vert_, SIGNAL(writePVValueChanged(double)), this, SIGNAL(verticalSetpointChanged(double)));
-	connect(norm_, SIGNAL(writePVValueChanged(double)), this, SIGNAL(normalSetpointChanged(double)));
+	connect(horiz_, SIGNAL(setpointChanged(double)), this, SIGNAL(horizontalSetpointChanged(double)));
+	connect(vert_, SIGNAL(setpointChanged(double)), this, SIGNAL(verticalSetpointChanged(double)));
+	connect(norm_, SIGNAL(setpointChanged(double)), this, SIGNAL(normalSetpointChanged(double)));
 }
 
 bool SampleStageControl::setMotors(AMControl *horiz, AMControl *vert, AMControl *norm)
 {
-	AMPVwStatusControl *h = qobject_cast<AMPVwStatusControl *>(horiz);
-	AMPVwStatusControl *v = qobject_cast<AMPVwStatusControl *>(vert);
-	AMPVwStatusControl *n = qobject_cast<AMPVwStatusControl *>(norm);
-
 	// Check to see if the motors that were passed in are valid.
-	if (h == 0 || v == 0 || n == 0)
+	if (horiz == 0 || vert == 0 || norm == 0)
 		return false;
 
 	disconnect(horiz_, SIGNAL(connected(bool)), this, SIGNAL(connected(bool)));
@@ -55,9 +48,9 @@ bool SampleStageControl::setMotors(AMControl *horiz, AMControl *vert, AMControl 
 	disconnect(vert_, SIGNAL(movingChanged(bool)), this, SIGNAL(movingChanged(bool)));
 	disconnect(norm_, SIGNAL(movingChanged(bool)), this, SIGNAL(movingChanged(bool)));
 
-	disconnect(horiz_, SIGNAL(writePVValueChanged(double)), this, SIGNAL(horizontalSetpointChanged(double)));
-	disconnect(vert_, SIGNAL(writePVValueChanged(double)), this, SIGNAL(verticalSetpointChanged(double)));
-	disconnect(norm_, SIGNAL(writePVValueChanged(double)), this, SIGNAL(normalSetpointChanged(double)));
+	disconnect(horiz_, SIGNAL(setpointChanged(double)), this, SIGNAL(horizontalSetpointChanged(double)));
+	disconnect(vert_, SIGNAL(setpointChanged(double)), this, SIGNAL(verticalSetpointChanged(double)));
+	disconnect(norm_, SIGNAL(setpointChanged(double)), this, SIGNAL(normalSetpointChanged(double)));
 
 	horiz_ = h;
 	vert_ = v;

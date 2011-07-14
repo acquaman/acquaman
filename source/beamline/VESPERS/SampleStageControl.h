@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QPair>
 
-#include "beamline/AMControl.h"
+#include "beamline/CLS/CLSVMEMotor.h"
 
 /*!
 	This class offers an encapsulated way of using a tri-motor sample stage.  It uses the steps from the base motors for determining if the sample stage is going to over the limit.
@@ -25,7 +25,7 @@ public:
 	enum MotorStatus { MoveDone = 0, MoveActive, AtLimit, ForcedStop, Error };
 
 	/// Default constructor.  Takes in the 3 motor controls and their count readout controls.
-	explicit SampleStageControl(AMPVwStatusControl *horiz, AMPVwStatusControl *vert, AMPVwStatusControl *norm, AMReadOnlyPVControl *xMotor, AMReadOnlyPVControl *yMotor, AMReadOnlyPVControl *zMotor, QObject *parent = 0);
+	explicit SampleStageControl(AMControl *horiz, AMControl *vert, AMControl *norm, QObject *parent = 0);
 
 	/// Changes which motors are the used for the horizontal, vertical, and normal directions.  Sets all scalers to 1.  Returns false if unsuccessfully changed.
 	bool setMotors(AMControl *horiz, AMControl *vert, AMControl *norm);
@@ -78,17 +78,11 @@ public:
 
 	// Return the controls used in this class.
 	/// Returns the horizontal motor control.
-	AMPVwStatusControl *horiz() const { return horiz_; }
+	CLSVMEMotor *horiz() const { return horiz_; }
 	/// Returns the vertical motor control.
-	AMPVwStatusControl *vert() const { return vert_; }
+	CLSVMEMotor *vert() const { return vert_; }
 	/// Returns the normal motor control.
-	AMPVwStatusControl *norm() const { return norm_; }
-	/// Returns the x position motor reading control.
-	AMReadOnlyPVControl *xMotor() const { return xMotor_; }
-	/// Returns the y position motor reading control.
-	AMReadOnlyPVControl *yMotor() const { return yMotor_; }
-	/// Returns the z position motor reading control.
-	AMReadOnlyPVControl *zMotor() const { return zMotor_; }
+	CLSVMEMotor *norm() const { return norm_; }
 
 signals:
 	/// Notifies whether the sample stage is currently connected.
@@ -152,12 +146,9 @@ protected:
 	double sz_;
 
 	// The motor controls
-	AMPVwStatusControl *horiz_;
-	AMPVwStatusControl *vert_;
-	AMPVwStatusControl *norm_;
-	AMReadOnlyPVControl *xMotor_;
-	AMReadOnlyPVControl *yMotor_;
-	AMReadOnlyPVControl *zMotor_;
+	AMControl *horiz_;
+	AMControl *vert_;
+	AMControl *norm_;
 };
 
 #endif // SAMPLESTAGECONTROL_H

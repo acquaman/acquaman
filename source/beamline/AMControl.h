@@ -434,6 +434,8 @@ signals:
 	void movingChanged(bool isMoving);
 	/// Announces when the position/value of the control "value()" has changed.
 	void valueChanged(double newValue);
+	/*! Normally we expect that only this program is changing the setpoint and causing motion, using move().  If someone else changes the writePV (setpoint PV), this will signal you with the new value.*/
+	void setpointChanged(double);
 	//@}
 
 	/// Announces when the unit string text has changed. Necessary because we might not know this until after a delayed control connects.
@@ -699,7 +701,7 @@ signals:
 
 	/// Signals changes in writePVValue().
 	/*! Normally we expect that only this program is changing the setpoint and causing motion, using move().  If someone else changes the writePV (setpoint PV), this will signal you with the new value.*/
-	void writePVValueChanged(double);
+	void setpointChanged(double);
 
 protected:
 	/// Used for the setpoint
@@ -1014,7 +1016,7 @@ signals:
 	void writeConnectionTimeoutOccurred();
 	/// Signals changes in writePVValue().
 	/*! Normally we expect that only this program is changing the setpoint and causing motion, using move().  If someone else changes the writePV (setpoint PV), this will signal you with the new value.*/
-	void writePVValueChanged(double);
+	void setpointChanged(double);
 
 protected:
 	/// This PV is used for the setpoint:

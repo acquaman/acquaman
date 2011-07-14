@@ -18,6 +18,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "VESPERSBeamline.h"
+#include "beamline/CLS/CLSVMEMotor.h"
 
 VESPERSBeamline::VESPERSBeamline()
 	: AMBeamline("VESPERS Beamline")
@@ -163,14 +164,9 @@ void VESPERSBeamline::setupSampleStage()
 	sampleStageVertical_ = new AMPVwStatusControl("Vertical Sample Stage", "TS1607-2-B21-01:V:user:mm:sp", "TS1607-2-B21-01:V:user:mm", "TS1607-2-B21-01:V:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
 	sampleStageNormal_ = new AMPVwStatusControl("Normal Sample Stage", "TS1607-2-B21-01:N:user:mm:sp", "TS1607-2-B21-01:N:user:mm", "TS1607-2-B21-01:N:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
 
-	sampleStageX_ = new AMPVwStatusControl("X motor Sample Stage", "SVM1607-2-B21-02:mm:sp", "SVM1607-2-B21-02:mm", "SVM1607-2-B21-02:status", "SVM1607-2-B21-02:stop", this, 0.01, 10.0);
-	sampleStageY_ = new AMPVwStatusControl("Y motor Sample Stage", "SVM1607-2-B21-03:mm:sp", "SVM1607-2-B21-03:mm", "SVM1607-2-B21-03:status", "SVM1607-2-B21-03:stop", this, 0.01, 10.0);
-	sampleStageZ_ = new AMPVwStatusControl("Z motor Sample Stage", "SVM1607-2-B21-01:mm:sp", "SVM1607-2-B21-01:mm", "SVM1607-2-B21-01:status", "SVM1607-2-B21-01:stop", this, 0.01, 10.0);
-
-	// These are meant for reading purposes.  They are the steps of the motor, not engineering units (ie: mm).
-	sampleStageStepX_ = new AMReadOnlyPVControl("X component Sample Stage", "SVM1607-2-B21-02:step:sp", this);
-	sampleStageStepY_ = new AMReadOnlyPVControl("Y component Sample Stage", "SVM1607-2-B21-03:step:sp", this);
-	sampleStageStepZ_ = new AMReadOnlyPVControl("Z component Sample Stage", "SVM1607-2-B21-01:step:sp", this);
+	sampleStageX_ = new CLSVMEMotor("xMotorSampleStage", "SVM1607-2-B21-02", "X Motor Sample Stage", true, 0.01, 10.0, this);
+	sampleStageY_ = new CLSVMEMotor("yMotorSampleStage", "SVM1607-2-B21-03", "Y Motor Sample Stage", true, 0.01, 10.0, this);
+	sampleStageZ_ = new CLSVMEMotor("zMotorSampleStage", "SVM1607-2-B21-01", "Z Motor Sample Stage", true, 0.01, 10.0, this);
 
 	sampleStageMotorSet_ = new AMControlSet(this);
 	sampleStageMotorSet_->addControl(sampleStageHorizontal_);
