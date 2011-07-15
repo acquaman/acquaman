@@ -44,11 +44,11 @@ public:
 	/// Returns the status of the sample stage (ie: if it's moving or not).
 	bool status() { return horiz_->isMoving() || vert_->isMoving() || norm_->isMoving(); }
 	/// Returns the status of the horizontal motor.  This is the MotorStatus enum found in the beamline.
-	MotorStatus horizontalStatus() { return intToStatus(horiz_->movingPVValue()); }
+	MotorStatus horizontalStatus() { return intToStatus(((AMPVwStatusControl *)horiz_)->movingPVValue()); }
 	/// Returns the status of the vertical motor.  This is the MotorStatus enum found in the beamline.
-	MotorStatus verticalStatus() { return intToStatus(vert_->movingPVValue()); }
+	MotorStatus verticalStatus() { return intToStatus(((AMPVwStatusControl *)vert_)->movingPVValue()); }
 	/// Returns the status of the normal motor.  This is the MotorStatus enum found in the beamline.
-	MotorStatus normalStatus() { return intToStatus(norm_->movingPVValue()); }
+	MotorStatus normalStatus() { return intToStatus(((AMPVwStatusControl *)norm_)->movingPVValue()); }
 
 	/// Returns the current position of the horizontal control.
 	double horizontalPosition() const { return horiz_->value(); }
@@ -96,6 +96,8 @@ public slots:
 	void stopAll() { horiz_->stop(); vert_->stop(); norm_->stop(); }
 
 protected slots:
+	/// Listens to the connection signals from the motors and emits connected.
+	void onConnectedChanged() { emit connected(horiz_->isConnected() && vert_->isConnected() && norm_->isConnected()); }
 	/// Listens to the step feedback for the x motor and stops the sample stage if it exceeds the range.
 	void onXStepChanged(double step);
 	/// Listens to the step feedback for the y motor and stops the sample stage if it exceeds the range.
@@ -104,7 +106,6 @@ protected slots:
 	void onZStepChanged(double step);
 
 protected:
-
 	/// Returns the motor status enum corresponding to an integer.
 	MotorStatus intToStatus(int val)
 	{

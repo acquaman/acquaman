@@ -200,16 +200,10 @@ void VESPERSBeamline::setupSampleStage()
 void VESPERSBeamline::setupEndstation()
 {
 	// The controls used for the control window.
-	ccdMotor_ = new AMPVwStatusControl("CCD motor", "SMTR1607-2-B21-18:mm:sp", "SMTR1607-2-B21-18:mm", "SMTR1607-2-B21-18:status", "SMTR1607-2-B21-18:stop", this, 1.0, 10.0);
-	microscopeMotor_ = new AMPVwStatusControl("Microscope motor", "SMTR1607-2-B21-17:mm:sp", "SMTR1607-2-B21-17:mm", "SMTR1607-2-B21-17:status", "SMTR1607-2-B21-17:stop", this, 1.0, 10.0);
-	fourElMotor_ = new AMPVwStatusControl("4-Element Vortex motor", "SMTR1607-2-B21-27:mm:sp", "SMTR1607-2-B21-27:mm", "SMTR1607-2-B21-27:status", "SMTR1607-2-B21-27:stop", this, 1.0, 10.0);
-	singleElMotor_ = new AMPVwStatusControl("1-Element Vortex motor", "SMTR1607-2-B21-15:mm:sp", "SMTR1607-2-B21-15:mm", "SMTR1607-2-B21-15:status", "SMTR1607-2-B21-15:stop", this, 1.0, 10.0);
-
-	// The process variables that have the feedback value used for the button.  The microscope doesn't need one because it's encoder doesn't work.
-	ccdMotorfbk_ = new AMReadOnlyPVControl("CCD motor feedback", "SMTR1607-2-B21-18:mm:fbk", this);
-	fourElMotorfbk_ = new AMReadOnlyPVControl("4-Element Vortex motor feedback", "SMTR1607-2-B21-27:mm:fbk", this);
-	singleElMotorfbk_ = new AMReadOnlyPVControl("1-Element Vortex motor feedback", "SMTR1607-2-B21-15:mm:fbk", this);
-	focusMotorfbk_ = new AMReadOnlyPVControl("Focus motor feedback", "TS1607-2-B21-01:N:user:mm:fbk", this);
+	ccdMotor_ = new CLSVMEMotor("CCD Motor", "SMTR1607-2-B21-18", "CCD motor", false, 1.0, 10.0, this);
+	microscopeMotor_ = new CLSVMEMotor("Microscope motor", "SMTR1607-2-B21-17", "Microscope motor", false, 1.0, 10.0, this);
+	fourElMotor_ = new CLSVMEMotor("4-Element Vortex motor", "SMTR1607-2-B21-27", "4-Element Vortex motor", false, 1.0, 10.0, this);
+	singleElMotor_ = new CLSVMEMotor("1-Element Vortex motor", "SMTR1607-2-B21-15", "1-Element Vortex motor", false, 1.0, 10.0, this);
 
 	// Microscope light PV.
 	micLight_ = new AMProcessVariable("07B2_PLC_Mic_Light_Inten", true, this);
@@ -374,14 +368,10 @@ void VESPERSBeamline::setupControlSets()
 	// Grouping the enstation motors together.
 	endstationMotorSet_ = new AMControlSet(this);
 	endstationMotorSet_->addControl(ccdMotor_);
-	endstationMotorSet_->addControl(ccdMotorfbk_);
 	endstationMotorSet_->addControl(microscopeMotor_);
 	endstationMotorSet_->addControl(fourElMotor_);
-	endstationMotorSet_->addControl(fourElMotorfbk_);
 	endstationMotorSet_->addControl(singleElMotor_);
-	endstationMotorSet_->addControl(singleElMotorfbk_);
 	endstationMotorSet_->addControl(sampleStageNormal_);
-	endstationMotorSet_->addControl(focusMotorfbk_);
 
 	// Beam attenuation filters.  Only contains the filters of a certain size.  The upper and lower are used independently of these six.
 	filterSet_ = new AMControlSet(this);

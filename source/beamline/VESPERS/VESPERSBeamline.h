@@ -307,15 +307,6 @@ public:
 	/// Returns the single element detector motor control.
 	AMControl *singleElMotor() const { return singleElMotor_; }
 
-	/// Returns the CCD motor control feedback.
-	AMControl *ccdMotorfbk() const { return ccdMotorfbk_; }
-	/// Returns the four element detector motor control feedback.
-	AMControl *fourElMotorfbk() const { return fourElMotorfbk_; }
-	/// Returns the single element detector motor control feedback.
-	AMControl *singleElMotorfbk() const { return singleElMotorfbk_; }
-	/// Returns the beam focus motor control feedback.
-	AMControl *focusMotorfbk() const { return focusMotorfbk_; }
-
 	// Sample stage motor controls.
 
 	// Psedomotors.
@@ -587,12 +578,6 @@ protected:
 	AMControl *microscopeMotor_;
 	AMControl *fourElMotor_;
 	AMControl *singleElMotor_;
-
-	// The process variables that have the feedback value used for the button.  The microscope doesn't need one because it's encoder doesn't work.
-	AMControl *ccdMotorfbk_;
-	AMControl *fourElMotorfbk_;
-	AMControl *singleElMotorfbk_;
-	AMControl *focusMotorfbk_;
 
 	// Microscope light PV.
 	AMProcessVariable *micLight_;

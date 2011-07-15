@@ -26,11 +26,11 @@ public:
 	/// Enables/Disables the microscope PV by blocking signals.
 	void lightEnabled(bool on) { micLightPV_->blockSignals(!on); }
 	/// Returns the current control being focused on.
-	AMPVwStatusControl *current() const { return current_; }
+	AMControl *current() const { return current_; }
 	/// Returns a control based on the name.  Returns 0 if invalid.
-	AMPVwStatusControl *control(QString name) const;
+	AMControl *control(QString name) const;
 	/// Returns the soft limits for the given control (if any) as a QPair<double, double>.
-	QPair<double, double> getLimits(AMPVwStatusControl *control) { return qMakePair(softLimits_.value(control).first, softLimits_.value(control).second); }
+	QPair<double, double> getLimits(AMControl *control) { return qMakePair(softLimits_.value(control).first, softLimits_.value(control).second); }
 	/// Returns the microscope setpoint names as a QPair<QString, QString>.
 	QPair<QString, QString> microscopeNames() const { return microscopeNames_; }
 
@@ -42,7 +42,7 @@ signals:
 	/// Notifier that the light intensity has changed.
 	void lightIntensityChanged(int);
 	/// The current control has either been updated or changed.  Passes the pointer to the control.
-	void currentControlChanged(AMPVwStatusControl *);
+	void currentControlChanged(AMControl *);
 	/// The CCD feedback motor position changed notification.
 	void ccdFbkChanged(double);
 	/// The focus feeback motor position changed notification.
@@ -86,7 +86,7 @@ protected slots:
 	/// Helper slot that emits a signal with the current index related to the thickness of the filters.
 	void onFiltersChanged();
 	/// Handles updating the control window if the configuration changes.
-	void updateControl(AMPVwStatusControl *control);
+	void updateControl(AMControl *control);
 	/// Handles the CCD path update.
 	void onCCDPathChanged() { emit ccdPathChanged(AMPVtoString(ccdPath_)); }
 	/// Handles the CCD name update.
@@ -94,7 +94,7 @@ protected slots:
 
 protected:
 	/// Returns whether the \code control \code value is within tolerance of \code position.
-	bool controlWithinTolerance(AMPVwStatusControl *control, double value, double position) { return fabs(value-position) < control->tolerance() ? true : false; }
+	bool controlWithinTolerance(AMControl *control, double value, double position) { return fabs(value-position) < control->tolerance() ? true : false; }
 	/// Helper function to properly toggle the filter PVs.  Takes an AMControl *, casts it to an AMPVControl * then toggles them.
 	void toggleControl(AMPVControl *control) { control->move(1); control->move(0); }
 	/// Converts the bizarre string output of the pv to a real QString.
@@ -106,26 +106,20 @@ protected:
 	bool wasConnected_;
 
 	// Control map to soft limits.
-	QMap<AMPVwStatusControl *, QPair<double, double> > softLimits_;
+	QMap<AMControl *, QPair<double, double> > softLimits_;
 	// Names of microscope positions.
 	QPair<QString, QString> microscopeNames_;
 
 	// Control pointers.
 	// The current control being pointed to.
-	AMPVwStatusControl *current_;
+	AMControl *current_;
 
 	// The controls used for the control window.
-	AMPVwStatusControl *ccdControl_;
-	AMPVwStatusControl *microscopeControl_;
-	AMPVwStatusControl *fourElControl_;
-	AMPVwStatusControl *singleElControl_;
-	AMPVwStatusControl *focusControl_;
-
-	// The controls that have the feedback value used for the button.  The microscope doesn't need one because it's encoder doesn't work.
-	AMReadOnlyPVControl *ccdfbk_;
-	AMReadOnlyPVControl *fourElfbk_;
-	AMReadOnlyPVControl *singleElfbk_;
-	AMReadOnlyPVControl *focusfbk_;
+	AMControl *ccdControl_;
+	AMControl *microscopeControl_;
+	AMControl *fourElControl_;
+	AMControl *singleElControl_;
+	AMControl *focusControl_;
 
 	// Microscope light PV.
 	AMProcessVariable *micLightPV_;

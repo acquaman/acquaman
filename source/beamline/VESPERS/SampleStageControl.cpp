@@ -13,9 +13,9 @@ SampleStageControl::SampleStageControl(AMControl *horiz, AMControl *vert, AMCont
 	vert_ = vert;
 	norm_ = norm;
 
-	connect(horiz_, SIGNAL(connected(bool)), this, SIGNAL(connected(bool)));
-	connect(vert_, SIGNAL(connected(bool)), this, SIGNAL(connected(bool)));
-	connect(norm_, SIGNAL(connected(bool)), this, SIGNAL(connected(bool)));
+	connect(horiz_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
+	connect(vert_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
+	connect(norm_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
 
 	connect(horiz_, SIGNAL(movingChanged(bool)), this, SIGNAL(movingChanged(bool)));
 	connect(vert_, SIGNAL(movingChanged(bool)), this, SIGNAL(movingChanged(bool)));
@@ -30,7 +30,7 @@ SampleStageControl::SampleStageControl(AMControl *horiz, AMControl *vert, AMCont
 	CLSVMEMotor *y = qobject_cast<CLSVMEMotor *>(vert_);
 	CLSVMEMotor *z = qobject_cast<CLSVMEMotor *>(norm_);
 
-	if (x == 0 && y == 0 && z == 0){
+	if (x != 0 && y != 0 && z != 0){
 
 		connect(x, SIGNAL(stepChanged(double)), this, SLOT(onXStepChanged(double)));
 		connect(y, SIGNAL(stepChanged(double)), this, SLOT(onYStepChanged(double)));
@@ -50,27 +50,27 @@ SampleStageControl::SampleStageControl(AMControl *horiz, AMControl *vert, AMCont
 
 void SampleStageControl::onXStepChanged(double step)
 {
-	if (step > xRange_.first && step < xRange_.second){
+	if (step < xRange_.first && step > xRange_.second){
 
 		stopAll();
-		emit moveError("X-direction motor at limit.");
+		emit moveError("X-direction motor");
 	}
 }
 
 void SampleStageControl::onYStepChanged(double step)
 {
-	if (step > yRange_.first && step < yRange_.second){
+	if (step < yRange_.first && step > yRange_.second){
 
 		stopAll();
-		emit moveError("Y-direction motor at limit.");
+		emit moveError("Y-direction motor");
 	}
 }
 
 void SampleStageControl::onZStepChanged(double step)
 {
-	if (step > zRange_.first && step < zRange_.second){
+	if (step < zRange_.first && step > zRange_.second){
 
 		stopAll();
-		emit moveError("Z-direction motor at limit.");
+		emit moveError("Z-direction motor");
 	}
 }
