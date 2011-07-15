@@ -9,7 +9,8 @@ class AMColorPickerButton : public QToolButton
 {
 	Q_OBJECT
 public:
-	explicit AMColorPickerButton(const QColor& initialColor = Qt::black, QWidget *parent = 0);
+	AMColorPickerButton(const QColor& initialColor, QWidget *parent = 0);
+	explicit AMColorPickerButton(QWidget* parent = 0);
 
 	/// Retrieve the color currently displayed/selected
 	QColor color() const { return currentColor_; }
@@ -29,6 +30,8 @@ public slots:
 protected slots:
 	/// Called when the color dialog is finished (user has selected a color)
 	void onColorDialogAccepted();
+	/// Called when the color dialog is rejected (user has cancelled)
+	void onColorDialogRejected();
 
 protected:
 	QColorDialog* colorDialog_;

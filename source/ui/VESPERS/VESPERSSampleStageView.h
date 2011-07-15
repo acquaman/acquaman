@@ -40,10 +40,8 @@ protected slots:
 
 	/// Handles changes in the moving flags of the sample stages.
 	void onMovingChanged(bool isMoving);
-	/// Handles changes in the connection of the sample stages.
-	void onConnectedChanged(bool isConnected);
 	/// Handles if the motors time out.
-	void onTimedOut() { onConnectedChanged(false); }
+	void onTimedOut() { setEnabled(false); }
 	/// Handles changes from the horizontal motor from the sample stage.
 	void onHorizontalChanged(double val);
 	/// Handles changes from the vertical motor from the sample stage.

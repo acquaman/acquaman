@@ -10,9 +10,10 @@
 VESPERSSampleStageView::VESPERSSampleStageView(QWidget *parent) :
 	QWidget(parent)
 {
-	sampleStage_ = VESPERSBeamline::vespers()->sampleStage();
+	sampleStage_ = VESPERSBeamline::vespers()->pseudoSampleStage();
+	connect(sampleStage_, SIGNAL(connected(bool)), this, SLOT(setEnabled(bool)));
 	connect(sampleStage_, SIGNAL(movingChanged(bool)), this, SLOT(onMovingChanged(bool)));
-	connect(sampleStage_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged(bool)));
+	connect(sampleStage_, SIGNAL(moveError(QString)), this, SLOT(onMoveError(QString)));
 
 	jog_ = new QDoubleSpinBox;
 	jog_->setSuffix(" mm");
@@ -127,11 +128,6 @@ void VESPERSSampleStageView::onMovingChanged(bool isMoving)
 
 	for (int i = 0; i < 4; i++)
 		buttons_->button(i)->setDisabled(isMoving);
-}
-
-void VESPERSSampleStageView::onConnectedChanged(bool isConnected)
-{
-	setEnabled(isConnected);
 }
 
 void VESPERSSampleStageView::onHorizontalSetpoint()

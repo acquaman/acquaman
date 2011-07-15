@@ -307,15 +307,6 @@ public:
 	/// Returns the single element detector motor control.
 	AMControl *singleElMotor() const { return singleElMotor_; }
 
-	/// Returns the CCD motor control feedback.
-	AMControl *ccdMotorfbk() const { return ccdMotorfbk_; }
-	/// Returns the four element detector motor control feedback.
-	AMControl *fourElMotorfbk() const { return fourElMotorfbk_; }
-	/// Returns the single element detector motor control feedback.
-	AMControl *singleElMotorfbk() const { return singleElMotorfbk_; }
-	/// Returns the beam focus motor control feedback.
-	AMControl *focusMotorfbk() const { return focusMotorfbk_; }
-
 	// Sample stage motor controls.
 
 	// Psedomotors.
@@ -334,17 +325,9 @@ public:
 	/// Returns the sample stage motor in the z-direction.
 	AMControl *sampleStageZ() const { return sampleStageZ_; }
 
-	// Real motors steps.
-	/// Returns the sample stage motor step feedback for the x-direction.
-	AMControl *sampleStageStepX() const { return sampleStageStepX_; }
-	/// Returns the sample stage motor step feedback for the y-direction.
-	AMControl *sampleStageStepY() const { return sampleStageStepY_; }
-	/// Returns the sample stage motor step feedback for the z-direction.
-	AMControl *sampleStageStepZ() const { return sampleStageStepZ_; }
-
 	// The sample stage.
-	/// Returns the sample stage control.
-	SampleStageControl *sampleStage() const { return sampleStage_; }
+	/// Returns the sample stage control built with the pseudo-motors.
+	SampleStageControl *pseudoSampleStage() const { return pseudoSampleStage_; }
 
 	// Sample stage PID controls.
 	/// Returns the PID control for the x-direction of the sample stage.
@@ -596,12 +579,6 @@ protected:
 	AMControl *fourElMotor_;
 	AMControl *singleElMotor_;
 
-	// The process variables that have the feedback value used for the button.  The microscope doesn't need one because it's encoder doesn't work.
-	AMControl *ccdMotorfbk_;
-	AMControl *fourElMotorfbk_;
-	AMControl *singleElMotorfbk_;
-	AMControl *focusMotorfbk_;
-
 	// Microscope light PV.
 	AMProcessVariable *micLight_;
 
@@ -619,7 +596,7 @@ protected:
 	// End Endstation controls.
 
 	// Sample stage controls.
-	// Pseudo-motors
+	// CLS pseudo-motors.
 	AMControl *sampleStageHorizontal_;
 	AMControl *sampleStageVertical_;
 	AMControl *sampleStageNormal_;
@@ -629,13 +606,11 @@ protected:
 	AMControl *sampleStageY_;
 	AMControl *sampleStageZ_;
 
-	// Step feedback.
-	AMControl *sampleStageStepX_;
-	AMControl *sampleStageStepY_;
-	AMControl *sampleStageStepZ_;
+	// The sample stage encapsulation.
+	SampleStageControl *pseudoSampleStage_;
+	SampleStageControl *realSampleStage_;
 
-	SampleStageControl *sampleStage_;
-
+	// The PID loop controls.
 	AMControl *sampleStagePidX_;
 	AMControl *sampleStagePidY_;
 	AMControl *sampleStagePidZ_;

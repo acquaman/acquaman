@@ -42,7 +42,7 @@ bool AMAppController::startup() {
 	return false;
 }
 
-/// Program shutdown:
+// Program shutdown:
 AMAppController::~AMAppController() {
 
 }
