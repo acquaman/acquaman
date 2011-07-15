@@ -178,16 +178,7 @@ void VESPERSBeamline::setupSampleStage()
 
 	connect(sampleStageMotorSet_, SIGNAL(controlSetTimedOut()), this, SLOT(sampleStageError()));
 
-	AMPVwStatusControl *h = qobject_cast<AMPVwStatusControl *>(sampleStageHorizontal_);
-	AMPVwStatusControl *v = qobject_cast<AMPVwStatusControl *>(sampleStageVertical_);
-	AMPVwStatusControl *n = qobject_cast<AMPVwStatusControl *>(sampleStageNormal_);
-	AMReadOnlyPVControl *x = qobject_cast<AMReadOnlyPVControl *>(sampleStageStepX_);
-	AMReadOnlyPVControl *y = qobject_cast<AMReadOnlyPVControl *>(sampleStageStepY_);
-	AMReadOnlyPVControl *z = qobject_cast<AMReadOnlyPVControl *>(sampleStageStepZ_);
-
-	sampleStage_ = new SampleStageControl(h, v, n, x, y, z);
-
-	sampleStage_->setScalers(1, 0.707, 0.707);
+	sampleStage_ = new SampleStageControl(sampleStageHorizontal_, sampleStageVertical_, sampleStageNormal_, this);
 	sampleStage_->setXRange(-700000, 700000);
 	sampleStage_->setYRange(-200000, 200000);
 	sampleStage_->setZRange(-200000, 200000);

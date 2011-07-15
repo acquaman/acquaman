@@ -8,16 +8,6 @@ SampleStageControl::SampleStageControl(AMControl *horiz, AMControl *vert, AMCont
 	yRange_ = qMakePair(0, 0);
 	zRange_ = qMakePair(0, 0);
 
-	// The calibration to convert from mm to counts.
-	xCalibration_ = 10000;
-	yCalibration_ = 10000;
-	zCalibration_ = 10000;
-
-	// Scalers.
-	sx_ = 1;
-	sy_ = 1;
-	sz_ = 1;
-
 	// The motor controls
 	horiz_ = horiz;
 	vert_ = vert;
@@ -34,70 +24,53 @@ SampleStageControl::SampleStageControl(AMControl *horiz, AMControl *vert, AMCont
 	connect(horiz_, SIGNAL(setpointChanged(double)), this, SIGNAL(horizontalSetpointChanged(double)));
 	connect(vert_, SIGNAL(setpointChanged(double)), this, SIGNAL(verticalSetpointChanged(double)));
 	connect(norm_, SIGNAL(setpointChanged(double)), this, SIGNAL(normalSetpointChanged(double)));
+
+	// If the controls are CLS VME motors, then use their connections to their steps.  Otherwise, it is a pseudomotor and we'll need to create those connections ourselves.
+	CLSVMEMotor *x = qobject_cast<CLSVMEMotor *>(horiz_);
+	CLSVMEMotor *y = qobject_cast<CLSVMEMotor *>(vert_);
+	CLSVMEMotor *z = qobject_cast<CLSVMEMotor *>(norm_);
+
+	if (x == 0 && y == 0 && z == 0){
+
+		connect(x, SIGNAL(stepChanged(double)), this, SLOT(onXStepChanged(double)));
+		connect(y, SIGNAL(stepChanged(double)), this, SLOT(onYStepChanged(double)));
+		connect(z, SIGNAL(stepChanged(double)), this, SLOT(onZStepChanged(double)));
+	}
+	else{
+
+		AMProcessVariable *xStep = new AMProcessVariable("SVM1607-2-B21-02:step:sp", true, this);
+		AMProcessVariable *yStep = new AMProcessVariable("SVM1607-2-B21-03:step:sp", true, this);
+		AMProcessVariable *zStep = new AMProcessVariable("SVM1607-2-B21-01:step:sp", true, this);
+
+		connect(xStep, SIGNAL(valueChanged(double)), this, SLOT(onXStepChanged(double)));
+		connect(yStep, SIGNAL(valueChanged(double)), this, SLOT(onYStepChanged(double)));
+		connect(zStep, SIGNAL(valueChanged(double)), this, SLOT(onZStepChanged(double)));
+	}
 }
 
-void SampleStageControl::moveHorizontal(double setpoint)
+void SampleStageControl::onXStepChanged(double step)
 {
-	if (validNewXPosition(setpoint))
-		horiz_->move(setpoint);
-	else
-		emit moveError(horiz_->name());
+	if (step > xRange_.first && step < xRange_.second){
+
+		stopAll();
+		emit moveError("X-direction motor at limit.");
+	}
 }
 
-void SampleStageControl::moveVertical(double setpoint)
+void SampleStageControl::onYStepChanged(double step)
 {
-	if (validNewYPosition(setpoint) && validNewZPosition(setpoint))
-		vert_->move(setpoint);
-	else
-		emit moveError(vert_->name());
+	if (step > yRange_.first && step < yRange_.second){
+
+		stopAll();
+		emit moveError("Y-direction motor at limit.");
+	}
 }
 
-void SampleStageControl::moveNormal(double setpoint)
+void SampleStageControl::onZStepChanged(double step)
 {
-	if (validNewYPosition(setpoint) && validNewZPosition(setpoint))
-		norm_->move(setpoint);
-	else
-		emit moveError(norm_->name());
-}
+	if (step > zRange_.first && step < zRange_.second){
 
-bool SampleStageControl::validNewXPosition(double setpoint)
-{
-	// Turn the setpoint into counts.
-	if (xRange_.first == xRange_.second)
-		return true;
-
-	int spCount = (int)setpoint*xCalibration_*sx_;
-
-	if (spCount > xRange_.first && spCount < xRange_.second)
-		return true;
-
-	return false;
-}
-
-bool SampleStageControl::validNewYPosition(double setpoint)
-{
-	// Turn the setpoint into counts.
-	if (yRange_.first == yRange_.second)
-		return true;
-
-	int spCount = (int)setpoint*yCalibration_*sy_;
-
-	if (spCount > yRange_.first && spCount < yRange_.second)
-		return true;
-
-	return false;
-}
-
-bool SampleStageControl::validNewZPosition(double setpoint)
-{
-	// Turn the setpoint into counts.
-	if (zRange_.first == zRange_.second)
-		return true;
-
-	int spCount = (int)setpoint*zCalibration_*sz_;
-
-	if (spCount > zRange_.first && spCount < zRange_.second)
-		return true;
-
-	return false;
+		stopAll();
+		emit moveError("Z-direction motor at limit.");
+	}
 }

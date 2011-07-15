@@ -41,36 +41,6 @@ public:
 	/// Returns the range for the motor in the z direction.  Returned as a QPair<low, high>.
 	QPair<int, int> zRange() const { return zRange_; }
 
-	/// Returns the current calibration for the x motor.
-	double xCalibration() const { return xCalibration_; }
-	/// Returns the current calibration for the y motor.
-	double yCalibration() const { return yCalibration_; }
-	/// Returns the current calibration for the z motor.
-	double zCalibration() const { return zCalibration_; }
-
-	/// Sets the calibration for the x motor.
-	void setXCalibration(double val) { xCalibration_ = val; }
-	/// Sets the calibration for the y motor.
-	void setYCalibration(double val) { yCalibration_ = val; }
-	/// Sets the calibration for the z motor.
-	void setZCalibration(double val) { zCalibration_ = val; }
-
-	/// Sets the scaling for the x motor.  This is to accomodate if the directions are not simple motor movements but more sophisticated moves.
-	void setXScaler(double sx) { sx_ = sx; }
-	/// Sets the scaling for the y motor.  This is to accomodate if the directions are not simple motor movements but more sophisticated moves.
-	void setYScaler(double sy) { sy_ = sy; }
-	/// Sets the scaling for the z motor.  This is to accomodate if the directions are not simple motor movements but more sophisticated moves.
-	void setZScaler(double sz) { sz_ = sz; }
-	/// Sets the scaling for all three motors.
-	void setScalers(double sx, double sy, double sz) { sx_ = sx; sy_ = sy; sz_ = sz; }
-
-	/// Returns the scaling for the x motor.
-	double xScaler() const { return sx_; }
-	/// Returns the scaling for the y motor.
-	double yScaler() const { return sy_; }
-	/// Returns the scaling for the z motor.
-	double zScaler() const { return sz_; }
-
 	/// Returns the status of the sample stage (ie: if it's moving or not).
 	bool status() { return horiz_->isMoving() || vert_->isMoving() || norm_->isMoving(); }
 	/// Returns the status of the horizontal motor.  This is the MotorStatus enum found in the beamline.
@@ -89,11 +59,11 @@ public:
 
 	// Return the controls used in this class.
 	/// Returns the horizontal motor control.
-	CLSVMEMotor *horiz() const { return horiz_; }
+	AMControl *horiz() const { return horiz_; }
 	/// Returns the vertical motor control.
-	CLSVMEMotor *vert() const { return vert_; }
+	AMControl *vert() const { return vert_; }
 	/// Returns the normal motor control.
-	CLSVMEMotor *norm() const { return norm_; }
+	AMControl *norm() const { return norm_; }
 
 signals:
 	/// Notifies whether the sample stage is currently connected.
@@ -106,25 +76,34 @@ signals:
 	void verticalSetpointChanged(double);
 	/// Notifies whether the normal motor setpoint has changed.
 	void normalSetpointChanged(double);
-	/// Notifier that a move was unsuccessful.  Passes the name of the control that failed.
+	/// Notifier that a move was unsuccessful.  Passes an error string that states which of the directions failed.
 	void moveError(QString);
 
 public slots:
 	/// Moves the sample stage in the horizontal direction.
-	void moveHorizontal(double setpoint);
+	void moveHorizontal(double setpoint) { horiz_->move(setpoint); }
 	/// Moves the sample stage in the vertical direction.
-	void moveVertical(double setpoint);
+	void moveVertical(double setpoint) { vert_->move(setpoint); }
 	/// Moves the sample stage in the normal direction.
-	void moveNormal(double setpoint);
+	void moveNormal(double setpoint) { norm_->move(setpoint); }
+	/// Stops the sample stage in the horizontal direction.
+	void stopHorizontal() { horiz_->stop(); }
+	/// Stops the sample stage in the vertical direction.
+	void stopVertical() { vert_->stop(); }
+	/// Stops the sample stage in the normal direction.
+	void stopNormal() { norm_->stop(); }
+	/// Stops all three motors.
+	void stopAll() { horiz_->stop(); vert_->stop(); norm_->stop(); }
+
+protected slots:
+	/// Listens to the step feedback for the x motor and stops the sample stage if it exceeds the range.
+	void onXStepChanged(double step);
+	/// Listens to the step feedback for the y motor and stops the sample stage if it exceeds the range.
+	void onYStepChanged(double step);
+	/// Listens to the step feedback for the z motor and stops the sample stage if it exceeds the range.
+	void onZStepChanged(double step);
 
 protected:
-
-	/// Helper function.  Determines if the new x position falls within the x range.  If the lower limit or upper limit is not set (ie: equal to 0) then it returns true.
-	bool validNewXPosition(double setpoint);
-	/// Helper function.  Determines if the new y position falls within the y range.  If the lower limit or upper limit is not set (ie: equal to 0) then it returns true.
-	bool validNewYPosition(double setpoint);
-	/// Helper function.  Determines if the new z position falls within the z range.  If the lower limit or upper limit is not set (ie: equal to 0) then it returns true.
-	bool validNewZPosition(double setpoint);
 
 	/// Returns the motor status enum corresponding to an integer.
 	MotorStatus intToStatus(int val)
@@ -147,16 +126,6 @@ protected:
 	QPair<int, int> xRange_;
 	QPair<int, int> yRange_;
 	QPair<int, int> zRange_;
-
-	// The conversion between counts and mm.
-	double xCalibration_;
-	double yCalibration_;
-	double zCalibration_;
-
-	// Scalers.
-	double sx_;
-	double sy_;
-	double sz_;
 
 	// The motor controls
 	AMControl *horiz_;
