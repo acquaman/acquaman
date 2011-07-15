@@ -168,6 +168,16 @@ void VESPERSBeamline::setupSampleStage()
 	sampleStageY_ = new CLSVMEMotor("yMotorSampleStage", "SVM1607-2-B21-03", "Y Motor Sample Stage", true, 0.01, 10.0, this);
 	sampleStageZ_ = new CLSVMEMotor("zMotorSampleStage", "SVM1607-2-B21-01", "Z Motor Sample Stage", true, 0.01, 10.0, this);
 
+	pseudoSampleStage_ = new SampleStageControl(sampleStageHorizontal_, sampleStageVertical_, sampleStageNormal_, this);
+	pseudoSampleStage_->setXRange(-700000, 700000);
+	pseudoSampleStage_->setYRange(-200000, 200000);
+	pseudoSampleStage_->setZRange(-200000, 200000);
+
+	realSampleStage_ = new SampleStageControl(sampleStageX_, sampleStageY_, sampleStageZ_, this);
+	realSampleStage_->setXRange(-700000, 700000);
+	realSampleStage_->setYRange(-200000, 200000);
+	realSampleStage_->setZRange(-200000, 200000);
+
 	sampleStageMotorSet_ = new AMControlSet(this);
 	sampleStageMotorSet_->addControl(sampleStageHorizontal_);
 	sampleStageMotorSet_->addControl(sampleStageVertical_);
@@ -177,11 +187,6 @@ void VESPERSBeamline::setupSampleStage()
 	sampleStageMotorSet_->addControl(sampleStageZ_);
 
 	connect(sampleStageMotorSet_, SIGNAL(controlSetTimedOut()), this, SLOT(sampleStageError()));
-
-	sampleStage_ = new SampleStageControl(sampleStageHorizontal_, sampleStageVertical_, sampleStageNormal_, this);
-	sampleStage_->setXRange(-700000, 700000);
-	sampleStage_->setYRange(-200000, 200000);
-	sampleStage_->setZRange(-200000, 200000);
 
 	sampleStagePidX_ = new AMPVControl("Sample Stage PID X", "SVM1607-2-B21-02:hold:sp", "SVM1607-2-B21-02:hold", QString(), this);
 	sampleStagePidY_ = new AMPVControl("Sample Stage PID Y", "SVM1607-2-B21-03:hold:sp", "SVM1607-2-B21-03:hold", QString(), this);

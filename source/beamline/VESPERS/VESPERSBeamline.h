@@ -335,8 +335,8 @@ public:
 	AMControl *sampleStageZ() const { return sampleStageZ_; }
 
 	// The sample stage.
-	/// Returns the sample stage control.
-	SampleStageControl *sampleStage() const { return sampleStage_; }
+	/// Returns the sample stage control built with the pseudo-motors.
+	SampleStageControl *pseudoSampleStage() const { return pseudoSampleStage_; }
 
 	// Sample stage PID controls.
 	/// Returns the PID control for the x-direction of the sample stage.
@@ -622,7 +622,8 @@ protected:
 	AMControl *sampleStageZ_;
 
 	// The sample stage encapsulation.
-	SampleStageControl *sampleStage_;
+	SampleStageControl *pseudoSampleStage_;
+	SampleStageControl *realSampleStage_;
 
 	// The PID loop controls.
 	AMControl *sampleStagePidX_;
