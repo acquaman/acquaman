@@ -50,27 +50,46 @@ SampleStageControl::SampleStageControl(AMControl *horiz, AMControl *vert, AMCont
 
 void SampleStageControl::onXStepChanged(double step)
 {
-	if (step < xRange_.first && step > xRange_.second){
+	if (step < xRange_.first){
 
 		stopAll();
-		emit moveError("X-direction motor");
+		emit horizontalMoveError(false);
+	}
+	else if (step > xRange_.second){
+
+		stopAll();
+		emit horizontalMoveError(true);
 	}
 }
 
 void SampleStageControl::onYStepChanged(double step)
 {
-	if (step < yRange_.first && step > yRange_.second){
+	if (step < yRange_.first){
 
 		stopAll();
-		emit moveError("Y-direction motor");
+		emit verticalMoveError(false);
+		emit normalMoveError(false);
+	}
+	else if (step > yRange_.second){
+
+		stopAll();
+		emit verticalMoveError(true);
+		emit normalMoveError(true);
 	}
 }
 
 void SampleStageControl::onZStepChanged(double step)
 {
-	if (step < zRange_.first && step > zRange_.second){
+	if (step < zRange_.first){
 
 		stopAll();
-		emit moveError("Z-direction motor");
+		emit verticalMoveError(false);
+		emit normalMoveError(false);
+	}
+	else if (step > zRange_.second){
+
+		stopAll();
+		emit verticalMoveError(true);
+		emit normalMoveError(true);
 	}
 }
