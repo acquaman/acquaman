@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QMetaType>
 #include "dataman/AMnDIndex.h"
+#include <QVector3D>
 
 /// Default constructor
 AMDbThumbnail::AMDbThumbnail(const QString& Title, const QString& Subtitle, ThumbnailType Type, const QByteArray& ThumbnailData)
@@ -209,6 +210,13 @@ bool AMDbObject::storeToDb(AMDatabase* db) {
 			QStringList resultString;
 			foreach(double d, doubleList)
 				resultString << QString("%1").arg(d);
+			values << resultString.join(AMDbObjectSupport::listSeparator());
+		}
+
+		else if(columnType == qMetaTypeId<QVector3D>()) {
+			QVector3D val = property(columnName).value<QVector3D>();
+			QStringList resultString;
+			resultString << QString::number(val.x()) << QString::number(val.y()) << QString::number(val.z());
 			values << resultString.join(AMDbObjectSupport::listSeparator());
 		}
 
@@ -490,6 +498,16 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 				foreach(QString d, stringList)
 					doubleList << d.toDouble();
 				setProperty(columnName, QVariant::fromValue(doubleList));
+			}
+			else if(columnType == qMetaTypeId<QVector3D>()) {
+				QVector3D vector;
+				QStringList stringList = values.at(ri).toString().split(AMDbObjectSupport::listSeparator(), QString::SkipEmptyParts);
+				if(stringList.size() == 3) {
+					vector = QVector3D(stringList.at(0).toDouble(), stringList.at(1).toDouble(), stringList.at(2).toDouble());
+				}
+				else
+					AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -57, "Couldn't find 3 numbers when attempting to load a 3D geometry point from the database."));
+				setProperty(columnName, QVariant::fromValue(vector));
 			}
 			else if(columnType == QVariant::StringList || columnType == QVariant::List) {	// string list, and anything-else-lists saved as string lists: must convert back from separated string.
 				setProperty(columnName, values.at(ri).toString().split(AMDbObjectSupport::stringListSeparator(), QString::SkipEmptyParts));

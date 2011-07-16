@@ -22,21 +22,7 @@ Using Qt version 4.7.3 in /home/beamline/tools/qt/qt-4.7.3-SL54-x86_64/lib
 
 
 
-#2.  Get Acquaman
-
-#Via git:
-#Need git... I installed locally for reixs account.
-
-tar -zxf git-1.6.6.tar.gz
-cd git-1.6.6
-./configure --prefix=/home/reixs/local
-make
-make install
-
-
-Yay!
-
-#Get acquaman (requires git)
+#2.  Get Acquaman (requires git)
 
 mkdir dev
 cd dev

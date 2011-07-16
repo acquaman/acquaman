@@ -5,7 +5,7 @@
 
 # Video Support: Remove this line if you do not have the multimedia module from QtMobility
 
-# CONFIG += mobility
+CONFIG += mobility
 
 # Automatically determines a user's home folder
 HOME_FOLDER = $$system(echo $HOME)
@@ -384,7 +384,7 @@ FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMDataViewActionsBar.ui \
 	source/ui/AMChooseScanDialog.ui \
 	source/ui/AMLinePropertyEditor.ui \
-    source/ui/AMImagePropertyEditor.ui
+	source/ui/AMImagePropertyEditor.ui
 SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	../MPlot/src/MPlot/MPlotAbstractTool.cpp \
 	../MPlot/src/MPlot/MPlotAxis.cpp \
