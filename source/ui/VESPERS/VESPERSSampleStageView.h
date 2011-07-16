@@ -9,6 +9,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QMessageBox>
+#include <QToolButton>
 
 /*! This class builds a view on the sample stage control that does relative movement for the sample stage.  It does not change the focus distance,
   only the horizontal and vertical motors.
@@ -46,8 +47,12 @@ protected slots:
 	void onHorizontalChanged(double val);
 	/// Handles changes from the vertical motor from the sample stage.
 	void onVerticalChanged(double val);
-	/// Handles the error message from a move error from the sample stage.
-	void onMoveError(QString name) { QMessageBox::warning(this, "End of travel!", QString("You have reached the end of travel for the %1.  Consider changing the position of your sample on the sample mount.").arg(name)); }
+	/// Handles the error message from a horizontal move error from the sample stage.
+	void onHorizontalMoveError(bool direction);
+	/// Handles the error message from a vertical move error from the sample stage.
+	void onVerticalMoveError(bool direction);
+	/// Handles the error message from a normal move error from the sample stage.
+	void onNormalMoveError(bool direction);
 
 protected:
 	/// Holds the jog value.  All movements are relative to this number.
@@ -60,6 +65,16 @@ protected:
 	QLineEdit *horizontal_;
 	/// Holds the vertical setpoint.
 	QLineEdit *vertical_;
+
+	// Jog buttons.
+	/// The jog up button.
+	QToolButton *goUp_;
+	/// The jog down button.
+	QToolButton *goDown_;
+	/// The jog left button.
+	QToolButton *goLeft_;
+	/// The jog right button.
+	QToolButton *goRight_;
 
 	/// The control for the sample stage.
 	SampleStageControl *sampleStage_;

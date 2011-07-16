@@ -76,8 +76,12 @@ signals:
 	void verticalSetpointChanged(double);
 	/// Notifies whether the normal motor setpoint has changed.
 	void normalSetpointChanged(double);
-	/// Notifier that a move was unsuccessful.  Passes an error string that states which of the directions failed.
-	void moveError(QString);
+	/// Notifier that a horizontal move was unsuccessful.  Passes an bool that states which of the direction failed.  False is past the low limit, true is past the high limit.
+	void horizontalMoveError(bool);
+	/// Notifier that a vertical move was unsuccessful.  Passes an bool that states which of the direction failed.  False is past the low limit, true is past the high limit.
+	void verticalMoveError(bool);
+	/// Notifier that a normal move was unsuccessful.  Passes an bool that states which of the direction failed.  False is past the low limit, true is past the high limit.
+	void normalMoveError(bool);
 
 public slots:
 	/// Moves the sample stage in the horizontal direction.

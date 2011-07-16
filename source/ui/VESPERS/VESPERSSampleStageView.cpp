@@ -1,7 +1,6 @@
 #include "VESPERSSampleStageView.h"
 #include "ui/AMStopButton.h"
 
-#include <QToolButton>
 #include <QGroupBox>
 #include <QGridLayout>
 #include <QVBoxLayout>
@@ -13,7 +12,9 @@ VESPERSSampleStageView::VESPERSSampleStageView(QWidget *parent) :
 	sampleStage_ = VESPERSBeamline::vespers()->pseudoSampleStage();
 	connect(sampleStage_, SIGNAL(connected(bool)), this, SLOT(setEnabled(bool)));
 	connect(sampleStage_, SIGNAL(movingChanged(bool)), this, SLOT(onMovingChanged(bool)));
-	connect(sampleStage_, SIGNAL(moveError(QString)), this, SLOT(onMoveError(QString)));
+	connect(sampleStage_, SIGNAL(horizontalMoveError(bool)), this, SLOT(onHorizontalMoveError(bool)));
+	connect(sampleStage_, SIGNAL(verticalMoveError(bool)), this, SLOT(onVerticalMoveError(bool)));
+	connect(sampleStage_, SIGNAL(normalMoveError(bool)), this, SLOT(onNormalMoveError(bool)));
 
 	jog_ = new QDoubleSpinBox;
 	jog_->setSuffix(" mm");
@@ -55,35 +56,35 @@ VESPERSSampleStageView::VESPERSSampleStageView(QWidget *parent) :
 	status_ = new QLabel;
 	status_->setPixmap(QIcon(":/OFF.png").pixmap(25));
 
-	QToolButton *goUp = new QToolButton;
-	goUp->setIcon(QIcon(":/go-up.png"));
-	connect(goUp, SIGNAL(clicked()), this, SLOT(onUpClicked()));
+	goUp_ = new QToolButton;
+	goUp_->setIcon(QIcon(":/go-up.png"));
+	connect(goUp_, SIGNAL(clicked()), this, SLOT(onUpClicked()));
 
-	QToolButton *goDown = new QToolButton;
-	goDown->setIcon(QIcon(":/go-down.png"));
-	connect(goDown, SIGNAL(clicked()), this, SLOT(onDownClicked()));
+	goDown_ = new QToolButton;
+	goDown_->setIcon(QIcon(":/go-down.png"));
+	connect(goDown_, SIGNAL(clicked()), this, SLOT(onDownClicked()));
 
-	QToolButton *goLeft = new QToolButton;
-	goLeft->setIcon(QIcon(":/go-previous.png"));
-	connect(goLeft, SIGNAL(clicked()), this, SLOT(onLeftClicked()));
+	goLeft_ = new QToolButton;
+	goLeft_->setIcon(QIcon(":/go-previous.png"));
+	connect(goLeft_, SIGNAL(clicked()), this, SLOT(onLeftClicked()));
 
-	QToolButton *goRight = new QToolButton;
-	goRight->setIcon(QIcon(":/go-next.png"));
-	connect(goRight, SIGNAL(clicked()), this, SLOT(onRightClicked()));
+	goRight_ = new QToolButton;
+	goRight_->setIcon(QIcon(":/go-next.png"));
+	connect(goRight_, SIGNAL(clicked()), this, SLOT(onRightClicked()));
 
 	buttons_ = new QButtonGroup(this);
-	buttons_->addButton(goUp, 0);
-	buttons_->addButton(goDown, 1);
-	buttons_->addButton(goLeft, 2);
-	buttons_->addButton(goRight, 3);
+	buttons_->addButton(goUp_, 0);
+	buttons_->addButton(goDown_, 1);
+	buttons_->addButton(goLeft_, 2);
+	buttons_->addButton(goRight_, 3);
 
 	AMGroupStopButton *stop = new AMGroupStopButton(VESPERSBeamline::vespers()->sampleStageMotorSet()->toList().mid(0, 3));
 
 	QGridLayout *arrowLayout = new QGridLayout;
-	arrowLayout->addWidget(goUp, 0, 1);
-	arrowLayout->addWidget(goDown, 2, 1);
-	arrowLayout->addWidget(goLeft, 1, 0);
-	arrowLayout->addWidget(goRight, 1, 2);
+	arrowLayout->addWidget(goUp_, 0, 1);
+	arrowLayout->addWidget(goDown_, 2, 1);
+	arrowLayout->addWidget(goLeft_, 1, 0);
+	arrowLayout->addWidget(goRight_, 1, 2);
 	arrowLayout->addWidget(stop, 1, 1);
 
 	QHBoxLayout *jogAndStatusLayout = new QHBoxLayout;
@@ -149,3 +150,46 @@ void VESPERSSampleStageView::onVerticalChanged(double val)
 {
 	vertical_->setText(QString::number(val, 'f', 3));
 }
+
+void VESPERSSampleStageView::onHorizontalMoveError(bool direction)
+{
+	if (direction && goRight_->isEnabled()){
+
+		goRight_->setEnabled(false);
+		QMessageBox::warning(this, "End of travel!", QString("You have reached the end of travel for the horizontal motor.  Consider changing the position of your sample on the sample mount."));
+	}
+	else if (!direction && goLeft_->isEnabled()){
+
+		goLeft_->setEnabled(false);
+		QMessageBox::warning(this, "End of travel!", QString("You have reached the end of travel for the horizontal motor.  Consider changing the position of your sample on the sample mount."));
+	}
+}
+
+void VESPERSSampleStageView::onVerticalMoveError(bool direction)
+{
+	if (direction && goDown_->isEnabled()){
+
+		goDown_->setEnabled(false);
+		QMessageBox::warning(this, "End of travel!", QString("You have reached the end of travel for the vertical motor.  Consider changing the position of your sample on the sample mount."));
+	}
+	else if (!direction && goUp_->isEnabled()){
+
+		goUp_->setEnabled(false);
+		QMessageBox::warning(this, "End of travel!", QString("You have reached the end of travel for the vertical motor.  Consider changing the position of your sample on the sample mount."));
+	}
+}
+
+void VESPERSSampleStageView::onNormalMoveError(bool direction)
+{
+	if (direction && goDown_->isEnabled()){
+
+		goDown_->setEnabled(false);
+		QMessageBox::warning(this, "End of travel!", QString("You have reached the end of travel for the normal motor.  Consider changing the position of your sample on the sample mount."));
+	}
+	else if (!direction && goUp_->isEnabled()){
+
+		goUp_->setEnabled(false);
+		QMessageBox::warning(this, "End of travel!", QString("You have reached the end of travel for the normal motor.  Consider changing the position of your sample on the sample mount."));
+	}
+}
+

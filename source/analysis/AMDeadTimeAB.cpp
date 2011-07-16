@@ -98,7 +98,10 @@ AMNumber AMDeadTimeAB::value(const AMnDIndex &indexes, bool doBoundsChecking) co
 	if (doBoundsChecking && indexes.i() >= spectra_->size(0))
 		return AMNumber(AMNumber::OutOfBoundsError);
 
-	return double(icr_->value(AMnDIndex()))/double(ocr_->value(AMnDIndex()))*(int)spectra_->value(indexes.i());
+	if ((int)spectra_->value(indexes.i()) == 0)
+		return 0;
+	else
+		return double(icr_->value(AMnDIndex()))/double(ocr_->value(AMnDIndex()))*(int)spectra_->value(indexes.i());
 }
 
 AMNumber AMDeadTimeAB::axisValue(int axisNumber, int index, bool doBoundsChecking) const
