@@ -6,6 +6,7 @@
 VESPERSXASScanConfigurationView::VESPERSXASScanConfigurationView(VESPERSXASScanConfiguration *config, QWidget *parent)
 	: AMScanConfigurationView(parent)
 {
+	config_ = config;
 	AMTopFrame *frame = new AMTopFrame("VESPERS XAS for teh win!");
 	QVBoxLayout *layout = new QVBoxLayout;
 	layout->addWidget(frame);

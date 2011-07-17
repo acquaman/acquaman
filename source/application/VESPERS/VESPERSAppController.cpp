@@ -4,6 +4,7 @@
 #include "ui/VESPERS/VESPERSEndstationView.h"
 #include "ui/AMMainWindow.h"
 #include "ui/AMStartScreen.h"
+#include "ui/AMScanConfigurationViewHolder.h"
 
 #include "ui/VESPERS/XRFDetectorView.h"
 #include "ui/VESPERS/XRFFreeRunView.h"
@@ -12,6 +13,7 @@
 #include "util/AMPeriodicTable.h"
 #include "ui/VESPERS/XRFMapSetup.h"
 #include "ui/VESPERS/VESPERSDeviceStatusView.h"
+#include "ui/VESPERS/VESPERSXASScanConfigurationView.h"
 
 #include "util/VESPERS/ROIHelper.h"
 
@@ -89,9 +91,13 @@ bool VESPERSAppController::startup() {
 		XRFFreeRunView *xrf1EFreeRunView = new XRFFreeRunView(new XRFFreeRun(VESPERSBeamline::vespers()->vortexXRF1E()), workflowManagerView_);
 		XRFFreeRunView *xrf4EFreeRunView = new XRFFreeRunView(new XRFFreeRun(VESPERSBeamline::vespers()->vortexXRF4E()), workflowManagerView_);
 
+		VESPERSXASScanConfigurationView *xasConfigView = new VESPERSXASScanConfigurationView(new VESPERSXASScanConfiguration());
+		AMScanConfigurationViewHolder *xasConfigViewHolder = new AMScanConfigurationViewHolder( workflowManagerView_, xasConfigView);
+
 		mw_->insertHeading("Free run", 1);
 		mw_->addPane(xrf1EFreeRunView, "Free run", "XRF 1-el", ":/utilities-system-monitor.png");
 		mw_->addPane(xrf4EFreeRunView, "Free run", "XRF 4-el", ":/utilities-system-monitor.png");
+		mw_->addPane(xasConfigViewHolder, "Free run", "XAS test", ":/utilities-system-monitor.png");
 
 		XRFMapSetup *ndMapSetup = new XRFMapSetup;
 

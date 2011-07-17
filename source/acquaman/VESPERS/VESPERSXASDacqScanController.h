@@ -17,7 +17,7 @@ class VESPERSXASDacqScanController : public AMDacqScanController
 public:
 	VESPERSXASDacqScanController(VESPERSXASScanConfiguration *cfg, QObject *parent = 0);
 
-	virtual AMScan *scan() { return 0; }
+	virtual AMScan *scan() { return xasScan_; }
 
 protected slots:
 	void onInitializationActionsSucceeded();

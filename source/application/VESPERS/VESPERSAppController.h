@@ -7,6 +7,7 @@ class VESPERSEndstationView;
 class AMFreeRunScanConfigurationViewHolder;
 class XRFFreeRunView;
 class VESPERSPersistentView;
+class VESPERSXASScanConfigurationView;
 
 class VESPERSAppController : public AMAppController {
 	Q_OBJECT
