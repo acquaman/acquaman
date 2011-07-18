@@ -361,7 +361,8 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMScanSetItemPropertyDialog.h \
 	source/ui/AMColoredTextToolButton.h \
 	source/ui/AMLinePropertyEditor.h \
-	source/ui/AMImagePropertyEditor.h
+	source/ui/AMImagePropertyEditor.h \
+    source/beamline/CLS/CLSSynchronizedDwellTime.h
 
 
 CONFIG(mobility) {
@@ -596,7 +597,8 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMScanSetItemPropertyDialog.cpp \
 	source/ui/AMColoredTextToolButton.cpp \
 	source/ui/AMLinePropertyEditor.cpp \
-	source/ui/AMImagePropertyEditor.cpp
+	source/ui/AMImagePropertyEditor.cpp \
+    source/beamline/CLS/CLSSynchronizedDwellTime.cpp
 
 
 CONFIG(mobility) {
