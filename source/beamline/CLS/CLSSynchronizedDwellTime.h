@@ -31,7 +31,7 @@ public:
 	/// Returns the time in the units given by units().
 	double time() const { return time_->getDouble(); }
 	/// Returns whether the dwell element is enabled.
-	bool isEnable() const { return enable_->getInt() == 1 ? true : false; }
+	bool isEnabled() const { return enable_->getInt() == 1 ? true : false; }
 
 public slots:
 	/// Set the time (in seconds).  This will automatically be converted to match whatever the units of the element are.
@@ -90,12 +90,6 @@ public:
 
 	/// Return the overall dwell time.  Value is in seconds.
 	double time() const { return dwellTime_->getDouble(); }
-	/// Returns the time in an individual element.  May or may not be the same as time().  Value must be between 0 and elementCount()-1.
-	double timeAt(int index) { return elements_.at(index)->time(); }
-
-	/// Returns the number of elements in the dwell time list.
-	int elementCount() const { return elements_.size(); }
-
 	/// Returns the scan status.  True is scanning, false is idle.
 	bool status() const
 	{
@@ -105,14 +99,26 @@ public:
 
 		return false;
 	}
-
 	/// Returns the current mode.
 	Mode mode() const { return mode_->getInt() == 0 ? Continuous : SingleShot; }
 	/// Returns whether the dwell time is scanning.
 	bool isScanning() const { return startScan_->getInt() == 1 ? true : false; }
 
+	/// Convenience getter.  Returns the time in an individual element.  May or may not be the same as time().  \param index must be between 0 and elementCount()-1.
+	double timeAt(int index) const { return elements_.at(index)->time(); }
+	/// Convenience getter.  Returns the status of an individual element.  May or may not be the same as status().  \param index must be between 0 and elementCount()-1.
+	bool statusAt(int index) const { return elements_.at(index)->status(); }
+	/// Convenience getter.  Returns the enabled state of an individual element.  \param index must be between 0 and elementCount()-1.
+	bool enabedAt(int index) const { return elements_.at(index)->isEnabled(); }
+	/// Convenience getter.  Returns the name of an individual element.  \param index must be between 0 and elementCount()-1.
+	QString nameAt(int index) const { return elements_.at(index)->name(); }
+
+	/// Returns the number of elements in the dwell time list.
+	int elementCount() const { return elements_.size(); }
 	/// Adds an element based on the given \param index and the existing base name.  Assumes the the index given is valid because there is no way of knowing a priori how many have been configured.
 	void addElement(int index);
+	/// Returns the element at \param index.
+	CLSSynchronizedDwellTimeElement *elementAt(int index) const { return elements_.at(index); }
 
 signals:
 	/// Notifier that the Mode has changed.
