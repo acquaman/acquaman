@@ -15,6 +15,9 @@
 #include "ui/VESPERS/VESPERSDeviceStatusView.h"
 #include "ui/VESPERS/VESPERSXASScanConfigurationView.h"
 
+#include "dataman/AMScanEditorModelItem.h"
+#include "ui/AMGenericScanEditor.h"
+
 #include "util/VESPERS/ROIHelper.h"
 
 #include "dataman/AMDbObjectSupport.h"
@@ -81,6 +84,8 @@ bool VESPERSAppController::startup() {
 		// Create panes in the main window:
 		////////////////////////////////////
 
+		scanControllerActiveEditor_ = 0;
+
 		VESPERSEndstationView *endstationView_ = new VESPERSEndstationView;
 		//VESPERSDeviceStatusView *statusPage = new VESPERSDeviceStatusView;
 
@@ -91,8 +96,11 @@ bool VESPERSAppController::startup() {
 		XRFFreeRunView *xrf1EFreeRunView = new XRFFreeRunView(new XRFFreeRun(VESPERSBeamline::vespers()->vortexXRF1E()), workflowManagerView_);
 		XRFFreeRunView *xrf4EFreeRunView = new XRFFreeRunView(new XRFFreeRun(VESPERSBeamline::vespers()->vortexXRF4E()), workflowManagerView_);
 
-		VESPERSXASScanConfigurationView *xasConfigView = new VESPERSXASScanConfigurationView(new VESPERSXASScanConfiguration());
+		VESPERSXASScanConfiguration *xasScanConfig = new VESPERSXASScanConfiguration();
+		xasScanConfig->addRegion(0, 0, 1, 10);
+		VESPERSXASScanConfigurationView *xasConfigView = new VESPERSXASScanConfigurationView(xasScanConfig);
 		AMScanConfigurationViewHolder *xasConfigViewHolder = new AMScanConfigurationViewHolder( workflowManagerView_, xasConfigView);
+		connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerStarted()), this, SLOT(onCurrentScanControllerStarted()));
 
 		mw_->insertHeading("Free run", 1);
 		mw_->addPane(xrf1EFreeRunView, "Free run", "XRF 1-el", ":/utilities-system-monitor.png");
@@ -123,5 +131,16 @@ bool VESPERSAppController::startup() {
 void VESPERSAppController::shutdown() {
 	// Make sure we release/clean-up the beamline interface
 	AMBeamline::releaseBl();
+}
+
+void VESPERSAppController::onCurrentScanControllerStarted()
+{
+	AMGenericScanEditor *scanEditor = new AMGenericScanEditor();
+	scanEditorsParentItem_->appendRow(new AMScanEditorModelItem(scanEditor, ":/applications-science.png"));
+
+	scanEditor->addScan(AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan());
+	mw_->setCurrentPane(scanEditor);
+
+	scanControllerActiveEditor_ = scanEditor;
 }
 

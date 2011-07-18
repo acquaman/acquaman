@@ -31,6 +31,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/AMErrorMonitor.h"
 
+#include "util/AMBiHash.h"
+
 /// This class is the master class that holds EVERY control inside the VESPERS beamline.
 class VESPERSBeamline : public AMBeamline
 {
@@ -45,6 +47,10 @@ public:
 
 	~VESPERSBeamline();
 
+	// Helper functions.
+	QString pvName(const QString &amName) const { return amNames2pvNames_.valueF(amName); }
+	QString amName(const QString &pvName) const { return amNames2pvNames_.valueR(pvName); }
+
 	// Accessing detectors.
 
 	/// Returns a general AMDetector pointer of the single element XRF detector.
@@ -55,6 +61,9 @@ public:
 	AMDetector *vortexAM4E() const { return vortex4E_; }
 	/// Returns the specific XRFDetector pointer of the single element XRF detector.
 	XRFDetector *vortexXRF4E() const { return (XRFDetector *)vortex4E_; }
+
+	AMDetector *iMini() const { return iMini_; }
+	AMDetector *iPost() const { return iPost_; }
 
 	// Accessing control elements:
 
@@ -376,6 +385,12 @@ public:
 	/// Returns the process variable for the Pseudo-motor reset.
 	AMProcessVariable *resetPseudoMotors() const { return resetPseudoMotors_; }
 
+	// This is where the controls and PVs for mono settings exits.
+	AMControl *energyRelative() const { return energyRelative_; }
+
+	AMControl *iMiniControl() const { return iMiniControl_; }
+	AMControl *iPostControl() const { return iPostControl_; }
+
 signals:
 
 protected slots:
@@ -421,6 +436,8 @@ protected:
 	void setupDetectors();
 	/// Sets up the sample stage motors.
 	void setupSampleStage();
+	/// Sets up mono settings.
+	void setupMono();
 
 	/// Constructor. This is a singleton class; access it through VESPERSBeamline::vespers().
 	VESPERSBeamline();
@@ -428,6 +445,8 @@ protected:
 	// Detectors.
 	AMDetector *vortex1E_;
 	AMDetector *vortex4E_;
+	AMDetector *iMini_;
+	AMDetector *iPost_;
 
 	// End detectors.
 
@@ -618,6 +637,15 @@ protected:
 	PIDLoopControl *sampleStagePID_;
 
 	// End sample stage controls.
+
+	// Mono settings.
+	AMControl *energyRelative_;
+
+	AMControl *iMiniControl_;
+	AMControl *iPostControl_;
+
+	// AM names bihash to/from PV names.
+	AMBiHash<QString, QString> amNames2pvNames_;
 };
 
 #endif // VESPERSBEAMLINE_H

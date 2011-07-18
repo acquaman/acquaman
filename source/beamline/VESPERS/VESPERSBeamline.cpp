@@ -19,6 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "VESPERSBeamline.h"
 #include "beamline/CLS/CLSVMEMotor.h"
+#include "beamline/AMSingleControlDetector.h"
 
 VESPERSBeamline::VESPERSBeamline()
 	: AMBeamline("VESPERS Beamline")
@@ -28,6 +29,7 @@ VESPERSBeamline::VESPERSBeamline()
 	setupEndstation();
 	setupDetectors();
 	setupControlSets();
+	setupMono();
 }
 
 void VESPERSBeamline::setupDiagnostics()
@@ -383,6 +385,19 @@ void VESPERSBeamline::setupControlSets()
 	filterSet_->addControl(filter50umB_);
 	filterSet_->addControl(filterShutterUpper_);
 	filterSet_->addControl(filterShutterLower_);
+}
+
+void VESPERSBeamline::setupMono()
+{
+	amNames2pvNames_.set("IonChamberMini", "BL1607-B2-1:mcs08:fbk");
+	amNames2pvNames_.set("IonChamberPost", "BL1607-B2-1:mcs09:fbk");
+
+	energyRelative_ = new AMPVwStatusControl("Relative Energy Movement", "07B2_Mono_SineB_delE", "07B2_Mono_SineB_delE", "SMTR1607-1-B20-20:status", "SMTR1607-1-B20-20:stop", this, 0.1, 2.0, new AMControlStatusCheckerDefault(0), 1);
+	iMiniControl_ = new AMReadOnlyPVControl("IonChamberMini", amNames2pvNames_.valueF("IonChamberMini"), this, "Mini Ion Chamber");
+	iPostControl_ = new AMReadOnlyPVControl("IonChamberPost", amNames2pvNames_.valueF("IonChamberPost"), this, "Post Sample Ion Chamber");
+
+	iMini_ = new AMSingleControlDetector(iMiniControl_->name(), iMiniControl_, AMDetector::RequestRead, this);
+	iPost_ = new AMSingleControlDetector(iPostControl_->name(), iPostControl_, AMDetector::RequestRead, this);
 }
 
 void VESPERSBeamline::pressureConnected(bool connected)
