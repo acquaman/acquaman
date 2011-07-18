@@ -23,6 +23,7 @@ void CLSSynchronizedDwellTime::addElement(int index)
 CLSSynchronizedDwellTimeElement::CLSSynchronizedDwellTimeElement(QString baseName, int index, QObject *parent)
 	: QObject(parent)
 {
+	// 65 is 'A' in ascii.  Therefore the index offset will give the appropriate letter for the PV name since they are named 'A', 'B', 'C', etc.
 	name_ = new AMProcessVariable(baseName+":device"+QChar(65+index), true, this);
 	enable_ = new AMProcessVariable(baseName+":enable"+QChar(65+index), true, this);
 	time_ = new AMProcessVariable(baseName+":set"+QChar(65+index), true, this);
