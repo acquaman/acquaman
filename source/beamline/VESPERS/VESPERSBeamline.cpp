@@ -230,7 +230,7 @@ void VESPERSBeamline::setupDetectors()
 
 	iSplit1Control_ = new AMReadOnlyPVControl("IonChamberSplit1", amNames2pvNames_.valueF("IonChamberSplit1"), this, "Split Ion Chamber 1");
 	iSplit2Control_ = new AMReadOnlyPVControl("IonChamberSplit2", amNames2pvNames_.valueF("IonChamberSplit2"), this, "Split Ion Chamber 2");
-	iPreKB_ = new AMReadOnlyPVControl("IonChamberPreKB", amNames2pvNames_.valueF("IonChamberPreKB"), this, "Pre-KB Ion Chamber");
+	iPreKBControl_ = new AMReadOnlyPVControl("IonChamberPreKB", amNames2pvNames_.valueF("IonChamberPreKB"), this, "Pre-KB Ion Chamber");
 	iMiniControl_ = new AMReadOnlyPVControl("IonChamberMini", amNames2pvNames_.valueF("IonChamberMini"), this, "Mini Ion Chamber");
 	iPostControl_ = new AMReadOnlyPVControl("IonChamberPost", amNames2pvNames_.valueF("IonChamberPost"), this, "Post Sample Ion Chamber");
 
