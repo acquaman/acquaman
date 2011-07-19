@@ -26,6 +26,7 @@ public:
 	virtual QString detailedDescription() const;
 
 public slots:
+	/// Adds a region to the XAS scan.  \param index is the region you are adding and \param start, \param delta, and \param end define the region.
 	virtual bool addRegion(int index, double start, double delta, double end) { return regions_->addRegion(index, start, delta, end);}
 
 };

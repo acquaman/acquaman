@@ -23,11 +23,14 @@ bool VESPERSXASDacqScanController::initializeImplementation()
 
 bool VESPERSXASDacqScanController::startImplementation()
 {
+	// This function is a work in progress (read VERY work in progress).
 	bool loadSuccess = false;
+
+	// Find out which path we are using for acquaman (depends on whether you are on Mac or Linux or beamline OPI).
 	QString homeDir = QDir::homePath();
-	if( QDir(homeDir+"/dev").exists())
+	if(QDir(homeDir+"/dev").exists())
 		homeDir.append("/dev");
-	else if( QDir(homeDir+"/beamline/programming").exists())
+	else if(QDir(homeDir+"/beamline/programming").exists())
 		homeDir.append("/beamline/programming");
 
 	loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/VESPERS/XANES.cfg"));
