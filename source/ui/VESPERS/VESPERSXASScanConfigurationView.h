@@ -18,7 +18,7 @@ public:
 	VESPERSXASScanConfigurationView(VESPERSXASScanConfiguration *config, QWidget *parent = 0);
 
 	/// Getter for the configuration.
-	const AMScanConfiguration* configuration() const;
+	const AMScanConfiguration* configuration() const { return config_; }
 
 protected:
 	/// Pointer to the specific scan config the view is modifying.

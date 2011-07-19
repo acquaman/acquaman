@@ -39,6 +39,16 @@ protected:
 
 	AMnDIndex toScanIndex(QMap<int, double> aeData);
 
+	/// Sets up the XAS scan based on no fluorescence detectors selected.
+	bool setupTransmissionXAS();
+	/// Sets up the XAS scan based on the single element vortex detector being selected.
+	bool setupSingleElementXAS();
+	/// Sets up the XAS scan based on the four element vortex detector being selected.
+	bool setupFourElementXAS();
+
+	/// Returns the home directory for Acquaman.
+	QString getHomeDirectory();
+
 	/// Pointer to the configuration used by this controller.
 	VESPERSXASScanConfiguration *config_;
 	/// Pointer to the scan used by this controller.

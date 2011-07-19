@@ -23,28 +23,48 @@ bool VESPERSXASDacqScanController::initializeImplementation()
 
 bool VESPERSXASDacqScanController::startImplementation()
 {
-	// This function is a work in progress (read VERY work in progress).
-	bool loadSuccess = false;
+	switch(config_->fluorescenceDetectorChoice()){
 
-	// Find out which path we are using for acquaman (depends on whether you are on Mac or Linux or beamline OPI).
-	QString homeDir = QDir::homePath();
-	if(QDir(homeDir+"/dev").exists())
-		homeDir.append("/dev");
-	else if(QDir(homeDir+"/beamline/programming").exists())
-		homeDir.append("/beamline/programming");
+	case VESPERSXASScanConfiguration::None:
+		if (!setupTransmissionXAS()){
 
-	loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/VESPERS/XANES.cfg"));
+			AMErrorMon::report(AMErrorReport(this,
+					AMErrorReport::Alert,
+					VESPERSXASDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE,
+					"Error, VESPERS XAS DACQ Scan Controller failed to start (the config file failed to load). Please report this bug to the Acquaman developers."));
+			return false;
+		}
+		break;
 
-	if(!loadSuccess){
+	case VESPERSXASScanConfiguration::SingleElement:
+		if (!setupSingleElementXAS()){
+
+			AMErrorMon::report(AMErrorReport(this,
+					AMErrorReport::Alert,
+					VESPERSXASDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE,
+					"Error, VESPERS XAS DACQ Scan Controller failed to start (the config file failed to load). Please report this bug to the Acquaman developers."));
+			return false;
+		}
+		break;
+
+	case VESPERSXASScanConfiguration::FourElement:
+		if (!setupFourElementXAS()){
+
+			AMErrorMon::report(AMErrorReport(this,
+					AMErrorReport::Alert,
+					VESPERSXASDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE,
+					"Error, VESPERS XAS DACQ Scan Controller failed to start (the config file failed to load). Please report this bug to the Acquaman developers."));
+			return false;
+		}
+		break;
+
+	default:
 		AMErrorMon::report(AMErrorReport(this,
 				AMErrorReport::Alert,
 				VESPERSXASDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE,
-				"Error, VESPERS XAS DACQ Scan Controller failed to start (the config file failed to load). Please report this bug to the Acquaman developers."));
+				"Error, VESPERS XAS DACQ Scan Controller failed to start (Invalid Fluorescence Detector chosen). Please report this bug to the Acquaman developers."));
 		return false;
 	}
-
-	advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(VESPERSBeamline::vespers()->iMini()->detectorName()), true, false, detectorReadMethodToDacqReadMethod(VESPERSBeamline::vespers()->iMini()->readMethod()));
-	advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(VESPERSBeamline::vespers()->iPost()->detectorName()), true, false, detectorReadMethodToDacqReadMethod(VESPERSBeamline::vespers()->iPost()->readMethod()));
 
 	for (int i = 0; i < config_->regionCount(); i++){
 
@@ -72,15 +92,95 @@ AMnDIndex VESPERSXASDacqScanController::toScanIndex(QMap<int, double> aeData)
 
 void VESPERSXASDacqScanController::onInitializationActionsSucceeded()
 {
-
+	/// \todo why is this here?
+	setInitialized();
 }
 
 void VESPERSXASDacqScanController::onInitializationActionsFailed(int explanation)
 {
-
+	/// \todo why is this here?
+	setFailed();
 }
 
 void VESPERSXASDacqScanController::onInitializationActionsProgress(double elapsed, double total)
 {
 
+}
+
+QString VESPERSXASDacqScanController::getHomeDirectory()
+{
+	// Find out which path we are using for acquaman (depends on whether you are on Mac or Linux or beamline OPI).
+	QString homeDir = QDir::homePath();
+	if(QDir(homeDir+"/dev").exists())
+		homeDir.append("/dev");
+	else if(QDir(homeDir+"/beamline/programming").exists())
+		homeDir.append("/beamline/programming");
+
+	return homeDir;
+}
+
+bool VESPERSXASDacqScanController::setupTransmissionXAS()
+{
+	bool loadSuccess = false;
+
+	loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/VESPERS/XANES.cfg"));
+
+	if(!loadSuccess){
+		AMErrorMon::report(AMErrorReport(this,
+				AMErrorReport::Alert,
+				VESPERSXASDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE,
+				"Error, VESPERS XAS DACQ Scan Controller failed to start (the config file failed to load). Please report this bug to the Acquaman developers."));
+		return false;
+	}
+
+	AMDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
+
+	for (int i = 0; i < ionChambers->count(); i++)
+		advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt(i)->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt(i)->readMethod()));
+
+	return loadSuccess;
+}
+
+bool VESPERSXASDacqScanController::setupSingleElementXAS()
+{
+	bool loadSuccess = false;
+
+	loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/VESPERS/XANES-1Elem.cfg"));
+
+	if(!loadSuccess){
+		AMErrorMon::report(AMErrorReport(this,
+				AMErrorReport::Alert,
+				VESPERSXASDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE,
+				"Error, VESPERS XAS DACQ Scan Controller failed to start (the config file failed to load). Please report this bug to the Acquaman developers."));
+		return false;
+	}
+
+	AMDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
+
+	for (int i = 0; i < ionChambers->count(); i++)
+		advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt(i)->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt(i)->readMethod()));
+
+	return loadSuccess;
+}
+
+bool VESPERSXASDacqScanController::setupFourElementXAS()
+{
+	bool loadSuccess = false;
+
+	loadSuccess = advAcq_->setConfigFile(homeDir.append("/acquaman/devConfigurationFiles/VESPERS/XANES-4Elem.cfg"));
+
+	if(!loadSuccess){
+		AMErrorMon::report(AMErrorReport(this,
+				AMErrorReport::Alert,
+				VESPERSXASDACQSCANCONTROLLER_CANT_START_NO_CFG_FILE,
+				"Error, VESPERS XAS DACQ Scan Controller failed to start (the config file failed to load). Please report this bug to the Acquaman developers."));
+		return false;
+	}
+
+	AMDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
+
+	for (int i = 0; i < ionChambers->count(); i++)
+		advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt(i)->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt(i)->readMethod()));
+
+	return loadSuccess;
 }
