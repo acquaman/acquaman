@@ -82,7 +82,7 @@ bool VESPERSXASDacqScanController::startImplementation()
 
 	advAcq_->saveConfigFile("/home/hunterd/beamline/programming/acquaman/devConfigurationFiles/VESPERS/writeTest.cfg");
 
-	return AMDacqScanController::startImplementation();
+	return false;//return AMDacqScanController::startImplementation();
 }
 
 AMnDIndex VESPERSXASDacqScanController::toScanIndex(QMap<int, double> aeData)
@@ -122,7 +122,7 @@ QString VESPERSXASDacqScanController::getHomeDirectory()
 bool VESPERSXASDacqScanController::setupTransmissionXAS()
 {
 	bool loadSuccess = false;
-
+qDebug() << "Transmission";
 	loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/XANES.cfg"));
 
 	if(!loadSuccess){
@@ -144,7 +144,7 @@ bool VESPERSXASDacqScanController::setupTransmissionXAS()
 bool VESPERSXASDacqScanController::setupSingleElementXAS()
 {
 	bool loadSuccess = false;
-
+qDebug() << "1-el";
 	loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/XANES-1Elem.cfg"));
 
 	if(!loadSuccess){
@@ -166,7 +166,7 @@ bool VESPERSXASDacqScanController::setupSingleElementXAS()
 bool VESPERSXASDacqScanController::setupFourElementXAS()
 {
 	bool loadSuccess = false;
-
+qDebug() << "4-el";
 	loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/XANES-4Elem.cfg"));
 
 	if(!loadSuccess){
