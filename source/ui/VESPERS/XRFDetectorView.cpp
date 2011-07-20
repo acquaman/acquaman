@@ -112,7 +112,7 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 
 	for (int i = 0; i < detector_->elements(); i++){
 
-		temp = new DeadTimeButton(15.0, 30.0);
+		temp = new DeadTimeButton(30.0, 60.0);
 		temp->setCheckable(true);
 		temp->setFixedSize(20, 20);
 		deadTimeLayout->addWidget(temp);
@@ -353,7 +353,7 @@ void XRFDetailedDetectorView::setupPlot()
 	plot_->axisRight()->setTicks(0);
 
 	// Set the autoscale constraints.
-	plot_->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(1, 1e20));
+	plot_->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(1, MPLOT_POS_INFINITY));
 }
 
 double XRFDetailedDetectorView::getMaximumHeight(MPlotItem *data)
@@ -621,7 +621,7 @@ void XRFDetailedDetectorView::saveSpectra()
 	}
 
 	out << "Regions of Interest\n";
-	out << "Name\t<Lower Bound, Upper Bound>\tValue\n";
+	out << "Name\t<Low, High>\tValue\n";
 	QList<AMROI *> rois(detector_->roiList());
 			;
 	for (int i = 0; i < rois.size(); i++){
@@ -640,10 +640,12 @@ void XRFDetailedDetectorView::saveSpectra()
 		out << QString("Corr %1\t").arg(i+1);
 	if (elements > 1)
 		out << "Corrected Sum\n";
+	else
+		out << "\n";
 
 	if (elements == 1)
 		for (int i = 0; i < detectorSize; i++)
-			out << int(detector_->spectrumDataSource(0)->value(i)) << "\t" << int(detector_->correctedDataSource(0)->value(i));
+			out << int(detector_->spectrumDataSource(0)->value(i)) << "\t" << int(detector_->correctedDataSource(0)->value(i)) << "\n";
 	else{
 
 		for (int i = 0; i < detectorSize; i++){

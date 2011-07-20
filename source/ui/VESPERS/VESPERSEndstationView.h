@@ -91,14 +91,14 @@ protected slots:
 
 	// Slots handling the button clicks that will change the control window.
 	/// Sets the window control with the appropriate settings.
-	void setWindow(AMPVwStatusControl *control);
+	void setWindow(AMControl *control);
 
 	/// Handles the CCD button being clicked.
 	void ccdClicked()
 	{
 		if (!endstation_->microscopeInHomePosition()){
 
-			AMPVwStatusControl *control = endstation_->control("Microscope motor");
+			AMControl *control = endstation_->control("Microscope motor");
 			QMessageBox::warning(this, tr("Move Error"), tr("The microscope is in an unsafe position.  You must move the microscope to its %1 position (%2 %3) before you can move the microscope.").arg(endstation_->microscopeNames().second).arg(endstation_->getLimits(control).second).arg(control->units()));
 			return;
 		}
@@ -110,7 +110,7 @@ protected slots:
 	{
 		if (!endstation_->ccdInHomePosition()){
 
-			AMPVwStatusControl *control = endstation_->control("CCD motor");
+			AMControl *control = endstation_->control("CCD motor");
 			QMessageBox::warning(this, tr("Move Error"), tr("The CCD is in an unsafe position.  You must move the CCD to %1 %2 before you can move the microscope.").arg(endstation_->getLimits(control).second).arg(control->units()));
 			return;
 		}

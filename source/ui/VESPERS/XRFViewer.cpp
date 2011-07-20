@@ -27,15 +27,23 @@ XRFViewer::XRFViewer(QWidget *parent) :
 	deadTimeGroup_ = new QButtonGroup(this);
 	deadTimeGroup_->setExclusive(false);
 
-	DeadTimeButton *temp = new DeadTimeButton(15.0, 30.0);
-	temp->setCheckable(true);
-	temp->setFixedSize(20, 20);
-	deadTimeGroup_->addButton(temp, 0);
-	connect(deadTimeGroup_, SIGNAL(buttonClicked(int)), this, SLOT(elementClicked(int)));
-
+	DeadTimeButton *temp;
 	deadTimeLayout_ = new QHBoxLayout;
 	deadTimeLayout_->setSpacing(0);
-	deadTimeLayout_->addWidget(temp);
+	deadTimeLayout_->addStretch();
+
+	for (int i = 0; i < 4; i++){
+
+		temp = new DeadTimeButton(30.0, 60.0);
+		temp->setCheckable(false);
+		temp->setCurrent(0);
+		temp->setFixedSize(20, 20);
+		temp->hide();
+		deadTimeGroup_->addButton(temp, i);
+		deadTimeLayout_->addWidget(temp, 0, Qt::AlignCenter);
+	}
+
+	deadTimeLayout_->addStretch();
 
 	setupPlot();
 
@@ -61,21 +69,24 @@ XRFViewer::XRFViewer(QWidget *parent) :
 	logButton_->setChecked(false);
 	connect(logButton_, SIGNAL(toggled(bool)), this, SLOT(onLogEnabled(bool)));
 
-	QPushButton *rawSpectraButton = new QPushButton("Raw Spectra");
-	rawSpectraButton->setCheckable(true);
+	rawSpectraButton_ = new QPushButton("Raw Spectra");
+	rawSpectraButton_->setCheckable(true);
+	rawSpectraButton_->setEnabled(false);
 
-	QPushButton *correctedSpectraButton = new QPushButton("Corrected Spectra");
-	correctedSpectraButton->setCheckable(true);
+	correctedSpectraButton_ = new QPushButton("Corrected Spectra");
+	correctedSpectraButton_->setCheckable(true);
+	correctedSpectraButton_->setEnabled(false);
 
-	QPushButton *correctedSumButton = new QPushButton("Corrected Sum");
-	correctedSumButton->setCheckable(true);
+	correctedSumButton_ = new QPushButton("Corrected Sum");
+	correctedSumButton_->setCheckable(true);
+	correctedSumButton_->setEnabled(false);
 
 	QButtonGroup *spectraGroup = new QButtonGroup(this);
-	spectraGroup->addButton(correctedSumButton, 0);
-	spectraGroup->addButton(correctedSpectraButton, 1);
-	spectraGroup->addButton(rawSpectraButton, 2);
+	spectraGroup->addButton(correctedSumButton_, 0);
+	spectraGroup->addButton(correctedSpectraButton_, 1);
+	spectraGroup->addButton(rawSpectraButton_, 2);
 	connect(spectraGroup, SIGNAL(buttonClicked(int)), this, SLOT(onSpectraGroupClicked(int)));
-	correctedSumButton->setChecked(true);
+	correctedSumButton_->setChecked(true);
 
 	waterfallSeparation_ = new QDoubleSpinBox;
 	waterfallSeparation_->setPrefix(QString::fromUtf8("Δh = "));
@@ -101,9 +112,9 @@ XRFViewer::XRFViewer(QWidget *parent) :
 	rightSideBox->setMaximumWidth(400);
 
 	QHBoxLayout *bottomRow = new QHBoxLayout;
-	bottomRow->addWidget(correctedSumButton);
-	bottomRow->addWidget(correctedSpectraButton);
-	bottomRow->addWidget(rawSpectraButton);
+	bottomRow->addWidget(correctedSumButton_);
+	bottomRow->addWidget(correctedSpectraButton_);
+	bottomRow->addWidget(rawSpectraButton_);
 	bottomRow->addWidget(waterfallSeparation_);
 	bottomRow->addWidget(logButton_);
 
@@ -156,13 +167,7 @@ void XRFViewer::setupPlot()
 	plot_->axisRight()->setTicks(0);
 
 	// Set the autoscale constraints.
-	plot_->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(1, 1e20));
-}
-
-void XRFViewer::elementClicked(int elementId)
-{
-	Q_UNUSED(elementId)
-
+	plot_->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(1, MPLOT_POS_INFINITY));
 }
 
 void XRFViewer::onLogEnabled(bool logged)
@@ -173,7 +178,7 @@ void XRFViewer::onLogEnabled(bool logged)
 
 void XRFViewer::onSpectraGroupClicked(int id)
 {
-	if (corrSum_ == 0 || corrDataSeries_.isEmpty() || rawDataSeries_.isEmpty())
+	if ((corrSum_ == 0 && id == 0) || (corrDataSeries_.isEmpty() && id == 1) || (rawDataSeries_.isEmpty() && id == 2))
 		return;
 
 	while(plot_->numItems())
@@ -252,12 +257,81 @@ QColor XRFViewer::getColor(int index)
 
 void XRFViewer::loadFile()
 {
-	QString fileName = QFileDialog::getOpenFileName(this,
-													tr("Load Spectra"),
-													"",
-													tr("Spectra Data (*.dat);;All Files (*)"));
+	// Clean up first.
+	for (int i = 0; i < deadTimeGroup_->buttons().size(); i++)
+		deadTimeGroup_->button(i)->hide();
+	for (int i = 0; i < rawDataSeries_.size(); i++)
+		delete rawDataSeries_.at(i);
+	for (int i = 0; i < corrDataSeries_.size(); i++)
+		delete corrDataSeries_.at(i);
 
-	QFile file(fileName);
+	delete corrSum_;
+	corrSum_ = 0;
+	rawDataSeries_.clear();
+	corrDataSeries_.clear();
+	roiList_->clear();
+
+	rawSpectraButton_->setEnabled(false);
+	correctedSpectraButton_->setEnabled(false);
+	correctedSumButton_->setEnabled(false);
+
+	// End of clean up.
+
+	QString filename;
+
+	if ((filename = QFileDialog::getOpenFileName(this, tr("Load Spectra"), "", tr("Spectra Data (*.dat);;All Files (*)"))).isNull())
+		return;
+
+	switch(checkDataFile(filename)){
+
+	case None:
+		QMessageBox::warning(this, tr("XRF Spectra Viewer"), tr("This data file is not a VESPERS data file and is not supported."));
+		break;
+	case SpectrumSnapshot:
+		loadSpectrumSnapshotFile(filename);
+		break;
+	case VespersXRF:
+		loadVespersXRFFile(filename);
+		break;
+	case AcquamanXRF:
+		loadAcquamanXRFFile(filename);
+		break;
+	}
+}
+
+XRFViewer::FileType XRFViewer::checkDataFile(QString filename)
+{
+	QFile file(filename);
+
+	if (!file.open(QFile::ReadOnly | QFile::Text)){
+		QMessageBox::warning(this, tr("XRF Spectra Viewer"),
+							 tr("Cannot open file %1:\n%2")
+							 .arg(file.fileName())
+							 .arg(file.errorString()));
+		return None;
+	}
+
+	QTextStream in(&file);
+	QString current(in.readLine());
+	file.close();
+
+	FileType type;
+
+	if (current.contains("#"))
+		type = SpectrumSnapshot;
+	else if (current.contains("Number of Elements:"))
+		type = AcquamanXRF;
+	else if (current.split("\t").size() == 2 || current.split("\t").size() == 6)
+		type = VespersXRF;
+	else
+		type = None;
+
+	return type;
+}
+
+void XRFViewer::loadSpectrumSnapshotFile(QString filename)
+{
+	QFile file(filename);
 
 	if (!file.open(QFile::ReadOnly | QFile::Text)){
 		QMessageBox::warning(this, tr("XRF Spectra Viewer"),
@@ -267,20 +341,148 @@ void XRFViewer::loadFile()
 		return;
 	}
 
-	// Clean up first.
-	while(!deadTimeLayout_->isEmpty())
-		deadTimeLayout_->removeItem(deadTimeLayout_->itemAt(0));
-	while(!deadTimeGroup_->buttons().isEmpty())
-		delete deadTimeGroup_->buttons().takeLast();
-	for (int i = 0; i < rawDataSeries_.size(); i++){
+	QTextStream in(&file);
 
-		delete rawDataSeries_.at(i);
-		delete corrDataSeries_.at(i);
+	in.readLine();
+	in.readLine();
+	in.readLine();
+
+	QString current(in.readLine());
+	elapsedTime_->setText(current.split(" ").at(4) + " s");
+	deadTime_->setText("--");
+	roiList_->setText("Not available.");
+
+	QList<double> data;
+
+	current = in.readLine();
+	double firstNum = current.split(" ").first().toDouble()*1000;
+	data << current.split(" ").last().toDouble();
+	current = in.readLine();
+	double secondNum = current.split(" ").first().toDouble()*1000;
+	data << current.split(" ").last().toDouble();
+
+	while(!(current = in.readLine()).isEmpty())
+		data << current.split(" ").last().toDouble();
+
+	file.close();
+
+	// Put the data into MPlot data series.
+	SpectrumData *tempData = new SpectrumData(data);
+	tempData->setScale(secondNum-firstNum);
+	corrSum_ = new MPlotSeriesBasic;
+	corrSum_->setModel(tempData, true);
+	corrSum_->setMarker(MPlotMarkerShape::None);
+	corrSum_->setDescription("Corrected Sum");
+	corrSum_->setLinePen(QPen(getColor(0)));
+
+	plot_->axisBottom()->setAxisName("Energy, eV");
+
+	correctedSumButton_->setEnabled(true);
+
+	onSpectraGroupClicked(0);
+}
+
+void XRFViewer::loadVespersXRFFile(QString filename)
+{
+	QFile file(filename);
+
+	if (!file.open(QFile::ReadOnly | QFile::Text)){
+		QMessageBox::warning(this, tr("XRF Spectra Viewer"),
+							 tr("Cannot open file %1:\n%2")
+							 .arg(file.fileName())
+							 .arg(file.errorString()));
+		return;
 	}
 
-	rawDataSeries_.clear();
-	corrDataSeries_.clear();
-	roiList_->clear();
+	elapsedTime_->setText("--");
+	deadTime_->setText("--");
+	roiList_->setText("Not available.");
+
+	QTextStream in(&file);
+
+	QString current(in.readLine());
+
+	// If the data file is from the single element.
+	if (current.split("\t").size() == 2){
+
+		QList<double> rawData;
+
+		while(!(current = in.readLine()).isEmpty())
+			rawData << current.split("\t").last().toDouble();
+
+		MPlotSeriesBasic *rawSeries = new MPlotSeriesBasic;
+		rawSeries->setModel(new SpectrumData(rawData), true);
+		rawSeries->setMarker(MPlotMarkerShape::None);
+		rawSeries->setDescription(QString("Raw 1"));
+		rawSeries->setLinePen(QPen(getColor(1)));
+		rawDataSeries_ << rawSeries;
+
+		rawSpectraButton_->setEnabled(true);
+
+		onSpectraGroupClicked(2);
+	}
+	// If the data file is from the four element.
+	else{
+
+		QList<QList<double> > rawData;
+		QList<double> corrSumData;
+
+		for (int i = 0; i < 4; i++)
+			rawData << QList<double>();
+
+		while(!(current = in.readLine()).isEmpty()){
+
+			QStringList temp(current.split("\t"));
+
+			for (int i = 0; i < 4; i++)
+				rawData[i] << temp.at(i+2).toDouble();
+
+			corrSumData << temp.at(1).toDouble();
+		}
+
+		MPlotSeriesBasic *rawSeries;
+		SpectrumData *tempData;
+
+		for (int i = 0; i < 4; i++){
+
+			tempData = new SpectrumData(rawData.at(i));
+			rawSeries = new MPlotSeriesBasic;
+			rawSeries->setModel(tempData, true);
+			rawSeries->setMarker(MPlotMarkerShape::None);
+			rawSeries->setDescription(QString("Raw %1").arg(i+1));
+			rawSeries->setLinePen(QPen(getColor(i+1)));
+			rawDataSeries_ << rawSeries;
+		}
+
+		tempData = new SpectrumData(corrSumData);
+		corrSum_ = new MPlotSeriesBasic;
+		corrSum_->setModel(tempData, true);
+		corrSum_->setMarker(MPlotMarkerShape::None);
+		corrSum_->setDescription("Corrected Sum");
+		corrSum_->setLinePen(QPen(getColor(0)));
+
+		plot_->axisBottom()->setAxisName("Channel #");
+
+		rawSpectraButton_->setEnabled(true);
+		correctedSumButton_->setEnabled(true);
+
+		onSpectraGroupClicked(0);
+	}
+
+	file.close();
+}
+
+void XRFViewer::loadAcquamanXRFFile(QString filename)
+{
+	QFile file(filename);
+
+	if (!file.open(QFile::ReadOnly | QFile::Text)){
+		QMessageBox::warning(this, tr("XRF Spectra Viewer"),
+							 tr("Cannot open file %1:\n%2")
+							 .arg(file.fileName())
+							 .arg(file.errorString()));
+		return;
+	}
 
 	QTextStream in(&file);
 
@@ -293,25 +495,21 @@ void XRFViewer::loadFile()
 	double worstDeadTime = 0;
 	double dt = 0;
 	DeadTimeButton *temp;
-	deadTimeLayout_->addStretch();
 
 	for (int i = 0; i < elements; i++){
 
 		icr = in.readLine().split("\t").last().toDouble();
 		ocr = in.readLine().split("\t").last().toDouble();
-		dt = (icr/ocr - 1)*100;
+		dt = (1 - ocr/icr)*100;
 
 		if (dt > worstDeadTime)
 			worstDeadTime = dt;
 
-		temp = new DeadTimeButton(15.0, 30.0);
+		temp = qobject_cast<DeadTimeButton *>(deadTimeGroup_->button(i));
 		temp->setCurrent(dt);
-		temp->setFixedSize(20, 20);
-		deadTimeGroup_->addButton(temp, i);
-		deadTimeLayout_->addWidget(temp);
+		temp->show();
 	}
 
-	deadTimeLayout_->addStretch();
 	deadTime_->setText(QString::number(worstDeadTime, 'f', 2) + " %");
 
 	QString current;
@@ -343,7 +541,7 @@ void XRFViewer::loadFile()
 			rawData[i] << temp.at(i).toDouble();
 			corrData[i] << temp.at(i+elements).toDouble();
 		}
-		corrSumData << temp.last().toInt();
+		corrSumData << temp.last().toDouble();
 	}
 
 	file.close();
@@ -380,6 +578,12 @@ void XRFViewer::loadFile()
 	corrSum_->setMarker(MPlotMarkerShape::None);
 	corrSum_->setDescription("Corrected Sum");
 	corrSum_->setLinePen(QPen(getColor(0)));
+
+	rawSpectraButton_->setEnabled(true);
+	correctedSpectraButton_->setEnabled(true);
+	correctedSumButton_->setEnabled(true);
+
+	plot_->axisBottom()->setAxisName("Energy, eV");
 
 	onSpectraGroupClicked(0);
 }

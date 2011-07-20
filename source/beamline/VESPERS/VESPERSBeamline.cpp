@@ -18,6 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "VESPERSBeamline.h"
+#include "beamline/CLS/CLSVMEMotor.h"
+#include "beamline/AMSingleControlDetector.h"
 
 VESPERSBeamline::VESPERSBeamline()
 	: AMBeamline("VESPERS Beamline")
@@ -27,6 +29,7 @@ VESPERSBeamline::VESPERSBeamline()
 	setupEndstation();
 	setupDetectors();
 	setupControlSets();
+	setupMono();
 }
 
 void VESPERSBeamline::setupDiagnostics()
@@ -163,14 +166,19 @@ void VESPERSBeamline::setupSampleStage()
 	sampleStageVertical_ = new AMPVwStatusControl("Vertical Sample Stage", "TS1607-2-B21-01:V:user:mm:sp", "TS1607-2-B21-01:V:user:mm", "TS1607-2-B21-01:V:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
 	sampleStageNormal_ = new AMPVwStatusControl("Normal Sample Stage", "TS1607-2-B21-01:N:user:mm:sp", "TS1607-2-B21-01:N:user:mm", "TS1607-2-B21-01:N:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
 
-	sampleStageX_ = new AMPVwStatusControl("X motor Sample Stage", "SVM1607-2-B21-02:mm:sp", "SVM1607-2-B21-02:mm", "SVM1607-2-B21-02:status", "SVM1607-2-B21-02:stop", this, 0.01, 10.0);
-	sampleStageY_ = new AMPVwStatusControl("Y motor Sample Stage", "SVM1607-2-B21-03:mm:sp", "SVM1607-2-B21-03:mm", "SVM1607-2-B21-03:status", "SVM1607-2-B21-03:stop", this, 0.01, 10.0);
-	sampleStageZ_ = new AMPVwStatusControl("Z motor Sample Stage", "SVM1607-2-B21-01:mm:sp", "SVM1607-2-B21-01:mm", "SVM1607-2-B21-01:status", "SVM1607-2-B21-01:stop", this, 0.01, 10.0);
+	sampleStageX_ = new CLSVMEMotor("xMotorSampleStage", "SVM1607-2-B21-02", "X Motor Sample Stage", true, 0.01, 10.0, this);
+	sampleStageY_ = new CLSVMEMotor("yMotorSampleStage", "SVM1607-2-B21-03", "Y Motor Sample Stage", true, 0.01, 10.0, this);
+	sampleStageZ_ = new CLSVMEMotor("zMotorSampleStage", "SVM1607-2-B21-01", "Z Motor Sample Stage", true, 0.01, 10.0, this);
 
-	// These are meant for reading purposes.  They are the steps of the motor, not engineering units (ie: mm).
-	sampleStageStepX_ = new AMReadOnlyPVControl("X component Sample Stage", "SVM1607-2-B21-02:step:sp", this);
-	sampleStageStepY_ = new AMReadOnlyPVControl("Y component Sample Stage", "SVM1607-2-B21-03:step:sp", this);
-	sampleStageStepZ_ = new AMReadOnlyPVControl("Z component Sample Stage", "SVM1607-2-B21-01:step:sp", this);
+	pseudoSampleStage_ = new SampleStageControl(sampleStageHorizontal_, sampleStageVertical_, sampleStageNormal_, this);
+	pseudoSampleStage_->setXRange(-700000, 700000);
+	pseudoSampleStage_->setYRange(-200000, 200000);
+	pseudoSampleStage_->setZRange(-200000, 200000);
+
+	realSampleStage_ = new SampleStageControl(sampleStageX_, sampleStageY_, sampleStageZ_, this);
+	realSampleStage_->setXRange(-700000, 700000);
+	realSampleStage_->setYRange(-200000, 200000);
+	realSampleStage_->setZRange(-200000, 200000);
 
 	sampleStageMotorSet_ = new AMControlSet(this);
 	sampleStageMotorSet_->addControl(sampleStageHorizontal_);
@@ -179,25 +187,8 @@ void VESPERSBeamline::setupSampleStage()
 	sampleStageMotorSet_->addControl(sampleStageX_);
 	sampleStageMotorSet_->addControl(sampleStageY_);
 	sampleStageMotorSet_->addControl(sampleStageZ_);
-	sampleStageMotorSet_->addControl(sampleStageStepX_);
-	sampleStageMotorSet_->addControl(sampleStageStepY_);
-	sampleStageMotorSet_->addControl(sampleStageStepZ_);
 
 	connect(sampleStageMotorSet_, SIGNAL(controlSetTimedOut()), this, SLOT(sampleStageError()));
-
-	AMPVwStatusControl *h = qobject_cast<AMPVwStatusControl *>(sampleStageHorizontal_);
-	AMPVwStatusControl *v = qobject_cast<AMPVwStatusControl *>(sampleStageVertical_);
-	AMPVwStatusControl *n = qobject_cast<AMPVwStatusControl *>(sampleStageNormal_);
-	AMReadOnlyPVControl *x = qobject_cast<AMReadOnlyPVControl *>(sampleStageStepX_);
-	AMReadOnlyPVControl *y = qobject_cast<AMReadOnlyPVControl *>(sampleStageStepY_);
-	AMReadOnlyPVControl *z = qobject_cast<AMReadOnlyPVControl *>(sampleStageStepZ_);
-
-	sampleStage_ = new SampleStageControl(h, v, n, x, y, z);
-
-	sampleStage_->setScalers(1, 0.707, 0.707);
-	sampleStage_->setXRange(-700000, 700000);
-	sampleStage_->setYRange(-200000, 200000);
-	sampleStage_->setZRange(-200000, 200000);
 
 	sampleStagePidX_ = new AMPVControl("Sample Stage PID X", "SVM1607-2-B21-02:hold:sp", "SVM1607-2-B21-02:hold", QString(), this);
 	sampleStagePidY_ = new AMPVControl("Sample Stage PID Y", "SVM1607-2-B21-03:hold:sp", "SVM1607-2-B21-03:hold", QString(), this);
@@ -211,16 +202,10 @@ void VESPERSBeamline::setupSampleStage()
 void VESPERSBeamline::setupEndstation()
 {
 	// The controls used for the control window.
-	ccdMotor_ = new AMPVwStatusControl("CCD motor", "SMTR1607-2-B21-18:mm:sp", "SMTR1607-2-B21-18:mm", "SMTR1607-2-B21-18:status", "SMTR1607-2-B21-18:stop", this, 1.0, 10.0);
-	microscopeMotor_ = new AMPVwStatusControl("Microscope motor", "SMTR1607-2-B21-17:mm:sp", "SMTR1607-2-B21-17:mm", "SMTR1607-2-B21-17:status", "SMTR1607-2-B21-17:stop", this, 1.0, 10.0);
-	fourElMotor_ = new AMPVwStatusControl("4-Element Vortex motor", "SMTR1607-2-B21-27:mm:sp", "SMTR1607-2-B21-27:mm", "SMTR1607-2-B21-27:status", "SMTR1607-2-B21-27:stop", this, 1.0, 10.0);
-	singleElMotor_ = new AMPVwStatusControl("1-Element Vortex motor", "SMTR1607-2-B21-15:mm:sp", "SMTR1607-2-B21-15:mm", "SMTR1607-2-B21-15:status", "SMTR1607-2-B21-15:stop", this, 1.0, 10.0);
-
-	// The process variables that have the feedback value used for the button.  The microscope doesn't need one because it's encoder doesn't work.
-	ccdMotorfbk_ = new AMReadOnlyPVControl("CCD motor feedback", "SMTR1607-2-B21-18:mm:fbk", this);
-	fourElMotorfbk_ = new AMReadOnlyPVControl("4-Element Vortex motor feedback", "SMTR1607-2-B21-27:mm:fbk", this);
-	singleElMotorfbk_ = new AMReadOnlyPVControl("1-Element Vortex motor feedback", "SMTR1607-2-B21-15:mm:fbk", this);
-	focusMotorfbk_ = new AMReadOnlyPVControl("Focus motor feedback", "TS1607-2-B21-01:N:user:mm:fbk", this);
+	ccdMotor_ = new CLSVMEMotor("CCD Motor", "SMTR1607-2-B21-18", "CCD motor", false, 1.0, 10.0, this);
+	microscopeMotor_ = new CLSVMEMotor("Microscope motor", "SMTR1607-2-B21-17", "Microscope motor", false, 1.0, 10.0, this);
+	fourElMotor_ = new CLSVMEMotor("4-Element Vortex motor", "SMTR1607-2-B21-27", "4-Element Vortex motor", false, 1.0, 10.0, this);
+	singleElMotor_ = new CLSVMEMotor("1-Element Vortex motor", "SMTR1607-2-B21-15", "1-Element Vortex motor", false, 1.0, 10.0, this);
 
 	// Microscope light PV.
 	micLight_ = new AMProcessVariable("07B2_PLC_Mic_Light_Inten", true, this);
@@ -237,6 +222,31 @@ void VESPERSBeamline::setupEndstation()
 
 void VESPERSBeamline::setupDetectors()
 {
+	amNames2pvNames_.set("IonChamberSplit1", "BL1607-B2-1:mcs05:fbk");
+	amNames2pvNames_.set("IonChamberSplit2", "BL1607-B2-1:mcs06:fbk");
+	amNames2pvNames_.set("IonChamberPreKB", "BL1607-B2-1:mcs07:fbk");
+	amNames2pvNames_.set("IonChamberMini", "BL1607-B2-1:mcs08:fbk");
+	amNames2pvNames_.set("IonChamberPost", "BL1607-B2-1:mcs09:fbk");
+
+	iSplit1Control_ = new AMReadOnlyPVControl("IonChamberSplit1", amNames2pvNames_.valueF("IonChamberSplit1"), this, "Split Ion Chamber 1");
+	iSplit2Control_ = new AMReadOnlyPVControl("IonChamberSplit2", amNames2pvNames_.valueF("IonChamberSplit2"), this, "Split Ion Chamber 2");
+	iPreKBControl_ = new AMReadOnlyPVControl("IonChamberPreKB", amNames2pvNames_.valueF("IonChamberPreKB"), this, "Pre-KB Ion Chamber");
+	iMiniControl_ = new AMReadOnlyPVControl("IonChamberMini", amNames2pvNames_.valueF("IonChamberMini"), this, "Mini Ion Chamber");
+	iPostControl_ = new AMReadOnlyPVControl("IonChamberPost", amNames2pvNames_.valueF("IonChamberPost"), this, "Post Sample Ion Chamber");
+
+	iSplit1_ = new AMSingleControlDetector(iSplit1Control_->name(), iSplit1Control_, AMDetector::RequestRead, this);
+	iSplit2_ = new AMSingleControlDetector(iSplit2Control_->name(), iSplit2Control_, AMDetector::RequestRead, this);
+	iPreKB_ = new AMSingleControlDetector(iPreKBControl_->name(), iPreKBControl_, AMDetector::RequestRead, this);
+	iMini_ = new AMSingleControlDetector(iMiniControl_->name(), iMiniControl_, AMDetector::RequestRead, this);
+	iPost_ = new AMSingleControlDetector(iPostControl_->name(), iPostControl_, AMDetector::RequestRead, this);
+
+	ionChambers_ = new AMDetectorSet(this);
+	ionChambers_->addDetector(iSplit1_);
+	ionChambers_->addDetector(iSplit2_);
+	ionChambers_->addDetector(iPreKB_);
+	ionChambers_->addDetector(iMini_);
+	ionChambers_->addDetector(iPost_);
+
 	vortex1E_ = new XRFDetector("1-el Vortex", 1, "IOC1607-004", this);
 	connect(vortexXRF1E(), SIGNAL(detectorConnected(bool)), this, SLOT(singleElVortexError(bool)));
 
@@ -385,14 +395,10 @@ void VESPERSBeamline::setupControlSets()
 	// Grouping the enstation motors together.
 	endstationMotorSet_ = new AMControlSet(this);
 	endstationMotorSet_->addControl(ccdMotor_);
-	endstationMotorSet_->addControl(ccdMotorfbk_);
 	endstationMotorSet_->addControl(microscopeMotor_);
 	endstationMotorSet_->addControl(fourElMotor_);
-	endstationMotorSet_->addControl(fourElMotorfbk_);
 	endstationMotorSet_->addControl(singleElMotor_);
-	endstationMotorSet_->addControl(singleElMotorfbk_);
 	endstationMotorSet_->addControl(sampleStageNormal_);
-	endstationMotorSet_->addControl(focusMotorfbk_);
 
 	// Beam attenuation filters.  Only contains the filters of a certain size.  The upper and lower are used independently of these six.
 	filterSet_ = new AMControlSet(this);
@@ -404,6 +410,11 @@ void VESPERSBeamline::setupControlSets()
 	filterSet_->addControl(filter50umB_);
 	filterSet_->addControl(filterShutterUpper_);
 	filterSet_->addControl(filterShutterLower_);
+}
+
+void VESPERSBeamline::setupMono()
+{
+	energyRelative_ = new AMPVwStatusControl("Relative Energy Movement", "07B2_Mono_SineB_delE", "07B2_Mono_SineB_delE", "SMTR1607-1-B20-20:status", "SMTR1607-1-B20-20:stop", this, 0.1, 2.0, new AMControlStatusCheckerDefault(0), 1);
 }
 
 void VESPERSBeamline::pressureConnected(bool connected)

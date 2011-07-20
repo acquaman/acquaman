@@ -28,6 +28,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "MPlot/MPlotColorMap.h"
 
+#include "acquaman.h"
+
 class AMScan;
 class AMDataSource;
 
@@ -35,22 +37,40 @@ class AMDataSource;
 class AMDataSourcePlotSettings {
 public:
 	/// Default Constructor
-	AMDataSourcePlotSettings(const QColor& Color = nextColor(), double Priority = 1, const QPen& LinePen = QPen(), bool Visible = true)
-		: color(Color),
-		priority(Priority),
-		linePen(LinePen),
-		visible(Visible) {}
+	AMDataSourcePlotSettings(double Priority = 1, const QPen& LinePen = QPen(nextColor()), bool Visible = true)
+		: priority(Priority),
+		  visible(Visible),
+		  linePen(LinePen),
+		  colorMap(MPlotColorMap::Jet)
+	{
 
-	/// common color used for plotting this data source
-	QColor color;
-	/// Colormap used for multi-dimensional data
-	MPlotColorMap colorMap;
+		areaFilled = false;
+
+		colorMap.setContrast(2.1);
+		colorMap.setBrightness(0.08);
+		colorMap.setGamma(0.7);
+	}
+
+
+
 	/// Priority level for this data source (used for ordering... lower numbers appear first.)
 	double priority;
-	/// Pen used for this data source (dots, dashes, etc.)
-	QPen linePen;
 	/// Whether this data source is shown/enabled in non-exclusive views.
 	bool visible;
+
+	// 1D plot settings:
+	/// Pen used for this data source (dots, dashes, etc.), as well as width and color
+	QPen linePen;
+	/// True if the area below the plot should be filled \note These don't work yet, since MPlot doesn't yet support filled plots
+	bool areaFilled;
+	/// The brush of the fill, if used (ie: areaFilled is true) \note These don't work yet, since MPlot doesn't yet support filled plots
+	QBrush fillBrush;
+
+	// 2D plot settings:
+
+	/// Resultant colormap used for multi-dimensional data
+	MPlotColorMap colorMap;
+
 
 	/// Globally-accessible function to get the "next" data source color to use.
 	static QColor nextColor() {
@@ -64,7 +84,7 @@ public:
 		case 4: return QColor(128, 0, 255);
 		case 5: return QColor(0, 0, 255);
 		case 6: return QColor(0, 128, 0);
-		// Yellow is hard to see: case 7: return QColor(255, 255, 0);
+			// Yellow is hard to see: case 7: return QColor(255, 255, 0);
 		case 7: return QColor(255, 0, 0);
 		case 8: return QColor(0, 64, 128);
 		case 9: return QColor(128, 64, 0);
@@ -80,30 +100,40 @@ The data() function is implemented to return values that are relevant to standar
 
 Data Roles:
 
-	Qt::DisplayRole: QString			- the name of the scan or data source
-	Qt::DecorationRole: QColor		- line/display color (\todo Return a QPixmap for 2D data sources, based on their colormap gradient?)
+ Qt::DisplayRole: QString			- the name of the scan or data source
+ Qt::DecorationRole: QColor		- line/display color (\todo Return a QPixmap for 2D data sources, based on their colormap gradient?)
 
-	Qt::TooltipRole: QString			- detailed information (Scan's name, number, dateTime and sample name; or data source description() )
-	AM::DescriptionRole: QString		- detailed information (Scan sample name and dateTime; or data source description() )
+ Qt::TooltipRole: QString			- detailed information (Scan's name, number, dateTime and sample name; or data source description() )
+ AM::DescriptionRole: QString		- detailed information (Scan sample name and dateTime; or data source description() )
 
-	Qt::CheckStateRole: Qt::CheckState	- Data sources only: whether visible or not. (Qt::Checked or Qt::Unchecked)
+ Qt::CheckStateRole: Qt::CheckState	- Data sources only: whether visible or not. (Qt::Checked or Qt::Unchecked)
 
-	// custom roles:
-	AM::PointerRole: AMScan* or AMDataSource*	- the pointer to the object
-	AM::PriorityRole: double Data sources only: used for ordering (lowest to highest).
-	AM::LinePenRole: QPen	- pen used for drawing in scans
-	AM::CanCloseRole: whether an 'x' should be shown beside this scan/data-source, to allow closing or deleting.  On by default.
+ // custom roles:
+ AM::PointerRole: AMScan* or AMDataSource*	- the pointer to the object
+ AM::PriorityRole: double (Data sources only): used for ordering (lowest to highest).
+ AM::CanCloseRole: whether an 'x' should be shown beside this scan/data-source, to allow closing or deleting.  On by default.
+
+ AM::RankRole: int (Data sources only): the rank (# of dimensions) of the data source
+
+ AM::LinePenRole: QPen	- pen used for drawing in scans
+ AMScanSetModel::FilledRole
+ AMScanSetModel::FillColorRole
+
+ AMScanSetModel::ColorMapRole: MPlotColorMap: used for color-coding 2D surface plots
 
 
-	\note While while the Qt standard model API supports inserting/removing multiple rowse, the AMScanSetModel guarantees that only <i>one</i> row (ie: Scan or Data Source) will be inserted/removed/modified at a time.  For all the rowsInserted(), rowsRemoved(), and dataChanged() signals, it's safe to assume that \c start and \c end are the same, as well as \c topLeft and \c bottomRight.
+ \note While while the Qt standard model API supports inserting/removing multiple rowse, the AMScanSetModel guarantees that only <i>one</i> row (ie: Scan or Data Source) will be inserted/removed/modified at a time.  For all the rowsInserted(), rowsRemoved(), and dataChanged() signals, it's safe to assume that \c start and \c end are the same, as well as \c topLeft and \c bottomRight.
 
-	\todo !!!!!!
-	hookup edited properties in scan/data sources (name, etc.) to dataChanged() signal out of model.
-	*/
+ \todo !!!!!!
+ hookup edited properties in scan/data sources (name, etc.) to dataChanged() signal out of model.
+ */
 
 class AMScanSetModel : public QAbstractItemModel {
 	Q_OBJECT
 public:
+
+	/// Additional custom roles for the data we expose:
+	enum DataRoles { FilledRole = AM::UserRole + 20, FillColorRole, ColorMapRole, UseStandardColorMapRole, StandardColorMapRole, FirstColorRole, SecondColorRole, BrightnessRole, ContrastRole, GammaRole };
 
 	/// Default constructor
 	AMScanSetModel(QObject* parent = 0) : QAbstractItemModel(parent) {}
@@ -132,17 +162,16 @@ public:
 		return sourcePlotSettings_.at(scanIndex).at(dataSourceIndex).visible;
 	}
 	/// Returns the color to use for data source at \c dataSourceIndex within the scan at \c scanIndex
-	QColor plotColor(int si, int di) const {	return sourcePlotSettings_.at(si).at(di).color; }
+	QColor plotColor(int si, int di) const {	return sourcePlotSettings_.at(si).at(di).linePen.color(); }
+	/// Returns the pen that should be used to draw the data source at \c dataSourceIndex within the scan at \c scanIndex
+	QPen plotPen(int si, int di) const {
+		return sourcePlotSettings_.at(si).at(di).linePen;
+	}
 	/// Returns the color map to use for data source at \c dataSourceIndex within the scan at \c scanIndex
 	MPlotColorMap plotColorMap(int si, int di) const { return sourcePlotSettings_.at(si).at(di).colorMap; }
 	/// Returns the priority to use for data source at \c dataSourceIndex within the scan at \c scanIndex. The priority is a double value that controls the stacking order of plots on top of each other.
 	double priority(int si, int di) const { return sourcePlotSettings_.at(si).at(di).priority; }
-	/// Returns the pen that should be used to draw the data source at \c dataSourceIndex within the scan at \c scanIndex
-	QPen plotPen(int si, int di) const {
-		QPen pen = sourcePlotSettings_.at(si).at(di).linePen;
-		pen.setColor(plotColor(si, di));
-		return pen;
-	}
+
 
 
 
@@ -219,20 +248,24 @@ public:
 	/// edit interface. Not all roles/values can be edited.
 	/*! Acceptable roles for editing:
 
-	  Scans:
-		- [no editable roles]
+   Scans:
+  - [no editable roles]
 
-	  Data Sources:
-		- Qt::DecorationRole (meta-data: sets color)
-		- Qt::TooltipRole and AM::DescriptionRole (calls setDescription() )
-		- Qt::CheckStateRole (plot options: sets visible or not)
-		- AMScanSetModel::PriorityRole (plot options: sets data source ordering)
-		- AMScanSetModel::LinePenRole (plot options: sets pen used for data source, but not color)
+   Data Sources:
+  - Qt::TooltipRole and AM::DescriptionRole (calls setDescription() )
+  - Qt::CheckStateRole (plot options: sets visible or not)
+  - AM::PriorityRole (plot options: sets data source ordering)
+  - Qt::DecorationRole (sets color of line pen)
+  - AM::LinePenRole (plot options: sets pen used for data source, including the color)
+  - AMScanSetModel::ColorMapRole (plot options: sets color map used for 2D data source, including brightness, contrast, and gamma)
 
-	*/
+
+
+ */
 	bool setData ( const QModelIndex & index, const QVariant & value, int role = Qt::EditRole );
 
 
+public slots:
 	// Convenience functions for setting plot-settings parameters
 	//////////////////////////////////////////////////////////////
 	void setVisible(int scanIndex, int dataSourceIndex, bool isVisible) {

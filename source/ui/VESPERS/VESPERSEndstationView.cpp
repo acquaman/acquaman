@@ -106,7 +106,7 @@ VESPERSEndstationView::VESPERSEndstationView(QWidget *parent)
 	QGroupBox *windowGB = new QGroupBox(tr("Motor Control"));
 	windowGB->setMinimumSize(280, 145);
 	windowGB->setLayout(windowGBLayout);
-	connect(endstation_, SIGNAL(currentControlChanged(AMPVwStatusControl*)), this, SLOT(setWindow(AMPVwStatusControl*)));
+	connect(endstation_, SIGNAL(currentControlChanged(AMControl*)), this, SLOT(setWindow(AMControl*)));
 	endstation_->setCurrent("1-Element Vortex motor");
 
 	// Setup the CCD file path signals and layout.
@@ -203,7 +203,7 @@ VESPERSEndstationView::~VESPERSEndstationView()
 	delete config_;
 }
 
-void VESPERSEndstationView::setWindow(AMPVwStatusControl *control)
+void VESPERSEndstationView::setWindow(AMControl *control)
 {
 	if (control == 0)
 		return;

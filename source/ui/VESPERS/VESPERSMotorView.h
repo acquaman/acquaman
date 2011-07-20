@@ -17,35 +17,34 @@ class VESPERSMotorView : public QWidget
 
 	/*!
 	  This class is used to build the motor control screen for the Endstation class.  This class will handle all the relationships between the class
-	  and the control.  The constructor primarily sets up the layout for the class, where as the \code setControl(AMPVwStatusControl *) function associates
+	  and the control.  The constructor primarily sets up the layout for the class, where as the \code setControl(AMControl *) function associates
 	  the control aspsects with line edits and the like.
 
-	  There are two types of \setControl(AMPVwStatusControl *): one that is a general full access control and one that is meant as a simple interface.  Since
+	  There are two types of \setControl(AMControl *): one that is a general full access control and one that is meant as a simple interface.  Since
 	  more things are done for you with the simple interface, that function requires more information to work correctly.
-
-	  The reason for using the specific AMPVwStatusControl class instead of the generic AMControl class is because this class is going to be controlling a motor,
-	  and all motors will be (should be) a full AMPVwStatusControl instantiation.
 	  */
 public:
 	/// Constructor.  Builds the layout.
 	explicit VESPERSMotorView(QWidget *parent = 0);
 
 	/// This function sets all the aspects of the control to the widget with the default full layout.  Assigns units of mm if the control doesn't have units.
-	void setControl(AMPVwStatusControl *control);
-	/// Overloaded function.  Same as \code setControl(AMPVwStatusControl *) but with soft limits.  Assigns units of mm if the control doesn't have units.
-	void setControl(AMPVwStatusControl *control, double lowLimit, double highLimit);
+	void setControl(AMControl *control);
+	/// Overloaded function.  Same as \code setControl(AMControl *) but with soft limits.  Assigns units of mm if the control doesn't have units.
+	void setControl(AMControl *control, double lowLimit, double highLimit);
 	/// Overloaded function.  Sets all the aspects of the control to the widget with the simple layout.  Distances and labels for the two positions are required.
-	void setControl(AMPVwStatusControl *control, double firstSetpoint, double secondSetpoint, QString firstLabel, QString secondLabel);
+	void setControl(AMControl *control, double firstSetpoint, double secondSetpoint, QString firstLabel, QString secondLabel);
 	/// Returns the current control.
-	AMPVwStatusControl *control() const { return control_; }
+	AMControl *control() const { return control_; }
 
 signals:
 
 public slots:
 
 private slots:
-	/// This slot updates the status of the motor.  It is called everytime the writePV value changes.
-	void updateStatus();
+	/// This slot updates the setpoint of the motor.
+	void updateSetpoint(double setpoint);
+	/// This slot updates the status of the motor.
+	void updateStatus(int status);
 	/// This slot moves the control.
 	void move()
 	{
@@ -73,7 +72,7 @@ private slots:
 
 private:
 	/// Checks the new setpoint against the soft limits.
-	bool acceptableMove(double setpoint) { if (lowLimit_ == highLimit_) return true; if (setpoint >= lowLimit_ && setpoint <= highLimit_) return true; return false; }
+	bool acceptableMove(double setpoint) { if (lowLimit_ == highLimit_) return true; return (setpoint >= lowLimit_ && setpoint <= highLimit_) ? true : false; }
 	/// Hides and disconnects the various elements from the main widget.
 	void hideAndDisconnect();
 
@@ -81,7 +80,7 @@ private:
 	enum Type { Full, Simple };
 
 	// A pointer to the control.
-	AMPVwStatusControl *control_;
+	AMControl *control_;
 	// The title of the control.
 	QLabel *title_;
 	// The control status label.

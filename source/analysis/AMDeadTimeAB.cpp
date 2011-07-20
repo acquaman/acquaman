@@ -10,7 +10,7 @@ AMDeadTimeAB::AMDeadTimeAB(const QString &outputName, QObject *parent)
 	axes_ << AMAxisInfo("invalid", 0, "No input data");
 	setState(AMDataSource::InvalidFlag);
 }
-
+#include <QDebug>
 // Check if a set of inputs is valid. The empty list (no inputs) must always be valid. For non-empty lists, our specific requirements are...
 /* - there must be a single input source
 - the rank() of that input source must be 1 (one-dimensional)
@@ -98,7 +98,10 @@ AMNumber AMDeadTimeAB::value(const AMnDIndex &indexes, bool doBoundsChecking) co
 	if (doBoundsChecking && indexes.i() >= spectra_->size(0))
 		return AMNumber(AMNumber::OutOfBoundsError);
 
-	return double(icr_->value(AMnDIndex()))/double(ocr_->value(AMnDIndex()))*(int)spectra_->value(indexes.i());
+	if ((int)spectra_->value(indexes.i()) == 0)
+		return 0;
+	else
+		return double(icr_->value(AMnDIndex()))/double(ocr_->value(AMnDIndex()))*(int)spectra_->value(indexes.i());
 }
 
 AMNumber AMDeadTimeAB::axisValue(int axisNumber, int index, bool doBoundsChecking) const
