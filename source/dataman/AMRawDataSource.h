@@ -176,7 +176,7 @@ public:
 
 		// minimum of one axis, always.
 		if(axes_.count() == 0)
-			axes_ << AMAxisInfo("invalid", 0);
+			axes_ << AMAxisInfo("invalid", 0)
 	}
 
 
