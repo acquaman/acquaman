@@ -57,6 +57,7 @@ bool AMFastScan::storeToDb(AMDatabase *db){
 			sgmLoader.saveToFile(autoExportFilePath_);
 		}
 	}
+	return succeeded;
 }
 
 void AMFastScan::setAutoExportFilePath(const QString &autoExportFilePath){

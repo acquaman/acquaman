@@ -84,10 +84,12 @@ bool AMDetectorSetView::checkedAt(int row) const{
 		return false;
 	if(checkBoxes_.at(row))
 		return checkBoxes_.at(row)->isChecked();
+
+	return false;
 }
 
 AMDetectorInfoSet AMDetectorSetView::currentValues(){
-	viewSet_->toInfoSet();
+	return viewSet_->toInfoSet();
 }
 
 AMDetectorInfoSet AMDetectorSetView::configValues(){
