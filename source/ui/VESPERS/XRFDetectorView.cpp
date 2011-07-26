@@ -247,7 +247,18 @@ void XRFDetailedDetectorView::roiWidthUpdate(AMROI *roi)
 
 void XRFDetailedDetectorView::onLogEnabled(bool logged)
 {
-	logged ? logButton_->setText("Linear") : logButton_->setText("Log");
+	// I change the constraint because in linear mode it doesn't matter if the data is between 0 and 1.  It only matters for the log plot (hence why it is only constrained in the logged case).
+	if (logged){
+
+		logButton_->setText("Linear");
+		plot_->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(1, MPLOT_POS_INFINITY));
+	}
+	else{
+
+		logButton_->setText("Log");
+		plot_->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(0, MPLOT_POS_INFINITY));
+	}
+
 	plot_->axisScaleLeft()->setLogScaleEnabled(logged);
 }
 
@@ -353,7 +364,7 @@ void XRFDetailedDetectorView::setupPlot()
 	plot_->axisRight()->setTicks(0);
 
 	// Set the autoscale constraints.
-	plot_->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(1, MPLOT_POS_INFINITY));
+	plot_->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(0, MPLOT_POS_INFINITY));
 }
 
 double XRFDetailedDetectorView::getMaximumHeight(MPlotItem *data)

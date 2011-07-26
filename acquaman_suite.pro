@@ -10,4 +10,5 @@ SUBDIRS += 	REIXSAcquaman.pro \
 	VESPERSAcquaman.pro \
 	# VESPERSDataman.pro \
 	#AcquaCam.pro \
-	XRFSpectraViewer.pro
+	XRFSpectraViewer.pro \
+	MidIRBPM.pro
