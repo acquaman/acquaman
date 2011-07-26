@@ -16,6 +16,7 @@ public:
 
 private Q_SLOTS:
 	void checkCalibration();
+	void testHexapodPVChanges();
 };
 
 REIXSTest::REIXSTest()
@@ -39,7 +40,7 @@ void REIXSTest::checkCalibration()
 	double theta  = c.spectrometerTheta(detectorPos);
 	QVERIFY(fabs(theta - 0.167184) < 0.001);
 
-	QVERIFY(fabs(c.spectrometerRotationDrive(theta)- 322.718) < 1);	// note: barely close here (to excel... don't know who's imprecise)
+	QVERIFY(fabs(c.spectrometerRotationDrive(theta)- 315.318) < 1);	// note: barely close here (to excel... don't know who's imprecise)
 	QVERIFY(fabs(c.detectorTranslation(detectorPos, theta) - -35.11144558) < 0.0001);
 
 	QVERIFY(fabs(c.tiltStageDrive(395, 0, theta) - -6.30) < 0.1);	// -6.266 vs. 6.300 in excel
@@ -53,6 +54,32 @@ void REIXSTest::checkCalibration()
 	QVERIFY(fabs(hexapodRST.x()- 18.946) < 0.0001);
 	QVERIFY(fabs(hexapodRST.y()- -10.917) < 0.0001);
 	QVERIFY(fabs(hexapodRST.z()- 470.132) < 0.0001);
+
+
+
+	detectorPos = c.detectorPos(200, 0);
+	theta = c.spectrometerTheta(detectorPos);
+	double eV200 = c.computeEVFromSpectrometerPosition(0, c.spectrometerRotationDrive(theta), c.detectorTranslation(detectorPos, theta));
+	QVERIFY(fabs(eV200-200) < 0.001);
+
+}
+
+#include "beamline/AMControl.h"
+
+void REIXSTest::testHexapodPVChanges()
+{
+	QString baseName = "HXPD1610-401-01:";
+	AMPVwStatusControl u("hexapodU", baseName+"U:sp", baseName+"U", baseName+"moving", QString(), this, 0.05);
+
+	QTest::qWait(5000);
+
+	u.move(.5);
+
+	QTest::qWait(10000);
+
+	u.move(0);
+
+	QTest::qWait(10000);
 }
 
 

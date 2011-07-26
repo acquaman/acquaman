@@ -7,6 +7,9 @@
 #include <cmath>
 #include "dataman/AMDataSourceImageData.h"
 
+#include "MPlot/MPlotTools.h"
+#include "ui/AMImagePropertyEditor.h"
+
 REIXSXESMCPDetectorView::REIXSXESMCPDetectorView(REIXSXESMCPDetector* detector, QWidget *parent) :
 	QWidget(parent)
 {
@@ -30,14 +33,21 @@ REIXSXESMCPDetectorView::REIXSXESMCPDetectorView(REIXSXESMCPDetector* detector, 
 	countsPerSecondIndicator_ = new QLabel();
 	countsPerSecondBar_ = new QProgressBar();
 
+	colorMapEditor_ = 0;
+
 	///////////////////////
 
 	// configure UI elements
+
+	image_->setDescription("XES Detector Image");
 
 	imagePlot_->axisScaleLeft()->setAutoScaleEnabled();
 	imagePlot_->axisScaleBottom()->setAutoScaleEnabled();
 	imagePlot_->axisScaleLeft()->setPadding(1);
 	imagePlot_->axisScaleBottom()->setPadding(1);
+
+	imagePlot_->addTool(new MPlotDragZoomerTool);
+	imagePlot_->addTool(new MPlotWheelZoomerTool);
 
 	// imagePlot_->setXDataRange(0, 1023);
 	// imagePlot_->setYDataRangeLeft(0, 63);
@@ -54,7 +64,11 @@ REIXSXESMCPDetectorView::REIXSXESMCPDetectorView(REIXSXESMCPDetector* detector, 
 	imagePlot_->axisBottom()->showAxisName(false);
 	imagePlot_->axisLeft()->showAxisName(false);
 
-	image_->setColorMap(MPlotColorMap::Bone);
+	MPlotColorMap colorMap(MPlotColorMap::Bone);
+	colorMap.setContrast(2.1);
+	colorMap.setBrightness(0.08);
+	colorMap.setGamma(0.7);
+	image_->setColorMap(colorMap);
 	imagePlot_->addItem(image_);
 
 	imageSelector_->addItem("Realtime Image");
@@ -64,6 +78,9 @@ REIXSXESMCPDetectorView::REIXSXESMCPDetectorView(REIXSXESMCPDetector* detector, 
 	countsPerSecondBar_->setOrientation(Qt::Vertical);
 	countsPerSecondBar_->setRange(0, 600);
 	countsPerSecondBar_->setValue(0);
+
+	adjustColorMapButton_ = new QToolButton();
+	adjustColorMapButton_->setText("Color...");
 
 	///////////////////////
 
@@ -78,6 +95,7 @@ REIXSXESMCPDetectorView::REIXSXESMCPDetectorView(REIXSXESMCPDetector* detector, 
 	vl1->addWidget(countsPerSecondIndicator_);
 	hl1->addLayout(vl1);
 
+	hl2->addWidget(adjustColorMapButton_);
 	hl2->addWidget(clearButton_);
 	hl2->addStretch();
 	hl2->addWidget(imageSelector_);
@@ -101,6 +119,8 @@ REIXSXESMCPDetectorView::REIXSXESMCPDetectorView(REIXSXESMCPDetector* detector, 
 	connect(clearButton_, SIGNAL(clicked()), detector_, SLOT(clearImage()));
 	connect(imageSelector_, SIGNAL(currentIndexChanged(int)), this, SLOT(onImageSelectorChanged(int)));
 	connect(detector_, SIGNAL(countsPerSecondChanged(double)), this, SLOT(onCountsPerSecondChanged(double)));
+
+	connect(adjustColorMapButton_, SIGNAL(clicked()), this, SLOT(onAdjustColorMapButtonClicked()));
 
 
 	//////////////////////////
@@ -129,11 +149,38 @@ void REIXSXESMCPDetectorView::onImageSelectorChanged(int index) {
 
 	if(index == 0) {
 		image_->setModel(new AMDataSourceImageData(detector_->instantaneousImage()), true);
+		image_->setDescription("Real-time XES Detector Image");
 	}
-	else if(index == 1)
+	else if(index == 1) {
 		image_->setModel(new AMDataSourceImageData(detector_->image()), true);
-	else
+		image_->setDescription("Accumulated XES Detector Image");
+	}
+	else {
 		image_->setModel(0, true);
+		image_->setDescription(QString());
+	}
 
+}
+
+void REIXSXESMCPDetectorView::onAdjustColorMapButtonClicked()
+{
+	if(!colorMapEditor_) {
+		colorMapEditor_ = new QDialog(adjustColorMapButton_);
+		colorMapEditor_->setAttribute(Qt::WA_TranslucentBackground);
+		QVBoxLayout* vl = new QVBoxLayout();
+		vl->setContentsMargins(0,0,0,0);
+		AMImagePropertyEditor* ipe = new AMImagePropertyEditor(image_->colorMap());
+		vl->addWidget(ipe);
+		colorMapEditor_->setLayout(vl);
+
+		connect(ipe, SIGNAL(colorMapChanged(MPlotColorMap)), this, SLOT(onColorMapChanged(MPlotColorMap)));
+	}
+
+	colorMapEditor_->show();
+}
+
+void REIXSXESMCPDetectorView::onColorMapChanged(const MPlotColorMap &map)
+{
+	image_->setColorMap(map);
 }
 

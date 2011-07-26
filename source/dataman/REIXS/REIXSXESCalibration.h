@@ -118,15 +118,20 @@ public slots:
 	void setGratingEVRangesMax(const AMDoubleList& gratingEVRangesMax) { gratingEVRangesMax_ = gratingEVRangesMax; setModified(true); } ///< set the max EV reachable by grating; (imposed safety limits)
 
 
+	//////////////////////
 
-	AMControlInfoList computeSpectrometerPosition(REIXSXESScanConfiguration* scanConfiguration) const {
-		return AMControlInfoList();
-	}
+	AMControlInfoList computeSpectrometerPosition(REIXSXESScanConfiguration* scanConfiguration) const;
+	AMControlInfoList computeSpectrometerPosition(int gratingIndex, double eV, double focusOffsetMm, double tiltOffsetDeg) const;
+	double computeEVFromSpectrometerPosition(int gratingIndex, double spectrometerRotationDriveMm, double detectorTranslationMM) const;
 
 	QPair<double,double> evRangeForGrating(int gratingNumber) const {
 		return QPair<double,double>(gratingEVRangesMin_.at(gratingNumber), gratingEVRangesMax_.at(gratingNumber));
 	}
 
+
+	/////////////////////////
+	// Math helper functions - can be used publicly
+	////////////////////////
 
 	/// Returns the hexapodOrigin(), lowered by 26.433mm. (This offset due to the fact that hexapodOrigin() is the top surface of the plate, but the hexapod's internal rotation coord system is 26.443mm below that)).
 	QVector3D hexapodRotationOrigin() const { return hexapodOrigin_ + QVector3D(0,0,-26.443); }
@@ -164,7 +169,7 @@ public slots:
 	/// Alpha (in rad) calculated using rowland circle condition from r() and grating radius.  alpha = acos(r/R)
 	double alpha(int gi) const { return acos( r() / gratingRadii_.at(gi) ); }
 
-	/// Beta (in rad) calculated using rowload circle condition from alpha() and \c energy (in eV).
+	/// Beta (in rad) calculated using rowland circle condition from alpha() and \c energy (in eV).
 	double beta(double eV, int gi) const { return asin(sin(alpha(gi))-0.0012398417*gratingGrooveDensities_.at(gi)/eV); }
 
 	/// Angle (in rad) of line from slit to optical origin (sTheta), up from y axis
@@ -184,7 +189,7 @@ public slots:
 	/// The angle (rad) of the center of the detector, up from the positive y-axis.  dTheta and rPrime provide polar coordinates for the center of the detector, around the optical origin.
 	double dTheta(double eV, int gi) const { return -sTheta() - alpha(gi) - beta(eV, gi) + M_PI; }
 
-	/// The position (mm) of the center of the detector, in working coordinates (x,y,z)
+	/// The required position (mm) of the center of the detector for a given eV and grating, in working coordinates (x,y,z)
 	QVector3D detectorPos(double eV, int gi) const {
 		double rPrime__ = rPrime(eV, gi);
 		double dTheta__ = dTheta(eV, gi);
@@ -194,7 +199,7 @@ public slots:
 	}
 
 
-	/// The rotation angle (rad) required to place the detector at detectorPos() \c d in working coordinates. Note that this angle is up from the y-axis in the working coordinate system... Not up from the resting position of the detector (yet).
+	/// The rotation angle (rad) required to place the detector at detectorPos() \c d in working coordinates. This is a mathematically-defined angle up from the y-axis in the working coordinate system... which is useful in a lot of calculations.  Note that it is NOT relative to the resting position of the detector (yet).
 	double spectrometerTheta(const QVector3D& d) const {
 		double herr = detectorHeightError_;
 		double dy2 = d.y()*d.y();
@@ -208,9 +213,12 @@ public slots:
 	}
 
 	/// The detector translation (mm) away from its initial position, to place the detector at detectorPos() in working coordinates. Here we simplify by providing the associated angle \c spectrometerTheta, asociated with that position via spectrometerTheta().
-	double detectorTranslation(const QVector3D& d, double spectrometerTheta) const {
-		return (d.y() - detectorHeightError_*sin(spectrometerTheta)) / cos(spectrometerTheta) - detectorTranslation0_;
+	double detectorTranslation(const QVector3D& d, double spectrometerTheta, double focusOffsetMm = 0) const {
+		return (d.y() - detectorHeightError_*sin(spectrometerTheta)) / cos(spectrometerTheta) - detectorTranslation0_ + focusOffsetMm;
 	}
+
+
+
 
 	/// The linear motor position (mm) of the spectrometer rotation drive motor, for a desired spectrometerTheta().  This incorporates the linear offset to get to the calibration position.
 	double spectrometerRotationDrive(double spectrometerTheta) const {
@@ -221,8 +229,42 @@ public slots:
 
 		double liftHeight = -frameA_*sin(theta_m - d2r(frameATheta_)) + sqrt( frameB_*frameB_ - pow(frameL_ - frameA_ * cos(theta_m - d2r(frameATheta_)),2));
 
-		return (frameH0_ - liftHeight) - spectrometerRotDrive0_;
+		return spectrometerRotDrive0_ + (frameH0_ - liftHeight);
 	}
+
+	/// Inverse of spectrometerRotationDrive().  Calculates the spectrometerTheta() [rad] for an actual motor position of the \c spectrometerRotationDrive [mm].
+	double spectrometerTheta(double spectrometerRotationDrive) const;
+
+	/// Calculates detector position [mm] from a given spectrometerTheta() [rad] and detectorTranslation() [mm] away from the initial position
+	QVector3D detectorPosFromThetaAndTranslation(double spectrometerTheta, double detectorTranslation) const {
+		double dtrans = detectorTranslation + detectorTranslation0_;
+
+		QVector3D rv(0,0,0);
+
+		rv.setY(detectorHeightError_*sin(spectrometerTheta) + dtrans*cos(spectrometerTheta));
+		rv.setZ(-detectorHeightError_*cos(spectrometerTheta) + dtrans*sin(spectrometerTheta));
+
+		return rv;
+	}
+
+	/// Inverse of detectorPos()... Calculates the polar angle dTheta [rad] for a given detectorPos() [mm]
+	double dThetaFromDetectorPos(const QVector3D& pos) const {
+
+		QVector3D rPrimeVector = pos - opticalOrigin_; // = r' cos(dtheta) j^ + r' sin(dtheta) k^
+
+		return atan2(rPrimeVector.z(), rPrimeVector.y());
+	}
+
+	/// Inverse of beta()... Calculates the center energy [eV] at a polar angle \c dTheta [rad], assuming a grating \c gratingIndex
+	double eVFromDTheta(double dTheta, int gratingIndex) const {
+		double beta = -sTheta() - alpha(gratingIndex) - dTheta + M_PI;
+
+		return 0.0012398417*gratingGrooveDensities_.at(gratingIndex) / (sin(alpha(gratingIndex)) - sin(beta) );
+	}
+
+
+	// Detector Tilt
+	////////////////////////
 
 	/// Angle (rad) that the detector surface should make down to the y-axis (working coordinates) to make it tangent to the rowland circle
 	double detectorPhi(double eV, int gi) const {
@@ -238,6 +280,20 @@ public slots:
 		double h = tiltA_ * sin(detectorPhiPrime) - tiltB_ + sqrt(tiltB_*tiltB_ - tiltA_*tiltA_*pow(1-cos(detectorPhiPrime), 2));
 
 		return h + tiltHomePos_ - 89.411;
+	}
+
+
+
+
+
+
+
+	QString gratingName(int gratingIndex) const {
+
+		if(gratingIndex < 0 || gratingIndex >= gratingCount())
+			return "No grating";
+
+		return gratingNames_.at(gratingIndex);
 	}
 
 signals:

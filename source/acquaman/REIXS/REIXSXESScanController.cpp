@@ -4,18 +4,14 @@
 #include "dataman/AMUser.h"
 
 #include "dataman/REIXS/REIXSXESCalibration.h"
-#include "beamline/AMBeamlineControlSetMoveAction.h"
+#include "beamline/AMBeamlineControlMoveAction.h"
 #include "util/AMSettings.h"
 
 REIXSXESScanController::REIXSXESScanController(REIXSXESScanConfiguration* configuration, QObject *parent) :
 	AMScanController(configuration, parent)
 {
 
-	initialMoveAction_ = new AMBeamlineControlSetMoveAction(REIXSBeamline::bl()->spectrometerPositionSet(), this);
-
-	/// \todo could this all be done at the abstract level, once we go to a single scan class?  ie: within AMScanController::initialize() ?
-
-	/// \todo Would it be okay for controllers to create their scans in initialize()? Saves memory because every scan action in the queue doesn't need to create its scan object (and associated memory) until actually running.  Currently doesn't work because AMBeamlineScanAction calls AMScanControllerSupervisor::setCurrentScanController() before calling AMScanController::initialize().
+	initialMoveAction_ = new AMBeamlineControlMoveAction(REIXSBeamline::bl()->spectrometer(), this);
 
 	/////////////////////////
 
@@ -55,33 +51,37 @@ bool REIXSXESScanController::initializeImplementation() {
 	// configure and clear the MCP detector
 	if( !REIXSBeamline::bl()->mcpDetector()->setFromInfo(*(pCfg()->mcpDetectorInfo())) ) {
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 3, "Could not connect to and configure the MCP detector before starting XES scan."));
-		//setFailed();
 		return false;
 	}
 
 
 
 	// Do we actually need to move into position?
-	//if(pCfg()->shouldStartFromCurrentPosition()) {
-	if(true) {
+	if(pCfg()->shouldStartFromCurrentPosition()) {
 		onInitialSetupMoveSucceeded();
 		return true;
 	}
 
 	else {
-		// compute the values to move to.
-		REIXSXESCalibration calibration;
-		calibration.loadFromDb(AMDatabase::userdb(), pCfg()->spectrometerCalibrationId());
-		AMControlInfoList moveValues = calibration.computeSpectrometerPosition(pCfg());
 
-		// move into position. connect signal from move done to onInitialSetupMoveSucceeded(), and move failed to onInitialSetupMoveFailed().
+		if(!REIXSBeamline::bl()->spectrometer()->loadSpectrometerCalibration(AMDatabase::userdb(), pCfg()->spectrometerCalibrationId())) {
+			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 10, "Could not load the spectrometer calibration that was specified in this scan configuration."));
+			return false;
+		}
 
-		if(initialMoveAction_->isRunning())
-			initialMoveAction_->cancel();
-		if(!initialMoveAction_->setSetpoint(moveValues)) {
-			/// \todo How to notify init failed?
-			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 3, "Could not start moving the spectrometer into position; maybe the move positions were out of range?"));
-			//emit cancelled();
+		if(!REIXSBeamline::bl()->spectrometer()->specifyGrating(pCfg()->gratingNumber())) {
+			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 11, "There was no grating like the one specified in this scan configuration."));
+			return false;
+		}
+
+		REIXSBeamline::bl()->spectrometer()->specifyDetectorTiltOffset(pCfg()->detectorTiltOffset());
+		REIXSBeamline::bl()->spectrometer()->specifyFocusOffset(pCfg()->defocusDistanceMm());
+
+		//if(initialMoveAction_->isRunning())
+		//	initialMoveAction_->cancel();
+
+		if(!initialMoveAction_->setSetpoint(pCfg()->centerEV())) {
+			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 12, "Could not start moving the spectrometer into position."));
 			return false;
 		}
 
@@ -89,15 +89,14 @@ bool REIXSXESScanController::initializeImplementation() {
 		connect(initialMoveAction_, SIGNAL(failed(int)), this, SLOT(onInitialSetupMoveFailed()));
 		initialMoveAction_->start();
 
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, "Moving spectrometer into position before starting the scan..."));
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Information, 0, "Moving spectrometer into position before starting the scan..."));
 		return true;
 	}
-
 }
 
 
 void REIXSXESScanController::onInitialSetupMoveFailed() {
-	AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 3, "Could not move the spectrometer into position before starting a scan."));
+	AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 13, "Could not move the spectrometer into position before starting a scan."));
 	disconnect(initialMoveAction_, 0, this, 0);
 	setFailed();
 }
@@ -105,7 +104,7 @@ void REIXSXESScanController::onInitialSetupMoveFailed() {
 void REIXSXESScanController::onInitialSetupMoveSucceeded() {
 	// remember the positions of the spectrometer
 	*(pScan()->scanInitialConditions()) = REIXSBeamline::bl()->spectrometerPositionSet()->toInfoList();
-	// emit initialized... Tells everyone we're ready to go.
+
 	disconnect(initialMoveAction_, 0, this, 0);
 
 	// tell the controller API we're now ready to go.
