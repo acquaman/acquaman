@@ -132,6 +132,10 @@ Either way, using setFromValues() instead of the assignment operator means that 
 
 	/// Find the index of a control in the list by name. Returns -1 if not found.
 	int indexOf(const QString& controlName) const;
+	/// Shortcut: returns a reference to a control by name. Equivalent to myControlInfoList[myControlInfoList.indexOf("name")].  \warning Assumes that a control with this name exists! Otherwise, this will crash.
+	AMControlInfo& controlNamed(const QString& controlName) { return (*this)[this->indexOf(controlName)]; }
+	/// Shortcut: returns a reference to a control by name. Equivalent to myControlInfoList.at(myControlInfoList.indexOf("name")).  \warning Assumes that a control with this name exists! Otherwise, this will crash.
+	const AMControlInfo& controlNamed(const QString& controlName) const { return this->at(this->indexOf(controlName)); }
 
 
 signals:

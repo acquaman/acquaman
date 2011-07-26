@@ -74,7 +74,7 @@ REIXSXESScanConfigurationView::REIXSXESScanConfigurationView(QWidget *parent) :
 	//////////////////////
 	centerEVBox_->setValue(configuration_.centerEV());
 	defocusDistanceMmBox_->setValue(configuration_.defocusDistanceMm());
-	detectorTiltBox_->setValue(configuration_.detectorTilt());
+	detectorTiltBox_->setValue(configuration_.detectorTiltOffset());
 	if(configuration_.detectorOrientation() == 0)
 		horizontalDetectorButton_->setChecked(true);
 	else
@@ -86,7 +86,7 @@ REIXSXESScanConfigurationView::REIXSXESScanConfigurationView(QWidget *parent) :
 
 	connect(centerEVBox_, SIGNAL(valueChanged(double)), &configuration_, SLOT(setCenterEV(double)));
 	connect(defocusDistanceMmBox_, SIGNAL(valueChanged(double)), &configuration_, SLOT(setDefocusDistanceMm(double)));
-	connect(detectorTiltBox_, SIGNAL(valueChanged(double)), &configuration_, SLOT(setDetectorTilt(double)));
+	connect(detectorTiltBox_, SIGNAL(valueChanged(double)), &configuration_, SLOT(setDetectorTiltOffset(double)));
 
 	connect(verticalDetectorButton_, SIGNAL(toggled(bool)), &configuration_, SLOT(setDetectorOrientation(bool)));
 	connect(startFromCurrentPositionOption_, SIGNAL(toggled(bool)), &configuration_, SLOT(setShouldStartFromCurrentPosition(bool)));
