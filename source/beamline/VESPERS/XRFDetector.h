@@ -126,21 +126,45 @@ public slots:
 	void setMaximumEnergyControl(double energy);
 	/// Sets the peaking time of the detector.
 	void setPeakingTimeControl(double time);
-	/// Sets the spectrum refresh rate.
+	/// Sets the refresh rate.  This includes the spectra and status.
 	void setRefreshRate(MCAUpdateRate rate)
+	{
+		setSpectraRefreshRate(rate);
+		setStatusRefreshRate(rate);
+	}
+	/// Sets the spectra update rate.
+	void setSpectraRefreshRate(MCAUpdateRate rate)
 	{
 		switch(rate){
 		case Passive:
 			for (int i = 0; i < elements_; i++)
-				refreshRatePV_.at(i)->setValue(0);
+				mcaUpdateRatePV_.at(i)->setValue(0);
 			break;
 		case Slow:
 			for (int i = 0; i < elements_; i++)
-				refreshRatePV_.at(i)->setValue(6);
+				mcaUpdateRatePV_.at(i)->setValue(6);
 			break;
 		case Fast:
 			for (int i = 0; i < elements_; i++)
-				refreshRatePV_.at(i)->setValue(8);
+				mcaUpdateRatePV_.at(i)->setValue(8);
+			break;
+		}
+	}
+	/// Sets the status refresh rate.
+	void setStatusRefreshRate(MCAUpdateRate rate)
+	{
+		switch(rate){
+		case Passive:
+			for (int i = 0; i < elements_; i++)
+				statusUpdateRatePV_.at(i)->setValue(0);
+			break;
+		case Slow:
+			for (int i = 0; i < elements_; i++)
+				statusUpdateRatePV_.at(i)->setValue(6);
+			break;
+		case Fast:
+			for (int i = 0; i < elements_; i++)
+				statusUpdateRatePV_.at(i)->setValue(8);
 			break;
 		}
 	}
@@ -156,7 +180,7 @@ public slots:
 	/// Clears the list of ROIs and clears the info list.
 	void clearRegionsOfInterest();
 	/// Sorts the list of ROIs.
-	void sort();
+	void sortRegionsOfInterest();
 
 
 signals:
@@ -249,7 +273,9 @@ protected:
 	/// The status of the scan.
 	QList<AMProcessVariable *> statusPV_;
 	/// The spectra refresh rate.
-	QList<AMProcessVariable *> refreshRatePV_;
+	QList<AMProcessVariable *> mcaUpdateRatePV_;
+	/// The status refresh rate.
+	QList<AMProcessVariable *> statusUpdateRatePV_;
 	/// The peaking time.
 	QList<AMProcessVariable *> peakingTimePV_;
 	/// The maximum energy.

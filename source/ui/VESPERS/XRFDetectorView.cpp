@@ -378,7 +378,7 @@ double XRFDetailedDetectorView::getMaximumHeight(MPlotItem *data)
 void XRFDetailedDetectorView::sortRegionsOfInterest()
 {
 	// Sort the real ROIs.
-	detector_->sort();
+	detector_->sortRegionsOfInterest();
 
 	// Remove all the markers from the plot for now.
 	for (int i = 0; i < markers_.size(); i++)
