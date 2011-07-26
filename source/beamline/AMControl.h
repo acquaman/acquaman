@@ -318,13 +318,7 @@ The Control abstraction provides two different properties (and associated signal
 
 	  */
 	virtual bool isMoving() const { return false; }
-	/*virtual bool isMoving() {
-		bool isMoving = false;
-		foreach(AMControl* c, children_) {
-			isMoving |= c->isMoving();
-		}
-		return isMoving;
-	}*/
+
 
 	/// Indicates that a move() sent by this software is currently happening.
 	/*! There are two useful but distinct ideas on whether a control is "moving", particularly for distributed control systems like in a synchrotron.  Often, beamline parameters can be controlled from a user's software interface, but they can also spontaneously start moving due to external events or other control interfaces.
@@ -963,7 +957,7 @@ public:
 	//virtual bool isConnected() const { return canMeasure() && canMove() && movingPV_->canRead(); }
 	virtual bool isConnected() const { return readPV_->readReady() && writePV_->writeReady() && movingPV_->readReady(); }
 	/// Indicates that a move (that you requested) is currently completing... hasn't reached destination, and hasn't time'd out.
-	virtual bool moveInProgress() const { return moveInProgress_ && AMReadOnlyPVwStatusControl::isMoving(); }	// moveInProgress_ will be true as soon as move() is requested.  moveInProgress() isn't happening until the device starts moving as well.)
+	virtual bool moveInProgress() const { return moveInProgress_ || startInProgress_; }	// moveInProgress_ will be true as soon as move() is requested.  moveInProgress() isn't happening until the device starts moving as well.)
 	/// Indicates that this control currently can cause moves:
 	virtual bool canMove() const { return writePV_->canWrite(); }
 	/// Theoretically, if we're connected, this control type should be able to move:
@@ -1027,7 +1021,9 @@ protected:
 	/// Used to detect moveStart timeouts:
 	double moveStartTimeout_;
 
-	/// used internally to track whether we're moving:
+	/// used internally to track whether we're waiting for a physical control to actually start moving, after we've told it to.
+	bool startInProgress_;
+	/// used internally to track whether we're moving [ie: one of OUR moves is in progress]
 	bool moveInProgress_;
 	/// Used internally to indicate that we've issued a stop() command. (Stop in-progress)
 	bool stopInProgress_;
