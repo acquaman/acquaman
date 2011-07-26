@@ -13,20 +13,14 @@ VESPERSEndstation::VESPERSEndstation(QObject *parent)
 	wasConnected_ = false;
 
 	// The controls.
-	ccdControl_ = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->ccdMotor());
-	microscopeControl_ = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->microscopeMotor());
-	fourElControl_ = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->fourElMotor());
-	singleElControl_ = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->singleElMotor());
-	focusControl_ = VESPERSBeamline::vespers()->sampleStage()->norm();
+	ccdControl_ = VESPERSBeamline::vespers()->ccdMotor();
+	microscopeControl_ = VESPERSBeamline::vespers()->microscopeMotor();
+	fourElControl_ = VESPERSBeamline::vespers()->fourElMotor();
+	singleElControl_ = VESPERSBeamline::vespers()->singleElMotor();
+	focusControl_ = VESPERSBeamline::vespers()->pseudoSampleStage()->norm();
 
 	// Laser power control.
 	laserPower_ = qobject_cast<AMPVControl *>(VESPERSBeamline::vespers()->laserPower());
-
-	// The feedback PVs associated with the controls.
-	ccdfbk_ = qobject_cast<AMReadOnlyPVControl *>(VESPERSBeamline::vespers()->ccdMotorfbk());
-	fourElfbk_ = qobject_cast<AMReadOnlyPVControl *>(VESPERSBeamline::vespers()->fourElMotorfbk());
-	singleElfbk_ = qobject_cast<AMReadOnlyPVControl *>(VESPERSBeamline::vespers()->singleElMotorfbk());
-	focusfbk_ = qobject_cast<AMReadOnlyPVControl *>(VESPERSBeamline::vespers()->focusMotorfbk());
 
 	// The microscope light and CCD file path PVs.
 	micLightPV_ = VESPERSBeamline::vespers()->micLight();
@@ -51,11 +45,11 @@ VESPERSEndstation::VESPERSEndstation(QObject *parent)
 	// Connections.
 	connect(laserPower_, SIGNAL(valueChanged(double)), this, SIGNAL(laserPoweredChanged()));
 	connect(micLightPV_, SIGNAL(valueChanged(int)), this, SIGNAL(lightIntensityChanged(int)));
-	connect(ccdfbk_, SIGNAL(valueChanged(double)), this, SIGNAL(ccdFbkChanged(double)));
+	connect(ccdControl_, SIGNAL(valueChanged(double)), this, SIGNAL(ccdFbkChanged(double)));
 	connect(microscopeControl_, SIGNAL(valueChanged(double)), this, SIGNAL(microscopeFbkChanged(double)));
-	connect(focusfbk_, SIGNAL(valueChanged(double)), this, SIGNAL(focusFbkChanged(double)));
-	connect(singleElfbk_, SIGNAL(valueChanged(double)), this, SIGNAL(singleElFbkChanged(double)));
-	connect(fourElfbk_, SIGNAL(valueChanged(double)), this, SIGNAL(fourElFbkChanged(double)));
+	connect(focusControl_, SIGNAL(valueChanged(double)), this, SIGNAL(focusFbkChanged(double)));
+	connect(singleElControl_, SIGNAL(valueChanged(double)), this, SIGNAL(singleElFbkChanged(double)));
+	connect(fourElControl_, SIGNAL(valueChanged(double)), this, SIGNAL(fourElFbkChanged(double)));
 	connect(ccdPath_, SIGNAL(valueChanged()), this, SLOT(onCCDPathChanged()));
 	connect(ccdFile_, SIGNAL(valueChanged()), this, SLOT(onCCDNameChanged()));
 	connect(ccdNumber_, SIGNAL(valueChanged(int)), this, SIGNAL(ccdNumberChanged(int)));
@@ -94,7 +88,7 @@ bool VESPERSEndstation::loadConfiguration()
 	return true;
 }
 
-AMPVwStatusControl *VESPERSEndstation::control(QString name) const
+AMControl *VESPERSEndstation::control(QString name) const
 {
 	if (name.compare("CCD motor") == 0)
 		return ccdControl_;
@@ -122,9 +116,11 @@ void VESPERSEndstation::setCurrent(QString name)
 		updateControl(microscopeControl_);
 	else if (name.compare("Normal Sample Stage") == 0)
 		updateControl(focusControl_);
+	else
+		current_ = 0;
 }
 
-void VESPERSEndstation::updateControl(AMPVwStatusControl *control)
+void VESPERSEndstation::updateControl(AMControl *control)
 {
 	if (control == 0)
 		return;

@@ -157,7 +157,7 @@ AMPVControl::AMPVControl(const QString& name, const QString& readPVname, const Q
 	connect(writePV_, SIGNAL(error(int)), this, SLOT(onWritePVError(int)));
 	connect(writePV_, SIGNAL(connectionTimeout()), this, SIGNAL(writeConnectionTimeoutOccurred()));
 	connect(writePV_, SIGNAL(connectionTimeout()), this, SLOT(onConnectionTimeout()));
-	connect(writePV_, SIGNAL(valueChanged(double)), this, SIGNAL(writePVValueChanged(double)));
+	connect(writePV_, SIGNAL(valueChanged(double)), this, SIGNAL(setpointChanged(double)));
 
 	// We now need to monitor the feedback position ourselves, to see if we get where we want to go:
 	connect(readPV_, SIGNAL(valueChanged(double)), this, SLOT(onNewFeedbackValue(double)));
@@ -381,7 +381,7 @@ AMPVwStatusControl::AMPVwStatusControl(const QString& name, const QString& readP
 	connect(writePV_, SIGNAL(error(int)), this, SLOT(onWritePVError(int)));
 	connect(writePV_, SIGNAL(connectionTimeout()), this, SIGNAL(writeConnectionTimeoutOccurred()));
 	connect(writePV_, SIGNAL(connectionTimeout()), this, SLOT(onConnectionTimeout()));
-	connect(writePV_, SIGNAL(valueChanged(double)), this, SIGNAL(writePVValueChanged(double)));
+	connect(writePV_, SIGNAL(valueChanged(double)), this, SIGNAL(setpointChanged(double)));
 
 	// connect the timer to the timeout handler:
 	connect(&moveStartTimer_, SIGNAL(timeout()), this, SLOT(onMoveStartTimeout()));

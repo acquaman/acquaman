@@ -5,11 +5,11 @@
 TEMPLATE = subdirs
 SUBDIRS += 	REIXSTest.pro \
 	REIXSAcquaman.pro \
-#	SGMAcquaman.pro \
-#	BareBonesAcquaman.pro \
-#	acquamanTest.pro \
-#	VESPERSAcquaman.pro \
+	SGMAcquaman.pro \
+	BareBonesAcquaman.pro \
+	acquamanTest.pro \
+	VESPERSAcquaman.pro \
 	# VESPERSDataman.pro \
 #	AcquaCam.pro \
-#	XRFSpectraViewer.pro \
+	XRFSpectraViewer.pro \
 

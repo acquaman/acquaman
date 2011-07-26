@@ -93,7 +93,7 @@ void AMBeamlineParallelActionsList::puke(){
 	for(int x = 0; x < stageCount(); x++){
 		stageString = "";
 		for(int y = 0; y < countAt(x); y++){
-			if(nAction = qobject_cast<AMBeamlineNumberAction*>(action(x, y)))
+			if((nAction = qobject_cast<AMBeamlineNumberAction*>(action(x, y))))
 				tmpStr.setNum(nAction->getNumber());
 			else
 				tmpStr.setNum( qint64(action(x,y)) );
@@ -384,7 +384,7 @@ void AMBeamlineParallelActionsList::onActionFailed(int explanation){
 
 void AMBeamlineParallelActionsList::onActionProgress(double elapsed, double total){
 	AMBeamlineActionItem *tmpAction;
-	if(tmpAction = qobject_cast<AMBeamlineActionItem*>(QObject::sender())){
+	if((tmpAction = qobject_cast<AMBeamlineActionItem*>(QObject::sender()))){
 		QPair<int,int> indices = indicesOf(tmpAction);
 		if(indices.first != currentStage_)
 			return;

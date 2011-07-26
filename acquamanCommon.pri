@@ -336,7 +336,6 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/beamline/AMBeamlineControlWaitAction.h \
 	source/beamline/AMBeamlineUserConfirmAction.h \
 	source/ui/AMScanQueryModel.h \
-	source/ui/AMFreeRunScanConfigurationViewHolder.h \
 	source/dataman/AMExportController.h \
 	source/dataman/AMExporter.h \
 	source/dataman/AMExporterOption.h \
@@ -362,7 +361,8 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMColoredTextToolButton.h \
 	source/ui/AMLinePropertyEditor.h \
 	source/ui/AMImagePropertyEditor.h \
-	source/beamline/AMCompositeControl.h
+	source/beamline/AMCompositeControl.h \
+	source/beamline/CLS/CLSSynchronizedDwellTime.h
 
 
 CONFIG(mobility) {
@@ -572,7 +572,6 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/beamline/AMBeamlineControlWaitAction.cpp \
 	source/beamline/AMBeamlineUserConfirmAction.cpp \
 	source/ui/AMScanQueryModel.cpp \
-	source/ui/AMFreeRunScanConfigurationViewHolder.cpp \
 	source/dataman/AMExportController.cpp \
 	source/dataman/AMExporterOption.cpp \
 	source/dataman/AMExporterOptionGeneral.cpp \
@@ -598,7 +597,8 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMColoredTextToolButton.cpp \
 	source/ui/AMLinePropertyEditor.cpp \
 	source/ui/AMImagePropertyEditor.cpp \
-	source/beamline/AMCompositeControl.cpp
+	source/beamline/AMCompositeControl.cpp \
+	source/beamline/CLS/CLSSynchronizedDwellTime.cpp
 
 
 CONFIG(mobility) {
