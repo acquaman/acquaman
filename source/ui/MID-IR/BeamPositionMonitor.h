@@ -15,7 +15,10 @@ class BeamPositionMonitor : public QWidget
 {
 	Q_OBJECT
 public:
+	/// Constructor.  Currently takes no arguments.  However, it could be imagined that it takes the X, Y, and Intensity PVs as arguments to make it more general and applicable in other programs.
 	explicit BeamPositionMonitor(QWidget *parent = 0);
+	/// Example of constructor making this class more accessible to other programs.
+	explicit BeamPositionMonitor(QString name, AMProcessVariable *x, AMProcessVariable *y, AMProcessVariable *intensity, QWidget *parent = 0);
 
 signals:
 
@@ -23,7 +26,8 @@ public slots:
 
 protected slots:
 	/// Handles changes in the intensity.
-	void onIntensityChanged(double val) { scatter_->setMarker(MPlotMarkerShape::CrossCircle, (int)val); }
+	void onIntensityChanged(double val);
+
 protected:
 	/// Sets up the plot.  Can add the plot widget to the layout after calling this function.
 	void setupPlot();
