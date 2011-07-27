@@ -198,6 +198,8 @@ signals:
 	void elapsedTimeChanged(double);
 	/// Notifies when the spectra refresh rate has changed.
 	void refreshRateChanged(MCAUpdateRate rate);
+	/// Same signal, but as an int.
+	void refreshRateChanged(int rate);
 	/// Notifies that the dead time has changed.  If the number of elements is greater than one, then this is emitted when any of the dead times change.
 	void deadTimeChanged();
 	/// Signal used to say that the regions of interest now have their original values in them after being connected to.
@@ -237,14 +239,17 @@ protected slots:
 		case 0:
 			refreshRate_ = Passive;
 			emit refreshRateChanged(Passive);
+			emit refreshRateChanged(0);
 			break;
 		case 6:
 			refreshRate_ = Slow;
 			emit refreshRateChanged(Slow);
+			emit refreshRateChanged(1);
 			break;
 		case 8:
 			refreshRate_ = Fast;
 			emit refreshRateChanged(Fast);
+			emit refreshRateChanged(2);
 			break;
 		}
 	}

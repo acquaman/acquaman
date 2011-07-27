@@ -18,7 +18,9 @@
 #include "dataman/AMScanEditorModelItem.h"
 #include "ui/AMGenericScanEditor.h"
 
+// Helper classes that technically shouldn't need to exist.
 #include "util/VESPERS/ROIHelper.h"
+#include "util/VESPERS/VortexDetectorStatusHelper.h"
 
 #include "dataman/AMDbObjectSupport.h"
 
@@ -126,8 +128,11 @@ bool VESPERSAppController::startup() {
 		mw_->setCurrentPane(endstationView_);
 
 		/// THIS IS HERE TO PASS ALONG THE INFORMATION TO THE SUM AND CORRECTEDSUM PVS IN THE FOUR ELEMENT DETECTOR.
-		ROIHelper *helper = new ROIHelper;
-		Q_UNUSED(helper)
+		ROIHelper *roiHelper = new ROIHelper(this);
+		Q_UNUSED(roiHelper)
+		/// THIS IS HERE TO PASS ALONG THE INFORMATION TO THE MCA AND DXP STATUS UPDATE PVS THAT DON'T SEEM TO FOLLOW THE STANDARD NAMING CONVENTIONS.
+		VortexDetectorStatusHelper *statusHelper = new VortexDetectorStatusHelper(this);
+		Q_UNUSED(statusHelper)
 
 		return true;
 	}
@@ -143,6 +148,9 @@ void VESPERSAppController::shutdown() {
 
 void VESPERSAppController::onCurrentScanControllerStarted()
 {
+	if (AMScanControllerSupervisor::scanControllerSupervisor()->currentScanController()->scan()->fileFormat() == "vespersXRF")
+		return;
+
 	// Build a generic scan editor and put it the scan editors location.
 	AMGenericScanEditor *scanEditor = new AMGenericScanEditor();
 	scanEditorsParentItem_->appendRow(new AMScanEditorModelItem(scanEditor, ":/applications-science.png"));

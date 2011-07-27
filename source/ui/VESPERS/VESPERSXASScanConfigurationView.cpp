@@ -8,7 +8,6 @@
 #include <QGroupBox>
 #include <QButtonGroup>
 #include <QRadioButton>
-#include <QLineEdit>
 
 VESPERSXASScanConfigurationView::VESPERSXASScanConfigurationView(VESPERSXASScanConfiguration *config, QWidget *parent)
 	: AMScanConfigurationView(parent)
@@ -40,10 +39,10 @@ VESPERSXASScanConfigurationView::VESPERSXASScanConfigurationView(VESPERSXASScanC
 	QGroupBox *fluorescenceDetectorGroupBox = new QGroupBox("Fluorescence Detector");
 	fluorescenceDetectorGroupBox->setLayout(fluorescenceDetectorLayout);
 
-	QLineEdit *scanName = new QLineEdit;
-	connect(scanName, SIGNAL(editingFinished()), config_, SLOT(setName(QString)));
+	scanName_ = new QLineEdit;
+	connect(scanName_, SIGNAL(editingFinished()), this, SLOT(onScanNameEdited()));
 	QFormLayout *scanNameLayout = new QFormLayout;
-	scanNameLayout->addRow("Scan Name:", scanName);
+	scanNameLayout->addRow("Scan Name:", scanName_);
 
 	QGridLayout *contentsLayout = new QGridLayout;
 	contentsLayout->addWidget(regionsLineView_, 0, 0, 1, 4, Qt::AlignCenter);

@@ -103,6 +103,8 @@ protected slots:
 	void elementClicked(int elementId);
 	/// Handles changes from the spectrum update rate combo box.
 	void onComboBoxUpdate(int index);
+	/// Handles setting the combo box is the status is changed by another program.
+	void onUpdateRateChanged(int index) { updateRate_->setCurrentIndex(index); }
 	/// Handles when the log scale button is clicked.  It takes a log of the data if true.
 	void onLogEnabled(bool logged);
 	/// Enables/Disables whether the raw spectra are displayed or the corrected sum.
