@@ -18,7 +18,8 @@ public:
 	/// Constructor.  Currently takes no arguments.  However, it could be imagined that it takes the X, Y, and Intensity PVs as arguments to make it more general and applicable in other programs.
 	explicit BeamPositionMonitor(QWidget *parent = 0);
 	/// Example of constructor making this class more accessible to other programs.
-	explicit BeamPositionMonitor(QString name, AMProcessVariable *x, AMProcessVariable *y, AMProcessVariable *intensity, QWidget *parent = 0);
+	explicit BeamPositionMonitor(QString name, AMProcessVariable *x, AMProcessVariable *y, QWidget *parent = 0);
+	//explicit BeamPositionMonitor(QString name, AMProcessVariable *x, AMProcessVariable *y, AMProcessVariable *intensity, QWidget *parent = 0);
 
 signals:
 

@@ -6,10 +6,12 @@
 BeamPositionMonitor::BeamPositionMonitor(QWidget *parent) :
 	QWidget(parent)
 {
-	// Change these PVs to be something real rather than me stroking my own ego.
-	xy_ = new AMXYScatterPVDataSource(new AMProcessVariable("darrenIsAwesome:x", true, this), new AMProcessVariable("darrenIsAwesome:y", true, this), "Look at me go!", this);
-	intensity_ = new AMProcessVariable("darrenIsAwesome:Intensity", true, this);
-	connect(intensity_, SIGNAL(valueChanged(double)), this, SLOT(onIntensityChanged(double)));
+	// Data source that takes in the new PVs for the x and y position.
+	xy_ = new AMXYScatterPVDataSource(new AMProcessVariable("AO2023-02:Stage1:Voltage:X", true, this), new AMProcessVariable("AO2023-02:Stage1:Voltage:Y", true, this), "Look at me go!", this);
+
+	/// These can be added back in when an intensity PV is available.
+	//intensity_ = new AMProcessVariable("darrenIsAwesome:Intensity", true, this);
+	//connect(intensity_, SIGNAL(valueChanged(double)), this, SLOT(onIntensityChanged(double)));
 
 	// This has to come after xy_ is set because we make a series in here using the member variable xy_.  If it's not valid, the class would never work because we haven't
 	// programmed a way to change xy_ or intensity_ after the class is instantiated.
@@ -23,12 +25,15 @@ BeamPositionMonitor::BeamPositionMonitor(QWidget *parent) :
 	setLayout(plotLayout);
 }
 
-BeamPositionMonitor::BeamPositionMonitor(QString name, AMProcessVariable *x, AMProcessVariable *y, AMProcessVariable *intensity, QWidget *parent)
+//BeamPositionMonitor::BeamPositionMonitor(QString name, AMProcessVariable *x, AMProcessVariable *y, AMProcessVariable *intensity, QWidget *parent)
+BeamPositionMonitor::BeamPositionMonitor(QString name, AMProcessVariable *x, AMProcessVariable *y, QWidget *parent)
 	: QWidget(parent)
 {
 	xy_ = new AMXYScatterPVDataSource(x, y, name, this);
-	intensity_ = intensity;
-	connect(intensity_, SIGNAL(valueChanged(double)), this, SLOT(onIntensityChanged(double)));
+
+	/// These can be added back in when an intensity PV is available.
+	//intensity_ = intensity;
+	//connect(intensity_, SIGNAL(valueChanged(double)), this, SLOT(onIntensityChanged(double)));
 
 	// This has to come after xy_ is set because we make a series in here using the member variable xy_.  If it's not valid, the class would never work because we haven't
 	// programmed a way to change xy_ or intensity_ after the class is instantiated.
@@ -67,7 +72,7 @@ void BeamPositionMonitor::setupPlot()
 	// and a name and marker style are assigned to the point.
 	scatter_ = new MPlotSeriesBasic;
 	scatter_->setModel(new AMDataSourceSeriesData(xy_), true);
-	scatter_->setMarker(MPlotMarkerShape::CrossCircle);
+	scatter_->setMarker(MPlotMarkerShape::CrossCircle, 14);
 	scatter_->setDescription("Beam Position");
 
 	// Add the series to the plot.
@@ -76,6 +81,10 @@ void BeamPositionMonitor::setupPlot()
 	// Put the plot into the plot window.  This is what lets you see the plot inside a widget.
 	view_->setPlot(plot_);
 	view_->setMinimumSize( 640, 480);
+
+	// Set the range of the plot so we can actually see changes in the beam position.
+	plot_->axisScaleBottom()->setDataRange(MPlotAxisRange(-0.2, 0.1));
+	plot_->axisScaleLeft()->setDataRange(MPlotAxisRange(0, 0.2));
 
 	// Set the number of ticks.  A balance between readability and being practical.
 	plot_->axisBottom()->setTicks(4, MPlotAxis::Middle);
