@@ -83,8 +83,8 @@ void BeamPositionMonitor::setupPlot()
 	view_->setMinimumSize( 640, 480);
 
 	// Set the range of the plot so we can actually see changes in the beam position.
-	plot_->axisScaleBottom()->setDataRange(MPlotAxisRange(-0.2, 0.1));
-	plot_->axisScaleLeft()->setDataRange(MPlotAxisRange(0, 0.2));
+	plot_->axisScaleBottom()->setDataRangeAndDisableAutoScaling(MPlotAxisRange(-0.2, 0.1));
+	plot_->axisScaleLeft()->setDataRangeAndDisableAutoScaling(MPlotAxisRange(-0.1, 0.2));
 
 	// Set the number of ticks.  A balance between readability and being practical.
 	plot_->axisBottom()->setTicks(4, MPlotAxis::Middle);
