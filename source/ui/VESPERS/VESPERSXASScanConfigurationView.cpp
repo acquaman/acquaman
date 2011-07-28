@@ -4,15 +4,17 @@
 
 #include <QGridLayout>
 #include <QVBoxLayout>
+#include <QFormLayout>
 #include <QGroupBox>
 #include <QButtonGroup>
 #include <QRadioButton>
+#include <QLineEdit>
 
 VESPERSXASScanConfigurationView::VESPERSXASScanConfigurationView(VESPERSXASScanConfiguration *config, QWidget *parent)
 	: AMScanConfigurationView(parent)
 {
 	config_ = config;
-	AMTopFrame *frame = new AMTopFrame("VESPERS XAS for teh win!");
+	AMTopFrame *frame = new AMTopFrame("VESPERS XAS Configuration");
 
 	regionsView_ = new AMXASRegionsView(config_->regions());
 	regionsView_->setBeamlineEnergy(VESPERSBeamline::vespers()->energyRelative());
@@ -38,10 +40,16 @@ VESPERSXASScanConfigurationView::VESPERSXASScanConfigurationView(VESPERSXASScanC
 	QGroupBox *fluorescenceDetectorGroupBox = new QGroupBox("Fluorescence Detector");
 	fluorescenceDetectorGroupBox->setLayout(fluorescenceDetectorLayout);
 
+	QLineEdit *scanName = new QLineEdit;
+	connect(scanName, SIGNAL(editingFinished()), config_, SLOT(setName(QString)));
+	QFormLayout *scanNameLayout = new QFormLayout;
+	scanNameLayout->addRow("Scan Name:", scanName);
+
 	QGridLayout *contentsLayout = new QGridLayout;
-	contentsLayout->addWidget(regionsLineView_, 0, 0, 1, 2, Qt::AlignCenter);
-	contentsLayout->addWidget(regionsView_, 1, 0, 1, 1);
-	contentsLayout->addWidget(fluorescenceDetectorGroupBox, 1, 1, 1, 1);
+	contentsLayout->addWidget(regionsLineView_, 0, 0, 1, 4, Qt::AlignCenter);
+	contentsLayout->addWidget(regionsView_, 1, 0, 1, 3);
+	contentsLayout->addWidget(fluorescenceDetectorGroupBox, 1, 3, 1, 1);
+	contentsLayout->addLayout(scanNameLayout, 2, 0, Qt::AlignLeft);
 
 	QVBoxLayout *configViewLayout = new QVBoxLayout;
 	configViewLayout->addWidget(frame);

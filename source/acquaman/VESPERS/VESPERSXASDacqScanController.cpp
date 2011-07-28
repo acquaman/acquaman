@@ -92,13 +92,13 @@ AMnDIndex VESPERSXASDacqScanController::toScanIndex(QMap<int, double> aeData)
 
 void VESPERSXASDacqScanController::onInitializationActionsSucceeded()
 {
-	/// \todo why is this here?
+	/// \todo how do we get here?  why is this here?
 	setInitialized();
 }
 
 void VESPERSXASDacqScanController::onInitializationActionsFailed(int explanation)
 {
-	/// \todo why is this here?
+	/// \todo how do we get here? why is this here?
 	setFailed();
 }
 
@@ -122,7 +122,7 @@ QString VESPERSXASDacqScanController::getHomeDirectory()
 bool VESPERSXASDacqScanController::setupTransmissionXAS()
 {
 	bool loadSuccess = false;
-qDebug() << "Transmission";
+
 	loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/XANES.cfg"));
 
 	if(!loadSuccess){
@@ -144,7 +144,7 @@ qDebug() << "Transmission";
 bool VESPERSXASDacqScanController::setupSingleElementXAS()
 {
 	bool loadSuccess = false;
-qDebug() << "1-el";
+
 	loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/XANES-1Elem.cfg"));
 
 	if(!loadSuccess){
@@ -166,7 +166,7 @@ qDebug() << "1-el";
 bool VESPERSXASDacqScanController::setupFourElementXAS()
 {
 	bool loadSuccess = false;
-qDebug() << "4-el";
+
 	loadSuccess = advAcq_->setConfigFile(getHomeDirectory().append("/acquaman/devConfigurationFiles/VESPERS/XANES-4Elem.cfg"));
 
 	if(!loadSuccess){

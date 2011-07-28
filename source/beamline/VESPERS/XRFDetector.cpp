@@ -17,7 +17,8 @@ XRFDetector::XRFDetector(QString name, int elements, QString baseName, QObject *
 		if (i == 0){
 
 			statusPV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".ACQG", true, this);
-			refreshRatePV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".SCAN", true, this);
+			mcaUpdateRatePV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".SCAN", true, this);
+			statusUpdateRatePV_ << new AMProcessVariable(baseName+QString(":dxp%1").arg(i+1)+".SCAN", true, this);
 			peakingTimePV_ << new AMProcessVariable(baseName+QString(":dxp%1").arg(i+1)+".PKTIM", true, this);
 			maximumEnergyPV_ << new AMProcessVariable(baseName+QString(":dxp%1").arg(i+1)+".EMAX", true, this);
 			integrationTimePV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".PRTM", true, this);
@@ -29,7 +30,8 @@ XRFDetector::XRFDetector(QString name, int elements, QString baseName, QObject *
 		else{
 
 			statusPV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".ACQG", false, this);
-			refreshRatePV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".SCAN", false, this);
+			mcaUpdateRatePV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".SCAN", false, this);
+			statusUpdateRatePV_ << new AMProcessVariable(baseName+QString(":dxp%1").arg(i+1)+".SCAN", false, this);
 			peakingTimePV_ << new AMProcessVariable(baseName+QString(":dxp%1").arg(i+1)+".PKTIM", false, this);
 			maximumEnergyPV_ << new AMProcessVariable(baseName+QString(":dxp%1").arg(i+1)+".EMAX", false, this);
 			integrationTimePV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".PRTM", false, this);
@@ -44,7 +46,8 @@ XRFDetector::XRFDetector(QString name, int elements, QString baseName, QObject *
 		spectraPV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1), true, this);
 
 		statusPV_.at(i)->disablePutCallbackMode(true);
-		refreshRatePV_.at(i)->disablePutCallbackMode(true);
+		mcaUpdateRatePV_.at(i)->disablePutCallbackMode(true);
+		statusUpdateRatePV_.at(i)->disablePutCallbackMode(true);
 		peakingTimePV_.at(i)->disablePutCallbackMode(true);
 		maximumEnergyPV_.at(i)->disablePutCallbackMode(true);
 		integrationTimePV_.at(i)->disablePutCallbackMode(true);
@@ -57,7 +60,8 @@ XRFDetector::XRFDetector(QString name, int elements, QString baseName, QObject *
 		spectraPV_.at(i)->disablePutCallbackMode(true);
 
 		connect(statusPV_.at(i), SIGNAL(connected()), this, SLOT(isDetectorConnected()));
-		connect(refreshRatePV_.at(i), SIGNAL(connected()), this, SLOT(isDetectorConnected()));
+		connect(mcaUpdateRatePV_.at(i), SIGNAL(connected()), this, SLOT(isDetectorConnected()));
+		connect(statusUpdateRatePV_.at(i), SIGNAL(connected()), this, SLOT(isDetectorConnected()));
 		connect(peakingTimePV_.at(i), SIGNAL(connected()), this, SLOT(isDetectorConnected()));
 		connect(maximumEnergyPV_.at(i), SIGNAL(connected()), this, SLOT(isDetectorConnected()));
 		connect(integrationTimePV_.at(i), SIGNAL(connected()), this, SLOT(isDetectorConnected()));
@@ -182,7 +186,8 @@ void XRFDetector::isDetectorConnected()
 	for (int i = 0; i < elements_; i++){
 
 		connected = connected && statusPV_.at(i)->isConnected()
-					&& refreshRatePV_.at(i)->isConnected()
+					&& mcaUpdateRatePV_.at(i)->isConnected()
+					&& statusUpdateRatePV_.at(i)->isConnected()
 					&& peakingTimePV_.at(i)->isConnected()
 					&& maximumEnergyPV_.at(i)->isConnected()
 					&& integrationTimePV_.at(i)->isConnected()
@@ -209,7 +214,7 @@ void XRFDetector::onConnectedChanged(bool isConnected)
 	if (isConnected){
 
 		connect(statusPV_.first(), SIGNAL(valueChanged()), this, SLOT(onStatusChanged()));
-		connect(refreshRatePV_.first(), SIGNAL(valueChanged(int)), this, SLOT(onRefreshRateChanged(int)));
+		connect(mcaUpdateRatePV_.first(), SIGNAL(valueChanged(int)), this, SLOT(onRefreshRateChanged(int)));
 		connect(peakingTimePV_.first(), SIGNAL(valueChanged(double)), this, SLOT(onPeakingTimeChanged(double)));
 		connect(maximumEnergyPV_.first(), SIGNAL(valueChanged(double)), this, SLOT(onMaximumEnergyChanged(double)));
 		connect(integrationTimePV_.first(), SIGNAL(valueChanged(double)), this, SLOT(onIntegrationTimeChanged(double)));
@@ -220,7 +225,7 @@ void XRFDetector::onConnectedChanged(bool isConnected)
 	else{
 
 		disconnect(statusPV_.first(), SIGNAL(valueChanged()), this, SLOT(onStatusChanged()));
-		disconnect(refreshRatePV_.first(), SIGNAL(valueChanged(int)), this, SLOT(onRefreshRateChanged(int)));
+		disconnect(mcaUpdateRatePV_.first(), SIGNAL(valueChanged(int)), this, SLOT(onRefreshRateChanged(int)));
 		disconnect(peakingTimePV_.first(), SIGNAL(valueChanged(double)), this, SLOT(onPeakingTimeChanged(double)));
 		disconnect(maximumEnergyPV_.first(), SIGNAL(valueChanged(double)), this, SLOT(onMaximumEnergyChanged(double)));
 		disconnect(integrationTimePV_.first(), SIGNAL(valueChanged(double)), this, SLOT(onIntegrationTimeChanged(double)));
@@ -323,7 +328,7 @@ bool XRFDetector::removeRegionOfInterest(XRFElement *el, QString line)
 	return true;
 }
 
-void XRFDetector::sort()
+void XRFDetector::sortRegionsOfInterest()
 {
 	roiInfoList()->sort();
 	setROIList(*roiInfoList());
