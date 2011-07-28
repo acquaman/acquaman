@@ -12,6 +12,23 @@ XRFDetector::XRFDetector(QString name, int elements, QString baseName, QObject *
 	timer_.setInterval(6000);
 	connect(&timer_, SIGNAL(timeout()), this, SLOT(onUpdateTimer()));
 
+	if (elements == 1){
+
+		startPV_ = new AMProcessVariable(baseName+QString(":mca1EraseStart"), true, this);
+		stopPV_ = new AMProcessVariable(baseName+QString(":mca1Stop"), true, this);
+	}
+	else if (elements == 4){
+
+		startPV_ = new AMProcessVariable(baseName+QString(":EraseStart"), true, this);
+		stopPV_ = new AMProcessVariable(baseName+QString(":StopAll"), true, this);
+	}
+
+	startPV_->disablePutCallbackMode(true);
+	stopPV_->disablePutCallbackMode(true);
+
+	connect(startPV_, SIGNAL(connected()), this, SLOT(isDetectorConnected()));
+	connect(stopPV_, SIGNAL(connected()), this, SLOT(isDetectorConnected()));
+
 	for (int i = 0; i < elements; i++){
 
 		if (i == 0){
@@ -24,8 +41,7 @@ XRFDetector::XRFDetector(QString name, int elements, QString baseName, QObject *
 			integrationTimePV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".PRTM", true, this);
 			liveTimePV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".PLTM", true, this);
 			elapsedTimePV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".ERTM", true, this);
-			startPV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".ERST", true, this);
-			stopPV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".STOP", true, this);
+
 		}
 		else{
 
@@ -37,8 +53,6 @@ XRFDetector::XRFDetector(QString name, int elements, QString baseName, QObject *
 			integrationTimePV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".PRTM", false, this);
 			liveTimePV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".PLTM", false, this);
 			elapsedTimePV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".ERTM", false, this);
-			startPV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".ERST", false, this);
-			stopPV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".STOP", false, this);
 		}
 
 		icrPV_ << new AMProcessVariable(baseName+QString(":dxp%1").arg(i+1)+".ICR", true, this);
@@ -55,8 +69,6 @@ XRFDetector::XRFDetector(QString name, int elements, QString baseName, QObject *
 		elapsedTimePV_.at(i)->disablePutCallbackMode(true);
 		icrPV_.at(i)->disablePutCallbackMode(true);
 		ocrPV_.at(i)->disablePutCallbackMode(true);
-		startPV_.at(i)->disablePutCallbackMode(true);
-		stopPV_.at(i)->disablePutCallbackMode(true);
 		spectraPV_.at(i)->disablePutCallbackMode(true);
 
 		connect(statusPV_.at(i), SIGNAL(connected()), this, SLOT(isDetectorConnected()));
@@ -69,8 +81,6 @@ XRFDetector::XRFDetector(QString name, int elements, QString baseName, QObject *
 		connect(elapsedTimePV_.at(i), SIGNAL(connected()), this, SLOT(isDetectorConnected()));
 		connect(icrPV_.at(i), SIGNAL(connected()), this, SLOT(isDetectorConnected()));
 		connect(ocrPV_.at(i), SIGNAL(connected()), this, SLOT(isDetectorConnected()));
-		connect(startPV_.at(i), SIGNAL(connected()), this, SLOT(isDetectorConnected()));
-		connect(stopPV_.at(i), SIGNAL(connected()), this, SLOT(isDetectorConnected()));
 		connect(spectraPV_.at(i), SIGNAL(connected()), this, SLOT(isDetectorConnected()));
 
 		// This one is separate beccause this signal should only be called once.
@@ -183,6 +193,8 @@ void XRFDetector::isDetectorConnected()
 
 	bool connected = true;
 
+	connected = connected && startPV_->isConnected() && stopPV_->isConnected();
+
 	for (int i = 0; i < elements_; i++){
 
 		connected = connected && statusPV_.at(i)->isConnected()
@@ -195,8 +207,6 @@ void XRFDetector::isDetectorConnected()
 					&& elapsedTimePV_.at(i)->isConnected()
 					&& icrPV_.at(i)->isConnected()
 					&& ocrPV_.at(i)->isConnected()
-					&& startPV_.at(i)->isConnected()
-					&& stopPV_.at(i)->isConnected()
 					&& spectraPV_.at(i)->isConnected();
 	}
 
@@ -215,6 +225,7 @@ void XRFDetector::onConnectedChanged(bool isConnected)
 
 		connect(statusPV_.first(), SIGNAL(valueChanged()), this, SLOT(onStatusChanged()));
 		connect(mcaUpdateRatePV_.first(), SIGNAL(valueChanged(int)), this, SLOT(onRefreshRateChanged(int)));
+		connect(statusUpdateRatePV_.first(), SIGNAL(valueChanged(int)), this, SLOT(onRefreshRateChanged(int)));
 		connect(peakingTimePV_.first(), SIGNAL(valueChanged(double)), this, SLOT(onPeakingTimeChanged(double)));
 		connect(maximumEnergyPV_.first(), SIGNAL(valueChanged(double)), this, SLOT(onMaximumEnergyChanged(double)));
 		connect(integrationTimePV_.first(), SIGNAL(valueChanged(double)), this, SLOT(onIntegrationTimeChanged(double)));
@@ -226,6 +237,7 @@ void XRFDetector::onConnectedChanged(bool isConnected)
 
 		disconnect(statusPV_.first(), SIGNAL(valueChanged()), this, SLOT(onStatusChanged()));
 		disconnect(mcaUpdateRatePV_.first(), SIGNAL(valueChanged(int)), this, SLOT(onRefreshRateChanged(int)));
+		disconnect(statusUpdateRatePV_.first(), SIGNAL(valueChanged(int)), this, SLOT(onRefreshRateChanged(int)));
 		disconnect(peakingTimePV_.first(), SIGNAL(valueChanged(double)), this, SLOT(onPeakingTimeChanged(double)));
 		disconnect(maximumEnergyPV_.first(), SIGNAL(valueChanged(double)), this, SLOT(onMaximumEnergyChanged(double)));
 		disconnect(integrationTimePV_.first(), SIGNAL(valueChanged(double)), this, SLOT(onIntegrationTimeChanged(double)));
@@ -244,15 +256,22 @@ void XRFDetector::allRoisHaveValues()
 
 	if (hasValues){
 
-		for (int i = 0; i < roiList_.size(); i++)
+		for (int i = 0; i < roiList_.size(); i++){
+
 			connect(roiList_.at(i), SIGNAL(roiUpdate(AMROI*)), this, SIGNAL(roiUpdate(AMROI*)));
+			connect(roiList_.at(i), SIGNAL(roiUpdate(AMROI*)), this, SLOT(onAMROIUpdate(AMROI*)));
+		}
+
 		emit roisHaveValues();
 		timer_.start();
 	}
 	else{
 
-		for (int i = 0; i < roiList_.size(); i++)
+		for (int i = 0; i < roiList_.size(); i++){
+
 			disconnect(roiList_.at(i), SIGNAL(roiUpdate(AMROI*)), this, SIGNAL(roiUpdate(AMROI*)));
+			disconnect(roiList_.at(i), SIGNAL(roiUpdate(AMROI*)), this, SLOT(onAMROIUpdate(AMROI*)));
+		}
 		timer_.stop();
 	}
 }
@@ -326,6 +345,15 @@ bool XRFDetector::removeRegionOfInterest(XRFElement *el, QString line)
 	setROIList(*roiInfoList());
 
 	return true;
+}
+
+void XRFDetector::onAMROIUpdate(AMROI *roi)
+{
+	for (int i = 0; i < roiInfoList()->count(); i++){
+
+		if (roiInfoList()->at(i).name() == roi->name())
+			roiInfoList_[i].setValuesFrom(roi->toInfo());
+	}
 }
 
 void XRFDetector::sortRegionsOfInterest()

@@ -43,7 +43,8 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
 	source/beamline/VESPERS/VESPERSEndstation.h \
 	source/ui/VESPERS/VESPERSEndstationView.h \
 	source/acquaman/VESPERS/XRFFreeRun.h \
-	source/ui/VESPERS/XRFFreeRunView.h
+	source/ui/VESPERS/XRFFreeRunView.h \
+	source/util/VESPERS/VortexDetectorStatusHelper.h
 
 SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/application/VESPERS/VESPERSMain.cpp \
@@ -84,7 +85,8 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/beamline/VESPERS/VESPERSEndstation.cpp \
 	source/ui/VESPERS/VESPERSEndstationView.cpp \
 	source/acquaman/VESPERS/XRFFreeRun.cpp \
-	source/ui/VESPERS/XRFFreeRunView.cpp
+	source/ui/VESPERS/XRFFreeRunView.cpp \
+	source/util/VESPERS/VortexDetectorStatusHelper.cpp
 
 RESOURCES += \
 	source/ui/VESPERS/EndstationPictures.qrc \
