@@ -115,11 +115,12 @@ public slots:
 	{
 		timer_.stop();
 
-		for (int i = 0; i < elements_; i++)
-			startPV_.at(i)->setValue(1);
+		startPV_->setValue(1);
+		//for (int i = 0; i < elements_; i++)
+			//startPV_.at(i)->setValue(1);
 	}
 	/// Stops collection of data.
-	void stop() { for (int i = 0; i < elements_; i++) stopPV_.at(i)->setValue(1); }
+	void stop() { stopPV_->setValue(1);/*for (int i = 0; i < elements_; i++) stopPV_.at(i)->setValue(1);*/ }
 	/// Set the accumulation time.
 	void setTime(double time);
 	/// Set the maximum energy of the detector.  \c energy is in eV.
@@ -259,6 +260,8 @@ protected slots:
 	void onMaximumEnergyChanged(double maxE){ setMaximumEnergy(maxE); emit maximumEnergyChanged(maxE); }
 	/// Handles changes to the integration time.
 	void onIntegrationTimeChanged(double time){ setIntegrationTime(time); emit integrationTimeChanged(time); }
+	/// Handles making sure the ROI info list is up to date with the latest values based on changes to AMROIs.
+	void onAMROIUpdate(AMROI *roi);
 
 protected:
 	/// Helper function.  Takes in a base name and creates a list of ROIs based on the number of elements.  Creates PVs for the name, low limit, high limit, and current value.
@@ -296,9 +299,9 @@ protected:
 	/// The output count rate.
 	QList<AMProcessVariable *> ocrPV_;
 	/// The start control.
-	QList<AMProcessVariable *> startPV_;
+	AMProcessVariable * startPV_;
 	/// The stop control.
-	QList<AMProcessVariable *> stopPV_;
+	AMProcessVariable * stopPV_;
 	/// The spectra.
 	QList<AMProcessVariable *> spectraPV_;
 

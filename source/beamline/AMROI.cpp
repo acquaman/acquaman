@@ -55,7 +55,7 @@ void AMROI::buildAllPVs(QString baseName, int elements, int number)
 
 AMROIInfo AMROI::toInfo()
 {
-	return AMROIInfo(name(), energy_, low(), high(), scale_);
+	return AMROIInfo(name(), energy_, low()*scale_, high()*scale_, scale_);
 }
 
 void AMROI::fromInfo(const AMROIInfo &info)
