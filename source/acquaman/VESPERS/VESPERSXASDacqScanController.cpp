@@ -10,7 +10,7 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 {
 	config_ = cfg;
 	xasScan_ = new AMXASScan();
-	xasScan_->setName("Boobies!! For teh win!");
+	xasScan_->setName(config_->name());
 	xasScan_->setScanConfiguration(config_);
 	xasScan_->setRunId(AMUser::user()->currentRunId());
 }
@@ -257,7 +257,7 @@ bool VESPERSXASDacqScanController::setupFourElementXAS()
 	advAcq_->appendRecord("dxp1607-B21-04:mca3.VAL", true, true, 1);
 	advAcq_->appendRecord("dxp1607-B21-04:mca4.VAL", true, true, 1);
 
-
 	// End of hardcored.
+
 	return loadSuccess;
 }
