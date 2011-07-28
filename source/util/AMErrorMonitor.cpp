@@ -124,19 +124,23 @@ void AMErrorMon::reportI(const AMErrorReport& e) {
 		emit error(e);
 
 	switch(e.level) {
-		case AMErrorReport::Information:
-			emit information(e);
-			break;
-		case AMErrorReport::Alert:
-			emit alert(e);
-			break;
-        case AMErrorReport::Serious:
-			emit serious(e);
-			sicon_->showMessage(QString("Error in %1: (%2)").arg(className).arg(e.errorCode), e.description, QSystemTrayIcon::Critical, 5000);
-			break;
-		case AMErrorReport::Debug:
-			if(debugEnabled_)
-				emit debug(e);
+	case AMErrorReport::Information:
+		emit information(e);
+		sicon_->showMessage(QString("Information from %1: (%2)").arg(className).arg(e.errorCode), e.description, QSystemTrayIcon::Information, 5000);
+		break;
+	case AMErrorReport::Alert:
+		emit alert(e);
+		sicon_->showMessage(QString("Alert from %1: (%2)").arg(className).arg(e.errorCode), e.description, QSystemTrayIcon::Warning, 5000);
+		break;
+	case AMErrorReport::Serious:
+		emit serious(e);
+		sicon_->showMessage(QString("Serious Error in %1: (%2)").arg(className).arg(e.errorCode), e.description, QSystemTrayIcon::Critical, 5000);
+		break;
+	case AMErrorReport::Debug:
+		if(debugEnabled_) {
+			emit debug(e);
+			sicon_->showMessage(QString("Debug message from %1: (%2)").arg(className).arg(e.errorCode), e.description, QSystemTrayIcon::Information, 5000);
+		}
 		break;
 	}
 
