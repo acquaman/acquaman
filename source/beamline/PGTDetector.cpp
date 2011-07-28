@@ -168,5 +168,9 @@ bool PGTDetector::initializeFromControlSet(AMControlSet *readingsControls, AMCon
 			onReadingsControlValuesChanged();
 			onSettingsControlValuesChanged();
 		}
+
+		return true;
 	}
+
+	return false;
 }

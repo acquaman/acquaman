@@ -17,10 +17,9 @@ class REIXSXESScanConfiguration : public AMScanConfiguration
 	Q_PROPERTY(double defocusDistanceMm READ defocusDistanceMm WRITE setDefocusDistanceMm)
 	Q_PROPERTY(int spectrometerCalibrationId READ spectrometerCalibrationId WRITE setSpectrometerCalibrationId)
 	Q_PROPERTY(bool detectorOrientation READ detectorOrientation WRITE setDetectorOrientation)
-	Q_PROPERTY(double detectorTilt READ detectorTilt WRITE setDetectorTilt)
+	Q_PROPERTY(double detectorTiltOffset READ detectorTiltOffset WRITE setDetectorTiltOffset)
 	Q_PROPERTY(bool shouldStartFromCurrentPosition READ shouldStartFromCurrentPosition WRITE setShouldStartFromCurrentPosition)
 	Q_PROPERTY(AMDbObject* mcpDetectorInfo READ dbGetMcpDetectorInfo WRITE dbLoadMcpDetectorInfo)
-	// Not here for now: Q_PROPERTY(AMDbObject* spectrometerPosition READ spectrometerPosition WRITE dbLoadSpectrometerPosition)
 
 public:
 	/// Default Constructor
@@ -42,8 +41,8 @@ public:
 	int spectrometerCalibrationId() const { return spectrometerCalibrationId_; }
 	/// The orientation of the detector: 0 for horizontal (wide window, low resolution), 1 for vertical (narrow window, high resolution)
 	bool detectorOrientation() const { return detectorOrientation_; }
-	/// The detector incidence angle (tilt), in degrees, up from perfectly grazing. (ie: 0 would line up the detector surface with the light direction, and you wouldn't see anything)
-	double detectorTilt() const { return detectorTilt_; }
+	/// Normally, the detector should be tangent to the rowland circle for best focussing.  This is an offset tilt, in degrees, where positive means more normal; negative means more grazing.
+	double detectorTiltOffset() const { return detectorTiltOffset_; }
 	/// A flag indicating that we should start the scan in whatever position the spectrometer is now. (ie: don't compute the desired position and move it)
 	bool shouldStartFromCurrentPosition() const { return shouldStartFromCurrentPosition_; }
 	/// Configuration information for the MCP detector itself
@@ -85,8 +84,8 @@ public slots:
 	void setSpectrometerCalibrationId(int id) { spectrometerCalibrationId_ = id; setModified(true); }
 	/// Set the orientation of the detector: 0 for horizontal (wide window, low resolution), 1 for vertical (narrow window, high resolution)
 	void setDetectorOrientation(bool orientationIsVertical) { detectorOrientation_ = orientationIsVertical; setModified(true); }
-	/// Set the detector incidence angle (tilt), in degrees, up from perfectly grazing (ie: 0 would line up the detector surface with the light direction, and you wouldn't see anything)
-	void setDetectorTilt(double detectorTilt) { detectorTilt_ = detectorTilt; setModified(true); }
+	/// Set the detector incidence angle offset (tilt), in degrees, up from tangent to the rowland circle. Normally, the detector should be tangent to the rowland circle for best focussing.  This is an offset tilt, in degrees, where positive means more normal; negative means more grazing.
+	void setDetectorTiltOffset(double detectorTilt) { detectorTiltOffset_ = detectorTilt; setModified(true); }
 	/// Set a flag indicating that we should start the scan in whatever position the spectrometer is now. (ie: don't compute the desired position and move things before starting the scan)
 	void setShouldStartFromCurrentPosition(bool startInCurrentPosition) { shouldStartFromCurrentPosition_ = startInCurrentPosition; setModified(true); }
 
@@ -105,8 +104,8 @@ protected:
 	double defocusDistanceMm_;
 	/// The orientation of the detector: 0 for horizontal (wide window, low resolution), 1 for vertical (narrow window, high resolution)
 	bool detectorOrientation_;
-	/// The detector incidence angle (tilt), in degrees, up from perfectly grazing (ie: 0 would line up the detector surface with the light direction, and you wouldn't see anything)
-	double detectorTilt_;
+	/// Normally, the detector should be tangent to the rowland circle for best focussing.  This is an offset tilt, in degrees, where positive means more normal; negative means more grazing, and 0 will place the detector tangent to the rowland circle.
+	double detectorTiltOffset_;
 	/// The database id of the stored spectrometer calibration we should use. (This spectromter calibration is found in the user database, for now)
 	int spectrometerCalibrationId_;
 	/// A flag indicating that we should start the scan in whatever position the spectrometer is now. (ie: don't compute the desired position and move it)

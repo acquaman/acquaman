@@ -385,7 +385,7 @@ VESPERSEndstationConfigurationView::VESPERSEndstationConfigurationView(QWidget *
 	setLayout(configLayout);
 }
 
-bool VESPERSEndstationConfigurationView::saveFile()
+void VESPERSEndstationConfigurationView::saveFile()
 {
 	QFile file(QDir::currentPath() + "/endstation.config");
 
@@ -394,7 +394,7 @@ bool VESPERSEndstationConfigurationView::saveFile()
 							 tr("Cannot save file %1: \n%2")
 							 .arg(file.fileName())
 							 .arg(file.errorString()));
-		return false;
+                return;
 	}
 
 	QTextStream out(&file);
@@ -423,20 +423,35 @@ bool VESPERSEndstationConfigurationView::saveFile()
 	hide();
 
 	emit configurationChanged();
-
-	return true;
 }
 
-bool VESPERSEndstationConfigurationView::loadFile()
+void VESPERSEndstationConfigurationView::loadFile()
 {
 	QFile file(QDir::currentPath() + "/endstation.config");
 
-	if (!file.open(QFile::ReadOnly | QFile::Text)){
-		QMessageBox::warning(this, tr("Endstation Configuration"),
-							 tr("Cannot read file %1: \n%2")
-							 .arg(file.fileName())
-							 .arg(file.errorString()));
-		return false;
+        // If there is no configuration file, then it creates a file with some default values.
+        if (!file.open(QFile::ReadOnly | QFile::Text)){
+
+            ccdLowLimit_->setText(QString::number(35, 'f', 1));
+            ccdHighLimit_->setText(QString::number(190, 'f', 1));
+            ccdHomePosition_->setText(QString::number(190, 'f', 1));
+
+            vortexLowLimit_->setText(QString::number(60, 'f', 1));
+            vortexHighLimit_->setText(QString::number(180, 'f', 1));
+            vortexHomePosition_->setText(QString::number(180, 'f', 1));
+
+            vortex4LowLimit_->setText(QString::number(60, 'f', 1));
+            vortex4HighLimit_->setText(QString::number(180, 'f', 1));
+            vortex4HomePosition_->setText(QString::number(180, 'f', 1));
+
+            microscopeInPosition_->setText(QString::number(90, 'f', 1));
+            microscopeOutPosition_->setText(QString::number(190, 'f', 1));
+            microscopeInStatus_->setText("In");
+            microscopeOutStatus_->setText("Out");
+
+            saveFile();
+
+            return;
 	}
 
 	QTextStream in(&file);
@@ -463,6 +478,4 @@ bool VESPERSEndstationConfigurationView::loadFile()
 	microscopeOutPosition_->setText(contents.at(15));
 	microscopeInStatus_->setText(contents.at(16));
 	microscopeOutStatus_->setText(contents.at(17));
-
-	return true;
 }

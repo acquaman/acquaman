@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMFirstTimeController.h"
 #include "tests/TestDataman.h"
 #include "tests/TestUi.h"
+
 /*
 #include "tests/TestAcquaman.h"
 #include "tests/TestBeamline.h"

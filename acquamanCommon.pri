@@ -336,7 +336,6 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/beamline/AMBeamlineControlWaitAction.h \
 	source/beamline/AMBeamlineUserConfirmAction.h \
 	source/ui/AMScanQueryModel.h \
-	source/ui/AMFreeRunScanConfigurationViewHolder.h \
 	source/dataman/AMExportController.h \
 	source/dataman/AMExporter.h \
 	source/dataman/AMExporterOption.h \
@@ -361,8 +360,10 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMScanSetItemPropertyDialog.h \
 	source/ui/AMColoredTextToolButton.h \
 	source/ui/AMLinePropertyEditor.h \
-	source/ui/AMImagePropertyEditor.h
-
+	source/ui/AMImagePropertyEditor.h \
+	source/beamline/CLS/CLSSynchronizedDwellTime.h \
+	source/dataman/AMXYScatterPVDataSource.h
+#	source/beamline/AMCompositeControl.h
 
 CONFIG(mobility) {
 HEADERS +=	source/ui/AMCrosshairOverlayVideoWidget.h \
@@ -384,7 +385,7 @@ FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMDataViewActionsBar.ui \
 	source/ui/AMChooseScanDialog.ui \
 	source/ui/AMLinePropertyEditor.ui \
-    source/ui/AMImagePropertyEditor.ui
+	source/ui/AMImagePropertyEditor.ui
 SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	../MPlot/src/MPlot/MPlotAbstractTool.cpp \
 	../MPlot/src/MPlot/MPlotAxis.cpp \
@@ -571,7 +572,6 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/beamline/AMBeamlineControlWaitAction.cpp \
 	source/beamline/AMBeamlineUserConfirmAction.cpp \
 	source/ui/AMScanQueryModel.cpp \
-	source/ui/AMFreeRunScanConfigurationViewHolder.cpp \
 	source/dataman/AMExportController.cpp \
 	source/dataman/AMExporterOption.cpp \
 	source/dataman/AMExporterOptionGeneral.cpp \
@@ -596,8 +596,10 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMScanSetItemPropertyDialog.cpp \
 	source/ui/AMColoredTextToolButton.cpp \
 	source/ui/AMLinePropertyEditor.cpp \
-	source/ui/AMImagePropertyEditor.cpp
-
+	source/ui/AMImagePropertyEditor.cpp \
+	source/beamline/CLS/CLSSynchronizedDwellTime.cpp \
+	source/dataman/AMXYScatterPVDataSource.cpp
+	#source/beamline/AMCompositeControl.cpp
 
 CONFIG(mobility) {
 SOURCES +=	source/ui/AMOverlayVideoWidget.cpp \

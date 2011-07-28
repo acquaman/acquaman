@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMBeamline.h"
 #include "beamline/AMControlSet.h"
+#include "beamline/AMDetectorSet.h"
 #include "beamline/VESPERS/AMValveControl.h"
 #include "beamline/VESPERS/XRFDetector.h"
 #include "beamline/AMROI.h"
@@ -30,6 +31,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/VESPERS/PIDLoopControl.h"
 
 #include "util/AMErrorMonitor.h"
+
+#include "util/AMBiHash.h"
 
 /// This class is the master class that holds EVERY control inside the VESPERS beamline.
 class VESPERSBeamline : public AMBeamline
@@ -45,6 +48,10 @@ public:
 
 	~VESPERSBeamline();
 
+	// Helper functions.
+	QString pvName(const QString &amName) const { return amNames2pvNames_.valueF(amName); }
+	QString amName(const QString &pvName) const { return amNames2pvNames_.valueR(pvName); }
+
 	// Accessing detectors.
 
 	/// Returns a general AMDetector pointer of the single element XRF detector.
@@ -55,6 +62,19 @@ public:
 	AMDetector *vortexAM4E() const { return vortex4E_; }
 	/// Returns the specific XRFDetector pointer of the single element XRF detector.
 	XRFDetector *vortexXRF4E() const { return (XRFDetector *)vortex4E_; }
+
+	/// Returns a general AMDetector pointer to the split ion chamber #1.
+	AMDetector *iSplit1() const { return iSplit1_; }
+	/// Returns a general AMDetector pointer to the split ion chamber #2.
+	AMDetector *iSplit2() const { return iSplit2_; }
+	/// Returns a general AMDetector pointer to the pre-KB ion chamber.
+	AMDetector *iPreKB() const { return iPreKB_; }
+	/// Returns a general AMDetector pointer to the mini ion chamber.
+	AMDetector *iMini() const { return iMini_; }
+	/// Returns a general AMDetector pointer to the post sample ion chamber.
+	AMDetector *iPost() const { return iPost_; }
+	/// Returns the ion chamber detector set.
+	AMDetectorSet *ionChambers() const { return ionChambers_; }
 
 	// Accessing control elements:
 
@@ -376,6 +396,20 @@ public:
 	/// Returns the process variable for the Pseudo-motor reset.
 	AMProcessVariable *resetPseudoMotors() const { return resetPseudoMotors_; }
 
+	// This is where the controls and PVs for mono settings exits.
+	AMControl *energyRelative() const { return energyRelative_; }
+
+	/// Returns the control to the split ion chamber #1.
+	AMControl *iSplit1Control() const { return iSplit1Control_; }
+	/// Returns the control to the split ion chamber #2.
+	AMControl *iSplit2Control() const { return iSplit2Control_; }
+	/// Returns the control to the pre-KB ion chamber.
+	AMControl *iPreKBControl() const { return iPreKBControl_; }
+	/// Returns the control to the mini ion chamber.
+	AMControl *iMiniControl() const { return iMiniControl_; }
+	/// Returns the control to the post sample ion chamber.
+	AMControl *iPostControl() const { return iPostControl_; }
+
 signals:
 
 protected slots:
@@ -421,6 +455,8 @@ protected:
 	void setupDetectors();
 	/// Sets up the sample stage motors.
 	void setupSampleStage();
+	/// Sets up mono settings.
+	void setupMono();
 
 	/// Constructor. This is a singleton class; access it through VESPERSBeamline::vespers().
 	VESPERSBeamline();
@@ -428,8 +464,18 @@ protected:
 	// Detectors.
 	AMDetector *vortex1E_;
 	AMDetector *vortex4E_;
+	AMDetector *iSplit1_;
+	AMDetector *iSplit2_;
+	AMDetector *iPreKB_;
+	AMDetector *iMini_;
+	AMDetector *iPost_;
 
 	// End detectors.
+
+	// Detector sets.
+	AMDetectorSet *ionChambers_;
+
+	// End detector sets.
 
 	// Beamline General.
 	// Pressure controls.
@@ -572,6 +618,15 @@ protected:
 
 	// End General Controls.
 
+	// Ion chamber controls.
+	AMControl *iSplit1Control_;
+	AMControl *iSplit2Control_;
+	AMControl *iPreKBControl_;
+	AMControl *iMiniControl_;
+	AMControl *iPostControl_;
+
+	// End ion chamber controls.
+
 	// Endstation controls
 	// The controls used for the control window.
 	AMControl *ccdMotor_;
@@ -618,6 +673,12 @@ protected:
 	PIDLoopControl *sampleStagePID_;
 
 	// End sample stage controls.
+
+	// Mono settings.
+	AMControl *energyRelative_;
+
+	// AM names bihash to/from PV names.
+	AMBiHash<QString, QString> amNames2pvNames_;
 };
 
 #endif // VESPERSBEAMLINE_H

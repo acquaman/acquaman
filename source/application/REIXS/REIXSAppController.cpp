@@ -19,6 +19,7 @@
 #include "acquaman/REIXS/REIXSXESScanConfiguration.h"
 
 #include "ui/REIXS/REIXSXESHexapodControlEditor.h"
+#include "ui/REIXS/REIXSXESSpectrometerControlEditor.h"
 
 #include "ui/AMSamplePlateView.h"
 #include "dataman/AMRun.h"
@@ -80,7 +81,7 @@ bool REIXSAppController::startup() {
 		QGroupBox* gb = new QGroupBox("Motors");
 		QVBoxLayout* vl = new QVBoxLayout();
 		vl->addWidget(new QLabel("Spectrometer Rotation"));
-		vl->addWidget(new AMBasicControlEditor(REIXSBeamline::bl()->spectrometer()->angleDrive()));
+		vl->addWidget(new AMBasicControlEditor(REIXSBeamline::bl()->spectrometer()->spectrometerRotationDrive()));
 
 		vl->addWidget(new QLabel("Detector Translation"));
 		vl->addWidget(new AMBasicControlEditor(REIXSBeamline::bl()->spectrometer()->detectorTranslation()));
@@ -95,9 +96,11 @@ bool REIXSAppController::startup() {
 
 		hl->addWidget(gb);
 
+		hl->addWidget(new REIXSXESSpectrometerControlEditor(REIXSBeamline::bl()->spectrometer()));
+
 		hl->addStretch(1);
 
-		hl->addWidget(new AMSamplePlateView());
+		// hl->addWidget(new AMSamplePlateView());
 
 
 //		AMCrosshairOverlayVideoWidget* vw = new AMCrosshairOverlayVideoWidget();
@@ -133,6 +136,7 @@ bool REIXSAppController::startup() {
 		mw_->addPane(spectrometerControlWidget, "Experiment Setup", "Spectrometer controls", ":/utilities-system-monitor.png");
 
 
+		////////////////// End of testing junk; move somewhere clean ////////////////////
 
 		connect(scanConfigurationHolder_, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
 

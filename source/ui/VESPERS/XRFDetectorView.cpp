@@ -131,6 +131,7 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	updateRate_->addItem("1 sec");
 	updateRate_->addItem("0.2 sec");
 	connect(updateRate_, SIGNAL(currentIndexChanged(int)), this, SLOT(onComboBoxUpdate(int)));
+	connect(detector_, SIGNAL(refreshRateChanged(int)), this, SLOT(onUpdateRateChanged(int)));
 
 	isWaterfall_ = false;
 
@@ -247,7 +248,18 @@ void XRFDetailedDetectorView::roiWidthUpdate(AMROI *roi)
 
 void XRFDetailedDetectorView::onLogEnabled(bool logged)
 {
-	logged ? logButton_->setText("Linear") : logButton_->setText("Log");
+	// I change the constraint because in linear mode it doesn't matter if the data is between 0 and 1.  It only matters for the log plot (hence why it is only constrained in the logged case).
+	if (logged){
+
+		logButton_->setText("Linear");
+		plot_->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(1, MPLOT_POS_INFINITY));
+	}
+	else{
+
+		logButton_->setText("Log");
+		plot_->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(0, MPLOT_POS_INFINITY));
+	}
+
 	plot_->axisScaleLeft()->setLogScaleEnabled(logged);
 }
 
@@ -353,7 +365,7 @@ void XRFDetailedDetectorView::setupPlot()
 	plot_->axisRight()->setTicks(0);
 
 	// Set the autoscale constraints.
-	plot_->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(1, MPLOT_POS_INFINITY));
+	plot_->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(0, MPLOT_POS_INFINITY));
 }
 
 double XRFDetailedDetectorView::getMaximumHeight(MPlotItem *data)
@@ -378,7 +390,7 @@ double XRFDetailedDetectorView::getMaximumHeight(MPlotItem *data)
 void XRFDetailedDetectorView::sortRegionsOfInterest()
 {
 	// Sort the real ROIs.
-	detector_->sort();
+	detector_->sortRegionsOfInterest();
 
 	// Remove all the markers from the plot for now.
 	for (int i = 0; i < markers_.size(); i++)

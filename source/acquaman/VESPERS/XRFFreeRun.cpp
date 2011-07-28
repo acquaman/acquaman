@@ -53,7 +53,7 @@ void XRFFreeRun::onRoisHaveValues()
 
 void XRFFreeRun::onExternalRegionsOfInterestChanged()
 {
-	onRoisHaveValues();
+	//onRoisHaveValues();
 }
 
 void XRFFreeRun::addRegionOfInterestToTable(QString name)

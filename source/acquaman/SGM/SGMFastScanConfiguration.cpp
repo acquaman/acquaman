@@ -245,6 +245,7 @@ bool SGMFastScanConfiguration::setSensibleFileSavePath(const QString &sensibleFi
 	emit onSensibleFileSavePathChanged(sensibleFileSavePath_);
 	return true;
 	*/
+    return true;
 }
 
 void SGMFastScanConfiguration::onSaveDirectoryChanged(const QString &directory){

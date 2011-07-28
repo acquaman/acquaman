@@ -11,6 +11,9 @@
 #include <QComboBox>
 #include <QLabel>
 #include <QProgressBar>
+#include <QToolButton>
+
+class QDialog;
 
 class REIXSXESMCPDetector;
 
@@ -29,6 +32,11 @@ protected slots:
 	void onCountsPerSecondChanged(double countsPerSecond);
 	/// When the user changes which image to view from the selector
 	void onImageSelectorChanged(int index);
+
+	/// When the button to adjust the plot image's color map is clicked
+	void onAdjustColorMapButtonClicked();
+	/// When the color map inside the dialog is changed
+	void onColorMapChanged(const MPlotColorMap& map);
 
 protected:
 	/// The detector we provide a view for
@@ -49,6 +57,8 @@ protected:
 	QLabel* countsPerSecondIndicator_;
 	QProgressBar* countsPerSecondBar_;
 
+	QToolButton* adjustColorMapButton_;
+	QDialog* colorMapEditor_;
 
 };
 

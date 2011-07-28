@@ -51,16 +51,12 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 
 	QLabel *sampleStageLabel = new QLabel("Sample Stage Control");
 	sampleStageLabel->setFont(font);
-
 	QLabel *pshShutterLabel = new QLabel("Front End Shutters");
 	pshShutterLabel->setFont(font);
-
 	QLabel *sshShutterLabel = new QLabel("Beamline Shutters");
 	sshShutterLabel->setFont(font);
-
 	QLabel *endstationShutterLabel = new QLabel("Endstation Shutter");
 	endstationShutterLabel->setFont(font);
-
 	QLabel *statusLabel = new QLabel("Beamline Status");
 	statusLabel->setFont(font);
 
@@ -88,7 +84,7 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	connect(filterLowerButton_, SIGNAL(clicked()), this, SLOT(onLowerFilterUpdate()));
 
 	filterLabel_ = new QLabel;
-	filterLabel_->setPixmap(QIcon(":/ON.png").pixmap(30));
+        filterLabel_->setPixmap(QIcon(":/RED.png").pixmap(30));
 	connect(VESPERSBeamline::vespers()->filterShutterLower(), SIGNAL(valueChanged(double)), this, SLOT(onFilterStatusChanged()));
 
 	QFormLayout *filterLayout = new QFormLayout;
