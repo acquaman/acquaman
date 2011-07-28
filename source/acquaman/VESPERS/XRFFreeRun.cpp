@@ -20,6 +20,7 @@ XRFFreeRun::XRFFreeRun(XRFDetector *detector, QObject *parent)
 
 void XRFFreeRun::onRoisHaveValues()
 {
+	/// \note To fix my current problem with ROIs updating when they shouldn't, I might just need to disconnect ALL the signals to the detector.  Worth a try anyway.
 	disconnect(detector_, SIGNAL(externalRegionsOfInterestChanged()), this, SLOT(onExternalRegionsOfInterestChanged()));
 	disconnect(xrfTable_, SIGNAL(removedAllRegionsOfInterest()), detector_, SLOT(clearRegionsOfInterest()));
 
@@ -53,7 +54,7 @@ void XRFFreeRun::onRoisHaveValues()
 
 void XRFFreeRun::onExternalRegionsOfInterestChanged()
 {
-	//onRoisHaveValues();
+	onRoisHaveValues();
 }
 
 void XRFFreeRun::addRegionOfInterestToTable(QString name)
