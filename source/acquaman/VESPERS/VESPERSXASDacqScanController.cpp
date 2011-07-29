@@ -98,13 +98,15 @@ void VESPERSXASDacqScanController::onInitializationActionsSucceeded()
 
 void VESPERSXASDacqScanController::onInitializationActionsFailed(int explanation)
 {
+	Q_UNUSED(explanation)
 	/// \todo how do we get here? why is this here?
 	setFailed();
 }
 
 void VESPERSXASDacqScanController::onInitializationActionsProgress(double elapsed, double total)
 {
-
+	Q_UNUSED(elapsed)
+	Q_UNUSED(total)
 }
 
 QString VESPERSXASDacqScanController::getHomeDirectory()

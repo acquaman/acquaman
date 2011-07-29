@@ -88,9 +88,11 @@ public slots:
 	bool setEndEnergy(double endEnergy);
 
 signals:
+	/// Notifier that passes on the signal that current state of the regions have changed.
 	void regionsChanged();
 
 protected slots:
+	/// Helper slot that handles notifying the database that the regions have changed and emits the regionsChanged() signal.
 	void onRegionsChanged();
 
 protected:
