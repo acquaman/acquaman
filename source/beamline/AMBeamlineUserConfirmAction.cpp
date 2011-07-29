@@ -13,6 +13,7 @@ AMBeamlineUserConfirmAction::AMBeamlineUserConfirmAction(QObject *parent) :
 }
 
 AMBeamlineActionItemView* AMBeamlineUserConfirmAction::createView(int index){
+	Q_UNUSED(index)
 	return new AMBeamlineUserConfirmDetailedActionView(this);
 }
 
@@ -135,7 +136,7 @@ void AMBeamlineUserConfirmDetailedActionView::onActionSucceeded(){
 }
 
 void AMBeamlineUserConfirmDetailedActionView::onActionFailed(int explanation){
-
+	Q_UNUSED(explanation)
 }
 
 void AMBeamlineUserConfirmDetailedActionView::onHelpButtonClicked(){

@@ -103,6 +103,7 @@ void AMBeamlineControlMoveAction::delayedStart(bool ready){
 }
 
 void AMBeamlineControlMoveAction::onMovingChanged(bool moving){
+	Q_UNUSED(moving)
 	if(!hasStarted())
 		checkReady();
 	else{
@@ -111,6 +112,7 @@ void AMBeamlineControlMoveAction::onMovingChanged(bool moving){
 }
 
 void AMBeamlineControlMoveAction::onConnected(bool connected){
+	Q_UNUSED(connected)
 	if(!hasStarted())
 		checkReady();
 }
@@ -284,9 +286,10 @@ void AMBeamlineControlMoveActionView::onSucceeded(){
 }
 
 void AMBeamlineControlMoveActionView::onFailed(int explanation){
-		stopCancelButton_->setIcon(closeIcon_);
-		playPauseButton_->setIcon(startIcon_);
-		playPauseButton_->setEnabled(false);
-		timeRemainingLabel_->setText("Move Cancelled");
+	Q_UNUSED(explanation)
+	stopCancelButton_->setIcon(closeIcon_);
+	playPauseButton_->setIcon(startIcon_);
+	playPauseButton_->setEnabled(false);
+	timeRemainingLabel_->setText("Move Cancelled");
 }
 

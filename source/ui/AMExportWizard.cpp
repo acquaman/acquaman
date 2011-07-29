@@ -160,6 +160,7 @@ void AMExportWizardChooseExporterPage::onBrowseButtonClicked()
 
 AMExportWizardOptionPage::AMExportWizardOptionPage(QWidget *parent)
 {
+	Q_UNUSED(parent)
 
 	option_ = 0;
 	optionView_ = 0;
@@ -337,6 +338,8 @@ void AMExportWizardOptionPage::populateOptionSelector()
 
 AMExportWizardProgressPage::AMExportWizardProgressPage(QWidget *parent)
 {
+	Q_UNUSED(parent)
+
 	controller_ = 0;
 
 	progressBar_ = new QProgressBar();

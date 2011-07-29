@@ -35,6 +35,8 @@ AMDetectorInfo* AMDetectorView::configurationSettings() const{
 }
 
 bool AMDetectorView::setDetector(AMDetector *detector, bool configureOnly){
+	Q_UNUSED(detector)
+	Q_UNUSED(configureOnly)
 	return false;
 }
 
@@ -44,6 +46,8 @@ AMBriefDetectorView::AMBriefDetectorView(bool configureOnly, QWidget *parent) :
 }
 
 bool AMBriefDetectorView::setDetector(AMDetector *detector, bool configureOnly){
+	Q_UNUSED(detector)
+	Q_UNUSED(configureOnly)
 	return false;
 }
 
@@ -53,5 +57,7 @@ AMDetailedDetectorView::AMDetailedDetectorView(bool configureOnly, QWidget *pare
 }
 
 bool AMDetailedDetectorView::setDetector(AMDetector *detector, bool configureOnly){
+	Q_UNUSED(detector)
+	Q_UNUSED(configureOnly)
 	return false;
 }

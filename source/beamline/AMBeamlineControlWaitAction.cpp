@@ -22,6 +22,7 @@ AMBeamlineControlWaitAction::AMBeamlineControlWaitAction(AMControl *control, AMB
 }
 
 AMBeamlineActionItemView* AMBeamlineControlWaitAction::createView(int index){
+	Q_UNUSED(index)
 	return new AMBeamlineControlWaitDetailedActionView(this);
 }
 
@@ -159,6 +160,7 @@ void AMBeamlineControlWaitAction::onValueChanged(double newValue){
 }
 
 void AMBeamlineControlWaitAction::onConnected(bool connected){
+	Q_UNUSED(connected)
 	if(!hasStarted()){
 		if(control_->valueOutOfRange(waitpoint_))
 			waitpoint_ = 0;
@@ -306,7 +308,7 @@ void AMBeamlineControlWaitDetailedActionView::onActionSucceeded(){
 }
 
 void AMBeamlineControlWaitDetailedActionView::onActionFailed(int explanation){
-
+	Q_UNUSED(explanation)
 }
 
 void AMBeamlineControlWaitDetailedActionView::onHelpButtonClicked(){

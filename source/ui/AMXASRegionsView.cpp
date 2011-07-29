@@ -121,6 +121,7 @@ void AMXASRegionsView::setRemoveIndex(){
 }
 
 void AMXASRegionsView::resizeEvent(QResizeEvent *event){
+	Q_UNUSED(event)
 	int totalWidth = tv_->size().width();
 	tv_->setColumnWidth(1, 3*totalWidth/8);
 	tv_->setColumnWidth(2, (2*totalWidth/8)-1);
