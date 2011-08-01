@@ -301,6 +301,7 @@ void AMBeamlineControlSetMoveActionView::onSucceeded(){
 }
 
 void AMBeamlineControlSetMoveActionView::onFailed(int explanation){
+	Q_UNUSED(explanation)
 	stopCancelButton_->setIcon(closeIcon_);
 	playPauseButton_->setIcon(startIcon_);
 	playPauseButton_->setEnabled(false);

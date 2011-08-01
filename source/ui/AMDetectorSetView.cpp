@@ -161,6 +161,7 @@ void AMDetectorSetView::onDetectorAddedToSet(int index){
 
 #warning "Hey David: Working, but SUPER INNEFFICIENT. Redraws the whole thing every time"
 void AMDetectorSetView::onDetectorRemovedFromSet(int index){
+	Q_UNUSED(index)
 	for(int x = gl_->rowCount()-1; x >= 0; x--){
 		if(gl_->itemAtPosition(x, 0))
 			gl_->itemAtPosition(x, 0)->widget()->hide();

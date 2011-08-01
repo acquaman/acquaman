@@ -17,7 +17,7 @@ class AMROIInfo : public AMDbObject
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Saved ROI State")
 
 public:
-	/// Constructor.  Takes in the name, centre energy, and width of the region.
+	/// Constructor.  Takes in the name, centre energy, lower bound, upper bound, and the scale of the region.
 	Q_INVOKABLE AMROIInfo(const QString& name = "Invalid ROI Info", double energy = 0.0, double low = 0.0, double high = 0.0, double scale = 0.0, QObject *parent = 0);
 	/// Convenience constructor.  Uses a width to to auto-create a low and high value.  This does not have default values. \note The order of the constructor had to be different so that the compiler doesn't complain.  This is because the default constructor has assigned values for all parameters.
 	AMROIInfo(double energy, double width, double scale, const QString& name, QObject *parent = 0);

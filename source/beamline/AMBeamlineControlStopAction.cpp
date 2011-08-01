@@ -8,6 +8,7 @@ AMBeamlineControlStopAction::AMBeamlineControlStopAction(AMControl *control, QOb
 }
 
 AMBeamlineActionItemView* AMBeamlineControlStopAction::createView(int index){
+	Q_UNUSED(index)
 	return 0;//NULL
 }
 

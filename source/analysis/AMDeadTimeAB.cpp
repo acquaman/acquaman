@@ -10,10 +10,10 @@ AMDeadTimeAB::AMDeadTimeAB(const QString &outputName, QObject *parent)
 	axes_ << AMAxisInfo("invalid", 0, "No input data");
 	setState(AMDataSource::InvalidFlag);
 }
-#include <QDebug>
+
 // Check if a set of inputs is valid. The empty list (no inputs) must always be valid. For non-empty lists, our specific requirements are...
-/* - there must be a single input source
-- the rank() of that input source must be 1 (one-dimensional)
+/* - there must be a data source of rank() = 1.
+   - there must be two data sources of rank() = 0.
 */
 bool AMDeadTimeAB::areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const
 {

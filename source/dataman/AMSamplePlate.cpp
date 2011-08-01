@@ -91,7 +91,11 @@ bool AMSamplePlate::loadFromDb(AMDatabase *db, int id)
 			for(int i=0; i<oldPositionsCount; i++)
 				emit samplePositionChanged(i); // emit our own notification.
 		}
+
+		return true;
 	}
+
+	return false;
 }
 
 

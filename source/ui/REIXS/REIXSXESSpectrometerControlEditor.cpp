@@ -48,6 +48,7 @@ void REIXSXESSpectrometerControlEditor::onMoveButtonClicked()
 
 void REIXSXESSpectrometerControlEditor::onGratingComboBoxActivated(int grating)
 {
+	Q_UNUSED(grating)
 	updateCurrentGratingStatus();
 }
 

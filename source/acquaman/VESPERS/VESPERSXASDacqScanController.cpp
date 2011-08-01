@@ -10,7 +10,7 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 {
 	config_ = cfg;
 	xasScan_ = new AMXASScan();
-	xasScan_->setName("Boobies!! For teh win!");
+	xasScan_->setName(config_->name());
 	xasScan_->setScanConfiguration(config_);
 	xasScan_->setRunId(AMUser::user()->currentRunId());
 }
@@ -98,13 +98,15 @@ void VESPERSXASDacqScanController::onInitializationActionsSucceeded()
 
 void VESPERSXASDacqScanController::onInitializationActionsFailed(int explanation)
 {
+	Q_UNUSED(explanation)
 	/// \todo how do we get here? why is this here?
 	setFailed();
 }
 
 void VESPERSXASDacqScanController::onInitializationActionsProgress(double elapsed, double total)
 {
-
+	Q_UNUSED(elapsed)
+	Q_UNUSED(total)
 }
 
 QString VESPERSXASDacqScanController::getHomeDirectory()
@@ -138,6 +140,12 @@ bool VESPERSXASDacqScanController::setupTransmissionXAS()
 	for (int i = 0; i < ionChambers->count(); i++)
 		advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt(i)->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt(i)->readMethod()));
 
+	/// In order to mimic the current configs, I've hardcoded all the names so that the file matches the reference file.  These should and will be migrated to proper maps of detectors and controls names.
+	// These will all likely change and be modified.
+	advAcq_->appendRecord("07B2_Mono_SineB_K", true, false, 0);
+	advAcq_->appendRecord("BL1607-B2-1:dwell:setTime", true, false, 0);
+	advAcq_->appendRecord("PCT1402-01:mA:fbk", true, false, 0);
+
 	return loadSuccess;
 }
 
@@ -157,8 +165,34 @@ bool VESPERSXASDacqScanController::setupSingleElementXAS()
 
 	AMDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
 
+	/// In order to mimic the current configs, I've hardcoded all the names so that the file matches the reference file.  These should and will be migrated to proper maps of detectors and controls names.
+	// These will all likely change and be modified.
+	advAcq_->appendRecord("IOC1607-004:mca1.RO", true, false, 1);
+	advAcq_->appendRecord("IOC1607-004:mca1.R1", true, false, 1);
+	advAcq_->appendRecord("IOC1607-004:mca1.R2", true, false, 1);
+	advAcq_->appendRecord("IOC1607-004:mca1.R3", true, false, 1);
+	advAcq_->appendRecord("IOC1607-004:mca1.R4", true, false, 1);
+	advAcq_->appendRecord("IOC1607-004:mca1.R5", true, false, 1);
+	advAcq_->appendRecord("IOC1607-004:mca1.R6", true, false, 1);
+	advAcq_->appendRecord("IOC1607-004:mca1.R7", true, false, 1);
+
+	// End of hardcoded.
+
 	for (int i = 0; i < ionChambers->count(); i++)
 		advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt(i)->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt(i)->readMethod()));
+
+	// Begin of hardcoded.
+	advAcq_->appendRecord("07B2_Mono_SineB_K", true, false, 0);
+	advAcq_->appendRecord("BL1607-B2-1:dwell:setTime", true, false, 0);
+	advAcq_->appendRecord("PCT1402-01:mA:fbk", true, false, 0);
+	advAcq_->appendRecord("IOC1607-004:mca1.DTIM", true, false, 0);
+	advAcq_->appendRecord("IOC1607-004:mca1.ERTM", true, false, 0);
+	advAcq_->appendRecord("IOC1607-004:mca1.ELTM", true, false, 0);
+	advAcq_->appendRecord("IOC1607-004:dxp1.FAST_PEAKS", true, false, 0);
+	advAcq_->appendRecord("IOC1607-004:dxp1.SLOW_PEAKS", true, false, 0);
+	advAcq_->appendRecord("IOC1607-004:mca1.VAL", true, true, 1);
+
+	// End of hardcoded.
 
 	return loadSuccess;
 }
@@ -179,8 +213,53 @@ bool VESPERSXASDacqScanController::setupFourElementXAS()
 
 	AMDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
 
+	/// In order to mimic the current configs, I've hardcoded all the names so that the file matches the reference file.  These should and will be migrated to proper maps of detectors and controls names.
+	// These will all likely change and be modified.
+	advAcq_->appendRecord("dxp1607-B21-04:mcaCorrected.RO", true, false, 1);
+	advAcq_->appendRecord("dxp1607-B21-04:mcaCorrected.R1", true, false, 1);
+	advAcq_->appendRecord("dxp1607-B21-04:mcaCorrected.R2", true, false, 1);
+	advAcq_->appendRecord("dxp1607-B21-04:mcaCorrected.R3", true, false, 1);
+	advAcq_->appendRecord("dxp1607-B21-04:mcaCorrected.R4", true, false, 1);
+	advAcq_->appendRecord("dxp1607-B21-04:mcaCorrected.R5", true, false, 1);
+	advAcq_->appendRecord("dxp1607-B21-04:mcaCorrected.R6", true, false, 1);
+	advAcq_->appendRecord("dxp1607-B21-04:mcaCorrected.R7", true, false, 1);
+
+	// End of hardcoded.
+
 	for (int i = 0; i < ionChambers->count(); i++)
 		advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt(i)->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt(i)->readMethod()));
+
+	// Begin of hardcoded.
+	advAcq_->appendRecord("07B2_Mono_SineB_K", true, false, 0);
+	advAcq_->appendRecord("BL1607-B2-1:dwell:setTime", true, false, 0);
+	advAcq_->appendRecord("PCT1402-01:mA:fbk", true, false, 0);
+	advAcq_->appendRecord("dxp1607-B21-04:mca1.ERTM", true, false, 0);
+	advAcq_->appendRecord("dxp1607-B21-04:mca2.ERTM", true, false, 0);
+	advAcq_->appendRecord("dxp1607-B21-04:mca3.ERTM", true, false, 0);
+	advAcq_->appendRecord("dxp1607-B21-04:mca4.ERTM", true, false, 0);
+	advAcq_->appendRecord("dxp1607-B21-04:mca1.ELTM", true, false, 0);
+	advAcq_->appendRecord("dxp1607-B21-04:mca2.ELTM", true, false, 0);
+	advAcq_->appendRecord("dxp1607-B21-04:mca3.ELTM", true, false, 0);
+	advAcq_->appendRecord("dxp1607-B21-04:mca4.ELTM", true, false, 0);
+	advAcq_->appendRecord("dxp1607-B21-04:dxp1.FAST_PEAKS", true, false, 1);
+	advAcq_->appendRecord("dxp1607-B21-04:dxp2.FAST_PEAKS", true, false, 1);
+	advAcq_->appendRecord("dxp1607-B21-04:dxp3.FAST_PEAKS", true, false, 1);
+	advAcq_->appendRecord("dxp1607-B21-04:dxp4.FAST_PEAKS", true, false, 1);
+	advAcq_->appendRecord("dxp1607-B21-04:dxp1.SLOW_PEAKS", true, false, 1);
+	advAcq_->appendRecord("dxp1607-B21-04:dxp2.SLOW_PEAKS", true, false, 1);
+	advAcq_->appendRecord("dxp1607-B21-04:dxp3.SLOW_PEAKS", true, false, 1);
+	advAcq_->appendRecord("dxp1607-B21-04:dxp4.SLOW_PEAKS", true, false, 1);
+	advAcq_->appendRecord("dxp1607-B21-04:mca1.DTIM", true, false, 1);
+	advAcq_->appendRecord("dxp1607-B21-04:mca2.DTIM", true, false, 1);
+	advAcq_->appendRecord("dxp1607-B21-04:mca3.DTIM", true, false, 1);
+	advAcq_->appendRecord("dxp1607-B21-04:mca4.DTIM", true, false, 1);
+	advAcq_->appendRecord("dxp1607-B21-04:mcaCorrected.VAL", true, true, 1);
+	advAcq_->appendRecord("dxp1607-B21-04:mca1.VAL", true, true, 1);
+	advAcq_->appendRecord("dxp1607-B21-04:mca2.VAL", true, true, 1);
+	advAcq_->appendRecord("dxp1607-B21-04:mca3.VAL", true, true, 1);
+	advAcq_->appendRecord("dxp1607-B21-04:mca4.VAL", true, true, 1);
+
+	// End of hardcored.
 
 	return loadSuccess;
 }

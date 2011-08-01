@@ -1439,6 +1439,8 @@ void SGMBeamline::onControlSetConnected(bool csConnected){
 }
 
 void SGMBeamline::onCriticalControlsConnectedChanged(bool isConnected, AMControl *control){
+	Q_UNUSED(isConnected)
+	Q_UNUSED(control)
 	emit criticalControlsConnectionsChanged();
 }
 

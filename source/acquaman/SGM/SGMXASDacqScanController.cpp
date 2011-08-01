@@ -124,10 +124,13 @@ void SGMXASDacqScanController::onInitializationActionsSucceeded(){
 }
 
 void SGMXASDacqScanController::onInitializationActionsFailed(int explanation){
+	Q_UNUSED(explanation)
 	//qDebug() << "The actions list failed";
 	setFailed();
 }
 
 void SGMXASDacqScanController::onInitializationActionsProgress(double elapsed, double total){
+	Q_UNUSED(elapsed)
+	Q_UNUSED(total)
 	//qDebug() << "Initialization is " << elapsed/total << "% completed";
 }

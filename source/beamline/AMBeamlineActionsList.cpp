@@ -383,6 +383,7 @@ void AMBeamlineActionsQueue::onActionRemoved(int index){
 }
 
 void AMBeamlineActionsQueue::onActionStarted(int index){
+	Q_UNUSED(index)
 	queueRunning_ = true;
 	emit isRunningChanged(true);
 }
@@ -401,9 +402,12 @@ void AMBeamlineActionsQueue::onActionSucceeded(int index){
 
 void AMBeamlineActionsQueue::onActionReady(int index){
 
+	Q_UNUSED(index)
 }
 
 void AMBeamlineActionsQueue::onActionFailed(int index, int explanation){
+	Q_UNUSED(index)
+	Q_UNUSED(explanation)
 	queueRunning_ = false;
 	emit isRunningChanged(false);
 }
