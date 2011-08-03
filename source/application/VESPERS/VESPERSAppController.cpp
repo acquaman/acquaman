@@ -102,17 +102,17 @@ bool VESPERSAppController::startup() {
 		XRFFreeRunView *xrf4EFreeRunView = new XRFFreeRunView(new XRFFreeRun(VESPERSBeamline::vespers()->vortexXRF4E()), workflowManagerView_);
 
 		// Setup XAS for the beamline.  Builds the config, view, and view holder.
-		VESPERSXASScanConfiguration *xasScanConfig = new VESPERSXASScanConfiguration();
-		xasScanConfig->addRegion(0, 0, 1, 10);
-		VESPERSXASScanConfigurationView *xasConfigView = new VESPERSXASScanConfigurationView(xasScanConfig);
-		AMScanConfigurationViewHolder *xasConfigViewHolder = new AMScanConfigurationViewHolder( workflowManagerView_, xasConfigView);
+	//	VESPERSXASScanConfiguration *xasScanConfig = new VESPERSXASScanConfiguration();
+		//xasScanConfig->addRegion(0, 0, 1, 10);
+		//VESPERSXASScanConfigurationView *xasConfigView = new VESPERSXASScanConfigurationView(xasScanConfig);
+		//AMScanConfigurationViewHolder *xasConfigViewHolder = new AMScanConfigurationViewHolder( workflowManagerView_, xasConfigView);
 		/// \todo this can likely be somewhere else in the framework.
-		connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerStarted()), this, SLOT(onCurrentScanControllerStarted()));
+		//connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerStarted()), this, SLOT(onCurrentScanControllerStarted()));
 
 		mw_->insertHeading("Free run", 1);
 		mw_->addPane(xrf1EFreeRunView, "Free run", "XRF 1-el", ":/utilities-system-monitor.png");
 		mw_->addPane(xrf4EFreeRunView, "Free run", "XRF 4-el", ":/utilities-system-monitor.png");
-		mw_->addPane(xasConfigViewHolder, "Free run", "XAS test", ":/utilities-system-monitor.png");
+	//	mw_->addPane(xasConfigViewHolder, "Free run", "XAS test", ":/utilities-system-monitor.png");
 
 		// Setup page to launch the nDMapper software with correct options.
 		XRFMapSetup *ndMapSetup = new XRFMapSetup;
