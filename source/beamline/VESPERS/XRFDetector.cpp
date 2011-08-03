@@ -12,6 +12,7 @@ XRFDetector::XRFDetector(QString name, int elements, QString baseName, QObject *
 	timer_.setInterval(6000);
 	connect(&timer_, SIGNAL(timeout()), this, SLOT(onUpdateTimer()));
 
+	// This makes me sad.  It destroys the extendability and generality of this class.
 	if (elements == 1){
 
 		startPV_ = new AMProcessVariable(baseName+QString(":mca1EraseStart"), true, this);
@@ -29,6 +30,8 @@ XRFDetector::XRFDetector(QString name, int elements, QString baseName, QObject *
 	connect(startPV_, SIGNAL(connected()), this, SLOT(isDetectorConnected()));
 	connect(stopPV_, SIGNAL(connected()), this, SLOT(isDetectorConnected()));
 
+	// End of part that makes me sad.
+
 	for (int i = 0; i < elements; i++){
 
 		if (i == 0){
@@ -41,7 +44,6 @@ XRFDetector::XRFDetector(QString name, int elements, QString baseName, QObject *
 			integrationTimePV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".PRTM", true, this);
 			liveTimePV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".PLTM", true, this);
 			elapsedTimePV_ << new AMProcessVariable(baseName+QString(":mca%1").arg(i+1)+".ERTM", true, this);
-
 		}
 		else{
 
@@ -322,6 +324,42 @@ bool XRFDetector::addRegionOfInterest(XRFElement *el, QString line)
 	emit addedRegionOfInterest(roi);
 
 	return true;
+}
+
+bool XRFDetector::addRegionOfInterest(XRFElement *el, QString line, bool propogateToDetector)
+{
+	if (propogateToDetector)
+		return addRegionOfInterest(el, line);
+
+	else {
+
+		// No more ROIs.
+		if (roiInfoList()->count() == roiList().size())
+			return false;
+
+		for (int i = 0; i < roiList_.size(); i++){
+
+			if (roiList_.at(i)->name().compare(el->symbol()+" "+GeneralUtilities::removeGreek(line)) == 0){
+
+				AMROIInfo roi(roiList_.at(i)->toInfo());
+
+				if (((int)roi.energy()) == -1){
+
+					double energy = el->lineEnergy(line);
+					roi.setEnergy(energy);
+					roiList_[i]->setEnergy(energy);
+				}
+
+				roiInfoList()->append(roi);
+				setROIList(*roiInfoList());
+				emit addedRegionOfInterest(roi);
+
+				return true;
+			}
+		}
+
+		return false;
+	}
 }
 
 bool XRFDetector::removeRegionOfInterest(XRFElement *el, QString line)

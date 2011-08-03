@@ -330,26 +330,13 @@ void AMImportController::finalizeImport() {
 		currentScan_->setSampleId(w_->sampleEdit->value());
 		currentScan_->setRunId(w_->runEdit->currentRunId());
 
-		// copy the raw data file to the library:
-		QFileInfo file(filesToImport_.at(currentFile_));
-		QDir dir;
-		QString relativePath;
-		QDateTime dt = currentScan_->dateTime();
-		if(dt.isValid())
-			relativePath = currentScan_->dateTime().toString("yyyy/MM");
-		else
-			relativePath = "UnknownDate";
-
-		dir.mkpath(AMUserSettings::userDataFolder + "/" + relativePath);
-		currentScan_->setFilePath(relativePath + "/" + file.fileName());
-
-		QString destination = AMUserSettings::userDataFolder + "/" + currentScan_->filePath();
-		if(!QFile::copy(filesToImport_.at(currentFile_), destination)) {
+		QString copyErrorMessage;
+		if(!copyRawDataFiles(copyErrorMessage)) {
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -2, "AMImportController: Could not copy the imported file into the library. Maybe this file exists already?"));
 			int doSkip = QMessageBox::question(
 						w_,
 						"Skip this file?",
-						QString("The file '%1' was opened correctly, but it couldn't be copied to the data library. Maybe the destination file (%2) exists already? \n\nDo you want to skip this file?").arg(filesToImport_.at(currentFile_)).arg(destination),
+						QString("The file '%1' was opened correctly, but it couldn't be copied to the data library. (%2) \n\nDo you want to skip this file?").arg(filesToImport_.at(currentFile_)).arg(copyErrorMessage),
 						QMessageBox::Ok | QMessageBox::Cancel);
 
 			if(doSkip == QMessageBox::Ok) {
@@ -362,6 +349,7 @@ void AMImportController::finalizeImport() {
 			}
 		}
 		else {
+
 			if( currentScan_->storeToDb(AMDatabase::userdb()) )
 				numSuccess_++;
 			else
@@ -373,6 +361,50 @@ void AMImportController::finalizeImport() {
 		currentScan_ = 0;
 	}
 }
+
+
+bool AMImportController::copyRawDataFiles(QString &errorMessage)
+{
+	// copy the raw data file to the library:
+	QFileInfo file(filesToImport_.at(currentFile_));
+	QDir dir;
+	QString relativePath;
+	QDateTime dt = currentScan_->dateTime();
+	if(dt.isValid())
+		relativePath = currentScan_->dateTime().toString("yyyy/MM");
+	else
+		relativePath = "UnknownDate";
+
+	dir.mkpath(AMUserSettings::userDataFolder + "/" + relativePath);
+	currentScan_->setFilePath(relativePath + "/" + file.fileName());
+
+	QString destination = AMUserSettings::userDataFolder + "/" + currentScan_->filePath();
+
+	if(!QFile::copy(filesToImport_.at(currentFile_), destination)) {
+		errorMessage = QString("Maybe the destination file '%1' already exists?").arg(destination);
+		return false;
+	}
+
+	// Do we need to copy over additionalFilePaths()? [These would be extra raw data files affiliated with this scan, aside from the main raw data file at fileName().] They start out as absolute paths, but we'll change them to relative paths as we copy them.
+	QStringList additionalFilePaths = currentScan_->additionalFilePaths();
+	QStringList relativeAdditionalFilePaths;
+
+	foreach(QString additionalFilePath, additionalFilePaths) {
+		QFileInfo additionalFileInfo(additionalFilePath);
+		QString relativeAdditionalFilePath  = relativePath + "/" + additionalFileInfo.fileName();
+		relativeAdditionalFilePaths << relativeAdditionalFilePath;
+
+		if(!QFile::copy(additionalFilePath, AMUserSettings::userDataFolder + "/" + relativeAdditionalFilePath)) {
+			errorMessage = QString("Could not copy '%1' to '%2/%3'.").arg(additionalFilePath).arg(AMUserSettings::userDataFolder).arg(relativeAdditionalFilePath);
+			return false;
+		}
+	}
+
+	currentScan_->setAdditionalFilePaths(relativeAdditionalFilePaths);
+	return true;
+}
+
+
 
 /// Called when the 'apply to all' button is clicked while reviewing
 void AMImportController::onApplyAllButtonClicked() {
@@ -461,3 +493,4 @@ bool AMImportController::isAuxiliaryFile(const QString &fullFileName)
 
 	return false;
 }
+

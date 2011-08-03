@@ -115,6 +115,7 @@ AMElementValidator::AMElementValidator(AMElementsModel* model, QObject* parent)
 
 void AMElementValidator::fixup(QString & text) const {
 
+	Q_UNUSED(text)
 	/*
 	qDebug() << "calling fixup";
 
@@ -142,6 +143,7 @@ void AMElementValidator::fixup(QString & text) const {
 
 QValidator::State AMElementValidator::validate(QString &text, int &pos) const {
 
+	Q_UNUSED(pos)
 
 	QValidator::State rv = QValidator::Acceptable;
 

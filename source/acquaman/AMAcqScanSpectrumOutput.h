@@ -22,10 +22,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMACQSCANSPECTRUMOUTPUT_H
 
 #include "acquaman/dacq3_2/acqDataHandler.h"
-//#include "acqDataHandler.h"
-//#include "dataman/AMXASScan.h"
 #include "dataman/AMScan.h"
-#include "ui/AMScanView.h"
+
 
 #if defined(__cplusplus)
 extern "C" {
@@ -46,12 +44,6 @@ acqKey_t new_AMAcqScanOutput(void);
 #include <QCoreApplication>
 #include <string>
 
-#include "../MPlot/src/MPlot/MPlotWidget.h"
-#include "../MPlot/src/MPlot/MPlotSeriesData.h"
-#include "../MPlot/src/MPlot/MPlotSeries.h"
-#include "../MPlot/src/MPlot/MPlotImageData.h"
-#include "../MPlot/src/MPlot/MPlotImage.h"
-#include "../MPlot/src/MPlot/MPlotTools.h"
 
 class AMAcqScanSpectrumOutput : public acqTextSpectrumOutput
 {
@@ -82,12 +74,6 @@ private:
 	bool lockHash_;
 	bool dataDelay_;
 
-	/*MPlotWidget *plotWindow;
-	MPlot *plot;
-	MPlotSeriesBasic *series1, *series2, *series3;
-	MPlotRealtimeModel *data1;
-
-	AMScanView *sv;*/
 };
 
 #endif /* __cplusplus */

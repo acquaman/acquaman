@@ -85,6 +85,8 @@ void AMDataSourcesEditor::setCurrentScan(int scanIndex) {
 
 void AMDataSourcesEditor::onSetViewIndexChanged(const QModelIndex &selected, const QModelIndex &deselected) {
 
+	Q_UNUSED(deselected)
+
 	removeDetailEditor();
 
 	// Nothing selected?

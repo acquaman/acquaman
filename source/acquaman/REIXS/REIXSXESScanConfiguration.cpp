@@ -6,7 +6,7 @@ REIXSXESScanConfiguration::REIXSXESScanConfiguration(QObject *parent) :
 	gratingNumber_ = 0;
 	centerEV_ = 200;
 	defocusDistanceMm_ = 0;
-	spectrometerCalibrationId_ = 1;
+	spectrometerCalibrationId_ = -1;
 	detectorTiltOffset_ = 0;
 	detectorOrientation_ = 0;
 	shouldStartFromCurrentPosition_ = false;

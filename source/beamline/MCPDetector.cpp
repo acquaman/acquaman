@@ -97,6 +97,7 @@ void MCPDetector::setDescription(const QString &description){
 }
 
 void MCPDetector::onControlsConnected(bool connected){
+	Q_UNUSED(connected)
 	bool allConnected = readingsControls_->isConnected() && settingsControls_->isConnected();
 	if(allConnected != isConnected())
 		setConnected(allConnected);

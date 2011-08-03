@@ -187,6 +187,7 @@ void SGMFastDacqScanController::onDacqStop(){
 }
 
 void SGMFastDacqScanController::onDacqSendCompletion(int completion){
+	Q_UNUSED(completion)
 	//calculateProgress(completion, 100.0);
 }
 

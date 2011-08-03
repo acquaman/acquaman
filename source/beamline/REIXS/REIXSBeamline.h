@@ -139,7 +139,7 @@ public:
 	REIXSHexapod* hexapod() { return hexapod_; }
 
 public slots:
-	/// Specify which stored calibration to use.  Cannot set the calibration while a move is in progress. Returns true on success.
+	/// Specify which stored calibration to use.  Use a \c databaseId of 0 or -1 to reset to the default calibration (ie: a default-constructed REIXSXESCalibration).  Returns true on success.
 	bool loadSpectrometerCalibration(AMDatabase* db, int databaseId);
 
 	void specifyFocusOffset(double focusOffsetMm);

@@ -80,7 +80,7 @@ REIXSXESMCPDetectorView::REIXSXESMCPDetectorView(REIXSXESMCPDetector* detector, 
 	countsPerSecondBar_->setValue(0);
 
 	adjustColorMapButton_ = new QToolButton();
-	adjustColorMapButton_->setText("Color...");
+	adjustColorMapButton_->setText("Adjust colors...");
 
 	///////////////////////
 
@@ -88,6 +88,7 @@ REIXSXESMCPDetectorView::REIXSXESMCPDetectorView(REIXSXESMCPDetector* detector, 
 	QVBoxLayout* vl = new QVBoxLayout();
 	QHBoxLayout* hl1 = new QHBoxLayout();
 	QHBoxLayout* hl2 = new QHBoxLayout();
+	QHBoxLayout* hl3 = new QHBoxLayout();
 	QVBoxLayout* vl1 = new QVBoxLayout();
 
 	hl1->addWidget(imageView_);
@@ -96,20 +97,20 @@ REIXSXESMCPDetectorView::REIXSXESMCPDetectorView(REIXSXESMCPDetector* detector, 
 	hl1->addLayout(vl1);
 
 	hl2->addWidget(adjustColorMapButton_);
-	hl2->addWidget(clearButton_);
 	hl2->addStretch();
 	hl2->addWidget(imageSelector_);
+	hl2->addWidget(clearButton_);
 
-	hl2->addStretch();
-
-	hl2->addWidget(orientationControl_);
-	hl2->addWidget(new QLabel("Persist:"));
-	hl2->addWidget(persistDurationControl_);
-	hl2->addWidget(new QLabel("Averaging Period:"));
-	hl2->addWidget(averagingPeriodControl_);
+	hl3->addWidget(new QLabel("Orientation:"));
+	hl3->addWidget(orientationControl_);
+	hl3->addWidget(new QLabel("Persist:"));
+	hl3->addWidget(persistDurationControl_);
+	hl3->addWidget(new QLabel("Averaging Period:"));
+	hl3->addWidget(averagingPeriodControl_);
 
 	vl->addLayout(hl1);
 	vl->addLayout(hl2);
+	vl->addLayout(hl3);
 
 	setLayout(vl);
 

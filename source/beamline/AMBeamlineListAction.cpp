@@ -12,6 +12,7 @@ AMBeamlineListAction::AMBeamlineListAction(AMBeamlineParallelActionsList *list, 
 }
 
 AMBeamlineActionItemView* AMBeamlineListAction::createView(int index){
+	Q_UNUSED(index)
 	return new AMBeamlineListDetailedActionView(this);
 }
 
@@ -157,5 +158,5 @@ void AMBeamlineListDetailedActionView::onActionSucceeded(){
 }
 
 void AMBeamlineListDetailedActionView::onActionFailed(int explanation){
-
+	Q_UNUSED(explanation)
 }

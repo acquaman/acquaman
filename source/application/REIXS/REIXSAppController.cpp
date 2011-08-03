@@ -171,6 +171,7 @@ void REIXSAppController::shutdown() {
 
 void REIXSAppController::onCurrentPaneChanged(QWidget *pane) {
 
+	Q_UNUSED(pane)
 //	// If the scanConfigurationHolder pane was activated, let it know:
 //	if(pane == scanConfigurationHolder_)
 //		scanConfigurationHolder_->onBecameCurrentWidget();

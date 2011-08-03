@@ -10,6 +10,7 @@ REIXSXESScanConfigurationView::REIXSXESScanConfigurationView(QWidget *parent) :
 		AMScanConfigurationView(parent)
 {
 	QGroupBox* detectorOptions = new QGroupBox("Detector Setup");
+	// detectorOptions->setFlat(true);
 	QGroupBox* stopScanOptions = new QGroupBox("Stop scan when...");
 	gratingSelector_ = new QComboBox();
 	centerEVBox_ = new QDoubleSpinBox();
@@ -34,7 +35,8 @@ REIXSXESScanConfigurationView::REIXSXESScanConfigurationView(QWidget *parent) :
 	centerEVBox_->setDecimals(2);
 	centerEVBox_->setRange(10, 1400);
 	detectorTiltBox_->setDecimals(2);
-	detectorTiltBox_->setRange(-6, 20);	/// \todo these are meaningless for now
+	detectorTiltBox_->setRange(-6, 6);	/// \todo these are meaningless for now
+	detectorTiltBox_->setSingleStep(0.1);
 
 	maximumTotalCounts_->setDecimals(0);
 	maximumTotalCounts_->setRange(10, 1000000000);
@@ -48,7 +50,7 @@ REIXSXESScanConfigurationView::REIXSXESScanConfigurationView(QWidget *parent) :
 	fl->addRow("Grating", gratingSelector_);
 	fl->addRow("Center on (eV)", centerEVBox_);
 	fl->addRow("Defocus by (mm)", defocusDistanceMmBox_);
-	fl->addRow("Detector tilt (deg)", detectorTiltBox_);
+	fl->addRow("Detector tilt offset (deg)", detectorTiltBox_);
 
 	QVBoxLayout* vl1 = new QVBoxLayout();
 	vl1->addWidget(horizontalDetectorButton_);
@@ -56,6 +58,7 @@ REIXSXESScanConfigurationView::REIXSXESScanConfigurationView(QWidget *parent) :
 
 	fl->addRow("Detector orientation", vl1);
 	fl->addRow("Start from", startFromCurrentPositionOption_);
+	fl->addRow("Calibration", calibrationSelector_);
 
 	detectorOptions->setLayout(fl);
 
@@ -114,6 +117,8 @@ void REIXSXESScanConfigurationView::onLoadCalibrations() {
 
 	calibrationSelector_->clear();
 
+	calibrationSelector_->addItem("Default", -1);
+
 	QSqlQuery q = AMDatabase::userdb()->query();
 
 	q.prepare(QString("SELECT id, dateTime FROM %1").arg(calibration_.dbTableName()));
@@ -125,15 +130,17 @@ void REIXSXESScanConfigurationView::onLoadCalibrations() {
 		calibrationSelector_->addItem(AMDateTimeUtils::prettyDateTime(dateTime), id);
 	}
 
-	calibrationSelector_->blockSignals(false);
-
 	// if we had a previously valid calibration, re-set it as current
 	int newIndexForOldId;
 	if(currentCalibrationId_ > 0 && (newIndexForOldId = calibrationSelector_->findData(currentCalibrationId_)) != -1) {
 		calibrationSelector_->setCurrentIndex(newIndexForOldId);
 	}
-	else if(calibrationSelector_->count())
+	else
 		calibrationSelector_->setCurrentIndex(0);
+
+	calibrationSelector_->blockSignals(false);
+
+	onCalibrationIndexChanged(calibrationSelector_->currentIndex());
 }
 
 void REIXSXESScanConfigurationView::onCalibrationIndexChanged(int newIndex) {
@@ -142,19 +149,31 @@ void REIXSXESScanConfigurationView::onCalibrationIndexChanged(int newIndex) {
 
 	currentCalibrationId_ = calibrationSelector_->itemData(newIndex).toInt();
 
-	calibration_.loadFromDb(AMDatabase::userdb(), currentCalibrationId_);
 	configuration_.setSpectrometerCalibrationId(currentCalibrationId_);
 
+	if(currentCalibrationId_ > 0) {
+		calibration_.loadFromDb(AMDatabase::userdb(), currentCalibrationId_);
+	}
+	else {
+		calibration_ = REIXSXESCalibration();
+	}
+
+
 	QStringList gratingNames = calibration_.gratingNames();
+	qDebug() << gratingNames;
 	// remove any extra gratings from the selector that aren't in this configuration
 	while(gratingSelector_->count() > gratingNames.count())
 		gratingSelector_->removeItem(gratingSelector_->count()-1);
 	// set corresponding names
-	for(int i=0; i<gratingSelector_->count(); i++)
-		gratingSelector_->setItemText(i, gratingNames.at(i));
+	for(int i=0; i<gratingSelector_->count(); i++) {
+		QPair<double, double> evRange = calibration_.evRangeForGrating(i);
+		gratingSelector_->setItemText(i, QString("%1 (%2 - %3 eV)").arg(gratingNames.at(i)).arg(evRange.first).arg(evRange.second));
+	}
 	// add extra names
-	for(int i=gratingSelector_->count(); i<gratingNames.count(); i++)
-		gratingSelector_->addItem(gratingNames.at(i));
+	for(int i=gratingSelector_->count(); i<gratingNames.count(); i++) {
+		QPair<double, double> evRange = calibration_.evRangeForGrating(i);
+		gratingSelector_->addItem(QString("%1 (%2 - %3 eV)").arg(gratingNames.at(i)).arg(evRange.first).arg(evRange.second));
+	}
 
 	onSelectedGratingChanged(gratingSelector_->currentIndex());
 

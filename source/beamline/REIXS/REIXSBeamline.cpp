@@ -90,10 +90,10 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 	: AMCompositeControl("spectrometer", "eV", parent) {
 
 	spectrometerRotationDrive_ = new AMPVwStatusControl("spectrometerRotationDrive",
-										 "SMTR1610-4-I21-01:mm:sp",
-										 "SMTR1610-4-I21-01:mm",
-										 "SMTR1610-4-I21-01:status",
-										 "SMTR1610-4-I21-01:stop", this, 1);
+														"SMTR1610-4-I21-01:mm:sp",
+														"SMTR1610-4-I21-01:mm",
+														"SMTR1610-4-I21-01:status",
+														"SMTR1610-4-I21-01:stop", this, 1);
 
 	detectorTranslation_ = new AMPVwStatusControl("detectorTranslation",
 												  "SMTR1610-4-I21-04:mm:sp",
@@ -102,16 +102,16 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 												  "SMTR1610-4-I21-04:stop", this, 1);
 
 	detectorTiltDrive_ = new AMPVwStatusControl("detectorTiltDrive",
-												  "SMTR1610-4-I21-02:mm:sp",
-												  "SMTR1610-4-I21-02:mm",
-												  "SMTR1610-4-I21-02:status",
-												  "SMTR1610-4-I21-02:stop", this, 0.5);
+												"SMTR1610-4-I21-02:mm:sp",
+												"SMTR1610-4-I21-02:mm",
+												"SMTR1610-4-I21-02:status",
+												"SMTR1610-4-I21-02:stop", this, 0.5);
 
 	detectorRotationDrive_ = new AMPVwStatusControl("detectorRotationDrive",
-												  "SMTR1610-4-I21-03:mm:sp",
-												  "SMTR1610-4-I21-03:mm",
-												  "SMTR1610-4-I21-03:status",
-												  "SMTR1610-4-I21-03:stop", this, 0.5);
+													"SMTR1610-4-I21-03:mm:sp",
+													"SMTR1610-4-I21-03:mm",
+													"SMTR1610-4-I21-03:status",
+													"SMTR1610-4-I21-03:stop", this, 0.5);
 
 	hexapod_ = new REIXSHexapod(this);
 
@@ -172,9 +172,9 @@ REIXSSampleChamber::REIXSSampleChamber(QObject *parent)
 										"SMTR1610-401-LZ:moving",
 										"SMTR1610-401-LZ:stop", this, 1);
 	loadLockR_ = new AMPVwStatusControl("loadLockTheta",
-											"SMTR1610-401-LR:step:sp",
-											"SMTR1610-401-LR:step",
-											"SMTR1610-401-LR:moving",
+										"SMTR1610-401-LR:step:sp",
+										"SMTR1610-401-LR:step",
+										"SMTR1610-401-LR:moving",
 										"SMTR1610-401-LR:stop", this, 1);
 
 }
@@ -654,27 +654,25 @@ bool REIXSSpectrometer::stop()
 
 bool REIXSSpectrometer::loadSpectrometerCalibration(AMDatabase *db, int databaseId)
 {
-	// [originally] can't change the calibration if we're currently in a move.
-	/* No longer necessary -- this is okay now
-	if(currentMoveStep_ != MoveDone)
-		return false;
-		*/
-
-	if(calibration_.loadFromDb(db, databaseId)) {
-
-		// need to check grating indexes... Are they too big?
-		if(currentGrating_ >= calibration_.gratingCount()) {
-			currentGrating_ = -1;
-		}
-		if(specifiedGrating_ >= calibration_.gratingCount()) {
-			specifiedGrating_ = 0;
-		}
-
-		emit calibrationChanged();
-		return true;
+	if(databaseId >= 1) {
+		if(!calibration_.loadFromDb(db, databaseId))
+			return false;
+	}
+	else {
+		calibration_ = REIXSXESCalibration();
 	}
 
-	return false;
+	// need to check grating indexes... Are they too big?
+	if(currentGrating_ >= calibration_.gratingCount()) {
+		currentGrating_ = -1;
+	}
+	if(specifiedGrating_ >= calibration_.gratingCount()) {
+		specifiedGrating_ = 0;
+	}
+
+	emit calibrationChanged();
+	return true;
+
 }
 
 void REIXSSpectrometer::specifyFocusOffset(double focusOffsetMm)

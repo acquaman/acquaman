@@ -121,6 +121,8 @@ protected slots:
 
 	/// handles saving/importing the current file before moving on
 	void finalizeImport();
+	/// copies the raw data file into the correct location in the user's data folder, as well as any additionalFilePaths(). Updates the fileName() and additionalFilePaths() with the new locations. Called by finalizeImport(). Returns true on success.  The \c errorMessage will be filled with any error explanations if there is a problem.
+	bool copyRawDataFiles(QString& errorMessage);
 
 	/// called when the whole process is finished.
 	void onFinished();

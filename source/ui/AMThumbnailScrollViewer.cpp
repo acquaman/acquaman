@@ -532,7 +532,7 @@ void AMThumbnailScrollGraphicsWidget::mouseMoveEvent(QGraphicsSceneMouseEvent *e
 
 /// Re-implemented from QGraphicsItem to be a drag-and-drop source containing the database, table name and id of the object that this thumbnail represents.
 void AMThumbnailScrollGraphicsWidget::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
-	// setCursor(Qt::OpenHandCursor);
+	Q_UNUSED(event)// setCursor(Qt::OpenHandCursor);
 }
 
 #include <QUrl>

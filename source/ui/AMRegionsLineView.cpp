@@ -167,16 +167,23 @@ AMRegionsLineView::AMRegionsLineView(AMXASRegionsList *regions, QWidget *parent)
 }
 
 void AMRegionsLineView::handleDataChanged(QModelIndex topLeft, QModelIndex bottomRight){
+	Q_UNUSED(bottomRight)
 	if(topLeft.column() == 1 || topLeft.column() == 2 || topLeft.column() == 3){
 		redrawRegionsLine();
 	}
 }
 
 void AMRegionsLineView::handleRowsInsert(const QModelIndex &parent, int start, int end){
+	Q_UNUSED(parent)
+	Q_UNUSED(start)
+	Q_UNUSED(end)
 	redrawRegionsLine();
 }
 
 void AMRegionsLineView::handleRowsRemoved(const QModelIndex &parent, int start, int end){
+	Q_UNUSED(parent)
+	Q_UNUSED(start)
+	Q_UNUSED(end)
 	redrawRegionsLine();
 }
 

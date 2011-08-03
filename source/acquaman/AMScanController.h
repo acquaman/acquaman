@@ -78,6 +78,7 @@ public:
 	bool isFinished() const;
 	bool isFailed() const;
 
+	/// Generic pointer using polymorphism to the scan this instance is controlling.
 	virtual AMScan* scan() { return generalScan_; }
 
 signals:
@@ -161,9 +162,11 @@ protected:
 protected:
 	/// Configuration for this scan
 	AMScanConfiguration *generalCfg_;
+	/// The pointer ot the scan.
 	AMScan *generalScan_;
 
 private:
+	/// This class is in charge of determining if the new state is acceptable and if so, switching to that state.
 	bool changeState(ScanState newState);
 
 private:
@@ -177,33 +180,49 @@ private:
 	// unused: AMScan* pScan_() {return *_pScan_;}
 };
 
+/*!
+  The AMScanControllerSupervisor is a singleton class that acts as the manager for the scan controllers.  It maintains the single scan controller that is active and doesn't
+  allow others to be created while the current one is active.
+  */
 class AMScanControllerSupervisor : public QObject
 {
 	Q_OBJECT
 public:
+	/// Accessor method for the supervisor.  If it is the first time this is called it calls the protected constructor and returns the newly created supervisor.  Otherwise, it returns the existing pointer.
 	static AMScanControllerSupervisor* scanControllerSupervisor();
+	/// Method that deletes the supervisor and resets it if it has been created.
 	static void releaseScanControllerSupervisor();
 
 	virtual ~AMScanControllerSupervisor();
 
+	/// Returns a pointer to the current scan controller. If there is no valid scan controller then this method returns 0.
 	AMScanController* currentScanController();
 
 public slots:
+	/// This sets the current scan controller to newController if the supervisor currently isn't running any other controllers.  If it is, then this function will return false.
 	bool setCurrentScanController(AMScanController *newController);
+	/// This deletes the current scan controller if one exists.  If there isn't a controller to delete the method returns 0.
 	bool deleteCurrentScanController();
 
 signals:
+	/// Notifier that the current scan controller has been created.
 	void currentScanControllerCreated();
+	/// Notifier that the current scan controller has be deleted.
 	void currentScanControllerDestroyed();
+	/// Notifier that the current scan controller has been successfully started.
 	void currentScanControllerStarted();
 
 protected slots:
+	/// Slot that handles the clean up procedure once a scan controller has finished.  Handles deleting the scan controller, removing the signals, and resetting the state for a new scan controller to be added.
 	void onCurrentScanControllerFinished();
 
 protected:
+	/// Protected constructor.  Only called once by the method scanControllerSupervisor().
 	AMScanControllerSupervisor(QObject *parent = 0);
+	/// The pointer to the instance.
 	static AMScanControllerSupervisor *instance_;
 
+	/// Pointer to the current scan controller.
 	AMScanController *currentScanController_;
 };
 

@@ -121,6 +121,7 @@ void SGMAppController::shutdown() {
 
 
 void SGMAppController::onCurrentPaneChanged(QWidget *pane) {
+	Q_UNUSED(pane)
 }
 
 void SGMAppController::onSGMBeamlineConnected(){

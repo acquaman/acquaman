@@ -29,7 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QApplication>
 
 AMBeamlineScanAction::AMBeamlineScanAction(AMScanConfiguration *cfg, QObject *parent) :
-		AMBeamlineActionItem(true, parent)
+	AMBeamlineActionItem(true, parent)
 {
 	cfg_ = cfg;
 	if(cfg_){
@@ -79,9 +79,9 @@ void AMBeamlineScanAction::start(){
 		ctrl_ = cfg_->createController();
 		if(!ctrl_) {
 			AMErrorMon::report(AMErrorReport(this,
-					AMErrorReport::Alert,
-					AMBEAMLINEACTIONITEM_CANT_CREATE_CONTROLLER,
-					"Error, could not create scan controller. Please report this bug to the Acquaman developers."));
+											 AMErrorReport::Alert,
+											 AMBEAMLINEACTIONITEM_CANT_CREATE_CONTROLLER,
+											 "Error, could not create scan controller. Please report this bug to the Acquaman developers."));
 			setFailed(true, AMBEAMLINEACTIONITEM_CANT_CREATE_CONTROLLER);
 			return;
 		}
@@ -89,9 +89,9 @@ void AMBeamlineScanAction::start(){
 		if( !AMScanControllerSupervisor::scanControllerSupervisor()->setCurrentScanController(ctrl_) ){
 			delete ctrl_;
 			AMErrorMon::report(AMErrorReport(this,
-					AMErrorReport::Alert,
-					AMBEAMLINEACTIONITEM_CANT_SET_CURRENT_CONTROLLER,
-					"Error, could not set current scan controller. Please report this bug to the Acquaman developers."));
+											 AMErrorReport::Alert,
+											 AMBEAMLINEACTIONITEM_CANT_SET_CURRENT_CONTROLLER,
+											 "Error, could not set current scan controller. Please report this bug to the Acquaman developers."));
 			setFailed(true, AMBEAMLINEACTIONITEM_CANT_SET_CURRENT_CONTROLLER);
 			return;
 		}
@@ -111,9 +111,9 @@ void AMBeamlineScanAction::start(){
 	connect(ctrl_, SIGNAL(initialized()), this, SLOT(onScanInitialized()));
 	if(!ctrl_->initialize()){
 		AMErrorMon::report(AMErrorReport(this,
-				AMErrorReport::Alert,
-				AMBEAMLINEACTIONITEM_CANT_INITIALIZE_CONTROLLER,
-				"Error, could not initialize scan controller. Please report this bug to the Acquaman developers."));
+										 AMErrorReport::Alert,
+										 AMBEAMLINEACTIONITEM_CANT_INITIALIZE_CONTROLLER,
+										 "Error, could not initialize scan controller. Please report this bug to the Acquaman developers."));
 		delete ctrl_;
 		setFailed(true, AMBEAMLINEACTIONITEM_CANT_INITIALIZE_CONTROLLER);
 		return;
@@ -148,15 +148,16 @@ void AMBeamlineScanAction::initialize(){
 }
 
 void AMBeamlineScanAction::delayedStart(bool ready){
+	Q_UNUSED(ready)
 	start();
 }
 
 void AMBeamlineScanAction::onScanInitialized(){
 	if(!ctrl_->start()){
 		AMErrorMon::report(AMErrorReport(this,
-				AMErrorReport::Alert,
-				AMBEAMLINEACTIONITEM_CANT_START_CONTROLLER,
-				"Error, could not start scan controller. Please report this bug to the Acquaman developers."));
+										 AMErrorReport::Alert,
+										 AMBEAMLINEACTIONITEM_CANT_START_CONTROLLER,
+										 "Error, could not start scan controller. Please report this bug to the Acquaman developers."));
 		delete ctrl_;
 		setFailed(true, AMBEAMLINEACTIONITEM_CANT_START_CONTROLLER);
 		return;
@@ -195,7 +196,7 @@ void AMBeamlineScanAction::onConfigurationChanged(){
 }
 
 AMBeamlineScanActionView::AMBeamlineScanActionView(AMBeamlineScanAction *scanAction, int index, QWidget *parent) :
-		AMBeamlineActionItemView(scanAction, index, parent)
+	AMBeamlineActionItemView(scanAction, index, parent)
 {
 	index_ = index;
 	cancelLatch_ = false;
@@ -245,11 +246,11 @@ AMBeamlineScanActionView::AMBeamlineScanActionView(AMBeamlineScanAction *scanAct
 	setLayout(hl_);
 
 	/*
-	setAutoFillBackground(true);
-	QPalette newPalette(palette());
-	newPalette.setColor(QPalette::Window, QColor(255, 255, 255));
-	setPalette(newPalette);
-	*/
+ setAutoFillBackground(true);
+ QPalette newPalette(palette());
+ newPalette.setColor(QPalette::Window, QColor(255, 255, 255));
+ setPalette(newPalette);
+ */
 }
 
 void AMBeamlineScanActionView::setIndex(int index){
@@ -390,8 +391,14 @@ void AMBeamlineScanActionView::onPlayPauseButtonClicked(){
 #include "ui/AMScanConfigurationView.h"
 
 void AMBeamlineScanActionView::mouseDoubleClickEvent(QMouseEvent *){
-	if(configurationView_ == 0)
+	// if we don't have a configuration view yet, try to create one.  (This might fail, if no default view is defined for this scan configuration.)
+	if(!configurationView_) {
 		configurationView_ = scanAction_->cfg()->createView();
-	configurationView_->setWindowModality(Qt::WindowModal);
-	configurationView_->show();
+	}
+
+	// if we got one, show it:
+	if(configurationView_) {
+		configurationView_->setWindowModality(Qt::WindowModal);
+		configurationView_->show();
+	}
 }

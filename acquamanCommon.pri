@@ -362,8 +362,8 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMLinePropertyEditor.h \
 	source/ui/AMImagePropertyEditor.h \
 	source/beamline/CLS/CLSSynchronizedDwellTime.h \
-	source/dataman/AMXYScatterPVDataSource.h
-#	source/beamline/AMCompositeControl.h
+	source/dataman/AMXYScatterPVDataSource.h \
+	source/beamline/AMCompositeControl.h
 
 CONFIG(mobility) {
 HEADERS +=	source/ui/AMCrosshairOverlayVideoWidget.h \
@@ -598,8 +598,8 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMLinePropertyEditor.cpp \
 	source/ui/AMImagePropertyEditor.cpp \
 	source/beamline/CLS/CLSSynchronizedDwellTime.cpp \
-	source/dataman/AMXYScatterPVDataSource.cpp
-	#source/beamline/AMCompositeControl.cpp
+	source/dataman/AMXYScatterPVDataSource.cpp \
+	source/beamline/AMCompositeControl.cpp
 
 CONFIG(mobility) {
 SOURCES +=	source/ui/AMOverlayVideoWidget.cpp \

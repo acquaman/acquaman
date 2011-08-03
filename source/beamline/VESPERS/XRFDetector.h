@@ -111,16 +111,9 @@ public:
 public slots:
 
 	/// Erases the current spectrum and starts collecting data.
-	void start()
-	{
-		timer_.stop();
-
-		startPV_->setValue(1);
-		//for (int i = 0; i < elements_; i++)
-			//startPV_.at(i)->setValue(1);
-	}
+	void start() { timer_.stop(); startPV_->setValue(1); }
 	/// Stops collection of data.
-	void stop() { stopPV_->setValue(1);/*for (int i = 0; i < elements_; i++) stopPV_.at(i)->setValue(1);*/ }
+	void stop() { stopPV_->setValue(1); }
 	/// Set the accumulation time.
 	void setTime(double time);
 	/// Set the maximum energy of the detector.  \c energy is in eV.
@@ -176,6 +169,8 @@ public slots:
 	void setDescription(const QString &description) { XRFDetectorInfo::setDescription(description); }
 	/// Adds a region of interest.  The new ROI is appended to the end of the list.  Returns whether the addition was successful or not; it will only fail if there are no longer any ROIs to place values in.
 	bool addRegionOfInterest(XRFElement *el, QString line);
+	/// Adds a region of interest.  If propogateToDetector is true, then this is the same as addRegionOfInterest. If false, then only the info list is updated.  The reason for the distinction is when we are reading the detector to determine existing regions of interest rather than looking at the ones that have been created from within the program.
+	bool addRegionOfInterest(XRFElement *el, QString line, bool propogateToDetector);
 	/// Removes a region of interest.  Uses the name of the ROI to find and remove it.  Returns whether the remove was successful or not.
 	bool removeRegionOfInterest(XRFElement *el, QString line);
 	/// Clears the list of ROIs and clears the info list.
@@ -277,7 +272,7 @@ protected:
 	/// Timer used to periodically update the ROI lists.
 	QTimer timer_;
 
-	// The PVs.  They are all lists because the detector could have more than one element.
+	// The PVs.  They are all lists because the detector could have more than one element.  Start and stop are special because naming conventions didn't allow for the correct behaviour.
 	/// The status of the scan.
 	QList<AMProcessVariable *> statusPV_;
 	/// The spectra refresh rate.
@@ -298,9 +293,9 @@ protected:
 	QList<AMProcessVariable *> icrPV_;
 	/// The output count rate.
 	QList<AMProcessVariable *> ocrPV_;
-	/// The start control.
+	/// The start PV.
 	AMProcessVariable * startPV_;
-	/// The stop control.
+	/// The stop PV.
 	AMProcessVariable * stopPV_;
 	/// The spectra.
 	QList<AMProcessVariable *> spectraPV_;
