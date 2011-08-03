@@ -169,6 +169,8 @@ public slots:
 	void setDescription(const QString &description) { XRFDetectorInfo::setDescription(description); }
 	/// Adds a region of interest.  The new ROI is appended to the end of the list.  Returns whether the addition was successful or not; it will only fail if there are no longer any ROIs to place values in.
 	bool addRegionOfInterest(XRFElement *el, QString line);
+	/// Adds a region of interest.  If propogateToDetector is true, then this is the same as addRegionOfInterest. If false, then only the info list is updated.  The reason for the distinction is when we are reading the detector to determine existing regions of interest rather than looking at the ones that have been created from within the program.
+	bool addRegionOfInterest(XRFElement *el, QString line, bool propogateToDetector);
 	/// Removes a region of interest.  Uses the name of the ROI to find and remove it.  Returns whether the remove was successful or not.
 	bool removeRegionOfInterest(XRFElement *el, QString line);
 	/// Clears the list of ROIs and clears the info list.
