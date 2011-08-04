@@ -326,6 +326,42 @@ bool XRFDetector::addRegionOfInterest(XRFElement *el, QString line)
 	return true;
 }
 
+bool XRFDetector::addRegionOfInterest(XRFElement *el, QString line, bool propogateToDetector)
+{
+	if (propogateToDetector)
+		return addRegionOfInterest(el, line);
+
+	else {
+
+		// No more ROIs.
+		if (roiInfoList()->count() == roiList().size())
+			return false;
+
+		for (int i = 0; i < roiList_.size(); i++){
+
+			if (roiList_.at(i)->name().compare(el->symbol()+" "+GeneralUtilities::removeGreek(line)) == 0){
+
+				AMROIInfo roi(roiList_.at(i)->toInfo());
+
+				if (((int)roi.energy()) == -1){
+
+					double energy = el->lineEnergy(line);
+					roi.setEnergy(energy);
+					roiList_[i]->setEnergy(energy);
+				}
+
+				roiInfoList()->append(roi);
+				setROIList(*roiInfoList());
+				emit addedRegionOfInterest(roi);
+
+				return true;
+			}
+		}
+
+		return false;
+	}
+}
+
 bool XRFDetector::removeRegionOfInterest(XRFElement *el, QString line)
 {
 	int indexOfRemoved = roiInfoList()->indexOf(el->symbol()+" "+GeneralUtilities::removeGreek(line));
