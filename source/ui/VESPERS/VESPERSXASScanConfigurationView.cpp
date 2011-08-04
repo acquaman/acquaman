@@ -9,6 +9,9 @@
 #include <QButtonGroup>
 #include <QRadioButton>
 
+#include "beamline/VESPERS/VESPERSIonChamber.h"
+#include "ui/VESPERS/VESPERSIonChamberView.h"
+
 VESPERSXASScanConfigurationView::VESPERSXASScanConfigurationView(VESPERSXASScanConfiguration *config, QWidget *parent)
 	: AMScanConfigurationView(parent)
 {
@@ -44,6 +47,11 @@ VESPERSXASScanConfigurationView::VESPERSXASScanConfigurationView(VESPERSXASScanC
 	QFormLayout *scanNameLayout = new QFormLayout;
 	scanNameLayout->addRow("Scan Name:", scanName_);
 
+	/// THIS IS A TEST.
+	VESPERSIonChamber *ion = new VESPERSIonChamber("Pre-KB", "PS1607-202:c1:Voltage", "AMP1607-204", "BL1607-B2-1:mcs07:fbk", this);
+	VESPERSIonChamberView *ionView = new VESPERSIonChamberView(ion);
+	/// END OF TEST.
+
 	QGridLayout *contentsLayout = new QGridLayout;
 	contentsLayout->addWidget(regionsLineView_, 0, 0, 1, 4, Qt::AlignCenter);
 	contentsLayout->addWidget(regionsView_, 1, 0, 1, 3);
@@ -54,6 +62,7 @@ VESPERSXASScanConfigurationView::VESPERSXASScanConfigurationView(VESPERSXASScanC
 	configViewLayout->addWidget(frame);
 	configViewLayout->addStretch();
 	configViewLayout->addLayout(contentsLayout);
+	configViewLayout->addWidget(ionView);
 	configViewLayout->addStretch();
 
 	setLayout(configViewLayout);

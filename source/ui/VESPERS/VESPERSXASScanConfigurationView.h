@@ -25,6 +25,7 @@ public:
 protected slots:
 	/// Handles setting the name of the configuration from the line edit.
 	void onScanNameEdited() { config_->setName(scanName_->text()); }
+
 protected:
 	/// Pointer to the specific scan config the view is modifying.
 	VESPERSXASScanConfiguration *config_;
@@ -36,6 +37,8 @@ protected:
 
 	/// Line edit for changing the name of the scan.
 	QLineEdit *scanName_;
+
+
 };
 
 #endif // VESPERSXASSCANCONFIGURATIONVIEW_H
