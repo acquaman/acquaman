@@ -25,10 +25,10 @@ VESPERSIonChamberView::VESPERSIonChamberView(VESPERSIonChamber *ionChamber, QWid
 	connect(ionChamber_, SIGNAL(countsChanged(double)), count, SLOT(setNum(double)));
 
 	QHBoxLayout *layout = new QHBoxLayout;
-	layout->addWidget(name);
-	layout->addWidget(value_);
-	layout->addWidget(units_);
-	layout->addWidget(count);
+	layout->addWidget(name, 0, Qt::AlignCenter);
+	layout->addWidget(value_, 0, Qt::AlignCenter);
+	layout->addWidget(units_, 0, Qt::AlignCenter);
+	layout->addWidget(count, 0, Qt::AlignCenter);
 
 	setLayout(layout);
 }

@@ -47,7 +47,8 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
 	source/util/VESPERS/VortexDetectorStatusHelper.h \
     source/beamline/VESPERS/VESPERSIonChamberCalibration.h \
     source/beamline/VESPERS/VESPERSIonChamber.h \
-    source/ui/VESPERS/VESPERSIonChamberView.h
+    source/ui/VESPERS/VESPERSIonChamberView.h \
+    source/ui/VESPERS/VESPERSIonChamberCalibrationView.h
 
 SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/application/VESPERS/VESPERSMain.cpp \
@@ -92,7 +93,8 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/util/VESPERS/VortexDetectorStatusHelper.cpp \
     source/beamline/VESPERS/VESPERSIonChamberCalibration.cpp \
     source/beamline/VESPERS/VESPERSIonChamber.cpp \
-    source/ui/VESPERS/VESPERSIonChamberView.cpp
+    source/ui/VESPERS/VESPERSIonChamberView.cpp \
+    source/ui/VESPERS/VESPERSIonChamberCalibrationView.cpp
 
 RESOURCES += \
 	source/ui/VESPERS/EndstationPictures.qrc \

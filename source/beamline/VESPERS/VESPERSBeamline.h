@@ -29,6 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/VESPERS/SampleStageControl.h"
 #include "beamline/VESPERS/VESPERSValveGroupControl.h"
 #include "beamline/VESPERS/PIDLoopControl.h"
+#include "beamline/VESPERS/VESPERSIonChamberCalibration.h"
 
 #include "util/AMErrorMonitor.h"
 
@@ -77,6 +78,12 @@ public:
 	AMDetectorSet *ionChambers() const { return ionChambers_; }
 
 	// Accessing control elements:
+
+	// Ion chamber calibration.
+	/// Returns the ion chamber calibration.  This is used for changing the high voltage and sensitivity of the ion chambers.
+	VESPERSIonChamberCalibration *ionChamberCalibration() const { return ionChamberCalibration_; }
+
+	// End of Ion chamber calibration.
 
 	// Pressure
 	/// Returns the pressure control for Front End section 1.
@@ -476,6 +483,11 @@ protected:
 	AMDetectorSet *ionChambers_;
 
 	// End detector sets.
+
+	// Ion chamber calibration.
+	VESPERSIonChamberCalibration *ionChamberCalibration_;
+
+	// End of Ion chamber calibration.
 
 	// Beamline General.
 	// Pressure controls.
