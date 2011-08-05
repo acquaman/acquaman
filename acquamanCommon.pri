@@ -73,8 +73,8 @@ linux-g++-64 {
 	MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/src
 
 	# GSL Dependencies
-	GSL_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/gsl-install/include
-	GSL_LIB = -L$$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/gsl-install/lib -lgsl
+	GSL_INCLUDE_DIR = /home/beamline/tools/gsl/gsl-1.14-install/include
+	GSL_LIB = -L/home/beamline/tools/gsl/gsl-1.14-install/lib -lgsl
 	GSL_CBLAS_LIB = -lgslcblas
 
 	# LibXML Dependencies (required by dacq library)
@@ -84,10 +84,10 @@ linux-g++-64 {
 
 QT += core gui sql opengl
 
-# video using Multimedia module from QtMobility, if we have it
-#CONFIG(mobility) {
-#	MOBILITY += multimedia
-#}
+# video using Multimedia module from QtMobility, if we have it. (This will only be activated if you set the CONFIG += mobility line at the top of this file)
+CONFIG(mobility) {
+	MOBILITY += multimedia
+}
 
 DESTDIR = build
 DEPENDPATH += . source
@@ -142,7 +142,7 @@ linux-g++-64 {
 }
 
 
-# Source Files (Acquaman Common)
+# Source Files (Acquaman Framework Common)
 #######################
 
 HEADERS += ../MPlot/src/MPlot/MPlot.h \

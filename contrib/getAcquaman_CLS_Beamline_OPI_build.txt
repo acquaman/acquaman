@@ -1,8 +1,14 @@
-#Building Acquaman for beamline OPI machines.
+# Building Acquaman for beamline OPI machines.
+# July 2011.  mark.boots@usask.ca
+###############################################
 
-#Build Host: VMSL54
+# Build Host: At the CLS, log into VMSL54.clsi.ca, which is the appropriate compile machine for programs that will run on 64-bit Scientific Linux 5.4 (like Beamline OPI machines).
+
+ssh [you]@vmsl54
 
 #1.  Setup environment: (for Qt 4.7.3, built for beamline OPIs)
+
+# Acquaman is based on Qt 4.  At the CLS, versions of Qt are pre-built in /home/beamline/tools/qt.  The following steps will setup your library paths to find the Qt libraries, and put 'qmake' at the front of your path.
 
 # If your shell is csh (default on CLS machines)
 > source /home/beamline/tools/qt/startup/startup.qt-4.7.3.csh
@@ -14,43 +20,94 @@
 
 # If you want a static build instead, use startup.qt-4.7.3-static.sh or startup.qt-4.7.3-static.csh
 
-#Check:
+# Check that it worked:
 
-> qmake --version
+qmake --version
+
+# should produce:
+
 QMake version 2.01a
 Using Qt version 4.7.3 in /home/beamline/tools/qt/qt-4.7.3-SL54-x86_64/lib
 
 
 
-#2.  Get Acquaman (requires git)
+#2.  Get Acquaman framework code
+
+# Note: The Acquaman and MPlot working folders should be placed in $HOME/dev to keep things consistent in our build rules.  If you don't want them here, you can always make a symlink to point $HOME/dev at the place where you want to actually keep the code.
 
 mkdir dev
 cd dev
 
+# Option 1a: clone using git, with read-write access the repository. You should do this if you intend to make changes and commit changes to the framework code.
+
+# -- Create an account at https://github.com/signup/free
+# -- Have someone add you to the Acquaman organization
+# -- Upload your SSH public key to Github so it can recognize your git connections.
+	-- If you don't have a public/private key pair (id_dsa and id_dsa.pub, or id_rsa and id_rsa.pub) in your ~/.ssh folder, you can create one by running "ssh-keygen" in a terminal.
+	-- Copy the contents of your id_rsa.pub or id_dsa.pub key, and paste it into the form at https://github.com/account/ssh
+		-- If you want more details on how SSH public/private key authentication is used by Git to authenticate you without a password, see http://help.github.com/linux-set-up-git/
+
+
+# -- Now you're ready to use git.  To use the version we've installed on VMSL54, you'll need to add "/home/beamline/tools/git/bin" to your $PATH.
+
+# Finally:
 git clone git@github.com:acquaman/acquaman.git
 
-#Or download from site: https://github.com/acquaman/acquaman/tarball/master
+# Now, you should have an 'acquaman' folder in /home/[you]/dev
+
+# Option 1b: clone using git, with read-only access to the repository.  You should do this only if you don't intend to upload any changes to the central repository.
+
+# The process is the same as above, but you don't need to create a Github account and have someone add you to the Acquaman organization.
+
+git clone git://github.com/acquaman/acquaman.git
 
 
-#3. Get MPlot
+# Option 2: Simply download the source from Github:
+
+wget https://github.com/acquaman/acquaman/tarball/master
+
+
+#3. Get MPlot 
+
+# MPlot is the plotting library used by most Acquaman programs.  It's developed as a separate project, and should go into an 'MPlot' folder beside the acquaman folder.  Again, there are three options for getting it (assuming you've followed the instructions above for setting up git.)
+
+# Option 1a: Git with read-write access:
 
 git clone git@github.com:acquaman/MPlot.git
 
+# Option 1b: Git with read-only access:
 
-#4. Get GSL:
+git clone git://github.com/acquaman/MPlot.git
+
+# Option 2: Simply download the source from Github:
+
+wget https://github.com/acquaman/MPlot/tarball/master
+
+
+
+
+#4. Get GSL: (Not necessary when building at the CLS on VMSL54)
+
+# GSL is the Gnu Scientific Library, used by Acquaman for some math operations and curve fitting. At the CLS, it is installed in /home/beamline/tools/gsl/gsl-1.14-install, and you shouldn't need to deal with it.  If you're not at the CLS, this should let you build a local version pretty quickly; just be sure to update the GSL_INCLUDE_DIR and GSL_LIB and GSL_CBLAS_LIB paths in acquamanCommon.pri.
 
 cd contrib
 wget http://mirror.csclub.uwaterloo.ca/gnu/gsl/gsl-1.14.tar.gz
 tar -zxf gsl-1.14.tar.gz 
 cd gsl-1.14
-./configure --disable-shared --prefix=/home/reixs/mark/dev/acquaman/contrib/gsl-install
+./configure --disable-shared --prefix=/home/[you]/dev/acquaman/contrib/gsl-install
 make
 make install
 
 
-#5. Run qmake on your project
+#5. Run qmake on your Qt project
 
-qmake REIXSAcquaman.pro
+qmake REIXSAcquaman.pro [or whatever yours is]
+
+# The master project acquaman_suite.pro will take a (possibly) long time to compile, but it will build all current existing Acquaman-based projects, including the test suites.
+
+# And build it!
 make
+
+# The final executable will be found in the 'build' folder.
 
 
