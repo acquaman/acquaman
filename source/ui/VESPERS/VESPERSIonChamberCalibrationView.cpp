@@ -13,7 +13,7 @@ VESPERSIonChamberCalibrationView::VESPERSIonChamberCalibrationView(VESPERSIonCha
 	QGridLayout *calibrationLayout = new QGridLayout;
 	calibrationLayout->addWidget(new QLabel("Name"), 0, 0, Qt::AlignCenter);
 	calibrationLayout->addWidget(new QLabel("Sensitivity Value and Units"), 0, 1, 1, 2, Qt::AlignCenter);
-	calibrationLayout->addWidget(new QLabel("Counts"), 0, 3, Qt::AlignCenter);
+	calibrationLayout->addWidget(new QLabel("Voltage (V)"), 0, 3, Qt::AlignCenter);
 
 	VESPERSIonChamberView *temp;
 

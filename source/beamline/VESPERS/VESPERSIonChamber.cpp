@@ -1,6 +1,6 @@
 #include "VESPERSIonChamber.h"
 
-VESPERSIonChamber::VESPERSIonChamber(QString name, QString hvName, QString sensitivityBaseName, QString countName, QObject *parent)
+VESPERSIonChamber::VESPERSIonChamber(QString name, QString hvName, QString sensitivityBaseName, QString voltageName, QObject *parent)
 	: QObject(parent)
 {
 	name_ = name;
@@ -8,12 +8,12 @@ VESPERSIonChamber::VESPERSIonChamber(QString name, QString hvName, QString sensi
 	hv_ = new AMProcessVariable(hvName, true, this);
 	sensitivityValue_ = new AMProcessVariable(sensitivityBaseName+":sens_num.VAL", true, this);
 	sensitivityUnits_ = new AMProcessVariable(sensitivityBaseName+":sens_unit.VAL", true, this);
-	counts_ = new AMProcessVariable(countName, true, this);
+	voltage_ = new AMProcessVariable(voltageName, true, this);
 
 	connect(hv_, SIGNAL(valueChanged(int)), this, SIGNAL(highVoltageChanged(int)));
 	connect(sensitivityValue_, SIGNAL(valueChanged(int)), this, SLOT(onSensitivityValueChanged(int)));
 	connect(sensitivityUnits_, SIGNAL(valueChanged(QString)), this, SIGNAL(sensitivityUnitsChanged(QString)));
-	connect(counts_, SIGNAL(valueChanged(double)), this, SIGNAL(countsChanged(double)));
+	connect(voltage_, SIGNAL(valueChanged(double)), this, SIGNAL(voltageChanged(double)));
 }
 
 void VESPERSIonChamber::onSensitivityValueChanged(int index)

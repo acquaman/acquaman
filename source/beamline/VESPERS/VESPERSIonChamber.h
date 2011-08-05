@@ -17,9 +17,9 @@ public:
 	  \param name is the name of the ion chamber.
 	  \param hvName is the full name of the PV for the high voltage.
 	  \param sensitivityBaseName is the base name for the sensitivity value and units PV (ex: AMP1607-202).
-	  \param countName is the full PV name for the count rate feedback.
+	  \param countName is the full PV name for the voltage feedback.
 	  */
-	explicit VESPERSIonChamber(QString name, QString hvName, QString sensitivityBaseName, QString countName, QObject *parent = 0);
+	explicit VESPERSIonChamber(QString name, QString hvName, QString sensitivityBaseName, QString voltageName, QObject *parent = 0);
 
 	/// Returns the name of the ion chamber.
 	QString name() const { return name_; }
@@ -29,8 +29,8 @@ public:
 	int sensitivityValue() const { return sensitivityValue_->getInt(); }
 	/// Returns the units of the sensitivity.
 	QString sensitivityUnits() const { return sensitivityUnits_->getString(); }
-	/// Returns the count rate.
-	double counts() const { return counts_->getDouble(); }
+	/// Returns the voltage feedback.
+	double voltage() const { return voltage_->getDouble(); }
 
 signals:
 	/// Notifier that the high voltage has changed.  Passes the new value.
@@ -39,8 +39,8 @@ signals:
 	void sensitivityValueChanged(int);
 	/// Notifier that the sensitivity units have changed.  Passes the new value.
 	void sensitivityUnitsChanged(QString);
-	/// Notifier that the count have been updated.  Passes the new value.
-	void countsChanged(double);
+	/// Notifier that the voltage feedback has been updated.  Passes the new value.
+	void voltageChanged(double);
 
 public slots:
 	/// Sets the high voltage.
@@ -58,7 +58,7 @@ protected:
 	/// Determines if the new sensitivity value is acceptable.
 	bool sensitivityValueOkay(int value)
 	{
-		if (value >= 0 < value < 8)
+		if (value >= 0 && value < 8)
 			return true;
 
 		return false;
@@ -83,7 +83,7 @@ protected:
 	/// The process variable that holds the units of the sensitivity of the ion chamber.
 	AMProcessVariable *sensitivityUnits_;
 	/// The process variable that holds the counts of the ion chamber.
-	AMProcessVariable *counts_;
+	AMProcessVariable *voltage_;
 };
 
 #endif // VESPERSIONCHAMBER_H

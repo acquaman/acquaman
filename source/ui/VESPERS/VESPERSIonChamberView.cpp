@@ -21,14 +21,14 @@ VESPERSIonChamberView::VESPERSIonChamberView(VESPERSIonChamber *ionChamber, QWid
 	connect(units_, SIGNAL(currentIndexChanged(int)), this, SLOT(onUnitsComboBoxChanged(int)));
 	connect(ionChamber_, SIGNAL(sensitivityUnitsChanged(QString)), this, SLOT(onUnitsChanged(QString)));
 
-	QLabel *count = new QLabel(QString::number(ionChamber_->counts()));
-	connect(ionChamber_, SIGNAL(countsChanged(double)), count, SLOT(setNum(double)));
+	QLabel *voltage = new QLabel(QString::number(ionChamber_->voltage()));
+	connect(ionChamber_, SIGNAL(voltageChanged(double)), voltage, SLOT(setNum(double)));
 
 	QHBoxLayout *layout = new QHBoxLayout;
 	layout->addWidget(name, 0, Qt::AlignCenter);
 	layout->addWidget(value_, 0, Qt::AlignCenter);
 	layout->addWidget(units_, 0, Qt::AlignCenter);
-	layout->addWidget(count, 0, Qt::AlignCenter);
+	layout->addWidget(voltage, 0, Qt::AlignCenter);
 
 	setLayout(layout);
 }
