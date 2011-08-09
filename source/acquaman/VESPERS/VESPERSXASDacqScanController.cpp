@@ -189,7 +189,7 @@ bool VESPERSXASDacqScanController::setupSingleElementXAS()
 
 	/// In order to mimic the current configs, I've hardcoded all the names so that the file matches the reference file.  These should and will be migrated to proper maps of detectors and controls names.
 	// These will all likely change and be modified.
-	advAcq_->appendRecord("IOC1607-004:mca1.RO", true, false, 1);
+	advAcq_->appendRecord("IOC1607-004:mca1.R0", true, false, 1);
 	advAcq_->appendRecord("IOC1607-004:mca1.R1", true, false, 1);
 	advAcq_->appendRecord("IOC1607-004:mca1.R2", true, false, 1);
 	advAcq_->appendRecord("IOC1607-004:mca1.R3", true, false, 1);
@@ -237,7 +237,7 @@ bool VESPERSXASDacqScanController::setupFourElementXAS()
 
 	/// In order to mimic the current configs, I've hardcoded all the names so that the file matches the reference file.  These should and will be migrated to proper maps of detectors and controls names.
 	// These will all likely change and be modified.
-	advAcq_->appendRecord("dxp1607-B21-04:mcaCorrected.RO", true, false, 1);
+	advAcq_->appendRecord("dxp1607-B21-04:mcaCorrected.R0", true, false, 1);
 	advAcq_->appendRecord("dxp1607-B21-04:mcaCorrected.R1", true, false, 1);
 	advAcq_->appendRecord("dxp1607-B21-04:mcaCorrected.R2", true, false, 1);
 	advAcq_->appendRecord("dxp1607-B21-04:mcaCorrected.R3", true, false, 1);
