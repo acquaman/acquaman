@@ -2,8 +2,12 @@
 #include "beamline/VESPERS/VESPERSBeamline.h"
 #include "beamline/AMBeamlineActionsList.h"
 #include "dataman/AMUser.h"
+#include "analysis/AM1DExpressionAB.h"
 
 #include <QDir>
+
+// For test purposes.
+#include "beamline/AMSingleControlDetector.h"
 
 VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfiguration *cfg, QObject *parent)
 	: AMDacqScanController(cfg, parent)
@@ -13,6 +17,24 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 	xasScan_->setName(config_->name());
 	xasScan_->setScanConfiguration(config_);
 	xasScan_->setRunId(AMUser::user()->currentRunId());
+
+	// Hard coded for now.
+	AMDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
+
+	xasScan_->rawData()->addMeasurement(AMMeasurementInfo(*(ionChambers->detectorAt(2)->toInfo())));
+	xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), 0));
+
+	AMSingleControlDetector *xrf = new AMSingleControlDetector("RX", new AMReadOnlyPVControl("ROI", "dxp1607-B21-04:mcaCorrected.R0", this), AMDetector::RequestRead, this);
+
+	xasScan_->rawData()->addMeasurement(AMMeasurementInfo(*(xrf->toInfo())));
+	xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), 1));
+
+	AM1DExpressionAB* transmission = new AM1DExpressionAB("normalized");
+	transmission->setDescription("Normalized Transmission");
+	transmission->setInputDataSources(QList<AMDataSource *>() << xasScan_->rawDataSources()->at(0) << xasScan_->rawDataSources()->at(1));
+	transmission->setExpression("ROI/IonChamberSplit2");
+
+	xasScan_->addAnalyzedDataSource(transmission);
 }
 
 bool VESPERSXASDacqScanController::initializeImplementation()
@@ -82,12 +104,12 @@ bool VESPERSXASDacqScanController::startImplementation()
 
 	advAcq_->saveConfigFile("/home/hunterd/beamline/programming/acquaman/devConfigurationFiles/VESPERS/writeTest.cfg");
 
-	return false;//return AMDacqScanController::startImplementation();
+	return AMDacqScanController::startImplementation();
 }
 
 AMnDIndex VESPERSXASDacqScanController::toScanIndex(QMap<int, double> aeData)
 {
-	return AMnDIndex();
+	return AMnDIndex(xasScan_->rawData()->scanSize(0));
 }
 
 void VESPERSXASDacqScanController::onInitializationActionsSucceeded()

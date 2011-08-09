@@ -9,7 +9,6 @@
 #include <QButtonGroup>
 #include <QRadioButton>
 
-#include "beamline/VESPERS/VESPERSBeamline.h"
 #include "ui/VESPERS/VESPERSIonChamberCalibrationView.h"
 
 VESPERSXASScanConfigurationView::VESPERSXASScanConfigurationView(VESPERSXASScanConfiguration *config, QWidget *parent)
@@ -45,6 +44,7 @@ VESPERSXASScanConfigurationView::VESPERSXASScanConfigurationView(VESPERSXASScanC
 	scanName_ = new QLineEdit;
 	scanName_->setText("XAS-Scan");
 	connect(scanName_, SIGNAL(editingFinished()), this, SLOT(onScanNameEdited()));
+	onScanNameEdited();
 
 	QFormLayout *scanNameLayout = new QFormLayout;
 	scanNameLayout->addRow("Scan Name:", scanName_);

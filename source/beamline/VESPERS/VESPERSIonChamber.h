@@ -58,7 +58,7 @@ protected:
 	/// Determines if the new sensitivity value is acceptable.
 	bool sensitivityValueOkay(int value)
 	{
-		if (value >= 0 && value < 8)
+		if (value >= 0 && value <= 8)
 			return true;
 
 		return false;
