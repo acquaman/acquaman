@@ -182,10 +182,12 @@ bool SGMXASScanController::beamlineInitialize(){
 	tmpSetAction->setSetpoint(pCfg_()->trackingGroup());
 	initializationActions_->appendAction(0, tmpSetAction);
 
+//	initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
+/*
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->energy());
 	tmpAction->setSetpoint(pCfg_()->startEnergy());
 	initializationActions_->appendAction(0, tmpAction);
-
+*/
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerMode());
 	tmpAction->setSetpoint(0);
 	initializationActions_->appendAction(0, tmpAction);
@@ -212,7 +214,13 @@ bool SGMXASScanController::beamlineInitialize(){
 	}
 
 	initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
-	initializationActions_->appendAction(1, SGMBeamline::sgm()->createBeamOnActions());
+
+        tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->energy());
+        tmpAction->setSetpoint(pCfg_()->startEnergy());
+        initializationActions_->appendAction(1, tmpAction);
+
+	initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
+	initializationActions_->appendAction(2, SGMBeamline::sgm()->createBeamOnActions());
 
 	beamlineInitialized_ = true;
 	return beamlineInitialized_;

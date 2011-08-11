@@ -159,7 +159,7 @@ void SGMXASDacqScanController::onInitializationActionsSucceeded(){
 }
 
 void SGMXASDacqScanController::onInitializationActionsFailed(int explanation){
-	//qDebug() << "The actions list failed";
+	qDebug() << "The actions list failed";
 	setFailed();
 }
 
