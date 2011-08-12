@@ -18,7 +18,7 @@ void VESPERSBeamSelector::changeBeam(Beam beam)
 	if (beam_ == beam && isAtBeam(beam))
 		return;
 
-
+	/// Scan allow = false, then execute the move, then turn scan allow back on (if a Mono beam).
 }
 
 void VESPERSBeamSelector::determineBeam()

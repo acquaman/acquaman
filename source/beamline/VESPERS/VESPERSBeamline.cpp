@@ -202,7 +202,7 @@ void VESPERSBeamline::setupSampleStage()
 void VESPERSBeamline::setupEndstation()
 {
 	// The controls used for the control window.
-	ccdMotor_ = new CLSVMEMotor("CCD Motor", "SMTR1607-2-B21-18", "CCD motor", false, 1.0, 2.0, this);
+	ccdMotor_ = new CLSVMEMotor("CCD motor", "SMTR1607-2-B21-18", "CCD motor", false, 1.0, 2.0, this);
 	microscopeMotor_ = new CLSVMEMotor("Microscope motor", "SMTR1607-2-B21-17", "Microscope motor", false, 1.0, 2.0, this);
 	fourElMotor_ = new CLSVMEMotor("4-Element Vortex motor", "SMTR1607-2-B21-27", "4-Element Vortex motor", false, 1.0, 2.0, this);
 	singleElMotor_ = new CLSVMEMotor("1-Element Vortex motor", "SMTR1607-2-B21-15", "1-Element Vortex motor", false, 1.0, 2.0, this);
