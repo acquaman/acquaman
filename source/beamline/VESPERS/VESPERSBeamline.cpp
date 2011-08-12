@@ -422,6 +422,7 @@ void VESPERSBeamline::setupControlSets()
 void VESPERSBeamline::setupMono()
 {
 	energyRelative_ = new AMPVwStatusControl("Relative Energy Movement", "07B2_Mono_SineB_delE", "07B2_Mono_SineB_delE", "SMTR1607-1-B20-20:status", "SMTR1607-1-B20-20:stop", this, 0.1, 2.0, new AMControlStatusCheckerDefault(0), 1);
+	mono_ = new VESPERSMonochromator(this);
 }
 
 void VESPERSBeamline::pressureConnected(bool connected)

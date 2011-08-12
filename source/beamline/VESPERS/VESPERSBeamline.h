@@ -30,6 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/VESPERS/VESPERSValveGroupControl.h"
 #include "beamline/VESPERS/PIDLoopControl.h"
 #include "beamline/VESPERS/VESPERSIonChamberCalibration.h"
+#include "beamline/VESPERS/VESPERSMonochromator.h"
 
 #include "util/AMErrorMonitor.h"
 
@@ -84,6 +85,12 @@ public:
 	VESPERSIonChamberCalibration *ionChamberCalibration() const { return ionChamberCalibration_; }
 
 	// End of Ion chamber calibration.
+
+	// The monochromator abstraction.
+	/// Returns the monochromator abstraction for the VESPERS beamline.
+	VESPERSMonochromator *mono() const { return mono_; }
+
+	// End of monochromator abstraction.
 
 	// Pressure
 	/// Returns the pressure control for Front End section 1.
@@ -488,6 +495,11 @@ protected:
 	VESPERSIonChamberCalibration *ionChamberCalibration_;
 
 	// End of Ion chamber calibration.
+
+	// VESPERS monochromator.
+	VESPERSMonochromator *mono_;
+
+	// End of VESPERS monochromator
 
 	// Beamline General.
 	// Pressure controls.
