@@ -496,6 +496,8 @@ void AMBeamlineScanActionView::onMoveDownButtonClicked(){
 void AMBeamlineScanActionView::mouseDoubleClickEvent(QMouseEvent *){
 	if(configurationView_ == 0)
 		configurationView_ = scanAction_->cfg()->createView();
+	if(configurationView_ == 0)
+		return;
 	if(scanAction_->hasFinished())
 		configurationView_->setDisabled(true);
 	configurationView_->setWindowModality(Qt::WindowModal);

@@ -37,6 +37,9 @@ SGMPeriodicTable::SGMPeriodicTable(QObject *parent) :
 	tmpElementInfo->addFastScanParameters(new SGMFastScanParameters(tmpElementInfo->element()->name(),
 									tmpElementInfo->sgmEdgeInfos().at(tmpElementInfo->sgmEdgeInfos().indexOfKey("K")),
 									5.0, 24000, 5.0, 200, 4000 ));
+	tmpElementInfo->addFastScanParameters(new SGMFastScanParameters(tmpElementInfo->element()->name(),
+									tmpElementInfo->sgmEdgeInfos().at(tmpElementInfo->sgmEdgeInfos().indexOfKey("K")),
+									20.0, 4800, 20.0, 200, 820));
 	sgmPeriodicTableInfo_.append(tmpElementInfo, tmpElementInfo->element());
 
 	//NITROGEN INFO
