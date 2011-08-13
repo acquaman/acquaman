@@ -250,7 +250,13 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 
 
 	if(spectraFile != ""){
-		QFile sf(spectraFile);
+		QFileInfo spectraFileInfo;
+		spectraFileInfo.setFile(spectraFile);
+		if(spectraFileInfo.isRelative())
+			spectraFileInfo.setFile(AMUserSettings::userDataFolder + "/" + spectraFile);
+		qDebug() << "SPECTRA FILE IS " << spectraFile;
+		//QFile sf(spectraFile);
+		QFile sf(spectraFileInfo.filePath());
 		if(!sf.open(QIODevice::ReadOnly)) {
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -1, "SGM2004FileLoader parse error while loading scan data from file. Missing SDD spectra file."));
 			return false;

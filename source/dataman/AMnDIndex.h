@@ -69,6 +69,8 @@ public:
 	AMnDIndex(int row, int col, int slice);
 	/// Create an index for 4D data
 	AMnDIndex(int i, int j, int k, int l);
+	/// Create an index for 5D data
+	AMnDIndex(int i, int j, int k, int l, int m);
 
 	/// Optimized for performance: create an index of the initial size \c dimension.  If \c initToZero is true, all the values are initialized to 0.
 	AMnDIndex(int dimension, bool initToZero);

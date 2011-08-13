@@ -38,21 +38,25 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMDataView::AMDataView(AMDatabase* database, QWidget *parent) :
 	QWidget(parent)
 {
+
 	db_ = database;
 	runId_ = experimentId_ = -1;
-
+	scansTableName_ = AMDbObjectSupport::tableNameForClass<AMScan>();
 	selectedUrlsUpdateRequired_ = true;
+
+	itemSize_ = 50;
 
 	setupUi(this);
 
 	// add additional UI components: the QGraphicsView and QGraphicsScene
+	////////////////////////////
 	gview_ = this->graphicsView;
 	gview_->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 	gview_->setAlignment(Qt::AlignLeft | Qt::AlignTop);
 
 	gscene_ = new AMSignallingGraphicsScene(this);
 	connect(gscene_, SIGNAL(selectionChanged()), this, SLOT(onScanItemsSelectionChanged()));
-	connect(gscene_, SIGNAL(doubleClicked(QPointF)), this, SLOT(onSceneDoubleClicked()));
+	connect(gscene_, SIGNAL(doubleClicked(QPointF)), this, SIGNAL(sceneDoubleClicked()));
 	gview_->setScene(gscene_);
 	gview_->setDragMode(QGraphicsView::RubberBandDrag);
 	gwidget_ = new AMLayoutControlledGraphicsWidget();
@@ -61,13 +65,11 @@ AMDataView::AMDataView(AMDatabase* database, QWidget *parent) :
 	sectionLayout_->setContentsMargins(0,0,0,0);
 	sectionLayout_->setSpacing(0);
 	gwidget_->setLayout(sectionLayout_);
-	// this refers to the QObject tree parent, not the QGraphicsItem tree parent
-	gwidget_->setParent(this);
-
+	gwidget_->setParent(this); 	// this refers to the QObject tree parent, not the QGraphicsItem tree parent
 	connect(gwidget_, SIGNAL(resized()), this, SLOT(adjustViewScrollableArea()));
 
-	// sectionLayout_->setAlignment();
-
+	// retrieve user name and set heading:
+	///////////////////////
 	retrieveUserName();
 	headingLabel_->setText(userName_ + "Data");
 
@@ -78,32 +80,33 @@ AMDataView::AMDataView(AMDatabase* database, QWidget *parent) :
 	viewModeButtonGroup_->addButton(viewModeB3_, AMDataViews::FlowView);
 	viewModeButtonGroup_->addButton(viewModeB4_, AMDataViews::DetailView);
 	viewModeB1_->setChecked(true);
-	connect(viewModeButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(setViewMode(int)));
 
+	// connect buttons
+	/////////////////////////////
+	connect(viewModeButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(setViewMode(int)));
 	connect(organizeModeBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onOrganizeModeBoxCurrentIndexChanged(int)));
 
-	connect(sizeSlider, SIGNAL(valueChanged(int)), this, SLOT(onItemSizeSliderChanged(int)));
-	connect(expandAllButton, SIGNAL(clicked()), this, SLOT(expandAll()));
-	connect(collapseAllButton, SIGNAL(clicked()), this, SLOT(collapseAll()));
 
-	connect(openSameEditorButton, SIGNAL(clicked()), this, SLOT(onCompareScansAction()));
-	connect(openSeparateEditorButton, SIGNAL(clicked()), this, SLOT(onEditScansAction()));
-	connect(exportButton, SIGNAL(clicked()), this, SLOT(onExportScansAction()));
+	// pick up database changes...
+	//////////////////////////////
+	connect(db_, SIGNAL(created(QString,int)), this, SLOT(onDatabaseItemCreatedOrRemoved(QString,int)), Qt::QueuedConnection);
+	connect(db_, SIGNAL(updated(QString,int)), this, SLOT(onDatabaseItemCreatedOrRemoved(QString,int)), Qt::QueuedConnection);
+	connect(db_, SIGNAL(removed(QString,int)), this, SLOT(onDatabaseItemCreatedOrRemoved(QString,int)), Qt::QueuedConnection);
+	connect(&afterDbChangedFnCall_, SIGNAL(executed()), this, SLOT(afterDatabaseItemChanged()));
 
-	// install organize mode options? Nope... we'll do that when showRun or showExperiment is called, in order to install the right ones.
 
 	// change this to change the default first view. (In this case, we show all runs)
 	viewMode_ = AMDataViews::ThumbnailView;
 	organizeMode_ = AMDataViews::OrganizeRuns;
-
 	runId_ = -3;
 	experimentId_ = -3;
+	viewRequiresRefresh_ = true;
+
+	// Default: show all runs:
 	showRun();
 
-
+	// size properly:
 	onResize();
-
-
 }
 
 
@@ -125,7 +128,7 @@ void AMDataView::retrieveUserName() {
 /// setup this view to show a specific run (or use \c runId = -1 to see all runs)
 void AMDataView::showRun(int runId) {
 
-	if(runId_ == runId && runOrExp_)
+	if(runId_ == runId && runOrExp_ && !viewRequiresRefresh_)
 		return;
 
 	gview_->verticalScrollBar()->setValue(0);
@@ -143,7 +146,7 @@ void AMDataView::showRun(int runId) {
 /// setup this view to show a specific experiment (or use \c experimentId = -1 to see all experiments)
 void AMDataView::showExperiment(int experimentId) {
 
-	if(experimentId == experimentId_ && !runOrExp_)
+	if(experimentId == experimentId_ && !runOrExp_ && !viewRequiresRefresh_)
 		return;
 
 	gview_->verticalScrollBar()->setValue(0);
@@ -210,17 +213,6 @@ void AMDataView::onOrganizeModeBoxCurrentIndexChanged(int newIndex) {
 // Called when the scene selection changes (useful for AMDataViewSectionThumbnailView)
 void AMDataView::onScanItemsSelectionChanged() {
 	selectedUrlsUpdateRequired_ = true;
-
-	if(numberOfSelectedItems() > 0) {
-		openSeparateEditorButton->setEnabled(true);
-		openSameEditorButton->setEnabled(true);
-		exportButton->setEnabled(true);
-	}
-	else {
-		openSeparateEditorButton->setEnabled(false);
-		openSameEditorButton->setEnabled(false);
-		exportButton->setEnabled(false);
-	}
 	emit selectionChanged();
 }
 
@@ -250,7 +242,7 @@ void AMDataView::updateSelectedUrls() const {
 		}
 
 	}
-		break;
+	break;
 
 	case AMDataViews::ListView: {
 		foreach(AMAbstractDataViewSection* s, sections_) {
@@ -258,7 +250,7 @@ void AMDataView::updateSelectedUrls() const {
 		}
 
 	}
-		break;
+	break;
 
 
 	default:
@@ -275,7 +267,7 @@ int AMDataView::numberOfSelectedItems() const
 
 	// selectedUrls_ isn't up to date.
 	switch(viewMode_) {
-		case AMDataViews::ThumbnailView:
+	case AMDataViews::ThumbnailView:
 		rv = gscene_->selectedItems().count();
 		break;
 
@@ -291,16 +283,12 @@ int AMDataView::numberOfSelectedItems() const
 	return rv;
 }
 
-void AMDataView::onSceneDoubleClicked() {
 
-	updateSelectedUrls();
-
-	if(selectedUrls_.count() > 0)
-		emit selectionActivated(selectedUrls_);
-}
 
 /// This function runs everytime showRun() or showExperiment() is called, or a change is made to the OrganizeMode or ViewMode.  It re-populates the view from scratch.
 void AMDataView::refreshView() {
+
+	viewRequiresRefresh_ = false;
 
 	// delete the old views:
 	foreach(QGraphicsLayoutItem* s, sections_)
@@ -329,7 +317,7 @@ void AMDataView::refreshView() {
 						userName_ + "Data",
 						"Showing all data",
 						QString(),
-						viewMode_, db_, true, gwidget_, effectiveWidth(), sizeSlider->value());
+						viewMode_, db_, true, gwidget_, effectiveWidth(), itemSize_);
 			connect(gview_->verticalScrollBar(), SIGNAL(valueChanged(int)), section, SLOT(layoutHeaderItem()));
 
 			sections_ << section;
@@ -355,7 +343,7 @@ void AMDataView::refreshView() {
 								fullRunName,
 								"Showing all data from this run",
 								QString("runId = '%1'").arg(runId),
-								viewMode_, db_, true, gwidget_, effectiveWidth(), sizeSlider->value());
+								viewMode_, db_, true, gwidget_, effectiveWidth(), itemSize_);
 					connect(gview_->verticalScrollBar(), SIGNAL(valueChanged(int)), section, SLOT(layoutHeaderItem()));
 
 					sections_ << section;
@@ -368,7 +356,7 @@ void AMDataView::refreshView() {
 			}
 		}
 
-			break;
+		break;
 
 		case AMDataViews::OrganizeExperiments:
 		{
@@ -386,7 +374,7 @@ void AMDataView::refreshView() {
 								expName,
 								"Showing all data from this experiment",
 								QString("id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = '%1')").arg(expId),
-								viewMode_, db_, true, gwidget_, effectiveWidth(), sizeSlider->value());
+								viewMode_, db_, true, gwidget_, effectiveWidth(), itemSize_);
 					connect(gview_->verticalScrollBar(), SIGNAL(valueChanged(int)), section, SLOT(layoutHeaderItem()));
 
 					sections_ << section;
@@ -398,7 +386,7 @@ void AMDataView::refreshView() {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for experiments. The database might be corrupted."));
 			}
 		}
-			break;
+		break;
 
 		case AMDataViews::OrganizeScanTypes:
 		{
@@ -416,7 +404,7 @@ void AMDataView::refreshView() {
 								typeDescription,
 								"Showing all " + typeDescription,
 								QString("AMDbObjectType = '%1'").arg(className),
-								viewMode_, db_, true, gwidget_, effectiveWidth(), sizeSlider->value());
+								viewMode_, db_, true, gwidget_, effectiveWidth(), itemSize_);
 					connect(gview_->verticalScrollBar(), SIGNAL(valueChanged(int)), section, SLOT(layoutHeaderItem()));
 
 					sections_ << section;
@@ -428,7 +416,7 @@ void AMDataView::refreshView() {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for scan types. The database might be corrupted."));
 			}
 		}
-			break;
+		break;
 
 		case AMDataViews::OrganizeSamples:
 		{
@@ -447,7 +435,7 @@ void AMDataView::refreshView() {
 								name,
 								"Sample created " + AMDateTimeUtils::prettyDateTime(dt),
 								QString("sampleId = '%1'").arg(sampleId),
-								viewMode_, db_, true, gwidget_, effectiveWidth(), sizeSlider->value());
+								viewMode_, db_, true, gwidget_, effectiveWidth(), itemSize_);
 					connect(gview_->verticalScrollBar(), SIGNAL(valueChanged(int)), section, SLOT(layoutHeaderItem()));
 
 					sections_ << section;
@@ -459,7 +447,7 @@ void AMDataView::refreshView() {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for samples. The database might be corrupted."));
 			}
 		}
-			break;
+		break;
 
 		case AMDataViews::OrganizeElements:
 		{
@@ -478,7 +466,7 @@ void AMDataView::refreshView() {
 								symbol + ": " + name,
 								QString("Showing all data from samples containing %1").arg(name),
 								QString("sampleId IN (SELECT sampleId FROM SampleElementEntries WHERE elementId = '%1')").arg(elementId),
-								viewMode_, db_, true, gwidget_, effectiveWidth(), sizeSlider->value());
+								viewMode_, db_, true, gwidget_, effectiveWidth(), itemSize_);
 					connect(gview_->verticalScrollBar(), SIGNAL(valueChanged(int)), section, SLOT(layoutHeaderItem()));
 
 					sections_ << section;
@@ -490,7 +478,7 @@ void AMDataView::refreshView() {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for elements in samples. The database might be corrupted."));
 			}
 		}
-			break;
+		break;
 
 		}
 	} // end of: showing all runs or all experiments
@@ -527,12 +515,12 @@ void AMDataView::refreshView() {
 							fullRunName,
 							"Showing all data from this run",
 							QString("runId = '%1'").arg(runId_),
-							viewMode_, db_, true, gwidget_, effectiveWidth(), sizeSlider->value());
+							viewMode_, db_, true, gwidget_, effectiveWidth(), itemSize_);
 				connect(gview_->verticalScrollBar(), SIGNAL(valueChanged(int)), section, SLOT(layoutHeaderItem()));
 
 				sections_ << section;
 				break;
-			}
+		}
 
 
 		case AMDataViews::OrganizeExperiments:
@@ -551,7 +539,7 @@ void AMDataView::refreshView() {
 								expName,
 								QString("Showing all data from this experiment in the <i>%1</i> run").arg(fullRunName),
 								QString("runId = '%1' AND id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = '%2')").arg(runId_).arg(expId),
-								viewMode_, db_, true, gwidget_, effectiveWidth(), sizeSlider->value());
+								viewMode_, db_, true, gwidget_, effectiveWidth(), itemSize_);
 					connect(gview_->verticalScrollBar(), SIGNAL(valueChanged(int)), section, SLOT(layoutHeaderItem()));
 
 					sections_ << section;
@@ -563,7 +551,7 @@ void AMDataView::refreshView() {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for experiments. The database might be corrupted."));
 			}
 		}
-			break;
+		break;
 
 		case AMDataViews::OrganizeScanTypes:
 		{
@@ -582,7 +570,7 @@ void AMDataView::refreshView() {
 								typeDescription,
 								QString("Showing all data of this type in the <i>%1</i> run").arg(fullRunName),
 								QString("AMDbObjectType = '%1' AND runId = '%2'").arg(className).arg(runId_),
-								viewMode_, db_, true, gwidget_, effectiveWidth(), sizeSlider->value());
+								viewMode_, db_, true, gwidget_, effectiveWidth(), itemSize_);
 					connect(gview_->verticalScrollBar(), SIGNAL(valueChanged(int)), section, SLOT(layoutHeaderItem()));
 
 					sections_ << section;
@@ -594,7 +582,7 @@ void AMDataView::refreshView() {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for scan types. The database might be corrupted."));
 			}
 		}
-			break;
+		break;
 
 		case AMDataViews::OrganizeSamples:
 		{
@@ -614,7 +602,7 @@ void AMDataView::refreshView() {
 								name,
 								QString("Sample created %1.  Showing all data from this sample in the <i>%2</i> run").arg(AMDateTimeUtils::prettyDateTime(dt)).arg(fullRunName),
 								QString("sampleId = '%1' AND runId = '%2'").arg(sampleId).arg(runId_),
-								viewMode_, db_, true, gwidget_, effectiveWidth(), sizeSlider->value());
+								viewMode_, db_, true, gwidget_, effectiveWidth(), itemSize_);
 					connect(gview_->verticalScrollBar(), SIGNAL(valueChanged(int)), section, SLOT(layoutHeaderItem()));
 
 					sections_ << section;
@@ -626,7 +614,7 @@ void AMDataView::refreshView() {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for samples. The database might be corrupted."));
 			}
 		}
-			break;
+		break;
 
 		case AMDataViews::OrganizeElements:
 		{
@@ -646,7 +634,7 @@ void AMDataView::refreshView() {
 								symbol + ": " + name,
 								QString("Showing all data from samples containing %1 in the <i>%2</i> run").arg(name).arg(fullRunName),
 								QString("sampleId IN (SELECT sampleId FROM SampleElementEntries WHERE elementId = '%1') AND runId = '%2'").arg(elementId).arg(runId_),
-								viewMode_, db_, true, gwidget_, effectiveWidth(), sizeSlider->value());
+								viewMode_, db_, true, gwidget_, effectiveWidth(), itemSize_);
 					connect(gview_->verticalScrollBar(), SIGNAL(valueChanged(int)), section, SLOT(layoutHeaderItem()));
 
 					sections_ << section;
@@ -658,7 +646,7 @@ void AMDataView::refreshView() {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for elements in samples. The database might be corrupted."));
 			}
 		}
-			break;
+		break;
 
 		}
 	} // end of showing a specific run
@@ -691,12 +679,12 @@ void AMDataView::refreshView() {
 						expName,
 						"Showing all data from this experiment",
 						QString("id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = '%1')").arg(experimentId_),
-						viewMode_, db_, true, gwidget_, effectiveWidth(), sizeSlider->value());
+						viewMode_, db_, true, gwidget_, effectiveWidth(), itemSize_);
 			connect(gview_->verticalScrollBar(), SIGNAL(valueChanged(int)), section, SLOT(layoutHeaderItem()));
 
 			sections_ << section;
 		}
-			break;
+		break;
 
 		case AMDataViews::OrganizeRuns:
 		{
@@ -717,7 +705,7 @@ void AMDataView::refreshView() {
 								fullRunName,
 								QString("Showing all data from this run in the <i>%1</i> experiment").arg(expName),
 								QString("runId = '%1' AND id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = '%2');").arg(runId).arg(experimentId_),
-								viewMode_, db_, true, gwidget_, effectiveWidth(), sizeSlider->value());
+								viewMode_, db_, true, gwidget_, effectiveWidth(), itemSize_);
 					connect(gview_->verticalScrollBar(), SIGNAL(valueChanged(int)), section, SLOT(layoutHeaderItem()));
 
 					sections_ << section;
@@ -729,7 +717,7 @@ void AMDataView::refreshView() {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for runs. The database might be corrupted."));
 			}
 		}
-			break;
+		break;
 
 
 		case AMDataViews::OrganizeScanTypes:
@@ -751,7 +739,7 @@ void AMDataView::refreshView() {
 								typeDescription,
 								QString("Showing all data of this type in the <i>%1</i> experiment").arg(expName),
 								QString("AMDbObjectType = '%1' AND id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = '%2')").arg(className).arg(experimentId_),
-								viewMode_, db_, true, gwidget_, effectiveWidth(), sizeSlider->value());
+								viewMode_, db_, true, gwidget_, effectiveWidth(), itemSize_);
 					connect(gview_->verticalScrollBar(), SIGNAL(valueChanged(int)), section, SLOT(layoutHeaderItem()));
 
 					sections_ << section;
@@ -764,7 +752,7 @@ void AMDataView::refreshView() {
 			}
 
 		}
-			break;
+		break;
 
 		case AMDataViews::OrganizeSamples:
 		{
@@ -784,7 +772,7 @@ void AMDataView::refreshView() {
 								name,
 								QString("Sample created %1.  Showing all data from this sample in the <i>%2</i> experiment").arg(AMDateTimeUtils::prettyDateTime(dt)).arg(expName),
 								QString("sampleId = '%1' AND id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = '%2')").arg(sampleId).arg(experimentId_),
-								viewMode_, db_, true, gwidget_, effectiveWidth(), sizeSlider->value());
+								viewMode_, db_, true, gwidget_, effectiveWidth(), itemSize_);
 					connect(gview_->verticalScrollBar(), SIGNAL(valueChanged(int)), section, SLOT(layoutHeaderItem()));
 
 					sections_ << section;
@@ -796,7 +784,7 @@ void AMDataView::refreshView() {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for samples. The database might be corrupted."));
 			}
 		}
-			break;
+		break;
 
 		case AMDataViews::OrganizeElements:
 		{
@@ -816,7 +804,7 @@ void AMDataView::refreshView() {
 								symbol + ": " + name,
 								QString("Showing all data from samples containing %1 in the <i>%2</i> experiment").arg(name).arg(expName),
 								QString("sampleId IN (SELECT sampleId FROM SampleElementEntries WHERE elementId = '%1') AND id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = '%2')").arg(elementId).arg(experimentId_),
-								viewMode_, db_, true, gwidget_, effectiveWidth(), sizeSlider->value());
+								viewMode_, db_, true, gwidget_, effectiveWidth(), itemSize_);
 					connect(gview_->verticalScrollBar(), SIGNAL(valueChanged(int)), section, SLOT(layoutHeaderItem()));
 
 					sections_ << section;
@@ -828,7 +816,7 @@ void AMDataView::refreshView() {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "Error while searching database for elements in samples. The database might be corrupted."));
 			}
 		}
-			break;
+		break;
 
 		}
 	} // end of showing just one run
@@ -904,8 +892,9 @@ void AMDataView::onResize() {
 	// These will invalidate the main layout, posting a LayoutEvent to the gwidget_. We'll handle the rest inside gwidget_'s event().
 }
 
-void AMDataView::onItemSizeSliderChanged(int newItemSize)
+void AMDataView::setItemSize(int newItemSize)
 {
+	itemSize_ = newItemSize;
 	foreach(AMAbstractDataViewSection* s, sections_) {
 		s->setItemSize(newItemSize);
 	}
@@ -1209,6 +1198,7 @@ void AMLayoutControlledGraphicsWidget::resizeEvent(QGraphicsSceneResizeEvent *ev
 AMDataViewSectionListView::AMDataViewSectionListView(AMDatabase *db, const QString &dbTableName, const QString &whereClause, QGraphicsItem *parent, double initialWidthConstraint, int initialItemSize)
 	: AMAbstractDataViewSection(parent)
 {
+	Q_UNUSED(initialItemSize)
 	setVisible(false);
 
 	db_ = db;
@@ -1332,6 +1322,26 @@ bool AMIgnoreScrollTableView::event(QEvent *event)
 int AMDataViewSectionListView::numberOfSelectedItems() const
 {
 	return tableView_->selectionModel()->selectedRows().count();
+}
+
+
+void AMDataView::afterDatabaseItemChanged()
+{
+	if(viewRequiresRefresh_)
+		refreshView();
+}
+
+void AMDataView::onDatabaseItemCreatedOrRemoved(const QString &tableName, int id)
+{
+	Q_UNUSED(id)
+
+	if(tableName != scansTableName_)
+		return;
+
+	viewRequiresRefresh_ = true;
+	if(isVisible()) {
+		afterDbChangedFnCall_.runLater(5000);
+	}
 }
 
 

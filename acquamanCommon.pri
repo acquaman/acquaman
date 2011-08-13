@@ -368,7 +368,12 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/beamline/CLS/CLSPGT8000HVChannel.h \
 	source/analysis/AM1DInterpolationAB.h \
 	source/analysis/AM1DRunningAverageFilterAB.h \
-	source/analysis/SGM/SGM1DFastScanFilterAB.h
+	source/analysis/SGM/SGM1DFastScanFilterAB.h \
+	source/analysis/AMExternalScanDataSourceAB.h \
+	source/analysis/AM1DSummingAB.h \
+	source/analysis/AMDeadTimeAB.h \
+	source/dataman/AMProcessVariableDataSource.h \
+	source/ui/AMChooseScanDialog.h
 FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
 	source/ui/AMDataViewSectionHeader.ui \
@@ -594,7 +599,12 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/beamline/CLS/CLSPGT8000HVChannel.cpp \
 	source/analysis/AM1DInterpolationAB.cpp \
 	source/analysis/AM1DRunningAverageFilterAB.cpp \
-	source/analysis/SGM/SGM1DFastScanFilterAB.cpp
+	source/analysis/SGM/SGM1DFastScanFilterAB.cpp \
+	source/analysis/AMExternalScanDataSourceAB.cpp \
+	source/analysis/AM1DSummingAB.cpp \
+	source/analysis/AMDeadTimeAB.cpp \
+	source/dataman/AMProcessVariableDataSource.cpp \
+	source/ui/AMChooseScanDialog.cpp
 
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc \

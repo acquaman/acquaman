@@ -27,14 +27,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_AMDataViewEmptyHeader.h"
 #include "dataman/AMDatabase.h"
 
+#include "util/AMDeferredFunctionCall.h"
+
 #include <QGraphicsView>
 #include "ui/AMSignallingGraphicsScene.h"
 #include <QGraphicsWidget>
 #include <QGraphicsLinearLayout>
-
 #include <QUrl>
-
 #include "ui/AMFlowGraphicsLayout.h"
+
 
 
 /// This subclass of QGraphicsWidget is designed to resize itself to the preferred sizeHint() of its layout.  (This is the opposite of what usually happens: layouts resize themselves to match the size of their widget.)
@@ -118,7 +119,7 @@ Some careful programmers will suggest that the controller functionality and view
 Last of all, this class emits the selectionChanged() and selectionActivated(QList<QUrl>) signals, to notify you when the user has selected or attempted to open a set of scans/objects. The format of the QUrls is the same as used for drag and drop events:
 - amd://databaseConnectionName/tableName/objectId
 */
-class AMDataView : public QWidget, private Ui::AMDataView
+class AMDataView : public QWidget, protected Ui::AMDataView
 {
 Q_OBJECT
 public:
@@ -133,14 +134,11 @@ public:
 	int numberOfSelectedItems() const;
 
 signals:
-	/// Emitted whenever the selected scans change
+	/// Emitted whenever the selected scans change.  You can then use selectedItems() to get a list of the scan URLs, or numberOfSelectedItems() to find out how many there are.
 	void selectionChanged();
-	/// Emitted when the user attempts to open the selected scans
-	void selectionActivated(const QList<QUrl>&);
-	/// Emitted when the user attempts to open the selected scans in separate windows
-	void selectionActivatedSeparateWindows(const QList<QUrl> &);
-	/// Emitted when the user attempts to export the selected scans. (This action is (hopefully) completed elsewhere, so that we don't couple the AMDataView to the export system)
-	void selectionExported(const QList<QUrl>&);
+	/// Emitted when the user double-clicks anywhere in the scene.
+	void sceneDoubleClicked();
+
 
 public slots:
 	/// setup this view to show a specific run (or use \c runId = -1 to see all runs)
@@ -158,7 +156,8 @@ public slots:
 	void expandAll();
 	/// Called when the user wants to collapse all the sections in the view
 	void collapseAll();
-
+	/// Called when the item size slider is moved. It's up to each data view section to decide what item sizes mean, but they should all adjust their item sizes based on the new user value (from 1 to 100).
+	void setItemSize(int newItemSize);
 
 
 
@@ -172,35 +171,22 @@ protected slots:
 	/// called when the scene selection or item-views selection changes. Invalidates the selectedUrls_. When working with item-view based subviews, cancels the selection in other sections except the sender().
 	void onScanItemsSelectionChanged();
 
-	/// Called when something in the scene is double-clicked. We use this to send the selectionActivated() signal
-	void onSceneDoubleClicked();
-
 	/// call this to adjust the accessible region of the graphicsview (gview_) to match the size of the graphicswidget gwidget_ inside it. (Called from a signal after the gwidget_ is resized.)
 	void adjustViewScrollableArea();
 
-	/// Called when the item size slider is moved. It's up to each section to decide what item sizes mean, but they should all adjust their item sizes based on the new user value (from 1 to 100).
-	void onItemSizeSliderChanged(int newItemSize);
 
 
 
 
-	/// When the "open in same window" action happens
-	void onCompareScansAction() {
-		updateSelectedUrls();
-		emit selectionActivated(selectedUrls_);
-	}
 
-	/// When the "open in separate window" action
-	void onEditScansAction() {
-		updateSelectedUrls();
-		emit selectionActivatedSeparateWindows(selectedUrls_);
-	}
 
-	/// When the "export scans" action happens
-	void onExportScansAction() {
-		updateSelectedUrls();
-		emit selectionExported(selectedUrls_);
-	}
+
+
+	/// Connected to the database's created() and removed() signals, to catch when scans are added or removed.
+	void onDatabaseItemCreatedOrRemoved(const QString& tableName, int id);
+	/// Called when control returns to the event loop, after the scans table in the database has an item added or removed. Our response depends on whether the widget is visible or not.
+	void afterDatabaseItemChanged();
+
 
 
 
@@ -217,29 +203,45 @@ protected:
 
 	/// The database explored with this view
 	AMDatabase* db_;
-	/// the user's name, with appropriate possesive ending to be tacked onto "Data".  (ie: Mark Boots's )
+	/// the user's name, with appropriate possesive ending to be tacked onto "Data".  (ie: John Doe's )
 	QString userName_;
+	/// Caches the name of the scans table in the database
+	QString scansTableName_;
 
 
-	/// A prepared list the selected items, as amd://databaseConnectionName/tableName/objectId URLs.
+	// Selection Management
+	///////////////////////////////
+	/// A prepared list of the selected items, as amd://databaseConnectionName/tableName/objectId URLs.
 	mutable QList<QUrl> selectedUrls_;
 	/// True if the selection has changed and selectedUrls_ is dirty.
 	mutable bool selectedUrlsUpdateRequired_;
-
 	/// This helper function analyzes the current selection and updates selectedUrls_;
 	void updateSelectedUrls() const;
 
 
 
 	// UI components:
+	///////////////////
 	QButtonGroup* viewModeButtonGroup_;
 
 	// QGraphicsView UI components:
-
+	///////////////////
 	QGraphicsView* gview_;
 	AMSignallingGraphicsScene* gscene_;
 	AMLayoutControlledGraphicsWidget* gwidget_;
 	QGraphicsLinearLayout* sectionLayout_;
+
+	int itemSize_;	///< Default item size for new sections
+
+
+	// Catching and responding to database updates (scans added or removed)
+	/////////////////////////
+	AMDeferredFunctionCall afterDbChangedFnCall_;
+	bool viewRequiresRefresh_;
+
+
+	// Helper Functions
+	/////////////////////////
 
 	/// This function runs everytime showRun() or showExperiment() is called, or a change is made to the OrganizeMode or ViewMode.  It re-populates the view from scratch.
 	void refreshView();
@@ -254,6 +256,9 @@ protected:
 
 	/// Overidden so that we can notify the contents _inside_ the scroll area to change width with us.
 	virtual void resizeEvent(QResizeEvent *event);
+
+
+
 
 
 
