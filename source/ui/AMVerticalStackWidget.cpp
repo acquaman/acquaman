@@ -23,30 +23,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMHeaderButton.h"
 
 
-AMVerticalStackWidget::AMVerticalStackWidget(QWidget *parent, bool usingGrouping) :
+AMVerticalStackWidget::AMVerticalStackWidget(QWidget *parent) :
 		QFrame(parent)
 {
-	usingGrouping_ = usingGrouping;
-	currentGroup_ = 0;
 	vl_ = new QVBoxLayout();
 	vl_->setSpacing(0);
 	vl_->setContentsMargins(0,0,0,0);
 	vl_->setAlignment(Qt::AlignTop);
 
-	vlSide_ = new QVBoxLayout();
-	vlSide_->setSpacing(0);
-	vlSide_->setContentsMargins(0,0,0,0);
-	vlSide_->setAlignment(Qt::AlignTop);
-
-	hl_ = new QHBoxLayout();
-	hl_->setSpacing(0);
-	hl_->setContentsMargins(0,0,0,0);
-
-	hl_->addLayout(vl_);
-	hl_->addLayout(vlSide_);
-
-	//setLayout(vl_);
-	setLayout(hl_);
+	setLayout(vl_);
 
 	setFrameShape(QFrame::StyledPanel);
 	setFrameShadow(QFrame::Sunken);
@@ -96,23 +81,6 @@ void AMVerticalStackWidget::insertItem(int index, const QString& titleText, QWid
 
 	vl_->insertWidget(2*index, header);
 	vl_->insertWidget(2*index+1, widget);
-
-	if(usingGrouping_){
-		connect(header, SIGNAL(heightChanged(int)), this, SLOT(onWidgetHeightChanged(int)));
-		AMBeamlineActionItemView *aiv = qobject_cast<AMBeamlineActionItemView*>(widget);
-		if(aiv)
-			connect(aiv, SIGNAL(heightChanged(int)), this, SLOT(onWidgetHeightChanged(int)));
-
-		if(!currentGroup_){
-			//qDebug() << "Trying to draw group widget";
-			AMRunGroupWidget *rgWidget = new AMRunGroupWidget(AMRunGroup(1), this);
-			connect(rgWidget, SIGNAL(copyGroupRequested(AMRunGroup)), this, SIGNAL(copyGroupRequested(AMRunGroup)));
-			currentGroup_ = rgWidget;
-			rgWidget->setFixedWidth(24);
-			//rgWidget->setFrameStyle(QFrame::StyledPanel);
-			vlSide_->insertWidget(index, rgWidget);
-		}
-	}
 
 	model_.insertRow(index, item);
 }
@@ -229,44 +197,6 @@ void AMVerticalStackWidget::onHeaderButtonClicked() {
 	}
 }
 
-void AMVerticalStackWidget::onWidgetHeightChanged(int newHeight){
-	//qDebug() << "Want to recalc heights";
-	if(usingGrouping_ && (groupings_.count() > 0) ){
-		int groupingsCount = 0;
-		for(int x = 0; x < groupings_.count(); x++)
-			groupingsCount += groupings_.at(x).actionCount();
-		if(groupingsCount != vl_->count()/2){
-			//qDebug() << "Mismatch " << groupingsCount << " versus " << vl_->count()/2;
-			return;
-		}
-		int groupHeight = 0;
-		int groupingsCounter = 0;
-		int toThisPoint = 0;
-		//qDebug() << "Looking at a height change " << groupingsCount << vl_->count();
-		for(int x = 0; x < vl_->count(); x++){
-			if(vl_->itemAt(x)->widget()->isVisible())
-				groupHeight += vl_->itemAt(x)->widget()->height();
-			//else
-			//	qDebug() << "That sucker is closed, don't count it";
-			if( x == (toThisPoint + groupings_.at(groupingsCounter).actionCount())*2-1 ){
-				//qDebug() << "Set to group height " << groupHeight << " on x " << x;
-				vlSide_->itemAt(groupingsCounter)->widget()->setFixedHeight(groupHeight);
-				AMRunGroupWidget *runGroup = qobject_cast<AMRunGroupWidget*>(vlSide_->itemAt(groupingsCounter)->widget());
-				if(runGroup){
-					//runGroup->setDisplayText(groupings_.at(groupingsCounter).second);
-					runGroup->setRunGroup(groupings_.at(groupingsCounter));
-					runGroup->update();
-				}
-				toThisPoint += groupings_.at(groupingsCounter).actionCount();
-				groupingsCounter++;
-				groupHeight = 0;
-			}
-		}
-		return;
-	}
-	//qDebug() << "Not using grouping or no groupings";
-}
-
 QSize AMVerticalStackWidget::sizeHint() const {
 	QSize rv = QFrame::sizeHint();
 
@@ -277,30 +207,6 @@ QSize AMVerticalStackWidget::sizeHint() const {
 
 	rv.setWidth(width+2);
 	return rv;
-}
-
-void AMVerticalStackWidget::startRunning(){
-	//qDebug() << "Trying to draw group widget because RUNNING STARTED";
-	AMRunGroupWidget *rgWidget = new AMRunGroupWidget(AMRunGroup(1), this);
-	connect(rgWidget, SIGNAL(copyGroupRequested(AMRunGroup)), this, SIGNAL(copyGroupRequested(AMRunGroup)));
-	rgWidget->setFixedWidth(24);
-	vlSide_->insertWidget(vlSide_->count()-1, rgWidget);
-}
-
-void AMVerticalStackWidget::endRunning(){
-	currentGroup_ = 0;
-	QWidget * removed = vlSide_->itemAt(vlSide_->count()-1)->widget();
-	vlSide_->removeWidget(removed);
-	removed->disconnect();
-	delete removed;
-}
-
-void AMVerticalStackWidget::setGroupings(QList<AMRunGroup> groupings){
-	groupings_ = groupings;
-}
-
-void AMVerticalStackWidget::forceGroupingsCheck(){
-	onWidgetHeightChanged(-1);
 }
 
 
@@ -317,66 +223,4 @@ bool AMVerticalStackWidget::eventFilter(QObject * source, QEvent *event) {
 	setItemText(widgetIndex, widget(widgetIndex)->windowTitle());
 
 	return QFrame::eventFilter(source, event);
-}
-
-
-AMRunGroupWidget::AMRunGroupWidget(const AMRunGroup &runGroup, QWidget *parent) :
-		QLabel("", parent)
-{
-	runGroup_ = runGroup;
-	optionsMenu_ = 0; //NULL
-}
-
-void AMRunGroupWidget::setRunGroup(const AMRunGroup &runGroup){
-	runGroup_ = runGroup;
-}
-
-void AMRunGroupWidget::onCopyGroupTriggered(){
-	emit copyGroupRequested(runGroup_);
-}
-
-#include <QPainter>
-#include "ui/AMDateTimeUtils.h"
-void AMRunGroupWidget::paintEvent(QPaintEvent *event){
-	QPainter painter(this);
-	painter.setRenderHint(QPainter::Antialiasing);
-
-	qreal w = width();
-	qreal h = height();
-
-	painter.setBrush(QBrush(Qt::black));
-	painter.translate(0, 0);
-	painter.drawLine(QPointF(0, 0), QPointF(w, 0));
-	painter.drawLine(QPointF(w, 0), QPointF(w, h));
-	painter.drawLine(QPointF(w, h), QPointF(0, h));
-	painter.drawLine(QPointF(0, h), QPointF(0, 0));
-
-	QString displayText = QString("%1 %2").arg(runGroup_.displayText()).arg(AMDateTimeUtils::prettyDateTime(runGroup_.eventTime()));
-
-	QFontMetrics metric(this->font());
-	painter.setPen(Qt::black);
-	QString displayElided = metric.elidedText(displayText, Qt::ElideRight, h-0.1*h);
-	painter.save();
-	painter.translate(w, 0);
-	painter.rotate(90.0);
-	painter.drawText(QRectF(0.05*h, 0, metric.width(displayElided), w), Qt::AlignCenter, displayElided);
-	painter.restore();
-}
-
-void AMRunGroupWidget::mousePressEvent(QMouseEvent *event){
-	if(event->button() == Qt::RightButton){
-		if(optionsMenu_)
-			delete optionsMenu_;
-		optionsMenu_ = new QMenu(this);
-		QAction *tmpAction;
-		tmpAction = optionsMenu_->addAction("Copy This Group");
-		tmpAction->setData(0);
-		connect(tmpAction, SIGNAL(triggered()), this, SLOT(onCopyGroupTriggered()));
-		optionsMenu_->popup(QCursor::pos());
-		optionsMenu_->show();
-	}
-	else{
-		event->ignore();
-		return;
-	}
 }

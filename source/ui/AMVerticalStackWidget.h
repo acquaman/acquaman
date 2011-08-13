@@ -30,16 +30,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QDebug>
 
-class AMRunGroup;
-class AMRunGroupWidget;
-
 /// The AMVerticalStackWidget class provides a column of widget items, that can be expanded or hidden.
 class AMVerticalStackWidget : public QFrame
 {
 Q_OBJECT
 public:
 	/// Create a new vertical stack widget to hold a column of subwidgets.
-	explicit AMVerticalStackWidget(QWidget *parent = 0, bool usingGrouping = false);
+	explicit AMVerticalStackWidget(QWidget *parent = 0);
 
 	/// Number of widgets in the stack
 	int count() const {
@@ -116,13 +113,6 @@ public:
 	/// Overloaded to make sure that the horizontal size requested is as wide as all the inside widgets, even if they're collapsed and not currently shown in the layout.
 	QSize sizeHint() const;
 
-public slots:
-	void startRunning();
-	void endRunning();
-	//void setGroupings(QList< QPair<int, QString> > groupings);
-	void setGroupings(QList<AMRunGroup> groupings);
-	void forceGroupingsCheck();
-
 signals:
 	/// Emitted when a widget is expanded:
 	void expanded(QWidget*);
@@ -133,8 +123,6 @@ signals:
 	/// Emitted when a widget at this index is collapsed
 	void collapsed(int);
 
-	void copyGroupRequested(const AMRunGroup &runGroup);
-
 public slots:
 	/// Expand a given widget
 	void expandItem(int index);
@@ -144,8 +132,6 @@ public slots:
 protected slots:
 	/// Called when any of the header buttons is clicked. We might need to expand or collapse a widget section.
 	void onHeaderButtonClicked();
-
-	void onWidgetHeightChanged(int newHeight);
 
 protected:
 	/// Internally, we use a QStandardItemModel to store the widgets':
@@ -160,17 +146,8 @@ protected:
 		Currently, the model is for internal use only.  This class doesn't yet respond to the dataChanged() signal, so modifying the model will not trigger changes in the display of the widget.  This can be implemented if desired.
 		*/
 	QStandardItemModel model_;
-	// QSignalMapper* headerButtonMapper_;
 
-	QHBoxLayout* hl_;
 	QVBoxLayout* vl_;
-	QVBoxLayout* vlSide_;
-	// QSpacerItem* spacer_;
-	bool usingGrouping_;
-	//QList< QPair<int, QString> > groupings_;
-	QList<AMRunGroup> groupings_;
-	AMRunGroupWidget *currentGroup_;
-
 
 	/// Capture window title change events from our widgets and change our header titles accordingly
 	bool eventFilter(QObject * source, QEvent *event);
@@ -178,86 +155,5 @@ protected:
 	/// Set the heading text for a widget
 	void setItemText(int index, const QString& text);
 };
-
-#include <QDateTime>
-class AMRunGroup : public QObject
-{
-Q_OBJECT
-public:
-	AMRunGroup(int actionCount = 0, const QString &displayText = 0, const QDateTime &eventTime = QDateTime::currentDateTime(), QObject *parent = 0) :
-			QObject(parent)
-	{
-		actionCount_ = actionCount;
-		displayText_ = displayText;
-		eventTime_ = eventTime;
-	}
-
-	AMRunGroup(const AMRunGroup &other){
-		actionCount_ = other.actionCount();
-		displayText_ = other.displayText();
-		eventTime_ = other.eventTime();
-	}
-
-	AMRunGroup& operator=(const AMRunGroup &other){
-		if(this != &other){
-			actionCount_ = other.actionCount();
-			displayText_ = other.displayText();
-			eventTime_ = other.eventTime();
-		}
-	}
-
-	bool operator==(const AMRunGroup &other) const{
-		if(actionCount_ == other.actionCount() &&
-		   displayText_ == other.displayText() &&
-		   eventTime_ == other.eventTime()){
-			return true;
-		}
-		return false;
-	}
-
-	int actionCount() const { return actionCount_;}
-	QString displayText() const { return displayText_;}
-	QDateTime eventTime() const { return eventTime_;}
-
-public slots:
-	void setActionCount(int actionCount) { actionCount_ = actionCount; }
-	void setDisplayText(const QString &displayText) { displayText_ = displayText; }
-	void setEventTime(const QDateTime &eventTime) { eventTime_ = eventTime; }
-
-protected:
-	int actionCount_;
-	QString displayText_;
-	QDateTime eventTime_;
-};
-
-
-#include <QLabel>
-#include <QMouseEvent>
-#include <QMenu>
-class AMRunGroupWidget : public QLabel
-{
-Q_OBJECT
-public:
-	AMRunGroupWidget(const AMRunGroup &runGroup, QWidget *parent = 0);
-
-public slots:
-	void setRunGroup(const AMRunGroup &runGroup);
-
-signals:
-	void copyGroupRequested(const AMRunGroup &runGroup);
-
-protected slots:
-	virtual void onCopyGroupTriggered();
-
-protected:
-	virtual void paintEvent(QPaintEvent *);
-
-	void mousePressEvent(QMouseEvent *event);
-
-protected:
-	AMRunGroup runGroup_;
-	QMenu *optionsMenu_;
-};
-
 
 #endif // AMVERTICALSTACKWIDGET_H

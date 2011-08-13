@@ -273,11 +273,9 @@ AMBeamlineActionsListView::AMBeamlineActionsListView(AMBeamlineActionsList *acti
 	actionsList_ = actionsList;
 	actionsQueue_ = actionsQueue;
 	focusAction_ = -1;
-	needsNewGroup_ = true;
 
-	actionsViewList_ = new AMVerticalStackWidget(this, true);
-	actionsViewList_->setGroupings(groupings_);
-	connect(actionsViewList_, SIGNAL(copyGroupRequested(AMRunGroup)), this, SLOT(onCopyGroupRequested(AMRunGroup)));
+	actionsViewList_ = new AMVerticalStackWidget(this);
+
 	QVBoxLayout *vl = new QVBoxLayout();
 	vl->addWidget(actionsViewList_);
 	setLayout(vl);
@@ -322,39 +320,13 @@ void AMBeamlineActionsListView::onActionAdded(int index){
 	connect(tmpView, SIGNAL(copyRequested(AMBeamlineActionItem*)), this, SIGNAL(copyRequested(AMBeamlineActionItem*)));
 	connect(tmpView, SIGNAL(moveUpRequested(AMBeamlineActionItem*)), this, SIGNAL(moveUpRequested(AMBeamlineActionItem*)));
 	connect(tmpView, SIGNAL(moveDownRequested(AMBeamlineActionItem*)), this, SIGNAL(moveDownRequested(AMBeamlineActionItem*)));
-	if(!needsNewGroup_){
-		//qDebug() << "Add to existing group";
-		//groupings_.last().first++;
-		groupings_.last().setActionCount(groupings_.last().actionCount()+1);
-		actionsViewList_->setGroupings(groupings_);
-	}
-	else{
-		needsNewGroup_ = false;
-		//qDebug() << "Create a new group";
-		//QPair<int, QString> newGroup = QPair<int, QString>(1, QString("Created %1").arg(AMDateTimeUtils::prettyDateTime(QDateTime::currentDateTime())) );
-		AMRunGroup newGroup = AMRunGroup(1, "Created");
-		groupings_.append(newGroup);
-		actionsViewList_->setGroupings(groupings_);
-	}
 
 	reindexViews();
 	emit queueUpdated(actionsQueue_->count());
 }
 
 void AMBeamlineActionsListView::onActionRemoved(int index){
-	/*
-	if(groupings_.last().first > 1)
-		groupings_.last().first--;
-	else
-		groupings_.removeLast();
-	*/
-	if(groupings_.last().actionCount() > 1)
-		groupings_.last().setActionCount(groupings_.last().actionCount()-1);
-	else
-		groupings_.removeLast();
-	actionsViewList_->setGroupings(groupings_);
 	actionsViewList_->deleteItem(index);
-	actionsViewList_->forceGroupingsCheck();
 
 	reindexViews();
 	emit queueUpdated(actionsQueue_->count());
@@ -366,43 +338,15 @@ void AMBeamlineActionsListView::onActionRemoveRequested(AMBeamlineActionItem *it
 }
 
 void AMBeamlineActionsListView::onRunningChanged(){
-	if(actionsQueue_->isRunning()){
-		//groupings_.insert(groupings_.count()-1, QPair<int, QString>(0, "Running"));
-		groupings_.insert(groupings_.count()-1, AMRunGroup(0, "Running"));
-		actionsViewList_->startRunning();
-	}
 	qDebug() << "---- Heard that running state changed to " << actionsQueue_->isRunning() << " ----";
 }
 
 void AMBeamlineActionsListView::onActionStarted(){
-	/*
-	groupings_[groupings_.count()-2].first++;
-	groupings_.last().first--;
-	*/
-	groupings_[groupings_.count()-2].setActionCount(groupings_.at(groupings_.count()-2).actionCount()+1);
-	groupings_.last().setActionCount(groupings_.last().actionCount()-1);
-	actionsViewList_->setGroupings(groupings_);
-	if(actionsQueue_->peekIsEmpty()){
-		qDebug() << "Found queue is empty";
-		actionsViewList_->endRunning();
-		needsNewGroup_ = true;
-		groupings_.removeLast();
-		actionsViewList_->setGroupings(groupings_);
-		actionsViewList_->forceGroupingsCheck();
-	}
-	actionsViewList_->forceGroupingsCheck();
 	qDebug() << "---- Heared action STARTED ----";
 }
 
 void AMBeamlineActionsListView::onActionSucceeded(){
 	qDebug() << "---- Heard action SUCCEEDED ----";
-	if(actionsQueue_->isEmpty()){
-		//groupings_.last().second = QString("Completed %1").arg(AMDateTimeUtils::prettyDateTime(QDateTime::currentDateTime()));
-		groupings_.last().setDisplayText("Completed");
-		groupings_.last().setEventTime(QDateTime::currentDateTime());
-		actionsViewList_->setGroupings(groupings_);
-		actionsViewList_->forceGroupingsCheck();
-	}
 }
 
 void AMBeamlineActionsListView::onActionFailed(){
@@ -433,21 +377,4 @@ void AMBeamlineActionsListView::reindexViews(){
 		for(int x = 0; x < actionsList_->count(); x++)
 			if(actionsViewList_->widget(x) && ((AMBeamlineActionItemView*)(actionsViewList_->widget(x)))->index() != -1 )
 				((AMBeamlineActionItemView*)(actionsViewList_->widget(x)))->setIndex(-1);
-}
-
-void AMBeamlineActionsListView::onCopyGroupRequested(const AMRunGroup &runGroup){
-	int upToThisPoint = 0;
-	QList<int> copyIndices;
-	for(int x = 0; x < groupings_.count(); x++){
-		if(groupings_.at(x) == runGroup){
-			for(int y = upToThisPoint; y < upToThisPoint+groupings_.at(x).actionCount(); y++){
-				qDebug() << "Emit copy request for action " << y;
-				copyIndices.append(y);
-			}
-			for(int y = 0; y < copyIndices.count(); y++)
-				emit copyRequested(actionsList_->action(copyIndices.at(y))->createCopy());
-			return;
-		}
-		upToThisPoint += groupings_.at(x).actionCount();
-	}
 }
