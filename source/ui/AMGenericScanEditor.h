@@ -34,6 +34,7 @@ class AMVerticalStackWidget;
 class AMRunSelector;
 class AMSampleEditor;
 class AMDataSourcesEditor;
+class AMChooseScanDialog;
 
 class AMGenericScanEditor : public QWidget
 {
@@ -113,6 +114,9 @@ protected slots:
 	/// Call this to update the window title when a scan is added or removed
 	void refreshWindowTitle();
 
+	/// Called when the open scan dialog is accepted with one or more new scans to open.
+	void onChooseScanDialogAccepted();
+
 
 protected:
 	/// This is a model containing the current open scans
@@ -140,6 +144,9 @@ protected:
 	/// Sample editor
 	AMSampleEditor* sampleEditor_;
 
+	/// Dialog to choose an existing scan to open/add.  Will be 0 until it is required/created.
+	AMChooseScanDialog* chooseScanDialog_;
+
 	/// Overloaded to enable drag-dropping scans (when Drag Action = Qt::CopyAction and mime-type = "text/uri-list" with the proper format.)
 	void dragEnterEvent(QDragEnterEvent *event);
 	/// Overloaded to enable drag-dropping scans.
@@ -156,6 +163,7 @@ protected:
 
 	/// This helper function refreshes the editor widgets with the values from a given scan
 	void updateEditor(AMScan* scan);
+
 
 };
 
