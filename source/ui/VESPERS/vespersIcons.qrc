@@ -12,5 +12,6 @@
         <file>hammer.png</file>
         <file>RED.png</file>
         <file>reset.png</file>
+        <file>greencheck.png</file>
     </qresource>
 </RCC>

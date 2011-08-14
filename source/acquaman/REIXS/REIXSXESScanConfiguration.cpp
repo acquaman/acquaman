@@ -4,10 +4,10 @@ REIXSXESScanConfiguration::REIXSXESScanConfiguration(QObject *parent) :
 	AMScanConfiguration(parent), mcpDetectorInfo_()
 {
 	gratingNumber_ = 0;
-	centerEV_ = 400;
+	centerEV_ = 200;
 	defocusDistanceMm_ = 0;
-	spectrometerCalibrationId_ = 1;
-	detectorTilt_ = 2;
+	spectrometerCalibrationId_ = -1;
+	detectorTiltOffset_ = 0;
 	detectorOrientation_ = 0;
 	shouldStartFromCurrentPosition_ = false;
 

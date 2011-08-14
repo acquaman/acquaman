@@ -4,6 +4,6 @@ TARGET = Acquaman
 
 FORMS +=
 
-HEADERS +=
+HEADERS += \
 
 SOURCES +=	source/application/BareBones/BareBonesMain.cpp
