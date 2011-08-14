@@ -3,6 +3,10 @@
 # Note: Set EPICS_INCLUDE_DIRS, EPICS_LIB_DIR, VLC_*, and GSL_* correctly for platform
 # ####################################################################
 
+# Video Support: Remove this line if you do not have the multimedia module from QtMobility
+
+# CONFIG += mobility
+
 # Automatically determines a user's home folder
 HOME_FOLDER = $$system(echo $HOME)
 
@@ -23,11 +27,6 @@ macx {
 	# GSL Dependencies
 	GSL_LIB = -L$$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/gsl-install/lib -lgsl
 	GSL_CBLAS_LIB = -L$$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/gsl-install/lib -lgslcblas
-
-	# VLC Dependencies
-	VLC_LIB = -L$$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/vlc-install/lib -lvlc
-	VLC_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/vlc-install/include
-	VLC_PLUGIN_PATH = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/vlc-install/lib/vlc/plugins
 
 	# QwtPlot3d dependencies (Disabled for now...)
 	# QWTPLOT3D_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/qwtplot3d/lib
@@ -54,11 +53,6 @@ linux-g++ {
 	GSL_LIB = -lgsl
 	GSL_CBLAS_LIB = -lgslcblas
 
-	# VLC Dependencies
-	#VLC_LIB = -lvlc
-	#VLC_INCLUDE_DIR = /usr/include
-	#VLC_PLUGIN_PATH = /usr/lib/vlc/plugins/
-
 	# LibXML Dependencies (required by dacq library)
 	XML_LIB = -lxml2
 	XML_INCLUDE_DIR = /usr/include/libxml2
@@ -83,17 +77,17 @@ linux-g++-64 {
 	GSL_LIB = -L$$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/gsl-install/lib -lgsl
 	GSL_CBLAS_LIB = -lgslcblas
 
-	# VLC Dependencies
-	#VLC_LIB = -lvlc
-	#VLC_INCLUDE_DIR = /usr/include
-	#VLC_PLUGIN_PATH = /usr/lib/vlc/plugins/
-
 	# LibXML Dependencies (required by dacq library)
 	XML_LIB = -lxml2
 	XML_INCLUDE_DIR = /usr/include/libxml2
 }
 
 QT += core gui sql opengl
+
+# video using Multimedia module from QtMobility, if we have it
+#CONFIG(mobility) {
+#	MOBILITY += multimedia
+#}
 
 DESTDIR = build
 DEPENDPATH += . source
@@ -102,33 +96,35 @@ INCLUDEPATH += . source
 INCLUDEPATH += $$EPICS_INCLUDE_DIRS \
 	$$MPLOT_INCLUDE_DIR \
 	$$GSL_INCLUDE_DIR \
-	$$VLC_INCLUDE_DIR \
 	$$XML_INCLUDE_DIR \
 	$$QWTPLOT3D_INCLUDE_DIR
 
 LIBS += $$GSL_LIB \
 	$$GSL_CBLAS_LIB \
-	$$VLC_LIB \
 	$$XML_LIB \
 #	-L$$QWTPLOT3D_LIB_DIR -lqwtplot3d \
 	-L$$EPICS_LIB_DIR -lca -lCom
 
-# VLC plugin path: define as pre-processor symbol
-#DEFINES += "VLC_PLUGIN_PATH=$$VLC_PLUGIN_PATH"
 
 # Specify runtime search locations for libraries (Must change for release bundle, if epics in a different location)
 macx {
 
-	contains(QT_MINOR_VERSION, 7):contains(QT_PATCH_VERSION, 2) {
-	# 4.7.2: Use same as linux-g++
+		contains(QT_MINOR_VERSION, 7) {
+			contains(QT_PATCH_VERSION, 2) | contains(QT_PATCH_VERSION, 3) {
+				# 4.7.2 or 4.7.3: Use same as linux-g++
 #		QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR,-rpath,$$QWTPLOT3D_LIB_DIR"
 #		QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR,-rpath,$$QWTPLOT3D_LIB_DIR"
-		QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
-		QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
-	} else {
-		QMAKE_LFLAGS_RPATH += "$$EPICS_LIB_DIR"
+				QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
+				QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
+			}
+			else {
+				QMAKE_LFLAGS_RPATH += "$$EPICS_LIB_DIR"
+				#QMAKE_LFLAGS_RPATH += "$$QWTPLOT3D_LIB_DIR"
+			}
+		} else {
+				QMAKE_LFLAGS_RPATH += "$$EPICS_LIB_DIR"
 		#QMAKE_LFLAGS_RPATH += "$$QWTPLOT3D_LIB_DIR"
-	}
+		}
 }
 
 
@@ -232,6 +228,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMControlSetView.h \
 	source/ui/AMCramBarHorizontal.h \
 	source/ui/AMDataView.h \
+	source/ui/AMDataViewWithActionButtons.h \
 	source/ui/AMFirstTimeWidget.h \
 	source/ui/AMFlowGraphicsLayout.h \
 	source/ui/AMImportControllerWidget.h \
@@ -245,7 +242,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMThumbnailScrollViewer.h \
 	source/ui/AMXASRegionsView.h \
 	source/ui/BottomBar.h \
-	#source/ui/AMBeamlineCameraWidget.h \
+	#deprecated: source/ui/AMBeamlineCameraWidget.h \
 	source/ui/AMControlEditor.h \
 	source/acquaman.h \
 	source/ui/AMNewRunDialog.h \
@@ -277,7 +274,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMStartScreen.h \
 	source/ui/AMSignallingGraphicsScene.h \
 	source/dataman/AMUser.h \
-	#source/ui/AMVideoPlayerWidget.h \
+	#deprecated: source/ui/AMVideoPlayerWidget.h \
 	source/dataman/AMXESScan.h \
 	source/dataman/ALSBL8XESDetectorInfo.h \
 	source/dataman/ALSBL8XASFileLoader.h \
@@ -314,7 +311,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/beamline/AMBeamlineControlStopAction.h \
 	source/dataman/REIXS/REIXSXESRawFileLoader.h \
 	source/util/AMDeferredFunctionCall.h \
-#	source/ui/AMVideoWidget.h \
+	#deprecated: source/ui/AMVideoWidget.h \
 	source/ui/AMScanConfigurationViewHolder.h \
 	source/ui/AMPeriodicTableView.h \
 	source/util/AMPeriodicTable.h \
@@ -334,7 +331,6 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/beamline/AMDetectorSet.h \
 	source/dataman/AMROIInfo.h \
 	source/beamline/AMROI.h \
-	#source/ui/AMOverlayVideoWidget.h \
 	source/ui/AMSamplePositionViewActionsWidget.h \
 	source/beamline/AMBeamlineListAction.h \
 	source/beamline/AMBeamlineControlWaitAction.h \
@@ -375,15 +371,21 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/dataman/AMProcessVariableDataSource.h \
 	source/ui/AMChooseScanDialog.h \
 	source/application/AMDatamanAppController.h \
-	source/ui/AMDataViewWithActionButtons.h \
 	source/ui/AMColorPickerButton.h \
 	source/ui/AMScanSetItemPropertyDialog.h \
+	source/ui/AMColoredTextToolButton.h \
 	source/ui/AMLinePropertyEditor.h \
 	source/ui/AMImagePropertyEditor.h \
-	source/ui/AMColoredTextToolButton.h \
 	source/beamline/CLS/CLSSynchronizedDwellTime.h \
-	source/beamline/AMCompositeControl.h \
-	source/dataman/AMXYScatterPVDataSource.h
+	source/dataman/AMXYScatterPVDataSource.h \
+	source/beamline/AMCompositeControl.h
+
+CONFIG(mobility) {
+HEADERS +=	source/ui/AMCrosshairOverlayVideoWidget.h \
+	source/ui/AMOverlayVideoWidget.h \
+	source/ui/AMBeamlineCameraBrowser.h
+}
+
 FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
 	source/ui/AMDataViewSectionHeader.ui \
@@ -394,7 +396,11 @@ FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMDataSourcesEditor.ui \
 	source/ui/AMSamplePlateSelector.ui \
 	source/ui/AMSamplePositionViewActionsWidget.ui \
-	source/ui/AMExporterOptionGeneralAsciiView.ui
+	source/ui/AMExporterOptionGeneralAsciiView.ui \
+	source/ui/AMDataViewActionsBar.ui \
+	source/ui/AMChooseScanDialog.ui \
+	source/ui/AMLinePropertyEditor.ui \
+	source/ui/AMImagePropertyEditor.ui
 SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	../MPlot/src/MPlot/MPlotAbstractTool.cpp \
 	../MPlot/src/MPlot/MPlotAxis.cpp \
@@ -479,6 +485,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMControlSetView.cpp \
 	source/ui/AMCramBarHorizontal.cpp \
 	source/ui/AMDataView.cpp \
+	source/ui/AMDataViewWithActionButtons.cpp \
 	source/ui/AMFlowGraphicsLayout.cpp \
 	source/ui/AMMainWindow.cpp \
 	source/ui/AMRegionsLineView.cpp \
@@ -489,7 +496,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMThumbnailScrollViewer.cpp \
 	source/ui/AMXASRegionsView.cpp \
 	source/ui/BottomBar.cpp \
-	#source/ui/AMBeamlineCameraWidget.cpp \
+	#deprecated: source/ui/AMBeamlineCameraWidget.cpp \
 	source/ui/AMControlEditor.cpp \
 	source/ui/AMDetectorView.cpp \
 	source/ui/AMNewRunDialog.cpp \
@@ -519,7 +526,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMStartScreen.cpp \
 	source/ui/AMSignallingGraphicsScene.cpp \
 	source/dataman/AMUser.cpp \
-	#source/ui/AMVideoPlayerWidget.cpp \
+	#deprecated: source/ui/AMVideoPlayerWidget.cpp \
 	source/dataman/AMXESScan.cpp \
 	source/dataman/ALSBL8XESDetectorInfo.cpp \
 	source/dataman/ALSBL8XASFileLoader.cpp \
@@ -573,8 +580,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/beamline/AMDetectorSet.cpp \
 	source/dataman/AMROIInfo.cpp \
 	source/beamline/AMROI.cpp \
-	#source/ui/AMVideoWidget.cpp \
-	#source/ui/AMOverlayVideoWidget.cpp \
+	#deprecated: source/ui/AMVideoWidget.cpp \
 	#source/beamline/AMBeamlineListAction.cpp
 	source/ui/AMSamplePositionViewActionsWidget.cpp \
 	source/beamline/AMBeamlineListAction.cpp \
@@ -593,6 +599,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMExporterOptionGeneralAsciiView.cpp \
 	source/ui/AMTopFrame.cpp \
 	source/dataman/AMExporter.cpp \
+#	source/ui/AM3dDataSourceView.cpp \
 	source/beamline/AMBeamlineSamplePlateMoveAction.cpp \
 	source/beamline/AMBeamlineFiducializationMoveAction.cpp \
 	source/dataman/OceanOptics65000DetectorInfo.cpp \
@@ -600,7 +607,6 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/OceanOptics65000DetectorView.cpp \
 	source/dataman/SGM2011XASFileLoader.cpp \
 	source/beamline/CLS/CLSVMEMotor.cpp \
-#	source/ui/AM3dDataSourceView.cpp \
 	source/analysis/AM1DDerivativeAB.cpp \
 	source/beamline/AMHighVoltageChannel.cpp \
 	source/beamline/CLS/CLSCAEN2527HVChannel.cpp \
@@ -616,26 +622,26 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/dataman/AMProcessVariableDataSource.cpp \
 	source/ui/AMChooseScanDialog.cpp \
 	source/application/AMDatamanAppController.cpp \
-	source/ui/AMDataViewWithActionButtons.cpp \
 	source/ui/AMColorPickerButton.cpp \
 	source/ui/AMScanSetItemPropertyDialog.cpp \
+	source/ui/AMColoredTextToolButton.cpp \
 	source/ui/AMLinePropertyEditor.cpp \
 	source/ui/AMImagePropertyEditor.cpp \
-	source/ui/AMColoredTextToolButton.cpp \
 	source/beamline/CLS/CLSSynchronizedDwellTime.cpp \
-	source/beamline/AMCompositeControl.cpp \
-	source/dataman/AMXYScatterPVDataSource.cpp
+	source/dataman/AMXYScatterPVDataSource.cpp \
+	source/beamline/AMCompositeControl.cpp
+
+CONFIG(mobility) {
+SOURCES +=	source/ui/AMOverlayVideoWidget.cpp \
+	source/ui/AMCrosshairOverlayVideoWidget.cpp \
+	source/ui/AMBeamlineCameraBrowser.cpp
+}
 
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc \
 	source/util/ElementData.qrc \
 	source/stylesheets/stylesheets.qrc
 
-macx {
-# Removed for now: OS-native video implementation
-#OBJECTIVE_SOURCES += 	source/ui/AMVideoWidget_mac.mm
-#LIBS += -framework AppKit
-}
 
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
