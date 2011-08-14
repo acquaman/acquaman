@@ -1,6 +1,5 @@
 #include "XRFDetectorView.h"
 #include "DeadTimeButton.h"
-#include "acquaman/VESPERS/VESPERSXRFScanController.h"
 #include "MPlot/MPlotAxisScale.h"
 #include "dataman/AMDataSourceSeriesData.h"
 #include "util/AMPeriodicTable.h"
@@ -84,14 +83,25 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	if (!detector)
 		return false;
 
+	minimumEnergy_ = 0;
+	maximumEnergy_ = 1e6;
+
 	detector_ = static_cast<XRFDetector *>(detector);
 	connect(detector_, SIGNAL(detectorConnected(bool)), this, SLOT(setEnabled(bool)));
+	connect(detector_, SIGNAL(addedRegionOfInterest(AMROIInfo)), this, SLOT(addRegionOfInterestMarker(AMROIInfo)));
+	connect(detector_, SIGNAL(removedRegionOfInterest(AMROIInfo)), this, SLOT(removeRegionOfInterestMarker(AMROIInfo)));
+	connect(detector_, SIGNAL(externalRegionsOfInterestChanged()), this, SLOT(onExternalRegionsOfInterestChanged()));
+	connect(detector_, SIGNAL(roiUpdate(AMROI*)), this, SLOT(roiWidthUpdate(AMROI*)));
+
+	status_ = new QLabel;
+	status_->setPixmap(QIcon(":/OFF.png").pixmap(20));
+	connect(detector_, SIGNAL(statusChanged(bool)), this, SLOT(onStatusChanged(bool)));
 
 	elapsedTime_ = new QLabel(tr(" s"));
-	connect(detector_->elapsedTimeControl(), SIGNAL(valueChanged(double)), this, SLOT(onElapsedTimeUpdate(double)));
+	connect(detector_, SIGNAL(elapsedTimeChanged(double)), this, SLOT(onElapsedTimeUpdate(double)));
 
 	deadTime_ = new QLabel(tr(" %"));
-	connect(detector_->deadTimeControl(), SIGNAL(controlSetValuesChanged(AMControlInfoList)), this, SLOT(onDeadTimeUpdate()));
+	connect(detector_, SIGNAL(deadTimeChanged()), this, SLOT(onDeadTimeUpdate()));
 
 	// Using a button group so I know which element I need to disable.
 	DeadTimeButton *temp;
@@ -102,13 +112,14 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 
 	for (int i = 0; i < detector_->elements(); i++){
 
-		temp = new DeadTimeButton(15.0, 30.0);
+		temp = new DeadTimeButton(30.0, 60.0);
 		temp->setCheckable(true);
 		temp->setFixedSize(20, 20);
-		connect(detector_->deadTimeControl()->at(i), SIGNAL(valueChanged(double)), temp, SLOT(setCurrent(double)));
 		deadTimeLayout->addWidget(temp);
 		deadTimeGroup_->addButton(temp, i);
 	}
+
+	connect(detector_, SIGNAL(deadTimeChanged()), this, SLOT(onDeadTimeChanged()));
 
 	if (detector_->elements() == 1)
 		deadTimeGroup_->button(0)->setCheckable(false);
@@ -120,17 +131,17 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	updateRate_->addItem("1 sec");
 	updateRate_->addItem("0.2 sec");
 	connect(updateRate_, SIGNAL(currentIndexChanged(int)), this, SLOT(onComboBoxUpdate(int)));
-	connect(detector_->refreshRateControl(), SIGNAL(valueChanged(double)), this, SLOT(onUpdateRateUpdate(double)));
+	connect(detector_, SIGNAL(refreshRateChanged(int)), this, SLOT(onUpdateRateChanged(int)));
 
 	isWaterfall_ = false;
 
 	setupPlot();
 
-	connect(detector_, SIGNAL(roiUpdate(AMROI*)), this, SLOT(roiWidthUpdate(AMROI*)));
-
 	QFont font(this->font());
 	font.setBold(true);
 
+	QLabel *statusLabel = new QLabel(QString("Acquiring"));
+	statusLabel->setFont(font);
 	QLabel *elapsedTimeLabel = new QLabel(QString("Elapsed Time"));
 	elapsedTimeLabel->setFont(font);
 	QLabel *deadTimeLabel = new QLabel(QString("Dead Time"));
@@ -166,7 +177,12 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	QPushButton *saveSpectraButton = new QPushButton(QIcon(":/Save.png"), "Save Spectra");
 	connect(saveSpectraButton, SIGNAL(clicked()), this, SLOT(saveSpectra()));
 
+	QHBoxLayout *statusLayout = new QHBoxLayout;
+	statusLayout->addWidget(statusLabel, 0, Qt::AlignLeft);
+	statusLayout->addWidget(status_, 0, Qt::AlignCenter);
+
 	QVBoxLayout *viewControlLayout = new QVBoxLayout;
+	viewControlLayout->addLayout(statusLayout);
 	viewControlLayout->addWidget(elapsedTimeLabel, 0, Qt::AlignLeft);
 	viewControlLayout->addWidget(elapsedTime_, 0, Qt::AlignCenter);
 	viewControlLayout->addWidget(deadTimeLabel, 0, Qt::AlignLeft);
@@ -176,12 +192,12 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	viewControlLayout->addWidget(updateRate_, 0, Qt::AlignCenter);
 	viewControlLayout->addWidget(logLabel, 0, Qt::AlignLeft);
 	viewControlLayout->addWidget(logButton_, 0, Qt::AlignCenter);
-	if (detector_->elements() != 1){
+	viewControlLayout->addWidget(rawElementLabel, 0, Qt::AlignLeft);
+	viewControlLayout->addWidget(waterfallButton_, 0, Qt::AlignCenter);
 
-		viewControlLayout->addWidget(rawElementLabel, 0, Qt::AlignLeft);
-		viewControlLayout->addWidget(waterfallButton_, 0, Qt::AlignCenter);
+	if (detector_->elements() != 1)
 		viewControlLayout->addWidget(waterfallSeparation_, 0, Qt::AlignCenter);
-	}
+
 	viewControlLayout->addStretch();
 	viewControlLayout->addWidget(saveSpectraButton, 0, Qt::AlignCenter);
 
@@ -202,6 +218,17 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	return true;
 }
 
+void XRFDetailedDetectorView::onDeadTimeChanged()
+{
+	DeadTimeButton *temp;
+
+	for (int i = 0; i < detector_->elements(); i++){
+
+		temp = qobject_cast<DeadTimeButton *>(deadTimeGroup_->button(i));
+		temp->setCurrent(detector_->deadTimeAt(i));
+	}
+}
+
 void XRFDetailedDetectorView::roiWidthUpdate(AMROI *roi)
 {
 	// Find the marker associated with the ROI and then change it.
@@ -211,7 +238,7 @@ void XRFDetailedDetectorView::roiWidthUpdate(AMROI *roi)
 
 		temp = markers_.at(i);
 
-		if (roi->name().compare(GeneralUtilities::removeGreek(temp->description())) == 0){
+		if (GeneralUtilities::removeGreek(temp->description()).compare(roi->name()) == 0){
 
 			temp->setLowEnd(roi->low()*roi->scale());
 			temp->setHighEnd(roi->high()*roi->scale());
@@ -221,7 +248,18 @@ void XRFDetailedDetectorView::roiWidthUpdate(AMROI *roi)
 
 void XRFDetailedDetectorView::onLogEnabled(bool logged)
 {
-	logged ? logButton_->setText("Linear") : logButton_->setText("Log");
+	// I change the constraint because in linear mode it doesn't matter if the data is between 0 and 1.  It only matters for the log plot (hence why it is only constrained in the logged case).
+	if (logged){
+
+		logButton_->setText("Linear");
+		plot_->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(1, MPLOT_POS_INFINITY));
+	}
+	else{
+
+		logButton_->setText("Log");
+		plot_->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(0, MPLOT_POS_INFINITY));
+	}
+
 	plot_->axisScaleLeft()->setLogScaleEnabled(logged);
 }
 
@@ -259,45 +297,19 @@ void XRFDetailedDetectorView::onComboBoxUpdate(int index)
 	switch(index){
 
 	case 0:
-		detector_->setRefreshRateControl(XRFDetectorInfo::Passive);
+		detector_->setRefreshRate(XRFDetector::Passive);
 		break;
 	case 1:
-		detector_->setRefreshRateControl(XRFDetectorInfo::Slow);
+		detector_->setRefreshRate(XRFDetector::Slow);
 		break;
 	case 2:
-		detector_->setRefreshRateControl(XRFDetectorInfo::Fast);
+		detector_->setRefreshRate(XRFDetector::Fast);
 		break;
 	}
-}
-
-void XRFDetailedDetectorView::onUpdateRateUpdate(double val)
-{
-	// This is here to stop the VESPERS single element detector from hurting getting into an infinite signal/slot loop.  It only seems to be it.  If this problem goes away then this line can be removed.
-	if (detector_->elements() == 1)
-		disconnect(updateRate_, SIGNAL(currentIndexChanged(int)), this, SLOT(onComboBoxUpdate(int)));
-
-	switch((int)val){
-
-	case 0:
-		updateRate_->setCurrentIndex(0);
-		break;
-	case 6:
-		updateRate_->setCurrentIndex(1);
-		break;
-	case 8:
-		updateRate_->setCurrentIndex(2);
-		break;
-	}
-
-	// This is here to stop the VESPERS single element detector from hurting getting into an infinite signal/slot loop.  It only seems to be it.  If this problem goes away then this line can be removed.
-	if (detector_->elements() == 1)
-		connect(updateRate_, SIGNAL(currentIndexChanged(int)), this, SLOT(onComboBoxUpdate(int)));
 }
 
 void XRFDetailedDetectorView::setupPlot()
 {
-	lines_ = new QList<MPlotPoint *>;
-
 	// Create the plot window.
 	view_ = new MPlotWidget;
 	view_->enableAntiAliasing(true);
@@ -322,28 +334,19 @@ void XRFDetailedDetectorView::setupPlot()
 	for (int i = 0; i < detector_->elements(); i++){
 
 		series = new MPlotSeriesBasic;
-		series->setModel(new AMDataSourceSeriesData(detector_->dataSource(i)));
+		series->setModel(new AMDataSourceSeriesData(detector_->spectrumDataSource(i)), true);
 		series->setMarker(MPlotMarkerShape::None);
-		series->setDescription(detector_->dataSource(i)->name());
+		series->setDescription(detector_->spectrumDataSource(i)->name());
 		series->setLinePen(QPen(getColor(i+1)));
 		rawDataSeries_ << series;
 	}
 
-	if (detector_->elements() == 1){
-
-		series->setLinePen(QPen(getColor(0)));
-		plot_->addItem(rawDataSeries_.first());
-	}
-	else{
-
-		/// BIT OF A HACK UNTIL I MAKE THE PROPER CORRECTED SUM. \todo fix hack
-		corrSum_ = new MPlotSeriesBasic;
-		corrSum_->setModel(new AMDataSourceSeriesData(detector_->dataSource(4)));
-		corrSum_->setMarker(MPlotMarkerShape::None);
-		corrSum_->setDescription(detector_->dataSource(4)->name());
-		corrSum_->setLinePen(QPen(getColor(0)));
-		plot_->addItem(corrSum_);
-	}
+	corrSum_ = new MPlotSeriesBasic;
+	corrSum_->setModel(new AMDataSourceSeriesData(detector_->correctedSumDataSource()), true);
+	corrSum_->setMarker(MPlotMarkerShape::None);
+	corrSum_->setDescription(detector_->correctedSumDataSource()->name());
+	corrSum_->setLinePen(QPen(getColor(0)));
+	plot_->addItem(corrSum_);
 
 	// Enable autoscaling of both axes.
 	plot_->axisScaleLeft()->setAutoScaleEnabled();
@@ -362,7 +365,7 @@ void XRFDetailedDetectorView::setupPlot()
 	plot_->axisRight()->setTicks(0);
 
 	// Set the autoscale constraints.
-	plot_->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(1, 1e20));
+	plot_->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(0, MPLOT_POS_INFINITY));
 }
 
 double XRFDetailedDetectorView::getMaximumHeight(MPlotItem *data)
@@ -373,12 +376,12 @@ double XRFDetailedDetectorView::getMaximumHeight(MPlotItem *data)
 	if (!temp)
 		return max;
 
-	AMDataSourceSeriesData *modal = (AMDataSourceSeriesData *)temp->model();
+	AMDataSourceSeriesData *model = (AMDataSourceSeriesData *)temp->model();
 
-	for (int i = 0; i < modal->count(); i++){
+	for (int i = 0; i < model->count(); i++){
 
-		if (max < modal->y(i))
-			max = modal->y(i);
+		if (max < model->y(i))
+			max = model->y(i);
 	}
 
 	return max;
@@ -387,7 +390,7 @@ double XRFDetailedDetectorView::getMaximumHeight(MPlotItem *data)
 void XRFDetailedDetectorView::sortRegionsOfInterest()
 {
 	// Sort the real ROIs.
-	detector_->sort();
+	detector_->sortRegionsOfInterest();
 
 	// Remove all the markers from the plot for now.
 	for (int i = 0; i < markers_.size(); i++)
@@ -416,22 +419,19 @@ void XRFDetailedDetectorView::sortRegionsOfInterest()
 	}
 }
 
-void XRFDetailedDetectorView::onAdditionOfRegionOfInterest(AMElement *el, QPair<QString, QString> line)
+void XRFDetailedDetectorView::addRegionOfInterestMarker(AMROIInfo info)
 {
-	// Because I want to display greek letters on the screen I have to play around with removing and adding the greek letters.
-	AMROIInfo info(el->symbol()+" "+GeneralUtilities::removeGreek(line.first), line.second.toDouble(), 0.04, detector_->scale());
-	detector_->addRegionOfInterest(info);
-	ROIPlotMarker *newMarker = new ROIPlotMarker(el->symbol()+" "+line.first, info.energy(), info.energy()*(1-info.width()/2), info.energy()*(1+info.width()/2));
+	QString symbol = info.name().split(" ").first();
+	QString line = GeneralUtilities::addGreek(info.name().split(" ").last());
+
+	ROIPlotMarker *newMarker = new ROIPlotMarker(symbol+" "+line, info.energy(), info.low(), info.high());
 	plot_->insertItem(newMarker);
 	newMarker->setYAxisTarget(plot_->axisScale(MPlot::VerticalRelative));
 	markers_ << newMarker;
-	highlightMarkers(el);
 }
 
-void XRFDetailedDetectorView::onRemovalOfRegionOfInterest(AMElement *el, QPair<QString, QString> line)
+void XRFDetailedDetectorView::removeRegionOfInterestMarker(AMROIInfo info)
 {
-	detector_->removeRegionOfInterest(el->symbol()+" "+GeneralUtilities::removeGreek(line.first));
-
 	MPlotItem *removeMe = 0;
 	ROIPlotMarker *temp;
 
@@ -439,24 +439,29 @@ void XRFDetailedDetectorView::onRemovalOfRegionOfInterest(AMElement *el, QPair<Q
 
 		temp = markers_.at(i);
 
-		if (temp->description().compare(el->symbol()+" "+line.first) == 0)
-			removeMe = markers_.at(i);
+		if (info.name().compare(GeneralUtilities::removeGreek(temp->description())) == 0)
+			removeMe = markers_.takeAt(i);
 	}
 
-	if (removeMe)
+	if (removeMe){
+
 		plot_->removeItem(removeMe);
+		delete removeMe;
+	}
 }
 
-void XRFDetailedDetectorView::removeAllRegionsOfInterest()
+void XRFDetailedDetectorView::removeAllRegionsOfInterestMarkers()
 {
-	for (int i = 0; i < markers_.size(); i++)
+	for (int i = 0; i < markers_.size(); i++){
+
 		plot_->removeItem(markers_.at(i));
+		delete markers_.at(i);
+	}
 
 	markers_.clear();
-	detector_->clearRegionsOfInterest();
 }
 
-void XRFDetailedDetectorView::highlightMarkers(AMElement *el)
+void XRFDetailedDetectorView::highlightMarkers(XRFElement *el)
 {
 	ROIPlotMarker *temp;
 
@@ -472,45 +477,41 @@ void XRFDetailedDetectorView::highlightMarkers(AMElement *el)
 	}
 }
 
-void XRFDetailedDetectorView::showEmissionLines(AMElement *el)
+void XRFDetailedDetectorView::showEmissionLines(XRFElement *el)
 {
-	QList<QPair<QString, QString> > toBeAdded;
-	QString lineName;
+	// Remove all the old lines from the plot and clear the list.
+	if (!lines_.isEmpty()){
+
+		for (int i = 0; i < lines_.size(); i++){
+
+			plot_->removeItem(lines_.at(i));
+			delete lines_.at(i);
+		}
+
+		lines_.clear();
+	}
+
+	MPlotPoint *newLine;
+	QString line;
+	double lineEnergy;
 
 	for (int i = 0; i < el->emissionLines().size(); i++){
 
-		lineName = el->emissionLines().at(i).first;
+		line = el->emissionLines().at(i).first;
+		lineEnergy = el->lineEnergy(line);
 
-		if (el->emissionLines().at(i).second.toDouble() <= detector_->maximumEnergy()*1000
-			&& (lineName.compare(QString::fromUtf8("Kα2")) && lineName.compare(QString::fromUtf8("Lα2")) && lineName.compare(QString::fromUtf8("Lβ2"))
-				&& lineName.compare("-")))
-			toBeAdded << el->emissionLines().at(i);
-	}
+		if ((lineEnergy <= maximumEnergy_ && lineEnergy >= minimumEnergy_)
+			&& line.contains("1") != 0 && line.compare("-")){
 
-	if (!lines_->isEmpty()){
-
-		for (int i = 0; i < lines_->size(); i++){
-
-			plot_->removeItem(lines_->at(i));
+			newLine = new MPlotPoint(QPointF(el->lineEnergy(line), 0));
+			newLine->setMarker(MPlotMarkerShape::VerticalBeam, 1e6, QPen(getColor(line)), QBrush(getColor(line)));
+			newLine->setDescription(line + ": " + QString::number(el->lineEnergy(line)) + " eV");
+			if (isWaterfall_)
+				plot_->insertItem(newLine, lines_.size()+detector_->elements());
+			else
+				plot_->insertItem(newLine, lines_.size()+1);
+			lines_ << newLine;
 		}
-
-		lines_->clear();
-	}
-
-	MPlotPoint *point;
-	QPair<QString, QString> current;
-
-	for (int i = 0; i < toBeAdded.size(); i++){
-
-		current = toBeAdded.at(i);
-		point = new MPlotPoint(QPoint(current.second.toDouble(), 0));
-		point->setMarker(MPlotMarkerShape::VerticalBeam, 1e5, QPen(getColor(current.first)), QBrush(getColor(current.first)));
-		point->setDescription(current.first + ": " + current.second + " eV");
-		if (isWaterfall_)
-			plot_->insertItem(point, i+detector_->elements());
-		else
-			plot_->insertItem(point, i+1);
-		lines_->append(point);
 	}
 }
 
@@ -581,6 +582,13 @@ void XRFDetailedDetectorView::onElapsedTimeUpdate(double time)
 	elapsedTime_->setText(QString::number(time, 'f', 2) + " s");
 }
 
+void XRFDetailedDetectorView::onExternalRegionsOfInterestChanged()
+{
+	removeAllRegionsOfInterestMarkers();
+	for (int i = 0; i < detector_->roiInfoList()->count(); i++)
+		addRegionOfInterestMarker(detector_->roiInfoList()->at(i));
+}
+
 #include <QFileDialog>
 #include <QTextStream>
 
@@ -595,7 +603,11 @@ void XRFDetailedDetectorView::saveSpectra()
 													   "",
 													   tr("Spectra Data (*.dat);;All Files (*)"));
 
-	QFile file(fileName+".dat");
+	QFile file;
+	if (fileName.right(4).compare(".dat") == 0)
+		file.setFileName(fileName);
+	else
+		file.setFileName(fileName+".dat");
 
 	if (!file.open(QFile::WriteOnly | QFile::Text)){
 		QMessageBox::warning(this, tr("XRF Detector"),
@@ -607,17 +619,55 @@ void XRFDetailedDetectorView::saveSpectra()
 
 	QTextStream out(&file);
 
-	if (detector_->elements() == 1){
+	int elements = detector_->elements();
+	int detectorSize = detector_->size().i();
 
-		out << "eV\tData\n";
-		for (int i = 0; i < detector_->dataSource()->size(0); i++)
-			out << double(detector_->dataSource()->axisValue(0, i)) << "\t" << int(detector_->dataSource()->value(AMnDIndex(i))) << "\n";
+	out << "Number of Elements:\t" << detector_->elements() << "\n";
+	out << "Energy Axis Scaler:\t" << detector_->scale() << "\n";
+	out << "Elapsed time:\t" << detector_->elapsedTime() << " s\n";
+
+	for (int i = 0; i < elements; i++){
+
+		out << QString("Input Count Rate %1\t").arg(i+1) << double(detector_->icrDataSource(i)->value(AMnDIndex())) << "\n";
+		out << QString("Output Count Rate %1\t").arg(i+1) << double(detector_->ocrDataSource(i)->value(AMnDIndex())) << "\n";
 	}
+
+	out << "Regions of Interest\n";
+	out << "Name\t<Low, High>\tValue\n";
+	QList<AMROI *> rois(detector_->roiList());
+			;
+	for (int i = 0; i < rois.size(); i++){
+
+		if (rois.at(i)->name().isEmpty())
+			break;
+
+		out << rois.at(i)->name() << "\t<" << rois.at(i)->low()*rois.at(i)->scale() << " eV, " << rois.at(i)->high()*rois.at(i)->scale() << " eV>\t" << rois.at(i)->value() << "\n";
+	}
+	out << "Spectra\n";
+	out << "Order is raw element spectra then corrected element spectra then finally corrected sum spectrum.\n";
+
+	for (int i = 0; i < elements; i++)
+		out << QString("Raw %1\t").arg(i+1);
+	for (int i = 0; i < elements; i++)
+		out << QString("Corr %1\t").arg(i+1);
+	if (elements > 1)
+		out << "Corrected Sum\n";
+	else
+		out << "\n";
+
+	if (elements == 1)
+		for (int i = 0; i < detectorSize; i++)
+			out << int(detector_->spectrumDataSource(0)->value(i)) << "\t" << int(detector_->correctedDataSource(0)->value(i)) << "\n";
 	else{
 
-		out << "eV\traw1\traw2\traw3\traw4\tcorrected sum\n";
-		for (int i = 0; i < detector_->dataSource()->size(0); i++)
-			out << double(detector_->dataSource()->axisValue(0, i)) << "\t" << int(detector_->dataSource(0)->value(AMnDIndex(i))) << "\t" << int(detector_->dataSource(1)->value(AMnDIndex(i))) << "\t" << int(detector_->dataSource(2)->value(AMnDIndex(i))) << "\t" << int(detector_->dataSource(3)->value(AMnDIndex(i))) << "\t" << int(detector_->dataSource(4)->value(AMnDIndex(i))) << "\n";
+		for (int i = 0; i < detectorSize; i++){
+
+			for (int j = 0; j < elements; j++)
+				out << int(detector_->spectrumDataSource(j)->value(i)) << "\t";
+			for (int j = 0; j < elements; j++)
+				out << int(detector_->correctedDataSource(j)->value(i)) << "\t";
+			out << int(detector_->correctedSumDataSource()->value(i)) << "\n";
+		}
 	}
 
 	file.close();

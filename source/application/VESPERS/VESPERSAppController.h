@@ -3,10 +3,12 @@
 
 #include "application/AMAppController.h"
 
-class VESPERSBeamlineView;
-class AMFreeRunScanConfigurationViewHolder;
-class VESPERSXRFScanConfigurationView;
+class VESPERSEndstationView;
+class XRFFreeRunView;
 class VESPERSPersistentView;
+class VESPERSXASScanConfigurationView;
+
+class AMGenericScanEditor;
 
 class VESPERSAppController : public AMAppController {
 	Q_OBJECT
@@ -24,22 +26,13 @@ public:
 	/// destroy all of the windows, widgets, and data objects created by applicationStartup(). Only call this if startup() has ran successfully.  If reimplementing, must call the base-class shutdown() as the last thing it does.
 	virtual void shutdown();
 
-
 protected slots:
+	/// Helper slot that builds a generic scan editor for the XAS scan.  \todo this seems like something that should be higher up in the framework.
+	void onCurrentScanControllerStarted();
 
 protected:
-	/// This contains the general endstation view.
-	VESPERSBeamlineView *vespersView_;
-	/// This is the top bar, which is persistent in the application regardless of what is currently active.
-	VESPERSPersistentView *persistentView_;
-	/// This is a holder for the VESPERSXRFScanConfigurationView for the single element detector.
-	AMFreeRunScanConfigurationViewHolder *xrf1EConfigHolder_;
-	/// This is a holder for the VESPERSXRFScanConfigurationView for the four element detector.
-	AMFreeRunScanConfigurationViewHolder *xrf4EConfigHolder_;
-	/// This is the XRF scan configuration.
-	VESPERSXRFScanConfigurationView *xrf1EConfigView_;
-	/// This is the XRF scan configuration.
-	VESPERSXRFScanConfigurationView *xrf4EConfigView_;
+	/// A pointer to the current XAS scan editor. \todo this seems like something that should be higher up in the framework.
+	AMGenericScanEditor *scanControllerActiveEditor_;
 };
 
 #endif // VESPERSAPPCONTROLLER_H

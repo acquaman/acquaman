@@ -6,7 +6,7 @@
 #include "dataman/AMXESScan.h"
 #include <QTimer>
 
-class AMBeamlineControlSetMoveAction;
+class AMBeamlineControlMoveAction;
 
 
 
@@ -53,7 +53,7 @@ protected:
 
 
 	/// This move action is used to implement the initial move of the spectrometer into position
-	AMBeamlineControlSetMoveAction* initialMoveAction_;
+	AMBeamlineControlMoveAction* initialMoveAction_;
 
 
 private:

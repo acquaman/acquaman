@@ -1,32 +1,23 @@
-/*
-Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
-
-This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
-
-Acquaman is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-Acquaman is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-
 #include "AMROIInfo.h"
 
-AMROIInfo::AMROIInfo(const QString &name, double energy, double width, double scale, QObject *parent)
+AMROIInfo::AMROIInfo(const QString &name, double energy, double low, double high, double scale, QObject *parent)
 	: AMDbObject(parent)
 {
 	setName(name);
 	energy_ = energy;
-	width_ = width;
 	scale_ = scale;
+	low_ = low;
+	high_ = high;
+}
+
+AMROIInfo::AMROIInfo(double energy, double width, double scale, const QString &name, QObject *parent)
+	: AMDbObject(parent)
+{
+	setName(name);
+	energy_ = energy;
+	scale_ = scale;
+	low_ = energy*(1-width/2);
+	high_ = energy*(1+width/2);
 }
 
 AMROIInfoList::AMROIInfoList(QObject *parent)

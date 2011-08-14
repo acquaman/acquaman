@@ -18,7 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "VESPERSBeamline.h"
-#include "beamline/VESPERS/SampleStageControl.h"
+#include "beamline/CLS/CLSVMEMotor.h"
+#include "beamline/AMSingleControlDetector.h"
 
 VESPERSBeamline::VESPERSBeamline()
 	: AMBeamline("VESPERS Beamline")
@@ -26,9 +27,9 @@ VESPERSBeamline::VESPERSBeamline()
 	setupDiagnostics();
 	setupSampleStage();
 	setupEndstation();
-	setupSingleElementDetector();
-	setupFourElementDetector();
+	setupDetectors();
 	setupControlSets();
+	setupMono();
 }
 
 void VESPERSBeamline::setupDiagnostics()
@@ -165,14 +166,19 @@ void VESPERSBeamline::setupSampleStage()
 	sampleStageVertical_ = new AMPVwStatusControl("Vertical Sample Stage", "TS1607-2-B21-01:V:user:mm:sp", "TS1607-2-B21-01:V:user:mm", "TS1607-2-B21-01:V:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
 	sampleStageNormal_ = new AMPVwStatusControl("Normal Sample Stage", "TS1607-2-B21-01:N:user:mm:sp", "TS1607-2-B21-01:N:user:mm", "TS1607-2-B21-01:N:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
 
-	sampleStageX_ = new AMPVwStatusControl("X motor Sample Stage", "SVM1607-2-B21-02:mm:sp", "SVM1607-2-B21-02:mm", "SVM1607-2-B21-02:status", "SVM1607-2-B21-02:stop", this, 0.01, 10.0);
-	sampleStageY_ = new AMPVwStatusControl("Y motor Sample Stage", "SVM1607-2-B21-03:mm:sp", "SVM1607-2-B21-03:mm", "SVM1607-2-B21-03:status", "SVM1607-2-B21-03:stop", this, 0.01, 10.0);
-	sampleStageZ_ = new AMPVwStatusControl("Z motor Sample Stage", "SVM1607-2-B21-01:mm:sp", "SVM1607-2-B21-01:mm", "SVM1607-2-B21-01:status", "SVM1607-2-B21-01:stop", this, 0.01, 10.0);
+	sampleStageX_ = new CLSVMEMotor("xMotorSampleStage", "SVM1607-2-B21-02", "X Motor Sample Stage", true, 0.01, 10.0, this);
+	sampleStageY_ = new CLSVMEMotor("yMotorSampleStage", "SVM1607-2-B21-03", "Y Motor Sample Stage", true, 0.01, 10.0, this);
+	sampleStageZ_ = new CLSVMEMotor("zMotorSampleStage", "SVM1607-2-B21-01", "Z Motor Sample Stage", true, 0.01, 10.0, this);
 
-	// These are meant for reading purposes.  They are the steps of the motor, not engineering units (ie: mm).
-	sampleStageStepX_ = new AMReadOnlyPVControl("X component Sample Stage", "SVM1607-2-B21-02:step:sp", this);
-	sampleStageStepY_ = new AMReadOnlyPVControl("Y component Sample Stage", "SVM1607-2-B21-03:step:sp", this);
-	sampleStageStepZ_ = new AMReadOnlyPVControl("Z component Sample Stage", "SVM1607-2-B21-01:step:sp", this);
+	pseudoSampleStage_ = new SampleStageControl(sampleStageHorizontal_, sampleStageVertical_, sampleStageNormal_, this);
+	pseudoSampleStage_->setXRange(-700000, 700000);
+	pseudoSampleStage_->setYRange(-200000, 200000);
+	pseudoSampleStage_->setZRange(-200000, 200000);
+
+	realSampleStage_ = new SampleStageControl(sampleStageX_, sampleStageY_, sampleStageZ_, this);
+	realSampleStage_->setXRange(-700000, 700000);
+	realSampleStage_->setYRange(-200000, 200000);
+	realSampleStage_->setZRange(-200000, 200000);
 
 	sampleStageMotorSet_ = new AMControlSet(this);
 	sampleStageMotorSet_->addControl(sampleStageHorizontal_);
@@ -181,25 +187,8 @@ void VESPERSBeamline::setupSampleStage()
 	sampleStageMotorSet_->addControl(sampleStageX_);
 	sampleStageMotorSet_->addControl(sampleStageY_);
 	sampleStageMotorSet_->addControl(sampleStageZ_);
-	sampleStageMotorSet_->addControl(sampleStageStepX_);
-	sampleStageMotorSet_->addControl(sampleStageStepY_);
-	sampleStageMotorSet_->addControl(sampleStageStepZ_);
 
 	connect(sampleStageMotorSet_, SIGNAL(controlSetTimedOut()), this, SLOT(sampleStageError()));
-
-	AMPVwStatusControl *h = qobject_cast<AMPVwStatusControl *>(sampleStageHorizontal_);
-	AMPVwStatusControl *v = qobject_cast<AMPVwStatusControl *>(sampleStageVertical_);
-	AMPVwStatusControl *n = qobject_cast<AMPVwStatusControl *>(sampleStageNormal_);
-	AMReadOnlyPVControl *x = qobject_cast<AMReadOnlyPVControl *>(sampleStageStepX_);
-	AMReadOnlyPVControl *y = qobject_cast<AMReadOnlyPVControl *>(sampleStageStepY_);
-	AMReadOnlyPVControl *z = qobject_cast<AMReadOnlyPVControl *>(sampleStageStepZ_);
-
-	sampleStage_ = new SampleStageControl(h, v, n, x, y, z);
-
-	sampleStage_->setScalers(1, 0.707, 0.707);
-	sampleStage_->setXRange(-700000, 700000);
-	sampleStage_->setYRange(-200000, 200000);
-	sampleStage_->setZRange(-200000, 200000);
 
 	sampleStagePidX_ = new AMPVControl("Sample Stage PID X", "SVM1607-2-B21-02:hold:sp", "SVM1607-2-B21-02:hold", QString(), this);
 	sampleStagePidY_ = new AMPVControl("Sample Stage PID Y", "SVM1607-2-B21-03:hold:sp", "SVM1607-2-B21-03:hold", QString(), this);
@@ -213,16 +202,10 @@ void VESPERSBeamline::setupSampleStage()
 void VESPERSBeamline::setupEndstation()
 {
 	// The controls used for the control window.
-	ccdMotor_ = new AMPVwStatusControl("CCD motor", "SMTR1607-2-B21-18:mm:sp", "SMTR1607-2-B21-18:mm", "SMTR1607-2-B21-18:status", "SMTR1607-2-B21-18:stop", this, 1.0, 10.0);
-	microscopeMotor_ = new AMPVwStatusControl("Microscope motor", "SMTR1607-2-B21-17:mm:sp", "SMTR1607-2-B21-17:mm", "SMTR1607-2-B21-17:status", "SMTR1607-2-B21-17:stop", this, 1.0, 10.0);
-	fourElMotor_ = new AMPVwStatusControl("4-Element Vortex motor", "SMTR1607-2-B21-27:mm:sp", "SMTR1607-2-B21-27:mm", "SMTR1607-2-B21-27:status", "SMTR1607-2-B21-27:stop", this, 1.0, 10.0);
-	singleElMotor_ = new AMPVwStatusControl("1-Element Vortex motor", "SMTR1607-2-B21-15:mm:sp", "SMTR1607-2-B21-15:mm", "SMTR1607-2-B21-15:status", "SMTR1607-2-B21-15:stop", this, 1.0, 10.0);
-
-	// The process variables that have the feedback value used for the button.  The microscope doesn't need one because it's encoder doesn't work.
-	ccdMotorfbk_ = new AMReadOnlyPVControl("CCD motor feedback", "SMTR1607-2-B21-18:mm:fbk", this);
-	fourElMotorfbk_ = new AMReadOnlyPVControl("4-Element Vortex motor feedback", "SMTR1607-2-B21-27:mm:fbk", this);
-	singleElMotorfbk_ = new AMReadOnlyPVControl("1-Element Vortex motor feedback", "SMTR1607-2-B21-15:mm:fbk", this);
-	focusMotorfbk_ = new AMReadOnlyPVControl("Focus motor feedback", "TS1607-2-B21-01:N:user:mm:fbk", this);
+	ccdMotor_ = new CLSVMEMotor("CCD Motor", "SMTR1607-2-B21-18", "CCD motor", false, 1.0, 2.0, this);
+	microscopeMotor_ = new CLSVMEMotor("Microscope motor", "SMTR1607-2-B21-17", "Microscope motor", false, 1.0, 2.0, this);
+	fourElMotor_ = new CLSVMEMotor("4-Element Vortex motor", "SMTR1607-2-B21-27", "4-Element Vortex motor", false, 1.0, 2.0, this);
+	singleElMotor_ = new CLSVMEMotor("1-Element Vortex motor", "SMTR1607-2-B21-15", "1-Element Vortex motor", false, 1.0, 2.0, this);
 
 	// Microscope light PV.
 	micLight_ = new AMProcessVariable("07B2_PLC_Mic_Light_Inten", true, this);
@@ -237,214 +220,38 @@ void VESPERSBeamline::setupEndstation()
 	ccdNumber_ = new AMProcessVariable("IOC1607-003:det1:FileNumber", true, this);
 }
 
-void VESPERSBeamline::setupSingleElementDetector()
+void VESPERSBeamline::setupDetectors()
 {
-	status1E_ = new AMReadOnlyPVControl("1-el Status", "IOC1607-004:mca1.ACQG", this);
-	elapsedTime1E_ = new AMReadOnlyPVControl("1-el Elapsed Time", "IOC1607-004:mca1.ERTM", this);
-	integrationTime1E_ = new AMPVControl("1-el Integration Time", "IOC1607-004:mca1.PRTM", "IOC1607-004:mca1.PRTM", QString(), this);
-	liveTime1E_ = new AMPVControl("1-el Live Time", "IOC1607-004:mca1.PLTM", "IOC1607-004:mca1.PLTM", QString(), this);
-	start1E_ = new AMPVControl("1-el Start", "IOC1607-004:mca1.ERST", "IOC1607-004:mca1.ERST", QString(), this);
-	stop1E_ = new AMPVControl("1-el Stop", "IOC1607-004:mca1.STOP", "IOC1607-004:mca1.STOP", QString(), this);
-	deadTime1E_ = new AMReadOnlyPVControl("1-el Dead Time", "IOC1607-004:mca1.IDTIM", this);
-	maxEnergy1E_ = new AMPVControl("1-el Maximum Energy", "IOC1607-004:dxp1.EMAX", "IOC1607-004:dxp1.EMAX", QString(), this);
-	mcaUpdateRate1E_ = new AMPVControl("1-el MCA Update Rate", "IOC1607-004:mca1Read.SCAN", "IOC1607-004:mca1Read.SCAN", QString(), this);
-	peakingTime1E_ = new AMPVControl("1-el Peaking Time", "IOC1607-004:dxp1.PKTIM", "IOC1607-004:dxp1.PKTIM", QString(), this);
-	spectrum1E_ = new AMReadOnlyPVControl("1-el Spectrum", "IOC1607-004:mca1", this);
+	amNames2pvNames_.set("IonChamberSplit1", "BL1607-B2-1:mcs05:fbk");
+	amNames2pvNames_.set("IonChamberSplit2", "BL1607-B2-1:mcs06:fbk");
+	amNames2pvNames_.set("IonChamberPreKB", "BL1607-B2-1:mcs07:fbk");
+	amNames2pvNames_.set("IonChamberMini", "BL1607-B2-1:mcs08:fbk");
+	amNames2pvNames_.set("IonChamberPost", "BL1607-B2-1:mcs09:fbk");
 
-	// Putting the controls into their own control set.
-	vortex1EControls_ = new AMControlSet(this);
-	vortex1EControls_->addControl(status1E_);
-	vortex1EControls_->addControl(elapsedTime1E_);
-	vortex1EControls_->addControl(integrationTime1E_);
-	vortex1EControls_->addControl(liveTime1E_);
-	vortex1EControls_->addControl(start1E_);
-	vortex1EControls_->addControl(stop1E_);
-	vortex1EControls_->addControl(deadTime1E_);
-	vortex1EControls_->addControl(maxEnergy1E_);
-	vortex1EControls_->addControl(mcaUpdateRate1E_);
-	vortex1EControls_->addControl(peakingTime1E_);
-	vortex1EControls_->addControl(spectrum1E_);
+	iSplit1Control_ = new AMReadOnlyPVControl("IonChamberSplit1", amNames2pvNames_.valueF("IonChamberSplit1"), this, "Split Ion Chamber 1");
+	iSplit2Control_ = new AMReadOnlyPVControl("IonChamberSplit2", amNames2pvNames_.valueF("IonChamberSplit2"), this, "Split Ion Chamber 2");
+	iPreKBControl_ = new AMReadOnlyPVControl("IonChamberPreKB", amNames2pvNames_.valueF("IonChamberPreKB"), this, "Pre-KB Ion Chamber");
+	iMiniControl_ = new AMReadOnlyPVControl("IonChamberMini", amNames2pvNames_.valueF("IonChamberMini"), this, "Mini Ion Chamber");
+	iPostControl_ = new AMReadOnlyPVControl("IonChamberPost", amNames2pvNames_.valueF("IonChamberPost"), this, "Post Sample Ion Chamber");
 
-	// MCA records behave incorrectly when using the ca_put_callback epics callback.  Need to use ca_put only.
-	AMPVControl *temp;
-	for (int i = 0; i < vortex1EControls_->count(); i++){
+	iSplit1_ = new AMSingleControlDetector(iSplit1Control_->name(), iSplit1Control_, AMDetector::RequestRead, this);
+	iSplit2_ = new AMSingleControlDetector(iSplit2Control_->name(), iSplit2Control_, AMDetector::RequestRead, this);
+	iPreKB_ = new AMSingleControlDetector(iPreKBControl_->name(), iPreKBControl_, AMDetector::RequestRead, this);
+	iMini_ = new AMSingleControlDetector(iMiniControl_->name(), iMiniControl_, AMDetector::RequestRead, this);
+	iPost_ = new AMSingleControlDetector(iPostControl_->name(), iPostControl_, AMDetector::RequestRead, this);
 
-		temp = qobject_cast<AMPVControl *>(vortex1EControls_->at(i)); // Since AMReadOnlyPVControl is an ancestor of AMPVControl, this will return null if it's not AMPVControl.
-		if (temp)
-			temp->disableWritePVPutCallback(true);
-	}
+	ionChambers_ = new AMDetectorSet(this);
+	ionChambers_->addDetector(iSplit1_);
+	ionChambers_->addDetector(iSplit2_);
+	ionChambers_->addDetector(iPreKB_);
+	ionChambers_->addDetector(iMini_);
+	ionChambers_->addDetector(iPost_);
 
-	vortex1E_ = new XRFDetector("Single Element XRF",
-								status1E_,
-								mcaUpdateRate1E_,
-								peakingTime1E_,
-								maxEnergy1E_,
-								integrationTime1E_,
-								liveTime1E_,
-								elapsedTime1E_,
-								start1E_,
-								stop1E_,
-								deadTime1E_,
-								spectrum1E_,
-								this);
-
+	vortex1E_ = new XRFDetector("1-el Vortex", 1, "IOC1607-004", this);
 	connect(vortexXRF1E(), SIGNAL(detectorConnected(bool)), this, SLOT(singleElVortexError(bool)));
 
-	QList<AMROI *> rois;
-	AMROI *roi;
-
-	// Currently all detectors I'm aware of have 32 ROIs.
-	for (int i = 0; i < 32; i++){
-
-		roi = createROI(1, i, "IOC1607-004:mca");
-		rois << roi;
-	}
-
-	vortexXRF1E()->setRoiList(rois);
-}
-
-void VESPERSBeamline::setupFourElementDetector()
-{
-	status4E_ = new AMReadOnlyPVControl("4-el Status", "dxp1607-B21-04:mca1.ACQG", this);
-	elapsedTime4E_ = new AMReadOnlyPVControl("4-el Elapsed Time", "dxp1607-B21-04:ElapsedReal", this);
-	integrationTime4E_ = new AMPVControl("4-el Integration Time", "dxp1607-B21-04:PresetReal", "dxp1607-B21-04:PresetReal", QString(), this);
-	liveTime4E_ = new AMPVControl("4-el Live Time", "dxp1607-B21-04:PresetLive", "dxp1607-B21-04:PresetLive", QString(), this);
-	start4E_ = new AMPVControl("4-el Start", "dxp1607-B21-04:EraseStart", "dxp1607-B21-04:EraseStart", QString(), this);
-	stop4E_ = new AMPVControl("4-el Stop", "dxp1607-B21-04:StopAll", "dxp1607-B21-04:StopAll", QString(), this);
-	maxEnergy4E_ = new AMPVControl("4-el Maximum Energy", "dxp1607-B21-04:mcaEMax", "dxp1607-B21-04:mcaEMax", QString(), this);
-	mcaUpdateRate4E_ = new AMPVControl("4-el MCA Update Rate", "dxp1607-B21-04:ReadAll.SCAN", "dxp1607-B21-04:ReadAll.SCAN", QString(), this);
-	peakingTime4E_ = new AMPVControl("4-el Peaking Time", "dxp1607-B21-04:EnergyPkTime", "dxp1607-B21-04:EnergyPkTime", QString(), this);
-	deadTime14E_ = new AMReadOnlyPVControl("4-el Dead Time 1", "dxp1607-B21-04:dxp1:NetDTP", this);
-	deadTime24E_ = new AMReadOnlyPVControl("4-el Dead Time 2", "dxp1607-B21-04:dxp2:NetDTP", this);
-	deadTime34E_ = new AMReadOnlyPVControl("4-el Dead Time 3", "dxp1607-B21-04:dxp3:NetDTP", this);
-	deadTime44E_ = new AMReadOnlyPVControl("4-el Dead Time 4", "dxp1607-B21-04:dxp4:NetDTP", this);
-	rawSpectrum14E_ = new AMReadOnlyPVControl("4-el Raw Spectrum 1", "dxp1607-B21-04:mca1", this);
-	rawSpectrum24E_ = new AMReadOnlyPVControl("4-el Raw Spectrum 2", "dxp1607-B21-04:mca2", this);
-	rawSpectrum34E_ = new AMReadOnlyPVControl("4-el Raw Spectrum 3", "dxp1607-B21-04:mca3", this);
-	rawSpectrum44E_ = new AMReadOnlyPVControl("4-el Raw Spectrum 4", "dxp1607-B21-04:mca4", this);
-
-	deadTime4E_ = new AMControlSet(this);
-	deadTime4E_->addControl(deadTime14E_);
-	deadTime4E_->addControl(deadTime24E_);
-	deadTime4E_->addControl(deadTime34E_);
-	deadTime4E_->addControl(deadTime44E_);
-
-	spectra4E_ = new AMControlSet(this);
-	spectra4E_->addControl(rawSpectrum14E_);
-	spectra4E_->addControl(rawSpectrum24E_);
-	spectra4E_->addControl(rawSpectrum34E_);
-	spectra4E_->addControl(rawSpectrum44E_);
-
-	// This will hold all of the controls.  Unfortunately, the grouping for the dead time and spectra will be lost.  If those are what you'd actually be interested in then use their specific control sets.  That's why they were created.
-	vortex4EControls_ = new AMControlSet(this);
-	vortex4EControls_->addControl(status4E_);
-	vortex4EControls_->addControl(elapsedTime4E_);
-	vortex4EControls_->addControl(integrationTime4E_);
-	vortex4EControls_->addControl(liveTime4E_);
-	vortex4EControls_->addControl(start4E_);
-	vortex4EControls_->addControl(stop4E_);
-	vortex4EControls_->addControl(maxEnergy4E_);
-	vortex4EControls_->addControl(mcaUpdateRate4E_);
-	vortex4EControls_->addControl(peakingTime4E_);
-	vortex4EControls_->addControl(deadTime14E_);
-	vortex4EControls_->addControl(deadTime24E_);
-	vortex4EControls_->addControl(deadTime34E_);
-	vortex4EControls_->addControl(deadTime44E_);
-	vortex4EControls_->addControl(rawSpectrum14E_);
-	vortex4EControls_->addControl(rawSpectrum24E_);
-	vortex4EControls_->addControl(rawSpectrum34E_);
-	vortex4EControls_->addControl(rawSpectrum44E_);
-
-	// MCA records behave incorrectly when using the ca_put_callback epics callback.  Need to use ca_put only.
-	AMPVControl *temp;
-	for (int i = 0; i < vortex4EControls_->count(); i++){
-
-		temp = qobject_cast<AMPVControl *>(vortex4EControls_->at(i)); // Since AMReadOnlyPVControl is an ancestor of AMPVControl, this will return null if it's not AMPVControl.
-		if (temp)
-			temp->disableWritePVPutCallback(true);
-	}
-
-	vortex4E_ = new XRFDetector("Four Element XRF",
-								4,
-								status4E_,
-								mcaUpdateRate4E_,
-								peakingTime4E_,
-								maxEnergy4E_,
-								integrationTime4E_,
-								liveTime4E_,
-								elapsedTime4E_,
-								start4E_,
-								stop4E_,
-								deadTime4E_,
-								spectra4E_,
-								this);
-
+	vortex4E_ = new XRFDetector("4-el Vortex", 4, "dxp1607-B21-04", this);
 	connect(vortexXRF4E(), SIGNAL(detectorConnected(bool)), this, SLOT(fourElVortexError(bool)));
-
-	QList<AMROI *> rois;
-	AMROI *roi;
-
-	// Currently all detectors I'm aware of have 32 ROIs.
-	for (int i = 0; i < 32; i++){
-
-		roi = createROI(4, i, "dxp1607-B21-04:mca");
-		rois << roi;
-	}
-
-	vortexXRF4E()->setRoiList(rois);
-}
-
-AMROI *VESPERSBeamline::createROI(int numElements, int roiNum, QString baseName)
-{
-	AMProcessVariable *namePV;
-	AMProcessVariable *lowPV;
-	AMProcessVariable *highPV;
-	AMProcessVariable *valPV;
-
-	// Things are simpler with one element.
-	if (numElements == 1){
-
-		namePV = new AMProcessVariable(baseName+"1.R"+QString::number(roiNum)+"NM", true);
-		lowPV = new AMProcessVariable(baseName+"1.R"+QString::number(roiNum)+"LO", true);
-		highPV = new AMProcessVariable(baseName+"1.R"+QString::number(roiNum)+"HI", true);
-		valPV = new AMProcessVariable(baseName+"1.R"+QString::number(roiNum), true);
-
-		namePV->disablePutCallbackMode(true);
-		lowPV->disablePutCallbackMode(true);
-		highPV->disablePutCallbackMode(true);
-		valPV->disablePutCallbackMode(true);
-
-		// Giving null parameters because the detector might not be connected yet.  The detector can modify them as it wishes.
-		return new AMROI(QString(), -1, -1, 10, namePV, lowPV, highPV, valPV);
-	}
-
-	else{
-
-		QList<AMProcessVariable *> names;
-		QList<AMProcessVariable *> lows;
-		QList<AMProcessVariable *> highs;
-		QList<AMProcessVariable *> vals;
-
-		for (int i = 0; i < numElements; i++){
-
-			namePV = new AMProcessVariable(baseName+QString::number(i+1)+".R"+QString::number(roiNum)+"NM", true);
-			lowPV = new AMProcessVariable(baseName+QString::number(i+1)+".R"+QString::number(roiNum)+"LO", true);
-			highPV = new AMProcessVariable(baseName+QString::number(i+1)+".R"+QString::number(roiNum)+"HI", true);
-			valPV = new AMProcessVariable(baseName+QString::number(i+1)+".R"+QString::number(roiNum), true);
-
-			namePV->disablePutCallbackMode(true);
-			lowPV->disablePutCallbackMode(true);
-			highPV->disablePutCallbackMode(true);
-			valPV->disablePutCallbackMode(true);
-
-			names << namePV;
-			lows << lowPV;
-			highs << highPV;
-			vals << valPV;
-		}
-
-		return new AMROI(QString(), -1, -1, 10, names, lows, highs, vals);
-	}
 }
 
 void VESPERSBeamline::setupControlSets()
@@ -588,14 +395,10 @@ void VESPERSBeamline::setupControlSets()
 	// Grouping the enstation motors together.
 	endstationMotorSet_ = new AMControlSet(this);
 	endstationMotorSet_->addControl(ccdMotor_);
-	endstationMotorSet_->addControl(ccdMotorfbk_);
 	endstationMotorSet_->addControl(microscopeMotor_);
 	endstationMotorSet_->addControl(fourElMotor_);
-	endstationMotorSet_->addControl(fourElMotorfbk_);
 	endstationMotorSet_->addControl(singleElMotor_);
-	endstationMotorSet_->addControl(singleElMotorfbk_);
 	endstationMotorSet_->addControl(sampleStageNormal_);
-	endstationMotorSet_->addControl(focusMotorfbk_);
 
 	// Beam attenuation filters.  Only contains the filters of a certain size.  The upper and lower are used independently of these six.
 	filterSet_ = new AMControlSet(this);
@@ -607,6 +410,11 @@ void VESPERSBeamline::setupControlSets()
 	filterSet_->addControl(filter50umB_);
 	filterSet_->addControl(filterShutterUpper_);
 	filterSet_->addControl(filterShutterLower_);
+}
+
+void VESPERSBeamline::setupMono()
+{
+	energyRelative_ = new AMPVwStatusControl("Relative Energy Movement", "07B2_Mono_SineB_delE", "07B2_Mono_SineB_delE", "SMTR1607-1-B20-20:status", "SMTR1607-1-B20-20:stop", this, 0.1, 2.0, new AMControlStatusCheckerDefault(0), 1);
 }
 
 void VESPERSBeamline::pressureConnected(bool connected)
@@ -806,182 +614,5 @@ void VESPERSBeamline::sampleStageError()
 
 VESPERSBeamline::~VESPERSBeamline()
 {
-	delete ccgFE1_;
-	delete ccgFE2a_;
-	delete ccgFE2b_;
-	delete ccgFE3a_;
-	delete ccgFE3b_;
-	delete ccgM1_;
-	delete ccgM2_;
-	delete ccgBPM1_;
-	delete ccgBPM2_;
-	delete ccgMono_;
-	delete ccgExitSlits_;
-	delete ccgStraightSection_;
-	delete ccgBPM3_;
-	delete ccgSSH_;
-	delete ccgBeamTransfer1_;
-	delete ccgBeamTransfer2_;
-	delete ccgPreWindow_;
-	delete ccgPostWindow_;
-	delete vvrFE1_;
-	delete vvrFE2_;
-	delete vvrM1_;
-	delete vvrM2_;
-	delete vvrBPM1_;
-	delete vvrMono_;
-	delete vvrExitSlits_;
-	delete vvrStraightSection_;
-	delete vvrBPM3_;
-	delete vvrSSH_;
-	delete vvrBeamTransfer_;
-	delete valveFE1_;
-	delete valveFE2_;
-	delete valveM1_;
-	delete valveM2_;
-	delete valveBPM1_;
-	delete valveMono_;
-	delete valveExitSlits_;
-	delete valveStraightSection_;
-	delete valveBPM3_;
-	delete valveSSH_;
-	delete valveBeamTransfer_;
-	delete iopFE1a_;
-	delete iopFE1b_;
-	delete iopFE2a_;
-	delete iopFE2b_;
-	delete iopFE2c_;
-	delete iopFE2d_;
-	delete iopFE3a_;
-	delete iopFE3b_;
-	delete iopM1_;
-	delete iopM2_;
-	delete iopBPM1_;
-	delete iopBPM2_;
-	delete iopMono_;
-	delete iopExitSlits_;
-	delete iopStraightSection_;
-	delete iopBPM3_;
-	delete iopSSH_;
-	delete iopBeamTransfer1_;
-	delete iopBeamTransfer2_;
-	delete iopPreWindow_;
-	delete tmWaterSupply1_;
-	delete tmWaterSupply2_;
-	delete tmM1A1_;
-	delete tmM1A2_;
-	delete tmM1A3_;
-	delete tmM1B1_;
-	delete tmM1B2_;
-	delete tmM1B3_;
-	delete tmM2A1_;
-	delete tmM2A2_;
-	delete tmM2A3_;
-	delete tmM2B1_;
-	delete tmM2B2_;
-	delete tmM2B3_;
-	delete tmMono1_;
-	delete tmMono2_;
-	delete tmMono3_;
-	delete tmMono4_;
-	delete tmMono5_;
-	delete tmMono6_;
-	delete tmMono7_;
-	delete swfM1A_;
-	delete swfM1B_;
-	delete swfM2A_;
-	delete swfM2B_;
-	delete swfMono_;
-	delete swfExitSlits_;
-	delete swfInterimSlits1_;
-	delete swfInterimSlits2_;
-	delete swfPoeSsh1_;
-	delete swfPoeSsh2_;
-	delete fltM1A_;
-	delete fltM1B_;
-	delete fltM2A_;
-	delete fltM2B_;
-	delete fltMono_;
-	delete fltExitSlits_;
-	delete fltInterimSlits1_;
-	delete fltInterimSlits2_;
-	delete fltPoeSsh1_;
-	delete fltPoeSsh2_;
-	delete pressureSet_;
-	delete valveSet_;
-	delete valveList_;
-	delete valves_;
-	delete ionPumpSet_;
-	delete temperatureSet_;
-	delete flowSwitchSet_;
-	delete flowTransducerSet_;
-	delete endstationMotorSet_;
-	delete ccdMotor_;
-	delete microscopeMotor_;
-	delete fourElMotor_;
-	delete singleElMotor_;
-	delete sampleStageNormal_;
-	delete sampleStageX_;
-	delete sampleStageY_;
-	delete sampleStageZ_;
-	delete sampleStageStepX_;
-	delete sampleStageStepY_;
-	delete sampleStageStepZ_;
-	delete sampleStage_;
-	delete sampleStagePidX_;
-	delete sampleStagePidY_;
-	delete sampleStagePidZ_;
-	delete sampleStagePID_;
-	delete resetPseudoMotors_;
-	delete ccdMotorfbk_;
-	delete fourElMotorfbk_;
-	delete singleElMotorfbk_;
-	delete focusMotorfbk_;
-	delete micLight_;
-	delete laserPower_;
-	delete ccdPath_;
-	delete ccdFile_;
-	delete ccdNumber_;
-	delete filter250umA_;
-	delete filter250umB_;
-	delete filter100umA_;
-	delete filter100umB_;
-	delete filter50umA_;
-	delete filter50umB_;
-	delete filterShutterUpper_;
-	delete filterShutterLower_;
-	delete elapsedTime1E_;
-	delete integrationTime1E_;
-	delete liveTime1E_;
-	delete start1E_;
-	delete stop1E_;
-	delete deadTime1E_;
-	delete maxEnergy1E_;
-	delete mcaUpdateRate1E_;
-	delete peakingTime1E_;
-	delete spectrum1E_;
-	delete vortex1EControls_;
-	delete elapsedTime4E_;
-	delete integrationTime4E_;
-	delete liveTime4E_;
-	delete start4E_;
-	delete stop4E_;
-	delete maxEnergy4E_;
-	delete mcaUpdateRate4E_;
-	delete peakingTime4E_;
-	delete deadTime14E_;
-	delete deadTime24E_;
-	delete deadTime34E_;
-	delete deadTime44E_;
-	delete rawSpectrum14E_;
-	delete rawSpectrum24E_;
-	delete rawSpectrum34E_;
-	delete rawSpectrum44E_;
-	delete deadTime4E_;
-	delete spectra4E_;
-	delete vortex4EControls_;
-	delete sampleStageHorizontal_;
-	delete sampleStageVertical_;
-	delete sampleStageMotorSet_;
-	delete filterSet_;
+
 }

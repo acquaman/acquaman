@@ -49,7 +49,7 @@ VESPERSMotorView::VESPERSMotorView(QWidget *parent) :
 	setLayout(layout);
 }
 
-void VESPERSMotorView::setControl(AMPVwStatusControl *control)
+void VESPERSMotorView::setControl(AMControl *control)
 {
 	// Disconnect everything first before starting over.
 	hideAndDisconnect();
@@ -70,15 +70,14 @@ void VESPERSMotorView::setControl(AMPVwStatusControl *control)
 	}
 	stop_->setControl(control_);
 	title_->setText(control_->name());
-	updateStatus();
 	setpoint_->setText(QString::number(control_->value(), 'f', 3));
 	jog_->setText(QString::number(0, 'f', 3));
 
 	connect(control_, SIGNAL(connected(bool)), this, SLOT(setEnabled(bool)));
 	connect(control_, SIGNAL(unitsChanged(QString)), units_, SLOT(setText(QString)));
 	connect(control_, SIGNAL(unitsChanged(QString)), jogUnits_, SLOT(setText(QString)));
-	connect(control_->writePV(), SIGNAL(valueChanged()), this, SLOT(updateStatus())); // Custom writePVValueChanged.
-	connect(control_->movingPV(), SIGNAL(valueChanged()), this, SLOT(updateStatus()));
+	connect(control_, SIGNAL(setpointChanged(double)), this, SLOT(updateSetpoint(double)));
+	connect(((AMPVwStatusControl *)control_)->movingPV(), SIGNAL(valueChanged(int)), this, SLOT(updateStatus(int)));
 
 	connect(setpoint_, SIGNAL(returnPressed()), this, SLOT(move()));
 	connect(jogLeft_, SIGNAL(clicked()), this, SLOT(jogLeft()));
@@ -111,7 +110,7 @@ void VESPERSMotorView::setControl(AMPVwStatusControl *control)
 	setLayout(layout);
 }
 
-void VESPERSMotorView::setControl(AMPVwStatusControl *control, double lowLimit, double highLimit)
+void VESPERSMotorView::setControl(AMControl *control, double lowLimit, double highLimit)
 {
 	// Disconnect everything first before starting over.
 	hideAndDisconnect();
@@ -130,18 +129,16 @@ void VESPERSMotorView::setControl(AMPVwStatusControl *control, double lowLimit, 
 		units_->setText(control_->units());
 		jogUnits_->setText(control_->units());
 	}
-	jogUnits_->setText(control_->units());
 	stop_->setControl(control_);
 	title_->setText(control_->name());
-	updateStatus();
 	setpoint_->setText(QString::number(control_->value(), 'f', 3));
 	jog_->setText(QString::number(0, 'f', 3));
 
 	connect(control_, SIGNAL(connected(bool)), this, SLOT(setEnabled(bool)));
 	connect(control_, SIGNAL(unitsChanged(QString)), units_, SLOT(setText(QString)));
 	connect(control_, SIGNAL(unitsChanged(QString)), jogUnits_, SLOT(setText(QString)));
-	connect(control_->writePV(), SIGNAL(valueChanged()), this, SLOT(updateStatus())); // Custom writePVValueChanged.
-	connect(control_->movingPV(), SIGNAL(valueChanged()), this, SLOT(updateStatus()));
+	connect(control_, SIGNAL(setpointChanged(double)), this, SLOT(updateSetpoint(double)));
+	connect(((AMPVwStatusControl *)control_)->movingPV(), SIGNAL(valueChanged(int)), this, SLOT(updateStatus(int)));
 
 	connect(setpoint_, SIGNAL(returnPressed()), this, SLOT(move()));
 	connect(jogLeft_, SIGNAL(clicked()), this, SLOT(jogLeft()));
@@ -174,7 +171,7 @@ void VESPERSMotorView::setControl(AMPVwStatusControl *control, double lowLimit, 
 	setLayout(layout);
 }
 
-void VESPERSMotorView::setControl(AMPVwStatusControl *control, double firstSetpoint, double secondSetpoint, QString firstLabel, QString secondLabel)
+void VESPERSMotorView::setControl(AMControl *control, double firstSetpoint, double secondSetpoint, QString firstLabel, QString secondLabel)
 {
 	// Disconnect everything first before starting over.
 	hideAndDisconnect();
@@ -186,7 +183,6 @@ void VESPERSMotorView::setControl(AMPVwStatusControl *control, double firstSetpo
 	units_->setText(control_->units());
 	stop_->setControl(control_);
 	title_->setText(control_->name());
-	updateStatus();
 	firstSetpointButton_->setText(firstLabel);
 	secondSetpointButton_->setText(secondLabel);
 	firstSetpoint_ = firstSetpoint;
@@ -195,8 +191,8 @@ void VESPERSMotorView::setControl(AMPVwStatusControl *control, double firstSetpo
 	connect(control_, SIGNAL(connected(bool)), this, SLOT(setEnabled(bool)));
 	connect(control_, SIGNAL(unitsChanged(QString)), units_, SLOT(setText(QString)));
 	connect(control_, SIGNAL(unitsChanged(QString)), jogUnits_, SLOT(setText(QString)));
-	connect(control_->writePV(), SIGNAL(valueChanged()), this, SLOT(updateStatus())); // Custom writePVValueChanged.
-	connect(control_->movingPV(), SIGNAL(valueChanged()), this, SLOT(updateStatus()));
+	connect(control_, SIGNAL(setpointChanged(double)), this, SLOT(updateSetpoint(double)));
+	connect(((AMPVwStatusControl *)control_)->movingPV(), SIGNAL(valueChanged(int)), this, SLOT(updateStatus(int)));
 
 	connect(firstSetpointButton_, SIGNAL(clicked()), this, SLOT(moveToFirstSetpoint()));
 	connect(secondSetpointButton_, SIGNAL(clicked()), this, SLOT(moveToSecondSetpoint()));
@@ -224,7 +220,9 @@ void VESPERSMotorView::hideAndDisconnect()
 		disconnect(control_, SIGNAL(connected(bool)), this, SLOT(setEnabled(bool)));
 		disconnect(control_, SIGNAL(unitsChanged(QString)), units_, SLOT(setText(QString)));
 		disconnect(control_, SIGNAL(unitsChanged(QString)), jogUnits_, SLOT(setText(QString)));
-		disconnect(control_->writePV(), SIGNAL(valueChanged()), this, SLOT(updateStatus()));
+		disconnect(control_, SIGNAL(setpointChanged(double)), this, SLOT(updateSetpoint(double)));
+		disconnect(((AMPVwStatusControl *)control_)->movingPV(), SIGNAL(valueChanged(int)), this, SLOT(updateStatus(int)));
+
 		if (type_ == Full){
 
 			disconnect(setpoint_, SIGNAL(returnPressed()), this, SLOT(move()));
@@ -249,12 +247,15 @@ void VESPERSMotorView::hideAndDisconnect()
 	}
 }
 
-void VESPERSMotorView::updateStatus()
+void VESPERSMotorView::updateSetpoint(double setpoint)
 {
 	if (type_ == Full)
-		setpoint_->setText(QString::number(control_->writePVValue(), 'f', 3));
+		setpoint_->setText(QString::number(setpoint, 'f', 3));
+}
 
-	switch(control_->movingPVValue()){
+void VESPERSMotorView::updateStatus(int status)
+{
+	switch(status){
 	case 0:
 		status_->setText("Move Done");
 		status_->setStyleSheet("QLabel#Status { color: rgb(0,150,0) }");

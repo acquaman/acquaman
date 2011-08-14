@@ -87,5 +87,11 @@
         <file>22x22/list-add.png</file>
         <file>32x32/list-remove.png</file>
         <file>22x22/list-remove.png</file>
+        <file>22x22/brightness.png</file>
+        <file>22x22/contrast.png</file>
+        <file>22x22/gamma.png</file>
+        <file>16x16/brightness.png</file>
+        <file>16x16/contrast.png</file>
+        <file>16x16/gamma.png</file>
     </qresource>
 </RCC>

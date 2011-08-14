@@ -23,7 +23,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMBeamline.h"
 #include "beamline/AMControlSet.h"
 #include "acquaman/REIXS/REIXSXESMCPDetector.h"	///< \todo Move this to beamline, not acquaman.
+#include "dataman/REIXS/REIXSXESCalibration.h"
+#include "beamline/AMCompositeControl.h"
 
+#include "util/AMDeferredFunctionCall.h"
 
 /// The REIXSHexapod control is just a container for the set of coupled controls which make up the hexapod:
 /*!
@@ -32,7 +35,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 - r(), s(), t(): Rotation point relative to stage origin, in mm
 */
 
-class REIXSHexapod : public AMControl {
+class REIXSHexapod : public AMCompositeControl {
 	Q_OBJECT
 public:
 	REIXSHexapod(QObject* parent = 0);
@@ -48,12 +51,14 @@ public:
 	AMControl* t() { return t_; }
 
 
+
 protected:
 	/// Controls, connected to the hexapod PVs
 	AMControl *x_, *y_, *z_, *u_, *v_, *w_, *r_, *s_, *t_;
+
 };
 
-/// The REIXSSpectrometer control is a container for the set of (low-level, physical) controls which make up the spectrometer:
+/// The REIXSSpectrometer control is a high-level abstraction for controlling the spectrometer energy.  It's also a container for the set of (low-level, physical) controls which make up the spectrometer:
 /*!
 - angleDrive(): The position of the ball screw that lifts the spectrometer, in mm, up from the home (lowered) position.
 - detectorTranslation(): The position of the ball screw that translates the detector along the chamber, in mm, away from the upstream home position
@@ -61,20 +66,169 @@ protected:
 - detectorRotationDrive(): The position of the linear stage which rotates the detector, in mm, away from the most upstream home position
 - hexapod(): The REIXSHexapod controls
 */
-class REIXSSpectrometer : public AMControl {
+class REIXSSpectrometer : public AMCompositeControl {
 	Q_OBJECT
 public:
 	REIXSSpectrometer(QObject* parent = 0);
 
-	AMControl* angleDrive() { return angleDrive_; }
+	/// The spectrometer calibration object we are using
+	const REIXSXESCalibration* spectrometerCalibration() const { return &calibration_; }
+
+	int gratingCount() const { return calibration_.gratingCount(); }
+
+	int grating() const { return currentGrating_; }
+	int specifiedGrating() const { return specifiedGrating_; }
+
+	double focusOffset() const { return currentFocusOffset_; }
+	double specifiedFocusOffset() const { return specifiedFocusOffset_; }
+
+	double detectorTiltOffset() const { return currentDetectorTiltOffset_; }
+	double specifiedDetectorTiltOffset() const { return specifiedDetectorTiltOffset_; }
+
+
+	/// the energy position (in eV) based on the current position of the spectrometer.  This uses the current grating setting (not the specified grating) and current calibration to figure it out. It's the best estimate of what energy the actual detector position corresponds to.  (However, there's no guarantee that the detector is focussed or at the right tilt, unless inSpecifiedPosition() = true).
+	virtual double value() const;
+	double eV() const { return value(); }
+
+	/// The last energy setpoint the spectrometer was told to go
+	double setpoint() const { return specifiedEV_; }
+
+
+	/// this indicates whether the spectrometer is "in position".  For the spectrometer, this means that the current grating matches the specified grating, the current offsets match the specified offsets, the angle is within tolerance for the desired energy, and the hexapod is in position for the current grating.
+	virtual bool inPosition() const {
+		return fabs(value()-setpoint()) < tolerance() &&
+				currentGrating_ == specifiedGrating_ &&
+				gratingInPosition() &&
+				currentFocusOffset_ == specifiedFocusOffset_ &&
+				currentDetectorTiltOffset_ == specifiedDetectorTiltOffset_;
+	}
+
+	/// Returns true if the hexapod position is correct for the current grating().
+	bool gratingInPosition() const;
+
+	/// this indicates whether a contrl is "within tolerance" of a given target (ie: the target specified is the same as the current value within the set tolerance)
+	virtual bool withinTolerance(double target) const { return fabs(value()-target) < tolerance(); }
+
+
+	bool shouldMeasure() const { return true; }
+	bool shouldMove() const { return true; }
+	bool shouldStop() const { return true; }
+	// exception: the hexapod can't stop...Or can it?
+	bool canStop() const { return spectrometerRotationDrive_->canStop() && detectorTranslation_->canStop() && detectorTiltDrive_->canStop() && detectorRotationDrive_->canStop(); }
+
+
+	/// Indicates that a move (that was commanded via this object using move()) is in progress.  This will be accompanied by signals moveStarted(), moveFinished(), moveFailed(int reason).
+	virtual bool moveInProgress() const { return currentMoveStep_ != MoveDone; }
+
+	/// Returns the minimum and maximum value for the current grating
+	virtual double minimumValue() const { return calibration_.evRangeForGrating(specifiedGrating_).first; }
+	virtual double maximumValue() const { return calibration_.evRangeForGrating(specifiedGrating_).second; }
+
+	/// Move to the given energy, using the specified grating, focusOffset, tiltOffset, and the current calibration. (This will cause spectrometer motion)
+	virtual void move(double setpoint);
+
+	/// Stop the spectrometer if it's currently moving
+	virtual bool stop();
+
+
+
+	AMControl* spectrometerRotationDrive() { return spectrometerRotationDrive_; }
 	AMControl* detectorTranslation() { return detectorTranslation_; }
 	AMControl* detectorTiltDrive() { return detectorTiltDrive_; }
 	AMControl* detectorRotationDrive() { return detectorRotationDrive_; }
 	REIXSHexapod* hexapod() { return hexapod_; }
 
+public slots:
+	/// Specify which stored calibration to use.  Use a \c databaseId of 0 or -1 to reset to the default calibration (ie: a default-constructed REIXSXESCalibration).  Returns true on success.
+	bool loadSpectrometerCalibration(AMDatabase* db, int databaseId);
+
+	void specifyFocusOffset(double focusOffsetMm);
+	bool specifyGrating(int gratingIndex);
+	void specifyDetectorTiltOffset(double tiltOffsetDeg);
+
 protected:
-	AMControl *angleDrive_, *detectorTranslation_, *detectorTiltDrive_, *detectorRotationDrive_;
+	AMControl *spectrometerRotationDrive_, *detectorTranslation_, *detectorTiltDrive_, *detectorRotationDrive_;
 	REIXSHexapod* hexapod_;
+
+	REIXSXESCalibration calibration_;
+
+	/// Current grating is -1 if a grating hasn't been positioned yet
+	int currentGrating_, specifiedGrating_;
+	double currentFocusOffset_, specifiedFocusOffset_;
+	double currentDetectorTiltOffset_, specifiedDetectorTiltOffset_;
+
+	double specifiedEV_;
+
+
+	// for move state machine:
+	enum MoveStep { Starting, MovingZto0, MovingUto0, MovingRST, MovingU, MovingXYZ, MovingLiftTiltTranslation, MoveDone };
+	MoveStep currentMoveStep_;
+
+
+signals:
+	/// Emitted when the calibration object is changed (This might mean that the # of gratings or grating names might be different). Check with spectrometerCalibration().
+	void calibrationChanged();
+
+	/// Emitted when the current grating() changes.  This doesn't necessarily mean that the new grating is in position, but we will have atarted moving it into position.  The specifiedGrating() turns into the current grating() when a move() is issued.
+	void gratingChanged(int);
+
+	/// \todo: gratingInPositionChanged() for any hexapod moves...
+	/// \todo: current defocus, current tilt and signals for them changing.
+
+protected slots:
+
+	/// Called whenever the lift and translation motors move, this schedules valueChanged() to be emitted, but not as fast as the motors update.
+	void scheduleReviewValueChanged() { reviewValueChangedFunction_.runLater(200); }
+	/// Called at a maximum rate of 0.1s, this examines the current position of the spectrometer and emits valueChanged().
+	void reviewValueChanged() { emit valueChanged(value()); }
+
+	// for move state machine
+	void smStartMoveZto0();
+	void smMoveZto0Succeeded();
+	void smMoveZto0Failed(int reason);
+
+	void smStartMoveUto0();
+	void smMoveUto0Succeeded();
+	void smMoveUto0Failed(int reason);
+
+	void smStartMoveRST();
+	void smRMoveSucceeded();
+	void smSMoveSucceeded();
+	void smTMoveSucceeded();
+	void smRMoveFailed(int reason);
+	void smSMoveFailed(int reason);
+	void smTMoveFailed(int reason);
+
+	void smStartMoveU();
+	void smMoveUSucceeded();
+	void smMoveUFailed(int reason);
+
+	void smStartMoveXYZ();
+	void smXMoveSucceeded();
+	void smYMoveSucceeded();
+	void smZMoveSucceeded();
+	void smXMoveFailed(int reason);
+	void smYMoveFailed(int reason);
+	void smZMoveFailed(int reason);
+
+	void smStartMoveLiftTiltTranslation();
+	void smLiftMoveSucceeded();
+	void smTiltMoveSucceeded();
+	void smTranslationMoveSucceeded();
+	void smLiftMoveFailed(int reason);
+	void smTiltMoveFailed(int reason);
+	void smTranslationMoveFailed(int reason);
+
+protected:
+	bool smRMoveDone_, smSMoveDone_, smTMoveDone_;
+	bool smXMoveDone_, smYMoveDone_, smZMoveDone_;
+	bool smLiftMoveDone_, smTiltMoveDone_, smTranslationMoveDone_;
+
+	AMControlInfoList moveSetpoint_;
+
+	/// We don't want to calculate and emit valueChanged() as often as we get motor move updates... because these ones can update real fast. This is used to slow it down, and only emit valueChanged() about once every 200ms.
+	AMDeferredFunctionCall reviewValueChangedFunction_;
+
 };
 
 /// The REIXSSampleChamber control is a container for the motor controls that make up the sample manipulator and load lock.
