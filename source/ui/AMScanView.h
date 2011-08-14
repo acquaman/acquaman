@@ -37,9 +37,34 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMScanSetModel.h"
 
 #include "ui/AMCramBarHorizontal.h"
-
+#include <QMenu>
 
 class AMScanViewSourceSelector;
+
+/// This menu subclass provides a context menu for AMScanViewScanBar
+class AMScanViewScanBarContextMenu : public QMenu {
+	Q_OBJECT
+public:
+	AMScanViewScanBarContextMenu(AMScanSetModel* model, int scanIndex, int dataSourceIndex, QWidget* parent = 0);
+	~AMScanViewScanBarContextMenu();
+
+protected:
+	/// The model this context menu was created within
+	AMScanSetModel* model_;
+	/// index of the data source this context menu was created for
+	QPersistentModelIndex pi_;
+
+
+protected slots:
+	/// Called when the "hide all data sources except this one" action is triggered.
+	void hideAllExceptDataSource();
+	/// Called when the "show all data sources like this one" action is triggered.
+	void showAllDataSource();
+	/// Called when the "show all data sources" action is triggered.
+	void showAll();
+	/// Called when the "edit Color And Style" action is triggered.
+	void editColorAndStyle();
+};
 
 /// This GUI class is a helper for AMScanViewSourceSelector.  It diplays the available data sources for a single Scan.
 class AMScanViewScanBar : public QFrame {
@@ -66,7 +91,6 @@ protected:
 	/// whether in exclusiveMode (ie: only one data source allowed) or not:
 	bool exclusiveModeOn_;
 
-
 protected slots:
 	/// after a scan or data source is added in the model
 	void onRowInserted(const QModelIndex& parent, int start, int end);
@@ -81,9 +105,8 @@ protected slots:
 	/// when one of the data source toggles is clicked:
 	void onSourceButtonClicked(int id);
 
-	// when the close (remove) button is clicked
-	// REMOVED: void onCloseButtonClicked();
-
+	/// called when a right-click menu is requested on any of the buttons. Produces a context menu. (\c location is in source button coordinates)
+	void onDataSourceButtonRightClicked(const QPoint& location);
 
 
 
@@ -323,7 +346,7 @@ protected slots:
 	virtual void onRowAboutToBeRemoved(const QModelIndex& parent, int start, int end);
 	/// after a scan or data source is deleted in the model:
 	virtual void onRowRemoved(const QModelIndex& parent, int start, int end);
-	/// when data changes:
+	/// when data changes: (ex: line color, plot settings, etc.)
 	virtual void onModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight);
 
 	/// when the model's "exclusive data source" changes. This is the one data source that we display for all of our scans (as long as they have it).

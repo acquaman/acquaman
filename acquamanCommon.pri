@@ -373,7 +373,17 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/analysis/AM1DSummingAB.h \
 	source/analysis/AMDeadTimeAB.h \
 	source/dataman/AMProcessVariableDataSource.h \
-	source/ui/AMChooseScanDialog.h
+	source/ui/AMChooseScanDialog.h \
+	source/application/AMDatamanAppController.h \
+	source/ui/AMDataViewWithActionButtons.h \
+	source/ui/AMColorPickerButton.h \
+	source/ui/AMScanSetItemPropertyDialog.h \
+	source/ui/AMLinePropertyEditor.h \
+	source/ui/AMImagePropertyEditor.h \
+	source/ui/AMColoredTextToolButton.h \
+	source/beamline/CLS/CLSSynchronizedDwellTime.h \
+	source/beamline/AMCompositeControl.h \
+	source/dataman/AMXYScatterPVDataSource.h
 FORMS +=	source/ui/AMDataView.ui \
 	source/ui/AMDataViewEmptyHeader.ui \
 	source/ui/AMDataViewSectionHeader.ui \
@@ -604,7 +614,17 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/analysis/AM1DSummingAB.cpp \
 	source/analysis/AMDeadTimeAB.cpp \
 	source/dataman/AMProcessVariableDataSource.cpp \
-	source/ui/AMChooseScanDialog.cpp
+	source/ui/AMChooseScanDialog.cpp \
+	source/application/AMDatamanAppController.cpp \
+	source/ui/AMDataViewWithActionButtons.cpp \
+	source/ui/AMColorPickerButton.cpp \
+	source/ui/AMScanSetItemPropertyDialog.cpp \
+	source/ui/AMLinePropertyEditor.cpp \
+	source/ui/AMImagePropertyEditor.cpp \
+	source/ui/AMColoredTextToolButton.cpp \
+	source/beamline/CLS/CLSSynchronizedDwellTime.cpp \
+	source/beamline/AMCompositeControl.cpp \
+	source/dataman/AMXYScatterPVDataSource.cpp
 
 RESOURCES = source/icons/icons.qrc \
 	source/configurationFiles/configurationFiles.qrc \

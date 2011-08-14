@@ -26,7 +26,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "MPlot/MPlotImage.h"
 #include "MPlot/MPlotSeries.h"
 #include <QScrollBar>
+#include "ui/AMColoredTextToolButton.h"
 
+#include <QAction>
+
+#include <QStringBuilder>
 
 AMScanViewScanBar::AMScanViewScanBar(AMScanSetModel* model, int scanIndex, QWidget* parent)
 	: QFrame(parent)
@@ -63,34 +67,30 @@ AMScanViewScanBar::AMScanViewScanBar(AMScanSetModel* model, int scanIndex, QWidg
 
 	if(source) {
 		for(int i=0; i<source->dataSourceCount(); i++) {
-			QToolButton* sourceButton = new QToolButton();
+			QColor color = model->plotColor(scanIndex, i);
+
+			QToolButton* sourceButton = new AMColoredTextToolButton(color); /// \todo special buttons, with lines underneath that show the line color / style, and differentiate 1D, 2D datasets.
+
 			sourceButton->setMaximumHeight(18);
 			sourceButton->setText(source->dataSourceAt(i)->name());	/// \todo description or name? both? name if description is empty?
-			QColor color = model->plotColor(scanIndex, i);
-			sourceButton->setStyleSheet(QString("color: rgba(%1, %2, %3, %4);").arg(color.red()).arg(color.green()).arg(color.blue()).arg(color.alpha()));	/// \todo special buttons, with lines underneath that show the line color / style, and differentiate 1D, 2D datasets.
 			sourceButton->setCheckable(true);
 			sourceButton->setChecked(model->isVisible(scanIndex, i));
 			sourceButtons_.addButton(sourceButton, i);
 			cramBar_->addWidget(sourceButton);
+			/// \todo this is a bit of a hack for scalar data sources: hidden because people don't want to see them. [Who added 0D data sources anyway?]
+			if (source->dataSourceAt(i)->rank() == 0)
+				sourceButton->hide();
+			sourceButton->setContextMenuPolicy(Qt::CustomContextMenu);
+			connect(sourceButton, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onDataSourceButtonRightClicked(QPoint)));
 		}
 	}
 
 	hl->addWidget(cramBar_);
 	hl->addStretch(1);
 
-	/* REMOVED
- closeButton_ = new QToolButton();
- closeButton_->setText("X");
- hl->addWidget(closeButton_);
- */
-
 	hl->setContentsMargins(6, 0, 6, 0);
 	hl->setSpacing(24);
 	setLayout(hl);
-
-	//unnecessary: this->setAutoFillBackground(true);
-	//unnecessary: ensurePolished();
-
 
 	connect(model, SIGNAL(rowsInserted(QModelIndex, int, int)), this, SLOT(onRowInserted(QModelIndex,int,int)));
 	connect(model, SIGNAL(rowsAboutToBeRemoved(QModelIndex, int, int)), this, SLOT(onRowAboutToBeRemoved(QModelIndex,int,int)));
@@ -105,6 +105,17 @@ AMScanViewScanBar::AMScanViewScanBar(AMScanSetModel* model, int scanIndex, QWidg
 }
 
 
+void AMScanViewScanBar::onDataSourceButtonRightClicked(const QPoint& location) {
+
+	QAbstractButton* button = qobject_cast<QAbstractButton*>(sender());
+	if(!button)
+		return;
+
+	int dataSourceIndex = sourceButtons_.id(button);
+
+	AMScanViewScanBarContextMenu* cm = new AMScanViewScanBarContextMenu(model_, scanIndex_, dataSourceIndex, button);
+	cm->popup(button->mapToGlobal(location));
+}
 
 
 void AMScanViewScanBar::onRowInserted(const QModelIndex& parent, int start, int end) {
@@ -130,6 +141,9 @@ void AMScanViewScanBar::onRowInserted(const QModelIndex& parent, int start, int 
 			newButton->setChecked( (model_->exclusiveDataSourceName() == source->dataSourceAt(i)->name()) );
 		else
 			newButton->setChecked(model_->isVisible(scanIndex_, i));
+		/// \todo this is a bit of a hack for scalar data sources: hidden because people don't want to see them. [Who added 0D data sources anyway?]
+		if (source->dataSourceAt(i)->rank() == 0)
+			newButton->hide();
 
 		// qDebug() << "added a data source. exclusiveModeOn is: " << exclusiveModeOn_ << ", source name is:" << source->dataSourceAt(i)->name() << ", exclusiveDataSourceName is:" << model_->exclusiveDataSourceName();
 	}
@@ -138,7 +152,6 @@ void AMScanViewScanBar::onRowInserted(const QModelIndex& parent, int start, int 
 
 // before a scan or data source is deleted in the model.
 void AMScanViewScanBar::onRowAboutToBeRemoved(const QModelIndex& parent, int start, int end) {
-	Q_UNUSED(end)
 
 	// check if this isn't one of our data sources being deleted.
 	if(parent.internalId() != -1 || parent.row() != scanIndex_) {
@@ -186,8 +199,7 @@ void AMScanViewScanBar::onModelDataChanged(const QModelIndex& topLeft, const QMo
 		else
 			sourceButtons_.button(dataSourceIndex)->setChecked(model_->isVisible(scanIndex_, dataSourceIndex));
 
-		QColor color = model_->plotColor(scanIndex_, dataSourceIndex);
-		sourceButtons_.button(dataSourceIndex)->setStyleSheet(QString("color: rgba(%1, %2, %3, %4);").arg(color.red()).arg(color.green()).arg(color.blue()).arg(color.alpha()));
+		qobject_cast<AMColoredTextToolButton*>(sourceButtons_.button(dataSourceIndex))->setTextColor( model_->plotColor(scanIndex_, dataSourceIndex) );
 	}
 }
 
@@ -697,17 +709,20 @@ void AMScanViewExclusiveView::onModelDataChanged(const QModelIndex& topLeft, con
 			if(dataSource == plotItemDataSources_.at(si)) {
 				switch(dataSource->rank()) {
 				case 1: {
-					QColor color = model()->plotColor(si, di);
+					MPlotAbstractSeries* series = static_cast<MPlotAbstractSeries*>(plotItems_.at(si));
 					QPen pen = model()->plotPen(si, di);
-					pen.setColor(color);
-					static_cast<MPlotAbstractSeries*>(plotItems_.at(si))->setLinePen(pen);
+					if(pen != series->linePen())
+						series->setLinePen(pen);
 					break; }
 				case 2: {
-					/// \todo This is inefficient... Institute separate signals for different dataChanged() parameters, or check if old color map matches new color map.
-					static_cast<MPlotAbstractImage*>(plotItems_.at(si))->setColorMap(model()->plotColorMap(si, di));
+					MPlotAbstractImage* image = static_cast<MPlotAbstractImage*>(plotItems_.at(si));
+					MPlotColorMap newMap = model()->plotColorMap(si, di);
+					if(newMap != image->colorMap())
+						image->setColorMap(newMap);
 					break;
+				}
 				default:
-						break; }
+					break;
 				}
 			}
 		}
@@ -772,9 +787,7 @@ MPlotItem* AMScanViewInternal::createPlotItemForDataSource(const AMDataSource* d
 		MPlotSeriesBasic* series = new MPlotSeriesBasic();
 		series->setModel(new AMDataSourceSeriesData(dataSource), true);
 		series->setMarker(MPlotMarkerShape::None);
-		QPen pen = plotSettings.linePen;
-		pen.setColor(plotSettings.color);
-		series->setLinePen(pen);
+		series->setLinePen(plotSettings.linePen);
 		rv = series;
 		break; }
 
@@ -822,12 +835,12 @@ void AMScanViewExclusiveView::reviewScan(int scanIndex) {
 			plot_->plot()->addItem(plotItems_.at(scanIndex), (dataSource->rank() == 2? MPlot::Right : MPlot::Left));
 			/// \todo: if there are 2d images on any plots, set their right axis to show the right axisScale, and show ticks.
 			// testing 3D
-//			if(dataSource->rank() == 2) {
-//				AM3dDataSourceView* tempView = new AM3dDataSourceView(model()->scanAt(scanIndex), model()->scanAt(scanIndex)->indexOfDataSource(dataSource));
-//				tempView->setLogScaleEnabled();
-//				tempView->resize(640,480);
-//				tempView->show();
-//			}
+			//			if(dataSource->rank() == 2) {
+			//				AM3dDataSourceView* tempView = new AM3dDataSourceView(model()->scanAt(scanIndex), model()->scanAt(scanIndex)->indexOfDataSource(dataSource));
+			//				tempView->setLogScaleEnabled();
+			//				tempView->resize(640,480);
+			//				tempView->show();
+			//			}
 
 			plotItemDataSources_[scanIndex] = dataSource;
 		}
@@ -843,8 +856,6 @@ void AMScanViewExclusiveView::reviewScan(int scanIndex) {
 					plotItemDataSources_[scanIndex] = dataSource;
 				}
 				QPen pen = model()->plotPen(scanIndex, dataSourceIndex);
-				QColor color = model()->plotColor(scanIndex, dataSourceIndex);
-				pen.setColor(color);
 				series->setLinePen(pen);
 				break; }
 			case 2: {
@@ -1066,13 +1077,16 @@ void AMScanViewMultiView::onModelDataChanged(const QModelIndex& topLeft, const Q
 					plotItem->setDescription(model()->scanAt(si)->fullName() + ": " + model()->dataSourceAt(si, di)->description());
 					switch(model()->dataSourceAt(si, di)->rank()) {
 					case 1: {
+						MPlotAbstractSeries* series = static_cast<MPlotAbstractSeries*>(plotItem);
 						QPen pen = model()->plotPen(si, di);
-						pen.setColor(model()->plotColor(si, di));
-						static_cast<MPlotAbstractSeries*>(plotItem)->setLinePen(pen);
+						if(pen != series->linePen())
+							series->setLinePen(pen);
 						break; }
 					case 2: {
-						/// \todo This is inefficient... Institute separate signals for different dataChanged() parameters, or check if old color map matches new color map.
-						static_cast<MPlotAbstractImage*>(plotItem)->setColorMap(model()->plotColorMap(si, di));
+						MPlotAbstractImage* image = static_cast<MPlotAbstractImage*>(plotItem);
+						MPlotColorMap newMap = model()->plotColorMap(si, di);
+						if(newMap != image->colorMap())
+							image->setColorMap(newMap);
 						break; }
 					default:
 						break;
@@ -1357,13 +1371,16 @@ void AMScanViewMultiScansView::onModelDataChanged(const QModelIndex& topLeft, co
 
 					switch(model()->dataSourceAt(si, di)->rank()) {
 					case 1: {
+						MPlotAbstractSeries* series = static_cast<MPlotAbstractSeries*>(plotItem);
 						QPen pen = model()->plotPen(si, di);
-						pen.setColor(model()->plotColor(si, di));
-						static_cast<MPlotAbstractSeries*>(plotItem)->setLinePen(pen);
+						if(pen != series->linePen())
+							series->setLinePen(pen);
 						break; }
 					case 2: {
-						/// \todo This is inefficient... Institute separate signals for different dataChanged() parameters, or check if old color map matches new color map.
-						static_cast<MPlotAbstractImage*>(plotItem)->setColorMap(model()->plotColorMap(si, di));
+						MPlotAbstractImage* image = static_cast<MPlotAbstractImage*>(plotItem);
+						MPlotColorMap newMap = model()->plotColorMap(si, di);
+						if(newMap != image->colorMap())
+							image->setColorMap(newMap);
 						break; }
 					default:
 						break;
@@ -1577,13 +1594,16 @@ void AMScanViewMultiSourcesView::onModelDataChanged(const QModelIndex& topLeft, 
 
 				switch(model()->dataSourceAt(si, di)->rank()) {
 				case 1: {
+					MPlotAbstractSeries* series = static_cast<MPlotAbstractSeries*>(plotItem);
 					QPen pen = model()->plotPen(si, di);
-					pen.setColor(model()->plotColor(si, di));
-					static_cast<MPlotAbstractSeries*>(plotItem)->setLinePen(pen);
+					if(pen != series->linePen())
+						series->setLinePen(pen);
 					break; }
 				case 2: {
-					/// \todo This is inefficient... Institute separate signals for different dataChanged() parameters, or check if old color map matches new color map.
-					static_cast<MPlotAbstractImage*>(plotItem)->setColorMap(model()->plotColorMap(si, di));
+					MPlotAbstractImage* image = static_cast<MPlotAbstractImage*>(plotItem);
+					MPlotColorMap newMap = model()->plotColorMap(si, di);
+					if(newMap != image->colorMap())
+						image->setColorMap(newMap);
 					break; }
 				default:
 					break;
@@ -1837,4 +1857,60 @@ MPlotGW * AMScanViewInternal::createDefaultPlot()
 	//		crsrTool.cursor(0)->marker()->setPen(QPen(QColor(Qt::blue)));
 	return rv;
 }
+
+AMScanViewScanBarContextMenu::AMScanViewScanBarContextMenu(AMScanSetModel *model, int scanIndex, int dataSourceIndex, QWidget* parent)
+	: QMenu(parent)
+{
+	model_ = model;
+	QModelIndex di = model_->indexForDataSource(scanIndex, dataSourceIndex);
+	pi_ = QPersistentModelIndex(di);
+
+	QString scanName = model_->data(di.parent(), AM::NameRole).toString();
+	QString dataSourceName = model_->data(di, AM::NameRole).toString();
+	QString dataSourceDescription = model_->data(di, AM::DescriptionRole).toString();
+	QString title = scanName % ": " % dataSourceName;
+	setTitle(title);
+
+	addAction(title)->setDisabled(true);
+	if(dataSourceDescription != dataSourceName)
+		addAction(dataSourceDescription)->setDisabled(true);
+	addSeparator();
+	connect(addAction("Hide all except " % dataSourceName), SIGNAL(triggered()), this, SLOT(hideAllExceptDataSource()));
+	if(model_->scanCount() > 1)
+		connect(addAction("Show all " % dataSourceName), SIGNAL(triggered()), this, SLOT(showAllDataSource()));
+	connect(addAction("Show all"), SIGNAL(triggered()), this, SLOT(showAll()));
+	addSeparator();
+	connect(addAction("Color and style..."), SIGNAL(triggered()), this, SLOT(editColorAndStyle()));
+
+	connect(this, SIGNAL(aboutToHide()), this, SLOT(deleteLater()));
+}
+
+AMScanViewScanBarContextMenu::~AMScanViewScanBarContextMenu() {
+	// nothing required yet
+}
+
+void AMScanViewScanBarContextMenu::hideAllExceptDataSource()
+{
+}
+
+void AMScanViewScanBarContextMenu::showAllDataSource()
+{
+}
+
+void AMScanViewScanBarContextMenu::showAll()
+{
+}
+
+#include "ui/AMScanSetItemPropertyDialog.h"
+void AMScanViewScanBarContextMenu::editColorAndStyle()
+{
+	if(pi_.isValid()) {
+		AMScanSetItemPropertyDialog* pd = new AMScanSetItemPropertyDialog(model_, pi_.parent().row(), pi_.row(), parentWidget());
+		pd->show();
+	}
+}
+
+
+
+
 
