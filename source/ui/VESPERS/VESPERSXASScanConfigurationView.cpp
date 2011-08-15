@@ -9,8 +9,6 @@
 #include <QButtonGroup>
 #include <QRadioButton>
 
-#include "ui/VESPERS/VESPERSIonChamberCalibrationView.h"
-
 VESPERSXASScanConfigurationView::VESPERSXASScanConfigurationView(VESPERSXASScanConfiguration *config, QWidget *parent)
 	: AMScanConfigurationView(parent)
 {
@@ -49,8 +47,6 @@ VESPERSXASScanConfigurationView::VESPERSXASScanConfigurationView(VESPERSXASScanC
 	QFormLayout *scanNameLayout = new QFormLayout;
 	scanNameLayout->addRow("Scan Name:", scanName_);
 
-	VESPERSIonChamberCalibrationView *ionCalibrationView = new VESPERSIonChamberCalibrationView(VESPERSBeamline::vespers()->ionChamberCalibration());
-
 	QGridLayout *contentsLayout = new QGridLayout;
 	contentsLayout->addWidget(regionsLineView_, 0, 0, 1, 4, Qt::AlignCenter);
 	contentsLayout->addWidget(regionsView_, 1, 0, 1, 3);
@@ -61,7 +57,6 @@ VESPERSXASScanConfigurationView::VESPERSXASScanConfigurationView(VESPERSXASScanC
 	configViewLayout->addWidget(frame);
 	configViewLayout->addStretch();
 	configViewLayout->addLayout(contentsLayout);
-	configViewLayout->addWidget(ionCalibrationView);
 	configViewLayout->addStretch();
 
 	setLayout(configViewLayout);

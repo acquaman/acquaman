@@ -109,7 +109,7 @@ public:
 	/// Convenience getter.  Returns the status of an individual element.  May or may not be the same as status().  \param index must be between 0 and elementCount()-1.
 	bool statusAt(int index) const { return elements_.at(index)->status(); }
 	/// Convenience getter.  Returns the enabled state of an individual element.  \param index must be between 0 and elementCount()-1.
-	bool enabedAt(int index) const { return elements_.at(index)->isEnabled(); }
+	bool enabledAt(int index) const { return elements_.at(index)->isEnabled(); }
 	/// Convenience getter.  Returns the name of an individual element.  \param index must be between 0 and elementCount()-1.
 	QString nameAt(int index) const { return elements_.at(index)->name(); }
 

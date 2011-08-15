@@ -33,5 +33,6 @@ VESPERSIntermediateSlitsView::VESPERSIntermediateSlitsView(VESPERSIntermediateSl
 	QVBoxLayout *slitLayout = new QVBoxLayout;
 	slitLayout->addWidget(slitGroupBox);
 
+	setMaximumSize(200, 120);
 	setLayout(slitLayout);
 }

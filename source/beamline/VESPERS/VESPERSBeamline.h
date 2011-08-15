@@ -31,6 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/VESPERS/PIDLoopControl.h"
 #include "beamline/VESPERS/VESPERSIonChamberCalibration.h"
 #include "beamline/VESPERS/VESPERSMonochromator.h"
+#include "beamline/VESPERS/VESPERSIntermediateSlits.h"
 
 #include "util/AMErrorMonitor.h"
 
@@ -91,6 +92,12 @@ public:
 	VESPERSMonochromator *mono() const { return mono_; }
 
 	// End of monochromator abstraction.
+
+	// The intermediate slits.
+	/// Returns the intermediate slits object.
+	VESPERSIntermediateSlits *intermediateSlits() const { return intermediateSlits_; }
+
+	// End of intermediate slits.
 
 	// Pressure
 	/// Returns the pressure control for Front End section 1.
@@ -500,6 +507,11 @@ protected:
 	VESPERSMonochromator *mono_;
 
 	// End of VESPERS monochromator
+
+	// Intermediate slits.
+	VESPERSIntermediateSlits *intermediateSlits_;
+
+	// End of intermediate slits.
 
 	// Beamline General.
 	// Pressure controls.

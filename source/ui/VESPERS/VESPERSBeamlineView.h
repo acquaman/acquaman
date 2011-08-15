@@ -2,12 +2,12 @@
 #define VESPERSBEAMLINEVIEW_H
 
 #include <QWidget>
-#include "beamline/VESPERS/VESPERSBeamline.h"
 
 class VESPERSBeamlineView : public QWidget
 {
 	Q_OBJECT
 public:
+	/// Constructor.  Builds all the views and puts them in a layout.
 	explicit VESPERSBeamlineView(QWidget *parent = 0);
 
 signals:
