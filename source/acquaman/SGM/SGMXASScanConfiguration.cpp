@@ -43,7 +43,8 @@ SGMXASScanConfiguration::SGMXASScanConfiguration(QObject *parent) : AMXASScanCon
 }
 
 
-SGMXASScanConfiguration::SGMXASScanConfiguration(const SGMXASScanConfiguration &original){
+SGMXASScanConfiguration::SGMXASScanConfiguration(const SGMXASScanConfiguration &original) : AMXASScanConfiguration(original.parent()) , SGMScanConfiguration()
+{
 	regions_->setEnergyControl(SGMBeamline::sgm()->energy());
 	for(int x = 0; x < original.regionCount(); x++)
 		regions_->addRegion(x, original.regionStart(x), original.regionDelta(x), original.regionEnd(x));
@@ -228,4 +229,5 @@ bool SGMXASScanConfiguration::setHarmonic(int harmonic) {
 bool SGMXASScanConfiguration::setDetectorConfigurations(const AMDetectorInfoSet &xasDetectorsCfg){
 	xasDetectorsCfg_ = xasDetectorsCfg;
 	setModified(true);
+	return true;
 }
