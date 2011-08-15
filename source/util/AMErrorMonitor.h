@@ -199,7 +199,7 @@ private:
 	/// class-wide instance variable
 	static AMErrorMon* instance_;
 
-	/// SystemTrayIcon object used to display serious error notifications very visibly on-screen.
+	/// SystemTrayIcon object used to display error notifications very visibly on-screen.
 	QSystemTrayIcon* sicon_;
 
 	/// Whether we display debug messages
