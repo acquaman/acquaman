@@ -184,6 +184,7 @@ void AMBeamlineScanAction::initialize(){
 }
 
 void AMBeamlineScanAction::delayedStart(bool ready){
+	Q_UNUSED(ready);
 	start();
 }
 
