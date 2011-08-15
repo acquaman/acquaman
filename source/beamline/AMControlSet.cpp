@@ -95,7 +95,7 @@ AMControlInfoList AMControlSet::toInfoList() const {
 	int numControls = count();
 	for(int i=0; i<numControls; i++) {
 		AMControl* c = at(i);
-		rv.append( AMControlInfo(c->name(), c->value(), c->minimumValue(), c->maximumValue(), c->units(), c->tolerance(), c->description(), c->contextKnownDescription()) );
+		rv.append( AMControlInfo(c->name(), c->value(), c->minimumValue(), c->maximumValue(), c->units(), c->tolerance(), c->description()) );
 	}
 
 	return rv;
@@ -119,9 +119,7 @@ int AMControlSet::setFromInfoList(const AMControlInfoList& info){
 		tmpCtrl = controlNamed(info.at(x).name());
 		if(tmpCtrl){
 			controlsSet++;
-			qDebug() << "Want to move " << tmpCtrl->name() << " to " << info.at(x).value();
 			tmpCtrl->move(info.at(x).value());
-			qDebug() << "Moving to " << tmpCtrl->setpoint() << "?";
 		}
 	}
 	return controlsSet;
