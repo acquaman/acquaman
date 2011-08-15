@@ -52,7 +52,8 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
     source/beamline/VESPERS/VESPERSBeamSelector.h \
     source/beamline/VESPERS/VESPERSMonochromator.h \
     source/beamline/VESPERS/VESPERSIntermediateSlits.h \
-    source/ui/VESPERS/VESPERSIntermediateSlitsView.h
+    source/ui/VESPERS/VESPERSIntermediateSlitsView.h \
+    source/ui/VESPERS/VESPERSBeamSelectorView.h
 
 SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/application/VESPERS/VESPERSMain.cpp \
@@ -102,7 +103,8 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
     source/beamline/VESPERS/VESPERSBeamSelector.cpp \
     source/beamline/VESPERS/VESPERSMonochromator.cpp \
     source/beamline/VESPERS/VESPERSIntermediateSlits.cpp \
-    source/ui/VESPERS/VESPERSIntermediateSlitsView.cpp
+    source/ui/VESPERS/VESPERSIntermediateSlitsView.cpp \
+    source/ui/VESPERS/VESPERSBeamSelectorView.cpp
 
 RESOURCES += \
 	source/ui/VESPERS/EndstationPictures.qrc \

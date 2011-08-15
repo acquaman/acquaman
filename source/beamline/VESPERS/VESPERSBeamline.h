@@ -33,6 +33,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/VESPERS/VESPERSMonochromator.h"
 #include "beamline/VESPERS/VESPERSIntermediateSlits.h"
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
+#include "beamline/VESPERS/VESPERSBeamSelector.h"
 
 #include "util/AMErrorMonitor.h"
 
@@ -105,6 +106,11 @@ public:
 	CLSSynchronizedDwellTime *synchronizedDwellTime() const { return synchronizedDwellTime_; }
 
 	// End of synchronized dwell time.
+
+	// The beam selector.
+	/// Returns the beam selector used to selector which beam is currently being used and changing to other beams.
+	VESPERSBeamSelector *beamSelector() const { return beamSelector_; }
+	// End of beam selector.
 
 	// Pressure
 	/// Returns the pressure control for Front End section 1.
@@ -524,6 +530,11 @@ protected:
 	CLSSynchronizedDwellTime *synchronizedDwellTime_;
 
 	// End of synchronized dwell time.
+
+	// Beam selector.
+	VESPERSBeamSelector *beamSelector_;
+
+	// End of Beam selector.
 
 	// Beamline General.
 	// Pressure controls.

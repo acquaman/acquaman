@@ -431,6 +431,8 @@ void VESPERSBeamline::setupMono()
 	synchronizedDwellTime_->addElement(2);
 	synchronizedDwellTime_->addElement(3);
 	synchronizedDwellTime_->addElement(4);
+
+	beamSelector_ = new VESPERSBeamSelector(this);
 }
 
 void VESPERSBeamline::pressureConnected(bool connected)

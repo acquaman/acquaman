@@ -4,6 +4,7 @@
 #include "ui/VESPERS/VESPERSIntermediateSlitsView.h"
 #include "ui/VESPERS/VESPERSIonChamberCalibrationView.h"
 #include "ui/CLS/CLSSynchronizedDwellTimeView.h"
+#include "ui/VESPERS/VESPERSBeamSelectorView.h"
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -14,10 +15,12 @@ VESPERSBeamlineView::VESPERSBeamlineView(QWidget *parent) :
 	VESPERSIntermediateSlitsView *slitsView = new VESPERSIntermediateSlitsView(VESPERSBeamline::vespers()->intermediateSlits());
 	VESPERSIonChamberCalibrationView *ionCalibrationView = new VESPERSIonChamberCalibrationView(VESPERSBeamline::vespers()->ionChamberCalibration());
 	CLSSynchronizedDwellTimeView *dwellTimeView = new CLSSynchronizedDwellTimeView(VESPERSBeamline::vespers()->synchronizedDwellTime());
+	VESPERSBeamSelectorView *beamSelectorView = new VESPERSBeamSelectorView(VESPERSBeamline::vespers()->beamSelector());
 
 	QVBoxLayout *current = new QVBoxLayout;
 	current->addWidget(slitsView, 0, Qt::AlignCenter);
 	current->addWidget(ionCalibrationView, 0, Qt::AlignCenter);
+	current->addWidget(beamSelectorView, 0, Qt::AlignCenter);
 
 	QHBoxLayout *next = new QHBoxLayout;
 	next->addLayout(current);

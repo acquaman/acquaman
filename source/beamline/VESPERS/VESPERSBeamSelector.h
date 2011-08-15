@@ -32,7 +32,7 @@ public:
 
 signals:
 	/// Notifier that the beam has been changed.
-	void currentBeamChanged(Beam);
+	void currentBeamChanged(VESPERSBeamSelector::Beam);
 
 public slots:
 	/// Changes the beam.  Moves the motor to the necessary position.
