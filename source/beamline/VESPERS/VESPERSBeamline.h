@@ -32,6 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/VESPERS/VESPERSIonChamberCalibration.h"
 #include "beamline/VESPERS/VESPERSMonochromator.h"
 #include "beamline/VESPERS/VESPERSIntermediateSlits.h"
+#include "beamline/CLS/CLSSynchronizedDwellTime.h"
 
 #include "util/AMErrorMonitor.h"
 
@@ -98,6 +99,12 @@ public:
 	VESPERSIntermediateSlits *intermediateSlits() const { return intermediateSlits_; }
 
 	// End of intermediate slits.
+
+	// The synchronized dwell time.
+	/// Returns the synchronized dwell time.
+	CLSSynchronizedDwellTime *synchronizedDwellTime() const { return synchronizedDwellTime_; }
+
+	// End of synchronized dwell time.
 
 	// Pressure
 	/// Returns the pressure control for Front End section 1.
@@ -512,6 +519,11 @@ protected:
 	VESPERSIntermediateSlits *intermediateSlits_;
 
 	// End of intermediate slits.
+
+	// Synchronized Dwell time
+	CLSSynchronizedDwellTime *synchronizedDwellTime_;
+
+	// End of synchronized dwell time.
 
 	// Beamline General.
 	// Pressure controls.

@@ -115,14 +115,14 @@ public:
 
 	/// Returns the number of elements in the dwell time list.
 	int elementCount() const { return elements_.size(); }
-	/// Adds an element based on the given \param index and the existing base name.  Assumes the the index given is valid because there is no way of knowing a priori how many have been configured.
+	/// Adds an element based on the given \param index and the existing base name.  Assumes that the index given is valid because there is no way of knowing a priori how many have been configured.
 	void addElement(int index);
 	/// Returns the element at \param index.
 	CLSSynchronizedDwellTimeElement *elementAt(int index) const { return elements_.at(index); }
 
 signals:
 	/// Notifier that the Mode has changed.
-	void modeChanged(Mode);
+	void modeChanged(CLSSynchronizedDwellTime::Mode);
 	/// Notifier that the time has changed.
 	void timeChanged(double);
 	/// Notifier that the scan status has changed.
