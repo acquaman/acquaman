@@ -1,6 +1,8 @@
 #include "VESPERSXRFDataLoader.h"
 #include "util/AMErrorMonitor.h"
 #include "acquaman/VESPERS/VESPERSXRFScanConfiguration.h"
+#include "analysis/AMDeadTimeAB.h"
+#include "analysis/AM1DSummingAB.h"
 
 #include <QFile>
 #include <QTextStream>
@@ -13,6 +15,11 @@ VESPERSXRFDataLoader::VESPERSXRFDataLoader(AMXRFScan *scan)
 
 bool VESPERSXRFDataLoader::loadFromFile(const QString &filepath, bool setMetaData, bool setRawDataSources, bool createDefaultAnalysisBlocks)
 {
+	// Currently don't have meta data.
+	Q_UNUSED(setMetaData)
+	Q_UNUSED(setRawDataSources)
+	Q_UNUSED(createDefaultAnalysisBlocks)
+
 	AMXRFScan *scan = qobject_cast<AMXRFScan *>(scan_);
 
 	if (!scan){
@@ -43,24 +50,48 @@ bool VESPERSXRFDataLoader::loadFromFile(const QString &filepath, bool setMetaDat
 	// Clear any old data so we can start fresh.
 	scan->clearRawDataPointsAndMeasurements();
 
+	int elements = config->detectorInfo().elements();
+
 	for (int i = 0; i < scan->rawDataSources()->count(); i++){
 
-		line = in.readLine();
-		lineTokenized = line.split(",");
-		data.resize(lineTokenized.size());
-		for (int j = 0; j < lineTokenized.size(); j++)
-			data[j] = lineTokenized.at(j).toInt();
+		if (i < elements){
 
-		scan->rawData()->addMeasurement(AMMeasurementInfo(QString("Element %1").arg(i+1), QString("Element %1").arg(i+1), "eV", config->detectorInfo().axes()));
-		scan->rawData()->setValue(AMnDIndex(), i, data.constData(), data.size());
+			line = in.readLine();
+			lineTokenized = line.split(",");
+			data.resize(lineTokenized.size());
+			for (int j = 0; j < lineTokenized.size(); j++)
+				data[j] = lineTokenized.at(j).toInt();
+
+			scan->rawData()->addMeasurement(AMMeasurementInfo(QString("Element %1").arg(i+1), QString("Element %1").arg(i+1), "eV", config->detectorInfo().axes()));
+			scan->rawData()->setValue(AMnDIndex(), i, data.constData(), data.size());
+		}
+		else{
+
+			line = in.readLine();
+			if (i >= elements && i < 2*elements)
+				scan->rawData()->addMeasurement(AMMeasurementInfo(QString("icr%1").arg(i+1), QString("Input count rate %1").arg(i+1), "%", QList<AMAxisInfo>()));
+			else
+				scan_->rawData()->addMeasurement(AMMeasurementInfo(QString("ocr%1").arg(i+1), QString("Output count rate %1").arg(i+1), "%", QList<AMAxisInfo>()));
+			scan->rawData()->setValue(AMnDIndex(), i, AMnDIndex(), line.toDouble());
+		}
 	}
 
 	file.close();
 
-	// Currently don't have meta data, raw data or analysis blocks.
-	Q_UNUSED(setMetaData)
-	Q_UNUSED(setRawDataSources)
-	Q_UNUSED(createDefaultAnalysisBlocks)
+	for (int i = 0; i < elements; i++){
+
+		AMDeadTimeAB *temp = (AMDeadTimeAB *)scan->analyzedDataSources()->at(i);
+		temp->setInputDataSourcesImplementation(QList<AMDataSource *>() << (AMDataSource *)scan->rawDataSources()->at(i) << (AMDataSource *)scan->rawDataSources()->at(i+elements) << (AMDataSource *)scan->rawDataSources()->at(i+2*elements));
+	}
+
+	if (elements > 1){
+
+		AM1DSummingAB *corr = (AM1DSummingAB *)scan->analyzedDataSources()->at(scan->analyzedDataSourceCount()-1);
+		QList<AMDataSource *> list;
+		for (int i = 0; i < scan->analyzedDataSourceCount()-1; i++)
+			list << (AMDataSource *)scan->analyzedDataSources()->at(i);
+		corr->setInputDataSourcesImplementation(list);
+	}
 
 	return true;
 }
@@ -77,15 +108,26 @@ bool VESPERSXRFDataLoader::saveToFile(const QString &filepath)
 
 	QTextStream out(&file);
 
+	// There are two types of raw data sources.  The spectra of rank 1 and the dead time of rank 0.
 	for (int i = 0; i < scan->rawDataSources()->count(); i++){
 
-		qint32 counts = scan->rawData()->value(AMnDIndex(), i, AMnDIndex(0));
-		out << counts;
-		for (int j = 1; j < scan->rawData()->measurementAt(i).size(0); j++){
+		if (scan->rawDataSources()->at(i)->rank() == 1){
 
-			qint32 counts = scan->rawData()->value(AMnDIndex(), i, AMnDIndex(j));
-			out << "," << counts;
+			qint32 counts = scan->rawData()->value(AMnDIndex(), i, AMnDIndex(0));
+			out << counts;
+
+			for (int j = 1; j < scan->rawData()->measurementAt(i).size(0); j++){
+
+				qint32 counts = scan->rawData()->value(AMnDIndex(), i, AMnDIndex(j));
+				out << "," << counts;
+			}
 		}
+		else {
+
+			double counts = scan->rawData()->value(AMnDIndex(), i, AMnDIndex());
+			out << counts;
+		}
+
 		out << "\n";
 	}
 
