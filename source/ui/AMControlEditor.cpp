@@ -613,6 +613,7 @@ void AMControlButton::setCheckable(bool checkable){
 }
 
 void AMControlButton::onValueChanged(double newVal) {
+	Q_UNUSED(newVal)
 	if(isCheckable()){
 		if(control_->value() == downValue_)
 			setChecked(true);
@@ -639,6 +640,7 @@ void AMControlButton::onToggled(bool toggled){
 }
 
 void AMControlButton::setHappy(bool happy) {
+	Q_UNUSED(happy)
 }
 
 
