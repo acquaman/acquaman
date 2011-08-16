@@ -336,7 +336,6 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/beamline/AMBeamlineControlWaitAction.h \
 	source/beamline/AMBeamlineUserConfirmAction.h \
 	source/ui/AMScanQueryModel.h \
-	source/ui/AMFreeRunScanConfigurationViewHolder.h \
 	source/dataman/AMExportController.h \
 	source/dataman/AMExporter.h \
 	source/dataman/AMExporterOption.h \
@@ -587,7 +586,6 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/beamline/AMBeamlineControlWaitAction.cpp \
 	source/beamline/AMBeamlineUserConfirmAction.cpp \
 	source/ui/AMScanQueryModel.cpp \
-	source/ui/AMFreeRunScanConfigurationViewHolder.cpp \
 	source/dataman/AMExportController.cpp \
 	source/dataman/AMExporterOption.cpp \
 	source/dataman/AMExporterOptionGeneral.cpp \
