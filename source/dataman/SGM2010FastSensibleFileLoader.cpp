@@ -37,6 +37,10 @@ SGM2010FastSensibleFileLoader::SGM2010FastSensibleFileLoader(AMFastScan *scan) :
 }
 
 bool SGM2010FastSensibleFileLoader::loadFromFile(const QString &filepath, bool setMetaData, bool setRawDataSources, bool createDefaultAnalysisBlocks){
+	Q_UNUSED(filepath)
+	Q_UNUSED(setMetaData)
+	Q_UNUSED(setRawDataSources)
+	Q_UNUSED(createDefaultAnalysisBlocks)
 	return false;
 }
 
