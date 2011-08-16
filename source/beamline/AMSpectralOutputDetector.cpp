@@ -36,13 +36,15 @@ const QMetaObject* AMSpectralOutputDetector::getMetaObject() {
 }
 
 AMDetectorInfo AMSpectralOutputDetector::toInfo(){
-
+	return *AMDetectorInfo::toNewInfo();
 }
 
 bool AMSpectralOutputDetector::setControls(AMSpectralOutputDetectorInfo *detectorSettings){
+	Q_UNUSED(detectorSettings)
 	return false;
 }
 
 bool AMSpectralOutputDetector::setFromInfo(const AMDetectorInfo &info){
+	Q_UNUSED(info)
 	return false;
 }
