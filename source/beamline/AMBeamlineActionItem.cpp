@@ -64,7 +64,9 @@ AMBeamlineActionItem::AMBeamlineActionItem(QObject *parent) :
 	initialize();
 }
 
-AMBeamlineActionItem::AMBeamlineActionItem(bool delayInitialize, QObject *parent){
+AMBeamlineActionItem::AMBeamlineActionItem(bool delayInitialize, QObject *parent)
+    : QObject(parent)
+{
 	previous_ = NULL;
 	next_ = NULL;
 	description_ = "Generic Action";
