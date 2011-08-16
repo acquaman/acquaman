@@ -48,7 +48,6 @@ AMSamplePlate::AMSamplePlate(const AMSamplePlate& other) : AMDbObject(), AMOrder
 
 // Using auto-generated assignment operator is fine
 
-
 int AMSamplePlate::sampleIdAtPosition(const AMControlInfoList &position, const QList<double> tolerances) const{
 	if(tolerances.count() == 0){
 		for(int x = count()-1; x >= 0; x--)
@@ -75,6 +74,7 @@ int AMSamplePlate::sampleIdAtPosition(const AMControlInfoList &position, const Q
 	}
 	return -1;
 }
+
 
 
 // Export the current positions to the database
@@ -118,7 +118,11 @@ bool AMSamplePlate::loadFromDb(AMDatabase *db, int id)
 			for(int i=0; i<oldPositionsCount; i++)
 				emit samplePositionChanged(i); // emit our own notification.
 		}
+
+		return true;
 	}
+
+	return false;
 }
 
 
