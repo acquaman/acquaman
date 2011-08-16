@@ -40,7 +40,7 @@ AMProcessVariableSupport::AMProcessVariableSupport() : QObject() {
 
 	connect(&flushIOCaller_, SIGNAL(executed()), this, SLOT(executeFlushIO()));
 
-	qDebug("Starting up channel access...");
+	qWarning("Starting up channel access...");
 
 	putenv("EPICS_CA_MAX_ARRAY_BYTES=" AMPROCESSVARIABLE_MAX_CA_ARRAY_BYTES);
 
@@ -75,7 +75,7 @@ void AMProcessVariableSupport::removePVImplementation(chid c) {
 	// if that was the last one out, tear down Channel Access:
 	if(map_.count() == 0) {
 
-		qDebug("Shutting down channel access...");
+		qWarning("Shutting down channel access...");
 		// removed: killTimer(timerId_);			// stop the ca_poll() timer.
 		ca_add_exception_event(0, 0);	// return the default exception handler
 		ca_context_destroy();			// shut down Channel Access
@@ -98,7 +98,7 @@ void AMProcessVariableSupport::PVExceptionCB(struct exception_handler_args args)
 
 		char buf[512];
 		sprintf ( buf, "AMProcessVariableSupport: Epics exception: %s - with request op=%d data type=%s count=%d", args.ctx, (int)args.op, dbr_type_to_text ( args.type ), (int)args.count );
-		qDebug() << buf;
+		qWarning() << buf;
 		ca_signal ( args.stat, buf );
 	}
 
@@ -169,13 +169,11 @@ AMProcessVariable::AMProcessVariable(const QString& pvName, bool autoMonitor, QO
 
 		// register ourself to the support class:
 		AMProcessVariableSupport::registerPV(chid_, this);
-		// qDebug() << QString("AMProcessVariable: Creating AMProcessVariable %1").arg(pvName);
-
 	}
 
 	catch(int s) {
 
-		qDebug() << QString("AMProcessVariable: Error initializing AMProcessVariable for process variable named '%1'. Reason: %2").arg(pvName).arg(ca_message(lastError_));
+		qWarning() << QString("AMProcessVariable: Error initializing AMProcessVariable for process variable named '%1'. Reason: %2").arg(pvName).arg(ca_message(lastError_));
 		channelCreated_ = false;
 		emit error(s);
 	}
@@ -184,7 +182,7 @@ AMProcessVariable::AMProcessVariable(const QString& pvName, bool autoMonitor, QO
 
 AMProcessVariable::~AMProcessVariable() {
 
-	// qDebug() << QString("deleting AMProcessVariable %1.").arg(pvName());
+	// qWarning() << QString("deleting AMProcessVariable %1.").arg(pvName());
 
 	emit disconnected();
 	emit connected(false);
@@ -249,7 +247,7 @@ void AMProcessVariable::exceptionCB(struct exception_handler_args args) {
 
 	emit internal_error(args.stat);	// will notify eventually with error() signals
 
-	qDebug() << QString("AMProcessVariable: EPICS exception: %1\n  Operation: %2\n  Channel: %3\n  Data type: %4\n  Count: %5\n\n  Epics says: %6\n").arg(ca_message(args.stat)).arg(args.op).arg(pvName()).arg(dbr_type_to_text ( args.type )).arg(args.count).arg(args.ctx);
+	qWarning() << QString("AMProcessVariable: EPICS exception: %1\n  Operation: %2\n  Channel: %3\n  Data type: %4\n  Count: %5\n\n  Epics says: %6\n").arg(ca_message(args.stat)).arg(args.op).arg(pvName()).arg(dbr_type_to_text ( args.type )).arg(args.count).arg(args.ctx);
 	ca_signal( args.stat, args.ctx );
 
 }
@@ -303,7 +301,7 @@ void AMProcessVariable::connectionChangedCB(struct connection_handler_args connA
 			lastError = ca_get_callback(DBR_CTRL_ENUM, chid_, PVControlInfoCBWrapper, this);
 
 			if(lastError != ECA_NORMAL) {
-				qDebug() << QString("AMProcessVariable: Error while trying to request enum control information: %1: %2").arg(pvName()).arg(ca_message(lastError));
+				qWarning() << QString("AMProcessVariable: Error while trying to request enum control information: %1: %2").arg(pvName()).arg(ca_message(lastError));
 				emit internal_error(lastError);
 			}
 		}
@@ -311,14 +309,14 @@ void AMProcessVariable::connectionChangedCB(struct connection_handler_args connA
 		else if (ourType == Integer || ourType == FloatingPoint){
 			lastError = ca_get_callback(DBR_CTRL_DOUBLE, chid_, PVControlInfoCBWrapper, this);
 			if(lastError != ECA_NORMAL) {
-				qDebug() << QString("AMProcessVariable: Error while trying to request value: %1: %2").arg(pvName()).arg(ca_message(lastError));
+				qWarning() << QString("AMProcessVariable: Error while trying to request value: %1: %2").arg(pvName()).arg(ca_message(lastError));
 				emit internal_error(lastError);
 			}
 		}
 		else if(ourType == String){
 			lastError = ca_get_callback(DBR_CTRL_STRING, chid_, PVControlInfoCBWrapper, this);
 			if(lastError != ECA_NORMAL) {
-				qDebug() << QString("AMProcessVariable: Error while trying to request value: %1: %2").arg(pvName()).arg(ca_message(lastError));
+				qWarning() << QString("AMProcessVariable: Error while trying to request value: %1: %2").arg(pvName()).arg(ca_message(lastError));
 				emit internal_error(lastError);
 			}
 		}
@@ -328,14 +326,14 @@ void AMProcessVariable::connectionChangedCB(struct connection_handler_args connA
 		// It's useful to automatically-request the value, after we are first connected:
 		lastError = ca_array_get_callback(ourType, ca_element_count(chid_), chid_, PVValueChangedCBWrapper, this);
 		if(lastError != ECA_NORMAL) {
-			qDebug() << QString("AMProcessVariable: Error while trying to request value: %1: %2").arg(pvName()).arg(ca_message(lastError));
+			qWarning() << QString("AMProcessVariable: Error while trying to request value: %1: %2").arg(pvName()).arg(ca_message(lastError));
 			emit internal_error(lastError);
 		}
 
 		if(shouldBeMonitoring_) {
 			lastError = ca_create_subscription(ourType, ca_element_count(chid_), chid_, DBE_VALUE | DBE_LOG | DBE_ALARM, PVValueChangedCBWrapper, this, &evid_ );
 			if(lastError != ECA_NORMAL) {
-				qDebug() << QString("AMProcessVariable: Error starting monitoring: %1: %2").arg(pvName()).arg(ca_message(lastError));
+				qWarning() << QString("AMProcessVariable: Error starting monitoring: %1: %2").arg(pvName()).arg(ca_message(lastError));
 				emit internal_error(lastError);
 			}
 		}
@@ -366,7 +364,7 @@ void AMProcessVariable::controlInfoCB(struct event_handler_args eventArgs) {
 	struct dbr_ctrl_enum* enumCtrlValue;
 
 	if( (lastError = eventArgs.status) != ECA_NORMAL) {
-		qDebug() << QString("Error in control-info-changed callback: %1: %2").arg(pvName()).arg(ca_message(lastError));
+		qWarning() << QString("Error in control-info-changed callback: %1: %2").arg(pvName()).arg(ca_message(lastError));
 		emit internal_error(lastError);
 		return;
 	}
@@ -381,13 +379,13 @@ void AMProcessVariable::controlInfoCB(struct event_handler_args eventArgs) {
 	case DBR_CTRL_DOUBLE:
 		ctrlValue =  (struct dbr_ctrl_double*)eventArgs.dbr;
 		emit internal_controlInfoChanged(DBR_CTRL_DOUBLE,
-										 QString(ctrlValue->units),
-										 ctrlValue->precision,
-										 ctrlValue->upper_disp_limit,
-										 ctrlValue->lower_disp_limit,
-										 ctrlValue->upper_ctrl_limit,
-										 ctrlValue->lower_ctrl_limit,
-										 QStringList());
+						 QString(ctrlValue->units),
+						 ctrlValue->precision,
+						 ctrlValue->upper_disp_limit,
+						 ctrlValue->lower_disp_limit,
+						 ctrlValue->upper_ctrl_limit,
+						 ctrlValue->lower_ctrl_limit,
+						 QStringList());
 		break;
 
 		// Is this enum count/string information?
@@ -396,20 +394,20 @@ void AMProcessVariable::controlInfoCB(struct event_handler_args eventArgs) {
 		for(int i=0; i<enumCtrlValue->no_str; i++)
 			enumStrings << QString(enumCtrlValue->strs[i]);
 		emit internal_controlInfoChanged(DBR_CTRL_ENUM,
-										 "[choice]",
-										 0,
-										 enumCtrlValue->no_str - 1, 0,
-										 enumCtrlValue->no_str - 1, 0,
-										 enumStrings);
+						 "[choice]",
+						 0,
+						 enumCtrlValue->no_str - 1, 0,
+						 enumCtrlValue->no_str - 1, 0,
+						 enumStrings);
 		break;
 
 	case DBR_CTRL_STRING:
 		emit internal_controlInfoChanged(DBR_CTRL_STRING,
-										 QString(),
-										 0,
-										 DBL_MAX,	-DBL_MAX,
-										 DBL_MAX, -DBL_MAX,
-										 QStringList());
+						 QString(),
+						 0,
+						 DBL_MAX,	-DBL_MAX,
+						 DBL_MAX, -DBL_MAX,
+						 QStringList());
 		break;
 	}
 }
@@ -428,7 +426,7 @@ void AMProcessVariable::valueChangedCB(struct event_handler_args eventArgs) {
 
 	int lastError;
 	if( (lastError = eventArgs.status) != ECA_NORMAL) {
-		qDebug() << QString("Error in value-changed callback: %1: %2").arg(pvName()).arg(ca_message(lastError));
+		qWarning() << QString("Error in value-changed callback: %1: %2").arg(pvName()).arg(ca_message(lastError));
 		emit internal_error(lastError);
 		return;
 	}
@@ -444,6 +442,7 @@ void AMProcessVariable::valueChangedCB(struct event_handler_args eventArgs) {
 			AMProcessVariableDoubleVector rv(eventArgs.count);
 			for(int i=0; i<eventArgs.count; i++)
 				rv[i] = ((dbr_double_t*)eventArgs.dbr)[i];
+
 			emit internal_floatingPointValueChanged(rv);
 			break;
 		}
@@ -481,7 +480,7 @@ void AMProcessVariable::putRequestCB(struct event_handler_args eventArgs) {
 	if(eventArgs.status != ECA_NORMAL) {
 
 
-		qDebug() << QString("AMProcessVariable: Error in put request: %1: %2").arg(pvName()).arg(ca_message(eventArgs.status));
+		qWarning() << QString("AMProcessVariable: Error in put request: %1: %2").arg(pvName()).arg(ca_message(eventArgs.status));
 		emit internal_error(eventArgs.status);
 	}
 
@@ -555,6 +554,7 @@ void AMProcessVariable::internal_onFloatingPointValueChanged(AMProcessVariableDo
 	data_dbl_ = doubleData;
 	if(hasChanged)
 		emit hasValuesChanged(true);
+
 	emit valueChanged(data_dbl_.at(0));
 	emit valueChanged(int(data_dbl_.at(0)));
 	emit valueChanged();
@@ -615,7 +615,7 @@ void AMProcessVariable::onConnectionTimeout() {
 
 	// If we haven't connected by now:
 	if(this->connectionState() != cs_conn) {
-		qDebug() << QString("AMProcessVariable: channel connect timed out for %1").arg(pvName());
+		qWarning() << QString("AMProcessVariable: channel connect timed out for %1").arg(pvName());
 		emit connectionTimeout();
 	}
 
@@ -648,7 +648,7 @@ bool AMProcessVariable::startMonitoring() {
 
 	lastError_ = ca_create_subscription(ourType_, ca_element_count(chid_), chid_, DBE_VALUE | DBE_LOG | DBE_ALARM, PVValueChangedCBWrapper, this, &evid_ );
 	if(lastError_ != ECA_NORMAL) {
-		qDebug() << QString("AMProcessVariable: Error starting monitoring: %1: %2").arg(pvName()).arg(ca_message(lastError_));
+		qWarning() << QString("AMProcessVariable: Error starting monitoring: %1: %2").arg(pvName()).arg(ca_message(lastError_));
 		emit error(lastError_);
 		return false;
 	}
@@ -670,13 +670,13 @@ bool AMProcessVariable::requestValue(int numberOfValues) {
 
 	// Not necessary. Connection status is checked by ca_array_get_callback:
 	//if(ca_state(chid_) != cs_conn) {
-	//	qDebug(QString("Error requesting value: channel not connected: %1").arg(pvName()));
+	//	qWarning(QString("Error requesting value: channel not connected: %1").arg(pvName()));
 	//	return false;
 	//}
 
 	lastError_ = ca_array_get_callback(ourType_, numberOfValues, chid_, PVValueChangedCBWrapper, this);
 	if(lastError_ != ECA_NORMAL) {
-		qDebug() << QString("AMProcessVariable: Error while trying to request value: %1: %2").arg(pvName()).arg(ca_message(lastError_));
+		qWarning() << QString("AMProcessVariable: Error while trying to request value: %1: %2").arg(pvName()).arg(ca_message(lastError_));
 		emit error(lastError_);
 		return false;
 	}
@@ -698,7 +698,7 @@ void AMProcessVariable::setValue(int value) {
 		lastError_ = ca_put_callback( DBR_LONG, chid_, &setpoint, PVPutRequestCBWrapper, this );
 
 	if(lastError_ != ECA_NORMAL) {
-		qDebug() << QString("AMProcessVariable: Error while trying to put value: %1: %2").arg(pvName()).arg(ca_message(lastError_));
+		qWarning() << QString("AMProcessVariable: Error while trying to put value: %1: %2").arg(pvName()).arg(ca_message(lastError_));
 		emit error(lastError_);
 	}
 
@@ -715,7 +715,7 @@ void AMProcessVariable::setValues(dbr_long_t setpoints[], int num) {
 		lastError_ = ca_array_put_callback( DBR_LONG, num, chid_, setpoints, PVPutRequestCBWrapper, this );
 
 	if(lastError_ != ECA_NORMAL) {
-		qDebug() << QString("AMProcessVariable: Error while trying to put values: %1: %2").arg(pvName()).arg(ca_message(lastError_));
+		qWarning() << QString("AMProcessVariable: Error while trying to put values: %1: %2").arg(pvName()).arg(ca_message(lastError_));
 		emit error(lastError_);
 	}
 
@@ -734,7 +734,7 @@ void AMProcessVariable::setValue(double value) {
 		lastError_ = ca_put_callback( DBR_DOUBLE, chid_, &setpoint, PVPutRequestCBWrapper, this );
 
 	if(lastError_ != ECA_NORMAL) {
-		qDebug() << QString("Error while trying to put AMProcessVariable value: %1: %2").arg(pvName()).arg(ca_message(lastError_));
+		qWarning() << QString("Error while trying to put AMProcessVariable value: %1: %2").arg(pvName()).arg(ca_message(lastError_));
 		emit error(lastError_);
 	}
 
@@ -751,7 +751,7 @@ void AMProcessVariable::setValues(dbr_double_t setpoints[], int num) {
 		lastError_ = ca_array_put_callback( DBR_DOUBLE, num, chid_, setpoints, PVPutRequestCBWrapper, this );
 
 	if(lastError_ != ECA_NORMAL) {
-		qDebug() << QString("Error while trying to put AMProcessVariable values: %1: %2").arg(pvName()).arg(ca_message(lastError_));
+		qWarning() << QString("Error while trying to put AMProcessVariable values: %1: %2").arg(pvName()).arg(ca_message(lastError_));
 		emit error(lastError_);
 	}
 
@@ -772,7 +772,7 @@ void AMProcessVariable::setValue(const QString& value) {
 		lastError_ = ca_put_callback( DBR_STRING, chid_, setpoint, PVPutRequestCBWrapper, this );
 
 	if(lastError_ != ECA_NORMAL) {
-		qDebug() << QString("Error while trying to put AMProcessVariable value: %1: %2").arg(pvName()).arg(ca_message(lastError_));
+		qWarning() << QString("Error while trying to put AMProcessVariable value: %1: %2").arg(pvName()).arg(ca_message(lastError_));
 		emit error(lastError_);
 	}
 
@@ -798,7 +798,7 @@ void AMProcessVariable::setValues(const QStringList& setpoints) {
 		lastError_ = ca_array_put_callback( DBR_STRING, setpoints.size(), chid_, stringArray, PVPutRequestCBWrapper, this );
 
 	if(lastError_ != ECA_NORMAL) {
-		qDebug() << QString("Error while trying to put AMProcessVariable values: %1: %2").arg(pvName()).arg(ca_message(lastError_));
+		qWarning() << QString("Error while trying to put AMProcessVariable values: %1: %2").arg(pvName()).arg(ca_message(lastError_));
 		emit error(lastError_);
 	}
 	// TODO: check that ca_array_put_callback doesn't require this left in memory after this function goes out of scope?
@@ -869,6 +869,7 @@ double AMProcessVariable::binFloatingPointValues(int lowIndex, int highIndex) co
 		rVal += lastDoubles.at(x);
 	return rVal;
 }
+
 
 // double AMProcessVariable::getDouble() is just a synonym for lastValue().
 
