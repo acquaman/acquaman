@@ -1,6 +1,7 @@
 #include "CustomizeRegionsOfInterest.h"
 #include "util/AMElement.h"
 #include "util/AMPeriodicTable.h"
+#include "util/VESPERS/GeneralUtilities.h"
 
 #include <QHBoxLayout>
 #include <cmath>
@@ -10,7 +11,7 @@ RegionOfInterestView::RegionOfInterestView(AMROI *roi, QWidget *parent)
 {
 	roi_ = roi;
 
-	connect(roi_, SIGNAL(roiHasValues(bool)), this, SLOT(onRoiInialized(bool)));
+	connect(roi_, SIGNAL(roiHasValues()), this, SLOT(onRoiInialized()));
 
 	name_ = new QLabel;
 	connect(roi, SIGNAL(nameUpdate(QString)), this, SLOT(nameUpdate(QString)));
@@ -21,7 +22,7 @@ RegionOfInterestView::RegionOfInterestView(AMROI *roi, QWidget *parent)
 	low_->setDecimals(0);
 	low_->setSingleStep(roi->scale());
 	low_->setSuffix(" eV");
-	connect(low_, SIGNAL(editingFinished()), this, SLOT(setRoiLow()));
+	connect(low_, SIGNAL(valueChanged(double)), this, SLOT(setRoiLow(double)));
 	connect(roi, SIGNAL(lowUpdate(int)), this, SLOT(onLowUpdate(int)));
 
 	high_ = new QDoubleSpinBox;
@@ -30,8 +31,10 @@ RegionOfInterestView::RegionOfInterestView(AMROI *roi, QWidget *parent)
 	high_->setDecimals(0);
 	high_->setSingleStep(roi->scale());
 	high_->setSuffix(" eV");
-	connect(high_, SIGNAL(editingFinished()), this, SLOT(setRoiHigh()));
+	connect(high_, SIGNAL(valueChanged(double)), this, SLOT(setRoiHigh(double)));
 	connect(roi, SIGNAL(highUpdate(int)), this, SLOT(onHighUpdate(int)));
+
+	connect(roi, SIGNAL(scalerChanged(double)), this, SLOT(onScalerChanged(double)));
 
 	QLabel *value = new QLabel;
 	connect(roi, SIGNAL(valueUpdate(double)), value, SLOT(setNum(double)));
@@ -56,21 +59,7 @@ void RegionOfInterestView::nameUpdate(QString name)
 		return;
 	}
 
-	name = name.left(name.indexOf(" "));
-	AMElement *el = AMPeriodicTable::table()->elementBySymbol(name);
-
-	if (el){
-
-		int low = roi_->low();
-		int high = roi_->high();
-
-		for (int j = 0; j < el->emissionLines().count(); j++){
-
-			if (el->emissionLines().at(j).first.contains("1")
-					&& fabs((low+high)/2 - el->emissionLines().at(j).second.toDouble()/roi_->scale()) < 3)
-				name_->setText(el->symbol()+" "+el->emissionLines().at(j).first);
-		}
-	}
+	name_->setText(name.left(name.indexOf(" ")) + " " + GeneralUtilities::addGreek(name.mid(name.indexOf(" "))));
 
 	show();
 }

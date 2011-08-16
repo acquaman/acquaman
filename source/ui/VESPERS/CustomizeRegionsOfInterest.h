@@ -17,19 +17,47 @@ public:
 
 public slots:
 	/// Sets the low value to the AMROI.
-	void setRoiLow() { roi_->setLow(low_->value()); }
+	void setRoiLow(double val)
+	{
+		disconnect(roi_, SIGNAL(lowUpdate(int)), this, SLOT(onLowUpdate(int)));
+		roi_->setLow(val);
+		connect(roi_, SIGNAL(lowUpdate(int)), this, SLOT(onLowUpdate(int)));
+	}
 	/// Sets the high value to the AMROI.
-	void setRoiHigh() { roi_->setHigh(high_->value()); }
+	void setRoiHigh(double val)
+	{
+		disconnect(roi_, SIGNAL(highUpdate(int)), this, SLOT(onHighUpdate(int)));
+		roi_->setHigh(val);
+		connect(roi_, SIGNAL(highUpdate(int)), this, SLOT(onHighUpdate(int)));
+	}
 
 private slots:
 	/// Checks whether the name has a name in it or not.  If the name is an empty string, the view hides itself.
 	void nameUpdate(QString name);
-	/// Casts an int to a double for the spin box.  If the value is zero then the ROI is not connected yet.
-	void onLowUpdate(int val) { if (val != 0) low_->setValue((double)val*roi_->scale()); }
-	/// Casts an into to a double for the high spin box.  If the value is zero then the ROI is not connected yet.
-	void onHighUpdate(int val) { if (val != 0) high_->setValue((double)val*roi_->scale()); }
+	/// Casts an int to a double for the spin box.  If the value is zero then the ROI is not connected yet.  Negative numbers are also no good.
+	void onLowUpdate(int val)
+	{
+		if (val > 0) {
+
+			low_->blockSignals(true);
+			low_->setValue((double)val*roi_->scale());
+			low_->blockSignals(false);
+		}
+	}
+	/// Casts an into to a double for the high spin box.  If the value is zero then the ROI is not connected yet.  Negative numbers are also no good.
+	void onHighUpdate(int val)
+	{
+		if (val > 0) {
+
+			high_->blockSignals(true);
+			high_->setValue((double)val*roi_->scale());
+			high_->blockSignals(false);
+		}
+	}
 	/// Handles when an ROI is initialized.
-	void onRoiInialized(bool init) { if (init) nameUpdate(roi_->name()); }
+	void onRoiInialized() { nameUpdate(roi_->name()); }
+	/// Handles changes in the scale.
+	void onScalerChanged(double val) { low_->setSingleStep(val); high_->setSingleStep(val); }
 
 private:
 	// The label.
