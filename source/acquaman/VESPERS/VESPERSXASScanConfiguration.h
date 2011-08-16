@@ -8,6 +8,8 @@ class VESPERSXASScanConfiguration : public AMXASScanConfiguration
 	Q_OBJECT
 
 	Q_PROPERTY(int fluorescenceDetectorChoice READ fluorescenceDetectorChoice WRITE setFluorescenceDetectorChoice)
+	Q_PROPERTY(int transmissionChoice READ transmissionChoice WRITE setTransmissionChoice)
+	Q_PROPERTY(int incomingChoice READ incomingChoice WRITE setIncomingChoice)
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=VESPERS XAS Scan Configuration")
 
@@ -15,6 +17,8 @@ public:
 
 	/// Enum for making the decision on what fluorescence detector the user wants to use.
 	enum FluorescenceDetector { None = 0, SingleElement, FourElement };
+	/// Enum for the ion chambers.  Used when choosing It and I0.
+	enum IonChamber { Isplit = 0, Iprekb, Imini, Ipost };
 
 	/// Constructor.
 	Q_INVOKABLE explicit VESPERSXASScanConfiguration(QObject *parent=0);
@@ -35,19 +39,35 @@ public:
 
 	/// Returns the current fluorescence detector choice.
 	FluorescenceDetector fluorescenceDetectorChoice() const { return fluorescenceDetectorChoice_; }
+	/// Returns the current It ion chamber choice.
+	IonChamber transmissionChoice() const { return It_; }
+	/// Returns the current I0 ion chamber choice.
+	IonChamber incomingChoice() const { return I0_; }
 
 public slots:
 	/// Adds a region to the XAS scan.  \param index is the region you are adding and \param start, \param delta, and \param end define the region.
 	virtual bool addRegion(int index, double start, double delta, double end) { return regions_->addRegion(index, start, delta, end); }
 
 	/// Sets the choice for the fluorescence detector.
-	void setFluorescenceDetectorChoice(FluorescenceDetector detector) { fluorescenceDetectorChoice_ = detector; }
-	/// Overloaded.
+	void setFluorescenceDetectorChoice(FluorescenceDetector detector) { fluorescenceDetectorChoice_ = detector; setModified(true); }
+	/// Overloaded.  Used for database loading.
 	void setFluorescenceDetectorChoice(int detector) { setFluorescenceDetectorChoice((FluorescenceDetector)detector); }
+	/// Sets the choice for It ion chamber.
+	void setTransmissionChoice(IonChamber It) { It_ = It; setModified(true); }
+	/// Overloaded.  Used for database loading.
+	void setTransmissionChoice(int It) { setTransmissionChoice((IonChamber)It); }
+	/// Sets the choice for I0 ion chamber.
+	void setIncomingChoice(IonChamber I0) { I0_ = I0; setModified(true); }
+	/// Overloaded.  Used for database loading.
+	void setIncomingChoice(int I0) { setIncomingChoice((IonChamber)I0); }
 
 protected:
 	/// Fluorescence detector choice.
 	FluorescenceDetector fluorescenceDetectorChoice_;
+	/// It ion chamber choice.
+	IonChamber It_;
+	/// I0 ion chamber choice.
+	IonChamber I0_;
 };
 
 #endif // VESPERSXASSCANCONFIGURATION_H

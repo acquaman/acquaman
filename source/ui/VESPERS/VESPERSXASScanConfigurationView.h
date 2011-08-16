@@ -9,6 +9,7 @@
 #include "acquaman/VESPERS/VESPERSXASScanConfiguration.h"
 
 #include <QLineEdit>
+#include <QButtonGroup>
 
 class VESPERSXASScanConfigurationView : public AMScanConfigurationView
 {
@@ -25,6 +26,8 @@ public:
 protected slots:
 	/// Handles setting the name of the configuration from the line edit.
 	void onScanNameEdited() { config_->setName(scanName_->text()); }
+	/// Handles switching which button group is being viewed for Ion chamber selection.
+	void onItI0Toggled(int id);
 
 protected:
 	/// Pointer to the specific scan config the view is modifying.
@@ -38,7 +41,10 @@ protected:
 	/// Line edit for changing the name of the scan.
 	QLineEdit *scanName_;
 
-
+	/// Button group for the It ion chamber selection.
+	QButtonGroup *ItGroup_;
+	/// Button group for the I0 ion chamber selection.
+	QButtonGroup *I0Group_;
 };
 
 #endif // VESPERSXASSCANCONFIGURATIONVIEW_H
