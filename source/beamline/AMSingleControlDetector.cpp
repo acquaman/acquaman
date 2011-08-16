@@ -49,6 +49,7 @@ AMDetectorInfo* AMSingleControlDetector::toInfo() const{
 }
 
 bool AMSingleControlDetector::setControls(AMDetectorInfo *detectorSettings){
+	Q_UNUSED(detectorSettings)
 	return false;
 }
 
@@ -57,6 +58,7 @@ AMControl* AMSingleControlDetector::control() {
 }
 
 bool AMSingleControlDetector::setFromInfo(const AMDetectorInfo *info){
+	Q_UNUSED(info)
 	return false;
 }
 
