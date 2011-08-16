@@ -38,7 +38,7 @@ class AMElement : public QObject
 	Q_OBJECT
 public:
 
-	/// Constructor for the element.  For the edgeList and emissionLineList, the edges and lines \em must be in order (ie: edges { K, L1, L2, L3, ... }, lines { Ka1, Ka2, ... }.
+	/// Constructor for the element.  For the edgeList and emissionLineList, the edges and lines energy values \em must be in order (ie: edges { K, L1, L2, L3, ... }, lines { Ka1, Ka2, ... }.
 	explicit AMElement(QString name, QString symbol, QString atomicNumber, QStringList edgeList, QStringList emissionLineList, QObject *parent = 0);
 
 	/// Returns the name of the element.
@@ -146,7 +146,7 @@ private:
 	QString name_;
 	// Symbol.
 	QString symbol_;
-	// Atomic number saved as a string.
+	// Atomic number saved as an int.
 	int atomicNumber_;
 	// Name, Energy.
 	QList<QPair<QString, QString> > edges_;
