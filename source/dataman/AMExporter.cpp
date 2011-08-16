@@ -120,18 +120,21 @@ void AMExporter::loadKeywordReplacementDictionary()
 
 
 QString AMExporter::krName(const QString& arg) {
+	Q_UNUSED(arg)
 	if(currentScan_)
 		return currentScan_->name();
 	return "[??]";
 }
 
 QString AMExporter::krNumber(const QString& arg) {
+	Q_UNUSED(arg)
 	if(currentScan_)
 		return QString::number(currentScan_->number());
 	return "[??]";
 }
 
 QString AMExporter::krNotes(const QString& arg) {
+	Q_UNUSED(arg)
 	if(currentScan_)
 		return currentScan_->notes();
 	return "[??]";
@@ -171,6 +174,7 @@ QString AMExporter::krDateTime(const QString& arg) {
 #include "dataman/AMRun.h"
 
 QString AMExporter::krRun(const QString& arg) {
+	Q_UNUSED(arg)
 	if(!currentScan_)
 		return "[??]";
 
@@ -181,6 +185,7 @@ QString AMExporter::krRun(const QString& arg) {
 
 
 QString AMExporter::krRunName(const QString& arg) {
+	Q_UNUSED(arg)
 	if(!currentScan_)
 		return "[??]";
 
@@ -216,6 +221,7 @@ QString AMExporter::krRunEndDate(const QString& arg) {
 }
 
 QString AMExporter::krRunNotes(const QString& arg) {
+	Q_UNUSED(arg)
 	if(!currentScan_)
 		return "[??]";
 
@@ -226,6 +232,7 @@ QString AMExporter::krRunNotes(const QString& arg) {
 
 
 QString AMExporter::krFacilityName(const QString& arg) {
+	Q_UNUSED(arg)
 	if(!currentScan_)
 		return "[??]";
 
@@ -238,6 +245,7 @@ QString AMExporter::krFacilityName(const QString& arg) {
 }
 
 QString AMExporter::krFacilityDescription(const QString& arg) {
+	Q_UNUSED(arg)
 	if(!currentScan_)
 		return "[??]";
 
@@ -314,6 +322,7 @@ QString AMExporter::krControlUnits(const QString& controlName) {
 }
 
 QString AMExporter::krAllControls(const QString& arg) {
+	Q_UNUSED(arg)
 	if(!currentScan_)
 		return "[??]";
 
@@ -327,10 +336,12 @@ QString AMExporter::krAllControls(const QString& arg) {
 }
 
 QString AMExporter::krSample(const QString& arg) {
+	Q_UNUSED(arg)
 	return krSampleName();
 }
 
 QString AMExporter::krSampleName(const QString& arg) {
+	Q_UNUSED(arg)
 	if(!currentScan_)
 		return "[??]";
 
@@ -340,6 +351,7 @@ QString AMExporter::krSampleName(const QString& arg) {
 #include "dataman/AMSample.h"
 
 QString AMExporter::krSampleElements(const QString& arg) {
+	Q_UNUSED(arg)
 	if(!currentScan_)
 		return "[??]";
 
@@ -362,6 +374,7 @@ QString AMExporter::krSampleCreationDate(const QString& arg) {
 }
 
 QString AMExporter::krSampleNotes(const QString& arg) {
+	Q_UNUSED(arg)
 	if(!currentScan_)
 		return "[??]";
 
