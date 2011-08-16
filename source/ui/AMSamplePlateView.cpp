@@ -242,6 +242,8 @@ QSize AMSamplePlateItemDelegate::sizeHint(const QStyleOptionViewItem &option, co
 // create an editor widget with buttons to mark, move to, and remove this sample.
 QWidget* AMSamplePlateItemDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const {
 
+	Q_UNUSED(option)
+
 	AMSamplePositionViewActionsWidget* editor = new AMSamplePositionViewActionsWidget(index.row(), parent);
 
 	connect(editor, SIGNAL(rowMarkPressed(int)), this, SIGNAL(rowMarkPressed(int)));
@@ -260,6 +262,7 @@ void AMSamplePlateItemDelegate::setEditorData(QWidget *iEditor, const QModelInde
 
 // Place the editor below the item...
 void AMSamplePlateItemDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const {
+	Q_UNUSED(index)
 	QRect itemRect = option.rect;
 	QRect editorRect(itemRect.left(), itemRect.top()+itemRect.height()-26, itemRect.width(), 26);
 
@@ -269,6 +272,9 @@ void AMSamplePlateItemDelegate::updateEditorGeometry(QWidget *editor, const QSty
 // Don't do anything to set back the model data...
 void AMSamplePlateItemDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const {
 
+	Q_UNUSED(editor)
+	Q_UNUSED(model)
+	Q_UNUSED(index)
 }
 
 
@@ -472,6 +478,7 @@ void AMSamplePlateSelector::onDatabaseRemoved(const QString &tableName, int id) 
 }
 
 void AMSamplePlateSelector::onDatabaseCreated(const QString &tableName, int id) {
+	Q_UNUSED(id)
 	if(tableName != samplePlateTableName_)
 		return;
 
