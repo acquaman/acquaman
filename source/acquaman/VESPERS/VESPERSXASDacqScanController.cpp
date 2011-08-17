@@ -24,7 +24,7 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 	xasScan_->rawData()->addMeasurement(AMMeasurementInfo(*(ionChambers->detectorAt(2)->toInfo())));
 	xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), 0));
 
-	AMSingleControlDetector *xrf = new AMSingleControlDetector("RX", new AMReadOnlyPVControl("ROI", "dxp1607-B21-04:mcaCorrected.R0", this), AMDetector::RequestRead, this);
+	AMSingleControlDetector *xrf = new AMSingleControlDetector("ROI", new AMReadOnlyPVControl("ROI", "dxp1607-B21-04:mcaCorrected.R0", this), AMDetector::RequestRead, this);
 
 	xasScan_->rawData()->addMeasurement(AMMeasurementInfo(*(xrf->toInfo())));
 	xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), 1));
@@ -159,11 +159,14 @@ bool VESPERSXASDacqScanController::setupTransmissionXAS()
 
 	AMDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
 
+	advAcq_->appendRecord("07B2_Mono_SineB_Egec:eV", true, false, 0);
+
 	for (int i = 0; i < ionChambers->count(); i++)
 		advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt(i)->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt(i)->readMethod()));
 
 	/// In order to mimic the current configs, I've hardcoded all the names so that the file matches the reference file.  These should and will be migrated to proper maps of detectors and controls names.
 	// These will all likely change and be modified.
+	advAcq_->appendRecord("07B2_Mono_SineB_Ea", true, false, 0);
 	advAcq_->appendRecord("07B2_Mono_SineB_K", true, false, 0);
 	advAcq_->appendRecord("BL1607-B2-1:dwell:setTime", true, false, 0);
 	advAcq_->appendRecord("PCT1402-01:mA:fbk", true, false, 0);
@@ -189,6 +192,8 @@ bool VESPERSXASDacqScanController::setupSingleElementXAS()
 
 	/// In order to mimic the current configs, I've hardcoded all the names so that the file matches the reference file.  These should and will be migrated to proper maps of detectors and controls names.
 	// These will all likely change and be modified.
+	advAcq_->appendRecord("07B2_Mono_SineB_Egec:eV", true, false, 0);
+
 	advAcq_->appendRecord("IOC1607-004:mca1.R0", true, false, 1);
 	advAcq_->appendRecord("IOC1607-004:mca1.R1", true, false, 1);
 	advAcq_->appendRecord("IOC1607-004:mca1.R2", true, false, 1);
@@ -204,6 +209,8 @@ bool VESPERSXASDacqScanController::setupSingleElementXAS()
 		advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt(i)->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt(i)->readMethod()));
 
 	// Begin of hardcoded.
+	advAcq_->appendRecord("07B2_Mono_SineB_Ea", true, false, 0);
+
 	advAcq_->appendRecord("07B2_Mono_SineB_K", true, false, 0);
 	advAcq_->appendRecord("BL1607-B2-1:dwell:setTime", true, false, 0);
 	advAcq_->appendRecord("PCT1402-01:mA:fbk", true, false, 0);
@@ -237,6 +244,8 @@ bool VESPERSXASDacqScanController::setupFourElementXAS()
 
 	/// In order to mimic the current configs, I've hardcoded all the names so that the file matches the reference file.  These should and will be migrated to proper maps of detectors and controls names.
 	// These will all likely change and be modified.
+	advAcq_->appendRecord("07B2_Mono_SineB_Egec:eV", true, false, 0);
+
 	advAcq_->appendRecord("dxp1607-B21-04:mcaCorrected.R0", true, false, 1);
 	advAcq_->appendRecord("dxp1607-B21-04:mcaCorrected.R1", true, false, 1);
 	advAcq_->appendRecord("dxp1607-B21-04:mcaCorrected.R2", true, false, 1);
@@ -252,6 +261,7 @@ bool VESPERSXASDacqScanController::setupFourElementXAS()
 		advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt(i)->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt(i)->readMethod()));
 
 	// Begin of hardcoded.
+	advAcq_->appendRecord("07B2_Mono_SineB_Ea", true, false, 0);
 	advAcq_->appendRecord("07B2_Mono_SineB_K", true, false, 0);
 	advAcq_->appendRecord("BL1607-B2-1:dwell:setTime", true, false, 0);
 	advAcq_->appendRecord("PCT1402-01:mA:fbk", true, false, 0);
