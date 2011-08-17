@@ -28,6 +28,10 @@ protected slots:
 	void onScanNameEdited() { config_->setName(scanName_->text()); }
 	/// Handles switching which button group is being viewed for Ion chamber selection.
 	void onItI0Toggled(int id);
+	/// Handles changing what are acceptable choices for I0 based on It clicks.  Takes in the id of the new It choice.  Passes choice on to the configuration.
+	void onItClicked(int id);
+	/// Passes on the selection for I0 to the configuration.
+	void onI0Clicked(int id) { config_->setIncomingChoice(id); }
 
 protected:
 	/// Pointer to the specific scan config the view is modifying.
