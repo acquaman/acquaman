@@ -46,40 +46,48 @@ VESPERSXASScanConfigurationView::VESPERSXASScanConfigurationView(VESPERSXASScanC
 	QVBoxLayout *ItGroupLayout = new QVBoxLayout;
 
 	ItGroup_ = new QButtonGroup;
-	tempButton = new QRadioButton("Isplit");
+	tempButton = new QRadioButton("Isplit1");
 	tempButton->setEnabled(false);
 	tempButton->hide();
 	ItGroup_->addButton(tempButton, 0);
 	ItGroupLayout->addWidget(tempButton);
-	tempButton = new QRadioButton("Iprekb");
+	tempButton = new QRadioButton("Isplit2");
+	tempButton->setEnabled(false);
 	tempButton->hide();
 	ItGroup_->addButton(tempButton, 1);
 	ItGroupLayout->addWidget(tempButton);
-	tempButton = new QRadioButton("Imini");
+	tempButton = new QRadioButton("Iprekb");
 	tempButton->hide();
 	ItGroup_->addButton(tempButton, 2);
 	ItGroupLayout->addWidget(tempButton);
-	tempButton = new QRadioButton("Ipost");
+	tempButton = new QRadioButton("Imini");
 	tempButton->hide();
 	ItGroup_->addButton(tempButton, 3);
+	ItGroupLayout->addWidget(tempButton);
+	tempButton = new QRadioButton("Ipost");
+	tempButton->hide();
+	ItGroup_->addButton(tempButton, 4);
 	ItGroupLayout->addWidget(tempButton);
 	connect(ItGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onItClicked(int)));
 
 	QVBoxLayout *I0GroupLayout = new QVBoxLayout;
 
 	I0Group_ = new QButtonGroup;
-	tempButton = new QRadioButton("Isplit");
+	tempButton = new QRadioButton("Isplit1");
 	I0Group_->addButton(tempButton, 0);
 	I0GroupLayout->addWidget(tempButton);
-	tempButton = new QRadioButton("Iprekb");
+	tempButton = new QRadioButton("Isplit2");
 	I0Group_->addButton(tempButton, 1);
+	I0GroupLayout->addWidget(tempButton);
+	tempButton = new QRadioButton("Iprekb");
+	I0Group_->addButton(tempButton, 2);
 	I0GroupLayout->addWidget(tempButton);
 	tempButton = new QRadioButton("Imini");
 	tempButton->setChecked(true);
-	I0Group_->addButton(tempButton, 2);
+	I0Group_->addButton(tempButton, 3);
 	I0GroupLayout->addWidget(tempButton);
 	tempButton = new QRadioButton("Ipost");
-	I0Group_->addButton(tempButton, 3);
+	I0Group_->addButton(tempButton, 4);
 	I0GroupLayout->addWidget(tempButton);
 	connect(I0Group_, SIGNAL(buttonClicked(int)), this, SLOT(onI0Clicked(int)));
 
@@ -101,8 +109,8 @@ VESPERSXASScanConfigurationView::VESPERSXASScanConfigurationView(VESPERSXASScanC
 	ItI0Layout->addStretch();
 	connect(ItI0ButtonGroup, SIGNAL(buttonClicked(int)), this, SLOT(onItI0Toggled(int)));
 
-	I0Group_->button(2)->click();
-	ItGroup_->button(3)->click();
+	I0Group_->button(3)->click();
+	ItGroup_->button(4)->click();
 
 	QHBoxLayout *ionChambersLayout = new QHBoxLayout;
 	ionChambersLayout->addLayout(I0GroupLayout);
@@ -147,11 +155,13 @@ void VESPERSXASScanConfigurationView::onItI0Toggled(int id)
 		ItGroup_->button(1)->hide();
 		ItGroup_->button(2)->hide();
 		ItGroup_->button(3)->hide();
+		ItGroup_->button(4)->hide();
 
 		I0Group_->button(0)->show();
 		I0Group_->button(1)->show();
 		I0Group_->button(2)->show();
 		I0Group_->button(3)->show();
+		I0Group_->button(4)->show();
 	}
 	else{
 
@@ -159,11 +169,13 @@ void VESPERSXASScanConfigurationView::onItI0Toggled(int id)
 		I0Group_->button(1)->hide();
 		I0Group_->button(2)->hide();
 		I0Group_->button(3)->hide();
+		I0Group_->button(4)->hide();
 
 		ItGroup_->button(0)->show();
 		ItGroup_->button(1)->show();
 		ItGroup_->button(2)->show();
 		ItGroup_->button(3)->show();
+		ItGroup_->button(4)->show();
 	}
 }
 
@@ -176,7 +188,7 @@ void VESPERSXASScanConfigurationView::onItClicked(int id)
 	for (int i = 0; i < id; i++)
 		I0Group_->button(i)->setEnabled(true);
 
-	for (int i = id; i < 4; i++)
+	for (int i = id; i < 5; i++)
 		I0Group_->button(i)->setEnabled(false);
 
 	config_->setTransmissionChoice(id);

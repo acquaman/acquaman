@@ -6,9 +6,6 @@
 
 #include <QDir>
 
-// For test purposes.
-#include "beamline/AMSingleControlDetector.h"
-
 VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfiguration *cfg, QObject *parent)
 	: AMDacqScanController(cfg, parent)
 {
@@ -18,23 +15,43 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 	xasScan_->setScanConfiguration(config_);
 	xasScan_->setRunId(AMUser::user()->currentRunId());
 
-	// Hard coded for now.
 	AMDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
 
-	xasScan_->rawData()->addMeasurement(AMMeasurementInfo(*(ionChambers->detectorAt(2)->toInfo())));
+	xasScan_->rawData()->addMeasurement(AMMeasurementInfo(*(ionChambers->detectorAt((int)config_->incomingChoice())->toInfo())));
 	xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), 0));
-
-	AMSingleControlDetector *xrf = new AMSingleControlDetector("ROI", new AMReadOnlyPVControl("ROI", "dxp1607-B21-04:mcaCorrected.R0", this), AMDetector::RequestRead, this);
-
-	xasScan_->rawData()->addMeasurement(AMMeasurementInfo(*(xrf->toInfo())));
+	xasScan_->rawData()->addMeasurement(AMMeasurementInfo(*(ionChambers->detectorAt((int)config_->transmissionChoice())->toInfo())));
 	xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), 1));
 
-	AM1DExpressionAB* transmission = new AM1DExpressionAB("normalized");
+	if (config_->fluorescenceDetectorChoice() == VESPERSXASScanConfiguration::SingleElement){
+
+		XRFDetector *detector = VESPERSBeamline::vespers()->vortexXRF1E();
+
+		// This is safe and okay because I always have the regions of interest set taking up 0-X where X is the count-1 of the number of regions of interest.
+		for (int i = 0; i < detector->roiInfoList()->count(); i++){
+
+			xasScan_->rawData()->addMeasurement(AMMeasurementInfo(detector->roiInfoList()->at(i).name().remove(" "), detector->roiInfoList()->at(i).name()));
+			xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), i+2));
+		}
+	}
+	else if (config_->fluorescenceDetectorChoice() == VESPERSXASScanConfiguration::FourElement){
+
+		XRFDetector *detector = VESPERSBeamline::vespers()->vortexXRF4E();
+
+		// This is safe and okay because I always have the regions of interest set taking up 0-X where X is the count-1 of the number of regions of interest.
+		for (int i = 0; i < detector->roiInfoList()->count(); i++){
+
+			xasScan_->rawData()->addMeasurement(AMMeasurementInfo(detector->roiInfoList()->at(i).name().remove(" "), detector->roiInfoList()->at(i).name()));
+			xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), i+2));
+		}
+	}
+
+	/// \todo add the analysis blocks.  Holding off until I know the raw data sources are working.
+	/*AM1DExpressionAB* transmission = new AM1DExpressionAB("normalized");
 	transmission->setDescription("Normalized Transmission");
 	transmission->setInputDataSources(QList<AMDataSource *>() << xasScan_->rawDataSources()->at(0) << xasScan_->rawDataSources()->at(1));
 	transmission->setExpression("ROI/IonChamberSplit2");
 
-	xasScan_->addAnalyzedDataSource(transmission);
+	xasScan_->addAnalyzedDataSource(transmission);*/
 }
 
 bool VESPERSXASDacqScanController::initializeImplementation()
@@ -161,8 +178,12 @@ bool VESPERSXASDacqScanController::setupTransmissionXAS()
 
 	advAcq_->appendRecord("07B2_Mono_SineB_Egec:eV", true, false, 0);
 
+	advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt((int)config_->incomingChoice())->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt((int)config_->incomingChoice())->readMethod()));
+	advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt((int)config_->transmissionChoice())->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt((int)config_->transmissionChoice())->readMethod()));
+
 	for (int i = 0; i < ionChambers->count(); i++)
-		advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt(i)->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt(i)->readMethod()));
+		if (i != (int)config_->incomingChoice() || i != (int)config_->transmissionChoice())
+			advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt(i)->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt(i)->readMethod()));
 
 	/// In order to mimic the current configs, I've hardcoded all the names so that the file matches the reference file.  These should and will be migrated to proper maps of detectors and controls names.
 	// These will all likely change and be modified.
@@ -194,23 +215,19 @@ bool VESPERSXASDacqScanController::setupSingleElementXAS()
 	// These will all likely change and be modified.
 	advAcq_->appendRecord("07B2_Mono_SineB_Egec:eV", true, false, 0);
 
-	advAcq_->appendRecord("IOC1607-004:mca1.R0", true, false, 1);
-	advAcq_->appendRecord("IOC1607-004:mca1.R1", true, false, 1);
-	advAcq_->appendRecord("IOC1607-004:mca1.R2", true, false, 1);
-	advAcq_->appendRecord("IOC1607-004:mca1.R3", true, false, 1);
-	advAcq_->appendRecord("IOC1607-004:mca1.R4", true, false, 1);
-	advAcq_->appendRecord("IOC1607-004:mca1.R5", true, false, 1);
-	advAcq_->appendRecord("IOC1607-004:mca1.R6", true, false, 1);
-	advAcq_->appendRecord("IOC1607-004:mca1.R7", true, false, 1);
+	advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt((int)config_->incomingChoice())->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt((int)config_->incomingChoice())->readMethod()));
+	advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt((int)config_->transmissionChoice())->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt((int)config_->transmissionChoice())->readMethod()));
 
-	// End of hardcoded.
+	int roiCount = VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList()->count();
+
+	for (int i = 0; i < roiCount; i++)
+		advAcq_->appendRecord("IOC1607-004:mca1.R"+QString::number(i), true, false, 1);
 
 	for (int i = 0; i < ionChambers->count(); i++)
-		advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt(i)->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt(i)->readMethod()));
+		if (i != (int)config_->incomingChoice() || i != (int)config_->transmissionChoice())
+			advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt(i)->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt(i)->readMethod()));
 
-	// Begin of hardcoded.
 	advAcq_->appendRecord("07B2_Mono_SineB_Ea", true, false, 0);
-
 	advAcq_->appendRecord("07B2_Mono_SineB_K", true, false, 0);
 	advAcq_->appendRecord("BL1607-B2-1:dwell:setTime", true, false, 0);
 	advAcq_->appendRecord("PCT1402-01:mA:fbk", true, false, 0);
@@ -246,21 +263,18 @@ bool VESPERSXASDacqScanController::setupFourElementXAS()
 	// These will all likely change and be modified.
 	advAcq_->appendRecord("07B2_Mono_SineB_Egec:eV", true, false, 0);
 
-	advAcq_->appendRecord("dxp1607-B21-04:mcaCorrected.R0", true, false, 1);
-	advAcq_->appendRecord("dxp1607-B21-04:mcaCorrected.R1", true, false, 1);
-	advAcq_->appendRecord("dxp1607-B21-04:mcaCorrected.R2", true, false, 1);
-	advAcq_->appendRecord("dxp1607-B21-04:mcaCorrected.R3", true, false, 1);
-	advAcq_->appendRecord("dxp1607-B21-04:mcaCorrected.R4", true, false, 1);
-	advAcq_->appendRecord("dxp1607-B21-04:mcaCorrected.R5", true, false, 1);
-	advAcq_->appendRecord("dxp1607-B21-04:mcaCorrected.R6", true, false, 1);
-	advAcq_->appendRecord("dxp1607-B21-04:mcaCorrected.R7", true, false, 1);
+	advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt((int)config_->incomingChoice())->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt((int)config_->incomingChoice())->readMethod()));
+	advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt((int)config_->transmissionChoice())->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt((int)config_->transmissionChoice())->readMethod()));
 
-	// End of hardcoded.
+	int roiCount = VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList()->count();
+
+	for (int i = 0; i < roiCount; i++)
+		advAcq_->appendRecord("dxp1607-B21-04:mcaCorrected.R"+QString::number(i), true, false, 1);
 
 	for (int i = 0; i < ionChambers->count(); i++)
-		advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt(i)->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt(i)->readMethod()));
+		if (i != (int)config_->incomingChoice() || i != (int)config_->transmissionChoice())
+			advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt(i)->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt(i)->readMethod()));
 
-	// Begin of hardcoded.
 	advAcq_->appendRecord("07B2_Mono_SineB_Ea", true, false, 0);
 	advAcq_->appendRecord("07B2_Mono_SineB_K", true, false, 0);
 	advAcq_->appendRecord("BL1607-B2-1:dwell:setTime", true, false, 0);

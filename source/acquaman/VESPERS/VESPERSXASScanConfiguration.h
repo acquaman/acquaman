@@ -18,7 +18,7 @@ public:
 	/// Enum for making the decision on what fluorescence detector the user wants to use.
 	enum FluorescenceDetector { None = 0, SingleElement, FourElement };
 	/// Enum for the ion chambers.  Used when choosing It and I0.
-	enum IonChamber { Isplit = 0, Iprekb, Imini, Ipost };
+	enum IonChamber { Isplit1 = 0, Isplit2, Iprekb, Imini, Ipost };
 
 	/// Constructor.
 	Q_INVOKABLE explicit VESPERSXASScanConfiguration(QObject *parent=0);

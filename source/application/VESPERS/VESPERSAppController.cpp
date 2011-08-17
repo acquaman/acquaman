@@ -104,6 +104,13 @@ bool VESPERSAppController::startup() {
 		XRFFreeRunView *xrf1EFreeRunView = new XRFFreeRunView(new XRFFreeRun(VESPERSBeamline::vespers()->vortexXRF1E()), workflowManagerView_);
 		XRFFreeRunView *xrf4EFreeRunView = new XRFFreeRunView(new XRFFreeRun(VESPERSBeamline::vespers()->vortexXRF4E()), workflowManagerView_);
 
+		mw_->insertHeading("Free run", 1);
+		mw_->addPane(xrf1EFreeRunView, "Free run", "XRF 1-el", ":/utilities-system-monitor.png");
+		mw_->addPane(xrf4EFreeRunView, "Free run", "XRF 4-el", ":/utilities-system-monitor.png");
+
+		// Setup page to launch the nDMapper software with correct options.
+		XRFMapSetup *ndMapSetup = new XRFMapSetup;
+
 		// Setup XAS for the beamline.  Builds the config, view, and view holder.
 		VESPERSXASScanConfiguration *xasScanConfig = new VESPERSXASScanConfiguration();
 		xasScanConfig->addRegion(0, 0, 1, 10);
@@ -112,16 +119,9 @@ bool VESPERSAppController::startup() {
 		/// \todo this can likely be somewhere else in the framework.
 		connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerStarted()), this, SLOT(onCurrentScanControllerStarted()));
 
-		mw_->insertHeading("Free run", 1);
-		mw_->addPane(xrf1EFreeRunView, "Free run", "XRF 1-el", ":/utilities-system-monitor.png");
-		mw_->addPane(xrf4EFreeRunView, "Free run", "XRF 4-el", ":/utilities-system-monitor.png");
-		mw_->addPane(xasConfigViewHolder, "Free run", "XAS test", ":/utilities-system-monitor.png");
-
-		// Setup page to launch the nDMapper software with correct options.
-		XRFMapSetup *ndMapSetup = new XRFMapSetup;
-
 		mw_->insertHeading("Scans", 2);
 		mw_->addPane(ndMapSetup, "Scans", "Map Setup", ":/utilities-system-monitor.png");
+		mw_->addPane(xasConfigViewHolder, "Scans", "XAS", ":/utilities-system-monitor.png");
 
 		// This is the right hand panel that is always visible.  Has important information such as shutter status and overall controls status.  Also controls the sample stage.
 		VESPERSPersistentView *persistentView = new VESPERSPersistentView;
