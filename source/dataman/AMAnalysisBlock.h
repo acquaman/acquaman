@@ -48,7 +48,7 @@ To implement a real AMAnalysisBlock, you must implement the pure virtual functio
 
 If an analysis block requires parameters in addition to the input sources, implement custom functions to set and access these parameters. \todo Figure out if generic parameter-description and parameter-setting functionality is required in the interface/base-class definition.
 
-Since AMAnalysisBlocks must be persistently stored and reloaded, they also inherit AMDbObject.  \sa AMDbObject for how to specify parameters so they are saved and reloaded from the database. You may either re-implement storeToDb() and loadFromDb(), or use the meta-data array.
+Since AMAnalysisBlocks must be persistently stored and reloaded, they also inherit AMDbObject.  \sa AMDbObject for how to specify parameters so they are saved and reloaded from the database.
 
 Finally, AMAnalysisBlocks may choose to implement a factory function to create QWidget editors for their unique parameters. This should return a newly-created  widget, connected to the block's parameter-setting functions. If you don't provide this functionality, the base version simply returns a null pointer.  \todo Define some standards for editor widgets (size range, preferred layout, etc.)
 */
