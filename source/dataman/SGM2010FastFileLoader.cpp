@@ -414,5 +414,6 @@ bool SGM2010FastFileLoader::loadFromFile(const QString& filepath, bool setMetaDa
 }
 
 bool SGM2010FastFileLoader::saveToFile(const QString &filepath){
+	Q_UNUSED(filepath)
 	return false;
 }

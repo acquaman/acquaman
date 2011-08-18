@@ -1684,6 +1684,8 @@ void SGMBeamline::onControlSetConnected(bool csConnected){
 }
 
 void SGMBeamline::onCriticalControlsConnectedChanged(bool isConnected, AMControl *control){
+	Q_UNUSED(isConnected)
+	Q_UNUSED(control)
 	emit criticalControlsConnectionsChanged();
 }
 
@@ -2039,7 +2041,7 @@ QMap<double, double> SGMResolutionOptimization::curve(QList<QVariant> stateParam
 	gsl_multifit_linear_workspace * work
 			= gsl_multifit_linear_alloc (n, 3);
 	gsl_multifit_wlinear (X, w, y, c, cov,
-						  &chisq, work);
+			      &chisq, work);
 	gsl_multifit_linear_free (work);
 
 #define C(i) (gsl_vector_get(c,(i)))
