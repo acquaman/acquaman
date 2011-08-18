@@ -97,8 +97,9 @@ public:
 
 		/// optimize for common dimensional cases, to avoid the for-loop overhead
 		switch(scanAxesCount_) {
-		case 0:
-			break;	/// \todo SERIOUS: need to support scalar scan spaces (ie; no scan axis) for XES scans. For now there's always one scan axis.
+		case 0:	// scalar scan space. indexes are all in measurement space.
+			return dataStore_->value(AMnDIndex(), measurementId_, indexes, doBoundsChecking);
+			break;
 		case 1:
 			switch(measurementAxesCount_) {
 			case 0:
@@ -175,7 +176,7 @@ public:
 
 		// minimum of one axis, always.
 		//if(axes_.count() == 0)
-		//	axes_ << AMAxisInfo("invalid", 0);
+			//axes_ << AMAxisInfo("invalid", 0);
 	}
 
 
