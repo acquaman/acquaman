@@ -220,7 +220,7 @@ public:
 		TimeoutFailure,			///< The move did not complete within a timeout period specified
 		WasStoppedFailure,		///< The move was prematurely stopped with the stop() command.
 		OtherFailure 			///<  an error code defined by the specific control implementation
-};
+	};
 
 	/// This enum type is used to describe problematic states the control can be in
 	/*! Possible explanation codes are:
@@ -322,13 +322,7 @@ The Control abstraction provides two different properties (and associated signal
 
 	  */
 	virtual bool isMoving() const { return false; }
-	/*virtual bool isMoving() {
-		bool isMoving = false;
-		foreach(AMControl* c, children_) {
-			isMoving |= c->isMoving();
-		}
-		return isMoving;
-	}*/
+
 
 	/// Indicates that a move() sent by this software is currently happening.
 	/*! There are two useful but distinct ideas on whether a control is "moving", particularly for distributed control systems like in a synchrotron.  Often, beamline parameters can be controlled from a user's software interface, but they can also spontaneously start moving due to external events or other control interfaces.
@@ -444,6 +438,8 @@ signals:
 	void movingChanged(bool isMoving);
 	/// Announces when the position/value of the control "value()" has changed.
 	void valueChanged(double newValue);
+	/*! Normally we expect that only this program is changing the setpoint and causing motion, using move().  If someone else changes the writePV (setpoint PV), this will signal you with the new value.*/
+	void setpointChanged(double);
 	//@}
 
 	/// Announces when the unit string text has changed. Necessary because we might not know this until after a delayed control connects.
@@ -629,14 +625,14 @@ public:
 		\param stopPVname The EPICS channel-access name for the process variable to write to cancel a move in progress. If empty (default), shouldStop() and canStop() both return false, and calls to stop() will not work.
 		*/
 	AMPVControl(const QString& name,
-				const QString& readPVname,
-				const QString& writePVname,
-				const QString& stopPVname = QString(),
-				QObject* parent = 0,
-				double tolerance = AMCONTROL_TOLERANCE_DONT_CARE,
-				double completionTimeoutSeconds = 10.0,
-				int stopValue = 1,
-				const QString &description = "");
+		    const QString& readPVname,
+		    const QString& writePVname,
+		    const QString& stopPVname = QString(),
+		    QObject* parent = 0,
+		    double tolerance = AMCONTROL_TOLERANCE_DONT_CARE,
+		    double completionTimeoutSeconds = 10.0,
+		    int stopValue = 1,
+		    const QString &description = "");
 
 	/// \name Reimplemented Public Functions:
 	//@{
@@ -710,7 +706,7 @@ signals:
 
 	/// Signals changes in writePVValue().
 	/*! Normally we expect that only this program is changing the setpoint and causing motion, using move().  If someone else changes the writePV (setpoint PV), this will signal you with the new value.*/
-	void writePVValueChanged(double);
+	void setpointChanged(double);
 
 protected:
 	/// Used for the setpoint
@@ -836,11 +832,11 @@ public:
 		\param parent QObject parent class
 		*/
 	AMReadOnlyPVwStatusControl(const QString& name,
-					const QString& readPVname,
-					const QString& movingPVname,
-					QObject* parent = 0,
-					AMAbstractControlStatusChecker* statusChecker = new AMControlStatusCheckerDefault(1),
-					const QString &description = "");
+				   const QString& readPVname,
+				   const QString& movingPVname,
+				   QObject* parent = 0,
+				   AMAbstractControlStatusChecker* statusChecker = new AMControlStatusCheckerDefault(1),
+				   const QString &description = "");
 
 	/// Destructor
 	virtual ~AMReadOnlyPVwStatusControl() { delete statusChecker_; }
@@ -957,16 +953,16 @@ public:
 		\param parent QObject parent class
 		*/
 	AMPVwStatusControl(const QString& name,
-					   const QString& readPVname,
-					   const QString& writePVname,
-					   const QString& movingPVname,
-					   const QString& stopPVname = QString(),
-					   QObject* parent = 0,
-					   double tolerance = AMCONTROL_TOLERANCE_DONT_CARE,
-					   double moveStartTimeoutSeconds = 2.0,
-					   AMAbstractControlStatusChecker* statusChecker = new AMControlStatusCheckerDefault(1),
-					   int stopValue = 1,
-					   const QString &description = "");
+			   const QString& readPVname,
+			   const QString& writePVname,
+			   const QString& movingPVname,
+			   const QString& stopPVname = QString(),
+			   QObject* parent = 0,
+			   double tolerance = AMCONTROL_TOLERANCE_DONT_CARE,
+			   double moveStartTimeoutSeconds = 2.0,
+			   AMAbstractControlStatusChecker* statusChecker = new AMControlStatusCheckerDefault(1),
+			   int stopValue = 1,
+			   const QString &description = "");
 
 	/// \name Reimplemented Public Functions:
 	//@{
@@ -974,7 +970,7 @@ public:
 	//virtual bool isConnected() const { return canMeasure() && canMove() && movingPV_->canRead(); }
 	virtual bool isConnected() const { return readPV_->readReady() && writePV_->writeReady() && movingPV_->readReady(); }
 	/// Indicates that a move (that you requested) is currently completing... hasn't reached destination, and hasn't time'd out.
-	virtual bool moveInProgress() const { return moveInProgress_ && AMReadOnlyPVwStatusControl::isMoving(); }	// moveInProgress_ will be true as soon as move() is requested.  moveInProgress() isn't happening until the device starts moving as well.)
+	virtual bool moveInProgress() const { return moveInProgress_ || startInProgress_; }	// moveInProgress_ will be true as soon as move() is requested.  moveInProgress() isn't happening until the device starts moving as well.)
 	/// Indicates that this control currently can cause moves:
 	virtual bool canMove() const { return writePV_->canWrite(); }
 	/// Theoretically, if we're connected, this control type should be able to move:
@@ -1025,7 +1021,7 @@ signals:
 	void writeConnectionTimeoutOccurred();
 	/// Signals changes in writePVValue().
 	/*! Normally we expect that only this program is changing the setpoint and causing motion, using move().  If someone else changes the writePV (setpoint PV), this will signal you with the new value.*/
-	void writePVValueChanged(double);
+	void setpointChanged(double);
 
 protected:
 	/// This PV is used for the setpoint:
@@ -1038,7 +1034,9 @@ protected:
 	/// Used to detect moveStart timeouts:
 	double moveStartTimeout_;
 
-	/// used internally to track whether we're moving:
+	/// used internally to track whether we're waiting for a physical control to actually start moving, after we've told it to.
+	bool startInProgress_;
+	/// used internally to track whether we're moving [ie: one of OUR moves is in progress]
 	bool moveInProgress_;
 	/// Used internally to indicate that we've issued a stop() command. (Stop in-progress)
 	bool stopInProgress_;
@@ -1103,11 +1101,11 @@ public:
 		\param parent QObject parent class
 		*/
 	AMReadOnlyWaveformBinningPVControl(const QString& name,
-						const QString& readPVname,
-						int lowIndex = 0,
-						int highIndex = 1,
-						QObject* parent = 0,
-						const QString &description = "");
+					   const QString& readPVname,
+					   int lowIndex = 0,
+					   int highIndex = 1,
+					   QObject* parent = 0,
+					   const QString &description = "");
 
 	/// \name Reimplemented Public Functions:
 	//@{

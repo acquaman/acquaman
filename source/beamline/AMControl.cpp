@@ -119,7 +119,7 @@ void AMReadOnlyPVControl::onReadPVError(int errorCode) {
 	if(source){
 		if( (errorCode == AMPROCESSVARIABLE_CANNOT_READ) && shouldMeasure() ){
 			emit error(AMControl::CannotReadError);
-			qDebug() << QString("Read Process Variable error %1: %2.").arg(source->pvName()).arg(errorCode);
+			qWarning() << QString("Read Process Variable error %1: %2.").arg(source->pvName()).arg(errorCode);
 		}
 	}
 }
@@ -127,7 +127,6 @@ void AMReadOnlyPVControl::onReadPVError(int errorCode) {
 void AMReadOnlyPVControl::onReadPVInitialized() {
 	setUnits(readPV_->units());	// copy over the new unit string
 	setEnumStates(readPV_->enumStrings());	// todo: for subclasses, what to do if readPV and writePV have different number of enum states? Protect against invalid access somehow...
-	//	qDebug() << QString("ReadOnlyPVControl: read PV initialized correctly.");
 }
 
 
@@ -158,7 +157,7 @@ AMPVControl::AMPVControl(const QString& name, const QString& readPVname, const Q
 	connect(writePV_, SIGNAL(error(int)), this, SLOT(onWritePVError(int)));
 	connect(writePV_, SIGNAL(connectionTimeout()), this, SIGNAL(writeConnectionTimeoutOccurred()));
 	connect(writePV_, SIGNAL(connectionTimeout()), this, SLOT(onConnectionTimeout()));
-	connect(writePV_, SIGNAL(valueChanged(double)), this, SIGNAL(writePVValueChanged(double)));
+	connect(writePV_, SIGNAL(valueChanged(double)), this, SIGNAL(setpointChanged(double)));
 
 	// We now need to monitor the feedback position ourselves, to see if we get where we want to go:
 	connect(readPV_, SIGNAL(valueChanged(double)), this, SLOT(onNewFeedbackValue(double)));
@@ -188,7 +187,6 @@ void AMPVControl::move(double setpoint) {
 	if( canMove() ) {
 		// Issue the move
 		writePV_->setValue(setpoint_);
-		//		qDebug() << QString("Moving %1 to %2").arg(writePV_->pvName()).arg(setpoint_);
 
 		// We're now moving! Let's hope this hoofedinkus makes it... (No way to actually check.)
 		emit movingChanged(moveInProgress_ = true);
@@ -210,7 +208,7 @@ void AMPVControl::move(double setpoint) {
 		}
 	}
 	else {
-		qDebug() << QString("Could not move %1 to %2").arg(writePV_->pvName()).arg(setpoint_);
+		qWarning() << QString("Could not move %1 to %2").arg(writePV_->pvName()).arg(setpoint_);
 
 		// Notify the failure right away:
 		emit moveFailed(AMControl::NotConnectedFailure);
@@ -248,7 +246,7 @@ void AMPVControl::onWritePVError(int errorCode) {
 	if(source){
 		if(errorCode == AMPROCESSVARIABLE_CANNOT_WRITE && shouldMove() ){
 			emit error(AMControl::CannotWriteError);
-			qDebug() << QString("Write Process Variable error %1: %2.").arg(source->pvName()).arg(errorCode);
+			qWarning() << QString("Write Process Variable error %1: %2.").arg(source->pvName()).arg(errorCode);
 		}
 	}
 }
@@ -259,7 +257,7 @@ void AMPVControl::onCompletionTimeout() {
 	// if we weren't moving, this shouldn't have happened. someone forgot to shutoff the timer?
 	// todo: this is only included for state testing debugging... can remove if never happens
 	if(!moveInProgress_) {
-		qDebug() << "AMPVControl:: timer timeout while move not in progress.  How did this happen?";
+		qWarning() << "AMPVControl:: timer timeout while move not in progress.  How did this happen?";
 		return;
 	}
 
@@ -345,7 +343,7 @@ void AMReadOnlyPVwStatusControl::onStatusPVError(int errorCode) {
 	if(source){
 		if(errorCode == AMPROCESSVARIABLE_CANNOT_READ){
 			emit error(AMControl::CannotGetStatusError);
-			qDebug() << QString("Status Process Variable error %1: %2.").arg(source->pvName()).arg(errorCode);
+			qWarning() << QString("Status Process Variable error %1: %2.").arg(source->pvName()).arg(errorCode);
 		}
 	}
 }
@@ -369,6 +367,7 @@ AMPVwStatusControl::AMPVwStatusControl(const QString& name, const QString& readP
 	// Initialize:
 	moveInProgress_ = false;
 	stopInProgress_ = false;
+	startInProgress_ = false;
 	setTolerance(tolerance);
 	setpoint_ = 0;
 	moveStartTimeout_ = moveStartTimeoutSeconds;
@@ -382,7 +381,7 @@ AMPVwStatusControl::AMPVwStatusControl(const QString& name, const QString& readP
 	connect(writePV_, SIGNAL(error(int)), this, SLOT(onWritePVError(int)));
 	connect(writePV_, SIGNAL(connectionTimeout()), this, SIGNAL(writeConnectionTimeoutOccurred()));
 	connect(writePV_, SIGNAL(connectionTimeout()), this, SLOT(onConnectionTimeout()));
-	connect(writePV_, SIGNAL(valueChanged(double)), this, SIGNAL(writePVValueChanged(double)));
+	connect(writePV_, SIGNAL(valueChanged(double)), this, SIGNAL(setpointChanged(double)));
 
 	// connect the timer to the timeout handler:
 	connect(&moveStartTimer_, SIGNAL(timeout()), this, SLOT(onMoveStartTimeout()));
@@ -407,20 +406,21 @@ AMPVwStatusControl::AMPVwStatusControl(const QString& name, const QString& readP
 void AMPVwStatusControl::move(double setpoint) {
 
 	stopInProgress_ = false;
+	moveInProgress_ = false;
+	// Flag that "our" move started:
+	startInProgress_ = true;
 
 	// This is our new target:
 	setpoint_ = setpoint;
 	// Issue the move command:
 	writePV_->setValue(setpoint_);
-	// Flag that "our" move started:
-	moveInProgress_ = true;
 
 	// Special case added:
 	// =======================
 	// If we're already in-position (ie: moving to where we are already). In this situation, you won't see any feedback values change (onNewFeedbackValue() won't be called), but probably want to get the moveSucceeded() signal right away -- ie: instead of waiting for the move timeout.
-	// This check is only possible if you've actually specified a non-default, appropriate timeout:
+	// This check is only possible if you've actually specified a non-default, appropriate tolerance:
 	if(tolerance() != AMCONTROL_TOLERANCE_DONT_CARE && inPosition()) {
-		moveInProgress_ = false;
+		startInProgress_ = false;
 		emit this->moveSucceeded();
 	}
 	else {
@@ -438,6 +438,7 @@ bool AMPVwStatusControl::stop() {
 	stopPV_->setValue(stopValue_);
 	stopInProgress_ = true;	// flag that a stop is "in progress" -- we've issued the stop command.
 	moveInProgress_ = false;	// one of "our" moves is no longer in progress.
+	startInProgress_ = false;
 	return true;
 }
 
@@ -449,7 +450,7 @@ void AMPVwStatusControl::onWritePVError(int errorCode) {
 	if(source){
 		if(errorCode == AMPROCESSVARIABLE_CANNOT_WRITE && shouldMove()){
 			emit error(AMControl::CannotWriteError);
-			qDebug() << QString("Write Process Variable error %1: %2.").arg(source->pvName()).arg(errorCode);
+			qWarning() << QString("Write Process Variable error %1: %2.").arg(source->pvName()).arg(errorCode);
 		}
 	}
 }
@@ -460,30 +461,28 @@ void AMPVwStatusControl::onMoveStartTimeout() {
 	moveStartTimer_.stop();
 
 	// This is only meaningful if one of our moves is in progress.
-	if(moveInProgress_) {
-		// Did we make it?
-		if( inPosition() ) {
-			qDebug() << "Right here, damn too fast motors";
-			emit moveSucceeded();
-		}
-		else{
-			// The move didn't start within our allowed start period. That counts as a move failed.
-			emit moveFailed(AMControl::TimeoutFailure);
-		}
+	if(startInProgress_) {
 		// give up on this move:
-		moveInProgress_ = false;
+		startInProgress_ = false;
+		// The move didn't start within our allowed start period. That counts as a move failed.
+		emit moveFailed(AMControl::TimeoutFailure);
 	}
 }
 
 // This is used to add our own move tracking signals when isMoving() changes.
 //This slot will only be accessed on _changes_ in isMoving()
 void AMPVwStatusControl::onIsMovingChanged(bool isMoving) {
+
 	// if we requested one of our moves, and moving just started:
-	if(moveInProgress_ && isMoving) {
+	if(startInProgress_ && isMoving) {
+		moveInProgress_ = true;
+		startInProgress_ = false;
 		// This is great... the device started moving within the timeout:
-		emit moveStarted();
+
 		// disable the moveStartTimer; we don't need it anymore
 		moveStartTimer_.stop();
+
+		emit moveStarted();
 	}
 
 	// If one of our moves was running, and we stopped moving:
@@ -492,10 +491,12 @@ void AMPVwStatusControl::onIsMovingChanged(bool isMoving) {
 		moveInProgress_ = false;
 
 		// Check if we succeeded...
-		if(inPosition())
+		if(inPosition()) {
 			emit moveSucceeded();
-		else
+		}
+		else {
 			emit moveFailed(AMControl::ToleranceFailure);
+		}
 	}
 
 	// "sucessfully" stopped due to a stop() command.
@@ -509,7 +510,7 @@ void AMPVwStatusControl::onIsMovingChanged(bool isMoving) {
 
 
 AMReadOnlyWaveformBinningPVControl::AMReadOnlyWaveformBinningPVControl(const QString &name, const QString &readPVname, int lowIndex, int highIndex, QObject *parent, const QString &description) :
-		AMReadOnlyPVControl(name, readPVname, parent, description)
+	AMReadOnlyPVControl(name, readPVname, parent, description)
 {
 	disconnect(readPV_, SIGNAL(valueChanged(double)), this, SIGNAL(valueChanged(double)));
 	setBinParameters(lowIndex, highIndex);
@@ -517,13 +518,7 @@ AMReadOnlyWaveformBinningPVControl::AMReadOnlyWaveformBinningPVControl(const QSt
 }
 
 double AMReadOnlyWaveformBinningPVControl::value() const{
-	int asInts = readPV_->binIntegerValues(lowIndex_, highIndex_);
-	double asDoubles = readPV_->binFloatingPointValues(lowIndex_, highIndex_);
-	if(asDoubles != 0.0)
-		return asDoubles;
-	else
-		return asInts;
-	//return readPV_->binIntegerValues(lowIndex_, highIndex_);
+	return readPV_->binIntegerValues(lowIndex_, highIndex_);
 }
 
 void AMReadOnlyWaveformBinningPVControl::setBinParameters(int lowIndex, int highIndex){
