@@ -16,7 +16,7 @@ bool AMXRFScan::loadDataImplementation()
 
 	QFileInfo sourceFile(filePath());
 	if(sourceFile.isRelative())
-		sourceFile.setFile(AMUserSettings::userDataFolder + "/" + filePath());
+		sourceFile.setFile(AMUserSettings::userDataFolder + filePath());
 
 
 	if (fileFormat() == loader.formatTag()){
