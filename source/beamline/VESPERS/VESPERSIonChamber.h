@@ -17,9 +17,10 @@ public:
 	  \param name is the name of the ion chamber.
 	  \param hvName is the full name of the PV for the high voltage.
 	  \param sensitivityBaseName is the base name for the sensitivity value and units PV (ex: AMP1607-202).
-	  \param countName is the full PV name for the voltage feedback.
+	  \param voltageName is the full PV name for the voltage feedback.
+	  \param countName is the full PV name for the counts feedback.
 	  */
-	explicit VESPERSIonChamber(QString name, QString hvName, QString sensitivityBaseName, QString voltageName, QObject *parent = 0);
+	explicit VESPERSIonChamber(QString name, QString hvName, QString sensitivityBaseName, QString voltageName, QString countName, QObject *parent = 0);
 
 	/// Returns the name of the ion chamber.
 	QString name() const { return name_; }
@@ -31,6 +32,8 @@ public:
 	QString sensitivityUnits() const { return sensitivityUnits_->getString(); }
 	/// Returns the voltage feedback.
 	double voltage() const { return voltage_->getDouble(); }
+	/// Returns the count feedback.
+	double counts() const { counts_->getDouble(); }
 
 signals:
 	/// Notifier that the high voltage has changed.  Passes the new value.
@@ -41,6 +44,8 @@ signals:
 	void sensitivityUnitsChanged(QString);
 	/// Notifier that the voltage feedback has been updated.  Passes the new value.
 	void voltageChanged(double);
+	/// Notifier that the counts feedback has bee updated.  Passes the new value.
+	void countsChanged(double);
 
 public slots:
 	/// Sets the high voltage.
@@ -82,8 +87,10 @@ protected:
 	AMProcessVariable *sensitivityValue_;
 	/// The process variable that holds the units of the sensitivity of the ion chamber.
 	AMProcessVariable *sensitivityUnits_;
-	/// The process variable that holds the counts of the ion chamber.
+	/// The process variable that holds the voltage of the ion chamber.
 	AMProcessVariable *voltage_;
+	/// The process variable that holds the counts of the ion chamber.
+	AMProcessVariable *counts_;
 };
 
 #endif // VESPERSIONCHAMBER_H

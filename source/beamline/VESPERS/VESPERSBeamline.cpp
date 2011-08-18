@@ -248,11 +248,11 @@ void VESPERSBeamline::setupDetectors()
 	ionChambers_->addDetector(iPost_);
 
 	ionChamberCalibration_ = new VESPERSIonChamberCalibration(this);
-	ionChamberCalibration_->addIonChamber(new VESPERSIonChamber("Split 1", "PS1607-201:c2:Voltage", "AMP1607-202", "BL1607-B2-1:mcs05:userRate", this));
-	ionChamberCalibration_->addIonChamber(new VESPERSIonChamber("Split 2", "PS1607-201:c2:Voltage", "AMP1607-203", "BL1607-B2-1:mcs06:userRate", this));
-	ionChamberCalibration_->addIonChamber(new VESPERSIonChamber("Pre-KB", "PS1607-202:c1:Voltage", "AMP1607-204", "BL1607-B2-1:mcs07:userRate", this));
-	ionChamberCalibration_->addIonChamber(new VESPERSIonChamber("Mini", "PS1607-202:c2:Voltage", "AMP1607-205", "BL1607-B2-1:mcs08:userRate", this));
-	ionChamberCalibration_->addIonChamber(new VESPERSIonChamber("Post Sample", "PS1607-203:c1:Voltage", "AMP1607-206", "BL1607-B2-1:mcs09:userRate", this));
+	ionChamberCalibration_->addIonChamber(new VESPERSIonChamber("Split 1", "PS1607-201:c2:Voltage", "AMP1607-202", "BL1607-B2-1:mcs05:userRate", "BL1607-B2-1:mcs05:fbk", this));
+	ionChamberCalibration_->addIonChamber(new VESPERSIonChamber("Split 2", "PS1607-201:c2:Voltage", "AMP1607-203", "BL1607-B2-1:mcs06:userRate", "BL1607-B2-1:mcs06:fbk", this));
+	ionChamberCalibration_->addIonChamber(new VESPERSIonChamber("Pre-KB", "PS1607-202:c1:Voltage", "AMP1607-204", "BL1607-B2-1:mcs07:userRate", "BL1607-B2-1:mcs07:fbk", this));
+	ionChamberCalibration_->addIonChamber(new VESPERSIonChamber("Mini", "PS1607-202:c2:Voltage", "AMP1607-205", "BL1607-B2-1:mcs08:userRate", "BL1607-B2-1:mcs08:fbk", this));
+	ionChamberCalibration_->addIonChamber(new VESPERSIonChamber("Post Sample", "PS1607-203:c1:Voltage", "AMP1607-206", "BL1607-B2-1:mcs09:userRate", "BL1607-B2-1:mcs09:fbk", this));
 
 	vortex1E_ = new XRFDetector("1-el Vortex", 1, "IOC1607-004", this);
 	connect(vortexXRF1E(), SIGNAL(detectorConnected(bool)), this, SLOT(singleElVortexError(bool)));

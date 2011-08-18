@@ -17,9 +17,9 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 
 	AMDetectorSet *ionChambers = VESPERSBeamline::vespers()->ionChambers();
 
-	xasScan_->rawData()->addMeasurement(AMMeasurementInfo(*(ionChambers->detectorAt((int)config_->incomingChoice())->toInfo())));
+	xasScan_->rawData()->addMeasurement(AMMeasurementInfo(*(ionChambers->detectorAt(((int)config_->incomingChoice())+1)->toInfo())));
 	xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), 0));
-	xasScan_->rawData()->addMeasurement(AMMeasurementInfo(*(ionChambers->detectorAt((int)config_->transmissionChoice())->toInfo())));
+	xasScan_->rawData()->addMeasurement(AMMeasurementInfo(*(ionChambers->detectorAt(((int)config_->transmissionChoice())+1)->toInfo())));
 	xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), 1));
 
 	if (config_->fluorescenceDetectorChoice() == VESPERSXASScanConfiguration::SingleElement){
