@@ -4,7 +4,7 @@
 #include <QObject>
 
 #include "beamline/AMProcessVariable.h"
-#include <QDebug>
+
 /*!
   This class encasulates all the necessary components to calibrate an individual ion chamber.  It can change the sensitivity to bring the counts into the linear range of the detector.
   */
@@ -33,7 +33,7 @@ public:
 	/// Returns the voltage feedback.
 	double voltage() const { return voltage_->getDouble(); }
 	/// Returns the count feedback.
-	double counts() const { counts_->getDouble(); }
+	double counts() const { return counts_->getDouble(); }
 
 signals:
 	/// Notifier that the high voltage has changed.  Passes the new value.
@@ -44,7 +44,7 @@ signals:
 	void sensitivityUnitsChanged(QString);
 	/// Notifier that the voltage feedback has been updated.  Passes the new value.
 	void voltageChanged(double);
-	/// Notifier that the counts feedback has bee updated.  Passes the new value.
+	/// Notifier that the counts feedback has been updated.  Passes the new value.
 	void countsChanged(double);
 
 public slots:
