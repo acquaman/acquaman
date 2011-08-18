@@ -222,27 +222,23 @@ void VESPERSBeamline::setupEndstation()
 
 void VESPERSBeamline::setupDetectors()
 {
-	amNames2pvNames_.set("IonChamberSplit1", "BL1607-B2-1:mcs05:fbk");
-	amNames2pvNames_.set("IonChamberSplit2", "BL1607-B2-1:mcs06:fbk");
+	amNames2pvNames_.set("IonChamberSplit", "BL1607-B2-1:AddOns:Isplit");
 	amNames2pvNames_.set("IonChamberPreKB", "BL1607-B2-1:mcs07:fbk");
 	amNames2pvNames_.set("IonChamberMini", "BL1607-B2-1:mcs08:fbk");
 	amNames2pvNames_.set("IonChamberPost", "BL1607-B2-1:mcs09:fbk");
 
-	iSplit1Control_ = new AMReadOnlyPVControl("IonChamberSplit1", amNames2pvNames_.valueF("IonChamberSplit1"), this, "Split Ion Chamber 1");
-	iSplit2Control_ = new AMReadOnlyPVControl("IonChamberSplit2", amNames2pvNames_.valueF("IonChamberSplit2"), this, "Split Ion Chamber 2");
+	iSplitControl_ = new AMReadOnlyPVControl("IonChamberSplit", amNames2pvNames_.valueF("IonChamberSplit"), this, "Split Ion Chamber");
 	iPreKBControl_ = new AMReadOnlyPVControl("IonChamberPreKB", amNames2pvNames_.valueF("IonChamberPreKB"), this, "Pre-KB Ion Chamber");
 	iMiniControl_ = new AMReadOnlyPVControl("IonChamberMini", amNames2pvNames_.valueF("IonChamberMini"), this, "Mini Ion Chamber");
 	iPostControl_ = new AMReadOnlyPVControl("IonChamberPost", amNames2pvNames_.valueF("IonChamberPost"), this, "Post Sample Ion Chamber");
 
-	iSplit1_ = new AMSingleControlDetector(iSplit1Control_->name(), iSplit1Control_, AMDetector::RequestRead, this);
-	iSplit2_ = new AMSingleControlDetector(iSplit2Control_->name(), iSplit2Control_, AMDetector::RequestRead, this);
+	iSplit_ = new AMSingleControlDetector(iSplitControl_->name(), iSplitControl_, AMDetector::RequestRead, this);
 	iPreKB_ = new AMSingleControlDetector(iPreKBControl_->name(), iPreKBControl_, AMDetector::RequestRead, this);
 	iMini_ = new AMSingleControlDetector(iMiniControl_->name(), iMiniControl_, AMDetector::RequestRead, this);
 	iPost_ = new AMSingleControlDetector(iPostControl_->name(), iPostControl_, AMDetector::RequestRead, this);
 
 	ionChambers_ = new AMDetectorSet(this);
-	ionChambers_->addDetector(iSplit1_);
-	ionChambers_->addDetector(iSplit2_);
+	ionChambers_->addDetector(iSplit_);
 	ionChambers_->addDetector(iPreKB_);
 	ionChambers_->addDetector(iMini_);
 	ionChambers_->addDetector(iPost_);
