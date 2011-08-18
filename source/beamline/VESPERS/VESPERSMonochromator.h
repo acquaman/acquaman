@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-#include <beamline/AMProcessVariable.h>
+#include <beamline/AMControl.h>
 
 /*!
   This class encapsulates the different PVs that make up the monochromator in the VESPERS beamline.  It provides an abstraction from the Mono Application that is
@@ -17,23 +17,23 @@ public:
 	explicit VESPERSMonochromator(QObject *parent = 0);
 
 	/// Returns the energy setpoint.
-	double Eo() const { return Eo_->getDouble(); }
+	double Eo() const { return Eo_->value(); }
 	/// Returns the desired energy setpoint.
-	double Ea() const { return Ea_->getDouble(); }
+	double Ea() const { return energy_->setpoint(); }
 	/// Returns the relative energy movement from Eo.
-	double delE() const { return delE_->getDouble(); }
+	double delE() const { return delE_->value(); }
 	/// Returns the current energy feedback.
-	double energy() const { return Efbk_->getDouble(); }
+	double energy() const { return energy_->value(); }
 	/// Returns the current energy feedback expressed in K-space.
-	double KSetpoint() const { return Ksp_->getDouble(); }
+	double KSetpoint() const { return K_->setpoint(); }
 	/// Returns the current energy expressed in K-space.
-	double KFeedback() const { return Kfbk_->getDouble(); }
+	double KFeedback() const { return K_->value(); }
 	/// Returns the current calibration offset angle.
-	double offsetAngle() const { return offsetAngle_->getDouble(); }
+	double offsetAngle() const { return offsetAngle_->value(); }
 	/// Returns whether scanning is allowed or not.
-	bool allowScanning() const { return (allowScan_->getInt() == 1) ? true : false; }
+	bool allowScanning() const { return ((int)allowScan_->value() == 1) ? true : false; }
 	/// Returns true if the encoder is using eV for its read back precision and false if using keV.
-	bool usingeV() const { return (encoder_->getInt() == 1) ? true : false; }
+	bool usingeV() const { return ((int)encoder_->value() == 1) ? true : false; }
 
 signals:
 	/// Notifier that the energy setpoint has changed.  Passes the new energy.
@@ -57,45 +57,41 @@ signals:
 
 public slots:
 	/// Sets the energy setpoint.
-	void setEo(double val) { Eo_->setValue(val); }
+	void setEo(double val) { Eo_->move(val); }
 	/// Sets the desired energy setpoint.
-	void setEa(double val) { Ea_->setValue(val); }
+	void setEa(double val) { energy_->move(val); }
 	/// Sets the relative energy.
-	void setDelE(double val) { delE_->setValue(val); }
+	void setDelE(double val) { delE_->move(val); }
 	/// Sets the K setpoint.
-	void setKSetpoint(double val) { Ksp_->setValue(val); }
+	void setKSetpoint(double val) { K_->move(val); }
 	/// Sets the energy calibration offset angle.
-	void setOffsetAngle(double val) { offsetAngle_->setValue(val); }
+	void setOffsetAngle(double val) { offsetAngle_->move(val); }
 	/// Sets the monochromator to scan or not.  True allows scanning, false does not.
-	void setAllowScanning(bool allow) { allowScan_->setValue((allow == true) ? 1 : 0); }
+	void setAllowScanning(bool allow) { allowScan_->move((allow == true) ? 1.0 : 0.0); }
 	/// Sets the encoder to use eV or keV depending of the given value.  True is eV, false is keV.
-	void setUsingeV(bool eV) { encoder_->setValue((eV == true) ? 1 : 0); }
+	void setUsingeV(bool eV) { encoder_->move((eV == true) ? 1.0 : 0.0); }
 
 protected slots:
 	/// Helper slot that emits the correct bool based on the value of allowScan.
-	void onAllowScanChanged(int allowScan) { emit allowScanChanged((allowScan == 1) ? true : false); }
+	void onAllowScanChanged(double allowScan) { emit allowScanChanged(((int)allowScan == 1) ? true : false); }
 	/// Helper slot that emits the correct bool based on the value of useeV.
-	void onEncoderChanged(int useeV) { emit usingeVChanged((useeV == 1) ? true : false); }
+	void onEncoderChanged(double useeV) { emit usingeVChanged(((int)useeV == 1) ? true : false); }
 
 protected:
 	/// The energy setpoint.
-	AMProcessVariable *Eo_;
-	/// The desired energy setpoint.
-	AMProcessVariable *Ea_;
+	AMControl *Eo_;
+	/// The desired energy.
+	AMControl *energy_;
 	/// The relative movement in energy from Eo.
-	AMProcessVariable *delE_;
-	/// The energy feedback in eV.
-	AMProcessVariable *Efbk_;
-	/// The current energy setpoint in K-space.
-	AMProcessVariable *Ksp_;
-	/// The current energy feedback in K-space.
-	AMProcessVariable *Kfbk_;
+	AMControl *delE_;
+	/// The current energy in K-space.
+	AMControl *K_;
 	/// The energy calibration offset angle.
-	AMProcessVariable *offsetAngle_;
+	AMControl *offsetAngle_;
 	/// The switch for whether the monochromator is allowed to scan.
-	AMProcessVariable *allowScan_;
-	/// The PV that tells the mono app whether to use eV or keV for encoder precision.
-	AMProcessVariable *encoder_;
+	AMControl *allowScan_;
+	/// The control that tells the mono app whether to use eV or keV for encoder precision.
+	AMControl *encoder_;
 };
 
 #endif // VESPERSMONOCHROMATOR_H
