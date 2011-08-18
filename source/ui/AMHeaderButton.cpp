@@ -25,7 +25,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMHeaderButton::AMHeaderButton(QWidget *parent) :
 	QToolButton(parent)
 {
-	oldHeight_ = 0;
 	setStyleSheet(AMHEADERBUTTON_STYLE_SHEET);
 	setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 	setMaximumHeight(16);
@@ -49,12 +48,6 @@ void AMHeaderButton::paintEvent(QPaintEvent * event) {
 	QPainter p(this);
 	p.drawPixmap(dest, arrowPix);
 	p.end();
-	if(oldHeight_ != height()){
-		oldHeight_ = height();
-		//qDebug() << "New height is " << height();
-		emit heightChanged(height());
-	}
-
 }
 
 void AMHeaderButton::setArrowType(Qt::ArrowType type) {
@@ -84,8 +77,4 @@ void AMHeaderButton::setArrowType(Qt::ArrowType type) {
 
 void AMHeaderButton::setText(const QString &text){
 	QToolButton::setText(text);
-}
-
-void AMHeaderButton::forceHeightChanged(){
-	emit heightChanged(height());
 }

@@ -37,11 +37,9 @@ public:
 	Qt::ArrowType arrowType() const { return arrowType_; }
 
 signals:
-	void heightChanged(int newHeight);
 
 public slots:
 	void setText(const QString &text);
-	void forceHeightChanged();
 
 protected:
 	Qt::ArrowType arrowType_;
@@ -50,8 +48,6 @@ protected:
 	virtual void paintEvent(QPaintEvent *);
 
 	QPixmap arrowPix;
-
-	int oldHeight_;
 
 
 };
