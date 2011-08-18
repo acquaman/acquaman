@@ -32,7 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 /// Adds all items to form layout.
 /// \todo Connect add and delete to something.
 AMXASRegionsView::AMXASRegionsView(AMXASRegionsList *regions, QWidget *parent) :
-	QWidget(parent)
+		QWidget(parent)
 {
 	addButton_ = new QPushButton("Add Region", this);
 	deleteButton_ = new QPushButton("Delete Region", this);
@@ -127,6 +127,7 @@ void AMXASRegionsView::setDisabled(bool disabled){
 }
 
 void AMXASRegionsView::resizeEvent(QResizeEvent *event){
+	Q_UNUSED(event)
 	int totalWidth = tv_->size().width();
 	tv_->setColumnWidth(1, 3*totalWidth/8);
 	tv_->setColumnWidth(2, (2*totalWidth/8)-1);
