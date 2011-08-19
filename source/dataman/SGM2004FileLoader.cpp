@@ -433,9 +433,5 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 		}
 	}
 
-	/// scan->onDataChanged(); \todo Is this still used? What does it mean?
-
 	return true;
 }
-
-
