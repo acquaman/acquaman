@@ -5,13 +5,13 @@ VESPERSMonochromator::VESPERSMonochromator(QObject *parent) :
 {
 	Eo_ = new AMPVControl("Energy Setpoint", "07B2_Mono_SineB_Egec:eV", "07B2_Mono_SineB_Eo", QString(), this, 0.5);
 	energy_ = new AMPVControl("Acutal Energy", "07B2_Mono_SineB_Egec:eV", "07B2_Mono_SineB_Ea", QString(), this, 0.5);
-	delE_ = new AMPVControl("Relative Energy", "07B2_Mono_SineB_delE", "07B2_Mono_SineB_delE", QString(), this, 0.5);
+	delE_ = new AMPVControl("Relative Energy", "07B2_Mono_SineB_deltaE:fbk", "07B2_Mono_SineB_delE", QString(), this, 0.5);
 	K_ = new AMPVControl("K-space", "07B2_Mono_SineB_K:fbk", "07B2_Mono_SineB_K", QString(), this, 0.01);
 	offsetAngle_ = new AMPVControl("Offset Angle", "07B2_Mono_SineB_ThOS", "07B2_Mono_SineB_ThOS", QString(), this, 0.01);
 	allowScan_ = new AMPVControl("Scan Allow Control", "07B2_Mono_ScanSineB", "07B2_Mono_ScanSineB", QString(), this, 0.1);
 	encoder_ = new AMPVControl("Energy Encoder Precision", "07B2_Mono_SineB_Use_eV", "07B2_Mono_SineB_Use_eV", QString(), this,  0.1);
 
-	connect(Eo_, SIGNAL(valueChanged(double)), this, SIGNAL(EoChanged(double)));
+	connect(Eo_, SIGNAL(setpointChanged(double)), this, SIGNAL(EoChanged(double)));
 	connect(energy_, SIGNAL(setpointChanged(double)), this, SIGNAL(EaChanged(double)));
 	connect(energy_, SIGNAL(valueChanged(double)), this, SIGNAL(energyChanged(double)));
 	connect(delE_, SIGNAL(valueChanged(double)), this, SIGNAL(delEChanged(double)));
