@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMBiHash<QString, QString> SGM2004FileLoader::columns2pvNames_;
 
 #include <QFile>
+#include <QFileInfo>
 #include <QTextStream>
 #include <QStringList>
 #include <QDateTime>
@@ -264,12 +265,6 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 
 		int startByte, endByte;
 		int specCounter = 0;
-/*<<<<<<< HEAD BAD?
-		int indexOfSDD = scan->rawData()->idOfMeasurement("SDD");
-
-		for(int x = 0; x < scan->rawData()->scanSize(0); x++){
-			if(x == scan->rawData()->scanSize(0)-1){
-=======*/
 		int scanSize = scan->rawData()->scanSize(0);
 		int fileOffsetMeasurementId = scan->rawData()->idOfMeasurement("sdd_fileOffset");
 		int sddMeasurementId = scan->rawData()->idOfMeasurement("SDD");
@@ -278,7 +273,6 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 
 		for(int x = 0; x < scanSize; x++){
 			if(x == scanSize-1){
-/*>>>>>>> master*/
 				endByte += endByte-startByte; //Assumes the last two are the same size
 				startByte = scan->rawData()->value(AMnDIndex(x), fileOffsetMeasurementId, AMnDIndex());
 			}
@@ -286,20 +280,6 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 				startByte = scan->rawData()->value(AMnDIndex(x), fileOffsetMeasurementId, AMnDIndex());
 				endByte = scan->rawData()->value(AMnDIndex(x+1), fileOffsetMeasurementId, AMnDIndex());
 			}
-/*<<<<<<< HEAD BAD?
-			sfs.seek(startByte);
-			QString sfl = sfs.read( (qint64)(endByte-startByte) );
-			if(sfl.contains(", "))
-				sfl.remove(',');
-			else
-				sfl.replace(',', ' ');
-			sfls.setString(&sfl, QIODevice::ReadOnly);
-
-			while(!sfls.atEnd()){
-				if(sfls.status() == QTextStream::ReadCorruptData) {
-					AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -1, "SGM2004FileLoader found corrupted data in the SDD spectra file."));
-					return false;
-=======*/
 
 			sf.seek(startByte);
 			QByteArray row = sf.read( (qint64)(endByte-startByte) );
@@ -324,7 +304,6 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 				else {
 					word.append(c);
 					insideWord = true;
-/*>>>>>>> master*/
 				}
 			}
 			if(insideWord) // possibly the last word (with no terminators after it)
@@ -338,15 +317,11 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 			// insert the detector values (all at once, for performance)
 			scan->rawData()->setValue(x, sddMeasurementId, specValues, sddSize);
 
-/*<<<<<<< HEAD BAD?
-				scan->rawData()->setValue(AMnDIndex(x), indexOfSDD, AMnDIndex(specCounter), specVal);
-				specCounter++;
-=======*/
 			// Check specCounter is the right size... Not too big, not too small.
 			if(specCounter != sddSize) {
 				AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -1, QString("SGM2004FileLoader found corrupted data in the SDD spectra file '%1' on row %2. There should be %3 elements in the spectra, but we only found %4").arg(spectraFile).arg(x).arg(sddSize).arg(specCounter)));
-/*>>>>>>> master*/
 			}
+
 			specCounter = 0;
 		}
 		delete specValues;
@@ -360,17 +335,6 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 
 
 	// If we need to create the raw data sources...
-	/*
-	if(setRawDataSources) {
-		// expose the raw data that might be useful to the users
-		foreach(QString visibleColumn, defaultUserVisibleColumns_) {
-			int measurementId = scan->rawData()->idOfMeasurement(visibleColumn);
-			qDebug() << "Want to create rawDataSource for " << visibleColumn << " at " << measurementId;
-			if(measurementId >= 0)
-				scan->addRawDataSource(new AMRawDataSource(scan->rawData(), measurementId));
-		}
-	}
-	*/
 	if(setRawDataSources){
 		for(int x = 0; x < scan->rawData()->measurementCount(); x++){
 			if(defaultUserVisibleColumns_.contains(scan->rawData()->measurementAt(x).name))
