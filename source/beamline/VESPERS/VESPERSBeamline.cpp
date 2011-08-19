@@ -20,6 +20,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "VESPERSBeamline.h"
 #include "beamline/CLS/CLSVMEMotor.h"
 #include "beamline/AMSingleControlDetector.h"
+#include "beamline/AMBeamlineControlMoveAction.h"
+#include "beamline/AMBeamlineParallelActionsList.h"
+#include "beamline/AMBeamlineListAction.h"
+
 
 VESPERSBeamline::VESPERSBeamline()
 	: AMBeamline("VESPERS Beamline")
@@ -427,7 +431,68 @@ void VESPERSBeamline::setupMono()
 	synchronizedDwellTime_->addElement(3);
 	synchronizedDwellTime_->addElement(4);
 
-	beamSelector_ = new VESPERSBeamSelector(this);
+	/// \todo THESE ARE CURRENTLY IN STEPS!!!! THEY NEED TO BE TURNED INTO ENGINEERING UNITS ONCE I DOUBLE CHECK THEM.
+	beamPositions_.insert(Pink, -54278);
+	beamPositions_.insert(TenPercent, -103803);
+	beamPositions_.insert(Si, -123612);
+	beamPositions_.insert(OnePointSixPercent, -143422);
+
+	beamSelectionMotor_ = new CLSVMEMotor("MonoBeamSelectionMotor", "SMTR1607-1-B20-21", "Motor that controls which beam makes it down the pipe.", false, 0.1, 2.0, this);
+	connect(beamSelectionMotor_, SIGNAL(movingChanged(bool)), this, SLOT(determineBeam(bool)));
+}
+
+AMBeamlineActionItem *VESPERSBeamline::createBeamChangeAction(Beam beam)
+{
+	// If we are already at the new beam position and the internal state of the beam is the same, then don't do anything.
+	if (beam_ == beam && beamSelectionMotor_->withinTolerance(beamPositions_.value(beam)))
+		return 0;
+
+	// To change beams, it is either a two or three stage process.
+	/*
+		First: Turn off the ability to scan.  This ensures that the mono motor doesn't swing wildly around while switching between beams.
+		Second: Move to the chosen beam.
+		Third (if applicable): If the new beam is a monochromatic beam, turn on the ability to scan the energy.
+	 */
+	AMBeamlineParallelActionsList *changeBeamActionsList = new AMBeamlineParallelActionsList;
+	AMBeamlineListAction *changeBeamAction = new AMBeamlineListAction(changeBeamActionsList);
+
+	changeBeamActionsList->appendStage(new QList<AMBeamlineActionItem*>());
+	changeBeamActionsList->appendAction(0, mono()->createAllowScanningAction(false));
+
+	changeBeamActionsList->appendStage(new QList<AMBeamlineActionItem*>());
+	AMBeamlineControlMoveAction *moveBeamAction = new AMBeamlineControlMoveAction(beamSelectionMotor());
+	moveBeamAction->setSetpoint(beamPositions_.value(beam));
+	changeBeamActionsList->appendAction(1, moveBeamAction);
+
+	if (beam != Pink){
+
+		changeBeamActionsList->appendStage(new QList<AMBeamlineActionItem*>());
+		changeBeamActionsList->appendAction(2, mono()->createAllowScanningAction(true));
+	}
+
+	return changeBeamAction;
+}
+
+void VESPERSBeamline::determineBeam()
+{
+	Beam temp;
+
+	if (beamSelectionMotor_->withinTolerance(beamPositions_.value(Pink)))
+		temp = Pink;
+	else if (beamSelectionMotor_->withinTolerance(beamPositions_.value(TenPercent)))
+		temp = TenPercent;
+	else if (beamSelectionMotor_->withinTolerance(beamPositions_.value(OnePointSixPercent)))
+		temp = OnePointSixPercent;
+	else if (beamSelectionMotor_->withinTolerance(beamPositions_.value(Si)))
+		temp = Si;
+	else
+		temp = None;
+
+	if (temp != beam_){
+
+		beam_ = temp;
+		emit currentBeamChanged(beam_);
+	}
 }
 
 void VESPERSBeamline::pressureConnected(bool connected)

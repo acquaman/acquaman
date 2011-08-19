@@ -33,7 +33,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/VESPERS/VESPERSMonochromator.h"
 #include "beamline/VESPERS/VESPERSIntermediateSlits.h"
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
-#include "beamline/VESPERS/VESPERSBeamSelector.h"
+#include "beamline/AMBeamlineActionItem.h"
 
 #include "util/AMErrorMonitor.h"
 
@@ -45,6 +45,16 @@ class VESPERSBeamline : public AMBeamline
 	Q_OBJECT
 public:
 
+	/// Enum for the different beams.
+	/*!
+		- Pink is not monochromatized and contains all the energies from the bending magnet.
+		- TenPercent (10%) is a broad band pass filter.
+		- OnePointSixPercent (1.6%) is a narrow band pass filter.
+		- Si is the monochromator with 0.01% band pass.
+	  */
+	enum Beam { None = 0, Pink, TenPercent, OnePointSixPercent, Si };
+
+	/// Returns the instance of the beamline that has been created.
 	static VESPERSBeamline* vespers() {
 		if(!instance_)
 			instance_ = new VESPERSBeamline();
@@ -52,6 +62,10 @@ public:
 	}
 
 	~VESPERSBeamline();
+
+	// Beam selection functions.
+	/// Returns the current beam in use by the beamline.
+	Beam currentBeam() const { return beam_; }
 
 	// Helper functions.
 	QString pvName(const QString &amName) const { return amNames2pvNames_.valueF(amName); }
@@ -105,10 +119,9 @@ public:
 
 	// End of synchronized dwell time.
 
-	// The beam selector.
-	/// Returns the beam selector used to selector which beam is currently being used and changing to other beams.
-	VESPERSBeamSelector *beamSelector() const { return beamSelector_; }
-	// End of beam selector.
+	// Beam selection motor.
+	/// Returns the control for the beam selection motor.
+	AMControl *beamSelectionMotor() const { return beamSelectionMotor_; }
 
 	// Pressure
 	/// Returns the pressure control for Front End section 1.
@@ -441,8 +454,17 @@ public:
 	AMControl *iPostControl() const { return iPostControl_; }
 
 signals:
+	/// Notifier that the beam has been changed.
+	void currentBeamChanged(VESPERSBeamline::Beam);
+
+public slots:
+	/// Creates an action that changes the beam.  Returns 0 if unable to create.
+	AMBeamlineActionItem *createBeamChangeAction(Beam beam);
 
 protected slots:
+	/// Determines is currently active on startup.  Also keeps track if the beam is changed outside of Acquaman.  Beam is set to None is if not inside any of the tolerances for the known beam positions.
+	void determineBeam();
+
 	/// Sets up any connections for the pressure controls once the whole set is connected.  Also checks if there are any errors with everything started up.
 	void pressureConnected(bool connected);
 	/// Slot used to deal with pressure errors.
@@ -526,10 +548,15 @@ protected:
 
 	// End of synchronized dwell time.
 
-	// Beam selector.
-	VESPERSBeamSelector *beamSelector_;
+	// Beam selection members.
+	// The current beam in use by the beamline.
+	Beam beam_;
+	// Pointer to the motor that controls which beam makes it down the beamline.
+	AMControl *beamSelectionMotor_;
+	// Look up table with the beam and its position.
+	QHash<Beam, int> beamPositions_;
 
-	// End of Beam selector.
+	// End of Beam selection members.
 
 	// Beamline General.
 	// Pressure controls.

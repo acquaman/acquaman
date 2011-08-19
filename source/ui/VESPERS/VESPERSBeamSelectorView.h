@@ -3,11 +3,11 @@
 
 #include <QWidget>
 
-#include "beamline/VESPERS/VESPERSBeamSelector.h"
-
 #include <QButtonGroup>
 #include <QAbstractButton>
 #include <QProgressBar>
+
+#include "beamline/VESPERS/VESPERSBeamline.h"
 
 /*!
   A view for the VESPERSBeamSelector model.  The view itself is simple with only four buttons and a progress bar that shows up to show the progress to the next beam.
@@ -18,7 +18,7 @@ class VESPERSBeamSelectorView : public QWidget
 	Q_OBJECT
 public:
 	/// Constructor.  Takes a VESPERSBeamSelector as an argument.
-	explicit VESPERSBeamSelectorView(VESPERSBeamSelector *beamSelector, QWidget *parent = 0);
+	explicit VESPERSBeamSelectorView(QWidget *parent = 0);
 
 signals:
 
@@ -26,10 +26,13 @@ public slots:
 
 protected slots:
 	/// Handles changing the color of the right button to show which beam your on.
-	void onCurrentBeamChanged(VESPERSBeamSelector::Beam beam);
+	void onCurrentBeamChanged(VESPERSBeamline::Beam beam);
 
 	/// Tells the model to move the given beam.
 	void changeBeam(int id);
+
+	/// Handles the clean up after changing beams.
+	void onBeamChangeCompleted() { progressBar_->hide(); }
 
 protected:
 	/// Button group containing all the buttons to the different beams.
@@ -38,9 +41,6 @@ protected:
 	QAbstractButton *currentBeam_;
 	/// The progress bar.
 	QProgressBar *progressBar_;
-
-	/// Pointer to the beam selector.
-	VESPERSBeamSelector *beamSelector_;
 };
 
 #endif // VESPERSBEAMSELECTORVIEW_H

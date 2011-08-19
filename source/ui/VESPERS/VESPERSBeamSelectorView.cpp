@@ -1,14 +1,14 @@
 #include "VESPERSBeamSelectorView.h"
 
+#include "beamline/AMBeamlineActionItem.h"
+
 #include <QPushButton>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
-VESPERSBeamSelectorView::VESPERSBeamSelectorView(VESPERSBeamSelector *beamSelector, QWidget *parent)
+VESPERSBeamSelectorView::VESPERSBeamSelectorView(QWidget *parent)
 	: QWidget(parent)
 {
-	beamSelector_ = beamSelector;
-
 	beams_ = new QButtonGroup;
 
 	QPushButton *temp = new QPushButton("Pink");
@@ -28,9 +28,10 @@ VESPERSBeamSelectorView::VESPERSBeamSelectorView(VESPERSBeamSelector *beamSelect
 	beams_->addButton(temp, 3);
 
 	connect(beams_, SIGNAL(buttonClicked(int)), this, SLOT(changeBeam(int)));
-	connect(beamSelector_, SIGNAL(currentBeamChanged(VESPERSBeamSelector::Beam)), this, SLOT(onCurrentBeamChanged(VESPERSBeamSelector::Beam)));
+	connect(VESPERSBeamline::vespers(), SIGNAL(currentBeamChanged(VESPERSBeamline::Beam)), this, SLOT(onCurrentBeamChanged(VESPERSBeamline::Beam)));
 
 	progressBar_ = new QProgressBar;
+	progressBar_->hide();
 
 	QHBoxLayout *buttonsLayout = new QHBoxLayout;
 	buttonsLayout->addWidget(beams_->button(0));
@@ -47,50 +48,56 @@ VESPERSBeamSelectorView::VESPERSBeamSelectorView(VESPERSBeamSelector *beamSelect
 
 void VESPERSBeamSelectorView::changeBeam(int id)
 {
+	AMBeamlineActionItem *action;
+
 	switch(id){
 
 	case 0:
-		beamSelector_->changeBeam(VESPERSBeamSelector::Pink);
+		action = VESPERSBeamline::vespers()->createBeamChangeAction(VESPERSBeamline::Pink);
 		break;
 
 	case 1:
-		beamSelector_->changeBeam(VESPERSBeamSelector::OnePointSixPercent);
+		action = VESPERSBeamline::vespers()->createBeamChangeAction(VESPERSBeamline::OnePointSixPercent);
 		break;
 
 	case 2:
-		beamSelector_->changeBeam(VESPERSBeamSelector::TenPercent);
+		action = VESPERSBeamline::vespers()->createBeamChangeAction(VESPERSBeamline::TenPercent);
 		break;
 
 	case 3:
-		beamSelector_->changeBeam(VESPERSBeamSelector::Si);
+		action = VESPERSBeamline::vespers()->createBeamChangeAction(VESPERSBeamline::Si);
 		break;
 	}
+
+	progressBar_->show();
+	connect(action, SIGNAL(finished()), this, SLOT(onBeamChangeCompleted()));
+	action->start();
 }
 
-void VESPERSBeamSelectorView::onCurrentBeamChanged(VESPERSBeamSelector::Beam beam)
+void VESPERSBeamSelectorView::onCurrentBeamChanged(VESPERSBeamline::Beam beam)
 {
 	if (currentBeam_)
 		currentBeam_->setPalette(this->palette());
 
 	switch(beam){
 
-	case VESPERSBeamSelector::Pink:
+	case VESPERSBeamline::Pink:
 		currentBeam_ = beams_->button(0);
 		break;
 
-	case VESPERSBeamSelector::OnePointSixPercent:
+	case VESPERSBeamline::OnePointSixPercent:
 		currentBeam_ = beams_->button(1);
 		break;
 
-	case VESPERSBeamSelector::TenPercent:
+	case VESPERSBeamline::TenPercent:
 		currentBeam_ = beams_->button(2);
 		break;
 
-	case VESPERSBeamSelector::Si:
+	case VESPERSBeamline::Si:
 		currentBeam_ = beams_->button(3);
 		break;
 
-	case VESPERSBeamSelector::None:
+	case VESPERSBeamline::None:
 		currentBeam_ = 0;
 		break;
 	}

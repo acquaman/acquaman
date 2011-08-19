@@ -27,7 +27,7 @@ AMBeamlineActionItem *VESPERSMonochromator::createEoAction(double energy)
 	if (!allowScan_->isConnected())
 		return 0;
 
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(allowScan_);
+	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(Eo_);
 	action->setSetpoint(energy);
 
 	return action;
@@ -38,7 +38,7 @@ AMBeamlineActionItem *VESPERSMonochromator::createEaAction(double energy)
 	if (!allowScan_->isConnected())
 		return 0;
 
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(allowScan_);
+	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(energy_);
 	action->setSetpoint(energy);
 
 	return action;
@@ -49,7 +49,7 @@ AMBeamlineActionItem *VESPERSMonochromator::createDelEAction(double energy)
 	if (!allowScan_->isConnected())
 		return 0;
 
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(allowScan_);
+	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(delE_);
 	action->setSetpoint(energy);
 
 	return action;
@@ -60,7 +60,7 @@ AMBeamlineActionItem *VESPERSMonochromator::createKAction(double k)
 	if (!allowScan_->isConnected())
 		return 0;
 
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(allowScan_);
+	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(K_);
 	action->setSetpoint(k);
 
 	return action;
@@ -71,7 +71,7 @@ AMBeamlineActionItem *VESPERSMonochromator::createOffsetAngleAction(double angle
 	if (!allowScan_->isConnected())
 		return 0;
 
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(allowScan_);
+	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(offsetAngle_);
 	action->setSetpoint(angle);
 
 	return action;
@@ -93,7 +93,7 @@ AMBeamlineActionItem *VESPERSMonochromator::createUsingeVAction(bool useeV)
 	if (!allowScan_->isConnected())
 		return 0;
 
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(allowScan_);
+	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(encoder_);
 	action->setSetpoint((useeV == true) ? 1.0 : 0.0);
 
 	return action;

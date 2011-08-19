@@ -15,7 +15,7 @@ VESPERSBeamlineView::VESPERSBeamlineView(QWidget *parent) :
 	VESPERSIntermediateSlitsView *slitsView = new VESPERSIntermediateSlitsView(VESPERSBeamline::vespers()->intermediateSlits());
 	VESPERSIonChamberCalibrationView *ionCalibrationView = new VESPERSIonChamberCalibrationView(VESPERSBeamline::vespers()->ionChamberCalibration());
 	CLSSynchronizedDwellTimeView *dwellTimeView = new CLSSynchronizedDwellTimeView(VESPERSBeamline::vespers()->synchronizedDwellTime());
-	VESPERSBeamSelectorView *beamSelectorView = new VESPERSBeamSelectorView(VESPERSBeamline::vespers()->beamSelector());
+	VESPERSBeamSelectorView *beamSelectorView = new VESPERSBeamSelectorView;
 
 	QVBoxLayout *current = new QVBoxLayout;
 	current->addWidget(slitsView, 0, Qt::AlignCenter);
