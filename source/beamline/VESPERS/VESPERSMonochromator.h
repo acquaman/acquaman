@@ -4,6 +4,7 @@
 #include <QObject>
 
 #include <beamline/AMControl.h>
+#include <beamline/AMBeamlineControlMoveAction.h>
 
 /*!
   This class encapsulates the different PVs that make up the monochromator in the VESPERS beamline.  It provides an abstraction from the Mono Application that is
@@ -34,6 +35,21 @@ public:
 	bool allowScanning() const { return ((int)allowScan_->value() == 1) ? true : false; }
 	/// Returns true if the encoder is using eV for its read back precision and false if using keV.
 	bool usingeV() const { return ((int)encoder_->value() == 1) ? true : false; }
+
+	/// Returns a newly created action to move the Eo control.  Returns 0 if the control is not connected.
+	AMBeamlineActionItem *createEoAction(double energy);
+	/// Returns a newly created action to move the Ea control.  Returns 0 if the control is not connected.
+	AMBeamlineActionItem *createEaAction(double energy);
+	/// Returns a newly created action to move the delE control.  Returns 0 if the control is not connected.
+	AMBeamlineActionItem *createDelEAction(double energy);
+	/// Returns a newly created action to move the K control.  Returns 0 if the control is not connected.
+	AMBeamlineActionItem *createKAction(double k);
+	/// Returns a newly created action to move the offset angle control.  Returns 0 if the control is not connected.
+	AMBeamlineActionItem *createOffsetAngleAction(double angle);
+	/// Returns a newly created action to move the allowScanning control.  Returns 0 if the control is not connected.
+	AMBeamlineActionItem *createAllowScanningAction(bool allow);
+	/// Returns a newly created action to move the usingeV control.  Returns 0 if the control is not connected.
+	AMBeamlineActionItem *createUsingeVAction(bool useeV);
 
 signals:
 	/// Notifier that the energy setpoint has changed.  Passes the new energy.
