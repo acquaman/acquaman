@@ -8,6 +8,8 @@ VESPERSXASScanConfiguration::VESPERSXASScanConfiguration(QObject *parent)
 {
 	regions_->setEnergyControl(VESPERSBeamline::vespers()->energyRelative());
 	fluorescenceDetectorChoice_ = FourElement;
+	It_ = Ipost;
+	I0_ = Imini;
 }
 
 VESPERSXASScanConfiguration::VESPERSXASScanConfiguration(const VESPERSXASScanConfiguration &original)
@@ -18,6 +20,8 @@ VESPERSXASScanConfiguration::VESPERSXASScanConfiguration(const VESPERSXASScanCon
 		regions_->addRegion(i, original.regionStart(i), original.regionDelta(i), original.regionEnd(i));
 
 	fluorescenceDetectorChoice_ = original.fluorescenceDetectorChoice();
+	It_ = original.transmissionChoice();
+	I0_ = original.incomingChoice();
 }
 
 AMScanConfiguration *VESPERSXASScanConfiguration::createCopy() const
@@ -37,5 +41,5 @@ AMScanConfigurationView *VESPERSXASScanConfiguration::createView()
 
 QString VESPERSXASScanConfiguration::detailedDescription() const
 {
-	return QString("Puked");
+	return QString("VESPERS XAS Scan");
 }
