@@ -35,21 +35,6 @@ public:
 	/// Returns true if the encoder is using eV for its read back precision and false if using keV.
 	bool usingeV() const { return ((int)encoder_->value() == 1) ? true : false; }
 
-	/// The energy setpoint.
-	AMControl *EoControl() const { return Eo_; }
-	/// The desired energy.
-	AMControl *energyControl() const { return energy_; }
-	/// The relative movement in energy from Eo.
-	AMControl *delEControl() const { return delE_; }
-	/// The current energy in K-space.
-	AMControl *KControl() const { return K_; }
-	/// The energy calibration offset angle.
-	AMControl *offsetAngleControl() const { return offsetAngle_; }
-	/// The switch for whether the monochromator is allowed to scan.
-	AMControl *allowScan() const { return allowScan_; }
-	/// The control that tells the mono app whether to use eV or keV for encoder precision.
-	AMControl *encoderControl() const { return encoder_; }
-
 signals:
 	/// Notifier that the energy setpoint has changed.  Passes the new energy.
 	void EoChanged(double);
