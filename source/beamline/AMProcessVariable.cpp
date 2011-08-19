@@ -379,13 +379,13 @@ void AMProcessVariable::controlInfoCB(struct event_handler_args eventArgs) {
 	case DBR_CTRL_DOUBLE:
 		ctrlValue =  (struct dbr_ctrl_double*)eventArgs.dbr;
 		emit internal_controlInfoChanged(DBR_CTRL_DOUBLE,
-										 QString(ctrlValue->units),
-										 ctrlValue->precision,
-										 ctrlValue->upper_disp_limit,
-										 ctrlValue->lower_disp_limit,
-										 ctrlValue->upper_ctrl_limit,
-										 ctrlValue->lower_ctrl_limit,
-										 QStringList());
+						 QString(ctrlValue->units),
+						 ctrlValue->precision,
+						 ctrlValue->upper_disp_limit,
+						 ctrlValue->lower_disp_limit,
+						 ctrlValue->upper_ctrl_limit,
+						 ctrlValue->lower_ctrl_limit,
+						 QStringList());
 		break;
 
 		// Is this enum count/string information?
@@ -394,20 +394,20 @@ void AMProcessVariable::controlInfoCB(struct event_handler_args eventArgs) {
 		for(int i=0; i<enumCtrlValue->no_str; i++)
 			enumStrings << QString(enumCtrlValue->strs[i]);
 		emit internal_controlInfoChanged(DBR_CTRL_ENUM,
-										 "[choice]",
-										 0,
-										 enumCtrlValue->no_str - 1, 0,
-										 enumCtrlValue->no_str - 1, 0,
-										 enumStrings);
+						 "[choice]",
+						 0,
+						 enumCtrlValue->no_str - 1, 0,
+						 enumCtrlValue->no_str - 1, 0,
+						 enumStrings);
 		break;
 
 	case DBR_CTRL_STRING:
 		emit internal_controlInfoChanged(DBR_CTRL_STRING,
-										 QString(),
-										 0,
-										 DBL_MAX,	-DBL_MAX,
-										 DBL_MAX, -DBL_MAX,
-										 QStringList());
+						 QString(),
+						 0,
+						 DBL_MAX,	-DBL_MAX,
+						 DBL_MAX, -DBL_MAX,
+						 QStringList());
 		break;
 	}
 }
@@ -853,6 +853,23 @@ int AMProcessVariable::binIntegerValues(int lowIndex, int highIndex) const{
 		rVal += lastInts.at(x);
 	return rVal;
 }
+
+double AMProcessVariable::binFloatingPointValues(int lowIndex, int highIndex) const{
+	QVector<double> lastDoubles = lastFloatingPointValues();
+	int lIndex = lowIndex;
+	int hIndex = highIndex;
+	double rVal = 0.0;
+	if(hIndex < lIndex)
+		return rVal;
+	if(lIndex < 0)
+		lIndex = 0;
+	if(hIndex > lastDoubles.count())
+		hIndex = lastDoubles.count();
+	for(int x = lIndex; x < hIndex; x++)
+		rVal += lastDoubles.at(x);
+	return rVal;
+}
+
 
 // double AMProcessVariable::getDouble() is just a synonym for lastValue().
 

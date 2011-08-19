@@ -65,6 +65,8 @@ public slots:
 	bool insertRegion(){ return regions_->addRegionSqueeze(insertIndex_); }
 	bool removeRegion(){ return regions_->deleteRegionSqueeze(removeIndex_); }
 
+	void setDisabled(bool disabled);
+
 protected:
 	void resizeEvent(QResizeEvent *event);
 

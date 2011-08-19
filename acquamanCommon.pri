@@ -62,7 +62,7 @@ linux-g++ {
 linux-g++-64 {
 
 	# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
-	DEV_PATH = dev
+	DEV_PATH = Sandbox/Acquaman2011/dev
 
 	# EPICS Dependencies:
 	EPICS_INCLUDE_DIRS = /home/epics/src/R3.14.12/base/include \
@@ -348,8 +348,22 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMExporterOptionGeneralAsciiView.h \
 #	source/ui/AM3dDataSourceView.h \
 	source/ui/AMTopFrame.h \
+	source/beamline/AMBeamlineSamplePlateMoveAction.h \
+	source/beamline/AMBeamlineFiducializationMoveAction.h \
+	source/dataman/OceanOptics65000DetectorInfo.h \
+	source/beamline/OceanOptics65000Detector.h \
+	source/ui/OceanOptics65000DetectorView.h \
+	source/dataman/SGM2011XASFileLoader.h \
 	source/beamline/CLS/CLSVMEMotor.h \
 	source/analysis/AM1DDerivativeAB.h \
+	source/beamline/AMHighVoltageChannel.h \
+	source/beamline/CLS/CLSCAEN2527HVChannel.h \
+	source/ui/CLS/CLSCAEN2527ChannelBasicView.h \
+	source/beamline/AMBeamlineHighVoltageChannelToggleAction.h \
+	source/beamline/CLS/CLSPGT8000HVChannel.h \
+	source/analysis/AM1DInterpolationAB.h \
+	source/analysis/AM1DRunningAverageFilterAB.h \
+	source/analysis/SGM/SGM1DFastScanFilterAB.h \
 	source/analysis/AMExternalScanDataSourceAB.h \
 	source/analysis/AM1DSummingAB.h \
 	source/analysis/AMDeadTimeAB.h \
@@ -364,7 +378,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/beamline/CLS/CLSSynchronizedDwellTime.h \
 	source/dataman/AMXYScatterPVDataSource.h \
 	source/beamline/AMCompositeControl.h \
-    source/ui/CLS/CLSSynchronizedDwellTimeView.h
+	source/ui/CLS/CLSSynchronizedDwellTimeView.h
 
 CONFIG(mobility) {
 HEADERS +=	source/ui/AMCrosshairOverlayVideoWidget.h \
@@ -585,8 +599,22 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMTopFrame.cpp \
 	source/dataman/AMExporter.cpp \
 #	source/ui/AM3dDataSourceView.cpp \
+	source/beamline/AMBeamlineSamplePlateMoveAction.cpp \
+	source/beamline/AMBeamlineFiducializationMoveAction.cpp \
+	source/dataman/OceanOptics65000DetectorInfo.cpp \
+	source/beamline/OceanOptics65000Detector.cpp \
+	source/ui/OceanOptics65000DetectorView.cpp \
+	source/dataman/SGM2011XASFileLoader.cpp \
 	source/beamline/CLS/CLSVMEMotor.cpp \
 	source/analysis/AM1DDerivativeAB.cpp \
+	source/beamline/AMHighVoltageChannel.cpp \
+	source/beamline/CLS/CLSCAEN2527HVChannel.cpp \
+	source/ui/CLS/CLSCAEN2527ChannelBasicView.cpp \
+	source/beamline/AMBeamlineHighVoltageChannelToggleAction.cpp \
+	source/beamline/CLS/CLSPGT8000HVChannel.cpp \
+	source/analysis/AM1DInterpolationAB.cpp \
+	source/analysis/AM1DRunningAverageFilterAB.cpp \
+	source/analysis/SGM/SGM1DFastScanFilterAB.cpp \
 	source/analysis/AMExternalScanDataSourceAB.cpp \
 	source/analysis/AM1DSummingAB.cpp \
 	source/analysis/AMDeadTimeAB.cpp \
@@ -601,7 +629,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/beamline/CLS/CLSSynchronizedDwellTime.cpp \
 	source/dataman/AMXYScatterPVDataSource.cpp \
 	source/beamline/AMCompositeControl.cpp \
-    source/ui/CLS/CLSSynchronizedDwellTimeView.cpp
+	source/ui/CLS/CLSSynchronizedDwellTimeView.cpp
 
 CONFIG(mobility) {
 SOURCES +=	source/ui/AMOverlayVideoWidget.cpp \

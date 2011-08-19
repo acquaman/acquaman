@@ -42,6 +42,7 @@ public:
 	explicit AMSampleManagementWidget(AMSampleManipulatorView *manipulatorView, const QUrl& sampleCameraUrl, AMSamplePlate* samplePlate, QWidget *parent = 0);
 
 signals:
+	void newSamplePlateSelected(AMSamplePlate *selectedPlate);
 
 public slots:
 	void onNewSamplePlateSelected();

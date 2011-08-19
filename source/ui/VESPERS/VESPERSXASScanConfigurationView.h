@@ -9,7 +9,6 @@
 #include "acquaman/VESPERS/VESPERSXASScanConfiguration.h"
 
 #include <QLineEdit>
-#include <QButtonGroup>
 
 class VESPERSXASScanConfigurationView : public AMScanConfigurationView
 {

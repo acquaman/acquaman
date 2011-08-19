@@ -130,14 +130,14 @@ void AMBeamlineControlMoveAction::onStarted(){
 
 void AMBeamlineControlMoveAction::onSucceeded(){
 	if(VERBOSE_ACTION_ITEMS)
-		qDebug() << this << "SUCEEDED";
+		qDebug() << this << control_->description() << " SUCEEDED";
 	disconnect(control_, 0, this, 0);
 	setSucceeded(true);
 }
 
 void AMBeamlineControlMoveAction::onFailed(int explanation){
 	if(VERBOSE_ACTION_ITEMS)
-		qDebug() << this << "FAILED as " << control_->name();
+		qDebug() << this << "FAILED as " << control_->description() << " with " << explanation;
 	setFailed(true, explanation);
 }
 
@@ -227,11 +227,14 @@ void AMBeamlineControlMoveActionView::onInfoChanged(){
 		infoText.append(". ");
 	}
 	infoText += " Moving ";
+	/*
 	QString adjName = moveAction_->control()->name();
 	adjName.replace(QRegExp("([A-Z])"), " \\1");
 	QChar fCap = adjName[0].toUpper();
 	adjName.replace(0, 1, fCap);
 	infoText += adjName;
+	*/
+	infoText += moveAction_->control()->description();
 	infoText += " to ";
 	tmpStr.setNum( moveAction_->setpoint() );
 	infoText.append(tmpStr);

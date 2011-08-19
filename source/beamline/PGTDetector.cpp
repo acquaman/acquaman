@@ -1,13 +1,35 @@
+/*
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "PGTDetector.h"
 
-PGTDetector::PGTDetector(const QString &name, AMControlSet *readingsControls, AMControlSet *settingsControls, AMDetector::ReadMethod readMethod, QObject *parent) :
+PGTDetector::PGTDetector(const QString &name, AMControlSet *readingsControls, AMControlSet *settingsControls, AMBeamlineActionItem *toggleOnAction, AMBeamlineActionItem *toggleOffAction, AMDetector::ReadMethod readMethod, QObject *parent) :
 		PGTDetectorInfo(name, name, parent), AMDetector(name, readMethod)
 {
 	ownsControlSets_ = false;
+	toggleOnAction_ = toggleOnAction;
+	toggleOffAction_ = toggleOffAction;
 	initializeFromControlSet(readingsControls, settingsControls);
 }
 
-PGTDetector::PGTDetector(const QString &name, AMControl *dataWaveform, AMControl *hv, AMControl *integrationTime, AMControl *integrationMode, AMDetector::ReadMethod readMethod, QObject *parent) :
+PGTDetector::PGTDetector(const QString &name, AMControl *dataWaveform, AMControl *hv, AMControl *integrationTime, AMControl *integrationMode, AMBeamlineActionItem *toggleOnAction, AMBeamlineActionItem *toggleOffAction, AMDetector::ReadMethod readMethod, QObject *parent) :
 		PGTDetectorInfo(name, name, parent), AMDetector(name, readMethod)
 {
 	ownsControlSets_ = true;
@@ -17,6 +39,8 @@ PGTDetector::PGTDetector(const QString &name, AMControl *dataWaveform, AMControl
 	settingsControls->addControl(hv);
 	settingsControls->addControl(integrationTime);
 	settingsControls->addControl(integrationMode);
+	toggleOnAction_ = toggleOnAction;
+	toggleOffAction_ = toggleOffAction;
 	initializeFromControlSet(readingsControls, settingsControls);
 }
 
@@ -50,21 +74,30 @@ bool PGTDetector::setFromInfo(const AMDetectorInfo *info){
 	const PGTDetectorInfo *di = qobject_cast<const PGTDetectorInfo*>(info);
 	if(!di)
 		return false;
-	integrationTimeCtrl()->move(di->integrationTime());
-	integrationModeCtrl()->move(integrationModeCtrl()->enumNames().indexOf(di->integrationMode()));
-	hvCtrl()->move(di->hvSetpoint());
+	//integrationTimeCtrl()->move(di->integrationTime());
+	//integrationModeCtrl()->move(integrationModeCtrl()->enumNames().indexOf(di->integrationMode()));
+	//hvCtrl()->move(di->hvSetpoint());
 	return true;
 }
 
 bool PGTDetector::setFromInfo(const PGTDetectorInfo& info){
-	integrationTimeCtrl()->move(info.integrationTime());
-	integrationModeCtrl()->move(integrationModeCtrl()->enumNames().indexOf(info.integrationMode()));
-	hvCtrl()->move(info.hvSetpoint());
+	//integrationTimeCtrl()->move(info.integrationTime());
+	//integrationModeCtrl()->move(integrationModeCtrl()->enumNames().indexOf(info.integrationMode()));
+	//hvCtrl()->move(info.hvSetpoint());
 	return true;
 }
 
 bool PGTDetector::isPoweredOn(){
 	return poweredOn_;
+}
+
+bool PGTDetector::activate(){
+	hvCtrl()->move(180);
+	return true;
+}
+
+AMBeamlineActionItem* PGTDetector::turnOnAction(){
+	return toggleOnAction_->createCopy();
 }
 
 AMControl* PGTDetector::dataWaveformCtrl() const {
@@ -120,9 +153,9 @@ void PGTDetector::setDescription(const QString &description){
 }
 
 bool PGTDetector::setControls(PGTDetectorInfo *pgtSettings){
-	hvCtrl()->move( pgtSettings->hvSetpoint() );
-	integrationTimeCtrl()->move( pgtSettings->integrationTime() );
-	integrationModeCtrl()->move( integrationModeCtrl()->enumNames().indexOf(pgtSettings->integrationMode()) );
+//	hvCtrl()->move( pgtSettings->hvSetpoint() );
+//	integrationTimeCtrl()->move( pgtSettings->integrationTime() );
+//	integrationModeCtrl()->move( integrationModeCtrl()->enumNames().indexOf(pgtSettings->integrationMode()) );
 	return true;
 }
 

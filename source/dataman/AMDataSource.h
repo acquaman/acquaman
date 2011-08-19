@@ -96,6 +96,9 @@ public:
 	/// Descriptions can be changed at will, and the data source will emit infoChanged() when this happens.
 	void setDescription(const QString& description) { description_ = description; emitInfoChanged(); }
 
+	/// The infoDescription contains the values of any configurable settings that the data source (especially an analysis block) is using
+	virtual QString infoDescription() const { return QString(); }
+
 
 	// Data source type
 	//////////////////////////

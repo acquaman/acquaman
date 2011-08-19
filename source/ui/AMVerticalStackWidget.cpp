@@ -30,6 +30,7 @@ AMVerticalStackWidget::AMVerticalStackWidget(QWidget *parent) :
 	vl_->setSpacing(0);
 	vl_->setContentsMargins(0,0,0,0);
 	vl_->setAlignment(Qt::AlignTop);
+
 	setLayout(vl_);
 
 	setFrameShape(QFrame::StyledPanel);
@@ -52,6 +53,7 @@ QWidget* AMVerticalStackWidget::widget(int index) const {
 	return model_.data(model_.index(index,0), AM::PointerRole).value<QWidget*>();
 }
 
+#include "beamline/AMBeamlineActionItem.h"
 // Insert a widget at a specific index in the stack. Inserting at \c index = -1 is equivalent to appending to the end. The AMVerticalStackWidget takes ownership of the widget.
 void AMVerticalStackWidget::insertItem(int index, const QString& titleText, QWidget* widget, bool collapsable) {
 	if(index < 0 || index > count())
@@ -81,6 +83,22 @@ void AMVerticalStackWidget::insertItem(int index, const QString& titleText, QWid
 	vl_->insertWidget(2*index+1, widget);
 
 	model_.insertRow(index, item);
+}
+
+bool AMVerticalStackWidget::swapItem(int indexOfFirst){
+	if(indexOfFirst < 0 || indexOfFirst > count()-2)
+		return false;
+
+	QWidget *headerOfFirst = vl_->takeAt(2*indexOfFirst)->widget();
+	QWidget *widgetOfFirst = vl_->takeAt(2*indexOfFirst)->widget();
+
+	vl_->insertWidget(2*(indexOfFirst+1), headerOfFirst);
+	vl_->insertWidget(2*(indexOfFirst+1)+1, widgetOfFirst);
+
+	//QStandardItem *itemOfFirst = model_.takeItem(indexOfFirst);
+	QStandardItem *itemOfFirst = model_.takeRow(indexOfFirst).at(0);
+	model_.insertRow(indexOfFirst+1, itemOfFirst);
+	return true;
 }
 
 
@@ -141,8 +159,9 @@ void AMVerticalStackWidget::expandItem(int index) {
 	if(w)
 		w->show();
 	AMHeaderButton* h = model_.data(model_.index(index,0), AM::WidgetRole).value<AMHeaderButton*>();
-	if(h)
-				h->setArrowType(Qt::DownArrow);
+	if(h){
+		h->setArrowType(Qt::DownArrow);
+	}
 	model_.setData(model_.index(index,0), false, Qt::CheckStateRole);
 }
 
@@ -152,11 +171,14 @@ void AMVerticalStackWidget::collapseItem(int index) {
 		return;
 
 	QWidget* w = model_.data(model_.index(index, 0), AM::PointerRole).value<QWidget*>();
-	if(w)
+	if(w){
 		w->hide();
+		qDebug() << "Is visible " << w->isVisible();
+	}
 	AMHeaderButton* h = model_.data(model_.index(index,0), AM::WidgetRole).value<AMHeaderButton*>();
-	if(h)
-				h->setArrowType(Qt::RightArrow);
+	if(h){
+		h->setArrowType(Qt::RightArrow);
+	}
 	model_.setData(model_.index(index,0), true, Qt::CheckStateRole);
 }
 
@@ -184,8 +206,6 @@ QSize AMVerticalStackWidget::sizeHint() const {
 	rv.setWidth(width+2);
 	return rv;
 }
-
-
 
 
 // Capture window title change events from our widgets and change our header titles accordingly

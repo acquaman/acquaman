@@ -3,7 +3,7 @@
 # #####################################################################
 
 TEMPLATE = subdirs
-SUBDIRS += 	REIXSTest.pro \
+SUBDIRS +=	REIXSTest.pro \
 	REIXSAcquaman.pro \
 	SGMAcquaman.pro \
 	BareBonesAcquaman.pro \
@@ -12,4 +12,5 @@ SUBDIRS += 	REIXSTest.pro \
 	# VESPERSDataman.pro \
 	#AcquaCam.pro \
 	XRFSpectraViewer.pro \
-	MidIRBPM.pro
+	MidIRBPM.pro \
+	SGMSSAAcquaman.pro

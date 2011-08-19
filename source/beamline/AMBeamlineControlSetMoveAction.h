@@ -24,6 +24,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTimer>
 #include <QProgressBar>
 
+class QToolButton;
+
 #include "AMBeamlineActionItem.h"
 #include "AMControlSet.h"
 
@@ -34,6 +36,8 @@ public:
 	explicit AMBeamlineControlSetMoveAction(AMControlSet *controlSet, QObject *parent = 0);
 
 	virtual AMBeamlineActionItemView* createView(int index = 0);
+
+	virtual AMBeamlineActionItem* createCopy() const;
 
 	virtual AMControlSet* controlSet();
 	virtual AMControlInfoList setpoint();
@@ -88,6 +92,9 @@ protected slots:
 	virtual void updateProgressBar(double elapsed, double total);
 	virtual void onStopCancelButtonClicked();
 	virtual void onPlayPauseButtonClicked();
+	void onPreviousNextChanged();
+	void onMoveUpButtonClicked();
+	void onMoveDownButtonClicked();
 
 	virtual void onStarted();
 	virtual void onSucceeded();
@@ -100,6 +107,8 @@ protected:
 	QLabel *timeRemainingLabel_;
 	QPushButton *stopCancelButton_;
 	QPushButton *playPauseButton_;
+	QToolButton *moveActionUpButton_;
+	QToolButton *moveActionDownButton_;
 	QHBoxLayout *hl_;
 
 	QIcon closeIcon_, stopIcon_, startIcon_, pauseIcon_;

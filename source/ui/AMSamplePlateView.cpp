@@ -39,6 +39,10 @@ AMSamplePlateItemModel::AMSamplePlateItemModel(AMSamplePlate* plate, QObject* pa
 
 	connect(AMDatabase::userdb(), SIGNAL(updated(QString,int)), this, SLOT(onDatabaseItemUpdated(QString,int)), Qt::QueuedConnection);
 	connect(AMDatabase::userdb(), SIGNAL(removed(QString,int)), this, SLOT(onDatabaseItemRemoved(QString,int)), Qt::QueuedConnection);
+
+	cachedSamples_.reserve(plate_->count());
+	for(int i=plate_->count()-1; i>=0; i--)
+		cachedSamples_ << AMSample();
 }
 
 
@@ -51,10 +55,14 @@ QString AMSamplePlateItemModel::positionsString(int index) const {
 	for(int i=0; i<positions.count(); i++) {
 		const AMControlInfo& pos = positions.at(i);
 
-		QString s = QString("%1: %2%3")
-				.arg(pos.name())
-				.arg(pos.value())
-				.arg(pos.units());
+		//QString s = QString("%1: %2%3").arg(pos.name()).arg(pos.value()).arg(pos.units());
+		QString s;
+		if(pos.contextKnownDescription() != "")
+			s = QString("%1: %2%3").arg(pos.contextKnownDescription()).arg(pos.value(), 0, 'g', 3).arg(pos.units());
+		else if(pos.description() != "")
+			s = QString("%1: %2%3").arg(pos.description()).arg(pos.value(), 0, 'g', 3).arg(pos.units());
+		else
+			s = QString("%1: %2%3").arg(pos.name()).arg(pos.value(), 0, 'g', 3).arg(pos.units());
 
 		sl << s;
 	}

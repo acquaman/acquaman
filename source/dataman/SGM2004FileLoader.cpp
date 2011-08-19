@@ -42,11 +42,11 @@ SGM2004FileLoader::SGM2004FileLoader(AMXASScan* scan) : AMAbstractFileLoader(sca
 	if(columns2pvNames_.count() == 0) {
 		columns2pvNames_.set("eV", "BL1611-ID-1:Energy");
 		columns2pvNames_.set("ringCurrent", "PCT1402-01:mA:fbk");
-		columns2pvNames_.set("I0_2", "A1611-4-13:A:fbk");
+		columns2pvNames_.set("Photodiode", "A1611-4-13:A:fbk");
 		columns2pvNames_.set("I0", "A1611-4-14:A:fbk");
 		columns2pvNames_.set("TEY", "A1611-4-15:A:fbk");
 		columns2pvNames_.set("TFY", "A1611-4-16:A:fbk");
-		columns2pvNames_.set("eV_fbk", "BL1611-ID-1:Energy:fbk");
+		columns2pvNames_.set("EnergyFeedback", "BL1611-ID-1:Energy:fbk");
 		columns2pvNames_.set("pressure", "TCGC1611-423:pressure:fbk");
 
 		columns2pvNames_.set("integrationTime", "A1611I1:cont_interval");
@@ -65,8 +65,8 @@ SGM2004FileLoader::SGM2004FileLoader(AMXASScan* scan) : AMAbstractFileLoader(sca
 	defaultUserVisibleColumns_ << "TEY";
 	defaultUserVisibleColumns_ << "TFY";
 	defaultUserVisibleColumns_ << "I0";
-	defaultUserVisibleColumns_ << "I0_2";
-	defaultUserVisibleColumns_ << "eV_fbk";
+	defaultUserVisibleColumns_ << "Photodiode";
+	defaultUserVisibleColumns_ << "EnergyFeedback";
 	defaultUserVisibleColumns_ << "ringCurrent";
 	defaultUserVisibleColumns_ << "SDD";
 }
@@ -171,32 +171,38 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 	/// \todo What if there isn't? Should we check, and create the axis if none exist? What if there's more than one scan axis? Can't remove from AMDataStore... [The rest of this code assumes a single scan axis]
 
 
+	bool postSddFileOffset = false;
+	QString spectraFile = "";
 	// add scalar (0D) measurements to the raw data store, for each data column.  If setRawDataSources is true, also add raw data sources to the scan, which expose this data.
 	foreach(QString colName, colNames1) {
 		if(colName != "eV" && colName != "Event-ID") {
-			scan->rawData()->addMeasurement(AMMeasurementInfo(colName, colName));	/// \todo nice descriptions for the common column names; not just 'tey' or 'tfy'.
+			if(colName == "sdd_fileOffset"){
+				foreach(QString afp, scan->additionalFilePaths())
+					if(afp.contains("_spectra.dat"))
+						spectraFile = afp;
+				if(spectraFile != ""){
+					postSddFileOffset = true;
+					AMAxisInfo sddEVAxisInfo("energy", 1024, "SDD Energy", "eV");
+					QList<AMAxisInfo> sddAxes;
+					sddAxes << sddEVAxisInfo;
+					AMMeasurementInfo sddInfo("SDD", "Silicon Drift Detector", "counts", sddAxes);
+					if(scan->rawData()->addMeasurement(sddInfo)){
+						/// \todo Throw an errorMon out?
+						//qDebug() << "Added measurement " << scan->rawData()->measurementAt(scan->rawData()->measurementCount()-1).name;
+					}
+				}
+			}
+			else if(scan->rawData()->addMeasurement(AMMeasurementInfo(colName, colName))){
+				/// \todo Throw an errorMon out?
+				//qDebug() << "Added measurement " << scan->rawData()->measurementAt(scan->rawData()->measurementCount()-1).name;
+			}
 		}
 	}
-	QString spectraFile;
-	QFileInfo spectraFileInfo;
-
-	if(scan->rawData()->idOfMeasurement("sdd_fileOffset") >= 0){
-		foreach(QString afp, scan->additionalFilePaths())
-			if(afp.contains("_spectra.dat"))
-				spectraFile = afp;
-		if(!spectraFile.isEmpty()){
-			AMAxisInfo sddEVAxisInfo("energy", 1024, "SDD Energy", "eV");
-			QList<AMAxisInfo> sddAxes;
-			sddAxes << sddEVAxisInfo;
-			AMMeasurementInfo sddInfo("SDD", "Silicon Drift Detector", "counts", sddAxes);
-			scan->rawData()->addMeasurement(sddInfo);
-
-			spectraFileInfo.setFile(spectraFile);
-
-			if(spectraFileInfo.isRelative())
-				spectraFileInfo.setFile(AMUserSettings::userDataFolder + "/" + spectraFile);
-		}
+	if(postSddFileOffset){
+		if(scan->rawData()->addMeasurement(AMMeasurementInfo("sdd_fileOffset", "sdd_fileOffset")))
+			qDebug() << "Added measurement " << scan->rawData()->measurementAt(scan->rawData()->measurementCount()-1).name;
 	}
+	int sddOffsetIndex = colNames1.indexOf("sdd_fileOffset");
 
 	// read all the data. Add to data columns or scan properties depending on the event-ID.
 
@@ -214,7 +220,11 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 			// add data from all columns (but ignore the first (Event-ID) and the eV column)
 			int measurementId = 0;
 			for(int i=1; i<colNames1.count(); i++) {
-				if(i!=eVIndex) {
+				if(i == sddOffsetIndex){
+					scan->rawData()->setValue(eVAxisIndex, scan->rawData()->idOfMeasurement("sdd_fileOffset"), AMnDIndex(), lp.at(i).toDouble());
+					measurementId++;
+				}
+				else if(i!=eVIndex) {
 					scan->rawData()->setValue(eVAxisIndex, measurementId++, AMnDIndex(), lp.at(i).toDouble());
 				}
 			}
@@ -240,7 +250,13 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 	}
 
 
-	if(!spectraFile.isEmpty()){
+	if(spectraFile != ""){
+		QFileInfo spectraFileInfo;
+		spectraFileInfo.setFile(spectraFile);
+		if(spectraFileInfo.isRelative())
+			spectraFileInfo.setFile(AMUserSettings::userDataFolder + "/" + spectraFile);
+		qDebug() << "SPECTRA FILE IS " << spectraFile;
+		//QFile sf(spectraFile);
 		QFile sf(spectraFileInfo.filePath());
 		if(!sf.open(QIODevice::ReadOnly)) {
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -1, "SGM2004FileLoader parse error while loading scan data from file. Missing SDD spectra file."));
@@ -319,12 +335,10 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 
 
 	// If we need to create the raw data sources...
-	if(setRawDataSources) {
-		// expose the raw data that might be useful to the users
-		foreach(QString visibleColumn, defaultUserVisibleColumns_) {
-			int measurementId = scan->rawData()->idOfMeasurement(visibleColumn);
-			if(measurementId >= 0)
-				scan->addRawDataSource(new AMRawDataSource(scan->rawData(), measurementId));
+	if(setRawDataSources){
+		for(int x = 0; x < scan->rawData()->measurementCount(); x++){
+			if(defaultUserVisibleColumns_.contains(scan->rawData()->measurementAt(x).name))
+				scan->addRawDataSource(new AMRawDataSource(scan->rawData(), x));
 		}
 	}
 
@@ -382,58 +396,5 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 			scan->addAnalyzedDataSource(sddSum);
 		}
 	}
-
-
-	// Debugging only... What's here?
-
-	/*
- qDebug() << "========= Breakdown for scan named: " << scan->name() << "==============";
- qDebug() << "Scan axes\n===========================";
- for(int i=0; i<scan->rawData()->scanAxesCount(); i++)
-  qDebug() << scan->rawData()->scanAxisAt(i).name << ": " << scan->rawData()->scanAxisAt(i).size << "points.";
-
- qDebug() << "Measurements\n===========================";
- for(int i=0; i<scan->rawData()->measurementCount(); i++)
-  qDebug() << scan->rawData()->measurementAt(i).name;
-
- qDebug() << "Raw Data\n===========================";
- for(int i=0; i<scan->rawDataSources()->count(); i++) {
-  AMRawDataSource* rds = scan->rawDataSources()->at(i);
-  qDebug() << rds->name() << ":" << rds->description() << ": isValid is " << rds->isValid() << ": numPoints is " << rds->size(0);
- }
- qDebug() << "Analyzed Data\n===========================";
- for(int i=0; i<scan->analyzedDataSources()->count(); i++) {
-  AMAnalysisBlock* rds = scan->analyzedDataSources()->at(i);
-  qDebug() << rds->name() << ":" << rds->description() << ": isValid is " << rds->isValid() << ": numPoints is " << rds->size(0);
- }
-
-//	qDebug() << "Raw data source - SDD - Axis 0\n======================";
-//	QString axisValues;
-//	AMRawDataSource* sddRds = scan->rawDataSources()->at(scan->rawDataSources()->count()-1);
-//	for(int i=0; i<sddRds->size(0); i++)
-//		axisValues.append(QString("%1, ").arg((double)sddRds->axisValue(0, i)));
-//	qDebug() << axisValues;
-
-//	qDebug() << "Raw data source - SDD - Axis 1\n======================";
-//	axisValues.clear();
-//	for(int i=0; i<sddRds->size(1); i++)
-//		axisValues.append(QString("%1, ").arg((double)sddRds->axisValue(1, i)));
-//	qDebug() << axisValues;
-
-
- QString row;
- qDebug() << "First measurement, raw data axis value:";
- for(int i=0; i<scan->rawData()->scanSize(0); i++)
-  row.append(QString("%1, ").arg((double)scan->rawData()->axisValue(0,i)));
- qDebug() << "   " << row;
-
- qDebug() << "From raw data source:";
- row.clear();
- AMRawDataSource* rds = scan->rawDataSources()->at(0);
- for(int i=0; i<rds->size(0); i++)
-  row.append(QString("%1, ").arg((double)rds->axisValue(0,i)));
- qDebug() << "    " << row;
-*/
-
 	return true;
 }

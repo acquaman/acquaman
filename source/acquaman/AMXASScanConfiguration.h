@@ -69,6 +69,11 @@ public:
 		return QString("XAS Scan from %1 to %2").arg(regionStart(0)).arg(regionEnd(regionCount()-1));
 	}
 
+	/// The auto-generated scan name. Can be re-implemented to customize for each scan type.
+	virtual QString autoScanName() const{
+		return QString("XAS").arg(regionStart(0)).arg(regionEnd(regionCount()-1));
+	}
+
 public slots:
 	/// Sets the start value of the region refered to by index. Returns true if sucessful, returns false if the index is invalid or the energy is out of range.
 	bool setRegionStart(int index, double start) { return regions_->setStart(index, start);}

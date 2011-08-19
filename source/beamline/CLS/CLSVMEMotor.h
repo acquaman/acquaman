@@ -3,6 +3,16 @@
 
 #include "beamline/AMControl.h"
 
+/// This function object provides the moving check for the CLSVMEMotors
+class AMControlStatusCheckerCLSVME : public AMAbstractControlStatusChecker {
+public:
+	/// Status values will be compare to \c isStoppedValue, and return true if the status value is not equal to isStoppedValue (something that isn't stopped is moving)
+	AMControlStatusCheckerCLSVME() {}
+
+	/// Return true (moving) if the \c statusValue is not 0 (STOPPED) and is not 3 (FORCED STOP) and is not 4 (ERROR)
+	virtual bool operator()(quint32 statusValue) { return (statusValue != 0) && (statusValue != 3) && (statusValue != 4); }
+};
+
 /*!
   This class encapsulates many of the standard components found in a CLS VME motor.  Unlike standard AMControls, the CLS VME motors can set other things such as the velocity, acceleration, or directly access the steps
   rather then giving a distance in millimeters.  Therefore, this class is meant to give more control over the motors in the event that you want more control over the actual

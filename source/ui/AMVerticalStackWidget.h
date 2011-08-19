@@ -86,6 +86,8 @@ public:
 		insertItem(index, widget->windowTitle(), widget, collapsable);
 	}
 
+	/// Swap the item at the index given with the item after it
+	bool swapItem(int indexOfFirst);
 
 
 	/// Return the index of a widget in the stack. (-1 if not found)
@@ -111,10 +113,6 @@ public:
 	/// Overloaded to make sure that the horizontal size requested is as wide as all the inside widgets, even if they're collapsed and not currently shown in the layout.
 	QSize sizeHint() const;
 
-public slots:
-
-
-
 signals:
 	/// Emitted when a widget is expanded:
 	void expanded(QWidget*);
@@ -124,7 +122,6 @@ signals:
 	void collapsed(QWidget*);
 	/// Emitted when a widget at this index is collapsed
 	void collapsed(int);
-
 
 public slots:
 	/// Expand a given widget
@@ -149,11 +146,8 @@ protected:
 		Currently, the model is for internal use only.  This class doesn't yet respond to the dataChanged() signal, so modifying the model will not trigger changes in the display of the widget.  This can be implemented if desired.
 		*/
 	QStandardItemModel model_;
-	// QSignalMapper* headerButtonMapper_;
 
 	QVBoxLayout* vl_;
-	// QSpacerItem* spacer_;
-
 
 	/// Capture window title change events from our widgets and change our header titles accordingly
 	bool eventFilter(QObject * source, QEvent *event);
@@ -161,6 +155,5 @@ protected:
 	/// Set the heading text for a widget
 	void setItemText(int index, const QString& text);
 };
-
 
 #endif // AMVERTICALSTACKWIDGET_H

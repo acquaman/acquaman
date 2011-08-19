@@ -1,4 +1,25 @@
+/*
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "SGMFastScanController.h"
+#include "dataman/AMSample.h"
 
 SGMFastScanController::SGMFastScanController(SGMFastScanConfiguration *cfg){
 	specificCfg_ = cfg;
@@ -6,19 +27,53 @@ SGMFastScanController::SGMFastScanController(SGMFastScanConfiguration *cfg){
 	cleanUpActions_ = 0; //NULL
 	beamlineInitialized_ = false;
 
-	QList<AMDetector*> scanDetectors = pCfg()->usingDetectors();
-
 	specificScan_ = new AMFastScan();
 	pScan()->setName("SGM Fast Scan");
 	pScan()->setFileFormat("sgm2010Fast");
 	pScan()->setRunId(AMUser::user()->currentRunId());
+	pScan()->setScanConfiguration(pCfg());
+	pCfg()->setEnergyParameters(SGMBeamline::sgm()->energyParametersForGrating(SGMBeamline::sgm()->currentGrating()));
+	pScan()->setSampleId(SGMBeamline::sgm()->currentSampleId());
+	QString scanName;
+	QString sampleName;
+	if(pCfg()->userScanName() == "")
+		scanName = pCfg()->autoScanName();
+	else
+		scanName = pCfg()->userScanName();
+	if(pScan()->sampleId() == -1)
+		sampleName = "Unknown Sample";
+	else
+		sampleName = AMSample(pScan()->sampleId(), AMUser::user()->database()).name();
+	pScan()->setName(QString("%1 - %2").arg(sampleName).arg(scanName));
 
 	// Create space in raw data store, and create raw data channels, for each detector.
 
-	for(int i=0; i<scanDetectors.count(); i++) {
-		AMDetector* detector = scanDetectors.at(i);
-		pScan()->rawData()->addMeasurement(AMMeasurementInfo(*(detector->toInfo())));
-		pScan()->addRawDataSource(new AMRawDataSource(pScan()->rawData(), i));
+	/*
+	//for(int i=0; i<scanDetectors.count(); i++) {
+	for(int i = 0; i < pCfg()->allDetectors()->count(); i++) {
+		AMDetectorInfo* detectorInfo = pCfg()->allDetectors()->detectorAt(i)->toInfo();
+		qDebug() << "Detector named " << pCfg()->allDetectors()->detectorAt(i)->detectorName();
+		if(pCfg()->allDetectors()->isDefaultAt(i)){
+			if(pScan()->rawData()->addMeasurement(AMMeasurementInfo(*detectorInfo)))
+				pScan()->addRawDataSource(new AMRawDataSource(pScan()->rawData(), i));
+			else{
+				/// \todo send out and errorMon?
+				qDebug() << "BIG PROBLEM!!!!!! WHAT JUST HAPPENED?!?!?" << detectorInfo->name();
+			}
+		}
+	}
+	*/
+
+	if(SGMBeamline::sgm()->usingScalerSource()){
+		qDebug() << "In here, setting measurements";
+		pScan()->rawData()->addMeasurement(AMMeasurementInfo(* (pCfg()->allDetectors()->detectorNamed("teyScaler")->toInfo()) ));
+		pScan()->addRawDataSource(new AMRawDataSource(pScan()->rawData(), 0));
+		pScan()->rawData()->addMeasurement(AMMeasurementInfo(* (pCfg()->allDetectors()->detectorNamed("I0Scaler")->toInfo()) ));
+		pScan()->addRawDataSource(new AMRawDataSource(pScan()->rawData(), 1));
+		pScan()->rawData()->addMeasurement(AMMeasurementInfo(* (pCfg()->allDetectors()->detectorNamed("tfyScaler")->toInfo()) ));
+		pScan()->addRawDataSource(new AMRawDataSource(pScan()->rawData(), 2));
+		pScan()->rawData()->addMeasurement(AMMeasurementInfo(* (pCfg()->allDetectors()->detectorNamed("photodiodeScaler")->toInfo()) ));
+		pScan()->addRawDataSource(new AMRawDataSource(pScan()->rawData(), 3));
 	}
 
 	QList<AMDataSource*> raw1DDataSources;
@@ -26,24 +81,28 @@ SGMFastScanController::SGMFastScanController(SGMFastScanConfiguration *cfg){
 		if(pScan()->rawDataSources()->at(i)->rank() == 1)
 			raw1DDataSources << pScan()->rawDataSources()->at(i);
 
-	int rawTeyIndex = pScan()->rawDataSources()->indexOfKey("tey");
-	int rawTfyIndex = pScan()->rawDataSources()->indexOfKey("tfy");
-	int rawI0Index = pScan()->rawDataSources()->indexOfKey("I0");
+	int rawTeyIndex = pScan()->rawDataSources()->indexOfKey(SGMBeamline::sgm()->teyDetector()->description());
+	int rawTfyIndex = pScan()->rawDataSources()->indexOfKey(SGMBeamline::sgm()->tfyDetector()->description());
+	int rawI0Index = pScan()->rawDataSources()->indexOfKey(SGMBeamline::sgm()->i0Detector()->description());
 
 	if(rawTeyIndex != -1 && rawI0Index != -1) {
-		AM1DExpressionAB* teyChannel = new AM1DExpressionAB("tey_n");
+		//AM1DExpressionAB* teyChannel = new AM1DExpressionAB("tey_n");
+		AM1DExpressionAB* teyChannel = new AM1DExpressionAB(QString("%1Norm").arg(SGMBeamline::sgm()->teyDetector()->description()));
 		teyChannel->setDescription("Normalized TEY");
 		teyChannel->setInputDataSources(raw1DDataSources);
-		teyChannel->setExpression("tey/I0");
+		//teyChannel->setExpression("tey/I0");
+		teyChannel->setExpression(QString("%1/%2").arg(SGMBeamline::sgm()->teyDetector()->description()).arg(SGMBeamline::sgm()->i0Detector()->description()));
 
 		pScan()->addAnalyzedDataSource(teyChannel);
 	}
 
 	if(rawTfyIndex != -1 && rawI0Index != -1) {
-		AM1DExpressionAB* tfyChannel = new AM1DExpressionAB("tfy_n");
+		//AM1DExpressionAB* tfyChannel = new AM1DExpressionAB("tfy_n");
+		AM1DExpressionAB* tfyChannel = new AM1DExpressionAB(QString("%1Norm").arg(SGMBeamline::sgm()->tfyDetector()->description()));
 		tfyChannel->setDescription("Normalized TFY");
 		tfyChannel->setInputDataSources(raw1DDataSources);
-		tfyChannel->setExpression("tfy/I0");
+		//tfyChannel->setExpression("tfy/I0");
+		tfyChannel->setExpression(QString("%1/%2").arg(SGMBeamline::sgm()->tfyDetector()->description()).arg(SGMBeamline::sgm()->i0Detector()->description()));
 
 		pScan()->addAnalyzedDataSource(tfyChannel);
 	}
@@ -99,21 +158,30 @@ bool SGMFastScanController::beamlineInitialize(){
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerTotalNumberOfScans());
 	tmpAction->setSetpoint(SGMBeamline::sgm()->scalerTotalNumberOfScans()->value());
 	cleanUpActions_->appendAction(cleanUpActions_->stageCount()-1, tmpAction);
+	/**/
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->undulatorFastTracking());
+	tmpAction->setSetpoint(0);
+	cleanUpActions_->appendAction(cleanUpActions_->stageCount()-1, tmpAction);
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->undulatorVelocity());
+	tmpAction->setSetpoint(11811);
+	cleanUpActions_->appendAction(cleanUpActions_->stageCount()-1, tmpAction);
+	/**/
 
 
 
 	SGMFastScanParameters *settings = pCfg()->currentParameters();
 	#warning "Hey David, who's going to delete the list and the actions?"
 	initializationActions_ = new AMBeamlineParallelActionsList();
-	// Only need to do this if tracking is currently on
-	if( undulatorTrackingOn || exitSlitTrackingOn ){
-		qDebug() << "Need to optimize for middle of energy range";
-		//Go to midpoint of energy range
+	if( SGMBeamline::sgm()->energy()->withinTolerance(settings->energyStart()) ){
+		qDebug() << "Too close to start energy";
 		initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
 		tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->energy());
-		tmpAction->setSetpoint(settings->energyMidpoint());
+		tmpAction->setSetpoint(settings->energyStart()+1.0);
 		initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
+	}
 
+	// Only need to do this if tracking is currently on
+	if( undulatorTrackingOn || exitSlitTrackingOn ){
 		//Turn off undulator and exit slit tracking
 		initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
 		tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->undulatorTracking());
@@ -124,6 +192,14 @@ bool SGMFastScanController::beamlineInitialize(){
 		initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
 	}
 
+	/*
+	initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->grating());
+	tmpAction->setSetpoint(settings->sgmGrating());
+	*/
+	qDebug() << "I would want to go to " << settings->sgmGrating();
+	//initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
+
 	//Go to start of energy range
 	//Mode needs to change before time, buffer, and total
 	initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
@@ -133,6 +209,13 @@ bool SGMFastScanController::beamlineInitialize(){
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerMode());
 	tmpAction->setSetpoint(0);
 	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->undulatorStep());
+	tmpAction->setSetpoint(settings->undulatorStartStep());
+	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->exitSlit());
+	tmpAction->setSetpoint(settings->exitSlitDistance());
+	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
+
 
 	//Set the grating motor velocity, base velocity, and acceleration as well as scaler mode, scans per buffer, total # of scans, and intergration time
 	initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
@@ -153,6 +236,17 @@ bool SGMFastScanController::beamlineInitialize(){
 	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
 	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->scalerTotalNumberOfScans());
 	tmpAction->setSetpoint(1000);
+	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
+
+	qDebug() << "Relative step to " << settings->undulatorRelativeStep() << " velocity to " << settings->undulatorVelocity();
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->undulatorRelativeStepStorage());
+	tmpAction->setSetpoint(settings->undulatorRelativeStep());
+	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->undulatorVelocity());
+	tmpAction->setSetpoint(settings->undulatorVelocity());
+	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
+	tmpAction = new AMBeamlineControlMoveAction(SGMBeamline::sgm()->undulatorFastTracking());
+	tmpAction->setSetpoint(1);
 	initializationActions_->appendAction(initializationActions_->stageCount()-1, tmpAction);
 
 	/* NTBA March 14, 2011 David Chevrier

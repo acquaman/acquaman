@@ -1,3 +1,23 @@
+/*
+Copyright 2010, 2011 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "AMExporter.h"
 #include <QFile>
 #include <QDir>
@@ -9,6 +29,8 @@
 AMExporter::AMExporter(QObject *parent) : QObject(parent) {
 	currentScan_ = 0;
 	currentDataSourceIndex_ = 0;
+
+	autoIndex_ = 0;
 
 	keywordParser_ = new AMTagReplacementParser();
 
@@ -89,9 +111,11 @@ void AMExporter::loadKeywordReplacementDictionary()
 	keywordDictionary_.insert("dataSetDescription", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krDataSourceDescription));
 	keywordDictionary_.insert("dataSetUnits", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krDataSourceUnits));
 	keywordDictionary_.insert("dataSetSize", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krDataSourceSize));
+	keywordDictionary_.insert("dataSetInfoDescription", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krDataSourceInfoDescription));
 	keywordDictionary_.insert("dataSetAxisValue", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krDataSourceAxisValue));
 	keywordDictionary_.insert("dataSetAxisUnits", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krDataSourceAxisUnits));
 
+	keywordDictionary_.insert("exportIndex", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krExporterAutoIncrement));
 }
 
 
@@ -437,6 +461,34 @@ QString AMExporter::krDataSourceSize(const QString& dataSourceName) {
 
 }
 
+QString AMExporter::krDataSourceInfoDescription(const QString &dataSourceName) {
+	if(!currentScan_)
+		return "[??]";
+
+	int dataSourceIndex;
+	if(dataSourceName.isEmpty()) {	// use current index
+		dataSourceIndex = currentDataSourceIndex_;
+	}
+	else
+		dataSourceIndex = currentScan_->indexOfDataSource(dataSourceName);
+
+	if(dataSourceIndex < 0 || dataSourceIndex >= currentScan_->dataSourceCount())
+		return "[??]";
+
+	AMDataSource* ds = currentScan_->dataSourceAt(dataSourceIndex);
+	return ds->infoDescription();
+	/*
+	if(ds->infoDescription().isEmpty()){
+		qDebug() << "No info description, using name";
+		return ds->name();
+	}
+	else{
+		qDebug() << "Found info description";
+		return ds->infoDescription();
+	}
+	*/
+}
+
 QString AMExporter::krDataSourceAxisValue(const QString& dataSourceName) {
 	if(!currentScan_)
 		return "[??]";
@@ -473,6 +525,10 @@ QString AMExporter::krDataSourceAxisUnits(const QString& dataSourceName) {
 		return "[??]";
 
 	return ds->axisInfoAt(1).units;
+}
+
+QString AMExporter::krExporterAutoIncrement(const QString &arg){
+	return QString("%1").arg(autoIndex_);
 }
 
 

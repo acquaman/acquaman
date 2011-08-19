@@ -7,6 +7,8 @@
 #include <stdio.h>
 #include <cstdlib>
 
+#include <QString>
+#include <QDebug>
 
 static eventDataHandler_t defaultAcqBaseOutput = {
 				NULL,
@@ -80,9 +82,15 @@ acqBaseOutput::value_to_string(const void *value, int dbType, const char * forma
 	case DBF_CHAR:
 		snprintf(result, result_max, format?format:"%d", *(char *)value);
 		break;
-	case DBF_LONG:
-		snprintf(result, result_max, format?format:"%ld", *(long *)value);
+	case DBF_LONG:{
+		/* NTBA May 8th, 2011 David Chevrier
+		   There seems to be an issue with the DBF_LONG being saved as int (size 4)
+		   rather than as long (size 8). Probably a 64bit problem.
+		 */
+		//snprintf(result, result_max, format?format:"%ld", *(long *)value);
+		snprintf(result, result_max, format?format:"%d", *(int *)value);
 		break;
+	}
 	case DBF_DOUBLE:
 		snprintf(result, result_max, format?format:"%g", *(double *)value);
 		break;

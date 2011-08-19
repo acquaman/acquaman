@@ -46,6 +46,7 @@ public slots:
 	virtual bool addAction(int index, AMBeamlineActionItem *action);
 	virtual bool appendAction(AMBeamlineActionItem *action);
 	bool deleteAction(int index);
+	bool swapActions(int indexOfFirst);
 
 signals:
 	void actionChanged(int index);
@@ -86,6 +87,7 @@ public:
 	bool setData(const QModelIndex &index, const QVariant &value, int role);
 	bool insertRows(int position, int rows, const QModelIndex &index = QModelIndex());
 	bool removeRows(int position, int rows, const QModelIndex &index = QModelIndex());
+	bool swapData(int positionOfFirst);
 	Qt::ItemFlags flags(const QModelIndex &index) const;
 
 protected:

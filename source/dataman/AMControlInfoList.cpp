@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <algorithm>
 #include <cmath>
 
-AMControlInfo::AMControlInfo(const QString& name, double value, double minimum, double maximum, const QString& units, double tolerance, const QString &description, QObject* parent)
+AMControlInfo::AMControlInfo(const QString& name, double value, double minimum, double maximum, const QString& units, double tolerance, const QString &description, const QString &contextKnownDescription, QObject* parent)
 	: AMDbObject(parent)
 {
 	setName(name);
@@ -32,6 +32,7 @@ AMControlInfo::AMControlInfo(const QString& name, double value, double minimum, 
 	units_ = units;
 	tolerance_ = tolerance;
 	description_ = description;
+	contextKnownDescription_ = contextKnownDescription;
 }
 
 
@@ -74,8 +75,22 @@ bool AMControlInfoList::operator ==(const AMControlInfoList &other) const {
 	for(int x = count()-1; x >= 0; x--){
 		tmpOther = other.at(x);
 		tmpMine = at(x);
-	//	qDebug() << "Other: " << tmpOther.tolerance() << " Mine: " << tmpMine.tolerance();
 		if( (tmpOther.name() != tmpMine.name()) || ( fabs(tmpOther.value() - tmpMine.value()) > std::min(tmpOther.tolerance(), tmpMine.tolerance()) ) )
+			return false;
+	}
+	return true;
+}
+
+bool AMControlInfoList::compareWithinTolerance(const AMControlInfoList &other, QList<double> tolerances) const {
+	if( (count() != other.count()) || (count() != tolerances.count()) )
+		return false;
+	AMControlInfo tmpOther, tmpMine;
+	double tmpTolerance;
+	for(int x = count()-1; x >= 0; x--){
+		tmpOther = other.at(x);
+		tmpMine = at(x);
+		tmpTolerance = tolerances.at(x);
+		if( (tmpOther.name() != tmpMine.name()) || ( fabs(tmpOther.value() - tmpMine.value()) > tmpTolerance ) )
 			return false;
 	}
 	return true;

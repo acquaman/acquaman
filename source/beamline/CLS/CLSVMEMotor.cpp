@@ -1,7 +1,10 @@
 #include "CLSVMEMotor.h"
 
+
+
 CLSVMEMotor::CLSVMEMotor(const QString &name, const QString &baseName, const QString &description, bool hasEncoder, double tolerance, double moveStartTimeoutSeconds, QObject *parent) :
-		AMPVwStatusControl(name, baseName+":mm:fbk", baseName+":mm", baseName+":status", baseName+":stop", parent, tolerance, moveStartTimeoutSeconds, new AMControlStatusCheckerStopped(0), 1, description)
+		AMPVwStatusControl(name, baseName+":mm:fbk", baseName+":mm", baseName+":status", baseName+":stop", parent, tolerance, moveStartTimeoutSeconds, new AMControlStatusCheckerCLSVME(), 1, description)
+		//AMPVwStatusControl(name, baseName+":mm:fbk", baseName+":mm", baseName+":status", baseName+":stop", parent, tolerance, moveStartTimeoutSeconds, new AMControlStatusCheckerStopped(0), 1, description)
 {
 	usingKill_ = false;
 	killPV_ = new AMProcessVariable(baseName+":kill", true, this);
@@ -99,12 +102,12 @@ void CLSVMEMotor::setVelocity(double velocity){
 
 void CLSVMEMotor::setBaseVelocity(double baseVelocity){
 	if(isConnected())
-		velocity_->move(baseVelocity);
+		baseVelocity_->move(baseVelocity);
 }
 
 void CLSVMEMotor::setAcceleration(double acceleration){
 	if(isConnected())
-		velocity_->move(acceleration);
+		acceleration_->move(acceleration);
 }
 
 void CLSVMEMotor::setUsingKill(bool usingKill){

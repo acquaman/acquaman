@@ -126,7 +126,7 @@ void AM1DExpressionAB::setInputDataSourcesImplementation(const QList<AMDataSourc
 			xParser_.DefineVar( varName.toStdString(), &(allVariables_[i].value) );
 		}
 		catch(mu::Parser::exception_type& e) {
-			QString explanation = QString("AM1DExpressionAB: Error setting up variables: %1.").arg(QString::fromStdString(e.GetMsg()));
+			QString explanation = QString("AM1DExpressionAB: Error setting up variables: %1 [%2].").arg(QString::fromStdString(e.GetMsg())).arg(varName);
 			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, e.GetCode(), explanation));
 		}
 	}

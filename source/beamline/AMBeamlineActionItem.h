@@ -40,7 +40,7 @@ class QStyle;
 #define VERBOSE_ACTION_ITEMS 0
 
 /// Defines a default height for the workflow, all ActionItemViews can use it
-#define NATURAL_ACTION_VIEW_HEIGHT 62
+#define NATURAL_ACTION_VIEW_HEIGHT 92
 
 
 /// Class for managing boolean flags with associated signals. Using the state flag means you can pass in a state and be assured that the correct signals are emitted.
@@ -132,7 +132,12 @@ signals:
 	/// Should be emitted periodically to relay how much of the action has completed. Format: first argument is how much is done, second argument is the total to be done (could be % completed and 100%, for example)
 	void progress(double, double);
 
+	/// Emitted when the description for the action changes (sometimes changes when the state has changed)
 	void descriptionChanged(const QString &description);
+	/// Emitted when the action is set to point at a different prevoius action
+	void previousChanged();
+	/// Emitted when the aciton is set to point at a different next action
+	void nextChanged();
 
 public slots:
 	/// Pure virtual. Sub-classes need to implement and they better call setStart(true) at some point causing started() to be emitted
@@ -188,6 +193,7 @@ protected:
 
 	QString description_;
 	QString message_;
+	QString lastSampleDescription_;
 	AMOrderedSet<QString, QPixmap> helpImages_;
 
 private slots:
@@ -221,11 +227,13 @@ public:
 
 	int index() const { return index_;}
 	virtual AMBeamlineActionItem* action();
+	bool movable() const;
 
 public slots:
 	virtual void setIndex(int index);
 	virtual void setAction(AMBeamlineActionItem *action);
 	virtual void defocusItem();
+	virtual void setMovable(bool movable);
 
 signals:
 	void focusRequested(AMBeamlineActionItem *action);
@@ -235,18 +243,27 @@ signals:
 	void stopRequested(AMBeamlineActionItem *action);
 
 	void copyRequested(AMBeamlineActionItem *action);
+	void moveUpRequested(AMBeamlineActionItem *action);
+	void moveDownRequested(AMBeamlineActionItem *action);
 	void descriptionChanged(const QString &description);
+
+	void heightChanged(int newHeight);
 
 protected slots:
 	virtual void onInfoChanged() = 0;
 	virtual void onStopCancelButtonClicked() = 0;
 	virtual void onPlayPauseButtonClicked() = 0;
 	void updateLook();
+	virtual void onPreviousNextChanged();
+	virtual void onMoveUpButtonClicked();
+	virtual void onMoveDownButtonClicked();
 
 	virtual void onCreateCopyClicked();
 
 protected:
 	void mousePressEvent(QMouseEvent *event);
+
+	virtual void paintEvent(QPaintEvent *);
 
 	//virtual void updateLook();
 
@@ -254,7 +271,9 @@ protected:
 	AMBeamlineActionItem *action_;
 	int index_;
 	bool inFocus_;
+	bool movable_;
 	QMenu *optionsMenu_;
+	int oldHeight_;
 };
 
 class AMImageListView : public QWidget

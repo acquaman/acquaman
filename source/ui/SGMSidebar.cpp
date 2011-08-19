@@ -24,6 +24,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QGroupBox>
 #include <QVBoxLayout>
 #include <QGridLayout>
+#include <QRadioButton>
+#include <QButtonGroup>
 
 SGMSidebar::SGMSidebar(QWidget *parent) :
 	QWidget(parent)
@@ -33,6 +35,8 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	mainLayout_->addWidget(mainBox_);
 	gl_ = new QGridLayout();
 	mainBox_->setLayout(gl_);
+
+	setMaximumWidth(350);
 
 	readyLabel_ = new AMControlEditor(SGMBeamline::sgm()->beamlineReady(), NULL, true);
 	readyLabel_->setNoUnitsBox(true);
@@ -89,13 +93,66 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	exitSlitNC_->overrideTitle("Exit Slit");
 	exitSlitNC_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 
+	scanningLabel_ = new AMControlEditor(SGMBeamline::sgm()->beamlineScanning(), NULL, true);
+	scanningLabel_->setNoUnitsBox(true);
+	scanningLabel_->overrideTitle("");
+	scanningLabel_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+	scanningResetButton_ = new QToolButton();
+	scanningResetButton_->setText("Reset");
+	scanningResetButton_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+	connect(scanningResetButton_, SIGNAL(clicked()), this, SLOT(onScanningResetButtonClicked()));
+	QHBoxLayout *shl = new QHBoxLayout();
+	shl->addWidget(scanningLabel_);
+	shl->addWidget(scanningResetButton_);
+	shl->setSpacing(0);
+	shl->setContentsMargins(2, 2, 2, 2);
+
+	detectorSignalSources_ = new QButtonGroup();
+	picoammeterButton_ = new QRadioButton(SGMBeamline::sgm()->sgmDetectorSignalSourceName(SGMBeamline::picoammeters));
+	scalerButton_ = new QRadioButton(SGMBeamline::sgm()->sgmDetectorSignalSourceName(SGMBeamline::scaler));
+	detectorSignalSources_->addButton(picoammeterButton_, 0);
+	detectorSignalSources_->addButton(scalerButton_, 1);
+	QGroupBox *detectorSourceBox = new QGroupBox("Detectors");
+	QVBoxLayout *dl = new QVBoxLayout();
+	dl->addWidget(picoammeterButton_);
+	dl->addWidget(scalerButton_);
+	dl->setSpacing(0);
+	dl->setContentsMargins(2, 2, 2, 2);
+	detectorSourceBox->setLayout(dl);
+	connect(SGMBeamline::sgm(), SIGNAL(detectorSignalSourceChanged(SGMBeamline::sgmDetectorSignalSource)), this, SLOT(onDetectorSignalSourceChanged(SGMBeamline::sgmDetectorSignalSource)));
+	connect(detectorSignalSources_, SIGNAL(buttonClicked(int)), this, SLOT(onDetectorButtonsClicked(int)));
+
+	endstationsAvailable_ = new QButtonGroup();
+	scientaButton_ = new QRadioButton(SGMBeamline::sgm()->sgmEndstationName(SGMBeamline::scienta));
+	ssaButton_ = new QRadioButton(SGMBeamline::sgm()->sgmEndstationName(SGMBeamline::ssa));
+	endstationsAvailable_->addButton(scientaButton_, 0);
+	endstationsAvailable_->addButton(ssaButton_, 1);
+	QGroupBox *endstationsBox = new QGroupBox("Endstations");
+	QVBoxLayout *sl = new QVBoxLayout();
+	sl->addWidget(scientaButton_);
+	sl->addWidget(ssaButton_);
+	sl->setSpacing(0);
+	sl->setContentsMargins(2, 2, 2, 2);
+	endstationsBox->setLayout(sl);
+	connect(SGMBeamline::sgm(), SIGNAL(currentEndstationChanged(SGMBeamline::sgmEndstation)), this, SLOT(onCurrentEndstationChanged(SGMBeamline::sgmEndstation)));
+	connect(endstationsAvailable_, SIGNAL(buttonClicked(int)), this, SLOT(onEndstationButtonsClicked(int)));
+
 	beamlineWarningsLabel_ = new QLabel(SGMBeamline::sgm()->beamlineWarnings());
 	connect(SGMBeamline::sgm(), SIGNAL(beamlineWarningsChanged(QString)), beamlineWarningsLabel_, SLOT(setText(QString)));
+	connect(SGMBeamline::sgm(), SIGNAL(beamlineWarningsChanged(QString)), this, SLOT(onBeamlineWarnings(QString)));
 
 	// create UI elements
 	imageView_ = new MPlotWidget();
 	imageView_->setMinimumHeight(200);
 	imagePlot_ = new MPlot();
+
+	// ATTENTION DAVE: New special axis scale on bottom of strip tool plot:
+	stripToolSpecialAxisScale_ = new MPlotAxisScale(Qt::Horizontal);
+	stripToolSpecialAxisScale_->setPadding(2);
+	imagePlot_->addAxisScale(stripToolSpecialAxisScale_);
+	imagePlot_->axisBottom()->setAxisScale(stripToolSpecialAxisScale_);	// have the bottom (visible) axis display this axisScale instead
+	/////////////////
+
 	imageView_->setPlot(imagePlot_);
 	imagePlot_->axisScaleLeft()->setAutoScaleEnabled();
 	imagePlot_->axisScaleLeft()->setPadding(2);
@@ -135,6 +192,8 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	pdSeries_->setMarker(MPlotMarkerShape::None);
 
 	imagePlot_->addItem(i0Series_);
+	// debugging:
+	// connect(i0Series_->signalSource(), SIGNAL(boundsChanged()), this, SLOT(testingBoundsChanged()));
 	//imagePlot_->addItem(teySeries_);
 	//imagePlot_->addItem(tfySeries_);
 	//imagePlot_->addItem(pdSeries_);
@@ -143,6 +202,14 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	stripToolTimer_ = new QTimer(this);
 	connect(stripToolTimer_, SIGNAL(timeout()), this, SLOT(onStripToolTimerTimeout()));
 	stripToolTimer_->start(1000);
+
+	warningAndPlotHL_ = new QHBoxLayout();
+	warningAndPlotHL_->addWidget(beamlineWarningsLabel_);
+
+	hvOnButton_ = new QPushButton("HV On");
+	hvOffButton_ = new QPushButton("HV Off");
+	//connect(hvOnButton_, SIGNAL(clicked()), this, SLOT(onHVOnClicked()));
+	//connect(hvOffButton_, SIGNAL(clicked()), this, SLOT(onHVOffClicked()));
 
 	gl_->addWidget(readyLabel_,		0, 0, 1, 6, 0);
 	gl_->addWidget(beamOnButton_,		1, 0, 1, 2, 0);
@@ -157,14 +224,30 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	gl_->addWidget(gratingNC_,		5, 0, 1, 6, 0);
 	gl_->addWidget(entranceSlitNC_,		6, 0, 1, 3, 0);
 	gl_->addWidget(exitSlitNC_,		6, 3, 1, 3, 0);
-	//gl_->addWidget(beamlineWarningsLabel_,	8, 0, 1, 6, 0);
-	gl_->addWidget(imageView_,		8, 0, 1, 6, 0);
+	gl_->addLayout(shl,			7, 0, 1, 3, 0);
+	gl_->addWidget(detectorSourceBox,	8, 0, 1, 3, 0);
+	gl_->addWidget(endstationsBox,		8, 3, 1, 3, 0);
+	//gl_->addWidget(hvOnButton_,		9, 0, 1, 2, 0);
+	//gl_->addWidget(hvOffButton_,		9, 2, 1, 2, 0);
 
-	gl_->setRowStretch(7, 10);
+	gl_->addLayout(warningAndPlotHL_,	10, 0, 1, 6, 0);
+
+	gl_->setRowStretch(9, 10);
 
 	setLayout(mainLayout_);
 	setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
+
+	scanningResetButton_->setContentsMargins(2,2,2,2);
 }
+
+SGMSidebar::~SGMSidebar() {
+	// must delete series objects first.  If left to ~QObject / QObject::deleteChildren() called from ~MPlot, the ~MPlotAbstractSeries() crashes when trying to disconnect from its data, because we've deleted the data already.
+	delete i0Series_;
+	delete teySeries_;
+	delete tfySeries_;
+	delete pdSeries_;
+}
+
 
 void SGMSidebar::showEvent(QShowEvent *se){
 	int minWidth = std::max(entranceSlitNC_->size().width()/3, exitSlitNC_->size().width()/3);
@@ -205,6 +288,7 @@ void SGMSidebar::onBeamOnButtonClicked(){
 }
 
 void SGMSidebar::onBeamOnActionFinished(){
+	qDebug() << "Beam on action finished";
 #warning "David, probably need to delete the internals too, list, actions, etc"
 	delete beamOnAction_;
 	beamOnAction_ = 0;//NULL
@@ -225,8 +309,37 @@ void SGMSidebar::onStopMotorsActionFinished(){
 	stopMotorsAction_ = 0;//NULL
 }
 
+void SGMSidebar::onDetectorSignalSourceChanged(SGMBeamline::sgmDetectorSignalSource newSource){
+	if(newSource == SGMBeamline::picoammeters)
+		picoammeterButton_->setChecked(true);
+	else if(newSource == SGMBeamline::scaler)
+		scalerButton_->setChecked(true);
+}
+
+void SGMSidebar::onDetectorButtonsClicked(int buttonIndex){
+	SGMBeamline::sgm()->setDetectorSignalSource((SGMBeamline::sgmDetectorSignalSource)buttonIndex);
+}
+
+void SGMSidebar::onCurrentEndstationChanged(SGMBeamline::sgmEndstation newEndstation){
+	if(newEndstation == SGMBeamline::scienta)
+		scientaButton_->setChecked(true);
+	else if(newEndstation == SGMBeamline::ssa)
+		ssaButton_->setChecked(true);
+}
+
+void SGMSidebar::onEndstationButtonsClicked(int buttonIndex){
+	SGMBeamline::sgm()->setCurrentEndstation((SGMBeamline::sgmEndstation)buttonIndex);
+}
+
+void SGMSidebar::onScanningResetButtonClicked(){
+	SGMBeamline::sgm()->beamlineScanning()->move(0);
+}
+
 void SGMSidebar::onStripToolTimerTimeout(){
-	if(i0Model_->count() > 50){
+	if(i0Model_->count() <= 50) {
+		stripToolSpecialAxisScale_->setDataRange(MPlotAxisRange(-i0Model_->count(),0));	// would need to correct this if not doing exactly one model point per second
+	}
+	else {
 		i0Model_->removePointFront();
 		teyModel_->removePointFront();
 		tfyModel_->removePointFront();
@@ -254,4 +367,41 @@ void SGMSidebar::onStripToolTimerTimeout(){
 	pdSeries_->setDescription(QString("PD %1").arg(pdReading, 0, 'e', 2));
 	pdModel_->insertPointBack(stripToolCounter_, pdReading);
 	stripToolCounter_++;
+}
+
+void SGMSidebar::onBeamlineWarnings(const QString &newWarnings){
+	if(newWarnings.isEmpty() && warningAndPlotHL_->itemAt(0)->widget() == beamlineWarningsLabel_){
+		warningAndPlotHL_->removeWidget(beamlineWarningsLabel_);
+		beamlineWarningsLabel_->hide();
+		warningAndPlotHL_->addWidget(imageView_);
+		imageView_->show();
+	}
+	else if(warningAndPlotHL_->itemAt(0)->widget() == imageView_){
+		warningAndPlotHL_->removeWidget(imageView_);
+		imageView_->hide();
+		warningAndPlotHL_->addWidget(beamlineWarningsLabel_);
+		beamlineWarningsLabel_->show();
+	}
+}
+
+void SGMSidebar::onHVOnClicked(){
+	AMBeamlineActionItem* onAction = SGMBeamline::sgm()->createHV106OnActions();
+	connect(onAction, SIGNAL(succeeded()), this, SLOT(onHVOnSucceeded()));
+	onAction->start();
+}
+
+void SGMSidebar::onHVOffClicked(){
+	AMBeamlineActionItem* offAction = SGMBeamline::sgm()->createHV106OffActions();
+	connect(offAction, SIGNAL(succeeded()), this, SLOT(onHVOffSucceeded()));
+	offAction->start();
+}
+
+void SGMSidebar::onHVOnSucceeded(){
+	qDebug() << "Heard on action succeeded";
+	disconnect(QObject::sender(), 0, this, SLOT(onHVOnSucceeded()));
+}
+
+void SGMSidebar::onHVOffSucceeded(){
+	qDebug() << "Heard off action succeeded";
+	disconnect(QObject::sender(), 0, this, SLOT(onHVOffSucceeded()));
 }

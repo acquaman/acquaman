@@ -10,7 +10,6 @@ class VESPERSXASScanConfiguration : public AMXASScanConfiguration
 	Q_PROPERTY(int fluorescenceDetectorChoice READ fluorescenceDetectorChoice WRITE setFluorescenceDetectorChoice)
 	Q_PROPERTY(int transmissionChoice READ transmissionChoice WRITE setTransmissionChoice)
 	Q_PROPERTY(int incomingChoice READ incomingChoice WRITE setIncomingChoice)
-
 	Q_CLASSINFO("AMDbObject_Attributes", "description=VESPERS XAS Scan Configuration")
 
 public:

@@ -67,6 +67,8 @@ public:
 	/// This constructor is used to reload analysis blocks directly out of the database
 	Q_INVOKABLE AM1DExpressionAB(AMDatabase* db, int id);
 
+	QString infoDescription() const { return QString("(%1)").arg(expression()); }
+
 	/// Check if a set of inputs is valid. The empty list (no inputs) must always be valid. For non-empty lists, the requirements are...
 	/*! - the rank() of all the inputs is 1
 		- the size() of the inputs can be anything, although our output state() will go to Invalid whenever the sizes are not all matching.
