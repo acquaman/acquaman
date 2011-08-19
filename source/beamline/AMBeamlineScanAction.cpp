@@ -496,7 +496,7 @@ void AMBeamlineScanActionView::onMoveDownButtonClicked(){
 
 void AMBeamlineScanActionView::mouseDoubleClickEvent(QMouseEvent *){
 	// if we don't have a configuration view yet, try to create one.  (This might fail, if no default view is defined for this scan configuration.)
-	if(!configurationView_) {
+	if(!configurationView_)
 		configurationView_ = scanAction_->cfg()->createView();
 	if(configurationView_ == 0)
 		return;
