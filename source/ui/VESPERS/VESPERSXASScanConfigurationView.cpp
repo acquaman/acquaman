@@ -116,7 +116,7 @@ VESPERSXASScanConfigurationView::VESPERSXASScanConfigurationView(VESPERSXASScanC
 
 	// Scan name selection
 	scanName_ = new QLineEdit;
-	scanName_->setText("XAS-Scan");
+	scanName_->setText("XAS Scan");
 	connect(scanName_, SIGNAL(editingFinished()), this, SLOT(onScanNameEdited()));
 	onScanNameEdited();
 

@@ -226,15 +226,15 @@ void VESPERSBeamline::setupEndstation()
 
 void VESPERSBeamline::setupDetectors()
 {
-	amNames2pvNames_.set("IonChamberSplit", "BL1607-B2-1:AddOns:Isplit");
-	amNames2pvNames_.set("IonChamberPreKB", "BL1607-B2-1:mcs07:fbk");
-	amNames2pvNames_.set("IonChamberMini", "BL1607-B2-1:mcs08:fbk");
-	amNames2pvNames_.set("IonChamberPost", "BL1607-B2-1:mcs09:fbk");
+	amNames2pvNames_.set("Isplit", "BL1607-B2-1:AddOns:Isplit");
+	amNames2pvNames_.set("Iprekb", "BL1607-B2-1:mcs07:fbk");
+	amNames2pvNames_.set("Imini", "BL1607-B2-1:mcs08:fbk");
+	amNames2pvNames_.set("Ipost", "BL1607-B2-1:mcs09:fbk");
 
-	iSplitControl_ = new AMReadOnlyPVControl("IonChamberSplit", amNames2pvNames_.valueF("IonChamberSplit"), this, "Split Ion Chamber");
-	iPreKBControl_ = new AMReadOnlyPVControl("IonChamberPreKB", amNames2pvNames_.valueF("IonChamberPreKB"), this, "Pre-KB Ion Chamber");
-	iMiniControl_ = new AMReadOnlyPVControl("IonChamberMini", amNames2pvNames_.valueF("IonChamberMini"), this, "Mini Ion Chamber");
-	iPostControl_ = new AMReadOnlyPVControl("IonChamberPost", amNames2pvNames_.valueF("IonChamberPost"), this, "Post Sample Ion Chamber");
+	iSplitControl_ = new AMReadOnlyPVControl("Isplit", amNames2pvNames_.valueF("Isplit"), this, "Split Ion Chamber");
+	iPreKBControl_ = new AMReadOnlyPVControl("Iprekb", amNames2pvNames_.valueF("Iprekb"), this, "Pre-KB Ion Chamber");
+	iMiniControl_ = new AMReadOnlyPVControl("Imini", amNames2pvNames_.valueF("Imini"), this, "Mini Ion Chamber");
+	iPostControl_ = new AMReadOnlyPVControl("Ipost", amNames2pvNames_.valueF("Ipost"), this, "Post Sample Ion Chamber");
 
 	iSplit_ = new AMSingleControlDetector(iSplitControl_->name(), iSplitControl_, AMDetector::RequestRead, this);
 	iPreKB_ = new AMSingleControlDetector(iPreKBControl_->name(), iPreKBControl_, AMDetector::RequestRead, this);

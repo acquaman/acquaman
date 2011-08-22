@@ -10,7 +10,7 @@
 
 #include <QLineEdit>
 #include <QButtonGroup>
-
+#include <QDebug>
 class VESPERSXASScanConfigurationView : public AMScanConfigurationView
 {
 	Q_OBJECT
