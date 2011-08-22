@@ -464,6 +464,8 @@ public slots:
 protected slots:
 	/// Determines is currently active on startup.  Also keeps track if the beam is changed outside of Acquaman.  Beam is set to None is if not inside any of the tolerances for the known beam positions.
 	void determineBeam();
+	/// Helper slot to determine what the beam is on startup.
+	void onBeamSelectionMotorConnected() { disconnect(beamSelectionMotor_, SIGNAL(valueChanged(double)), this, SLOT(onBeamSelectionMotorConnected())); determineBeam(); }
 
 	/// Sets up any connections for the pressure controls once the whole set is connected.  Also checks if there are any errors with everything started up.
 	void pressureConnected(bool connected);
@@ -554,7 +556,7 @@ protected:
 	// Pointer to the motor that controls which beam makes it down the beamline.
 	AMControl *beamSelectionMotor_;
 	// Look up table with the beam and its position.
-	QHash<Beam, int> beamPositions_;
+	QHash<Beam, double> beamPositions_;
 
 	// End of Beam selection members.
 

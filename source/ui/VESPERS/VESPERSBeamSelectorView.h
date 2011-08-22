@@ -34,6 +34,9 @@ protected slots:
 	/// Handles the clean up after changing beams.
 	void onBeamChangeCompleted() { progressBar_->hide(); }
 
+	/// Handles updating the progress bar as the motor is moving.
+	void onProgressUpdate(double current, double end);
+
 protected:
 	/// Button group containing all the buttons to the different beams.
 	QButtonGroup *beams_;

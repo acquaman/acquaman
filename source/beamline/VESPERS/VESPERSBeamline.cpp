@@ -431,14 +431,14 @@ void VESPERSBeamline::setupMono()
 	synchronizedDwellTime_->addElement(3);
 	synchronizedDwellTime_->addElement(4);
 
-	/// \todo THESE ARE CURRENTLY IN STEPS!!!! THEY NEED TO BE TURNED INTO ENGINEERING UNITS ONCE I DOUBLE CHECK THEM.
-	beamPositions_.insert(Pink, -54278);
-	beamPositions_.insert(TenPercent, -103803);
-	beamPositions_.insert(Si, -123612);
-	beamPositions_.insert(OnePointSixPercent, -143422);
+	beamPositions_.insert(Pink, 0);
+	beamPositions_.insert(TenPercent, -12.5);
+	beamPositions_.insert(Si, -17.5);
+	beamPositions_.insert(OnePointSixPercent, -22.5);
 
 	beamSelectionMotor_ = new CLSVMEMotor("MonoBeamSelectionMotor", "SMTR1607-1-B20-21", "Motor that controls which beam makes it down the pipe.", false, 0.1, 2.0, this);
-	connect(beamSelectionMotor_, SIGNAL(movingChanged(bool)), this, SLOT(determineBeam(bool)));
+	connect(beamSelectionMotor_, SIGNAL(movingChanged(bool)), this, SLOT(determineBeam()));
+	connect(beamSelectionMotor_, SIGNAL(valueChanged(double)), this, SLOT(onBeamSelectionMotorConnected()));
 }
 
 AMBeamlineActionItem *VESPERSBeamline::createBeamChangeAction(Beam beam)

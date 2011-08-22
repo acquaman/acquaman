@@ -121,7 +121,7 @@ bool VESPERSXASDacqScanController::startImplementation()
 
 	advAcq_->saveConfigFile("/home/hunterd/beamline/programming/acquaman/devConfigurationFiles/VESPERS/writeTest.cfg");
 
-	return AMDacqScanController::startImplementation();
+	return false; //return AMDacqScanController::startImplementation();
 }
 
 AMnDIndex VESPERSXASDacqScanController::toScanIndex(QMap<int, double> aeData)
@@ -131,14 +131,14 @@ AMnDIndex VESPERSXASDacqScanController::toScanIndex(QMap<int, double> aeData)
 
 void VESPERSXASDacqScanController::onInitializationActionsSucceeded()
 {
-	/// \todo how do we get here?  why is this here?
+
 	setInitialized();
 }
 
 void VESPERSXASDacqScanController::onInitializationActionsFailed(int explanation)
 {
 	Q_UNUSED(explanation)
-	/// \todo how do we get here? why is this here?
+
 	setFailed();
 }
 
