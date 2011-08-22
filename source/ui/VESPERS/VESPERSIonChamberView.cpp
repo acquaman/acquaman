@@ -25,7 +25,7 @@ VESPERSIonChamberView::VESPERSIonChamberView(VESPERSIonChamber *ionChamber, QWid
 	connect(ionChamber_, SIGNAL(voltageChanged(double)), voltage, SLOT(setNum(double)));
 
 	QHBoxLayout *layout = new QHBoxLayout;
-	layout->addWidget(name, 0, Qt::AlignCenter);
+	layout->addWidget(name, 0, Qt::AlignLeft);
 	layout->addWidget(value_, 0, Qt::AlignCenter);
 	layout->addWidget(units_, 0, Qt::AlignCenter);
 	layout->addWidget(voltage, 0, Qt::AlignCenter);
@@ -114,7 +114,7 @@ VESPERSSplitIonChamberView::VESPERSSplitIonChamberView(VESPERSSplitIonChamber *i
 	voltageLayout->addWidget(voltageB, 0, Qt::AlignCenter);
 
 	QHBoxLayout *layout = new QHBoxLayout;
-	layout->addWidget(name, 0, Qt::AlignCenter);
+	layout->addWidget(name, 0, Qt::AlignLeft);
 	layout->addWidget(value_, 0, Qt::AlignCenter);
 	layout->addWidget(units_, 0, Qt::AlignCenter);
 	layout->addLayout(voltageLayout);

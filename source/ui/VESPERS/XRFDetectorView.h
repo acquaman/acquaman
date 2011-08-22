@@ -106,9 +106,9 @@ protected slots:
 	/// Handles setting the combo box is the status is changed by another program.
 	void onUpdateRateChanged(int index)
 	{
-		disconnect(updateRate_, SIGNAL(currentIndexChanged(int)), this, SLOT(onComboBoxUpdate(int)));
+		updateRate_->blockSignals(true);
 		updateRate_->setCurrentIndex(index);
-		connect(updateRate_, SIGNAL(currentIndexChanged(int)), this, SLOT(onComboBoxUpdate(int)));
+		updateRate_->blockSignals(false);
 	}
 	/// Handles when the log scale button is clicked.  It takes a log of the data if true.
 	void onLogEnabled(bool logged);
