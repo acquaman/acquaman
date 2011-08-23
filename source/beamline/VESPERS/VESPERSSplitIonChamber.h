@@ -92,7 +92,7 @@ public slots:
 		if (sensitivityUnitsOkay(units)){
 
 			sensitivityUnitsA_->setValue(units);
-			sensitivityUnitsA_->setValue(units);
+			sensitivityUnitsB_->setValue(units);
 		}
 	}
 

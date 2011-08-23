@@ -20,6 +20,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "VESPERSBeamline.h"
 #include "beamline/CLS/CLSVMEMotor.h"
 #include "beamline/AMSingleControlDetector.h"
+#include "beamline/AMBeamlineControlMoveAction.h"
+#include "beamline/AMBeamlineParallelActionsList.h"
+#include "beamline/AMBeamlineListAction.h"
+
 
 VESPERSBeamline::VESPERSBeamline()
 	: AMBeamline("VESPERS Beamline")
@@ -222,15 +226,15 @@ void VESPERSBeamline::setupEndstation()
 
 void VESPERSBeamline::setupDetectors()
 {
-	amNames2pvNames_.set("IonChamberSplit", "BL1607-B2-1:AddOns:Isplit");
-	amNames2pvNames_.set("IonChamberPreKB", "BL1607-B2-1:mcs07:fbk");
-	amNames2pvNames_.set("IonChamberMini", "BL1607-B2-1:mcs08:fbk");
-	amNames2pvNames_.set("IonChamberPost", "BL1607-B2-1:mcs09:fbk");
+	amNames2pvNames_.set("Isplit", "BL1607-B2-1:AddOns:Isplit");
+	amNames2pvNames_.set("Iprekb", "BL1607-B2-1:mcs07:fbk");
+	amNames2pvNames_.set("Imini", "BL1607-B2-1:mcs08:fbk");
+	amNames2pvNames_.set("Ipost", "BL1607-B2-1:mcs09:fbk");
 
-	iSplitControl_ = new AMReadOnlyPVControl("IonChamberSplit", amNames2pvNames_.valueF("IonChamberSplit"), this, "Split Ion Chamber");
-	iPreKBControl_ = new AMReadOnlyPVControl("IonChamberPreKB", amNames2pvNames_.valueF("IonChamberPreKB"), this, "Pre-KB Ion Chamber");
-	iMiniControl_ = new AMReadOnlyPVControl("IonChamberMini", amNames2pvNames_.valueF("IonChamberMini"), this, "Mini Ion Chamber");
-	iPostControl_ = new AMReadOnlyPVControl("IonChamberPost", amNames2pvNames_.valueF("IonChamberPost"), this, "Post Sample Ion Chamber");
+	iSplitControl_ = new AMReadOnlyPVControl("Isplit", amNames2pvNames_.valueF("Isplit"), this, "Split Ion Chamber");
+	iPreKBControl_ = new AMReadOnlyPVControl("Iprekb", amNames2pvNames_.valueF("Iprekb"), this, "Pre-KB Ion Chamber");
+	iMiniControl_ = new AMReadOnlyPVControl("Imini", amNames2pvNames_.valueF("Imini"), this, "Mini Ion Chamber");
+	iPostControl_ = new AMReadOnlyPVControl("Ipost", amNames2pvNames_.valueF("Ipost"), this, "Post Sample Ion Chamber");
 
 	iSplit_ = new AMSingleControlDetector(iSplitControl_->name(), iSplitControl_, AMDetector::RequestRead, this);
 	iPreKB_ = new AMSingleControlDetector(iPreKBControl_->name(), iPreKBControl_, AMDetector::RequestRead, this);
@@ -247,7 +251,7 @@ void VESPERSBeamline::setupDetectors()
 	ionChamberCalibration_->addSplitIonChamber(new VESPERSSplitIonChamber("Split", "PS1607-201:c2:Voltage", "AMP1607-202", "AMP1607-203", "BL1607-B2-1:mcs05:userRate", "BL1607-B2-1:mcs06:userRate", "BL1607-B2-1:mcs05:fbk", "BL1607-B2-1:mcs06:fbk", this));
 	ionChamberCalibration_->addIonChamber(new VESPERSIonChamber("Pre-KB", "PS1607-202:c1:Voltage", "AMP1607-204", "BL1607-B2-1:mcs07:userRate", "BL1607-B2-1:mcs07:fbk", this));
 	ionChamberCalibration_->addIonChamber(new VESPERSIonChamber("Mini", "PS1607-202:c2:Voltage", "AMP1607-205", "BL1607-B2-1:mcs08:userRate", "BL1607-B2-1:mcs08:fbk", this));
-	ionChamberCalibration_->addIonChamber(new VESPERSIonChamber("Post Sample", "PS1607-203:c1:Voltage", "AMP1607-206", "BL1607-B2-1:mcs09:userRate", "BL1607-B2-1:mcs09:fbk", this));
+	ionChamberCalibration_->addIonChamber(new VESPERSIonChamber("Post", "PS1607-203:c1:Voltage", "AMP1607-206", "BL1607-B2-1:mcs09:userRate", "BL1607-B2-1:mcs09:fbk", this));
 
 	vortex1E_ = new XRFDetector("1-el Vortex", 1, "IOC1607-004", this);
 	connect(vortexXRF1E(), SIGNAL(detectorConnected(bool)), this, SLOT(singleElVortexError(bool)));
@@ -427,7 +431,68 @@ void VESPERSBeamline::setupMono()
 	synchronizedDwellTime_->addElement(3);
 	synchronizedDwellTime_->addElement(4);
 
-	beamSelector_ = new VESPERSBeamSelector(this);
+	beamPositions_.insert(Pink, 0);
+	beamPositions_.insert(TenPercent, -12.5);
+	beamPositions_.insert(Si, -17.5);
+	beamPositions_.insert(OnePointSixPercent, -22.5);
+
+	beamSelectionMotor_ = new CLSVMEMotor("MonoBeamSelectionMotor", "SMTR1607-1-B20-21", "Motor that controls which beam makes it down the pipe.", false, 0.1, 2.0, this);
+	connect(beamSelectionMotor_, SIGNAL(movingChanged(bool)), this, SLOT(determineBeam()));
+	connect(beamSelectionMotor_, SIGNAL(valueChanged(double)), this, SLOT(onBeamSelectionMotorConnected()));
+}
+
+AMBeamlineActionItem *VESPERSBeamline::createBeamChangeAction(Beam beam)
+{
+	// If we are already at the new beam position and the internal state of the beam is the same, then don't do anything.
+	if (beam_ == beam && beamSelectionMotor_->withinTolerance(beamPositions_.value(beam)))
+		return 0;
+
+	// To change beams, it is either a two or three stage process.
+	/*
+		First: Turn off the ability to scan.  This ensures that the mono motor doesn't swing wildly around while switching between beams.
+		Second: Move to the chosen beam.
+		Third (if applicable): If the new beam is a monochromatic beam, turn on the ability to scan the energy.
+	 */
+	AMBeamlineParallelActionsList *changeBeamActionsList = new AMBeamlineParallelActionsList;
+	AMBeamlineListAction *changeBeamAction = new AMBeamlineListAction(changeBeamActionsList);
+
+	changeBeamActionsList->appendStage(new QList<AMBeamlineActionItem*>());
+	changeBeamActionsList->appendAction(0, mono()->createAllowScanningAction(false));
+
+	changeBeamActionsList->appendStage(new QList<AMBeamlineActionItem*>());
+	AMBeamlineControlMoveAction *moveBeamAction = new AMBeamlineControlMoveAction(beamSelectionMotor());
+	moveBeamAction->setSetpoint(beamPositions_.value(beam));
+	changeBeamActionsList->appendAction(1, moveBeamAction);
+
+	if (beam != Pink){
+
+		changeBeamActionsList->appendStage(new QList<AMBeamlineActionItem*>());
+		changeBeamActionsList->appendAction(2, mono()->createAllowScanningAction(true));
+	}
+
+	return changeBeamAction;
+}
+
+void VESPERSBeamline::determineBeam()
+{
+	Beam temp;
+
+	if (beamSelectionMotor_->withinTolerance(beamPositions_.value(Pink)))
+		temp = Pink;
+	else if (beamSelectionMotor_->withinTolerance(beamPositions_.value(TenPercent)))
+		temp = TenPercent;
+	else if (beamSelectionMotor_->withinTolerance(beamPositions_.value(OnePointSixPercent)))
+		temp = OnePointSixPercent;
+	else if (beamSelectionMotor_->withinTolerance(beamPositions_.value(Si)))
+		temp = Si;
+	else
+		temp = None;
+
+	if (temp != beam_){
+
+		beam_ = temp;
+		emit currentBeamChanged(beam_);
+	}
 }
 
 void VESPERSBeamline::pressureConnected(bool connected)

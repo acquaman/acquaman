@@ -77,6 +77,7 @@ CLSSynchronizedDwellTimeView::CLSSynchronizedDwellTimeView(CLSSynchronizedDwellT
 	mode_->setCheckable(true);
 	mode_->setChecked(false);
 	connect(dwellTime_, SIGNAL(modeChanged(CLSSynchronizedDwellTime::Mode)), this, SLOT(onModeChanged(CLSSynchronizedDwellTime::Mode)));
+	connect(mode_, SIGNAL(toggled(bool)), this, SLOT(setMode(bool)));
 
 	masterTime_ = new QDoubleSpinBox;
 	masterTime_->setDecimals(2);
@@ -86,6 +87,7 @@ CLSSynchronizedDwellTimeView::CLSSynchronizedDwellTimeView(CLSSynchronizedDwellT
 	masterTime_->setSuffix(" s");
 	masterTime_->setAlignment(Qt::AlignCenter);
 	connect(dwellTime_, SIGNAL(timeChanged(double)), masterTime_, SLOT(setValue(double)));
+	connect(masterTime_, SIGNAL(editingFinished()), this, SLOT(setTime()));
 
 	QHBoxLayout *topRow = new QHBoxLayout;
 	topRow->addWidget(overallStatus_, 0, Qt::AlignCenter);
@@ -110,10 +112,9 @@ CLSSynchronizedDwellTimeView::CLSSynchronizedDwellTimeView(CLSSynchronizedDwellT
 
 void CLSSynchronizedDwellTimeView::setTime()
 {
-	double newTime = masterTime_->value();
-
-	if (newTime != dwellTime_->time())
-		dwellTime_->setTime(newTime);
+	dwellTime_->blockSignals(true);
+	dwellTime_->setTime(masterTime_->value());
+	dwellTime_->blockSignals(false);
 }
 
 void CLSSynchronizedDwellTimeView::setMode(bool mode)
