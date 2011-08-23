@@ -39,10 +39,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/AMBiHash.h"
 
-#include "util/AMErrorMonitor.h"
-
-#include "util/AMBiHash.h"
-
 /// This class is the master class that holds EVERY control inside the VESPERS beamline.
 class VESPERSBeamline : public AMBeamline
 {
