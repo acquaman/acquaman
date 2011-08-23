@@ -7,10 +7,11 @@
 #include "ui/AMRegionsLineView.h"
 #include "acquaman/VESPERS/VESPERSXASDacqScanController.h"
 #include "acquaman/VESPERS/VESPERSXASScanConfiguration.h"
+#include "beamline/VESPERS/VESPERSBeamline.h"
 
 #include <QLineEdit>
 #include <QButtonGroup>
-#include <QDebug>
+#include <QDoubleSpinBox>
 
 class VESPERSXASScanConfigurationView : public AMScanConfigurationView
 {
@@ -33,6 +34,10 @@ protected slots:
 	void onItClicked(int id);
 	/// Passes on the selection for I0 to the configuration.
 	void onI0Clicked(int id) { config_->setIncomingChoice(id); }
+	/// Sets the new energy.
+	void setEnergy() { VESPERSBeamline::vespers()->mono()->setEo(energy_->value()); }
+	/// Handles changes to the energy from outside the program.
+	void onEnergyChanged(double energy) { energy_->blockSignals(true); energy_->setValue(energy); energy_->blockSignals(false); }
 
 protected:
 	/// Pointer to the specific scan config the view is modifying.
@@ -45,6 +50,8 @@ protected:
 
 	/// Line edit for changing the name of the scan.
 	QLineEdit *scanName_;
+	/// Double spin box for changing the energy.
+	QDoubleSpinBox *energy_;
 
 	/// Button group for the It ion chamber selection.
 	QButtonGroup *ItGroup_;

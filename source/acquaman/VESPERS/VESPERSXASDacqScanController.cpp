@@ -36,6 +36,9 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 			xasScan_->rawData()->addMeasurement(AMMeasurementInfo(detector->roiInfoList()->at(i).name().remove(" "), detector->roiInfoList()->at(i).name()));
 			xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), i+2));
 		}
+
+		xasScan_->rawData()->addMeasurement(AMMeasurementInfo(VESPERSBeamline::vespers()->vortexXRF1E()->toXRFInfo()));
+		xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), xasScan_->rawData()->measurementCount()-1));
 	}
 	else if (config_->fluorescenceDetectorChoice() == VESPERSXASScanConfiguration::FourElement){
 
@@ -222,6 +225,8 @@ bool VESPERSXASDacqScanController::setupSingleElementXAS()
 
 	for (int i = 0; i < roiCount; i++)
 		advAcq_->appendRecord("IOC1607-004:mca1.R"+QString::number(i), true, false, 1);
+
+	advAcq_->appendRecord("IOC1607-004:mca1", true, true, 1);
 
 	for (int i = 0; i < ionChambers->count(); i++)
 		if (i != (int)config_->incomingChoice() && i != (int)config_->transmissionChoice())

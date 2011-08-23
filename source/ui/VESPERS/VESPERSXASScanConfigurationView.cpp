@@ -1,5 +1,4 @@
 #include "VESPERSXASScanConfigurationView.h"
-#include "beamline/VESPERS/VESPERSBeamline.h"
 #include "ui/AMTopFrame.h"
 
 #include <QGridLayout>
@@ -123,12 +122,24 @@ VESPERSXASScanConfigurationView::VESPERSXASScanConfigurationView(VESPERSXASScanC
 	QFormLayout *scanNameLayout = new QFormLayout;
 	scanNameLayout->addRow("Scan Name:", scanName_);
 
+	// Energy (Eo) selection
+	energy_ = new QDoubleSpinBox;
+	energy_->setSuffix(" eV");
+	energy_->setMinimum(0);
+	energy_->setMaximum(30000);
+	connect(energy_, SIGNAL(editingFinished()), this, SLOT(setEnergy()));
+	connect(VESPERSBeamline::vespers()->mono(), SIGNAL(EoChanged(double)), this, SLOT(onEnergyChanged(double)));
+
+	QFormLayout *energyLayout = new QFormLayout;
+	energyLayout->addRow("Energy:", energy_);
+
 	QGridLayout *contentsLayout = new QGridLayout;
 	contentsLayout->addWidget(regionsLineView_, 0, 0, 1, 4, Qt::AlignCenter);
 	contentsLayout->addWidget(regionsView_, 1, 0, 1, 3);
-	contentsLayout->addWidget(fluorescenceDetectorGroupBox, 1, 3, 1, 1);
-	contentsLayout->addLayout(scanNameLayout, 2, 0, Qt::AlignLeft);
-	contentsLayout->addWidget(ionChambersGroupBox, 2, 3, 1, 1);
+	contentsLayout->addWidget(fluorescenceDetectorGroupBox, 1, 3);
+	contentsLayout->addLayout(scanNameLayout, 2, 0);
+	contentsLayout->addLayout(energyLayout, 3, 0);
+	contentsLayout->addWidget(ionChambersGroupBox, 2, 3);
 
 	QVBoxLayout *configViewLayout = new QVBoxLayout;
 	configViewLayout->addWidget(frame);
