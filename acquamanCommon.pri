@@ -378,7 +378,8 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/beamline/CLS/CLSSynchronizedDwellTime.h \
 	source/dataman/AMXYScatterPVDataSource.h \
 	source/beamline/AMCompositeControl.h \
-	source/ui/CLS/CLSSynchronizedDwellTimeView.h
+	source/ui/CLS/CLSSynchronizedDwellTimeView.h \
+    source/analysis/AM2DDeadTimeAB.h
 
 CONFIG(mobility) {
 HEADERS +=	source/ui/AMCrosshairOverlayVideoWidget.h \
@@ -629,7 +630,8 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/beamline/CLS/CLSSynchronizedDwellTime.cpp \
 	source/dataman/AMXYScatterPVDataSource.cpp \
 	source/beamline/AMCompositeControl.cpp \
-	source/ui/CLS/CLSSynchronizedDwellTimeView.cpp
+	source/ui/CLS/CLSSynchronizedDwellTimeView.cpp \
+    source/analysis/AM2DDeadTimeAB.cpp
 
 CONFIG(mobility) {
 SOURCES +=	source/ui/AMOverlayVideoWidget.cpp \

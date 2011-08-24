@@ -56,23 +56,8 @@ SGM2011XASFileLoader::SGM2011XASFileLoader(AMXASScan *scan) :
 		columns2pvNames_.set("OceanOptics65000", "SA0000-03:DarkCorrectedSpectra");
 	}
 
-	/*
-	AMAxisInfo sddEVAxisInfo("energy", 1024, "SDD Energy", "eV");
-	QList<AMAxisInfo> sddAxes;
-	sddAxes << sddEVAxisInfo;
-	AMMeasurementInfo sddInfo("SDD", "Silicon Drift Detector", "counts", sddAxes);
-	offsets2MeasurementInfos_.set("SDD", sddInfo);
-
-	AMAxisInfo oosWavelengthAxisInfo("wavelength", 1024, "Wavelength", "nm");
-	QList<AMAxisInfo> oosAxes;
-	oosAxes << oosWavelengthAxisInfo;
-	AMMeasurementInfo oosInfo("OceanOptics65000", "OceanOptics 65000", "counts", oosAxes);
-	offsets2MeasurementInfos_.set("OceanOptics65000", oosInfo);
-	*/
-	/**/
 	offsets2MeasurementInfos_ << "SDD";
 	offsets2MeasurementInfos_ << "OceanOptics65000";
-	/**/
 
 	defaultUserVisibleColumns_ << "TEY";
 	defaultUserVisibleColumns_ << "TFY";
@@ -235,6 +220,7 @@ bool SGM2011XASFileLoader::loadFromFile(const QString& filepath, bool setMetaDat
 			int measurementId = 0;
 			int offsetId = 0;
 			for(int i=1; i<colNames1.count(); i++) {
+				// Save the initial offsets for each of the spectra saved in the spectra file
 				if(offsetColumns.contains(i)){
 					initialFileOffsets[offsetId++].append(lp.at(i).toDouble());
 					measurementId++;
@@ -249,6 +235,7 @@ bool SGM2011XASFileLoader::loadFromFile(const QString& filepath, bool setMetaDat
 		}
 	}
 
+	//Check for a spectraFile, load it if we can
 	if(spectraFile != ""){
 		//QFile sf(spectraFile);
 		QFile sf(spectraFileInfo.filePath());
@@ -259,6 +246,10 @@ bool SGM2011XASFileLoader::loadFromFile(const QString& filepath, bool setMetaDat
 
 		qDebug() << "Playing the spectra game, raw data measurement count is " << scan->rawData()->measurementCount();
 		//Prep the list of start and end bytes
+		// The initialFileOffsets is a list of lists of ints. The first list is the start offsets for the first spectra
+		//  This is not enough, as we as need the end (need to read from start to end). End is the start of the next spectra.
+		//  Just need to grab start and end (only problem is the last list needs the next point in the first list)
+		//  Saved into fileOffsets, which are pairs of start and end values (much easier to use)
 		int myStart, myEnd;
 		for(int x = 0; x < initialFileOffsets.at(0).count(); x++){
 			for(int y = 0; y < initialFileOffsets.count(); y++){
@@ -276,14 +267,22 @@ bool SGM2011XASFileLoader::loadFromFile(const QString& filepath, bool setMetaDat
 		}
 
 		int startByte, endByte;
+		// We know the scan size ahead of time (how many points in this XAS scan)
 		int scanSize = scan->rawData()->scanSize(0);
+		//
 		QList<double*> allSpecValues;
+		//
 		QList<int> allSpecSizes;
+		//
 		QList<int> allSpecCounters;
+		// Loop over all of the offset columns we found:
+		//  Append the size of each particular spectrum to the list of spectrum sizes (whether its 1024, or 2048 or something else)
+		//  Alloc a double array of that size and append it to the list of spectrum values
+		//  Start each spectrum counter at 0
 		for(int x = 0; x < offsetColumns.count(); x++){
 			qDebug() << "x is " << x << " means column is " << offsetColumns.at(x)-2;
 			qDebug() << "means size is " << scan->rawData()->measurementAt(offsetColumns.at(x)-2).size(0);
-			//allSpecSizes.append(scan->rawData()->measurementAt(offsetColumns.at(x)).size(0));
+
 			//Offset two columns for event-ID and eV
 			allSpecSizes.append(scan->rawData()->measurementAt(offsetColumns.at(x)-2).size(0));
 			double* theseSpecValues = new double[allSpecSizes.last()];
@@ -291,16 +290,19 @@ bool SGM2011XASFileLoader::loadFromFile(const QString& filepath, bool setMetaDat
 			allSpecCounters.append(0);
 		}
 
+		// Loop over the number of points in this scan
 		for(int x = 0; x < scanSize; x++){
+			// Loop over all of the spectrums we found offsets for
 			for(int y = 0; y < allSpecValues.count(); y++){
+				// Grab the start and end bytes from the fileOffsets ... only a problem for the last item
 				startByte = fileOffsets.at(y).at(x).first;
 				endByte = fileOffsets.at(y).at(x).second;
 				if(endByte == -1){
-					//endByte = startByte + fileOffsets.at(y).at(x-1).second - fileOffsets.at(y).at(x-1).first;
 					endByte = spectraFileInfo.size();
 					qDebug() << "Old way says " << endByte << " info way says " << spectraFileInfo.size();
 				}
 
+				// Grab the text from the specified start to end and put it into a QByteArray
 				sf.seek(startByte);
 				QByteArray row = sf.read( (qint64)(endByte-startByte) );
 
@@ -310,12 +312,12 @@ bool SGM2011XASFileLoader::loadFromFile(const QString& filepath, bool setMetaDat
 				bool isDouble = false;
 				QString word;
 				word.reserve(12);
+				// Loop over the number of bytes in the row
 				for(int rowb = 0; rowb<rowLength; rowb++) {
 					char c = row.at(rowb);
 					if(c == ' ' || c == ',') {
-						// the end of a word
+						// the end of a word, so convert the value to a double or an int and place it in the list of spectrum values
 						if(insideWord) {
-							//if( (specCounter < sddSize) && (!isDouble) )
 							if( (allSpecCounters[y] < allSpecSizes.at(y)) && (!isDouble) )
 								(allSpecValues[y])[allSpecCounters[y]++] = word.toInt();
 							else if( (allSpecCounters[y] < allSpecSizes.at(y)) && (isDouble) )
@@ -326,6 +328,7 @@ bool SGM2011XASFileLoader::loadFromFile(const QString& filepath, bool setMetaDat
 						}
 					}
 					else {
+						// Still inside a word to append the byte
 						if(c == '.')
 							isDouble = true;
 						word.append(c);
@@ -339,15 +342,13 @@ bool SGM2011XASFileLoader::loadFromFile(const QString& filepath, bool setMetaDat
 						(allSpecValues[y])[allSpecCounters[y]++] = word.toDouble();
 				}
 
-				// By now we should have specCounter = sddSize. If there wasn't sufficient values in the spectra file to fill the whole measurement array...
+				// By now we should have specCounter[i] = specSize[i]. If there wasn't sufficient values in the spectra file to fill the whole measurement array...
 				if(allSpecCounters[y] < allSpecSizes.at(y))
 					memset( allSpecValues[y]+allSpecCounters[y], 0,  (allSpecSizes.at(y)-allSpecCounters[y])*sizeof(double));
 
 				// insert the detector values (all at once, for performance)
-				//scan->rawData()->setValue(x, offsetColumns.at(y), allSpecValues[y], allSpecSizes.at(y));
 				//offset two columns for event-ID and eV
 				scan->rawData()->setValue(x, offsetColumns.at(y)-2, allSpecValues[y], allSpecSizes.at(y));
-				//scan->rawData()->setValue(x, sddMeasurementId, specValues, sddSize);
 				// Check specCounter is the right size... Not too big, not too small.
 				if(allSpecCounters.at(y) != allSpecSizes.at(y)) {
 					AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -1, QString("SGM2011XASFileLoader found corrupted data in the SDD spectra file '%1' on row %2. There should be %3 elements in the spectra, but we only found %4").arg(spectraFile).arg(x).arg(allSpecSizes.at(y)).arg(allSpecCounters.at(y))));
