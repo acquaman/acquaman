@@ -55,7 +55,6 @@ SGMXASScanController::SGMXASScanController(SGMXASScanConfiguration *cfg){
 	pScan_()->setName(QString("%1 - %2").arg(sampleName).arg(scanName));
 
 	// Create space in raw data store, and create raw data channels, for each detector.
-
 	for(int i = 0; i < pCfg_()->allDetectorConfigurations().count(); i++){
 		AMDetectorInfo* detectorInfo = pCfg_()->allDetectorConfigurations().detectorInfoAt(i);
 		if(pCfg_()->allDetectorConfigurations().isActiveAt(i)){
