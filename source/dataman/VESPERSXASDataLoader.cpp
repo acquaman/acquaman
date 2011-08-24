@@ -26,14 +26,6 @@ bool VESPERSXASDataLoader::loadFromFile(const QString &filepath, bool setMetaDat
 		return false;
 	}
 
-	/*VESPERSXASScanConfiguration *config = qobject_cast<VESPERSXASScanConfiguration *>(scan->scanConfiguration());
-
-	if (!config){
-
-		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, 0, "VESPERS XAS File Loader: Scan does not have a valid scan configuration."));
-		return false;
-	}*/
-
 	QFile file(filepath);
 	if(!file.open(QIODevice::ReadOnly)) {
 		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -1, "XASFileLoader parse error while loading scan data from file."));
@@ -45,8 +37,41 @@ bool VESPERSXASDataLoader::loadFromFile(const QString &filepath, bool setMetaDat
 	QStringList lineTokenized;
 	QVector<double> data;
 
-	// Don't care about the info in the header.  All of the important stuff should already be in the database.
-	while((line = in.readLine()).contains("#"));
+	// Need to determine if the single element or four element vortex detector was used.  Also need to determine which ion chambers were used for I0 and It.
+	// First two lines are useless.
+	in.readLine();
+	in.readLine();
+
+	line = in.readLine();
+
+	bool usingSingleEl = line.contains("IOC1607-004");
+	bool usingFourEl = line.contains("dxp1607-B21-04");
+
+	lineTokenized = line.split(", ");
+
+	QString i0(lineTokenized.at(2));
+	QString it(lineTokenized.at(3));
+
+	if (i0.contains("Isplit"))
+		i0 = "Isplit";
+	else if (i0.contains("mcs07"))
+		i0 = "Iprekb";
+	else if (i0.contains("mcs08"))
+		i0 = "Imini";
+	else
+		return false;
+
+	if (it.contains("mcs07"))
+		it = "Isplit";
+	else if (it.contains("mcs08"))
+		it = "Iprekb";
+	else if (it.contains("mcs09"))
+		it = "Imini";
+	else
+		return false;
+
+
+	in.readLine();
 
 	// Clear any old data so we can start fresh.
 	scan->clearRawDataPointsAndMeasurements();
@@ -54,12 +79,11 @@ bool VESPERSXASDataLoader::loadFromFile(const QString &filepath, bool setMetaDat
 	// Some setup variables.
 	int axisValueIndex = 0;
 
-	/*switch(config->fluorescenceDetectorChoice()){
+	// If both are false, then we are in pure transmission mode.
+	if (!usingSingleEl && !usingFourEl){
 
-	case VESPERSXASScanConfiguration::None:
-
-		scan_->rawData()->addMeasurement(AMMeasurementInfo("I0", config->ionChamberName(config->incomingChoice())));
-		scan_->rawData()->addMeasurement(AMMeasurementInfo("It", config->ionChamberName(config->transmissionChoice())));
+		//scan_->rawData()->addMeasurement(AMMeasurementInfo("I0";
+		//scan_->rawData()->addMeasurement(AMMeasurementInfo("It", ));
 
 		while (!in.atEnd()){
 
@@ -76,16 +100,18 @@ bool VESPERSXASDataLoader::loadFromFile(const QString &filepath, bool setMetaDat
 
 			axisValueIndex++;
 		}
+	}
 
-		break;
+	else if (usingSingleEl){
 
-	case VESPERSXASScanConfiguration::SingleElement:
-		break;
+	}
 
-	case VESPERSXASScanConfiguration::FourElement:
-		break;
+	else if (usingFourEl){
 
-	default:
+	}
+
+	else{
+
 		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -1, "XASFileLoader parse error while loading scan data from file. Invalid configuration."));
 		return false;
 	}
