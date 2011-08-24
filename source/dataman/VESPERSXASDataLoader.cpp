@@ -2,7 +2,6 @@
 
 #include "util/AMErrorMonitor.h"
 #include "analysis/AM1DExpressionAB.h"
-#include "acquaman/VESPERS/VESPERSXASScanConfiguration.h"
 
 #include <QFile>
 #include <QTextStream>
@@ -27,13 +26,13 @@ bool VESPERSXASDataLoader::loadFromFile(const QString &filepath, bool setMetaDat
 		return false;
 	}
 
-	VESPERSXASScanConfiguration *config = qobject_cast<VESPERSXASScanConfiguration *>(scan->scanConfiguration());
+	/*VESPERSXASScanConfiguration *config = qobject_cast<VESPERSXASScanConfiguration *>(scan->scanConfiguration());
 
 	if (!config){
 
 		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, 0, "VESPERS XAS File Loader: Scan does not have a valid scan configuration."));
 		return false;
-	}
+	}*/
 
 	QFile file(filepath);
 	if(!file.open(QIODevice::ReadOnly)) {
@@ -55,7 +54,7 @@ bool VESPERSXASDataLoader::loadFromFile(const QString &filepath, bool setMetaDat
 	// Some setup variables.
 	int axisValueIndex = 0;
 
-	switch(config->fluorescenceDetectorChoice()){
+	/*switch(config->fluorescenceDetectorChoice()){
 
 	case VESPERSXASScanConfiguration::None:
 
@@ -97,6 +96,6 @@ bool VESPERSXASDataLoader::loadFromFile(const QString &filepath, bool setMetaDat
 	transmission->setExpression(QString("ln(%1/%2)").arg(scan->rawDataSources()->at(0)->name()).arg(scan->rawDataSources()->at(1)->name()));
 
 	scan->addAnalyzedDataSource(transmission);
-
+*/
 	return true;
 }
