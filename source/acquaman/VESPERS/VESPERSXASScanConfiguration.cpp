@@ -10,6 +10,7 @@ VESPERSXASScanConfiguration::VESPERSXASScanConfiguration(QObject *parent)
 	fluorescenceDetectorChoice_ = FourElement;
 	It_ = Ipost;
 	I0_ = Imini;
+	roiCount_ = 0;
 }
 
 VESPERSXASScanConfiguration::VESPERSXASScanConfiguration(const VESPERSXASScanConfiguration &original)
@@ -23,6 +24,7 @@ VESPERSXASScanConfiguration::VESPERSXASScanConfiguration(const VESPERSXASScanCon
 	fluorescenceDetectorChoice_ = original.fluorescenceDetectorChoice();
 	It_ = original.transmissionChoice();
 	I0_ = original.incomingChoice();
+	roiCount_ = original.roiCount();
 }
 
 AMScanConfiguration *VESPERSXASScanConfiguration::createCopy() const

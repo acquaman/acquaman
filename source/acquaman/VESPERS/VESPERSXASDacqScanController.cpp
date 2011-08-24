@@ -30,32 +30,70 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 
 		XRFDetector *detector = VESPERSBeamline::vespers()->vortexXRF1E();
 
+		config_->setRoiCount(detector->roiInfoList()->count());
+
 		// This is safe and okay because I always have the regions of interest set taking up 0-X where X is the count-1 of the number of regions of interest.
-		for (int i = 0; i < detector->roiInfoList()->count(); i++){
+		for (int i = 0; i < config_->roiCount(); i++){
 
 			xasScan_->rawData()->addMeasurement(AMMeasurementInfo(detector->roiInfoList()->at(i).name().remove(" "), detector->roiInfoList()->at(i).name()));
 			xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), i+2));
+		}
+
+		xasScan_->rawData()->addMeasurement(AMMeasurementInfo(detector->toXRFInfo()));
+		xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), xasScan_->rawData()->measurementCount()-1));
+	}
+	else if (config_->fluorescenceDetectorChoice() == VESPERSXASScanConfiguration::FourElement){
+
+		XRFDetector *detector = VESPERSBeamline::vespers()->vortexXRF4E();
+
+		config_->setRoiCount(detector->roiInfoList()->count());
+
+		// This is safe and okay because I always have the regions of interest set taking up 0-X where X is the count-1 of the number of regions of interest.
+		for (int i = 0; i < config_->roiCount(); i++){
+
+			xasScan_->rawData()->addMeasurement(AMMeasurementInfo(detector->roiInfoList()->at(i).name().remove(" "), detector->roiInfoList()->at(i).name()));
+			xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), i+2));
+		}
+
+		xasScan_->rawData()->addMeasurement(AMMeasurementInfo(detector->toXRFInfo()));
+		xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), xasScan_->rawData()->measurementCount()-1));
+	}
+
+	AM1DExpressionAB* transmission = new AM1DExpressionAB("trans");
+	transmission->setDescription("Transmission");
+	transmission->setInputDataSources(QList<AMDataSource *>() << xasScan_->rawDataSources()->at(0) << xasScan_->rawDataSources()->at(1));
+	transmission->setExpression(QString("ln(%1/%2)").arg(xasScan_->rawDataSources()->at(0)->name()).arg(xasScan_->rawDataSources()->at(1)->name()));
+
+	xasScan_->addAnalyzedDataSource(transmission);
+
+	if (config_->fluorescenceDetectorChoice() == VESPERSXASScanConfiguration::SingleElement){
+
+		XRFDetector *detector = VESPERSBeamline::vespers()->vortexXRF1E();
+
+		AM1DExpressionAB *normPFY;
+		for (int i = 0; i < config_->roiCount(); i++){
+
+			normPFY = new AM1DExpressionAB("norm_"+detector->roiInfoList()->at(i).name().remove(" "));
+			normPFY->setDescription("Normalized "+detector->roiInfoList()->at(i).name());
+			normPFY->setInputDataSources(QList<AMDataSource *>() << xasScan_->rawDataSources()->at(0) << xasScan_->rawDataSources()->at(i+2));
+			normPFY->setExpression(QString("%1/%2").arg(xasScan_->rawDataSources()->at(i+2)->name()).arg(xasScan_->rawDataSources()->at(0)->name()));
+			xasScan_->addAnalyzedDataSource(normPFY);
 		}
 	}
 	else if (config_->fluorescenceDetectorChoice() == VESPERSXASScanConfiguration::FourElement){
 
 		XRFDetector *detector = VESPERSBeamline::vespers()->vortexXRF4E();
 
-		// This is safe and okay because I always have the regions of interest set taking up 0-X where X is the count-1 of the number of regions of interest.
-		for (int i = 0; i < detector->roiInfoList()->count(); i++){
+		AM1DExpressionAB *normPFY;
+		for (int i = 0; i < config_->roiCount(); i++){
 
-			xasScan_->rawData()->addMeasurement(AMMeasurementInfo(detector->roiInfoList()->at(i).name().remove(" "), detector->roiInfoList()->at(i).name()));
-			xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), i+2));
+			normPFY = new AM1DExpressionAB("norm_"+detector->roiInfoList()->at(i).name().remove(" "));
+			normPFY->setDescription("Normalized "+detector->roiInfoList()->at(i).name());
+			normPFY->setInputDataSources(QList<AMDataSource *>() << xasScan_->rawDataSources()->at(0) << xasScan_->rawDataSources()->at(i+2));
+			normPFY->setExpression(QString("%1/%2").arg(xasScan_->rawDataSources()->at(i+2)->name()).arg(xasScan_->rawDataSources()->at(0)->name()));
+			xasScan_->addAnalyzedDataSource(normPFY);
 		}
 	}
-
-	/// \todo add the analysis blocks.  Holding off until I know the raw data sources are working.
-	/*AM1DExpressionAB* transmission = new AM1DExpressionAB("normalized");
-	transmission->setDescription("Normalized Transmission");
-	transmission->setInputDataSources(QList<AMDataSource *>() << xasScan_->rawDataSources()->at(0) << xasScan_->rawDataSources()->at(1));
-	transmission->setExpression("ROI/IonChamberSplit2");
-
-	xasScan_->addAnalyzedDataSource(transmission);*/
 }
 
 bool VESPERSXASDacqScanController::initializeImplementation()
@@ -130,6 +168,7 @@ bool VESPERSXASDacqScanController::startImplementation()
 
 AMnDIndex VESPERSXASDacqScanController::toScanIndex(QMap<int, double> aeData)
 {
+	Q_UNUSED(aeData)
 	return AMnDIndex(xasScan_->rawData()->scanSize(0));
 }
 
@@ -223,6 +262,8 @@ bool VESPERSXASDacqScanController::setupSingleElementXAS()
 	for (int i = 0; i < roiCount; i++)
 		advAcq_->appendRecord("IOC1607-004:mca1.R"+QString::number(i), true, false, 1);
 
+	advAcq_->appendRecord("IOC1607-004:mca1", true, true, 1);
+
 	for (int i = 0; i < ionChambers->count(); i++)
 		if (i != (int)config_->incomingChoice() && i != (int)config_->transmissionChoice())
 			advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt(i)->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt(i)->readMethod()));
@@ -268,6 +309,8 @@ bool VESPERSXASDacqScanController::setupFourElementXAS()
 
 	for (int i = 0; i < roiCount; i++)
 		advAcq_->appendRecord("dxp1607-B21-04:mcaCorrected.R"+QString::number(i), true, false, 1);
+
+	advAcq_->appendRecord("dxp1607-B21-04:mcaCorrected", true, true, 1);
 
 	for (int i = 0; i < ionChambers->count(); i++)
 		if (i != (int)config_->incomingChoice() && i != (int)config_->transmissionChoice())
