@@ -6,6 +6,11 @@
 VESPERSXASScanConfiguration::VESPERSXASScanConfiguration(QObject *parent)
 	: AMXASScanConfiguration(parent)
 {
+	ionChamberNames_.insert(Isplit, "Isplit");
+	ionChamberNames_.insert(Iprekb, "Iprekb");
+	ionChamberNames_.insert(Imini, "Imini");
+	ionChamberNames_.insert(Ipost, "Ipost");
+
 	regions_->setEnergyControl(VESPERSBeamline::vespers()->energyRelative());
 	fluorescenceDetectorChoice_ = FourElement;
 	It_ = Ipost;
@@ -16,6 +21,11 @@ VESPERSXASScanConfiguration::VESPERSXASScanConfiguration(QObject *parent)
 VESPERSXASScanConfiguration::VESPERSXASScanConfiguration(const VESPERSXASScanConfiguration &original)
 	: AMXASScanConfiguration(original.parent())
 {
+	ionChamberNames_.insert(Isplit, "Isplit");
+	ionChamberNames_.insert(Iprekb, "Iprekb");
+	ionChamberNames_.insert(Imini, "Imini");
+	ionChamberNames_.insert(Ipost, "Ipost");
+
 	regions_->setEnergyControl(VESPERSBeamline::vespers()->energyRelative());
 	for (int i = 0; i < original.regionCount(); i++)
 		regions_->addRegion(i, original.regionStart(i), original.regionDelta(i), original.regionEnd(i));

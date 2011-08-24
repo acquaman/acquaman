@@ -3,6 +3,8 @@
 
 #include "acquaman/AMXASScanConfiguration.h"
 
+#include  <QMap>
+
 class VESPERSXASScanConfiguration : public AMXASScanConfiguration
 {
 	Q_OBJECT
@@ -47,6 +49,9 @@ public:
 	/// Returns the number of regions of interest.
 	int roiCount() const { return roiCount_; }
 
+	/// Returns the ion chamber name from its corresponding enum.
+	QString ionChamberName(IonChamber chamber) { return ionChamberNames_.value(chamber); }
+
 public slots:
 	/// Adds a region to the XAS scan.  \param index is the region you are adding and \param start, \param delta, and \param end define the region.
 	virtual bool addRegion(int index, double start, double delta, double end) { return regions_->addRegion(index, start, delta, end); }
@@ -75,6 +80,9 @@ protected:
 	IonChamber I0_;
 	/// Number of regions of interest.  For now, this is only set once a scan is being started.
 	int roiCount_;
+
+	/// Mapping between Ion chambers and their names.
+	QMap<IonChamber, QString> ionChamberNames_;
 };
 
 #endif // VESPERSXASSCANCONFIGURATION_H

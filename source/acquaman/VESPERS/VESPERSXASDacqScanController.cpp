@@ -12,6 +12,7 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 	config_ = cfg;
 	xasScan_ = new AMXASScan();
 	xasScan_->setName(config_->name());
+	xasScan_->setFileFormat("vespersXAS");
 	xasScan_->setScanConfiguration(config_);
 	xasScan_->setRunId(AMUser::user()->currentRunId());
 
