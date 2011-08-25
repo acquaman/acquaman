@@ -50,31 +50,6 @@ bool VESPERSXASDataLoader::loadFromFile(const QString &filepath, bool setMetaDat
 	bool usingSingleEl = line.contains("IOC1607-004");
 	bool usingFourEl = line.contains("dxp1607-B21-04");
 
-	lineTokenized = line.split(" ");
-
-	QString i0(lineTokenized.at(3));
-	QString it(lineTokenized.at(4));
-
-	lineTokenized.clear();
-
-	if (i0.contains("Isplit"))
-		i0 = "Isplit";
-	else if (i0.contains("mcs07"))
-		i0 = "Iprekb";
-	else if (i0.contains("mcs08"))
-		i0 = "Imini";
-	else
-		return false;
-
-	if (it.contains("mcs07"))
-		it = "Iprekb";
-	else if (it.contains("mcs08"))
-		it = "Imini";
-	else if (it.contains("mcs09"))
-		it = "Ipost";
-	else
-		return false;
-
 	while ((line = in.readLine()).contains("#"));
 
 	// Clear any old data so we can start fresh.
@@ -86,8 +61,8 @@ bool VESPERSXASDataLoader::loadFromFile(const QString &filepath, bool setMetaDat
 	// If both are false, then we are in pure transmission mode.
 	if (!usingSingleEl && !usingFourEl){
 
-		//scan_->rawData()->addMeasurement(AMMeasurementInfo("I0", i0));
-		//scan_->rawData()->addMeasurement(AMMeasurementInfo("It", it));
+		scan_->rawData()->addMeasurement(AMMeasurementInfo(scan_->rawDataSources()->at(0)->name(), scan_->rawDataSources()->at(0)->description()));
+		scan_->rawData()->addMeasurement(AMMeasurementInfo(scan_->rawDataSources()->at(1)->name(), scan_->rawDataSources()->at(1)->description()));
 
 		while (!in.atEnd()){
 
@@ -121,12 +96,5 @@ bool VESPERSXASDataLoader::loadFromFile(const QString &filepath, bool setMetaDat
 		return false;
 	}
 
-	/*AM1DExpressionAB* transmission = new AM1DExpressionAB("trans");
-	transmission->setDescription("Transmission");
-	transmission->setInputDataSources(QList<AMDataSource *>() << scan->rawDataSources()->at(0) << scan->rawDataSources()->at(1));
-	transmission->setExpression(QString("ln(%1/%2)").arg(scan->rawDataSources()->at(0)->name()).arg(scan->rawDataSources()->at(1)->name()));
-
-	scan->addAnalyzedDataSource(transmission);
-*/
 	return true;
 }
