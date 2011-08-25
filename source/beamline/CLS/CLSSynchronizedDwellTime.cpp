@@ -10,7 +10,7 @@ CLSSynchronizedDwellTime::CLSSynchronizedDwellTime(QString baseName, QObject *pa
 	mode_ = new AMProcessVariable(baseName+":setMode", true, this);
 
 	connect(dwellTime_, SIGNAL(valueChanged(double)), this, SIGNAL(timeChanged(double)));
-	connect(startScan_, SIGNAL(valueChanged(double)), this, SLOT(onScanningChanged(int)));
+	connect(startScan_, SIGNAL(valueChanged(int)), this, SLOT(onScanningChanged(int)));
 	connect(mode_, SIGNAL(valueChanged(int)), this, SLOT(onModeChanged(int)));
 }
 

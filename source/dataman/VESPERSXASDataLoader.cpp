@@ -39,18 +39,23 @@ bool VESPERSXASDataLoader::loadFromFile(const QString &filepath, bool setMetaDat
 
 	// Need to determine if the single element or four element vortex detector was used.  Also need to determine which ion chambers were used for I0 and It.
 	// First two lines are useless.
-	in.readLine();
-	in.readLine();
+	line = in.readLine();
+	line = in.readLine();
 
 	line = in.readLine();
+
+	if (line.contains("#(2)"))
+		line = in.readLine();
 
 	bool usingSingleEl = line.contains("IOC1607-004");
 	bool usingFourEl = line.contains("dxp1607-B21-04");
 
-	lineTokenized = line.split(", ");
+	lineTokenized = line.split(" ");
 
-	QString i0(lineTokenized.at(2));
-	QString it(lineTokenized.at(3));
+	QString i0(lineTokenized.at(3));
+	QString it(lineTokenized.at(4));
+
+	lineTokenized.clear();
 
 	if (i0.contains("Isplit"))
 		i0 = "Isplit";
@@ -62,19 +67,18 @@ bool VESPERSXASDataLoader::loadFromFile(const QString &filepath, bool setMetaDat
 		return false;
 
 	if (it.contains("mcs07"))
-		it = "Isplit";
-	else if (it.contains("mcs08"))
 		it = "Iprekb";
-	else if (it.contains("mcs09"))
+	else if (it.contains("mcs08"))
 		it = "Imini";
+	else if (it.contains("mcs09"))
+		it = "Ipost";
 	else
 		return false;
 
-
-	in.readLine();
+	while ((line = in.readLine()).contains("#"));
 
 	// Clear any old data so we can start fresh.
-	scan->clearRawDataPointsAndMeasurements();
+	scan->clearRawDataPoints();
 
 	// Some setup variables.
 	int axisValueIndex = 0;
@@ -82,12 +86,11 @@ bool VESPERSXASDataLoader::loadFromFile(const QString &filepath, bool setMetaDat
 	// If both are false, then we are in pure transmission mode.
 	if (!usingSingleEl && !usingFourEl){
 
-		//scan_->rawData()->addMeasurement(AMMeasurementInfo("I0";
-		//scan_->rawData()->addMeasurement(AMMeasurementInfo("It", ));
+		//scan_->rawData()->addMeasurement(AMMeasurementInfo("I0", i0));
+		//scan_->rawData()->addMeasurement(AMMeasurementInfo("It", it));
 
 		while (!in.atEnd()){
 
-			line = in.readLine();
 			lineTokenized << line.split(", ");
 
 			scan->rawData()->beginInsertRows(0);
@@ -99,6 +102,8 @@ bool VESPERSXASDataLoader::loadFromFile(const QString &filepath, bool setMetaDat
 			scan->rawData()->endInsertRows();
 
 			axisValueIndex++;
+			line = in.readLine();
+			lineTokenized.clear();
 		}
 	}
 
@@ -116,7 +121,7 @@ bool VESPERSXASDataLoader::loadFromFile(const QString &filepath, bool setMetaDat
 		return false;
 	}
 
-	AM1DExpressionAB* transmission = new AM1DExpressionAB("trans");
+	/*AM1DExpressionAB* transmission = new AM1DExpressionAB("trans");
 	transmission->setDescription("Transmission");
 	transmission->setInputDataSources(QList<AMDataSource *>() << scan->rawDataSources()->at(0) << scan->rawDataSources()->at(1));
 	transmission->setExpression(QString("ln(%1/%2)").arg(scan->rawDataSources()->at(0)->name()).arg(scan->rawDataSources()->at(1)->name()));
