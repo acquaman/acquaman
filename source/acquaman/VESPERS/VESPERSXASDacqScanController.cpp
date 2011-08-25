@@ -31,10 +31,8 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 
 		XRFDetector *detector = VESPERSBeamline::vespers()->vortexXRF1E();
 
-		config_->setRoiCount(detector->roiInfoList()->count());
-
 		// This is safe and okay because I always have the regions of interest set taking up 0-X where X is the count-1 of the number of regions of interest.
-		for (int i = 0; i < config_->roiCount(); i++){
+		for (int i = 0; i < detector->roiInfoList()->count(); i++){
 
 			xasScan_->rawData()->addMeasurement(AMMeasurementInfo(detector->roiInfoList()->at(i).name().remove(" "), detector->roiInfoList()->at(i).name()));
 			xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), i+2));
@@ -47,10 +45,8 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 
 		XRFDetector *detector = VESPERSBeamline::vespers()->vortexXRF4E();
 
-		config_->setRoiCount(detector->roiInfoList()->count());
-
 		// This is safe and okay because I always have the regions of interest set taking up 0-X where X is the count-1 of the number of regions of interest.
-		for (int i = 0; i < config_->roiCount(); i++){
+		for (int i = 0; i < detector->roiInfoList()->count(); i++){
 
 			xasScan_->rawData()->addMeasurement(AMMeasurementInfo(detector->roiInfoList()->at(i).name().remove(" "), detector->roiInfoList()->at(i).name()));
 			xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), i+2));
@@ -72,7 +68,7 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 		XRFDetector *detector = VESPERSBeamline::vespers()->vortexXRF1E();
 
 		AM1DExpressionAB *normPFY;
-		for (int i = 0; i < config_->roiCount(); i++){
+		for (int i = 0; i < detector->roiInfoList()->count(); i++){
 
 			normPFY = new AM1DExpressionAB("norm_"+detector->roiInfoList()->at(i).name().remove(" "));
 			normPFY->setDescription("Normalized "+detector->roiInfoList()->at(i).name());
@@ -86,7 +82,7 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 		XRFDetector *detector = VESPERSBeamline::vespers()->vortexXRF4E();
 
 		AM1DExpressionAB *normPFY;
-		for (int i = 0; i < config_->roiCount(); i++){
+		for (int i = 0; i < detector->roiInfoList()->count(); i++){
 
 			normPFY = new AM1DExpressionAB("norm_"+detector->roiInfoList()->at(i).name().remove(" "));
 			normPFY->setDescription("Normalized "+detector->roiInfoList()->at(i).name());

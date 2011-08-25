@@ -53,47 +53,39 @@ bool VESPERSXASDataLoader::loadFromFile(const QString &filepath, bool setMetaDat
 	while ((line = in.readLine()).contains("#"));
 
 	// Clear any old data so we can start fresh.
-	scan->clearRawDataPoints();
+	scan->clearRawDataPointsAndMeasurements();
 
 	// Some setup variables.
 	int axisValueIndex = 0;
 
-	// If both are false, then we are in pure transmission mode.
-	if (!usingSingleEl && !usingFourEl){
+	for (int i = 0; i < scan_->rawDataSourceCount(); i++){qDebug() << scan_->rawDataSources()->at(i)->name() << scan_->rawDataSources()->at(i)->description();
+		scan_->rawData()->addMeasurement(AMMeasurementInfo(scan_->rawDataSources()->at(i)->name(), scan_->rawDataSources()->at(i)->description()));}
 
-		scan_->rawData()->addMeasurement(AMMeasurementInfo(scan_->rawDataSources()->at(0)->name(), scan_->rawDataSources()->at(0)->description()));
-		scan_->rawData()->addMeasurement(AMMeasurementInfo(scan_->rawDataSources()->at(1)->name(), scan_->rawDataSources()->at(1)->description()));
+	while (!in.atEnd()){
 
-		while (!in.atEnd()){
+		lineTokenized << line.split(", ");
 
-			lineTokenized << line.split(", ");
+		scan->rawData()->beginInsertRows(0);
 
-			scan->rawData()->beginInsertRows(0);
+		scan_->rawData()->setAxisValue(0, axisValueIndex, lineTokenized.at(1).toDouble());
 
-			scan_->rawData()->setAxisValue(0, axisValueIndex, lineTokenized.at(1).toDouble());
-			scan_->rawData()->setValue(axisValueIndex, 0, AMnDIndex(), lineTokenized.at(2).toDouble());
-			scan_->rawData()->setValue(axisValueIndex, 1, AMnDIndex(), lineTokenized.at(3).toDouble());
+		// Only going to -1 because the last raw data source is the 2D spectra scan and requires its own method of entering the data.
+		for (int i = 0; i < scan_->rawDataSourceCount()-1; i++)
+			scan_->rawData()->setValue(axisValueIndex, i, AMnDIndex(), lineTokenized.at(i+2).toDouble());
 
-			scan->rawData()->endInsertRows();
+		scan->rawData()->endInsertRows();
 
-			axisValueIndex++;
-			line = in.readLine();
-			lineTokenized.clear();
-		}
+		axisValueIndex++;
+		line = in.readLine();
+		lineTokenized.clear();
 	}
 
-	else if (usingSingleEl){
+	if (usingSingleEl){
 
 	}
 
 	else if (usingFourEl){
 
-	}
-
-	else{
-
-		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -1, "XASFileLoader parse error while loading scan data from file. Invalid configuration."));
-		return false;
 	}
 
 	return true;
