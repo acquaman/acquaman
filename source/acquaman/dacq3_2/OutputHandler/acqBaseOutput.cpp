@@ -44,7 +44,7 @@ static eventDataHandler_t defaultAcqBaseOutput = {
 };
 
 // no-op: used when a function is not applicable
-int acqBaseOutput::nullFunction(void *unused)
+int acqBaseOutput::nullFunction(void */*unused*/)
 {
 	return 0;	// success indication: we successfully did nothing
 }
