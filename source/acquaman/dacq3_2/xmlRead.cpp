@@ -540,6 +540,7 @@ process_pv(xmlTextReaderPtr reader, acqEvent_t *eventp)
 static void
 process_handler(xmlTextReaderPtr reader, acqMaster_t *master)
 {
+	Q_UNUSED(master)
 	const char *name;
 	const char *value;
 	int nodeType;
@@ -587,13 +588,16 @@ process_handler(xmlTextReaderPtr reader, acqMaster_t *master)
 int
 acq_ReadXMLconfig(const char *filename, acqMaster_t *master) {
     xmlTextReaderPtr reader;
-    int ret;
+    // Commented this out to avoid unused compiler warning (David Chevrier, Aug 25, 2011)
+    //int ret;
 
     reader = xmlReaderForFile(filename, NULL, XML_PARSE_DTDVALID);
     if (reader != NULL) {
     	while( getNextNode(reader) == 1)
 		{
-			const char *name, *value;
+			// Commented this out to avoid unused warning in compiler (David Chevrier, Aug 25 2011)
+			//const char *name, *value;
+			const char *name;
 
 			parseNode( reader, &name, NULL, NULL, NULL);
 
