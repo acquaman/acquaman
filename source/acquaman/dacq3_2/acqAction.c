@@ -257,7 +257,6 @@ checkScanConnections(acqScan_t *acq)
 	for( controlCount=0; controlCount < acq->numControlPV; controlCount++)
 	{
 		acqControl_t *ctlp;	/* pointer to control PV structure */
-#warning "Commenting this out, it shouldn't be needed"
 		//Connector *conp;
 		Channel *ch;
 		
@@ -493,7 +492,6 @@ runAcqAction( acqScan_t *acq, acqAction_t *aap, Channel *chan, double outval)
 			HANDLERS(acq->master, odh->nextOutput_cb(key) );
 			break;
 
-#warning "Added this case because compiler was complaining"
 			case AA_NO_ACTION:
 			break;
 			
@@ -502,7 +500,8 @@ runAcqAction( acqScan_t *acq, acqAction_t *aap, Channel *chan, double outval)
 	}
 }
 
-static int countColumns( acqEvent_t *ev);
+#warning "Commented out because unused. Function was previously commented out, now try the declaration too"
+//static int countColumns( acqEvent_t *ev);
 /*
  * run an event request. Note: Each event runs in its own thread. When receiving a start
  * signal, it outputs the values of the requested PV's.
@@ -520,7 +519,6 @@ static int countColumns( acqEvent_t *ev);
 void
 runEvent( acqEvent_t *ev)
 {
-#warning "Compiler complained nchar, result, timebuf, separator, curTime, and relTime are unused"
 	int i;//, nchar;
 	int Done;
 	//char result[50];
@@ -662,7 +660,6 @@ runEvent( acqEvent_t *ev)
 			else
 			{
 				int dr_idx;
-#warning "Commenthing this out because it seems to be unused"
 //				int ch_idx;
 				void *base = chan->dataval;
 				unsigned int size = dbr_value_size[chan->chan_type];
@@ -757,7 +754,6 @@ checkEventConnections(acqEvent_t *ev)
 	return 2;			/* all PV's are in a connected state */
 }	
 
-#warning "Compiler complained this function is not used at all"
 //static int
 //countColumns( acqEvent_t *ev)
 //{
@@ -821,7 +817,6 @@ checkEventConnections(acqEvent_t *ev)
 //				/* Danger: it is quite possible that the channel is not open
 //				 * at this point, and that the maxelement is not correct.
 //				 */
-//#warning "Compiler complained about signed/unsigned comparison"
 //				if( (unsigned)ch->maxelement > drp->firstIdx)
 //					colnum += 1 + ch->maxelement - drp->firstIdx;
 //				break;
@@ -979,7 +974,6 @@ callback_eventPVstate(Connector *conp)
 	Channel *chan;
 	acqPv_t *ap;
 	acqEvent_t *ev;
-#warning "Commented out unused variable"
 //	acqMaster_t *master;
 	int pvID;
 
@@ -1017,7 +1011,6 @@ test_delay_result( Connector *conp, struct acqAction_waitPV *delay, acqMaster_t 
 	double val;
 	double cval;	/* comparison precision */
 	int precision;
-#warning "Commented out, unused variable"
 //	int debugflag;
 
 	DEBUGM(master,1) printf("test_delay_result(%p, %p)\n", conp, delay);
@@ -1283,7 +1276,6 @@ destroy_acqAction( acqAction_t **head, acqAction_t *ap)
 		break;
 	case AA_NEXT_OUTPUT:
 		break;
-#warning "Added AA_NO_ACTION, compiler was complaining"
 	case AA_NO_ACTION:
 		break;
 	}
@@ -1297,7 +1289,6 @@ static char * actionNames[] = { "Delay", "SetPV", "WaitPV", "WaitMotor", "CallEv
 char *
 getActionName( acqActionType_t aat)
 {
-#warning "Compiler complained about redundancy of aat >= 0"
 //	if( aat >= 0 && aat < sizeof actionNames/sizeof actionNames[0] )
 	if( aat < sizeof actionNames/sizeof actionNames[0] )
 		return actionNames[aat];
@@ -1307,7 +1298,6 @@ getActionName( acqActionType_t aat)
 acqActionType_t
 getActionType( const char *name)
 {
-#warning "Changed int to unsigned int"
 	unsigned int i;
 	for(i=0; i < sizeof actionNames/sizeof actionNames[0]; i++)
 		if( strcasecmp( name, actionNames[i]) == 0)
@@ -1319,7 +1309,6 @@ static char * PvReadyNames[] = { "Immediate", "Read-back", "Wait", "Unknown" };
 char *
 getPvReadyName( acqPvReady_t pva)
 {
-#warning "Compiler complained about the redundancy of pva >= 0"
 //	if( pva >= 0 && pva <=2 )
 	if( pva <=2 )
 		return PvReadyNames[pva];
@@ -1330,7 +1319,6 @@ getPvReadyName( acqPvReady_t pva)
 acqPvReady_t
 getPvReadyType( char *name)
 {
-#warning "Changed int to unsigned int"
 	unsigned int i;
 	for(i=0; i < sizeof PvReadyNames/sizeof PvReadyNames[0]; i++)
 		if( strcasecmp( name, PvReadyNames[i]) == 0)
