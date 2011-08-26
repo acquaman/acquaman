@@ -433,7 +433,9 @@ static void
 getChanInfo( struct event_handler_args arg)
 {
 	Channel *chan;
-	int bytecount;
+	// Commented out to avoid comparison warning (David Chevrier, Aug 25 2011)
+	//int bytecount;
+	unsigned int bytecount;
 	InfoBuf_t InfoBuf;
 
 	chan = arg.usr;
