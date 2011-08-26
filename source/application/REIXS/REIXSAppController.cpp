@@ -234,8 +234,10 @@ void REIXSAppController::onCurrentScanControllerReinitialized(bool removeScan){
 		return;
 	}
 
-	/// \bug How do you know that the last scan in this scan editor is the one to remove? What if they've opened another scan since onCurrentScanControllerCreated()?
-#warning "Bug for David: how do you know that the last scan in this scan editor is the one to remove? What if they've opened another scan since onCurrentScanControllerCreated()?"
+	/* NTBA - August 25th, 2011 (David Chevrier)
+		How do you know that the last scan in this scan editor is the one to remove?
+		What if they've opened another scan since onCurrentScanControllerCreated()?"
+	*/
 	if(removeScan)
 		scanControllerActiveEditor_->removeScan(scanControllerActiveEditor_->scanAt(scanControllerActiveEditor_->scanCount()-1));
 

@@ -169,7 +169,9 @@ bool SGMXASScanController::beamlineInitialize(){
 	tmpAction->setSetpoint(SGMBeamline::sgm()->fastShutterVoltage()->value());
 	cleanUpActions_->appendAction(0, tmpAction);
 
-	#warning "Hey David, who's going to delete the list and the actions?"
+	/* NTBA - August 25th, 2011 (David Chevrier)
+			Who's going to delete the list and the actions?"
+	*/
 	initializationActions_ = new AMBeamlineParallelActionsList();
 
 	initializationActions_->appendStage(new QList<AMBeamlineActionItem*>());
