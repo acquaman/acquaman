@@ -509,7 +509,28 @@ bool QEpicsAdvAcq::appendRecord(QString pv, bool enable, bool spectrum, int mode
 	ev = first_acqEvent(_acq->getMaster());
 	if(!ev || !ev->numPvList )
 		return FALSE;
-	char* PVNAME = const_cast<char*>(pv.toAscii().data());
+
+	QString format = "%g";
+	if(spectrum)
+		format = "";
+
+	switch(mode)
+	{
+		case 0:{
+			addEventPv( ev, strdup(pv.toAscii().data()), !enable, strdup(format.toAscii().data()), useCurrent, spectrum );
+			break;}
+		case 1:{
+			addEventPv( ev, strdup(pv.toAscii().data()), !enable, strdup(format.toAscii().data()), usePvGet, spectrum );
+			break;}
+		case 2:{
+			addEventPv( ev, strdup(pv.toAscii().data()), !enable, strdup(format.toAscii().data()), waitForMonitor, spectrum );
+			break;}
+	}
+
+	/*
+	//char* PVNAME = const_cast<char*>(pv.toAscii().data());
+	char* PVNAME = pv.toAscii().data();
+	qDebug() << "Before " << pv << " after " << PVNAME << " other " << pv.toAscii().data() << " mode " << mode;
 	char* FORMAT = QString("%g").toAscii().data();
 	if(spectrum)
 		FORMAT = QString("").toAscii().data();
@@ -518,15 +539,21 @@ bool QEpicsAdvAcq::appendRecord(QString pv, bool enable, bool spectrum, int mode
 	switch(mode)
 	{
 		case 0:{
-			addEventPv( ev, strdup(PVNAME), !enable, FORMAT, useCurrent, spectrum );
+			qDebug() << "Go mode0";
+			//addEventPv( ev, strdup(PVNAME), !enable, FORMAT, useCurrent, spectrum );
+			addEventPv( ev, strdup(pv.toAscii().data()), !enable, FORMAT, useCurrent, spectrum );
 			break;}
 		case 1:{
+			qDebug() << "Go mode1";
 			addEventPv( ev, strdup(PVNAME), !enable, FORMAT, usePvGet, spectrum );
 			break;}
 		case 2:{
-			addEventPv( ev, strdup(PVNAME), !enable, FORMAT, waitForMonitor, spectrum );
+			qDebug() << "Go mode2";
+			//addEventPv( ev, strdup(PVNAME), !enable, FORMAT, waitForMonitor, spectrum );
+			addEventPv( ev, strdup(pv.toAscii().data()), !enable, FORMAT, waitForMonitor, spectrum );
 			break;}
 	}
+	*/
 	return TRUE;
 }
 
