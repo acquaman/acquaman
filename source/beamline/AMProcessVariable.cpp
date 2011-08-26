@@ -42,7 +42,9 @@ AMProcessVariableSupport::AMProcessVariableSupport() : QObject() {
 
 	qWarning("Starting up channel access...");
 
-	putenv("EPICS_CA_MAX_ARRAY_BYTES=" AMPROCESSVARIABLE_MAX_CA_ARRAY_BYTES);
+	// Trying this, might work, might not. Trying to avoid conversion compiler warning (David Chevrier, Aug 25 2011)
+	putenv(QString("EPICS_CA_MAX_ARRAY_BYTES=%1").arg(AMPROCESSVARIABLE_MAX_CA_ARRAY_BYTES).toAscii().data());
+	//putenv("EPICS_CA_MAX_ARRAY_BYTES=" AMPROCESSVARIABLE_MAX_CA_ARRAY_BYTES);
 
 	int lastError = ca_context_create(ca_enable_preemptive_callback);
 	if(lastError != ECA_NORMAL )
