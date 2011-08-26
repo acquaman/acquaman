@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMBeamlineActionsList.h"
 #include "dataman/AMUser.h"
 #include "analysis/AM1DExpressionAB.h"
+#include "analysis/AM2DSummingAB.h"
 
 #include <QDir>
 
@@ -32,6 +33,7 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 	config_ = cfg;
 	xasScan_ = new AMXASScan();
 	xasScan_->setName(config_->name());
+	xasScan_->setFileFormat("vespersXAS");
 	xasScan_->setScanConfiguration(config_);
 	xasScan_->setRunId(AMUser::user()->currentRunId());
 
@@ -50,10 +52,8 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 
 		XRFDetector *detector = VESPERSBeamline::vespers()->vortexXRF1E();
 
-		config_->setRoiCount(detector->roiInfoList()->count());
-
 		// This is safe and okay because I always have the regions of interest set taking up 0-X where X is the count-1 of the number of regions of interest.
-		for (int i = 0; i < config_->roiCount(); i++){
+		for (int i = 0; i < detector->roiInfoList()->count(); i++){
 
 			xasScan_->rawData()->addMeasurement(AMMeasurementInfo(detector->roiInfoList()->at(i).name().remove(" "), detector->roiInfoList()->at(i).name()));
 			xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), i+2));
@@ -66,10 +66,8 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 
 		XRFDetector *detector = VESPERSBeamline::vespers()->vortexXRF4E();
 
-		config_->setRoiCount(detector->roiInfoList()->count());
-
 		// This is safe and okay because I always have the regions of interest set taking up 0-X where X is the count-1 of the number of regions of interest.
-		for (int i = 0; i < config_->roiCount(); i++){
+		for (int i = 0; i < detector->roiInfoList()->count(); i++){
 
 			xasScan_->rawData()->addMeasurement(AMMeasurementInfo(detector->roiInfoList()->at(i).name().remove(" "), detector->roiInfoList()->at(i).name()));
 			xasScan_->addRawDataSource(new AMRawDataSource(xasScan_->rawData(), i+2));
@@ -88,10 +86,24 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 
 	if (config_->fluorescenceDetectorChoice() == VESPERSXASScanConfiguration::SingleElement){
 
+		AM2DSummingAB* pfy = new AM2DSummingAB("PFY");
+		QList<AMDataSource*> pfySource;
+		pfySource << xasScan_->rawDataSources()->at(xasScan_->rawDataSourceCount()-1);
+		pfy->setInputDataSources(pfySource);
+		pfy->setSumAxis(1);
+		pfy->setSumRangeMax(xasScan_->rawDataSources()->at(xasScan_->rawDataSourceCount()-1)->size(1)-1);
+		xasScan_->addAnalyzedDataSource(pfy);
+
 		XRFDetector *detector = VESPERSBeamline::vespers()->vortexXRF1E();
 
 		AM1DExpressionAB *normPFY;
-		for (int i = 0; i < config_->roiCount(); i++){
+		normPFY = new AM1DExpressionAB("norm_PFY");
+		normPFY->setDescription("Normalized PFY");
+		normPFY->setInputDataSources(QList<AMDataSource *>() << xasScan_->rawDataSources()->at(0) << xasScan_->analyzedDataSources()->at(1));
+		normPFY->setExpression(QString("%1/%2").arg(xasScan_->analyzedDataSources()->at(1)->name()).arg(xasScan_->rawDataSources()->at(0)->name()));
+		xasScan_->addAnalyzedDataSource(normPFY);
+
+		for (int i = 0; i < detector->roiInfoList()->count(); i++){
 
 			normPFY = new AM1DExpressionAB("norm_"+detector->roiInfoList()->at(i).name().remove(" "));
 			normPFY->setDescription("Normalized "+detector->roiInfoList()->at(i).name());
@@ -102,10 +114,23 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 	}
 	else if (config_->fluorescenceDetectorChoice() == VESPERSXASScanConfiguration::FourElement){
 
+		AM2DSummingAB* pfy = new AM2DSummingAB("PFY");
+		QList<AMDataSource*> pfySource;
+		pfySource << xasScan_->rawDataSources()->at(xasScan_->rawDataSourceCount()-1);
+		pfy->setInputDataSources(pfySource);
+		pfy->setSumAxis(1);
+		pfy->setSumRangeMax(xasScan_->rawDataSources()->at(xasScan_->rawDataSourceCount()-1)->size(1)-1);
+		xasScan_->addAnalyzedDataSource(pfy);
 		XRFDetector *detector = VESPERSBeamline::vespers()->vortexXRF4E();
 
 		AM1DExpressionAB *normPFY;
-		for (int i = 0; i < config_->roiCount(); i++){
+		normPFY = new AM1DExpressionAB("norm_PFY");
+		normPFY->setDescription("Normalized PFY");
+		normPFY->setInputDataSources(QList<AMDataSource *>() << xasScan_->rawDataSources()->at(0) << xasScan_->analyzedDataSources()->at(1));
+		normPFY->setExpression(QString("%1/%2").arg(xasScan_->analyzedDataSources()->at(1)->name()).arg(xasScan_->rawDataSources()->at(0)->name()));
+		xasScan_->addAnalyzedDataSource(normPFY);
+
+		for (int i = 0; i < detector->roiInfoList()->count(); i++){
 
 			normPFY = new AM1DExpressionAB("norm_"+detector->roiInfoList()->at(i).name().remove(" "));
 			normPFY->setDescription("Normalized "+detector->roiInfoList()->at(i).name());
@@ -336,10 +361,11 @@ bool VESPERSXASDacqScanController::setupFourElementXAS()
 		if (i != (int)config_->incomingChoice() && i != (int)config_->transmissionChoice())
 			advAcq_->appendRecord(VESPERSBeamline::vespers()->pvName(ionChambers->detectorAt(i)->detectorName()), true, false, detectorReadMethodToDacqReadMethod(ionChambers->detectorAt(i)->readMethod()));
 
+	///  NOTE!! FOR SOME REASON I CAN ONLY ADD 35 RECORDS.  LOOKING INTO RESOLVING THAT.
 	advAcq_->appendRecord("07B2_Mono_SineB_Ea", true, false, 0);
 	advAcq_->appendRecord("07B2_Mono_SineB_K", true, false, 0);
 	advAcq_->appendRecord("BL1607-B2-1:dwell:setTime", true, false, 0);
-	advAcq_->appendRecord("PCT1402-01:mA:fbk", true, false, 0);
+	//advAcq_->appendRecord("PCT1402-01:mA:fbk", true, false, 0);
 	advAcq_->appendRecord("dxp1607-B21-04:mca1.ERTM", true, false, 0);
 	advAcq_->appendRecord("dxp1607-B21-04:mca2.ERTM", true, false, 0);
 	advAcq_->appendRecord("dxp1607-B21-04:mca3.ERTM", true, false, 0);

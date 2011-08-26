@@ -26,16 +26,25 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 VESPERSXASScanConfiguration::VESPERSXASScanConfiguration(QObject *parent)
 	: AMXASScanConfiguration(parent)
 {
+	ionChamberNames_.insert(Isplit, "Isplit");
+	ionChamberNames_.insert(Iprekb, "Iprekb");
+	ionChamberNames_.insert(Imini, "Imini");
+	ionChamberNames_.insert(Ipost, "Ipost");
+
 	regions_->setEnergyControl(VESPERSBeamline::vespers()->energyRelative());
 	fluorescenceDetectorChoice_ = FourElement;
 	It_ = Ipost;
 	I0_ = Imini;
-	roiCount_ = 0;
 }
 
 VESPERSXASScanConfiguration::VESPERSXASScanConfiguration(const VESPERSXASScanConfiguration &original)
 	: AMXASScanConfiguration(original.parent())
 {
+	ionChamberNames_.insert(Isplit, "Isplit");
+	ionChamberNames_.insert(Iprekb, "Iprekb");
+	ionChamberNames_.insert(Imini, "Imini");
+	ionChamberNames_.insert(Ipost, "Ipost");
+
 	regions_->setEnergyControl(VESPERSBeamline::vespers()->energyRelative());
 	for (int i = 0; i < original.regionCount(); i++)
 		regions_->addRegion(i, original.regionStart(i), original.regionDelta(i), original.regionEnd(i));
@@ -44,7 +53,6 @@ VESPERSXASScanConfiguration::VESPERSXASScanConfiguration(const VESPERSXASScanCon
 	fluorescenceDetectorChoice_ = original.fluorescenceDetectorChoice();
 	It_ = original.transmissionChoice();
 	I0_ = original.incomingChoice();
-	roiCount_ = original.roiCount();
 }
 
 AMScanConfiguration *VESPERSXASScanConfiguration::createCopy() const

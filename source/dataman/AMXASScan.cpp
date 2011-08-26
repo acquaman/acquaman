@@ -32,6 +32,7 @@ AMXASScan::AMXASScan(QObject *parent)
 #include "dataman/SGM2004FileLoader.h"
 #include "dataman/ALSBL8XASFileLoader.h"
 #include "dataman/SGM2011XASFileLoader.h"
+#include "dataman/VESPERS/VESPERSXASDataLoader.h"
 #include <QFileInfo>
 #include "util/AMSettings.h"
 
@@ -81,7 +82,16 @@ bool AMXASScan::loadDataImplementation() {
 		}
 	}
 
+	VESPERSXASDataLoader vespersLoader(this);
 
+	if (fileFormat() == vespersLoader.formatTag()){
+		if (vespersLoader.loadFromFile(sourceFileInfo.filePath(), false, false, false))
+			return true;
+		else{
+			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, -1, QString("Could not load raw XAS scan data from '%1'").arg(filePath())));
+			return false;
+		}
+	}
 
 	AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, -1, QString("Could not load raw XAS scan data. The '%1' file format isn't supported.").arg(fileFormat())));
 	return false;
