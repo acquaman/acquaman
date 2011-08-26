@@ -58,7 +58,9 @@ parse_macros( const char *macro_string, macroTable ** macro_first)
 	{
 		/* find a single comma delimited entry */
 		e = s + strcspn(s, ",");
-		if( e-s >= sizeof setMacro)
+		// Cast to unsigned int to avoid compiler warning (David Chevrier, Aug 25 2011)
+		//if( e-s >= sizeof setMacro)
+		if( (unsigned int)(e-s) >= sizeof setMacro)
 		{
 			/* skip macros that don't fit */
 			if( *e) e++;
