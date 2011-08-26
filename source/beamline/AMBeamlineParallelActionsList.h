@@ -42,7 +42,10 @@ class AMBeamlineParallelActionsList : public QObject
 		int stageCount();
 		int count();
 		int countAt(int stageIndex);
-		#warning "Hey David, check the const - ness of these"
+		/* NTBA - August 25th, 2011 (David Chevrier)
+		   Need to check on how constant this function really is.
+		   Should be address with the const * const question.
+		 */
 		QList<AMBeamlineActionItem*>* stage(int stageIndex) const;
 		AMBeamlineActionItem* action(int stageIndex, int index) const;
 		int stageIndexOf(QList<AMBeamlineActionItem*> *iList);

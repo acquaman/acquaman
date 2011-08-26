@@ -29,6 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMSampleManagementWidget::AMSampleManagementWidget(AMSampleManipulatorView *manipulatorView, const QUrl& sampleCameraUrl, AMSamplePlate* samplePlate, QWidget *parent) :
 	QWidget(parent)
 {
+	Q_UNUSED(sampleCameraUrl);
 	// cam_ = new AMBeamlineCameraWidget("Sample Camera", sampleCameraUrl);
 	// cam_->addSource("Camera 2", source2);
 
