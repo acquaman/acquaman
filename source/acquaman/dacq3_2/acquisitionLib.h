@@ -480,7 +480,9 @@ int acqRegisterOutputHandler(acqMaster_t *, void *, eventDataHandler_t *);
 /* de-registers a specific output handler */
 int acqRemoveOutputHandler(acqMaster_t *, void *);
 /* de-register all output handlers */
-int acqClearOUtputHandlers(acqMaster_t *);
+// Changed this to void from int to fix compiler warning. See if it works. (David Chevrier, Aug 25 2011)
+//int acqClearOUtputHandlers(acqMaster_t *);
+void acqClearOUtputHandlers(acqMaster_t *);
 /* broadcast a signal to all handlers (ignore 'key') */
 int acqHandlerSignal( acqMaster_t *master, acqKey_t key, unsigned int signalID, const void *data);
 

@@ -53,7 +53,8 @@ addIndexEventPv( acqEvent_t *ev, int index, char *name, int norecord, char *fmt,
                     ev->numPvList = NUM_EVENT_PV;
             nbytes = (1+ev->numPvList)* sizeof (*ev->pvList);
 //            DEBUG printf("adding event %d total bytes %d (%d*%d)\n", idx, nbytes, ev->numPvList+1, sizeof(*ev->pvList));
-            printf("adding event %d total bytes %d (%d*%d)\n", idx, nbytes, ev->numPvList+1, sizeof(*ev->pvList));
+	    //Added l to make ld for the last arg (David Chevrier, Aug 25 2011)
+	    printf("adding event %d total bytes %d (%d*%ld)\n", idx, nbytes, ev->numPvList+1, sizeof(*ev->pvList));
             ev->pvList = realloc(ev->pvList, nbytes);
     }
     ev->numPvList++;
