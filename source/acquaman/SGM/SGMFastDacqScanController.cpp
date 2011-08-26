@@ -37,7 +37,9 @@ SGMFastDacqScanController::SGMFastDacqScanController(SGMFastScanConfiguration *c
 
 bool SGMFastDacqScanController::initializeImplementation(){
 	if(SGMFastScanController::beamlineInitialize() && initializationActions_){
-		#warning "Do we need to also clear any raw data sources here, or just the raw data itself?"
+		/* NTBA - August 25th, 2011 (David Chevrier)
+			Do we need to also clear any raw data sources here, or just the raw data itself?"
+		*/
 		pScan()->clearRawDataPoints();
 		connect(initializationActions_, SIGNAL(listSucceeded()), this, SLOT(onInitializationActionsSucceeded()));
 		connect(initializationActions_, SIGNAL(stageSucceeded(int)), this, SLOT(onInitializationActionsStageSucceeded(int)));
@@ -221,6 +223,7 @@ bool SGMFastDacqScanController::event(QEvent *e){
 }
 
 AMnDIndex SGMFastDacqScanController::toScanIndex(QMap<int, double> aeData){
+	Q_UNUSED(aeData)
 	// SGM XAS Scan has only one dimension (energy), simply append to the end of this
 	return AMnDIndex(pScan()->rawData()->scanSize(0));
 }
@@ -262,6 +265,7 @@ void SGMFastDacqScanController::onInitializationActionsStageSucceeded(int stageI
 }
 
 void SGMFastDacqScanController::onInitializationActionsFailed(int explanation){
+	Q_UNUSED(explanation)
 	setFailed();
 }
 

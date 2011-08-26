@@ -11,6 +11,8 @@
 #include "acquisitionLib.internal.h"
 #include <stdlib.h>
 
+#define UNUSED(x) (void)(x)
+
 /*
  * number of monitor callbacks, and milliseconds between each callback
  */
@@ -130,7 +132,7 @@ addEventPv( acqEvent_t *ev, char *name, int norecord, char *fmt, acqPvReady_t re
 
 	idx = ev->numPvList;
 	nbytes = (1+ev->numPvList)* sizeof (*ev->pvList);
-	DEBUGM(ev->master,1) printf("adding event %d total bytes %d (%d*%d)\n", idx, nbytes, ev->numPvList+1, sizeof(*ev->pvList));
+	DEBUGM(ev->master,1) printf("adding event %d total bytes %d (%d*%ld)\n", idx, nbytes, ev->numPvList+1, sizeof(*ev->pvList));
 	ev->pvList = realloc(ev->pvList, nbytes);
 
 	ev->numPvList++;
@@ -161,7 +163,8 @@ int
 deleteEventPv( acqEvent_t *ev, int rowNum)
 {
 	int idx;
-	int maxPv;
+	// Removed because unused (David Chevrier, Aug 25 2011)
+	//int maxPv;
 
 	if( ev == NULL)
 		return -1;
@@ -191,7 +194,8 @@ deleteEventPv( acqEvent_t *ev, int rowNum)
 static char *
 valid_eventRecord_settings( acqEvent_t *ev)
 {
-
+	//Added to fix warning (David Chevrier, Aug 25 2011)
+	UNUSED(ev);
 	return NULL;
 }
 
@@ -652,6 +656,9 @@ valid_scanRecord_settings( acqScan_t *as)
 				if( actp->au.wm.name == NULL)
 					return "missing Name for motor wait";
 				break;
+			case AA_NO_ACTION:
+				//Added to fix warning (David Chevrier, Aug 25 2011)
+				break;
 
 			}
 		}
@@ -704,7 +711,17 @@ static int buildAction( acqAction_t *ap)
 
 	case AA_SET_CONTROL:
 		return 1;
+
+	case AA_NEXT_OUTPUT:
+		//Added because of warning (David Chevrier, Aug 25 2011)
+		return 1;
+
+	case AA_NO_ACTION:
+		//Added because of warning (David Chevrier, Aug 25 2011)
+		return 1;
 	}
+	//Added because of warning (David Chevrier, Aug 25 2011)
+	return 0;
 }
 
 static int
@@ -752,7 +769,6 @@ build_scanRecord_links(acqScan_t *sc)
 /*
  * remove components from the action list at the end of the run
  */
-#warning "Compiler complained about reaching end of non-void function ... what is the return type here? I'm setting it as void"
 void
 eraseActionList( acqAction_t *act_h)
 {
@@ -793,7 +809,6 @@ eraseActionList( acqAction_t *act_h)
 		case AA_WAIT_SCAN:
 			ap->au.ws.scan = NULL;
 			continue;
-#warning "Compiler complained about lack of AA_NEXT_OUTPUT and AA_NO_ACTION, adding is same continue format"
 		case AA_NEXT_OUTPUT:
 			continue;
 		case AA_NO_ACTION:
@@ -996,7 +1011,6 @@ curState(acqState st)
 char *
 acqCurState(acqState st)
 {
-#warning "Compiler complained about redundancy of st < 0"
 //	if( st < 0 || st >= AS_NUMBER)
 	if( st >= AS_NUMBER)
 		return "unknown";
@@ -1006,7 +1020,6 @@ acqCurState(acqState st)
 acqState
 acqGetStateFromName(const char *name)
 {
-#warning "Compiler complained about signed/unsigned"
 	unsigned int i;
 	for(i=0; i < sizeof stateNames/sizeof stateNames[0]; i++)
 		if( strcmp(name, stateNames[i]) == 0)

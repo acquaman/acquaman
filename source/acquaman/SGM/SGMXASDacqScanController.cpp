@@ -32,7 +32,9 @@ SGMXASDacqScanController::SGMXASDacqScanController(SGMXASScanConfiguration *cfg,
 
 bool SGMXASDacqScanController::initializeImplementation(){
 	if(SGMXASScanController::beamlineInitialize() && initializationActions_){
-		#warning "Do we need to also clear any raw data sources here, or just the raw data itself?"
+		/* NTBA - August 25th, 2011 (David Chevrier)
+			Do we need to also clear any raw data sources here, or just the raw data itself?"
+		*/
 		pScan_()->clearRawDataPoints();
 
 		AMBeamlineListAction *listAction = new AMBeamlineListAction(initializationActions_);
@@ -142,6 +144,7 @@ bool SGMXASDacqScanController::startImplementation(){
 }
 
 AMnDIndex SGMXASDacqScanController::toScanIndex(QMap<int, double> aeData){
+	Q_UNUSED(aeData)
 	// SGM XAS Scan has only one dimension (energy), simply append to the end of this
 	return AMnDIndex(pScan_()->rawData()->scanSize(0));
 }

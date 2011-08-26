@@ -164,7 +164,9 @@ bool AMBeamlineParallelActionsList::setStage(int stageIndex, QList<AMBeamlineAct
 			holdersHash_.set(stageList, new AMBeamlineParallelActionsListHolder(this));
 			connect(holdersHash_.valueF(stageList), SIGNAL(everythingFinished()), this, SLOT(onStageSucceeded()));
 			connect(holdersHash_.valueF(stageList), SIGNAL(somethingFailed(QList<AMBeamlineActionItem*>,int)), this, SLOT(onStageFailed(QList<AMBeamlineActionItem*>,int)));
-			#warning "Hey David, What connections need to be made (added to) the holder?"
+			/* NTBA - August 25th, 2011 (David Chevrier)
+				 What connections need to be made (added to) the holder?"
+			*/
 			for(int x = 0; x < stageList->count(); x++)
 				holdersHash_.valueF(stageList)->addAction(stageList->at(x));
 			if(prevStageList && nextStageList)
@@ -291,7 +293,9 @@ bool AMBeamlineParallelActionsList::deleteStage(int stageIndex){
 			}
 			disconnect(holdersHash_.valueF(oldStageList), SIGNAL(everythingFinished()), this, SLOT(onStageSucceeded()));
 			holdersHash_.removeF(oldStageList);
-			#warning "Hey David, do you need to delete that holder? You new'd it"
+			/* NTBA - August 25th, 2011 (David Chevrier)
+				Do you need to delete that holder? You new'd it"
+			*/
 		}
 	}
 	return retVal;
@@ -710,7 +714,9 @@ bool AMBeamlineParallelActionListModel::removeRows(int row, int count, const QMo
 				}
 			}
 		}
-		#warning "Hey David, who's responsible for deleting this list pointer and any item pointers it has?"
+		/* NTBA - August 25th, 2011 (David Chevrier)
+			Who's responsible for deleting this list pointer and any item pointers it has?"
+		*/
 		for(int x = 0; x < count; x++)
 			actions_->removeAt(row);
 		endRemoveRows();
@@ -730,7 +736,9 @@ bool AMBeamlineParallelActionListModel::removeRows(int row, int count, const QMo
 			actionsHash_.removeF(internalID);
 			actionsHash_.set(internalID, QPair<int,int>(topIndex, x-count));
 		}
-		#warning "Hey David, who's responsible for deleting these actionItem pointers?"
+		/* NTBA - August 25th, 2011 (David Chevrier)
+			Who's responsible for deleting these actionItem pointers?"
+		*/
 		for(int x = 0; x < count; x++)
 			actions_->at(topIndex)->removeAt(row);
 		endRemoveRows();

@@ -177,16 +177,19 @@ int acqTextOutput::pvFlags( acqKey_t key, int eventno, int pvno, const char *efl
 	return 0;
 }
 
-int acqTextOutput::pause( acqKey_t key)
+// Commented out because unused to avoid compiler warning (David Chevrier, Aug 25 2011)
+int acqTextOutput::pause( acqKey_t /*key*/)
 {
 	return 0;
 }
-int acqTextOutput::resume( acqKey_t key)
+// Commented out because unused to avoid compiler warning (David Chevrier, Aug 25 2011)
+int acqTextOutput::resume( acqKey_t /*key*/)
 {
 	return 0;
 }
+// Commented out because unused to avoid compiler warning (David Chevrier, Aug 25 2011)
 // end of the run
-int acqTextOutput::stop( acqKey_t key)
+int acqTextOutput::stop( acqKey_t /*key*/)
 {
 	return 0;
 }
@@ -415,7 +418,8 @@ int acqTextOutput::startRecord( acqKey_t key, int eventno)
 	return 0;
 }
 
-int acqTextOutput::endRecord( acqKey_t key, int eventno)
+// Commented out because unused to avoid compiler warning (David Chevrier, Aug 25 2011)
+int acqTextOutput::endRecord( acqKey_t key, int /*eventno*/)
 {
 	acqTextOutput *to = (acqTextOutput *)key;
 

@@ -5,6 +5,8 @@
 #include <libxml/xmlreader.h>
 #include "acquisitionLib.h"
 
+#include <QString>
+
 /*
  * return 0 for a '0' or 'no' value, 1 for a '1' or 'yes' value, and 2 for a '?' value. all other values return -1.
  */
@@ -106,7 +108,7 @@ static void process_handler(xmlTextReaderPtr reader, acqMaster_t *);
 static void
 process_config( xmlTextReaderPtr reader, acqMaster_t *master)
 {
-	char * attributeList[2] = { "version", NULL };
+	char * attributeList[2] = { QString("version").toAscii().data(), NULL };
 	char * attributeValue[2];
 	const char *name;
 	int nodeType;
@@ -189,7 +191,7 @@ process_config( xmlTextReaderPtr reader, acqMaster_t *master)
 static void
 process_scan( xmlTextReaderPtr reader, acqMaster_t *master)
 {
-	char * attributeList[4] = { "name", "id", "onStart", NULL };
+	char * attributeList[4] = { QString("name").toAscii().data(), QString("id").toAscii().data(), QString("onStart").toAscii().data(), NULL };
 	char * attributeValue[4];
 	const char *name;
 	int nodeType;
@@ -233,7 +235,7 @@ process_scan( xmlTextReaderPtr reader, acqMaster_t *master)
 static void
 process_event( xmlTextReaderPtr reader, acqMaster_t *master)
 {
-	char * attributeList[3] = { "name", "id", NULL };
+	char * attributeList[3] = { QString("name").toAscii().data(), QString("id").toAscii().data(), NULL };
 	char * attributeValue[3];
 	const char *name;
 	int nodeType;
@@ -311,7 +313,7 @@ process_file(xmlTextReaderPtr reader, acqMaster_t *master)
 static void
 process_control(xmlTextReaderPtr reader, acqScan_t *scanp)
 {
-	char * attributeList[6] = { "PVname", "start", "delta", "final", "active", NULL };
+	char * attributeList[6] = { QString("PVname").toAscii().data(), QString("start").toAscii().data(), QString("delta").toAscii().data(), QString("final").toAscii().data(), QString("active").toAscii().data(), NULL };
 	char * attributeValue[6];
 	acqControl_t ctl;
 	char *err;
@@ -358,7 +360,7 @@ process_control(xmlTextReaderPtr reader, acqScan_t *scanp)
 static void
 process_actionList(xmlTextReaderPtr reader, acqScan_t *scanp)
 {
-	char * attributeList[2] = { "type", NULL };
+	char * attributeList[2] = { QString("type").toAscii().data(), NULL };
 	char * attributeValue[2];
 	const char *name;
 	int nodeType;
@@ -391,7 +393,7 @@ process_actionList(xmlTextReaderPtr reader, acqScan_t *scanp)
 
 		if( strcmp( name, "Delay") == 0)
 		{
-			char *atList[2] = { "value", NULL};
+			char *atList[2] = { QString("value").toAscii().data(), NULL};
 			char *atValue[2];
 			getAttributes( reader, atList, atValue);
 			new_acqAction_delayTime( &scanp->actions[actionIndex], strtod(atValue[0],&err),  scanp->master);
@@ -401,7 +403,7 @@ process_actionList(xmlTextReaderPtr reader, acqScan_t *scanp)
 
 		if( strcmp( name, "SetPV") == 0)
 		{
-			char *atList[3] = { "name", "value", NULL};
+			char *atList[3] = { QString("name").toAscii().data(), QString("value").toAscii().data(), NULL};
 			char *atValue[3];
 			getAttributes( reader, atList, atValue);
 			new_acqAction_setPV( &scanp->actions[actionIndex], atValue[0], atValue[1], scanp->master);
@@ -411,7 +413,7 @@ process_actionList(xmlTextReaderPtr reader, acqScan_t *scanp)
 
 		if( strcmp( name, "WaitPV") == 0)
 		{
-			char *atList[3] = { "name", "value", NULL};
+			char *atList[3] = { QString("name").toAscii().data(), QString("value").toAscii().data(), NULL};
 			char *atValue[3];
 			getAttributes( reader, atList, atValue);
 			new_acqAction_waitPV( &scanp->actions[actionIndex], atValue[0], atValue[1], scanp->master);
@@ -421,7 +423,7 @@ process_actionList(xmlTextReaderPtr reader, acqScan_t *scanp)
 
 		if( strcmp( name, "WaitMotor") == 0)
 		{
-			char *atList[2] = { "name", NULL};
+			char *atList[2] = { QString("name").toAscii().data(), NULL};
 			char *atValue[2];
 			getAttributes( reader, atList, atValue);
 			new_acqAction_waitMotor( &scanp->actions[actionIndex], atValue[0], scanp->master);
@@ -431,7 +433,7 @@ process_actionList(xmlTextReaderPtr reader, acqScan_t *scanp)
 
 		if( strcmp( name, "CallEvent") == 0)
 		{
-			char *atList[3] = { "name", "wait", NULL};
+			char *atList[3] = { QString("name").toAscii().data(), QString("wait").toAscii().data(), NULL};
 			char *atValue[3];
 			getAttributes( reader, atList, atValue);
 			new_acqAction_callEvent(  &scanp->actions[actionIndex], atValue[0], getBinary(atValue[1]), scanp->master);
@@ -441,7 +443,7 @@ process_actionList(xmlTextReaderPtr reader, acqScan_t *scanp)
 
 		if( strcmp( name, "CallScan") == 0)
 		{
-			char *atList[3] = { "name", "wait", NULL};
+			char *atList[3] = { QString("name").toAscii().data(), QString("wait").toAscii().data(), NULL};
 			char *atValue[3];
 			getAttributes( reader, atList, atValue);
 			new_acqAction_callScan(  &scanp->actions[actionIndex], atValue[0], getBinary(atValue[1]), scanp->master);
@@ -451,7 +453,7 @@ process_actionList(xmlTextReaderPtr reader, acqScan_t *scanp)
 
 		if( strcmp( name, "WaitEvent") == 0)
 		{
-			char *atList[2] = { "name", NULL};
+			char *atList[2] = { QString("name").toAscii().data(), NULL};
 			char *atValue[2];
 			getAttributes( reader, atList, atValue);
 			new_acqAction_waitEvent(  &scanp->actions[actionIndex], atValue[0], scanp->master);
@@ -461,7 +463,7 @@ process_actionList(xmlTextReaderPtr reader, acqScan_t *scanp)
 
 		if( strcmp( name, "WaitScan") == 0)
 		{
-			char *atList[2] = { "name", NULL};
+			char *atList[2] = { QString("name").toAscii().data(), NULL};
 			char *atValue[2];
 			getAttributes( reader, atList, atValue);
 			new_acqAction_waitScan(  &scanp->actions[actionIndex], atValue[0], scanp->master);
@@ -490,7 +492,7 @@ process_actionList(xmlTextReaderPtr reader, acqScan_t *scanp)
 static void
 process_flags(xmlTextReaderPtr reader, acqEvent_t *eventp)
 {
-	char * attributeList[6] = { "eventID", "absTime", "Rel0Time", "RelPTime", "commentPrefix", NULL };
+	char * attributeList[6] = { QString("eventID").toAscii().data(), QString("absTime").toAscii().data(), QString("Rel0Time").toAscii().data(), QString("RelPTime").toAscii().data(), QString("commentPrefix").toAscii().data(), NULL };
 	char * attributeValue[6];
 	int binval;
 
@@ -516,9 +518,9 @@ process_flags(xmlTextReaderPtr reader, acqEvent_t *eventp)
 static void
 process_pv(xmlTextReaderPtr reader, acqEvent_t *eventp)
 {
-	char * attributeList[6] = { "name", "disable", "spectrum", "ready", "format", NULL };
+	char * attributeList[6] = { QString("name").toAscii().data(), QString("disable").toAscii().data(), QString("spectrum").toAscii().data(), QString("ready").toAscii().data(), QString("format").toAscii().data(), NULL };
 	char * attributeValue[6];
-	char *enumList[4] = { "immediate", "readback", "wait", NULL};
+	char *enumList[4] = { QString("immediate").toAscii().data(), QString("readback").toAscii().data(), QString("wait").toAscii().data(), NULL};
 	char *format = NULL;
 
 	getAttributes( reader, attributeList, attributeValue);
@@ -538,12 +540,13 @@ process_pv(xmlTextReaderPtr reader, acqEvent_t *eventp)
 static void
 process_handler(xmlTextReaderPtr reader, acqMaster_t *master)
 {
+	Q_UNUSED(master)
 	const char *name;
 	const char *value;
 	int nodeType;
 	int isEmpty;
 
-	char * attributeList[3] = { "name", "library", NULL };
+	char * attributeList[3] = { QString("name").toAscii().data(), QString("library").toAscii().data(), NULL };
 	char * attributeValue[3];
 
 	getAttributes( reader, attributeList, attributeValue);
@@ -557,7 +560,7 @@ process_handler(xmlTextReaderPtr reader, acqMaster_t *master)
 		parseNode( reader, &name, &nodeType, &isEmpty, &value);
 		if( strcmp( name, "property") == 0)
 		{
-			static char *aList[2] = { "name", NULL };
+			static char *aList[2] = { QString("name").toAscii().data(), NULL };
 			static char *aValue[2] ;
 			getAttributes( reader, aList, aValue);
 			/* TO DO:
@@ -585,13 +588,16 @@ process_handler(xmlTextReaderPtr reader, acqMaster_t *master)
 int
 acq_ReadXMLconfig(const char *filename, acqMaster_t *master) {
     xmlTextReaderPtr reader;
-    int ret;
+    // Commented this out to avoid unused compiler warning (David Chevrier, Aug 25, 2011)
+    //int ret;
 
     reader = xmlReaderForFile(filename, NULL, XML_PARSE_DTDVALID);
     if (reader != NULL) {
     	while( getNextNode(reader) == 1)
 		{
-			const char *name, *value;
+			// Commented this out to avoid unused warning in compiler (David Chevrier, Aug 25 2011)
+			//const char *name, *value;
+			const char *name;
 
 			parseNode( reader, &name, NULL, NULL, NULL);
 

@@ -289,7 +289,9 @@ void SGMSidebar::onBeamOnButtonClicked(){
 
 void SGMSidebar::onBeamOnActionFinished(){
 	qDebug() << "Beam on action finished";
-#warning "David, probably need to delete the internals too, list, actions, etc"
+	/* NTBA - August 25th, 2011 (David Chevrier)
+			Probably need to delete the internals too, list, actions, etc"
+	*/
 	delete beamOnAction_;
 	beamOnAction_ = 0;//NULL
 }

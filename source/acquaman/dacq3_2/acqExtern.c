@@ -78,7 +78,9 @@ int acqRemoveOutputHandler(acqMaster_t *master, acqKey_t key)
 	return 0;
 }
 
-int acqClearOutputHandlers(acqMaster_t *master)
+//int acqClearOutputHandlers(acqMaster_t *master)
+// Changed this to void from int to fix compiler warning. See if it works. (David Chevrier, Aug 25 2011)
+void acqClearOutputHandlers(acqMaster_t *master)
 {
 	master->numOutputHandler = 0;
 	free( master->outputKeys);
@@ -134,7 +136,9 @@ static struct tgKeyword tgKeyword[] =
 char *
 tgTypeName(int idx)
 {
-	int i;
+	//int i;
+	//Fixed compiler comparison warning (David Chevrier, Aug 25 2011)
+	unsigned int i;
 	for( i=0 ;i < NtgKeyword; i++)
 		if( tgKeyword[i].idx == idx)
 			return tgKeyword[i].name;
@@ -144,7 +148,9 @@ tgTypeName(int idx)
 int
 tgTypeIndex(char *tname)
 {
-	int i;
+	//int i;
+	//Fixed compiler comparison warning (David Chevrier, Aug 25 2011)
+	unsigned int i;
 	for( i=0 ;i < NtgKeyword; i++)
 		if( strcmp(tgKeyword[i].name,tname) == 0)
 			return tgKeyword[i].idx;

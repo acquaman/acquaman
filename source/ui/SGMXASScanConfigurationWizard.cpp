@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 SGMXASScanConfigurationWizard::SGMXASScanConfigurationWizard(SGMXASScanConfiguration *sxsc, const AMDetectorInfoSet& cfgDetectorInfoSet, QWidget *parent) :
 	QWizard(parent)
 {
+	Q_UNUSED(cfgDetectorInfoSet)
 	cfg_ = NULL;
 	if(SGMBeamline::sgm()->isConnected()){
 		cfg_ = sxsc;
@@ -195,6 +196,7 @@ void AMControlSetWizardPage::resizeEvent(QResizeEvent *e){
 AMDetectorSetWizardPage::AMDetectorSetWizardPage(AMDetectorSet *detectorSet, AMDetectorInfoSet *cfgDetectorInfoSet, QString title, QString subTitle, QWidget *parent) :
 		QWizardPage(parent)
 {
+	Q_UNUSED(cfgDetectorInfoSet)
 	detectorSet_ = detectorSet;
 	detectorView_ = new AMDetectorSetView(detectorSet, true);
 	gl_ = new QGridLayout();

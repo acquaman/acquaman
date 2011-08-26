@@ -186,7 +186,9 @@ void AMDetectorSetView::onDetectorAddedToSet(int index){
 	gl_->setRowStretch(viewSet_->count(), 10);
 }
 
-#warning "Hey David: Working, but SUPER INNEFFICIENT. Redraws the whole thing every time"
+/* NTBA - August 25th, 2011 (David Chevrier)
+		Working, but SUPER INNEFFICIENT. Redraws the whole thing every time"
+*/
 void AMDetectorSetView::onDetectorRemovedFromSet(int index){
 	Q_UNUSED(index)
 	for(int x = gl_->rowCount()-1; x >= 0; x--){

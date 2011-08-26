@@ -184,6 +184,8 @@ bool AMScanController::changeState(ScanState newState){
 	bool canTransition = false;
 	// Check the permissible transitions
 	switch (newState) {
+	case AMScanController::Constructed :
+		break;
 	case AMScanController::Initializing :
 		if(state_ == AMScanController::Constructed)
 			canTransition = true;

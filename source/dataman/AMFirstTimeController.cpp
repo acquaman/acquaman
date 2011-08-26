@@ -28,8 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <dataman/AMSample.h>
 #include <dataman/AMExperiment.h>
 #include <dataman/AMControlInfoList.h>
-#warning "Hey David, you need to move this file to dataman, clearly"
-#include <acquaman/AMDetectorInfoList.h>
+#include <dataman/AMDetectorInfoList.h>
 #include <dataman/AMSamplePlate.h>
 #include <dataman/AMSpectralOutputDetectorInfo.h>
 #include "dataman/AMUser.h"

@@ -259,9 +259,9 @@ bool QEpicsAdvAcq::addRegion(int region)
 		ipv = (sp->acqControlList[region-tmpOffset]).controlPV;
 	else
 		ipv = _regions.at(region-1)->_pv;
-	istart = _acq->getValue(sp->scanName, "start", region);
-	idelta = _acq->getValue(sp->scanName, "delta", region);
-	iend = _acq->getValue(sp->scanName, "end", region);
+	istart = _acq->getValue(sp->scanName, QString("start").toAscii().data(), region);
+	idelta = _acq->getValue(sp->scanName, QString("delta").toAscii().data(), region);
+	iend = _acq->getValue(sp->scanName, QString("end").toAscii().data(), region);
 	iintTime = _defaultIntTime;
 //    if( (istart == 0) && (region != 0) )
 //        istart = _regions.at(region-1)->_end + idelta;
@@ -310,9 +310,9 @@ bool QEpicsAdvAcq::addRegion(int region, QString pv, double start, double delta,
 		ipv = (sp->acqControlList[region-tmpOffset]).controlPV;
 	else
 		ipv = _regions.at(region-1)->_pv;
-	istart = _acq->getValue(sp->scanName, "start", region);
-	idelta = _acq->getValue(sp->scanName, "delta", region);
-	iend = _acq->getValue(sp->scanName, "end", region);
+	istart = _acq->getValue(sp->scanName, QString("start").toAscii().data(), region);
+	idelta = _acq->getValue(sp->scanName, QString("delta").toAscii().data(), region);
+	iend = _acq->getValue(sp->scanName, QString("end").toAscii().data(), region);
 	iintTime = intTime;
 //    if( (istart == 0) && (region != 0) )
 //        istart = _regions.at(region-1)->_end + idelta;
@@ -475,7 +475,7 @@ bool QEpicsAdvAcq::addRecord(int record)
 	ev = first_acqEvent(_acq->getMaster());
 	if(!ev || !ev->numPvList || (record > ev->numPvList) )
 		return FALSE;
-	addIndexEventPv( ev, record, "New", 0, NULL, useCurrent, 0 );
+	addIndexEventPv( ev, record, QString("New").toAscii().data(), 0, NULL, useCurrent, 0 );
 	return TRUE;
 }
 
@@ -510,9 +510,9 @@ bool QEpicsAdvAcq::appendRecord(QString pv, bool enable, bool spectrum, int mode
 	if(!ev || !ev->numPvList )
 		return FALSE;
 	char* PVNAME = const_cast<char*>(pv.toAscii().data());
-	char* FORMAT = "%g";
+	char* FORMAT = QString("%g").toAscii().data();
 	if(spectrum)
-		FORMAT = "";
+		FORMAT = QString("").toAscii().data();
 		//FORMAT = "%ld";
 
 	switch(mode)
@@ -560,9 +560,9 @@ bool QEpicsAdvAcq::buildFromConfig()
 			pv = (sp->acqControlList[x]).controlPV;
 		else
 			pv = _regions.at(x-1)->_pv;
-		start = _acq->getValue(sp->scanName, "start", x);
-		delta = _acq->getValue(sp->scanName, "delta", x);
-		end = _acq->getValue(sp->scanName, "end", x);
+		start = _acq->getValue(sp->scanName, QString("start").toAscii().data(), x);
+		delta = _acq->getValue(sp->scanName, QString("delta").toAscii().data(), x);
+		end = _acq->getValue(sp->scanName, QString("end").toAscii().data(), x);
 		intTime = _defaultIntTime;
 //        if( (start == 0) && (x != 0) )
 //            start = _regions.at(x-1)->_end + delta;
@@ -602,7 +602,7 @@ void QEpicsAdvAcq::setStart(int region, double start)
 {
 	_regions.at(region)->_start = start;
 	if(_regions.at(region)->_enable)
-		setValue(sp->scanName, "start", region-_regions.at(region)->_offset, start);
+		setValue(sp->scanName, QString("start").toAscii().data(), region-_regions.at(region)->_offset, start);
 }
 
 void QEpicsAdvAcq::setStrStart(int region, QString start)
@@ -625,7 +625,7 @@ void QEpicsAdvAcq::setDelta(int region, double delta)
 {
 	_regions.at(region)->_delta = delta;
 	if(_regions.at(region)->_enable)
-		setValue(sp->scanName, "delta", region-_regions.at(region)->_offset, delta);
+		setValue(sp->scanName, QString("delta").toAscii().data(), region-_regions.at(region)->_offset, delta);
 }
 
 void QEpicsAdvAcq::setStrDelta(int region, QString delta)
@@ -648,7 +648,7 @@ void QEpicsAdvAcq::setEnd(int region, double end)
 {
 	_regions.at(region)->_end = end;
 	if(_regions.at(region)->_enable)
-		setValue(sp->scanName, "end", region-_regions.at(region)->_offset, end);
+		setValue(sp->scanName, QString("end").toAscii().data(), region-_regions.at(region)->_offset, end);
 }
 
 void QEpicsAdvAcq::setStrEnd(int region, QString end)

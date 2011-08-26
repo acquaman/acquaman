@@ -305,7 +305,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/util/AMOrderedList.h \
 	source/beamline/AMBeamlineParallelActionsList.h \
 	source/acquaman/AMControlOptimization.h \
-	source/acquaman/AMDetectorInfoList.h \
+	source/dataman/AMDetectorInfoList.h \
 	source/ui/AMControlOptimizationView.h \
 	source/dataman/SGM2010FastSensibleFileLoader.h \
 	source/beamline/AMBeamlineControlStopAction.h \
@@ -557,7 +557,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/analysis/AM2DSummingABEditor.cpp \
 	source/beamline/AMBeamlineParallelActionsList.cpp \
 	source/acquaman/AMControlOptimization.cpp \
-	source/acquaman/AMDetectorInfoList.cpp \
+	source/dataman/AMDetectorInfoList.cpp \
 	source/ui/AMControlOptimizationView.cpp \
 	source/dataman/SGM2010FastSensibleFileLoader.cpp \
 	source/beamline/AMBeamlineControlStopAction.cpp \

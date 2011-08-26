@@ -170,7 +170,9 @@ bool SGMFastScanController::beamlineInitialize(){
 
 
 	SGMFastScanParameters *settings = pCfg()->currentParameters();
-	#warning "Hey David, who's going to delete the list and the actions?"
+	/* NTBA - August 25th, 2011 (David Chevrier)
+		Who's going to delete the list and the actions?"
+	*/
 	initializationActions_ = new AMBeamlineParallelActionsList();
 	if( SGMBeamline::sgm()->energy()->withinTolerance(settings->energyStart()) ){
 		qDebug() << "Too close to start energy";

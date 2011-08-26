@@ -29,7 +29,8 @@ getInt( Connector *conp)
 int
 waitAcqMotor( acqMotor_t *m)
 {
-	int i;
+	// Commented out because unused to avoid compiler warning (David Chevrier, Aug 25 2011)
+	//int i;
 	acqOneMotor_t *op;
 	int moving, busy;
 	int status;
