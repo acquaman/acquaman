@@ -53,9 +53,10 @@ SGMAppController::SGMAppController(QObject *parent) :
 bool SGMAppController::startup() {
 
 	// Initialize AMBeamline::bl() as an SGMBeamline::sgm() instance. FIRST!
-	SGMBeamline::sgm();
+	//SGMBeamline::sgm();
 
 	if(AMAppController::startup()) {
+		SGMBeamline::sgm();
 
 		AMDbObjectSupport::registerClass<MCPDetectorInfo>();
 		AMDbObjectSupport::registerClass<PGTDetectorInfo>();
