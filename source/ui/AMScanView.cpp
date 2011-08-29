@@ -129,7 +129,7 @@ void AMScanViewScanBar::onRowInserted(const QModelIndex& parent, int start, int 
 	AMScan* source = model_->scanAt(scanIndex_);
 	// note: AMScanSetModel guarantees only one row inserted at a time, but we don't depend on that...
 	for(int i=start; i<=end; i++) {
-		QToolButton* newButton = new QToolButton();
+		AMColoredTextToolButton *newButton = new AMColoredTextToolButton(model_->plotColor(scanIndex_, i));
 		newButton->setText(source->dataSourceAt(i)->name());
 		newButton->setCheckable(true);
 		newButton->setMaximumHeight(18);
