@@ -24,6 +24,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMUser.h"
 #include "analysis/AM1DExpressionAB.h"
 #include "analysis/AM2DSummingAB.h"
+#include "beamline/AMBeamlineListAction.h"
+#include "beamline/AMBeamlineParallelActionsList.h"
 
 #include <QDir>
 
@@ -143,7 +145,43 @@ VESPERSXASDacqScanController::VESPERSXASDacqScanController(VESPERSXASScanConfigu
 
 bool VESPERSXASDacqScanController::initializeImplementation()
 {
-	setInitialized();
+	// To initialize the XAS scan, there are two stages.
+	/*
+		First: Enable/Disable all the pertinent detectors.  The scalar is ALWAYS enabled.
+		Second: Set the mode to single shot and set the time on the synchronized dwell time.
+	 */
+	AMBeamlineParallelActionsList *setupXASActionsList = new AMBeamlineParallelActionsList;
+	AMBeamlineListAction *setupXASAction = new AMBeamlineListAction(setupXASActionsList);
+
+	// First stage.
+	setupXASActionsList->appendStage(new QList<AMBeamlineActionItem*>());
+	// Scalar
+	setupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(0)->createEnableAction(true));
+	// Single element vortex
+	if (config_->fluorescenceDetectorChoice() == VESPERSXASScanConfiguration::SingleElement)
+		setupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(1)->createEnableAction(true));
+	else
+		setupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(1)->createEnableAction(false));
+	// CCD
+	setupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(2)->createEnableAction(false));
+	// Picoammeters
+	setupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(3)->createEnableAction(false));
+	// Four element vortex
+	if (config_->fluorescenceDetectorChoice() == VESPERSXASScanConfiguration::FourElement)
+		setupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(4)->createEnableAction(true));
+	else
+		setupXASActionsList->appendAction(0, VESPERSBeamline::vespers()->synchronizedDwellTime()->elementAt(4)->createEnableAction(false));
+
+	// Second stage.
+	setupXASActionsList->appendStage(new QList<AMBeamlineActionItem*>());
+	setupXASActionsList->appendAction(1, VESPERSBeamline::vespers()->synchronizedDwellTime()->createModeAction(CLSSynchronizedDwellTime::SingleShot));
+	setupXASActionsList->appendAction(1, VESPERSBeamline::vespers()->synchronizedDwellTime()->createMasterTimeAction(config_->accumulationTime()));
+
+	connect(setupXASAction, SIGNAL(succeeded()), this, SLOT(onInitializationActionsSucceeded()));
+	connect(setupXASAction, SIGNAL(failed(int)), this, SLOT(onInitializationActionsFailed(int)));
+	connect(setupXASAction, SIGNAL(progress(double,double)), this, SLOT(onInitializationActionsProgress(double,double)));
+	setupXASAction->start();
+
 	return true;
 }
 
@@ -219,7 +257,6 @@ AMnDIndex VESPERSXASDacqScanController::toScanIndex(QMap<int, double> aeData)
 
 void VESPERSXASDacqScanController::onInitializationActionsSucceeded()
 {
-
 	setInitialized();
 }
 
@@ -227,6 +264,7 @@ void VESPERSXASDacqScanController::onInitializationActionsFailed(int explanation
 {
 	Q_UNUSED(explanation)
 
+	AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "XAS scan failed to initialize."));
 	setFailed();
 }
 
