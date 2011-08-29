@@ -25,9 +25,9 @@ CLSSynchronizedDwellTime::CLSSynchronizedDwellTime(QString baseName, QObject *pa
 {
 	baseName_ = baseName;
 
-	dwellTime_ = new AMPVControl("Dwell Time", baseName+":setTime", baseName+":setTime", QString(), this, 0.1);
-	startScan_ = new AMPVControl("Start Scan", baseName+":startScan", baseName+":startScan", QString(), this, 0.1);
-	mode_ = new AMPVControl("Dwell Mode", baseName+":setMode", baseName+":setMode", QString(), this, 0.1);
+	dwellTime_ = new AMSinglePVControl("Dwell Time", baseName+":setTime", this, 0.1);
+	startScan_ = new AMSinglePVControl("Start Scan", baseName+":startScan", this, 0.1);
+	mode_ = new AMSinglePVControl("Dwell Mode", baseName+":setMode", this, 0.1);
 
 	connect(dwellTime_, SIGNAL(valueChanged(double)), this, SIGNAL(timeChanged(double)));
 	connect(startScan_, SIGNAL(valueChanged(double)), this, SLOT(onScanningChanged(double)));
@@ -45,8 +45,8 @@ CLSSynchronizedDwellTimeElement::CLSSynchronizedDwellTimeElement(QString baseNam
 {
 	// 65 is 'A' in ascii.  Therefore the index offset will give the appropriate letter for the PV name since they are named 'A', 'B', 'C', etc.
 	name_ = new AMProcessVariable(baseName+":device"+QChar(65+index), true, this);
-	enable_ = new AMPVControl("Dwell Element Enable", baseName+":enable"+QChar(65+index), baseName+":enable"+QChar(65+index), QString(), this, 0.1);
-	time_ = new AMPVControl("Dwell Element Time", baseName+":set"+QChar(65+index), baseName+":set"+QChar(65+index), QString(), this, 0.1);
+	enable_ = new AMSinglePVControl("Dwell Element Enable", baseName+":enable"+QChar(65+index), this, 0.1);
+	time_ = new AMSinglePVControl("Dwell Element Time", baseName+":set"+QChar(65+index), this, 0.1);
 	status_ = new AMProcessVariable(baseName+":status"+QChar(65+index), true, this);
 
 	connect(name_, SIGNAL(valueChanged(QString)), this, SIGNAL(nameChanged(QString)));

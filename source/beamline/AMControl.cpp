@@ -174,6 +174,11 @@ AMPVControl::AMPVControl(const QString& name, const QString& readPVname, const Q
 	stopValue_ = stopValue;
 }
 
+AMSinglePVControl::AMSinglePVControl(const QString &name, const QString &PVname, QObject *parent, double tolerance, double completionTimeoutSeconds, const QString &description)
+	: AMPVControl(name, PVname, PVname, QString(), parent, tolerance, completionTimeoutSeconds, 1, description)
+{
+}
+
 // Start a move to the value setpoint:
 /// \todo: figure out if dave and tom want handling for already-moving... (practical example: HV supply)
 void AMPVControl::move(double setpoint) {

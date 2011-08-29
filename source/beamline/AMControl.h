@@ -625,14 +625,14 @@ public:
 		\param stopPVname The EPICS channel-access name for the process variable to write to cancel a move in progress. If empty (default), shouldStop() and canStop() both return false, and calls to stop() will not work.
 		*/
 	AMPVControl(const QString& name,
-		    const QString& readPVname,
-		    const QString& writePVname,
-		    const QString& stopPVname = QString(),
-		    QObject* parent = 0,
-		    double tolerance = AMCONTROL_TOLERANCE_DONT_CARE,
-		    double completionTimeoutSeconds = 10.0,
-		    int stopValue = 1,
-		    const QString &description = "");
+			const QString& readPVname,
+			const QString& writePVname,
+			const QString& stopPVname = QString(),
+			QObject* parent = 0,
+			double tolerance = AMCONTROL_TOLERANCE_DONT_CARE,
+			double completionTimeoutSeconds = 10.0,
+			int stopValue = 1,
+			const QString &description = "");
 
 	/// \name Reimplemented Public Functions:
 	//@{
@@ -755,6 +755,32 @@ protected slots:
 
 };
 
+/// This class is a convenience construction class for AMPVControl.
+/*!
+  There are many controls that use AMPVControl that only talk to a single process variable.  The read and write PVs are the same and they have no stop PV.  Therefore,
+  there is a lot of superfluous information in the constructor that can lead to confusion implementation for new user-programmers and is quite unintuitive.  In the end,
+  this class behaves \em IDENTICALLY to AMPVControl.  It merely offers a more intuitive constructor.
+  */
+
+class AMSinglePVControl : public AMPVControl {
+
+	Q_OBJECT
+
+public:
+	/// Constructor.
+	/*! \param name A unique description of this control
+		\param PVname The EPICS channel-access name for the setpoint AND feedback Process Variable
+		\param tolerance The accuracy required for a move() to count as having reached its setpoint() and emit moveSucceeded().
+		\param completionTimeoutSeconds Maximum time allowed for the value() to get within tolerance() of the setpoint() after a move().
+		\param parent QObject parent class
+		*/
+	AMSinglePVControl(const QString& name,
+					  const QString& PVname,
+					  QObject* parent = 0,
+					  double tolerance = AMCONTROL_TOLERANCE_DONT_CARE,
+					  double completionTimeoutSeconds = 10.0,
+					  const QString &description = "");
+};
 
 /// Subclass this to create an object that specifies how to interpret a control's status value.  With this mechanism, we can accept arbitrarily complex algorithms to determine if an AMPVwStatusControl's status value means that it's moving.  For example, if your motor driver returns 4, 5, or 6 to mean that it's moving, create a subclass whose operator()() function returns true in these three cases.
 class AMAbstractControlStatusChecker {
