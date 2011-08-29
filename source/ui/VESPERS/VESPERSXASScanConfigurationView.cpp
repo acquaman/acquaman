@@ -153,12 +153,24 @@ VESPERSXASScanConfigurationView::VESPERSXASScanConfigurationView(VESPERSXASScanC
 	QFormLayout *energyLayout = new QFormLayout;
 	energyLayout->addRow("Energy:", energy_);
 
+	// Setting the time.
+	QDoubleSpinBox *time = new QDoubleSpinBox;
+	time->setSuffix(" s");
+	time->setMinimum(0);
+	time->setMaximum(100000);
+	connect(time, SIGNAL(valueChanged(double)), config_, SLOT(setAccumulationTime(double)));
+	time->setValue(1.0);
+
+	QFormLayout *timeLayout = new QFormLayout;
+	timeLayout->addRow("Time:", time);
+
 	QGridLayout *contentsLayout = new QGridLayout;
 	contentsLayout->addWidget(regionsLineView_, 0, 0, 1, 4, Qt::AlignCenter);
 	contentsLayout->addWidget(regionsView_, 1, 0, 1, 3);
 	contentsLayout->addWidget(fluorescenceDetectorGroupBox, 1, 3);
 	contentsLayout->addLayout(scanNameLayout, 2, 0);
 	contentsLayout->addLayout(energyLayout, 3, 0);
+	contentsLayout->addLayout(timeLayout, 3, 2);
 	contentsLayout->addWidget(ionChambersGroupBox, 2, 3);
 
 	QVBoxLayout *configViewLayout = new QVBoxLayout;
