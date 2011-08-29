@@ -25,13 +25,13 @@ CLSSynchronizedDwellTime::CLSSynchronizedDwellTime(QString baseName, QObject *pa
 {
 	baseName_ = baseName;
 
-	dwellTime_ = new AMProcessVariable(baseName+":setTime", true, this);
-	startScan_ = new AMProcessVariable(baseName+":startScan", true, this);
-	mode_ = new AMProcessVariable(baseName+":setMode", true, this);
+	dwellTime_ = new AMPVControl("Dwell Time", baseName+":setTime", baseName+":setTime", QString(), this, 0.1);
+	startScan_ = new AMPVControl("Start Scan", baseName+":startScan", baseName+":startScan", QString(), this, 0.1);
+	mode_ = new AMPVControl("Dwell Mode", baseName+":setMode", baseName+":setMode", QString(), this, 0.1);
 
 	connect(dwellTime_, SIGNAL(valueChanged(double)), this, SIGNAL(timeChanged(double)));
-	connect(startScan_, SIGNAL(valueChanged(int)), this, SLOT(onScanningChanged(int)));
-	connect(mode_, SIGNAL(valueChanged(int)), this, SLOT(onModeChanged(int)));
+	connect(startScan_, SIGNAL(valueChanged(double)), this, SLOT(onScanningChanged(double)));
+	connect(mode_, SIGNAL(valueChanged(double)), this, SLOT(onModeChanged(double)));
 }
 
 void CLSSynchronizedDwellTime::addElement(int index)
@@ -45,12 +45,12 @@ CLSSynchronizedDwellTimeElement::CLSSynchronizedDwellTimeElement(QString baseNam
 {
 	// 65 is 'A' in ascii.  Therefore the index offset will give the appropriate letter for the PV name since they are named 'A', 'B', 'C', etc.
 	name_ = new AMProcessVariable(baseName+":device"+QChar(65+index), true, this);
-	enable_ = new AMProcessVariable(baseName+":enable"+QChar(65+index), true, this);
-	time_ = new AMProcessVariable(baseName+":set"+QChar(65+index), true, this);
+	enable_ = new AMPVControl("Dwell Element Enable", baseName+":enable"+QChar(65+index), baseName+":enable"+QChar(65+index), QString(), this, 0.1);
+	time_ = new AMPVControl("Dwell Element Time", baseName+":set"+QChar(65+index), baseName+":set"+QChar(65+index), QString(), this, 0.1);
 	status_ = new AMProcessVariable(baseName+":status"+QChar(65+index), true, this);
 
 	connect(name_, SIGNAL(valueChanged(QString)), this, SIGNAL(nameChanged(QString)));
 	connect(time_, SIGNAL(valueChanged(double)), this, SIGNAL(timeChanged(double)));
-	connect(enable_, SIGNAL(valueChanged(int)), this, SLOT(onEnabledChanged(int)));
+	connect(enable_, SIGNAL(valueChanged(double)), this, SLOT(onEnabledChanged(double)));
 	connect(status_, SIGNAL(valueChanged(int)), this, SLOT(onStatusChanged(int)));
 }
