@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QObject>
 
 #include "beamline/AMControl.h"
+#include <beamline/AMBeamlineControlMoveAction.h>
 
 /*!
   This class encapulates the process variables used for the detectors as a synchronized dwell element.  It assumes a standardized naming convention for the elements and builds all the
@@ -52,6 +53,11 @@ public:
 	double time() const { return time_->value(); }
 	/// Returns whether the dwell element is enabled.
 	bool isEnabled() const { return ((int)enable_->value()) == 1 ? true : false; }
+
+	/// Returns a newly created action that sets the time to \param time.  Returns 0 if not connected.
+	AMBeamlineActionItem *createTimeAction(double time);
+	/// Returns a newly created action that enables/disables the dwell time element.  Returns 0 if not connected.
+	AMBeamlineActionItem *createEnableAction(bool enable);
 
 public slots:
 	/// Set the time (in seconds).  This will automatically be converted to match whatever the units of the element are.
@@ -140,6 +146,13 @@ public:
 	/// Returns the element at \param index.
 	CLSSynchronizedDwellTimeElement *elementAt(int index) const { return elements_.at(index); }
 
+	/// Returns a newly created action that sets the master time for the synchronized dwell time to \param time.  Returns 0 if not connected.
+	AMBeamlineActionItem *createMasterTimeAction(double time);
+	/// Returns a newly created action that starts or stops the synchronized dwell time scan based on \param scan.  Returns 0 if not connected.
+	AMBeamlineActionItem *createScanningAction(bool scan);
+	/// Returns a newly created action that changes the mode of the synchronized dwell time based on \param mode.  Returns 0 if not connected.
+	AMBeamlineActionItem *createModeAction(CLSSynchronizedDwellTime::Mode mode);
+
 signals:
 	/// Notifier that the Mode has changed.
 	void modeChanged(CLSSynchronizedDwellTime::Mode);
@@ -152,8 +165,10 @@ signals:
 
 public slots:
 	/*! Sets the time for the entire synchronized dwell time.  Needs to be in seconds.  \note Implementation detail: due to the way that the PVs are hooked up, this function does not have to write the new value
-	 to each individual element.  The PVs are already hooked up to handle propogate the change.  */
+	 to each individual element.  The PVs are already hooked up to propogate the change.  */
 	void setTime(double time) { dwellTime_->move(time); }
+	/// Sets the synchronized dwell time scanning based on the \param scan.  If true, it starts scanning, false stops scanning.
+	void startScanning(bool scan) { startScan_->move(scan == true ? 1.0 : 0.0); }
 	/// Start scanning.
 	void start() { startScan_->move(1.0); }
 	/// Stop scanning.

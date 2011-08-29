@@ -40,6 +40,39 @@ void CLSSynchronizedDwellTime::addElement(int index)
 	connect(elements_.last(), SIGNAL(statusChanged(bool)), this, SLOT(onStatusChanged()));
 }
 
+AMBeamlineActionItem *CLSSynchronizedDwellTime::createMasterTimeAction(double time)
+{
+	if (dwellTime_->isConnected())
+		return 0;
+
+	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(dwellTime_);
+	action->setSetpoint(time);
+
+	return action;
+}
+
+AMBeamlineActionItem *CLSSynchronizedDwellTime::createScanningAction(bool scan)
+{
+	if (startScan_->isConnected())
+		return 0;
+
+	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(startScan_);
+	action->setSetpoint(scan == true ? 1.0 : 0.0);
+
+	return action;
+}
+
+AMBeamlineActionItem *CLSSynchronizedDwellTime::createModeAction(CLSSynchronizedDwellTime::Mode mode)
+{
+	if (mode_->isConnected())
+		return 0;
+
+	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(mode_);
+	action->setSetpoint(mode == Continuous ? 0.0 : 1.0);
+
+	return action;
+}
+
 CLSSynchronizedDwellTimeElement::CLSSynchronizedDwellTimeElement(QString baseName, int index, QObject *parent)
 	: QObject(parent)
 {
@@ -53,4 +86,26 @@ CLSSynchronizedDwellTimeElement::CLSSynchronizedDwellTimeElement(QString baseNam
 	connect(time_, SIGNAL(valueChanged(double)), this, SIGNAL(timeChanged(double)));
 	connect(enable_, SIGNAL(valueChanged(double)), this, SLOT(onEnabledChanged(double)));
 	connect(status_, SIGNAL(valueChanged(int)), this, SLOT(onStatusChanged(int)));
+}
+
+AMBeamlineActionItem *CLSSynchronizedDwellTimeElement::createTimeAction(double time)
+{
+	if (time_->isConnected())
+		return 0;
+
+	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(time_);
+	action->setSetpoint(time);
+
+	return action;
+}
+
+AMBeamlineActionItem *CLSSynchronizedDwellTimeElement::createEnableAction(bool enable)
+{
+	if (enable_->isConnected())
+		return 0;
+
+	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(enable_);
+	action->setSetpoint(enable == true ? 1.0 : 0.0);
+
+	return action;
 }
