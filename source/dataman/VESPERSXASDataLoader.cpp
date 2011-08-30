@@ -70,7 +70,7 @@ bool VESPERSXASDataLoader::loadFromFile(const QString &filepath, bool setMetaDat
 	QString spectraLine;
 	QStringList spectraTokenized;
 
-	while ((line = in.readLine()).contains("#"));
+	while ((line = in.readLine()).contains("#")){}
 
 	// Clear any old data so we can start fresh.
 	scan->clearRawDataPointsAndMeasurements();

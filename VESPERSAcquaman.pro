@@ -53,7 +53,8 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
 	source/beamline/VESPERS/VESPERSIntermediateSlits.h \
 	source/ui/VESPERS/VESPERSIntermediateSlitsView.h \
 	source/ui/VESPERS/VESPERSBeamSelectorView.h \
-	source/beamline/VESPERS/VESPERSSplitIonChamber.h
+	source/beamline/VESPERS/VESPERSSplitIonChamber.h \
+    source/ui/VESPERS/VESPERSDiagnosticsView.h
 
 SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/application/VESPERS/VESPERSMain.cpp \
