@@ -129,7 +129,6 @@ addEventPv( acqEvent_t *ev, char *name, int norecord, char *fmt, acqPvReady_t re
 
 	if( name == NULL || ! *name )	/* don't add null PV's */
 		return -1;
-
 	idx = ev->numPvList;
 	nbytes = (1+ev->numPvList)* sizeof (*ev->pvList);
 	DEBUGM(ev->master,1) printf("adding event %d total bytes %d (%d*%ld)\n", idx, nbytes, ev->numPvList+1, sizeof(*ev->pvList));

@@ -27,9 +27,9 @@ VESPERSMonochromator::VESPERSMonochromator(QObject *parent) :
 	energy_ = new AMPVControl("Acutal Energy", "07B2_Mono_SineB_Egec:eV", "07B2_Mono_SineB_Ea", QString(), this, 0.5);
 	delE_ = new AMPVControl("Relative Energy", "07B2_Mono_SineB_deltaE:fbk", "07B2_Mono_SineB_delE", QString(), this, 0.5);
 	K_ = new AMPVControl("K-space", "07B2_Mono_SineB_K:fbk", "07B2_Mono_SineB_K", QString(), this, 0.01);
-	offsetAngle_ = new AMPVControl("Offset Angle", "07B2_Mono_SineB_ThOS", "07B2_Mono_SineB_ThOS", QString(), this, 0.01);
-	allowScan_ = new AMPVControl("Scan Allow Control", "07B2_Mono_ScanSineB", "07B2_Mono_ScanSineB", QString(), this, 0.1);
-	encoder_ = new AMPVControl("Energy Encoder Precision", "07B2_Mono_SineB_Use_eV", "07B2_Mono_SineB_Use_eV", QString(), this,  0.1);
+	offsetAngle_ = new AMSinglePVControl("Offset Angle", "07B2_Mono_SineB_ThOS", this, 0.01);
+	allowScan_ = new AMSinglePVControl("Scan Allow Control", "07B2_Mono_ScanSineB", this, 0.1);
+	encoder_ = new AMSinglePVControl("Energy Encoder Precision", "07B2_Mono_SineB_Use_eV", this,  0.1);
 
 	connect(Eo_, SIGNAL(setpointChanged(double)), this, SIGNAL(EoChanged(double)));
 	connect(energy_, SIGNAL(setpointChanged(double)), this, SIGNAL(EaChanged(double)));
@@ -44,7 +44,7 @@ VESPERSMonochromator::VESPERSMonochromator(QObject *parent) :
 
 AMBeamlineActionItem *VESPERSMonochromator::createEoAction(double energy)
 {
-	if (!allowScan_->isConnected())
+	if (!Eo_->isConnected())
 		return 0;
 
 	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(Eo_);
@@ -55,7 +55,7 @@ AMBeamlineActionItem *VESPERSMonochromator::createEoAction(double energy)
 
 AMBeamlineActionItem *VESPERSMonochromator::createEaAction(double energy)
 {
-	if (!allowScan_->isConnected())
+	if (!energy_->isConnected())
 		return 0;
 
 	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(energy_);
@@ -66,7 +66,7 @@ AMBeamlineActionItem *VESPERSMonochromator::createEaAction(double energy)
 
 AMBeamlineActionItem *VESPERSMonochromator::createDelEAction(double energy)
 {
-	if (!allowScan_->isConnected())
+	if (!delE_->isConnected())
 		return 0;
 
 	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(delE_);
@@ -77,7 +77,7 @@ AMBeamlineActionItem *VESPERSMonochromator::createDelEAction(double energy)
 
 AMBeamlineActionItem *VESPERSMonochromator::createKAction(double k)
 {
-	if (!allowScan_->isConnected())
+	if (!K_->isConnected())
 		return 0;
 
 	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(K_);
@@ -88,7 +88,7 @@ AMBeamlineActionItem *VESPERSMonochromator::createKAction(double k)
 
 AMBeamlineActionItem *VESPERSMonochromator::createOffsetAngleAction(double angle)
 {
-	if (!allowScan_->isConnected())
+	if (!offsetAngle_->isConnected())
 		return 0;
 
 	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(offsetAngle_);
@@ -110,7 +110,7 @@ AMBeamlineActionItem *VESPERSMonochromator::createAllowScanningAction(bool allow
 
 AMBeamlineActionItem *VESPERSMonochromator::createUsingeVAction(bool useeV)
 {
-	if (!allowScan_->isConnected())
+	if (!encoder_->isConnected())
 		return 0;
 
 	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(encoder_);

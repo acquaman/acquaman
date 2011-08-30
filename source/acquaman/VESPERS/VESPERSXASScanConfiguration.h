@@ -32,6 +32,7 @@ class VESPERSXASScanConfiguration : public AMXASScanConfiguration
 	Q_PROPERTY(int fluorescenceDetectorChoice READ fluorescenceDetectorChoice WRITE setFluorescenceDetectorChoice)
 	Q_PROPERTY(int transmissionChoice READ transmissionChoice WRITE setTransmissionChoice)
 	Q_PROPERTY(int incomingChoice READ incomingChoice WRITE setIncomingChoice)
+	Q_PROPERTY(double accumulationTime READ accumulationTime WRITE setAccumulationTime)
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=VESPERS XAS Scan Configuration")
 
@@ -65,6 +66,8 @@ public:
 	IonChamber transmissionChoice() const { return It_; }
 	/// Returns the current I0 ion chamber choice.
 	IonChamber incomingChoice() const { return I0_; }
+	/// Returns the current time for accumulation.
+	double accumulationTime() const { return time_; }
 
 	/// Returns the ion chamber name from its corresponding enum.
 	QString ionChamberName(IonChamber chamber) { return ionChamberNames_.value(chamber); }
@@ -85,6 +88,8 @@ public slots:
 	void setIncomingChoice(IonChamber I0) { I0_ = I0; setModified(true); }
 	/// Overloaded.  Used for database loading.
 	void setIncomingChoice(int I0) { setIncomingChoice((IonChamber)I0); }
+	/// Sets the accumulation time.
+	void setAccumulationTime(double time) { time_ = time; setModified(true); }
 
 protected:
 	/// Fluorescence detector choice.
@@ -93,6 +98,8 @@ protected:
 	IonChamber It_;
 	/// I0 ion chamber choice.
 	IonChamber I0_;
+	/// The time for accumulation. \todo This will likely change to an array or something in the event of doing EXAFS.  Currently this is only meaningful for XANES.
+	double time_;
 
 	/// Mapping between Ion chambers and their names.
 	QMap<IonChamber, QString> ionChamberNames_;
