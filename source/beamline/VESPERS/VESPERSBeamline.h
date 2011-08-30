@@ -455,6 +455,18 @@ public:
 signals:
 	/// Notifier that the beam has been changed.
 	void currentBeamChanged(VESPERSBeamline::Beam);
+	/// Notifier of the current state of the pressures on the beamline.  Passes false if ANY of the pressures falls below its setpoint.
+	void pressureStatus(bool);
+	/// Notifier of the current state of the valves on the beamline.  Passes false if ANY of the valves are closed.
+	void valveStatus(bool);
+	/// Notifier of the current state of the ion pumps on the beamline.  Passes false if ANY of the ion pumps fail.
+	void ionPumpStatus(bool);
+	/// Notifier of the current state of the temperature on the beamline.  Passes false if ANY of the temperatures rises above its setpoint.
+	void temperatureStatus(bool);
+	/// Notifier of the current state of the flow switches on the beamline.  Passes false if ANY of the flow switches are disabled.
+	void flowSwitchStatus(bool);
+	/// Notifier of the current state of the flow transducers on the beamline.  Passes false if ANY of the flow rates fall below its setpoint.
+	void flowTransducerStatus(bool);
 
 public slots:
 	/// Creates an action that changes the beam.  Returns 0 if unable to create.

@@ -2,7 +2,7 @@
 #define VESPERSDIAGNOSTICSVIEW_H
 
 #include <QWidget>
-#include <QLineEdit>
+#include <QLabel>
 
 #include "beamline/AMControlSet.h"
 
@@ -27,7 +27,7 @@ protected:
 	/// Pointer to the control.
 	AMControl *control_;
 	/// Value label.
-	QLineEdit *value_;
+	QLabel *value_;
 	/// Bool holding whether the value and units should be displayed, or a predefined phrase.
 	bool useValueAndUnits_;
 };

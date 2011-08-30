@@ -68,8 +68,6 @@ VESPERSDiagnosticsView::VESPERSDiagnosticsView(AMControlSet *set, int offset, bo
 	}
 }
 
-#include <QLabel>
-
 VESPERSDiagnosticsViewElement::VESPERSDiagnosticsViewElement(AMControl *control, QString name, bool useValueAndUnits, QWidget *parent)
 	: QWidget(parent)
 {
@@ -80,14 +78,14 @@ VESPERSDiagnosticsViewElement::VESPERSDiagnosticsViewElement(AMControl *control,
 	nameLabel->setFixedWidth(130);
 	nameLabel->setAlignment(Qt::AlignCenter);
 
-	value_ = new QLineEdit;
+	value_ = new QLabel;
+	value_->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+	value_->setAutoFillBackground(true);
 	value_->setAlignment(Qt::AlignCenter);
-	value_->setReadOnly(true);
 	value_->setFixedWidth(130);
 	connect(control_, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged(double)));
 
 	QFormLayout *layout = new QFormLayout;
-	layout->setHorizontalSpacing(50);
 	layout->setAlignment(Qt::AlignRight);
 	layout->addRow(nameLabel, value_);
 
@@ -96,9 +94,21 @@ VESPERSDiagnosticsViewElement::VESPERSDiagnosticsViewElement(AMControl *control,
 
 void VESPERSDiagnosticsViewElement::onValueChanged(double val)
 {
-	if (useValueAndUnits_)
-		value_->setText(QString::number(val, 'g', 3)+" "+control_->units());
+	if (useValueAndUnits_){
 
-	else
+		if (control_->units().contains("deg"))
+			value_->setText(QString::number(val, 'g', 3)+" "+control_->units().replace("deg ", QString::fromUtf8("°")));
+		else if (control_->units().contains("l"))
+			value_->setText(QString::number(val, 'g', 3)+" "+control_->units().replace("l", "L"));
+		else
+			value_->setText(QString::number(val, 'g', 3)+" "+control_->units());
+
+		value_->setPalette(QPalette(!control_->isMoving() ? Qt::green : Qt::red));
+	}
+
+	else{
+
 		value_->setText((int)val == 1 ? "GOOD" : "BAD");
+		value_->setPalette(QPalette((int)val == 1 ? Qt::green : Qt::red));
+	}
 }

@@ -497,9 +497,13 @@ void VESPERSBeamline::determineBeam()
 
 void VESPERSBeamline::pressureConnected(bool connected)
 {
-	if (connected)
+	if (connected) {
+
 		for (int i = 0; i < pressureSet_->count(); i++)
 			connect(qobject_cast<AMReadOnlyPVwStatusControl *>(pressureSet_->at(i)), SIGNAL(movingChanged(bool)), this, SLOT(pressureError()));
+
+		pressureError();
+	}
 }
 
 void VESPERSBeamline::valveConnected(bool connected)
@@ -516,9 +520,13 @@ void VESPERSBeamline::ionPumpConnected(bool connected)
 
 void VESPERSBeamline::temperatureConnected(bool connected)
 {
-	if (connected)
+	if (connected) {
+
 		for (int i = 0; i < temperatureSet_->count(); i++)
 			connect(qobject_cast<AMReadOnlyPVwStatusControl *>(temperatureSet_->at(i)), SIGNAL(movingChanged(bool)), this, SLOT(temperatureError()));
+
+		temperatureError();
+	}
 }
 
 void VESPERSBeamline::flowSwitchConnected(bool connected)
@@ -529,9 +537,13 @@ void VESPERSBeamline::flowSwitchConnected(bool connected)
 
 void VESPERSBeamline::flowTransducerConnected(bool connected)
 {
-	if (connected)
+	if (connected) {
+
 		for (int i = 0; i < flowTransducerSet_->count(); i++)
 			connect(qobject_cast<AMReadOnlyPVwStatusControl *>(flowTransducerSet_->at(i)), SIGNAL(movingChanged(bool)), this, SLOT(flowTransducerError()));
+
+		flowTransducerError();
+	}
 }
 
 void VESPERSBeamline::pressureError()
@@ -555,6 +567,8 @@ void VESPERSBeamline::pressureError()
 		error.prepend("The following pressure readings are at a critical level:\n");
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, 0, error));
 	}
+
+	emit pressureStatus(error.isEmpty());
 }
 
 void VESPERSBeamline::valveError()
@@ -578,6 +592,8 @@ void VESPERSBeamline::valveError()
 		error.prepend("The following valves are closed:\n");
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, 0, error));
 	}
+
+	emit valveStatus(error.isEmpty());
 }
 
 void VESPERSBeamline::ionPumpError()
@@ -601,6 +617,8 @@ void VESPERSBeamline::ionPumpError()
 		error.prepend("The following ion pumps are no longer operating correctly:\n");
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, 0, error));
 	}
+
+	emit ionPumpStatus(error.isEmpty());
 }
 
 void VESPERSBeamline::temperatureError()
@@ -624,6 +642,8 @@ void VESPERSBeamline::temperatureError()
 		error.prepend("The following temperature sensors are reading too high:\n");
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, 0, error));
 	}
+
+	emit temperatureStatus(error.isEmpty());
 }
 
 void VESPERSBeamline::flowSwitchError()
@@ -647,6 +667,8 @@ void VESPERSBeamline::flowSwitchError()
 		error.prepend("The following flow switches have tripped:\n");
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, 0, error));
 	}
+
+	emit flowSwitchStatus(error.isEmpty());
 }
 
 void VESPERSBeamline::flowTransducerError()
@@ -670,6 +692,8 @@ void VESPERSBeamline::flowTransducerError()
 		error.prepend("The following flow transducers are measuring too low:\n");
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, 0, error));
 	}
+
+	emit flowTransducerStatus(error.isEmpty());
 }
 
 void VESPERSBeamline::singleElVortexError(bool isConnected)

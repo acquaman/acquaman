@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/VESPERS/VESPERSIonChamberCalibrationView.h"
 #include "ui/CLS/CLSSynchronizedDwellTimeView.h"
 #include "ui/VESPERS/VESPERSBeamSelectorView.h"
+#include "ui/AMTopFrame.h"
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -32,6 +33,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 VESPERSBeamlineView::VESPERSBeamlineView(QWidget *parent) :
 	QWidget(parent)
 {
+	AMTopFrame *top = new AMTopFrame("Beamline Components");
+	top->setIcon(QIcon(":/system-software-update.png"));
+
 	VESPERSIntermediateSlitsView *slitsView = new VESPERSIntermediateSlitsView(VESPERSBeamline::vespers()->intermediateSlits());
 	VESPERSIonChamberCalibrationView *ionCalibrationView = new VESPERSIonChamberCalibrationView(VESPERSBeamline::vespers()->ionChamberCalibration());
 	CLSSynchronizedDwellTimeView *dwellTimeView = new CLSSynchronizedDwellTimeView(VESPERSBeamline::vespers()->synchronizedDwellTime());
@@ -46,5 +50,11 @@ VESPERSBeamlineView::VESPERSBeamlineView(QWidget *parent) :
 	next->addLayout(current);
 	next->addWidget(dwellTimeView);
 
-	setLayout(next);
+	QVBoxLayout *mainLayout = new QVBoxLayout;
+	mainLayout->addWidget(top);
+	mainLayout->addStretch();
+	mainLayout->addLayout(next);
+	mainLayout->addStretch();
+
+	setLayout(mainLayout);
 }
