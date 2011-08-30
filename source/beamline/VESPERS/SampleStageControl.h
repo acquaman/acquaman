@@ -48,7 +48,7 @@ public:
 	explicit SampleStageControl(AMControl *horiz, AMControl *vert, AMControl *norm, QObject *parent = 0);
 
 	/// Returns the connected state of the sample stage.
-	void isConnected() const { return connected_; }
+	bool isConnected() const { return connected_; }
 
 	/// Sets the range for the motor in the x direction.
 	void setXRange(int low, int high) { xRange_ = qMakePair(low, high); }

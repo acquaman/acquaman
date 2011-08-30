@@ -463,8 +463,8 @@ void VESPERSBeamline::setupExperimentStatus()
 	connect(fastShutterReady_, SIGNAL(valueChanged(double)), this, SLOT(determineExperimentStatus()));
 	connect(ccdStatus_, SIGNAL(valueChanged(double)), this, SLOT(determineExperimentStatus()));
 	connect(pseudoSampleStage_, SIGNAL(connected(bool)), this, SLOT(determineExperimentStatus()));
-	connect(vortex1E(), SIGNAL(connected(bool)), this, SLOT(determineExperimentStatus()));
-	connect(vortex4E(), SIGNAL(connected(bool)), this, SLOT(determineExperimentStatus()));
+	connect((XRFDetector *)vortex1E_, SIGNAL(connected(bool)), this, SLOT(determineExperimentStatus()));
+	connect((XRFDetector *)vortex4E_, SIGNAL(connected(bool)), this, SLOT(determineExperimentStatus()));
 }
 
 void VESPERSBeamline::determineExperimentStatus()

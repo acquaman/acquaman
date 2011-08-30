@@ -542,13 +542,13 @@ protected slots:
 	/// Enables/Disables the fast shutter from experiment ready status.
 	void useFastShutterStatus(bool use) { useFastShutter_ = use; determineExperimentStatus(); }
 	/// Enables/Disables the CCD from the experiment ready status.
-	void useCCDStatus(bool use) { useCCD_ = use; determineExperimentStatus(); }
+	void useCCDStatus(bool use) { useCCD_ = use; determineExperimentStatus(); synchronizedDwellTime_->elementAt(2)->setEnabled(use); }
 	/// Enables/Disables the sample stage from the experiment ready status.
 	void useSampleStageStatus(bool use) { useSampleStage_ = use; determineExperimentStatus(); }
 	/// Enables/Disables the single element vortex detector from the experiment ready status.
-	void useSingleElementVortex(bool use) { useSingleEl_ = use; determineExperimentStatus(); }
+	void useSingleElementVortex(bool use) { useSingleEl_ = use; determineExperimentStatus(); synchronizedDwellTime_->elementAt(1)->setEnabled(use); }
 	/// Enables/Disables the four element vortex detector from the experiment ready status.
-	void useFourElementVortex(bool use) { useFourEl_ = use; determineExperimentStatus(); }
+	void useFourElementVortex(bool use) { useFourEl_ = use; determineExperimentStatus(); synchronizedDwellTime_->elementAt(4)->setEnabled(use); }
 
 protected:
 	/// Sets up the readings such as pressure, flow switches, temperature, etc.
