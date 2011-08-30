@@ -452,6 +452,30 @@ public:
 	/// Returns the control to the post sample ion chamber.
 	AMControl *iPostControl() const { return iPostControl_; }
 
+	// Experiment status
+	/// Returns the control for the POE beam status.
+	AMControl *poeBeamStatus() const { return poeBeamStatus_; }
+	/// Returns the control for the POE beam status enable.
+	AMControl *poeBeamStatusEnable() const { return poeBeamStatusEnable_; }
+	/// Returns the control for the SOE beam status.
+	AMControl *soeBeamStatus() const { return soeBeamStatus_; }
+	/// Returns the control for the SOE beam status enable.
+	AMControl *soeBeamStatusEnable() const { return soeBeamStatusEnable_; }
+	/// Returns the control for the fast shutter ready signal.
+	AMControl *fastShutterReady() const { return fastShutterReady_; }
+	/// Returns the control for the detector status of the CCD .
+	AMControl *ccdStatus() const { return ccdStatus_; }
+
+	// End of experiment status
+
+	//////////////////////////////////////////////////////////////////////////////////////
+	// Actions
+	/// Creates an action that changes the beam.  Returns 0 if unable to create.
+	AMBeamlineActionItem *createBeamChangeAction(Beam beam);
+
+	// End of Actions
+	//////////////////////////////////////////////////////////////////////////////////////
+
 signals:
 	/// Notifier that the beam has been changed.
 	void currentBeamChanged(VESPERSBeamline::Beam);
@@ -467,10 +491,10 @@ signals:
 	void flowSwitchStatus(bool);
 	/// Notifier of the current state of the flow transducers on the beamline.  Passes false if ANY of the flow rates fall below its setpoint.
 	void flowTransducerStatus(bool);
+	/// Notifier that the beamline is ready for to take experiments.
+	void experimentReady(bool);
 
 public slots:
-	/// Creates an action that changes the beam.  Returns 0 if unable to create.
-	AMBeamlineActionItem *createBeamChangeAction(Beam beam);
 
 protected slots:
 	/// Determines is currently active on startup.  Also keeps track if the beam is changed outside of Acquaman.  Beam is set to None is if not inside any of the tolerances for the known beam positions.
@@ -509,6 +533,23 @@ protected slots:
 	/// Slot used to dead with sample stage motor errors.
 	void sampleStageError();
 
+	/// Determines whether the state of the experiment ready status.
+	void determineExperimentStatus();
+	/// Enables/Disables the POE status from the experiment ready status.
+	void usePOEStatus(bool use) { usePOE_ = use; poeBeamStatusEnable_->move(use == true ? 1.0 : 0.0); }
+	/// Enables/Disables the SOE status from the experiment ready status.
+	void useSOEStatus(bool use) { useSOE_ = use; soeBeamStatusEnable_->move(use == true ? 1.0 : 0.0); }
+	/// Enables/Disables the fast shutter from experiment ready status.
+	void useFastShutterStatus(bool use) { useFastShutter_ = use; determineExperimentStatus(); }
+	/// Enables/Disables the CCD from the experiment ready status.
+	void useCCDStatus(bool use) { useCCD_ = use; determineExperimentStatus(); }
+	/// Enables/Disables the sample stage from the experiment ready status.
+	void useSampleStageStatus(bool use) { useSampleStage_ = use; determineExperimentStatus(); }
+	/// Enables/Disables the single element vortex detector from the experiment ready status.
+	void useSingleElementVortex(bool use) { useSingleEl_ = use; determineExperimentStatus(); }
+	/// Enables/Disables the four element vortex detector from the experiment ready status.
+	void useFourElementVortex(bool use) { useFourEl_ = use; determineExperimentStatus(); }
+
 protected:
 	/// Sets up the readings such as pressure, flow switches, temperature, etc.
 	void setupDiagnostics();
@@ -522,6 +563,8 @@ protected:
 	void setupSampleStage();
 	/// Sets up mono settings.
 	void setupMono();
+	/// Sets up the experiment status.
+	void setupExperimentStatus();
 
 	/// Constructor. This is a singleton class; access it through VESPERSBeamline::vespers().
 	VESPERSBeamline();
@@ -772,6 +815,24 @@ protected:
 
 	// AM names bihash to/from PV names.
 	AMBiHash<QString, QString> amNames2pvNames_;
+
+	// Experiment Ready controls and others.
+	AMControl *poeBeamStatus_;
+	AMControl *poeBeamStatusEnable_;
+	AMControl *soeBeamStatus_;
+	AMControl *soeBeamStatusEnable_;
+	AMControl *fastShutterReady_;
+	AMControl *ccdStatus_;
+
+	bool usePOE_;
+	bool useSOE_;
+	bool useFastShutter_;
+	bool useCCD_;
+	bool useSampleStage_;
+	bool useSingleEl_;
+	bool useFourEl_;
+
+	// End of experiment ready controls.
 };
 
 #endif // VESPERSBEAMLINE_H

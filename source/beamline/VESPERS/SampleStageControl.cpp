@@ -23,6 +23,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 SampleStageControl::SampleStageControl(AMControl *horiz, AMControl *vert, AMControl *norm, QObject *parent)
 	: QObject(parent)
 {
+	connected_ = false;
+
 	// The limits.
 	xRange_ = qMakePair(0, 0);
 	yRange_ = qMakePair(0, 0);

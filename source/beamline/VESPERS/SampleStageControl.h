@@ -47,6 +47,9 @@ public:
 	/// Default constructor.  Takes in the 3 motor controls and their count readout controls.
 	explicit SampleStageControl(AMControl *horiz, AMControl *vert, AMControl *norm, QObject *parent = 0);
 
+	/// Returns the connected state of the sample stage.
+	void isConnected() const { return connected_; }
+
 	/// Sets the range for the motor in the x direction.
 	void setXRange(int low, int high) { xRange_ = qMakePair(low, high); }
 	/// Sets the range for the motor in the y direction.
@@ -121,7 +124,7 @@ public slots:
 
 protected slots:
 	/// Listens to the connection signals from the motors and emits connected.
-	void onConnectedChanged() { emit connected(horiz_->isConnected() && vert_->isConnected() && norm_->isConnected()); }
+	void onConnectedChanged() { connected_ = horiz_->isConnected() && vert_->isConnected() && norm_->isConnected(); emit connected(connected_); }
 	/// Listens to the step feedback for the x motor and stops the sample stage if it exceeds the range.
 	void onXStepChanged(double step);
 	/// Listens to the step feedback for the y motor and stops the sample stage if it exceeds the range.
@@ -156,6 +159,9 @@ protected:
 	AMControl *horiz_;
 	AMControl *vert_;
 	AMControl *norm_;
+
+	// Connected bool.
+	bool connected_;
 };
 
 #endif // SAMPLESTAGECONTROL_H
