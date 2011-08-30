@@ -19,17 +19,77 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "VESPERSDeviceStatusView.h"
-#include "ui/VESPERS/VESPERSTemperatureView.h"
+#include "ui/VESPERS/VESPERSDiagnosticsView.h"
+#include "beamline/VESPERS/VESPERSBeamline.h"
 
 #include <QStackedWidget>
 #include <QButtonGroup>
+#include <QToolButton>
 #include <QVBoxLayout>
+#include <QHBoxLayout>
 
 VESPERSDeviceStatusView::VESPERSDeviceStatusView(QWidget *parent) :
 	QWidget(parent)
 {
-	VESPERSTemperatureView *temperature = new VESPERSTemperatureView;
-	QVBoxLayout *layout = new QVBoxLayout;
-	layout->addWidget(temperature, 0, Qt::AlignCenter);
-	setLayout(layout);
+    VESPERSDiagnosticsView *temperature = new VESPERSDiagnosticsView(VESPERSBeamline::vespers()->temperatureSet(), 1);
+    VESPERSDiagnosticsView *pressure = new VESPERSDiagnosticsView(VESPERSBeamline::vespers()->pressureSet(), 1);
+    VESPERSDiagnosticsView *valves = new VESPERSDiagnosticsView(VESPERSBeamline::vespers()->valveSet(), 1);
+    VESPERSDiagnosticsView *ionPumps = new VESPERSDiagnosticsView(VESPERSBeamline::vespers()->ionPumpSet(), 2);
+    VESPERSDiagnosticsView *flowSwitch = new VESPERSDiagnosticsView(VESPERSBeamline::vespers()->flowSwitchSet(), 2);
+    VESPERSDiagnosticsView *flowTransducer = new VESPERSDiagnosticsView(VESPERSBeamline::vespers()->flowTransducerSet(), 2);
+
+    QStackedWidget *stack = new QStackedWidget;
+    stack->addWidget(temperature);
+    stack->addWidget(pressure);
+    stack->addWidget(valves);
+    stack->addWidget(ionPumps);
+    stack->addWidget(flowSwitch);
+    stack->addWidget(flowTransducer);
+
+    QButtonGroup *device = new QButtonGroup;
+    QHBoxLayout *buttons = new QHBoxLayout;
+    buttons->setSpacing(0);
+    buttons->addStretch();
+
+    QToolButton *temp = new QToolButton;
+    temp->setText("Temperature");
+    device->addButton(temp, 0);
+    buttons->addWidget(temp);
+
+    temp = new QToolButton;
+    temp->setText("Pressure");
+    device->addButton(temp, 1);
+    buttons->addWidget(temp);
+
+    temp = new QToolButton;
+    temp->setText("Valves");
+    device->addButton(temp, 2);
+    buttons->addWidget(temp);
+
+    temp = new QToolButton;
+    temp->setText("Ion Pumps");
+    device->addButton(temp, 3);
+    buttons->addWidget(temp);
+
+    temp = new QToolButton;
+    temp->setText("Flow Switches");
+    device->addButton(temp, 4);
+    buttons->addWidget(temp);
+
+    temp = new QToolButton;
+    temp->setText("Flow Transducers");
+    device->addButton(temp, 5);
+    buttons->addWidget(temp);
+
+    buttons->addStretch();
+
+    connect(device, SIGNAL(buttonClicked(int)), stack, SLOT(setCurrentIndex(int)));
+
+    QVBoxLayout *layout = new QVBoxLayout;
+    layout->addStretch();
+    layout->addLayout(buttons);
+    layout->addWidget(stack);
+    layout->addStretch();
+
+    setLayout(layout);
 }

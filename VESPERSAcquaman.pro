@@ -34,7 +34,6 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
 	source/ui/VESPERS/PIDLoopControlView.h \
 	source/ui/VESPERS/XRFMapSetup.h \
 	source/ui/VESPERS/VESPERSDeviceStatusView.h \
-	source/ui/VESPERS/VESPERSTemperatureView.h \
 	source/util/VESPERS/GeneralUtilities.h \
 	source/util/VESPERS/XRFElement.h \
 	source/acquaman/VESPERS/VESPERSXASScanConfiguration.h \
@@ -54,6 +53,7 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
 	source/ui/VESPERS/VESPERSIntermediateSlitsView.h \
 	source/ui/VESPERS/VESPERSBeamSelectorView.h \
 	source/beamline/VESPERS/VESPERSSplitIonChamber.h \
+    source/ui/VESPERS/VESPERSDiagnosticsView.h \
     source/ui/VESPERS/VESPERSDiagnosticsView.h
 
 SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
@@ -86,7 +86,6 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/ui/VESPERS/PIDLoopControlView.cpp \
 	source/ui/VESPERS/XRFMapSetup.cpp \
 	source/ui/VESPERS/VESPERSDeviceStatusView.cpp \
-	source/ui/VESPERS/VESPERSTemperatureView.cpp \
 	source/util/VESPERS/GeneralUtilities.cpp \
 	source/util/VESPERS/XRFElement.cpp \
 	source/acquaman/VESPERS/VESPERSXASScanConfiguration.cpp \
@@ -105,7 +104,8 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/beamline/VESPERS/VESPERSIntermediateSlits.cpp \
 	source/ui/VESPERS/VESPERSIntermediateSlitsView.cpp \
 	source/ui/VESPERS/VESPERSBeamSelectorView.cpp \
-	source/beamline/VESPERS/VESPERSSplitIonChamber.cpp
+	source/beamline/VESPERS/VESPERSSplitIonChamber.cpp \
+    source/ui/VESPERS/VESPERSDiagnosticsView.cpp
 
 RESOURCES += \
 	source/ui/VESPERS/EndstationPictures.qrc \

@@ -112,12 +112,12 @@ bool VESPERSAppController::startup() {
 		// Setup the general endstation control view.
 		VESPERSEndstationView *endstationView = new VESPERSEndstationView;
 		VESPERSBeamlineView *beamlineView = new VESPERSBeamlineView;
-		//VESPERSDeviceStatusView *statusPage = new VESPERSDeviceStatusView;
+		VESPERSDeviceStatusView *statusPage = new VESPERSDeviceStatusView;
 
 		mw_->insertHeading("Beamline Control", 0);
 		mw_->addPane(endstationView, "Beamline Control", "Endstation", ":/system-software-update.png");
 		mw_->addPane(beamlineView, "Beamline Control", "Beamline", ":/system-software-update.png");
-		//mw_->addPane(statusPage, "Beamline Control", "Device Status", ":/system-software-update.png");
+		mw_->addPane(statusPage, "Beamline Control", "Device Status", ":/system-software-update.png");
 
 		// Setup the XRF views for the single element vortex and the four element vortex detectors.  Since they have scans that are added to the workflow, it gets the workflow manager view passed into it as well.
 		// This means that the FreeRunView kind of doubles as a regular detector view and a configuration view holder.
