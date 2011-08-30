@@ -2,31 +2,34 @@
 #define VESPERSDIAGNOSTICSVIEW_H
 
 #include <QWidget>
-#include <QLabel>
+#include <QLineEdit>
 
 #include "beamline/AMControlSet.h"
 
 /// This class is simply an element for the diagnostics view.  It handles the connection to the individual element.
 class VESPERSDiagnosticsViewElement : public QWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    /// Constructor.
-    /*!
-      \param control is the AMControl that this element is watching.
-      \param name is the specific name this element should be using.
-      */
-    explicit VESPERSDiagnosticsViewElement(AMControl *control, QString name, QWidget *parent = 0);
+	/// Constructor.
+	/*!
+	  \param control is the AMControl that this element is watching.
+	  \param name is the specific name this element should be using.
+	  \param useValueAndUnits determines whether the view should show the value and units or a predetermined phrase of "GOOD" or "BAD".
+	  */
+	explicit VESPERSDiagnosticsViewElement(AMControl *control, QString name, bool useValueAndUnits, QWidget *parent = 0);
 
 protected slots:
-    /// Handles updating the label.
-    void onValueChanged(double val) { value_->setText(QString::number(val)+" "+control_->units()); }
+	/// Handles updating the label.
+	void onValueChanged(double val);
 
 protected:
-    /// Pointer to the control.
-    AMControl *control_;
-    /// Value label.
-    QLabel *value_;
+	/// Pointer to the control.
+	AMControl *control_;
+	/// Value label.
+	QLineEdit *value_;
+	/// Bool holding whether the value and units should be displayed, or a predefined phrase.
+	bool useValueAndUnits_;
 };
 
 /*!
@@ -36,14 +39,15 @@ protected:
   */
 class VESPERSDiagnosticsView : public QWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    /// Constructor.
-    /*!
-      \param set is the control set that is going to be viewed.
-      \param offset is the number of extra words in front of the name of the control.
-      */
-    explicit VESPERSDiagnosticsView(AMControlSet *set, int offset, QWidget *parent = 0);
+	/// Constructor.
+	/*!
+	  \param set is the control set that is going to be viewed.
+	  \param offset is the number of extra words in front of the name of the control.
+	  \param useValueAndUnits determines whether the view should show the value and units or a predetermined phrase of "GOOD" or "BAD".
+	  */
+	explicit VESPERSDiagnosticsView(AMControlSet *set, int offset, bool useValueAndUnits, QWidget *parent = 0);
 
 signals:
 
