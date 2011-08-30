@@ -90,7 +90,9 @@ bool AMBeamlineActionsList::setAction(int index, AMBeamlineActionItem *action){
 			connect(action, SIGNAL(succeeded()), nextAction, SLOT(start()));
 		}
 	}
-	#warning "Hey David, what about disconnecting these in the 'replace' section?"
+	/* NTBA - August 29th, 2011 (David Chevrier)
+		What about disconnecting these in the 'replace' section?"
+	*/
 	connect(action, SIGNAL(started()), this, SLOT(onActionStarted()));
 	connect(action, SIGNAL(succeeded()), this, SLOT(onActionSucceeded()));
 	connect(action, SIGNAL(ready(bool)), this, SLOT(onActionReady(bool)));

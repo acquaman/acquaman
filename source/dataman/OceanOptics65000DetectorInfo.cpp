@@ -35,7 +35,8 @@ OceanOptics65000DetectorInfo::OceanOptics65000DetectorInfo(const QString &name, 
 	setUnits("counts");
 }
 
-OceanOptics65000DetectorInfo::OceanOptics65000DetectorInfo(const OceanOptics65000DetectorInfo &original)
+OceanOptics65000DetectorInfo::OceanOptics65000DetectorInfo(const OceanOptics65000DetectorInfo &original) :
+		AMDetectorInfo(original)
 {
 	retreiveAndSetProperties(original);
 }

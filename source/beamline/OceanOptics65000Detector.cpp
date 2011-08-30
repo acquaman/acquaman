@@ -114,6 +114,7 @@ bool OceanOptics65000Detector::setControls(OceanOptics65000DetectorInfo *setting
 }
 
 void OceanOptics65000Detector::onControlsConnected(bool connected){
+	Q_UNUSED(connected)
 	bool allConnected = readingsControls_->isConnected() && settingsControls_->isConnected();
 	if(allConnected != isConnected())
 		setConnected(allConnected);
@@ -147,6 +148,8 @@ bool OceanOptics65000Detector::initializeFromControlSet(AMControlSet *readingsCo
 		if(isConnected()){
 			onReadingsControlValuesChanged();
 			onSettingsControlValuesChanged();
+			return true;
 		}
 	}
+	return false;
 }

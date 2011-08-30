@@ -52,7 +52,8 @@ SGMScanRangeInfo::SGMScanRangeInfo(const SGMEnergyPosition &start, const SGMEner
 	end_ = end;
 }
 
-SGMScanRangeInfo::SGMScanRangeInfo(const SGMScanRangeInfo &other)
+SGMScanRangeInfo::SGMScanRangeInfo(const SGMScanRangeInfo &other) :
+		AMDbObject(other)
 {
 	start_ = other.start();
 	middle_ = other.middle();

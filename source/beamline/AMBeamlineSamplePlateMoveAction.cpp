@@ -70,6 +70,7 @@ QString AMBeamlineSamplePlateMoveAction::sampleDescription() const{
 }
 
 void AMBeamlineSamplePlateMoveAction::onSamplePlateDataChanged(QModelIndex topLeft, QModelIndex bottomRight){
+	Q_UNUSED(bottomRight)
 	AMSamplePosition* tmpSamplePos = qobject_cast<AMSamplePosition*>(samplePlateModel_->data(topLeft, AM::PointerRole).value<QObject*>());
 	if(tmpSamplePos->sampleId() == sampleID_ ){
 		setDescription("Move to sample \""+samplePlateModel_->data(topLeft, Qt::EditRole).toString()+"\"");

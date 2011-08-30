@@ -124,6 +124,7 @@ void CLSPGT8000HVChannel::onVoltageChanged(double voltage){
 }
 
 void CLSPGT8000HVChannel::onToggleChanged(double toggle){
+	Q_UNUSED(toggle)
 	if(!isConnected())
 		return;
 	if(toggle_->withinTolerance(1)){

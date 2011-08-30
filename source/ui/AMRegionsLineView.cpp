@@ -142,8 +142,8 @@ AMRegionsLineView::AMRegionsLineView(AMXASRegionsList *regions, QWidget *parent)
 	int nlSize = 800;
 	setFixedWidth(nlSize);
 	setFixedHeight(62);
-	double range = regions_->maxEnergy() - regions_->minEnergy();
-	double ratio = range/(nlSize-60);
+	//double range = regions_->maxEnergy() - regions_->minEnergy();
+	//double ratio = range/(nlSize-60);
 	scene = new QGraphicsScene(0, -10, nlSize-50, 40);
 
 	redrawRegionsLine();

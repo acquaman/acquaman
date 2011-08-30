@@ -528,6 +528,7 @@ QString AMExporter::krDataSourceAxisUnits(const QString& dataSourceName) {
 }
 
 QString AMExporter::krExporterAutoIncrement(const QString &arg){
+	Q_UNUSED(arg)
 	return QString("%1").arg(autoIndex_);
 }
 

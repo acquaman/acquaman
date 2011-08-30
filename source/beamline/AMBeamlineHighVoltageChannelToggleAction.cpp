@@ -33,6 +33,7 @@ AMBeamlineHighVoltageChannelToggleAction::AMBeamlineHighVoltageChannelToggleActi
 }
 
 AMBeamlineActionItemView* AMBeamlineHighVoltageChannelToggleAction::createView(int index){
+	Q_UNUSED(index)
 	return 0;//NULL
 }
 
@@ -124,11 +125,13 @@ void AMBeamlineHighVoltageChannelToggleAction::delayedStart(bool ready){
 }
 
 void AMBeamlineHighVoltageChannelToggleAction::onConnected(bool connected){
+	Q_UNUSED(connected)
 	if(!hasStarted())
 		checkReady();
 }
 
 void AMBeamlineHighVoltageChannelToggleAction::onVoltageChanged(double voltage){
+	Q_UNUSED(voltage)
 	if(!hasStarted())
 		checkReady();
 }
@@ -136,8 +139,10 @@ void AMBeamlineHighVoltageChannelToggleAction::onVoltageChanged(double voltage){
 bool AMBeamlineHighVoltageChannelToggleAction::checkReady(){
 	if(!highVoltageChannel_)
 		return false;
-	else
+	else{
 		setReady(highVoltageChannel_->isConnected());
+		return true;
+	}
 }
 
 void AMBeamlineHighVoltageChannelToggleAction::onStarted(){

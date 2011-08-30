@@ -80,7 +80,6 @@ QString AMDetectorInfoSet::description(){
 /* NTBA March 14, 2011 David Chevrier
    Still not sure about these
 */
-#warning "DAVID, CHECK THESE OVER CAREFULLY"
 // Returns a list of pointers to the AMDetectorInfo objects we store, for use by the database system in storeToDb() / loadFromDb().
 AMDbObjectList AMDetectorInfoSet::dbReadDetectorInfos() {
 	AMDbObjectList rv;
@@ -89,7 +88,9 @@ AMDbObjectList AMDetectorInfoSet::dbReadDetectorInfos() {
 	return rv;
 }
 
-#warning "DAVID, CHECK THESE OVER CAREFULLY"
+/* NTBA March 14, 2011 David Chevrier
+   Still not sure about these
+*/
 // Called by the database system on loadFromDb() to give us our new set of AMDetectorInfo objects. We copy these ones into our internal list and then delete them.
 void AMDetectorInfoSet::dbLoadDetectorInfos(const AMDbObjectList& newDetectorInfos) {
 	clear();	// get rid of our existing
