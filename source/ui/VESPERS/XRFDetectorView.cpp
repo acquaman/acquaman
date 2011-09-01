@@ -106,6 +106,14 @@ bool XRFDetailedDetectorView::setDetector(AMDetector *detector, bool configureOn
 	minimumEnergy_ = 0;
 	maximumEnergy_ = 1e6;
 
+	currentElement_ = 0;
+	secondaryElement_ = 0;
+
+	highlightMarkers_ = false;
+	showEmissionLines_ = false;
+	showPileUpPeaks_ = false;
+	showCombinationPileUpPeaks_ = false;
+
 	detector_ = static_cast<XRFDetector *>(detector);
 	connect(detector_, SIGNAL(detectorConnected(bool)), this, SLOT(setEnabled(bool)));
 	connect(detector_, SIGNAL(addedRegionOfInterest(AMROIInfo)), this, SLOT(addRegionOfInterestMarker(AMROIInfo)));
@@ -481,24 +489,32 @@ void XRFDetailedDetectorView::removeAllRegionsOfInterestMarkers()
 	markers_.clear();
 }
 
-void XRFDetailedDetectorView::highlightMarkers(XRFElement *el)
+void XRFDetailedDetectorView::setCurrentElement(XRFElement *el)
 {
-	ROIPlotMarker *temp;
+	currentElement_ = el;
 
-	for (int i = 0; i < markers_.size(); i++){
+	if (!currentElement_)
+		return;
 
-		temp = markers_.at(i);
-
-		// Need to add the space because Potassium shows up in Ka1 (Symbol for Potassium is K).
-		if (temp->description().contains(el->symbol()+" "))
-			temp->setHighlighted(true);
-		else
-			temp->setHighlighted(false);
-	}
+	highlightMarkers();
+	showEmissionLines();
+	showPileUpPeaks();
+	showCombinationPileUpPeaks();
 }
 
-void XRFDetailedDetectorView::showEmissionLines(XRFElement *el)
+void XRFDetailedDetectorView::setSecondaryElement(XRFElement *el)
 {
+	secondaryElement_ = el;
+
+	if (showCombinationPileUpPeaks_)
+		showCombinationPileUpPeaks();
+}
+
+void XRFDetailedDetectorView::showEmissionLines()
+{
+	if (!currentElement_)
+		return;
+
 	// Remove all the old lines from the plot and clear the list.
 	if (!lines_.isEmpty()){
 
@@ -511,26 +527,159 @@ void XRFDetailedDetectorView::showEmissionLines(XRFElement *el)
 		lines_.clear();
 	}
 
+	// If the lines are to be shown, then add them to the plot.
+	if (showEmissionLines_){
+
+		MPlotPoint *newLine;
+		QString line;
+		double lineEnergy;
+
+		for (int i = 0; i < currentElement_->emissionLines().size(); i++){
+
+			line = currentElement_->emissionLines().at(i).first;
+			lineEnergy = currentElement_->lineEnergy(line);
+
+			if ((lineEnergy <= maximumEnergy_ && lineEnergy >= minimumEnergy_)
+				&& line.contains("1") != 0 && line.compare("-")){
+
+				newLine = new MPlotPoint(QPointF(currentElement_->lineEnergy(line), 0));
+				newLine->setMarker(MPlotMarkerShape::VerticalBeam, 1e6, QPen(getColor(line)), QBrush(getColor(line)));
+				newLine->setDescription(line + ": " + QString::number(currentElement_->lineEnergy(line)) + " eV");
+				if (isWaterfall_)
+					plot_->insertItem(newLine, lines_.size()+detector_->elements());
+				else
+					plot_->insertItem(newLine, lines_.size()+1);
+				lines_ << newLine;
+			}
+		}
+	}
+}
+
+void XRFDetailedDetectorView::showPileUpPeaks()
+{
+	// Because only the dominant peaks are will cause pile up, only a couple chosen peaks will be shown.  Ka + Ka, Ka + Kb, La + La, and La + Lb.
+	if (!currentElement_)
+		return;
+
+	// Remove all the old lines from the plot and clear the list.
+	if (!pileUpLines_.isEmpty()){
+
+		for (int i = 0; i < pileUpLines_.size(); i++){
+
+			plot_->removeItem(pileUpLines_.at(i));
+			delete pileUpLines_.at(i);
+		}
+
+		pileUpLines_.clear();
+	}
+
+	if (showPileUpPeaks_){
+
+		addPileUpMarker(currentElement_, 0, currentElement_, 0); // Ka + Ka
+		addPileUpMarker(currentElement_, 0, currentElement_, 2); // Ka + Kb
+		addPileUpMarker(currentElement_, 3, currentElement_, 3); // La + La
+		addPileUpMarker(currentElement_, 3, currentElement_, 5); // La + Lb
+	}
+}
+
+void XRFDetailedDetectorView::showCombinationPileUpPeaks()
+{
+	if (!currentElement_ || !secondaryElement_)
+		return;
+
+	// Remove all the old lines from the plot and clear the list.
+	if (!combinationPileUpLines_.isEmpty()){
+
+		for (int i = 0; i < combinationPileUpLines_.size(); i++){
+
+			plot_->removeItem(combinationPileUpLines_.at(i));
+			delete combinationPileUpLines_.at(i);
+		}
+
+		combinationPileUpLines_.clear();
+	}
+
+	if (showCombinationPileUpPeaks_){
+
+		addPileUpMarker(currentElement_, 0, secondaryElement_, 0); // Ka1 + Ka2
+		addPileUpMarker(currentElement_, 3, secondaryElement_, 3); // La1 + La2
+	}
+}
+
+void XRFDetailedDetectorView::addPileUpMarker(XRFElement *el1, int line1, XRFElement *el2, int line2)
+{
+	// Make sure the elements are valid.
+	if (!el1 || !el2)
+		return;
+
+	// Make sure the emission line being chosen exists.
+	if (line1 >= el1->emissionLines().size() || line2 >= el2->emissionLines().size())
+		return;
+
 	MPlotPoint *newLine;
-	QString line;
+	QString name1;
+	QString name2;
 	double lineEnergy;
+	bool isCombinationPeak = false;
+	int offset = 0;
 
-	for (int i = 0; i < el->emissionLines().size(); i++){
+	// Determine if we are doing a combination line or not.
+	if (el1 != el2)
+		isCombinationPeak = true;
 
-		line = el->emissionLines().at(i).first;
-		lineEnergy = el->lineEnergy(line);
+	name1 = el1->emissionLines().at(line1).first;
+	name2 = el2->emissionLines().at(line2).first;
 
-		if ((lineEnergy <= maximumEnergy_ && lineEnergy >= minimumEnergy_)
-			&& line.contains("1") != 0 && line.compare("-")){
+	if (name1.contains("-") || name2.contains("-"))
+		return;
 
-			newLine = new MPlotPoint(QPointF(el->lineEnergy(line), 0));
-			newLine->setMarker(MPlotMarkerShape::VerticalBeam, 1e6, QPen(getColor(line)), QBrush(getColor(line)));
-			newLine->setDescription(line + ": " + QString::number(el->lineEnergy(line)) + " eV");
-			if (isWaterfall_)
-				plot_->insertItem(newLine, lines_.size()+detector_->elements());
+	// Different offset if we're adding a combination pile up line or not.
+	if (isCombinationPeak)
+		offset = combinationPileUpLines_.size() + pileUpLines_.size() + lines_.size();
+	else
+		offset = pileUpLines_.size() + lines_.size();
+
+	lineEnergy = el1->emissionLines().at(line1).second.toDouble() + el2->emissionLines().at(line2).second.toDouble();
+
+	// Add the line if it fits within the detector range.
+	if (lineEnergy <= maximumEnergy_ && lineEnergy >= minimumEnergy_){
+
+		newLine = new MPlotPoint(QPointF(lineEnergy, 0));
+
+		if (!isCombinationPeak)
+			newLine->setMarker(MPlotMarkerShape::VerticalBeam, 1e6, QPen(QColor(24, 116, 205)), QBrush(QColor(24, 116, 205)));
+		else
+			newLine->setMarker(MPlotMarkerShape::VerticalBeam, 1e6, QPen(QColor(112, 219, 147)), QBrush(QColor(112, 219, 147)));
+
+		newLine->setDescription(el1->symbol()+" "+name1+" + "+el2->symbol()+" "+name2);
+
+		if (isWaterfall_)
+			plot_->insertItem(newLine, offset+detector_->elements());
+		else
+			plot_->insertItem(newLine, offset+lines_.size()+1);
+
+		pileUpLines_ << newLine;
+	}
+}
+
+void XRFDetailedDetectorView::highlightMarkers()
+{
+	if (!currentElement_)
+		return;
+
+	if (highlightMarkers_){
+
+		ROIPlotMarker *temp;
+
+		for (int i = 0; i < markers_.size(); i++){
+
+			temp = markers_.at(i);
+
+			// Need to add the space because Potassium shows up in Ka1 (Symbol for Potassium is K).
+			if (temp->description().contains(currentElement_->symbol()+" "))
+				temp->setHighlighted(true);
 			else
-				plot_->insertItem(newLine, lines_.size()+1);
-			lines_ << newLine;
+				temp->setHighlighted(false);
 		}
 	}
 }

@@ -75,13 +75,13 @@ bool VESPERSAppController::startup() {
 		}
 	}
 
-	// Initialize central beamline object
-	VESPERSBeamline::vespers();
-	// Initialize the periodic table object.
-	AMPeriodicTable::table();
-
 	// Start up the main program.
 	if(AMAppController::startup()) {
+
+		// Initialize central beamline object
+		VESPERSBeamline::vespers();
+		// Initialize the periodic table object.
+		AMPeriodicTable::table();
 
 		AMDbObjectSupport::registerClass<XRFDetectorInfo>();
 		AMDbObjectSupport::registerClass<VESPERSXRFScanConfiguration>();

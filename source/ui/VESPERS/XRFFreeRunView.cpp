@@ -45,22 +45,28 @@ XRFFreeRunView::XRFFreeRunView(XRFFreeRun *xrfFreeRun, AMWorkflowManagerView *wo
 
 	connect(detector_, SIGNAL(statusChanged(bool)), this, SLOT(onStatusChanged(bool)));
 
+	// Build the detector view.
 	view_ = new XRFDetailedDetectorView(detector_);
 	view_->setMinimumEnergy(xrfTable_->minimumEnergy());
 	view_->setMaximumEnergy(xrfTable_->maximumEnergy());
+	view_->setROIMarkersHighlighted(true);
+	view_->setEmissionLinesVisible(true);
+	view_->setPileUpPeaksVisible(false);
+	view_->setCombinationPileUpPeaksVisible(false);
 	connect(detector_, SIGNAL(detectorConnected(bool)), this, SLOT(setEnabled(bool)));
-	connect(xrfTable_, SIGNAL(currentElementChanged(XRFElement*)), view_, SLOT(showEmissionLines(XRFElement*)));
-	connect(xrfTable_, SIGNAL(currentElementChanged(XRFElement*)), view_, SLOT(highlightMarkers(XRFElement*)));
+	connect(xrfTable_, SIGNAL(currentElementChanged(XRFElement*)), view_, SLOT(setCurrentElement(XRFElement*)));
 	connect(xrfTable_, SIGNAL(minimumEnergyChanged(double)), view_, SLOT(setMinimumEnergy(double)));
 	connect(xrfTable_, SIGNAL(maximumEnergyChanged(double)), view_, SLOT(setMaximumEnergy(double)));
 	connect(xrfTable_, SIGNAL(removedAllRegionsOfInterest()), view_, SLOT(removeAllRegionsOfInterestMarkers()));
 
+	// The periodic table view.
 	XRFPeriodicTableView *tableView = new XRFPeriodicTableView(xrfTable_);
 	QPalette palette = tableView->palette();
 	palette.setColor(QPalette::Window, QColor(79, 148, 205));
 	tableView->setPalette(palette);
 	tableView->setAutoFillBackground(true);
 
+	// The element view.
 	VESPERSXRFElementView *elView = new VESPERSXRFElementView(xrfTable_->currentElement());
 	palette = elView->palette();
 	palette.setColor(QPalette::Window, QColor(110, 139, 61));
