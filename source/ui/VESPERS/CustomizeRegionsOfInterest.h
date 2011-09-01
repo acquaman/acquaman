@@ -74,6 +74,8 @@ private slots:
 			high_->blockSignals(false);
 		}
 	}
+	/// Updates the value label with the new counts value.
+	void onValueUpdate(double num) { value_->setText(QString::number(num, 'g', 3)); }
 	/// Handles when an ROI is initialized.
 	void onRoiInialized() { nameUpdate(roi_->name()); }
 	/// Handles changes in the scale.
@@ -86,6 +88,9 @@ private:
 	// The spin boxes.
 	QDoubleSpinBox *low_;
 	QDoubleSpinBox *high_;
+
+	// The counts value.
+	QLabel *value_;
 
 	// Pointer to the current AMROI.
 	AMROI *roi_;
