@@ -624,7 +624,7 @@ void XRFDetailedDetectorView::saveSpectra()
 													   tr("Spectra Data (*.dat);;All Files (*)"));
 
 	QFile file;
-	if (fileName.right(4).compare(".dat") == 0)
+	if (fileName.contains(".dat"))
 		file.setFileName(fileName);
 	else
 		file.setFileName(fileName+".dat");
