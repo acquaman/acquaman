@@ -579,6 +579,7 @@ void XRFDetailedDetectorView::showPileUpPeaks()
 		addPileUpMarker(currentElement_, 0, currentElement_, 2); // Ka + Kb
 		addPileUpMarker(currentElement_, 3, currentElement_, 3); // La + La
 		addPileUpMarker(currentElement_, 3, currentElement_, 5); // La + Lb
+		addPileUpMarker(currentElement_, 3, currentElement_, 7); // La + Lg
 	}
 }
 
@@ -649,7 +650,7 @@ void XRFDetailedDetectorView::addPileUpMarker(XRFElement *el1, int line1, XRFEle
 		if (!isCombinationPeak)
 			newLine->setMarker(MPlotMarkerShape::VerticalBeam, 1e6, QPen(QColor(24, 116, 205)), QBrush(QColor(24, 116, 205)));
 		else
-			newLine->setMarker(MPlotMarkerShape::VerticalBeam, 1e6, QPen(QColor(112, 219, 147)), QBrush(QColor(112, 219, 147)));
+			newLine->setMarker(MPlotMarkerShape::VerticalBeam, 1e6, QPen(QColor(42, 149, 77)), QBrush(QColor(42, 149, 77)));
 
 		newLine->setDescription(el1->symbol()+" "+name1+" + "+el2->symbol()+" "+name2);
 

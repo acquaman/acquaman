@@ -124,7 +124,14 @@ public slots:
 	/// Sets whether or not possible emission lines are visible.
 	void setEmissionLinesVisible(bool showLines) { showEmissionLines_ = showLines; showEmissionLines(); }
 	/// Sets whether or not pile up peaks are visible.
-	void setPileUpPeaksVisible(bool showPeaks) { showPileUpPeaks_ = showPeaks; showPileUpPeaks(); }
+	void setPileUpPeaksVisible(bool showPeaks)
+	{
+		showPileUpPeaks_ = showPeaks;
+		showPileUpPeaks();
+
+		if (!showPeaks)
+			setCombinationPileUpPeaksVisible(false);
+	}
 	/// Sets whether or not combination pile up peaks are visible.
 	void setCombinationPileUpPeaksVisible(bool showPeaks) { showCombinationPileUpPeaks_ = showPeaks; showCombinationPileUpPeaks(); }
 	/// Sets the current element that is to be viewed.

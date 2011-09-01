@@ -143,6 +143,45 @@ XRFFreeRunView::XRFFreeRunView(XRFFreeRun *xrfFreeRun, AMWorkflowManagerView *wo
 	connect(peakingTime_, SIGNAL(editingFinished()), this, SLOT(onPeakingTimeUpdate()));
 	connect(detector_, SIGNAL(peakingTimeChanged(double)), peakingTime_, SLOT(setValue(double)));
 
+	// Set up GUI elements to enable/disable showing pile up peaks.
+	QCheckBox *selfPileUpBox = new QCheckBox("Self");
+	connect(selfPileUpBox, SIGNAL(toggled(bool)), this, SLOT(onShowSelfPileUpPeaks(bool)));
+
+	selfPileUpLabel_ = new QLabel("Using: ");
+	selfPileUpLabel_->hide();
+	connect(xrfTable_, SIGNAL(currentElementChanged(XRFElement*)), this, SLOT(onCurrentElementChanged(XRFElement*)));
+
+	combinationPeakCheckBox_ = new QCheckBox("Combination");
+	combinationPeakCheckBox_->hide();
+	connect(combinationPeakCheckBox_, SIGNAL(toggled(bool)), this, SLOT(onShowCombinationPileUpPeaks(bool)));
+
+	combinationPileUpLabel_ = new QLabel("Using: ");
+	combinationPileUpLabel_->hide();
+
+	combinationPileUpChoiceButton_ = new QToolButton;
+	combinationPileUpChoiceButton_->setText("Ca");
+	combinationPileUpChoiceButton_->hide();
+	connect(combinationPileUpChoiceButton_, SIGNAL(clicked()), this, SLOT(getCombinationElement()));
+
+	view_->setSecondaryElement(xrfTable_->elementBySymbol("Ca"));
+
+	QHBoxLayout *combinationLayout = new QHBoxLayout;
+	combinationLayout->addSpacing(20);
+	combinationLayout->addWidget(combinationPileUpLabel_);
+	combinationLayout->addWidget(combinationPileUpChoiceButton_);
+
+	QVBoxLayout *pileUpLayout = new QVBoxLayout;
+	pileUpLayout->addWidget(selfPileUpBox, 0, Qt::AlignLeft);
+	pileUpLayout->addWidget(selfPileUpLabel_, 0, Qt::AlignCenter);
+	pileUpLayout->addWidget(combinationPeakCheckBox_, 0, Qt::AlignLeft);
+	pileUpLayout->addLayout(combinationLayout);
+
+	QGroupBox *pileUpGroupBox = new QGroupBox("Pile Up Peaks");
+	pileUpGroupBox->setLayout(pileUpLayout);
+	pileUpGroupBox->setFixedWidth(120);
+	pileUpGroupBox->setFlat(true);
+
+	// General layout management.
 	QFont font(this->font());
 	font.setBold(true);
 
@@ -177,6 +216,7 @@ XRFFreeRunView::XRFFreeRunView(XRFFreeRun *xrfFreeRun, AMWorkflowManagerView *wo
 	controlLayout->addWidget(maxEnergy_);
 	controlLayout->addWidget(peakingTimeLabel_);
 	controlLayout->addWidget(peakingTime_);
+	controlLayout->addWidget(pileUpGroupBox);
 	controlLayout->addStretch();
 	controlLayout->addWidget(sortButton);
 	controlLayout->addWidget(configureButton);
@@ -218,4 +258,25 @@ void XRFFreeRunView::onAdvancedSettingsChanged(bool advanced)
 	maxEnergy_->setVisible(advanced);
 	peakingTimeLabel_->setVisible(advanced);
 	peakingTime_->setVisible(advanced);
+}
+
+void XRFFreeRunView::onShowSelfPileUpPeaks(bool showPeaks)
+{
+	view_->setPileUpPeaksVisible(showPeaks);
+	selfPileUpLabel_->setVisible(showPeaks);
+	combinationPeakCheckBox_->setVisible(showPeaks);
+	combinationPeakCheckBox_->setChecked(false);
+	onShowCombinationPileUpPeaks(false);
+}
+
+void XRFFreeRunView::onShowCombinationPileUpPeaks(bool showPeaks)
+{
+	view_->setCombinationPileUpPeaksVisible(showPeaks);
+	combinationPileUpLabel_->setVisible(showPeaks);
+	combinationPileUpChoiceButton_->setVisible(showPeaks);
+}
+
+void XRFFreeRunView::getCombinationElement()
+{
+
 }
