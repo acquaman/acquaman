@@ -46,7 +46,7 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 
 	// PID control view widget.
 	PIDLoopControlView *pidView = new PIDLoopControlView(VESPERSBeamline::vespers()->sampleStagePID());
-	connect(pidView->pid(), SIGNAL(stateChanged(bool)), motors, SLOT(setEnabled(bool)));
+	connect(VESPERSBeamline::vespers()->sampleStagePID(), SIGNAL(stateChanged(bool)), motors, SLOT(setEnabled(bool)));
 
 	// Valve group.
 	valves_ = VESPERSBeamline::vespers()->valves();
@@ -79,6 +79,8 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	endstationShutterLabel->setFont(font);
 	QLabel *statusLabel = new QLabel("Beamline Status");
 	statusLabel->setFont(font);
+	QLabel *experimentReadyLabel = new QLabel("Experiment Ready");
+	experimentReadyLabel->setFont(font);
 
 	// Shutter layout.
 	QHBoxLayout *frontEndShutters = new QHBoxLayout;
@@ -98,13 +100,26 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	beamlineShutterLayout->addWidget(sshShutterLabel);
 	beamlineShutterLayout->addLayout(beamlineShutters);
 
+	// The Experiment Ready Status
+	experimentReady_ = new QLabel;
+	experimentReady_->setPixmap(QIcon(":/RED.png").pixmap(30));
+	connect(VESPERSBeamline::vespers(), SIGNAL(experimentReady(bool)), this, SLOT(onExperimentStatusChanged(bool)));
+
+	QFormLayout *experimentReadyLayout = new QFormLayout;
+	experimentReadyLayout->addRow(experimentReady_, new QLabel("Status"));
+	experimentReadyLayout->setHorizontalSpacing(20);
+
+	QHBoxLayout *experimentReadyFinalLayout = new QHBoxLayout;
+	experimentReadyFinalLayout->addSpacing(30);
+	experimentReadyFinalLayout->addLayout(experimentReadyLayout);
+
 	// Endstation shutter control.
 	filterLowerButton_ = new QPushButton("Open");
 	filterLowerButton_->setCheckable(true);
 	connect(filterLowerButton_, SIGNAL(clicked()), this, SLOT(onLowerFilterUpdate()));
 
 	filterLabel_ = new QLabel;
-        filterLabel_->setPixmap(QIcon(":/RED.png").pixmap(30));
+	filterLabel_->setPixmap(QIcon(":/RED.png").pixmap(30));
 	connect(VESPERSBeamline::vespers()->filterShutterLower(), SIGNAL(valueChanged(double)), this, SLOT(onFilterStatusChanged()));
 
 	QFormLayout *filterLayout = new QFormLayout;
@@ -150,6 +165,8 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	persistentLayout->addWidget(sampleStageLabel);
 	persistentLayout->addWidget(motors);
 	persistentLayout->addWidget(pidView);
+	persistentLayout->addWidget(experimentReadyLabel);
+	persistentLayout->addLayout(experimentReadyFinalLayout);
 	persistentLayout->addWidget(endstationShutterLabel);
 	persistentLayout->addLayout(adjustedFilterLayout);
 	persistentLayout->addWidget(statusLabel);

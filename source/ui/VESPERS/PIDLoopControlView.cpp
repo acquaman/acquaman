@@ -38,7 +38,7 @@ PIDLoopControlView::PIDLoopControlView(PIDLoopControl *pid, QWidget *parent)
 	description->setFont(font);
 
 	fix_ = new QPushButton("Repair");
-	connect(fix_, SIGNAL(clicked()), pid_, SLOT(turnOn()));
+	connect(fix_, SIGNAL(clicked()), pid_, SLOT(repair()));
 
 	QVBoxLayout *layout = new QVBoxLayout;
 	layout->addWidget(description, 0, Qt::AlignLeft);

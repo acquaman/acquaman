@@ -22,7 +22,7 @@ protected slots:
 	/// Slot that handles which components will be set.
 	void onConfigurationsChanged(int id);
 	/// Slot that sets the configurations to "custom" if any of the components are changed manually.
-	void onComponentsChanged() { configurations_->button(0)->setChecked(true); }
+	void onComponentsChanged() { if (configurations_->checkedId() != 0) configurations_->button(0)->setChecked(true); }
 
 protected:
 	/// The button group for the different types of setups.

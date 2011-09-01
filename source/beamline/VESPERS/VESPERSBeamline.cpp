@@ -34,6 +34,7 @@ VESPERSBeamline::VESPERSBeamline()
 	setupDetectors();
 	setupControlSets();
 	setupMono();
+	setupExperimentStatus();
 }
 
 void VESPERSBeamline::setupDiagnostics()

@@ -60,6 +60,8 @@ protected slots:
 	void onLowerFilterUpdate();
 	/// Handles the state change from the shutter.  Changes the label to the either a red or green light.  Green means open.
 	void onFilterStatusChanged();
+	/// Handles the state change from the experiment ready status.
+	void onExperimentStatusChanged(bool ready) { experimentReady_->setPixmap(QIcon(ready == true ? ":/ON.png" : ":/RED.png").pixmap(30)); }
 
 protected:
 	/// Button and label for the valves.
@@ -74,6 +76,9 @@ protected:
 	/// Button and label for the endstation shutter.
 	QPushButton *filterLowerButton_;
 	QLabel *filterLabel_;
+
+	/// The icon label for the experiment status.
+	QLabel *experimentReady_;
 
 	/// The valve control.
 	VESPERSValveGroupControl *valves_;

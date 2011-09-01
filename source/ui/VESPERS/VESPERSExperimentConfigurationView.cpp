@@ -53,6 +53,8 @@ VESPERSExperimentConfigurationView::VESPERSExperimentConfigurationView(QWidget *
 	configBox->setLayout(configLayout);
 
 	components_ = new QButtonGroup;
+	components_->setExclusive(false);
+
 	QVBoxLayout *compLayout = new QVBoxLayout;
 
 	QCheckBox *component = new QCheckBox("POE");
@@ -95,6 +97,9 @@ VESPERSExperimentConfigurationView::VESPERSExperimentConfigurationView(QWidget *
 	QGroupBox *compBox = new QGroupBox("Components");
 	compBox->setLayout(compLayout);
 
+	configurations_->button(4)->setChecked(true);
+	onConfigurationsChanged(4);
+
 	QHBoxLayout *experimentConfigurationLayout = new QHBoxLayout;
 	experimentConfigurationLayout->addWidget(configBox);
 	experimentConfigurationLayout->addWidget(compBox);
@@ -104,5 +109,86 @@ VESPERSExperimentConfigurationView::VESPERSExperimentConfigurationView(QWidget *
 
 void VESPERSExperimentConfigurationView::onConfigurationsChanged(int id)
 {
+	switch(id){
 
+	case 0: // Custom.  No changes.
+		break;
+
+	case 1:
+		// XAS.  Enable: POE, SOE, and Sample Stage
+		components_->button(0)->setChecked(true);
+		components_->button(1)->setChecked(true);
+		components_->button(2)->setChecked(false);
+		components_->button(3)->setChecked(false);
+		components_->button(4)->setChecked(false);
+		components_->button(5)->setChecked(false);
+		components_->button(6)->setChecked(true);
+		break;
+
+	case 2:
+		// XAS w/ 1-el Vortex.  Enable: POE, SOE, 1-el Vortex, and Sample Stage
+		components_->button(0)->setChecked(true);
+		components_->button(1)->setChecked(true);
+		components_->button(2)->setChecked(true);
+		components_->button(3)->setChecked(false);
+		components_->button(4)->setChecked(false);
+		components_->button(5)->setChecked(false);
+		components_->button(6)->setChecked(true);
+		break;
+
+	case 3:
+		// XAS w/ 4-el Vortex.  Enable: POE, SOE, 4-el Vortex, and Sample Stage
+		components_->button(0)->setChecked(true);
+		components_->button(1)->setChecked(true);
+		components_->button(2)->setChecked(false);
+		components_->button(3)->setChecked(true);
+		components_->button(4)->setChecked(false);
+		components_->button(5)->setChecked(false);
+		components_->button(6)->setChecked(true);
+		break;
+
+	case 4:
+		// XRF w/ 1-el Vortex.  Enable: POE, SOE, 1-el Vortex, and Sample Stage
+		components_->button(0)->setChecked(true);
+		components_->button(1)->setChecked(true);
+		components_->button(2)->setChecked(true);
+		components_->button(3)->setChecked(false);
+		components_->button(4)->setChecked(false);
+		components_->button(5)->setChecked(false);
+		components_->button(6)->setChecked(true);
+		break;
+
+	case 5:
+		// XRF w/ 1-el Vortex + CCD.  Enable: POE, SOE, 1-el Vortex, CCD, Fast Shutter, and Sample Stage
+		components_->button(0)->setChecked(true);
+		components_->button(1)->setChecked(true);
+		components_->button(2)->setChecked(true);
+		components_->button(3)->setChecked(false);
+		components_->button(4)->setChecked(true);
+		components_->button(5)->setChecked(true);
+		components_->button(6)->setChecked(true);
+		break;
+
+	case 6:
+		// XRF w/ 4-el Vortex.  Enable: POE, SOE, 4-el Vortex, and Sample Stage
+		components_->button(0)->setChecked(true);
+		components_->button(1)->setChecked(true);
+		components_->button(2)->setChecked(false);
+		components_->button(3)->setChecked(true);
+		components_->button(4)->setChecked(false);
+		components_->button(5)->setChecked(false);
+		components_->button(6)->setChecked(true);
+		break;
+
+	case 7:
+		// XRF w/ 4-el Vortex.  Enable: POE, SOE, 4-el Vortex, CCD, Fast Shutter, and Sample Stage
+		components_->button(0)->setChecked(true);
+		components_->button(1)->setChecked(true);
+		components_->button(2)->setChecked(false);
+		components_->button(3)->setChecked(true);
+		components_->button(4)->setChecked(true);
+		components_->button(5)->setChecked(true);
+		components_->button(6)->setChecked(true);
+		break;
+	}
 }
