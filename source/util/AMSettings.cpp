@@ -26,6 +26,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDebug>
 #include <QDateTime>
 
+#include "dataman/AMFileLoaderInterface.h"
+#include <QDir>
+#include <QPluginLoader>
+
 /// User Settings:
 // ========================================
 
@@ -124,6 +128,10 @@ void AMUserSettings::save() {
 QString AMSettings::publicDataFolder;
 /// This is the public database filename:
 QString AMSettings::publicDatabaseFilename;
+/// This is the location of the folder that contains the file loader plugins
+QString AMSettings::fileLoaderPluginsFolder;
+/// This is where the file loader plugins are located
+QList<AMFileLoaderInterface*> AMSettings::availableFileLoaders;
 
 
 /// Load settings from disk:
@@ -137,7 +145,20 @@ void AMSettings::load() {
 
 	publicDataFolder = settings.value("publicDataFolder", "/home/acquaman/data/").toString();
 	publicDatabaseFilename = settings.value("publicDatabaseFilename", "publicdata.db").toString();
+	//fileLoaderPluginsFolder = settings.value("fileLoaderPluginsFolder", "/home/acquaman/plugins/fileloaders").toString();
+	fileLoaderPluginsFolder = settings.value("fileLoaderPluginsFolder", "/Users/fawkes/dev/acquaman/plugins/FileLoaders").toString();
 
+	// Load file loader plugins
+	QDir pluginsDirectory(fileLoaderPluginsFolder);
+	foreach (QString fileName, pluginsDirectory.entryList(QDir::Files)) {
+		QPluginLoader pluginLoader(pluginsDirectory.absoluteFilePath(fileName));
+		QObject *plugin = pluginLoader.instance();
+		if (plugin) {
+			AMFileLoaderInterface *tmpfl = qobject_cast<AMFileLoaderInterface *>(plugin);
+			if (tmpfl)
+				availableFileLoaders.append(tmpfl);
+		}
+	}
 }
 
 /// Save settings to disk:
@@ -149,5 +170,6 @@ void AMSettings::save() {
 
 	settings.setValue("publicDataFolder", publicDataFolder);
 	settings.setValue("publicDatabaseFilename", publicDatabaseFilename);
+	settings.setValue("fileLoaderPluginsFolder", fileLoaderPluginsFolder);
 }
 

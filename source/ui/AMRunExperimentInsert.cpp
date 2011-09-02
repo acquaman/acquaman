@@ -93,12 +93,6 @@ void AMRunExperimentInsert::refreshRuns() {
 			  "FROM %1,%2,AMDbObjectThumbnails_table "
 			  "WHERE %2.id = %1.facilityId AND AMDbObjectThumbnails_table.id = %2.thumbnailFirstId "
 			  "ORDER BY %1.dateTime ASC").arg(AMDbObjectSupport::tableNameForClass<AMRun>()).arg(AMDbObjectSupport::tableNameForClass<AMFacility>()));
-	/*
-	q.prepare("SELECT AMRun_table.name, AMRun_table.dateTime, AMFacility_table.description, AMDbObjectThumbnails_table.thumbnail, AMDbObjectThumbnails_table.type, AMRun_table.id, AMRun_table.endDateTime "
-			  "FROM AMRun_table,AMFacility_table,AMDbObjectThumbnails_table "
-			  "WHERE AMFacility_table.id = AMRun_table.facilityId AND AMDbObjectThumbnails_table.id = AMFacility_table.thumbnailFirstId "
-			  "ORDER BY AMRun_table.dateTime ASC");
-	*/
 	if(!q.exec())
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, "Could not retrieve a list of run information from the database."));
 

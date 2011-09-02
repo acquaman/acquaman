@@ -38,6 +38,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMRunExperimentInsert.h"
 #include "ui/AMGenericScanEditor.h"
 
+#include "dataman/AMFileLoaderInterface.h"
+
 #include "util/AMErrorMonitor.h"
 
 #include <QMenuBar>
@@ -62,7 +64,6 @@ bool AMDatamanAppController::startup() {
 	// ensure user data folder and database are ready for use, if this is the first time the program is ever run.
 	if(!AMFirstTimeController::firstTimeCheck())
 		return false;
-
 	//Create the main tab window:
 	mw_ = new AMMainWindow();
 	mw_->setWindowTitle("Acquaman");

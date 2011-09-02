@@ -78,6 +78,8 @@ public:
 };
 
 
+class AMFileLoaderInterface;
+
 /// This class encapsulates application-wide settings and options that are persistent over many runs of the program.
 class AMSettings {
 public:
@@ -91,7 +93,10 @@ public:
 	/// This is the public database filename:
 	static QString publicDatabaseFilename;
 
-
+	/// This is the location of the folder that contains the file loader plugins
+	static QString fileLoaderPluginsFolder;
+	/// A list of available file loader plugins
+	static QList<AMFileLoaderInterface*> availableFileLoaders;
 
 	/// Load settings from disk:
 	static void load();

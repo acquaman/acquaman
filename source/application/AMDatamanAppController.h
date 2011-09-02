@@ -32,7 +32,6 @@ class AMDataViewWithActionButtons;
 class AMRunExperimentInsert;
 class AMGenericScanEditor;
 
-
 class QMenuBar;
 class QMenu;
 class QStandardItem;
@@ -133,7 +132,6 @@ protected:
 
 	/// The parent item of all scan editors we'll placed in the window pane model.
 	QStandardItem* scanEditorsParentItem_;
-
 
 	/// Application state:
 	bool isStarting_, isShuttingDown_;

@@ -380,7 +380,8 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/beamline/AMCompositeControl.h \
 	source/ui/CLS/CLSSynchronizedDwellTimeView.h \
     source/analysis/AM2DDeadTimeAB.h \
-    source/dataman/VESPERS/VESPERSXASDataLoader.h
+    source/dataman/VESPERS/VESPERSXASDataLoader.h \
+    source/dataman/AMFileLoaderInterface.h
 
 CONFIG(mobility) {
 HEADERS +=	source/ui/AMCrosshairOverlayVideoWidget.h \
