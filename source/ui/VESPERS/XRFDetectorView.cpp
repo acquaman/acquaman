@@ -506,8 +506,7 @@ void XRFDetailedDetectorView::setSecondaryElement(XRFElement *el)
 {
 	secondaryElement_ = el;
 
-	if (showCombinationPileUpPeaks_)
-		showCombinationPileUpPeaks();
+	showCombinationPileUpPeaks();
 }
 
 void XRFDetailedDetectorView::showEmissionLines()
@@ -657,9 +656,12 @@ void XRFDetailedDetectorView::addPileUpMarker(XRFElement *el1, int line1, XRFEle
 		if (isWaterfall_)
 			plot_->insertItem(newLine, offset+detector_->elements());
 		else
-			plot_->insertItem(newLine, offset+lines_.size()+1);
+			plot_->insertItem(newLine, offset+1);
 
-		pileUpLines_ << newLine;
+		if (!isCombinationPeak)
+			pileUpLines_ << newLine;
+		else
+			combinationPileUpLines_ << newLine;
 	}
 }
 

@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/VESPERS/XRFElement.h"
 #include "ui/VESPERS/XRFPeriodicTableView.h"
 #include "ui/VESPERS/VESPERSXRFElementView.h"
+#include "ui/AMPeriodicTableDialog.h"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -278,5 +279,11 @@ void XRFFreeRunView::onShowCombinationPileUpPeaks(bool showPeaks)
 
 void XRFFreeRunView::getCombinationElement()
 {
+	AMElement *el = AMPeriodicTableDialog::getElement(this);
 
+	if (el){
+
+		combinationPileUpChoiceButton_->setText(el->symbol());
+		view_->setSecondaryElement(xrfTable_->elementByAtomicNumber(el->atomicNumber()));
+	}
 }
