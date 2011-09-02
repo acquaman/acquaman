@@ -31,7 +31,7 @@ class QVBoxLayout;
 class AMVerticalStackWidget;
 class AMTopFrame;
 
-#include "beamline/AMBeamlineActionsList.h"
+#include "actions/AMBeamlineActionsList.h"
 
 class AMBeamlineActionsListView;
 

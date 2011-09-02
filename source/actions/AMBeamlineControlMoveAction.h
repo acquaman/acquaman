@@ -18,41 +18,40 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef AMBEAMLINECONTROLSETMOVEACTION_H
-#define AMBEAMLINECONTROLSETMOVEACTION_H
+#ifndef AMBEAMLINECONTROLMOVEACTION_H
+#define AMBEAMLINECONTROLMOVEACTION_H
 
-#include <QTimer>
 #include <QProgressBar>
-
-class QToolButton;
+#include <QTime>
 
 #include "AMBeamlineActionItem.h"
-#include "AMControlSet.h"
+#include "beamline/AMControl.h"
 
-class AMBeamlineControlSetMoveAction : public AMBeamlineActionItem
+#include <QIcon>
+
+class AMBeamlineControlMoveAction : public AMBeamlineActionItem
 {
 Q_OBJECT
 public:
-	explicit AMBeamlineControlSetMoveAction(AMControlSet *controlSet, QObject *parent = 0);
+	explicit AMBeamlineControlMoveAction(AMControl *control, QObject *parent = 0);
 
 	virtual AMBeamlineActionItemView* createView(int index = 0);
 
-	virtual AMBeamlineActionItem* createCopy() const;
-
-	virtual AMControlSet* controlSet();
-	virtual AMControlInfoList setpoint();
+	virtual AMControl* control();
+	virtual double setpoint();
 
 signals:
-	void progress(double elapsed, double total);
+	void progress(double, double);
 
 public slots:
 	virtual void start();
 	virtual void cancel();
-	virtual void setControlSet(AMControlSet *controlSet);
-	virtual bool setSetpoint(const AMControlInfoList &setpoint);
-	virtual void cleanup();
+	virtual void setControl(AMControl *control);
+	virtual bool setSetpoint(double setpoint);
+	virtual void cleanup(){}
 
 protected slots:
+//	virtual void initialize();
 	void delayedStart(bool ready);
 	virtual void onMovingChanged(bool moving);
 	virtual void onConnected(bool connected);
@@ -64,23 +63,21 @@ protected slots:
 	virtual void calculateProgress();
 
 protected:
-	AMControlSet *controlSet_;
-	AMControlInfoList setpoint_;
-	AMControlInfoList fullSetpoint_; // Includes setpoint for all of the controls, even if the setpoint is a subset or a superset
-	AMControlInfoList startpoint_;
+	AMControl *control_;
+	double setpoint_;
+	double startPoint_;
 	QTimer progressTimer_;
-	int numSucceeded_;
 };
 
-class AMBeamlineControlSetMoveActionView : public AMBeamlineActionItemView
+class AMBeamlineControlMoveActionView : public AMBeamlineActionItemView
 {
-Q_OBJECT
+	Q_OBJECT
 public:
-	AMBeamlineControlSetMoveActionView(AMBeamlineControlSetMoveAction *controlSetAction, int index = 0, QWidget *parent = 0);
+	AMBeamlineControlMoveActionView(AMBeamlineControlMoveAction *moveAction, int index = 0, QWidget *parent = 0);
 
 public slots:
 	void setIndex(int index);
-	void setAction(AMBeamlineActionItem *action);
+	virtual void setAction(AMBeamlineActionItem *action);
 
 signals:
 	void actionStarted(AMBeamlineActionItem *action);
@@ -92,26 +89,22 @@ protected slots:
 	virtual void updateProgressBar(double elapsed, double total);
 	virtual void onStopCancelButtonClicked();
 	virtual void onPlayPauseButtonClicked();
-	void onPreviousNextChanged();
-	void onMoveUpButtonClicked();
-	void onMoveDownButtonClicked();
 
 	virtual void onStarted();
 	virtual void onSucceeded();
 	virtual void onFailed(int explanation);
 
 protected:
-	AMBeamlineControlSetMoveAction *controlSetAction_;
+	AMBeamlineControlMoveAction *moveAction_;
+
 	QLabel *infoLabel_;
 	QProgressBar *progressBar_;
 	QLabel *timeRemainingLabel_;
 	QPushButton *stopCancelButton_;
 	QPushButton *playPauseButton_;
-	QToolButton *moveActionUpButton_;
-	QToolButton *moveActionDownButton_;
 	QHBoxLayout *hl_;
 
 	QIcon closeIcon_, stopIcon_, startIcon_, pauseIcon_;
 };
 
-#endif // AMBEAMLINECONTROLSETMOVEACTION_H
+#endif // AMBEAMLINECONTROLMOVEACTION_H

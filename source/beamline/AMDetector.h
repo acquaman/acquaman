@@ -24,7 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QObject>
 #include "dataman/AMDetectorInfo.h"
 #include "AMControl.h"
-#include "AMBeamlineActionItem.h"
+#include "actions/AMBeamlineActionItem.h"
 
 class AMDetector;
 

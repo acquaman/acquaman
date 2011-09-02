@@ -26,7 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTimer>
 
 #include "AMBeamlineActionItem.h"
-#include "AMHighVoltageChannel.h"
+#include "beamline/AMHighVoltageChannel.h"
 
 class AMBeamlineHighVoltageChannelToggleAction : public AMBeamlineActionItem
 {

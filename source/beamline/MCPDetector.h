@@ -24,7 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMDetector.h"
 #include "dataman/MCPDetectorInfo.h"
 #include "AMControlSet.h"
-#include "AMBeamlineActionItem.h"
+#include "actions/AMBeamlineActionItem.h"
 
 class MCPDetector : public MCPDetectorInfo, public AMDetector
 {

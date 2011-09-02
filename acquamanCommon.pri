@@ -193,8 +193,8 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/util/AMErrorMonitor.h \
 	source/util/AMSettings.h \
 	source/beamline/AMBeamline.h \
-	source/beamline/AMBeamlineActionItem.h \
-	source/beamline/AMBeamlineControlAction.h \
+	source/actions/AMBeamlineActionItem.h \
+	source/actions/AMBeamlineControlAction.h \
 	source/beamline/AMControl.h \
 	source/beamline/AMControlSet.h \
 	source/beamline/AMControlState.h \
@@ -248,9 +248,9 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMNewRunDialog.h \
 	source/ui/AMDetectorView.h \
 	source/ui/AMWorkflowManagerView.h \
-	source/beamline/AMBeamlineScanAction.h \
+	source/actions/AMBeamlineScanAction.h \
 	source/dataman/AMAbstractFileLoader.h \
-	source/beamline/AMBeamlineControlMoveAction.h \
+	source/actions/AMBeamlineControlMoveAction.h \
 	source/ui/AMPrefixSuffixLineEdit.h \
 	source/ui/AMDragDropItemModel.h \
 	source/dataman/AMRunExperimentItems.h \
@@ -268,9 +268,9 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMElementListEdit.h \
 	source/ui/AMCloseItemDelegate.h \
 	source/ui/AMDataSourcesEditor.h \
-	source/beamline/AMBeamlineActionsList.h \
+	source/actions/AMBeamlineActionsList.h \
 	source/ui/AMWrappingLineEdit.h \
-	source/beamline/AMBeamlineControlSetMoveAction.h \
+	source/actions/AMBeamlineControlSetMoveAction.h \
 	source/ui/AMStartScreen.h \
 	source/ui/AMSignallingGraphicsScene.h \
 	source/dataman/AMUser.h \
@@ -303,11 +303,11 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/analysis/AMStandardAnalysisBlock.h \
 	source/analysis/AM2DSummingABEditor.h \
 	source/util/AMOrderedList.h \
-	source/beamline/AMBeamlineParallelActionsList.h \
+	source/actions/AMBeamlineParallelActionsList.h \
 	source/acquaman/AMControlOptimization.h \
 	source/dataman/AMDetectorInfoList.h \
 	source/ui/AMControlOptimizationView.h \
-	source/beamline/AMBeamlineControlStopAction.h \
+	source/actions/AMBeamlineControlStopAction.h \
 	source/dataman/REIXS/REIXSXESRawFileLoader.h \
 	source/util/AMDeferredFunctionCall.h \
 	#deprecated: source/ui/AMVideoWidget.h \
@@ -331,9 +331,9 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/dataman/AMROIInfo.h \
 	source/beamline/AMROI.h \
 	source/ui/AMSamplePositionViewActionsWidget.h \
-	source/beamline/AMBeamlineListAction.h \
-	source/beamline/AMBeamlineControlWaitAction.h \
-	source/beamline/AMBeamlineUserConfirmAction.h \
+	source/actions/AMBeamlineListAction.h \
+	source/actions/AMBeamlineControlWaitAction.h \
+	source/actions/AMBeamlineUserConfirmAction.h \
 	source/ui/AMScanQueryModel.h \
 	source/dataman/AMExportController.h \
 	source/dataman/AMExporter.h \
@@ -347,8 +347,8 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/ui/AMExporterOptionGeneralAsciiView.h \
 #	source/ui/AM3dDataSourceView.h \
 	source/ui/AMTopFrame.h \
-	source/beamline/AMBeamlineSamplePlateMoveAction.h \
-	source/beamline/AMBeamlineFiducializationMoveAction.h \
+	source/actions/AMBeamlineSamplePlateMoveAction.h \
+	source/actions/AMBeamlineFiducializationMoveAction.h \
 	source/dataman/OceanOptics65000DetectorInfo.h \
 	source/beamline/OceanOptics65000Detector.h \
 	source/ui/OceanOptics65000DetectorView.h \
@@ -358,7 +358,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/beamline/AMHighVoltageChannel.h \
 	source/beamline/CLS/CLSCAEN2527HVChannel.h \
 	source/ui/CLS/CLSCAEN2527ChannelBasicView.h \
-	source/beamline/AMBeamlineHighVoltageChannelToggleAction.h \
+	source/actions/AMBeamlineHighVoltageChannelToggleAction.h \
 	source/beamline/CLS/CLSPGT8000HVChannel.h \
 	source/analysis/AM1DInterpolationAB.h \
 	source/analysis/AM1DRunningAverageFilterAB.h \
@@ -457,8 +457,8 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/util/AMSettings.cpp \
 	source/beamline/AMBeamline.cpp \
 	source/beamline/AMDetector.cpp \
-	source/beamline/AMBeamlineActionItem.cpp \
-	source/beamline/AMBeamlineControlAction.cpp \
+	source/actions/AMBeamlineActionItem.cpp \
+	source/actions/AMBeamlineControlAction.cpp \
 	source/beamline/AMControl.cpp \
 	source/beamline/AMControlSet.cpp \
 	source/beamline/AMControlState.cpp \
@@ -503,8 +503,8 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMDetectorView.cpp \
 	source/ui/AMNewRunDialog.cpp \
 	source/ui/AMWorkflowManagerView.cpp \
-	source/beamline/AMBeamlineScanAction.cpp \
-	source/beamline/AMBeamlineControlMoveAction.cpp \
+	source/actions/AMBeamlineScanAction.cpp \
+	source/actions/AMBeamlineControlMoveAction.cpp \
 	source/ui/AMPrefixSuffixLineEdit.cpp \
 	source/ui/AMDragDropItemModel.cpp \
 	source/dataman/AMRunExperimentItems.cpp \
@@ -522,9 +522,9 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMElementListEdit.cpp \
 	source/ui/AMCloseItemDelegate.cpp \
 	source/ui/AMDataSourcesEditor.cpp \
-	source/beamline/AMBeamlineActionsList.cpp \
+	source/actions/AMBeamlineActionsList.cpp \
 	source/ui/AMWrappingLineEdit.cpp \
-	source/beamline/AMBeamlineControlSetMoveAction.cpp \
+	source/actions/AMBeamlineControlSetMoveAction.cpp \
 	source/ui/AMStartScreen.cpp \
 	source/ui/AMSignallingGraphicsScene.cpp \
 	source/dataman/AMUser.cpp \
@@ -555,11 +555,11 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/analysis/AM2DSummingAB.cpp \
 	source/analysis/AMStandardAnalysisBlock.cpp \
 	source/analysis/AM2DSummingABEditor.cpp \
-	source/beamline/AMBeamlineParallelActionsList.cpp \
+	source/actions/AMBeamlineParallelActionsList.cpp \
 	source/acquaman/AMControlOptimization.cpp \
 	source/dataman/AMDetectorInfoList.cpp \
 	source/ui/AMControlOptimizationView.cpp \
-	source/beamline/AMBeamlineControlStopAction.cpp \
+	source/actions/AMBeamlineControlStopAction.cpp \
 	source/dataman/REIXS/REIXSXESRawFileLoader.cpp \
 	source/util/AMDeferredFunctionCall.cpp \
 	source/ui/AMScanConfigurationViewHolder.cpp \
@@ -584,9 +584,9 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	#deprecated: source/ui/AMVideoWidget.cpp \
 	#source/beamline/AMBeamlineListAction.cpp
 	source/ui/AMSamplePositionViewActionsWidget.cpp \
-	source/beamline/AMBeamlineListAction.cpp \
-	source/beamline/AMBeamlineControlWaitAction.cpp \
-	source/beamline/AMBeamlineUserConfirmAction.cpp \
+	source/actions/AMBeamlineListAction.cpp \
+	source/actions/AMBeamlineControlWaitAction.cpp \
+	source/actions/AMBeamlineUserConfirmAction.cpp \
 	source/ui/AMScanQueryModel.cpp \
 	source/dataman/AMExportController.cpp \
 	source/dataman/AMExporterOption.cpp \
@@ -600,8 +600,8 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/ui/AMTopFrame.cpp \
 	source/dataman/AMExporter.cpp \
 #	source/ui/AM3dDataSourceView.cpp \
-	source/beamline/AMBeamlineSamplePlateMoveAction.cpp \
-	source/beamline/AMBeamlineFiducializationMoveAction.cpp \
+	source/actions/AMBeamlineSamplePlateMoveAction.cpp \
+	source/actions/AMBeamlineFiducializationMoveAction.cpp \
 	source/dataman/OceanOptics65000DetectorInfo.cpp \
 	source/beamline/OceanOptics65000Detector.cpp \
 	source/ui/OceanOptics65000DetectorView.cpp \
@@ -611,7 +611,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/beamline/AMHighVoltageChannel.cpp \
 	source/beamline/CLS/CLSCAEN2527HVChannel.cpp \
 	source/ui/CLS/CLSCAEN2527ChannelBasicView.cpp \
-	source/beamline/AMBeamlineHighVoltageChannelToggleAction.cpp \
+	source/actions/AMBeamlineHighVoltageChannelToggleAction.cpp \
 	source/beamline/CLS/CLSPGT8000HVChannel.cpp \
 	source/analysis/AM1DInterpolationAB.cpp \
 	source/analysis/AM1DRunningAverageFilterAB.cpp \

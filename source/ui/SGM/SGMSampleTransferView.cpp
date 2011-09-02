@@ -27,8 +27,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/AMTopFrame.h"
 
-#include "beamline/AMBeamlineControlWaitAction.h"
-#include "beamline/AMBeamlineUserConfirmAction.h"
+#include "actions/AMBeamlineControlWaitAction.h"
+#include "actions/AMBeamlineUserConfirmAction.h"
 
 #include <QButtonGroup>
 

@@ -23,11 +23,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QWizard>
 #include <QWizardPage>
-#include "AMControlSetView.h"
+#include "ui/AMControlSetView.h"
 #include "ui/AMControlOptimizationView.h"
-#include "AMDetectorSetView.h"
-#include "AMXASRegionsView.h"
-#include "AMRegionsLineView.h"
+#include "ui/AMDetectorSetView.h"
+#include "ui/AMXASRegionsView.h"
+#include "ui/AMRegionsLineView.h"
 #include "acquaman/SGM/SGMXASScanConfiguration.h"
 #include "acquaman/SGM/SGMXASDacqScanController.h"
 

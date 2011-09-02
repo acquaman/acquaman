@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMBeamlineSamplePlateMoveAction.h"
 
 #include "ui/AMSamplePlateView.h"
-#include "AMBeamline.h"
+#include "beamline/AMBeamline.h"
 #include "util/AMErrorMonitor.h"
 
 AMBeamlineSamplePlateMoveAction::AMBeamlineSamplePlateMoveAction(int sampleID, AMSamplePlateItemModel *plateModel, QObject *parent) :

@@ -30,7 +30,7 @@ class QRadioButton;
 
 #include "ui/AMControlEditor.h"
 #include "beamline/SGM/SGMBeamline.h"
-#include "beamline/AMBeamlineParallelActionsList.h"
+#include "actions/AMBeamlineParallelActionsList.h"
 #include "MPlot/MPlotWidget.h"
 #include "MPlot/MPlotSeriesData.h"
 #include "MPlot/MPlotSeries.h"

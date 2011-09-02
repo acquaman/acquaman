@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMBEAMLINECONTROLSTOPACTION_H
 
 #include "AMBeamlineActionItem.h"
-#include "AMControl.h"
+#include "beamline/AMControl.h"
 
 class AMBeamlineControlStopAction : public AMBeamlineActionItem
 {

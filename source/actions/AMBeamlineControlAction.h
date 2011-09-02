@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef AMBEAMLINECONTROLACTION_H
 #define AMBEAMLINECONTROLACTION_H
 
-#include "AMControl.h"
+#include "beamline/AMControl.h"
 #include "AMBeamlineActionItem.h"
 
 class AMBeamlineControlAction : public AMBeamlineActionItem

@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QLabel>
 
-#include "AMBeamline.h"
+#include "beamline/AMBeamline.h"
 #include "util/AMErrorMonitor.h"
 
 AMBeamlineFiducializationMoveAction::AMBeamlineFiducializationMoveAction(int fiducializationIndex, QObject *parent) :
