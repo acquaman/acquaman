@@ -212,8 +212,8 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/dataman/AMScan.h \
 	source/dataman/AMScanSetModel.h \
 	source/dataman/AMXASScan.h \
-	source/dataman/SGM2004FileLoader.h \
-	source/dataman/SGM2010FastFileLoader.h \
+	source/dataman/SGM/SGM2004FileLoader.h \
+	source/dataman/SGM/SGM2010FastFileLoader.h \
 	source/muParser/muParser.h \
 	source/muParser/muParserBase.h \
 	source/muParser/muParserBytecode.h \
@@ -307,7 +307,6 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/acquaman/AMControlOptimization.h \
 	source/dataman/AMDetectorInfoList.h \
 	source/ui/AMControlOptimizationView.h \
-	source/dataman/SGM2010FastSensibleFileLoader.h \
 	source/beamline/AMBeamlineControlStopAction.h \
 	source/dataman/REIXS/REIXSXESRawFileLoader.h \
 	source/util/AMDeferredFunctionCall.h \
@@ -353,7 +352,7 @@ HEADERS += ../MPlot/src/MPlot/MPlot.h \
 	source/dataman/OceanOptics65000DetectorInfo.h \
 	source/beamline/OceanOptics65000Detector.h \
 	source/ui/OceanOptics65000DetectorView.h \
-	source/dataman/SGM2011XASFileLoader.h \
+	source/dataman/SGM/SGM2011XASFileLoader.h \
 	source/beamline/CLS/CLSVMEMotor.h \
 	source/analysis/AM1DDerivativeAB.h \
 	source/beamline/AMHighVoltageChannel.h \
@@ -476,8 +475,8 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/dataman/AMScan.cpp \
 	source/dataman/AMScanSetModel.cpp \
 	source/dataman/AMXASScan.cpp \
-	source/dataman/SGM2004FileLoader.cpp \
-	source/dataman/SGM2010FastFileLoader.cpp \
+	source/dataman/SGM/SGM2004FileLoader.cpp \
+	source/dataman/SGM/SGM2010FastFileLoader.cpp \
 	source/muParser/muParser.cpp \
 	source/muParser/muParserBase.cpp \
 	source/muParser/muParserBytecode.cpp \
@@ -560,7 +559,6 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/acquaman/AMControlOptimization.cpp \
 	source/dataman/AMDetectorInfoList.cpp \
 	source/ui/AMControlOptimizationView.cpp \
-	source/dataman/SGM2010FastSensibleFileLoader.cpp \
 	source/beamline/AMBeamlineControlStopAction.cpp \
 	source/dataman/REIXS/REIXSXESRawFileLoader.cpp \
 	source/util/AMDeferredFunctionCall.cpp \
@@ -607,7 +605,7 @@ SOURCES += ../MPlot/src/MPlot/MPlot.cpp \
 	source/dataman/OceanOptics65000DetectorInfo.cpp \
 	source/beamline/OceanOptics65000Detector.cpp \
 	source/ui/OceanOptics65000DetectorView.cpp \
-	source/dataman/SGM2011XASFileLoader.cpp \
+	source/dataman/SGM/SGM2011XASFileLoader.cpp \
 	source/beamline/CLS/CLSVMEMotor.cpp \
 	source/analysis/AM1DDerivativeAB.cpp \
 	source/beamline/AMHighVoltageChannel.cpp \

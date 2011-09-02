@@ -45,7 +45,6 @@ protected slots:
 protected:
 	QString autoExportFilePath_;
 	friend class SGM2010FastFileLoader;
-	friend class SGM2010FastSensibleFileLoader;
 };
 
 #endif // AMFASTSCAN_H

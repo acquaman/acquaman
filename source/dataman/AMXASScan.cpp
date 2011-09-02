@@ -29,9 +29,9 @@ AMXASScan::AMXASScan(QObject *parent)
 }
 
 
-#include "dataman/SGM2004FileLoader.h"
+#include "dataman/SGM/SGM2004FileLoader.h"
 #include "dataman/ALSBL8XASFileLoader.h"
-#include "dataman/SGM2011XASFileLoader.h"
+#include "dataman/SGM/SGM2011XASFileLoader.h"
 #include "dataman/VESPERS/VESPERSXASDataLoader.h"
 #include <QFileInfo>
 #include <QDir>

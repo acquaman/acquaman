@@ -23,7 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMDatabase.h"
 #include "dataman/AMScan.h"
 #include "dataman/AMXASScan.h"
-#include "dataman/SGM2004FileLoader.h"
+#include "dataman/SGM/SGM2004FileLoader.h"
 #include "util/AMErrorMonitor.h"
 #include "dataman/AMDbObjectSupport.h"
 #include "analysis/AM1DExpressionAB.h"
