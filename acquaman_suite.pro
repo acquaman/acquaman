@@ -3,7 +3,8 @@
 # #####################################################################
 
 TEMPLATE = subdirs
-SUBDIRS +=	REIXSTest.pro \
+SUBDIRS +=	pluginProjects/AMFileLoaderPlugins.pro \
+        REIXSTest.pro \
 	REIXSAcquaman.pro \
 	SGMAcquaman.pro \
 	BareBonesAcquaman.pro \
@@ -13,4 +14,4 @@ SUBDIRS +=	REIXSTest.pro \
 	#AcquaCam.pro \
 	XRFSpectraViewer.pro \
 	MidIRBPM.pro \
-	SGMSSAAcquaman.pro
+        SGMSSAAcquaman.pro

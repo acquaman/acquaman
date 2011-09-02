@@ -145,8 +145,8 @@ void AMSettings::load() {
 
 	publicDataFolder = settings.value("publicDataFolder", "/home/acquaman/data/").toString();
 	publicDatabaseFilename = settings.value("publicDatabaseFilename", "publicdata.db").toString();
-	//fileLoaderPluginsFolder = settings.value("fileLoaderPluginsFolder", "/home/acquaman/plugins/fileloaders").toString();
-	fileLoaderPluginsFolder = settings.value("fileLoaderPluginsFolder", "/Users/fawkes/dev/acquaman/plugins/FileLoaders").toString();
+        //fileLoaderPluginsFolder = settings.value("fileLoaderPluginsFolder", "/Users/fawkes/dev/acquaman/plugins/FileLoaders").toString();
+        fileLoaderPluginsFolder = settings.value("fileLoaderPluginsFolder", QDir::homePath()+"/dev/acquaman/plugins/FileLoaders").toString();
 
 	// Load file loader plugins
 	QDir pluginsDirectory(fileLoaderPluginsFolder);
