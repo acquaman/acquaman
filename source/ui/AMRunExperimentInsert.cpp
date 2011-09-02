@@ -28,6 +28,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTreeView>
 
 #include "ui/AMWindowPaneModel.h"
+#include "dataman/AMDbObjectSupport.h"
+#include "dataman/AMRun.h"
+#include "dataman/AMExperiment.h"
 
 
 
@@ -56,24 +59,24 @@ AMRunExperimentInsert::AMRunExperimentInsert(AMDatabase* db, QStandardItem* runP
 void AMRunExperimentInsert::onDatabaseUpdated(const QString& table, int id) {
 
 	Q_UNUSED(id)
-#warning "Hard-coded database table names. This is not future-compatible code."
 
-	if(table == "AMRun_table" && !runRefreshScheduled_) {
+	//if(table == "AMRun_table" && !runRefreshScheduled_) {
+	if(table == AMDbObjectSupport::tableNameForClass<AMRun>() && !runRefreshScheduled_) {
 		runRefreshScheduled_ = true;
 		QTimer::singleShot(0, this, SLOT(refreshRuns()));
 	}
 
-	if(table == "AMExperiment_table" && !expRefreshScheduled_) {
+	//if(table == "AMExperiment_table" && !expRefreshScheduled_) {
+	if(table == AMDbObjectSupport::tableNameForClass<AMExperiment>() && !expRefreshScheduled_) {
 		expRefreshScheduled_ = true;
 		QTimer::singleShot(0, this, SLOT(refreshExperiments()));
 	}
 }
 
 void AMRunExperimentInsert::onDatabaseObjectCreated(const QString& table, int id) {
-#warning "Hard-coded database table names. This is not future-compatible code."
 	onDatabaseUpdated(table, id);
 
-	if(table == "AMExperiment_table")
+	if(table == AMDbObjectSupport::tableNameForClass<AMExperiment>())
 		newExperimentId_ = id;
 }
 
@@ -83,11 +86,19 @@ void AMRunExperimentInsert::refreshRuns() {
 
 	QSqlQuery q = db_->query();
 	q.setForwardOnly(true);
-	#warning "Hard-coded database table names. This is not future-compatible code."
+	/* NTBA - September 1st, 2011 (David Chevrier)
+	"Hard-coded database table names. Down to just AMDbObjectThumbnails_table."
+	*/
+	q.prepare(QString("SELECT %1.name, %1.dateTime, %2.description, AMDbObjectThumbnails_table.thumbnail, AMDbObjectThumbnails_table.type, %1.id, %1.endDateTime "
+			  "FROM %1,%2,AMDbObjectThumbnails_table "
+			  "WHERE %2.id = %1.facilityId AND AMDbObjectThumbnails_table.id = %2.thumbnailFirstId "
+			  "ORDER BY %1.dateTime ASC").arg(AMDbObjectSupport::tableNameForClass<AMRun>()).arg(AMDbObjectSupport::tableNameForClass<AMFacility>()));
+	/*
 	q.prepare("SELECT AMRun_table.name, AMRun_table.dateTime, AMFacility_table.description, AMDbObjectThumbnails_table.thumbnail, AMDbObjectThumbnails_table.type, AMRun_table.id, AMRun_table.endDateTime "
 			  "FROM AMRun_table,AMFacility_table,AMDbObjectThumbnails_table "
 			  "WHERE AMFacility_table.id = AMRun_table.facilityId AND AMDbObjectThumbnails_table.id = AMFacility_table.thumbnailFirstId "
 			  "ORDER BY AMRun_table.dateTime ASC");
+	*/
 	if(!q.exec())
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, "Could not retrieve a list of run information from the database."));
 
@@ -127,10 +138,9 @@ void AMRunExperimentInsert::refreshExperiments() {
 
 	QSqlQuery q = db_->query();
 	q.setForwardOnly(true);
-	#warning "Hard-coded database table names. This is not future-compatible code."
-	q.prepare("SELECT name,id "
-			  "FROM AMExperiment_table "
-			  "ORDER BY id ASC");
+	q.prepare(QString("SELECT name,id "
+			  "FROM %1 "
+			  "ORDER BY id ASC").arg(AMDbObjectSupport::tableNameForClass<AMExperiment>()));
 	if(!q.exec())
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, "Could not retrieve a list of experiment information from the database."));
 

@@ -25,11 +25,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QList>
 #include <QPixmap>
 #include <QListView>
+#include <QDebug>
 
 #include "acquaman.h"
 #include "util/AMErrorMonitor.h"
 
 #include "ui/AMDetailedItemDelegate.h"
+
+#include "dataman/AMDbObjectSupport.h"
 
 AMRunSelector:: AMRunSelector(AMDatabase* db, QWidget *parent)
 	: QComboBox(parent)
@@ -82,11 +85,14 @@ void AMRunSelector::populateRuns() {
 
 	int i = 1;
 	QSqlQuery q = database_->query();
-#warning "Hard-coded database table names. This is not future-compatible code."
-	q.prepare(QString("SELECT AMRun_table.id,AMRun_table.name,AMRun_table.dateTime,AMFacility_table.description,AMDbObjectThumbnails_table.type,AMDbObjectThumbnails_table.thumbnail,AMRun_table.endDateTime "
-					  "FROM AMRun_table,AMFacility_table,AMDbObjectThumbnails_table "
-					  "WHERE AMRun_table.facilityId = AMFacility_table.id AND AMDbObjectThumbnails_table.id = AMFacility_table.thumbnailFirstId "
-					  "ORDER BY AMRun_table.dateTime DESC"));
+
+	/* NTBA - September 1st, 2011 (David Chevrier)
+	"Hard-coded database table names. Down to only "AMDbObjectThumbnails_table."
+	*/
+	q.prepare(QString("SELECT %1.id,%1.name,%1.dateTime,%2.description,AMDbObjectThumbnails_table.type,AMDbObjectThumbnails_table.thumbnail,%1.endDateTime "
+			  "FROM %1,%2,AMDbObjectThumbnails_table "
+			  "WHERE %1.facilityId = %2.id AND AMDbObjectThumbnails_table.id = %2.thumbnailFirstId "
+			  "ORDER BY %1.dateTime DESC").arg(AMDbObjectSupport::tableNameForClass<AMRun>()).arg(AMDbObjectSupport::tableNameForClass<AMFacility>()));
 
 	if (q.exec()) {
 		while (q.next()){
