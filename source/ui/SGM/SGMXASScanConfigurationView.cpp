@@ -38,7 +38,6 @@ SGMXASScanConfigurationView::SGMXASScanConfigurationView(SGMXASScanConfiguration
 
 		regionsView_ = new AMXASRegionsView(sxsc->regions(), this);
 		regionsView_->setBeamlineEnergy(SGMBeamline::sgm()->energy());
-		connect(sxsc, SIGNAL(regionsChanged()), this, SLOT(onRegionsChanged()));
 
 		/*
 		fluxResolutionView_ = new AMCompactControlOptimizationSetView((AMControlOptimizationSet*)(sxsc->fluxResolutionSet()), this);

@@ -54,16 +54,7 @@ public slots:
 	void setDisabled(bool disabled);
 
 protected slots:
-	void onRegionsChanged(){
-		/* NTBA March 14, 2011 David Chevrier
-		if(cfg_ && fluxResolutionView_){
-			fluxResolutionView_->onRegionsUpdate( ((SGMXASScanConfiguration*)cfg_)->regions() );
-		}
-		*/
-	}
-
 	void onDetectorConfigurationsChanged();
-
 	void onSGMBeamlineCriticalControlsConnectedChanged();
 
 protected:
@@ -72,7 +63,6 @@ protected:
 	AMTopFrame *topFrame_;
 	AMXASRegionsView *regionsView_;
 	AMRegionsLineView *regionsLineView_;
-	//AMCompactControlOptimizationSetView *fluxResolutionView_;
 	SGMFluxResolutionPickerView *fluxResolutionView_;
 	AMControlSetView *trackingView_;
 	AMDetectorSetView *xasDetectorsView_;
