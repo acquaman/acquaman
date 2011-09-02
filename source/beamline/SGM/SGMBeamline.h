@@ -44,7 +44,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMDetectorSet.h"
 
-#include "acquaman/AMControlOptimization.h"
+#include "beamline/AMControlOptimization.h"
 
 
 class SGMGratingAction;
