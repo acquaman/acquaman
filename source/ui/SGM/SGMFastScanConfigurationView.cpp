@@ -20,8 +20,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SGMFastScanConfigurationView.h"
 
-//#include "SGMSidebar.h"
-
 #include <QGridLayout>
 #include <QComboBox>
 #include <QLabel>

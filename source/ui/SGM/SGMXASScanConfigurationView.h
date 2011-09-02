@@ -28,17 +28,17 @@ class QVBoxLayout;
 class QGridLayout;
 class QSpacerItem;
 
-#include "AMControlSetView.h"
-#include "AMDetectorSetView.h"
-#include "AMXASRegionsView.h"
-#include "AMRegionsLineView.h"
+#include "ui/AMControlSetView.h"
+#include "ui/AMDetectorSetView.h"
+#include "ui/AMXASRegionsView.h"
+#include "ui/AMRegionsLineView.h"
 #include "acquaman/SGM/SGMXASScanConfiguration.h"
 #include "acquaman/SGM/SGMXASDacqScanController.h"
-#include "AMScanConfigurationView.h"
+#include "ui/AMScanConfigurationView.h"
 #include "ui/AMControlOptimizationView.h"
 #include "ui/AMTopFrame.h"
 
-#include "AMDetectorView.h"
+#include "ui/AMDetectorView.h"
 
 class SGMFluxResolutionPickerView;
 
