@@ -99,7 +99,7 @@ void AMSettingsView::applyChanges(){
 	}
 }
 
-void AMSettingsView::cancelChanges(){
+void AMSettingsView::discardChanges(){
 	if(unsavedChanges_){
 		publicDataFolderLineEdit_->setText(AMSettings::publicDataFolder);
 		publicDatabaseFileNameLineEdit_->setText(AMSettings::publicDatabaseFilename);
@@ -180,7 +180,7 @@ void AMSettingsMasterView::onUnsavedChanges(bool hasUnsavedChanges){
 }
 
 void AMSettingsMasterView::onCancelButtonClicked(){
-	settingsView_->cancelChanges();
+	settingsView_->discardChanges();
 	close();
 }
 
@@ -210,7 +210,7 @@ void AMSettingsMasterView::closeEvent(QCloseEvent *e){
 			e->accept();
 		}
 		else if(ret == QMessageBox::Discard){
-			settingsView_->cancelChanges();
+			settingsView_->discardChanges();
 			e->accept();
 		}
 		else
