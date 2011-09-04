@@ -136,6 +136,7 @@ QList<AMFileLoaderInterface*> AMSettings::availableFileLoaders;
 
 /// Load settings from disk:
 void AMSettings::load() {
+	qDebug() << "Doing load";
 	QSettings settings(QSettings::IniFormat, QSettings::SystemScope, "Acquaman", "Acquaman");
 
 	// All settings variables are loaded here from disk. Default values must be provided -- they will be used if the particular setting doesn't exist yet.
@@ -148,6 +149,9 @@ void AMSettings::load() {
         //fileLoaderPluginsFolder = settings.value("fileLoaderPluginsFolder", "/Users/fawkes/dev/acquaman/plugins/FileLoaders").toString();
         fileLoaderPluginsFolder = settings.value("fileLoaderPluginsFolder", QDir::homePath()+"/dev/acquaman/plugins/FileLoaders").toString();
 
+	qDebug() << publicDataFolder << publicDatabaseFilename << fileLoaderPluginsFolder;
+
+	availableFileLoaders.clear();
 	// Load file loader plugins
 	QDir pluginsDirectory(fileLoaderPluginsFolder);
 	foreach (QString fileName, pluginsDirectory.entryList(QDir::Files)) {
@@ -155,8 +159,10 @@ void AMSettings::load() {
 		QObject *plugin = pluginLoader.instance();
 		if (plugin) {
 			AMFileLoaderInterface *tmpfl = qobject_cast<AMFileLoaderInterface *>(plugin);
-			if (tmpfl)
+			if (tmpfl){
 				availableFileLoaders.append(tmpfl);
+				qDebug() << "Found a file loader";
+			}
 		}
 	}
 }
@@ -164,6 +170,8 @@ void AMSettings::load() {
 /// Save settings to disk:
 void AMSettings::save() {
 	QSettings settings(QSettings::IniFormat, QSettings::SystemScope, "Acquaman", "Acquaman");
+	qDebug() << "Doing save";
+	qDebug() << publicDataFolder << publicDatabaseFilename << fileLoaderPluginsFolder;
 
 	// All settings variables are saved here to the user-specific file.
 	// Don't forget to add here if you add new user options.
