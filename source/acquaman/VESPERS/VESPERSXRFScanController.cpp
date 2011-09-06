@@ -49,9 +49,6 @@ VESPERSXRFScanController::VESPERSXRFScanController(VESPERSXRFScanConfiguration *
 
 	int elements = detector_->elements();
 
-	for (int i = 0; i < detector_->spectraValues(0).size(); i++)
-		scan_->rawData()->setAxisValue(0, i, i*detector_->scale());
-
 	for (int i = 0; i < elements; i++){
 
 		scan_->rawData()->addMeasurement(AMMeasurementInfo(QString("raw%1").arg(i+1), QString("Element %1").arg(i+1), "eV", detector_->axes()));
@@ -115,6 +112,8 @@ void VESPERSXRFScanController::onDetectorAcquisitionFinished()
 	disconnect(detector_, SIGNAL(statusChanged(bool)), this, SLOT(onStatusChanged()));
 	disconnect(detector_, SIGNAL(elapsedTimeChanged(double)), this, SLOT(onProgressUpdate()));
 
+
+	//scan_->rawData()->setAxisValue();
 
 	for (int i = 0; i < detector_->elements(); i++){
 

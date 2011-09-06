@@ -84,7 +84,7 @@ bool VESPERSXASDataLoader::loadFromFile(const QString &filepath, bool setMetaDat
 			scan_->rawData()->addMeasurement(AMMeasurementInfo(scan_->rawDataSources()->at(i)->name(), scan_->rawDataSources()->at(i)->description()));
 
 		QList<AMAxisInfo> axisInfo;
-		AMAxisInfo ai("XRF Scan", 2048, "Energy", "eV");
+		AMAxisInfo ai("Energy", 2048, "Energy", "eV");
 		ai.increment = 10;
 		ai.start = AMNumber(0);
 		ai.isUniform = true;
@@ -107,12 +107,12 @@ bool VESPERSXASDataLoader::loadFromFile(const QString &filepath, bool setMetaDat
 
 		scan_->rawData()->setAxisValue(0, axisValueIndex, lineTokenized.at(1).toDouble());
 
-		// Only going to rawDataSourceCount-1 because the last raw data source is the 2D spectra scan and requires its own method of entering the data.
-		for (int i = 0; i < scan_->rawDataSourceCount()-1; i++)
-			scan_->rawData()->setValue(axisValueIndex, i, AMnDIndex(), lineTokenized.at(i+2).toDouble());
-
 		// This isn't the most efficient way of putting the spectra data in, but it will do for the time being.
 		if (usingVortex){
+
+			// Only going to rawDataSourceCount-1 because the last raw data source is the 2D spectra scan and requires its own method of entering the data.
+			for (int i = 0; i < scan_->rawDataSourceCount()-1; i++)
+				scan_->rawData()->setValue(axisValueIndex, i, AMnDIndex(), lineTokenized.at(i+2).toDouble());
 
 			spectraTokenized.clear();
 			spectraLine = spectraStream.readLine();
@@ -122,6 +122,13 @@ bool VESPERSXASDataLoader::loadFromFile(const QString &filepath, bool setMetaDat
 				data[j] = spectraTokenized.at(j).toInt();
 
 			scan_->rawData()->setValue(axisValueIndex, scan_->rawDataSourceCount()-1, data.constData(), data.size());
+		}
+
+		else{
+
+			// In transmission, there is no 2D spectra.  Go through all the data sources.
+			for (int i = 0; i < scan_->rawDataSourceCount(); i++)
+				scan_->rawData()->setValue(axisValueIndex, i, AMnDIndex(), lineTokenized.at(i+2).toDouble());
 		}
 
 		scan->rawData()->endInsertRows();
