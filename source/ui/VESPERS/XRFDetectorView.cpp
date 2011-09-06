@@ -617,7 +617,7 @@ void XRFDetailedDetectorView::addPileUpMarker(XRFElement *el1, int line1, XRFEle
 	// Make sure the emission line being chosen exists.
 	if (line1 >= el1->emissionLines().size() || line2 >= el2->emissionLines().size())
 		return;
-	qDebug() << el1->emissionLines().at(line1).first << el1->emissionLines().at(line1).second << el2->emissionLines().at(line2).first << el2->emissionLines().at(line2).second.toDouble();
+
 	// Check to see if each line is possibly visible by the detector.
 	if (!withinEnergyRange(el1->emissionLines().at(line1).second.toDouble())
 			|| !withinEnergyRange(el2->emissionLines().at(line2).second.toDouble()))
