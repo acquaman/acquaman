@@ -255,10 +255,10 @@ void VESPERSBeamline::setupDetectors()
 	ionChamberCalibration_->addIonChamber(new VESPERSIonChamber("Post", "PS1607-203:c1:Voltage", "AMP1607-206", "BL1607-B2-1:mcs09:userRate", "BL1607-B2-1:mcs09:fbk", this));
 
 	vortex1E_ = new XRFDetector("1-el Vortex", 1, "IOC1607-004", this);
-	connect(vortexXRF1E(), SIGNAL(detectorConnected(bool)), this, SLOT(singleElVortexError(bool)));
+	connect(vortexXRF1E(), SIGNAL(connected(bool)), this, SLOT(singleElVortexError(bool)));
 
 	vortex4E_ = new XRFDetector("4-el Vortex", 4, "dxp1607-B21-04", this);
-	connect(vortexXRF4E(), SIGNAL(detectorConnected(bool)), this, SLOT(fourElVortexError(bool)));
+	connect(vortexXRF4E(), SIGNAL(connected(bool)), this, SLOT(fourElVortexError(bool)));
 }
 
 void VESPERSBeamline::setupControlSets()
@@ -464,8 +464,8 @@ void VESPERSBeamline::setupExperimentStatus()
 	connect(fastShutterReady_, SIGNAL(valueChanged(double)), this, SLOT(determineExperimentStatus()));
 	connect(ccdStatus_, SIGNAL(valueChanged(double)), this, SLOT(determineExperimentStatus()));
 	connect(pseudoSampleStage_, SIGNAL(connected(bool)), this, SLOT(determineExperimentStatus()));
-	connect(((XRFDetector *)vortex1E_), SIGNAL(detectorConnected(bool)), this, SLOT(determineExperimentStatus()));
-	connect(((XRFDetector *)vortex4E_), SIGNAL(detectorConnected(bool)), this, SLOT(determineExperimentStatus()));
+	connect(((XRFDetector *)vortex1E_), SIGNAL(connected(bool)), this, SLOT(determineExperimentStatus()));
+	connect(((XRFDetector *)vortex4E_), SIGNAL(connected(bool)), this, SLOT(determineExperimentStatus()));
 }
 
 void VESPERSBeamline::determineExperimentStatus()

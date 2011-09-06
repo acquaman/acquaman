@@ -54,7 +54,7 @@ XRFFreeRunView::XRFFreeRunView(XRFFreeRun *xrfFreeRun, AMWorkflowManagerView *wo
 	view_->setEmissionLinesVisible(true);
 	view_->setPileUpPeaksVisible(false);
 	view_->setCombinationPileUpPeaksVisible(false);
-	connect(detector_, SIGNAL(detectorConnected(bool)), this, SLOT(setEnabled(bool)));
+	connect(detector_, SIGNAL(connected(bool)), this, SLOT(setEnabled(bool)));
 	connect(xrfTable_, SIGNAL(currentElementChanged(XRFElement*)), view_, SLOT(setCurrentElement(XRFElement*)));
 	connect(xrfTable_, SIGNAL(minimumEnergyChanged(double)), view_, SLOT(setMinimumEnergy(double)));
 	connect(xrfTable_, SIGNAL(maximumEnergyChanged(double)), view_, SLOT(setMaximumEnergy(double)));

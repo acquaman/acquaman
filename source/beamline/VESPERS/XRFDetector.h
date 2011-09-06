@@ -64,8 +64,6 @@ public:
 	/// Takes in a detector info and sets all the settings for the detector.
 	void fromXRFInfo(const XRFDetectorInfo &info);
 
-	/// Holds whether the entire detector is connected.
-	bool isConnected() const { return detectorConnected_; }
 	/// Holds whether the detector was connected previously.  Primarily useful at startup.
 	bool wasConnected() const { return wasConnected_; }
 
@@ -201,7 +199,7 @@ public slots:
 
 signals:
 	/// Only emitted as true when all of the controls in the detector are connected. Is emitted false when any of the controls within the detector become unconnected.
-	void detectorConnected(bool);
+	void connected(bool);
 	/// This signal is emitted when the status changes.  Passes the state as a bool.  True is acquiring, false is done.
 	void statusChanged(bool);
 	/// Notifies that the maximum energy has changed.
@@ -282,8 +280,6 @@ protected:
 	/// Helper function.  Takes in a base name and creates a list of ROIs based on the number of elements.  Creates PVs for the name, low limit, high limit, and current value.
 	void createROIList(QString baseName);
 
-	/// Bool handling whether the detector is connected.
-	bool detectorConnected_;
 	/// Bool handling whether the detector was connected.
 	bool wasConnected_;
 	/// The refresh rate.

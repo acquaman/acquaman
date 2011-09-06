@@ -536,9 +536,9 @@ protected slots:
 	/// Determines whether the state of the experiment ready status.
 	void determineExperimentStatus();
 	/// Enables/Disables the POE status from the experiment ready status.
-	void usePOEStatus(bool use) { usePOE_ = use; poeBeamStatusEnable_->move(use == true ? 1.0 : 0.0); }
+	void usePOEStatus(bool use) { usePOE_ = use; poeBeamStatusEnable_->move(use == true ? 0.0 : 1.0); determineExperimentStatus(); }
 	/// Enables/Disables the SOE status from the experiment ready status.
-	void useSOEStatus(bool use) { useSOE_ = use; soeBeamStatusEnable_->move(use == true ? 1.0 : 0.0); }
+	void useSOEStatus(bool use) { useSOE_ = use; soeBeamStatusEnable_->move(use == true ? 0.0 : 1.0); determineExperimentStatus(); }
 	/// Enables/Disables the fast shutter from experiment ready status.
 	void useFastShutterStatus(bool use) { useFastShutter_ = use; determineExperimentStatus(); }
 	/// Enables/Disables the CCD from the experiment ready status.
