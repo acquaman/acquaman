@@ -538,7 +538,7 @@ void XRFDetailedDetectorView::showEmissionLines()
 			line = currentElement_->emissionLines().at(i).first;
 			lineEnergy = currentElement_->lineEnergy(line);
 
-			if ((lineEnergy <= maximumEnergy_ && lineEnergy >= minimumEnergy_)
+			if (withinEnergyRange(lineEnergy)
 				&& line.contains("1") != 0 && line.compare("-")){
 
 				newLine = new MPlotPoint(QPointF(currentElement_->lineEnergy(line), 0));
@@ -602,7 +602,9 @@ void XRFDetailedDetectorView::showCombinationPileUpPeaks()
 	if (showCombinationPileUpPeaks_){
 
 		addPileUpMarker(currentElement_, 0, secondaryElement_, 0); // Ka1 + Ka2
+		addPileUpMarker(currentElement_, 0, secondaryElement_, 3); // Ka1 + La2
 		addPileUpMarker(currentElement_, 3, secondaryElement_, 3); // La1 + La2
+		addPileUpMarker(currentElement_, 3, secondaryElement_, 0); // La1 + Ka2
 	}
 }
 
@@ -614,6 +616,11 @@ void XRFDetailedDetectorView::addPileUpMarker(XRFElement *el1, int line1, XRFEle
 
 	// Make sure the emission line being chosen exists.
 	if (line1 >= el1->emissionLines().size() || line2 >= el2->emissionLines().size())
+		return;
+	qDebug() << el1->emissionLines().at(line1).first << el1->emissionLines().at(line1).second << el2->emissionLines().at(line2).first << el2->emissionLines().at(line2).second.toDouble();
+	// Check to see if each line is possibly visible by the detector.
+	if (!withinEnergyRange(el1->emissionLines().at(line1).second.toDouble())
+			|| !withinEnergyRange(el2->emissionLines().at(line2).second.toDouble()))
 		return;
 
 	MPlotPoint *newLine;
@@ -641,8 +648,12 @@ void XRFDetailedDetectorView::addPileUpMarker(XRFElement *el1, int line1, XRFEle
 
 	lineEnergy = el1->emissionLines().at(line1).second.toDouble() + el2->emissionLines().at(line2).second.toDouble();
 
+	// There should be no peaks below the primary peak since it is its double counting that causes pile up peaks.
+	if (isCombinationPeak && !lines_.isEmpty() && lineEnergy < lines_.first()->value().x())
+			return;
+
 	// Add the line if it fits within the detector range.
-	if (lineEnergy <= maximumEnergy_ && lineEnergy >= minimumEnergy_){
+	if (withinEnergyRange(lineEnergy)){
 
 		newLine = new MPlotPoint(QPointF(lineEnergy, 0));
 

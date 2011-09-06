@@ -192,6 +192,9 @@ protected:
 	/// Gets the maximum height from the first data source.  Used for scaling the height of the ROI markers.
 	double getMaximumHeight(MPlotItem *data);
 
+	/// Returns whether the given \param energy is within energy range of the detector.
+	bool withinEnergyRange(double energy) { return (energy <= maximumEnergy_ && energy >= minimumEnergy_) ? true : false; }
+
 	/// Helper function that builds a pile up line based on two indices for emission lines.  Does nothing if either index is invalid.
 	/*!
 	  \param el1 is the element for the first pile up component.
