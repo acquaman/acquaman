@@ -445,11 +445,11 @@ void VESPERSBeamline::setupMono()
 void VESPERSBeamline::setupExperimentStatus()
 {
 	poeBeamStatus_ = new AMReadOnlyPVControl("POE Beam Status", "07B2:POE_BeamStatus", this);
-	poeBeamStatusEnable_ = new AMSinglePVControl("POE Beam Status Enable", "07B2:EnablePOEstat", this, 0.1);
+	poeBeamStatusEnable_ = new AMSinglePVControl("POE Beam Status Enable", "07B2:EnablePOEStat", this, 0.1);
 	soeBeamStatus_ = new AMReadOnlyPVControl("SOE Beam Status", "07B2:SOE_BeamStatus", this);
-	soeBeamStatusEnable_ = new AMSinglePVControl("SOE Beam Status Enable", "07B2:EnableSOEstat", this, 0.1);
-	fastShutterReady_ = new AMReadOnlyPVControl("Fast Shutter Ready", "DIO1607--01:CCD:NotReady:fbk", this);
-	ccdStatus_ = new AMReadOnlyPVControl("CCD Status", "IOC1607-003:dete1:DetectorState_RBV", this);
+	soeBeamStatusEnable_ = new AMSinglePVControl("SOE Beam Status Enable", "07B2:EnableSOEStat", this, 0.1);
+	fastShutterReady_ = new AMReadOnlyPVControl("Fast Shutter Ready", "DIO1607-01:CCD:NotReady:fbk", this);
+	ccdStatus_ = new AMReadOnlyPVControl("CCD Status", "IOC1607-003:det1:DetectorState_RBV", this);
 
 	usePOE_ = false;
 	useSOE_ = false;
