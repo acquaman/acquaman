@@ -166,10 +166,12 @@ public:
 
 	QButtonGroup* modeButtons_;
 
+	QCheckBox *logCheckBox_;
 	QCheckBox* normalizationCheckBox_, *waterfallCheckBox_;
 	QDoubleSpinBox* waterfallAmount_;
 
 signals:
+	void logScaleEnabled(bool);
 	void normalizationEnabled(bool);
 	void waterfallOffsetEnabled(bool);
 	void waterfallOffsetChanged(double);
@@ -233,6 +235,8 @@ public:
 	explicit AMScanViewInternal(AMScanView* masterView);
 
 public slots:
+	/// Must re-implement in subclasses: turn on log scale on the y-axis.
+	virtual void enableLogScale(bool logScaleOn = true) { logScaleEnabled_ = logScaleOn; }
 	/// Must re-implement in subclasses: turn on axis normalization on the y-axis
 	virtual void enableNormalization(bool normalizationOn = true, double min = 0, double max = 1) { normalizationEnabled_ = normalizationOn; normMin_ = min, normMax_ = max;}
 	/// Must re-implement in subclasses: set the waterfall amount
@@ -259,6 +263,7 @@ protected:
 	AMScanSetModel* model() const;
 
 	double waterfallOffset_, normMin_, normMax_;
+	bool logScaleEnabled_;
 	bool normalizationEnabled_, waterfallEnabled_;
 
 	MPlotGW* createDefaultPlot();
@@ -335,6 +340,8 @@ public:
 
 public slots:
 
+	/// Re-implementing enabling the log scale.
+	virtual void enableLogScale(bool logScaleOn);
 	virtual void enableNormalization(bool normalizationOn, double min = 0, double max = 1);
 	virtual void setWaterfallOffset(double offset);
 	virtual void enableWaterfallOffset(bool waterfallOn);

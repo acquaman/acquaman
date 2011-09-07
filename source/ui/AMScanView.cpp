@@ -396,6 +396,9 @@ AMScanViewModeBar::AMScanViewModeBar(QWidget* parent)
 	hl->addLayout(hl2);
 	hl->addStretch(1);
 
+	logCheckBox_ = new QCheckBox("Log Scale");
+	logCheckBox_->setChecked(false);
+	hl->addWidget(logCheckBox_);
 	normalizationCheckBox_ = new QCheckBox("Show at same scale");
 	normalizationCheckBox_->setChecked(true);
 	hl->addWidget(normalizationCheckBox_);
@@ -419,6 +422,7 @@ AMScanViewModeBar::AMScanViewModeBar(QWidget* parent)
   "border-bottom: 1px solid black;"
   "}");*/
 
+	connect(logCheckBox_, SIGNAL(clicked(bool)), this, SIGNAL(logScaleEnabled(bool)));
 	connect(normalizationCheckBox_, SIGNAL(clicked(bool)), this, SIGNAL(normalizationEnabled(bool)));
 	connect(waterfallCheckBox_, SIGNAL(clicked(bool)), this, SIGNAL(waterfallOffsetEnabled(bool)));
 	connect(waterfallAmount_, SIGNAL(valueChanged(double)), this, SIGNAL(waterfallOffsetChanged(double)));
@@ -492,6 +496,7 @@ void AMScanView::setupUI() {
 
 	for(int i=0; i<views_.count(); i++) {
 		AMScanViewInternal* v = views_.at(i);
+		v->enableLogScale(false);
 		v->enableNormalization(true);
 		v->setWaterfallOffset(0.2);
 		v->enableWaterfallOffset(true);
@@ -531,6 +536,7 @@ void AMScanView::makeConnections() {
 	// connect enabling/disabling normalization and waterfall to each view
 	for(int i=0; i<views_.count(); i++) {
 		AMScanViewInternal* v = views_.at(i);
+		connect(modeBar_, SIGNAL(logScaleEnabled(bool)), v, SLOT(enableLogScale(bool)));
 		connect(modeBar_, SIGNAL(normalizationEnabled(bool)), v, SLOT(enableNormalization(bool)));
 		connect(modeBar_, SIGNAL(waterfallOffsetEnabled(bool)), v, SLOT(enableWaterfallOffset(bool)));
 		connect(modeBar_, SIGNAL(waterfallOffsetChanged(double)), v, SLOT(setWaterfallOffset(double)));
@@ -589,6 +595,7 @@ AMScanViewInternal::AMScanViewInternal(AMScanView* masterView)
 	setSizePolicy(sp);
 	// note that the _widget_'s size policy will be meaningless after a top-level layout is set. (the sizePolicy() of the layout is used instead.)  Therefore, subclasses with top-level layouts need to copy this sizePolicy() to their layout before setting it.
 
+	logScaleEnabled_ = false;
 	normalizationEnabled_ = false;
 	waterfallEnabled_ = false;
 	waterfallOffset_  = 0;
@@ -882,6 +889,17 @@ void AMScanViewExclusiveView::reviewScan(int scanIndex) {
 	}
 }
 
+void AMScanViewExclusiveView::enableLogScale(bool logScaleOn)
+{
+	AMScanViewInternal::enableLogScale(logScaleOn);
+
+	if (logScaleOn)
+		plot_->plot()->axisScale(MPlot::Left)->setDataRangeConstraint(MPlotAxisRange(1e-6, MPLOT_POS_INFINITY));
+	else
+		plot_->plot()->axisScale(MPlot::Left)->setDataRangeConstraint(MPlotAxisRange(MPLOT_NEG_INFINITY, MPLOT_POS_INFINITY));
+
+	plot_->plot()->enableLogScale(MPlot::Left, logScaleOn);
+}
 
 void AMScanViewExclusiveView::enableNormalization(bool normalizationOn, double min, double max) {
 	AMScanViewInternal::enableNormalization(normalizationOn, min, max);
