@@ -360,17 +360,6 @@ protected slots:
 	void onExclusiveDataSourceChanged(const QString& exclusiveDataSource);
 
 protected:
-	/// A list of MPlotItem*... one item for each scan. If we don't have a plot item shown for this scan, this list stores a null pointer.
-	/*! A null pointer in plotItems_ means that the scan at that index doesn't have a data source matching the exclusive data source... or there is a data source, but we're unable to display it (ex: unsupported dimensionality, etc.).*/
-	QList<MPlotItem*> plotItems_;
-	/// This list is a parallel to plotItems_, but it holds a pointer to the data source that we're displaying for this plot.
-	/*! A null pointer in plotItemDataSources_ means that the scan at that index doesn't have a data source matching the exclusive data source. */
-	QList<AMDataSource*> plotItemDataSources_;
-
-
-	/// Our plot.
-	MPlotGW* plot_;
-
 	/// Helper function to handle adding a scan (at row scanIndex in the model)
 	void addScan(int scanIndex);
 
@@ -380,6 +369,18 @@ protected:
 	/// Helper function to review how many scans are actually displayed (ie: how many have the exclusive data source), and update the plot legend title
 	void refreshTitle();
 
+	/// Sets the preset data constraints for the given axis scale. \note This method currently only changes the dataRangeConstraint for MPlot::Left.  As other axis scales need calibration, they will be added as well.
+	void setDataRangeConstraint(int id);
+
+	/// A list of MPlotItem*... one item for each scan. If we don't have a plot item shown for this scan, this list stores a null pointer.
+	/*! A null pointer in plotItems_ means that the scan at that index doesn't have a data source matching the exclusive data source... or there is a data source, but we're unable to display it (ex: unsupported dimensionality, etc.).*/
+	QList<MPlotItem*> plotItems_;
+	/// This list is a parallel to plotItems_, but it holds a pointer to the data source that we're displaying for this plot.
+	/*! A null pointer in plotItemDataSources_ means that the scan at that index doesn't have a data source matching the exclusive data source. */
+	QList<AMDataSource*> plotItemDataSources_;
+
+	/// Our plot.
+	MPlotGW* plot_;
 };
 
 

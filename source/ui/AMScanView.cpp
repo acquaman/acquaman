@@ -893,17 +893,14 @@ void AMScanViewExclusiveView::enableLogScale(bool logScaleOn)
 {
 	AMScanViewInternal::enableLogScale(logScaleOn);
 
-	if (logScaleOn)
-		plot_->plot()->axisScale(MPlot::Left)->setDataRangeConstraint(MPlotAxisRange(1e-6, MPLOT_POS_INFINITY));
-	else
-		plot_->plot()->axisScale(MPlot::Left)->setDataRangeConstraint(MPlotAxisRange(MPLOT_NEG_INFINITY, MPLOT_POS_INFINITY));
-
+	setDataRangeConstraint(MPlot::Left);
 	plot_->plot()->enableLogScale(MPlot::Left, logScaleOn);
 }
 
 void AMScanViewExclusiveView::enableNormalization(bool normalizationOn, double min, double max) {
 	AMScanViewInternal::enableNormalization(normalizationOn, min, max);
 
+	setDataRangeConstraint(MPlot::Left);
 	plot_->plot()->enableAxisNormalization(MPlot::Left, normalizationOn, MPlotAxisRange(min, max));
 
 }
@@ -916,6 +913,31 @@ void AMScanViewExclusiveView::enableWaterfallOffset(bool waterfallOn) {
 	else
 		plot_->plot()->setAxisScaleWaterfall(MPlot::Left, 0);
 
+}
+
+void AMScanViewExclusiveView::setDataRangeConstraint(int id)
+{
+	switch(id){
+
+	case MPlot::Left:
+
+		if (logScaleEnabled_ && !normalizationEnabled_){
+
+			double min = plot_->plot()->minimumSeriesValue();
+
+			if (min != 0)
+				plot_->plot()->axisScale(MPlot::Left)->setDataRangeConstraint(MPlotAxisRange(plot_->plot()->minimumSeriesValue(), MPLOT_POS_INFINITY));
+			else
+				plot_->plot()->axisScale(MPlot::Left)->setDataRangeConstraint(MPlotAxisRange(1, MPLOT_POS_INFINITY));
+
+		}
+		else if (logScaleEnabled_ && normalizationEnabled_)
+			plot_->plot()->axisScale(MPlot::Left)->setDataRangeConstraint(MPlotAxisRange(1e-4, MPLOT_POS_INFINITY));
+		else
+			plot_->plot()->axisScale(MPlot::Left)->setDataRangeConstraint(MPlotAxisRange(MPLOT_NEG_INFINITY, MPLOT_POS_INFINITY));
+
+		break;
+	}
 }
 
 void AMScanViewExclusiveView::setWaterfallOffset(double offset) {

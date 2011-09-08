@@ -53,6 +53,8 @@ public:
 	double time() const { return time_->value(); }
 	/// Returns whether the dwell element is enabled.
 	bool isEnabled() const { return ((int)enable_->value()) == 1 ? true : false; }
+	/// Returns whether all the controls are connected.
+	bool isConnected() const { return name_->isConnected() && enable_->isConnected() && status_->isConnected() && time_->isConnected(); }
 
 	/// Returns a newly created action that sets the time to \param time.  Returns 0 if not connected.
 	AMBeamlineActionItem *createTimeAction(double time);
@@ -129,6 +131,16 @@ public:
 	Mode mode() const { return ((int)mode_->value()) == 0 ? Continuous : SingleShot; }
 	/// Returns whether the dwell time is scanning.
 	bool isScanning() const { return ((int)startScan_->value()) == 1 ? true : false; }
+	/// Returns whether all the controls are connected.
+	bool isConnected() const
+	{
+		bool connected = dwellTime_->isConnected() && startScan_->isConnected() && mode_->isConnected();
+
+		for (int i = 0; i < elementCount(); i++)
+			connected = connected && elementAt(i);
+
+		return connected;
+	}
 
 	/// Convenience getter.  Returns the time in an individual element.  May or may not be the same as time().  \param index must be between 0 and elementCount()-1.
 	double timeAt(int index) const { return elements_.at(index)->time(); }
