@@ -915,6 +915,14 @@ void AMScanViewExclusiveView::enableWaterfallOffset(bool waterfallOn) {
 
 }
 
+void AMScanViewExclusiveView::setWaterfallOffset(double offset) {
+	AMScanViewInternal::setWaterfallOffset(offset);
+
+	if(waterfallEnabled_)
+		plot_->plot()->setAxisScaleWaterfall(MPlot::Left, waterfallOffset_);
+
+}
+
 void AMScanViewExclusiveView::setDataRangeConstraint(int id)
 {
 	switch(id){
@@ -926,7 +934,7 @@ void AMScanViewExclusiveView::setDataRangeConstraint(int id)
 			double min = plot_->plot()->minimumSeriesValue();
 
 			if (min != 0)
-				plot_->plot()->axisScale(MPlot::Left)->setDataRangeConstraint(MPlotAxisRange(plot_->plot()->minimumSeriesValue(), MPLOT_POS_INFINITY));
+				plot_->plot()->axisScale(MPlot::Left)->setDataRangeConstraint(MPlotAxisRange(min, MPLOT_POS_INFINITY));
 			else
 				plot_->plot()->axisScale(MPlot::Left)->setDataRangeConstraint(MPlotAxisRange(1, MPLOT_POS_INFINITY));
 
@@ -938,14 +946,6 @@ void AMScanViewExclusiveView::setDataRangeConstraint(int id)
 
 		break;
 	}
-}
-
-void AMScanViewExclusiveView::setWaterfallOffset(double offset) {
-	AMScanViewInternal::setWaterfallOffset(offset);
-
-	if(waterfallEnabled_)
-		plot_->plot()->setAxisScaleWaterfall(MPlot::Left, waterfallOffset_);
-
 }
 
 /////////////////////////////
@@ -1161,10 +1161,18 @@ void AMScanViewMultiView::refreshTitles() {
 	plot_->plot()->legend()->setBodyText(model()->scanNames().join("<br>"));
 }
 
+void AMScanViewMultiView::enableLogScale(bool logScaleOn)
+{
+	AMScanViewInternal::enableLogScale(logScaleOn);
+
+	setDataRangeConstraint(MPlot::Left);
+	plot_->plot()->enableLogScale(MPlot::Left, logScaleOn);
+}
 
 void AMScanViewMultiView::enableNormalization(bool normalizationOn, double min, double max) {
 	AMScanViewInternal::enableNormalization(normalizationOn, min, max);
 
+	setDataRangeConstraint(MPlot::Left);
 	plot_->plot()->enableAxisNormalization(MPlot::Left, normalizationOn, min, max);
 }
 
@@ -1184,6 +1192,30 @@ void AMScanViewMultiView::setWaterfallOffset(double offset) {
 		plot_->plot()->setAxisScaleWaterfall(MPlot::Left, offset);
 }
 
+void AMScanViewMultiView::setDataRangeConstraint(int id)
+{
+	switch(id){
+
+	case MPlot::Left:
+
+		if (logScaleEnabled_ && !normalizationEnabled_){
+
+			double min = plot_->plot()->minimumSeriesValue();
+
+			if (min != 0)
+				plot_->plot()->axisScale(MPlot::Left)->setDataRangeConstraint(MPlotAxisRange(min, MPLOT_POS_INFINITY));
+			else
+				plot_->plot()->axisScale(MPlot::Left)->setDataRangeConstraint(MPlotAxisRange(1, MPLOT_POS_INFINITY));
+
+		}
+		else if (logScaleEnabled_ && normalizationEnabled_)
+			plot_->plot()->axisScale(MPlot::Left)->setDataRangeConstraint(MPlotAxisRange(1e-4, MPLOT_POS_INFINITY));
+		else
+			plot_->plot()->axisScale(MPlot::Left)->setDataRangeConstraint(MPlotAxisRange(MPLOT_NEG_INFINITY, MPLOT_POS_INFINITY));
+
+		break;
+	}
+}
 
 ///////////////////////////////////////////////////
 
@@ -1470,11 +1502,20 @@ void AMScanViewMultiScansView::reLayout() {
 	}
 }
 
+void AMScanViewMultiScansView::enableLogScale(bool logScaleOn)
+{
+	AMScanViewInternal::enableLogScale(logScaleOn);
 
+	setDataRangeConstraint(MPlot::Left);
 
+	for (int i = 0; i < plots_.count(); i++)
+		plots_.at(i)->plot()->enableLogScale(MPlot::Left, logScaleOn);
+}
 
 void AMScanViewMultiScansView::enableNormalization(bool normalizationOn, double min, double max) {
 	AMScanViewInternal::enableNormalization(normalizationOn, min, max);
+
+	setDataRangeConstraint(MPlot::Left);
 
 	for(int i=0; i<plots_.count(); i++) {
 		plots_.at(i)->plot()->enableAxisNormalization(MPlot::Left, normalizationOn,  min,  max);
@@ -1501,7 +1542,39 @@ void AMScanViewMultiScansView::setWaterfallOffset(double offset) {
 			plots_.at(i)->plot()->setAxisScaleWaterfall(MPlot::Left, offset);
 }
 
+void AMScanViewMultiScansView::setDataRangeConstraint(int id)
+{
+	switch(id){
 
+	case MPlot::Left:
+
+		double val;
+
+		if (logScaleEnabled_ && !normalizationEnabled_){
+
+			double min = MPLOT_POS_INFINITY;
+			for (int i = 0; i < plots_.count(); i++){
+
+				if (plots_.at(i)->plot()->minimumSeriesValue() < min)
+					min = plots_.at(i)->plot()->minimumSeriesValue();
+			}
+
+			if (min != 0)
+				val = min;
+			else
+				val = 1;
+		}
+		else if (logScaleEnabled_ && normalizationEnabled_)
+			val = 1e-4;
+		else
+			val = MPLOT_NEG_INFINITY;
+
+		for (int i = 0; i < plots_.count(); i++)
+			plots_.at(i)->plot()->axisScale(MPlot::Left)->setDataRangeConstraint(MPlotAxisRange(val, MPLOT_POS_INFINITY));
+
+		break;
+	}
+}
 
 
 
@@ -1811,9 +1884,25 @@ bool AMScanViewMultiSourcesView::reviewDataSources() {
 	return areChanges;
 }
 
+void AMScanViewMultiSourcesView::enableLogScale(bool logScaleOn)
+{
+	AMScanViewInternal::enableLogScale(logScaleOn);
+
+	setDataRangeConstraint(MPlot::Left);
+
+	if(firstPlotEmpty_)
+		firstPlot_->plot()->enableLogScale(MPlot::Left, logScaleOn);
+	QMapIterator<QString, MPlotGW*> i(dataSource2Plot_);
+	while(i.hasNext()) {
+		i.next();
+		i.value()->plot()->enableLogScale(MPlot::Left, logScaleOn);
+	}
+}
 
 void AMScanViewMultiSourcesView::enableNormalization(bool normalizationOn, double min, double max) {
 	AMScanViewInternal::enableNormalization(normalizationOn, min, max);
+
+	setDataRangeConstraint(MPlot::Left);
 
 	if(firstPlotEmpty_)
 		firstPlot_->plot()->enableAxisNormalization(MPlot::Left, normalizationOn,  min,  max);
@@ -1859,6 +1948,50 @@ void AMScanViewMultiSourcesView::setWaterfallOffset(double offset) {
 			i.next();
 			i.value()->plot()->setAxisScaleWaterfall(MPlot::Left, offset);
 		}
+	}
+}
+
+void AMScanViewMultiSourcesView::setDataRangeConstraint(int id)
+{
+	switch(id){
+
+	case MPlot::Left:
+
+		double val;
+
+		if (logScaleEnabled_ && !normalizationEnabled_){
+
+			double min = MPLOT_POS_INFINITY;
+
+			if(firstPlotEmpty_)
+				val = MPLOT_NEG_INFINITY;
+			QMapIterator<QString, MPlotGW*> i(dataSource2Plot_);
+			while(i.hasNext()) {
+				i.next();
+
+				if (i.value()->plot()->minimumSeriesValue() < min)
+					min = i.value()->plot()->minimumSeriesValue();
+			}
+
+			if (min != 0)
+				val = min;
+			else
+				val = 1;
+		}
+		else if (logScaleEnabled_ && normalizationEnabled_)
+			val = 1e-4;
+		else
+			val = MPLOT_NEG_INFINITY;
+
+		if(firstPlotEmpty_)
+			firstPlot_->plot()->axisScale(MPlot::Left)->setDataRangeConstraint(MPlotAxisRange(val, MPLOT_POS_INFINITY));
+		QMapIterator<QString, MPlotGW*> i(dataSource2Plot_);
+		while(i.hasNext()) {
+			i.next();
+			i.value()->plot()->axisScale(MPlot::Left)->setDataRangeConstraint(MPlotAxisRange(val, MPLOT_POS_INFINITY));
+		}
+
+		break;
 	}
 }
 
