@@ -24,6 +24,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QGridLayout>
 #include <QLabel>
+#include <QGroupBox>
+#include <QVBoxLayout>
 
 VESPERSIonChamberCalibrationView::VESPERSIonChamberCalibrationView(VESPERSIonChamberCalibration *calibration, QWidget *parent)
 	: QWidget(parent)
@@ -45,6 +47,12 @@ VESPERSIonChamberCalibrationView::VESPERSIonChamberCalibrationView(VESPERSIonCha
 		calibrationLayout->addWidget(temp, i+2, 0, 1, 4);
 	}
 
-	setLayout(calibrationLayout);
+	QGroupBox *calibrationBox = new QGroupBox("Ion Chamber Calibration");
+	calibrationBox->setLayout(calibrationLayout);
+
+	QVBoxLayout *layout = new QVBoxLayout;
+	layout->addWidget(calibrationBox);
+
+	setLayout(layout);
 	setMaximumSize(400, 300);
 }
