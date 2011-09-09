@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QWidget>
 #include <QLabel>
 #include <QPushButton>
+#include <QDoubleSpinBox>
 
 #include "beamline/VESPERS/VESPERSBeamline.h"
 #include "ui/AMShutterButton.h"
@@ -61,7 +62,15 @@ protected slots:
 	/// Handles the state change from the shutter.  Changes the label to the either a red or green light.  Green means open.
 	void onFilterStatusChanged();
 	/// Handles the state change from the experiment ready status.
-	void onExperimentStatusChanged(bool ready) { experimentReady_->setPixmap(QIcon(ready == true ? ":/ON.png" : ":/RED.png").pixmap(30)); }
+	void onExperimentStatusChanged(bool ready) { experimentReady_->setPixmap(QIcon(ready == true ? ":/ON.png" : ":/RED.png").pixmap(25)); }
+	/// Handles changes to the energy from outside the program.
+	void onEnergyChanged(double energy) { energySetpoint_->blockSignals(true); energySetpoint_->setValue(energy); energySetpoint_->blockSignals(false); }
+	/// Sets the new energy.
+	void setEnergy() { VESPERSBeamline::vespers()->mono()->setEo(energySetpoint_->value()); }
+	/// Handles changes to the energy feedback.
+	void onEnergyFeedbackChanged(double energy) { energyFeedback_->setText(QString::number(energy, 'f', 2)+" eV"); }
+	/// Handles enabling and disabling the energy setpoint if the beam is either Pink or None.
+	void onBeamChanged(VESPERSBeamline::Beam beam);
 
 protected:
 	/// Button and label for the valves.
@@ -79,6 +88,10 @@ protected:
 
 	/// The icon label for the experiment status.
 	QLabel *experimentReady_;
+
+	/// The energy spin box and label.
+	QDoubleSpinBox *energySetpoint_;
+	QLabel *energyFeedback_;
 
 	/// The valve control.
 	VESPERSValveGroupControl *valves_;

@@ -35,21 +35,25 @@ VESPERSBeamSelectorView::VESPERSBeamSelectorView(QWidget *parent)
 
 	QToolButton *temp = new QToolButton;
 	temp->setText("Pink");
+	temp->setFixedSize(35, 22);
 	temp->setCheckable(true);
 	beams_->addButton(temp, 0);
 
 	temp = new QToolButton;
 	temp->setText("10%");
+	temp->setFixedSize(35, 22);
 	temp->setCheckable(true);
 	beams_->addButton(temp, 1);
 
 	temp = new QToolButton;
 	temp->setText("1.6%");
+	temp->setFixedSize(35, 22);
 	temp->setCheckable(true);
 	beams_->addButton(temp, 2);
 
 	temp = new QToolButton;
 	temp->setText("Si");
+	temp->setFixedSize(35, 22);
 	temp->setCheckable(true);
 	beams_->addButton(temp, 3);
 
@@ -137,5 +141,5 @@ void VESPERSBeamSelectorView::onCurrentBeamChanged(VESPERSBeamline::Beam beam)
 	}
 
 	if (currentBeam_)
-		currentBeam_->setPalette(QPalette(Qt::green));
+		currentBeam_->setPalette(Qt::green);
 }
