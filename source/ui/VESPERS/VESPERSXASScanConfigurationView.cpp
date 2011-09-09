@@ -165,19 +165,24 @@ VESPERSXASScanConfigurationView::VESPERSXASScanConfigurationView(VESPERSXASScanC
 	timeLayout->addRow("Time:", time);
 
 	QGridLayout *contentsLayout = new QGridLayout;
-	contentsLayout->addWidget(regionsLineView_, 0, 0, 1, 4, Qt::AlignCenter);
-	contentsLayout->addWidget(regionsView_, 1, 0, 1, 3);
-	contentsLayout->addWidget(fluorescenceDetectorGroupBox, 1, 3);
-	contentsLayout->addLayout(scanNameLayout, 2, 0);
-	contentsLayout->addLayout(energyLayout, 3, 0);
-	contentsLayout->addLayout(timeLayout, 3, 2);
-	contentsLayout->addWidget(ionChambersGroupBox, 2, 3);
+	contentsLayout->addWidget(regionsView_, 3, 0, 1, 2);
+	contentsLayout->addWidget(fluorescenceDetectorGroupBox, 2, 0);
+	contentsLayout->addLayout(scanNameLayout, 0, 0);
+	contentsLayout->addLayout(energyLayout, 1, 0);
+	contentsLayout->addLayout(timeLayout, 1, 1);
+	contentsLayout->addWidget(ionChambersGroupBox, 2, 1);
+
+	QHBoxLayout *squeezeContents = new QHBoxLayout;
+	squeezeContents->addStretch();
+	squeezeContents->addLayout(contentsLayout);
+	squeezeContents->addStretch();
 
 	QVBoxLayout *configViewLayout = new QVBoxLayout;
 	configViewLayout->addWidget(frame);
 	configViewLayout->addStretch();
-	configViewLayout->addLayout(contentsLayout);
+	configViewLayout->addLayout(squeezeContents);
 	configViewLayout->addStretch();
+	configViewLayout->addWidget(regionsLineView_, 0, Qt::AlignCenter);
 
 	setLayout(configViewLayout);
 }

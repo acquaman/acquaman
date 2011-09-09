@@ -177,7 +177,7 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	QFormLayout *filterLayout = new QFormLayout;
 	filterLayout->addRow(filterLabel_, filterLowerButton_);
 	filterLayout->addRow("Filters:", filterComboBox_);
-	filterLayout->setHorizontalSpacing(10);
+	filterLayout->setHorizontalSpacing(5);
 
 	QHBoxLayout *adjustedFilterLayout = new QHBoxLayout;
 	adjustedFilterLayout->addSpacing(25);
