@@ -9,6 +9,7 @@
 #include <QCheckBox>
 #include <QRadioButton>
 #include <QHBoxLayout>
+#include <QLabel>
 
 VESPERSExperimentConfigurationView::VESPERSExperimentConfigurationView(QWidget *parent) :
 	QWidget(parent)
@@ -103,6 +104,8 @@ VESPERSExperimentConfigurationView::VESPERSExperimentConfigurationView(QWidget *
 	configurations_->button(4)->setChecked(true);
 	onConfigurationsChanged(4);
 
+	QString message("Use the lists below to select what kind of experiment you are going to perform.  \nThis will automatically set some of the important beamline parameters for you.  \nYou should return to this screen every time you decide to change experiments.");
+
 	QHBoxLayout *experimentConfigurationLayout = new QHBoxLayout;
 	experimentConfigurationLayout->addStretch();
 	experimentConfigurationLayout->addWidget(configBox);
@@ -112,6 +115,7 @@ VESPERSExperimentConfigurationView::VESPERSExperimentConfigurationView(QWidget *
 	QVBoxLayout *mainLayout = new QVBoxLayout;
 	mainLayout->addWidget(frame);
 	mainLayout->addStretch();
+	mainLayout->addWidget(new QLabel(message), 0, Qt::AlignCenter);
 	mainLayout->addLayout(experimentConfigurationLayout);
 	mainLayout->addStretch();
 
