@@ -35,6 +35,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/VESPERS/XRFMapSetup.h"
 #include "ui/VESPERS/VESPERSDeviceStatusView.h"
 #include "ui/VESPERS/VESPERSXASScanConfigurationView.h"
+#include "ui/VESPERS/VESPERSExperimentConfigurationView.h"
 
 #include "dataman/AMScanEditorModelItem.h"
 #include "ui/AMGenericScanEditor.h"
@@ -128,6 +129,9 @@ bool VESPERSAppController::startup() {
 		mw_->addPane(xrf1EFreeRunView, "Free run", "XRF 1-el", ":/utilities-system-monitor.png");
 		mw_->addPane(xrf4EFreeRunView, "Free run", "XRF 4-el", ":/utilities-system-monitor.png");
 
+		// Setup page that auto-enables detectors.
+		VESPERSExperimentConfigurationView *experimentConfigurationView = new VESPERSExperimentConfigurationView;
+
 		// Setup page to launch the nDMapper software with correct options.
 		XRFMapSetup *ndMapSetup = new XRFMapSetup;
 
@@ -140,6 +144,7 @@ bool VESPERSAppController::startup() {
 		connect(AMScanControllerSupervisor::scanControllerSupervisor(), SIGNAL(currentScanControllerStarted()), this, SLOT(onCurrentScanControllerStarted()));
 
 		mw_->insertHeading("Scans", 2);
+		mw_->addPane(experimentConfigurationView, "Scans", "Experiment Setup", ":/utilities-system-monitor.png");
 		mw_->addPane(ndMapSetup, "Scans", "Map Setup", ":/utilities-system-monitor.png");
 		mw_->addPane(xasConfigViewHolder, "Scans", "XAS", ":/utilities-system-monitor.png");
 
@@ -148,7 +153,7 @@ bool VESPERSAppController::startup() {
 		mw_->addRightWidget(persistentView);
 
 		// Show the endstation control view first.
-		mw_->setCurrentPane(endstationView);
+		mw_->setCurrentPane(experimentConfigurationView);
 
 		/// THIS IS HERE TO PASS ALONG THE INFORMATION TO THE SUM AND CORRECTEDSUM PVS IN THE FOUR ELEMENT DETECTOR.
 		ROIHelper *roiHelper = new ROIHelper(this);

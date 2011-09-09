@@ -78,7 +78,7 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	sshShutterLabel->setFont(font);
 	QLabel *beamSelectionLabel = new QLabel("Beam Selection");
 	beamSelectionLabel->setFont(font);
-	QLabel *endstationShutterLabel = new QLabel("Endstation Shutter");
+	QLabel *endstationShutterLabel = new QLabel("Endstation");
 	endstationShutterLabel->setFont(font);
 	QLabel *statusLabel = new QLabel("Beamline Status");
 	statusLabel->setFont(font);
@@ -136,11 +136,11 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	experimentReadyLayout->setHorizontalSpacing(20);
 
 	QHBoxLayout *experimentReadyFinalLayout = new QHBoxLayout;
-	experimentReadyFinalLayout->addSpacing(30);
+	experimentReadyFinalLayout->addSpacing(25);
 	experimentReadyFinalLayout->addLayout(experimentReadyLayout);
 
 	// Endstation shutter control.
-	filterLowerButton_ = new QPushButton("Open");
+	filterLowerButton_ = new QPushButton("Open Shutter");
 	filterLowerButton_->setCheckable(true);
 	connect(filterLowerButton_, SIGNAL(clicked()), this, SLOT(onLowerFilterUpdate()));
 
@@ -153,7 +153,7 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	filterLayout->setHorizontalSpacing(20);
 
 	QHBoxLayout *adjustedFilterLayout = new QHBoxLayout;
-	adjustedFilterLayout->addSpacing(30);
+	adjustedFilterLayout->addSpacing(25);
 	adjustedFilterLayout->addLayout(filterLayout);
 
 	// The valve control.
@@ -191,7 +191,7 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	statusLayout->addRow(waterLabel_, waterIcon);
 
 	QHBoxLayout *adjustedStatusLayout = new QHBoxLayout;
-	adjustedStatusLayout->addSpacing(30);
+	adjustedStatusLayout->addSpacing(25);
 	adjustedStatusLayout->addLayout(statusLayout);
 
 	QVBoxLayout *persistentLayout = new QVBoxLayout;
@@ -241,12 +241,12 @@ void VESPERSPersistentView::onFilterStatusChanged()
 	if (((int)VESPERSBeamline::vespers()->filterShutterLower()->value()) == 1){
 
 		filterLabel_->setPixmap(QIcon(":/ON.png").pixmap(25));
-		filterLowerButton_->setText("Close");
+		filterLowerButton_->setText("Close Shutter");
 	}
 	else{
 
 		filterLabel_->setPixmap(QIcon(":/RED.png").pixmap(25));
-		filterLowerButton_->setText("Open");
+		filterLowerButton_->setText("Open Shutter");
 	}
 }
 

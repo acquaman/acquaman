@@ -1,6 +1,7 @@
 #include "VESPERSExperimentConfigurationView.h"
 
 #include "beamline/VESPERS/VESPERSBeamline.h"
+#include "ui/AMTopFrame.h"
 
 #include <QButtonGroup>
 #include <QGroupBox>
@@ -12,6 +13,8 @@
 VESPERSExperimentConfigurationView::VESPERSExperimentConfigurationView(QWidget *parent) :
 	QWidget(parent)
 {
+	AMTopFrame *frame = new AMTopFrame("VESPERS Experimental Setup");
+
 	configurations_ = new QButtonGroup;
 	QVBoxLayout *configLayout = new QVBoxLayout;
 
@@ -101,10 +104,18 @@ VESPERSExperimentConfigurationView::VESPERSExperimentConfigurationView(QWidget *
 	onConfigurationsChanged(4);
 
 	QHBoxLayout *experimentConfigurationLayout = new QHBoxLayout;
+	experimentConfigurationLayout->addStretch();
 	experimentConfigurationLayout->addWidget(configBox);
 	experimentConfigurationLayout->addWidget(compBox);
+	experimentConfigurationLayout->addStretch();
 
-	setLayout(experimentConfigurationLayout);
+	QVBoxLayout *mainLayout = new QVBoxLayout;
+	mainLayout->addWidget(frame);
+	mainLayout->addStretch();
+	mainLayout->addLayout(experimentConfigurationLayout);
+	mainLayout->addStretch();
+
+	setLayout(mainLayout);
 }
 
 void VESPERSExperimentConfigurationView::onConfigurationsChanged(int id)
