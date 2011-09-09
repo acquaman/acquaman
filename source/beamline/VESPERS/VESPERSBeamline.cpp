@@ -153,16 +153,6 @@ void VESPERSBeamline::setupDiagnostics()
 	fltInterimSlits2_ = new AMReadOnlyPVwStatusControl("Flow Transducer Interim Slits 2", "FLT1607-1-B21-03", "FLT1607-1-B21-03:lowflow", this, new AMControlStatusCheckerDefault(0));
 	fltPoeSsh1_ = new AMReadOnlyPVwStatusControl("Flow Transducer POE SSH1", "FLT1607-1-B21-04", "FLT1607-1-B21-04:lowflow", this, new AMControlStatusCheckerDefault(0));
 	fltPoeSsh2_ = new AMReadOnlyPVwStatusControl("Flow Transducer POE SSH2", "FLT1607-1-B22-02", "FLT1607-1-B22-02:lowflow", this, new AMControlStatusCheckerDefault(0));
-
-	// The beam attenuation filters.
-	filter250umA_ = new AMPVControl("Filter 250um A", "07B2_PLC_PFIL_01_F1_Ctrl", "07B2_PLC_PFIL_01_F1_Toggle", QString(), this);
-	filter250umB_ = new AMPVControl("Filter 250um B", "07B2_PLC_PFIL_01_F2_Ctrl", "07B2_PLC_PFIL_01_F2_Toggle", QString(), this);
-	filter100umA_ = new AMPVControl("Filter 100um A", "07B2_PLC_PFIL_02_F3_Ctrl", "07B2_PLC_PFIL_02_F3_Toggle", QString(), this);
-	filter100umB_ = new AMPVControl("Filter 100um B", "07B2_PLC_PFIL_02_F4_Ctrl", "07B2_PLC_PFIL_02_F4_Toggle", QString(), this);
-	filter50umA_ = new AMPVControl("Filter 50um A", "07B2_PLC_PFIL_02_F1_Ctrl", "07B2_PLC_PFIL_02_F1_Toggle", QString(), this);
-	filter50umB_ = new AMPVControl("Filter 50um B", "07B2_PLC_PFIL_02_F2_Ctrl", "07B2_PLC_PFIL_02_F2_Toggle", QString(), this);
-	filterShutterUpper_ = new AMPVControl("Filter Shutter Upper", "07B2_PLC_PFIL_01_F3_Ctrl", "07B2_PLC_PFIL_01_F3_Toggle", QString(), this);
-	filterShutterLower_ = new AMPVControl("Filter Shutter Lower", "07B2_PLC_PFIL_01_F4_Ctrl", "07B2_PLC_PFIL_01_F4_Toggle", QString(), this);
 }
 
 void VESPERSBeamline::setupSampleStage()
@@ -200,29 +190,11 @@ void VESPERSBeamline::setupSampleStage()
 	sampleStagePidZ_ = new AMPVControl("Sample Stage PID Z", "SVM1607-2-B21-01:hold:sp", "SVM1607-2-B21-01:hold", QString(), this);
 
 	sampleStagePID_ = new PIDLoopControl("PID - Sample Stage", sampleStagePidX_, sampleStagePidY_, sampleStagePidZ_, this);
-
-	resetPseudoMotors_ = new AMProcessVariable("TS1607-2-B21-01:HNV:loadOffsets.PROC", false, this);
 }
 
 void VESPERSBeamline::setupEndstation()
 {
-	// The controls used for the control window.
-	ccdMotor_ = new CLSVMEMotor("CCD motor", "SMTR1607-2-B21-18", "CCD motor", false, 1.0, 2.0, this);
-	microscopeMotor_ = new CLSVMEMotor("Microscope motor", "SMTR1607-2-B21-17", "Microscope motor", false, 1.0, 2.0, this);
-	fourElMotor_ = new CLSVMEMotor("4-Element Vortex motor", "SMTR1607-2-B21-27", "4-Element Vortex motor", false, 1.0, 2.0, this);
-	singleElMotor_ = new CLSVMEMotor("1-Element Vortex motor", "SMTR1607-2-B21-15", "1-Element Vortex motor", false, 1.0, 2.0, this);
-
-	// Microscope light PV.
-	micLight_ = new AMProcessVariable("07B2_PLC_Mic_Light_Inten", true, this);
-	micLight_->disablePutCallbackMode(true);
-
-	// Laser on/off control.
-	laserPower_ = new AMPVControl("Laser Power Control", "07B2_PLC_LaserDistON", "07B2_PLC_LaserDistON_Tog", QString(), this);
-
-	// Various CCD file path PVs.
-	ccdPath_ = new AMProcessVariable("IOC1607-003:det1:FilePath", true, this);
-	ccdFile_ = new AMProcessVariable("IOC1607-003:det1:FileName", true, this);
-	ccdNumber_ = new AMProcessVariable("IOC1607-003:det1:FileNumber", true, this);
+	endstation_ = new VESPERSEndstation(pseudoSampleStage_->norm(), this);
 }
 
 void VESPERSBeamline::setupDetectors()
@@ -398,25 +370,6 @@ void VESPERSBeamline::setupControlSets()
 	flowTransducerSet_->addControl(fltPoeSsh2_);
 
 	connect(flowTransducerSet_, SIGNAL(connected(bool)), this, SLOT(flowTransducerConnected(bool)));
-
-	// Grouping the enstation motors together.
-	endstationMotorSet_ = new AMControlSet(this);
-	endstationMotorSet_->addControl(ccdMotor_);
-	endstationMotorSet_->addControl(microscopeMotor_);
-	endstationMotorSet_->addControl(fourElMotor_);
-	endstationMotorSet_->addControl(singleElMotor_);
-	endstationMotorSet_->addControl(sampleStageNormal_);
-
-	// Beam attenuation filters.  Only contains the filters of a certain size.  The upper and lower are used independently of these six.
-	filterSet_ = new AMControlSet(this);
-	filterSet_->addControl(filter250umA_);
-	filterSet_->addControl(filter250umB_);
-	filterSet_->addControl(filter100umA_);
-	filterSet_->addControl(filter100umB_);
-	filterSet_->addControl(filter50umA_);
-	filterSet_->addControl(filter50umB_);
-	filterSet_->addControl(filterShutterUpper_);
-	filterSet_->addControl(filterShutterLower_);
 }
 
 void VESPERSBeamline::setupMono()

@@ -57,11 +57,11 @@ signals:
 
 protected slots:
 	/// Saves the configuration in all the new line edits to the configuration file.
-        void saveFile();
+		void saveFile();
 
 protected:
 	/// Loads the configuration file and puts the contents into the line edits.
-        void loadFile();
+		void loadFile();
 
 	QLineEdit *ccdLowLimit_;
 	QLineEdit *ccdHighLimit_;
@@ -87,8 +87,8 @@ class VESPERSEndstationView : public QWidget
 	Q_OBJECT
 
 public:
-	/// Constructor.  Takes the instance of VESPERSEndstation from the beamline and builds a view around it.  Sets up all the connections between the model.
-	VESPERSEndstationView(QWidget *parent = 0);
+	/// Constructor.  Takes an instance of VESPERSEndstation and builds a view around it.
+	VESPERSEndstationView(VESPERSEndstation *endstation, QWidget *parent = 0);
 	/// Destructor.
 	~VESPERSEndstationView();
 
@@ -172,8 +172,6 @@ protected slots:
 	/// Handles the focus distance update.
 	void focusUpdate(double val) { focusButton_->setText(QString::number(val, 'f', 3) + " mm"); }
 
-	/// Sets the filter combo box based on original values at start up and if they are changed outside of the program.
-	void onFiltersChanged(int index) { filterComboBox_->blockSignals(true); filterComboBox_->setCurrentIndex(index); filterComboBox_->blockSignals(false); }
 	/// Starts up a detached process for the microscope screen.  Starts a detached process because the view for the microscope does not depend on the user interface to be active.
 	void startMicroscope() { QProcess::startDetached("/home/vespers/bin/runCameraDisplay"); }
 	/// Starts the IDA software.  This is temporary until the XAS software is replaced.
@@ -204,9 +202,6 @@ protected:
 	QToolButton *fourElButton_;
 	QToolButton *singleElButton_;
 	QToolButton *focusButton_;
-
-	// Filter combo box.
-	QComboBox *filterComboBox_;
 
 	// The endstation model.
 	VESPERSEndstation *endstation_;

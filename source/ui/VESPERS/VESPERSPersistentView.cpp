@@ -120,9 +120,13 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	energyFeedback_->setAlignment(Qt::AlignCenter);
 	connect(VESPERSBeamline::vespers()->mono(), SIGNAL(energyChanged(double)), this, SLOT(onEnergyFeedbackChanged(double)));
 
+	QHBoxLayout *energySetpointLayout = new QHBoxLayout;
+	energySetpointLayout->addWidget(new QLabel("Energy:"));
+	energySetpointLayout->addWidget(energySetpoint_);
+
 	QVBoxLayout *beamSelectionLayout = new QVBoxLayout;
 	beamSelectionLayout->addWidget(beamSelectionLabel);
-	beamSelectionLayout->addWidget(energySetpoint_, 0, Qt::AlignCenter);
+	beamSelectionLayout->addLayout(energySetpointLayout);
 	beamSelectionLayout->addWidget(energyFeedback_, 0, Qt::AlignCenter);
 	beamSelectionLayout->addWidget(beamSelectorView, 0, Qt::AlignCenter);
 
@@ -142,15 +146,38 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	// Endstation shutter control.
 	filterLowerButton_ = new QPushButton("Open Shutter");
 	filterLowerButton_->setCheckable(true);
-	connect(filterLowerButton_, SIGNAL(clicked()), this, SLOT(onLowerFilterUpdate()));
+	connect(filterLowerButton_, SIGNAL(clicked()), this, SLOT(toggleShutterState()));
 
 	filterLabel_ = new QLabel;
 	filterLabel_->setPixmap(QIcon(":/RED.png").pixmap(25));
-	connect(VESPERSBeamline::vespers()->filterShutterLower(), SIGNAL(valueChanged(double)), this, SLOT(onFilterStatusChanged()));
+	connect(VESPERSBeamline::vespers()->endstation(), SIGNAL(shutterChanged(bool)), this, SLOT(onShutterStateChanged(bool)));
+
+	// Setup the filters.
+	filterComboBox_ = new QComboBox;
+	filterComboBox_->addItem("None");
+	filterComboBox_->addItem(QString::fromUtf8("50 μm"));
+	filterComboBox_->addItem(QString::fromUtf8("100 μm"));
+	filterComboBox_->addItem(QString::fromUtf8("150 μm"));
+	filterComboBox_->addItem(QString::fromUtf8("200 μm"));
+	filterComboBox_->addItem(QString::fromUtf8("250 μm"));
+	filterComboBox_->addItem(QString::fromUtf8("300 μm"));
+	filterComboBox_->addItem(QString::fromUtf8("350 μm"));
+	filterComboBox_->addItem(QString::fromUtf8("400 μm"));
+	filterComboBox_->addItem(QString::fromUtf8("450 μm"));
+	filterComboBox_->addItem(QString::fromUtf8("500 μm"));
+	filterComboBox_->addItem(QString::fromUtf8("550 μm"));
+	filterComboBox_->addItem(QString::fromUtf8("600 μm"));
+	filterComboBox_->addItem(QString::fromUtf8("650 μm"));
+	filterComboBox_->addItem(QString::fromUtf8("700 μm"));
+	filterComboBox_->addItem(QString::fromUtf8("750 μm"));
+	filterComboBox_->addItem(QString::fromUtf8("800 μm"));
+	connect(filterComboBox_, SIGNAL(currentIndexChanged(int)), VESPERSBeamline::vespers()->endstation(), SLOT(setFilterThickness(int)));
+	connect(VESPERSBeamline::vespers()->endstation(), SIGNAL(filterThicknessChanged(int)), this, SLOT(onFiltersChanged(int)));
 
 	QFormLayout *filterLayout = new QFormLayout;
 	filterLayout->addRow(filterLabel_, filterLowerButton_);
-	filterLayout->setHorizontalSpacing(20);
+	filterLayout->addRow("Filters:", filterComboBox_);
+	filterLayout->setHorizontalSpacing(10);
 
 	QHBoxLayout *adjustedFilterLayout = new QHBoxLayout;
 	adjustedFilterLayout->addSpacing(25);
@@ -236,9 +263,9 @@ void VESPERSPersistentView::onBeamChanged(VESPERSBeamline::Beam beam)
 	}
 }
 
-void VESPERSPersistentView::onFilterStatusChanged()
+void VESPERSPersistentView::onShutterStateChanged(bool state)
 {
-	if (((int)VESPERSBeamline::vespers()->filterShutterLower()->value()) == 1){
+	if (state){
 
 		filterLabel_->setPixmap(QIcon(":/ON.png").pixmap(25));
 		filterLowerButton_->setText("Close Shutter");
@@ -250,24 +277,9 @@ void VESPERSPersistentView::onFilterStatusChanged()
 	}
 }
 
-void VESPERSPersistentView::onLowerFilterUpdate()
+void VESPERSPersistentView::toggleShutterState()
 {
-	// 0 = OUT.  For this to work properly, the upper shutter is to remain fixed at the out position and the lower shutter changes.  Therefore if upper is IN, put it out.
-	if (((int)VESPERSBeamline::vespers()->filterShutterUpper()->value()) == 1)
-		toggleFilter(VESPERSBeamline::vespers()->filterShutterUpper());
-
-	toggleFilter(VESPERSBeamline::vespers()->filterShutterLower());
-}
-
-void VESPERSPersistentView::toggleFilter(AMControl *filter)
-{
-	AMPVControl *temp = qobject_cast<AMPVControl *>(filter);
-
-	if (!temp)
-		return;
-
-	temp->move(1);
-	temp->move(0);
+	VESPERSBeamline::vespers()->endstation()->setShutterState(!VESPERSBeamline::vespers()->endstation()->shutterState());
 }
 
 void VESPERSPersistentView::onValvesButtonPushed()

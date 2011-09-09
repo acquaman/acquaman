@@ -24,15 +24,17 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QObject>
 #include <QMap>
 
-#include <beamline/AMControl.h>
+#include "beamline/AMControl.h"
 
 class VESPERSEndstation : public QObject
 {
 	Q_OBJECT
 public:
-	/// The constructor.  Builds and encapsulates many of the controls used for the endstation.
-	explicit VESPERSEndstation(QObject *parent = 0);
+	/// The constructor.  Builds and encapsulates many of the controls used for the endstation.  Requires the motor that is part of the sample stage for normal movements.
+	explicit VESPERSEndstation(AMControl *normal, QObject *parent = 0);
 
+	/// Returns the state of the endstation XIA shutter.
+	bool shutterState() const { return (int)filterShutterLower_->value() == 1 ? true : false; }
 	/// Returns a bool on the state of the power of the microscope.  True for powered, false for un-powered.
 	bool laserPowered() { return (int)laserPower_->value() == 1 ? true : false; }
 	/// Returns whether the microscope is in the home position.
@@ -55,6 +57,8 @@ public:
 	QPair<QString, QString> microscopeNames() const { return microscopeNames_; }
 
 signals:
+	/// Notifier that the endstation shutter has changed.  Returns the state.
+	void shutterChanged(bool);
 	/// Notifier that the laser power changed.
 	void laserPoweredChanged();
 	/// Notifier that the filter index has changed.  This directly relates to the thickness of the filters in the same way as setFilterThickness (0 = 0um and 16 = 800 um).
@@ -91,6 +95,12 @@ public slots:
 	bool loadConfiguration();
 	/// Changes the filters placed in the beamline based on \code index.  The valid numbers are 0 - 16; 0 um to 800 um in 50 um intervals.
 	void setFilterThickness(int index);
+	/// Opens/Closes the shutter.
+	void setShutterState(bool state);
+	/// Convenience slot.  Opens the endstation shutter.
+	void openShutter() { setShutterState(true); }
+	/// Convenience slot.  Closes the endstation shutter.
+	void closeShutter() { setShutterState(false); }
 	/// Set the value for the microscope.  Must be between 0 and 100.
 	void setLightIntensity(int intensity) { if (micLightPV_->getInt() != intensity) micLightPV_->setValue(intensity); }
 	/// Sets the CCD file path.
@@ -101,6 +111,8 @@ public slots:
 	void setCCDNumber(int number) { ccdNumber_->setValue(number); }
 
 protected slots:
+	/// Helper slot that emits the right signal based on the current state of filterLower.
+	void onShutterChanged(double val) { emit shutterChanged((int)val == 1 ? true : false); }
 	/// Determines if the filters are all connected.  They shouldn't be accessed until they are all connected.
 	void onFiltersConnected();
 	/// Helper slot that emits a signal with the current index related to the thickness of the filters.
@@ -116,7 +128,7 @@ protected:
 	/// Returns whether the \code control \code value is within tolerance of \code position.
 	bool controlWithinTolerance(AMControl *control, double value, double position) { return fabs(value-position) < control->tolerance() ? true : false; }
 	/// Helper function to properly toggle the filter PVs.  Takes an AMControl *, casts it to an AMPVControl * then toggles them.
-	void toggleControl(AMPVControl *control) { control->move(1); control->move(0); }
+	void toggleControl(AMControl *control) { control->move(1); control->move(0); }
 	/// Converts the bizarre string output of the pv to a real QString.
 	QString AMPVtoString(AMProcessVariable *pv);
 	/// Converts the string to the array of integers it needs to be.
@@ -156,17 +168,17 @@ protected:
 	AMProcessVariable *resetPseudoMotors_;
 
 	// Filter process variables.
-	AMProcessVariable *filter250umA_;
-	AMProcessVariable *filter250umB_;
-	AMProcessVariable *filter100umA_;
-	AMProcessVariable *filter100umB_;
-	AMProcessVariable *filter50umA_;
-	AMProcessVariable *filter50umB_;
-	AMProcessVariable *filterShutterUpper_;
-	AMProcessVariable *filterShutterLower_;
+	AMControl *filter250umA_;
+	AMControl *filter250umB_;
+	AMControl *filter100umA_;
+	AMControl *filter100umB_;
+	AMControl *filter50umA_;
+	AMControl *filter50umB_;
+	AMControl *filterShutterUpper_;
+	AMControl *filterShutterLower_;
 
 	// A list of all the filters, but not the upper or lower shutters.
-	QMap<QString, AMPVControl *> filterMap_;
+	QMap<QString, AMControl *> filterMap_;
 };
 
 #endif // VESPERSENDSTATION_H

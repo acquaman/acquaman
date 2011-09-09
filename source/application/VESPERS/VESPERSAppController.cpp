@@ -111,7 +111,7 @@ bool VESPERSAppController::startup() {
 		scanControllerActiveEditor_ = 0;
 
 		// Setup the general endstation control view.
-		VESPERSEndstationView *endstationView = new VESPERSEndstationView;
+		VESPERSEndstationView *endstationView = new VESPERSEndstationView(VESPERSBeamline::vespers()->endstation());
 		VESPERSBeamlineView *beamlineView = new VESPERSBeamlineView;
 		VESPERSDeviceStatusView *statusPage = new VESPERSDeviceStatusView;
 

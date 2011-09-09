@@ -19,50 +19,65 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "VESPERSEndstation.h"
-#include "beamline/VESPERS/VESPERSBeamline.h"
+#include "beamline/CLS/CLSVMEMotor.h"
 
 #include <QMessageBox>
 #include <QDir>
 #include <QFile>
 #include <QTextStream>
 
-VESPERSEndstation::VESPERSEndstation(QObject *parent)
+VESPERSEndstation::VESPERSEndstation(AMControl *normal, QObject *parent)
 	: QObject(parent)
 {
 	current_ = 0;
 	wasConnected_ = false;
 
-	// The controls.
-	ccdControl_ = VESPERSBeamline::vespers()->ccdMotor();
-	microscopeControl_ = VESPERSBeamline::vespers()->microscopeMotor();
-	fourElControl_ = VESPERSBeamline::vespers()->fourElMotor();
-	singleElControl_ = VESPERSBeamline::vespers()->singleElMotor();
-	focusControl_ = VESPERSBeamline::vespers()->pseudoSampleStage()->norm();
+	// The controls used for the control window.
+	ccdControl_ = new CLSVMEMotor("CCD motor", "SMTR1607-2-B21-18", "CCD motor", false, 1.0, 2.0, this);
+	microscopeControl_ = new CLSVMEMotor("Microscope motor", "SMTR1607-2-B21-17", "Microscope motor", false, 1.0, 2.0, this);
+	fourElControl_ = new CLSVMEMotor("4-Element Vortex motor", "SMTR1607-2-B21-27", "4-Element Vortex motor", false, 1.0, 2.0, this);
+	singleElControl_ = new CLSVMEMotor("1-Element Vortex motor", "SMTR1607-2-B21-15", "1-Element Vortex motor", false, 1.0, 2.0, this);
 
-	// Laser power control.
-	laserPower_ = qobject_cast<AMPVControl *>(VESPERSBeamline::vespers()->laserPower());
+	focusControl_ = normal;
 
-	// The microscope light and CCD file path PVs.
-	micLightPV_ = VESPERSBeamline::vespers()->micLight();
-	ccdPath_ = VESPERSBeamline::vespers()->ccdPath();
-	ccdFile_ = VESPERSBeamline::vespers()->ccdFile();
-	ccdNumber_ = VESPERSBeamline::vespers()->ccdNumber();
+	// Microscope light PV.
+	micLightPV_ = new AMProcessVariable("07B2_PLC_Mic_Light_Inten", true, this);
+	micLightPV_->disablePutCallbackMode(true);
+
+	// Laser on/off control.
+	laserPower_ = new AMPVControl("Laser Power Control", "07B2_PLC_LaserDistON", "07B2_PLC_LaserDistON_Tog", QString(), this);
+
+	// Various CCD file path PVs.
+	ccdPath_ = new AMProcessVariable("IOC1607-003:det1:FilePath", true, this);
+	ccdFile_ = new AMProcessVariable("IOC1607-003:det1:FileName", true, this);
+	ccdNumber_ = new AMProcessVariable("IOC1607-003:det1:FileNumber", true, this);
 
 	// Pseudo-motor reset button.
-	resetPseudoMotors_ = VESPERSBeamline::vespers()->resetPseudoMotors();
+	resetPseudoMotors_ = new AMProcessVariable("TS1607-2-B21-01:HNV:loadOffsets.PROC", false, this);
+
+	// The beam attenuation filters.
+	filter250umA_ = new AMPVControl("Filter 250um A", "07B2_PLC_PFIL_01_F1_Ctrl", "07B2_PLC_PFIL_01_F1_Toggle", QString(), this);
+	filter250umB_ = new AMPVControl("Filter 250um B", "07B2_PLC_PFIL_01_F2_Ctrl", "07B2_PLC_PFIL_01_F2_Toggle", QString(), this);
+	filter100umA_ = new AMPVControl("Filter 100um A", "07B2_PLC_PFIL_02_F3_Ctrl", "07B2_PLC_PFIL_02_F3_Toggle", QString(), this);
+	filter100umB_ = new AMPVControl("Filter 100um B", "07B2_PLC_PFIL_02_F4_Ctrl", "07B2_PLC_PFIL_02_F4_Toggle", QString(), this);
+	filter50umA_ = new AMPVControl("Filter 50um A", "07B2_PLC_PFIL_02_F1_Ctrl", "07B2_PLC_PFIL_02_F1_Toggle", QString(), this);
+	filter50umB_ = new AMPVControl("Filter 50um B", "07B2_PLC_PFIL_02_F2_Ctrl", "07B2_PLC_PFIL_02_F2_Toggle", QString(), this);
+	filterShutterUpper_ = new AMPVControl("Filter Shutter Upper", "07B2_PLC_PFIL_01_F3_Ctrl", "07B2_PLC_PFIL_01_F3_Toggle", QString(), this);
+	filterShutterLower_ = new AMPVControl("Filter Shutter Lower", "07B2_PLC_PFIL_01_F4_Ctrl", "07B2_PLC_PFIL_01_F4_Toggle", QString(), this);
 
 	// Setup filters.
-	filterMap_.insert("50A", qobject_cast<AMPVControl *>(VESPERSBeamline::vespers()->filter50umA()));
-	filterMap_.insert("50B", qobject_cast<AMPVControl *>(VESPERSBeamline::vespers()->filter50umB()));
-	filterMap_.insert("100A", qobject_cast<AMPVControl *>(VESPERSBeamline::vespers()->filter100umA()));
-	filterMap_.insert("100B", qobject_cast<AMPVControl *>(VESPERSBeamline::vespers()->filter100umB()));
-	filterMap_.insert("250A", qobject_cast<AMPVControl *>(VESPERSBeamline::vespers()->filter250umA()));
-	filterMap_.insert("250B", qobject_cast<AMPVControl *>(VESPERSBeamline::vespers()->filter250umB()));
+	filterMap_.insert("50A", filter50umA_);
+	filterMap_.insert("50B", filter50umB_);
+	filterMap_.insert("100A", filter100umA_);
+	filterMap_.insert("100B", filter100umB_);
+	filterMap_.insert("250A", filter250umA_);
+	filterMap_.insert("250B", filter250umB_);
 
 	// Get the current soft limits.
 	loadConfiguration();
 
 	// Connections.
+	connect(filterShutterLower_, SIGNAL(valueChanged(double)), this, SLOT(onShutterChanged(double)));
 	connect(laserPower_, SIGNAL(valueChanged(double)), this, SIGNAL(laserPoweredChanged()));
 	connect(micLightPV_, SIGNAL(valueChanged(int)), this, SIGNAL(lightIntensityChanged(int)));
 	connect(ccdControl_, SIGNAL(valueChanged(double)), this, SIGNAL(ccdFbkChanged(double)));
@@ -74,7 +89,7 @@ VESPERSEndstation::VESPERSEndstation(QObject *parent)
 	connect(ccdFile_, SIGNAL(valueChanged()), this, SLOT(onCCDNameChanged()));
 	connect(ccdNumber_, SIGNAL(valueChanged(int)), this, SIGNAL(ccdNumberChanged(int)));
 
-	QList<AMPVControl *> list(filterMap_.values());
+	QList<AMControl *> list(filterMap_.values());
 	for (int i = 0; i < list.size(); i++)
 		connect(list.at(i), SIGNAL(connected(bool)), this, SLOT(onFiltersConnected()));
 }
@@ -152,7 +167,7 @@ void VESPERSEndstation::updateControl(AMControl *control)
 void VESPERSEndstation::onFiltersConnected()
 {
 	bool connected = true;
-	QList<AMPVControl *> filters(filterMap_.values());
+	QList<AMControl *> filters(filterMap_.values());
 
 	for (int i = 0; i < filters.size(); i++)
 		connected = connected && filters.at(i)->isConnected();
@@ -191,7 +206,7 @@ void VESPERSEndstation::onFiltersChanged()
 
 void VESPERSEndstation::setFilterThickness(int index)
 {
-	QList<AMPVControl *> filters(filterMap_.values());
+	QList<AMControl *> filters(filterMap_.values());
 
 	// Put all the filters back to an original state.  The -2 is to exclude the upper and lower shutters.
 	for (int i = 0; i < filters.size(); i++)
@@ -278,6 +293,19 @@ void VESPERSEndstation::setFilterThickness(int index)
 		toggleControl(filterMap_.value("50B"));
 		break;
 	}
+}
+
+void VESPERSEndstation::setShutterState(bool state)
+{
+	// Don't do anything if the shutter is already in the right state.
+	if (shutterState() == state)
+		return;
+
+	// 0 = OUT.  For this to work properly, the upper shutter is to remain fixed at the out position and the lower shutter changes.  Therefore if upper is IN, put it out.
+	if ((int)filterShutterUpper_->value() == 1)
+		toggleControl(filterShutterUpper_);
+
+	toggleControl(filterShutterLower_);
 }
 
 QString VESPERSEndstation::AMPVtoString(AMProcessVariable *pv)

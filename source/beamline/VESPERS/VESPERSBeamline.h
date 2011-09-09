@@ -34,6 +34,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/VESPERS/VESPERSIntermediateSlits.h"
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
 #include "beamline/AMBeamlineActionItem.h"
+#include "beamline/VESPERS/VESPERSEndstation.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -117,6 +118,12 @@ public:
 	CLSSynchronizedDwellTime *synchronizedDwellTime() const { return synchronizedDwellTime_; }
 
 	// End of synchronized dwell time.
+
+	// The endstation.
+	/// Returns the endstation model.
+	VESPERSEndstation *endstation() const { return endstation_; }
+
+	// End of endstation.
 
 	// Beam selection motor.
 	/// Returns the control for the beam selection motor.
@@ -342,35 +349,6 @@ public:
 	/// Returns the water flow transducer control for the POE SSH2.
 	AMControl *fltPoeSsh2() const { return fltPoeSsh2_; }
 
-	// Attenuation filters
-	/// Returns the first 250 um filter. Note that if you wish to toggle the filters you must move(1) then move(0).  You must make two moves for one action.
-	AMControl *filter250umA() const { return filter250umA_; }
-	/// Returns the second 250 um filter. Note that if you wish to toggle the filters you must move(1) then move(0).  You must make two moves for one action.
-	AMControl *filter250umB() const { return filter250umB_; }
-	/// Returns the first 100 um filter. Note that if you wish to toggle the filters you must move(1) then move(0).  You must make two moves for one action.
-	AMControl *filter100umA() const { return filter100umA_; }
-	/// Returns the second 100 um filter. Note that if you wish to toggle the filters you must move(1) then move(0).  You must make two moves for one action.
-	AMControl *filter100umB() const { return filter100umB_; }
-	/// Returns the first 50 um filter. Note that if you wish to toggle the filters you must move(1) then move(0).  You must make two moves for one action.
-	AMControl *filter50umA() const { return filter50umA_; }
-	/// Returns the second 50 um filter. Note that if you wish to toggle the filters you must move(1) then move(0).  You must make two moves for one action.
-	AMControl *filter50umB() const { return filter50umB_; }
-	/// Returns the upper shutter filter. Note that if you wish to toggle the filters you must move(1) then move(0).  You must make two moves for one action.
-	AMControl *filterShutterUpper() const { return filterShutterUpper_; }
-	/// Returns the lower shutter filter. Note that if you wish to toggle the filters you must move(1) then move(0).  You must make two moves for one action.
-	AMControl *filterShutterLower() const { return filterShutterLower_; }
-
-	// Endstation controls.
-
-	/// Returns the CCD motor control.
-	AMControl *ccdMotor() const { return ccdMotor_; }
-	/// Returns the microscope motor contorl.
-	AMControl *microscopeMotor() const { return microscopeMotor_; }
-	/// Returns the four element detector motor control.
-	AMControl *fourElMotor() const { return fourElMotor_; }
-	/// Returns the single element detector motor control.
-	AMControl *singleElMotor() const { return singleElMotor_; }
-
 	// Sample stage motor controls.
 
 	// Psedomotors.
@@ -418,27 +396,8 @@ public:
 	AMControlSet *flowSwitchSet() const { return flowSwitchSet_; }
 	/// Returns the water flow transducer control set.
 	AMControlSet *flowTransducerSet() const { return flowTransducerSet_; }
-	/// Returns the endstation motor control set.
-	AMControlSet *endstationMotorSet() const { return endstationMotorSet_; }
 	/// Returns the sample stage motor control set.
 	AMControlSet *sampleStageMotorSet() const { return sampleStageMotorSet_; }
-	/// Returns the filter control set.
-	AMControlSet *filterSet() const { return filterSet_; }
-
-	// These are PVs that are needed for random small jobs around the beamline.
-
-	/// Returns the process variable for the microscope light.
-	AMProcessVariable *micLight() const { return micLight_; }
-	/// Returns the laser on/off control.
-	AMControl *laserPower() const { return laserPower_; }
-	/// Returns the process variable for the CCD file path.  Needs special write function to get the info in or out.  See VESPERSEndstationView for example.
-	AMProcessVariable *ccdPath() const { return ccdPath_; }
-	/// Returns the process variable for the CCD file name.  Needs special write function to get the info in or out.  See VESPERSEndstationView for example.
-	AMProcessVariable *ccdFile() const { return ccdFile_; }
-	/// Returns the process variable for the CCD file number.
-	AMProcessVariable *ccdNumber() const { return ccdNumber_; }
-	/// Returns the process variable for the Pseudo-motor reset.
-	AMProcessVariable *resetPseudoMotors() const { return resetPseudoMotors_; }
 
 	// This is where the controls and PVs for mono settings exits.
 	AMControl *energyRelative() const { return energyRelative_; }
@@ -632,22 +591,17 @@ protected:
 	// Ion chamber calibration.
 	VESPERSIonChamberCalibration *ionChamberCalibration_;
 
-	// End of Ion chamber calibration.
-
 	// VESPERS monochromator.
 	VESPERSMonochromator *mono_;
-
-	// End of VESPERS monochromator
 
 	// Intermediate slits.
 	VESPERSIntermediateSlits *intermediateSlits_;
 
-	// End of intermediate slits.
-
 	// Synchronized Dwell time
 	CLSSynchronizedDwellTime *synchronizedDwellTime_;
 
-	// End of synchronized dwell time.
+	// Endstation
+	VESPERSEndstation *endstation_;
 
 	// Beam selection members.
 	// The current beam in use by the beamline.
@@ -784,19 +738,7 @@ protected:
 	AMControlSet *temperatureSet_;
 	AMControlSet *flowSwitchSet_;
 	AMControlSet *flowTransducerSet_;
-	AMControlSet *endstationMotorSet_;
 	AMControlSet *sampleStageMotorSet_;
-	AMControlSet *filterSet_;
-
-	// Beam attenuation filters.
-	AMControl *filter250umA_;
-	AMControl *filter250umB_;
-	AMControl *filter100umA_;
-	AMControl *filter100umB_;
-	AMControl *filter50umA_;
-	AMControl *filter50umB_;
-	AMControl *filterShutterUpper_;
-	AMControl *filterShutterLower_;
 
 	// End General Controls.
 
@@ -807,29 +749,6 @@ protected:
 	AMControl *iPostControl_;
 
 	// End ion chamber controls.
-
-	// Endstation controls
-	// The controls used for the control window.
-	AMControl *ccdMotor_;
-	AMControl *microscopeMotor_;
-	AMControl *fourElMotor_;
-	AMControl *singleElMotor_;
-
-	// Microscope light PV.
-	AMProcessVariable *micLight_;
-
-	// Laser on/off PV.
-	AMControl *laserPower_;
-
-	// Various CCD file path PVs.
-	AMProcessVariable *ccdPath_;
-	AMProcessVariable *ccdFile_;
-	AMProcessVariable *ccdNumber_;
-
-	// Pseudo-motor reset PV.
-	AMProcessVariable *resetPseudoMotors_;
-
-	// End Endstation controls.
 
 	// Sample stage controls.
 	// CLS pseudo-motors.
